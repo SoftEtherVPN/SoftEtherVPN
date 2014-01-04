@@ -1,0 +1,30 @@
+﻿# SoftEther VPN Client Web Installer Configuration File
+# (The sample file for VPN Client Web Installer)
+# 
+# Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+# All Rights Reserved.
+# 
+# Modify the contents of this file to deploy a Web Installer.
+# 
+# Note: Encoding format must be UTF-8.
+# 
+# Lines start with "#" are comments.
+
+
+# vpninstall.exe Build Number
+# (Retrieve the build number which is four-digit number.
+#  You can see it in vpninstall.exe property screen by Windows Explorer.)
+VpnInstallBuild				$VER_BUILD$
+VpnClientBuild				$VER_BUILD$
+
+
+# VPN Client Package File for Windows URL
+# You must specify the URL (HTTP, HTTPS or FTP). Local filename is not allowed.
+VpnClientPath				http://example.com/any_folder/$PACKAGE_FILENAME$
+
+
+# Specify "true" to use the Normal Mode, otherwise "Easy Mode" as the initial mode
+# of VPN Client Manager.
+NormalMode					$NORMAL_MODE$
+
+

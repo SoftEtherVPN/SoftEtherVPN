@@ -1,0 +1,51 @@
+#include "olectl.h"
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(BEAC96A9-05ED-46B3-975C-4462E83878F5),
+	dual,
+	nonextensible,
+	helpstring("IVpnWebControl Interface"),
+	pointer_default(unique)
+]
+interface IVpnWebControl : IDispatch{
+	[propget, id(1), helpstring("InstallerExeUrl Property")] HRESULT InstallerExeUrl([out, retval] BSTR* pVal);
+	[propput, id(1), helpstring("InstallerExeUrl Property")] HRESULT InstallerExeUrl([in] BSTR newVal);
+	[propget, id(2), helpstring("InstallerInfUrl Property")] HRESULT InstallerInfUrl([out, retval] BSTR* pVal);
+	[propput, id(2), helpstring("InstallerInfUrl Property")] HRESULT InstallerInfUrl([in] BSTR newVal);
+	[propget, id(3), helpstring("SettingUrl Property")] HRESULT SettingUrl([out, retval] BSTR* pVal);
+	[propput, id(3), helpstring("SettingUrl Property")] HRESULT SettingUrl([in] BSTR newVal);
+	[propget, id(4), helpstring("VpnServerManagerMode Property")] HRESULT VpnServerManagerMode([out, retval] BSTR* pVal);
+	[propput, id(4), helpstring("VpnServerManagerMode Property")] HRESULT VpnServerManagerMode([in] BSTR newVal);
+	[propget, id(5), helpstring("VpnServerHostname Property")] HRESULT VpnServerHostname([out, retval] BSTR* pVal);
+	[propput, id(5), helpstring("VpnServerHostname Property")] HRESULT VpnServerHostname([in] BSTR newVal);
+	[propget, id(6), helpstring("VpnServerHubName Property")] HRESULT VpnServerHubName([out, retval] BSTR* pVal);
+	[propput, id(6), helpstring("VpnServerHubName Property")] HRESULT VpnServerHubName([in] BSTR newVal);
+	[propget, id(7), helpstring("VpnServerPassword Property")] HRESULT VpnServerPassword([out, retval] BSTR* pVal);
+	[propput, id(7), helpstring("VpnServerPassword Property")] HRESULT VpnServerPassword([in] BSTR newVal);
+	[propget, id(8), helpstring("Language Property")] HRESULT LanguageID([out, retval] BSTR* pVal);
+	[propput, id(8), helpstring("Language Property")] HRESULT LanguageID([in] BSTR newVal);
+};
+
+[
+	uuid(D8FDDBA5-B33F-4B0A-8162-A771ECD32B04),
+	version(1.0),
+	helpstring("VPN Client Web Installer Version Library")
+]
+library vpnwebLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(64F1A16B-C3EE-484C-B551-35338A9BB6D2),
+		control,
+		helpstring("VPN Client Web Installer")
+	]
+	coclass VpnWebControl
+	{
+		[default] interface IVpnWebControl;
+	};
+
+
+};

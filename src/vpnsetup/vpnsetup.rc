@@ -1,0 +1,174 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_SETUP_MAIN          ICON                    "vpnsetup.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    10001, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 254
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+10001 DIALOGEX 0, 0, 261, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION
+CAPTION "SoftEther Installer"
+FONT 9, "MS PGothic", 400, 0, 0x80
+BEGIN
+    ICON            IDI_ICON10,IDC_STATIC,7,7,20,20,WS_TABSTOP
+    LTEXT           "インストールの準備中...",IDC_STATIC,30,7,189,20
+    DEFPUSHBUTTON   "キャンセル",IDCANCEL,195,52,59,16
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_SETUP_INTERNET      ICON                    "..\\PenCore\\Internet.ico"
+IDI_SETUP_PROTOCOL      ICON                    "..\\PenCore\\Protocol.ico"
+IDI_SETUP_SWITCH        ICON                    "..\\PenCore\\Switch.ico"
+IDI_SETUP_MACHINE       ICON                    "..\\PenCore\\Machine.ico"
+IDI_ICON4               ICON                    "..\\PenCore\\VPNSvr.ico"
+IDI_ICON5               ICON                    "..\\PenCore\\VPN.ico"
+IDI_ICON6               ICON                    "..\\PenCore\\Cascade.ico"
+IDI_ICON7               ICON                    "..\\PenCore\\UserAdmin.ico"
+IDI_ICON8               ICON                    "..\\PenCore\\Internet.ico"
+IDI_ICON9               ICON                    "..\\PenCore\\Language.ico"
+IDI_ICON10              ICON                    "Installer.ico"
+IDI_ICON11              ICON                    "..\\PenCore\\EasyInstaller.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    10002, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 254
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+10002 DIALOGEX 0, 0, 261, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION
+CAPTION "SoftEther Installer"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    ICON            IDI_ICON10,IDC_STATIC,7,7,20,20,WS_TABSTOP
+    LTEXT           "Preparing to install...",IDC_STATIC,33,7,189,20
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,195,54,59,14
+END
+
+#endif    // English resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

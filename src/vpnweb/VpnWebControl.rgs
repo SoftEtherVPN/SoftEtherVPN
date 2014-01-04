@@ -1,0 +1,34 @@
+HKCR
+{
+	vpnweb.VpnWebControl.1 = s 'VpnWebControl Class'
+	{
+		CLSID = s '{64F1A16B-C3EE-484C-B551-35338A9BB6D2}'
+	}
+	vpnweb.VpnWebControl = s 'VpnWebControl Class'
+	{
+		CLSID = s '{64F1A16B-C3EE-484C-B551-35338A9BB6D2}'
+		CurVer = s 'vpnweb.VpnWebControl.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {64F1A16B-C3EE-484C-B551-35338A9BB6D2} = s 'VpnWebControl Class'
+		{
+			ProgID = s 'vpnweb.VpnWebControl.1'
+			VersionIndependentProgID = s 'vpnweb.VpnWebControl'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			ForceRemove 'Control'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 102'
+			'MiscStatus' = s '0'
+			{
+			    '1' = s '%OLEMISC%'
+			}
+			'TypeLib' = s '{D8FDDBA5-B33F-4B0A-8162-A771ECD32B04}'
+			'Version' = s '1.0'
+		}
+	}
+}

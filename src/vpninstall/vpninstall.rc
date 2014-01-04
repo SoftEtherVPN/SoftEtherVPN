@@ -1,0 +1,221 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MAIN                ICON                    "vpninstall.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+D_INSTALL DIALOGEX 0, 0, 311, 123
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "VPN クライアントソフトウェア"
+FONT 9, "MS UI Gothic", 400, 0, 0x80
+BEGIN
+    ICON            IDI_MAIN,IDC_STATIC,7,7,20,20
+    LTEXT           "VPN クライアントソフトウェア",S_TITLE,33,7,259,19,WS_TABSTOP
+    CONTROL         "",P_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,7,55,297,14
+    LTEXT           "初期化中...",S_STATUS,7,34,297,19
+    PUSHBUTTON      "キャンセル(&C)",IDCANCEL,127,100,59,16
+    RTEXT           "",S_SIZEINFO,165,74,139,12
+END
+
+D_EULA DIALOGEX 0, 0, 218, 216
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VPN クライアントソフトウェア"
+FONT 9, "MS UI Gothic", 400, 0, 0x80
+BEGIN
+    LTEXT           "次の使用許諾契約書をお読みください。PageDown キーを使ってスクロールしてください。",S_EULA_NOTICE1,7,7,204,19
+    EDITTEXT        E_EULA,7,27,204,115,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_VSCROLL
+    LTEXT           "使用許諾契約書に同意されますか?",S_BOLD,7,146,204,18
+    LTEXT           "[同意しません] をクリックするとインストールを中止します。インストールするには、この契約に同意してください。",S_EULA_NOTICE3,7,165,204,26
+    DEFPUSHBUTTON   "同意します(&A)",IDOK,95,192,56,17
+    PUSHBUTTON      "同意しません(&D)",IDCANCEL,155,192,56,17
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    D_INSTALL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 116
+    END
+
+    D_EULA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 209
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_TITLE               "VPN クライアント Web インストーラ"
+    IDS_FONT                "MS UI Gothic"
+    IDS_FONT_SIZE           "9"
+    IDS_INF_LOAD_FAILED     "初期化ファイル '%S' の読み込みに失敗しました。\r\nファイルが見つからないか、内容が正しくない可能性があります。"
+    IDS_DIFF_CPU            "このシステムにすでに別の CPU アーキテクチャ用の VPN クライアントソフトウェアがインストールされています。\r\nコントロールパネルの [プログラムの追加と削除] を使用して、インストールされている別のバージョンの VPN クライアントソフトウェアをアンインストールしてください。"
+    IDS_INSTANCE_EXISTS     "すでに別の簡易インストーラが起動しています。"
+    IDS_BAD_OS              "簡易インストーラは Windows 2000 以降の OS で動作します。\r\nそれ以外のオペレーティングシステムに VPN クライアントソフトウェアをインストールする場合は、手動でインストーラプログラムを起動してインストールを実行してください。"
+    IDS_CPU_NOT_SUPPORTED   "現在のシステムの CPU アーキテクチャに対応した VPN クライアントソフトウェアは、VPN クライアント簡易インストーラではサポートされていません。\r\n手動でインストールする必要があります。"
+    IDS_DOWNLOADING         "(%.2f MB 中 %.2f MB 完了)"
+    IDS_DOWNLOADSTART       "ファイル '%S' のダウンロードを開始しています..."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_TEMP_ERROR          "一時ファイル '%s' の作成に失敗しました。"
+    IDS_DOWNLOAD_ERROR      "ファイル '%S' のダウンロードに失敗しました。"
+    IDS_DOWNLOADING2        "(%.2f MB 完了)"
+    IDS_DOWNLOADING3        "ファイル '%S' をダウンロードしています。しばらくお待ちください..."
+    IDS_INSTALLSTART        "画面に表示された VPN Client インストーラの指示に従ってインストールを完了してください。"
+    IDS_INSTALLSTART_ERROR  "インストールの開始に失敗しました。"
+    IDS_SECURITY_ERROR      "セキュリティを保護するため、Web 経由のインストール時はローカルファイルをインストール元ファイルとして指定することはできません。\r\ninf ファイルの内容や指定したパスなどを確認してください。\r\n\r\nインストーラを終了します。"
+    IDS_SIGN_WARNING        "インターネットから自動でダウンロードされたファイル '%s' は、信頼できる発行元によって電子署名されていませんでした。\r\n現在このメッセージを表示しているプログラムの開発元および配布元は、インターネットから自動でダウンロードされたファイル '%s' が安全であるかどうかを保証できず、仮にセキュリティ上危険なコードが含まれていた場合でも責任を負いません。\r\n\r\nこのファイルを実行することはセキュリティ上推奨されません。このファイルを信頼することができるかどうか慎重に判断してください。\r\n\r\nユーザーの判断と責任により [OK] をクリックすると、インストール処理を続行します。[キャンセル] をクリックすると、インストール処理を中断します。\r\n\r\n※ このメッセージは、ファイル '%s' を有効なコード署名用証明書によって署名することにより表示されなくなります。"
+    IDS_SIGN_WARNING_TITLE  "セキュリティに関する警告"
+    IDS_TITLE_VPNSMGR       "VPN サーバー管理マネージャ簡易インストーラ"
+    IDS_VPNSMGR_EXEC_ERROR  "VPN サーバー管理マネージャの起動に失敗しました。\r\n手動で VPN サーバー管理マネージャをインストールし実行してみてください。"
+    IDS_DLG_TITLE           "VPN クライアントソフトウェア"
+    IDS_INSTALL_DLG__STATUS_INIT "初期化中"
+    IDS_INSTALL_CANCEL      "キャンセル"
+    IDS_EULA_NOTICE1        "次の使用許諾契約書をお読みください。PageDown キーを使ってスクロールしてください。"
+    IDS_EULA_NOTICE2        "使用許諾契約書に同意されますか?"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_EULA_NOTICE3        "[同意しません] をクリックするとインストールを中止します。インストールするには、この契約に同意してください。"
+    IDS_EULA_AGREE          "同意します"
+    IDS_EULA_DISAGREE       "同意しません"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_TITLE_EN            "VPN Client Web Installer"
+    IDS_FONT_EN             "Arial"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_FONT_SIZE_EN        "8"
+    IDS_INF_LOAD_FAILED_EN  "Failed to load initial configuration file '%S'.\r\nThe cause may be that threre are not the file or the description is invalid."
+    IDS_DIFF_CPU_EN         "There already is VPN Client software for another CPU architecture installed on this system.\r\nUninstall that VPN Client software with [Add or Remove Programs] in Control Panel."
+    IDS_INSTANCE_EXISTS_EN  "Another easy installer is already running."
+    IDS_BAD_OS_EN           "The easy installer runs on Windows 2000 or greater.\r\nTo install VPN Client software for other operating systems, please install the software manually from a file. "
+    IDS_CPU_NOT_SUPPORTED_EN 
+                            "The VPN Client Easy Installer is not supported for this CPU architecture on this system.\r\nPlease install VPN Client software manually from an installation file. "
+    IDS_DOWNLOADING_EN      "(Total:%.2f MB - Downloaded:%.2f MB)"
+    IDS_DOWNLOADSTART_EN    "Starting download file '%S'..."
+    IDS_TEMP_ERROR_EN       "Failed to create temporary file '%s'."
+    IDS_DOWNLOAD_ERROR_EN   "Failed to download file '%S'."
+    IDS_DOWNLOADING2_EN     "(Downloaded: %.2f)"
+    IDS_DOWNLOADING3_EN     "Downloading file '%S'. Please wait."
+    IDS_INSTALLSTART_EN     "Complete the VPN Client Installer displayed on the screen."
+    IDS_INSTALLSTART_ERROR_EN "Failed to start installation."
+    IDS_SECURITY_ERROR_EN   "For security reasons, a local file cannot be used as the installation soruce during Web-based installation.\r\nConfirm the inf file of context and check the path specified in the inf file. \r\nInstallaion process aborted."
+    IDS_SIGN_WARNING_EN     "The automatically downloaded file '%s' from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file '%s' is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappered when the file '%s' is signed by valid code signing certificate authentication."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_SIGN_WARNING_TITLE_EN "Security Alert"
+    IDS_TITLE_VPNSMGR_EN    "VPN Server Manager Easy Installer"
+    IDS_VPNSMGR_EXEC_ERROR_EN 
+                            "Failed to start VPN Server Manager.\r\nTry installing VPN Server Manager manually."
+    IDS_DLG_TITLE_EN        "VPN Client Software"
+    IDS_INSTALL_DLG__STATUS_INIT_EN "Initializing..."
+    IDS_INSTALL_CANCEL_EN   "Cancel"
+    IDS_EULA_NOTICE1_EN     "Please read the following license agreement. Press the PAGE DOWN key to see the rest of the agreement."
+    IDS_EULA_NOTICE2_EN     "Do you accept all of the terms of the preceding License Agreement?"
+    IDS_EULA_NOTICE3_EN     "If you choose No, the installation will abort. To install you must accept this agreement."
+    IDS_EULA_AGREE_EN       "Agree"
+    IDS_EULA_DISAGREE_EN    "Disagree"
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

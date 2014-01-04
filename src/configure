@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo 'Move to the parent directory and run ./configure script as following:'
+echo
+echo '$ cd ..'
+echo '$ ./configure'
+echo
+echo 'Good luck!'
+echo
+

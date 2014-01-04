@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BuildUtil.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="BuildUtil_SignService_Sign" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://dv/Sign/Sign.asmx</Value>
+    </Setting>
+    <Setting Name="BuildUtilTmp_HvSignService_Sign" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://hvsigncode/Sign.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

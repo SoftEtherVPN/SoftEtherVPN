@@ -1,0 +1,18 @@
+; VPN Client Web Installer Inf File
+;
+; Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+; All Rights Reserved.
+
+[version]
+signature="$CHICAGO$"
+AdvancedINF=2.0
+
+[Add.Code]
+vpnweb.ocx=vpnweb.ocx
+
+[vpnweb.ocx]
+file-win32-x86=thiscab
+clsid={64F1A16B-C3EE-484C-B551-35338A9BB6D2}
+FileVersion=$CAB_VERSION$
+RegisterServer=yes
+

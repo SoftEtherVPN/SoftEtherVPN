@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'vpnweb'
+		'vpnweb.ocx'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

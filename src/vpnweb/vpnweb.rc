@@ -1,0 +1,188 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "1 TYPELIB ""vpnweb.tlb""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_VPNWEB              REGISTRY                "vpnweb.rgs"
+IDR_VPNWEBCONTROL       REGISTRY                "VpnWebControl.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_VPNWEBCONTROL       BITMAP                  "VpnWebControl.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_VPNWEBDLG DIALOGEX 0, 0, 240, 84
+STYLE DS_SETFONT | WS_CHILD
+FONT 11, "Segoe UI", 400, 0, 0x0
+BEGIN
+    ICON            IDI_VPN,S_ICON_VPN,2,4,16,13
+    LTEXT           "お待ちください...",S_INFO,26,4,209,59
+    CONTROL         "",P_PROGRESS,"msctls_progress32",WS_BORDER,2,66,233,12
+    LTEXT           "[VPN 接続の開始] ボタンをクリックすると、VPN 接続を開始します。",S_INFO2,26,4,209,46
+    DEFPUSHBUTTON   "VPN 接続の開始",B_START,68,51,107,23
+    ICON            IDI_SERVER,S_ICON_SERVER,2,4,16,13
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_VPNWEBDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 2
+        TOPMARGIN, 3
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_VPN                 ICON                    "VPN.ico"
+IDI_SERVER              ICON                    "VPNSvr.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_PROJNAME            "vpnweb"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MESSAGE_APPTITLE    "VPN ソフトウェア Web インストーラ"
+    IDS_STRING10002         "VPN ソフトウェア Web インストーラは、このオペレーティングシステムをサポートしていません。Web インストーラは Windows 2000 / XP / Server 2003 / Vista / Server 2008 / 7 / Server 2008 R2 に対応しています。手動で VPN ソフトウェアをインストールしてください。"
+    IDS_STRING10003         "VPN ソフトウェアの情報を確認しています..."
+    IDS_STRING10004         "ファイル %S のダウンロードに失敗しました。\r\nVPN ソフトウェアのインストールを中止します。"
+    IDS_STRING10005         "ファイル %S の内容が正しくありません。\r\nVPN ソフトウェアのインストールを中止します。"
+    IDS_STRING10006         "一時ファイル %s を作成できませんでした。"
+    IDS_STRING10007         "必要なデータの取得と VPN ソフトウェアのインストール中...\r\nお待ちください。\r\n\r\nお客様のコンピュータの個人情報などがインターネットに送信されることはありません。"
+    IDS_STRING10008         "プロセス %S を起動できませんでした。\r\nVPN ソフトウェアのインストールを中止します。"
+    IDS_STRING10009         "VPN ソフトウェアのインストール処理を開始しています..."
+    IDS_STRING10010         "VPN ソフトウェアのインストール処理または接続処理は正常に開始されました。\r\n\r\nこのページを閉じるか、別のページに移動することができます。"
+    IDS_STRING10011         "インターネットから自動でダウンロードされたファイル %S は、信頼できる発行元によって電子署名されていませんでした。\r\n現在このメッセージを表示しているプログラムの開発元および配布元は、インターネットから自動でダウンロードされたファイル %S が安全であるかどうかを保証できず、仮にセキュリティ上危険なコードが含まれていた場合でも責任を負いません。\r\n\r\nこのファイルを実行することはセキュリティ上推奨されません。このファイルを信頼することができるかどうか慎重に判断してください。\r\n\r\nユーザーの判断と責任により [OK] をクリックすると、インストール処理を続行します。[キャンセル] をクリックすると、インストール処理を中断します。\r\n\r\n※ このメッセージは、ファイル %S を有効なコード署名用証明書によって署名することにより表示されなくなります。"
+    IDS_STRING10012         "セキュリティに関する警告"
+    IDS_STRING10013         "VPN ソフトウェアのインストールは、ユーザーによってキャンセルされました。"
+    IDS_STRING10014         "[仮想 HUB の管理] ボタンをクリックすると、VPN サーバー管理マネージャを起動して仮想 HUB の管理を開始することができます。"
+    IDS_STRING10015         "仮想 HUB の管理"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MESSAGE_APPTITLE_EN "VPN Software Web Installer"
+    IDS_STRING11002         "This web installer is not supported by this operating system. Windows 2000, XP, 2003, Vista, Server 2008, 7 or Server 2008 R2 required. Please install VPN software manually."
+    IDS_STRING11003         "Verifying VPN Software..."
+    IDS_STRING11004         "Failed to download file %S.\r\nInstallation of VPN software aborted."
+    IDS_STRING11005         "Invalid file %S. \r\nInstallation of VPN software aborted."
+    IDS_STRING11006         "Failed to create temporary file %s."
+    IDS_STRING11007         "Getting data and installing VPN software...\r\nPlease wait.\r\n\r\nAny of your private infomation is not sent to the Internet."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_STRING11008         "Failed to start process %S. Installation of VPN software aborted."
+    IDS_STRING11009         "Starting installation of VPN Software."
+    IDS_STRING11010         "Installation process finished. Connection process are started correctly.\r\n\r\nYou can now close your browser or move the other pages."
+    IDS_STRING11011         "The automatically downloaded file %S from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file %S is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappered when the file %S is signed by valid code signing certificate authentication."
+    IDS_STRING11012         "Security Alert"
+    IDS_STRING11013         "Installation cancelled by user."
+    IDS_STRING11014         "Press [Manage Virtual HUB] button to manage Virtual HUB with VPN Server Manager started."
+    IDS_STRING11015         "Manage Virtual HUB"
+    IDS_STRING11016         "You can now close your browser or move the other pages.\r\n\r\nWhen VPN Server Manager displayed, reload this page on web browser."
+    IDS_STRING11017         "Invalid Parameters for the ActiveX control.\r\n\r\nPlease check the <object> tag entry in the HTML file."
+    IDS_STRING11018         "Press Start VPN Connection to start the VPN connection."
+    IDS_STRING11019         "Start VPN Connection"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_STRING10016         "このページを閉じるか、別のページに移動することができます。\r\n\r\nもう一度 VPN サーバー管理マネージャを表示するには、Web ブラウザでこのページを再表示 (更新) してください。"
+    IDS_STRING10017         "VPN ソフトウェア Web インストーラの ActiveX コントロールに対してパラメータが適切に指定されていません。\r\n\r\nHTML ファイル内の <object> タグの記述を確認してください。"
+    IDS_STRING10018         "[VPN 接続の開始] ボタンをクリックすると、VPN 接続を開始します。"
+    IDS_STRING10019         "VPN 接続の開始"
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+1 TYPELIB "vpnweb.tlb"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

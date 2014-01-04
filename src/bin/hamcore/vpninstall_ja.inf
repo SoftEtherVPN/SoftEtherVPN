@@ -1,0 +1,35 @@
+﻿# SoftEther VPN Client Web インストーラ設定ファイル
+# (VPN クライアント Web インストーラ用のサンプル設定ファイル)
+# 
+# Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+# All Rights Reserved.
+# 
+# Web インストーラを作成する際は、このファイルの内容を編集してください。
+# 
+# ※ このファイル内に日本語などの 2 バイト文字列を含める場合は、
+#    エンコード方式は UTF-8 を使用して保存してください。
+# 
+# 文字 "#" (シャープ) ではじまる行はコメントです。
+
+
+# vpninstall.exe 自体のビルド番号
+# (設置する vpninstall.exe の [プロパティ] を Windows エクスプローラなど
+#  で確認し、[バージョン情報] 内の [ファイルバージョン] の末尾の 4 桁の
+#  整数をここに記入します)
+VpnInstallBuild				$VER_BUILD$
+VpnClientBuild				$VER_BUILD$
+
+
+# Windows 用の VPN Client パッケージファイルに関する情報
+# ※ Web インストーラの場合は、ここで指定するパスは HTTP、HTTPS または FTP
+#    の URL である必要があります。ハードディスク上などのローカルファイル
+#    を指定することは、セキュリティ上の理由により禁止されています。
+VpnClientPath				http://example.com/any_folder/$PACKAGE_FILENAME$
+
+
+# VPN Client のインストール完了後の動作モードを「簡易モード」と「通常モード」の
+# どちらにするかを選択します。true と書くと「通常モード」、それ以外の場合は
+# 「簡易モード」になります。
+NormalMode					$NORMAL_MODE$
+
+

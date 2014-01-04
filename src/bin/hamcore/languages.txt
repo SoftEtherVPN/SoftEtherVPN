@@ -1,0 +1,8 @@
+﻿# PacketiX VPN / SoftEther VPN Language List File
+# Copyright (c) SoftEther Corporation. All Rights Reserved
+
+# 番号 識別子 英語表記 ローカル表記 Windowsロケール番号 UNIXロケール文字一覧
+0 ja Japanese 日本語 1041 ja,jp,sjis,shift_jis,euc
+1 en English English 1033 en,us,c
+2 cn Simplified_Chinese 简体中文	 2052,4100,1028,3076,5124 zh,cn,tw,hkg,mac,sg,chi
+

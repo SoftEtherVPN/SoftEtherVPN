@@ -1,0 +1,72 @@
+﻿<HTML>
+<HEAD>
+	<TITLE>VPN クライアント Web インストーラ設置ページ サンプル</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<META http-equiv="Content-Language" content="ja">
+	<style type="text/css">
+	<!--
+BODY, TABLE, TR, TABLE, TD, H1, H2, H3, H4, P, LI, DIV
+{
+	font-family: "Meiryo UI", "Meiryo", "Tahoma", "Verdana", "Arial", "Geneva", "Helvetica", "sans-serif", "MS PGothic", "MS UI Gothic", "Osaka";
+	font-size:small;
+	line-height:1.6em;
+}
+	-->
+	</style>
+</HEAD>
+<BODY>
+
+<h3>VPN クライアント Web インストーラ設置ページのサンプル HTML ファイル</h3>
+<p>この HTML ファイルはサンプルです。<br>
+「SoftEther VPN クライアント Web インストーラ」プログラムを用いて Web インストーラを作成する場合は、下記の事項と本 HTML 
+ファイルの内容 (HTML ソースコード) を参考にしてください。</p>
+<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse" bordercolor="#008000" id="table1">
+	<tr>
+		<td style="font-family: Consolas, Courier New, MS Gothic; font-size: 10pt">&lt;OBJECT ID=&quot;VpnWebInstaller&quot;<br>
+&nbsp;&nbsp;&nbsp; CLASSID=&quot;CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2&quot;<br>
+&nbsp;&nbsp;&nbsp; CODEBASE=&quot;vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerExeUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.exe</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerInfUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.inf</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;SettingUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/auto_setting.vpn</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;LanguageID&quot; VALUE=&quot;<b><font color="#008000">JA</font></b>&quot;&gt;<br>
+		&lt;/OBJECT&gt;</td>
+	</tr>
+</table>
+<p>VPN クライアント Web インストーラを呼び出すための Web ページを作成するためには、Web インストーラを実行するために使用する ActiveX コントロールとそのパラメータを指定するために、HTML ファイル中に上記のようなコードを挿入してください。</p>
+<p>その際、上記において緑色のフォントで強調されている部分を、設置する Web サーバーなどの環境にあわせて設定してください。<br>
+(上記のサンプルのままでは存在しない URL を指しているため、インストーラは正常に動作しません。)<br>
+<br>
+詳細については本ソフトウェアに同梱されているオンラインマニュアルまたは <b> <a target="_blank" href="http://www.softether.org/">http://www.softether.org/</a></b> をご確認ください。<br>
+<br>
+<b><font color="#808000">※ パラメータ &quot;SettingUrl&quot;, &quot;LanguageID&quot; については、指定しなくても動作します。</font></b></p>
+<p>　</p>
+
+
+<!-- 下記に実際に ActiveX コントロールを埋め込んだ例です。 -->
+<h3>下記に実際に ActiveX コントロールを埋め込んだ例を示します</h3>
+<p>ご注意: この HTML ファイルはサンプルであり、vpnweb.cab に対して渡されるパラメータの内容としてはダミーの URL が入っています。<br>そのため「VPN 接続の開始」ボタンをクリックした場合でも VPN クライアントソフトウェアのインストール等の処理は開始されません。</p>
+<table border="1" cellspacing="1" cellpadding="6" style="border-collapse: collapse" width="450" bordercolor="#808000" id="table2">
+	<tr>
+		<td align="center" valign="top">
+
+<OBJECT ID="VpnWebInstaller"
+	CLASSID="CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2"
+	CODEBASE="vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$">
+	<PARAM NAME="InstallerExeUrl" VALUE="http://example.com/any_folder/vpninstall.exe">
+	<PARAM NAME="InstallerInfUrl" VALUE="http://example.com/any_folder/vpninstall.inf">
+	<PARAM NAME="SettingUrl" VALUE="http://example.com/any_folder/auto_setting.vpn">
+	<PARAM NAME="LanguageID" VALUE="JA">
+</OBJECT>
+
+		</td>
+	</tr>
+</table>
+　<p>※ 上記の茶色の枠内に VPN クライアント Web インストーラの ActiveX コントロールが表示されない場合は、動作環境を確認してください。また Web ブラウザが ActiveX コントロールを受け入れる設定になっているかどうか確認してください。</p>
+
+
+<p>　</p>
+<p align="right"><i>Copyright (c) SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.</i></p>
+
+
+</BODY>
+</HTML>

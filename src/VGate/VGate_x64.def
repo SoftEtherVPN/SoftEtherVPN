@@ -1,0 +1,5 @@
+LIBRARY VpnGatePlugin_x64
+
+EXPORTS
+	LoadPluginDll
+	FreePluginDll

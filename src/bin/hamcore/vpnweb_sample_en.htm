@@ -1,0 +1,71 @@
+﻿<HTML>
+<HEAD>
+	<TITLE>VPN Client Web Installer Deployment Page Sample HTML</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<META http-equiv="Content-Language" content="ja">
+	<style type="text/css">
+	<!--
+BODY, TABLE, TR, TABLE, TD, H1, H2, H3, H4, P, LI, DIV
+{
+	font-family: "Arial", "Geneva", "Helvetica", "sans-serif", "MS PGothic", "MS UI Gothic", "Osaka";
+	font-size:small;
+	line-height:1.2em;
+}
+	-->
+	</style>
+</HEAD>
+<BODY>
+
+<h3>VPN Client Web Installer Deployment Page Sample HTML File</h3>
+<p>This HTML file is a sample.<br>
+To create a Web Installer using "SoftEther VPN Client Web Installer", please refer the following explanation and the HTML source of this file.</p>
+<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse" bordercolor="#008000" id="table1">
+	<tr>
+		<td style="font-family: Consolas, Courier New, MS Gothic; font-size: 10pt">&lt;OBJECT ID=&quot;VpnWebInstaller&quot;<br>
+&nbsp;&nbsp;&nbsp; CLASSID=&quot;CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2&quot;<br>
+&nbsp;&nbsp;&nbsp; CODEBASE=&quot;vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerExeUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.exe</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerInfUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.inf</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;SettingUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/auto_setting.vpn</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;LanguageID&quot; VALUE=&quot;<b><font color="#008000">EN</font></b>&quot;&gt;<br>
+		&lt;/OBJECT&gt;</td>
+	</tr>
+</table>
+<p>To create a web page which boot the VPN Client Web Installer, insert HTML codes as the above. The HTML code refers the path of the ActiveX control, and the parameters which will be passed to the ActiveX.</p>
+<p>You have to modify the strings which are emphasized in green fonts above according to the environment of the web server which you deploy on.<br>
+(Notice that the above sample won't work staying in the ogriginal code, because the original sample specifies the example URLs.)<br>
+<br>
+For details, refer the online manuals or  <b> <a target="_blank" href="http://www.softether.org/">http://www.softether.org/</a></b>.<br>
+<br>
+<b><font color="#808000">Note: the parameters &quot;SettingUrl&quot; and &quot;LanguageID&quot; are optional.</font></b></p>
+<p>　</p>
+
+
+<!-- The below code is an example to embed the ActiveX control. -->
+<h3>The below code is an example to embed the ActiveX control.</h3>
+<p>Notice: This HTML file is a sample. Parameters for vpnweb.cab control are dummy.<BR>Therefore, after you click Start VPN Connection button, you will get an error message.</p>
+<table border="1" cellspacing="1" cellpadding="6" style="border-collapse: collapse" width="450" bordercolor="#808000" id="table2">
+	<tr>
+		<td align="center" valign="top">
+
+<OBJECT ID="VpnWebInstaller"
+	CLASSID="CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2"
+	CODEBASE="vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$">
+	<PARAM NAME="InstallerExeUrl" VALUE="http://example.com/any_folder/vpninstall.exe">
+	<PARAM NAME="InstallerInfUrl" VALUE="http://example.com/any_folder/vpninstall.inf">
+	<PARAM NAME="SettingUrl" VALUE="http://example.com/any_folder/auto_setting.vpn">
+	<PARAM NAME="LanguageID" VALUE="EN">
+</OBJECT>
+
+		</td>
+	</tr>
+</table>
+　<p>If the VPN Client Web Installer ActiveX Control is not displayed on the above brown rectangle, verity the requirements, and make sure that your Web browser allows ActiveX control.</p>
+
+
+<p>　</p>
+<p align="right"><i>Copyright (c) SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.</i></p>
+
+
+</BODY>
+</HTML>

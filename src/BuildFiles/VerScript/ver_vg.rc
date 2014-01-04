@@ -1,0 +1,30 @@
+#pragma code_page(932)
+
+1 VERSIONINFO
+ FILEVERSION $VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$
+ PRODUCTVERSION $VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$
+ FILEFLAGSMASK 0x17L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041104b0"
+        BEGIN
+            VALUE "CompanyName", "University of Tsukuba"
+            VALUE "FileDescription", "VPN Gate Plug-in DLL for SoftEther VPN"
+            VALUE "FileVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
+            VALUE "InternalName", "$INTERNALNAME$"
+            VALUE "LegalCopyright", "Copyright (C) 2012-$YEAR$ VPN Gate Project at University of Tsukuba. All Rights Reserved."
+            VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "$FILENAME$"
+            VALUE "ProductName", "VPN Gate Software"
+            VALUE "ProductVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x411, 1200
+    END
+END
