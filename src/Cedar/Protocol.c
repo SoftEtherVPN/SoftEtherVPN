@@ -5449,47 +5449,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 
 					*error_detail_str = "HTTP_ROOT";
 
-					if (s != NULL && s->UseWebTimePage)
-					{
-						// Generate a page that shows the current time as the top page automatically
-						BUF *b = ReadDump("|time.htm");
-
-						if (b != NULL)
-						{
-							char *src = ZeroMalloc(b->Size + 1);
-							UINT dst_size = b->Size * 2 + 64;
-							char *dst = ZeroMalloc(dst_size);
-							char host[MAX_PATH];
-							char portstr[64];
-							char now_str[MAX_PATH];
-
-							GetDateTimeStr64(now_str, sizeof(now_str), LocalTime64());
-
-							GetMachineName(host, sizeof(host));
-							ToStr(portstr, c->FirstSock->LocalPort);
-
-							Copy(src, b->Buf, b->Size);
-							ReplaceStrEx(dst, dst_size, src,
-								"$HOST$", host, false);
-							ReplaceStrEx(dst, dst_size, dst,
-								"$PORT$", portstr, false);
-							ReplaceStrEx(dst, dst_size, dst,
-								"$NOW$", now_str, false);
-
-							FreeHttpHeader(h);
-							h = NewHttpHeader("HTTP/1.1", "202", "OK");
-							AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE4));
-							AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-							AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-							PostHttp(c->FirstSock, h, dst, StrLen(dst));
-
-							Free(src);
-							Free(dst);
-
-							FreeBuf(b);
-						}
-					}
-					else
 					{
 						if (is_free == false)
 						{

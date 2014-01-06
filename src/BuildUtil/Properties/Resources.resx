@@ -1,0 +1,431 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CDF_BUTTON_ADD" xml:space="preserve">
+    <value>[j]追加[e]Add[/]</value>
+  </data>
+  <data name="CDF_BUTTON_CANCEL" xml:space="preserve">
+    <value>  [j]キャンセル[e]Cancel[/]  </value>
+  </data>
+  <data name="CDF_BUTTON_COMPLETE" xml:space="preserve">
+    <value>   [j]完  了[e]Complete[/]   </value>
+  </data>
+  <data name="CDF_BUTTON_DELETE" xml:space="preserve">
+    <value>[j]削除[e]Delete[/]</value>
+  </data>
+  <data name="CDF_BUTTON_EDIT" xml:space="preserve">
+    <value>[j]編集[e]Edit[/]</value>
+  </data>
+  <data name="CDF_BUTTON_MODIFY" xml:space="preserve">
+    <value>  [j]修正する[e]Modify[/]  </value>
+  </data>
+  <data name="CDF_BUTTON_OK" xml:space="preserve">
+    <value>   O  K   </value>
+  </data>
+  <data name="CDF_BUTTON_SENDING" xml:space="preserve">
+    <value>  [j]処理中[e]Wait[/]...</value>
+  </data>
+  <data name="CDF_CANDIDATES" xml:space="preserve">
+    <value>　[j]最近の候補[e]Recent Candidates[/]: </value>
+  </data>
+  <data name="CDF_DATE_EMPTY" xml:space="preserve">
+    <value>[j]日付が入力されていません。[e]Date field is empty.[/]</value>
+  </data>
+  <data name="CDF_DATE_MAX" xml:space="preserve">
+    <value>[j]{0} 以前の日付を指定してください。[e]Please specify a date before {0}.[/]</value>
+  </data>
+  <data name="CDF_DATE_MIN" xml:space="preserve">
+    <value>[j]{0} 以降の日付を指定してください。[e]Please specift a date since {0}.[/]</value>
+  </data>
+  <data name="CDF_DATE_NOTDATE" xml:space="preserve">
+    <value>[j]日付として認識できない文字列が入力されています。[e]Can't recognize as a valid date.[/]</value>
+  </data>
+  <data name="CDF_DL_ALL" xml:space="preserve">
+    <value>[j]全件表示 ({0} 件)[e]Total ({0} entities)[/]</value>
+  </data>
+  <data name="CDF_DOWNLOAD" xml:space="preserve">
+    <value>[j]ダウンロード[e]Download[/]</value>
+  </data>
+  <data name="CDF_DT_EMPTY" xml:space="preserve">
+    <value>[j]日時が入力されていません。[e]Date and Time are empty.[/]</value>
+  </data>
+  <data name="CDF_DT_MAX" xml:space="preserve">
+    <value>[j]{0} 以前の日時を指定してください。[e]Please specify a date and a time before {0}.[/]</value>
+  </data>
+  <data name="CDF_DT_MIN" xml:space="preserve">
+    <value>[j]{0} 以降の日時を指定してください。[e]Please specify a date and a time since {0}.[/]</value>
+  </data>
+  <data name="CDF_DT_NOTDT" xml:space="preserve">
+    <value>[j]日時として認識できない文字列が入力されています。[e]Can't recognize as a valid date and a time.[/]</value>
+  </data>
+  <data name="CDF_EXAMPLE" xml:space="preserve">
+    <value>[j]記入例[e]Example[/]</value>
+  </data>
+  <data name="CDF_GOTHIC" xml:space="preserve">
+    <value>[j]ＭＳ ゴシック[e]MS Gothic[/]</value>
+  </data>
+  <data name="CDF_GRID_ERROR_1" xml:space="preserve">
+    <value>[j]データ構造のフィールド数が 1 でありません。[e]The number of fields of data structures is not one.[/]</value>
+  </data>
+  <data name="CDF_GRID_ERROR_2" xml:space="preserve">
+    <value>[j]データ構造がリストでありません。[e]The data structure is not a list.[/]</value>
+  </data>
+  <data name="CDF_INT_MAX" xml:space="preserve">
+    <value>[j]数値は {0} 以下を指定してください。[e]The value must be {0} or less.[/]</value>
+  </data>
+  <data name="CDF_INT_MIN" xml:space="preserve">
+    <value>[j]数値は {0} 以上を指定してください。[e]The value must be {0} or more.[/]</value>
+  </data>
+  <data name="CDF_INT_NOTINTEGER" xml:space="preserve">
+    <value>[j]数値が正しく入力されていません。[e]The value can't be recognized as a formal figure.[/]</value>
+  </data>
+  <data name="CDF_INT_NOT_NUMBER_CHAR" xml:space="preserve">
+    <value>[j]整数以外の文字が入力されています。[e]The value can't be recognized as an integer.[/]</value>
+  </data>
+  <data name="CDF_INVALID" xml:space="preserve">
+    <value>[j]データ "{0}" はこのリストでは不正です。[e]The data "{0}" is invalid at this list.[/]</value>
+  </data>
+  <data name="CDF_INVALID_EMAIL" xml:space="preserve">
+    <value>[j]メールアドレスが不正です。[e]The mail address is invalid.[/]</value>
+  </data>
+  <data name="CDF_LIST_FORMAT" xml:space="preserve">
+    <value>[j]【 {0} 個目の項目 (合計 {1} 個中) - {2} 】[e]Item of piece {0} (Total: {1} entities) - {2}[/]</value>
+  </data>
+  <data name="CDF_NOITEM" xml:space="preserve">
+    <value>[j]項目なし[e]No Entities[/]</value>
+  </data>
+  <data name="CDF_NOT_SELECTED" xml:space="preserve">
+    <value>[j]項目が選択されていません。[e]You have to select an entity.[/]</value>
+  </data>
+  <data name="CDF_NOT_SELECTED_2" xml:space="preserve">
+    <value>[j]正しく選択されていません。[e]You have to select correctly.[/]</value>
+  </data>
+  <data name="CDF_NO_CDFCLASS" xml:space="preserve">
+    <value>CdfClass 属性が正しく指定されていないクラス %s が指定されました。</value>
+  </data>
+  <data name="CDF_NO_SINGLE_ATT" xml:space="preserve">
+    <value>%s 項目に %s 属性が 1 つ指定されていません。</value>
+  </data>
+  <data name="CDF_NO_SINGLE_GENERIC_TYPE" xml:space="preserve">
+    <value>%s 項目のジェネリック型が 1 つ指定されていません。</value>
+  </data>
+  <data name="CDF_PAGING_FORMAT_1" xml:space="preserve">
+    <value>[j]ページ {0}[e]Page {0}[/]</value>
+  </data>
+  <data name="CDF_PAGING_FORMAT_2" xml:space="preserve">
+    <value>[j]最新 {0} 件[e]Latest: {0} entities[/]</value>
+  </data>
+  <data name="CDF_PAGING_HELPSTR_FORMAT" xml:space="preserve">
+    <value>[j] ({2}: {0} ～ {1})[e] ({2}: {0} - {1})[/]</value>
+  </data>
+  <data name="CDF_PLEASE_SELECT" xml:space="preserve">
+    <value>[j]▼選択してください▼[e]- Please Select Here -[/]</value>
+  </data>
+  <data name="CDF_REMOVE" xml:space="preserve">
+    <value>[j]削除[e]Delete[/]</value>
+  </data>
+  <data name="CDF_REMOVEMSG" xml:space="preserve">
+    <value>[j]この項目を削除します。よろしいですか？[e]Do you want to delete this entity?[/]</value>
+  </data>
+  <data name="CDF_ROW_EMPTY" xml:space="preserve">
+    <value>[j]項目が 1 件も見つかりませんでした。[e]No entity is found.[/]</value>
+  </data>
+  <data name="CDF_SELECTABLE" xml:space="preserve">
+    <value>[j]▽選択可能[e]- Selectable -[/]</value>
+  </data>
+  <data name="CDF_SORT_1" xml:space="preserve">
+    <value>[j]▲「{0}」でソート[e]Sort by "{0}" Ascending[/]</value>
+  </data>
+  <data name="CDF_SORT_2" xml:space="preserve">
+    <value>[j]▼「{0}」で逆ソート[e]Sort by "{0}" Descending[/]</value>
+  </data>
+  <data name="CDF_SORT_DEF1" xml:space="preserve">
+    <value>[j]▲標準のソート[e]Standard Ascending Sort[/]</value>
+  </data>
+  <data name="CDF_SORT_DEF2" xml:space="preserve">
+    <value>[j]▼標準の逆ソート[e]Standard Descending Sort[/]</value>
+  </data>
+  <data name="CDF_STRING_INVALIDCHAR" xml:space="preserve">
+    <value>[j]使用できない文字が含まれています。[e]There are some invalid characters which can't be used.[/]</value>
+  </data>
+  <data name="CDF_STRING_MAX" xml:space="preserve">
+    <value>[j]文字数は {0} 以下にする必要があります。[e]The number of characters must be {0} or less.[/]</value>
+  </data>
+  <data name="CDF_STRING_MIN" xml:space="preserve">
+    <value>[j]文字を {0} 文字以上入力する必要があります。[e]The number of characters must be {0} or more.[/]</value>
+  </data>
+  <data name="CDF_STRING_NOLINE" xml:space="preserve">
+    <value>[j]改行文字を含めることはできません。[e]There must not be any New-Line characters in the string.[/]</value>
+  </data>
+  <data name="CDF_STRING_NONPRINTABLE" xml:space="preserve">
+    <value>[j]表示不可能な文字コードが含まれています。[e]There must not be any Non-Printable characters in the string.[/]</value>
+  </data>
+  <data name="CDF_TEXT_CONFIRM" xml:space="preserve">
+    <value>[j]入力いただいた内容を確認のため表示しています。内容をよくご確認ください。&lt;BR&gt;この内容で確定する場合は [OK] ボタンを、修正する場合は [修正する] ボタンをクリックしてください。[e]Please confirm the printed data which you input. Please read it carefully.&lt;BR&gt;If you want to commit with this data, click the "OK" button. Otherwise, click the "Modify" button.[/]</value>
+  </data>
+  <data name="CDF_TEXT_CONFIRM_ERROR" xml:space="preserve">
+    <value>[j]エラーが発生しました。内容を見直してください。修正する場合は [修正する] ボタンをクリックしてください。[e]An error has been occurred. Please confirm the fields. To modify it, click the "Modify" button.[/]</value>
+  </data>
+  <data name="CDF_TEXT_OK" xml:space="preserve">
+    <value>[j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the "OK" button after you complete filling all nessesary fields. To cancel inputting, click the "Cancel" button.[/]</value>
+  </data>
+  <data name="CDF_TIME_EMPTY" xml:space="preserve">
+    <value>[j]時刻が入力されていません。[e]Time is empty.[/]</value>
+  </data>
+  <data name="CDF_TIME_MAX" xml:space="preserve">
+    <value>[j]{0} 以前の時刻を指定してください。[e]Please specify a time before {0}.[/]</value>
+  </data>
+  <data name="CDF_TIME_MIN" xml:space="preserve">
+    <value>[j]{0} 以降の時刻を指定してください。[e]Please specify a time after {0}.[/]</value>
+  </data>
+  <data name="CDF_TIME_NOTTIME" xml:space="preserve">
+    <value>[j]時刻として認識できない文字列が入力されています。[e]Can't recognize as a valid time.[/]</value>
+  </data>
+  <data name="CDF_UNSUPPORTED" xml:space="preserve">
+    <value>[j]フィールド %s の型 %s がサポートされていません。[e]In the field "%s", the type "%s" is not supported.[/]</value>
+  </data>
+  <data name="CMD_CT_STD_COLUMN_1" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="CMD_CT_STD_COLUMN_2" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="CMD_EVAL_DATE_TIME_FAILED" xml:space="preserve">
+    <value>The date and time specification is invalid. \nThe date and time must be in the same format as "2005/10/08 19:30:00" where 6 integers are specified, representing year/month/day hour:minute:second separated by forward slashes, a space and then colons. Specify 4 digits for the year.</value>
+  </data>
+  <data name="CMD_EVAL_INT" xml:space="preserve">
+    <value>You must specify an integer that is not less than 1.</value>
+  </data>
+  <data name="CMD_EVAL_MIN_MAX" xml:space="preserve">
+    <value>You must specify an integer in the range from %u to %u for the value.</value>
+  </data>
+  <data name="CMD_EVAL_NOT_EMPTY" xml:space="preserve">
+    <value>You cannot make a blank specification.</value>
+  </data>
+  <data name="CMD_EVAL_PORT" xml:space="preserve">
+    <value>Port number is invalid. Specify a port number that is within the range of 1 to 65535.</value>
+  </data>
+  <data name="CMD_EVAL_SAFE" xml:space="preserve">
+    <value>The string contains unusable characters.</value>
+  </data>
+  <data name="CMD_EXEC_MSG_NAME" xml:space="preserve">
+    <value>%S command - %s</value>
+  </data>
+  <data name="CMD_FILE_NAME_EMPTY" xml:space="preserve">
+    <value>The file name is not specified.</value>
+  </data>
+  <data name="CMD_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Cannot find specified file "%s".</value>
+  </data>
+  <data name="CMD_HELP_1" xml:space="preserve">
+    <value>You can use the following %u commands:</value>
+  </data>
+  <data name="CMD_HELP_2" xml:space="preserve">
+    <value>To reference the usage for each command, input "command name /?" to view a help.</value>
+  </data>
+  <data name="CMD_HELP_ARGS" xml:space="preserve">
+    <value>Parameters:</value>
+  </data>
+  <data name="CMD_HELP_DESCRIPTION" xml:space="preserve">
+    <value>Purpose:</value>
+  </data>
+  <data name="CMD_HELP_HELP" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="CMD_HELP_TITLE" xml:space="preserve">
+    <value>Help for command "%S"</value>
+  </data>
+  <data name="CMD_HELP_USAGE" xml:space="preserve">
+    <value>Usage:</value>
+  </data>
+  <data name="CMD_PARSE_IP_SUBNET_ERROR_1" xml:space="preserve">
+    <value>"IP アドレス/サブネットマスク" の形式で指定してください。
+IP アドレスは 192.168.0.1 のように 10 進数をドットで区切って指定します。サブネットマスクは 255.255.255.0 のように 10 進数をドットで区切って指定するか、24 のように先頭からのビット長を 10 進数で指定できます。
+単一のホストを指定するには、サブネットマスクを 255.255.255.255 または 32 として指定します。
+(例)
+ 192.168.0.1/24
+ 192.168.0.1/255.255.255.0
+192.168.0.5/255.255.255.255
+
+</value>
+  </data>
+  <data name="CMD_PARSE_IP_SUBNET_ERROR_2" xml:space="preserve">
+    <value>指定された IP アドレスはネットワークアドレスではありません。</value>
+  </data>
+  <data name="CMD_PROMPT" xml:space="preserve">
+    <value>Enter a value: </value>
+  </data>
+  <data name="CMD_PROPMT_PORT" xml:space="preserve">
+    <value>Input the port number: </value>
+  </data>
+  <data name="CMD_UNKNOWM" xml:space="preserve">
+    <value>There is no description for this command.</value>
+  </data>
+  <data name="CMD_UNKNOWN_ARGS" xml:space="preserve">
+    <value>There is no command execution example.</value>
+  </data>
+  <data name="CMD_UNKNOWN_HELP" xml:space="preserve">
+    <value>There is no detailed description for this command. If you would like to know more detail about this command, please refer to the manual or online documentation.</value>
+  </data>
+  <data name="CMD_UNKNOWN_PARAM" xml:space="preserve">
+    <value>There is no description for this parameter.</value>
+  </data>
+  <data name="CON_AMBIGIOUS_CMD" xml:space="preserve">
+    <value>"%S": The command-name is ambiguous.</value>
+  </data>
+  <data name="CON_AMBIGIOUS_CMD_1" xml:space="preserve">
+    <value>The specified command name matches the following multiple commands.</value>
+  </data>
+  <data name="CON_AMBIGIOUS_CMD_2" xml:space="preserve">
+    <value>Please re-specify the command name more strictly.</value>
+  </data>
+  <data name="CON_AMBIGIOUS_PARAM" xml:space="preserve">
+    <value>"%S": The parameter name is ambiguous.</value>
+  </data>
+  <data name="CON_AMBIGIOUS_PARAM_1" xml:space="preserve">
+    <value>The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".</value>
+  </data>
+  <data name="CON_AMBIGIOUS_PARAM_2" xml:space="preserve">
+    <value>Please re-specify the parameter name more strictly.</value>
+  </data>
+  <data name="CON_INFILE_ERROR" xml:space="preserve">
+    <value>Error: Unable to open the specified input file "%s".</value>
+  </data>
+  <data name="CON_INFILE_START" xml:space="preserve">
+    <value>The commands written in the file "%s" will be used instead of input from keyboard.</value>
+  </data>
+  <data name="CON_INVALID_PARAM" xml:space="preserve">
+    <value>The parameter "/%S" has been specified. It is not possible to specify this parameter when using the command "%S". Input "%S /HELP" to see the list of what parameters can be used.</value>
+  </data>
+  <data name="CON_OUTFILE_ERROR" xml:space="preserve">
+    <value>Error: Unable to create the specified output file "%s".</value>
+  </data>
+  <data name="CON_OUTFILE_START" xml:space="preserve">
+    <value>The message output to the console will be saved in the file "%s".</value>
+  </data>
+  <data name="CON_UNKNOWN_CMD" xml:space="preserve">
+    <value>"%S": Command not found. You can use the HELP command to view a list of the available commands.</value>
+  </data>
+  <data name="CON_USER_CANCEL" xml:space="preserve">
+    <value>[EOF]</value>
+  </data>
+  <data name="CON_USER_CANCELED" xml:space="preserve">
+    <value>The command was canceled.</value>
+  </data>
+</root>

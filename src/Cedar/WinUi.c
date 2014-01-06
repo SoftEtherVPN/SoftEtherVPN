@@ -2125,10 +2125,6 @@ bool ExecuteHamcoreExe(char *name)
 // Show the Easter Egg
 void ShowEasterEgg(HWND hWnd)
 {
-	ExecuteHamcoreExe("|egg1.exe");
-	ExecuteHamcoreExe("|egg2.exe");
-	ExecuteHamcoreExe("|egg3.exe");
-	ShellExecute(hWnd, "open", "http://www.softether.co.jp/jp/special/vpn3egg/", NULL, NULL, SW_SHOW);
 }
 
 void KakushiThread(THREAD *thread, void *param)

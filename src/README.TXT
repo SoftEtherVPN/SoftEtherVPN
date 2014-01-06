@@ -114,10 +114,10 @@ on all the following open-source repositories:
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
   - SourceForge
-    https://sourceforge.net/projects/softethervpn/
+    https://sourceforge.net/p/softethervpn/code/ci/master/tree/
 
   - Google Code
-    https://code.google.com/p/softether/
+    https://code.google.com/p/softether/source/browse/
 
 
 To fetch the source code from GitHub:
@@ -178,6 +178,9 @@ USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS
 SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
 PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
 COUNTRIES MIGHT BE RESTRICTED.
+
+READ AND UNDERSTAND THE 'WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
+SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
 
 
 ADVERTISEMENT

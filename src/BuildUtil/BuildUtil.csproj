@@ -45,13 +45,10 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreUtil, Version=1.1.4781.28908, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\CoreUtil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
@@ -65,9 +62,39 @@
     <Compile Include="BuildUtilCommands.cs" />
     <Compile Include="BuildUtilMain.cs" />
     <Compile Include="CodeSign.cs" />
+    <Compile Include="CoreUtil\Bmp.cs" />
+    <Compile Include="CoreUtil\Buf.cs" />
+    <Compile Include="CoreUtil\Cache.cs" />
+    <Compile Include="CoreUtil\Compress.cs" />
+    <Compile Include="CoreUtil\Console.cs" />
+    <Compile Include="CoreUtil\Csv.cs" />
+    <Compile Include="CoreUtil\Env.cs" />
+    <Compile Include="CoreUtil\FileIO.cs" />
+    <Compile Include="CoreUtil\GZip.cs" />
+    <Compile Include="CoreUtil\Kernel.cs" />
+    <Compile Include="CoreUtil\MultiLang.cs" />
+    <Compile Include="CoreUtil\Packer.cs" />
+    <Compile Include="CoreUtil\RC4.cs" />
+    <Compile Include="CoreUtil\ReadIni.cs" />
+    <Compile Include="CoreUtil\Reg.cs" />
+    <Compile Include="CoreUtil\Secure.cs" />
+    <Compile Include="CoreUtil\Stb.cs" />
+    <Compile Include="CoreUtil\Str.cs" />
+    <Compile Include="CoreUtil\Tar.cs" />
+    <Compile Include="CoreUtil\Thread.cs" />
+    <Compile Include="CoreUtil\Time.cs" />
+    <Compile Include="CoreUtil\Util.cs" />
+    <Compile Include="CoreUtil\Win32.cs" />
+    <Compile Include="CoreUtil\Zip.cs" />
+    <Compile Include="CoreUtil\ZLib.cs" />
     
     <Compile Include="PEUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -166,6 +193,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

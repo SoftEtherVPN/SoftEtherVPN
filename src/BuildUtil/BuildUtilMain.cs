@@ -147,7 +147,7 @@ namespace BuildUtil
 		public static int BuildUtil(ConsoleService c, string cmdName, string str)
 		{
 			Con.WriteLine("");
-			Con.WriteLine("Copyright (c) SoftEther Corporation. All Rights Reserved.");
+			Con.WriteLine("Copyright (c) SoftEther VPN Project. All Rights Reserved.");
 			Con.WriteLine("");
 
 			ConsoleParam[] args =

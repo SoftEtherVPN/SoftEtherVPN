@@ -1,0 +1,117 @@
+All binary files on the 'hamcore' directory are free software under
+the GPLv2 license. (Except WinPcap binaries.)
+
+Some geeks should be interested in how to rebuild .sys (driver) files on
+this directory. This text file helps such crazy geeks.
+
+
+How to rebuild these '.sys' files?
+----------------------------------
+
+Windows Vista or later version of Windows requires all device drivers to be
+signed by Authenticode digital certificate. Therefore, SoftEther VPN Project
+publishes all necessary binary files in the 'hamcore' directory with
+'already-signed' format by the certificate of SoftEther VPN Project.
+
+That is the reason why the all .sys files (device drivers) are already built
+and digitally signed by SoftEther VPN Project on the time of release of
+the source code.
+
+However, the entire source code of all the .sys files are contained on the
+source code tree as follows:
+
+- pxwfp_x86.sys and pxwfp_x64.sys
+  You can build these files from the source code on the 'Wfp' directory.
+
+- see.sys and see_x64.sys
+  You can build these files from the source code on the 'See' directory.
+
+- SeLow_x86.sys and SeLow_x64.sys
+  You can build these files from the source code on the 'SeLow' directory.
+
+- vpn_driver.sys, vpn_driver_x64.sys and vpn_driver_9x.sys
+  You can build these files from the source code on the 'Neo' directory.
+
+- vpn_driver6.sys and vpn_driver6_x64.sys
+  You can build these files from the source code on the 'Neo6' directory.
+
+It is recommended to build these files on the 'SEVPN.sln' Visual Studio 2008
+solution file.
+
+Note that rebuilding these files require Windows Driver Kits.
+Loading the re-built .sys files requires your Authenticode certificate file
+if the operating system is Windows Vista or later.
+
+
+
+How to rebuild these 'vpn16.exe' files?
+---------------------------------------
+
+The vpn16.exe binary is the 16-bit Driver Install Utility for Windows 9x.
+You can build this file from the 'vpn16' directory. However, you need
+Visual C++ 16-bit edition and Windows 98 DDK to rebuild this 'vpn16.exe'.
+
+
+
+How to rebuild the 'vpnweb.cab' and 'vpnweb.ocx' files?
+-------------------------------------------------------
+These files are ActiveX controls.
+The source code is in the 'vpnweb' directory.
+
+
+'winpcap_installer.exe' and 'winpcap_installer_win9x.exe'
+---------------------------------------------------------
+They are WinPcap binaries from http://www.winpcap.org/.
+The WinPcap license is at http://www.winpcap.org/misc/copyright.htm page.
+
+
+License
+-------
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the Free
+Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License version 2
+along with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+Neither the name of SoftEther nor the names of its contributors may be used
+to endorse or promote products derived from this software without specific
+prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN, UNDER
+JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY, MERGE, PUBLISH,
+DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS SOFTWARE, THAT ANY JURIDICAL
+DISPUTES WHICH ARE CONCERNED TO THIS SOFTWARE OR ITS CONTENTS, AGAINST US
+(SOFTETHER PROJECT, SOFTETHER CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS),
+OR ANY JURIDICAL DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING,
+COPYING, MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
+SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
+CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO EXCLUSIVE
+JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO, JAPAN. YOU MUST WAIVE
+ALL DEFENSES OF LACK OF PERSONAL JURISDICTION AND FORUM NON CONVENIENS.
+PROCESS MAY BE SERVED ON EITHER PARTY IN THE MANNER AUTHORIZED BY APPLICABLE
+LAW OR COURT RULE.
+
+USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS SOFTWARE
+INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES PROHIBIT ENCRYPTED
+COMMUNICATIONS. USING THIS SOFTWARE IN OTHER COUNTRIES MIGHT BE RESTRICTED.
+
+THE GPLV2 CONDITIONS APPLY ON ALL SOFTETHER VPN PROGRAMS WHICH ARE DEVELOPED
+BY SOFTETHER VPN PROJECT.
+

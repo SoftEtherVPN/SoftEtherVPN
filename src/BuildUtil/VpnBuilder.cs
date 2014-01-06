@@ -484,6 +484,7 @@ namespace BuildUtil
 				".sys",
 				".inf",
 				".wav",
+				".cat",
 			};
 
 			foreach (string ext in filesOnlyWin32)

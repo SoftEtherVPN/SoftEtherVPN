@@ -747,6 +747,110 @@ bool GetDiskFreeW(wchar_t *path, UINT64 *free_size, UINT64 *used_size, UINT64 *t
 	return ret;
 }
 
+// Enumeration of direction with all sub directories
+TOKEN_LIST *EnumDirWithSubDirs(char *dirname)
+{
+	TOKEN_LIST *ret;
+	UNI_TOKEN_LIST *ret2;
+	wchar_t tmp[MAX_SIZE];
+	// Validate arguments
+	if (dirname == NULL)
+	{
+		dirname = "./";
+	}
+
+	StrToUni(tmp, sizeof(tmp), dirname);
+
+	ret2 = EnumDirWithSubDirsW(tmp);
+
+	ret = UniTokenListToTokenList(ret2);
+
+	UniFreeToken(ret2);
+
+	return ret;
+}
+UNI_TOKEN_LIST *EnumDirWithSubDirsW(wchar_t *dirname)
+{
+	ENUM_DIR_WITH_SUB_DATA d;
+	UNI_TOKEN_LIST *ret;
+	UINT i;
+	// Validate arguments
+	if (dirname == NULL)
+	{
+		dirname = L"./";
+	}
+
+	Zero(&d, sizeof(d));
+
+	d.FileList = NewListFast(NULL);
+
+	EnumDirWithSubDirsMain(&d, dirname);
+
+	ret = ZeroMalloc(sizeof(UNI_TOKEN_LIST));
+
+	ret->NumTokens = LIST_NUM(d.FileList);
+	ret->Token = ZeroMalloc(sizeof(wchar_t *) * ret->NumTokens);
+
+	for (i = 0;i < ret->NumTokens;i++)
+	{
+		wchar_t *s = LIST_DATA(d.FileList, i);
+
+		ret->Token[i] = UniCopyStr(s);
+	}
+
+	FreeStrList(d.FileList);
+
+	return ret;
+}
+void EnumDirWithSubDirsMain(ENUM_DIR_WITH_SUB_DATA *d, wchar_t *dirname)
+{
+	DIRLIST *dir;
+	UINT i;
+	// Validate arguments
+	if (d == NULL || dirname == NULL)
+	{
+		return;
+	}
+
+	dir = EnumDirExW(dirname, NULL);
+	if (dir == NULL)
+	{
+		return;
+	}
+
+	// Files
+	for (i = 0;i < dir->NumFiles;i++)
+	{
+		DIRENT *e = dir->File[i];
+
+		if (e->Folder == false)
+		{
+			wchar_t tmp[MAX_SIZE];
+
+			ConbinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
+
+			Add(d->FileList, CopyUniStr(tmp));
+		}
+	}
+
+	// Sub directories
+	for (i = 0;i < dir->NumFiles;i++)
+	{
+		DIRENT *e = dir->File[i];
+
+		if (e->Folder)
+		{
+			wchar_t tmp[MAX_SIZE];
+
+			ConbinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
+
+			EnumDirWithSubDirsMain(d, tmp);
+		}
+	}
+
+	FreeDir(dir);
+}
+
 // Enumeration of directory
 DIRLIST *EnumDirEx(char *dirname, COMPARE *compare)
 {
@@ -1117,59 +1221,78 @@ void FreeHamcore()
 }
 
 // Build a Hamcore file
-void BuildHamcore()
+void BuildHamcore(char *dst_filename, char *src_dir, bool unix_only)
 {
-	BUF *b;
-	char tmp[MAX_SIZE];
 	char exe_dir[MAX_SIZE];
-	char *s;
 	bool ok = true;
 	LIST *o;
 	UINT i;
+	TOKEN_LIST *src_file_list;
 
 	GetExeDir(exe_dir, sizeof(exe_dir));
-	Format(tmp, sizeof(tmp), "%s/%s", exe_dir, HAMCORE_TEXT_NAME);
 
-	b = ReadDump(tmp);
-	if (b == NULL)
-	{
-		Print("Failed to open %s.\n", tmp);
-		return;
-	}
+	src_file_list = EnumDirWithSubDirs(src_dir);
 
 	o = NewListFast(CompareHamcore);
 
-	while ((s = CfgReadNextLine(b)) != NULL)
+	for (i = 0;i < src_file_list->NumTokens;i++)
 	{
-		char tmp[MAX_SIZE];
+		char rpath[MAX_SIZE];
 		BUF *b;
+		char s[MAX_SIZE];
+
+		StrCpy(s, sizeof(s), src_file_list->Token[i]);
 		Trim(s);
 
-		Format(tmp, sizeof(tmp), "%s/%s/%s", exe_dir, HAMCORE_DIR_NAME, s);
-
-		b = ReadDump(tmp);
-		if (b == NULL)
+		if (GetRelativePath(rpath, sizeof(rpath), s, src_dir) == false)
 		{
-			Print("Failed to open %s.\n", s);
-			ok = false;
+			// Unknown error !
 		}
 		else
 		{
-			HC *c = ZeroMalloc(sizeof(HC));
-			UINT tmp_size;
-			void *tmp;
-			c->FileName = CopyStr(s);
-			c->Size = b->Size;
-			tmp_size = CalcCompress(c->Size);
-			tmp = Malloc(tmp_size);
-			c->SizeCompressed = Compress(tmp, tmp_size, b->Buf, b->Size);
-			c->Buffer = tmp;
-			Insert(o, c);
-			Print("%s: %u -> %u\n", s, c->Size, c->SizeCompressed);
-			FreeBuf(b);
-		}
+			bool ok = true;
 
-		Free(s);
+			ReplaceStr(rpath, sizeof(rpath), rpath, "/", "\\");
+
+			if (unix_only)
+			{
+				// Exclude non-UNIX files
+				if (EndWith(s, ".exe") ||
+					EndWith(s, ".dll") ||
+					EndWith(s, ".sys") ||
+					EndWith(s, ".inf") ||
+					EndWith(s, ".cat") ||
+					EndWith(s, ".wav"))
+				{
+					ok = false;
+				}
+			}
+
+			if (ok)
+			{
+				b = ReadDump(s);
+				if (b == NULL)
+				{
+					Print("Failed to open '%s'.\n", s);
+					ok = false;
+				}
+				else
+				{
+					HC *c = ZeroMalloc(sizeof(HC));
+					UINT tmp_size;
+					void *tmp;
+					c->FileName = CopyStr(rpath);
+					c->Size = b->Size;
+					tmp_size = CalcCompress(c->Size);
+					tmp = Malloc(tmp_size);
+					c->SizeCompressed = Compress(tmp, tmp_size, b->Buf, b->Size);
+					c->Buffer = tmp;
+					Insert(o, c);
+					Print("%s: %u -> %u\n", s, c->Size, c->SizeCompressed);
+					FreeBuf(b);
+				}
+			}
+		}
 	}
 
 	if (ok)
@@ -1226,7 +1349,7 @@ void BuildHamcore()
 			WriteBuf(b, c->Buffer, c->SizeCompressed);
 		}
 		// Writing
-		Format(tmp, sizeof(tmp), "%s/%s", exe_dir, HAMCORE_FILE_NAME "__");
+		StrCpy(tmp, sizeof(tmp), dst_filename);
 		Print("Writing %s...\n", tmp);
 		FileDelete(tmp);
 		DumpBuf(b, tmp);
@@ -1243,7 +1366,7 @@ void BuildHamcore()
 
 	ReleaseList(o);
 
-	FreeBuf(b);
+	FreeToken(src_file_list);
 }
 
 // Comparison of the HCs
@@ -1840,6 +1963,67 @@ void GetCurrentDir(char *name, UINT size)
 	GetCurrentDirW(name_w, sizeof(name_w));
 
 	UniToStr(name, size, name_w);
+}
+
+// Get the relative path
+bool GetRelativePathW(wchar_t *dst, UINT size, wchar_t *fullpath, wchar_t *basepath)
+{
+	wchar_t fullpath2[MAX_SIZE];
+	wchar_t basepath2[MAX_SIZE];
+	// Validate arguments
+	if (dst == NULL || fullpath == NULL || basepath == NULL)
+	{
+		return false;
+	}
+	ClearUniStr(dst, size);
+
+	NormalizePathW(fullpath2, sizeof(fullpath2), fullpath);
+	NormalizePathW(basepath2, sizeof(basepath2), basepath);
+
+#ifdef	OS_WIN32
+	UniStrCat(basepath2, sizeof(basepath2), L"\\");
+#else	// OS_WIN32
+	UniStrCat(basepath2, sizeof(basepath2), L"/");
+#endif	// OS_WIN32
+
+	if (UniStrLen(fullpath2) <= UniStrLen(basepath2))
+	{
+		return false;
+	}
+
+	if (UniStartWith(fullpath2, basepath2) == false)
+	{
+		return false;
+	}
+
+	UniStrCpy(dst, size, fullpath2 + UniStrLen(basepath2));
+
+	return true;
+}
+bool GetRelativePath(char *dst, UINT size, char *fullpath, char *basepath)
+{
+	wchar_t dst_w[MAX_SIZE];
+	wchar_t fullpath_w[MAX_SIZE];
+	wchar_t basepath_w[MAX_SIZE];
+	bool ret;
+	// Validate arguments
+	if (dst == NULL || fullpath == NULL || basepath == NULL)
+	{
+		return false;
+	}
+
+	StrToUni(fullpath_w, sizeof(fullpath_w), fullpath);
+	StrToUni(basepath_w, sizeof(basepath_w), basepath);
+
+	ret = GetRelativePathW(dst_w, sizeof(dst_w), fullpath_w, basepath_w);
+	if (ret == false)
+	{
+		return false;
+	}
+
+	UniToStr(dst, size, dst_w);
+
+	return true;
 }
 
 // Normalize the file path

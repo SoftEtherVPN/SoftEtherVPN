@@ -502,6 +502,7 @@ typedef struct ZIP_DIR_HEADER ZIP_DIR_HEADER;
 typedef struct ZIP_END_HEADER ZIP_END_HEADER;
 typedef struct ZIP_FILE ZIP_FILE;
 typedef struct ZIP_PACKER ZIP_PACKER;
+typedef struct ENUM_DIR_WITH_SUB_DATA ENUM_DIR_WITH_SUB_DATA;
 
 // TcpIp.h
 typedef struct MAC_HEADER MAC_HEADER;
