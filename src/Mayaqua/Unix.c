@@ -1054,7 +1054,7 @@ void UnixGetOsInfo(OS_INFO *info)
 			}
 			else
 			{
-				info->OsVersion = CopyStr("Unknown Liunx Version");
+				info->OsVersion = CopyStr("Unknown Linux Version");
 				info->OsVendorName = CopyStr("Unknown Vendor");
 			}
 		}
