@@ -96,6 +96,7 @@
 
 // Struct statfs for MacOS X
 #ifdef	UNIX_MACOS
+#ifdef	NO_VLAN
 typedef struct fsid { int32_t val[2]; } fsid_t;
 struct statfs {
         short   f_otype;                /* TEMPORARY SHADOW COPY OF f_type */
@@ -117,6 +118,9 @@ struct statfs {
         char    f_mntonname[90];  /* directory on which mounted */
         char    f_mntfromname[90];/* mounted filesystem */
 };
+#else
+#include <sys/mount.h>
+#endif
 #endif	// UNIX_MACOS
 
 // Scandir() function for Solaris

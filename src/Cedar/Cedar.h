@@ -696,7 +696,15 @@
 
 #define	TAP_FILENAME_1				"/dev/net/tun"
 #define	TAP_FILENAME_2				"/dev/tun"
+#ifdef	UNIX_MACOS
+#ifdef	NO_VLAN
 #define	TAP_MACOS_FILENAME			"/dev/tap0"
+#else
+#define	TAP_MACOS_FILENAME			"tap"
+#endif
+#define	TAP_MACOS_DIR				"/dev/"
+#define	TAP_MACOS_NUMBER			(16)
+#endif
 
 
 
