@@ -7,6 +7,9 @@ https://github.com/SoftEtherVPN/SoftEtherVPN/
 Source code packages (.zip and .tar.gz) and binary files are also available:
 http://www.softether-download.com/
 
+We accept your patches by the acceptance policy:
+http://www.softether.org/5-download/src/9.patch
+
 Copyright (c) 2012-2014 SoftEther Project at University of Tsukuba, Japan.
 
 This program is free software; you can redistribute it and/or modify
@@ -95,6 +98,7 @@ The download and build instruction is following:
 
 $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 $ cd SoftEtherVPN
+$ ./configure
 $ make
 $ make install
 
@@ -132,6 +136,15 @@ To fetch the source code from Google Code:
 $ git clone https://code.google.com/p/softether/
 
 We hope that you can reach one of the above URLs at least!
+
+
+SOURCE CODE CONTRIBUTION
+------------------------
+
+Your contribution to SoftEther VPN Project is much appreciated.
+Please send patches to us through GitHub.
+Read the SoftEther VPN Patch Acceptance Policy in advance:
+http://www.softether.org/5-download/src/9.patch
 
 
 DEAR SECURITY EXPERTS
@@ -180,7 +193,8 @@ PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
 COUNTRIES MIGHT BE RESTRICTED.
 
 READ AND UNDERSTAND THE 'WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
-SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
+SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE
+WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
 
 
 ADVERTISEMENT

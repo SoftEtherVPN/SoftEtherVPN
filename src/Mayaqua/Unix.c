@@ -11,7 +11,8 @@
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Authors: Daiyuu Nobori
+// Contributors: Melvyn (https://github.com/yaurthek)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -59,6 +60,15 @@
 // SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
 // PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
 // COUNTRIES MIGHT BE RESTRICTED.
+// 
+// 
+// SOURCE CODE CONTRIBUTION
+// ------------------------
+// 
+// Your contribution to SoftEther VPN Project is much appreciated.
+// Please send patches to us through GitHub.
+// Read the SoftEther VPN Patch Acceptance Policy in advance:
+// http://www.softether.org/5-download/src/9.patch
 // 
 // 
 // DEAR SECURITY EXPERTS

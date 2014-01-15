@@ -4,14 +4,14 @@ http://www.softether.org/
 AUTHORS OF SOFTETHER VPN
 ------------------------
 
-PROGRAMMERS:
+CORE DEVELOPERS:
 
   - Daiyuu Nobori
     Computer Science, Graduate School of University of Tsukuba
     SoftEther Corporation
     E-mail: daiyuu-nobori [at] softether.org
 
-  - Tetsuo Sugiyama, Ph. D.
+  - Tetsuo Sugiyama, Ph.D.
     SoftEther Corporation
 
   - Junpei Kuwana
@@ -25,11 +25,29 @@ PROGRAMMERS:
   - Christopher Smith
     College of Information Science, University of Tsukuba
 
+  - Mei Sharie Ann Yamaguchi
+    Life and Environmental Sciences, Graduate School of University of Tsukuba
+
 
 WEB-SITE DESIGNER:
 
   - Genya Hatakeyama
     College of Information Science, University of Tsukuba
+
+
+CONTRIBUTORS on GitHub:
+
+  - Melvyn
+    https://github.com/yaurthek
+
+
+JOIN THE SOFTETHER VPN DEVELOPMENT
+----------------------------------
+
+Want to become a contributor? Please send us a patch.
+
+See also: SoftEther VPN Patch Acceptance Policy
+http://www.softether.org/5-download/src/9.patch
 
 
 Developed by SoftEther VPN Project at University of Tsukuba in Japan.

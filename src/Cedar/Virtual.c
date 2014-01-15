@@ -61,6 +61,15 @@
 // COUNTRIES MIGHT BE RESTRICTED.
 // 
 // 
+// SOURCE CODE CONTRIBUTION
+// ------------------------
+// 
+// Your contribution to SoftEther VPN Project is much appreciated.
+// Please send patches to us through GitHub.
+// Read the SoftEther VPN Patch Acceptance Policy in advance:
+// http://www.softether.org/5-download/src/9.patch
+// 
+// 
 // DEAR SECURITY EXPERTS
 // ---------------------
 // 
@@ -9333,7 +9342,7 @@ void VirtualDhcpServer(VH *v, PKT *p)
 		return;
 	}
 
-	if (StartWith(opt->Hostname, NN_HOSTNAME_STARTWITH))
+	if (StartWith(opt->Hostname, NN_HOSTNAME_STARTWITH) || StartWith(opt->Hostname, NN_HOSTNAME_STARTWITH2))
 	{
 		Free(opt);
 		return;

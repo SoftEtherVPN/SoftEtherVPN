@@ -61,6 +61,15 @@
 // COUNTRIES MIGHT BE RESTRICTED.
 // 
 // 
+// SOURCE CODE CONTRIBUTION
+// ------------------------
+// 
+// Your contribution to SoftEther VPN Project is much appreciated.
+// Please send patches to us through GitHub.
+// Read the SoftEther VPN Patch Acceptance Policy in advance:
+// http://www.softether.org/5-download/src/9.patch
+// 
+// 
 // DEAR SECURITY EXPERTS
 // ---------------------
 // 
@@ -90,8 +99,9 @@
 #define	NN_NEXT_WAIT_TIME_FOR_DEVICE_ENUM	(60 * 1000)
 #define	NN_NEXT_WAIT_TIME_MAX_FAIL_COUNT	15
 
-#define	NN_HOSTNAME_FORMAT				"securenat_%s"
-#define	NN_HOSTNAME_STARTWITH			"securenat_"
+#define	NN_HOSTNAME_FORMAT				"securenat-%s"
+#define	NN_HOSTNAME_STARTWITH			"securenat-"
+#define	NN_HOSTNAME_STARTWITH2			"securenat_"
 #define	NN_CHECK_CONNECTIVITY_TIMEOUT	(5 * 1000)
 #define	NN_CHECK_CONNECTIVITY_INTERVAL	(1 * 1000)
 

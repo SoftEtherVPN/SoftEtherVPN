@@ -56,6 +56,15 @@
 // COUNTRIES MIGHT BE RESTRICTED.
 // 
 // 
+// SOURCE CODE CONTRIBUTION
+// ------------------------
+// 
+// Your contribution to SoftEther VPN Project is much appreciated.
+// Please send patches to us through GitHub.
+// Read the SoftEther VPN Patch Acceptance Policy in advance:
+// http://www.softether.org/5-download/src/9.patch
+// 
+// 
 // DEAR SECURITY EXPERTS
 // ---------------------
 // 
