@@ -11799,33 +11799,43 @@ RETRY:
 void MainCM()
 {
 	// If there is /remote in the argument, show the screen of the remote connection
-	char *cmdline = GetCommandLineStr();
+	TOKEN_LIST *cmdline = GetCommandLineToken();
 
-	if (StrCmpi(cmdline, "/remote") == 0)
+	if (cmdline->NumTokens >= 1)
 	{
-		char *hostname = RemoteDlg(NULL, CM_REG_KEY, ICO_VPN, _UU("CM_TITLE"), _UU("CM_REMOTE_TITLE"), NULL);
-		if (hostname == NULL)
+		if (StrCmpi(cmdline->Token[0], "/remote") == 0)
 		{
-			return;
+			if (cmdline->NumTokens >= 2)
+			{
+				cm->server_name = CopyStr(cmdline->Token[1]);
+			}
+			else
+			{
+				char *hostname = RemoteDlg(NULL, CM_REG_KEY, ICO_VPN, _UU("CM_TITLE"), _UU("CM_REMOTE_TITLE"), NULL);
+				if (hostname == NULL)
+				{
+					return;
+				}
+				if (cm->server_name != NULL)
+				{
+					Free(cm->server_name);
+				}
+				cm->server_name = NULL;
+				if (StrCmpi(hostname, "localhost") != 0 && StrCmpi(hostname, "127.0.0.1") != 0 )
+				{
+					cm->server_name = hostname;
+				}
+			}
 		}
-		if (cm->server_name != NULL)
+	
+		if (StrCmpi(cmdline->Token[0], "/startup") == 0)
 		{
-			Free(cm->server_name);
-		}
-		cm->server_name = NULL;
-		if (StrCmpi(hostname, "localhost") != 0 && StrCmpi(hostname, "127.0.0.1") != 0 )
-		{
-			cm->server_name = hostname;
+			// Startup mode
+			cm->StartupMode = true;
 		}
 	}
 
-	if (StrCmpi(cmdline, "/startup") == 0)
-	{
-		// Startup mode
-		cm->StartupMode = true;
-	}
-
-	Free(cmdline);
+	FreeToken(cmdline);
 
 	if (IsZero(cm->ShortcutKey, SHA1_SIZE) == false)
 	{
