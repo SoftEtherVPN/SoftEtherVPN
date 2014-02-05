@@ -942,7 +942,7 @@ void SetThreadName(UINT thread_id, char *name, void *param)
 		}
 		else
 		{
-			sprintf(tmp, "%s (0x%x)", name, param);
+			sprintf(tmp, "%s (0x%x)", name, (UINT)param);
 		}
 
 		Win32SetThreadName(thread_id, tmp);
@@ -1756,7 +1756,7 @@ void TimeToTm(struct tm *t, time_t time)
 	ret = gmtime(&time);
 #else	// OS_UNIX
 	ret = malloc(sizeof(struct tm));
-	memset(ret, 0, sizeof(ret));
+	memset(ret, 0, sizeof(struct tm));
 	gmtime_r(&time, ret);
 #endif	// OS_UNIX
 
@@ -1795,7 +1795,7 @@ void NormalizeTm(struct tm *t)
 	ret = gmtime(&tmp);
 #else	// OS_UNIX
 	ret = malloc(sizeof(struct tm));
-	memset(ret, 0, sizeof(ret));
+	memset(ret, 0, sizeof(struct tm));
 	gmtime_r(&tmp, ret);
 #endif	// OS_UNIX
 

@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -7462,7 +7464,7 @@ bool CtDisableVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *vlan)
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
-#endif
+#endif	// NO_VLAN
 
 	// Check whether the virtual LAN card with the specified name is not
 	// being used by one or more accounts
@@ -7615,7 +7617,7 @@ bool CtEnableVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *vlan)
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
-#endif
+#endif	// NO_VLAN
 
 	// Search the virtual LAN card
 	LockList(c->UnixVLanList);
@@ -7713,7 +7715,7 @@ bool CtDeleteVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *d)
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
-#endif
+#endif	// NO_VLAN
 
 	// Check whether the virtual LAN card with the specified name is not
 	// being used by one or more accounts
@@ -8287,7 +8289,7 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
-#endif
+#endif	// NO_VLAN
 
 	// Check whether the specified name is valid or not
 	if (IsSafeStr(create->DeviceName) == false)
@@ -9812,7 +9814,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 	if (OS_IS_UNIX(GetOsInfo()->OsType)
 #ifdef	NO_VLAN
 	    && GetOsInfo()->OsType != OSTYPE_MACOS_X
-#endif
+#endif	// NO_VLAN
 	    )
 	{
 		// Read the UNIX version virtual LAN card list (except MacOS)
@@ -9844,8 +9846,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		Add(c->UnixVLanList, uv);
 #endif	// OS_UNIX
 	}
-#endif
-
+#endif	// NO_VLAN
 	CiLoadAccountDatabase(c, db);
 
 	if (CfgGetByte(root, "EncryptedPassword", c->EncryptedPassword, SHA1_SIZE) == false)
@@ -10354,7 +10355,7 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 	if (OS_IS_UNIX(GetOsInfo()->OsType)
 #ifdef	NO_VLAN
 	    && GetOsInfo()->OsType != OSTYPE_MACOS_X
-#endif
+#endif	// NO_VLAN
 	    )
 	{
 		vlan = CfgCreateFolder(root, "UnixVLan");

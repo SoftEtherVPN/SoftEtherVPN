@@ -114,10 +114,10 @@
 
 
 // Version number
-#define	CEDAR_VER					404
+#define	CEDAR_VER					405
 
 // Build Number
-#define	CEDAR_BUILD					9412
+#define	CEDAR_BUILD					9416
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -137,11 +137,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2014
-#define	BUILD_DATE_M		1
-#define	BUILD_DATE_D		15
-#define	BUILD_DATE_HO		17
-#define	BUILD_DATE_MI		22
-#define	BUILD_DATE_SE		14
+#define	BUILD_DATE_M		2
+#define	BUILD_DATE_D		6
+#define	BUILD_DATE_HO		0
+#define	BUILD_DATE_MI		36
+#define	BUILD_DATE_SE		26
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -708,12 +708,12 @@
 #ifdef	UNIX_MACOS
 #ifdef	NO_VLAN
 #define	TAP_MACOS_FILENAME			"/dev/tap0"
-#else
+#else	// NO_VLAN
 #define	TAP_MACOS_FILENAME			"tap"
-#endif
+#endif	// NO_VLAN
 #define	TAP_MACOS_DIR				"/dev/"
 #define	TAP_MACOS_NUMBER			(16)
-#endif
+#endif	// UNIX_MACOS
 
 
 

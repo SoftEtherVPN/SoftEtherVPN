@@ -295,7 +295,7 @@ struct tuninfo {
 
 #else	// UNIX_BSD
 
-#endif	// UNIX_BSD || UNIX_MACOS
+#endif	// defined(UNIX_BSD) || (!defined(NO_VLAN) && defined(UNIX_MACOS))
 
 #endif	// UNIX_SOLARIS
 

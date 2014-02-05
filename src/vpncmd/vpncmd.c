@@ -114,7 +114,7 @@
 int main(int argc, char *argv[])
 {
 	wchar_t *s;
-	UINT ret;
+	UINT ret = 0;
 
 #ifdef	OS_WIN32
 	SetConsoleTitleA(CEDAR_PRODUCT_STR " VPN Command Line Utility");

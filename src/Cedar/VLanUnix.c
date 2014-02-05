@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -538,7 +540,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 
 		close(s);
 	}
-#endif
+#endif	// UNIX_MACOS
 #ifdef	UNIX_SOLARIS
 	// Create a tap for Solaris
 	{

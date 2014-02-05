@@ -12,7 +12,9 @@
 // http://www.softether.org/
 // 
 // Authors: Daiyuu Nobori
-// Contributors: Melvyn (https://github.com/yaurthek)
+// Contributors:
+// - Melvyn (https://github.com/yaurthek)
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -128,9 +130,9 @@ struct statfs {
         char    f_mntonname[90];  /* directory on which mounted */
         char    f_mntfromname[90];/* mounted filesystem */
 };
-#else
+#else	// NO_VLAN
 #include <sys/mount.h>
-#endif
+#endif	// NO_VLAN
 #endif	// UNIX_MACOS
 
 // Scandir() function for Solaris

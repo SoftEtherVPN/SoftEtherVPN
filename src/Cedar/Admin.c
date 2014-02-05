@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - ELIN (https://github.com/el1n)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
