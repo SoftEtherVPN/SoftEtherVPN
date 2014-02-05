@@ -236,10 +236,13 @@ struct tundladdr {
 
 #else	// UNIX_SOLARIS
 
-#ifdef	UNIX_BSD
+#if	defined(UNIX_BSD) || (!defined(NO_VLAN) && defined(UNIX_MACOS))
 
 // -----------------------------------------------------------------
 // Tap header for FreeBSD
+// -----------------------------------------------------------------
+// -----------------------------------------------------------------
+// Tap header For MacOS
 // -----------------------------------------------------------------
 /*      $NetBSD: if_tun.h,v 1.5 1994/06/29 06:36:27 cgd Exp $   */
 
@@ -292,17 +295,7 @@ struct tuninfo {
 
 #else	// UNIX_BSD
 
-#ifdef	UNIX_MACOS
-
-// -----------------------------------------------------------------
-// Tap header For MacOS
-// -----------------------------------------------------------------
-
-#else	// UNIX_MACOS
-
-#endif	// UNIX_MACOS
-
-#endif	// UNIX_BSD
+#endif	// UNIX_BSD || UNIX_MACOS
 
 #endif	// UNIX_SOLARIS
 
