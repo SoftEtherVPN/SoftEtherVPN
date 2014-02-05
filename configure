@@ -21,8 +21,9 @@ echo ' 1: Linux'
 echo ' 2: FreeBSD'
 echo ' 3: Solaris'
 echo ' 4: Mac OS X'
+echo ' 5: OpenBSD'
 echo
-echo -n 'Which is your operating system (1 - 4) ? : '
+echo -n 'Which is your operating system (1 - 5) ? : '
 read TMP
 echo
 OS=""
@@ -41,6 +42,10 @@ fi
 if test "$TMP" = "4"
 then
 	OS="macos"
+fi
+if test "$TMP" = "5"
+then
+	OS="openbsd"
 fi
 
 if test "$OS" = ""
