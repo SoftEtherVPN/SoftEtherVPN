@@ -1,0 +1,3 @@
+#!/bin/sh
+/opt/vpnserver/vpnserver "$@"
+exit $?
