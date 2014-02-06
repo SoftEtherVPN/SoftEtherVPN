@@ -23,7 +23,7 @@ echo ' 3: Solaris'
 echo ' 4: Mac OS X'
 echo ' 5: OpenBSD'
 echo
-echo -n 'Which is your operating system (1 - 4) ? : '
+echo -n 'Which is your operating system (1 - 5) ? : '
 read TMP
 echo
 OS=""
