@@ -215,7 +215,7 @@ FOLDER *CfgBufTextToFolder(BUF *b);
 FOLDER *CfgBufBinToFolder(BUF *b);
 void CfgReadNextFolderBin(BUF *b, FOLDER *parent);
 char *CfgReadNextLine(BUF *b);
-bool CfgReadNextTextBuf(BUF *b, FOLDER *current);
+bool CfgReadNextTextBUF(BUF *b, FOLDER *current);
 void CfgSave(FOLDER *f, char *name);
 void CfgSaveW(FOLDER *f, wchar_t *name);
 bool CfgSaveEx(CFG_RW *rw, FOLDER *f, char *name);

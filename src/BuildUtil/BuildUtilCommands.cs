@@ -487,8 +487,63 @@ namespace BuildUtil
 			txt.WriteLine("*");
 			txt.WriteLine();
 
+			string src_bindir = Path.Combine(Paths.BaseDirName, "bin");
+			string vpnsmgr_zip_filename_relative = @"Windows\Admin Tools\VPN Server Manager and Command-line Utility Package\";
+			vpnsmgr_zip_filename_relative += 
+#if BU_SOFTETHER
+				"softether-" + 
+#endif	// BU_SOFTETHER
+			string.Format("vpn_admin_tools-v{0}.{1:D2}-{2}-{3}-{4:D4}.{5:D2}.{6:D2}-win32.zip",
+				version / 100, version % 100, build, name,
+				date.Year, date.Month, date.Day);
+
+			string vpnsmgr_zip_filename_full = Path.Combine(Path.Combine(publicDir, cddir), vpnsmgr_zip_filename_relative);
+
+			ZipPacker zip = new ZipPacker();
+			zip.AddFileSimple("vpnsmgr.exe", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, "vpnsmgr.exe")), true);
+			zip.AddFileSimple("vpncmd.exe", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, "vpncmd.exe")), true);
+			zip.AddFileSimple("hamcore.se2", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"BuiltHamcoreFiles\hamcore_win32\hamcore.se2")), true);
+			zip.AddFileSimple("ReadMeFirst_License.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\eula.txt")), true);
+			zip.AddFileSimple("ReadMeFirst_Important_Notices_ja.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_ja.txt")), true);
+			zip.AddFileSimple("ReadMeFirst_Important_Notices_en.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_en.txt")), true);
+			zip.AddFileSimple("ReadMeFirst_Important_Notices_cn.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_cn.txt")), true);
+			zip.Finish();
+			byte[] zip_data = zip.GeneratedData.Read();
+			IO.MakeDirIfNotExists(Path.GetDirectoryName(vpnsmgr_zip_filename_full));
+			IO.SaveFile(vpnsmgr_zip_filename_full, zip_data);
+
+			// ZIP package for VPN Server Manager GUI
+			txt.WriteLine("FILENAME\t" + Str.ReplaceStr(vpnsmgr_zip_filename_relative, @"\", "/"));
+#if BU_SOFTETHER
+			txt.WriteLine("DESCRIPTION\t" + "ZIP Package of vpnsmgr.exe and vpncmd.exe (without installers)");
+			txt.WriteLine("CATEGORY\t" + "SoftEther VPN (Freeware)");
+			txt.WriteLine("PRODUCT\t" + "SoftEther VPN Server Manager for Windows, SoftEther VPN Command-Line Admin Utility (vpncmd)");
+#else	// BU_SOFTETHER
+			txt.WriteLine("DESCRIPTION\t" + "ZIP Package of vpnsmgr.exe and vpncmd.exe (without installers)");
+			txt.WriteLine("CATEGORY\t" + "PacketiX VPN (Commercial)");
+			txt.WriteLine("PRODUCT\t" + "PacketiX VPN Server Manager for Windows, PacketiX VPN Command-Line Admin Utility (vpncmd)");
+#endif	// BU_SOFTETHER
+			txt.WriteLine("OS\t" + "Windows (.zip package without installers)");
+			txt.WriteLine("OSLIST\t" + OSList.Windows.OSSimpleList);
+			txt.WriteLine("CPU\t" + "Intel (x86 and x64)");
+			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(version));
+			txt.WriteLine("BUILD\t" + build.ToString());
+			txt.WriteLine("VERSTR\t" + name);
+			txt.WriteLine("DATE\t" + Str.DateTimeToStrShortWithMilliSecs(date));
+			txt.WriteLine("LANGUAGE\t" + "English, Japanese, Simplified Chinese");
+			txt.WriteLine("*");
+			txt.WriteLine();
+
 			IO.MakeDirIfNotExists(Path.Combine(publicDir, cddir));
 			File.WriteAllText(Path.Combine(Path.Combine(publicDir, cddir), "files.txt"), txt.ToString(), Str.Utf8Encoding);
+
 
 			// Execution of batch file
 			string old_cd = Environment.CurrentDirectory;

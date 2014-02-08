@@ -268,6 +268,24 @@ namespace BuildUtil
 				"macos-x86-64bit", true, "macos-x86-64bit-4.0.4", true,
 				null);
 
+		// Client
+		public static readonly BuildSoftware vpnclient_macos_ppc32_ja =
+			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.ppc32, OSList.MacOS,
+				"macos-ppc-32bit", true, "macos-ppc-32bit-4.0.4", true,
+				"-isysroot /cygdrive/s/CommomDev/xc/common/apple_xcode/xcode_2.4/Developer/SDKs/MacOSX10.4u.sdk");
+		public static readonly BuildSoftware vpnclient_macos_ppc64_ja =
+			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.ppc64, OSList.MacOS,
+				"macos-ppc-64bit", true, "macos-ppc-64bit-4.0.4", true,
+				null);
+		public static readonly BuildSoftware vpnclient_macos_x86_ja =
+			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.x86, OSList.MacOS,
+				"macos-x86-32bit", true, "macos-x86-32bit-4.0.4", true,
+				"-isysroot /cygdrive/s/CommomDev/xc/common/apple_xcode/xcode_2.4/Developer/SDKs/MacOSX10.4u.sdk");
+		public static readonly BuildSoftware vpnclient_macos_x64_ja =
+			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.x64, OSList.MacOS,
+				"macos-x86-64bit", true, "macos-x86-64bit-4.0.4", true,
+				null);
+
 		// Bridge
 		public static readonly BuildSoftware vpnbridge_macos_ppc32_ja =
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.ppc32, OSList.MacOS,
@@ -345,7 +363,7 @@ namespace BuildUtil
 					{
 						s.GccMacros.Add("UNIX_MACOS");
 						s.GccMacros.Add("BRIDGE_PCAP");
-						s.GccMacros.Add("NO_VLAN");
+						//s.GccMacros.Add("NO_VLAN");
 					}
 					else if (soft.Os == OSList.Solaris)
 					{
@@ -391,7 +409,7 @@ namespace BuildUtil
 	{
 		// Windows
 		public static readonly OS Windows = new OS("windows", "Windows",
-			"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Server 2003 SP2 / Vista SP1, SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / 7 SP1 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / 8 / Server 2012 / Hyper-V Server 2012 / 8.1 / Server 2012 R2 / Hyper-V Server 2012 R2",
+			"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2",
 			new Cpu[]
 			{
 				CpuList.intel,
@@ -414,7 +432,16 @@ namespace BuildUtil
 
 		// FreeBSD
 		public static readonly OS FreeBSD = new OS("freebsd", "FreeBSD",
-			"FreeBSD 5 / 6 / 7 / 8 / 9",
+			"FreeBSD 5 / 6 / 7 / 8 / 9 / 10",
+			new Cpu[]
+			{
+				CpuList.x86,
+				CpuList.x64,
+			});
+
+		// OpenBSD
+		public static readonly OS OpenBSD = new OS("openbsd", "OpenBSD",
+			"OpenBSD 5 / 6 / 7 / 8 / 9 / 10",
 			new Cpu[]
 			{
 				CpuList.x86,
@@ -434,7 +461,7 @@ namespace BuildUtil
 
 		// Mac OS X
 		public static readonly OS MacOS = new OS("macos", "Mac OS X",
-			"Mac OS X 10.4 Tiger / 10.5 Leopard / 10.6 Snow Leopard / 10.7 Lion / 10.8 Mountain Lion",
+			"Mac OS X 10.4 Tiger / 10.5 Leopard / 10.6 Snow Leopard / 10.7 Lion / 10.8 Mountain Lion / 10.9 Mavericks",
 			new Cpu[]
 			{
 				CpuList.x86,

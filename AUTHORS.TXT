@@ -40,6 +40,18 @@ CONTRIBUTORS on GitHub:
   - Melvyn
     https://github.com/yaurthek
 
+  - nattoheaven
+    https://github.com/nattoheaven
+
+  - ELIN
+    https://github.com/el1n
+
+  - Dmitry Orlov
+    https://github.com/mosquito
+
+  - Renaud Allard
+    https://github.com/renaudallard
+
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------

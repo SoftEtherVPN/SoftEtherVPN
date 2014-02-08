@@ -1,0 +1,3 @@
+#!/bin/sh
+/opt/vpnbridge/vpnbridge "$@"
+exit $?

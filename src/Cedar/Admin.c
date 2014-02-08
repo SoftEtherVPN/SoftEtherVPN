@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - ELIN (https://github.com/el1n)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -13212,6 +13214,9 @@ bool CheckAdminSourceAddress(SOCK *sock, char *hubname)
 		UINT i;
 		TOKEN_LIST *t;
 		IP ip;
+		IP mask;
+		IP ip1;
+		IP ip2;
 		s = CfgReadNextLine(b);
 
 		if (s == NULL)
@@ -13242,7 +13247,30 @@ bool CheckAdminSourceAddress(SOCK *sock, char *hubname)
 			{
 				if (t->NumTokens == 1 || StrCmpi(hubname, t->Token[1]) == 0)
 				{
-					if (StrToIP(&ip, t->Token[0]))
+					if (ParseIpAndMask46(t->Token[0], &ip, &mask))
+					{
+						if (IsIP4(&sock->RemoteIP) && IsIP4(&ip))
+						{
+							IPAnd4(&ip1, &sock->RemoteIP, &mask);
+							IPAnd4(&ip2, &ip, &mask);
+
+							if (CmpIpAddr(&ip1, &ip2) == 0)
+							{
+								ok = true;
+							}
+						}
+						else if (IsIP6(&sock->RemoteIP) && IsIP6(&ip))
+						{
+							IPAnd6(&ip1, &sock->RemoteIP, &mask);
+							IPAnd6(&ip2, &ip, &mask);
+
+							if (CmpIpAddr(&ip1, &ip2) == 0)
+							{
+								ok = true;
+							}
+						}
+					}
+					else if (StrToIP(&ip, t->Token[0]))
 					{
 						if (CmpIpAddr(&sock->RemoteIP, &ip) == 0)
 						{

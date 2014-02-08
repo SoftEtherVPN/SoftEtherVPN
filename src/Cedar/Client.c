@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -7455,12 +7457,14 @@ bool CtDisableVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *vlan)
 
 #ifndef	OS_WIN32
 
+#ifdef	NO_VLAN
 	if (GetOsInfo()->OsType == OSTYPE_MACOS_X)
 	{
 		// Can not be added or removed the virtual LAN card in MacOS X
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
+#endif	// NO_VLAN
 
 	// Check whether the virtual LAN card with the specified name is not
 	// being used by one or more accounts
@@ -7606,12 +7610,14 @@ bool CtEnableVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *vlan)
 
 #ifndef	OS_WIN32
 
+#ifdef	NO_VLAN
 	if (GetOsInfo()->OsType == OSTYPE_MACOS_X)
 	{
 		// Can not be added or removed the virtual LAN card in MacOS X
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
+#endif	// NO_VLAN
 
 	// Search the virtual LAN card
 	LockList(c->UnixVLanList);
@@ -7702,12 +7708,14 @@ bool CtDeleteVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *d)
 
 #ifndef	OS_WIN32
 
+#ifdef	NO_VLAN
 	if (GetOsInfo()->OsType == OSTYPE_MACOS_X)
 	{
 		// Can not be added or removed the virtual LAN card in MacOS X
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
+#endif	// NO_VLAN
 
 	// Check whether the virtual LAN card with the specified name is not
 	// being used by one or more accounts
@@ -8274,12 +8282,14 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 #ifndef	OS_WIN32
 
 	// Non-Win32
+#ifdef	NO_VLAN
 	if (GetOsInfo()->OsType == OSTYPE_MACOS_X)
 	{
 		// A virtual LAN card can not be added or removed in MacOS X
 		CiSetError(c, ERR_NOT_SUPPORTED);
 		return false;
 	}
+#endif	// NO_VLAN
 
 	// Check whether the specified name is valid or not
 	if (IsSafeStr(create->DeviceName) == false)
@@ -9801,7 +9811,11 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 	// Eraser
 	c->Eraser = NewEraser(c->Logger, CfgGetInt64(config, "AutoDeleteCheckDiskFreeSpaceMin"));
 
-	if (OS_IS_UNIX(GetOsInfo()->OsType) && GetOsInfo()->OsType != OSTYPE_MACOS_X)
+	if (OS_IS_UNIX(GetOsInfo()->OsType)
+#ifdef	NO_VLAN
+	    && GetOsInfo()->OsType != OSTYPE_MACOS_X
+#endif	// NO_VLAN
+	    )
 	{
 		// Read the UNIX version virtual LAN card list (except MacOS)
 		vlan = CfgGetFolder(root, "UnixVLan");
@@ -9811,6 +9825,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		}
 	}
 
+#ifdef	NO_VLAN
 	if (GetOsInfo()->OsType == OSTYPE_MACOS_X)
 	{
 #ifdef	OS_UNIX
@@ -9831,7 +9846,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		Add(c->UnixVLanList, uv);
 #endif	// OS_UNIX
 	}
-
+#endif	// NO_VLAN
 	CiLoadAccountDatabase(c, db);
 
 	if (CfgGetByte(root, "EncryptedPassword", c->EncryptedPassword, SHA1_SIZE) == false)
@@ -10337,7 +10352,11 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 	CiWriteCAList(c, ca);
 
 	// VLAN
-	if (OS_IS_UNIX(GetOsInfo()->OsType) && GetOsInfo()->OsType != OSTYPE_MACOS_X)
+	if (OS_IS_UNIX(GetOsInfo()->OsType)
+#ifdef	NO_VLAN
+	    && GetOsInfo()->OsType != OSTYPE_MACOS_X
+#endif	// NO_VLAN
+	    )
 	{
 		vlan = CfgCreateFolder(root, "UnixVLan");
 		CiWriteVLanList(c, vlan);

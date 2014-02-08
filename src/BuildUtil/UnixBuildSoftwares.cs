@@ -277,7 +277,17 @@ namespace BuildUtil
 
 				tar.AddFileSimple(targetName + @"\" + "ReadMeFirst_Important_Notices_en.txt", destData, 0, destData.Length, DateTime.Now);
 			}
-		
+
+			if (true)
+			{
+				string srcData = File.ReadAllText(Path.Combine(Paths.BinDirName, @"hamcore\warning_cn.txt"),
+					enc);
+
+				byte[] destData = enc.GetBytes(srcData);
+
+				tar.AddFileSimple(targetName + @"\" + "ReadMeFirst_Important_Notices_cn.txt", destData, 0, destData.Length, DateTime.Now);
+			}
+	
 
 			// Codes
 			string[] dirs =

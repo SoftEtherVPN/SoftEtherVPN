@@ -1,0 +1,2 @@
+debian/bin/vpnserver usr/bin/
+usr/vpnserver opt/

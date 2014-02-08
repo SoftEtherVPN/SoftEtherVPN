@@ -12,6 +12,8 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // 
@@ -311,11 +313,7 @@ CANCEL *VLanGetCancel(VLAN *v)
 
 	fd = v->fd;
 
-#ifndef	UNIX_MACOS
 	UnixSetSocketNonBlockingMode(fd, true);
-#else	// UNIX_MACOS
-	UnixSetSocketNonBlockingMode(fd, false);
-#endif	// UNIX_MACOS
 
 	c->SpecialFlag = true;
 	c->pipe_read = fd;
@@ -411,6 +409,9 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 	struct sockaddr sa;
 	char *tap_name = TAP_FILENAME_1;
 	int s;
+#ifdef	UNIX_MACOS
+	char tap_macos_name[256] = TAP_MACOS_DIR TAP_MACOS_FILENAME;
+#endif
 	// Validate arguments
 	if (name == NULL)
 	{
@@ -454,13 +455,23 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 		tap_name = TAP_FILENAME_2;
 	}
 #else	// UNIX_MACOS
-	// MacOS X
-	fd = open(TAP_MACOS_FILENAME, O_RDWR);
-	if (fd == -1)
 	{
-		return -1;
+		int i;
+		fd = -1;
+		for (i = 0; i < TAP_MACOS_NUMBER; i++) {
+			sprintf(tap_macos_name + strlen(TAP_MACOS_DIR TAP_MACOS_FILENAME), "%d", i);
+			fd = open(tap_macos_name, O_RDWR);
+			if (fd != -1)
+			{
+				tap_name = tap_macos_name;
+				break;
+			}
+		}
+		if (fd == -1)
+		{
+			return -1;
+		}
 	}
-	tap_name = TAP_MACOS_FILENAME;
 #endif	// UNIX_MACOS
 
 #ifdef	UNIX_LINUX
@@ -488,7 +499,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 			Zero(&ifr, sizeof(ifr));
 			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 			ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-			Copy(&ifr.ifr_hwaddr.sa_data, mac_address, 6);
+			Copy(&ifr.ifr_addr.sa_data, mac_address, 6);
 			ioctl(s, SIOCSIFHWADDR, &ifr);
 		}
 
@@ -503,6 +514,33 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 	}
 
 #else	// UNIX_LINUX
+#ifdef	UNIX_MACOS
+	// MAC address setting
+	s = socket(AF_INET, SOCK_DGRAM, 0);
+	if (s != -1)
+	{
+		char *macos_eth_name;
+		macos_eth_name = tap_macos_name + strlen(TAP_MACOS_DIR);
+
+		if (mac_address != NULL)
+		{
+			uint8_t macos_mac_address[19];
+			Zero(&ifr, sizeof(ifr));
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
+			Copy(&ifr.ifr_addr.sa_data, mac_address, 6);
+			ioctl(s, SIOCSIFLLADDR, &ifr);
+		}
+
+		Zero(&ifr, sizeof(ifr));
+		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
+		ioctl(s, SIOCGIFFLAGS, &ifr);
+
+		ifr.ifr_flags |= IFF_UP;
+		ioctl(s, SIOCSIFFLAGS, &ifr);
+
+		close(s);
+	}
+#endif	// UNIX_MACOS
 #ifdef	UNIX_SOLARIS
 	// Create a tap for Solaris
 	{

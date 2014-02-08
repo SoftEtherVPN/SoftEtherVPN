@@ -3729,9 +3729,22 @@ UINT AboutDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 
 				CombinePathW(path, sizeof(path), MsGetExeDirNameW(), L"vpnsetup.exe");
 
-				if (MsExecuteW(path, L"/language:yes") == false)
+				if (IsFileExistsW(path))
 				{
-					MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("SW_CHILD_PROCESS_ERROR"));
+					// with Installer
+					if (MsExecuteW(path, L"/language:yes") == false)
+					{
+						MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("SW_CHILD_PROCESS_ERROR"));
+					}
+				}
+				else
+				{
+					// without Installer
+					CombinePathW(path, sizeof(path), MsGetExeDirNameW(), L"lang.config");
+					if (MsExecuteW(path, L"") == false)
+					{
+						MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("SW_CHILD_PROCESS_ERROR"));
+					}
 				}
 			}
 			break;
