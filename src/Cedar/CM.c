@@ -11743,7 +11743,7 @@ RETRY:
 	// Attempt to connect
 	if ((cm->Client = CcConnectRpc(
 		cm->server_name == NULL ? "localhost" : cm->server_name,
-		"", &bad_pass, &no_remote, cm->StartupMode == false ? 0 : 60000)) == NULL)
+		cm->password == NULL ? "" : cm->password, &bad_pass, &no_remote, cm->StartupMode == false ? 0 : 60000)) == NULL)
 	{
 		if (no_remote)
 		{
@@ -11801,37 +11801,66 @@ void MainCM()
 	// If there is /remote in the argument, show the screen of the remote connection
 	TOKEN_LIST *cmdline = GetCommandLineToken();
 
-	if (cmdline->NumTokens >= 1)
+	UINT i = 0;
+	bool isRemote = false;
+
+	if (cm->server_name != NULL)
 	{
-		if (StrCmpi(cmdline->Token[0], "/remote") == 0)
+		Free(cm->server_name);
+	}
+	cm->server_name = NULL;
+
+	if (cm->password != NULL)
+	{
+		Free(cm->password);
+	}
+	cm->password = NULL;
+
+	for(i = 0; i < cmdline->NumTokens; ++i)
+	{
+		if (StrCmpi(cmdline->Token[i], "/remote") == 0)
 		{
-			if (cmdline->NumTokens >= 2)
-			{
-				cm->server_name = CopyStr(cmdline->Token[1]);
-			}
-			else
-			{
-				char *hostname = RemoteDlg(NULL, CM_REG_KEY, ICO_VPN, _UU("CM_TITLE"), _UU("CM_REMOTE_TITLE"), NULL);
-				if (hostname == NULL)
-				{
-					return;
-				}
-				if (cm->server_name != NULL)
-				{
-					Free(cm->server_name);
-				}
-				cm->server_name = NULL;
-				if (StrCmpi(hostname, "localhost") != 0 && StrCmpi(hostname, "127.0.0.1") != 0 )
-				{
-					cm->server_name = hostname;
-				}
-			}
+			isRemote = true;
 		}
-	
-		if (StrCmpi(cmdline->Token[0], "/startup") == 0)
+		else if (StrCmpi(cmdline->Token[i], "/hostname") == 0 && i + 1 < cmdline->NumTokens)
+		{
+			isRemote = true;
+			if (cm->server_name != NULL)
+			{
+				Free(cm->server_name);
+			}
+			cm->server_name = CopyStr(cmdline->Token[++i]);
+		}
+		else if (StrCmpi(cmdline->Token[i], "/password") == 0 && i + 1 < cmdline->NumTokens)
+		{
+			if (cm->password != NULL)
+			{
+				Free(cm->password);
+			}
+			cm->password = CopyStr(cmdline->Token[++i]);
+		}
+		else if (StrCmpi(cmdline->Token[i], "/startup") == 0)
 		{
 			// Startup mode
 			cm->StartupMode = true;
+		}
+	}
+
+	if (isRemote && cm->server_name == NULL)
+	{
+		char *hostname = RemoteDlg(NULL, CM_REG_KEY, ICO_VPN, _UU("CM_TITLE"), _UU("CM_REMOTE_TITLE"), NULL);
+		if (hostname == NULL)
+		{
+			return;
+		}
+		if (cm->server_name != NULL)
+		{
+			Free(cm->server_name);
+		}
+		cm->server_name = NULL;
+		if (StrCmpi(hostname, "localhost") != 0 && StrCmpi(hostname, "127.0.0.1") != 0 )
+		{
+			cm->server_name = hostname;
 		}
 	}
 
