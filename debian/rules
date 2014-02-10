@@ -20,3 +20,5 @@ override_dh_auto_install:
 configure_config:
 	if [ $(shell uname -m) = 'x86_64' ]; then echo "1\n2\n" | ./configure; fi
 	if [ $(shell uname -m) = 'i686' ]; then echo "1\n1\n" | ./configure; fi
+	if [ $(shell uname -m) = 'armv6l' ]; then echo "1\n1\n" | ./configure; fi
+
