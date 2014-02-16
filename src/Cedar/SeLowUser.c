@@ -230,9 +230,33 @@ bool SuInstallDriverInner(bool force)
 // Get whether the current OS is supported by SeLow
 bool SuIsSupportedOs()
 {
-	// At present, this doesn't support any OS.
-	return false;
-	//return MsIsWindows7();
+	if (MsRegReadIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "DisableSeLow", false, true) != 0)
+	{
+		// Force disable
+		return false;
+	}
+
+	// If the Su driver is currently running,
+	// then return true.
+	if (MsIsServiceRunning(SL_PROTOCOL_NAME))
+	{
+		return true;
+	}
+
+	// Currently Windows 8.1 or later are supported
+	if (MsIsWindows81() == false)
+	{
+		return false;
+	}
+
+	// If Microsoft Routing and Remote Access service is running,
+	// then return false.
+	if (MsIsServiceRunning("RemoteAccess"))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 // Write the next packet to the driver

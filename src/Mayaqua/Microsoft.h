@@ -974,6 +974,7 @@ bool MsIsIA64();
 void *MsDisableWow64FileSystemRedirection();
 void MsRestoreWow64FileSystemRedirection(void *p);
 void MsSetWow64FileSystemRedirectionEnable(bool enable);
+bool MsIsWindows81();
 bool MsIsWindows8();
 bool MsIsWindows7();
 bool MsIsInfCatalogRequired();

@@ -14,7 +14,7 @@ CORE DEVELOPERS:
   - Tetsuo Sugiyama, Ph.D.
     SoftEther Corporation
 
-  - Junpei Kuwana
+  - Junpei Kuwana, Ph.D.
     Risk Engineering, Graduate School of University of Tsukuba
     SoftEther Corporation
 
@@ -51,6 +51,9 @@ CONTRIBUTORS on GitHub:
 
   - Renaud Allard
     https://github.com/renaudallard
+
+  - Hideki Saito
+    https://github.com/hsaito
 
 
 JOIN THE SOFTETHER VPN DEVELOPMENT

@@ -3113,7 +3113,15 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 		if (c->InstallService && sw->IsSystemMode)
 		{
 			// Not to install in the case of the VPN Client
-			//if (c->Id != SW_CMP_VPN_CLIENT)
+			bool install_su = false;
+
+			if (c->Id != SW_CMP_VPN_CLIENT)
+			{
+				install_su = true;
+			}
+
+
+			if (install_su)
 			{
 				SwPerformPrint(wp, _UU("SW_PERFORM_MSG_INSTALL_SELOW"));
 

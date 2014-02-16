@@ -8667,7 +8667,36 @@ bool MsIsWindows7()
 	return false;
 }
 
-// Determine whether it's Windows 8 later
+// Determine whether it's Windows 8.1 or later
+bool MsIsWindows81()
+{
+	OS_INFO *info = GetOsInfo();
+
+	if (info == NULL)
+	{
+		return false;
+	}
+
+	if (OS_IS_WINDOWS_NT(info->OsType))
+	{
+		if (GET_KETA(info->OsType, 100) == 7)
+		{
+			if (GET_KETA(info->OsType, 1) >= 1)
+			{
+				return true;
+			}
+		}
+
+		if (GET_KETA(info->OsType, 100) >= 8)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Determine whether it's Windows 8 or later
 bool MsIsWindows8()
 {
 	OS_INFO *info = GetOsInfo();
