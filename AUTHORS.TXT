@@ -55,6 +55,9 @@ CONTRIBUTORS on GitHub:
   - Hideki Saito
     https://github.com/hsaito
 
+  - Dexter Ang
+    https://github.com/thepoch
+
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------

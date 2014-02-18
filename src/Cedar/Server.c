@@ -2468,13 +2468,8 @@ void SiLoadInitialConfiguration(SERVER *s)
 
 		{
 			// Enable VPN-over-ICMP" and VPN-over-DNS for default setting
-			s->EnableVpnOverIcmp = SiCanOpenVpnOverIcmpPort();
-			s->EnableVpnOverDns = SiCanOpenVpnOverDnsPort();
-
-#ifdef	OS_WIN32
-			// Over-DNS is disabled on Windows by default
+			s->EnableVpnOverIcmp = false;
 			s->EnableVpnOverDns = false;
-#endif	// OS_WIN32
 		}
 	}
 
@@ -5687,7 +5682,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 			else
 			{
-				s->EnableVpnOverIcmp = SiCanOpenVpnOverIcmpPort();;
+				s->EnableVpnOverIcmp = false;
 			}
 
 			// Enable the VPN-over-DNS
@@ -5697,7 +5692,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 			else
 			{
-				s->EnableVpnOverDns = SiCanOpenVpnOverDnsPort();
+				s->EnableVpnOverDns = false;
 			}
 		}
 

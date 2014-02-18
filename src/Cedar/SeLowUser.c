@@ -139,6 +139,12 @@ bool SuInstallDriverInner(bool force)
 		return false;
 	}
 
+	if (MsIsServiceRunning("RemoteAccess"))
+	{
+		// Remote Access service is running
+		return false;
+	}
+
 	CombinePathW(tmp_dir, sizeof(tmp_dir), MsGetWindowsDirW(), L"Temp");
 	MakeDirExW(tmp_dir);
 
