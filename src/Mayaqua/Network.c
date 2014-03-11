@@ -129,6 +129,9 @@
 #include <openssl/md5.h>
 #include <openssl/sha.h>
 #include <Mayaqua/Mayaqua.h>
+#ifdef	UNIX_MACOS
+#include <sys/event.h>
+#endif	// UNIX_MACOS
 
 #ifdef	OS_WIN32
 NETWORK_WIN32_FUNCTIONS *w32net;
@@ -141,7 +144,7 @@ struct ROUTE_CHANGE_DATA
 #endif	// OS_WIN32
 
 // Whether the blocking occurs in SSL
-#if	defined(UNIX_BSD)
+#if	defined(UNIX_BSD) || defined(UNIX_MACOS)
 #define	FIX_SSL_BLOCKING
 #endif
 
@@ -8791,7 +8794,12 @@ void UnixSetSockEvent(SOCK_EVENT *event)
 // Execute 'select' for the socket
 void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, UINT timeout)
 {
+#ifdef	UNIX_MACOS
+	int kq;
+	struct kevent *kevents;
+#else	// UNIX_MACOS
 	struct pollfd *p;
+#endif	// UNIX_MACOS
 	UINT num;
 	UINT i;
 	UINT n;
@@ -8828,7 +8836,12 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	}
 
 	num = num_read_total + num_write_total;
+#ifdef	UNIX_MACOS
+	kq = kqueue();
+	kevents = ZeroMallocFast(sizeof(struct kevent) * (num + num_write_total));
+#else	// UNIX_MACOS
 	p = ZeroMallocFast(sizeof(struct pollfd) * num);
+#endif	// UNIX_MACOS
 
 	n = 0;
 
@@ -8836,9 +8849,13 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	{
 		if (reads[i] != INVALID_SOCKET)
 		{
+#ifdef	UNIX_MACOS
+			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
+#else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = reads[i];
 			pfd->events = POLLIN | POLLPRI | POLLERR | POLLHUP;
+#endif	// UNIX_MACOS
 		}
 	}
 
@@ -8846,22 +8863,44 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	{
 		if (writes[i] != INVALID_SOCKET)
 		{
+#ifdef	UNIX_MACOS
+			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
+			EV_SET(&kevents[n++], reads[i], EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+#else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = writes[i];
 			pfd->events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLOUT;
+#endif	// UNIX_MACOS
 		}
 	}
 
 	if (num != 0)
 	{
+#ifdef	UNIX_MACOS
+		struct timespec kevent_timeout, *p_kevent_timeout;
+		if (timeout == INFINITE) {
+			p_kevent_timeout = NULL;
+		} else {
+			kevent_timeout.tv_sec = timeout / 1000;
+			kevent_timeout.tv_nsec = (timeout % 1000) * 1000000l;
+			p_kevent_timeout = &kevent_timeout;
+		}
+		kevent(kq, kevents, n, kevents, n, p_kevent_timeout);
+#else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
+#endif	// UNIX_MACOS
 	}
 	else
 	{
 		SleepThread(timeout);
 	}
 
+#ifdef	UNIX_MACOS
+	Free(kevents);
+	close(kq);
+#else	// UNIX_MACOS
 	Free(p);
+#endif	// UNIX_MACOS
 }
 
 // Clean-up of the socket event
@@ -13198,9 +13237,9 @@ SOCK *Accept(SOCK *sock)
 	size = sizeof(addr);
 
 #ifdef	OS_UNIX
-#ifdef	UNIX_LINUX
+#if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	UnixIgnoreSignalForThread(SIGUSR1);
-#endif	// UNIX_LINUX
+#endif	// defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	sock->CallingThread = pthread_self();
 #endif	// OS_UNIX
 
@@ -13309,9 +13348,9 @@ SOCK *Accept6(SOCK *sock)
 	size = sizeof(addr);
 
 #ifdef	OS_UNIX
-#ifdef	UNIX_LINUX
+#if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	UnixIgnoreSignalForThread(SIGUSR1);
-#endif	// UNIX_LINUX
+#endif	// defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	sock->CallingThread = pthread_self();
 #endif	// OS_UNIX
 
@@ -13625,7 +13664,7 @@ void Disconnect(SOCK *sock)
 		// Connect to localhost if the socket is in listening
 		sock->CancelAccept = true;
 
-#ifdef	UNIX_LINUX
+#if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 		{
 			pthread_t t = sock->CallingThread;
 
@@ -13637,7 +13676,7 @@ void Disconnect(SOCK *sock)
 				SleepThread(200);
 			}
 		}
-#endif	// UNIX_LINUX
+#endif	// defined(UNIX_LINUX) || defined(UNIX_MACOS)
 
 #ifdef	OS_WIN32
 		if (sock->hAcceptEvent != NULL)

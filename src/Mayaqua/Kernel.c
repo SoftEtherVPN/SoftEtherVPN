@@ -152,7 +152,7 @@ UINT g_zero = 0;
 // Get the real-time system timer
 UINT TickRealtime()
 {
-#if	defined(OS_WIN32) || defined(CLOCK_REALTIME) || defined(CLOCK_MONOTONIC) || defined(CLOCK_HIGHRES)
+#if	defined(OS_WIN32) || defined(CLOCK_REALTIME) || defined(CLOCK_MONOTONIC) || defined(CLOCK_HIGHRES) || defined(UNIX_MACOS)
 	return Tick() + 1;
 #else
 	return TickRealtimeManual() + 1;
