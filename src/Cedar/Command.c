@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Command.c
@@ -18846,6 +18852,13 @@ UINT PsDhcpGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		// To save the log
 		CtInsert(ct, _UU("CMD_SecureNatHostGet_Column_LOG"), t.SaveLog ? _UU("SEC_YES") : _UU("SEC_NO"));
 
+		// Push routing table
+		if (t.ApplyDhcpPushRoutes)
+		{
+			StrToUni(tmp, sizeof(tmp), t.DhcpPushRoutes);
+			CtInsert(ct, _UU("CMD_DhcpGet_Column_PUSHROUTE"), tmp);
+		}
+
 		CtFree(ct, c);
 	}
 
@@ -19013,6 +19026,7 @@ UINT PsDhcpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"DNS2", CmdPrompt, _UU("CMD_DhcpSet_Prompt_DNS2"), CmdEvalIp, NULL},
 		{"DOMAIN", CmdPrompt, _UU("CMD_DhcpSet_Prompt_DOMAIN"), NULL, NULL},
 		{"LOG", CmdPrompt, _UU("CMD_NatSet_Prompt_LOG"), CmdEvalNotEmpty, NULL},
+		{"PUSHROUTE", NULL, _UU("CMD_DhcpSet_PUSHROUTE"), NULL, NULL},
 	};
 
 	// If virtual HUB is not selected, it's an error
@@ -19055,6 +19069,9 @@ UINT PsDhcpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		StrCpy(t.DhcpDomainName, sizeof(t.DhcpDomainName), GetParamStr(o, "DOMAIN"));
 		t.SaveLog = GetParamYes(o, "LOG");
 
+		StrCpy(t.DhcpPushRoutes, sizeof(t.DhcpPushRoutes), GetParamStr(o, "PUSHROUTE"));
+		t.ApplyDhcpPushRoutes = true;
+
 		if (ok == false)
 		{
 			// Parameter is invalid
@@ -19074,6 +19091,15 @@ UINT PsDhcpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 				CmdPrintError(c, ret);
 				FreeParamValueList(o);
 				return ret;
+			}
+
+			if (IsEmptyStr(GetParamStr(o, "PUSHROUTE")) == false)
+			{
+				if (GetCapsBool(ps->CapsList, "b_suppport_push_route") == false &&
+					GetCapsBool(ps->CapsList, "b_suppport_push_route_config"))
+				{
+					CmdPrintError(c, ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE);
+				}
 			}
 		}
 	}

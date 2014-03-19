@@ -40,7 +40,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog: "
-	/usr/bin/timeout 30 $exec stop || /usr/bin/killall -q -9 $prog
+	/usr/bin/timeout 60 $exec stop || /usr/bin/killall -q -9 $prog
 	retval=$?
 	echo
 	[ $retval -eq 0 ] && rm -f $lockfile

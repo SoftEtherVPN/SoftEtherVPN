@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Interop_OpenVPN.c
@@ -1926,7 +1932,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 						{
 							if (se->IpcAsync->Ipc != NULL)
 							{
-								char option_str[MAX_SIZE];
+								char option_str[4096];
 								char l3_options[MAX_SIZE];
 
 								// Successful in VPN connection
@@ -2049,6 +2055,46 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										IPToStr32(ip_defgw, sizeof(ip_defgw), cao->Gateway);
+									}
+									else
+									{
+										// If the default gateway is not specified, add the static routing table
+										// entry for the local IP subnet
+										IP local_network;
+										IP client_ip;
+										IP subnet_mask;
+
+										UINTToIP(&client_ip, cao->ClientAddress);
+										UINTToIP(&subnet_mask, cao->SubnetMask);
+
+										Zero(&local_network, sizeof(IP));
+										IPAnd4(&local_network, &client_ip, &subnet_mask);
+
+										Format(l3_options, sizeof(l3_options),
+											",route %r %r vpn_gateway",
+											&local_network,
+											&cao->SubnetMask);
+
+										StrCat(option_str, sizeof(option_str), l3_options);
+									}
+
+									// Classless routing table
+									if (cao->ClasslessRoute.NumExistingRoutes >= 1)
+									{
+										UINT i;
+										for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+										{
+											DHCP_CLASSLESS_ROUTE *r = &cao->ClasslessRoute.Entries[i];
+
+											if (r->Exists)
+											{
+												Format(l3_options, sizeof(l3_options),
+													",route %r %r vpn_gateway",
+													&r->Network, &r->SubnetMask);
+
+												StrCat(option_str, sizeof(option_str), l3_options);
+											}
+										}
 									}
 
 									OvsLog(s, se, c, "LP_SET_IPV4_PARAM",

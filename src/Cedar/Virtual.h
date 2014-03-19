@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Virtual.h
@@ -374,6 +380,7 @@ struct VH
 	LIST *DhcpLeaseList;			// DHCP lease list
 	UINT64 LastDhcpPolling;			// Time which the DHCP list polled last
 	bool SaveLog;					// Save a log
+	DHCP_CLASSLESS_ROUTE_TABLE PushRoute;	// Pushing routing table
 	COUNTER *Counter;				// Session counter
 	UINT DhcpId;					// DHCP ID
 	UINT64 LastSendBeacon;			// Time which the beacon has been sent last
@@ -408,6 +415,8 @@ struct VH_OPTION
 	IP DhcpDnsServerAddress2;		// Assigned DNS server address 2
 	char DhcpDomainName[MAX_HOST_NAME_LEN + 1];	// Assigned domain name
 	bool SaveLog;					// Save a log
+	bool ApplyDhcpPushRoutes;		// Apply flag for DhcpPushRoutes
+	char DhcpPushRoutes[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];	// DHCP pushing routes
 };
 
 // DHCP lease entry

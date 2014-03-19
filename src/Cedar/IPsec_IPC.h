@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // IPsec_IPC.h
@@ -187,6 +193,7 @@ struct IPC
 	QUEUE *IPv4RecviedQueue;			// IPv4 reception queue
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
+	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
 };
 
 // MS-CHAPv2 authentication information
@@ -214,7 +221,7 @@ BLOCK *IPCRecvIPv4(IPC *ipc);
 void IPCProcessInterrupts(IPC *ipc);
 void IPCProcessL3Events(IPC *ipc);
 void IPCProcessL3EventsEx(IPC *ipc, UINT64 now);
-bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw);
+bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw, DHCP_CLASSLESS_ROUTE_TABLE *rt);
 IPC_ARP *IPCNewARP(IP *ip, UCHAR *mac_address);
 void IPCFreeARP(IPC_ARP *a);
 int IPCCmpArpTable(void *p1, void *p2);

@@ -1,7 +1,10 @@
-# SoftEther VPN String Table
+﻿# SoftEther VPN String Table
 # Copyright (c) SoftEther VPN Project. All Rights Reserved.
 #
 # http://www.softether.co.jp/
+#
+# Contributors:
+# - YF (https://github.com/yfdyh000)
 
 
 ###########################################################################
@@ -291,8 +294,9 @@ DLG_OPEN_CONFIG				指定配置文件导入
 DLG_STRING_DEFTITLE			输入字符串
 DLG_STRING_DEFINFO			请输入字符串。
 DLG_ABOUT_LEGAL				法律公告
+DLG_ABOUT_AUTHORS			作者名单
 DLG_UPDATE_DATE				\ (Released on %S)
-DLG_UPDATE_HINT				按 确定 查看网页浏览器最新更新的信息。\r\n\r\n您必须手动下载并安装更新。如果你想在其他电脑上更新软件，您必须登录到计算机通过远程桌面或 SSH 进行下载和更新。
+DLG_UPDATE_HINT				按确定查看网页浏览器最新更新的信息。\r\n\r\n您必须手动下载并安装更新。如果你想在其他电脑上更新软件，您必须登录到计算机通过远程桌面或 SSH 进行下载和更新。
 
 
 # 关于竞争进程
@@ -446,7 +450,13 @@ WINVER_ERROR_PC_REMOTE		远程服务器
 
 
 # 开源版本的警告
-OSS_MSG						欢迎来到 SoftEther VPN 服务器学术版 !\r\n\r\n此 VPN 服务器作为日本筑波大学的一个学术研究由免费软件开发的，且由，开源 (GPL) SoftEther 项目 (http://www.softether.org/) 为公众利益免费发布的。\r\n\r\nSoftEther VPN 软件是作为筑波大学和 SoftEther 公司之间的联合研究合同的一部分而发布给公众的。SoftEther VPN 软件的开发和发布仅为学术研究目的。因此，对 SoftEther VPN 软件不提供支持服务，即使它包含错误或漏洞。用户将对使用 SoftEther VPN 的结果承担责任。 SoftEther VPN 的开发者和发行者都将永远不会为任何后果或损失承担责任。\r\n\r\n在您同意上述启示后，使用 SoftEther VPN 服务器享受 VPN 通信。\r\n\r\n对于 SoftEther VPN 的更多细节，请参阅 http://www.softether.org/ 。\r\n\r\n
+OSS_MSG						欢迎来到 SoftEther VPN 服务器学术版 !\r\n\r\n此 VPN 服务器作为日本筑波大学的一个学术研究由免费软件开发的，且由，开源 (GPL) SoftEther 项目 (http://www.softether.org/) 为公众利益免费发布的。\r\n\r\nSoftEther VPN 软件是作为筑波大学和 SoftEther 公司之间的联合研究合同的一部分而发布给公众的。SoftEther VPN 软件的开发和发布仅为学术研究目的。因此，对 SoftEther VPN 软件不提供支持服务，即使它包含错误或漏洞。用户将对使用 SoftEther VPN 的结果承担责任。 SoftEther VPN 的开发者和发行者都将永远不会为任何后果或损失承担责任。\r\n\r\n在您同意上述启示后，使用 SoftEther VPN 服务器享受 VPN 通信。\r\n\r\n对于 SoftEther VPN 的更多细节，请参阅 http://www.softether.org/。\r\n\r\n
+
+
+# NAT Traversal warning
+NATT_MSG					** 使用 NAT 穿透 (UDP 打洞) - 它可能是不稳定的 **\r\n\r\n此 VPN 客户端通过使用 NAT 穿透 (UDP 打洞) 技术连接到 VPN 服务器 '%S'。\r\n\r\nNAT 穿透允许位于 NAT 盒后面的 VPN 服务器接受来自 NAT 盒中的、没有任何端口映射设置的 VPN 客户端的 VPN 连接。\r\n\r\n然而，基于 NAT 穿透的 VPN 会话有时会变得不稳定，因为 NAT 穿透使用的是基于 UDP 的协议。例如，如果在 VPN 服务器和 VPN 客户端之间有一个不好的 NAT 盒子， VPN 隧道每 5 分钟断开一次。一些大规模 NAT 网关使用便宜的互联网服务供应商，有时会造成 NAT 穿透的同样问题。这是路由器或互联网服务供应商的问题。这不是 SoftEther VPN 软件的问题。\r\n\r\n为了解决这个不稳定的隧道问题，您应该直接连接到 VPN 服务器的 TCP 监听端口，而不是使用 NAT 穿透功能。要使用 TCP 直接连接到 VPN 服务器， VPN 服务器的监听端口必须通过在 NAT 盒的端口映射设置暴露到互联网上。请询问 NAT 盒的管理员或参阅 NAT 盒的手册在 NAT 盒上添加端口映射设置。\r\n\r\n如果此消息仍是 VPN 服务器暴露了一个 TCP 端口到互联网后，检查 VPN 客户端连接设置屏幕上的 "禁用 NAT-T" 复选框。\r\n\r\n
+NATT_MSG2					** 使用 NAT 穿透 (UDP 打洞) - 它可能是不稳定的 **\r\n\r\n此 VPN 客户端通过使用 NAT 穿透 (UDP 打洞) 技术连接到 VPN 服务器 '%S'。\r\n\r\nNAT 穿透允许位于 NAT 盒后面的 VPN 服务器接受来自 NAT 盒中的、没有任何端口映射设置的 VPN 客户端的 VPN 连接。\r\n\r\n然而，基于 NAT 穿透的 VPN 会话有时会变得不稳定，因为 NAT 穿透使用的是基于 UDP 的协议。例如，如果在 VPN 服务器和 VPN 客户端之间有一个不好的 NAT 盒子， VPN 隧道每 5 分钟断开一次。一些大规模 NAT 网关使用便宜的互联网服务供应商，有时会造成 NAT 穿透的同样问题。这是路由器或互联网服务供应商的问题。这不是 SoftEther VPN 软件的问题。\r\n\r\n为了解决这个不稳定的隧道问题，您应该直接连接到 VPN 服务器的 TCP 监听端口，而不是使用 NAT 穿透功能。要使用 TCP 直接连接到 VPN 服务器， VPN 服务器的监听端口必须通过在 NAT 盒的端口映射设置暴露到互联网上。请询问 NAT 盒的管理员或参阅 NAT 盒的手册在 NAT 盒上添加端口映射设置。\r\n\r\n如果此消息仍是 VPN 服务器暴露了一个 TCP 端口到互联网后，检查 VPN 客户端连接设置屏幕上的 "禁用 NAT-T" 复选框、而你的 VPN 客户端升级到 Build 9428 或更高版本。\r\n\r\n
+
 
 
 
@@ -541,6 +551,11 @@ HUB_AO_DisableUserModeSecureNAT				如果您将此选项设置为非零值，那
 HUB_AO_DisableCheckMacOnLocalBridge			如果您将此选项设置为非零值，那么 MAC 地址重复检查在本地桥功能上将被禁用。一些网络适配器有反射传出的数据包向虚拟 HUB 的问题。虚拟 HUB 自动检测这样的重复，并丢弃它们。启用此标志来禁用检测，并丢弃。
 HUB_AO_DisableCorrectIpOffloadChecksum		如果您将此选项设置为非零值，那么在本地桥功能上检查和纠正 IP 校验和值。有些有 IP、TCP 或 UDP 包头的校验和卸载引擎的网络适配器，以不完整的校验和值传输数据包。这样的数据包不能被接收端正确对待。所以本地桥检测到这样的数据包，并纠正了它的校验和字段。启用此标志来禁用这种纠正。
 HUB_AO_BroadcastLimiterStrictMode			If you set this option to non-zero value, then the broadcast-storm detection algorithm will compare either source or destination IP address of each packet. If any of the two fields matches, the packet will be recorded on the short-term history of broadcast-storm detection state machine.
+HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per minute.
+HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
+HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
+
 
 #关于失败连接对话框
 ERRDLG_ERRMSG				错误(错误代码 %u) :\r\n\r\n%s\r\n
@@ -644,6 +659,8 @@ CT_b_using_selow_driver		支持 SoftEther Lightweight Kernel-mode Ethernet Drive
 CT_b_support_vgs			支持 VPN Gate 服务的服务器功能
 CT_b_support_vgs_in_client	VPN Gate 服务的服务器功能 (VPN 客户端集成)
 CT_b_is_softether			SoftEther VPN 的免费或开源版
+CT_b_suppport_push_route		静态路由表推送功能
+CT_b_suppport_push_route_config	静态路由表推送功能 (可配置)
 
 
 #相关策略
@@ -775,7 +792,7 @@ CM_ACCOUNT_ONLINE			已连接
 CM_ACCOUNT_CONNECTING		连接中
 CM_VLAN_ENABLED				已启用
 CM_VLAN_DISABLED			已禁用
-CM_DELETE_ACCOUNT_MSG		VPN 连接设置“%s”将删除，你确定吗?
+CM_DELETE_ACCOUNT_MSG		VPN 连接设置 "%s" 将删除，你确定吗?
 CM_ST_ACCOUNT_NAME			VPN 连接设置名称
 CM_ST_CONNECTED				会话状态
 CM_ST_CONNECTED_TRUE		连接完成 (会话建立)
@@ -811,8 +828,8 @@ CM_ST_MAX_TCP				TCP 连接数最大值
 CM_ST_VLAN_ID				VLAN ID
 CM_ST_NO_VLAN				－
 CM_ST_USE_ENCRYPT			加密
-CM_ST_USE_ENCRYPT_TRUE		已启用
-CM_ST_USE_ENCRYPT_TRUE2		已启用 (算法: %S)
+CM_ST_USE_ENCRYPT_TRUE		已启用 (算法: %S)
+CM_ST_USE_ENCRYPT_TRUE2		已启用
 CM_ST_USE_ENCRYPT_FALSE		已禁用 (不加密)
 CM_ST_USE_COMPRESS			使用压缩
 CM_ST_UDP_ACCEL_ENABLED		支持 UDP 加速
@@ -1591,7 +1608,7 @@ SM_SETUP_NO_LICENSE_KEY		目前此 SoftEther VPN Server 上没有注册任何一
 # ----- 不完全翻訳ここから -----
 SM_HUBEXT_OPTION_TITLE		虚拟 HUB 扩展选项
 SM_HUBEXT_OPTION_STATIC1	虚拟 HUB 扩展选项允许您配置这个虚拟 HUB 的详细参数。
-SM_HUBEXT_OPTION_STATIC2	标准，VPN Server 全部管理者及，虚拟 HUB 管理者的双方都，能编辑虚拟 HUB 高级选项。但，如果虚拟 HUB 管理选择的 deny_hub_admin_change_ext_option 默认情况下，VPN 服务器的全局管理员和各虚拟 HUB 的管理员都可以修改虚拟 HUB 扩展选项。\n但是，如果在虚拟 HUB 管理选项中 deny_hub_admin_change_ext_option 被设置为 1，各虚拟 HUB 的管理员就无法修改虚拟 HUB 扩展选项了 (只能查看)。
+SM_HUBEXT_OPTION_STATIC2	标准，VPN Server 全部管理者及，虚拟 HUB 管理者的双方都，能编辑虚拟 HUB 高级选项。但，如果虚拟 HUB 管理选择的 deny_hub_admin_change_ext_option 默认情况下，VPN 服务器的全局管理员和各虚拟 HUB 的管理员都可以修改虚拟 HUB 扩展选项。\r\n但是，如果在虚拟 HUB 管理选项中 deny_hub_admin_change_ext_option 被设置为 1，各虚拟 HUB 的管理员就无法修改虚拟 HUB 扩展选项了 (只能查看)。
 SM_VLAN_COLUMN_0			网络适配器名称
 SM_VLAN_COLUMN_1			驱动程序种类
 SM_VLAN_COLUMN_2			驱动程序文件名
@@ -1621,6 +1638,9 @@ SM_DDNS_FQDN_EMPTY		(无)
 SM_DDNS_OK_MSG		动态 DNS 主机名：%S%S\r\n\r\n您可以通过指定以上 DNS 主机名访问下面的 IP 地址。\r\n\r\nIPv4 地址：%s \r\nIPv6 地址：%s\r\n\r\n您也可以指定下列主机名的特殊形式来指定 IPv4 或 IPv6 作为明确地址类型。\r\n\r\n针对 IPv4 的主机名%S.v4%S \r\n针对 IPv6 的主机名：%S.v6%S。
 SM_DDNS_OK_TITLE		动态 DNS 功能
 SM_DDNS_OK_MSG2		动态 DNS 主机名被更改为'%S'。\r\n\r\n单击提示读取更多的信息。
+SM_DDNS_KEY_TITLE		动态 DNS 密钥
+SM_DDNS_KEY_MSG			动态 DNS 密钥: %s\r\n\r\n此密钥与当前的 DDNS 名称相关联。如果你的 VPN 服务器电脑损坏，丢失了密钥，当前的 DDNS 名称将被永远占用，且其他 VPN 服务器将无法使用相同的名称。\r\n如果你想继续使用相同的名称，请在互联网服务上、或另一台电脑上、或在便笺纸上保留密钥。\r\n当在新的 VPN 服务器设置密钥时，编辑 VPN 服务器的配置文件。请在 "declare DDnsClient" 指令下，用跟随 "byte Key" 的值替换​字符串的密钥。\r\n请不要同时在两个或多个 VPN 服务器上设置相同的密钥。
+SM_DDNS_KEY_ERR			无法读取 DNS 密钥。
 SM_IPSEC_PSK_TOO_LONG		预共享密钥(PSK)有 10 个或更多的字母。\r\n\r\n据报道谷歌安卓的几个版本有一个 10 个或更多字母作为预共享密钥的严重故障。\r\n因此 9 个或少于 9 个字母被推荐作为预共享密钥。\r\n\r\n您要修改预共享密钥吗？
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	如何使用高级 HTTP 重定向功能
 SM_ADVANCED_REDIRECT_URL_HINT	高级 HTTP 重定向(为专家)\r\n\r\n此字符串“<INFO>”是一个占位符。它可以嵌入重定向的 URL 中。\r\n\r\n嵌入 URL 示例：\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\n当客户端将被重定向，重定向的实际 URL 目的地将被取代如下。\r\n\r\n用户名|会话ID|IP 地址|日期和时间|哈希值\r\n\r\n替换后示例：zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\n各字段的详情描述如下。\r\n\r\n用户名：当前 VPN 会话的用户名将被放置。\r\n\r\n会话ID：VPN 会话的会话 ID 将被放置\r\n\r\n日期和时间：14 位数字将以'YYYYMMDDHHMMSS’格式放置(时区是 UTC)\r\n\r\n哈希值：代表 20 个字节二进制数据的一个 40 字符的十六进制字符串。二进制数据是 SHA-1 哈希函数至临时字符串的结果。在重定向 URL 中“|”符号后，临时字符串是上述字段的位阵列加上秘密字符串的结合。(在上面的例子中，“秘密”是秘密字符串)。如果在 URL 中没有“|”符号，没有哈希值将被添加。\r\n\r\n哈希值的目的：秘密字符串如密钥般有效。感谢密钥。在重定向 URL 中接收重定向查询字符串的 CGI 程序，可以验证包含在 URL 中参数的完整性。\r\n
@@ -1634,7 +1654,7 @@ SM_SETUP_STEP_SECURENAT	此 VPN Server / Bridge 可能以用户模式或受其�
 SM_SETUP_STEP_SECURENAT_TITLE	第3步。网桥虚拟 HUB 和物理网络
 SM_UPDATE_CHECK_TITLE_VPNSERVER	%S VPN Server (在主机'%S'上)
 SM_UPDATE_CHECK_TITLE_VPNBRIDGE	%S VPN Bridge  (在主机'%S'上)
-SM_FACTORY_DEFAULT_WARNING		这将在 VPN Server / Bridge 上执行出厂复位设置。\r\n当前 VPN Server / Bridge 配置将被清除，将立即应用初始设置。\r\n在做出厂复位设置前，建议您备份当前配置。\r\n\r\n按 确定 执行出厂复位设置。 VPN Server / Bridge 将重新启动。当前的管理连接将被断开，所以请重新连接到 VPN Server / Bridge。\r\n\r\n按“取消”取消操作。
+SM_FACTORY_DEFAULT_WARNING		这将在 VPN Server / Bridge 上执行出厂复位设置。\r\n当前 VPN Server / Bridge 配置将被清除，将立即应用初始设置。\r\n在做出厂复位设置前，建议您备份当前配置。\r\n\r\n按 确定 执行出厂复位设置。 VPN Server / Bridge 将重新启动。当前的管理连接将被断开，所以请重新连接到 VPN Server / Bridge。\r\n\r\n按 "取消" 取消操作。
 SM_FACTORY_DEFAULT_PERFORMED		在服务器上正在执行出厂复位操作。\r\n\r\n按“确定”退出当前 VPN Server 管理器的会话“。\r\n退出后，请重新启动 VPN Server 管理器并再次连接到 VPN Server。\r\n然后你会看到 VPN Server 复位。
 SM_AZURE_STATUS_CONNECTED		状态: 已连接
 SM_AZURE_STATUS_NOT_CONNECTED	状态: 没有连接
@@ -1687,6 +1707,7 @@ DHCP_MAC_ADDRESS			MAC 地址
 DHCP_IP_ADDRESS				分配的 IP
 DHCP_HOSTNAME				客户端主机名
 NM_PASSWORD_MSG				管理员密码设定完成。
+NM_PUSH_ROUTE_WARNING		静态路由表中指定的文本可能有语法错误。
 
 
 #关于版本信息
@@ -2299,6 +2320,7 @@ R_HIDE2						隐藏 IP 地址屏幕(&O)
 STATIC15					请设置连接到 VPN Server 时需要的用户认证信息。
 B_REGIST_CLIENT_CERT		指定客户端证书(&C)
 B_IE						导入I&E代理服务器设置
+R_DISABLE_NATT				禁用 NAT-T
 
 
 PREFIX						D_CM_PROXY
@@ -2328,7 +2350,7 @@ STATIC9						秒
 R_USE_DISCONNECT			设置每个 TCP 的连接寿命(&A)
 STATIC10					寿命(&P):
 STATIC11					秒
-STATIC12					当使用两个或以上 TCP 连接时，可以使用“半双工模式”。半双工模式下固定了每个 TCP 连接的数据方向。例如，当使用 8 个 TCP 连接建立一个 VPN 时，VPN 隧道的物理结构将被固定为：4 个 TCP 连接专用于上行方向，其余 4 个连接专用于下行方向。
+STATIC12					当使用两个或以上 TCP 连接时，可以使用 "半双工模式"。半双工模式下固定了每个 TCP 连接的数据方向。例如，当使用 8 个 TCP 连接建立一个 VPN 时，VPN 隧道的物理结构将被固定为: 4 个 TCP 连接专用于上行方向，其余 4 个连接专用于下行方向。
 R_USE_HALF_CONNECTION		使用半双工模式(&H)
 STATIC13					加密和压缩(&C):
 STATIC14					通常 VPN 会话为安全起见会被加密。您也可以禁用加密以提高吞吐量。请注意，在禁用加密的情况下，数据在网络上是以明文方式传输的。
@@ -2343,7 +2365,7 @@ R_MONITOR					监控模式(&D)
 STATIC17					其它配置(&G):
 R_NO_ROUTING				不要调整路由表(&R)
 STATIC18					除非你得到系统管理员的同意或者你有网络和安全方面的专业知识，否则请保持此对话框的默认设置。
-STATIC19					VoIP / QoS 功能可以处理高优先级数据包，如 IP 电话数据包(VoIP)可以被更快的传输。
+STATIC19					VoIP / QoS 功能可以处理高优先级数据包，如 IP 电话数据包 (VoIP) 可以被更快的传输。
 R_DISABLE_QOS				禁用 VoIP / &QoS 功能
 IDOK						确定(&O)
 IDCANCEL					取消
@@ -2417,6 +2439,7 @@ B_EULA					最终用户许可
 B_IMPORTANT				重要启事
 B_LEGAL					法律启事
 B_UPDATE_CONFIG			配置更新
+B_AUTHORS				作者名单
 
 
 PREFIX						D_REMOTE
@@ -3098,6 +3121,9 @@ STATIC22					域名(&W):
 STATIC23					DNS 服务器地址 2 (&V):
 IDOK						确定(&O)
 IDCANCEL					取消
+S_1							静态路由表推功能 (拆分隧道)
+S_2							推送静态路由表至 VPN 客户端。
+B_PUSH						编辑该静态路由表以推送
 
 
 PREFIX						D_NM_NAT
@@ -3853,6 +3879,8 @@ S_2						如果您没有连接到 IPv6 网络，“ 全球 IPv6 地址“将会�
 IDCANCEL				退出(&X)
 B_DISABLE				禁用动态 DNS 功能(&D)
 B_PROXY					通过代理服务器连接(&P)...
+S_STATUS8				DNS 钥:
+B_HINT2					提示
 
 
 PREFIX					D_SM_SPECIALLISTENER
@@ -4137,6 +4165,19 @@ B_WEB					访问 VPN Gate 和网站 ...
 IDOK					同意(&A)
 IDCANCEL				不同意(&D)
 S_BOLD					注意! 不要在 VPN 通讯禁止的国家使用 VPN Gate 服务。
+
+
+PREFIX					D_NM_PUSH
+CAPTION					编辑该静态路由表以推送
+S1						这个虚拟 DHCP 服务器可以推送带 DHCP 应答消息的无类静态路由 (RFC 3442) 至 VPN 客户端。
+S2						VPN 客户端是否能够识别无类静态路由 (RFC 3442) 取决于目标 VPN 客户端软件。SoftEther VPN 客户端和 OpenVPN 客户端都支持无类静态路由。在 L2TP/IPSec 和 MS-SSTP 协议上，兼容性取决于客户端软件的实施。
+S3						如果你清除了虚拟 DHCP 服务器选项的默认网关字段，您就可以实现拆分隧道。在客户端一侧，为了使用拆分隧道， L2TP/IPSec 和 MS-SSTP 客户端需要配置为不创建默认网关。
+S4						您还可以通过现有的外部 DHCP 服务器推送无类静态路由 (RFC 3442)。在这种情况下，在 SecureNAT 禁用虚拟 DHCP 服务器功能，在这一屏幕上你不需要设置无类路由。
+S5						编辑该静态路由表以推送
+S6						例如: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n用逗号或空格字符来拆分多条目 (最多 64 条目)。\r\n每个条目必须以 "IP 网络地址 / 子网掩码 / 网关 IP 地址" 的格式来指定。
+S7						请参阅 RFC3442 以了解无类路由。
+IDOK					确定(&O)
+IDCANCEL				取消
 
 
 
@@ -5911,6 +5952,7 @@ CMD_DhcpGet_Column_GW		默认网关地址
 CMD_DhcpGet_Column_DNS		DNS 服务器地址 1
 CMD_DhcpGet_Column_DNS2		DNS 服务器地址 2
 CMD_DhcpGet_Column_DOMAIN	域名
+CMD_DhcpGet_Column_PUSHROUTE	静态路由表推送
 
 
 # DhcpEnable 命令
@@ -5928,7 +5970,7 @@ CMD_DhcpDisable_Args		DhcpDisable
 # DhcpSet 命令
 CMD_DhcpSet					更改安全网络功能的虚拟 DHCP 服务器功能的设置
 CMD_DhcpSet_Help			在现在管理的虚拟 HUB 内，更改虚拟 DHCP 服务器的设置。虚拟 DHCP 服务器设置包括: 分配 IP 地址范围，子网掩码，出租期限，及分配给客户端的选项值。\n该指令在作为进群操作的 VPN Server 的虚拟服务器上不能执行。
-CMD_DhcpSet_Args			DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no]
+CMD_DhcpSet_Args			DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
 CMD_DhcpSet_START			指定地址范围的开始点，以分发给客户。(例如: 192.168.30.10)
 CMD_DhcpSet_END				指定地址范围的结束点，以分发给客户。(例如: 192.168.30.200)
 CMD_DhcpSet_MASK			指定对客户指定的子网掩码。(例如: 255.255.255.0)
@@ -5938,6 +5980,7 @@ CMD_DhcpSet_DNS				指定被通知到客户端的主 DNS 服务器的 IP 地址�
 CMD_DhcpSet_DNS2			指定被通知到客户端的次要 DNS 服务器 IP 地址。当 SecureNAT 功能的虚拟 NAT 功能已经启用并正在运行时，您可以为此指定一个 SecureNAT 虚拟主机 IP 地址。如果您指定的是 0 或者 none，那么客户端就不会被 DNS 服务器地址通知。
 CMD_DhcpSet_DOMAIN			指定域名通知客户。如果指定 none，该域名不通知客户。
 CMD_DhcpSet_LOG				指定是否将虚拟 DHCP 服务器运行保存为安全日志。指定 "yes" 则保存。此值与虚拟 NAT 功能的日志保存设置是联动的。
+CMD_DhcpSet_PUSHROUTE	指定静态路由表推送。\n例如: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n用逗号或空格字符来拆分多条目 (最多 64 条目)。每个条目必须以 "IP 网络地址/子网掩码/网关 IP 地址" 的格式来指定。 \n这个虚拟 DHCP 服务器可以推送带DHCP应答消息的无类静态路由 (RFC 3442) 至 VPN 客户端。\nVPN 客户端是否能够识别无类静态路由 (RFC 3442) 取决于目标VPN客户端软件。SoftEther VPN 客户端和 OpenVPN 客户端都支持无类静态路由。在 L2TP/IPSec 和 MS-SSTP 协议上，兼容性取决于客户端软件的实施。如果你清除了虚拟 DHCP 服务器选项的默认网关字段，您就可以实现拆分隧道。在客户端一侧，为了使用拆分隧道，L2TP/IPSec 和 MS-SSTP 客户端需要配置为不创建默认网关。\n您还可以通过现有的外部 DHCP 服务器推送无类静态路由 (RFC 3442)。在这种情况下，在 SecureNAT 禁用虚拟 DHCP 服务器功能，在这一屏幕上你不需要设置无类路由。\n请参阅 RFC 3442 以了解无类路由。
 CMD_DhcpSet_Prompt_START	分发地址范围的开始: 
 CMD_DhcpSet_Prompt_END		分发地址范围的结束: 
 CMD_DhcpSet_Prompt_MASK		子网掩码: 
@@ -7084,4 +7127,5 @@ SW_LINK_NAME_LANGUAGE_COMMENT			修改 %s 的显示语言设置。
 
 SW_LINK_NAME_DEBUG						调试信息采集工具
 SW_LINK_NAME_DEBUG_COMMENT				采集 SoftEther VPN 的调试信息。仅在您的支持人员要求你这样做时使用此工具。
+
 

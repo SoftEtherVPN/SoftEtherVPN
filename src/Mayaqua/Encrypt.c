@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Encrypt.c
@@ -1806,13 +1812,15 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	notBefore = SystemTime64();
 	notAfter = notBefore + (UINT64)days * (UINT64)3600 * (UINT64)24 * (UINT64)1000;
 
-
 	// Creating a X509
 	x509 = X509_new();
 	if (x509 == NULL)
 	{
 		return NULL;
 	}
+
+	// Make it a v3 certificate
+	X509_set_version(x509, 2L);
 
 	// Set the Expiration
 	t1 = X509_get_notBefore(x509);
@@ -1873,7 +1881,8 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		X509_set_pubkey(x509, pub->pkey);
 
 		// Signature
-		X509_sign(x509, priv->pkey, EVP_sha1());
+		// 2014.3.19 set the initial digest algorithm to SHA-256
+		X509_sign(x509, priv->pkey, EVP_sha256());
 	}
 	Unlock(openssl_lock);
 
@@ -1914,6 +1923,9 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	{
 		return NULL;
 	}
+
+	// Make it a v3 certificate
+	X509_set_version(x509, 2L);
 
 	// Set the Expiration
 	t1 = X509_get_notBefore(x509);
@@ -1975,7 +1987,8 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 		X509_set_pubkey(x509, pub->pkey);
 
 		// Signature
-		X509_sign(x509, priv->pkey, EVP_sha1());
+		// 2014.3.19 set the initial digest algorithm to SHA-256
+		X509_sign(x509, priv->pkey, EVP_sha256());
 	}
 	Unlock(openssl_lock);
 

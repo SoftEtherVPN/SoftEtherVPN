@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // TcpIp.c
@@ -3350,6 +3356,19 @@ LIST *BuildDhcpOption(DHCP_OPTION_LIST *opt)
 
 	FreeBuf(dns_buf);
 
+	if (opt->ClasslessRoute.NumExistingRoutes >= 1)
+	{
+		BUF *b = DhcpBuildClasslessRouteData(&opt->ClasslessRoute);
+
+		if (b != NULL)
+		{
+			Add(o, NewDhcpOption(DHCP_ID_CLASSLESS_ROUTE, b->Buf, b->Size));
+			Add(o, NewDhcpOption(DHCP_ID_MS_CLASSLESS_ROUTE, b->Buf, b->Size));
+
+			FreeBuf(b);
+		}
+	}
+
 	return o;
 }
 
@@ -3486,6 +3505,20 @@ DHCP_OPTION_LIST *ParseDhcpOptionList(void *data, UINT size)
 			}
 		}
 
+		// Classless static routing table entries
+		// RFC 3442
+		a = GetDhcpOption(o, DHCP_ID_CLASSLESS_ROUTE);
+		if (a != NULL)
+		{
+			DhcpParseClasslessRouteData(&ret->ClasslessRoute, a->Data, a->Size);
+		}
+		// Microsoft Extension
+		a = GetDhcpOption(o, DHCP_ID_MS_CLASSLESS_ROUTE);
+		if (a != NULL)
+		{
+			DhcpParseClasslessRouteData(&ret->ClasslessRoute, a->Data, a->Size);
+		}
+
 		break;
 	}
 
@@ -3493,6 +3526,343 @@ DHCP_OPTION_LIST *ParseDhcpOptionList(void *data, UINT size)
 	FreeDhcpOptions(o);
 
 	return ret;
+}
+
+// Normalize the classless routing table string
+bool NormalizeClasslessRouteTableStr(char *dst, UINT dst_size, char *src)
+{
+	DHCP_CLASSLESS_ROUTE_TABLE t;
+	// Validate arguments
+	if (dst == NULL || src == NULL)
+	{
+		return false;
+	}
+
+	Zero(&t, sizeof(t));
+	if (ParseClasslessRouteTableStr(&t, src))
+	{
+		BuildClasslessRouteTableStr(dst, dst_size, &t);
+
+		return true;
+	}
+
+	return false;
+}
+
+// Build the string from the classless routing table
+void BuildClasslessRouteTableStr(char *str, UINT str_size, DHCP_CLASSLESS_ROUTE_TABLE *t)
+{
+	UINT i;
+	UINT num = 0;
+	ClearStr(str, str_size);
+	// Validate arguments
+	if (str == NULL || t == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+	{
+		DHCP_CLASSLESS_ROUTE *r = &t->Entries[i];
+
+		if (r->Exists)
+		{
+			char tmp[128];
+
+			Zero(tmp, sizeof(tmp));
+			BuildClasslessRouteStr(tmp, sizeof(tmp), r);
+
+			if (IsEmptyStr(tmp) == false)
+			{
+				if (num >= 1)
+				{
+					StrCat(str, str_size, ", ");
+				}
+
+				StrCat(str, str_size, tmp);
+
+				num++;
+			}
+		}
+	}
+}
+
+// Build the string from the classless routing table entry
+void BuildClasslessRouteStr(char *str, UINT str_size, DHCP_CLASSLESS_ROUTE *r)
+{
+	ClearStr(str, str_size);
+	// Validate arguments
+	if (str == NULL || r == NULL || r->Exists == false)
+	{
+		return;
+	}
+
+	Format(str, str_size, "%r/%r/%r", &r->Network, &r->SubnetMask, &r->Gateway);
+}
+
+// Check the classless routing table string
+bool CheckClasslessRouteTableStr(char *str)
+{
+	DHCP_CLASSLESS_ROUTE_TABLE d;
+
+	// Validate arguments
+	if (str == NULL)
+	{
+		return false;
+	}
+
+	return ParseClasslessRouteTableStr(&d, str);
+}
+
+// Parse the classless routing table string
+bool ParseClasslessRouteTableStr(DHCP_CLASSLESS_ROUTE_TABLE *d, char *str)
+{
+	bool ret = true;
+	TOKEN_LIST *t;
+	// Validate arguments
+	if (d == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	Zero(d, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+
+	t = ParseTokenWithoutNullStr(str, NULL);
+
+	if (t != NULL)
+	{
+		UINT i;
+
+		for (i = 0;i < t->NumTokens;i++)
+		{
+			DHCP_CLASSLESS_ROUTE r;
+
+			Zero(&r, sizeof(r));
+			if (ParseClasslessRouteStr(&r, t->Token[i]))
+			{
+				if (d->NumExistingRoutes < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES)
+				{
+					Copy(&d->Entries[d->NumExistingRoutes], &r, sizeof(DHCP_CLASSLESS_ROUTE));
+					d->NumExistingRoutes++;
+				}
+				else
+				{
+					// Overflow
+					ret = false;
+					break;
+				}
+			}
+			else
+			{
+				// Parse error
+				ret = false;
+				break;
+			}
+		}
+	}
+
+	FreeToken(t);
+
+	return ret;
+}
+
+// Parse the classless routing table entry string
+bool ParseClasslessRouteStr(DHCP_CLASSLESS_ROUTE *r, char *str)
+{
+	TOKEN_LIST *t;
+	bool ret = false;
+	char tmp[MAX_PATH];
+	// Validate arguments
+	if (r == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	StrCpy(tmp, sizeof(tmp), str);
+	Trim(tmp);
+
+	t = ParseTokenWithoutNullStr(str, "/");
+	if (t == NULL)
+	{
+		return false;
+	}
+
+	if (t->NumTokens == 3)
+	{
+		char ip_and_mask[MAX_PATH];
+		char gateway[MAX_PATH];
+
+		Zero(r, sizeof(DHCP_CLASSLESS_ROUTE));
+
+		Format(ip_and_mask, sizeof(ip_and_mask), "%s/%s", t->Token[0], t->Token[1]);
+		StrCpy(gateway, sizeof(gateway), t->Token[2]);
+
+		if (ParseIpAndSubnetMask46(ip_and_mask, &r->Network, &r->SubnetMask))
+		{
+			r->SubnetMaskLen = SubnetMaskToInt4(&r->SubnetMask);
+
+			if (StrToIP(&r->Gateway, gateway))
+			{
+				if (IsIP4(&r->Gateway) && IsIP4(&r->Network) && IsIP4(&r->SubnetMask))
+				{
+					r->Exists = true;
+
+					IPAnd4(&r->Network, &r->Network, &r->SubnetMask);
+
+					ret = true;
+				}
+			}
+		}
+	}
+
+	FreeToken(t);
+
+	return ret;
+}
+
+// Build the classless static routing table data for a DHCP message
+BUF *DhcpBuildClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t)
+{
+	BUF *b;
+	UINT i;
+	// Validate arguments
+	if (t == NULL || t->NumExistingRoutes == 0)
+	{
+		return NULL;
+	}
+
+	b = NewBuf();
+
+	for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+	{
+		DHCP_CLASSLESS_ROUTE *r = &t->Entries[i];
+
+		if (r->Exists && r->SubnetMaskLen <= 32)
+		{
+			if (b->Size <= (255 - 9))
+			{
+				UCHAR c;
+				UINT data_len;
+				UINT ip32;
+				UCHAR tmp[4];
+
+				// Width of subnet mask
+				c = (UCHAR)r->SubnetMaskLen;
+				WriteBuf(b, &c, 1);
+
+				// Number of significant octets
+				data_len = (r->SubnetMaskLen + 7) / 8;
+				Zero(tmp, sizeof(tmp));
+				Copy(tmp, &r->Network, data_len);
+				WriteBuf(b, tmp, data_len);
+
+				// Gateway
+				ip32 = IPToUINT(&r->Gateway);
+				WriteBuf(b, &ip32, sizeof(UINT));
+			}
+		}
+	}
+
+	SeekBufToBegin(b);
+
+	return b;
+}
+
+// Parse a classless static routing table entries from the DHCP message
+void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT size)
+{
+	BUF *b;
+	// Validate arguments
+	if (t == NULL || data == NULL || size == 0)
+	{
+		return;
+	}
+
+	b = MemToBuf(data, size);
+
+	while (b->Current < b->Size)
+	{
+		UCHAR c;
+		UINT subnet_mask_len;
+		UINT data_len;
+		UCHAR tmp[4];
+		IP ip;
+		IP mask;
+		IP gateway;
+		DHCP_CLASSLESS_ROUTE r;
+		UINT ip32;
+		bool exists = false;
+		UINT i;
+
+		// Subnet mask length
+		c = ReadBufChar(b);
+		subnet_mask_len = c;
+		if (subnet_mask_len > 32)
+		{
+			// Invalid data
+			break;
+		}
+
+		data_len = (subnet_mask_len + 7) / 8;
+		if (data_len > 4)
+		{
+			// Invalid data
+			break;
+		}
+
+		Zero(tmp, sizeof(tmp));
+		if (ReadBuf(b, tmp, data_len) != data_len)
+		{
+			// Invalid data
+			break;
+		}
+
+		// IP address body
+		Zero(&ip, sizeof(IP));
+		Copy(ip.addr, tmp, data_len);
+
+		Zero(&mask, sizeof(mask));
+		IntToSubnetMask4(&mask, subnet_mask_len);
+
+		// Gateway address
+		Zero(&gateway, sizeof(gateway));
+		if (ReadBuf(b, &ip32, sizeof(UINT)) != sizeof(UINT))
+		{
+			// Invalid data
+			break;
+		}
+		UINTToIP(&gateway, ip32);
+
+		Zero(&r, sizeof(r));
+		r.Exists = true;
+		Copy(&r.Gateway, &gateway, sizeof(IP));
+		Copy(&r.Network, &ip, sizeof(IP));
+		Copy(&r.SubnetMask, &mask, sizeof(IP));
+		r.SubnetMaskLen = subnet_mask_len;
+
+		for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+		{
+			if (Cmp(&t->Entries[i], &r, sizeof(DHCP_CLASSLESS_ROUTE)) == 0)
+			{
+				exists = true;
+				break;
+			}
+		}
+
+		if (exists == false)
+		{
+			if (t->NumExistingRoutes >= MAX_DHCP_CLASSLESS_ROUTE_ENTRIES)
+			{
+				// Overflow
+				break;
+			}
+
+			Copy(&t->Entries[t->NumExistingRoutes], &r, sizeof(DHCP_CLASSLESS_ROUTE));
+			t->NumExistingRoutes++;
+		}
+	}
+
+	FreeBuf(b);
 }
 
 // Finding a DHCP option
@@ -3512,6 +3882,42 @@ DHCP_OPTION *GetDhcpOption(LIST *o, UINT id)
 		if (opt->Id == id)
 		{
 			ret = opt;
+		}
+	}
+
+	return ret;
+}
+
+// Get the best classless routing table entry from the routing table
+DHCP_CLASSLESS_ROUTE *GetBestClasslessRoute(DHCP_CLASSLESS_ROUTE_TABLE *t, IP *ip)
+{
+	DHCP_CLASSLESS_ROUTE *ret = NULL;
+	UINT i;
+	UINT max_mask = 0;
+	// Validate arguments
+	if (t == NULL || ip == NULL)
+	{
+		return NULL;
+	}
+	if (t->NumExistingRoutes == 0)
+	{
+		return NULL;
+	}
+
+	for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+	{
+		DHCP_CLASSLESS_ROUTE *e = &t->Entries[i];
+
+		if (e->Exists)
+		{
+			if (IsInSameNetwork4(ip, &e->Network, &e->SubnetMask))
+			{
+				if (max_mask <= e->SubnetMaskLen)
+				{
+					max_mask = e->SubnetMaskLen;
+					ret = e;
+				}
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@
 #define B_SIMULATION                    3
 #define B_RESTORE                       3
 #define B_MESSAGE                       3
+#define B_PUSH                          3
 #define B_HUB_STATUS                    4
 #define IDCANCEL2                       4
 #define B_SECURE_MANAGER                4
@@ -34,6 +35,7 @@
 #define B_LEGAL3                        8
 #define B_LANGUAGE                      8
 #define B_STOP                          9
+#define B_AUTHORS                       9
 #define B_EDIT                          10
 #define S_STATUSBAR                     101
 #define ICO_TEST                        103
@@ -245,6 +247,7 @@
 #define S_SUFFIX                        1020
 #define E_PASSPHRASE                    1021
 #define S_STATUS7                       1021
+#define S_STATUS8                       1022
 #define E_USERNAME                      1023
 #define C_TYPE                          1024
 #define E_HUBNAME                       1024
@@ -363,6 +366,7 @@
 #define B_IMPORT2                       1089
 #define B_REGENERATE                    1089
 #define B_FACTORY                       1089
+#define R_RETRY2                        1089
 #define R_REMOTE_ONLY                   1090
 #define IDC_STATIC4                     1090
 #define B_DELETE                        1091
@@ -966,10 +970,12 @@
 #define E_IPV4                          1467
 #define E_NEWHOST                       1468
 #define B_NSLOOKUP                      1469
+#define E_KEY                           1469
 #define B_HINT                          1470
 #define S_DDNS                          1470
 #define R_OVER_ICMP                     1471
 #define S_AZURE                         1471
+#define B_HINT2                         1471
 #define R_OVER_ICMP2                    1472
 #define R_OVER_DNS                      1472
 #define B_WIZ_NEXT                      1472
@@ -1018,6 +1024,7 @@
 #define B_VGS                           1513
 #define S_VGS3                          1514
 #define S_TSUKUBA                       1515
+#define R_DISABLE_NATT                  1516
 #define B_ONLINE                        1655
 #define D_NM_CONNECT                    1998
 #define D_NM_MAIN                       1999
@@ -1126,6 +1133,8 @@
 #define D_VGS_CONFIG                    2094
 #define D_VGS_OPTION                    2095
 #define D_VGS_WARNING                   2096
+#define D_DEFAULT3                      2097
+#define D_NM_PUSH                       2097
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021
@@ -1198,7 +1207,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        242
 #define _APS_NEXT_COMMAND_VALUE         40111
-#define _APS_NEXT_CONTROL_VALUE         1516
+#define _APS_NEXT_CONTROL_VALUE         1517
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

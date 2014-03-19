@@ -290,6 +290,7 @@ DLG_OPEN_CONFIG			Specify the Configuration File to Import
 DLG_STRING_DEFTITLE		String Input
 DLG_STRING_DEFINFO		Enter strings.
 DLG_ABOUT_LEGAL			Legal Notices
+DLG_ABOUT_AUTHORS		List of Authors
 DLG_UPDATE_DATE			\ (Released on %S)
 DLG_UPDATE_HINT			Press OK to view the information of the latest update on the web browser.\r\n\r\nYou have to download and install updates manually. If you want to update software on the other computer you have to log in to the computer by Remote Desktop or SSH to perform the download and update.
 
@@ -447,6 +448,9 @@ WINVER_ERROR_PC_REMOTE	the remote server
 
 # Warning for Open-source Version
 OSS_MSG					Welcome to the SoftEther VPN Server Academic Version!\r\n\r\n\r\nThis VPN Server is open-source free software developed as academic research at University of Tsukuba, Japan, and distributed from the SoftEther VPN Project (http://www.softether.org/), for free of charge for the public interests.\r\n\r\nSoftEther VPN software is distributed to public as a part of the joint-research contract between University of Tsukuba and SoftEther VPN Project. SoftEther VPN software is developed and published for JUST AN ACADEMIC RESEARCH PURPOSE. Therefore no support service are provided about SoftEther VPN software even if it contains bugs or vulnerabilities. A user will be liable for the result of use SoftEther VPN. The developers and publishers of SoftEther VPN will never be liable for either any consequences or damages.\r\n\r\nEnjoy using VPN with SoftEther VPN Server.\r\n\r\nFor more details of SoftEther VPN, visit http://www.softether.org/.\r\n\r\n
+NATT_MSG				** Connected with NAT traversal - might be unstable **\r\n\r\nThis VPN Client is connected to the VPN Server '%S' by using the NAT Traversal (UDP Hole Punching) technology.\r\n\r\nNAT Traversal allows the VPN Server behind the NAT-box to accept VPN connections from VPN Client without any port-forwarding setting on the NAT-box.\r\n\r\nHowever, NAT Traversal-based VPN sessions sometimes become unstable, because NAT Traversal uses UDP-based protocol. For example, the VPN tunnel disconnects every 5 minutes if there is a poor NAT-box between the VPN Server and the VPN Client. Some large-scale NAT gateways in cheap ISPs sometimes cause the same problem on NAT Traversal. This is a problem of routers or ISPs. This is not a problem of SoftEther VPN software.\r\n\r\nTo solve the unstable tunnel problem, you should connect to the VPN Server's TCP listener port directly, instead of using NAT Traversal. To connect to the VPN Server directly by using TCP, a listener port of the VPN Server must be exposed to the Internet by a port-forward setting on the NAT-box. Ask the administrator of the NAT-box, or refer to the manual of the NAT-box to add a port-forwarding setting on the NAT-box.\r\n\r\nIf this message still remains despite the VPN Server is exposing a TCP port to the Internet, check the "Disable NAT-T" checkbox on the VPN Client connection setting screen.\r\n\r\n
+NATT_MSG2				** Connected with NAT traversal - might be unstable **\r\n\r\nThis VPN Client is connected to the VPN Server '%S' by using the NAT Traversal (UDP Hole Punching) technology.\r\n\r\nNAT Traversal allows the VPN Server behind the NAT-box to accept VPN connections from VPN Client without any port-forwarding setting on the NAT-box.\r\n\r\nHowever, NAT Traversal-based VPN sessions sometimes become unstable, because NAT Traversal uses UDP-based protocol. For example, the VPN tunnel disconnects every 5 minutes if there is a poor NAT-box between the VPN Server and the VPN Client. Some large-scale NAT gateways in cheap ISPs sometimes cause the same problem on NAT Traversal. This is a problem of routers or ISPs. This is not a problem of SoftEther VPN software.\r\n\r\nTo solve the unstable tunnel problem, you should connect to the VPN Server's TCP listener port directly, instead of using NAT Traversal. To connect to the VPN Server directly by using TCP, a listener port of the VPN Server must be exposed to the Internet by a port-forward setting on the NAT-box. Ask the administrator of the NAT-box, or refer to the manual of the NAT-box to add a port-forwarding setting on the NAT-box.\r\n\r\nIf this message still remains despite the VPN Server is exposing a TCP port to the Internet, check the "Disable NAT-T" checkbox on the VPN Client connection setting screen after upgrading the VPN Client to Build 9428 or later.\r\n\r\n
+
 
 
 # Virtual HUB Admin Options
@@ -541,6 +545,10 @@ HUB_AO_DisableUserModeSecureNAT				If you set this option to non-zero value, the
 HUB_AO_DisableCheckMacOnLocalBridge			If you set this option to non-zero value, the MAC address duplication check will be disabled on the Local Bridge function. There might be a case when some network adapters has a problem that reflects outgoing packets towards the Virtual Hub. A Virtual HUB detects such duplications automatically, and discards them. Enable this flag to disable the detection and discarding.
 HUB_AO_DisableCorrectIpOffloadChecksum		If you set this option to non-zero value, then the checking and correction of IP check-sum value on the Local Bridge function. Some network adapters, which have IP, TCP or UDP header check-sum offloading engines, transmit packets with incomplete check-sum values. Such packets cannot be treated correctly by receiver-side. So the Local Bridge detects such packets and corrects its check-sum fields. Enable this flag to disable such correction.
 HUB_AO_BroadcastLimiterStrictMode			If you set this option to non-zero value, then the broadcast-storm detection algorithm will compare either source or destination IP address of each packet. If any of the two fields matches, the packet will be recorded on the short-term history of broadcast-storm detection state machine.
+HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per minute.
+HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
+HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
 
 
 # Concerning failed connection dialogs
@@ -646,6 +654,8 @@ CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode Ethernet Driver is Act
 CT_b_support_vgs		VPN Gate Service Server Functions are Supported
 CT_b_support_vgs_in_client	VPN Gate Service Server Functions (VPN Client integrated)
 CT_b_is_softether		Either Free or Open-Source Version of SoftEther VPN
+CT_b_suppport_push_route		Static Routing Table Pushing Function
+CT_b_suppport_push_route_config	Static Routing Table Pushing Function (Configurable)
 
 # Concerning policies
 POL_TITLE_STR			Policy Name
@@ -1129,9 +1139,9 @@ SM_PASSWORD_TYPE_STR	Password for Administration Connection
 SM_HUB_COLUMN_1			Virtual Hub Name
 SM_HUB_COLUMN_2			Status
 SM_HUB_COLUMN_3			Type
-SM_HUB_COLUMN_4			User
-SM_HUB_COLUMN_5			Group
-SM_HUB_COLUMN_6			Session
+SM_HUB_COLUMN_4			Users
+SM_HUB_COLUMN_5			Groups
+SM_HUB_COLUMN_6			Sessions
 SM_HUB_COLUMN_7			MAC Tables
 SM_HUB_COLUMN_8			IP Tables
 SM_HUB_COLUMN_9			Num Logins
@@ -1610,6 +1620,9 @@ SM_DDNS_FQDN_EMPTY		(None)
 SM_DDNS_OK_MSG			The Dynamic DNS hostname: %S%S\r\n\r\nYou can access to the below IP address by specifying the above DNS hostname.\r\n\r\nIPv4 Address: %s\r\nIPv6 Address: %s\r\n\r\nYou can also specify the following special forms of hostnames to specify IPv4 or IPv6 as the address-type explicitly.\r\n\r\nHostname for IPv4: %S.v4%S\r\nHostname for IPv6: %S.v6%S\r\n
 SM_DDNS_OK_TITLE		Dynamic DNS Function
 SM_DDNS_OK_MSG2			The Dynamic DNS hostname has been changed to '%S'.\r\n\r\nClick Hint to read additional information.
+SM_DDNS_KEY_TITLE		Dynamic DNS Key
+SM_DDNS_KEY_MSG			Your Dynamic DNS Private Key: %s\r\n\r\nThis is the private key which is associated with your current DDNS name. If your VPN Server PC damaged and lost the key, the current DDNS name will be occupied forever and other VPN Server will not be able to use the same name.\r\nIf you want to continue to use the same name, keep the key on a safe place, such as an Internet storage, an another PC or a notepad.\r\nWhen applying the key to the new VPN Server, edit the configuration file of the VPN Server to replace the key by the string in the value following to "byte Key" in the "declare DDnsClient" directive.\r\nDo not use the duplicated key to two or more VPN Servers at the same time.
+SM_DDNS_KEY_ERR			Failed to read the DNS key.
 SM_IPSEC_PSK_TOO_LONG	The pre-shared key (PSK) has 10 or more letters.\r\n\r\nIt is reported that several versions of Google Android has a serious bug with 10 or more letters pre-shared key.\r\nTherefore 9 or less letters are recommended for pre-shared key.\r\n\r\nDo you want to modify the pre-shared key?
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	How to Use Advanced HTTP Redirection Function
 SM_ADVANCED_REDIRECT_URL_HINT	Advanced HTTP Redirection (For Experts)\r\n\r\nThe string "<INFO>" is a place holder. It can embedded on the URL of redirection.\r\n\r\nEmbedded URL Example:\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\nWhen the client is being redirected, the actual destination URL of redirection will be replaced as follows.\r\n\r\nUsername|Session ID|IP Address|Date and Time|Hash Value\r\n\r\\nAfter Replacement Example: zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\nThe details of each fields are described as following.\r\n\r\nUsername: The username using for the current VPN Session will be placed.\r\n\r\nSession ID: The Session ID of the VPN Session will be placed.\r\n\r\nDate and Time: 14-digits will be placed as 'YYYYMMDDHHMMSS' format (Time zone is UTC).\r\n\r\nHash Value: A 40-characters hexadecimal strings which represent 20 bytes binary data. The binary data is the result of SHA-1 hash function to the temporary string. The temporary string is the combination of the bit-array of the above fields plus the secret string after the '|' symbol in the redirection URL. (In the above example, "secret" is the secret string.) If there are no '|' symbols in the URL, no hash value will be appended.\r\n\r\nThe Purpose of Hash Value: The secret string is effective as the secret key. Thanks to the secret key, the CGI program which receives the query strings on the redirected URL can verify the integrity of the parameters included in the URL.\r\n
@@ -1677,6 +1690,7 @@ DHCP_MAC_ADDRESS		MAC Address
 DHCP_IP_ADDRESS			Allocated IP
 DHCP_HOSTNAME			Client Host Name
 NM_PASSWORD_MSG			The administration password has been set.
+NM_PUSH_ROUTE_WARNING	The specified text of the static routing table may have a syntax error.
 
 
 # Concerning version information
@@ -2287,6 +2301,7 @@ R_HIDE2					Hide IP Address Screens
 STATIC15				Set the user authentication information that is required when connecting to the VPN Server.
 B_REGIST_CLIENT_CERT	Specify Client &Certificate
 B_IE					Import I&E Proxy Server Settings
+R_DISABLE_NATT			Disable NAT-T
 
 
 PREFIX					D_CM_PROXY
@@ -2405,6 +2420,7 @@ B_EULA					&End User License
 B_IMPORTANT				&Important Notices
 B_LEGAL					&Legal Notices
 B_UPDATE_CONFIG			&Configure Updates
+B_AUTHORS				List of &Authors
 
 
 PREFIX					D_REMOTE
@@ -3088,6 +3104,9 @@ STATIC22				Domain Name:
 STATIC23				DNS &Server Address 2:
 IDOK					&OK
 IDCANCEL				Cancel
+S_1						Static routing table pushing function (for split tunneling)
+S_2						Push the static routing table to VPN clients.
+B_PUSH					Edit the static routing table to push
 
 
 PREFIX					D_NM_NAT
@@ -3771,7 +3790,7 @@ R_ETHERIP				Enable &EtherIP / L2TPv3 over IPsec Server Function
 B_DETAIL				EtherIP / L2TPv3 &Detail Settings
 S07						IPsec &Common Settings
 S_PSK					IPsec &Pre-Shared Key:
-S_PSK2					IPsec Pre-Shared Key is also called "PSKs" or "Secrets". Specify it with almost eight ASCII characters, and let all VPN users know.
+S_PSK2					IPsec Pre-Shared Key is also called "PSKs" or "Secrets". Specify it with around eight ASCII characters, and let all VPN users know.
 IDOK					&OK
 IDCANCEL				Cancel
 
@@ -3844,7 +3863,8 @@ S_2						If you are not connected to IPv6 Internet, "Global IPv6 Address" should
 IDCANCEL				E&xit
 B_DISABLE				&Disable Dynamic DNS Function
 B_PROXY					Connect via &Proxy Server...
-
+S_STATUS8				DNS Key:
+B_HINT2					Hint
 
 PREFIX					D_SM_SPECIALLISTENER
 CAPTION					VPN over ICMP / DNS Function Settings
@@ -4131,6 +4151,18 @@ IDOK					&Agree
 IDCANCEL				&Disagree
 S_BOLD					Caution! Do Not Use the VPN Gate Services in Countries where VPN Communications are Prohibited.
 
+
+PREFIX					D_NM_PUSH
+CAPTION					Edit the static routing table to push
+S1						This Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.
+S2						Whether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software.
+S3						You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.
+S4						You can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this screen.
+S5						Edit the static routing table to push
+S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format.
+S7						See the RFC 3442 to understand the classless routes.
+IDOK					&OK
+IDCANCEL				Cancel
 
 
 
@@ -5904,6 +5936,7 @@ CMD_DhcpGet_Column_GW	Default Gateway Address
 CMD_DhcpGet_Column_DNS	DNS Server Address 1
 CMD_DhcpGet_Column_DNS2	DNS Server Address 2
 CMD_DhcpGet_Column_DOMAIN	Domain Name
+CMD_DhcpGet_Column_PUSHROUTE	Static Routing Table to Push
 
 
 # DhcpEnable command
@@ -5921,7 +5954,7 @@ CMD_DhcpDisable_Args	DhcpDisable
 # DhcpSet command
 CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function
 CMD_DhcpSet_Help		Use this to change the Virtual DHCP Server setting of the currently managed Virtual Hub. The Virtual DHCP Server settings include the following items: distribution address band, subnet mask, lease limit, and option values assigned to clients. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
 CMD_DhcpSet_START		Specify the start point of the address band to be distributed to the client. (Example: 192.168.30.10)
 CMD_DhcpSet_END			Specify the end point of the address band to be distributed to the client. (Example: 192.168.30.200)
 CMD_DhcpSet_MASK		Specify the subnet mask to be specified for the client. (Example: 255.255.255.0)
@@ -5931,6 +5964,7 @@ CMD_DhcpSet_DNS			Specify the IP address of the primary DNS Server to be notifie
 CMD_DhcpSet_DNS2		Specify the IP address of the secondary DNS Server to be notified to the client. You can specify a SecureNAT Virtual Host IP address for this when the SecureNAT Function's Virtual NAT Function has been enabled and is being used also. If you specify 0 or none, then the client will not be notified of the DNS Server address.
 CMD_DhcpSet_DOMAIN		Specify the domain name to be notified to the client. If you specify none, then the client will not be notified of the domain name.
 CMD_DhcpSet_LOG			Specify whether or not to save the Virtual DHCP Server operation in the Virtual Hub security log. Specify "yes" to save it. This value is interlinked with the Virtual NAT Function log save setting.
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format.\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
 CMD_DhcpSet_Prompt_START	Start Point for Distributed Address Band: 
 CMD_DhcpSet_Prompt_END		End Point for Distributed Address Band: 
 CMD_DhcpSet_Prompt_MASK		Subnet Mask: 

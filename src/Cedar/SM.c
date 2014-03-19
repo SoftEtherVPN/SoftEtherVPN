@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // SM.c
@@ -702,6 +708,19 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 			}
 			break;
 
+		case B_HINT2:
+			// Hint2 (for DDNS key)
+			{
+				wchar_t tmp[MAX_SIZE * 4];
+				wchar_t *keystr;
+
+				keystr = GetText(hWnd, E_KEY);
+				UniFormat(tmp, sizeof(tmp), _UU("SM_DDNS_KEY_MSG"), keystr);
+				Free(keystr);
+				OnceMsg(hWnd, _UU("SM_DDNS_KEY_TITLE"), tmp, false, ICO_DISPLAY);
+			}
+			break;
+
 		case B_PROXY:
 			// Proxy settings
 			if (true)
@@ -835,8 +854,45 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 
 	return 0;
 }
+
+// Get the ddns key from the server configuration file
+static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
+	RPC *rpc = d->s->Rpc;
+	RPC_CONFIG config;
+	UINT err;
+	BUF *buf;
+	FOLDER *root, *ddnsfolder;
+
+	// Validate arguments
+	if(d == NULL || d->s == NULL || key == NULL){
+		return ERR_INTERNAL_ERROR;
+	}
+
+	Zero(&config, sizeof(config));
+	err = ScGetConfig(d->s->Rpc, &config);
+	if(err != ERR_NO_ERROR){
+		return err;
+	}
+
+	buf = NewBufFromMemory(config.FileData, StrLen(config.FileData));
+	FreeRpcConfig(&config);
+
+	root = CfgBufTextToFolder(buf);
+	FreeBuf(buf);
+
+	ddnsfolder = CfgGetFolder(root, "DDnsClient");
+	err = CfgGetByte(ddnsfolder, "Key", key, 20);
+
+	CfgDeleteFolder(root);
+
+	return (err == 20) ? ERR_NO_ERROR : ERR_INTERNAL_ERROR;
+}
+
 void SmDDnsDlgInit(HWND hWnd, SM_DDNS *d)
 {
+	char key[20];
+	char encodedkey[20 * 4 + 32];
+
 	// Validate arguments
 	if (hWnd == NULL || d == NULL)
 	{
@@ -854,6 +910,7 @@ void SmDDnsDlgInit(HWND hWnd, SM_DDNS *d)
 	DlgFont(hWnd, S_STATUS4, 0, true);
 	DlgFont(hWnd, S_STATUS5, 0, true);
 	DlgFont(hWnd, S_STATUS6, 0, true);
+	DlgFont(hWnd, S_STATUS8, 0, true);
 
 	SetFont(hWnd, S_SUFFIX, GetFont("Verdana", 10, false, false, false, false));
 	SetFont(hWnd, E_NEWHOST, GetFont("Verdana", 10, false, false, false, false));
@@ -861,6 +918,7 @@ void SmDDnsDlgInit(HWND hWnd, SM_DDNS *d)
 	SetFont(hWnd, E_HOST, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
 	SetFont(hWnd, E_IPV4, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
 	SetFont(hWnd, E_IPV6, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
+	SetFont(hWnd, E_KEY, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 8, false, false, false, false));
 
 	DlgFont(hWnd, IDOK, 0, true);
 
@@ -871,6 +929,13 @@ void SmDDnsDlgInit(HWND hWnd, SM_DDNS *d)
 
 	Hide(hWnd, B_PROXY);
 
+	if(SmDdnsGetKey(key, d) == ERR_NO_ERROR){
+		encodedkey[ B64_Encode(encodedkey, key, 20) ] = 0;
+		SetTextA(hWnd, E_KEY, encodedkey);
+	}else{
+		SetText(hWnd, E_KEY, _UU("SM_DDNS_KEY_ERR"));
+	}
+
 	SmDDnsRefresh(hWnd, d);
 }
 
@@ -878,6 +943,7 @@ void SmDDnsRefresh(HWND hWnd, SM_DDNS *d)
 {
 	DDNS_CLIENT_STATUS st;
 	INTERNET_SETTING t;
+
 	// Validate arguments
 	if (hWnd == NULL || d == NULL)
 	{

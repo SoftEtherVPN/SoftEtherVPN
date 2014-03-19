@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // IPsec_IPC.c
@@ -225,7 +231,7 @@ void IPCAsyncThreadProc(THREAD *thread, void *param)
 				UINTToIP(&subnet, cao.SubnetMask);
 				UINTToIP(&gw, cao.Gateway);
 
-				IPCSetIPv4Parameters(a->Ipc, &ip, &subnet, &gw);
+				IPCSetIPv4Parameters(a->Ipc, &ip, &subnet, &gw, &cao.ClasslessRoute);
 
 				a->L3NextDhcpRenewTick = Tick64() + a->L3DhcpRenewInterval;
 			}
@@ -1574,7 +1580,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 }
 
 // Configure IPv4 parameters
-bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw)
+bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw, DHCP_CLASSLESS_ROUTE_TABLE *rt)
 {
 	bool changed = false;
 	// Validate arguments
@@ -1616,6 +1622,16 @@ bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw)
 
 	GetBroadcastAddress4(&ipc->BroadcastAddress, ip, subnet);
 
+	if (rt != NULL && rt->NumExistingRoutes >= 1)
+	{
+		if (Cmp(&ipc->ClasslessRoute, rt, sizeof(DHCP_CLASSLESS_ROUTE_TABLE)) != 0)
+		{
+			changed = true;
+
+			Copy(&ipc->ClasslessRoute, rt, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+		}
+	}
+
 	return changed;
 }
 
@@ -1626,6 +1642,7 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 	IP ip_dst_local;
 	bool is_broadcast = false;
 	UCHAR uc;
+	DHCP_CLASSLESS_ROUTE *r = NULL;
 	// Validate arguments
 	if (ipc == NULL || data == NULL || size < 20 || size > 1500)
 	{
@@ -1664,11 +1681,19 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 
 	// Get the IP address of the relayed destination
 	Copy(&ip_dst_local, &ip_dst, sizeof(IP));
-	if (ip_dst.addr[0]==8)
-		DoNothing();
+
 	if (IsInSameNetwork4(&ip_dst, &ipc->ClientIPAddress, &ipc->SubnetMask) == false)
 	{
-		Copy(&ip_dst_local, &ipc->DefaultGateway, sizeof(IP));
+		r = GetBestClasslessRoute(&ipc->ClasslessRoute, &ip_dst);
+
+		if (r == NULL)
+		{
+			Copy(&ip_dst_local, &ipc->DefaultGateway, sizeof(IP));
+		}
+		else
+		{
+			Copy(&ip_dst_local, &r->Gateway, sizeof(IP));
+		}
 	}
 
 	if (CmpIpAddr(&ipc->BroadcastAddress, &ip_dst) == 0)
@@ -1709,9 +1734,11 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 
 	if (IsZeroIP(&ip_dst_local))
 	{
+		// Unable to send
 		return;
 	}
 
+	// Send a unicast packet
 	IPCSendIPv4Unicast(ipc, data, size, &ip_dst_local);
 }
 

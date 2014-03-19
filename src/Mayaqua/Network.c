@@ -12,8 +12,9 @@
 // http://www.softether.org/
 // 
 // Author: Daiyuu Nobori
+// Contributors:
+// - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
-// 
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -85,6 +86,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Network.c
@@ -14379,7 +14387,7 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 	IPToStr(hostname, sizeof(hostname), &p->Ip);
 	sock = ConnectEx3(hostname, p->Port, p->Timeout, p->CancelFlag, NULL, NULL, false, false, true);
 
-	if (sock != NULL && p->Tcp_SslNoTls)
+	if (sock != NULL && p->Tcp_TryStartSsl)
 	{
 		bool ssl_ret = false;
 		// Attempt the SSL negotiation to take this opportunity
@@ -14756,14 +14764,14 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 					p2_spent_time = (UINT)(p2.FinishedTick - start_tick);
 
 					// Decide the grace time for results of TCP until settled.
-					// The grace time is three times the duration of the R-UDP, and at least 250 milliseconds from the start,
-					// and up to 1500 milliseconds after the R-UDP results settled
-					p1_wait_time = p2_spent_time * 3;
-					p1_wait_time = MAX(p1_wait_time, 250);
+					// The grace time is four times the duration of the R-UDP, and at least 400 milliseconds from the start,
+					// and up to 2500 milliseconds after the R-UDP results settled
+					p1_wait_time = p2_spent_time * 4;
+					p1_wait_time = MAX(p1_wait_time, 400);
 					//Debug("p2_spent_time = %u,   p1_wait_time = %u\n", p2_spent_time, p1_wait_time);
 
 					tcp_giveup_tick = start_tick + (UINT64)p1_wait_time;
-					tcp_giveup_tick = MIN(tcp_giveup_tick, (p2.FinishedTick + 1500ULL));
+					tcp_giveup_tick = MIN(tcp_giveup_tick, (p2.FinishedTick + 2500ULL));
 
 					if (now >= tcp_giveup_tick)
 					{

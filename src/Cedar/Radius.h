@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Radius.h
@@ -97,6 +103,13 @@
 #define	RADIUS_RETRY_INTERVAL	500				// Retransmission interval
 #define	RADIUS_RETRY_TIMEOUT	(10 * 1000)		// Time-out period
 
+// Function prototype
+bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20);
+BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT secret_size);
+BUF *RadiusCreateUserName(wchar_t *username);
+BUF *RadiusCreateUserPassword(void *data, UINT size);
+BUF *RadiusCreateNasId(char *name);
+void RadiusAddValue(BUF *b, UCHAR t, UINT v, UCHAR vt, void *data, UINT size);
 
 #endif	// RADIUS_H
 

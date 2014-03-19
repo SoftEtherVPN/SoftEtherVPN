@@ -775,6 +775,10 @@ The list of contributors for SoftEther VPN Project:
   - ELIN
     https://github.com/el1n
 
+  - YF
+    https://github.com/yfdyh000
+
+
 SoftEther Corporation, the distributor of PacketiX VPN, appreciates all
 contributors for SoftEther VPN Project very much.
 

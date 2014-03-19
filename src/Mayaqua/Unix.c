@@ -17,7 +17,6 @@
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -88,6 +87,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Unix.c
@@ -2497,7 +2503,13 @@ void UnixStopService(char *name)
 		}
 		else
 		{
+			// SIGKILL
+			char tmp[256];
+
+			Format(tmp, sizeof(tmp), "killall -KILL %s", name);
+
 			UniPrint(_UU("UNIX_SVC_STOP_FAILED"), svc_title);
+			system(tmp);
 		}
 	}
 

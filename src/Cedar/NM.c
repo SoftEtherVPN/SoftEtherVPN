@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // NM.c
@@ -125,6 +131,87 @@
 // Global variable
 static NM *nm = NULL;
 
+// Dialog proc for the push routing option
+UINT NmEditPushRouteProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
+{
+	SM_HUB *r = (SM_HUB *)param;
+	char *str = NULL;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		SetTextA(hWnd, E_TEXT, r->CurrentPushRouteStr);
+		Focus(hWnd, E_TEXT);
+
+		SetIcon(hWnd, 0, ICO_PROTOCOL);
+		break;
+
+	case WM_COMMAND:
+		switch (wParam)
+		{
+		case IDOK:
+			str = GetTextA(hWnd, E_TEXT);
+			if (str != NULL)
+			{
+				bool ok = true;
+
+				if (CheckClasslessRouteTableStr(str) == false)
+				{
+					if (MsgBox(hWnd, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2, _UU("NM_PUSH_ROUTE_WARNING")) == IDCANCEL)
+					{
+						ok = false;
+					}
+				}
+
+				if (ok)
+				{
+					if (IsEmptyStr(r->CurrentPushRouteStr) == false)
+					{
+						if (GetCapsBool(r->p->CapsList, "b_suppport_push_route") == false)
+						{
+							MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("ERR_147"));
+						}
+					}
+
+					StrCpy(r->CurrentPushRouteStr, sizeof(r->CurrentPushRouteStr), str);
+
+					EndDialog(hWnd, 1);
+				}
+
+				Free(str);
+			}
+			break;
+
+		case IDCANCEL:
+			Close(hWnd);
+			break;
+		}
+		break;
+
+	case WM_CLOSE:
+		EndDialog(hWnd, 0);
+		break;
+	}
+
+	return 0;
+}
+
+// Edit dialog for the push routing option
+bool NmEditPushRoute(HWND hWnd, SM_HUB *r)
+{
+	// Validate arguments
+	if (r == NULL)
+	{
+		return false;
+	}
+
+	return Dialog(hWnd, D_NM_PUSH, NmEditPushRouteProc, r);
+}
 
 // Change Password dialog
 UINT NmChangePasswordProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
@@ -745,6 +832,8 @@ void NmEditVhOptionInit(HWND hWnd, SM_HUB *r)
 		return;
 	}
 
+	SetIcon(hWnd, 0, ICO_ROUTER);
+
 	FormatText(hWnd, S_TITLE, r->HubName);
 
 	Zero(&t, sizeof(VH_OPTION));
@@ -794,6 +883,15 @@ void NmEditVhOptionInit(HWND hWnd, SM_HUB *r)
 
 	SetTextA(hWnd, E_DOMAIN, t.DhcpDomainName);
 	Check(hWnd, R_SAVE_LOG, t.SaveLog);
+
+	StrCpy(r->CurrentPushRouteStr, sizeof(r->CurrentPushRouteStr), t.DhcpPushRoutes);
+
+	if (GetCapsBool(r->p->CapsList, "b_suppport_push_route_config") == false)
+	{
+		Disable(hWnd, S_1);
+		Disable(hWnd, S_2);
+		Disable(hWnd, B_PUSH);
+	}
 
 	NmEditVhOptionUpdate(hWnd, r);
 
@@ -929,6 +1027,9 @@ void NmEditVhOptionOnOk(HWND hWnd, SM_HUB *r)
 	NmEditVhOptionFormToVH(hWnd, &t);
 	StrCpy(t.HubName, sizeof(t.HubName), r->HubName);
 
+	t.ApplyDhcpPushRoutes = true;
+	StrCpy(t.DhcpPushRoutes, sizeof(t.DhcpPushRoutes), r->CurrentPushRouteStr);
+
 	if (CALL(hWnd, ScSetSecureNATOption(r->Rpc, &t)))
 	{
 		EndDialog(hWnd, true);
@@ -996,6 +1097,10 @@ UINT NmEditVhOptionProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void 
 				Focus(hWnd, E_DHCP_START);
 			}
 			break;
+
+		case B_PUSH:
+			NmEditPushRoute(hWnd, r);
+			break;
 		}
 
 		break;
@@ -1013,6 +1118,7 @@ void NmEditVhOption(HWND hWnd, SM_HUB *r)
 		return;
 	}
 
+	Zero(r->CurrentPushRouteStr, sizeof(r->CurrentPushRouteStr));
 	Dialog(hWnd, D_NM_OPTION, NmEditVhOptionProc, r);
 }
 

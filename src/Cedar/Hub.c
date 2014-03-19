@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Hub.c
@@ -572,6 +578,8 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "BroadcastLimiterStrictMode", &o->BroadcastLimiterStrictMode);
 	GetHubAdminOptionDataAndSet(ao, "MaxLoggedPacketsPerMinute", &o->MaxLoggedPacketsPerMinute);
 	GetHubAdminOptionDataAndSet(ao, "DoNotSaveHeavySecurityLogs", &o->DoNotSaveHeavySecurityLogs);
+	GetHubAdminOptionDataAndSet(ao, "DropBroadcastsInPrivacyFilterMode", &o->DropBroadcastsInPrivacyFilterMode);
+	GetHubAdminOptionDataAndSet(ao, "DropArpInPrivacyFilterMode", &o->DropArpInPrivacyFilterMode);
 }
 
 // Convert the contents of the HUB_OPTION to data
@@ -633,6 +641,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("BroadcastLimiterStrictMode", o->BroadcastLimiterStrictMode));
 	Add(aol, NewAdminOption("MaxLoggedPacketsPerMinute", o->MaxLoggedPacketsPerMinute));
 	Add(aol, NewAdminOption("DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs));
+	Add(aol, NewAdminOption("DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode));
+	Add(aol, NewAdminOption("DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode));
 
 	Zero(ao, sizeof(RPC_ADMIN_OPTION));
 
@@ -775,13 +785,102 @@ char *GenerateAcStr(AC *ac)
 // Calculate whether the specified IP address is rejected by the access list
 bool IsIpDeniedByAcList(IP *ip, LIST *o)
 {
+	UINT i;
+	// Validate arguments
+	if (ip == NULL || o == NULL)
+	{
+		return false;
+	}
+
+	if (GetGlobalServerFlag(GSF_DISABLE_AC) != 0)
+	{
+		return false;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		AC *ac = LIST_DATA(o, i);
+
+		if (IsIpMaskedByAc(ip, ac))
+		{
+			if (ac->Deny == false)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 
 // Calculate whether the specified IP address is masked by the AC
 bool IsIpMaskedByAc(IP *ip, AC *ac)
 {
-	return false;
+	UINT uip, net, mask;
+	// Validate arguments
+	if (ip == NULL || ac == NULL)
+	{
+		return false;
+	}
+
+	if (GetGlobalServerFlag(GSF_DISABLE_AC) != 0)
+	{
+		return false;
+	}
+
+	if (IsIP4(ip))
+	{
+		// IPv4
+		uip = IPToUINT(ip);
+		net = IPToUINT(&ac->IpAddress);
+		mask = IPToUINT(&ac->SubnetMask);
+
+		if (ac->Masked == false)
+		{
+			if (uip == net)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			if ((uip & mask) == (net & mask))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+	else
+	{
+		// IPv6
+		if (ac->Masked == false)
+		{
+			if (CmpIpAddr(ip, &ac->IpAddress) == 0)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			IP and1, and2;
+
+			IPAnd6(&and1, ip, &ac->SubnetMask);
+			IPAnd6(&and2, &ac->IpAddress, &ac->SubnetMask);
+
+			if (CmpIpAddr(&and1, &and2) == 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 // Set the AC
@@ -3831,6 +3930,8 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 	TRAFFIC traffic;
 	UINT64 now = Tick64();
 	bool no_heavy = false;
+	bool drop_broadcast_packet_privacy = false;
+	bool drop_arp_packet_privacy = false;
 	// Validate arguments
 	if (hub == NULL || packet == NULL)
 	{
@@ -3851,6 +3952,8 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 	if (hub->Option != NULL)
 	{
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
+		drop_broadcast_packet_privacy = hub->Option->DropBroadcastsInPrivacyFilterMode;
+		drop_arp_packet_privacy = hub->Option->DropArpInPrivacyFilterMode;
 	}
 
 	// Lock the entire MAC address table
@@ -4760,13 +4863,13 @@ UPDATE_FDB:
 						}
 
 						if (s != NULL &&
-							(packet->BroadcastPacket == false &&
+							((drop_broadcast_packet_privacy || packet->BroadcastPacket == false) &&
 							s->Policy->PrivacyFilter &&
 							dest_session->Policy->PrivacyFilter)
 							)
 						{
 							// Privacy filter
-							if (packet->TypeL3 != L3_ARPV4)
+							if (drop_arp_packet_privacy || packet->TypeL3 != L3_ARPV4)
 							{
 								goto DISCARD_UNICAST_PACKET;
 							}
@@ -4942,13 +5045,13 @@ DISCARD_UNICAST_PACKET:
 								}
 
 								if (s != NULL &&
-									(packet->BroadcastPacket == false &&
+									((drop_broadcast_packet_privacy || packet->BroadcastPacket == false) &&
 									s->Policy->PrivacyFilter &&
 									dest_session->Policy->PrivacyFilter)
 									)
 								{
 									// Privacy filter
-									if (packet->TypeL3 != L3_ARPV4)
+									if (drop_arp_packet_privacy || packet->TypeL3 != L3_ARPV4)
 									{
 										discard = true;
 									}
@@ -6857,6 +6960,9 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 	{
 		h->Option->VlanTypeId = MAC_PROTO_TAGVLAN;
 	}
+
+	h->Option->DropBroadcastsInPrivacyFilterMode = true;
+	h->Option->DropArpInPrivacyFilterMode = true;
 
 	Rand(h->HubSignature, sizeof(h->HubSignature));
 

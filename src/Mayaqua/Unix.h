@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Unix.h
@@ -105,8 +111,8 @@
 #define	UNIX_MAX_FD_MACOS				(10000)			// Maximum number of FDs (Mac OS X)
 #define	MAXIMUM_WAIT_OBJECTS			64				// Maximum number of select
 
-#define	UNIX_SERVICE_STOP_TIMEOUT_1		(600 * 1000)	// Timeout to stop the service
-#define	UNIX_SERVICE_STOP_TIMEOUT_2		(900 * 1000)	// Timeout to stop the service (parent process)
+#define	UNIX_SERVICE_STOP_TIMEOUT_1		(60 * 1000)	// Timeout to stop the service
+#define	UNIX_SERVICE_STOP_TIMEOUT_2		(90 * 1000)	// Timeout to stop the service (parent process)
 
 
 // Service related

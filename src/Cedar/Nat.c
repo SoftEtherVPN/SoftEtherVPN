@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Nat.c
@@ -808,6 +814,8 @@ void InVhOption(VH_OPTION *t, PACK *p)
 	PackGetStr(p, "DhcpDomainName", t->DhcpDomainName, sizeof(t->DhcpDomainName));
 	t->SaveLog = PackGetBool(p, "SaveLog");
 	PackGetStr(p, "RpcHubName", t->HubName, sizeof(t->HubName));
+	t->ApplyDhcpPushRoutes = PackGetBool(p, "ApplyDhcpPushRoutes");
+	PackGetStr(p, "DhcpPushRoutes", t->DhcpPushRoutes, sizeof(t->DhcpPushRoutes));
 }
 void OutVhOption(PACK *p, VH_OPTION *t)
 {
@@ -835,6 +843,8 @@ void OutVhOption(PACK *p, VH_OPTION *t)
 	PackAddStr(p, "DhcpDomainName", t->DhcpDomainName);
 	PackAddBool(p, "SaveLog", t->SaveLog);
 	PackAddStr(p, "RpcHubName", t->HubName);
+	PackAddBool(p, "ApplyDhcpPushRoutes", true);
+	PackAddStr(p, "DhcpPushRoutes", t->DhcpPushRoutes);
 }
 
 // RPC_ENUM_DHCP
@@ -1465,6 +1475,15 @@ void NiLoadVhOptionEx(VH_OPTION *o, FOLDER *root)
 	CfgGetIp(dhcp, "DhcpDnsServerAddress2", &o->DhcpDnsServerAddress2);
 	CfgGetStr(dhcp, "DhcpDomainName", o->DhcpDomainName, sizeof(o->DhcpDomainName));
 
+	CfgGetStr(dhcp, "DhcpPushRoutes", o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes));
+
+// Test code
+//	StrCpy(o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes),
+//		"130.158.6.0/24/192.168.9.2 130.158.80.244/255.255.255.255/192.168.9.2");
+
+	NormalizeClasslessRouteTableStr(o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes), o->DhcpPushRoutes);
+	o->ApplyDhcpPushRoutes = true;
+
 	Trim(o->DhcpDomainName);
 	if (StrLen(o->DhcpDomainName) == 0)
 	{
@@ -1595,6 +1614,7 @@ void NiWriteVhOptionEx(VH_OPTION *o, FOLDER *root)
 	CfgAddIp(dhcp, "DhcpDnsServerAddress", &o->DhcpDnsServerAddress);
 	CfgAddIp(dhcp, "DhcpDnsServerAddress2", &o->DhcpDnsServerAddress2);
 	CfgAddStr(dhcp, "DhcpDomainName", o->DhcpDomainName);
+	CfgAddStr(dhcp, "DhcpPushRoutes", o->DhcpPushRoutes);
 
 	CfgAddBool(root, "SaveLog", o->SaveLog);
 }

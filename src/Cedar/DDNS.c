@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // DDNS.c
@@ -652,6 +658,7 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 		if (err == ERR_NO_ERROR)
 		{
 			char snat_t[MAX_SIZE];
+			char current_region[128];
 
 			// Current host name
 			PackGetStr(ret, "current_hostname", c->CurrentHostName, sizeof(c->CurrentHostName));
@@ -659,6 +666,7 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 			PackGetStr(ret, "current_ipv4", c->CurrentIPv4, sizeof(c->CurrentIPv4));
 			PackGetStr(ret, "current_ipv6", c->CurrentIPv6, sizeof(c->CurrentIPv6));
 			PackGetStr(ret, "dns_suffix", c->DnsSuffix, sizeof(c->DnsSuffix));
+			PackGetStr(ret, "current_region", current_region, sizeof(current_region));
 
 			// SecureNAT connectivity check parameters
 			Zero(snat_t, sizeof(snat_t));
@@ -688,6 +696,12 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 				c->CurrentHostName, c->CurrentFqdn,
 				c->CurrentIPv4, c->CurrentIPv6,
 				c->CurrentAzureIp, c->CurrentAzureTimestamp, c->CurrentAzureSignature, c->AzureCertHash);
+
+			if (IsEmptyStr(current_region) == false)
+			{
+				// Update the current region
+				SiUpdateCurrentRegion(c->Cedar, current_region, false);
+			}
 		}
 	}
 	Unlock(c->Lock);

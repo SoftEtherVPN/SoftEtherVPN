@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // TcpIp.h
@@ -602,6 +608,9 @@ struct ICMPV6_HEADER_INFO
 #define	DHCP_ID_CLIENT_ID			0x3d
 #define	DHCP_ID_VENDOR_ID			0x3c
 #define	DHCP_ID_REQ_PARAM_LIST		0x37
+#define	DHCP_ID_CLASSLESS_ROUTE		0x79
+#define	DHCP_ID_MS_CLASSLESS_ROUTE	0xF9
+
 
 // DHCP client action
 #define	DHCP_DISCOVER		1
@@ -749,6 +758,26 @@ struct DHCP_OPTION
 	void *Data;						// Data
 };
 
+// DHCP classless static route entry
+struct DHCP_CLASSLESS_ROUTE
+{
+	bool Exists;					// Existing flag
+	IP Network;						// Network address
+	IP SubnetMask;					// Subnet mask
+	IP Gateway;						// Gateway
+	UINT SubnetMaskLen;				// Subnet mask length
+};
+
+#define	MAX_DHCP_CLASSLESS_ROUTE_ENTRIES	64
+#define	MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE	3200
+
+// DHCP classless static route table
+struct DHCP_CLASSLESS_ROUTE_TABLE
+{
+	UINT NumExistingRoutes;			// Number of existing routing table entries
+	DHCP_CLASSLESS_ROUTE Entries[MAX_DHCP_CLASSLESS_ROUTE_ENTRIES];	// Entries
+};
+
 // DHCP option list
 struct DHCP_OPTION_LIST
 {
@@ -770,6 +799,7 @@ struct DHCP_OPTION_LIST
 	UINT DnsServer2;				// DNS server address 2
 	UINT WinsServer;				// WINS server address 1
 	UINT WinsServer2;				// WINS server address 2
+	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless static routing table
 };
 
 // Modification option in the DHCP packet
@@ -869,6 +899,16 @@ HTTPLOG *ParseHttpAccessLog(PKT *pkt);
 
 BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size);
 BUF *DhcpModifyIPv4(DHCP_MODIFY_OPTION *m, void *data, UINT size);
+
+DHCP_CLASSLESS_ROUTE *GetBestClasslessRoute(DHCP_CLASSLESS_ROUTE_TABLE *t, IP *ip);
+void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT size);
+BUF *DhcpBuildClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t);
+bool ParseClasslessRouteStr(DHCP_CLASSLESS_ROUTE *r, char *str);
+bool ParseClasslessRouteTableStr(DHCP_CLASSLESS_ROUTE_TABLE *d, char *str);
+bool CheckClasslessRouteTableStr(char *str);
+void BuildClasslessRouteStr(char *str, UINT str_size, DHCP_CLASSLESS_ROUTE *r);
+void BuildClasslessRouteTableStr(char *str, UINT str_size, DHCP_CLASSLESS_ROUTE_TABLE *t);
+bool NormalizeClasslessRouteTableStr(char *dst, UINT dst_size, char *src);
 
 
 

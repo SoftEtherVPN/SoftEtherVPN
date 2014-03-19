@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Cedar.h
@@ -114,10 +120,10 @@
 
 
 // Version number
-#define	CEDAR_VER					405
+#define	CEDAR_VER					406
 
 // Build Number
-#define	CEDAR_BUILD					9423
+#define	CEDAR_BUILD					9430
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -137,11 +143,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2014
-#define	BUILD_DATE_M		2
-#define	BUILD_DATE_D		18
-#define	BUILD_DATE_HO		19
-#define	BUILD_DATE_MI		9
-#define	BUILD_DATE_SE		44
+#define	BUILD_DATE_M		3
+#define	BUILD_DATE_D		20
+#define	BUILD_DATE_HO		4
+#define	BUILD_DATE_MI		8
+#define	BUILD_DATE_SE		6
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1003,6 +1009,8 @@ typedef struct CEDAR
 	char CurrentDDnsFqdn[MAX_SIZE];	// FQDN of the current DDNS
 	char OpenVPNPublicPorts[MAX_SIZE];	// OpenVPN public UDP port list
 	LOCK *OpenVPNPublicPortsLock;	// Lock of OpenVPN public UDP port list
+	LOCK *CurrentRegionLock;		// Current region lock
+	char CurrentRegion[128];		// Current region
 } CEDAR;
 
 // Type of CEDAR

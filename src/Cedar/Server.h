@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Server.h
@@ -397,6 +403,17 @@ struct LOG_FILE
 };
 
 
+// Global server flags
+#define	NUM_GLOBAL_SERVER_FLAGS			128
+#define	GSF_DISABLE_PUSH_ROUTE			1
+#define	GSF_DISABLE_RADIUS_AUTH			2
+#define	GSF_DISABLE_CERT_AUTH			3
+#define	GSF_DISABLE_DEEP_LOGGING		4
+#define	GSF_DISABLE_AC					5
+#define	GSF_DISABLE_SYSLOG				6
+#define	GSF_SHOW_OSS_MSG				7
+
+
 // Virtual HUB creation history
 struct SERVER_HUB_CREATE_HISTORY
 {
@@ -630,12 +647,17 @@ void InRpcSysLogSetting(SYSLOG_SETTING *t, PACK *p);
 void OutRpcSysLogSetting(PACK *p, SYSLOG_SETTING *t);
 
 void GetServerCaps(SERVER *s, CAPSLIST *t);
+void FlushServerCaps(SERVER *s);
 bool GetServerCapsBool(SERVER *s, char *name);
 UINT GetServerCapsInt(SERVER *s, char *name);
 void GetServerCapsMain(SERVER *s, CAPSLIST *t);
 void InitServerCapsCache(SERVER *s);
 void FreeServerCapsCache(SERVER *s);
 void DestroyServerCapsCache(SERVER *s);
+
+void SetGlobalServerFlag(UINT index, UINT value);
+UINT GetGlobalServerFlag(UINT index);
+void UpdateGlobalServerFlags(SERVER *s, CAPSLIST *t);
 
 
 bool IsAdminPackSupportedServerProduct(char *name);
@@ -662,6 +684,10 @@ bool SiIsAzureSupported(SERVER *s);
 void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status);
 void SiSetAzureEnable(SERVER *s, bool enabled);
 bool SiGetAzureEnable(SERVER *s);
+
+void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update);
+void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size);
+bool SiIsEnterpriseFunctionsRestrictedOnOpenSource(CEDAR *c);
 
 #endif	// SERVER_H
 

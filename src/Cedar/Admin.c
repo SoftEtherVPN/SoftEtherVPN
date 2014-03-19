@@ -16,7 +16,6 @@
 // - ELIN (https://github.com/el1n)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -87,6 +86,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Admin.c
@@ -1716,7 +1722,7 @@ UINT StGetAdminMsg(ADMIN *a, RPC_MSG *t)
 	if (
 		c->Bridge == false)
 	{
-		if (GetCurrentLangId() != SE_LANG_ENGLISH)
+		if (GetGlobalServerFlag(GSF_SHOW_OSS_MSG) != 0)
 		{
 			UniStrCat(tmp, tmpsize, _UU("OSS_MSG"));
 		}
@@ -2177,6 +2183,11 @@ UINT StSetAcList(ADMIN *a, RPC_AC_LIST *t)
 	if (c->Bridge)
 	{
 		return ERR_NOT_SUPPORTED;
+	}
+
+	if (GetGlobalServerFlag(GSF_DISABLE_AC) != 0 && LIST_NUM(t->o) >= 1)
+	{
+		return ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE;
 	}
 
 	CHECK_RIGHT;
@@ -3620,6 +3631,11 @@ UINT StSetSysLog(ADMIN *a, SYSLOG_SETTING *t)
 
 	SERVER_ADMIN_ONLY;
 
+	if (GetGlobalServerFlag(GSF_DISABLE_SYSLOG) != 0 && t->SaveType != SYSLOG_NONE)
+	{
+		return ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE;
+	}
+
 	if (GetServerCapsBool(s, "b_support_syslog") == false)
 	{
 		return ERR_NOT_SUPPORTED;
@@ -5017,9 +5033,12 @@ UINT StSetUser(ADMIN *a, RPC_SET_USER *t)
 
 	CHECK_RIGHT;
 
-	if (t->AuthType == AUTHTYPE_USERCERT || t->AuthType == AUTHTYPE_RADIUS || t->AuthType == AUTHTYPE_ROOTCERT || t->AuthType == AUTHTYPE_NT)
+	if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
 	{
-		return ERR_NOT_SUPPORTED_AUTH_ON_OPENSOURCE;
+		if (t->AuthType == AUTHTYPE_USERCERT || t->AuthType == AUTHTYPE_RADIUS || t->AuthType == AUTHTYPE_ROOTCERT || t->AuthType == AUTHTYPE_NT)
+		{
+			return ERR_NOT_SUPPORTED_AUTH_ON_OPENSOURCE;
+		}
 	}
 
 	if (StrCmpi(t->Name, "*") == 0)
@@ -5147,9 +5166,12 @@ UINT StCreateUser(ADMIN *a, RPC_SET_USER *t)
 
 	CHECK_RIGHT;
 
-	if (t->AuthType == AUTHTYPE_USERCERT || t->AuthType == AUTHTYPE_RADIUS || t->AuthType == AUTHTYPE_ROOTCERT || t->AuthType == AUTHTYPE_NT)
+	if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
 	{
-		return ERR_NOT_SUPPORTED_AUTH_ON_OPENSOURCE;
+		if (t->AuthType == AUTHTYPE_USERCERT || t->AuthType == AUTHTYPE_RADIUS || t->AuthType == AUTHTYPE_ROOTCERT || t->AuthType == AUTHTYPE_NT)
+		{
+			return ERR_NOT_SUPPORTED_AUTH_ON_OPENSOURCE;
+		}
 	}
 
 	if (t->AuthType == AUTHTYPE_USERCERT)
@@ -7254,6 +7276,7 @@ UINT StSetSecureNATOption(ADMIN *a, VH_OPTION *t)
 	SERVER *s = a->Server;
 	CEDAR *c = s->Cedar;
 	HUB *h;
+	char push_routes_str_old[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];
 
 
 	if (IsZero(t->MacAddress, sizeof(t->MacAddress)) ||
@@ -7265,6 +7288,17 @@ UINT StSetSecureNATOption(ADMIN *a, VH_OPTION *t)
 	if ((IPToUINT(&t->Ip) & (~(IPToUINT(&t->Mask)))) == 0)
 	{
 		return ERR_INVALID_PARAMETER;
+	}
+	if (GetServerCapsBool(s, "b_support_securenat") == false)
+	{
+		t->ApplyDhcpPushRoutes = false;
+	}
+	if (t->ApplyDhcpPushRoutes)
+	{
+		if (NormalizeClasslessRouteTableStr(t->DhcpPushRoutes, sizeof(t->DhcpPushRoutes), t->DhcpPushRoutes) == false)
+		{
+			return ERR_INVALID_PARAMETER;
+		}
 	}
 
 	CHECK_RIGHT;
@@ -7315,7 +7349,12 @@ UINT StSetSecureNATOption(ADMIN *a, VH_OPTION *t)
 		}
 	}
 
+	StrCpy(push_routes_str_old, sizeof(push_routes_str_old), h->SecureNATOption->DhcpPushRoutes);
 	Copy(h->SecureNATOption, t, sizeof(VH_OPTION));
+	if (t->ApplyDhcpPushRoutes == false)
+	{
+		StrCpy(h->SecureNATOption->DhcpPushRoutes, sizeof(h->SecureNATOption->DhcpPushRoutes), push_routes_str_old);
+	}
 
 	if (h->Type != HUB_TYPE_STANDALONE && h->Cedar != NULL && h->Cedar->Server != NULL &&
 		h->Cedar->Server->ServerType == SERVER_TYPE_FARM_CONTROLLER)
@@ -7381,6 +7420,7 @@ UINT StGetSecureNATOption(ADMIN *a, VH_OPTION *t)
 	Zero(t, sizeof(VH_OPTION));
 	StrCpy(t->HubName, sizeof(t->HubName), hubname);
 	Copy(t, h->SecureNATOption, sizeof(VH_OPTION));
+	t->ApplyDhcpPushRoutes = true;
 
 	ReleaseHub(h);
 
@@ -7615,6 +7655,11 @@ UINT StSetHubRadius(ADMIN *a, RPC_RADIUS *t)
 	if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
 	{
 		return ERR_NOT_SUPPORTED;
+	}
+
+	if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0 && IsEmptyStr(t->RadiusServerName) == false)
+	{
+		return ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE;
 	}
 
 	CHECK_RIGHT;

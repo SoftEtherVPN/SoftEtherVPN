@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Protocol.c
@@ -1111,6 +1117,28 @@ bool ServerAccept(CONNECTION *c)
 			goto CLEANUP;
 		}
 
+		if (GetGlobalServerFlag(GSF_DISABLE_AC) == 0)
+		{
+			if (hub->HubDb != NULL && c->FirstSock != NULL)
+			{
+				IP ip;
+
+				Copy(&ip, &c->FirstSock->RemoteIP, sizeof(IP));
+
+				if (IsIpDeniedByAcList(&ip, hub->HubDb->AcList))
+				{
+					char ip_str[64];
+					// Access denied
+					ReleaseHub(hub);
+					hub = NULL;
+					FreePack(p);
+					c->Err = ERR_IP_ADDRESS_DENIED;
+					IPToStr(ip_str, sizeof(ip_str), &ip);
+					SLog(c->Cedar, "LS_IP_DENIED", c->Name, ip_str);
+					goto CLEANUP;
+				}
+			}
+		}
 
 		Lock(hub->lock);
 		{
@@ -1486,7 +1514,7 @@ bool ServerAccept(CONNECTION *c)
 						{
 							// Attempt external authentication registered users
 							bool fail_ext_user_auth = false;
-							if (true)
+							if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
 							{
 								fail_ext_user_auth = true;
 							}
@@ -1502,6 +1530,36 @@ bool ServerAccept(CONNECTION *c)
 							}
 						}
 
+						if (auth_ret == false)
+						{
+							// Attempt external authentication asterisk user
+							bool b = false;
+							bool fail_ext_user_auth = false;
+
+							if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
+							{
+								fail_ext_user_auth = true;
+							}
+
+							if (fail_ext_user_auth == false)
+							{
+								AcLock(hub);
+								{
+									b = AcIsUser(hub, "*");
+								}
+								AcUnlock(hub);
+
+								// If there is asterisk user, log on as the user
+								if (b)
+								{
+									auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20);
+									if (auth_ret && pol == NULL)
+									{
+										pol = SamGetUserPolicy(hub, "*");
+									}
+								}
+							}
+						}
 
 						if (pol != NULL)
 						{
@@ -1519,13 +1577,66 @@ bool ServerAccept(CONNECTION *c)
 					break;
 
 				case CLIENT_AUTHTYPE_CERT:
-					// Certificate authentication is not supported in the open source version
-					HLog(hub, "LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE", c->Name, username);
-					Unlock(hub->lock);
-					ReleaseHub(hub);
-					FreePack(p);
-					c->Err = ERR_AUTHTYPE_NOT_SUPPORTED;
-					goto CLEANUP;
+					if (GetGlobalServerFlag(GSF_DISABLE_CERT_AUTH) != 0)
+					{
+						// Certificate authentication
+						cert_size = PackGetDataSize(p, "cert");
+						if (cert_size >= 1 && cert_size <= 100000)
+						{
+							cert_buf = ZeroMalloc(cert_size);
+							if (PackGetData(p, "cert", cert_buf))
+							{
+								UCHAR sign[4096 / 8];
+								UINT sign_size = PackGetDataSize(p, "sign");
+								if (sign_size <= sizeof(sign) && sign_size >= 1)
+								{
+									if (PackGetData(p, "sign", sign))
+									{
+										BUF *b = NewBuf();
+										X *x;
+										WriteBuf(b, cert_buf, cert_size);
+										x = BufToX(b, false);
+										if (x != NULL && x->is_compatible_bit &&
+											sign_size == (x->bits / 8))
+										{
+											K *k = GetKFromX(x);
+											// Verify the signature received from the client
+											if (RsaVerifyEx(c->Random, SHA1_SIZE, sign, k, x->bits))
+											{
+												// Confirmed that the client has had this certificate
+												// certainly because the signature matched.
+												// Check whether the certificate is valid.
+												auth_ret = SamAuthUserByCert(hub, username, x);
+												if (auth_ret)
+												{
+													// Copy the certificate
+													c->ClientX = CloneX(x);
+												}
+											}
+											else
+											{
+												// Authentication failure
+											}
+											FreeK(k);
+										}
+										FreeX(x);
+										FreeBuf(b);
+									}
+								}
+							}
+							Free(cert_buf);
+						}
+					}
+					else
+					{
+						// Certificate authentication is not supported in the open source version
+						HLog(hub, "LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE", c->Name, username);
+						Unlock(hub->lock);
+						ReleaseHub(hub);
+						FreePack(p);
+						c->Err = ERR_AUTHTYPE_NOT_SUPPORTED;
+						goto CLEANUP;
+					}
 					break;
 
 				default:
@@ -2538,15 +2649,49 @@ bool ServerAccept(CONNECTION *c)
 					st.wYear, st.wMonth);
 			}
 
-			tmpsize = UniStrSize(winver_msg_client) + UniStrSize(winver_msg_server) + UniStrSize(msg) + 16000;
+			tmpsize = UniStrSize(winver_msg_client) + UniStrSize(winver_msg_server) + UniStrSize(msg) + 16000 + 3000;
 
 			tmp = ZeroMalloc(tmpsize);
 
 			if (IsURLMsg(msg, NULL, 0) == false)
 			{
 
+				if (s != NULL && s->IsRUDPSession && c != NULL && StrCmpi(hub->Name, VG_HUBNAME) != 0)
 				{
-					if (GetCurrentLangId() != SE_LANG_ENGLISH)
+					// Show the warning message if the connection is made by NAT-T
+					wchar_t *tmp2;
+					UINT tmp2_size = 2400;
+					char local_name[128];
+					wchar_t local_name_2[128];
+					char local_name_3[128];
+
+					Zero(local_name, sizeof(local_name));
+					Zero(local_name_2, sizeof(local_name_2));
+					Zero(local_name_3, sizeof(local_name_3));
+
+					GetMachineName(local_name, sizeof(local_name));
+
+#ifdef	OS_WIN32
+					MsGetComputerNameFullEx(local_name_2, sizeof(local_name_2), true);
+
+					UniToStr(local_name_3, sizeof(local_name_3), local_name_2);
+
+					if (IsEmptyStr(local_name_3) == false)
+					{
+						StrCpy(local_name, sizeof(local_name), local_name_3);
+					}
+#endif	// OS_WIN32
+
+					tmp2 = Malloc(tmp2_size);
+					UniFormat(tmp2, tmp2_size, _UU(c->ClientBuild >= 9428 ? "NATT_MSG" : "NATT_MSG2"), local_name);
+
+					UniStrCat(tmp, tmpsize, tmp2);
+
+					Free(tmp2);
+				}
+
+				{
+					if (GetGlobalServerFlag(GSF_SHOW_OSS_MSG) != 0)
 					{
 						UniStrCat(tmp, tmpsize, _UU("OSS_MSG"));
 					}
@@ -5728,7 +5873,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
 					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additonal_rudp_session) : false),
-					true, no_tls);
+					false, no_tls);
 			}
 		}
 		else

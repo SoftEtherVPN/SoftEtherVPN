@@ -293,6 +293,7 @@ DLG_OPEN_CONFIG			インポートするコンフィグレーションファイ�
 DLG_STRING_DEFTITLE		文字列の入力
 DLG_STRING_DEFINFO		文字列を入力してください。
 DLG_ABOUT_LEGAL			法律上の通知
+DLG_ABOUT_AUTHORS		開発者の一覧
 DLG_UPDATE_DATE			\ (%S にリリース)
 DLG_UPDATE_HINT			[OK] をクリックすると、Web ブラウザが開いて最新のアップデートに関する情報が表示されます。\r\n\r\nアップデートのダウンロードとインストールは手動で行う必要があります。他のコンピュータ上のソフトウェアのアップデートを行う場合は、そのコンピュータにリモートデスクトップや SSH などでログインしてダウンロードとアップデート作業を行ってください。\r\n
 
@@ -469,6 +470,11 @@ WINVER_ERROR_PC_REMOTE	接続先のサーバーコンピュータ
 OSS_MSG					はじめに - SoftEther VPN Server について\r\n\r\nこの VPN Server は、筑波大学において学術実験目的で開発され SoftEther プロジェクト http://www.softether.org/ で無償配布されているオープンソースのフリーソフトです。\r\nSoftEther VPN ソフトウェアは国立大学法人筑波大学とソフトイーサ株式会社との共同研究契約の一環として広く公開されているものです。SoftEther VPN ソフトウェアは学術実験目的で開発・公開されております。SoftEther VPN ソフトウェアに含まれる不具合等についてのサポート等は提供されておらず、利用者がすべての責任を負うことになります。本ソフトウェアの開発者・配布者は、SoftEther VPN ソフトウェアの利用の結果、利用者に生じる損失等について、一切責任を負いません。\r\n\r\nこれらのことに合意いただいた上で、SoftEther VPN Server を用いた通信をお楽しみください。\r\n\r\nSoftEther VPN について詳しくは http://www.softether.org/ をご参照ください。\r\n\r\n
 
 
+# NAT Traversal に関する警告
+NATT_MSG				** NAT Traversal 接続 - 安定性低下の可能性があります **\r\n\r\nVPN Client は VPN Server '%S' に NAT トラバーサル (UDP ホールパンチング) モードで接続しました。\r\n\r\nNAT トラバーサルによって、VPN Client は NAT やファイアウォールの背後にある VPN Server に、それらの NAT やファイアウォールでのポートフォワーディングの設定を行うことなく接続することができます。\r\n\r\nしかし、NAT トラバーサルは UDP をベースとした通信を使用するため、VPN セッションが不安定になる原因となる場合があります。たとえば、安価な NAT ルータが VPN Server と VPN Client との間に存在する場合、NAT トラバーサル上の VPN トンネルは 5 分ごとに切断される場合があります。また、安価な ISP が大規模な NAT を使用している場合にも NAT トラバーサルは不安定になります。これはルータや ISP の品質の問題であり、SoftEther VPN の問題ではありません。\r\n\r\nこれを解決するためには、NAT トラバーサルを使用するのではなく、直接 TCP/IP によって VPN Server のリスナーポートに VPN Client が接続することができるようにします。そのためには、VPN Server のリスナーポートがインターネットに対して公開されるように、NAT におけるポートフォワーディング設定を行ってください。NAT におけるポートフォワーディング設定の方法は、NAT の管理者に問い合わせるか、NAT 製品の説明書をお読みください。\r\n\r\nVPN Server が TCP ポートをインターネットに対して公開しているにも関わらずこのメッセージが表示される場合は、VPN Client の接続設定画面で「NAT-T 無効」をチェックしてください。\r\n\r\n
+NATT_MSG2				** NAT Traversal 接続 - 安定性低下の可能性があります **\r\n\r\nVPN Client は VPN Server '%S' に NAT トラバーサル (UDP ホールパンチング) モードで接続しました。\r\n\r\nNAT トラバーサルによって、VPN Client は NAT やファイアウォールの背後にある VPN Server に、それらの NAT やファイアウォールでのポートフォワーディングの設定を行うことなく接続することができます。\r\n\r\nしかし、NAT トラバーサルは UDP をベースとした通信を使用するため、VPN セッションが不安定になる原因となる場合があります。たとえば、安価な NAT ルータが VPN Server と VPN Client との間に存在する場合、NAT トラバーサル上の VPN トンネルは 5 分ごとに切断される場合があります。また、安価な ISP が大規模な NAT を使用している場合にも NAT トラバーサルは不安定になります。これはルータや ISP の品質の問題であり、SoftEther VPN の問題ではありません。\r\n\r\nこれを解決するためには、NAT トラバーサルを使用するのではなく、直接 TCP/IP によって VPN Server のリスナーポートに VPN Client が接続することができるようにします。そのためには、VPN Server のリスナーポートがインターネットに対して公開されるように、NAT におけるポートフォワーディング設定を行ってください。NAT におけるポートフォワーディング設定の方法は、NAT の管理者に問い合わせるか、NAT 製品の説明書をお読みください。\r\n\r\nVPN Server が TCP ポートをインターネットに対して公開しているにも関わらずこのメッセージが表示される場合は、VPN Client のバージョンを Build 9428 以降にアップグレードしてから、VPN Client の接続設定画面で「NAT-T 無効」をチェックしてください。\r\n\r\n
+
+
 # 仮想 HUB 管理オプション関係
 HUB_AO_CLICK								項目名を 1 つ選択すると、その項目名に関する説明文が表示されます。
 HUB_AO_UNKNOWN								この項目に関する説明文が見つかりませんでした。ドキュメント等を参照するか、項目名をもとに意味・内容を推測して利用してください。
@@ -560,6 +566,10 @@ HUB_AO_DisableUserModeSecureNAT				この項目が 1 (有効) の場合は、Sec
 HUB_AO_DisableCheckMacOnLocalBridge			この項目が 1 (有効) の場合は、ローカルブリッジ機能において MAC アドレスの重複チェックを無効にします。一部の LAN カードでは、ローカルブリッジ機能によって送出されたパケットが LAN カード内部で反射し仮想 HUB に戻ってくる場合があります。この場合、仮想 HUB は MAC アドレスの重複を自動的に検出し、反射してきたパケットを破棄します。このフラグを有効にすると、この検出チェックが無効になります。
 HUB_AO_DisableCorrectIpOffloadChecksum		この項目が 1 (有効) の場合は、ローカルブリッジ機能において IP チェックサムの検査および補正処理が無効になります。IP, TCP, UDP ヘッダのチェックサムのオフロード機能が搭載されている LAN カードから送信された IP パケットが同一ホスト上で動作する VPN Server のローカルブリッジに入力された場合、当該 IP パケットのチェックサムは不正確な値が代入されている場合があります。ローカルブリッジはデフォルトでその不正確な値を検出し、正しいチェックサムの計算結果を代入します。このフラグを有効にすると、これらの補正処理が無効になります。
 HUB_AO_BroadcastLimiterStrictMode			この項目が 1 (有効) の場合は、仮想 HUB 上のセッションにおけるブロードキャストストームの検出アルゴリズムにおいて、送信元 IP アドレスまたは宛先 IP アドレスのいずれか 1 個が一致していれば既存の検出用記録とヒットしたとみなします。
+HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per minute.
+HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
+HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
 
 
 # Caps 関係
@@ -646,6 +656,8 @@ CT_b_using_selow_driver	SoftEther 軽量カーネルモード Ethernet ドライ
 CT_b_support_vgs		VPN Gate サービス サーバー機能が利用可能
 CT_b_support_vgs_in_client	VPN Gate サービス サーバー機能 (VPN Client 統合)
 CT_b_is_softether		無償版またはオープンソース版の SoftEther VPN である
+CT_b_suppport_push_route		静的ルーティングテーブルのプッシュ機能
+CT_b_suppport_push_route_config	静的ルーティングテーブルのプッシュ機能 (設定可)
 
 
 # ポリシー関係
@@ -1613,6 +1625,9 @@ SM_DDNS_FQDN_EMPTY		(なし)
 SM_DDNS_OK_MSG			ダイナミック DNS ホスト名: %S%S\r\n\r\n上記の DNS ホスト名を指定することにより、この VPN Server のグローバル IP アドレスである以下の IP アドレスにアクセスすることができます。\r\n\r\nIPv4 アドレス: %s\r\nIPv6 アドレス: %s\r\n\r\nなお、以下のような DNS ホスト名を指定することにより、IPv4 アドレスまたは IPv6 アドレスのいずれかのみを明示的に応答させることができます。\r\n\r\nIPv4 のみを応答するホスト名: %S.v4%S\r\nIPv6 のみを応答するホスト名: %S.v6%S\r\n
 SM_DDNS_OK_TITLE		ダイナミック DNS 機能
 SM_DDNS_OK_MSG2			ダイナミック DNS ホスト名を '%S' に変更しました。\r\n\r\n[ヒント] ボタンをクリックして追加情報をお読みください。
+SM_DDNS_KEY_TITLE		ダイナミック DNS 秘密鍵
+SM_DDNS_KEY_MSG			ダイナミック DNS 秘密鍵: %s\r\n\r\nこの秘密鍵は、現在使用している DDNS 名と対応付けられています。現在 VPN Server として使用している PC が破損するなどして、この秘密鍵が失われると、その時設定されていた DDNS 名は占有されたままの状態となり、他の VPN Serverで使用できなくなります。同じ名前を継続して使用したい場合は、秘密鍵を他の PC やインタネット上のストレージ、メモ用紙などに保管しておいてください。\r\n秘密鍵を新しい VPN Server に設定する際は、VPN Server の設定ファイルを編集します。"declare DDnsClient" ディレクティブ中にある "byte Key" に続く値を、保管しておいた秘密鍵の文字列で置き換えてください。\r\nなお、同時に複数の VPN Server で同じ秘密鍵を設定すると正常に動作しなくなりますので注意してください。
+SM_DDNS_KEY_ERR			DNS 鍵の取得に失敗しました。
 SM_IPSEC_PSK_TOO_LONG	事前共有鍵 (PSK) の長さが 10 文字以上に設定されています。\r\n\r\nAndroid 携帯電話の一部のバージョンにはバグがあり、事前共有鍵が 10 文字以上の場合は VPN 接続が行えない場合があります。\r\nそのため、事前共有鍵の長さは 9 文字以下とすることを推奨します。\r\n\r\n事前共有鍵の設定を見直しますか?
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	高度な HTTP リダイレクション機能の使い方
 SM_ADVANCED_REDIRECT_URL_HINT	高度な HTTP リダイレクション機能 (上級者向け)\r\n\r\nアクセスリストに HTTP リダイレクト先の URL を記載する際に、URL の一部として <INFO> という文字列を埋め込むことができます。これにより、リダイレクト先の URL を受取った CGI などで、VPN 接続を行っているクライアントの情報を用いた高度な処理を実行することができます。\r\n\r\n埋め込み URL 例:\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\n実際にクライアントがリダイレクトされる際には、当該文字列部分が以下のような文字列に置換されます。\r\n\r\nユーザー名|セッション ID|IP アドレス|日付と時刻|ハッシュ値\r\n\r\n置換後の例: zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\nここで、上記の各フィールドの値の内容の詳細は以下のとおりです。\r\n\r\nユーザー名: VPN 接続を行っているユーザー名が代入されます。\r\n\r\nセッション ID: 当該 VPN セッションの ID が代入されます。\r\n\r\n日付と時刻: 'YYYYMMDDHHMMSS' の形式で 14 桁の数字が代入されます (タイムゾーンは UTC)。\r\n\r\nハッシュ値: ハッシュ値直前までの上記フィールドのビット列に URL 中の文字 '|' 以降の末尾までの文字列 (上記の例では "secret" という文字列) のビット列とを連結し SHA-1 ハッシュ関数を適用した結果の 20 バイトを 16 進数で表記した 40 文字の文字列。なお、URL 中に文字 '|' が存在しない場合はハッシュ値は付与されません。\r\n\r\nハッシュ値の存在意義について: ハッシュ文字列 (上記の例では "secret" という文字列) は秘密鍵として機能します。これにより、リダイレクト先でクエリ文字列を受取った CGI は受取った文字列がクライアントによって不正に改ざんされていないことを確認できます。\r\n
@@ -1680,6 +1695,7 @@ DHCP_MAC_ADDRESS		MAC アドレス
 DHCP_IP_ADDRESS			割り当て IP
 DHCP_HOSTNAME			クライアントホスト名
 NM_PASSWORD_MSG			管理パスワードを設定しました。
+NM_PUSH_ROUTE_WARNING	指定された静的ルーティングテーブルのテキストには文法エラーがある可能性があります。
 
 
 # バージョン情報系
@@ -2291,6 +2307,7 @@ R_HIDE2					IP アドレスメッセージを非表示(&9)
 STATIC15				VPN Server に接続する際に必要なユーザー認証情報を設定してください。
 B_REGIST_CLIENT_CERT	クライアント証明書の指定(&8)
 B_IE					IE の設定を使用(&E)
+R_DISABLE_NATT			NAT-T 無効
 
 
 PREFIX					D_CM_PROXY
@@ -2409,6 +2426,7 @@ B_EULA					使用許諾契約書(&E)
 B_IMPORTANT				重要事項説明書(&I)
 B_LEGAL					法律上の通知(&L)
 B_UPDATE_CONFIG			更新通知設定(&C)
+B_AUTHORS				開発者の一覧(&A)
 
 
 PREFIX					D_REMOTE
@@ -3093,6 +3111,9 @@ STATIC22				ドメイン名(&W):
 STATIC23				DNS サーバーのアドレス 2 (&X):
 IDOK					&OK
 IDCANCEL				キャンセル
+S_1						静的ルーティングテーブルのプッシュ (スプリットトンネリング)
+S_2						VPN クライアントに対して静的ルーティングテーブルをプッシュ送信することができます。
+B_PUSH					プッシュする静的ルーティングテーブルの編集
 
 
 PREFIX					D_NM_NAT
@@ -3848,6 +3869,8 @@ S_2						IPv6 インターネットに接続されていない場合は上記の
 IDCANCEL				閉じる(&X)
 B_DISABLE				ダイナミック DNS 機能を無効にする(&D)
 B_PROXY					プロキシサーバー経由で接続(&P)
+S_STATUS8				DNS 鍵:
+B_HINT2					ヒント
 
 
 PREFIX					D_SM_SPECIALLISTENER
@@ -4136,6 +4159,18 @@ IDOK					同意する(&A)
 IDCANCEL				同意しない(&D)
 S_BOLD					VPN 通信が禁止されている国・地域では VPN Gate を使用しないでください。
 
+
+PREFIX					D_NM_PUSH
+CAPTION					プッシュする静的ルーティングテーブルの編集
+S1						VPN クライアントに対してこの仮想 DHCP サーバーから DHCP 応答を送信する際に、クラスレス静的ルート (RFC 3442) を併せて送信することができます。
+S2						VPN クライアントがクラスレス静的ルート (RFC 3442) を認識できるかどうかは、VPN クライアントソフトウェアによって異なります。SoftEther VPN Client および OpenVPN Client はクラスレス静的ルートに対応しています。L2TP/IPsec および MS-SSTP においては、利用の可否はクライアントソフトウェアに依存します。
+S3						仮想 DHCP サーバーのオプションでデフォルトゲートウェイを空欄に設定することで、スプリットトンネリングが実現できます。L2TP/IPsec および MS-SSTP クライアントを使用している場合は、IPv4 の設定画面でデフォルトゲートウェイを VPN サーバーに向けないようにする設定が必要です。
+S4						ローカルブリッジ経由で外部に DHCP サーバーがある場合は、その DHCP サーバーでクラスレス静的ルート (RFC 3442) をプッシュするよう設定することもできます。その場合は、SecureNAT の仮想 DHCP サーバー機能は無効にしてください。また、この画面での設定は必要ありません。
+S5						プッシュする静的ルーティングテーブルの編集
+S6						例: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n複数のエントリ (最大 64 個) はカンマまたはスペースで区切ります。\r\n各エントリは、"IP ネットワークアドレス/サブネットマスク/ゲートウェイ IP アドレス" の書式で記述します。
+S7						クラスレス静的ルートについては、RFC 3442 をお読みください。
+IDOK					&OK
+IDCANCEL				キャンセル
 
 
 
@@ -5909,6 +5944,7 @@ CMD_DhcpGet_Column_GW	デフォルトゲートウェイアドレス
 CMD_DhcpGet_Column_DNS	DNS サーバー アドレス 1
 CMD_DhcpGet_Column_DNS2	DNS サーバー アドレス 2
 CMD_DhcpGet_Column_DOMAIN	ドメイン名
+CMD_DhcpGet_Column_PUSHROUTE	プッシュする静的ルーティングテーブル
 
 
 # DhcpEnable コマンド
@@ -5926,7 +5962,7 @@ CMD_DhcpDisable_Args	DhcpDisable
 # DhcpSet コマンド
 CMD_DhcpSet				SecureNAT 機能の仮想 DHCP サーバー機能の設定の変更
 CMD_DhcpSet_Help		現在管理している仮想 HUB 内の、仮想 DHCP サーバーの設定を変更します。仮想 DHCP サーバーの設定には、配布 IP アドレス帯、サブネットマスク、リース期限、およびクライアントに割り当てるオプション値が含まれます。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
 CMD_DhcpSet_START		クライアントに対して配布するアドレス帯の開始点を指定します。(例: 192.168.30.10)
 CMD_DhcpSet_END			クライアントに対して配布するアドレス帯の終了点を指定します。(例: 192.168.30.200)
 CMD_DhcpSet_MASK		クライアントに対して指定するサブネットマスクを指定します。(例: 255.255.255.0)
@@ -5936,6 +5972,7 @@ CMD_DhcpSet_DNS			クライアントに対して通知する DNS サーバー (�
 CMD_DhcpSet_DNS2		クライアントに対して通知する DNS サーバー (セカンダリ) の IP アドレスを指定します。SecureNAT 機能の仮想 NAT 機能と共に有効にして使用する場合は、SecureNAT の仮想ホストの IP アドレスを指定することもできます。0 または none を指定すると、DNS サーバー アドレスをクライアントに対して通知しません。
 CMD_DhcpSet_DOMAIN		クライアントに対して通知するドメイン名を指定します。none を指定すると、ドメイン名をクライアントに対して通知しません。
 CMD_DhcpSet_LOG			仮想 DHCP サーバーの動作を仮想 HUB のセキュリティログに保存するかどうかを指定します。"yes" を指定すると保存します。この値は、仮想 NAT 機能のログ保存設定と連動しています。
+CMD_DhcpSet_PUSHROUTE	プッシュする静的ルーティングテーブルを指定します。\n例: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n複数のエントリ (最大 64 個) はカンマまたはスペースで区切ります。各エントリは、"IP ネットワークアドレス/サブネットマスク/ゲートウェイ IP アドレス" の書式で記述します。\nVPN クライアントに対してこの仮想 DHCP サーバーから DHCP 応答を送信する際に、クラスレス静的ルート (RFC 3442) を併せて送信することができます。\nVPN クライアントがクラスレス静的ルート (RFC 3442) を認識できるかどうかは、VPN クライアントソフトウェアによって異なります。SoftEther VPN Client および OpenVPN Client はクラスレス静的ルートに対応しています。L2TP/IPsec および MS-SSTP においては、利用の可否はクライアントソフトウェアに依存します。\n仮想 DHCP サーバーのオプションでデフォルトゲートウェイを空欄に設定することで、スプリットトンネリングが実現できます。L2TP/IPsec および MS-SSTP クライアントを使用している場合は、IPv4 の設定画面でデフォルトゲートウェイを VPN サーバーに向けないようにする設定が必要です。\nローカルブリッジ経由で外部に DHCP サーバーがある場合は、その DHCP サーバーでクラスレス静的ルート (RFC 3442) をプッシュするよう設定することもできます。その場合は、SecureNAT の仮想 DHCP サーバー機能は無効にしてください。また、このコマンドでの設定は必要ありません。\nクラスレス静的ルートについては、RFC 3442 をお読みください。
 CMD_DhcpSet_Prompt_START	配布するアドレス帯の開始点: 
 CMD_DhcpSet_Prompt_END		配布するアドレス帯の終了点: 
 CMD_DhcpSet_Prompt_MASK		サブネットマスク: 

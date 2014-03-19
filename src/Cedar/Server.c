@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Server.c
@@ -99,6 +105,8 @@ char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "@vpn_gate_svc.config";
 char *BRIDGE_CONFIG_FILE_NAME = "@vpn_bridge.config";
 
 static bool server_reset_setting = false;
+
+static volatile UINT global_server_flags[NUM_GLOBAL_SERVER_FLAGS] = {0};
 
 // Set the OpenVPN and SSTP setting
 void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
@@ -825,6 +833,40 @@ UINT SiGetSysLogSaveStatus(SERVER *s)
 // Send a syslog
 void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 {
+	wchar_t tmp[1024];
+	char machinename[MAX_HOST_NAME_LEN + 1];
+	char datetime[MAX_PATH];
+	SYSTEMTIME st;
+	// Validate arguments
+	if (s == NULL || typestr == NULL || message == NULL)
+	{
+		return;
+	}
+
+	if (GetGlobalServerFlag(GSF_DISABLE_SYSLOG) != 0)
+	{
+		return;
+	}
+
+	// Host name
+	GetMachineName(machinename, sizeof(machinename));
+
+	// Date and time
+	LocalTime(&st);
+	GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
+
+	if (IsEmptyStr(hubname) == false)
+	{
+		UniFormat(tmp, sizeof(tmp), L"[%S/VPN/%S] (%S) <%S>: %s",
+			machinename, hubname, datetime, typestr, message);
+	}
+	else
+	{
+		UniFormat(tmp, sizeof(tmp), L"[%S/VPN] (%S) <%S>: %s",
+			machinename, datetime, typestr, message);
+	}
+
+	SendSysLog(s->Syslog, tmp);
 }
 
 // Write the syslog configuration
@@ -1207,6 +1249,22 @@ void DestroyServerCapsCache(SERVER *s)
 	Unlock(s->CapsCacheLock);
 }
 
+// Flush the Caps list for this server
+void FlushServerCaps(SERVER *s)
+{
+	CAPSLIST t;
+	// Validate arguments
+	if (s == NULL)
+	{
+		return;
+	}
+
+	DestroyServerCapsCache(s);
+
+	Zero(&t, sizeof(t));
+	GetServerCaps(s, &t);
+}
+
 // Get the Caps list for this server
 void GetServerCaps(SERVER *s, CAPSLIST *t)
 {
@@ -1230,14 +1288,62 @@ void GetServerCaps(SERVER *s, CAPSLIST *t)
 	Unlock(s->CapsCacheLock);
 }
 
-// Main of the aquisition of Caps of the server
-void GetServerCapsMain(SERVER *s, CAPSLIST *t)
+// Update the global server flags
+void UpdateGlobalServerFlags(SERVER *s, CAPSLIST *t)
 {
+	bool is_restricted = false;
 	// Validate arguments
 	if (s == NULL || t == NULL)
 	{
 		return;
 	}
+
+	is_restricted = SiIsEnterpriseFunctionsRestrictedOnOpenSource(s->Cedar);
+
+	SetGlobalServerFlag(GSF_DISABLE_PUSH_ROUTE, is_restricted);
+	SetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH, is_restricted);
+	SetGlobalServerFlag(GSF_DISABLE_CERT_AUTH, is_restricted);
+	SetGlobalServerFlag(GSF_DISABLE_DEEP_LOGGING, is_restricted);
+	SetGlobalServerFlag(GSF_DISABLE_AC, is_restricted);
+	SetGlobalServerFlag(GSF_DISABLE_SYSLOG, is_restricted);
+}
+
+// Set a global server flag
+void SetGlobalServerFlag(UINT index, UINT value)
+{
+	// Validate arguments
+	if (index >= NUM_GLOBAL_SERVER_FLAGS)
+	{
+		return;
+	}
+
+	global_server_flags[index] = value;
+}
+
+// Get a global server flag
+UINT GetGlobalServerFlag(UINT index)
+{
+	// Validate arguments
+	if (index >= NUM_GLOBAL_SERVER_FLAGS)
+	{
+		return 0;
+	}
+
+	return global_server_flags[index];
+}
+
+// Main of the aquisition of Caps of the server
+void GetServerCapsMain(SERVER *s, CAPSLIST *t)
+{
+	bool is_restricted = false;
+
+	// Validate arguments
+	if (s == NULL || t == NULL)
+	{
+		return;
+	}
+
+	is_restricted = SiIsEnterpriseFunctionsRestrictedOnOpenSource(s->Cedar);
 
 	// Initialize
 	InitCapsList(t);
@@ -1299,7 +1405,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 		AddCapsBool(t, "b_support_qos", true);
 
 		// syslog
-		AddCapsBool(t, "b_support_syslog", false);
+		AddCapsBool(t, "b_support_syslog", true);
 
 		// IPsec
 		// (Only works in stand-alone mode currently)
@@ -1382,6 +1488,10 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// SecureNAT function is available
 	AddCapsBool(t, "b_support_securenat", true);
 
+	// Pushing routing table function of SecureNAT Virtual DHCP Server is available
+	AddCapsBool(t, "b_suppport_push_route", !is_restricted);
+	AddCapsBool(t, "b_suppport_push_route_config", true);
+
 	if (s->ServerType != SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_virtual_nat_disabled", true);
@@ -1428,7 +1538,9 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// VPN client can be connected
 	AddCapsBool(t, "b_vpn_client_connect", s->Cedar->Bridge == false ? true : false);
 
-	AddCapsBool(t, "b_support_radius", false);
+	// External authentication server is available
+	AddCapsBool(t, "b_support_radius", s->ServerType != SERVER_TYPE_FARM_MEMBER &&
+		s->Cedar->Bridge == false);
 
 	// Local-bridge function is available
 	AddCapsBool(t, "b_local_bridge", IsBridgeSupported());
@@ -1463,7 +1575,8 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// Server authentication can be used in cascade connection
 	AddCapsBool(t, "b_support_cascade_cert", true);
 
-	AddCapsBool(t, "b_support_config_log", false);
+	//  the log file settings is modifiable
+	AddCapsBool(t, "b_support_config_log", s->ServerType != SERVER_TYPE_FARM_MEMBER);
 
 	// Automatic deletion of log file is available
 	AddCapsBool(t, "b_support_autodelete", true);
@@ -1515,6 +1628,8 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 		// Support for CRL
 		AddCapsBool(t, "b_support_crl", true);
 
+		// Supports AC
+		AddCapsBool(t, "b_support_ac", true);
 	}
 
 	// Supports downloading a log file
@@ -1614,6 +1729,8 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// VPN4
 	AddCapsBool(t, "b_vpn4", true);
 
+
+	UpdateGlobalServerFlags(s, t);
 }
 
 // SYSLOG_SETTING
@@ -3123,6 +3240,7 @@ void IncrementServerConfigRevision(SERVER *s)
 FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 {
 	FOLDER *root;
+	char region[128];
 	// Validate arguments
 	if (s == NULL)
 	{
@@ -3130,6 +3248,10 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 	}
 
 	root = CfgCreateFolder(NULL, TAG_ROOT);
+
+	SiGetCurrentRegion(s->Cedar, region, sizeof(region));
+
+	CfgAddStr(root, "Region", region);
 
 	CfgAddInt(root, "ConfigRevision", s->ConfigRevision);
 
@@ -3829,6 +3951,25 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->BroadcastLimiterStrictMode = CfgGetBool(f, "BroadcastLimiterStrictMode");
 	o->MaxLoggedPacketsPerMinute = CfgGetInt(f, "MaxLoggedPacketsPerMinute");
 	o->DoNotSaveHeavySecurityLogs = CfgGetBool(f, "DoNotSaveHeavySecurityLogs");
+
+	if (CfgIsItem(f, "DropBroadcastsInPrivacyFilterMode"))
+	{
+		o->DropBroadcastsInPrivacyFilterMode = CfgGetBool(f, "DropBroadcastsInPrivacyFilterMode");
+	}
+	else
+	{
+		o->DropBroadcastsInPrivacyFilterMode = true;
+	}
+
+	if (CfgIsItem(f, "DropArpInPrivacyFilterMode"))
+	{
+		o->DropArpInPrivacyFilterMode = CfgGetBool(f, "DropArpInPrivacyFilterMode");
+	}
+	else
+	{
+		o->DropArpInPrivacyFilterMode = true;
+	}
+
 	o->NoLookBPDUBridgeId = CfgGetBool(f, "NoLookBPDUBridgeId");
 	o->AdjustTcpMssValue = CfgGetInt(f, "AdjustTcpMssValue");
 	o->DisableAdjustTcpMss = CfgGetBool(f, "DisableAdjustTcpMss");
@@ -3939,6 +4080,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "BroadcastLimiterStrictMode", o->BroadcastLimiterStrictMode);
 	CfgAddInt(f, "MaxLoggedPacketsPerMinute", o->MaxLoggedPacketsPerMinute);
 	CfgAddBool(f, "DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs);
+	CfgAddBool(f, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
+	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
 	CfgAddBool(f, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
 	CfgAddInt(f, "AdjustTcpMssValue", o->AdjustTcpMssValue);
 	CfgAddBool(f, "DisableAdjustTcpMss", o->DisableAdjustTcpMss);
@@ -7075,6 +7218,8 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.NoManageVlanId = PackGetBool(p, "NoManageVlanId");
 	o.MaxLoggedPacketsPerMinute = PackGetInt(p, "MaxLoggedPacketsPerMinute");
 	o.DoNotSaveHeavySecurityLogs = PackGetBool(p, "DoNotSaveHeavySecurityLogs");
+	o.DropBroadcastsInPrivacyFilterMode = PackGetBool(p, "DropBroadcastsInPrivacyFilterMode");
+	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
 	if (o.VlanTypeId == 0)
 	{
@@ -8913,6 +9058,8 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddInt(p, "BroadcastStormDetectionThreshold", h->Option->BroadcastStormDetectionThreshold);
 	PackAddInt(p, "MaxLoggedPacketsPerMinute", h->Option->MaxLoggedPacketsPerMinute);
 	PackAddBool(p, "DoNotSaveHeavySecurityLogs", h->Option->DoNotSaveHeavySecurityLogs);
+	PackAddBool(p, "DropBroadcastsInPrivacyFilterMode", h->Option->DropBroadcastsInPrivacyFilterMode);
+	PackAddBool(p, "DropArpInPrivacyFilterMode", h->Option->DropArpInPrivacyFilterMode);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
 	PackAddBool(p, "FixForDLinkBPDU", h->Option->FixForDLinkBPDU);
 	PackAddBool(p, "BroadcastLimiterStrictMode", h->Option->BroadcastLimiterStrictMode);
@@ -10311,6 +10458,122 @@ FARM_CONTROLLER *SiStartConnectToController(SERVER *s)
 	return f;
 }
 
+// Get the current version
+void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size)
+{
+	ClearStr(region, region_size);
+	// Validate arguments
+	if (c == NULL || region == NULL)
+	{
+		return;
+	}
+
+	Lock(c->CurrentRegionLock);
+	{
+		StrCpy(region, region_size, c->CurrentRegion);
+	}
+	Unlock(c->CurrentRegionLock);
+
+	if (IsEmptyStr(region))
+	{
+		if (GetCurrentLangId() == SE_LANG_JAPANESE)
+		{
+			StrCpy(region, region_size, "JP");
+		}
+		else if (GetCurrentLangId() == SE_LANG_CHINESE_ZH)
+		{
+			StrCpy(region, region_size, "CN");
+		}
+	}
+}
+
+// Check whether some enterprise functions are restricted
+// 
+// ** Hints by Daiyuu Nobori, written on March 19, 2014 **
+// 
+// The following 'enterprise functions' are implemented on SoftEther VPN Server
+// since March 19, 2014. However, these functions are disabled on
+// SoftEther VPN Servers which run in Japan and China.
+// 
+// - RADIUS / NT Domain user authentication
+// - RSA certificate authentication
+// - Deep-inspect packet logging
+// - Source IP address control list
+// - syslog transfer
+// 
+// The SoftEther VPN Project intentionally disables these functions for users
+// in Japan and China. The reason is: Daiyuu Nobori, the chief author of
+// SoftEther VPN, has been liable to observe the existing agreements and
+// restrictions between him and some companies. The agreements have regulated
+// the region-limited restriction to implement and distribute the above
+// enterprise functions on the SoftEther VPN open-source program.
+// 
+// Therefore, the SoftEther VPN Project distributes the binary program and
+// the source code with the "SiIsEnterpriseFunctionsRestrictedOnOpenSource"
+// function. This function identifies whether the SoftEther VPN Server
+// program is running in either Japan or China. If the restricted region is
+// detected, then the above enterprise functions will be disabled.
+// 
+// Please note that the above restriction has been imposed only on the
+// original binaries and source codes from the SoftEther VPN Project.
+// Anyone, except Daiyuu Nobori, who understands and writes the C language
+// program can remove this restriction at his own risk.
+// 
+bool SiIsEnterpriseFunctionsRestrictedOnOpenSource(CEDAR *c)
+{
+	char region[128];
+	bool ret = false;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return false;
+	}
+
+
+	SiGetCurrentRegion(c, region, sizeof(region));
+
+	if (StrCmpi(region, "JP") == 0 || StrCmpi(region, "CN") == 0)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+// Update the current region
+void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update)
+{
+	bool changed = false;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return;
+	}
+
+	if (IsEmptyStr(region) == false)
+	{
+		Lock(c->CurrentRegionLock);
+		{
+			if (StrCmpi(c->CurrentRegion, region) != 0)
+			{
+				StrCpy(c->CurrentRegion, sizeof(c->CurrentRegion), region);
+				changed = true;
+			}
+		}
+		Unlock(c->CurrentRegionLock);
+	}
+
+	if (force_update)
+	{
+		changed = true;
+	}
+
+	if (changed)
+	{
+		FlushServerCaps(c->Server);
+	}
+}
+
 // Create a server
 SERVER *SiNewServer(bool bridge)
 {
@@ -10460,6 +10723,8 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server)
 
 
 	SiInitDeadLockCheck(s);
+
+	SiUpdateCurrentRegion(s->Cedar, "", true);
 
 	return s;
 }

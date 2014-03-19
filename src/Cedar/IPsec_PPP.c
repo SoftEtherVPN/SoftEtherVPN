@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // IPsec_PPP.c
@@ -1123,7 +1129,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 
 					Zero(&cao, sizeof(cao));
 
-					IPCSetIPv4Parameters(p->Ipc, &client_ip, &subnet, &zero);
+					IPCSetIPv4Parameters(p->Ipc, &client_ip, &subnet, &zero, NULL);
 
 					p->DhcpIpInformTried = true;
 
@@ -1163,7 +1169,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 						PPPLog(p, "LP_DHCP_INFORM_NG");
 					}
 
-					IPCSetIPv4Parameters(p->Ipc, &zero, &zero, &zero);
+					IPCSetIPv4Parameters(p->Ipc, &zero, &zero, &zero, NULL);
 				}
 			}
 			else
@@ -1251,7 +1257,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 				UINTToIP(&res.WinsServer1, p->ClientAddressOption.WinsServer);
 				UINTToIP(&res.WinsServer2, p->ClientAddressOption.WinsServer2);
 
-				if (IPCSetIPv4Parameters(p->Ipc, &res.IpAddress, &subnet, &gw))
+				if (IPCSetIPv4Parameters(p->Ipc, &res.IpAddress, &subnet, &gw, &p->ClientAddressOption.ClasslessRoute))
 				{
 					char client_ip_str[64];
 					char subnet_str[64], defgw_str[64];

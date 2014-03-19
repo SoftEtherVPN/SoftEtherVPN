@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // Virtual.c
@@ -2695,7 +2701,7 @@ NATIVE_STACK *NnGetNextInterface(NATIVE_NAT *t)
 				UINTToIP(&subnet, opt.SubnetMask);
 				UINTToIP(&gw, opt.Gateway);
 
-				IPCSetIPv4Parameters(ret->Ipc, &ip, &subnet, &gw);
+				IPCSetIPv4Parameters(ret->Ipc, &ip, &subnet, &gw, &opt.ClasslessRoute);
 
 				// Determine the DNS server to use
 				UINTToIP(&ret->DnsServerIP, opt.DnsServer);
@@ -9427,6 +9433,11 @@ void VirtualDhcpServer(VH *v, PKT *p)
 				ret.DnsServer2 = v->DhcpDns2;
 				ret.Gateway = v->DhcpGateway;
 
+				if (GetGlobalServerFlag(GSF_DISABLE_PUSH_ROUTE) == 0)
+				{
+					Copy(&ret.ClasslessRoute, &v->PushRoute, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+				}
+
 				if (opt->Opcode != DHCP_INFORM)
 				{
 					char client_mac[MAX_SIZE];
@@ -9775,6 +9786,10 @@ void GetVirtualHostOption(VH *v, VH_OPTION *o)
 
 		// Save a log
 		o->SaveLog = v->SaveLog;
+
+		// Pushing route option
+		BuildClasslessRouteTableStr(o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes), &v->PushRoute);
+		o->ApplyDhcpPushRoutes = true;
 	}
 	UnlockVirtual(v);
 }
@@ -9869,6 +9884,19 @@ void SetVirtualHostOption(VH *v, VH_OPTION *vo)
 
 		// Save a log
 		v->SaveLog = vo->SaveLog;
+
+		// DHCP routing table pushing setting
+		if (vo->ApplyDhcpPushRoutes)
+		{
+			DHCP_CLASSLESS_ROUTE_TABLE rt;
+
+			Zero(&rt, sizeof(rt));
+
+			if (ParseClasslessRouteTableStr(&rt, vo->DhcpPushRoutes))
+			{
+				Copy(&v->PushRoute, &rt, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+			}
+		}
 	}
 	UnlockVirtual(v);
 }

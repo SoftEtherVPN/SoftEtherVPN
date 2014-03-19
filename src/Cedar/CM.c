@@ -16,7 +16,6 @@
 // - ELIN (https://github.com/el1n)
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -87,6 +86,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // CM.c
@@ -6847,6 +6853,17 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	GetTxtA(hWnd, E_HOSTNAME, a->ClientOption->Hostname, sizeof(a->ClientOption->Hostname));
 	Trim(a->ClientOption->Hostname);
 
+	if (InStr(a->ClientOption->Hostname, "/tcp"))
+	{
+		Check(hWnd, R_DISABLE_NATT, true);
+	}
+	else
+	{
+		Check(hWnd, R_DISABLE_NATT, false);
+	}
+
+	SetEnable(hWnd, R_DISABLE_NATT, !IsEmptyStr(a->ClientOption->Hostname));
+
 	// Port number
 	a->ClientOption->Port = GetInt(hWnd, C_PORT);
 
@@ -7278,6 +7295,15 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 	SetTextA(hWnd, E_HOSTNAME, a->ClientOption->Hostname);
 	StrCpy(a->old_server_name, sizeof(a->old_server_name), a->ClientOption->Hostname);
 
+	if (InStr(a->ClientOption->Hostname, "/tcp"))
+	{
+		Check(hWnd, R_DISABLE_NATT, true);
+	}
+	else
+	{
+		Check(hWnd, R_DISABLE_NATT, false);
+	}
+
 	// Port number
 	CbSetHeight(hWnd, C_PORT, 18);
 	CbAddStr(hWnd, C_PORT, _UU("CM_PORT_1"), 0);
@@ -7442,6 +7468,8 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 	NMHDR *n;
 	X *x;
 	K *k;
+	char tmp[MAX_PATH];
+	bool no_update_natt_check = false;
 	// Validate arguments
 	if (hWnd == NULL)
 	{
@@ -7483,6 +7511,39 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 		}
 		break;
 	case WM_COMMAND:
+		switch (wParam)
+		{
+		case R_DISABLE_NATT:
+			Zero(tmp, sizeof(tmp));
+			GetTxtA(hWnd, E_HOSTNAME, tmp, sizeof(tmp));
+
+			if (IsChecked(hWnd, R_DISABLE_NATT))
+			{
+				if (InStr(tmp, "/tcp") == false)
+				{
+					StrCat(tmp, sizeof(tmp), "/tcp");
+
+					SetTextA(hWnd, E_HOSTNAME, tmp);
+				}
+			}
+			else
+			{
+				if (InStr(tmp, "/tcp"))
+				{
+					UINT i = SearchStrEx(tmp, "/tcp", 0, false);
+
+					if (i != INFINITE)
+					{
+						tmp[i] = 0;
+
+						SetTextA(hWnd, E_HOSTNAME, tmp);
+					}
+				}
+			}
+
+			CmEditAccountDlgStartEnumHub(hWnd, a);
+			break;
+		}
 		switch (LOWORD(wParam))
 		{
 		case E_ACCOUNT_NAME:
@@ -7528,6 +7589,13 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 			{
 			case C_PORT:
 				CmEditAccountDlgStartEnumHub(hWnd, a);
+				break;
+			}
+			break;
+		case BN_PUSHED:
+			switch (LOWORD(wParam))
+			{
+			case R_DISABLE_NATT:
 				break;
 			}
 			break;

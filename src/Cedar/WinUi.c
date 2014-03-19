@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // WinUi.c
@@ -3671,6 +3677,8 @@ void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a)
 	//DlgFont(hWnd, S_INFO4, 8, false);
 
 	SetShow(hWnd, B_UPDATE_CONFIG, (a->Update != NULL));
+
+	Show(hWnd, B_AUTHORS);
 }
 
 // Version information procedure
@@ -3720,6 +3728,9 @@ UINT AboutDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 			break;
 		case B_UPDATE_CONFIG:
 			ConfigUpdateUi(a->Update, hWnd);
+			break;
+		case B_AUTHORS:
+			ShowTextFile(hWnd, "|authors.txt", _UU("DLG_ABOUT_AUTHORS"), ICO_ZURUHAM);
 			break;
 		case B_LANGUAGE:
 			// Language settings

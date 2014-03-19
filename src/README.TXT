@@ -50,6 +50,9 @@ SOFTETHER VPN ADVANTAGES
 - AES 256-bit and RSA 4096-bit encryptions.
 - Sufficient security features such as logging and firewall inner
   VPN tunnel.
+- User authentication with RADIUS and NT domain controllers.
+- User authentication with X.509 client certificate.
+- Packet logging.
 - 1Gbps-class high-speed throughput performance with low memory and
   CPU usage.
 - Windows, Linux, Mac, Android, iPhone, iPad and Windows Phone are
@@ -59,6 +62,9 @@ SOFTETHER VPN ADVANTAGES
 - The VPN server runs on Windows, Linux, FreeBSD, Solaris and Mac OS X.
 - Configure All settings on GUI.
 - Multi-languages (English, Japanese and Simplified-Chinese).
+- No memory leaks. High quality stable codes, intended for long-term runs.
+  We always verify that there are no memory or resource leaks before
+  releasing the build.
 - More details at http://www.softether.org/.
 
 

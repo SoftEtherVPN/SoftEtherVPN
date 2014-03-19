@@ -14,7 +14,6 @@
 // Author: Daiyuu Nobori
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -85,6 +84,13 @@
 // http://www.softether.org/ and ask your question on the users forum.
 // 
 // Thank you for your cooperation.
+// 
+// 
+// NO MEMORY OR RESOURCE LEAKS
+// ---------------------------
+// 
+// The memory-leaks and resource-leaks verification under the stress
+// test has been passed before release this source code.
 
 
 // MayaType.h
@@ -548,6 +554,8 @@ typedef struct ICMPV6_HEADER_INFO ICMPV6_HEADER_INFO;
 typedef struct DHCPV4_DATA DHCPV4_DATA;
 typedef struct DHCP_OPTION DHCP_OPTION;
 typedef struct DHCP_OPTION_LIST DHCP_OPTION_LIST;
+typedef struct DHCP_CLASSLESS_ROUTE DHCP_CLASSLESS_ROUTE;
+typedef struct DHCP_CLASSLESS_ROUTE_TABLE DHCP_CLASSLESS_ROUTE_TABLE;
 typedef struct HTTPLOG HTTPLOG;
 typedef struct DHCP_MODIFY_OPTION DHCP_MODIFY_OPTION;
 typedef struct NBTDG_HEADER NBTDG_HEADER;
