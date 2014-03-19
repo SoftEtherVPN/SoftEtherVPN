@@ -105,6 +105,9 @@
 #include <errno.h>
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
+#ifdef	UNIX_MACOS
+#include <net/ethernet.h>
+#endif
 
 #ifdef	OS_UNIX
 
@@ -524,10 +527,11 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 
 		if (mac_address != NULL)
 		{
-			uint8_t macos_mac_address[19];
 			Zero(&ifr, sizeof(ifr));
 			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
-			Copy(&ifr.ifr_addr.sa_data, mac_address, 6);
+			ifr.ifr_addr.sa_len = ETHER_ADDR_LEN;
+			ifr.ifr_addr.sa_family = AF_LINK;
+			Copy(&ifr.ifr_addr.sa_data, mac_address, ETHER_ADDR_LEN);
 			ioctl(s, SIOCSIFLLADDR, &ifr);
 		}
 
