@@ -1,4 +1,4 @@
-﻿# SoftEther VPN String Table
+# SoftEther VPN String Table
 # Copyright (c) SoftEther VPN Project. All Rights Reserved.
 #
 # http://www.softether.co.jp/
@@ -37,8 +37,8 @@ PRODUCT_NAME_VPN_CMGR		SoftEther VPN Client 管理器
 PRODUCT_NAME_VPN_SVR		SoftEther VPN Server
 PRODUCT_NAME_VPN_BRIDGE		SoftEther VPN Bridge
 PRODUCT_NAME_VPN_SMGR		SoftEther VPN Server 管理器
-PRODUCT_NAME_ELOGSVC		SoftEther EtherLogger Beta Edition
-PRODUCT_NAME_ELOGMGR		SoftEther EtherLogger Manager Beta Edition
+PRODUCT_NAME_ELOGSVC		SoftEther EtherLogger 测试版
+PRODUCT_NAME_ELOGMGR		SoftEther EtherLogger 管理器 测试版
 
 
 # BRANDED_C_TO_S		Branded_VPN
@@ -70,9 +70,9 @@ ERR_7						服务器拒绝指定的认证方式。
 ERR_8						指定的虚拟 HUB 在该服务器上不存在。
 ERR_9						用户身份验证失败。
 ERR_10						指定的虚拟 HUB 目前已停止。等待一段时间，然后重新连接。
-ERR_11						VPN 会话已删除。可能是从客户端到 VPN Server 的连接被断开或管理员中断了此会话。
+ERR_11						VPN 会话已删除。可能是从客户端到 VPN 服务器的连接被断开或管理员中断了此会话。
 ERR_12						访问被拒绝。
-ERR_13						VPN 通信会话超时。有可能是从客户端连接到 VPN Server 的连接已断开。
+ERR_13						VPN 通信会话超时。有可能是从客户端连接到 VPN 服务器的连接已断开。
 ERR_14						协议号无效。
 ERR_15						过多的 TCP/IP 连接。
 ERR_16						连接到目标服务器或虚拟 HUB 的会话太多。
@@ -80,7 +80,7 @@ ERR_17						连接到代理服务器失败。
 ERR_18						代理服务器错误。
 ERR_19						代理服务器用户身份验证失败。
 ERR_20						由同一用户发起的连接会话过多。其他用户可能被作为同一用户连接到虚拟 HUB。
-ERR_21						VPN Server 的软件许可发生错误。请与 VPN Server 的管理员联系。
+ERR_21						VPN Server 的软件许可发生错误。请与 VPN 服务器的管理员联系。
 ERR_22						无法访问虚拟网络适配器的设备驱动程序。检查虚拟网络适配器安装并确保它不是禁用。
 ERR_23						发生内部错误。
 ERR_24						访问智能卡或 USB 硬件令牌设备失败。
@@ -110,7 +110,7 @@ ERR_47						尝试连接。
 ERR_48						连接群集控制器失败。
 ERR_49						群集控制器无法分配一个新的会话到群集上。
 ERR_50						无法管理群集成员服务器的虚拟 HUB。
-ERR_51						用于连接的用户密码是空的，所以远程连接被禁止。如果使用空密码，只被允许连接 VPN Server 的本地主机(127.0.0.1)。
+ERR_51						用于连接的用户密码是空的，所以远程连接被禁止。如果使用空密码，只允许连接本地主机 (127.0.0.1) 的 VPN 服务器。
 ERR_52						没有足够的权限。
 ERR_53						找不到指定的监听器。
 ERR_54						指定监听端口号已经存在。
@@ -292,7 +292,7 @@ DLG_STRING_DEFTITLE			输入字符串
 DLG_STRING_DEFINFO			请输入字符串。
 DLG_ABOUT_LEGAL				法律公告
 DLG_UPDATE_DATE				\ (Released on %S)
-DLG_UPDATE_HINT				按 OK 查看网页浏览器最新更新的信息。\r\n\r\n您必须手动下载并安装更新。如果你想在其他电脑上更新软件，您必须登录到计算机通过远程桌面或 SSH 进行下载和更新。
+DLG_UPDATE_HINT				按 确定 查看网页浏览器最新更新的信息。\r\n\r\n您必须手动下载并安装更新。如果你想在其他电脑上更新软件，您必须登录到计算机通过远程桌面或 SSH 进行下载和更新。
 
 
 # 关于竞争进程
@@ -376,7 +376,7 @@ CONNECTDLG_CANCELING		取消连接。请稍候...
 
 
 # NIC 信息会话
-NICINFO_1					已连接到 VPN Server。
+NICINFO_1					已连接到 VPN 服务器。
 NICINFO_1_1					在 VPN 上的 DHCP 服务器请求一个 IP 地址。
 NICINFO_1_2					决定在 VPN 中使用的 IP 地址。
 
@@ -626,7 +626,7 @@ CT_b_support_ex_acl			支持访问列表延时、时基误差和数据包丢失
 CT_b_support_acl_group		支持访问列表通过组名调节
 CT_b_support_ipv6_ac		支持 IPv6 IP 访问控制列表
 CT_b_support_eth_vlan		支持带标记的 VLAN 数据包透明支持工具
-CT_b_support_msg			支持今天消息功能
+CT_b_support_msg			支持今日消息功能
 CT_b_vpn3					支持 3.0 的功能
 CT_b_vpn4					支持 4.0 的功能
 CT_b_support_ipsec			支持 IPsec / L2TP / EtherIP / L2TPv3 服务器功能
@@ -773,16 +773,16 @@ CM_VLAN_COLUMN_4			版本
 CM_ACCOUNT_OFFLINE			离线
 CM_ACCOUNT_ONLINE			已连接
 CM_ACCOUNT_CONNECTING		连接中
-CM_VLAN_ENABLED				有效 (可用的)
-CM_VLAN_DISABLED			无效 (不可用)
-CM_DELETE_ACCOUNT_MSG		VPN 连接设置 "%s" 将删除，你想删除吗?
-CM_ST_ACCOUNT_NAME			VPN 连接设置名
+CM_VLAN_ENABLED				已启用
+CM_VLAN_DISABLED			已禁用
+CM_DELETE_ACCOUNT_MSG		VPN 连接设置“%s”将删除，你确定吗?
+CM_ST_ACCOUNT_NAME			VPN 连接设置名称
 CM_ST_CONNECTED				会话状态
 CM_ST_CONNECTED_TRUE		连接完成 (会话建立)
 CM_ST_CONNECTED_FALSE		尝试连接
-CM_ST_CONNECTING			连接到 VPN Server 开始
-CM_ST_NEGOTIATION			谈判中
-CM_ST_AUTH					用户身份验证中
+CM_ST_CONNECTING			开始连接 VPN 服务器
+CM_ST_NEGOTIATION			协商中
+CM_ST_AUTH					验证用户身份
 CM_ST_ESTABLISHED			连接已建立
 CM_ST_RETRY					重试
 CM_ST_IDLE					空闲状态
@@ -802,28 +802,28 @@ CM_ST_HALF_CONNECTION		半双工 TCP 连接模式
 CM_ST_HALF_TRUE				是 (半双工模式)
 CM_ST_HALF_FALSE			否 (全双工模式)
 CM_ST_QOS					VoIP / QoS 功能
-CM_ST_QOS_TRUE				有效 (在使用过程中)
-CM_ST_QOS_FALSE				无效
+CM_ST_QOS_TRUE				已启用
+CM_ST_QOS_FALSE				已禁用
 CM_ST_NUM_TCP				TCP 连接数
 CM_ST_NUM_TCP_UPLOAD		上行传输 TCP 连接数
 CM_ST_NUM_TCP_DOWNLOAD		下行传输 TCP 连接数
-CM_ST_MAX_TCP				TCP 连接最大值
+CM_ST_MAX_TCP				TCP 连接数最大值
 CM_ST_VLAN_ID				VLAN ID
 CM_ST_NO_VLAN				－
 CM_ST_USE_ENCRYPT			加密
-CM_ST_USE_ENCRYPT_TRUE		启用(算法: %S)
-CM_ST_USE_ENCRYPT_TRUE2		启用
-CM_ST_USE_ENCRYPT_FALSE		禁用(无加密)
+CM_ST_USE_ENCRYPT_TRUE		已启用
+CM_ST_USE_ENCRYPT_TRUE2		已启用 (算法: %S)
+CM_ST_USE_ENCRYPT_FALSE		已禁用 (不加密)
 CM_ST_USE_COMPRESS			使用压缩
 CM_ST_UDP_ACCEL_ENABLED		支持 UDP 加速
-CM_ST_UDP_ACCEL_USING		UDP 加速是活跃的
+CM_ST_UDP_ACCEL_USING		UDP 加速已激活
 CM_ST_RUDP					TCP over UDP (NAT 穿透)
 CM_ST_UNDERLAY_PROTOCOL		物理底层协议
 CM_ST_COMPRESS_TRUE			是 (%u %%)
-CM_ST_COMPRESS_FALSE		否 (无压缩)
+CM_ST_COMPRESS_FALSE		否 (不压缩)
 CM_ST_SESSION_NAME			会话名
 CM_ST_CONNECTION_NAME		连接名
-CM_ST_SESSION_KEY			会话密钥 (160bit)
+CM_ST_SESSION_KEY			会话密钥 (160 位)
 CM_ST_BRIDGE_MODE			网桥 / 路由模式
 CM_ST_MONITOR_MODE			监测模式
 CM_ST_YES					是
@@ -831,20 +831,20 @@ CM_ST_NO					否
 CM_ST_SEND_SIZE				输出数据量
 CM_ST_RECV_SIZE				输入数据量
 
-CM_ST_SEND_UCAST_NUM		传送单播数据包
-CM_ST_SEND_UCAST_SIZE		传送单播总量
-CM_ST_SEND_BCAST_NUM		传送广播数据包
-CM_ST_SEND_BCAST_SIZE		传送广播总量
+CM_ST_SEND_UCAST_NUM		传出单播数据包
+CM_ST_SEND_UCAST_SIZE		传出单播总量
+CM_ST_SEND_BCAST_NUM		传出广播数据包
+CM_ST_SEND_BCAST_SIZE		传出广播总量
 
-CM_ST_RECV_UCAST_NUM		接收单播数据包
-CM_ST_RECV_UCAST_SIZE		接收单播总量
-CM_ST_RECV_BCAST_NUM		接收广播数据包
-CM_ST_RECV_BCAST_SIZE		接收广播总量
+CM_ST_RECV_UCAST_NUM		传入单播数据包
+CM_ST_RECV_UCAST_SIZE		传入单播总量
+CM_ST_RECV_BCAST_NUM		传入广播数据包
+CM_ST_RECV_BCAST_SIZE		传入广播总量
 
 CM_ST_NUM_PACKET_STR		%S 数据包
 CM_ST_SIZE_BYTE_STR			%S 字节
 
-CM_NEW_ICON					创建新的 VPN 连接
+CM_NEW_ICON					添加新的 VPN 连接
 CM_VGC_ICON					VPN Gate 公共 VPN 中继服务器
 CM_VGC_LINK					VPN Gate 学术试验 Web 网站
 CM_ST_TITLE					%s 的连接状态
@@ -1015,11 +1015,11 @@ VGC_PROXY_TITLE			代理服务器用户的注意事项
 
 VGS_NO_HUB_YET			为了设置消息，首先你得提交启用 VPN Gate 服务。在启用该服务后，重新打开此窗口，并设置消息。
 
-VGC_TITLE				VPN Gate Plug-in Message
+VGC_TITLE				VPN Gate 插件消息
 
-VGC_VER_DIFF			The version of VPN Gate Client Plug-in is different from SoftEther VPN Client.\r\n\r\n- Current VPN Gate Plug-in: Build %u\r\n- Current SoftEther VPN Client: Build %u\r\n\r\nIt is recommended to download and install VPN Gate Plug-in Build %u. Otherwise, communication errors or list-update errors might be occur. If the VPN Server List updating fails many times, update the VPN Gate Plug-in version.\r\n\r\nThe latest VPN Gate Plug-in is available at http://www.vpngate.net/.\r\n(Use a mirror-site if you cannot visit the above web-site directly.)\r\n\r\n
+VGC_VER_DIFF			VPN Gate 客户端插件的版本与 SoftEther VPN 客户端相异。\r\n\r\n- 当前的 VPN Gate 插件: Build %u\r\n- 当前的 SoftEther VPN 客户端: Build %u\r\n\r\n推荐下载并安装 VPN Gate 插件 Build %u，否则可能出现通信错误或列表更新出错。VPN 服务器列表更新失败多次，请更新 VPN Gate 插件版本。\r\n\r\n最新的 VPN Gate 插件可用于 http://www.vpngate.net/。\r\n(如果您无法直接访问上述网站，请使用镜像站点。)\r\n\r\n)\r\n\r\n
 
-VGS_STOP				VPN Gate Service will stop after you click the OK button.\r\n\r\nAfter VPN Gate Service will be stopped, this computer will never accept new VPN connection requests, however, still-alive VPN Sessions might remain.\r\n (Such VPN sessions sometimes hidden from the enumeration.) \r\n\r\nTo terminate all of still-alive VPN Sessions completely, restart SoftEther VPN Server or SoftEther VPN Client service, or reboot the computer.
+VGS_STOP				VPN Gate 服务将在您点击 确定 按钮后停止。\r\n\r\n在 VPN Gate 服务被停止后，这台计算机将不会接受新的 VPN 连接请求，但是，仍然活跃的 VPN 会话可能会残留。\r\n (这类 VPN 会话有时在枚举中不可见。) \r\n\r\n要想彻底终止所有仍然活跃的 VPN 会话，重启 SoftEther VPN Server 或者 SoftEther VPN Client 服务，或者重新启动这台计算机。
 
 VGS_START				This will activate the VPN Gate Relay Service function.\r\n\r\nVPN Gate Relay Service function must be activated by your own risk.\r\nSome countries prohibit using of encrypted VPN by laws.\r\nFor more details about VPN Gate Relay Service please visit http://www.vpngate.net/en/join.aspx.\r\n\r\nThe VPN Gate Academic Experiment Service is operated as a research project at the graduate school on University of Tsukuba, Japan. The service is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities.\r\n\r\nBy nature, there are almost 200 countries in the World, with different laws. It is impossible to verify every countries' laws and regulations and make the software comply with all countries' laws in advance to release the software. If a user uses VPN Gate service in a specific country, and damaged by public servants of the authority, the developer of either the service or software will never be liable to recover or compensate such damages or criminal responsibilities.\r\nBy using this software and service, the user must observe all concerned laws and rules with user's own responsibility. The user will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.\r\nIf you don't agree nor understand the above warnings, do not use any of VPN Gate Academic Experiment Service functions.
 
@@ -1591,7 +1591,7 @@ SM_SETUP_NO_LICENSE_KEY		目前此 SoftEther VPN Server 上没有注册任何一
 # ----- 不完全翻訳ここから -----
 SM_HUBEXT_OPTION_TITLE		虚拟 HUB 扩展选项
 SM_HUBEXT_OPTION_STATIC1	虚拟 HUB 扩展选项允许您配置这个虚拟 HUB 的详细参数。
-SM_HUBEXT_OPTION_STATIC2	标准，VPN Server 全部管理者及，虚拟 HUB 管理者的双方都，能编辑虚拟 HUB 高级选项。但，如果虚拟 HUB 管理选择的 deny_hub_admin_change_ext_option 被 1 设定，虚拟 HUB 的管理者，不能编辑虚拟 HUB 高级选项。默认情况下， VPN Server 的全球管理员和个人虚拟 HUB 的管理员都可以修改虚拟 HUB 的扩展选项。\n但是，如果在虚拟 HUB 管理选项的 deny_hub_admin_change_ext_option 被设置为 1，个人虚拟 HUB 的管理员就不能修改虚拟 HUB 的扩展选项。(只能查看。)
+SM_HUBEXT_OPTION_STATIC2	标准，VPN Server 全部管理者及，虚拟 HUB 管理者的双方都，能编辑虚拟 HUB 高级选项。但，如果虚拟 HUB 管理选择的 deny_hub_admin_change_ext_option 默认情况下，VPN 服务器的全局管理员和各虚拟 HUB 的管理员都可以修改虚拟 HUB 扩展选项。\n但是，如果在虚拟 HUB 管理选项中 deny_hub_admin_change_ext_option 被设置为 1，各虚拟 HUB 的管理员就无法修改虚拟 HUB 扩展选项了 (只能查看)。
 SM_VLAN_COLUMN_0			网络适配器名称
 SM_VLAN_COLUMN_1			驱动程序种类
 SM_VLAN_COLUMN_2			驱动程序文件名
@@ -1634,7 +1634,7 @@ SM_SETUP_STEP_SECURENAT	此 VPN Server / Bridge 可能以用户模式或受其�
 SM_SETUP_STEP_SECURENAT_TITLE	第3步。网桥虚拟 HUB 和物理网络
 SM_UPDATE_CHECK_TITLE_VPNSERVER	%S VPN Server (在主机'%S'上)
 SM_UPDATE_CHECK_TITLE_VPNBRIDGE	%S VPN Bridge  (在主机'%S'上)
-SM_FACTORY_DEFAULT_WARNING		这将在 VPN Server / Bridge 上执行出厂复位设置。\r\n当前 VPN Server / Bridge 配置将被清除，将立即应用初始设置。\r\n在做出厂复位设置前，建议您备份当前配置。\r\n\r\n按 OK 执行出厂复位设置。 VPN Server / Bridge 将重新启动。当前的管理连接将被断开，所以请重新连接到 VPN Server / Bridge。\r\n\r\n按“取消”取消操作。
+SM_FACTORY_DEFAULT_WARNING		这将在 VPN Server / Bridge 上执行出厂复位设置。\r\n当前 VPN Server / Bridge 配置将被清除，将立即应用初始设置。\r\n在做出厂复位设置前，建议您备份当前配置。\r\n\r\n按 确定 执行出厂复位设置。 VPN Server / Bridge 将重新启动。当前的管理连接将被断开，所以请重新连接到 VPN Server / Bridge。\r\n\r\n按“取消”取消操作。
 SM_FACTORY_DEFAULT_PERFORMED		在服务器上正在执行出厂复位操作。\r\n\r\n按“确定”退出当前 VPN Server 管理器的会话“。\r\n退出后，请重新启动 VPN Server 管理器并再次连接到 VPN Server。\r\n然后你会看到 VPN Server 复位。
 SM_AZURE_STATUS_CONNECTED		状态: 已连接
 SM_AZURE_STATUS_NOT_CONNECTED	状态: 没有连接
@@ -1645,8 +1645,8 @@ NM_TITLE					删除
 NM_CONNECT_TITLE			删除
 NM_STATUS_TAG				连接状态: %s
 NM_OFFLINE					您没有连接到任何 VPN Server
-NM_CONNECTING				VPN Server 连接中
-NM_CONNECTED				已连接到 VPN Server "%S"
+NM_CONNECTING				正在连接 VPN 服务器
+NM_CONNECTED				已连接到 VPN 服务器 "%S"
 NM_CONNECT_ERROR			错误号 %u (%s)
 NM_ACCOUNT_TITLE			删除
 NM_STATUS					用户模式路由器状态
@@ -2136,7 +2136,7 @@ S_TITLE						%S 的访问
 S_DEVICE_INFO				设备名称: %S\r\n制造商: %S
 IDS_STATIC1					设备信息
 S_WARNING					要小心输入 PIN 码，因为如果你错误地输入了几次，设备将被锁定。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_PIN_CODE					&PIN 码:
 
@@ -2159,7 +2159,7 @@ PREFIX						D_PASSPHRASE
 CAPTION						私人密钥密码
 STATIC1						此私人密钥被密码保护。\r\n\r\n输入密码方可读取密钥。
 STATIC2						密码(&P):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2177,7 +2177,7 @@ STATIC3						用户名(&N):
 STATIC4						密码(&P):
 R_NO_SAVE_PASSWORD			不保存密码(&D):
 S_COUNTDOWN					%u 秒后自动重连...
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					连接取消
 
 
@@ -2198,7 +2198,7 @@ STATIC5						此证书的高级信息:
 STATIC6						签署此证书的当局的证书：
 S_PARENT					签署此证书的证书当局的证书已在可信证书列表上注册。
 S_PARENT_BUTTON_STR			查看证书(&V)
-IDCANCEL					&OK
+IDCANCEL					确定(&O)
 B_SAVE						保存文件(&S)
 
 
@@ -2234,7 +2234,7 @@ CAPTION						输入密码 - VPN Client 管理器
 S_TITLE						您必须输入客户端管理密码来使用运行在 %s 上的 VPN Client。输入客户端管理密码。
 STATIC1						密码(&P):
 STATIC2						输入客户端管理密码:
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2290,7 +2290,7 @@ S_RETRY_SPAN_2				秒
 R_INFINITE					无限重连(总是保持 VPN 在线) (&I)
 R_NOTLS1					不要使用 TLS &1.0
 B_DETAIL					高级设置(&D)...
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 B_CHANGE_PASSWORD			变更密码(&P)
 S_CHANGE_PASSWORD			您可以在 VPN Server 上更改用户密码。
@@ -2308,7 +2308,7 @@ STATIC2						主机名(&H):
 STATIC3						端口(&A):
 STATIC4						用户名(&U):
 STATIC5						密码(&P):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 STATIC6						(可选)
 STATIC7						(可选)
@@ -2328,24 +2328,24 @@ STATIC9						秒
 R_USE_DISCONNECT			设置每个 TCP 的连接寿命(&A)
 STATIC10					寿命(&P):
 STATIC11					秒
-STATIC12					当使用两个或以上 TCP 连接时，可以使用“半双工模式”。半双工模式下修复数据方向，每个 TCP 连接可以向双方传送一半的数据。例如，当使用 8 个 TCP 连接建立一个 VPN 时，物理的 VPN 隧道将是固定的，因此，4 个 TCP 连接专用上传方向，而其他 4 个连接专用下载方向。
+STATIC12					当使用两个或以上 TCP 连接时，可以使用“半双工模式”。半双工模式下固定了每个 TCP 连接的数据方向。例如，当使用 8 个 TCP 连接建立一个 VPN 时，VPN 隧道的物理结构将被固定为：4 个 TCP 连接专用于上行方向，其余 4 个连接专用于下行方向。
 R_USE_HALF_CONNECTION		使用半双工模式(&H)
 STATIC13					加密和压缩(&C):
-STATIC14					通常 VPN 会话为安全起见会被加密。您也可以禁用加密来提高吞吐量。请注意禁用加密情况下，数据在网络上是以明文方式传输的。
+STATIC14					通常 VPN 会话为安全起见会被加密。您也可以禁用加密以提高吞吐量。请注意，在禁用加密的情况下，数据在网络上是以明文方式传输的。
 R_USE_ENCRYPT				使用 SSL 加密 VPN 会话(&E)
-STATIC15					您可以使用数据压缩来保存 VPN 通信带宽。当使用较慢的连接时，如拨号或移动连接，启用此选项。
+STATIC15					您可以使用数据压缩以节省 VPN 的通信带宽。当使用较慢的连接如拨号或移动连接时，启用此选项。
 R_DISABLE_UDP				禁用 UDP 加速功能功能(&P)
 R_USE_COMPRESS				使用数据压缩(&U)
 STATIC16					连接模式设置(&M):
-S_MODE						您可以指定如下连接模式。(网络管理员选择。)
+S_MODE						您可以指定如下连接模式。(供网络管理员选择)
 R_BRIDGE					网桥/路由器模式(&B)
 R_MONITOR					监控模式(&D)
 STATIC17					其它配置(&G):
 R_NO_ROUTING				不要调整路由表(&R)
-STATIC18					除非得到系统管理员的同意，或你有网络和安全方面的专业知识，请保持此对话框的默认设置。
-STATIC19					VoIP / QoS 功能可以处理高优先级数据包，如 IP 电话数据包(VoIP)可以被传输的更快。
+STATIC18					除非你得到系统管理员的同意或者你有网络和安全方面的专业知识，否则请保持此对话框的默认设置。
+STATIC19					VoIP / QoS 功能可以处理高优先级数据包，如 IP 电话数据包(VoIP)可以被更快的传输。
 R_DISABLE_QOS				禁用 VoIP / &QoS 功能
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_UDPACCEL					您可以使用数据压缩以节省 VPN 通信带宽。当使用慢速连接时，如拨号或移动连接，启用此选项。
 
@@ -2354,7 +2354,7 @@ PREFIX						D_CM_NEW_VLAN
 CAPTION						创建新虚拟网络适配器
 S_INFO						一个新虚拟网络适配器将被被创建到系统中。\r\n您可以为此虚拟网络适配器指定最长不超过 %u 个字母和数字的名称。
 STATIC1						虚拟网络适配器名(&N):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_WIN8						正在运行的操作系统是 Windows8。请注明 "VPN" 或 "VPN2" 直到 "VPN127" 作为新的虚拟网络适配器的名称 (最多 127 个适配器可以被创建)。
 
@@ -2377,7 +2377,7 @@ R_USE_PASSWORD				使用密码(&U)
 R_REMOTE_ONLY				仅在远程操作时需要密码(&R)
 IDC_STATIC1					密码(&P):
 IDC_STATIC2					确定(&E):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2398,7 +2398,7 @@ S_PROTOCOL					协议(&O):
 R_TCP						TCP/IP 协议(&T)
 R_UDP						UDP/IP 协议(&U)
 S_INFO						发送的保持互联网连接的数据包大小随机，无个人信息被发送。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 STATIC5						其它配置(&O)
 R_ALPHA						用户界面透明(&A)
@@ -2411,7 +2411,7 @@ S_INFO1					SoftEther VPN %u.0 (Ver %u.%02u, Build %u)
 S_INFO2				An Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				此 VPN 服务器作为的一个学术研究且由 (http://www.softether.org/) 为公众利益免费发布的。本软件是日本筑波大学 SoftEther 项目下开发的免费软件，无任何担保。开发人员、版权所有者或分销商在任何情况下对于使用本软件的任何索赔、损害赔偿或其他情况不承担责任。\r\n\r\nSoftEther VPN 是日本政府的研究和开发项目的一项工作，由日本的经济、贸易和工业部资助，由信息化推进机构管理。
-IDCANCEL				&OK
+IDCANCEL				确定(&O)
 B_WEB 访问				SoftEther VPN 和网站 (&W)...
 B_EULA					最终用户许可
 B_IMPORTANT				重要启事
@@ -2423,7 +2423,7 @@ PREFIX						D_REMOTE
 STATIC1						指定目标计算机主机名或 IP 地址(&S):
 R_LOCAL						连接到本地计算机 (此窗口中显示的计算机) (&L)
 S_HOSTNAME					计算机名(&C):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2445,7 +2445,7 @@ STATIC3						用户名(&U):
 STATIC4						旧密码(&O):
 STATIC5						新密码(&N):
 STATIC6						确认新密码(&C):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_STATIC					※注意: 如果认证类型是 RADIUS 或 NT 域认证，您不能更改用户密码。
 
@@ -2490,7 +2490,7 @@ S_HUBNAME					虚拟 HUB 名(&V):
 STATIC13					请输入密码连接管理模式。
 S_PASSWORD					密码(&P):
 R_NO_SAVE					不保存管理密码(&S)
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2565,7 +2565,7 @@ B_ADMINOPTION				虚拟 HUB 管理选项(&K)
 S_ACL_3						源 IP 访问限制列表(&R):
 S_ACL						根据客户端计算机的 IP 地址允许或拒绝到此虚拟 HUB 的 VPN 连接。
 B_ACL						IP 访问控制列表(&T)
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 STATIC10					您可以在虚拟 HUB 扩展选项列表中配置更高级的设置。
 B_EXTOPTION					编辑虚拟 HUB 扩展选项列表(&X)
@@ -2579,7 +2579,7 @@ CAPTION						创建监听器
 STATIC1						您可以为 VPN Server 添加一个 TCP/IP 端口号，来接收从客户端来的连接。\r\n\r\n请指定要添加的端口号。
 STATIC2						如果端口号已经被其它服务端程序使用，则新监听器的状态将被被更改为错误状态。\r\n\r\n此时，请停止打开相同端口的其他程序。
 STATIC3						端口号(&P):
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 STATIC4						(TCP/IP 端口)
 
@@ -2611,7 +2611,7 @@ S_INFO						发送并保持互联网连接的数据包大小随机，无个人�
 STATIC11					管理员密码(&W):
 S_INFO4						您可以修改所有虚拟 HUB 和整个 VPN Server 的管理员密码。
 B_PASSWORD					更改管理员密码(&P)
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 IDCANCEL2					取消
 STATIC12					syslog 发送功能:
@@ -2672,7 +2672,7 @@ S_CONTROLLER_PORT			控制器的\r\n端口号(&R):
 S_PORT_3					(TCP 端口)
 S_PASSWORD					管理密码(&P):
 STATIC5						当您修改群集配置时，VPN Server 的服务自动重启。此时，所有当前正在连接的会话和管理相关的连接将被断开。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_1							群机内的标准比例(&W):
 S_2							(标准: 100)
@@ -2769,7 +2769,7 @@ R_CN						证书的 Common Name (CN) 限制值(&B)
 R_SERIAL					证书序列号的限制值(&L)
 S_ROOT_CERT_3				※ 注意: 请输入十六进制数值。(例如: 0155ABCDEF)
 S_HINT						提示:使用用户名“*”(星号)定义一个用户对象，以接受不符合任何已注册的、明确的、用户对象的登录尝试。这样一个特殊的用户将使用外部用户认证服务器验证登录。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2780,7 +2780,7 @@ S_BOLD2						当前值(&V):
 R_ENABLE					启用此策略(&E)
 R_DISABLE					禁用此策略(&D)
 R_DEFINE					定义此策略(&F)
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2803,7 +2803,7 @@ S_POLICY_1					安全策略
 R_POLICY					设置此组的安全策略(&Y)
 B_POLICY					安全策略(&M)
 S_POLICY_2					组统计信息
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2864,7 +2864,7 @@ STATIC14					目标名称:
 B_USER2						浏览...
 STATIC15					若不指定用户还是組，请保留这些字段为空白。
 STATIC15_OLD				若无法指定用户名称，请保持本栏目空白。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_PROTOID					指定 IP 协议:
 STATIC16					MAC 包头的过滤选项:
@@ -2899,7 +2899,7 @@ S_RADIUS_7					毫秒 (大于 %u， 小于%u)
 S_RADIUS_8					重试间隔(&R):
 S_RADIUS_9					(使用“,”或“;”来分开多个主机名)
 STATIC2						当使用 Windows NT 域控制器或 Windows Server Active Directory 控制器作为外部认证服务器时，您必须设置 VPN Server 的计算机加入到域中。使用 NT 域认证，在此不需要进行配置。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 
 
@@ -2960,7 +2960,7 @@ S_PACKET_7					以太网\r\n数据包:
 B_PACKET_7_0				不保存
 B_PACKET_7_1				仅包头
 B_PACKET_7_2				包头和有效载荷
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 STATIC3						保存大量数据包日志会给 CPU 和硬盘带来很大的负担，会导致 HUB 和整个 VPN Server 的性能下降。启用日志记录仅保存必要的数据包。
 
@@ -3024,7 +3024,7 @@ S_LOAD_11					序列号(&S):\r\n(十六进制)
 S_LOAD_9					有效期至(&E):
 S_LOAD_10					天
 STATIC3						当管理大量证书和认证认证机构时，请使用免费软件，如 OpenSSL，或商业 CA(证书认证机购)软件。
-IDOK						&OK
+IDOK						确定(&O)
 IDCANCEL					取消
 S_LOAD_12					密码强度(&N):
 
@@ -3848,7 +3848,7 @@ S_5						修改设置:
 S_STATUS6				改变动态 DNS 主机名(&C):
 S_STATUS7				主机名只能是字母数字和破折号“-”。至少 3 位。\r\n您可以随时更换名字。
 IDOK					设置上述主机名(&A)
-B_RESTORE				&恢复
+B_RESTORE				恢复(&R)
 S_2						如果您没有连接到 IPv6 网络，“ 全球 IPv6 地址“将会显示一个错误。\r\n少数国家或地区可能会禁止动态 DNS 服务。
 IDCANCEL				退出(&X)
 B_DISABLE				禁用动态 DNS 功能(&D)
@@ -4086,7 +4086,7 @@ S_TITLE					公共 VPN 中继服务器 "%S" (%S) 支持 TCP 和 UDP 作为 VPN �
 S_INFO					选择偏爱的 VPN 协议来使用以连接 VPN 服务器 "%S" (%S)。一般情况下，TCP 协议很容易通过防火墙。只有当 TCP 失败时，再尝试使用 UDP 协议。
 R_TCP					使用 &TCP 协议 (Ethernet over HTTPS VPN) (推荐)
 R_UDP					使用 &UDP 协议 (Ethernet over UDP VPN)
-IDOK					&OK
+IDOK					确定(&O)
 IDCANCEL				取消
 
 
@@ -4096,9 +4096,9 @@ R_ENABLE				启用 VPN Gate 中继服务和作为志愿者加入 VPN Gate 研究
 S_TITLE					加入 VPN Gate 的学术研究项目吗?
 S_INFO1					VPN Gate 是一个以 "分布式的公共 VPN 中继服务器" 技术为研究的学术实验，日本筑波大学研究生院运作的。VPN Gate 客户端用户可以连接到 VPN Gate 公共 VPN 中继服务器上运行的服务，并通过 VPN 中继服务器享受无限制的上网。
 S_INFO9					当一个 VPN Gate 客户端用户访问互联网上的服务器，源 IP 地址将被替换为中继公共 VPN 服务器的 IP 地址。因此，VPN Gate 客户端用户将能够顺利地浏览海外网站，即使用户的本地防火墙因未知原因发生故障，无法通过这样的访问。
-S_WARNING				如果您选中上述复选框，然后按 OK，VPN Gate 中继服务将在这台电脑上激活。结果，任何 VPN Gate 客户端将能够通过 VPN Gate 中继服务对互联网进行通信。它是安全的，即使你的计算机是专用网络 (如企业网)，因为任何私有 IP 地址的访问不会被允许经由 VPN Gate 中继服务通过。
+S_WARNING				如果您选中上述复选框，然后按确定，VPN Gate 中继服务将在这台电脑上激活。结果，任何 VPN Gate 客户端将能够通过 VPN Gate 中继服务对互联网进行通信。它是安全的，即使你的计算机是专用网络 (如企业网)，因为任何私有 IP 地址的访问不会被允许经由 VPN Gate 中继服务通过。
 B_OPTION				VPN Gate 服务选项设置(&O)...
-IDOK					&OK
+IDOK					确定(&O)
 IDCANCEL				取消
 B_WEB					浏览 http://www.vpngate.net/ ...
 
@@ -4121,7 +4121,7 @@ R_PERMANENT				使数据包日志永久占用磁盘空间 (&P)
 R_L2TP					启用 L2TP/IPSec VPN 服务器功能 (推荐) (&L)
 S_25					允许 Mac OS X、iPhone、iPad 和 Android 客户端进行 VPN 连接。
 B_MESSAGE				在 VPN 客户端和屏幕上弹出您的广告消息(&S)...
-IDOK					&OK
+IDOK					确定(&O)
 IDCANCEL				取消
 
 
@@ -6788,11 +6788,11 @@ CMD_TrafficClient_NUMTCP	指定同时在客户端和服务器进行数据传输�
 CMD_TrafficClient_TYPE		指定进行吞吐量测量时的数据传输流方向。指定下列选项之一: "download"，"upload" 或 "full"。指定 "download"，则数据从服务器端向客户端传送。指定 "upload"，则数据从客户端向服务器端传送。指定 "full"，数据将双向传送。当指定 "full" 时，NUMTCP 的值必须指定是 2 以上的偶数 (同时被连接的 TCP 连接中一半用于下载的方向，而另一半用于上传的方向)。如果省略此参数，将使用 "full"。
 CMD_TrafficClient_SPAN		以秒为单位指定为测量吞吐量而进行数据传输时间。如果省略此参数，"15秒" 将被使用。
 CMD_TrafficClient_DOUBLE	指定 "yes" 时，测量结果的吞吐量将显示为 2 倍。在中途有网络设备等，测量其其网络设备的输入输出合计的吞吐量能力时，此选项被使用。
-CMD_TrafficClient_RAW		通过指定 "yes"，不进行修正 TCP/IP 头和 MAC 头的数据量计算。
+CMD_TrafficClient_RAW		通过指定 "yes"，计算将不校正 TCP/IP 头和 MAC 头的数据量。
 CMD_TrafficClient_EVAL_NUMTCP	TCP 连接的数量请在 32 以下指定。
 CMD_TrafficClient_PROMPT_HOST	测量服务器名称和端口号 (如果省略 9821): 
-CMD_TrafficClient_ERROR_NUMTCP	当数据的流向是 "full" (两个方向)，须指定 TCP 连接数量 (/NUMTCP) 为偶数值。
-CMD_TrafficClient_ERROR_HOSTPORT	主机名或端口号的指定不正确。
+CMD_TrafficClient_ERROR_NUMTCP	当数据的流向是 "full" (双向) 时，须将 TCP 连接数 (/NUMTCP) 指定为偶数值。
+CMD_TrafficClient_ERROR_HOSTPORT	指定的主机名或端口号不正确。
 
 
 # TrafficServer 命令
@@ -7083,6 +7083,5 @@ SW_LINK_NAME_LANGUAGE					配置显示语言
 SW_LINK_NAME_LANGUAGE_COMMENT			修改 %s 的显示语言设置。
 
 SW_LINK_NAME_DEBUG						调试信息采集工具
-SW_LINK_NAME_DEBUG_COMMENT				采集 SoftEther VPN 的调试信息。只有当您的支持人员要求你这样做时，才使用此工具。
-
+SW_LINK_NAME_DEBUG_COMMENT				采集 SoftEther VPN 的调试信息。仅在您的支持人员要求你这样做时使用此工具。
 
