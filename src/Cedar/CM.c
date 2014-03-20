@@ -7521,6 +7521,8 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 			{
 				if (InStr(tmp, "/tcp") == false)
 				{
+					Trim(tmp);
+
 					StrCat(tmp, sizeof(tmp), "/tcp");
 
 					SetTextA(hWnd, E_HOSTNAME, tmp);
@@ -7535,6 +7537,8 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 					if (i != INFINITE)
 					{
 						tmp[i] = 0;
+
+						Trim(tmp);
 
 						SetTextA(hWnd, E_HOSTNAME, tmp);
 					}

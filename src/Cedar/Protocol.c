@@ -1577,7 +1577,7 @@ bool ServerAccept(CONNECTION *c)
 					break;
 
 				case CLIENT_AUTHTYPE_CERT:
-					if (GetGlobalServerFlag(GSF_DISABLE_CERT_AUTH) != 0)
+					if (GetGlobalServerFlag(GSF_DISABLE_CERT_AUTH) == 0)
 					{
 						// Certificate authentication
 						cert_size = PackGetDataSize(p, "cert");
