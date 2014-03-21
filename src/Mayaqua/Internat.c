@@ -3412,7 +3412,7 @@ UINT UniStrCpy(wchar_t *dst, UINT size, wchar_t *src)
 	}
 	else
 	{
-		len = size / 2 - 1;
+		len = size / sizeof(wchar_t) - 1;
 		Copy(dst, src, len * sizeof(wchar_t));
 		dst[len] = 0;
 	}

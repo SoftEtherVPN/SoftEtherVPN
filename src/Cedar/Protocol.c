@@ -2649,7 +2649,7 @@ bool ServerAccept(CONNECTION *c)
 					st.wYear, st.wMonth);
 			}
 
-			tmpsize = UniStrSize(winver_msg_client) + UniStrSize(winver_msg_server) + UniStrSize(msg) + 16000 + 3000;
+			tmpsize = UniStrSize(winver_msg_client) + UniStrSize(winver_msg_server) + UniStrSize(msg) + (16000 + 3000) * sizeof(wchar_t);
 
 			tmp = ZeroMalloc(tmpsize);
 
@@ -2660,7 +2660,7 @@ bool ServerAccept(CONNECTION *c)
 				{
 					// Show the warning message if the connection is made by NAT-T
 					wchar_t *tmp2;
-					UINT tmp2_size = 2400;
+					UINT tmp2_size = 2400 * sizeof(wchar_t);
 					char local_name[128];
 					wchar_t local_name_2[128];
 					char local_name_3[128];
@@ -2682,7 +2682,7 @@ bool ServerAccept(CONNECTION *c)
 					}
 #endif	// OS_WIN32
 
-					tmp2 = Malloc(tmp2_size);
+					tmp2 = ZeroMalloc(tmp2_size);
 					UniFormat(tmp2, tmp2_size, _UU(c->ClientBuild >= 9428 ? "NATT_MSG" : "NATT_MSG2"), local_name);
 
 					UniStrCat(tmp, tmpsize, tmp2);
