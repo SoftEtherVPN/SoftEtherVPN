@@ -1866,7 +1866,7 @@ void CnStart()
 
 BEGIN_LISTENER:
 	Lock(cn_listener_lock);
-	cn_listener = o = NewListenerEx(cedar, LISTENER_TCP, CLIENT_NOTIFY_PORT, CnListenerProc, NULL);
+	cn_listener = o = NewListenerEx2(cedar, LISTENER_TCP, CLIENT_NOTIFY_PORT, CnListenerProc, NULL, true);
 	Unlock(cn_listener_lock);
 
 	while (true)
@@ -5509,6 +5509,11 @@ void CiRpcServerThread(THREAD *thread, void *param)
 		return;
 	}
 
+#ifdef OS_WIN32
+	MsRegWriteIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PORT, i, false, true);
+	MsRegWriteIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PID, MsGetCurrentProcessId(), false, true);
+#endif	// OS_WIN32
+
 	c->RpcListener = listener;
 	AddRef(listener->ref);
 
@@ -5576,6 +5581,11 @@ void CiRpcServerThread(THREAD *thread, void *param)
 
 	ReleaseList(c->RpcConnectionList);
 	ReleaseList(thread_list);
+
+#ifdef OS_WIN32
+	MsRegDeleteValueEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PORT, false, true);
+	MsRegDeleteValueEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PID, false, true);
+#endif	// OS_WIN32
 }
 
 // Start the Keep
@@ -5783,7 +5793,7 @@ REMOTE_CLIENT *CcConnectRpc(char *server_name, char *password, bool *bad_pass, b
 }
 REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass, bool *no_remote, UCHAR *key, UINT *key_error_code, bool shortcut_disconnect, UINT wait_retry)
 {
-	SOCK *s;
+	SOCK *s = NULL;
 	UINT i;
 	UINT retcode;
 	UINT rpc_mode = CLIENT_RPC_MODE_MANAGEMENT;
@@ -5793,6 +5803,8 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 	UINT port_start;
 	UINT64 try_started = 0;
 	bool ok;
+	UINT reg_port = 0;
+	UINT reg_pid = 0;
 	// Validate arguments
 	if (server_name == NULL)
 	{
@@ -5818,7 +5830,40 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 		*no_remote = false;
 	}
 
+#ifdef	OS_WIN32
+	// read the current port number from the registry of the localhost
+	if (StrCmpi(server_name, "localhost") == 0)
+	{
+		wchar_t exename[MAX_PATH];
+
+		reg_port = MsRegReadIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PORT, false, true);
+		reg_pid = MsRegReadIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PID, false, true);
+
+		if (reg_pid != 0)
+		{
+			if (MsIsServiceRunning(GC_SVC_NAME_VPNCLIENT) == false)
+			{
+				reg_port = 0;
+			}
+		}
+		else
+		{
+			reg_port = 0;
+		}
+	}
+#endif	// OS_WIN32
+
 	port_start = CLIENT_CONFIG_PORT - 1;
+
+	if (reg_port != 0)
+	{
+		s = Connect(server_name, reg_port);
+
+		if (s != NULL)
+		{
+			goto L_TRY;
+		}
+	}
 
 RETRY:
 	port_start++;
@@ -5882,6 +5927,9 @@ RETRY:
 		}
 		goto RETRY;
 	}
+L_TRY:
+
+	SetTimeout(s, 10000);
 
 	Hash(hash_password, password, StrLen(password), true);
 
@@ -5925,6 +5973,7 @@ RETRY:
 
 	if (retcode >= 1024)
 	{
+		ReleaseSock(s);
 		goto RETRY;
 	}
 
@@ -5960,6 +6009,8 @@ RETRY:
 		ReleaseSock(s);
 		return NULL;
 	}
+
+	SetTimeout(s, INFINITE);
 
 	rpc = StartRpcClient(s, NULL);
 

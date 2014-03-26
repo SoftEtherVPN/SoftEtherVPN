@@ -134,6 +134,10 @@
 
 #define	CLIENT_GLOBAL_PULSE_NAME			"clientglobalpulse"
 
+#define	CLIENT_WIN32_REGKEYNAME				"Software\\" GC_REG_COMPANY_NAME "\\" CEDAR_PRODUCT_STR " VPN\\Client"
+#define	CLIENT_WIN32_REGVALUE_PORT			"RpcPort"
+#define	CLIENT_WIN32_REGVALUE_PID			"RpcPid"
+
 
 // List of virtual LAN cards in UNIX
 struct UNIX_VLAN

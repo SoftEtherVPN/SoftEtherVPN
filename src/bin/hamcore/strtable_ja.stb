@@ -7042,6 +7042,7 @@ SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			サービス 「%s」 (内部名: "%S") �
 SW_PERFORM_MSG_SVC_INSTALL_FAILED			サービス 「%s」 (内部名: "%S") のインストールに失敗しました。
 SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		ユーザーモードサービス "%s" の起動に失敗しました。
 SW_PERFORM_MSG_UPDATING						システム設定を更新しています...
+SW_PERFORM_MSG_DELETE_NIC					仮想 LAN カードを削除しています...
 SW_PERFORM_MSG_FINISHED						セットアップ処理が完了しました。
 SW_PERFORM_MSG_UNINSTALL_MSI				%s の古いバージョンを Windows Installer を用いてアンインストールしています...
 SW_PERFORM_MSG_UPDATE_LANG_CONFIG			言語設定を変更しています...
@@ -7063,6 +7064,8 @@ SW_DIRNAME_LANGUAGE_TOOLS					Language Settings
 
 SW_RUN_TEXT_VPNSMGR							SoftEther VPN サーバー管理マネージャを起動します。
 SW_RUN_TEXT_VPNCMGR							SoftEther VPN クライアント接続マネージャを起動します。
+
+SW_NIC_UNINSTALL							SoftEther VPN Client の仮想 LAN カードが作成されています。\r\nこれらの仮想 LAN カードを削除しますか?
 
 # Do not translate this section !!!
 SW_TAG_USERNAME_ENGLISH						\ (User-Mode)

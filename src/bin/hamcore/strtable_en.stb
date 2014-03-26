@@ -7037,6 +7037,7 @@ SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			Uninstall of the "%s" service (internal na
 SW_PERFORM_MSG_SVC_INSTALL_FAILED			Install of the "%s" service (internal name: "%S") failed.
 SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		Starting the user-mode service "%s" failed.
 SW_PERFORM_MSG_UPDATING						Updating system settings...
+SW_PERFORM_MSG_DELETE_NIC					Removing the Virtual Network Adapters...
 SW_PERFORM_MSG_FINISHED						Setup progress finished.
 SW_PERFORM_MSG_UNINSTALL_MSI				Windows Installer is uninstalling the older version of %s...
 SW_PERFORM_MSG_UPDATE_LANG_CONFIG			Changing the language settings...
@@ -7058,6 +7059,8 @@ SW_DIRNAME_LANGUAGE_TOOLS					Language Settings
 
 SW_RUN_TEXT_VPNSMGR							Start the SoftEther VPN Server Manager.
 SW_RUN_TEXT_VPNCMGR							Start the SoftEther VPN Client Manager.
+
+SW_NIC_UNINSTALL							Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
 
 # --- Do not translate this section !!!  stay them in English !!! ---
 SW_TAG_USERNAME_ENGLISH						\ (User-Mode)

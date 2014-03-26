@@ -1002,6 +1002,8 @@ void *MsRunAsUserExInnerW(wchar_t *filename, wchar_t *arg, bool hide);
 UINT MsGetCursorPosHash();
 bool MsIsProcessExists(char *exename);
 bool MsIsProcessExistsW(wchar_t *exename);
+bool MsGetProcessNameFromId(wchar_t *exename, UINT exename_size, UINT pid);
+bool MsIsProcessIdExists(UINT pid);
 
 void MsGetComputerName(char *name, UINT size);
 void MsGetComputerNameFull(wchar_t *name, UINT size);

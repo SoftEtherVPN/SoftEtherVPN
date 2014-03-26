@@ -1484,6 +1484,47 @@ BUF *MsRegSubkeysToBuf(UINT root, char *keyname, bool force32bit, bool force64bi
 	return b;
 }
 
+// Get the process name of the specified process ID
+bool MsGetProcessNameFromId(wchar_t *exename, UINT exename_size, UINT pid)
+{
+	LIST *o;
+	bool ret = false;
+	UINT i;
+	// Validate arguments
+	if (pid == 0)
+	{
+		return false;
+	}
+
+	o = MsGetProcessList();
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		MS_PROCESS *proc = LIST_DATA(o, i);
+
+		if (proc->ProcessId == pid)
+		{
+			if (exename != NULL)
+			{
+				UniStrCpy(exename, exename_size, proc->ExeFilenameW);
+			}
+
+			ret = true;
+			break;
+		}
+	}
+
+	MsFreeProcessList(o);
+
+	return ret;
+}
+
+// Check whether the specified process ID exists
+bool MsIsProcessIdExists(UINT pid)
+{
+	return MsGetProcessNameFromId(NULL, 0, pid);
+}
+
 // Check whether the process of specified EXE file name exists
 bool MsIsProcessExists(char *exename)
 {

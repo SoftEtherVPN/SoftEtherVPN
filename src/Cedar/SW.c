@@ -2371,6 +2371,44 @@ LABEL_RETRY_4:
 		FileDeleteW(setuplog);
 	}
 
+	// Delete the existing Virtual Network Adapters
+	// Currently disabled because of 32bit/64bit problems
+#if	0
+	if (c->Id == SW_CMP_VPN_CLIENT)
+	{
+		if (MsIsNt())
+		{
+			if (!(MsIs64BitWindows() && Is32()))
+			{
+				UINT i;
+				TOKEN_LIST *t;
+
+				SwPerformPrint(wp, _UU("SW_PERFORM_MSG_DELETE_NIC"));
+
+				// Enumeration
+				t = MsEnumNetworkAdapters(VLAN_ADAPTER_NAME, VLAN_ADAPTER_NAME_OLD);
+				if (t != NULL)
+				{
+					if (t->NumTokens >= 1)
+					{
+						if (SwPerformMsgBox(wp, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2, _UU("SW_PERFORM_MSG_DELETE_NIC")) == IDYES)
+						{
+							for (i = 0;i < t->NumTokens;i++)
+							{
+								char *name = t->Token[i];
+
+								MsUninstallVLan(name);
+							}
+						}
+					}
+
+					FreeToken(t);
+				}
+			}
+		}
+	}
+#endif
+
 	SwPerformPrint(wp, _UU("SW_PERFORM_MSG_UPDATING"));
 
 	// Notify the update to the system
