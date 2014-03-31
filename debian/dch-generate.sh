@@ -20,10 +20,10 @@ tzone="+09:00"
 entry="* See: http://www.softether.org/5-download/history"
 
 # are you a debian maintainer?
-if [ ! -e "$DEBFULLNAME" ]; then
+if [ -z "$DEBFULLNAME" ]; then
 	DEBFULLNAME="John Q. Sample"
 fi
-if [ ! -e "$DEBEMAIL" ]; then
+if [ -z "$DEBEMAIL" ]; then
 	DEBEMAIL="tamade@example.org"
 fi
 
@@ -61,6 +61,5 @@ echo
 echo "  ""$entry"
 echo
 echo " --"" ""$DEBFULLNAME"" <""$DEBEMAIL"">  ""$date"
-echo
 
 exit 0
