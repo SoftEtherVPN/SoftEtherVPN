@@ -9,6 +9,7 @@
 # version 2 as published by the Free Software Foundation.
 
 # warning: the following file has CRLF line endings (Windows)
+# the location of the following file is relative to this script
 cbuild="../src/CurrentBuild.txt"
 
 # required for debian packaging
@@ -27,10 +28,12 @@ if [ -z "$DEBEMAIL" ]; then
 	DEBEMAIL="tamade@example.org"
 fi
 
-# check if ./changelog exists, check if $cbuild exists
+# where am i located? in $DIR, of course!
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+cd "$DIR"
+# check if debian/changelog exists, check if $cbuild exists
 if [ ! -e ./changelog ]; then
 	echo "Am I in debian/? I can't find changelog"
-	echo "Maybe run: touch debian/changelog ?"
 	exit 1
 fi
 if [ ! -e "$cbuild" ]; then
