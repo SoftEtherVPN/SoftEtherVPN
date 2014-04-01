@@ -55,7 +55,7 @@ majorversion="$(echo "${cbuildarray[1]}" | awk '{sub(/[0-9]/,"&.",$0);print $0}'
 # "${cbuildarray[3]}" is split and the second half is converted from
 # from "131655" to "13:16:55" using GNU awk then it's put back together
 # (like humpty dumpty) and sent to GNU date for conversion to UTC
-time="$(echo ${cbuildarray[3]#*_} | awk '{gsub(/[0-9][0-9]/,"&:",$0);print $0}')"
+time="$(echo "${cbuildarray[3]#*_}" | awk '{gsub(/[0-9][0-9]/,"&:",$0);print $0}')"
 date="$(date -R --date="$(echo "${cbuildarray[3]%_*}"" ""${time%?}""$tzone")")"
 
 # print the new debian changelog
