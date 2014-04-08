@@ -9,6 +9,7 @@
 # version 2 as published by the Free Software Foundation.
 
 # warning: the following file has CRLF line endings (Windows)
+# the location of the following file is relative to this script
 cbuild="../src/CurrentBuild.txt"
 
 # required for debian packaging
@@ -20,17 +21,19 @@ tzone="+09:00"
 entry="* See: http://www.softether.org/5-download/history"
 
 # are you a debian maintainer?
-if [ ! -e "$DEBFULLNAME" ]; then
+if [ -z "$DEBFULLNAME" ]; then
 	DEBFULLNAME="John Q. Sample"
 fi
-if [ ! -e "$DEBEMAIL" ]; then
+if [ -z "$DEBEMAIL" ]; then
 	DEBEMAIL="tamade@example.org"
 fi
 
-# check if ./changelog exists, check if $cbuild exists
+# where am i located? in $DIR, of course!
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+cd "$DIR"
+# check if debian/changelog exists, check if $cbuild exists
 if [ ! -e ./changelog ]; then
 	echo "Am I in debian/? I can't find changelog"
-	echo "Maybe run: touch debian/changelog ?"
 	exit 1
 fi
 if [ ! -e "$cbuild" ]; then
@@ -52,7 +55,7 @@ majorversion="$(echo "${cbuildarray[1]}" | awk '{sub(/[0-9]/,"&.",$0);print $0}'
 # "${cbuildarray[3]}" is split and the second half is converted from
 # from "131655" to "13:16:55" using GNU awk then it's put back together
 # (like humpty dumpty) and sent to GNU date for conversion to UTC
-time="$(echo ${cbuildarray[3]#*_} | awk '{gsub(/[0-9][0-9]/,"&:",$0);print $0}')"
+time="$(echo "${cbuildarray[3]#*_}" | awk '{gsub(/[0-9][0-9]/,"&:",$0);print $0}')"
 date="$(date -R --date="$(echo "${cbuildarray[3]%_*}"" ""${time%?}""$tzone")")"
 
 # print the new debian changelog
@@ -61,6 +64,5 @@ echo
 echo "  ""$entry"
 echo
 echo " --"" ""$DEBFULLNAME"" <""$DEBEMAIL"">  ""$date"
-echo
 
 exit 0
