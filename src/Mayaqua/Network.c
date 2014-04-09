@@ -1476,14 +1476,42 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 							{
 								if (StrCmpi(r->CurrentRegisterHostname, new_hostname) != 0)
 								{
-									// Change the host name
-									Debug("CurrentRegisterHostname Changed: New=%s\n", new_hostname);
-									StrCpy(r->CurrentRegisterHostname, sizeof(r->CurrentRegisterHostname), new_hostname);
+									r->NumChangedHostname++;
 
-									Zero(&r->NatT_IP, sizeof(r->NatT_IP));
-									//Zero(&r->NatT_IP_Safe, sizeof(r->NatT_IP_Safe));
+									if (r->NumChangedHostname <= RUDP_NATT_MAX_CONT_CHANGE_HOSTNAME)
+									{
+										if (r->NumChangedHostnameValueResetTick == 0)
+										{
+											r->NumChangedHostnameValueResetTick = r->Now + (UINT64)RUDP_NATT_CONT_CHANGE_HOSTNAME_RESET_INTERVAL;
+										}
 
-									Set(r->HaltEvent);
+										// Change the host name
+										Debug("CurrentRegisterHostname Changed: New=%s\n", new_hostname);
+										StrCpy(r->CurrentRegisterHostname, sizeof(r->CurrentRegisterHostname), new_hostname);
+
+										Zero(&r->NatT_IP, sizeof(r->NatT_IP));
+										//Zero(&r->NatT_IP_Safe, sizeof(r->NatT_IP_Safe));
+
+										Set(r->HaltEvent);
+									}
+									else
+									{
+										if (r->NumChangedHostnameValueResetTick == 0)
+										{
+											r->NumChangedHostnameValueResetTick = r->Now + (UINT64)RUDP_NATT_CONT_CHANGE_HOSTNAME_RESET_INTERVAL;
+										}
+
+										if (r->Now >= r->NumChangedHostnameValueResetTick)
+										{
+											r->NumChangedHostname = 0;
+											r->NumChangedHostnameValueResetTick = 0;
+										}
+									}
+								}
+								else
+								{
+									r->NumChangedHostname = 0;
+									r->NumChangedHostnameValueResetTick = 0;
 								}
 							}
 							Unlock(r->Lock);
@@ -4939,14 +4967,15 @@ LABEL_TIMEOUT:
 				sock, sock_event, 0, false);
 		}
 
+		if (sock != NULL)
+		{
+			Disconnect(sock);
+			ReleaseSock(sock);
+		}
+
 		if (sock_event != NULL)
 		{
 			ReleaseSockEvent(sock_event);
-		}
-
-		if (sock != NULL)
-		{
-			ReleaseSock(sock);
 		}
 
 		return ret;

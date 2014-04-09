@@ -5834,8 +5834,6 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 	// read the current port number from the registry of the localhost
 	if (StrCmpi(server_name, "localhost") == 0)
 	{
-		wchar_t exename[MAX_PATH];
-
 		reg_port = MsRegReadIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PORT, false, true);
 		reg_pid = MsRegReadIntEx2(REG_LOCAL_MACHINE, CLIENT_WIN32_REGKEYNAME, CLIENT_WIN32_REGVALUE_PID, false, true);
 

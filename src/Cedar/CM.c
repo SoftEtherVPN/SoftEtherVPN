@@ -8808,7 +8808,7 @@ void CmNewAccount(HWND hWnd)
 		}
 		else
 		{
-			if (cm->server_name == NULL)
+			if (cm->server_name == NULL || cm->Client->Unix)
 			{
 				Command(hWnd, CMD_NEW_VLAN);
 				return;

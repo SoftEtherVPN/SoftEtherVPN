@@ -61,6 +61,9 @@ CONTRIBUTORS on GitHub:
   - YF
     https://github.com/yfdyh000
 
+  - Sahal Ansari
+    https://github.com/sahal
+
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
