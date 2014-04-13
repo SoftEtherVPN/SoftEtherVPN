@@ -30,6 +30,7 @@ AC_CONFIG_FILES([
 	src/Mayaqua/Makefile
 	src/Cedar/Makefile
 	src/hamcorebuilder/Makefile
+	src/libsoftether/Makefile
 	src/bin/hamcore/Makefile
 	src/vpnserver/Makefile
 	src/vpnclient/Makefile

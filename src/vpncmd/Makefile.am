@@ -25,5 +25,4 @@ vpncmd_SOURCES = \
 	vpncmd.c
 
 vpncmd_LDADD = \
-	$(top_builddir)/src/Mayaqua/libmayaqua.la \
-	$(top_builddir)/src/Cedar/libcedar.la
+	$(top_builddir)/src/libsoftether/libsoftether.la
