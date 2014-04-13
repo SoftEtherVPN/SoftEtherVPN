@@ -16,14 +16,19 @@
 #  SoftEther.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# These components are built as libtool convenience libraries.
-SUBDIRS = Mayaqua Cedar
+include $(top_srcdir)/autotools/softether.am
 
-# This is a nodist helper.
-SUBDIRS += hamcorebuilder
+lib_LTLIBRARIES = \
+	libsoftether.la
 
-# These are shared components.
-SUBDIRS += libsoftether bin/hamcore
+libsoftether_la_SOURCES =
 
-# These are the final build products.
-SUBDIRS += vpnserver vpnclient vpnbridge vpncmd
+libsoftether_la_LDFLAGS = \
+	-avoid-version
+
+libsoftether_la_LIBTOOLFLAGS = \
+	--tag=disable-static
+
+libsoftether_la_LIBADD = \
+	$(top_builddir)/src/Mayaqua/libmayaqua.la \
+	$(top_builddir)/src/Cedar/libcedar.la
