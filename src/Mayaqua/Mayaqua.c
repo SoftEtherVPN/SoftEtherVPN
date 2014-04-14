@@ -596,7 +596,11 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		_exit(0);
 	}
 
+#ifndef STATE_DIR
+	// This check causes hamcorebuilder to fail in an unprivileged
+	// environment, and is unnecessary for a managed installation.
 	CheckUnixTempDir();
+#endif
 
 	// Initialization of Probe
 	InitProbe();

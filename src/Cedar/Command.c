@@ -512,7 +512,7 @@ bool CheckFileSystem()
 	UINT i;
 
 	GetExeName(exe, sizeof(exe));
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetStateDir(exe_dir, sizeof(exe_dir));
 
 	ok = false;
 	dirs = EnumDir(exe_dir);
@@ -537,7 +537,11 @@ bool CheckFileSystem()
 		UCHAR *buf;
 		IO *io;
 #ifndef	OS_WIN32
+#ifdef STATE_DIR
+		wchar_t *filename = L"" STATE_DIR L"/vpn_checker_tmp";
+#else
 		wchar_t *filename = L"/tmp/vpn_checker_tmp";
+#endif
 #else	// OS_WIN32
 		wchar_t filename[MAX_PATH];
 		CombinePathW(filename, sizeof(filename), MsGetMyTempDirW(), L"vpn_checker_tmp");

@@ -27,6 +27,7 @@ AM_CFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/Mayaqua \
 	-I$(top_srcdir)/src/Cedar \
+	-DSTATE_DIR='"@localstatedir@/lib/softether"' \
 	-DUNIX \
 	-DUNIX_LINUX \
 	-D_REENTRANT \

@@ -1176,7 +1176,7 @@ void GenerateUnicodeCacheFileName(wchar_t *name, UINT size, wchar_t *strfilename
 		return;
 	}
 
-	GetExeDirW(exe, sizeof(exe));
+	GetStateDirW(exe, sizeof(exe));
 	UniStrCpy(hashtemp, sizeof(hashtemp), strfilename);
 	BinToStrW(tmp, sizeof(tmp), filehash, MD5_SIZE);
 	UniStrCat(hashtemp, sizeof(hashtemp), tmp);
@@ -1189,7 +1189,11 @@ void GenerateUnicodeCacheFileName(wchar_t *name, UINT size, wchar_t *strfilename
 	UniStrLower(tmp);
 
 #ifndef	OS_WIN32
+#ifdef STATE_DIR
+	UniStrCpy(exe, sizeof(exe), L"" STATE_DIR L"");
+#else
 	UniStrCpy(exe, sizeof(exe), L"/tmp");
+#endif
 #else	// OS_WIN32
 	StrToUni(exe, sizeof(exe), MsGetTempDir());
 #endif	// OS_WIN32
