@@ -18,12 +18,16 @@
 
 include $(top_srcdir)/autotools/softether.am
 
-# This is required to use a custom build rule with -Wall and -Werror enabled.
+# An empty EXEEXT required for overrides with -Wall and -Werror enabled.
 AUTOMAKE_OPTIONS = -Wno-override
 EXEEXT =
+
 HAMCOREBUILDER = $(top_builddir)/src/hamcorebuilder/hamcorebuilder
 
-sbin_PROGRAMS = hamcore.se2
+noinst_PROGRAMS = hamcore.se2
 
 hamcore.se2$(EXEEXT): $(HAMCOREBUILDER)
 	$(HAMCOREBUILDER) $(top_srcdir)/src/bin/hamcore $@
+
+install-exec-local: hamcore.se2$(EXEEXT)
+	$(INSTALL_DATA) -D hamcore.se2$(EXEEXT) $(DESTDIR)$(localstatedir)/lib/softether/hamcore.se2

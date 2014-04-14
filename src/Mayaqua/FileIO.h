@@ -349,6 +349,8 @@ void GetExeName(char *name, UINT size);
 void GetExeNameW(wchar_t *name, UINT size);
 void GetExeDir(char *name, UINT size);
 void GetExeDirW(wchar_t *name, UINT size);
+void GetStateDir(char *name, UINT size);
+void GetStateDirW(wchar_t *name, UINT size);
 void BuildHamcore(char *dst_filename, char *src_dir, bool unix_only);
 int CompareHamcore(void *p1, void *p2);
 void InitHamcore();
