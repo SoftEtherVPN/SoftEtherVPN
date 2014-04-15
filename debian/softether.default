@@ -1,0 +1,5 @@
+# Choose the SoftEther daemon to start.
+#SOFTETHER_MODE=disabled
+#SOFTETHER_MODE=vpnbridge
+#SOFTETHER_MODE=vpnclient
+SOFTETHER_MODE=vpnserver
