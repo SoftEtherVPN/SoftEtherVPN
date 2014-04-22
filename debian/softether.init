@@ -11,6 +11,12 @@
 
 set -e
 
+if test -f /etc/init/softether.conf
+then
+	echo "SoftEther is controlled by upstart." 1>&2
+	exit 0
+fi
+
 . /etc/default/softether
 
 case $SOFTETHER_MODE in

@@ -1,0 +1,25 @@
+description "SoftEther VPN"
+
+start on started networking
+stop on stoppping networking
+
+respawn
+expect stop
+
+script
+	test -f /etc/default/softether && . /etc/default/softether
+	case $SOFTETHER_MODE in
+	(vpnbridge)
+		exec /usr/sbin/vpnbridge upstart
+		;;
+	(vpnclient)
+		exec /usr/sbin/vpnclient upstart
+		;;
+	(vpnserver)
+		exec /usr/sbin/vpnserver upstart
+		;;
+	(*)
+		exit 0
+		;;
+	esac
+end script
