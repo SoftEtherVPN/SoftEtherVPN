@@ -36,6 +36,7 @@ AC_CONFIG_FILES([
 	src/vpnclient/Makefile
 	src/vpnbridge/Makefile
 	src/vpncmd/Makefile
+	src/softetherd/Makefile
 ])
 
 
