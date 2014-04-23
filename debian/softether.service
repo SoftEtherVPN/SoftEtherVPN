@@ -1,0 +1,8 @@
+[Unit]
+Description=SoftEther VPN
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/softether
+ExecStart=/usr/sbin/softetherd $SOFTETHER_MODE
