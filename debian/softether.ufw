@@ -1,0 +1,4 @@
+[SoftEther]
+title=Multiprotocol VPN server.
+description=DNS tunneling, ISAKMP, L2TP, NAT-T, SSTP, TELNETS, OVPN.
+ports=53,500,1194,1701,4500/udp|443,992,1194,5555/tcp

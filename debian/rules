@@ -2,3 +2,7 @@
 
 %:
 	dh $@ --with autoreconf
+
+override_dh_install:
+	dh_install
+	install -m 644 -D debian/softether.ufw debian/softether/etc/ufw/applications.d/softether
