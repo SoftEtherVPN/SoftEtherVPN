@@ -9,17 +9,9 @@ expect stop
 script
 	test -f /etc/default/softether && . /etc/default/softether
 	case $SOFTETHER_MODE in
-	(vpnbridge)
-		exec /usr/sbin/vpnbridge upstart
-		;;
-	(vpnclient)
-		exec /usr/sbin/vpnclient upstart
-		;;
-	(vpnserver)
-		exec /usr/sbin/vpnserver upstart
-		;;
+	(vpnbridge|vpnclient|vpnserver)
+		exec /usr/sbin/softetherd "$SOFTETHER_MODE" ;;
 	(*)
-		exit 0
-		;;
+		exit 0 ;;
 	esac
 end script

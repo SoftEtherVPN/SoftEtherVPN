@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          softether-vpn
+# Provides:          softether
 # Required-Start:    $local_fs $remote_fs $network $syslog $named
 # Required-Stop:     $local_fs $remote_fs $network $syslog $named
 # Default-Start:     2 3 4 5
@@ -11,13 +11,10 @@
 
 set -e
 
-if test -f /etc/init/softether.conf
+if test -f /etc/default/softether
 then
-	echo "SoftEther is controlled by upstart." 1>&2
-	exit 0
+	. /etc/default/softether
 fi
-
-. /etc/default/softether
 
 case $SOFTETHER_MODE in
 	(vpnbridge)
@@ -34,11 +31,11 @@ esac
 case $1 in
 	(start)
 		start-stop-daemon --verbose --oknodo --start --background --exec \
-			"/usr/sbin/$SOFTETHER_MODE" -- execsvc
+			/usr/sbin/softetherd -- "$SOFTETHER_MODE"
 		;;
 	(stop)
 		start-stop-daemon --verbose --oknodo --stop --exec \
-			"/usr/sbin/$SOFTETHER_MODE" -- execsvc
+			/usr/sbin/softetherd -- "$SOFTETHER_MODE"
 		;;
 	(restart)
 		"$0" stop && "$0" start
