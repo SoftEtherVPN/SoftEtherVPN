@@ -4,5 +4,7 @@
 	dh $@ --with autoreconf
 
 override_dh_install:
-	dh_install
 	install -m 644 -D debian/softether.ufw debian/softether/etc/ufw/applications.d/softether
+	install -m 644 -D debian/apparmor/usr.sbin.softetherd debian/softether/etc/apparmor.d/usr.sbin.softetherd
+	dh_apparmor --profile-name=usr.sbin.softetherd
+	dh_install

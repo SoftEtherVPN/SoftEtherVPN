@@ -1,0 +1,33 @@
+# vim:syntax=apparmor
+# Author: Darik Horn <dajhorn@vanadac.com>
+
+#include <tunables/global>
+
+/usr/sbin/softetherd {
+	#include <abstractions/base>
+	#include <abstractions/nameservice>
+
+	# These options are described in `man 7 capabilities`.
+	capability net_admin,
+	capability net_bind_service,
+	capability net_raw,
+	capability sys_nice,
+	capability sys_resource,
+
+	# Permit all IPv4 and IPv6 actions.
+	network,
+
+	# SoftEther uses popen() to call dmesg, but /bin/sh is usually diverted
+	# to dash, so permit any shell in main distribution to be invoked.
+	/bin/bash ix,
+	/bin/dash ix,
+	/bin/sh ix,
+	/bin/zsh ix,
+	/bin/dmesg ixr,
+
+	/usr/sbin/softetherd mr,
+	/var/lib/softether/** klrw,
+	@{PROC}/sys/kernel/osrelease r,
+	@{PROC}/sys/kernel/threads-max rw,
+	@{PROC}/sys/net/ipv4/conf/all/arp_filter rw,
+}
