@@ -100,6 +100,461 @@
 
 static UCHAR ssl_packet_start[3] = {0x17, 0x03, 0x00};
 
+// Download and save intermediate certificates if necessary
+bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x)
+{
+	LIST *o;
+	bool ret = false;
+	// Validate arguments
+	if (x == NULL)
+	{
+		return false;
+	}
+
+	if (x->root_cert)
+	{
+		return true;
+	}
+
+	o = NewCertList(true);
+
+	ret = TryGetRootCertChain(o, x, true, NULL);
+
+	FreeCertList(o);
+
+	return ret;
+}
+
+// Attempt to fetch the full chain of the specified cert
+bool TryGetRootCertChain(LIST *o, X *x, bool auto_save, X **found_root_x)
+{
+	bool ret = false;
+	LIST *chain = NULL;
+	LIST *current_chain_dir = NULL;
+	// Validate arguments
+	if (o == NULL || x == NULL)
+	{
+		return false;
+	}
+
+	chain = NewCertList(false);
+
+	ret = TryGetParentCertFromCertList(o, x, chain);
+
+	if (ret)
+	{
+		UINT i;
+		DIRLIST *dir;
+		wchar_t dirname[MAX_SIZE];
+		wchar_t exedir[MAX_SIZE];
+
+		GetExeDirW(exedir, sizeof(exedir));
+		CombinePathW(dirname, sizeof(dirname), exedir, L"chain_certs");
+		MakeDirExW(dirname);
+
+		if (auto_save)
+		{
+			// delete the current auto_save files
+			dir = EnumDirW(dirname);
+			if (dir != NULL)
+			{
+				for (i = 0;i < dir->NumFiles;i++)
+				{
+					DIRENT *e = dir->File[i];
+
+					if (e->Folder == false)
+					{
+						if (UniStartWith(e->FileNameW, AUTO_DOWNLOAD_CERTS_PREFIX))
+						{
+							wchar_t tmp[MAX_SIZE];
+
+							CombinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
+
+							FileDeleteW(tmp);
+						}
+					}
+				}
+
+				FreeDir(dir);
+			}
+		}
+
+		current_chain_dir = NewCertList(false);
+		AddAllChainCertsToCertList(current_chain_dir);
+
+		for (i = 0;i < LIST_NUM(chain);i++)
+		{
+			wchar_t tmp[MAX_SIZE];
+			X *xx = LIST_DATA(chain, i);
+
+			GetAllNameFromName(tmp, sizeof(tmp), xx->subject_name);
+
+			Debug("depth = %u, subject = %S\n", i, tmp);
+
+			if (auto_save && CompareX(x, xx) == false && IsXInCertList(current_chain_dir, xx) == false)
+			{
+				wchar_t fn[MAX_PATH];
+				char hex_a[128];
+				wchar_t hex[128];
+				UCHAR hash[SHA1_SIZE];
+				wchar_t tmp[MAX_SIZE];
+				BUF *b;
+
+				GetXDigest(xx, hash, true);
+				BinToStr(hex_a, sizeof(hex_a), hash, SHA1_SIZE);
+				StrToUni(hex, sizeof(hex), hex_a);
+
+				UniStrCpy(fn, sizeof(fn), AUTO_DOWNLOAD_CERTS_PREFIX);
+				UniStrCat(fn, sizeof(fn), hex);
+				UniStrCat(fn, sizeof(fn), L".cer");
+
+				CombinePathW(tmp, sizeof(tmp), dirname, fn);
+
+				b = XToBuf(xx, true);
+
+				DumpBufW(b, tmp);
+
+				FreeBuf(b);
+			}
+
+			if (xx->root_cert)
+			{
+				if (found_root_x != NULL)
+				{
+					*found_root_x = CloneX(xx);
+				}
+			}
+		}
+	}
+
+	FreeCertList(chain);
+
+	FreeCertList(current_chain_dir);
+
+	return ret;
+}
+
+// Try get the parent cert
+bool TryGetParentCertFromCertList(LIST *o, X *x, LIST *found_chain)
+{
+	bool ret = false;
+	X *r;
+	bool do_free = false;
+	// Validate arguments
+	if (o == NULL || x == NULL || found_chain == NULL)
+	{
+		return false;
+	}
+
+	if (LIST_NUM(found_chain) >= FIND_CERT_CHAIN_MAX_DEPTH)
+	{
+		return false;
+	}
+
+	Add(found_chain, CloneX(x));
+
+	if (x->root_cert)
+	{
+		return true;
+	}
+
+	r = FindCertIssuerFromCertList(o, x);
+
+	if (r == NULL)
+	{
+		if (IsEmptyStr(x->issuer_url) == false)
+		{
+			r = DownloadCert(x->issuer_url);
+
+			if (CheckXEx(x, r, true, true) && CompareX(x, r) == false)
+			{
+				// found
+				do_free = true;
+			}
+			else
+			{
+				// invalid
+				FreeX(r);
+				r = NULL;
+			}
+		}
+	}
+
+	if (r != NULL)
+	{
+		ret = TryGetParentCertFromCertList(o, r, found_chain);
+	}
+
+	if (do_free)
+	{
+		FreeX(r);
+	}
+
+	return ret;
+}
+
+// Find the issuer of the cert from the cert list
+X *FindCertIssuerFromCertList(LIST *o, X *x)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL || x == NULL)
+	{
+		return NULL;
+	}
+
+	if (x->root_cert)
+	{
+		return NULL;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		X *xx = LIST_DATA(o, i);
+
+		if (CheckXEx(x, xx, true, true))
+		{
+			if (CompareX(x, xx) == false)
+			{
+				return xx;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+// Download a cert by using HTTP
+X *DownloadCert(char *url)
+{
+	BUF *b;
+	URL_DATA url_data;
+	X *ret = NULL;
+	// Validate arguments
+	if (IsEmptyStr(url))
+	{
+		return NULL;
+	}
+
+	Debug("Trying to download a cert from %s ...\n", url);
+
+	if (ParseUrl(&url_data, url, false, NULL) == false)
+	{
+		Debug("Download failed.\n");
+		return NULL;
+	}
+
+	b = HttpRequestEx(&url_data, NULL, CERT_HTTP_DOWNLOAD_TIMEOUT, CERT_HTTP_DOWNLOAD_TIMEOUT,
+		NULL, false, NULL, NULL, NULL, NULL, NULL, CERT_HTTP_DOWNLOAD_MAXSIZE);
+
+	if (b == NULL)
+	{
+		Debug("Download failed.\n");
+		return NULL;
+	}
+
+	ret = BufToX(b, IsBase64(b));
+
+	FreeBuf(b);
+
+	Debug("Download ok.\n");
+	return ret;
+}
+
+// New cert list
+LIST *NewCertList(bool load_root_and_chain)
+{
+	LIST *o;
+
+	o = NewList(NULL);
+
+	if (load_root_and_chain)
+	{
+		AddAllRootCertsToCertList(o);
+		AddAllChainCertsToCertList(o);
+	}
+
+	return o;
+}
+
+// Free cert list
+void FreeCertList(LIST *o)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		X *x = LIST_DATA(o, i);
+
+		FreeX(x);
+	}
+
+	ReleaseList(o);
+}
+
+// Check whether the cert is in the cert list
+bool IsXInCertList(LIST *o, X *x)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL || x == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		X *xx = LIST_DATA(o, i);
+
+		if (CompareX(x, xx))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Add a cert to the cert list
+void AddXToCertList(LIST *o, X *x)
+{
+	// Validate arguments
+	if (o == NULL || x == NULL)
+	{
+		return;
+	}
+
+	if (IsXInCertList(o, x))
+	{
+		return;
+	}
+
+	if (CheckXDateNow(x) == false)
+	{
+		return;
+	}
+
+	Add(o, CloneX(x));
+}
+
+// Add all chain certs to the cert list
+void AddAllChainCertsToCertList(LIST *o)
+{
+	wchar_t dirname[MAX_SIZE];
+	wchar_t exedir[MAX_SIZE];
+	DIRLIST *dir;
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	GetExeDirW(exedir, sizeof(exedir));
+
+	CombinePathW(dirname, sizeof(dirname), exedir, L"chain_certs");
+
+	MakeDirExW(dirname);
+
+	dir = EnumDirW(dirname);
+
+	if (dir != NULL)
+	{
+		UINT i;
+
+		for (i = 0;i < dir->NumFiles;i++)
+		{
+			DIRENT *e = dir->File[i];
+
+			if (e->Folder == false)
+			{
+				wchar_t tmp[MAX_SIZE];
+				X *x;
+
+				CombinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
+
+				x = FileToXW(tmp);
+
+				if (x != NULL)
+				{
+					AddXToCertList(o, x);
+
+					FreeX(x);
+				}
+			}
+		}
+
+		FreeDir(dir);
+	}
+}
+
+// Add all root certs to the cert list
+void AddAllRootCertsToCertList(LIST *o)
+{
+	BUF *buf;
+	PACK *p;
+	UINT num_ok = 0, num_error = 0;
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	buf = ReadDump(ROOT_CERTS_FILENAME);
+	if (buf == NULL)
+	{
+		return;
+	}
+
+	p = BufToPack(buf);
+
+	if (p != NULL)
+	{
+		UINT num = PackGetIndexCount(p, "cert");
+		UINT i;
+
+		for (i = 0;i < num;i++)
+		{
+			bool ok = false;
+			BUF *b = PackGetBufEx(p, "cert", i);
+
+			if (b != NULL)
+			{
+				X *x = BufToX(b, false);
+
+				if (x != NULL)
+				{
+					AddXToCertList(o, x);
+
+					ok = true;
+
+					FreeX(x);
+				}
+
+				FreeBuf(b);
+			}
+
+			if (ok)
+			{
+				num_ok++;
+			}
+			else
+			{
+				num_error++;
+			}
+		}
+
+		FreePack(p);
+	}
+
+	FreeBuf(buf);
+
+	Debug("AddAllRootCertsToCertList: ok=%u error=%u total_list_len=%u\n", num_ok, num_error, LIST_NUM(o));
+}
 
 // Convert the date of YYYYMMDD format to a number
 UINT64 ShortStrToDate64(char *str)
@@ -5345,8 +5800,26 @@ bool ClientUploadAuth(CONNECTION *c)
 	// UDP acceleration function using flag
 	if (o->NoUdpAcceleration == false && c->Session->UdpAccel != NULL)
 	{
+		IP my_ip;
+
+		Zero(&my_ip, sizeof(my_ip));
+
 		PackAddBool(p, "use_udp_acceleration", true);
-		PackAddIp(p, "udp_acceleration_client_ip", &c->Session->UdpAccel->MyIp);
+
+		Copy(&my_ip, &c->Session->UdpAccel->MyIp, sizeof(IP));
+		if (IsLocalHostIP(&my_ip))
+		{
+			if (IsIP4(&my_ip))
+			{
+				ZeroIP4(&my_ip);
+			}
+			else
+			{
+				ZeroIP6(&my_ip);
+			}
+		}
+
+		PackAddIp(p, "udp_acceleration_client_ip", &my_ip);
 		PackAddInt(p, "udp_acceleration_client_port", c->Session->UdpAccel->MyPort);
 		PackAddData(p, "udp_acceleration_client_key", c->Session->UdpAccel->MyKey, UDP_ACCELERATION_COMMON_KEY_SIZE);
 		PackAddBool(p, "support_hmac_on_udp_acceleration", true);
@@ -6186,6 +6659,8 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	char basic_str[MAX_SIZE * 2];
 	UINT http_error_code;
 	HTTP_HEADER *h;
+	char server_host_name_tmp[256];
+	UINT i, len;
 	// Validate arguments
 	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL ||
 		server_port == 0)
@@ -6206,6 +6681,19 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 		return NULL;
 	}
 
+	Zero(server_host_name_tmp, sizeof(server_host_name_tmp));
+	StrCpy(server_host_name_tmp, sizeof(server_host_name_tmp), server_host_name);
+
+	len = StrLen(server_host_name_tmp);
+
+	for (i = 0;i < len;i++)
+	{
+		if (server_host_name_tmp[i] == '/')
+		{
+			server_host_name_tmp[i] = 0;
+		}
+	}
+
 	// Connection
 	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false);
 	if (s == NULL)
@@ -6224,24 +6712,24 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// HTTP header generation
-	if (IsStrIPv6Address(server_host_name))
+	if (IsStrIPv6Address(server_host_name_tmp))
 	{
 		IP ip;
 		char iptmp[MAX_PATH];
 
-		StrToIP(&ip, server_host_name);
+		StrToIP(&ip, server_host_name_tmp);
 		IPToStr(iptmp, sizeof(iptmp), &ip);
 
 		Format(tmp, sizeof(tmp), "[%s]:%u", iptmp, server_port);
 	}
 	else
 	{
-		Format(tmp, sizeof(tmp), "%s:%u", server_host_name, server_port);
+		Format(tmp, sizeof(tmp), "%s:%u", server_host_name_tmp, server_port);
 	}
 
 	h = NewHttpHeader("CONNECT", tmp, "HTTP/1.0");
 	AddHttpValue(h, NewHttpValue("User-Agent", (c->Cedar == NULL ? DEFAULT_USER_AGENT : c->Cedar->HttpUserAgent)));
-	AddHttpValue(h, NewHttpValue("Host", server_host_name));
+	AddHttpValue(h, NewHttpValue("Host", server_host_name_tmp));
 	AddHttpValue(h, NewHttpValue("Content-Length", "0"));
 	AddHttpValue(h, NewHttpValue("Proxy-Connection", "Keep-Alive"));
 	AddHttpValue(h, NewHttpValue("Pragma", "no-cache"));
@@ -6249,7 +6737,7 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	if (use_auth)
 	{
 		wchar_t tmp[MAX_SIZE];
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_3"), server_host_name);
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_3"), server_host_name_tmp);
 		// Generate the authentication string
 		Format(auth_tmp_str, sizeof(auth_tmp_str), "%s:%s",
 			username, password);

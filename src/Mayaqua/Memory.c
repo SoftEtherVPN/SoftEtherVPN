@@ -2005,6 +2005,41 @@ int CompareInt64(void *p1, void *p2)
 	return COMPARE_RET(*v1, *v2);
 }
 
+// Randomize the contents of the list
+void RandomizeList(LIST *o)
+{
+	LIST *o2;
+	UINT i;
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	o2 = NewListFast(NULL);
+
+	while (LIST_NUM(o) != 0)
+	{
+		UINT num = LIST_NUM(o);
+		UINT i = Rand32() % num;
+		void *p = LIST_DATA(o, i);
+
+		Add(o2, p);
+		Delete(o, p);
+	}
+
+	DeleteAll(o);
+
+	for (i = 0;i < LIST_NUM(o2);i++)
+	{
+		void *p = LIST_DATA(o2, i);
+
+		Add(o, p);
+	}
+
+	ReleaseList(o2);
+}
+
 // Add an integer to the list
 void AddInt(LIST *o, UINT i)
 {

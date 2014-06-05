@@ -780,6 +780,16 @@ typedef bool (RUDP_STACK_RPC_RECV_PROC)(RUDP_STACK *r, UDPPACKET *p);
 // Minimum time to wait for a trial to connect by ICMP and DNS in case failing to connect by TCP
 #define	SOCK_CONNECT_WAIT_FOR_ICMP_AND_DNS_AT_LEAST		5000
 
+#define	RUDP_MAX_VALIDATED_SOURCE_IP_ADDRESSES		512
+#define	RUDP_VALIDATED_SOURCE_IP_ADDRESS_EXPIRES	(RUDP_TIMEOUT * 2)
+
+// Validated Source IP Addresses for R-UDP
+struct RUDP_SOURCE_IP
+{
+	UINT64 ExpiresTick;					// Expires
+	IP ClientIP;						// Client IP address
+};
+
 // R-UDP stack
 struct RUDP_STACK
 {
@@ -832,6 +842,8 @@ struct RUDP_STACK
 	UINT LastDDnsFqdnHash;				// DNS FQDN hash value when last checked
 	volatile UINT *NatTGlobalUdpPort;	// NAT-T global UDP port
 	UCHAR RandPortId;					// Random UDP port ID
+	bool NatT_EnableSourceIpValidation;	// Enable the source IP address validation mechanism
+	LIST *NatT_SourceIpList;			// Authenticated source IP adddress list
 
 	// For Client
 	bool TargetIpAndPortInited;			// The target IP address and the port number are initialized
@@ -926,7 +938,7 @@ struct HTTP_HEADER
 };
 
 // HTTPS server / client related string constant
-#define	DEFAULT_USER_AGENT	"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)"
+#define	DEFAULT_USER_AGENT	"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0"
 #define	DEFAULT_ACCEPT		"image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/x-shockwave-flash, application/msword, application/vnd.ms-powerpoint, application/vnd.ms-excel, */*"
 #define	DEFAULT_ENCODING	"gzip, deflate"
 #define	HTTP_CONTENT_TYPE	"text/html; charset=iso-8859-1"
@@ -1061,6 +1073,9 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 UINT RUDPCalcBestMssForBulk(RUDP_STACK *r, RUDP_SESSION *se);
 bool IsIPLocalHostOrMySelf(IP *ip);
 UINT RUDPGetRandPortNumber(UCHAR rand_port_id);
+void RUDPSetSourceIpValidationForceDisable(bool b);
+bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip);
+void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip);
 
 bool GetBestLocalIpForTarget(IP *local_ip, IP *target_ip);
 SOCK *NewUDP4ForSpecificIp(IP *target_ip, UINT port);
@@ -1558,7 +1573,7 @@ bool IsMacAddressLocalInner(LIST *o, void *addr);
 bool IsMacAddressLocalFast(void *addr);
 void RefreshLocalMacAddressList();
 
-struct ssl_ctx_st *NewSSLCtx();
+struct ssl_ctx_st *NewSSLCtx(bool server_mode);
 void FreeSSLCtx(struct ssl_ctx_st *ctx);
 
 void SetCurrentDDnsFqdn(char *name);

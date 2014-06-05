@@ -397,6 +397,7 @@ void NewSessionKey(CEDAR *cedar, UCHAR *session_key, UINT *session_key_32);
 SESSION *GetSessionFromKey(CEDAR *cedar, UCHAR *session_key);
 SESSION *GetSessionFromKey32(CEDAR *cedar, UINT key32);
 void DebugPrintSessionKey(UCHAR *session_key);
+bool IsIpcMacAddress(UCHAR *mac);
 void ClientAdditionalConnectChance(SESSION *s);
 void SessionAdditionalConnect(SESSION *s);
 void ClientAdditionalThread(THREAD *t, void *param);

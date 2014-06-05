@@ -179,6 +179,12 @@ struct UPDATE_CLIENT
 #define	UPDATE_CONNECT_TIMEOUT			5000
 #define	UPDATE_COMM_TIMEOUT				5000
 
+// Dynamic root cert fetch function
+#define	CERT_HTTP_DOWNLOAD_MAXSIZE	65536
+#define	CERT_HTTP_DOWNLOAD_TIMEOUT	(10 * 1000)
+#define	ROOT_CERTS_FILENAME			"|root_certs.dat"
+#define	AUTO_DOWNLOAD_CERTS_PREFIX	L".autodownload_"
+#define	FIND_CERT_CHAIN_MAX_DEPTH	16
 
 
 // Function prototype
@@ -276,6 +282,18 @@ UINT ChangePassword(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, char *usernam
 void PackAddClientVersion(PACK *p, CONNECTION *c);
 void NodeInfoToStr(wchar_t *str, UINT size, NODE_INFO *info);
 void GenerateMachineUniqueHash(void *data);
+
+LIST *NewCertList(bool load_root_and_chain);
+void FreeCertList(LIST *o);
+bool IsXInCertList(LIST *o, X *x);
+void AddXToCertList(LIST *o, X *x);
+void AddAllRootCertsToCertList(LIST *o);
+void AddAllChainCertsToCertList(LIST *o);
+X *DownloadCert(char *url);
+X *FindCertIssuerFromCertList(LIST *o, X *x);
+bool TryGetRootCertChain(LIST *o, X *x, bool auto_save, X **found_root_x);
+bool TryGetParentCertFromCertList(LIST *o, X *x, LIST *found_chain);
+bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x);
 
 
 #endif	// PROTOCOL_H

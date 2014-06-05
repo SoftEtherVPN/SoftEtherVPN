@@ -1213,7 +1213,7 @@ CM_LISTENER_ERROR		エラー発生
 CM_DELETE_LISTENER_MSG	リスナー (TCP ポート %u) を削除します。今後、このポートには接続できなくなります。\r\nよろしいですか?
 CM_STOP_LISTENER_MSG	リスナー (TCP ポート %u) を停止します。リスナーを再開するまで、このポートには接続できなくなります。\r\n\r\nよろしいですか?
 CM_CLOSE_BUTTON			閉じる
-CM_CERT_SET_MSG			新しいサーバー証明書を設定しました。
+CM_CERT_SET_MSG			新しいサーバー証明書を設定しました。\r\n\r\nなお、OpenVPN クライアントを使用している場合は、OpenVPN 設定ファイルに埋め込まれている証明書を更新する必要がある場合がありますので、ご注意ください。
 CM_SHORTCUT_DISCONNECT	指定された接続先にすでに接続しています。\r\n\r\n切断しますか?
 
 
@@ -1646,6 +1646,9 @@ SM_FACTORY_DEFAULT_PERFORMED	設定のリセット処理はサーバー上で開
 SM_AZURE_STATUS_CONNECTED		状態: クラウドに接続完了
 SM_AZURE_STATUS_NOT_CONNECTED	状態: クラウドに未接続
 SM_NO_BRIDGE_NICS				ローカルブリッジを作成することができる物理的な LAN カードが VPN サーバーのコンピュータに 1 枚も見つかりませんでした。\r\n\r\nローカルブリッジを作成するには、物理的な LAN カードを 1 枚以上コンピュータにインストールする必要があります。\r\n無線 LAN カード、3G アダプタ等は使用できません。\r\n通常のケーブル接続の Ethernet に対応した LAN カードをインストールしてください。\r\n\r\n最近インストールした LAN カードが表示されない場合は、一度コンピュータを再起動してください。\r\n\r\nローカルブリッジを使用できない場合は、代わりに「SecureNAT 機能」の仮想 NAT 機能の使用を検討してください。\r\n\r\nなお、何らかの理由で物理的な LAN カード以外の LAN カード (無線 LAN、仮想 LAN など) を使用したい場合は、設定ファイルの "LocalBridgeList" ディレクティブ内の "ShowAllInterfaces" を "true" にして VPN Server を再起動するとこれらのデバイスも表示されるようになります。(上級者向け、Windows のみ)
+SM_CERT_MESSAGE					現在サーバーに設定されている SSL 自己署名ルート証明書は古い形式です。\r\n\r\nOpenVPN プロトコルを用いてこの VPN Server に接続しているクライアントが存在する場合、現在のサーバー証明書の使用を継続すると、OpenVPN Connect for Android で不具合が発生する可能性があります。\r\n\r\nOpenVPN Connect for Android を使用してこの VPN Server に VPN 接続を行っている場合は、サーバー証明書を再作成して更新することをお勧めします。\r\n\r\nサーバー証明書を再作成して更新しますか?
+SM_CERT_MESSAGE_CLI				--- ご注意 ---\r\n\r\n現在サーバーに設定されている SSL 自己署名ルート証明書は古い形式です。\r\n\r\n現在のサーバー証明書の使用を継続した場合、OpenVPN Connect for Android で不具合が発生する可能性があります。\r\n\r\nOpenVPN Connect for Android を使用してこの VPN Server に VPN 接続を行っている場合は、サーバー証明書を再作成して更新することをお勧めします。\r\n\r\nサーバー証明書を再作成して更新するには、VPN Server を最新版にアップデートしてから、"ServerCertRegenerate" コマンドを実行してください。
+SM_CERT_NEED_ROOT				指定された SSL 証明書は、証明機関 (CA) によって発行された証明書です。\r\n\r\nこの VPN Server に Microsoft SSTP または OpenVPN プロトコルで VPN 接続を行う場合は、ルート証明書および中間証明書 (存在する場合) を VPN Server にインストールする必要があります。\r\n\r\nVPN Server にルート証明書および中間証明書をインストールするためには、X.509 証明書のルート証明書および中間証明書ファイルを VPN Server がインストールされているディレクトリの中にある "chain_certs" サブディレクトリにコピーしてください。\r\n\r\nルート証明書および中間証明書ファイルの取得方法は、証明機関 (CA) が発行している Web サイトをお読みいただくか、証明機関 (CA) のサポートに問い合わせてください。
 
 
 # User-modeRouter 管理ツール関係

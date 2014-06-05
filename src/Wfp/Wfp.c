@@ -521,7 +521,7 @@ void NTAPI CalloutClassify(const FWPS_INCOMING_VALUES0* inFixedValues,
 		{
 			NET_BUFFER *nb = NET_BUFFER_LIST_FIRST_NB(nbl);
 
-			if (nb != NULL && NET_BUFFER_NEXT_NB(nb) == NULL)
+			if (nb != NULL && NET_BUFFER_NEXT_NB(nb) == NULL && (NET_BUFFER_DATA_OFFSET(nb) >= inMetaValues->ipHeaderSize))
 			{
 				if (OK(NdisRetreatNetBufferDataStart(nb, inMetaValues->ipHeaderSize, 0, NULL)))
 				{

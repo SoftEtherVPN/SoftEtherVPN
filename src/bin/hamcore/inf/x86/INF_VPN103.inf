@@ -8,7 +8,7 @@ Signature					= "$Windows NT$"
 Class						= Net
 ClassGUID					= {4D36E972-E325-11CE-BFC1-08002BE10318}
 Provider					= %CompanyName%
-DriverVer					= 04/09/2014, 4.6.0.9436
+DriverVer					= 04/19/2014, 4.6.0.9438
 
 CatalogFile.NT				= inf_VPN103.cat
 

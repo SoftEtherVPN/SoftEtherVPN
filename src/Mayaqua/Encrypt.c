@@ -126,6 +126,8 @@
 #include <openssl/aes.h>
 #include <openssl/dh.h>
 #include <openssl/pem.h>
+#include <openssl/conf.h>
+#include <openssl/x509v3.h>
 #include <Mayaqua/Mayaqua.h>
 
 #ifdef	USE_INTEL_AESNI_LIBRARY
@@ -1149,13 +1151,13 @@ void GetAllNameFromA(char *str, UINT size, X *x)
 // Get the all name strings from NAME
 void GetAllNameFromName(wchar_t *str, UINT size, NAME *name)
 {
+	UniStrCpy(str, size, L"");
 	// Validate arguments
 	if (str == NULL || name == NULL)
 	{
 		return;
 	}
 
-	UniStrCpy(str, size, L"");
 	if (name->CommonName != NULL)
 	{
 		UniFormat(str, size, L"%sCN=%s, ", str, name->CommonName);
@@ -1896,6 +1898,7 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	UINT64 notBefore, notAfter;
 	ASN1_TIME *t1, *t2;
 	X509_NAME *subject_name, *issuer_name;
+	X509_EXTENSION *ex = NULL;
 	// Validate arguments
 	if (pub == NULL || name == NULL || priv == NULL)
 	{
@@ -1980,6 +1983,11 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 		Copy(s->data, serial->data, serial->size);
 		s->length = serial->size;
 	}
+
+	// Extensions
+	ex = X509V3_EXT_conf_nid(NULL, NULL, NID_basic_constraints,	"critical,CA:TRUE");
+	X509_add_ext(x509, ex, -1);
+	X509_EXTENSION_free(ex);
 
 	Lock(openssl_lock);
 	{
@@ -2664,6 +2672,10 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 // Confirm whether the certificate X is signed by the issuer of the certificate x_issuer
 bool CheckX(X *x, X *x_issuer)
 {
+	return CheckXEx(x, x_issuer, false, false);
+}
+bool CheckXEx(X *x, X *x_issuer, bool check_name, bool check_date)
+{
 	K *k;
 	bool ret;
 	// Validate arguments
@@ -2679,6 +2691,26 @@ bool CheckX(X *x, X *x_issuer)
 	}
 
 	ret = CheckSignature(x, k);
+
+	if (ret)
+	{
+		if (check_name)
+		{
+			if (CompareName(x->issuer_name, x_issuer->subject_name) == false)
+			{
+				ret = false;
+			}
+		}
+
+		if (check_date)
+		{
+			if (CheckXDateNow(x_issuer) == false)
+			{
+				ret = false;
+			}
+		}
+	}
+
 	FreeK(k);
 
 	return ret;
@@ -3677,6 +3709,43 @@ X *X509ToX(X509 *x509)
 				x->root_cert = true;
 			}
 			FreeK(pubkey);
+		}
+	}
+
+	// Check whether there is basic constraints
+	if (X509_get_ext_by_NID(x509, NID_basic_constraints, -1) != -1)
+	{
+		x->has_basic_constraints = true;
+	}
+
+	// Get the "Certification Authority Issuer" (1.3.6.1.5.5.7.48.2) field value
+	if (x->root_cert == false)
+	{
+		AUTHORITY_INFO_ACCESS *ads = (AUTHORITY_INFO_ACCESS *)X509_get_ext_d2i(x509, NID_info_access, NULL, NULL);
+
+		if (ads != NULL)
+		{
+			int i;
+
+			for (i = 0; i < sk_ACCESS_DESCRIPTION_num(ads); i++)
+			{
+				ACCESS_DESCRIPTION *ad = sk_ACCESS_DESCRIPTION_value(ads, i);
+				if (ad != NULL)
+				{
+					if (OBJ_obj2nid(ad->method) == NID_ad_ca_issuers && ad->location->type == GEN_URI)
+					{
+						char *uri = (char *)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier);
+
+						if (IsEmptyStr(uri) == false)
+						{
+							StrCpy(x->issuer_url, sizeof(x->issuer_url), uri);
+							break;
+						}
+					}
+				}
+			}
+
+			AUTHORITY_INFO_ACCESS_free(ads);
 		}
 	}
 

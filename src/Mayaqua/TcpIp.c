@@ -1813,12 +1813,13 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 	if (no_http == false)
 	{
 		USHORT port_raw = Endian16(80);
+		USHORT port_raw2 = Endian16(8080);
 
 		// Analyze if the packet is a part of HTTP
 		if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) && p->TypeL4 == L4_TCP)
 		{
 			TCP_HEADER *tcp = p->L4.TCPHeader;
-			if (tcp->DstPort == port_raw)
+			if (tcp->DstPort == port_raw || tcp->DstPort == port_raw2)
 			{
 				if (tcp != NULL && (!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
 				{

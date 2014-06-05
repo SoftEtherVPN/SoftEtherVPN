@@ -225,6 +225,7 @@ static UINT rand_port_numbers[256] = {0};
 
 
 static bool g_use_privateip_file = false;
+static bool g_source_ip_validation_force_disable = false;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -1537,6 +1538,17 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 					// Save the IP address and port number at the time of registration
 					PackGetStr(p, "your_ip_and_port", r->NatT_Registered_IPAndPort, sizeof(r->NatT_Registered_IPAndPort));
 
+					if (g_source_ip_validation_force_disable == false)
+					{
+						// Enable the source IP address validation mechanism
+						r->NatT_EnableSourceIpValidation = PackGetBool(p, "enable_source_ip_validation");
+					}
+					else
+					{
+						// Force disable the source IP address validation mechanism
+						r->NatT_EnableSourceIpValidation = false;
+					}
+
 					// Global port of itself
 					my_global_port = PackGetInt(p, "your_port");
 
@@ -1569,6 +1581,11 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 						UCHAR *rand_data;
 						UINT rand_size;
 
+						if (r->NatT_EnableSourceIpValidation)
+						{
+							RUDPAddIpToValidateList(r, &client_ip);
+						}
+
 						rand_size = Rand32() % 19;
 						rand_data = Malloc(rand_size);
 
@@ -1586,6 +1603,12 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 	}
 
 	FreeBuf(b);
+}
+
+// Set the flag of the source IP address validation function
+void RUDPSetSourceIpValidationForceDisable(bool b)
+{
+	g_source_ip_validation_force_disable = b;
 }
 
 // Process such as packet transmission for NAT-T server
@@ -1826,6 +1849,11 @@ void RUDPRecvProc(RUDP_STACK *r, UDPPACKET *p)
 					// Entire number of sessions exceeds the limit
 					ok = false;
 				}
+				else if (r->NatT_EnableSourceIpValidation && RUDPIsIpInValidateList(r, &p->SrcIP) == false)
+				{
+					// Invalid source IP address, which is not registered on the validated source IP address list
+					ok = false;
+				}
 				else
 				{
 					UINT i;
@@ -1940,6 +1968,138 @@ void RUDPRecvProc(RUDP_STACK *r, UDPPACKET *p)
 			}
 		}
 	}
+}
+
+// Check whether the specificed IP address is in the validated source IP address list
+bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip)
+{
+	UINT i;
+	UINT64 now = Tick64();
+	LIST *o = NULL;
+	bool ret = false;
+	// Validate arguments
+	if (r == NULL || ip == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	{
+		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
+
+		if (s->ExpiresTick <= now)
+		{
+			if (o == NULL)
+			{
+				o = NewListFast(NULL);
+			}
+
+			Add(o, s);
+		}
+	}
+
+	if (o != NULL)
+	{
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(o, i);
+
+			Delete(r->NatT_SourceIpList, s);
+
+			Free(s);
+		}
+
+		ReleaseList(o);
+	}
+
+	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	{
+		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
+
+		if (CmpIpAddr(&s->ClientIP, ip) == 0)
+		{
+			ret = true;
+			break;
+		}
+	}
+
+	Debug("RUDP: NAT-T: Validate IP: %r, ret=%u (current list len = %u)\n", ip, ret, LIST_NUM(r->NatT_SourceIpList));
+
+	return ret;
+}
+
+// Add an IP address to the validated source IP address list
+void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip)
+{
+	UINT i;
+	RUDP_SOURCE_IP *sip;
+	UINT64 now = Tick64();
+	LIST *o = NULL;
+	// Validate arguments
+	if (r == NULL || ip == NULL)
+	{
+		return;
+	}
+
+	if (LIST_NUM(r->NatT_SourceIpList) >= RUDP_MAX_VALIDATED_SOURCE_IP_ADDRESSES)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	{
+		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
+
+		if (s->ExpiresTick <= now)
+		{
+			if (o == NULL)
+			{
+				o = NewListFast(NULL);
+			}
+
+			Add(o, s);
+		}
+	}
+
+	if (o != NULL)
+	{
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(o, i);
+
+			Delete(r->NatT_SourceIpList, s);
+
+			Free(s);
+		}
+
+		ReleaseList(o);
+	}
+
+	sip = NULL;
+
+	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	{
+		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
+
+		if (CmpIpAddr(&s->ClientIP, ip) == 0)
+		{
+			sip = s;
+			break;
+		}
+	}
+
+	if (sip == NULL)
+	{
+		sip = ZeroMalloc(sizeof(RUDP_SOURCE_IP));
+
+		Copy(&sip->ClientIP, ip, sizeof(IP));
+
+		Add(r->NatT_SourceIpList, sip);
+	}
+
+	sip->ExpiresTick = now + (UINT64)RUDP_VALIDATED_SOURCE_IP_ADDRESS_EXPIRES;
+
+	Debug("RUDP: NAT-T: Src IP added: %r (current list len = %u)\n", ip, LIST_NUM(r->NatT_SourceIpList));
 }
 
 // R-UDP interrupt processing procedure
@@ -4759,6 +4919,7 @@ SOCK *NewRUDPClientNatT(char *svc_name, IP *ip, UINT *error_code, UINT timeout, 
 		UINT result_port;
 		SOCK *ret = NULL;
 		UINT num_tries = 0;
+		UINT64 current_cookie = 0;
 
 		AddInterrupt(interrupt, giveup_tick);
 
@@ -4832,6 +4993,12 @@ LABEL_TIMEOUT:
 
 						if (p != NULL)
 						{
+							UINT64 cookie = PackGetInt64(p, "cookie");
+							if (cookie != 0)
+							{
+								current_cookie = cookie;
+							}
+
 							// Compare tran_id
 							if (PackGetInt64(p, "tran_id") == tran_id)
 							{
@@ -4901,6 +5068,7 @@ LABEL_TIMEOUT:
 				PackAddInt64(p, "tran_id", tran_id);
 				IPToStr(ip_str, sizeof(ip_str), ip);
 				PackAddStr(p, "dest_ip", ip_str);
+				PackAddInt64(p, "cookie", current_cookie);
 				if (IsEmptyStr(hint_str) == false)
 				{
 					PackAddStr(p, "hint", hint_str);
@@ -5194,6 +5362,8 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 	r->NewSockQueue = NewQueue();
 	r->NatT_TranId = Rand64();
 
+	r->NatT_SourceIpList = NewListFast(NULL);
+
 	StrCpy(tmp, sizeof(tmp), r->SvcName);
 	Trim(tmp);
 	StrLower(tmp);
@@ -5358,6 +5528,15 @@ void FreeRUDP(RUDP_STACK *r)
 		Disconnect(s);
 		ReleaseSock(s);
 	}
+
+	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	{
+		RUDP_SOURCE_IP *sip = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
+
+		Free(sip);
+	}
+
+	ReleaseList(r->NatT_SourceIpList);
 
 	ReleaseQueue(r->NewSockQueue);
 
@@ -5559,7 +5738,7 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 {
 	SSL_PIPE *s;
 	SSL *ssl;
-	SSL_CTX *ssl_ctx = NewSSLCtx();
+	SSL_CTX *ssl_ctx = NewSSLCtx(server_mode);
 
 	Lock(openssl_lock);
 	{
@@ -11473,7 +11652,7 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS)
+			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreRecvErr = true;
 		}
@@ -11553,7 +11732,7 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS)
+			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreRecvErr = true;
 		}
@@ -11665,7 +11844,7 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL)
+			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -11768,7 +11947,7 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL)
+			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -12354,6 +12533,7 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure)
 // Set the cipher algorithm name to want to use
 void SetWantToUseCipher(SOCK *sock, char *name)
 {
+	char tmp[254];
 	// Validate arguments
 	if (sock == NULL || name == NULL)
 	{
@@ -12364,7 +12544,13 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 	{
 		Free(sock->WaitToUseCipher);
 	}
-	sock->WaitToUseCipher = CopyStr(name);
+
+	Zero(tmp, sizeof(tmp));
+	StrCpy(tmp, sizeof(tmp), name);
+	StrCat(tmp, sizeof(tmp), " ");
+	StrCat(tmp, sizeof(tmp), cipher_list);
+
+	sock->WaitToUseCipher = CopyStr(tmp);
 }
 
 // Add all the chain certificates in the chain_certs directory
@@ -12372,7 +12558,10 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 {
 	wchar_t dirname[MAX_SIZE];
 	wchar_t exedir[MAX_SIZE];
+	wchar_t txtname[MAX_SIZE];
 	DIRLIST *dir;
+	LIST *o;
+	UINT i;
 
 	// Validate arguments
 	if (ctx == NULL)
@@ -12380,18 +12569,25 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 		return;
 	}
 
+	o = NewListFast(NULL);
+
 	GetExeDirW(exedir, sizeof(exedir));
 
 	CombinePathW(dirname, sizeof(dirname), exedir, L"chain_certs");
 
 	MakeDirExW(dirname);
 
+	CombinePathW(txtname, sizeof(txtname), dirname, L"Readme_Chain_Certs.txt");
+
+	if (IsFileExistsW(txtname) == false)
+	{
+		FileCopyW(L"|chain_certs.txt", txtname);
+	}
+
 	dir = EnumDirW(dirname);
 
 	if (dir != NULL)
 	{
-		UINT i;
-
 		for (i = 0;i < dir->NumFiles;i++)
 		{
 			DIRENT *e = dir->File[i];
@@ -12407,7 +12603,28 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 				if (x != NULL)
 				{
-					AddChainSslCert(ctx, x);
+					UINT j;
+					bool exists = false;
+					UCHAR hash[SHA1_SIZE];
+
+					GetXDigest(x, hash, true);
+
+					for (j = 0;j < LIST_NUM(o);j++)
+					{
+						UCHAR *hash2 = LIST_DATA(o, j);
+
+						if (Cmp(hash, hash2, SHA1_SIZE) == 0)
+						{
+							exists = true;
+						}
+					}
+
+					if (exists == false)
+					{
+						AddChainSslCert(ctx, x);
+
+						Add(o, Clone(hash, SHA1_SIZE));
+					}
 
 					FreeX(x);
 				}
@@ -12416,6 +12633,15 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 		FreeDir(dir);
 	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		UCHAR *hash = LIST_DATA(o, i);
+
+		Free(hash);
+	}
+
+	ReleaseList(o);
 }
 
 // Add the chain certificate
@@ -12503,7 +12729,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		return true;
 	}
 
-	ssl_ctx = NewSSLCtx();
+	ssl_ctx = NewSSLCtx(sock->ServerMode);
 
 	Lock(openssl_lock);
 	{
@@ -16964,13 +17190,20 @@ void UnlockDnsCache()
 }
 
 // Create the SSL_CTX
-struct ssl_ctx_st *NewSSLCtx()
+struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
 	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
 
 #ifdef	SSL_OP_NO_TICKET
 	SSL_CTX_set_options(ctx, SSL_OP_NO_TICKET);
 #endif	// SSL_OP_NO_TICKET
+
+#ifdef	SSL_OP_CIPHER_SERVER_PREFERENCE
+	if (server_mode)
+	{
+		SSL_CTX_set_options(ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+	}
+#endif	// SSL_OP_CIPHER_SERVER_PREFERENCE
 
 	return ctx;
 }

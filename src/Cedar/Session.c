@@ -2142,6 +2142,23 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 	return s;
 }
 
+// Check whether the specified MAC address is IPC address
+bool IsIpcMacAddress(UCHAR *mac)
+{
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return false;
+	}
+
+	if (mac[0] == 0xCA)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 // Display the session key for debugging
 void DebugPrintSessionKey(UCHAR *session_key)
 {

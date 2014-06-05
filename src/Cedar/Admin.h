@@ -295,6 +295,7 @@ struct RPC_KEY_PAIR
 {
 	X *Cert;							// Certificate
 	K *Key;								// Secret key
+	UINT Flag1;							// Flag1
 };
 
 // HUB option

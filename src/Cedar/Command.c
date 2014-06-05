@@ -6658,6 +6658,28 @@ void PsMain(PS *ps)
 		}
 	}
 
+	if (ps->HubName == NULL)
+	{
+		RPC_KEY_PAIR t;
+
+		Zero(&t, sizeof(t));
+
+		if (ScGetServerCert(ps->Rpc, &t) == ERR_NO_ERROR)
+		{
+			if (t.Cert != NULL && t.Cert->has_basic_constraints == false)
+			{
+				if (t.Cert->root_cert)
+				{
+					ps->Console->Write(ps->Console, L"");
+					ps->Console->Write(ps->Console, _UU("SM_CERT_MESSAGE_CLI"));
+					ps->Console->Write(ps->Console, L"");
+				}
+			}
+
+			FreeRpcKeyPair(&t);
+		}
+	}
+
 	while (true)
 	{
 		// Definition of command
@@ -7839,6 +7861,14 @@ UINT PsServerCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
+		}
+
+		if (t.Flag1 == 0)
+		{
+			// Show the warning message
+			c->Write(c, L"");
+			c->Write(c, _UU("SM_CERT_NEED_ROOT"));
+			c->Write(c, L"");
 		}
 
 		FreeRpcKeyPair(&t);
@@ -20896,6 +20926,10 @@ UINT PsServerCertRegenerate(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 		FreeParamValueList(o);
 		return ret;
 	}
+
+	c->Write(c, L"");
+	c->Write(c, _UU("CM_CERT_SET_MSG"));
+	c->Write(c, L"");
 
 	FreeParamValueList(o);
 

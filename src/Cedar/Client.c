@@ -5852,7 +5852,6 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 #endif	// OS_WIN32
 
 	port_start = CLIENT_CONFIG_PORT - 1;
-
 	if (reg_port != 0)
 	{
 		s = Connect(server_name, reg_port);

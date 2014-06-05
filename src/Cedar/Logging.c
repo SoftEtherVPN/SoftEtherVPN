@@ -1333,16 +1333,23 @@ char *BuildHttpLogStr(HTTPLOG *h)
 
 	b = NewBuf();
 
-	// URL generation
-	if (h->Port == 80)
+	if (StartWith(h->Path, "http://"))
 	{
-		Format(url, sizeof(url), "http://%s%s",
-			h->Hostname, h->Path);
+		StrCpy(url, sizeof(url), h->Path);
 	}
 	else
 	{
-		Format(url, sizeof(url), "http://%s:%u%s",
-			h->Hostname, h->Port, h->Path);
+		// URL generation
+		if (h->Port == 80)
+		{
+			Format(url, sizeof(url), "http://%s%s",
+				h->Hostname, h->Path);
+		}
+		else
+		{
+			Format(url, sizeof(url), "http://%s:%u%s",
+				h->Hostname, h->Port, h->Path);
+		}
 	}
 
 	AddLogBufToStr(b, "HttpMethod", h->Method);

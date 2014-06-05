@@ -1209,7 +1209,8 @@ CM_LISTENER_ERROR		Error
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
 CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
 CM_CLOSE_BUTTON			Close
-CM_CERT_SET_MSG			A new server certificate has been set.
+CM_CERT_SET_MSG			A new server certificate has been set.\r\n\r\nIf you are using OpenVPN protocols, please mind that you may have to update the inline certificate data in the OpenVPN configuration file.
+
 CM_SHORTCUT_DISCONNECT	There is already an active connection to the specified connection destination. \r\n\r\nDo you want to disconnect?
 
 
@@ -1641,6 +1642,9 @@ SM_FACTORY_DEFAULT_PERFORMED	The factory-reset operation is performing on the se
 SM_AZURE_STATUS_CONNECTED		Status: Connected
 SM_AZURE_STATUS_NOT_CONNECTED	Status: Not Connected
 SM_NO_BRIDGE_NICS				No physical network adapters suitable for Local Bridge were found on the VPN server computer.\r\nIn order to create a Local Bridge, you have to install at least one physical network adapters on the computer.\r\nYou cannot use Wi-Fi adapters or 3G adapters for Local Bridge.\r\nPlease install a physical network adapter which is compatible to wired Ethernet.\r\n\r\nIf a recently-installed network adapter doesn't appear, once reboot the computer.\r\n\r\nIf the Local Bridge cannot be used anyway, you can use "SecureNAT Function" instead.\r\n\r\nIf you have a certain reason to use unusual network adapters (i.e. Wi-Fi adapters, 3G adapters or virtual adapters), set the "ShowAllInterfaces" variable on the "LocalBridgeList" directive to "true" and restart the VPN Server. Then such devices will appear on the list. (For advanced Windows users only.)
+SM_CERT_MESSAGE					The current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nDo you want to regenerate the server certificate now?
+SM_CERT_MESSAGE_CLI				--- Caution ---\r\n\r\nThe current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nTo regenerate and update the server certificate, execute the "ServerCertRegenerate" command after updating the VPN Server to the latest version.
+SM_CERT_NEED_ROOT				The specified SSL certificate is a sub-certificate which was issued by a CA (Certificate Authority).\r\n\r\nIf you are planning to support either Microsoft SSTP or OpenVPN protocol on this VPN server, you have to install the root certificate and all intermediate certificates (if exists) on this VPN Server.\r\n\r\nTo install these certificates, copy the root certificate and all intermediate certificate files (in the X.509 format) into the "chain_certs" subdirectory on the directory which is VPN Server has been installed on.\r\n\r\nIf you don't know how to obtain root and intermediate certificate files for your certificate authority (CA), please refer to the CA's web site or contact technical support staffs of the CA.
 
 
 # Concerning User-mode Router Administration Tools
@@ -2858,7 +2862,7 @@ S_TCP_1					Minimum
 S_TCP_2					Maximum
 S_TCP_3					Source Port:
 S_TCP_5					Destination Port:
-S_TCP_7					The blank port number field matches any ports.\r\It will apply to packets that match only the minimum value when the minimum value is specified but the maximum value is not.
+S_TCP_7					The blank port number field matches any ports.\r\nIt will apply to packets that match only the minimum value when the minimum value is specified but the maximum value is not.
 STATIC11				Filtering Options for Users or Groups
 STATIC11_OLD			Filtering Options for Users
 STATIC12				This access list will be applied only to the packets that for specific users, groups send or receive.

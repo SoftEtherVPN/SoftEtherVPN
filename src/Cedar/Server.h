@@ -414,6 +414,7 @@ struct LOG_FILE
 #define	GSF_SHOW_OSS_MSG				7
 
 
+
 // Virtual HUB creation history
 struct SERVER_HUB_CREATE_HISTORY
 {

@@ -485,6 +485,7 @@ typedef struct BAD_PROCESS
 static BAD_PROCESS bad_processes[] =
 {
 	{"nod32krn.exe", "NOD32 Antivirus",},
+	{"avp.exe", "Kaspersky",},
 };
 
 static UINT num_bad_processes = sizeof(bad_processes) / sizeof(bad_processes[0]);

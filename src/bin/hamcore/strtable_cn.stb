@@ -1219,7 +1219,7 @@ CM_LISTENER_ERROR			错误
 CM_DELETE_LISTENER_MSG		监听器 (TCP 端口 %u) 将删除。从现在起，将无法连接到该端口。\r\n你确定要这样做吗?
 CM_STOP_LISTENER_MSG		监听器 (TCP 端口 %u) 将停止。监听器将无法连接到该端口直到重新启动静听器。\r\n\r\n你确定吗?
 CM_CLOSE_BUTTON				关闭
-CM_CERT_SET_MSG				设置了新的服务器证书。
+CM_CERT_SET_MSG				设置了新的服务器证书。\r\n\r\nIf you are using OpenVPN protocols, please mind that you may have to update the inline certificate data in the OpenVPN configuration file.
 CM_SHORTCUT_DISCONNECT		已经连接到指定的目标。 \r\n\r\n你想断开吗?
 
 
@@ -1659,6 +1659,10 @@ SM_FACTORY_DEFAULT_PERFORMED		在服务器上正在执行出厂复位操作。\r
 SM_AZURE_STATUS_CONNECTED		状态: 已连接
 SM_AZURE_STATUS_NOT_CONNECTED	状态: 没有连接
 SM_NO_BRIDGE_NICS				无物理网络适配器、适合本地桥在 VPN 服务器计算机上被发现。\r\n为了创建一个本地桥，你必须在计算机上至少安装一个物理网络适配器。\r\n您不能为本地桥使用 Wi-Fi 适配器或 3G 适配器。\r\n请安装一个兼容有线以太网的物理网络适配器。\r\n\r\n如果最近安装的网络适配器没有出现，重新启动计算机。\r\n\r\n如果本地桥无论如何不能使用，你可以使用“SecureNAT 功能”代替。\r\n\r\n如果你有一定的原因使用不同寻常的网络适配器（即 Wi-Fi 网络连接适配器，3G 适配器或虚拟适配器），设置“ShowAllInterfaces”变量在“LocalBridgeList”指令为“true”，然后重启VPN服务器。然后，这些设备将出现在名单上。（仅限于高级 Windows 用户）。
+SM_CERT_MESSAGE					The current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nDo you want to regenerate the server certificate now?
+SM_CERT_MESSAGE_CLI				--- Caution ---\r\n\r\nThe current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nTo regenerate and update the server certificate, execute the "ServerCertRegenerate" command after updating the VPN Server to the latest version.
+SM_CERT_NEED_ROOT				The specified SSL certificate is a sub-certificate which was issued by a CA (Certificate Authority).\r\n\r\nIf you are planning to support either Microsoft SSTP or OpenVPN protocol on this VPN server, you have to install the root certificate and all intermediate certificates (if exists) on this VPN Server.\r\n\r\nTo install these certificates, copy the root certificate and all intermediate certificate files (in the X.509 format) into the "chain_certs" subdirectory on the directory which is VPN Server has been installed on.\r\n\r\nIf you don't know how to obtain root and intermediate certificate files for your certificate authority (CA), please refer to the CA's web site or contact technical support staffs of the CA.
+
 
 #关于 User-mode 路由器管理工具
 NM_TITLE					删除

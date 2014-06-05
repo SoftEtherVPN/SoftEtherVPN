@@ -9436,6 +9436,53 @@ void VirtualDhcpServer(VH *v, PKT *p)
 				if (GetGlobalServerFlag(GSF_DISABLE_PUSH_ROUTE) == 0)
 				{
 					Copy(&ret.ClasslessRoute, &v->PushRoute, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+
+					if (IsIpcMacAddress(p->MacAddressSrc))
+					{
+						if (ret.Gateway == 0)
+						{
+							// If the default gateway is not specified, add the static routing table
+							// entry for the local IP subnet
+							// (for PPP clients)
+							IP dhcp_ip;
+							IP dhcp_mask;
+							IP dhcp_network;
+
+							UINTToIP(&dhcp_ip, ip);
+
+							if (ip == 0)
+							{
+								UINTToIP(&dhcp_ip, p->L3.IPv4Header->SrcIP);
+							}
+
+							UINTToIP(&dhcp_mask, v->DhcpMask);
+
+							IPAnd4(&dhcp_network, &dhcp_ip, &dhcp_mask);
+
+							if (GetBestClasslessRoute(&ret.ClasslessRoute, &dhcp_ip) == NULL)
+							{
+								if (ret.ClasslessRoute.NumExistingRoutes < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES)
+								{
+									DHCP_CLASSLESS_ROUTE *cr = &ret.ClasslessRoute.Entries[ret.ClasslessRoute.NumExistingRoutes];
+
+									cr->Exists = true;
+
+									UINTToIP(&cr->Gateway, v->HostIP);
+
+									if (v->UseNat == false && ret.ClasslessRoute.NumExistingRoutes >= 1)
+									{
+										Copy(&cr->Gateway, &ret.ClasslessRoute.Entries[0].Gateway, sizeof(IP));
+									}
+
+									Copy(&cr->Network, &dhcp_network, sizeof(IP));
+									Copy(&cr->SubnetMask, &dhcp_mask, sizeof(IP));
+									cr->SubnetMaskLen = SubnetMaskToInt(&dhcp_mask);
+
+									ret.ClasslessRoute.NumExistingRoutes++;
+								}
+							}
+						}
+					}
 				}
 
 				if (opt->Opcode != DHCP_INFORM)

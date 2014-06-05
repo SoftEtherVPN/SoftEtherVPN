@@ -16929,6 +16929,13 @@ void SmSslDlgOnOk(HWND hWnd, SM_SSL *s)
 		{
 			return;
 		}
+
+		if (t.Flag1 == 0)
+		{
+			// Show the warning message
+			MsgBox(hWnd, MB_ICONWARNING, _UU("SM_CERT_NEED_ROOT"));
+		}
+
 		FreeRpcKeyPair(&t);
 
 		MsgBox(hWnd, MB_ICONINFORMATION, _UU("CM_CERT_SET_MSG"));
@@ -18930,6 +18937,8 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 
 			SmShowIPSecMessageIfNecessary(hWnd, p);
 
+			SmShowCertRegenerateMessageIfNecessary(hWnd, p);
+
 			SetTimer(hWnd, 3, 150, NULL);
 			break;
 
@@ -18952,6 +18961,73 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 	LvStandardHandler(hWnd, msg, wParam, lParam, L_HUB);
 
 	return 0;
+}
+
+// Display the message about the cert
+void SmShowCertRegenerateMessageIfNecessary(HWND hWnd, SM_SERVER *p)
+{
+	// Validate arguments
+	if (p == NULL)
+	{
+		return;
+	}
+
+	if (p->ServerAdminMode && p->Bridge == false)
+	{
+		RPC_KEY_PAIR t;
+
+		Zero(&t, sizeof(t));
+
+		if (ScGetServerCert(p->Rpc, &t) == ERR_NO_ERROR)
+		{
+			if (t.Cert != NULL && t.Cert->has_basic_constraints == false)
+			{
+				if (t.Cert->root_cert)
+				{
+					if (MsRegReadInt(REG_CURRENT_USER, SM_HIDE_CERT_UPDATE_MSG_KEY, p->ServerName) == 0)
+					{
+						if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("SM_CERT_MESSAGE")) == IDYES)
+						{
+							X *x;
+							K *k;
+
+							// Regenerating the certificate
+							if (SmRegenerateServerCert(hWnd, p, NULL, &x, &k, false))
+							{
+								// Confirmation message
+								if (MsgBox(hWnd, MB_ICONEXCLAMATION | MB_YESNO, _UU("SM_REGENERATE_CERT_MSG")) == IDYES)
+								{
+									// Set the new certificate and private key
+									RPC_KEY_PAIR t2;
+
+									Zero(&t2, sizeof(t2));
+
+									t2.Cert = CloneX(x);
+									t2.Key = CloneK(k);
+
+									if (CALL(hWnd, ScSetServerCert(p->Rpc, &t2)))
+									{
+										FreeRpcKeyPair(&t2);
+
+										MsgBox(hWnd, MB_ICONINFORMATION, _UU("CM_CERT_SET_MSG"));
+									}
+								}
+
+								FreeX(x);
+								FreeK(k);
+							}
+						}
+						else
+						{
+							MsRegWriteInt(REG_CURRENT_USER, SM_HIDE_CERT_UPDATE_MSG_KEY, p->ServerName, 1);
+						}
+					}
+				}
+			}
+
+			FreeRpcKeyPair(&t);
+		}
+	}
 }
 
 // Display messages about IPsec, and prompt for the setting

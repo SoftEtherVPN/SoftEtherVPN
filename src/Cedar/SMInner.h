@@ -101,6 +101,7 @@
 #define	SM_CERT_REG_KEY		"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Cert Tool"
 #define	SM_SETTING_REG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Settings"
 #define	SM_LASTHUB_REG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Last HUB Name"
+#define	SM_HIDE_CERT_UPDATE_MSG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Hide Cert Update Msg"
 
 #define	NAME_OF_VPN_SERVER_MANAGER	"vpnsmgr"
 #define	NAME_OF_VPN_SERVER_TARGET	"vpnserver@%s"
@@ -799,6 +800,7 @@ UINT SmSpecialListenerDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 void SmSpecialListenerDlgInit(HWND hWnd, SM_SERVER *s);
 void SmSpecialListenerDlgOnOk(HWND hWnd, SM_SERVER *s);
 void SmShowIPSecMessageIfNecessary(HWND hWnd, SM_SERVER *p);
+void SmShowCertRegenerateMessageIfNecessary(HWND hWnd, SM_SERVER *p);
 UINT SmVmBridgeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmAzure(HWND hWnd, SM_SERVER *s, bool on_setup);
 UINT SmAzureDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);

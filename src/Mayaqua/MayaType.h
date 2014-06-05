@@ -485,6 +485,7 @@ typedef struct ICMP_RESULT ICMP_RESULT;
 typedef struct SSL_PIPE SSL_PIPE;
 typedef struct SSL_BIO SSL_BIO;
 typedef struct RUDP_STACK RUDP_STACK;
+typedef struct RUDP_SOURCE_IP RUDP_SOURCE_IP;
 typedef struct RUDP_SESSION RUDP_SESSION;
 typedef struct RUDP_SEGMENT RUDP_SEGMENT;
 typedef struct CONNECT_TCP_RUDP_PARAM CONNECT_TCP_RUDP_PARAM;

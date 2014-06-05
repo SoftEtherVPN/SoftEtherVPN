@@ -2058,6 +2058,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									}
 									else
 									{
+#if	0	// Currently disabled
 										// If the default gateway is not specified, add the static routing table
 										// entry for the local IP subnet
 										IP local_network;
@@ -2076,6 +2077,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 											&cao->SubnetMask);
 
 										StrCat(option_str, sizeof(option_str), l3_options);
+#endif
 									}
 
 									// Classless routing table

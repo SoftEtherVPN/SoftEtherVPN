@@ -1113,6 +1113,24 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 				x = CloneX(c->ServerX);
 			}
 			Unlock(c->lock);
+
+			if (x != NULL)
+			{
+				// Get the root certificate
+				if (x->root_cert == false)
+				{
+					X *root_x = NULL;
+					LIST *cert_list = NewCertList(true);
+
+					if (TryGetRootCertChain(cert_list, x, true, &root_x))
+					{
+						FreeX(x);
+						x = root_x;
+					}
+
+					FreeCertList(cert_list);
+				}
+			}
 		}
 
 		x_buf = XToBuf(x, true);
@@ -1121,7 +1139,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		WriteBufChar(x_buf, 0);
 		SeekBufToBegin(x_buf);
 
-		// Generate dummy certification
+		// Generate a dummy certificate
 		if (x != NULL)
 		{
 			if (RsaGen(&dummy_private_k, &dummy_public_k, x->bits))
@@ -8331,6 +8349,15 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 		return ERR_PROTOCOL_ERROR;
 	}
 
+	t->Flag1 = 1;
+	if (t->Cert->root_cert == false)
+	{
+		if (DownloadAndSaveIntermediateCertificatesIfNecessary(t->Cert) == false)
+		{
+			t->Flag1 = 0;
+		}
+	}
+
 	SetCedarCert(c, t->Cert, t->Key);
 
 	ALog(a, NULL, "LA_SET_SERVER_CERT");
@@ -12756,6 +12783,7 @@ void InRpcKeyPair(RPC_KEY_PAIR *t, PACK *p)
 
 	t->Cert = PackGetX(p, "Cert");
 	t->Key = PackGetK(p, "Key");
+	t->Flag1 = PackGetInt(p, "Flag1");
 }
 void OutRpcKeyPair(PACK *p, RPC_KEY_PAIR *t)
 {
@@ -12767,6 +12795,7 @@ void OutRpcKeyPair(PACK *p, RPC_KEY_PAIR *t)
 
 	PackAddX(p, "Cert", t->Cert);
 	PackAddK(p, "Key", t->Key);
+	PackAddInt(p, "Flag1", t->Flag1);
 }
 void FreeRpcKeyPair(RPC_KEY_PAIR *t)
 {

@@ -387,6 +387,7 @@ void InsertInt(LIST *o, UINT i);
 void InsertInt64(LIST *o, UINT64 i);
 void InsertIntDistinct(LIST *o, UINT i);
 void InsertInt64Distinct(LIST *o, UINT64 i);
+void RandomizeList(LIST *o);
 
 void *GetNext(QUEUE *q);
 void *GetNextWithLock(QUEUE *q);

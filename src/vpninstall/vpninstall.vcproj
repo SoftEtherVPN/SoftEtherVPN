@@ -77,7 +77,6 @@
 				GenerateMapFile="true"
 				MapFileName="$(SolutionDir)DebugFiles\map\$(PlatformName)_$(ConfigurationName)\$(ProjectName).map"
 				SubSystem="2"
-				StackReserveSize="100000"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -171,7 +170,6 @@
 				GenerateMapFile="true"
 				MapFileName="$(SolutionDir)DebugFiles\map\$(PlatformName)_$(ConfigurationName)\$(ProjectName).map"
 				SubSystem="2"
-				StackReserveSize="100000"
 				OptimizeReferences="1"
 				EnableCOMDATFolding="1"
 				TargetMachine="1"
