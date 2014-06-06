@@ -1,0 +1,2 @@
+softether: package-name-doesnt-match-sonames
+softether: shlib-without-versioned-soname
