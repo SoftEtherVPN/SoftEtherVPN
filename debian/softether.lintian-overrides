@@ -1,2 +1,3 @@
 softether: package-name-doesnt-match-sonames
 softether: shlib-without-versioned-soname
+softether: possible-gpl-code-linked-with-openssl
