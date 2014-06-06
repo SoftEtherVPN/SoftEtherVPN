@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Darik Horn <dajhorn@vanadac.com>
 Build-Depends: debhelper (>= 9), dh-apparmor, dh-autoreconf, libncurses-dev, linux-libc-dev, libssl-dev, libreadline-dev
-Standards-Version: 3.9.1
+Standards-Version: 3.9.5
 Homepage: http://www.softether.org/
 
 Package: softether
