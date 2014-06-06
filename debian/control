@@ -2,7 +2,7 @@ Source: softether
 Section: net
 Priority: optional
 Maintainer: Darik Horn <dajhorn@vanadac.com>
-Build-Depends: debhelper (>= 7.0.50~), dh-autoreconf, libncurses-dev, linux-libc-dev, libssl-dev, libreadline-dev, build-essential
+Build-Depends: debhelper (>= 7.0.50~), dh-apparmor, dh-autoreconf, libncurses-dev, linux-libc-dev, libssl-dev, libreadline-dev, build-essential
 Standards-Version: 3.9.1
 Homepage: http://www.softether.org/
 
