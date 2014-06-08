@@ -6796,7 +6796,7 @@ CMD_RemoteDisable_Args		RemoteDisable
 
 
 # MakeCert 命令
-CMD_MakeCert				创建新的 X.509 证书和密钥
+CMD_MakeCert				创建新的 X.509 证书和密钥 (1024 位)
 CMD_MakeCert_Help			创建新的 X.509 证书和密钥，将其保存为一个文件。\n证书公共密钥和秘密密钥的生成算法使用 RSA 1024 位。\n作为证书类型，可以创建由根证书 (自签名证书) 和其他证书签名的某个证书。要创建由其他证书签名的证书，需要与用于签名的证书 (X.509格式文件) 相对应的密钥文件 (Base 64 编码)。\n\n创建的证书可以指定名称 (CN)，所属机构 (O)，组织单位 (OU)，国家 (C)，州 (ST)，当地 (L)，序列号，有效期限。\n创建的证书以 X.509 格式的文件，密钥文件以 RSA 1024 位的 Base 64 编码文件，被分别保存。\n\nMakeCert 指令是一个工具，它提供创建证书所需的最低功能。如果想创建一个真正的证书，建议使用 OpenSSL 等免费软件和出售的 CA (认证机构) 软件。\n\n※注意: 此指令可以从 SoftEther VPN 命令行管理工具调用。虽然目前以管理模式连接到 VPN Server 和 VPN Client 时可以运行，但要实际运行 RSA 演算，生成证书数据的，是运行此指令的计算机，和以管理模式连接的链接目标计算机没有任何关系。
 CMD_MakeCert_Args			MakeCert [/CN:cn] [/O:o] [/OU:ou] [/C:c] [/ST:st] [/L:l] [/SERIAL:serial] [/EXPIRES:expires] [/SIGNCERT:signcert] [/SIGNKEY:signkey] [/SAVECERT:savecert] [/SAVEKEY:savekey]
 CMD_MakeCert_CN				指定创建证书的名称 (CN) 项目。还可以指定 none。
@@ -6824,6 +6824,24 @@ CMD_MakeCert_PROMPT_SAVEKEY	保存已创建密钥的文件名:
 CMD_MakeCert_EVAL_EXPIRES	请指定有效期限为 %u 以上 %u 以下。
 CMD_MakeCert_ERROR_SIGNKEY	无法读取以 /SIGNCERT 和 /SIGNKEY 指定的证明书和密钥或组合不正确。
 CMD_MakeCert_ERROR_GEN_FAILED	无法生成证书和私钥。
+
+
+# MakeCert2048 命令
+CMD_MakeCert2048				创建新的 X.509 证书和密钥 (2048 位)
+CMD_MakeCert2048_Help			创建新的 X.509 证书和密钥，将其保存为一个文件。\n证书公共密钥和秘密密钥的生成算法使用 RSA 1024 位。\n作为证书类型，可以创建由根证书 (自签名证书) 和其他证书签名的某个证书。要创建由其他证书签名的证书，需要与用于签名的证书 (X.509 格式文件) 相对应的密钥文件 (Base 64 编码)。\n\n创建的证书可以指定名称 (CN)，所属机构 (O)，组织单位 (OU)，国家 (C)，州 (ST)，当地 (L)，序列号，有效期限。\n创建的证书以 X.509 格式的文件，密钥文件以 RSA 2048 位的 Base 64 编码文件，被分别保存。\n\nMakeCert 指令是一个工具，它提供创建证书所需的最低功能。如果想创建一个真正的证书，建议使用 OpenSSL 等免费软件和出售的 CA (认证机构) 软件。\n\n※注意: 此指令可以从 SoftEther VPN 命令行管理工具调用。虽然目前以管理模式连接到 VPN Server 和 VPN Client 时可以运行，但要实际运行 RSA 演算，生成证书数据的，是运行此指令的计算机，和以管理模式连接的链接目标计算机没有任何关系。
+CMD_MakeCert2048_Args			MakeCert2048 [/CN:cn] [/O:o] [/OU:ou] [/C:c] [/ST:st] [/L:l] [/SERIAL:serial] [/EXPIRES:expires] [/SIGNCERT:signcert] [/SIGNKEY:signkey] [/SAVECERT:savecert] [/SAVEKEY:savekey]
+CMD_MakeCert2048_CN				指定创建证书的名称 (CN) 项目。还可以指定 none。
+CMD_MakeCert2048_O				指定创建证书的所属机构 (O) 项目。还可以指定 none。
+CMD_MakeCert2048_OU				指定创建证书的组织单位 (OU) 项目。还可以指定 none。
+CMD_MakeCert2048_C				指定创建证书的国家 (C) 项目。还可以指定 none。
+CMD_MakeCert2048_ST				指定创建证书的州 (ST) 项目。还可以指定 none。
+CMD_MakeCert2048_L				指定创建证书的当地 (L) 项目。还可以指定 none。
+CMD_MakeCert2048_SERIAL			指定创建证书的序列号项目。以 16 进制指定。还可以指定 none。
+CMD_MakeCert2048_EXPIRES		指定创建证书的有效期限。如果指定 none 或 0，将被使用 3650 天 (约 10 年)。最大可以指定 10950 天 (约 30 年)。
+CMD_MakeCert2048_SIGNCERT		根据现有的证书对要创建的证书签名时，指定用来签名的 X.509 形式的证书文件名。如果省略参数，将作为根证书而创建没有签名的新证书。
+CMD_MakeCert2048_SIGNKEY		指定与 /SIGNCERT 指定的证书相应的密钥 (RSA，Base 64 的编码)
+CMD_MakeCert2048_SAVECERT		指定文件名以保存创建的证书。该证书以包含 RSA 形式的 2048 位公开密钥的 X.509 文件格式被保存。
+CMD_MakeCert2048_SAVEKEY		指定文件名保存对应创建的证书的密钥。该密钥以 RSA 形式的 2048 位密钥文件被保存。
 
 
 # TrafficClient 命令

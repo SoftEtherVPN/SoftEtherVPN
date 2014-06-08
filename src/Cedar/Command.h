@@ -374,6 +374,7 @@ PT *NewPt(CONSOLE *c, wchar_t *cmdline);
 void FreePt(PT *pt);
 void PtMain(PT *pt);
 UINT PtMakeCert(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PtMakeCert2048(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtTrafficClient(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtTrafficServer(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtCheck(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

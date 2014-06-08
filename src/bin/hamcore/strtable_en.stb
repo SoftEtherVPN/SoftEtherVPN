@@ -6783,7 +6783,7 @@ CMD_RemoteDisable_Args	RemoteDisable
 
 
 # MakeCert command
-CMD_MakeCert			Create New X.509 Certificate and Private Key
+CMD_MakeCert			Create New X.509 Certificate and Private Key (1024 bit)
 CMD_MakeCert_Help		Use this to create a new X.509 certificate and private key and save it as a file. \nThe algorithm used to create the public key and private key of the certificate is RSA 1024 bit. \nYou can choose to create a root certificate (self-signed certificate) or a certificate signed by another certificate. To create a certificate that is signed by another certificate, you require a private key file (base 64 encoded) that is compatible with the certificate that uses the signature (X.509 format file). \n\nWhen creating a certificate, you can specify the following: Name (CN), Organization (O), Organization Unit (OU), Country (C), State (ST), Locale (L), Serial Number, and Expiration Date. \nThe created certificate will be saved as an X.509 format file and the private key file will be saved in a Base 64 encoded RSA 1024 bit format file. \n\nThe MakeCert command is a tool that provides the most rudimentary function for creating certificates. If you want to create a more substantial certificate, we recommend that you use either free software such as OpenSSL, or commercial CA (certificate authority) software. \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually performs the RSA computation, generates the certificate data and saves it to file is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
 CMD_MakeCert_Args		MakeCert [/CN:cn] [/O:o] [/OU:ou] [/C:c] [/ST:st] [/L:l] [/SERIAL:serial] [/EXPIRES:expires] [/SIGNCERT:signcert] [/SIGNKEY:signkey] [/SAVECERT:savecert] [/SAVEKEY:savekey]
 CMD_MakeCert_CN			Specify the Name (CN) item of the certificate to create. You can specify "none".
@@ -6811,6 +6811,24 @@ CMD_MakeCert_PROMPT_SAVEKEY		File Name to Save Private Key to Create:
 CMD_MakeCert_EVAL_EXPIRES		Specify the Expiration Date within the range %u to %u.
 CMD_MakeCert_ERROR_SIGNKEY		Either it is not possible to read the certificate or private key specified by /SIGNCERT and /SIGNKEY, or they were an invalid combination.
 CMD_MakeCert_ERROR_GEN_FAILED	Creation of certificate and private key failed.
+
+
+# MakeCert2048 command
+CMD_MakeCert2048			Create New X.509 Certificate and Private Key (2048 bit)
+CMD_MakeCert2048_Help		Use this to create a new X.509 certificate and private key and save it as a file. \nThe algorithm used to create the public key and private key of the certificate is RSA 2048 bit. \nYou can choose to create a root certificate (self-signed certificate) or a certificate signed by another certificate. To create a certificate that is signed by another certificate, you require a private key file (base 64 encoded) that is compatible with the certificate that uses the signature (X.509 format file). \n\nWhen creating a certificate, you can specify the following: Name (CN), Organization (O), Organization Unit (OU), Country (C), State (ST), Locale (L), Serial Number, and Expiration Date. \nThe created certificate will be saved as an X.509 format file and the private key file will be saved in a Base 64 encoded RSA 2048 bit format file. \n\nThe MakeCert command is a tool that provides the most rudimentary function for creating certificates. If you want to create a more substantial certificate, we recommend that you use either free software such as OpenSSL, or commercial CA (certificate authority) software. \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually performs the RSA computation, generates the certificate data and saves it to file is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
+CMD_MakeCert2048_Args		MakeCert2048 [/CN:cn] [/O:o] [/OU:ou] [/C:c] [/ST:st] [/L:l] [/SERIAL:serial] [/EXPIRES:expires] [/SIGNCERT:signcert] [/SIGNKEY:signkey] [/SAVECERT:savecert] [/SAVEKEY:savekey]
+CMD_MakeCert2048_CN			Specify the Name (CN) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_O			Specify the Organization (O) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_OU			Specify the Organization Unit (OU) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_C			Specify the Country (C) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_ST			Specify the State (ST) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_L			Specify the Locale (L) item of the certificate to create. You can specify "none".
+CMD_MakeCert2048_SERIAL		Specify the Serial Number item of the certificate to create. Specify using hexadecimal values. You can specify "none".
+CMD_MakeCert2048_EXPIRES	Specify the Expiration Date item of the certificate to create. If you specify "none" or "0", 3650 days (approx. 10 years) will be used. You can specify a maximum of 10950 days (about 30 years).
+CMD_MakeCert2048_SIGNCERT	For cases when the certificate to be created is signed by an existing certificate, specify the X.509 format certificate file name to be used to sign the signature. When this parameter is omitted, such signature signing is not performed and the new certificate is created as a root certificate.
+CMD_MakeCert2048_SIGNKEY	Specify a private key (RSA, base-64 encoded) that is compatible with the certificate specified by /SIGNCERT.
+CMD_MakeCert2048_SAVECERT	Specify the file name to save the certificate you created. The certificate is saved as an X.509 file that includes a public key that is RSA format 2048 bit.
+CMD_MakeCert2048_SAVEKEY	Specify the file name to save private key that is compatible with the certificate you created. The private key will be saved as an RSA-format 2048-bit private key file.
 
 
 # TrafficClient command

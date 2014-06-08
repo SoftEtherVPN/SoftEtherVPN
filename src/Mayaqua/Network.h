@@ -880,6 +880,7 @@ struct CONNECT_TCP_RUDP_PARAM
 	bool Tcp_SslNoTls;
 	LOCK *CancelLock;
 	SOCK *CancelDisconnectSock;
+	bool Tcp_InNegotiation;
 };
 
 #define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout

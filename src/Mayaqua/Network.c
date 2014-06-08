@@ -5135,15 +5135,19 @@ LABEL_TIMEOUT:
 				sock, sock_event, 0, false);
 		}
 
-		if (sock != NULL)
-		{
-			Disconnect(sock);
-			ReleaseSock(sock);
-		}
-
 		if (sock_event != NULL)
 		{
 			ReleaseSockEvent(sock_event);
+		}
+
+		if (sock != NULL)
+		{
+			if (ret == NULL)
+			{
+				Disconnect(sock);
+			}
+
+			ReleaseSock(sock);
 		}
 
 		return ret;
@@ -14645,6 +14649,9 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 	if (sock != NULL && p->Tcp_TryStartSsl)
 	{
 		bool ssl_ret = false;
+
+		p->Tcp_InNegotiation = true;
+
 		// Attempt the SSL negotiation to take this opportunity
 		Lock(p->CancelLock);
 		{
@@ -14702,6 +14709,7 @@ LABEL_CANCEL:
 	p->Ok = (p->Result_Tcp_Sock == NULL ? false : true);
 	p->FinishedTick = Tick64();
 	p->Finished = true;
+	p->Tcp_InNegotiation = false;
 
 	Set(p->FinishEvent);
 }
@@ -15031,7 +15039,11 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 					if (now >= tcp_giveup_tick)
 					{
 						// Result of the TCP is uncertain, but give up
-						break;
+						if (p1.Finished || p1.Tcp_InNegotiation == false)
+						{
+							// Break only when TCP SSL negotiation is not being processed
+							break;
+						}
 					}
 				}
 
