@@ -4417,6 +4417,16 @@ bool NatTransactTcp(VH *v, NAT_ENTRY *n)
 					// Successful transmission
 					ReadFifo(n->RecvFifo, NULL, sent_size);
 					n->SendAckNext = true;
+
+					if (false)
+					{
+						IP ip;
+
+						n->test_TotalSent += sent_size;
+
+						UINTToIP(&ip, n->DestIp);
+						Debug("TCP %u: %r:%u %u\n", n->Id, &ip, n->DestPort, (UINT)n->test_TotalSent);
+					}
 				}
 			}
 
@@ -4445,6 +4455,11 @@ bool NatTransactTcp(VH *v, NAT_ENTRY *n)
 					// Communication has been disconnected
 					n->TcpFinished = true;
 					v->NatDoCancelFlag = true;
+					if (n->TcpDisconnected == false)
+					{
+						Disconnect(n->Sock);
+						n->TcpDisconnected = true;
+					}
 					break;
 				}
 				else if (recv_size == SOCK_LATER)
@@ -4720,7 +4735,7 @@ void PollingNatTcp(VH *v, NAT_ENTRY *n)
 
 	case NAT_TCP_SEND_RESET:		// Reset the connection
 		// Send a RST
-		if (n->TcpFinished == false)
+		if (n->TcpFinished == false || n->TcpForceReset)
 		{
 			SendTcp(v, n->DestIp, n->DestPort, n->SrcIp, n->SrcPort,
 				(UINT)(n->SendSeq + n->SendSeqInit),
@@ -4742,6 +4757,7 @@ void PollingNatTcp(VH *v, NAT_ENTRY *n)
 					TCP_ACK | TCP_FIN, 0,
 					0, NULL, 0);
 				n->FinSentTime = v->Now;
+				n->FinSentSeq = (UINT)(n->SendSeq + n->SendSeqInit);
 				n->FinSentCount++;
 				if (n->FinSentCount >= NAT_FIN_SEND_MAX_COUNT)
 				{
@@ -4959,6 +4975,16 @@ void TcpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT de
 	switch (n->TcpStatus)
 	{
 	case NAT_TCP_SEND_RESET:		// Disconnect the connection by sending a RST
+		if ((tcp->Flag & TCP_ACK) && ((tcp->Flag & TCP_SYN) == false))
+		{
+			if (n->FinSentCount >= 1)
+			{
+				if (ack == (n->FinSentSeq + 1))
+				{
+					n->TcpForceReset = true;
+				}
+			}
+		}
 		break;
 
 	case NAT_TCP_CONNECTED:			// Socket connection completion: SYN + ACK, ACK processing

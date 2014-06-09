@@ -310,6 +310,7 @@ struct NAT_ENTRY
 	UINT64 SendSeq;					// Send sequence number
 	UINT64 RecvSeqInit;				// Initial receive sequence number
 	UINT64 RecvSeq;					// Receive sequence number
+	UINT FinSentSeq;				// Sequence number with the last FIN
 
 	bool CurrentSendingMission;		// Burst transmission ongoing
 	UINT SendMissionSize;			// Transmission size of this time
@@ -320,8 +321,12 @@ struct NAT_ENTRY
 	UINT64 CalcRTTStartValue;		// RTT measurement start value
 
 	bool TcpFinished;				// Data communication end flag of TCP
+	bool TcpDisconnected;			// TCP Disconnect flag
+	bool TcpForceReset;				// TCP connection force reset flag
 	UINT64 FinSentTime;				// Time which the FIN was sent last
 	UINT FinSentCount;				// Number of FIN transmissions
+
+	UINT64 test_TotalSent;
 };
 
 
