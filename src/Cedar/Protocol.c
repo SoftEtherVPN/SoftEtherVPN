@@ -2043,6 +2043,7 @@ bool ServerAccept(CONNECTION *c)
 								AcLock(hub);
 								{
 									char *domain;
+									tokenized=NULL;
 									//check if username is an  email address
 									if(spc_email_isvalid(username)) {
 										domain = strchr (username, '@');
@@ -2051,12 +2052,16 @@ bool ServerAccept(CONNECTION *c)
 										        tokenized = (char*)malloc((strlen(domain)+6+1) * sizeof(char));
 										        sprintf(tokenized,"token#%s",domain);
                                                                                         b = AcIsUser(hub, tokenized);
+											if(b == false) {
+												free(tokenized);
+												tokenized=NULL;
+											}
+											
 										}
 									}
 									//fall back to the old method
 									if(b == false) {
 										b = AcIsUser(hub, "*");
-                                                                               system("echo Comunque dentro asterisk > /tmp/leggimi");
 								}
 										
 								}
