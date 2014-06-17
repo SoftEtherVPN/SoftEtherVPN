@@ -2049,8 +2049,8 @@ bool ServerAccept(CONNECTION *c)
 										domain = strchr (username, '@');
 										if (domain != NULL) {
 											domain++;
-										        tokenized = (char*)malloc((strlen(domain)+6+1) * sizeof(char));
-										        sprintf(tokenized,"token#%s",domain);
+										        tokenized = (char*)malloc((strlen(domain)+2) * sizeof(char));
+										        sprintf(tokenized,"#%s",domain);
                                                                                         b = AcIsUser(hub, tokenized);
 											if(b == false) {
 												free(tokenized);
