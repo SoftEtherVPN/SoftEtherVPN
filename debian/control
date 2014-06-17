@@ -2,7 +2,7 @@ Source: softether-vpn
 Section: net
 Priority: optional
 Maintainer: Dmitry Orlov <me@mosquito.su>
-Build-Depends: debhelper (>= 7.0.50~), libncurses-dev, linux-libc-dev, libssl-dev, libreadline-dev, build-essential
+Build-Depends: debhelper (>= 7.0.50~), libncurses-dev, linux-libc-dev, libssl-dev, libreadline-dev, build-essential, dh-exec
 Standards-Version: 3.9.1
 Homepage: http://www.softether.org/
 
