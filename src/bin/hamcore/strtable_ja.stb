@@ -566,10 +566,11 @@ HUB_AO_DisableUserModeSecureNAT				この項目が 1 (有効) の場合は、Sec
 HUB_AO_DisableCheckMacOnLocalBridge			この項目が 1 (有効) の場合は、ローカルブリッジ機能において MAC アドレスの重複チェックを無効にします。一部の LAN カードでは、ローカルブリッジ機能によって送出されたパケットが LAN カード内部で反射し仮想 HUB に戻ってくる場合があります。この場合、仮想 HUB は MAC アドレスの重複を自動的に検出し、反射してきたパケットを破棄します。このフラグを有効にすると、この検出チェックが無効になります。
 HUB_AO_DisableCorrectIpOffloadChecksum		この項目が 1 (有効) の場合は、ローカルブリッジ機能において IP チェックサムの検査および補正処理が無効になります。IP, TCP, UDP ヘッダのチェックサムのオフロード機能が搭載されている LAN カードから送信された IP パケットが同一ホスト上で動作する VPN Server のローカルブリッジに入力された場合、当該 IP パケットのチェックサムは不正確な値が代入されている場合があります。ローカルブリッジはデフォルトでその不正確な値を検出し、正しいチェックサムの計算結果を代入します。このフラグを有効にすると、これらの補正処理が無効になります。
 HUB_AO_BroadcastLimiterStrictMode			この項目が 1 (有効) の場合は、仮想 HUB 上のセッションにおけるブロードキャストストームの検出アルゴリズムにおいて、送信元 IP アドレスまたは宛先 IP アドレスのいずれか 1 個が一致していれば既存の検出用記録とヒットしたとみなします。
-HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per minute.
-HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
-HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
-HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_MaxLoggedPacketsPerMinute			1 分間あたりにパケットログに保存することができる最大のパケット数を指定します。
+HUB_AO_DoNotSaveHeavySecurityLogs			保存に負荷がかかるセキュリティログを保存しない設定をします。
+HUB_AO_DropBroadcastsInPrivacyFilterMode	送信元および宛先の両方のセッションがプライバシーフィルタモードの場合、ブロードキャストパケットを破棄します。
+HUB_AO_DropArpInPrivacyFilterMode			送信元および宛先の両方のセッションがプライバシーフィルタモードの場合、ARP パケットを破棄します。
+HUB_AO_SuppressClientUpdateNotification		VPN Client のアップデート通知画面の表示を抑制します。
 
 
 # Caps 関係
@@ -1065,14 +1066,15 @@ SVC_HIDE_TRAY_MSG		%S のユーザーモード起動時のタスクトレイア�
 
 
 # サービス関係 (UNIX)
-UNIX_SVC_HELP			%S Service Program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S Command Usage:\n %S start  - Start %S Service.\n %S stop   - Stop %S Service if the service is already started.\n\n
-UNIX_SVC_STARTED		%S Service Started.\n
-UNIX_SVC_STOPPING		Stopping %S Service...\n
-UNIX_SVC_STOPPED		%S Service Stopped.\n
-UNIX_SVC_STOP_FAILED	%S Service Stop Failed.\n
-UNIX_SVC_ALREADY_START	%S Service is already started.\nExecute "%S stop" to stop this service.\n
-UNIX_SVC_NOT_STARTED	%S Service is not yet started.\nExecute "%S start" to start this service.\n
-UNIX_SVC_ERROR_FORK		Failed to create child process for %S Service.\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_STARTED		The %S service has been started.\n
+UNIX_SVC_STOPPING		Stopping the %S service ...\n
+UNIX_SVC_STOPPED		%S service has been stopped.\n
+UNIX_SVC_STOP_FAILED	Stopping %S service was failed.\n
+UNIX_SVC_ALREADY_START	%S service has been already started.\nRun the "%S stop" command to stop this service.\n
+UNIX_SVC_NOT_STARTED	%S service has not yet been started.\nRun the "%S start" to start this service.\n
+UNIX_SVC_ERROR_FORK		Failed to create child process for the %S service.\n
+UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recommended to run the VPN service by the root user. Although the VPN service may run under non-root users, some privilege-required functions (e.g. the local bridge function) need the root privilege.\n
 
 
 # サービス定義 (SoftEther VPN Client)
@@ -1279,9 +1281,9 @@ SM_CONN_DISCONNECT_MSG	コネクション %s を切断します。\r\nよろし�
 SM_CONNINFO_CAPTION		コネクション %s の情報
 SM_CONNINFO_NAME		コネクション名
 SM_CONNINFO_TYPE		コネクションの種類
-SM_CONNINFO_HOSTNAME	接続元ホスト名
-SM_CONNINFO_IP			接続元 IP アドレス
-SM_CONNINFO_PORT		接続元ポート番号 (TCP)
+SM_CONNINFO_HOSTNAME	クライアントホスト名
+SM_CONNINFO_IP			クライアント IP アドレス
+SM_CONNINFO_PORT		クライアントポート番号 (TCP)
 SM_CONNINFO_TIME		接続時刻
 SM_CONNINFO_SERVER_STR	サーバー製品名
 SM_CONNINFO_SERVER_VER	サーバー バージョン
@@ -1445,8 +1447,8 @@ SM_SESS_STATUS_CAPTION	VPN セッション "%S" の状況
 SM_SESS_STATUS_USERNAME	ユーザー名 (認証)
 SM_SESS_STATUS_REALUSER	ユーザー名 (データベース)
 SM_SESS_STATUS_GROUPNAME	グループ名
-SM_CLIENT_IP			接続元 IP アドレス
-SM_CLIENT_HOSTNAME		接続元ホスト名
+SM_CLIENT_IP			クライアント IP アドレス
+SM_CLIENT_HOSTNAME		クライアントホスト名
 SM_NODE_CLIENT_NAME		クライアント製品名
 SM_NODE_CLIENT_VER		クライアントバージョン
 SM_NODE_CLIENT_BUILD	クライアントビルド番号

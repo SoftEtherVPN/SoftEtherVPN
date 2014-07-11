@@ -555,6 +555,7 @@ HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per 
 HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
 HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 
 
 #关于失败连接对话框
@@ -1071,14 +1072,15 @@ SVC_HIDE_TRAY_MSG			启动 %S 用户模式时将隐藏任务栏图标。\r\n从�
 
 
 #关于服务 (UNIX)
-UNIX_SVC_HELP				%S Service Program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S Command Usage:\n %S start  - Start %S Service.\n %S stop   - Stop %S Service if the service is already started.\n\n
-UNIX_SVC_STARTED			%S Service Started.\n
-UNIX_SVC_STOPPING			Stopping %S Service...\n
-UNIX_SVC_STOPPED			%S Service Stopped.\n
-UNIX_SVC_STOP_FAILED		%S Service Stop Failed.\n
-UNIX_SVC_ALREADY_START		%S Service is already started.\nExecute "%S stop" to stop this service.\n
-UNIX_SVC_NOT_STARTED		%S Service is not yet started.\nExecute "%S start" to start this service.\n
-UNIX_SVC_ERROR_FORK			Failed to create child process for %S Service.\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_STARTED		The %S service has been started.\n
+UNIX_SVC_STOPPING		Stopping the %S service ...\n
+UNIX_SVC_STOPPED		%S service has been stopped.\n
+UNIX_SVC_STOP_FAILED	Stopping %S service was failed.\n
+UNIX_SVC_ALREADY_START	%S service has been already started.\nRun the "%S stop" command to stop this service.\n
+UNIX_SVC_NOT_STARTED	%S service has not yet been started.\nRun the "%S start" to start this service.\n
+UNIX_SVC_ERROR_FORK		Failed to create child process for the %S service.\n
+UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recommended to run the VPN service by the root user. Although the VPN service may run under non-root users, some privilege-required functions (e.g. the local bridge function) need the root privilege.\n
 
 
 # 服务定义 (SoftEther VPN Client)
@@ -1285,9 +1287,9 @@ SM_CONN_DISCONNECT_MSG		连接 %s 将断开。\r\n你确定要这么做吗?
 SM_CONNINFO_CAPTION			连接 %s 的信息
 SM_CONNINFO_NAME			连接名称
 SM_CONNINFO_TYPE			连接类型
-SM_CONNINFO_HOSTNAME		源主机名称
-SM_CONNINFO_IP				源 IP 地址
-SM_CONNINFO_PORT			源端口号 (TCP)
+SM_CONNINFO_HOSTNAME		客户端主机名称
+SM_CONNINFO_IP				客户端 IP 地址
+SM_CONNINFO_PORT			客户端口号 (TCP)
 SM_CONNINFO_TIME			连接开始
 SM_CONNINFO_SERVER_STR		服务端产品名
 SM_CONNINFO_SERVER_VER		服务端版本
@@ -1451,8 +1453,8 @@ SM_SESS_STATUS_CAPTION		"%S" VPN 会话的状态
 SM_SESS_STATUS_USERNAME		用户名 (认证)
 SM_SESS_STATUS_REALUSER		用户名 (数据库)
 SM_SESS_STATUS_GROUPNAME	用户組名
-SM_CLIENT_IP				源 IP 地址
-SM_CLIENT_HOSTNAME			源主机名称
+SM_CLIENT_IP				客户端 IP 地址
+SM_CLIENT_HOSTNAME			客户端名称
 SM_NODE_CLIENT_NAME			客户端产品名称
 SM_NODE_CLIENT_VER			客户端版本
 SM_NODE_CLIENT_BUILD		客户端内部标号

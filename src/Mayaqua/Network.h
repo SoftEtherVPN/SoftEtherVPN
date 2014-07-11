@@ -54,10 +54,25 @@
 // AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
 // THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
 // 
-// USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS
-// SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
-// PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
-// COUNTRIES MIGHT BE RESTRICTED.
+// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
+// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
+// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
+// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
+// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
+// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
+// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
+// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
+// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
+// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
+// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
+// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
+// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
+// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
+// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
+// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
+// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
+// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
+// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
 // 
 // 
 // SOURCE CODE CONTRIBUTION
@@ -131,6 +146,10 @@ struct DYN_VALUE
 #define	UDP_MAX_MSG_SIZE_DEFAULT	65507
 
 #define	MAX_NUM_IGNORE_ERRORS		1024
+
+// SSL logging function
+//#define	ENABLE_SSL_LOGGING
+#define	SSL_LOGGING_DIRNAME			"@ssl_log"
 
 // Private IP list file
 #define	PRIVATE_IP_TXT_FILENAME		"@private_ip.txt"
@@ -267,6 +286,7 @@ struct SOCK
 	void *Param;				// Any parameters
 	bool IPv6;					// IPv6
 	bool IsRawSocket;			// Whether it is a raw socket
+	const char *SslVersion;		// SSL version
 	UINT RawSocketIPProtocol;	// IP protocol number if it's a raw socket
 	TUBE *SendTube;				// Tube for transmission
 	TUBE *RecvTube;				// Tube for reception
@@ -284,6 +304,14 @@ struct SOCK
 	bool IsReverseAcceptedSocket;	// Whether it is a reverse socket
 	IP Reverse_MyServerGlobalIp;	// Self global IP address when using the reverse socket
 	UINT Reverse_MyServerPort;		// Self port number when using the reverse socket
+
+#ifdef	ENABLE_SSL_LOGGING
+	// SSL Logging (for debug)
+	bool IsSslLoggingEnabled;	// Flag
+	IO *SslLogging_Recv;		// for Recv
+	IO *SslLogging_Send;		// for Send
+	LOCK *SslLogging_Lock;		// Locking
+#endif	// ENABLE_SSL_LOGGING
 
 	void *hAcceptEvent;			// Event for Accept
 
@@ -826,6 +854,7 @@ struct RUDP_STACK
 	// NAT-T server related
 	bool NoNatTRegister;				// Flag not to register with the NAT-T server
 	UINT64 NatT_TranId;					// Transaction ID is used to communicate with the NAT-T server
+	UINT64 NatT_SessionKey;				// Current Session Key
 	IP NatT_IP;							// IP address of the NAT-T server
 	IP NatT_IP_Safe;					// IP address of the NAT-T server (thread-safe)
 	IP My_Private_IP;					// Private IP address of itself
@@ -1007,6 +1036,7 @@ void GetHttpDateStr(char *str, UINT size, UINT64 t);
 bool HttpSendForbidden(SOCK *s, char *target, char *server_id);
 bool HttpSendNotFound(SOCK *s, char *target);
 bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);
+bool HttpSendInvalidHostname(SOCK *s, char *method);
 bool HttpServerSend(SOCK *s, PACK *p);
 bool HttpClientSend(SOCK *s, PACK *p);
 PACK *HttpServerRecv(SOCK *s);
@@ -1323,6 +1353,7 @@ bool GetDomainName(char *name, UINT size);
 bool UnixGetDomainName(char *name, UINT size);
 void RenewDhcp();
 void AcceptInit(SOCK *s);
+void DisableGetHostNameWhenAcceptInit();
 bool CheckCipherListName(char *name);
 TOKEN_LIST *GetCipherList();
 COUNTER *GetNumTcpConnectionsCounter();
@@ -1385,6 +1416,12 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e);
 void DebugPrintRoute(ROUTE_ENTRY *e);
 void DebugPrintRouteTable(ROUTE_TABLE *r);
 bool IsIPv6LocalNetworkAddress(IP *ip);
+
+#ifdef	ENABLE_SSL_LOGGING
+void SockEnableSslLogging(SOCK *s);
+void SockWriteSslLog(SOCK *s, void *send_data, UINT send_size, void *recv_data, UINT recv_size);
+void SockCloseSslLogging(SOCK *s);
+#endif	// ENABLE_SSL_LOGGING
 
 void SocketTimeoutThread(THREAD *t, void *param);
 SOCKET_TIMEOUT_PARAM *NewSocketTimeout(SOCK *sock);

@@ -54,10 +54,25 @@
 // AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
 // THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
 // 
-// USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS
-// SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
-// PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
-// COUNTRIES MIGHT BE RESTRICTED.
+// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
+// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
+// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
+// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
+// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
+// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
+// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
+// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
+// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
+// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
+// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
+// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
+// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
+// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
+// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
+// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
+// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
+// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
+// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
 // 
 // 
 // SOURCE CODE CONTRIBUTION
@@ -675,8 +690,9 @@ void UpdateClientThreadMain(UPDATE_CLIENT *c)
 
 	cert_hash = StrToBin(UPDATE_SERVER_CERT_HASH);
 
-	recv = HttpRequest(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
-		NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL));
+	recv = HttpRequestEx2(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
+		NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL),
+		(bool *)&c->HaltFlag, 0, NULL, NULL);
 
 	FreeBuf(cert_hash);
 
@@ -1260,6 +1276,7 @@ bool ServerAccept(CONNECTION *c)
 	bool support_hmac_on_udp_acceleration_client = false;
 	bool support_udp_accel_fast_disconnect_detect;
 	bool use_hmac_on_udp_acceleration = false;
+	bool supress_return_pack_error = false;
 	IP udp_acceleration_client_ip;
 	UCHAR udp_acceleration_client_key[UDP_ACCELERATION_COMMON_KEY_SIZE];
 	UINT udp_acceleration_client_port;
@@ -1289,6 +1306,7 @@ bool ServerAccept(CONNECTION *c)
 	bool no_save_password = false;
 	NODE_INFO node;
 	wchar_t *msg = NULL;
+	bool suppress_client_update_notification = false;
 	USER *loggedin_user_object = NULL;
 	FARM_MEMBER *f = NULL;
 	SERVER *server = NULL;
@@ -1369,6 +1387,9 @@ bool ServerAccept(CONNECTION *c)
 		{
 			error_detail = error_detail_2;
 		}
+
+		supress_return_pack_error = true;
+
 		goto CLEANUP;
 	}
 
@@ -3038,11 +3059,19 @@ bool ServerAccept(CONNECTION *c)
 				s->Timeout / 1000);
 
 			msg = GetHubMsg(hub);
+
+			// Suppress client update notification flag
+			if (hub->Option != NULL)
+			{
+				suppress_client_update_notification = hub->Option->SuppressClientUpdateNotification;
+			}
 		}
 		Unlock(hub->lock);
 
 		// Send a Welcome packet to the client
 		p = PackWelcome(s);
+
+		PackAddBool(p, "suppress_client_update_notification", suppress_client_update_notification);
 
 		if (s->InProcMode)
 		{
@@ -3709,11 +3738,16 @@ CLEANUP:
 
 
 	// Error packet transmission
-	p = PackError(c->Err);
-	PackAddBool(p, "no_save_password", no_save_password);
-	HttpServerSend(c->FirstSock, p);
-	FreePack(p);
+	if (supress_return_pack_error == false)
+	{
+		p = PackError(c->Err);
+		PackAddBool(p, "no_save_password", no_save_password);
+		HttpServerSend(c->FirstSock, p);
+		FreePack(p);
+	}
+
 	FreePack(HttpServerRecv(c->FirstSock));
+
 	SleepThread(25);
 
 	SLog(c->Cedar, "LS_CONNECTION_ERROR", c->Name, GetUniErrorStr(c->Err), c->Err);
@@ -4830,6 +4864,20 @@ REDIRECTED:
 		}
 	}
 
+	if (c->Cedar->Server == NULL)
+	{
+		// Suppress client notification flag
+		if (PackIsValueExists(p, "suppress_client_update_notification"))
+		{
+			bool suppress_client_update_notification = PackGetBool(p, "suppress_client_update_notification");
+
+#ifdef	OS_WIN32
+			MsRegWriteIntEx2(REG_LOCAL_MACHINE, PROTO_SUPPRESS_CLIENT_UPDATE_NOTIFICATION_REGKEY, PROTO_SUPPRESS_CLIENT_UPDATE_NOTIFICATION_REGVALUE,
+				(suppress_client_update_notification ? 1 : 0), false, true);
+#endif	// OS_WIN32
+		}
+	}
+
 	if (true)
 	{
 		// Message retrieval
@@ -5935,11 +5983,15 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	SOCK *s;
 	UINT num = 0, max = 19;
 	SERVER *server;
+	char *vpn_http_target = HTTP_VPN_TARGET2;
+	bool check_hostname = false;
 	// Validate arguments
 	if (c == NULL)
 	{
 		return false;
 	}
+
+
 
 	server = c->Cedar->Server;
 
@@ -5964,6 +6016,31 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			c->Err = ERR_CLIENT_IS_NOT_VPN;
 			return false;
 		}
+
+		if (check_hostname && (StrCmpi(h->Version, "HTTP/1.1") == 0 || StrCmpi(h->Version, "HTTP/1.2") == 0))
+		{
+			HTTP_VALUE *v;
+			char hostname[64];
+
+			Zero(hostname, sizeof(hostname));
+
+			v = GetHttpValue(h, "Host");
+			if (v != NULL)
+			{
+				StrCpy(hostname, sizeof(hostname), v->Data);
+			}
+
+			if (IsEmptyStr(hostname))
+			{
+				// Invalid hostname
+				HttpSendInvalidHostname(s, h->Target);
+				FreeHttpHeader(h);
+				c->Err = ERR_CLIENT_IS_NOT_VPN;
+				*error_detail_str = "Invalid_hostname";
+				return false;
+			}
+		}
+
 
 		// Interpret
 		if (StrCmpi(h->Method, "POST") == 0)
@@ -5990,7 +6067,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				return false;
 			}
 			// Check the Target
-			if (StrCmpi(h->Target, HTTP_VPN_TARGET2) != 0)
+			if (StrCmpi(h->Target, vpn_http_target) != 0)
 			{
 				// Target is invalid
 				HttpSendNotFound(s, h->Target);
@@ -6059,7 +6136,8 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 		else
 		{
 			// This should not be a VPN client, but interpret a bit more
-			if (StrCmpi(h->Method, "GET") != 0)
+			if (StrCmpi(h->Method, "GET") != 0 && StrCmpi(h->Method, "HEAD") != 0
+				 && StrCmpi(h->Method, "POST") != 0)
 			{
 				// Unsupported method calls
 				HttpSendNotImplemented(s, h->Method, h->Target, h->Version);
@@ -6195,15 +6273,21 @@ bool ClientUploadSignature(SOCK *s)
 	HTTP_HEADER *h;
 	UINT water_size, rand_size;
 	UCHAR *water;
+	char ip_str[128];
 	// Validate arguments
 	if (s == NULL)
 	{
 		return false;
 	}
 
+	IPToStr(ip_str, sizeof(ip_str), &s->RemoteIP);
+
 	h = NewHttpHeader("POST", HTTP_VPN_TARGET2, "HTTP/1.1");
+	AddHttpValue(h, NewHttpValue("Host", ip_str));
 	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE3));
 	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
+
+
 
 	// Generate a watermark
 	rand_size = Rand32() % (HTTP_PACK_RAND_SIZE_MAX * 2);

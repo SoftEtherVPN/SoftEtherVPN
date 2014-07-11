@@ -54,10 +54,25 @@
 // AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
 // THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
 // 
-// USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS
-// SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
-// PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
-// COUNTRIES MIGHT BE RESTRICTED.
+// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
+// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
+// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
+// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
+// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
+// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
+// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
+// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
+// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
+// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
+// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
+// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
+// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
+// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
+// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
+// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
+// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
+// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
+// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
 // 
 // 
 // SOURCE CODE CONTRIBUTION
@@ -526,6 +541,13 @@ void SiCheckDeadLockMain(SERVER *s, UINT timeout)
 			}
 			UnlockList(cedar->ListenerList);
 
+			for (i = 0;i < LIST_NUM(o);i++)
+			{
+				LISTENER *r = LIST_DATA(o, i);
+
+
+				ReleaseListener(r);
+			}
 
 			ReleaseList(o);
 		}
@@ -4009,6 +4031,7 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->DisableUserModeSecureNAT = CfgGetBool(f, "DisableUserModeSecureNAT");
 	o->DisableCheckMacOnLocalBridge = CfgGetBool(f, "DisableCheckMacOnLocalBridge");
 	o->DisableCorrectIpOffloadChecksum = CfgGetBool(f, "DisableCorrectIpOffloadChecksum");
+	o->SuppressClientUpdateNotification = CfgGetBool(f, "SuppressClientUpdateNotification");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4082,6 +4105,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs);
 	CfgAddBool(f, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
 	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
+	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	CfgAddBool(f, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
 	CfgAddInt(f, "AdjustTcpMssValue", o->AdjustTcpMssValue);
 	CfgAddBool(f, "DisableAdjustTcpMss", o->DisableAdjustTcpMss);
@@ -5786,6 +5810,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// WebUI
 		s->UseWebUI = CfgGetBool(f, "UseWebUI");
 
+
 		// WebTimePage
 		s->UseWebTimePage = CfgGetBool(f, "UseWebTimePage");
 
@@ -6062,6 +6087,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		// WebUI
 		CfgAddBool(f, "UseWebUI", s->UseWebUI);
+
 
 		// NoLinuxArpFilter
 		if (GetOsInfo()->OsType == OSTYPE_LINUX)
@@ -7220,6 +7246,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DoNotSaveHeavySecurityLogs = PackGetBool(p, "DoNotSaveHeavySecurityLogs");
 	o.DropBroadcastsInPrivacyFilterMode = PackGetBool(p, "DropBroadcastsInPrivacyFilterMode");
 	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
+	o.SuppressClientUpdateNotification = PackGetBool(p, "SuppressClientUpdateNotification");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
 	if (o.VlanTypeId == 0)
 	{
@@ -9060,6 +9087,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "DoNotSaveHeavySecurityLogs", h->Option->DoNotSaveHeavySecurityLogs);
 	PackAddBool(p, "DropBroadcastsInPrivacyFilterMode", h->Option->DropBroadcastsInPrivacyFilterMode);
 	PackAddBool(p, "DropArpInPrivacyFilterMode", h->Option->DropArpInPrivacyFilterMode);
+	PackAddBool(p, "SuppressClientUpdateNotification", h->Option->SuppressClientUpdateNotification);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
 	PackAddBool(p, "FixForDLinkBPDU", h->Option->FixForDLinkBPDU);
 	PackAddBool(p, "BroadcastLimiterStrictMode", h->Option->BroadcastLimiterStrictMode);
@@ -10485,6 +10513,21 @@ void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size)
 			StrCpy(region, region_size, "CN");
 		}
 	}
+}
+
+// Check the current region
+bool SiCheckCurrentRegion(CEDAR *c, char *r)
+{
+	char tmp[64];
+	// Validate arguments
+	if (c == NULL || r == NULL)
+	{
+		return false;
+	}
+
+	SiGetCurrentRegion(c, tmp, sizeof(tmp));
+
+	return (StrCmpi(r, tmp) == 0);
 }
 
 // Check whether some enterprise functions are restricted

@@ -56,10 +56,25 @@
 // AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
 // THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
 // 
-// USE ONLY IN JAPAN. DO NOT USE IT IN OTHER COUNTRIES. IMPORTING THIS
-// SOFTWARE INTO OTHER COUNTRIES IS AT YOUR OWN RISK. SOME COUNTRIES
-// PROHIBIT ENCRYPTED COMMUNICATIONS. USING THIS SOFTWARE IN OTHER
-// COUNTRIES MIGHT BE RESTRICTED.
+// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
+// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
+// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
+// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
+// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
+// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
+// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
+// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
+// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
+// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
+// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
+// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
+// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
+// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
+// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
+// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
+// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
+// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
+// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
 // 
 // 
 // SOURCE CODE CONTRIBUTION
@@ -213,6 +228,7 @@ static bool g_natt_low_priority = false;
 static LOCK *host_ip_address_list_cache_lock = NULL;
 static UINT64 host_ip_address_list_cache_last = 0;
 static LIST *host_ip_address_cache = NULL;
+static bool disable_gethostname_by_accept = false;
 
 
 static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA";
@@ -236,6 +252,7 @@ static LIST *g_private_ip_list = NULL;
 
 
 static LIST *g_dyn_value_list = NULL;
+
 
 
 //#define	RUDP_DETAIL_LOG
@@ -592,7 +609,8 @@ bool IsUseDnsProxy()
 // Flag of whether to use an alternate host name
 bool IsUseAlternativeHostname()
 {
-	return IsUseDnsProxy();
+
+	return false;
 }
 
 #ifdef	OS_WIN32
@@ -1542,6 +1560,7 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 					{
 						// Enable the source IP address validation mechanism
 						r->NatT_EnableSourceIpValidation = PackGetBool(p, "enable_source_ip_validation");
+
 					}
 					else
 					{
@@ -1566,7 +1585,7 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 			else if (PackCmpStr(p, "opcode", "nat_t_connect_relay"))
 			{
 				// Connection request from the client via the NAT-T server
-				if (is_ok)
+				if (is_ok && (PackGetInt64(p, "session_key") == r->NatT_SessionKey))
 				{
 					char client_ip_str[MAX_SIZE];
 					UINT client_port;
@@ -1695,6 +1714,7 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 					PackAddStr(p, "token", r->NatT_Token);
 					PackAddStr(p, "svc_name", r->SvcName);
 					PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+					PackAddInt64(p, "session_key", r->NatT_SessionKey);
 					PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
 
@@ -4860,6 +4880,9 @@ SOCK *NewRUDPClientNatT(char *svc_name, IP *ip, UINT *error_code, UINT timeout, 
 	SOCK *sock;
 	bool same_lan = false;
 	char hostname[MAX_SIZE];
+
+
+
 	if (timeout == 0)
 	{
 		timeout = RUDP_TIMEOUT;
@@ -4989,6 +5012,7 @@ LABEL_TIMEOUT:
 						WriteBuf(b, tmp, r);
 						SeekBuf(b, 0, 0);
 
+
 						p = BufToPack(b);
 
 						if (p != NULL)
@@ -5083,6 +5107,7 @@ LABEL_TIMEOUT:
 
 				b = PackToBuf(p);
 				FreePack(p);
+
 				SendTo(sock, &nat_t_ip, UDP_NAT_T_PORT, b->Buf, b->Size);
 				FreeBuf(b);
 
@@ -5346,6 +5371,8 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 	}
 
 	r = ZeroMalloc(sizeof(RUDP_STACK));
+
+	r->NatT_SessionKey = Rand64();
 
 	StrCpy(r->SvcName, sizeof(r->SvcName), svc_name);
 	r->RandPortId = rand_port_id;
@@ -12889,6 +12916,8 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	Lock(openssl_lock);
 	{
 		x509 = SSL_get_peer_certificate(sock->ssl);
+
+		sock->SslVersion = SSL_get_version(sock->ssl);
 	}
 	Unlock(openssl_lock);
 
@@ -12942,8 +12971,117 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 
 	Unlock(sock->ssl_lock);
 
+#ifdef	ENABLE_SSL_LOGGING
+	if (sock->ServerMode)
+	{
+		SockEnableSslLogging(sock);
+	}
+#endif	// ENABLE_SSL_LOGGING
+
 	return true;
 }
+
+#ifdef	ENABLE_SSL_LOGGING
+
+// Enable SSL logging
+void SockEnableSslLogging(SOCK *s)
+{
+	char dirname[MAX_PATH];
+	char tmp[MAX_PATH];
+	char dtstr[MAX_PATH];
+	char fn1[MAX_PATH], fn2[MAX_PATH];
+	// Validate arguments
+	if (s == NULL)
+	{
+		return;
+	}
+
+	if (s->IsSslLoggingEnabled)
+	{
+		return;
+	}
+
+	s->IsSslLoggingEnabled = true;
+
+	GetDateTimeStrMilli64ForFileName(dtstr, sizeof(dtstr), LocalTime64());
+	Format(tmp, sizeof(tmp), "%s__%r_%u__%r_%u", dtstr,
+		&s->LocalIP, s->LocalPort, &s->RemoteIP, s->RemotePort);
+
+	CombinePath(dirname, sizeof(dirname), SSL_LOGGING_DIRNAME, tmp);
+
+	MakeDirEx(dirname);
+
+	CombinePath(fn1, sizeof(fn1), dirname, "send.c");
+	CombinePath(fn2, sizeof(fn2), dirname, "recv.c");
+
+	s->SslLogging_Send = FileCreate(fn1);
+	s->SslLogging_Recv = FileCreate(fn2);
+
+	s->SslLogging_Lock = NewLock();
+}
+
+// Close SSL logging
+void SockCloseSslLogging(SOCK *s)
+{
+	// Validate arguments
+	if (s == NULL)
+	{
+		return;
+	}
+
+	if (s->IsSslLoggingEnabled == false)
+	{
+		return;
+	}
+
+	s->IsSslLoggingEnabled = false;
+
+	FileClose(s->SslLogging_Recv);
+	s->SslLogging_Recv = NULL;
+
+	FileClose(s->SslLogging_Send);
+	s->SslLogging_Send = NULL;
+
+	DeleteLock(s->SslLogging_Lock);
+	s->SslLogging_Lock = NULL;
+}
+
+// Write SSL log
+void SockWriteSslLog(SOCK *s, void *send_data, UINT send_size, void *recv_data, UINT recv_size)
+{
+	// Validate arguments
+	if (s == NULL)
+	{
+		return;
+	}
+
+	if (s->IsSslLoggingEnabled == false)
+	{
+		return;
+	}
+
+	Lock(s->SslLogging_Lock);
+	{
+		if (s->SslLogging_Send != NULL)
+		{
+			if (send_size >= 1 && send_data != NULL)
+			{
+				FileWrite(s->SslLogging_Send, send_data, send_size);
+			}
+		}
+
+		if (s->SslLogging_Recv != NULL)
+		{
+			if (recv_size >= 1 && recv_data != NULL)
+			{
+				FileWrite(s->SslLogging_Recv, recv_data, recv_size);
+			}
+		}
+	}
+	Unlock(s->SslLogging_Lock);
+}
+
+#endif	// ENABLE_SSL_LOGGING
 
 // Set the flag to indicate that the socket doesn't require reading
 void SetNoNeedToRead(SOCK *sock)
@@ -13051,6 +13189,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 
 	}
 	Unlock(sock->ssl_lock);
+
+#ifdef	ENABLE_SSL_LOGGING
+	if (ret > 0)
+	{
+		SockWriteSslLog(sock, NULL, 0, data, ret);
+	}
+#endif	// ENABLE_SSL_LOGGING
+
 	if (ret > 0)
 	{
 		// Successful reception
@@ -13110,6 +13256,13 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		}
 	}
 	Unlock(sock->ssl_lock);
+
+#ifdef	ENABLE_SSL_LOGGING
+	if (ret > 0)
+	{
+		SockWriteSslLog(sock, data, ret, NULL, 0);
+	}
+#endif	// ENABLE_SSL_LOGGING
 
 	if (ret > 0)
 	{
@@ -13432,6 +13585,12 @@ void SetTimeout(SOCK *sock, UINT timeout)
 	}
 }
 
+// Disable GetHostName call by accepting new TCP connection
+void DisableGetHostNameWhenAcceptInit()
+{
+	disable_gethostname_by_accept = true;
+}
+
 // Initialize the connection acceptance
 void AcceptInit(SOCK *s)
 {
@@ -13443,8 +13602,16 @@ void AcceptInit(SOCK *s)
 	}
 
 	Zero(tmp, sizeof(tmp));
-	if (GetHostName(tmp, sizeof(tmp), &s->RemoteIP) == false ||
-		IsEmptyStr(tmp))
+
+	if (disable_gethostname_by_accept == false)
+	{
+		if (GetHostName(tmp, sizeof(tmp), &s->RemoteIP) == false ||
+			IsEmptyStr(tmp))
+		{
+			IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
+		}
+	}
+	else
 	{
 		IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
 	}
@@ -13919,6 +14086,10 @@ void Disconnect(SOCK *sock)
 	}
 
 	sock->Disconnecting = true;
+
+#ifdef	ENABLE_SSL_LOGGING
+	SockCloseSslLogging(sock);
+#endif	// ENABLE_SSL_LOGGING
 
 #ifdef	OS_UNIX
 	UnixFreeAsyncSocket(sock);
@@ -14543,6 +14714,9 @@ bool DetectIsServerSoftEtherVPN(SOCK *s)
 	AddHttpValue(h, NewHttpValue("User-Agent", DEFAULT_USER_AGENT));
 	AddHttpValue(h, NewHttpValue("Pragma", "no-cache"));
 	AddHttpValue(h, NewHttpValue("Cache-Control", "no-cache"));
+
+
+
 	send_str = HttpHeaderToStr(h);
 	FreeHttpHeader(h);
 
@@ -17235,6 +17409,8 @@ void FreeSSLCtx(struct ssl_ctx_st *ctx)
 // Initialize the network communication module
 void InitNetwork()
 {
+	disable_gethostname_by_accept = false;
+
 
 	InitDynList();
 
@@ -20956,18 +21132,22 @@ void CreateDummyValue(PACK *p)
 	Free(buf);
 }
 
-// Client send a PACK to the server
+// Client sends a PACK to the server
 bool HttpClientSend(SOCK *s, PACK *p)
 {
 	BUF *b;
 	bool ret;
 	HTTP_HEADER *h;
 	char date_str[MAX_SIZE];
+	char ip_str[MAX_SIZE];
+
 	// Validate arguments
 	if (s == NULL || p == NULL)
 	{
 		return false;
 	}
+
+	IPToStr(ip_str, sizeof(ip_str), &s->RemoteIP);
 
 	CreateDummyValue(p);
 
@@ -20981,6 +21161,7 @@ bool HttpClientSend(SOCK *s, PACK *p)
 
 	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
 	AddHttpValue(h, NewHttpValue("Date", date_str));
+	AddHttpValue(h, NewHttpValue("Host", ip_str));
 	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
 	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
 	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE2));
@@ -21039,6 +21220,49 @@ void ReplaceUnsafeCharInTarget(char *target){
 		else if(target[i] == '>')
 			target[i] = ')';
 	}
+}
+
+// Sending the 400 Bad Request: Invalid Hostname
+bool HttpSendInvalidHostname(SOCK *s, char *method)
+{
+	HTTP_HEADER *h;
+	char date_str[MAX_SIZE];
+	char *str;
+	bool ret;
+	char host[MAX_SIZE];
+	UINT port;
+	// Validate arguments
+	if (s == NULL)
+	{
+		return false;
+	}
+
+	// Get the host name
+	//GetMachineName(host, MAX_SIZE);
+	Zero(host, sizeof(host));
+	IPToStr(host, sizeof(host), &s->LocalIP);
+	// Get the port number
+	port = s->LocalPort;
+
+	// Creating a header
+	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
+
+	h = NewHttpHeader("HTTP/1.1", "400", "Bad Request");
+
+	AddHttpValue(h, NewHttpValue("Date", date_str));
+	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
+	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
+	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
+
+	// Creating a Data
+	str = "<h1>Bad Request (Invalid Hostname)</h1>\n";
+
+	// Transmission
+	ret = PostHttp(s, h, str, StrLen(str));
+
+	FreeHttpHeader(h);
+
+	return ret;
 }
 
 // Sending the 501 Not Implemented error
