@@ -12594,7 +12594,7 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 {
 	wchar_t dirname[MAX_SIZE];
-	wchar_t exedir[MAX_SIZE];
+	wchar_t statedir[MAX_SIZE];
 	wchar_t txtname[MAX_SIZE];
 	DIRLIST *dir;
 	LIST *o;
@@ -12608,9 +12608,9 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 	o = NewListFast(NULL);
 
-	GetExeDirW(exedir, sizeof(exedir));
+	GetStateDirW(statedir, sizeof(statedir));
 
-	CombinePathW(dirname, sizeof(dirname), exedir, L"chain_certs");
+	CombinePathW(dirname, sizeof(dirname), statedir, L"chain_certs");
 
 	MakeDirExW(dirname);
 
