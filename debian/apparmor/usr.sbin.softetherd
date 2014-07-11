@@ -30,4 +30,7 @@
 	@{PROC}/sys/kernel/osrelease r,
 	@{PROC}/sys/kernel/threads-max rw,
 	@{PROC}/sys/net/ipv4/conf/all/arp_filter rw,
+
+	/dev/net/tun rw,
+	/dev/tun rw,
 }
