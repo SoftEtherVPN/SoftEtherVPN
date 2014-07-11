@@ -511,7 +511,7 @@ namespace BuildUtil
 			txt.WriteLine();
 
 			string src_bindir = Path.Combine(Paths.BaseDirName, "bin");
-			string vpnsmgr_zip_filename_relative = @"Windows\Admin Tools\VPN Server Manager and Command-line Utility Package\";
+			string vpnsmgr_zip_filename_relative = @"Windows\Admin_Tools\VPN_Server_Manager_and_Command-line_Utility_Package\";
 			vpnsmgr_zip_filename_relative += 
 #if BU_SOFTETHER
 				"softether-" + 
