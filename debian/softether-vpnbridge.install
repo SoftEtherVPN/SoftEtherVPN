@@ -1,2 +1,3 @@
+#! /usr/bin/dh-exec
 debian/bin/vpnbridge usr/bin/
 usr/vpnbridge opt/

@@ -26,12 +26,12 @@ test -x $DAEMON || exit 0
 case "$1" in
   start)
   echo -n "Starting $DESC: $NAME"
-  $DAEMON -start
+  $DAEMON start
   echo "."
   ;;
   stop)
   echo -n "Stopping $DESC: $NAME"
-  $DAEMON -stop
+  $DAEMON stop
   echo "."
   ;;
   #reload)
@@ -54,9 +54,9 @@ case "$1" in
   # just the same as "restart".
   #
   echo -n "Restarting $DESC: $NAME"
-  $DAEMON -stop
+  $DAEMON stop
   sleep 1
-  $DAEMON -start
+  $DAEMON start
   echo "."
   ;;
   *)
