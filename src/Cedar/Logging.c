@@ -2406,7 +2406,7 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 	if (strcmp(old_datestr, tmp) != 0)
 	{
 		ret = true;
-		strcpy(old_datestr, tmp);
+		StrCpy(old_datestr, MAX_SIZE, tmp);
 	}
 
 	snprintf(name, size, "%s%s%s%s%s.log", dir,
