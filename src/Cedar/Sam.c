@@ -211,12 +211,12 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					AUTHRADIUS *auth = (AUTHRADIUS *)u->AuthData;
 					if (ast || auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
 					{
-						if( h->RadiusIncludeRealm )
+						if( h->RadiusRealm && (StrLen(h->RadiusRealm) > 0) )
 						{	
 							char name_and_realm[MAX_SIZE];
 							StrCpy(name_and_realm, MAX_SIZE, username);
 							StrCat(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), "@");
-							StrCat(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), hub->Name);
+							StrCat(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), h->RadiusRealm);
 							name = CopyStrToUni(name_and_realm);
 						}
 						else

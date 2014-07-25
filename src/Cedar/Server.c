@@ -4926,7 +4926,7 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 		CfgAddInt(f, "RadiusServerPort", h->RadiusServerPort);
 		CfgAddInt(f, "RadiusRetryInterval", h->RadiusRetryInterval);
 		CfgAddStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter);
-		CfgAddBool(f, "RadiusIncludeRealm", h->RadiusIncludeRealm);
+		CfgAddStr(f, "RadiusRealm", h->RadiusRealm);
 	}
 	Unlock(h->RadiusOptionLock);
 
@@ -5092,7 +5092,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 			interval = CfgGetInt(f, "RadiusRetryInterval");
 
 			CfgGetStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter, sizeof(h->RadiusSuffixFilter));
-			h->RadiusIncludeRealm = CfgGetBool(f, "RadiusIncludeRealm");
+			CfgGetStr(f, "RadiusRealm", h->RadiusRealm, sizeof(h->RadiusRealm));
 
 			if (interval == 0)
 			{
