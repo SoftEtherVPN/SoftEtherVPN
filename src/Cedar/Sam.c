@@ -211,7 +211,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					AUTHRADIUS *auth = (AUTHRADIUS *)u->AuthData;
 					if (ast || auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
 					{
-						if( h->RadiusRealm && (StrLen(h->RadiusRealm) > 0) )
+						if( IsEmptyStr(h->RadiusRealm) == false )
 						{	
 							char name_and_realm[MAX_SIZE];
 							StrCpy(name_and_realm, MAX_SIZE, username);

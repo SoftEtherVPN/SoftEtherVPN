@@ -424,7 +424,7 @@ struct HUB
 	UINT RadiusRetryInterval;			// Radius retry interval
 	BUF *RadiusSecret;					// Radius shared key
 	char RadiusSuffixFilter[MAX_SIZE];	// Radius suffix filter
-	char *RadiusRealm;		// Radius realm (optional)
+	char RadiusRealm[MAX_SIZE];		// Radius realm (optional)
 	volatile bool Halt;					// Halting flag
 	bool Offline;						// Offline
 	bool BeingOffline;					// Be Doing Offline
