@@ -214,9 +214,9 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 						if( h->RadiusIncludeRealm )
 						{	
 							char name_and_realm[MAX_SIZE];
-							name_and_realm = StrCpy(name_and_realm, MAX_SIZE, username);
-							name_and_realm = StrCpy(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), "@");
-							name_and_realm = StrCpy(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), hub.name);
+							StrCpy(name_and_realm, MAX_SIZE, username);
+							StrCat(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), "@");
+							StrCat(name_and_realm, (MAX_SIZE - StrLen(name_and_realm)), hub->Name);
 							name = CopyStrToUni(name_and_realm);
 						}
 						else
