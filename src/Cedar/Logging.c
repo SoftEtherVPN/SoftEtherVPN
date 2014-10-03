@@ -127,7 +127,11 @@ static char *delete_targets[] =
 	"server_log",
 	"bridge_log",
 	"packet_log_archive",
+	"azure_log",
 };
+
+static UINT eraser_check_interval = DISK_FREE_CHECK_INTERVAL_DEFAULT;
+static UINT64 logger_max_log_size = MAX_LOG_SIZE_DEFAULT;
 
 // Send with syslog
 void SendSysLog(SLOG *g, wchar_t *str)
@@ -479,8 +483,34 @@ void EraserThread(THREAD *t, void *p)
 		// Check the amount of free space on the disk periodically
 		EraserMain(e);
 
-		Wait(e->HaltEvent, DISK_FREE_CHECK_INTERVAL);
+		Wait(e->HaltEvent, GetEraserCheckInterval());
 	}
+}
+
+// Set the interval for disk free space check
+void SetEraserCheckInterval(UINT interval)
+{
+	if (interval == 0)
+	{
+		eraser_check_interval = DISK_FREE_CHECK_INTERVAL_DEFAULT;
+	}
+	else
+	{
+		eraser_check_interval = interval * 1000;
+	}
+}
+
+// Get the interval for disk free space check
+UINT GetEraserCheckInterval()
+{
+	UINT ret = eraser_check_interval / 1000;
+
+	if (ret == 0)
+	{
+		ret = 1;
+	}
+
+	return ret;
 }
 
 // Create a new eraser
@@ -1045,8 +1075,8 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 		return true;
 	}
 
-	if (Cmp(hub->HubMacAddr, packet->MacAddressSrc, 6) == 0 ||
-		Cmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
+	if (memcmp(hub->HubMacAddr, packet->MacAddressSrc, 6) == 0 ||
+		memcmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
 	{
 		return true;
 	}
@@ -2400,7 +2430,49 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 	}
 	else
 	{
-		snprintf(tmp2, sizeof(tmp2), "~%02u", num);
+		UINT64 max_log_size = GetMaxLogSize();
+		if (max_log_size == MAX_LOG_SIZE_DEFAULT)
+		{
+			snprintf(tmp2, sizeof(tmp2), "~%02u", num);
+		}
+		else
+		{
+			char tag[32];
+			char c = '2';
+			if (max_log_size >= 1000000000ULL)
+			{
+				c = '3';
+			}
+			else if (max_log_size >= 100000000ULL)
+			{
+				c = '4';
+			}
+			else if (max_log_size >= 10000000ULL)
+			{
+				c = '5';
+			}
+			else if (max_log_size >= 1000000ULL)
+			{
+				c = '6';
+			}
+			else if (max_log_size >= 100000ULL)
+			{
+				c = '7';
+			}
+			else if (max_log_size >= 10000ULL)
+			{
+				c = '8';
+			}
+			else if (max_log_size >= 1000ULL)
+			{
+				c = '9';
+			}
+
+			StrCpy(tag, sizeof(tag), "~%02u");
+			tag[3] = c;
+
+			snprintf(tmp2, sizeof(tmp2), tag, num);
+		}
 	}
 
 	if (strcmp(old_datestr, tmp) != 0)
@@ -2442,6 +2514,30 @@ void WaitLogFlush(LOG *g)
 
 		Wait(g->FlushEvent, 100);
 	}
+}
+
+// Set the max log size
+void SetMaxLogSize(UINT64 size)
+{
+	if (size == 0)
+	{
+		size = MAX_LOG_SIZE_DEFAULT;
+	}
+
+	logger_max_log_size = size;
+}
+
+// Get the max log size
+UINT64 GetMaxLogSize()
+{
+	UINT64 ret = logger_max_log_size;
+
+	if (ret == 0)
+	{
+		ret = MAX_LOG_SIZE_DEFAULT;
+	}
+
+	return ret;
 }
 
 // Logging thread
@@ -2520,7 +2616,7 @@ void LogThread(THREAD *thread, void *param)
 			}
 #endif	// OS_WIN32
 
-			if (b->Size > g->MaxLogFileSize)
+			if (b->Size > GetMaxLogSize())
 			{
 				// Erase if the size of the buffer is larger than the maximum log file size
 				ClearBuf(b);
@@ -2531,7 +2627,7 @@ void LogThread(THREAD *thread, void *param)
 				// Write the contents of the buffer to the file
 				if (io != NULL)
 				{
-					if ((g->CurrentFilePointer + (UINT64)b->Size) > g->MaxLogFileSize)
+					if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
 					{
 						if (g->log_number_incremented == false)
 						{
@@ -2565,7 +2661,7 @@ void LogThread(THREAD *thread, void *param)
 					// Write the contents of the buffer to the file
 					if (io != NULL)
 					{
-						if ((g->CurrentFilePointer + (UINT64)b->Size) > g->MaxLogFileSize)
+						if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
 						{
 							if (g->log_number_incremented == false)
 							{
@@ -2637,7 +2733,7 @@ void LogThread(THREAD *thread, void *param)
 					{
 						if (log_date_changed)
 						{
-							if ((g->CurrentFilePointer + (UINT64)b->Size) <= g->MaxLogFileSize)
+							if ((g->CurrentFilePointer + (UINT64)b->Size) <= GetMaxLogSize())
 							{
 								if (FileWrite(io, b->Buf, b->Size) == false)
 								{
@@ -2863,7 +2959,6 @@ LOG *NewLog(char *dir, char *prefix, UINT switch_type)
 	g->SwitchType = switch_type;
 	g->RecordQueue = NewQueue();
 	g->Event = NewEvent();
-	g->MaxLogFileSize = MAX_LOG_SIZE;
 	g->FlushEvent = NewEvent();
 
 	g->Thread = NewThread(LogThread, g);

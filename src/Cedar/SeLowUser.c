@@ -154,15 +154,9 @@ bool SuInstallDriverInner(bool force)
 	wchar_t tmp_dir[MAX_PATH];
 	char *cpu_type = MsIsX64() ? "x64" : "x86";
 
-	if (SuIsSupportedOs() == false)
+	if (SuIsSupportedOs(true) == false)
 	{
 		// Unsupported OS
-		return false;
-	}
-
-	if (MsIsServiceRunning("RemoteAccess"))
-	{
-		// Remote Access service is running
 		return false;
 	}
 
@@ -255,12 +249,34 @@ bool SuInstallDriverInner(bool force)
 }
 
 // Get whether the current OS is supported by SeLow
-bool SuIsSupportedOs()
+bool SuIsSupportedOs(bool on_install)
 {
+	if (MsRegReadIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "EnableSeLow", false, true) != 0)
+	{
+		// Force enable
+		return true;
+	}
+
 	if (MsRegReadIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "DisableSeLow", false, true) != 0)
 	{
 		// Force disable
 		return false;
+	}
+
+	if (MsIsWindows10())
+	{
+		// Windows 10 or later are always supported.
+		return true;
+	}
+
+	if (on_install)
+	{
+		// If Microsoft Routing and Remote Access service is running,
+		// then return false.
+		if (MsIsServiceRunning("RemoteAccess"))
+		{
+			return false;
+		}
 	}
 
 	// If the Su driver is currently running,
@@ -276,11 +292,14 @@ bool SuIsSupportedOs()
 		return false;
 	}
 
-	// If Microsoft Routing and Remote Access service is running,
-	// then return false.
-	if (MsIsServiceRunning("RemoteAccess"))
+	if (on_install == false)
 	{
-		return false;
+		// If Microsoft Routing and Remote Access service is running,
+		// then return false.
+		if (MsIsServiceRunning("RemoteAccess"))
+		{
+			return false;
+		}
 	}
 
 	return true;
@@ -720,7 +739,7 @@ SU *SuInitEx(UINT wait_for_bind_complete_tick)
 	bool flag = false;
 	UINT64 giveup_tick = 0;
 
-	if (SuIsSupportedOs() == false)
+	if (SuIsSupportedOs(false) == false)
 	{
 		// Unsupported OS
 		return NULL;

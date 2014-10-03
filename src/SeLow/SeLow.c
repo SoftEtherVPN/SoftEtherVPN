@@ -391,7 +391,7 @@ NTSTATUS SlDeviceOpenProc(DEVICE_OBJECT *device_object, IRP *irp)
 					p.Header.Size = NDIS_SIZEOF_NET_BUFFER_LIST_POOL_PARAMETERS_REVISION_1;
 					p.ProtocolId = NDIS_PROTOCOL_ID_DEFAULT;
 					p.fAllocateNetBuffer = true;
-					p.ContextSize = 32;
+					p.ContextSize = 32 + sizeof(UINT32) * 12;
 					p.DataSize = SL_MAX_PACKET_SIZE;
 
 					f->NetBufferListPool = NdisAllocateNetBufferListPool(NULL, &p);
@@ -648,6 +648,7 @@ NTSTATUS SlDeviceReadProc(DEVICE_OBJECT *device_object, IRP *irp)
 						SlCopy(d->MacAddress, a->MacAddress, 6);
 						SlCopy(d->AdapterId, a->AdapterId, sizeof(a->AdapterId));
 						strcpy(d->FriendlyName, a->FriendlyName);
+						d->SupportsVLanHw = a->SupportVLan;
 					}
 				}
 				SlUnlockList(sl->AdapterList);
@@ -833,6 +834,9 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 							UCHAR *packet_buf;
 							NET_BUFFER_LIST *nbl = NULL;
 							bool ok = false;
+							bool is_vlan = false;
+							UINT vlan_id = 0;
+							UINT vlan_user_priority = 0, vlan_can_format_id = 0;
 
 							if (packet_size > SL_MAX_PACKET_SIZE)
 							{
@@ -896,6 +900,32 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 								NET_BUFFER_LIST_NEXT_NBL(nbl) = NULL;
 
+								// Determine if the packet is IEEE802.1Q tagged packet
+								if (dev->Adapter->SupportVLan && packet_size >= 18)
+								{
+									if (packet_buf[12] == 0x81 && packet_buf[13] == 0x00)
+									{
+										USHORT tag_us = 0;
+
+										((UCHAR *)(&tag_us))[0] = packet_buf[15];
+										((UCHAR *)(&tag_us))[1] = packet_buf[14];
+
+										vlan_id = tag_us & 0x0FFF;
+										vlan_user_priority = (tag_us >> 13) & 0x07;
+										vlan_can_format_id = (tag_us >> 12) & 0x01;
+
+										if (vlan_id != 0)
+										{
+											is_vlan = true;
+										}
+									}
+								}
+
+								if (is_vlan)
+								{
+									packet_size -= 4;
+								}
+
 								if (nb != NULL && OK(NdisRetreatNetBufferDataStart(nb, packet_size, 0, NULL)))
 								{
 									// Buffer copy
@@ -903,7 +933,15 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 									if (dst != NULL)
 									{
-										SlCopy(dst, packet_buf, packet_size);
+										if (is_vlan == false)
+										{
+											SlCopy(dst, packet_buf, packet_size);
+										}
+										else
+										{
+											SlCopy(dst, packet_buf, 12);
+											SlCopy(dst + 12, packet_buf + 16, packet_size + 4 - 16);
+										}
 
 										ok = true;
 									}
@@ -935,7 +973,25 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 								nbl_tail = nbl;
 
-								*((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl)) = f;
+								((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[0] = f;
+
+								if (is_vlan == false)
+								{
+									NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = NULL;
+								}
+								else
+								{
+									NDIS_NET_BUFFER_LIST_8021Q_INFO qinfo;
+
+									qinfo.Value = &(((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[1]);
+									SlZero(qinfo.Value, sizeof(UINT32) * 12);
+
+									qinfo.TagHeader.VlanId = vlan_id;
+									qinfo.TagHeader.UserPriority = vlan_user_priority;
+									qinfo.TagHeader.CanonicalFormatId = vlan_can_format_id;
+
+									NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = qinfo.Value;
+								}
 
 								num_packets++;
 							}
@@ -1072,6 +1128,22 @@ NDIS_STATUS SlNdisBindAdapterExProc(NDIS_HANDLE protocol_driver_context, NDIS_HA
 
 		a->Lock = SlNewLock();
 		a->AdapterName = SlNewUnicodeFromUnicodeString(bind_parameters->AdapterName);
+
+/*
+		if (bind_parameters->MacOptions & NDIS_MAC_OPTION_8021Q_VLAN)
+		{
+			a->SupportVLan = true;
+		}
+
+		if (bind_parameters->TcpConnectionOffloadCapabilities != NULL)
+		{
+			if (bind_parameters->TcpConnectionOffloadCapabilities->Encapsulation & NDIS_ENCAPSULATION_IEEE_802_3_P_AND_Q ||
+				bind_parameters->TcpConnectionOffloadCapabilities->Encapsulation & NDIS_ENCAPSULATION_IEEE_802_3_P_AND_Q_IN_OOB)
+			{
+				a->SupportVLan = true;
+			}
+		}
+*/
 
 		SlCopy(a->AdapterId, a->AdapterName->String.Buffer, MIN(sizeof(a->AdapterId) - sizeof(wchar_t), a->AdapterName->String.Length));
 		SlCopy(a->AdapterId, adapter_id_tag, sizeof(adapter_id_tag) - sizeof(wchar_t));
@@ -1485,6 +1557,8 @@ void SlNdisReceiveNetBufferListsProc(NDIS_HANDLE protocol_binding_context, NET_B
 						USHORT tag_us;
 						is_vlan = true;
 
+						a->SupportVLan = true;
+
 						tag_us = (qinfo.TagHeader.UserPriority & 0x07 << 13) |
 							(qinfo.TagHeader.CanonicalFormatId & 0x01 << 12) |
 							(qinfo.TagHeader.VlanId & 0x0FFF);
@@ -1600,7 +1674,7 @@ void SlNdisSendNetBufferListsCompleteProc(NDIS_HANDLE protocol_binding_context, 
 		}
 
 		// Get a file context
-		f = *((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl));
+		f = ((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[0];
 
 		nbl = NET_BUFFER_LIST_NEXT_NBL(nbl);
 		NET_BUFFER_LIST_NEXT_NBL(current_nbl) = NULL;
@@ -1919,51 +1993,6 @@ NDIS_STRING *SlGetUnicode(SL_UNICODE *u)
 	}
 
 	return &u->String;
-}
-
-// Create a packet buffer
-SL_PACKET_BUFFER *SlNewPacketBuffer()
-{
-	SL_PACKET_BUFFER *p;
-	NET_BUFFER_LIST_POOL_PARAMETERS p1;
-
-	// Memory allocation
-	p = SlZeroMalloc(sizeof(SL_PACKET_BUFFER));
-
-	// Create a NET_BUFFER_LIST pool
-	SlZero(&p1, sizeof(p1));
-	p1.Header.Type = NDIS_OBJECT_TYPE_DEFAULT;
-	p1.Header.Revision = NET_BUFFER_LIST_POOL_PARAMETERS_REVISION_1;
-	p1.Header.Size = NDIS_SIZEOF_NET_BUFFER_LIST_POOL_PARAMETERS_REVISION_1;
-	p1.ProtocolId = NDIS_PROTOCOL_ID_DEFAULT;
-	p1.fAllocateNetBuffer = TRUE;
-	p1.DataSize = SL_MAX_PACKET_SIZE;
-
-	p->NetBufferListPool = NdisAllocateNetBufferListPool(NULL, &p1);
-
-	// Create a NET_BUFFER_LIST
-	p->NetBufferList = NdisAllocateNetBufferList(p->NetBufferListPool, 0, 0);
-
-	return p;
-}
-
-// Release the packet buffer
-void SlFreePacketBuffer(SL_PACKET_BUFFER *p)
-{
-	// Validate arguments
-	if (p == NULL)
-	{
-		return;
-	}
-
-	// Release the NET_BUFFER_LIST
-	NdisFreeNetBufferList(p->NetBufferList);
-
-	// Release the NET_BUFFER_LIST pool
-	NdisFreeNetBufferListPool(p->NetBufferListPool);
-
-	// Release the memory
-	SlFree(p);
 }
 
 // Create a list

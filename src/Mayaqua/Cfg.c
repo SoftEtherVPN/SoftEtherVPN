@@ -259,8 +259,26 @@ CFG_RW *NewCfgRwEx(FOLDER **root, char *cfg_name, bool dont_backup)
 }
 CFG_RW *NewCfgRwExW(FOLDER **root, wchar_t *cfg_name, bool dont_backup)
 {
+	return NewCfgRwEx2W(root, cfg_name, dont_backup, NULL);
+}
+CFG_RW *NewCfgRwEx2A(FOLDER **root, char *cfg_name_a, bool dont_backup, char *template_name_a)
+{
+	CFG_RW *ret;
+	wchar_t *cfg_name_w = CopyStrToUni(cfg_name_a);
+	wchar_t *template_name_w = CopyStrToUni(template_name_a);
+
+	ret = NewCfgRwEx2W(root, cfg_name_w, dont_backup, template_name_w);
+
+	Free(cfg_name_w);
+	Free(template_name_w);
+
+	return ret;
+}
+CFG_RW *NewCfgRwEx2W(FOLDER **root, wchar_t *cfg_name, bool dont_backup, wchar_t *template_name)
+{
 	CFG_RW *rw;
 	FOLDER *f;
+	bool loaded_from_template = false;
 	// Validate arguments
 	if (cfg_name == NULL || root == NULL)
 	{
@@ -270,6 +288,18 @@ CFG_RW *NewCfgRwExW(FOLDER **root, wchar_t *cfg_name, bool dont_backup)
 	f = CfgReadW(cfg_name);
 	if (f == NULL)
 	{
+		// Load from template
+		if (UniIsEmptyStr(template_name) == false)
+		{
+			f = CfgReadW(template_name);
+			if (f != NULL)
+			{
+				loaded_from_template = true;
+
+				goto LABEL_CONTIUNE;
+			}
+		}
+
 		rw = ZeroMalloc(sizeof(CFG_RW));
 		rw->lock = NewLock();
 		rw->FileNameW = CopyUniStr(cfg_name);
@@ -281,10 +311,18 @@ CFG_RW *NewCfgRwExW(FOLDER **root, wchar_t *cfg_name, bool dont_backup)
 		return rw;
 	}
 
+LABEL_CONTIUNE:
 	rw = ZeroMalloc(sizeof(CFG_RW));
 	rw->FileNameW = CopyUniStr(cfg_name);
 	rw->FileName = CopyUniToStr(cfg_name);
-	rw->Io = FileOpenW(cfg_name, false);
+	if (loaded_from_template == false)
+	{
+		rw->Io = FileOpenW(cfg_name, false);
+	}
+	else
+	{
+		rw->Io = FileCreateW(cfg_name);
+	}
 	rw->lock = NewLock();
 
 	*root = f;

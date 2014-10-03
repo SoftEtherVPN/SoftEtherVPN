@@ -119,7 +119,7 @@
 #define	LOG_HTTP_PORT						80
 
 
-#define	MAX_LOG_SIZE						1073741823ULL
+#define	MAX_LOG_SIZE_DEFAULT				1073741823ULL
 
 typedef char *(RECORD_PARSE_PROC)(RECORD *rec);
 
@@ -171,7 +171,6 @@ struct LOG
 	UINT LastSwitchType;
 	char LastStr[MAX_SIZE];
 	UINT64 CurrentFilePointer;				// The current file pointer
-	UINT64 MaxLogFileSize;					// Maximum log file size
 	UINT CurrentLogNumber;					// Log file number of the current
 	bool log_number_incremented;
 };
@@ -269,6 +268,10 @@ void WriteMultiLineLog(LOG *g, BUF *b);
 char *BuildHttpLogStr(HTTPLOG *h);
 void MakeSafeLogStr(char *str);
 void AddLogBufToStr(BUF *b, char *name, char *value);
+void SetEraserCheckInterval(UINT interval);
+UINT GetEraserCheckInterval();
+void SetMaxLogSize(UINT64 size);
+UINT64 GetMaxLogSize();
 
 #endif	// LOGGING_G
 

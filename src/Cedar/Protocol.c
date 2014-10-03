@@ -2707,6 +2707,12 @@ bool ServerAccept(CONNECTION *c)
 				}
 			}
 
+			if (use_encrypt == false && c->FirstSock->IsReverseAcceptedSocket)
+			{
+				// On VPN Azure, SSL encryption is mandated.
+				use_encrypt = true;
+			}
+
 			if (use_client_license || use_bridge_license)
 			{
 				// Examine whether not to conflict with the limit of simultaneous connections
@@ -6939,7 +6945,7 @@ SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, 
 	if (hWnd == NULL)
 	{
 #endif	// OS_WIN32
-		return ConnectEx3(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, ssl_no_tls, false);
+		return ConnectEx3(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, ssl_no_tls, true);
 #ifdef	OS_WIN32
 	}
 	else

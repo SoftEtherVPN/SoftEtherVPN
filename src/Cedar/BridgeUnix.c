@@ -143,6 +143,22 @@
 #include <ifaddrs.h>
 #endif // BRIDGE_BPF
 
+#ifdef	UNIX_LINUX
+struct my_tpacket_auxdata
+{
+	UINT tp_status;
+	UINT tp_len;
+	UINT tp_snaplen;
+	USHORT tp_mac;
+	USHORT tp_net;
+	USHORT tp_vlan_tci;
+	USHORT tp_vlan_tpid;
+};
+#define MY_TP_STATUS_VLAN_VALID (1 << 4)
+#define MY_TP_STATUS_VLAN_TPID_VALID (1 << 6)
+#define	MY_PACKET_AUXDATA 8
+#endif	// UNIX_LINUX
+
 // Initialize
 void InitEth()
 {
@@ -543,6 +559,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 	struct sockaddr_ll addr;
 	int s;
 	int index;
+	bool aux_ok = false;
 	CANCEL *c;
 	// Validate arguments
 	if (name == NULL)
@@ -624,11 +641,29 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 		}
 	}
 
+	if (true)
+	{
+		int val = 1;
+		int ss_ret = setsockopt(s, SOL_PACKET, MY_PACKET_AUXDATA, &val, sizeof(val));
+
+		if (ss_ret < 0)
+		{
+			Debug("eth(%s): setsockopt: PACKET_AUXDATA failed.\n", name);
+		}
+		else
+		{
+			Debug("eth(%s): setsockopt: PACKET_AUXDATA ok.\n", name);
+			aux_ok = true;
+		}
+	}
+
 	e = ZeroMalloc(sizeof(ETH));
 	e->Name = CopyStr(name);
 	e->Title = CopyStr(name);
 	e->IfIndex = index;
 	e->Socket = s;
+
+	e->Linux_IsAuxDataSupported = aux_ok;
 
 	c = NewCancel();
 	UnixDeletePipe(c->pipe_read, c->pipe_write);
@@ -646,8 +681,11 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 
 	if (tapmode == false)
 	{
-		// Disable hardware offloading
-		UnixDisableInterfaceOffload(name);
+		if (GetGlobalServerFlag(GSF_LOCALBRIDGE_NO_DISABLE_OFFLOAD) == false)
+		{
+			// Disable hardware offloading
+			UnixDisableInterfaceOffload(name);
+		}
 	}
 
 	return e;
@@ -1566,10 +1604,19 @@ UINT EthGetPacket(ETH *e, void **data)
 }
 
 #ifdef	UNIX_LINUX
+
 UINT EthGetPacketLinux(ETH *e, void **data)
 {
 	int s, ret;
 	UCHAR tmp[UNIX_ETH_TMP_BUFFER_SIZE];
+	struct iovec msg_iov;
+	struct msghdr msg_header;
+	struct cmsghdr *cmsg;
+	union
+	{
+		struct cmsghdr cmsg;
+		char buf[CMSG_SPACE(sizeof(struct my_tpacket_auxdata))];
+	} cmsg_buf;
 	// Validate arguments
 	if (e == NULL || data == NULL)
 	{
@@ -1603,7 +1650,28 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 	}
 
 	// Read
-	ret = read(s, tmp, sizeof(tmp));
+	msg_iov.iov_base = tmp;
+	msg_iov.iov_len = sizeof(tmp);
+
+	msg_header.msg_name = NULL;
+	msg_header.msg_namelen = 0;
+	msg_header.msg_iov = &msg_iov;
+	msg_header.msg_iovlen = 1;
+	if (e->Linux_IsAuxDataSupported)
+	{
+		memset(&cmsg_buf, 0, sizeof(cmsg_buf));
+
+		msg_header.msg_control = &cmsg_buf;
+		msg_header.msg_controllen = sizeof(cmsg_buf);
+	}
+	else
+	{
+		msg_header.msg_control = NULL;
+		msg_header.msg_controllen = 0;
+	}
+	msg_header.msg_flags = 0;
+
+	ret = recvmsg(s, &msg_header, 0);
 	if (ret == 0 || (ret == -1 && errno == EAGAIN))
 	{
 		// No packet
@@ -1619,9 +1687,75 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 	}
 	else
 	{
-		// Success to read a packet
-		*data = MallocFast(ret);
-		Copy(*data, tmp, ret);
+		bool flag = false;
+		USHORT api_vlan_id = 0;
+		USHORT api_vlan_tpid = 0;
+
+		if (e->Linux_IsAuxDataSupported)
+		{
+			for (cmsg = CMSG_FIRSTHDR(&msg_header); cmsg; cmsg = CMSG_NXTHDR(&msg_header, cmsg))
+			{
+				struct my_tpacket_auxdata *aux;
+				UINT len;
+				USHORT vlan_tpid = 0x8100;
+				USHORT vlan_id = 0;
+
+				if (cmsg->cmsg_len < CMSG_LEN(sizeof(struct my_tpacket_auxdata)) ||
+					cmsg->cmsg_level != SOL_PACKET ||
+					cmsg->cmsg_type != MY_PACKET_AUXDATA)
+				{
+					continue;
+				}
+
+				aux = (struct my_tpacket_auxdata *)CMSG_DATA(cmsg);
+
+				if (aux != NULL)
+				{
+					if (aux->tp_vlan_tci != 0)
+					{
+						vlan_id = aux->tp_vlan_tci;
+					}
+				}
+
+				if (vlan_id != 0)
+				{
+					api_vlan_id = vlan_id;
+					api_vlan_tpid = vlan_tpid;
+					break;
+				}
+			}
+
+			if (api_vlan_id != 0 && api_vlan_tpid != 0)
+			{
+				// VLAN ID has been received with PACKET_AUXDATA.
+				// Insert the tag.
+				USHORT vlan_id_ne = Endian16(api_vlan_id);
+				USHORT vlan_tpid_ne = Endian16(api_vlan_tpid);
+
+				if (ret >= 14)
+				{
+					if (*((USHORT *)(tmp + 12)) != vlan_tpid_ne)
+					{
+						*data = MallocFast(ret + 4);
+						Copy(*data, tmp, 12);
+						Copy(((UCHAR *)*data) + 12, &vlan_tpid_ne, 2);
+						Copy(((UCHAR *)*data) + 14, &vlan_id_ne, 2);
+						Copy(((UCHAR *)*data) + 16, tmp + 12, ret - 12);
+
+						flag = true;
+
+						ret += 4;
+					}
+				}
+			}
+		}
+
+		// Success to read a packet (No VLAN)
+		if (flag == false)
+		{
+			*data = MallocFast(ret);
+			Copy(*data, tmp, ret);
+		}
 		return ret;
 	}
 
@@ -1824,11 +1958,36 @@ void EthPutPacket(ETH *e, void *data, UINT size)
 		Debug("EthPutPacket: ret:%d size:%d\n", ret, size);
 	}
 #else // BRIDGE_PCAP
+#ifndef	UNIX_LINUX
 	ret = write(s, data, size);
 	if (ret<0)
 	{
 		Debug("EthPutPacket: ret:%d errno:%d  size:%d\n", ret, errno, size);
 	}
+#else	// UNIX_LINUX
+	{
+		struct iovec msg_iov;
+		struct msghdr msg_header;
+
+		msg_iov.iov_base = data;
+		msg_iov.iov_len = size;
+
+		msg_header.msg_name = NULL;
+		msg_header.msg_namelen = 0;
+		msg_header.msg_iov = &msg_iov;
+		msg_header.msg_iovlen = 1;
+		msg_header.msg_control = NULL;
+		msg_header.msg_controllen = 0;
+		msg_header.msg_flags = 0;
+
+		ret = sendmsg(s, &msg_header, 0);
+
+		if (ret<0)
+		{
+			Debug("EthPutPacket: ret:%d errno:%d  size:%d\n", ret, errno, size);
+		}
+	}
+#endif	// UNIX_LINUX
 #endif //BRIDGE_PCAP
 	
 	Free(data);

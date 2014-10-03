@@ -137,6 +137,8 @@ void SessionMain(SESSION *s)
 	TRAFFIC t;
 	SOCK *msgdlg_sock = NULL;
 	SOCK *nicinfo_sock = NULL;
+	bool is_server_session = false;
+	bool lock_receive_blocks_queue = false;
 	// Validate arguments
 	if (s == NULL)
 	{
@@ -271,9 +273,14 @@ void SessionMain(SESSION *s)
 		}
 	}
 
+	is_server_session = s->ServerMode;
+
+	lock_receive_blocks_queue = s->LinkModeServer;
+
+	now = Tick64();
+
 	while (true)
 	{
-		now = Tick64();
 		Zero(&t, sizeof(t));
 
 
@@ -318,11 +325,21 @@ void SessionMain(SESSION *s)
 			}
 		}
 
+		
 		// Chance of additional connection
-		ClientAdditionalConnectChance(s);
+		if (is_server_session == false)
+		{
+			if (GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT) == false)
+			{
+				ClientAdditionalConnectChance(s);
+			}
+		}
 
 		// Receive a block
 		ConnectionReceive(c, s->Cancel1, s->Cancel2);
+
+		// Get the current time
+		now = Tick64();
 
 		if (s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->FatalError)
 		{
@@ -333,7 +350,10 @@ void SessionMain(SESSION *s)
 		}
 
 		// Pass the received block to the PacketAdapter
-		LockQueue(c->ReceivedBlocks);
+		if (lock_receive_blocks_queue)
+		{
+			LockQueue(c->ReceivedBlocks);
+		}
 		{
 			BLOCK *b;
 			packet_put = false;
@@ -349,17 +369,33 @@ void SessionMain(SESSION *s)
 
 				update_hub_last_comm = true;
 
-				if (s->ServerMode == false && b->Size >= 14)
+				if (b->Size >= 14)
 				{
-					if (b->Buf[0] & 0x40)
+					if (b->Buf[0] & 0x01)
 					{
-						t.Recv.BroadcastCount++;
-						t.Recv.BroadcastBytes += (UINT64)b->Size;
+						if (is_server_session == false)
+						{
+							t.Recv.BroadcastCount++;
+							t.Recv.BroadcastBytes += (UINT64)b->Size;
+						}
+						else
+						{
+							t.Send.BroadcastCount++;
+							t.Send.BroadcastBytes += (UINT64)b->Size;
+						}
 					}
 					else
 					{
-						t.Recv.UnicastCount++;
-						t.Recv.UnicastBytes += (UINT64)b->Size;
+						if (is_server_session == false)
+						{
+							t.Recv.UnicastCount++;
+							t.Recv.UnicastBytes += (UINT64)b->Size;
+						}
+						else
+						{
+							t.Send.UnicastCount++;
+							t.Send.UnicastBytes += (UINT64)b->Size;
+						}
 					}
 				}
 
@@ -375,7 +411,7 @@ void SessionMain(SESSION *s)
 				Free(b);
 			}
 
-			if (packet_put || s->ServerMode)
+			if (true /* packet_put || is_server_session 2014.7.23 for optimizing */)
 			{
 				PROBE_DATA2("pa->PutPacket", NULL, 0);
 				if (pa->PutPacket(s, NULL, 0) == false)
@@ -386,10 +422,12 @@ void SessionMain(SESSION *s)
 				}
 			}
 		}
-		UnlockQueue(c->ReceivedBlocks);
+		if (lock_receive_blocks_queue)
+		{
+			UnlockQueue(c->ReceivedBlocks);
+		}
 
 		// Add the packet to be transmitted to SendBlocks by acquiring from PacketAdapter
-		LockQueue(c->SendBlocks);
 		{
 			UINT i, max_num = MAX_SEND_SOCKET_QUEUE_NUM;
 			i = 0;
@@ -416,35 +454,75 @@ void SessionMain(SESSION *s)
 				else
 				{
 					bool priority;
+					QUEUE *q = NULL;
 					// Buffering
-					if (s->ServerMode == false && packet_size >= 14)
+					if (packet_size >= 14)
 					{
 						UCHAR *buf = (UCHAR *)packet;
 						if (buf[0] & 0x01)
 						{
-							t.Send.BroadcastCount++;
-							t.Send.BroadcastBytes += (UINT64)packet_size;
+							if (is_server_session == false)
+							{
+								t.Send.BroadcastCount++;
+								t.Send.BroadcastBytes += (UINT64)packet_size;
+							}
+							else
+							{
+								t.Recv.BroadcastCount++;
+								t.Recv.BroadcastBytes += (UINT64)packet_size;
+							}
 						}
 						else
 						{
-							t.Send.UnicastCount++;
-							t.Send.UnicastBytes += (UINT64)packet_size;
+							if (is_server_session == false)
+							{
+								t.Send.UnicastCount++;
+								t.Send.UnicastBytes += (UINT64)packet_size;
+							}
+							else
+							{
+								t.Recv.UnicastCount++;
+								t.Recv.UnicastBytes += (UINT64)packet_size;
+							}
 						}
 					}
 					priority = IsPriorityHighestPacketForQoS(packet, packet_size);
+
 					b = NewBlock(packet, packet_size, s->UseCompress ? 1 : 0);
 					b->PriorityQoS = priority;
-					c->CurrentSendQueueSize += b->Size;
 
 					if (b->PriorityQoS && c->Protocol == CONNECTION_TCP && s->QoS)
 					{
-						InsertQueue(c->SendBlocks2, b);
+						q = c->SendBlocks2;
 					}
 					else
 					{
-						InsertQueue(c->SendBlocks, b);
+						q = c->SendBlocks;
+					}
+
+					if (q->num_item > MAX_STORED_QUEUE_NUM)
+					{
+						q = NULL;
+					}
+
+					if (q != NULL)
+					{
+						c->CurrentSendQueueSize += b->Size;
+						InsertQueue(q, b);
+					}
+					else
+					{
+						FreeBlock(b);
 					}
 				}
+
+				if ((i % 16) == 0)
+				{
+					int diff = ((int)c->CurrentSendQueueSize) - ((int)c->LastPacketQueueSize);
+					CedarAddCurrentTcpQueueSize(c->Cedar, diff);
+					c->LastPacketQueueSize = c->CurrentSendQueueSize;
+				}
+
 				i++;
 				if (i >= max_num)
 				{
@@ -452,15 +530,23 @@ void SessionMain(SESSION *s)
 				}
 			}
 		}
-		UnlockQueue(c->SendBlocks);
 
 		AddTrafficForSession(s, &t);
 
+		if (true)
+		{
+			int diff = ((int)c->CurrentSendQueueSize) - ((int)c->LastPacketQueueSize);
+			CedarAddCurrentTcpQueueSize(c->Cedar, diff);
+			c->LastPacketQueueSize = c->CurrentSendQueueSize;
+		}
+
+		now = Tick64();
+
 		// Send a block
-		ConnectionSend(c);
+		ConnectionSend(c, now);
 
 		// Determine the automatic disconnection
-		if (auto_disconnect_tick != 0 && auto_disconnect_tick <= Tick64())
+		if (auto_disconnect_tick != 0 && auto_disconnect_tick <= now)
 		{
 			err = ERR_AUTO_DISCONNECTED;
 			s->CurrentRetryCount = INFINITE;
@@ -476,9 +562,6 @@ void SessionMain(SESSION *s)
 			}
 			break;
 		}
-
-		// Get the current time
-		now = Tick64();
 
 		// Increments the number of logins for user object and Virtual HUB object.
 		// (It's incremented only if the time 30 seconds passed after connection.
@@ -498,7 +581,7 @@ void SessionMain(SESSION *s)
 			}
 		}
 
-		if (s->ServerMode)
+		if (is_server_session)
 		{
 			HUB *hub;
 
@@ -513,15 +596,11 @@ void SessionMain(SESSION *s)
 
 			if (hub != NULL)
 			{
-				Lock(hub->lock);
+				if ((hub->LastIncrementTraffic + INCREMENT_TRAFFIC_INTERVAL) <= now)
 				{
-					if ((hub->LastIncrementTraffic + INCREMENT_TRAFFIC_INTERVAL) <= now)
-					{
-						IncrementHubTraffic(s->Hub);
-						hub->LastIncrementTraffic = now;
-					}
+					hub->LastIncrementTraffic = now;
+					IncrementHubTraffic(s->Hub);
 				}
-				Unlock(hub->lock);
 			}
 		}
 
@@ -536,7 +615,22 @@ void SessionMain(SESSION *s)
 				WHERE;
 			}
 
-			if (s->ServerMode == false && s->ClientOption != NULL && s->ClientOption->ConnectionDisconnectSpan == 0)
+			if (c->Protocol == CONNECTION_TCP)
+			{
+				if (GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT))
+				{
+					UINT num_tcp_connections = Count(c->CurrentNumConnection);
+
+					if (num_tcp_connections == 0)
+					{
+						// All TCP connections are disconnected.
+						// Terminate the session immediately.
+						timeouted = true;
+					}
+				}
+			}
+
+			if (is_server_session == false && s->ClientOption != NULL && s->ClientOption->ConnectionDisconnectSpan == 0)
 			{
 				if (LIST_NUM(s->Connection->Tcp->TcpSockList) < s->MaxConnection)
 				{
@@ -588,7 +682,14 @@ CLEANUP:
 
 	if (s->Connection)
 	{
+		int diff =  -((int)s->Connection->LastTcpQueueSize);
+		s->Connection->LastTcpQueueSize = 0;
 		s->Connection->Halt = true;
+		CedarAddCurrentTcpQueueSize(s->Cedar, diff);
+
+		diff = ((int)c->CurrentSendQueueSize) - ((int)c->LastPacketQueueSize);
+		CedarAddCurrentTcpQueueSize(c->Cedar, diff);
+		c->LastPacketQueueSize = c->CurrentSendQueueSize;
 	}
 
 	// Release the packet adapter
@@ -1343,6 +1444,12 @@ void ClientThread(THREAD *t, void *param)
 
 	while (true)
 	{
+		if (s->Link != NULL && ((*s->Link->StopAllLinkFlag) || s->Link->Halting))
+		{
+			s->Err = ERR_USER_CANCEL;
+			break;
+		}
+
 		CLog(s->Cedar->Client, "LC_CONNECT_1", s->ClientOption->AccountName, s->CurrentRetryCount + 1);
 		if (s->LinkModeClient && s->Link != NULL)
 		{
@@ -1423,6 +1530,21 @@ void ClientThread(THREAD *t, void *param)
 		if (use_password_dlg == false)
 		{
 			UINT retry_interval = s->RetryInterval;
+
+			if (s->LinkModeClient)
+			{
+				UINT current_num_links = Count(s->Cedar->CurrentActiveLinks);
+				UINT max_retry_interval = MAX(1000 * current_num_links, retry_interval);
+
+				retry_interval += retry_interval * MIN(s->CurrentRetryCount, 1000);
+				retry_interval = MIN(retry_interval, max_retry_interval);
+
+				// On the cascade client, adjust the retry_interval. (+/- 20%)
+				if (retry_interval >= 1000 && retry_interval <= (60 * 60 * 1000))
+				{
+					retry_interval = (retry_interval * 8 / 10) + (Rand32() % (retry_interval * 4 / 10));
+				}
+			}
 
 			if (s->Err == ERR_HUB_IS_BUSY || s->Err == ERR_LICENSE_ERROR ||
 				s->Err == ERR_HUB_STOPPING || s->Err == ERR_TOO_MANY_USER_SESSION)
@@ -1811,6 +1933,13 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 	// Copy the client connection options
 	s->ClientOption = Malloc(sizeof(CLIENT_OPTION));
 	Copy(s->ClientOption, option, sizeof(CLIENT_OPTION));
+
+	if (GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT))
+	{
+		s->ClientOption->DisableQoS = true;
+		s->ClientOption->MaxConnection = 1;
+		s->ClientOption->HalfConnection = false;
+	}
 
 	s->MaxConnection = option->MaxConnection;
 	s->UseEncrypt = option->UseEncrypt;

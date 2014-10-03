@@ -344,8 +344,10 @@ typedef UINT_PTR SOCKET;
 #define	OSTYPE_WINDOWS_SERVER_8					2710	// Windows Server 2012
 #define	OSTYPE_WINDOWS_81						2701	// Windows 8.1
 #define	OSTYPE_WINDOWS_SERVER_81				2711	// Windows Server 2012 R2
-#define	OSTYPE_WINDOWS_9						2800	// Windows 9
-#define	OSTYPE_WINDOWS_SERVER_9					2810	// Windows Server 9
+#define	OSTYPE_WINDOWS_10						2702	// Windows 10
+#define	OSTYPE_WINDOWS_SERVER_10				2712	// Windows Server 10
+#define	OSTYPE_WINDOWS_11						2800	// Windows 11 or later
+#define	OSTYPE_WINDOWS_SERVER_11				2810	// Windows Server 11 or later
 #define	OSTYPE_UNIX_UNKNOWN						3000	// Unknown UNIX
 #define	OSTYPE_LINUX							3100	// Linux
 #define	OSTYPE_SOLARIS							3200	// Solaris

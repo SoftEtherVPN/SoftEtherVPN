@@ -554,6 +554,7 @@ struct WINUI_UPDATE
 	char RegKey[MAX_PATH];
 	UPDATE_CLIENT *UpdateClient;
 	bool UseSuppressFlag;
+	bool CurrentlyDisabled;
 };
 
 // Update notification parameters
@@ -579,6 +580,7 @@ void FreeWinUi();
 
 WINUI_UPDATE *InitUpdateUi(wchar_t *title, char *name, char *family_name, UINT64 current_date, UINT current_build, UINT current_ver, char *client_id, bool use_suppress_flag);
 void FreeUpdateUi(WINUI_UPDATE *u);
+void DisableUpdateUi(WINUI_UPDATE *u);
 void LoadUpdateUiSetting(WINUI_UPDATE *u, UPDATE_CLIENT_SETTING *s);
 void SaveUpdateUiSetting(WINUI_UPDATE *u, UPDATE_CLIENT_SETTING *s);
 void UpdateNotifyProcUi(UPDATE_CLIENT *c, UINT latest_build, UINT64 latest_date, char *latest_ver, char *url, volatile bool *halt_flag, void *param);

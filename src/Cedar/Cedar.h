@@ -138,7 +138,7 @@
 #define	CEDAR_VER					410
 
 // Build Number
-#define	CEDAR_BUILD					9473
+#define	CEDAR_BUILD					9505
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc26"
+#define	BUILD_PLACE			"pc25"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2014
-#define	BUILD_DATE_M		7
-#define	BUILD_DATE_D		12
-#define	BUILD_DATE_HO		2
-#define	BUILD_DATE_MI		14
-#define	BUILD_DATE_SE		33
+#define	BUILD_DATE_M		10
+#define	BUILD_DATE_D		3
+#define	BUILD_DATE_HO		17
+#define	BUILD_DATE_MI		55
+#define	BUILD_DATE_SE		4
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -224,27 +224,45 @@
 #define	MAX_ACCESSLISTS				(4096 * 8)	// Maximum number of access list entries
 #define	MAX_USERS					10000	// The maximum number of users
 #define	MAX_GROUPS					10000	// Maximum number of groups
-#define	MAX_MAC_TABLES				65536	// Maximum number of MAC address table entries
-#define	MAX_IP_TABLES				65536	// Maximum number of IP address table entries
+#define	MAX_MAC_TABLES				VPN_GP(GP_MAX_MAC_TABLES, 65536)	// Maximum number of MAC address table entries
+#define	MAX_IP_TABLES				VPN_GP(GP_MAX_IP_TABLES, 65536)	// Maximum number of IP address table entries
 #define	MAX_HUB_CERTS				4096	// Maximum number of Root CA that can be registered
 #define	MAX_HUB_CRLS				4096	// Maximum number of CRL that can be registered
 #define	MAX_HUB_ACS					4096	// Maximum number of AC that can be registered
-#define	MAX_HUB_LINKS				128		// Maximum number of Cascade that can be registered
+#define	MAX_HUB_LINKS				VPN_GP(GP_MAX_HUB_LINKS, 1024)	// Maximum number of Cascade that can be registered
 #define	MAX_HUB_ADMIN_OPTIONS		4096	// Maximum number of Virtual HUB management options that can be registered
+
+#ifndef	USE_STRATEGY_LOW_MEMORY
+#define	MEM_FIFO_REALLOC_MEM_SIZE	VPN_GP(GP_MEM_FIFO_REALLOC_MEM_SIZE, (65536 * 10))
+#define	QUEUE_BUDGET				VPN_GP(GP_QUEUE_BUDGET, 2048)
+#define	FIFO_BUDGET					VPN_GP(GP_FIFO_BUDGET, 1600 * 1600 * 4)
+#else	// USE_STRATEGY_LOW_MEMORY
+#define	MEM_FIFO_REALLOC_MEM_SIZE	VPN_GP(GP_MEM_FIFO_REALLOC_MEM_SIZE, (65536))
+#define	QUEUE_BUDGET				VPN_GP(GP_QUEUE_BUDGET, 1024)
+#define	FIFO_BUDGET					VPN_GP(GP_FIFO_BUDGET, 1000000)
+#endif	// USE_STRATEGY_LOW_MEMORY
 
 #define	MAX_PACKET_SIZE				1560	// Maximum packet size
 #define	UDP_BUF_SIZE				(32 * 1024) // Aim of the UDP packet size
 
-#define	MAX_SEND_SOCKET_QUEUE_SIZE	(1600 * 1600 * 1)	// Maximum transmit queue size
-#define	MIN_SEND_SOCKET_QUEUE_SIZE	(1600 * 200 * 1)
-#define	MAX_SEND_SOCKET_QUEUE_NUM	128		// Maximum transmission queue items
+#ifndef	USE_STRATEGY_LOW_MEMORY
+#define	MAX_SEND_SOCKET_QUEUE_SIZE	VPN_GP(GP_MAX_SEND_SOCKET_QUEUE_SIZE, (1600 * 1600 * 1))	// Maximum transmit queue size
+#define	MIN_SEND_SOCKET_QUEUE_SIZE	VPN_GP(GP_MIN_SEND_SOCKET_QUEUE_SIZE, (1600 * 200 * 1))	// Minimum transmit queue size
+#define	MAX_STORED_QUEUE_NUM		VPN_GP(GP_MAX_STORED_QUEUE_NUM, 1024)		// The number of queues that can be stored in each session
+#define	MAX_BUFFERING_PACKET_SIZE	VPN_GP(GP_MAX_BUFFERING_PACKET_SIZE, (1600 * 1600))	// Maximum packet size can be buffered
+#else	// USE_STRATEGY_LOW_MEMORY
+#define	MAX_SEND_SOCKET_QUEUE_SIZE	VPN_GP(GP_MAX_SEND_SOCKET_QUEUE_SIZE, (1600 * 200 * 1))	// Maximum transmit queue size
+#define	MIN_SEND_SOCKET_QUEUE_SIZE	VPN_GP(GP_MIN_SEND_SOCKET_QUEUE_SIZE, (1600 * 50 * 1))	// Minimum transmit queue size
+#define	MAX_STORED_QUEUE_NUM		VPN_GP(GP_MAX_STORED_QUEUE_NUM, 384)		// The number of queues that can be stored in each session
+#define	MAX_BUFFERING_PACKET_SIZE	VPN_GP(GP_MAX_BUFFERING_PACKET_SIZE, (1600 * 300 * 1))	// Maximum packet size can be buffered
+#endif	// USE_STRATEGY_LOW_MEMORY
+
+#define	MAX_SEND_SOCKET_QUEUE_NUM	VPN_GP(GP_MAX_SEND_SOCKET_QUEUE_NUM, 128)		// Maximum number of transmission queue items per processing
 #define	MAX_TCP_CONNECTION			32		// The maximum number of TCP connections
 #define	NUM_TCP_CONNECTION_FOR_UDP_RECOVERY	2	// Maximum number of connections when using UDP recovery
-#define	SELECT_TIME					256
-#define	SELECT_TIME_FOR_NAT			30
+#define	SELECT_TIME					VPN_GP(GP_SELECT_TIME, 256)
+#define	SELECT_TIME_FOR_NAT			VPN_GP(GP_SELECT_TIME_FOR_NAT, 30)
 #define	SELECT_TIME_FOR_DELAYED_PKT	1		// If there is a delayed packet
-#define	MAX_STORED_QUEUE_NUM		1024		// The number of queues that can be stored in each session
-#define	MAX_BUFFERING_PACKET_SIZE	(1600 * 1600)	// Maximum packet size can be buffered
 
 #define	TIMEOUT_MIN					(5 * 1000)	// Minimum timeout in seconds
 #define	TIMEOUT_MAX					(60 * 1000)	// Maximum timeout in seconds
@@ -266,16 +284,16 @@
 
 #define	MAC_TABLE_EXCLUSIVE_TIME	(13 * 1000)			// Period that can occupy the MAC address
 #define	IP_TABLE_EXCLUSIVE_TIME		(13 * 1000)			// Period that can occupy the IP address
-#define	MAC_TABLE_EXPIRE_TIME		(600 * 1000)			// MAC address table expiration date
-#define	IP_TABLE_EXPIRE_TIME		(60 * 1000)			// IP address table expiration date
-#define	IP_TABLE_EXPIRE_TIME_DHCP	(5 * 60 * 1000)		// IP address table expiration date (In the case of DHCP)
-#define	HUB_ARP_SEND_INTERVAL		(5 * 1000)			// ARP packet transmission interval (alive check)
+#define	MAC_TABLE_EXPIRE_TIME		VPN_GP(GP_MAC_TABLE_EXPIRE_TIME, (600 * 1000))			// MAC address table expiration time
+#define	IP_TABLE_EXPIRE_TIME		VPN_GP(GP_IP_TABLE_EXPIRE_TIME, (60 * 1000))			// IP address table expiration time
+#define	IP_TABLE_EXPIRE_TIME_DHCP	VPN_GP(GP_IP_TABLE_EXPIRE_TIME_DHCP, (5 * 60 * 1000))		// IP address table expiration time (In the case of DHCP)
+#define	HUB_ARP_SEND_INTERVAL		VPN_GP(GP_HUB_ARP_SEND_INTERVAL, (5 * 1000))			// ARP packet transmission interval (alive check)
 
 #define	LIMITER_SAMPLING_SPAN		1000	// Sampling interval of the traffic limiting device
 
-#define	STORM_CHECK_SPAN			500		// Broadcast storm check interval
-#define	STORM_DISCARD_VALUE_START	3		// Broadcast packet discard value start value
-#define	STORM_DISCARD_VALUE_END		1024	// Broadcast packet discard value end value
+#define	STORM_CHECK_SPAN			VPN_GP(GP_STORM_CHECK_SPAN, 500)		// Broadcast storm check interval
+#define	STORM_DISCARD_VALUE_START	VPN_GP(GP_STORM_DISCARD_VALUE_START, 3)		// Broadcast packet discard value start value
+#define	STORM_DISCARD_VALUE_END		VPN_GP(GP_STORM_DISCARD_VALUE_END, 1024)	// Broadcast packet discard value end value
 
 #define	KEEP_INTERVAL_MIN			5		// Packet transmission interval minimum value
 #define	KEEP_INTERVAL_DEFAULT		50		// Packet transmission interval default value
@@ -526,7 +544,7 @@
 #define	PACKET_LOG_ALL				2		// Store also data
 
 // Timing of log switching
-#define	LOG_SWITCH_NO				0		// Without switching
+#define	LOG_SWITCH_NO				0		// No switching
 #define	LOG_SWITCH_SECOND			1		// Secondly basis
 #define	LOG_SWITCH_MINUTE			2		// Minutely basis
 #define	LOG_SWITCH_HOUR				3		// Hourly basis
@@ -539,7 +557,7 @@
 #define	DISK_FREE_SPACE_DEFAULT_WINDOWS	((UINT64)(8ULL * 1024ULL * 1024ULL * 1024ULL))	// 8GBytes
 
 // Interval to check the free space
-#define	DISK_FREE_CHECK_INTERVAL	(5 * 60 * 1000)
+#define	DISK_FREE_CHECK_INTERVAL_DEFAULT	(5 * 60 * 1000)
 
 // Simple log
 #define TINY_LOG_DIRNAME			"@tiny_log"
@@ -1026,6 +1044,13 @@ typedef struct CEDAR
 	LOCK *OpenVPNPublicPortsLock;	// Lock of OpenVPN public UDP port list
 	LOCK *CurrentRegionLock;		// Current region lock
 	char CurrentRegion[128];		// Current region
+	LOCK *CurrentTcpQueueSizeLock;	// Current TCP send queue size lock
+	UINT CurrentTcpQueueSize;		// Current TCP send queue size
+	COUNTER *CurrentActiveLinks;	// Current active cascade connections
+	LOCK *QueueBudgetLock;			// Queue budget lock
+	UINT QueueBudget;				// Queue budget
+	LOCK *FifoBudgetLock;			// Fifo budget lock
+	UINT FifoBudget;				// Fifo budget
 } CEDAR;
 
 // Type of CEDAR
@@ -1223,6 +1248,14 @@ SOCK *GetInProcListeningSock(CEDAR *c);
 SOCK *GetReverseListeningSock(CEDAR *c);
 void GetCedarVersion(char *tmp, UINT size);
 UINT64 GetCurrentBuildDate();
+void CedarAddCurrentTcpQueueSize(CEDAR *c, int diff);
+UINT CedarGetCurrentTcpQueueSize(CEDAR *c);
+void CedarAddQueueBudget(CEDAR *c, int diff);
+void CedarAddFifoBudget(CEDAR *c, int diff);
+UINT CedarGetQueueBudgetConsuming(CEDAR *c);
+UINT CedarGetFifoBudgetConsuming(CEDAR *c);
+UINT CedarGetQueueBudgetBalance(CEDAR *c);
+UINT CedarGetFifoBudgetBalance(CEDAR *c);
 
 
 

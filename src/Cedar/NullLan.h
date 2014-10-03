@@ -127,6 +127,7 @@ struct NULL_LAN
 	EVENT *Event;
 	UCHAR MacAddr[6];
 	UCHAR Padding[2];
+	UINT Id;
 };
 
 PACKET_ADAPTER *NullGetPacketAdapter();
@@ -136,6 +137,7 @@ UINT NullPaGetNextPacket(SESSION *s, void **data);
 bool NullPaPutPacket(SESSION *s, void *data, UINT size);
 void NullPaFree(SESSION *s);
 void NullPacketGenerateThread(THREAD *t, void *param);
+void NullGenerateMacAddress(UCHAR *mac, UINT id, UINT seq);
 
 #endif	// NULLAN_H
 

@@ -319,6 +319,21 @@ void MainteThreadList(LIST *o)
 	UnlockList(o);
 }
 
+// Wait until all threads in the thread list will be stopped
+void WaitAllThreadsWillBeStopped(LIST *o)
+{
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	while (LIST_NUM(o) != 0)
+	{
+		SleepThread(100);
+	}
+}
+
 // Stop all the threads in the thread list
 void StopThreadList(LIST *o)
 {
@@ -1934,8 +1949,14 @@ INT64 GetTimeDiffEx(SYSTEMTIME *basetime, bool local_time)
 		return 0;
 	}
 
+#ifndef	OS_UNIX
 	Copy(&t1, localtime(&tmp), sizeof(struct tm));
 	Copy(&t2, gmtime(&tmp), sizeof(struct tm));
+#else	// OS_UNIX
+	localtime_r(&tmp, &t1);
+	gmtime_r(&tmp, &t2);
+#endif	// OS_UNIX
+
 	TmToSystem(&s1, &t1);
 	TmToSystem(&s2, &t2);
 
@@ -1970,8 +1991,14 @@ INT64 GetTimeDiff()
 		return 0;
 	}
 
+#ifndef	OS_UNIX
 	Copy(&t1, localtime(&tmp), sizeof(struct tm));
 	Copy(&t2, gmtime(&tmp), sizeof(struct tm));
+#else	// OS_UNIX
+	localtime_r(&tmp, &t1);
+	gmtime_r(&tmp, &t2);
+#endif	// OS_UNIX
+
 	TmToSystem(&s1, &t1);
 	TmToSystem(&s2, &t2);
 

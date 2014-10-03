@@ -432,6 +432,12 @@ void UpdateNotifyProcUi(UPDATE_CLIENT *c, UINT latest_build, UINT64 latest_date,
 		}
 	}
 
+	if (u->CurrentlyDisabled)
+	{
+		// Hide
+		return;
+	}
+
 	// Show the update screen
 	Zero(&p, sizeof(p));
 
@@ -489,6 +495,18 @@ WINUI_UPDATE *InitUpdateUi(wchar_t *title, char *name, char *family_name, UINT64
 	}
 
 	return u;
+}
+
+// Disable the update notification UI
+void DisableUpdateUi(WINUI_UPDATE *u)
+{
+	// Validate arguments
+	if (u == NULL)
+	{
+		return;
+	}
+
+	u->CurrentlyDisabled = true;
 }
 
 // Release the update notification

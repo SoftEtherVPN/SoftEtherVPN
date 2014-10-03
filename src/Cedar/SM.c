@@ -19097,13 +19097,6 @@ void SmConnectEx(HWND hWnd, SETTING *s, bool is_in_client)
 		return;
 	}
 
-	// Updater terminate
-	if (sm->Update != NULL)
-	{
-		FreeUpdateUi(sm->Update);
-		sm->Update = NULL;
-	}
-
 	// Disable the control
 	Disable(hWnd, L_SETTING);
 	Disable(hWnd, B_NEW_SETTING);
@@ -20272,6 +20265,8 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 		switch (wParam)
 		{
 		case IDOK:
+			DisableUpdateUi(sm->Update);
+
 			// Connection
 			i = LvGetSelected(hWnd, L_SETTING);
 			if (i != INFINITE)
@@ -20301,6 +20296,8 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 			break;
 
 		case B_NEW_SETTING:
+			DisableUpdateUi(sm->Update);
+
 			// Add
 			if (SmAddSettingDlg(hWnd, new_name, sizeof(new_name)))
 			{
@@ -20309,6 +20306,8 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 			break;
 
 		case B_EDIT_SETTING:
+			DisableUpdateUi(sm->Update);
+
 			// Edit
 			if (SmEditSettingDlg(hWnd))
 			{
@@ -20319,6 +20318,8 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 			break;
 
 		case B_DELETE:
+			DisableUpdateUi(sm->Update);
+
 			// Delete
 			i = LvGetSelected(hWnd, L_SETTING);
 			if (i != INFINITE)
@@ -20344,16 +20345,22 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 			break;
 
 		case B_SECURE_MANAGER:
+			DisableUpdateUi(sm->Update);
+
 			// Smart Card Manager
 			SmSecureManager(hWnd);
 			break;
 
 		case B_SELECT_SECURE:
+			DisableUpdateUi(sm->Update);
+
 			// Smart card selection
 			SmSelectSecureId(hWnd);
 			break;
 
 		case B_CERT_TOOL:
+			DisableUpdateUi(sm->Update);
+
 			// Certificate Creation Tool
 			SmCreateCert(hWnd, NULL, NULL, false, NULL, false);
 			break;

@@ -301,6 +301,7 @@ typedef struct SL_ADAPTER
 	volatile UINT NumPendingSendPackets;	// Number of packets being transmitted
 	UCHAR TmpBuffer[SL_MAX_PACKET_SIZE];	// Temporally buffer size
 	char FriendlyName[256];				// Adapter name
+	bool SupportVLan;					// Supporting VLAN by hardware
 
 	SL_DEVICE *Device;					// Handle of the device
 } SL_ADAPTER;
@@ -367,8 +368,6 @@ SL_UNICODE *SlNewUnicode(char *str);
 SL_UNICODE *SlNewUnicodeFromUnicodeString(UNICODE_STRING *src);
 void SlFreeUnicode(SL_UNICODE *u);
 NDIS_STRING *SlGetUnicode(SL_UNICODE *u);
-SL_PACKET_BUFFER *SlNewPacketBuffer();
-void SlFreePacketBuffer(SL_PACKET_BUFFER *p);
 void SlCrash(UINT a, UINT b, UINT c, UINT d);
 SL_LIST *SlNewList();
 void SlAdd(SL_LIST *o, void *p);

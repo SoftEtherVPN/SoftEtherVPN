@@ -257,7 +257,7 @@ POLICY_ITEM *GetPolicyItem(UINT id)
 // Does cascade connection support the specified policy?
 bool PolicyIsSupportedForCascade(UINT i)
 {
-	if (i == 0 || i == 4 || i == 5 || i == 9 || i == 12 || i == 13 ||
+	if (i == 0 || i == 4 || i == 5 || i == 12 || i == 13 ||
 		i == 14 || i == 19 || i == 20 || i == 21 || i == 26 || i == 30 || i == 31 || i == 36)
 	{
 		// These items are not supported by cascade connection.
@@ -371,6 +371,11 @@ bool IsUserName(char *name)
 	}
 
 	if (IsSafeStr(name) == false)
+	{
+		return false;
+	}
+
+	if (StrCmpi(name, "link") == 0)
 	{
 		return false;
 	}

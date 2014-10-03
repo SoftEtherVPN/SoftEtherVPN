@@ -3025,6 +3025,83 @@ wchar_t *UniReplaceFormatStringFor64(wchar_t *fmt)
 	return ret;
 }
 
+// Get lines from a string
+UNI_TOKEN_LIST *UniGetLines(wchar_t *str)
+{
+	UINT i, len;
+	BUF *b = NULL;
+	LIST *o;
+	UNI_TOKEN_LIST *ret;
+	// Validate arguments
+	if (str == NULL)
+	{
+		return UniNullToken();
+	}
+
+	o = NewListFast(NULL);
+
+	len = UniStrLen(str);
+
+	b = NewBuf();
+
+	for (i = 0;i < len;i++)
+	{
+		wchar_t c = str[i];
+		bool f = false;
+
+		if (c == L'\r')
+		{
+			if (str[i + 1] == L'\n')
+			{
+				i++;
+			}
+			f = true;
+		}
+		else if (c == L'\n')
+		{
+			f = true;
+		}
+
+		if (f)
+		{
+			wchar_t zero = 0;
+			wchar_t *s;
+			WriteBuf(b, &zero, sizeof(wchar_t));
+
+			s = (wchar_t *)b->Buf;
+
+			Add(o, UniCopyStr(s));
+
+			ClearBuf(b);
+		}
+		else
+		{
+			WriteBuf(b, &c, sizeof(wchar_t));
+		}
+	}
+
+	if (true)
+	{
+		wchar_t zero = 0;
+		wchar_t *s;
+		WriteBuf(b, &zero, sizeof(wchar_t));
+
+		s = (wchar_t *)b->Buf;
+
+		Add(o, UniCopyStr(s));
+
+		ClearBuf(b);
+	}
+
+	FreeBuf(b);
+
+	ret = UniListToTokenList(o);
+
+	UniFreeStrList(o);
+
+	return ret;
+}
+
 // Display the string on the screen
 void UniPrintStr(wchar_t *string)
 {

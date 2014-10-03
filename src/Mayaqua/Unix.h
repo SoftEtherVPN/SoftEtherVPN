@@ -122,6 +122,7 @@
 #define	UNIX_LINUX_MAX_THREADS			200000000		// Maximum number of threads
 #define	UNIX_MAX_LOCKS					65536			// Maximum number of locks
 #define	UNIX_MAX_MEMORY					(2147483648UL)	// Maximum memory capacity
+#define	UNIX_MAX_MEMORY_64				((UINT64)((UINT64)65536ULL * (UINT64)2147483647ULL))	// Maximum memory capacity (64-bit)
 #define	UNIX_MAX_FD						(655360)		// Maximum number of FDs
 #define	UNIX_MAX_FD_MACOS				(10000)			// Maximum number of FDs (Mac OS X)
 #define	MAXIMUM_WAIT_OBJECTS			64				// Maximum number of select
@@ -201,6 +202,7 @@ void UnixAlert(char *msg, char *caption);
 void UnixAlertW(wchar_t *msg, wchar_t *caption);
 char *UnixGetProductId();
 void UnixSetHighPriority();
+void UnixSetHighOomScore();
 void UnixRestorePriority();
 void *UnixNewSingleInstance(char *instance_name);
 void UnixFreeSingleInstance(void *data);
@@ -211,12 +213,14 @@ void UnixExecSilent(char *cmd);
 void UnixDisableInterfaceOffload(char *name);
 void UnixSetEnableKernelEspProcessing(bool b);
 
+void UnixDisableCoreDump();
 void UnixSetThreadPriorityRealtime();
 void UnixSetThreadPriorityLow();
 void UnixSetThreadPriorityHigh();
 void UnixSetThreadPriorityIdle();
 void UnixRestoreThreadPriority();
-void UnixSetResourceLimit(UINT id, UINT value);
+void UnixSetResourceLimit(UINT id, UINT64 value);
+bool UnixIs64BitRlimSupported();
 UINT64 UnixGetTick64();
 void UnixSigChldHandler(int sig);
 void UnixCloseIO();

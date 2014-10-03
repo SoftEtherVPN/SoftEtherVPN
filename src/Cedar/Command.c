@@ -9056,6 +9056,7 @@ UINT PsConfigGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			wchar_t tmp[MAX_SIZE];
 			UINT buf_size;
 			wchar_t *buf;
+			UNI_TOKEN_LIST *lines;
 
 			UniFormat(tmp, sizeof(tmp), _UU("CMD_ConfigGet_FILENAME"), t.FileName,
 				StrLen(t.FileData));
@@ -9067,7 +9068,19 @@ UINT PsConfigGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 			Utf8ToUni(buf, buf_size, (BYTE *)t.FileData, StrLen(t.FileData));
 
-			c->Write(c, buf);
+			lines = UniGetLines(buf);
+			if (lines != NULL)
+			{
+				UINT i;
+
+				for (i = 0;i < lines->NumTokens;i++)
+				{
+					c->Write(c, lines->Token[i]);
+				}
+
+				UniFreeToken(lines);
+			}
+
 			c->Write(c, L"");
 
 			Free(buf);
@@ -22237,18 +22250,18 @@ void CtPrintCsv(CT *ct, CONSOLE *c)
 {
 	UINT i, j;
 	UINT num_columns = LIST_NUM(ct->Columns);
-	wchar_t buf[MAX_SIZE];
-	wchar_t fmtbuf[MAX_SIZE];
+	wchar_t buf[MAX_SIZE*4];
+	wchar_t fmtbuf[MAX_SIZE*4];
 
 	// Show the heading row
 	buf[0] = 0;
 	for(i=0; i<num_columns; i++)
 	{
 		CTC *ctc = LIST_DATA(ct->Columns, i);
-		CtEscapeCsv(fmtbuf, MAX_SIZE, ctc->String);
-		UniStrCat(buf, MAX_SIZE, fmtbuf);
+		CtEscapeCsv(fmtbuf, sizeof(fmtbuf), ctc->String);
+		UniStrCat(buf, sizeof(buf), fmtbuf);
 		if(i != num_columns-1)
-			UniStrCat(buf, MAX_SIZE, L",");
+			UniStrCat(buf, sizeof(buf), L",");
 	}
 	c->Write(c, buf);
 
@@ -22259,10 +22272,10 @@ void CtPrintCsv(CT *ct, CONSOLE *c)
 		buf[0] = 0;
 		for(i=0; i<num_columns; i++)
 		{
-			CtEscapeCsv(fmtbuf, MAX_SIZE, ctr->Strings[i]);
-			UniStrCat(buf, MAX_SIZE, fmtbuf);
+			CtEscapeCsv(fmtbuf, sizeof(fmtbuf), ctr->Strings[i]);
+			UniStrCat(buf, sizeof(buf), fmtbuf);
 			if(i != num_columns-1)
-				UniStrCat(buf, MAX_SIZE, L",");
+				UniStrCat(buf, sizeof(buf), L",");
 		}
 		c->Write(c, buf);
 	}

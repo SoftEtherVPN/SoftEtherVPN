@@ -352,6 +352,9 @@ struct SERVER
 	AZURE_CLIENT *AzureClient;			// VPN Azure client
 	bool EnableVpnAzure;				// Flag whether VPN Azure client is enabled
 
+	bool DisableGetHostNameWhenAcceptTcp;	// Disable GetHostName when accepting TCP
+	bool DisableCoreDumpOnUnix;			// Disable core dump on UNIX
+
 	TINY_LOG *DebugLog;					// Debug log
 
 	DYNAMIC_LISTENER *DynListenerIcmp;	// VPN over ICMP listener
@@ -428,6 +431,35 @@ struct LOG_FILE
 #define	GSF_DISABLE_AC					5
 #define	GSF_DISABLE_SYSLOG				6
 #define	GSF_SHOW_OSS_MSG				7
+#define	GSF_LOCALBRIDGE_NO_DISABLE_OFFLOAD	8
+#define	GSF_DISABLE_SESSION_RECONNECT	9
+
+// Global parameters
+#define	NUM_GLOBAL_PARAMS					128
+#define	GP_MAX_SEND_SOCKET_QUEUE_SIZE		1
+#define	GP_MIN_SEND_SOCKET_QUEUE_SIZE		2
+#define	GP_MAX_SEND_SOCKET_QUEUE_NUM		3
+#define	GP_SELECT_TIME						4
+#define	GP_SELECT_TIME_FOR_NAT				5
+#define	GP_MAX_STORED_QUEUE_NUM				6
+#define	GP_MAX_BUFFERING_PACKET_SIZE		7
+#define	GP_HUB_ARP_SEND_INTERVAL			8
+#define	GP_MAC_TABLE_EXPIRE_TIME			9
+#define	GP_IP_TABLE_EXPIRE_TIME				10
+#define	GP_IP_TABLE_EXPIRE_TIME_DHCP		11
+#define	GP_STORM_CHECK_SPAN					12
+#define	GP_STORM_DISCARD_VALUE_START		13
+#define	GP_STORM_DISCARD_VALUE_END			14
+#define	GP_MAX_MAC_TABLES					15
+#define	GP_MAX_IP_TABLES					16
+#define	GP_MAX_HUB_LINKS					17
+#define	GP_MEM_FIFO_REALLOC_MEM_SIZE		18
+#define	GP_QUEUE_BUDGET						19
+#define	GP_FIFO_BUDGET						20
+
+extern UINT vpn_global_parameters[NUM_GLOBAL_PARAMS];
+
+#define	VPN_GP(id, default_value)	((UINT)(vpn_global_parameters[(id)] != 0 ? vpn_global_parameters[(id)] : (default_value)))
 
 
 
@@ -482,6 +514,9 @@ void SiWriteListenerCfg(FOLDER *f, SERVER_LISTENER *r);
 void SiLoadListenerCfg(SERVER *s, FOLDER *f);
 void SiWriteServerCfg(FOLDER *f, SERVER *s);
 void SiLoadServerCfg(SERVER *s, FOLDER *f);
+void SiWriteGlobalParamsCfg(FOLDER *f);
+void SiLoadGlobalParamsCfg(FOLDER *f);
+void SiLoadGlobalParamItem(UINT id, UINT value);
 void SiWriteTraffic(FOLDER *parent, char *name, TRAFFIC *t);
 void SiWriteTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
 void SiLoadTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
@@ -642,6 +677,7 @@ UINT SiDebugProcGetIPsecMessageDisplayedValue(SERVER *s, char *in_str, char *ret
 UINT SiDebugProcSetIPsecMessageDisplayedValue(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size);
 UINT SiDebugProcGetVgsMessageDisplayedValue(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size);
 UINT SiDebugProcSetVgsMessageDisplayedValue(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size);
+UINT SiDebugProcGetCurrentTcpSendQueueLength(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size);
 
 typedef UINT (SI_DEBUG_PROC)(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size);
 

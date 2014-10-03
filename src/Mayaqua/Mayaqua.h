@@ -218,6 +218,13 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #define	USE_INTEL_AESNI_LIBRARY
 #endif
 
+// Determine the performance / memory strategy
+#if	(defined(CPU_X86) || defined(CPU_X64) || defined(CPU_X86_X64) || defined(CPU_SPARC) || defined(CPU_SPARC64) || defined(OS_WIN32) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(i386) || defined(__i386) || defined(__i386__) || defined(__ia64__) || defined(__IA64__) || defined(_IA64))
+#define	USE_STRATEGY_PERFORMACE
+#else
+#define	USE_STRATEGY_LOW_MEMORY
+#endif
+
 // Macro that displays the current time
 #ifdef	WIN32
 #define	WHEN			if (IsDebug()){WHERE; MsPrintTick();}

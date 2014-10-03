@@ -114,6 +114,10 @@
 #ifndef	MEMORY_H
 #define	MEMORY_H
 
+// MallocFast (not implemented)
+#define	MallocFast		Malloc
+#define	ZeroMallocFast	ZeroMalloc
+
 // Memory size that can be passed to the kernel at a time
 #define	MAX_SEND_BUF_MEM_SIZE				(10 * 1024 * 1024)
 
@@ -154,7 +158,6 @@ struct FIFO
 	LOCK *lock;
 	void *p;
 	UINT pos, size, memsize;
-	UINT realloc_mem_size;
 	UINT64 total_read_size;
 	UINT64 total_write_size;
 };
@@ -214,7 +217,7 @@ struct SHARED_BUFFER
 // Macro
 #define	LIST_DATA(o, i)		(((o) != NULL) ? ((o)->p[(i)]) : NULL)
 #define	LIST_NUM(o)			(((o) != NULL) ? (o)->num_item : 0)
-
+#define	HASH_LIST_NUM(o)	(((o) != NULL) ? (o)->NumItems : 0)
 
 // Function pointer type to get a hash function
 typedef UINT (GET_HASH)(void *p);
@@ -244,6 +247,8 @@ UINT CalcHashForHashList(HASH_LIST *h, void *p);
 void **HashListToArray(HASH_LIST *h, UINT *num);
 void LockHashList(HASH_LIST *h);
 void UnlockHashList(HASH_LIST *h);
+bool IsInHashListKey(HASH_LIST *h, UINT key);
+void *HashListKeyToPointer(HASH_LIST *h, UINT key);
 
 LIST *NewCandidateList();
 void FreeCandidateList(LIST *o);
@@ -254,9 +259,7 @@ LIST *BufToCandidate(BUF *b);
 
 void *Malloc(UINT size);
 void *MallocEx(UINT size, bool zero_clear_when_free);
-void *MallocFast(UINT size);
 void *ZeroMalloc(UINT size);
-void *ZeroMallocFast(UINT size);
 void *ZeroMallocEx(UINT size, bool zero_clear_when_free);
 void *ReAlloc(void *addr, UINT size);
 void Free(void *addr);
@@ -333,6 +336,7 @@ bool CompareBuf(BUF *b1, BUF *b2);
 
 UINT PeekFifo(FIFO *f, void *p, UINT size);
 UINT ReadFifo(FIFO *f, void *p, UINT size);
+void ShrinkFifoMemory(FIFO *f);
 UCHAR *GetFifoPointer(FIFO *f);
 UCHAR *FifoPtr(FIFO *f);
 void WriteFifo(FIFO *f, void *p, UINT size);
@@ -344,10 +348,10 @@ void ReleaseFifo(FIFO *f);
 void CleanupFifo(FIFO *f);
 FIFO *NewFifo();
 FIFO *NewFifoFast();
-FIFO *NewFifoEx(UINT realloc_mem_size, bool fast);
+FIFO *NewFifoEx(bool fast);
 void InitFifo();
-UINT GetFifoDefaultReallocMemSize();
-void SetFifoDefaultReallocMemSize(UINT size);
+UINT GetFifoCurrentReallocMemSize();
+void SetFifoCurrentReallocMemSize(UINT size);
 
 void *Search(LIST *o, void *target);
 void Sort(LIST *o);
@@ -416,6 +420,7 @@ void ReleaseQueue(QUEUE *q);
 void CleanupQueue(QUEUE *q);
 QUEUE *NewQueue();
 QUEUE *NewQueueFast();
+UINT GetQueueNum(QUEUE *q);
 
 SK *NewSk();
 SK *NewSkEx(bool no_compact);

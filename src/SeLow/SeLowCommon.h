@@ -115,7 +115,7 @@
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update
 // installation of the VPN Server / VPN Client / VPN Bridge is skipped.
-#define	SL_VER						42
+#define	SL_VER						43
 
 // Constants
 #define	SL_MAX_PACKET_SIZE			1560
@@ -165,7 +165,8 @@ typedef struct SL_ADAPTER_INFO
 	UCHAR Padding1[2];
 	UINT MtuSize;						// MTU size
 	char FriendlyName[256];				// Display name
-	UCHAR Reserved[256];				// Reserved area
+	UINT SupportsVLanHw;				// Supports VLAN by HW
+	UCHAR Reserved[256 - sizeof(UINT)];	// Reserved area
 } SL_ADAPTER_INFO;
 
 #define	SL_MAX_ADAPTER_INFO_LIST_ENTRY	256

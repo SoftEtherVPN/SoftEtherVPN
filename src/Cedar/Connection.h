@@ -119,6 +119,8 @@
 
 #define	KEEP_ALIVE_STRING				"Internet Connection Keep Alive Packet"
 
+#define	UPDATE_LAST_COMM_TIME(v, n)		{if ((v) <= (n)) { v = (n); } }
+
 // KEEP CONNECT structure
 struct KEEP
 {
@@ -258,6 +260,7 @@ struct BLOCK
 	bool PriorityQoS;				// Priority packet for VoIP / QoS function
 	UINT Ttl;						// TTL value (Used only in ICMP NAT of Virtual.c)
 	UINT Param1;					// Parameter 1
+	bool IsFlooding;				// Is flooding packet
 };
 
 // Connection structure
@@ -316,6 +319,10 @@ struct CONNECTION
 	bool WasSstp;					// Processed the SSTP
 	bool WasDatProxy;				// DAT proxy processed
 	UCHAR CToken_Hash[SHA1_SIZE];	// CTOKEN_HASH
+	UINT LastTcpQueueSize;			// The last queue size of TCP sockets
+	UINT LastPacketQueueSize;		// The last queue size of packets
+	UINT LastRecvFifoTotalSize;		// The last RecvFifo total size
+	UINT LastRecvBlocksNum;			// The last ReceivedBlocks num
 };
 
 
@@ -334,7 +341,7 @@ void StartTunnelingMode(CONNECTION *c);
 void EndTunnelingMode(CONNECTION *c);
 void DisconnectTcpSockets(CONNECTION *c);
 void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2);
-void ConnectionSend(CONNECTION *c);
+void ConnectionSend(CONNECTION *c, UINT64 now);
 TCPSOCK *NewTcpSock(SOCK *s);
 void FreeTcpSock(TCPSOCK *ts);
 BLOCK *NewBlock(void *data, UINT size, int compress);
@@ -345,7 +352,7 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts);
 void DisconnectUDPSockets(CONNECTION *c);
 void PutUDPPacketData(CONNECTION *c, void *data, UINT size);
 void SendDataWithUDP(SOCK *s, CONNECTION *c);
-void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block);
+void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock);
 void InitTcpSockRc4Key(TCPSOCK *ts, bool server_mode);
 UINT TcpSockRecv(SESSION *s, TCPSOCK *ts, void *data, UINT size);
 UINT TcpSockSend(SESSION *s, TCPSOCK *ts, void *data, UINT size);

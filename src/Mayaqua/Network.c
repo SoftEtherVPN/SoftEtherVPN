@@ -4281,7 +4281,7 @@ void RUDPGetRegisterHostNameByIP(char *dst, UINT size, IP *ip)
 	StrLower(tmp);
 	Format(dst, size,
 		(IsUseAlternativeHostname() ? UDP_NAT_T_SERVER_TAG_ALT : UDP_NAT_T_SERVER_TAG),
-		tmp[0], tmp[1], tmp[2], tmp[3]);
+		tmp[2], tmp[3]);
 
 
 	if (false)
@@ -9302,6 +9302,12 @@ void UnixInitAsyncSocket(SOCK *sock)
 	{
 		UnixSetSocketNonBlockingMode(sock->socket, true);
 	}
+
+	if (sock->ssl != NULL && sock->ssl->s3 != NULL)
+	{
+		sock->Ssl_Init_Async_SendAlert[0] = sock->ssl->s3->send_alert[0];
+		sock->Ssl_Init_Async_SendAlert[1] = sock->ssl->s3->send_alert[1];
+	}
 }
 
 // Initializing the socket library
@@ -13139,6 +13145,15 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			e = SSL_get_error(ssl, ret);
 			if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 			{
+				if (e == SSL_ERROR_SSL &&
+					sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
+					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
+					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+				{
+					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
+					Disconnect(sock);
+					return 0;
+				}
 				// Packet has not arrived yet, that is not to be read
 				return SOCK_LATER;
 			}
@@ -13202,6 +13217,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		// Successful reception
 		sock->RecvSize += (UINT64)ret;
 		sock->RecvNum++;
+
 		return (UINT)ret;
 	}
 	if (ret == 0)
@@ -13215,6 +13231,16 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 	{
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 		{
+			if (e == SSL_ERROR_SSL &&
+				sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
+				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
+				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+			{
+				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
+				Disconnect(sock);
+				return 0;
+			}
+
 			// Packet has not yet arrived
 			return SOCK_LATER;
 		}
@@ -14220,24 +14246,6 @@ void Disconnect(SOCK *sock)
 						sock->ssl_ctx = NULL;
 					}
 					sock->Connected = false;
-					// Release the certificate
-					if (sock->RemoteX != NULL)
-					{
-						FreeX(sock->RemoteX);
-						sock->RemoteX = NULL;
-					}
-					if (sock->LocalX != NULL)
-					{
-						FreeX(sock->LocalX);
-						sock->LocalX = NULL;
-					}
-
-					// Cipher algorithm name
-					if (sock->CipherName != NULL)
-					{
-						Free(sock->CipherName);
-						sock->CipherName = NULL;
-					}
 					sock->SecureMode = false;
 				}
 			}
@@ -14957,7 +14965,7 @@ SOCK *ConnectEx(char *hostname, UINT port, UINT timeout)
 }
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag)
 {
-	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, false, false);
+	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, false, true);
 }
 SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname)
 {
@@ -15823,6 +15831,25 @@ void CleanupSock(SOCK *s)
 		CloseHandle(s->hAcceptEvent);
 	}
 #endif	// OS_WIN32
+
+	// Release the certificate
+	if (s->RemoteX != NULL)
+	{
+		FreeX(s->RemoteX);
+		s->RemoteX = NULL;
+	}
+	if (s->LocalX != NULL)
+	{
+		FreeX(s->LocalX);
+		s->LocalX = NULL;
+	}
+
+	// Cipher algorithm name
+	if (s->CipherName != NULL)
+	{
+		Free(s->CipherName);
+		s->CipherName = NULL;
+	}
 
 	Free(s->WaitToUseCipher);
 	DeleteLock(s->lock);

@@ -1407,17 +1407,30 @@ UINT Win32GetOsType()
 						return OSTYPE_WINDOWS_SERVER_81;
 					}
 				}
+				else if (os.dwMajorVersion == 6 && os.dwMinorVersion == 4)
+				{
+					if (os.wProductType == VER_NT_WORKSTATION)
+					{
+						// Windows 10
+						return OSTYPE_WINDOWS_10;
+					}
+					else
+					{
+						// Windows Server 10
+						return OSTYPE_WINDOWS_SERVER_10;
+					}
+				}
 				else
 				{
 					if (os.wProductType == VER_NT_WORKSTATION)
 					{
-						// Windows 9?
-						return OSTYPE_WINDOWS_9;
+						// Windows 11 or later
+						return OSTYPE_WINDOWS_11;
 					}
 					else
 					{
-						// Windows Server 9?
-						return OSTYPE_WINDOWS_SERVER_9;
+						// Windows Server 11 or later
+						return OSTYPE_WINDOWS_SERVER_11;
 					}
 				}
 			}

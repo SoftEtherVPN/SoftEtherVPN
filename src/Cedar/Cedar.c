@@ -235,6 +235,19 @@ bool IsSupportedWinVer(RPC_WINVER *v)
 		}
 	}
 
+#if	0
+	// Enable in future when supported
+	if (v->VerMajor == 6 && v->VerMinor == 4)
+	{
+		// Windows 10, Server 10
+		if (v->ServicePack <= 0)
+		{
+			// SP0 only
+			return true;
+		}
+	}
+#endif
+
 	return false;
 }
 
@@ -1149,6 +1162,118 @@ void StopAllListener(CEDAR *c)
 	Free(array);
 }
 
+// Budget management functions
+void CedarAddQueueBudget(CEDAR *c, int diff)
+{
+	// Validate arguments
+	if (c == NULL || diff == 0)
+	{
+		return;
+	}
+
+	Lock(c->QueueBudgetLock);
+	{
+		int v = (int)c->QueueBudget;
+		v += diff;
+		c->QueueBudget = (UINT)v;
+	}
+	Unlock(c->QueueBudgetLock);
+}
+void CedarAddFifoBudget(CEDAR *c, int diff)
+{
+	// Validate arguments
+	if (c == NULL || diff == 0)
+	{
+		return;
+	}
+
+	Lock(c->FifoBudgetLock);
+	{
+		int v = (int)c->FifoBudget;
+		v += diff;
+		c->FifoBudget = (UINT)v;
+	}
+	Unlock(c->FifoBudgetLock);
+}
+UINT CedarGetQueueBudgetConsuming(CEDAR *c)
+{
+	// Validate arguments
+	if (c == NULL)
+	{
+		return 0;
+	}
+
+	return c->QueueBudget;
+}
+UINT CedarGetFifoBudgetConsuming(CEDAR *c)
+{
+	// Validate arguments
+	if (c == NULL)
+	{
+		return 0;
+	}
+
+	return c->FifoBudget;
+}
+UINT CedarGetQueueBudgetBalance(CEDAR *c)
+{
+	UINT current = CedarGetQueueBudgetConsuming(c);
+	UINT budget = QUEUE_BUDGET;
+
+	if (current <= budget)
+	{
+		return budget - current;
+	}
+	else
+	{
+		return 0;
+	}
+}
+UINT CedarGetFifoBudgetBalance(CEDAR *c)
+{
+	UINT current = CedarGetFifoBudgetConsuming(c);
+	UINT budget = FIFO_BUDGET;
+
+	if (current <= budget)
+	{
+		return budget - current;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Add the current TCP queue size
+void CedarAddCurrentTcpQueueSize(CEDAR *c, int diff)
+{
+	// Validate arguments
+	if (c == NULL || diff == 0)
+	{
+		return;
+	}
+
+	Lock(c->CurrentTcpQueueSizeLock);
+	{
+		int v = (int)c->CurrentTcpQueueSize;
+		v += diff;
+		c->CurrentTcpQueueSize = (UINT)v;
+	}
+	Unlock(c->CurrentTcpQueueSizeLock);
+}
+
+// Get the current TCP queue size
+UINT CedarGetCurrentTcpQueueSize(CEDAR *c)
+{
+	// Validate arguments
+	if (c == NULL)
+	{
+		return 0;
+	}
+
+	return c->CurrentTcpQueueSize;
+}
+
 // Stop Cedar
 void StopCedar(CEDAR *c)
 {
@@ -1268,6 +1393,12 @@ void CleanupCedar(CEDAR *c)
 	DeleteLock(c->OpenVPNPublicPortsLock);
 
 	DeleteLock(c->CurrentRegionLock);
+
+	DeleteLock(c->CurrentTcpQueueSizeLock);
+	DeleteLock(c->QueueBudgetLock);
+	DeleteLock(c->FifoBudgetLock);
+
+	DeleteCounter(c->CurrentActiveLinks);
 
 	Free(c);
 }
@@ -1524,6 +1655,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c = ZeroMalloc(sizeof(CEDAR));
 
+	c->CurrentActiveLinks = NewCounter();
+
 	c->AcceptingSockets = NewCounter();
 
 	c->CedarSuperLock = NewLock();
@@ -1538,6 +1671,10 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->AssignedBridgeLicense = NewCounter();
 	c->AssignedClientLicense = NewCounter();
+
+	c->CurrentTcpQueueSizeLock = NewLock();
+	c->QueueBudgetLock = NewLock();
+	c->FifoBudgetLock = NewLock();
 
 	Rand(c->UniqueId, sizeof(c->UniqueId));
 

@@ -185,7 +185,7 @@ UINT NmEditPushRouteProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 
 				if (ok)
 				{
-					if (IsEmptyStr(r->CurrentPushRouteStr) == false)
+					if (IsEmptyStr(str) == false)
 					{
 						if (GetCapsBool(r->p->CapsList, "b_suppport_push_route") == false)
 						{

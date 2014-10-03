@@ -173,12 +173,20 @@ bool LinkPaInit(SESSION *s)
 		return false;
 	}
 
+	if (k->Halting || (*k->StopAllLinkFlag))
+	{
+		return false;
+	}
+
 	// Create a transmission packet queue
 	k->SendPacketQueue = NewQueue();
 
 	// Creat a link server thread
 	t = NewThread(LinkServerSessionThread, (void *)k);
 	WaitThreadInit(t);
+
+	k->LastServerConnectionReceivedBlocksNum = 0;
+	k->CurrentSendPacketQueueSize = 0;
 
 	ReleaseThread(t);
 
@@ -209,6 +217,10 @@ UINT LinkPaGetNextPacket(SESSION *s, void **data)
 		return INFINITE;
 	}
 
+	if (k->Halting || (*k->StopAllLinkFlag))
+	{
+		return INFINITE;
+	}
 	// Examine whether there are packets in the queue
 	LockQueue(k->SendPacketQueue);
 	{
@@ -219,6 +231,9 @@ UINT LinkPaGetNextPacket(SESSION *s, void **data)
 			// There was a packet
 			*data = block->Buf;
 			ret = block->Size;
+
+			k->CurrentSendPacketQueueSize -= block->Size;
+
 			// Discard the memory for the structure
 			Free(block);
 		}
@@ -232,32 +247,95 @@ UINT LinkPaGetNextPacket(SESSION *s, void **data)
 bool LinkPaPutPacket(SESSION *s, void *data, UINT size)
 {
 	LINK *k;
-	BLOCK *block;
+	BLOCK *block = NULL;
 	SESSION *server_session;
 	CONNECTION *server_connection;
+	bool ret = true;
+	bool halting = false;
 	// Validate arguments
 	if (s == NULL || (k = (LINK *)s->PacketAdapter->Param) == NULL)
 	{
 		return false;
 	}
 
+	halting = (k->Halting || (*k->StopAllLinkFlag));
+
 	server_session = k->ServerSession;
 	server_connection = server_session->Connection;
+
+	k->Flag1++;
+	if ((k->Flag1 % 32) == 0)
+	{
+		// Ommit for performance
+		UINT current_num;
+		int diff;
+
+		current_num = GetQueueNum(server_connection->ReceivedBlocks);
+
+		diff = (int)current_num - (int)k->LastServerConnectionReceivedBlocksNum;
+
+		k->LastServerConnectionReceivedBlocksNum = current_num;
+
+		CedarAddQueueBudget(k->Cedar, diff);
+	}
 
 	// Since the packet arrives from the HUB of the link destination,
 	// deliver it to the ReceivedBlocks of the server session
 	if (data != NULL)
 	{
-		block = NewBlock(data, size, 0);
-
-		LockQueue(server_connection->ReceivedBlocks);
+		if (halting == false)
 		{
-			InsertQueue(server_connection->ReceivedBlocks, block);
+			block = NewBlock(data, size, 0);
 		}
-		UnlockQueue(server_connection->ReceivedBlocks);
+
+		if (k->LockFlag == false)
+		{
+			UINT current_num;
+			int diff;
+
+			k->LockFlag = true;
+			LockQueue(server_connection->ReceivedBlocks);
+
+			current_num = GetQueueNum(server_connection->ReceivedBlocks);
+
+			diff = (int)current_num - (int)k->LastServerConnectionReceivedBlocksNum;
+
+			k->LastServerConnectionReceivedBlocksNum = current_num;
+
+			CedarAddQueueBudget(k->Cedar, diff);
+		}
+
+		if (halting == false)
+		{
+			if (CedarGetFifoBudgetBalance(k->Cedar) == 0)
+			{
+				FreeBlock(block);
+			}
+			else
+			{
+				InsertReveicedBlockToQueue(server_connection, block, true);
+			}
+		}
 	}
 	else
 	{
+		UINT current_num;
+		int diff;
+
+		current_num = GetQueueNum(server_connection->ReceivedBlocks);
+
+		diff = (int)current_num - (int)k->LastServerConnectionReceivedBlocksNum;
+
+		k->LastServerConnectionReceivedBlocksNum = current_num;
+
+		CedarAddQueueBudget(k->Cedar, diff);
+
+		if (k->LockFlag)
+		{
+			k->LockFlag = false;
+			UnlockQueue(server_connection->ReceivedBlocks);
+		}
+
 		// Issue the Cancel, since finished store all packets when the data == NULL
 		Cancel(server_session->Cancel1);
 
@@ -267,7 +345,12 @@ bool LinkPaPutPacket(SESSION *s, void *data, UINT size)
 		}
 	}
 
-	return true;
+	if (halting)
+	{
+		ret = false;
+	}
+
+	return ret;
 }
 
 // Release the packet adapter
@@ -279,6 +362,9 @@ void LinkPaFree(SESSION *s)
 	{
 		return;
 	}
+
+	CedarAddQueueBudget(k->Cedar, -((int)k->LastServerConnectionReceivedBlocksNum));
+	k->LastServerConnectionReceivedBlocksNum = 0;
 
 	// Stop the server session
 	StopSession(k->ServerSession);
@@ -296,6 +382,8 @@ void LinkPaFree(SESSION *s)
 	UnlockQueue(k->SendPacketQueue);
 
 	ReleaseQueue(k->SendPacketQueue);
+
+	k->CurrentSendPacketQueueSize = 0;
 }
 
 // Packet adapter
@@ -384,6 +472,11 @@ void SetLinkOnline(LINK *k)
 		return;
 	}
 
+	if (k->NoOnline)
+	{
+		return;
+	}
+
 	if (k->Offline == false)
 	{
 		return;
@@ -467,6 +560,8 @@ void StopAllLink(HUB *h)
 		return;
 	}
 
+	h->StopAllLinkFlag = true;
+
 	LockList(h->LinkList);
 	{
 		link_list = ToArray(h->LinkList);
@@ -485,6 +580,8 @@ void StopAllLink(HUB *h)
 	}
 
 	Free(link_list);
+
+	h->StopAllLinkFlag = false;
 }
 
 // Start the link
@@ -505,6 +602,8 @@ void StartLink(LINK *k)
 			return;
 		}
 		k->Started = true;
+
+		Inc(k->Cedar->CurrentActiveLinks);
 	}
 	UnlockLink(k);
 
@@ -536,6 +635,8 @@ void StopLink(LINK *k)
 		}
 		k->Started = false;
 		k->Halting = true;
+
+		Dec(k->Cedar->CurrentActiveLinks);
 	}
 	UnlockLink(k);
 
@@ -593,8 +694,7 @@ void NormalizeLinkPolicy(POLICY *p)
 	}
 
 	p->Access = true;
-	p->NoBridge = p->NoRouting = p->PrivacyFilter =
-		p->MonitorPort = false;
+	p->NoBridge = p->NoRouting = p->MonitorPort = false;
 	p->MaxConnection = 32;
 	p->TimeOut = 20;
 	p->FixPassword = false;
@@ -653,6 +753,9 @@ LINK *NewLink(CEDAR *cedar, HUB *hub, CLIENT_OPTION *option, CLIENT_AUTH *auth, 
 
 	// Link object
 	k = ZeroMalloc(sizeof(LINK));
+
+	k->StopAllLinkFlag = &hub->StopAllLinkFlag;
+
 	k->lock = NewLock();
 	k->ref = NewRef();
 

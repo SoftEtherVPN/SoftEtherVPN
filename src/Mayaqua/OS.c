@@ -197,10 +197,14 @@ char *OsTypeToStr(UINT type)
 		return "Windows 8.1\0\n";
 	case OSTYPE_WINDOWS_SERVER_81:
 		return "Windows Server 2012 R2\0\n";
-	case OSTYPE_WINDOWS_9:
-		return "Windows 8.2 or later\0\n";
-	case OSTYPE_WINDOWS_SERVER_9:
-		return "Windows Server 8.2 or later\0\n";
+	case OSTYPE_WINDOWS_10:
+		return "Windows 10\0\n";
+	case OSTYPE_WINDOWS_SERVER_10:
+		return "Windows Server 10\0\n";
+	case OSTYPE_WINDOWS_11:
+		return "Windows 11 or later\0\n";
+	case OSTYPE_WINDOWS_SERVER_11:
+		return "Windows Server 11 or later\0\n";
 	case OSTYPE_UNIX_UNKNOWN:
 		return "UNIX System\0\n";
 	case OSTYPE_LINUX:

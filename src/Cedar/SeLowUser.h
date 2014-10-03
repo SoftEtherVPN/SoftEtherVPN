@@ -172,7 +172,7 @@ int SuCmpAdaterList(void *p1, void *p2);
 
 bool SuInstallDriver(bool force);
 bool SuInstallDriverInner(bool force);
-bool SuIsSupportedOs();
+bool SuIsSupportedOs(bool on_install);
 
 #endif	// SELOWUSER_H
 

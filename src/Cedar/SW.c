@@ -3166,7 +3166,7 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 	}
 
 	// Install the SeLow
-	if (SuIsSupportedOs())
+	if (SuIsSupportedOs(true))
 	{
 		// Only in the system mode
 		if (c->InstallService && sw->IsSystemMode)

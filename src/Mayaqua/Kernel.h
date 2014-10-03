@@ -275,6 +275,7 @@ void DelThreadFromThreadList(LIST *o, THREAD *t);
 void MainteThreadList(LIST *o);
 void FreeThreadList(LIST *o);
 void StopThreadList(LIST *o);
+void WaitAllThreadsWillBeStopped(LIST *o);
 
 #endif	// KERNEL_H
 

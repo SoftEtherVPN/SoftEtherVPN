@@ -124,10 +124,41 @@ PACKET_ADAPTER *NullGetPacketAdapter()
 	return pa;
 }
 
+// Generate MAC address
+void NullGenerateMacAddress(UCHAR *mac, UINT id, UINT seq)
+{
+	UCHAR hash[SHA1_SIZE];
+	char name[MAX_SIZE];
+	BUF *b;
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return;
+	}
+
+	b = NewBuf();
+	WriteBufInt(b, id);
+	WriteBufInt(b, seq);
+	GetMachineHostName(name, sizeof(name));
+#ifdef	OS_WIN32
+	WriteBufInt(b, MsGetCurrentProcessId());
+#endif	// OS_WIN32
+	WriteBufStr(b, name);
+
+	HashSha1(hash, b->Buf, b->Size);
+
+	FreeBuf(b);
+
+	Copy(mac, hash, 6);
+	mac[0] = 0x7E;
+}
+
 // Packet generation thread
 void NullPacketGenerateThread(THREAD *t, void *param)
 {
 	NULL_LAN *n = (NULL_LAN *)param;
+	UINT64 end_tick = Tick64() + (UINT64)(60 * 1000);
+	UINT seq = 0;
 	// Validate arguments
 	if (t == NULL || param == NULL)
 	{
@@ -136,7 +167,12 @@ void NullPacketGenerateThread(THREAD *t, void *param)
 
 	while (true)
 	{
-		Wait(n->Event, Rand32() % NULL_PACKET_GENERATE_INTERVAL);
+		/*if (Tick64() >= end_tick)
+		{
+			break;
+		}*/
+
+		Wait(n->Event, Rand32() % 1500);
 		if (n->Halt)
 		{
 			break;
@@ -147,14 +183,25 @@ void NullPacketGenerateThread(THREAD *t, void *param)
 			UCHAR *data;
 			BLOCK *b;
 			UINT size = Rand32() % 1500 + 14;
+			UCHAR dst_mac[6];
+
+			NullGenerateMacAddress(n->MacAddr, n->Id, seq);
+
+			//NullGenerateMacAddress(dst_mac, n->Id + 1, 0);
+			//StrToMac(dst_mac, "00-1B-21-A9-47-E6");
+			StrToMac(dst_mac, "00-AC-7A-EF-83-FD");
+
 			data = Malloc(size);
 			Copy(data, null_lan_broadcast_address, 6);
+			//Copy(data, dst_mac, 6);
 			Copy(data + 6, n->MacAddr, 6);
 			b = NewBlock(data, size, 0);
 			InsertQueue(n->PacketQueue, b);
 		}
 		UnlockQueue(n->PacketQueue);
 		Cancel(n->Cancel);
+
+		//seq++;
 	}
 }
 
@@ -162,20 +209,24 @@ void NullPacketGenerateThread(THREAD *t, void *param)
 bool NullPaInit(SESSION *s)
 {
 	NULL_LAN *n;
+	static UINT id_seed = 0;
 	// Validate arguments
 	if (s == NULL)
 	{
 		return false;
 	}
 
+	id_seed++;
+
 	n = ZeroMalloc(sizeof(NULL_LAN));
+	n->Id = id_seed;
 	s->PacketAdapter->Param = (void *)n;
 
 	n->Cancel = NewCancel();
 	n->PacketQueue = NewQueue();
 	n->Event = NewEvent();
 
-	GenMacAddress(n->MacAddr);
+	NullGenerateMacAddress(n->MacAddr, n->Id, 0);
 
 	n->PacketGeneratorThread = NewThread(NullPacketGenerateThread, n);
 

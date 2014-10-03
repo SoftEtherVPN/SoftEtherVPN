@@ -161,6 +161,7 @@ struct ETH
 #endif // BRIDGE_BPF
 
 	VLAN *Tap;					// tap
+	bool Linux_IsAuxDataSupported;	// Is PACKET_AUXDATA supported
 };
 
 #if defined( BRIDGE_BPF ) || defined( BRIDGE_PCAP )

@@ -1175,8 +1175,9 @@ bool ProcessSstpHttps(CEDAR *cedar, SOCK *s, SOCK_EVENT *se)
 		// Wait for the next state change
 		if (state_changed == false)
 		{
+			UINT select_time = SELECT_TIME;
 			UINT r = GetNextIntervalForInterrupt(sstp->Interrupt);
-			WaitSockEvent(se, MIN(r, SELECT_TIME));
+			WaitSockEvent(se, MIN(r, select_time));
 		}
 	}
 

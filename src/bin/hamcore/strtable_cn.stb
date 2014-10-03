@@ -556,6 +556,7 @@ HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
 HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
+HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
 
 
 #关于失败连接对话框
@@ -4311,7 +4312,7 @@ CMD_UNKNOWN_PARAM			没有这个参数的说明。
 
 # 控制台系统内使用的字符串
 CMD_HELP_1					您可以使用下面的 %u 命令:
-CMD_HELP_2					参考每个命令的使用，输入 "命令名称 /?" 来查看帮助。
+CMD_HELP_2					参考每个命令的使用，输入 "命令名称 ?" 来查看帮助。
 CMD_EVAL_MIN_MAX			您必须指定从 %u 到 %u 的整数。
 CMD_PROMPT					输入一个值: 
 CMD_EVAL_NOT_EMPTY			规格不能为空白。
@@ -6864,7 +6865,7 @@ CMD_TrafficClient_ERROR_HOSTPORT	指定的主机名或端口号不正确。
 
 # TrafficServer 命令
 CMD_TrafficServer			在服务器模式下，运行网络流量速度测试工具
-CMD_TrafficServer_Help		运行通信吞吐量测量工具的服务器程序。\n通信吞吐量测量工具，作为 TrafficClient 和 TrafficServer 两个指令使用，可以测量在 IP 网络上连接的 2 台计算机之间可传送的通信吞吐量。\n要使此计算机上的 TCP 端口处于待机状态，等待从另一台计算机的 TrafficClient 连接，启动 TrafficServer 指令并指定端口号。\n关于通信吞吐量测量工具的详细情况，输入 TrafficClient /? 将显示。\n\n※注意: 此指令可以从 SoftEther VPN 命令行管理工具调用。虽然目前以管理模式连接 VPN Server 和 VPN Client 时可以运行，但要进行实际通信并测量吞吐量的，是运行此指令的计算机，与用管理模式连接终端的计算机没有任何关系。
+CMD_TrafficServer_Help		运行通信吞吐量测量工具的服务器程序。\n通信吞吐量测量工具，作为 TrafficClient 和 TrafficServer 两个指令使用，可以测量在 IP 网络上连接的 2 台计算机之间可传送的通信吞吐量。\n要使此计算机上的 TCP 端口处于待机状态，等待从另一台计算机的 TrafficClient 连接，启动 TrafficServer 指令并指定端口号。\n关于通信吞吐量测量工具的详细情况，输入 "TrafficClient ?" 将显示。\n\n※注意: 此指令可以从 SoftEther VPN 命令行管理工具调用。虽然目前以管理模式连接 VPN Server 和 VPN Client 时可以运行，但要进行实际通信并测量吞吐量的，是运行此指令的计算机，与用管理模式连接终端的计算机没有任何关系。
 CMD_TrafficServer_Args	TrafficServer [port]
 CMD_TrafficServer_[port]	以整数指定等待连接的端口号。被指定的端口，如果已经由另一个程序在使用，或不能打开该端口时，将发生错误。
 

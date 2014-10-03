@@ -128,6 +128,11 @@
 // <INFO> tags of the URL in the access list
 #define	ACCESS_LIST_URL_INFO_TAG					"<INFO>"
 
+// Old MAC address entry flush interval
+#define	OLD_MAC_ADDRESS_ENTRY_FLUSH_INTERVAL		1000
+
+// Default flooding queue length
+#define	DEFAULT_FLOODING_QUEUE_LENGTH				(32 * 1024 * 1024)
 
 // SoftEther link control packet
 struct SE_LINK
@@ -269,6 +274,7 @@ struct HUB_OPTION
 	bool DropBroadcastsInPrivacyFilterMode;	// Drop broadcasting packets if the both source and destination session is PrivacyFilter mode
 	bool DropArpInPrivacyFilterMode;	// Drop ARP packets if the both source and destination session is PrivacyFilter mode
 	bool SuppressClientUpdateNotification;	// Suppress the update notification function on the VPN Client
+	UINT FloodingSendQueueBufferQuota;	// The global quota of send queues of flooding packets
 };
 
 // MAC table entry
@@ -436,7 +442,7 @@ struct HUB
 	COUNTER *NumSessionsClient;			// The current number of sessions (client)
 	COUNTER *NumSessionsBridge;			// The current number of sessions (bridge)
 	HUB_OPTION *Option;					// HUB options
-	LIST *MacTable;						// MAC address table
+	HASH_LIST *MacHashTable;			// MAC address hash table
 	LIST *IpTable;						// IP address table
 	LIST *MonitorList;					// Monitor port session list
 	LIST *LinkList;						// Linked list
@@ -480,6 +486,8 @@ struct HUB
 	wchar_t *Msg;						// Message to be displayed when the client is connected
 	LIST *UserList;						// Cache of the user list file
 	bool IsVgsHub;						// Whether it's a VGS Virtual HUB
+	UINT64 LastFlushTick;				// Last tick to flush the MAC address table
+	bool StopAllLinkFlag;				// Stop all link flag
 };
 
 
@@ -520,9 +528,10 @@ UINT HubPaGetNextPacket(SESSION *s, void **data);
 bool HubPaPutPacket(SESSION *s, void *data, UINT size);
 PACKET_ADAPTER *GetHubPacketAdapter();
 int CompareMacTable(void *p1, void *p2);
+UINT GetHashOfMacTable(void *p);
 void StorePacket(HUB *hub, SESSION *s, PKT *packet);
 bool StorePacketFilter(SESSION *s, PKT *packet);
-void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *packet);
+void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *packet, bool is_flooding, bool no_check_acl);
 void SetHubOnline(HUB *h);
 void SetHubOffline(HUB *h);
 SESSION *GetSessionByPtr(HUB *hub, void *ptr);
@@ -565,7 +574,7 @@ void GetHubLogSetting(HUB *h, HUB_LOG *setting);
 void SetHubLogSetting(HUB *h, HUB_LOG *setting);
 void SetHubLogSettingEx(HUB *h, HUB_LOG *setting, bool no_change_switch_type);
 void DeleteExpiredIpTableEntry(LIST *o);
-void DeleteExpiredMacTableEntry(LIST *o);
+void DeleteExpiredMacTableEntry(HASH_LIST *h);
 void AddTrafficDiff(HUB *h, char *name, UINT type, TRAFFIC *traffic);
 void IncrementHubTraffic(HUB *h);
 void EnableSecureNAT(HUB *h, bool enable);

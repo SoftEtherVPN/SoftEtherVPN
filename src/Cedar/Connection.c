@@ -743,36 +743,32 @@ void SendDataWithUDP(SOCK *s, CONNECTION *c)
 		WriteBuf(b, dummy_buf, sizeof(dummy_buf));
 
 		// Pack the packets in transmission queue
-		LockQueue(c->SendBlocks);
+		while (true)
 		{
-			while (true)
+			BLOCK *block;
+
+			if (b->Size > UDP_BUF_SIZE)
 			{
-				BLOCK *block;
-
-				if (b->Size > UDP_BUF_SIZE)
-				{
-					break;
-				}
-				block = GetNext(c->SendBlocks);
-				if (block == NULL)
-				{
-					break;
-				}
-
-				if (block->Size != 0)
-				{
-					WriteBufInt(b, block->Size);
-					WriteBuf(b, block->Buf, block->Size);
-
-					c->Session->TotalSendSize += (UINT64)block->SizeofData;
-					c->Session->TotalSendSizeReal += (UINT64)block->Size;
-				}
-
-				FreeBlock(block);
 				break;
 			}
+			block = GetNext(c->SendBlocks);
+			if (block == NULL)
+			{
+				break;
+			}
+
+			if (block->Size != 0)
+			{
+				WriteBufInt(b, block->Size);
+				WriteBuf(b, block->Buf, block->Size);
+
+				c->Session->TotalSendSize += (UINT64)block->SizeofData;
+				c->Session->TotalSendSizeReal += (UINT64)block->Size;
+			}
+
+			FreeBlock(block);
+			break;
 		}
-		UnlockQueue(c->SendBlocks);
 
 		// Write sequence number and session key
 		sign = (char *)(((UCHAR *)b->Buf));
@@ -896,7 +892,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 					block = NewBlock(tmp, size, 0);
 
 					// Insert Block
-					InsertReveicedBlockToQueue(c, block);
+					InsertReveicedBlockToQueue(c, block, false);
 				}
 			}
 
@@ -913,7 +909,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 }
 
 // Add a block to the receive queue
-void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block)
+void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock)
 {
 	SESSION *s;
 	// Validate arguments
@@ -930,11 +926,24 @@ void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block)
 		s->TotalRecvSize += block->Size;
 	}
 
-	LockQueue(c->ReceivedBlocks);
+	if (no_lock == false)
+	{
+		LockQueue(c->ReceivedBlocks);
+	}
+
+	if (c->ReceivedBlocks->num_item < MAX_STORED_QUEUE_NUM)
 	{
 		InsertQueue(c->ReceivedBlocks, block);
 	}
-	UnlockQueue(c->ReceivedBlocks);
+	else
+	{
+		FreeBlock(block);
+	}
+
+	if (no_lock == false)
+	{
+		UnlockQueue(c->ReceivedBlocks);
+	}
 }
 
 // Generate the interval to the next Keep-Alive packet
@@ -1012,10 +1021,9 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts)
 }
 
 // Transmission of block
-void ConnectionSend(CONNECTION *c)
+void ConnectionSend(CONNECTION *c, UINT64 now)
 {
 	UINT i, num;
-	UINT64 now;
 	UINT min_count;
 	UINT64 max_recv_tick;
 	TCPSOCK **tcpsocks;
@@ -1037,8 +1045,6 @@ void ConnectionSend(CONNECTION *c)
 		hub = s->Hub;
 	}
 
-	now = Tick64();
-
 	// Protocol
 	if (c->Protocol == CONNECTION_TCP)
 	{
@@ -1048,6 +1054,8 @@ void ConnectionSend(CONNECTION *c)
 		TCPSOCK *ts_hp;
 		UINT num_available;
 		bool is_rudp = false;
+		UINT tcp_queue_size = 0;
+		int tcp_queue_size_diff = 0;
 		LockList(tcp->TcpSockList);
 		{
 			num = LIST_NUM(tcp->TcpSockList);
@@ -1143,7 +1151,15 @@ void ConnectionSend(CONNECTION *c)
 					}
 				}
 			}
+
+			tcp_queue_size += tcpsock->SendFifo->size;
 		}
+
+		tcp_queue_size_diff = ((int)tcp_queue_size) - ((int)c->LastTcpQueueSize);
+
+		CedarAddCurrentTcpQueueSize(c->Cedar, tcp_queue_size_diff);
+
+		c->LastTcpQueueSize = tcp_queue_size;
 
 		if (ts_hp == NULL)
 		{
@@ -1183,13 +1199,15 @@ void ConnectionSend(CONNECTION *c)
 					tss = ts;
 				}
 				// I reserve the data to send on the selected socket ts
-				LockQueue(c->SendBlocks);
 				if (q->num_item != 0)
 				{
 					UINT num_data;
 					BLOCK *b;
+					UINT size_quota_v1 = MAX_SEND_SOCKET_QUEUE_SIZE / s->MaxConnection;
+					UINT size_quota_v2 = MIN_SEND_SOCKET_QUEUE_SIZE;
+					UINT size_quota = MAX(size_quota_v1, size_quota_v2);
 
-					if (tss->SendFifo->size >= MAX((MAX_SEND_SOCKET_QUEUE_SIZE / s->MaxConnection), MIN_SEND_SOCKET_QUEUE_SIZE))
+					if (tss->SendFifo->size >= size_quota)
 					{
 						// The size of the socket send queue is exceeded
 						// Unable to send
@@ -1344,7 +1362,6 @@ void ConnectionSend(CONNECTION *c)
 						}
 					}
 				}
-				UnlockQueue(c->SendBlocks);
 			}
 		}
 
@@ -1428,7 +1445,7 @@ SEND_START:
 							PROBE_STR("TcpSockSend All Completed");
 						}
 						// Updated the last communication date and time
-						c->Session->LastCommTime = now;
+						UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
 
 						goto SEND_START;
 					}
@@ -1477,56 +1494,46 @@ SEND_START:
 		// SecureNAT session
 		SNAT *snat = s->SecureNAT;
 		VH *v = snat->Nat->Virtual;
+		BLOCK *block;
+		UINT num_packet = 0;
 
-		LockQueue(c->SendBlocks);
+		if (hub != NULL)
 		{
-			BLOCK *block;
-			UINT num_packet = 0;
-
-			if (hub != NULL)
-			{
-				NatSetHubOption(v, hub->Option);
-			}
-
-			while (block = GetNext(c->SendBlocks))
-			{
-				num_packet++;
-				c->CurrentSendQueueSize -= block->Size;
-				VirtualPutPacket(v, block->Buf, block->Size);
-				Free(block);
-			}
-
-			if (num_packet != 0)
-			{
-				VirtualPutPacket(v, NULL, 0);
-			}
+			NatSetHubOption(v, hub->Option);
 		}
-		UnlockQueue(c->SendBlocks);
+
+		while (block = GetNext(c->SendBlocks))
+		{
+			num_packet++;
+			c->CurrentSendQueueSize -= block->Size;
+			VirtualPutPacket(v, block->Buf, block->Size);
+			Free(block);
+		}
+
+		if (num_packet != 0)
+		{
+			VirtualPutPacket(v, NULL, 0);
+		}
 	}
 	else if (c->Protocol == CONNECTION_HUB_LAYER3)
 	{
 		// Layer-3 session
 		L3IF *f = s->L3If;
+		BLOCK *block;
+		UINT num_packet = 0;
 
-		LockQueue(c->SendBlocks);
+		while (block = GetNext(c->SendBlocks))
 		{
-			BLOCK *block;
-			UINT num_packet = 0;
-
-			while (block = GetNext(c->SendBlocks))
-			{
-				num_packet++;
-				c->CurrentSendQueueSize -= block->Size;
-				L3PutPacket(f, block->Buf, block->Size);
-				Free(block);
-			}
-
-			if (num_packet != 0)
-			{
-				L3PutPacket(f, NULL, 0);
-			}
+			num_packet++;
+			c->CurrentSendQueueSize -= block->Size;
+			L3PutPacket(f, block->Buf, block->Size);
+			Free(block);
 		}
-		UnlockQueue(c->SendBlocks);
+
+		if (num_packet != 0)
+		{
+			L3PutPacket(f, NULL, 0);
+		}
 	}
 	else if (c->Protocol == CONNECTION_HUB_LINK_SERVER)
 	{
@@ -1535,30 +1542,35 @@ SEND_START:
 
 		if (k != NULL)
 		{
-			LockQueue(c->SendBlocks);
+			UINT num_blocks = 0;
+			LockQueue(k->SendPacketQueue);
 			{
-				UINT num_blocks = 0;
-				LockQueue(k->SendPacketQueue);
-				{
-					BLOCK *block;
+				BLOCK *block;
 
-					// Transfer the packet queue to the client thread
-					while (block = GetNext(c->SendBlocks))
+				// Transfer the packet queue to the client thread
+				while (block = GetNext(c->SendBlocks))
+				{
+					c->CurrentSendQueueSize -= block->Size;
+
+					if (k->SendPacketQueue->num_item >= MAX_STORED_QUEUE_NUM)
+					{
+						FreeBlock(block);
+					}
+					else
 					{
 						num_blocks++;
-						c->CurrentSendQueueSize -= block->Size;
+						k->CurrentSendPacketQueueSize += block->Size;
 						InsertQueue(k->SendPacketQueue, block);
 					}
 				}
-				UnlockQueue(k->SendPacketQueue);
-
-				if (num_blocks != 0)
-				{
-					// Issue of cancellation
-					Cancel(k->ClientSession->Cancel1);
-				}
 			}
-			UnlockQueue(c->SendBlocks);
+			UnlockQueue(k->SendPacketQueue);
+
+			if (num_blocks != 0)
+			{
+				// Issue of cancellation
+				Cancel(k->ClientSession->Cancel1);
+			}
 		}
 	}
 	else if (c->Protocol == CONNECTION_HUB_BRIDGE)
@@ -1570,54 +1582,50 @@ SEND_START:
 		{
 			if (b->Active)
 			{
-				LockQueue(c->SendBlocks);
+				BLOCK *block;
+				UINT num_packet = c->SendBlocks->num_item; // Packet count
+
+				if (num_packet != 0)
 				{
-					BLOCK *block;
-					UINT num_packet = c->SendBlocks->num_item; // Packet count
+					// Packet data array
+					void **datas = MallocFast(sizeof(void *) * num_packet);
+					UINT *sizes = MallocFast(sizeof(UINT *) * num_packet);
+					UINT i;
 
-					if (num_packet != 0)
+					i = 0;
+					while (block = GetNext(c->SendBlocks))
 					{
-						// Packet data array
-						void **datas = MallocFast(sizeof(void *) * num_packet);
-						UINT *sizes = MallocFast(sizeof(UINT *) * num_packet);
-						UINT i;
-
-						i = 0;
-						while (block = GetNext(c->SendBlocks))
+						if (hub != NULL && hub->Option != NULL && hub->Option->DisableUdpFilterForLocalBridgeNic == false &&
+							b->Eth != NULL && IsDhcpPacketForSpecificMac(block->Buf, block->Size, b->Eth->MacAddress))
 						{
-							if (hub != NULL && hub->Option != NULL && hub->Option->DisableUdpFilterForLocalBridgeNic == false &&
-								b->Eth != NULL && IsDhcpPacketForSpecificMac(block->Buf, block->Size, b->Eth->MacAddress))
+							// DHCP Packet is filtered
+							datas[i] = NULL;
+							sizes[i] = 0;
+
+							Free(block->Buf);
+						}
+						else
+						{
+							datas[i] = block->Buf;
+							sizes[i] = block->Size;
+
+							if (block->Size > 1514)
 							{
-								// DHCP Packet is filtered
-								datas[i] = NULL;
-								sizes[i] = 0;
-
-								Free(block->Buf);
+								NormalizeEthMtu(b, c, block->Size);
 							}
-							else
-							{
-								datas[i] = block->Buf;
-								sizes[i] = block->Size;
-
-								if (block->Size > 1514)
-								{
-									NormalizeEthMtu(b, c, block->Size);
-								}
-							}
-
-							c->CurrentSendQueueSize -= block->Size;
-							Free(block);
-							i++;
 						}
 
-						// Write the packet
-						EthPutPackets(b->Eth, num_packet, datas, sizes);
-
-						Free(datas);
-						Free(sizes);
+						c->CurrentSendQueueSize -= block->Size;
+						Free(block);
+						i++;
 					}
+
+					// Write the packet
+					EthPutPackets(b->Eth, num_packet, datas, sizes);
+
+					Free(datas);
+					Free(sizes);
 				}
-				UnlockQueue(c->SendBlocks);
 			}
 		}
 	}
@@ -1632,10 +1640,10 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 	TCPSOCK **tcpsocks;
 	UCHAR *buf;
 	UINT size;
-	UINT64 now;
 	UINT time;
 	UINT num_delayed = 0;
 	bool no_spinlock_for_delay = false;
+	UINT64 now = Tick64();
 	HUB *hub = NULL;
 	// Validate arguments
 	if (c == NULL)
@@ -1657,8 +1665,6 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 		no_spinlock_for_delay = hub->Option->NoSpinLockForPacketDelay;
 	}
 
-	now = Tick64();
-
 	if (c->RecvBuf == NULL)
 	{
 		c->RecvBuf = Malloc(RECV_BUF_SIZE);
@@ -1671,6 +1677,8 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 		// TCP
 		TCP *tcp = c->Tcp;
 		UINT next_delay_packet_diff = 0;
+		UINT current_recv_fifo_size = 0;
+		int recv_fifo_size_middle_update = 0;
 
 		// Disconnect if disconnection interval is specified
 		if (s->ServerMode == false)
@@ -1784,6 +1792,8 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 			}
 		}
 
+		now = Tick64();
+
 		PROBE_STR("ConnectionReceive: Select 1");
 
 		if (s->UseUdpAcceleration && s->UdpAccel != NULL)
@@ -1799,6 +1809,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 
 			while (true)
 			{
+				UINT current_packet_index = 0;
 				BLOCK *b = GetNext(s->UdpAccel->RecvBlockQueue);
 
 				if (b == NULL)
@@ -1813,8 +1824,27 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 				}
 				else
 				{
-					// Add the data block to queue
-					InsertReveicedBlockToQueue(c, b);
+					if (CedarGetQueueBudgetBalance(c->Cedar) == 0)
+					{
+						FreeBlock(b);
+					}
+					else
+					{
+						// Add the data block to queue
+						InsertReveicedBlockToQueue(c, b, true);
+
+						if ((current_packet_index % 32) == 0)
+						{
+							UINT current_recv_block_num = c->ReceivedBlocks->num_item;
+							int diff = (int)current_recv_block_num - (int)c->LastRecvBlocksNum;
+
+							CedarAddQueueBudget(c->Cedar, diff);
+
+							c->LastRecvBlocksNum = current_recv_block_num;
+						}
+
+						current_packet_index++;
+					}
 				}
 			}
 		}
@@ -1845,6 +1875,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 					// R-UDP bulk transfer data reception
 					if (t != NULL && IsTubeConnected(t))
 					{
+						UINT current_packet_index = 0;
 						while (true)
 						{
 							TUBEDATA *d = TubeRecvAsync(t);
@@ -1876,15 +1907,34 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 							}
 							else
 							{
-								// Add the data block to queue
-								InsertReveicedBlockToQueue(c, block);
+								if (CedarGetQueueBudgetBalance(c->Cedar) == 0)
+								{
+									FreeBlock(block);
+								}
+								else
+								{
+									// Add the data block to queue
+									InsertReveicedBlockToQueue(c, block, true);
+
+									if ((current_packet_index % 32) == 0)
+									{
+										UINT current_recv_block_num = c->ReceivedBlocks->num_item;
+										int diff = (int)current_recv_block_num - (int)c->LastRecvBlocksNum;
+
+										CedarAddQueueBudget(c->Cedar, diff);
+
+										c->LastRecvBlocksNum = current_recv_block_num;
+									}
+
+									current_packet_index++;
+								}
 							}
 
 							FreeTubeData(d);
 
-							ts->LastCommTime = now;
-							ts->LastRecvTime = now;
-							c->Session->LastCommTime = now;
+							UPDATE_LAST_COMM_TIME(ts->LastCommTime, now);
+							UPDATE_LAST_COMM_TIME(ts->LastRecvTime, now);
+							UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
 						}
 					}
 				}
@@ -1893,6 +1943,8 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 			if (c->IsInProc)
 			{
 				TUBEDATA *d;
+				UINT current_packet_index = 0;
+
 				// Socket for in-process connection
 				if (IsTubeConnected(sock->RecvTube) == false)
 				{
@@ -1920,17 +1972,38 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 					}
 					else
 					{
-						// Add the data block to queue
-						InsertReveicedBlockToQueue(c, block);
+						if (CedarGetQueueBudgetBalance(c->Cedar) == 0)
+						{
+							FreeBlock(block);
+						}
+						else
+						{
+							// Add the data block to queue
+							InsertReveicedBlockToQueue(c, block, true);
+
+							if ((current_packet_index % 32) == 0)
+							{
+								UINT current_recv_block_num = c->ReceivedBlocks->num_item;
+								int diff = (int)current_recv_block_num - (int)c->LastRecvBlocksNum;
+
+								CedarAddQueueBudget(c->Cedar, diff);
+
+								c->LastRecvBlocksNum = current_recv_block_num;
+							}
+
+							current_packet_index++;
+						}
 					}
 
 					FreeTubeData(d);
 				}
 
-				c->Session->LastCommTime = now;
+				UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
 			}
 			else
 			{
+				UINT current_fifo_budget = 0;
+				UINT current_packet_index = 0;
 				// A normal socket (Not in-process)
 				if (ts->WantSize == 0)
 				{
@@ -1938,10 +2011,28 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 					ts->WantSize = sizeof(UINT);
 				}
 
+				now = Tick64();
+
 RECV_START:
+				current_fifo_budget = CedarGetFifoBudgetBalance(c->Cedar);
 				// Receive
-				size = TcpSockRecv(s, ts, buf, RECV_BUF_SIZE);
-/*
+				if (ts->RecvFifo->size < current_fifo_budget)
+				{
+					UINT recv_buf_size = current_fifo_budget - ts->RecvFifo->size;
+
+					recv_buf_size = MIN(recv_buf_size, RECV_BUF_SIZE);
+
+					size = TcpSockRecv(s, ts, buf, recv_buf_size);
+				}
+				else
+				{
+					size = SOCK_LATER;
+
+					UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
+					UPDATE_LAST_COMM_TIME(ts->LastCommTime, now);
+				}
+
+				/*
 				// Experiment
 				if (c->ServerMode)
 				{
@@ -1988,21 +2079,33 @@ DISCONNECT_THIS_TCP:
 				}
 				else
 				{
+					UINT budget_balance = CedarGetFifoBudgetBalance(c->Cedar);
+					UINT fifo_size_limit = budget_balance;
+
+					if (fifo_size_limit > MAX_BUFFERING_PACKET_SIZE)
+					{
+						fifo_size_limit = MAX_BUFFERING_PACKET_SIZE;
+					}
+
 					// Update the last communication time
-					ts->LastCommTime = now;
-					c->Session->LastCommTime = now;
-					ts->LastRecvTime = now;
+					UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
+					UPDATE_LAST_COMM_TIME(ts->LastRecvTime, now);
+
+					CedarAddFifoBudget(c->Cedar, (int)size);
+					recv_fifo_size_middle_update += (int)size;
 
 					// Write the received data into the FIFO
 					PROBE_DATA2("WriteRecvFifo", buf, size);
 					WriteRecvFifo(s, ts, buf, size);
 
 					// Stop receiving  when the receive buffer is full
-					if (ts->RecvFifo->size < MAX_SEND_SOCKET_QUEUE_SIZE)
+					if (ts->RecvFifo->size < fifo_size_limit)
 					{
 						goto RECV_START;
 					}
 				}
+
+				current_recv_fifo_size += FifoSize(ts->RecvFifo);
 
 				// process the data written to FIFO
 				while (ts->RecvFifo->size >= ts->WantSize)
@@ -2088,6 +2191,9 @@ DISCONNECT_THIS_TCP:
 						ReadFifo(ts->RecvFifo, NULL, ts->NextBlockSize);
 						block = NewBlock(data, ts->NextBlockSize, s->UseCompress ? -1 : 0);
 
+						UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
+						UPDATE_LAST_COMM_TIME(ts->LastCommTime, now);
+
 						if (block->Size > MAX_PACKET_SIZE)
 						{
 							// Packet size exceeded
@@ -2095,8 +2201,27 @@ DISCONNECT_THIS_TCP:
 						}
 						else
 						{
-							// Add the data block to queue
-							InsertReveicedBlockToQueue(c, block);
+							if (CedarGetQueueBudgetBalance(c->Cedar) == 0)
+							{
+								FreeBlock(block);
+							}
+							else
+							{
+								// Add the data block to queue
+								InsertReveicedBlockToQueue(c, block, true);
+
+								if ((current_packet_index % 32) == 0)
+								{
+									UINT current_recv_block_num = c->ReceivedBlocks->num_item;
+									int diff = (int)current_recv_block_num - (int)c->LastRecvBlocksNum;
+
+									CedarAddQueueBudget(c->Cedar, diff);
+
+									c->LastRecvBlocksNum = current_recv_block_num;
+								}
+
+								current_packet_index++;
+							}
 						}
 
 						if (ts->CurrentPacketNum >= ts->NextBlockNum)
@@ -2126,6 +2251,9 @@ DISCONNECT_THIS_TCP:
 						}
 						ts->NextBlockSize = MIN(sz, MAX_KEEPALIVE_SIZE);
 						ReadFifo(ts->RecvFifo, NULL, sizeof(UINT));
+
+						UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
+						UPDATE_LAST_COMM_TIME(ts->LastCommTime, now);
 
 						s->TotalRecvSize += sizeof(UINT);
 						s->TotalRecvSizeReal += sizeof(UINT);
@@ -2169,6 +2297,9 @@ DISCONNECT_THIS_TCP:
 						PROBE_DATA2("ReadFifo 4", NULL, 0);
 						ReadFifo(ts->RecvFifo, NULL, sz);
 
+						UPDATE_LAST_COMM_TIME(c->Session->LastCommTime, now);
+						UPDATE_LAST_COMM_TIME(ts->LastCommTime, now);
+
 						s->TotalRecvSize += sz;
 						s->TotalRecvSizeReal += sz;
 
@@ -2176,7 +2307,31 @@ DISCONNECT_THIS_TCP:
 						break;
 					}
 				}
+
+				ShrinkFifoMemory(ts->RecvFifo);
+				//printf("Fifo: %u\n", ts->RecvFifo->memsize);
 			}
+		}
+
+		if (true)
+		{
+			int diff;
+
+			diff = (int)current_recv_fifo_size - (int)c->LastRecvFifoTotalSize;
+
+			CedarAddFifoBudget(c->Cedar, (diff - recv_fifo_size_middle_update));
+
+			c->LastRecvFifoTotalSize = current_recv_fifo_size;
+		}
+
+		if (true)
+		{
+			UINT current_recv_block_num = c->ReceivedBlocks->num_item;
+			int diff = (int)current_recv_block_num - (int)c->LastRecvBlocksNum;
+
+			CedarAddQueueBudget(c->Cedar, diff);
+
+			c->LastRecvBlocksNum = current_recv_block_num;
 		}
 
 		Free(tcpsocks);
@@ -2322,7 +2477,7 @@ DISCONNECT_THIS_TCP:
 			else
 			{
 				// Add the data block to queue
-				InsertReveicedBlockToQueue(c, block);
+				InsertReveicedBlockToQueue(c, block, true);
 			}
 			num++;
 			if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
@@ -2403,7 +2558,7 @@ DISCONNECT_THIS_TCP:
 			}
 			else
 			{
-				InsertReveicedBlockToQueue(c, block);
+				InsertReveicedBlockToQueue(c, block, true);
 			}
 
 			num++;
@@ -2443,7 +2598,9 @@ DISCONNECT_THIS_TCP:
 
 			if ((b->LastNumDeviceCheck + BRIDGE_NUM_DEVICE_CHECK_SPAN) <= Tick64())
 			{
+#ifdef	OS_WIN32
 				check_device_num = true;
+#endif	// OS_WIN32
 				b->LastNumDeviceCheck = Tick64();
 			}
 
@@ -2518,7 +2675,7 @@ DISCONNECT_THIS_TCP:
 						}
 						else
 						{
-							InsertReveicedBlockToQueue(c, block);
+							InsertReveicedBlockToQueue(c, block, true);
 						}
 						num++;
 						if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
@@ -2640,6 +2797,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 	}
 
 	b = MallocFast(sizeof(BLOCK));
+
+	b->IsFlooding = false;
 
 	b->PriorityQoS = b->Ttl = b->Param1 = 0;
 
@@ -2891,7 +3050,7 @@ void ConnectionAccept(CONNECTION *c)
 	SERVER *server;
 	UCHAR *peek_buf = NULL;
 	UINT peek_buf_size = 1500;
-	char sni[128] = {0};
+	char sni[256] = {0};
 	bool native1 = false;
 	bool native2 = false;
 	bool native3 = false;
@@ -3189,6 +3348,32 @@ void CleanupConnection(CONNECTION *c)
 	if (c == NULL)
 	{
 		return;
+	}
+
+	if (c->LastRecvFifoTotalSize != 0)
+	{
+		CedarAddFifoBudget(c->Cedar, -((int)c->LastRecvFifoTotalSize));
+		c->LastRecvFifoTotalSize = 0;
+	}
+
+	if (c->LastRecvBlocksNum != 0)
+	{
+		CedarAddQueueBudget(c->Cedar, -((int)c->LastRecvBlocksNum));
+		c->LastRecvBlocksNum = 0;
+	}
+
+	if (c->LastTcpQueueSize != 0)
+	{
+		int diff = -((int)c->LastTcpQueueSize);
+		CedarAddCurrentTcpQueueSize(c->Cedar, diff);
+		c->LastTcpQueueSize = 0;
+	}
+
+	if (c->LastPacketQueueSize != 0)
+	{
+		int diff = -((int)c->LastPacketQueueSize);
+		CedarAddCurrentTcpQueueSize(c->Cedar, diff);
+		c->LastPacketQueueSize = 0;
 	}
 
 	DeleteLock(c->lock);
