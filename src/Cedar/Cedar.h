@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					410
+#define	CEDAR_VER					411
 
 // Build Number
-#define	CEDAR_BUILD					9505
+#define	CEDAR_BUILD					9506
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -159,10 +159,10 @@
 // Specifies the build date
 #define	BUILD_DATE_Y		2014
 #define	BUILD_DATE_M		10
-#define	BUILD_DATE_D		3
-#define	BUILD_DATE_HO		17
-#define	BUILD_DATE_MI		55
-#define	BUILD_DATE_SE		4
+#define	BUILD_DATE_D		22
+#define	BUILD_DATE_HO		19
+#define	BUILD_DATE_MI		51
+#define	BUILD_DATE_SE		55
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1051,6 +1051,7 @@ typedef struct CEDAR
 	UINT QueueBudget;				// Queue budget
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
+	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
 } CEDAR;
 
 // Type of CEDAR

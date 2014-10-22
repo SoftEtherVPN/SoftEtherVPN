@@ -231,7 +231,7 @@ static LIST *host_ip_address_cache = NULL;
 static bool disable_gethostname_by_accept = false;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA";
+static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -242,6 +242,8 @@ static UINT rand_port_numbers[256] = {0};
 
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
+
+static DH_CTX *dh_1024 = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -12772,7 +12774,14 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	{
 		if (sock->ServerMode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			if (sock->AcceptOnlyTls == false)
+			{
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			}
+			else
+			{
+				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_method());
+			}
 
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
@@ -17402,6 +17411,19 @@ void UnlockDnsCache()
 	UnlockList(DnsCache);
 }
 
+// DH temp key callback
+DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
+{
+	DH *ret = NULL;
+
+	if (dh_1024 != NULL)
+	{
+		ret = dh_1024->dh;
+	}
+
+	return ret;
+}
+
 // Create the SSL_CTX
 struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
@@ -17417,6 +17439,8 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 		SSL_CTX_set_options(ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
 	}
 #endif	// SSL_OP_CIPHER_SERVER_PREFERENCE
+
+	SSL_CTX_set_tmp_dh_callback(ctx, TmpDhCallback);
 
 	return ctx;
 }
@@ -17487,6 +17511,8 @@ void InitNetwork()
 
 	disable_cache = false;
 
+
+	dh_1024 = DhNewGroup2();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 }
@@ -17851,6 +17877,12 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 // Release of the network communication module
 void FreeNetwork()
 {
+
+	if (dh_1024 != NULL)
+	{
+		DhFree(dh_1024);
+		dh_1024 = NULL;
+	}
 
 	// Release of thread-related
 	FreeWaitThread();

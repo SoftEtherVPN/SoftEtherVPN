@@ -6094,6 +6094,9 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// Disable session reconnect
 		SetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT, CfgGetBool(f, "DisableSessionReconnect"));
+
+		// AcceptOnlyTls
+		c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
 	}
 	Unlock(c->lock);
 
@@ -6397,6 +6400,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
+
+		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));

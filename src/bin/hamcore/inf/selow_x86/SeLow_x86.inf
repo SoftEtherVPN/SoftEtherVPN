@@ -8,7 +8,7 @@ Signature					= "$Windows NT$"
 Class						= NetTrans
 ClassGUID					= {4D36E975-E325-11CE-BFC1-08002BE10318}
 Provider					= %CompanyName%
-DriverVer					= 10/03/2014, 4.10.0.9505
+DriverVer					= 10/22/2014, 4.11.0.9506
 
 CatalogFile.NT				= inf_selow.cat
 
@@ -66,5 +66,5 @@ SeLow_Description			= "A lightweight helper kernel-mode module for PacketiX VPN 
 
 
 
-; Auto Generated 20141003_182654.801
+; Auto Generated 20141022_202525.677
 
