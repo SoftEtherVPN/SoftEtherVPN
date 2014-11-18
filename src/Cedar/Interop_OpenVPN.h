@@ -311,6 +311,9 @@ struct OPENVPN_SERVER_UDP
 	UINT64 VgsNextGetPublicPortsTick;
 };
 
+// OpenVPN Default Client Option String
+#define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
+
 
 //// Function prototype
 OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar);

@@ -175,7 +175,7 @@ bool SamAuthUserByAnonymous(HUB *h, char *username)
 }
 
 // Plaintext password authentication of user
-bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *password, bool ast, UCHAR *mschap_v2_server_response_20)
+bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *password, bool ast, UCHAR *mschap_v2_server_response_20, RADIUS_LOGIN_OPTION *opt)
 {
 	bool b = false;
 	wchar_t *name = NULL;
@@ -267,7 +267,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					// Attempt to login
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
-						name, password, interval, mschap_v2_server_response_20);
+						name, password, interval, mschap_v2_server_response_20, opt);
 				}
 
 				Lock(hub->lock);

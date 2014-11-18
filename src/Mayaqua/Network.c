@@ -229,6 +229,8 @@ static LOCK *host_ip_address_list_cache_lock = NULL;
 static UINT64 host_ip_address_list_cache_last = 0;
 static LIST *host_ip_address_cache = NULL;
 static bool disable_gethostname_by_accept = false;
+static COUNTER *getip_thread_counter = NULL;
+static UINT max_getip_thread = 0;
 
 
 static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
@@ -2003,6 +2005,17 @@ bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip)
 	if (r == NULL || ip == NULL)
 	{
 		return false;
+	}
+
+	// Always allow private IP addresses
+	if (IsIPPrivate(ip))
+	{
+		return true;
+	}
+
+	if (IsIPAddressInSameLocalNetwork(ip))
+	{
+		return true;
 	}
 
 	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
@@ -4350,6 +4363,7 @@ void RUDPIpQueryThread(THREAD *thread, void *param)
 	void *route_change_poller = NULL;
 	char current_hostname[MAX_SIZE];
 	bool last_time_ip_changed = false;
+	UINT num_retry = 0;
 	// Validate arguments
 	if (thread == NULL || param == NULL)
 	{
@@ -4429,7 +4443,9 @@ void RUDPIpQueryThread(THREAD *thread, void *param)
 
 			if (IsZeroIp(&r->NatT_IP))
 			{
-				next_getip_tick = now + (UINT64)UDP_NAT_T_GET_IP_INTERVAL;
+				num_retry++;
+
+				next_getip_tick = now + MIN((UINT64)UDP_NAT_T_GET_IP_INTERVAL * (UINT64)num_retry, (UINT64)UDP_NAT_T_GET_IP_INTERVAL_MAX);
 			}
 			else
 			{
@@ -6724,6 +6740,46 @@ bool IsInSameNetwork4(IP *a1, IP *a2, IP *subnet)
 	IPAnd4(&net2, a2, subnet);
 
 	if (CmpIpAddr(&net1, &net2) == 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+bool IsInSameNetwork4Standard(IP *a1, IP *a2)
+{
+	IP subnet;
+
+	SetIP(&subnet, 255, 255, 0, 0);
+
+	return IsInSameNetwork4(a1, a2, &subnet);
+}
+bool IsInSameLocalNetworkToMe4(IP *a)
+{
+	IP g1, g2;
+
+	Zero(&g1, sizeof(g1));
+	Zero(&g2, sizeof(g2));
+
+	GetCurrentGlobalIPGuess(&g1, false);
+
+	if (IsZeroIp(&g1) == false)
+	{
+		if (IsInSameNetwork4Standard(&g1, a))
+		{
+			return true;
+		}
+	}
+
+	if (GetCurrentGlobalIP(&g2, false))
+	{
+		if (IsInSameNetwork4Standard(&g2, a))
+		{
+			return true;
+		}
+	}
+
+	if (IsIPAddressInSameLocalNetwork(a))
 	{
 		return true;
 	}
@@ -10924,6 +10980,20 @@ void FreeHostCache()
 void InitHostCache()
 {
 	HostCacheList = NewList(CompareHostCache);
+}
+
+// Get the number of wait threads
+UINT GetNumWaitThread()
+{
+	UINT ret = 0;
+
+	LockList(WaitThreadList);
+	{
+		ret = LIST_NUM(WaitThreadList);
+	}
+	UnlockList(WaitThreadList);
+
+	return ret;
 }
 
 // Add the thread to the thread waiting list
@@ -16631,6 +16701,8 @@ void GetIP4Ex6ExThread(THREAD *t, void *param)
 	ReleaseGetIPThreadParam(p);
 
 	DelWaitThread(t);
+
+	Dec(getip_thread_counter);
 }
 
 // Perform a forward DNS query (with timeout)
@@ -16645,9 +16717,13 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 	bool ret = false;
 	UINT64 start_tick = 0;
 	UINT64 end_tick = 0;
+	UINT64 spent_time = 0;
+	UINT64 now;
+	UINT n;
 	bool use_dns_proxy = false;
 	char hostname[260];
 	UINT i;
+	bool timed_out;
 	// Validate arguments
 	if (ip == NULL || hostname_arg == NULL)
 	{
@@ -16718,6 +16794,89 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 	}
 
 
+	// check the quota
+	start_tick = Tick64();
+	end_tick = start_tick + (UINT64)timeout;
+
+	n = 0;
+
+	timed_out = false;
+
+	while (true)
+	{
+		UINT64 now = Tick64();
+		UINT64 remain;
+		UINT remain32;
+
+		if (GetGetIpThreadMaxNum() > GetCurrentGetIpThreadNum())
+		{
+			// below the quota
+			break;
+		}
+
+		if (now >= end_tick)
+		{
+			// timeouted
+			timed_out = true;
+			break;
+		}
+
+		if (cancel != NULL && (*cancel))
+		{
+			// cancelled
+			timed_out = true;
+			break;
+		}
+
+		remain = end_tick - now;
+		remain32 = MIN((UINT)remain, 100);
+
+		SleepThread(remain32);
+		n++;
+	}
+
+	now = Tick64();
+	spent_time = now - start_tick;
+
+	if (n == 0)
+	{
+		spent_time = 0;
+	}
+
+	if ((UINT)spent_time >= timeout)
+	{
+		timed_out = true;
+	}
+
+	if (timed_out)
+	{
+		IP ip2;
+
+		// timed out, cancelled
+		if (QueryDnsCache(&ip2, hostname))
+		{
+			ret = true;
+
+			Copy(ip, &ip2, sizeof(IP));
+		}
+
+		Debug("GetIP4Ex6Ex2: Worker thread quota exceeded: max=%u current=%u\n",
+			GetGetIpThreadMaxNum(), GetCurrentGetIpThreadNum());
+
+		return ret;
+	}
+
+	// Increment the counter
+	Inc(getip_thread_counter);
+
+	if (spent_time != 0)
+	{
+		Debug("GetIP4Ex6Ex2: Waited for %u msecs to create a worker thread.\n",
+			spent_time);
+	}
+
+	timeout -= (UINT)spent_time;
+
 	p = ZeroMalloc(sizeof(GETIP_THREAD_PARAM));
 	p->Ref = NewRef();
 	StrCpy(p->HostName, sizeof(p->HostName), hostname);
@@ -16774,6 +16933,7 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 	{
 		IP ip2;
 
+#if	0
 		if (only_direct_dns == false)
 		{
 			if (ipv6)
@@ -16802,6 +16962,7 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 				}
 			}
 		}
+#endif
 
 		if (QueryDnsCache(&ip2, hostname))
 		{
@@ -17457,6 +17618,27 @@ void FreeSSLCtx(struct ssl_ctx_st *ctx)
 	SSL_CTX_free(ctx);
 }
 
+// The number of get ip threads
+void SetGetIpThreadMaxNum(UINT num)
+{
+	max_getip_thread = num;
+}
+UINT GetGetIpThreadMaxNum()
+{
+	UINT ret = max_getip_thread;
+
+	if (ret == 0)
+	{
+		ret = 0x7FFFFFFF;
+	}
+
+	return ret;
+}
+UINT GetCurrentGetIpThreadNum()
+{
+	return Count(getip_thread_counter);
+}
+
 // Initialize the network communication module
 void InitNetwork()
 {
@@ -17470,6 +17652,8 @@ void InitNetwork()
 	host_ip_address_list_cache_last = 0;
 
 	num_tcp_connections = NewCounter();
+
+	getip_thread_counter = NewCounter();
 
 	// Initialization of client list
 	InitIpClientList();
@@ -17515,6 +17699,8 @@ void InitNetwork()
 	dh_1024 = DhNewGroup2();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
+
+	SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
 }
 
 // Enable the network name cache
@@ -17770,6 +17956,45 @@ void FreePrivateIPFile()
 	g_use_privateip_file = false;
 }
 
+// Check whether the specified IP address is in the same network to this computer
+bool IsIPAddressInSameLocalNetwork(IP *a)
+{
+	bool ret = false;
+	LIST *o;
+	UINT i;
+	// Validate arguments
+	if (a == NULL)
+	{
+		return false;
+	}
+
+	o = GetHostIPAddressList();
+
+	if (o != NULL)
+	{
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			IP *p = LIST_DATA(o, i);
+
+			if (IsIP4(p))
+			{
+				if (IsZeroIp(p) == false && p->addr[0] != 127)
+				{
+					if (IsInSameNetwork4Standard(p, a))
+					{
+						ret = true;
+						break;
+					}
+				}
+			}
+		}
+
+		FreeHostIPAddressList(o);
+	}
+
+	return ret;
+}
+
 // Guess the IPv4, IPv6 global address from the IP address list of the current interface
 void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 {
@@ -17949,6 +18174,9 @@ void FreeNetwork()
 
 
 	FreeDynList();
+
+	DeleteCounter(getip_thread_counter);
+	getip_thread_counter = NULL;
 
 }
 
@@ -19112,6 +19340,46 @@ int CmpIpAddressList(void *p1, void *p2)
 	}
 
 	return r;
+}
+
+// Get the IP address list hash of the host
+UINT64 GetHostIPAddressListHash()
+{
+	UINT i;
+	LIST *o;
+	BUF *buf = NewBuf();
+	UCHAR hash[SHA1_SIZE];
+	UINT64 ret = 0;
+
+	o = GetHostIPAddressList();
+
+	if (o != NULL)
+	{
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			IP *ip = LIST_DATA(o, i);
+			char tmp[128];
+
+			Zero(tmp, sizeof(tmp));
+			IPToStr(tmp, sizeof(tmp), ip);
+
+			WriteBufStr(buf, tmp);
+		}
+
+		FreeHostIPAddressList(o);
+	}
+
+	WriteBufStr(buf, "test");
+
+	HashSha1(hash, buf->Buf, buf->Size);
+
+	FreeBuf(buf);
+
+	Copy(&ret, hash, sizeof(UINT64));
+
+	ret = Endian64(ret);
+
+	return ret;
 }
 
 // Get the IP address list of the host (using cache)

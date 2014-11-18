@@ -1034,6 +1034,11 @@ UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port,
 
 	a->IsIPv6 = IsIP6(ip);
 
+	if (a->IsIPv6)
+	{
+		a->NoNatT = true;
+	}
+
 	a->RecvBlockQueue = NewQueue();
 
 	Rand(a->NextIv, sizeof(a->NextIv));
@@ -1088,6 +1093,8 @@ void NatT_GetIpThread(THREAD *thread, void *param)
 {
 	UDP_ACCEL *a;
 	char hostname[MAX_SIZE];
+	static IP dummy_ip = {0};
+	UINT num_retry = 0;
 	// Validate arguments
 	if (thread == NULL || param == NULL)
 	{
@@ -1096,11 +1103,17 @@ void NatT_GetIpThread(THREAD *thread, void *param)
 
 	a = (UDP_ACCEL *)param;
 
-	RUDPGetRegisterHostNameByIP(hostname, sizeof(hostname), NULL);
+	if (IsZeroIP(&dummy_ip))
+	{
+		SetIP(&dummy_ip, 11, Rand8(), Rand8(), Rand8());
+	}
+
+	RUDPGetRegisterHostNameByIP(hostname, sizeof(hostname), &dummy_ip);
 
 	while (a->NatT_Halt == false)
 	{
 		IP ip;
+		UINT wait_time = UDP_NAT_T_GET_IP_INTERVAL;
 
 		// Get the IP address
 		bool ret = GetIP4Ex(&ip, hostname, 0, &a->NatT_Halt);
@@ -1125,7 +1138,11 @@ void NatT_GetIpThread(THREAD *thread, void *param)
 		}
 
 		// Fail to get
-		Wait(a->NatT_HaltEvent, UDP_NAT_T_GET_IP_INTERVAL);
+		num_retry++;
+
+		wait_time = (UINT)(MIN((UINT64)UDP_NAT_T_GET_IP_INTERVAL * (UINT64)num_retry, (UINT64)UDP_NAT_T_GET_IP_INTERVAL_MAX));
+
+		Wait(a->NatT_HaltEvent, wait_time);
 	}
 }
 

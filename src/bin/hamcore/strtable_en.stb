@@ -551,6 +551,7 @@ HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both s
 HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
+HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
 
 
 # Concerning failed connection dialogs
@@ -1902,6 +1903,7 @@ LH_MAX_SESSION_2		Connection "%S": The maximum number of sessions (%u) that can 
 LH_NEW_SESSION			Connection "%S": The new session "%S" has been created. (IP address: %S, Port number: %u, Physical underlying protocol: "%S")
 LH_SET_SESSION			Session "%S": The parameter has been set. Max number of TCP connections: %u, Use of encryption: %s, Use of compression: %s, Use of Half duplex communication: %s, Timeout: %u seconds.
 LH_NODE_INFO			Session "%S": VPN Client details: (%s)
+LH_VLAN_ID				Session "%S": Assigned VLAN ID: %u
 LH_INVALID_SIGNATURE	Session "%S": The connected client sent invalid protocol data. Unable to establish normal communication with client. First check for problems with the connections and cabling of the network connecting the client and the server and then check there is not a special transparent packet re-writing device installed.
 LH_END_SESSION			Session "%S": The session has been terminated. The statistical information is as follows: Total outgoing data size: %I64u bytes, Total incoming data size: %I64u bytes.
 LH_BCAST_STORM			Session "%S": A large volume of broadcast packets has been detected. There are cases where packets are discarded based on the policy. The source MAC address is %S, the source IP address is %S, the destination IP address is %S. The number of broadcast packets is equal to or larger than %u items per 1 second (note this information is the result of mechanical analysis of part of the packets and could be incorrect).

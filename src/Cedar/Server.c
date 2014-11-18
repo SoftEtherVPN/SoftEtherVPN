@@ -260,6 +260,7 @@ UINT SiDebug(SERVER *s, RPC_TEST *ret, UINT i, char *str)
 		{10, "Get VgsMessageDisplayed Flag", "", SiDebugProcGetVgsMessageDisplayedValue},
 		{11, "Set VgsMessageDisplayed Flag", "", SiDebugProcSetVgsMessageDisplayedValue},
 		{12, "Get the current TCP send queue length", "", SiDebugProcGetCurrentTcpSendQueueLength},
+		{13, "Get the current GetIP thread count", "", SiDebugProcGetCurrentGetIPThreadCount},
 	};
 	UINT num_proc_list = sizeof(proc_list) / sizeof(proc_list[0]);
 	UINT j;
@@ -475,6 +476,25 @@ UINT SiDebugProcGetCurrentTcpSendQueueLength(SERVER *s, char *in_str, char *ret_
 		"QueueBudgetConsuming = %s\n"
 		"FifoBudgetConsuming  = %s\n",
 		tmp1, tmp2, tmp3);
+
+	return ERR_NO_ERROR;
+}
+UINT SiDebugProcGetCurrentGetIPThreadCount(SERVER *s, char *in_str, char *ret_str, UINT ret_str_size)
+{
+	char tmp1[64], tmp2[64];
+	// Validate arguments
+	if (s == NULL || in_str == NULL || ret_str == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	ToStr3(tmp1, 0, GetCurrentGetIpThreadNum());
+	ToStr3(tmp2, 0, GetGetIpThreadMaxNum());
+
+	Format(ret_str, 0, 
+		"Current threads = %s\n"
+		"Quota           = %s\n",
+		tmp1, tmp2);
 
 	return ERR_NO_ERROR;
 }
@@ -4081,6 +4101,7 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->DisableCheckMacOnLocalBridge = CfgGetBool(f, "DisableCheckMacOnLocalBridge");
 	o->DisableCorrectIpOffloadChecksum = CfgGetBool(f, "DisableCorrectIpOffloadChecksum");
 	o->SuppressClientUpdateNotification = CfgGetBool(f, "SuppressClientUpdateNotification");
+	o->AssignVLanIdByRadiusAttribute = CfgGetBool(f, "AssignVLanIdByRadiusAttribute");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4156,6 +4177,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
 	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
 	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
+	CfgAddBool(f, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
 	CfgAddBool(f, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
 	CfgAddInt(f, "AdjustTcpMssValue", o->AdjustTcpMssValue);
 	CfgAddBool(f, "DisableAdjustTcpMss", o->DisableAdjustTcpMss);
@@ -5748,6 +5770,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	bool cluster_allowed = false;
 	UINT num_connections_per_ip = 0;
 	FOLDER *params_folder;
+	UINT i;
 	// Validate arguments
 	if (s == NULL || f == NULL)
 	{
@@ -5763,6 +5786,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	else
 	{
 		s->AutoSaveConfigSpan = MAKESURE(s->AutoSaveConfigSpan, SERVER_FILE_SAVE_INTERVAL_MIN, SERVER_FILE_SAVE_INTERVAL_MAX);
+	}
+
+	i = CfgGetInt(f, "MaxConcurrentDnsClientThreads");
+	if (i != 0)
+	{
+		SetGetIpThreadMaxNum(i);
+	}
+	else
+	{
+		SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
 	}
 
 	s->DontBackupConfig = CfgGetBool(f, "DontBackupConfig");
@@ -5899,6 +5932,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// Disable the OpenVPN server function
 		s->DisableOpenVPNServer = CfgGetBool(f, "DisableOpenVPNServer");
+
+		// OpenVPN Default Option String
+		if (CfgGetStr(f, "OpenVPNDefaultClientOption", tmp, sizeof(tmp)))
+		{
+			if (IsEmptyStr(tmp) == false)
+			{
+				StrCpy(c->OpenVPNDefaultClientOption,
+					sizeof(c->OpenVPNDefaultClientOption), tmp);
+			}
+		}
 
 		// Disable the NAT-traversal feature
 		s->DisableNatTraversal = CfgGetBool(f, "DisableNatTraversal");
@@ -6190,6 +6233,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		return;
 	}
 
+	CfgAddInt(f, "MaxConcurrentDnsClientThreads", GetGetIpThreadMaxNum());
+
 	CfgAddInt(f, "CurrentBuild", s->Cedar->Build);
 
 	CfgAddInt(f, "AutoSaveConfigSpan", s->AutoSaveConfigSpanSaved / 1000);
@@ -6291,6 +6336,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 				CfgAddBool(f, "DisableOpenVPNServer", s->DisableOpenVPNServer);
 			}
 		}
+
+		CfgAddStr(f, "OpenVPNDefaultClientOption", c->OpenVPNDefaultClientOption);
 
 		if (c->Bridge == false)
 		{
@@ -7431,6 +7478,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DropBroadcastsInPrivacyFilterMode = PackGetBool(p, "DropBroadcastsInPrivacyFilterMode");
 	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
 	o.SuppressClientUpdateNotification = PackGetBool(p, "SuppressClientUpdateNotification");
+	o.AssignVLanIdByRadiusAttribute = PackGetBool(p, "AssignVLanIdByRadiusAttribute");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
 	if (o.VlanTypeId == 0)
 	{
@@ -9270,6 +9318,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "DropBroadcastsInPrivacyFilterMode", h->Option->DropBroadcastsInPrivacyFilterMode);
 	PackAddBool(p, "DropArpInPrivacyFilterMode", h->Option->DropArpInPrivacyFilterMode);
 	PackAddBool(p, "SuppressClientUpdateNotification", h->Option->SuppressClientUpdateNotification);
+	PackAddBool(p, "AssignVLanIdByRadiusAttribute", h->Option->AssignVLanIdByRadiusAttribute);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
 	PackAddBool(p, "FixForDLinkBPDU", h->Option->FixForDLinkBPDU);
 	PackAddBool(p, "BroadcastLimiterStrictMode", h->Option->BroadcastLimiterStrictMode);
@@ -10810,6 +10859,8 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server)
 	LISTENER *inproc;
 	LISTENER *azure;
 	LISTENER *rudp;
+
+	SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
 
 	s = ZeroMalloc(sizeof(SERVER));
 

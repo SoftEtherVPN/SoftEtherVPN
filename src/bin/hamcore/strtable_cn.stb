@@ -557,6 +557,7 @@ HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both s
 HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
+HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
 
 
 #关于失败连接对话框
@@ -1919,6 +1920,7 @@ LH_MAX_SESSION_2			连接 "%S": 可被 VPN Server 管理的的最大会话数 (%
 LH_NEW_SESSION				连接 "%S": 已创建新会话 "%S"。(IP 地址：%S，端口号：%u，物理底层协议："%S")
 LH_SET_SESSION				会话 "%S": 已设置参数。最大 TCP 连接数：%u，使用的加密：%s，使用的压缩：%s，使用的半双工通信：%s，超时：%u 秒。
 LH_NODE_INFO				会话 "%S": VPN Client 详细信息: (%s)
+LH_VLAN_ID					会话 "%S": Assigned VLAN ID: %u
 LH_INVALID_SIGNATURE		会话 "%S": 已连接的客户端发送了非法协议数据。无法与客户端建立一般通信。请首先检查客户端到服务端之间的连接和网络线缆问题，然后再检查是否安装有特殊传输数据包重写设备。
 LH_END_SESSION				会话 "%S": 会话已结束。统计信息如下: 总输出数据大小: %I64u 字节，总输入数据大小: %I64u 字节。
 LH_BCAST_STORM				会话 "%S": 检测到大量广播数据包。您可能会按照策略废弃数据包。源 MAC 地址是 %S，源 IP 地址是 %S，目标 IP 地址是 %S。广播数据包量大于等于 %u 每秒 (注意此信息是对部分数据包进行刻板的分析，结果可能不正确)。

@@ -766,6 +766,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 {
 	LIST *o;
 	BUF *b;
+	char opt_str[MAX_SIZE];
 	// Validate arguments
 	if (s == NULL || se == NULL || c == NULL || data == NULL)
 	{
@@ -779,7 +780,14 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 
 	OvsLog(s, se, c, "LO_OPTION_STR_RECV", data->OptionString);
 
-	o = OvsParseOptions(data->OptionString);
+	Zero(opt_str, sizeof(opt_str));
+	StrCpy(opt_str, sizeof(opt_str), data->OptionString);
+	if (s->Cedar != NULL && (IsEmptyStr(opt_str) || StartWith(opt_str, "V0 UNDEF") || InStr(opt_str, ",") == false))
+	{
+		StrCpy(opt_str, sizeof(opt_str), s->Cedar->OpenVPNDefaultClientOption);
+	}
+
+	o = OvsParseOptions(opt_str);
 
 	if (se->Mode == OPENVPN_MODE_UNKNOWN)
 	{

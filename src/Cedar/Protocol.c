@@ -842,24 +842,24 @@ void GenerateMachineUniqueHash(void *data)
 {
 	BUF *b;
 	char name[64];
-	char ip_str[64];
-	IP ip;
 	OS_INFO *osinfo;
+	UINT64 iphash = 0;
 	// Validate arguments
 	if (data == NULL)
 	{
 		return;
 	}
 
+	iphash = GetHostIPAddressListHash();
+
 	b = NewBuf();
 	GetMachineName(name, sizeof(name));
-	GetMachineIp(&ip);
-	IPToStr(ip_str, sizeof(ip_str), &ip);
 
 	osinfo = GetOsInfo();
 
 	WriteBuf(b, name, StrLen(name));
-	WriteBuf(b, ip_str, StrLen(ip_str));
+
+	WriteBufInt64(b, iphash);
 
 	WriteBuf(b, &osinfo->OsType, sizeof(osinfo->OsType));
 	WriteBuf(b, osinfo->KernelName, StrLen(osinfo->KernelName));
@@ -1265,6 +1265,7 @@ bool ServerAccept(CONNECTION *c)
 	RC4_KEY_PAIR key_pair;
 	UINT authtype;
 	POLICY *policy;
+	UINT assigned_vlan_id = 0;
 	HUB *hub;
 	SESSION *s = NULL;
 	UINT64 user_expires = 0;
@@ -1329,6 +1330,8 @@ bool ServerAccept(CONNECTION *c)
 	{
 		return false;
 	}
+
+	GenerateMachineUniqueHash(unique2);
 
 	Zero(ctoken_hash_str, sizeof(ctoken_hash_str));
 
@@ -1623,6 +1626,8 @@ bool ServerAccept(CONNECTION *c)
 			USER *user;
 			USERGROUP *group;
 			char plain_password[MAX_PASSWORD_LEN + 1];
+			RADIUS_LOGIN_OPTION radius_login_opt;
+
 			if (hub->Halt || hub->Offline)
 			{
 				// HUB is off-line
@@ -1631,6 +1636,13 @@ bool ServerAccept(CONNECTION *c)
 				ReleaseHub(hub);
 				c->Err = ERR_HUB_STOPPING;
 				goto CLEANUP;
+			}
+
+			Zero(&radius_login_opt, sizeof(radius_login_opt));
+
+			if (hub->Option != NULL)
+			{
+				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
 			}
 
 			// Get the various flags
@@ -1997,7 +2009,7 @@ bool ServerAccept(CONNECTION *c)
 
 							if (fail_ext_user_auth == false)
 							{
-								auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, false, mschap_v2_server_response_20);
+								auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, false, mschap_v2_server_response_20, &radius_login_opt);
 							}
 
 							if (auth_ret && pol == NULL)
@@ -2028,7 +2040,7 @@ bool ServerAccept(CONNECTION *c)
 								// If there is asterisk user, log on as the user
 								if (b)
 								{
-									auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20);
+									auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20, &radius_login_opt);
 									if (auth_ret && pol == NULL)
 									{
 										pol = SamGetUserPolicy(hub, "*");
@@ -2179,6 +2191,12 @@ bool ServerAccept(CONNECTION *c)
 
 			// Authentication success
 			FreePack(p);
+
+			// Check the assigned VLAN ID
+			if (radius_login_opt.Out_VLanId != 0)
+			{
+				assigned_vlan_id = radius_login_opt.Out_VLanId;
+			}
 
 			if (StrCmpi(username, ADMINISTRATOR_USERNAME) != 0)
 			{
@@ -2467,8 +2485,6 @@ bool ServerAccept(CONNECTION *c)
 				policy->NoBridge = true;
 				policy->NoRouting = true;
 			}
-
-			GenerateMachineUniqueHash(unique2);
 
 			if (Cmp(unique, unique2, SHA1_SIZE) == 0)
 			{
@@ -2865,6 +2881,18 @@ bool ServerAccept(CONNECTION *c)
 			// Remove the connection from Cedar
 			DelConnection(c->Cedar, c);
 
+			// VLAN ID
+			if (assigned_vlan_id != 0)
+			{
+				if (policy != NULL)
+				{
+					if (policy->VLanId == 0)
+					{
+						policy->VLanId = assigned_vlan_id;
+					}
+				}
+			}
+
 			// Create a Session
 			StrLower(username);
 			s = NewServerSessionEx(c->Cedar, c, hub, username, policy, c->IsInProc);
@@ -3049,6 +3077,7 @@ bool ServerAccept(CONNECTION *c)
 			s->Timeout = timeout;
 			s->QoS = qos;
 			s->NoReconnectToSession = no_reconnect_to_session;
+
 
 			if (policy != NULL)
 			{
@@ -3245,6 +3274,11 @@ bool ServerAccept(CONNECTION *c)
 			NodeInfoToStr(tmp, sizeof(tmp), &s->NodeInfo);
 
 			HLog(hub, "LH_NODE_INFO", s->Name, tmp);
+
+			if (s->VLanId != 0)
+			{
+				HLog(hub, "LH_VLAN_ID", s->Name, s->VLanId);
+			}
 		}
 
 		// Shift the connection to the tunneling mode

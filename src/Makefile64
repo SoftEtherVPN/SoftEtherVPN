@@ -1,0 +1,361 @@
+# PacketiX VPN Source Code
+# Copyright (c) SoftEther Corporation. All Rights Reserved.
+# Platform: linux-x86-64bit
+
+# Variables
+CC=gcc
+
+OPTIONS_COMPILE_DEBUG=-DUNIX_LINUX -DCPU_64 -DCPU_X64 -D_DEBUG -DDEBUG -DUNIX -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./ -I./Cedar/ -I./Mayaqua/ -g -fsigned-char -pthread -m64
+
+OPTIONS_LINK_DEBUG=-g -fsigned-char -pthread -m64 -lm -ldl -lrt -lpthread -L./ lib/64/libssl.a lib/64/libcrypto.a lib/64/libiconv.a lib/64/libcharset.a lib/64/libedit.a lib/64/libncurses.a lib/64/libz.a lib/64/libintelaes.a
+
+OPTIONS_COMPILE_RELEASE=-DUNIX_LINUX -DCPU_64 -DCPU_X64 -DNDEBUG -DVPN_SPEED -DMAYAQUA_REPLACE -DUNIX -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./ -I./Cedar/ -I./Mayaqua/ -O2 -fsigned-char -pthread -m64
+
+OPTIONS_LINK_RELEASE=-O2 -fsigned-char -pthread -m64 -lm -ldl -lrt -lpthread -L./ lib/64/libssl.a lib/64/libcrypto.a lib/64/libiconv.a lib/64/libcharset.a lib/64/libedit.a lib/64/libncurses.a lib/64/libz.a lib/64/libintelaes.a
+
+ifeq ($(DEBUG),YES)
+	OPTIONS_COMPILE=$(OPTIONS_COMPILE_DEBUG)
+	OPTIONS_LINK=$(OPTIONS_LINK_DEBUG)
+else
+	OPTIONS_COMPILE=$(OPTIONS_COMPILE_RELEASE)
+	OPTIONS_LINK=$(OPTIONS_LINK_RELEASE)
+endif
+
+# Files
+HEADERS_MAYAQUA=Mayaqua/Cfg.h Mayaqua/cryptoki.h Mayaqua/Encrypt.h Mayaqua/FileIO.h Mayaqua/intelaes/iaesni.h Mayaqua/Internat.h Mayaqua/Kernel.h Mayaqua/Mayaqua.h Mayaqua/MayaType.h Mayaqua/Memory.h Mayaqua/Microsoft.h Mayaqua/Network.h Mayaqua/Object.h Mayaqua/openssl/aes.h Mayaqua/openssl/asn1.h Mayaqua/openssl/asn1_mac.h Mayaqua/openssl/asn1t.h Mayaqua/openssl/bio.h Mayaqua/openssl/blowfish.h Mayaqua/openssl/bn.h Mayaqua/openssl/buffer.h Mayaqua/openssl/cast.h Mayaqua/openssl/comp.h Mayaqua/openssl/conf.h Mayaqua/openssl/conf_api.h Mayaqua/openssl/crypto.h Mayaqua/openssl/des.h Mayaqua/openssl/des_old.h Mayaqua/openssl/dh.h Mayaqua/openssl/dsa.h Mayaqua/openssl/dso.h Mayaqua/openssl/dtls1.h Mayaqua/openssl/e_os2.h Mayaqua/openssl/ebcdic.h Mayaqua/openssl/ec.h Mayaqua/openssl/ecdh.h Mayaqua/openssl/ecdsa.h Mayaqua/openssl/engine.h Mayaqua/openssl/err.h Mayaqua/openssl/evp.h Mayaqua/openssl/fips.h Mayaqua/openssl/fips_rand.h Mayaqua/openssl/hmac.h Mayaqua/openssl/idea.h Mayaqua/openssl/krb5_asn.h Mayaqua/openssl/kssl.h Mayaqua/openssl/lhash.h Mayaqua/openssl/md2.h Mayaqua/openssl/md4.h Mayaqua/openssl/md5.h Mayaqua/openssl/mdc2.h Mayaqua/openssl/obj_mac.h Mayaqua/openssl/objects.h Mayaqua/openssl/ocsp.h Mayaqua/openssl/opensslconf.h Mayaqua/openssl/opensslv.h Mayaqua/openssl/ossl_typ.h Mayaqua/openssl/pem.h Mayaqua/openssl/pem2.h Mayaqua/openssl/pkcs12.h Mayaqua/openssl/pkcs7.h Mayaqua/openssl/pq_compat.h Mayaqua/openssl/pqueue.h Mayaqua/openssl/rand.h Mayaqua/openssl/rc2.h Mayaqua/openssl/rc4.h Mayaqua/openssl/rc5.h Mayaqua/openssl/ripemd.h Mayaqua/openssl/rsa.h Mayaqua/openssl/safestack.h Mayaqua/openssl/sha.h Mayaqua/openssl/ssl.h Mayaqua/openssl/ssl2.h Mayaqua/openssl/ssl23.h Mayaqua/openssl/ssl3.h Mayaqua/openssl/stack.h Mayaqua/openssl/store.h Mayaqua/openssl/symhacks.h Mayaqua/openssl/tls1.h Mayaqua/openssl/tmdiff.h Mayaqua/openssl/txt_db.h Mayaqua/openssl/ui.h Mayaqua/openssl/ui_compat.h Mayaqua/openssl/x509.h Mayaqua/openssl/x509_vfy.h Mayaqua/openssl/x509v3.h Mayaqua/OS.h Mayaqua/Pack.h Mayaqua/pkcs11.h Mayaqua/pkcs11f.h Mayaqua/pkcs11t.h Mayaqua/Secure.h Mayaqua/Str.h Mayaqua/Table.h Mayaqua/TcpIp.h Mayaqua/Tick64.h Mayaqua/Tracking.h Mayaqua/TunTap.h Mayaqua/Unix.h Mayaqua/Win32.h Mayaqua/zlib/zconf.h Mayaqua/zlib/zlib.h
+HEADERS_CEDAR=Cedar/Account.h Cedar/Admin.h Cedar/AzureClient.h Cedar/AzureServer.h Cedar/Bridge.h Cedar/BridgeUnix.h Cedar/BridgeWin32.h Cedar/Cedar.h Cedar/CedarPch.h Cedar/CedarType.h Cedar/Client.h Cedar/CM.h Cedar/CMInner.h Cedar/Command.h Cedar/Connection.h Cedar/Console.h Cedar/Database.h Cedar/DDNS.h Cedar/EM.h Cedar/EMInner.h Cedar/EtherLog.h Cedar/Hub.h Cedar/Interop_OpenVPN.h Cedar/Interop_SSTP.h Cedar/IPsec.h Cedar/IPsec_EtherIP.h Cedar/IPsec_IKE.h Cedar/IPsec_IkePacket.h Cedar/IPsec_IPC.h Cedar/IPsec_L2TP.h Cedar/IPsec_PPP.h Cedar/IPsec_Win7.h Cedar/IPsec_Win7Inner.h Cedar/Layer3.h Cedar/Link.h Cedar/Listener.h Cedar/Logging.h Cedar/Nat.h Cedar/NativeStack.h Cedar/NM.h Cedar/NMInner.h Cedar/NullLan.h Cedar/Protocol.h Cedar/Radius.h Cedar/Remote.h Cedar/Sam.h Cedar/SecureInfo.h Cedar/SecureNAT.h Cedar/SeLowUser.h Cedar/Server.h Cedar/Session.h Cedar/SM.h Cedar/SMInner.h Cedar/SW.h Cedar/SWInner.h Cedar/UdpAccel.h Cedar/UT.h Cedar/VG.h Cedar/Virtual.h Cedar/VLan.h Cedar/VLanUnix.h Cedar/VLanWin32.h Cedar/WaterMark.h Cedar/WebUI.h Cedar/Win32Com.h Cedar/WinUi.h Cedar/Wpc.h
+OBJECTS_MAYAQUA=object/Mayaqua/Cfg.o object/Mayaqua/Encrypt.o object/Mayaqua/FileIO.o object/Mayaqua/Internat.o object/Mayaqua/Kernel.o object/Mayaqua/Mayaqua.o object/Mayaqua/Memory.o object/Mayaqua/Microsoft.o object/Mayaqua/Network.o object/Mayaqua/Object.o object/Mayaqua/OS.o object/Mayaqua/Pack.o object/Mayaqua/Secure.o object/Mayaqua/Str.o object/Mayaqua/Table.o object/Mayaqua/TcpIp.o object/Mayaqua/Tick64.o object/Mayaqua/Tracking.o object/Mayaqua/Unix.o object/Mayaqua/Win32.o
+OBJECTS_CEDAR=object/Cedar/Account.o object/Cedar/Admin.o object/Cedar/AzureClient.o object/Cedar/AzureServer.o object/Cedar/Bridge.o object/Cedar/BridgeUnix.o object/Cedar/BridgeWin32.o object/Cedar/Cedar.o object/Cedar/CedarPch.o object/Cedar/Client.o object/Cedar/CM.o object/Cedar/Command.o object/Cedar/Connection.o object/Cedar/Console.o object/Cedar/Database.o object/Cedar/DDNS.o object/Cedar/EM.o object/Cedar/EtherLog.o object/Cedar/Hub.o object/Cedar/Interop_OpenVPN.o object/Cedar/Interop_SSTP.o object/Cedar/IPsec.o object/Cedar/IPsec_EtherIP.o object/Cedar/IPsec_IKE.o object/Cedar/IPsec_IkePacket.o object/Cedar/IPsec_IPC.o object/Cedar/IPsec_L2TP.o object/Cedar/IPsec_PPP.o object/Cedar/IPsec_Win7.o object/Cedar/Layer3.o object/Cedar/Link.o object/Cedar/Listener.o object/Cedar/Logging.o object/Cedar/Nat.o object/Cedar/NativeStack.o object/Cedar/NM.o object/Cedar/NullLan.o object/Cedar/Protocol.o object/Cedar/Radius.o object/Cedar/Remote.o object/Cedar/Sam.o object/Cedar/SecureInfo.o object/Cedar/SecureNAT.o object/Cedar/SeLowUser.o object/Cedar/Server.o object/Cedar/Session.o object/Cedar/SM.o object/Cedar/SW.o object/Cedar/UdpAccel.o object/Cedar/UT.o object/Cedar/VG.o object/Cedar/Virtual.o object/Cedar/VLan.o object/Cedar/VLanUnix.o object/Cedar/VLanWin32.o object/Cedar/WaterMark.o object/Cedar/WebUI.o object/Cedar/WinUi.o object/Cedar/Wpc.o
+
+# Build Action
+default:	build
+
+build:	$(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) bin/ham bin/vpnserver bin/vpnbridge bin/vpnclient bin/vpncmd
+
+# Mayaqua Kernel Code
+object/Mayaqua/Cfg.o: Mayaqua/Cfg.c $(HEADERS_MAYAQUA)
+	@mkdir -p object/
+	@mkdir -p object/Mayaqua/
+	@mkdir -p object/Cedar/
+	@mkdir -p code/
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Cfg.c -o object/Mayaqua/Cfg.o
+
+object/Mayaqua/Encrypt.o: Mayaqua/Encrypt.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Encrypt.c -o object/Mayaqua/Encrypt.o
+
+object/Mayaqua/FileIO.o: Mayaqua/FileIO.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/FileIO.c -o object/Mayaqua/FileIO.o
+
+object/Mayaqua/Internat.o: Mayaqua/Internat.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Internat.c -o object/Mayaqua/Internat.o
+
+object/Mayaqua/Kernel.o: Mayaqua/Kernel.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Kernel.c -o object/Mayaqua/Kernel.o
+
+object/Mayaqua/Mayaqua.o: Mayaqua/Mayaqua.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Mayaqua.c -o object/Mayaqua/Mayaqua.o
+
+object/Mayaqua/Memory.o: Mayaqua/Memory.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Memory.c -o object/Mayaqua/Memory.o
+
+object/Mayaqua/Microsoft.o: Mayaqua/Microsoft.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Microsoft.c -o object/Mayaqua/Microsoft.o
+
+object/Mayaqua/Network.o: Mayaqua/Network.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Network.c -o object/Mayaqua/Network.o
+
+object/Mayaqua/Object.o: Mayaqua/Object.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Object.c -o object/Mayaqua/Object.o
+
+object/Mayaqua/OS.o: Mayaqua/OS.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/OS.c -o object/Mayaqua/OS.o
+
+object/Mayaqua/Pack.o: Mayaqua/Pack.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Pack.c -o object/Mayaqua/Pack.o
+
+object/Mayaqua/Secure.o: Mayaqua/Secure.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Secure.c -o object/Mayaqua/Secure.o
+
+object/Mayaqua/Str.o: Mayaqua/Str.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Str.c -o object/Mayaqua/Str.o
+
+object/Mayaqua/Table.o: Mayaqua/Table.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Table.c -o object/Mayaqua/Table.o
+
+object/Mayaqua/TcpIp.o: Mayaqua/TcpIp.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/TcpIp.c -o object/Mayaqua/TcpIp.o
+
+object/Mayaqua/Tick64.o: Mayaqua/Tick64.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Tick64.c -o object/Mayaqua/Tick64.o
+
+object/Mayaqua/Tracking.o: Mayaqua/Tracking.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Tracking.c -o object/Mayaqua/Tracking.o
+
+object/Mayaqua/Unix.o: Mayaqua/Unix.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Unix.c -o object/Mayaqua/Unix.o
+
+object/Mayaqua/Win32.o: Mayaqua/Win32.c $(HEADERS_MAYAQUA)
+	$(CC) $(OPTIONS_COMPILE) -c Mayaqua/Win32.c -o object/Mayaqua/Win32.o
+
+# Cedar Communication Module Code
+object/Cedar/Account.o: Cedar/Account.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Account.c -o object/Cedar/Account.o
+
+object/Cedar/Admin.o: Cedar/Admin.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Admin.c -o object/Cedar/Admin.o
+
+object/Cedar/AzureClient.o: Cedar/AzureClient.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/AzureClient.c -o object/Cedar/AzureClient.o
+
+object/Cedar/AzureServer.o: Cedar/AzureServer.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/AzureServer.c -o object/Cedar/AzureServer.o
+
+object/Cedar/Bridge.o: Cedar/Bridge.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) Cedar/BridgeUnix.c
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Bridge.c -o object/Cedar/Bridge.o
+
+object/Cedar/BridgeUnix.o: Cedar/BridgeUnix.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/BridgeUnix.c -o object/Cedar/BridgeUnix.o
+
+object/Cedar/BridgeWin32.o: Cedar/BridgeWin32.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/BridgeWin32.c -o object/Cedar/BridgeWin32.o
+
+object/Cedar/Cedar.o: Cedar/Cedar.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Cedar.c -o object/Cedar/Cedar.o
+
+object/Cedar/CedarPch.o: Cedar/CedarPch.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/CedarPch.c -o object/Cedar/CedarPch.o
+
+object/Cedar/Client.o: Cedar/Client.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Client.c -o object/Cedar/Client.o
+
+object/Cedar/CM.o: Cedar/CM.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/CM.c -o object/Cedar/CM.o
+
+object/Cedar/Command.o: Cedar/Command.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Command.c -o object/Cedar/Command.o
+
+object/Cedar/Connection.o: Cedar/Connection.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Connection.c -o object/Cedar/Connection.o
+
+object/Cedar/Console.o: Cedar/Console.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Console.c -o object/Cedar/Console.o
+
+object/Cedar/Database.o: Cedar/Database.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Database.c -o object/Cedar/Database.o
+
+object/Cedar/DDNS.o: Cedar/DDNS.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/DDNS.c -o object/Cedar/DDNS.o
+
+object/Cedar/EM.o: Cedar/EM.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/EM.c -o object/Cedar/EM.o
+
+object/Cedar/EtherLog.o: Cedar/EtherLog.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/EtherLog.c -o object/Cedar/EtherLog.o
+
+object/Cedar/Hub.o: Cedar/Hub.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Hub.c -o object/Cedar/Hub.o
+
+object/Cedar/Interop_OpenVPN.o: Cedar/Interop_OpenVPN.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Interop_OpenVPN.c -o object/Cedar/Interop_OpenVPN.o
+
+object/Cedar/Interop_SSTP.o: Cedar/Interop_SSTP.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Interop_SSTP.c -o object/Cedar/Interop_SSTP.o
+
+object/Cedar/IPsec.o: Cedar/IPsec.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec.c -o object/Cedar/IPsec.o
+
+object/Cedar/IPsec_EtherIP.o: Cedar/IPsec_EtherIP.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_EtherIP.c -o object/Cedar/IPsec_EtherIP.o
+
+object/Cedar/IPsec_IKE.o: Cedar/IPsec_IKE.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_IKE.c -o object/Cedar/IPsec_IKE.o
+
+object/Cedar/IPsec_IkePacket.o: Cedar/IPsec_IkePacket.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_IkePacket.c -o object/Cedar/IPsec_IkePacket.o
+
+object/Cedar/IPsec_IPC.o: Cedar/IPsec_IPC.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_IPC.c -o object/Cedar/IPsec_IPC.o
+
+object/Cedar/IPsec_L2TP.o: Cedar/IPsec_L2TP.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_L2TP.c -o object/Cedar/IPsec_L2TP.o
+
+object/Cedar/IPsec_PPP.o: Cedar/IPsec_PPP.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_PPP.c -o object/Cedar/IPsec_PPP.o
+
+object/Cedar/IPsec_Win7.o: Cedar/IPsec_Win7.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/IPsec_Win7.c -o object/Cedar/IPsec_Win7.o
+
+object/Cedar/Layer3.o: Cedar/Layer3.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Layer3.c -o object/Cedar/Layer3.o
+
+object/Cedar/Link.o: Cedar/Link.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Link.c -o object/Cedar/Link.o
+
+object/Cedar/Listener.o: Cedar/Listener.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Listener.c -o object/Cedar/Listener.o
+
+object/Cedar/Logging.o: Cedar/Logging.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Logging.c -o object/Cedar/Logging.o
+
+object/Cedar/Nat.o: Cedar/Nat.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Nat.c -o object/Cedar/Nat.o
+
+object/Cedar/NativeStack.o: Cedar/NativeStack.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/NativeStack.c -o object/Cedar/NativeStack.o
+
+object/Cedar/NM.o: Cedar/NM.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/NM.c -o object/Cedar/NM.o
+
+object/Cedar/NullLan.o: Cedar/NullLan.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/NullLan.c -o object/Cedar/NullLan.o
+
+object/Cedar/Protocol.o: Cedar/Protocol.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Protocol.c -o object/Cedar/Protocol.o
+
+object/Cedar/Radius.o: Cedar/Radius.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Radius.c -o object/Cedar/Radius.o
+
+object/Cedar/Remote.o: Cedar/Remote.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Remote.c -o object/Cedar/Remote.o
+
+object/Cedar/Sam.o: Cedar/Sam.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Sam.c -o object/Cedar/Sam.o
+
+object/Cedar/SecureInfo.o: Cedar/SecureInfo.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/SecureInfo.c -o object/Cedar/SecureInfo.o
+
+object/Cedar/SecureNAT.o: Cedar/SecureNAT.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/SecureNAT.c -o object/Cedar/SecureNAT.o
+
+object/Cedar/SeLowUser.o: Cedar/SeLowUser.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/SeLowUser.c -o object/Cedar/SeLowUser.o
+
+object/Cedar/Server.o: Cedar/Server.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Server.c -o object/Cedar/Server.o
+
+object/Cedar/Session.o: Cedar/Session.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Session.c -o object/Cedar/Session.o
+
+object/Cedar/SM.o: Cedar/SM.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/SM.c -o object/Cedar/SM.o
+
+object/Cedar/SW.o: Cedar/SW.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/SW.c -o object/Cedar/SW.o
+
+object/Cedar/UdpAccel.o: Cedar/UdpAccel.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/UdpAccel.c -o object/Cedar/UdpAccel.o
+
+object/Cedar/UT.o: Cedar/UT.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/UT.c -o object/Cedar/UT.o
+
+object/Cedar/VG.o: Cedar/VG.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/VG.c -o object/Cedar/VG.o
+
+object/Cedar/Virtual.o: Cedar/Virtual.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Virtual.c -o object/Cedar/Virtual.o
+
+object/Cedar/VLan.o: Cedar/VLan.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/VLan.c -o object/Cedar/VLan.o
+
+object/Cedar/VLanUnix.o: Cedar/VLanUnix.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/VLanUnix.c -o object/Cedar/VLanUnix.o
+
+object/Cedar/VLanWin32.o: Cedar/VLanWin32.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/VLanWin32.c -o object/Cedar/VLanWin32.o
+
+object/Cedar/WaterMark.o: Cedar/WaterMark.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/WaterMark.c -o object/Cedar/WaterMark.o
+
+object/Cedar/WebUI.o: Cedar/WebUI.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/WebUI.c -o object/Cedar/WebUI.o
+
+object/Cedar/WinUi.o: Cedar/WinUi.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/WinUi.c -o object/Cedar/WinUi.o
+
+object/Cedar/Wpc.o: Cedar/Wpc.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Cedar/Wpc.c -o object/Cedar/Wpc.o
+
+# Ham
+bin/ham: code/Ham.a $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) code/Ham.a $(OPTIONS_LINK) -o bin/ham
+
+code/Ham.a: object/Ham.o $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	rm -f code/Ham.a
+	ar r code/Ham.a $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) object/Ham.o
+	ranlib code/Ham.a
+
+object/Ham.o: Ham/Ham.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c Ham/Ham.c -o object/Ham.o
+
+# vpnserver
+bin/vpnserver: code/vpnserver.a $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) code/vpnserver.a $(OPTIONS_LINK) -o bin/vpnserver
+
+code/vpnserver.a: object/vpnserver.o $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	rm -f code/vpnserver.a
+	ar r code/vpnserver.a $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) object/vpnserver.o
+	ranlib code/vpnserver.a
+
+object/vpnserver.o: vpnserver/vpnserver.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c vpnserver/vpnserver.c -o object/vpnserver.o
+
+# vpnbridge
+bin/vpnbridge: code/vpnbridge.a $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) code/vpnbridge.a $(OPTIONS_LINK) -o bin/vpnbridge
+
+code/vpnbridge.a: object/vpnbridge.o $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	rm -f code/vpnbridge.a
+	ar r code/vpnbridge.a $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) object/vpnbridge.o
+	ranlib code/vpnbridge.a
+
+object/vpnbridge.o: vpnbridge/vpnbridge.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c vpnbridge/vpnbridge.c -o object/vpnbridge.o
+
+# vpnclient
+bin/vpnclient: code/vpnclient.a $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) code/vpnclient.a $(OPTIONS_LINK) -o bin/vpnclient
+
+code/vpnclient.a: object/vpnclient.o $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	rm -f code/vpnclient.a
+	ar r code/vpnclient.a $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) object/vpnclient.o
+	ranlib code/vpnclient.a
+
+object/vpnclient.o: vpnclient/vpncsvc.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c vpnclient/vpncsvc.c -o object/vpnclient.o
+
+# vpncmd
+bin/vpncmd: code/vpncmd.a $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) code/vpncmd.a $(OPTIONS_LINK) -o bin/vpncmd
+
+code/vpncmd.a: object/vpncmd.o $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	rm -f code/vpncmd.a
+	ar r code/vpncmd.a $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR) object/vpncmd.o
+	ranlib code/vpncmd.a
+
+object/vpncmd.o: vpncmd/vpncmd.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJECTS_MAYAQUA) $(OBJECTS_CEDAR)
+	$(CC) $(OPTIONS_COMPILE) -c vpncmd/vpncmd.c -o object/vpncmd.o
+
+# Clean
+clean:
+	-rm -f $(OBJECTS_MAYAQUA)
+	-rm -f $(OBJECTS_CEDAR)
+	-rm -f object/Ham.o
+	-rm -f code/Ham.a
+	-rm -f bin/ham
+	-rm -f object/vpnserver.o
+	-rm -f code/vpnserver.a
+	-rm -f bin/vpnserver
+	-rm -f object/vpnbridge.o
+	-rm -f code/vpnbridge.a
+	-rm -f bin/vpnbridge
+	-rm -f object/vpnclient.o
+	-rm -f code/vpnclient.a
+	-rm -f bin/vpnclient
+	-rm -f object/vpncmd.o
+	-rm -f code/vpncmd.a
+	-rm -f bin/vpncmd
+
+# Help Strings
+help:
+	@echo "make [DEBUG=YES]"
+

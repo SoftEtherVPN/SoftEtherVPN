@@ -2670,7 +2670,7 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		SW_TASK_COPY *vpninstall;
 		wchar_t *src_config_filename;
 
-		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_vpnclient.config");
+		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_client.config");
 		Add(t->SetSecurityPaths, CopyUniStr(tmp));
 
 		if (x64 == false)

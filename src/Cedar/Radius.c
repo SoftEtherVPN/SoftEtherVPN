@@ -114,7 +114,8 @@
 #include "CedarPch.h"
 
 // Attempts Radius authentication (with specifying retry interval and multiple server)
-bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20)
+bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
+				 RADIUS_LOGIN_OPTION *opt)
 {
 	UCHAR random[MD5_SIZE];
 	UCHAR id;
@@ -128,12 +129,22 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	IPC_MSCHAP_V2_AUTHINFO mschap;
 	bool is_mschap;
 	char client_ip_str[MAX_SIZE];
+	RADIUS_LOGIN_OPTION opt_dummy;
 	static UINT packet_id = 0;
 	// Validate arguments
 	if (server == NULL || port == 0 || (secret_size != 0 && secret == NULL) || username == NULL || password == NULL)
 	{
 		return false;
 	}
+
+	if (opt == NULL)
+	{
+		Zero(&opt_dummy, sizeof(opt_dummy));
+
+		opt = &opt_dummy;
+	}
+
+	opt->Out_VLanId = 0;
 
 	Zero(client_ip_str, sizeof(client_ip_str));
 	if (c != NULL && c->FirstSock != NULL)
@@ -450,6 +461,34 @@ RECV_RETRY:
 								FreeBuf(b);
 							}
 						}
+
+						if (opt->In_CheckVLanId)
+						{
+							BUF *buf = NewBufFromMemory(recv_buf, recv_size);
+							LIST *o = RadiusParseOptions(buf);
+
+							if (o != NULL)
+							{
+								DHCP_OPTION *vlan_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_VLAN_ID);
+
+								if (vlan_option != NULL)
+								{
+									UINT vlan_id = 0;
+									char tmp[32];
+
+									Zero(tmp, sizeof(tmp));
+
+									Copy(tmp, vlan_option->Data, MIN(vlan_option->Size, sizeof(tmp) - 1));
+
+									vlan_id = ToInt(tmp);
+
+									opt->Out_VLanId = vlan_id;
+								}
+							}
+
+							FreeBuf(buf);
+							FreeDhcpOptions(o);
+						}
 					}
 					break;
 				}
@@ -482,6 +521,68 @@ RECV_RETRY:
 	FreeBuf(encrypted_password);
 
 	return ret;
+}
+
+// Parse RADIUS attributes
+LIST *RadiusParseOptions(BUF *b)
+{
+	LIST *o;
+	UCHAR code;
+	UCHAR id;
+	USHORT len;
+	UCHAR auth[16];
+	// Validate arguments
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	o = NewList(NULL);
+
+	ReadBuf(b, &code, 1);
+	ReadBuf(b, &id, 1);
+	len = 0;
+	ReadBuf(b, &len, 2);
+	len = Endian16(len);
+	ReadBuf(b, auth, 16);
+
+	while (true)
+	{
+		UCHAR attribute_id;
+		UCHAR size;
+		UCHAR data[256];
+		DHCP_OPTION *d;
+
+		if (ReadBuf(b, &attribute_id, 1) != 1)
+		{
+			break;
+		}
+
+		if (ReadBuf(b, &size, 1) != 1)
+		{
+			break;
+		}
+
+		if (size <= 2)
+		{
+			break;
+		}
+
+		size -= 2;
+		if (ReadBuf(b, data, size) != size)
+		{
+			break;
+		}
+
+		d = ZeroMalloc(sizeof(DHCP_OPTION));
+		d->Id = attribute_id;
+		d->Size = size;
+		d->Data = Clone(data, d->Size);
+
+		Add(o, d);
+	}
+
+	return o;
 }
 
 // Adding Attributes

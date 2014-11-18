@@ -3304,11 +3304,44 @@ BUF *BuildDhcpOptionsBuf(LIST *o)
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		DHCP_OPTION *d = LIST_DATA(o, i);
+		UINT current_size = d->Size;
+		UINT current_pos = 0;
+
 		id = (UCHAR)d->Id;
-		sz = (UCHAR)d->Size;
+		if (d->Size <= 255)
+		{
+			sz = (UCHAR)d->Size;
+		}
+		else
+		{
+			sz = 0xFF;
+		}
 		WriteBuf(b, &id, 1);
 		WriteBuf(b, &sz, 1);
-		WriteBuf(b, d->Data, d->Size);
+		WriteBuf(b, d->Data, sz);
+
+		current_size -= sz;
+		current_pos += sz;
+
+		while (current_size != 0)
+		{
+			id = DHCP_ID_PRIVATE;
+			if (current_size <= 255)
+			{
+				sz = (UCHAR)current_size;
+			}
+			else
+			{
+				sz = 0xFF;
+			}
+			WriteBuf(b, &id, 1);
+			WriteBuf(b, &sz, 1);
+			WriteBuf(b, ((UCHAR *)d->Data) + current_pos, sz);
+
+			current_size -= sz;
+			current_pos += sz;
+		}
+
 	}
 
 	id = 0xff;
@@ -3755,27 +3788,24 @@ BUF *DhcpBuildClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t)
 
 		if (r->Exists && r->SubnetMaskLen <= 32)
 		{
-			if (b->Size <= (255 - 9))
-			{
-				UCHAR c;
-				UINT data_len;
-				UINT ip32;
-				UCHAR tmp[4];
+			UCHAR c;
+			UINT data_len;
+			UINT ip32;
+			UCHAR tmp[4];
 
-				// Width of subnet mask
-				c = (UCHAR)r->SubnetMaskLen;
-				WriteBuf(b, &c, 1);
+			// Width of subnet mask
+			c = (UCHAR)r->SubnetMaskLen;
+			WriteBuf(b, &c, 1);
 
-				// Number of significant octets
-				data_len = (r->SubnetMaskLen + 7) / 8;
-				Zero(tmp, sizeof(tmp));
-				Copy(tmp, &r->Network, data_len);
-				WriteBuf(b, tmp, data_len);
+			// Number of significant octets
+			data_len = (r->SubnetMaskLen + 7) / 8;
+			Zero(tmp, sizeof(tmp));
+			Copy(tmp, &r->Network, data_len);
+			WriteBuf(b, tmp, data_len);
 
-				// Gateway
-				ip32 = IPToUINT(&r->Gateway);
-				WriteBuf(b, &ip32, sizeof(UINT));
-			}
+			// Gateway
+			ip32 = IPToUINT(&r->Gateway);
+			WriteBuf(b, &ip32, sizeof(UINT));
 		}
 	}
 
@@ -3965,6 +3995,7 @@ LIST *ParseDhcpOptions(void *data, UINT size)
 {
 	BUF *b;
 	LIST *o;
+	DHCP_OPTION *last_opt;
 	// Validate arguments
 	if (data == NULL)
 	{
@@ -3976,6 +4007,8 @@ LIST *ParseDhcpOptions(void *data, UINT size)
 	SeekBuf(b, 0, 0);
 
 	o = NewListFast(NULL);
+
+	last_opt = NULL;
 
 	while (true)
 	{
@@ -3995,12 +4028,27 @@ LIST *ParseDhcpOptions(void *data, UINT size)
 			break;
 		}
 
-		opt = ZeroMalloc(sizeof(DHCP_OPTION));
-		opt->Id = (UINT)c;
-		opt->Size = (UINT)sz;
-		opt->Data = ZeroMalloc((UINT)sz);
-		ReadBuf(b, opt->Data, sz);
-		Add(o, opt);
+		if (c == DHCP_ID_PRIVATE && last_opt != NULL)
+		{
+			UINT new_size = last_opt->Size + (UINT)sz;
+			UCHAR *new_buf = ZeroMalloc(new_size);
+			Copy(new_buf, last_opt->Data, last_opt->Size);
+			ReadBuf(b, new_buf + last_opt->Size, sz);
+			Free(last_opt->Data);
+			last_opt->Data = new_buf;
+			last_opt->Size = new_size;
+		}
+		else
+		{
+			opt = ZeroMalloc(sizeof(DHCP_OPTION));
+			opt->Id = (UINT)c;
+			opt->Size = (UINT)sz;
+			opt->Data = ZeroMalloc((UINT)sz);
+			ReadBuf(b, opt->Data, sz);
+			Add(o, opt);
+
+			last_opt = opt;
+		}
 	}
 
 	FreeBuf(b);

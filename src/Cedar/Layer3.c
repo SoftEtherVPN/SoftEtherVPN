@@ -1031,7 +1031,7 @@ void L3PollingBeacon(L3IF *f)
 
 		Copy(udp_buf + sizeof(IPV4_HEADER) + sizeof(UDP_HEADER), beacon_str, sizeof(beacon_str));
 
-		udp->Checksum = IpChecksum(udp, sizeof(UDP_HEADER) + sizeof(beacon_str));
+		udp->Checksum = CalcChecksumForIPv4(f->IpAddress, dest_ip, 0x11, udp, sizeof(UDP_HEADER) + sizeof(beacon_str), 0);
 
 		ip->DstIP = dest_ip;
 		IPV4_SET_VERSION(ip, 4);

@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					411
+#define	CEDAR_VER					412
 
 // Build Number
-#define	CEDAR_BUILD					9506
+#define	CEDAR_BUILD					9514
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -158,11 +158,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2014
-#define	BUILD_DATE_M		10
-#define	BUILD_DATE_D		22
-#define	BUILD_DATE_HO		19
-#define	BUILD_DATE_MI		51
-#define	BUILD_DATE_SE		55
+#define	BUILD_DATE_M		11
+#define	BUILD_DATE_D		17
+#define	BUILD_DATE_HO		21
+#define	BUILD_DATE_MI		41
+#define	BUILD_DATE_SE		16
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1052,6 +1052,7 @@ typedef struct CEDAR
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
 	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
+	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 
 // Type of CEDAR
