@@ -233,7 +233,7 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
+static char *cipher_list = "TLSv1+HIGH:!SSLv2:RC4+MEDIUM:!aNULL:!eNULL:!3DES:@STRENGTH";
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
