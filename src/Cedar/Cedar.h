@@ -308,6 +308,7 @@
 #define	FARM_BASE_POINT				100000		// Reference value of the cluster score
 #define	FARM_DEFAULT_WEIGHT			100			// Standard performance ratio
 
+#define DH_PARAM_BITS_DEFAULT		2048		// Bits of Diffie-Hellman Parameters
 
 
 #define	SE_UDP_SIGN			"SE2P"		// Not used (only old UDP mode)
@@ -1052,6 +1053,7 @@ typedef struct CEDAR
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
 	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
+	UINT DhParamBits;				// Bits of Diffie-Hellman parameters
 	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 

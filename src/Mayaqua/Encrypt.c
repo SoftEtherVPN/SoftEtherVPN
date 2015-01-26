@@ -4827,10 +4827,51 @@ DH_CTX *DhNewGroup5()
 	return DhNew(DH_GROUP5_PRIME_1536, 2);
 }
 
+// Creating a DH GROUP14
+DH_CTX *DhNewGroup14()
+{
+	return DhNew(DH_GROUP14_PRIME_2048, 2);
+}
+
+// Creating a DH GROUP15
+DH_CTX *DhNewGroup15()
+{
+	return DhNew(DH_GROUP15_PRIME_3072, 2);
+}
+
+// Creating a DH GROUP16
+DH_CTX *DhNewGroup16()
+{
+	return DhNew(DH_GROUP16_PRIME_4096, 2);
+}
+
 // Creating a DH SIMPLE 160bits
 DH_CTX *DhNewSimple160()
 {
 	return DhNew(DH_SIMPLE_160, 2);
+}
+
+DH_CTX *DhNewFromBits(UINT bits)
+{
+	switch (bits)
+	{
+	case 160:
+		return DhNewSimple160();
+	case 768:
+		return DhNewGroup1();
+	case 1024:
+		return DhNewGroup2();
+	case 1536:
+		return DhNewGroup5();
+	case 2048:
+		return DhNewGroup14();
+	case 3072:
+		return DhNewGroup15();
+	case 4096:
+		return DhNewGroup16();
+	default:
+		return DhNewGroup14();
+	}
 }
 
 // Convert the DH parameters to file

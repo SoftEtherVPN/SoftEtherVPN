@@ -245,7 +245,7 @@ static UINT rand_port_numbers[256] = {0};
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
 
-static DH_CTX *dh_1024 = NULL;
+static DH_CTX *dh_param = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -17577,9 +17577,9 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
 	DH *ret = NULL;
 
-	if (dh_1024 != NULL)
+	if (dh_param != NULL)
 	{
-		ret = dh_1024->dh;
+		ret = dh_param->dh;
 	}
 
 	return ret;
@@ -17695,8 +17695,6 @@ void InitNetwork()
 
 	disable_cache = false;
 
-
-	dh_1024 = DhNewGroup2();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
@@ -18103,10 +18101,10 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 void FreeNetwork()
 {
 
-	if (dh_1024 != NULL)
+	if (dh_param != NULL)
 	{
-		DhFree(dh_1024);
-		dh_1024 = NULL;
+		DhFree(dh_param);
+		dh_param = NULL;
 	}
 
 	// Release of thread-related
@@ -22648,6 +22646,16 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	}
 
 	return ret;
+}
+
+void SetDhParam(DH_CTX *dh)
+{
+	if (dh_param)
+	{
+		DhFree(dh_param);
+	}
+
+	dh_param = dh;
 }
 
 // Developed by SoftEther VPN Project at University of Tsukuba in Japan.

@@ -6140,6 +6140,19 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// AcceptOnlyTls
 		c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+
+		// Bits of Diffie-Hellman parameters
+		c->DhParamBits = CfgGetInt(f, "DhParamBits");
+		if (c->DhParamBits == 0)
+		{
+			c->DhParamBits = DH_PARAM_BITS_DEFAULT;
+		}
+
+		SetDhParam(DhNewFromBits(c->DhParamBits));
+		if (s->OpenVpnServerUdp)
+		{
+			OpenVpnServerUdpSetDhParam(s->OpenVpnServerUdp, DhNewFromBits(c->DhParamBits));
+		}
 	}
 	Unlock(c->lock);
 
@@ -6449,6 +6462,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
 		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
+
+		CfgAddInt(f, "DhParamBits", c->DhParamBits);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));

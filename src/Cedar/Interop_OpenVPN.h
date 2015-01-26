@@ -384,6 +384,8 @@ bool OvsGetNoOpenVpnTcp();
 
 void OvsSetNoOpenVpnUdp(bool b);
 
+void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh);
+
 
 
 #endif	// INTEROP_OPENVPN_H
