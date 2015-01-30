@@ -148,6 +148,11 @@
 // Threshold number of registered items in the transmission queue for suppressing the L2TP Hello transmission
 #define	L2TP_HELLO_SUPRESS_MAX_THRETHORD_NUM_SEND_QUEUE		32
 
+// Quota
+#define	L2TP_QUOTA_MAX_NUM_TUNNELS_PER_IP		1000			// Number of L2TP sessions per IP address
+#define	L2TP_QUOTA_MAX_NUM_TUNNELS				30000			// Limit of the number of sessions
+#define	L2TP_QUOTA_MAX_NUM_SESSIONS_PER_TUNNEL	1024		// Max sessions in a tunnel
+
 // L2TP window size
 #define	L2TP_WINDOW_SIZE				16
 
@@ -328,6 +333,7 @@ struct L2TP_SERVER
 //// Function prototype
 L2TP_SERVER *NewL2TPServer(CEDAR *cedar);
 L2TP_SERVER *NewL2TPServerEx(CEDAR *cedar, IKE_SERVER *ike, bool is_ipv6, UINT crypt_block_size);
+UINT GetNumL2TPTunnelsByClientIP(L2TP_SERVER *l2tp, IP *client_ip);
 void SetL2TPServerSockEvent(L2TP_SERVER *l2tp, SOCK_EVENT *e);
 void FreeL2TPServer(L2TP_SERVER *l2tp);
 void StopL2TPServer(L2TP_SERVER *l2tp, bool no_wait);

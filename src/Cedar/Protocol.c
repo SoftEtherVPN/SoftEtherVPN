@@ -1596,6 +1596,16 @@ bool ServerAccept(CONNECTION *c)
 			goto CLEANUP;
 		}
 
+		if (hub->ForceDisableComm)
+		{
+			// Commnunication function is disabled
+			FreePack(p);
+			c->Err = ERR_SERVER_CANT_ACCEPT;
+			error_detail = "ERR_COMM_DISABLED";
+			ReleaseHub(hub);
+			goto CLEANUP;
+		}
+
 		if (GetGlobalServerFlag(GSF_DISABLE_AC) == 0)
 		{
 			if (hub->HubDb != NULL && c->FirstSock != NULL)
@@ -2974,8 +2984,11 @@ bool ServerAccept(CONNECTION *c)
 
 			if (s->UseUdpAcceleration)
 			{
+				bool no_nat_t = false;
+
+
 				// Initialize the UDP acceleration function
-				s->UdpAccel = NewUdpAccel(c->Cedar, (c->FirstSock->IsRUDPSocket ? NULL : &c->FirstSock->LocalIP), false, c->FirstSock->IsRUDPSocket, false);
+				s->UdpAccel = NewUdpAccel(c->Cedar, (c->FirstSock->IsRUDPSocket ? NULL : &c->FirstSock->LocalIP), false, c->FirstSock->IsRUDPSocket, no_nat_t);
 				if (s->UdpAccel == NULL)
 				{
 					s->UseUdpAcceleration = false;
@@ -6039,6 +6052,8 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 
 	while (true)
 	{
+		bool not_found_error = false;
+
 		num++;
 		if (num > max)
 		{
@@ -6082,6 +6097,8 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 		}
 
 
+
+
 		// Interpret
 		if (StrCmpi(h->Method, "POST") == 0)
 		{
@@ -6107,7 +6124,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				return false;
 			}
 			// Check the Target
-			if (StrCmpi(h->Target, vpn_http_target) != 0)
+			if ((StrCmpi(h->Target, vpn_http_target) != 0) || not_found_error)
 			{
 				// Target is invalid
 				HttpSendNotFound(s, h->Target);

@@ -3,9 +3,9 @@ open-source. You can redistribute them and/or modify them under the terms of
 the GNU General Public License version 2 as published by the Free Software
 Foundation.
 
-Copyright (c) 2012-2014 Daiyuu Nobori.
-Copyright (c) 2012-2014 SoftEther Project at University of Tsukuba, Japan.
-Copyright (c) 2012-2014 SoftEther Corporation.
+Copyright (c) 2012-2015 Daiyuu Nobori.
+Copyright (c) 2012-2015 SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) 2012-2015 SoftEther Corporation.
 All Rights Reserved.
 http://www.softether.org/
 

@@ -759,12 +759,10 @@ struct RUDP_SESSION
 #define	UDP_NAT_T_GET_IP_INTERVAL_AFTER		DYN32(UDP_NAT_T_GET_IP_INTERVAL_AFTER, (5 * 60 * 1000))	// IP address acquisition interval of NAT-T server (after success)
 
 // Related to process to get the private IP address of itself with making a TCP connection to the NAT-T server
-#define	UDP_NAT_T_GET_PRIVATE_IP_TCP_SERVER		"get-my-ip.nat-traversal.softether-network.net."
-#define	UDP_NAT_T_GET_PRIVATE_IP_TCP_SERVER_ALT	"get-my-ip.nat-traversal.uxcom.jp."
+#define	UDP_NAT_T_GET_PRIVATE_IP_TCP_SERVER		"www.msftncsi.com."
 
-#define	UDP_NAT_T_PORT_FOR_TCP_1			992
-#define	UDP_NAT_T_PORT_FOR_TCP_2			80
-#define	UDP_NAT_T_PORT_FOR_TCP_3			443
+#define	UDP_NAT_T_PORT_FOR_TCP_1			80
+#define	UDP_NAT_T_PORT_FOR_TCP_2			443
 
 #define	UDP_NAT_TRAVERSAL_VERSION			1
 
@@ -1102,7 +1100,8 @@ void *InitWaitUntilHostIPAddressChanged();
 void FreeWaitUntilHostIPAddressChanged(void *p);
 void WaitUntilHostIPAddressChanged(void *p, EVENT *event, UINT timeout, UINT ip_check_interval);
 UINT GetHostIPAddressHash32();
-bool GetMyPrivateIP(IP *ip);
+bool GetMyPrivateIP(IP *ip, bool from_vg);
+char *GetRandHostNameForGetMyPrivateIP();
 UINT GenRandInterval(UINT min, UINT max);
 void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp);
 void RUDPDo_NatT_Interrupt(RUDP_STACK *r);
@@ -1324,6 +1323,7 @@ SOCK *NewUDP4(UINT port, IP *ip);
 SOCK *NewUDP6(UINT port, IP *ip);
 SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UINT num_retry);
 SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR rand_port_id);
+UINT GetNewAvailableUdpPortRand();
 UINT NewRandPortByMachineAndExePath(UINT start_port, UINT end_port, UINT additional_int);
 void DisableUDPChecksum(SOCK *s);
 UINT SendTo(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size);
@@ -1614,6 +1614,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6);
 bool IsIPAddressInSameLocalNetwork(IP *a);
 
 bool IsIPPrivate(IP *ip);
+bool IsIPLocalOrPrivate(IP *ip);
 bool IsIPMyHost(IP *ip);
 void LoadPrivateIPFile();
 bool IsOnPrivateIPFile(UINT ip);

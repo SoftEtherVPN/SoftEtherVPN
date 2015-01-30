@@ -9282,7 +9282,16 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 	if (ret == 0)
 	{
 		// Take an appropriate IP addresses that can be assigned newly
-		ret = GetFreeDhcpIpAddress(v);
+		HUB_OPTION *opt = NatGetHubOption(v);
+
+		if (opt != NULL && opt->SecureNAT_RandomizeAssignIp)
+		{
+			ret = GetFreeDhcpIpAddressByRandom(v, mac);
+		}
+		else
+		{
+			ret = GetFreeDhcpIpAddress(v);
+		}
 	}
 
 	return ret;
@@ -9309,6 +9318,56 @@ UINT GetFreeDhcpIpAddress(VH *v)
 		{
 			// A free IP address is found
 			return ip;
+		}
+	}
+
+	// There is no free address
+	return 0;
+}
+
+// Take an appropriate IP addresses that can be assigned newly (random)
+UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac)
+{
+	UINT ip_start, ip_end;
+	UINT i;
+	UINT num_retry;
+	// Validate arguments
+	if (v == NULL || mac == NULL)
+	{
+		return 0;
+	}
+
+	ip_start = Endian32(v->DhcpIpStart);
+	ip_end = Endian32(v->DhcpIpEnd);
+
+	if (ip_start > ip_end)
+	{
+		return 0;
+	}
+
+	num_retry = (ip_end - ip_start + 1) * 2;
+	num_retry = MIN(num_retry, 65536 * 2);
+
+	for (i = 0;i < num_retry;i++)
+	{
+		UCHAR rand_seed[sizeof(UINT) + 6];
+		UCHAR hash[16];
+		UINT rand_int;
+		UINT new_ip;
+
+		WRITE_UINT(&rand_seed[0], i);
+		Copy(rand_seed + sizeof(UINT), mac, 6);
+
+		Hash(hash, rand_seed, sizeof(rand_seed), false);
+
+		rand_int = READ_UINT(hash);
+
+		new_ip = Endian32(ip_start + (rand_int % (ip_end - ip_start + 1)));
+
+		if (SearchDhcpLeaseByIp(v, new_ip) == NULL)
+		{
+			// A free IP address is found
+			return new_ip;
 		}
 	}
 

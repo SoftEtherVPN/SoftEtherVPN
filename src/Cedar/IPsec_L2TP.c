@@ -1312,6 +1312,11 @@ L2TP_SESSION *NewL2TPSession(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, UINT session_id_
 		return NULL;
 	}
 
+	if (LIST_NUM(t->SessionList) >= L2TP_QUOTA_MAX_NUM_SESSIONS_PER_TUNNEL)
+	{
+		return NULL;
+	}
+
 	if (t->IsV3 == false)
 	{
 		session_id_by_server = GenerateNewSessionIdEx(t, t->IsV3);
@@ -1481,6 +1486,31 @@ L2TP_SESSION *GetSessionFromIdAssignedByClient(L2TP_TUNNEL *t, UINT session_id)
 	return NULL;
 }
 
+// Get the number of L2TP sessions connected from the client IP address
+UINT GetNumL2TPTunnelsByClientIP(L2TP_SERVER *l2tp, IP *client_ip)
+{
+	UINT i, ret;
+	// Validate arguments
+	if (l2tp == NULL || client_ip == NULL)
+	{
+		return 0;
+	}
+
+	ret = 0;
+
+	for (i = 0;i < LIST_NUM(l2tp->TunnelList);i++)
+	{
+		L2TP_TUNNEL *t = LIST_DATA(l2tp->TunnelList, i);
+
+		if (CmpIpAddr(&t->ClientIp, client_ip) == 0)
+		{
+			ret++;
+		}
+	}
+
+	return ret;
+}
+
 // Performs processing L2TP received packets.
 void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 {
@@ -1509,106 +1539,109 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 				UINT client_assigned_id = (pp->Ver == 3 ? READ_UINT(a->Data) : READ_USHORT(a->Data));
 				if (GetTunnelFromIdOfAssignedByClient(l2tp, &p->SrcIP, client_assigned_id) == NULL)
 				{
-					char ipstr[MAX_SIZE];
-					L2TP_PACKET *pp2;
-					UCHAR protocol_version[2];
-					UCHAR caps_data[4];
-					USHORT us;
-					char hostname[MAX_SIZE];
-
-					// Begin Tunneling
-					L2TP_TUNNEL *t = NewL2TPTunnel(l2tp, pp, p);
-
-					if (t != NULL)
+					if (LIST_NUM(l2tp->TunnelList) < L2TP_QUOTA_MAX_NUM_TUNNELS && GetNumL2TPTunnelsByClientIP(l2tp, &p->SrcIP) >= L2TP_QUOTA_MAX_NUM_TUNNELS_PER_IP)
 					{
-						IPToStr(ipstr, sizeof(ipstr), &t->ClientIp);
-						Debug("L2TP New Tunnel From %s (%s, %s): New Tunnel ID = %u/%u\n", ipstr, t->HostName, t->VendorName,
-							t->TunnelId1, t->TunnelId2);
+						char ipstr[MAX_SIZE];
+						L2TP_PACKET *pp2;
+						UCHAR protocol_version[2];
+						UCHAR caps_data[4];
+						USHORT us;
+						char hostname[MAX_SIZE];
 
-						// Add the tunnel to the list
-						Add(l2tp->TunnelList, t);
+						// Begin Tunneling
+						L2TP_TUNNEL *t = NewL2TPTunnel(l2tp, pp, p);
 
-						// Respond with SCCEP to SCCRQ
-						pp2 = NewL2TPControlPacket(L2TP_MESSAGE_TYPE_SCCRP, t->IsV3);
-
-						// Protocol Version
-						protocol_version[0] = 1;
-						protocol_version[1] = 0;
-						Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_PROTOCOL_VERSION, true, 0, protocol_version, sizeof(protocol_version)));
-
-						// Framing Capabilities
-						Zero(caps_data, sizeof(caps_data));
-						if (t->IsV3 == false)
+						if (t != NULL)
 						{
-							caps_data[3] = 3;
-						}
-						Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_FRAME_CAP, false, 0, caps_data, sizeof(caps_data)));
+							IPToStr(ipstr, sizeof(ipstr), &t->ClientIp);
+							Debug("L2TP New Tunnel From %s (%s, %s): New Tunnel ID = %u/%u\n", ipstr, t->HostName, t->VendorName,
+								t->TunnelId1, t->TunnelId2);
 
-						if (t->IsV3 == false)
-						{
-							// Bearer Capabilities
+							// Add the tunnel to the list
+							Add(l2tp->TunnelList, t);
+
+							// Respond with SCCEP to SCCRQ
+							pp2 = NewL2TPControlPacket(L2TP_MESSAGE_TYPE_SCCRP, t->IsV3);
+
+							// Protocol Version
+							protocol_version[0] = 1;
+							protocol_version[1] = 0;
+							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_PROTOCOL_VERSION, true, 0, protocol_version, sizeof(protocol_version)));
+
+							// Framing Capabilities
 							Zero(caps_data, sizeof(caps_data));
-							caps_data[3] = 3;
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_BEARER_CAP, false, 0, caps_data, sizeof(caps_data)));
-						}
+							if (t->IsV3 == false)
+							{
+								caps_data[3] = 3;
+							}
+							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_FRAME_CAP, false, 0, caps_data, sizeof(caps_data)));
 
-						// Host Name
-						GetMachineHostName(hostname, sizeof(hostname));
-						if (IsEmptyStr(hostname))
-						{
-							StrCpy(hostname, sizeof(hostname), "vpn");
-						}
-						Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_HOST_NAME, true, 0, hostname, StrLen(hostname)));
+							if (t->IsV3 == false)
+							{
+								// Bearer Capabilities
+								Zero(caps_data, sizeof(caps_data));
+								caps_data[3] = 3;
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_BEARER_CAP, false, 0, caps_data, sizeof(caps_data)));
+							}
 
-						// Vendor Name
-						Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_VENDOR_NAME, false, 0, L2TP_VENDOR_NAME, StrLen(L2TP_VENDOR_NAME)));
+							// Host Name
+							GetMachineHostName(hostname, sizeof(hostname));
+							if (IsEmptyStr(hostname))
+							{
+								StrCpy(hostname, sizeof(hostname), "vpn");
+							}
+							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_HOST_NAME, true, 0, hostname, StrLen(hostname)));
 
-						// Assigned Tunnel ID
-						if (t->IsV3 == false)
-						{
-							us = Endian16(t->TunnelId2);
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_ASSIGNED_TUNNEL, true, 0, &us, sizeof(USHORT)));
-						}
-						else
-						{
-							UINT ui = Endian32(t->TunnelId2);
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_V3_TUNNEL_ID, true, 0, &ui, sizeof(UINT)));
+							// Vendor Name
+							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_VENDOR_NAME, false, 0, L2TP_VENDOR_NAME, StrLen(L2TP_VENDOR_NAME)));
 
+							// Assigned Tunnel ID
+							if (t->IsV3 == false)
+							{
+								us = Endian16(t->TunnelId2);
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_ASSIGNED_TUNNEL, true, 0, &us, sizeof(USHORT)));
+							}
+							else
+							{
+								UINT ui = Endian32(t->TunnelId2);
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_V3_TUNNEL_ID, true, 0, &ui, sizeof(UINT)));
+
+								if (t->IsCiscoV3)
+								{
+									Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_TUNNEL_ID, true, L2TP_AVP_VENDOR_ID_CISCO, &ui, sizeof(UINT)));
+								}
+							}
+
+							// Pseudowire Capabilities List
+							if (t->IsV3)
+							{
+								// Only Ethernet
+								USHORT cap_list[2];
+								cap_list[0] = Endian16(L2TPV3_PW_TYPE_ETHERNET);
+								cap_list[1] = Endian16(L2TPV3_PW_TYPE_ETHERNET_VLAN);
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_V3_PW_CAP_LIST, true, 0, cap_list, sizeof(cap_list)));
+
+								if (t->IsCiscoV3)
+								{
+									Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_PW_CAP_LIST, true, L2TP_AVP_VENDOR_ID_CISCO, cap_list, sizeof(cap_list)));
+								}
+							}
+
+							// Cisco AVP
 							if (t->IsCiscoV3)
 							{
-								Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_TUNNEL_ID, true, L2TP_AVP_VENDOR_ID_CISCO, &ui, sizeof(UINT)));
+								USHORT us = Endian16(1);
+								Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_DRAFT_AVP_VERSION, true, L2TP_AVP_VENDOR_ID_CISCO, &us, sizeof(USHORT)));
 							}
+
+							// Recv Window Size
+							us = Endian16(L2TP_WINDOW_SIZE);
+							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_RECV_WINDOW_SIZE, false, 0, &us, sizeof(USHORT)));
+
+							SendL2TPControlPacket(l2tp, t, 0, pp2);
+
+							FreeL2TPPacket(pp2);
 						}
-
-						// Pseudowire Capabilities List
-						if (t->IsV3)
-						{
-							// Only Ethernet
-							USHORT cap_list[2];
-							cap_list[0] = Endian16(L2TPV3_PW_TYPE_ETHERNET);
-							cap_list[1] = Endian16(L2TPV3_PW_TYPE_ETHERNET_VLAN);
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_V3_PW_CAP_LIST, true, 0, cap_list, sizeof(cap_list)));
-
-							if (t->IsCiscoV3)
-							{
-								Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_PW_CAP_LIST, true, L2TP_AVP_VENDOR_ID_CISCO, cap_list, sizeof(cap_list)));
-							}
-						}
-
-						// Cisco AVP
-						if (t->IsCiscoV3)
-						{
-							USHORT us = Endian16(1);
-							Add(pp2->AvpList, NewAVP(L2TPV3_CISCO_AVP_DRAFT_AVP_VERSION, true, L2TP_AVP_VENDOR_ID_CISCO, &us, sizeof(USHORT)));
-						}
-
-						// Recv Window Size
-						us = Endian16(L2TP_WINDOW_SIZE);
-						Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_RECV_WINDOW_SIZE, false, 0, &us, sizeof(USHORT)));
-
-						SendL2TPControlPacket(l2tp, t, 0, pp2);
-
-						FreeL2TPPacket(pp2);
 					}
 				}
 			}

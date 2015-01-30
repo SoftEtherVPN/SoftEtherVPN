@@ -158,10 +158,11 @@ PACK *WpcCall(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT t
 			  char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash)
 {
 	return WpcCallEx(url, setting, timeout_connect, timeout_comm, function_name, pack, cert, key,
-		sha1_cert_hash, NULL, 0);
+		sha1_cert_hash, NULL, 0, NULL, NULL);
 }
 PACK *WpcCallEx(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT timeout_comm,
-				char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, bool *cancel, UINT max_recv_size)
+				char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, bool *cancel, UINT max_recv_size,
+				char *additional_header_name, char *additional_header_value)
 {
 	URL_DATA data;
 	BUF *b, *recv;
@@ -189,6 +190,12 @@ PACK *WpcCallEx(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT
 	SeekBuf(b, b->Size, 0);
 	WriteBufInt(b, 0);
 	SeekBuf(b, 0, 0);
+
+	if (IsEmptyStr(additional_header_name) == false && IsEmptyStr(additional_header_value) == false)
+	{
+		StrCpy(data.AdditionalHeaderName, sizeof(data.AdditionalHeaderName), additional_header_name);
+		StrCpy(data.AdditionalHeaderValue, sizeof(data.AdditionalHeaderValue), additional_header_value);
+	}
 
 	recv = HttpRequestEx(&data, setting, timeout_connect, timeout_comm, &error,
 		false, b->Buf, NULL, NULL, sha1_cert_hash, cancel, max_recv_size);
@@ -820,6 +827,11 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 		ToStr(len_str, StrLen(post_data));
 		AddHttpValue(h, NewHttpValue("Content-Type", "application/x-www-form-urlencoded"));
 		AddHttpValue(h, NewHttpValue("Content-Length", len_str));
+	}
+
+	if (IsEmptyStr(data->AdditionalHeaderName) == false && IsEmptyStr(data->AdditionalHeaderValue) == false)
+	{
+		AddHttpValue(h, NewHttpValue(data->AdditionalHeaderName, data->AdditionalHeaderValue));
 	}
 
 	if (use_http_proxy)

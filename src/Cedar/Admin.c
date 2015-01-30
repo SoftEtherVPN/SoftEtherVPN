@@ -10400,6 +10400,8 @@ void SiEnumLocalLogFileList(SERVER *s, char *hubname, RPC_ENUM_LOG_FILE *t)
 void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 {
 	HUB *h;
+	UINT64 now = Tick64();
+	UINT64 dormant_interval = 0;
 	// Validate arguments
 	if (s == NULL || hubname == NULL || t == NULL)
 	{
@@ -10415,6 +10417,11 @@ void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 		t->NumSession = 0;
 		t->Sessions = ZeroMalloc(0);
 		return;
+	}
+
+	if (h->Option != NULL)
+	{
+		dormant_interval = h->Option->DetectDormantSessionInterval * (UINT64)1000;
 	}
 
 	LockList(h->SessionList);
@@ -10453,8 +10460,36 @@ void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 				e->Client_BridgeMode = s->IsBridgeMode;
 				e->Client_MonitorMode = s->IsMonitorMode;
 				Copy(e->UniqueId, s->NodeInfo.UniqueId, 16);
+
+				if (s->NormalClient)
+				{
+					e->IsDormantEnabled = (dormant_interval == 0 ? false : true);
+					if (e->IsDormantEnabled)
+					{
+						if (s->LastCommTimeForDormant == 0)
+						{
+							e->LastCommDormant = (UINT64)0x7FFFFFFF;
+						}
+						else
+						{
+							e->LastCommDormant = now - s->LastCommTimeForDormant;
+						}
+						if (s->LastCommTimeForDormant == 0)
+						{
+							e->IsDormant = true;
+						}
+						else
+						{
+							if ((s->LastCommTimeForDormant + dormant_interval) < now)
+							{
+								e->IsDormant = true;
+							}
+						}
+					}
+				}
 			}
 			Unlock(s->lock);
+
 			GetMachineName(e->RemoteHostname, sizeof(e->RemoteHostname));
 		}
 	}
@@ -12744,6 +12779,9 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 		PackGetStrEx(p, "RemoteHostname", e->RemoteHostname, sizeof(e->RemoteHostname), i);
 		e->VLanId = PackGetIntEx(p, "VLanId", i);
 		PackGetDataEx2(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i);
+		e->IsDormantEnabled = PackGetBoolEx(p, "IsDormantEnabled", i);
+		e->IsDormant = PackGetBoolEx(p, "IsDormant", i);
+		e->LastCommDormant = PackGetInt64Ex(p, "LastCommDormant", i);
 	}
 }
 void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
@@ -12778,6 +12816,9 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 		PackAddBoolEx(p, "Client_MonitorMode", e->Client_MonitorMode, i, t->NumSession);
 		PackAddIntEx(p, "VLanId", e->VLanId, i, t->NumSession);
 		PackAddDataEx(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i, t->NumSession);
+		PackAddBoolEx(p, "IsDormantEnabled", e->IsDormantEnabled, i, t->NumSession);
+		PackAddBoolEx(p, "IsDormant", e->IsDormant, i, t->NumSession);
+		PackAddInt64Ex(p, "LastCommDormant", e->LastCommDormant, i, t->NumSession);
 	}
 }
 void FreeRpcEnumSession(RPC_ENUM_SESSION *t)

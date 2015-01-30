@@ -342,7 +342,7 @@ void UdpAccelPoll(UDP_ACCEL *a)
 	else
 	{
 		// NAT_T is disabled, but there is a reference host (such as VGC)
-		if (a->UseUdpIpQuery)
+		if (a->UseUdpIpQuery || a->UseSuperRelayQuery)
 		{
 		}
 	}

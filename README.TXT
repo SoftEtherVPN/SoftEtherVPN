@@ -10,7 +10,7 @@ http://www.softether-download.com/
 We accept your patches by the acceptance policy:
 http://www.softether.org/5-download/src/9.patch
 
-Copyright (c) 2012-2014 SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) 2012-2015 SoftEther Project at University of Tsukuba, Japan.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2

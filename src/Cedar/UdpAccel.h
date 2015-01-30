@@ -193,6 +193,7 @@ struct UDP_ACCEL
 	UINT64 CreatedTick;									// Object creation time
 	bool FastDetect;									// Fast disconnection detection mode
 	UINT64 FirstStableReceiveTick;						// Start time of current stable continued receivable period
+	bool UseSuperRelayQuery;							// Use the super relay query
 	bool UseUdpIpQuery;									// Use the self IP address query by UDP
 	IP UdpIpQueryHost;									// Host for the self IP address query by UDP
 	UINT UdpIpQueryPort;								// Port number for self IP address for query by UDP

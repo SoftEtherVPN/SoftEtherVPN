@@ -598,6 +598,8 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "SuppressClientUpdateNotification", &o->SuppressClientUpdateNotification);
 	GetHubAdminOptionDataAndSet(ao, "FloodingSendQueueBufferQuota", &o->FloodingSendQueueBufferQuota);
 	GetHubAdminOptionDataAndSet(ao, "AssignVLanIdByRadiusAttribute", &o->AssignVLanIdByRadiusAttribute);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_RandomizeAssignIp", &o->SecureNAT_RandomizeAssignIp);
+	GetHubAdminOptionDataAndSet(ao, "DetectDormantSessionInterval", &o->DetectDormantSessionInterval);
 }
 
 // Convert the contents of the HUB_OPTION to data
@@ -664,6 +666,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("SuppressClientUpdateNotification", o->SuppressClientUpdateNotification));
 	Add(aol, NewAdminOption("FloodingSendQueueBufferQuota", o->FloodingSendQueueBufferQuota));
 	Add(aol, NewAdminOption("AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute));
+	Add(aol, NewAdminOption("SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp));
+	Add(aol, NewAdminOption("DetectDormantSessionInterval", o->DetectDormantSessionInterval));
 
 	Zero(ao, sizeof(RPC_ADMIN_OPTION));
 
@@ -3973,6 +3977,7 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 	bool drop_broadcast_packet_privacy = false;
 	bool drop_arp_packet_privacy = false;
 	UINT tcp_queue_quota = 0;
+	UINT64 dormant_interval = 0;
 	// Validate arguments
 	if (hub == NULL || packet == NULL)
 	{
@@ -3996,6 +4001,24 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 		drop_broadcast_packet_privacy = hub->Option->DropBroadcastsInPrivacyFilterMode;
 		drop_arp_packet_privacy = hub->Option->DropArpInPrivacyFilterMode;
 		tcp_queue_quota = hub->Option->FloodingSendQueueBufferQuota;
+		if (hub->Option->DetectDormantSessionInterval != 0)
+		{
+			dormant_interval = (UINT64)hub->Option->DetectDormantSessionInterval * (UINT64)1000;
+		}
+	}
+
+	if (dormant_interval != 0)
+	{
+		if (s != NULL && s->NormalClient)
+		{
+			if (packet->MacAddressSrc != NULL)
+			{
+				if (IsHubMacAddress(packet->MacAddressSrc) == false)
+				{
+					s->LastCommTimeForDormant = now;
+				}
+			}
+		}
 	}
 
 	// Lock the entire MAC address table
@@ -4942,6 +4965,19 @@ DISCARD_UNICAST_PACKET:
 								if (dest_session->IsMonitorMode)
 								{
 									discard = true;
+								}
+
+								if (dest_session->NormalClient)
+								{
+									if (dormant_interval != 0)
+									{
+										if (dest_session->LastCommTimeForDormant == 0 ||
+											(dest_session->LastCommTimeForDormant + dormant_interval) < now)
+										{
+											// This is dormant session
+											discard = true;
+										}
+									}
 								}
 
 								if (tcp_queue_quota != 0)

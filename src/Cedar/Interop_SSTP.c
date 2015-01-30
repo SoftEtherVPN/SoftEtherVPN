@@ -118,6 +118,7 @@ static bool g_no_sstp = false;
 // Get the SSTP disabling flag
 bool GetNoSstp()
 {
+
 	return g_no_sstp;
 }
 

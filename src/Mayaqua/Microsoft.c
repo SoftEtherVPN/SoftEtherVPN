@@ -3670,10 +3670,6 @@ void MsRegistWindowsFirewallEx(char *title, char *exe)
 	{
 		return;
 	}
-	if (MsIsVista() == false && (GET_KETA(ostype, 100) != 3 && GET_KETA(ostype, 100) != 4 && GET_KETA(ostype, 100) != 5 && GET_KETA(ostype, 100) != 6 && GET_KETA(ostype, 100) != 7))
-	{
-		return;
-	}
 	if (MsIsAdmin() == false)
 	{
 		return;

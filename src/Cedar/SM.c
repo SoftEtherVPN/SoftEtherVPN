@@ -9629,6 +9629,11 @@ void SmSessionDlgRefresh(HWND hWnd, SM_HUB *s)
 			}
 		}
 
+		if (e->IsDormantEnabled && e->IsDormant)
+		{
+			icon = ICO_TRAY0;
+		}
+
 		LvInsertAdd(b, icon, (void *)(e->RemoteSession), 8, tmp1, tmp8, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7);
 
 		if (free_tmp2)

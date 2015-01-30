@@ -10462,7 +10462,7 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 }
 
 // Create the inner VPN Server
-SERVER *CiNewInnerVPNServer(CLIENT *c)
+SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server)
 {
 	SERVER *s = NULL;
 	// Validate arguments
@@ -10473,7 +10473,7 @@ SERVER *CiNewInnerVPNServer(CLIENT *c)
 
 	SetNatTLowPriority();
 
-	s = SiNewServerEx(false, true);
+	s = SiNewServerEx(false, true, relay_server);
 
 	return s;
 }

@@ -237,7 +237,7 @@ bool IsSupportedWinVer(RPC_WINVER *v)
 
 #if	0
 	// Enable in future when supported
-	if (v->VerMajor == 6 && v->VerMinor == 4)
+	if ((v->VerMajor == 6 && v->VerMinor == 4) ||(v->VerMajor == 10 && v->VerMinor == 0))
 	{
 		// Windows 10, Server 10
 		if (v->ServicePack <= 0)
@@ -908,6 +908,8 @@ void AddConnection(CEDAR *cedar, CONNECTION *c)
 	// Determine the name of the connection
 	i = Inc(cedar->ConnectionIncrement);
 	Format(tmp, sizeof(tmp), "CID-%u", i);
+
+
 	Lock(c->lock);
 	{
 		Free(c->Name);

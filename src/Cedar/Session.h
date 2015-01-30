@@ -230,6 +230,7 @@ struct SESSION
 
 	UINT64 CreatedTime;				// Creation date and time
 	UINT64 LastCommTime;			// Last communication date and time
+	UINT64 LastCommTimeForDormant;	// Last communication date and time (for dormant)
 	TRAFFIC *Traffic;				// Traffic data
 	TRAFFIC *OldTraffic;			// Old traffic data
 	UINT64 TotalSendSize;			// Total transmitted data size

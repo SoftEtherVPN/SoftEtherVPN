@@ -156,6 +156,8 @@ UINT ssl_lock_num;
 static bool openssl_inited = false;
 static bool is_intel_aes_supported = false;
 
+static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md);
+
 // For the callback function
 typedef struct CB_PARAM
 {
@@ -237,6 +239,74 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 
 	memset (out2, 0, olen);
 	Free(out2);
+}
+
+// Easy encryption
+BUF *EasyEncrypt(BUF *src_buf)
+{
+	UCHAR key[SHA1_SIZE];
+	BUF *tmp_data;
+	CRYPT *rc4;
+	BUF *ret;
+	// Validate arguments
+	if (src_buf == NULL)
+	{
+		return NULL;
+	}
+
+	Rand(key, SHA1_SIZE);
+
+	tmp_data = CloneBuf(src_buf);
+
+	rc4 = NewCrypt(key, SHA1_SIZE);
+
+	Encrypt(rc4, tmp_data->Buf, tmp_data->Buf, tmp_data->Size);
+
+	ret = NewBuf();
+
+	WriteBuf(ret, key, SHA1_SIZE);
+	WriteBufBuf(ret, tmp_data);
+
+	FreeCrypt(rc4);
+	FreeBuf(tmp_data);
+
+	SeekBufToBegin(ret);
+
+	return ret;
+}
+
+// Easy decryption
+BUF *EasyDecrypt(BUF *src_buf)
+{
+	UCHAR key[SHA1_SIZE];
+	BUF *tmp_buf;
+	CRYPT *rc4;
+	// Validate arguments
+	if (src_buf == NULL)
+	{
+		return NULL;
+	}
+
+	SeekBufToBegin(src_buf);
+
+	if (ReadBuf(src_buf, key, SHA1_SIZE) != SHA1_SIZE)
+	{
+		return NULL;
+	}
+
+	tmp_buf = ReadRemainBuf(src_buf);
+	if (tmp_buf == NULL)
+	{
+		return NULL;
+	}
+
+	rc4 = NewCrypt(key, SHA1_SIZE);
+	Encrypt(rc4, tmp_buf->Buf, tmp_buf->Buf, tmp_buf->Size);
+	FreeCrypt(rc4);
+
+	SeekBufToBegin(tmp_buf);
+
+	return tmp_buf;
 }
 
 // Calculation of HMAC (MD5)
@@ -4158,7 +4228,7 @@ void Hash(void *dst, void *src, UINT size, bool sha)
 	else
 	{
 		// SHA hash
-		SHA(src, size, dst);
+		Internal_SHA0(src, size, dst);
 	}
 }
 
@@ -4906,6 +4976,324 @@ void DhFree(DH_CTX *dh)
 
 	Free(dh);
 }
+
+/////////////////////////
+// SHA0 implementation //
+/////////////////////////
+// 
+// From: https://bitbucket.org/Polarina/ampheck/src/097585ce2a74/src/
+/*
+	Copyright (C) 2009  Gabriel A. Petursson
+	
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+struct ampheck_sha0
+{
+	UINT h[5];
+	UCHAR buffer[64];
+	UINT64 length;
+};
+#define ROR(x, y) (((x) >> (y)) ^ ((x) << ((sizeof(x) * 8) - (y))))
+#define ROL(x, y) (((x) << (y)) ^ ((x) >> ((sizeof(x) * 8) - (y))))
+#define UNPACK_32_BE(x, str) { \
+	*((str))     = (UCHAR) ((x) >> 24); \
+	*((str) + 1) = (UCHAR) ((x) >> 16); \
+	*((str) + 2) = (UCHAR) ((x) >>  8); \
+	*((str) + 3) = (UCHAR) (x); \
+}
+#define UNPACK_64_BE(x, str) { \
+	*((str))     = (UCHAR) ((x) >> 56); \
+	*((str) + 1) = (UCHAR) ((x) >> 48); \
+	*((str) + 2) = (UCHAR) ((x) >> 40); \
+	*((str) + 3) = (UCHAR) ((x) >> 32); \
+	*((str) + 4) = (UCHAR) ((x) >> 24); \
+	*((str) + 5) = (UCHAR) ((x) >> 16); \
+	*((str) + 6) = (UCHAR) ((x) >>  8); \
+	*((str) + 7) = (UCHAR) (x); \
+}
+#define PACK_32_BE(str, x) { \
+	*(x) = ((UINT) *((str)    ) << 24) \
+	^ ((UINT) *((str) + 1) << 16) \
+	^ ((UINT) *((str) + 2) <<  8) \
+	^ ((UINT) *((str) + 3)); \
+}
+#define PACK_64_BE(str, x) { \
+	*(x) = ((UINT64) *((str)    ) << 56) \
+	^ ((UINT64) *((str) + 1) << 48) \
+	^ ((UINT64) *((str) + 2) << 40) \
+	^ ((UINT64) *((str) + 3) << 32) \
+	^ ((UINT64) *((str) + 4) << 24) \
+	^ ((UINT64) *((str) + 5) << 16) \
+	^ ((UINT64) *((str) + 6) << 8) \
+	^ ((UINT64) *((str) + 7)); \
+}
+#define UNPACK_32_LE(x, str) { \
+	*((str))     = (UCHAR) (x); \
+	*((str) + 1) = (UCHAR) ((x) >>  8); \
+	*((str) + 2) = (UCHAR) ((x) >> 16); \
+	*((str) + 3) = (UCHAR) ((x) >> 24); \
+}
+#define UNPACK_64_LE(x, str) { \
+	*((str))     = (UCHAR) (x); \
+	*((str) + 1) = (UCHAR) ((x) >>  8); \
+	*((str) + 2) = (UCHAR) ((x) >> 16); \
+	*((str) + 3) = (UCHAR) ((x) >> 24); \
+	*((str) + 4) = (UCHAR) ((x) >> 32); \
+	*((str) + 5) = (UCHAR) ((x) >> 40); \
+	*((str) + 6) = (UCHAR) ((x) >> 48); \
+	*((str) + 7) = (UCHAR) ((x) >> 56); \
+}
+#define PACK_32_LE(str, x) { \
+	*(x) = ((UINT) *((str)    )) \
+	^ ((UINT) *((str) + 1) <<  8) \
+	^ ((UINT) *((str) + 2) << 16) \
+	^ ((UINT) *((str) + 3) << 24); \
+}
+#define PACK_64_LE(str, x) { \
+	*(x) = ((UINT64) *((str)    )) \
+	^ ((UINT64) *((str) + 1) <<  8) \
+	^ ((UINT64) *((str) + 2) << 16) \
+	^ ((UINT64) *((str) + 3) << 24) \
+	^ ((UINT64) *((str) + 4) << 32) \
+	^ ((UINT64) *((str) + 5) << 40) \
+	^ ((UINT64) *((str) + 6) << 48) \
+	^ ((UINT64) *((str) + 7) << 56); \
+}
+#define SHA0_R1(x, y, z) ((z ^ (x & (y ^ z)))       + 0x5a827999)
+#define SHA0_R2(x, y, z) ((x ^ y ^ z)               + 0x6ed9eba1)
+#define SHA0_R3(x, y, z) (((x & y) | (z & (x | y))) + 0x8f1bbcdc)
+#define SHA0_R4(x, y, z) ((x ^ y ^ z)               + 0xca62c1d6)
+#define SHA0_PRC(a, b, c, d, e, idx, rnd) { \
+	wv[e] += ROR(wv[a], 27) + SHA0_R##rnd(wv[b], wv[c], wv[d]) + idx; \
+	wv[b]  = ROR(wv[b], 2); \
+}
+#define SHA0_EXT(i) ( \
+	w[i] ^= w[(i - 3) & 0x0F] ^ w[(i - 8) & 0x0F] ^ w[(i - 14) & 0x0F] \
+	)
+static void ampheck_sha0_init(struct ampheck_sha0 *ctx);
+static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT length);
+static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest);
+static void ampheck_sha0_init(struct ampheck_sha0 *ctx)
+{
+	ctx->h[0] = 0x67452301;
+	ctx->h[1] = 0xefcdab89;
+	ctx->h[2] = 0x98badcfe;
+	ctx->h[3] = 0x10325476;
+	ctx->h[4] = 0xc3d2e1f0;
+
+	ctx->length = 0;
+}
+
+static void ampheck_sha0_transform(struct ampheck_sha0 *ctx, const UCHAR *data, UINT blocks)
+{
+	UINT i;
+	for (i = 0; i < blocks; ++i)
+	{
+		UINT wv[5];
+		UINT w[16];
+
+		PACK_32_BE(&data[(i << 6)     ], &w[ 0]);
+		PACK_32_BE(&data[(i << 6) +  4], &w[ 1]);
+		PACK_32_BE(&data[(i << 6) +  8], &w[ 2]);
+		PACK_32_BE(&data[(i << 6) + 12], &w[ 3]);
+		PACK_32_BE(&data[(i << 6) + 16], &w[ 4]);
+		PACK_32_BE(&data[(i << 6) + 20], &w[ 5]);
+		PACK_32_BE(&data[(i << 6) + 24], &w[ 6]);
+		PACK_32_BE(&data[(i << 6) + 28], &w[ 7]);
+		PACK_32_BE(&data[(i << 6) + 32], &w[ 8]);
+		PACK_32_BE(&data[(i << 6) + 36], &w[ 9]);
+		PACK_32_BE(&data[(i << 6) + 40], &w[10]);
+		PACK_32_BE(&data[(i << 6) + 44], &w[11]);
+		PACK_32_BE(&data[(i << 6) + 48], &w[12]);
+		PACK_32_BE(&data[(i << 6) + 52], &w[13]);
+		PACK_32_BE(&data[(i << 6) + 56], &w[14]);
+		PACK_32_BE(&data[(i << 6) + 60], &w[15]);
+
+		wv[0] = ctx->h[0];
+		wv[1] = ctx->h[1];
+		wv[2] = ctx->h[2];
+		wv[3] = ctx->h[3];
+		wv[4] = ctx->h[4];
+
+		SHA0_PRC(0, 1, 2, 3, 4, w[ 0], 1);
+		SHA0_PRC(4, 0, 1, 2, 3, w[ 1], 1);
+		SHA0_PRC(3, 4, 0, 1, 2, w[ 2], 1);
+		SHA0_PRC(2, 3, 4, 0, 1, w[ 3], 1);
+		SHA0_PRC(1, 2, 3, 4, 0, w[ 4], 1);
+		SHA0_PRC(0, 1, 2, 3, 4, w[ 5], 1);
+		SHA0_PRC(4, 0, 1, 2, 3, w[ 6], 1);
+		SHA0_PRC(3, 4, 0, 1, 2, w[ 7], 1);
+		SHA0_PRC(2, 3, 4, 0, 1, w[ 8], 1);
+		SHA0_PRC(1, 2, 3, 4, 0, w[ 9], 1);
+		SHA0_PRC(0, 1, 2, 3, 4, w[10], 1);
+		SHA0_PRC(4, 0, 1, 2, 3, w[11], 1);
+		SHA0_PRC(3, 4, 0, 1, 2, w[12], 1);
+		SHA0_PRC(2, 3, 4, 0, 1, w[13], 1);
+		SHA0_PRC(1, 2, 3, 4, 0, w[14], 1);
+		SHA0_PRC(0, 1, 2, 3, 4, w[15], 1);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 0), 1);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 1), 1);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 2), 1);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 3), 1);
+
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 4), 2);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 5), 2);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 6), 2);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 7), 2);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 8), 2);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 9), 2);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(10), 2);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(11), 2);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(12), 2);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(13), 2);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(14), 2);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(15), 2);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 0), 2);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 1), 2);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 2), 2);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 3), 2);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 4), 2);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 5), 2);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 6), 2);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 7), 2);
+
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 8), 3);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 9), 3);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(10), 3);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(11), 3);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(12), 3);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(13), 3);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(14), 3);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(15), 3);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 0), 3);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 1), 3);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 2), 3);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 3), 3);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 4), 3);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 5), 3);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 6), 3);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 7), 3);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 8), 3);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 9), 3);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(10), 3);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(11), 3);
+
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(12), 4);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(13), 4);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(14), 4);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(15), 4);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 0), 4);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 1), 4);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 2), 4);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 3), 4);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 4), 4);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 5), 4);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 6), 4);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 7), 4);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 8), 4);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 9), 4);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(10), 4);
+		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(11), 4);
+		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(12), 4);
+		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(13), 4);
+		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(14), 4);
+		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(15), 4);
+
+		ctx->h[0] += wv[0];
+		ctx->h[1] += wv[1];
+		ctx->h[2] += wv[2];
+		ctx->h[3] += wv[3];
+		ctx->h[4] += wv[4];
+	}
+}
+
+static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT size)
+{
+	UINT tmp = size;
+
+	if (size >= 64 - ctx->length % 64)
+	{
+		memcpy(&ctx->buffer[ctx->length % 64], data, 64 - ctx->length % 64);
+
+		data += 64 - ctx->length % 64;
+		size -= 64 - ctx->length % 64;
+
+		ampheck_sha0_transform(ctx, ctx->buffer, 1);
+		ampheck_sha0_transform(ctx, data, size / 64);
+
+		data += size & ~63;
+		size %= 64;
+
+		memcpy(ctx->buffer, data, size);
+	}
+	else
+	{
+		memcpy(&ctx->buffer[ctx->length % 64], data, size);
+	}
+
+	ctx->length += tmp;
+}
+
+static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest)
+{
+	struct ampheck_sha0 tmp;
+
+	memcpy(tmp.h, ctx->h, 5 * sizeof(UINT));
+	memcpy(tmp.buffer, ctx->buffer, ctx->length % 64);
+
+	tmp.buffer[ctx->length % 64] = 0x80;
+
+	if (ctx->length % 64 < 56)
+	{
+		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 55 - ctx->length % 64);
+	}
+	else
+	{
+		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 63 - ctx->length % 64);
+		ampheck_sha0_transform(&tmp, tmp.buffer, 1);
+
+		memset(tmp.buffer, 0x00, 56);
+	}
+
+	UNPACK_64_BE(ctx->length * 8, &tmp.buffer[56]);
+	ampheck_sha0_transform(&tmp, tmp.buffer, 1);
+
+	UNPACK_32_BE(tmp.h[0], &digest[ 0]);
+	UNPACK_32_BE(tmp.h[1], &digest[ 4]);
+	UNPACK_32_BE(tmp.h[2], &digest[ 8]);
+	UNPACK_32_BE(tmp.h[3], &digest[12]);
+	UNPACK_32_BE(tmp.h[4], &digest[16]);
+}
+static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md)
+{
+	struct ampheck_sha0 c;
+	static unsigned char m[SHA_DIGEST_LENGTH];
+
+	if (md == NULL) md=m;
+
+	ampheck_sha0_init(&c);
+	ampheck_sha0_update(&c, d, (UINT)n);
+	ampheck_sha0_finish(&c, md);
+
+	return md;
+}
+
+
+
+
+
 
 // Developed by SoftEther VPN Project at University of Tsukuba in Japan.
 // Department of Computer Science has dozens of overly-enthusiastic geeks.

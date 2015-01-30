@@ -672,6 +672,9 @@ struct RPC_ENUM_SESSION_ITEM
 	bool Client_MonitorMode;						// Client is monitoring mode
 	UINT VLanId;									// VLAN ID
 	UCHAR UniqueId[16];								// Unique ID
+	bool IsDormantEnabled;							// Is the dormant state enabled
+	bool IsDormant;									// Is in the dormant state
+	UINT64 LastCommDormant;							// Last comm interval in the dormant state
 };
 
 // Disconnect the session

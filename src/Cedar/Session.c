@@ -305,6 +305,16 @@ void SessionMain(SESSION *s)
 		}
 
 
+		if (is_server_session && s->LinkModeServer == false && s->SecureNATMode == false && s->BridgeMode == false && s->L3SwitchMode == false)
+		{
+			if (s->Hub != NULL && s->Hub->ForceDisableComm)
+			{
+				// Disconnect the session forcibly because the ForceDisableComm flag is set
+				err = ERR_SERVER_CANT_ACCEPT;
+				pa_fail = true;
+			}
+		}
+
 		if (s->InProcMode)
 		{
 			if (c->TubeSock == NULL || IsTubeConnected(c->TubeSock->SendTube) == false || IsTubeConnected(c->TubeSock->RecvTube) == false)
@@ -324,7 +334,6 @@ void SessionMain(SESSION *s)
 				pa_fail = true;
 			}
 		}
-
 		
 		// Chance of additional connection
 		if (is_server_session == false)
@@ -1409,13 +1418,12 @@ void ClientThread(THREAD *t, void *param)
 	bool no_save_password = false;
 	bool is_vpngate_connection = false;
 	CEDAR *cedar;
+	bool num_active_sessions_incremented = false;
 	// Validate arguments
 	if (t == NULL || param == NULL)
 	{
 		return;
 	}
-
-	CiIncrementNumActiveSessions();
 
 	Debug("ClientThread 0x%x Started.\n", t);
 
@@ -1423,6 +1431,13 @@ void ClientThread(THREAD *t, void *param)
 	AddRef(s->ref);
 	s->Thread = t;
 	AddRef(t->ref);
+
+	if (s->LinkModeClient == false)
+	{
+		CiIncrementNumActiveSessions();
+		num_active_sessions_incremented = true;
+	}
+
 	NoticeThreadInit(t);
 
 	cedar = s->Cedar;
@@ -1793,7 +1808,10 @@ SKIP:
 
 	ReleaseSession(s);
 
-	CiDecrementNumActiveSessions();
+	if (num_active_sessions_incremented)
+	{
+		CiDecrementNumActiveSessions();
+	}
 }
 
 // Name comparison of sessions
@@ -2208,6 +2226,19 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 		else
 		{
 			Format(name, sizeof(name), "SID-%s-[%s]-%u", user_name_upper, c->InProcPrefix, Inc(h->SessionCounter));
+		}
+
+		if (h->IsVgsHub || h->IsVgsSuperRelayHub)
+		{
+			UCHAR rand[5];
+			char tmp[32];
+
+			Rand(rand, sizeof(rand));
+
+			BinToStr(tmp, sizeof(tmp), rand, sizeof(rand));
+
+			StrCat(name, sizeof(name), "-");
+			StrCat(name, sizeof(name), tmp);
 		}
 	}
 	else

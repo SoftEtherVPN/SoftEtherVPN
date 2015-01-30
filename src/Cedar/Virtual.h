@@ -618,6 +618,7 @@ DHCP_LEASE *SearchDhcpLeaseByMac(VH *v, UCHAR *mac);
 DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip);
 UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip);
 UINT GetFreeDhcpIpAddress(VH *v);
+UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac);
 UINT ServeDhcpRequest(VH *v, UCHAR *mac, UINT request_ip);
 void VirtualDhcpSend(VH *v, UINT tran_id, UINT dest_ip, UINT dest_port,
 					 UINT new_ip, UCHAR *client_mac, BUF *b, UINT hw_type, UINT hw_addr_size);

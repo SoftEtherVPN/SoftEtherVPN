@@ -392,12 +392,14 @@ void IPsecServerUdpPacketRecvProc(UDPLISTENER *u, LIST *packet_list)
 
 	if (ipsec_disable == false)
 	{
-		// Process the received packet
-		for (i = 0;i < LIST_NUM(packet_list);i++)
 		{
-			UDPPACKET *p = LIST_DATA(packet_list, i);
+			// Process the received packet
+			for (i = 0;i < LIST_NUM(packet_list);i++)
+			{
+				UDPPACKET *p = LIST_DATA(packet_list, i);
 
-			IPsecProcPacket(s, p);
+				IPsecProcPacket(s, p);
+			}
 		}
 	}
 

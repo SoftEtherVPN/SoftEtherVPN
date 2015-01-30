@@ -521,6 +521,7 @@ typedef struct SAFE_QUOTA2 SAFE_QUOTA2;
 typedef struct SAFE_BLOCK SAFE_BLOCK;
 typedef struct SAFE_REQUEST_LOG SAFE_REQUEST_LOG;
 typedef struct DYN_VALUE DYN_VALUE;
+typedef struct RELAY_PARAMETER RELAY_PARAMETER;
 
 // Tick64.h
 typedef struct ADJUST_TIME ADJUST_TIME;

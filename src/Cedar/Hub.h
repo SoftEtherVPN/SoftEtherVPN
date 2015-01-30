@@ -276,6 +276,8 @@ struct HUB_OPTION
 	bool SuppressClientUpdateNotification;	// Suppress the update notification function on the VPN Client
 	UINT FloodingSendQueueBufferQuota;	// The global quota of send queues of flooding packets
 	bool AssignVLanIdByRadiusAttribute;	// Assign the VLAN ID for the VPN session, by the attribute value of RADIUS
+	bool SecureNAT_RandomizeAssignIp;	// Randomize the assignment IP address for new DHCP client
+	UINT DetectDormantSessionInterval;	// Interval (seconds) threshold to detect a dormant VPN session
 };
 
 // MAC table entry
@@ -487,8 +489,10 @@ struct HUB
 	wchar_t *Msg;						// Message to be displayed when the client is connected
 	LIST *UserList;						// Cache of the user list file
 	bool IsVgsHub;						// Whether it's a VGS Virtual HUB
+	bool IsVgsSuperRelayHub;			// Whether it's a VGS Super Relay Virtual HUB
 	UINT64 LastFlushTick;				// Last tick to flush the MAC address table
 	bool StopAllLinkFlag;				// Stop all link flag
+	bool ForceDisableComm;				// Disable the communication function
 };
 
 

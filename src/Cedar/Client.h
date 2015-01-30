@@ -797,7 +797,7 @@ bool CiEraseSensitiveInAccount(BUF *b);
 bool CiHasAccountSensitiveInformation(BUF *b);
 bool CiHasAccountSensitiveInformationFile(wchar_t *name);
 void CiApplyInnerVPNServerConfig(CLIENT *c);
-SERVER *CiNewInnerVPNServer(CLIENT *c);
+SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server);
 void CiFreeInnerVPNServer(CLIENT *c, SERVER *s);
 void CiIncrementNumActiveSessions();
 void CiDecrementNumActiveSessions();

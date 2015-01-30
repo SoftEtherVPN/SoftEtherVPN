@@ -503,6 +503,9 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 
+BUF *EasyEncrypt(BUF *src_buf);
+BUF *EasyDecrypt(BUF *src_buf);
+
 void DisableIntelAesAccel();
 
 #ifdef	ENCRYPT_C

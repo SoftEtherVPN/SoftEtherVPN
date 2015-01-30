@@ -472,7 +472,7 @@ struct SERVER_HUB_CREATE_HISTORY
 
 // Function prototype declaration
 SERVER *SiNewServer(bool bridge);
-SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server);
+SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_server);
 void SiReleaseServer(SERVER *s);
 void SiCleanupServer(SERVER *s);
 void StStartServer(bool bridge);

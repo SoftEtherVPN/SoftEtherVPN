@@ -236,6 +236,8 @@ UINT DCChangeHostName(DDNS_CLIENT *c, char *hostname);
 void DCSetInternetSetting(DDNS_CLIENT *c, INTERNET_SETTING *t);
 void DCGetInternetSetting(DDNS_CLIENT *c, INTERNET_SETTING *t);
 
+
+
 #endif	// DDNS_H
 
 

@@ -117,6 +117,7 @@ static SERVER *server = NULL;
 static LOCK *server_lock = NULL;
 char *SERVER_CONFIG_FILE_NAME = "@vpn_server.config";
 char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "@vpn_gate_svc.config";
+char *SERVER_CONFIG_FILE_NAME_IN_CLIENT_RELAY = "@vpn_gate_relay.config";
 char *BRIDGE_CONFIG_FILE_NAME = "@vpn_bridge.config";
 char *SERVER_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
 char *BRIDGE_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
@@ -4102,6 +4103,8 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->DisableCorrectIpOffloadChecksum = CfgGetBool(f, "DisableCorrectIpOffloadChecksum");
 	o->SuppressClientUpdateNotification = CfgGetBool(f, "SuppressClientUpdateNotification");
 	o->AssignVLanIdByRadiusAttribute = CfgGetBool(f, "AssignVLanIdByRadiusAttribute");
+	o->SecureNAT_RandomizeAssignIp = CfgGetBool(f, "SecureNAT_RandomizeAssignIp");
+	o->DetectDormantSessionInterval = CfgGetInt(f, "DetectDormantSessionInterval");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4178,6 +4181,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
 	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	CfgAddBool(f, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
+	CfgAddBool(f, "SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp);
+	CfgAddInt(f, "DetectDormantSessionInterval", o->DetectDormantSessionInterval);
 	CfgAddBool(f, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
 	CfgAddInt(f, "AdjustTcpMssValue", o->AdjustTcpMssValue);
 	CfgAddBool(f, "DisableAdjustTcpMss", o->DisableAdjustTcpMss);
@@ -7479,6 +7484,8 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
 	o.SuppressClientUpdateNotification = PackGetBool(p, "SuppressClientUpdateNotification");
 	o.AssignVLanIdByRadiusAttribute = PackGetBool(p, "AssignVLanIdByRadiusAttribute");
+	o.SecureNAT_RandomizeAssignIp = PackGetBool(p, "SecureNAT_RandomizeAssignIp");
+	o.DetectDormantSessionInterval = PackGetInt(p, "DetectDormantSessionInterval");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
 	if (o.VlanTypeId == 0)
 	{
@@ -9320,6 +9327,8 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "SuppressClientUpdateNotification", h->Option->SuppressClientUpdateNotification);
 	PackAddBool(p, "AssignVLanIdByRadiusAttribute", h->Option->AssignVLanIdByRadiusAttribute);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
+	PackAddBool(p, "SecureNAT_RandomizeAssignIp", h->Option->SecureNAT_RandomizeAssignIp);
+	PackAddInt(p, "DetectDormantSessionInterval", h->Option->DetectDormantSessionInterval);
 	PackAddBool(p, "FixForDLinkBPDU", h->Option->FixForDLinkBPDU);
 	PackAddBool(p, "BroadcastLimiterStrictMode", h->Option->BroadcastLimiterStrictMode);
 	PackAddBool(p, "NoLookBPDUBridgeId", h->Option->NoLookBPDUBridgeId);
@@ -10851,9 +10860,9 @@ void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update)
 // Create a server
 SERVER *SiNewServer(bool bridge)
 {
-	return SiNewServerEx(bridge, false);
+	return SiNewServerEx(bridge, false, false);
 }
-SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server)
+SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_server)
 {
 	SERVER *s;
 	LISTENER *inproc;

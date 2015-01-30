@@ -159,14 +159,22 @@ struct my_tpacket_auxdata
 #define	MY_PACKET_AUXDATA 8
 #endif	// UNIX_LINUX
 
+static LIST *eth_offload_list = NULL;
+
 // Initialize
 void InitEth()
 {
+	eth_offload_list = NewList(NULL);
 }
 
 // Free
 void FreeEth()
 {
+	if (eth_offload_list != NULL)
+	{
+		FreeStrList(eth_offload_list);
+		eth_offload_list = NULL;
+	}
 }
 
 // Check whether interface description string of Ethernet device can be retrieved in this system
@@ -683,8 +691,24 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 		if (GetGlobalServerFlag(GSF_LOCALBRIDGE_NO_DISABLE_OFFLOAD) == false)
 		{
-			// Disable hardware offloading
-			UnixDisableInterfaceOffload(name);
+			bool b = false;
+
+			LockList(eth_offload_list);
+			{
+				if (IsInListStr(eth_offload_list, name) == false)
+				{
+					b = true;
+
+					Add(eth_offload_list, CopyStr(name));
+				}
+			}
+			UnlockList(eth_offload_list);
+
+			if (b)
+			{
+				// Disable hardware offloading
+				UnixDisableInterfaceOffload(name);
+			}
 		}
 	}
 
