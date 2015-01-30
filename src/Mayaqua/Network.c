@@ -1645,36 +1645,36 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 
 	if (r->ServerMode)
 	{
-		if (IsZeroIp(&r->NatT_IP_Safe) == false)
+
+		if (g_no_rudp_register == false && IsZeroIp(&r->NatT_IP_Safe) == false)
 		{
-
-			if (g_no_rudp_register == false)
+			if (r->NatT_GetTokenNextTick == 0 || r->Now >= r->NatT_GetTokenNextTick)
 			{
-				if (r->NatT_GetTokenNextTick == 0 || r->Now >= r->NatT_GetTokenNextTick)
-				{
-					// Try to get a token from the NAT-T server periodically
-					PACK *p = NewPack();
-					BUF *b;
+				// Try to get a token from the NAT-T server periodically
+				PACK *p = NewPack();
+				BUF *b;
 
-					PackAddStr(p, "opcode", "get_token");
-					PackAddInt64(p, "tran_id", r->NatT_TranId);
-					PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
+				PackAddStr(p, "opcode", "get_token");
+				PackAddInt64(p, "tran_id", r->NatT_TranId);
+				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
-					b = PackToBuf(p);
-					FreePack(p);
+				b = PackToBuf(p);
+				FreePack(p);
 
-					RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, b->Buf, b->Size, 0);
+				RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, b->Buf, b->Size, 0);
 
-					FreeBuf(b);
+				FreeBuf(b);
 
-					// Determine the next acquisition time
-					r->NatT_GetTokenFailNum++;
-					r->NatT_GetTokenNextTick = r->Now + (UINT64)(UDP_NAT_T_GET_TOKEN_INTERVAL_1 * (UINT64)MIN(r->NatT_GetTokenFailNum, UDP_NAT_T_GET_TOKEN_INTERVAL_FAIL_MAX));
-					AddInterrupt(r->Interrupt, r->NatT_GetTokenNextTick);
-					r->NatT_Token_Ok = false;
-				}
+				// Determine the next acquisition time
+				r->NatT_GetTokenFailNum++;
+				r->NatT_GetTokenNextTick = r->Now + (UINT64)(UDP_NAT_T_GET_TOKEN_INTERVAL_1 * (UINT64)MIN(r->NatT_GetTokenFailNum, UDP_NAT_T_GET_TOKEN_INTERVAL_FAIL_MAX));
+				AddInterrupt(r->Interrupt, r->NatT_GetTokenNextTick);
+				r->NatT_Token_Ok = false;
 			}
+		}
 
+		{
+			if (IsZeroIp(&r->NatT_IP_Safe) == false)
 			{
 				// Normal servers: Send request packets to the NAT-T server
 				if (r->NatT_NextNatStatusCheckTick == 0 || r->Now >= r->NatT_NextNatStatusCheckTick)
@@ -1699,71 +1699,71 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 					}
 				}
 			}
+		}
 
-			if (r->NatT_Token_Ok && g_no_rudp_register == false)
+		if (r->NatT_Token_Ok && g_no_rudp_register == false && IsZeroIp(&r->NatT_IP_Safe) == false)
+		{
+			if (r->NatT_RegisterNextTick == 0 || r->Now >= r->NatT_RegisterNextTick)
 			{
-				if (r->NatT_RegisterNextTick == 0 || r->Now >= r->NatT_RegisterNextTick)
+				// Try to register itself periodically for NAT-T server
+				PACK *p = NewPack();
+				BUF *b;
+				char private_ip_str[MAX_SIZE];
+				char machine_key[MAX_SIZE];
+				char machine_name[MAX_SIZE];
+				UCHAR hash[SHA1_SIZE];
+				char ddns_fqdn[MAX_SIZE];
+
+				Debug("NAT-T Registering...\n");
+
+				GetCurrentDDnsFqdn(ddns_fqdn, sizeof(ddns_fqdn));
+
+				PackAddStr(p, "opcode", "nat_t_register");
+				PackAddInt64(p, "tran_id", r->NatT_TranId);
+				PackAddStr(p, "token", r->NatT_Token);
+				PackAddStr(p, "svc_name", r->SvcName);
+				PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+				PackAddInt64(p, "session_key", r->NatT_SessionKey);
+				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
+
+
+				if (g_natt_low_priority)
 				{
-					// Try to register itself periodically for NAT-T server
-					PACK *p = NewPack();
-					BUF *b;
-					char private_ip_str[MAX_SIZE];
-					char machine_key[MAX_SIZE];
-					char machine_name[MAX_SIZE];
-					UCHAR hash[SHA1_SIZE];
-					char ddns_fqdn[MAX_SIZE];
-
-					Debug("NAT-T Registering...\n");
-
-					GetCurrentDDnsFqdn(ddns_fqdn, sizeof(ddns_fqdn));
-
-					PackAddStr(p, "opcode", "nat_t_register");
-					PackAddInt64(p, "tran_id", r->NatT_TranId);
-					PackAddStr(p, "token", r->NatT_Token);
-					PackAddStr(p, "svc_name", r->SvcName);
-					PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
-					PackAddInt64(p, "session_key", r->NatT_SessionKey);
-					PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
-
-
-					if (g_natt_low_priority)
-					{
-						PackAddBool(p, "low_priority", g_natt_low_priority);
-					}
-
-					Zero(private_ip_str, sizeof(private_ip_str));
-					if (IsZeroIp(&r->My_Private_IP_Safe) == false)
-					{
-						IPToStr(private_ip_str, sizeof(private_ip_str), &r->My_Private_IP_Safe);
-						PackAddStr(p, "private_ip", private_ip_str);
-					}
-
-					PackAddInt(p, "private_port", r->UdpSock->LocalPort);
-
-					Zero(hash, sizeof(hash));
-					GetCurrentMachineIpProcessHash(hash);
-					BinToStr(machine_key, sizeof(machine_key), hash, sizeof(hash));
-					PackAddStr(p, "machine_key", machine_key);
-
-					Zero(machine_name, sizeof(machine_name));
-					GetMachineName(machine_name, sizeof(machine_name));
-					PackAddStr(p, "host_name", machine_name);
-					PackAddStr(p, "ddns_fqdn", ddns_fqdn);
-
-					b = PackToBuf(p);
-					FreePack(p);
-
-					RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, b->Buf, b->Size, 0);
-					//RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, "a", 1);
-
-					FreeBuf(b);
-
-					// Determine the next acquisition time
-					r->NatT_RegisterFailNum++;
-					r->NatT_RegisterNextTick = r->Now + (UINT64)UDP_NAT_T_REGISTER_INTERVAL_INITIAL * (UINT64)MIN(r->NatT_RegisterFailNum, UDP_NAT_T_REGISTER_INTERVAL_FAIL_MAX);
-					AddInterrupt(r->Interrupt, r->NatT_RegisterNextTick);
-					r->NatT_Register_Ok = false;
+					PackAddBool(p, "low_priority", g_natt_low_priority);
 				}
+
+				Zero(private_ip_str, sizeof(private_ip_str));
+				if (IsZeroIp(&r->My_Private_IP_Safe) == false)
+				{
+					IPToStr(private_ip_str, sizeof(private_ip_str), &r->My_Private_IP_Safe);
+					PackAddStr(p, "private_ip", private_ip_str);
+				}
+
+				PackAddInt(p, "private_port", r->UdpSock->LocalPort);
+
+				Zero(hash, sizeof(hash));
+				GetCurrentMachineIpProcessHash(hash);
+				BinToStr(machine_key, sizeof(machine_key), hash, sizeof(hash));
+				PackAddStr(p, "machine_key", machine_key);
+
+				Zero(machine_name, sizeof(machine_name));
+				GetMachineName(machine_name, sizeof(machine_name));
+				PackAddStr(p, "host_name", machine_name);
+				PackAddStr(p, "ddns_fqdn", ddns_fqdn);
+
+				b = PackToBuf(p);
+				FreePack(p);
+
+				RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, b->Buf, b->Size, 0);
+				//RUDPSendPacket(r, &r->NatT_IP_Safe, UDP_NAT_T_PORT, "a", 1);
+
+				FreeBuf(b);
+
+				// Determine the next acquisition time
+				r->NatT_RegisterFailNum++;
+				r->NatT_RegisterNextTick = r->Now + (UINT64)UDP_NAT_T_REGISTER_INTERVAL_INITIAL * (UINT64)MIN(r->NatT_RegisterFailNum, UDP_NAT_T_REGISTER_INTERVAL_FAIL_MAX);
+				AddInterrupt(r->Interrupt, r->NatT_RegisterNextTick);
+				r->NatT_Register_Ok = false;
 			}
 		}
 	}
