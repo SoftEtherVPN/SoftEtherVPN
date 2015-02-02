@@ -4576,6 +4576,18 @@ bool GetMyPrivateIP(IP *ip, bool from_vg)
 
 	return true;
 }
+char *GetRandHostNameForGetMyPrivateIP()
+{
+	char *hosts[] =
+	{
+		"www.microsoft.com",
+		"www.yahoo.com",
+		"www.bing.com",
+	};
+	UINT num_hosts = 3;
+
+	return hosts[Rand32() % num_hosts];
+}
 
 // Function to wait until changing any IP address of the host or expiring the specified time or waking the event
 void WaitUntilHostIPAddressChanged(void *p, EVENT *event, UINT timeout, UINT ip_check_interval)
