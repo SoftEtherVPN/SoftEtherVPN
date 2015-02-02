@@ -1061,6 +1061,7 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	SERVER *s;
 	UINT syslog_setting;
 	bool no_log = false;
+	HUB_OPTION *opt = NULL;
 	// Validate arguments
 	if (hub == NULL || src_session == NULL || packet == NULL)
 	{
@@ -1080,6 +1081,8 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	{
 		return true;
 	}
+
+	opt = hub->Option;
 
 	// Determine the logging level
 	level = CalcPacketLoggingLevel(hub, packet);
@@ -1153,6 +1156,21 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	else
 	{
 		pl->DestSessionName = CopyStr("");
+	}
+
+	if (opt == NULL || opt->NoPhysicalIPOnPacketLog == false)
+	{
+		if (src_session != NULL && src_session->NormalClient)
+		{
+			StrCpy(pl->SrcPhysicalIP, sizeof(pl->SrcPhysicalIP), src_session->ClientIP);
+		}
+
+		if (dest_session != NULL && dest_session->NormalClient)
+		{
+			StrCpy(pl->DestPhysicalIP, sizeof(pl->DestPhysicalIP), dest_session->ClientIP);
+		}
+
+		pl->WritePhysicalIP = true;
 	}
 
 	if (src_session->LoggingRecordCount != NULL)
@@ -1493,6 +1511,10 @@ char *PacketLogParseProc(RECORD *rec)
 	// Generate each part
 	t = ZeroMalloc(sizeof(TOKEN_LIST));
 	t->NumTokens = 16;
+	if (pl->WritePhysicalIP)
+	{
+		t->NumTokens += 2;
+	}
 	t->Token = ZeroMalloc(sizeof(char *) * t->NumTokens);
 
 	// Source session
@@ -2027,6 +2049,16 @@ char *PacketLogParseProc(RECORD *rec)
 			char *data = Malloc(p->PacketSize * 2 + 1);
 			BinToStr(data, p->PacketSize * 2 + 1, p->PacketData, p->PacketSize);
 			t->Token[15] = data;
+		}
+
+		// Physical IP addresses
+		if (StrLen(pl->SrcPhysicalIP) != 0)
+		{
+			t->Token[16] = CopyStr(pl->SrcPhysicalIP);
+		}
+		if (StrLen(pl->DestPhysicalIP) != 0)
+		{
+			t->Token[17] = CopyStr(pl->DestPhysicalIP);
 		}
 	}
 	else

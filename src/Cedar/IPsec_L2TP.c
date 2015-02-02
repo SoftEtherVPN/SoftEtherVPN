@@ -1539,7 +1539,7 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 				UINT client_assigned_id = (pp->Ver == 3 ? READ_UINT(a->Data) : READ_USHORT(a->Data));
 				if (GetTunnelFromIdOfAssignedByClient(l2tp, &p->SrcIP, client_assigned_id) == NULL)
 				{
-					if (LIST_NUM(l2tp->TunnelList) < L2TP_QUOTA_MAX_NUM_TUNNELS && GetNumL2TPTunnelsByClientIP(l2tp, &p->SrcIP) >= L2TP_QUOTA_MAX_NUM_TUNNELS_PER_IP)
+					if (LIST_NUM(l2tp->TunnelList) < L2TP_QUOTA_MAX_NUM_TUNNELS && GetNumL2TPTunnelsByClientIP(l2tp, &p->SrcIP) < L2TP_QUOTA_MAX_NUM_TUNNELS_PER_IP)
 					{
 						char ipstr[MAX_SIZE];
 						L2TP_PACKET *pp2;

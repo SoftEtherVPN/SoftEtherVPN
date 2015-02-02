@@ -188,6 +188,7 @@ struct SESSION
 	bool InProcMode;				// In-process mode
 	THREAD *Thread;					// Management thread
 	CONNECTION *Connection;			// Connection
+	char ClientIP[64];				// Client IP
 	CLIENT_OPTION *ClientOption;	// Client connection options
 	CLIENT_AUTH *ClientAuth;		// Client authentication data
 	volatile bool Halt;				// Halting flag

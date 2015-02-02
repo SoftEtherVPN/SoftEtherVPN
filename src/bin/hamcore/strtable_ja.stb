@@ -575,6 +575,7 @@ HUB_AO_FloodingSendQueueBufferQuota			パケットの仮想 HUB 内における�
 HUB_AO_AssignVLanIdByRadiusAttribute		VLAN ID の動的割り当て機能を有効にします。VPN 接続するユーザーオブジェクトのセキュリティポリシーに VLAN ID が指定されていない場合は、各 VPN セッションはユーザー認証を行った RADIUS サーバーから返却される RADIUS 属性の値に基づき VLAN が割当てられます。RADIUS 属性のうち、 "Tunnel-Pvt-Group-ID" (ID = 81) の値が使用されます。データ型は文字列である必要があります。
 HUB_AO_SecureNAT_RandomizeAssignIp			この項目が 1 (有効) の場合は、SecureNAT 機能における仮想 DHCP サーバーは、DHCP クライアントに対して割当てる IP アドレスを指定された IP アドレスプール内の未使用アドレスからランダムに選択するようになります。なお、既定の動作は、未使用アドレスのうち最初のアドレスを割当てるようになっています。
 HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指定された秒数無通信であった VPN セッションをドーマント状態 (休止状態) として識別します。ドーマント状態の VPN セッションに対しては、仮想 HUB 内でフラッディングされるべきパケットがフラッディングされなくなります。
+HUB_AO_NoPhysicalIPOnPacketLog				この項目が 0 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
 
 
 # Caps 関係
@@ -1453,24 +1454,24 @@ SM_SESS_STATUS_REALUSER	ユーザー名 (データベース)
 SM_SESS_STATUS_GROUPNAME	グループ名
 SM_CLIENT_IP			クライアント IP アドレス
 SM_CLIENT_HOSTNAME		クライアントホスト名
-SM_NODE_CLIENT_NAME		クライアント製品名
-SM_NODE_CLIENT_VER		クライアントバージョン
-SM_NODE_CLIENT_BUILD	クライアントビルド番号
-SM_NODE_SERVER_NAME		サーバー製品名
-SM_NODE_SERVER_VER		サーバーバージョン
-SM_NODE_SERVER_BUILD	サーバービルド番号
-SM_NODE_CLIENT_OS_NAME	クライアント OS 名
-SM_NODE_CLIENT_OS_VER	クライアント OS バージョン
-SM_NODE_CLIENT_OS_PID	クライアント OS プロダクト ID
-SM_NODE_CLIENT_HOST		クライアントホスト名
-SM_NODE_CLIENT_IP		クライアント IP アドレス
-SM_NODE_CLIENT_PORT		クライアントポート番号
-SM_NODE_SERVER_HOST		サーバーホスト名
-SM_NODE_SERVER_IP		サーバー IP アドレス
-SM_NODE_SERVER_PORT		サーバーポート番号
-SM_NODE_PROXY_HOSTNAME	経由プロキシホスト名
-SM_NODE_PROXY_IP		経由プロキシ IP アドレス
-SM_NODE_PROXY_PORT		経由プロキシポート番号
+SM_NODE_CLIENT_NAME		クライアント製品名 (申告)
+SM_NODE_CLIENT_VER		クライアントバージョン (申告)
+SM_NODE_CLIENT_BUILD	クライアントビルド番号 (申告)
+SM_NODE_SERVER_NAME		サーバー製品名 (申告)
+SM_NODE_SERVER_VER		サーバーバージョン (申告)
+SM_NODE_SERVER_BUILD	サーバービルド番号 (申告)
+SM_NODE_CLIENT_OS_NAME	クライアント OS 名 (申告)
+SM_NODE_CLIENT_OS_VER	クライアント OS バージョン (申告)
+SM_NODE_CLIENT_OS_PID	クライアント OS プロダクト ID (申告)
+SM_NODE_CLIENT_HOST		クライアントホスト名 (申告)
+SM_NODE_CLIENT_IP		クライアント IP アドレス (申告)
+SM_NODE_CLIENT_PORT		クライアントポート番号 (申告)
+SM_NODE_SERVER_HOST		サーバーホスト名 (申告)
+SM_NODE_SERVER_IP		サーバー IP アドレス (申告)
+SM_NODE_SERVER_PORT		サーバーポート番号 (申告)
+SM_NODE_PROXY_HOSTNAME	経由プロキシホスト名 (申告)
+SM_NODE_PROXY_IP		経由プロキシ IP アドレス (申告)
+SM_NODE_PROXY_PORT		経由プロキシポート番号 (申告)
 SM_MAC_COLUMN_1			セッション名
 SM_MAC_COLUMN_2			MAC アドレス
 SM_MAC_COLUMN_3			作成時刻

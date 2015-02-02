@@ -278,6 +278,7 @@ struct HUB_OPTION
 	bool AssignVLanIdByRadiusAttribute;	// Assign the VLAN ID for the VPN session, by the attribute value of RADIUS
 	bool SecureNAT_RandomizeAssignIp;	// Randomize the assignment IP address for new DHCP client
 	UINT DetectDormantSessionInterval;	// Interval (seconds) threshold to detect a dormant VPN session
+	bool NoPhysicalIPOnPacketLog;		// Disable saving physical IP address on the packet log
 };
 
 // MAC table entry

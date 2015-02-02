@@ -130,6 +130,9 @@ struct PACKET_LOG
 	struct PKT *Packet;
 	char *SrcSessionName;
 	char *DestSessionName;
+	bool WritePhysicalIP;
+	char SrcPhysicalIP[64];
+	char DestPhysicalIP[64];
 	bool PurePacket;						// Packet not cloned
 	bool PurePacketNoPayload;				// Packet not cloned (without payload)
 	SESSION *SrcSession;
