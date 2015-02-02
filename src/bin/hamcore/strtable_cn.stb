@@ -560,6 +560,7 @@ HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in byt
 HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
 HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, then the Virtual DHCP Server of the SecureNAT function will choose an unused IP address randomly from the DHCP pool while the default behavior is to choose the first unused IP address.
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
+HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
 
 
 #关于失败连接对话框
@@ -1459,24 +1460,24 @@ SM_SESS_STATUS_REALUSER		用户名 (数据库)
 SM_SESS_STATUS_GROUPNAME	用户組名
 SM_CLIENT_IP				客户端 IP 地址
 SM_CLIENT_HOSTNAME			客户端名称
-SM_NODE_CLIENT_NAME			客户端产品名称
-SM_NODE_CLIENT_VER			客户端版本
-SM_NODE_CLIENT_BUILD		客户端内部标号
-SM_NODE_SERVER_NAME			服务端产品名
-SM_NODE_SERVER_VER			服务端版本
-SM_NODE_SERVER_BUILD		服务端内部标号
-SM_NODE_CLIENT_OS_NAME		客户端操作系统名称
-SM_NODE_CLIENT_OS_VER		客户端操作系统版本
-SM_NODE_CLIENT_OS_PID		客户端操作系统产品编号
-SM_NODE_CLIENT_HOST			客户端主机名
-SM_NODE_CLIENT_IP			客户端 IP 地址
-SM_NODE_CLIENT_PORT			客户端端口
-SM_NODE_SERVER_HOST			服务器主机名称
-SM_NODE_SERVER_IP			服务器 IP 地址
-SM_NODE_SERVER_PORT			服务器端口
-SM_NODE_PROXY_HOSTNAME		代理主机名称
-SM_NODE_PROXY_IP			代理 IP 地址
-SM_NODE_PROXY_PORT			代理端口
+SM_NODE_CLIENT_NAME			客户端产品名称 (报告的)
+SM_NODE_CLIENT_VER			客户端版本 (报告的)
+SM_NODE_CLIENT_BUILD		客户端内部标号 (报告的)
+SM_NODE_SERVER_NAME			服务端产品名 (报告的)
+SM_NODE_SERVER_VER			服务端版本 (报告的)
+SM_NODE_SERVER_BUILD		服务端内部标号 (报告的)
+SM_NODE_CLIENT_OS_NAME		客户端操作系统名称 (报告的)
+SM_NODE_CLIENT_OS_VER		客户端操作系统版本 (报告的)
+SM_NODE_CLIENT_OS_PID		客户端操作系统产品编号 (报告的)
+SM_NODE_CLIENT_HOST			客户端主机名 (报告的)
+SM_NODE_CLIENT_IP			客户端 IP 地址 (报告的)
+SM_NODE_CLIENT_PORT			客户端端口 (报告的)
+SM_NODE_SERVER_HOST			服务器主机名称 (报告的)
+SM_NODE_SERVER_IP			服务器 IP 地址 (报告的)
+SM_NODE_SERVER_PORT			服务器端口 (报告的)
+SM_NODE_PROXY_HOSTNAME		代理主机名称 (报告的)
+SM_NODE_PROXY_IP			代理 IP 地址 (报告的)
+SM_NODE_PROXY_PORT			代理端口 (报告的)
 SM_MAC_COLUMN_1				会话名
 SM_MAC_COLUMN_2				MAC 地址
 SM_MAC_COLUMN_3				创建时间

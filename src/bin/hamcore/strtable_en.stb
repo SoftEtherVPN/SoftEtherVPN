@@ -554,6 +554,8 @@ HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in byt
 HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
 HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, then the Virtual DHCP Server of the SecureNAT function will choose an unused IP address randomly from the DHCP pool while the default behavior is to choose the first unused IP address.
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
+HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
+
 
 # Concerning failed connection dialogs
 ERRDLG_ERRMSG			Error (Error Code %u):\r\n%s\r\n
@@ -1448,24 +1450,24 @@ SM_SESS_STATUS_REALUSER	User Name (Database)
 SM_SESS_STATUS_GROUPNAME	Group Name
 SM_CLIENT_IP			Client IP Address
 SM_CLIENT_HOSTNAME		Client Host Name
-SM_NODE_CLIENT_NAME		Client Product Name
-SM_NODE_CLIENT_VER		Client Version
-SM_NODE_CLIENT_BUILD	Client Build
-SM_NODE_SERVER_NAME		Server Product Name
-SM_NODE_SERVER_VER		Server Version
-SM_NODE_SERVER_BUILD	Server Build
-SM_NODE_CLIENT_OS_NAME	Client OS Name
-SM_NODE_CLIENT_OS_VER	Client OS Version
-SM_NODE_CLIENT_OS_PID	Client OS Product ID
-SM_NODE_CLIENT_HOST		Client Host Name
-SM_NODE_CLIENT_IP		Client IP Address 
-SM_NODE_CLIENT_PORT		Client Port
-SM_NODE_SERVER_HOST		Server Host Name
-SM_NODE_SERVER_IP		Server IP Address
-SM_NODE_SERVER_PORT		Server Port
-SM_NODE_PROXY_HOSTNAME	Proxy Host Name
-SM_NODE_PROXY_IP		Proxy IP Address
-SM_NODE_PROXY_PORT		Proxy Port
+SM_NODE_CLIENT_NAME		Client Product Name (Reported)
+SM_NODE_CLIENT_VER		Client Version (Reported)
+SM_NODE_CLIENT_BUILD	Client Build (Reported)
+SM_NODE_SERVER_NAME		Server Product Name (Reported)
+SM_NODE_SERVER_VER		Server Version (Reported)
+SM_NODE_SERVER_BUILD	Server Build (Reported)
+SM_NODE_CLIENT_OS_NAME	Client OS Name (Reported)
+SM_NODE_CLIENT_OS_VER	Client OS Version (Reported)
+SM_NODE_CLIENT_OS_PID	Client OS Product ID (Reported)
+SM_NODE_CLIENT_HOST		Client Host Name (Reported)
+SM_NODE_CLIENT_IP		Client IP Address  (Reported)
+SM_NODE_CLIENT_PORT		Client Port (Reported)
+SM_NODE_SERVER_HOST		Server Host Name (Reported)
+SM_NODE_SERVER_IP		Server IP Address (Reported)
+SM_NODE_SERVER_PORT		Server Port (Reported)
+SM_NODE_PROXY_HOSTNAME	Proxy Host Name (Reported)
+SM_NODE_PROXY_IP		Proxy IP Address (Reported)
+SM_NODE_PROXY_PORT		Proxy Port (Reported)
 SM_MAC_COLUMN_1			Session Name
 SM_MAC_COLUMN_2			MAC Address
 SM_MAC_COLUMN_3			Created at

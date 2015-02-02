@@ -2911,6 +2911,8 @@ bool ServerAccept(CONNECTION *c)
 			s->LocalHostSession = local_host_session;
 			s->NormalClient = true;
 
+			IPToStr(s->ClientIP, sizeof(s->ClientIP), &c->ClientIp);
+
 			if (c->FirstSock->IsRUDPSocket)
 			{
 				// R-UDP session

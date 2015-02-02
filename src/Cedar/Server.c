@@ -4105,6 +4105,7 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->AssignVLanIdByRadiusAttribute = CfgGetBool(f, "AssignVLanIdByRadiusAttribute");
 	o->SecureNAT_RandomizeAssignIp = CfgGetBool(f, "SecureNAT_RandomizeAssignIp");
 	o->DetectDormantSessionInterval = CfgGetInt(f, "DetectDormantSessionInterval");
+	o->NoPhysicalIPOnPacketLog = CfgGetBool(f, "NoPhysicalIPOnPacketLog");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4182,6 +4183,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	CfgAddBool(f, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
 	CfgAddBool(f, "SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp);
+	CfgAddBool(f, "NoPhysicalIPOnPacketLog", o->NoPhysicalIPOnPacketLog);
 	CfgAddInt(f, "DetectDormantSessionInterval", o->DetectDormantSessionInterval);
 	CfgAddBool(f, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
 	CfgAddInt(f, "AdjustTcpMssValue", o->AdjustTcpMssValue);
@@ -7487,6 +7489,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.SecureNAT_RandomizeAssignIp = PackGetBool(p, "SecureNAT_RandomizeAssignIp");
 	o.DetectDormantSessionInterval = PackGetInt(p, "DetectDormantSessionInterval");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
+	o.NoPhysicalIPOnPacketLog = PackGetBool(p, "NoPhysicalIPOnPacketLog");
 	if (o.VlanTypeId == 0)
 	{
 		o.VlanTypeId = MAC_PROTO_TAGVLAN;
@@ -9328,6 +9331,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "AssignVLanIdByRadiusAttribute", h->Option->AssignVLanIdByRadiusAttribute);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
 	PackAddBool(p, "SecureNAT_RandomizeAssignIp", h->Option->SecureNAT_RandomizeAssignIp);
+	PackAddBool(p, "NoPhysicalIPOnPacketLog", h->Option->NoPhysicalIPOnPacketLog);
 	PackAddInt(p, "DetectDormantSessionInterval", h->Option->DetectDormantSessionInterval);
 	PackAddBool(p, "FixForDLinkBPDU", h->Option->FixForDLinkBPDU);
 	PackAddBool(p, "BroadcastLimiterStrictMode", h->Option->BroadcastLimiterStrictMode);
