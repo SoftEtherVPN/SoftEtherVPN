@@ -7045,6 +7045,8 @@ SW_INSTALLER_CACHE_IS_NOT_SIGNED	目前已安装 SoftEther VPN Client 的这台�
 SW_FILE_NOT_FOUNT					没有找到文件 "%s"
 SW_WEB_FINISHED						Web安装工具已创建，并保存为 "%s"。\r\n\r\n请将 ZIP 文件解压缩，并将解压后的文件上传到 Web 服务器，编辑一个HTML文件和一个 inf 文件来适当替换URL。\r\n\r\n部署 Web 安装程序的解释说明在ZIP文件中描述。
 
+SW_VG_CONFIRM_MSG					您想用 SoftEther VPN 客户端安装并激活 VPN Gate P2P 中继功能的插件吗 ?\r\n\r\n本插件可以规避官方防火墙的限制实现通信的稳定性。同时 VPN Gate 的通信经常会消耗一定的网络带宽。所以不推荐在移动连接上使用 VPN Gate。\r\n\r\n请注意，一些国家和地区有规定禁止加密通信绕过官方防火墙。在这种情况下，请您不要在您的计算机上使用 VPN Gate 功能。VPN Gate 主要在日本使用。VPN Gate 仅仅是一个学术研究项目。VPN Gate 受日本法律管辖。使用此软件和服务期间，请您遵守本国相关的法律法规，这是您自己的责任。您将完全承担使用此软件和服务造成的任何损失和责任，不管在日本境内还是境外。
+
 
 
 
