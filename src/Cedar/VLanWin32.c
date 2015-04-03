@@ -1269,6 +1269,8 @@ PACKET_ADAPTER *VLanGetPacketAdapter()
 		return NULL;
 	}
 
+	pa->Id = PACKET_ADAPTER_ID_VLAN_WIN32;
+
 	return pa;
 }
 

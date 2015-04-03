@@ -138,7 +138,7 @@
 #define	CEDAR_VER					415
 
 // Build Number
-#define	CEDAR_BUILD					9538
+#define	CEDAR_BUILD					9539
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -158,11 +158,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		3
-#define	BUILD_DATE_D		27
-#define	BUILD_DATE_HO		19
-#define	BUILD_DATE_MI		32
-#define	BUILD_DATE_SE		50
+#define	BUILD_DATE_M		4
+#define	BUILD_DATE_D		4
+#define	BUILD_DATE_HO		0
+#define	BUILD_DATE_MI		11
+#define	BUILD_DATE_SE		55
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -941,6 +941,7 @@
 #define	ERR_VPNGATE_CLIENT				145 // Operation on VPN Gate Client is not available
 #define	ERR_VPNGATE_INCLIENT_CANT_STOP	146	// Can not be stopped if operating within VPN Client mode
 #define	ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE	147	// It is a feature that is not supported in the open source version
+#define	ERR_SUSPENDING					148	// System is suspending
 
 
 ////////////////////////////

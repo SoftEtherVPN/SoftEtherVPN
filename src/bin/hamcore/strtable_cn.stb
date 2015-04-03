@@ -213,6 +213,7 @@ ERR_144						不可接受的操作。使用 VPN Gate 控制面板更改 VPN Gate
 ERR_145						不可接受的操作。使用 VPN Gate 实用工具修改 VPN Gate 公共 VPN 中继服务器的连接设置。
 ERR_146						VPN Gate 服务运行在 VPN 客户端程序内。在此屏幕上，你不能停止 VPN Gate 服务。使用 VPN 客户端管理器来启用或禁用 VPN Gate 服务。
 ERR_147						不支持此功能。它尚未在 SoftEther VPN 的开源版本上实施。
+ERR_148						VPN 连接被中断，因为该系统被暂停。
 
 
 #关于许可证
