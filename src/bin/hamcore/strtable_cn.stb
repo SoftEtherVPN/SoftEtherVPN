@@ -213,6 +213,7 @@ ERR_144						不可接受的操作。使用 VPN Gate 控制面板更改 VPN Gate
 ERR_145						不可接受的操作。使用 VPN Gate 实用工具修改 VPN Gate 公共 VPN 中继服务器的连接设置。
 ERR_146						VPN Gate 服务运行在 VPN 客户端程序内。在此屏幕上，你不能停止 VPN Gate 服务。使用 VPN 客户端管理器来启用或禁用 VPN Gate 服务。
 ERR_147						不支持此功能。它尚未在 SoftEther VPN 的开源版本上实施。
+ERR_148						VPN 连接被中断，因为该系统被暂停。
 
 
 #关于许可证
@@ -7044,6 +7045,8 @@ SW_WEB_ERROR_MSG					VPN Client Web 安装工具创建失败。
 SW_INSTALLER_CACHE_IS_NOT_SIGNED	目前已安装 SoftEther VPN Client 的这台电脑没有安 SoftEther 公司签署 Authenticode 数字证书的数字签名包。\r\n它有可能是从一个客户定制的安装工具上安装的(例如：简单安装程序生成器制造的一个安装程序。)\r\n\r\n如果您继续创建 Web 安装工具，当下载的时候，会在用户界面上出现一个警示信息。\r\n为避免出现警示信息，您需要取消本创建向导，从 SoftEther 公司官网下载最新版本的 SoftEther VPN Client，重新安装并开启本 Web 安装工具创建器向导。\r\n\r\n你确定要继续创建一个 Web 安装工具吗？
 SW_FILE_NOT_FOUNT					没有找到文件 "%s"
 SW_WEB_FINISHED						Web安装工具已创建，并保存为 "%s"。\r\n\r\n请将 ZIP 文件解压缩，并将解压后的文件上传到 Web 服务器，编辑一个HTML文件和一个 inf 文件来适当替换URL。\r\n\r\n部署 Web 安装程序的解释说明在ZIP文件中描述。
+
+SW_VG_CONFIRM_MSG					您想用 SoftEther VPN 客户端安装并激活 VPN Gate P2P 中继功能的插件吗 ?\r\n\r\n本插件可以规避官方防火墙的限制实现通信的稳定性。同时 VPN Gate 的通信经常会消耗一定的网络带宽。所以不推荐在移动连接上使用 VPN Gate。\r\n\r\n请注意，一些国家和地区有规定禁止加密通信绕过官方防火墙。在这种情况下，请您不要在您的计算机上使用 VPN Gate 功能。VPN Gate 主要在日本使用。VPN Gate 仅仅是一个学术研究项目。VPN Gate 受日本法律管辖。使用此软件和服务期间，请您遵守本国相关的法律法规，这是您自己的责任。您将完全承担使用此软件和服务造成的任何损失和责任，不管在日本境内还是境外。
 
 
 

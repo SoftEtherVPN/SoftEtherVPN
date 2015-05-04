@@ -503,6 +503,7 @@ struct CLIENT
 	bool NoSaveLog;							// Do not save the log
 	bool NoSaveConfig;						// Do not save the settings
 	INTERNET_SETTING CommonProxySetting;	// Common proxy settings
+	void *MsSuspendHandler;					// MS suspend handler
 
 };
 

@@ -120,7 +120,7 @@
 #define WINUI_PASSWORD_NULL_USERNAME				"NULL"
 
 #define WINUI_DEFAULT_DIALOG_UNIT_X					7
-#define WINUI_DEFAULT_DIALOG_UNIT_Y					12
+#define WINUI_DEFAULT_DIALOG_UNIT_Y					14
 
 // Make available the types for Windows even if windows.h is not included
 #ifndef	_WINDEF_

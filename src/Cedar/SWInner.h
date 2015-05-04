@@ -344,6 +344,7 @@ typedef struct SW
 	bool IsEasyInstaller;				// Whether the calling SFX was built by the simple installer creation kit
 	bool IsWebInstaller;				// Whether Web installer
 	bool DisableAutoImport;				// Not to use the automatic import process
+	bool SuInstMode;					// SuInst mode
 	UINT CurrentEulaHash;				// Hash of the license agreement
 } SW;
 

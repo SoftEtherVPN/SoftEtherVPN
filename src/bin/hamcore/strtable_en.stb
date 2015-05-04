@@ -210,6 +210,7 @@ ERR_144					Unacceptable operation. Use the VPN Gate Control Panel to change the
 ERR_145					Unacceptable operation. Use the VPN Gate Utility to modify the connection setting for VPN Gate Public VPN Relay Servers.
 ERR_146					The VPN Gate Service is running inside the VPN Client program. You cannot stop the VPN Gate Service on this screen. Use the VPN Client Manager to enable or disable the VPN Gate Service.
 ERR_147					This feature is not supported. It hasn't been implemented yet on the open-source version of SoftEther VPN.
+ERR_148					The VPN connection was disconnected because the system is being suspended.
 
 # Concerning licenses
 LICENSE_INFO_URL		https://selinks.org/?new_license
@@ -7037,6 +7038,8 @@ SW_WEB_ERROR_MSG							Failed to create a VPN Client Web Installer.
 SW_INSTALLER_CACHE_IS_NOT_SIGNED			The currently installed SoftEther VPN Client of this computer has not been installed from the digital-signed package signed by an Authenticode digital certificate of SoftEther VPN Project.\r\nIt might be installed from a customized installer (for example, an installer created by Easy Installer Creator.)\r\n\r\nIf you continue to create a Web Installer, a warning message will be appeared on the user's screen when its loading.\r\nTo avoid showing the warning message, you should cancel this creating wizard, download the latest version of SoftEther VPN Client from the SoftEther VPN Project's web site, re-install it and restart the Web Installer Creator wizard.\r\n\r\nDo you really to continue to create a Web Installer?
 SW_FILE_NOT_FOUNT							The file "%s" not found.
 SW_WEB_FINISHED								The Web Installer is created and saved as "%s".\r\n\r\nPlease extract inner files from the ZIP file, upload them into the Web server, and edit a HTML file and an inf file to replace URLs appropriately.\r\n\r\nThe explanation to deploy the Web Installer is described on the ZIP file.
+
+SW_VG_CONFIRM_MSG							Do you really want to install and activate the VPN Gate P2P Relay Function plug-in module with SoftEther VPN Client?\r\n\r\nThis plug-in will realize the stability of communication to bypass the government censorship firewall. However, the communication of VPN Gate usually consumes some network bandwidth. VPN Gate is not recommended to be used in the mobile connections. \r\n\r\nPlease note that there are some countries and regions which have the regulation to forbid the encrypted communications to bypass government censorship firewalls. In such a case, you must not use the VPN Gate functions on your computer. VPN Gate is intended to be used mainly in Japan. VPN Gate is a research project for just academic purpose only. VPN Gate is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities. By using this software and service, you must observe all concerned laws and rules with your own responsibility. You will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.
 
 
 

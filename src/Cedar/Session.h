@@ -167,7 +167,12 @@ struct PACKET_ADAPTER
 	PA_PUTPACKET *PutPacket;
 	PA_FREE *Free;
 	void *Param;
+	UINT Id;
 };
+
+// Packet Adapter IDs
+#define	PACKET_ADAPTER_ID_VLAN_WIN32		1
+
 
 // Session structure
 struct SESSION
@@ -262,6 +267,7 @@ struct SESSION
 	UINT64 CurrentConnectionEstablishTime;	// Completion time of this connection
 	UINT NumConnectionsEatablished;	// Number of connections established so far
 	UINT AdjustMss;					// MSS adjustment value
+	bool IsVPNClientAndVLAN_Win32;	// Is the VPN Client session with a VLAN card (Win32)
 
 	bool IsRUDPSession;				// Whether R-UDP session
 	UINT RUdpMss;					// The value of the MSS should be applied while the R-UDP is used

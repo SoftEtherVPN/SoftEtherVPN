@@ -215,6 +215,9 @@ static HANDLE hLsa = NULL;
 static ULONG lsa_package_id = 0;
 static TOKEN_SOURCE lsa_token_source;
 static LOCK *vlan_lock = NULL;
+static COUNTER *suspend_handler_singleton = NULL;
+static COUNTER *vlan_card_counter = NULL;
+static volatile BOOL vlan_card_should_stop_flag = false;
 
 // msi.dll
 static HINSTANCE hMsi = NULL;
@@ -5767,6 +5770,229 @@ void MsGenerateUserModeSvcGlobalPulseName(char *name, UINT size, char *svc_name)
 	HashSha1(hash, tmp, UniStrLen(tmp) * sizeof(wchar_t));
 
 	BinToStr(name, size, hash, sizeof(hash));
+}
+
+// Declare the beginning of use of a VLAN card
+void MsBeginVLanCard()
+{
+	Inc(vlan_card_counter);
+}
+
+// Declare the ending of use of a VLAN card
+void MsEndVLanCard()
+{
+	Dec(vlan_card_counter);
+}
+
+// Return the flag whether the VLAN cards must be stopped
+bool MsIsVLanCardShouldStop()
+{
+	return vlan_card_should_stop_flag;
+}
+
+// Suspend procs
+void MsProcEnterSuspend()
+{
+	UINT64 giveup_tick = Tick64() + 2000;
+	UINT num = 0;
+
+	vlan_card_should_stop_flag = true;
+
+	while (true)
+	{
+		UINT64 now = Tick64();
+
+		if (now >= giveup_tick)
+		{
+			break;
+		}
+
+		if (Count(vlan_card_counter) == 0)
+		{
+			break;
+		}
+		num++;
+
+		SleepThread(100);
+	}
+
+	if (num >= 1)
+	{
+		SleepThread(512);
+	}
+}
+void MsProcLeaveSuspend()
+{
+	vlan_card_should_stop_flag = false;
+}
+
+// Suspend handler window proc
+LRESULT CALLBACK MsSuspendHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	MS_SUSPEND_HANDLER *h;
+	CREATESTRUCT *cs;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	h = (MS_SUSPEND_HANDLER *)GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+	if (h == NULL && msg != WM_CREATE)
+	{
+		goto LABEL_END;
+	}
+
+	switch (msg)
+	{
+	case WM_CREATE:
+		cs = (CREATESTRUCT *)lParam;
+		h = (MS_SUSPEND_HANDLER *)cs->lpCreateParams;
+		SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR)h);
+		break;
+
+	case WM_POWERBROADCAST:
+		switch (wParam)
+		{
+		case PBT_APMSUSPEND:
+			MsProcEnterSuspend();
+			return 1;
+
+		case PBT_APMRESUMEAUTOMATIC:
+		case PBT_APMRESUMESUSPEND:
+			MsProcLeaveSuspend();
+			return 1;
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		/*
+		MsProcEnterSuspend();
+		MsgBox(hWnd, 0, L"TEST");
+		MsProcLeaveSuspend();*/
+		break;
+
+	case WM_CLOSE:
+		/*if (h->AboutToClose == false)
+		{
+			return 0;
+		}*/
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	}
+
+LABEL_END:
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+// Suspend handler thread
+void MsSuspendHandlerThreadProc(THREAD *thread, void *param)
+{
+	char wndclass_name[MAX_PATH];
+	WNDCLASS wc;
+	HWND hWnd;
+	MSG msg;
+	MS_SUSPEND_HANDLER *h = (MS_SUSPEND_HANDLER *)param;
+	// Validate arguments
+	if (h == NULL || thread == NULL)
+	{
+		return;
+	}
+
+	Format(wndclass_name, sizeof(wndclass_name), "WNDCLASS_%X", Rand32());
+
+	Zero(&wc, sizeof(wc));
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = NULL;
+	wc.hInstance = ms->hInst;
+	wc.lpfnWndProc = MsSuspendHandlerWindowProc;
+	wc.lpszClassName = wndclass_name;
+	if (RegisterClassA(&wc) == 0)
+	{
+		NoticeThreadInit(thread);
+		return;
+	}
+
+	hWnd = CreateWindowA(wndclass_name, wndclass_name, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL, NULL, ms->hInst, h);
+
+	h->hWnd = hWnd;
+
+	NoticeThreadInit(thread);
+
+	if (hWnd == NULL)
+	{
+		UnregisterClassA(wndclass_name, ms->hInst);
+		return;
+	}
+
+	//ShowWindow(hWnd, SW_SHOWNORMAL);
+
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	vlan_card_should_stop_flag = false;
+
+	DestroyWindow(hWnd);
+
+	UnregisterClassA(wndclass_name, ms->hInst);
+}
+
+// New suspend handler
+MS_SUSPEND_HANDLER *MsNewSuspendHandler()
+{
+	THREAD *t;
+	MS_SUSPEND_HANDLER *h;
+
+	if (Inc(suspend_handler_singleton) >= 2)
+	{
+		Dec(suspend_handler_singleton);
+		return NULL;
+	}
+
+	h = ZeroMalloc(sizeof(MS_SUSPEND_HANDLER));
+
+	t = NewThread(MsSuspendHandlerThreadProc, h);
+
+	WaitThreadInit(t);
+
+	h->Thread = t;
+
+	vlan_card_should_stop_flag = false;
+
+	return h;
+}
+
+void MsFreeSuspendHandler(MS_SUSPEND_HANDLER *h)
+{
+	// Validate arguments
+	if (h == NULL)
+	{
+		return;
+	}
+
+	if (h->hWnd != NULL)
+	{
+		h->AboutToClose = true;
+		PostMessageA(h->hWnd, WM_CLOSE, 0, 0);
+	}
+
+	WaitThread(h->Thread, INFINITE);
+	ReleaseThread(h->Thread);
+
+	Free(h);
+
+	Dec(suspend_handler_singleton);
+
+	vlan_card_should_stop_flag = false;
 }
 
 // Start in user mode
@@ -14212,6 +14438,10 @@ void MsInit()
 		return;
 	}
 
+	suspend_handler_singleton = NewCounter();
+	vlan_card_counter = NewCounter();
+	vlan_card_should_stop_flag = false;
+
 	ms = ZeroMalloc(sizeof(MS));
 
 	// Getting instance handle
@@ -14685,6 +14915,13 @@ void MsFree()
 	// Delete the lock
 	DeleteLock(vlan_lock);
 	vlan_lock = NULL;
+
+	DeleteCounter(suspend_handler_singleton);
+	suspend_handler_singleton = NULL;
+
+	DeleteCounter(vlan_card_counter);
+	vlan_card_counter = NULL;
+	vlan_card_should_stop_flag = false;
 }
 
 // Directory acquisition related
