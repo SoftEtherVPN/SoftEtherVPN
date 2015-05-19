@@ -265,10 +265,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\icon3.ico"
-				>
-			</File>
-			<File
 				RelativePath=".\Information.ico"
 				>
 			</File>
@@ -310,10 +306,6 @@
 			</File>
 			<File
 				RelativePath=".\LANG_JAPANESE.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\LANG_TRADITIONAL_CHINESE.ico"
 				>
 			</File>
 			<File
