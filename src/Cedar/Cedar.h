@@ -148,21 +148,21 @@
 
 // Specify the name of the person in charge building
 #ifndef	BUILDER_NAME
-#define	BUILDER_NAME		"yagi"
+#define	BUILDER_NAME		"holoreimu"
 #endif	// BUILDER_NAME
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc30"
+#define	BUILD_PLACE			"holoreimu-pc"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		4
-#define	BUILD_DATE_D		5
-#define	BUILD_DATE_HO		2
-#define	BUILD_DATE_MI		54
-#define	BUILD_DATE_SE		8
+#define	BUILD_DATE_M		5
+#define	BUILD_DATE_D		19
+#define	BUILD_DATE_HO		20
+#define	BUILD_DATE_MI		55
+#define	BUILD_DATE_SE		36
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)

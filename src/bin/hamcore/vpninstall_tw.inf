@@ -1,0 +1,30 @@
+﻿# SoftEther VPN Client 自動安裝設定檔
+# (為了 VPN Client Web 安裝程式的樣品設定檔)
+# 
+# Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+# All Rights Reserved.
+# 
+# 製作簡易 Web 安裝程式的時候，請編輯這個檔的內容。
+# 
+# ※ 如果在這個檔內包含中文等的 2 位元組字元，
+#    字元編碼請使用 UTF-8。
+# 
+# 文字 "#" 在 (sharp) 開始的行是評語。
+
+
+# vpninstall.exe 版本號
+# (請在 vpninstall.exe 檔的 [屬性] 畫面確認。
+#  請在這裡輸入檔版本的末尾的 4 位元整數。)
+VpnInstallBuild				$VER_BUILD$
+VpnClientBuild				$VER_BUILD$
+
+
+# 有關Windows 事情的 VPN Client 包裝檔的資訊
+# ※ 請指定 Web 伺服器上的 URL。盤上的傳球名不能指定。
+VpnClientPath				http://example.com/any_folder/$PACKAGE_FILENAME$
+
+# 是不是要 VPN Client 的安裝完成緊接之後的動作方式 "簡單模式" 和 "標準模式" 的哪邊。
+# 寫 true 的話 "標準模式"，那個以外的情況成為 "簡單模式"。
+NormalMode					$NORMAL_MODE$
+
+

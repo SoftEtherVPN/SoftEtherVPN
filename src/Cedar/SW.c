@@ -1220,6 +1220,10 @@ UINT SwGetLangIcon(char *name)
 	{
 		ret = ICO_LANG_CHINESE;
 	}
+    else if (StrCmpi(name, "tw") == 0)
+	{
+		ret = ICO_LANG_TRADITIONAL_CHINESE;
+	}
 
 	return ret;
 }

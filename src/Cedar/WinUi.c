@@ -329,6 +329,10 @@ UINT UpdateNoticeDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 			{
 				font_name = "Microsoft YaHei";
 			}
+            else if (_GETLANG() == 3)
+            {
+                font_name = "Microsoft JhengHei";
+            }
 		}
 
 		SetFont(hWnd, S_INFO, GetFont(font_name, 11, false, false, false, false));
@@ -1666,6 +1670,10 @@ HFONT GetMeiryoFontEx2(UINT font_size, bool bold)
 	{
 		return GetFont("Microsoft YaHei", font_size, bold, false, false, false);
 	}
+    else if (_GETLANG() == 3)
+	{
+		return GetFont("Microsoft JhengHei", font_size, bold, false, false, false);
+	}
 	else
 	{
 		return GetFont(NULL, font_size, bold, false, false, false);
@@ -2252,6 +2260,11 @@ UINT KakushiDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *par
 			else if (_GETLANG() == 2)
 			{
 				SetFont(hWnd, S_INFO, GetFont("Microsoft YaHei", 11, false, false, false, false));
+				b = true;
+			}
+            else if (_GETLANG() == 3)
+			{
+				SetFont(hWnd, S_INFO, GetFont("Microsoft JhengHei", 11, false, false, false, false));
 				b = true;
 			}
 		}
@@ -2864,6 +2877,10 @@ HFONT GetDialogDefaultFontEx(bool meiryo)
 		if (_GETLANG() == 2)
 		{
 			default_font_name = "Microsoft YaHei";
+		}
+        if (_GETLANG() == 3)
+		{
+			default_font_name = "Microsoft JhengHei";
 		}
 		else
 		{
