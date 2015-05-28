@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+	<TITLE>VPN 클라이언트 Web 프로그램 설치 페이지 샘플</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<META http-equiv="Content-Language" content="ko">
+	<style type="text/css">
+	<!--
+BODY, TABLE, TR, TABLE, TD, H1, H2, H3, H4, P, LI, DIV
+{
+	font-family: "Arial", "Geneva", "Helvetica", "sans-serif", "Gulim", "MS PGothic", "MS UI Gothic", "Osaka";
+	font-size:small;
+	line-height:1.2em;
+}
+	-->
+	</style>
+</HEAD>
+<BODY>
+
+<h3>VPN 클라이언트 Web 프로그램 설치 페이지의 샘플 HTML 파일</h3>
+
+<p>이 HTML 파일은 샘플입니다. <br>
+"SoftEther VPN 클라이언트 Web 설치"프로그램을 이용하여 Web 프로그램을 만들려면 다음 사항과 본 HTML 파일의 내용 (HTML 소스 코드)를 참고하십시오. </p>
+<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse" bordercolor="#008000" id="table1">
+	<tr>
+		<td style="font-family: Consolas, Courier New, MS Gothic; font-size: 10pt">&lt;OBJECT ID=&quot;VpnWebInstaller&quot;<br>
+&nbsp;&nbsp;&nbsp; CLASSID=&quot;CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2&quot;<br>
+&nbsp;&nbsp;&nbsp; CODEBASE=&quot;vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerExeUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.exe</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerInfUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.inf</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;SettingUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/auto_setting.vpn</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;LanguageID&quot; VALUE=&quot;<b><font color="#008000">EN</font></b>&quot;&gt;<br>
+		&lt;/OBJECT&gt;</td>
+	</tr>
+</table>
+<p> VPN 클라이언트 Web 설치 프로그램을 호출하기위한 Web 페이지를 만들려면 Web 설치 프로그램을 실행하는 데 사용하는 ActiveX 컨트롤 및 해당 매개 변수를 지정하기 위해 HTML 파일에 위와 같은 코드를 삽입하십시오. </p>
+<p> 그 때, 상기 녹색 글꼴로 강조되는 부분을 설치하는 Web 서버 등의 환경에 맞추어 설정하십시오. <br>
+(위의 샘플의 상태로는 존재하지 않는 URL을 가리 키기 때문에 설치 프로그램이 제대로 작동하지 않습니다.) <br>
+<br>
+자세한 내용은 소프트웨어와 함께 제공되는 온라인 설명서 또는 <b> <a target="_blank" href="http://www.softether.org/"> http://www.softether.org/ </a> </b>을 확인하시기 바랍니다.<br>
+<br>
+<b><font color="#808000">※ 파라미터 &quot;SettingUrl&quot; 과 &quot;LanguageID&quot; 내용은 지정하지 않아도 작동합니다.</font></b></p>
+<p>　</p>
+
+
+<!-- 아래에 실제로 ActiveX 컨트롤을 포함 예입니다. -->
+<h3> 아래에 실제로 ActiveX 컨트롤을 포함 예입니다 </h3>
+<p>주의 : HTML 파일은 샘플이며 vpnweb.cab에 전달 된 매개 변수의 내용으로는 더미의 URL이 들어 있습니다. <br> 따라서 "VPN 연결의 시작"버튼을 클릭 한 경우에도 VPN 클라이언트 소프트웨어 설치 등의 작업이 시작되지 않습니다. </p>
+<table border="1" cellspacing="1" cellpadding="6" style="border-collapse: collapse" width="450" bordercolor="#808000" id="table2">
+	<tr>
+		<td align="center" valign="top">
+
+<OBJECT ID="VpnWebInstaller"
+	CLASSID="CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2"
+	CODEBASE="vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$">
+	<PARAM NAME="InstallerExeUrl" VALUE="http://example.com/any_folder/vpninstall.exe">
+	<PARAM NAME="InstallerInfUrl" VALUE="http://example.com/any_folder/vpninstall.inf">
+	<PARAM NAME="SettingUrl" VALUE="http://example.com/any_folder/auto_setting.vpn">
+	<PARAM NAME="LanguageID" VALUE="EN">
+</OBJECT>
+
+		</td>
+	</tr>
+</table>
+　<p> ※ 상기의 갈색 틀안에 VPN 클라이언트 Web 프로그램의 ActiveX 컨트롤이 표시되지 않는 경우, 동작 환경을 확인하십시오. 또한 Web 브라우저가 ActiveX 컨트롤을 받아들이 설정되어 있는지 확인하십시오. </p>
+
+
+<p>　</p>
+<p align="right"><i>Copyright (c) SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.</i></p>
+
+
+</BODY>
+</HTML>
