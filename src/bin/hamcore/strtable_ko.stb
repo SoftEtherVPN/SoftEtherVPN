@@ -149,7 +149,7 @@ ERR_77 지정된 X509 인증서 파일은 RSA 1024 bit, 1536 bit, 2048 bit, 3072
 ERR_78 SecureNAT 세션은 끊을 수 없습니다. 세션을 삭제하려면 SecureNAT 작동을 중지하십시오.
 ERR_79 SecureNAT 기능은 클러스터링 환경에서 사용할 수 없습니다.
 ERR_80 SecureNAT 기능이 작동하지 않습니다.
-ERR_81이 VPN Server에 연결 세션은 네트워크 관리자가 설치되어있는 방화벽 장치에 의해 차단되었습니다. 네트워크 관리자에게 문의하십시오.
+ERR_81 이 VPN Server에 연결 세션은 네트워크 관리자가 설치되어있는 방화벽 장치에 의해 차단되었습니다. 네트워크 관리자에게 문의하십시오.
 ERR_82 로컬 브리지 연결이 끊어 수 없습니다. 세션을 삭제하려면 로컬 브리지 기능을 중지하십시오.
 ERR_83 로컬 브리지 기능이 작동하지 않습니다.
 ERR_84 연결된 VPN Server는 로컬 브리지를 사용할 수 없습니다. 귀하의 VPN Server에서 로컬 브리지를 사용하기위한 설정 방법은 온라인 도움말 등을 참조하십시오.
@@ -170,7 +170,7 @@ ERR_98 라우팅 테이블 추가에 실패했습니다.
 ERR_99 라우팅 테이블의 삭제에 실패했습니다.
 ERR_100 지정된 라우팅 테이블이 이미 존재합니다.
 ERR_101 클라이언트와 서버 사이의 시계가 어긋나 있습니다. 시간 설정을 확인하십시오.
-ERR_102이 가상 레이어 3 스위치를 시작할 수 없습니다. \r\n\r\n 가상 레이어 3 스위치를 시작하려면 최소한 1 개의 가상 인터페이스가 가상 레이어 3 스위치에 정의되어 있어야합니다.
+ERR_102 이 가상 레이어 3 스위치를 시작할 수 없습니다. \r\n\r\n 가상 레이어 3 스위치를 시작하려면 최소한 1 개의 가상 인터페이스가 가상 레이어 3 스위치에 정의되어 있어야합니다.
 ERR_103 연결된 VPN Server 클라이언트 액세스 라이센스 개수가 부족합니다. 서버 관리자에게 문의하십시오.
 ERR_104 연결된 VPN Server의 브리지 라이센스가 부족합니다. 서버 관리자에게 문의하십시오.
 ERR_105 연결된 VPN Server는 현재 기술적 인 문제로 연결을 허용하지 않습니다. 잠시 기다리거나 VPN Server 관리자에게 문의하여 서버의 로그 파일을 확인하도록 요청하십시오.
@@ -189,14 +189,14 @@ ERR_117 명령 또는 파일 이름이 잘못되었습니다.
 ERR_118 라이센스 키가 올바르지 않습니다.
 ERR_119 VPN Server에 대한 유효한 라이센스가 등록되어 있지 않습니다. VPN Server의 관리자에게 문의하십시오.
 ERR_120 VPN Server가 클러스터로 작동하는 데 필요한 제품 라이센스가 등록되어 있지 않습니다. VPN Server의 관리자에게 문의하십시오.
-ERR_121이 VPN Client의 연결 설정은 SoftEther VPN 2.0 Administration Pack에 포함 된 "Web 프로그램 만들기 키트"또는 "빠른 설치 프로그램 만들기 키트"에 의해 설치된 것이지만 연결할 VPN Server는 SoftEther VPN 2.0 Administration Pack에 대응 한 버전은 없습니다. 설치 프로그램의 원본이나 시스템 관리자에게 문의하십시오.
+ERR_121 이 VPN Client의 연결 설정은 SoftEther VPN 2.0 Administration Pack에 포함 된 "Web 프로그램 만들기 키트"또는 "빠른 설치 프로그램 만들기 키트"에 의해 설치된 것이지만 연결할 VPN Server는 SoftEther VPN 2.0 Administration Pack에 대응 한 버전은 없습니다. 설치 프로그램의 원본이나 시스템 관리자에게 문의하십시오.
 ERR_122 VPN Server SDK for .NET 라이브러리 SoftEther VPN 2.0 Administration Pack에 대응 한 버전 SoftEther VPN Server에만 연결할 수 있습니다. 연결하려는 VPN Server는 SoftEther VPN 2.0 Administration Pack에 대응 한 버전은 없습니다. 시스템 관리자에게 문의하십시오.
 ERR_123 연결된 소프트웨어는 베타 만료되어 있습니다. 더 새로운 베타 버전 또는 완성 된 제공이 개시된 후 이용할 수 없습니다. http://selinks.org/를 방문하여 최신 버전의 소프트웨어를 다운로드하도록 연결할 서버의 관리자에게 문의하십시오.
 ERR_124 VPN Server에 연결 서버 측에서 거부되었습니다.
 ERR_125 VPN Server에 대한 연결이 클라이언트 측에서 거부되었습니다.
 ERR_126 일정 시간이 경과했기 때문에 관리자가 설정 한 보안 정책 설정은 VPN 연결이 자동으로 끊어졌습니다. 계속 통신을 할 경우 다시 연결하십시오.
-ERR_127이 VPN Server에 연결하기 위해서는 VPN Server 관리자가 만든 특별 버전의 VPN Client 소프트웨어가 필요합니다. VPN Server 관리자에게 문의하십시오.
-ERR_128이 VPN Server는 이미 현재 제품 버전 라이센스에서 허용되는 만들 수 사용자 수보다 많은 수의 사용자 개체를 작성·등록되어 있습니다. 더 이상이 VPN Server에 새 사용자 개체를 만들 수 없습니다. 기존 사용자 개체 중 일부를 삭제하거나 에디션을 Professional Edition 등 상위 버전으로 업그레이드하십시오.
+ERR_127 이 VPN Server에 연결하기 위해서는 VPN Server 관리자가 만든 특별 버전의 VPN Client 소프트웨어가 필요합니다. VPN Server 관리자에게 문의하십시오.
+ERR_128 이 VPN Server는 이미 현재 제품 버전 라이센스에서 허용되는 만들 수 사용자 수보다 많은 수의 사용자 개체를 작성·등록되어 있습니다. 더 이상이 VPN Server에 새 사용자 개체를 만들 수 없습니다. 기존 사용자 개체 중 일부를 삭제하거나 에디션을 Professional Edition 등 상위 버전으로 업그레이드하십시오.
 ERR_129 투입하려고 한 라이센스 키의 구독 계약이 VPN Server 릴리스 (빌드) 된 날 이전에 만료되어 있습니다. 고객은 구독 계약을 체결 한 기간 중에 출시 (빌드) 된 버전의 VPN Server 만 사용할 권리가 있습니다. 고객이 과거에 구독 계약을 체결 한 기간 중에 출시 (빌드) 된 이전 버전의 VPN Server를 사용하거나 고객의 구독 계약을 갱신하여 새 라이센스 키를 취득합니다. 또한 이전 버전의 VPN Server로 다운 그레이드하기 위해 http://selinks.org/에서 소프트웨어를 다운로드 할 수 있습니다.
 ERR_130 VPN Server의 평가판 라이센스 키 몇 개를 연속하여 검색하고 사용할 수 없습니다. 정품 라이선스 구입을 고려하시기 바랍니다.
 ERR_131 동일한 IP 주소에 여러 VPN Server가 있습니다. NAT 사용의 경우 포트 개방 설정을해야합니다. 또는 "연결된 글로벌 IP 주소 또는 호스트 이름 /192.168.xx"처럼 "/"를 추가하고이 문자 이후에 연결을 특정 사설 IP 주소 또는 호스트 이름을 지정하십시오.
@@ -212,10 +212,10 @@ ERR_140 ICMP (Ping) 프로토콜을 초기화 할 수 없습니다. VPN Server�
 ERR_141 DNS 포트 53를 열 수 없습니다. VPN Server를 실행하는 컴퓨터에 이미 다른 DNS 서버 프로그램 (BIND 또는 Microsoft DNS Server 등)이 작동하지 않는지 확인하십시오. 이러한 동일한 포트를 사용하는 프로그램을 종료하고 다시 시도 해보세요. 또한 Linux/UNIX의 경우 VPN Server 프로세스가 root 권한으로 실행하고 있는지 확인하십시오.
 ERR_142 OpenVPN 서버 기능이 활성화되어 있지 않습니다.
 ERR_143 사용자 인증 방법 중 "인증서 인증"및 "외부 서버 인증"기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다. 사용자 인증 방법으로 "익명 인증"또는 "암호 인증"중 하나를 선택하십시오.
-ERR_144이 작업을 수행 할 수 없습니다. VPN Gate 중계 서버에 대한 작업은 VPN Gate 제어판에서 실행하십시오.
-ERR_145이 작업을 수행 할 수 없습니다. VPN Gate 공개 VPN 중계 서버의 연결 설정에 대한 작업은 VPN Gate 설정 화면에서 실행하십시오.
+ERR_144 이 작업을 수행 할 수 없습니다. VPN Gate 중계 서버에 대한 작업은 VPN Gate 제어판에서 실행하십시오.
+ERR_145 이 작업을 수행 할 수 없습니다. VPN Gate 공개 VPN 중계 서버의 연결 설정에 대한 작업은 VPN Gate 설정 화면에서 실행하십시오.
 ERR_146 VPN Gate 서비스가 VPN Client에서 실행중인 경우이 설정 화면에서 VPN Gate 서비스를 중지 할 수 없습니다. VPN Gate 서비스를 중지하려면 VPN Client 연결 관리자 설정 도구를 사용하십시오.
-ERR_147이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다.
+ERR_147 이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다.
 ERR_148 Windows 시스템이 대기 상태로 전환 중이기 때문에 VPN 통신이 끊어졌습니다.
 
 
@@ -243,7 +243,7 @@ TCPOPT_NOT_ADMIN TCP/IP 통신 설정 최적화 유틸리티는 관리자 권한
 VISTA_MMCSS_MSG Windows Vista/Windows 7/Windows 8에서 VPN 통신을 통해 멀티미디어 파일 (비디오 및 오디오 스트리밍 등)을 재생하기위한 최적화를 하시겠습니까?
 VISTA_MMCSS_MSG_2 이미 Windows Vista/Windows 7/Windows 8에서 VPN 통신을 통해 멀티미디어 파일 (비디오 및 오디오 스트리밍 등)을 재생하기위한 최적화 설정이 이루어지고 있습니다. \r\n 최적화 설정을 삭제하고 다시 설치 하시겠습니까?
 VISTA_MMCSS_MSG_3 현재의 환경에서 최적화 기능을 사용할 수 없습니다.
-VISTA_MMCSS_MSG_4이 기능은 Administrators 권한으로 프로그램을 실행중인 경우에만 사용할 수 있습니다. \r\nWindows Vista/Windows 7/Windows 8의 경우 관리자 권한으로 실행] 기능을 사용하여 프로그램을 실행하십시오.
+VISTA_MMCSS_MSG_4 이 기능은 Administrators 권한으로 프로그램을 실행중인 경우에만 사용할 수 있습니다. \r\nWindows Vista/Windows 7/Windows 8의 경우 관리자 권한으로 실행] 기능을 사용하여 프로그램을 실행하십시오.
 VISTA_MMCSS_MSG_5 최적화 설정이 완료되었습니다.
 VISTA_MMCSS_MSG_6 최적화 설정이 삭제되었습니다.
 
@@ -290,7 +290,7 @@ DLG_KEY_SAVE_OK 비밀 키를 올바르게 저장했습니다.
 DLG_KEY_SAVE_ERROR 비밀 키를 저장할 수 없습니다.
 DLG_KEY_PAIR_SAVE_OK 인증서와 개인 키를 올바르게 저장했습니다.
 DLG_KEY_PAIR_SAVE_ERROR 인증서와 개인 키를 제대로 저장할 수 없습니다.
-DLG_REBOOT_INFO %u 초 후 컴퓨터를 다시 시작합니다.
+DLG_REBOOT_INFO %u초 후 컴퓨터를 다시 시작합니다.
 DLG_REBOOT_INFO_2 컴퓨터를 다시 시작합니다...
 DLG_REBOOT_ERROR 컴퓨터를 다시 시작에 실패했습니다. \r\n\r\n 즉시 컴퓨터를 수동으로 다시 시작하십시오.
 DLG_SAVE_CONFIG 구성을 저장할 파일 이름을 지정하십시오
@@ -305,7 +305,7 @@ DLG_UPDATE_HINT [OK]를 클릭하면 Web 브라우저가 열려 최신 업데이
 
 # 경쟁 프로세스 관계
 BAD_PROCESS_TITLE %S에 대한 경고
-BAD_PROCESS_MESSAGE이 컴퓨터에서 문제를 일으킬 수있는 소프트웨어 "%S"가 작동하고있을 가능성이있는 것으로 감지되었습니다. \r\n\r\n "%S"에 포함 된 문제로 인해 VPN 통신이 불안정하거나 오류가 발생 할 수 있습니다. \r\n\r\nVPN 소프트웨어 "%S"함께 이용함으로써 VPN의 동작이 불안정해질 경우 "%S"를 중지하거나 제거 할 것을 권장합니다 (소프트웨어 종류에 따라 정지시킬뿐만 여전히 컴퓨터에 문제가 남아있을 수 있으므로주의하시기 바랍니다). \r\n
+BAD_PROCESS_MESSAGE 이 컴퓨터에서 문제를 일으킬 수있는 소프트웨어 "%S"가 작동하고있을 가능성이있는 것으로 감지되었습니다. \r\n\r\n "%S"에 포함 된 문제로 인해 VPN 통신이 불안정하거나 오류가 발생 할 수 있습니다. \r\n\r\nVPN 소프트웨어 "%S"함께 이용함으로써 VPN의 동작이 불안정해질 경우 "%S"를 중지하거나 제거 할 것을 권장합니다 (소프트웨어 종류에 따라 정지시킬뿐만 여전히 컴퓨터에 문제가 남아있을 수 있으므로주의하시기 바랍니다). \r\n
 
 
 # 하드웨어 토큰 관계
@@ -421,8 +421,8 @@ STATUS_9 VPN 세션 설정이 완료되었습니다.
 
 
 # 인증서 대화 관계
-CERT_NOT_FOUND이 인증서를 발급 한 인증 기관의 인증서가 신뢰할 수있는 인증서 목록에서 찾을 수 없습니다.
-CERT_ROOT이 인증서는 루트 인증서 (자체 서명 인증서)입니다.
+CERT_NOT_FOUND 이 인증서를 발급 한 인증 기관의 인증서가 신뢰할 수 있는 인증서 목록에서 찾을 수 없습니다.
+CERT_ROOT 이 인증서는 루트 인증서 (자체 서명 인증서)입니다.
 CERT_LV_C1 필드
 CERT_LV_C2 값
 CERT_SERIAL 일련 번호
@@ -466,8 +466,8 @@ WINVER_TITLE Windows 버전에 대한 경고
 WINVER_ERROR_FORMAT %s의 Windows 버전 (및 서비스 팩 번호)는 "%S"입니다. \r\n\r\n %s가 지원되는 Windows 버전 (및 서비스 팩 번호)는 다음과 같습니다:\r\n %S \r\n\r\n %s의 Windows 버전 %s가 지원되는 Windows 버전보다 오래된 것이기 때문에 예기치 못한 결함이나 호환성 문제 등이 발생할 수 있습니다. \r\n 예상치 못한 결함이나 호환성 문제 등을 피하기 위해 %s의 업데이트 버전을 다운로드하여 업데이트 할 것을 권장합니다. \r\n (업데이트하지 않고 이대로 사용하는 것은 가능하지만, 최대한 빨리 업데이트 할 것을 권장합니다.) \r\n\r\n 당신은 시스템 관리자 인 경우에는 %s 업데이트 업데이트 패치를 소프트 이사 주식회사의 Web 사이트 http://selinks.org/에서 무료로 다운로드 할 수 있습니다. \r\n\r\n 당신은 시스템 관리자가 아닌 경우이 경고 메시지가 나타납니다 취지를 VPN 시스템 관리자에게 알려주십시오. \r\n\r\n ----- MSG %04u %02u ----- \r\n\r\n
 WINVER_ERROR_VPNSERVER 연결할 서버 컴퓨터의 VPN Server
 WINVER_ERROR_VPNBRIDGE 연결할 서버 컴퓨터의 VPN Bridge
-WINVER_ERROR_VPNCLIENT이 클라이언트 컴퓨터의 VPN Client
-WINVER_ERROR_PC_LOCAL이 클라이언트 컴퓨터
+WINVER_ERROR_VPNCLIENT 이 클라이언트 컴퓨터의 VPN Client
+WINVER_ERROR_PC_LOCAL 이 클라이언트 컴퓨터
 WINVER_ERROR_PC_REMOTE 연결된 서버 컴퓨터
 
 
@@ -482,95 +482,95 @@ NATT_MSG2 ** NAT Traversal 연결 - 안정성 저하 가능성이 있습니다 *
 
 # 가상 HUB 관리 옵션 관계
 HUB_AO_CLICK 항목 이름을 선택하면 해당 항목 이름에 대한 설명이 표시됩니다.
-HUB_AO_UNKNOWN이 항목에 대한 설명을 찾을 수 없습니다. 문서 등을 참조하거나 항목 이름을 바탕으로 의미·내용을 추측하여 사용하십시오.
-HUB_AO_allow_hub_admin_change_option이 항목은 특별하다. 이 항목을 1 (유효)의 경우 VPN Server 전체 관리자뿐만 아니라 가상 HUB 관리자도 스스로 가상 HUB 관리 옵션을 변경 할 수 있습니다.
-HUB_AO_deny_hub_admin_change_ext_option이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 고급 옵션 설정을 변경할 수 없으며 VPN Server 전체 관리자 만 가상 HUB의 고급 옵션 설정을 변경 할 수 있습니다.
-HUB_AO_no_delay_jitter_packet_loss이 항목이 1 이상으로 설정되어있는 경우 가상 HUB 액세스 목록을 추가 할 때 지연 지터 패킷 손실을 생성시키기위한 매개 변수가 설정되어있는 경우에도 그 값 를 모두 삭제합니다. 이로 인해 지연 패킷 로스 생성 기능이 실질적으로 해제됩니다. 지연 패킷 로스 생성 기능은 VPN Server의 CPU 및 메모리 사용률이 높을 수 있기 때문에 많은 사용자가 공유하는 가상 HUB의 경우 높은 부하를 피하기 위해이 옵션을 사용하십시오.
-HUB_AO_max_users이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 수있는 최대 사용자 수이 항목의 지정된 수에 제한되며, 그 이상의 사용자 개체를 등록 할 수 없습니다.
-HUB_AO_max_multilogins_per_user이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록되어있는 1 개의 사용자 개체에 동시에 로그인 연결 가능한 VPN 세션이 항목의 지정된 수에 제한되며, 그 이상 의 VPN 세션이 동일한 사용자 개체를 사용하여 VPN 서버에 연결할 수 없습니다.
-HUB_AO_max_groups이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 그룹의 최대 개수가이 항목에 지정된 수에 제한되며, 그 이상의 그룹 개체를 등록 할 수 없습니다.
-HUB_AO_max_accesslists이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 수있는 액세스 목록 항목의 최대 수이 항목의 지정된 수에 제한되며, 그 이상의 액세스 목록 항목을 등록 할 수 없습니다.
-HUB_AO_max_sessions_client_bridge_apply이 항목이 1 이상으로 설정되어있는 경우에만 max_sessions_client 및 max_sessions_bridge 값이 적용됩니다.
-HUB_AO_max_sessions이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결 VPN 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다.
-HUB_AO_max_sessions_client이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결할 수 VPN 클라이언트 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다. 이 항목은 max_sessions_client_bridge_apply가 1 이상으로 설정되어있는 경우에만 유효합니다.
-HUB_AO_max_sessions_bridge이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결 VPN 브리지 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다. 이 항목은 max_sessions_client_bridge_apply가 1 이상으로 설정되어있는 경우에만 유효합니다.
-HUB_AO_max_bitrates_download이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결하는 모든 VPN 세션의 보안 정책 중 다운로드 대역폭 정책 값이 항목의 지정된 수에 강제로 수정 된 세션 다운로드 속도가 제한됩니다. 예를 들어,이 값이 1000000되어있는 경우이 가상 HUB 대한 어떠한 VPN 연결 세션에서도 그 다운로드 속도는 1 Mbps를 초과 할 수 없습니다.
-HUB_AO_max_bitrates_upload이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결하는 모든 VPN 세션의 보안 정책 중 [업로드 대역폭 정책 값이 항목의 지정된 수에 강제로 수정 된 세션 업로드 속도가 제한됩니다. 예를 들어,이 값이 1000000되어있는 경우이 가상 HUB 대한 어떠한 VPN 연결 세션에서도 그 업로드 속도는 1 Mbps를 초과 할 수 없습니다.
-HUB_AO_deny_empty_password이 항목을 1 (유효)의 경우 가상 HUB에 등록 된 사용자 빈 암호를 설정할 수 없습니다. 만약 빈 암호가 설정되어있는 사용자가 있다면, 그 사용자는 VPN 연결을 할 수 없습니다 (예외는 localhost에서 연결은 가능합니다.)
-HUB_AO_deny_bridge이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 다리가 금지됩니다. 따라서 가상 HUB 브리지 목적으로 연결 할 수 없습니다.
-HUB_AO_deny_routing이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 라우터 동작이 금지됩니다. 따라서 가상 HUB에 라우팅 목적으로 연결할 수 없습니다.
-HUB_AO_deny_qos이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 QoS 기능이 금지됩니다.
-HUB_AO_deny_change_user_password이 항목을 1 (유효)의 경우 가상 HUB 사용자가 "암호 인증"모드의 경우, 자신의 암호를 변경할 수 없습니다.
-HUB_AO_no_change_users이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 새로운 사용자를 추가하거나 기존 사용자를 삭제하거나 편집 할 수 없습니다.
-HUB_AO_no_change_groups이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 새로운 그룹을 추가하거나 기존 그룹을 삭제하거나 편집 할 수 없습니다.
-HUB_AO_no_securenat이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능을 활성화하거나 비활성화 할 수 없습니다.
-HUB_AO_no_securenat_enablenat이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능의 가상 NAT 기능을 활성화하거나 비활성화 할 수 없습니다.
-HUB_AO_no_securenat_enabledhcp이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능의 가상 DHCP 서버 기능을 활성화하거나 비활성화 할 수 없습니다.
-HUB_AO_no_cascade이 항목을 1 (유효)의 경우 가상 HUB 관리자는 계단식 생성·삭제·편집 또는 온라인 화/오프라인 할 수 없습니다.
-HUB_AO_no_online이 항목을 1 (유효)의 경우 가상 HUB 관리자는 오프라인 상태의 가상 HUB를 온라인 화 할 수 없습니다.
-HUB_AO_no_offline이 항목을 1 (유효)의 경우 가상 HUB의 관리자는 온라인 상태의 가상 HUB를 오프라인으로 전환 할 수 없습니다.
-HUB_AO_no_change_log_config이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 로그 파일의 저장 설정을 변경할 수 없습니다.
-HUB_AO_no_disconnect_session이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 연결되어있는 VPN 세션을 사용하여 강제 종료 할 수 없습니다.
-HUB_AO_no_delete_iptable이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 IP 주소 테이블 데이터베이스에서 IP 주소 항목을 지정하여 삭제할 수 없습니다.
-HUB_AO_no_delete_mactable이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 MAC 주소 테이블 데이터베이스에서 MAC 주소 항목을 지정하여 삭제할 수 없습니다.
-HUB_AO_no_enum_session이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 현재 연결된 VPN 세션의 목록을 열거 할 수 없습니다.
-HUB_AO_no_query_session이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 현재 연결된 VPN 세션을 지정하여 해당 세션에 대한 자세한 정보를 얻을 수 없습니다.
-HUB_AO_no_change_admin_password이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 관리자 암호를 변경할 수 없습니다.
-HUB_AO_no_change_log_switch_type이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 로그 파일의 저장 설정 중 로그 파일 전환주기 설정 항목을 변경할 수 없습니다.
-HUB_AO_no_change_access_list이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 액세스 목록을 조작 할 수 없습니다.
-HUB_AO_no_change_access_control_list이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 액세스 원래 IP 제한 목록을 조작 할 수 없습니다.
-HUB_AO_no_change_cert_list이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 '신뢰하는 인증 기관의 인증서 목록 "목록을 조작 할 수 없습니다.
-HUB_AO_no_change_crl_list이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 "잘못된 인증서"목록을 조작 할 수 없습니다.
-HUB_AO_no_read_log_file이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 로그 파일을 관리 연결을 통해 열거하거나 원격으로 판독 할 수 없습니다.
-HUB_AO_no_change_msg이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 VPN Client가 접속할 때 VPN Client에 표시 될 메시지를 설정할 수 없습니다.
-HUB_AO_no_access_list_include_file이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 액세스 목록을 추가 할 때 소스 또는 대상 사용자 이름으로 "include:"또는 "exclude:"지정 사용자 이름 목록 파일 를 지정할 수 없습니다.
+HUB_AO_UNKNOWN 이 항목에 대한 설명을 찾을 수 없습니다. 문서 등을 참조하거나 항목 이름을 바탕으로 의미·내용을 추측하여 사용하십시오.
+HUB_AO_allow_hub_admin_change_option 이 항목은 특별하다. 이 항목을 1 (유효)의 경우 VPN Server 전체 관리자뿐만 아니라 가상 HUB 관리자도 스스로 가상 HUB 관리 옵션을 변경 할 수 있습니다.
+HUB_AO_deny_hub_admin_change_ext_option 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 고급 옵션 설정을 변경할 수 없으며 VPN Server 전체 관리자 만 가상 HUB의 고급 옵션 설정을 변경 할 수 있습니다.
+HUB_AO_no_delay_jitter_packet_loss 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB 액세스 목록을 추가 할 때 지연 지터 패킷 손실을 생성시키기위한 매개 변수가 설정되어있는 경우에도 그 값 를 모두 삭제합니다. 이로 인해 지연 패킷 로스 생성 기능이 실질적으로 해제됩니다. 지연 패킷 로스 생성 기능은 VPN Server의 CPU 및 메모리 사용률이 높을 수 있기 때문에 많은 사용자가 공유하는 가상 HUB의 경우 높은 부하를 피하기 위해이 옵션을 사용하십시오.
+HUB_AO_max_users 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 수있는 최대 사용자 수이 항목의 지정된 수에 제한되며, 그 이상의 사용자 개체를 등록 할 수 없습니다.
+HUB_AO_max_multilogins_per_user 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록되어있는 1 개의 사용자 개체에 동시에 로그인 연결 가능한 VPN 세션이 항목의 지정된 수에 제한되며, 그 이상 의 VPN 세션이 동일한 사용자 개체를 사용하여 VPN 서버에 연결할 수 없습니다.
+HUB_AO_max_groups 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 그룹의 최대 개수가이 항목에 지정된 수에 제한되며, 그 이상의 그룹 개체를 등록 할 수 없습니다.
+HUB_AO_max_accesslists 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 수있는 액세스 목록 항목의 최대 수이 항목의 지정된 수에 제한되며, 그 이상의 액세스 목록 항목을 등록 할 수 없습니다.
+HUB_AO_max_sessions_client_bridge_apply 이 항목이 1 이상으로 설정되어있는 경우에만 max_sessions_client 및 max_sessions_bridge 값이 적용됩니다.
+HUB_AO_max_sessions 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결 VPN 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다.
+HUB_AO_max_sessions_client 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결할 수 VPN 클라이언트 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다. 이 항목은 max_sessions_client_bridge_apply가 1 이상으로 설정되어있는 경우에만 유효합니다.
+HUB_AO_max_sessions_bridge 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결 VPN 브리지 세션이 항목의 지정된 수에 제한되며, 그 이상의 VPN 연결을 동시에 처리 할 수 없습니다. 이 항목은 max_sessions_client_bridge_apply가 1 이상으로 설정되어있는 경우에만 유효합니다.
+HUB_AO_max_bitrates_download 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결하는 모든 VPN 세션의 보안 정책 중 다운로드 대역폭 정책 값이 항목의 지정된 수에 강제로 수정 된 세션 다운로드 속도가 제한됩니다. 예를 들어,이 값이 1000000되어있는 경우이 가상 HUB 대한 어떠한 VPN 연결 세션에서도 그 다운로드 속도는 1 Mbps를 초과 할 수 없습니다.
+HUB_AO_max_bitrates_upload 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 연결하는 모든 VPN 세션의 보안 정책 중 [업로드 대역폭 정책 값이 항목의 지정된 수에 강제로 수정 된 세션 업로드 속도가 제한됩니다. 예를 들어,이 값이 1000000되어있는 경우이 가상 HUB 대한 어떠한 VPN 연결 세션에서도 그 업로드 속도는 1 Mbps를 초과 할 수 없습니다.
+HUB_AO_deny_empty_password 이 항목을 1 (유효)의 경우 가상 HUB에 등록 된 사용자 빈 암호를 설정할 수 없습니다. 만약 빈 암호가 설정되어있는 사용자가 있다면, 그 사용자는 VPN 연결을 할 수 없습니다 (예외는 localhost에서 연결은 가능합니다.)
+HUB_AO_deny_bridge 이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 다리가 금지됩니다. 따라서 가상 HUB 브리지 목적으로 연결 할 수 없습니다.
+HUB_AO_deny_routing 이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 라우터 동작이 금지됩니다. 따라서 가상 HUB에 라우팅 목적으로 연결할 수 없습니다.
+HUB_AO_deny_qos 이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 세션은 연결시 사용자의 보안 정책의 내용에 관계없이 항상 QoS 기능이 금지됩니다.
+HUB_AO_deny_change_user_password 이 항목을 1 (유효)의 경우 가상 HUB 사용자가 "암호 인증"모드의 경우, 자신의 암호를 변경할 수 없습니다.
+HUB_AO_no_change_users 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 새로운 사용자를 추가하거나 기존 사용자를 삭제하거나 편집 할 수 없습니다.
+HUB_AO_no_change_groups 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 새로운 그룹을 추가하거나 기존 그룹을 삭제하거나 편집 할 수 없습니다.
+HUB_AO_no_securenat 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능을 활성화하거나 비활성화 할 수 없습니다.
+HUB_AO_no_securenat_enablenat 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능의 가상 NAT 기능을 활성화하거나 비활성화 할 수 없습니다.
+HUB_AO_no_securenat_enabledhcp 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 SecureNAT 기능의 가상 DHCP 서버 기능을 활성화하거나 비활성화 할 수 없습니다.
+HUB_AO_no_cascade 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 계단식 생성·삭제·편집 또는 온라인 화/오프라인 할 수 없습니다.
+HUB_AO_no_online 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 오프라인 상태의 가상 HUB를 온라인 화 할 수 없습니다.
+HUB_AO_no_offline 이 항목을 1 (유효)의 경우 가상 HUB의 관리자는 온라인 상태의 가상 HUB를 오프라인으로 전환 할 수 없습니다.
+HUB_AO_no_change_log_config 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 로그 파일의 저장 설정을 변경할 수 없습니다.
+HUB_AO_no_disconnect_session 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 연결되어있는 VPN 세션을 사용하여 강제 종료 할 수 없습니다.
+HUB_AO_no_delete_iptable 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 IP 주소 테이블 데이터베이스에서 IP 주소 항목을 지정하여 삭제할 수 없습니다.
+HUB_AO_no_delete_mactable 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 MAC 주소 테이블 데이터베이스에서 MAC 주소 항목을 지정하여 삭제할 수 없습니다.
+HUB_AO_no_enum_session 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 현재 연결된 VPN 세션의 목록을 열거 할 수 없습니다.
+HUB_AO_no_query_session 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 현재 연결된 VPN 세션을 지정하여 해당 세션에 대한 자세한 정보를 얻을 수 없습니다.
+HUB_AO_no_change_admin_password 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 관리자 암호를 변경할 수 없습니다.
+HUB_AO_no_change_log_switch_type 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 로그 파일의 저장 설정 중 로그 파일 전환주기 설정 항목을 변경할 수 없습니다.
+HUB_AO_no_change_access_list 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 액세스 목록을 조작 할 수 없습니다.
+HUB_AO_no_change_access_control_list 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB 액세스 원래 IP 제한 목록을 조작 할 수 없습니다.
+HUB_AO_no_change_cert_list 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 '신뢰하는 인증 기관의 인증서 목록 "목록을 조작 할 수 없습니다.
+HUB_AO_no_change_crl_list 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 "잘못된 인증서"목록을 조작 할 수 없습니다.
+HUB_AO_no_read_log_file 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 로그 파일을 관리 연결을 통해 열거하거나 원격으로 판독 할 수 없습니다.
+HUB_AO_no_change_msg 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 VPN Client가 접속할 때 VPN Client에 표시 될 메시지를 설정할 수 없습니다.
+HUB_AO_no_access_list_include_file 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB에 액세스 목록을 추가 할 때 소스 또는 대상 사용자 이름으로 "include:"또는 "exclude:"지정 사용자 이름 목록 파일 를 지정할 수 없습니다.
 
 
 # 가상 HUB 확장 옵션 관계
-HUB_AO_NoAddressPollingIPv4이 항목을 1 (유효)의 경우는 일반적으로 가상 HUB가 5 초마다 실시하는 세그먼트의 MAC 주소 테이블 및 IPv4 주소 테이블의 유지 보수 (IPv4 장치의 생존 확인을위한 ARP 패킷)을 실시하지 않게됩니다. 일정 시간 비활성의 IPv4 장치는 가상 HUB 세그먼트에 존재하고 일정 시간 (1 분~10 분) 테이블에서 삭제되게됩니다. 이에 따라 브로드 캐스트 패킷 수를 줄일 수 있지만, 일부 IPv4 관계의 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
-HUB_AO_NoAddressPollingIPv6이 항목을 1 (유효)의 경우는 일반적으로 가상 HUB가 5 초마다 실시하는 세그먼트의 MAC 주소 테이블 및 IPv6 주소 테이블의 유지 보수 (IPv6 장치의 생존 확인을위한 ICMPv6 패킷)을 실시하지 않게됩니다. 일정 시간 비활성의 IPv6 장치는 가상 HUB 세그먼트에 존재하고 일정 시간 (1 분~10 분) 테이블에서 삭제되게됩니다. 이에 따라 브로드 캐스트 패킷 수를 줄일 수 있지만 일부 IPv6 관련 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
-HUB_AO_NoIpTable이 항목을 1 (유효)의 경우 가상 HUB는 IP 주소 테이블을 내부적으로 자동 구축하지 않게됩니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수있는 몇 가지 IP 관계의 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
-HUB_AO_NoMacAddressLog이 항목을 1 (유효)의 경우 가상 HUB는 가상 HUB의 MAC 주소 테이블에 새 MAC 주소가 등록 된 경우 로그 보안 로그로 쓰여진다 않게됩니다.
-HUB_AO_ManageOnlyPrivateIP이 항목을 1 (유효)의 경우 가상 HUB가 내부적으로 구축하는 IPv4 주소 테이블에는 개인 IPv4 주소 만 저장되게됩니다. 여기에 개인 IPv4 주소는 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16을 의미합니다. 그렇지 IPv4 주소는 IPv4 주소 테이블에 저장되지 않도록합니다.
-HUB_AO_ManageOnlyLocalUnicastIPv6이 항목을 1 (유효)의 경우 가상 HUB가 내부적으로 구축하는 IPv6 주소 테이블에는 로컬 유니 캐스트 IPv6 주소 만 저장되게됩니다. 여기에서 로컬 유니 캐스트 IPv6 주소는 fe80::/10을 의미합니다. 그렇지 IPv6 주소는 IPv6 주소 테이블에 저장되지 않도록합니다.
-HUB_AO_DisableIPParsing이 항목을 1 (유효)의 경우 가상 HUB는 내부적으로 모든 Ethernet 패킷의 IP 헤더를 해석하지 않도록합니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수 있지만 가상 HUB는 IP 주소 테이블을 내부적으로 자동 작성하지있게 여러 IP 관계의 보안 정책이 실질적으로 기능 하지 않을 수 있습니다.
-HUB_AO_YieldAfterStorePacket이 항목을 1 (유효)의 경우 가상 HUB는있는 VPN 세션에서 패킷을받은 후 그 패킷을 다른 VPN 세션에 저장 포워드 직후 일단 CPU를 대기 상태로 설정합니다. 이 때문에 패킷 지연이 약간 낮아질 수 있지만 스레드 컨텍스트 스위치 횟수가 증가함에 따라 성능이 저하 될 가능성도 있습니다.
-HUB_AO_FilterPPPoE이 항목을 1 (유효)의 경우 가상 HUB는 모든 PPPoE (PPP over Ethernet) 패킷을 폐기하고 전송하지 않도록합니다. 여러 LAN끼리 브리지 연결하는 경우에 모두 PPPoE 세그먼트를 분할하고자하는 경우에 유용합니다.
-HUB_AO_FilterOSPF이 항목을 1 (유효)의 경우 가상 HUB는 모든 OSPF (Open Shortest Path First) 패킷을 폐기하고 전송하지 않도록합니다.
-HUB_AO_FilterIPv4이 항목을 1 (유효)의 경우 가상 HUB는 모든 IPv4 패킷 및 ARP 패킷을 폐기하고 전송하지 않도록합니다.
-HUB_AO_FilterIPv6이 항목을 1 (유효)의 경우 가상 HUB는 모든 IPv6 패킷을 폐기하고 전송하지 않도록합니다.
-HUB_AO_FilterNonIP이 항목을 1 (유효)의 경우 가상 HUB는 모든 비 IP 패킷 (IPv4, ARP, IPv6 다른 종류의 패킷)을 삭제하고 전송하지 않도록합니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다.
-HUB_AO_FilterBPDU이 항목을 1 (유효)의 경우 가상 HUB는 모든 BPDU (Bridge Protocol Data Unit) 패킷을 폐기하고 전송하지 않도록합니다. 그러면 모든 스패닝 트리 패킷이 전송되지 않습니다.
-HUB_AO_NoIPv6DefaultRouterInRAWhenIPv6이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 모든 VPN 세션은 [IPv6 라우터 광고에서 디폴트 라우터 지정을 제거 (IPv6 물리적 연결시 자동 활성화) 정책이 자동으로 사용할 수 있습니다. VPN Client 또는 VPN Bridge에서 VPN Server에 대한 연결 및 통신을 가능하게 물리적 프로토콜이 IPv6의 경우에는 그 VPN 세션에 가상 HUB 다른 세션의 IPv6 라우터가 제공하는 IPv6 라우터 광고 메시지 라우터 유효 기간 값이 0이 아닌 숫자 인 경우이 값을 강제로 0으로 다시 전송합니다. 그러면 VPN 클라이언트 컴퓨터가 VPN 연결 대상 네트워크에있는 라우터를 기본 라우터로 사용하여 물리적 IPv6 통신이 끊깁니다 오작동을 방지 할 수 있습니다.
-HUB_AO_NoLookBPDUBridgeId이 항목을 1 (유효)의 경우 가상 HUB는 BPDU (Bridge Protocol Data Unit) 패킷의 내용을 바탕으로 MAC 주소 테이블을 작성할 때 BPDU 패킷의 필드에있는 소스 MAC 주소를 무시하고 Ethernet 헤더에있는 소스 MAC 주소를 기반으로 MAC 주소 테이블을 구축합니다. 이 값은 네트워크에 아주 전문가가 아닌 경우 변경하지 마십시오.
-HUB_AO_NoManageVlanId이 항목을 1 (유효)의 경우 가상 HUB는 MAC 주소 테이블의 구축 및 검색에서 VLAN ID를 관리하지 않도록하고 모든 Ethernet 패킷의 VLAN 태그를 무시합니다.
+HUB_AO_NoAddressPollingIPv4 이 항목을 1 (유효)의 경우는 일반적으로 가상 HUB가 5 초마다 실시하는 세그먼트의 MAC 주소 테이블 및 IPv4 주소 테이블의 유지 보수 (IPv4 장치의 생존 확인을위한 ARP 패킷)을 실시하지 않게됩니다. 일정 시간 비활성의 IPv4 장치는 가상 HUB 세그먼트에 존재하고 일정 시간 (1 분~10 분) 테이블에서 삭제되게됩니다. 이에 따라 브로드 캐스트 패킷 수를 줄일 수 있지만, 일부 IPv4 관계의 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
+HUB_AO_NoAddressPollingIPv6 이 항목을 1 (유효)의 경우는 일반적으로 가상 HUB가 5 초마다 실시하는 세그먼트의 MAC 주소 테이블 및 IPv6 주소 테이블의 유지 보수 (IPv6 장치의 생존 확인을위한 ICMPv6 패킷)을 실시하지 않게됩니다. 일정 시간 비활성의 IPv6 장치는 가상 HUB 세그먼트에 존재하고 일정 시간 (1 분~10 분) 테이블에서 삭제되게됩니다. 이에 따라 브로드 캐스트 패킷 수를 줄일 수 있지만 일부 IPv6 관련 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
+HUB_AO_NoIpTable 이 항목을 1 (유효)의 경우 가상 HUB는 IP 주소 테이블을 내부적으로 자동 구축하지 않게됩니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수있는 몇 가지 IP 관계의 보안 정책이 실질적으로 작동하지 않을 수 있습니다.
+HUB_AO_NoMacAddressLog 이 항목을 1 (유효)의 경우 가상 HUB는 가상 HUB의 MAC 주소 테이블에 새 MAC 주소가 등록 된 경우 로그 보안 로그로 쓰여진다 않게됩니다.
+HUB_AO_ManageOnlyPrivateIP 이 항목을 1 (유효)의 경우 가상 HUB가 내부적으로 구축하는 IPv4 주소 테이블에는 개인 IPv4 주소 만 저장되게됩니다. 여기에 개인 IPv4 주소는 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16을 의미합니다. 그렇지 IPv4 주소는 IPv4 주소 테이블에 저장되지 않도록합니다.
+HUB_AO_ManageOnlyLocalUnicastIPv6 이 항목을 1 (유효)의 경우 가상 HUB가 내부적으로 구축하는 IPv6 주소 테이블에는 로컬 유니 캐스트 IPv6 주소 만 저장되게됩니다. 여기에서 로컬 유니 캐스트 IPv6 주소는 fe80::/10을 의미합니다. 그렇지 IPv6 주소는 IPv6 주소 테이블에 저장되지 않도록합니다.
+HUB_AO_DisableIPParsing 이 항목을 1 (유효)의 경우 가상 HUB는 내부적으로 모든 Ethernet 패킷의 IP 헤더를 해석하지 않도록합니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수 있지만 가상 HUB는 IP 주소 테이블을 내부적으로 자동 작성하지있게 여러 IP 관계의 보안 정책이 실질적으로 기능 하지 않을 수 있습니다.
+HUB_AO_YieldAfterStorePacket 이 항목을 1 (유효)의 경우 가상 HUB는있는 VPN 세션에서 패킷을받은 후 그 패킷을 다른 VPN 세션에 저장 포워드 직후 일단 CPU를 대기 상태로 설정합니다. 이 때문에 패킷 지연이 약간 낮아질 수 있지만 스레드 컨텍스트 스위치 횟수가 증가함에 따라 성능이 저하 될 가능성도 있습니다.
+HUB_AO_FilterPPPoE 이 항목을 1 (유효)의 경우 가상 HUB는 모든 PPPoE (PPP over Ethernet) 패킷을 폐기하고 전송하지 않도록합니다. 여러 LAN끼리 브리지 연결하는 경우에 모두 PPPoE 세그먼트를 분할하고자하는 경우에 유용합니다.
+HUB_AO_FilterOSPF 이 항목을 1 (유효)의 경우 가상 HUB는 모든 OSPF (Open Shortest Path First) 패킷을 폐기하고 전송하지 않도록합니다.
+HUB_AO_FilterIPv4 이 항목을 1 (유효)의 경우 가상 HUB는 모든 IPv4 패킷 및 ARP 패킷을 폐기하고 전송하지 않도록합니다.
+HUB_AO_FilterIPv6 이 항목을 1 (유효)의 경우 가상 HUB는 모든 IPv6 패킷을 폐기하고 전송하지 않도록합니다.
+HUB_AO_FilterNonIP 이 항목을 1 (유효)의 경우 가상 HUB는 모든 비 IP 패킷 (IPv4, ARP, IPv6 다른 종류의 패킷)을 삭제하고 전송하지 않도록합니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다.
+HUB_AO_FilterBPDU 이 항목을 1 (유효)의 경우 가상 HUB는 모든 BPDU (Bridge Protocol Data Unit) 패킷을 폐기하고 전송하지 않도록합니다. 그러면 모든 스패닝 트리 패킷이 전송되지 않습니다.
+HUB_AO_NoIPv6DefaultRouterInRAWhenIPv6 이 항목을 1 (유효)의 경우 가상 HUB에 연결되는 모든 VPN 세션은 [IPv6 라우터 광고에서 디폴트 라우터 지정을 제거 (IPv6 물리적 연결시 자동 활성화) 정책이 자동으로 사용할 수 있습니다. VPN Client 또는 VPN Bridge에서 VPN Server에 대한 연결 및 통신을 가능하게 물리적 프로토콜이 IPv6의 경우에는 그 VPN 세션에 가상 HUB 다른 세션의 IPv6 라우터가 제공하는 IPv6 라우터 광고 메시지 라우터 유효 기간 값이 0이 아닌 숫자 인 경우이 값을 강제로 0으로 다시 전송합니다. 그러면 VPN 클라이언트 컴퓨터가 VPN 연결 대상 네트워크에있는 라우터를 기본 라우터로 사용하여 물리적 IPv6 통신이 끊깁니다 오작동을 방지 할 수 있습니다.
+HUB_AO_NoLookBPDUBridgeId 이 항목을 1 (유효)의 경우 가상 HUB는 BPDU (Bridge Protocol Data Unit) 패킷의 내용을 바탕으로 MAC 주소 테이블을 작성할 때 BPDU 패킷의 필드에있는 소스 MAC 주소를 무시하고 Ethernet 헤더에있는 소스 MAC 주소를 기반으로 MAC 주소 테이블을 구축합니다. 이 값은 네트워크에 아주 전문가가 아닌 경우 변경하지 마십시오.
+HUB_AO_NoManageVlanId 이 항목을 1 (유효)의 경우 가상 HUB는 MAC 주소 테이블의 구축 및 검색에서 VLAN ID를 관리하지 않도록하고 모든 Ethernet 패킷의 VLAN 태그를 무시합니다.
 HUB_AO_VlanTypeId VLAN 태그 Ethernet Type ID (TPID) 값을 10 진수로 지정합니다. 이 값은 기본적으로 33024 (16 진수로 0x8100)입니다. 이 값은 네트워크에 아주 전문가가 아닌 경우 변경하지 마십시오.
-HUB_AO_FixForDLinkBPDU이 항목을 1 (유효)의 경우 FixForDLinkBPDU 옵션을 사용할 수 있습니다. 이 값은 네트워크에 아주 전문가가 아닌 경우 변경하지 마십시오.
-HUB_AO_NoIPv4PacketLog이 항목을 1 (유효)의 경우 가상 HUB를 흐르는 모든 IPv4 패킷에 대한 패킷 로그가 저장되지 않도록합니다.
-HUB_AO_NoIPv6PacketLog이 항목을 1 (유효)의 경우 가상 HUB를 흐르는 모든 IPv6 패킷에 대한 패킷 로그가 저장되지 않도록합니다.
-HUB_AO_NoSpinLockForPacketDelay이 항목을 1 (유효)의 경우 가상 HUB 액세스 목록은 패킷 지연을 발생시키는 경우에 지연 시간을 고화질로 시뮬레이션하기 위해 스핀 락을 사용하지 않고 OS에 의한 타이머 인터럽트에 의해 지연 를 발생 시키도록합니다. 이로 인해 CPU 사용률이 저하되지만, 발생시킬 수있는 지연의 정도는 낮아집니다.
+HUB_AO_FixForDLinkBPDU 이 항목을 1 (유효)의 경우 FixForDLinkBPDU 옵션을 사용할 수 있습니다. 이 값은 네트워크에 아주 전문가가 아닌 경우 변경하지 마십시오.
+HUB_AO_NoIPv4PacketLog 이 항목을 1 (유효)의 경우 가상 HUB를 흐르는 모든 IPv4 패킷에 대한 패킷 로그가 저장되지 않도록합니다.
+HUB_AO_NoIPv6PacketLog 이 항목을 1 (유효)의 경우 가상 HUB를 흐르는 모든 IPv6 패킷에 대한 패킷 로그가 저장되지 않도록합니다.
+HUB_AO_NoSpinLockForPacketDelay 이 항목을 1 (유효)의 경우 가상 HUB 액세스 목록은 패킷 지연을 발생시키는 경우에 지연 시간을 고화질로 시뮬레이션하기 위해 스핀 락을 사용하지 않고 OS에 의한 타이머 인터럽트에 의해 지연 를 발생 시키도록합니다. 이로 인해 CPU 사용률이 저하되지만, 발생시킬 수있는 지연의 정도는 낮아집니다.
 HUB_AO_BroadcastStormDetectionThreshold 대량의 브로드 캐스트 패킷이 가상 HUB에 동일한 세션에서 투입된 경우 브로드 캐스트 스톰이라고 판정하기위한 임계 값을 지정합니다. 초당 패킷 수를 지정합니다. 지정하지 않으면 (0 인 경우) 32이 사용됩니다.
-HUB_AO_ClientMinimumRequiredBuild이 항목이 1 이상으로 설정되어있는 경우 설정되는 값보다 빌드 번호가 작은 VPN Client가 접속하는 경우 VPN 연결을 거부합니다.
-HUB_AO_RequiredClientId이 항목을 1 (유효)의 경우,이 정수와 동일한 "클라이언트 ID"가 포함 된 VPN Client 소프트웨어 만이 가상 HUB에 연결할 수 있고 그렇지 VPN Client는 연결할 수 없습니다.
-HUB_AO_AdjustTcpMssValue이 항목을 1 (유효)의 경우이 가상 HUB를 통해 통신하는 모든 TCP/IP 패킷의 MSS (Max Segment Size)가이 항목에 지정된 바이트 이하가되도록 자동 조정합니다.
-HUB_AO_DisableAdjustTcpMss이 항목을 1 (유효)의 경우이 가상 HUB의 어떠한 MSS (Max Segment Size)도 해제합니다. AdjustTcpMssValue 옵션이 지정되어 있거나 IPsec/L2TP/EtherIP/L2TPv3 서버 기능을 통해 접수 된 VPN 통신이 이루어지는 경우에도 MSS 조정되지 않습니다.
-HUB_AO_NoDhcpPacketLogOutsideHub이 항목을 1 (유효)의 경우 가상 HUB에 도달 한 DHCP를 통해 IP 주소 할당 패킷 중이 가상 HUB에 연결되어있는 세션과 무관 한 것들에 대한 로그를 저장하지 않도록합니다.
-HUB_AO_DisableHttpParsing이 항목을 1 (유효)의 경우 가상 HUB는 내부적으로 모든 HTTP 패킷의 HTTP 헤더를 해석하지 않도록합니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수 있지만 HTTP 액세스 로그가 저장되지 않습니다.
-HUB_AO_DisableUdpAcceleration이 항목을 1 (유효)의 경우이 가상 HUB에 연결되는 모든 VPN 세션에서 UDP 가속화 기능의 사용을 금지합니다.
-HUB_AO_DisableUdpFilterForLocalBridgeNic이 항목을 1 (유효)의 경우 가상 HUB에서 생성되는 로컬 브리지를 구성하는 물리적 인 LAN 카드가 VPN을 통해 원격지의 DHCP 서버에서 IP 주소를 할당 받음으로써 동작 이 불안정 문제를 해결하기위한 DHCP 패킷 필터링 동작을 무효로합니다.
-HUB_AO_ApplyIPv4AccessListOnArpPacket이 항목을 1 (유효)의 경우 가상 HUB에 정의되어있는 IPv4 액세스 목록 규칙을 ARP 패킷에 적용합니다. 불필요한 ARP 요청 패킷을 차단하고 싶은 경우에 유용합니다.
-HUB_AO_RemoveDefGwOnDhcpForLocalhost이 항목을 1 (유효)의 경우는 DHCP 서버가 가상 HUB에 연결된 VPN 클라이언트에 IP 주소를 할당 할 때 해당 VPN 클라이언트가 VPN Server를 실행하는 컴퓨터와 동일한 경우는 DHCP 응답 패킷에서 기본 게이트웨이 지정을 제거합니다. 이로 인해 의도하지 않은 무한 루프를 방지 할 수 있습니다.
-HUB_AO_SecureNAT_MaxTcpSessionsPerIp이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 TCP 연결 수 (SYN_SENT 상태 이외의 TCP 연결)이 항목에서 지정한 수에 제한됩니다.
-HUB_AO_SecureNAT_MaxTcpSynSentPerIp이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 TCP 연결 수 (SYN_SENT 상태의 TCP 연결)이 항목에서 지정한 수에 제한됩니다.
-HUB_AO_SecureNAT_MaxUdpSessionsPerIp이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 UDP 세션이 항목에 지정된 수에 제한됩니다.
-HUB_AO_SecureNAT_MaxDnsSessionsPerIp이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 DNS 세션이 항목에 지정된 수에 제한됩니다.
-HUB_AO_SecureNAT_MaxIcmpSessionsPerIp이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 ICMP 세션이 항목에 지정된 수에 제한됩니다.
+HUB_AO_ClientMinimumRequiredBuild 이 항목이 1 이상으로 설정되어있는 경우 설정되는 값보다 빌드 번호가 작은 VPN Client가 접속하는 경우 VPN 연결을 거부합니다.
+HUB_AO_RequiredClientId 이 항목을 1 (유효)의 경우,이 정수와 동일한 "클라이언트 ID"가 포함 된 VPN Client 소프트웨어 만이 가상 HUB에 연결할 수 있고 그렇지 VPN Client는 연결할 수 없습니다.
+HUB_AO_AdjustTcpMssValue 이 항목을 1 (유효)의 경우이 가상 HUB를 통해 통신하는 모든 TCP/IP 패킷의 MSS (Max Segment Size)가이 항목에 지정된 바이트 이하가되도록 자동 조정합니다.
+HUB_AO_DisableAdjustTcpMss 이 항목을 1 (유효)의 경우이 가상 HUB의 어떠한 MSS (Max Segment Size)도 해제합니다. AdjustTcpMssValue 옵션이 지정되어 있거나 IPsec/L2TP/EtherIP/L2TPv3 서버 기능을 통해 접수 된 VPN 통신이 이루어지는 경우에도 MSS 조정되지 않습니다.
+HUB_AO_NoDhcpPacketLogOutsideHub 이 항목을 1 (유효)의 경우 가상 HUB에 도달 한 DHCP를 통해 IP 주소 할당 패킷 중이 가상 HUB에 연결되어있는 세션과 무관 한 것들에 대한 로그를 저장하지 않도록합니다.
+HUB_AO_DisableHttpParsing 이 항목을 1 (유효)의 경우 가상 HUB는 내부적으로 모든 HTTP 패킷의 HTTP 헤더를 해석하지 않도록합니다. 이에 따라 VPN Server의 CPU 및 메모리 사용량을 줄일 수 있지만 HTTP 액세스 로그가 저장되지 않습니다.
+HUB_AO_DisableUdpAcceleration 이 항목을 1 (유효)의 경우이 가상 HUB에 연결되는 모든 VPN 세션에서 UDP 가속화 기능의 사용을 금지합니다.
+HUB_AO_DisableUdpFilterForLocalBridgeNic 이 항목을 1 (유효)의 경우 가상 HUB에서 생성되는 로컬 브리지를 구성하는 물리적 인 LAN 카드가 VPN을 통해 원격지의 DHCP 서버에서 IP 주소를 할당 받음으로써 동작 이 불안정 문제를 해결하기위한 DHCP 패킷 필터링 동작을 무효로합니다.
+HUB_AO_ApplyIPv4AccessListOnArpPacket 이 항목을 1 (유효)의 경우 가상 HUB에 정의되어있는 IPv4 액세스 목록 규칙을 ARP 패킷에 적용합니다. 불필요한 ARP 요청 패킷을 차단하고 싶은 경우에 유용합니다.
+HUB_AO_RemoveDefGwOnDhcpForLocalhost 이 항목을 1 (유효)의 경우는 DHCP 서버가 가상 HUB에 연결된 VPN 클라이언트에 IP 주소를 할당 할 때 해당 VPN 클라이언트가 VPN Server를 실행하는 컴퓨터와 동일한 경우는 DHCP 응답 패킷에서 기본 게이트웨이 지정을 제거합니다. 이로 인해 의도하지 않은 무한 루프를 방지 할 수 있습니다.
+HUB_AO_SecureNAT_MaxTcpSessionsPerIp 이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 TCP 연결 수 (SYN_SENT 상태 이외의 TCP 연결)이 항목에서 지정한 수에 제한됩니다.
+HUB_AO_SecureNAT_MaxTcpSynSentPerIp 이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 TCP 연결 수 (SYN_SENT 상태의 TCP 연결)이 항목에서 지정한 수에 제한됩니다.
+HUB_AO_SecureNAT_MaxUdpSessionsPerIp 이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 UDP 세션이 항목에 지정된 수에 제한됩니다.
+HUB_AO_SecureNAT_MaxDnsSessionsPerIp 이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 DNS 세션이 항목에 지정된 수에 제한됩니다.
+HUB_AO_SecureNAT_MaxIcmpSessionsPerIp 이 항목이 0 이외로 설정되어있는 경우 SecureNAT 기능을 사용하려면 VPN 클라이언트 당 ICMP 세션이 항목에 지정된 수에 제한됩니다.
 HUB_AO_AccessListIncludeFileCacheLifetime 가상 HUB의 액세스 목록 항목에 사용자 이름이 "include:"또는 "exclude:"형식으로 지정되어 있으며 외부 파일을 참조하는 경우, 해당 외부 파일을 읽어 들이고 나서 메모리에 캐시하는 시간을 초 단위로 지정합니다.
-HUB_AO_DisableKernelModeSecureNAT이 항목을 1 (유효)의 경우 SecureNAT 기능의 커널 모드 NAT를 해제합니다. 커널 모드 NAT는 SecureNAT 가상 NAT 기능의 작동 속도를 빠르게하기위한 기능이며, VPN Server 프로세스가 시스템 권한으로 실행하는 경우에 사용할 수 있습니다. 커널 모드 NAT로 인해 통신 실패가 발생하는 경우이 옵션을 사용하여 커널 모드 NAT를 해제하십시오.
-HUB_AO_DisableUserModeSecureNAT이 항목을 1 (유효)의 경우 SecureNAT 기능의 사용자 모드 NAT를 해제합니다. 사용자 모드 NAT는 SecureNAT 가상 NAT 기능을 일반 사용자 권한으로 실행시킬 수있는 기능이며, VPN Server 프로세스가 일반 사용자 권한으로 실행하고있는 경우에도 사용할 수 있습니다.
-HUB_AO_DisableCheckMacOnLocalBridge이 항목을 1 (유효)의 경우 로컬 브리지 기능에서 MAC 주소의 중복 체크를 해제합니다. 일부 LAN 카드는 로컬 브리지 기능에 의해 전달 된 패킷을 LAN 카드 내부에서 반사 가상 HUB로 돌아올 수 있습니다. 이 경우 가상 HUB는 MAC 주소의 중복을 자동으로 감지하고 반사되어 온 패킷을 폐기합니다. 이 플래그를 사용하면이 검출 체크가 무효가됩니다.
-HUB_AO_DisableCorrectIpOffloadChecksum이 항목을 1 (유효)의 경우 로컬 브리지 기능에서 IP 체크섬 검사 및 보정 처리가 비활성화됩니다. IP, TCP, UDP 헤더의 체크섬 오프로드 기능이 탑재되어있는 LAN 카드에서 전송 된 IP 패킷이 동일한 호스트에서 실행되는 VPN Server의 로컬 브리지에 입력 된 경우 해당 IP 패킷의 체크섬 부정확 한 값이 대입되는 경우가 있습니다. 로컬 브리지는 기본적으로 그 부정확 한 값을 감지하고 올바른 체크섬 계산 결과를 대입합니다. 이 플래그를 사용하면 이러한 보정 처리가 비활성화됩니다.
-HUB_AO_BroadcastLimiterStrictMode이 항목을 1 (유효)의 경우 가상 HUB에서 세션에서 브로드 캐스트 스톰 검출 알고리즘에서 소스 IP 주소 나 대상 IP 주소 중 한 개가 일치하는 경우 기존의 검출 용 기록과 히트 한 것으로 간주합니다.
+HUB_AO_DisableKernelModeSecureNAT 이 항목을 1 (유효)의 경우 SecureNAT 기능의 커널 모드 NAT를 해제합니다. 커널 모드 NAT는 SecureNAT 가상 NAT 기능의 작동 속도를 빠르게하기위한 기능이며, VPN Server 프로세스가 시스템 권한으로 실행하는 경우에 사용할 수 있습니다. 커널 모드 NAT로 인해 통신 실패가 발생하는 경우이 옵션을 사용하여 커널 모드 NAT를 해제하십시오.
+HUB_AO_DisableUserModeSecureNAT 이 항목을 1 (유효)의 경우 SecureNAT 기능의 사용자 모드 NAT를 해제합니다. 사용자 모드 NAT는 SecureNAT 가상 NAT 기능을 일반 사용자 권한으로 실행시킬 수있는 기능이며, VPN Server 프로세스가 일반 사용자 권한으로 실행하고있는 경우에도 사용할 수 있습니다.
+HUB_AO_DisableCheckMacOnLocalBridge 이 항목을 1 (유효)의 경우 로컬 브리지 기능에서 MAC 주소의 중복 체크를 해제합니다. 일부 LAN 카드는 로컬 브리지 기능에 의해 전달 된 패킷을 LAN 카드 내부에서 반사 가상 HUB로 돌아올 수 있습니다. 이 경우 가상 HUB는 MAC 주소의 중복을 자동으로 감지하고 반사되어 온 패킷을 폐기합니다. 이 플래그를 사용하면이 검출 체크가 무효가됩니다.
+HUB_AO_DisableCorrectIpOffloadChecksum 이 항목을 1 (유효)의 경우 로컬 브리지 기능에서 IP 체크섬 검사 및 보정 처리가 비활성화됩니다. IP, TCP, UDP 헤더의 체크섬 오프로드 기능이 탑재되어있는 LAN 카드에서 전송 된 IP 패킷이 동일한 호스트에서 실행되는 VPN Server의 로컬 브리지에 입력 된 경우 해당 IP 패킷의 체크섬 부정확 한 값이 대입되는 경우가 있습니다. 로컬 브리지는 기본적으로 그 부정확 한 값을 감지하고 올바른 체크섬 계산 결과를 대입합니다. 이 플래그를 사용하면 이러한 보정 처리가 비활성화됩니다.
+HUB_AO_BroadcastLimiterStrictMode 이 항목을 1 (유효)의 경우 가상 HUB에서 세션에서 브로드 캐스트 스톰 검출 알고리즘에서 소스 IP 주소 나 대상 IP 주소 중 한 개가 일치하는 경우 기존의 검출 용 기록과 히트 한 것으로 간주합니다.
 HUB_AO_MaxLoggedPacketsPerMinute 분당 패킷 로그에 저장할 수있는 최대 패킷 수를 지정합니다.
 HUB_AO_DoNotSaveHeavySecurityLogs 저장 집약적 보안 로그를 저장하지 않는 설정을합니다.
 HUB_AO_DropBroadcastsInPrivacyFilterMode 원본 및 대상의 두 세션이 개인 정보 보호 필터 모드의 경우 브로드 캐스트 패킷을 파기합니다.
@@ -578,9 +578,9 @@ HUB_AO_DropArpInPrivacyFilterMode 원본 및 대상의 두 세션이 개인 정�
 HUB_AO_SuppressClientUpdateNotification VPN Client의 업데이트 알림 화면의 표시를 억제합니다.
 HUB_AO_FloodingSendQueueBufferQuota 패킷의 가상 HUB 내에서 홍수 동작시에 소비하는 것을 허용하는 대기열의 버퍼 크기 제한 (바이트)를 지정합니다. 쿼터는 모든 연결된 VPN 세션의 전송 큐의 총 길이에 전체적으로 적용됩니다. 0을 지정하면 제한됩니다. 이 옵션은 홍수 패킷이 다발하는 네트워크에서 메모리 소비량이 증가하는 문제를 해결하기 위해 사용할 수 있습니다.
 HUB_AO_AssignVLanIdByRadiusAttribute VLAN ID의 동적 할당 기능을 활성화합니다. VPN 연결 사용자 개체의 보안 정책에 VLAN ID가 지정되지 않은 경우 각 VPN 세션은 사용자 인증 한 RADIUS 서버에서 반환되는 RADIUS 속성 값을 기준으로 VLAN이 할당됩니다. RADIUS 속성 중 "Tunnel-Pvt-Group-ID"(ID=81)의 값이 사용됩니다. 데이터 형식은 문자열이어야합니다.
-HUB_AO_SecureNAT_RandomizeAssignIp이 항목을 1 (유효)의 경우 SecureNAT 기능의 가상 DHCP 서버는 DHCP 클라이언트에 할당 된 IP 주소를 지정된 IP 주소 풀에서 사용하지 않는 주소에서 임의로 선택하도록합니다. 또한, 기본 동작은 미사용 주소 중 첫 번째 주소를 할당 할 수 있도록되어 있습니다.
-HUB_AO_DetectDormantSessionInterval이 항목이 0이 아닌 경우, 지정된 초 비활성이었다 VPN 세션을 드 폰 망토 상태 (최대 절전 모드)로 식별합니다. 드 폰 망토 상태의 VPN 세션에 가상 HUB에서 홍수되어야 패킷이 침수 없습니다.
-HUB_AO_NoPhysicalIPOnPacketLog이 항목이 0 (사용)의 경우 패킷 로그에 원본 및 대상 VPN 세션의 물리적 연결 원래 VPN 클라이언트의 IP 주소가 기록되지 않도록합니다.
+HUB_AO_SecureNAT_RandomizeAssignIp 이 항목을 1 (유효)의 경우 SecureNAT 기능의 가상 DHCP 서버는 DHCP 클라이언트에 할당 된 IP 주소를 지정된 IP 주소 풀에서 사용하지 않는 주소에서 임의로 선택하도록합니다. 또한, 기본 동작은 미사용 주소 중 첫 번째 주소를 할당 할 수 있도록되어 있습니다.
+HUB_AO_DetectDormantSessionInterval 이 항목이 0이 아닌 경우, 지정된 초 비활성이었다 VPN 세션을 드 폰 망토 상태 (최대 절전 모드)로 식별합니다. 드 폰 망토 상태의 VPN 세션에 가상 HUB에서 홍수되어야 패킷이 침수 없습니다.
+HUB_AO_NoPhysicalIPOnPacketLog 이 항목이 0 (사용)의 경우 패킷 로그에 원본 및 대상 VPN 세션의 물리적 연결 원래 VPN 클라이언트의 IP 주소가 기록되지 않도록합니다.
 
 
 # Caps 관계
@@ -660,7 +660,7 @@ CT_b_support_ddns 동적 DNS 클라이언트 기능
 CT_b_support_ddns_proxy DDNS 클라이언트의 프록시 서버를 통해 연결
 CT_b_support_special_listener VPN over ICMP 및 VPN over DNS 연결 접수
 CT_b_support_redirect_url_acl 액세스 목록에서 HTTP의 URL 리디렉션 기능을 지원
-CT_b_is_in_vm VM (가상 머신)에서 실행중인
+CT_b_is_in_vm VM(가상 머신)에서 실행중인
 CT_b_support_azure VPN Azure 기능을 사용할 수
 CT_b_support_intel_aes Intel CPU AES Acceleration (AES-NI)가 동작 중
 CT_b_using_selow_driver SoftEther 경량 커널 모드 Ethernet 드라이버를 사용 중
@@ -687,83 +687,83 @@ POL_INT_VLAN %u
 
 # Ver 2.0
 POL_0 액세스를 허용
-POL_EX_0이 정책이 설정되어있는 사용자는 VPN Server에 VPN 연결하게됩니다.
+POL_EX_0 이 정책이 설정되어있는 사용자는 VPN Server에 VPN 연결하게됩니다.
 POL_1 DHCP 패킷을 필터링 (IPv4)
-POL_EX_1이 정책이 설정되어있는 세션의 IPv4에서 DHCP 패킷을 필터링합니다.
+POL_EX_1 이 정책이 설정되어있는 세션의 IPv4에서 DHCP 패킷을 필터링합니다.
 POL_2 DHCP 서버의 동작을 금지 (IPv4)
-POL_EX_2이 정책이 설정되어있는 세션에 연결된 컴퓨터가 DHCP 서버입니다 IPv4 주소 및 DNS 서버 정보 등을 IPv4 DHCP 클라이언트에게 배포하는 것을 금지합니다.
+POL_EX_2 이 정책이 설정되어있는 세션에 연결된 컴퓨터가 DHCP 서버입니다 IPv4 주소 및 DNS 서버 정보 등을 IPv4 DHCP 클라이언트에게 배포하는 것을 금지합니다.
 POL_3 DHCP가 할당 한 IP 주소를 강제 (IPv4)
-POL_EX_3이 정책이 설정되어있는 세션의 IPv4 컴퓨터는 가상 네트워크 측의 DHCP 서버가 할당 한 IPv4 주소 만 사용할 수 있도록합니다.
+POL_EX_3 이 정책이 설정되어있는 세션의 IPv4 컴퓨터는 가상 네트워크 측의 DHCP 서버가 할당 한 IPv4 주소 만 사용할 수 있도록합니다.
 POL_4 브리지 금지
-POL_EX_4이 정책이 설정되어있는 사용자의 세션에서는 브리지 연결을 금지합니다. 사용자의 클라이언트 측에 Ethernet 브리지가 설정되어 있어도 통신 할 수 없습니다.
+POL_EX_4 이 정책이 설정되어있는 사용자의 세션에서는 브리지 연결을 금지합니다. 사용자의 클라이언트 측에 Ethernet 브리지가 설정되어 있어도 통신 할 수 없습니다.
 POL_5 라우터 동작을 금지 (IPv4)
-POL_EX_5이 정책이 설정되어있는 세션에서는 IPv4 라우팅을 금지합니다. 사용자의 클라이언트 측에서 IP 라우터가 작동하고 있어도 통신 할 수 없습니다.
+POL_EX_5 이 정책이 설정되어있는 세션에서는 IPv4 라우팅을 금지합니다. 사용자의 클라이언트 측에서 IP 라우터가 작동하고 있어도 통신 할 수 없습니다.
 POL_6 MAC 주소의 중복을 금지
-POL_EX_6이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 MAC 주소를 사용할 수 없도록합니다.
+POL_EX_6 이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 MAC 주소를 사용할 수 없도록합니다.
 POL_7 IP 주소의 중복을 금지 (IPv4)
-POL_EX_7이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 IPv4 주소를 중복 사용할 수 없도록합니다.
-POL_8 ARP·DHCP·ICMPv6 이외의 방송을 금지
-POL_EX_8이 정책이 설정되어있는 세션에서는 가상 네트워크에서 IPv4의 ARP 및 DHCP 프로토콜 및 IPv6에서 ICMPv6 프로토콜 브로드 캐스트 패킷을 제외한 모든 브로드 캐스트 패킷의 송수신을 금지합니다.
+POL_EX_7 이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 IPv4 주소를 중복 사용할 수 없도록합니다.
+POL_8 ARP·DHCP·ICMPv6 이외의 브로드캐스팅을 금지
+POL_EX_8 이 정책이 설정되어있는 세션에서는 가상 네트워크에서 IPv4의 ARP 및 DHCP 프로토콜 및 IPv6에서 ICMPv6 프로토콜 브로드 캐스트 패킷을 제외한 모든 브로드 캐스트 패킷의 송수신을 금지합니다.
 POL_9 개인 정보 보호 필터 모드
 POL_EX_9 개인 정보 보호 필터 모드 정책이 설정되어있는 세션 간의 직접 통신을 필터링합니다.
 POL_10 TCP/IP 서버로 동작을 금지 (IPv4)
-POL_EX_10이 정책이 설정되어있는 세션의 컴퓨터가 TCP/IP 프로토콜에서 서버로 동작하는 것을 금지합니다.
+POL_EX_10 이 정책이 설정되어있는 세션의 컴퓨터가 TCP/IP 프로토콜에서 서버로 동작하는 것을 금지합니다.
 POL_11 방송 수를 제한하지
-POL_EX_11이 정책이 설정되어있는 세션의 컴퓨터가 일반적으로 생각할 수없는 비정상적인 수의 브로드 캐스트 패킷을 가상 네트워크에 전달한 자동으로 제한하지 않도록합니다.
+POL_EX_11 이 정책이 설정되어있는 세션의 컴퓨터가 일반적으로 생각할 수없는 비정상적인 수의 브로드 캐스트 패킷을 가상 네트워크에 전달한 자동으로 제한하지 않도록합니다.
 POL_12 모니터링 모드를 허용
-POL_EX_12이 정책이 설정되어있는 사용자는 모니터링 모드에서 가상 HUB에 연결 할 수 있습니다. 모니터링 모드 세션은 가상 HUB 내를 흐르는 모든 패킷을 모니터링 (차단) 할 수 있습니다.
+POL_EX_12 이 정책이 설정되어있는 사용자는 모니터링 모드에서 가상 HUB에 연결 할 수 있습니다. 모니터링 모드 세션은 가상 HUB 내를 흐르는 모든 패킷을 모니터링 (차단) 할 수 있습니다.
 POL_13 TCP 연결의 최대 값
-POL_EX_13이 정책이 설정되어있는 세션의 세션 당에 할당 할 수있는 물리적 인 TCP 연결의 최대 수를 설정합니다.
+POL_EX_13 이 정책이 설정되어있는 세션의 세션 당에 할당 할 수있는 물리적 인 TCP 연결의 최대 수를 설정합니다.
 POL_14 통신 제한 시간
-POL_EX_14이 정책이 설정되어있는 세션에서 VPN Client/VPN Server 간의 통신에 장애가 발생하면 세션을 종료하기 전에 제한 시간을 초 단위로 설정합니다.
+POL_EX_14 이 정책이 설정되어있는 세션에서 VPN Client/VPN Server 간의 통신에 장애가 발생하면 세션을 종료하기 전에 제한 시간을 초 단위로 설정합니다.
 POL_15 MAC 주소의 한계
-POL_EX_15이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 MAC 주소의 개수를 지정합니다.
+POL_EX_15 이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 MAC 주소의 개수를 지정합니다.
 POL_16 IP 주소의 상한선 (IPv4)
-POL_EX_16이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 IPv4 주소의 수를 지정합니다.
+POL_EX_16 이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 IPv4 주소의 수를 지정합니다.
 POL_17 업로드 대역폭
-POL_EX_17이 정책이 설정되어있는 세션에서 가상 HUB 외부에서 가상 HUB 안쪽 방향으로 들어오는 트래픽의 대역폭을 제한합니다.
+POL_EX_17 이 정책이 설정되어있는 세션에서 가상 HUB 외부에서 가상 HUB 안쪽 방향으로 들어오는 트래픽의 대역폭을 제한합니다.
 POL_18 다운로드 대역폭
-POL_EX_18이 정책이 설정되어있는 세션에서 가상 HUB 내부에서 가상 HUB 외부 방향으로 나가는 트래픽의 대역폭을 제한합니다.
+POL_EX_18 이 정책이 설정되어있는 세션에서 가상 HUB 내부에서 가상 HUB 외부 방향으로 나가는 트래픽의 대역폭을 제한합니다.
 POL_19 사용자가 암호를 변경할 수 없음
-POL_EX_19이 정책이 설정되어있는 사용자가 암호 인증의 경우 사용자가 VPN 클라이언트 연결 관리자 등으로부터 자신의 암호를 변경하는 것을 금지합니다.
+POL_EX_19 이 정책이 설정되어있는 사용자가 암호 인증의 경우 사용자가 VPN 클라이언트 연결 관리자 등으로부터 자신의 암호를 변경하는 것을 금지합니다.
 POL_20 다중 로그인 제한
-POL_EX_20이 정책이 설정되어 사용자가 설정되어있는 수 이상의 동시 로그인을하는 것을 금지합니다. 브리지 모드 세션에는 이러한 제한이 적용되지 않습니다. 이 보안 정책은 VPN Server 3.0 이상 또는 다중 로그인 제한 기능이 탑재되어있는 VPN Server 2.0에서만 유효합니다.
+POL_EX_20 이 정책이 설정되어 사용자가 설정되어있는 수 이상의 동시 로그인을하는 것을 금지합니다. 브리지 모드 세션에는 이러한 제한이 적용되지 않습니다. 이 보안 정책은 VPN Server 3.0 이상 또는 다중 로그인 제한 기능이 탑재되어있는 VPN Server 2.0에서만 유효합니다.
 POL_21 VoIP/QoS 지원 기능의 사용을 금지
-POL_EX_21이 정책이 설정되어있는 사용자의 VPN 연결 세션에서 VoIP/QoS 지원 기능의 사용을 금지합니다. 이 보안 정책은 VPN Server 3.0 이상 또는 VoIP/QoS 지원 기능이 탑재되어있는 VPN Server 2.0에서만 유효합니다.
+POL_EX_21 이 정책이 설정되어있는 사용자의 VPN 연결 세션에서 VoIP/QoS 지원 기능의 사용을 금지합니다. 이 보안 정책은 VPN Server 3.0 이상 또는 VoIP/QoS 지원 기능이 탑재되어있는 VPN Server 2.0에서만 유효합니다.
 
 # Ver 3.0
 POL_22 라우터 요청/광고 패킷을 필터링 (IPv6)
-POL_EX_22이 정책이 설정되어있는 세션의 IPv6에서 ICMPv6 패킷 중 메시지 유형이 133 (라우터 요청) 및 134 (라우터 광고) 인 모든 패킷을 필터링합니다. 이렇게하면 IPv6 클라이언트가 IPv6의 IP 주소 접두사 자동 감지 기능 및 기본 게이트웨이 자동 감지 기능을 사용할 수 없습니다.
+POL_EX_22 이 정책이 설정되어있는 세션의 IPv6에서 ICMPv6 패킷 중 메시지 유형이 133 (라우터 요청) 및 134 (라우터 광고) 인 모든 패킷을 필터링합니다. 이렇게하면 IPv6 클라이언트가 IPv6의 IP 주소 접두사 자동 감지 기능 및 기본 게이트웨이 자동 감지 기능을 사용할 수 없습니다.
 POL_23 라우터 광고 패킷을 필터링 (IPv6)
-POL_EX_23이 정책이 설정되어있는 세션에 연결되어있는 IPv6 라우터가 가상 HUB에 발신 한 모든 ICMPv6 패킷 중 메시지 유형이 134 (라우터 광고) 인 모든 패킷을 필터링합니다. 이를 통해 악의적 인 사용자가 잘못된 접두사와 기본 게이트웨이 정보를 네트워크에 흘리는 것을 금지 할 수 있습니다.
+POL_EX_23 이 정책이 설정되어있는 세션에 연결되어있는 IPv6 라우터가 가상 HUB에 발신 한 모든 ICMPv6 패킷 중 메시지 유형이 134 (라우터 광고) 인 모든 패킷을 필터링합니다. 이를 통해 악의적 인 사용자가 잘못된 접두사와 기본 게이트웨이 정보를 네트워크에 흘리는 것을 금지 할 수 있습니다.
 POL_24 DHCP 패킷을 필터링 (IPv6)
-POL_EX_24이 정책이 설정되어있는 세션의 IPv6에서 DHCP 패킷을 필터링합니다.
+POL_EX_24 이 정책이 설정되어있는 세션의 IPv6에서 DHCP 패킷을 필터링합니다.
 POL_25 DHCP 서버의 동작을 금지 (IPv6)
-POL_EX_25이 정책이 설정되어있는 세션에 연결된 컴퓨터가 DHCP 서버입니다 IPv6 주소 및 DNS 서버 정보 등을 IPv6 DHCP 클라이언트에게 배포하는 것을 금지합니다.
+POL_EX_25 이 정책이 설정되어있는 세션에 연결된 컴퓨터가 DHCP 서버입니다 IPv6 주소 및 DNS 서버 정보 등을 IPv6 DHCP 클라이언트에게 배포하는 것을 금지합니다.
 POL_26 라우터 동작을 금지 (IPv6)
-POL_EX_26이 정책이 설정되어있는 세션에서는 IPv6 라우팅을 금지합니다. 사용자의 클라이언트 측에서 IP 라우터가 작동하고 있어도 통신 할 수 없습니다.
+POL_EX_26 이 정책이 설정되어있는 세션에서는 IPv6 라우팅을 금지합니다. 사용자의 클라이언트 측에서 IP 라우터가 작동하고 있어도 통신 할 수 없습니다.
 POL_27 IP 주소의 중복을 금지 (IPv6)
-POL_EX_27이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 IPv6 주소를 중복 사용할 수 없도록합니다.
+POL_EX_27 이 정책이 설정되어있는 세션에서는 다른 세션의 컴퓨터가 사용중인 IPv6 주소를 중복 사용할 수 없도록합니다.
 POL_28 TCP/IP 서버로 동작을 금지 (IPv6)
-POL_EX_28이 정책이 설정되어있는 세션의 컴퓨터가 TCP/IP 프로토콜에서 서버로 동작하는 것을 금지합니다.
+POL_EX_28 이 정책이 설정되어있는 세션의 컴퓨터가 TCP/IP 프로토콜에서 서버로 동작하는 것을 금지합니다.
 POL_29 IP 주소의 상한선 (IPv6)
-POL_EX_29이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 IPv6 주소의 수를 지정합니다. IPv6 클라이언트는 일반적으로 복수의 IPv6 임시 주소를 사용할 수 있기 때문에 1 세션 당 연결하는 컴퓨터 대수가 하나만하더라도이 값은 최소한 20 이상으로 설정하는 것이 권장합니다.
+POL_EX_29 이 정책이 설정되어있는 세션 1 세션 당 등록 할 수있는 IPv6 주소의 수를 지정합니다. IPv6 클라이언트는 일반적으로 복수의 IPv6 임시 주소를 사용할 수 있기 때문에 1 세션 당 연결하는 컴퓨터 대수가 하나만하더라도이 값은 최소한 20 이상으로 설정하는 것이 권장합니다.
 POL_30 VPN Client에 암호를 저장 금지
-POL_EX_30이 정책이 설정되어있는 사용자로 VPN 연결해온 VPN Client는 사용자 인증 방식이 암호 인증 인 경우, 암호를 기억하고 저장 할 수 없습니다. 따라서 사용자는 VPN 연결을 할 때마다 암호를 입력하라는 메시지가있게하여 보안을 강화합니다. 또한이 정책을 사용하면 VPN Client 버전 2.0 이전 클라이언트 PC는 연결을 거부되게됩니다.
+POL_EX_30 이 정책이 설정되어있는 사용자로 VPN 연결해온 VPN Client는 사용자 인증 방식이 암호 인증 인 경우, 암호를 기억하고 저장 할 수 없습니다. 따라서 사용자는 VPN 연결을 할 때마다 암호를 입력하라는 메시지가있게하여 보안을 강화합니다. 또한이 정책을 사용하면 VPN Client 버전 2.0 이전 클라이언트 PC는 연결을 거부되게됩니다.
 POL_31 VPN Client를 일정 시간에 자동 절단
-POL_EX_31이 정책이 설정되어있는 경우 VPN 연결해온 VPN Client는 연결 후 지정된 시간 (초)이 경과하면 자동으로 VPN 연결을 끊습니다. 이 경우, 자동 재 연결은 실시되지 않습니다. 따라서 비활성 사용자에 의한 대량의 VPN 연결을 금지 할 수 있습니다. 또한이 정책을 사용하면 VPN Client 버전 2.0 이전 클라이언트 PC는 연결을 거부되게됩니다.
+POL_EX_31 이 정책이 설정되어있는 경우 VPN 연결해온 VPN Client는 연결 후 지정된 시간 (초)이 경과하면 자동으로 VPN 연결을 끊습니다. 이 경우, 자동 재 연결은 실시되지 않습니다. 따라서 비활성 사용자에 의한 대량의 VPN 연결을 금지 할 수 있습니다. 또한이 정책을 사용하면 VPN Client 버전 2.0 이전 클라이언트 PC는 연결을 거부되게됩니다.
 POL_32 IPv4 패킷을 필터링
-POL_EX_32이 정책이 설정되어있는 세션에서는 모든 IPv4 패킷의 송수신이 필터링되어 차단됩니다. 또한 ARP 패킷의 송수신도 금지됩니다.
+POL_EX_32 이 정책이 설정되어있는 세션에서는 모든 IPv4 패킷의 송수신이 필터링되어 차단됩니다. 또한 ARP 패킷의 송수신도 금지됩니다.
 POL_33 IPv6 패킷을 필터링
-POL_EX_33이 정책이 설정되어있는 세션에서는 모든 IPv6 패킷의 송수신이 필터링되어 차단됩니다.
+POL_EX_33 이 정책이 설정되어있는 세션에서는 모든 IPv6 패킷의 송수신이 필터링되어 차단됩니다.
 POL_34 비 IP 패킷을 필터링
-POL_EX_34이 정책이 설정되어있는 세션에서는 모든 비 IP 패킷 (IPv4, ARP, IPv6 다른 종류의 패킷)의 송수신이 필터링되어 차단됩니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다.
+POL_EX_34 이 정책이 설정되어있는 세션에서는 모든 비 IP 패킷 (IPv4, ARP, IPv6 다른 종류의 패킷)의 송수신이 필터링되어 차단됩니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다.
 POL_35 IPv6 라우터 광고에서 디폴트 라우터 태그를 제거
-POL_EX_35이 정책이 설정되어있는 세션에 가상 HUB 다른 세션의 IPv6 라우터가 제공하는 IPv6 라우터 광고 메시지 라우터 유효 기간 값이 0이 아닌 숫자 인 경우이 값을 강제로 0 에 다시 전송합니다. 그러면 VPN 클라이언트 컴퓨터가 VPN 연결 대상 네트워크에있는 라우터를 기본 르 변수로 이용함으로써 물리적 인 IPv6 통신이 끊깁니다 오작동을 방지 할 수 있습니다.
+POL_EX_35 이 정책이 설정되어있는 세션에 가상 HUB 다른 세션의 IPv6 라우터가 제공하는 IPv6 라우터 광고 메시지 라우터 유효 기간 값이 0이 아닌 숫자 인 경우이 값을 강제로 0 에 다시 전송합니다. 그러면 VPN 클라이언트 컴퓨터가 VPN 연결 대상 네트워크에있는 라우터를 기본 르 변수로 이용함으로써 물리적 인 IPv6 통신이 끊깁니다 오작동을 방지 할 수 있습니다.
 POL_36 IPv6 라우터 광고에서 디폴트 라우터 지정을 제거 (IPv6 연결시 자동 활성화)
 POL_EX_36 [IPv6 라우터 광고에서 디폴트 라우터 지정을 제거 정책이 잘못된 경우에도 VPN Client 또는 VPN Bridge에서 VPN Server에 대한 연결 및 통신을 가능하게 물리적 프로토콜이 IPv6의 경우에는 자동으로 IPv6 라우터 광고에서 디폴트 라우터 지정을 제거 정책이 활성화되어있는 것으로 보아 작동하도록합니다.
 POL_37 VLAN ID (IEEE802.1Q)
-POL_EX_37이 정책에서 VLAN ID를 설정할 수 있습니다. VLAN ID 정책이 설정되어있는 세션에서는 세션의 사용자가 가상 HUB에 보내는 모든 Ethernet 프레임에 자동으로 VLAN 태그 (IEEE 802.1Q 준수)가 추가됩니다. 또한 세션의 사용자는 동일한 VLAN ID가 기록 된 VLAN 태그 프레임 만 수신 할 수 있습니다 (수신시에는 자동으로 VLAN 태그는 제거됩니다). 다른 ID의 VLAN 태그가 붙어 있는지 또는 VLAN 태그가 붙지 않은 프레임은받을 수 없습니다. VLAN ID 정책이 설정되지 않은 세션에서는 모든 Ethernet 프레임을 전송할 수있어 VLAN 태그 자동 부여 및 제거가 수행되지 않습니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다. 또한 태그 VLAN 패킷은 가상 HUB에서 IPv4/IPv6와 관련된 보안 정책, 액세스 목록 및 기타 IPv4/IPv6 패킷 별 작업의 적용 대상이되지 않습니다.
+POL_EX_37 이 정책에서 VLAN ID를 설정할 수 있습니다. VLAN ID 정책이 설정되어있는 세션에서는 세션의 사용자가 가상 HUB에 보내는 모든 Ethernet 프레임에 자동으로 VLAN 태그 (IEEE 802.1Q 준수)가 추가됩니다. 또한 세션의 사용자는 동일한 VLAN ID가 기록 된 VLAN 태그 프레임 만 수신 할 수 있습니다 (수신시에는 자동으로 VLAN 태그는 제거됩니다). 다른 ID의 VLAN 태그가 붙어 있는지 또는 VLAN 태그가 붙지 않은 프레임은받을 수 없습니다. VLAN ID 정책이 설정되지 않은 세션에서는 모든 Ethernet 프레임을 전송할 수있어 VLAN 태그 자동 부여 및 제거가 수행되지 않습니다. 또한, 가상 HUB를 통과하는 모든 태그 VLAN 패킷은 비 IP 패킷으로 간주됩니다. 또한 태그 VLAN 패킷은 가상 HUB에서 IPv4/IPv6와 관련된 보안 정책, 액세스 목록 및 기타 IPv4/IPv6 패킷 별 작업의 적용 대상이되지 않습니다.
 
 
 # 원격 연결 대화 관계
@@ -777,7 +777,7 @@ CN_TITLE SoftEther VPN Client
 
 # 연결 관리자 관계
 CM_TITLE SoftEther VPN 클라이언트 연결 관리자
-CM_PW_LOCALMACHINE이 컴퓨터
+CM_PW_LOCALMACHINE 이 컴퓨터
 CM_NO_REMOTE %s에서 작동하는 VPN Client 서비스는 원격 조작을 허용하지 않습니다.
 CM_CONNECT_FAILED %s에서 작동하는 VPN Client 서비스에 연결할 수 없습니다. \r\nVPN Client 서비스가 시작되고 제대로 작동하고 있는지 확인하십시오.
 CM_BAD_PASSWORD 암호가 잘못되었습니다. 다시 입력하십시오. 암호를 입력 할 때는 대소 문자에주의하십시오.
@@ -914,7 +914,7 @@ CM_IMPORT_NAME_2 %s (%u)
 CM_CERT_COLUMN_1 발급 대상
 CM_CERT_COLUMN_2 게시자
 CM_CERT_COLUMN_3 유효 기간
-CM_CERT_DELETE_MSG이 인증서를 목록에서 삭제 하시겠습니까?
+CM_CERT_DELETE_MSG 이 인증서를 목록에서 삭제 하시겠습니까?
 CM_PASSWORD_SET 암호를 설정했습니다.
 CM_PASSWORD_REMOVE 암호 설정을 해제했습니다.
 CM_UNDER_CONSTRUCTION 미완성입니다.
@@ -924,7 +924,7 @@ CM_HTTPS_MSG HTTP 프록시 서버를 통해 연결하는 것을 선택했습니
 CM_REMOTE_WARNING 원격 관리 설정을 허가하지 않는 설정으로 변경하려고합니다. \r\n\r\n 현재 VPN 클라이언트 연결 관리자는 원격 컴퓨터 "%S"에 접속하여이 컴퓨터에서 VPN Client 서비스를 제어 할 수 있습니다. \r\n 원격 연결을 해제하면 컴퓨터 "%S"의 VPN Client 서비스에 원격 VPN 클라이언트 연결 관리자에 의해 연결하고 제어 할 수 없습니다. \r\n\r\n 원격 관리를 해제 하시겠습니까?
 CM_KEEP_INTERVAL_MSG 패킷 전송 간격은 %u 초에서 %u 초까지의 값을 설정하십시오.
 CM_REMOTE_TITLE 다른 컴퓨터에서 작동하는 VPN Client 서비스를 VPN 클라이언트 연결 관리자에서 연결하여 원격으로 관리 할 수 있습니다. \r\n (단, 연결된 컴퓨터의 VPN Client 서비스가 원격 관리를 허용해야합니다.)
-CM_DESKTOP_LOCAL_PC이 컴퓨터
+CM_DESKTOP_LOCAL_PC 이 컴퓨터
 CM_DESKTOP_REMOTE_PC 컴퓨터 %S 
 CM_DESKTOP_MSG_LOCAL_TS 터미널 서비스 (원격 데스크톱) 기능
 CM_DESKTOP_MSG_LOCAL_SW 사용자 전환 기능
@@ -936,8 +936,8 @@ CM_DESKTOP_MSG_LOCAL_32 로그 오프 한 다음 로컬로 로그온 다시 다�
 CM_DESKTOP_MSG_REMOTE_1 현재 컴퓨터 %S에서 VPN Client에 원격 접속하여 작업을하고 있기 때문에 연결 설정에 대한 VPN 연결 중에 VPN Client가 진행 또는 오류 메시지 등을 표시 한 경우, 그 메시지 현재 화면에서 확인할 수 없습니다.
 CM_DESKTOP_MSG_REMOTE_2 VPN Client를 표시하는 진행 상황이나 오류 등의 메시지 창을 확인하려면 컴퓨터 %S에 로컬로 로그온하여 콘솔 세션 (바탕 화면)을 표시해야합니다.
 CM_DESKTOP_MSG_REMOTE_3 컴퓨터 %S 콘솔 세션으로 직접 로컬로 로그온 한 다음 세션에서 VPN 클라이언트 연결 관리자를 시작하고 연결 설정 "%s"에 대한 연결을 시작하는 것이 좋습니다. 이대로 연결 작업을 시작할 수도 있지만,이 경우 중간에 나타날 수있는 진행 또는 오류 메시지를 확인할 수없는 경우가 있습니다.
-CM_STOP_INST_VLAN_1이 컴퓨터에서 가상 LAN 카드의 설치 작업을 수행하려면 "콘솔 세션"에 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 현재이 컴퓨터는 %s가 설치되어 있으며, 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다. \r\n 가상 LAN 카드의 설치 작업은 콘솔 세션 (세션 ID:%u 사용자 %s가 로그온)에서 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 사용자 전환 기능을 사용하거나 원격 데스크톱의/console 스위치 기능을 사용하거나 컴퓨터의 로컬 콘솔 장치를 사용하여 컴퓨터에 로컬로 로그온 한 후 VPN 클라이언트 연결 관리자 를 시작하고 가상 LAN 카드의 설치 작업을 수행합니다.
-CM_STOP_INST_VLAN_2이 컴퓨터에서 가상 LAN 카드의 설치 작업을 수행하려면 "콘솔 세션"에 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 현재이 컴퓨터는 %s가 설치되어 있으며, 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다. \r\n 가상 LAN 카드의 설치 작업은 콘솔 세션에서 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n (현재 콘솔 세션 (세션 ID:0)은 사용자가 로그온하지 않습니다.) \r\n\r\n 사용자 전환 기능을 사용하거나 원격 데스크톱의/console 스위치 기능 를 사용하거나 컴퓨터의 로컬 콘솔 장치를 사용하여 컴퓨터에 로컬로 로그온 한 후 VPN 클라이언트 연결 관리자를 시작하고 가상 LAN 카드의 설치 작업을 수행합니다.
+CM_STOP_INST_VLAN_1 이 컴퓨터에서 가상 LAN 카드의 설치 작업을 수행하려면 "콘솔 세션"에 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 현재이 컴퓨터는 %s가 설치되어 있으며, 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다. \r\n 가상 LAN 카드의 설치 작업은 콘솔 세션 (세션 ID:%u 사용자 %s가 로그온)에서 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 사용자 전환 기능을 사용하거나 원격 데스크톱의/console 스위치 기능을 사용하거나 컴퓨터의 로컬 콘솔 장치를 사용하여 컴퓨터에 로컬로 로그온 한 후 VPN 클라이언트 연결 관리자 를 시작하고 가상 LAN 카드의 설치 작업을 수행합니다.
+CM_STOP_INST_VLAN_2 이 컴퓨터에서 가상 LAN 카드의 설치 작업을 수행하려면 "콘솔 세션"에 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 현재이 컴퓨터는 %s가 설치되어 있으며, 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다. \r\n 가상 LAN 카드의 설치 작업은 콘솔 세션에서 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n (현재 콘솔 세션 (세션 ID:0)은 사용자가 로그온하지 않습니다.) \r\n\r\n 사용자 전환 기능을 사용하거나 원격 데스크톱의/console 스위치 기능 를 사용하거나 컴퓨터의 로컬 콘솔 장치를 사용하여 컴퓨터에 로컬로 로그온 한 후 VPN 클라이언트 연결 관리자를 시작하고 가상 LAN 카드의 설치 작업을 수행합니다.
 CM_SHORTCUT_DESKTOP_MSG 연결 설정의 단축키를 사용하여 연결을 시작하려면 "콘솔 세션"에 바로 가기 파일을 시작해야합니다. \r\n\r\n 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다.
 CM_HTTP_PROXY_WARNING HTTP 프록시 서버를 통해 연결이 선택되어 있습니다. \r\n\r\n 종종 HTTP 프록시 서버는 연결할 서버의 포트 번호로 HTTP 프로토콜 (TCP 80 번 포트) 및 HTTPS 프로토콜 (TCP 포트 443)의 2 종류의 TCP 포트에 연결 만 를 허용하고 있습니다. \r\n (프록시 서버가 임의의 TCP 포트에 대한 연결을 허용하는 경우도 있습니다.) \r\n\r\nHTTP 또는 HTTPS 포트 이외의 서버 포트에 연결을 금지하고있는 HTTP 프록시 서버를 통해 VPN 연결을 할 경우 연결된 VPN Server의 포트 번호는 443 (HTTPS 프로토콜)에 지정해야합니다. \r\n\r\n 통해 HTTP 프록시 서버가 80 번 또는 443 번 포트 이외의 연결을 허용하는지 여부를 확인하려면 HTTP 프록시 서버의 관리자에게 문의하십시오. \r\n\r\n 현재 연결된 VPN Server의 포트 번호는 %d가 지정되어 있지만 포트 번호를 443 (HTTPS 프로토콜)로 변경 하시겠습니까? \r\n (연결하는 VPN Server의 포트 443에서 연결을 기다리는 설정되어 있어야합니다.) \r\n 알 수없는 경우 시스템 관리자 또는 네트워크 관리자에게 문의하십시오.
 CM_PASSWORD_CHANGED 비밀번호가 변경되었습니다.
@@ -948,10 +948,10 @@ CM_ACCOUNT_FILE_BANNER # VPN Client 연결 설정 파일 \r\n # \r\n #이 파일
 CM_FAILED_TO_OPEN_FILE 파일을 열 수 없습니다.
 CM_FAILED_TO_SAVE_FILE 파일을 저장할 수 없습니다.
 CM_ACCOUNT_PARSE_FAILED 지정된 파일에서 연결 설정을로드 할 수 없습니다. \r\n 파일의 내용을 확인하십시오.
-CM_ACCOUNT_MSG_SENSITIVE이 연결 설정에는 사용자 이름과 암호 정보가 저장되어 있습니다. \r\n 사용자 이름과 암호 정보를 연결 설정 파일에서 삭제 하시겠습니까? \r\n\r\n 예를 클릭하면 연결 설정 파일에서 인증 정보를 삭제합니다. \r\n이 경우 연결 설정을 가져온 사용자는 VPN 연결시 사용자 이름과 암호를 입력해야합니다. \r\n\r\n 아니오를 클릭하면 연결 설정 파일에 인증 정보를 저장 한 상태로 있습니다.
+CM_ACCOUNT_MSG_SENSITIVE 이 연결 설정에는 사용자 이름과 암호 정보가 저장되어 있습니다. \r\n 사용자 이름과 암호 정보를 연결 설정 파일에서 삭제 하시겠습니까? \r\n\r\n 예를 클릭하면 연결 설정 파일에서 인증 정보를 삭제합니다. \r\n이 경우 연결 설정을 가져온 사용자는 VPN 연결시 사용자 이름과 암호를 입력해야합니다. \r\n\r\n 아니오를 클릭하면 연결 설정 파일에 인증 정보를 저장 한 상태로 있습니다.
 CM_SHORTCUT_FILE 바로 가기 파일|* .lnk
 CM_SHORTCUT_SAVE_TITLE 바로 가기 파일 이름을 입력하십시오.
-CM_SHORTCUT_UNSUPPORTED이 버전의 VPN Client는 연결 바로 가기 기능을 지원하지 않습니다. \r\n 새로운 버전으로 업데이트하십시오.
+CM_SHORTCUT_UNSUPPORTED 이 버전의 VPN Client는 연결 바로 가기 기능을 지원하지 않습니다. \r\n 새로운 버전으로 업데이트하십시오.
 CM_SHORTCUT_COMMENT 연결 설정 "%s"를 사용하여 VPN Server에 연결합니다.
 CM_SHORTCUT_ERROR 바로 가기 만들기에 실패했습니다.
 CM_VPN_FILE_CLICKED 연결 설정 파일을 가져 오시겠습니까?
@@ -977,7 +977,7 @@ CM_TRAY_MENU_TRAFFIC 통신 처리량 측정 도구 (&R)...
 CM_TRAY_MENU_NETIF 네트워크 장치의 상태를 표시 (&D)...
 CM_TRAY_MENU_ABOUT 연결 관리자의 버전 정보 (&A)...
 CM_TRAY_MENU_SETTING 동작 모드 변경 (&M)...
-CM_TRAY_MENU_CANCEL이 메뉴 닫기
+CM_TRAY_MENU_CANCEL 이 메뉴 닫기
 CM_EXIT_MESSAGE VPN 클라이언트 연결 관리자 프로그램을 종료합니다. \r\n 하시겠습니까?
 CM_IMPORT_MESSAGE 파일 "%S"에서 연결 설정 "%s"를 가져 왔습니다.
 CM_VLAN_CREATING 새로운 VPN 용 가상 LAN 카드를 만들고 Windows에 추가합니다. \r\n\r\n이 작업은 몇 초에서 수십 초가 걸릴 수 있습니다. \r\n 잠시 기다려주십시오... \r\n\r\n (가상 LAN 카드를 작성하는 동안 다른 작업은하지 마십시오.)
@@ -1032,7 +1032,7 @@ VGC_UDP_AVAILABLE UDP OK
 
 VGC_TITLE VPN Gate 플러그인에 대한 메시지
 
-VGC_VER_DIFF이 VPN Gate Client 플러그인 버전이 SoftEther VPN Client의 버전과 다릅니다. \r\n\r\n 현재 VPN Gate 플러그인:빌드 %u \r\n 현재 SoftEther VPN Client:빌드 %u \r\n\r\nVPN Gate 플러그인의 최신 버전 (빌드 %u) 를 다운로드하고 설치하는 것이 좋습니다. 최신 버전으로 업데이트하지 않는 경우, VPN 통신 오류와 목록 업데이트 오류가 발생할 수 있습니다. 만약 여러 번 VPN 서버 목록 갱신에 실패하면 VPN Gate 플러그인 버전을 업데이트하십시오. \r\n\r\n 최신 버전의 VPN Gate 플러그인 입수:http://www.vpngate.net/\r\n (만약 위 사이트에 직접 액세스 할 수없는 경우 미러 사이트를 통해 방문 하십시오.) \r\n\r\n
+VGC_VER_DIFF 이 VPN Gate Client 플러그인 버전이 SoftEther VPN Client의 버전과 다릅니다. \r\n\r\n 현재 VPN Gate 플러그인:빌드 %u \r\n 현재 SoftEther VPN Client:빌드 %u \r\n\r\nVPN Gate 플러그인의 최신 버전 (빌드 %u) 를 다운로드하고 설치하는 것이 좋습니다. 최신 버전으로 업데이트하지 않는 경우, VPN 통신 오류와 목록 업데이트 오류가 발생할 수 있습니다. 만약 여러 번 VPN 서버 목록 갱신에 실패하면 VPN Gate 플러그인 버전을 업데이트하십시오. \r\n\r\n 최신 버전의 VPN Gate 플러그인 입수:http://www.vpngate.net/\r\n (만약 위 사이트에 직접 액세스 할 수없는 경우 미러 사이트를 통해 방문 하십시오.) \r\n\r\n
 
 VGC_LIST_STR_OK 지구상에 %S 대 공개 VPN 중계 서버 (%S에 업데이트)
 VGC_LIST_STR_OK_2 %S 대의 서버 (%S에 업데이트) - 목록 검색 실패. 최신 버전의 VPN Gate Client를 다운로드하십시오.
@@ -1233,13 +1233,13 @@ CM_SHORTCUT_DISCONNECT 지정된 연결에 이미 연결되어 있습니다. \r\
 SM_SERVER_STATUS 서버 상태
 SM_ST_SERVER_TYPE 서버의 종류
 SM_ST_NUM_TCP 열려있는 소켓 수
-SM_ST_NUM_TCP_LOCAL이 서버 소켓 수
+SM_ST_NUM_TCP_LOCAL 이 서버 소켓 수
 SM_ST_NUM_TCP_REMOTE 다른 클러스터 구성원 서버 소켓 수 합계
 SM_ST_NUM_HUB_TOTAL 가상 HUB 수
 SM_ST_NUM_HUB_STATIC 정적 가상 HUB 수
 SM_ST_NUM_HUB_DYNAMIC 동적 가상 HUB 수
 SM_ST_NUM_SESSION_TOTAL 세션 수
-SM_ST_NUM_SESSION_LOCAL이 서버의 세션 수
+SM_ST_NUM_SESSION_LOCAL 이 서버의 세션 수
 SM_ST_NUM_SESSION_REMOTE 다른 클러스터 구성원 서버의 세션 수
 SM_ST_NUM_MAC_TABLE MAC 주소 테이블 수
 SM_ST_NUM_IP_TABLE IP 주소 테이블 수
@@ -1490,17 +1490,17 @@ SM_IP_COLUMN_3 작성 시간
 SM_IP_COLUMN_4 업데이트 시간
 SM_IP_COLUMN_5 위치
 SM_MAC_IP_DHCP %S (DHCP)
-SM_MACIP_LOCAL이 서버
+SM_MACIP_LOCAL 이 서버
 SM_MACIP_SERVER %S 상
 SM_SNAT_STATUS SecureNAT의 작동 상황
 SM_SNAT_NUM_SESSION %u 세션
 SM_SNAT_NUM_CLIENT %u 클라이언트
 SM_SNAT_IS_KERNEL 커널 모드 NAT에서 작동 중
 SM_BRIDGE_TOO_OLD_VER 현재 연결된 VPN Server 버전에서는 로컬 브리지 기능을 지원하지 않습니다. \r\n 새로운 버전으로 업데이트 해보십시오.
-SM_BRIDGE_UNSUPPORTED이 VPN Server가 실행중인 운영 체제에서 로컬 브리지 기능을 사용할 수 없습니다. 로컬 브리지 기능을 사용할 수있는 운영 체제 목록은 VPN Server 온라인 설명서를 참조하십시오.
-SM_BRIDGE_WPCAP_REMOTE이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap 소프트웨어 설치를 계속하기 위해서는 VPN Server를 실행하는 서버 컴퓨터에서 SoftEther VPN 서버 관리 관리자를 시작하고 localhost (자신)에 연결 한 상태에서 로컬 브리지 기능 설정 화면을 표시해야합니다. \r\n 계속하려면 일단이 관리 세션을 종료하고 서버 컴퓨터에서 SoftEther VPN 서버 관리 관리자를 시작하고 localhost에 연결하여 설정을 계속하십시오.
-SM_BRIDGE_WPCAP_ROOT이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. \r\n\r\n 설치를 계속하려면이 컴퓨터에 Administrators (관리자) 권한을 가진 사용자로 로그온해야합니다. \r\nAdministrators 권한으로 로그온 한 후 다시 SoftEther VPN 서버 관리 관리자를 시작하십시오.
-SM_BRIDGE_WPCAP_INSTALL이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap는 무료 소프트웨어이며, VPN Server의 일부로 포함되어 있기 때문에 쉽게 설치 할 수 있습니다. \r\n\r\nWinPcap를 설치 하시겠습니까?
+SM_BRIDGE_UNSUPPORTED 이 VPN Server가 실행중인 운영 체제에서 로컬 브리지 기능을 사용할 수 없습니다. 로컬 브리지 기능을 사용할 수있는 운영 체제 목록은 VPN Server 온라인 설명서를 참조하십시오.
+SM_BRIDGE_WPCAP_REMOTE 이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap 소프트웨어 설치를 계속하기 위해서는 VPN Server를 실행하는 서버 컴퓨터에서 SoftEther VPN 서버 관리 관리자를 시작하고 localhost (자신)에 연결 한 상태에서 로컬 브리지 기능 설정 화면을 표시해야합니다. \r\n 계속하려면 일단이 관리 세션을 종료하고 서버 컴퓨터에서 SoftEther VPN 서버 관리 관리자를 시작하고 localhost에 연결하여 설정을 계속하십시오.
+SM_BRIDGE_WPCAP_ROOT 이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. \r\n\r\n 설치를 계속하려면이 컴퓨터에 Administrators (관리자) 권한을 가진 사용자로 로그온해야합니다. \r\nAdministrators 권한으로 로그온 한 후 다시 SoftEther VPN 서버 관리 관리자를 시작하십시오.
+SM_BRIDGE_WPCAP_INSTALL 이 VPN Server에서 로컬 브리지 기능을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap는 무료 소프트웨어이며, VPN Server의 일부로 포함되어 있기 때문에 쉽게 설치 할 수 있습니다. \r\n\r\nWinPcap를 설치 하시겠습니까?
 SM_BRIDGE_WPCAP_REBOOT1 WinPcap 설치가 완료된 후 로컬 브리지 기능을 사용하려면 컴퓨터를 다시 시작해야합니다. \r\n\r\n 수동으로 컴퓨터를 다시 시작하고 VPN Server가 시작된 후 로컬 브리지 기능 설정을해야합니다.
 SM_BRIDGE_WPCAP_REBOOT2 WinPcap 설치가 완료된 후 로컬 브리지 기능을 사용할 경우 SoftEther VPN Server 서비스를 다시 시작해야합니다. \r\n \r \nSoftEther VPN Server 서비스를 다시 시작 단시간에 완료되지만 현재이 VPN Server에 연결된 세션이 끊어집니다. \r\n이 관리 세션도 종료되므로 계속하려면 다시 연결하십시오. \r\n\r\nSoftEther VPN Server 서비스를 다시 시작 하시겠습니까?
 SM_BRIDGE_RESOURCE WinPcap 드라이버를로드하지 못했습니다.
@@ -1525,7 +1525,7 @@ SM_CONFIG_CONFIRM 지정된 구성 파일을 VPN Server에 씁니다. VPN Server
 SM_CONFIG_WRITE_OK 서버 측의 설정 파일을 재 작성되었습니다.
 SM_AO_COLUMN_1 값의 이름
 SM_AO_COLUMN_2 설정
-SM_TRUE_OR_FALSE이 항목은 0 (false) 또는 1 (true)로 설정하십시오.
+SM_TRUE_OR_FALSE 이 항목은 0 (false) 또는 1 (true)로 설정하십시오.
 SM_AO_SET_OK 가상 HUB 관리 옵션을 설정했습니다.
 SM_EXT_OPTION_SET_OK 가상 HUB 확장 옵션을 설정했습니다.
 SM_PASSWORD_MSG 현재 연결된 VPN Server 관리자 암호가 설정되어 있지 않습니다. 암호를 설정하는 것이 좋습니다. \r\n\r\n 서버 관리자 암호를 설정 하시겠습니까?
@@ -1578,7 +1578,7 @@ SM_LICENSE_COLUMN_9 일련 ID
 SM_LICENSE_INFINITE 무제한
 SM_LICENSE_NO_EXPIRES 무기한
 SM_LICENSE_STATUS_EDITION 제품 버전 이름
-SM_LICENSE_STATUS_RELEASE이 VPN Server 릴리스 날짜
+SM_LICENSE_STATUS_RELEASE 이 VPN Server 릴리스 날짜
 SM_LICENSE_STATUS_SYSTEM_ID 현재 서버 ID
 SM_LICENSE_STATUS_EXPIRES 현재 제품 라이센스 만료
 SM_LICENSE_STATUS_SUBSCRIPTION 구독 계약 상태
@@ -1594,7 +1594,7 @@ SM_LICENSE_STATUS_ENTERPRISE_NO 아니오 (이용 불가)
 SM_LICENSE_NUM_USER 사용자 작성 가능 수
 SM_LICENSE_NUM_CLIENT 클라이언트 동시 연결 수를
 SM_LICENSE_NUM_BRIDGE 브리지 동시 연결 수를
-SM_NO_LICENSE_COLUMN주의:
+SM_NO_LICENSE_COLUMN 주의:
 SM_NO_LICENSE 제품 라이센스가 하나도 등록되어 있지 않기 때문에이 VPN Server의 통신 기능이 작동하지 않습니다.
 SM_LICENSE_DELETE_MSG 선택된 라이센스를 VPN Server에서 삭제 하시겠습니까?
 SM_SYSLOG_0 syslog 송신 기능을 사용하지
@@ -1607,7 +1607,7 @@ SM_SETUP_BRIDGE_ONLY 현재 VPN Bridge에 연결되어 있기 때문에, 거점 
 SM_SETUP_BRIDGE_EDGE 각 거점에 설치하는 VPN Bridge (&E)
 SM_SETUP_WARNING 계속하면이 VPN Server 또는 VPN Bridge의 현재 설정은 빠른 설치로 지정한 내용에 초기화됩니다. \r\n 하시겠습니까?
 SM_SETUP_SELECT 브리지 연결하는 Ethernet 장치를 선택하십시오
-SM_SETUP_NO_LICENSE_KEY이 SoftEther VPN Server는 유효한 라이센스 키가 등록되어 있지 않습니다. \r\n\r\nSoftEther VPN Server가 VPN 서버로 작동하려면 라이센스 키를 등록해야합니다. \r\n 라이센스 관리 화면을 표시 하시겠습니까? \r\n\r\n (시험판으로 사용하는 경우 소프트 이사 주식회사의 Web 사이트를 방문하여 평가판 라이센스 키를 얻으려면 해야합니다. \r\n 예를 클릭 한 다음 라이센스 확보·고침 단추를 클릭하면 평가판 라이센스 키를 얻을 수 있습니다.)
+SM_SETUP_NO_LICENSE_KEY 이 SoftEther VPN Server는 유효한 라이센스 키가 등록되어 있지 않습니다. \r\n\r\nSoftEther VPN Server가 VPN 서버로 작동하려면 라이센스 키를 등록해야합니다. \r\n 라이센스 관리 화면을 표시 하시겠습니까? \r\n\r\n (시험판으로 사용하는 경우 소프트 이사 주식회사의 Web 사이트를 방문하여 평가판 라이센스 키를 얻으려면 해야합니다. \r\n 예를 클릭 한 다음 라이센스 확보·고침 단추를 클릭하면 평가판 라이센스 키를 얻을 수 있습니다.)
 SM_HUBEXT_OPTION_TITLE 가상 HUB 확장 옵션
 SM_HUBEXT_OPTION_STATIC1 가상 HUB 확장 옵션을 사용하면이 가상 HUB에 관한보다 상세한 설정을 할 수 있습니다.
 SM_HUBEXT_OPTION_STATIC2 표준에서는 VPN Server 전체 관리자 및 가상 HUB 관리자 모두 가상 HUB 확장 옵션을 편집 할 수 있습니다. \r\n 그러나 가상 HUB 관리 옵션 deny_hub_admin_change_ext_option가 1로 설정되어있는 경우 가상 HUB의 관리자는 확장 옵션을 편집 할 수 없습니다 (설정 내용을 표시 할 수 있습니다).
@@ -1627,7 +1627,7 @@ SM_ETHERIP_COLUMN_0 ISAKMP Phase 1 ID
 SM_ETHERIP_COLUMN_1 가상 HUB 이름
 SM_ETHERIP_COLUMN_2 사용자 이름
 SM_ETHERIP_ADD_OK 새로운 EtherIP/L2TPv3 클라이언트의 연결 설정을 추가했습니다.
-SM_IPSEC_SETUP_QUESTION이 VPN Server는 IPsec/L2TP/EtherIP/L2TPv3 사용하는 VPN 클라이언트와 라우터 제품 등의 연결을 수락 할 수있는 기능을 가지고 있습니다. \r\n\r\n이 VPN Server가 iPhone, iPad Android 등의 스마트 폰과 Mac OS X, Windows 등에 탑재되는 VPN 클라이언트 기능의 연결을 받아 들일 수 있도록 IPsec 설정을 할 수 있습니다. \r\n\r\nIPsec 설정을 하시겠습니까? \r\n (이 설정은 나중에 [IPsec/L2TP 설정 버튼을 클릭하여 언제든지 할 수 있습니다.)
+SM_IPSEC_SETUP_QUESTION 이 VPN Server는 IPsec/L2TP/EtherIP/L2TPv3 사용하는 VPN 클라이언트와 라우터 제품 등의 연결을 수락 할 수있는 기능을 가지고 있습니다. \r\n\r\n이 VPN Server가 iPhone, iPad Android 등의 스마트 폰과 Mac OS X, Windows 등에 탑재되는 VPN 클라이언트 기능의 연결을 받아 들일 수 있도록 IPsec 설정을 할 수 있습니다. \r\n\r\nIPsec 설정을 하시겠습니까? \r\n (이 설정은 나중에 [IPsec/L2TP 설정 버튼을 클릭하여 언제든지 할 수 있습니다.)
 SM_OPENVPN_CONFIG_SAVE_OK OpenVPN 설정 파일을 저장 한 ZIP 파일을 '%s'에 저장했습니다. \r\n\r\n이 ZIP 파일을 열면 OpenVPN 클라이언트에서 사용할 수있는 설정 파일의 샘플을 배포 할 수 있습니다. \r\n 또한 설정 파일은 실제로 사용하기 전에 환경에 따라 수정해야하는 경우가 있습니다. \r\n\r\n 자세한 내용은 ZIP 파일의 'readme.txt'파일을 읽어 보시기 바랍니다. \r\n\r\n이 ZIP 파일을 지금 시작 하시겠습니까?
 SM_OPENVPN_CONFIG_SAVE_NG ZIP 파일 '%s'의 저장에 실패했습니다.
 SM_OPENVPN_CONFIG_OPEN_NG ZIP 파일 '%s'을 열려고 실패했습니다. 수동으로 파일을 엽니 다.
@@ -1649,7 +1649,7 @@ SM_DISABLE_DDNS_HINT 동적 DNS 기능을 사용하려면 VPN Server 설정 파�
 SM_REGENERATE_CERT_MSG VPN Server의 서버 인증서를 새 것으로 교체합니다. \r\n\r\n 이는 이전 서버 인증서에 연결하는 것을 전제로 설정되어있는 VPN Client는이 VPN Server에 연결하지 못할 수 있습니다. \r\n 하시겠습니까?
 SM_DDNS_SERVER_CERT_MSG DDNS 호스트 이름을 "%S"로 변경했습니다. \r\n\r\n이 VPN Server에 Microsoft SSTP VPN 프로토콜을 사용하여 Windows Vista 이후 버전의 Windows 내장 SSTP VPN 클라이언트에서 연결하는 경우 VPN 클라이언트에서 연결할 VPN 서버 이름으로 지정하는 호스트 이름 (DNS 이름) 문자열과이 VPN Server의 SSL 서버 인증서의 CN (Common Name) 문자열과 완전히 일치해야합니다. \r\n\r\n이 VPN Server의 SSL 서버 인증서의 CN이 "%S"가되도록 서버 인증서를 다시 생성 하시겠습니까? \r\n (아니오를 클릭하면 현재 의 SSL 서버 인증서가 계속 사용됩니다.)
 SM_DDNS_SERVER_CERT_OK VPN Server의 SSL 인증서를 다시 생성했습니다. \r\n\r\n이 VPN Server에 Microsoft SSTP VPN 클라이언트에서 연결하려면 현재 DDNS 호스트 이름 "%S"를 연결할 서버 이름으로 지정하는 것을 권장합니다. \r\n 또한 SSTP VPN 클라이언트를 위해 Windows상에서의 "신뢰할 수있는 루트 인증서"미리이 VPN Server의 인증서 파일을 설치해야합니다. \r\n (루트 인증서를 Windows에 설치하려면 MMC의 "인증서"에서 "로컬 컴퓨터"인증서 저장소를 열고 "신뢰할 수있는 루트 인증서 '이 VPN Server의 인증서 파일을 추가합니다. \r\n 자세한 내용은 Microsoft 문서를 참조하십시오.) \r\n\r\n 새로운 VPN Server의 SSL 인증서를 X.509 형식의 인증서 파일에 저장 하시겠습니까 ?
-SM_SETUP_STEP_SECURENAT이 VPN Server/Bridge는 사용자 모드로 부팅하고 있거나 OS가 로컬 브리지 비 대응을위한 가상 HUB와 물리적 LAN 카드와 브리지 수 없습니다. 대신 "SecureNAT"기능을 사용하면 연결해온 VPN 클라이언트는 가상 NAT를 통해 LAN에있는 컴퓨터에 액세스 할 수 있습니다.
+SM_SETUP_STEP_SECURENAT 이 VPN Server/Bridge는 사용자 모드로 부팅하고 있거나 OS가 로컬 브리지 비 대응을위한 가상 HUB와 물리적 LAN 카드와 브리지 수 없습니다. 대신 "SecureNAT"기능을 사용하면 연결해온 VPN 클라이언트는 가상 NAT를 통해 LAN에있는 컴퓨터에 액세스 할 수 있습니다.
 SM_SETUP_STEP_SECURENAT_TITLE 3. 가상 HUB와 물리적 LAN과의 접속
 SM_UPDATE_CHECK_TITLE_VPNSERVER %S VPN Server (서버 '%S'위)
 SM_UPDATE_CHECK_TITLE_VPNBRIDGE %S VPN Bridge (서버 '%S'위)
@@ -1795,10 +1795,10 @@ LO_PREFIX_SESSION OpenVPN 세션 %u (%r:%u -> %r:%u):
 LO_PREFIX_CHANNEL OpenVPN 세션 %u (%r:%u -> %r:%u) 채널 %u:
 LO_NEW_CHANNEL 새로운 채널을 만들었습니다.
 LO_CHANNEL_ESTABLISHED_NEWKEY 채널이 설정 상태가되었습니다 (원인:리키 완료).
-LO_OPTION_STR_RECV받은 옵션 문자열:"%S"
+LO_OPTION_STR_RECV 받은 옵션 문자열:"%S"
 LO_OPTION_STR_SEND 보내는 옵션 문자열:"%S"
 LO_NEW_SESSION 새 세션을 만들었습니다. 프로토콜:%S
-LO_INITIATE_REKEY이 채널의 리키를 시작합니다.
+LO_INITIATE_REKEY 이 채널의 리키를 시작합니다.
 LO_CHANNEL_ESTABLISHED 채널이 설정 상태가되었습니다 .
 LO_PUSH_REPLY 응답 옵션 문자열 전체:"%S"
 LO_CHANNEL_FAILED 채널의 접속 처리에 실패했습니다.
@@ -1821,9 +1821,9 @@ LI_NUM_IKE_SA 종료시에 잔존하고 있던 IKE SA의 수는 %u 개였습니�
 LI_NUM_IKE_CLIENTS 종료시에 잔존하고 있던 IPsec 클라이언트의 수는 %u 개였습니다.
 LI_L2TP_SERVER_STARTED L2TP 서버 모듈을 시작했습니다.
 LI_ETHERIP_SERVER_STARTED EtherIP 서버 모듈을 시작했습니다. EtherIP 세션 번호:%u
-LI_DELETE_IKE_CLIENT이 IPsec 클라이언트를 삭제했습니다.
-LI_DELETE_IKE_SA이 IKE SA를 삭제했습니다.
-LI_DELETE_IPSEC_SA이 IPsec SA를 삭제했습니다.
+LI_DELETE_IKE_CLIENT 이 IPsec 클라이언트를 삭제했습니다.
+LI_DELETE_IKE_SA 이 IKE SA를 삭제했습니다.
+LI_DELETE_IPSEC_SA 이 IPsec SA를 삭제했습니다.
 LI_START_QM_FROM_SERVER 서버 측에서 QuickMode의 절충을 시작했습니다.
 LI_START_QM_FROM_CLIENT 클라이언트 측에서 QuickMode의 절충이 시작되었습니다.
 LI_QM_DH_ERROR Diffie-Hellman 알고리즘의 계산에 실패했습니다.
@@ -1839,10 +1839,10 @@ LI_IPSEC_SA_ESTABLISHED 서버 클라이언트간에이 IPsec SA가 수립되었
 LI_IKE_SA_ESTABLISHED 서버 클라이언트간에이 IKE SA가 확립되었습니다.
 LI_IPSEC_NO_TRANSFORM 클라이언트 측에서 제시 한 IPsec SA 설립을위한 변환 후보 수락 할 수있는 것을 찾을 수 없었습니다.
 LI_IKE_NO_TRANSFORM 클라이언트 측에서 제시 한 IKE SA 설립을위한 변환 후보 수락 할 수있는 것을 찾을 수 없었습니다.
-LI_IKE_NO_NAT_T이 클라이언트는 IPsec NAT Traversal (RFC 3947 Negotiation of NAT-Traversal in the IKE 또는 draft-ietf-ipsec-nat-t-ike)에 대응하고 있지 않기 때문에 연결을 받아 들일 수 없습니다.
-LI_SET_CLIENT_ID이 클라이언트가 IKE SA의 확립시에 제시 한 클라이언트 ID는 "%S"입니다.
-LI_CLIENT_MERGE이 클라이언트 (클라이언트 %u)와 기존의 다른 클라이언트 %u와 동일하므로 클라이언트 %u에 결합되었습니다.
-LI_CLIENT_UPDATE이 클라이언트의 포트 번호 정보가 업데이트되었습니다.
+LI_IKE_NO_NAT_T 이 클라이언트는 IPsec NAT Traversal (RFC 3947 Negotiation of NAT-Traversal in the IKE 또는 draft-ietf-ipsec-nat-t-ike)에 대응하고 있지 않기 때문에 연결을 받아 들일 수 없습니다.
+LI_SET_CLIENT_ID 이 클라이언트가 IKE SA의 확립시에 제시 한 클라이언트 ID는 "%S"입니다.
+LI_CLIENT_MERGE 이 클라이언트 (클라이언트 %u)와 기존의 다른 클라이언트 %u와 동일하므로 클라이언트 %u에 결합되었습니다.
+LI_CLIENT_UPDATE 이 클라이언트의 포트 번호 정보가 업데이트되었습니다.
 
 
 # (EtherIP 로그)
@@ -1961,9 +1961,9 @@ LH_NOT_ENOUGH_CLIENT_LICENSE 연결 "%S":이 연결은 VPN Server에 "클라이�
 LH_NOT_ENOUGH_BRIDGE_LICENSE 연결 "%S":이 연결은 VPN Server에 "브리지 모드"에 접속하려고했지만 서버 전체의 브리지 연결 수가 등록 된 브리지 라이센스 수를 초과하므로이 연결의 연결을 허용 수 없습니다. 동시 라이센스 수가 부족한 경우 기존의 다른 클라이언트의 연결을 끊거나 라이센스 수를 늘려야합니다. 현재 등록되어있는 브리지 라이선스 개수는 %u에서 서버에 대한 연결 수는 %u이었습니다.
 LH_TOO_MANY_MULTILOGINS 연결 "%S"사용자 "%S"가 로그인을 시도했지만이 사용자가 적용된 보안 정책은 다중 로그인 상한을 %u 세션으로 제한하고 있습니다. 현재이 사용자의 로그인 수는 %u 세션이므로 새로운 VPN 연결을 허용 할 수 없습니다.
 LH_TOO_MANY_MULTILOGINS2 연결 "%S"사용자 "%S"가 로그인을 시도했지만이 VPN Server 제품 버전은 1 개의 사용자 개체에 동시에 로그인 할 수 VPN 세션 개수는 %u 세션으로 제한되어 있습니다 . 현재이 사용자의 로그인 수는 %u 세션이므로 새로운 VPN 연결을 허용 할 수 없습니다. 또한 VPN Server의 Professional Edition 이상의 제품 버전의 경우는 1 개의 사용자 개체에 대해 동시에 다중 로그인이 가능합니다.
-LH_PACKET_LOG_NO_LOG이 VPN Server는 패킷 로그 저장을 지원하지 않는 제품 버전에 대한 IP 주소 및 TCP/UDP 등의 데이터는 저장되지 않습니다. VPN Server 버전을 Professional Edition 이상으로 업그레이드하면 모든 패킷 로그가 저장되게됩니다.
-LH_PACKET_LOG_NO_LOG_OSS이 VPN Server는 오픈 소스 버전 또는 무료 버전이기 때문에 패킷 로그 저장을 지원하지 않습니다. 따라서 IP 주소 및 TCP/UDP 등의 데이터는 저장되지 않습니다.
-LH_NO_RADIUS_SETTING이 가상 HUB 사용자 "%S"가 연결하기 위해 RADIUS 인증을해야하지만, RADIUS 서버의 설정이 이루어지고 있지 않기 때문에 사용자 인증을 수행 할 수 없습니다.
+LH_PACKET_LOG_NO_LOG 이 VPN Server는 패킷 로그 저장을 지원하지 않는 제품 버전에 대한 IP 주소 및 TCP/UDP 등의 데이터는 저장되지 않습니다. VPN Server 버전을 Professional Edition 이상으로 업그레이드하면 모든 패킷 로그가 저장되게됩니다.
+LH_PACKET_LOG_NO_LOG_OSS 이 VPN Server는 오픈 소스 버전 또는 무료 버전이기 때문에 패킷 로그 저장을 지원하지 않습니다. 따라서 IP 주소 및 TCP/UDP 등의 데이터는 저장되지 않습니다.
+LH_NO_RADIUS_SETTING 이 가상 HUB 사용자 "%S"가 연결하기 위해 RADIUS 인증을해야하지만, RADIUS 서버의 설정이 이루어지고 있지 않기 때문에 사용자 인증을 수행 할 수 없습니다.
 LH_KERNEL_MODE_START 가상 NAT 기능에서 커널 모드 NAT가 인터페이스 "%S"에서 가능하다는 것을 발견했습니다. 커널 모드 NAT를 시작합니다. 향후 TCP, UDP 및 ICMP의 NAT 처리는 커널 모드를 통해 빠르게 실행됩니다. 커널 모드 NAT의 물리적 네트워크 매개 변수:IP 주소="%r", 서브넷 마스크="%r"기본 게이트웨이="%r"브로드 캐스트 주소="%r"가상 MAC 주소:"%S "DHCP 서버 주소:"%r "DNS 서버 주소:"%r "
 LH_KERNEL_MODE_STOP 가상 NAT 기능 인터페이스 "%S"에서 커널 모드 NAT를 중지했습니다.
 
@@ -2108,7 +2108,7 @@ UT_SM_ST_STATUS 상황
 UT_SM_ST_MTU MTU
 UT_SM_ST_SPEED 링크 속도
 UT_SM_ST_ADDRESS 물리적 주소
-UT_SM_ST_RECV_BYTES받은 바이트 수
+UT_SM_ST_RECV_BYTES 받은 바이트 수
 UT_SM_ST_RECV_BCASTS 수신 브로드 캐스트 수
 UT_SM_ST_RECV_UNICASTS 수신 유니 캐스트 수
 UT_SM_ST_SEND_BYTES 보낸 바이트 수
@@ -2134,13 +2134,13 @@ EM_MAIN_ERROR 오류 발생
 EM_ADD_NEW 새로운 캡처 장치 추가
 EM_ADD_EDIT 캡처 설정 편집
 EM_DELETE_CONFIRM 캡처 설정 "%S"를 삭제 하시겠습니까?
-EM_NO_LICENSE_COLUMN주의:
+EM_NO_LICENSE_COLUMN 주의:
 EM_NO_LICENSE 제품 라이센스가 하나도 등록되어 있지 않기 때문에이 SoftEther EtherLogger 작동하지 않습니다.
 
-EM_UNSUPPORTED이 SoftEther EtherLogger가 실행중인 운영 체제에서는 SoftEther EtherLogger을 사용할 수 없습니다. SoftEther EtherLogger가 사용할 수있는 운영 체제의 목록은 SoftEther EtherLogger 온라인 문서를 참조하십시오.
-EM_WPCAP_REMOTE이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap 소프트웨어 설치를 계속하기 위해서는 VPN Server를 실행하는 서버 컴퓨터에서 SoftEther EtherLogger Manager를 시작하고 localhost (자신)에 연결 한 상태에서 로컬 브리지 기능 설정 화면을 표시해야합니다. \r\n 계속하려면 일단이 관리 세션을 종료하고 서버 컴퓨터에서 SoftEther EtherLogger Manager를 시작하고 localhost에 연결하여 설정을 계속하십시오.
-EM_WPCAP_ROOT이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. \r\n\r\n 설치를 계속하려면이 컴퓨터에 Administrators (관리자) 권한을 가진 사용자로 로그온해야합니다. \r\nAdministrators 권한으로 로그온 한 후 다시 SoftEther VPN 서버 관리 관리자를 시작하십시오.
-EM_WPCAP_INSTALL이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap는 무료 소프트웨어이며, VPN Server의 일부로 포함되어 있기 때문에 쉽게 설치 할 수 있습니다. \r\n\r\nWinPcap를 설치 하시겠습니까?
+EM_UNSUPPORTED 이 SoftEther EtherLogger가 실행중인 운영 체제에서는 SoftEther EtherLogger을 사용할 수 없습니다. SoftEther EtherLogger가 사용할 수있는 운영 체제의 목록은 SoftEther EtherLogger 온라인 문서를 참조하십시오.
+EM_WPCAP_REMOTE 이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap 소프트웨어 설치를 계속하기 위해서는 VPN Server를 실행하는 서버 컴퓨터에서 SoftEther EtherLogger Manager를 시작하고 localhost (자신)에 연결 한 상태에서 로컬 브리지 기능 설정 화면을 표시해야합니다. \r\n 계속하려면 일단이 관리 세션을 종료하고 서버 컴퓨터에서 SoftEther EtherLogger Manager를 시작하고 localhost에 연결하여 설정을 계속하십시오.
+EM_WPCAP_ROOT 이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. \r\n\r\n 설치를 계속하려면이 컴퓨터에 Administrators (관리자) 권한을 가진 사용자로 로그온해야합니다. \r\nAdministrators 권한으로 로그온 한 후 다시 SoftEther VPN 서버 관리 관리자를 시작하십시오.
+EM_WPCAP_INSTALL 이 SoftEther EtherLogger을 사용하기 위해서는 WinPcap 소프트웨어를 설치해야합니다. 현재 서버 컴퓨터는 WinPcap 소프트웨어가 설치되어 있지 않습니다. \r\n\r\nWinPcap는 무료 소프트웨어이며, VPN Server의 일부로 포함되어 있기 때문에 쉽게 설치 할 수 있습니다. \r\n\r\nWinPcap를 설치 하시겠습니까?
 EM_WPCAP_REBOOT1 WinPcap 설치가 완료된 후 SoftEther EtherLogger을 사용하는 경우 컴퓨터를 다시 시작해야합니다. \r\n\r\n 수동으로 컴퓨터를 다시 시작하고 SoftEther EtherLogger가 시작된 후 다시 설정을해야합니다.
 EM_WPCAP_REBOOT2 WinPcap 설치가 완료된 후 SoftEther EtherLogger 서비스를 다시 시작해야합니다. \r\n\r\nSoftEther EtherLogger 서비스를 다시 시작 단시간에 완료되지만 현재이 SoftEther EtherLogger에 연결된 관리 세션이 끊어집니다. \r\n이 관리 세션도 종료되므로 계속하려면 다시 연결하십시오. \r\n \r\nSoftEther EtherLogger 서비스를 다시 시작 하시겠습니까?
 EM_RESOURCE WinPcap 드라이버를로드하지 못했습니다.
@@ -2168,7 +2168,7 @@ S_PIN_CODE 및 PIN 코드:
 PREFIX D_PKCSUTIL
 CAPTION PKCS #12 굽기 유틸리티
 S_TITLE ePass 1000 USB 토큰 PKCS #12 굽기 유틸리티
-STATIC1이 유틸리티를 사용하면 임의의 PKCS #12 파일 (인증서 파일)을 ePass 1000 USB 하드웨어 보안 토큰에 쓸 수 있습니다. \r\n\r\n 인증서 파일이 기록 된 USB 토큰은 SoftEther VPN 인증에 사용할 수 있습니다.
+STATIC1 이 유틸리티를 사용하면 임의의 PKCS #12 파일 (인증서 파일)을 ePass 1000 USB 하드웨어 보안 토큰에 쓸 수 있습니다. \r\n\r\n 인증서 파일이 기록 된 USB 토큰은 SoftEther VPN 인증에 사용할 수 있습니다.
 STATIC2 PKCS #12 파일 쓰기
 STATIC3 기존 PKCS #12 파일을 USB 토큰에 쓸 경우 굽기를 클릭하십시오. \r\n ※ 이미 USB 토큰에 SoftEther VPN 용 PKCS #12 인증서가 포함되어있는 경우 덮어 쓰기됩니다.
 B_WRITE 쓰기 (&W)
@@ -2213,14 +2213,14 @@ IDCANCEL 취소
 
 PREFIX D_CERT
 CAPTION 인증서
-S_TITLE이 인증서에 대한 정보는 다음과 같습니다.
+S_TITLE 이 인증서에 대한 정보는 다음과 같습니다.
 STATIC1 인증서 기본 정보:
 STATIC2 발급 대상:
 STATIC3 게시자:
 STATIC4 유효 기간:
 STATIC5 인증서 정보:
-STATIC6이 인증서를 서명 한 인증 기관의 인증서:
-S_PARENT이 인증서를 서명 한 인증 기관의 인증서가 신뢰할 수있는 인증서 목록에 등록되어 있습니다.
+STATIC6 이 인증서를 서명 한 인증 기관의 인증서:
+S_PARENT 이 인증서를 서명 한 인증 기관의 인증서가 신뢰할 수있는 인증서 목록에 등록되어 있습니다.
 S_PARENT_BUTTON_STR 인증서보기 (&V)
 IDCANCEL & OK
 B_SAVE 파일에 저장 (&S)
@@ -2240,7 +2240,7 @@ STATIC6 다이제스트 (MD5):
 STATIC7 다이제스트 (SHA-1):
 IDOK 연결을 계속 (&R)
 IDCANCEL 연결을 취소 (&C)
-STATIC8이 서버 인증서는 신뢰할 수있는 인증 기관이 발급되어 있지 않거나 만료되었거나 다른 문제가있을 수 있습니다.
+STATIC8 이 서버 인증서는 신뢰할 수있는 인증 기관이 발급되어 있지 않거나 만료되었거나 다른 문제가있을 수 있습니다.
 STATIC9 상기 서류의 내용을 확인하고이 VPN Server에 연결할지 여부를 결정합니다. 연결 취소를 클릭하면이 서버에 연결을 중단합니다.
 
 
@@ -2367,7 +2367,7 @@ R_BRIDGE 브리지/라우터 모드에서 연결 (&B)
 R_MONITOR 모니터링 모드에서 연결 (&D)
 STATIC17 기타 설정 (&G):
 R_NO_ROUTING 라우팅 테이블의 조정 작업을 수행하지 (&R)
-STATIC18이 설정 화면의 설정은 시스템 관리자의 지시가있을 경우, 네트워크 및 보안에 대해 상세한 지식을 가지고있는 경우를 제외하고는 변경하지 마십시오.
+STATIC18 이 설정 화면의 설정은 시스템 관리자의 지시가있을 경우, 네트워크 및 보안에 대해 상세한 지식을 가지고있는 경우를 제외하고는 변경하지 마십시오.
 STATIC19 VoIP/QoS 지원 기능을 사용하면 IP 전화 패킷 등의 우선 순위가 높은 패킷을 VPN에서 고속으로 전송할 수 있습니다.
 R_DISABLE_QOS VoIP/QoS 지원 기능을 비활성화 (&Q)
 IDOK & OK
@@ -2396,7 +2396,7 @@ B_DELETE 삭제 (&D)
 
 PREFIX D_CM_PASSWORD
 CAPTION 암호 설정 - VPN 클라이언트 연결 관리자
-S_TITLE이 SoftEther VPN Client 서비스 제어를 위해 암호를 설정할 수 있습니다. \r\n 비밀번호를 설정하면 다음 VPN 클라이언트 연결 관리자 SoftEther VPN Client 서비스에 연결할 때 암호를 입력해야합니다.
+S_TITLE 이 SoftEther VPN Client 서비스 제어를 위해 암호를 설정할 수 있습니다. \r\n 비밀번호를 설정하면 다음 VPN 클라이언트 연결 관리자 SoftEther VPN Client 서비스에 연결할 때 암호를 입력해야합니다.
 STATIC1 클라이언트 관리자 암호 설정:
 R_USE_PASSWORD 암호를 설정 (&U)
 R_REMOTE_ONLY 암호는 원격으로 조작 할 때만 필요 (&R)
@@ -2435,7 +2435,7 @@ PREFIX D_ABOUT
 S_INFO1 SoftEther VPN %u.0 (Ver %u %02u, Build %u)
 S_INFO2 An Open-Source VPN Software for Academic Purpose, under the GPLv2 License \r\nCopyright (c) 2012- %u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved. \r\nWeb Site:http://www.softether.org/\r\n%S
 S_INFO3 This product includes the following software components:\r\nBitVisor:Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved./Microsoft (R) C Runtime Library:(c) 2007 Microsoft Corporation. All Rights Reserved./PKCS # 11 Cryptographic Token Interface (Cryptoki):Copyright (c) RSA Security Inc./WinPcap:Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy ). All rights reserved./libedit:Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved./libiconv:Copyright (C) 2007 Free Software Foundation, Inc./ncurses:Copyright (c) 1998 -2005, 2006 Free Software Foundation, Inc./OpenSSL:Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www. openssl.org/) This product includes cryptographic software written by Eric Young (eay@cryptsoft.com)/zlib:(C) 1995-2004 Jean-loup Gailly and Mark Adler/Special Thanks to:Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
-S_INFO4이 소프트웨어는 츠쿠바 대학 SoftEther VPN 프로젝트에서 개발 된 프리웨어입니다. 본 소프트웨어는 어떠한 보증이없는 상태로 제공되는 것이며, 개발 및 배포자는 사용의 결과 손해에 대해 책임을지지 않습니다. \r\n\r\nSoftEther VPN 소프트웨어는 일본 경제 산업 성 소프트웨어 연구 개발 프로젝트의 결과물입니다. IPA (독립 행정법 인 정보 처리 추진기구)의 미답 소프트웨어 창조 사업에 채택되어 개발되었습니다. 자세한 내용은 http://www.ipa.go.jp/를 참조하십시오.
+S_INFO4 이 소프트웨어는 츠쿠바 대학 SoftEther VPN 프로젝트에서 개발 된 프리웨어입니다. 본 소프트웨어는 어떠한 보증이없는 상태로 제공되는 것이며, 개발 및 배포자는 사용의 결과 손해에 대해 책임을지지 않습니다. \r\n\r\nSoftEther VPN 소프트웨어는 일본 경제 산업 성 소프트웨어 연구 개발 프로젝트의 결과물입니다. IPA (독립 행정법 인 정보 처리 추진기구)의 미답 소프트웨어 창조 사업에 채택되어 개발되었습니다. 자세한 내용은 http://www.ipa.go.jp/를 참조하십시오.
 IDCANCEL & OK
 B_WEB SoftEther VPN의 Web 사이트 (&W)...
 B_EULA 사용권 계약 (&E)
@@ -2497,7 +2497,7 @@ STATIC2 연결 설정 이름 (&N):
 STATIC3 연결된 VPN Server의 지정 (&B):
 STATIC4 관리하려는 VPN Server를 실행하는 컴퓨터의 호스트 이름 또는 IP 주소 およひ 포트 번호를 지정하십시오.
 STATIC5 호스트 이름 (&H):
-R_LOCALHOST이 컴퓨터 (localhost)에 연결 (&L)
+R_LOCALHOST 이 컴퓨터 (localhost)에 연결 (&L)
 STATIC6 포트 번호 (&P):
 STATIC7 (TCP 포트)
 STATIC8 통해 프록시 서버 설정 (&X):
@@ -2522,7 +2522,7 @@ IDCANCEL 취소
 PREFIX D_SM_SERVER
 CAPTION %s - SoftEther VPN 서버 관리 관리자
 S_TITLE VPN Server "%S"의 관리
-S_VHUB_BRIDGE이 서버가 호스팅하는 가상 HUB (&U):
+S_VHUB_BRIDGE 이 서버가 호스팅하는 가상 HUB (&U):
 IDOK 가상 HUB 관리 (&A)
 B_ONLINE 온라인 (&O)
 B_OFFLINE 오프라인 (&F)
@@ -2567,7 +2567,7 @@ IDCANCEL 닫기 (&X)
 PREFIX D_SM_EDIT_HUB
 STATIC1 가상 HUB 이름 (&N):
 STATIC2 보안 설정 (&S):
-S_BOLD이 가상 HUB 관리 암호
+S_BOLD 이 가상 HUB 관리 암호
 STATIC3 비밀번호 (&P):
 STATIC4 확인 입력 (&C):
 R_NO_ENUM 익명 사용자에게이 가상 HUB를 열거하지 (&U)
@@ -2595,7 +2595,7 @@ IDCANCEL 취소
 STATIC10 가상 HUB 확장 옵션을 사용하면이 가상 HUB에 관한보다 상세한 설정을 할 수 있습니다.
 B_EXTOPTION 가상 HUB 확장 옵션 편집 (&X)
 S_MSG_1 연결시 메시지 표시
-S_MSG_2이 가상 HUB에 VPN Client가 접속했을 때 사용자의 화면에 메시지를 볼 수 있습니다.
+S_MSG_2 이 가상 HUB에 VPN Client가 접속했을 때 사용자의 화면에 메시지를 볼 수 있습니다.
 B_MSG 메시지 설정 (&G)
 
 
@@ -2611,12 +2611,12 @@ STATIC4 (TCP/IP 포트)
 
 PREFIX D_SM_SSL
 CAPTION 암호화 및 통신 관계 설정
-STATIC1이 VPN Server 암호화 통신 및 보안 설정을 보거나 변경할 수 있습니다.
+STATIC1 이 VPN Server 암호화 통신 및 보안 설정을 보거나 변경할 수 있습니다.
 STATIC2 사용되는 암호화 알고리즘 (&A):
-STATIC3이 VPN Server에 연결하는 VPN Client 사이에서 사용되는 SSL을 지원하는 암호화 알고리즘 명을 지정하십시오. 암호화 알고리즘은 SSL 버전 3에 해당하는 것이어야합니다.
+STATIC3 이 VPN Server에 연결하는 VPN Client 사이에서 사용되는 SSL을 지원하는 암호화 알고리즘 명을 지정하십시오. 암호화 알고리즘은 SSL 버전 3에 해당하는 것이어야합니다.
 STATIC4 암호화 알고리즘 명 (&C):
 STATIC6 서버 인증서 (&E):
-STATIC7이 VPN Server가 클라이언트에 제공하는 X509 인증서와 개인 키를 지정하십시오.
+STATIC7 이 VPN Server가 클라이언트에 제공하는 X509 인증서와 개인 키를 지정하십시오.
 B_IMPORT 가져 오기 (&I)
 B_EXPORT 내보내기 (&X)
 B_VIEW 인증서보기 (&V)
@@ -2634,7 +2634,7 @@ R_TCP TCP/IP 프로토콜 (&T)
 R_UDP UDP/IP 프로토콜 (&U)
 S_INFO 인터넷 연결을 유지하기 위해 전송되는 패킷은 임의의 내용이며, 컴퓨터 나 사용자를 식별 개인 정보 등이 전송되는 것은 아닙니다.
 STATIC11 관리자 암호 (&W):
-S_INFO4이 VPN Server 전체와 모든 가상 HUB에 대한 관리 권한이있는 관리자 암호를 설정하거나 변경할 수 있습니다.
+S_INFO4 이 VPN Server 전체와 모든 가상 HUB에 대한 관리 권한이있는 관리자 암호를 설정하거나 변경할 수 있습니다.
 B_PASSWORD 관리자 암호 변경 (&P)
 IDOK & OK
 IDCANCEL 취소
@@ -2658,7 +2658,7 @@ R_PKCS12 PKCS #12 파일 (.P12)로 저장 (&P)
 R_SECURE 스마트 카드에 기록 (&W)
 STATIC3 표준 Base 64로 인코딩 된 인증서 파일과 개인 키 파일의 2 개의 파일로 나누어 저장합니다.
 STATIC4 PKCS #12 (Public Key Cryptography Standard #12) 파일로 저장합니다. \r\n1 개의 PKCS #12 파일에는 인증서와 개인 키를 모두 포함 할 수 있습니다.
-STATIC5이 컴퓨터에 스마트 카드가 연결되어있는 경우 스마트 카드에 인증서와 개인 키를 동시에 쓸 수 있습니다.
+STATIC5 이 컴퓨터에 스마트 카드가 연결되어있는 경우 스마트 카드에 인증서와 개인 키를 동시에 쓸 수 있습니다.
 B_SELECT 사용하는 스마트 카드의 선택 (&S)...
 S_PASS3 비밀의 보호 (&R)
 S_PASS4 비밀 키를 저장할 때 암호를 설정할 수 있습니다. 암호를 설정 한 비밀 열쇠는 읽을 때 암호를 입력해야합니다.
@@ -2735,12 +2735,12 @@ B_ACCESS 액세스 목록 관리 (&A)
 S_ACCESS 액세스 목록 (패킷 필터링 규칙)을 추가·삭제할 수 있습니다.
 STATIC2 가상 HUB 설정 (&N)
 B_PROPERTY 가상 HUB의 속성 (&P)
-S_PROPERTY이 가상 HUB의 설정을 변경할 수 있습니다.
+S_PROPERTY 이 가상 HUB의 설정을 변경할 수 있습니다.
 B_RADIUS 인증 서버 설정 (&E)
 S_RADIUS 사용자 인증에 사용되는 RADIUS 인증 서버의 설정을 할 수 있습니다.
 B_LINK 계단식 관리 (&C)
 S_LINK 동일하거나 다른 서버에서 여러 개의 가상 HUB끼리 계단식 수 있습니다.
-STATIC3이 가상 HUB의 현재 상황 (&R):
+STATIC3 이 가상 HUB의 현재 상황 (&R):
 B_REFRESH 최신 상태로 업데이트 (&H)
 STATIC4 기타 관리 (&O)
 B_LOG 로그 저장 설정 (&L)
@@ -2748,9 +2748,9 @@ B_LOG_FILE 로그 파일 목록 (&Q)
 S_LOG 로그 저장 설정을 할 수 있습니다.
 B_CA 신뢰하는 인증 기관의 인증서 (&T)
 B_CRL 잘못된 인증서 (&K)
-S_CA이 가상 HUB가 신뢰하는 인증 기관의 인증서를 관리합니다.
+S_CA 이 가상 HUB가 신뢰하는 인증 기관의 인증서를 관리합니다.
 B_SNAT 가상 NAT 및 가상 DHCP 서버 기능 (&V)
-S_SNAT이 가상 HUB에서 SecureNAT 기능을 작동시킵니다. 가상 NAT 및 가상 DHCP를 가동 할 수 있습니다.
+S_SNAT 이 가상 HUB에서 SecureNAT 기능을 작동시킵니다. 가상 NAT 및 가상 DHCP를 가동 할 수 있습니다.
 STATIC5 세션 관리 (&I):
 B_SESSION 세션 관리 (&S)
 IDCANCEL 닫기 (&X)
@@ -2773,14 +2773,14 @@ IDC_STATIC3 본명 (&R):
 IDC_STATIC4 설명 (&N):
 IDC_STATIC5 그룹 이름 \r\n (선택 사항):
 B_GROUP 그룹의 참조 (&J)...
-R_EXPIRES이 계정의 유효 기간을 설정 (&S)
+R_EXPIRES 이 계정의 유효 기간을 설정 (&S)
 IDC_STATIC6 인증 방법 (&A):
 S_RADIUS_3 RADIUS 또는 NT 도메인 인증
 S_RADIUS_1 외부 RADIUS 서버 Windows NT 도메인 컨트롤러 또는 Active Directory 컨트롤러에서 사용자가 입력 한 암호가 검증됩니다.
 R_SET_RADIUS_USERNAME 인증 서버의 사용자 이름을 지정 (&K)
 S_RADIUS_2 인증 서버의 사용자 이름 (&T):
 S_POLICY_1 보안 정책
-R_POLICY이 사용자의 보안 정책 설정 (&Y)
+R_POLICY 이 사용자의 보안 정책 설정 (&Y)
 B_POLICY 보안 정책 (&M)
 S_PASSWORD_1 암호 인증
 S_PASSWORD_2 비밀번호 (&P):
@@ -2801,11 +2801,11 @@ IDCANCEL 취소
 
 PREFIX D_SM_POLICY
 STATIC1 선택되는 정책 (&P):
-S_BOLD이 정책 설명 (&C):
+S_BOLD 이 정책 설명 (&C):
 S_BOLD2 설정 값 (&V):
-R_ENABLE이 정책을 사용 (&E)
-R_DISABLE이 정책을 비활성화 (&D)
-R_DEFINE이 정책의 값을 정의 (&F)
+R_ENABLE 이 정책을 사용 (&E)
+R_DISABLE 이 정책을 비활성화 (&D)
+R_DEFINE 이 정책의 값을 정의 (&F)
 IDOK & OK
 IDCANCEL 취소
 
@@ -2826,9 +2826,9 @@ IDC_STATIC1 그룹 이름 (&G):
 IDC_STATIC3 본명 (&R):
 IDC_STATIC4 설명 (&N):
 S_POLICY_1 보안 정책
-R_POLICY이 그룹의 사용자 보안 정책 설정 (&Y)
+R_POLICY 이 그룹의 사용자 보안 정책 설정 (&Y)
 B_POLICY 보안 정책 (&M)
-S_POLICY_2이 그룹의 통계
+S_POLICY_2 이 그룹의 통계
 IDOK & OK
 IDCANCEL 취소
 
@@ -2883,8 +2883,8 @@ S_TCP_5 목적지 포트 번호:
 S_TCP_7 포트 번호를 입력하지 않으면 모든 포트에 적용됩니다. \r\n 최소치가 지정되어 최대 값이 지정되어 있지 않은 경우는 최소 값과 일치하는 패킷에만 적용됩니다.
 STATIC11 사용자 또는 그룹에 대한 필터링 옵션
 STATIC11_OLD 사용자에 대한 필터링 옵션
-STATIC12이 액세스 목록 항목을 특정 사용자 또는 그룹이 보낸 패킷 또는 특정 사용자 또는 그룹에 의해 수신되는 패킷에 대해서만 적용 할 수 있습니다.
-STATIC12_OLD이 액세스 목록 항목을 특정 사용자가 보낸 패킷 또는 특정 사용자가 수신되는 패킷에 대해서만 적용 할 수 있습니다.
+STATIC12 이 액세스 목록 항목을 특정 사용자 또는 그룹이 보낸 패킷 또는 특정 사용자 또는 그룹에 의해 수신되는 패킷에 대해서만 적용 할 수 있습니다.
+STATIC12_OLD 이 액세스 목록 항목을 특정 사용자가 보낸 패킷 또는 특정 사용자가 수신되는 패킷에 대해서만 적용 할 수 있습니다.
 STATIC13 원본 이름:
 B_USER1 참조...
 STATIC14 대상의 이름:
@@ -2995,7 +2995,7 @@ STATIC3 대량의 패킷 로그를 저장하려고하면 CPU 및 하드 디스�
 
 PREFIX D_SM_CA
 CAPTION 신뢰하는 인증 기관의 인증서 관리
-STATIC1이 가상 HUB가 신뢰하는 인증 기관의 인증서 목록을 관리합니다. \r\n\r\n 여기에 등록 된 인증 기관의 인증서 목록은 VPN Client가 서명 된 인증서 인증 모드로 접속 해 왔을 때에 인증서 검증에 사용됩니다.
+STATIC1 이 가상 HUB가 신뢰하는 인증 기관의 인증서 목록을 관리합니다. \r\n\r\n 여기에 등록 된 인증 기관의 인증서 목록은 VPN Client가 서명 된 인증서 인증 모드로 접속 해 왔을 때에 인증서 검증에 사용됩니다.
 B_IMPORT 추가 (&A)
 IDOK 인증서보기 (&V)
 IDCANCEL 닫기 (&C)
@@ -3009,8 +3009,8 @@ STATIC1 세션에 대한 작업
 IDOK 세션 정보를 표시 (&I)
 B_DISCONNECT 절단 (&D)
 B_REFRESH 최신 상태로 업데이트 (&H)
-B_SESSION_MAC_TABLE이 세션의 MAC 테이블 (&M)
-B_SESSION_IP_TABLE이 세션의 IP 테이블 (&P)
+B_SESSION_MAC_TABLE 이 세션의 MAC 테이블 (&M)
+B_SESSION_IP_TABLE 이 세션의 IP 테이블 (&P)
 STATIC2 다른 관리 작업
 B_MAC_TABLE MAC 주소 테이블 목록 (&A)
 B_IP_TABLE IP 주소 테이블 목록 (&B)
@@ -3036,7 +3036,7 @@ IDCANCEL 닫기 (&X)
 
 PREFIX D_SM_CREATE_CERT
 CAPTION 새 인증서 만들기
-STATIC1이 도구를 사용하면 루트 인증서 또는 기존 인증서로 서명 된 인증서를 쉽게 만들 수 있습니다.
+STATIC1 이 도구를 사용하면 루트 인증서 또는 기존 인증서로 서명 된 인증서를 쉽게 만들 수 있습니다.
 STATIC2 인증서의 종류 (&T):
 R_ROOT_CERT 루트 인증서 (자체 서명 인증서) (&R)
 R_SIGNED_CERT 다른 인증서로 서명 된 인증서 (&S)
@@ -3115,8 +3115,8 @@ R_SAVE_LOG NAT 및 DHCP 서버의 동작을 로그 파일에 저장 (&L)
 STATIC12 가상 DHCP 서버 설정:
 R_USE_DHCP 가상 DHCP 서버 기능 사용 (&N)
 STATIC13 배포 IP 대역 (&D):
-STATIC14에서
-STATIC15까지
+STATIC14 에서
+STATIC15 까지
 STATIC16 서브넷 마스크 (&B):
 STATIC17 임대 기간 (&E):
 STATIC18 초
@@ -3162,7 +3162,7 @@ STATIC1 SecureNAT 기능에 대한 경고
 S_WARNING SecureNAT 기능은 시스템 관리자 또는 네트워크에 대해 잘 알고있는 이들을위한 기능입니다.
 S_WARNING2 SecureNAT 기능을 제대로 사용하면 VPN을 통한 안전한 원격 액세스가 가능합니다. 그러나 잘못된 방법으로 사용하면 전체 네트워크를 위험한 상태로 될 가능성도 있습니다. 네트워크에 대한 충분한 지식을 가지고 있지 않은 경우, 네트워크 관리자의 허가를받지 않은 경우 SecureNAT 기능을 사용하지 마십시오. SecureNAT 기능에 대한 자세한 설명은 VPN Server 설명서 및 온라인 문서를 참조하십시오.
 STATIC2 SecureNAT 기능의 활성화/비활성화 및 설정 변경
-STATIC3이 가상 HUB에서 SecureNAT 기능을 활성화 또는 비활성화하거나 설정을 변경할 수 있습니다.
+STATIC3 이 가상 HUB에서 SecureNAT 기능을 활성화 또는 비활성화하거나 설정을 변경할 수 있습니다.
 B_ENABLE SecureNAT 기능을 활성화 (&E)
 B_DISABLE SecureNAT 기능을 비활성화 (&D)
 B_CONFIG SecureNAT 설정 (&C)
@@ -3283,7 +3283,7 @@ S_INFO SoftEther EtherLogger 제품 라이센스의 라이센스 키를 등록 �
 STATIC1 라이센스 키는 36 자리 숫자와 하이픈 ( '-')으로 구성되어있는 라이센스의 소유를 증명하는 키 코드입니다. \r\n\r\n 라이센스 키는 소프트웨어와 함께 라이센스 증서를받은 경우 라이센스 증서에 인쇄되어 있습니다. 소프트웨어 라이선스를 온라인으로 구입 한 경우 구입시의 Web 사이트의 화면이나 메일 등에 라이센스 키가 포함되어있을 수 있습니다. 다른 방법으로 라이센스 키가 포함되어있는 경우도 있습니다. 알 수없는 경우 라이센스 구입처에 문의하십시오.
 STATIC2 라이센스 키를 정확하게 입력하십시오 (&I):
 STATIC3 라이센스 키는 6 자리마다 구분하여 입력하십시오. 하이픈은 입력 할 필요가 없습니다. 복사 & & 붙여 넣기로 입력 할 수 있습니다.
-B_INFO2이 소프트웨어의 저작권은 전 세계에서 보호되고 있습니다. 사용권 계약서의 조건에 따라서 만 본 소프트웨어를 복제·사용할 수 있습니다. 부정하게 입수 한 라이센스 키 사용 여러 대의 서버에서 동일한 라이센스 키 사용 라이센스 키를 무단 배포 등은 라이센스 계약을 위반하여 민사 또는 형사상의 처벌을받을 수 있으니 주의하십시오.
+B_INFO2 이 소프트웨어의 저작권은 전 세계에서 보호되고 있습니다. 사용권 계약서의 조건에 따라서 만 본 소프트웨어를 복제·사용할 수 있습니다. 부정하게 입수 한 라이센스 키 사용 여러 대의 서버에서 동일한 라이센스 키 사용 라이센스 키를 무단 배포 등은 라이센스 계약을 위반하여 민사 또는 형사상의 처벌을받을 수 있으니 주의하십시오.
 IDOK 등록 (&R)
 IDCANCEL 취소
 
@@ -3339,14 +3339,14 @@ STATIC1 LAN 카드의 종류에 따라서는 기본적으로 태그 VLAN 패킷 
 B_ENABLE 선택한 LAN 카드를 태그 VLAN이 투과 가능하게 설정 (&C)
 B_DISABLE 설정을 해제 (&U)
 STATIC2 태그 VLAN 패킷 전송 설정 도구를
-S_WARNING이 도구를 사용하면 Intel, Broadcom 및 Marvell 제 정규 드라이버를 사용하는 일부 Windows 용 LAN 카드의 태그 VLAN의 투과 설정을하거나 설정을 해제 할 수 있습니다.
+S_WARNING 이 도구를 사용하면 Intel, Broadcom 및 Marvell 제 정규 드라이버를 사용하는 일부 Windows 용 LAN 카드의 태그 VLAN의 투과 설정을하거나 설정을 해제 할 수 있습니다.
 S_WARNING2 위의 목록에 표시되는 LAN 카드는이 도구는 설정을 변경할 수 지원하고 있습니다. 목록에 표시되지 않은 LAN 카드는이 도구는 설정을 할 수 없습니다. 목록에없는 LAN 카드에서도 태그 VLAN이 기본적으로 투과 가능하거나 어떤 설정함으로써 투과 가능하게 될 수 있습니다. \r\n\r\n 그 경우 시스템 관리자가 스스로 Windows에 로그인하여 이러한 설정을해야합니다.
 IDCANCEL 닫기 (&X)
 
 
 PREFIX D_SM_SIMULATION
 CAPTION 지연 패킷 로스 생성 기능
-STATIC1이 액세스리스트의 조건에 일치하는 패킷이 가상 HUB를 통과 할 때 패킷 지연 지터 및 패킷 손실을 발생시킬 수 있습니다. \r\n\r\n이 기능은 저속에서 낮은 품질의 인터넷 회선과 WAN 회선, 무선 회선 등을 이용했을 경우의 동작을 LAN의 책상에서 실험 할 수 있습니다. 예를 들어, IP 전화 (VoIP) 등의 동작 시험에 유용합니다.
+STATIC1 이 액세스리스트의 조건에 일치하는 패킷이 가상 HUB를 통과 할 때 패킷 지연 지터 및 패킷 손실을 발생시킬 수 있습니다. \r\n\r\n이 기능은 저속에서 낮은 품질의 인터넷 회선과 WAN 회선, 무선 회선 등을 이용했을 경우의 동작을 LAN의 책상에서 실험 할 수 있습니다. 예를 들어, IP 전화 (VoIP) 등의 동작 시험에 유용합니다.
 STATIC2 발생시키는 지연 지터 패킷 손실의 내용:
 C_DELAY 지연을 발생시키는 (&D)
 S_DELAY 발생하는 지연의 양 (0 - 10000):
@@ -3372,7 +3372,7 @@ IDCANCEL 취소
 
 PREFIX D_SM_L3
 CAPTION 가상 레이어 3 스위치 설정
-STATIC1이 VPN Server에서 실행중인 여러 가상 HUB간에 가상 레이어 3 스위치를 정의하고 다른 IP 네트워크를 라우팅 할 수 있습니다.
+STATIC1 이 VPN Server에서 실행중인 여러 가상 HUB간에 가상 레이어 3 스위치를 정의하고 다른 IP 네트워크를 라우팅 할 수 있습니다.
 STATIC2 가상 레이어 3 스위치 기능은 네트워크 및 IP 라우팅 관련 지식을 가지고 계신 분이나 네트워크 관리자를위한 기능입니다. 일반적인 VPN 기능을 사용할 경우 가상 레이어 3 스위치 기능을 사용할 필요가 없습니다. \r\n\r\n 가상 레이어 3 스위치 기능을 사용하려면 IP 라우팅에 관한 충분한 지식을 가지고 계신에 네트워크에 미치는 영향을 충분히 고려하고 설정하십시오.
 STATIC3 가상 레이어 3 스위치 기능에 대한주의
 S_BOLD 정의 된 가상 레이어 3 스위치 목록 (&L):
@@ -3411,7 +3411,7 @@ PREFIX D_SM_L3_SW_IF
 CAPTION 가상 인터페이스 추가
 STATIC1 새로운 가상 인터페이스를 가상 레이어 3 스위치에 추가합니다. \r\n\r\n 가상 인터페이스가 속한 IP 네트워크 공간과 인터페이스 자신의 IP 주소를 정의해야합니다. \r\n 또한 인터페이스가 연결 대상 가상 HUB 이름을 선택하거나 입력하십시오. \r\n 가상 HUB 이름은 현재 존재하지 않는 가상 HUB를 지정할 수도 있습니다.
 STATIC2 연결된 가상 HUB (&A)
-STATIC3이 인터페이스를 연결하는 가상 HUB를 선택하거나 이름을 입력하십시오.
+STATIC3 이 인터페이스를 연결하는 가상 HUB를 선택하거나 이름을 입력하십시오.
 STATIC4 가상 HUB (&H):
 STATIC5 가상 인터페이스가 가지는 IP 주소와 소속 서브넷 공간 (&D)
 STATIC6 가상 인터페이스는 가상 HUB에서 하나의 IP 주소를 가지고 있어야합니다. 또한 IP 주소가 속한 IP 네트워크의 서브넷 마스크를 지정해야합니다. \r \n \r\n 여러 가상 HUB의 IP 공간끼리의 가상 레이어 3 스위치를 통한 라우팅은 여기에 지정된 IP 주소에 따라 작동합니다.
@@ -3486,7 +3486,7 @@ STATIC1 어떤 방법으로 인증서를로드 있습니까?
 R_FROM_FILE 파일에서 인증서를로드 (&F)
 R_FROM_SECURE 스마트 카드에서 인증서를로드 (&R)
 S_FILE 인증서 데이터가 저장되어있는 파일 (확장자가 .cer, .crt, .p12, .pfx 중 하나)에서 인증서를 가져올 수 있습니다.
-S_CERT이 컴퓨터에 스마트 카드가 연결되어있는 경우 스마트 카드의 인증서를 가져올 수 있습니다.
+S_CERT 이 컴퓨터에 스마트 카드가 연결되어있는 경우 스마트 카드의 인증서를 가져올 수 있습니다.
 B_SELECT 사용하는 스마트 카드의 선택 (&S)...
 IDOK & OK
 IDCANCEL 취소
@@ -3498,7 +3498,7 @@ STATIC1 스마트 카드의 PIN 코드 PIN 번호를 변경할 수 있습니다.
 STATIC2 현재 PIN 코드 (&C):
 STATIC3 새로운 PIN 코드 (&N):
 STATIC4 확인 입력 (&E):
-STATIC5주의
+STATIC5 주의
 STATIC6 현재 PIN 코드를 일정 횟수 입력하면 스마트 카드를 사용할 수 없게되는 경우가 있습니다.
 STATIC7 스마트 카드를 삽입하고 [OK]를 클릭하십시오.
 IDOK & OK
@@ -3507,7 +3507,7 @@ IDCANCEL 취소
 
 PREFIX D_SM_CRL
 CAPTION 잘못된 인증서 목록
-STATIC1이 가상 HUB에서 잘못된 인증서 목록을 관리합니다. \r\n\r\n 잘못된 인증서 목록에 인증서를 등록하면 해당 증명서를 제시 한 클라이언트는이 가상 HUB에 인증서 인증 모드로 연결할 수 없습니다.
+STATIC1 이 가상 HUB에서 잘못된 인증서 목록을 관리합니다. \r\n\r\n 잘못된 인증서 목록에 인증서를 등록하면 해당 증명서를 제시 한 클라이언트는이 가상 HUB에 인증서 인증 모드로 연결할 수 없습니다.
 B_ADD 추가 (&A)
 IDOK 편집 (&E)
 IDCANCEL 닫기 (&C)
@@ -3635,9 +3635,9 @@ IDCANCEL 아니오 (&N)
 PREFIX D_CM_TRAFFIC
 CAPTION 통신 처리량 측정 도구
 STATIC1 통신 처리량 측정 도구를 사용하면 IP 네트워크에 연결되어있는 두 컴퓨터간에 최대한 통신 실제 통신 데이터 량과 통신 시간에서 그동안 네트워크의 최대 대역폭 (처리량)을 측정 할 수 있습니다. 이 도구는 VPN 가상 네트워크에서도 VPN과 관계없는 물리적 네트워크에서도 사용할 수 있습니다.
-STATIC2이 도구를 사용하여 현재의 네트워크 통신 능력을 측정 할 수 있습니다. 그러나 측정 결과는 측정하는 두 컴퓨터의 CPU 능력이나 다른 실행중인 응용 프로그램의 상태, 네트워크 사용량 등에 따라 달라질 수 있으므로 실제 네트워크 처리 능력보다 낮은 값이 나오는 경우도 있습니다.
+STATIC2 이 도구를 사용하여 현재의 네트워크 통신 능력을 측정 할 수 있습니다. 그러나 측정 결과는 측정하는 두 컴퓨터의 CPU 능력이나 다른 실행중인 응용 프로그램의 상태, 네트워크 사용량 등에 따라 달라질 수 있으므로 실제 네트워크 처리 능력보다 낮은 값이 나오는 경우도 있습니다.
 S_1 동작 설정
-S_3이 컴퓨터는 측정 서버 또는 측정 클라이언트 중입니까?
+S_3 이 컴퓨터는 측정 서버 또는 측정 클라이언트 중입니까?
 R_SERVER 측정 서버 (&S)
 R_CLIENT 측정 클라이언트 (&C)
 S_4 측정 서버의 경우는 기다리는 포트 번호를 지정합니다. \r\n 측정 클라이언트의 경우, 연결된 측정 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정하고 필요한 경우 필요한 옵션을 설정합니다.
@@ -3694,7 +3694,7 @@ S_INFO SoftEther VPN Server 제품 라이센스 또는 연결 라이센스의 �
 STATIC1 라이센스 키는 36 자리 숫자와 하이픈 ( '-')으로 구성되어있는 라이센스의 소유를 증명하는 키 코드입니다. \r\n\r\n 라이센스 키는 소프트웨어와 함께 라이센스 증서를받은 경우 라이센스 증서에 인쇄되어 있습니다. 소프트웨어 라이선스를 온라인으로 구입 한 경우 구입시의 Web 사이트의 화면이나 메일 등에 라이센스 키가 포함되어있을 수 있습니다. 다른 방법으로 라이센스 키가 포함되어있는 경우도 있습니다. 알 수없는 경우 라이센스 구입처에 문의하십시오.
 STATIC2 라이센스 키를 정확하게 입력하십시오 (&I):
 STATIC3 라이센스 키는 6 자리마다 구분하여 입력하십시오. 하이픈은 입력 할 필요가 없습니다. 복사 & & 붙여 넣기로 입력 할 수 있습니다.
-B_INFO2이 소프트웨어의 저작권은 전 세계에서 보호되고 있습니다. 사용권 계약서의 조건에 따라서 만 본 소프트웨어를 복제·사용할 수 있습니다. 부정하게 입수 한 라이센스 키 사용 여러 대의 서버에서 동일한 라이센스 키 사용 라이센스 키를 무단 배포 등은 라이센스 계약을 위반하여 민사 또는 형사상의 처벌을받을 수 있으니 주의하십시오.
+B_INFO2 이 소프트웨어의 저작권은 전 세계에서 보호되고 있습니다. 사용권 계약서의 조건에 따라서 만 본 소프트웨어를 복제·사용할 수 있습니다. 부정하게 입수 한 라이센스 키 사용 여러 대의 서버에서 동일한 라이센스 키 사용 라이센스 키를 무단 배포 등은 라이센스 계약을 위반하여 민사 또는 형사상의 처벌을받을 수 있으니 주의하십시오.
 IDOK 등록 (&R)
 IDCANCEL 취소
 
@@ -3703,7 +3703,7 @@ PREFIX D_FREEINFO
 CAPTION SoftEther VPN Server Free Edition에 대해
 S_INFO_1 SoftEther VPN Server Free Edition을 이용해 주셔서 감사합니다.
 S_INFO_2 연결된 서버 "%S"에서 실행중인 SoftEther VPN Server는 개인 사용을 목적으로 한 Free Edition입니다. \r\nFree Edition에서는 SoftEther VPN Server의 모든 기능을 사용할 수 있지만 아래의 이용 방법은 사용 권한 약관에 의해 금지되어 있습니다.
-S_INFO_3·VPN Server를 통해 업무에 대한 통신이 이루어 지도록 사용 방법. 
+S_INFO_3 VPN Server를 통해 업무에 대한 통신이 이루어 지도록 사용 방법. 
 S_INFO_4 위의 금지 된 사용 방법으로 사용하는 경우는 SoftEther VPN Server 사용권 계약 위반이되므로주의하시기 바랍니다. SoftEther VPN Server의 일반 정품 라이센스를 입수 해 주시는 것으로, 위와 같은 제한은 없어진다. 일반 제품 버전은 www.softether.com를 참조하십시오. \r\n\r\n 만약이 서버를 위와 같은 사용 방법으로 사용되는 경우는 www.softether.com로 연락 주시기를 부탁드립니다. \r\n\r\n ※이 화면은 Free Edition의 VPN Server에 연결했을 때 표시됩니다. Free Edition 버전이 아닌 버전 제품에서는 표시되지 않습니다. \r\n ※ Free Edition 소프트웨어는 정품과 비교하여이 공지 화면이 표시되는 이외의 차이는 전혀 없습니다.
 B_HIDE 다음에서이 소식을 열지 않음 (&H)
 IDCANCEL & OK
@@ -3738,13 +3738,13 @@ B_VGC VPN Gate 학술 실험
 PREFIX D_SM_SETUP
 CAPTION SoftEther VPN Server/Bridge 빠른 설치
 S_TITLE SoftEther VPN Server/Bridge 빠른 설치
-IDC_STATIC_1이 설치 프로그램을 사용하면 SoftEther VPN Server 또는 VPN Bridge를 다음의 용도 나 목적에 쉽게 설치 할 수 있습니다. 설치 완료 후 VPN 서버 관리 관리자를 사용하여보다 상세한 설정을 자유롭게 할 수 있습니다.
+IDC_STATIC_1 이 설치 프로그램을 사용하면 SoftEther VPN Server 또는 VPN Bridge를 다음의 용도 나 목적에 쉽게 설치 할 수 있습니다. 설치 완료 후 VPN 서버 관리 관리자를 사용하여보다 상세한 설정을 자유롭게 할 수 있습니다.
 S_BOLD 구축하려고하는 VPN 서버 유형을 선택하십시오. 여러 용도위한 VPN 서버를 구축하려고하는 경우는 여러 종류를 선택할 수 있습니다.
 C_REMOTE 원격 액세스 VPN 서버 (&R)
 S_REMOTE_1 원격 액세스 VPN은 예를 들어 사내 LAN 등의 기존 Ethernet 세그먼트에 대해 인터넷 등을 통해 원격지의 VPN 클라이언트 컴퓨터가 VPN 연결 할 수있는 형태의 VPN 구성입니다. \r\nVPN Server에 연결하는 VPN 클라이언트 컴퓨터는 내부 Ethernet에 직접 LAN 케이블로 연결되어있는 것과 동일한 상태에서 네트워크에 액세스 할 수 있습니다.
 C_SITE 거점 간 연결 VPN 서버 또는 브리지 (&S)
 S_SITE_1 거점 간 연결 VPN은 기존의 2 개 이상의 거점의 Ethernet 세그먼트끼리 VPN 연결 형태의 VPN 구성입니다. \r\nVPN 연결된 각각의 거점끼리 레이어 2 수준에서 동일한 세그먼트하므로 각 거점의 컴퓨터들이 동일한 네트워크에있는 것으로 통신 할 수 있습니다.
-S_SITE_2이 VPN Server의 역할을 선택하십시오:
+S_SITE_2 이 VPN Server의 역할을 선택하십시오:
 C_CENTER 거점 간 연결 VPN의 중심이되어, 다른 거점에서의 연결을 허용 VPN Server (&M)
 C_EDGE 각 거점에 설치하는 VPN Server 또는 VPN Bridge (&E)
 C_OTHER 고급 기능을 이용한 VPN (&O)
@@ -3763,9 +3763,9 @@ IDCANCEL 취소
 
 PREFIX D_SM_SETUP_STEP
 CAPTION 빠른 설치 실행
-IDC_STATIC_1이 VPN Server/VPN Bridge의 설치를 완료하려면 다음 작업 중 필요한 것을 실행하십시오.
+IDC_STATIC_1 이 VPN Server/VPN Bridge의 설치를 완료하려면 다음 작업 중 필요한 것을 실행하십시오.
 S_1_1 1. VPN 연결을 받아들이 기위한 사용자 작성
-S_1_2이 VPN Server가 원격 액세스 VPN을 받아들이거나 거점 간 연결 VPN에서 중심이되어 다른 거점에서의 연결을 수락하면 VPN 연결을 받아들이 기 위하여 사용자를 생성 해 둘 필요가 있습니다.
+S_1_2 이 VPN Server가 원격 액세스 VPN을 받아들이거나 거점 간 연결 VPN에서 중심이되어 다른 거점에서의 연결을 수락하면 VPN 연결을 받아들이 기 위하여 사용자를 생성 해 둘 필요가 있습니다.
 B_USER 사용자 만들기 (&U)
 S_2_1 2. 연결하려는 VPN Server에 연결 설정
 S_2_2 거점 간 연결 VPN의 각 거점에 설치하는 VPN Server 또는 VPN Bridge의 경우 각 VPN 거점에서의 연결을 수락하는 핵심 VPN Server의 주소 등을 입력하여 그 VPN Server에 연결 해야합니다.
@@ -3797,7 +3797,7 @@ IDCANCEL 취소
 PREFIX D_SM_IPSEC
 CAPTION IPsec/L2TP/EtherIP/L2TPv3 설정
 S_TITLE IPsec/L2TP/EtherIP/L2TPv3 서버 기능 설정
-S_3이 VPN Server에서 가상 HUB는 L2TP에 대응 한 PC 나 Mac OS X, 스마트 폰 등에서 원격 액세스 VPN 연결을 허용하거나 EtherIP/L2TPv3에 대응 한 상용 라우터 등에서 거점 간 VPN 연결을 허용 할 수 합니다.
+S_3 이 VPN Server에서 가상 HUB는 L2TP에 대응 한 PC 나 Mac OS X, 스마트 폰 등에서 원격 액세스 VPN 연결을 허용하거나 EtherIP/L2TPv3에 대응 한 상용 라우터 등에서 거점 간 VPN 연결을 허용 할 수 합니다.
 S01 L2TP 서버 기능 (원격 액세스 VPN 서버 연결)
 S02 iPhone, iPad, Android 등의 스마트 폰과 Mac OS X, Windows 등의 OS 부속의 표준 VPN 클라이언트에서 VPN 연결을 할 수 있습니다.
 R_L2TP_OVER_IPSEC L2TP 서버 기능을 활성화 (L2TP over IP & sec)
@@ -3857,7 +3857,7 @@ S_2 Microsoft SSTP VPN 호환 서버 기능
 S_3 Microsoft 사의 Windows Server 2008/2012 제품에 탑재 된 MS-SSTP VPN 서버 기능과 호환 기능을 탑재하고 있습니다. \r\n\r\nWindows Vista/7/8/RT에 내장 된 MS-SSTP 클라이언트에서이 VPN Server에 연결할 수 있습니다.
 R_SSTP & MS-SSTP VPN 서버 기능을 활성화하려면
 S_SSTP VPN Server의 SSL 인증서의 CN 값이 클라이언트 측에서 지정하는 호스트 이름과 일치하며 그 인증서를 신뢰할 수 있어야합니다. 자세한 내용은 Microsoft 문서를 참조하십시오.
-S_4이 호환 서버 기능으로 가상 HUB에 연결하는 경우 사용자 이름 지정 방법 및 기본 가상 HUB 선택 규칙은 IPsec 서버 기능과 유사합니다.
+S_4 이 호환 서버 기능으로 가상 HUB에 연결하는 경우 사용자 이름 지정 방법 및 기본 가상 HUB 선택 규칙은 IPsec 서버 기능과 유사합니다.
 B_IPSEC I & Psec 서버 기능 설정
 S_13 OpenVPN 호환 서버 기능
 IDOK & OK
@@ -3867,7 +3867,7 @@ IDCANCEL 취소
 PREFIX D_SM_DDNS
 CAPTION 동적 DNS 기능
 S_TITLE 동적 DNS 기능
-S_BOLD이 버전의 VPN Server는 동적 DNS 기능이 탑재되어 있습니다.
+S_BOLD 이 버전의 VPN Server는 동적 DNS 기능이 탑재되어 있습니다.
 S_1 동적 DNS 통해이 VPN Server 컴퓨터에 영구적 인 고유의 DNS 호스트 이름이 할당됩니다. 이는 자체로 도메인을 소유하고 있지 않아도, VPN Client와 VPN Bridge 등의 설정 화면에서 VPN Server의 IP 주소 대신 DNS 호스트 이름으로 VPN Server를 지정할 수 있습니다.
 S_22 또한 IP 주소가 바뀔 수있는 일반적인 ISP를 사용하여 VPN Server를 인터넷에 연결하는 경우에도 IP 주소가 변경되면 자동으로 DNS 호스트에 대응하는 IP 주소가 업데이트되기 때문에 가변 IP 주소에서 VPN Server를 운용 할 수 있습니다. \r\n 그러면 비싼 월정액 요금이 필요한 고정 글로벌 IP 주소 서비스를 계약 할 필요가 없습니다.
 S_3 또한이 버전의 VPN Server는 NAT 탐색 기능을 지원하고 있으며, VPN Server가 NAT 뒤에 있고 개인 IP 주소 밖에 가지고 있지 않은 경우에도 NAT에서 특별한 설정을하지 않고 인터넷 측에서 VPN 연결을 받아 들일 수 있습니다.
@@ -3911,8 +3911,8 @@ S_3 입력 예:
 S_4 간단한 URL 리디렉션:
 S_5 고급 URL 리디렉션:
 B_HINT 고급 URL 리디렉션 기능 사용 (&U)...
-S_6주의
-S_BOLD이 기능은 TCP/IP에 익숙한 네트워크 관리자를위한 기능입니다. 다음의주의 사항을 잘 읽고 신중하게 설정하십시오.
+S_6 주의
+S_BOLD 이 기능은 TCP/IP에 익숙한 네트워크 관리자를위한 기능입니다. 다음의주의 사항을 잘 읽고 신중하게 설정하십시오.
 S_7 액세스 목록의 조건에 목적지 세션의 사용자 또는 그룹 이름이 지정되어있는 경우에 해당 액세스 목록이 패킷에 일치하는 경우이 기능은 무시됩니다.
 S_8 TCP 아닌 패킷 액세스 목록과 일치하는 경우이 기능은 무시됩니다.
 S_9 모든 TCP 패킷에 대해 HTTP 리디렉션 응답을 반환합니다 (포트 80에 한정되지 않습니다). 예를 들어 포트 80으로 제한하는 액세스 목록의 조건에서 대상 포트를 TCP 80에 한정합니다.
@@ -3932,7 +3932,7 @@ PREFIX D_SW_MODE
 CAPTION D_SW_MODE
 R_SYSTEM 시스템 모드 (권장) (&S)
 R_USER 사용자 모드 (&U)
-S_1이 컴퓨터에 일반적인 방법으로 VPN 소프트웨어를 설치합니다. 이 컴퓨터의 관리자 권한이 있어야합니다.
+S_1 이 컴퓨터에 일반적인 방법으로 VPN 소프트웨어를 설치합니다. 이 컴퓨터의 관리자 권한이 있어야합니다.
 S_USER 일반 사용자 권한으로 VPN 소프트웨어를 설치합니다. 관리자 권한이 필요하지 않지만 로컬 브리지 등의 일부 기능을 사용할 수 없습니다. 사용자 "%s"가 Windows에 로그온하는 동안 만 사용할 수 있습니다.
 S_2 SoftEther VPN은 두 가지 설치 모드로 설치할 수 있습니다. \r\n\r\n 일반적으로 "시스템 모드 '를 선택하십시오. \r\n\r\n 어떤 이유로 관리자 권한을 얻을 수없는 경우에는 "사용자 모드"를 선택하면 일반 사용자 권한으로 설치할 수도 있습니다.
 
@@ -3966,9 +3966,9 @@ R_CUSTOM 설치 위치를 변경 (&S)
 S_DEST 설치 (&D):
 B_BROWSE 참조 (&B)...
 R_SHOWCUSTOM 상급자에 대한 설치 옵션 (&A)
-R_FOR_SYSTEM이 컴퓨터의 Windows에 설치 (&Y)
+R_FOR_SYSTEM 이 컴퓨터의 Windows에 설치 (&Y)
 R_FOR_USER 사용자 "%s"환경에만 설치 (&U)
-S_WARNING주의:권장하지 않습니다. 사용자 "%s"가 Windows에서 로그 오프하면 %s 작업을 중단합니다. 또한 로컬 브리지 기능과 L2TP/IPsec 기능 (Mac이나 스마트 폰에서 연결) 등은 작동하지 않습니다.
+S_WARNING 주의:권장하지 않습니다. 사용자 "%s"가 Windows에서 로그 오프하면 %s 작업을 중단합니다. 또한 로컬 브리지 기능과 L2TP/IPsec 기능 (Mac이나 스마트 폰에서 연결) 등은 작동하지 않습니다.
 
 
 PREFIX D_SW_READY
@@ -4016,7 +4016,7 @@ S_18 연결 설정 (&S):
 B_BROWSE_SETTING 참조 (&B)...
 B_DELETE_SENSITIVE 연결 설정 파일에 사용자 이름과 암호를 저장하지 않는 (&E)
 S_BOLD2 생성 된 EXE 파일을 저장할 파일 이름을 지정하십시오
-S_3이 마법사는 간단한 설치 프로그램으로 EXE 파일 (실행 파일)을 생성합니다. 생성 된 파일을 저장하기위한 파일 이름을 지정하십시오.
+S_3 이 마법사는 간단한 설치 프로그램으로 EXE 파일 (실행 파일)을 생성합니다. 생성 된 파일을 저장하기위한 파일 이름을 지정하십시오.
 S_19 파일 이름 (&A):
 B_BROWSE_OUT 참조 (&R)...
 B_EASYMODE VPN 클라이언트 연결 관리자를 일반 모드로 설정 (&E)
@@ -4038,7 +4038,7 @@ S_18 연결 설정 (&S):
 B_BROWSE_SETTING 참조 (&B)...
 B_DELETE_SENSITIVE 연결 설정 파일에 사용자 이름과 암호를 저장하지 않는 (&E)
 S_BOLD2 생성되는 Web 서버 설치용 파일을 저장할 파일 이름을 지정하십시오
-S_3이 마법사는 Web 서버에 설치하기위한 HTML 파일이나 CAB 파일이 포함 된 ZIP 파일 (압축 파일)을 생성합니다. 생성 된 파일을 저장하기위한 파일 이름을 지정하십시오.
+S_3 이 마법사는 Web 서버에 설치하기위한 HTML 파일이나 CAB 파일이 포함 된 ZIP 파일 (압축 파일)을 생성합니다. 생성 된 파일을 저장하기위한 파일 이름을 지정하십시오.
 S_19 파일 이름 (&A):
 B_BROWSE_OUT 참조 (&R)...
 B_EASYMODE VPN 클라이언트 연결 관리자를 일반 모드로 설정 (&E)
@@ -4048,7 +4048,7 @@ PREFIX D_UPDATE_NOTICE
 CAPTION %s 업데이트
 IDOK 업데이트 Web 사이트를 표시 (&S)...
 B_CONFIG 업데이트 알림 설정 (&C)...
-IDCANCEL이 메시지를 다시 표시하지 않음 (&I)
+IDCANCEL 이 메시지를 다시 표시하지 않음 (&I)
 S_INFO %s의 최신 버전이 출시되어 있습니다. 지금 다운로드하고 업데이트 할 수 있습니다.
 S_PRODUCT 소프트웨어:
 S_CURRENT 현재 사용중인 버전:
@@ -4071,7 +4071,7 @@ CAPTION VM 내에서 로컬 브리지를 사용하는 경우의주의 사항
 S_TITLE VM 내에서의 로컬 브리지 기능 사용
 S_1 VPN Server가 VMware와 Hyper-V 등의 VM (가상 머신) 내에서 작동하고있을 가능성이 감지되었습니다. 다음의주의 사항을 잘 읽어 보시기 바랍니다. VM을 사용하지 않는 경우이 메시지를 무시하십시오.
 S_2 VM은 기본적으로 LAN 카드의 '무차별 모드'(MAC 주소 스푸핑)에서의 통신이 금지되는 경우가 있습니다. \r\n\r\nVM에서 동작하는 VPN Server의 가상 HUB와 호스트 컴퓨터에 장착되어있는 물리적 인 LAN 카드 사이에서 로컬 브릿지를 할 경우 무차별 모드 (MAC 주소 스푸핑) 금지 되어 정상적으로 통신 할 수 없습니다. 이런 경우 VM 설정 도구를 사용하여 무차별 모드 (MAC 주소 스푸핑)를 사용하십시오. \r\n\r\n 자세한 내용은 VM 설명서를 참조하십시오. 다른 관리자에 의해 관리되는 공유 VM의 경우 관리자에게 무차별 모드 (MAC 주소 스푸핑)을 허용하도록 요청하십시오.
-S_BOLD주의 사항
+S_BOLD 주의 사항
 IDCANCEL & OK
 
 
@@ -4145,7 +4145,7 @@ CAPTION VPN Gate 서비스 옵션 설정
 S_TITLE VPN Gate 서비스 옵션 설정
 S_1 VPN Gate 서비스를이 컴퓨터에서 동작시키는 경우이 컴퓨터는 공개 VPN 서버입니다. 서버 운영자 정보를 입력하십시오. 입력 된 운영자 정보는 www.vpngate.net에서 서버 목록 등에 공개되어 누구나 볼 수 있습니다. 또한 VPN Gate 실험에 관한 연락처로 사용합니다.
 S_2 운영자 정보:
-S_3이 VPN Gate 서비스 운영자 (&O):
+S_3 이 VPN Gate 서비스 운영자 (&O):
 S_19 (64 자 이내)
 S_20 도용이있을 때의 통보 처 \r\n (이메일 주소 등) (&A):
 S_21 (64 자 이내)
@@ -4169,7 +4169,7 @@ S2 원래 세계에는 200 개국 가까운 나라가 존재하고 있으며, �
 S3 본 소프트웨어 나 서비스를 사용할 때 사용자가 적용되는 모든 법령을 사용자의 책임에 의해 준수하십시오. 소프트웨어 또는 서비스를 일본 국내외를 불문하고 사용 된 경우에 발생하는 모든 손해 및 책임은 사용자에게 귀책합니다. 본 학술 실험 운영자 및 소프트웨어 공급 업체는 책임을지지 않습니다.
 S4 이러한주의 사항에 동의하지 않는 경우에는 VPN Gate 학술 실험 서비스 관련 기능을 사용하지 마십시오.
 S5 VPN Gate는 츠쿠바 대학 대학원 학술 목적의 연구 프로젝트입니다. VPN Gate 소프트웨어는 프리웨어이다 SoftEther VPN 및 오픈 소스 인 UT-VPN을 확장하는 플러그인 형태로 개발되어 있지만, 이는 본 연구 프로젝트에서 개발 된 것이며, 소프트 이사 (주)에 의해 개발 된 것은 아닙니다. 본 연구는 소프트 이사 주식회사가 주재 추진하거나 보증하지 않습니다.
-R_NEVER이 메시지를 다시 표시하지 않음 (&S)
+R_NEVER 이 메시지를 다시 표시하지 않음 (&S)
 B_WEB VPN Gate 학술 실험 & Web 사이트...
 IDOK 동의 (&A)
 IDCANCEL 동의하지 않는다 (&D)
@@ -4223,7 +4223,7 @@ CMD_TOP_EDIT 편집 (&E)
 CMD_SELECT_ALL 모두 선택 (&A) \tCtrl + A
 CMD_SWITCH_SELECT 선택의 전환 (&I)
 #보기 메뉴
-CMD_TOP_VIEW보기 (&V)
+CMD_TOP_VIEW 보기 (&V)
 CMD_STATUSBAR 상태 표시 줄에 표시 (&S)
 CMD_VISTASTYLE Windows Vista/Windows 7 스타일 (&Y)
 CMD_SHOWPORT 포트 번호를 연결 설정 목록에 표시 (&P)
@@ -4295,18 +4295,18 @@ CON_USER_CANCEL [EOF]
 CON_UNKNOWN_CMD "%S": 명령을 찾을 수 없습니다. \nHELP 명령에서 사용할 수있는 명령 목록을 볼 수 있습니다.
 CON_AMBIGIOUS_CMD "%S": 명령이 모호합니다.
 CON_AMBIGIOUS_CMD_1 지정된 명령 이름 다음의 여러 명령과 일치합니다:
-CON_AMBIGIOUS_CMD_2보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGIOUS_CMD_2 보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
 CON_INVALID_PARAM 매개 변수 "/%S"가 지정되어 있습니다. 명령 "%S"는 이러한 매개 변수는 지정할 수 없습니다. 자세한 내용은 "%S/HELP"를 입력하여 사용할 수있는 매개 변수 목록을 확인하십시오.
 CON_AMBIGIOUS_PARAM "/%S": 매개 변수 이름이 모호합니다.
 CON_AMBIGIOUS_PARAM_1 지정된 매개 변수 이름은 명령 "%S"매개 변수로 지정할 수있는 다음의 여러 매개 변수와 일치합니다:
-CON_AMBIGIOUS_PARAM_2보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGIOUS_PARAM_2 보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
 
 
 # 알 수없는 명령
-CMD_UNKNOWM이 명령에 대한 설명은 없습니다.
-CMD_UNKNOWN_HELP이 명령에 대한 자세한 설명은 없습니다. 이 명령의 동작에 대해 자세히 알고 싶다면, 및 온라인 설명서를 참조하십시오.
+CMD_UNKNOWM 이 명령에 대한 설명은 없습니다.
+CMD_UNKNOWN_HELP 이 명령에 대한 자세한 설명은 없습니다. 이 명령의 동작에 대해 자세히 알고 싶다면, 및 온라인 설명서를 참조하십시오.
 CMD_UNKNOWN_ARGS 명령의 실행 예는 없습니다.
-CMD_UNKNOWN_PARAM이 매개 변수에 대한 설명은 없습니다.
+CMD_UNKNOWN_PARAM 이 매개 변수에 대한 설명은 없습니다.
 
 
 # 콘솔 시스템 내부에서 사용하는 문자열
@@ -4375,8 +4375,8 @@ CMD_ACCOUNT_COLUMN_QOS_DISABLE QoS 제어 기능을 사용하지
 # 디버깅 정보 내보내기 명령
 CMD_DEBUG_SOFTNAME SoftEther VPN 디버깅 정보 수집 도구
 CMD_DEBUG_PRINT SoftEther VPN 디버깅 정보 수집 도구 \r\n\r\n
-CMD_DEBUG_NOT_2000이 명령은 Windows 2000 이상에서만 사용할 수 있습니다.
-CMD_DEBUG_NOT_ADMIN이 명령을 실행하려면 Windows에 관리자 권한으로 로그인해야합니다.
+CMD_DEBUG_NOT_2000 이 명령은 Windows 2000 이상에서만 사용할 수 있습니다.
+CMD_DEBUG_NOT_ADMIN 이 명령을 실행하려면 Windows에 관리자 권한으로 로그인해야합니다.
 CMD_DEBUG_UAC_FAILED 관리자 권한을 가져 오는 데 실패했습니다.
 CMD_DEBUG_SAVE_TITLE 디버깅 정보를 저장할 파일 이름을 지정하십시오
 CMD_DEBUG_OK 디버그 정보 파일을 "%s"에 저장되었습니다. \r\n\r\n이 파일을 지원 담당자의 지시에 따라 지원 담당자에게 문의하시기 바랍니다. \r\n 또한 파일을 보내 주시기 전에 반드시 파일의 내용을 확인하시기 바랍니다. \r\n 만약 파일의 내용에 비밀 정보가 포함되어있는 경우에 그 정보를 파일의 송 부처 담당자에게 공개하고 싶지 않다고 생각되는 경우에는 당해 비밀 정보의 부분 만 당신의 책임 에서 수동으로 제거하고 다시 파일을 ZIP으로 압축하여 보내주십시오. \r\n\r\n 비밀 정보가 포함되어 있음에도 불구하고 그것을 제거하지 않고 지원 담당자에게 보내 주신 경우 당해 비밀 정보를 지원 담당자에게 공개하는 것에 대하여 동의 된 것으로 간주되므로주의하시기 바랍니다.
@@ -4408,9 +4408,9 @@ CMD_SAVEKEYPATH 비밀 키를 저장할 파일 이름:
 CMD_SAVEKEY_FAILED 개인 키 파일의 저장에 실패했습니다.
 CMD_SAVEFILE_FAILED 파일 저장에 실패했습니다.
 CMD_LOADFILE_FAILED 파일을 여는 데 실패했습니다.
-CMD_LOADCERTPATH로드 X.509 인증서 파일 이름:
+CMD_LOADCERTPATH 로드 X.509 인증서 파일 이름:
 CMD_LOADCERT_FAILED 인증서 파일의 읽기에 실패했습니다.
-CMD_LOADKEYPATH로드 개인 키 파일 이름:
+CMD_LOADKEYPATH 로드 개인 키 파일 이름:
 CMD_LOADKEY_FAILED 개인 키 파일 가져 오기에 실패했습니다.
 CMD_LOADKEY_ENCRYPTED_1 지정된 개인 키 파일은 암호로 보호되어 있습니다.
 CMD_LOADKEY_ENCRYPTED_2 암호를 입력하십시오:
@@ -4434,7 +4434,7 @@ CMD_VPNCMD_ADMINHUB VPN Server에 연결 한 후 자동으로 선택하는 가�
 CMD_VPNCMD_PASSWORD 연결할 때 관리자 암호가 필요한 경우 암호 'password'를 지정합니다. 암호가 지정되어 있지 않으면 입력하라는 메시지가 표시됩니다.
 CMD_VPNCMD_IN 연결이 완료된 후 자동으로 실행될 명령 목록이 포함 된 텍스트 파일 이름 'infile'을 지정합니다./IN 매개 변수가 지정되어있는 경우 파일의 모든 행의 실행이 완료된 후 자동으로 vpncmd 프로그램을 종료합니다. 파일에 멀티 바이트 문자가 포함되어있는 경우 Unicode (UTF-8)로 인코딩되어 있어야합니다./CMD 함께 지정할 수 없습니다 (/CMD 함께 지정한 경우/IN은 무시됩니다).
 CMD_VPNCMD_OUT 화면에 표시되는 프롬프트 메시지 오류, 실행 결과 등의 모든 문자열을 내보낼 텍스트 파일 이름 'outfile'를 지정할 수 있습니다. 이미 존재하는 파일을 지정하면 파일의 내용을 덮어 쓰게되므로주의하시기 바랍니다. 멀티 바이트 문자는 Unicode (UTF-8)로 인코딩되어 기록됩니다.
-CMD_VPNCMD_CMD/CMD 후 임의의 명령 'commands...'를 작성하면 연결이 완료된 후 그 명령이 실행 된 후 vpncmd 프로그램을 종료합니다./IN 함께 지정할 수 없습니다 (/IN 함께 지정한 경우/IN은 무시됩니다)./CMD 매개 변수는 다른 모든 vpncmd 매개 변수 이후에 지정하십시오.
+CMD_VPNCMD_CMD /CMD 후 임의의 명령 'commands...'를 작성하면 연결이 완료된 후 그 명령이 실행 된 후 vpncmd 프로그램을 종료합니다./IN 함께 지정할 수 없습니다 (/IN 함께 지정한 경우/IN은 무시됩니다)./CMD 매개 변수는 다른 모든 vpncmd 매개 변수 이후에 지정하십시오.
 CMD_VPNCMD_CSV 명령이 결과를 CSV 형식으로 출력하도록합니다. 다른 프로그램에서 출력을 자동 처리하는 데 유용합니다.
 CMD_VPNCMD_CS_1 vpncmd 프로그램을 사용하여 다음을 수행 할 수 있습니다. \n \n1. VPN Server 또는 VPN Bridge 관리 \n2. VPN Client 관리 \n3. VPN Tools 명령의 사용 (인증서 작성 및 통신 속도 측정) \n \n
 CMD_VPNCMD_CS_2 1 - 3을 선택:
@@ -4469,7 +4469,7 @@ CMD_VPNCMD_TOOLS_CONNECTED VPN Tools를 시작했습니다. HELP를 입력하면
 
 # About 명령
 CMD_About 버전 정보 표시
-CMD_About_HELP이 명령 줄 관리 유틸리티의 버전 정보를 표시합니다. 버전 정보는 vpncmd 버전 번호, 빌드 번호, 빌드 정보 등이 포함됩니다.
+CMD_About_HELP 이 명령 줄 관리 유틸리티의 버전 정보를 표시합니다. 버전 정보는 vpncmd 버전 번호, 빌드 번호, 빌드 정보 등이 포함됩니다.
 CMD_About_ARGS About
 
 
@@ -4555,7 +4555,7 @@ CMD_ClusterSettingStandalone_Args ClusterSettingStandalone
 CMD_ClusterSettingController VPN Server 유형을 클러스터 컨트롤러로 설정
 CMD_ClusterSettingController_Help VPN Server 유형을 "클러스터 컨트롤러"로 설정합니다. 클러스터 컨트롤러는 여러 대의 VPN Server에서 클러스터링을 구축하는 경우에있어서 각 클러스터 구성원 서버의 중앙 컴퓨터에서 클러스터에 하나 필요합니다. 동일한 클러스터를 구성하는 다른 구성원에서 클러스터 컨트롤러에 연결하여 클러스터 구성원으로 동작을 시작합니다. \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령을 실행하면 VPN Server가 자동으로 다시 시작합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다.
 CMD_ClusterSettingController_Args ClusterSettingController [/WEIGHT:weight] [/ONLY:yes|no]
-CMD_ClusterSettingController_WEIGHT이 VPN Server의 성능 기준 비율의 값을 설정합니다. 클러스터 내에서로드 밸런싱을 할 때 기준이되는 값입니다. 보통은 100입니다. 예를 들어, 다른 멤버가 100 상태에서 하나만 200하면 다른 멤버의 2 배 연결을 맡게로드 밸런싱시에 조정됩니다. 값은 1 이상이어야합니다. 이 매개 변수를 지정하지 않으면 100이 사용됩니다.
+CMD_ClusterSettingController_WEIGHT 이 VPN Server의 성능 기준 비율의 값을 설정합니다. 클러스터 내에서로드 밸런싱을 할 때 기준이되는 값입니다. 보통은 100입니다. 예를 들어, 다른 멤버가 100 상태에서 하나만 200하면 다른 멤버의 2 배 연결을 맡게로드 밸런싱시에 조정됩니다. 값은 1 이상이어야합니다. 이 매개 변수를 지정하지 않으면 100이 사용됩니다.
 CMD_ClusterSettingController_ONLY "yes"를 지정하면 VPN Server가 클러스터에서 컨트롤러로서의 기능만을 동작시켜, 일반 VPN Client의 연결은 자신 이외의 구성원이 반드시 배분하게됩니다. 이 기능은 부하가 높은 환경에서 사용합니다. 이 매개 변수를 지정하지 않으면 "no"가 사용됩니다.
 
 
@@ -4564,10 +4564,10 @@ CMD_ClusterSettingMember VPN Server 유형을 클러스터 구성원으로 설�
 CMD_ClusterSettingMember_Help VPN Server 유형을 "클러스터 구성원 서버"로 설정합니다. 클러스터 구성원 서버는 여러 대의 VPN Server에서 클러스터링을 구축하는 경우에있어서의 특정 기존 클러스터 컨트롤러가 중심이되어 구성된 클러스터에 속하는 다른 구성원 컴퓨터에서 클러스터에 필요한만큼 여러 추가 수 있습니다. \n 클러스터 구성원 서버로 VPN Server를 설정하려면 사전에 참가할 예정 클러스터 컨트롤러의 관리자에 컨트롤러의 IP 주소와 포트 번호이 VPN Server의 공용 IP 주소 및 공개 포트 번호 (필요한 경우) 및 암호를 문의해야합니다. \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령을 실행하면 VPN Server가 자동으로 다시 시작합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다.
 CMD_ClusterSettingMember_Args ClusterSettingMember [server:port] [/IP:ip] [/PORTS:ports] [/PASSWORD:password] [/WEIGHT:weight]
 CMD_ClusterSettingMember_ [server:port] 호스트 이름:포트 번호] 형식의 매개 변수에 연결할 클러스터 컨트롤러의 호스트 이름 또는 IP 주소 및 포트 번호를 지정합니다.
-CMD_ClusterSettingMember_IP이 서버의 공용 IP 주소를 지정합니다. 공개 IP 주소를 지정하지 않으면 "/IP:none"과 같이 지정하십시오. 공개 IP 주소를 지정하지 않으면 클러스터 컨트롤러에 연결할 때 사용되는 네트워크 인터페이스의 IP 주소가 자동으로 사용됩니다.
-CMD_ClusterSettingMember_PORTS이 서버의 공개 포트 번호 목록을 지정합니다. 공개 포트 번호는 적어도 하나 이상 설정해야 복수 설정할 수 있습니다. 이 경우 "/PORTS:443,992,8888"와 같이 콤마 기호로 구분합니다.
+CMD_ClusterSettingMember_IP 이 서버의 공용 IP 주소를 지정합니다. 공개 IP 주소를 지정하지 않으면 "/IP:none"과 같이 지정하십시오. 공개 IP 주소를 지정하지 않으면 클러스터 컨트롤러에 연결할 때 사용되는 네트워크 인터페이스의 IP 주소가 자동으로 사용됩니다.
+CMD_ClusterSettingMember_PORTS 이 서버의 공개 포트 번호 목록을 지정합니다. 공개 포트 번호는 적어도 하나 이상 설정해야 복수 설정할 수 있습니다. 이 경우 "/PORTS:443,992,8888"와 같이 콤마 기호로 구분합니다.
 CMD_ClusterSettingMember_PASSWORD 연결된 컨트롤러에 연결하기위한 암호를 지정합니다. 연결된 컨트롤러 관리 비밀번호와 동일합니다.
-CMD_ClusterSettingMember_WEIGHT이 VPN Server의 성능 기준 비율의 값을 설정합니다. 클러스터에서로드 밸런싱을 할 때 기준이되는 값입니다. 예를 들어, 다른 멤버가 100 상태에서 하나만 200하면 다른 멤버의 2 배의 연결을 맡도록 조정됩니다. 값은 1 이상이어야합니다. 이 매개 변수를 지정하지 않으면 100이 사용됩니다.
+CMD_ClusterSettingMember_WEIGHT 이 VPN Server의 성능 기준 비율의 값을 설정합니다. 클러스터에서로드 밸런싱을 할 때 기준이되는 값입니다. 예를 들어, 다른 멤버가 100 상태에서 하나만 200하면 다른 멤버의 2 배의 연결을 맡도록 조정됩니다. 값은 1 이상이어야합니다. 이 매개 변수를 지정하지 않으면 100이 사용됩니다.
 CMD_ClusterSettingMember_Prompt_IP_1 공개 IP 주소를 지정하십시오. \n 지정하지 않으면, 아무것도 입력하지 않고 Enter를 누르십시오.
 CMD_ClusterSettingMember_Prompt_IP_2 공개 IP 주소:
 CMD_ClusterSettingMember_Prompt_PORT_1 공개 포트 번호 목록을 지정하십시오. \n2 개 이상의 포트 번호를 지정하는 경우, 443,992,8888와 같이 콤마 기호로 구분합니다.
@@ -4995,8 +4995,8 @@ CMD_Hub_Args Hub [name]
 CMD_Hub_ [name] 관리하는 가상 HUB의 이름을 지정합니다. 매개 변수를 지정하지 않은 경우 관리되는 가상 HUB의 선택을 해제합니다.
 CMD_Hub_Unselected 가상 HUB의 선택을 해제했습니다.
 CMD_Hub_Selected 가상 HUB "%S"를 선택했습니다.
-CMD_Hub_Select_Failed/ADMINHUB에서 지정된 가상 HUB "%S"를 선택하려고하면 다음 오류가 발생했습니다.
-CMD_Hub_Not_Selected이 명령을 실행하기 전에 Hub 명령에서 관리되는 가상 HUB를 선택하십시오.
+CMD_Hub_Select_Failed /ADMINHUB에서 지정된 가상 HUB "%S"를 선택하려고하면 다음 오류가 발생했습니다.
+CMD_Hub_Not_Selected 이 명령을 실행하기 전에 Hub 명령에서 관리되는 가상 HUB를 선택하십시오.
 
 
 # Online 명령
@@ -5219,7 +5219,7 @@ CMD_CascadeUsernameSet_Help 현재 관리하고있는 가상 HUB에 등록되어
 CMD_CascadeUsernameSet_Args CascadeUsernameSet [name] [/USERNAME:username]
 CMD_CascadeUsernameSet_ [name] 설정을 변경 계단식의 이름을 지정합니다.
 CMD_CascadeUsernameSet_USERNAME 계단식가 VPN Server에 연결할 때 사용자 인증에 필요한 사용자 이름을 지정합니다.
-CMD_CascadeUsername_Notice이 연결 설정의 인증 방법은 현재 암호 인증으로 설정되어 있습니다. 사용자 이름을 변경 한 후 CascadePasswordSet 명령에서 암호를 다시 설정해야합니다.
+CMD_CascadeUsername_Notice 이 연결 설정의 인증 방법은 현재 암호 인증으로 설정되어 있습니다. 사용자 이름을 변경 한 후 CascadePasswordSet 명령에서 암호를 다시 설정해야합니다.
 
 
 # CascadeAnonymousSet 명령
@@ -5463,7 +5463,7 @@ CMD_AccessAdd_Prompt_PROTOCOL 프로토콜 번호 또는 프로토콜 이름 (tc
 CMD_AccessAdd_Prompt_SRCPORT 소스 포트 번호의 범위 (tcp/udp의 경우에만):
 CMD_AccessAdd_Prompt_DESTPORT 목적지 포트 번호의 범위 (tcp/udp의 경우에만):
 CMD_AccessAdd_Prompt_SRCUSERNAME 전송 사용자 이름 (지정에서 모든):
-CMD_AccessAdd_Prompt_DESTUSERNAME받은 사용자 이름 (지정에서 모든):
+CMD_AccessAdd_Prompt_DESTUSERNAME 받은 사용자 이름 (지정에서 모든):
 CMD_AccessAdd_Prompt_SRCMAC 소스 MAC 주소와 마스크 (지정에서 모든):
 CMD_AccessAdd_Prompt_DESTMAC 대상 MAC 주소와 마스크 (지정에서 모든):
 CMD_AccessAdd_Prompt_TCPSTATE TCP 연결 상태 (Established/Unestablished):
@@ -5486,9 +5486,9 @@ CMD_AccessAddEx_DESTUSERNAME 규칙의 조건으로 지정된 이름의 사용�
 CMD_AccessAddEx_SRCMAC 규칙의 조건으로 소스 MAC 주소를 지정합니다. MAC 주소는 00-AC-84-EA-33-BC/FF-FF-FF-FF-FF-00과 같이 16 진수로 "-"또는 ":"구분 기호를 사용하여 지정합니다. 구분 기호는 생략 할 수 있습니다.
 CMD_AccessAddEx_DESTMAC 규칙의 조건으로 목적지 MAC 주소를 지정합니다. 지정 방법은/SRCMAC 매개 변수와 같습니다.
 CMD_AccessAddEx_TCPSTATE 규칙의 조건으로 TCP 연결 상태를 지정합니다. Established 또는 Unestablished을 지정합니다.
-CMD_AccessAddEx_DELAY이 규칙은 패킷이 통과하는 경우에 지연을 발생시킬 수 있습니다. 발생시키고 자하는 지연 시간을 밀리 초 단위로 지정합니다. 무 지정 또는 0을 지정하면 지연은 발생하지 않습니다. 지연은 10000 밀리 초 이하 여야합니다.
-CMD_AccessAddEx_JITTER이 규칙은 패킷이 통과하는 경우에 지터를 발생시킬 수 있습니다. 지연 값에 대해 지터의 요동을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 지터가 발생하지 않습니다.
-CMD_AccessAddEx_LOSS이 규칙은 패킷이 통과 할 때 패킷 손실을 발생시킬 수 있습니다. 패킷이 손실 될 가능성을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 패킷 손실은 발생하지 않습니다.
+CMD_AccessAddEx_DELAY 이 규칙은 패킷이 통과하는 경우에 지연을 발생시킬 수 있습니다. 발생시키고 자하는 지연 시간을 밀리 초 단위로 지정합니다. 무 지정 또는 0을 지정하면 지연은 발생하지 않습니다. 지연은 10000 밀리 초 이하 여야합니다.
+CMD_AccessAddEx_JITTER 이 규칙은 패킷이 통과하는 경우에 지터를 발생시킬 수 있습니다. 지연 값에 대해 지터의 요동을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 지터가 발생하지 않습니다.
+CMD_AccessAddEx_LOSS 이 규칙은 패킷이 통과 할 때 패킷 손실을 발생시킬 수 있습니다. 패킷이 손실 될 가능성을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 패킷 손실은 발생하지 않습니다.
 
 CMD_AccessAddEx_Prompt_DELAY 발생하는 지연 (밀리 세컨드 단위:0 - 10000):
 CMD_AccessAddEx_Prompt_JITTER 발생시키는 지터의 요동 (백분율:0 - 100):
@@ -5526,7 +5526,7 @@ CMD_AccessAdd6_Prompt_PROTOCOL 프로토콜 번호 또는 프로토콜 이름 (t
 CMD_AccessAdd6_Prompt_SRCPORT 소스 포트 번호의 범위 (tcp/udp의 경우에만):
 CMD_AccessAdd6_Prompt_DESTPORT 목적지 포트 번호의 범위 (tcp/udp의 경우에만):
 CMD_AccessAdd6_Prompt_SRCUSERNAME 전송 사용자 이름 (지정에서 모든):
-CMD_AccessAdd6_Prompt_DESTUSERNAME받은 사용자 이름 (지정에서 모든):
+CMD_AccessAdd6_Prompt_DESTUSERNAME 받은 사용자 이름 (지정에서 모든):
 CMD_AccessAdd6_Prompt_SRCMAC 소스 MAC 주소와 마스크 (지정에서 모든):
 CMD_AccessAdd6_Prompt_DESTMAC 대상 MAC 주소와 마스크 (지정에서 모든):
 CMD_AccessAdd6_Prompt_TCPSTATE TCP 연결 상태 (Established/Unestablished):
@@ -5549,9 +5549,9 @@ CMD_AccessAddEx6_DESTUSERNAME 규칙의 조건으로 지정된 이름의 사용�
 CMD_AccessAddEx6_SRCMAC 규칙의 조건으로 소스 MAC 주소를 지정합니다. MAC 주소는 00-AC-84-EA-33-BC/FF-FF-FF-FF-FF-00과 같이 16 진수로 "-"또는 ":"구분 기호를 사용하여 지정합니다. 구분 기호는 생략 할 수 있습니다.
 CMD_AccessAddEx6_DESTMAC 규칙의 조건으로 목적지 MAC 주소를 지정합니다. 지정 방법은/SRCMAC 매개 변수와 같습니다.
 CMD_AccessAddEx6_TCPSTATE 규칙의 조건으로 TCP 연결 상태를 지정합니다. Established 또는 Unestablished을 지정합니다.
-CMD_AccessAddEx6_DELAY이 규칙은 패킷이 통과하는 경우에 지연을 발생시킬 수 있습니다. 발생시키고 자하는 지연 시간을 밀리 초 단위로 지정합니다. 무 지정 또는 0을 지정하면 지연은 발생하지 않습니다. 지터는 10000 밀리 초 이하 여야합니다.
-CMD_AccessAddEx6_JITTER이 규칙은 패킷이 통과하는 경우에 지터를 발생시킬 수 있습니다. 지연 값에 대해 지터의 요동을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 지터가 발생하지 않습니다.
-CMD_AccessAddEx6_LOSS이 규칙은 패킷이 통과 할 때 패킷 손실을 발생시킬 수 있습니다. 패킷이 손실 될 가능성을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 패킷 손실은 발생하지 않습니다.
+CMD_AccessAddEx6_DELAY 이 규칙은 패킷이 통과하는 경우에 지연을 발생시킬 수 있습니다. 발생시키고 자하는 지연 시간을 밀리 초 단위로 지정합니다. 무 지정 또는 0을 지정하면 지연은 발생하지 않습니다. 지터는 10000 밀리 초 이하 여야합니다.
+CMD_AccessAddEx6_JITTER 이 규칙은 패킷이 통과하는 경우에 지터를 발생시킬 수 있습니다. 지연 값에 대해 지터의 요동을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 지터가 발생하지 않습니다.
+CMD_AccessAddEx6_LOSS 이 규칙은 패킷이 통과 할 때 패킷 손실을 발생시킬 수 있습니다. 패킷이 손실 될 가능성을 0 %~ 100 %의 백분율 수치로 지정합니다. 무 지정 또는 0을 지정하면 패킷 손실은 발생하지 않습니다.
 
 CMD_AccessAddEx6_Prompt_DELAY 발생하는 지연 (밀리 세컨드 단위:0 - 10000):
 CMD_AccessAddEx6_Prompt_JITTER 발생시키는 지터의 요동 (백분율:0 - 100):
@@ -5644,7 +5644,7 @@ CMD_UserGet_Column_UserCert 등록 된 사용자 고유 인증서
 CMD_UserGet_Column_RadiusAlias 외부 인증 서버의 인증 사용자 이름
 CMD_UserGet_Column_RootCert_CN 인증서의 CN 값의 제한
 CMD_UserGet_Column_RootCert_SERIAL 인증서 일련 번호 제한
-CMD_UserGet_Policy이 사용자에 설정된 보안 정책
+CMD_UserGet_Policy 이 사용자에 설정된 보안 정책
 
 
 # UserAnonymousSet 명령
@@ -5684,8 +5684,8 @@ CMD_UserSignedSet 사용자 인증 방법을 서명 된 인증서 인증 설정
 CMD_UserSignedSet_Help 현재 관리하고있는 가상 HUB의 보안 계정 데이터베이스에 등록되어있는 사용자 인증 방법을 "서명 된 인증서 인증"으로 설정합니다. 서명 된 인증서 인증으로 설정되어있는 사용자 이름은 사용자가 가상 HUB에 연결했을 때 사용자가 제시 한 인증서가 가상 HUB 신뢰하는 인증 기관의 인증서 목록에 인증서 중 하나에 의해 서명되어 있는지를 검사하며 클라이언트 인증서에 해당 개인 키를 보유하고 있는지 RSA 알고리즘 검증함으로써 연결을 허용하는 인증 방법입니다. \n 또한 사용자마다 기대하는 증명서의 Common Name (CN) 및 일련 번호를 등록 해두고, 상기의 검증을 통과 한 후 인증서의 내용이 설정된 값과 일치하는 경우에만 연결 를 허용하도록 설정도 가능합니다. \n 현재 등록되어있는 사용자의 목록을 검색하려면 UserList 명령을 사용하십시오. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터에서 클러스터 구성원 서버로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_UserSignedSet_Args UserSignedSet [name] [/CN:cn] [/SERIAL:serial]
 CMD_UserSignedSet_ [name] 설정을 변경하려면 사용자 이름을 지정합니다.
-CMD_UserSignedSet_CN이 매개 변수를 지정한 경우에는 사용자가 제시 한 인증서가 신뢰할 수있는 인증 기관에서 서명되고 있는지를 검증 한 후 그 증명서의 Common Name (CN)의 값을이 매개 변수에 의해 설정된 값과 비교하여 일치하는 경우에만 연결을 허용합니다. "none"을 지정했을 경우,이 체크는 행해지 지 않습니다.
-CMD_UserSignedSet_SERIAL이 매개 변수를 지정한 경우에는 사용자가 제시 한 인증서가 신뢰할 수있는 인증 기관에서 서명되고 있는지를 검증 한 후 인증서의 일련 번호 값을이 매개 변수에 의해 설정된 값과 비교 하고 일치하는 경우에만 연결을 허용합니다. "none"을 지정했을 경우,이 체크는 행해지 지 않습니다.
+CMD_UserSignedSet_CN 이 매개 변수를 지정한 경우에는 사용자가 제시 한 인증서가 신뢰할 수있는 인증 기관에서 서명되고 있는지를 검증 한 후 그 증명서의 Common Name (CN)의 값을이 매개 변수에 의해 설정된 값과 비교하여 일치하는 경우에만 연결을 허용합니다. "none"을 지정했을 경우,이 체크는 행해지 지 않습니다.
+CMD_UserSignedSet_SERIAL 이 매개 변수를 지정한 경우에는 사용자가 제시 한 인증서가 신뢰할 수있는 인증 기관에서 서명되고 있는지를 검증 한 후 인증서의 일련 번호 값을이 매개 변수에 의해 설정된 값과 비교 하고 일치하는 경우에만 연결을 허용합니다. "none"을 지정했을 경우,이 체크는 행해지 지 않습니다.
 CMD_UserSignedSet_Prompt_CN Common Name (CN) 값을 한정:
 CMD_UserSignedSet_Prompt_SERIAL 일련 번호 값을 한정:
 
@@ -5695,7 +5695,7 @@ CMD_UserRadiusSet 사용자 인증 방법을 RADIUS 인증 설정
 CMD_UserRadiusSet_Help 현재 관리하고있는 가상 HUB의 보안 계정 데이터베이스에 등록되어있는 사용자 인증 방법을 "RADIUS 인증"으로 설정합니다. RADIUS 인증으로 설정되어있는 이름으로 사용자가 가상 HUB에 연결했을 때 사용자 이름과 사용자가 입력 한 암호가 RADIUS 서버로 전송 된 RADIUS 서버가 사용자 이름과 암호 검사를 실시한 후 인증 성공하면 사용자의 VPN 연결을 허용합니다. \nRadius 인증을 사용하려면 미리 RadiusServerSet 명령을 사용하여 사용하는 RADIUS 서버를 가상 HUB로 설정해야합니다. \n 현재 등록되어있는 사용자의 목록을 검색하려면 UserList 명령을 사용하십시오. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터에서 클러스터 구성원 서버로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_UserRadiusSet_Args UserRadiusSet [name] [/ALIAS:alias_name]
 CMD_UserRadiusSet_ [name] 설정을 변경하려면 사용자 이름을 지정합니다.
-CMD_UserRadiusSet_ALIAS이 매개 변수가 설정되어있는 경우 RADIUS 서버에 전송되는 사용자 이름을 가상 HUB에서 사용자 이름과 다른 사용자 이름 일 수 있습니다. 설정하지 않으면,/ALIAS:none을 지정하십시오 (가상 HUB의 사용자 이름이 사용됩니다). 사용자 이름이 "*"의 경우/ALIAS 매개 변수는 무시됩니다. "*"사용자에 대한 설명은 UserCreate/HELP를 입력하면 표시됩니다.
+CMD_UserRadiusSet_ALIAS 이 매개 변수가 설정되어있는 경우 RADIUS 서버에 전송되는 사용자 이름을 가상 HUB에서 사용자 이름과 다른 사용자 이름 일 수 있습니다. 설정하지 않으면,/ALIAS:none을 지정하십시오 (가상 HUB의 사용자 이름이 사용됩니다). 사용자 이름이 "*"의 경우/ALIAS 매개 변수는 무시됩니다. "*"사용자에 대한 설명은 UserCreate/HELP를 입력하면 표시됩니다.
 CMD_UserRadiusSet_Prompt_ALIAS 인증 별칭 이름 (옵션):
 
 
@@ -5704,7 +5704,7 @@ CMD_UserNTLMSet 사용자 인증 방법을 NT 도메인 인증으로 설정
 CMD_UserNTLMSet_Help 현재 관리하고있는 가상 HUB의 보안 계정 데이터베이스에 등록되어있는 사용자 인증 방법을 "NT 도메인 인증"으로 설정합니다. NT 도메인 인증에 설정되어있는 이름으로 사용자가 가상 HUB에 연결했을 때 사용자 이름과 사용자가 입력 한 암호가 Windows NT/2000/Server 2003/Server 2008/Server 2008 R2/Server 2012 도메인 컨트롤러 또는 Active Directory 서버로 전송 된 인증 서버가 사용자 이름과 암호를 체크 한 후 인증이 성공하면 그 사용자의 VPN 연결을 허용합니다. \nNT 도메인 인증을 사용하려면 VPN Server가 해당 도메인에 연결되어있는 Windows NT 4.0, Windows 2000, Windows XP, Windows Server 2003, Windows Vista, Windows Server 2008, Windows 7, Windows Server 2008 R2, Windows 8, Windows Server 2012 중 하나의 운영 체제에서 실행해야합니다. 자세한 내용은 VPN Server 관리자에게 문의하십시오. \n 현재 등록되어있는 사용자의 목록을 검색하려면 UserList 명령을 사용하십시오. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터에서 클러스터 구성원 서버로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_UserNTLMSet_Args UserNTLMSet [name] [/ALIAS:alias_name]
 CMD_UserNTLMSet_ [name] 설정을 변경하려면 사용자 이름을 지정합니다.
-CMD_UserNTLMSet_ALIAS이 매개 변수가 설정되어있는 경우, NT 도메인 또는 Active Directory에 전송되는 사용자 이름을 가상 HUB에서 사용자 이름과 다른 사용자 이름 일 수 있습니다. 설정하지 않으면,/ALIAS:none을 지정하십시오 (가상 HUB의 사용자 이름이 사용됩니다). 사용자 이름이 "*"의 경우/ALIAS 매개 변수는 무시됩니다. "*"사용자에 대한 설명은 UserCreate/HELP를 입력하면 표시됩니다.
+CMD_UserNTLMSet_ALIAS 이 매개 변수가 설정되어있는 경우, NT 도메인 또는 Active Directory에 전송되는 사용자 이름을 가상 HUB에서 사용자 이름과 다른 사용자 이름 일 수 있습니다. 설정하지 않으면,/ALIAS:none을 지정하십시오 (가상 HUB의 사용자 이름이 사용됩니다). 사용자 이름이 "*"의 경우/ALIAS 매개 변수는 무시됩니다. "*"사용자에 대한 설명은 UserCreate/HELP를 입력하면 표시됩니다.
 
 
 # UserPolicyRemove 명령
@@ -5774,8 +5774,8 @@ CMD_GroupGet_ [name] 정보를 얻으려면 그룹 이름을 지정합니다.
 CMD_GroupGet_Column_NAME 그룹 이름
 CMD_GroupGet_Column_REALNAME 본명
 CMD_GroupGet_Column_NOTE 설명
-CMD_GroupGet_Column_POLICY이 그룹에 설정된 보안 정책
-CMD_GroupGet_Column_MEMBERS이 그룹에 속한 사용자 이름 목록
+CMD_GroupGet_Column_POLICY 이 그룹에 설정된 보안 정책
+CMD_GroupGet_Column_MEMBERS 이 그룹에 속한 사용자 이름 목록
 
 
 # GroupJoin 명령
@@ -6511,7 +6511,7 @@ CMD_AccountUsernameSet_Help VPN Client에 등록되어있는 연결 설정을 �
 CMD_AccountUsernameSet_Args AccountUsernameSet [name] [/USERNAME:username]
 CMD_AccountUsernameSet_ [name] 설정을 변경하려면 연결 설정의 이름을 지정합니다.
 CMD_AccountUsernameSet_USERNAME 연결 설정 VPN Server에 연결할 때 사용자 인증에 필요한 사용자 이름을 지정합니다.
-CMD_AccountUsername_Notice이 연결 설정의 인증 방법은 현재 암호 인증으로 설정되어 있습니다. 사용자 이름을 변경 한 후 AccountPasswordSet 명령에서 암호를 다시 설정해야합니다.
+CMD_AccountUsername_Notice 이 연결 설정의 인증 방법은 현재 암호 인증으로 설정되어 있습니다. 사용자 이름을 변경 한 후 AccountPasswordSet 명령에서 암호를 다시 설정해야합니다.
 
 
 # AccountAnonymousSet 명령
@@ -6814,7 +6814,7 @@ CMD_MakeCert_L 만들 인증서의 로컬 (L) 항목을 지정합니다. none을
 CMD_MakeCert_SERIAL 만들 인증서의 일련 번호 항목을 지정합니다. 16 진수로 지정합니다. none을 지정할 수도 있습니다.
 CMD_MakeCert_EXPIRES 만들 인증서의 유효 기간을 지정합니다. none 또는 0을 지정하면 3650 일 (10 년)이 사용됩니다. 최대 10950 일 (약 30 년)까지 지정할 수 있습니다.
 CMD_MakeCert_SIGNCERT 만들 인증서를 기존 인증서로 서명하는 경우 서명에 사용하는 X.509 형식의 인증서 파일 이름을 지정합니다. 매개 변수를 생략 한 경우에는 서명하지 않고 새 인증서를 루트 인증서로 만듭니다.
-CMD_MakeCert_SIGNKEY/SIGNCERT에 지정된 인증서에 대응하는 비밀 키 (RSA Base-64 인코딩)을 지정합니다.
+CMD_MakeCert_SIGNKEY /SIGNCERT에 지정된 인증서에 대응하는 비밀 키 (RSA Base-64 인코딩)을 지정합니다.
 CMD_MakeCert_SAVECERT 만든 인증서를 저장할 파일 이름을 지정합니다. 인증서는 RSA 형식의 1024 bit의 공개 키를 포함한 X.509 파일로 저장됩니다.
 CMD_MakeCert_SAVEKEY 작성한 인증서에 대응하는 비밀 키를 저장하는 파일 이름을 지정합니다. 비밀 키는 RSA 형식의 1024 bit의 개인 키 파일로 저장됩니다.
 CMD_MakeCert_PROMPT_CN 만든 인증서의 이름 (CN):
@@ -6828,7 +6828,7 @@ CMD_MakeCert_PROMPT_EXPIRES 만들 인증서의 유효 기간 (일):
 CMD_MakeCert_PROMPT_SAVECERT 만든 인증서를 저장할 파일 이름:
 CMD_MakeCert_PROMPT_SAVEKEY 만든 비밀 키를 저장하는 파일 이름:
 CMD_MakeCert_EVAL_EXPIRES 만료 %u 이상의 %u 이하로 지정하십시오.
-CMD_MakeCert_ERROR_SIGNKEY/SIGNCERT 및/SIGNKEY로 지정된 인증서 또는 개인 키를 읽지 못하거나, 조합이 잘못되었습니다.
+CMD_MakeCert_ERROR_SIGNKEY /SIGNCERT 및/SIGNKEY로 지정된 인증서 또는 개인 키를 읽지 못하거나, 조합이 잘못되었습니다.
 CMD_MakeCert_ERROR_GEN_FAILED 인증서와 개인 키 생성에 실패했습니다.
 
 
@@ -6845,7 +6845,7 @@ CMD_MakeCert2048_L 만들 인증서의 로컬 (L) 항목을 지정합니다. non
 CMD_MakeCert2048_SERIAL 만들 인증서의 일련 번호 항목을 지정합니다. 16 진수로 지정합니다. none을 지정할 수도 있습니다.
 CMD_MakeCert2048_EXPIRES 만들 인증서의 유효 기간을 지정합니다. none 또는 0을 지정하면 3650 일 (10 년)이 사용됩니다. 최대 10950 일 (약 30 년)까지 지정할 수 있습니다.
 CMD_MakeCert2048_SIGNCERT 만들 인증서를 기존 인증서로 서명하는 경우 서명에 사용하는 X.509 형식의 인증서 파일 이름을 지정합니다. 매개 변수를 생략 한 경우에는 서명하지 않고 새 인증서를 루트 인증서로 만듭니다.
-CMD_MakeCert2048_SIGNKEY/SIGNCERT에 지정된 인증서에 대응하는 비밀 키 (RSA Base-64 인코딩)을 지정합니다.
+CMD_MakeCert2048_SIGNKEY /SIGNCERT에 지정된 인증서에 대응하는 비밀 키 (RSA Base-64 인코딩)을 지정합니다.
 CMD_MakeCert2048_SAVECERT 만든 인증서를 저장할 파일 이름을 지정합니다. 인증서는 RSA 형식의 2048 bit의 공개 키를 포함한 X.509 파일로 저장됩니다.
 CMD_MakeCert2048_SAVEKEY 작성한 인증서에 대응하는 비밀 키를 저장하는 파일 이름을 지정합니다. 비밀 키는 RSA 형식의 2048 bit의 개인 키 파일로 저장됩니다.
 
@@ -6937,7 +6937,7 @@ CMD_Check_Args Check
 # 시스템 검사기 관계
 # (일부 이상한 문자열이 포함되어 있지만 문자 코드 변환 확인 용입니다)
 CHECK_TITLE -------------------------------------------------- \nSoftEther VPN 동작 환경 검사 도구 \n \nCopyright (c) SoftEther VPN Project \nAll Rights Reserved. \n \n
-CHECK_NOTE이 작동 환경 검사 도구를 실행 한 시스템이 테스트를 통과 한 경우 SoftEther VPN 소프트웨어가 작동 할 가능성이 높습니다. 체크에 시간이 걸릴 수 있습니다. 기다리십시오... \n \n
+CHECK_NOTE 이 작동 환경 검사 도구를 실행 한 시스템이 테스트를 통과 한 경우 SoftEther VPN 소프트웨어가 작동 할 가능성이 높습니다. 체크에 시간이 걸릴 수 있습니다. 기다리십시오... \n \n
 CHECK_EXEC_TAG '%s'의 체크 중... \n
 CHECK_PASS [합격] ○
 CHECK_FAIL [불합격] ×
@@ -6979,10 +6979,10 @@ SW_COMPONENT_VPNBRIDGE_TITLE SoftEther VPN Bridge
 SW_COMPONENT_VPNBRIDGE_DESCRIPTION 지점 거점에 설치합니다. 이 기지의 물리적 LAN에있는 모든 컴퓨터를 센터 거점에있는 VPN Server를 통해 통신 할 수 있도록하기 위해 설치하십시오. 관리 도구도 설치됩니다.
 
 SW_COMPONENT_VPNSMGR_TITLE SoftEther VPN 서버 관리 관리자 (관리 도구 만)
-SW_COMPONENT_VPNSMGR_DESCRIPTION이 PC에 VPN 서버 관리 관리자 만 설치합니다. VPN Server 본체는 설치하지 않습니다. 다른 컴퓨터의 Windows/Linux/Mac OS X/Solaris/FreeBSD에서 작동하는 VPN Server/VPN Bridge를 원격 관리 할 수 있습니다.
+SW_COMPONENT_VPNSMGR_DESCRIPTION 이 PC에 VPN 서버 관리 관리자 만 설치합니다. VPN Server 본체는 설치하지 않습니다. 다른 컴퓨터의 Windows/Linux/Mac OS X/Solaris/FreeBSD에서 작동하는 VPN Server/VPN Bridge를 원격 관리 할 수 있습니다.
 
 SW_COMPONENT_VPNCMGR_TITLE SoftEther VPN 클라이언트 연결 관리자 (관리 도구 만)
-SW_COMPONENT_VPNCMGR_DESCRIPTION이 PC에 VPN 클라이언트 연결 관리자 만 설치합니다. VPN Client 본체는 설치하지 않습니다. 다른 컴퓨터의 Windows/Linux에서 실행하는 VPN Client를 원격 관리 할 수 있습니다.
+SW_COMPONENT_VPNCMGR_DESCRIPTION 이 PC에 VPN 클라이언트 연결 관리자 만 설치합니다. VPN Client 본체는 설치하지 않습니다. 다른 컴퓨터의 Windows/Linux에서 실행하는 VPN Client를 원격 관리 할 수 있습니다.
 
 SW_WELCOME_TITLE SoftEther VPN 설치 마법사 시작
 SW_MODE_TITLE 설치 모드 선택
@@ -7148,7 +7148,7 @@ SW_LINK_NAME_TRAFFIC 통신 처리량 측정 도구
 SW_LINK_NAME_TRAFFIC_COMMENT 통신 처리량 측정 도구를 사용하여 IP 네트워크에있는 두 컴퓨터간에 최대한 통신 전송 속도를 쉽게 측정 할 수 있습니다.
 SW_LINK_NAME_TCP TCP 통신 설정 최적화 유틸리티
 SW_LINK_NAME_TCP_COMMENT TCP/IP 통신 설정을 조정하여이 컴퓨터의 TCP/IP 프로토콜을 사용하여 통신 속도를 향상시킬 수 있습니다.
-SW_LINK_NAME_SERVICES이 컴퓨터에서 실행중인 서비스 목록
+SW_LINK_NAME_SERVICES 이 컴퓨터에서 실행중인 서비스 목록
 SW_LINK_NAME_SERVICES_COMMENT 현재 Windows에서 실행중인 서비스 목록을 표시합니다. SoftEther VPN 관계 서비스의 작동을 시작하거나 중지 할 수 있습니다.
 SW_LINK_NAME_VPNSERVER_SVC_COMMENT SoftEther VPN Server 서비스를 사용자 모드로 시작합니다.
 SW_LINK_NAME_VPNBRIDGE_SVC_COMMENT SoftEther VPN Bridge 서비스를 사용자 모드로 시작합니다.
