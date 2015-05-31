@@ -205,7 +205,8 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 									BinToStr(server_cert_hash_str, sizeof(server_cert_hash_str),
 										server_cert_hash, SHA1_SIZE);
 
-									if (IsEmptyStr(ac->DDnsStatusCopy.AzureCertHash) || StrCmpi(server_cert_hash_str, ac->DDnsStatusCopy.AzureCertHash) == 0)
+									if (IsEmptyStr(ac->DDnsStatusCopy.AzureCertHash) || StrCmpi(server_cert_hash_str, ac->DDnsStatusCopy.AzureCertHash) == 0
+										 || StrCmpi(server_cert_hash_str, ac->DDnsStatus.AzureCertHash) == 0)
 									{
 										if (SendAll(ns, AZURE_PROTOCOL_DATA_SIANGTURE, 24, true))
 										{

@@ -127,6 +127,7 @@
 #define	IPSEC_WIN7_FILTER_TITLE_V6		CEDAR_PRODUCT_STR_W L" VPN IPsec Filter for IPv6"
 #define	IPSEC_WIN7_DRIVER_REGKEY		"SYSTEM\\CurrentControlSet\\services\\pxwfp"
 #define	IPSEC_WIN7_DRIVER_BUILDNUMBER	"CurrentInstalledBuild"
+#define	IPSEC_WIN7_DRIVER_BUILDNUMBER_WIN10	"CurrentInstalledBuild_Win10"
 
 
 // Function prototype

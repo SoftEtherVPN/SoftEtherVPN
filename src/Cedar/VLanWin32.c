@@ -1135,19 +1135,24 @@ void VLanPaFree(SESSION *s)
 	{
 		char tmp[MAX_SIZE];
 		MS_ADAPTER *a;
+		UINT64 now = Tick64();
+		UINT64 suspend_tick = MsGetSuspendModeBeginTick();
 
-		Format(tmp, sizeof(tmp), VLAN_ADAPTER_NAME_TAG, v->InstanceName);
-		a = MsGetAdapter(tmp);
-
-		if (a != NULL)
+		if (suspend_tick == 0 || (suspend_tick + (UINT64)(30 * 1000)) < now)
 		{
-			if (a->UseDhcp)
-			{
-				bool ret = Win32ReleaseAddressByGuidEx(a->Guid, 50);
-				Debug("*** Win32ReleaseAddressByGuid = %u\n", ret);
-			}
+			Format(tmp, sizeof(tmp), VLAN_ADAPTER_NAME_TAG, v->InstanceName);
+			a = MsGetAdapter(tmp);
 
-			MsFreeAdapter(a);
+			if (a != NULL)
+			{
+				if (a->UseDhcp)
+				{
+					bool ret = Win32ReleaseAddressByGuidEx(a->Guid, 50);
+					Debug("*** Win32ReleaseAddressByGuid = %u\n", ret);
+				}
+
+				MsFreeAdapter(a);
+			}
 		}
 	}
 

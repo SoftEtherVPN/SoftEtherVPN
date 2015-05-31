@@ -1,0 +1,114 @@
+; VPN Client Device Driver for Windows 2000 and Greater
+; 
+; Copyright (c) SoftEther Corporation. All Rights Reserved.
+; http://www.softether.co.jp/
+; 
+; BUILD 9558
+
+[Version]
+Signature					= "$Windows NT$"
+Class						= Net
+ClassGUID					= {4D36E972-E325-11CE-BFC1-08002BE10318}
+Provider					= %CompanyName%
+DriverVer					= 05/29/2015, 4.16.0.9558
+CatalogFile.NT				= Neo6_x86_VPN103.cat
+
+[Manufacturer]
+%CompanyName% 				= SoftEther
+
+[SourceDisksNames]
+1=%DiskDescription%, "", , 
+
+[SourceDisksFiles]
+Neo6_x86_VPN103.sys	= 1
+
+[DestinationDirs]
+DefaultDestDir				= 12
+Neo.CopyFiles.Sys			= 12
+
+[Neo.CopyFiles.Sys]
+Neo6_x86_VPN103.sys, , , 2
+
+[SoftEther]
+%NeoAdapter.DeviceDesc%	= NeoAdapter.Install, NeoAdapter_VPN103
+
+[NeoAdapter.Install]
+Characteristics				= 0x1
+AddReg						= Neo.Reg, NeoAdapter.Ndi
+CopyFiles					= Neo.CopyFiles.Sys
+*IfType						= 6
+*MediaType					= 0
+*PhysicalMediaType			= 0
+
+[NeoAdapter.Install.Services]
+AddService					= %Neo.Service.Name%, 2, Neo.Service, Neo.EventLog, , %Neo, EventLog.Name%
+
+[NeoAdapter.Ndi]
+HKR, , NetworkAddress, 0, %DefaultAddress%
+HKR, Ndi, DeviceID, , "NeoAdapter_VPN103"
+HKR, , DevLoader, , ndis
+HKR, , DeviceVxDs, , Neo6_x86_VPN103.sys
+HKR, NDIS, LogDriverName, , "Neo_VPN103"
+HKR, NDIS, MajorNdisVersion, 1, 5
+HKR, NDIS, MinorNdisVersion, 1, 0
+HKR, Ndi\Interfaces, DefUpper, , "ndis5"
+HKR, Ndi\Interfaces, UpperRange, , "ndis5"
+HKR, Ndi\Interfaces, LowerRange, , "ethernet"
+HKR, Ndi\Interfaces, DefLower, , "ethernet"
+HKR, Ndi\Install, ndis5, , "Neo.CopyFiles.Sys"
+HKR, Ndi\Params\NetworkAddress, ParamDesc, 0, %NetworkAddress%
+HKR, Ndi\Params\NetworkAddress, type, 0, "edit"
+HKR, Ndi\Params\NetworkAddress, LimitText, 0, "12"
+HKR, Ndi\Params\NetworkAddress, UpperCase, 0, "1"
+HKR, Ndi\Params\NetworkAddress, default, 0, %DefaultAddress%
+HKR, Ndi\Params\NetworkAddress, optional, 0, "0"
+HKR, Ndi\Params\MaxSpeed, ParamDesc, 0, %MaxSpeed%
+HKR, Ndi\Params\MaxSpeed, type, 0, "int"
+HKR, Ndi\Params\MaxSpeed, default, 0, "100"
+HKR, Ndi\Params\MaxSpeed, min, 0, "0"
+HKR, Ndi\Params\MaxSpeed, max, 0, "2000"
+HKR, Ndi\Params\MaxSpeed, step, 0, "1"
+HKR, Ndi\Params\MaxSpeed, Base, 0, "10"
+HKR, Ndi\Params\KeepLink, ParamDesc, 0, %KeepLink%
+HKR, Ndi\Params\KeepLink, type, 0, "enum"
+HKR, Ndi\Params\KeepLink\enum, "1", 0, %On%
+HKR, Ndi\Params\KeepLink\enum, "0", 0, %Off%
+HKR, Ndi\Params\KeepLink, default, 0, "0"
+
+
+[Neo.Service]
+DisplayName					= %Neo.Service.DispName%
+Description					= %Neo.Service.Desc%
+ServiceType					= 1
+StartType					= 3
+ErrorControl				= 1
+ServiceBinary				= %12%\Neo6_x86_VPN103.sys
+LoadOrderGroup				= NDIS
+
+[Neo.Reg]
+HKR, Ndi, Service, 0, Neo.Service.Name
+HKR, Ndi\Interfaces, LowerRange, 0, "ethernet"
+HKR, Ndi\Interfaces, UpperRange, 0, "ndis5"
+
+[Neo.EventLog]
+HKR, , EventMessageFile, 0x00020000, "%11%\IoLogMsg.dll;%12%\Neo_VPN103.sys"
+HKR, , TypesSupported, 0x00010001, 7
+
+[Strings]
+CompanyName					= "SoftEther Corporation"
+DiskDescription				= "VPN Client Device Driver Install Disk"
+Neo.Service.Name			= "Neo_VPN103"
+Neo.Service.DispName		= "VPN Client Device Driver - VPN103"
+Neo.Service.Desc			= "VPN Client Adapter - VPN103"
+NeoAdapter.DeviceDesc		= "VPN Client Adapter - VPN103"
+Neo.EventLog.Name			= "Neo"
+NetworkAddress				= "MAC Address"
+DefaultAddress				= "000001000001"
+MaxSpeed					= "Indicate Speed (Mbps)"
+KeepLink					= "Keep Link"
+On							= "On"
+Off							= "Off"
+
+
+; Auto Generated 20150530_023432.919
+

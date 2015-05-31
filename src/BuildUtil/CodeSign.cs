@@ -153,7 +153,7 @@ namespace BuildUtil
 #endif
 
 		static object lockObj = new object();
-
+		
 		// Digital-sign the data on the memory
 		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, int cert_id)
 		{

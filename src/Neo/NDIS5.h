@@ -227,7 +227,7 @@ static UINT SupportedOids[] =
     WCHAR *_P;\
     _D->Length = (USHORT)((strlen(_S)) * sizeof(WCHAR));\
     _D->MaximumLength = _D->Length + sizeof(WCHAR);\
-    NdisAllocateMemoryWithTag((PVOID *)&(_D->Buffer), _D->MaximumLength, 0);\
+    NdisAllocateMemoryWithTag((PVOID *)&(_D->Buffer), _D->MaximumLength, 'SETH');\
     _P = _D->Buffer;\
     while(*_S != '\0'){\
         *_P = (WCHAR)(*_S);\

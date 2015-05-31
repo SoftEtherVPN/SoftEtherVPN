@@ -234,19 +234,6 @@ typedef void *HWND;
 
 
 // Constants about driver
-#define	DRIVER_INF_FILE_NAME		L"|vpn_driver.inf"
-#define	DRIVER_INF_FILE_NAME_X64	L"|vpn_driver_x64.inf"
-#define	DRIVER_INF_FILE_NAME_IA64	L"|vpn_driver_ia64.inf"
-#define	DRIVER_INF_FILE_NAME_9X		L"|vpn_driver_9x.inf"
-#define	DRIVER_SYS_FILE_NAME		L"|vpn_driver.sys"
-#define	DRIVER_SYS_FILE_NAME_X64	L"|vpn_driver_x64.sys"
-#define	DRIVER_SYS_FILE_NAME_IA64	L"|vpn_driver_ia64.sys"
-#define	DRIVER_SYS_FILE_NAME_9X		L"|vpn_driver_9x.sys"
-#define	DRIVER_SYS6_FILE_NAME		L"|vpn_driver6.sys"
-#define	DRIVER_SYS6_FILE_NAME_X64	L"|vpn_driver6_x64.sys"
-#define	DRIVER_SYS6_FILE_NAME_IA64	L"|vpn_driver6_ia64.sys"
-#define	DRIVER_INSTALL_INF_NAME_TAG	"Neo_%s.inf"
-#define	DRIVER_INSTALL_SYS_NAME_TAG	"Neo_%s.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_NEW	"Neo_%04u.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_MAXID	128				// Maximum number of install
 
@@ -1158,6 +1145,7 @@ void MsEndVLanCard();
 bool MsIsVLanCardShouldStop();
 void MsProcEnterSuspend();
 void MsProcLeaveSuspend();
+UINT64 MsGetSuspendModeBeginTick();
 
 // Inner functions
 #ifdef	MICROSOFT_C

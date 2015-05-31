@@ -208,11 +208,31 @@ NDIS_STATUS NeoNdisSetOptions(NDIS_HANDLE NdisDriverHandle, NDIS_HANDLE DriverCo
 
 NDIS_STATUS NeoNdisPause(NDIS_HANDLE MiniportAdapterContext, PNDIS_MINIPORT_PAUSE_PARAMETERS MiniportPauseParameters)
 {
+	UINT counter_dbg = 0;
+
+	ctx->Paused = true;
+
+	NeoLockPacketQueue();
+	NeoUnlockPacketQueue();
+
+	// Wait for complete all tasks
+	while (ctx->NumCurrentDispatch != 0)
+	{
+		NdisMSleep(10000);
+		counter_dbg++;
+		if (counter_dbg >= 1500)
+		{
+			break;
+		}
+	}
+
 	return NDIS_STATUS_SUCCESS;
 }
 
 NDIS_STATUS NeoNdisRestart(NDIS_HANDLE MiniportAdapterContext, PNDIS_MINIPORT_RESTART_PARAMETERS MiniportRestartParameters)
 {
+	ctx->Paused = false;
+
 	return NDIS_STATUS_SUCCESS;
 }
 
@@ -222,6 +242,7 @@ void NeoNdisReturnNetBufferLists(NDIS_HANDLE MiniportAdapterContext, PNET_BUFFER
 
 void NeoNdisCancelSend(NDIS_HANDLE MiniportAdapterContext, PVOID CancelId)
 {
+	//NeoNdisCrash2(__LINE__, __LINE__, __LINE__, __LINE__);
 }
 
 void NeoNdisDevicePnPEventNotify(NDIS_HANDLE MiniportAdapterContext, PNET_DEVICE_PNP_EVENT NetDevicePnPEvent)
@@ -234,6 +255,7 @@ void NeoNdisShutdownEx(NDIS_HANDLE MiniportAdapterContext, NDIS_SHUTDOWN_ACTION 
 
 void NeoNdisCancelOidRequest(NDIS_HANDLE MiniportAdapterContext, PVOID RequestId)
 {
+	//NeoNdisCrash2(__LINE__, __LINE__, __LINE__, __LINE__);
 }
 
 // Initialization handler of adapter
@@ -243,6 +265,7 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 {
 	NDIS_MINIPORT_ADAPTER_REGISTRATION_ATTRIBUTES attr;
 	NDIS_MINIPORT_ADAPTER_GENERAL_ATTRIBUTES gen;
+	NDIS_PM_CAPABILITIES pnpcap;
 
 	if (ctx == NULL)
 	{
@@ -281,7 +304,7 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	ctx->Halting = FALSE;
 	ctx->Connected = ctx->ConnectedOld = FALSE;
 
-	if (keep_link == false)
+	//if (keep_link == false)
 	{
 		ctx->ConnectedForce = TRUE;
 	}
@@ -304,6 +327,8 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	attr.MiniportAdapterContext = ctx->NdisContext;
 
 	NdisMSetMiniportAttributes(ctx->NdisMiniport, (PNDIS_MINIPORT_ADAPTER_ATTRIBUTES)&attr);
+
+	NeoZero(&pnpcap, sizeof(pnpcap));
 
 	NeoZero(&gen, sizeof(gen));
 	gen.Header.Type = NDIS_OBJECT_TYPE_MINIPORT_ADAPTER_GENERAL_ATTRIBUTES;
@@ -354,6 +379,15 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	gen.SupportedOidList = SupportedOids;
 	gen.SupportedOidListLength = sizeof(SupportedOids);
 
+	NeoZero(&pnpcap, sizeof(pnpcap));
+	pnpcap.Header.Type = NDIS_OBJECT_TYPE_DEFAULT;
+	pnpcap.Header.Revision = NDIS_PM_CAPABILITIES_REVISION_1;
+	pnpcap.Header.Size = NDIS_SIZEOF_NDIS_PM_CAPABILITIES_REVISION_1;
+	pnpcap.MinMagicPacketWakeUp = NdisDeviceStateUnspecified;
+	pnpcap.MinPatternWakeUp  = NdisDeviceStateUnspecified;
+	pnpcap.MinLinkChangeWakeUp = NdisDeviceStateUnspecified;
+	gen.PowerManagementCapabilitiesEx = &pnpcap;
+
 	NdisMSetMiniportAttributes(ctx->NdisMiniport, (PNDIS_MINIPORT_ADAPTER_ATTRIBUTES)&gen);
 
 	// Initialize the received packet array
@@ -385,7 +419,7 @@ BOOL NeoNdisOnOpen(IRP *irp, IO_STACK_LOCATION *stack)
 		return FALSE;
 	}
 
-	if (ctx->Opened != FALSE)
+	if (ctx->Opened)
 	{
 		// Another client is connected already
 		return FALSE;
@@ -412,6 +446,7 @@ BOOL NeoNdisOnOpen(IRP *irp, IO_STACK_LOCATION *stack)
 // Close the device
 BOOL NeoNdisOnClose(IRP *irp, IO_STACK_LOCATION *stack)
 {
+	NEO_EVENT *free_event = NULL;
 	if (ctx == NULL)
 	{
 		return FALSE;
@@ -424,12 +459,21 @@ BOOL NeoNdisOnClose(IRP *irp, IO_STACK_LOCATION *stack)
 	}
 	ctx->Opened = FALSE;
 
-	// Release the event
-	NeoFreeEvent(ctx->Event);
-	ctx->Event = NULL;
+	NeoLockPacketQueue();
+	{
+		// Release the event
+		free_event = ctx->Event;
+		ctx->Event = NULL;
 
-	// Release all packets
-	NeoClearPacketQueue();
+		// Release all packets
+		NeoClearPacketQueue(true);
+	}
+	NeoUnlockPacketQueue();
+
+	if (free_event != NULL)
+	{
+		NeoFreeEvent(free_event);
+	}
 
 	NeoSetConnectState(FALSE);
 
@@ -465,6 +509,8 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 		return NDIS_STATUS_FAILURE;
 	}
 
+	InterlockedIncrement(&ctx->NumCurrentDispatch);
+
 	// Get the IRP stack
 	stack = IoGetCurrentIrpStackLocation(Irp);
 
@@ -478,8 +524,11 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 	{
 		// Device driver is terminating
 		Irp->IoStatus.Information = STATUS_UNSUCCESSFUL;
+		InterlockedDecrement(&ctx->NumCurrentDispatch);
+
 		IoCompleteRequest(Irp, IO_NO_INCREMENT);
-		return STATUS_UNSUCCESSFUL;
+
+		return STATUS_SUCCESS;
 	}
 
 	// Branch to each operation
@@ -586,6 +635,8 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 		break;
 	}
 
+	InterlockedDecrement(&ctx->NumCurrentDispatch);
+
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
 	return STATUS_SUCCESS;
@@ -616,6 +667,7 @@ void NeoInitControlDevice()
 		ctx->DispatchTable[IRP_MJ_WRITE] =
 		ctx->DispatchTable[IRP_MJ_DEVICE_CONTROL] = NeoNdisDispatch;
 	ctx->Opened = FALSE;
+	ctx->Paused = FALSE;
 
 	// Generate the device name
 	sprintf(name_kernel, NDIS_NEO_DEVICE_NAME, ctx->HardwareID);
@@ -728,6 +780,12 @@ BOOL NeoLoadRegistory()
 	{
 		// Special MAC address
 		UINT ptr32 = (UINT)((UINT64)ctx);
+		LARGE_INTEGER current_time;
+		UCHAR *current_time_bytes;
+
+		KeQuerySystemTime(&current_time);
+
+		current_time_bytes = (UCHAR *)&current_time;
 
 		ctx->MacAddress[0] = 0x00;
 		ctx->MacAddress[1] = 0xAD;
@@ -735,6 +793,16 @@ BOOL NeoLoadRegistory()
 		ctx->MacAddress[3] = ((UCHAR *)(&ptr32))[1];
 		ctx->MacAddress[4] = ((UCHAR *)(&ptr32))[2];
 		ctx->MacAddress[5] = ((UCHAR *)(&ptr32))[3];
+
+		ctx->MacAddress[2] ^= current_time_bytes[0];
+		ctx->MacAddress[3] ^= current_time_bytes[1];
+		ctx->MacAddress[4] ^= current_time_bytes[2];
+		ctx->MacAddress[5] ^= current_time_bytes[3];
+
+		ctx->MacAddress[2] ^= current_time_bytes[4];
+		ctx->MacAddress[3] ^= current_time_bytes[5];
+		ctx->MacAddress[4] ^= current_time_bytes[6];
+		ctx->MacAddress[5] ^= current_time_bytes[7];
 	}
 
 	// Initialize the key name of the device name
@@ -820,6 +888,8 @@ VOID NeoNdisDriverUnload(PDRIVER_OBJECT DriverObject)
 // Stop handler of adapter
 void NeoNdisHaltEx(NDIS_HANDLE MiniportAdapterContext, NDIS_HALT_ACTION HaltAction)
 {
+	NEO_EVENT *free_event = NULL;
+	UINT counter_dbg = 0;
 	if (ctx == NULL)
 	{
 		return;
@@ -832,14 +902,48 @@ void NeoNdisHaltEx(NDIS_HANDLE MiniportAdapterContext, NDIS_HALT_ACTION HaltActi
 	}
 	ctx->Halting = TRUE;
 
+	ctx->Opened = FALSE;
+
+	NeoLockPacketQueue();
+	{
+		// Release the event
+		free_event = ctx->Event;
+		ctx->Event = NULL;
+
+		// Release all packets
+		NeoClearPacketQueue(true);
+	}
+	NeoUnlockPacketQueue();
+
+	if (free_event != NULL)
+	{
+		NeoSet(free_event);
+	}
+
+	// Wait for complete all tasks
+	while (ctx->NumCurrentDispatch != 0)
+	{
+		NdisMSleep(10000);
+		counter_dbg++;
+		if (counter_dbg >= 1500)
+		{
+			break;
+		}
+	}
+
+	if (free_event != NULL)
+	{
+		NeoFreeEvent(free_event);
+	}
+
+	// Delete the control device
+	NeoFreeControlDevice();
+
 	// Stop the adapter
 	NeoStopAdapter();
 
 	// Release the packet array
 	NeoFreePacketArray();
-
-	// Delete the control device
-	NeoFreeControlDevice();
 
 	// Complete to stop
 	ctx->Initing = ctx->Inited = FALSE;
@@ -1294,9 +1398,32 @@ NDIS_STATUS NeoNdisSet(
 		*BytesRead = InformationBufferLength;
 
 		return NDIS_STATUS_SUCCESS;
+
+	case OID_PNP_SET_POWER:
+	case OID_PNP_QUERY_POWER:
+		// Power events
+		*BytesRead = InformationBufferLength;
+
+		return NDIS_STATUS_SUCCESS;
 	}
 
 	return NDIS_STATUS_INVALID_OID;
+}
+
+// Set status values of NET_BUFFER_LISTs
+void NeoNdisSetNetBufferListsStatus(NET_BUFFER_LIST *nbl, UINT status)
+{
+	if (nbl == NULL)
+	{
+		return;
+	}
+
+	while (nbl != NULL)
+	{
+		NET_BUFFER_LIST_STATUS(nbl) = status;
+
+		nbl = NET_BUFFER_LIST_NEXT_NBL(nbl);
+	}
 }
 
 // Packet send handler
@@ -1305,17 +1432,46 @@ void NeoNdisSendNetBufferLists(NDIS_HANDLE MiniportAdapterContext,
 							   NDIS_PORT_NUMBER PortNumber,
 							   ULONG SendFlags)
 {
+	bool is_dispatch_level = SendFlags & NDIS_SEND_FLAGS_DISPATCH_LEVEL;
+	UINT send_complete_flags = 0;
 	if (ctx == NULL)
 	{
 		return;
 	}
 
+	if (is_dispatch_level)
+	{
+		send_complete_flags |= NDIS_SEND_COMPLETE_FLAGS_DISPATCH_LEVEL;
+	}
+
+	InterlockedIncrement(&ctx->NumCurrentDispatch);
+
 	// Update the connection state
 	NeoCheckConnectState();
 
-	if (NeoNdisSendPacketsHaltCheck(NetBufferLists) == FALSE)
+	if (ctx->Halting != FALSE || ctx->Opened == FALSE || ctx->Paused)
 	{
-		// Device is stopped
+		UINT status = NDIS_STATUS_FAILURE;
+
+		if (ctx->Paused)
+		{
+			status = NDIS_STATUS_PAUSED;
+		}
+		else if (ctx->Halting)
+		{
+			status = NDIS_STATUS_FAILURE;
+		}
+		else if (ctx->Opened == false && keep_link)
+		{
+			status = NDIS_STATUS_SUCCESS;
+		}
+
+		NeoNdisSetNetBufferListsStatus(NetBufferLists, status);
+
+		InterlockedDecrement(&ctx->NumCurrentDispatch);
+
+		NdisMSendNetBufferListsComplete(ctx->NdisMiniport, NetBufferLists, send_complete_flags);
+
 		return;
 	}
 
@@ -1323,10 +1479,32 @@ void NeoNdisSendNetBufferLists(NDIS_HANDLE MiniportAdapterContext,
 	NeoLockPacketQueue();
 	{
 		NET_BUFFER_LIST *nbl;
-		if (NeoNdisSendPacketsHaltCheck(NetBufferLists) == FALSE)
+
+		if (ctx->Halting != FALSE || ctx->Opened == FALSE || ctx->Paused)
 		{
-			// Device is stopped
+			UINT status = NDIS_STATUS_FAILURE;
+
+			if (ctx->Paused)
+			{
+				status = NDIS_STATUS_PAUSED;
+			}
+			else if (ctx->Halting)
+			{
+				status = NDIS_STATUS_FAILURE;
+			}
+			else if (ctx->Opened == false && keep_link)
+			{
+				status = NDIS_STATUS_SUCCESS;
+			}
+
 			NeoUnlockPacketQueue();
+
+			NeoNdisSetNetBufferListsStatus(NetBufferLists, status);
+
+			InterlockedDecrement(&ctx->NumCurrentDispatch);
+
+			NdisMSendNetBufferListsComplete(ctx->NdisMiniport, NetBufferLists, send_complete_flags);
+
 			return;
 		}
 
@@ -1335,6 +1513,8 @@ void NeoNdisSendNetBufferLists(NDIS_HANDLE MiniportAdapterContext,
 		while (nbl != NULL)
 		{
 			NET_BUFFER *nb = NET_BUFFER_LIST_FIRST_NB(nbl);
+
+			NET_BUFFER_LIST_STATUS(nbl) = NDIS_STATUS_SUCCESS;
 
 			while (nb != NULL)
 			{
@@ -1388,33 +1568,15 @@ void NeoNdisSendNetBufferLists(NDIS_HANDLE MiniportAdapterContext,
 
 			nbl = NET_BUFFER_LIST_NEXT_NBL(nbl);
 		}
-	}
 
+		// Reception event
+		NeoSet(ctx->Event);
+	}
 	NeoUnlockPacketQueue();
 
 	// Notify the transmission completion
-	NdisMSendNetBufferListsComplete(ctx->NdisMiniport, NetBufferLists, NDIS_STATUS_SUCCESS);
-
-	// Reception event
-	NeoSet(ctx->Event);
-}
-
-// Stop check of packet transmission
-BOOL NeoNdisSendPacketsHaltCheck(NET_BUFFER_LIST *NetBufferLists)
-{
-	if (ctx == NULL)
-	{
-		return FALSE;
-	}
-
-	if (ctx->Halting != FALSE || ctx->Opened == FALSE)
-	{
-		// Halting
-		NdisMSendNetBufferListsComplete(ctx->NdisMiniport, NetBufferLists, NDIS_STATUS_FAILURE);
-
-		return FALSE;
-	}
-	return TRUE;
+	InterlockedDecrement(&ctx->NumCurrentDispatch);
+	NdisMSendNetBufferListsComplete(ctx->NdisMiniport, NetBufferLists, send_complete_flags);
 }
 
 // Initialize the packet array
@@ -1473,6 +1635,7 @@ PACKET_BUFFER *NeoNewPacketBuffer()
 	p1.ProtocolId = NDIS_PROTOCOL_ID_DEFAULT;
 	p1.fAllocateNetBuffer = TRUE;
 	p1.DataSize = NEO_MAX_PACKET_SIZE;
+	p1.PoolTag = 'SETH';
 	p->NetBufferListPool = NdisAllocateNetBufferListPool(NULL, &p1);
 
 	// Create a NET_BUFFER_LIST
@@ -1746,7 +1909,7 @@ void *NeoMalloc(UINT size)
 	}
 
 	// Allocate the non-paged memory
-	r = NdisAllocateMemoryWithTag(&p, size, 0);
+	r = NdisAllocateMemoryWithTag(&p, size, 'SETH');
 
 	if (NG(r))
 	{

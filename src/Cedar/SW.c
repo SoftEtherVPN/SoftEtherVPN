@@ -4596,24 +4596,6 @@ UINT SwReady(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, 
 		break;
 
 	case WM_WIZ_NEXT:
-		if (IsUseAlternativeHostname())
-		{
-			wchar_t src_dll1[MAX_PATH];
-			wchar_t src_dll2[MAX_PATH];
-			wchar_t *exe_dir = MsGetExeFileDirW();
-
-			CombinePathW(src_dll1, sizeof(src_dll1), exe_dir, VG_DLL_X86);
-			CombinePathW(src_dll2, sizeof(src_dll2), exe_dir, VG_DLL_X64);
-
-			if (IsFileExistsW(src_dll1) || IsFileExistsW(src_dll2))
-			{
-				if (MsgBoxEx(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2,
-					_UU("SW_VG_CONFIRM_MSG")) == IDNO)
-				{
-					break;
-				}
-			}
-		}
 		return D_SW_PERFORM;
 
 	case WM_WIZ_BACK:

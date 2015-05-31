@@ -342,7 +342,7 @@ VOID NPF_OpenAdapterComplete(
 		if (RequestListEntry == NULL)
 		{
 
-		    Open->MaxFrameSize = 1560;	// Assume Ethernet
+		    Open->MaxFrameSize = 1600;	// Assume Ethernet
 
 			Irp->IoStatus.Status = Status;
 		    Irp->IoStatus.Information = 0;

@@ -175,7 +175,9 @@ bool SuInstallDriverInner(bool force)
 		char *path;
 
 		// Read the current version from the registry
-		current_sl_ver = MsRegReadIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, SL_REG_VER_VALUE, false, true);
+		current_sl_ver = MsRegReadIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME,
+			(MsIsWindows10() ? SL_REG_VER_VALUE_WIN10 : SL_REG_VER_VALUE),
+			false, true);
 
 		path = MsRegReadStrEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "ImagePath", false, true);
 
@@ -195,12 +197,33 @@ bool SuInstallDriverInner(bool force)
 	}
 
 	// Copy necessary files to a temporary directory
-	UniFormat(src_sys, sizeof(src_sys), L"|SeLow_%S.sys", cpu_type);
-	UniFormat(src_cat, sizeof(src_cat), L"|inf\\selow_%S\\inf.cat", cpu_type);
-	UniFormat(src_inf, sizeof(src_inf), L"|inf\\selow_%S\\SeLow_%S.inf", cpu_type, cpu_type);
+	UniFormat(src_sys, sizeof(src_sys), L"|DriverPackages\\%S\\%S\\SeLow_%S.sys",
+		(MsIsWindows10() ? "SeLow_Win10" : "SeLow_Win8"),
+		cpu_type, cpu_type);
+	if (MsIsWindows8() == false)
+	{
+		// Windows Vista and Windows 7 uses SHA-1 catalog files
+		UniFormat(src_cat, sizeof(src_cat), L"|DriverPackages\\SeLow_Win8\\%S\\inf.cat", cpu_type);
+	}
+	else
+	{
+		// Windows 8 or above uses SHA-256 catalog files
+		UniFormat(src_cat, sizeof(src_cat), L"|DriverPackages\\SeLow_Win8\\%S\\inf2.cat", cpu_type);
+
+		if (MsIsWindows10())
+		{
+			// Windows 10 uses WHQL catalog files
+			UniFormat(src_cat, sizeof(src_cat), L"|DriverPackages\\SeLow_Win10\\%S\\SeLow_Win10_%S.cat", cpu_type, cpu_type);
+		}
+	}
+	UniFormat(src_inf, sizeof(src_inf), L"|DriverPackages\\%S\\%S\\SeLow_%S.inf",
+		(MsIsWindows10() ? "SeLow_Win10" : "SeLow_Win8"),
+		cpu_type, cpu_type);
 
 	UniFormat(dst_sys, sizeof(dst_cat), L"%s\\SeLow_%S.sys", tmp_dir, cpu_type);
-	UniFormat(dst_cat, sizeof(dst_cat), L"%s\\inf_selow.cat", tmp_dir);
+	UniFormat(dst_cat, sizeof(dst_cat), L"%s\\SeLow_%S_%S.cat", tmp_dir,
+		(MsIsWindows10() ? "Win10" : "Win8"),
+		cpu_type);
 	UniFormat(dst_inf, sizeof(dst_inf), L"%s\\SeLow_%S.inf", tmp_dir, cpu_type);
 
 	if (FileCopyW(src_sys, dst_sys) &&
@@ -226,7 +249,9 @@ bool SuInstallDriverInner(bool force)
 			ret = true;
 
 			// Write the version number into the registry
-			MsRegWriteIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, SL_REG_VER_VALUE, SL_VER, false, true);
+			MsRegWriteIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME,
+				(MsIsWindows10() ? SL_REG_VER_VALUE_WIN10 : SL_REG_VER_VALUE),
+				SL_VER, false, true);
 
 			// Set to automatic startup
 			MsRegWriteIntEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "Start", SERVICE_SYSTEM_START, false, true);
@@ -738,6 +763,7 @@ SU *SuInitEx(UINT wait_for_bind_complete_tick)
 	UINT read_size;
 	bool flag = false;
 	UINT64 giveup_tick = 0;
+	bool flag2 = false;
 
 	if (SuIsSupportedOs(false) == false)
 	{
@@ -761,6 +787,19 @@ LABEL_RETRY:
 			if (MsStartService(SL_PROTOCOL_NAME) == false)
 			{
 				Debug("MsStartService(%s) Failed.\n", SL_PROTOCOL_NAME);
+
+				if (MsIsWindows10())
+				{
+					if (flag2 == false)
+					{
+						flag2 = true;
+
+						if (SuInstallDriver(true))
+						{
+							goto LABEL_RETRY;
+						}
+					}
+				}
 			}
 			else
 			{

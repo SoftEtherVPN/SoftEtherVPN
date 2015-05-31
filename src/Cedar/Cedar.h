@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					415
+#define	CEDAR_VER					417
 
 // Build Number
-#define	CEDAR_BUILD					9546
+#define	CEDAR_BUILD					9562
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -158,11 +158,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		4
-#define	BUILD_DATE_D		5
-#define	BUILD_DATE_HO		2
-#define	BUILD_DATE_MI		54
-#define	BUILD_DATE_SE		8
+#define	BUILD_DATE_M		5
+#define	BUILD_DATE_D		30
+#define	BUILD_DATE_HO		17
+#define	BUILD_DATE_MI		41
+#define	BUILD_DATE_SE		38
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -242,7 +242,7 @@
 #define	FIFO_BUDGET					VPN_GP(GP_FIFO_BUDGET, 1000000)
 #endif	// USE_STRATEGY_LOW_MEMORY
 
-#define	MAX_PACKET_SIZE				1560	// Maximum packet size
+#define	MAX_PACKET_SIZE				1600	// Maximum packet size
 #define	UDP_BUF_SIZE				(32 * 1024) // Aim of the UDP packet size
 
 #ifndef	USE_STRATEGY_LOW_MEMORY

@@ -181,7 +181,7 @@ namespace BuildUtil
 		}
 
 		// Generate a version information resource
-		public static void GenerateVersionInfoResource(string targetExeName, string outName, string rc_name)
+		public static void GenerateVersionInfoResource(string targetExeName, string outName, string rc_name, string product_name)
 		{
 			int build, version;
 			string name;
@@ -199,11 +199,18 @@ namespace BuildUtil
 			string exeFileName = Path.GetFileName(targetExeName);
 			string internalName = Path.GetFileNameWithoutExtension(exeFileName);
 
+			if (Str.IsEmptyStr(product_name) == false)
+			{
+				body = Str.ReplaceStr(body, "$PRODUCTNAME$", product_name);
+			}
+			else
+			{
 #if !BU_SOFTETHER
-			body = Str.ReplaceStr(body, "$PRODUCTNAME$", "PacketiX VPN");
+				body = Str.ReplaceStr(body, "$PRODUCTNAME$", "PacketiX VPN");
 #else		
-			body = Str.ReplaceStr(body, "$PRODUCTNAME$", "SoftEther VPN");
+				body = Str.ReplaceStr(body, "$PRODUCTNAME$", "SoftEther VPN");
 #endif
+			}
 			body = Str.ReplaceStr(body, "$INTERNALNAME$", internalName);
 			body = Str.ReplaceStr(body, "$YEAR$", date.Year.ToString());
 			body = Str.ReplaceStr(body, "$FILENAME$", exeFileName);
@@ -818,6 +825,10 @@ namespace BuildUtil
 			{
 				return false;
 			}
+			if (Str.InStr(fileName, "DriverPackages", false))
+			{
+				return false;
+			}
 			if (Str.InStr(fileName, "_nosign", false))
 			{
 				return false;
@@ -908,13 +919,26 @@ namespace BuildUtil
 		{
 
 			string cdfFileName = Path.Combine(dstDir, "inf.cdf");
+			string cdfFileName2 = Path.Combine(dstDir, "inf2.cdf");
 			string catFileName = Path.Combine(dstDir, "inf.cat");
+			string catFileName2 = Path.Combine(dstDir, "inf2.cat");
 			StringWriter sw = new StringWriter();
+			StringWriter sw2 = new StringWriter();
 
 			string txt = File.ReadAllText(inf, Str.ShiftJisEncoding);
 
 			IO.DeleteFilesAndSubDirsInDir(dstDir);
 			IO.MakeDirIfNotExists(dstDir);
+
+			string utility_dirname = Path.Combine(Paths.BaseDirName, @"BuildFiles\Utility");
+			string makecat1 = Path.Combine(dstDir, "makecat.exe");
+			string makecat2 = Path.Combine(dstDir, "makecat.exe.manifest");
+			string makecat3 = Path.Combine(dstDir, "Microsoft.Windows.Build.Signing.wintrust.dll.manifest");
+			string makecat4 = Path.Combine(dstDir, "wintrust.dll");
+			File.Copy(Path.Combine(utility_dirname, "makecat.exe"), makecat1, true);
+			File.Copy(Path.Combine(utility_dirname, "makecat.exe.manifest"), makecat2, true);
+			File.Copy(Path.Combine(utility_dirname, "Microsoft.Windows.Build.Signing.wintrust.dll.manifest"), makecat3, true);
+			File.Copy(Path.Combine(utility_dirname, "wintrust.dll"), makecat4, true);
 
 			string dst_sys_name = Path.Combine(dstDir, Path.GetFileName(sys));
 			File.Copy(sys, dst_sys_name, true);
@@ -927,14 +951,28 @@ namespace BuildUtil
 			}
 
 			sw.WriteLine("[CatalogHeader]");
+			sw2.WriteLine("[CatalogHeader]");
+
 			sw.WriteLine("name=inf.cat");
+			sw2.WriteLine("name=inf2.cat");
+
+			sw2.WriteLine("CatalogVersion=2");
+			sw2.WriteLine("HashAlgorithms=SHA256");
+			sw2.WriteLine("PageHashes=true");
+
 			sw.WriteLine();
+			sw2.WriteLine();
+
 			sw.WriteLine("[CatalogFiles]");
+			sw2.WriteLine("[CatalogFiles]");
+			
 			sw.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_sys_name));
+			sw2.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_sys_name));
 
 			if (sys6 != null)
 			{
 				sw.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_sys6_name));
+				sw2.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_sys6_name));
 			}
 
 			int i;
@@ -982,6 +1020,7 @@ namespace BuildUtil
 				File.WriteAllText(dst_inf_name, body, Str.ShiftJisEncoding);
 
 				sw.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_inf_name));
+				sw2.WriteLine("<hash>{0}={0}", Path.GetFileName(dst_inf_name));
 
 				if (selow)
 				{
@@ -989,26 +1028,348 @@ namespace BuildUtil
 				}
 			}
 			sw.WriteLine();
+			sw2.WriteLine();
 
 			File.WriteAllText(cdfFileName, sw.ToString());
+			File.WriteAllText(cdfFileName2, sw2.ToString());
 
 			// generate catalog file
 			Directory.SetCurrentDirectory(dstDir);
 			ExecCommand(Paths.MakeCatFilename, string.Format("\"{0}\"", cdfFileName));
+			ExecCommand(makecat1, string.Format("\"{0}\"", cdfFileName2));
 
 			// sign catalog file
 			CodeSign.SignFile(catFileName, catFileName, "Catalog File", false);
+			CodeSign.SignFile(catFileName2, catFileName2, "Catalog File", false);
 
 			// delete cdf file
 			File.Delete(cdfFileName);
+			File.Delete(cdfFileName2);
 
 			// delete sys file
 			File.Delete(dst_sys_name);
+
+			File.Delete(makecat1);
+			File.Delete(makecat2);
+			File.Delete(makecat3);
+			File.Delete(makecat4);
 
 			if (sys6 != null)
 			{
 				File.Delete(dst_sys6_name);
 			}
+		}
+
+		static string process_inf_file(string src_inf_txt, int build, int ver, DateTime date, string sys_name, string name, string catfile, bool replace_mac_address)
+		{
+			string body = src_inf_txt;
+
+			if (Str.IsEmptyStr(sys_name) == false)
+			{
+				body = Str.ReplaceStr(body, "$TAG_SYS_NAME$", sys_name);
+			}
+			if (Str.IsEmptyStr(name) == false)
+			{
+				body = Str.ReplaceStr(body, "$TAG_INSTANCE_NAME$", name);
+			}
+			if (replace_mac_address)
+			{
+				body = Str.ReplaceStr(body, "$TAG_MAC_ADDRESS$", "000001000001");
+			}
+			body = Str.ReplaceStr(body, "$YEAR$", date.Year.ToString("D4"));
+			body = Str.ReplaceStr(body, "$MONTH$", date.Month.ToString("D2"));
+			body = Str.ReplaceStr(body, "$DAY$", date.Day.ToString("D2"));
+			body = Str.ReplaceStr(body, "$VER_MAJOR$", (ver / 100).ToString());
+			body = Str.ReplaceStr(body, "$VER_MINOR$", (ver % 100).ToString());
+			body = Str.ReplaceStr(body, "$VER_BUILD$", build.ToString());
+
+			if (Str.IsEmptyStr(catfile) == false)
+			{
+				body = Str.ReplaceStr(body, "$CATALOG_FILENAME$", catfile);
+				body = Str.ReplaceStr(body, ";CatalogFile.NT", "CatalogFile.NT");
+			}
+
+			body += "\r\n; Auto Generated " + Str.DateTimeToStrShortWithMilliSecs(DateTime.Now) + "\r\n\r\n";
+
+			return body;
+		}
+
+		static void make_cat_file(string dir, string[] filename_list, string catname, bool win8, bool no_sign)
+		{
+			string utility_dirname = Path.Combine(Paths.BaseDirName, @"BuildFiles\Utility");
+			string makecat1 = Path.Combine(dir, "makecat.exe");
+			string makecat2 = Path.Combine(dir, "makecat.exe.manifest");
+			string makecat3 = Path.Combine(dir, "Microsoft.Windows.Build.Signing.wintrust.dll.manifest");
+			string makecat4 = Path.Combine(dir, "wintrust.dll");
+			File.Copy(Path.Combine(utility_dirname, "makecat.exe"), makecat1, true);
+			File.Copy(Path.Combine(utility_dirname, "makecat.exe.manifest"), makecat2, true);
+			File.Copy(Path.Combine(utility_dirname, "Microsoft.Windows.Build.Signing.wintrust.dll.manifest"), makecat3, true);
+			File.Copy(Path.Combine(utility_dirname, "wintrust.dll"), makecat4, true);
+
+			StringWriter sw2 = new StringWriter();
+			sw2.WriteLine("[CatalogHeader]");
+			sw2.WriteLine("name=" + catname);
+
+			if (win8)
+			{
+				sw2.WriteLine("CatalogVersion=2");
+				sw2.WriteLine("HashAlgorithms=SHA256");
+				sw2.WriteLine("PageHashes=true");
+			}
+
+			sw2.WriteLine();
+
+			sw2.WriteLine("[CatalogFiles]");
+
+			foreach (string filename in filename_list)
+			{
+				sw2.WriteLine("<hash>{0}={0}", filename);
+			}
+
+			sw2.WriteLine();
+			
+			string cdf_file_name = catname + ".cdf";
+
+			Directory.SetCurrentDirectory(dir);
+
+			File.WriteAllText(cdf_file_name, sw2.ToString());
+			ExecCommand(makecat1, string.Format("\"{0}\"", cdf_file_name));
+
+			if (no_sign == false)
+			{
+				CodeSign.SignFile(catname, catname, "Catalog File", false);
+			}
+
+			File.Delete(cdf_file_name);
+
+			File.Delete(makecat1);
+			File.Delete(makecat2);
+			File.Delete(makecat3);
+			File.Delete(makecat4);
+		}
+
+		public static void MakeDriverPackage()
+		{
+			int build, version;
+			string buildname;
+			DateTime date;
+			int i;
+
+			ReadBuildInfoFromTextFile(out build, out version, out buildname, out date);
+
+			date = date.AddDays(-1);
+
+			string dst_dir = Path.Combine(Paths.BaseDirName, @"tmp\MakeDriverPackage");
+			string src_dir = Path.Combine(Paths.BaseDirName, @"BuiltDriverPackages");
+			IO.DeleteFilesAndSubDirsInDir(dst_dir);
+			IO.MakeDirIfNotExists(dst_dir);
+
+			// Neo9x x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo9x\x86"));
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo9x\x86\Neo9x_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo9x\x86\Neo9x_x86.inf")), build, version, date, null, null, null, false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Neo9x\x86\Neo9x_x86.sys"), Path.Combine(dst_dir, @"Neo9x\x86\Neo9x_x86.sys"));
+
+			// Neo x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo\x86"));
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo\x86\Neo_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo\x86\Neo_x86.inf")), build, version, date, null, null, null, false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Neo\x86\Neo_x86.sys"), Path.Combine(dst_dir, @"Neo\x86\Neo_x86.sys"));
+
+			// Neo x64
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo\x64"));
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo\x64\Neo_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo\x64\Neo_x64.inf")), build, version, date, null, null, null, false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Neo\x64\Neo_x64.sys"), Path.Combine(dst_dir, @"Neo\x64\Neo_x64.sys"));
+
+			// Neo6 x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6\x86"));
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6\x86\Neo6_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.inf")), build, version, date, null, null, null, false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.sys"), Path.Combine(dst_dir, @"Neo6\x86\Neo6_x86.sys"));
+
+			// Neo6 x64
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6\x64"));
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6\x64\Neo6_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.inf")), build, version, date, null, null, null, false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.sys"), Path.Combine(dst_dir, @"Neo6\x64\Neo6_x64.sys"));
+
+			// Neo6 for Windows 8 x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6_Win8\x86"));
+			List<string> cat_src_filename = new List<string>();
+			cat_src_filename.Add("Neo6_x86.sys");
+			for (i = 1; i < 128; i++)
+			{
+				string name = "VPN";
+				if (i >= 2)
+				{
+					name += i.ToString();
+				}
+				string sys_name = "Neo_" + name + ".sys";
+				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win8\x86\Neo6_x86_" + name + ".inf"),
+					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.inf")), build, version, date, sys_name, name, string.Format("inf_{0}.cat", name), true), Str.ShiftJisEncoding, false);
+				cat_src_filename.Add("Neo6_x86_" + name + ".inf");
+			}
+			IO.FileCopy(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.sys"), Path.Combine(dst_dir, @"Neo6_Win8\x86\Neo6_x86.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Neo6_Win8\x86"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"Neo6_Win8\x86"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+
+			// Neo6 for Windows 8 x64
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6_Win8\x64"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("Neo6_x64.sys");
+			for (i = 1; i < 128; i++)
+			{
+				string name = "VPN";
+				if (i >= 2)
+				{
+					name += i.ToString();
+				}
+				string sys_name = "Neo_" + name + ".sys";
+				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win8\x64\Neo6_x64_" + name + ".inf"),
+					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.inf")), build, version, date, sys_name, name, string.Format("inf_{0}.cat", name), true), Str.ShiftJisEncoding, false);
+				cat_src_filename.Add("Neo6_x64_" + name + ".inf");
+			}
+			IO.FileCopy(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.sys"), Path.Combine(dst_dir, @"Neo6_Win8\x64\Neo6_x64.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Neo6_Win8\x64"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"Neo6_Win8\x64"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+			
+			// Neo6 for Windows 10 x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6_Win10\x86"));
+			for (i = 1; i < 128; i++)
+			{
+				string name = "VPN";
+				if (i >= 2)
+				{
+					name += i.ToString();
+				}
+				cat_src_filename = new List<string>();
+				cat_src_filename.Add("Neo6_x86_" + name + ".sys");
+				string sys_name = "Neo6_x86_" + name + ".sys";
+				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win10\x86\Neo6_x86_" + name + ".inf"),
+					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.inf")), build, version, date, sys_name, name, string.Format("Neo6_x86_{0}.cat", name), true), Str.ShiftJisEncoding, false);
+				cat_src_filename.Add("Neo6_x86_" + name + ".inf");
+				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x86\Neo6_x86_" + name + ".sys"));
+				make_cat_file(Path.Combine(dst_dir, @"Neo6_Win10\x86"), cat_src_filename.ToArray(), "Neo6_x86_" + name + ".cat", true, true);
+			}
+
+			// Neo6 for Windows 10 x64
+			IO.MakeDir(Path.Combine(dst_dir, @"Neo6_Win10\x64"));
+			for (i = 1; i < 128; i++)
+			{
+				string name = "VPN";
+				if (i >= 2)
+				{
+					name += i.ToString();
+				}
+				cat_src_filename = new List<string>();
+				cat_src_filename.Add("Neo6_x64_" + name + ".sys");
+				string sys_name = "Neo6_x64_" + name + ".sys";
+				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win10\x64\Neo6_x64_" + name + ".inf"),
+					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.inf")), build, version, date, sys_name, name, string.Format("Neo6_x64_{0}.cat", name), true), Str.ShiftJisEncoding, false);
+				cat_src_filename.Add("Neo6_x64_" + name + ".inf");
+				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x64\Neo6_x64_" + name + ".sys"));
+				make_cat_file(Path.Combine(dst_dir, @"Neo6_Win10\x64"), cat_src_filename.ToArray(), "Neo6_x64_" + name + ".cat", true, true);
+			}
+
+			IO.CopyDir(Path.Combine(src_dir, "See"), Path.Combine(dst_dir, "See"), null, false, false);
+
+			// SeLow x86 for Windows 8.1
+			IO.MakeDir(Path.Combine(dst_dir, @"SeLow_Win8\x86"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("SeLow_x86.sys");
+			cat_src_filename.Add("SeLow_x86.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win8\x86\SeLow_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.inf")), build, version, date, null, null, "SeLow_Win8_x86.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.sys"), Path.Combine(dst_dir, @"SeLow_Win8\x86\SeLow_x86.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win8\x86"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win8\x86"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+
+			// SeLow x64 for Windows 8.1
+			IO.MakeDir(Path.Combine(dst_dir, @"SeLow_Win8\x64"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("SeLow_x64.sys");
+			cat_src_filename.Add("SeLow_x64.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win8\x64\SeLow_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.inf")), build, version, date, null, null, "SeLow_Win8_x64.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.sys"), Path.Combine(dst_dir, @"SeLow_Win8\x64\SeLow_x64.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win8\x64"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win8\x64"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+
+			// SeLow x86 for Windows 10
+			IO.MakeDir(Path.Combine(dst_dir, @"SeLow_Win10\x86"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("SeLow_x86.sys");
+			cat_src_filename.Add("SeLow_x86.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win10\x86\SeLow_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.inf")), build, version, date, null, null, "SeLow_Win10_x86.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x86\SeLow_x86.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win10\x86"), cat_src_filename.ToArray(), "SeLow_Win10_x86.cat", true, false);
+
+			// SeLow x64 for Windows 10
+			IO.MakeDir(Path.Combine(dst_dir, @"SeLow_Win10\x64"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("SeLow_x64.sys");
+			cat_src_filename.Add("SeLow_x64.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win10\x64\SeLow_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.inf")), build, version, date, null, null, "SeLow_Win10_x64.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x64\SeLow_x64.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win10\x64"), cat_src_filename.ToArray(), "SeLow_Win10_x64.cat", true, false);
+
+			// Wfp x86
+			IO.MakeDir(Path.Combine(dst_dir, @"Wfp\x86"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("pxwfp_x86.sys");
+			cat_src_filename.Add("pxwfp_x86.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp\x86\pxwfp_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.inf")), build, version, date, null, null, "pxwfp_x86.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.sys"), Path.Combine(dst_dir, @"Wfp\x86\pxwfp_x86.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Wfp\x86"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"Wfp\x86"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+
+			// Wfp x64
+			IO.MakeDir(Path.Combine(dst_dir, @"Wfp\x64"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("pxwfp_x64.sys");
+			cat_src_filename.Add("pxwfp_x64.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp\x64\pxwfp_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.inf")), build, version, date, null, null, "pxwfp_x64.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.sys"), Path.Combine(dst_dir, @"Wfp\x64\pxwfp_x64.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Wfp\x64"), cat_src_filename.ToArray(), "inf.cat", false, false);
+			make_cat_file(Path.Combine(dst_dir, @"Wfp\x64"), cat_src_filename.ToArray(), "inf2.cat", true, false);
+
+			// Wfp x86 for Windows 10
+			IO.MakeDir(Path.Combine(dst_dir, @"Wfp_Win10\x86"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("pxwfp_x86.sys");
+			cat_src_filename.Add("pxwfp_x86.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp_Win10\x86\pxwfp_x86.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.inf")), build, version, date, null, null, "pxwfp_Win10_x86.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x86\pxwfp_x86.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Wfp_Win10\x86"), cat_src_filename.ToArray(), "pxwfp_Win10_x86.cat", true, false);
+
+			// Wfp x64 for Windows 10
+			IO.MakeDir(Path.Combine(dst_dir, @"Wfp_Win10\x64"));
+			cat_src_filename = new List<string>();
+			cat_src_filename.Add("pxwfp_x64.sys");
+			cat_src_filename.Add("pxwfp_x64.inf");
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp_Win10\x64\pxwfp_x64.inf"),
+				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.inf")), build, version, date, null, null, "pxwfp_Win10_x64.cat", false), Str.ShiftJisEncoding, false);
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x64\pxwfp_x64.sys"));
+			make_cat_file(Path.Combine(dst_dir, @"Wfp_Win10\x64"), cat_src_filename.ToArray(), "pxwfp_Win10_x64.cat", true, false);
+
+			string tmp_body = IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, "make_whql_submission.cm_"));
+			tmp_body = Str.ReplaceStr(tmp_body, "test_tag", Str.DateTimeToStrShort(DateTime.Now) + "_Build_" + build.ToString());
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, "make_whql_submission.cmd"), tmp_body, Str.ShiftJisEncoding);
+
+			IO.FileCopy(Path.Combine(src_dir, "2_merge_whql_sign.cm_"), Path.Combine(dst_dir, "2_merge_whql_sign.cm_"));
+
+			tmp_body = IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, "Memo.txt"));
+			tmp_body = Str.ReplaceStr(tmp_body, "tag_ver", (version / 100).ToString() + "." + (version % 100).ToString());
+			tmp_body = Str.ReplaceStr(tmp_body, "tag_build", build.ToString());
+			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, "Memo.txt"), tmp_body, Str.ShiftJisEncoding);
+
+			Kernel.Run(Path.Combine(Env.WindowsDir, "explorer.exe"), "\"" + dst_dir + "\"");
 		}
 
 		// Sign for all binary files (series mode)
