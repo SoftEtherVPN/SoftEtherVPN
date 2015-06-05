@@ -1,0 +1,17 @@
+[Unit]
+Description=SoftEther VPN Bridge
+After=network.target auditd.service
+ConditionPathExists=!/opt/vpnbridge/do_not_run
+
+[Service]
+Type=forking
+ExecStart=/opt/vpnbridge/vpnbridge start
+ExecStop=/opt/vpnbridge/vpnbridge stop
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=softether-vpnserver.service
+
+

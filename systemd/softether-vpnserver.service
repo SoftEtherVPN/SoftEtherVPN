@@ -1,0 +1,18 @@
+[Unit]
+Description=SoftEther VPN Server
+After=network.target auditd.service
+ConditionPathExists=!/opt/vpnserver/do_not_run
+
+[Service]
+Type=forking
+EnvironmentFile=-/opt/vpnserver
+ExecStart=/opt/vpnserver/vpnserver start
+ExecStop=/opt/vpnserver/vpnserver stop
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=softether-vpnserver.service
+
+

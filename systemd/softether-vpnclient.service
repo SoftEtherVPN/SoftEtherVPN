@@ -1,0 +1,18 @@
+[Unit]
+Description=SoftEther VPN Client
+After=network.target auditd.service
+ConditionPathExists=!/opt/vpnclient/do_not_run
+
+[Service]
+Type=forking
+EnvironmentFile=-/opt/vpnclient
+ExecStart=/opt/vpnclient/vpnclient start
+ExecStop=/opt/vpnclient/vpnclient stop
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=softether-vpnclient.service
+
+
