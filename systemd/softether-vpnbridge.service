@@ -12,6 +12,4 @@ Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-Alias=softether-vpnserver.service
-
 
