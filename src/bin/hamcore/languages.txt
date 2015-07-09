@@ -5,4 +5,4 @@
 0 ja Japanese 日本語 1041 ja,jp,sjis,shift_jis,euc
 1 en English English 1033 en,us,c
 2 cn Simplified_Chinese 简体中文	 2052,4100,1028,3076,5124 zh,cn,tw,hkg,mac,sg,chi
-
+3 tn Tamil தமிழ் 639 tn,in,sr
