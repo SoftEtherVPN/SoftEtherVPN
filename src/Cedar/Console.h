@@ -160,6 +160,7 @@ struct CONSOLE
 	char *(*ReadPassword)(CONSOLE *c, wchar_t *prompt);		// Function to read the password
 	bool (*Write)(CONSOLE *c, wchar_t *str);				// Function to write a string
 	UINT (*GetWidth)(CONSOLE *c);							// Get the width of the screen
+	bool ProgrammingMode;									// Programming Mode
 };
 
 // Local console parameters

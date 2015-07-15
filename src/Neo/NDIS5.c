@@ -1705,7 +1705,7 @@ void *NeoMalloc(UINT size)
 	}
 
 	// Allocate the non-paged memory
-	r = NdisAllocateMemoryWithTag(&p, size, 0);
+	r = NdisAllocateMemoryWithTag(&p, size, 'SETH');
 
 	if (NG(r))
 	{

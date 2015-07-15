@@ -15,16 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{2349
 	ProjectSection(SolutionItems) = preProject
 		bin\hamcore\lang.config = bin\hamcore\lang.config
 		bin\hamcore\languages.txt = bin\hamcore\languages.txt
-		bin\hamcore\SeLow_x64.inf = bin\hamcore\SeLow_x64.inf
-		bin\hamcore\SeLow_x86.inf = bin\hamcore\SeLow_x86.inf
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
 		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb
 		bin\hamcore\time.htm = bin\hamcore\time.htm
 		bin\hamcore\vpn16.exe = bin\hamcore\vpn16.exe
-		bin\hamcore\vpn_driver.inf = bin\hamcore\vpn_driver.inf
-		bin\hamcore\vpn_driver_9x.inf = bin\hamcore\vpn_driver_9x.inf
-		bin\hamcore\vpn_driver_x64.inf = bin\hamcore\vpn_driver_x64.inf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildFiles", "BuildFiles", "{ECFF92D4-8F03-4DDF-ACEF-9A68589BC282}"

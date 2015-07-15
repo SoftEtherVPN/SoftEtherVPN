@@ -124,7 +124,7 @@
 #define	NDIS_NEO_EVENT_NAME_WIN32			"Global\\NEO_EVENT_NEOADAPTER_%s"
 
 // Constant
-#define	NEO_MAX_PACKET_SIZE			1560
+#define	NEO_MAX_PACKET_SIZE			1600
 #define	NEO_MAX_PACKET_SIZE_ANNOUNCE	1514
 #define	NEO_MIN_PACKET_SIZE			14
 #define	NEO_PACKET_HEADER_SIZE		14
@@ -268,10 +268,12 @@ typedef struct _PACKET_BUFFER
 typedef struct _NEO_CTX
 {
 	NEO_EVENT *Event;					// Packet reception notification event
-	BOOL Opened;						// Flag of whether opened
-	BOOL Inited;						// Initialization flag
-	BOOL Initing;						// Starting-up flag
+	volatile BOOL Opened;				// Flag of whether opened
+	volatile BOOL Paused;				// Flag of whether paused
+	volatile BOOL Inited;				// Initialization flag
+	volatile BOOL Initing;				// Starting-up flag
 	volatile BOOL Halting;				// Stopping flag
+	volatile UINT NumCurrentDispatch;	// Number of current dispatch requests
 	BYTE MacAddress[6];					// MAC address
 	BYTE padding[2];					// padding
 	NEO_QUEUE *PacketQueue;				// Transmit packet queue
@@ -308,7 +310,7 @@ BOOL NeoInit();
 void NeoShutdown();
 void NeoInitPacketQueue();
 void NeoFreePacketQueue();
-void NeoClearPacketQueue();
+void NeoClearPacketQueue(bool no_lock);
 void NeoLockPacketQueue();
 void NeoUnlockPacketQueue();
 NEO_QUEUE *NeoGetNextQueue();

@@ -166,6 +166,7 @@ static SW_OLD_MSI old_msi_vpnbridge[] =
 static char *sfx_vpn_server_bridge_files[] =
 {
 	"vpnsetup.exe",
+	"vpnsetup_x64.exe",
 	"vpnserver.exe",
 	"vpnserver_x64.exe",
 	"vpnbridge.exe",
@@ -179,6 +180,7 @@ static char *sfx_vpn_server_bridge_files[] =
 static char *sfx_vpn_client_files[] =
 {
 	"vpnsetup.exe",
+	"vpnsetup_x64.exe",
 	"vpnclient.exe",
 	"vpnclient_x64.exe",
 	"vpncmgr.exe",
@@ -2460,6 +2462,7 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 	wchar_t dir_startup[MAX_PATH];
 	wchar_t tmp1[MAX_SIZE], tmp2[MAX_SIZE];
 	SW_TASK_COPY *setup_exe;
+	SW_TASK_COPY *setup_exe_x64;
 	// Validate arguments
 	if (sw == NULL || t == NULL || c == NULL)
 	{
@@ -2497,6 +2500,10 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 	// Add the Setup program (themselves) to the copy list
 	Add(t->CopyTasks, (setup_exe = SwNewCopyTask(src_setup_exe_filename,
 		L"vpnsetup.exe", src_setup_exe_dir, sw->InstallDir, true, true)));
+
+	// Add vpnsetup_x64.exe to the copy list
+	Add(t->CopyTasks, (setup_exe_x64 = SwNewCopyTask(L"vpnsetup_x64.exe",
+		L"vpnsetup_x64.exe", src_setup_exe_dir, sw->InstallDir, true, true)));
 
 	// Generate the file processing list for each component
 	if (c->Id == SW_CMP_VPN_SERVER)
@@ -3182,9 +3189,29 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 
 			if (install_su)
 			{
-				SwPerformPrint(wp, _UU("SW_PERFORM_MSG_INSTALL_SELOW"));
+				bool ret;
 
-				SuInstallDriver(false);
+				SwPerformPrint(wp, _UU("SW_PERFORM_MSG_INSTALL_SELOW"));
+				ret = SuInstallDriver(false);
+
+				if (ret == false)
+				{
+					if (MsIs64BitWindows() && MsIsWindows10())
+					{
+						void *proc_handle = NULL;
+						wchar_t exe[MAX_PATH];
+
+						CombinePathW(exe, sizeof(exe), MsGetExeDirNameW(), L"vpnsetup_x64.exe");
+
+						if (MsExecuteEx2W(exe, L"/SUINSTMODE:yes", &proc_handle, true))
+						{
+							if (proc_handle != NULL)
+							{
+								MsWaitProcessExit(proc_handle);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -6493,6 +6520,7 @@ void SwParseCommandLine(SW *sw)
 		{"ISEASYINSTALLER", NULL, NULL, NULL, NULL, },
 		{"DISABLEAUTOIMPORT", NULL, NULL, NULL, NULL, },
 		{"ISWEBINSTALLER", NULL, NULL, NULL, NULL, },
+		{"SUINSTMODE", NULL, NULL, NULL, NULL, },
 	};
 	// Validate arguments
 	if (sw == NULL)
@@ -6520,6 +6548,7 @@ void SwParseCommandLine(SW *sw)
 			sw->LangNow = GetParamYes(o, "LANGNOW");
 			sw->SetLangAndReboot = GetParamYes(o, "SETLANGANDREBOOT");
 			sw->HideStartCommand = GetParamYes(o, "HIDESTARTCOMMAND");
+			sw->SuInstMode = GetParamYes(o, "SUINSTMODE");
 
 			// Special mode
 			if (sw->LanguageMode == false)
@@ -6588,6 +6617,15 @@ UINT SWExecMain()
 		{
 			// Success
 			sw->ExitCode = 0;
+		}
+	}
+	else if (sw->SuInstMode)
+	{
+		// SuInst mode
+		sw->ExitCode = 0;
+		if (SuInstallDriver(false) == false)
+		{
+			sw->ExitCode = SW_EXIT_CODE_INTERNAL_ERROR;
 		}
 	}
 	else

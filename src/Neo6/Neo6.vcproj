@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)BuiltDriverPackages\Neo6\x86"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot; /PRODUCT:&quot;SoftEther VPN&quot;"
 			/>
 			<Tool
 				Name="VCLinkerTool"
@@ -80,7 +80,7 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com"
 				AdditionalDependencies="wdm.lib ndis.lib ntoskrnl.lib fwpkclnt.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\hamcore\not_signed\vpn_driver6.sys"
+				OutputFile="$(OutDir)\Neo6_x86.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\win7\i386"
 				GenerateManifest="false"
@@ -121,12 +121,12 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateWin8InfFiles x86&#x0D;&#x0A;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)BuiltDriverPackages\Neo6\x64"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -178,7 +178,7 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot; /PRODUCT:&quot;SoftEther VPN&quot;"
 			/>
 			<Tool
 				Name="VCLinkerTool"
@@ -186,7 +186,7 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com"
 				AdditionalDependencies="wdm.lib ndis.lib wdmsec.lib ntoskrnl.lib fwpkclnt.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\hamcore\not_signed\vpn_driver6_x64.sys"
+				OutputFile="$(OutDir)\Neo6_x64.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\win7\amd64"
 				GenerateManifest="false"
@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateWin8InfFiles x64&#x0D;&#x0A;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

@@ -144,6 +144,7 @@ void SessionMain(SESSION *s)
 	{
 		return;
 	}
+
 	Debug("SessionMain: %s\n", s->Name);
 
 	Notify(s, CLIENT_NOTIFY_ACCOUNT_CHANGED);
@@ -161,6 +162,19 @@ void SessionMain(SESSION *s)
 	policy = s->Policy;
 
 	// Initialize the packet adapter
+#ifdef	OS_WIN32
+	if (s->IsVPNClientAndVLAN_Win32)
+	{
+		MsBeginVLanCard();
+
+		if (MsIsVLanCardShouldStop())
+		{
+			err = ERR_SUSPENDING;
+			goto CLEANUP;
+		}
+	}
+#endif	// OS_WIN32
+
 	pa = s->PacketAdapter;
 	if (pa->Init(s) == false)
 	{
@@ -357,6 +371,18 @@ void SessionMain(SESSION *s)
 			err = ERR_DISCONNECTED;
 			pa_fail = true;
 		}
+
+#ifdef	OS_WIN32
+		if (s->IsVPNClientAndVLAN_Win32)
+		{
+			if (MsIsVLanCardShouldStop())
+			{
+				// System is suspending
+				err = ERR_SUSPENDING;
+				pa_fail = true;
+			}
+		}
+#endif	// OS_WIN32
 
 		// Pass the received block to the PacketAdapter
 		if (lock_receive_blocks_queue)
@@ -706,6 +732,13 @@ CLEANUP:
 	{
 		pa->Free(s);
 	}
+
+#ifdef	OS_WIN32
+	if (s->IsVPNClientAndVLAN_Win32)
+	{
+		MsEndVLanCard();
+	}
+#endif	// OS_WIN32
 
 	if (s->ServerMode == false)
 	{
@@ -1972,9 +2005,15 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 
 	// Hold whether the virtual LAN card is used in client mode
 	s->ClientModeAndUseVLan = (StrLen(s->ClientOption->DeviceName) == 0) ? false : true;
+
 	if (s->ClientOption->NoRoutingTracking)
 	{
 		s->ClientModeAndUseVLan = false;
+	}
+
+	if (pa->Id == PACKET_ADAPTER_ID_VLAN_WIN32)
+	{
+		s->IsVPNClientAndVLAN_Win32 = true;
 	}
 
 	if (StrLen(option->DeviceName) == 0)

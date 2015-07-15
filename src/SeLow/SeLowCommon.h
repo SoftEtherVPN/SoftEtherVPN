@@ -115,10 +115,10 @@
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update
 // installation of the VPN Server / VPN Client / VPN Bridge is skipped.
-#define	SL_VER						43
+#define	SL_VER						45
 
 // Constants
-#define	SL_MAX_PACKET_SIZE			1560
+#define	SL_MAX_PACKET_SIZE			1600
 #define	SL_MAX_PACKET_SIZE_ANNOUNCE	1514
 #define	SL_MIN_PACKET_SIZE			14
 #define	SL_PACKET_HEADER_SIZE		14
@@ -155,6 +155,7 @@ typedef struct SL_IOCTL_EVENT_NAME
 // Registry key
 #define	SL_REG_KEY_NAME					"SYSTEM\\CurrentControlSet\\services\\SeLow"
 #define	SL_REG_VER_VALUE				"SlVersion"
+#define	SL_REG_VER_VALUE_WIN10			"SlVersion_Win10"
 
 // Adapter data
 #define	SL_ADAPTER_ID_LEN				64

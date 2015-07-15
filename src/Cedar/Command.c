@@ -23096,7 +23096,7 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 			// Failure
 			retcode = err;
 
-			if (err == ERR_ACCESS_DENIED)
+			if (err == ERR_ACCESS_DENIED && c->ProgrammingMode == false)
 			{
 				char *pass;
 				// Password is incorrect
@@ -23402,6 +23402,7 @@ UINT VpnCmdProc(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"OUT", NULL, NULL, NULL, NULL},
 		{"CMD", NULL, NULL, NULL, NULL},
 		{"CSV", NULL, NULL, NULL, NULL},
+		{"PROGRAMMING", NULL, NULL, NULL, NULL},
 	};
 
 #ifdef	OS_WIN32
@@ -23621,6 +23622,7 @@ UINT CommandMain(wchar_t *command_line)
 	wchar_t *infile, *outfile;
 	char *a_infile, *a_outfile;
 	wchar_t *csvmode;
+	wchar_t *programming_mode;
 	CONSOLE *c;
 
 	// Validate arguments
@@ -23662,6 +23664,13 @@ UINT CommandMain(wchar_t *command_line)
 		{
 			Free(csvmode);
 			c->ConsoleType = CONSOLE_CSV;
+		}
+
+		programming_mode = ParseCommand(command_line, L"programming");
+		if (programming_mode != NULL)
+		{
+			Free(programming_mode);
+			c->ProgrammingMode = true;
 		}
 
 		if (DispatchNextCmdEx(c, command_line, ">", cmd, sizeof(cmd) / sizeof(cmd[0]), NULL) == false)

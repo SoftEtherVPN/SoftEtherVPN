@@ -1,0 +1,68 @@
+; SeLow - SoftEther Lightweight Ethernet Low Driver
+; 
+; Copyright (c) SoftEther Corporation. All Rights Reserved.
+; http://www.softether.co.jp/
+; 
+; BUILD 9558
+
+[Version]
+Signature					= "$Windows NT$"
+Class						= NetTrans
+ClassGUID					= {4D36E975-E325-11CE-BFC1-08002BE10318}
+Provider					= %CompanyName%
+DriverVer					= 05/29/2015, 4.16.0.9558
+CatalogFile.NT				= SeLow_Win10_x64.cat
+
+[Manufacturer]
+%CompanyName% 				= SoftEther, NTamd64
+
+[SoftEther.NTamd64]
+%SeLow_DisplayName%			= SeLow_Install, SeLow
+
+[SeLow_Install]
+Characteristics				= 0x4080
+AddReg						= SeLow_Install_Ndi
+CopyFiles					= SeLow_CopyFiles
+
+[SeLow_Install_Ndi]
+HKR, Ndi, Service, , "SeLow"
+HKR, Ndi, HelpText, , %SeLow_Description%
+HKR, Ndi\Interfaces, UpperRange, , noupper
+HKR, Ndi\Interfaces, LowerRange, , "ndis5,ndis4"
+
+[SeLow_Install.Services]
+AddService					= SeLow, , SeLow_Service_Install
+
+[SeLow_Service_Install]
+DisplayName					= %SeLow_DisplayName%
+Description					= %SeLow_Description%
+ServiceType					= 1
+StartType					= 1
+ErrorControl				= 1
+ServiceBinary				= %12%\SeLow_x64.sys
+LoadOrderGroup				= PNP_TDI
+
+[SeLow_Install.Remove.Services]
+DelService					= SeLow, 0x200
+
+[SourceDisksNames]
+1							= %DiskDescription%, "", , 
+
+[SourceDisksFiles]
+SeLow_x64.sys				= 1
+
+[DestinationDirs]
+SeLow_CopyFiles				= 12
+
+[SeLow_CopyFiles]
+SeLow_x64.sys, , , 2
+
+[Strings]
+CompanyName					= "SoftEther Corporation"
+DiskDescription				= "SoftEther Lightweight Network Protocol Install Disk"
+SeLow_DisplayName			= "SoftEther Lightweight Network Protocol"
+SeLow_Description			= "A lightweight helper kernel-mode module for PacketiX VPN / SoftEther VPN."
+
+
+; Auto Generated 20150530_023452.294
+

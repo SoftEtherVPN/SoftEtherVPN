@@ -213,6 +213,12 @@ void NeoWrite(void *buf)
 		return;
 	}
 
+	if (ctx->Paused)
+	{
+		// Paused
+		return;
+	}
+
 	if (ctx->Opened == FALSE)
 	{
 		// Not connected
@@ -424,10 +430,14 @@ void NeoInitPacketQueue()
 }
 
 // Delete all the packets from the packet queue
-void NeoClearPacketQueue()
+void NeoClearPacketQueue(bool no_lock)
 {
 	// Release the memory of the packet queue
-	NeoLock(ctx->PacketQueueLock);
+	if (no_lock == false)
+	{
+		NeoLock(ctx->PacketQueueLock);
+	}
+	if (true)
 	{
 		NEO_QUEUE *q = ctx->PacketQueue;
 		NEO_QUEUE *qn;
@@ -442,14 +452,17 @@ void NeoClearPacketQueue()
 		ctx->Tail = NULL;
 		ctx->NumPacketQueue = 0;
 	}
-	NeoUnlock(ctx->PacketQueueLock);
+	if (no_lock == false)
+	{
+		NeoUnlock(ctx->PacketQueueLock);
+	}
 }
 
 // Release the packet queue
 void NeoFreePacketQueue()
 {
 	// Delete all packets
-	NeoClearPacketQueue();
+	NeoClearPacketQueue(false);
 
 	// Delete the lock
 	NeoFreeLock(ctx->PacketQueueLock);

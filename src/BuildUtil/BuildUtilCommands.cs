@@ -926,6 +926,19 @@ namespace BuildUtil
 			return 0;
 		}
 
+		// Driver package build
+		// Win32 build
+		[ConsoleCommandMethod(
+			"Builds the driver package.",
+			"BuildDriverPackage",
+			"Builds the driver package.")]
+		static int BuildDriverPackage(ConsoleService c, string cmdName, string str)
+		{
+			Win32BuildUtil.MakeDriverPackage();
+
+			return 0;
+		}
+
 		// Win32 build
 		[ConsoleCommandMethod(
 			"Builds all executable files for win32 and HamCore for all OS.",
@@ -1159,14 +1172,16 @@ namespace BuildUtil
 			{
 				new ConsoleParam("[targetFileName]", ConsoleService.Prompt, "Target Filename: ", ConsoleService.EvalNotEmpty, null),
 				new ConsoleParam("OUT", ConsoleService.Prompt, "Dst Filename: ", ConsoleService.EvalNotEmpty, null),
+				new ConsoleParam("PRODUCT"),
 				new ConsoleParam("RC"),
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
 			string targetFilename = vl.DefaultParam.StrValue;
 			string outFilename = vl["OUT"].StrValue;
+			string product_name = vl["PRODUCT"].StrValue;
 
-			Win32BuildUtil.GenerateVersionInfoResource(targetFilename, outFilename, vl["RC"].StrValue);
+			Win32BuildUtil.GenerateVersionInfoResource(targetFilename, outFilename, vl["RC"].StrValue, product_name);
 
 			return 0;
 		}

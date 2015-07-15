@@ -139,13 +139,7 @@ namespace BuildUtil
 	{
 		public static void Test()
 		{
-			Language[] langs = BuildHelper.GetLanguageList();
-
-			foreach (Language e in langs)
-			{
-				Con.WriteLine("{0} {1} {2} {3} {5} {4}",
-					e.Number, e.Id, e.Title, e.TitleUnicode, e.UnixLocaleIds, e.WindowsLocaleIds);
-			}
+			Win32BuildUtil.MakeDriverPackage();
 		}
 	}
 }

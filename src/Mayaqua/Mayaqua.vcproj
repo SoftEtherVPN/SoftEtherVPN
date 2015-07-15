@@ -547,7 +547,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\openssl\camellia.h"
+				>
+			</File>
+			<File
 				RelativePath=".\openssl\cast.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\cmac.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\cms.h"
 				>
 			</File>
 			<File
@@ -623,14 +635,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\fips.h"
-				>
-			</File>
-			<File
-				RelativePath=".\openssl\fips_rand.h"
-				>
-			</File>
-			<File
 				RelativePath=".\openssl\hmac.h"
 				>
 			</File>
@@ -651,10 +655,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\md2.h"
-				>
-			</File>
-			<File
 				RelativePath=".\openssl\md4.h"
 				>
 			</File>
@@ -664,6 +664,10 @@
 			</File>
 			<File
 				RelativePath=".\openssl\mdc2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\modes.h"
 				>
 			</File>
 			<File
@@ -707,10 +711,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\pq_compat.h"
-				>
-			</File>
-			<File
 				RelativePath=".\openssl\pqueue.h"
 				>
 			</File>
@@ -727,10 +727,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\rc5.h"
-				>
-			</File>
-			<File
 				RelativePath=".\openssl\ripemd.h"
 				>
 			</File>
@@ -743,7 +739,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\openssl\seed.h"
+				>
+			</File>
+			<File
 				RelativePath=".\openssl\sha.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\srp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\srtp.h"
 				>
 			</File>
 			<File
@@ -767,10 +775,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\store.h"
-				>
-			</File>
-			<File
 				RelativePath=".\openssl\symhacks.h"
 				>
 			</File>
@@ -779,7 +783,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\openssl\tmdiff.h"
+				RelativePath=".\openssl\ts.h"
 				>
 			</File>
 			<File
@@ -792,6 +796,10 @@
 			</File>
 			<File
 				RelativePath=".\openssl\ui_compat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\openssl\whrlpool.h"
 				>
 			</File>
 			<File

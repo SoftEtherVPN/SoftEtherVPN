@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)BuiltDriverPackages\See\x86"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -71,13 +71,13 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot; /PRODUCT:&quot;SoftEther VPN&quot;"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB"
 				AdditionalDependencies="ntoskrnl.lib hal.lib wmilib.lib ndis.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\hamcore\not_signed\see.sys"
+				OutputFile="$(OutDir)\See_x86.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\wnet\i386"
 				GenerateManifest="false"
@@ -124,7 +124,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)BuiltDriverPackages\See\x64"
 			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -175,13 +175,13 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:GenerateVersionResource &quot;$(TargetPath)&quot; /OUT:&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot; /PRODUCT:&quot;SoftEther VPN&quot;"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB"
 				AdditionalDependencies="ntoskrnl.lib hal.lib wmilib.lib ndis.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\hamcore\not_signed\see_x64.sys"
+				OutputFile="$(OutDir)\See_x64.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\wnet\amd64"
 				GenerateManifest="false"

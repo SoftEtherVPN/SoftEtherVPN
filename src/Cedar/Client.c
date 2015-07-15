@@ -10590,6 +10590,13 @@ CLIENT *CiNewClient()
 		ci_num_active_sessions = 0;
 	}
 
+#ifdef	OS_WIN32
+	if (MsIsWindows7())
+	{
+		c->MsSuspendHandler = MsNewSuspendHandler();
+	}
+#endif	// OS_WIN32
+
 
 	c->CmSetting = ZeroMalloc(sizeof(CM_SETTING));
 
@@ -10810,6 +10817,13 @@ void CiCleanupClient(CLIENT *c)
 
 	Free(c->CmSetting);
 
+
+#ifdef	OS_WIN32
+	if (c->MsSuspendHandler != NULL)
+	{
+		MsFreeSuspendHandler(c->MsSuspendHandler);
+	}
+#endif	// OS_WIN32
 
 	Free(c);
 

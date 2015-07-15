@@ -215,6 +215,11 @@ static HANDLE hLsa = NULL;
 static ULONG lsa_package_id = 0;
 static TOKEN_SOURCE lsa_token_source;
 static LOCK *vlan_lock = NULL;
+static COUNTER *suspend_handler_singleton = NULL;
+static COUNTER *vlan_card_counter = NULL;
+static volatile BOOL vlan_card_should_stop_flag = false;
+static volatile BOOL vlan_is_in_suspend_mode = false;
+static volatile UINT64 vlan_suspend_mode_begin_tick = 0;
 
 // msi.dll
 static HINSTANCE hMsi = NULL;
@@ -5769,6 +5774,243 @@ void MsGenerateUserModeSvcGlobalPulseName(char *name, UINT size, char *svc_name)
 	BinToStr(name, size, hash, sizeof(hash));
 }
 
+// Declare the beginning of use of a VLAN card
+void MsBeginVLanCard()
+{
+	Inc(vlan_card_counter);
+}
+
+// Declare the ending of use of a VLAN card
+void MsEndVLanCard()
+{
+	Dec(vlan_card_counter);
+}
+
+// Return the flag whether the VLAN cards must be stopped
+bool MsIsVLanCardShouldStop()
+{
+	return vlan_card_should_stop_flag;
+}
+
+// Suspend procs
+void MsProcEnterSuspend()
+{
+	UINT64 giveup_tick = Tick64() + 2000;
+	UINT num = Count(vlan_card_counter);
+
+	vlan_is_in_suspend_mode = true;
+
+	vlan_card_should_stop_flag = true;
+
+	vlan_suspend_mode_begin_tick = Tick64();
+
+	while (true)
+	{
+		UINT64 now = Tick64();
+
+		if (now >= giveup_tick)
+		{
+			break;
+		}
+
+		if (Count(vlan_card_counter) == 0)
+		{
+			break;
+		}
+
+		SleepThread(100);
+	}
+
+	if (num >= 1)
+	{
+		SleepThread(3000);
+	}
+}
+void MsProcLeaveSuspend()
+{
+	vlan_card_should_stop_flag = false;
+	vlan_is_in_suspend_mode = false;
+	vlan_suspend_mode_begin_tick = Tick64();
+}
+UINT64 MsGetSuspendModeBeginTick()
+{
+	if (vlan_is_in_suspend_mode)
+	{
+		return Tick64();
+	}
+
+	return vlan_suspend_mode_begin_tick;
+}
+
+// Suspend handler window proc
+LRESULT CALLBACK MsSuspendHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	MS_SUSPEND_HANDLER *h;
+	CREATESTRUCT *cs;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	h = (MS_SUSPEND_HANDLER *)GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+	if (h == NULL && msg != WM_CREATE)
+	{
+		goto LABEL_END;
+	}
+
+	switch (msg)
+	{
+	case WM_CREATE:
+		cs = (CREATESTRUCT *)lParam;
+		h = (MS_SUSPEND_HANDLER *)cs->lpCreateParams;
+		SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR)h);
+		break;
+
+	case WM_POWERBROADCAST:
+		if (MsIsVista())
+		{
+			switch (wParam)
+			{
+			case PBT_APMSUSPEND:
+				MsProcEnterSuspend();
+				return 1;
+
+			case PBT_APMRESUMEAUTOMATIC:
+			case PBT_APMRESUMESUSPEND:
+				MsProcLeaveSuspend();
+				return 1;
+			}
+		}
+		break;
+
+	case WM_CLOSE:
+		/*if (h->AboutToClose == false)
+		{
+			return 0;
+		}*/
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	}
+
+LABEL_END:
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+// Suspend handler thread
+void MsSuspendHandlerThreadProc(THREAD *thread, void *param)
+{
+	char wndclass_name[MAX_PATH];
+	WNDCLASS wc;
+	HWND hWnd;
+	MSG msg;
+	MS_SUSPEND_HANDLER *h = (MS_SUSPEND_HANDLER *)param;
+	// Validate arguments
+	if (h == NULL || thread == NULL)
+	{
+		return;
+	}
+
+	Format(wndclass_name, sizeof(wndclass_name), "WNDCLASS_%X", Rand32());
+
+	Zero(&wc, sizeof(wc));
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = NULL;
+	wc.hInstance = ms->hInst;
+	wc.lpfnWndProc = MsSuspendHandlerWindowProc;
+	wc.lpszClassName = wndclass_name;
+	if (RegisterClassA(&wc) == 0)
+	{
+		NoticeThreadInit(thread);
+		return;
+	}
+
+	hWnd = CreateWindowA(wndclass_name, wndclass_name, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL, NULL, ms->hInst, h);
+
+	h->hWnd = hWnd;
+
+	NoticeThreadInit(thread);
+
+	if (hWnd == NULL)
+	{
+		UnregisterClassA(wndclass_name, ms->hInst);
+		return;
+	}
+
+	//ShowWindow(hWnd, SW_SHOWNORMAL);
+
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	vlan_card_should_stop_flag = false;
+	vlan_is_in_suspend_mode = false;
+	vlan_suspend_mode_begin_tick = 0;
+
+	DestroyWindow(hWnd);
+
+	UnregisterClassA(wndclass_name, ms->hInst);
+}
+
+// New suspend handler
+MS_SUSPEND_HANDLER *MsNewSuspendHandler()
+{
+	THREAD *t;
+	MS_SUSPEND_HANDLER *h;
+
+	if (Inc(suspend_handler_singleton) >= 2)
+	{
+		Dec(suspend_handler_singleton);
+		return NULL;
+	}
+
+	vlan_card_should_stop_flag = false;
+	vlan_is_in_suspend_mode = false;
+	vlan_suspend_mode_begin_tick = 0;
+
+	h = ZeroMalloc(sizeof(MS_SUSPEND_HANDLER));
+
+	t = NewThread(MsSuspendHandlerThreadProc, h);
+
+	WaitThreadInit(t);
+
+	h->Thread = t;
+
+	return h;
+}
+
+void MsFreeSuspendHandler(MS_SUSPEND_HANDLER *h)
+{
+	// Validate arguments
+	if (h == NULL)
+	{
+		return;
+	}
+
+	if (h->hWnd != NULL)
+	{
+		h->AboutToClose = true;
+		PostMessageA(h->hWnd, WM_CLOSE, 0, 0);
+	}
+
+	WaitThread(h->Thread, INFINITE);
+	ReleaseThread(h->Thread);
+
+	Free(h);
+
+	Dec(suspend_handler_singleton);
+
+	vlan_card_should_stop_flag = false;
+}
+
 // Start in user mode
 void MsUserMode(char *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT icon)
 {
@@ -8399,7 +8641,7 @@ bool MsInstallVLan9x(char *instance_name, MS_DRIVER_VER *ver)
 
 	MakeDir(otherdir);
 
-	Format(neo_sys, sizeof(neo_sys), DRIVER_INSTALL_SYS_NAME_TAG, instance_name);
+	Format(neo_sys, sizeof(neo_sys), "Neo_%s.sys", instance_name);
 
 	// Copy of vpn16.exe
 	FileCopy("|vpn16.exe", vpn16);
@@ -9326,7 +9568,7 @@ void MsGetInfCatalogDir(char *dst, UINT size)
 		return;
 	}
 
-	Format(dst, size, "|inf\\%s", (MsIsX64() ? "x64" : "x86"));
+	Format(dst, size, "|DriverPackages\\%s\\%s", (MsIsWindows10() ? "Neo6_Win10" : "Neo6_Win8"), (MsIsX64() ? "x64" : "x86"));
 }
 
 // Examine whether the virtual LAN card name can be used as a instance name of the VLAN
@@ -9343,7 +9585,8 @@ bool MsIsValidVLanInstanceNameForInfCatalog(char *instance_name)
 
 	MsGetInfCatalogDir(src_dir, sizeof(src_dir));
 
-	Format(tmp, sizeof(tmp), "%s\\INF_%s.inf", src_dir, instance_name);
+	Format(tmp, sizeof(tmp), "%s\\Neo6_%s_%s.inf", src_dir, (MsIsX64() ? "x64" : "x86"), instance_name);
+
 	ret = IsFile(tmp);
 
 	return ret;
@@ -9493,7 +9736,14 @@ bool MsInstallVLanWithoutLock(char *tag_name, char *connection_tag_name, char *i
 	}
 	else
 	{
-		Format(neo_sys, sizeof(neo_sys), DRIVER_INSTALL_SYS_NAME_TAG, instance_name);
+		if (MsIsWindows10() == false)
+		{
+			Format(neo_sys, sizeof(neo_sys), "Neo_%s.sys", instance_name);
+		}
+		else
+		{
+			Format(neo_sys, sizeof(neo_sys), "Neo6_%s_%s.sys", (MsIsX64() ? "x64" : "x86"), instance_name);
+		}
 	}
 
 	// Starting the Installation
@@ -10285,26 +10535,21 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 		return;
 	}
 
-	src_filename = DRIVER_INF_FILE_NAME;
-	src_sys_filename = DRIVER_SYS_FILE_NAME;
+	// WinNT x86
+	src_filename = L"|DriverPackages\\Neo\\x86\\Neo_x86.inf";
+	src_sys_filename = L"|DriverPackages\\Neo\\x86\\Neo_x86.sys";
 
 	if (MsIsNt() == false)
 	{
-		src_filename = DRIVER_INF_FILE_NAME_9X;
-		src_sys_filename = DRIVER_SYS_FILE_NAME_9X;
+		// Win9x
+		src_filename = L"|DriverPackages\\Neo9x\\x86\\Neo9x_x86.inf";
+		src_sys_filename = L"|DriverPackages\\Neo9x\\x86\\Neo9x_x86.sys";
 	}
-	else if (MsIsIA64() || MsIsX64())
+	else if (MsIsX64())
 	{
-		if (MsIsX64())
-		{
-			src_filename = DRIVER_INF_FILE_NAME_X64;
-			src_sys_filename = DRIVER_SYS_FILE_NAME_X64;
-		}
-		else
-		{
-			src_filename = DRIVER_INF_FILE_NAME_IA64;
-			src_sys_filename = DRIVER_SYS_FILE_NAME_IA64;
-		}
+		// WinNT x64
+		src_filename = L"|DriverPackages\\Neo\\x64\\Neo_x64.inf";
+		src_sys_filename = L"|DriverPackages\\Neo\\x64\\Neo_x64.sys";
 	}
 
 	if (MsIsWindows7())
@@ -10312,15 +10557,28 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 		// Use the NDIS 6.2 driver for Windows 7 or later
 		if (MsIsX64())
 		{
-			src_sys_filename = DRIVER_SYS6_FILE_NAME_X64;
-		}
-		else if (MsIsIA64())
-		{
-			src_sys_filename = DRIVER_SYS6_FILE_NAME_IA64;
+			src_filename = L"|DriverPackages\\Neo6\\x64\\Neo6_x64.inf";
+			src_sys_filename = L"|DriverPackages\\Neo6\\x64\\Neo6_x64.sys";
 		}
 		else
 		{
-			src_sys_filename = DRIVER_SYS6_FILE_NAME;
+			src_filename = L"|DriverPackages\\Neo6\\x86\\Neo6_x86.inf";
+			src_sys_filename = L"|DriverPackages\\Neo6\\x86\\Neo6_x86.sys";
+		}
+	}
+
+	if (MsIsInfCatalogRequired())
+	{
+		// Windows 8 or later
+		if (MsIsX64())
+		{
+			src_filename = L"|DriverPackages\\Neo6_Win8\\x64\\Neo6_x64.inf";
+			src_sys_filename = L"|DriverPackages\\Neo6_Win8\\x64\\Neo6_x64.sys";
+		}
+		else
+		{
+			src_filename = L"|DriverPackages\\Neo6_Win8\\x86\\Neo6_x86.inf";
+			src_sys_filename = L"|DriverPackages\\Neo6_Win8\\x86\\Neo6_x86.sys";
 		}
 	}
 
@@ -10328,27 +10586,43 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 	{
 		if (MsIsInfCatalogRequired() == false)
 		{
+			// Windows 7 or before
 			UniStrCpy(src_inf, MAX_PATH, src_filename);
 		}
 		else
 		{
+			// Windows 8.1 or later
 			char tmp[MAX_SIZE];
 
 			MsGetInfCatalogDir(tmp, sizeof(tmp));
 
-			UniFormat(src_inf, MAX_PATH, L"%S\\INF_%S.inf", tmp, instance_name);
+			UniFormat(src_inf, MAX_PATH, L"%S\\Neo6_%S_%S.inf", tmp, (MsIsX64() ? "x64" : "x86"), instance_name);
 		}
 	}
 
 	if (src_sys != NULL)
 	{
 		UniStrCpy(src_sys, MAX_PATH, src_sys_filename);
+
+		if (MsIsWindows10())
+		{
+			UniFormat(src_sys, MAX_PATH, L"|DriverPackages\\Neo6_Win10\\%S\\Neo6_%S_%S.sys",
+				(MsIsX64() ? "x64" : "x86"), (MsIsX64() ? "x64" : "x86"), instance_name);
+		}
 	}
 
 	if (dest_inf != NULL)
 	{
 		char inf_name[MAX_PATH];
-		Format(inf_name, sizeof(inf_name), DRIVER_INSTALL_INF_NAME_TAG, instance_name);
+
+		if (MsIsInfCatalogRequired() == false)
+		{
+			Format(inf_name, sizeof(inf_name), "Neo_%s.inf", instance_name);
+		}
+		else
+		{
+			Format(inf_name, sizeof(inf_name), "Neo6_%s_%s.inf", (MsIsX64() ? "x64" : "x86"), instance_name);
+		}
 		UniFormat(dest_inf, MAX_PATH, L"%s\\%S", ms->MyTempDirW, inf_name);
 	}
 
@@ -10366,7 +10640,24 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 			char tmp[MAX_SIZE];
 
 			MsGetInfCatalogDir(tmp, sizeof(tmp));
-			UniFormat(src_cat, MAX_PATH, L"%S\\inf.cat", tmp);
+
+			if (MsIsWindows8() == false)
+			{
+				// Windows Vista and Windows 7 uses SHA-1 catalog files
+				// (Unused? Never reach here!)
+				UniFormat(src_cat, MAX_PATH, L"%S\\inf.cat", tmp);
+			}
+			else
+			{
+				// Windows 8 or above uses SHA-256 catalog files
+				UniFormat(src_cat, MAX_PATH, L"%S\\inf2.cat", tmp);
+			}
+
+			if (MsIsWindows10())
+			{
+				// Windows 10
+				UniFormat(src_cat, MAX_PATH, L"%S\\Neo6_%S_%S.cat", tmp, (MsIsX64() ? "x64" : "x86"), instance_name);
+			}
 		}
 		else
 		{
@@ -10378,7 +10669,14 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 	{
 		if (MsIsInfCatalogRequired())
 		{
-			UniFormat(dest_cat, MAX_PATH, L"%s\\inf_%S.cat", ms->MyTempDirW, instance_name);
+			if (MsIsWindows10() == false)
+			{
+				UniFormat(dest_cat, MAX_PATH, L"%s\\inf_%S.cat", ms->MyTempDirW, instance_name);
+			}
+			else
+			{
+				UniFormat(dest_cat, MAX_PATH, L"%s\\Neo6_%S_%S.cat", ms->MyTempDirW, (MsIsX64() ? "x64" : "x86"), instance_name);
+			}
 		}
 		else
 		{
@@ -14212,6 +14510,10 @@ void MsInit()
 		return;
 	}
 
+	suspend_handler_singleton = NewCounter();
+	vlan_card_counter = NewCounter();
+	vlan_card_should_stop_flag = false;
+
 	ms = ZeroMalloc(sizeof(MS));
 
 	// Getting instance handle
@@ -14685,6 +14987,13 @@ void MsFree()
 	// Delete the lock
 	DeleteLock(vlan_lock);
 	vlan_lock = NULL;
+
+	DeleteCounter(suspend_handler_singleton);
+	suspend_handler_singleton = NULL;
+
+	DeleteCounter(vlan_card_counter);
+	vlan_card_counter = NULL;
+	vlan_card_should_stop_flag = false;
 }
 
 // Directory acquisition related

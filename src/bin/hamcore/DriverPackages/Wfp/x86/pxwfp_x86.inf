@@ -1,0 +1,52 @@
+; pxwfp - Windows Filtering Platform Callout Driver for Capturing IPsec Packets
+; 
+; Copyright (c) SoftEther Corporation. All Rights Reserved.
+; http://www.softether.co.jp/
+; 
+; BUILD 9558
+
+[Version]
+Signature					= "$Windows NT$"
+Class                       = WFPCALLOUTS
+ClassGuid                   = {57465043-616C-6C6F-7574-5F636C617373}
+Provider					= "SoftEther Corporation"
+DriverVer					= 05/29/2015, 4.16.0.9558
+CatalogFile.NT				= pxwfp_x86.cat
+
+[SourceDisksNames]
+1							= "SoftEther VPN IPsec WFP Callout Driver Install Disk"
+
+[SourceDisksFiles]
+pxwfp_x86.sys				= 1
+
+[DestinationDirs]
+DefaultDestDir				= 12
+pxwfp.DriverFiles			= 12
+
+[DefaultInstall]
+OptionDesc					= "SoftEther VPN IPsec WFP Callout Driver"
+CopyFiles					= pxwfp.DriverFiles
+
+[DefaultInstall.Services]
+AddService					= pxwfp,,pxwfp.Service
+
+[DefaultUninstall]
+DelFiles					= pxwfp.DriverFiles
+
+[DefaultUninstall.Services]
+DelService					= pxwfp,0x200
+
+[pxwfp.DriverFiles]
+pxwfp_x86.sys,,,0x00000040
+
+[pxwfp.Service]
+DisplayName					= "SoftEther VPN IPsec WFP Callout Driver"
+Description					= "SoftEther VPN IPsec WFP Callout Driver"
+ServiceType					= 1
+StartType					= 3
+ErrorControl				= 1
+ServiceBinary				= %12%\pxwfp_x86.sys
+
+
+; Auto Generated 20150530_023453.428
+

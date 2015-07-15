@@ -769,6 +769,18 @@ bool DispatchNextCmdEx(CONSOLE *c, wchar_t *exec_command, char *prompt, CMD cmd[
 		// Show the prompt
 RETRY:
 		tmp = CopyStrToUni(prompt);
+
+		if (c->ProgrammingMode)
+		{
+			wchar_t tmp2[MAX_PATH];
+
+			UniFormat(tmp2, sizeof(tmp2), L"[PROMPT:%u:%s]\r\n", c->RetCode, tmp);
+
+			Free(tmp);
+
+			tmp = CopyUniStr(tmp2);
+		}
+
 		str = c->ReadLine(c, tmp, false);
 		Free(tmp);
 
@@ -1430,6 +1442,14 @@ EVAL_VALUE:
 						Free(str);
 						break;
 					}
+					else if (c->ProgrammingMode)
+					{
+						// In the programming mode, return the error immediately.
+						ok = false;
+						Free(name);
+						Free(str);
+						break;
+					}
 					else
 					{
 						// Request to re-enter
@@ -1458,7 +1478,11 @@ EVAL_VALUE:
 					wchar_t *tmp;
 SHOW_PROMPT:
 					// Prompt because it is a mandatory parameter
-					tmp = p->PromptProc(c, p->PromptProcParam);
+					tmp = NULL;
+					if (c->ProgrammingMode == false)
+					{
+						tmp = p->PromptProc(c, p->PromptProcParam);
+					}
 					if (tmp == NULL)
 					{
 						// User canceled

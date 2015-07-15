@@ -181,6 +181,9 @@ typedef void *HWND;
 #define	VLAN_CONNECTION_NAME_OLD	"%s - SoftEther VPN Client 2.0"
 
 
+// Suspend handler windows class name
+#define	MS_SUSPEND_HANDLER_WNDCLASSNAME	"MS_SUSPEND_HANDLER"
+
 // Command line format in the service mode
 #define	SVC_RUN_COMMANDLINE			L"\"%s\" /service"
 
@@ -231,19 +234,6 @@ typedef void *HWND;
 
 
 // Constants about driver
-#define	DRIVER_INF_FILE_NAME		L"|vpn_driver.inf"
-#define	DRIVER_INF_FILE_NAME_X64	L"|vpn_driver_x64.inf"
-#define	DRIVER_INF_FILE_NAME_IA64	L"|vpn_driver_ia64.inf"
-#define	DRIVER_INF_FILE_NAME_9X		L"|vpn_driver_9x.inf"
-#define	DRIVER_SYS_FILE_NAME		L"|vpn_driver.sys"
-#define	DRIVER_SYS_FILE_NAME_X64	L"|vpn_driver_x64.sys"
-#define	DRIVER_SYS_FILE_NAME_IA64	L"|vpn_driver_ia64.sys"
-#define	DRIVER_SYS_FILE_NAME_9X		L"|vpn_driver_9x.sys"
-#define	DRIVER_SYS6_FILE_NAME		L"|vpn_driver6.sys"
-#define	DRIVER_SYS6_FILE_NAME_X64	L"|vpn_driver6_x64.sys"
-#define	DRIVER_SYS6_FILE_NAME_IA64	L"|vpn_driver6_ia64.sys"
-#define	DRIVER_INSTALL_INF_NAME_TAG	"Neo_%s.inf"
-#define	DRIVER_INSTALL_SYS_NAME_TAG	"Neo_%s.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_NEW	"Neo_%04u.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_MAXID	128				// Maximum number of install
 
@@ -631,6 +621,14 @@ typedef struct MS_DRIVER_VER
 	UINT Year, Month, Day;
 	UINT Major, Minor, Build;
 } MS_DRIVER_VER;
+
+// Suspend handler
+typedef struct MS_SUSPEND_HANDLER
+{
+	HWND hWnd;
+	THREAD *Thread;
+	volatile bool AboutToClose;
+} MS_SUSPEND_HANDLER;
 
 
 // Function prototype
@@ -1139,6 +1137,16 @@ void MsTest();
 bool MsSaveSystemInfo(wchar_t *dst_filename);
 bool MsCollectVpnInfo(BUF *bat, char *tmpdir, char *svc_name, wchar_t *config_name, wchar_t *logdir_name);
 
+MS_SUSPEND_HANDLER *MsNewSuspendHandler();
+void MsFreeSuspendHandler(MS_SUSPEND_HANDLER *h);
+
+void MsBeginVLanCard();
+void MsEndVLanCard();
+bool MsIsVLanCardShouldStop();
+void MsProcEnterSuspend();
+void MsProcLeaveSuspend();
+UINT64 MsGetSuspendModeBeginTick();
+
 // Inner functions
 #ifdef	MICROSOFT_C
 
@@ -1173,8 +1181,10 @@ HANDLE MsCreateUserToken();
 SID *MsGetSidFromAccountName(char *name);
 void MsFreeSid(SID *sid);
 bool CALLBACK MsEnumResourcesInternalProc(HMODULE hModule, const char *type, char *name, LONG_PTR lParam);
-
 void CALLBACK MsScmDispatcher(DWORD argc, LPTSTR *argv);
+LRESULT CALLBACK MsSuspendHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+void MsSuspendHandlerThreadProc(THREAD *thread, void *param);
+
 
 
 #endif	// MICROSOFT_C

@@ -1004,6 +1004,12 @@ void ShowWizard(HWND hWndParent, WIZARD *w, UINT start_id)
 		w->IsAreoStyle = false;
 	}
 
+	if (MsIsWindows10())
+	{
+		// Windows 10 Icon Bug: Disable Aero Style!
+		w->IsAreoStyle = false;
+	}
+
 	if (w->IsAreoStyle)
 	{
 		// Aero Wizard
@@ -2960,12 +2966,14 @@ void AdjustWindowAndControlSize(HWND hWnd, bool *need_resize, double *factor_x, 
 		*need_resize = false;
 		*factor_x = 1.0;
 		*factor_y = 1.0;
+		//Debug("// There is no need to adjust\n");
 		return;
 	}
 
 	// Calculate the adjustment amount
 	*factor_x = (double)dlgfont_x / (double)WINUI_DEFAULT_DIALOG_UNIT_X;
 	*factor_y = (double)dlgfont_y / (double)WINUI_DEFAULT_DIALOG_UNIT_Y;
+	//Debug("Factors: %f %f\n", *factor_x, *factor_y);
 
 	if (MsIsVista())
 	{
@@ -10042,6 +10050,15 @@ UINT DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, bool white_color
 	switch (msg)
 	{
 	case WM_INITDIALOG:
+		if (true)
+		{
+			RECT rect1;
+
+			SetRect(&rect1, 0, 0, 100, 100);
+			MapDialogRect(hWnd, &rect1);
+			Debug("%u %u %u %u\n", rect1.left, rect1.right, rect1.top, rect1.bottom);
+		}
+
 		param = (void *)lParam;
 		SetParam(hWnd, param);
 
