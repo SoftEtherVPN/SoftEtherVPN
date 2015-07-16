@@ -1653,7 +1653,7 @@ SM_FACTORY_DEFAULT_WARNING		VPN Server / Bridge の設定をリセットしま�
 SM_FACTORY_DEFAULT_PERFORMED	設定のリセット処理はサーバー上で開始されました。\r\n\r\nOk をクリックすると現在の VPN サーバー管理マネージャのセッションを終了します。\r\n終了した後に、VPN サーバー管理マネージャを再度起動して VPN Server に再接続してください。\r\n再接続すると、設定がリセットされた後の VPN Server が出現します。
 SM_AZURE_STATUS_CONNECTED		状態: クラウドに接続完了
 SM_AZURE_STATUS_NOT_CONNECTED	状態: クラウドに未接続
-SM_NO_BRIDGE_NICS				ローカルブリッジを作成することができる物理的な LAN カードが VPN サーバーのコンピュータに 1 枚も見つかりませんでした。\r\n\r\nローカルブリッジを作成するには、物理的な LAN カードを 1 枚以上コンピュータにインストールする必要があります。\r\n無線 LAN カード、3G アダプタ等は使用できません。\r\n通常のケーブル接続の Ethernet に対応した LAN カードをインストールしてください。\r\n\r\n最近インストールした LAN カードが表示されない場合は、一度コンピュータを再起動してください。\r\n\r\nローカルブリッジを使用できない場合は、代わりに「SecureNAT 機能」の仮想 NAT 機能の使用を検討してください。\r\n\r\nなお、何らかの理由で物理的な LAN カード以外の LAN カード (無線 LAN、仮想 LAN など) を使用したい場合は、設定ファイルの "LocalBridgeList" ディレクティブ内の "ShowAllInterfaces" を "true" にして VPN Server を再起動するとこれらのデバイスも表示されるようになります。(上級者向け、Windows のみ)
+SM_NO_BRIDGE_NICS				ローカルブリッジを作成することができる物理的な LAN カードが VPN サーバーのコンピュータに 1 枚も見つかりませんでした。\r\n\r\nローカルブリッジを作成するには、物理的な LAN カードを 1 枚以上コンピュータにインストールする必要があります。\r\n無線 LAN カード、3G アダプタ等は使用できません。\r\n通常のケーブル接続の Ethernet に対応した LAN カードをインストールしてください。\r\n\r\n最近インストールした LAN カードが表示されない場合は、一度コンピュータを再起動してください。\r\n\r\nローカルブリッジを使用できない場合は、代わりに「SecureNAT 機能」の仮想 NAT 機能の使用を検討してください。\r\n\r\nなお、何らかの理由で物理的な LAN カード以外の LAN カード (無線 LAN、仮想 LAN など) を使用したい場合は、設定ファイルの "LocalBridgeList" ディレクティブ内の "ShowAllInterfaces" を "true" にして VPN Server を再起動するとこれらのデバイスも表示されるようになります。(上級者向け、Windows のみ)\r\n\r\nWindows をアップグレードした後にこの問題が発生するようになった場合は、SoftEther VPN Server または SoftEther VPN Bridge を再インストールしてみてください。
 SM_CERT_MESSAGE					現在サーバーに設定されている SSL 自己署名ルート証明書は古い形式です。\r\n\r\nOpenVPN プロトコルを用いてこの VPN Server に接続しているクライアントが存在する場合、現在のサーバー証明書の使用を継続すると、OpenVPN Connect for Android で不具合が発生する可能性があります。\r\n\r\nOpenVPN Connect for Android を使用してこの VPN Server に VPN 接続を行っている場合は、サーバー証明書を再作成して更新することをお勧めします。\r\n\r\nサーバー証明書を再作成して更新しますか?
 SM_CERT_MESSAGE_CLI				--- ご注意 ---\r\n\r\n現在サーバーに設定されている SSL 自己署名ルート証明書は古い形式です。\r\n\r\n現在のサーバー証明書の使用を継続した場合、OpenVPN Connect for Android で不具合が発生する可能性があります。\r\n\r\nOpenVPN Connect for Android を使用してこの VPN Server に VPN 接続を行っている場合は、サーバー証明書を再作成して更新することをお勧めします。\r\n\r\nサーバー証明書を再作成して更新するには、VPN Server を最新版にアップデートしてから、"ServerCertRegenerate" コマンドを実行してください。
 SM_CERT_NEED_ROOT				指定された SSL 証明書は、証明機関 (CA) によって発行された証明書です。\r\n\r\nこの VPN Server に Microsoft SSTP または OpenVPN プロトコルで VPN 接続を行う場合は、ルート証明書および中間証明書 (存在する場合) を VPN Server にインストールする必要があります。\r\n\r\nVPN Server にルート証明書および中間証明書をインストールするためには、X.509 証明書のルート証明書および中間証明書ファイルを VPN Server がインストールされているディレクトリの中にある "chain_certs" サブディレクトリにコピーしてください。\r\n\r\nルート証明書および中間証明書ファイルの取得方法は、証明機関 (CA) が発行している Web サイトをお読みいただくか、証明機関 (CA) のサポートに問い合わせてください。
@@ -2377,7 +2377,7 @@ S_INFO					新しい仮想 LAN カードをシステムに追加します。\r\n
 STATIC1					仮想 LAN カードの名前(&N):
 IDOK					&OK
 IDCANCEL				キャンセル
-S_WIN8					現在の OS は Windows 8 です。仮想 LAN カード名には 'VPN'、または 'VPN2' から 'VPN127' までの名前を指定してください (合計 127 個作成可能)。
+S_WIN8					仮想 LAN カード名には 'VPN'、または 'VPN2' から 'VPN127' までの名前を指定してください (合計 127 個作成可能)。
 
 
 PREFIX					D_CM_TRUST

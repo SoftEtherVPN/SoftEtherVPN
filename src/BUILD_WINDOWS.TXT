@@ -9,6 +9,7 @@ You need to install the following software to build SoftEther VPN for Windows.
 
 - Microsoft Windows XP, Vista, 7, 8 or later.
 - Microsoft Visual Studio 2008 with the latest SP (SP1 9.0.30729.4462 QFE).
+  Make sure that you installed the x64 compiler and build tools.
 
 * Note:
   Visual Studio 2008 SP1 is required to build SoftEther VPN on Windows.

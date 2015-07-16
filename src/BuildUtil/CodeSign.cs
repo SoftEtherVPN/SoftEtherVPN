@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) 2012-2015 Daiyuu Nobori.
+// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2015 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -155,7 +155,7 @@ namespace BuildUtil
 		static object lockObj = new object();
 		
 		// Digital-sign the data on the memory
-		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, int cert_id)
+		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, int cert_id, int sha_mode)
 		{
 #if	!BU_OSS
 			int i;
@@ -176,10 +176,11 @@ namespace BuildUtil
 
 				try
 				{
-					out_filename = sign.ExecSign(Path.GetFileName(in_tmp_filename),
+					out_filename = sign.ExecSignEx(Path.GetFileName(in_tmp_filename),
 						kernelModeDriver,
 						comment,
-						cert_id);
+						cert_id,
+						sha_mode);
 					break;
 				}
 				catch (Exception ex)
@@ -267,7 +268,15 @@ namespace BuildUtil
 			Con.WriteLine("Signing for '{0}'...", Path.GetFileName(destFileName));
 			byte[] srcData = File.ReadAllBytes(srcFileName);
 
-			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, cert_id);
+			int sha_mode = 0;
+
+			if (srcFileName.EndsWith(".msi", StringComparison.InvariantCultureIgnoreCase))
+			{
+				sha_mode = 1;
+				// todo: Set 2 in future !!!
+			}
+
+			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, cert_id, sha_mode);
 
 			try
 			{

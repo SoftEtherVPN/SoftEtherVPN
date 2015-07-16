@@ -29,6 +29,24 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="ExecSignEx">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="src_filename" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="driver_mode" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="cert_id" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="sha_mode" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecSignExResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecSignExResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
     </s:schema>
   </wsdl:types>
   <wsdl:message name="HelloWorldSoapIn">
@@ -43,6 +61,12 @@
   <wsdl:message name="ExecSignSoapOut">
     <wsdl:part name="parameters" element="tns:ExecSignResponse" />
   </wsdl:message>
+  <wsdl:message name="ExecSignExSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecSignEx" />
+  </wsdl:message>
+  <wsdl:message name="ExecSignExSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecSignExResponse" />
+  </wsdl:message>
   <wsdl:portType name="SignSoap">
     <wsdl:operation name="HelloWorld">
       <wsdl:input message="tns:HelloWorldSoapIn" />
@@ -51,6 +75,10 @@
     <wsdl:operation name="ExecSign">
       <wsdl:input message="tns:ExecSignSoapIn" />
       <wsdl:output message="tns:ExecSignSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecSignEx">
+      <wsdl:input message="tns:ExecSignExSoapIn" />
+      <wsdl:output message="tns:ExecSignExSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="SignSoap" type="tns:SignSoap">
@@ -73,6 +101,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ExecSignEx">
+      <soap:operation soapAction="http://hvsigncode/ExecSignEx" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="SignSoap12" type="tns:SignSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -87,6 +124,15 @@
     </wsdl:operation>
     <wsdl:operation name="ExecSign">
       <soap12:operation soapAction="http://hvsigncode/ExecSign" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecSignEx">
+      <soap12:operation soapAction="http://hvsigncode/ExecSignEx" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
