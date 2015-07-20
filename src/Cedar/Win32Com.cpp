@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) 2012-2015 Daiyuu Nobori.
+// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2015 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -235,6 +235,134 @@ bool Win32UPnPAddPort(UINT outside_port, UINT inside_port, bool udp, char *local
 	SysFreeString(bstr_ip);
 	SysFreeString(bstr_description);
 	SysFreeString(bstr_protocol);
+
+	return ret;
+}
+
+// Install the NDIS protocol driver
+bool UninstallNdisProtocolDriver(wchar_t *id, UINT lock_timeout)
+{
+	bool ret = false;
+	HRESULT hr;
+	INetCfg *pNetCfg;
+	// Validate arguments
+	if (id == NULL)
+	{
+		return false;
+	}
+
+	hr = CoCreateInstance(CLSID_CNetCfg, NULL, CLSCTX_INPROC_SERVER, IID_INetCfg, (void **)&pNetCfg);
+
+	if (SUCCEEDED(hr))
+	{
+		INetCfgLock *pLock;
+
+		hr = pNetCfg->QueryInterface(IID_INetCfgLock, (PVOID*)&pLock);
+
+		if (SUCCEEDED(hr))
+		{
+			LPWSTR locked_by;
+
+			hr = pLock->AcquireWriteLock(lock_timeout, L"SoftEther VPN", &locked_by);
+
+			if (SUCCEEDED(hr))
+			{
+				hr = pNetCfg->Initialize(NULL);
+
+				if (SUCCEEDED(hr))
+				{
+					INetCfgComponent *pncc = NULL;
+
+					hr = pNetCfg->FindComponent(id, &pncc);
+
+					if (pncc == NULL || hr == S_FALSE)
+					{
+						hr = E_FAIL;
+					}
+
+					if (SUCCEEDED(hr))
+					{
+						INetCfgClass *pncClass;
+
+						hr = pNetCfg->QueryNetCfgClass(&GUID_DEVCLASS_NETTRANS, IID_INetCfgClass, (void **)&pncClass);
+						if (SUCCEEDED(hr))
+						{
+							INetCfgClassSetup *pncClassSetup;
+
+							hr = pncClass->QueryInterface(IID_INetCfgClassSetup, (void **)&pncClassSetup);
+							if (SUCCEEDED(hr))
+							{
+								OBO_TOKEN obo;
+								wchar_t *c = NULL;
+
+								Zero(&obo, sizeof(obo));
+
+								obo.Type = OBO_USER;
+
+								hr = pncClassSetup->DeInstall(pncc, &obo, &c);
+
+								if (SUCCEEDED(hr))
+								{
+									hr = pNetCfg->Apply();
+
+									if (SUCCEEDED(hr))
+									{
+										ret = true;
+									}
+									else
+									{
+										WHERE;
+										Debug("0x%x\n", hr);
+									}
+								}
+								else
+								{
+									WHERE;
+									Debug("0x%x\n", hr);
+								}
+
+								pncClassSetup->Release();
+							}
+							else
+							{
+								WHERE;
+							}
+
+							pncClass->Release();
+						}
+						else
+						{
+							WHERE;
+						}
+
+						pncc->Release();
+					}
+					else
+					{
+						WHERE;
+					}
+				}
+				else
+				{
+					WHERE;
+				}
+
+				pLock->ReleaseWriteLock();
+			}
+			else
+			{
+				WHERE;
+			}
+
+			pLock->Release();
+		}
+
+		pNetCfg->Release();
+	}
+	else
+	{
+		WHERE;
+	}
 
 	return ret;
 }
