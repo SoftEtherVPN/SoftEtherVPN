@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) 2012-2015 Daiyuu Nobori.
+// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2015 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -126,6 +126,89 @@
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
 
+// Delete garbage inf files
+void SuDeleteGarbageInfs()
+{
+	void *wow;
+
+	wow = MsDisableWow64FileSystemRedirection();
+
+	SuDeleteGarbageInfsInner();
+
+	MsRestoreWow64FileSystemRedirection(wow);
+}
+void SuDeleteGarbageInfsInner()
+{
+	char *base_key_name = "DRIVERS\\DriverDatabase\\DriverPackages";
+	TOKEN_LIST *keys;
+	HINSTANCE hSetupApiDll = NULL;
+	BOOL (WINAPI *_SetupUninstallOEMInfA)(PCSTR, DWORD, PVOID) = NULL;
+
+	if (MsIsWindows10() == false)
+	{
+		return;
+	}
+
+	hSetupApiDll = LoadLibraryA("setupapi.dll");
+	if (hSetupApiDll == NULL)
+	{
+		return;
+	}
+
+	_SetupUninstallOEMInfA =
+		(UINT (__stdcall *)(PCSTR,DWORD,PVOID))
+		GetProcAddress(hSetupApiDll, "SetupUninstallOEMInfA");
+
+	if (_SetupUninstallOEMInfA != NULL)
+	{
+		keys = MsRegEnumKeyEx2(REG_LOCAL_MACHINE, base_key_name, false, true);
+
+		if (keys != NULL)
+		{
+			char full_key[MAX_PATH];
+			UINT i;
+
+			for (i = 0;i < keys->NumTokens;i++)
+			{
+				char *oem_name, *inf_name, *provider;
+
+				Format(full_key, sizeof(full_key), "%s\\%s", base_key_name, keys->Token[i]);
+
+				oem_name = MsRegReadStrEx2(REG_LOCAL_MACHINE, full_key, "", false, true);
+				inf_name = MsRegReadStrEx2(REG_LOCAL_MACHINE, full_key, "InfName", false, true);
+				provider = MsRegReadStrEx2(REG_LOCAL_MACHINE, full_key, "Provider", false, true);
+
+				if (IsEmptyStr(oem_name) == false && IsEmptyStr(inf_name) == false)
+				{
+					if (StartWith(oem_name, "oem"))
+					{
+						if (StartWith(inf_name, "selow"))
+						{
+							if (InStr(provider, "softether"))
+							{
+								Debug("Delete OEM INF %s (%s): %u\n",
+									oem_name, inf_name,
+									_SetupUninstallOEMInfA(oem_name, 0x00000001, NULL));
+							}
+						}
+					}
+				}
+
+				Free(oem_name);
+				Free(inf_name);
+				Free(provider);
+			}
+
+			FreeToken(keys);
+		}
+	}
+
+	if (hSetupApiDll != NULL)
+	{
+		FreeLibrary(hSetupApiDll);
+	}
+}
+
 // Install the driver
 bool SuInstallDriver(bool force)
 {
@@ -181,7 +264,7 @@ bool SuInstallDriverInner(bool force)
 
 		path = MsRegReadStrEx2(REG_LOCAL_MACHINE, SL_REG_KEY_NAME, "ImagePath", false, true);
 
-		if (IsEmptyStr(path))
+		if (IsEmptyStr(path) || IsFileExists(path) == false || MsIsServiceInstalled(SL_PROTOCOL_NAME) == false)
 		{
 			current_sl_ver = 0;
 		}
@@ -224,6 +307,7 @@ bool SuInstallDriverInner(bool force)
 	UniFormat(dst_cat, sizeof(dst_cat), L"%s\\SeLow_%S_%S.cat", tmp_dir,
 		(MsIsWindows10() ? "Win10" : "Win8"),
 		cpu_type);
+
 	UniFormat(dst_inf, sizeof(dst_inf), L"%s\\SeLow_%S.inf", tmp_dir, cpu_type);
 
 	if (FileCopyW(src_sys, dst_sys) &&
@@ -233,6 +317,21 @@ bool SuInstallDriverInner(bool force)
 		NO_WARNING *nw;
 
 		nw = MsInitNoWarningEx(SL_USER_AUTO_PUSH_TIMER);
+
+		if (MsIsWindows10())
+		{
+			if (MsIsServiceInstalled(SL_PROTOCOL_NAME) == false && MsIsServiceRunning(SL_PROTOCOL_NAME) == false)
+			{
+				// On Windows 10, if there are no SwLow service installed, then uinstall the protocol driver first.
+				// TODO: currently do nothing. On some versions of Windows 10 beta builds it is necessary to do something...
+			}
+		}
+
+		if (MsIsWindows10())
+		{
+			// Delete garbage INFs
+			SuDeleteGarbageInfs();
+		}
 
 		// Call the installer
 		if (InstallNdisProtocolDriver(dst_inf, L"SeLow", SL_USER_INSTALL_LOCK_TIMEOUT) == false)
@@ -763,7 +862,7 @@ SU *SuInitEx(UINT wait_for_bind_complete_tick)
 	UINT read_size;
 	bool flag = false;
 	UINT64 giveup_tick = 0;
-	bool flag2 = false;
+	static bool flag2 = false; // flag2 must be global
 
 	if (SuIsSupportedOs(false) == false)
 	{
