@@ -1653,6 +1653,10 @@ bool ServerAccept(CONNECTION *c)
 			if (hub->Option != NULL)
 			{
 				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
+				if (hub->Option->UseHubNameAsRadiusNasId == true)
+				{
+					StrCpy(radius_login_opt.NasId, sizeof(radius_login_opt.NasId), hubname);
+				}
 			}
 
 			// Get the various flags

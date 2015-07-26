@@ -121,11 +121,13 @@
 
 // RADIUS attributes
 #define	RADIUS_ATTRIBUTE_VLAN_ID	81
+#define RADIUS_MAX_NAS_ID_LEN		253
 
 struct RADIUS_LOGIN_OPTION
 {
 	bool In_CheckVLanId;
 	UINT Out_VLanId;
+	char NasId[RADIUS_MAX_NAS_ID_LEN + 1];	// NAS-Identifier
 };
 
 // Function prototype

@@ -557,6 +557,7 @@ HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, t
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
 HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub.
+HUB_AO_UseHubNameAsRadiusNasId			If you set this option to non-zero value, then the NAS-Identidier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on Radius server whether access to the Virtual Hub should be granted or denied.
 
 
 # Concerning failed connection dialogs

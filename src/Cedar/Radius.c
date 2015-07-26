@@ -212,7 +212,16 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	{
 		// Generate a password packet
 		BUF *user_password = (is_mschap ? NULL : RadiusCreateUserPassword(encrypted_password->Buf, encrypted_password->Size));
-		BUF *nas_id = RadiusCreateNasId(CEDAR_SERVER_STR);
+		BUF *nas_id;
+
+		if (IsEmptyStr(opt->NasId) == true)
+		{
+			nas_id = RadiusCreateNasId(CEDAR_SERVER_STR);
+		}
+		else
+		{
+			nas_id = RadiusCreateNasId(opt->NasId);
+		}
 
 		if (is_mschap || user_password != NULL)
 		{
