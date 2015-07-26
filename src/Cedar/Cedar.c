@@ -235,18 +235,18 @@ bool IsSupportedWinVer(RPC_WINVER *v)
 		}
 	}
 
-#if	0
-	// Enable in future when supported
-	if ((v->VerMajor == 6 && v->VerMinor == 4) ||(v->VerMajor == 10 && v->VerMinor == 0))
+	if ((v->VerMajor == 6 && v->VerMinor == 4) || (v->VerMajor == 10 && v->VerMinor == 0))
 	{
-		// Windows 10, Server 10
-		if (v->ServicePack <= 0)
+		if (v->IsServer == false)
 		{
-			// SP0 only
-			return true;
+			// Windows 10 (not Windows Server 2016)
+			if (v->ServicePack <= 0)
+			{
+				// SP0 only
+				return true;
+			}
 		}
 	}
-#endif
 
 	return false;
 }
