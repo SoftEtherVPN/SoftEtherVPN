@@ -236,10 +236,10 @@ TCPOPT_NOT_ADMIN		TCP/IP 通信設定最適化ユーティリティは、管理�
 
 
 # Windows Vista / Windows 7 / Windows 8 用最適化関係
-VISTA_MMCSS_MSG			Windows Vista / Windows 7 / Windows 8 で VPN 通信を経由してマルチメディアファイル (ビデオやオーディオ、ストリーミングなど) を再生するための最適化をしますか?
-VISTA_MMCSS_MSG_2		すでに Windows Vista / Windows 7 / Windows 8 で VPN 通信を経由してマルチメディアファイル (ビデオやオーディオ、ストリーミングなど) を再生するための最適化の設定が行われています。\r\n最適化設定を削除して、元に戻しますか?
+VISTA_MMCSS_MSG			Windows Vista / Windows 7 / Windows 8 / Windows 10 で VPN 通信を経由してマルチメディアファイル (ビデオやオーディオ、ストリーミングなど) を再生するための最適化をしますか?
+VISTA_MMCSS_MSG_2		すでに Windows Vista / Windows 7 / Windows 8 / Windows 10 で VPN 通信を経由してマルチメディアファイル (ビデオやオーディオ、ストリーミングなど) を再生するための最適化の設定が行われています。\r\n最適化設定を削除して、元に戻しますか?
 VISTA_MMCSS_MSG_3		現在の環境では、最適化の機能は使用できません。
-VISTA_MMCSS_MSG_4		この機能は、Administrators 権限でプログラムを起動している際にのみ使用できます。\r\nWindows Vista / Windows 7 / Windows 8 の場合は、[管理者として実行] 機能を使用してプログラムを実行してください。
+VISTA_MMCSS_MSG_4		この機能は、Administrators 権限でプログラムを起動している際にのみ使用できます。\r\nWindows Vista / Windows 7 / Windows 8 / Windows 10 の場合は、[管理者として実行] 機能を使用してプログラムを実行してください。
 VISTA_MMCSS_MSG_5		最適化設定が完了しました。
 VISTA_MMCSS_MSG_6		最適化設定は削除されました。
 
@@ -3850,7 +3850,7 @@ S_TOOL					OpenVPN クライアント用サンプル設定ファイル自動作�
 S_TOOL2					本来、OpenVPN クライアントを使うためには設定ファイルを手動で記述する必要があり、これは難易度が高い作業です。しかし、以下のボタンをクリックするだけでこの VPN Server に接続することができる基本的な OpenVPN クライアント用の設定ファイルを自動的に生成することができます。
 B_CONFIG				OpenVPN クライアント用のサンプル設定ファイルを生成(&C)
 S_2						Microsoft SSTP VPN 互換サーバー機能
-S_3						Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能を搭載しています。\r\n\r\nWindows Vista / 7 / 8 / RT に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できます。
+S_3						Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能を搭載しています。\r\n\r\nWindows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できます。
 R_SSTP					&MS-SSTP VPN サーバー機能を有効にする
 S_SSTP					VPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。
 S_4						これらの互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。
@@ -4221,7 +4221,7 @@ CMD_SWITCH_SELECT		選択の切り替え(&I)
 # [表示] メニュー
 CMD_TOP_VIEW			表示(&V)
 CMD_STATUSBAR			ステータスバーの表示(&S)
-CMD_VISTASTYLE			Windows Vista / Windows 7 スタイル(&Y)
+CMD_VISTASTYLE			Windows Vista / 7 / 8 / 10 スタイル(&Y)
 CMD_SHOWPORT			ポート番号を接続設定一覧に表示(&P)
 CMD_TRAYICON			タスクトレイのアイコンの表示(&T)
 CMD_ICON				アイコン(&I)
@@ -4246,7 +4246,7 @@ CMD_PASSWORD			パスワードの設定(&P)...\tCtrl+P
 CMD_TRUST				信頼する証明機関の証明書の管理(&T)...\tCtrl+R
 CMD_NETIF				ネットワークデバイスの状態(&N)...
 CMD_TCPIP				TCP/IP 最適化ユーティリティ(&U)...
-CMD_MMCSS				Windows Vista / Windows 7 / Windows 8 のための最適化機能(&V)...
+CMD_MMCSS				Windows Vista / 7 / 8 / 10 のための最適化機能(&V)...
 CMD_TRAFFIC				通信スループット測定ツール(&R)...\tCtrl+Q
 CMD_CM_SETTING			動作モードの変更(&M)...
 CMD_LANGUAGE			表示言語の変更(&L)...
@@ -5697,7 +5697,7 @@ CMD_UserRadiusSet_Prompt_ALIAS	認証用エイリアス名 (オプション):
 
 # UserNTLMSet コマンド
 CMD_UserNTLMSet			ユーザーの認証方法を NT ドメイン認証に設定
-CMD_UserNTLMSet_Help	現在管理している仮想 HUB の、セキュリティアカウントデータベースに登録されているユーザーの認証方法を「NT ドメイン認証」に設定します。NT ドメイン認証に設定されているユーザー名でユーザーが仮想 HUB に接続した際に、ユーザー名とユーザーが入力したパスワードが Windows NT / 2000 / Server 2003 / Server 2008 / Server 2008 R2 / Server 2012 のドメインコントローラ、または Active Directory サーバーに送信され、認証サーバーがユーザー名とパスワードのチェックを行った後に認証が成功すると、そのユーザーの VPN 接続が許可されます。\nNT ドメイン認証を使用するには、VPN Server がそのドメインに接続されている Windows NT 4.0, Windows 2000, Windows XP, Windows Server 2003, Windows Vista, Windows Server 2008, Windows 7, Windows Server 2008 R2, Windows 8, Windows Server 2012 のいずれかのオペレーティングシステム上で動作している必要があります。詳しくは VPN Server の管理者にお問い合わせください。\n現在登録されているユーザーの一覧を取得するには、UserList コマンドを使用してください。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタ内でクラスタメンバサーバーとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_UserNTLMSet_Help	現在管理している仮想 HUB の、セキュリティアカウントデータベースに登録されているユーザーの認証方法を「NT ドメイン認証」に設定します。NT ドメイン認証に設定されているユーザー名でユーザーが仮想 HUB に接続した際に、ユーザー名とユーザーが入力したパスワードが Windows NT / 2000 / Server 2003 / Server 2008 / Server 2008 R2 / Server 2012 のドメインコントローラ、または Active Directory サーバーに送信され、認証サーバーがユーザー名とパスワードのチェックを行った後に認証が成功すると、そのユーザーの VPN 接続が許可されます。\nNT ドメイン認証を使用するには、VPN Server がそのドメインに接続されているオペレーティングシステム上で動作している必要があります。詳しくは VPN Server の管理者にお問い合わせください。\n現在登録されているユーザーの一覧を取得するには、UserList コマンドを使用してください。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタ内でクラスタメンバサーバーとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_UserNTLMSet_Args	UserNTLMSet [name] [/ALIAS:alias_name]
 CMD_UserNTLMSet_[name]	設定を変更するユーザー名を指定します。
 CMD_UserNTLMSet_ALIAS	このパラメータが設定されている場合、NT ドメインまたは Active Directory に対して送信されるユーザー名を、仮想 HUB 上のユーザー名とは別のユーザー名にすることが可能です。設定しない場合は、/ALIAS:none と指定してください (仮想 HUB 上のユーザー名が使用されます)。ユーザー名が "*" の場合は /ALIAS パラメータは無視されます。"*" ユーザーについての説明は、UserCreate /HELP と入力すると表示されます。
@@ -6232,7 +6232,7 @@ CMD_OpenVpnMakeConfig_ERROR			サンプル設定ファイルを "%s" ファイ�
 
 # SstpEnable コマンド
 CMD_SstpEnable			Microsoft SSTP VPN 互換サーバー機能を有効化 / 無効化
-CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_SstpEnable_Args		SstpEnable [yes|no]
 CMD_SstpEnable_[yes|no]	Microsoft SSTP VPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
 CMD_SstpEnable_Prompt_[yes|no]	SSTP VPN 互換サーバー機能を有効化 (yes / no): 
@@ -6247,7 +6247,7 @@ CMD_SstpGet_Args		SstpGet
 
 # ServerCertRegenerate コマンド
 CMD_ServerCertRegenerate	指定された CN (Common Name) を持つ自己署名証明書を新たに作成し VPN Server に登録
-CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n詳しくは SstpEnable コマンドのヘルプを参照してください。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
+CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT / 10 に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n詳しくは SstpEnable コマンドのヘルプを参照してください。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	新たに生成する自己署名証明書の Common Name (CN) の値を指定します。
 CMD_ServerCertRegenerate_Prompt_CN	Common Name (CN) の値: 

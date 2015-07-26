@@ -8450,7 +8450,7 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		return false;
 	}
 
-	// Regulation in Windows 8
+	// Regulation in Windows 8 / 10
 	if (MsIsInfCatalogRequired())
 	{
 		if (CiIsValidVLanRegulatedName(create->DeviceName) == false)

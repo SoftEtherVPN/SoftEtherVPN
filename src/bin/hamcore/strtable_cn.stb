@@ -236,10 +236,10 @@ TCPOPT_NOT_ADMIN			没有管理权限的用户不能使用 TCP 协议优化工�
 
 
 # Windows Vista / Windows 7 / Windows 8 优化
-VISTA_MMCSS_MSG				你想优化 Windows Vista / Windows 7 / Windows 8 用于使用 VPN 进行多媒体文件的播放吗? (如: 视频、音频和流媒体)
-VISTA_MMCSS_MSG_2			Windows Vista / Windows 7 / Windows 8 的 VPN 优化已经完成。\r\n你想进行远程优化配置吗?
+VISTA_MMCSS_MSG				你想优化 Windows Vista / Windows 7 / Windows 8 / Windows 10 用于使用 VPN 进行多媒体文件的播放吗? (如: 视频、音频和流媒体)
+VISTA_MMCSS_MSG_2			Windows Vista / Windows 7 / Windows 8 / Windows 10 的 VPN 优化已经完成。\r\n你想进行远程优化配置吗?
 VISTA_MMCSS_MSG_3			您不能在当前环境下进行优化。
-VISTA_MMCSS_MSG_4			您必须具有管理员权限才可使用此功能。\r\n请注意，在 Windows Vista / Windows 7 / Windows 8 中，您应该使用“以管理员身份运行”执行程序。
+VISTA_MMCSS_MSG_4			您必须具有管理员权限才可使用此功能。\r\n请注意，在 Windows Vista / Windows 7 / Windows 8 / Windows 10 中，您应该使用“以管理员身份运行”执行程序。
 VISTA_MMCSS_MSG_5			优化完成。
 VISTA_MMCSS_MSG_6			优化配置被删除。
 
@@ -3861,7 +3861,7 @@ S_TOOL					OpenVPN Client 的示例文件生成工具
 S_TOOL2					创建一个 OpenVPN Client 配置是一项艰难的工作。您可以使用此工具来生成一个合适的 OpenVPN Client 配置文件。生成的配置示例文件可马上应用。本来，OpenVPN Client 会要求客户手写一个很难的配置文件。这个工具就可以帮助您创建一个有用的配置样本。您所需要为 OpenVPN Client 生成的配置文件就是点击以下按钮。
 B_CONFIG				为 OpenVPN Client 生成配置样本文件(&C)
 S_2						Microsoft SSTP VPN 克隆服务器功能
-S_3						该 VPN Server 有微软公司的 Windows Server 2008 / 2012 内建的 MS-SSTP VPN Server 的克隆功能。\r\n在 Windows Vista / 7 / 8 / RT 中内建的 MS-SSTP 客户端能连接此 VPN Client。
+S_3						该 VPN Server 有微软公司的 Windows Server 2008 / 2012 内建的 MS-SSTP VPN Server 的克隆功能。\r\n在 Windows Vista / 7 / 8 / RT / 10 中内建的 MS-SSTP 客户端能连接此 VPN Client。
 R_SSTP					开启 &MS-SSTP VPN 克隆 Server 功能
 S_SSTP					VPN Server 端 SSL 证书的 CN (通用名)值必须与该客户端指定的主机名吻合，并且该证书必须在该客户端的可信列表中。详细内容请参考微软的文档。
 S_4						指定用户名连接到虚拟 HUB 的方式，和通过使用克隆服务器进行默认 HUB 的选择规则，与 IPsec 服务器功能是一样的。
@@ -4230,7 +4230,7 @@ CMD_SWITCH_SELECT			切换选择(&I)
 #“查看”菜单
 CMD_TOP_VIEW				查看(&V)
 CMD_STATUSBAR				显示状态栏(&S)
-CMD_VISTASTYLE				Windows Vista / Windows 7 / Windows 8 风格(&T)
+CMD_VISTASTYLE				Windows Vista / 7 / 8 / 10 风格(&T)
 CMD_SHOWPORT				在连接列表中显示端口(&P)
 CMD_TRAYICON				显示任务托盘上的图标(&T)
 CMD_ICON					图标(&I)
@@ -4255,7 +4255,7 @@ CMD_PASSWORD				设置密码(&P)...\tCtrl+P
 CMD_TRUST					管理信任的 CA 证书列表(&T)\tCtrl+R
 CMD_NETIF					网络设备状态(&N)...
 CMD_TCPIP					TCP 协议优化工具(&O)...
-CMD_MMCSS					Windows Vista / Windows 7 / Windows 8 的优化(&V)...
+CMD_MMCSS					Windows Vista / 7 / 8 / 10 的优化(&V)...
 CMD_TRAFFIC					网络通信速度测试工具(&R)...\tCtrl+Q
 CMD_CM_SETTING				切换运行模式(&M)...
 CMD_LANGUAGE				语言设置(&L)
@@ -6240,7 +6240,7 @@ CMD_OpenVpnMakeConfig_ERROR				本样本设置文件不能保存为 "%s"。该�
 
 # SstpEnable 命令
 CMD_SstpEnable						启用/禁用 Microsoft SSTP VPN 克隆服务器功能
-CMD_SstpEnable_Help					本 VPN Server 拥有植入在微软 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT 中的标准 MS-SSTP 用户端可以连接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 证书 CN 值必须要和指定给客户端的主机名吻合。并且，该证书必须在 SSTP VPN Client 的信任列表中。详情请参见微软相关文件。\n您可以用用 ServerCertRegenerate 命令来取代当前 VPN Server 的证书，形成一个新的，有 CN 值字段的自我认证证书。这样的话，您需要在 SSTP VPN Client 注册这样一个新的自我认证证书作为一个可信任根证书。如果您的确想做这件复杂的事，请考虑购买一个商业权威机构的 SSL 证书，如 VeriSign 或者 GlobalSign。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
+CMD_SstpEnable_Help					本 VPN Server 拥有植入在微软 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT / 10 中的标准 MS-SSTP 用户端可以连接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 证书 CN 值必须要和指定给客户端的主机名吻合。并且，该证书必须在 SSTP VPN Client 的信任列表中。详情请参见微软相关文件。\n您可以用用 ServerCertRegenerate 命令来取代当前 VPN Server 的证书，形成一个新的，有 CN 值字段的自我认证证书。这样的话，您需要在 SSTP VPN Client 注册这样一个新的自我认证证书作为一个可信任根证书。如果您的确想做这件复杂的事，请考虑购买一个商业权威机构的 SSL 证书，如 VeriSign 或者 GlobalSign。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
 CMD_SstpEnable_Args					SstpEnable [yes|no]
 CMD_SstpEnable_[yes|no]				指定 "yes"，启用Microsoft SSTP VPN 克隆服务器功能。指定 "no" 禁用该功能。
 CMD_SstpEnable_Prompt_[yes|no]		启用 SSTP VPN 克隆服务器功能(yes/no): 
