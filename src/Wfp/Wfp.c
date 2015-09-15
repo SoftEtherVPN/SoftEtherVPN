@@ -119,6 +119,8 @@
 #include "Wfp.h"
 
 static WFP_CTX *wfp = NULL;
+static bool g_is_win8 = false;
+static POOL_TYPE g_pool_type = NonPagedPool;
 
 // Dispatch function
 NTSTATUS DriverDispatch(DEVICE_OBJECT *device_object, IRP *irp)
@@ -780,10 +782,22 @@ NTSTATUS DriverEntry(DRIVER_OBJECT *driver_object, UNICODE_STRING *registry_path
 {
 	NTSTATUS ret;
 	FWPM_SESSION0 t;
+	ULONG os_ver1 = 0, os_ver2 = 0;
 
 	if (wfp != NULL)
 	{
 		return STATUS_UNSUCCESSFUL;
+	}
+
+	g_is_win8 = false;
+	g_pool_type = NonPagedPool;
+
+	PsGetVersion(&os_ver1, &os_ver2, NULL, NULL);
+
+	if ((os_ver1 == 6 && os_ver2 >= 2) || (os_ver1 >= 7))
+	{
+		g_is_win8 = true;
+		g_pool_type = 512;
 	}
 
 	wfp = ZeroMalloc(sizeof(WFP_CTX));
@@ -1049,7 +1063,7 @@ void *Malloc(UINT size)
 {
 	void *p;
 
-	p = ExAllocatePoolWithTag(NonPagedPool, size + sizeof(UINT), MEMPOOL_TAG);
+	p = ExAllocatePoolWithTag(g_pool_type, size + sizeof(UINT), MEMPOOL_TAG);
 	*((UINT *)p) = size;
 
 	return ((UCHAR *)p) + sizeof(UINT);
