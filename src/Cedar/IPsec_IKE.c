@@ -4709,11 +4709,11 @@ bool GetBestTransformSettingForIPsecSa(IKE_SERVER *ike, IKE_PACKET *pr, IPSEC_SA
 					if (transform_payload != NULL)
 					{
 						IKE_PACKET_TRANSFORM_PAYLOAD *transform = &transform_payload->Payload.Transform;
-						IPSEC_SA_TRANSFORM_SETTING set;
+						IPSEC_SA_TRANSFORM_SETTING *set = NULL;
 
-						if (TransformPayloadToTransformSettingForIPsecSa(ike, transform, &set, server_ip))
+						if (TransformPayloadToTransformSettingForIPsecSa(ike, transform, set, server_ip))
 						{
-							Copy(setting, &set, sizeof(IPSEC_SA_TRANSFORM_SETTING));
+							Copy(setting, set, sizeof(IPSEC_SA_TRANSFORM_SETTING));
 
 							setting->SpiServerToClient = READ_UINT(proposal->Spi->Buf);
 
@@ -4721,11 +4721,11 @@ bool GetBestTransformSettingForIPsecSa(IKE_SERVER *ike, IKE_PACKET *pr, IPSEC_SA
 						}
 						else
 						{
-							if (set.OnlyCapsuleModeIsInvalid)
+							if (set != NULL && set->OnlyCapsuleModeIsInvalid)
 							{
 								if (ocmii_flag == false)
 								{
-									Copy(setting, &set, sizeof(IPSEC_SA_TRANSFORM_SETTING));
+									Copy(setting, set, sizeof(IPSEC_SA_TRANSFORM_SETTING));
 									ocmii_flag = true;
 								}
 							}
