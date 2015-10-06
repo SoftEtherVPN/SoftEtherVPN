@@ -784,6 +784,7 @@ bool NmStatus(HWND hWnd, SM_SERVER *s, void *param)
 	LvInsertAdd(b, ICO_PROTOCOL_DHCP, NULL, 2, _UU("NM_STATUS_DHCP"), tmp);
 
 	LvInsertAdd(b, ICO_MACHINE, NULL, 2, _UU("SM_SNAT_IS_KERNEL"), t.IsKernelMode ? _UU("SEC_YES") : _UU("SEC_NO"));
+	LvInsertAdd(b, ICO_MACHINE, NULL, 2, _UU("SM_SNAT_IS_RAW"), t.IsRawIpMode ? _UU("SEC_YES") : _UU("SEC_NO"));
 
 	LvInsertEnd(b, hWnd, L_STATUS);
 

@@ -138,7 +138,7 @@
 #define	CEDAR_VER					419
 
 // Build Number
-#define	CEDAR_BUILD					9578
+#define	CEDAR_BUILD					9582
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc25"
+#define	BUILD_PLACE			"pc30"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		9
-#define	BUILD_DATE_D		15
+#define	BUILD_DATE_M		10
+#define	BUILD_DATE_D		6
 #define	BUILD_DATE_HO		14
-#define	BUILD_DATE_MI		39
-#define	BUILD_DATE_SE		35
+#define	BUILD_DATE_MI		56
+#define	BUILD_DATE_SE		30
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1259,6 +1259,7 @@ UINT CedarGetQueueBudgetConsuming(CEDAR *c);
 UINT CedarGetFifoBudgetConsuming(CEDAR *c);
 UINT CedarGetQueueBudgetBalance(CEDAR *c);
 UINT CedarGetFifoBudgetBalance(CEDAR *c);
+bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 
 

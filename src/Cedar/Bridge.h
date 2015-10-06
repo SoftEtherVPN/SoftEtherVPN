@@ -126,6 +126,9 @@
 
 #endif	// OS_WIN32
 
+// Constants
+#define	BRIDGE_SPECIAL_IPRAW_NAME		"ipv4_rawsocket_virtual_router"
+
 // Bridge
 struct BRIDGE
 {
@@ -171,6 +174,7 @@ bool DeleteLocalBridge(CEDAR *c, char *hubname, char *devicename);
 bool IsBridgeSupported();
 bool IsNeedWinPcap();
 UINT GetEthDeviceHash();
+bool IsRawIpBridgeSupported();
 
 #endif	// BRIDGE_H
 

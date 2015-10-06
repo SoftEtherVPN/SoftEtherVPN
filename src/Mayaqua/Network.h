@@ -313,6 +313,7 @@ struct SOCK
 	UINT Reverse_MyServerPort;		// Self port number when using the reverse socket
 	UCHAR Ssl_Init_Async_SendAlert[2];	// Initial state of SSL send_alert
 	bool AcceptOnlyTls;			// Accept only TLS (disable SSLv3)
+	bool RawIP_HeaderIncludeFlag;
 
 #ifdef	ENABLE_SSL_LOGGING
 	// SSL Logging (for debug)
@@ -371,6 +372,7 @@ struct CANCEL
 	void *hEvent;					// Pointer to a Win32 event handle
 #else	// OS_WIN32
 	int pipe_read, pipe_write;		// Pipe
+	int pipe_special_read2, pipe_special_read3;
 #endif	// OS_WIN32
 };
 
@@ -1323,6 +1325,8 @@ SOCK *NewUDP4(UINT port, IP *ip);
 SOCK *NewUDP6(UINT port, IP *ip);
 SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UINT num_retry);
 SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR rand_port_id);
+void ClearSockDfBit(SOCK *s);
+void SetRawSockHeaderIncludeOption(SOCK *s, bool enable);
 UINT GetNewAvailableUdpPortRand();
 UINT NewRandPortByMachineAndExePath(UINT start_port, UINT end_port, UINT additional_int);
 void DisableUDPChecksum(SOCK *s);
