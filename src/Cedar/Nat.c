@@ -596,7 +596,7 @@ UINT NtGetStatus(NAT *n, RPC_NAT_STATUS *t)
 
 			t->NumDhcpClients = LIST_NUM(v->DhcpLeaseList);
 
-			t->IsKernelMode = NnIsActive(v);
+			t->IsKernelMode = NnIsActiveEx(v, &t->IsRawIpMode);
 		}
 		UnlockVirtual(v);
 	}
@@ -1063,6 +1063,7 @@ void InRpcNatStatus(RPC_NAT_STATUS *t, PACK *p)
 	t->NumDnsSessions = PackGetInt(p, "NumDnsSessions");
 	t->NumDhcpClients = PackGetInt(p, "NumDhcpClients");
 	t->IsKernelMode = PackGetBool(p, "IsKernelMode");
+	t->IsRawIpMode = PackGetBool(p, "IsRawIpMode");
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
 }
 void OutRpcNatStatus(PACK *p, RPC_NAT_STATUS *t)
@@ -1080,6 +1081,7 @@ void OutRpcNatStatus(PACK *p, RPC_NAT_STATUS *t)
 	PackAddInt(p, "NumDnsSessions", t->NumDnsSessions);
 	PackAddInt(p, "NumDhcpClients", t->NumDhcpClients);
 	PackAddBool(p, "IsKernelMode", t->IsKernelMode);
+	PackAddBool(p, "IsRawIpMode", t->IsRawIpMode);
 }
 void FreeRpcNatStatus(RPC_NAT_STATUS *t)
 {

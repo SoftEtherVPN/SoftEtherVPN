@@ -213,6 +213,12 @@ struct ETH
 
 	SU *Su;						// SeLow handle
 	SU_ADAPTER *SuAdapter;		// SeLow adapter handle
+
+	// Unused
+	bool IsRawIpMode;			// RAW IP mode
+	UCHAR RawIpMyMacAddr[6];
+	UCHAR RawIpYourMacAddr[6];
+	IP MyPhysicalIPForce;
 };
 
 // Function prototype
@@ -221,7 +227,7 @@ void FreeEth();
 bool IsEthSupported();
 bool IsEthSupportedInner();
 TOKEN_LIST *GetEthList();
-TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden);
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip);
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr);
 ETH *OpenEthInternal(char *name, bool local, bool tapmode, char *tapaddr);
 void CloseEth(ETH *e);

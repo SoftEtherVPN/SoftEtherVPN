@@ -2874,6 +2874,7 @@ bool ParsePacketIPv4(PKT *p, UCHAR *buf, UINT size)
 	{
 		// Quit analysing since this is fragmented
 		p->TypeL4 = L4_FRAGMENT;
+
 		return true;
 	}
 

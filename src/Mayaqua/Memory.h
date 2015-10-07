@@ -236,6 +236,13 @@ struct HASH_LIST
 	LIST *AllList;
 };
 
+// PRAND
+struct PRAND
+{
+	UCHAR Key[20];
+	CRYPT *Rc4;
+};
+
 // Function prototype
 HASH_LIST *NewHashList(GET_HASH *get_hash_proc, COMPARE *compare_proc, UINT bits, bool make_list);
 void ReleaseHashList(HASH_LIST *h);
@@ -249,6 +256,11 @@ void LockHashList(HASH_LIST *h);
 void UnlockHashList(HASH_LIST *h);
 bool IsInHashListKey(HASH_LIST *h, UINT key);
 void *HashListKeyToPointer(HASH_LIST *h, UINT key);
+
+PRAND *NewPRand(void *key, UINT key_size);
+void FreePRand(PRAND *r);
+void PRand(PRAND *p, void *data, UINT size);
+UINT PRandInt(PRAND *p);
 
 LIST *NewCandidateList();
 void FreeCandidateList(LIST *o);
@@ -310,11 +322,13 @@ void FreeBuf(BUF *b);
 bool BufToFile(IO *o, BUF *b);
 BUF *FileToBuf(IO *o);
 UINT ReadBufInt(BUF *b);
+USHORT ReadBufShort(BUF *b);
 UINT64 ReadBufInt64(BUF *b);
 UCHAR ReadBufChar(BUF *b);
 bool WriteBufInt(BUF *b, UINT value);
 bool WriteBufInt64(BUF *b, UINT64 value);
 bool WriteBufChar(BUF *b, UCHAR uc);
+bool WriteBufShort(BUF *b, USHORT value);
 bool ReadBufStr(BUF *b, char *str, UINT size);
 bool WriteBufStr(BUF *b, char *str);
 void WriteBufLine(BUF *b, char *str);
@@ -332,10 +346,12 @@ BUF *CloneBuf(BUF *b);
 BUF *MemToBuf(void *data, UINT size);
 BUF *RandBuf(UINT size);
 BUF *ReadRemainBuf(BUF *b);
+UINT ReadBufRemainSize(BUF *b);
 bool CompareBuf(BUF *b1, BUF *b2);
 
 UINT PeekFifo(FIFO *f, void *p, UINT size);
 UINT ReadFifo(FIFO *f, void *p, UINT size);
+BUF *ReadFifoAll(FIFO *f);
 void ShrinkFifoMemory(FIFO *f);
 UCHAR *GetFifoPointer(FIFO *f);
 UCHAR *FifoPtr(FIFO *f);

@@ -556,6 +556,16 @@ BRIDGE *BrNewBridge(HUB *h, char *name, POLICY *p, bool local, bool monitor, boo
 	return b;
 }
 
+// Raw IP bridge is supported only on Linux
+bool IsRawIpBridgeSupported()
+{
+#ifdef	UNIX_LINUX
+	return true;
+#else	// UNIX_LINUX
+	return false;
+#endif	// UNIX_LINUX
+}
+
 
 // Developed by SoftEther VPN Project at University of Tsukuba in Japan.
 // Department of Computer Science has dozens of overly-enthusiastic geeks.

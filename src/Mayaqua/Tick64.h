@@ -115,7 +115,7 @@
 #define	TICK64_H
 
 // Maximum number of correction list entries
-#define	MAX_ADJUST_TIME				5000
+#define	MAX_ADJUST_TIME				1024
 
 // Correction list entry
 struct ADJUST_TIME
