@@ -1,7 +1,8 @@
 %define majorversion 4
-%define minorversion 18
-%define buildversion 9570
-%define dateversion 2015.07.26
+%define minorversion 19
+%define buildversion 9582
+%define dateversion 2015.10.06
+%define buildrelease beta
 
 Name:           softethervpn
 Version:        %{majorversion}.%{minorversion}.%{buildversion}
@@ -11,7 +12,7 @@ Summary:        An Open-Source Free Cross-platform Multi-protocol VPN Program
 Group:          Applications/Internet
 License:        GPLv2
 URL:            http://www.softether.org/
-Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-rtm-%{dateversion}-tree/Source%20Code/softether-src-v%{majorversion}.%{minorversion}-%{buildversion}-rtm.tar.gz
+Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}-%{dateversion}-tree/Source%20Code/softether-src-v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}.tar.gz
 
 BuildRequires:  ncurses-devel
 BuildRequires:	openssl-devel
@@ -86,6 +87,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9582-1
+- Update upstream to 4.19.9582-beta
+
 * Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9577-1
 - Update upstream to 4.19.9577
 
