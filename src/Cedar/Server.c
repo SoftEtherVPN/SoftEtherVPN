@@ -4098,11 +4098,13 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	}
 
 	o->DisableKernelModeSecureNAT = CfgGetBool(f, "DisableKernelModeSecureNAT");
+	o->DisableIpRawModeSecureNAT = CfgGetBool(f, "DisableIpRawModeSecureNAT");
 	o->DisableUserModeSecureNAT = CfgGetBool(f, "DisableUserModeSecureNAT");
 	o->DisableCheckMacOnLocalBridge = CfgGetBool(f, "DisableCheckMacOnLocalBridge");
 	o->DisableCorrectIpOffloadChecksum = CfgGetBool(f, "DisableCorrectIpOffloadChecksum");
 	o->SuppressClientUpdateNotification = CfgGetBool(f, "SuppressClientUpdateNotification");
 	o->AssignVLanIdByRadiusAttribute = CfgGetBool(f, "AssignVLanIdByRadiusAttribute");
+	o->DenyAllRadiusLoginWithNoVlanAssign = CfgGetBool(f, "DenyAllRadiusLoginWithNoVlanAssign");
 	o->SecureNAT_RandomizeAssignIp = CfgGetBool(f, "SecureNAT_RandomizeAssignIp");
 	o->DetectDormantSessionInterval = CfgGetInt(f, "DetectDormantSessionInterval");
 	o->NoPhysicalIPOnPacketLog = CfgGetBool(f, "NoPhysicalIPOnPacketLog");
@@ -4184,6 +4186,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
 	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	CfgAddBool(f, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
+	CfgAddBool(f, "DenyAllRadiusLoginWithNoVlanAssign", o->DenyAllRadiusLoginWithNoVlanAssign);
 	CfgAddBool(f, "SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp);
 	CfgAddBool(f, "NoPhysicalIPOnPacketLog", o->NoPhysicalIPOnPacketLog);
 	CfgAddInt(f, "DetectDormantSessionInterval", o->DetectDormantSessionInterval);
@@ -4203,6 +4206,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddInt(f, "SecureNAT_MaxIcmpSessionsPerIp", o->SecureNAT_MaxIcmpSessionsPerIp);
 	CfgAddInt(f, "AccessListIncludeFileCacheLifetime", o->AccessListIncludeFileCacheLifetime);
 	CfgAddBool(f, "DisableKernelModeSecureNAT", o->DisableKernelModeSecureNAT);
+	CfgAddBool(f, "DisableIpRawModeSecureNAT", o->DisableIpRawModeSecureNAT);
 	CfgAddBool(f, "DisableUserModeSecureNAT", o->DisableUserModeSecureNAT);
 	CfgAddBool(f, "DisableCheckMacOnLocalBridge", o->DisableCheckMacOnLocalBridge);
 	CfgAddBool(f, "DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum);
@@ -5009,6 +5013,9 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 		CfgAddInt(f, "RadiusServerPort", h->RadiusServerPort);
 		CfgAddInt(f, "RadiusRetryInterval", h->RadiusRetryInterval);
 		CfgAddStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter);
+
+		CfgAddBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap", h->RadiusConvertAllMsChapv2AuthRequestToEap);
+		CfgAddBool(f, "RadiusUsePeapInsteadOfEap", h->RadiusUsePeapInsteadOfEap);
 	}
 	Unlock(h->RadiusOptionLock);
 
@@ -5174,6 +5181,9 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 			interval = CfgGetInt(f, "RadiusRetryInterval");
 
 			CfgGetStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter, sizeof(h->RadiusSuffixFilter));
+
+			h->RadiusConvertAllMsChapv2AuthRequestToEap = CfgGetBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap");
+			h->RadiusUsePeapInsteadOfEap = CfgGetBool(f, "RadiusUsePeapInsteadOfEap");
 
 			if (interval == 0)
 			{
@@ -7490,6 +7500,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
 	o.SuppressClientUpdateNotification = PackGetBool(p, "SuppressClientUpdateNotification");
 	o.AssignVLanIdByRadiusAttribute = PackGetBool(p, "AssignVLanIdByRadiusAttribute");
+	o.DenyAllRadiusLoginWithNoVlanAssign = PackGetBool(p, "DenyAllRadiusLoginWithNoVlanAssign");
 	o.SecureNAT_RandomizeAssignIp = PackGetBool(p, "SecureNAT_RandomizeAssignIp");
 	o.DetectDormantSessionInterval = PackGetInt(p, "DetectDormantSessionInterval");
 	o.VlanTypeId = PackGetInt(p, "VlanTypeId");
@@ -7531,6 +7542,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 		o.AccessListIncludeFileCacheLifetime = ACCESS_LIST_INCLUDE_FILE_CACHE_LIFETIME;
 	}
 	o.DisableKernelModeSecureNAT = PackGetBool(p, "DisableKernelModeSecureNAT");
+	o.DisableIpRawModeSecureNAT = PackGetBool(p, "DisableIpRawModeSecureNAT");
 	o.DisableUserModeSecureNAT = PackGetBool(p, "DisableUserModeSecureNAT");
 	o.DisableCheckMacOnLocalBridge = PackGetBool(p, "DisableCheckMacOnLocalBridge");
 	o.DisableCorrectIpOffloadChecksum = PackGetBool(p, "DisableCorrectIpOffloadChecksum");
@@ -9335,6 +9347,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "DropArpInPrivacyFilterMode", h->Option->DropArpInPrivacyFilterMode);
 	PackAddBool(p, "SuppressClientUpdateNotification", h->Option->SuppressClientUpdateNotification);
 	PackAddBool(p, "AssignVLanIdByRadiusAttribute", h->Option->AssignVLanIdByRadiusAttribute);
+	PackAddBool(p, "DenyAllRadiusLoginWithNoVlanAssign", h->Option->DenyAllRadiusLoginWithNoVlanAssign);
 	PackAddInt(p, "ClientMinimumRequiredBuild", h->Option->ClientMinimumRequiredBuild);
 	PackAddBool(p, "SecureNAT_RandomizeAssignIp", h->Option->SecureNAT_RandomizeAssignIp);
 	PackAddBool(p, "NoPhysicalIPOnPacketLog", h->Option->NoPhysicalIPOnPacketLog);
@@ -9372,6 +9385,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddInt(p, "SecureNAT_MaxIcmpSessionsPerIp", h->Option->SecureNAT_MaxIcmpSessionsPerIp);
 	PackAddInt(p, "AccessListIncludeFileCacheLifetime", h->Option->AccessListIncludeFileCacheLifetime);
 	PackAddBool(p, "DisableKernelModeSecureNAT", h->Option->DisableKernelModeSecureNAT);
+	PackAddBool(p, "DisableIpRawModeSecureNAT", h->Option->DisableIpRawModeSecureNAT);
 	PackAddBool(p, "DisableUserModeSecureNAT", h->Option->DisableUserModeSecureNAT);
 	PackAddBool(p, "DisableCheckMacOnLocalBridge", h->Option->DisableCheckMacOnLocalBridge);
 	PackAddBool(p, "DisableCorrectIpOffloadChecksum", h->Option->DisableCorrectIpOffloadChecksum);

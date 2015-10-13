@@ -18309,6 +18309,7 @@ UINT PsSecureNatStatusGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("NM_STATUS_DHCP"), tmp);
 
 		CtInsert(ct, _UU("SM_SNAT_IS_KERNEL"), t.IsKernelMode ? _UU("SEC_YES") : _UU("SEC_NO"));
+		CtInsert(ct, _UU("SM_SNAT_IS_RAW"), t.IsRawIpMode ? _UU("SEC_YES") : _UU("SEC_NO"));
 
 		CtFree(ct, c);
 	}

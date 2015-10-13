@@ -134,6 +134,70 @@
 
 static UINT fifo_current_realloc_mem_size = FIFO_REALLOC_MEM_SIZE;
 
+// New PRand
+PRAND *NewPRand(void *key, UINT key_size)
+{
+	PRAND *r;
+	UCHAR dummy[256];
+	if (key == NULL || key_size == 0)
+	{
+		key = "DUMMY";
+		key_size = 5;
+	}
+
+	r = ZeroMalloc(sizeof(PRAND));
+
+	HashSha1(r->Key, key, key_size);
+
+	r->Rc4 = NewCrypt(key, key_size);
+
+	Zero(dummy, sizeof(dummy));
+
+	Encrypt(r->Rc4, dummy, dummy, 256);
+
+	return r;
+}
+
+// Free PRand
+void FreePRand(PRAND *r)
+{
+	if (r == NULL)
+	{
+		return;
+	}
+
+	FreeCrypt(r->Rc4);
+
+	Free(r);
+}
+
+// Generate PRand
+void PRand(PRAND *p, void *data, UINT size)
+{
+	if (p == NULL)
+	{
+		return;
+	}
+
+	Zero(data, size);
+
+	Encrypt(p->Rc4, data, data, size);
+}
+
+// Generate UINT PRand
+UINT PRandInt(PRAND *p)
+{
+	UINT r;
+	if (p == NULL)
+	{
+		return 0;
+	}
+
+	PRand(p, &r, sizeof(UINT));
+
+	return r;
+}
+
 // Check whether the specified key item is in the hash list
 bool IsInHashListKey(HASH_LIST *h, UINT key)
 {
@@ -2368,6 +2432,28 @@ UINT PeekFifo(FIFO *f, void *p, UINT size)
 	return read_size;
 }
 
+// Read all data from FIFO
+BUF *ReadFifoAll(FIFO *f)
+{
+	BUF *buf;
+	UCHAR *tmp;
+	UINT size;
+	if (f == NULL)
+	{
+		return NewBuf();
+	}
+
+	size = FifoSize(f);
+	tmp = Malloc(size);
+	ReadFifo(f, tmp, size);
+
+	buf = MemToBuf(tmp, size);
+
+	Free(tmp);
+
+	return buf;
+}
+
 // Read from the FIFO
 UINT ReadFifo(FIFO *f, void *p, UINT size)
 {
@@ -3128,6 +3214,21 @@ bool WriteBufInt(BUF *b, UINT value)
 	return true;
 }
 
+// Write a short integer in the the buffer
+bool WriteBufShort(BUF *b, USHORT value)
+{
+	// Validate arguments
+	if (b == NULL)
+	{
+		return false;
+	}
+
+	value = Endian16(value);
+
+	WriteBuf(b, &value, sizeof(USHORT));
+	return true;
+}
+
 // Write a UCHAR to the buffer
 bool WriteBufChar(BUF *b, UCHAR uc)
 {
@@ -3192,6 +3293,23 @@ UINT ReadBufInt(BUF *b)
 		return 0;
 	}
 	return Endian32(value);
+}
+
+// Read a short integer from the buffer
+USHORT ReadBufShort(BUF *b)
+{
+	USHORT value;
+	// Validate arguments
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	if (ReadBuf(b, &value, sizeof(USHORT)) != sizeof(USHORT))
+	{
+		return 0;
+	}
+	return Endian16(value);
 }
 
 // Write the buffer to a buffer
@@ -3457,6 +3575,23 @@ BUF *ReadRemainBuf(BUF *b)
 	size = b->Size - b->Current;
 
 	return ReadBufFromBuf(b, size);
+}
+
+// Get the length of the rest
+UINT ReadBufRemainSize(BUF *b)
+{
+	// Validate arguments
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	if (b->Size < b->Current)
+	{
+		return 0;
+	}
+
+	return b->Size - b->Current;
 }
 
 // Clone the buffer

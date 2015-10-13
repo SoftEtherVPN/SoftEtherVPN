@@ -168,6 +168,7 @@ struct RPC_NAT_STATUS
 	UINT NumDnsSessions;						// Number of DNS sessions
 	UINT NumDhcpClients;						// Number of DHCP clients
 	bool IsKernelMode;							// Whether kernel mode
+	bool IsRawIpMode;							// Whether raw IP mode
 };
 
 // RPC_NAT_INFO *

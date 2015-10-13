@@ -1324,6 +1324,7 @@ bool ServerAccept(CONNECTION *c)
 	char *error_detail = NULL;
 	char *error_detail_2 = NULL;
 	char ctoken_hash_str[64];
+	EAP_CLIENT *release_me_eap_client = NULL;
 
 	// Validate arguments
 	if (c == NULL)
@@ -1653,6 +1654,7 @@ bool ServerAccept(CONNECTION *c)
 			if (hub->Option != NULL)
 			{
 				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
+				radius_login_opt.In_DenyNoVlanId = hub->Option->DenyAllRadiusLoginWithNoVlanAssign;
 				if (hub->Option->UseHubNameAsRadiusNasId == true)
 				{
 					StrCpy(radius_login_opt.NasId, sizeof(radius_login_opt.NasId), hubname);
@@ -1678,6 +1680,14 @@ bool ServerAccept(CONNECTION *c)
 			if (c->IsInProc)
 			{
 				char tmp[MAX_SIZE];
+				UINT64 ptr;
+
+				ptr = PackGetInt64(p, "release_me_eap_client");
+				if (ptr != 0)
+				{
+					release_me_eap_client = (EAP_CLIENT *)ptr;
+				}
+
 				PackGetStr(p, "inproc_postfix", c->InProcPrefix, sizeof(c->InProcPrefix));
 				Zero(tmp, sizeof(tmp));
 				PackGetStr(p, "inproc_cryptname", tmp, sizeof(tmp));
@@ -2207,9 +2217,25 @@ bool ServerAccept(CONNECTION *c)
 			FreePack(p);
 
 			// Check the assigned VLAN ID
-			if (radius_login_opt.Out_VLanId != 0)
+			if (radius_login_opt.Out_IsRadiusLogin)
 			{
-				assigned_vlan_id = radius_login_opt.Out_VLanId;
+				if (radius_login_opt.In_CheckVLanId)
+				{
+					if (radius_login_opt.Out_VLanId != 0)
+					{
+						assigned_vlan_id = radius_login_opt.Out_VLanId;
+					}
+
+					if (radius_login_opt.In_DenyNoVlanId && assigned_vlan_id == 0 || assigned_vlan_id >= 4096)
+					{
+						// Deny this session
+						Unlock(hub->lock);
+						ReleaseHub(hub);
+						c->Err = ERR_ACCESS_DENIED;
+						error_detail = "In_DenyNoVlanId";
+						goto CLEANUP;
+					}
+				}
 			}
 
 			if (StrCmpi(username, ADMINISTRATOR_USERNAME) != 0)
@@ -3810,6 +3836,11 @@ CLEANUP:
 	SleepThread(25);
 
 	SLog(c->Cedar, "LS_CONNECTION_ERROR", c->Name, GetUniErrorStr(c->Err), c->Err);
+
+	if (release_me_eap_client != NULL)
+	{
+		ReleaseEapClient(release_me_eap_client);
+	}
 
 	return ret;
 }

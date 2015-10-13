@@ -5842,6 +5842,11 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_SINGLE_DH_USE);
 		}
 
+		if (server_mode == false)
+		{
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+		}
+
 		ssl = SSL_new(ssl_ctx);
 	}
 	Unlock(openssl_lock);
@@ -8907,10 +8912,36 @@ void UnixSelect(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2)
 	if (c1 != NULL)
 	{
 		reads[num_read++] = p1 = c1->pipe_read;
+
+		if (c1->SpecialFlag)
+		{
+			if (c1->pipe_special_read2 != -1 && c1->pipe_special_read2 != 0)
+			{
+				reads[num_read++] = c1->pipe_special_read2;
+			}
+
+			if (c1->pipe_special_read3 != -1 && c1->pipe_special_read3 != 0)
+			{
+				reads[num_read++] = c1->pipe_special_read3;
+			}
+		}
 	}
 	if (c2 != NULL)
 	{
 		reads[num_read++] = p2 = c2->pipe_read;
+
+		if (c2->SpecialFlag)
+		{
+			if (c2->pipe_special_read2 != -1 && c2->pipe_special_read2 != 0)
+			{
+				reads[num_read++] = c2->pipe_special_read2;
+			}
+
+			if (c2->pipe_special_read3 != -1 && c2->pipe_special_read3 != 0)
+			{
+				reads[num_read++] = c2->pipe_special_read3;
+			}
+		}
 	}
 
 	// Call the select
@@ -8990,6 +9021,8 @@ CANCEL *UnixNewCancel()
 	c->SpecialFlag = false;
 
 	UnixNewPipe(&c->pipe_read, &c->pipe_write);
+
+	c->pipe_special_read2 = c->pipe_special_read3 = -1;
 
 	return c;
 }
@@ -12305,6 +12338,36 @@ SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR ra
 	Free(product_id);
 
 	return NewUDPEx2Rand(ipv6, ip, hash, sizeof(hash), num_retry);
+}
+
+// Set the DF bit of the socket
+void ClearSockDfBit(SOCK *s)
+{
+#ifdef	IP_PMTUDISC_DONT
+#ifdef	IP_MTU_DISCOVER
+	UINT value = IP_PMTUDISC_DONT;
+	if (s == NULL)
+	{
+		return;
+	}
+
+	setsockopt(s->socket, IPPROTO_IP, IP_MTU_DISCOVER, (char *)&value, sizeof(value));
+#endif	// IP_MTU_DISCOVER
+#endif	// IP_PMTUDISC_DONT
+}
+
+// Set the header-include option
+void SetRawSockHeaderIncludeOption(SOCK *s, bool enable)
+{
+	UINT value = BOOL_TO_INT(enable);
+	if (s == NULL || s->IsRawSocket == false)
+	{
+		return;
+	}
+
+	setsockopt(s->socket, IPPROTO_IP, IP_HDRINCL, (char *)&value, sizeof(value));
+
+	s->RawIP_HeaderIncludeFlag = enable;
 }
 
 // Create and initialize the UDP socket

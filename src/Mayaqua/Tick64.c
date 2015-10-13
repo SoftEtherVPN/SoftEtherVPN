@@ -158,13 +158,14 @@ UINT64 Tick64ToTime64(UINT64 tick)
 	}
 	LockList(tk64->AdjustTime);
 	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(tk64->AdjustTime);i++)
+		INT i;
+		for (i = ((INT)LIST_NUM(tk64->AdjustTime) - 1); i >= 0; i--)
 		{
 			ADJUST_TIME *t = LIST_DATA(tk64->AdjustTime, i);
 			if (t->Tick <= tick)
 			{
 				ret = t->Time + (tick - t->Tick);
+				break;
 			}
 		}
 	}

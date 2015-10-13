@@ -162,6 +162,19 @@ struct ETH
 
 	VLAN *Tap;					// tap
 	bool Linux_IsAuxDataSupported;	// Is PACKET_AUXDATA supported
+
+	bool IsRawIpMode;			// RAW IP mode
+	SOCK *RawTcp, *RawUdp, *RawIcmp;	// RAW sockets
+	bool RawIp_HasError;
+	UCHAR RawIpMyMacAddr[6];
+	UCHAR RawIpYourMacAddr[6];
+	IP MyIP;
+	IP YourIP;
+	QUEUE *RawIpSendQueue;
+	IP MyPhysicalIP;
+	IP MyPhysicalIPForce;
+	UCHAR *RawIP_TmpBuffer;
+	UINT RawIP_TmpBufferSize;
 };
 
 #if defined( BRIDGE_BPF ) || defined( BRIDGE_PCAP )
@@ -180,7 +193,8 @@ bool IsEthSupportedLinux();
 bool IsEthSupportedSolaris();
 bool IsEthSupportedPcap();
 TOKEN_LIST *GetEthList();
-TOKEN_LIST *GetEthListLinux();
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip);
+TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip);
 TOKEN_LIST *GetEthListSolaris();
 TOKEN_LIST *GetEthListPcap();
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr);
@@ -202,6 +216,14 @@ bool EthSetMtu(ETH *e, UINT mtu);
 bool EthIsChangeMtuSupported(ETH *e);
 bool EthGetInterfaceDescriptionUnix(char *name, char *str, UINT size);
 bool EthIsInterfaceDescriptionSupportedUnix();
+
+ETH *OpenEthLinuxIpRaw();
+void CloseEthLinuxIpRaw(ETH *e);
+UINT EthGetPacketLinuxIpRaw(ETH *e, void **data);
+UINT EthGetPacketLinuxIpRawForSock(ETH *e, void **data, SOCK *s, UINT proto);
+void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size);
+bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p);
+void EthSendIpPacketInnerIpRaw(ETH *e, void *data, UINT size, USHORT protocol);
 
 #ifdef	UNIX_SOLARIS
 // Function prototype for Solaris

@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\wnet\stub512.com"
+				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\wnet\stub512.com /ALIGN:4096"
 				AdditionalDependencies="wdm.lib ndis.lib wdmsec.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\Neo_x86.sys"
 				LinkIncremental="1"
@@ -182,7 +182,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\wnet\stub512.com"
+				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\wnet\stub512.com /ALIGN:4096"
 				AdditionalDependencies="wdm.lib ndis.lib wdmsec.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\Neo_x64.sys"
 				LinkIncremental="1"

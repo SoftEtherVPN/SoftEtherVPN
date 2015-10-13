@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB"
+				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /ALIGN:4096"
 				AdditionalDependencies="ntoskrnl.lib hal.lib wmilib.lib ndis.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\See_x86.sys"
 				LinkIncremental="1"
@@ -179,7 +179,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB"
+				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /ALIGN:4096"
 				AdditionalDependencies="ntoskrnl.lib hal.lib wmilib.lib ndis.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\See_x64.sys"
 				LinkIncremental="1"

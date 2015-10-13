@@ -3,14 +3,14 @@
 ; Copyright (c) SoftEther Corporation. All Rights Reserved.
 ; http://www.softether.co.jp/
 ; 
-; BUILD 9558
+; BUILD 9575
 
 [Version]
 Signature					= "$Windows NT$"
 Class						= Net
 ClassGUID					= {4D36E972-E325-11CE-BFC1-08002BE10318}
 Provider					= %CompanyName%
-DriverVer					= 05/29/2015, 4.16.0.9558
+DriverVer					= 09/09/2015, 4.19.0.9575
 CatalogFile.NT				= inf_VPN40.cat
 
 [Manufacturer]
@@ -110,5 +110,5 @@ On							= "On"
 Off							= "Off"
 
 
-; Auto Generated 20150530_023420.764
+; Auto Generated 20150910_193642.943
 
