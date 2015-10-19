@@ -337,7 +337,6 @@ NEO_EVENT *NeoCreateWin9xEvent(DWORD h);
 void NeoFreeEvent(NEO_EVENT *event);
 void NeoSet(NEO_EVENT *event);
 void NeoReset(NEO_EVENT *event);
-BOOL NeoIsKernelAddress(void *addr);
 
 #endif	// NEO_DEVICE_DRIVER
 

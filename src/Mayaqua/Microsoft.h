@@ -495,6 +495,8 @@ typedef struct NT_API
 	BOOL (WINAPI *AddAccessAllowedAceEx)(PACL, DWORD, DWORD, DWORD, PSID);
 	HRESULT (WINAPI *DwmIsCompositionEnabled)(BOOL *);
 	BOOL (WINAPI *GetComputerNameExW)(COMPUTER_NAME_FORMAT, LPWSTR, LPDWORD);
+	LONG (WINAPI *RegLoadKeyW)(HKEY, LPCWSTR, LPCWSTR);
+	LONG (WINAPI *RegUnLoadKeyW)(HKEY, LPCWSTR);
 } NT_API;
 
 typedef struct MS_EVENTLOG
@@ -724,6 +726,9 @@ bool MsRegDeleteKeyEx2(UINT root, char *keyname, bool force32bit, bool force64bi
 bool MsRegDeleteValue(UINT root, char *keyname, char *valuename);
 bool MsRegDeleteValueEx(UINT root, char *keyname, char *valuename, bool force32bit);
 bool MsRegDeleteValueEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit);
+
+bool MsRegLoadHive(UINT root, wchar_t *keyname, wchar_t *filename);
+bool MsRegUnloadHive(UINT root, wchar_t *keyname);
 
 bool MsIsNt();
 bool MsIsAdmin();
