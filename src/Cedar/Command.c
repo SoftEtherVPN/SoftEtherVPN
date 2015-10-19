@@ -2392,10 +2392,12 @@ UINT PtTrafficServer(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	LIST *o;
 	UINT ret = ERR_NO_ERROR;
 	UINT port;
+	bool nohup;
 	TTS *tts;
 	PARAM args[] =
 	{
 		{"[port]", NULL, NULL, NULL, NULL},
+		{"NOHUP", NULL, NULL, NULL, NULL},
 	};
 
 	// Get the parameter list
@@ -2411,7 +2413,17 @@ UINT PtTrafficServer(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		port = TRAFFIC_DEFAULT_PORT;
 	}
 
+	nohup = GetParamYes(o, "nohup");
+
 	tts = NewTts(port, c, PtTrafficPrintProc);
+
+	if (nohup)
+	{
+		while (true)
+		{
+			SleepThread(10000);
+		}
+	}
 
 	c->Write(c, _UU("TTS_ENTER_TO_EXIT"));
 
@@ -14974,6 +14986,7 @@ UINT PsAccessAddEx(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"DELAY", CmdPrompt, _UU("CMD_AccessAddEx_Prompt_DELAY"), CmdEvalMinMax, &minmax_delay},
 		{"JITTER", CmdPrompt, _UU("CMD_AccessAddEx_Prompt_JITTER"), CmdEvalMinMax, &minmax_jitter},
 		{"LOSS", CmdPrompt, _UU("CMD_AccessAddEx_Prompt_LOSS"), CmdEvalMinMax, &minmax_loss},
+		{"REDIRECTURL", NULL, NULL, NULL, NULL},
 	};
 
 	// If virtual HUB is not selected, it's an error
@@ -15017,6 +15030,7 @@ UINT PsAccessAddEx(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	a->Delay = GetParamInt(o, "DELAY");
 	a->Jitter = GetParamInt(o, "JITTER");
 	a->Loss = GetParamInt(o, "LOSS");
+	StrCpy(a->RedirectUrl, sizeof(a->RedirectUrl), GetParamStr(o, "REDIRECTURL"));
 
 	// RPC call
 	ret = ScAddAccess(ps->Rpc, &t);
@@ -15178,6 +15192,7 @@ UINT PsAccessAddEx6(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"DELAY", CmdPrompt, _UU("CMD_AccessAddEx6_Prompt_DELAY"), CmdEvalMinMax, &minmax_delay},
 		{"JITTER", CmdPrompt, _UU("CMD_AccessAddEx6_Prompt_JITTER"), CmdEvalMinMax, &minmax_jitter},
 		{"LOSS", CmdPrompt, _UU("CMD_AccessAddEx6_Prompt_LOSS"), CmdEvalMinMax, &minmax_loss},
+		{"REDIRECTURL", NULL, NULL, NULL, NULL},
 	};
 
 	// If virtual HUB is not selected, it's an error
@@ -15233,6 +15248,7 @@ UINT PsAccessAddEx6(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	a->Delay = GetParamInt(o, "DELAY");
 	a->Jitter = GetParamInt(o, "JITTER");
 	a->Loss = GetParamInt(o, "LOSS");
+	StrCpy(a->RedirectUrl, sizeof(a->RedirectUrl), GetParamStr(o, "REDIRECTURL"));
 
 	// RPC call
 	ret = ScAddAccess(ps->Rpc, &t);

@@ -172,22 +172,49 @@ NTSTATUS DriverDispatch(DEVICE_OBJECT *device_object, IRP *irp)
 	case IRP_MJ_WRITE:	// Write
 		if ((stack->Parameters.Write.Length % sizeof(WFP_LOCAL_IP)) == 0)
 		{
-			UINT size = MIN(WFP_MAX_LOCAL_IP_COUNT * sizeof(WFP_LOCAL_IP), stack->Parameters.Write.Length);
-			UCHAR *copied_buf = Malloc(size);
-			UCHAR *old_buf;
-			Copy(copied_buf, buf, size);
-
-			SpinLock(wfp->LocalIPListLock);
+			// Address check
+			bool check_ok = true;
+			__try
 			{
-				old_buf = wfp->LocalIPListData;
-				wfp->LocalIPListData = copied_buf;
-				wfp->LocalIPListSize = size;
+				ProbeForRead(buf, stack->Parameters.Write.Length, 1);
 			}
-			SpinUnlock(wfp->LocalIPListLock);
-
-			if (old_buf != NULL)
+			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
-				Free(old_buf);
+				check_ok = false;
+			}
+
+			if (check_ok)
+			{
+				MDL *mdl = IoAllocateMdl(buf, stack->Parameters.Write.Length, false, false, NULL);
+				UINT size = MIN(WFP_MAX_LOCAL_IP_COUNT * sizeof(WFP_LOCAL_IP), stack->Parameters.Write.Length);
+				UCHAR *copied_buf = Malloc(size);
+				UCHAR *old_buf;
+
+				if (mdl != NULL)
+				{
+					MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+				}
+
+				Copy(copied_buf, buf, size);
+
+				SpinLock(wfp->LocalIPListLock);
+				{
+					old_buf = wfp->LocalIPListData;
+					wfp->LocalIPListData = copied_buf;
+					wfp->LocalIPListSize = size;
+				}
+				SpinUnlock(wfp->LocalIPListLock);
+
+				if (old_buf != NULL)
+				{
+					Free(old_buf);
+				}
+
+				if (mdl != NULL)
+				{
+					MmUnlockPages(mdl);
+					IoFreeMdl(mdl);
+				}
 			}
 		}
 		irp->IoStatus.Information = stack->Parameters.Write.Length;
