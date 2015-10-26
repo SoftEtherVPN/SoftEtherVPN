@@ -115,7 +115,7 @@
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update
 // installation of the VPN Server / VPN Client / VPN Bridge is skipped.
-#define	SL_VER						45
+#define	SL_VER						46
 
 // Constants
 #define	SL_MAX_PACKET_SIZE			1600

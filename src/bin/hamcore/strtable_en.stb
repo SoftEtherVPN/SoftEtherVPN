@@ -232,10 +232,10 @@ TCPOPT_NOT_ADMIN		Users without administrator privileges cannot use the TCP Opti
 
 
 # Windows Vista / Windows 7 / Windows 8 Optimization
-VISTA_MMCSS_MSG			Do you wish to optimize Windows Vista / Windows 7 / Windows 8 for playing multimedia files with VPN? (e.g. videos, audios and streaming)
-VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 with VPN has already done.\r\nDo you wish to remote optimized configuration?
+VISTA_MMCSS_MSG			Do you wish to optimize Windows Vista / Windows 7 / Windows 8 / Windows 10 for playing multimedia files with VPN? (e.g. videos, audios and streaming)
+VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remote optimized configuration?
 VISTA_MMCSS_MSG_3		You cannot use optimization in currently environment.
-VISTA_MMCSS_MSG_4		You must have administrator privileges for this function.\r\nPlease note that in Windows Vista / Windows 7 / Windows 8 you should use "Run as Administrators" to execute program.
+VISTA_MMCSS_MSG_4		You must have administrator privileges for this function.\r\nPlease note that in Windows Vista / Windows 7 / Windows 8 / Windows 10 you should use "Run as Administrators" to execute program.
 VISTA_MMCSS_MSG_5		Optimization is finished.
 VISTA_MMCSS_MSG_6		Optimization configuration is removed.
 
@@ -3845,7 +3845,7 @@ S_TOOL					Sample File Generating Tool for OpenVPN Clients
 S_TOOL2					Making a OpenVPN Client configuration file is a very difficult job. You can use this tool to generate an appropriate OpenVPN Client configuration file. The generated configuration sample can be used immediately.
 B_CONFIG				Generate a Sample &Configuration File for OpenVPN Clients
 S_2						Microsoft SSTP VPN Clone Server Function
-S_3						This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation.\r\nBuilt-in MS-SSTP Clients on Windows Vista / 7 / 8 / RT can connect to this VPN Server.
+S_3						This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation.\r\nBuilt-in MS-SSTP Clients on Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.
 R_SSTP					Enable &MS-SSTP VPN Clone Server Function
 S_SSTP					The value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the client. For details refer the Microsoft's documents.
 S_4						The manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using these clone server functions are same to the IPsec Server functions.
@@ -4214,7 +4214,7 @@ CMD_SWITCH_SELECT		Sw&itch Selection
 # [View] menu
 CMD_TOP_VIEW			&View
 CMD_STATUSBAR			Show &Status Bar
-CMD_VISTASTYLE			Windows Vista / Windows 7 Styles
+CMD_VISTASTYLE			Windows Vista / 7 / 8 / 10 Styles
 CMD_SHOWPORT			Show &Ports on Connection List
 CMD_TRAYICON			Show Icons on &Task Tray
 CMD_ICON				&Icon
@@ -4239,7 +4239,7 @@ CMD_PASSWORD			Set &Password...\tCtrl+P
 CMD_TRUST				Manage &Trusted CA Certificate List\tCtrl+R
 CMD_NETIF				&Network Device Status...
 CMD_TCPIP				TCP Optimization &Utility...
-CMD_MMCSS				Optimization for Windows &Vista / 7 / 8...
+CMD_MMCSS				Optimization for Windows &Vista / 7 / 8 / 10...
 CMD_TRAFFIC				Network T&raffic Speed Test Tool...\tCtrl+Q 
 CMD_CM_SETTING			Switch Operation &Mode...
 CMD_LANGUAGE			&Language Settings...
@@ -6225,7 +6225,7 @@ CMD_OpenVpnMakeConfig_ERROR			The sample setting files were unable to be saved a
 
 # SstpEnable command
 CMD_SstpEnable			Enable / Disable Microsoft SSTP VPN Clone Server Function
-CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_SstpEnable_Args		SstpEnable [yes|no]
 CMD_SstpEnable_[yes|no]	Specify yes to enable the Microsoft SSTP VPN Clone Server Function. Specify no to disable.
 CMD_SstpEnable_Prompt_[yes|no]	Enables SSTP VPN Clone Server Function (yes / no): 

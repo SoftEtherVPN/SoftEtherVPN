@@ -1249,7 +1249,7 @@ namespace BuildUtil
 				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win10\x86\Neo6_x86_" + name + ".inf"),
 					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.inf")), build, version, date, sys_name, name, string.Format("Neo6_x86_{0}.cat", name), true), Str.ShiftJisEncoding, false);
 				cat_src_filename.Add("Neo6_x86_" + name + ".inf");
-				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x86\Neo6_x86_" + name + ".sys"));
+				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x86\Neo6_x86_win10.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x86\Neo6_x86_" + name + ".sys"));
 				make_cat_file(Path.Combine(dst_dir, @"Neo6_Win10\x86"), cat_src_filename.ToArray(), "Neo6_x86_" + name + ".cat", true, true);
 			}
 
@@ -1268,7 +1268,7 @@ namespace BuildUtil
 				IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Neo6_Win10\x64\Neo6_x64_" + name + ".inf"),
 					process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.inf")), build, version, date, sys_name, name, string.Format("Neo6_x64_{0}.cat", name), true), Str.ShiftJisEncoding, false);
 				cat_src_filename.Add("Neo6_x64_" + name + ".inf");
-				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x64\Neo6_x64_" + name + ".sys"));
+				IO.FileCopy(Path.Combine(src_dir, @"Neo6\x64\Neo6_x64_win10.sys"), Path.Combine(dst_dir, @"Neo6_Win10\x64\Neo6_x64_" + name + ".sys"));
 				make_cat_file(Path.Combine(dst_dir, @"Neo6_Win10\x64"), cat_src_filename.ToArray(), "Neo6_x64_" + name + ".cat", true, true);
 			}
 
@@ -1303,7 +1303,7 @@ namespace BuildUtil
 			cat_src_filename.Add("SeLow_x86.inf");
 			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win10\x86\SeLow_x86.inf"),
 				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.inf")), build, version, date, null, null, "SeLow_Win10_x86.cat", false), Str.ShiftJisEncoding, false);
-			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x86\SeLow_x86.sys"));
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x86\SeLow_x86_win10.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x86\SeLow_x86.sys"));
 			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win10\x86"), cat_src_filename.ToArray(), "SeLow_Win10_x86.cat", true, false);
 
 			// SeLow x64 for Windows 10
@@ -1313,7 +1313,7 @@ namespace BuildUtil
 			cat_src_filename.Add("SeLow_x64.inf");
 			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"SeLow_Win10\x64\SeLow_x64.inf"),
 				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.inf")), build, version, date, null, null, "SeLow_Win10_x64.cat", false), Str.ShiftJisEncoding, false);
-			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x64\SeLow_x64.sys"));
+			IO.FileCopy(Path.Combine(src_dir, @"SeLow\x64\SeLow_x64_win10.sys"), Path.Combine(dst_dir, @"SeLow_Win10\x64\SeLow_x64.sys"));
 			make_cat_file(Path.Combine(dst_dir, @"SeLow_Win10\x64"), cat_src_filename.ToArray(), "SeLow_Win10_x64.cat", true, false);
 
 			// Wfp x86
@@ -1345,7 +1345,7 @@ namespace BuildUtil
 			cat_src_filename.Add("pxwfp_x86.inf");
 			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp_Win10\x86\pxwfp_x86.inf"),
 				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.inf")), build, version, date, null, null, "pxwfp_Win10_x86.cat", false), Str.ShiftJisEncoding, false);
-			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x86\pxwfp_x86.sys"));
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x86\pxwfp_x86_win10.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x86\pxwfp_x86.sys"));
 			make_cat_file(Path.Combine(dst_dir, @"Wfp_Win10\x86"), cat_src_filename.ToArray(), "pxwfp_Win10_x86.cat", true, false);
 
 			// Wfp x64 for Windows 10
@@ -1355,7 +1355,7 @@ namespace BuildUtil
 			cat_src_filename.Add("pxwfp_x64.inf");
 			IO.WriteAllTextWithEncoding(Path.Combine(dst_dir, @"Wfp_Win10\x64\pxwfp_x64.inf"),
 				process_inf_file(IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.inf")), build, version, date, null, null, "pxwfp_Win10_x64.cat", false), Str.ShiftJisEncoding, false);
-			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x64\pxwfp_x64.sys"));
+			IO.FileCopy(Path.Combine(src_dir, @"Wfp\x64\pxwfp_x64_win10.sys"), Path.Combine(dst_dir, @"Wfp_Win10\x64\pxwfp_x64.sys"));
 			make_cat_file(Path.Combine(dst_dir, @"Wfp_Win10\x64"), cat_src_filename.ToArray(), "pxwfp_Win10_x64.cat", true, false);
 
 			string tmp_body = IO.ReadAllTextWithAutoGetEncoding(Path.Combine(src_dir, "make_whql_submission.cm_"));

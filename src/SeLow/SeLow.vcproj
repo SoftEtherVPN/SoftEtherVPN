@@ -78,9 +78,9 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				LinkLibraryDependencies="false"
-				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com"
+				AdditionalOptions="/driver /subsystem:native,5.00 /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com /ALIGN:4096"
 				AdditionalDependencies="bufferoverflowK.lib wdm.lib ndis.lib wdmsec.lib ntoskrnl.lib fwpkclnt.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\SeLow_x86.sys"
+				OutputFile="$(OutDir)\SeLow_x86_unsigned.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\win7\i386"
 				GenerateManifest="false"
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x86.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:0&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x86_win10.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:2"
 			/>
 		</Configuration>
 		<Configuration
@@ -184,9 +184,9 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				LinkLibraryDependencies="false"
-				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com"
+				AdditionalOptions="/driver /subsystem:native /FULLBUILD /align:0x80 /osversion:5.00 /STACK:0x40000,0x1000 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /NODEFAULTLIB /stub:C:\WINDDK\7600.16385.0\lib\win7\stub512.com /ALIGN:4096"
 				AdditionalDependencies="bufferoverflowK.lib wdm.lib ndis.lib wdmsec.lib ntoskrnl.lib fwpkclnt.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
-				OutputFile="$(OutDir)\SeLow_x64.sys"
+				OutputFile="$(OutDir)\SeLow_x64_unsigned.sys"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="C:\WINDDK\7600.16385.0\lib\win7\amd64"
 				GenerateManifest="false"
@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;"
+				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x64.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:0&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x64_win10.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:2"
 			/>
 		</Configuration>
 	</Configurations>

@@ -1322,6 +1322,8 @@ namespace BuildUtil
 				new ConsoleParam("DEST"),
 				new ConsoleParam("COMMENT", ConsoleService.Prompt, "Comment: ", ConsoleService.EvalNotEmpty, null),
 				new ConsoleParam("KERNEL"),
+				new ConsoleParam("CERTID"),
+				new ConsoleParam("SHAMODE"),
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
@@ -1334,7 +1336,10 @@ namespace BuildUtil
 			string comment = vl["COMMENT"].StrValue;
 			bool kernel = vl["KERNEL"].BoolValue;
 
-			CodeSign.SignFile(destFileName, srcFileName, comment, kernel);
+			int certid = vl["CERTID"].IntValue;
+			int shamode = vl["SHAMODE"].IntValue;
+
+			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, certid, shamode);
 
 			return 0;
 		}

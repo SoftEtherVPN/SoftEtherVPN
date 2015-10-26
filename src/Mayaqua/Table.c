@@ -293,7 +293,7 @@ bool SaveLangConfig(wchar_t *filename, char *str)
 		FreeLangList(o);
 	}
 
-	ret = DumpBufW(b, filename);
+	ret = DumpBufWIfNecessary(b, filename);
 
 	FreeBuf(b);
 
