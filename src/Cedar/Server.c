@@ -6157,6 +6157,39 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// AcceptOnlyTls
 		c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+		if (c->AcceptOnlyTls) {
+			c->DisableSslVersions |= SSL_VERSION_SSL_V2;
+			c->DisableSslVersions |= SSL_VERSION_SSL_V3;
+		}
+
+		if (CfgGetStr(f, "DisableSslVersions", tmp, sizeof(tmp))) {
+			TOKEN_LIST *sslVersions= ParseToken(tmp, ", ");
+			UINT i;		
+			for (i = 0;i < sslVersions->NumTokens;i++)
+			{
+				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V2)) 
+					c->DisableSslVersions |= SSL_VERSION_SSL_V2;
+					continue;
+				}
+				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V3)) 
+					c->DisableSslVersions |= SSL_VERSION_SSL_V3;
+					continue;
+				}
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_0)) 
+					c->DisableSslVersions |= SSL_VERSION_TLS_V1_0;
+					continue;
+				}
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_1)) 
+					c->DisableSslVersions |= SSL_VERSION_TLS_V1_1;
+					continue;
+				}
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_2)) 
+					c->DisableSslVersions |= SSL_VERSION_TLS_V1_2;
+					continue;
+				}
+			}
+			FreeToken(sslVersions);
+		}
 	}
 	Unlock(c->lock);
 
@@ -6466,6 +6499,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
 		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
+
+		CfgAddStr(f, "DisableSslVersions", c->DisableSslVersions);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));

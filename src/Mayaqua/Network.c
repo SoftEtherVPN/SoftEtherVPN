@@ -12966,15 +12966,24 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	{
 		if (sock->ServerMode)
 		{
-			if (sock->AcceptOnlyTls == false)
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			long ssl_opt_flags=0x0L;
+			if (sock->DisableSslVersions & SSL_VERSION_SSL_V2) {
+				ssl_opt_flags |= SSL_OP_NO_SSLv2;
 			}
-			else
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_method());
+			if (sock->DisableSslVersions & SSL_VERSION_SSL_V3) {
+				ssl_opt_flags |= SSL_OP_NO_SSLv3;
 			}
-
+			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_0) {
+				ssl_opt_flags |= SSL_OP_NO_TLSv1;
+			}
+			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_1) {
+				ssl_opt_flags |= SSL_OP_NO_TLSv1_1;
+			}
+			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_2) {
+				ssl_opt_flags |= SSL_OP_NO_TLSv1_2;
+			}
+			SSL_CTX_set_options(ssl_ctx, ssl_opt_flags);
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
