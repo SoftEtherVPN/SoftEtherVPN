@@ -2724,16 +2724,16 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 // Start a socket for R-UDP Listening
 SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode)
 {
-	return ListenRUDPEx(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, NULL, 0);
+	return ListenRUDPEx(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, NULL, 0, NULL);
 }
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	SOCK *s;
 	RUDP_STACK *r;
 
 	// Creating a R-UDP stack
-	r = NewRUDPServer(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, natt_global_udp_port, rand_port_id);
+	r = NewRUDPServer(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, natt_global_udp_port, rand_port_id, listen_ip);
 	if (r == NULL)
 	{
 		return NULL;
@@ -5259,7 +5259,7 @@ SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, U
 		return NULL;
 	}
 
-	r = NewRUDP(false, svc_name, NULL, NULL, NULL, local_port, sock, sock_event, false, over_dns_mode, ip, NULL, 0);
+	r = NewRUDP(false, svc_name, NULL, NULL, NULL, local_port, sock, sock_event, false, over_dns_mode, ip, NULL, 0, NULL);
 	if (r == NULL)
 	{
 		*error_code = RUDP_ERROR_UNKNOWN;
@@ -5318,7 +5318,7 @@ SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, U
 }
 
 // Creating a R-UDP server
-RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	RUDP_STACK *r;
 	// Validate arguments
@@ -5334,7 +5334,7 @@ RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_inter
 
 	ListenTcpForPopupFirewallDialog();
 
-	r = NewRUDP(true, svc_name, proc_interrupts, proc_rpc_recv, param, port, NULL, NULL, no_natt_register, over_dns_mode, NULL, natt_global_udp_port, rand_port_id);
+	r = NewRUDP(true, svc_name, proc_interrupts, proc_rpc_recv, param, port, NULL, NULL, no_natt_register, over_dns_mode, NULL, natt_global_udp_port, rand_port_id, listen_ip);
 
 	if (r == NULL)
 	{
@@ -5345,7 +5345,7 @@ RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_inter
 }
 
 // Creating a R-UDP
-RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	RUDP_STACK *r;
 	char tmp[MAX_SIZE];
@@ -5371,11 +5371,11 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 		{
 			if (rand_port_id == 0)
 			{
-				sock = NewUDP(port);
+				sock = NewUDPEx2(port, false, listen_ip);
 			}
 			else
 			{
-				sock = NewUDPEx2RandMachineAndExePath(false, NULL, 0, rand_port_id);
+				sock = NewUDPEx2RandMachineAndExePath(false, listen_ip, 0, rand_port_id);
 			}
 		}
 
@@ -14202,9 +14202,9 @@ SOCK *Listen(UINT port)
 }
 SOCK *ListenEx(UINT port, bool local_only)
 {
-	return ListenEx2(port, local_only, false);
+	return ListenEx2(port, local_only, false, NULL);
 }
-SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
+SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 {
 	SOCKET s;
 	SOCK *sock;
@@ -14233,7 +14233,14 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
 	SetIP(&localhost, 127, 0, 0, 1);
 
 	addr.sin_port = htons((UINT)port);
-	*((UINT *)&addr.sin_addr) = htonl(INADDR_ANY);
+	if (listen_ip == NULL)
+	{
+		*((UINT *)&addr.sin_addr) = htonl(INADDR_ANY);
+	}
+	else
+	{
+		IPToInAddr(&addr.sin_addr, listen_ip);
+	}
 	addr.sin_family = AF_INET;
 
 	if (local_only)
@@ -20019,6 +20026,11 @@ void UdpListenerThread(THREAD *thread, void *param)
 				{
 					IP *ip = LIST_DATA(iplist, i);
 
+					if (CmpIpAddr(ip, &u->ListenIP) != 0)
+					{
+						continue;
+					}
+
 					WriteBuf(ip_list_buf_new, ip, sizeof(IP));
 
 					for (j = 0;j < LIST_NUM(u->PortList);j++)
@@ -20534,7 +20546,7 @@ void UdpListenerSendPacket(UDPLISTENER *u, UDPPACKET *packet)
 }
 
 // Creating a UDP listener
-UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
+UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
 {
 	UDPLISTENER *u;
 	// Validate arguments
@@ -20549,6 +20561,11 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
 
 	u->PortList = NewList(NULL);
 	u->Event = NewSockEvent();
+
+	if (listen_ip)
+	{
+		Copy(&u->ListenIP, listen_ip, sizeof(IP));
+	}
 
 	u->RecvProc = recv_proc;
 	u->SendPacketList = NewList(NULL);

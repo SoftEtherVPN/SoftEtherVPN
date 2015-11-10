@@ -545,6 +545,8 @@ void IPsecServerSetServices(IPSEC_SERVER *s, IPSEC_SERVICES *sl)
 	{
 		Copy(&s->Services, sl, sizeof(IPSEC_SERVICES));
 
+		Copy(&s->UdpListener->ListenIP, &s->Cedar->Server->ListenIP, sizeof(IP));
+
 		if (sl->L2TP_Raw)
 		{
 			AddPortToUdpListener(s->UdpListener, IPSEC_PORT_L2TP);
@@ -782,7 +784,7 @@ IPSEC_SERVER *NewIPsecServer(CEDAR *cedar)
 	s->Ike = NewIKEServer(cedar, s);
 	StrCpy(s->Ike->Secret, sizeof(s->Ike->Secret), IPSEC_DEFAULT_SECRET);
 
-	s->UdpListener = NewUdpListener(IPsecServerUdpPacketRecvProc, s);
+	s->UdpListener = NewUdpListener(IPsecServerUdpPacketRecvProc, s, &cedar->Server->ListenIP);
 
 	s->EtherIPIdList = NewList(CmpEtherIPId);
 

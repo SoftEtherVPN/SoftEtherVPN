@@ -263,7 +263,7 @@ LIST *GenerateEraseFileList(ERASER *e);
 void FreeEraseFileList(LIST *o);
 void PrintEraseFileList(LIST *o);
 void EnumEraseFile(LIST *o, char *dirname);
-SLOG *NewSysLog(char *hostname, UINT port);
+SLOG *NewSysLog(char *hostname, UINT port, IP *ip);
 void SetSysLog(SLOG *g, char *hostname, UINT port);
 void FreeSysLog(SLOG *g);
 void SendSysLog(SLOG *g, wchar_t *str);

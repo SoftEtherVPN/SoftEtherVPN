@@ -367,6 +367,8 @@ struct SERVER
 
 
 	volatile UINT NatTGlobalUdpPort;	// NAT-T global UDP port
+
+	IP ListenIP;						// Listen IP
 };
 
 

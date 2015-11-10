@@ -319,7 +319,7 @@ struct OPENVPN_SERVER_UDP
 OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar);
 void FreeOpenVpnServerUdp(OPENVPN_SERVER_UDP *u);
 void OpenVpnServerUdpListenerProc(UDPLISTENER *u, LIST *packet_list);
-void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list);
+void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip);
 
 OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
 void FreeOpenVpnServer(OPENVPN_SERVER *s);
