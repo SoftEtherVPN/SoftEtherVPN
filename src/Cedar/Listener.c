@@ -465,7 +465,14 @@ void ListenerTCPMainLoop(LISTENER *r)
 			{
 				if (r->ShadowIPv6 == false)
 				{
-					s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, &r->Cedar->Server->ListenIP);
+					if (r->Cedar->Server == NULL)
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, NULL);
+					}
+					else
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, &r->Cedar->Server->ListenIP);
+					}
 				}
 				else
 				{
