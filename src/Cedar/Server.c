@@ -6167,23 +6167,23 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			UINT i;		
 			for (i = 0;i < sslVersions->NumTokens;i++)
 			{
-				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V2)) 
+				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V2)) {
 					c->DisableSslVersions |= SSL_VERSION_SSL_V2;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V3)) 
+				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V3)) {
 					c->DisableSslVersions |= SSL_VERSION_SSL_V3;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_0)) 
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_0)) { 
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_0;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_1)) 
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_1)) {
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_1;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_2)) 
+				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_2)) {
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_2;
 					continue;
 				}

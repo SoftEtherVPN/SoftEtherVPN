@@ -155,6 +155,7 @@
 #ifdef	UNIX_MACOS
 #include <sys/event.h>
 #endif	// UNIX_MACOS
+#include <Cedar/Cedar.h>
 
 #ifdef	OS_WIN32
 NETWORK_WIN32_FUNCTIONS *w32net;

@@ -415,8 +415,11 @@
 #define NAME_SSL_VERSION_SSL_V2	"SSL_V2"	// SSLv2
 #define NAME_SSL_VERSION_SSL_V3	"SSL_V3"	// SSLv3
 #define NAME_SSL_VERSION_TLS_V1_0	"TLS_V1_0"	// TLS v1.0
-#define NAME_SSL_VERSION_TLS_V1_0	"TLS_V1_1"	// TLS v1.1
-#define NAME_SSL_VERSION_TLS_V1_0	"TLS_V1_2"	// TLS v1.2
+#define NAME_SSL_VERSION_TLS_V1_1	"TLS_V1_1"	// TLS v1.1
+#define NAME_SSL_VERSION_TLS_V1_2	"TLS_V1_2"	// TLS v1.2
+
+// OpenSSL SSL Context Option Flags default
+#define SSL_OPT_DEFAULT	0x0
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1065,7 +1068,7 @@ typedef struct CEDAR
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
 	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
-	UINT DisableSslVersions = 0x0;	// Bitmap of SSL Version to disable
+	UINT DisableSslVersions;	// Bitmap of SSL Version to disable
 	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 
