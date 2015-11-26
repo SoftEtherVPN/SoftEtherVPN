@@ -374,7 +374,7 @@ struct RADIUS_LOGIN_OPTION
 };
 
 // Function prototype
-bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
+bool RadiusLogin(CONNECTION *c, char *hubname, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
 				 RADIUS_LOGIN_OPTION *opt);
 BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT secret_size);
 BUF *RadiusCreateUserName(wchar_t *username);
