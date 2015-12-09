@@ -6167,23 +6167,24 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			UINT i;		
 			for (i = 0;i < sslVersions->NumTokens;i++)
 			{
-				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V2)) {
+				char *sslVersion=sslVersions->Token[i];
+				if (StrCmp(sslVersion, NAME_SSL_VERSION_SSL_V2)==0) {
 					c->DisableSslVersions |= SSL_VERSION_SSL_V2;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_SSL_V3)) {
+				if (StrCmp(sslVersion, NAME_SSL_VERSION_SSL_V3)==0) {
 					c->DisableSslVersions |= SSL_VERSION_SSL_V3;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_0)) { 
+				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_0)==0) { 
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_0;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_1)) {
+				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_1)==0) {
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_1;
 					continue;
 				}
-				if (strcmp(tmp, NAME_SSL_VERSION_TLS_V1_2)) {
+				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_2)==0) {
 					c->DisableSslVersions |= SSL_VERSION_TLS_V1_2;
 					continue;
 				}
@@ -6500,7 +6501,40 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
 
-		CfgAddStr(f, "DisableSslVersions", c->DisableSslVersions);
+		{
+			char tmp[MAX_SIZE];
+			tmp[0] = 0;
+			if (c->DisableSslVersions & SSL_VERSION_SSL_V2) {
+				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_SSL_V2);
+				StrCat(tmp, sizeof(tmp), ",");
+			}
+			if (c->DisableSslVersions & SSL_VERSION_SSL_V3) {
+				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_SSL_V3);
+				StrCat(tmp, sizeof(tmp), ",");
+			}
+			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_0) {
+				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_0);
+				StrCat(tmp, sizeof(tmp), ",");
+			}
+			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_1) {
+				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_1);
+				StrCat(tmp, sizeof(tmp), ",");
+			}
+			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_2) {
+				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_2);
+				StrCat(tmp, sizeof(tmp), ",");
+			}
+                        if (StrLen(tmp) >= 1)
+                        {
+                                if (tmp[StrLen(tmp) - 1] == ',')
+                                {
+                                        tmp[StrLen(tmp) - 1] = 0;
+                                }
+                        }
+			CfgAddStr(f, "DisableSslVersions", tmp);
+		}
+
+		
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));
