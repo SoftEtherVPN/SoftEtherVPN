@@ -2577,6 +2577,9 @@ void SiLoadInitialConfiguration(SERVER *s)
 		return;
 	}
 
+	// Default to TLS only; mitigates CVE-2016-0800
+	s->Cedar->AcceptOnlyTls = true;
+
 	// Auto saving interval related
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
 	s->BackupConfigOnlyWhenModified = true;
@@ -2761,6 +2764,9 @@ void SiInitConfiguration(SERVER *s)
 
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
 	s->BackupConfigOnlyWhenModified = true;
+
+	// Default to TLS only; mitigates CVE-2016-0800
+	s->Cedar->AcceptOnlyTls = true;
 
 	// IPsec server
 	if (s->Cedar->Bridge == false)
@@ -6156,7 +6162,14 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		SetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT, CfgGetBool(f, "DisableSessionReconnect"));
 
 		// AcceptOnlyTls
-		c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+		if (CfgIsItem(f, "AcceptOnlyTls"))
+		{
+			c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+		}
+		else
+		{
+			c->AcceptOnlyTls = true;
+		}
 	}
 	Unlock(c->lock);
 
