@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -2236,6 +2236,7 @@ bool AddX509Name(void *xn, int nid, wchar_t *str)
 	X509_NAME *x509_name;
 	UINT utf8_size;
 	BYTE *utf8;
+	int encoding_type = MBSTRING_ASC;
 	// Validate arguments
 	if (xn == NULL || str == NULL)
 	{
@@ -2252,11 +2253,16 @@ bool AddX509Name(void *xn, int nid, wchar_t *str)
 	UniToUtf8(utf8, utf8_size, str);
 	utf8[utf8_size] = 0;
 
+	if (StrLen(utf8) != UniStrLen(str))
+	{
+		encoding_type = MBSTRING_UTF8;
+	}
+
 	// Adding
 	x509_name = (X509_NAME *)xn;
 	Lock(openssl_lock);
 	{
-		X509_NAME_add_entry_by_NID(x509_name, nid, MBSTRING_ASC, utf8, utf8_size, -1, 0);
+		X509_NAME_add_entry_by_NID(x509_name, nid, encoding_type, utf8, utf8_size, -1, 0);
 	}
 	Unlock(openssl_lock);
 	Free(utf8);

@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -609,7 +609,7 @@ SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool 
 	switch (param->ProxyType)
 	{
 	case PROXY_DIRECT:
-		sock = TcpConnectEx3(param->HostName, param->Port, timeout, cancel, NULL, true, NULL, false, false);
+		sock = TcpConnectEx3(param->HostName, param->Port, timeout, cancel, NULL, true, NULL, false, false, NULL);
 		if (sock == NULL)
 		{
 			err = ERR_CONNECT_FAILED;
@@ -629,7 +629,7 @@ SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool 
 	case PROXY_SOCKS:
 		sock = SocksConnectEx2(&c, param->ProxyHostName, param->ProxyPort,
 			param->HostName, param->Port,
-			param->ProxyUsername, false, cancel, NULL, timeout);
+			param->ProxyUsername, false, cancel, NULL, timeout, NULL);
 		if (sock == NULL)
 		{
 			err = c.Err;
@@ -758,7 +758,7 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 	else
 	{
 		// If the connection is not SSL via HTTP Proxy
-		s = TcpConnectEx3(con.ProxyHostName, con.ProxyPort, timeout_connect, cancel, NULL, true, NULL, false, false);
+		s = TcpConnectEx3(con.ProxyHostName, con.ProxyPort, timeout_connect, cancel, NULL, true, NULL, false, false, NULL);
 		if (s == NULL)
 		{
 			*error_code = ERR_PROXY_CONNECT_FAILED;

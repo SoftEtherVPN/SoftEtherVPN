@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -160,6 +160,7 @@ struct FIFO
 	UINT pos, size, memsize;
 	UINT64 total_read_size;
 	UINT64 total_write_size;
+	bool fixed;
 };
 
 // List
@@ -356,6 +357,8 @@ void ShrinkFifoMemory(FIFO *f);
 UCHAR *GetFifoPointer(FIFO *f);
 UCHAR *FifoPtr(FIFO *f);
 void WriteFifo(FIFO *f, void *p, UINT size);
+void WriteFifoFront(FIFO *f, void *p, UINT size);
+void PadFifoFront(FIFO *f, UINT size);
 void ClearFifo(FIFO *f);
 UINT FifoSize(FIFO *f);
 void LockFifo(FIFO *f);
@@ -365,6 +368,7 @@ void CleanupFifo(FIFO *f);
 FIFO *NewFifo();
 FIFO *NewFifoFast();
 FIFO *NewFifoEx(bool fast);
+FIFO *NewFifoEx2(bool fast, bool fixed);
 void InitFifo();
 UINT GetFifoCurrentReallocMemSize();
 void SetFifoCurrentReallocMemSize(UINT size);
