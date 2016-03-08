@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -1492,6 +1492,8 @@ void ClientThread(THREAD *t, void *param)
 
 	while (true)
 	{
+		Zero(&s->ServerIP_CacheForNextConnect, sizeof(IP));
+
 		if (s->Link != NULL && ((*s->Link->StopAllLinkFlag) || s->Link->Halting))
 		{
 			s->Err = ERR_USER_CANCEL;
