@@ -387,8 +387,10 @@ int iconv_close (iconv_t __cd);
 // OS-dependent code
 #include <Mayaqua/OS.h>
 
+#ifdef	OS_WIN32
 // Code for Microsoft Windows
 #include <Mayaqua/Microsoft.h>
+#endif	// WIN32
 
 
 // Global variables
