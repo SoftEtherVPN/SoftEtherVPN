@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -160,6 +160,7 @@ struct FIFO
 	UINT pos, size, memsize;
 	UINT64 total_read_size;
 	UINT64 total_write_size;
+	bool fixed;
 };
 
 // List
@@ -236,6 +237,13 @@ struct HASH_LIST
 	LIST *AllList;
 };
 
+// PRAND
+struct PRAND
+{
+	UCHAR Key[20];
+	CRYPT *Rc4;
+};
+
 // Function prototype
 HASH_LIST *NewHashList(GET_HASH *get_hash_proc, COMPARE *compare_proc, UINT bits, bool make_list);
 void ReleaseHashList(HASH_LIST *h);
@@ -249,6 +257,11 @@ void LockHashList(HASH_LIST *h);
 void UnlockHashList(HASH_LIST *h);
 bool IsInHashListKey(HASH_LIST *h, UINT key);
 void *HashListKeyToPointer(HASH_LIST *h, UINT key);
+
+PRAND *NewPRand(void *key, UINT key_size);
+void FreePRand(PRAND *r);
+void PRand(PRAND *p, void *data, UINT size);
+UINT PRandInt(PRAND *p);
 
 LIST *NewCandidateList();
 void FreeCandidateList(LIST *o);
@@ -310,11 +323,13 @@ void FreeBuf(BUF *b);
 bool BufToFile(IO *o, BUF *b);
 BUF *FileToBuf(IO *o);
 UINT ReadBufInt(BUF *b);
+USHORT ReadBufShort(BUF *b);
 UINT64 ReadBufInt64(BUF *b);
 UCHAR ReadBufChar(BUF *b);
 bool WriteBufInt(BUF *b, UINT value);
 bool WriteBufInt64(BUF *b, UINT64 value);
 bool WriteBufChar(BUF *b, UCHAR uc);
+bool WriteBufShort(BUF *b, USHORT value);
 bool ReadBufStr(BUF *b, char *str, UINT size);
 bool WriteBufStr(BUF *b, char *str);
 void WriteBufLine(BUF *b, char *str);
@@ -332,14 +347,18 @@ BUF *CloneBuf(BUF *b);
 BUF *MemToBuf(void *data, UINT size);
 BUF *RandBuf(UINT size);
 BUF *ReadRemainBuf(BUF *b);
+UINT ReadBufRemainSize(BUF *b);
 bool CompareBuf(BUF *b1, BUF *b2);
 
 UINT PeekFifo(FIFO *f, void *p, UINT size);
 UINT ReadFifo(FIFO *f, void *p, UINT size);
+BUF *ReadFifoAll(FIFO *f);
 void ShrinkFifoMemory(FIFO *f);
 UCHAR *GetFifoPointer(FIFO *f);
 UCHAR *FifoPtr(FIFO *f);
 void WriteFifo(FIFO *f, void *p, UINT size);
+void WriteFifoFront(FIFO *f, void *p, UINT size);
+void PadFifoFront(FIFO *f, UINT size);
 void ClearFifo(FIFO *f);
 UINT FifoSize(FIFO *f);
 void LockFifo(FIFO *f);
@@ -349,6 +368,7 @@ void CleanupFifo(FIFO *f);
 FIFO *NewFifo();
 FIFO *NewFifoFast();
 FIFO *NewFifoEx(bool fast);
+FIFO *NewFifoEx2(bool fast, bool fixed);
 void InitFifo();
 UINT GetFifoCurrentReallocMemSize();
 void SetFifoCurrentReallocMemSize(UINT size);

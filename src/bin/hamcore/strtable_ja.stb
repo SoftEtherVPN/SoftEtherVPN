@@ -574,6 +574,7 @@ HUB_AO_DropArpInPrivacyFilterMode			送信元および宛先の両方のセッ�
 HUB_AO_SuppressClientUpdateNotification		VPN Client のアップデート通知画面の表示を抑制します。
 HUB_AO_FloodingSendQueueBufferQuota			パケットの仮想 HUB 内におけるフラッディング動作時において消費することを許容する送信キューのバッファサイズの制限値 (バイト数) を指定します。クオータは、すべての接続中の VPN セッションの送信キューの合計長さに対してグローバルに適用されます。0 を指定すると無制限になります。このオプションは、フラッディングパケットが多発するネットワークにおいてメモリ消費量が増大する問題を解決するために利用できます。
 HUB_AO_AssignVLanIdByRadiusAttribute		VLAN ID の動的割り当て機能を有効にします。VPN 接続するユーザーオブジェクトのセキュリティポリシーに VLAN ID が指定されていない場合は、各 VPN セッションはユーザー認証を行った RADIUS サーバーから返却される RADIUS 属性の値に基づき VLAN が割当てられます。RADIUS 属性のうち、 "Tunnel-Pvt-Group-ID" (ID = 81) の値が使用されます。データ型は文字列である必要があります。
+HUB_AO_DenyAllRadiusLoginWithNoVlanAssign	この項目が 1 (有効) の場合は、RADIUS サーバーが "Tunnel-Pvt-Group-ID" (ID = 81) の値を返却しなかった場合は VPN 接続が拒否されます。(AssignVLanIdByRadiusAttribute の値が 1 の場合に限ります。)
 HUB_AO_SecureNAT_RandomizeAssignIp			この項目が 1 (有効) の場合は、SecureNAT 機能における仮想 DHCP サーバーは、DHCP クライアントに対して割当てる IP アドレスを指定された IP アドレスプール内の未使用アドレスからランダムに選択するようになります。なお、既定の動作は、未使用アドレスのうち最初のアドレスを割当てるようになっています。
 HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指定された秒数無通信であった VPN セッションをドーマント状態 (休止状態) として識別します。ドーマント状態の VPN セッションに対しては、仮想 HUB 内でフラッディングされるべきパケットがフラッディングされなくなります。
 HUB_AO_NoPhysicalIPOnPacketLog				この項目が 0 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
@@ -1492,6 +1493,7 @@ SM_SNAT_STATUS			SecureNAT の動作状況
 SM_SNAT_NUM_SESSION		%u セッション
 SM_SNAT_NUM_CLIENT		%u クライアント
 SM_SNAT_IS_KERNEL		カーネルモード NAT で動作中
+SM_SNAT_IS_RAW			Raw IP モード NAT で動作中
 SM_BRIDGE_TOO_OLD_VER	現在接続している VPN Server のバージョンでは、ローカルブリッジ機能はサポートされていません。\r\n新しいバージョンにアップデートしてみてください。
 SM_BRIDGE_UNSUPPORTED	この VPN Server が動作しているオペレーティングシステム上では、ローカルブリッジ機能を使用することはできません。ローカルブリッジ機能が使用できるオペレーティングシステムの一覧については、VPN Server のオンラインドキュメントを参照してください。
 SM_BRIDGE_WPCAP_REMOTE	この VPN Server 上でローカルブリッジ機能を使用するためには、WinPcap ソフトウェアをインストールする必要があります。現在、サーバー コンピュータ上には WinPcap ソフトウェアがインストールされていません。\r\n\r\nWinPcap ソフトウェアのインストールを続行するためには、VPN Server が動作しているサーバー コンピュータ上で SoftEther VPN サーバー管理マネージャを起動し、localhost (自分自身) に対して接続した状態で、ローカルブリッジ機能設定画面を表示する必要があります。\r\n続行するには、一旦この管理セッションを終了し、サーバー コンピュータ上で SoftEther VPN サーバー管理マネージャを起動してから、localhost に対して接続して、設定を続行してください。
@@ -5468,7 +5470,7 @@ CMD_AccessAdd_Prompt_TCPSTATE		TCP コネクションの状態 (Established/Unes
 # AccessAddEx コマンド
 CMD_AccessAddEx		アクセスリストへのルールの追加 (IPv4, 遅延・ジッタ・パケットロス設定可能)
 CMD_AccessAddEx_Help	現在管理している仮想 HUB のアクセスリストに、新しいルールを追加します。通過時に遅延・ジッタ・パケットロスを発生させることができます。\nアクセスリストとは、仮想 HUB 内を流れるパケットに対して適用されるパケットフィルタルールの集合です。アクセスリストには複数のルールを登録することができ、各ルールごとに優先順位を定義することができます。すべてのパケットは、アクセスリストに登録されているルールで指定された条件に、最初に一致したルールで規定されている動作で、通過または破棄が決定されます。どのルールの条件にも一致しなかったパケットは、暗黙で通過を許可されます。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタ内でクラスタメンバサーバーとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_AccessAddEx_Args		AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx_Args		AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx_[pass|discard]	パケットが、このルールの条件に一致した場合の動作を決定します。pass を指定すると [通過] を、discard を指定すると [破棄] を意味します。遅延・ジッタ・パケットロス設定は、pass の場合のみ適用されます。
 CMD_AccessAddEx_MEMO		ルールの説明 (メモ) を指定します。
 CMD_AccessAddEx_PRIORITY	ルールの優先順位を 1 以上の整数で指定します。優先順位は小さいものほど優先度が高くなります。
@@ -5485,6 +5487,7 @@ CMD_AccessAddEx_TCPSTATE		ルールの条件として、TCP コネクション�
 CMD_AccessAddEx_DELAY	このルールによってパケットが通過する場合に遅延を発生させることができます。発生させたい遅延時間をミリ秒単位で指定します。無指定または 0 を指定すると、遅延は発生しません。遅延は 10000 ミリ秒以下である必要があります。
 CMD_AccessAddEx_JITTER	このルールによってパケットが通過する場合にジッタを発生させることができます。遅延の値に対してジッタの揺らぎを 0% ～ 100% のパーセント数値で指定します。無指定または 0 を指定すると、ジッタは発生しません。
 CMD_AccessAddEx_LOSS	このルールによってパケットが通過する場合にパケットロスを発生させることができます。パケットが破棄される可能性を 0% ～ 100% のパーセント数値で指定します。無指定または 0 を指定すると、パケットロスは発生しません。
+CMD_AccessAddEx_REDIRECTURL	HTTP リクエストに対するリダイレクト先の URL を指定することができます。仮想 HUB を経由する TCP コネクションがこのアクセスリストの条件に一致した場合、その TCP コネクションを用いてクライアントが何らかの通信を行おうとすると、強制的に設定された URL 文字列をクライアントに対して応答します。これにより、VPN クライアント上で起動している Web ブラウザが特定の IP アドレスにアクセスした場合などに任意の Web ページをその Web ブラウザ上に表示させることができます。
 
 CMD_AccessAddEx_Prompt_DELAY	発生させる遅延 (ミリ秒単位: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	発生させるジッタの揺らぎ (パーセント単位: 0 - 100): 
@@ -5531,7 +5534,7 @@ CMD_AccessAdd6_Prompt_TCPSTATE		TCP コネクションの状態(Established/Unes
 # AccessAddEx6 コマンド
 CMD_AccessAddEx6		アクセスリストへのルールの追加 (IPv6, 遅延・ジッタ・パケットロス設定可能)
 CMD_AccessAddEx6_Help	現在管理している仮想 HUB のアクセスリストに、新しいルールを追加します。通過時に遅延・ジッタ・パケットロスを発生させることができます。\nアクセスリストとは、仮想 HUB 内を流れるパケットに対して適用されるパケットフィルタルールの集合です。アクセスリストには複数のルールを登録することができ、各ルールごとに優先順位を定義することができます。すべてのパケットは、アクセスリストに登録されているルールで指定された条件に、最初に一致したルールで規定されている動作で、通過または破棄が決定されます。どのルールの条件にも一致しなかったパケットは、暗黙で通過を許可されます。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタ内でクラスタメンバサーバーとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_AccessAddEx6_Args		AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx6_Args		AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx6_[pass|discard]	パケットが、このルールの条件に一致した場合の動作を決定します。pass を指定すると [通過] を、discard を指定すると [破棄] を意味します。遅延・ジッタ・パケットロス設定は、pass の場合のみ適用されます。
 CMD_AccessAddEx6_MEMO		ルールの説明 (メモ) を指定します。
 CMD_AccessAddEx6_PRIORITY	ルールの優先順位を 1 以上の整数で指定します。優先順位は小さいものほど優先度が高くなります。
@@ -5548,6 +5551,7 @@ CMD_AccessAddEx6_TCPSTATE		ルールの条件として、TCP コネクション�
 CMD_AccessAddEx6_DELAY	このルールによってパケットが通過する場合に遅延を発生させることができます。発生させたい遅延時間をミリ秒単位で指定します。無指定または 0 を指定すると、遅延は発生しません。ジッタは 10000 ミリ秒以下である必要があります。
 CMD_AccessAddEx6_JITTER	このルールによってパケットが通過する場合にジッタを発生させることができます。遅延の値に対してジッタの揺らぎを 0% ～ 100% のパーセント数値で指定します。無指定または 0 を指定すると、ジッタは発生しません。
 CMD_AccessAddEx6_LOSS	このルールによってパケットが通過する場合にパケットロスを発生させることができます。パケットが破棄される可能性を 0% ～ 100% のパーセント数値で指定します。無指定または 0 を指定すると、パケットロスは発生しません。
+CMD_AccessAddEx6_REDIRECTURL	HTTP リクエストに対するリダイレクト先の URL を指定することができます。仮想 HUB を経由する TCP コネクションがこのアクセスリストの条件に一致した場合、その TCP コネクションを用いてクライアントが何らかの通信を行おうとすると、設定された URL 文字列をクライアントに対して応答します。これにより、VPN クライアント上で起動している Web ブラウザが特定の IP アドレスにアクセスした場合などに任意の Web ページをその Web ブラウザ上に表示させることができます。
 
 CMD_AccessAddEx6_Prompt_DELAY	発生させる遅延 (ミリ秒単位: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	発生させるジッタの揺らぎ (パーセント単位: 0 - 100): 
@@ -6865,8 +6869,9 @@ CMD_TrafficClient_ERROR_HOSTPORT	ホスト名またはポート番号の指定�
 # TrafficServer コマンド
 CMD_TrafficServer		通信スループット測定ツールサーバーの実行
 CMD_TrafficServer_Help	通信スループット測定ツールのサーバープログラムを実行します。\n通信スループット測定ツールは、TrafficClient と TrafficServer の 2 つのコマンドとして利用し、IP ネットワーク上で接続された 2 台のコンピュータの間で伝送することができる通信スループットを計測することができます。\nこのコンピュータ上の TCP ポートを待機状態にして、別のコンピュータからの TrafficClient からの接続を待ち受けるには、TrafficServer コマンドにポート番号を指定して起動します。\n通信スループット測定ツールに関する詳細は、"TrafficClient ?" と入力すると表示されます。\n\n※注意: このコマンドは SoftEther VPN コマンドライン管理ユーティリティから呼び出すことが可能です。現在 VPN Server や VPN Client に管理モードで接続している場合も実行できますが、実際に通信を行ってスループットを測定するのは、このコマンドを実行しているコンピュータであり、管理モードで接続先のコンピュータとは一切関係ないコンテキストで実行されます。
-CMD_TrafficServer_Args	TrafficServer [port]
+CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
 CMD_TrafficServer_[port]	接続を待ち受けるポート番号を整数で指定します。指定されたポートが、すでに別のプログラムによって使用中の場合や、ポートを開くことができない場合はエラーが発生します。
+CMD_TrafficServer_NOHUP		"yes" を指定した場合、コンソールからの入力にかかわらず終了をしません。測定サーバーとして永久に動作させたい場合に便利です。
 
 
 # TrafficClient / TrafficServer 系内部メッセージ文字列

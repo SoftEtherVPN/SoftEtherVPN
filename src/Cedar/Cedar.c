@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -117,6 +117,34 @@
 static UINT init_cedar_counter = 0;
 static REF *cedar_log_ref = NULL;
 static LOG *cedar_log;
+
+// Check whether there is any EAP-enabled RADIUS configuration
+bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c)
+{
+	bool ret = false;
+	UINT i;
+	if (c == NULL)
+	{
+		return false;
+	}
+
+	LockHubList(c);
+	{
+		for (i = 0;i < LIST_NUM(c->HubList);i++)
+		{
+			HUB *hub = LIST_DATA(c->HubList, i);
+
+			if (hub->RadiusConvertAllMsChapv2AuthRequestToEap)
+			{
+				ret = true;
+				break;
+			}
+		}
+	}
+	UnlockHubList(c);
+
+	return ret;
+}
 
 // Get build date of current code
 UINT64 GetCurrentBuildDate()

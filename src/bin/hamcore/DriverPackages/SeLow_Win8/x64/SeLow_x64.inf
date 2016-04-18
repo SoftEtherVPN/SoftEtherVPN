@@ -3,14 +3,14 @@
 ; Copyright (c) SoftEther Corporation. All Rights Reserved.
 ; http://www.softether.co.jp/
 ; 
-; BUILD 9575
+; BUILD 9594
 
 [Version]
 Signature					= "$Windows NT$"
 Class						= NetTrans
 ClassGUID					= {4D36E975-E325-11CE-BFC1-08002BE10318}
 Provider					= %CompanyName%
-DriverVer					= 09/09/2015, 4.19.0.9575
+DriverVer					= 10/17/2015, 4.19.0.9594
 CatalogFile.NT				= SeLow_Win8_x64.cat
 
 [Manufacturer]
@@ -64,5 +64,5 @@ SeLow_DisplayName			= "SoftEther Lightweight Network Protocol"
 SeLow_Description			= "A lightweight helper kernel-mode module for PacketiX VPN / SoftEther VPN."
 
 
-; Auto Generated 20150910_193715.227
+; Auto Generated 20151018_201657.450
 

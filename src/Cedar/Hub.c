@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -165,6 +165,103 @@ ADMIN_OPTION admin_options[] =
 };
 
 UINT num_admin_options = sizeof(admin_options) / sizeof(ADMIN_OPTION);
+
+
+// Create an EAP client for the specified Virtual Hub
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username)
+{
+	HUB *hub = NULL;
+	EAP_CLIENT *ret = NULL;
+	char radius_servers[MAX_PATH] = {0};
+	UINT radius_port = 0;
+	UINT radius_retry_interval = 0;
+	char radius_secret[MAX_PATH] = {0};
+	char radius_suffix_filter[MAX_PATH] = {0};
+	if (cedar == NULL || hubname == NULL || client_ip_str == NULL || username == NULL)
+	{
+		return NULL;
+	}
+
+	// Find the Virtual Hub
+	LockHubList(cedar);
+	{
+		hub = GetHub(cedar, hubname);
+	}
+	UnlockHubList(cedar);
+
+	if (hub != NULL)
+	{
+		if (GetRadiusServerEx2(hub, radius_servers, sizeof(radius_servers), &radius_port, radius_secret,
+			sizeof(radius_secret), &radius_retry_interval, radius_suffix_filter, sizeof(radius_suffix_filter)))
+		{
+			bool use_peap = hub->RadiusUsePeapInsteadOfEap;
+
+			if (IsEmptyStr(radius_suffix_filter) || EndWith(username, radius_suffix_filter))
+			{
+				TOKEN_LIST *radius_servers_list = ParseToken(radius_servers, " ,;\t");
+
+				if (radius_servers_list != NULL && radius_servers_list->NumTokens >= 1)
+				{
+					// Try for each of RADIUS servers
+					UINT i;
+					bool finish = false;
+
+					for (i = 0;i < radius_servers_list->NumTokens;i++)
+					{
+						EAP_CLIENT *eap;
+						IP ip;
+
+						if (GetIP(&ip, radius_servers_list->Token[i]))
+						{
+							eap = NewEapClient(&ip, radius_port, radius_secret, radius_retry_interval,
+								RADIUS_INITIAL_EAP_TIMEOUT, client_ip_str, username);
+
+							if (eap != NULL)
+							{
+								if (use_peap == false)
+								{
+									// EAP
+									if (EapClientSendMsChapv2AuthRequest(eap))
+									{
+										eap->GiveupTimeout = RADIUS_RETRY_TIMEOUT;
+										ret = eap;
+										finish = true;
+									}
+								}
+								else
+								{
+									// PEAP
+									if (PeapClientSendMsChapv2AuthRequest(eap))
+									{
+										eap->GiveupTimeout = RADIUS_RETRY_TIMEOUT;
+										ret = eap;
+										finish = true;
+									}
+								}
+
+								if (finish == false)
+								{
+									ReleaseEapClient(eap);
+								}
+							}
+						}
+
+						if (finish)
+						{
+							break;
+						}
+					}
+				}
+
+				FreeToken(radius_servers_list);
+			}
+		}
+	}
+
+	ReleaseHub(hub);
+
+	return ret;
+}
 
 // Create a user list
 LIST *NewUserList()
@@ -587,6 +684,7 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxIcmpSessionsPerIp", &o->SecureNAT_MaxIcmpSessionsPerIp);
 	GetHubAdminOptionDataAndSet(ao, "AccessListIncludeFileCacheLifetime", &o->AccessListIncludeFileCacheLifetime);
 	GetHubAdminOptionDataAndSet(ao, "DisableKernelModeSecureNAT", &o->DisableKernelModeSecureNAT);
+	GetHubAdminOptionDataAndSet(ao, "DisableIpRawModeSecureNAT", &o->DisableIpRawModeSecureNAT);
 	GetHubAdminOptionDataAndSet(ao, "DisableUserModeSecureNAT", &o->DisableUserModeSecureNAT);
 	GetHubAdminOptionDataAndSet(ao, "DisableCheckMacOnLocalBridge", &o->DisableCheckMacOnLocalBridge);
 	GetHubAdminOptionDataAndSet(ao, "DisableCorrectIpOffloadChecksum", &o->DisableCorrectIpOffloadChecksum);
@@ -598,6 +696,7 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "SuppressClientUpdateNotification", &o->SuppressClientUpdateNotification);
 	GetHubAdminOptionDataAndSet(ao, "FloodingSendQueueBufferQuota", &o->FloodingSendQueueBufferQuota);
 	GetHubAdminOptionDataAndSet(ao, "AssignVLanIdByRadiusAttribute", &o->AssignVLanIdByRadiusAttribute);
+	GetHubAdminOptionDataAndSet(ao, "DenyAllRadiusLoginWithNoVlanAssign", &o->DenyAllRadiusLoginWithNoVlanAssign);
 	GetHubAdminOptionDataAndSet(ao, "SecureNAT_RandomizeAssignIp", &o->SecureNAT_RandomizeAssignIp);
 	GetHubAdminOptionDataAndSet(ao, "DetectDormantSessionInterval", &o->DetectDormantSessionInterval);
 	GetHubAdminOptionDataAndSet(ao, "NoPhysicalIPOnPacketLog", &o->NoPhysicalIPOnPacketLog);
@@ -656,6 +755,7 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("SecureNAT_MaxIcmpSessionsPerIp", o->SecureNAT_MaxIcmpSessionsPerIp));
 	Add(aol, NewAdminOption("AccessListIncludeFileCacheLifetime", o->AccessListIncludeFileCacheLifetime));
 	Add(aol, NewAdminOption("DisableKernelModeSecureNAT", o->DisableKernelModeSecureNAT));
+	Add(aol, NewAdminOption("DisableIpRawModeSecureNAT", o->DisableIpRawModeSecureNAT));
 	Add(aol, NewAdminOption("DisableUserModeSecureNAT", o->DisableUserModeSecureNAT));
 	Add(aol, NewAdminOption("DisableCheckMacOnLocalBridge", o->DisableCheckMacOnLocalBridge));
 	Add(aol, NewAdminOption("DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum));
@@ -667,6 +767,7 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("SuppressClientUpdateNotification", o->SuppressClientUpdateNotification));
 	Add(aol, NewAdminOption("FloodingSendQueueBufferQuota", o->FloodingSendQueueBufferQuota));
 	Add(aol, NewAdminOption("AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute));
+	Add(aol, NewAdminOption("DenyAllRadiusLoginWithNoVlanAssign", o->DenyAllRadiusLoginWithNoVlanAssign));
 	Add(aol, NewAdminOption("SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp));
 	Add(aol, NewAdminOption("DetectDormantSessionInterval", o->DetectDormantSessionInterval));
 	Add(aol, NewAdminOption("NoPhysicalIPOnPacketLog", o->NoPhysicalIPOnPacketLog));

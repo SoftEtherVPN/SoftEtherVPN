@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -126,14 +126,56 @@
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
 
+// Load the drivers hive
+bool SuLoadDriversHive()
+{
+	wchar_t config_dir[MAX_PATH];
+	wchar_t filename[MAX_PATH];
+	if (MsIsWindows10() == false)
+	{
+		return false;
+	}
+
+	MsEnablePrivilege(SE_RESTORE_NAME, true);
+	MsEnablePrivilege(SE_BACKUP_NAME, true);
+
+	CombinePathW(config_dir, sizeof(config_dir), MsGetSystem32DirW(), L"config");
+	CombinePathW(filename, sizeof(filename), config_dir, L"DRIVERS");
+
+	return MsRegLoadHive(REG_LOCAL_MACHINE, L"DRIVERS", filename);
+}
+
+// Unload the drivers hive
+bool SuUnloadDriversHive()
+{
+	// todo: always failed.
+	if (MsIsWindows10() == false)
+	{
+		return false;
+	}
+
+	return MsRegUnloadHive(REG_LOCAL_MACHINE, L"DRIVERS");
+}
+
 // Delete garbage inf files
 void SuDeleteGarbageInfs()
 {
 	void *wow;
+	bool load_hive = false;
+	Debug("SuDeleteGarbageInfs()\n");
 
 	wow = MsDisableWow64FileSystemRedirection();
 
+	load_hive = SuLoadDriversHive();
+	Debug("SuLoadDriversHive: %u\n", load_hive);
+
 	SuDeleteGarbageInfsInner();
+
+	/*
+	if (load_hive)
+	{
+		Debug("SuUnloadDriversHive: %u\n", SuUnloadDriversHive());
+	}*/
 
 	MsRestoreWow64FileSystemRedirection(wow);
 }
@@ -343,7 +385,7 @@ bool SuInstallDriverInner(bool force)
 			Debug("InstallNdisProtocolDriver Ok.\n");
 
 			// Copy manually because there are cases where .sys file is not copied successfully for some reason
-			FileCopyW(src_sys, sys_fullpath);
+			Debug("SuCopySysFile from %S to %s: ret = %u\n", src_sys, sys_fullpath, SuCopySysFile(src_sys, sys_fullpath));
 
 			ret = true;
 
@@ -370,6 +412,64 @@ bool SuInstallDriverInner(bool force)
 	}
 
 	return ret;
+}
+
+// Copy a sys file
+bool SuCopySysFile(wchar_t *src, wchar_t *dst)
+{
+	wchar_t dst_rename[MAX_PATH];
+	UINT i;
+	if (src == NULL || dst == NULL)
+	{
+		return false;
+	}
+	if (FileCopyW(src, dst))
+	{
+		for (i = 1;i <= 100;i++)
+		{
+			UniFormat(dst_rename, sizeof(dst_rename), L"%s.old%u", dst, i);
+
+			FileDeleteW(dst_rename);
+		}
+
+		return true;
+	}
+
+	for (i = 1;;i++)
+	{
+		UniFormat(dst_rename, sizeof(dst_rename), L"%s.old%u", dst, i);
+
+		if (IsFileExistsW(dst_rename) == false)
+		{
+			break;
+		}
+
+		if (i >= 100)
+		{
+			return false;
+		}
+	}
+
+	if (MoveFileW(dst, dst_rename) == false)
+	{
+		return false;
+	}
+
+	if (FileCopyW(src, dst))
+	{
+		for (i = 1;i <= 100;i++)
+		{
+			UniFormat(dst_rename, sizeof(dst_rename), L"%s.old%u", dst, i);
+
+			FileDeleteW(dst_rename);
+		}
+
+		return true;
+	}
+
+	MoveFileW(dst_rename, dst);
+
+	return false;
 }
 
 // Get whether the current OS is supported by SeLow

@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -135,6 +135,8 @@ void PPPThread(THREAD *thread, void *param)
 	p->Mru1 = p->Mru2 = PPP_MRU_DEFAULT;
 	p->RecvPacketList = NewList(NULL);
 
+	p->MsChapV2_UseDoubleMsChapV2 = CedarIsThereAnyEapEnabledRadiusConfig(p->Cedar);
+
 	//// Link establishment phase
 	IPToStr(ipstr1, sizeof(ipstr1), &p->ClientIP);
 	IPToStr(ipstr2, sizeof(ipstr2), &p->ServerIP);
@@ -244,9 +246,96 @@ void PPPThread(THREAD *thread, void *param)
 
 		PPPContinueUntilFinishAllLCPOptionRequestsDetermined(p);
 
+		if (p->MsChapV2_UseDoubleMsChapV2)
+		{
+			// Use the double-MSCHAPv2 technieue
+			GetMachineHostName(machine_name, sizeof(machine_name));
+			MsChapV2Server_GenerateChallenge(p->MsChapV2_ServerChallenge);
+
+			pp = ZeroMalloc(sizeof(PPP_PACKET));
+			pp->Protocol = PPP_PROTOCOL_CHAP;
+			pp->IsControl = true;
+			pp->Lcp = NewPPPLCP(PPP_CHAP_CODE_CHALLENGE, 99);
+
+			b = NewBuf();
+			WriteBufChar(b, 16);
+			WriteBuf(b, p->MsChapV2_ServerChallenge, sizeof(p->MsChapV2_ServerChallenge));
+			WriteBuf(b, machine_name, StrLen(machine_name));
+			pp->Lcp->Data = Clone(b->Buf, b->Size);
+			pp->Lcp->DataSize = b->Size;
+			FreeBuf(b);
+
+			PPPSendPacket(p, pp);
+
+			pp_ret = PPPRecvResponsePacket(p, pp, 0, &pp_ret_protocol, false, true);
+
+			if (pp_ret != NULL)
+			{
+				// Extract the username from the first MS-CHAP v2 packet
+				if (pp_ret->Lcp != NULL && pp_ret->Lcp->DataSize >= 51)
+				{
+					BUF *b;
+
+					b = MemToBuf(pp_ret->Lcp->Data, pp_ret->Lcp->DataSize);
+
+					if (ReadBufChar(b) == 49)
+					{
+						UCHAR client_response_buffer[49];
+						char username_tmp[MAX_SIZE];
+						char id[MAX_SIZE];
+						char hub[MAX_SIZE];
+						char client_ip_tmp[256];
+						EAP_CLIENT *eap;
+						ETHERIP_ID d;
+
+						ReadBuf(b, client_response_buffer, 49);
+
+						Zero(username_tmp, sizeof(username_tmp));
+						ReadBuf(b, username_tmp, sizeof(username_tmp));
+
+						Debug("First MS-CHAPv2: id=%s\n", username_tmp);
+
+						Zero(id, sizeof(id));
+						Zero(hub, sizeof(hub));
+
+						// The user name is divided into the ID and the virtual HUB name
+						Zero(&d, sizeof(d));
+						PPPParseUsername(p->Cedar, username_tmp, &d);
+
+						StrCpy(id, sizeof(id), d.UserName);
+						StrCpy(hub, sizeof(hub), d.HubName);
+						Debug("First MS-CHAPv2: username=%s, hubname=%s\n", id, hub);
+
+						IPToStr(client_ip_tmp, sizeof(client_ip_tmp), &p->ClientIP);
+
+						eap = HubNewEapClient(p->Cedar, hub, client_ip_tmp, id);
+
+						if (eap)
+						{
+							p->EapClient = eap;
+						}
+					}
+
+					FreeBuf(b);
+				}
+
+				FreePPPPacket(pp_ret);
+			}
+
+			FreePPPPacket(pp);
+		}
+
 		// Generate a Server Challenge packet of MS-CHAP v2
 		GetMachineHostName(machine_name, sizeof(machine_name));
-		MsChapV2Server_GenerateChallenge(p->MsChapV2_ServerChallenge);
+
+		if (p->EapClient == NULL)
+		{
+			MsChapV2Server_GenerateChallenge(p->MsChapV2_ServerChallenge);
+		}
+		else
+		{
+			Copy(p->MsChapV2_ServerChallenge, p->EapClient->MsChapV2Challenge.Chap_ChallengeValue, 16);
+		}
 
 		pp = ZeroMalloc(sizeof(PPP_PACKET));
 		pp->Protocol = PPP_PROTOCOL_CHAP;
@@ -264,7 +353,7 @@ void PPPThread(THREAD *thread, void *param)
 		PPPSendPacket(p, pp);
 
 		pp_ret_protocol = 0;
-		pp_ret = PPPRecvResponsePacket(p, pp, 0, &pp_ret_protocol, false);
+		pp_ret = PPPRecvResponsePacket(p, pp, 0, &pp_ret_protocol, false, false);
 
 		if (pp_ret != NULL)
 		{
@@ -565,7 +654,7 @@ bool PPPContinueUntilFinishAllLCPOptionRequestsDetermined(PPP_SESSION *p)
 		return false;
 	}
 
-	PPPRecvResponsePacket(p, NULL, PPP_PROTOCOL_LCP, &received_protocol, true);
+	PPPRecvResponsePacket(p, NULL, PPP_PROTOCOL_LCP, &received_protocol, true, false);
 
 	return p->ClientLCPOptionDetermined;
 }
@@ -580,7 +669,7 @@ USHORT PPPContinueCurrentProtocolRequestListening(PPP_SESSION *p, USHORT protoco
 		return 0;
 	}
 
-	PPPRecvResponsePacket(p, NULL, protocol, &received_protocol, false);
+	PPPRecvResponsePacket(p, NULL, protocol, &received_protocol, false, false);
 
 	return received_protocol;
 }
@@ -634,7 +723,7 @@ bool PPPSendRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c)
 	}
 
 	// Receive a corresponding PPP packet
-	pp2 = PPPRecvResponsePacket(p, pp, 0, NULL, false);
+	pp2 = PPPRecvResponsePacket(p, pp, 0, NULL, false, false);
 
 	if (pp2 != NULL)
 	{
@@ -880,8 +969,10 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					char server_challenge_hex[MAX_SIZE];
 					char client_challenge_hex[MAX_SIZE];
 					char client_response_hex[MAX_SIZE];
+					char eap_client_hex[64];
 					ETHERIP_ID d;
 					UINT error_code;
+					UINT64 eap_client_ptr = (UINT64)p->EapClient;
 
 					ReadBuf(b, client_response_buffer, 49);
 
@@ -913,18 +1004,21 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 						p->MsChapV2_ClientChallenge, sizeof(p->MsChapV2_ClientChallenge));
 					BinToStr(client_response_hex, sizeof(client_response_hex),
 						p->MsChapV2_ClientResponse, sizeof(p->MsChapV2_ClientResponse));
+					BinToStr(eap_client_hex, sizeof(eap_client_hex),
+						&eap_client_ptr, 8);
 
-					Format(password, sizeof(password), "%s%s:%s:%s:%s",
+					Format(password, sizeof(password), "%s%s:%s:%s:%s:%s",
 						IPC_PASSWORD_MSCHAPV2_TAG,
 						username_tmp,
 						server_challenge_hex,
 						client_challenge_hex,
-						client_response_hex);
+						client_response_hex,
+						eap_client_hex);
 
 					// Attempt to connect with IPC
 					ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 						&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-						p->ClientHostname, p->CryptName, false, p->AdjustMss);
+						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient);
 
 					if (ipc != NULL)
 					{
@@ -1057,7 +1151,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 
 								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 									&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-									p->ClientHostname, p->CryptName, false, p->AdjustMss);
+									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL);
 
 								if (ipc != NULL)
 								{
@@ -1555,7 +1649,8 @@ bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip)
 // (If req == NULL, process on that protocol while the protocol specified in expected_protocol have received.
 //If other protocols has arrived, without further processing, and then store that packet in the session context once,
 // return NULL by setting the received_protocol.)
-PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expected_protocol, USHORT *received_protocol, bool finish_when_all_lcp_acked)
+PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expected_protocol, USHORT *received_protocol, bool finish_when_all_lcp_acked,
+								  bool return_mschapv2_response_with_no_processing)
 {
 	UINT64 giveup_tick = Tick64() + (UINT64)PPP_PACKET_RECV_TIMEOUT;
 	UINT64 next_resend = Tick64() + (UINT64)PPP_PACKET_RESEND_INTERVAL;
@@ -1617,6 +1712,16 @@ PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expect
 					PPP_CODE_IS_RESPONSE(pp->Protocol, pp->Lcp->Code))
 				{
 					return pp;
+				}
+
+				if (return_mschapv2_response_with_no_processing)
+				{
+					// For the double-MSCHAPv2 technique
+					if (pp->IsControl && pp->Protocol == req->Protocol && pp->Lcp->Id == req->Lcp->Id &&
+						pp->Protocol == PPP_PROTOCOL_CHAP && PPP_PAP_CODE_IS_RESPONSE(pp->Lcp->Code))
+					{
+						return pp;
+					}
 				}
 			}
 
@@ -2357,7 +2462,24 @@ void FreePPPSession(PPP_SESSION *p)
 		FreeIPC(p->Ipc);
 	}
 
+	PPPFreeEapClient(p);
+
 	Free(p);
+}
+
+// Free the associated EAP client
+void PPPFreeEapClient(PPP_SESSION *p)
+{
+	if (p == NULL)
+	{
+		return;
+	}
+
+	if (p->EapClient != NULL)
+	{
+		ReleaseEapClient(p->EapClient);
+		p->EapClient = NULL;
+	}
 }
 
 // Get the option value

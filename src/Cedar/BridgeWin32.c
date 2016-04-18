@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -1356,9 +1356,9 @@ TOKEN_LIST *GetEthList()
 {
 	UINT v;
 
-	return GetEthListEx(&v);
+	return GetEthListEx(&v, true, false);
 }
-TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden)
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip)
 {
 	TOKEN_LIST *ret;
 	UINT i;
@@ -1369,6 +1369,11 @@ TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden)
 	if (IsEthSupported() == false)
 	{
 		return NULL;
+	}
+
+	if (enum_normal == false)
+	{
+		return NullToken();
 	}
 
 	if (total_num_including_hidden == NULL)
@@ -2139,7 +2144,7 @@ RELEASE:
 		return false;
 	}
 
-	o = GetEthListEx(&total_num);
+	o = GetEthListEx(&total_num, true, false);
 	if (o == NULL || total_num == 0)
 	{
 		FreeToken(o);

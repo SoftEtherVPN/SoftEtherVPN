@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -620,47 +620,61 @@ NTSTATUS SlDeviceReadProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 			if (dst != NULL)
 			{
-				MDL *mdl;
-
-				mdl = IoAllocateMdl(dst, irp_stack->Parameters.Read.Length, false, false, NULL);
-				if (mdl != NULL)
+				// Address check
+				bool check_ok = true;
+				__try
 				{
-					MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+					ProbeForWrite(irp->UserBuffer, sizeof(SL_ADAPTER_INFO_LIST), 1);
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER)
+				{
+					check_ok = false;
 				}
 
-				SlZero(dst, sizeof(SL_ADAPTER_INFO_LIST));
-
-				dst->Signature = SL_SIGNATURE;
-				dst->SeLowVersion = SL_VER;
-				dst->EnumCompleted = sl->IsEnumCompleted ? 8 : 1;
-
-				SlLockList(sl->AdapterList);
+				if (check_ok)
 				{
-					UINT i;
+					MDL *mdl;
 
-					dst->NumAdapters = MIN(SL_LIST_NUM(sl->AdapterList), SL_MAX_ADAPTER_INFO_LIST_ENTRY);
-
-					for (i = 0;i < dst->NumAdapters;i++)
+					mdl = IoAllocateMdl(dst, irp_stack->Parameters.Read.Length, false, false, NULL);
+					if (mdl != NULL)
 					{
-						SL_ADAPTER *a = SL_LIST_DATA(sl->AdapterList, i);
-						SL_ADAPTER_INFO *d = &dst->Adapters[i];
-
-						d->MtuSize = a->MtuSize;
-						SlCopy(d->MacAddress, a->MacAddress, 6);
-						SlCopy(d->AdapterId, a->AdapterId, sizeof(a->AdapterId));
-						strcpy(d->FriendlyName, a->FriendlyName);
-						d->SupportsVLanHw = a->SupportVLan;
+						MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
 					}
-				}
-				SlUnlockList(sl->AdapterList);
 
-				ret_size = sizeof(SL_ADAPTER_INFO);
-				ret = STATUS_SUCCESS;
+					SlZero(dst, sizeof(SL_ADAPTER_INFO_LIST));
 
-				if (mdl != NULL)
-				{
-					MmUnlockPages(mdl);
-					IoFreeMdl(mdl);
+					dst->Signature = SL_SIGNATURE;
+					dst->SeLowVersion = SL_VER;
+					dst->EnumCompleted = sl->IsEnumCompleted ? 8 : 1;
+
+					SlLockList(sl->AdapterList);
+					{
+						UINT i;
+
+						dst->NumAdapters = MIN(SL_LIST_NUM(sl->AdapterList), SL_MAX_ADAPTER_INFO_LIST_ENTRY);
+
+						for (i = 0;i < dst->NumAdapters;i++)
+						{
+							SL_ADAPTER *a = SL_LIST_DATA(sl->AdapterList, i);
+							SL_ADAPTER_INFO *d = &dst->Adapters[i];
+
+							d->MtuSize = a->MtuSize;
+							SlCopy(d->MacAddress, a->MacAddress, 6);
+							SlCopy(d->AdapterId, a->AdapterId, sizeof(a->AdapterId));
+							strcpy(d->FriendlyName, a->FriendlyName);
+							d->SupportsVLanHw = a->SupportVLan;
+						}
+					}
+					SlUnlockList(sl->AdapterList);
+
+					ret_size = sizeof(SL_ADAPTER_INFO);
+					ret = STATUS_SUCCESS;
+
+					if (mdl != NULL)
+					{
+						MmUnlockPages(mdl);
+						IoFreeMdl(mdl);
+					}
 				}
 			}
 		}
@@ -680,75 +694,89 @@ NTSTATUS SlDeviceReadProc(DEVICE_OBJECT *device_object, IRP *irp)
 			}
 			else
 			{
-				UINT num = 0;
-				bool left = true;
-				MDL *mdl;
-				
-				mdl = IoAllocateMdl(buf, SL_EXCHANGE_BUFFER_SIZE, false, false, NULL);
-				if (mdl != NULL)
+				// Address check
+				bool check_ok = true;
+				__try
 				{
-					MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+					ProbeForWrite(irp->UserBuffer, SL_EXCHANGE_BUFFER_SIZE, 1);
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER)
+				{
+					check_ok = false;
 				}
 
-				// Lock the receive queue
-				SlLock(f->RecvLock);
+				if (check_ok)
 				{
-					while (true)
+					UINT num = 0;
+					bool left = true;
+					MDL *mdl;
+
+					mdl = IoAllocateMdl(buf, SL_EXCHANGE_BUFFER_SIZE, false, false, NULL);
+					if (mdl != NULL)
 					{
-						SL_PACKET *q;
-						if (num >= SL_MAX_PACKET_EXCHANGE)
+						MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+					}
+
+					// Lock the receive queue
+					SlLock(f->RecvLock);
+					{
+						while (true)
 						{
-							if (f->RecvPacketHead == NULL)
+							SL_PACKET *q;
+							if (num >= SL_MAX_PACKET_EXCHANGE)
+							{
+								if (f->RecvPacketHead == NULL)
+								{
+									left = false;
+								}
+								break;
+							}
+							q = f->RecvPacketHead;
+							if (q != NULL)
+							{
+								f->RecvPacketHead = f->RecvPacketHead->Next;
+								q->Next = NULL;
+								f->NumRecvPackets--;
+
+								if (f->RecvPacketHead == NULL)
+								{
+									f->RecvPacketTail = NULL;
+								}
+							}
+							else
 							{
 								left = false;
+								break;
 							}
-							break;
+							SL_SIZE_OF_PACKET(buf, num) = q->Size;
+							SlCopy(SL_ADDR_OF_PACKET(buf, num), q->Data, q->Size);
+							num++;
+							SlFree(q);
 						}
-						q = f->RecvPacketHead;
-						if (q != NULL)
-						{
-							f->RecvPacketHead = f->RecvPacketHead->Next;
-							q->Next = NULL;
-							f->NumRecvPackets--;
-
-							if (f->RecvPacketHead == NULL)
-							{
-								f->RecvPacketTail = NULL;
-							}
-						}
-						else
-						{
-							left = false;
-							break;
-						}
-						SL_SIZE_OF_PACKET(buf, num) = q->Size;
-						SlCopy(SL_ADDR_OF_PACKET(buf, num), q->Data, q->Size);
-						num++;
-						SlFree(q);
 					}
-				}
-				SlUnlock(f->RecvLock);
+					SlUnlock(f->RecvLock);
 
-				if (mdl != NULL)
-				{
-					MmUnlockPages(mdl);
-					IoFreeMdl(mdl);
-				}
+					if (mdl != NULL)
+					{
+						MmUnlockPages(mdl);
+						IoFreeMdl(mdl);
+					}
 
-				SL_NUM_PACKET(buf) = num;
-				SL_LEFT_FLAG(buf) = left;
+					SL_NUM_PACKET(buf) = num;
+					SL_LEFT_FLAG(buf) = left;
 
-				if (left == false)
-				{
-					SlReset(f->Event);
-				}
-				else
-				{
-					SlSet(f->Event);
-				}
+					if (left == false)
+					{
+						SlReset(f->Event);
+					}
+					else
+					{
+						SlSet(f->Event);
+					}
 
-				ret = STATUS_SUCCESS;
-				ret_size = SL_EXCHANGE_BUFFER_SIZE;
+					ret = STATUS_SUCCESS;
+					ret_size = SL_EXCHANGE_BUFFER_SIZE;
+				}
 			}
 		}
 	}
@@ -783,72 +811,234 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 			}
 			else
 			{
-				// Write the packet
-				MDL *mdl;
-				UINT num = SL_NUM_PACKET(buf);
-
-				mdl = IoAllocateMdl(buf, SL_EXCHANGE_BUFFER_SIZE, false, false, NULL);
-				if (mdl != NULL)
+				// Address check
+				bool check_ok = true;
+				__try
 				{
-					MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
+					ProbeForRead(irp->UserBuffer, SL_EXCHANGE_BUFFER_SIZE, 1);
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER)
+				{
+					check_ok = false;
 				}
 
-				ret = true;
-				ret_size = SL_EXCHANGE_BUFFER_SIZE;
-
-				if (num >= 1 && num <= SL_MAX_PACKET_EXCHANGE)
+				if (check_ok)
 				{
-					UINT i, j;
-					NET_BUFFER_LIST *nbl_head = NULL;
-					NET_BUFFER_LIST *nbl_tail = NULL;
-					UINT num_packets = 0;
-					NDIS_HANDLE adapter_handle = NULL;
+					// Write the packet
+					MDL *mdl;
+					UINT num = SL_NUM_PACKET(buf);
 
-					SlLock(f->Adapter->Lock);
 
-					if (f->Adapter->NumPendingSendPackets <= SL_MAX_PACKET_QUEUED)
+					mdl = IoAllocateMdl(buf, SL_EXCHANGE_BUFFER_SIZE, false, false, NULL);
+					if (mdl != NULL)
 					{
-						// Admit to send only if the number of packets being transmitted does not exceed the specified limit
-						adapter_handle = f->Adapter->AdapterHandle;
+						MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
 					}
 
-					if (adapter_handle != NULL)
+					ret = true;
+					ret_size = SL_EXCHANGE_BUFFER_SIZE;
+
+					if (num >= 1 && num <= SL_MAX_PACKET_EXCHANGE)
 					{
-						// Lock the file list which opens the same adapter
-						SlLockList(dev->FileList);
-						for (j = 0;j < SL_LIST_NUM(dev->FileList);j++)
+						UINT i, j;
+						NET_BUFFER_LIST *nbl_head = NULL;
+						NET_BUFFER_LIST *nbl_tail = NULL;
+						UINT num_packets = 0;
+						NDIS_HANDLE adapter_handle = NULL;
+
+						SlLock(f->Adapter->Lock);
+
+						if (f->Adapter->NumPendingSendPackets <= SL_MAX_PACKET_QUEUED)
 						{
-							SL_FILE *other = SL_LIST_DATA(dev->FileList, j);
-
-							if (other != f)
-							{
-								// Lock the receive queue of other file lists
-								SlLock(other->RecvLock);
-
-								other->SetEventFlag = false;
-							}
+							// Admit to send only if the number of packets being transmitted does not exceed the specified limit
+							adapter_handle = f->Adapter->AdapterHandle;
 						}
 
-						for (i = 0;i < num;i++)
+						if (adapter_handle != NULL)
 						{
-							UINT packet_size = SL_SIZE_OF_PACKET(buf, i);
-							UCHAR *packet_buf;
-							NET_BUFFER_LIST *nbl = NULL;
-							bool ok = false;
-							bool is_vlan = false;
-							UINT vlan_id = 0;
-							UINT vlan_user_priority = 0, vlan_can_format_id = 0;
+							// Lock the file list which opens the same adapter
+							SlLockList(dev->FileList);
+							for (j = 0;j < SL_LIST_NUM(dev->FileList);j++)
+							{
+								SL_FILE *other = SL_LIST_DATA(dev->FileList, j);
 
-							if (packet_size > SL_MAX_PACKET_SIZE)
-							{
-								packet_size = SL_MAX_PACKET_SIZE;
-							}
-							else if (packet_size < SL_PACKET_HEADER_SIZE)
-							{
-								packet_size = SL_PACKET_HEADER_SIZE;
+								if (other != f)
+								{
+									// Lock the receive queue of other file lists
+									SlLock(other->RecvLock);
+
+									other->SetEventFlag = false;
+								}
 							}
 
-							packet_buf = (UCHAR *)SL_ADDR_OF_PACKET(buf, i);
+							for (i = 0;i < num;i++)
+							{
+								UINT packet_size = SL_SIZE_OF_PACKET(buf, i);
+								UCHAR *packet_buf;
+								NET_BUFFER_LIST *nbl = NULL;
+								bool ok = false;
+								bool is_vlan = false;
+								UINT vlan_id = 0;
+								UINT vlan_user_priority = 0, vlan_can_format_id = 0;
+
+								if (packet_size > SL_MAX_PACKET_SIZE)
+								{
+									packet_size = SL_MAX_PACKET_SIZE;
+								}
+								else if (packet_size < SL_PACKET_HEADER_SIZE)
+								{
+									packet_size = SL_PACKET_HEADER_SIZE;
+								}
+
+								packet_buf = (UCHAR *)SL_ADDR_OF_PACKET(buf, i);
+
+								for (j = 0;j < SL_LIST_NUM(dev->FileList);j++)
+								{
+									SL_FILE *other = SL_LIST_DATA(dev->FileList, j);
+
+									if (other != f)
+									{
+										// Insert into the receive queue of the other file lists
+										if (other->NumRecvPackets < SL_MAX_PACKET_QUEUED)
+										{
+											SL_PACKET *q = SlMalloc(sizeof(SL_PACKET));
+
+											SlCopy(q->Data, packet_buf, packet_size);
+											q->Size = packet_size;
+											q->Next = NULL;
+
+											if (other->RecvPacketHead == NULL)
+											{
+												other->RecvPacketHead = q;
+											}
+											else
+											{
+												other->RecvPacketTail->Next = q;
+											}
+
+											other->RecvPacketTail = q;
+
+											other->NumRecvPackets++;
+
+											other->SetEventFlag = true;
+										}
+									}
+								}
+
+								// Allocate a new NET_BUFFER_LIST
+								if (f->NetBufferListPool != NULL)
+								{
+									nbl = NdisAllocateNetBufferList(f->NetBufferListPool, 16, 0);
+
+									if (nbl != NULL)
+									{
+										nbl->SourceHandle = adapter_handle;
+									}
+								}
+
+								if (nbl != NULL)
+								{
+									// Get the NET_BUFFER from the NET_BUFFER_LIST
+									NET_BUFFER *nb = NET_BUFFER_LIST_FIRST_NB(nbl);
+
+									NET_BUFFER_LIST_NEXT_NBL(nbl) = NULL;
+
+									// Determine if the packet is IEEE802.1Q tagged packet
+									if (dev->Adapter->SupportVLan && packet_size >= 18)
+									{
+										if (packet_buf[12] == 0x81 && packet_buf[13] == 0x00)
+										{
+											USHORT tag_us = 0;
+
+											((UCHAR *)(&tag_us))[0] = packet_buf[15];
+											((UCHAR *)(&tag_us))[1] = packet_buf[14];
+
+											vlan_id = tag_us & 0x0FFF;
+											vlan_user_priority = (tag_us >> 13) & 0x07;
+											vlan_can_format_id = (tag_us >> 12) & 0x01;
+
+											if (vlan_id != 0)
+											{
+												is_vlan = true;
+											}
+										}
+									}
+
+									if (is_vlan)
+									{
+										packet_size -= 4;
+									}
+
+									if (nb != NULL && OK(NdisRetreatNetBufferDataStart(nb, packet_size, 0, NULL)))
+									{
+										// Buffer copy
+										UCHAR *dst = NdisGetDataBuffer(nb, packet_size, NULL, 1, 0);
+
+										if (dst != NULL)
+										{
+											if (is_vlan == false)
+											{
+												SlCopy(dst, packet_buf, packet_size);
+											}
+											else
+											{
+												SlCopy(dst, packet_buf, 12);
+												SlCopy(dst + 12, packet_buf + 16, packet_size + 4 - 16);
+											}
+
+											ok = true;
+										}
+										else
+										{
+											NdisAdvanceNetBufferDataStart(nb, packet_size, false, NULL);
+										}
+									}
+								}
+
+								if (ok == false)
+								{
+									if (nbl != NULL)
+									{
+										NdisFreeNetBufferList(nbl);
+									}
+								}
+								else
+								{
+									if (nbl_head == NULL)
+									{
+										nbl_head = nbl;
+									}
+
+									if (nbl_tail != NULL)
+									{
+										NET_BUFFER_LIST_NEXT_NBL(nbl_tail) = nbl;
+									}
+
+									nbl_tail = nbl;
+
+									((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[0] = f;
+
+									if (is_vlan == false)
+									{
+										NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = NULL;
+									}
+									else
+									{
+										NDIS_NET_BUFFER_LIST_8021Q_INFO qinfo;
+
+										qinfo.Value = &(((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[1]);
+										SlZero(qinfo.Value, sizeof(UINT32) * 12);
+
+										qinfo.TagHeader.VlanId = vlan_id;
+										qinfo.TagHeader.UserPriority = vlan_user_priority;
+										qinfo.TagHeader.CanonicalFormatId = vlan_can_format_id;
+
+										NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = qinfo.Value;
+									}
+
+									num_packets++;
+								}
+							}
 
 							for (j = 0;j < SL_LIST_NUM(dev->FileList);j++)
 							{
@@ -856,190 +1046,43 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 								if (other != f)
 								{
-									// Insert into the receive queue of the other file lists
-									if (other->NumRecvPackets < SL_MAX_PACKET_QUEUED)
+									// Release the receive queue of other file lists
+									SlUnlock(other->RecvLock);
+
+									// Set an event
+									if (other->SetEventFlag)
 									{
-										SL_PACKET *q = SlMalloc(sizeof(SL_PACKET));
-
-										SlCopy(q->Data, packet_buf, packet_size);
-										q->Size = packet_size;
-										q->Next = NULL;
-
-										if (other->RecvPacketHead == NULL)
-										{
-											other->RecvPacketHead = q;
-										}
-										else
-										{
-											other->RecvPacketTail->Next = q;
-										}
-
-										other->RecvPacketTail = q;
-
-										other->NumRecvPackets++;
-
-										other->SetEventFlag = true;
+										SlSet(other->Event);
 									}
 								}
 							}
+							SlUnlockList(dev->FileList);
 
-							// Allocate a new NET_BUFFER_LIST
-							if (f->NetBufferListPool != NULL)
+							if (nbl_head != NULL)
 							{
-								nbl = NdisAllocateNetBufferList(f->NetBufferListPool, 16, 0);
+								InterlockedExchangeAdd(&f->NumSendingPacketets, num_packets);
+								InterlockedExchangeAdd(&f->Adapter->NumPendingSendPackets, num_packets);
 
-								if (nbl != NULL)
-								{
-									nbl->SourceHandle = adapter_handle;
-								}
-							}
+								SlUnlock(f->Adapter->Lock);
 
-							if (nbl != NULL)
-							{
-								// Get the NET_BUFFER from the NET_BUFFER_LIST
-								NET_BUFFER *nb = NET_BUFFER_LIST_FIRST_NB(nbl);
-
-								NET_BUFFER_LIST_NEXT_NBL(nbl) = NULL;
-
-								// Determine if the packet is IEEE802.1Q tagged packet
-								if (dev->Adapter->SupportVLan && packet_size >= 18)
-								{
-									if (packet_buf[12] == 0x81 && packet_buf[13] == 0x00)
-									{
-										USHORT tag_us = 0;
-
-										((UCHAR *)(&tag_us))[0] = packet_buf[15];
-										((UCHAR *)(&tag_us))[1] = packet_buf[14];
-
-										vlan_id = tag_us & 0x0FFF;
-										vlan_user_priority = (tag_us >> 13) & 0x07;
-										vlan_can_format_id = (tag_us >> 12) & 0x01;
-
-										if (vlan_id != 0)
-										{
-											is_vlan = true;
-										}
-									}
-								}
-
-								if (is_vlan)
-								{
-									packet_size -= 4;
-								}
-
-								if (nb != NULL && OK(NdisRetreatNetBufferDataStart(nb, packet_size, 0, NULL)))
-								{
-									// Buffer copy
-									UCHAR *dst = NdisGetDataBuffer(nb, packet_size, NULL, 1, 0);
-
-									if (dst != NULL)
-									{
-										if (is_vlan == false)
-										{
-											SlCopy(dst, packet_buf, packet_size);
-										}
-										else
-										{
-											SlCopy(dst, packet_buf, 12);
-											SlCopy(dst + 12, packet_buf + 16, packet_size + 4 - 16);
-										}
-
-										ok = true;
-									}
-									else
-									{
-										NdisAdvanceNetBufferDataStart(nb, packet_size, false, NULL);
-									}
-								}
-							}
-
-							if (ok == false)
-							{
-								if (nbl != NULL)
-								{
-									NdisFreeNetBufferList(nbl);
-								}
+								NdisSendNetBufferLists(adapter_handle, nbl_head, 0, 0);
 							}
 							else
 							{
-								if (nbl_head == NULL)
-								{
-									nbl_head = nbl;
-								}
-
-								if (nbl_tail != NULL)
-								{
-									NET_BUFFER_LIST_NEXT_NBL(nbl_tail) = nbl;
-								}
-
-								nbl_tail = nbl;
-
-								((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[0] = f;
-
-								if (is_vlan == false)
-								{
-									NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = NULL;
-								}
-								else
-								{
-									NDIS_NET_BUFFER_LIST_8021Q_INFO qinfo;
-
-									qinfo.Value = &(((void **)NET_BUFFER_LIST_CONTEXT_DATA_START(nbl))[1]);
-									SlZero(qinfo.Value, sizeof(UINT32) * 12);
-
-									qinfo.TagHeader.VlanId = vlan_id;
-									qinfo.TagHeader.UserPriority = vlan_user_priority;
-									qinfo.TagHeader.CanonicalFormatId = vlan_can_format_id;
-
-									NET_BUFFER_LIST_INFO(nbl, Ieee8021QNetBufferListInfo) = qinfo.Value;
-								}
-
-								num_packets++;
+								SlUnlock(f->Adapter->Lock);
 							}
-						}
-
-						for (j = 0;j < SL_LIST_NUM(dev->FileList);j++)
-						{
-							SL_FILE *other = SL_LIST_DATA(dev->FileList, j);
-
-							if (other != f)
-							{
-								// Release the receive queue of other file lists
-								SlUnlock(other->RecvLock);
-
-								// Set an event
-								if (other->SetEventFlag)
-								{
-									SlSet(other->Event);
-								}
-							}
-						}
-						SlUnlockList(dev->FileList);
-
-						if (nbl_head != NULL)
-						{
-							InterlockedExchangeAdd(&f->NumSendingPacketets, num_packets);
-							InterlockedExchangeAdd(&f->Adapter->NumPendingSendPackets, num_packets);
-
-							SlUnlock(f->Adapter->Lock);
-
-							NdisSendNetBufferLists(adapter_handle, nbl_head, 0, 0);
 						}
 						else
 						{
 							SlUnlock(f->Adapter->Lock);
 						}
 					}
-					else
-					{
-						SlUnlock(f->Adapter->Lock);
-					}
-				}
 
-				if (mdl != NULL)
-				{
-					MmUnlockPages(mdl);
-					IoFreeMdl(mdl);
+					if (mdl != NULL)
+					{
+						MmUnlockPages(mdl);
+						IoFreeMdl(mdl);
+					}
 				}
 			}
 		}
@@ -1068,17 +1111,31 @@ NTSTATUS SlDeviceIoControlProc(DEVICE_OBJECT *device_object, IRP *irp)
 		switch (irp_stack->Parameters.DeviceIoControl.IoControlCode)
 		{
 		case SL_IOCTL_GET_EVENT_NAME:
-			if (irp_stack->Parameters.DeviceIoControl.InputBufferLength >= sizeof(SL_IOCTL_EVENT_NAME))
+			if (irp_stack->Parameters.DeviceIoControl.OutputBufferLength >= sizeof(SL_IOCTL_EVENT_NAME))
 			{
 				SL_IOCTL_EVENT_NAME *t = irp->UserBuffer;
 
 				if (t != NULL)
 				{
-					strcpy(t->EventNameWin32, f->EventNameWin32);
+					// Address check
+					bool check_ok = true;
+					__try
+					{
+						ProbeForWrite(t, sizeof(SL_IOCTL_EVENT_NAME), 1);
+					}
+					__except (EXCEPTION_EXECUTE_HANDLER)
+					{
+						check_ok = false;
+					}
 
-					ret_size = sizeof(SL_IOCTL_EVENT_NAME);
+					if (check_ok)
+					{
+						strcpy(t->EventNameWin32, f->EventNameWin32);
 
-					ret = STATUS_SUCCESS;
+						ret_size = sizeof(SL_IOCTL_EVENT_NAME);
+
+						ret = STATUS_SUCCESS;
+					}
 				}
 			}
 			break;

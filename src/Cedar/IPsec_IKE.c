@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -113,6 +113,7 @@
 
 #include "CedarPch.h"
 
+//#define	RAW_DEBUG
 
 // Processing of IKE received packet
 void ProcIKEPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
@@ -753,7 +754,7 @@ void ProcIPsecEspPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 				// Transport mode
 				if (next_header == IP_PROTO_UDP)
 				{
-					if (ike->IPsec->Services.L2TP_IPsec)
+					if (ike->IPsec->Services.L2TP_IPsec || ike->IPsec->Services.EtherIP_IPsec)
 					{
 						// An UDP packet has been received
 						ProcIPsecUdpPacketRecv(ike, c, dec_data, dec_size);
@@ -791,6 +792,19 @@ void ProcIPsecEspPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 		if (ipsec_sa->PairIPsecSa != NULL)
 		{
 			c->CurrentIpSecSaSend = ipsec_sa->PairIPsecSa;
+
+			if (p->DestPort == IPSEC_PORT_IPSEC_ESP_UDP)
+			{
+				IPSECSA *send_sa = c->CurrentIpSecSaSend;
+				if (send_sa->TransformSetting.CapsuleMode == IKE_P2_CAPSULE_TUNNEL)
+				{
+					send_sa->TransformSetting.CapsuleMode = IKE_P2_CAPSULE_NAT_TUNNEL_1;
+				}
+				else if (send_sa->TransformSetting.CapsuleMode == IKE_P2_CAPSULE_TRANSPORT)
+				{
+					send_sa->TransformSetting.CapsuleMode = IKE_P2_CAPSULE_NAT_TRANSPORT_1;
+				}
+			}
 		}
 		c->LastCommTick = ike->Now;
 		ipsec_sa->LastCommTick = ike->Now;

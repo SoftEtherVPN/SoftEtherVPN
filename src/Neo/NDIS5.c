@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -442,25 +442,36 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 				if (stack->Parameters.Read.Length == NEO_EXCHANGE_BUFFER_SIZE)
 				{
 					// Address check
-					MDL *mdl = IoAllocateMdl(buf, NEO_EXCHANGE_BUFFER_SIZE, false, false, NULL);
-
-					if (mdl != NULL)
+					bool check_ok = true;
+					__try
 					{
-						MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+						ProbeForWrite(buf, NEO_EXCHANGE_BUFFER_SIZE, 1);
+					}
+					__except (EXCEPTION_EXECUTE_HANDLER)
+					{
+						check_ok = false;
 					}
 
-					if (NeoIsKernelAddress(buf) == FALSE)
+					if (check_ok)
 					{
+						MDL *mdl = IoAllocateMdl(buf, NEO_EXCHANGE_BUFFER_SIZE, false, false, NULL);
+
+						if (mdl != NULL)
+						{
+							MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+						}
+
+
 						// Read
 						NeoRead(buf);
 						Irp->IoStatus.Information = NEO_EXCHANGE_BUFFER_SIZE;
 						ok = true;
-					}
 
-					if (mdl != NULL)
-					{
-						MmUnlockPages(mdl);
-						IoFreeMdl(mdl);
+						if (mdl != NULL)
+						{
+							MmUnlockPages(mdl);
+							IoFreeMdl(mdl);
+						}
 					}
 				}
 			}
@@ -485,25 +496,37 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 				if (stack->Parameters.Write.Length == NEO_EXCHANGE_BUFFER_SIZE)
 				{
 					// Address check
-					MDL *mdl = IoAllocateMdl(buf, NEO_EXCHANGE_BUFFER_SIZE, false, false, NULL);
-
-					if (mdl != NULL)
+					bool check_ok = true;
+					__try
 					{
-						MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
+						ProbeForRead(buf, NEO_EXCHANGE_BUFFER_SIZE, 1);
+					}
+					__except (EXCEPTION_EXECUTE_HANDLER)
+					{
+						check_ok = false;
 					}
 
-					if (NeoIsKernelAddress(buf) == FALSE)
+					if (check_ok)
 					{
+						MDL *mdl = IoAllocateMdl(buf, NEO_EXCHANGE_BUFFER_SIZE, false, false, NULL);
+
+						if (mdl != NULL)
+						{
+							MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
+						}
+
+						ProbeForRead(buf, NEO_EXCHANGE_BUFFER_SIZE, 1);
+
 						// Write
 						NeoWrite(buf);
 						Irp->IoStatus.Information = stack->Parameters.Write.Length;
 						ok = true;
-					}
 
-					if (mdl != NULL)
-					{
-						MmUnlockPages(mdl);
-						IoFreeMdl(mdl);
+						if (mdl != NULL)
+						{
+							MmUnlockPages(mdl);
+							IoFreeMdl(mdl);
+						}
 					}
 				}
 			}
@@ -1385,20 +1408,6 @@ PACKET_BUFFER *NeoNewPacketBuffer()
 	NdisChainBufferAtFront(p->NdisPacket, p->NdisBuffer);
 
 	return p;
-}
-
-// Check whether the specified address is kernel memory
-BOOL NeoIsKernelAddress(void *addr)
-{
-#if	0
-	if ((ULONG)addr >= (ULONG)0x80000000)
-	{
-		// Kernel memory
-		return TRUE;
-	}
-#endif	// CPU_64
-	// User memory
-	return FALSE;
 }
 
 // Reset the event

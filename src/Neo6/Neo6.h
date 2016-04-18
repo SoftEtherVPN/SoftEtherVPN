@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -337,7 +337,6 @@ NEO_EVENT *NeoCreateWin9xEvent(DWORD h);
 void NeoFreeEvent(NEO_EVENT *event);
 void NeoSet(NEO_EVENT *event);
 void NeoReset(NEO_EVENT *event);
-BOOL NeoIsKernelAddress(void *addr);
 
 #endif	// NEO_DEVICE_DRIVER
 

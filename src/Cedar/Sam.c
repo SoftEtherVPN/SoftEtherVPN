@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -268,6 +268,14 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
 						name, password, interval, mschap_v2_server_response_20, opt);
+
+					if (b)
+					{
+						if (opt != NULL)
+						{
+							opt->Out_IsRadiusLogin = true;
+						}
+					}
 				}
 
 				Lock(hub->lock);

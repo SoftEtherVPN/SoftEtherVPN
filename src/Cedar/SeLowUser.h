@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -173,9 +173,12 @@ int SuCmpAdaterList(void *p1, void *p2);
 bool SuInstallDriver(bool force);
 bool SuInstallDriverInner(bool force);
 bool SuIsSupportedOs(bool on_install);
+bool SuCopySysFile(wchar_t *src, wchar_t *dst);
 
 void SuDeleteGarbageInfs();
 void SuDeleteGarbageInfsInner();
+bool SuLoadDriversHive();
+bool SuUnloadDriversHive();
 
 #endif	// SELOWUSER_H
 

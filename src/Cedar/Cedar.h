@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					419
+#define	CEDAR_VER					420
 
 // Build Number
-#define	CEDAR_BUILD					9578
+#define	CEDAR_BUILD					9608
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc25"
+#define	BUILD_PLACE			"pc30"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		9
-#define	BUILD_DATE_D		15
-#define	BUILD_DATE_HO		14
-#define	BUILD_DATE_MI		39
-#define	BUILD_DATE_SE		35
+#define	BUILD_DATE_Y		2016
+#define	BUILD_DATE_M		4
+#define	BUILD_DATE_D		17
+#define	BUILD_DATE_HO		20
+#define	BUILD_DATE_MI		58
+#define	BUILD_DATE_SE		26
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1259,6 +1259,7 @@ UINT CedarGetQueueBudgetConsuming(CEDAR *c);
 UINT CedarGetFifoBudgetConsuming(CEDAR *c);
 UINT CedarGetQueueBudgetBalance(CEDAR *c);
 UINT CedarGetFifoBudgetBalance(CEDAR *c);
+bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 
 

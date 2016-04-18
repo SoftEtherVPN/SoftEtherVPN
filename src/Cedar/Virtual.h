@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -115,10 +115,13 @@
 #define	VIRTUAL_H
 
 
+#define	NN_RAW_IP_PORT_START			61001
+#define	NN_RAW_IP_PORT_END				65535
+
 #define	VIRTUAL_TCP_SEND_TIMEOUT		(21 * 1000)
 
-#define	NN_NEXT_WAIT_TIME_FOR_DEVICE_ENUM	(60 * 1000)
-#define	NN_NEXT_WAIT_TIME_MAX_FAIL_COUNT	15
+#define	NN_NEXT_WAIT_TIME_FOR_DEVICE_ENUM	(30 * 1000)
+#define	NN_NEXT_WAIT_TIME_MAX_FAIL_COUNT	30
 
 #define	NN_HOSTNAME_FORMAT				"securenat-%s"
 #define	NN_HOSTNAME_STARTWITH			"securenat-"
@@ -191,6 +194,7 @@ struct NATIVE_NAT
 	LIST *IpCombine;				// IP combining list
 	UINT CurrentIpQuota;			// Current IP combining quota
 	UCHAR CurrentMacAddress[6];		// Current MAC address
+	bool IsRawIpMode;				// Is RAW_IP mode
 };
 
 // ARP entry
@@ -643,7 +647,7 @@ BUF *NnBuildDnsQueryPacket(char *hostname, USHORT tran_id);
 BUF *NnBuildUdpPacket(BUF *payload, UINT src_ip, USHORT src_port, UINT dst_ip, USHORT dst_port);
 BUF *NnBuildTcpPacket(BUF *payload, UINT src_ip, USHORT src_port, UINT dst_ip, USHORT dst_port, UINT seq, UINT ack, UINT flag, UINT window_size, UINT mss);
 BUF *NnBuildIpPacket(BUF *payload, UINT src_ip, UINT dst_ip, UCHAR protocol, UCHAR ttl);
-UINT NnGenSrcPort();
+UINT NnGenSrcPort(bool raw_ip_mode);
 bool NnParseDnsResponsePacket(UCHAR *data, UINT size, IP *ret_ip);
 BUF *NnReadDnsRecord(BUF *buf, bool answer, USHORT *ret_type, USHORT *ret_class);
 bool NnReadDnsLabel(BUF *buf);
@@ -656,6 +660,7 @@ UINT GetHashNativeNatTableForRecv(void *p);
 void NnSetNat(NATIVE_NAT_ENTRY *e, UINT protocol, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, UINT pub_ip, UINT pub_port);
 
 bool NnIsActive(VH *v);
+bool NnIsActiveEx(VH *v, bool *is_ipraw_mode);
 void NnUdpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, void *data, UINT size, UINT max_l3_size);
 void NnTcpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, TCP_HEADER *old_tcp, void *data, UINT size, UINT max_l3_size);
 void NnIcmpEchoRecvForInternet(VH *v, UINT src_ip, UINT dest_ip, void *data, UINT size, UCHAR ttl, void *icmp_data, UINT icmp_size, UCHAR *ip_header, UINT ip_header_size, UINT max_l3_size);

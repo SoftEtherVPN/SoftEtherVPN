@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -142,6 +142,16 @@ typedef struct AUTHNT AUTHNT;
 // ==============================================================
 
 typedef struct RADIUS_LOGIN_OPTION RADIUS_LOGIN_OPTION;
+typedef struct RADIUS_PACKET RADIUS_PACKET;
+typedef struct RADIUS_AVP RADIUS_AVP;
+typedef struct EAP_CLIENT EAP_CLIENT;
+typedef struct EAP_MESSAGE EAP_MESSAGE;
+typedef struct EAP_MSCHAPV2_GENERAL EAP_MSCHAPV2_GENERAL;
+typedef struct EAP_MSCHAPV2_CHALLENGE EAP_MSCHAPV2_CHALLENGE;
+typedef struct EAP_MSCHAPV2_RESPONSE EAP_MSCHAPV2_RESPONSE;
+typedef struct EAP_MSCHAPV2_SUCCESS_SERVER EAP_MSCHAPV2_SUCCESS_SERVER;
+typedef struct EAP_MSCHAPV2_SUCCESS_CLIENT EAP_MSCHAPV2_SUCCESS_CLIENT;
+typedef struct EAP_PEAP EAP_PEAP;
 
 
 // ==============================================================
@@ -738,6 +748,8 @@ typedef struct MIRROR_SERVER MIRROR_SERVER;
 // ==============================================================
 
 typedef struct NATIVE_STACK NATIVE_STACK;
+typedef struct IPTABLES_STATE IPTABLES_STATE;
+typedef struct IPTABLES_ENTRY IPTABLES_ENTRY;
 
 
 // ==============================================================

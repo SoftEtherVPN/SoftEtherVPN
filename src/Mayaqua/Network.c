@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -5842,6 +5842,11 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_SINGLE_DH_USE);
 		}
 
+		if (server_mode == false)
+		{
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+		}
+
 		ssl = SSL_new(ssl_ctx);
 	}
 	Unlock(openssl_lock);
@@ -8907,10 +8912,36 @@ void UnixSelect(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2)
 	if (c1 != NULL)
 	{
 		reads[num_read++] = p1 = c1->pipe_read;
+
+		if (c1->SpecialFlag)
+		{
+			if (c1->pipe_special_read2 != -1 && c1->pipe_special_read2 != 0)
+			{
+				reads[num_read++] = c1->pipe_special_read2;
+			}
+
+			if (c1->pipe_special_read3 != -1 && c1->pipe_special_read3 != 0)
+			{
+				reads[num_read++] = c1->pipe_special_read3;
+			}
+		}
 	}
 	if (c2 != NULL)
 	{
 		reads[num_read++] = p2 = c2->pipe_read;
+
+		if (c2->SpecialFlag)
+		{
+			if (c2->pipe_special_read2 != -1 && c2->pipe_special_read2 != 0)
+			{
+				reads[num_read++] = c2->pipe_special_read2;
+			}
+
+			if (c2->pipe_special_read3 != -1 && c2->pipe_special_read3 != 0)
+			{
+				reads[num_read++] = c2->pipe_special_read3;
+			}
+		}
 	}
 
 	// Call the select
@@ -8990,6 +9021,8 @@ CANCEL *UnixNewCancel()
 	c->SpecialFlag = false;
 
 	UnixNewPipe(&c->pipe_read, &c->pipe_write);
+
+	c->pipe_special_read2 = c->pipe_special_read3 = -1;
 
 	return c;
 }
@@ -12307,6 +12340,36 @@ SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR ra
 	return NewUDPEx2Rand(ipv6, ip, hash, sizeof(hash), num_retry);
 }
 
+// Set the DF bit of the socket
+void ClearSockDfBit(SOCK *s)
+{
+#ifdef	IP_PMTUDISC_DONT
+#ifdef	IP_MTU_DISCOVER
+	UINT value = IP_PMTUDISC_DONT;
+	if (s == NULL)
+	{
+		return;
+	}
+
+	setsockopt(s->socket, IPPROTO_IP, IP_MTU_DISCOVER, (char *)&value, sizeof(value));
+#endif	// IP_MTU_DISCOVER
+#endif	// IP_PMTUDISC_DONT
+}
+
+// Set the header-include option
+void SetRawSockHeaderIncludeOption(SOCK *s, bool enable)
+{
+	UINT value = BOOL_TO_INT(enable);
+	if (s == NULL || s->IsRawSocket == false)
+	{
+		return;
+	}
+
+	setsockopt(s->socket, IPPROTO_IP, IP_HDRINCL, (char *)&value, sizeof(value));
+
+	s->RawIP_HeaderIncludeFlag = enable;
+}
+
 // Create and initialize the UDP socket
 // If port is specified as 0, system assigns a certain port.
 SOCK *NewUDP(UINT port)
@@ -15107,6 +15170,11 @@ SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag)
 }
 SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname)
 {
+	return ConnectEx4(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, ssl_no_tls,
+		no_get_hostname, NULL);
+}
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname, IP *ret_ip)
+{
 	SOCK *sock;
 	SOCKET s;
 	struct linger ling;
@@ -15123,6 +15191,7 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	char hint_str[MAX_SIZE];
 	bool force_use_natt = false;
 	UINT dummy_int = 0;
+	IP dummy_ret_ip;
 	// Validate arguments
 	if (hostname == NULL || port == 0 || port >= 65536 || IsEmptyStr(hostname))
 	{
@@ -15139,6 +15208,12 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	if (nat_t_error_code == NULL)
 	{
 		nat_t_error_code = &dummy_int;
+	}
+
+	Zero(&dummy_ret_ip, sizeof(IP));
+	if (ret_ip == NULL)
+	{
+		ret_ip = &dummy_ret_ip;
 	}
 
 	Zero(hint_str, sizeof(hint_str));
@@ -15188,10 +15263,27 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	Zero(&ip4, sizeof(ip4));
 	Zero(&ip6, sizeof(ip6));
 
-	// Forward resolution
-	if (GetIP46Ex(&ip4, &ip6, hostname_original, 0, cancel_flag) == false)
+	if (IsZeroIp(ret_ip) == false)
 	{
-		return NULL;
+		// Skip name resolution
+		if (IsIP6(ret_ip))
+		{
+			Copy(&ip6, ret_ip, sizeof(IP));
+		}
+		else
+		{
+			Copy(&ip4, ret_ip, sizeof(IP));
+		}
+
+		Debug("Using cached IP address: %s = %r\n", hostname_original, ret_ip);
+	}
+	else
+	{
+		// Forward resolution
+		if (GetIP46Ex(&ip4, &ip6, hostname_original, 0, cancel_flag) == false)
+		{
+			return NULL;
+		}
 	}
 
 	if (IsZeroIp(&ip4) == false && IsIPLocalHostOrMySelf(&ip4))
@@ -15214,6 +15306,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			if (s != INVALID_SOCKET)
 			{
 				Copy(&current_ip, &ip4, sizeof(IP));
+
+				Copy(ret_ip, &ip4, sizeof(IP));
 			}
 		}
 		else if (force_use_natt)
@@ -15226,6 +15320,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			{
 				StrCpy(nat_t_sock->UnderlayProtocol, sizeof(nat_t_sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
 			}
+
+			Copy(ret_ip, &ip4, sizeof(IP));
 
 			return nat_t_sock;
 		}
@@ -15435,6 +15531,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 					p1.Result_Tcp_Sock->RemoteHostname = CopyStr(hostname);
 				}
 
+				Copy(ret_ip, &ip4, sizeof(IP));
+
 				return p1.Result_Tcp_Sock;
 			}
 			else if (p2.Ok)
@@ -15449,6 +15547,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol),
 					SOCK_UNDERLAY_NAT_T);
 
+				Copy(ret_ip, &ip4, sizeof(IP));
+
 				return p2.Result_Nat_T_Sock;
 			}
 			else if (p4.Ok)
@@ -15461,6 +15561,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol),
 					SOCK_UNDERLAY_DNS);
 
+				Copy(ret_ip, &ip4, sizeof(IP));
+
 				return p4.Result_Nat_T_Sock;
 			}
 			else if (p3.Ok)
@@ -15468,6 +15570,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				// Use this if over ICMP success
 				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol),
 					SOCK_UNDERLAY_ICMP);
+
+				Copy(ret_ip, &ip4, sizeof(IP));
 
 				return p3.Result_Nat_T_Sock;
 			}
@@ -15511,6 +15615,8 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Copy(&current_ip, &ip6, sizeof(IP));
 
 				is_ipv6 = true;
+
+				Copy(ret_ip, &ip6, sizeof(IP));
 			}
 		}
 	}

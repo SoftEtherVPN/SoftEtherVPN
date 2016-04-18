@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -554,6 +554,16 @@ BRIDGE *BrNewBridge(HUB *h, char *name, POLICY *p, bool local, bool monitor, boo
 	ReleaseThread(t);
 
 	return b;
+}
+
+// Raw IP bridge is supported only on Linux
+bool IsRawIpBridgeSupported()
+{
+#ifdef	UNIX_LINUX
+	return true;
+#else	// UNIX_LINUX
+	return false;
+#endif	// UNIX_LINUX
 }
 
 

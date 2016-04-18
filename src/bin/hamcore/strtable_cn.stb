@@ -559,6 +559,7 @@ HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and dest
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
 HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
+HUB_AO_DenyAllRadiusLoginWithNoVlanAssign	If you set this option to non-zero value, then all users, which RADIUS server returns no "Tunnel-Pvt-Group-ID" (ID = 81) value, will be denied to connect to the Virtual Hub. (Only if the values of AssignVLanIdByRadiusAttribute is non-zero value.)
 HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, then the Virtual DHCP Server of the SecureNAT function will choose an unused IP address randomly from the DHCP pool while the default behavior is to choose the first unused IP address.
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
@@ -1498,6 +1499,7 @@ SM_SNAT_STATUS				SecureNAT 运行状态
 SM_SNAT_NUM_SESSION			%u 个会话
 SM_SNAT_NUM_CLIENT			%u 个客户端
 SM_SNAT_IS_KERNEL			内核模式 NAT 功能是活跃的
+SM_SNAT_IS_RAW				Raw IP mode NAT 功能是活跃的
 SM_BRIDGE_TOO_OLD_VER		当前连接的 VPN Server 版本不支持本地网桥功能。\r\n请更新到最新版本。
 SM_BRIDGE_UNSUPPORTED		当前连接的 VPN Server 运行的操作系统无法使用本地网桥功能。请参阅 VPN Server 在线文档以获得支持本地网桥功能的操作系统列表。
 SM_BRIDGE_WPCAP_REMOTE		为在此 VPN Server 上使用本地网桥功能，您必须安装 WinPcap 软件。WinPcap 软件当前没有在服务器上安装。\r\n\r\n要进行 WinPcap 软件的安装，您必须在运行 VPN Server 的服务器上启动 SoftEther VPN Server 管理器，然后连接到本机 (您自己计算机的位置)，打开本地网桥功能设置窗口。\r\n首先退出此管理会话，然后在此服务器上启动 SoftEther VPN Server 管理器之后，连接到本机并继续设置进程。
@@ -5483,7 +5485,7 @@ CMD_AccessAdd_Prompt_TCPSTATE	TCP 连接的状态 (Established/Unestablished):
 # AccessAddEx 命令
 CMD_AccessAddEx					添加扩展访问列表规则 (IPv4：延迟、时基误差/数据包丢失产生)
 CMD_AccessAddEx_Help			在当前管理的虚拟 HUB 的访问列表中，使用此命令添加新的规则。当数据包经由虚拟 HUB 通过时，你可以设置产生延迟、时基误差和数据包丢失。\n访问列表是一组文件规则被应用到流过虚拟 HUB 的数据包。您可以在一个访问列表中注册多个规则，你也可以定义每个规则的优先级。检查所有的数据包的规则所指定的条件，在访问列表中注册的规则，由第一个匹配的规则根据规定的操作，它们要么通过要么被丢弃。不匹配任何规则的数据包暗中允许通过。您也可以使用 AccessAddEx 的命令来生成延迟、时基误差和数据包丢失。\n此命令不能在 VPN Bridge 上运行。\n在以成员服务器群集上运行的 VPN Server 的虚拟 HUB 上，您不能执行此命令。
-CMD_AccessAddEx_Args			AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx_Args			AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/TCPSTATE:established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx_[pass|discard]	当一个数据包匹配此规则条件时，该操作就已决定了。当通过被指定时，则数据包允许通过；当丢弃被指定时，数据包被丢弃。如果动作是通过，延迟、时基误差和数据包丢失的设置被应用。
 CMD_AccessAddEx_MEMO			指定此规则的描述 (备忘录)。
 CMD_AccessAddEx_PRIORITY		指定 1 或以上的整数作为此规则的优先级。数字越小优先级越高。
@@ -5500,6 +5502,7 @@ CMD_AccessAddEx_TCPSTATE		指定 TCP 连接状态作为一个规则。使用 Est
 CMD_AccessAddEx_DELAY			当数据包通过时，设置此数值来生成延迟。以毫秒来指定延迟的时间段。指定 0，意为不会生成延迟。延迟最多为 10000 毫秒、
 CMD_AccessAddEx_JITTER			当数据包通过时，设置此数值来生成时基误差。用 0% 到 100% 之内的范围来指定时基误差波动的频率。指定 0，意为不会生成时基误差。
 CMD_AccessAddEx_LOSS			当数据包通过时，设置此数值来生成数据包丢失。用 0% 到 100% 之内的范围来指定丢包的频率。指定 0，意为不会生成丢包。
+CMD_AccessAddEx_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_AccessAddEx_Prompt_DELAY	生成延迟 (毫秒: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	生成时基误差的波动(百分比: 0 - 100): 
 CMD_AccessAddEx_Prompt_LOSS		丢包率 (百分比: 0 - 100): 
@@ -5544,7 +5547,7 @@ CMD_AccessAdd6_Prompt_TCPSTATE	TCP 连接的状态 (Established/Unestablished):
 # AccessAddEx6 命令
 CMD_AccessAddEx6				添加扩展访问列表规则 (IPv6，生成延迟，时基误差/数据包丢失)
 CMD_AccessAddEx6_Help			在当前管理的虚拟 HUB 的访问列表中，使用此命令添加新的规则。当数据包经由虚拟 HUB 通过时，你可以设置产生延迟、时基误差和数据包丢失。\n访问列表是一组文件规则被应用到流过虚拟 HUB 的数据包。您可以在一个访问列表中注册多个规则，你也可以定义每个规则的优先级。检查所有的数据包的规则所指定的条件，在访问列表中注册的规则，由第一个匹配的规则根据规定的操作，它们要么通过要么被丢弃。不匹配任何规则的数据包暗中允许通过。您也可以使用 AccessAddEx6 的命令来生成延迟、时基误差和数据包丢失。 \n此命令不能在 VPN Bridge 上运行。 \n在以成员服务器群集上运行的 VPN Server 的虚拟 HUB 上，您不能执行此命令。
-CMD_AccessAddEx6_Args			AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx6_Args			AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx6_[pass|discard]	如果通过，会产生延迟，抖动和丢包。当一个数据包匹配此规则条件时，该操作就已决定了。当通过被指定时，则数据包允许通过；当丢弃被指定时，数据包被丢弃。如果动作是通过，延迟、时基误差和数据包丢失的设置被应用。
 CMD_AccessAddEx6_MEMO			指定此规则的描述(备忘录)。
 CMD_AccessAddEx6_PRIORITY		指定1或以上的整数作为此规则的优先级。数字越小优先级越高。
@@ -5560,7 +5563,8 @@ CMD_AccessAddEx6_DESTMAC		指定目标 MAC 地址作为一个规则。方法与�
 CMD_AccessAddEx6_TCPSTATE		指定 TCP连接状态作为一个规则。使用已建立的(Established) 或未建立的(Unestablished)。
 CMD_AccessAddEx6_DELAY			当数据包通过时，设置本数值来产生延迟。以毫秒为单位来指定延迟周期。指定0，意为不产生延迟。延迟最大为 10000 毫秒。
 CMD_AccessAddEx6_JITTER			当数据包通过时，设置本数值来产生时基误差。当数据包通过时，设置此数值来生成时基误差。用 0% 到 100% 之内的范围来指定时基误差波动的频率。指定 0，意为不会生成时基误差。
-CMD_AccessAddEx6_LOSS			当数据包通过时，设置本数值来产生数据包丢失。指定 0% 至 100% 来作为丢包的比率范围。指定 0，意为无丢包生成。 
+CMD_AccessAddEx6_LOSS			当数据包通过时，设置本数值来产生数据包丢失。指定 0% 至 100% 来作为丢包的比率范围。指定 0，意为无丢包生成。
+CMD_AccessAddEx6_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_AccessAddEx6_Prompt_DELAY	生成延迟 (毫秒: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	生成时基误差的波动 (百分比: 0 - 100): 
 CMD_AccessAddEx6_Prompt_LOSS	丢包率 (百分比: 0 - 100): 
@@ -6872,8 +6876,9 @@ CMD_TrafficClient_ERROR_HOSTPORT	指定的主机名或端口号不正确。
 # TrafficServer 命令
 CMD_TrafficServer			在服务器模式下，运行网络流量速度测试工具
 CMD_TrafficServer_Help		运行通信吞吐量测量工具的服务器程序。\n通信吞吐量测量工具，作为 TrafficClient 和 TrafficServer 两个指令使用，可以测量在 IP 网络上连接的 2 台计算机之间可传送的通信吞吐量。\n要使此计算机上的 TCP 端口处于待机状态，等待从另一台计算机的 TrafficClient 连接，启动 TrafficServer 指令并指定端口号。\n关于通信吞吐量测量工具的详细情况，输入 "TrafficClient ?" 将显示。\n\n※注意: 此指令可以从 SoftEther VPN 命令行管理工具调用。虽然目前以管理模式连接 VPN Server 和 VPN Client 时可以运行，但要进行实际通信并测量吞吐量的，是运行此指令的计算机，与用管理模式连接终端的计算机没有任何关系。
-CMD_TrafficServer_Args	TrafficServer [port]
+CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
 CMD_TrafficServer_[port]	以整数指定等待连接的端口号。被指定的端口，如果已经由另一个程序在使用，或不能打开该端口时，将发生错误。
+CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.
 
 
 # 关于 TrafficClient / TrafficServer 的内部信息字符串

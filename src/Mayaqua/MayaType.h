@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -423,6 +423,7 @@ typedef struct STRMAP_ENTRY STRMAP_ENTRY;
 typedef struct SHARED_BUFFER SHARED_BUFFER;
 typedef struct HASH_LIST HASH_LIST;
 typedef struct HASH_ENTRY HASH_ENTRY;
+typedef struct PRAND PRAND;
 
 // Str.h
 typedef struct TOKEN_LIST TOKEN_LIST;

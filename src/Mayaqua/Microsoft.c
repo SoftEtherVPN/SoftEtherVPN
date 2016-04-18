@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -12609,6 +12609,14 @@ NT_API *MsLoadNtApiFunctions()
 		(BOOL (__stdcall *)(HANDLE,DWORD,LPWSTR,PDWORD))
 		GetProcAddress(nt->hKernel32, "QueryFullProcessImageNameW");
 
+	nt->RegLoadKeyW =
+		(LSTATUS (__stdcall *)(HKEY,LPCWSTR,LPCWSTR))
+		GetProcAddress(nt->hAdvapi32, "RegLoadKeyW");
+
+	nt->RegUnLoadKeyW =
+		(LSTATUS (__stdcall *)(HKEY,LPCWSTR))
+		GetProcAddress(nt->hAdvapi32, "RegUnLoadKeyW");
+
 	if (info.dwMajorVersion >= 5)
 	{
 		nt->UpdateDriverForPlugAndPlayDevicesW =
@@ -12955,6 +12963,59 @@ DWORD MsRegAccessMaskFor64BitEx(bool force32bit, bool force64bit)
 	}
 
 	return 0;
+}
+
+// Load the hive
+bool MsRegLoadHive(UINT root, wchar_t *keyname, wchar_t *filename)
+{
+	LONG ret;
+	if (keyname == NULL || filename == NULL)
+	{
+		WHERE;
+		return false;
+	}
+
+	if (ms->nt == NULL || ms->nt->RegLoadKeyW == NULL || ms->nt->RegUnLoadKeyW == NULL)
+	{
+		WHERE;
+		return false;
+	}
+
+	ret = ms->nt->RegLoadKeyW(MsGetRootKeyFromInt(root), keyname, filename);
+
+	if (ret != ERROR_SUCCESS)
+	{
+		Debug("RegLoadKeyW: %S %S %u\n", keyname, filename, GetLastError());
+		return false;
+	}
+	WHERE;
+
+	return true;
+}
+
+// Unload the hive
+bool MsRegUnloadHive(UINT root, wchar_t *keyname)
+{
+	LONG ret;
+	if (keyname == NULL)
+	{
+		return false;
+	}
+
+	if (ms->nt == NULL || ms->nt->RegLoadKeyW == NULL || ms->nt->RegUnLoadKeyW == NULL)
+	{
+		return false;
+	}
+
+	ret = ms->nt->RegUnLoadKeyW(MsGetRootKeyFromInt(root), keyname);
+
+	if (ret != ERROR_SUCCESS)
+	{
+		Debug("RegUnLoadKeyW: %u\n", GetLastError());
+		return false;
+	}
+
+	return true;
 }
 
 // Delete the value

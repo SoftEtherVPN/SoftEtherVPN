@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -189,6 +189,7 @@
 #define	L2TP_AVP_TYPE_V3_SESSION_ID_LOCAL	63	// Local Session ID
 #define	L2TP_AVP_TYPE_V3_SESSION_ID_REMOTE	64	// Remote Session ID
 #define	L2TP_AVP_TYPE_V3_PW_TYPE		68		// Pseudowire Type
+#define	L2TP_AVP_TYPE_V3_CIRCUIT_STATUS	71
 
 // Message Type value
 #define	L2TP_MESSAGE_TYPE_SCCRQ			1		// Start-Control-Connection-Request
@@ -247,6 +248,7 @@ struct L2TP_PACKET
 	bool HasOffset;								// Whether there is offset bit
 	bool IsPriority;							// Whether priority packet
 	bool IsZLB;									// Zero Length Bit
+	bool IsYamahaV3;							// L2TPv3 on YAMAHA
 	UINT Ver;									// Version
 	UINT Length;								// Length
 	UINT TunnelId;								// Tunnel ID
@@ -284,6 +286,7 @@ struct L2TP_TUNNEL
 {
 	bool IsV3;									// L2TPv3
 	bool IsCiscoV3;								// L2TPv3 for Cisco
+	bool IsYamahaV3;							// L2TPv3 for YAMAHA
 	IP ClientIp;								// Client IP address
 	UINT ClientPort;							// Client port number
 	IP ServerIp;								// Server IP address
@@ -339,7 +342,7 @@ void FreeL2TPServer(L2TP_SERVER *l2tp);
 void StopL2TPServer(L2TP_SERVER *l2tp, bool no_wait);
 void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p);
 L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p);
-BUF *BuildL2TPPacketData(L2TP_PACKET *pp);
+BUF *BuildL2TPPacketData(L2TP_PACKET *pp, L2TP_TUNNEL *t);
 L2TP_AVP *GetAVPValue(L2TP_PACKET *p, UINT type);
 L2TP_AVP *GetAVPValueEx(L2TP_PACKET *p, UINT type, UINT vendor_id);
 L2TP_TUNNEL *NewL2TPTunnel(L2TP_SERVER *l2tp, L2TP_PACKET *p, UDPPACKET *udp);
@@ -348,6 +351,7 @@ UINT GenerateNewTunnelIdEx(L2TP_SERVER *l2tp, IP *client_ip, bool is_32bit);
 void FreeL2TPTunnel(L2TP_TUNNEL *t);
 L2TP_TUNNEL *GetTunnelFromId(L2TP_SERVER *l2tp, IP *client_ip, UINT tunnel_id, bool is_v3);
 L2TP_TUNNEL *GetTunnelFromIdOfAssignedByClient(L2TP_SERVER *l2tp, IP *client_ip, UINT tunnel_id);
+L2TP_TUNNEL *GetTunnelFromIdOfAssignedByClientEx(L2TP_SERVER *l2tp, IP *client_ip, UINT tunnel_id, bool is_v3);
 void SendL2TPControlPacket(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, UINT session_id, L2TP_PACKET *p);
 void SendL2TPControlPacketMain(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_QUEUE *q);
 void SendL2TPDataPacket(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s, void *data, UINT size);

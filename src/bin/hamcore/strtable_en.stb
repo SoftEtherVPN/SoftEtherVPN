@@ -233,7 +233,7 @@ TCPOPT_NOT_ADMIN		Users without administrator privileges cannot use the TCP Opti
 
 # Windows Vista / Windows 7 / Windows 8 Optimization
 VISTA_MMCSS_MSG			Do you wish to optimize Windows Vista / Windows 7 / Windows 8 / Windows 10 for playing multimedia files with VPN? (e.g. videos, audios and streaming)
-VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remote optimized configuration?
+VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remove optimized configuration?
 VISTA_MMCSS_MSG_3		You cannot use optimization in currently environment.
 VISTA_MMCSS_MSG_4		You must have administrator privileges for this function.\r\nPlease note that in Windows Vista / Windows 7 / Windows 8 / Windows 10 you should use "Run as Administrators" to execute program.
 VISTA_MMCSS_MSG_5		Optimization is finished.
@@ -553,6 +553,7 @@ HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and dest
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
 HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.
+HUB_AO_DenyAllRadiusLoginWithNoVlanAssign	If you set this option to non-zero value, then all users, which RADIUS server returns no "Tunnel-Pvt-Group-ID" (ID = 81) value, will be denied to connect to the Virtual Hub. (Only if the values of AssignVLanIdByRadiusAttribute is non-zero value.)
 HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, then the Virtual DHCP Server of the SecureNAT function will choose an unused IP address randomly from the DHCP pool while the default behavior is to choose the first unused IP address.
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
@@ -1488,6 +1489,7 @@ SM_SNAT_STATUS			SecureNAT Operating Status
 SM_SNAT_NUM_SESSION		%u Session
 SM_SNAT_NUM_CLIENT		%u Client
 SM_SNAT_IS_KERNEL		Kernel-mode NAT is Active
+SM_SNAT_IS_RAW			Raw IP mode NAT is Active
 SM_BRIDGE_TOO_OLD_VER	The Local Bridge function is not supported by the version of the VPN Server that is currently connected. \r\nTry update to a new version.
 SM_BRIDGE_UNSUPPORTED	Unable to use the Local Bridge function with the operating system that this VPN Server is operating on. For the list of operating system that the Local Bridge function can be used on, refer to the online documentation of the VPN Server.
 SM_BRIDGE_WPCAP_REMOTE	In order to use the Local Bridge function on this VPN Server, you must install the WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nTo continue the installation of the WinPcap software, you must start SoftEther VPN Server Manager on the server computer that is running VPN Server and then while connected to localhost (location of your own computer), have the Local Bridge Function Setting window displayed. \r\nTo continue, first exit this management session, and then, after starting SoftEther VPN Server Manager on the server computer, connect to localhost and continue the setting process. 
@@ -5467,7 +5469,7 @@ CMD_AccessAdd_Prompt_TCPSTATE		TCP Connection State (Established/Unestablished):
 # AccessAddEx command
 CMD_AccessAddEx			Add Extended Access List Rules (IPv4: Delay, Jitter and Packet Loss Generating)
 CMD_AccessAddEx_Help	Use this to add a new rule to the access list of the currently managed Virtual Hub. You can set to generate delays, jitters and packet losses when a packet is passing via the Virtual Hub. \nThe access list is a set of packet file rules that are applied to packets that flow through the Virtual Hub. You can register multiple rules in an access list and you can also define an priority for each rule. All packets are checked for the conditions specified by the rules registered in the access list and based on the operation that is stipulated by the first matching rule, they either pass or are discarded. Packets that do not match any rule are implicitly allowed to pass. You can also use the AccessAddEx command to generate delays, jitters and packet losses. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
-CMD_AccessAddEx_Args	AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx_Args	AccessAddEx [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx_[pass|discard]	When a packet matches this rule condition, this operation is decided. When pass is specified, the packet is allowed to pass, and when discard is specified, the packet is discarded. The setting of delays, jitters and packet losses is applied if the action is pass.
 CMD_AccessAddEx_MEMO	Specify a description (memo) for this rule.
 CMD_AccessAddEx_PRIORITY	Specify an integer of 1 or higher to indicate the priority of the rule. Higher priority is given to rules with the lower priority values.
@@ -5484,6 +5486,7 @@ CMD_AccessAddEx_TCPSTATE		Specify TCP connection state as a rule. Use Establishe
 CMD_AccessAddEx_DELAY	Set this value to generate delays when packets is passing. Specify the delay period in milliseconds. Specify 0 means no delays to generate. The delays must be 10000 milliseconds at most.
 CMD_AccessAddEx_JITTER	Set this value to generate jitters when packets is passing. Specify the ratio of fluctuation of jitters within 0% to 100% range. Specify 0 means no jitters to generate.
 CMD_AccessAddEx_LOSS	Set this value to generate packet losses when packets is passing. Specify the ratio of packet losses within 0% to 100% range. Specify 0 means no packet losses to generate.
+CMD_AccessAddEx_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_AccessAddEx_Prompt_DELAY	Delays to Generate (in milliseconds: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	Fluctuation of Jitters to Generate (Percent: 0 - 100): 
 CMD_AccessAddEx_Prompt_LOSS		Ratio of Packet Losses (Percent: 0 - 100): 
@@ -5528,7 +5531,7 @@ CMD_AccessAdd6_Prompt_TCPSTATE		TCP Connection State (Established/Unestablished)
 # AccessAddEx6 command
 CMD_AccessAddEx6			Add Extended Access List Rules (IPv6: Delay, Jitter and Packet Loss Generating)
 CMD_AccessAddEx6_Help	Use this to add a new rule to the access list of the currently managed Virtual Hub. You can set to generate delays, jitters and packet losses when a packet is passing via the Virtual Hub. \nThe access list is a set of packet file rules that are applied to packets that flow through the Virtual Hub. You can register multiple rules in an access list and you can also define a priority for each rule. All packets are checked for the conditions specified by the rules registered in the access list and based on the operation that is stipulated by the first matching rule, they either pass or are discarded. Packets that do not match any rule are implicitly allowed to pass. You can also use the AccessAddEx6 command to generate delays, jitters and packet losses. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
-CMD_AccessAddEx6_Args	AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent]
+CMD_AccessAddEx6_Args	AccessAddEx6 [pass|discard] [/MEMO:memo] [/PRIORITY:priority] [/SRCUSERNAME:username] [/DESTUSERNAME:username] [/SRCMAC:mac/mask] [/DESTMAC:mac/mask] [/SRCIP:ip/mask] [/DESTIP:ip/mask] [/PROTOCOL:tcp|udp|icmpv4|icmpv6|ip|num] [/SRCPORT:start-end] [/DESTPORT:start-end] [/TCPSTATE: established|unestablished] [/DELAY:delay_millisec] [/JITTER:jitter_percent] [/LOSS:loss_percent] [/REDIRECTURL:url]
 CMD_AccessAddEx6_[pass|discard]	When a packet matches this rule condition, this operation is decided. When pass is specified, the packet is allowed to pass, and when discard is specified, the packet is discarded. The setting of delays, jitters and packet losses is applied if the action is pass.
 CMD_AccessAddEx6_MEMO	Specify a description (memo) for this rule.
 CMD_AccessAddEx6_PRIORITY	Specify an integer of 1 or higher to indicate the priority of the rule. Higher priority is given to rules with the lower priority values.
@@ -5545,6 +5548,7 @@ CMD_AccessAddEx6_TCPSTATE		Specify TCP connection state as a rule. Use Establish
 CMD_AccessAddEx6_DELAY	Set this value to generate delays when packets is passing. Specify the delay period in milliseconds. Specify 0 means no delays to generate. The delays must be 10000 milliseconds at most.
 CMD_AccessAddEx6_JITTER	Set this value to generate jitters when packets is passing. Specify the ratio of fluctuation of jitters within 0% to 100% range. Specify 0 means no jitters to generate.
 CMD_AccessAddEx6_LOSS	Set this value to generate packet losses when packets is passing. Specify the ratio of packet losses within 0% to 100% range. Specify 0 means no packet losses to generate.
+CMD_AccessAddEx6_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_AccessAddEx6_Prompt_DELAY	Delays to Generate (in milliseconds: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	Fluctuation of Jitters to Generate (Percent: 0 - 100): 
 CMD_AccessAddEx6_Prompt_LOSS		Ratio of Packet Losses (Percent: 0 - 100): 
@@ -6859,8 +6863,10 @@ CMD_TrafficClient_ERROR_HOSTPORT	The host name or port number is incorrectly spe
 # TrafficServer command
 CMD_TrafficServer		Run Network Traffic Speed Test Tool in Server Mode
 CMD_TrafficServer_Help	Use this to execute the communication throughput measurement tool's server program. \nTwo commands, TrafficClient and TrafficServer, are used for the communication throughput measurement tool to enable the measurement of communication throughput that can be transferred between two computers connected by IP network. \nTo set the TCP port of this computer to the Listen status to listen for the connection from the TrafficClient of another computer, specify the port number and start the server program using the TrafficServer command. \nYou can display more detailed information on the communication throughput measurement tool by inputting "TrafficClient ?". \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually conducts communication and measures the throughput is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
-CMD_TrafficServer_Args	TrafficServer [port]
+CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
 CMD_TrafficServer_[port]	Specify, using an integer, the port number at which to listen for the connection. If the specified port has been already being used by another program, or if the port cannot be opened, an error will occur.
+CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.
+
 
 
 # Internal message strings concerning TrafficClient / TrafficServer

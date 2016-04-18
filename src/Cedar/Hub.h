@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -265,6 +265,7 @@ struct HUB_OPTION
 	UINT SecureNAT_MaxIcmpSessionsPerIp;	// Maximum number of ICMP sessions per IP address
 	UINT AccessListIncludeFileCacheLifetime;	// Expiration of the access list external file (in seconds)
 	bool DisableKernelModeSecureNAT;			// Disable the kernel mode NAT
+	bool DisableIpRawModeSecureNAT;			// Disable the IP Raw Mode NAT
 	bool DisableUserModeSecureNAT;			// Disable the user mode NAT
 	bool DisableCheckMacOnLocalBridge;	// Disable the MAC address verification in local bridge
 	bool DisableCorrectIpOffloadChecksum;	// Disable the correction of checksum that is IP-Offloaded
@@ -276,6 +277,7 @@ struct HUB_OPTION
 	bool SuppressClientUpdateNotification;	// Suppress the update notification function on the VPN Client
 	UINT FloodingSendQueueBufferQuota;	// The global quota of send queues of flooding packets
 	bool AssignVLanIdByRadiusAttribute;	// Assign the VLAN ID for the VPN session, by the attribute value of RADIUS
+	bool DenyAllRadiusLoginWithNoVlanAssign;	// Deny all RADIUS login with no VLAN ID assigned
 	bool SecureNAT_RandomizeAssignIp;	// Randomize the assignment IP address for new DHCP client
 	UINT DetectDormantSessionInterval;	// Interval (seconds) threshold to detect a dormant VPN session
 	bool NoPhysicalIPOnPacketLog;		// Disable saving physical IP address on the packet log
@@ -434,6 +436,8 @@ struct HUB
 	UINT RadiusRetryInterval;			// Radius retry interval
 	BUF *RadiusSecret;					// Radius shared key
 	char RadiusSuffixFilter[MAX_SIZE];	// Radius suffix filter
+	bool RadiusConvertAllMsChapv2AuthRequestToEap;	// Convert all MS-CHAPv2 auth request to EAP
+	bool RadiusUsePeapInsteadOfEap;			// Use PEAP instead of EAP
 	volatile bool Halt;					// Halting flag
 	bool Offline;						// Offline
 	bool BeingOffline;					// Be Doing Offline
@@ -636,6 +640,7 @@ void CalcTrafficDiff(TRAFFIC *diff, TRAFFIC *old, TRAFFIC *current);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
 void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username);
 
 #endif	// HUB_H
 

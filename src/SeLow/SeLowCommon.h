@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -115,7 +115,7 @@
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update
 // installation of the VPN Server / VPN Client / VPN Bridge is skipped.
-#define	SL_VER						46
+#define	SL_VER						48
 
 // Constants
 #define	SL_MAX_PACKET_SIZE			1600

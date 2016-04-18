@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -158,13 +158,14 @@ UINT64 Tick64ToTime64(UINT64 tick)
 	}
 	LockList(tk64->AdjustTime);
 	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(tk64->AdjustTime);i++)
+		INT i;
+		for (i = ((INT)LIST_NUM(tk64->AdjustTime) - 1); i >= 0; i--)
 		{
 			ADJUST_TIME *t = LIST_DATA(tk64->AdjustTime, i);
 			if (t->Tick <= tick)
 			{
 				ret = t->Time + (tick - t->Tick);
+				break;
 			}
 		}
 	}

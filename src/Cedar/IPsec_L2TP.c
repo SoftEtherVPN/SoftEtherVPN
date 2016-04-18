@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -180,7 +180,7 @@ void SendL2TPControlPacket(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, UINT session_id, L
 
 	p->Nr = t->LastNr + 1;
 
-	buf = BuildL2TPPacketData(p);
+	buf = BuildL2TPPacketData(p, t);
 
 	q = ZeroMalloc(sizeof(L2TP_QUEUE));
 	q->Buf = buf;
@@ -239,15 +239,33 @@ void SendL2TPDataPacket(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s, void
 	else
 	{
 		// L2TPv3
-		buf_size = 4 + size;
-		buf = Malloc(buf_size);
+		if (t->IsYamahaV3 == false)
+		{
+			buf_size = 4 + size;
+			buf = Malloc(buf_size);
 
-		WRITE_UINT(buf, s->SessionId1);
+			WRITE_UINT(buf, s->SessionId1);
 
-		Copy(buf + 4, data, size);
+			Copy(buf + 4, data, size);
 
-		// Transmission
-		p = NewUdpPacket(&t->ServerIp, IPSEC_PORT_L2TPV3_VIRTUAL, &t->ClientIp, IPSEC_PORT_L2TPV3_VIRTUAL, buf, buf_size);
+			// Transmission
+			p = NewUdpPacket(&t->ServerIp, IPSEC_PORT_L2TPV3_VIRTUAL, &t->ClientIp, IPSEC_PORT_L2TPV3_VIRTUAL, buf, buf_size);
+		}
+		else
+		{
+			UINT header = 0x00030000;
+
+			buf_size = 8 + size;
+			buf = Malloc(buf_size);
+
+			WRITE_UINT(buf, header);
+			WRITE_UINT(buf + 4, s->SessionId1);
+
+			Copy(buf + 8, data, size);
+
+			// Transmission
+			p = NewUdpPacket(&t->ServerIp, t->ServerPort, &t->ClientIp, t->ClientPort, buf, buf_size);
+		}
 	}
 
 	L2TPSendUDP(l2tp, p);
@@ -285,14 +303,14 @@ void L2TPSendUDP(L2TP_SERVER *l2tp, UDPPACKET *p)
 }
 
 // Build a L2TP packet
-BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
+BUF *BuildL2TPPacketData(L2TP_PACKET *pp, L2TP_TUNNEL *t)
 {
 	BUF *ret;
 	UCHAR c;
 	USHORT us;
 	UINT ui;
 	// Validate arguments
-	if (pp == NULL)
+	if (pp == NULL || t == NULL)
 	{
 		return NULL;
 	}
@@ -322,9 +340,12 @@ BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
 
 	if (pp->Ver == 3)
 	{
-		// Zero as Session ID
-		ui = 0;
-		WriteBuf(ret, &ui, sizeof(UINT));
+		if (t->IsYamahaV3 == false)
+		{
+			// Zero as Session ID
+			ui = 0;
+			WriteBuf(ret, &ui, sizeof(UINT));
+		}
 	}
 
 	// Flags
@@ -339,6 +360,11 @@ BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
 		c |= L2TP_HEADER_BIT_OFFSET;
 	}
 
+	if (pp->IsControl == false && pp->Ver == 3 && t->IsYamahaV3)
+	{
+		c = 0;
+	}
+
 	WriteBuf(ret, &c, 1);
 
 	// Ver
@@ -351,6 +377,13 @@ BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
 
 	// Length
 	if (pp->IsControl)
+	{
+		us = 0;
+		WriteBuf(ret, &us, sizeof(USHORT));
+	}
+
+	// Reserved
+	if (pp->IsControl == false && pp->Ver == 3 && t->IsYamahaV3)
 	{
 		us = 0;
 		WriteBuf(ret, &us, sizeof(USHORT));
@@ -387,9 +420,12 @@ BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
 	}
 	else
 	{
-		// Offset Size = 0
-		us = 0;
-		WriteBuf(ret, &us, sizeof(USHORT));
+		if (!(pp->IsControl == false && pp->Ver == 3 && t->IsYamahaV3))
+		{
+			// Offset Size = 0
+			us = 0;
+			WriteBuf(ret, &us, sizeof(USHORT));
+		}
 	}
 
 	if (pp->IsControl)
@@ -431,7 +467,8 @@ BUF *BuildL2TPPacketData(L2TP_PACKET *pp)
 	if (pp->IsControl)
 	{
 		// Update Length
-		WRITE_USHORT(((UCHAR *)ret->Buf) + 2 + (pp->Ver == 3 ? sizeof(UINT) : 0), (USHORT)(ret->Size - (pp->Ver == 3 ? sizeof(UINT) : 0)));
+		bool l2tpv3_non_yamaha = ((pp->Ver == 3) && (t->IsYamahaV3 == false));
+		WRITE_USHORT(((UCHAR *)ret->Buf) + 2 + (l2tpv3_non_yamaha ? sizeof(UINT) : 0), (USHORT)(ret->Size - (l2tpv3_non_yamaha ? sizeof(UINT) : 0)));
 	}
 
 	SeekBuf(ret, 0, 0);
@@ -446,6 +483,7 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 	UCHAR *buf;
 	UINT size;
 	bool is_l2tpv3 = false;
+	bool is_l2tpv3_yamaha = false;
 	// Validate arguments
 	if (p == NULL)
 	{
@@ -456,17 +494,27 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 
 	if (p->SrcPort == IPSEC_PORT_L2TPV3_VIRTUAL)
 	{
-		// It is L2TPv3
+		// L2TPv3 (Cisco)
 		is_l2tpv3 = true;
 	}
 
 	buf = p->Data;
 	size = p->Size;
 
-	if (is_l2tpv3)
+	if (size >= 2 && ((buf[1] & L2TP_HEADER_BIT_VER) == 3))
 	{
+		if (p->SrcPort != IPSEC_PORT_L2TPV3_VIRTUAL)
+		{
+			// L2TPv3 (YAMAHA)
+			is_l2tpv3 = true;
+			is_l2tpv3_yamaha = true;
+		}
+	}
+
+	if (is_l2tpv3 && (is_l2tpv3_yamaha == false))
+	{
+		// L2TPv3 (Cisco)
 		UINT session_id;
-		// In the case of L2TPv3
 		if (size < 4)
 		{
 			goto LABEL_ERROR;
@@ -590,6 +638,24 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 		size = ret->Length - 4;
 	}
 
+	if (is_l2tpv3)
+	{
+		if (p->SrcPort != IPSEC_PORT_L2TPV3_VIRTUAL)
+		{
+			if (ret->IsControl == false)
+			{
+				// Reserved
+				if (size < 2)
+				{
+					goto LABEL_ERROR;
+				}
+
+				buf += 2;
+				size -= 2;
+			}
+		}
+	}
+
 	// Tunnel ID, Session ID
 	if (size < 4)
 	{
@@ -616,6 +682,11 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 
 		// The session ID is not written in the header
 		ret->SessionId = 0;
+
+		if (ret->IsControl == false)
+		{
+			ret->SessionId = ret->TunnelId;
+		}
 	}
 
 	if (ret->HasSequence)
@@ -742,7 +813,7 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 		ret->MessageType = READ_USHORT(a->Data);
 	}
 
-	if (ret->Ver == 3)
+	if (ret->Ver == 3 && ret->IsControl)
 	{
 		// Get the Remote Session ID in the case of L2TPv3
 		L2TP_AVP *a = GetAVPValue(ret, L2TP_AVP_TYPE_V3_SESSION_ID_REMOTE);
@@ -751,6 +822,8 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 			ret->SessionId = READ_UINT(a->Data);
 		}
 	}
+
+	ret->IsYamahaV3 = is_l2tpv3_yamaha;
 
 	return ret;
 
@@ -780,6 +853,22 @@ L2TP_AVP *GetAVPValueEx(L2TP_PACKET *p, UINT type, UINT vendor_id)
 		if (a->Type == type && a->VendorID == vendor_id)
 		{
 			return a;
+		}
+	}
+
+	if (vendor_id == 0)
+	{
+		if (type == L2TP_AVP_TYPE_V3_TUNNEL_ID)
+		{
+			return GetAVPValueEx(p, L2TPV3_CISCO_AVP_TUNNEL_ID, L2TP_AVP_VENDOR_ID_CISCO);
+		}
+		else if (type == L2TP_AVP_TYPE_V3_SESSION_ID_LOCAL)
+		{
+			return GetAVPValueEx(p, L2TPV3_CISCO_AVP_SESSION_ID_LOCAL, L2TP_AVP_VENDOR_ID_CISCO);
+		}
+		else if (type == L2TP_AVP_TYPE_V3_SESSION_ID_REMOTE)
+		{
+			return GetAVPValueEx(p, L2TPV3_CISCO_AVP_SESSION_ID_REMOTE, L2TP_AVP_VENDOR_ID_CISCO);
 		}
 	}
 
@@ -899,6 +988,9 @@ L2TP_TUNNEL *NewL2TPTunnel(L2TP_SERVER *l2tp, L2TP_PACKET *p, UDPPACKET *udp)
 		{
 			t->IsCiscoV3 = true;
 		}
+
+		// L2TPv3 on YAMAHA
+		t->IsYamahaV3 = p->IsYamahaV3;
 	}
 
 	// Transmission queue
@@ -960,6 +1052,30 @@ L2TP_TUNNEL *GetTunnelFromIdOfAssignedByClient(L2TP_SERVER *l2tp, IP *client_ip,
 		if (t->TunnelId1 == tunnel_id && CmpIpAddr(&t->ClientIp, client_ip) == 0)
 		{
 			return t;
+		}
+	}
+
+	return NULL;
+}
+L2TP_TUNNEL *GetTunnelFromIdOfAssignedByClientEx(L2TP_SERVER *l2tp, IP *client_ip, UINT tunnel_id, bool is_v3)
+{
+	UINT i;
+	// Validate arguments
+	if (l2tp == NULL || client_ip == 0 || tunnel_id == 0)
+	{
+		return NULL;
+	}
+
+	for (i = 0;i < LIST_NUM(l2tp->TunnelList);i++)
+	{
+		L2TP_TUNNEL *t = LIST_DATA(l2tp->TunnelList, i);
+
+		if (t->TunnelId1 == tunnel_id && CmpIpAddr(&t->ClientIp, client_ip) == 0)
+		{
+			if (EQUAL_BOOL(t->IsV3, is_v3))
+			{
+				return t;
+			}
 		}
 	}
 
@@ -1179,13 +1295,22 @@ void L2TPProcessRecvControlPacket(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_PACKET
 
 							if (s->IsV3)
 							{
-								// Pseudowire AVP
-								us = Endian16(s->PseudowireType);
-								Add(pp->AvpList, NewAVP(L2TP_AVP_TYPE_V3_PW_TYPE, true, 0, &us, sizeof(USHORT)));
+								if (t->IsYamahaV3 == false)
+								{
+									// Pseudowire AVP
+									us = Endian16(s->PseudowireType);
+									Add(pp->AvpList, NewAVP(L2TP_AVP_TYPE_V3_PW_TYPE, true, 0, &us, sizeof(USHORT)));
+								}
 
 								if (s->IsCiscoV3)
 								{
 									Add(pp->AvpList, NewAVP(L2TPV3_CISCO_AVP_PW_TYPE, true, L2TP_AVP_VENDOR_ID_CISCO, &us, sizeof(USHORT)));
+								}
+
+								if (t->IsYamahaV3)
+								{
+									us = Endian16(0x0003);
+									Add(pp->AvpList, NewAVP(L2TP_AVP_TYPE_V3_CIRCUIT_STATUS, true, 0, &us, sizeof(USHORT)));
 								}
 							}
 
@@ -1563,18 +1688,21 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 							// Respond with SCCEP to SCCRQ
 							pp2 = NewL2TPControlPacket(L2TP_MESSAGE_TYPE_SCCRP, t->IsV3);
 
-							// Protocol Version
-							protocol_version[0] = 1;
-							protocol_version[1] = 0;
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_PROTOCOL_VERSION, true, 0, protocol_version, sizeof(protocol_version)));
-
-							// Framing Capabilities
-							Zero(caps_data, sizeof(caps_data));
-							if (t->IsV3 == false)
+							if (t->IsYamahaV3 == false)
 							{
-								caps_data[3] = 3;
+								// Protocol Version
+								protocol_version[0] = 1;
+								protocol_version[1] = 0;
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_PROTOCOL_VERSION, true, 0, protocol_version, sizeof(protocol_version)));
+
+								// Framing Capabilities
+								Zero(caps_data, sizeof(caps_data));
+								if (t->IsV3 == false)
+								{
+									caps_data[3] = 3;
+								}
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_FRAME_CAP, false, 0, caps_data, sizeof(caps_data)));
 							}
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_FRAME_CAP, false, 0, caps_data, sizeof(caps_data)));
 
 							if (t->IsV3 == false)
 							{
@@ -1593,7 +1721,21 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_HOST_NAME, true, 0, hostname, StrLen(hostname)));
 
 							// Vendor Name
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_VENDOR_NAME, false, 0, L2TP_VENDOR_NAME, StrLen(L2TP_VENDOR_NAME)));
+							if (t->IsYamahaV3 == false)
+							{
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_VENDOR_NAME, false, 0, L2TP_VENDOR_NAME, StrLen(L2TP_VENDOR_NAME)));
+							}
+							else
+							{
+								char *yamaha_str = "YAMAHA Corporation";
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_VENDOR_NAME, false, 0, yamaha_str, StrLen(yamaha_str)));
+							}
+
+							if (t->IsYamahaV3)
+							{
+								UINT zero = 0;
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_V3_ROUTER_ID, true, 0, &zero, sizeof(UINT)));
+							}
 
 							// Assigned Tunnel ID
 							if (t->IsV3 == false)
@@ -1635,8 +1777,11 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 							}
 
 							// Recv Window Size
-							us = Endian16(L2TP_WINDOW_SIZE);
-							Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_RECV_WINDOW_SIZE, false, 0, &us, sizeof(USHORT)));
+							if (t->IsYamahaV3 == false)
+							{
+								us = Endian16(L2TP_WINDOW_SIZE);
+								Add(pp2->AvpList, NewAVP(L2TP_AVP_TYPE_RECV_WINDOW_SIZE, false, 0, &us, sizeof(USHORT)));
+							}
 
 							SendL2TPControlPacket(l2tp, t, 0, pp2);
 
@@ -1654,7 +1799,7 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 		L2TP_TUNNEL *t = NULL;
 		L2TP_SESSION *l2tpv3_session = NULL;
 
-		if (pp->Ver != 3 || pp->IsControl)
+		if (pp->IsControl || pp->Ver != 3)
 		{
 			t = GetTunnelFromId(l2tp, &p->SrcIP, pp->TunnelId, pp->Ver == 3);
 		}
@@ -1765,6 +1910,15 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 								FreeL2TPQueue(q);
 							}
 						}
+					}
+				}
+				else
+				{
+					// Reply ACK for already-received packets
+					if (pp->IsZLB == false)
+					{
+						// The packet other than ZLB is treated
+						t->StateChanged = true;
 					}
 				}
 			}
@@ -2373,7 +2527,7 @@ void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 
 				pp->TunnelId = t->TunnelId1;
 				pp->Ns = t->NextNs;
-				q->Buf = BuildL2TPPacketData(pp);
+				q->Buf = BuildL2TPPacketData(pp, t);
 
 				SendL2TPControlPacketMain(l2tp, t, q);
 

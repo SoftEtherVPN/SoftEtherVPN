@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -284,6 +284,9 @@ struct PPP_SESSION
 	UCHAR MsChapV2_ClientResponse[24];	// MS-CHAPv2 Client Response
 	UCHAR MsChapV2_ServerResponse[20];	// MS-CHAPv2 Server Response
 	UINT MsChapV2_ErrorCode;			// Authentication failure error code of MS-CHAPv2
+
+	bool MsChapV2_UseDoubleMsChapV2;	// Use the double-MSCHAPv2 technieue
+	EAP_CLIENT *EapClient;				// EAP client
 };
 
 // Function prototype
@@ -316,7 +319,8 @@ bool PPPSetIPAddressValueToLCP(PPP_LCP *c, UINT type, IP *ip, bool only_modify);
 bool PPPSendRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c);
 USHORT PPPContinueCurrentProtocolRequestListening(PPP_SESSION *p, USHORT protocol);
 bool PPPContinueUntilFinishAllLCPOptionRequestsDetermined(PPP_SESSION *p);
-PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expected_protocol, USHORT *received_protocol, bool finish_when_all_lcp_acked);
+PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expected_protocol, USHORT *received_protocol, bool finish_when_all_lcp_acked,
+								  bool return_mschapv2_response_with_no_processing);
 PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req);
 void PPPSendEchoRequest(PPP_SESSION *p);
 bool PPPParseUsername(CEDAR *cedar, char *src, ETHERIP_ID *dst);
@@ -331,6 +335,7 @@ void MsChapV2Client_GenerateResponse(UCHAR *dst, UCHAR *challenge8, UCHAR *nt_pa
 void MsChapV2Server_GenerateResponse(UCHAR *dst, UCHAR *nt_password_hash_hash, UCHAR *client_response, UCHAR *challenge8);
 bool MsChapV2VerityPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list);
+void PPPFreeEapClient(PPP_SESSION *p);
 
 #endif	// IPSEC_PPP_H
 

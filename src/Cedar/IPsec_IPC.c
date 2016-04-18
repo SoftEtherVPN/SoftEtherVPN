@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -133,20 +133,27 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 
 	t = ParseTokenWithNullStr(password, ":");
 
-	if (t->NumTokens == 5)
+	if (t->NumTokens == 6)
 	{
-		BUF *b1, *b2, *b3;
+		BUF *b1, *b2, *b3, *b4;
 
 		b1 = StrToBin(t->Token[2]);
 		b2 = StrToBin(t->Token[3]);
 		b3 = StrToBin(t->Token[4]);
+		b4 = StrToBin(t->Token[5]);
 
-		if (IsEmptyStr(t->Token[1]) == false && b1->Size == 16 && b2->Size == 16 && b3->Size == 24)
+		if (IsEmptyStr(t->Token[1]) == false && b1->Size == 16 && b2->Size == 16 && b3->Size == 24
+			 && b4->Size == 8)
 		{
+			UINT64 eap_client_ptr = 0;
+
 			StrCpy(d->MsChapV2_PPPUsername, sizeof(d->MsChapV2_PPPUsername), t->Token[1]);
 			Copy(d->MsChapV2_ServerChallenge, b1->Buf, 16);
 			Copy(d->MsChapV2_ClientChallenge, b2->Buf, 16);
 			Copy(d->MsChapV2_ClientResponse, b3->Buf, 24);
+			Copy(&eap_client_ptr, b4->Buf, 8);
+
+			d->MsChapV2_EapClient = (EAP_CLIENT *)eap_client_ptr;
 
 			ret = true;
 		}
@@ -154,6 +161,7 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 		FreeBuf(b1);
 		FreeBuf(b2);
 		FreeBuf(b3);
+		FreeBuf(b4);
 	}
 
 	FreeToken(t);
@@ -315,7 +323,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 		param->UserName, param->Password, error_code, &param->ClientIp,
 		param->ClientPort, &param->ServerIp, param->ServerPort,
 		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss);
+		param->BridgeMode, param->Mss, NULL);
 
 	return ipc;
 }
@@ -324,7 +332,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss)
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -430,6 +438,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	PackAddBool(p, "require_bridge_routing_mode", bridge_mode);
 	PackAddBool(p, "require_monitor_mode", false);
 	PackAddBool(p, "qos", false);
+
+	if (eap_client != NULL)
+	{
+		UINT64 ptr = (UINT64)eap_client;
+		PackAddInt64(p, "release_me_eap_client", ptr);
+
+		AddRef(eap_client->Ref);
+	}
 
 	// Unique ID is determined by the sum of the connecting client IP address and the client_name
 	b = NewBuf();
