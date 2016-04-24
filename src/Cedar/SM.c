@@ -16557,6 +16557,11 @@ void SmSaveKeyPairDlgInit(HWND hWnd, SM_SAVE_KEY_PAIR *s)
 		Check(hWnd, R_X509_AND_KEY, true);
 	}
 
+	if (MsIsWine())
+	{
+		Disable(hWnd, R_SECURE);
+	}
+
 	SmSaveKeyPairDlgUpdate(hWnd, s);
 }
 
@@ -19350,8 +19355,13 @@ ENTER_PASSWORD:
 	Enable(hWnd, IDOK);
 	Enable(hWnd, B_ABOUT);
 	Enable(hWnd, IDCANCEL);
-	Enable(hWnd, B_SECURE_MANAGER);
-	Enable(hWnd, B_SELECT_SECURE);
+
+	if (MsIsWine() == false)
+	{
+		Enable(hWnd, B_SECURE_MANAGER);
+		Enable(hWnd, B_SELECT_SECURE);
+	}
+
 	Enable(hWnd, B_CERT_TOOL);
 }
 
@@ -20150,6 +20160,12 @@ void SmMainDlgInit(HWND hWnd)
 
 	DlgFont(hWnd, IDOK, 10, true);
 
+	if (MsIsWine())
+	{
+		Disable(hWnd, B_SECURE_MANAGER);
+		Disable(hWnd, B_SELECT_SECURE);
+	}
+
 	Focus(hWnd, L_SETTING);
 
 	SmMainDlgUpdate(hWnd);
@@ -20479,6 +20495,8 @@ void SmMainDlg()
 // Server Manager main process
 void MainSM()
 {
+//	MsgBoxEx(NULL, 0, L"MsIsWine: %u\n", MsIsWine());
+
 	if (sm->TempSetting == NULL)
 	{
 		// Open the main window

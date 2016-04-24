@@ -562,6 +562,13 @@ LIST *LoadLangList()
 	char *filename = LANGLIST_FILENAME;
 	BUF *b;
 
+#ifdef	OS_WIN32
+	if (MsIsWine())
+	{
+		filename = LANGLIST_FILENAME_WINE;
+	}
+#endif	// OS_WIN32
+
 	b = ReadDump(filename);
 	if (b == NULL)
 	{

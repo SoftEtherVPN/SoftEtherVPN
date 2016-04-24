@@ -690,7 +690,30 @@ namespace BuildUtil
 #else
 			sr.WriteLine("\t@echo \"And please execute './vpncmd' to run the SoftEther VPN Command-Line Utility to configure {0}.\"", BuildHelper.GetSoftwareTitle(this.Software));
 #endif
+			sr.WriteLine("\t@echo");
+#if !BU_SOFTETHER
 			sr.WriteLine("\t@echo \"Of course, you can use the VPN Server Manager GUI Application for Windows on the other Windows PC in order to configure the {0} remotely.\"", BuildHelper.GetSoftwareTitle(this.Software));
+#else
+			sr.WriteLine("\t@echo \"Of course, you can use the VPN Server Manager GUI Application for Windows / Mac OS X on the other Windows / Mac OS X computers in order to configure the {0} remotely.\"", BuildHelper.GetSoftwareTitle(this.Software));
+#endif
+
+#if !BU_SOFTETHER
+#else
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo \"*** For Windows users ***\"");
+			sr.WriteLine("\t@echo \"You can download the SoftEther VPN Server Manager for Windows\"");
+			sr.WriteLine("\t@echo \"from the http://www.softether-download.com/ web site.\"");
+			sr.WriteLine("\t@echo \"This manager application helps you to completely and easily manage the VPN server services running in remote hosts.\"");
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo \"*** For Mac OS X users ***\"");
+			sr.WriteLine("\t@echo \"In April 2016 we released the SoftEther VPN Server Manager for Mac OS X.\"");
+			sr.WriteLine("\t@echo \"You can download it from the http://www.softether-download.com/ web site.\"");
+			sr.WriteLine("\t@echo \"VPN Server Manager for Mac OS X works perfectly as same as the traditional Windows versions. It helps you to completely and easily manage the VPN server services running in remote hosts.\"");
+			sr.WriteLine("\t@echo");
+#endif
+
 
 			sr.WriteLine("\t@echo \"--------------------------------------------------------------------\"");
 			sr.WriteLine("\t@echo");
