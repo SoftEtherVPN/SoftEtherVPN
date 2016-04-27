@@ -1,0 +1,5 @@
+Makefile*
+usr
+bin
+tmp
+src/bin/BuiltHamcoreFiles
