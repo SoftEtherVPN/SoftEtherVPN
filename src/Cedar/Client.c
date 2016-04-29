@@ -2181,13 +2181,13 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 // RPC dispatch routine
 PACK *CiRpcDispatch(RPC *rpc, char *name, PACK *p)
 {
-	CLIENT *c = rpc->Param;
 	PACK *ret;
 	// Validate arguments
 	if (rpc == NULL || name == NULL || p == NULL)
 	{
 		return NULL;
 	}
+	CLIENT *c = rpc->Param;
 
 	ret = NewPack();
 
@@ -6029,11 +6029,11 @@ L_TRY:
 	ReleaseSock(s);
 
 	ret = ZeroMalloc(sizeof(REMOTE_CLIENT));
-	ret->Rpc = rpc;
 	rpc->Param = ret;
 
 	if (ret != NULL)
 	{
+		ret->Rpc = rpc;
 		RPC_CLIENT_VERSION t;
 		Zero(&t, sizeof(t));
 		CcGetClientVersion(ret, &t);
