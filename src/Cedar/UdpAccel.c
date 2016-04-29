@@ -116,7 +116,6 @@
 // Polling process
 void UdpAccelPoll(UDP_ACCEL *a)
 {
-	UCHAR *tmp = a->TmpBuf;
 	IP nat_t_ip;
 	UINT num_ignore_errors = 0;
 	// Validate arguments
@@ -124,6 +123,7 @@ void UdpAccelPoll(UDP_ACCEL *a)
 	{
 		return;
 	}
+	UCHAR *tmp = a->TmpBuf;
 
 	Lock(a->NatT_Lock);
 	{
