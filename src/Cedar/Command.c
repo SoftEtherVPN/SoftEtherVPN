@@ -1331,6 +1331,27 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						{
 							ret = Recv(ts->Sock, recv_buf_data, buf_size, false);
 						}
+
+						if (ts->FirstSendTick == 0)
+						{
+							ts->FirstSendTick = now;
+						}
+						else
+						{
+							if (ts->FirstSendTick <= now)
+							{
+								if (ts->Span != 0)
+								{
+									UINT64 giveup_tick = ts->FirstSendTick + ts->Span * 3ULL + 180000ULL;
+
+									if (now > giveup_tick)
+									{
+										ret = 0;
+									}
+								}
+							}
+						}
+
 						break;
 
 					case 3:
@@ -1757,6 +1778,7 @@ void TtcThread(THREAD *thread, void *param)
 	bool ok = false;
 	UINT buf_size;
 	UCHAR *send_buf_data, *recv_buf_data;
+	IP ip_ret;
 	// Validate arguments
 	if (thread == NULL || param == NULL)
 	{
@@ -1786,10 +1808,13 @@ void TtcThread(THREAD *thread, void *param)
 
 	ok = true;
 
+	Zero(&ip_ret, sizeof(ip_ret));
+
 	for (i = 0;i < ttc->NumTcp;i++)
 	{
 		SOCK *s;
 		TTC_SOCK *ts = ZeroMalloc(sizeof(TTC_SOCK));
+		char target_host[MAX_SIZE];
 
 		ts->Id = i + 1;
 
@@ -1806,7 +1831,14 @@ void TtcThread(THREAD *thread, void *param)
 			ts->Download = ((i % 2) == 0) ? true : false;
 		}
 
-		s = ConnectEx2(ttc->Host, ttc->Port, 0, ttc->Cancel);
+		StrCpy(target_host, sizeof(target_host), ttc->Host);
+
+		if (IsZeroIp(&ip_ret) == false)
+		{
+			IPToStr(target_host, sizeof(target_host), &ip_ret);
+		}
+
+		s = ConnectEx4(target_host, ttc->Port, 0, ttc->Cancel, NULL, NULL, false, false, true, &ip_ret);
 
 		if (s == NULL)
 		{

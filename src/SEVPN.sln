@@ -14,7 +14,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{234994FD-5966-4CFE-AC38-960DE089FBED}"
 	ProjectSection(SolutionItems) = preProject
 		bin\hamcore\lang.config = bin\hamcore\lang.config
-		bin\hamcore\languages.txt = bin\hamcore\languages.txt
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
 		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb

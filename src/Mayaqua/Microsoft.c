@@ -8774,6 +8774,7 @@ BOOL CALLBACK EnumChildWindowProc(HWND hWnd, LPARAM lParam)
 	LIST *o;
 	HWND hParent;
 	char c1[MAX_SIZE], c2[MAX_SIZE];
+	bool ok = false;
 	// Validate arguments
 	if (hWnd == NULL || p == NULL)
 	{
@@ -8795,6 +8796,19 @@ BOOL CALLBACK EnumChildWindowProc(HWND hWnd, LPARAM lParam)
 	}
 
 	if (p->include_ipcontrol || (StrCmpi(c1, "SysIPAddress32") != 0 && (IsEmptyStr(c2) || StrCmpi(c2, "SysIPAddress32") != 0)))
+	{
+		ok = true;
+	}
+
+	if (MsIsWine())
+	{
+		if (StrCmpi(c1, "SysIPAddress32") == 0 || StrCmpi(c2, "SysIPAddress32") == 0)
+		{
+			ok = true;
+		}
+	}
+
+	if (ok)
 	{
 		AddWindow(o, hWnd);
 
@@ -12448,6 +12462,33 @@ bool MsIsNt()
 	return ms->IsNt;
 }
 
+// Get whether the current system is WINE
+bool MsIsWine()
+{
+	bool ret = false;
+
+	if (ms == NULL)
+	{
+		HINSTANCE h = LoadLibrary("kernel32.dll");
+
+		if (h != NULL)
+		{
+			if (GetProcAddress(h, "wine_get_unix_file_name") != NULL)
+			{
+				ret = true;
+			}
+
+			FreeLibrary(h);
+		}
+	}
+	else
+	{
+		ret = ms->IsWine;
+	}
+
+	return ret;
+}
+
 // Get whether the current user is an Admin
 bool MsIsAdmin()
 {
@@ -14622,6 +14663,11 @@ void MsInit()
 	{
 		// In 9x system: Impersonate a Administrators always
 		ms->IsAdmin = true;
+	}
+
+	if (GetProcAddress(ms->hKernel32, "wine_get_unix_file_name") != NULL)
+	{
+		ms->IsWine = true;
 	}
 
 	// Get information about the current process

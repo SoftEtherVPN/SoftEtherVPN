@@ -117,6 +117,8 @@
 #define	UNICODE_CACHE_FILE		L".unicode_cache_%s.dat"
 
 #define	LANGLIST_FILENAME		"|languages.txt"
+#define	LANGLIST_FILENAME_WINE	"|languages_wine.txt"
+
 #define	LANG_CONFIG_FILENAME	L"@lang.config"
 #define	LANG_CONFIG_TEMPLETE	"|lang.config"
 
