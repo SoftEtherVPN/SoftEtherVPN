@@ -5,7 +5,7 @@ CFLAGS := $(shell dpkg-buildflags --get CFLAGS)
 LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
 
 %:
-	dh $@ 
+	dh $@
 
 override_dh_auto_configure: configure_config
 
