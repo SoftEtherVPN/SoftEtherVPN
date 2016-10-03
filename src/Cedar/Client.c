@@ -6661,7 +6661,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 				CiSetError(c, ERR_ACCOUNT_ACTIVE);
 			}
 			else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_SECURE &&
-				client->UseSecureDeviceId == 0)
+				c->UseSecureDeviceId == 0)
 			{
 				// Secure device is not specified
 				CiSetError(c, ERR_NO_SECURE_DEVICE_SPECIFIED);
