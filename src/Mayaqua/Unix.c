@@ -1162,7 +1162,9 @@ bool UnixRunW(wchar_t *filename, wchar_t *arg, bool hide, bool wait)
 bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 {
 	TOKEN_LIST *t;
+	char **args;
 	UINT ret;
+
 	// Validate arguments
 	if (filename == NULL)
 	{
@@ -1173,6 +1175,25 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 		arg = "";
 	}
 
+	Print("", filename, arg);
+	t = ParseToken(arg, " ");
+	if (t == NULL)
+	{
+		return false;
+	}
+	else
+	{
+		UINT num_args;
+		UINT i;
+		num_args = t->NumTokens + 2;
+		args = ZeroMalloc(sizeof(char *) * num_args);
+		args[0] = filename;
+		for (i = 1;i < num_args - 1;i++)
+		{
+			args[i] = t->Token[i - 1];
+		}
+	}
+	
 	// Create a child process
 	ret = fork();
 	if (ret == -1)
@@ -1183,39 +1204,21 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 
 	if (ret == 0)
 	{
-		Print("", filename, arg);
 		// Child process
 		if (hide)
 		{
 			// Close the standard I/O
 			UnixCloseIO();
 		}
-
-		t = ParseToken(arg, " ");
-		if (t == NULL)
-		{
-			AbortExit();
-		}
-		else
-		{
-			char **args;
-			UINT num_args;
-			UINT i;
-			num_args = t->NumTokens + 2;
-			args = ZeroMalloc(sizeof(char *) * num_args);
-			args[0] = filename;
-			for (i = 1;i < num_args - 1;i++)
-			{
-				args[i] = t->Token[i - 1];
-			}
-			execvp(filename, args);
-			AbortExit();
-		}
+		execvp(filename, args);
+		AbortExit();
 	}
 	else
 	{
 		// Parent process
 		pid_t pid = (pid_t)ret;
+		Free(args);
+		FreeToken(t);
 
 		if (wait)
 		{
