@@ -400,6 +400,7 @@ typedef struct MS
 	wchar_t *UserNameExW;
 	wchar_t *MinidumpBaseFileNameW;
 	IO *LockFile;
+	bool IsWine;
 } MS;
 
 // For Windows NT API
@@ -732,6 +733,7 @@ bool MsRegUnloadHive(UINT root, wchar_t *keyname);
 
 bool MsIsNt();
 bool MsIsAdmin();
+bool MsIsWine();
 bool MsEnablePrivilege(char *name, bool enable);
 void *MsGetCurrentProcess();
 UINT MsGetCurrentProcessId();

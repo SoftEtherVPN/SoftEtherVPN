@@ -202,6 +202,7 @@ struct TTS_SOCK
 	UINT64 SessionId;		// Session ID
 	bool NoMoreSendData;	// Flag not to send more data
 	UINT64 FirstRecvTick;	// Time which the data has been received last
+	UINT64 FirstSendTick;	// Time which the data has been sent last
 	UINT64 Span;			// Period
 };
 

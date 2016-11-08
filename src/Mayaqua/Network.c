@@ -15275,7 +15275,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			Copy(&ip4, ret_ip, sizeof(IP));
 		}
 
-		Debug("Using cached IP address: %s = %r\n", hostname_original, ret_ip);
+		//Debug("Using cached IP address: %s = %r\n", hostname_original, ret_ip);
 	}
 	else
 	{

@@ -462,6 +462,10 @@ WINUI_UPDATE *InitUpdateUi(wchar_t *title, char *name, char *family_name, UINT64
 	{
 		return NULL;
 	}
+	if (MsIsWine())
+	{
+		return false;
+	}
 	if (IsEmptyStr(family_name))
 	{
 		family_name = UPDATE_FAMILY_NAME;
@@ -3143,9 +3147,57 @@ void InitDialogInternational(HWND hWnd, void *pparam)
 
 		if (hControl != NULL)
 		{
+			bool set_font = true;
 			HFONT hFont = GetDialogDefaultFontEx(param && ((DIALOG_PARAM *)param)->meiryo);
 
-			SetFont(hControl, 0, hFont);
+			if (MsIsWine())
+			{
+				char classname[MAX_PATH];
+				char parent_classname[MAX_PATH];
+				HWND hParent = GetParent(hControl);
+
+				Zero(classname, sizeof(classname));
+				Zero(parent_classname, sizeof(parent_classname));
+
+				GetClassNameA(hControl, classname, sizeof(classname));
+
+				if (hParent != NULL)
+				{
+					GetClassNameA(hParent, parent_classname, sizeof(parent_classname));
+				}
+
+				if (StrCmpi(classname, "edit") == 0)
+				{
+					set_font = false;
+				}
+
+				if (StrCmpi(classname, "combobox") == 0)
+				{
+					set_font = false;
+				}
+
+				if (StrCmpi(classname, "syslistview32") == 0)
+				{
+					set_font = false;
+				}
+
+				if (StrCmpi(classname, "sysheader32") == 0)
+				{
+					set_font = false;
+				}
+
+				if (StrCmpi(parent_classname, "SysIPAddress32") == 0 ||
+					StrCmpi(classname, "SysIPAddress32") == 0)
+				{
+					set_font = true;
+					hFont = GetFont("Tahoma", 8, false, false, false, false);
+				}
+			}
+
+			if (set_font)
+			{
+				SetFont(hControl, 0, hFont);
+			}
 
 			if (MsIsVista())
 			{
@@ -3726,6 +3778,11 @@ void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a)
 	FormatText(hWnd, S_INFO2, BUILD_DATE_Y, a->Cedar->BuildInfo);
 
 	SetFont(hWnd, S_INFO3, GetFont("Arial", 7, false, false, false, false));
+
+	if (MsIsWine())
+	{
+		Disable(hWnd, B_LANGUAGE);
+	}
 
 	//DlgFont(hWnd, S_INFO4, 8, false);
 

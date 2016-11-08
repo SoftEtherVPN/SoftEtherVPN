@@ -233,7 +233,7 @@ TCPOPT_NOT_ADMIN		Users without administrator privileges cannot use the TCP Opti
 
 # Windows Vista / Windows 7 / Windows 8 Optimization
 VISTA_MMCSS_MSG			Do you wish to optimize Windows Vista / Windows 7 / Windows 8 / Windows 10 for playing multimedia files with VPN? (e.g. videos, audios and streaming)
-VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remote optimized configuration?
+VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remove optimized configuration?
 VISTA_MMCSS_MSG_3		You cannot use optimization in currently environment.
 VISTA_MMCSS_MSG_4		You must have administrator privileges for this function.\r\nPlease note that in Windows Vista / Windows 7 / Windows 8 / Windows 10 you should use "Run as Administrators" to execute program.
 VISTA_MMCSS_MSG_5		Optimization is finished.
