@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -400,6 +400,7 @@ typedef struct MS
 	wchar_t *UserNameExW;
 	wchar_t *MinidumpBaseFileNameW;
 	IO *LockFile;
+	bool IsWine;
 } MS;
 
 // For Windows NT API
@@ -732,6 +733,7 @@ bool MsRegUnloadHive(UINT root, wchar_t *keyname);
 
 bool MsIsNt();
 bool MsIsAdmin();
+bool MsIsWine();
 bool MsEnablePrivilege(char *name, bool enable);
 void *MsGetCurrentProcess();
 UINT MsGetCurrentProcessId();

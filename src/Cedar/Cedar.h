@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					419
+#define	CEDAR_VER					421
 
 // Build Number
-#define	CEDAR_BUILD					9599
+#define	CEDAR_BUILD					9613
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -157,12 +157,12 @@
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		10
-#define	BUILD_DATE_D		19
-#define	BUILD_DATE_HO		20
-#define	BUILD_DATE_MI		9
-#define	BUILD_DATE_SE		5
+#define	BUILD_DATE_Y		2016
+#define	BUILD_DATE_M		4
+#define	BUILD_DATE_D		24
+#define	BUILD_DATE_HO		15
+#define	BUILD_DATE_MI		39
+#define	BUILD_DATE_SE		17
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)

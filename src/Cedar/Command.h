@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -202,6 +202,7 @@ struct TTS_SOCK
 	UINT64 SessionId;		// Session ID
 	bool NoMoreSendData;	// Flag not to send more data
 	UINT64 FirstRecvTick;	// Time which the data has been received last
+	UINT64 FirstSendTick;	// Time which the data has been sent last
 	UINT64 Span;			// Period
 };
 

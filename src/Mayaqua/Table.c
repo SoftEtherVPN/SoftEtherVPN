@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -561,6 +561,13 @@ LIST *LoadLangList()
 	LIST *o = NewListFast(NULL);
 	char *filename = LANGLIST_FILENAME;
 	BUF *b;
+
+#ifdef	OS_WIN32
+	if (MsIsWine())
+	{
+		filename = LANGLIST_FILENAME_WINE;
+	}
+#endif	// OS_WIN32
 
 	b = ReadDump(filename);
 	if (b == NULL)

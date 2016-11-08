@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) 2012-2016 Daiyuu Nobori.
+// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) 2012-2016 SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -117,6 +117,8 @@
 #define	UNICODE_CACHE_FILE		L".unicode_cache_%s.dat"
 
 #define	LANGLIST_FILENAME		"|languages.txt"
+#define	LANGLIST_FILENAME_WINE	"|languages_wine.txt"
+
 #define	LANG_CONFIG_FILENAME	L"@lang.config"
 #define	LANG_CONFIG_TEMPLETE	"|lang.config"
 
