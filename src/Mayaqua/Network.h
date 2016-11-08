@@ -1043,6 +1043,7 @@ char *HttpHeaderToStr(HTTP_HEADER *header);
 bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size);
 UINT GetContentLength(HTTP_HEADER *header);
 void GetHttpDateStr(char *str, UINT size, UINT64 t);
+bool HttpSendRedirect(SOCK *s, char *target, char* hostname);
 bool HttpSendForbidden(SOCK *s, char *target, char *server_id);
 bool HttpSendNotFound(SOCK *s, char *target);
 bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);

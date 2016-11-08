@@ -6069,8 +6069,9 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	SOCK *s;
 	UINT num = 0, max = 19;
 	SERVER *server;
+	char hostname[64];
 	char *vpn_http_target = HTTP_VPN_TARGET2;
-	bool check_hostname = false;
+	bool check_hostname = true;
 	// Validate arguments
 	if (c == NULL)
 	{
@@ -6078,7 +6079,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	}
 
 
-
+	strcpy(hostname, "");
 	server = c->Cedar->Server;
 
 	s = c->FirstSock;
@@ -6108,7 +6109,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 		if (check_hostname && (StrCmpi(h->Version, "HTTP/1.1") == 0 || StrCmpi(h->Version, "HTTP/1.2") == 0))
 		{
 			HTTP_VALUE *v;
-			char hostname[64];
 
 			Zero(hostname, sizeof(hostname));
 
@@ -6341,6 +6341,12 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 								FreeBuf(buf);
 							}
 						}
+					}
+
+					if ((b == false) && (StartWith(h->Target, "/wiki"))) 
+					{
+						HttpSendRedirect(s, h->Target, hostname);
+						b = true;
 					}
 
 					if (b == false)

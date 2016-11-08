@@ -187,6 +187,8 @@ struct ROUTE_CHANGE_DATA
 
 
 // HTTP constant
+//static char http_301_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>301 Moved Permanently</TITLE>\r\n</HEAD><BODY>\r\n<H1>Moved</H1>\r\nThis páge has moved to <A HREF=\"https://$HOST$:4443$TARGET$\">new address</A>.<P>\r\n<HR>\r\n</BODY></HTML>\r\n";
+static char http_301_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>301 Moved Permanently</TITLE>\r\n</HEAD><BODY>\r\n<H1>Moved</H1>\r\nThis páge has moved to <A HREF=\"https://$HOSTNAME$:4443$TARGET$\">new address</A>.<P>\r\n<HR>\r\n</BODY></HTML>\r\n";
 static char http_404_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>404 Not Found</TITLE>\r\n</HEAD><BODY>\r\n<H1>Not Found</H1>\r\nThe requested URL $TARGET$ was not found on this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
 static char http_403_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>403 Forbidden</TITLE>\r\n</HEAD><BODY>\r\n<H1>Forbidden</H1>\r\nYou don't have permission to access $TARGET$\r\non this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
 static char http_500_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>500 Server Error</TITLE>\r\n</HEAD><BODY>\r\n<H1>Server Error</H1>\r\nServer Error<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
@@ -21856,6 +21858,69 @@ bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version)
 
 	return ret;
 }
+
+// Sending the 301 Moved Permanently: Redirect
+bool HttpSendRedirect(SOCK *s, char *target, char *hostname)
+{
+        HTTP_HEADER *h;
+        char *str;
+	//char *redirect_to_static="https://$HOSTNAME$:4443$TARGET$";
+	char *redirect_to_static="https://%s:4443%s";
+	char *redirect_to;
+        UINT redir_size;
+        UINT str_size;
+        bool ret;
+        char host[MAX_SIZE];
+        UINT port;
+        // Validate arguments
+        if (s == NULL || target == NULL || hostname == NULL)
+        {
+                return false;
+        }
+
+        // Get the host name
+        //GetMachineName(host, MAX_SIZE);
+        Zero(host, sizeof(host));
+        IPToStr(host, sizeof(host), &s->LocalIP);
+
+        // Creating a header
+        h = NewHttpHeader("HTTP/1.1", "301", "Moved Permanently");
+
+        redir_size = strlen(redirect_to_static) * 2 + StrLen(target) + StrLen(hostname);
+	redirect_to = Malloc(redir_size);
+	snprintf(redirect_to, redir_size, redirect_to_static, hostname, target);
+        //StrCpy(redirect_to, redir_size, redirect_to_static);
+	//ReplaceStri(redirect_to, redir_size, redirect_to, "$TARGET$", target);
+	//ReplaceStri(redirect_to, redir_size, redirect_to, "$HOSTNAME$", hostname);
+
+        AddHttpValue(h, NewHttpValue("Location", redirect_to));
+        AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
+
+        // Creating a Data
+        str_size = sizeof(http_301_str) * 2 + StrLen(target) + StrLen(hostname);
+        str = Malloc(str_size);
+        StrCpy(str, str_size, http_301_str);
+
+        // TARGET
+        ReplaceUnsafeCharInTarget(target);
+        ReplaceStri(str, str_size, str, "$TARGET$", target);
+
+        // HOST
+        //ReplaceStri(str, str_size, str, "$HOST$", host);
+
+        // HOSTNAME
+        ReplaceStri(str, str_size, str, "$HOSTNAME$", hostname);
+
+        // Transmission
+        ret = PostHttp(s, h, str, StrLen(str));
+
+        FreeHttpHeader(h);
+        Free(redirect_to);
+        Free(str);
+
+        return ret;
+}
+
 
 // Sending a 404 Not Found error
 bool HttpSendNotFound(SOCK *s, char *target)
