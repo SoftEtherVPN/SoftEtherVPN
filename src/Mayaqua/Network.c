@@ -9251,7 +9251,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 			kevent_timeout.tv_nsec = (timeout % 1000) * 1000000l;
 			p_kevent_timeout = &kevent_timeout;
 		}
-		kevent(kq, kevents, n, kevents, n, p_kevent_timeout);
+		kevent(kq, NULL, 0, kevents, n, p_kevent_timeout);
 #else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
