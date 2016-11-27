@@ -122,8 +122,14 @@
 #include <errno.h>
 #include <Mayaqua/Mayaqua.h>
 
+#ifdef STATE_DIR
+static char exe_file_name[MAX_SIZE] = STATE_DIR "/a.out";
+static wchar_t exe_file_name_w[MAX_SIZE] = L"" STATE_DIR L"/a.out";
+#else
 static char exe_file_name[MAX_SIZE] = "/tmp/a.out";
 static wchar_t exe_file_name_w[MAX_SIZE] = L"/tmp/a.out";
+#endif
+
 static LIST *hamcore = NULL;
 static IO *hamcore_io = NULL;
 
@@ -1038,7 +1044,7 @@ BUF *ReadHamcore(char *name)
 	}
 
 	// If the file exist in hamcore/ directory on the local disk, read it
-	GetExeDirW(exe_dir, sizeof(exe_dir));
+	GetStateDirW(exe_dir, sizeof(exe_dir));
 
 	UniFormat(tmp, sizeof(tmp), L"%s/%S/%S", exe_dir, HAMCORE_DIR_NAME, filename);
 
@@ -1154,7 +1160,7 @@ void InitHamcore()
 		return;
 	}
 
-	GetExeDirW(exe_dir, sizeof(exe_dir));
+	GetStateDirW(exe_dir, sizeof(exe_dir));
 	UniFormat(tmp, sizeof(tmp), L"%s/%S", exe_dir, HAMCORE_FILE_NAME);
 
 	UniFormat(tmp2, sizeof(tmp2), L"%s/%S", exe_dir, HAMCORE_FILE_NAME_2);
@@ -1436,6 +1442,33 @@ void GetExeDirW(wchar_t *name, UINT size)
 	}
 
 	GetDirNameFromFilePathW(name, size, exe_file_name_w);
+}
+
+void GetStateDir(char *name, UINT size)
+{
+	// Validate arguments
+	if (name == NULL)
+	{
+		return;
+	}
+#ifdef STATE_DIR
+	StrCpy(name, size, STATE_DIR);
+#else
+	GetExeDir(name, size)
+#endif
+}
+void GetStateDirW(wchar_t *name, UINT size)
+{
+	// Validate arguments
+	if (name == NULL)
+	{
+		return;
+	}
+#ifdef STATE_DIR
+	UniStrCpy(name, size, L"" STATE_DIR L"");
+#else
+	GetExeDirW(name, size)
+#endif
 }
 
 // Get the EXE file name
@@ -2389,7 +2422,7 @@ void InnerFilePathW(wchar_t *dst, UINT size, wchar_t *src)
 	else
 	{
 		wchar_t dir[MAX_SIZE];
-		GetExeDirW(dir, sizeof(dir));
+		GetStateDirW(dir, sizeof(dir));
 		ConbinePathW(dst, size, dir, &src[1]);
 	}
 }

@@ -1071,6 +1071,7 @@ SVC_HIDE_TRAY_MSG		This will hide the tasktray icons when starting %S in user mo
 
 
 # Concerning services (UNIX)
+UNIX_DAEMON_HELP		SoftEther VPN non-forking daemon for upstart and systemd.\nCommand Usage:\n %S vpnbridge  - Enable bridging features.\n %S vpnclient  - Enable client features.\n %S vpnserver  - Enable all features.\nThe parameter can be set in the SOFTETHER_MODE environment variable.\n\n
 UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n

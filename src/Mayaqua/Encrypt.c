@@ -649,7 +649,7 @@ bool IsXRevoked(X *x)
 		return false;
 	}
 
-	GetExeDir(dirname, sizeof(dirname));
+	GetStateDir(dirname, sizeof(dirname));
 
 	// Search the CRL file
 	t = EnumDir(dirname);
