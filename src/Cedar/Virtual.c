@@ -5429,7 +5429,7 @@ SCAN_FIRST:
 void ParseTcpOption(TCP_OPTION *o, void *data, UINT size)
 {
 	UCHAR *buf = (UCHAR *)data;
-	UINT i;
+	UINT i = 0;
 	UINT value_size = 0;
 	UINT value_id = 0;
 	UCHAR value[128];
@@ -5441,13 +5441,18 @@ void ParseTcpOption(TCP_OPTION *o, void *data, UINT size)
 
 	Zero(o, sizeof(TCP_OPTION));
 
-	for (i = 0;i < size;i++)
+	while(i < size)
 	{
 		if (buf[i] == 0)
 		{
 			return;
 		}
-		if (buf[i] != 1)
+		else if (buf[i] == 1)
+		{
+			i++;
+			continue;
+		}
+		else
 		{
 			value_id = buf[i];
 			i++;
@@ -5466,12 +5471,14 @@ void ParseTcpOption(TCP_OPTION *o, void *data, UINT size)
 				return;
 			}
 			value_size -= 2;
+                   
 			Copy(value, &buf[i], value_size);
 			i += value_size;
-			if (i >= size)
+			if (i > size)
 			{
 				return;
 			}
+
 			switch (value_id)
 			{
 			case 2:	// MSS
@@ -5486,14 +5493,13 @@ void ParseTcpOption(TCP_OPTION *o, void *data, UINT size)
 				if (value_size == 1)
 				{
 					UCHAR *wss = (UCHAR *)value;
-					o->WindowScaling = Endian16(*wss);
+					o->WindowScaling = *wss;
 				}
 				break;
 
 			}
 		}
 	}
-
 }
 
 // Create a new NAT TCP session
