@@ -1803,6 +1803,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->BuildInfo = CopyStr(tmp);
 
+	c->DisableSslVersions = SSL_OPT_DEFAULT;
+
 	return c;
 }
 
