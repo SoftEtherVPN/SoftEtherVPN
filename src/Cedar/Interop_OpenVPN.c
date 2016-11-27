@@ -2114,8 +2114,8 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 											if (r->Exists)
 											{
 												Format(l3_options, sizeof(l3_options),
-													",route %r %r vpn_gateway",
-													&r->Network, &r->SubnetMask);
+													",route %r %r %r",
+													&r->Network, &r->SubnetMask, &r->Gateway);
 
 												StrCat(option_str, sizeof(option_str), l3_options);
 											}
