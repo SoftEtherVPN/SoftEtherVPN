@@ -440,6 +440,7 @@ struct HUB
 	char RadiusSuffixFilter[MAX_SIZE];	// Radius suffix filter
 	bool RadiusConvertAllMsChapv2AuthRequestToEap;	// Convert all MS-CHAPv2 auth request to EAP
 	bool RadiusUsePeapInsteadOfEap;			// Use PEAP instead of EAP
+	char RadiusRealm[MAX_SIZE];		// Radius realm (optional)
 	volatile bool Halt;					// Halting flag
 	bool Offline;						// Offline
 	bool BeingOffline;					// Be Doing Offline
