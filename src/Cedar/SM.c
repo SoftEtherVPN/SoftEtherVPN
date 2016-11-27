@@ -872,7 +872,6 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 
 // Get the ddns key from the server configuration file
 static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
-	RPC *rpc = d->s->Rpc;
 	RPC_CONFIG config;
 	UINT err;
 	BUF *buf;
@@ -882,6 +881,7 @@ static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
 	if(d == NULL || d->s == NULL || key == NULL){
 		return ERR_INTERNAL_ERROR;
 	}
+	RPC *rpc = d->s->Rpc;
 
 	Zero(&config, sizeof(config));
 	err = ScGetConfig(d->s->Rpc, &config);

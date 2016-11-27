@@ -2386,7 +2386,6 @@ bool NnTestConnectivity(NATIVE_STACK *a, TUBE *halt_tube)
 	UINT64 next_send_tick = 0;
 	UINT64 giveup_time;
 	IPC *ipc;
-	UINT src_port = NnGenSrcPort(a->IsIpRawMode);
 	INTERRUPT_MANAGER *interrupt;
 	TUBE *tubes[3];
 	UINT num_tubes = 0;
@@ -2399,6 +2398,7 @@ bool NnTestConnectivity(NATIVE_STACK *a, TUBE *halt_tube)
 	{
 		return false;
 	}
+	UINT src_port = NnGenSrcPort(a->IsIpRawMode);
 
 	Copy(&using_dns, &a->DnsServerIP, sizeof(IP));
 
@@ -3997,7 +3997,6 @@ bool NatTransactIcmp(VH *v, NAT_ENTRY *n)
 	void *buf;
 	UINT recv_size;
 	BLOCK *block;
-	UINT dest_port = n->DestPort;
 	IP dest_ip;
 	UINT num_ignore_errors = 0;
 	// Validate arguments
@@ -4005,6 +4004,7 @@ bool NatTransactIcmp(VH *v, NAT_ENTRY *n)
 	{
 		return true;
 	}
+	UINT dest_port = n->DestPort;
 
 	if (n->DisconnectNow)
 	{
@@ -4200,7 +4200,6 @@ bool NatTransactUdp(VH *v, NAT_ENTRY *n)
 	void *buf;
 	UINT recv_size;
 	BLOCK *block;
-	UINT dest_port = n->DestPort;
 	IP dest_ip;
 	UINT num_ignore_errors;
 	// Validate arguments
@@ -4208,6 +4207,7 @@ bool NatTransactUdp(VH *v, NAT_ENTRY *n)
 	{
 		return true;
 	}
+	UINT dest_port = n->DestPort;
 
 	if (n->DisconnectNow)
 	{

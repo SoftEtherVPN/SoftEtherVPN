@@ -1834,9 +1834,9 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 		if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) && p->TypeL4 == L4_TCP)
 		{
 			TCP_HEADER *tcp = p->L4.TCPHeader;
-			if (tcp->DstPort == port_raw || tcp->DstPort == port_raw2)
+			if (tcp != NULL && (!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
 			{
-				if (tcp != NULL && (!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
+				if (tcp->DstPort == port_raw || tcp->DstPort == port_raw2)
 				{
 					if (p->PayloadSize >= 1)
 					{
