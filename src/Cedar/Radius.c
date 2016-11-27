@@ -1702,7 +1702,7 @@ LABEL_ERROR:
 ////////// Classical implementation
 
 // Attempts Radius authentication (with specifying retry interval and multiple server)
-bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
+bool RadiusLogin(CONNECTION *c, char *hubname, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
 				 RADIUS_LOGIN_OPTION *opt)
 {
 	UCHAR random[MD5_SIZE];
@@ -1881,6 +1881,9 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				ui = Endian32(1);
 				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
 
+				// Called-Station-Id
+				RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+
 				// Calling-Station-Id
 				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
 
@@ -1930,6 +1933,9 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
 				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+
+				// Called-Station-Id
+				RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
 
 				// Calling-Station-Id
 				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));

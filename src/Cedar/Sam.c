@@ -265,7 +265,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 				if (UniIsEmptyStr(suffix_filter_w) || UniEndWith(name, suffix_filter_w))
 				{
 					// Attempt to login
-					b = RadiusLogin(c, radius_server_addr, radius_server_port,
+					b = RadiusLogin(c, hub->Name, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
 						name, password, interval, mschap_v2_server_response_20, opt);
 
