@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					421
+#define	CEDAR_VER					422
 
 // Build Number
-#define	CEDAR_BUILD					9613
+#define	CEDAR_BUILD					9634
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -158,11 +158,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2016
-#define	BUILD_DATE_M		4
-#define	BUILD_DATE_D		24
-#define	BUILD_DATE_HO		15
-#define	BUILD_DATE_MI		39
-#define	BUILD_DATE_SE		17
+#define	BUILD_DATE_M		11
+#define	BUILD_DATE_D		27
+#define	BUILD_DATE_HO		14
+#define	BUILD_DATE_MI		33
+#define	BUILD_DATE_SE		59
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -404,22 +404,7 @@
 #define	KEEP_ALIVE_MAGIC				0xffffffff
 #define	MAX_KEEPALIVE_SIZE				512
 
-// SSL/TLS Versions
-#define SSL_VERSION_SSL_V2	0x01	// SSLv2
-#define SSL_VERSION_SSL_V3	0x02	// SSLv3
-#define SSL_VERSION_TLS_V1_0	0x04	// TLS v1.0
-#define SSL_VERSION_TLS_V1_1	0x08	// TLS v1.1
-#define SSL_VERSION_TLS_V1_2	0x10	// TLS v1.2
 
-// SSL/TLS Version Names
-#define NAME_SSL_VERSION_SSL_V2	"SSL_V2"	// SSLv2
-#define NAME_SSL_VERSION_SSL_V3	"SSL_V3"	// SSLv3
-#define NAME_SSL_VERSION_TLS_V1_0	"TLS_V1_0"	// TLS v1.0
-#define NAME_SSL_VERSION_TLS_V1_1	"TLS_V1_1"	// TLS v1.1
-#define NAME_SSL_VERSION_TLS_V1_2	"TLS_V1_2"	// TLS v1.2
-
-// OpenSSL SSL Context Option Flags default
-#define SSL_OPT_DEFAULT	0x0
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -685,7 +670,7 @@
 
 #define	ARP_ENTRY_EXPIRES			(30 * 1000)		// ARP table expiration date
 #define	ARP_ENTRY_POLLING_TIME		(1 * 1000)		// ARP table cleaning timer
-#define	ARP_REQUEST_TIMEOUT			(200)			// ARP request time-out period
+#define	ARP_REQUEST_TIMEOUT			(1000)			// ARP request time-out period
 #define	ARP_REQUEST_GIVEUP			(5 * 1000)		// Time to give up sending the ARP request
 #define	IP_WAIT_FOR_ARP_TIMEOUT		(5 * 1000)		// Total time that an IP packet waiting for ARP table
 #define	IP_COMBINE_TIMEOUT			(10 * 1000)		// Time-out of IP packet combining
@@ -1067,8 +1052,7 @@ typedef struct CEDAR
 	UINT QueueBudget;				// Queue budget
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
-	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
-	UINT DisableSslVersions;	// Bitmap of SSL Version to disable
+	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 

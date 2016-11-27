@@ -110,4 +110,3 @@ esac
 cp src/makefiles/${OS}_${CPU}.mak Makefile
 
 echo "The Makefile is generated. Run 'make' to build SoftEther VPN."
-

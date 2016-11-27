@@ -577,7 +577,9 @@ HUB_AO_AssignVLanIdByRadiusAttribute		VLAN ID の動的割り当て機能を有�
 HUB_AO_DenyAllRadiusLoginWithNoVlanAssign	この項目が 1 (有効) の場合は、RADIUS サーバーが "Tunnel-Pvt-Group-ID" (ID = 81) の値を返却しなかった場合は VPN 接続が拒否されます。(AssignVLanIdByRadiusAttribute の値が 1 の場合に限ります。)
 HUB_AO_SecureNAT_RandomizeAssignIp			この項目が 1 (有効) の場合は、SecureNAT 機能における仮想 DHCP サーバーは、DHCP クライアントに対して割当てる IP アドレスを指定された IP アドレスプール内の未使用アドレスからランダムに選択するようになります。なお、既定の動作は、未使用アドレスのうち最初のアドレスを割当てるようになっています。
 HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指定された秒数無通信であった VPN セッションをドーマント状態 (休止状態) として識別します。ドーマント状態の VPN セッションに対しては、仮想 HUB 内でフラッディングされるべきパケットがフラッディングされなくなります。
-HUB_AO_NoPhysicalIPOnPacketLog				この項目が 0 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
+HUB_AO_NoPhysicalIPOnPacketLog				この項目が 1 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
+HUB_AO_UseHubNameAsDhcpUserClassOption		この項目が 1 (有効) の場合は、仮想 HUB は DHCP サーバーに対して IP アドレスの取得を要求する際に仮想 HUB 名を DHCP パケットの "User-Class" オプションに埋め込むようになります。この機能は、複数の仮想 HUB がある場合に、DHCP サーバーがそれぞれの仮想 HUB 用に IP プールを確保する場合に便利です。(L2TP/IPsec および OpenVPN セッションのみ対応。)
+HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identidier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
 
 
 # Caps 関係

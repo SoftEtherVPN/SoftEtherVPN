@@ -1396,22 +1396,38 @@ char *BuildHttpLogStr(HTTPLOG *h)
 
 	b = NewBuf();
 
-	if (StartWith(h->Path, "http://"))
+	if (StartWith(h->Path, "http://") || StartWith(h->Path, "https://"))
 	{
 		StrCpy(url, sizeof(url), h->Path);
 	}
 	else
 	{
 		// URL generation
-		if (h->Port == 80)
+		if (h->IsSsl == false)
 		{
-			Format(url, sizeof(url), "http://%s%s",
-				h->Hostname, h->Path);
+			if (h->Port == 80)
+			{
+				Format(url, sizeof(url), "http://%s%s",
+					h->Hostname, h->Path);
+			}
+			else
+			{
+				Format(url, sizeof(url), "http://%s:%u%s",
+					h->Hostname, h->Port, h->Path);
+			}
 		}
 		else
 		{
-			Format(url, sizeof(url), "http://%s:%u%s",
-				h->Hostname, h->Port, h->Path);
+			if (h->Port == 443)
+			{
+				Format(url, sizeof(url), "https://%s/",
+					h->Hostname);
+			}
+			else
+			{
+				Format(url, sizeof(url), "https://%s:%u/",
+					h->Hostname, h->Port);
+			}
 		}
 	}
 

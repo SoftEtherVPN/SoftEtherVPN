@@ -540,6 +540,12 @@ void L3KnownArp(L3IF *f, UINT ip, UCHAR *mac)
 		return;
 	}
 
+	if (!((f->IpAddress & f->SubnetMask) == (ip & f->SubnetMask)))
+	{
+		// Outside the subnet
+		return;
+	}
+
 	// Delete an ARP query entry to this IP address
 	Zero(&t, sizeof(t));
 	t.IpAddress = ip;

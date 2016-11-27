@@ -246,6 +246,15 @@ struct SOCK_EVENT
 #define	SOCK_RUDP_LISTEN		5
 #define	SOCK_REVERSE_LISTEN		6
 
+// SSL Accept Settings
+struct SSL_ACCEPT_SETTINGS
+{
+	bool AcceptOnlyTls;
+	bool Tls_Disable1_0;
+	bool Tls_Disable1_1;
+	bool Tls_Disable1_2;
+};
+
 // Socket
 struct SOCK
 {
@@ -312,8 +321,7 @@ struct SOCK
 	IP Reverse_MyServerGlobalIp;	// Self global IP address when using the reverse socket
 	UINT Reverse_MyServerPort;		// Self port number when using the reverse socket
 	UCHAR Ssl_Init_Async_SendAlert[2];	// Initial state of SSL send_alert
-	bool AcceptOnlyTls;			// Accept only TLS (disable SSLv3)
-	UINT DisableSslVersions;	// Bitmap of SSL Version to disable
+	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	bool RawIP_HeaderIncludeFlag;
 
 #ifdef	ENABLE_SSL_LOGGING
@@ -1044,7 +1052,6 @@ char *HttpHeaderToStr(HTTP_HEADER *header);
 bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size);
 UINT GetContentLength(HTTP_HEADER *header);
 void GetHttpDateStr(char *str, UINT size, UINT64 t);
-bool HttpSendRedirect(SOCK *s, char *target, char* hostname);
 bool HttpSendForbidden(SOCK *s, char *target, char *server_id);
 bool HttpSendNotFound(SOCK *s, char *target);
 bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);
@@ -1370,6 +1377,7 @@ bool GetDomainName(char *name, UINT size);
 bool UnixGetDomainName(char *name, UINT size);
 void RenewDhcp();
 void AcceptInit(SOCK *s);
+void AcceptInitEx(SOCK *s, bool no_lookup_hostname);
 void DisableGetHostNameWhenAcceptInit();
 bool CheckCipherListName(char *name);
 TOKEN_LIST *GetCipherList();

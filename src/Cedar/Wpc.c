@@ -164,6 +164,14 @@ PACK *WpcCallEx(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT
 				char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, bool *cancel, UINT max_recv_size,
 				char *additional_header_name, char *additional_header_value)
 {
+	return WpcCallEx2(url, setting, timeout_connect, timeout_comm, function_name, pack,
+		cert, key, sha1_cert_hash, (sha1_cert_hash == NULL ? 0 : 1),
+		cancel, max_recv_size, additional_header_name, additional_header_value, NULL);
+}
+PACK *WpcCallEx2(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT timeout_comm,
+				char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, UINT num_hashes, bool *cancel, UINT max_recv_size,
+				char *additional_header_name, char *additional_header_value, char *sni_string)
+{
 	URL_DATA data;
 	BUF *b, *recv;
 	UINT error;
@@ -197,8 +205,14 @@ PACK *WpcCallEx(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT
 		StrCpy(data.AdditionalHeaderValue, sizeof(data.AdditionalHeaderValue), additional_header_value);
 	}
 
-	recv = HttpRequestEx(&data, setting, timeout_connect, timeout_comm, &error,
-		false, b->Buf, NULL, NULL, sha1_cert_hash, cancel, max_recv_size);
+	if (sni_string != NULL && IsEmptyStr(sni_string) == false)
+	{
+		StrCpy(data.SniString, sizeof(data.SniString), sni_string);
+	}
+
+	recv = HttpRequestEx3(&data, setting, timeout_connect, timeout_comm, &error,
+		false, b->Buf, NULL, NULL, sha1_cert_hash, num_hashes, cancel, max_recv_size,
+		NULL, NULL);
 
 	FreeBuf(b);
 
@@ -694,6 +708,16 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 				   WPC_RECV_CALLBACK *recv_callback, void *recv_callback_param, void *sha1_cert_hash,
 				   bool *cancel, UINT max_recv_size, char *header_name, char *header_value)
 {
+	return HttpRequestEx3(data, setting, timeout_connect, timeout_comm, error_code, check_ssl_trust,
+		post_data, recv_callback, recv_callback_param, sha1_cert_hash, (sha1_cert_hash == NULL ? 0 : 1),
+		cancel, max_recv_size, header_name, header_value);
+}
+BUF *HttpRequestEx3(URL_DATA *data, INTERNET_SETTING *setting,
+					UINT timeout_connect, UINT timeout_comm,
+					UINT *error_code, bool check_ssl_trust, char *post_data,
+					WPC_RECV_CALLBACK *recv_callback, void *recv_callback_param, void *sha1_cert_hash, UINT num_hashes,
+					bool *cancel, UINT max_recv_size, char *header_name, char *header_value)
+{
 	WPC_CONNECT con;
 	SOCK *s;
 	HTTP_HEADER *h;
@@ -727,6 +751,14 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 	if (timeout_comm == 0)
 	{
 		timeout_comm = WPC_TIMEOUT;
+	}
+	if (sha1_cert_hash == NULL)
+	{
+		num_hashes = 0;
+	}
+	if (num_hashes == 0)
+	{
+		sha1_cert_hash = NULL;
 	}
 
 	// Connection
@@ -773,7 +805,7 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 	if (data->Secure)
 	{
 		// Start the SSL communication
-		if (StartSSLEx(s, NULL, NULL, true, 0, NULL) == false)
+		if (StartSSLEx(s, NULL, NULL, true, 0, (IsEmptyStr(data->SniString) ? NULL : data->SniString)) == false)
 		{
 			// SSL connection failed
 			*error_code = ERR_PROTOCOL_ERROR;
@@ -782,13 +814,28 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 			return NULL;
 		}
 
-		if (sha1_cert_hash != NULL)
+		if (sha1_cert_hash != NULL && num_hashes >= 1)
 		{
 			UCHAR hash[SHA1_SIZE];
+			UINT i;
+			bool ok = false;
+
 			Zero(hash, sizeof(hash));
 			GetXDigest(s->RemoteX, hash, true);
 
-			if (Cmp(hash, sha1_cert_hash, SHA1_SIZE) != 0)
+			for (i = 0;i < num_hashes;i++)
+			{
+				UCHAR *a = (UCHAR *)sha1_cert_hash;
+				a += (SHA1_SIZE * i);
+
+				if (Cmp(hash, a, SHA1_SIZE) == 0)
+				{
+					ok = true;
+					break;
+				}
+			}
+
+			if (ok == false)
 			{
 				// Destination certificate hash mismatch
 				*error_code = ERR_CERT_NOT_TRUSTED;

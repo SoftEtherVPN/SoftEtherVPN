@@ -2393,12 +2393,14 @@ bool NnTestConnectivity(NATIVE_STACK *a, TUBE *halt_tube)
 	IP my_priv_ip;
 	UINT num_send_dns = 0;
 	IP using_dns;
+	UINT src_port = 0;
 	// Validate arguments
 	if (a == NULL)
 	{
 		return false;
 	}
-	UINT src_port = NnGenSrcPort(a->IsIpRawMode);
+
+	src_port = NnGenSrcPort(a->IsIpRawMode);
 
 	Copy(&using_dns, &a->DnsServerIP, sizeof(IP));
 
@@ -3999,12 +4001,14 @@ bool NatTransactIcmp(VH *v, NAT_ENTRY *n)
 	BLOCK *block;
 	IP dest_ip;
 	UINT num_ignore_errors = 0;
+	UINT dest_port = 0;
 	// Validate arguments
 	if (v == NULL || n == NULL)
 	{
 		return true;
 	}
-	UINT dest_port = n->DestPort;
+
+	dest_port = n->DestPort;
 
 	if (n->DisconnectNow)
 	{
@@ -4202,12 +4206,14 @@ bool NatTransactUdp(VH *v, NAT_ENTRY *n)
 	BLOCK *block;
 	IP dest_ip;
 	UINT num_ignore_errors;
+	UINT dest_port = 0;
 	// Validate arguments
 	if (v == NULL || n == NULL)
 	{
 		return true;
 	}
-	UINT dest_port = n->DestPort;
+
+	dest_port = n->DestPort;
 
 	if (n->DisconnectNow)
 	{

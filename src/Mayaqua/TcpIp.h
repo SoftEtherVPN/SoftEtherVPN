@@ -651,6 +651,7 @@ struct HTTPLOG
 	char Protocol[64];						// Protocol
 	char UserAgent[MAX_SIZE];				// User Agent value
 	char Referer[MAX_SIZE];					// Referer
+	bool IsSsl;								// Is SSL
 };
 
 // Packet
@@ -919,6 +920,7 @@ void FreeDhcpOptions(LIST *o);
 LIST *ParseDhcpOptions(void *data, UINT size);
 BUF *BuildDhcpOptionsBuf(LIST *o);
 HTTPLOG *ParseHttpAccessLog(PKT *pkt);
+HTTPLOG *ParseHttpsAccessLog(PKT *pkt);
 
 BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size);
 BUF *DhcpModifyIPv4(DHCP_MODIFY_OPTION *m, void *data, UINT size);

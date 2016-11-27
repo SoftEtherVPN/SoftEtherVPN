@@ -274,6 +274,15 @@ bool IsSupportedWinVer(RPC_WINVER *v)
 				return true;
 			}
 		}
+		else
+		{
+			// Windows Server 2016
+			if (v->ServicePack <= 0)
+			{
+				// SP0 only
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -1750,7 +1759,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->TrafficDiffList = NewList(NULL);
 
-	SetCedarCipherList(c, "RC4-MD5");
+	SetCedarCipherList(c, SERVER_DEFAULT_CIPHER_NAME);
 
 	c->ClientId = _II("CLIENT_ID");
 
@@ -1802,8 +1811,6 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 		BUILD_DATE_Y, BUILD_DATE_M, BUILD_DATE_D, BUILD_DATE_HO, BUILD_DATE_MI, BUILD_DATE_SE, BUILDER_NAME, BUILD_PLACE);
 
 	c->BuildInfo = CopyStr(tmp);
-
-	c->DisableSslVersions = SSL_OPT_DEFAULT;
 
 	return c;
 }

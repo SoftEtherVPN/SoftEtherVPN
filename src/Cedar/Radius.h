@@ -311,6 +311,7 @@ struct EAP_CLIENT
 	UINT ServerPort;
 	char SharedSecret[MAX_SIZE];
 	char ClientIpStr[256];
+	char CalledStationStr[256];
 	char Username[MAX_USERNAME_LEN + 1];
 	UINT ResendTimeout;
 	UINT GiveupTimeout;
@@ -346,7 +347,7 @@ RADIUS_AVP *GetRadiusAvp(RADIUS_PACKET *p, UCHAR type);
 void RadiusTest();
 
 
-EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username);
+EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username, char *hubname);
 void ReleaseEapClient(EAP_CLIENT *e);
 void CleanupEapClient(EAP_CLIENT *e);
 bool EapClientSendMsChapv2AuthRequest(EAP_CLIENT *e);
@@ -376,8 +377,8 @@ struct RADIUS_LOGIN_OPTION
 };
 
 // Function prototype
-bool RadiusLogin(CONNECTION *c, char *hubname, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
-				 RADIUS_LOGIN_OPTION *opt);
+bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
+				 RADIUS_LOGIN_OPTION *opt, char *hubname);
 BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT secret_size);
 BUF *RadiusCreateUserName(wchar_t *username);
 BUF *RadiusCreateUserPassword(void *data, UINT size);

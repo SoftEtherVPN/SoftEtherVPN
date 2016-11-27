@@ -2031,6 +2031,7 @@ void UnixInc32(UINT *value)
 void UnixGetSystemTime(SYSTEMTIME *system_time)
 {
 	time_t now = 0;
+	time_64t now2 = 0;
 	struct tm tm;
 	struct timeval tv;
 	struct timezone tz;
@@ -2048,7 +2049,16 @@ void UnixGetSystemTime(SYSTEMTIME *system_time)
 
 	time(&now);
 
-	gmtime_r(&now, &tm);
+	if (sizeof(time_t) == 4)
+	{
+		now2 = (time_64t)((UINT64)((UINT32)now));
+	}
+	else
+	{
+		now2 = now;
+	}
+
+	c_gmtime_r(&now2, &tm);
 
 	TmToSystem(system_time, &tm);
 
@@ -2087,7 +2097,7 @@ UINT64 UnixGetTick64()
 #endif	// CLOCK_MONOTONIC
 #endif	// CLOCK_HIGHRES
 
-	ret = (UINT64)t.tv_sec * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 
 	if (akirame == false && ret == 0)
 	{
@@ -2106,7 +2116,7 @@ UINT64 UnixGetTick64()
 		host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_serv);
 	}
 	clock_get_time(clock_serv, &t);
-	ret = (UINT64)t.tv_sec * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 	return ret;
 #else
 	return TickRealtimeManual();

@@ -118,12 +118,14 @@ void UdpAccelPoll(UDP_ACCEL *a)
 {
 	IP nat_t_ip;
 	UINT num_ignore_errors = 0;
+	UCHAR *tmp;
 	// Validate arguments
 	if (a == NULL)
 	{
 		return;
 	}
-	UCHAR *tmp = a->TmpBuf;
+
+	tmp = a->TmpBuf;
 
 	Lock(a->NatT_Lock);
 	{

@@ -2152,7 +2152,7 @@ void SiGenerateDefaultCertEx(X **server_x, K **server_k, char *common_name)
 
 	name = NewName(cn, cn, cn,
 		L"US", NULL, NULL);
-	x = NewRootX(public_key, private_key, name, MAX(GetDaysUntil2038(), SERVER_DEFAULT_CERT_DAYS), NULL);
+	x = NewRootX(public_key, private_key, name, GetDaysUntil2038Ex(), NULL);
 
 	*server_x = x;
 	*server_k = private_key;
@@ -2578,7 +2578,7 @@ void SiLoadInitialConfiguration(SERVER *s)
 	}
 
 	// Default to TLS only; mitigates CVE-2016-0800
-	s->Cedar->AcceptOnlyTls = true;
+	s->Cedar->SslAcceptSettings.AcceptOnlyTls = true;
 
 	// Auto saving interval related
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
@@ -2764,9 +2764,6 @@ void SiInitConfiguration(SERVER *s)
 
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
 	s->BackupConfigOnlyWhenModified = true;
-
-	// Default to TLS only; mitigates CVE-2016-0800
-	s->Cedar->AcceptOnlyTls = true;
 
 	// IPsec server
 	if (s->Cedar->Bridge == false)
@@ -5019,10 +5016,10 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 		CfgAddInt(f, "RadiusServerPort", h->RadiusServerPort);
 		CfgAddInt(f, "RadiusRetryInterval", h->RadiusRetryInterval);
 		CfgAddStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter);
+		CfgAddStr(f, "RadiusRealm", h->RadiusRealm);
 
 		CfgAddBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap", h->RadiusConvertAllMsChapv2AuthRequestToEap);
 		CfgAddBool(f, "RadiusUsePeapInsteadOfEap", h->RadiusUsePeapInsteadOfEap);
-		CfgAddStr(f, "RadiusRealm", h->RadiusRealm);
 	}
 	Unlock(h->RadiusOptionLock);
 
@@ -6170,47 +6167,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// AcceptOnlyTls
 		if (CfgIsItem(f, "AcceptOnlyTls"))
 		{
-			c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+			c->SslAcceptSettings.AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
 		}
 		else
 		{
-			c->AcceptOnlyTls = true;
+			// Default to TLS only; mitigates CVE-2016-0800
+			c->SslAcceptSettings.AcceptOnlyTls = true;
 		}
-
-		if (c->AcceptOnlyTls) {
-			c->DisableSslVersions |= SSL_VERSION_SSL_V2;
-			c->DisableSslVersions |= SSL_VERSION_SSL_V3;
-		}
-
-		if (CfgGetStr(f, "DisableSslVersions", tmp, sizeof(tmp))) {
-			TOKEN_LIST *sslVersions= ParseToken(tmp, ", ");
-			UINT i;		
-			for (i = 0;i < sslVersions->NumTokens;i++)
-			{
-				char *sslVersion=sslVersions->Token[i];
-				if (StrCmp(sslVersion, NAME_SSL_VERSION_SSL_V2)==0) {
-					c->DisableSslVersions |= SSL_VERSION_SSL_V2;
-					continue;
-				}
-				if (StrCmp(sslVersion, NAME_SSL_VERSION_SSL_V3)==0) {
-					c->DisableSslVersions |= SSL_VERSION_SSL_V3;
-					continue;
-				}
-				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_0)==0) { 
-					c->DisableSslVersions |= SSL_VERSION_TLS_V1_0;
-					continue;
-				}
-				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_1)==0) {
-					c->DisableSslVersions |= SSL_VERSION_TLS_V1_1;
-					continue;
-				}
-				if (StrCmp(sslVersion, NAME_SSL_VERSION_TLS_V1_2)==0) {
-					c->DisableSslVersions |= SSL_VERSION_TLS_V1_2;
-					continue;
-				}
-			}
-			FreeToken(sslVersions);
-		}
+		c->SslAcceptSettings.Tls_Disable1_0 = CfgGetBool(f, "Tls_Disable1_0");
+		c->SslAcceptSettings.Tls_Disable1_1 = CfgGetBool(f, "Tls_Disable1_1");
+		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
 	}
 	Unlock(c->lock);
 
@@ -6519,42 +6485,10 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
-		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
-
-		{
-			char tmp[MAX_SIZE];
-			tmp[0] = 0;
-			if (c->DisableSslVersions & SSL_VERSION_SSL_V2) {
-				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_SSL_V2);
-				StrCat(tmp, sizeof(tmp), ",");
-			}
-			if (c->DisableSslVersions & SSL_VERSION_SSL_V3) {
-				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_SSL_V3);
-				StrCat(tmp, sizeof(tmp), ",");
-			}
-			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_0) {
-				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_0);
-				StrCat(tmp, sizeof(tmp), ",");
-			}
-			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_1) {
-				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_1);
-				StrCat(tmp, sizeof(tmp), ",");
-			}
-			if (c->DisableSslVersions & SSL_VERSION_TLS_V1_2) {
-				StrCat(tmp, sizeof(tmp), NAME_SSL_VERSION_TLS_V1_2);
-				StrCat(tmp, sizeof(tmp), ",");
-			}
-                        if (StrLen(tmp) >= 1)
-                        {
-                                if (tmp[StrLen(tmp) - 1] == ',')
-                                {
-                                        tmp[StrLen(tmp) - 1] = 0;
-                                }
-                        }
-			CfgAddStr(f, "DisableSslVersions", tmp);
-		}
-
-		
+		CfgAddBool(f, "AcceptOnlyTls", c->SslAcceptSettings.AcceptOnlyTls);
+		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
+		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
+		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));

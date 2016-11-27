@@ -3137,8 +3137,7 @@ void ConnectionAccept(CONNECTION *c)
 
 	// Start the SSL communication
 	Debug("StartSSL()\n");
-	s->DisableSslVersions = c->Cedar->DisableSslVersions;
-
+	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
 	if (StartSSL(s, x, k) == false)
 	{
 		// Failed

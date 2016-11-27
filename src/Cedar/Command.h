@@ -204,6 +204,8 @@ struct TTS_SOCK
 	UINT64 FirstRecvTick;	// Time which the data has been received last
 	UINT64 FirstSendTick;	// Time which the data has been sent last
 	UINT64 Span;			// Period
+	UINT64 GiveupSpan;
+	UINT64 LastCommTime;
 };
 
 // Traffic test server

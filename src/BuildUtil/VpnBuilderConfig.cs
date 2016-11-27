@@ -430,7 +430,7 @@ namespace BuildUtil
 	{
 		// Windows
 		public static readonly OS Windows = new OS("windows", "Windows",
-			"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2",
+			"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016",
 			new Cpu[]
 			{
 				CpuList.intel,
@@ -438,7 +438,7 @@ namespace BuildUtil
 
 		// Linux
 		public static readonly OS Linux = new OS("linux", "Linux",
-			"Linux Kernel 2.4 / 2.6 / 3.x",
+			"Linux Kernel 2.4 / 2.6 / 3.x / 4.x",
 			new Cpu[]
 			{
 				CpuList.x86,

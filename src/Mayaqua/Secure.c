@@ -424,12 +424,18 @@ bool SignSecByObject(SECURE *sec, SEC_OBJ *obj, void *dst, void *src, UINT size)
 
 	// Perform Signing
 	size = 128;
+	// First try with 1024 bit
 	ret = sec->Api->C_Sign(sec->SessionId, hash, sizeof(hash), dst, &size);
-	if (ret != CKR_OK || size != 128)
+	if (ret != CKR_OK && 128 < size && size <= 4096/8)
+	{
+		// Retry with expanded bits
+		ret = sec->Api->C_Sign(sec->SessionId, hash, sizeof(hash), dst, &size);
+	}
+	if (ret != CKR_OK || size == 0 || size > 4096/8)
 	{
 		// Failure
 		sec->Error = SEC_ERROR_HARDWARE_ERROR;
-		Debug("C_Sign Error: 0x%x\n", ret);
+		Debug("C_Sign Error: 0x%x  size:%d\n", ret, size);
 		return false;
 	}
 
@@ -780,6 +786,11 @@ bool WriteSecCert(SECURE *sec, bool private_obj, char *name, X *x)
 	if(sec->Dev->Id == 18 || sec->Dev->Id == 19)
 	{
 		b_private_obj = false;
+	}
+
+	// CryptoID PKCS#11 requires CKA_ID attiribute instead of CKA_LABEL.
+	if(sec->Dev->Id == 22) {
+		a[7].type = CKA_ID;
 	}
 
 	// Remove objects which have the same name
@@ -2007,7 +2018,7 @@ void TestSecMain(SECURE *sec)
 	}
 
 	Print("Generating Key...\n");
-	if (RsaGen(&private_key, &public_key, 1024) == false)
+	if (RsaGen(&private_key, &public_key, 2048) == false)
 	{
 		Print("RsaGen() Failed.\n");
 	}
@@ -2077,9 +2088,10 @@ void TestSecMain(SECURE *sec)
 						}
 						else
 						{
-							UCHAR sign_cpu[128];
-							UCHAR sign_sec[128];
+							UCHAR sign_cpu[512];
+							UCHAR sign_sec[512];
 							K *pub = GetKFromX(cert);
+							UINT keybtytes = (cert->bits)/8;
 							Print("Ok.\n");
 							Print("Signing Data by CPU...\n");
 							if (RsaSign(sign_cpu, test_str, StrLen(test_str), private_key) == false)
@@ -2090,7 +2102,7 @@ void TestSecMain(SECURE *sec)
 							{
 								Print("Ok.\n");
 								Print("sign_cpu: ");
-								PrintBin(sign_cpu, sizeof(sign_cpu));
+								PrintBin(sign_cpu, keybtytes);
 								Print("Signing Data by %s..\n", sec->Dev->DeviceName);
 								if (SignSec(sec, "test_key", sign_sec, test_str, StrLen(test_str)) == false)
 								{
@@ -2100,14 +2112,14 @@ void TestSecMain(SECURE *sec)
 								{
 									Print("Ok.\n");
 									Print("sign_sec: ");
-									PrintBin(sign_sec, sizeof(sign_sec));
+									PrintBin(sign_sec, keybtytes);
 									Print("Compare...");
-									if (Cmp(sign_sec, sign_cpu, sizeof(sign_cpu)) == 0)
+									if (Cmp(sign_sec, sign_cpu, keybtytes) == 0)
 									{
 										Print("Ok.\n");
 										Print("Verify...");
-										if (RsaVerify(test_str, StrLen(test_str),
-											sign_sec, pub) == false)
+										if (RsaVerifyEx(test_str, StrLen(test_str),
+											sign_sec, pub, cert->bits) == false)
 										{
 											Print("[FAILED]\n");
 										}

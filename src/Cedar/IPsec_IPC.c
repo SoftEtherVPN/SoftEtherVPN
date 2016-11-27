@@ -426,7 +426,6 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	// Upload the authentication data
 	p = PackLoginWithPlainPassword(hubname, username, password);
-	PackAddInt64(p, "timestamp", SystemTime64());
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
@@ -690,7 +689,7 @@ void IPCDhcpSetConditionalUserClass(IPC *ipc, DHCP_OPTION_LIST *req)
 		return;
 	}
 
-	if (hub->Option && hub->Option->UseHubNameAsDhcpUserClassOption == true)
+	if (hub->Option && hub->Option->UseHubNameAsDhcpUserClassOption)
 	{
 		StrCpy(req->UserClass, sizeof(req->UserClass), ipc->HubName);
 	}

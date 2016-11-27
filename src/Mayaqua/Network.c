@@ -155,7 +155,6 @@
 #ifdef	UNIX_MACOS
 #include <sys/event.h>
 #endif	// UNIX_MACOS
-#include <Cedar/Cedar.h>
 
 #ifdef	OS_WIN32
 NETWORK_WIN32_FUNCTIONS *w32net;
@@ -188,8 +187,6 @@ struct ROUTE_CHANGE_DATA
 
 
 // HTTP constant
-//static char http_301_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>301 Moved Permanently</TITLE>\r\n</HEAD><BODY>\r\n<H1>Moved</H1>\r\nThis páge has moved to <A HREF=\"https://$HOST$:4443$TARGET$\">new address</A>.<P>\r\n<HR>\r\n</BODY></HTML>\r\n";
-static char http_301_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>301 Moved Permanently</TITLE>\r\n</HEAD><BODY>\r\n<H1>Moved</H1>\r\nThis páge has moved to <A HREF=\"https://$HOSTNAME$:4443$TARGET$\">new address</A>.<P>\r\n<HR>\r\n</BODY></HTML>\r\n";
 static char http_404_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>404 Not Found</TITLE>\r\n</HEAD><BODY>\r\n<H1>Not Found</H1>\r\nThe requested URL $TARGET$ was not found on this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
 static char http_403_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>403 Forbidden</TITLE>\r\n</HEAD><BODY>\r\n<H1>Forbidden</H1>\r\nYou don't have permission to access $TARGET$\r\non this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
 static char http_500_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>500 Server Error</TITLE>\r\n</HEAD><BODY>\r\n<H1>Server Error</H1>\r\nServer Error<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
@@ -236,7 +233,7 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
+static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384";
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -248,7 +245,7 @@ static UINT rand_port_numbers[256] = {0};
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
 
-static DH_CTX *dh_1024 = NULL;
+static DH_CTX *dh_2048 = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -5824,7 +5821,8 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 	{
 		if (server_mode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_server_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
 
 			AddChainSslCertOnDirectory(ssl_ctx);
 
@@ -5835,7 +5833,7 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 		}
 		else
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
 		//SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, cb_test);
@@ -12773,7 +12771,7 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure)
 // Set the cipher algorithm name to want to use
 void SetWantToUseCipher(SOCK *sock, char *name)
 {
-	char tmp[254];
+	char tmp[1024];
 	// Validate arguments
 	if (sock == NULL || name == NULL)
 	{
@@ -12913,7 +12911,7 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 // Start a TCP-SSL communication
 bool StartSSL(SOCK *sock, X *x, K *priv)
 {
-	return StartSSLEx(sock, x, priv, false, 0, NULL);
+	return StartSSLEx(sock, x, priv, true, 0, NULL);
 }
 bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname)
 {
@@ -12976,23 +12974,39 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		if (sock->ServerMode)
 		{
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
-			long ssl_opt_flags=0x0L;
-			if (sock->DisableSslVersions & SSL_VERSION_SSL_V2) {
-				ssl_opt_flags |= SSL_OP_NO_SSLv2;
+
+#ifdef	SSL_OP_NO_SSLv2
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
+#endif	// SSL_OP_NO_SSLv2
+
+			if (sock->SslAcceptSettings.AcceptOnlyTls)
+			{
+#ifdef	SSL_OP_NO_SSLv3
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
 			}
-			if (sock->DisableSslVersions & SSL_VERSION_SSL_V3) {
-				ssl_opt_flags |= SSL_OP_NO_SSLv3;
+
+			if (sock->SslAcceptSettings.Tls_Disable1_0)
+			{
+#ifdef	SSL_OP_NO_TLSv1
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1);
+#endif	// SSL_OP_NO_TLSv1
 			}
-			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_0) {
-				ssl_opt_flags |= SSL_OP_NO_TLSv1;
+
+			if (sock->SslAcceptSettings.Tls_Disable1_1)
+			{
+#ifdef	SSL_OP_NO_TLSv1_1
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_1);
+#endif	// SSL_OP_NO_TLSv1_1
 			}
-			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_1) {
-				ssl_opt_flags |= SSL_OP_NO_TLSv1_1;
+
+			if (sock->SslAcceptSettings.Tls_Disable1_2)
+			{
+#ifdef	SSL_OP_NO_TLSv1_2
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_2);
+#endif	// SSL_OP_NO_TLSv1_2
 			}
-			if (sock->DisableSslVersions & SSL_VERSION_TLS_V1_2) {
-				ssl_opt_flags |= SSL_OP_NO_TLSv1_2;
-			}
-			SSL_CTX_set_options(ssl_ctx, ssl_opt_flags);
+
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
@@ -13005,7 +13019,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 			}
 			else
 			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 			}
 		}
 		sock->ssl = SSL_new(ssl_ctx);
@@ -13021,6 +13035,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 			}
 		}
 #endif	// SSL_CTRL_SET_TLSEXT_HOSTNAME
+
 	}
 	Unlock(openssl_lock);
 
@@ -13205,6 +13220,8 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 
 	return true;
 }
+
+
 
 #ifdef	ENABLE_SSL_LOGGING
 
@@ -13839,6 +13856,10 @@ void DisableGetHostNameWhenAcceptInit()
 // Initialize the connection acceptance
 void AcceptInit(SOCK *s)
 {
+	AcceptInitEx(s, false);
+}
+void AcceptInitEx(SOCK *s, bool no_lookup_hostname)
+{
 	char tmp[MAX_SIZE];
 	// Validate arguments
 	if (s == NULL)
@@ -13848,7 +13869,7 @@ void AcceptInit(SOCK *s)
 
 	Zero(tmp, sizeof(tmp));
 
-	if (disable_gethostname_by_accept == false)
+	if (disable_gethostname_by_accept == false && no_lookup_hostname == false)
 	{
 		if (GetHostName(tmp, sizeof(tmp), &s->RemoteIP) == false ||
 			IsEmptyStr(tmp))
@@ -17760,9 +17781,9 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
 	DH *ret = NULL;
 
-	if (dh_1024 != NULL)
+	if (dh_2048 != NULL)
 	{
-		ret = dh_1024->dh;
+		ret = dh_2048->dh;
 	}
 
 	return ret;
@@ -17785,6 +17806,10 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 #endif	// SSL_OP_CIPHER_SERVER_PREFERENCE
 
 	SSL_CTX_set_tmp_dh_callback(ctx, TmpDhCallback);
+
+#ifdef	SSL_CTX_set_ecdh_auto
+	SSL_CTX_set_ecdh_auto(ctx, 1);
+#endif	// SSL_CTX_set_ecdh_auto
 
 	return ctx;
 }
@@ -17879,7 +17904,7 @@ void InitNetwork()
 	disable_cache = false;
 
 
-	dh_1024 = DhNewGroup2();
+	dh_2048 = DhNew2048();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
@@ -18313,10 +18338,10 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 void FreeNetwork()
 {
 
-	if (dh_1024 != NULL)
+	if (dh_2048 != NULL)
 	{
-		DhFree(dh_1024);
-		dh_1024 = NULL;
+		DhFree(dh_2048);
+		dh_2048 = NULL;
 	}
 
 	// Release of thread-related
@@ -21875,69 +21900,6 @@ bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version)
 	return ret;
 }
 
-// Sending the 301 Moved Permanently: Redirect
-bool HttpSendRedirect(SOCK *s, char *target, char *hostname)
-{
-        HTTP_HEADER *h;
-        char *str;
-	//char *redirect_to_static="https://$HOSTNAME$:4443$TARGET$";
-	char *redirect_to_static="https://%s:4443%s";
-	char *redirect_to;
-        UINT redir_size;
-        UINT str_size;
-        bool ret;
-        char host[MAX_SIZE];
-        UINT port;
-        // Validate arguments
-        if (s == NULL || target == NULL || hostname == NULL)
-        {
-                return false;
-        }
-
-        // Get the host name
-        //GetMachineName(host, MAX_SIZE);
-        Zero(host, sizeof(host));
-        IPToStr(host, sizeof(host), &s->LocalIP);
-
-        // Creating a header
-        h = NewHttpHeader("HTTP/1.1", "301", "Moved Permanently");
-
-        redir_size = strlen(redirect_to_static) * 2 + StrLen(target) + StrLen(hostname);
-	redirect_to = Malloc(redir_size);
-	snprintf(redirect_to, redir_size, redirect_to_static, hostname, target);
-        //StrCpy(redirect_to, redir_size, redirect_to_static);
-	//ReplaceStri(redirect_to, redir_size, redirect_to, "$TARGET$", target);
-	//ReplaceStri(redirect_to, redir_size, redirect_to, "$HOSTNAME$", hostname);
-
-        AddHttpValue(h, NewHttpValue("Location", redirect_to));
-        AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
-
-        // Creating a Data
-        str_size = sizeof(http_301_str) * 2 + StrLen(target) + StrLen(hostname);
-        str = Malloc(str_size);
-        StrCpy(str, str_size, http_301_str);
-
-        // TARGET
-        ReplaceUnsafeCharInTarget(target);
-        ReplaceStri(str, str_size, str, "$TARGET$", target);
-
-        // HOST
-        //ReplaceStri(str, str_size, str, "$HOST$", host);
-
-        // HOSTNAME
-        ReplaceStri(str, str_size, str, "$HOSTNAME$", hostname);
-
-        // Transmission
-        ret = PostHttp(s, h, str, StrLen(str));
-
-        FreeHttpHeader(h);
-        Free(redirect_to);
-        Free(str);
-
-        return ret;
-}
-
-
 // Sending a 404 Not Found error
 bool HttpSendNotFound(SOCK *s, char *target)
 {
@@ -22744,7 +22706,14 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	USHORT handshake_length;
 
 	// Validate arguments
-	if (packet_buf == NULL || packet_size == 0)
+	if (packet_buf == NULL || packet_size <= 11)
+	{
+		return false;
+	}
+
+	if (!(packet_buf[0] == 0x16 && packet_buf[1] >= 0x03 &&
+		packet_buf[5] == 0x01 && packet_buf[6] == 0x00 &&
+		packet_buf[9] >= 0x03))
 	{
 		return false;
 	}
@@ -22758,7 +22727,7 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 		version = Endian16(version);
 		handshake_length = Endian16(handshake_length);
 
-		if (version >= 0x0301)
+		if (content_type == 0x16 && version >= 0x0301)
 		{
 			UCHAR *handshake_data = Malloc(handshake_length);
 
@@ -22875,9 +22844,12 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 
 																							if (ReadBuf(dbuf, name_buf, name_len) == name_len)
 																							{
-																								ret = true;
+																								if (StrLen(name_buf) >= 1)
+																								{
+																									ret = true;
 
-																								StrCpy(sni, sni_size, name_buf);
+																									StrCpy(sni, sni_size, name_buf);
+																								}
 																							}
 
 																							Free(name_buf);

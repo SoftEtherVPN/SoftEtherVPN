@@ -214,7 +214,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 						if (GetIP(&ip, radius_servers_list->Token[i]))
 						{
 							eap = NewEapClient(&ip, radius_port, radius_secret, radius_retry_interval,
-								RADIUS_INITIAL_EAP_TIMEOUT, client_ip_str, username);
+								RADIUS_INITIAL_EAP_TIMEOUT, client_ip_str, username, hubname);
 
 							if (eap != NULL)
 							{

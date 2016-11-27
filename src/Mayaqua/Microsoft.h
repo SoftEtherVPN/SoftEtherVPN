@@ -431,6 +431,8 @@ typedef struct NT_API
 	void (WINAPI *WTSFreeMemory)(void *);
 	BOOL (WINAPI *WTSDisconnectSession)(HANDLE, DWORD, BOOL);
 	BOOL (WINAPI *WTSEnumerateSessions)(HANDLE, DWORD, DWORD, PWTS_SESSION_INFO *, DWORD *);
+	BOOL (WINAPI *WTSRegisterSessionNotification)(HWND, DWORD);
+	BOOL (WINAPI *WTSUnRegisterSessionNotification)(HWND);
 	SC_HANDLE (WINAPI *OpenSCManager)(LPCTSTR, LPCTSTR, DWORD);
 	SC_HANDLE (WINAPI *CreateServiceA)(SC_HANDLE, LPCTSTR, LPCTSTR, DWORD, DWORD, DWORD, DWORD, LPCTSTR, LPCTSTR, LPDWORD, LPCTSTR, LPCTSTR, LPCTSTR);
 	SC_HANDLE (WINAPI *CreateServiceW)(SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR, LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
@@ -590,6 +592,13 @@ typedef struct MS_ADAPTER_LIST
 	MS_ADAPTER **Adapters;			// Content
 } MS_ADAPTER_LIST;
 
+typedef struct MS_ISLOCKED
+{
+	HWND hWnd;
+	THREAD *Thread;
+	volatile bool IsLockedFlag;
+} MS_ISLOCKED;
+
 // TCP setting
 typedef struct MS_TCP
 {
@@ -740,6 +749,14 @@ UINT MsGetCurrentProcessId();
 char *MsGetExeFileName();
 char *MsGetExeDirName();
 wchar_t *MsGetExeDirNameW();
+
+void MsIsLockedThreadProc(THREAD *thread, void *param);
+MS_ISLOCKED *MsNewIsLocked();
+void MsFreeIsLocked(MS_ISLOCKED *d);
+void MsStartIsLockedThread();
+void MsStopIsLockedThread();
+bool MsDetermineIsLockedByWtsApi();
+
 
 bool MsShutdown(bool reboot, bool force);
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message);

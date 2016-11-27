@@ -204,6 +204,7 @@ static SERVICE_FUNCTION *g_start, *g_stop;
 static bool exiting = false;
 static bool wnd_end;
 static bool is_usermode = false;
+static bool wts_is_locked_flag = false;
 static HICON tray_icon;
 static NOTIFYICONDATA nid;
 static NOTIFYICONDATAW nid_nt;
@@ -9193,6 +9194,11 @@ bool MsCloseWarningWindow(NO_WARNING *nw, UINT thread_id)
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		HWND hWnd;
+
+		if (nw->Halt)
+		{
+			break;
+		}
 		
 		if (MsIsVista() == false)
 		{
@@ -12341,6 +12347,175 @@ bool MsIsPasswordEmpty(wchar_t *username)
 	return false;
 }
 
+// Determine if the workstation is locked by using WTS API
+bool MsDetermineIsLockedByWtsApi()
+{
+	return wts_is_locked_flag;
+}
+
+// IsLocked Window Proc
+LRESULT CALLBACK MsIsLockedWindowHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	MS_ISLOCKED *d = NULL;
+	CREATESTRUCT *cs;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	d = (MS_ISLOCKED *)GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+	if (d == NULL && msg != WM_CREATE)
+	{
+		goto LABEL_END;
+	}
+
+	switch (msg)
+	{
+	case WM_CREATE:
+		cs = (CREATESTRUCT *)lParam;
+		d = (MS_ISLOCKED *)cs->lpCreateParams;
+		SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR)d);
+
+		ms->nt->WTSRegisterSessionNotification(hWnd, NOTIFY_FOR_THIS_SESSION);
+
+		wts_is_locked_flag = false;
+
+		break;
+
+	case WM_WTSSESSION_CHANGE:
+		{
+			char tmp[MAX_SIZE];
+
+			GetDateTimeStr64(tmp, sizeof(tmp), LocalTime64());
+
+			switch (wParam)
+			{
+			case WTS_SESSION_LOCK:
+				Debug("%s: Enter Lock\n", tmp);
+				d->IsLockedFlag = true;
+				wts_is_locked_flag = true;
+				break;
+
+			case WTS_SESSION_UNLOCK:
+				Debug("%s: Enter Unlock\n", tmp);
+				d->IsLockedFlag = false;
+				wts_is_locked_flag = false;
+				break;
+			}
+		}
+
+		break;
+
+	case WM_DESTROY:
+		Debug("Unregister\n");
+		ms->nt->WTSUnRegisterSessionNotification(hWnd);
+		PostQuitMessage(0);
+		break;
+	}
+
+LABEL_END:
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+// IsLocked thread proc
+void MsIsLockedThreadProc(THREAD *thread, void *param)
+{
+	MS_ISLOCKED *d = (MS_ISLOCKED *)param;
+	char wndclass_name[MAX_PATH];
+	WNDCLASS wc;
+	HWND hWnd;
+	MSG msg;
+	// Validate arguments
+	if (d == NULL || thread == NULL)
+	{
+		return;
+	}
+
+	Format(wndclass_name, sizeof(wndclass_name), "WNDCLASS_%X", Rand32());
+
+	Zero(&wc, sizeof(wc));
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = NULL;
+	wc.hInstance = ms->hInst;
+	wc.lpfnWndProc = MsIsLockedWindowHandlerWindowProc;
+	wc.lpszClassName = wndclass_name;
+	if (RegisterClassA(&wc) == 0)
+	{
+		NoticeThreadInit(thread);
+		return;
+	}
+
+	hWnd = CreateWindowA(wndclass_name, wndclass_name, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL, NULL, ms->hInst, d);
+
+	d->hWnd = hWnd;
+
+	NoticeThreadInit(thread);
+
+	if (hWnd == NULL)
+	{
+		UnregisterClassA(wndclass_name, ms->hInst);
+		return;
+	}
+
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	DestroyWindow(hWnd);
+
+	UnregisterClassA(wndclass_name, ms->hInst);
+}
+
+// Create new IsLocked thread
+MS_ISLOCKED *MsNewIsLocked()
+{
+	MS_ISLOCKED *d;
+	THREAD *t;
+
+	SleepThread(5000);
+
+	if (IsNt() == false || ms->nt->WTSRegisterSessionNotification == NULL ||
+		ms->nt->WTSUnRegisterSessionNotification == NULL)
+	{
+		return NULL;
+	}
+
+	d = ZeroMalloc(sizeof(MS_ISLOCKED));
+
+	t = NewThread(MsIsLockedThreadProc, d);
+
+	WaitThreadInit(t);
+
+	d->Thread = t;
+
+	return d;
+}
+
+// Stop and free the IsLocked thread
+void MsFreeIsLocked(MS_ISLOCKED *d)
+{
+	if (d == NULL)
+	{
+		return;
+	}
+
+	if (d->hWnd != NULL)
+	{
+		PostMessageA(d->hWnd, WM_CLOSE, 0, 0);
+	}
+
+	WaitThread(d->Thread, INFINITE);
+	ReleaseThread(d->Thread);
+
+	Free(d);
+}
+
 // Execution of shutdown (NT)
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message)
 {
@@ -12689,6 +12864,12 @@ NT_API *MsLoadNtApiFunctions()
 		nt->WTSEnumerateSessionsA =
 			(BOOL (__stdcall *)(HANDLE,DWORD,DWORD,PWTS_SESSION_INFOA *,DWORD *))
 			GetProcAddress(nt->hWtsApi32, "WTSEnumerateSessionsA");
+		nt->WTSRegisterSessionNotification =
+			(BOOL (__stdcall *)(HWND,DWORD))
+			GetProcAddress(nt->hWtsApi32, "WTSRegisterSessionNotification");
+		nt->WTSUnRegisterSessionNotification =
+			(BOOL (__stdcall *)(HWND))
+			GetProcAddress(nt->hWtsApi32, "WTSUnRegisterSessionNotification");
 	}
 
 	// Service related API
