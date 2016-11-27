@@ -1655,6 +1655,10 @@ bool ServerAccept(CONNECTION *c)
 			{
 				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
 				radius_login_opt.In_DenyNoVlanId = hub->Option->DenyAllRadiusLoginWithNoVlanAssign;
+				if (hub->Option->UseHubNameAsRadiusNasId == true)
+				{
+					StrCpy(radius_login_opt.NasId, sizeof(radius_login_opt.NasId), hubname);
+				}
 			}
 
 			// Get the various flags

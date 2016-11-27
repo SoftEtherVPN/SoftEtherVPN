@@ -4114,6 +4114,8 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->SecureNAT_RandomizeAssignIp = CfgGetBool(f, "SecureNAT_RandomizeAssignIp");
 	o->DetectDormantSessionInterval = CfgGetInt(f, "DetectDormantSessionInterval");
 	o->NoPhysicalIPOnPacketLog = CfgGetBool(f, "NoPhysicalIPOnPacketLog");
+	o->UseHubNameAsDhcpUserClassOption = CfgGetBool(f, "UseHubNameAsDhcpUserClassOption");
+	o->UseHubNameAsRadiusNasId = CfgGetBool(f, "UseHubNameAsRadiusNasId");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4214,6 +4216,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DisableUserModeSecureNAT", o->DisableUserModeSecureNAT);
 	CfgAddBool(f, "DisableCheckMacOnLocalBridge", o->DisableCheckMacOnLocalBridge);
 	CfgAddBool(f, "DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum);
+	CfgAddBool(f, "UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption);
+	CfgAddBool(f, "UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId);
 }
 
 // Write the user
@@ -7625,6 +7629,8 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DisableUserModeSecureNAT = PackGetBool(p, "DisableUserModeSecureNAT");
 	o.DisableCheckMacOnLocalBridge = PackGetBool(p, "DisableCheckMacOnLocalBridge");
 	o.DisableCorrectIpOffloadChecksum = PackGetBool(p, "DisableCorrectIpOffloadChecksum");
+	o.UseHubNameAsDhcpUserClassOption = PackGetBool(p, "UseHubNameAsDhcpUserClassOption");
+	o.UseHubNameAsRadiusNasId = PackGetBool(p, "UseHubNameAsRadiusNasId");
 
 	save_packet_log = PackGetInt(p, "SavePacketLog");
 	packet_log_switch_type = PackGetInt(p, "PacketLogSwitchType");
@@ -9477,6 +9483,8 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddInt(p, "SecurityLogSwitchType", h->LogSetting.SecurityLogSwitchType);
 	PackAddData(p, "HashedPassword", h->HashedPassword, SHA1_SIZE);
 	PackAddData(p, "SecurePassword", h->SecurePassword, SHA1_SIZE);
+	PackAddBool(p, "UseHubNameAsDhcpUserClassOption", h->Option->UseHubNameAsDhcpUserClassOption);
+	PackAddBool(p, "UseHubNameAsRadiusNasId", h->Option->UseHubNameAsRadiusNasId);
 
 	SiAccessListToPack(p, h->AccessList);
 

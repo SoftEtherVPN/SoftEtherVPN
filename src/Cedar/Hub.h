@@ -281,6 +281,8 @@ struct HUB_OPTION
 	bool SecureNAT_RandomizeAssignIp;	// Randomize the assignment IP address for new DHCP client
 	UINT DetectDormantSessionInterval;	// Interval (seconds) threshold to detect a dormant VPN session
 	bool NoPhysicalIPOnPacketLog;		// Disable saving physical IP address on the packet log
+	bool UseHubNameAsDhcpUserClassOption;	// Add HubName to DHCP request as User-Class option
+	bool UseHubNameAsRadiusNasId;		// Add HubName to Radius request as NAS-Identifier attrioption
 };
 
 // MAC table entry

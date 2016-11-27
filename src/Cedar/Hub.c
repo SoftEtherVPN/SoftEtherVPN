@@ -700,6 +700,8 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "SecureNAT_RandomizeAssignIp", &o->SecureNAT_RandomizeAssignIp);
 	GetHubAdminOptionDataAndSet(ao, "DetectDormantSessionInterval", &o->DetectDormantSessionInterval);
 	GetHubAdminOptionDataAndSet(ao, "NoPhysicalIPOnPacketLog", &o->NoPhysicalIPOnPacketLog);
+	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsDhcpUserClassOption", &o->UseHubNameAsDhcpUserClassOption);
+	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsRadiusNasId", &o->UseHubNameAsRadiusNasId);
 }
 
 // Convert the contents of the HUB_OPTION to data
@@ -771,6 +773,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp));
 	Add(aol, NewAdminOption("DetectDormantSessionInterval", o->DetectDormantSessionInterval));
 	Add(aol, NewAdminOption("NoPhysicalIPOnPacketLog", o->NoPhysicalIPOnPacketLog));
+	Add(aol, NewAdminOption("UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption));
+	Add(aol, NewAdminOption("UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId));
 
 	Zero(ao, sizeof(RPC_ADMIN_OPTION));
 

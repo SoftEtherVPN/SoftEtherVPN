@@ -679,6 +679,24 @@ void FreeIPC(IPC *ipc)
 	Free(ipc);
 }
 
+// Set User Class option if corresponding Virtual Hub optin is set
+void IPCDhcpSetConditionalUserClass(IPC *ipc, DHCP_OPTION_LIST *req)
+{
+	HUB *hub;
+
+	hub = GetHub(ipc->Cedar, ipc->HubName);
+	if (hub == NULL)
+	{
+		return;
+	}
+
+	if (hub->Option && hub->Option->UseHubNameAsDhcpUserClassOption == true)
+	{
+		StrCpy(req->UserClass, sizeof(req->UserClass), ipc->HubName);
+	}
+	ReleaseHub(hub);
+}
+
 // Release the IP address from the DHCP server
 void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 {
@@ -693,6 +711,7 @@ void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 	Zero(&req, sizeof(req));
 	req.Opcode = DHCP_RELEASE;
 	req.ServerAddress = IPToUINT(dhcp_server);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, tran_id, &req, 0, 0, NULL));
 }
@@ -713,6 +732,7 @@ void IPCDhcpRenewIP(IPC *ipc, IP *dhcp_server)
 	req.Opcode = DHCP_REQUEST;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.RequestedIp = IPToUINT(&ipc->ClientIPAddress);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, dhcp_server, tran_id, &req, 0, 0, NULL));
 }
@@ -735,6 +755,7 @@ bool IPCDhcpRequestInformIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_t
 	req.Opcode = DHCP_INFORM;
 	req.ClientAddress = IPToUINT(client_ip);
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -799,6 +820,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	req.RequestedIp = request_ip;
 	req.Opcode = DHCP_DISCOVER;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -909,6 +931,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.ServerAddress = d->ParsedOptionList->ServerAddress;
 	req.RequestedIp = d->ParsedOptionList->ClientAddress;
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d2 = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d2 == NULL)
@@ -1241,6 +1264,12 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 	if (IsEmptyStr(opt->Hostname) == false)
 	{
 		Add(o, NewDhcpOption(DHCP_ID_HOST_NAME, opt->Hostname, StrLen(opt->Hostname)));
+	}
+
+	// User Class
+	if (IsEmptyStr(opt->UserClass) == false)
+	{
+		Add(o, NewDhcpOption(DHCP_ID_USER_CLASS, opt->UserClass, StrLen(opt->UserClass)));
 	}
 
 	// Vendor
