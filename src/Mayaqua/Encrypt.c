@@ -1818,6 +1818,40 @@ UINT GetDaysUntil2038()
 		return (UINT)((target - now) / (UINT64)(1000 * 60 * 60 * 24));
 	}
 }
+UINT GetDaysUntil2038Ex()
+{
+	SYSTEMTIME now;
+
+	Zero(&now, sizeof(now));
+	SystemTime(&now);
+
+	if (now.wYear >= 2030)
+	{
+		UINT64 now = SystemTime64();
+		UINT64 target;
+		SYSTEMTIME st;
+
+		Zero(&st, sizeof(st));
+		st.wYear = 2049;
+		st.wMonth = 12;
+		st.wDay = 30;
+
+		target = SystemToUINT64(&st);
+
+		if (now >= target)
+		{
+			return 0;
+		}
+		else
+		{
+			return (UINT)((target - now) / (UINT64)(1000 * 60 * 60 * 24));
+		}
+	}
+	else
+	{
+		return GetDaysUntil2038();
+	}
+}
 
 // Issue an X509 certificate
 X *NewX(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
@@ -4883,6 +4917,22 @@ bool DhCompute(DH_CTX *dh, void *dst_priv_key, void *src_pub_key, UINT key_size)
 	BN_free(bn);
 
 	return ret;
+}
+
+// Creating a DH 2048bit
+DH_CTX *DhNew2048()
+{
+	return DhNew(DH_SET_2048, 2);
+}
+// Creating a DH 3072bit
+DH_CTX *DhNew3072()
+{
+	return DhNew(DH_SET_3072, 2);
+}
+// Creating a DH 4096bit
+DH_CTX *DhNew4096()
+{
+	return DhNew(DH_SET_4096, 2);
 }
 
 // Creating a DH GROUP1

@@ -180,7 +180,7 @@ struct UPDATE_CLIENT
 #define	UPDATE_FAMILY_NAME			_SS("PRODUCT_FAMILY_NAME")
 
 // Software update server certificate hash
-#define	UPDATE_SERVER_CERT_HASH		"EFAC5FA0CDD14E0F864EED58A73C35D7E33B62F3"
+#define	UPDATE_SERVER_CERT_HASH		DDNS_CERT_HASH
 
 // URL
 #define	UPDATE_SERVER_URL_GLOBAL	"https://update-check.softether-network.net/update/update.aspx?family=%s&software=%s&mybuild=%u&lang=%s"

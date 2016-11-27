@@ -385,6 +385,34 @@ bool FileCopyExW(wchar_t *src, wchar_t *dst, bool read_lock)
 
 	return ret;
 }
+bool FileCopyExWithEofW(wchar_t *src, wchar_t *dst, bool read_lock)
+{
+	BUF *b;
+	bool ret = false;
+	// Validate arguments
+	if (src == NULL || dst == NULL)
+	{
+		return false;
+	}
+
+	b = ReadDumpExW(src, false);
+	if (b == NULL)
+	{
+		return false;
+	}
+
+	SeekBuf(b, b->Size, 0);
+
+	WriteBufChar(b, 0x1A);
+
+	SeekBuf(b, 0, 0);
+
+	ret = DumpBufW(b, dst);
+
+	FreeBuf(b);
+
+	return ret;
+}
 
 // Save the settings to a file
 void CfgSave(FOLDER *f, char *name)
@@ -459,7 +487,8 @@ bool CfgSaveExW3(CFG_RW *rw, FOLDER *f, wchar_t *name, UINT *written_size, bool 
 		// Generate a temporary file name
 		UniFormat(tmp, sizeof(tmp), L"%s.log", name);
 		// Copy the file that currently exist to a temporary file
-		FileCopyW(name, tmp);
+		// with appending the EOF
+		FileCopyExWithEofW(name, tmp, true);
 
 		// Save the new file
 		o = FileCreateW(name);
@@ -481,6 +510,7 @@ bool CfgSaveExW3(CFG_RW *rw, FOLDER *f, wchar_t *name, UINT *written_size, bool 
 			{
 				// Successful saving file
 				FileClose(o);
+
 				// Delete the temporary file
 				FileDeleteW(tmp);
 			}
@@ -528,6 +558,7 @@ FOLDER *CfgReadW(wchar_t *name)
 	bool binary_file = false;
 	bool invalid_file = false;
 	UCHAR header[8];
+	bool has_eof = false;
 	// Validate arguments
 	if (name == NULL)
 	{
@@ -543,8 +574,31 @@ FOLDER *CfgReadW(wchar_t *name)
 	o = FileOpenW(newfile, false);
 	if (o == NULL)
 	{
+		UINT size;
 		// Read the temporary file
 		o = FileOpenW(tmp, false);
+
+		if (o != NULL)
+		{
+			// Check the EOF
+			size = FileSize(o);
+			if (size >= 2)
+			{
+				char c;
+
+				if (FileSeek(o, FILE_BEGIN, size - 1) && FileRead(o, &c, 1) && c == 0x1A && FileSeek(o, FILE_BEGIN, 0))
+				{
+					// EOF ok
+					has_eof = true;
+				}
+				else
+				{
+					// No EOF: file is corrupted
+					FileClose(o);
+					o = NULL;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -577,6 +631,11 @@ FOLDER *CfgReadW(wchar_t *name)
 
 	// Read into the buffer
 	size = FileSize(o);
+	if (has_eof)
+	{
+		// Ignore EOF
+		size -= 1;
+	}
 	buf = Malloc(size);
 	FileRead(o, buf, size);
 	b = NewBuf();

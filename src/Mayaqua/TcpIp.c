@@ -1829,19 +1829,26 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 	{
 		USHORT port_raw = Endian16(80);
 		USHORT port_raw2 = Endian16(8080);
+		USHORT port_raw3 = Endian16(443);
 
 		// Analyze if the packet is a part of HTTP
 		if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) && p->TypeL4 == L4_TCP)
 		{
 			TCP_HEADER *tcp = p->L4.TCPHeader;
-			if (tcp->DstPort == port_raw || tcp->DstPort == port_raw2)
+			if (tcp != NULL && (tcp->DstPort == port_raw || tcp->DstPort == port_raw2) &&
+				(!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
 			{
-				if (tcp != NULL && (!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
+				if (p->PayloadSize >= 1)
 				{
-					if (p->PayloadSize >= 1)
-					{
-						p->HttpLog = ParseHttpAccessLog(p);
-					}
+					p->HttpLog = ParseHttpAccessLog(p);
+				}
+			}
+			if (tcp != NULL && tcp->DstPort == port_raw3 &&
+				(!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
+			{
+				if (p->PayloadSize >= 1)
+				{
+					p->HttpLog = ParseHttpsAccessLog(p);
 				}
 			}
 		}
@@ -2013,6 +2020,33 @@ void CorrectChecksum(PKT *p)
 	}
 }
 
+
+// Parse the HTTPS access log
+HTTPLOG *ParseHttpsAccessLog(PKT *pkt)
+{
+	HTTPLOG h;
+	char sni[MAX_PATH];
+	// Validate arguments
+	if (pkt == NULL)
+	{
+		return NULL;
+	}
+
+	if (GetSniNameFromSslPacket(pkt->Payload, pkt->PayloadSize, sni, sizeof(sni)) == false)
+	{
+		return NULL;
+	}
+
+	Zero(&h, sizeof(h));
+
+	StrCpy(h.Method, sizeof(h.Method), "SSL_Connect");
+	StrCpy(h.Hostname, sizeof(h.Hostname), sni);
+	h.Port = Endian16(pkt->L4.TCPHeader->DstPort);
+	StrCpy(h.Path, sizeof(h.Path), "/");
+	h.IsSsl = true;
+
+	return Clone(&h, sizeof(h));
+}
 
 // Parse the HTTP access log
 HTTPLOG *ParseHttpAccessLog(PKT *pkt)

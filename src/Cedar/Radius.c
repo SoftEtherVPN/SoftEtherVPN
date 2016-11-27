@@ -686,6 +686,11 @@ void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e)
 	ui = Endian32(5);
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_NAS_PORT_TYPE, 0, 0, &ui, sizeof(UINT)));
 
+	if (IsEmptyStr(e->CalledStationStr) == false)
+	{
+		Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_CALLED_STATION_ID, 0, 0, e->CalledStationStr, StrLen(e->CalledStationStr)));
+	}
+
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_CALLING_STATION_ID, 0, 0, e->ClientIpStr, StrLen(e->ClientIpStr)));
 
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_TUNNEL_CLIENT_ENDPOINT, 0, 0, e->ClientIpStr, StrLen(e->ClientIpStr)));
@@ -1237,7 +1242,7 @@ bool EapSendPacket(EAP_CLIENT *e, RADIUS_PACKET *r)
 }
 
 // New EAP client
-EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username)
+EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username, char *hubname)
 {
 	EAP_CLIENT *e;
 	if (server_ip == NULL)
@@ -1266,6 +1271,7 @@ EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, U
 	e->GiveupTimeout = giveup_timeout;
 	StrCpy(e->SharedSecret, sizeof(e->SharedSecret), shared_secret);
 
+	StrCpy(e->CalledStationStr, sizeof(e->CalledStationStr), hubname);
 	StrCpy(e->ClientIpStr, sizeof(e->ClientIpStr), client_ip_str);
 	StrCpy(e->Username, sizeof(e->Username), username);
 	e->LastRecvEapId = 0;
@@ -1703,7 +1709,7 @@ LABEL_ERROR:
 
 // Attempts Radius authentication (with specifying retry interval and multiple server)
 bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
-				 RADIUS_LOGIN_OPTION *opt)
+				 RADIUS_LOGIN_OPTION *opt, char *hubname)
 {
 	UCHAR random[MD5_SIZE];
 	UCHAR id;
@@ -1833,7 +1839,16 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	{
 		// Generate a password packet
 		BUF *user_password = (is_mschap ? NULL : RadiusCreateUserPassword(encrypted_password->Buf, encrypted_password->Size));
-		BUF *nas_id = RadiusCreateNasId(CEDAR_SERVER_STR);
+		BUF *nas_id;
+
+		if (IsEmptyStr(opt->NasId))
+		{
+			nas_id = RadiusCreateNasId(CEDAR_SERVER_STR);
+		}
+		else
+		{
+			nas_id = RadiusCreateNasId(opt->NasId);
+		}
 
 		if (is_mschap || user_password != NULL)
 		{
@@ -1880,6 +1895,12 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
 				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+
+				// Called-Station-ID - VPN Hub Name
+				if (IsEmptyStr(hubname) == false)
+				{
+					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+				}
 
 				// Calling-Station-Id
 				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
@@ -1930,6 +1951,12 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
 				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+
+				// Called-Station-ID - VPN Hub Name
+				if (IsEmptyStr(hubname) == false)
+				{
+					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+				}
 
 				// Calling-Station-Id
 				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));

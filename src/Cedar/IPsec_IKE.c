@@ -4725,6 +4725,8 @@ bool GetBestTransformSettingForIPsecSa(IKE_SERVER *ike, IKE_PACKET *pr, IPSEC_SA
 						IKE_PACKET_TRANSFORM_PAYLOAD *transform = &transform_payload->Payload.Transform;
 						IPSEC_SA_TRANSFORM_SETTING set;
 
+						Zero(&set, sizeof(set));
+
 						if (TransformPayloadToTransformSettingForIPsecSa(ike, transform, &set, server_ip))
 						{
 							Copy(setting, &set, sizeof(IPSEC_SA_TRANSFORM_SETTING));

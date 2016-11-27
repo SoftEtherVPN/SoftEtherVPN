@@ -204,7 +204,7 @@ typedef struct WINUI_SECURE_BATCH
 	X *OutputX;										// Output certificate
 	K *InputK;										// Input secret key
 	LIST *EnumList;									// Enumerated list
-	UCHAR OutputSign[128];							// Output signature
+	UCHAR OutputSign[4096 / 8];						// Output signature
 	bool Succeed;									// Success flag
 } WINUI_SECURE_BATCH;
 

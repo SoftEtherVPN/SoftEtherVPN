@@ -2181,13 +2181,14 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 // RPC dispatch routine
 PACK *CiRpcDispatch(RPC *rpc, char *name, PACK *p)
 {
-	CLIENT *c = rpc->Param;
 	PACK *ret;
+	CLIENT *c;
 	// Validate arguments
 	if (rpc == NULL || name == NULL || p == NULL)
 	{
 		return NULL;
 	}
+	c = rpc->Param;
 
 	ret = NewPack();
 
@@ -6029,12 +6030,13 @@ L_TRY:
 	ReleaseSock(s);
 
 	ret = ZeroMalloc(sizeof(REMOTE_CLIENT));
-	ret->Rpc = rpc;
 	rpc->Param = ret;
 
 	if (ret != NULL)
 	{
 		RPC_CLIENT_VERSION t;
+
+		ret->Rpc = rpc;
 		Zero(&t, sizeof(t));
 		CcGetClientVersion(ret, &t);
 		ret->OsType = t.OsType;
@@ -6487,7 +6489,7 @@ bool Win32CiSecureSign(SECURE_SIGN *sign)
 			// Success
 			ret = true;
 			sign->ClientCert = batch[0].OutputX;
-			Copy(sign->Signature, batch[1].OutputSign, 128);
+			Copy(sign->Signature, batch[1].OutputSign, MIN(sizeof(sign->Signature),sizeof(batch[1].OutputSign)));
 		}
 	}
 

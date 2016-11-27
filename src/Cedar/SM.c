@@ -872,16 +872,18 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 
 // Get the ddns key from the server configuration file
 static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
-	RPC *rpc = d->s->Rpc;
 	RPC_CONFIG config;
 	UINT err;
 	BUF *buf;
 	FOLDER *root, *ddnsfolder;
+	RPC *rpc;
 
 	// Validate arguments
 	if(d == NULL || d->s == NULL || key == NULL){
 		return ERR_INTERNAL_ERROR;
 	}
+
+	rpc = d->s->Rpc;
 
 	Zero(&config, sizeof(config));
 	err = ScGetConfig(d->s->Rpc, &config);
@@ -17011,6 +17013,7 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 
 	// Set the encryption algorithm list
 	cipher_list = GetCipherList();
+	SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
 	CbSetHeight(hWnd, C_CIPHER, 18);
 	for (i = 0;i < cipher_list->NumTokens;i++)
 	{

@@ -690,8 +690,11 @@ void UpdateClientThreadMain(UPDATE_CLIENT *c)
 
 	cert_hash = StrToBin(UPDATE_SERVER_CERT_HASH);
 
-	recv = HttpRequestEx2(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
-		NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL),
+	StrCpy(data.SniString, sizeof(data.SniString), DDNS_SNI_VER_STRING);
+
+	recv = HttpRequestEx3(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
+		NULL, ((cert_hash != NULL && (cert_hash->Size % SHA1_SIZE) == 0) ? cert_hash->Buf : NULL),
+		(cert_hash != NULL ? (cert_hash->Size / SHA1_SIZE) : 0),
 		(bool *)&c->HaltFlag, 0, NULL, NULL);
 
 	FreeBuf(cert_hash);
@@ -1312,7 +1315,6 @@ bool ServerAccept(CONNECTION *c)
 	FARM_MEMBER *f = NULL;
 	SERVER *server = NULL;
 	POLICY ticketed_policy;
-	UINT64 timestamp;
 	UCHAR unique[SHA1_SIZE], unique2[SHA1_SIZE];
 	CEDAR *cedar;
 	RPC_WINVER winver;
@@ -1446,31 +1448,6 @@ bool ServerAccept(CONNECTION *c)
 		{
 			FreePack(p);
 			c->Err = ERR_BRANDED_C_TO_S;
-			goto CLEANUP;
-		}
-	}
-
-	// Time inspection
-	timestamp = PackGetInt64(p, "timestamp");
-	if (timestamp != 0)
-	{
-		UINT64 now = SystemTime64();
-		UINT64 abs;
-		if (now >= timestamp)
-		{
-			abs = now - timestamp;
-		}
-		else
-		{
-			abs = timestamp - now;
-		}
-
-		if (abs > ALLOW_TIMESTAMP_DIFF)
-		{
-			// Time difference is too large
-			FreePack(p);
-			c->Err = ERR_BAD_CLOCK;
-			error_detail = "ERR_BAD_CLOCK";
 			goto CLEANUP;
 		}
 	}
@@ -1655,6 +1632,10 @@ bool ServerAccept(CONNECTION *c)
 			{
 				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
 				radius_login_opt.In_DenyNoVlanId = hub->Option->DenyAllRadiusLoginWithNoVlanAssign;
+				if (hub->Option->UseHubNameAsRadiusNasId)
+				{
+					StrCpy(radius_login_opt.NasId, sizeof(radius_login_opt.NasId), hubname);
+				}
 			}
 
 			// Get the various flags
@@ -4574,7 +4555,7 @@ bool ClientSecureSign(CONNECTION *c, UCHAR *sign, UCHAR *random, X **x)
 
 	if (ret)
 	{
-		Copy(sign, ss->Signature, 128);
+		Copy(sign, ss->Signature, sizeof(ss->Signature));
 		*x = ss->ClientCert;
 	}
 
@@ -5853,7 +5834,7 @@ bool ClientUploadAuth(CONNECTION *c)
 			// Authentication by secure device
 			if (ClientSecureSign(c, sign, c->Random, &x))
 			{
-				p = PackLoginWithCert(o->HubName, a->Username, x, sign, 128);
+				p = PackLoginWithCert(o->HubName, a->Username, x, sign, x->bits / 8);
 				c->ClientX = CloneX(x);
 				FreeX(x);
 			}
@@ -5875,9 +5856,6 @@ bool ClientUploadAuth(CONNECTION *c)
 		PackAddInt(p, "authtype", AUTHTYPE_TICKET);
 		PackAddData(p, "ticket", c->Ticket, SHA1_SIZE);
 	}
-
-	// Current time
-	PackAddInt64(p, "timestamp", SystemTime64());
 
 	if (p == NULL)
 	{

@@ -1166,7 +1166,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 
 				name = NewName(cn, cn, cn, L"US", NULL, NULL);
 
-				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, MAX(GetDaysUntil2038(), SERVER_DEFAULT_CERT_DAYS), NULL);
+				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, GetDaysUntil2038Ex(), NULL);
 
 				FreeName(name);
 
@@ -11840,12 +11840,12 @@ void InRpcHubEnumCa(RPC_HUB_ENUM_CA *t, PACK *p)
 void OutRpcHubEnumCa(PACK *p, RPC_HUB_ENUM_CA *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumCa;i++)
 	{
@@ -12313,12 +12313,12 @@ void InRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a, PACK *p)
 void OutRpcEnumAccessList(PACK *p, RPC_ENUM_ACCESS_LIST *a)
 {
 	UINT i;
-	PackAddStr(p, "HubName", a->HubName);
 	// Validate arguments
 	if (a == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", a->HubName);
 
 	for (i = 0;i < a->NumAccess;i++)
 	{
@@ -12573,12 +12573,12 @@ void InRpcEnumUser(RPC_ENUM_USER *t, PACK *p)
 void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumUser;i++)
 	{
@@ -12787,12 +12787,12 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumSession;i++)
 	{

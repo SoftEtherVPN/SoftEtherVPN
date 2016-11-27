@@ -233,7 +233,7 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
+static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384";
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -245,7 +245,7 @@ static UINT rand_port_numbers[256] = {0};
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
 
-static DH_CTX *dh_1024 = NULL;
+static DH_CTX *dh_2048 = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -5821,7 +5821,8 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 	{
 		if (server_mode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_server_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
 
 			AddChainSslCertOnDirectory(ssl_ctx);
 
@@ -5832,7 +5833,7 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 		}
 		else
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
 		//SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, cb_test);
@@ -9157,12 +9158,23 @@ void UnixSetSockEvent(SOCK_EVENT *event)
 	}
 }
 
+// This is a helper function for select()
+int safe_fd_set(int fd, fd_set* fds, int* max_fd) {
+	FD_SET(fd, fds);
+	if (fd > *max_fd) {
+		*max_fd = fd;
+    }
+	return 0;
+}
+
 // Execute 'select' for the socket
 void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, UINT timeout)
 {
 #ifdef	UNIX_MACOS
-	int kq;
-	struct kevent *kevents;
+	fd_set rfds; //read descriptors
+	fd_set wfds; //write descriptors
+	int max_fd = 0; //maximum descriptor id
+	struct timeval tv; //timeval for timeout
 #else	// UNIX_MACOS
 	struct pollfd *p;
 #endif	// UNIX_MACOS
@@ -9203,8 +9215,8 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 
 	num = num_read_total + num_write_total;
 #ifdef	UNIX_MACOS
-	kq = kqueue();
-	kevents = ZeroMallocFast(sizeof(struct kevent) * (num + num_write_total));
+	FD_ZERO(&rfds); //zero out descriptor set for read descriptors
+	FD_ZERO(&wfds); //same for write
 #else	// UNIX_MACOS
 	p = ZeroMallocFast(sizeof(struct pollfd) * num);
 #endif	// UNIX_MACOS
@@ -9216,7 +9228,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		if (reads[i] != INVALID_SOCKET)
 		{
 #ifdef	UNIX_MACOS
-			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
+			safe_fd_set(reads[i], &rfds, &max_fd);
 #else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = reads[i];
@@ -9230,8 +9242,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		if (writes[i] != INVALID_SOCKET)
 		{
 #ifdef	UNIX_MACOS
-			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
-			EV_SET(&kevents[n++], reads[i], EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+			safe_fd_set(writes[i], &wfds, &max_fd);
 #else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = writes[i];
@@ -9243,15 +9254,14 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	if (num != 0)
 	{
 #ifdef	UNIX_MACOS
-		struct timespec kevent_timeout, *p_kevent_timeout;
 		if (timeout == INFINITE) {
-			p_kevent_timeout = NULL;
+			tv.tv_sec = 0;
+			tv.tv_usec = 0;
 		} else {
-			kevent_timeout.tv_sec = timeout / 1000;
-			kevent_timeout.tv_nsec = (timeout % 1000) * 1000000l;
-			p_kevent_timeout = &kevent_timeout;
+			tv.tv_sec = timeout / 1000;
+			tv.tv_usec = (timeout % 1000) * 1000l;
 		}
-		kevent(kq, kevents, n, kevents, n, p_kevent_timeout);
+		select(max_fd + 1, &rfds, &wfds, NULL, &tv);
 #else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
@@ -9261,12 +9271,9 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		SleepThread(timeout);
 	}
 
-#ifdef	UNIX_MACOS
-	Free(kevents);
-	close(kq);
-#else	// UNIX_MACOS
+#ifndef	UNIX_MACOS
 	Free(p);
-#endif	// UNIX_MACOS
+#endif	// not UNIX_MACOS
 }
 
 // Clean-up of the socket event
@@ -12764,7 +12771,7 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure)
 // Set the cipher algorithm name to want to use
 void SetWantToUseCipher(SOCK *sock, char *name)
 {
-	char tmp[254];
+	char tmp[1024];
 	// Validate arguments
 	if (sock == NULL || name == NULL)
 	{
@@ -12904,7 +12911,7 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 // Start a TCP-SSL communication
 bool StartSSL(SOCK *sock, X *x, K *priv)
 {
-	return StartSSLEx(sock, x, priv, false, 0, NULL);
+	return StartSSLEx(sock, x, priv, true, 0, NULL);
 }
 bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname)
 {
@@ -12966,13 +12973,38 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	{
 		if (sock->ServerMode)
 		{
-			if (sock->AcceptOnlyTls == false)
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+
+#ifdef	SSL_OP_NO_SSLv2
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
+#endif	// SSL_OP_NO_SSLv2
+
+			if (sock->SslAcceptSettings.AcceptOnlyTls)
 			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+#ifdef	SSL_OP_NO_SSLv3
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
 			}
-			else
+
+			if (sock->SslAcceptSettings.Tls_Disable1_0)
 			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_method());
+#ifdef	SSL_OP_NO_TLSv1
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1);
+#endif	// SSL_OP_NO_TLSv1
+			}
+
+			if (sock->SslAcceptSettings.Tls_Disable1_1)
+			{
+#ifdef	SSL_OP_NO_TLSv1_1
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_1);
+#endif	// SSL_OP_NO_TLSv1_1
+			}
+
+			if (sock->SslAcceptSettings.Tls_Disable1_2)
+			{
+#ifdef	SSL_OP_NO_TLSv1_2
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_2);
+#endif	// SSL_OP_NO_TLSv1_2
 			}
 
 			Unlock(openssl_lock);
@@ -12987,7 +13019,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 			}
 			else
 			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 			}
 		}
 		sock->ssl = SSL_new(ssl_ctx);
@@ -13003,6 +13035,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 			}
 		}
 #endif	// SSL_CTRL_SET_TLSEXT_HOSTNAME
+
 	}
 	Unlock(openssl_lock);
 
@@ -13187,6 +13220,8 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 
 	return true;
 }
+
+
 
 #ifdef	ENABLE_SSL_LOGGING
 
@@ -13821,6 +13856,10 @@ void DisableGetHostNameWhenAcceptInit()
 // Initialize the connection acceptance
 void AcceptInit(SOCK *s)
 {
+	AcceptInitEx(s, false);
+}
+void AcceptInitEx(SOCK *s, bool no_lookup_hostname)
+{
 	char tmp[MAX_SIZE];
 	// Validate arguments
 	if (s == NULL)
@@ -13830,7 +13869,7 @@ void AcceptInit(SOCK *s)
 
 	Zero(tmp, sizeof(tmp));
 
-	if (disable_gethostname_by_accept == false)
+	if (disable_gethostname_by_accept == false && no_lookup_hostname == false)
 	{
 		if (GetHostName(tmp, sizeof(tmp), &s->RemoteIP) == false ||
 			IsEmptyStr(tmp))
@@ -17742,9 +17781,9 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
 	DH *ret = NULL;
 
-	if (dh_1024 != NULL)
+	if (dh_2048 != NULL)
 	{
-		ret = dh_1024->dh;
+		ret = dh_2048->dh;
 	}
 
 	return ret;
@@ -17767,6 +17806,10 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 #endif	// SSL_OP_CIPHER_SERVER_PREFERENCE
 
 	SSL_CTX_set_tmp_dh_callback(ctx, TmpDhCallback);
+
+#ifdef	SSL_CTX_set_ecdh_auto
+	SSL_CTX_set_ecdh_auto(ctx, 1);
+#endif	// SSL_CTX_set_ecdh_auto
 
 	return ctx;
 }
@@ -17861,7 +17904,7 @@ void InitNetwork()
 	disable_cache = false;
 
 
-	dh_1024 = DhNewGroup2();
+	dh_2048 = DhNew2048();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
@@ -18295,10 +18338,10 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 void FreeNetwork()
 {
 
-	if (dh_1024 != NULL)
+	if (dh_2048 != NULL)
 	{
-		DhFree(dh_1024);
-		dh_1024 = NULL;
+		DhFree(dh_2048);
+		dh_2048 = NULL;
 	}
 
 	// Release of thread-related
@@ -22663,7 +22706,14 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	USHORT handshake_length;
 
 	// Validate arguments
-	if (packet_buf == NULL || packet_size == 0)
+	if (packet_buf == NULL || packet_size <= 11)
+	{
+		return false;
+	}
+
+	if (!(packet_buf[0] == 0x16 && packet_buf[1] >= 0x03 &&
+		packet_buf[5] == 0x01 && packet_buf[6] == 0x00 &&
+		packet_buf[9] >= 0x03))
 	{
 		return false;
 	}
@@ -22677,7 +22727,7 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 		version = Endian16(version);
 		handshake_length = Endian16(handshake_length);
 
-		if (version >= 0x0301)
+		if (content_type == 0x16 && version >= 0x0301)
 		{
 			UCHAR *handshake_data = Malloc(handshake_length);
 
@@ -22794,9 +22844,12 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 
 																							if (ReadBuf(dbuf, name_buf, name_len) == name_len)
 																							{
-																								ret = true;
+																								if (StrLen(name_buf) >= 1)
+																								{
+																									ret = true;
 
-																								StrCpy(sni, sni_size, name_buf);
+																									StrCpy(sni, sni_size, name_buf);
+																								}
 																							}
 
 																							Free(name_buf);

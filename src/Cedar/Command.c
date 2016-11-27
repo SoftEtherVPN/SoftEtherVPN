@@ -1245,6 +1245,7 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						if (ret != 0 && ret != SOCK_LATER)
 						{
 							ts->State = 5;
+							ts->LastCommTime = now;
 						}
 						break;
 
@@ -1254,6 +1255,8 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						if (ret != 0 && ret != SOCK_LATER)
 						{
 							UCHAR c;
+
+							ts->LastCommTime = now;
 
 							// Direction of the data is in the first byte that is received
 							c = recv_buf_data[0];
@@ -1276,6 +1279,8 @@ void TtsWorkerThread(THREAD *thread, void *param)
 
 								// Span
 								ts->Span = READ_UINT64(recv_buf_data + sizeof(UINT64) + 1);
+
+								ts->GiveupSpan = ts->Span * 3ULL + 180000ULL;
 							}
 						}
 						break;
@@ -1288,6 +1293,8 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						{
 							// Checking the first byte of received
 							UCHAR c = recv_buf_data[0];
+
+							ts->LastCommTime = now;
 
 							if (ts->FirstRecvTick == 0)
 							{
@@ -1326,10 +1333,20 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						if (ts->NoMoreSendData == false)
 						{
 							ret = Send(ts->Sock, send_buf_data, buf_size, false);
+
+							if (ret != 0 && ret != SOCK_LATER)
+							{
+								ts->LastCommTime = now;
+							}
 						}
 						else
 						{
 							ret = Recv(ts->Sock, recv_buf_data, buf_size, false);
+
+							if (ret != 0 && ret != SOCK_LATER)
+							{
+								ts->LastCommTime = now;
+							}
 						}
 
 						if (ts->FirstSendTick == 0)
@@ -1364,6 +1381,11 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						{
 							ret = Send(ts->Sock, &tmp64, sizeof(tmp64), false);
 
+							if (ret != 0 && ret != SOCK_LATER)
+							{
+								ts->LastCommTime = now;
+							}
+
 							if (ret != SOCK_LATER)
 							{
 								UINT j;
@@ -1388,6 +1410,12 @@ void TtsWorkerThread(THREAD *thread, void *param)
 							}
 						}
 						break;
+					}
+
+					if (now > (ts->LastCommTime + ts->GiveupSpan))
+					{
+						// Timeout: disconnect orphan sessions
+						ret = 0;
 					}
 
 					if (ret == 0)
@@ -1514,7 +1542,7 @@ void TtsAcceptProc(TTS *tts, SOCK *listen_socket)
 		else
 		{
 			// Connected from the client
-			AcceptInit(s);
+			AcceptInitEx(s, true);
 			tts->NewSocketArrived = true;
 			LockList(tts->TtsSockList);
 			{
@@ -1522,6 +1550,9 @@ void TtsAcceptProc(TTS *tts, SOCK *listen_socket)
 
 				ts->Id = (++tts->IdSeed);
 				ts->Sock = s;
+
+				ts->GiveupSpan = (UINT64)(10 * 60 * 1000);
+				ts->LastCommTime = Tick64();
 
 				UniFormat(tmp, sizeof(tmp), _UU("TTS_ACCEPTED"), ts->Id,
 					s->RemoteHostname, s->RemotePort);
@@ -8079,7 +8110,7 @@ UINT PsServerCipherGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	RPC_STR t;
 	TOKEN_LIST *ciphers;
 	UINT i;
-	wchar_t tmp[MAX_SIZE];
+	wchar_t tmp[4096];
 
 	o = ParseCommandList(c, cmd_name, str, NULL, 0);
 	if (o == NULL)
@@ -10040,6 +10071,10 @@ UINT PsLogFileGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	filename = GetParamStr(o, "SAVE");
+	if (IsEmptyStr(filename))
+	{
+		filename = GetParamStr(o, "SAVEPATH");
+	}
 
 	c->Write(c, _UU("CMD_LogFileGet_START"));
 

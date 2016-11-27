@@ -211,7 +211,18 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					AUTHRADIUS *auth = (AUTHRADIUS *)u->AuthData;
 					if (ast || auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
 					{
-						name = CopyStrToUni(username);
+						if( IsEmptyStr(h->RadiusRealm) == false )
+						{	
+							char name_and_realm[MAX_SIZE];
+							StrCpy(name_and_realm, sizeof(name_and_realm), username);
+							StrCat(name_and_realm, sizeof(name_and_realm), "@");
+							StrCat(name_and_realm, sizeof(name_and_realm), h->RadiusRealm);
+							name = CopyStrToUni(name_and_realm);
+						}
+						else
+						{
+							name = CopyStrToUni(username);
+						}
 					}
 					else
 					{
@@ -267,7 +278,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					// Attempt to login
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
-						name, password, interval, mschap_v2_server_response_20, opt);
+						name, password, interval, mschap_v2_server_response_20, opt, hub->Name);
 
 					if (b)
 					{

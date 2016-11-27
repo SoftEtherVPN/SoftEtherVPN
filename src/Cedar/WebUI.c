@@ -1725,12 +1725,14 @@ static wchar_t *WuUniReadFile(char *filename)
 static void WuUniReplace(wchar_t **buf, wchar_t *from, wchar_t *to)
 {
 	UINT dstsize;
-	wchar_t *oldbuf = *buf;
+	wchar_t *oldbuf;
 
 	if(buf == NULL || from == NULL || to == NULL)
 	{
 		return;
 	}
+
+	oldbuf = *buf;
 
 	dstsize = (UniCalcReplaceStrEx(*buf, from, to, true) + 1) * sizeof(wchar_t);
 	*buf = (wchar_t*)Malloc(dstsize);

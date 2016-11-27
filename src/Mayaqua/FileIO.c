@@ -380,13 +380,16 @@ void ZipAddFileStart(ZIP_PACKER *p, char *name, UINT size, UINT64 dt, UINT attri
 // Add data to the file
 UINT ZipAddFileData(ZIP_PACKER *p, void *data, UINT pos, UINT len)
 {
-	UINT total_size = p->CurrentFile->CurrentSize + len;
 	UINT ret;
+	UINT total_size;
 	// Validate arguments
 	if (p == NULL)
 	{
 		return 0;
 	}
+
+	total_size = p->CurrentFile->CurrentSize + len;
+
 	if (total_size > p->CurrentFile->Size)
 	{
 		return 0;

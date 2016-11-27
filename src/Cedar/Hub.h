@@ -281,6 +281,8 @@ struct HUB_OPTION
 	bool SecureNAT_RandomizeAssignIp;	// Randomize the assignment IP address for new DHCP client
 	UINT DetectDormantSessionInterval;	// Interval (seconds) threshold to detect a dormant VPN session
 	bool NoPhysicalIPOnPacketLog;		// Disable saving physical IP address on the packet log
+	bool UseHubNameAsDhcpUserClassOption;	// Add HubName to DHCP request as User-Class option
+	bool UseHubNameAsRadiusNasId;		// Add HubName to Radius request as NAS-Identifier attrioption
 };
 
 // MAC table entry
@@ -436,6 +438,7 @@ struct HUB
 	UINT RadiusRetryInterval;			// Radius retry interval
 	BUF *RadiusSecret;					// Radius shared key
 	char RadiusSuffixFilter[MAX_SIZE];	// Radius suffix filter
+	char RadiusRealm[MAX_SIZE];			// Radius realm (optional)
 	bool RadiusConvertAllMsChapv2AuthRequestToEap;	// Convert all MS-CHAPv2 auth request to EAP
 	bool RadiusUsePeapInsteadOfEap;			// Use PEAP instead of EAP
 	volatile bool Halt;					// Halting flag

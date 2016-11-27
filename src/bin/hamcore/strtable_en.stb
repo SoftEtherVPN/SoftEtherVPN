@@ -557,6 +557,8 @@ HUB_AO_DenyAllRadiusLoginWithNoVlanAssign	If you set this option to non-zero val
 HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, then the Virtual DHCP Server of the SecureNAT function will choose an unused IP address randomly from the DHCP pool while the default behavior is to choose the first unused IP address.
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
+HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub. (For only L2TP/IPsec and OpenVPN sessions.)
+HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identidier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
 
 
 # Concerning failed connection dialogs
@@ -743,7 +745,7 @@ POL_EX_28				Computers of sessions with this policy setting can't listen and acc
 POL_29					Maximum Number of IP Addresses (IPv6)
 POL_EX_29				For sessions with this policy setting, this specifies the number of IPv6 addresses that can be registered for a single session.
 POL_30					Disallow Password Save in VPN Client
-POL_EX_30				For users with this policy setting, a user will be unable to save the password in VPN Client any longer. The user will be required to input passwords for every time to connect a VPN. This will improve the security. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
+POL_EX_30				For users with this policy setting, when the user is using *standard* password authentication, the user will be unable to save the password in VPN Client. The user will be required to input passwords for every time to connect a VPN. This will improve the security. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
 POL_31					VPN Client Automatic Disconnect
 POL_EX_31				For users with this policy setting, a user's VPN session will be disconnected automatically after the specific period will elapse. In this case no automatic re-connection will be performed. This can prevent a lot of inactive VPN Sessions. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
 POL_32					Filter All IPv4 Packets

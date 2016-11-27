@@ -144,7 +144,7 @@ struct SECURE_SIGN
 	char SecurePrivateKeyName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
 	X *ClientCert;					// Client certificate
 	UCHAR Random[SHA1_SIZE];		// Random value for signature
-	UCHAR Signature[128];			// Signed data
+	UCHAR Signature[4096 / 8];		// Signed data
 	UINT UseSecureDeviceId;
 	UINT BitmapId;					// Bitmap ID
 };

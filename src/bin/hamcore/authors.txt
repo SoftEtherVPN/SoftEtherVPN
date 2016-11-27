@@ -67,6 +67,57 @@ CONTRIBUTORS on GitHub:
   - ygrek
     https://github.com/ygrek
 
+  - ajee cai
+    https://github.com/ajeecai
+
+  - NOKUBI Takatsugu
+    https://github.com/knok
+
+  - Den Lesnov
+    https://github.com/Leden
+
+  - Ilya Shipitsin
+    https://github.com/chipitsine
+
+  - Matt Lewandowsky
+    https://github.com/lewellyn
+
+  - Raymond Tau
+    https://github.com/rtau
+
+  - Luiz Eduardo Gava
+    https://github.com/LegDog
+
+  - Charles Surett
+    https://github.com/scj643
+
+  - Jeff Tang
+    https://github.com/mrjefftang
+
+  - Victor Salgado
+    https://github.com/mcsalgado
+
+  - micsell
+    https://github.com/micsell
+
+  - yehorov
+    https://github.com/yehorov
+
+  - dglushenok
+    https://github.com/dglushenok
+
+  - NoNameA 774
+    https://github.com/nna774
+
+  - Alexandre De Oliveira
+    https://github.com/yodresh
+
+  - Bernhard Rosenkraenzer
+    https://github.com/berolinux
+
+  - Sacha Bernstein
+    https://github.com/sacha
+
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------

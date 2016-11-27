@@ -1,16 +1,18 @@
-%define majorversion 4.04
-%define minorversion 9412
-%define dateversion 2014.01.15
+%define majorversion 4
+%define minorversion 19
+%define buildversion 9582
+%define dateversion 2015.10.06
+%define buildrelease beta
 
 Name:           softethervpn
-Version:        %{majorversion}.%{minorversion}
-Release:        2%{?dist}
+Version:        %{majorversion}.%{minorversion}.%{buildversion}
+Release:        1%{?dist}
 Summary:        An Open-Source Free Cross-platform Multi-protocol VPN Program
 
 Group:          Applications/Internet
 License:        GPLv2
 URL:            http://www.softether.org/
-Source0:        http://www.softether-download.com/files/softether/v%{majorversion}-%{minorversion}-rtm-%{dateversion}-tree/Source%20Code/softether-src-v%{majorversion}-%{minorversion}-rtm.tar.gz
+Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}-%{dateversion}-tree/Source_Code/softether-src-v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}.tar.gz
 
 BuildRequires:  ncurses-devel
 BuildRequires:	openssl-devel
@@ -25,7 +27,7 @@ Requires(preun):	initscripts
 SoftEther VPN is one of the world's most powerful and easy-to-use multi-protocol VPN software. It runs on Windows, Linux, Mac, FreeBSD, and Solaris.
 
 %prep
-%setup -q -n v%{majorversion}-%{minorversion}
+%setup -q -n v%{majorversion}.%{minorversion}-%{buildversion}
 
 %build
 %ifarch i386 i686
@@ -85,11 +87,16 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9582-1
+- Update upstream to 4.19.9582-beta
+
+* Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9577-1
+- Update upstream to 4.19.9577
+
 * Wed Jan 29 2014 Dexter Ang <thepoch@gmail.com> - 4.04.9412-2
 - Made initscript more Fedora/RH-like.
 - initscript currently using killall. Need to fix this.
 
 * Tue Jan 21 2014 Dexter Ang <thepoch@gmail.com>
 - Initial release
-
 

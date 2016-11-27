@@ -145,7 +145,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	BUF_SIZE			512
 
 // Support Windows OS list
-#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2"
+#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016"
 
 // Infinite
 #ifndef	WINDOWS_H
@@ -298,6 +298,8 @@ typedef signed char			CHAR;
 // 64-bit integer type
 typedef	unsigned long long	UINT64;
 typedef signed long long	INT64;
+
+typedef signed long long	time_64t;
 
 #ifdef	OS_UNIX
 // Avoiding compile error
@@ -523,6 +525,7 @@ typedef struct SAFE_BLOCK SAFE_BLOCK;
 typedef struct SAFE_REQUEST_LOG SAFE_REQUEST_LOG;
 typedef struct DYN_VALUE DYN_VALUE;
 typedef struct RELAY_PARAMETER RELAY_PARAMETER;
+typedef struct SSL_ACCEPT_SETTINGS SSL_ACCEPT_SETTINGS;
 
 // Tick64.h
 typedef struct ADJUST_TIME ADJUST_TIME;
