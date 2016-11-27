@@ -5022,6 +5022,7 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 
 		CfgAddBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap", h->RadiusConvertAllMsChapv2AuthRequestToEap);
 		CfgAddBool(f, "RadiusUsePeapInsteadOfEap", h->RadiusUsePeapInsteadOfEap);
+		CfgAddStr(f, "RadiusRealm", h->RadiusRealm);
 	}
 	Unlock(h->RadiusOptionLock);
 
@@ -5187,6 +5188,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 			interval = CfgGetInt(f, "RadiusRetryInterval");
 
 			CfgGetStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter, sizeof(h->RadiusSuffixFilter));
+			CfgGetStr(f, "RadiusRealm", h->RadiusRealm, sizeof(h->RadiusRealm));
 
 			h->RadiusConvertAllMsChapv2AuthRequestToEap = CfgGetBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap");
 			h->RadiusUsePeapInsteadOfEap = CfgGetBool(f, "RadiusUsePeapInsteadOfEap");
