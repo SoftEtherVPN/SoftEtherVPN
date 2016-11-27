@@ -9160,12 +9160,23 @@ void UnixSetSockEvent(SOCK_EVENT *event)
 	}
 }
 
+// This is a helper function for select()
+int safe_fd_set(int fd, fd_set* fds, int* max_fd) {
+	FD_SET(fd, fds);
+	if (fd > *max_fd) {
+		*max_fd = fd;
+    }
+	return 0;
+}
+
 // Execute 'select' for the socket
 void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, UINT timeout)
 {
 #ifdef	UNIX_MACOS
-	int kq;
-	struct kevent *kevents;
+	fd_set rfds; //read descriptors
+	fd_set wfds; //write descriptors
+	int max_fd = 0; //maximum descriptor id
+	struct timeval tv; //timeval for timeout
 #else	// UNIX_MACOS
 	struct pollfd *p;
 #endif	// UNIX_MACOS
@@ -9206,8 +9217,8 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 
 	num = num_read_total + num_write_total;
 #ifdef	UNIX_MACOS
-	kq = kqueue();
-	kevents = ZeroMallocFast(sizeof(struct kevent) * (num + num_write_total));
+	FD_ZERO(&rfds); //zero out descriptor set for read descriptors
+	FD_ZERO(&wfds); //same for write
 #else	// UNIX_MACOS
 	p = ZeroMallocFast(sizeof(struct pollfd) * num);
 #endif	// UNIX_MACOS
@@ -9219,7 +9230,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		if (reads[i] != INVALID_SOCKET)
 		{
 #ifdef	UNIX_MACOS
-			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
+			safe_fd_set(reads[i], &rfds, &max_fd);
 #else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = reads[i];
@@ -9233,8 +9244,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		if (writes[i] != INVALID_SOCKET)
 		{
 #ifdef	UNIX_MACOS
-			EV_SET(&kevents[n++], reads[i], EVFILT_READ, EV_ADD, 0, 0, NULL);
-			EV_SET(&kevents[n++], reads[i], EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+			safe_fd_set(writes[i], &wfds, &max_fd);
 #else	// UNIX_MACOS
 			struct pollfd *pfd = &p[n++];
 			pfd->fd = writes[i];
@@ -9246,15 +9256,14 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	if (num != 0)
 	{
 #ifdef	UNIX_MACOS
-		struct timespec kevent_timeout, *p_kevent_timeout;
 		if (timeout == INFINITE) {
-			p_kevent_timeout = NULL;
+			tv.tv_sec = 0;
+			tv.tv_usec = 0;
 		} else {
-			kevent_timeout.tv_sec = timeout / 1000;
-			kevent_timeout.tv_nsec = (timeout % 1000) * 1000000l;
-			p_kevent_timeout = &kevent_timeout;
+			tv.tv_sec = timeout / 1000;
+			tv.tv_usec = (timeout % 1000) * 1000l;
 		}
-		kevent(kq, kevents, n, kevents, n, p_kevent_timeout);
+		select(max_fd + 1, &rfds, &wfds, NULL, &tv);
 #else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
@@ -9264,12 +9273,9 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		SleepThread(timeout);
 	}
 
-#ifdef	UNIX_MACOS
-	Free(kevents);
-	close(kq);
-#else	// UNIX_MACOS
+#ifndef	UNIX_MACOS
 	Free(p);
-#endif	// UNIX_MACOS
+#endif	// not UNIX_MACOS
 }
 
 // Clean-up of the socket event
