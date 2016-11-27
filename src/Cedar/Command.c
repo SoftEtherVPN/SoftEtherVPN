@@ -10039,7 +10039,7 @@ UINT PsLogFileGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		return ERR_INVALID_PARAMETER;
 	}
 
-	filename = GetParamStr(o, "SAVE");
+	filename = GetParamStr(o, "SAVEPATH");
 
 	c->Write(c, _UU("CMD_LogFileGet_START"));
 
