@@ -123,7 +123,7 @@
 #include <Mayaqua/Mayaqua.h>
 
 extern LOCK *token_lock;
-static char charset[MAX_SIZE] = "EUCJP";
+static char charset[MAX_SIZE] = "UTF-8";
 static LOCK *iconv_lock = NULL;
 void *iconv_cache_wide_to_str = 0;
 void *iconv_cache_str_to_wide = 0;
@@ -935,11 +935,7 @@ void InitInternational()
 	d = IconvWideToStrInternal();
 	if (d == (void *)-1)
 	{
-#ifdef	UNIX_MACOS
 		StrCpy(charset, sizeof(charset), "utf-8");
-#else	// UNIX_MACOS
-		StrCpy(charset, sizeof(charset), "EUCJP");
-#endif	// UNIX_MACOS
 		d = IconvWideToStrInternal();
 		if (d == (void *)-1)
 		{
@@ -1198,7 +1194,7 @@ void GetCurrentCharSet(char *name, UINT size)
 		}
 		else
 		{
-			StrCpy(name, size, "eucJP");
+			StrCpy(name, size, "UTF-8");
 		}
 	}
 	FreeToken(t);
