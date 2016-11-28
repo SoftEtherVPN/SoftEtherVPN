@@ -326,7 +326,7 @@ static wchar_t *WpListener(WEBUI *wu, LIST *params)
 	WU_CONTEXT *context = WuGetContext(wu->Contexts, sessionkey);
 	char *cmd = (char*)StrMapSearch(params, "CMD");
 	RPC_LISTENER t;
-	UINT retcode;
+	UINT retcode = ERR_NO_ERROR;
 
 	if(context == NULL)
 	{

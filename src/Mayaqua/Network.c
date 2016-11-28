@@ -13490,7 +13490,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 UINT SecureSend(SOCK *sock, void *data, UINT size)
 {
 	SOCKET s;
-	int ret, e;
+	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
 	s = sock->socket;
 	ssl = sock->ssl;

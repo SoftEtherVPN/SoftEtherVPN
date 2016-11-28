@@ -4482,7 +4482,7 @@ void DesEcbEncrypt(void *dst, void *src, void *key_7bytes)
 	DES_cblock key;
 	DES_key_schedule ks;
 	// Validate arguments
-	if (dst == NULL || src == NULL || key == NULL)
+	if (dst == NULL || src == NULL || key_7bytes == NULL)
 	{
 		return;
 	}
