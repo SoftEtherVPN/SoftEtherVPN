@@ -2654,7 +2654,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 	CRYPT *c;
 	UCHAR crypt_key_src[SHA1_SIZE * 2];
 	UCHAR crypt_key[SHA1_SIZE];
-	UINT icmp_type;
+	UINT icmp_type = 0;
 	UCHAR sign[SHA1_SIZE];
 	UCHAR iv[SHA1_SIZE + 1];
 	// Validate arguments
