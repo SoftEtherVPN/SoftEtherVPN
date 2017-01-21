@@ -2559,7 +2559,7 @@ IKE_ENGINE *NewIkeEngine()
 	IKE_ENGINE *e = ZeroMalloc(sizeof(IKE_ENGINE));
 	IKE_CRYPTO *des, *des3, *aes;
 	IKE_HASH *sha1, *md5;
-	IKE_DH *dh1, *dh2, *dh5;
+	IKE_DH *dh1, *dh2, *dh5, *dh2048, *dh3072, *dh4096;
 	UINT des_key_sizes[] =
 	{
 		8,
@@ -2601,6 +2601,9 @@ IKE_ENGINE *NewIkeEngine()
 	dh1 = NewIkeDh(e, IKE_DH_1_ID, IKE_DH_1_STRING, 96);
 	dh2 = NewIkeDh(e, IKE_DH_2_ID, IKE_DH_2_STRING, 128);
 	dh5 = NewIkeDh(e, IKE_DH_5_ID, IKE_DH_5_STRING, 192);
+	dh2048 = NewIkeDh(e, IKE_DH_2048_ID, IKE_DH_2048_STRING, 256);
+	dh3072 = NewIkeDh(e, IKE_DH_3072_ID, IKE_DH_3072_STRING, 384);
+	dh4096 = NewIkeDh(e, IKE_DH_4096_ID, IKE_DH_4096_STRING, 512);
 
 	// Define the IKE algorithm
 	e->IkeCryptos[IKE_P1_CRYPTO_DES_CBC] = des;
@@ -2620,6 +2623,9 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeDhs[IKE_P1_DH_GROUP_768_MODP] = e->EspDhs[IKE_P2_DH_GROUP_768_MODP] = dh1;
 	e->IkeDhs[IKE_P1_DH_GROUP_1024_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1024_MODP] = dh2;
 	e->IkeDhs[IKE_P1_DH_GROUP_1536_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1536_MODP] = dh5;
+	e->IkeDhs[IKE_P1_DH_GROUP_2048_MODP] = e->EspDhs[IKE_P2_DH_GROUP_2048_MODP] = dh2048;
+	e->IkeDhs[IKE_P1_DH_GROUP_3072_MODP] = e->EspDhs[IKE_P2_DH_GROUP_3072_MODP] = dh3072;
+	e->IkeDhs[IKE_P1_DH_GROUP_4096_MODP] = e->EspDhs[IKE_P2_DH_GROUP_4096_MODP] = dh4096;
 
 	return e;
 }
@@ -3132,6 +3138,15 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d)
 
 	case IKE_DH_5_ID:
 		return DhNewGroup5();
+
+	case IKE_DH_2048_ID:
+		return DhNew2048();
+
+	case IKE_DH_3072_ID:
+		return DhNew3072();
+
+	case IKE_DH_4096_ID:
+		return DhNew4096();
 	}
 
 	return NULL;
