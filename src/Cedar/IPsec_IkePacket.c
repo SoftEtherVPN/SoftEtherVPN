@@ -2623,9 +2623,9 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeDhs[IKE_P1_DH_GROUP_768_MODP] = e->EspDhs[IKE_P2_DH_GROUP_768_MODP] = dh1;
 	e->IkeDhs[IKE_P1_DH_GROUP_1024_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1024_MODP] = dh2;
 	e->IkeDhs[IKE_P1_DH_GROUP_1536_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1536_MODP] = dh5;
-	e->IkeDhs[IKE_P1_DH_GROUP_2048_MODP] = e->EspDhs[IKE_P2_DH_GROUP_2048_MODP] = dh14;
-	e->IkeDhs[IKE_P1_DH_GROUP_3072_MODP] = e->EspDhs[IKE_P2_DH_GROUP_3072_MODP] = dh15;
-	e->IkeDhs[IKE_P1_DH_GROUP_4096_MODP] = e->EspDhs[IKE_P2_DH_GROUP_4096_MODP] = dh16;
+	e->IkeDhs[IKE_P1_DH_GROUP_2048_MODP] = e->EspDhs[IKE_P2_DH_GROUP_2048_MODP] = dh2048;
+	e->IkeDhs[IKE_P1_DH_GROUP_3072_MODP] = e->EspDhs[IKE_P2_DH_GROUP_3072_MODP] = dh3072;
+	e->IkeDhs[IKE_P1_DH_GROUP_4096_MODP] = e->EspDhs[IKE_P2_DH_GROUP_4096_MODP] = dh4096;
 
 	return e;
 }
@@ -3138,7 +3138,7 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d)
 
 	case IKE_DH_5_ID:
 		return DhNewGroup5();
-	}
+
 	case IKE_DH_2048_ID:
 		return DhNew2048();
 
@@ -3147,6 +3147,7 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d)
 
 	case IKE_DH_4096_ID:
 		return DhNew4096();
+	}
 
 	return NULL;
 }
