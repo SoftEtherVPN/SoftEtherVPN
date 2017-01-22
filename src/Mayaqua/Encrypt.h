@@ -141,11 +141,11 @@ void RAND_Free_For_SoftEther();
 #define	AES_IV_SIZE					16			// AES IV size
 #define	AES_MAX_KEY_SIZE			32			// Maximum AES key size
 
-// IANA definitions taken from IKEv1 Phase 1. For internal use only
-#define _SHA1_160						2
-#define _SHA2_256						4
-#define _SHA2_384						5
-#define _SHA2_512						6
+// IANA definitions taken from IKEv1 Phase 1
+#define SHA1_160						2
+#define SHA2_256						4
+#define SHA2_384						5
+#define SHA2_512						6
 
 // HMAC block size
 #define	HMAC_BLOCK_SIZE					64
@@ -518,7 +518,12 @@ void Des3Encrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
 void Des3Decrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
+void Sha(UINT sha_type, void *dst, void *src, UINT size);
 void Sha1(void *dst, void *src, UINT size);
+void Sha2_256(void *dst, void *src, UINT size);
+void Sha2_384(void *dst, void *src, UINT size);
+void Sha2_512(void *dst, void *src, UINT size);
+
 void Md5(void *dst, void *src, UINT size);
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void MacSha196(void *dst, void *key, void *data, UINT data_size);
