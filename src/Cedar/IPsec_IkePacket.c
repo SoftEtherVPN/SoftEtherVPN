@@ -2616,9 +2616,9 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeCryptos[IKE_P1_CRYPTO_AES_CBC] = aes;
 	e->IkeHashes[IKE_P1_HASH_MD5] = md5;
 	e->IkeHashes[IKE_P1_HASH_SHA1] = sha1;
-	//e->IkeHashes[IKE_P1_HASH_SHA2_256] = sha2_256;
-	//e->IkeHashes[IKE_P1_HASH_SHA2_384] = sha2_384;
-	//e->IkeHashes[IKE_P1_HASH_SHA2_512] = sha2_512;
+	e->IkeHashes[IKE_P1_HASH_SHA2_256] = sha2_256;
+	e->IkeHashes[IKE_P1_HASH_SHA2_384] = sha2_384;
+	e->IkeHashes[IKE_P1_HASH_SHA2_512] = sha2_512;
 
 
 	// Definition of ESP algorithm

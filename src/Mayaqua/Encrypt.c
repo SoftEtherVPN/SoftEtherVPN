@@ -398,13 +398,19 @@ void HMacSha2_512(void *dst, void *key, UINT key_size, void *data, UINT data_siz
 void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
 	UINT hmac_block_size;
+	void* sha_ctx1;
 	switch(sha_type) {
 		case SHA1_160:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA_CTX));
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
 		case SHA2_256:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA256_CTX));
 			hmac_block_size = HMAC_BLOCK_SIZE;
 			break;
 		case SHA2_384:
 		case SHA2_512:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA512_CTX));
 			hmac_block_size = HMAC_BLOCK_SIZE_1024;
 			break;
 		default:
@@ -414,7 +420,7 @@ void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UIN
 	UCHAR k[hmac_block_size];
 	UCHAR hash1[hmac_block_size];
 	UCHAR data2[hmac_block_size];
-	SHA_CTX sha_ctx1;
+	//SHA_CTX sha_ctx1;
 	UCHAR pad1[hmac_block_size];
 	UINT i;
 	// Validate arguments
@@ -449,28 +455,28 @@ void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UIN
 
 	switch(sha_type) {
 		case SHA1_160:
-			SHA1_Init(&sha_ctx1);
-			SHA1_Update(&sha_ctx1, pad1, sizeof(pad1));
-			SHA1_Update(&sha_ctx1, data, data_size);
-			SHA1_Final(hash1, &sha_ctx1);
+			SHA1_Init((SHA_CTX *)sha_ctx1);
+			SHA1_Update((SHA_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA1_Update((SHA_CTX *)sha_ctx1, data, data_size);
+			SHA1_Final(hash1, (SHA_CTX *)sha_ctx1);
 			break;
 		case SHA2_256:
-			SHA256_Init(&sha_ctx1);
-			SHA256_Update(&sha_ctx1, pad1, sizeof(pad1));
-			SHA256_Update(&sha_ctx1, data, data_size);
-			SHA256_Final(hash1, &sha_ctx1);
+			SHA256_Init((SHA256_CTX *)sha_ctx1);
+			SHA256_Update((SHA256_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA256_Update((SHA256_CTX *)sha_ctx1, data, data_size);
+			SHA256_Final(hash1, (SHA256_CTX *)sha_ctx1);
 			break;
 		case SHA2_384:
-			SHA384_Init(&sha_ctx1);
-			SHA384_Update(&sha_ctx1, pad1, sizeof(pad1));
-			SHA384_Update(&sha_ctx1, data, data_size);
-			SHA384_Final(hash1, &sha_ctx1);
+			SHA384_Init((SHA512_CTX *)sha_ctx1);
+			SHA384_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA384_Update((SHA512_CTX *)sha_ctx1, data, data_size);
+			SHA384_Final(hash1, (SHA512_CTX *)sha_ctx1);
 			break;
 		case SHA2_512:
-			SHA512_Init(&sha_ctx1);
-			SHA512_Update(&sha_ctx1, pad1, sizeof(pad1));
-			SHA512_Update(&sha_ctx1, data, data_size);
-			SHA512_Final(hash1, &sha_ctx1);
+			SHA512_Init((SHA512_CTX *)sha_ctx1);
+			SHA512_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA512_Update((SHA512_CTX *)sha_ctx1, data, data_size);
+			SHA512_Final(hash1, (SHA512_CTX *)sha_ctx1);
 			break;
 	}
 
@@ -497,32 +503,32 @@ void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UIN
 
 	switch(sha_type) {
 	case SHA1_160:
-		SHA1_Init(&sha_ctx1);
-		SHA1_Update(&sha_ctx1, data2, hmac_block_size);
-		SHA1_Update(&sha_ctx1, hash1, SHA1_SIZE);
-		SHA1_Final(dst, &sha_ctx1);
+		SHA1_Init((SHA_CTX *)sha_ctx1);
+		SHA1_Update((SHA_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA1_Update((SHA_CTX *)sha_ctx1, hash1, SHA1_SIZE);
+		SHA1_Final(dst, (SHA_CTX *)sha_ctx1);
 		break;
 	case SHA2_256:
-		SHA256_Init(&sha_ctx1);
-		SHA256_Update(&sha_ctx1, data2, hmac_block_size);
-		SHA256_Update(&sha_ctx1, hash1, SHA256_SIZE);
-		SHA256_Final(dst, &sha_ctx1);
+		SHA256_Init((SHA256_CTX *)sha_ctx1);
+		SHA256_Update((SHA256_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA256_Update((SHA256_CTX *)sha_ctx1, hash1, SHA256_SIZE);
+		SHA256_Final(dst, (SHA256_CTX *)sha_ctx1);
 		break;
 	case SHA2_384:
-		SHA384_Init(&sha_ctx1);
-		SHA384_Update(&sha_ctx1, data2, hmac_block_size);
-		SHA384_Update(&sha_ctx1, hash1, SHA384_SIZE);
-		SHA384_Final(dst, &sha_ctx1);
+		SHA384_Init((SHA512_CTX *)sha_ctx1);
+		SHA384_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA384_Update((SHA512_CTX *)sha_ctx1, hash1, SHA384_SIZE);
+		SHA384_Final(dst, (SHA512_CTX *)sha_ctx1);
 		break;
 
 	case SHA2_512:
-		SHA384_Init(&sha_ctx1);
-		SHA384_Update(&sha_ctx1, data2, hmac_block_size);
-		SHA1_Update(&sha_ctx1, hash1, SHA512_SIZE);
-		SHA384_Final(dst, &sha_ctx1);
+		SHA512_Init((SHA512_CTX *)sha_ctx1);
+		SHA512_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA512_Update((SHA512_CTX *)sha_ctx1, hash1, SHA512_SIZE);
+		SHA512_Final(dst, (SHA512_CTX *)sha_ctx1);
 		break;
-
 	}
+	Free(sha_ctx1);
 
 }
 
