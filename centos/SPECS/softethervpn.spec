@@ -1,16 +1,18 @@
+%define majorversion 4
+%define minorversion 22
+%define buildversion 9634
 %define dateversion 2016.11.27
 %define buildrelease beta
 
 Name:           softethervpn
 Version:        %{majorversion}.%{minorversion}.%{buildversion}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        An Open-Source Free Cross-platform Multi-protocol VPN Program
 
 Group:          Applications/Internet
 License:        GPLv2
 URL:            http://www.softether.org/
-Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}-%{dateversion}-tree/Source_Code/softether-src-v%{majorversion}.%{minorversion}-%
-{buildversion}-%{buildrelease}.tar.gz
+Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}-%{dateversion}-tree/Source_Code/softether-src-v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}.tar.gz
 
 BuildRequires:  ncurses-devel
 BuildRequires:  openssl-devel
