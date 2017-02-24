@@ -141,8 +141,16 @@ void RAND_Free_For_SoftEther();
 #define	AES_IV_SIZE					16			// AES IV size
 #define	AES_MAX_KEY_SIZE			32			// Maximum AES key size
 
+// IANA definitions taken from IKEv1 Phase 1
+#define SHA1_160						2
+#define SHA2_256						4
+#define SHA2_384						5
+#define SHA2_512						6
+
 // HMAC block size
 #define	HMAC_BLOCK_SIZE					64
+// The block size for sha-384 and sha-512 as defined by rfc4868
+#define HMAC_BLOCK_SIZE_1024			128
 
 #define DH_GROUP1_PRIME_768 \
 	"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" \
@@ -294,6 +302,8 @@ struct X_CRL
 #define	MD5_SIZE	16
 #define	SHA1_SIZE	20
 #define	SHA256_SIZE	32
+#define	SHA384_SIZE	48
+#define	SHA512_SIZE	64
 
 // Key element of DES
 struct DES_KEY_VALUE
@@ -508,7 +518,12 @@ void Des3Encrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
 void Des3Decrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
+void Sha(UINT sha_type, void *dst, void *src, UINT size);
 void Sha1(void *dst, void *src, UINT size);
+void Sha2_256(void *dst, void *src, UINT size);
+void Sha2_384(void *dst, void *src, UINT size);
+void Sha2_512(void *dst, void *src, UINT size);
+
 void Md5(void *dst, void *src, UINT size);
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void MacSha196(void *dst, void *key, void *data, UINT data_size);
@@ -559,7 +574,11 @@ void MdProcess(MD *md, void *dest, void *src, UINT size);
 void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 				  int slen, unsigned char *out1, int olen);
 
+void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
+void HMacSha2_256(void *dst, void *key, UINT key_size, void *data, UINT data_size);
+void HMacSha2_384(void *dst, void *key, UINT key_size, void *data, UINT data_size);
+void HMacSha2_512(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 
 BUF *EasyEncrypt(BUF *src_buf);

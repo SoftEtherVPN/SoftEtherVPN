@@ -2558,7 +2558,7 @@ IKE_ENGINE *NewIkeEngine()
 {
 	IKE_ENGINE *e = ZeroMalloc(sizeof(IKE_ENGINE));
 	IKE_CRYPTO *des, *des3, *aes;
-	IKE_HASH *sha1, *md5;
+	IKE_HASH *sha1, *md5, *sha2_256, *sha2_384, *sha2_512;
 	IKE_DH *dh1, *dh2, *dh5;
 	UINT des_key_sizes[] =
 	{
@@ -2594,6 +2594,14 @@ IKE_ENGINE *NewIkeEngine()
 	// SHA-1
 	sha1 = NewIkeHash(e, IKE_HASH_SHA1_ID, IKE_HASH_SHA1_STRING, 20);
 
+	// SHA-2
+	// sha2-256
+	sha2_256 = NewIkeHash(e, IKE_HASH_SHA2_256_ID, IKE_HASH_SHA2_256_STRING, 32);
+	// sha2-384
+	sha2_384 = NewIkeHash(e, IKE_HASH_SHA2_384_ID, IKE_HASH_SHA2_384_STRING, 48);
+	// sha2-512
+	sha2_512 = NewIkeHash(e, IKE_HASH_SHA2_512_ID, IKE_HASH_SHA2_512_STRING, 64);
+
 	// MD5
 	md5 = NewIkeHash(e, IKE_HASH_MD5_ID, IKE_HASH_MD5_STRING, 16);
 
@@ -2608,6 +2616,10 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeCryptos[IKE_P1_CRYPTO_AES_CBC] = aes;
 	e->IkeHashes[IKE_P1_HASH_MD5] = md5;
 	e->IkeHashes[IKE_P1_HASH_SHA1] = sha1;
+	e->IkeHashes[IKE_P1_HASH_SHA2_256] = sha2_256;
+	e->IkeHashes[IKE_P1_HASH_SHA2_384] = sha2_384;
+	e->IkeHashes[IKE_P1_HASH_SHA2_512] = sha2_512;
+
 
 	// Definition of ESP algorithm
 	e->EspCryptos[IKE_TRANSFORM_ID_P2_ESP_DES] = des;
@@ -2925,6 +2937,15 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 		// SHA-1
 		Sha1(dst, src, size);
 		break;
+	case IKE_HASH_SHA2_256_ID:
+		Sha2_256(dst, src, size);
+		break;
+	case IKE_HASH_SHA2_384_ID:
+		Sha2_384(dst, src, size);
+		break;
+	case IKE_HASH_SHA2_512_ID:
+		Sha2_512(dst, src, size);
+		break;
 
 	default:
 		// Unknown
@@ -2936,11 +2957,26 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 // Calculation of HMAC
 void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UCHAR k[HMAC_BLOCK_SIZE];
+	UINT hmac_block_size;
+	if (h == NULL) {
+		return;
+	}
+	switch (h->HashId) {
+		case IKE_HASH_SHA1_ID:
+		case IKE_HASH_SHA2_256_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
+		case IKE_HASH_SHA2_384_ID:
+		case IKE_HASH_SHA2_512_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE_1024;
+			break;
+		default: return;
+	}
+	UCHAR k[hmac_block_size];
 	UCHAR *data1;
 	UCHAR hash1[IKE_MAX_HASH_SIZE];
 	UINT data1_size;
-	UCHAR data2[IKE_MAX_HASH_SIZE + HMAC_BLOCK_SIZE];
+	UCHAR data2[IKE_MAX_HASH_SIZE + hmac_block_size];
 	UINT data2_size;
 	UCHAR tmp1600[1600];
 	bool no_free = false;
@@ -2957,6 +2993,21 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 		HMacSha1(dst, key, key_size, data, data_size);
 		return;
 	}
+	else if (h->HashId == IKE_HASH_SHA2_256_ID)
+	{
+		HMacSha2_256(dst, key, key_size, data, data_size);
+		return;
+	}
+	else if (h->HashId == IKE_HASH_SHA2_384_ID)
+	{
+		HMacSha2_384(dst, key, key_size, data, data_size);
+		return;
+	}
+	else if (h->HashId == IKE_HASH_SHA2_512_ID)
+	{
+		HMacSha2_512(dst, key, key_size, data, data_size);
+		return;
+	}
 	else if (h->HashId == IKE_HASH_MD5_ID)
 	{
 		// Use the special function (fast) in the case of MD5
@@ -2966,7 +3017,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 
 	// Creating a K
 	Zero(k, sizeof(k));
-	if (key_size <= HMAC_BLOCK_SIZE)
+	if (key_size <= hmac_block_size)
 	{
 		Copy(k, key, key_size);
 	}
@@ -2976,7 +3027,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	}
 
 	// Generation of data 1
-	data1_size = data_size + HMAC_BLOCK_SIZE;
+	data1_size = data_size + hmac_block_size;
 
 	if (data1_size > sizeof(tmp1600))
 	{
@@ -2988,12 +3039,12 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 		no_free = true;
 	}
 
-	for (i = 0;i < HMAC_BLOCK_SIZE;i++)
+	for (i = 0;i < hmac_block_size;i++)
 	{
 		data1[i] = k[i] ^ 0x36;
 	}
 
-	Copy(data1 + HMAC_BLOCK_SIZE, data, data_size);
+	Copy(data1 + hmac_block_size, data, data_size);
 
 	// Calculate the hash value
 	IkeHash(h, hash1, data1, data1_size);
@@ -3004,14 +3055,14 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	}
 
 	// Generation of data 2
-	data2_size = h->HashSize + HMAC_BLOCK_SIZE;
+	data2_size = h->HashSize + hmac_block_size;
 
 	for (i = 0;i < HMAC_BLOCK_SIZE;i++)
 	{
 		data2[i] = k[i] ^ 0x5c;
 	}
 
-	Copy(data2 + HMAC_BLOCK_SIZE, hash1, h->HashSize);
+	Copy(data2 + hmac_block_size, hash1, h->HashSize);
 
 	// Calculate the hash value
 	IkeHash(h, dst, data2, data2_size);
