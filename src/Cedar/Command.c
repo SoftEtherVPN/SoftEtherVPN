@@ -5508,6 +5508,7 @@ UINT PcAccountDetailSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"MONITOR", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_MONITOR"), NULL, NULL},
 		{"NOTRACK", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_NOTRACK"), NULL, NULL},
 		{"NOQOS", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_NOQOS"), NULL, NULL},
+		{"DISABLEUDP", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_DISABLEUDP"), NULL, NULL},
 	};
 
 	// Get the parameter list
@@ -5536,6 +5537,7 @@ UINT PcAccountDetailSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		t.ClientOption->RequireMonitorMode = GetParamYes(o, "MONITOR");
 		t.ClientOption->NoRoutingTracking = GetParamYes(o, "NOTRACK");
 		t.ClientOption->DisableQoS = GetParamYes(o, "NOQOS");
+		t.ClientOption->NoUdpAcceleration = GetParamYes(o, "DISABLEUDP");
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
