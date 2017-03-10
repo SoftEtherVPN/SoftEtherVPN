@@ -4011,14 +4011,22 @@ X *X509ToX(X509 *x509)
 	type = k->pkey->type;
 
 	FreeBuf(b);
-
+	
+	//Fixed to get actual RSA key bits
+	x->bits = EVP_PKEY_bits(k->pkey);
+	
 	FreeK(k);
 
 	if (type == EVP_PKEY_RSA)
 	{
 		x->is_compatible_bit = true;
 
-		switch (size)
+		if(x->bits != 1024 && x->bits != 1536 && x->bits != 2048 && x->bits != 3072 && x->bits != 4096)
+			x->is_compatible_bit = false;
+		else
+			x->is_compatible_bit = true;
+		
+		/*switch (size)
 		{
 		case 162:
 			x->bits = 1024;
@@ -4043,7 +4051,7 @@ X *X509ToX(X509 *x509)
 		default:
 			x->is_compatible_bit = false;
 			break;
-		}
+		}*/
 	}
 
 	return x;
