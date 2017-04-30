@@ -257,6 +257,7 @@ struct OPENVPN_CHANNEL
 	bool IsInitiatorServer;								// Whether the channel was started from the server side
 	bool RekeyInitiated;								// Whether re-keying has already started
 	UINT64 NextRekey;
+	struct SslClientCertInfo ClientCert;                // Client certificate and verification data
 };
 
 // OpenVPN session

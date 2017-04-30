@@ -323,7 +323,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 		param->UserName, param->Password, error_code, &param->ClientIp,
 		param->ClientPort, &param->ServerIp, param->ServerPort,
 		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss, NULL);
+		param->BridgeMode, param->Mss, NULL, param->ClientCertificate);
 
 	return ipc;
 }
@@ -332,7 +332,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client)
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -425,7 +425,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	FreePack(p);
 
 	// Upload the authentication data
-	p = PackLoginWithPlainPassword(hubname, username, password);
+	if (client_certificate != NULL)
+	{
+		p = PackLoginWithOpenVPNCertificate(hubname, username, client_certificate);
+	}
+	else
+	{
+		p = PackLoginWithPlainPassword(hubname, username, password);
+	}
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);

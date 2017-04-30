@@ -1615,7 +1615,17 @@ void Win32WaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 #endif	// OS_WIN32
 
+#define PREVERIFY_ERR_MESSAGE_SIZE 100
+// Info on client certificate collected during TLS handshake
+struct SslClientCertInfo {
+	int PreverifyOk;
+	int PreverifyErr;
+	char PreverifyErrMessage[PREVERIFY_ERR_MESSAGE_SIZE];
+	X *X;
+};
+
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh);
+SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
 void FreeSslPipe(SSL_PIPE *s);
 bool SyncSslPipe(SSL_PIPE *s);
 

@@ -1018,7 +1018,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					// Attempt to connect with IPC
 					ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 						&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient);
+						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL);
 
 					if (ipc != NULL)
 					{
@@ -1151,7 +1151,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 
 								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 									&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL);
+									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL);
 
 								if (ipc != NULL)
 								{

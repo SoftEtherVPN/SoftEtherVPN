@@ -442,7 +442,8 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 			// Create an SSL pipe
 			Lock(s->Cedar->lock);
 			{
-				c->SslPipe = NewSslPipe(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh);
+				bool cert_verify = true;
+				c->SslPipe = NewSslPipeEx(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh, cert_verify, &c->ClientCert);
 			}
 			Unlock(s->Cedar->lock);
 
@@ -712,6 +713,11 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			p.BridgeMode = true;
 		}
 
+		if (c->ClientCert.X != NULL)
+		{
+			p.ClientCertificate = c->ClientCert.X;
+		}
+
 		p.IsOpenVPN = true;
 
 		// Calculate the MSS
@@ -779,6 +785,26 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	Debug("Parsing Option Str: %s\n", data->OptionString);
 
 	OvsLog(s, se, c, "LO_OPTION_STR_RECV", data->OptionString);
+
+	if (c->ClientCert.X != NULL)
+	{
+		if (c->ClientCert.X->subject_name != NULL)
+		{
+			OvsLog(s, se, c, "LO_CLIENT_CERT", c->ClientCert.X->subject_name->CommonName);
+		}
+		else
+		{
+			OvsLog(s, se, c, "LO_CLIENT_CERT", "(unknown CN)");
+		}
+	}
+	else if (!!c->ClientCert.PreverifyErr)
+	{
+		OvsLog(s, se, c, "LO_CLIENT_UNVERIFIED_CERT", c->ClientCert.PreverifyErrMessage);
+	}
+	else
+	{
+		OvsLog(s, se, c, "LO_CLIENT_NO_CERT");
+	}
 
 	Zero(opt_str, sizeof(opt_str));
 	StrCpy(opt_str, sizeof(opt_str), data->OptionString);
@@ -1358,6 +1384,11 @@ void OvsFreeChannel(OPENVPN_CHANNEL *c)
 
 	FreeMd(c->MdRecv);
 	FreeMd(c->MdSend);
+
+	if (c->ClientCert.X != NULL)
+	{
+		FreeX(c->ClientCert.X);
+	}
 
 	Free(c);
 }
