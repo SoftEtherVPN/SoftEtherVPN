@@ -2695,7 +2695,7 @@ OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
 	AddRef(u->Cedar->ref);
 
 	// Create a UDP listener
-	u->UdpListener = NewUdpListener(OpenVpnServerUdpListenerProc, u);
+	u->UdpListener = NewUdpListener(OpenVpnServerUdpListenerProc, u, &cedar->Server->ListenIP);
 
 	// Create an OpenVPN server
 	u->OpenVpnServer = NewOpenVpnServer(cedar, u->UdpListener->Interrupts, u->UdpListener->Event);
@@ -2704,7 +2704,7 @@ OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
 }
 
 // Apply the port list to the OpenVPN server
-void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list)
+void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip)
 {
 	LIST *o;
 	UINT i;
@@ -2715,6 +2715,11 @@ void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list)
 	}
 
 	DeleteAllPortFromUdpListener(u->UdpListener);
+
+	if (u->UdpListener != NULL && listen_ip != NULL)
+	{
+		Copy(&u->UdpListener->ListenIP, listen_ip, sizeof(IP));
+	}
 
 	o = StrToIntList(port_list, true);
 
