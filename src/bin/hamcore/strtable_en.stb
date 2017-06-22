@@ -1072,7 +1072,7 @@ SVC_HIDE_TRAY_MSG		This will hide the tasktray icons when starting %S in user mo
 
 
 # Concerning services (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start [--foreground] - Start the %S service. '--foreground' parameter prevents switching to daemon mode.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n

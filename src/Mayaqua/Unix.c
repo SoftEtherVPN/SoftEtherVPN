@@ -2849,6 +2849,12 @@ RESTART_PROCESS:
 			}
 		}
 	}
+	else if (argc >= 3 && StrCmpi(argv[1], UNIX_SVC_ARG_START) == 0 && StrCmpi(argv[2], UNIX_SVC_ARG_FOREGROUND) == 0)
+	{
+		InitMayaqua(false, false, argc, argv);
+		UnixExecService(name, start, stop);
+		FreeMayaqua();
+	}
 	else
 	{
 		// Start normally
