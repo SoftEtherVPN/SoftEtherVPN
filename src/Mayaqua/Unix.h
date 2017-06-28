@@ -179,6 +179,7 @@ void *UnixFileOpen(char *name, bool write_mode, bool read_lock);
 void *UnixFileOpenW(wchar_t *name, bool write_mode, bool read_lock);
 void *UnixFileCreate(char *name);
 void *UnixFileCreateW(wchar_t *name);
+void *GetUnixio4Stdout();
 bool UnixFileWrite(void *pData, void *buf, UINT size);
 bool UnixFileRead(void *pData, void *buf, UINT size);
 void UnixFileClose(void *pData, bool no_flush);

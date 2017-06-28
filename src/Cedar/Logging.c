@@ -133,6 +133,10 @@ static char *delete_targets[] =
 static UINT eraser_check_interval = DISK_FREE_CHECK_INTERVAL_DEFAULT;
 static UINT64 logger_max_log_size = MAX_LOG_SIZE_DEFAULT;
 
+static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *log_date_changed, char *current_logfile_datename, char *current_file_name);
+static bool LogThreadWriteStdout(LOG *log_object, BUF *buffer, IO *io);
+static IO *GetIO4Stdout();
+
 // Send with syslog
 void SendSysLog(SLOG *g, wchar_t *str)
 {
@@ -2634,7 +2638,7 @@ void LogThread(THREAD *thread, void *param)
 
 	g = (LOG *)param;
 
-	io = NULL;
+	io = g_foreground ? GetIO4Stdout() : NULL;
 	b = NewBuf();
 
 #ifdef	OS_WIN32
@@ -2648,253 +2652,23 @@ void LogThread(THREAD *thread, void *param)
 
 	while (true)
 	{
-		RECORD *rec;
 		UINT64 s = Tick64();
 
 		while (true)
 		{
-			char file_name[MAX_SIZE];
-			UINT num;
-
-			// Retrieve a record from the head of the queue
-			LockQueue(g->RecordQueue);
+			if (g_foreground)
 			{
-				rec = GetNext(g->RecordQueue);
-				num = g->RecordQueue->num_item;
-			}
-			UnlockQueue(g->RecordQueue);
-
-#ifdef	OS_WIN32
-			if (num >= LOG_ENGINE_SAVE_START_CACHE_COUNT)
-			{
-				// Raise the priority
-				if (last_priority_flag == false)
+				if (! LogThreadWriteStdout(g, b, io))
 				{
-					Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
-					MsSetThreadPriorityRealtime();
-					last_priority_flag = true;
-				}
-			}
-
-			if (num < (LOG_ENGINE_SAVE_START_CACHE_COUNT / 2))
-			{
-				// Restore the priority
-				if (last_priority_flag)
-				{
-					Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
-					MsSetThreadPriorityIdle();
-					last_priority_flag = false;
-				}
-			}
-#endif	// OS_WIN32
-
-			if (b->Size > GetMaxLogSize())
-			{
-				// Erase if the size of the buffer is larger than the maximum log file size
-				ClearBuf(b);
-			}
-
-			if (b->Size >= LOG_ENGINE_BUFFER_CACHE_SIZE_MAX)
-			{
-				// Write the contents of the buffer to the file
-				if (io != NULL)
-				{
-					if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
-					{
-						if (g->log_number_incremented == false)
-						{
-							g->CurrentLogNumber++;
-							g->log_number_incremented = true;
-						}
-					}
-					else
-					{
-						if (FileWrite(io, b->Buf, b->Size) == false)
-						{
-							FileCloseEx(io, true);
-							// If it fails to write to the file,
-							// erase the buffer and give up
-							ClearBuf(b);
-							io = NULL;
-						}
-						else
-						{
-							g->CurrentFilePointer += (UINT64)b->Size;
-							ClearBuf(b);
-						}
-					}
-				}
-			}
-
-			if (rec == NULL)
-			{
-				if (b->Size != 0)
-				{
-					// Write the contents of the buffer to the file
-					if (io != NULL)
-					{
-						if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
-						{
-							if (g->log_number_incremented == false)
-							{
-								g->CurrentLogNumber++;
-								g->log_number_incremented = true;
-							}
-						}
-						else
-						{
-							if (FileWrite(io, b->Buf, b->Size) == false)
-							{
-								FileCloseEx(io, true);
-								// If it fails to write to the file,
-								// erase the buffer and give up
-								ClearBuf(b);
-								io = NULL;
-							}
-							else
-							{
-								g->CurrentFilePointer += (UINT64)b->Size;
-								ClearBuf(b);
-							}
-						}
-					}
-				}
-
-				Set(g->FlushEvent);
-				break;
-			}
-
-			// Generate a log file name
-			LockLog(g);
-			{
-				log_date_changed = MakeLogFileName(g, file_name, sizeof(file_name),
-					g->DirName, g->Prefix, rec->Tick, g->SwitchType, g->CurrentLogNumber, current_logfile_datename);
-
-				if (log_date_changed)
-				{
-					UINT i;
-
-					g->CurrentLogNumber = 0;
-					MakeLogFileName(g, file_name, sizeof(file_name),
-						g->DirName, g->Prefix, rec->Tick, g->SwitchType, 0, current_logfile_datename);
-					for (i = 0;;i++)
-					{
-						char tmp[MAX_SIZE];
-						MakeLogFileName(g, tmp, sizeof(tmp),
-							g->DirName, g->Prefix, rec->Tick, g->SwitchType, i, current_logfile_datename);
-
-						if (IsFileExists(tmp) == false)
-						{
-							break;
-						}
-						StrCpy(file_name, sizeof(file_name), tmp);
-						g->CurrentLogNumber = i;
-					}
-				}
-			}
-			UnlockLog(g);
-
-			if (io != NULL)
-			{
-				if (StrCmp(current_file_name, file_name) != 0)
-				{
-					// If a log file is currently opened and writing to another log
-					// file is needed for this time, write the contents of the 
-					//buffer and close the log file. Write the contents of the buffer
-					if (io != NULL)
-					{
-						if (log_date_changed)
-						{
-							if ((g->CurrentFilePointer + (UINT64)b->Size) <= GetMaxLogSize())
-							{
-								if (FileWrite(io, b->Buf, b->Size) == false)
-								{
-									FileCloseEx(io, true);
-									ClearBuf(b);
-									io = NULL;
-								}
-								else
-								{
-									g->CurrentFilePointer += (UINT64)b->Size;
-									ClearBuf(b);
-								}
-							}
-						}
-						// Close the file
-						FileCloseEx(io, true);
-					}
-
-					g->log_number_incremented = false;
-
-					// Open or create a new log file
-					StrCpy(current_file_name, sizeof(current_file_name), file_name);
-					io = FileOpen(file_name, true);
-					if (io == NULL)
-					{
-						// Create a log file
-						LockLog(g);
-						{
-							MakeDir(g->DirName);
-
-#ifdef	OS_WIN32
-							Win32SetFolderCompress(g->DirName, true);
-#endif	// OS_WIN32
-						}
-						UnlockLog(g);
-						io = FileCreate(file_name);
-						g->CurrentFilePointer = 0;
-					}
-					else
-					{
-						// Seek to the end of the log file
-						g->CurrentFilePointer = FileSize64(io);
-						FileSeek(io, SEEK_END, 0);
-					}
+					break;
 				}
 			}
 			else
 			{
-				// Open or create a new log file
-				StrCpy(current_file_name, sizeof(current_file_name), file_name);
-				io = FileOpen(file_name, true);
-				if (io == NULL)
+				if (! LogThreadWriteGeneral(g, b, &io, &log_date_changed, current_logfile_datename, current_file_name))
 				{
-					// Create a log file
-					LockLog(g);
-					{
-						MakeDir(g->DirName);
-#ifdef	OS_WIN32
-						Win32SetFolderCompress(g->DirName, true);
-#endif	// OS_WIN32
-					}
-					UnlockLog(g);
-					io = FileCreate(file_name);
-					g->CurrentFilePointer = 0;
-					if (io == NULL)
-					{
-						//Debug("Logging.c: SleepThread(30);\n");
-						SleepThread(30);
-					}
+					break;
 				}
-				else
-				{
-					// Seek to the end of the log file
-					g->CurrentFilePointer = FileSize64(io);
-					FileSeek(io, SEEK_END, 0);
-				}
-
-				g->log_number_incremented = false;
-			}
-
-			// Write the contents of the log to the buffer
-			WriteRecordToBuffer(b, rec);
-
-			// Release the memory of record
-			Free(rec);
-
-			if (io == NULL)
-			{
-				break;
 			}
 		}
 
@@ -2929,12 +2703,311 @@ void LogThread(THREAD *thread, void *param)
 		}
 	}
 
-	if (io != NULL)
+	if (io != NULL && !g_foreground)
 	{
 		FileCloseEx(io, true);
 	}
 
 	FreeBuf(b);
+}
+
+static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *log_date_changed, char *current_logfile_datename, char *current_file_name)
+{
+	RECORD *rec;
+	char file_name[MAX_SIZE];
+	UINT num;
+
+	// Retrieve a record from the head of the queue
+	LockQueue(log_object->RecordQueue);
+	{
+		rec = GetNext(log_object->RecordQueue);
+		num = log_object->RecordQueue->num_item;
+	}
+	UnlockQueue(log_object->RecordQueue);
+
+#ifdef	OS_WIN32
+	if (num >= LOG_ENGINE_SAVE_START_CACHE_COUNT)
+	{
+		// Raise the priority
+		if (last_priority_flag == false)
+		{
+			Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
+			MsSetThreadPriorityRealtime();
+			last_priority_flag = true;
+		}
+	}
+
+	if (num < (LOG_ENGINE_SAVE_START_CACHE_COUNT / 2))
+	{
+		// Restore the priority
+		if (last_priority_flag)
+		{
+			Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
+			MsSetThreadPriorityIdle();
+			last_priority_flag = false;
+		}
+	}
+#endif	// OS_WIN32
+
+	if (buffer->Size > GetMaxLogSize())
+	{
+		// Erase if the size of the buffer is larger than the maximum log file size
+		ClearBuf(buffer);
+	}
+
+	if (buffer->Size >= LOG_ENGINE_BUFFER_CACHE_SIZE_MAX)
+	{
+		// Write the contents of the buffer to the file
+		if (*io != NULL)
+		{
+			if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) > GetMaxLogSize())
+			{
+				if (log_object->log_number_incremented == false)
+				{
+					log_object->CurrentLogNumber++;
+					log_object->log_number_incremented = true;
+				}
+			}
+			else
+			{
+				if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+				{
+					FileCloseEx(*io, true);
+					// If it fails to write to the file,
+					// erase the buffer and give up
+					ClearBuf(buffer);
+					*io = NULL;
+				}
+				else
+				{
+					log_object->CurrentFilePointer += (UINT64)buffer->Size;
+					ClearBuf(buffer);
+				}
+			}
+		}
+	}
+
+	if (rec == NULL)
+	{
+		if (buffer->Size != 0)
+		{
+			// Write the contents of the buffer to the file
+			if (*io != NULL)
+			{
+				if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) > GetMaxLogSize())
+				{
+					if (log_object->log_number_incremented == false)
+					{
+						log_object->CurrentLogNumber++;
+						log_object->log_number_incremented = true;
+					}
+				}
+				else
+				{
+					if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+					{
+						FileCloseEx(*io, true);
+						// If it fails to write to the file,
+						// erase the buffer and give up
+						ClearBuf(buffer);
+						*io = NULL;
+					}
+					else
+					{
+						log_object->CurrentFilePointer += (UINT64)buffer->Size;
+						ClearBuf(buffer);
+					}
+				}
+			}
+		}
+
+		Set(log_object->FlushEvent);
+		return false;
+	}
+
+	// Generate a log file name
+	LockLog(log_object);
+	{
+		*log_date_changed = MakeLogFileName(log_object, file_name, sizeof(file_name),
+			log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, log_object->CurrentLogNumber, current_logfile_datename);
+
+		if (*log_date_changed)
+		{
+			UINT i;
+
+			log_object->CurrentLogNumber = 0;
+			MakeLogFileName(log_object, file_name, sizeof(file_name),
+				log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, 0, current_logfile_datename);
+			for (i = 0;;i++)
+			{
+				char tmp[MAX_SIZE];
+				MakeLogFileName(log_object, tmp, sizeof(tmp),
+					log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, i, current_logfile_datename);
+
+				if (IsFileExists(tmp) == false)
+				{
+					break;
+				}
+				StrCpy(file_name, sizeof(file_name), tmp);
+				log_object->CurrentLogNumber = i;
+			}
+		}
+	}
+	UnlockLog(log_object);
+
+	if (*io != NULL)
+	{
+		if (StrCmp(current_file_name, file_name) != 0)
+		{
+			// If a log file is currently opened and writing to another log
+			// file is needed for this time, write the contents of the 
+			//buffer and close the log file. Write the contents of the buffer
+			if (*io != NULL)
+			{
+				if (*log_date_changed)
+				{
+					if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) <= GetMaxLogSize())
+					{
+						if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+						{
+							FileCloseEx(*io, true);
+							ClearBuf(buffer);
+							*io = NULL;
+						}
+						else
+						{
+							log_object->CurrentFilePointer += (UINT64)buffer->Size;
+							ClearBuf(buffer);
+						}
+					}
+				}
+				// Close the file
+				FileCloseEx(*io, true);
+			}
+
+			log_object->log_number_incremented = false;
+
+			// Open or create a new log file
+			StrCpy(current_file_name, sizeof(current_file_name), file_name);
+			*io = FileOpen(file_name, true);
+			if (*io == NULL)
+			{
+				// Create a log file
+				LockLog(log_object);
+				{
+					MakeDir(log_object->DirName);
+
+#ifdef	OS_WIN32
+					Win32SetFolderCompress(log_object->DirName, true);
+#endif	// OS_WIN32
+				}
+				UnlockLog(log_object);
+				*io = FileCreate(file_name);
+				log_object->CurrentFilePointer = 0;
+			}
+			else
+			{
+				// Seek to the end of the log file
+				log_object->CurrentFilePointer = FileSize64(*io);
+				FileSeek(*io, SEEK_END, 0);
+			}
+		}
+	}
+	else
+	{
+		// Open or create a new log file
+		StrCpy(current_file_name, sizeof(current_file_name), file_name);
+		*io = FileOpen(file_name, true);
+		if (*io == NULL)
+		{
+			// Create a log file
+			LockLog(log_object);
+			{
+				MakeDir(log_object->DirName);
+#ifdef	OS_WIN32
+				Win32SetFolderCompress(log_object->DirName, true);
+#endif	// OS_WIN32
+			}
+			UnlockLog(log_object);
+			*io = FileCreate(file_name);
+			log_object->CurrentFilePointer = 0;
+			if (*io == NULL)
+			{
+				//Debug("Logging.c: SleepThread(30);\n");
+				SleepThread(30);
+			}
+		}
+		else
+		{
+			// Seek to the end of the log file
+			log_object->CurrentFilePointer = FileSize64(*io);
+			FileSeek(*io, SEEK_END, 0);
+		}
+
+		log_object->log_number_incremented = false;
+	}
+
+	// Write the contents of the log to the buffer
+	WriteRecordToBuffer(buffer, rec);
+
+	// Release the memory of record
+	Free(rec);
+
+	return (*io != NULL);
+}
+
+static bool LogThreadWriteStdout(LOG *log_object, BUF *buffer, IO *io)
+{
+	RECORD *rec;
+
+	// Retrieve a record from the head of the queue
+	LockQueue(log_object->RecordQueue);
+	{
+		rec = GetNext(log_object->RecordQueue);
+	}
+	UnlockQueue(log_object->RecordQueue);
+
+	if (rec == NULL)
+	{
+		Set(log_object->FlushEvent);
+		return false;
+	}
+
+	ClearBuf(buffer);
+	WriteRecordToBuffer(buffer, rec);
+	if (!FileWrite(io, buffer->Buf, buffer->Size))
+	{
+		ClearBuf(buffer);
+	}
+	Free(rec);
+
+	return true;
+}
+
+static IO *GetIO4Stdout()
+{
+#ifndef UNIX
+	return NULL;
+#else // UNIX
+	static IO IO4Stdout =
+	{
+		.Name = {0},
+		.NameW = {0},
+		.pData = NULL,
+		.WriteMode = true,
+		.HamMode = false,
+		.HamBuf = NULL,
+	};
+
+	if (!g_foreground)
+	{
+		return NULL;
+	}
+
+	IO4Stdout.pData = GetUnixio4Stdout();
+
+	return &IO4Stdout;
+#endif // UNIX
 }
 
 // Write the contents of the log to the buffer
