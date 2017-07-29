@@ -11134,27 +11134,6 @@ void FreeWaitThread()
 	WaitThreadList = NULL;
 }
 
-// Check the cipher list name
-bool CheckCipherListName(char *name)
-{
-	UINT i;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < cipher_list_token->NumTokens;i++)
-	{
-		if (StrCmpi(cipher_list_token->Token[i], name) == 0)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 // Renewing the IP address of the DHCP server
 void RenewDhcp()
 {
@@ -12783,12 +12762,7 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 		Free(sock->WaitToUseCipher);
 	}
 
-	Zero(tmp, sizeof(tmp));
-	StrCpy(tmp, sizeof(tmp), name);
-	StrCat(tmp, sizeof(tmp), " ");
-	StrCat(tmp, sizeof(tmp), cipher_list);
-
-	sock->WaitToUseCipher = CopyStr(tmp);
+	sock->WaitToUseCipher = CopyStr(name);
 }
 
 // Add all the chain certificates in the chain_certs directory
@@ -13062,7 +13036,8 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		// Set the cipher algorithm name to want to use
 		Lock(openssl_lock);
 		{
-			SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher);
+			if (SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher) == 0)
+				SSL_set_cipher_list(sock->ssl, DEFAULT_CIPHER_LIST);
 		}
 		Unlock(openssl_lock);
 	}

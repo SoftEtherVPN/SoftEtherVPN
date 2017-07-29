@@ -8280,14 +8280,7 @@ UINT StSetServerCipher(ADMIN *a, RPC_STR *t)
 
 	StrUpper(t->String);
 
-	if (CheckCipherListName(t->String) == false)
-	{
-		return ERR_CIPHER_NOT_SUPPORTED;
-	}
-	else
-	{
-		ALog(a, NULL, "LA_SET_SERVER_CIPHER", t->String);
-	}
+	ALog(a, NULL, "LA_SET_SERVER_CIPHER", t->String);
 
 	Lock(c->lock);
 	{

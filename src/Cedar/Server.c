@@ -6047,10 +6047,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		if (CfgGetStr(f, "CipherName", tmp, sizeof(tmp)))
 		{
 			StrUpper(tmp);
-			if (CheckCipherListName(tmp))
-			{
-				SetCedarCipherList(c, tmp);
-			}
+			SetCedarCipherList(c, tmp);
 		}
 
 		// Traffic information

@@ -153,6 +153,7 @@ struct DYN_VALUE
 #define	DEFAULT_GETIP_THREAD_MAX_NUM		64
 #endif	// USE_STRATEGY_LOW_MEMORY
 
+#define	DEFAULT_CIPHER_LIST			"ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:ECDHE+AES256:DHE+AES256:RSA+AES"
 
 // SSL logging function
 //#define	ENABLE_SSL_LOGGING
@@ -1379,7 +1380,6 @@ void RenewDhcp();
 void AcceptInit(SOCK *s);
 void AcceptInitEx(SOCK *s, bool no_lookup_hostname);
 void DisableGetHostNameWhenAcceptInit();
-bool CheckCipherListName(char *name);
 TOKEN_LIST *GetCipherList();
 COUNTER *GetNumTcpConnectionsCounter();
 void InitWaitThread();
