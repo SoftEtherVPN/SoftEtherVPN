@@ -228,7 +228,14 @@ void RAND_Free_For_SoftEther();
 // Macro
 #define	HASHED_DATA(p)			(((UCHAR *)p) + 15)
 
-
+// OpenSSL <1.1 Shims
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
+#	define EVP_PKEY_base_id(pkey) ((pkey)->type)
+#	define X509_get0_notBefore(x509) ((x509)->cert_info->validity->notBefore)
+#	define X509_get0_notAfter(x509) ((x509)->cert_info->validity->notAfter)
+#	define X509_get_serialNumber(x509) ((x509)->cert_info->serialNumber)
+#endif
 
 // Crypt context
 struct CRYPT
@@ -341,7 +348,7 @@ struct CIPHER
 struct MD
 {
 	char Name[MAX_PATH];
-	const struct env_md_st *Md;
+	const struct evp_md_st *Md;
 	struct hmac_ctx_st *Ctx;
 	UINT Size;
 };
@@ -461,7 +468,7 @@ void GetAllNameFromName(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromNameEx(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromXEx(wchar_t *str, UINT size, X *x);
 void GetAllNameFromXExA(char *str, UINT size, X *x);
-BUF *BigNumToBuf(BIGNUM *bn);
+BUF *BigNumToBuf(const BIGNUM *bn);
 BIGNUM *BinToBigNum(void *data, UINT size);
 BIGNUM *BufToBigNum(BUF *b);
 char *BigNumToStr(BIGNUM *bn);

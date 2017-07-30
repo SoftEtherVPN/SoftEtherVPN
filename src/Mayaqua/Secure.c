@@ -488,6 +488,7 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 	RSA *rsa;
 	UCHAR modules[MAX_SIZE], pub[MAX_SIZE], pri[MAX_SIZE], prime1[MAX_SIZE], prime2[MAX_SIZE];
 	UCHAR exp1[MAX_SIZE], exp2[MAX_SIZE], coeff[MAX_SIZE];
+	const BIGNUM *n, *e, *d, *p, *q, *dmp1, *dmq1, *iqmp;
 	CK_ATTRIBUTE a[] =
 	{
 		{CKA_MODULUS,			modules,		0},		// 0
@@ -536,48 +537,64 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 	}
 
 	// Numeric data generation
-	rsa = k->pkey->pkey.rsa;
+	rsa = EVP_PKEY_get0_RSA(k->pkey);
 	if (rsa == NULL)
 	{
 		sec->Error = SEC_ERROR_BAD_PARAMETER;
 		return false;
 	}
-	b = BigNumToBuf(rsa->n);
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	RSA_get0_key(rsa, &n, &e, &d);
+	RSA_get0_factors(rsa, &p, &q);
+	RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
+#else
+	rsa->n = n;
+	rsa->e = e;
+	rsa->d = d;
+	rsa->p = p;
+	rsa->q = q;
+	rsa->dmp1 = dmp1;
+	rsa->dmq1 = dmq1;
+	rsa->iqmp = iqmp;
+#endif
+
+	b = BigNumToBuf(n);
 	ReadBuf(b, modules, sizeof(modules));
 	A_SIZE(a, 0) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->e);
+	b = BigNumToBuf(e);
 	ReadBuf(b, pub, sizeof(pub));
 	A_SIZE(a, 1) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->d);
+	b = BigNumToBuf(d);
 	ReadBuf(b, pri, sizeof(pri));
 	A_SIZE(a, 2) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->p);
+	b = BigNumToBuf(p);
 	ReadBuf(b, prime1, sizeof(prime1));
 	A_SIZE(a, 3) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->q);
+	b = BigNumToBuf(q);
 	ReadBuf(b, prime2, sizeof(prime2));
 	A_SIZE(a, 4) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->dmp1);
+	b = BigNumToBuf(dmp1);
 	ReadBuf(b, exp1, sizeof(exp1));
 	A_SIZE(a, 5) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->dmq1);
+	b = BigNumToBuf(dmq1);
 	ReadBuf(b, exp2, sizeof(exp2));
 	A_SIZE(a, 6) = b->Size;
 	FreeBuf(b);
 
-	b = BigNumToBuf(rsa->iqmp);
+	b = BigNumToBuf(iqmp);
 	ReadBuf(b, coeff, sizeof(coeff));
 	A_SIZE(a, 7) = b->Size;
 	FreeBuf(b);
