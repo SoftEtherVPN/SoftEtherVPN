@@ -165,52 +165,64 @@ typedef struct CB_PARAM
 } CB_PARAM;
 
 // Copied from t1_enc.c of OpenSSL
-#define HMAC_Init_ex(ctx,sec,len,md,impl) HMAC_Init(ctx, sec, len, md) 
-#define HMAC_CTX_cleanup(ctx)             HMAC_cleanup(ctx)
 void Enc_tls1_P_hash(const EVP_MD *md, const unsigned char *sec, int sec_len,
 				 const unsigned char *seed, int seed_len, unsigned char *out, int olen)
 {
 	int chunk,n;
 	unsigned int j;
-	HMAC_CTX ctx;
-	HMAC_CTX ctx_tmp;
+	HMAC_CTX *ctx;
+	HMAC_CTX *ctx_tmp;
 	unsigned char A1[EVP_MAX_MD_SIZE];
 	unsigned int A1_len;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	ctx = HMAC_CTX_new();
+	ctx_tmp = HMAC_CTX_new();
+#else
+	HMAC_CTX ctx_;
+	HMAC_CTX ctx_tmp_;
+	ctx = &ctx_;
+	ctx_tmp = &ctx_tmp_;
+	Zero(ctx, sizeof(ctx));
+	Zero(ctx_tmp, sizeof(ctx_tmp));
+#endif
 	chunk=EVP_MD_size(md);
 
-	Zero(&ctx, sizeof(ctx));
-	Zero(&ctx_tmp, sizeof(ctx_tmp));
-	HMAC_Init_ex(&ctx,sec,sec_len,md, NULL);
-	HMAC_Init_ex(&ctx_tmp,sec,sec_len,md, NULL);
-	HMAC_Update(&ctx,seed,seed_len);
-	HMAC_Final(&ctx,A1,&A1_len);
+	HMAC_Init_ex(ctx,sec,sec_len,md, NULL);
+	HMAC_Init_ex(ctx_tmp,sec,sec_len,md, NULL);
+	HMAC_Update(ctx,seed,seed_len);
+	HMAC_Final(ctx,A1,&A1_len);
 
 	n=0;
 	for (;;)
 	{
-		HMAC_Init_ex(&ctx,NULL,0,NULL,NULL); /* re-init */
-		HMAC_Init_ex(&ctx_tmp,NULL,0,NULL,NULL); /* re-init */
-		HMAC_Update(&ctx,A1,A1_len);
-		HMAC_Update(&ctx_tmp,A1,A1_len);
-		HMAC_Update(&ctx,seed,seed_len);
+		HMAC_Init_ex(ctx,NULL,0,NULL,NULL); /* re-init */
+		HMAC_Init_ex(ctx_tmp,NULL,0,NULL,NULL); /* re-init */
+		HMAC_Update(ctx,A1,A1_len);
+		HMAC_Update(ctx_tmp,A1,A1_len);
+		HMAC_Update(ctx,seed,seed_len);
 
 		if (olen > chunk)
 		{
-			HMAC_Final(&ctx,out,&j);
+			HMAC_Final(ctx,out,&j);
 			out+=j;
 			olen-=j;
-			HMAC_Final(&ctx_tmp,A1,&A1_len); /* calc the next A1 value */
+			HMAC_Final(ctx_tmp,A1,&A1_len); /* calc the next A1 value */
 		}
 		else	/* last one */
 		{
-			HMAC_Final(&ctx,A1,&A1_len);
+			HMAC_Final(ctx,A1,&A1_len);
 			memcpy(out,A1,olen);
 			break;
 		}
 	}
-	HMAC_CTX_cleanup(&ctx);
-	HMAC_CTX_cleanup(&ctx_tmp);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	HMAC_CTX_free(ctx);
+	HMAC_CTX_free(ctx_tmp);
+#else
+	HMAC_CTX_cleanup(ctx);
+	HMAC_CTX_cleanup(ctx_tmp);
+#endif
 	Zero (A1, sizeof(A1));
 }
 
@@ -542,7 +554,7 @@ void MdProcess(MD *md, void *dest, void *src, UINT size)
 		return;
 	}
 
-	HMAC_Init(md->Ctx, NULL, 0, NULL);
+	HMAC_Init_ex(md->Ctx, NULL, 0, NULL, NULL);
 	HMAC_Update(md->Ctx, src, size);
 
 	r = 0;
@@ -558,7 +570,7 @@ void SetMdKey(MD *md, void *key, UINT key_size)
 		return;
 	}
 
-	HMAC_Init(md->Ctx, key, key_size, md->Md);
+	HMAC_Init_ex(md->Ctx, key, key_size, md->Md, NULL);
 }
 
 // Creating a message digest object
@@ -581,8 +593,12 @@ MD *NewMd(char *name)
 		return NULL;
 	}
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	m->Ctx = HMAC_CTX_new();
+#else
 	m->Ctx = ZeroMalloc(sizeof(struct hmac_ctx_st));
 	HMAC_CTX_init(m->Ctx);
+#endif
 
 	m->Size = EVP_MD_size(m->Md);
 
@@ -600,8 +616,12 @@ void FreeMd(MD *md)
 
 	if (md->Ctx != NULL)
 	{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		HMAC_CTX_free(md->Ctx);
+#else
 		HMAC_CTX_cleanup(md->Ctx);
 		Free(md->Ctx);
+#endif
 	}
 
 	Free(md);
@@ -636,8 +656,12 @@ CIPHER *NewCipher(char *name)
 		return NULL;
 	}
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	c->Ctx = EVP_CIPHER_CTX_new();
+#else
 	c->Ctx = ZeroMalloc(sizeof(struct evp_cipher_ctx_st));
 	EVP_CIPHER_CTX_init(c->Ctx);
+#endif
 
 	c->BlockSize = EVP_CIPHER_block_size(c->Cipher);
 	c->KeySize = EVP_CIPHER_key_length(c->Cipher);
@@ -714,8 +738,12 @@ void FreeCipher(CIPHER *c)
 
 	if (c->Ctx != NULL)
 	{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		EVP_CIPHER_CTX_free(c->Ctx);
+#else
 		EVP_CIPHER_CTX_cleanup(c->Ctx);
 		Free(c->Ctx);
+#endif
 	}
 
 	Free(c);
@@ -896,6 +924,9 @@ K *RsaBinToPublic(void *data, UINT size)
 	RSA *rsa;
 	K *k;
 	BIO *bio;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	BIGNUM *e, *n;
+#endif
 	// Validate arguments
 	if (data == NULL || size < 4)
 	{
@@ -904,6 +935,14 @@ K *RsaBinToPublic(void *data, UINT size)
 
 	rsa = RSA_new();
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	e = BN_new();
+	BN_set_word(e, RSA_F4);
+
+	n = BinToBigNum(data, size);
+
+	RSA_set0_key(rsa, n, e, NULL);
+#else
 	if (rsa->e != NULL)
 	{
 		BN_free(rsa->e);
@@ -918,6 +957,7 @@ K *RsaBinToPublic(void *data, UINT size)
 	}
 
 	rsa->n = BinToBigNum(data, size);
+#endif
 
 	bio = NewBio();
 	Lock(openssl_lock);
@@ -938,14 +978,39 @@ K *RsaBinToPublic(void *data, UINT size)
 BUF *RsaPublicToBuf(K *k)
 {
 	BUF *b;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	RSA *rsa;
+	const BIGNUM *n;
+#endif
 	// Validate arguments
-	if (k == NULL || k->pkey == NULL || k->pkey->pkey.rsa == NULL
-		|| k->pkey->pkey.rsa->n == NULL)
+	if (k == NULL || k->pkey == NULL)
+	{
+		return NULL;
+	}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	if (rsa == NULL)
+	{
+		return NULL;
+	}
+
+	RSA_get0_key(rsa, &n, NULL, NULL);
+	if (n == NULL)
+	{
+		return NULL;
+	}
+
+	b = BigNumToBuf(n);
+#else
+	if (k->pkey->pkey.rsa == NULL || k->pkey->pkey.rsa->n == NULL)
 	{
 		return NULL;
 	}
 
 	b = BigNumToBuf(k->pkey->pkey.rsa->n);
+#endif
+
 	if (b == NULL)
 	{
 		return NULL;
@@ -959,13 +1024,12 @@ void RsaPublicToBin(K *k, void *data)
 {
 	BUF *b;
 	// Validate arguments
-	if (k == NULL || k->pkey == NULL || k->pkey->pkey.rsa == NULL
-		|| k->pkey->pkey.rsa->n == NULL || data == NULL)
+	if (data == NULL)
 	{
 		return;
 	}
 
-	b = BigNumToBuf(k->pkey->pkey.rsa->n);
+	b = RsaPublicToBuf(k);
 	if (b == NULL)
 	{
 		return;
@@ -981,14 +1045,8 @@ UINT RsaPublicSize(K *k)
 {
 	BUF *b;
 	UINT ret;
-	// Validate arguments
-	if (k == NULL || k->pkey == NULL || k->pkey->pkey.rsa == NULL
-		|| k->pkey->pkey.rsa->n == NULL)
-	{
-		return 0;
-	}
 
-	b = BigNumToBuf(k->pkey->pkey.rsa->n);
+	b = RsaPublicToBuf(k);
 	if (b == NULL)
 	{
 		return 0;
@@ -1102,7 +1160,7 @@ BIGNUM *BufToBigNum(BUF *b)
 }
 
 // Convert a BIGNUM to a buffer
-BUF *BigNumToBuf(BIGNUM *bn)
+BUF *BigNumToBuf(const BIGNUM *bn)
 {
 	UINT size;
 	UCHAR *tmp;
@@ -2075,6 +2133,7 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	X509_EXTENSION *ex = NULL;
 	X509_EXTENSION *eku = NULL;
 	X509_EXTENSION *busage = NULL;
+	ASN1_INTEGER *s;
 	// Validate arguments
 	if (pub == NULL || name == NULL || ca == NULL)
 	{
@@ -2137,19 +2196,17 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	FreeX509Name(subject_name);
 
 	// Set the Serial Number
+	s = X509_get_serialNumber(x509);
+	OPENSSL_free(s->data);
 	if (serial == NULL)
 	{
 		char zero = 0;
-		ASN1_INTEGER *s = x509->cert_info->serialNumber;
-		OPENSSL_free(s->data);
 		s->data = OPENSSL_malloc(sizeof(char));
 		Copy(s->data, &zero, sizeof(char));
 		s->length = sizeof(char);
 	}
 	else
 	{
-		ASN1_INTEGER *s = x509->cert_info->serialNumber;
-		OPENSSL_free(s->data);
 		s->data = OPENSSL_malloc(serial->size);
 		Copy(s->data, serial->data, serial->size);
 		s->length = serial->size;
@@ -2202,6 +2259,7 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	X509_EXTENSION *ex = NULL;
 	X509_EXTENSION *eku = NULL;
 	X509_EXTENSION *busage = NULL;
+	ASN1_INTEGER *s;
 	// Validate arguments
 	if (pub == NULL || name == NULL || priv == NULL)
 	{
@@ -2269,19 +2327,17 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	FreeX509Name(issuer_name);
 
 	// Set a Serial Number
+	s = X509_get_serialNumber(x509);
+	OPENSSL_free(s->data);
 	if (serial == NULL)
 	{
 		char zero = 0;
-		ASN1_INTEGER *s = x509->cert_info->serialNumber;
-		OPENSSL_free(s->data);
 		s->data = OPENSSL_malloc(sizeof(char));
 		Copy(s->data, &zero, sizeof(char));
 		s->length = sizeof(char);
 	}
 	else
 	{
-		ASN1_INTEGER *s = x509->cert_info->serialNumber;
-		OPENSSL_free(s->data);
 		s->data = OPENSSL_malloc(serial->size);
 		Copy(s->data, serial->data, serial->size);
 		s->length = serial->size;
@@ -2479,8 +2535,8 @@ void LoadXDates(X *x)
 		return;
 	}
 
-	x->notBefore = Asn1TimeToUINT64(x->x509->cert_info->validity->notBefore);
-	x->notAfter = Asn1TimeToUINT64(x->x509->cert_info->validity->notAfter);
+	x->notBefore = Asn1TimeToUINT64(X509_get0_notBefore(x->x509));
+	x->notAfter = Asn1TimeToUINT64(X509_get0_notAfter(x->x509));
 }
 
 // Convert the 64bit system time to ASN1 time
@@ -2632,6 +2688,7 @@ bool RsaVerify(void *data, UINT data_size, void *sign, K *k)
 {
 	return RsaVerifyEx(data, data_size, sign, k, 0);
 }
+
 bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 {
 	UCHAR hash_data[SIGN_HASH_SIZE];
@@ -2653,7 +2710,7 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 	}
 
 	// Decode the signature
-	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, k->pkey->pkey.rsa, RSA_PKCS1_PADDING) <= 0)
+	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
 	{
 		return false;
 	}
@@ -2676,7 +2733,7 @@ bool RsaSignEx(void *dst, void *src, UINT size, K *k, UINT bits)
 {
 	UCHAR hash[SIGN_HASH_SIZE];
 	// Validate arguments
-	if (dst == NULL || src == NULL || k == NULL || k->pkey->type != EVP_PKEY_RSA)
+	if (dst == NULL || src == NULL || k == NULL || EVP_PKEY_base_id(k->pkey) != EVP_PKEY_RSA)
 	{
 		return false;
 	}
@@ -2694,7 +2751,7 @@ bool RsaSignEx(void *dst, void *src, UINT size, K *k, UINT bits)
 	}
 
 	// Signature
-	if (RSA_private_encrypt(sizeof(hash), hash, dst, k->pkey->pkey.rsa, RSA_PKCS1_PADDING) <= 0)
+	if (RSA_private_encrypt(sizeof(hash), hash, dst, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
 	{
 		return false;
 	}
@@ -2740,7 +2797,7 @@ bool RsaPublicDecrypt(void *dst, void *src, UINT size, K *k)
 	tmp = ZeroMalloc(size);
 	Lock(openssl_lock);
 	{
-		ret = RSA_public_decrypt(size, src, tmp, k->pkey->pkey.rsa, RSA_NO_PADDING);
+		ret = RSA_public_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
 	Unlock(openssl_lock);
 	if (ret <= 0)
@@ -2771,7 +2828,7 @@ bool RsaPrivateEncrypt(void *dst, void *src, UINT size, K *k)
 	tmp = ZeroMalloc(size);
 	Lock(openssl_lock);
 	{
-		ret = RSA_private_encrypt(size, src, tmp, k->pkey->pkey.rsa, RSA_NO_PADDING);
+		ret = RSA_private_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
 	Unlock(openssl_lock);
 	if (ret <= 0)
@@ -2802,7 +2859,7 @@ bool RsaPrivateDecrypt(void *dst, void *src, UINT size, K *k)
 	tmp = ZeroMalloc(size);
 	Lock(openssl_lock);
 	{
-		ret = RSA_private_decrypt(size, src, tmp, k->pkey->pkey.rsa, RSA_NO_PADDING);
+		ret = RSA_private_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
 	Unlock(openssl_lock);
 	if (ret <= 0)
@@ -2830,7 +2887,7 @@ bool RsaPublicEncrypt(void *dst, void *src, UINT size, K *k)
 	tmp = ZeroMalloc(size);
 	Lock(openssl_lock);
 	{
-		ret = RSA_public_encrypt(size, src, tmp, k->pkey->pkey.rsa, RSA_NO_PADDING);
+		ret = RSA_public_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
 	Unlock(openssl_lock);
 	if (ret <= 0)
@@ -4008,6 +4065,7 @@ X *X509ToX(X509 *x509)
 	BUF *b;
 	UINT size;
 	UINT type;
+	ASN1_INTEGER *s;
 	// Validate arguments
 	if (x509 == NULL)
 	{
@@ -4075,8 +4133,8 @@ X *X509ToX(X509 *x509)
 	}
 
 	// Get the Serial Number
-	x->serial = NewXSerial(x509->cert_info->serialNumber->data,
-		x509->cert_info->serialNumber->length);
+	s = X509_get_serialNumber(x509);
+	x->serial = NewXSerial(s->data, s->length);
 	if (x->serial == NULL)
 	{
 		char zero = 0;
@@ -4093,7 +4151,7 @@ X *X509ToX(X509 *x509)
 	b = KToBuf(k, false, NULL);
 
 	size = b->Size;
-	type = k->pkey->type;
+	type = EVP_PKEY_base_id(k->pkey);
 
 	FreeBuf(b);
 	
@@ -4173,7 +4231,7 @@ BUF *BioToBuf(BIO *bio)
 	}
 
 	BIO_seek(bio, 0);
-	size = bio->num_write;
+	size = BIO_number_written(bio);
 	tmp = Malloc(size);
 	BIO_read(bio, tmp, size);
 
@@ -4293,7 +4351,7 @@ void InitCryptLibrary()
 	SSL_library_init();
 	//OpenSSL_add_all_algorithms();
 	OpenSSL_add_all_ciphers();
-	SSLeay_add_all_digests();
+	OpenSSL_add_all_digests();
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
 
@@ -5110,6 +5168,10 @@ DH_CTX *DhNew(char *prime, UINT g)
 {
 	DH_CTX *dh;
 	BUF *buf;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	BIGNUM *dhp, *dhg;
+	const BIGNUM *pub, *priv;
+#endif
 	// Validate arguments
 	if (prime == NULL || g == 0)
 	{
@@ -5121,14 +5183,27 @@ DH_CTX *DhNew(char *prime, UINT g)
 	dh = ZeroMalloc(sizeof(DH_CTX));
 
 	dh->dh = DH_new();
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	dhp = BinToBigNum(buf->Buf, buf->Size);
+	dhg = BN_new();
+	BN_set_word(dhg, g);
+	DH_set0_pqg(dh->dh, dhp, NULL, dhg);
+#else
 	dh->dh->p = BinToBigNum(buf->Buf, buf->Size);
 	dh->dh->g = BN_new();
 	BN_set_word(dh->dh->g, g);
+#endif
 
 	DH_generate_key(dh->dh);
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	DH_get0_key(dh->dh, &pub, &priv);
+	dh->MyPublicKey = BigNumToBuf(pub);
+	dh->MyPrivateKey = BigNumToBuf(priv);
+#else
 	dh->MyPublicKey = BigNumToBuf(dh->dh->pub_key);
 	dh->MyPrivateKey = BigNumToBuf(dh->dh->priv_key);
+#endif
 
 	dh->Size = buf->Size;
 

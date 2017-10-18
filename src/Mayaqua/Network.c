@@ -9429,11 +9429,13 @@ void UnixInitAsyncSocket(SOCK *sock)
 		UnixSetSocketNonBlockingMode(sock->socket, true);
 	}
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	if (sock->ssl != NULL && sock->ssl->s3 != NULL)
 	{
 		sock->Ssl_Init_Async_SendAlert[0] = sock->ssl->s3->send_alert[0];
 		sock->Ssl_Init_Async_SendAlert[1] = sock->ssl->s3->send_alert[1];
 	}
+#endif
 }
 
 // Initializing the socket library
@@ -13015,7 +13017,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		{
 			if (client_tls == false)
 			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
 			}
 			else
 			{
@@ -13381,10 +13383,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			e = SSL_get_error(ssl, ret);
 			if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 			{
-				if (e == SSL_ERROR_SSL &&
+				if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+					&&
 					sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+					)
 				{
 					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 					Disconnect(sock);
@@ -13467,10 +13473,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 	{
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 		{
-			if (e == SSL_ERROR_SSL &&
+			if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+				&&
 				sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+				)
 			{
 				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 				Disconnect(sock);
