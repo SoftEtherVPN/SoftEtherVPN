@@ -1749,8 +1749,12 @@ PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expect
 
 			if (pp->IsControl && PPP_CODE_IS_REQUEST(pp->Protocol, pp->Lcp->Code))
 			{
+				// Record current resend because next steps may take a while
+				UINT64 currentresend = next_resend - now;
 				// Process when the received packet is a request packet
 				response = PPPProcessRequestPacket(p, pp);
+				// Increase next resend because this may have taken a while
+				next_resend = Tick64() + currentresend;
 				FreePPPPacket(pp);
 
 				if (response == NULL)
