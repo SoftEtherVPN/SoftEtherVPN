@@ -378,14 +378,50 @@ void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 	MD5_Final(dst, &md5_ctx1);
 }
 
+void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
+	HMacSha(SHA1_160, dst, key, key_size, data, data_size);
+}
+
+void HMacSha2_256(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
+	HMacSha(SHA2_256, dst, key, key_size, data, data_size);
+}
+
+void HMacSha2_384(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
+	HMacSha(SHA2_384, dst, key, key_size, data, data_size);
+}
+
+void HMacSha2_512(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
+	HMacSha(SHA2_512, dst, key, key_size, data, data_size);
+}
+
 // Calculation of HMAC (SHA-1)
-void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
+void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UCHAR k[HMAC_BLOCK_SIZE];
-	UCHAR hash1[SHA1_SIZE];
-	UCHAR data2[HMAC_BLOCK_SIZE];
-	SHA_CTX sha_ctx1;
-	UCHAR pad1[HMAC_BLOCK_SIZE];
+	UINT hmac_block_size;
+	void* sha_ctx1;
+	switch(sha_type) {
+		case SHA1_160:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA_CTX));
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
+		case SHA2_256:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA256_CTX));
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
+		case SHA2_384:
+		case SHA2_512:
+			sha_ctx1 = ZeroMalloc(sizeof(SHA512_CTX));
+			hmac_block_size = HMAC_BLOCK_SIZE_1024;
+			break;
+		default:
+		return;
+	}
+
+	UCHAR k[hmac_block_size];
+	UCHAR hash1[hmac_block_size];
+	UCHAR data2[hmac_block_size];
+	//SHA_CTX sha_ctx1;
+	UCHAR pad1[hmac_block_size];
 	UINT i;
 	// Validate arguments
 	if (dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
@@ -393,14 +429,15 @@ void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 		return;
 	}
 
+
 	// Creating a K
-	if (key_size <= HMAC_BLOCK_SIZE)
+	if (key_size <= hmac_block_size)
 	{
 		for (i = 0;i < key_size;i++)
 		{
 			pad1[i] = ((UCHAR *)key)[i] ^ 0x36;
 		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
+		for (i = key_size;i < hmac_block_size;i++)
 		{
 			pad1[i] = 0 ^ 0x36;
 		}
@@ -410,41 +447,89 @@ void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 		Zero(k, sizeof(k));
 		HashSha1(k, key, key_size);
 
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
+		for (i = 0;i < hmac_block_size;i++)
 		{
 			pad1[i] = k[i] ^ 0x36;
 		}
 	}
 
-	SHA1_Init(&sha_ctx1);
-	SHA1_Update(&sha_ctx1, pad1, sizeof(pad1));
-	SHA1_Update(&sha_ctx1, data, data_size);
-	SHA1_Final(hash1, &sha_ctx1);
+	switch(sha_type) {
+		case SHA1_160:
+			SHA1_Init((SHA_CTX *)sha_ctx1);
+			SHA1_Update((SHA_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA1_Update((SHA_CTX *)sha_ctx1, data, data_size);
+			SHA1_Final(hash1, (SHA_CTX *)sha_ctx1);
+			break;
+		case SHA2_256:
+			SHA256_Init((SHA256_CTX *)sha_ctx1);
+			SHA256_Update((SHA256_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA256_Update((SHA256_CTX *)sha_ctx1, data, data_size);
+			SHA256_Final(hash1, (SHA256_CTX *)sha_ctx1);
+			break;
+		case SHA2_384:
+			SHA384_Init((SHA512_CTX *)sha_ctx1);
+			SHA384_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA384_Update((SHA512_CTX *)sha_ctx1, data, data_size);
+			SHA384_Final(hash1, (SHA512_CTX *)sha_ctx1);
+			break;
+		case SHA2_512:
+			SHA512_Init((SHA512_CTX *)sha_ctx1);
+			SHA512_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
+			SHA512_Update((SHA512_CTX *)sha_ctx1, data, data_size);
+			SHA512_Final(hash1, (SHA512_CTX *)sha_ctx1);
+			break;
+	}
+
 
 	// Generation of data 2
-	if (key_size <= HMAC_BLOCK_SIZE)
+	if (key_size <= hmac_block_size)
 	{
 		for (i = 0;i < key_size;i++)
 		{
 			data2[i] = ((UCHAR *)key)[i] ^ 0x5c;
 		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
+		for (i = key_size;i < hmac_block_size;i++)
 		{
 			data2[i] = 0 ^ 0x5c;
 		}
 	}
 	else
 	{
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
+		for (i = 0;i < hmac_block_size;i++)
 		{
 			data2[i] = k[i] ^ 0x5c;
 		}
 	}
 
-	SHA1_Init(&sha_ctx1);
-	SHA1_Update(&sha_ctx1, data2, HMAC_BLOCK_SIZE);
-	SHA1_Update(&sha_ctx1, hash1, SHA1_SIZE);
-	SHA1_Final(dst, &sha_ctx1);
+	switch(sha_type) {
+	case SHA1_160:
+		SHA1_Init((SHA_CTX *)sha_ctx1);
+		SHA1_Update((SHA_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA1_Update((SHA_CTX *)sha_ctx1, hash1, SHA1_SIZE);
+		SHA1_Final(dst, (SHA_CTX *)sha_ctx1);
+		break;
+	case SHA2_256:
+		SHA256_Init((SHA256_CTX *)sha_ctx1);
+		SHA256_Update((SHA256_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA256_Update((SHA256_CTX *)sha_ctx1, hash1, SHA256_SIZE);
+		SHA256_Final(dst, (SHA256_CTX *)sha_ctx1);
+		break;
+	case SHA2_384:
+		SHA384_Init((SHA512_CTX *)sha_ctx1);
+		SHA384_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA384_Update((SHA512_CTX *)sha_ctx1, hash1, SHA384_SIZE);
+		SHA384_Final(dst, (SHA512_CTX *)sha_ctx1);
+		break;
+
+	case SHA2_512:
+		SHA512_Init((SHA512_CTX *)sha_ctx1);
+		SHA512_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
+		SHA512_Update((SHA512_CTX *)sha_ctx1, hash1, SHA512_SIZE);
+		SHA512_Final(dst, (SHA512_CTX *)sha_ctx1);
+		break;
+	}
+	Free(sha_ctx1);
+
 }
 
 // Calculate the HMAC
@@ -4358,7 +4443,7 @@ void Encrypt(CRYPT *c, void *dst, void *src, UINT size)
 }
 
 // SHA-1 hash
-void Sha1(void *dst, void *src, UINT size)
+void Sha(UINT sha_type, void *dst, void *src, UINT size)
 {
 	// Validate arguments
 	if (dst == NULL || src == NULL)
@@ -4366,7 +4451,35 @@ void Sha1(void *dst, void *src, UINT size)
 		return;
 	}
 
-	SHA1(src, size, dst);
+	switch(sha_type) {
+	case SHA1_160:
+		SHA1(src, size, dst);
+		break;
+	case SHA2_256:
+		SHA256(src, size, dst);
+		break;
+	case SHA2_384:
+		SHA384(src, size, dst);
+		break;
+	case SHA2_512:
+		SHA512(src, size, dst);
+		break;
+	}
+
+}
+
+void Sha1(void *dst, void *src, UINT size) {
+	Sha(SHA1_160, dst, src, size);
+}
+
+void Sha2_256(void *dst, void *src, UINT size) {
+	Sha(SHA2_256, dst, src, size);
+}
+void Sha2_384(void *dst, void *src, UINT size) {
+	Sha(SHA2_384, dst, src, size);
+}
+void Sha2_512(void *dst, void *src, UINT size) {
+	Sha(SHA2_512, dst, src, size);
 }
 
 // MD5 hash

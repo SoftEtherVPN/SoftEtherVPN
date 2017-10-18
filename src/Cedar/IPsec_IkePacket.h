@@ -120,7 +120,7 @@
 #endif	// OS_WIN32
 
 // Maximum hash size
-#define	IKE_MAX_HASH_SIZE				20		// Size of SHA-1 is the maximum for now
+#define	IKE_MAX_HASH_SIZE				64		// Size of SHA-2-512 is the maximum for now
 
 // Maximum block size
 #define	IKE_MAX_BLOCK_SIZE				16		// Size of AES is maximum at the moment
@@ -250,6 +250,9 @@ struct IKE_TRANSFORM_VALUE
 // Phase 1: The hash algorithm in IKE transform value
 #define	IKE_P1_HASH_MD5						1
 #define IKE_P1_HASH_SHA1					2
+#define IKE_P1_HASH_SHA2_256				4
+#define IKE_P1_HASH_SHA2_384				5
+#define IKE_P1_HASH_SHA2_512				6
 
 // Phase 1: The authentication method in the IKE transform value
 #define IKE_P1_AUTH_METHOD_PRESHAREDKEY		1
@@ -535,6 +538,15 @@ struct IKE_P1_KEYSET
 
 #define	IKE_HASH_SHA1_ID						1
 #define	IKE_HASH_SHA1_STRING					"SHA-1"
+
+#define	IKE_HASH_SHA2_256_ID					2
+#define	IKE_HASH_SHA2_256_STRING				"SHA-2-256"
+
+#define	IKE_HASH_SHA2_384_ID					3
+#define	IKE_HASH_SHA2_384_STRING				"SHA-2-384"
+
+#define	IKE_HASH_SHA2_512_ID					4
+#define	IKE_HASH_SHA2_512_STRING				"SHA-2-512"
 
 // Number and name of DH algorithm for IKE
 #define	IKE_DH_1_ID								0
