@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -2237,6 +2237,7 @@ CONSOLE *NewLocalConsole(wchar_t *infile, wchar_t *outfile)
 	c->ReadPassword = ConsoleLocalReadPassword;
 	c->Write = ConsoleLocalWrite;
 	c->GetWidth = ConsoleLocalGetWidth;
+	c->OutputLock = NewLock();
 
 	if (UniIsEmptyStr(infile) == false)
 	{
@@ -2347,6 +2348,8 @@ void ConsoleLocalFree(CONSOLE *c)
 
 		Free(p);
 	}
+
+	DeleteLock(c->OutputLock);
 
 	// Memory release
 	Free(c);
@@ -2558,7 +2561,3 @@ void ConsoleWriteOutFile(CONSOLE *c, wchar_t *str, bool add_last_crlf)
 
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

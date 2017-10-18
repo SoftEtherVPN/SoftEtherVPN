@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -1775,7 +1775,7 @@ void NnMainLoop(NATIVE_NAT *t, NATIVE_STACK *a)
 	AddInterrupt(interrupt, next_poll_tick);
 
 	tcp_last_recv_tick = Tick64();
-	next_dhcp_renew_tick = Tick64() + (UINT64)dhcp_renew_interval;
+	next_dhcp_renew_tick = Tick64() + (UINT64)dhcp_renew_interval * 1000;
 	AddInterrupt(interrupt, next_dhcp_renew_tick);
 
 	while (t->Halt == false && t->v->UseNat)
@@ -1833,7 +1833,7 @@ LABEL_RESTART:
 
 			IPCDhcpRenewIP(ipc, &ip);
 
-			next_dhcp_renew_tick = now + (UINT64)dhcp_renew_interval;
+			next_dhcp_renew_tick = now + (UINT64)dhcp_renew_interval * 1000;
 			AddInterrupt(interrupt, next_dhcp_renew_tick);
 		}
 
@@ -10421,7 +10421,3 @@ PACKET_ADAPTER *VirtualGetPacketAdapter()
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

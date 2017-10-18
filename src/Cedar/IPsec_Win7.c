@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -385,10 +385,17 @@ bool IPsecWin7InitDriverInner()
 		// Copy the driver
 		if (FileCopy(src_filename, sys_filename) == false)
 		{
-			Debug("%s copy failed.\n", sys_filename);
-			return false;
+			Debug("%s copy failed. %u\n", sys_filename, GetLastError());
+			if (IsFileExists(sys_filename) == false)
+			{
+				Debug("%s failed. Abort.\n", sys_filename);
+				return false;
+			}
 		}
-		Debug("%s copied.\n", sys_filename);
+		else
+		{
+			Debug("%s copied.\n", sys_filename);
+		}
 
 		// Set the build number
 		SetCurrentIPsecWin7DriverBuild();
@@ -566,7 +573,3 @@ bool IPsecWin7InitApi()
 #endif	// WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

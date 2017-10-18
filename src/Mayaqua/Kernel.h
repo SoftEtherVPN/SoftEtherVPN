@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -248,6 +248,7 @@ void GetTimeStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale);
 void GetDateStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale);
 void GetTimeStrMilli64(char *str, UINT size, UINT64 sec64);
 void GetTimeStr64(char *str, UINT size, UINT64 sec64);
+void GetDateTimeStrRFC3164(char *str, UINT size, SYSTEMTIME *st, int timezone_min);
 UINT64 SafeTime64(UINT64 sec64);
 bool Run(char *filename, char *arg, bool hide, bool wait);
 bool RunW(wchar_t *filename, wchar_t *arg, bool hide, bool wait);
@@ -277,10 +278,7 @@ void MainteThreadList(LIST *o);
 void FreeThreadList(LIST *o);
 void StopThreadList(LIST *o);
 void WaitAllThreadsWillBeStopped(LIST *o);
+UINT GetNumberOfCpu();
 
 #endif	// KERNEL_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

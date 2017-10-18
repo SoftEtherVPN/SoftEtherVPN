@@ -10,7 +10,7 @@ http://www.softether-download.com/
 We accept your patches by the acceptance policy:
 http://www.softether.org/5-download/src/9.patch
 
-Copyright (c) 2012-2016 SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2
@@ -123,23 +123,8 @@ on all the following open-source repositories:
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-  - SourceForge
-    https://sourceforge.net/p/softethervpn/code/ci/master/tree/
-
-  - Google Code
-    https://code.google.com/p/softether/source/browse/
-
-
 To fetch the source code from GitHub:
 $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-
-To fetch the source code from SourceForge:
-$ git clone http://git.code.sf.net/p/softethervpn/code
-  - or -
-$ git clone git://git.code.sf.net/p/softethervpn/code
-
-To fetch the source code from Google Code:
-$ git clone https://code.google.com/p/softether/
 
 We hope that you can reach one of the above URLs at least!
 
@@ -217,11 +202,4 @@ READ AND UNDERSTAND THE 'WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
 SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE
 WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
 
-
-ADVERTISEMENT
--------------
-
-SoftEther VPN is developed by SoftEther VPN Project at University of Tsukuba.
-Department of Computer Science has dozens of overly-enthusiastic geeks.
-Join us: http://www.tsukuba.ac.jp/english/admission/
 

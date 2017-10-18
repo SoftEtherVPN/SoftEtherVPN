@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -390,50 +390,14 @@ void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 	MD5_Final(dst, &md5_ctx1);
 }
 
-void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
-	HMacSha(SHA1_160, dst, key, key_size, data, data_size);
-}
-
-void HMacSha2_256(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
-	HMacSha(SHA2_256, dst, key, key_size, data, data_size);
-}
-
-void HMacSha2_384(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
-	HMacSha(SHA2_384, dst, key, key_size, data, data_size);
-}
-
-void HMacSha2_512(void *dst, void *key, UINT key_size, void *data, UINT data_size) {
-	HMacSha(SHA2_512, dst, key, key_size, data, data_size);
-}
-
 // Calculation of HMAC (SHA-1)
-void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UINT data_size)
+void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UINT hmac_block_size;
-	void* sha_ctx1;
-	switch(sha_type) {
-		case SHA1_160:
-			sha_ctx1 = ZeroMalloc(sizeof(SHA_CTX));
-			hmac_block_size = HMAC_BLOCK_SIZE;
-			break;
-		case SHA2_256:
-			sha_ctx1 = ZeroMalloc(sizeof(SHA256_CTX));
-			hmac_block_size = HMAC_BLOCK_SIZE;
-			break;
-		case SHA2_384:
-		case SHA2_512:
-			sha_ctx1 = ZeroMalloc(sizeof(SHA512_CTX));
-			hmac_block_size = HMAC_BLOCK_SIZE_1024;
-			break;
-		default:
-		return;
-	}
-
-	UCHAR k[hmac_block_size];
-	UCHAR hash1[hmac_block_size];
-	UCHAR data2[hmac_block_size];
-	//SHA_CTX sha_ctx1;
-	UCHAR pad1[hmac_block_size];
+	UCHAR k[HMAC_BLOCK_SIZE];
+	UCHAR hash1[SHA1_SIZE];
+	UCHAR data2[HMAC_BLOCK_SIZE];
+	SHA_CTX sha_ctx1;
+	UCHAR pad1[HMAC_BLOCK_SIZE];
 	UINT i;
 	// Validate arguments
 	if (dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
@@ -441,15 +405,14 @@ void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UIN
 		return;
 	}
 
-
 	// Creating a K
-	if (key_size <= hmac_block_size)
+	if (key_size <= HMAC_BLOCK_SIZE)
 	{
 		for (i = 0;i < key_size;i++)
 		{
 			pad1[i] = ((UCHAR *)key)[i] ^ 0x36;
 		}
-		for (i = key_size;i < hmac_block_size;i++)
+		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
 		{
 			pad1[i] = 0 ^ 0x36;
 		}
@@ -459,89 +422,41 @@ void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UIN
 		Zero(k, sizeof(k));
 		HashSha1(k, key, key_size);
 
-		for (i = 0;i < hmac_block_size;i++)
+		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
 		{
 			pad1[i] = k[i] ^ 0x36;
 		}
 	}
 
-	switch(sha_type) {
-		case SHA1_160:
-			SHA1_Init((SHA_CTX *)sha_ctx1);
-			SHA1_Update((SHA_CTX *)sha_ctx1, pad1, sizeof(pad1));
-			SHA1_Update((SHA_CTX *)sha_ctx1, data, data_size);
-			SHA1_Final(hash1, (SHA_CTX *)sha_ctx1);
-			break;
-		case SHA2_256:
-			SHA256_Init((SHA256_CTX *)sha_ctx1);
-			SHA256_Update((SHA256_CTX *)sha_ctx1, pad1, sizeof(pad1));
-			SHA256_Update((SHA256_CTX *)sha_ctx1, data, data_size);
-			SHA256_Final(hash1, (SHA256_CTX *)sha_ctx1);
-			break;
-		case SHA2_384:
-			SHA384_Init((SHA512_CTX *)sha_ctx1);
-			SHA384_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
-			SHA384_Update((SHA512_CTX *)sha_ctx1, data, data_size);
-			SHA384_Final(hash1, (SHA512_CTX *)sha_ctx1);
-			break;
-		case SHA2_512:
-			SHA512_Init((SHA512_CTX *)sha_ctx1);
-			SHA512_Update((SHA512_CTX *)sha_ctx1, pad1, sizeof(pad1));
-			SHA512_Update((SHA512_CTX *)sha_ctx1, data, data_size);
-			SHA512_Final(hash1, (SHA512_CTX *)sha_ctx1);
-			break;
-	}
-
+	SHA1_Init(&sha_ctx1);
+	SHA1_Update(&sha_ctx1, pad1, sizeof(pad1));
+	SHA1_Update(&sha_ctx1, data, data_size);
+	SHA1_Final(hash1, &sha_ctx1);
 
 	// Generation of data 2
-	if (key_size <= hmac_block_size)
+	if (key_size <= HMAC_BLOCK_SIZE)
 	{
 		for (i = 0;i < key_size;i++)
 		{
 			data2[i] = ((UCHAR *)key)[i] ^ 0x5c;
 		}
-		for (i = key_size;i < hmac_block_size;i++)
+		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
 		{
 			data2[i] = 0 ^ 0x5c;
 		}
 	}
 	else
 	{
-		for (i = 0;i < hmac_block_size;i++)
+		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
 		{
 			data2[i] = k[i] ^ 0x5c;
 		}
 	}
 
-	switch(sha_type) {
-	case SHA1_160:
-		SHA1_Init((SHA_CTX *)sha_ctx1);
-		SHA1_Update((SHA_CTX *)sha_ctx1, data2, hmac_block_size);
-		SHA1_Update((SHA_CTX *)sha_ctx1, hash1, SHA1_SIZE);
-		SHA1_Final(dst, (SHA_CTX *)sha_ctx1);
-		break;
-	case SHA2_256:
-		SHA256_Init((SHA256_CTX *)sha_ctx1);
-		SHA256_Update((SHA256_CTX *)sha_ctx1, data2, hmac_block_size);
-		SHA256_Update((SHA256_CTX *)sha_ctx1, hash1, SHA256_SIZE);
-		SHA256_Final(dst, (SHA256_CTX *)sha_ctx1);
-		break;
-	case SHA2_384:
-		SHA384_Init((SHA512_CTX *)sha_ctx1);
-		SHA384_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
-		SHA384_Update((SHA512_CTX *)sha_ctx1, hash1, SHA384_SIZE);
-		SHA384_Final(dst, (SHA512_CTX *)sha_ctx1);
-		break;
-
-	case SHA2_512:
-		SHA512_Init((SHA512_CTX *)sha_ctx1);
-		SHA512_Update((SHA512_CTX *)sha_ctx1, data2, hmac_block_size);
-		SHA512_Update((SHA512_CTX *)sha_ctx1, hash1, SHA512_SIZE);
-		SHA512_Final(dst, (SHA512_CTX *)sha_ctx1);
-		break;
-	}
-	Free(sha_ctx1);
-
+	SHA1_Init(&sha_ctx1);
+	SHA1_Update(&sha_ctx1, data2, HMAC_BLOCK_SIZE);
+	SHA1_Update(&sha_ctx1, hash1, SHA1_SIZE);
+	SHA1_Final(dst, &sha_ctx1);
 }
 
 // Calculate the HMAC
@@ -570,7 +485,7 @@ void SetMdKey(MD *md, void *key, UINT key_size)
 		return;
 	}
 
-	HMAC_Init_ex(md->Ctx, key, key_size, md->Md, NULL);
+	HMAC_Init_ex(md->Ctx, key, key_size, (const EVP_MD *)md->Md, NULL);
 }
 
 // Creating a message digest object
@@ -586,7 +501,7 @@ MD *NewMd(char *name)
 	m = ZeroMalloc(sizeof(MD));
 
 	StrCpy(m->Name, sizeof(m->Name), name);
-	m->Md = EVP_get_digestbyname(name);
+	m->Md = (const struct evp_md_st *)EVP_get_digestbyname(name);
 	if (m->Md == NULL)
 	{
 		FreeMd(m);
@@ -600,7 +515,7 @@ MD *NewMd(char *name)
 	HMAC_CTX_init(m->Ctx);
 #endif
 
-	m->Size = EVP_MD_size(m->Md);
+	m->Size = EVP_MD_size((const EVP_MD *)m->Md);
 
 	return m;
 }
@@ -747,175 +662,6 @@ void FreeCipher(CIPHER *c)
 	}
 
 	Free(c);
-}
-
-// Verify whether the certificate is disabled by CRL in a particular directory
-bool IsXRevoked(X *x)
-{
-	char dirname[MAX_PATH];
-	UINT i;
-	bool ret = false;
-	DIRLIST *t;
-	// Validate arguments
-	if (x == NULL)
-	{
-		return false;
-	}
-
-	GetExeDir(dirname, sizeof(dirname));
-
-	// Search the CRL file
-	t = EnumDir(dirname);
-
-	for (i = 0;i < t->NumFiles;i++)
-	{
-		char *name = t->File[i]->FileName;
-		if (t->File[i]->Folder == false)
-		{
-			if (EndWith(name, ".crl"))
-			{
-				char filename[MAX_PATH];
-				X_CRL *r;
-
-				ConbinePath(filename, sizeof(filename), dirname, name);
-
-				r = FileToXCrl(filename);
-
-				if (r != NULL)
-				{
-					if (IsXRevokedByXCrl(x, r))
-					{
-						ret = true;
-					}
-
-					FreeXCrl(r);
-				}
-			}
-		}
-	}
-
-	FreeDir(t);
-
-	return ret;
-}
-
-// Verify whether the certificate is disabled by the CRL
-bool IsXRevokedByXCrl(X *x, X_CRL *r)
-{
-#ifdef	OS_WIN32
-	X509_REVOKED tmp;
-	X509_CRL_INFO *info;
-	int index;
-	// Validate arguments
-	if (x == NULL || r == NULL)
-	{
-		return false;
-	}
-
-	Zero(&tmp, sizeof(tmp));
-	tmp.serialNumber = X509_get_serialNumber(x->x509);
-
-	info = r->Crl->crl;
-
-	if (sk_X509_REVOKED_is_sorted(info->revoked) == false)
-	{
-		sk_X509_REVOKED_sort(info->revoked);
-	}
-
-	index = sk_X509_REVOKED_find(info->revoked, &tmp);
-
-	if (index < 0)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-#else	// OS_WIN32
-	return false;
-#endif	// OS_WIN32
-}
-
-// Release of the CRL
-void FreeXCrl(X_CRL *r)
-{
-	// Validate arguments
-	if (r == NULL)
-	{
-		return;
-	}
-
-	X509_CRL_free(r->Crl);
-
-	Free(r);
-}
-
-// Convert a file to a CRL
-X_CRL *FileToXCrl(char *filename)
-{
-	wchar_t *filename_w = CopyStrToUni(filename);
-	X_CRL *ret = FileToXCrlW(filename_w);
-
-	Free(filename_w);
-
-	return ret;
-}
-X_CRL *FileToXCrlW(wchar_t *filename)
-{
-	BUF *b;
-	X_CRL *r;
-	// Validate arguments
-	if (filename == NULL)
-	{
-		return NULL;
-	}
-
-	b = ReadDumpW(filename);
-	if (b == NULL)
-	{
-		return NULL;
-	}
-
-	r = BufToXCrl(b);
-
-	FreeBuf(b);
-
-	return r;
-}
-
-// Convert the buffer to the CRL
-X_CRL *BufToXCrl(BUF *b)
-{
-	X_CRL *r;
-	X509_CRL *x509crl;
-	BIO *bio;
-	// Validate arguments
-	if (b == NULL)
-	{
-		return NULL;
-	}
-
-	bio = BufToBio(b);
-	if (bio == NULL)
-	{
-		return NULL;
-	}
-
-	x509crl	= NULL;
-
-	if (d2i_X509_CRL_bio(bio, &x509crl) == NULL || x509crl == NULL)
-	{
-		FreeBio(bio);
-		return NULL;
-	}
-
-	r = ZeroMalloc(sizeof(X_CRL));
-	r->Crl = x509crl;
-
-	FreeBio(bio);
-
-	return r;
 }
 
 // Convert the buffer to the public key
@@ -2535,8 +2281,8 @@ void LoadXDates(X *x)
 		return;
 	}
 
-	x->notBefore = Asn1TimeToUINT64(X509_get0_notBefore(x->x509));
-	x->notAfter = Asn1TimeToUINT64(X509_get0_notAfter(x->x509));
+	x->notBefore = Asn1TimeToUINT64((ASN1_TIME *)X509_get0_notBefore(x->x509));
+	x->notAfter = Asn1TimeToUINT64((ASN1_TIME *)X509_get0_notAfter(x->x509));
 }
 
 // Convert the 64bit system time to ASN1 time
@@ -4165,9 +3911,13 @@ X *X509ToX(X509 *x509)
 		x->is_compatible_bit = true;
 
 		if(x->bits != 1024 && x->bits != 1536 && x->bits != 2048 && x->bits != 3072 && x->bits != 4096)
+		{
 			x->is_compatible_bit = false;
+		}
 		else
+		{
 			x->is_compatible_bit = true;
+		}
 		
 		/*switch (size)
 		{
@@ -4231,7 +3981,7 @@ BUF *BioToBuf(BIO *bio)
 	}
 
 	BIO_seek(bio, 0);
-	size = BIO_number_written(bio);
+	size = (UINT)BIO_number_written(bio);
 	tmp = Malloc(size);
 	BIO_read(bio, tmp, size);
 
@@ -4534,7 +4284,20 @@ void Sha(UINT sha_type, void *dst, void *src, UINT size)
 
 }
 
-void Sha1(void *dst, void *src, UINT size) {
+
+// SHA-1 hash
+void Sha1(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || src == NULL)
+	{
+		return;
+	}
+
+	SHA1(src, size, dst);
+}
+
+void Sha1__(void *dst, void *src, UINT size) {
 	Sha(SHA1_160, dst, src, size);
 }
 
@@ -5545,8 +5308,3 @@ static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned c
 
 
 
-
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

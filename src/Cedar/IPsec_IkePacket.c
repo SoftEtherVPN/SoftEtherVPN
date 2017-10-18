@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -2559,8 +2559,6 @@ IKE_ENGINE *NewIkeEngine()
 	IKE_ENGINE *e = ZeroMalloc(sizeof(IKE_ENGINE));
 	IKE_CRYPTO *des, *des3, *aes;
 	IKE_HASH *sha1, *md5, *sha2_256, *sha2_384, *sha2_512;
-	IKE_DH *dh1, *dh2, *dh5;
-	IKE_HASH *sha1, *md5;
 	IKE_DH *dh1, *dh2, *dh5, *dh2048, *dh3072, *dh4096;
 	UINT des_key_sizes[] =
 	{
@@ -2965,26 +2963,12 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 // Calculation of HMAC
 void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UINT hmac_block_size;
-	if (h == NULL) {
-		return;
-	}
-	switch (h->HashId) {
-		case IKE_HASH_SHA1_ID:
-		case IKE_HASH_SHA2_256_ID:
-			hmac_block_size = HMAC_BLOCK_SIZE;
-			break;
-		case IKE_HASH_SHA2_384_ID:
-		case IKE_HASH_SHA2_512_ID:
-			hmac_block_size = HMAC_BLOCK_SIZE_1024;
-			break;
-		default: return;
-	}
-	UCHAR k[hmac_block_size];
+	UINT hmac_block_size = HMAC_BLOCK_SIZE;
+	UCHAR k[HMAC_BLOCK_SIZE_MAX];
 	UCHAR *data1;
 	UCHAR hash1[IKE_MAX_HASH_SIZE];
 	UINT data1_size;
-	UCHAR data2[IKE_MAX_HASH_SIZE + hmac_block_size];
+	UCHAR data2[IKE_MAX_HASH_SIZE + HMAC_BLOCK_SIZE_MAX];
 	UINT data2_size;
 	UCHAR tmp1600[1600];
 	bool no_free = false;
@@ -2995,25 +2979,31 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 		return;
 	}
 
+	switch (h->HashId)
+	{
+		case IKE_HASH_SHA1_ID:
+		case IKE_HASH_SHA2_256_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
+
+		case IKE_HASH_SHA2_384_ID:
+		case IKE_HASH_SHA2_512_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE_1024;
+			break;
+
+		default:
+			return;
+	}
+
+	if (hmac_block_size > HMAC_BLOCK_SIZE_MAX)
+	{
+		return;
+	}
+
 	if (h->HashId == IKE_HASH_SHA1_ID)
 	{
 		// Use special function (fast) in the case of SHA-1
 		HMacSha1(dst, key, key_size, data, data_size);
-		return;
-	}
-	else if (h->HashId == IKE_HASH_SHA2_256_ID)
-	{
-		HMacSha2_256(dst, key, key_size, data, data_size);
-		return;
-	}
-	else if (h->HashId == IKE_HASH_SHA2_384_ID)
-	{
-		HMacSha2_384(dst, key, key_size, data, data_size);
-		return;
-	}
-	else if (h->HashId == IKE_HASH_SHA2_512_ID)
-	{
-		HMacSha2_512(dst, key, key_size, data, data_size);
 		return;
 	}
 	else if (h->HashId == IKE_HASH_MD5_ID)
@@ -3221,7 +3211,3 @@ void IkeDhFreeCtx(DH_CTX *dh)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -161,6 +161,7 @@ static int ydays[] =
 };
 
 static UINT current_num_thread = 0;
+static UINT cached_number_of_cpus = 0;
 
 
 
@@ -335,6 +336,43 @@ UINT64 TickGetRealtimeTickValue64()
 }
 
 #endif	// OS_WIN32
+
+// Get the number of CPUs
+UINT GetNumberOfCpu()
+{
+	UINT ret = 0;
+
+	if (cached_number_of_cpus == 0)
+	{
+		UINT i = 0;
+
+#ifdef	OS_WIN32
+		i = Win32GetNumberOfCpuInner();
+#else	// OS_WIN32
+		i = UnixGetNumberOfCpuInner();
+#endif	// OS_WIN32
+
+		if (i == 0)
+		{
+			i = 8;
+		}
+
+		cached_number_of_cpus = i;
+	}
+
+	ret = cached_number_of_cpus;
+
+	if (ret == 0)
+	{
+		ret = 1;
+	}
+	if (ret > 128)
+	{
+		ret = 128;
+	}
+
+	return ret;
+}
 
 // Creating a thread list
 LIST *NewThreadList()
@@ -1593,6 +1631,27 @@ void GetDateTimeStrMilli(char *str, UINT size, SYSTEMTIME *st)
 		st->wMilliseconds);
 }
 
+// Get the date and time string in RFC3164 format (example: 2017-09-27T18:25:55.434-9:00)
+void GetDateTimeStrRFC3164(char *str, UINT size, SYSTEMTIME *st, int timezone_min){
+	// Validate arguments
+	if (str == NULL || st == NULL)
+	{
+		return;
+	}
+
+	if(timezone_min == 0){
+		Format(str, size, "%04u-%02u-%02uT%02u:%02u:%02u.%03uZ",
+		st->wYear, st->wMonth, st->wDay,
+		st->wHour, st->wMinute, st->wSecond,
+		st->wMilliseconds);
+	}else{
+		Format(str, size, "%04u-%02u-%02uT%02u:%02u:%02u.%03u%+02d:%02d",
+		st->wYear, st->wMonth, st->wDay,
+		st->wHour, st->wMinute, st->wSecond,
+		st->wMilliseconds, timezone_min/60, timezone_min%60);
+	}
+}
+
 // Get the time string
 void GetSpanStr(char *str, UINT size, UINT64 sec64)
 {
@@ -2274,7 +2333,3 @@ void AbortExitEx(char *msg)
 #endif	// OS_WIN32
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

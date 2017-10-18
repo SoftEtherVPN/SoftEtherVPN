@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -151,6 +151,7 @@ void RAND_Free_For_SoftEther();
 #define	HMAC_BLOCK_SIZE					64
 // The block size for sha-384 and sha-512 as defined by rfc4868
 #define HMAC_BLOCK_SIZE_1024			128
+#define HMAC_BLOCK_SIZE_MAX				512
 
 #define DH_GROUP1_PRIME_768 \
 	"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" \
@@ -505,13 +506,6 @@ void RsaPublicToBin(K *k, void *data);
 BUF *RsaPublicToBuf(K *k);
 K *RsaBinToPublic(void *data, UINT size);
 
-X_CRL *FileToXCrl(char *filename);
-X_CRL *FileToXCrlW(wchar_t *filename);
-X_CRL *BufToXCrl(BUF *b);
-void FreeXCrl(X_CRL *r);
-bool IsXRevokedByXCrl(X *x, X_CRL *r);
-bool IsXRevoked(X *x);
-
 DES_KEY_VALUE *DesNewKeyValue(void *value);
 DES_KEY_VALUE *DesRandKeyValue();
 void DesFreeKeyValue(DES_KEY_VALUE *v);
@@ -581,11 +575,7 @@ void MdProcess(MD *md, void *dest, void *src, UINT size);
 void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 				  int slen, unsigned char *out1, int olen);
 
-void HMacSha(UINT sha_type, void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
-void HMacSha2_256(void *dst, void *key, UINT key_size, void *data, UINT data_size);
-void HMacSha2_384(void *dst, void *key, UINT key_size, void *data, UINT data_size);
-void HMacSha2_512(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 
 BUF *EasyEncrypt(BUF *src_buf);
@@ -601,7 +591,3 @@ void DisableIntelAesAccel();
 
 #endif	// ENCRYPT_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

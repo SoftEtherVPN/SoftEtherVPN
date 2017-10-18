@@ -306,6 +306,3 @@ namespace BuildUtil.SignService {
 }
 
 #pragma warning restore 1591
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

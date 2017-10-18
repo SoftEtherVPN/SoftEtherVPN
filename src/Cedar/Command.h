@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -181,13 +181,30 @@ struct TTC
 	THREAD *Thread;			// Thread
 	volatile bool Halt;		// Halting flag
 	bool *Cancel;			// Halting flag 2
-	SOCK_EVENT *SockEvent;	// Socket event
 	LIST *ItcSockList;		// Client socket list
 	TT_RESULT Result;		// Result
 	UINT ErrorCode;			// Error code
 	bool AbnormalTerminated;	// Abnormal termination
 	EVENT *StartEvent;		// Start event
 	EVENT *InitedEvent;		// Initialize completion notification event
+	LIST *WorkerThreadList;	// List of worker threads
+
+	UINT flag1, flag2;
+
+	UINT64 session_id;
+	UINT64 end_tick;
+	UINT64 start_tick;
+};
+
+// Traffic test worker thread
+struct TTC_WORKER
+{
+	THREAD *WorkerThread;
+	TTC *Ttc;
+	LIST *SockList;			// Client socket list
+	SOCK_EVENT *SockEvent;	// Socket event
+	EVENT *StartEvent;		// Start event
+	bool Ok;				// The result
 };
 
 // Server side socket
@@ -216,15 +233,22 @@ struct TTS
 	volatile bool Halt;		// Halting flag
 	UINT Port;				// Port number
 	THREAD *Thread;			// Thread
-	THREAD *WorkThread;		// Worker thread
 	THREAD *IPv6AcceptThread;	// IPv6 Accept thread
 	SOCK *ListenSocket;		// Socket to wait
 	SOCK *ListenSocketV6;	// Socket to wait (IPv6)
 	UINT ErrorCode;			// Error code
+	UINT IdSeed;			// ID value
+	LIST *WorkerList;		// Worker threads list
+};
+
+// Traffic test worker thread
+struct TTS_WORKER
+{
+	TTS *Tts;				// TTS
+	THREAD *WorkThread;		// Worker thread
 	SOCK_EVENT *SockEvent;	// Socket event
 	LIST *TtsSockList;		// Server socket list
 	bool NewSocketArrived;	// New socket has arrived
-	UINT IdSeed;			// ID value
 };
 
 // VPN Tools context
@@ -676,7 +700,3 @@ UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 #endif	// COMMAND_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

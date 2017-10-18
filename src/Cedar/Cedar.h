@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					422
+#define	CEDAR_VER					423
 
 // Build Number
-#define	CEDAR_BUILD					9634
+#define	CEDAR_BUILD					9647
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc30"
+#define	BUILD_PLACE			"pc33"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2016
-#define	BUILD_DATE_M		11
-#define	BUILD_DATE_D		27
-#define	BUILD_DATE_HO		14
-#define	BUILD_DATE_MI		33
-#define	BUILD_DATE_SE		59
+#define	BUILD_DATE_Y		2017
+#define	BUILD_DATE_M		10
+#define	BUILD_DATE_D		18
+#define	BUILD_DATE_HO		16
+#define	BUILD_DATE_MI		30
+#define	BUILD_DATE_SE		44
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1265,7 +1265,3 @@ bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 #endif	// CEDAR_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

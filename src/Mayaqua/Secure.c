@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -549,14 +549,14 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 	RSA_get0_factors(rsa, &p, &q);
 	RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
 #else
-	rsa->n = n;
-	rsa->e = e;
-	rsa->d = d;
-	rsa->p = p;
-	rsa->q = q;
-	rsa->dmp1 = dmp1;
-	rsa->dmq1 = dmq1;
-	rsa->iqmp = iqmp;
+	n = rsa->n;
+	e = rsa->e;
+	d = rsa->d;
+	p = rsa->p;
+	q = rsa->q;
+	dmp1 = rsa->dmp1;
+	dmq1 = rsa->dmq1;
+	iqmp = rsa->iqmp;
 #endif
 
 	b = BigNumToBuf(n);
@@ -803,11 +803,6 @@ bool WriteSecCert(SECURE *sec, bool private_obj, char *name, X *x)
 	if(sec->Dev->Id == 18 || sec->Dev->Id == 19)
 	{
 		b_private_obj = false;
-	}
-
-	// CryptoID PKCS#11 requires CKA_ID attiribute instead of CKA_LABEL.
-	if(sec->Dev->Id == 22) {
-		a[7].type = CKA_ID;
 	}
 
 	// Remove objects which have the same name
@@ -2277,7 +2272,3 @@ void FreeSecure()
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

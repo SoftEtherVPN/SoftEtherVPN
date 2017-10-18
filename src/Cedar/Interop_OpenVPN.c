@@ -3,9 +3,9 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -1151,17 +1151,14 @@ UINT OvsParseKeyMethod2(OPENVPN_KEY_METHOD_2 *ret, UCHAR *data, UINT size, bool 
 					// Random2
 					if (ReadBuf(b, ret->Random2, sizeof(ret->Random2)) == sizeof(ret->Random2))
 					{
-                        // String
-                        if (OvsReadStringFromBuf(b, ret->OptionString, sizeof(ret->OptionString)) &&
-                            OvsReadStringFromBuf(b, ret->Username, sizeof(ret->Username)) &&
-                            OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)))
-                        {
-                            if (!OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
-                            {
-                                Zero(ret->PeerInfo, sizeof(ret->PeerInfo));
-                            }
-                            read_size = b->Current;
-                        }
+						// String
+						if (OvsReadStringFromBuf(b, ret->OptionString, sizeof(ret->OptionString)) &&
+							OvsReadStringFromBuf(b, ret->Username, sizeof(ret->Username)) &&
+							OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)) &&
+							OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
+						{
+							read_size = b->Current;
+						}
 					}
 				}
 			}
@@ -3019,7 +3016,3 @@ bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
