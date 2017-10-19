@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -426,7 +426,6 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	// Upload the authentication data
 	p = PackLoginWithPlainPassword(hubname, username, password);
-	PackAddInt64(p, "timestamp", SystemTime64());
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
@@ -679,6 +678,24 @@ void FreeIPC(IPC *ipc)
 	Free(ipc);
 }
 
+// Set User Class option if corresponding Virtual Hub optin is set
+void IPCDhcpSetConditionalUserClass(IPC *ipc, DHCP_OPTION_LIST *req)
+{
+	HUB *hub;
+
+	hub = GetHub(ipc->Cedar, ipc->HubName);
+	if (hub == NULL)
+	{
+		return;
+	}
+
+	if (hub->Option && hub->Option->UseHubNameAsDhcpUserClassOption)
+	{
+		StrCpy(req->UserClass, sizeof(req->UserClass), ipc->HubName);
+	}
+	ReleaseHub(hub);
+}
+
 // Release the IP address from the DHCP server
 void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 {
@@ -693,6 +710,7 @@ void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 	Zero(&req, sizeof(req));
 	req.Opcode = DHCP_RELEASE;
 	req.ServerAddress = IPToUINT(dhcp_server);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, tran_id, &req, 0, 0, NULL));
 }
@@ -713,6 +731,7 @@ void IPCDhcpRenewIP(IPC *ipc, IP *dhcp_server)
 	req.Opcode = DHCP_REQUEST;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.RequestedIp = IPToUINT(&ipc->ClientIPAddress);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, dhcp_server, tran_id, &req, 0, 0, NULL));
 }
@@ -735,6 +754,7 @@ bool IPCDhcpRequestInformIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_t
 	req.Opcode = DHCP_INFORM;
 	req.ClientAddress = IPToUINT(client_ip);
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -799,6 +819,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	req.RequestedIp = request_ip;
 	req.Opcode = DHCP_DISCOVER;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -909,6 +930,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.ServerAddress = d->ParsedOptionList->ServerAddress;
 	req.RequestedIp = d->ParsedOptionList->ClientAddress;
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d2 = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d2 == NULL)
@@ -1241,6 +1263,12 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 	if (IsEmptyStr(opt->Hostname) == false)
 	{
 		Add(o, NewDhcpOption(DHCP_ID_HOST_NAME, opt->Hostname, StrLen(opt->Hostname)));
+	}
+
+	// User Class
+	if (IsEmptyStr(opt->UserClass) == false)
+	{
+		Add(o, NewDhcpOption(DHCP_ID_USER_CLASS, opt->UserClass, StrLen(opt->UserClass)));
 	}
 
 	// Vendor
@@ -2089,7 +2117,3 @@ BLOCK *IPCRecvL2(IPC *ipc)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

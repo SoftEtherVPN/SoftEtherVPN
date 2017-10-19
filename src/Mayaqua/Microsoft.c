@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -204,6 +204,7 @@ static SERVICE_FUNCTION *g_start, *g_stop;
 static bool exiting = false;
 static bool wnd_end;
 static bool is_usermode = false;
+static bool wts_is_locked_flag = false;
 static HICON tray_icon;
 static NOTIFYICONDATA nid;
 static NOTIFYICONDATAW nid_nt;
@@ -8774,6 +8775,7 @@ BOOL CALLBACK EnumChildWindowProc(HWND hWnd, LPARAM lParam)
 	LIST *o;
 	HWND hParent;
 	char c1[MAX_SIZE], c2[MAX_SIZE];
+	bool ok = false;
 	// Validate arguments
 	if (hWnd == NULL || p == NULL)
 	{
@@ -8795,6 +8797,19 @@ BOOL CALLBACK EnumChildWindowProc(HWND hWnd, LPARAM lParam)
 	}
 
 	if (p->include_ipcontrol || (StrCmpi(c1, "SysIPAddress32") != 0 && (IsEmptyStr(c2) || StrCmpi(c2, "SysIPAddress32") != 0)))
+	{
+		ok = true;
+	}
+
+	if (MsIsWine())
+	{
+		if (StrCmpi(c1, "SysIPAddress32") == 0 || StrCmpi(c2, "SysIPAddress32") == 0)
+		{
+			ok = true;
+		}
+	}
+
+	if (ok)
 	{
 		AddWindow(o, hWnd);
 
@@ -9179,6 +9194,11 @@ bool MsCloseWarningWindow(NO_WARNING *nw, UINT thread_id)
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		HWND hWnd;
+
+		if (nw->Halt)
+		{
+			break;
+		}
 		
 		if (MsIsVista() == false)
 		{
@@ -12327,6 +12347,175 @@ bool MsIsPasswordEmpty(wchar_t *username)
 	return false;
 }
 
+// Determine if the workstation is locked by using WTS API
+bool MsDetermineIsLockedByWtsApi()
+{
+	return wts_is_locked_flag;
+}
+
+// IsLocked Window Proc
+LRESULT CALLBACK MsIsLockedWindowHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	MS_ISLOCKED *d = NULL;
+	CREATESTRUCT *cs;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	d = (MS_ISLOCKED *)GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+	if (d == NULL && msg != WM_CREATE)
+	{
+		goto LABEL_END;
+	}
+
+	switch (msg)
+	{
+	case WM_CREATE:
+		cs = (CREATESTRUCT *)lParam;
+		d = (MS_ISLOCKED *)cs->lpCreateParams;
+		SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR)d);
+
+		ms->nt->WTSRegisterSessionNotification(hWnd, NOTIFY_FOR_THIS_SESSION);
+
+		wts_is_locked_flag = false;
+
+		break;
+
+	case WM_WTSSESSION_CHANGE:
+		{
+			char tmp[MAX_SIZE];
+
+			GetDateTimeStr64(tmp, sizeof(tmp), LocalTime64());
+
+			switch (wParam)
+			{
+			case WTS_SESSION_LOCK:
+				Debug("%s: Enter Lock\n", tmp);
+				d->IsLockedFlag = true;
+				wts_is_locked_flag = true;
+				break;
+
+			case WTS_SESSION_UNLOCK:
+				Debug("%s: Enter Unlock\n", tmp);
+				d->IsLockedFlag = false;
+				wts_is_locked_flag = false;
+				break;
+			}
+		}
+
+		break;
+
+	case WM_DESTROY:
+		Debug("Unregister\n");
+		ms->nt->WTSUnRegisterSessionNotification(hWnd);
+		PostQuitMessage(0);
+		break;
+	}
+
+LABEL_END:
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+// IsLocked thread proc
+void MsIsLockedThreadProc(THREAD *thread, void *param)
+{
+	MS_ISLOCKED *d = (MS_ISLOCKED *)param;
+	char wndclass_name[MAX_PATH];
+	WNDCLASS wc;
+	HWND hWnd;
+	MSG msg;
+	// Validate arguments
+	if (d == NULL || thread == NULL)
+	{
+		return;
+	}
+
+	Format(wndclass_name, sizeof(wndclass_name), "WNDCLASS_%X", Rand32());
+
+	Zero(&wc, sizeof(wc));
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = NULL;
+	wc.hInstance = ms->hInst;
+	wc.lpfnWndProc = MsIsLockedWindowHandlerWindowProc;
+	wc.lpszClassName = wndclass_name;
+	if (RegisterClassA(&wc) == 0)
+	{
+		NoticeThreadInit(thread);
+		return;
+	}
+
+	hWnd = CreateWindowA(wndclass_name, wndclass_name, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL, NULL, ms->hInst, d);
+
+	d->hWnd = hWnd;
+
+	NoticeThreadInit(thread);
+
+	if (hWnd == NULL)
+	{
+		UnregisterClassA(wndclass_name, ms->hInst);
+		return;
+	}
+
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	DestroyWindow(hWnd);
+
+	UnregisterClassA(wndclass_name, ms->hInst);
+}
+
+// Create new IsLocked thread
+MS_ISLOCKED *MsNewIsLocked()
+{
+	MS_ISLOCKED *d;
+	THREAD *t;
+
+	SleepThread(5000);
+
+	if (IsNt() == false || ms->nt->WTSRegisterSessionNotification == NULL ||
+		ms->nt->WTSUnRegisterSessionNotification == NULL)
+	{
+		return NULL;
+	}
+
+	d = ZeroMalloc(sizeof(MS_ISLOCKED));
+
+	t = NewThread(MsIsLockedThreadProc, d);
+
+	WaitThreadInit(t);
+
+	d->Thread = t;
+
+	return d;
+}
+
+// Stop and free the IsLocked thread
+void MsFreeIsLocked(MS_ISLOCKED *d)
+{
+	if (d == NULL)
+	{
+		return;
+	}
+
+	if (d->hWnd != NULL)
+	{
+		PostMessageA(d->hWnd, WM_CLOSE, 0, 0);
+	}
+
+	WaitThread(d->Thread, INFINITE);
+	ReleaseThread(d->Thread);
+
+	Free(d);
+}
+
 // Execution of shutdown (NT)
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message)
 {
@@ -12446,6 +12635,33 @@ bool MsIsNt()
 	}
 
 	return ms->IsNt;
+}
+
+// Get whether the current system is WINE
+bool MsIsWine()
+{
+	bool ret = false;
+
+	if (ms == NULL)
+	{
+		HINSTANCE h = LoadLibrary("kernel32.dll");
+
+		if (h != NULL)
+		{
+			if (GetProcAddress(h, "wine_get_unix_file_name") != NULL)
+			{
+				ret = true;
+			}
+
+			FreeLibrary(h);
+		}
+	}
+	else
+	{
+		ret = ms->IsWine;
+	}
+
+	return ret;
 }
 
 // Get whether the current user is an Admin
@@ -12648,6 +12864,12 @@ NT_API *MsLoadNtApiFunctions()
 		nt->WTSEnumerateSessionsA =
 			(BOOL (__stdcall *)(HANDLE,DWORD,DWORD,PWTS_SESSION_INFOA *,DWORD *))
 			GetProcAddress(nt->hWtsApi32, "WTSEnumerateSessionsA");
+		nt->WTSRegisterSessionNotification =
+			(BOOL (__stdcall *)(HWND,DWORD))
+			GetProcAddress(nt->hWtsApi32, "WTSRegisterSessionNotification");
+		nt->WTSUnRegisterSessionNotification =
+			(BOOL (__stdcall *)(HWND))
+			GetProcAddress(nt->hWtsApi32, "WTSUnRegisterSessionNotification");
 	}
 
 	// Service related API
@@ -14624,6 +14846,11 @@ void MsInit()
 		ms->IsAdmin = true;
 	}
 
+	if (GetProcAddress(ms->hKernel32, "wine_get_unix_file_name") != NULL)
+	{
+		ms->IsWine = true;
+	}
+
 	// Get information about the current process
 	ms->hCurrentProcess = GetCurrentProcess();
 	ms->CurrentProcessId = GetCurrentProcessId();
@@ -15313,7 +15540,3 @@ wchar_t *MsGetWinTempDirW()
 
 #endif	// WIN32
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

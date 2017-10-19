@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -2181,13 +2181,14 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 // RPC dispatch routine
 PACK *CiRpcDispatch(RPC *rpc, char *name, PACK *p)
 {
-	CLIENT *c = rpc->Param;
 	PACK *ret;
+	CLIENT *c;
 	// Validate arguments
 	if (rpc == NULL || name == NULL || p == NULL)
 	{
 		return NULL;
 	}
+	c = rpc->Param;
 
 	ret = NewPack();
 
@@ -6029,12 +6030,13 @@ L_TRY:
 	ReleaseSock(s);
 
 	ret = ZeroMalloc(sizeof(REMOTE_CLIENT));
-	ret->Rpc = rpc;
 	rpc->Param = ret;
 
 	if (ret != NULL)
 	{
 		RPC_CLIENT_VERSION t;
+
+		ret->Rpc = rpc;
 		Zero(&t, sizeof(t));
 		CcGetClientVersion(ret, &t);
 		ret->OsType = t.OsType;
@@ -6487,7 +6489,7 @@ bool Win32CiSecureSign(SECURE_SIGN *sign)
 			// Success
 			ret = true;
 			sign->ClientCert = batch[0].OutputX;
-			Copy(sign->Signature, batch[1].OutputSign, 128);
+			Copy(sign->Signature, batch[1].OutputSign, MIN(sizeof(sign->Signature),sizeof(batch[1].OutputSign)));
 		}
 	}
 
@@ -6661,7 +6663,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 				CiSetError(c, ERR_ACCOUNT_ACTIVE);
 			}
 			else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_SECURE &&
-				client->UseSecureDeviceId == 0)
+				c->UseSecureDeviceId == 0)
 			{
 				// Secure device is not specified
 				CiSetError(c, ERR_NO_SECURE_DEVICE_SPECIFIED);
@@ -11110,7 +11112,3 @@ void CiClientStatusPrinter(SESSION *s, wchar_t *status)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

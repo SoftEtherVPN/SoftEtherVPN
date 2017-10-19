@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - ELIN (https://github.com/el1n)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -1166,7 +1166,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 
 				name = NewName(cn, cn, cn, L"US", NULL, NULL);
 
-				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, MAX(GetDaysUntil2038(), SERVER_DEFAULT_CERT_DAYS), NULL);
+				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, GetDaysUntil2038Ex(), NULL);
 
 				FreeName(name);
 
@@ -6739,7 +6739,7 @@ UINT StAddCa(ADMIN *a, RPC_HUB_ADD_CA *t)
 
 	if (t->Cert == NULL)
 	{
-		ERR_INVALID_PARAMETER;
+		return ERR_INVALID_PARAMETER;
 	}
 
 	if (t->Cert->is_compatible_bit == false)
@@ -11840,12 +11840,12 @@ void InRpcHubEnumCa(RPC_HUB_ENUM_CA *t, PACK *p)
 void OutRpcHubEnumCa(PACK *p, RPC_HUB_ENUM_CA *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumCa;i++)
 	{
@@ -12313,12 +12313,12 @@ void InRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a, PACK *p)
 void OutRpcEnumAccessList(PACK *p, RPC_ENUM_ACCESS_LIST *a)
 {
 	UINT i;
-	PackAddStr(p, "HubName", a->HubName);
 	// Validate arguments
 	if (a == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", a->HubName);
 
 	for (i = 0;i < a->NumAccess;i++)
 	{
@@ -12573,12 +12573,12 @@ void InRpcEnumUser(RPC_ENUM_USER *t, PACK *p)
 void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumUser;i++)
 	{
@@ -12787,12 +12787,12 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 {
 	UINT i;
-	PackAddStr(p, "HubName", t->HubName);
 	// Validate arguments
 	if (t == NULL || p == NULL)
 	{
 		return;
 	}
+	PackAddStr(p, "HubName", t->HubName);
 
 	for (i = 0;i < t->NumSession;i++)
 	{
@@ -13907,7 +13907,3 @@ bool SiIsEmptyPassword(void *hash_password)
 	return false;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -400,6 +400,7 @@ typedef struct MS
 	wchar_t *UserNameExW;
 	wchar_t *MinidumpBaseFileNameW;
 	IO *LockFile;
+	bool IsWine;
 } MS;
 
 // For Windows NT API
@@ -430,6 +431,8 @@ typedef struct NT_API
 	void (WINAPI *WTSFreeMemory)(void *);
 	BOOL (WINAPI *WTSDisconnectSession)(HANDLE, DWORD, BOOL);
 	BOOL (WINAPI *WTSEnumerateSessions)(HANDLE, DWORD, DWORD, PWTS_SESSION_INFO *, DWORD *);
+	BOOL (WINAPI *WTSRegisterSessionNotification)(HWND, DWORD);
+	BOOL (WINAPI *WTSUnRegisterSessionNotification)(HWND);
 	SC_HANDLE (WINAPI *OpenSCManager)(LPCTSTR, LPCTSTR, DWORD);
 	SC_HANDLE (WINAPI *CreateServiceA)(SC_HANDLE, LPCTSTR, LPCTSTR, DWORD, DWORD, DWORD, DWORD, LPCTSTR, LPCTSTR, LPDWORD, LPCTSTR, LPCTSTR, LPCTSTR);
 	SC_HANDLE (WINAPI *CreateServiceW)(SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR, LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
@@ -589,6 +592,13 @@ typedef struct MS_ADAPTER_LIST
 	MS_ADAPTER **Adapters;			// Content
 } MS_ADAPTER_LIST;
 
+typedef struct MS_ISLOCKED
+{
+	HWND hWnd;
+	THREAD *Thread;
+	volatile bool IsLockedFlag;
+} MS_ISLOCKED;
+
 // TCP setting
 typedef struct MS_TCP
 {
@@ -732,12 +742,21 @@ bool MsRegUnloadHive(UINT root, wchar_t *keyname);
 
 bool MsIsNt();
 bool MsIsAdmin();
+bool MsIsWine();
 bool MsEnablePrivilege(char *name, bool enable);
 void *MsGetCurrentProcess();
 UINT MsGetCurrentProcessId();
 char *MsGetExeFileName();
 char *MsGetExeDirName();
 wchar_t *MsGetExeDirNameW();
+
+void MsIsLockedThreadProc(THREAD *thread, void *param);
+MS_ISLOCKED *MsNewIsLocked();
+void MsFreeIsLocked(MS_ISLOCKED *d);
+void MsStartIsLockedThread();
+void MsStopIsLockedThread();
+bool MsDetermineIsLockedByWtsApi();
+
 
 bool MsShutdown(bool reboot, bool force);
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message);
@@ -1198,7 +1217,3 @@ void MsSuspendHandlerThreadProc(THREAD *thread, void *param);
 
 #endif	// OS_WIN32
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

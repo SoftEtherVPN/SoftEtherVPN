@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -923,7 +923,11 @@ void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 
 	// Date and time
 	LocalTime(&st);
-	GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
+	if(s->StrictSyslogDatetimeFormat){
+		GetDateTimeStrRFC3164(datetime, sizeof(datetime), &st, GetCurrentTimezone());
+	}else{
+		GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
+	}
 
 	if (IsEmptyStr(hubname) == false)
 	{
@@ -935,6 +939,8 @@ void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 		UniFormat(tmp, sizeof(tmp), L"[%S/VPN] (%S) <%S>: %s",
 			machinename, datetime, typestr, message);
 	}
+
+	Debug("Syslog send: %S\n",tmp);
 
 	SendSysLog(s->Syslog, tmp);
 }
@@ -2152,7 +2158,7 @@ void SiGenerateDefaultCertEx(X **server_x, K **server_k, char *common_name)
 
 	name = NewName(cn, cn, cn,
 		L"US", NULL, NULL);
-	x = NewRootX(public_key, private_key, name, MAX(GetDaysUntil2038(), SERVER_DEFAULT_CERT_DAYS), NULL);
+	x = NewRootX(public_key, private_key, name, GetDaysUntil2038Ex(), NULL);
 
 	*server_x = x;
 	*server_k = private_key;
@@ -2576,6 +2582,9 @@ void SiLoadInitialConfiguration(SERVER *s)
 	{
 		return;
 	}
+
+	// Default to TLS only; mitigates CVE-2016-0800
+	s->Cedar->SslAcceptSettings.AcceptOnlyTls = true;
 
 	// Auto saving interval related
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
@@ -4108,6 +4117,8 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->SecureNAT_RandomizeAssignIp = CfgGetBool(f, "SecureNAT_RandomizeAssignIp");
 	o->DetectDormantSessionInterval = CfgGetInt(f, "DetectDormantSessionInterval");
 	o->NoPhysicalIPOnPacketLog = CfgGetBool(f, "NoPhysicalIPOnPacketLog");
+	o->UseHubNameAsDhcpUserClassOption = CfgGetBool(f, "UseHubNameAsDhcpUserClassOption");
+	o->UseHubNameAsRadiusNasId = CfgGetBool(f, "UseHubNameAsRadiusNasId");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4208,6 +4219,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DisableUserModeSecureNAT", o->DisableUserModeSecureNAT);
 	CfgAddBool(f, "DisableCheckMacOnLocalBridge", o->DisableCheckMacOnLocalBridge);
 	CfgAddBool(f, "DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum);
+	CfgAddBool(f, "UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption);
+	CfgAddBool(f, "UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId);
 }
 
 // Write the user
@@ -5009,6 +5022,7 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 		CfgAddInt(f, "RadiusServerPort", h->RadiusServerPort);
 		CfgAddInt(f, "RadiusRetryInterval", h->RadiusRetryInterval);
 		CfgAddStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter);
+		CfgAddStr(f, "RadiusRealm", h->RadiusRealm);
 
 		CfgAddBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap", h->RadiusConvertAllMsChapv2AuthRequestToEap);
 		CfgAddBool(f, "RadiusUsePeapInsteadOfEap", h->RadiusUsePeapInsteadOfEap);
@@ -5177,6 +5191,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 			interval = CfgGetInt(f, "RadiusRetryInterval");
 
 			CfgGetStr(f, "RadiusSuffixFilter", h->RadiusSuffixFilter, sizeof(h->RadiusSuffixFilter));
+			CfgGetStr(f, "RadiusRealm", h->RadiusRealm, sizeof(h->RadiusRealm));
 
 			h->RadiusConvertAllMsChapv2AuthRequestToEap = CfgGetBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap");
 			h->RadiusUsePeapInsteadOfEap = CfgGetBool(f, "RadiusUsePeapInsteadOfEap");
@@ -6157,7 +6172,20 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		SetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT, CfgGetBool(f, "DisableSessionReconnect"));
 
 		// AcceptOnlyTls
-		c->AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+		if (CfgIsItem(f, "AcceptOnlyTls"))
+		{
+			c->SslAcceptSettings.AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
+		}
+		else
+		{
+			// Default to TLS only; mitigates CVE-2016-0800
+			c->SslAcceptSettings.AcceptOnlyTls = true;
+		}
+		c->SslAcceptSettings.Tls_Disable1_0 = CfgGetBool(f, "Tls_Disable1_0");
+		c->SslAcceptSettings.Tls_Disable1_1 = CfgGetBool(f, "Tls_Disable1_1");
+		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
+
+		s->StrictSyslogDatetimeFormat = CfgGetBool(f, "StrictSyslogDatetimeFormat");
 	}
 	Unlock(c->lock);
 
@@ -6467,10 +6495,15 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
-		CfgAddBool(f, "AcceptOnlyTls", c->AcceptOnlyTls);
+		CfgAddBool(f, "AcceptOnlyTls", c->SslAcceptSettings.AcceptOnlyTls);
+		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
+		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
+		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));
+
+		CfgAddBool(f, "StrictSyslogDatetimeFormat", s->StrictSyslogDatetimeFormat);
 	}
 	Unlock(c->lock);
 }
@@ -7544,6 +7577,8 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DisableUserModeSecureNAT = PackGetBool(p, "DisableUserModeSecureNAT");
 	o.DisableCheckMacOnLocalBridge = PackGetBool(p, "DisableCheckMacOnLocalBridge");
 	o.DisableCorrectIpOffloadChecksum = PackGetBool(p, "DisableCorrectIpOffloadChecksum");
+	o.UseHubNameAsDhcpUserClassOption = PackGetBool(p, "UseHubNameAsDhcpUserClassOption");
+	o.UseHubNameAsRadiusNasId = PackGetBool(p, "UseHubNameAsRadiusNasId");
 
 	save_packet_log = PackGetInt(p, "SavePacketLog");
 	packet_log_switch_type = PackGetInt(p, "PacketLogSwitchType");
@@ -9396,6 +9431,8 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddInt(p, "SecurityLogSwitchType", h->LogSetting.SecurityLogSwitchType);
 	PackAddData(p, "HashedPassword", h->HashedPassword, SHA1_SIZE);
 	PackAddData(p, "SecurePassword", h->SecurePassword, SHA1_SIZE);
+	PackAddBool(p, "UseHubNameAsDhcpUserClassOption", h->Option->UseHubNameAsDhcpUserClassOption);
+	PackAddBool(p, "UseHubNameAsRadiusNasId", h->Option->UseHubNameAsRadiusNasId);
 
 	SiAccessListToPack(p, h->AccessList);
 
@@ -11043,7 +11080,3 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	return s;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2015 Daiyuu Nobori.
-// Copyright (c) 2012-2015 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2015 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -872,16 +872,18 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 
 // Get the ddns key from the server configuration file
 static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
-	RPC *rpc = d->s->Rpc;
 	RPC_CONFIG config;
 	UINT err;
 	BUF *buf;
 	FOLDER *root, *ddnsfolder;
+	RPC *rpc;
 
 	// Validate arguments
 	if(d == NULL || d->s == NULL || key == NULL){
 		return ERR_INTERNAL_ERROR;
 	}
+
+	rpc = d->s->Rpc;
 
 	Zero(&config, sizeof(config));
 	err = ScGetConfig(d->s->Rpc, &config);
@@ -16557,6 +16559,11 @@ void SmSaveKeyPairDlgInit(HWND hWnd, SM_SAVE_KEY_PAIR *s)
 		Check(hWnd, R_X509_AND_KEY, true);
 	}
 
+	if (MsIsWine())
+	{
+		Disable(hWnd, R_SECURE);
+	}
+
 	SmSaveKeyPairDlgUpdate(hWnd, s);
 }
 
@@ -17006,6 +17013,7 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 
 	// Set the encryption algorithm list
 	cipher_list = GetCipherList();
+	SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
 	CbSetHeight(hWnd, C_CIPHER, 18);
 	for (i = 0;i < cipher_list->NumTokens;i++)
 	{
@@ -19350,8 +19358,13 @@ ENTER_PASSWORD:
 	Enable(hWnd, IDOK);
 	Enable(hWnd, B_ABOUT);
 	Enable(hWnd, IDCANCEL);
-	Enable(hWnd, B_SECURE_MANAGER);
-	Enable(hWnd, B_SELECT_SECURE);
+
+	if (MsIsWine() == false)
+	{
+		Enable(hWnd, B_SECURE_MANAGER);
+		Enable(hWnd, B_SELECT_SECURE);
+	}
+
 	Enable(hWnd, B_CERT_TOOL);
 }
 
@@ -20150,6 +20163,12 @@ void SmMainDlgInit(HWND hWnd)
 
 	DlgFont(hWnd, IDOK, 10, true);
 
+	if (MsIsWine())
+	{
+		Disable(hWnd, B_SECURE_MANAGER);
+		Disable(hWnd, B_SELECT_SECURE);
+	}
+
 	Focus(hWnd, L_SETTING);
 
 	SmMainDlgUpdate(hWnd);
@@ -20479,6 +20498,8 @@ void SmMainDlg()
 // Server Manager main process
 void MainSM()
 {
+//	MsgBoxEx(NULL, 0, L"MsIsWine: %u\n", MsIsWine());
+
 	if (sm->TempSetting == NULL)
 	{
 		// Open the main window
@@ -20677,7 +20698,3 @@ void SMExec()
 #endif	// WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
