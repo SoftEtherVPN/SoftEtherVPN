@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 
 	return MsService(GC_SVC_NAME_VPNCLIENT, StartProcess, StopProcess, ICO_MACHINE, argv[0]);
 #else	// OS_WIN32
-	return UnixService(argc, argv, "vpnclient", StartProcess, StopProcess);
+	return UnixService(argc, argv, "sevpnclient", StartProcess, StopProcess);
 #endif	// OS_WIN32
 }
 
