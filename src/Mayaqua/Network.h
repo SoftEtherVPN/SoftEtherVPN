@@ -760,8 +760,8 @@ struct RUDP_SESSION
 };
 
 // NAT Traversal Server Information
-#define	UDP_NAT_T_SERVER_TAG				"x%c.x%c.servers.nat-traversal.softether-network.net."
-#define	UDP_NAT_T_SERVER_TAG_ALT			"x%c.x%c.servers.nat-traversal.uxcom.jp."
+#define	UDP_NAT_T_SERVER_TAG				"x%c.x%c.dev.servers.nat-traversal.softether-network.net."
+#define	UDP_NAT_T_SERVER_TAG_ALT			"x%c.x%c.dev.servers.nat-traversal.uxcom.jp."
 #define	UDP_NAT_T_PORT						5004
 
 // Related to processing to get the IP address of the NAT-T server

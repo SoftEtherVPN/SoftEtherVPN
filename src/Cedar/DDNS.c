@@ -624,8 +624,9 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 	PackAddInt(req, "lasterror_ipv4", c->Err_IPv4_GetMyIp);
 	PackAddInt(req, "lasterror_ipv6", c->Err_IPv6_GetMyIp);
 	PackAddBool(req, "use_azure", use_azure);
-	PackAddStr(req, "product_str", CEDAR_PRODUCT_STR);
+	PackAddStr(req, "product_str", "SoftEther OSS");
 	PackAddInt(req, "ddns_protocol_version", DDNS_VERSION);
+	PackAddInt(req, "ddns_oss", 1);
 
 
 	if (use_azure)

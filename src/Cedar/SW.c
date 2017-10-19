@@ -5859,9 +5859,6 @@ void SwUiMain(SW *sw)
 	GetCedarVersion(ver, sizeof(ver));
 	UniFormat(verstr, sizeof(verstr), _UU("SW_TITLE"), ver);
 
-	// DO NOT REMOVE THIS INDICATION !!!
-	UniStrCat(verstr, sizeof(verstr), L" - Customized Version");
-
 	w = NewWizard(ICO_SETUP, BMP_SELOGO49x49, verstr, sw);
 
 	w->CloseConfirmMsg = _UU("SW_EXIT_CONFIRM");

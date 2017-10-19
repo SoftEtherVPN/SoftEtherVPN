@@ -460,7 +460,7 @@ WINUI_UPDATE *InitUpdateUi(wchar_t *title, char *name, char *family_name, UINT64
 	// Validate arguments
 	if (title == NULL || name == NULL || current_build == 0 || current_ver == 0)
 	{
-		return NULL;
+	return NULL;
 	}
 	if (MsIsWine())
 	{

@@ -125,8 +125,8 @@
 
 
 // Destination URL
-#define	DDNS_URL_V4_GLOBAL	"https://x%c.x%c.servers.ddns.softether-network.net/ddns/ddns.aspx"
-#define	DDNS_URL_V6_GLOBAL	"https://x%c.x%c.servers-v6.ddns.softether-network.net/ddns/ddns.aspx"
+#define	DDNS_URL_V4_GLOBAL	"https://x%c.x%c.dev.servers.ddns.softether-network.net/ddns/ddns.aspx"
+#define	DDNS_URL_V6_GLOBAL	"https://x%c.x%c.dev.servers-v6.ddns.softether-network.net/ddns/ddns.aspx"
 #define	DDNS_URL2_V4_GLOBAL	"http://get-my-ip.ddns.softether-network.net/ddns/getmyip.ashx"
 #define	DDNS_URL2_V6_GLOBAL	"http://get-my-ip-v6.ddns.softether-network.net/ddns/getmyip.ashx"
 
@@ -139,8 +139,8 @@
 #define	DDNS_REPLACE_URL2_FOR_WEST_NGN		"http://senet.p-ns.flets-west.jp/ddns/getmyip.ashx"
 
 // For China: Free version
-#define	DDNS_URL_V4_ALT		"https://x%c.x%c.servers.ddns.uxcom.jp/ddns/ddns.aspx"
-#define	DDNS_URL_V6_ALT		"https://x%c.x%c.servers-v6.ddns.uxcom.jp/ddns/ddns.aspx"
+#define	DDNS_URL_V4_ALT		"https://x%c.x%c.dev.servers.ddns.uxcom.jp/ddns/ddns.aspx"
+#define	DDNS_URL_V6_ALT		"https://x%c.x%c.dev.servers-v6.ddns.uxcom.jp/ddns/ddns.aspx"
 #define	DDNS_URL2_V4_ALT	"http://get-my-ip.ddns.uxcom.jp/ddns/getmyip.ashx"
 #define	DDNS_URL2_V6_ALT	"http://get-my-ip-v6.ddns.uxcom.jp/ddns/getmyip.ashx"
 

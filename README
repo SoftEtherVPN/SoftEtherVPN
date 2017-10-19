@@ -1,16 +1,27 @@
-SoftEther VPN - An Open-Source Cross-platform Multi-protocol VPN Program
+SoftEther VPN (Developer Edition Master Repository)
+- An Open-Source Cross-platform Multi-protocol VPN Program
 http://www.softether.org/
 
-We use GitHub as the primary official SoftEther VPN repository:
-https://github.com/SoftEtherVPN/SoftEtherVPN/
+This repository has experimental codes. Pull requests are welcome.
 
-Source code packages (.zip and .tar.gz) and binary files are also available:
+Stable Edition is available on
+https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
+which the non-developer user can stable use.
+
+Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:
 http://www.softether-download.com/
 
 We accept your patches by the acceptance policy:
 http://www.softether.org/5-download/src/9.patch
 
 Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+
+The development of SoftEther VPN was supported by the MITOH Project,
+a research and development project by Japanese Government,
+subsidized by Ministry of Economy, Trade and Industry of Japan,
+administrated by Information Promotion Agency.
+https://www.ipa.go.jp/english/humandev/
+
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2

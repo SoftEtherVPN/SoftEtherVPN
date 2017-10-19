@@ -1727,7 +1727,7 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 				PackAddInt64(p, "tran_id", r->NatT_TranId);
 				PackAddStr(p, "token", r->NatT_Token);
 				PackAddStr(p, "svc_name", r->SvcName);
-				PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+				PackAddStr(p, "product_str", "SoftEther OSS");
 				PackAddInt64(p, "session_key", r->NatT_SessionKey);
 				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
