@@ -1,9 +1,9 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
 // 
@@ -11,7 +11,7 @@
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -1727,7 +1727,7 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 				PackAddInt64(p, "tran_id", r->NatT_TranId);
 				PackAddStr(p, "token", r->NatT_Token);
 				PackAddStr(p, "svc_name", r->SvcName);
-				PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+				PackAddStr(p, "product_str", "SoftEther OSS");
 				PackAddInt64(p, "session_key", r->NatT_SessionKey);
 				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
