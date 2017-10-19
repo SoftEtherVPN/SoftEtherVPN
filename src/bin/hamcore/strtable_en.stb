@@ -1084,19 +1084,19 @@ UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recomme
 
 # Service definition (SoftEther VPN Client)
 SVC_VPNCLIENT_NAME		vpnclient
-SVC_VPNCLIENT_TITLE		SoftEther VPN Client Developer Edition
+SVC_VPNCLIENT_TITLE		SoftEther VPN Client
 SVC_VPNCLIENT_DESCRIPT	This manages the Virtual Network Adapter device driver and connection service for the SoftEther VPN Client. When this service is stopped, it will not be possible to use SoftEther VPN Client on this computer to connect to a SoftEther VPN Server.
 
 
 # Service Definition (SoftEther VPN Server)
 SVC_VPNSERVER_NAME		vpnserver
-SVC_VPNSERVER_TITLE		SoftEther VPN Server Developer Edition
+SVC_VPNSERVER_TITLE		SoftEther VPN Server
 SVC_VPNSERVER_DESCRIPT	This manages the server processes of SoftEther VPN Server. SoftEther VPN Server provides high-performance SoftEther VPN Server functions via TCP/IP protocol. When this service is stopped, SoftEther VPN Server on this computer will stop and SoftEther VPN Client will be unable to establish a VPN connection with this computer.
 
 
 # Service Definition (SoftEther VPN Bridge)
 SVC_VPNBRIDGE_NAME		vpnbridge
-SVC_VPNBRIDGE_TITLE		SoftEther VPN Bridge Developer Edition
+SVC_VPNBRIDGE_TITLE		SoftEther VPN Bridge
 SVC_VPNBRIDGE_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftEther VPN Bridge provides a bridging connection between the network this computer is connected to and a SoftEther VPN Server that is remotely located. When this service is stopped, SoftEther VPN Bridge on this computer will stop and it will no longer be possible to communicate via the bridge connection.
 
 

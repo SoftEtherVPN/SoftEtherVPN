@@ -1095,19 +1095,19 @@ UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recomme
 
 # 服务定义 (SoftEther VPN Client)
 SVC_VPNCLIENT_NAME			vpnclient
-SVC_VPNCLIENT_TITLE			SoftEther VPN Client Developer Edition
+SVC_VPNCLIENT_TITLE			SoftEther VPN Client
 SVC_VPNCLIENT_DESCRIPT		它为 SoftEther VPN Client 管理虚拟网络适配器设备驱动和连接服务。当服务停止时，此计算机将无法使用 SoftEther VPN Client 连接到 SoftEther VPN Server。
 
 
 # 服务定义 (SoftEther VPN Server)
 SVC_VPNSERVER_NAME			vpnserver
-SVC_VPNSERVER_TITLE			SoftEther VPN Server Developer Edition
+SVC_VPNSERVER_TITLE			SoftEther VPN Server
 SVC_VPNSERVER_DESCRIPT		它管理 SoftEther VPN Server 服务进程。SoftEther VPN Server 通过 TCP/IP 协议提供高性能 SoftEther VPN Server 功能。当此服务被停止时，此计算机上的 SoftEther VPN Client 也将停止，且 SoftEther VPN Client 将无法与此计算机建立 VPN 连接。
 
 
 # 服务定义 (SoftEther VPN Bridge)
 SVC_VPNBRIDGE_NAME			vpnbridge
-SVC_VPNBRIDGE_TITLE			SoftEther VPN Bridge Developer Edition
+SVC_VPNBRIDGE_TITLE			SoftEther VPN Bridge
 SVC_VPNBRIDGE_DESCRIPT		它管理 SoftEther VPN Bridge 服务进程。SoftEther VPN Bridge 提供此计算机连接的网络与远程 SoftEther VPN Server 之间的连接。当此服务被停止时，此计算机上的 SoftEther VPN Bridge 也将停止，且无法再通过网桥连接进行通信。
 
 
