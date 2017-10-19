@@ -1086,6 +1086,22 @@ UNIX_SVC_ERROR_FORK		Failed to create child process for the %S service.\n
 UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recommended to run the VPN service by the root user. Although the VPN service may run under non-root users, some privilege-required functions (e.g. the local bridge function) need the root privilege.\n
 
 
+# サービス定義 (SoftEther VPN Client)
+SVC_VPNCLIENT_NAME		vpnclient
+SVC_VPNCLIENT_TITLE		SoftEther VPN Client Developer Edition
+SVC_VPNCLIENT_DESCRIPT	SoftEther VPN Client の仮想 LAN カードデバイスドライバおよび接続サービスを管理します。このサービスが停止された場合は、このコンピュータの SoftEther VPN Client を使用して SoftEther VPN Server に接続することができなくなります。
+
+
+# サービス定義 (SoftEther VPN Server)
+SVC_VPNSERVER_NAME		vpnserver
+SVC_VPNSERVER_TITLE		SoftEther VPN Server Developer Edition
+SVC_VPNSERVER_DESCRIPT	SoftEther VPN Server サーバー プロセスを管理します。SoftEther VPN Server は高性能の SoftEther VPN Server 機能を TCP/IP プロトコルを通じて提供します。このサービスが停止された場合は、このコンピュータの SoftEther VPN Server は停止し、SoftEther VPN Client はこのコンピュータに VPN 接続することができなくなります。
+
+
+# サービス定義 (SoftEther VPN Bridge)
+SVC_VPNBRIDGE_NAME		vpnbridge
+SVC_VPNBRIDGE_TITLE		SoftEther VPN Bridge Developer Edition
+SVC_VPNBRIDGE_DESCRIPT	SoftEther VPN Bridge プロセスを管理します。SoftEther VPN Bridge はこのコンピュータに接続されているネットワークと遠隔地にある SoftEther VPN Server との間をブリッジ接続します。このサービスが停止された場合は、このコンピュータの SoftEther VPN Bridge は停止し、ブリッジ接続を経由した通信ができなくなります。
 
 
 # サービス定義 (SoftEther VPN Client)
