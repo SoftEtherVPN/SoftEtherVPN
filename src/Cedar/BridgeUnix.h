@@ -186,6 +186,7 @@ struct CAPTUREBLOCK{
 
 
 // Function prototype
+void FreeTap(VLAN *v);
 void InitEth();
 void FreeEth();
 bool IsEthSupported();
