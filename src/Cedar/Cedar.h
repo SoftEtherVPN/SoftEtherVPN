@@ -1,9 +1,9 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
 // 
@@ -11,7 +11,7 @@
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					423
+#define	CEDAR_VER					424
 
 // Build Number
-#define	CEDAR_BUILD					9647
+#define	CEDAR_BUILD					9651
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -159,10 +159,10 @@
 // Specifies the build date
 #define	BUILD_DATE_Y		2017
 #define	BUILD_DATE_M		10
-#define	BUILD_DATE_D		18
-#define	BUILD_DATE_HO		16
-#define	BUILD_DATE_MI		30
-#define	BUILD_DATE_SE		44
+#define	BUILD_DATE_D		23
+#define	BUILD_DATE_HO		1
+#define	BUILD_DATE_MI		4
+#define	BUILD_DATE_SE		19
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)

@@ -1,4 +1,4 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Stable Edition Repository
 // Mayaqua Kernel
 // 
 // TunTap.h

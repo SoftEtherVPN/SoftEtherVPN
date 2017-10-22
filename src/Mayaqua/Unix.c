@@ -1,9 +1,9 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Stable Edition Repository
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) Daiyuu Nobori, Ph.D..
+// Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
 // 
