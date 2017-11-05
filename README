@@ -2,6 +2,7 @@ SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
 http://www.softether.org/
 
+
 This repository has experimental codes. Pull requests are welcome.
 
 Stable Edition is available on
@@ -37,6 +38,23 @@ including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
 More details on http://www.softether.org/.
+
+
+BOARD MEMBERS OF THIS REPOSITORY
+--------------------------------
+
+Daiyuu Nobori (Since Jan 2, 2014)
+https://github.com/dnobori
+
+Moataz Elmasry (Since Nov 6, 2017)
+https://github.com/moatazelmasry2
+
+Zulyandri Zardi (Since Nov 6, 2017)
+https://github.com/zulzardi
+
+Alex Maslakov (Since Nov 6, 2017)
+https://github.com/GildedHonour
+
 
 
 SOFTETHER VPN ADVANTAGES
