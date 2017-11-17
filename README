@@ -1,16 +1,28 @@
-SoftEther VPN - An Open-Source Cross-platform Multi-protocol VPN Program
+SoftEther VPN (Developer Edition Master Repository)
+- An Open-Source Cross-platform Multi-protocol VPN Program
 http://www.softether.org/
 
-We use GitHub as the primary official SoftEther VPN repository:
-https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-Source code packages (.zip and .tar.gz) and binary files are also available:
+This repository has experimental codes. Pull requests are welcome.
+
+Stable Edition is available on
+https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
+which the non-developer user can stable use.
+
+Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:
 http://www.softether-download.com/
 
 We accept your patches by the acceptance policy:
 http://www.softether.org/5-download/src/9.patch
 
-Copyright (c) 2012-2016 SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+
+The development of SoftEther VPN was supported by the MITOH Project,
+a research and development project by Japanese Government,
+subsidized by Ministry of Economy, Trade and Industry of Japan,
+administrated by Information Promotion Agency.
+https://www.ipa.go.jp/english/humandev/
+
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2
@@ -26,6 +38,23 @@ including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
 More details on http://www.softether.org/.
+
+
+BOARD MEMBERS OF THIS REPOSITORY
+--------------------------------
+
+Daiyuu Nobori (Since Jan 2, 2014)
+https://github.com/dnobori
+
+Moataz Elmasry (Since Nov 6, 2017)
+https://github.com/moatazelmasry2
+
+Zulyandri Zardi (Since Nov 6, 2017)
+https://github.com/zulzardi
+
+Alex Maslakov (Since Nov 6, 2017)
+https://github.com/GildedHonour
+
 
 
 SOFTETHER VPN ADVANTAGES
@@ -123,23 +152,8 @@ on all the following open-source repositories:
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-  - SourceForge
-    https://sourceforge.net/p/softethervpn/code/ci/master/tree/
-
-  - Google Code
-    https://code.google.com/p/softether/source/browse/
-
-
 To fetch the source code from GitHub:
 $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-
-To fetch the source code from SourceForge:
-$ git clone http://git.code.sf.net/p/softethervpn/code
-  - or -
-$ git clone git://git.code.sf.net/p/softethervpn/code
-
-To fetch the source code from Google Code:
-$ git clone https://code.google.com/p/softether/
 
 We hope that you can reach one of the above URLs at least!
 
@@ -217,11 +231,4 @@ READ AND UNDERSTAND THE 'WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
 SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE
 WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
 
-
-ADVERTISEMENT
--------------
-
-SoftEther VPN is developed by SoftEther VPN Project at University of Tsukuba.
-Department of Computer Science has dozens of overly-enthusiastic geeks.
-Join us: http://www.tsukuba.ac.jp/english/admission/
 

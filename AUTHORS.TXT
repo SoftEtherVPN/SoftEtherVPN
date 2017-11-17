@@ -6,7 +6,7 @@ AUTHORS OF SOFTETHER VPN
 
 CORE DEVELOPERS:
 
-  - Daiyuu Nobori
+  - Daiyuu Nobori, Ph.D.
     Computer Science, Graduate School of University of Tsukuba
     SoftEther Corporation
     E-mail: daiyuu-nobori [at] softether.org
@@ -18,15 +18,15 @@ CORE DEVELOPERS:
     Risk Engineering, Graduate School of University of Tsukuba
     SoftEther Corporation
 
-  - Takao Ito
+  - Takao Ito, Ph.D.
     Computer Science, Graduate School of University of Tsukuba
     SoftEther Corporation
 
+  - Mei Sharie Ann Yamaguchi, Ph.D.
+    Life and Environmental Sciences, Graduate School of University of Tsukuba
+
   - Christopher Smith
     College of Information Science, University of Tsukuba
-
-  - Mei Sharie Ann Yamaguchi
-    Life and Environmental Sciences, Graduate School of University of Tsukuba
 
 
 WEB-SITE DESIGNER:
@@ -118,6 +118,26 @@ CONTRIBUTORS on GitHub:
   - Sacha Bernstein
     https://github.com/sacha
 
+  - cm0x4D
+    https://github.com/cm0x4D
+
+  - DDGo
+    https://github.com/DDGo
+
+  - Noah O'Donoghue
+    https://github.com/NoahO
+
+  - Moataz Elmasry
+    https://github.com/moatazelmasry2
+
+  - Zulyandri Zardi
+    https://github.com/zulzardi
+
+  - rel22
+    https://github.com/rel22
+
+  - Guanzhong Chen
+    https://github.com/quantum5
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
@@ -126,9 +146,4 @@ Want to become a contributor? Please send us a patch.
 
 See also: SoftEther VPN Patch Acceptance Policy
 http://www.softether.org/5-download/src/9.patch
-
-
-Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-Department of Computer Science has dozens of overly-enthusiastic geeks.
-Join us: http://www.tsukuba.ac.jp/english/admission/
 
