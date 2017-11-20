@@ -131,15 +131,19 @@ from GitHub. You may make your own fork project from our project.
 ##  Requirements
 
 ### 1. Debian/Ubuntu
-- libreadline-dev
--  openssl-dev
+
+- gcc
 - libncurses-dev
+- libreadline-dev
+- make
+- openssl-dev
 
 ### 2. Redhat/CentOS
-- readline-devel
-- libssl-dev
+- gcc
+- openssl-devel
+- make
 - ncurses-devel
-
+- readline-devel
 ## Compile and install
 
 The download and build instruction is following:
