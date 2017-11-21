@@ -111,8 +111,8 @@
 // Network.h
 // Header of Network.c
 
-#ifndef	NETWORK_H
-#define	NETWORK_H
+#ifndef	SE_NETWORK_H
+#define	SE_NETWORK_H
 
 // Dynamic Value
 struct DYN_VALUE
@@ -1684,5 +1684,5 @@ UINT64 GetDynValueOrDefault(char *name, UINT64 default_value, UINT64 min_value, 
 UINT64 GetDynValueOrDefaultSafe(char *name, UINT64 default_value);
 
 
-#endif	// NETWORK_H
+#endif	// SE_NETWORK_H
 

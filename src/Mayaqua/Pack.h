@@ -111,8 +111,8 @@
 // Pack.h
 // Header of Pack.c
 
-#ifndef	PACK_H
-#define	PACK_H
+#ifndef	SE_PACK_H
+#define	SE_PACK_H
 
 // Constant
 #ifdef CPU_64
@@ -259,4 +259,4 @@ bool PackGetData2(PACK *p, char *name, void *data, UINT size);
 bool PackGetDataEx2(PACK *p, char *name, void *data, UINT size, UINT index);
 bool PackIsValueExists(PACK *p, char *name);
 
-#endif	// PACK_H
+#endif	// SE_PACK_H

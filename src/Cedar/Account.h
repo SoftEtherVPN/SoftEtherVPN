@@ -111,8 +111,8 @@
 // Account.h
 // Header of Account.c
 
-#ifndef	ACCOUNT_H
-#define	ACCOUNT_H
+#ifndef	SE_ACCOUNT_H
+#define	SE_ACCOUNT_H
 
 // Policy item
 struct POLICY_ITEM
@@ -314,6 +314,6 @@ void FormatPolicyValue(wchar_t *str, UINT size, UINT id, UINT value);
 char *NormalizePolicyName(char *name);
 
 
-#endif	// ACCOUNT_H
+#endif	// SE_ACCOUNT_H
 
 

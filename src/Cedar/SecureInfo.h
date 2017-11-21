@@ -111,10 +111,10 @@
 // SecureInfo.h
 // Header of SecureInfo.c
 
-#ifndef	SECUREINFO_H
-#define	SECUREINFO_H
+#ifndef	SE_SECUREINFO_H
+#define	SE_SECUREINFO_H
 
 
-#endif	// SECUREINFO_H
+#endif	// SE_SECUREINFO_H
 
 

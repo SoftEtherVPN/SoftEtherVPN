@@ -111,6 +111,9 @@
 // EMInner.h
 // Inner header of EM.c
 
+#ifndef SE_EM_INNER_H
+#define SE_EM_INNER_H
+
 // Constants
 #define	EM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\EtherLogger\\Manager"
 
@@ -147,3 +150,5 @@ void EmLicenseAddDlgUpdate(HWND hWnd, RPC *s);
 void EmLicenseAddDlgShiftTextItem(HWND hWnd, UINT id1, UINT id2, UINT *next_focus);
 void EmLicenseAddDlgGetText(HWND hWnd, char *str, UINT size);
 void EmLicenseAddDlgOnOk(HWND hWnd, RPC *s);
+
+#endif // SE_EM_INNER_H

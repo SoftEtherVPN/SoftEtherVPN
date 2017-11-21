@@ -111,8 +111,8 @@
 // NativeStack.h
 // Header of NativeStack.c
 
-#ifndef	NATIVESTACK_H
-#define	NATIVESTACK_H
+#ifndef	SE_NATIVESTACK_H
+#define	SE_NATIVESTACK_H
 
 //// Constants
 #define	NS_MAC_ADDRESS_BYTE_1		0xDA		// First byte of the MAC address
@@ -190,6 +190,6 @@ void GenerateDummyIpAndMark(void *hash_seed, IPTABLES_ENTRY *e, UINT id);
 UINT GenerateDummyMark(PRAND *p);
 void GenerateDummyIp(PRAND *p, IP *ip);
 
-#endif	// NATIVESTACK_H
+#endif	// SE_NATIVESTACK_H
 
 

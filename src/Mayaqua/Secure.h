@@ -111,8 +111,8 @@
 // Secure.h
 // Header of Secure.c
 
-#ifndef	SECURE_H
-#define	SECURE_H
+#ifndef	SE_SECURE_H
+#define	SE_SECURE_H
 
 // Constant
 #define	MAX_SEC_DATA_SIZE		4096
@@ -324,4 +324,4 @@ typedef struct SEC_DATA_WIN32
 
 #endif	// SECURE_C
 
-#endif	// SECURE_H
+#endif	// SE_SECURE_H

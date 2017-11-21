@@ -111,8 +111,8 @@
 // IPsec_L2TP.h
 // Header of IPsec_L2TP.c
 
-#ifndef	IPSEC_L2TP_H
-#define	IPSEC_L2TP_H
+#ifndef	SE_IPSEC_L2TP_H
+#define	SE_IPSEC_L2TP_H
 
 //// Macro
 
@@ -378,6 +378,6 @@ UINT GenerateNewSessionIdForL2TPv3(L2TP_SERVER *l2tp);
 L2TP_SESSION *SearchL2TPSessionById(L2TP_SERVER *l2tp, bool is_v3, UINT id);
 void L2TPSessionManageEtherIPServer(L2TP_SERVER *l2tp, L2TP_SESSION *s);
 
-#endif	// IPSEC_L2TP_H
+#endif	// SE_IPSEC_L2TP_H
 
 

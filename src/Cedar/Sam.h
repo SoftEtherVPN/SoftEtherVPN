@@ -111,8 +111,8 @@
 // Sam.h
 // Header of Sam.c
 
-#ifndef	SAM_H
-#define	SAM_H
+#ifndef	SE_SAM_H
+#define	SE_SAM_H
 
 
 // Function prototype
@@ -128,5 +128,5 @@ void GenRamdom(void *random);
 void SecurePassword(void *secure_password, void *password, void *random);
 X *GetIssuerFromList(LIST *cert_list, X *cert);
 
-#endif	// SAM_H
+#endif	// SE_SAM_H
 

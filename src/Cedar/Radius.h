@@ -111,8 +111,8 @@
 // Radius.h
 // Header of Radius.c
 
-#ifndef	RADIUS_H
-#define	RADIUS_H
+#ifndef	SE_RADIUS_H
+#define	SE_RADIUS_H
 
 #define	RADIUS_DEFAULT_PORT		1812			// The default port number
 #define	RADIUS_RETRY_INTERVAL	500				// Retransmission interval
@@ -386,7 +386,7 @@ BUF *RadiusCreateNasId(char *name);
 void RadiusAddValue(BUF *b, UCHAR t, UINT v, UCHAR vt, void *data, UINT size);
 LIST *RadiusParseOptions(BUF *b);
 
-#endif	// RADIUS_H
+#endif	// SE_RADIUS_H
 
 
 

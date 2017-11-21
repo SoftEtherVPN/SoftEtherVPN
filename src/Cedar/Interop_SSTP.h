@@ -111,8 +111,8 @@
 // Interop_SSTP.h
 // Header of Interop_SSTP.c
 
-#ifndef	INTEROP_SSTP_H
-#define	INTEROP_SSTP_H
+#ifndef	SE_INTEROP_SSTP_H
+#define	SE_INTEROP_SSTP_H
 
 //// Constants
 #define	SSTP_URI				"/sra_{BA195980-CD49-458b-9E23-C84EE0ADCD75}/"		// SSTP HTTPS URI
@@ -259,6 +259,6 @@ void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p);
 bool GetNoSstp();
 void SetNoSstp(bool b);
 
-#endif	// INTEROP_SSTP_H
+#endif	// SE_INTEROP_SSTP_H
 
 

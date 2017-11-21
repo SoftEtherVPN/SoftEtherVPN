@@ -111,8 +111,8 @@
 // EtherLog.h
 // Header of EtherLog.c
 
-#ifndef	ETHERLOG_H
-#define	ETHERLOG_H
+#ifndef	SE_ETHERLOG_H
+#define	SE_ETHERLOG_H
 
 // Whether this is a beta version
 #define	ELOG_IS_BETA						true
@@ -276,6 +276,6 @@ void FreeRpcEnumLicenseKey(RPC_ENUM_LICENSE_KEY *t);
 void InRpcElLicenseStatus(RPC_EL_LICENSE_STATUS *t, PACK *p);
 void OutRpcElLicenseStatus(PACK *p, RPC_EL_LICENSE_STATUS *t);
 
-#endif	// ETHERLOG_H
+#endif	// SE_ETHERLOG_H
 
 

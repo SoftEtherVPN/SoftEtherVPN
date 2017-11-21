@@ -111,8 +111,8 @@
 // Session.h
 // Header of Session.c
 
-#ifndef	SESSION_H
-#define	SESSION_H
+#ifndef	SE_SESSION_H
+#define	SE_SESSION_H
 
 
 // Interval to increment the number of logins after the connection
@@ -439,7 +439,7 @@ bool CompareNodeInfo(NODE_INFO *a, NODE_INFO *b);
 bool IsPriorityHighestPacketForQoS(void *data, UINT size);
 UINT GetNextDelayedPacketTickDiff(SESSION *s);
 
-#endif	// SESSION_H
+#endif	// SE_SESSION_H
 
 
 

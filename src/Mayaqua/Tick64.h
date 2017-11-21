@@ -111,8 +111,8 @@
 // Tick64.h
 // Header of Tick64.c
 
-#ifndef	TICK64_H
-#define	TICK64_H
+#ifndef	SE_TICK64_H
+#define	SE_TICK64_H
 
 // Maximum number of correction list entries
 #define	MAX_ADJUST_TIME				1024
@@ -154,7 +154,7 @@ UINT64 Tick64ToTime64(UINT64 tick);
 UINT64 TickToTime(UINT64 tick);
 UINT64 TickHighres64();
 
-#endif	// TICK64_H
+#endif	// SE_TICK64_H
 
 
 

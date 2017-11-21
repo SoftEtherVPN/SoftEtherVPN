@@ -111,8 +111,8 @@
 // Admin.h
 // Header of Admin.c
 
-#ifndef	ADMIN_H
-#define	ADMIN_H
+#ifndef	SE_ADMIN_H
+#define	SE_ADMIN_H
 
 // Windows version
 struct RPC_WINVER
@@ -1530,6 +1530,6 @@ void OutRpcAzureStatus(PACK *p, RPC_AZURE_STATUS *t);
 void InRpcInternetSetting(INTERNET_SETTING *t, PACK *p);
 void OutRpcInternetSetting(PACK *p, INTERNET_SETTING *t);
 
-#endif	// ADMIN_H
+#endif	// SE_ADMIN_H
 
 

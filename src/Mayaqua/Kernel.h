@@ -108,8 +108,8 @@
 // test has been passed before release this source code.
 
 
-#ifndef	KERNEL_H
-#define	KERNEL_H
+#ifndef	SE_KERNEL_H
+#define	SE_KERNEL_H
 
 // Memory usage information
 struct MEMINFO
@@ -280,5 +280,5 @@ void StopThreadList(LIST *o);
 void WaitAllThreadsWillBeStopped(LIST *o);
 UINT GetNumberOfCpu();
 
-#endif	// KERNEL_H
+#endif	// SE_KERNEL_H
 

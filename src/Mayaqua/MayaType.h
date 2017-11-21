@@ -111,8 +111,8 @@
 // MayaType.h
 // Mayaqua Kernel type declaration header file
 
-#ifndef	MAYATYPE_H
-#define	MAYATYPE_H
+#ifndef	SE_MAYATYPE_H
+#define	SE_MAYATYPE_H
 
 // Check whether the windows.h header is included
 #ifndef	WINDOWS_H
@@ -586,5 +586,5 @@ typedef struct IKE_HEADER IKE_HEADER;
 
 
 
-#endif	// MAYATYPE_H
+#endif	// SE_MAYATYPE_H
 

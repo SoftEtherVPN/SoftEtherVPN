@@ -111,8 +111,8 @@
 // Listener.h
 // Header of Listener.c
 
-#ifndef	LISTENER_H
-#define	LISTENER_H
+#ifndef	SE_LISTENER_H
+#define	SE_LISTENER_H
 
 
 // Function to call when receiving a new connection
@@ -209,6 +209,6 @@ bool ListenerRUDPRpcRecvProc(RUDP_STACK *r, UDPPACKET *p);
 void ListenerSetProcRecvRpcEnable(bool b);
 
 
-#endif	// LISTENER_H
+#endif	// SE_LISTENER_H
 
 

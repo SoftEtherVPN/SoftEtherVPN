@@ -111,8 +111,8 @@
 // Layer3.h
 // Header of Layer3.c
 
-#ifndef	LAYER3_H
-#define	LAYER3_H
+#ifndef	SE_LAYER3_H
+#define	SE_LAYER3_H
 
 // Constants
 #define	L3_USERNAME					"L3SW_"
@@ -249,7 +249,7 @@ void L3RecvIp(L3IF *f, PKT *p, bool self);
 void L3PollingIpQueue(L3IF *f);
 
 
-#endif	// LAYER3_H
+#endif	// SE_LAYER3_H
 
 
 

@@ -111,8 +111,8 @@
 // Tracking.h
 // Header of Tracking.c
 
-#ifndef	TRACKING_H
-#define	TRACKING_H
+#ifndef	SE_TRACKING_H
+#define	SE_TRACKING_H
 
 // The number of array
 #define	TRACKING_NUM_ARRAY	1048576
@@ -192,6 +192,6 @@ void TrackingEnable();
 void TrackingDisable();
 bool IsTrackingEnabled();
 
-#endif	// TRACKING_H
+#endif	// SE_TRACKING_H
 
 

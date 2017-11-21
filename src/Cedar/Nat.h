@@ -111,8 +111,8 @@
 // Nat.h
 // Header of Nat.c
 
-#ifndef	NAT_H
-#define	NAT_H
+#ifndef	SE_NAT_H
+#define	SE_NAT_H
 
 // Constants
 #define	NAT_CONFIG_FILE_NAME			"@vpn_router.config"	// NAT configuration file
@@ -313,6 +313,6 @@ void OutRpcDummy(PACK *p, RPC_DUMMY *t);
 
 
 
-#endif	// NAT_H
+#endif	// SE_NAT_H
 
 

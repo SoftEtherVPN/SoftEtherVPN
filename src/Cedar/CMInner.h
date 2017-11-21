@@ -113,6 +113,7 @@
 // CMInner.h
 // Internal header for the CM.c
 
+
 #define STARTUP_MUTEX_NAME	GC_SW_SOFTETHER_PREFIX "vpncmgr_startup_mutex"
 
 #define	NAME_OF_VPN_CLIENT_MANAGER	"vpncmgr"
@@ -637,5 +638,4 @@ void CmGetSystemInternetSetting(CM_INTERNET_SETTING *setting);
 void CmProxyDlgSet(HWND hWnd, CLIENT_OPTION *o, CM_INTERNET_SETTING *setting);
 bool CmGetProxyServerNameAndPortFromIeProxyRegStr(char *name, UINT name_size, UINT *port, char *str, char *server_type);
 void *CmUpdateJumpList(UINT start_id);
-
 

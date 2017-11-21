@@ -111,10 +111,10 @@
 // AzureServer.h
 // Header of AzureServer.c
 
-#ifndef	AZURE_SERVER_H
-#define	AZURE_SERVER_H
+#ifndef	SE_AZURE_SERVER_H
+#define	SE_AZURE_SERVER_H
 
 
-#endif	// AZURE_SERVER_H
+#endif	// SE_AZURE_SERVER_H
 
 

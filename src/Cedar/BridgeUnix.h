@@ -111,8 +111,8 @@
 // BridgeUnix.h
 // Header of BridgeUnix.c
 
-#ifndef	BRIDGEUNIX_H
-#define	BRIDGEUNIX_H
+#ifndef	SE_BRIDGEUNIX_H
+#define	SE_BRIDGEUNIX_H
 
 // Macro
 #ifndef SOL_PACKET
@@ -235,6 +235,6 @@ bool DlipBindRequest(int fd);
 
 int UnixEthOpenRawSocket();
 
-#endif	// BRIDGEUNIX_H
+#endif	// SE_BRIDGEUNIX_H
 
 

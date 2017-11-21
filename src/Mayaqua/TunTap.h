@@ -99,8 +99,8 @@
 // test has been passed before release this source code.
 
 
-#ifndef	TUNTAP_H
-#define	TUNTAP_H
+#ifndef	SE_TUNTAP_H
+#define	SE_TUNTAP_H
 
 #ifdef	UNIX_LINUX
 
@@ -322,4 +322,4 @@ struct tuninfo {
 
 #endif	// UNIX_LINUX
 
-#endif	// TUNTAP_H
+#endif	// SE_TUNTAP_H

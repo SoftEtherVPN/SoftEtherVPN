@@ -111,8 +111,8 @@
 // Memory.h
 // Header of Memory.c
 
-#ifndef	MEMORY_H
-#define	MEMORY_H
+#ifndef	SE_MEMORY_H
+#define	SE_MEMORY_H
 
 // MallocFast (not implemented)
 #define	MallocFast		Malloc
@@ -477,5 +477,5 @@ void CleanupSharedBuffer(SHARED_BUFFER *b);
 void AppendBufUtf8(BUF *b, wchar_t *str);
 void AppendBufStr(BUF *b, char *str);
 
-#endif	// MEMORY_H
+#endif	// SE_MEMORY_H
 

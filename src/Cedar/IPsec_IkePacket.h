@@ -111,8 +111,8 @@
 // IPsec_IkePacket.h
 // Header of IPsec_IkePacket.c
 
-#ifndef	IPSEC_PACKET_H
-#define	IPSEC_PACKET_H
+#ifndef	SE_IPSEC_PACKET_H
+#define	SE_IPSEC_PACKET_H
 
 // Constants
 #ifdef	OS_WIN32
@@ -768,6 +768,6 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d);
 void IkeDhFreeCtx(DH_CTX *dh);
 
 
-#endif	// IPSEC_PACKET_H
+#endif	// SE_IPSEC_PACKET_H
 
 

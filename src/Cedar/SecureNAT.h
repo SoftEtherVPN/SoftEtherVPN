@@ -111,8 +111,8 @@
 // SecureNAT.h
 // Header of SecureNAT.c
 
-#ifndef	SECURENAT_H
-#define	SECURENAT_H
+#ifndef	SE_SECURENAT_H
+#define	SE_SECURENAT_H
 
 struct SNAT
 {
@@ -130,5 +130,5 @@ void SnFreeSecureNAT(SNAT *s);
 void SnSecureNATThread(THREAD *t, void *param);
 
 
-#endif	// SECURENAT_H
+#endif	// SE_SECURENAT_H
 

@@ -111,8 +111,8 @@
 // IPsec_EtherIP.h
 // Header of IPsec_EtherIP.c
 
-#ifndef	IPSEC_ETHERIP_H
-#define	IPSEC_ETHERIP_H
+#ifndef	SE_IPSEC_ETHERIP_H
+#define	SE_IPSEC_ETHERIP_H
 
 //// Macro
 
@@ -171,6 +171,6 @@ void EtherIPIpcConnectThread(THREAD *t, void *p);
 UINT CalcEtherIPTcpMss(ETHERIP_SERVER *s);
 
 
-#endif	// IPSEC_ETHERIP_H
+#endif	// SE_IPSEC_ETHERIP_H
 
 

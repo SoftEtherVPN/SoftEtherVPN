@@ -111,8 +111,8 @@
 // CM.h
 // Header of CM.c
 
-#ifndef	CM_H
-#define	CM_H
+#ifndef	SE_CM_H
+#define	SE_CM_H
 
 // Constants
 #define	CM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\" CEDAR_PRODUCT_STR " VPN\\Client Manager"
@@ -153,6 +153,6 @@ void CmStopUacHelper(void *p);
 void *CmExecUiHelperMain();
 UINT CmGetSecureBitmapId(char *dest_hostname);
 
-#endif	// CM_H
+#endif	// SE_CM_H
 
 

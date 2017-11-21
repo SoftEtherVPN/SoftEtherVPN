@@ -111,8 +111,8 @@
 // SW.h
 // Header of SW.c
 
-#ifndef	SW_H
-#define	SW_H
+#ifndef	SE_SW_H
+#define	SE_SW_H
 
 #define	SW_REG_KEY					"Software\\" GC_REG_COMPANY_NAME "\\Setup Wizard Settings"
 
@@ -126,6 +126,6 @@ bool SwCompileSfx(LIST *o, wchar_t *dst_filename);
 bool SwGenSfxModeMain(char *mode, wchar_t *dst);
 bool SwWaitForVpnClientPortReady(UINT timeout);
 
-#endif	// SW_H
+#endif	// SE_SW_H
 
 

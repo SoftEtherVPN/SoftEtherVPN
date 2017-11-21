@@ -111,8 +111,8 @@
 // Connection.h
 // Header of Connection.c
 
-#ifndef	CONNECTION_H
-#define	CONNECTION_H
+#ifndef	SE_CONNECTION_H
+#define	SE_CONNECTION_H
 
 // Magic number indicating that the packet is compressed
 #define	CONNECTION_BULK_COMPRESS_SIGNATURE	0xDEADBEEFCAFEFACEULL
@@ -371,4 +371,4 @@ UINT GetMachineRand();
 
 
 
-#endif	// CONNECTION_H
+#endif	// SE_CONNECTION_H

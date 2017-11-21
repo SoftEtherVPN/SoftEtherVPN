@@ -111,8 +111,8 @@
 // NullLan.h
 // Header of NullLan.c
 
-#ifndef	NULLLAN_H
-#define	NULLLAN_H
+#ifndef	SE_NULLLAN_H
+#define	SE_NULLLAN_H
 
 
 #define	NULL_PACKET_GENERATE_INTERVAL		100000000		// Packet generation interval
@@ -139,7 +139,7 @@ void NullPaFree(SESSION *s);
 void NullPacketGenerateThread(THREAD *t, void *param);
 void NullGenerateMacAddress(UCHAR *mac, UINT id, UINT seq);
 
-#endif	// NULLAN_H
+#endif	// SE_NULLAN_H
 
 
 

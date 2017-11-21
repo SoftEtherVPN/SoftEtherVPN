@@ -111,8 +111,8 @@
 // NDIS5.h
 // Header of NDIS5.c
 
-#ifndef	NDIS5_H
-#define	NDIS5_H
+#ifndef	SE_NDIS5_H
+#define	SE_NDIS5_H
 
 // Win32 DDK related
 #ifndef	CPU_64
@@ -291,5 +291,5 @@ void NeoSetConnectState(BOOL connected);
 BOOL NeoNdisOnOpen(IRP *irp, IO_STACK_LOCATION *stack);
 BOOL NeoNdisOnClose(IRP *irp, IO_STACK_LOCATION *stack);
 
-#endif	// NDIS5_H
+#endif	// SE_NDIS5_H
 

@@ -111,8 +111,8 @@
 // CedarType.h
 // List of types that Cedar using
 
-#ifndef	CEDARTYPE_H
-#define	CEDARTYPE_H
+#ifndef	SE_CEDARTYPE_H
+#define	SE_CEDARTYPE_H
 
 
 // ==============================================================
@@ -764,4 +764,4 @@ typedef struct SU_ADAPTER_LIST SU_ADAPTER_LIST;
 
 
 
-#endif	// CEDARTYPE_H
+#endif	// SE_CEDARTYPE_H

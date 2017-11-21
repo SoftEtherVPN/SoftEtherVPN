@@ -111,8 +111,8 @@
 // Internat.h
 // Header of Internat.c
 
-#ifndef	INTERNAT_H
-#define	INTERNAT_H
+#ifndef	SE_INTERNAT_H
+#define	SE_INTERNAT_H
 
 // String token
 struct UNI_TOKEN_LIST
@@ -248,7 +248,7 @@ void *IconvStrToWideInternal();
 int IconvFreeInternal(void *d);
 #endif	// OS_UNIX
 
-#endif	// INTERNAT_H
+#endif	// SE_INTERNAT_H
 
 
 

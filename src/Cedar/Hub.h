@@ -111,8 +111,8 @@
 // Hub.h
 // Header of Hub.c
 
-#ifndef	HUB_H
-#define	HUB_H
+#ifndef	SE_HUB_H
+#define	SE_HUB_H
 
 
 // Prefix in the access list for investigating whether the user name which is contained in a particular file 
@@ -645,6 +645,6 @@ void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);
 EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username);
 
-#endif	// HUB_H
+#endif	// SE_HUB_H
 
 

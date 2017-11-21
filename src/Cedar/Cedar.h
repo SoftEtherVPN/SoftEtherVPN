@@ -111,8 +111,8 @@
 // Cedar.h
 // Header of Cedar.c
 
-#ifndef	CEDAR_H
-#define	CEDAR_H
+#ifndef	SE_CEDAR_H
+#define	SE_CEDAR_H
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1263,5 +1263,5 @@ bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 
 
-#endif	// CEDAR_H
+#endif	// SE_CEDAR_H
 
