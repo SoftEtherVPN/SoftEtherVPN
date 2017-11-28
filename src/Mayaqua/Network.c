@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -233,7 +233,12 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384";
+static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384"
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	" DHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305";
+#endif
+;
+
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -1722,7 +1727,7 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 				PackAddInt64(p, "tran_id", r->NatT_TranId);
 				PackAddStr(p, "token", r->NatT_Token);
 				PackAddStr(p, "svc_name", r->SvcName);
-				PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+				PackAddStr(p, "product_str", "SoftEther OSS");
 				PackAddInt64(p, "session_key", r->NatT_SessionKey);
 				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
@@ -9254,14 +9259,9 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	if (num != 0)
 	{
 #ifdef	UNIX_MACOS
-		if (timeout == INFINITE) {
-			tv.tv_sec = 0;
-			tv.tv_usec = 0;
-		} else {
-			tv.tv_sec = timeout / 1000;
-			tv.tv_usec = (timeout % 1000) * 1000l;
-		}
-		select(max_fd + 1, &rfds, &wfds, NULL, &tv);
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) * 1000l;
+		select(max_fd + 1, &rfds, &wfds, NULL, timeout == INFINITE ? NULL : &tv);
 #else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
@@ -9429,11 +9429,13 @@ void UnixInitAsyncSocket(SOCK *sock)
 		UnixSetSocketNonBlockingMode(sock->socket, true);
 	}
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	if (sock->ssl != NULL && sock->ssl->s3 != NULL)
 	{
 		sock->Ssl_Init_Async_SendAlert[0] = sock->ssl->s3->send_alert[0];
 		sock->Ssl_Init_Async_SendAlert[1] = sock->ssl->s3->send_alert[1];
 	}
+#endif
 }
 
 // Initializing the socket library
@@ -13015,7 +13017,11 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		{
 			if (client_tls == false)
 			{
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
+#else
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+#endif
 			}
 			else
 			{
@@ -13381,10 +13387,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			e = SSL_get_error(ssl, ret);
 			if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 			{
-				if (e == SSL_ERROR_SSL &&
+				if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+					&&
 					sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+					)
 				{
 					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 					Disconnect(sock);
@@ -13467,10 +13477,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 	{
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 		{
-			if (e == SSL_ERROR_SSL &&
+			if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+				&&
 				sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+				)
 			{
 				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 				Disconnect(sock);
@@ -18313,7 +18327,7 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 		return;
 	}
 
-	if (IsZeroIp(ip));
+	if (IsZeroIp(ip))
 	{
 		return;
 	}
@@ -22902,7 +22916,3 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 
 	return ret;
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

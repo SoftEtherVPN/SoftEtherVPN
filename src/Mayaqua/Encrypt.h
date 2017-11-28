@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -141,8 +141,17 @@ void RAND_Free_For_SoftEther();
 #define	AES_IV_SIZE					16			// AES IV size
 #define	AES_MAX_KEY_SIZE			32			// Maximum AES key size
 
+// IANA definitions taken from IKEv1 Phase 1
+#define SHA1_160						2
+#define SHA2_256						4
+#define SHA2_384						5
+#define SHA2_512						6
+
 // HMAC block size
 #define	HMAC_BLOCK_SIZE					64
+// The block size for sha-384 and sha-512 as defined by rfc4868
+#define HMAC_BLOCK_SIZE_1024			128
+#define HMAC_BLOCK_SIZE_MAX				512
 
 #define DH_GROUP1_PRIME_768 \
 	"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" \
@@ -228,7 +237,14 @@ void RAND_Free_For_SoftEther();
 // Macro
 #define	HASHED_DATA(p)			(((UCHAR *)p) + 15)
 
-
+// OpenSSL <1.1 Shims
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
+#	define EVP_PKEY_base_id(pkey) ((pkey)->type)
+#	define X509_get0_notBefore(x509) ((x509)->cert_info->validity->notBefore)
+#	define X509_get0_notAfter(x509) ((x509)->cert_info->validity->notAfter)
+#	define X509_get_serialNumber(x509) ((x509)->cert_info->serialNumber)
+#endif
 
 // Crypt context
 struct CRYPT
@@ -294,6 +310,8 @@ struct X_CRL
 #define	MD5_SIZE	16
 #define	SHA1_SIZE	20
 #define	SHA256_SIZE	32
+#define	SHA384_SIZE	48
+#define	SHA512_SIZE	64
 
 // Key element of DES
 struct DES_KEY_VALUE
@@ -341,7 +359,7 @@ struct CIPHER
 struct MD
 {
 	char Name[MAX_PATH];
-	const struct env_md_st *Md;
+	const struct evp_md_st *Md;
 	struct hmac_ctx_st *Ctx;
 	UINT Size;
 };
@@ -461,7 +479,7 @@ void GetAllNameFromName(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromNameEx(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromXEx(wchar_t *str, UINT size, X *x);
 void GetAllNameFromXExA(char *str, UINT size, X *x);
-BUF *BigNumToBuf(BIGNUM *bn);
+BUF *BigNumToBuf(const BIGNUM *bn);
 BIGNUM *BinToBigNum(void *data, UINT size);
 BIGNUM *BufToBigNum(BUF *b);
 char *BigNumToStr(BIGNUM *bn);
@@ -488,13 +506,6 @@ void RsaPublicToBin(K *k, void *data);
 BUF *RsaPublicToBuf(K *k);
 K *RsaBinToPublic(void *data, UINT size);
 
-X_CRL *FileToXCrl(char *filename);
-X_CRL *FileToXCrlW(wchar_t *filename);
-X_CRL *BufToXCrl(BUF *b);
-void FreeXCrl(X_CRL *r);
-bool IsXRevokedByXCrl(X *x, X_CRL *r);
-bool IsXRevoked(X *x);
-
 DES_KEY_VALUE *DesNewKeyValue(void *value);
 DES_KEY_VALUE *DesRandKeyValue();
 void DesFreeKeyValue(DES_KEY_VALUE *v);
@@ -508,7 +519,12 @@ void Des3Encrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
 void Des3Decrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
+void Sha(UINT sha_type, void *dst, void *src, UINT size);
 void Sha1(void *dst, void *src, UINT size);
+void Sha2_256(void *dst, void *src, UINT size);
+void Sha2_384(void *dst, void *src, UINT size);
+void Sha2_512(void *dst, void *src, UINT size);
+
 void Md5(void *dst, void *src, UINT size);
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void MacSha196(void *dst, void *key, void *data, UINT data_size);
@@ -575,7 +591,3 @@ void DisableIntelAesAccel();
 
 #endif	// ENCRYPT_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

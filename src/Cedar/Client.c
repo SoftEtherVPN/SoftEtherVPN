@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -6663,7 +6663,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 				CiSetError(c, ERR_ACCOUNT_ACTIVE);
 			}
 			else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_SECURE &&
-				client->UseSecureDeviceId == 0)
+				c->UseSecureDeviceId == 0)
 			{
 				// Secure device is not specified
 				CiSetError(c, ERR_NO_SECURE_DEVICE_SPECIFIED);
@@ -11112,7 +11112,3 @@ void CiClientStatusPrinter(SESSION *s, wchar_t *status)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

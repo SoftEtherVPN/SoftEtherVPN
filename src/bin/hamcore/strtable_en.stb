@@ -34,13 +34,13 @@ CM_JAPANESE_ONLY_OLD_STARTUP	%s\\SoftEther VPN Client 2.0 タスクトレイ.lnk
 
 
 # Software information
-PRODUCT_NAME_VPN_CLI	SoftEther VPN Client
-PRODUCT_NAME_VPN_CMGR	SoftEther VPN Client Manager
-PRODUCT_NAME_VPN_SVR	SoftEther VPN Server
-PRODUCT_NAME_VPN_BRIDGE	SoftEther VPN Bridge
-PRODUCT_NAME_VPN_SMGR	SoftEther VPN Server Manager
-PRODUCT_NAME_ELOGSVC	SoftEther EtherLogger Beta Edition
-PRODUCT_NAME_ELOGMGR	SoftEther EtherLogger Manager Beta Edition
+PRODUCT_NAME_VPN_CLI	SoftEther VPN Client Developer Edition
+PRODUCT_NAME_VPN_CMGR	SoftEther VPN Client Manager Developer Edition
+PRODUCT_NAME_VPN_SVR	SoftEther VPN Server Developer Edition
+PRODUCT_NAME_VPN_BRIDGE	SoftEther VPN Bridge Developer Edition
+PRODUCT_NAME_VPN_SMGR	SoftEther VPN Server Manager Developer Edition
+PRODUCT_NAME_ELOGSVC	SoftEther EtherLogger Developer Edition
+PRODUCT_NAME_ELOGMGR	SoftEther EtherLogger Developer Edition
 
 # Branding String for Limited Connection
 # BRANDED_C_TO_S		Branded_VPN
@@ -50,7 +50,7 @@ PRODUCT_NAME_ELOGMGR	SoftEther EtherLogger Manager Beta Edition
 # CLIENT_ID				123
 
 # Family Name for Software Update Check
-PRODUCT_FAMILY_NAME		SoftEther
+PRODUCT_FAMILY_NAME		SoftEtherDev
 
 # Product information
 SE_COMPANY_URL			https://selinks.org/?se
@@ -768,11 +768,11 @@ REMOTE_DEF_TITLE		Specify the computer you want to remotely connect to.
 
 
 # Concerning client notification service
-CN_TITLE				SoftEther VPN Client
+CN_TITLE				SoftEther VPN Client Developer Edition
 
 
 # Concerning Connection Manager
-CM_TITLE				SoftEther VPN Client Manager
+CM_TITLE				SoftEther VPN Client Developer Edition Manager
 CM_PW_LOCALMACHINE		Local Computer
 CM_NO_REMOTE			The VPN Client service running on %s disallows remote connections.
 CM_CONNECT_FAILED		Unable to connect to the VPN Client service operating on %s. \r\nMake sure the VPN Client service has started and is running normally.
@@ -955,11 +955,11 @@ CM_VPN_FILE_IMPORT_NG	Unable to import the VPN Connection Setting File. Because 
 CM_VLAN_INSTALLING		Please Wait a While
 CM_SECURE_MUST_LOCAL	It is currently not possible to configure smart card settings because you are connected to and managing a VPN Client on a remote computer.
 CM_DETAIL_MODE_LINK_STR	With a Cascade Connection, Connect by Bridge / Router mode is always enabled.
-CM_TRAY_INITING			SoftEther VPN Client Manager...
-CM_TRAY_NOT_CONNECTED	SoftEther VPN Client Manager\r\nNot connected.
-CM_TRAY_CONNECTED_0		SoftEther VPN Client Manager\r\nActive connections to %u servers and is attempting to connect to %u servers
-CM_TRAY_CONNECTED_1		SoftEther VPN Client Manager\r\nAttempting to connect to %u servers
-CM_TRAY_CONNECTED_2		SoftEther VPN Client Manager\r\nActive connections to %u servers
+CM_TRAY_INITING			SoftEther VPN Client Manager (Developer Edition) ...
+CM_TRAY_NOT_CONNECTED	SoftEther VPN Client Manager (Developer Edition)\r\nNot connected.
+CM_TRAY_CONNECTED_0		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers and is attempting to connect to %u servers
+CM_TRAY_CONNECTED_1		SoftEther VPN Client Manager (Developer Edition)\r\nAttempting to connect to %u servers
+CM_TRAY_CONNECTED_2		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers
 CM_TRAY_MENU_1_SHOW		&Show VPN Client Manager
 CM_TRAY_MENU_1_HIDE		Cl&ose VPN Client Manager
 CM_TRAY_MENU_2_QUIT		E&xit VPN Client Manager Program
@@ -1101,37 +1101,37 @@ SVC_VPNBRIDGE_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftE
 
 
 # Service definition (SoftEther VPN Client)
-SVC_SEVPNCLIENT_NAME		sevpnclient
-SVC_SEVPNCLIENT_TITLE		SoftEther VPN Client
-SVC_SEVPNCLIENT_DESCRIPT	This manages the Virtual Network Adapter device driver and connection service for the SoftEther VPN Client. When this service is stopped, it will not be possible to use SoftEther VPN Client on this computer to connect to a SoftEther VPN Server.
+SVC_SEVPNCLIENTDEV_NAME		sevpnclientdev
+SVC_SEVPNCLIENTDEV_TITLE		SoftEther VPN Client Developer Edition
+SVC_SEVPNCLIENTDEV_DESCRIPT	This manages the Virtual Network Adapter device driver and connection service for the SoftEther VPN Client. When this service is stopped, it will not be possible to use SoftEther VPN Client on this computer to connect to a SoftEther VPN Server.
 
 
 # Service Definition (SoftEther VPN Server)
-SVC_SEVPNSERVER_NAME		sevpnserver
-SVC_SEVPNSERVER_TITLE		SoftEther VPN Server
-SVC_SEVPNSERVER_DESCRIPT	This manages the server processes of SoftEther VPN Server. SoftEther VPN Server provides high-performance SoftEther VPN Server functions via TCP/IP protocol. When this service is stopped, SoftEther VPN Server on this computer will stop and SoftEther VPN Client will be unable to establish a VPN connection with this computer.
+SVC_SEVPNSERVERDEV_NAME		sevpnserverdev
+SVC_SEVPNSERVERDEV_TITLE		SoftEther VPN Server Developer Edition
+SVC_SEVPNSERVERDEV_DESCRIPT	This manages the server processes of SoftEther VPN Server. SoftEther VPN Server provides high-performance SoftEther VPN Server functions via TCP/IP protocol. When this service is stopped, SoftEther VPN Server on this computer will stop and SoftEther VPN Client will be unable to establish a VPN connection with this computer.
 
 
 # Service Definition (SoftEther VPN Bridge)
-SVC_SEVPNBRIDGE_NAME		sevpnbridge
-SVC_SEVPNBRIDGE_TITLE		SoftEther VPN Bridge
-SVC_SEVPNBRIDGE_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftEther VPN Bridge provides a bridging connection between the network this computer is connected to and a SoftEther VPN Server that is remotely located. When this service is stopped, SoftEther VPN Bridge on this computer will stop and it will no longer be possible to communicate via the bridge connection.
+SVC_SEVPNBRIDGEDEV_NAME		sevpnbridgedev
+SVC_SEVPNBRIDGEDEV_TITLE		SoftEther VPN Bridge Developer Edition
+SVC_SEVPNBRIDGEDEV_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftEther VPN Bridge provides a bridging connection between the network this computer is connected to and a SoftEther VPN Server that is remotely located. When this service is stopped, SoftEther VPN Bridge on this computer will stop and it will no longer be possible to communicate via the bridge connection.
 
 
 # Service definition (SoftEther VPN User-mode Router)
 SVC_VPNROUTER_NAME		vpnrouter
-SVC_VPNROUTER_TITLE		SoftEther VPN Router
+SVC_VPNROUTER_TITLE		SoftEther VPN Router Developer Edition
 SVC_VPNROUTER_DESCRIPT	This manages the server processes of SoftEther VPN Router (service mode). SoftEther VPN Router is a program that provides a virtual NAT and DHCP server that operates in user mode and by using simple operations it is possible to establish a safe connection between a virtual IP network and a physical IP network. When this service is stopped, SoftEther VPN Router on this computer will stop and SoftEther VPN Client will be unable to use the routing service on this computer.
 
 
 # Service Definition (EtherLogger)
 SVC_ELOGSVC_NAME		elogsvc
-SVC_ELOGSVC_TITLE		SoftEther EtherLogger
+SVC_ELOGSVC_TITLE		SoftEther EtherLogger Developer Edition
 SVC_ELOGSVC_DESCRIPT	SoftEther EtherLogger is a service that captures data flowing through LAN cards connected to the computer and keeps a log of the headers of the packet types specified by the administrator and all data in text file format.
 
 
 # Concerning SoftEther VPN Server Manager
-SM_TITLE				SoftEther VPN Server Manager
+SM_TITLE				SoftEther VPN Server Manager Developer Edition
 SM_LOCALHOST			localhost (This server)
 SM_SERVER_BRIDGE_TITLE	Manage VPN Bridge "%S"
 SM_S_VHUB_BRIDGE		When using VPN Bridge, you manage Virtual Hub "BRIDGE" to operate management of VPN Bridge.
@@ -1636,7 +1636,7 @@ SM_DDNS_OK_MSG2			The Dynamic DNS hostname has been changed to '%S'.\r\n\r\nClic
 SM_DDNS_KEY_TITLE		Dynamic DNS Key
 SM_DDNS_KEY_MSG			Your Dynamic DNS Private Key: %s\r\n\r\nThis is the private key which is associated with your current DDNS name. If your VPN Server PC damaged and lost the key, the current DDNS name will be occupied forever and other VPN Server will not be able to use the same name.\r\nIf you want to continue to use the same name, keep the key on a safe place, such as an Internet storage, an another PC or a notepad.\r\nWhen applying the key to the new VPN Server, edit the configuration file of the VPN Server to replace the key by the string in the value following to "byte Key" in the "declare DDnsClient" directive.\r\nDo not use the duplicated key to two or more VPN Servers at the same time.
 SM_DDNS_KEY_ERR			Failed to read the DNS key.
-SM_IPSEC_PSK_TOO_LONG	The pre-shared key (PSK) has 10 or more letters.\r\n\r\nIt is reported that several versions of Google Android has a serious bug with 10 or more letters pre-shared key.\r\nTherefore 9 or less letters are recommended for pre-shared key.\r\n\r\nDo you want to modify the pre-shared key?
+SM_IPSEC_PSK_TOO_LONG	The pre-shared key (PSK) has 10 or more letters.\r\n\r\nIt is reported that several versions of Google Android has a serious bug with 10 or more letters pre-shared key.\r\nTherefore 9 or less letters are recommended for pre-shared key.\r\n\r\nDo you want to try another pre-shared key?
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	How to Use Advanced HTTP Redirection Function
 SM_ADVANCED_REDIRECT_URL_HINT	Advanced HTTP Redirection (For Experts)\r\n\r\nThe string "<INFO>" is a place holder. It can embedded on the URL of redirection.\r\n\r\nEmbedded URL Example:\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\nWhen the client is being redirected, the actual destination URL of redirection will be replaced as follows.\r\n\r\nUsername|Session ID|IP Address|Date and Time|Hash Value\r\n\r\\nAfter Replacement Example: zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\nThe details of each fields are described as following.\r\n\r\nUsername: The username using for the current VPN Session will be placed.\r\n\r\nSession ID: The Session ID of the VPN Session will be placed.\r\n\r\nDate and Time: 14-digits will be placed as 'YYYYMMDDHHMMSS' format (Time zone is UTC).\r\n\r\nHash Value: A 40-characters hexadecimal strings which represent 20 bytes binary data. The binary data is the result of SHA-1 hash function to the temporary string. The temporary string is the combination of the bit-array of the above fields plus the secret string after the '|' symbol in the redirection URL. (In the above example, "secret" is the secret string.) If there are no '|' symbols in the URL, no hash value will be appended.\r\n\r\nThe Purpose of Hash Value: The secret string is effective as the secret key. Thanks to the secret key, the CGI program which receives the query strings on the redirected URL can verify the integrity of the parameters included in the URL.\r\n
 SM_ADVANCED_REDIRECT_URL_MSG	An URL must start with "http://" or "https://"
@@ -2427,8 +2427,8 @@ STATIC7					&Keep Alive Internet Connection Function:
 
 
 PREFIX					D_ABOUT
-S_INFO1					SoftEther VPN %u.0 (Ver %u.%02u, Build %u)
-S_INFO2				An Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
+S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				THIS SOFTWARE IS FREEWARE DEVELOPED UNDER THE SOFTETHER VPN PROJECT AT UNIVERSITY OF TSUKUBA, WITHOUT WARRANTY OF AND KIND. IN NO EVENT SHALL THE DEVELOPERS, COPYRIGHT OWNERS OR DISTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.\r\n\r\nSoftEther VPN is a work of the research and development project of Japanese Government, subsidized by Ministry of Economy, Trade and Industry of Japan, administrated by Information Promotion Agency.
 IDCANCEL				&OK
@@ -2472,7 +2472,7 @@ S_STATIC				Note: If authentication type is RADIUS or NT Domain Authentication, 
 
 
 PREFIX					D_SM_MAIN
-CAPTION					SoftEther VPN Server Manager
+CAPTION					SoftEther VPN Server Manager Developer Edition
 STATIC1					Connection &Settings for VPN Server:
 STATIC2					Connection Settings for VPN Server or VPN Bridge are defined as follows. Double-click the item to connect to the server.\r\nTo add a new connection, click New Setting.
 B_NEW_SETTING			&New Setting
@@ -3723,7 +3723,7 @@ B_VGS					VPN &Gate Service Settings...
 
 
 PREFIX					D_CM_EASY
-CAPTION					SoftEther VPN Client Easy Manager
+CAPTION					SoftEther VPN Client Easy Manager (Developer Edition)
 B_MODE					Switch Operation &Mode
 IDCANCEL				&Close
 B_STATUS				View Connection &Status
@@ -3731,8 +3731,8 @@ B_VGC					VPN Gate Academic Project
 
 
 PREFIX					D_SM_SETUP
-CAPTION					SoftEther VPN Server / Bridge Easy Setup
-S_TITLE					SoftEther VPN Server / Bridge Easy Setup
+CAPTION					SoftEther VPN Server / Bridge Easy Setup (Developer Edition)
+S_TITLE					SoftEther VPN Server / Bridge Easy Setup (Developer Edition)
 IDC_STATIC_1			By using this setup you can easily setup a SoftEther VPN Server or VPN Bridge for the following use and purpose. After exiting the setup, you can use the VPN Server Manager to freely configure more advanced settings.
 S_BOLD					Select the type of VPN server you want to build. Multiple types can be selected together.
 C_REMOTE				&Remote Access VPN Server
@@ -4419,7 +4419,7 @@ CMD_DISCONNECTED_MSG	\n--- Error ---\n\nThe communication session with the host 
 
 
 # VPNCMD コマンド
-CMD_VPNCMD				SoftEther VPN Command Line Management Utility
+CMD_VPNCMD				SoftEther VPN Command Line Management Utility Developer Edition
 CMD_VPNCMD_HELP			The 'vpncmd' program is a utility that allows you to manage SoftEther VPN software by using command lines. By using vpncmd, you can connect to a VPN Client, a VPN Server or VPN Bridge that is running on a local or remote computer and manage these services. Moreover, by using VPN Tools mode, you can call the Network Traffic Speed Test Tool and the certificate creation function. These can be used even when not connected to the VPN Server or VPN Client. \nWhen using vpncmd, if the file name is specified by using the /IN and /OUT parameter, the command can be executed in a batch according to a file in which the executable commands are enumerated and the execution results can be written to a file. Normally a command prompt will appear after vpncmd is launched but when an input file is specified by the /IN parameter, the program will automatically terminate after the execution of all lines in the input file is complete. Also, when a command to execute is specified by the /CMD parameter, the program will automatically terminate after the execution of that command is complete. You cannot specify the /IN parameter and the /CMD parameter at the same time. The termination code of the vpncmd program will be the error code of the last executed command (0 in the case of successful execution). \nUnder a Windows environment, when vpncmd is launched once or more by a user with administrator privileges, it is possible to simply input 'vpncmd' to a Windows command prompt or [Run...] window to launch vpncmd. To achieve the same result under a UNIX system, you can manually set, as appropriate, the PATH environment variable.
 CMD_VPNCMD_ARGS			vpncmd [host:port] [/CLIENT|/SERVER|/TOOLS] [/HUB:hub] [/ADMINHUB:adminhub] [/PASSWORD:password] [/IN:infile] [/OUT:outfile] [/CMD commands...]
 CMD_VPNCMD_[host:port]	By specifying parameters in the format "host name:port number", a connection will automatically be made to that host. If this is not specified, a prompt will appear to input the connection destination. When connecting to a VPN Client, you cannot specify a port number.
@@ -4440,7 +4440,7 @@ CMD_VPNCMD_HOST_2		Specify the host name or IP address of the computer that the 
 CMD_VPNCMD_HOST_3		Hostname of IP Address of Destination: 
 CMD_VPNCMD_HUB_1		If connecting to the server by Virtual Hub Admin Mode, please input the Virtual Hub name. \nIf connecting by server admin mode, please press Enter without inputting anything.
 CMD_VPNCMD_HUB_2		Specify Virtual Hub Name: 
-CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
 CMD_VPNCMD_PASSWORD_1	Access has been denied. Possibly the password is incorrect, or perhaps you are connecting by an incorrect admin mode. You can try inputting the password again. To cancel, press Ctrl+D.
 CMD_VPNCMD_PASSWORD_2	Password: 
 CMD_VPNCMD_ERROR		Error occurred. (Error code: %u)\n%s
@@ -6934,7 +6934,7 @@ CMD_Check_Args			Check
 
 # Concerning System Checker
 # (This contains some strange character strings which are used to check character code conversion.)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
 CHECK_NOTE				If this operation environment check tool is run on a system and that system passes, it is most likely that SoftEther VPN software can operate on that system. This check may take a while. Please wait...\n\n
 CHECK_EXEC_TAG			Checking '%s'... \n
 CHECK_PASS				Pass
@@ -6964,7 +6964,7 @@ CHECK_PROC_NETWORK		Network system
 #                                                    #
 ######################################################
 
-SW_TITLE									SoftEther VPN Setup Wizard (Version %S)
+SW_TITLE									SoftEther VPN Developer Edition Setup Wizard (Version %S)
 SW_EXIT_CONFIRM								The setup process of SoftEther VPN hasn't been finished yet.\r\n\r\nDo you want to exit the setup?
 SW_UNINSTALL_CONFIRM						Starting the uninstall process of %s.\r\n\r\nDo you want to continue?
 
@@ -6984,7 +6984,7 @@ SW_COMPONENT_VPNSMGR_DESCRIPTION			Only the VPN Server Manager will be installed
 SW_COMPONENT_VPNCMGR_TITLE					SoftEther VPN Client Manager (Admin Tools Only)
 SW_COMPONENT_VPNCMGR_DESCRIPTION			Only the VPN Client Manager will be installed. The VPN Client service program will not be installed. You can use the VPN Client Manager to connect and manage remote VPN Clients on other computers which can be run on Windows and Linux.
 
-SW_WELCOME_TITLE							Welcome to the SoftEther VPN Setup Wizard
+SW_WELCOME_TITLE							Welcome to the SoftEther VPN Developer Edition Setup Wizard
 SW_MODE_TITLE								Select a Setup Mode
 SW_NOT_ADMIN_TITLE							Not Enough Privileges
 SW_COMPONENTS_TITLE							Select Software Components to Install
@@ -7103,40 +7103,40 @@ SW_RUN_TEXT_VPNCMGR							Start the SoftEther VPN Client Manager.
 
 SW_NIC_UNINSTALL							Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
 
-# --- Do not translate this section !!!  stay them in English !!! ---
+# Do not translate this section !!!
 SW_TAG_USERNAME_ENGLISH						\ (User-Mode)
-SW_LINK_NAME_VPNSERVER_SVC					SoftEther VPN Server User-mode Service
-SW_LINK_NAME_VPNBRIDGE_SVC					SoftEther VPN Bridge User-mode Service
-SW_LONG_VPNSERVER							SoftEther VPN Server
-SW_LONG_VPNCLIENT							SoftEther VPN Client
-SW_LONG_VPNBRIDGE							SoftEther VPN Bridge
-SW_LONG_VPNSMGR								SoftEther VPN Server Manager
-SW_LONG_VPNCMGR								SoftEther VPN Client Manager
+SW_LINK_NAME_VPNSERVER_SVC					SoftEther VPN Server Developer User-mode Service
+SW_LINK_NAME_VPNBRIDGE_SVC					SoftEther VPN Bridge Developer User-mode Service
+SW_LONG_VPNSERVER							SoftEther VPN Server Developer Edition
+SW_LONG_VPNCLIENT							SoftEther VPN Client Developer Edition
+SW_LONG_VPNBRIDGE							SoftEther VPN Bridge Developer Edition
+SW_LONG_VPNSMGR								SoftEther VPN Server Manager Developer Edition
+SW_LONG_VPNCMGR								SoftEther VPN Client Manager Developer Edition
 SW_LANG_SET_FAILED							Failed to write the new language setting on lang.config file.
 # --- end of "Do not translate this section" ---
 
 
 # Shortcuts Filenames
-SW_LINK_NAME_VPNSMGR_SHORT					SoftEther VPN Server Manager
-SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (User)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Tools)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (User)
-SW_LINK_NAME_VPNSMGR_FULL					SoftEther VPN Server Manager
+SW_LINK_NAME_VPNSMGR_SHORT					SoftEther VPN Server Manager (Dev)
+SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (Dev User)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Dev Tools)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (Dev Tools User)
+SW_LINK_NAME_VPNSMGR_FULL					SoftEther VPN Server Manager Developer Edition
 SW_LINK_NAME_VPNSMGR_COMMENT				You can manage SoftEther VPN Server or SoftEther VPN Bridge on a remote computer.
 
-SW_LINK_NAME_VPNCMGR_SHORT					SoftEther VPN Client Manager
-SW_LINK_NAME_VPNCMGR_FULL					SoftEther VPN Client Manager
+SW_LINK_NAME_VPNCMGR_SHORT					SoftEther VPN Client Manager (Dev)
+SW_LINK_NAME_VPNCMGR_FULL					SoftEther VPN Client Manager Developer Edition
 SW_LINK_NAME_VPNCMGR_COMMENT				You can connect to a VPN Server by using SoftEther VPN Client.
 
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT				SoftEther VPN Client Remote Manager
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (User)
-SW_LINK_NAME_VPNCMGRTOOLS_FULL				SoftEther VPN Client Remote Manager
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT				SoftEther VPN Client Remote Manager (Dev)
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (Dev User)
+SW_LINK_NAME_VPNCMGRTOOLS_FULL				SoftEther VPN Client Remote Manager Developer Edition
 
 SW_LINK_NAME_VPNCMGR2_FULL					Manage Remote Computer's SoftEther VPN Client
 SW_LINK_NAME_VPNCMGR2_COMMENT				You can establish a remote connection to and manage a SoftEther VPN Client on a remote computer.
 
-SW_LINK_NAME_VPNCMGRTRAY_FULL				SoftEther VPN Client Manager Startup
-SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Registers an icon of SoftEther VPN Client on the taskbar's notification area.
+SW_LINK_NAME_VPNCMGRTRAY_FULL				SoftEther VPN Client Manager Developer Edition Startup
+SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Registers an icon of SoftEther VPN Client Developer Edition on the taskbar's notification area.
 
 SW_LINK_NAME_EASYINSTALLER					Easy Installer Creator
 SW_LINK_NAME_EASYINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Easy Installer which has a function to kick-start a VPN connection to the specific destination automatically.
