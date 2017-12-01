@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -246,6 +246,15 @@ struct SOCK_EVENT
 #define	SOCK_RUDP_LISTEN		5
 #define	SOCK_REVERSE_LISTEN		6
 
+// SSL Accept Settings
+struct SSL_ACCEPT_SETTINGS
+{
+	bool AcceptOnlyTls;
+	bool Tls_Disable1_0;
+	bool Tls_Disable1_1;
+	bool Tls_Disable1_2;
+};
+
 // Socket
 struct SOCK
 {
@@ -312,7 +321,8 @@ struct SOCK
 	IP Reverse_MyServerGlobalIp;	// Self global IP address when using the reverse socket
 	UINT Reverse_MyServerPort;		// Self port number when using the reverse socket
 	UCHAR Ssl_Init_Async_SendAlert[2];	// Initial state of SSL send_alert
-	bool AcceptOnlyTls;			// Accept only TLS (disable SSLv3)
+	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
+	bool RawIP_HeaderIncludeFlag;
 
 #ifdef	ENABLE_SSL_LOGGING
 	// SSL Logging (for debug)
@@ -371,6 +381,7 @@ struct CANCEL
 	void *hEvent;					// Pointer to a Win32 event handle
 #else	// OS_WIN32
 	int pipe_read, pipe_write;		// Pipe
+	int pipe_special_read2, pipe_special_read3;
 #endif	// OS_WIN32
 };
 
@@ -749,8 +760,8 @@ struct RUDP_SESSION
 };
 
 // NAT Traversal Server Information
-#define	UDP_NAT_T_SERVER_TAG				"x%c.x%c.servers.nat-traversal.softether-network.net."
-#define	UDP_NAT_T_SERVER_TAG_ALT			"x%c.x%c.servers.nat-traversal.uxcom.jp."
+#define	UDP_NAT_T_SERVER_TAG				"x%c.x%c.dev.servers.nat-traversal.softether-network.net."
+#define	UDP_NAT_T_SERVER_TAG_ALT			"x%c.x%c.dev.servers.nat-traversal.uxcom.jp."
 #define	UDP_NAT_T_PORT						5004
 
 // Related to processing to get the IP address of the NAT-T server
@@ -1273,6 +1284,7 @@ SOCK *Connect(char *hostname, UINT port);
 SOCK *ConnectEx(char *hostname, UINT port, UINT timeout);
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag);
 SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname);
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
 void SetSocketSendRecvBufferSize(SOCKET s, UINT size);
 UINT GetSocketBufferSize(SOCKET s, bool send);
@@ -1323,6 +1335,8 @@ SOCK *NewUDP4(UINT port, IP *ip);
 SOCK *NewUDP6(UINT port, IP *ip);
 SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UINT num_retry);
 SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR rand_port_id);
+void ClearSockDfBit(SOCK *s);
+void SetRawSockHeaderIncludeOption(SOCK *s, bool enable);
 UINT GetNewAvailableUdpPortRand();
 UINT NewRandPortByMachineAndExePath(UINT start_port, UINT end_port, UINT additional_int);
 void DisableUDPChecksum(SOCK *s);
@@ -1363,6 +1377,7 @@ bool GetDomainName(char *name, UINT size);
 bool UnixGetDomainName(char *name, UINT size);
 void RenewDhcp();
 void AcceptInit(SOCK *s);
+void AcceptInitEx(SOCK *s, bool no_lookup_hostname);
 void DisableGetHostNameWhenAcceptInit();
 bool CheckCipherListName(char *name);
 TOKEN_LIST *GetCipherList();
@@ -1671,7 +1686,3 @@ UINT64 GetDynValueOrDefaultSafe(char *name, UINT64 default_value);
 
 #endif	// NETWORK_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

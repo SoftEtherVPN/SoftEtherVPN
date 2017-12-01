@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -596,7 +596,7 @@ UINT NtGetStatus(NAT *n, RPC_NAT_STATUS *t)
 
 			t->NumDhcpClients = LIST_NUM(v->DhcpLeaseList);
 
-			t->IsKernelMode = NnIsActive(v);
+			t->IsKernelMode = NnIsActiveEx(v, &t->IsRawIpMode);
 		}
 		UnlockVirtual(v);
 	}
@@ -1063,6 +1063,7 @@ void InRpcNatStatus(RPC_NAT_STATUS *t, PACK *p)
 	t->NumDnsSessions = PackGetInt(p, "NumDnsSessions");
 	t->NumDhcpClients = PackGetInt(p, "NumDhcpClients");
 	t->IsKernelMode = PackGetBool(p, "IsKernelMode");
+	t->IsRawIpMode = PackGetBool(p, "IsRawIpMode");
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
 }
 void OutRpcNatStatus(PACK *p, RPC_NAT_STATUS *t)
@@ -1080,6 +1081,7 @@ void OutRpcNatStatus(PACK *p, RPC_NAT_STATUS *t)
 	PackAddInt(p, "NumDnsSessions", t->NumDnsSessions);
 	PackAddInt(p, "NumDhcpClients", t->NumDhcpClients);
 	PackAddBool(p, "IsKernelMode", t->IsKernelMode);
+	PackAddBool(p, "IsRawIpMode", t->IsRawIpMode);
 }
 void FreeRpcNatStatus(RPC_NAT_STATUS *t)
 {
@@ -1914,7 +1916,3 @@ void NtFree()
 	nat_lock = NULL;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

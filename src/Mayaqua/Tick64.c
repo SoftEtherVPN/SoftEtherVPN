@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -158,13 +158,14 @@ UINT64 Tick64ToTime64(UINT64 tick)
 	}
 	LockList(tk64->AdjustTime);
 	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(tk64->AdjustTime);i++)
+		INT i;
+		for (i = ((INT)LIST_NUM(tk64->AdjustTime) - 1); i >= 0; i--)
 		{
 			ADJUST_TIME *t = LIST_DATA(tk64->AdjustTime, i);
 			if (t->Tick <= tick)
 			{
 				ret = t->Time + (tick - t->Tick);
+				break;
 			}
 		}
 	}
@@ -402,7 +403,3 @@ void FreeTick64()
 	halt_tick_event = NULL;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

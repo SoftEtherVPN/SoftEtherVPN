@@ -1,0 +1,25 @@
+[Unit]
+Description=SoftEther VPN Client
+After=network.target auditd.service
+ConditionPathExists=!/opt/vpnclient/do_not_run
+
+[Service]
+Type=forking
+EnvironmentFile=-/opt/vpnclient
+ExecStart=/opt/vpnclient/vpnclient start
+ExecStop=/opt/vpnclient/vpnclient stop
+KillMode=process
+Restart=on-failure
+
+# Hardening
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=full
+ReadOnlyDirectories=/
+ReadWriteDirectories=-/opt/vpnclient
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW CAP_SYS_NICE CAP_SYS_ADMIN CAP_SETUID
+
+[Install]
+WantedBy=multi-user.target
+
+

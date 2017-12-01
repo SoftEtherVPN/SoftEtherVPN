@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -159,6 +159,7 @@ struct URL_DATA
 	char Referer[MAX_SIZE * 3];				// Referer
 	char AdditionalHeaderName[128];			// Additional header name
 	char AdditionalHeaderValue[MAX_SIZE];	// Additional header value
+	char SniString[MAX_SIZE];				// SNI String
 };
 
 // WPC entry
@@ -204,6 +205,11 @@ BUF *HttpRequestEx2(URL_DATA *data, INTERNET_SETTING *setting,
 				   UINT *error_code, bool check_ssl_trust, char *post_data,
 				   WPC_RECV_CALLBACK *recv_callback, void *recv_callback_param, void *sha1_cert_hash,
 				   bool *cancel, UINT max_recv_size, char *header_name, char *header_value);
+BUF *HttpRequestEx3(URL_DATA *data, INTERNET_SETTING *setting,
+					UINT timeout_connect, UINT timeout_comm,
+					UINT *error_code, bool check_ssl_trust, char *post_data,
+					WPC_RECV_CALLBACK *recv_callback, void *recv_callback_param, void *sha1_cert_hash, UINT num_hashes,
+					bool *cancel, UINT max_recv_size, char *header_name, char *header_value);
 SOCK *WpcSockConnect(WPC_CONNECT *param, UINT *error_code, UINT timeout);
 SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool *cancel);
 SOCK *WpcSockConnect2(char *hostname, UINT port, INTERNET_SETTING *t, UINT *error_code, UINT timeout);
@@ -223,12 +229,11 @@ PACK *WpcCall(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT t
 PACK *WpcCallEx(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT timeout_comm,
 			  char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, bool *cancel, UINT max_recv_size,
 			  char *additional_header_name, char *additional_header_value);
+PACK *WpcCallEx2(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UINT timeout_comm,
+				char *function_name, PACK *pack, X *cert, K *key, void *sha1_cert_hash, UINT num_hashes, bool *cancel, UINT max_recv_size,
+				char *additional_header_name, char *additional_header_value, char *sni_string);
 bool IsProxyPrivateIp(INTERNET_SETTING *s);
 
 #endif	// WPC_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

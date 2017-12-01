@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -211,7 +211,18 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					AUTHRADIUS *auth = (AUTHRADIUS *)u->AuthData;
 					if (ast || auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
 					{
-						name = CopyStrToUni(username);
+						if( IsEmptyStr(h->RadiusRealm) == false )
+						{	
+							char name_and_realm[MAX_SIZE];
+							StrCpy(name_and_realm, sizeof(name_and_realm), username);
+							StrCat(name_and_realm, sizeof(name_and_realm), "@");
+							StrCat(name_and_realm, sizeof(name_and_realm), h->RadiusRealm);
+							name = CopyStrToUni(name_and_realm);
+						}
+						else
+						{
+							name = CopyStrToUni(username);
+						}
 					}
 					else
 					{
@@ -267,7 +278,15 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					// Attempt to login
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
-						name, password, interval, mschap_v2_server_response_20, opt);
+						name, password, interval, mschap_v2_server_response_20, opt, hub->Name);
+
+					if (b)
+					{
+						if (opt != NULL)
+						{
+							opt->Out_IsRadiusLogin = true;
+						}
+					}
 				}
 
 				Lock(hub->lock);
@@ -689,7 +708,3 @@ UINT SamGetUserAuthType(HUB *h, char *username)
 	return authtype;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

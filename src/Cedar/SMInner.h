@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -112,18 +112,18 @@
 // The internal header of SM.c
 
 // Constants
-#define	SM_REG_KEY			"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager"
-#define	SM_CERT_REG_KEY		"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Cert Tool"
-#define	SM_SETTING_REG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Settings"
-#define	SM_LASTHUB_REG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Last HUB Name"
-#define	SM_HIDE_CERT_UPDATE_MSG_KEY	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Hide Cert Update Msg"
+#define	SM_REG_KEY			"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager"
+#define	SM_CERT_REG_KEY		"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager\\Cert Tool"
+#define	SM_SETTING_REG_KEY	"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager\\Settings"
+#define	SM_LASTHUB_REG_KEY	"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager\\Last HUB Name"
+#define	SM_HIDE_CERT_UPDATE_MSG_KEY	"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager\\Hide Cert Update Msg"
 
 #define	NAME_OF_VPN_SERVER_MANAGER	"vpnsmgr"
 #define	NAME_OF_VPN_SERVER_TARGET	"vpnserver@%s"
 #define	NAME_OF_VPN_BRIDGE_TARGET	"vpnbridge@%s"
 
 // Constants (Old value)
-#define	SM_SETTING_REG_KEY_OLD	"Software\\SoftEther Corporation\\SoftEther VPN 2.0\\Server Manager\\Settings"
+#define	SM_SETTING_REG_KEY_OLD	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Settings"
 
 // Connection setting
 typedef struct SETTING
@@ -828,7 +828,3 @@ void SmProxyDlgInit(HWND hWnd, INTERNET_SETTING *t);
 void SmProxyDlgUpdate(HWND hWnd, INTERNET_SETTING *t);
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

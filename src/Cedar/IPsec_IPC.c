@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -133,20 +133,27 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 
 	t = ParseTokenWithNullStr(password, ":");
 
-	if (t->NumTokens == 5)
+	if (t->NumTokens == 6)
 	{
-		BUF *b1, *b2, *b3;
+		BUF *b1, *b2, *b3, *b4;
 
 		b1 = StrToBin(t->Token[2]);
 		b2 = StrToBin(t->Token[3]);
 		b3 = StrToBin(t->Token[4]);
+		b4 = StrToBin(t->Token[5]);
 
-		if (IsEmptyStr(t->Token[1]) == false && b1->Size == 16 && b2->Size == 16 && b3->Size == 24)
+		if (IsEmptyStr(t->Token[1]) == false && b1->Size == 16 && b2->Size == 16 && b3->Size == 24
+			 && b4->Size == 8)
 		{
+			UINT64 eap_client_ptr = 0;
+
 			StrCpy(d->MsChapV2_PPPUsername, sizeof(d->MsChapV2_PPPUsername), t->Token[1]);
 			Copy(d->MsChapV2_ServerChallenge, b1->Buf, 16);
 			Copy(d->MsChapV2_ClientChallenge, b2->Buf, 16);
 			Copy(d->MsChapV2_ClientResponse, b3->Buf, 24);
+			Copy(&eap_client_ptr, b4->Buf, 8);
+
+			d->MsChapV2_EapClient = (EAP_CLIENT *)eap_client_ptr;
 
 			ret = true;
 		}
@@ -154,6 +161,7 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 		FreeBuf(b1);
 		FreeBuf(b2);
 		FreeBuf(b3);
+		FreeBuf(b4);
 	}
 
 	FreeToken(t);
@@ -315,7 +323,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 		param->UserName, param->Password, error_code, &param->ClientIp,
 		param->ClientPort, &param->ServerIp, param->ServerPort,
 		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss);
+		param->BridgeMode, param->Mss, NULL);
 
 	return ipc;
 }
@@ -324,7 +332,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss)
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -418,7 +426,6 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	// Upload the authentication data
 	p = PackLoginWithPlainPassword(hubname, username, password);
-	PackAddInt64(p, "timestamp", SystemTime64());
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
@@ -430,6 +437,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	PackAddBool(p, "require_bridge_routing_mode", bridge_mode);
 	PackAddBool(p, "require_monitor_mode", false);
 	PackAddBool(p, "qos", false);
+
+	if (eap_client != NULL)
+	{
+		UINT64 ptr = (UINT64)eap_client;
+		PackAddInt64(p, "release_me_eap_client", ptr);
+
+		AddRef(eap_client->Ref);
+	}
 
 	// Unique ID is determined by the sum of the connecting client IP address and the client_name
 	b = NewBuf();
@@ -663,6 +678,24 @@ void FreeIPC(IPC *ipc)
 	Free(ipc);
 }
 
+// Set User Class option if corresponding Virtual Hub optin is set
+void IPCDhcpSetConditionalUserClass(IPC *ipc, DHCP_OPTION_LIST *req)
+{
+	HUB *hub;
+
+	hub = GetHub(ipc->Cedar, ipc->HubName);
+	if (hub == NULL)
+	{
+		return;
+	}
+
+	if (hub->Option && hub->Option->UseHubNameAsDhcpUserClassOption)
+	{
+		StrCpy(req->UserClass, sizeof(req->UserClass), ipc->HubName);
+	}
+	ReleaseHub(hub);
+}
+
 // Release the IP address from the DHCP server
 void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 {
@@ -677,6 +710,7 @@ void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server)
 	Zero(&req, sizeof(req));
 	req.Opcode = DHCP_RELEASE;
 	req.ServerAddress = IPToUINT(dhcp_server);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, tran_id, &req, 0, 0, NULL));
 }
@@ -697,6 +731,7 @@ void IPCDhcpRenewIP(IPC *ipc, IP *dhcp_server)
 	req.Opcode = DHCP_REQUEST;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.RequestedIp = IPToUINT(&ipc->ClientIPAddress);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	FreeDHCPv4Data(IPCSendDhcpRequest(ipc, dhcp_server, tran_id, &req, 0, 0, NULL));
 }
@@ -719,6 +754,7 @@ bool IPCDhcpRequestInformIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_t
 	req.Opcode = DHCP_INFORM;
 	req.ClientAddress = IPToUINT(client_ip);
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -783,6 +819,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	req.RequestedIp = request_ip;
 	req.Opcode = DHCP_DISCOVER;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
@@ -893,6 +930,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	req.ServerAddress = d->ParsedOptionList->ServerAddress;
 	req.RequestedIp = d->ParsedOptionList->ClientAddress;
+	IPCDhcpSetConditionalUserClass(ipc, &req);
 
 	d2 = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_ACK, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d2 == NULL)
@@ -1225,6 +1263,12 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 	if (IsEmptyStr(opt->Hostname) == false)
 	{
 		Add(o, NewDhcpOption(DHCP_ID_HOST_NAME, opt->Hostname, StrLen(opt->Hostname)));
+	}
+
+	// User Class
+	if (IsEmptyStr(opt->UserClass) == false)
+	{
+		Add(o, NewDhcpOption(DHCP_ID_USER_CLASS, opt->UserClass, StrLen(opt->UserClass)));
 	}
 
 	// Vendor
@@ -2073,7 +2117,3 @@ BLOCK *IPCRecvL2(IPC *ipc)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

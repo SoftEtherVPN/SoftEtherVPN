@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -669,6 +669,7 @@ bool AdjustTcpMssL3(UCHAR *src, UINT src_size, UINT mss)
 	if (ip_ver == 4)
 	{
 		UINT ip_header_size;
+		UINT ip_total_length;
 		// IPv4
 		if (src_size < sizeof(IPV4_HEADER))
 		{
@@ -709,8 +710,22 @@ bool AdjustTcpMssL3(UCHAR *src, UINT src_size, UINT mss)
 			return false;
 		}
 
+		ip_total_length = READ_USHORT(&ip->TotalLength);
+
+		if (ip_total_length < ip_header_size)
+		{
+			// Invalid total length
+			return false;
+		}
+
+		if (src_size < ip_total_length)
+		{
+			// No total length
+			return false;
+		}
+
 		src += ip_header_size;
-		src_size -= ip_header_size;
+		src_size = ip_total_length - ip_header_size;
 
 		if (src_size < sizeof(TCP_HEADER))
 		{
@@ -1829,19 +1844,26 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 	{
 		USHORT port_raw = Endian16(80);
 		USHORT port_raw2 = Endian16(8080);
+		USHORT port_raw3 = Endian16(443);
 
 		// Analyze if the packet is a part of HTTP
 		if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) && p->TypeL4 == L4_TCP)
 		{
 			TCP_HEADER *tcp = p->L4.TCPHeader;
-			if (tcp->DstPort == port_raw || tcp->DstPort == port_raw2)
+			if (tcp != NULL && (tcp->DstPort == port_raw || tcp->DstPort == port_raw2) &&
+				(!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
 			{
-				if (tcp != NULL && (!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
+				if (p->PayloadSize >= 1)
 				{
-					if (p->PayloadSize >= 1)
-					{
-						p->HttpLog = ParseHttpAccessLog(p);
-					}
+					p->HttpLog = ParseHttpAccessLog(p);
+				}
+			}
+			if (tcp != NULL && tcp->DstPort == port_raw3 &&
+				(!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
+			{
+				if (p->PayloadSize >= 1)
+				{
+					p->HttpLog = ParseHttpsAccessLog(p);
 				}
 			}
 		}
@@ -2013,6 +2035,33 @@ void CorrectChecksum(PKT *p)
 	}
 }
 
+
+// Parse the HTTPS access log
+HTTPLOG *ParseHttpsAccessLog(PKT *pkt)
+{
+	HTTPLOG h;
+	char sni[MAX_PATH];
+	// Validate arguments
+	if (pkt == NULL)
+	{
+		return NULL;
+	}
+
+	if (GetSniNameFromSslPacket(pkt->Payload, pkt->PayloadSize, sni, sizeof(sni)) == false)
+	{
+		return NULL;
+	}
+
+	Zero(&h, sizeof(h));
+
+	StrCpy(h.Method, sizeof(h.Method), "SSL_Connect");
+	StrCpy(h.Hostname, sizeof(h.Hostname), sni);
+	h.Port = Endian16(pkt->L4.TCPHeader->DstPort);
+	StrCpy(h.Path, sizeof(h.Path), "/");
+	h.IsSsl = true;
+
+	return Clone(&h, sizeof(h));
+}
 
 // Parse the HTTP access log
 HTTPLOG *ParseHttpAccessLog(PKT *pkt)
@@ -2874,6 +2923,7 @@ bool ParsePacketIPv4(PKT *p, UCHAR *buf, UINT size)
 	{
 		// Quit analysing since this is fragmented
 		p->TypeL4 = L4_FRAGMENT;
+
 		return true;
 	}
 
@@ -4275,7 +4325,3 @@ LABEL_CLEANUP:
 		return NULL;
 	}
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

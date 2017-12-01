@@ -46,7 +46,7 @@
 				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="$(SolutionDir)Mayaqua\win32_inc;.;$(SolutionDir)"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USE_32BIT_TIME_T;VPN_SPEED"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;VPN_SPEED"
 				StringPooling="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"

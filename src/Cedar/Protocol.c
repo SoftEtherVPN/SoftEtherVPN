@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -690,8 +690,11 @@ void UpdateClientThreadMain(UPDATE_CLIENT *c)
 
 	cert_hash = StrToBin(UPDATE_SERVER_CERT_HASH);
 
-	recv = HttpRequestEx2(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
-		NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL),
+	StrCpy(data.SniString, sizeof(data.SniString), DDNS_SNI_VER_STRING);
+
+	recv = HttpRequestEx3(&data, NULL, UPDATE_CONNECT_TIMEOUT, UPDATE_COMM_TIMEOUT, &ret, false, NULL, NULL,
+		NULL, ((cert_hash != NULL && (cert_hash->Size % SHA1_SIZE) == 0) ? cert_hash->Buf : NULL),
+		(cert_hash != NULL ? (cert_hash->Size / SHA1_SIZE) : 0),
 		(bool *)&c->HaltFlag, 0, NULL, NULL);
 
 	FreeBuf(cert_hash);
@@ -1312,7 +1315,6 @@ bool ServerAccept(CONNECTION *c)
 	FARM_MEMBER *f = NULL;
 	SERVER *server = NULL;
 	POLICY ticketed_policy;
-	UINT64 timestamp;
 	UCHAR unique[SHA1_SIZE], unique2[SHA1_SIZE];
 	CEDAR *cedar;
 	RPC_WINVER winver;
@@ -1324,6 +1326,7 @@ bool ServerAccept(CONNECTION *c)
 	char *error_detail = NULL;
 	char *error_detail_2 = NULL;
 	char ctoken_hash_str[64];
+	EAP_CLIENT *release_me_eap_client = NULL;
 
 	// Validate arguments
 	if (c == NULL)
@@ -1445,31 +1448,6 @@ bool ServerAccept(CONNECTION *c)
 		{
 			FreePack(p);
 			c->Err = ERR_BRANDED_C_TO_S;
-			goto CLEANUP;
-		}
-	}
-
-	// Time inspection
-	timestamp = PackGetInt64(p, "timestamp");
-	if (timestamp != 0)
-	{
-		UINT64 now = SystemTime64();
-		UINT64 abs;
-		if (now >= timestamp)
-		{
-			abs = now - timestamp;
-		}
-		else
-		{
-			abs = timestamp - now;
-		}
-
-		if (abs > ALLOW_TIMESTAMP_DIFF)
-		{
-			// Time difference is too large
-			FreePack(p);
-			c->Err = ERR_BAD_CLOCK;
-			error_detail = "ERR_BAD_CLOCK";
 			goto CLEANUP;
 		}
 	}
@@ -1653,6 +1631,11 @@ bool ServerAccept(CONNECTION *c)
 			if (hub->Option != NULL)
 			{
 				radius_login_opt.In_CheckVLanId = hub->Option->AssignVLanIdByRadiusAttribute;
+				radius_login_opt.In_DenyNoVlanId = hub->Option->DenyAllRadiusLoginWithNoVlanAssign;
+				if (hub->Option->UseHubNameAsRadiusNasId)
+				{
+					StrCpy(radius_login_opt.NasId, sizeof(radius_login_opt.NasId), hubname);
+				}
 			}
 
 			// Get the various flags
@@ -1674,6 +1657,14 @@ bool ServerAccept(CONNECTION *c)
 			if (c->IsInProc)
 			{
 				char tmp[MAX_SIZE];
+				UINT64 ptr;
+
+				ptr = PackGetInt64(p, "release_me_eap_client");
+				if (ptr != 0)
+				{
+					release_me_eap_client = (EAP_CLIENT *)ptr;
+				}
+
 				PackGetStr(p, "inproc_postfix", c->InProcPrefix, sizeof(c->InProcPrefix));
 				Zero(tmp, sizeof(tmp));
 				PackGetStr(p, "inproc_cryptname", tmp, sizeof(tmp));
@@ -2203,9 +2194,25 @@ bool ServerAccept(CONNECTION *c)
 			FreePack(p);
 
 			// Check the assigned VLAN ID
-			if (radius_login_opt.Out_VLanId != 0)
+			if (radius_login_opt.Out_IsRadiusLogin)
 			{
-				assigned_vlan_id = radius_login_opt.Out_VLanId;
+				if (radius_login_opt.In_CheckVLanId)
+				{
+					if (radius_login_opt.Out_VLanId != 0)
+					{
+						assigned_vlan_id = radius_login_opt.Out_VLanId;
+					}
+
+					if (radius_login_opt.In_DenyNoVlanId && assigned_vlan_id == 0 || assigned_vlan_id >= 4096)
+					{
+						// Deny this session
+						Unlock(hub->lock);
+						ReleaseHub(hub);
+						c->Err = ERR_ACCESS_DENIED;
+						error_detail = "In_DenyNoVlanId";
+						goto CLEANUP;
+					}
+				}
 			}
 
 			if (StrCmpi(username, ADMINISTRATOR_USERNAME) != 0)
@@ -3807,6 +3814,11 @@ CLEANUP:
 
 	SLog(c->Cedar, "LS_CONNECTION_ERROR", c->Name, GetUniErrorStr(c->Err), c->Err);
 
+	if (release_me_eap_client != NULL)
+	{
+		ReleaseEapClient(release_me_eap_client);
+	}
+
 	return ret;
 }
 
@@ -4543,7 +4555,7 @@ bool ClientSecureSign(CONNECTION *c, UCHAR *sign, UCHAR *random, X **x)
 
 	if (ret)
 	{
-		Copy(sign, ss->Signature, 128);
+		Copy(sign, ss->Signature, sizeof(ss->Signature));
 		*x = ss->ClientCert;
 	}
 
@@ -5822,7 +5834,7 @@ bool ClientUploadAuth(CONNECTION *c)
 			// Authentication by secure device
 			if (ClientSecureSign(c, sign, c->Random, &x))
 			{
-				p = PackLoginWithCert(o->HubName, a->Username, x, sign, 128);
+				p = PackLoginWithCert(o->HubName, a->Username, x, sign, x->bits / 8);
 				c->ClientX = CloneX(x);
 				FreeX(x);
 			}
@@ -5844,9 +5856,6 @@ bool ClientUploadAuth(CONNECTION *c)
 		PackAddInt(p, "authtype", AUTHTYPE_TICKET);
 		PackAddData(p, "ticket", c->Ticket, SHA1_SIZE);
 	}
-
-	// Current time
-	PackAddInt64(p, "timestamp", SystemTime64());
 
 	if (p == NULL)
 	{
@@ -6446,11 +6455,14 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 	UINT nat_t_err = 0;
 	bool is_additonal_rudp_session = false;
 	UCHAR uc = 0;
+	IP ret_ip;
 	// Validate arguments
 	if (c == NULL)
 	{
 		return NULL;
 	}
+
+	Zero(&ret_ip, sizeof(IP));
 
 	sess = c->Session;
 
@@ -6464,12 +6476,25 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 
 	o = c->Session->ClientOption;
 
+	if (additional_connect)
+	{
+		if (sess != NULL)
+		{
+			Copy(&ret_ip, &sess->ServerIP_CacheForNextConnect, sizeof(IP));
+		}
+	}
+
 	if (c->RestoreServerNameAndPort && additional_connect)
 	{
 		// Restore to the original server name and port number
 		c->RestoreServerNameAndPort = false;
 
-		StrCpy(c->ServerName, sizeof(c->ServerName), o->Hostname);
+		if (StrCmpi(c->ServerName, o->Hostname) != 0)
+		{
+			StrCpy(c->ServerName, sizeof(c->ServerName), o->Hostname);
+			Zero(&ret_ip, sizeof(IP));
+		}
+
 		c->ServerPort = o->Port;
 	}
 
@@ -6489,7 +6514,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
 					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additonal_rudp_session) : false),
-					true, no_tls);
+					true, no_tls, &ret_ip);
 			}
 		}
 		else
@@ -6554,9 +6579,9 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 
 
 		// SOCKS connection
-		s = SocksConnectEx(c, host_for_direct_connection, port_for_direct_connection,
+		s = SocksConnectEx2(c, host_for_direct_connection, port_for_direct_connection,
 			c->ServerName, c->ServerPort, o->ProxyUsername,
-			additional_connect, (bool *)cancel_flag, hWnd);
+			additional_connect, (bool *)cancel_flag, hWnd, 0, &ret_ip);
 		if (s == NULL)
 		{
 			// Connection failure
@@ -6581,6 +6606,19 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				Copy(&c->Session->ServerIP, &s->RemoteIP, sizeof(IP));
 			}
 		}
+
+		if (IsZeroIP(&ret_ip) == false)
+		{
+			if (c->Session != NULL)
+			{
+				if (additional_connect == false)
+				{
+					Copy(&c->Session->ServerIP_CacheForNextConnect, &ret_ip, sizeof(IP));
+
+					Debug("Saved ServerIP_CacheForNextConnect: %s = %r\n", c->ServerName, &ret_ip);
+				}
+			}
+		}
 	}
 
 	return s;
@@ -6601,12 +6639,12 @@ SOCK *SocksConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 {
 	return SocksConnectEx2(c, proxy_host_name, proxy_port,
 		server_host_name, server_port, username, additional_connect, cancel_flag,
-		hWnd, 0);
+		hWnd, 0, NULL);
 }
 SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
 				   char *username, bool additional_connect,
-				   bool *cancel_flag, void *hWnd, UINT timeout)
+				   bool *cancel_flag, void *hWnd, UINT timeout, IP *ret_ip)
 {
 	SOCK *s = NULL;
 	IP ip;
@@ -6634,7 +6672,7 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// Connection
-	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false);
+	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false, ret_ip);
 	if (s == NULL)
 	{
 		// Failure
@@ -6838,7 +6876,7 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// Connection
-	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false);
+	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false, NULL);
 	if (s == NULL)
 	{
 		// Failure
@@ -6990,15 +7028,15 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 // TCP connection function
 SOCK *TcpConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool try_start_ssl, bool ssl_no_tls)
 {
-	return TcpConnectEx3(hostname, port, timeout, cancel_flag, hWnd, false, NULL, try_start_ssl, ssl_no_tls);
+	return TcpConnectEx3(hostname, port, timeout, cancel_flag, hWnd, false, NULL, try_start_ssl, ssl_no_tls, NULL);
 }
-SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls)
+SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, IP *ret_ip)
 {
 #ifdef	OS_WIN32
 	if (hWnd == NULL)
 	{
 #endif	// OS_WIN32
-		return ConnectEx3(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, ssl_no_tls, true);
+		return ConnectEx4(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, ssl_no_tls, true, ret_ip);
 #ifdef	OS_WIN32
 	}
 	else
@@ -7011,9 +7049,9 @@ SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, 
 // Connect with TCP/IP
 SOCK *TcpIpConnect(char *hostname, UINT port, bool try_start_ssl, bool ssl_no_tls)
 {
-	return TcpIpConnectEx(hostname, port, NULL, NULL, NULL, false, try_start_ssl, ssl_no_tls);
+	return TcpIpConnectEx(hostname, port, NULL, NULL, NULL, false, try_start_ssl, ssl_no_tls, NULL);
 }
-SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, bool ssl_no_tls)
+SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, bool ssl_no_tls, IP *ret_ip)
 {
 	SOCK *s = NULL;
 	UINT dummy_int = 0;
@@ -7028,7 +7066,7 @@ SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, U
 		return NULL;
 	}
 
-	s = TcpConnectEx3(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_no_tls);
+	s = TcpConnectEx3(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_no_tls, ret_ip);
 	if (s == NULL)
 	{
 		return NULL;
@@ -7273,7 +7311,3 @@ void GenerateRC4KeyPair(RC4_KEY_PAIR *k)
 	Rand(k->ServerToClientKey, sizeof(k->ServerToClientKey));
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

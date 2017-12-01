@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -120,7 +120,7 @@
 #endif	// OS_WIN32
 
 // Maximum hash size
-#define	IKE_MAX_HASH_SIZE				20		// Size of SHA-1 is the maximum for now
+#define	IKE_MAX_HASH_SIZE				64		// Size of SHA-2-512 is the maximum for now
 
 // Maximum block size
 #define	IKE_MAX_BLOCK_SIZE				16		// Size of AES is maximum at the moment
@@ -224,6 +224,7 @@ struct IKE_TRANSFORM_VALUE
 } GCC_PACKED;
 
 // The Type value in IKE transform value (Phase 1)
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_TRANSFORM_VALUE_P1_CRYPTO			1	// Encryption algorithm
 #define IKE_TRANSFORM_VALUE_P1_HASH				2	// Hash algorithm
 #define IKE_TRANSFORM_VALUE_P1_AUTH_METHOD		3	// Authentication method
@@ -233,6 +234,7 @@ struct IKE_TRANSFORM_VALUE
 #define IKE_TRANSFORM_VALUE_P1_KET_SIZE			14	// Key size
 
 // The Type value in IKE transform values (Phase 2)
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_TRANSFORM_VALUE_P2_LIFE_TYPE	1	// Expiration date type
 #define IKE_TRANSFORM_VALUE_P2_LIFE_VALUE	2	// Expiration date
 #define IKE_TRANSFORM_VALUE_P2_DH_GROUP		3	// DH group number
@@ -241,6 +243,7 @@ struct IKE_TRANSFORM_VALUE
 #define IKE_TRANSFORM_VALUE_P2_KEY_SIZE		6	// Key size
 
 // Phase 1: The encryption algorithm in the IKE transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P1_CRYPTO_DES_CBC				1
 #define IKE_P1_CRYPTO_BLOWFISH				3
 #define IKE_P1_CRYPTO_3DES_CBC				5
@@ -248,30 +251,45 @@ struct IKE_TRANSFORM_VALUE
 #define IKE_P1_CRYPTO_AES_CBC				7
 
 // Phase 1: The hash algorithm in IKE transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define	IKE_P1_HASH_MD5						1
 #define IKE_P1_HASH_SHA1					2
+#define IKE_P1_HASH_SHA2_256				4
+#define IKE_P1_HASH_SHA2_384				5
+#define IKE_P1_HASH_SHA2_512				6
 
 // Phase 1: The authentication method in the IKE transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P1_AUTH_METHOD_PRESHAREDKEY		1
 #define IKE_P1_AUTH_METHOD_RSA_SIGN			3
 
 // Phase 1: The DH group number in the IKE transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P1_DH_GROUP_768_MODP			1
 #define IKE_P1_DH_GROUP_1024_MODP			2
 #define IKE_P1_DH_GROUP_1536_MODP			5
+#define IKE_P1_DH_GROUP_2048_MODP			14
+#define IKE_P1_DH_GROUP_3072_MODP			15
+#define IKE_P1_DH_GROUP_4096_MODP			16
 
 // Phase 1: The expiration date type in IKE transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P1_LIFE_TYPE_SECONDS			1
 #define IKE_P1_LIFE_TYPE_KILOBYTES			2
 
 // Phase 2: The HMAC algorithm in IPsec transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P2_HMAC_MD5_96					1
 #define IKE_P2_HMAC_SHA1_96					2
 
 // Phase 2: The DH group number in the IPsec transform value
+// MUST BE LESS THAN "MAX_IKE_ENGINE_ELEMENTS" !!!
 #define IKE_P2_DH_GROUP_768_MODP			1
 #define IKE_P2_DH_GROUP_1024_MODP			2
 #define IKE_P2_DH_GROUP_1536_MODP			5
+#define IKE_P2_DH_GROUP_2048_MODP			14
+#define IKE_P2_DH_GROUP_3072_MODP			15
+#define IKE_P2_DH_GROUP_4096_MODP			16
 
 // Phase 2: The encapsulation mode in IPsec transform value
 #define IKE_P2_CAPSULE_TUNNEL				1
@@ -530,6 +548,15 @@ struct IKE_P1_KEYSET
 #define	IKE_HASH_SHA1_ID						1
 #define	IKE_HASH_SHA1_STRING					"SHA-1"
 
+#define	IKE_HASH_SHA2_256_ID					2
+#define	IKE_HASH_SHA2_256_STRING				"SHA-2-256"
+
+#define	IKE_HASH_SHA2_384_ID					3
+#define	IKE_HASH_SHA2_384_STRING				"SHA-2-384"
+
+#define	IKE_HASH_SHA2_512_ID					4
+#define	IKE_HASH_SHA2_512_STRING				"SHA-2-512"
+
 // Number and name of DH algorithm for IKE
 #define	IKE_DH_1_ID								0
 #define	IKE_DH_1_STRING							"MODP 768 (Group 1)"
@@ -539,6 +566,15 @@ struct IKE_P1_KEYSET
 
 #define	IKE_DH_5_ID								2
 #define	IKE_DH_5_STRING							"MODP 1536 (Group 5)"
+
+#define IKE_DH_2048_ID							14
+#define IKE_DH_2048_STRING						"MODP 2048 (Group 14)"
+
+#define IKE_DH_3072_ID							15
+#define IKE_DH_3072_STRING						"MODP 3072 (Group 15)"
+
+#define IKE_DH_4096_ID							16
+#define IKE_DH_4096_STRING						"MODP 4096 (Group 16)"
 
 
 // Encryption algorithm for IKE
@@ -578,7 +614,7 @@ struct IKE_DH
 	UINT KeySize;								// Key size
 };
 
-#define	MAX_IKE_ENGINE_ELEMENTS					16
+#define	MAX_IKE_ENGINE_ELEMENTS					64
 
 // Encryption engine for IKE
 struct IKE_ENGINE
@@ -735,7 +771,3 @@ void IkeDhFreeCtx(DH_CTX *dh);
 #endif	// IPSEC_PACKET_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

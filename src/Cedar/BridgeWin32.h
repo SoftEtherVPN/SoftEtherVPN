@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -116,11 +116,9 @@
 
 #define	BRIDGE_WIN32_PACKET_DLL		"Packet.dll"
 #define	BRIDGE_WIN32_PCD_DLL		"|see.dll"
-#define	BRIDGE_WIN32_PCD_SYS		"|see.sys"
+#define	BRIDGE_WIN32_PCD_SYS		"|DriverPackages\\See\\x86\\See_x86.sys"
 #define	BRIDGE_WIN32_PCD_DLL_X64	"|see_x64.dll"
-#define	BRIDGE_WIN32_PCD_SYS_X64	"|see_x64.sys"
-#define	BRIDGE_WIN32_PCD_DLL_IA64	"|see_ia64.dll"
-#define	BRIDGE_WIN32_PCD_SYS_IA64	"|see_ia64.sys"
+#define	BRIDGE_WIN32_PCD_SYS_X64	"|DriverPackages\\See\\x64\\See_x64.sys"
 #define	BRIDGE_WIN32_PCD_REGKEY		"SYSTEM\\CurrentControlSet\\services\\SEE"
 #define	BRIDGE_WIN32_PCD_BUILDVALUE	"CurrentInstalledBuild"
 
@@ -215,6 +213,12 @@ struct ETH
 
 	SU *Su;						// SeLow handle
 	SU_ADAPTER *SuAdapter;		// SeLow adapter handle
+
+	// Unused
+	bool IsRawIpMode;			// RAW IP mode
+	UCHAR RawIpMyMacAddr[6];
+	UCHAR RawIpYourMacAddr[6];
+	IP MyPhysicalIPForce;
 };
 
 // Function prototype
@@ -223,7 +227,7 @@ void FreeEth();
 bool IsEthSupported();
 bool IsEthSupportedInner();
 TOKEN_LIST *GetEthList();
-TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden);
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip);
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr);
 ETH *OpenEthInternal(char *name, bool local, bool tapmode, char *tapaddr);
 void CloseEth(ETH *e);
@@ -262,7 +266,3 @@ bool Win32GetEnableSeLow();
 #endif	// BRIDGEWIN32_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

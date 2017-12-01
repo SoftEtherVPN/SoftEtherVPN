@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -4600,24 +4600,6 @@ UINT SwReady(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, 
 		break;
 
 	case WM_WIZ_NEXT:
-		if (IsUseAlternativeHostname())
-		{
-			wchar_t src_dll1[MAX_PATH];
-			wchar_t src_dll2[MAX_PATH];
-			wchar_t *exe_dir = MsGetExeFileDirW();
-
-			CombinePathW(src_dll1, sizeof(src_dll1), exe_dir, VG_DLL_X86);
-			CombinePathW(src_dll2, sizeof(src_dll2), exe_dir, VG_DLL_X64);
-
-			if (IsFileExistsW(src_dll1) || IsFileExistsW(src_dll2))
-			{
-				if (MsgBoxEx(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2,
-					_UU("SW_VG_CONFIRM_MSG")) == IDNO)
-				{
-					break;
-				}
-			}
-		}
 		return D_SW_PERFORM;
 
 	case WM_WIZ_BACK:
@@ -5881,9 +5863,6 @@ void SwUiMain(SW *sw)
 	GetCedarVersion(ver, sizeof(ver));
 	UniFormat(verstr, sizeof(verstr), _UU("SW_TITLE"), ver);
 
-	// DO NOT REMOVE THIS INDICATION !!!
-	UniStrCat(verstr, sizeof(verstr), L" - Customized Version");
-
 	w = NewWizard(ICO_SETUP, BMP_SELOGO49x49, verstr, sw);
 
 	w->CloseConfirmMsg = _UU("SW_EXIT_CONFIRM");
@@ -6699,7 +6678,3 @@ UINT SWExecMain()
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

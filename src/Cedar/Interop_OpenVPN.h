@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -152,10 +152,10 @@
 #define	OPENVPN_IPC_POSTFIX_L3					"OPENVPN_L3"
 
 // List of supported encryption algorithms
-#define	OPENVPN_CIPHER_LIST						"[NULL-CIPHER] NULL AES-128-CBC AES-192-CBC AES-256-CBC BF-CBC CAST-CBC CAST5-CBC DES-CBC DES-EDE-CBC DES-EDE3-CBC DESX-CBC RC2-40-CBC RC2-64-CBC RC2-CBC"
+#define	OPENVPN_CIPHER_LIST						"[NULL-CIPHER] NULL AES-128-CBC AES-192-CBC AES-256-CBC BF-CBC CAST-CBC CAST5-CBC DES-CBC DES-EDE-CBC DES-EDE3-CBC DESX-CBC RC2-40-CBC RC2-64-CBC RC2-CBC CAMELLIA-128-CBC CAMELLIA-192-CBC CAMELLIA-256-CBC"
 
 // List of the supported hash algorithm
-#define	OPENVPN_MD_LIST							"SHA SHA1 MD5 MD4 RMD160"
+#define	OPENVPN_MD_LIST							"SHA SHA1 SHA256 SHA384 SHA512 MD5 MD4 RMD160"
 
 // MTU
 #define	OPENVPN_MTU_LINK						1514	// Ethernet MTU
@@ -389,7 +389,3 @@ void OvsSetNoOpenVpnUdp(bool b);
 #endif	// INTEROP_OPENVPN_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

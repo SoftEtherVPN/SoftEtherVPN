@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -1356,9 +1356,9 @@ TOKEN_LIST *GetEthList()
 {
 	UINT v;
 
-	return GetEthListEx(&v);
+	return GetEthListEx(&v, true, false);
 }
-TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden)
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip)
 {
 	TOKEN_LIST *ret;
 	UINT i;
@@ -1369,6 +1369,11 @@ TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden)
 	if (IsEthSupported() == false)
 	{
 		return NULL;
+	}
+
+	if (enum_normal == false)
+	{
+		return NullToken();
 	}
 
 	if (total_num_including_hidden == NULL)
@@ -1894,6 +1899,12 @@ bool IsPcdSupported()
 	UINT type;
 	OS_INFO *info = GetOsInfo();
 
+	if (MsIsWindows10())
+	{
+		// Windows 10 or later never supports PCD driver.
+		return false;
+	}
+
 	type = info->OsType;
 
 	if (OS_IS_WINDOWS_NT(type) == false)
@@ -1972,11 +1983,6 @@ HINSTANCE InstallPcdDriverInternal()
 			src_filename = BRIDGE_WIN32_PCD_SYS_X64;
 		}
 
-		if (MsIsIA64())
-		{
-			src_filename = BRIDGE_WIN32_PCD_SYS_IA64;
-		}
-
 		// Copy see.sys
 		if (FileCopy(src_filename, tmp) == false)
 		{
@@ -1994,10 +2000,6 @@ HINSTANCE InstallPcdDriverInternal()
 		if (MsIsX64())
 		{
 			dll_filename = BRIDGE_WIN32_PCD_DLL_X64;
-		}
-		else if (MsIsIA64())
-		{
-			dll_filename = BRIDGE_WIN32_PCD_DLL_IA64;
 		}
 	}
 
@@ -2142,7 +2144,7 @@ RELEASE:
 		return false;
 	}
 
-	o = GetEthListEx(&total_num);
+	o = GetEthListEx(&total_num, true, false);
 	if (o == NULL || total_num == 0)
 	{
 		FreeToken(o);
@@ -2241,7 +2243,3 @@ void GetEthNetworkConnectionName(wchar_t *dst, UINT size, char *device_name)
 #endif	// BRIDGE_C
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

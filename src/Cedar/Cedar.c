@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -117,6 +117,34 @@
 static UINT init_cedar_counter = 0;
 static REF *cedar_log_ref = NULL;
 static LOG *cedar_log;
+
+// Check whether there is any EAP-enabled RADIUS configuration
+bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c)
+{
+	bool ret = false;
+	UINT i;
+	if (c == NULL)
+	{
+		return false;
+	}
+
+	LockHubList(c);
+	{
+		for (i = 0;i < LIST_NUM(c->HubList);i++)
+		{
+			HUB *hub = LIST_DATA(c->HubList, i);
+
+			if (hub->RadiusConvertAllMsChapv2AuthRequestToEap)
+			{
+				ret = true;
+				break;
+			}
+		}
+	}
+	UnlockHubList(c);
+
+	return ret;
+}
 
 // Get build date of current code
 UINT64 GetCurrentBuildDate()
@@ -235,18 +263,27 @@ bool IsSupportedWinVer(RPC_WINVER *v)
 		}
 	}
 
-#if	0
-	// Enable in future when supported
-	if ((v->VerMajor == 6 && v->VerMinor == 4) ||(v->VerMajor == 10 && v->VerMinor == 0))
+	if ((v->VerMajor == 6 && v->VerMinor == 4) || (v->VerMajor == 10 && v->VerMinor == 0))
 	{
-		// Windows 10, Server 10
-		if (v->ServicePack <= 0)
+		if (v->IsServer == false)
 		{
-			// SP0 only
-			return true;
+			// Windows 10 (not Windows Server 2016)
+			if (v->ServicePack <= 0)
+			{
+				// SP0 only
+				return true;
+			}
+		}
+		else
+		{
+			// Windows Server 2016
+			if (v->ServicePack <= 0)
+			{
+				// SP0 only
+				return true;
+			}
 		}
 	}
-#endif
 
 	return false;
 }
@@ -1722,7 +1759,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->TrafficDiffList = NewList(NULL);
 
-	SetCedarCipherList(c, "RC4-MD5");
+	SetCedarCipherList(c, SERVER_DEFAULT_CIPHER_NAME);
 
 	c->ClientId = _II("CLIENT_ID");
 
@@ -1877,7 +1914,3 @@ void FreeCedar()
 	FreeProtocol();
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

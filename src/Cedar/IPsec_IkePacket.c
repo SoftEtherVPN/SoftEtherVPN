@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -2558,8 +2558,8 @@ IKE_ENGINE *NewIkeEngine()
 {
 	IKE_ENGINE *e = ZeroMalloc(sizeof(IKE_ENGINE));
 	IKE_CRYPTO *des, *des3, *aes;
-	IKE_HASH *sha1, *md5;
-	IKE_DH *dh1, *dh2, *dh5;
+	IKE_HASH *sha1, *md5, *sha2_256, *sha2_384, *sha2_512;
+	IKE_DH *dh1, *dh2, *dh5, *dh2048, *dh3072, *dh4096;
 	UINT des_key_sizes[] =
 	{
 		8,
@@ -2594,6 +2594,14 @@ IKE_ENGINE *NewIkeEngine()
 	// SHA-1
 	sha1 = NewIkeHash(e, IKE_HASH_SHA1_ID, IKE_HASH_SHA1_STRING, 20);
 
+	// SHA-2
+	// sha2-256
+	sha2_256 = NewIkeHash(e, IKE_HASH_SHA2_256_ID, IKE_HASH_SHA2_256_STRING, 32);
+	// sha2-384
+	sha2_384 = NewIkeHash(e, IKE_HASH_SHA2_384_ID, IKE_HASH_SHA2_384_STRING, 48);
+	// sha2-512
+	sha2_512 = NewIkeHash(e, IKE_HASH_SHA2_512_ID, IKE_HASH_SHA2_512_STRING, 64);
+
 	// MD5
 	md5 = NewIkeHash(e, IKE_HASH_MD5_ID, IKE_HASH_MD5_STRING, 16);
 
@@ -2601,6 +2609,9 @@ IKE_ENGINE *NewIkeEngine()
 	dh1 = NewIkeDh(e, IKE_DH_1_ID, IKE_DH_1_STRING, 96);
 	dh2 = NewIkeDh(e, IKE_DH_2_ID, IKE_DH_2_STRING, 128);
 	dh5 = NewIkeDh(e, IKE_DH_5_ID, IKE_DH_5_STRING, 192);
+	dh2048 = NewIkeDh(e, IKE_DH_2048_ID, IKE_DH_2048_STRING, 256);
+	dh3072 = NewIkeDh(e, IKE_DH_3072_ID, IKE_DH_3072_STRING, 384);
+	dh4096 = NewIkeDh(e, IKE_DH_4096_ID, IKE_DH_4096_STRING, 512);
 
 	// Define the IKE algorithm
 	e->IkeCryptos[IKE_P1_CRYPTO_DES_CBC] = des;
@@ -2608,6 +2619,10 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeCryptos[IKE_P1_CRYPTO_AES_CBC] = aes;
 	e->IkeHashes[IKE_P1_HASH_MD5] = md5;
 	e->IkeHashes[IKE_P1_HASH_SHA1] = sha1;
+	e->IkeHashes[IKE_P1_HASH_SHA2_256] = sha2_256;
+	e->IkeHashes[IKE_P1_HASH_SHA2_384] = sha2_384;
+	e->IkeHashes[IKE_P1_HASH_SHA2_512] = sha2_512;
+
 
 	// Definition of ESP algorithm
 	e->EspCryptos[IKE_TRANSFORM_ID_P2_ESP_DES] = des;
@@ -2620,6 +2635,9 @@ IKE_ENGINE *NewIkeEngine()
 	e->IkeDhs[IKE_P1_DH_GROUP_768_MODP] = e->EspDhs[IKE_P2_DH_GROUP_768_MODP] = dh1;
 	e->IkeDhs[IKE_P1_DH_GROUP_1024_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1024_MODP] = dh2;
 	e->IkeDhs[IKE_P1_DH_GROUP_1536_MODP] = e->EspDhs[IKE_P2_DH_GROUP_1536_MODP] = dh5;
+	e->IkeDhs[IKE_P1_DH_GROUP_2048_MODP] = e->EspDhs[IKE_P2_DH_GROUP_2048_MODP] = dh2048;
+	e->IkeDhs[IKE_P1_DH_GROUP_3072_MODP] = e->EspDhs[IKE_P2_DH_GROUP_3072_MODP] = dh3072;
+	e->IkeDhs[IKE_P1_DH_GROUP_4096_MODP] = e->EspDhs[IKE_P2_DH_GROUP_4096_MODP] = dh4096;
 
 	return e;
 }
@@ -2925,6 +2943,15 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 		// SHA-1
 		Sha1(dst, src, size);
 		break;
+	case IKE_HASH_SHA2_256_ID:
+		Sha2_256(dst, src, size);
+		break;
+	case IKE_HASH_SHA2_384_ID:
+		Sha2_384(dst, src, size);
+		break;
+	case IKE_HASH_SHA2_512_ID:
+		Sha2_512(dst, src, size);
+		break;
 
 	default:
 		// Unknown
@@ -2936,17 +2963,39 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 // Calculation of HMAC
 void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UCHAR k[HMAC_BLOCK_SIZE];
+	UINT hmac_block_size = HMAC_BLOCK_SIZE;
+	UCHAR k[HMAC_BLOCK_SIZE_MAX];
 	UCHAR *data1;
 	UCHAR hash1[IKE_MAX_HASH_SIZE];
 	UINT data1_size;
-	UCHAR data2[IKE_MAX_HASH_SIZE + HMAC_BLOCK_SIZE];
+	UCHAR data2[IKE_MAX_HASH_SIZE + HMAC_BLOCK_SIZE_MAX];
 	UINT data2_size;
 	UCHAR tmp1600[1600];
 	bool no_free = false;
 	UINT i;
 	// Validate arguments
 	if (h == NULL || dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
+	{
+		return;
+	}
+
+	switch (h->HashId)
+	{
+		case IKE_HASH_SHA1_ID:
+		case IKE_HASH_SHA2_256_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE;
+			break;
+
+		case IKE_HASH_SHA2_384_ID:
+		case IKE_HASH_SHA2_512_ID:
+			hmac_block_size = HMAC_BLOCK_SIZE_1024;
+			break;
+
+		default:
+			return;
+	}
+
+	if (hmac_block_size > HMAC_BLOCK_SIZE_MAX)
 	{
 		return;
 	}
@@ -2966,7 +3015,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 
 	// Creating a K
 	Zero(k, sizeof(k));
-	if (key_size <= HMAC_BLOCK_SIZE)
+	if (key_size <= hmac_block_size)
 	{
 		Copy(k, key, key_size);
 	}
@@ -2976,7 +3025,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	}
 
 	// Generation of data 1
-	data1_size = data_size + HMAC_BLOCK_SIZE;
+	data1_size = data_size + hmac_block_size;
 
 	if (data1_size > sizeof(tmp1600))
 	{
@@ -2988,12 +3037,12 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 		no_free = true;
 	}
 
-	for (i = 0;i < HMAC_BLOCK_SIZE;i++)
+	for (i = 0;i < hmac_block_size;i++)
 	{
 		data1[i] = k[i] ^ 0x36;
 	}
 
-	Copy(data1 + HMAC_BLOCK_SIZE, data, data_size);
+	Copy(data1 + hmac_block_size, data, data_size);
 
 	// Calculate the hash value
 	IkeHash(h, hash1, data1, data1_size);
@@ -3004,14 +3053,14 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	}
 
 	// Generation of data 2
-	data2_size = h->HashSize + HMAC_BLOCK_SIZE;
+	data2_size = h->HashSize + hmac_block_size;
 
 	for (i = 0;i < HMAC_BLOCK_SIZE;i++)
 	{
 		data2[i] = k[i] ^ 0x5c;
 	}
 
-	Copy(data2 + HMAC_BLOCK_SIZE, hash1, h->HashSize);
+	Copy(data2 + hmac_block_size, hash1, h->HashSize);
 
 	// Calculate the hash value
 	IkeHash(h, dst, data2, data2_size);
@@ -3132,6 +3181,15 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d)
 
 	case IKE_DH_5_ID:
 		return DhNewGroup5();
+
+	case IKE_DH_2048_ID:
+		return DhNew2048();
+
+	case IKE_DH_3072_ID:
+		return DhNew3072();
+
+	case IKE_DH_4096_ID:
+		return DhNew4096();
 	}
 
 	return NULL;
@@ -3153,7 +3211,3 @@ void IkeDhFreeCtx(DH_CTX *dh)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

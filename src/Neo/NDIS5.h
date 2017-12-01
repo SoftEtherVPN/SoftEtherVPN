@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Kernel Device Driver
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -227,7 +227,7 @@ static UINT SupportedOids[] =
     WCHAR *_P;\
     _D->Length = (USHORT)((strlen(_S)) * sizeof(WCHAR));\
     _D->MaximumLength = _D->Length + sizeof(WCHAR);\
-    NdisAllocateMemoryWithTag((PVOID *)&(_D->Buffer), _D->MaximumLength, 0);\
+    NdisAllocateMemoryWithTag((PVOID *)&(_D->Buffer), _D->MaximumLength, 'SETH');\
     _P = _D->Buffer;\
     while(*_S != '\0'){\
         *_P = (WCHAR)(*_S);\
@@ -293,7 +293,3 @@ BOOL NeoNdisOnClose(IRP *irp, IO_STACK_LOCATION *stack);
 
 #endif	// NDIS5_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

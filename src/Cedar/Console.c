@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -769,6 +769,18 @@ bool DispatchNextCmdEx(CONSOLE *c, wchar_t *exec_command, char *prompt, CMD cmd[
 		// Show the prompt
 RETRY:
 		tmp = CopyStrToUni(prompt);
+
+		if (c->ProgrammingMode)
+		{
+			wchar_t tmp2[MAX_PATH];
+
+			UniFormat(tmp2, sizeof(tmp2), L"[PROMPT:%u:%s]\r\n", c->RetCode, tmp);
+
+			Free(tmp);
+
+			tmp = CopyUniStr(tmp2);
+		}
+
 		str = c->ReadLine(c, tmp, false);
 		Free(tmp);
 
@@ -1430,6 +1442,14 @@ EVAL_VALUE:
 						Free(str);
 						break;
 					}
+					else if (c->ProgrammingMode)
+					{
+						// In the programming mode, return the error immediately.
+						ok = false;
+						Free(name);
+						Free(str);
+						break;
+					}
 					else
 					{
 						// Request to re-enter
@@ -1458,7 +1478,11 @@ EVAL_VALUE:
 					wchar_t *tmp;
 SHOW_PROMPT:
 					// Prompt because it is a mandatory parameter
-					tmp = p->PromptProc(c, p->PromptProcParam);
+					tmp = NULL;
+					if (c->ProgrammingMode == false)
+					{
+						tmp = p->PromptProc(c, p->PromptProcParam);
+					}
 					if (tmp == NULL)
 					{
 						// User canceled
@@ -2213,6 +2237,7 @@ CONSOLE *NewLocalConsole(wchar_t *infile, wchar_t *outfile)
 	c->ReadPassword = ConsoleLocalReadPassword;
 	c->Write = ConsoleLocalWrite;
 	c->GetWidth = ConsoleLocalGetWidth;
+	c->OutputLock = NewLock();
 
 	if (UniIsEmptyStr(infile) == false)
 	{
@@ -2323,6 +2348,8 @@ void ConsoleLocalFree(CONSOLE *c)
 
 		Free(p);
 	}
+
+	DeleteLock(c->OutputLock);
 
 	// Memory release
 	Free(c);
@@ -2534,7 +2561,3 @@ void ConsoleWriteOutFile(CONSOLE *c, wchar_t *str, bool add_last_crlf)
 
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

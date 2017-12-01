@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -623,6 +623,7 @@ struct ICMPV6_HEADER_INFO
 #define	DHCP_ID_CLIENT_ID			0x3d
 #define	DHCP_ID_VENDOR_ID			0x3c
 #define	DHCP_ID_REQ_PARAM_LIST		0x37
+#define	DHCP_ID_USER_CLASS			0x4d
 #define	DHCP_ID_CLASSLESS_ROUTE		0x79
 #define	DHCP_ID_MS_CLASSLESS_ROUTE	0xF9
 #define	DHCP_ID_PRIVATE				0xFA
@@ -650,6 +651,7 @@ struct HTTPLOG
 	char Protocol[64];						// Protocol
 	char UserAgent[MAX_SIZE];				// User Agent value
 	char Referer[MAX_SIZE];					// Referer
+	bool IsSsl;								// Is SSL
 };
 
 // Packet
@@ -794,6 +796,8 @@ struct DHCP_CLASSLESS_ROUTE_TABLE
 	DHCP_CLASSLESS_ROUTE Entries[MAX_DHCP_CLASSLESS_ROUTE_ENTRIES];	// Entries
 };
 
+#define	MAX_USER_CLASS_LEN	255
+
 // DHCP option list
 struct DHCP_OPTION_LIST
 {
@@ -803,6 +807,10 @@ struct DHCP_OPTION_LIST
 	// Client request
 	UINT RequestedIp;				// Requested IP address
 	char Hostname[MAX_HOST_NAME_LEN + 1]; // Host name
+	char UserClass[MAX_USER_CLASS_LEN + 1]; // User class
+	// RFC3003 defines that User Class option is array of text strings,
+	// but the most popular DHCP clients and servers,
+	// i.e. ISC DHCP and Microsoft DHCP Server, consider it a text string
 
 	// Server response
 	UINT ClientAddress;				// Client address
@@ -912,6 +920,7 @@ void FreeDhcpOptions(LIST *o);
 LIST *ParseDhcpOptions(void *data, UINT size);
 BUF *BuildDhcpOptionsBuf(LIST *o);
 HTTPLOG *ParseHttpAccessLog(PKT *pkt);
+HTTPLOG *ParseHttpsAccessLog(PKT *pkt);
 
 BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size);
 BUF *DhcpModifyIPv4(DHCP_MODIFY_OPTION *m, void *data, UINT size);
@@ -935,7 +944,3 @@ bool NormalizeClasslessRouteTableStr(char *dst, UINT dst_size, char *src);
 #endif	// TCPIP_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

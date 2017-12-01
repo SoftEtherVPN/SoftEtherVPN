@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Kernel Device Driver
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -124,7 +124,7 @@
 #define	NDIS_NEO_EVENT_NAME_WIN32			"Global\\NEO_EVENT_NEOADAPTER_%s"
 
 // Constant
-#define	NEO_MAX_PACKET_SIZE			1560
+#define	NEO_MAX_PACKET_SIZE			1600
 #define	NEO_MAX_PACKET_SIZE_ANNOUNCE	1514
 #define	NEO_MIN_PACKET_SIZE			14
 #define	NEO_PACKET_HEADER_SIZE		14
@@ -328,7 +328,6 @@ NEO_EVENT *NeoCreateWin9xEvent(DWORD h);
 void NeoFreeEvent(NEO_EVENT *event);
 void NeoSet(NEO_EVENT *event);
 void NeoReset(NEO_EVENT *event);
-BOOL NeoIsKernelAddress(void *addr);
 
 #endif	// NEO_DEVICE_DRIVER
 
@@ -337,7 +336,3 @@ BOOL NeoIsKernelAddress(void *addr);
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

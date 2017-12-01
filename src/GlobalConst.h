@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Global Constants Header
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -122,60 +122,56 @@
 
 #define	CEDAR_PRODUCT_STR			"SoftEther"
 #define	CEDAR_PRODUCT_STR_W			L"SoftEther"
-#define	CEDAR_SERVER_STR			"SoftEther VPN Server"
-#define	CEDAR_BRIDGE_STR			"SoftEther VPN Bridge"
-#define	CEDAR_BETA_SERVER			"SoftEther VPN Server Pre Release"
-#define	CEDAR_MANAGER_STR			"SoftEther VPN Server Manager"
+#define	CEDAR_SERVER_STR			"SoftEther VPN Server Developer Edition"
+#define	CEDAR_BRIDGE_STR			"SoftEther VPN Bridge Developer Edition"
+#define	CEDAR_BETA_SERVER			"SoftEther VPN Server Pre Release Developer Edition"
+#define	CEDAR_MANAGER_STR			"SoftEther VPN Server Manager Developer Edition"
 #define	CEDAR_CUI_STR				"SoftEther VPN Command-Line Admin Tool"
-#define CEDAR_ELOG					"SoftEther EtherLogger"
-#define	CEDAR_CLIENT_STR			"SoftEther VPN Client"
-#define CEDAR_CLIENT_MANAGER_STR	"SoftEther VPN Client Connection Manager"
-#define	CEDAR_ROUTER_STR			"SoftEther VPN User-mode Router"
-#define	CEDAR_SERVER_LINK_STR		"SoftEther VPN Server (Cascade Mode)"
-#define	CEDAR_BRIDGE_LINK_STR		"SoftEther VPN Bridge (Cascade Mode)"
-#define	CEDAR_SERVER_FARM_STR		"SoftEther VPN Server (Cluster RPC Mode)"
+#define CEDAR_ELOG					"SoftEther EtherLogger Developer Edition"
+#define	CEDAR_CLIENT_STR			"SoftEther VPN Client Developer Edition"
+#define CEDAR_CLIENT_MANAGER_STR	"SoftEther VPN Client Connection Manager Developer Edition"
+#define	CEDAR_ROUTER_STR			"SoftEther VPN User-mode Router Developer Edition"
+#define	CEDAR_SERVER_LINK_STR		"SoftEther VPN Server Developer Edition (Cascade Mode)"
+#define	CEDAR_BRIDGE_LINK_STR		"SoftEther VPN Bridge Developer Edition (Cascade Mode)"
+#define	CEDAR_SERVER_FARM_STR		"SoftEther VPN Server Developer Edition (Cluster RPC Mode)"
 
 
 
 //// Default Port Number
 
 #define	GC_DEFAULT_PORT		5555
-#define	GC_CLIENT_CONFIG_PORT	9930
-#define	GC_CLIENT_NOTIFY_PORT	9983
+#define	GC_CLIENT_CONFIG_PORT	9931
+#define	GC_CLIENT_NOTIFY_PORT	9984
 
 
 //// Software Name
 
-#define	GC_SVC_NAME_VPNSERVER		"SEVPNSERVER"
-#define	GC_SVC_NAME_VPNCLIENT		"SEVPNCLIENT"
-#define	GC_SVC_NAME_VPNBRIDGE		"SEVPNBRIDGE"
+#define	GC_SVC_NAME_VPNSERVER		"SEVPNSERVERDEV"
+#define	GC_SVC_NAME_VPNCLIENT		"SEVPNCLIENTDEV"
+#define	GC_SVC_NAME_VPNBRIDGE		"SEVPNBRIDGEDEV"
 
 
 
 //// Registry
 
-#define	GC_REG_COMPANY_NAME			"SoftEther Project"
+#define	GC_REG_COMPANY_NAME			"SoftEther VPN Developer Edition"
 
 
 
 
 //// Setup Wizard
 
-#define	GC_SW_UIHELPER_REGVALUE		"SoftEther VPN Client UI Helper"
-#define	GC_SW_SOFTETHER_PREFIX		"se"
-#define	GC_SW_SOFTETHER_PREFIX_W	L"se"
+#define	GC_SW_UIHELPER_REGVALUE		"SoftEther VPN Client UI Helper Developer Edition"
+#define	GC_SW_SOFTETHER_PREFIX		"sedev"
+#define	GC_SW_SOFTETHER_PREFIX_W	L"sedev"
 
 
 
 //// VPN UI Components
 
-#define	GC_UI_APPID_CM				L"SoftEther.SoftEther VPN Client"
+#define	GC_UI_APPID_CM				L"SoftEther.SoftEther VPN Client Developer Edition"
 
 
 
 #endif	// GLOBAL_CONST_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

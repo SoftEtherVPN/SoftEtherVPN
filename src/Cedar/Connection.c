@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -1030,7 +1030,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 	UINT size;
 	SESSION *s;
 	HUB *hub = NULL;
-	bool use_qos;
+	bool use_qos = false;
 	// Validate arguments
 	if (c == NULL)
 	{
@@ -1038,11 +1038,11 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 	}
 
 	s = c->Session;
-	use_qos = s->QoS;
 
 	if (s != NULL)
 	{
 		hub = s->Hub;
+		use_qos = s->QoS;
 	}
 
 	// Protocol
@@ -3137,10 +3137,7 @@ void ConnectionAccept(CONNECTION *c)
 
 	// Start the SSL communication
 	Debug("StartSSL()\n");
-	if (c->Cedar->AcceptOnlyTls)
-	{
-		s->AcceptOnlyTls = true;
-	}
+	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
 	if (StartSSL(s, x, k) == false)
 	{
 		// Failed
@@ -3672,6 +3669,3 @@ CONNECTION *NewClientConnectionEx(SESSION *s, char *client_str, UINT client_ver,
 
 	return c;
 }
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

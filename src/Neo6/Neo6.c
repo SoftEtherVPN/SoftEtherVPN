@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Kernel Device Driver
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -210,6 +210,12 @@ void NeoWrite(void *buf)
 	if (ctx->Halting != FALSE)
 	{
 		// Stopping
+		return;
+	}
+
+	if (ctx->Paused)
+	{
+		// Paused
 		return;
 	}
 
@@ -424,10 +430,14 @@ void NeoInitPacketQueue()
 }
 
 // Delete all the packets from the packet queue
-void NeoClearPacketQueue()
+void NeoClearPacketQueue(bool no_lock)
 {
 	// Release the memory of the packet queue
-	NeoLock(ctx->PacketQueueLock);
+	if (no_lock == false)
+	{
+		NeoLock(ctx->PacketQueueLock);
+	}
+	if (true)
 	{
 		NEO_QUEUE *q = ctx->PacketQueue;
 		NEO_QUEUE *qn;
@@ -442,14 +452,17 @@ void NeoClearPacketQueue()
 		ctx->Tail = NULL;
 		ctx->NumPacketQueue = 0;
 	}
-	NeoUnlock(ctx->PacketQueueLock);
+	if (no_lock == false)
+	{
+		NeoUnlock(ctx->PacketQueueLock);
+	}
 }
 
 // Release the packet queue
 void NeoFreePacketQueue()
 {
 	// Delete all packets
-	NeoClearPacketQueue();
+	NeoClearPacketQueue(false);
 
 	// Delete the lock
 	NeoFreeLock(ctx->PacketQueueLock);
@@ -523,7 +536,3 @@ void NeoFreeStatus(NEO_STATUS *s)
 	NeoZero(s, sizeof(NEO_STATUS));
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

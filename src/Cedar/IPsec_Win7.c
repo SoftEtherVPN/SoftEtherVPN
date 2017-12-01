@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -109,7 +109,7 @@
 
 
 // IPsec_Win7.c
-// Initialize the helper module for Windows 7 / Windows 8 / Windows Vista / Windows Server 2008 / Windows Server 2008 R2 / Windows Server 2012
+// Initialize the helper module for Windows 7 / Windows 8 / Windows Vista / Windows Server 2008 / Windows Server 2008 R2 / Windows Server 2012 / Windows 10
 
 #include <GlobalConst.h>
 
@@ -367,19 +367,35 @@ bool IPsecWin7InitDriverInner()
 
 	if (install_driver)
 	{
-		char *src_filename = IPSEC_WIN7_SRC_SYS_X86;
-		if (MsIsX64())
+		char src_filename[MAX_PATH];
+
+		if (MsIsWindows10() == false)
 		{
-			src_filename = IPSEC_WIN7_SRC_SYS_X64;
+			Format(src_filename, sizeof(src_filename),
+				"|DriverPackages\\Wfp\\%s\\pxwfp_%s.sys",
+				(MsIsX64() ? "x64" : "x86"), (MsIsX64() ? "x64" : "x86"));
+		}
+		else
+		{
+			Format(src_filename, sizeof(src_filename),
+				"|DriverPackages\\Wfp_Win10\\%s\\pxwfp_%s.sys",
+				(MsIsX64() ? "x64" : "x86"), (MsIsX64() ? "x64" : "x86"));
 		}
 
 		// Copy the driver
 		if (FileCopy(src_filename, sys_filename) == false)
 		{
-			Debug("%s copy failed.\n", sys_filename);
-			return false;
+			Debug("%s copy failed. %u\n", sys_filename, GetLastError());
+			if (IsFileExists(sys_filename) == false)
+			{
+				Debug("%s failed. Abort.\n", sys_filename);
+				return false;
+			}
 		}
-		Debug("%s copied.\n", sys_filename);
+		else
+		{
+			Debug("%s copied.\n", sys_filename);
+		}
 
 		// Set the build number
 		SetCurrentIPsecWin7DriverBuild();
@@ -467,13 +483,16 @@ bool IPsecWin7InitDriverInner()
 // Write the build number of the current driver
 void SetCurrentIPsecWin7DriverBuild()
 {
-	MsRegWriteInt(REG_LOCAL_MACHINE, IPSEC_WIN7_DRIVER_REGKEY, IPSEC_WIN7_DRIVER_BUILDNUMBER, CEDAR_BUILD);
+	MsRegWriteInt(REG_LOCAL_MACHINE, IPSEC_WIN7_DRIVER_REGKEY,
+		(MsIsWindows10() ? IPSEC_WIN7_DRIVER_BUILDNUMBER_WIN10 : IPSEC_WIN7_DRIVER_BUILDNUMBER),
+		CEDAR_BUILD);
 }
 
 // Get the build number of the current driver
 UINT GetCurrentIPsecWin7DriverBuild()
 {
-	return MsRegReadInt(REG_LOCAL_MACHINE, IPSEC_WIN7_DRIVER_REGKEY, IPSEC_WIN7_DRIVER_BUILDNUMBER);
+	return MsRegReadInt(REG_LOCAL_MACHINE, IPSEC_WIN7_DRIVER_REGKEY,
+		(MsIsWindows10() ? IPSEC_WIN7_DRIVER_BUILDNUMBER_WIN10 : IPSEC_WIN7_DRIVER_BUILDNUMBER));
 }
 
 // Initialization of the API
@@ -554,7 +573,3 @@ bool IPsecWin7InitApi()
 #endif	// WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

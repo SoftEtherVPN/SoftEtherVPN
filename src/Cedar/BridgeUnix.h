@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -162,6 +162,19 @@ struct ETH
 
 	VLAN *Tap;					// tap
 	bool Linux_IsAuxDataSupported;	// Is PACKET_AUXDATA supported
+
+	bool IsRawIpMode;			// RAW IP mode
+	SOCK *RawTcp, *RawUdp, *RawIcmp;	// RAW sockets
+	bool RawIp_HasError;
+	UCHAR RawIpMyMacAddr[6];
+	UCHAR RawIpYourMacAddr[6];
+	IP MyIP;
+	IP YourIP;
+	QUEUE *RawIpSendQueue;
+	IP MyPhysicalIP;
+	IP MyPhysicalIPForce;
+	UCHAR *RawIP_TmpBuffer;
+	UINT RawIP_TmpBufferSize;
 };
 
 #if defined( BRIDGE_BPF ) || defined( BRIDGE_PCAP )
@@ -180,7 +193,8 @@ bool IsEthSupportedLinux();
 bool IsEthSupportedSolaris();
 bool IsEthSupportedPcap();
 TOKEN_LIST *GetEthList();
-TOKEN_LIST *GetEthListLinux();
+TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip);
+TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip);
 TOKEN_LIST *GetEthListSolaris();
 TOKEN_LIST *GetEthListPcap();
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr);
@@ -203,6 +217,14 @@ bool EthIsChangeMtuSupported(ETH *e);
 bool EthGetInterfaceDescriptionUnix(char *name, char *str, UINT size);
 bool EthIsInterfaceDescriptionSupportedUnix();
 
+ETH *OpenEthLinuxIpRaw();
+void CloseEthLinuxIpRaw(ETH *e);
+UINT EthGetPacketLinuxIpRaw(ETH *e, void **data);
+UINT EthGetPacketLinuxIpRawForSock(ETH *e, void **data, SOCK *s, UINT proto);
+void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size);
+bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p);
+void EthSendIpPacketInnerIpRaw(ETH *e, void *data, UINT size, USHORT protocol);
+
 #ifdef	UNIX_SOLARIS
 // Function prototype for Solaris
 bool DlipAttatchRequest(int fd, UINT devid);
@@ -216,7 +238,3 @@ int UnixEthOpenRawSocket();
 #endif	// BRIDGEUNIX_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -194,15 +194,16 @@ void FreeThreading();
 void ThreadPoolProc(THREAD *t, void *param);
 void SetThreadName(UINT thread_id, char *name, void *param);
 
-time_t c_mkgmtime(struct tm *tm);
-time_t System64ToTime(UINT64 i);
+struct tm * c_gmtime_r(const time_64t* timep, struct tm *tm);
+time_64t c_mkgmtime(struct tm *tm);
+time_64t System64ToTime(UINT64 i);
 void TmToSystem(SYSTEMTIME *st, struct tm *t);
 void SystemToTm(struct tm *t, SYSTEMTIME *st);
-void TimeToSystem(SYSTEMTIME *st, time_t t);
-UINT64 TimeToSystem64(time_t t);
-time_t SystemToTime(SYSTEMTIME *st);
-time_t TmToTime(struct tm *t);
-void TimeToTm(struct tm *t, time_t time);
+void TimeToSystem(SYSTEMTIME *st, time_64t t);
+UINT64 TimeToSystem64(time_64t t);
+time_64t SystemToTime(SYSTEMTIME *st);
+time_64t TmToTime(struct tm *t);
+void TimeToTm(struct tm *t, time_64t time);
 void NormalizeTm(struct tm *t);
 void NormalizeSystem(SYSTEMTIME *st);
 void LocalToSystem(SYSTEMTIME *system, SYSTEMTIME *local);
@@ -247,6 +248,7 @@ void GetTimeStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale);
 void GetDateStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale);
 void GetTimeStrMilli64(char *str, UINT size, UINT64 sec64);
 void GetTimeStr64(char *str, UINT size, UINT64 sec64);
+void GetDateTimeStrRFC3164(char *str, UINT size, SYSTEMTIME *st, int timezone_min);
 UINT64 SafeTime64(UINT64 sec64);
 bool Run(char *filename, char *arg, bool hide, bool wait);
 bool RunW(wchar_t *filename, wchar_t *arg, bool hide, bool wait);
@@ -276,10 +278,7 @@ void MainteThreadList(LIST *o);
 void FreeThreadList(LIST *o);
 void StopThreadList(LIST *o);
 void WaitAllThreadsWillBeStopped(LIST *o);
+UINT GetNumberOfCpu();
 
 #endif	// KERNEL_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

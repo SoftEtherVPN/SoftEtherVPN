@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -117,6 +117,10 @@
 //// Constants
 #define	NS_MAC_ADDRESS_BYTE_1		0xDA		// First byte of the MAC address
 
+#define	NS_CHECK_IPTABLES_INTERVAL_INIT	(1 * 1000)
+
+#define	NS_CHECK_IPTABLES_INTERVAL_MAX	(5 * 60 * 1000)
+
 //// Type
 struct NATIVE_STACK
 {
@@ -132,6 +136,30 @@ struct NATIVE_STACK
 	SOCK *Sock2;					// Sock2 (Used in the IPC side)
 	DHCP_OPTION_LIST CurrentDhcpOptionList;	// Current DHCP options list
 	IP DnsServerIP;					// IP address of the DNS server
+	IP DnsServerIP2;				// IP address of the DNS server #2
+	bool IsIpRawMode;
+	IP MyIP_InCaseOfIpRawMode;		// My IP
+
+	THREAD *IpTablesThread;
+	EVENT *IpTablesHaltEvent;
+	bool IpTablesHalt;
+	bool IpTablesInitOk;
+};
+
+struct IPTABLES_ENTRY
+{
+	char Chain[64];
+	UINT LineNumber;
+	char ConditionAndArgs[MAX_SIZE];
+	IP DummySrcIp, DummyDestIP;
+	UINT DummyMark;
+};
+
+struct IPTABLES_STATE
+{
+	UCHAR SeedHash[SHA1_SIZE];
+	LIST *EntryList;
+	bool HasError;
 };
 
 
@@ -144,10 +172,24 @@ void NsMainThread(THREAD *thread, void *param);
 void NsGenMacAddressSignatureForMachine(UCHAR *dst_last_2, UCHAR *src_mac_addr_4);
 bool NsIsMacAddressOnLocalhost(UCHAR *mac);
 
+bool NsStartIpTablesTracking(NATIVE_STACK *a);
+void NsStopIpTablesTracking(NATIVE_STACK *a);
+void NsIpTablesThread(THREAD *thread, void *param);
+
+IPTABLES_STATE *GetCurrentIpTables();
+void FreeIpTablesState(IPTABLES_STATE *s);
+bool IsIpTablesSupported();
+IPTABLES_ENTRY *SearchIpTables(IPTABLES_STATE *s, char *chain, IP *src_ip, IP *dest_ip, UINT mark);
+UINT GetCurrentIpTableLineNumber(char *chain, IP *src_ip, IP *dest_ip, UINT mark);
+
+IPTABLES_STATE *StartAddIpTablesEntryForNativeStack(void *seed, UINT seed_size);
+void EndAddIpTablesEntryForNativeStack(IPTABLES_STATE *s);
+bool MaintainAddIpTablesEntryForNativeStack(IPTABLES_STATE *s);
+
+void GenerateDummyIpAndMark(void *hash_seed, IPTABLES_ENTRY *e, UINT id);
+UINT GenerateDummyMark(PRAND *p);
+void GenerateDummyIp(PRAND *p, IP *ip);
+
 #endif	// NATIVESTACK_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Build Utility
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -926,6 +926,19 @@ namespace BuildUtil
 			return 0;
 		}
 
+		// Driver package build
+		// Win32 build
+		[ConsoleCommandMethod(
+			"Builds the driver package.",
+			"BuildDriverPackage",
+			"Builds the driver package.")]
+		static int BuildDriverPackage(ConsoleService c, string cmdName, string str)
+		{
+			Win32BuildUtil.MakeDriverPackage();
+
+			return 0;
+		}
+
 		// Win32 build
 		[ConsoleCommandMethod(
 			"Builds all executable files for win32 and HamCore for all OS.",
@@ -1159,14 +1172,16 @@ namespace BuildUtil
 			{
 				new ConsoleParam("[targetFileName]", ConsoleService.Prompt, "Target Filename: ", ConsoleService.EvalNotEmpty, null),
 				new ConsoleParam("OUT", ConsoleService.Prompt, "Dst Filename: ", ConsoleService.EvalNotEmpty, null),
+				new ConsoleParam("PRODUCT"),
 				new ConsoleParam("RC"),
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
 			string targetFilename = vl.DefaultParam.StrValue;
 			string outFilename = vl["OUT"].StrValue;
+			string product_name = vl["PRODUCT"].StrValue;
 
-			Win32BuildUtil.GenerateVersionInfoResource(targetFilename, outFilename, vl["RC"].StrValue);
+			Win32BuildUtil.GenerateVersionInfoResource(targetFilename, outFilename, vl["RC"].StrValue, product_name);
 
 			return 0;
 		}
@@ -1307,6 +1322,8 @@ namespace BuildUtil
 				new ConsoleParam("DEST"),
 				new ConsoleParam("COMMENT", ConsoleService.Prompt, "Comment: ", ConsoleService.EvalNotEmpty, null),
 				new ConsoleParam("KERNEL"),
+				new ConsoleParam("CERTID"),
+				new ConsoleParam("SHAMODE"),
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
@@ -1319,14 +1336,13 @@ namespace BuildUtil
 			string comment = vl["COMMENT"].StrValue;
 			bool kernel = vl["KERNEL"].BoolValue;
 
-			CodeSign.SignFile(destFileName, srcFileName, comment, kernel);
+			int certid = vl["CERTID"].IntValue;
+			int shamode = vl["SHAMODE"].IntValue;
+
+			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, certid, shamode);
 
 			return 0;
 		}
 	}
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

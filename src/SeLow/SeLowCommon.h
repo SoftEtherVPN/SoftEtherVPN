@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // SeLow - SoftEther Lightweight Network Protocol
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -115,10 +115,10 @@
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update
 // installation of the VPN Server / VPN Client / VPN Bridge is skipped.
-#define	SL_VER						43
+#define	SL_VER						48
 
 // Constants
-#define	SL_MAX_PACKET_SIZE			1560
+#define	SL_MAX_PACKET_SIZE			1600
 #define	SL_MAX_PACKET_SIZE_ANNOUNCE	1514
 #define	SL_MIN_PACKET_SIZE			14
 #define	SL_PACKET_HEADER_SIZE		14
@@ -155,6 +155,7 @@ typedef struct SL_IOCTL_EVENT_NAME
 // Registry key
 #define	SL_REG_KEY_NAME					"SYSTEM\\CurrentControlSet\\services\\SeLow"
 #define	SL_REG_VER_VALUE				"SlVersion"
+#define	SL_REG_VER_VALUE_WIN10			"SlVersion_Win10"
 
 // Adapter data
 #define	SL_ADAPTER_ID_LEN				64
@@ -200,7 +201,3 @@ typedef struct SL_ADAPTER_INFO_LIST
 #define	SL_LEFT_FLAG(buf)			SL_SIZE_OF_PACKET(buf, SL_MAX_PACKET_EXCHANGE)
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -234,19 +234,6 @@ typedef void *HWND;
 
 
 // Constants about driver
-#define	DRIVER_INF_FILE_NAME		L"|vpn_driver.inf"
-#define	DRIVER_INF_FILE_NAME_X64	L"|vpn_driver_x64.inf"
-#define	DRIVER_INF_FILE_NAME_IA64	L"|vpn_driver_ia64.inf"
-#define	DRIVER_INF_FILE_NAME_9X		L"|vpn_driver_9x.inf"
-#define	DRIVER_SYS_FILE_NAME		L"|vpn_driver.sys"
-#define	DRIVER_SYS_FILE_NAME_X64	L"|vpn_driver_x64.sys"
-#define	DRIVER_SYS_FILE_NAME_IA64	L"|vpn_driver_ia64.sys"
-#define	DRIVER_SYS_FILE_NAME_9X		L"|vpn_driver_9x.sys"
-#define	DRIVER_SYS6_FILE_NAME		L"|vpn_driver6.sys"
-#define	DRIVER_SYS6_FILE_NAME_X64	L"|vpn_driver6_x64.sys"
-#define	DRIVER_SYS6_FILE_NAME_IA64	L"|vpn_driver6_ia64.sys"
-#define	DRIVER_INSTALL_INF_NAME_TAG	"Neo_%s.inf"
-#define	DRIVER_INSTALL_SYS_NAME_TAG	"Neo_%s.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_NEW	"Neo_%04u.sys"
 #define	DRIVER_INSTALL_SYS_NAME_TAG_MAXID	128				// Maximum number of install
 
@@ -413,6 +400,7 @@ typedef struct MS
 	wchar_t *UserNameExW;
 	wchar_t *MinidumpBaseFileNameW;
 	IO *LockFile;
+	bool IsWine;
 } MS;
 
 // For Windows NT API
@@ -443,6 +431,8 @@ typedef struct NT_API
 	void (WINAPI *WTSFreeMemory)(void *);
 	BOOL (WINAPI *WTSDisconnectSession)(HANDLE, DWORD, BOOL);
 	BOOL (WINAPI *WTSEnumerateSessions)(HANDLE, DWORD, DWORD, PWTS_SESSION_INFO *, DWORD *);
+	BOOL (WINAPI *WTSRegisterSessionNotification)(HWND, DWORD);
+	BOOL (WINAPI *WTSUnRegisterSessionNotification)(HWND);
 	SC_HANDLE (WINAPI *OpenSCManager)(LPCTSTR, LPCTSTR, DWORD);
 	SC_HANDLE (WINAPI *CreateServiceA)(SC_HANDLE, LPCTSTR, LPCTSTR, DWORD, DWORD, DWORD, DWORD, LPCTSTR, LPCTSTR, LPDWORD, LPCTSTR, LPCTSTR, LPCTSTR);
 	SC_HANDLE (WINAPI *CreateServiceW)(SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR, LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
@@ -508,6 +498,8 @@ typedef struct NT_API
 	BOOL (WINAPI *AddAccessAllowedAceEx)(PACL, DWORD, DWORD, DWORD, PSID);
 	HRESULT (WINAPI *DwmIsCompositionEnabled)(BOOL *);
 	BOOL (WINAPI *GetComputerNameExW)(COMPUTER_NAME_FORMAT, LPWSTR, LPDWORD);
+	LONG (WINAPI *RegLoadKeyW)(HKEY, LPCWSTR, LPCWSTR);
+	LONG (WINAPI *RegUnLoadKeyW)(HKEY, LPCWSTR);
 } NT_API;
 
 typedef struct MS_EVENTLOG
@@ -599,6 +591,13 @@ typedef struct MS_ADAPTER_LIST
 	UINT Num;						// Count
 	MS_ADAPTER **Adapters;			// Content
 } MS_ADAPTER_LIST;
+
+typedef struct MS_ISLOCKED
+{
+	HWND hWnd;
+	THREAD *Thread;
+	volatile bool IsLockedFlag;
+} MS_ISLOCKED;
 
 // TCP setting
 typedef struct MS_TCP
@@ -738,14 +737,26 @@ bool MsRegDeleteValue(UINT root, char *keyname, char *valuename);
 bool MsRegDeleteValueEx(UINT root, char *keyname, char *valuename, bool force32bit);
 bool MsRegDeleteValueEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit);
 
+bool MsRegLoadHive(UINT root, wchar_t *keyname, wchar_t *filename);
+bool MsRegUnloadHive(UINT root, wchar_t *keyname);
+
 bool MsIsNt();
 bool MsIsAdmin();
+bool MsIsWine();
 bool MsEnablePrivilege(char *name, bool enable);
 void *MsGetCurrentProcess();
 UINT MsGetCurrentProcessId();
 char *MsGetExeFileName();
 char *MsGetExeDirName();
 wchar_t *MsGetExeDirNameW();
+
+void MsIsLockedThreadProc(THREAD *thread, void *param);
+MS_ISLOCKED *MsNewIsLocked();
+void MsFreeIsLocked(MS_ISLOCKED *d);
+void MsStartIsLockedThread();
+void MsStopIsLockedThread();
+bool MsDetermineIsLockedByWtsApi();
+
 
 bool MsShutdown(bool reboot, bool force);
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message);
@@ -1158,6 +1169,7 @@ void MsEndVLanCard();
 bool MsIsVLanCardShouldStop();
 void MsProcEnterSuspend();
 void MsProcLeaveSuspend();
+UINT64 MsGetSuspendModeBeginTick();
 
 // Inner functions
 #ifdef	MICROSOFT_C
@@ -1205,7 +1217,3 @@ void MsSuspendHandlerThreadProc(THREAD *thread, void *param);
 
 #endif	// OS_WIN32
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

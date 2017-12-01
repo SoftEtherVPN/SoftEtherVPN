@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Windows Filtering Platform Callout Driver for Capturing IPsec Packets on Windows Vista / 7 / Server 2008
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -119,6 +119,8 @@
 #include "Wfp.h"
 
 static WFP_CTX *wfp = NULL;
+static bool g_is_win8 = false;
+static POOL_TYPE g_pool_type = NonPagedPool;
 
 // Dispatch function
 NTSTATUS DriverDispatch(DEVICE_OBJECT *device_object, IRP *irp)
@@ -170,22 +172,49 @@ NTSTATUS DriverDispatch(DEVICE_OBJECT *device_object, IRP *irp)
 	case IRP_MJ_WRITE:	// Write
 		if ((stack->Parameters.Write.Length % sizeof(WFP_LOCAL_IP)) == 0)
 		{
-			UINT size = MIN(WFP_MAX_LOCAL_IP_COUNT * sizeof(WFP_LOCAL_IP), stack->Parameters.Write.Length);
-			UCHAR *copied_buf = Malloc(size);
-			UCHAR *old_buf;
-			Copy(copied_buf, buf, size);
-
-			SpinLock(wfp->LocalIPListLock);
+			// Address check
+			bool check_ok = true;
+			__try
 			{
-				old_buf = wfp->LocalIPListData;
-				wfp->LocalIPListData = copied_buf;
-				wfp->LocalIPListSize = size;
+				ProbeForRead(buf, stack->Parameters.Write.Length, 1);
 			}
-			SpinUnlock(wfp->LocalIPListLock);
-
-			if (old_buf != NULL)
+			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
-				Free(old_buf);
+				check_ok = false;
+			}
+
+			if (check_ok)
+			{
+				MDL *mdl = IoAllocateMdl(buf, stack->Parameters.Write.Length, false, false, NULL);
+				UINT size = MIN(WFP_MAX_LOCAL_IP_COUNT * sizeof(WFP_LOCAL_IP), stack->Parameters.Write.Length);
+				UCHAR *copied_buf = Malloc(size);
+				UCHAR *old_buf;
+
+				if (mdl != NULL)
+				{
+					MmProbeAndLockPages(mdl, KernelMode, IoWriteAccess);
+				}
+
+				Copy(copied_buf, buf, size);
+
+				SpinLock(wfp->LocalIPListLock);
+				{
+					old_buf = wfp->LocalIPListData;
+					wfp->LocalIPListData = copied_buf;
+					wfp->LocalIPListSize = size;
+				}
+				SpinUnlock(wfp->LocalIPListLock);
+
+				if (old_buf != NULL)
+				{
+					Free(old_buf);
+				}
+
+				if (mdl != NULL)
+				{
+					MmUnlockPages(mdl);
+					IoFreeMdl(mdl);
+				}
 			}
 		}
 		irp->IoStatus.Information = stack->Parameters.Write.Length;
@@ -780,10 +809,22 @@ NTSTATUS DriverEntry(DRIVER_OBJECT *driver_object, UNICODE_STRING *registry_path
 {
 	NTSTATUS ret;
 	FWPM_SESSION0 t;
+	ULONG os_ver1 = 0, os_ver2 = 0;
 
 	if (wfp != NULL)
 	{
 		return STATUS_UNSUCCESSFUL;
+	}
+
+	g_is_win8 = false;
+	g_pool_type = NonPagedPool;
+
+	PsGetVersion(&os_ver1, &os_ver2, NULL, NULL);
+
+	if ((os_ver1 == 6 && os_ver2 >= 2) || (os_ver1 >= 7))
+	{
+		g_is_win8 = true;
+		g_pool_type = 512;
 	}
 
 	wfp = ZeroMalloc(sizeof(WFP_CTX));
@@ -1049,7 +1090,7 @@ void *Malloc(UINT size)
 {
 	void *p;
 
-	p = ExAllocatePoolWithTag(NonPagedPool, size + sizeof(UINT), MEMPOOL_TAG);
+	p = ExAllocatePoolWithTag(g_pool_type, size + sizeof(UINT), MEMPOOL_TAG);
 	*((UINT *)p) = size;
 
 	return ((UCHAR *)p) + sizeof(UINT);
@@ -1306,7 +1347,3 @@ void Crush(UINT a, UINT b, UINT c, UINT d)
 {
 	KeBugCheckEx(0x00000061, (ULONG_PTR)a, (ULONG_PTR)b, (ULONG_PTR)c, (ULONG_PTR)d);
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

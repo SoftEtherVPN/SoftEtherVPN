@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -181,13 +181,30 @@ struct TTC
 	THREAD *Thread;			// Thread
 	volatile bool Halt;		// Halting flag
 	bool *Cancel;			// Halting flag 2
-	SOCK_EVENT *SockEvent;	// Socket event
 	LIST *ItcSockList;		// Client socket list
 	TT_RESULT Result;		// Result
 	UINT ErrorCode;			// Error code
 	bool AbnormalTerminated;	// Abnormal termination
 	EVENT *StartEvent;		// Start event
 	EVENT *InitedEvent;		// Initialize completion notification event
+	LIST *WorkerThreadList;	// List of worker threads
+
+	UINT flag1, flag2;
+
+	UINT64 session_id;
+	UINT64 end_tick;
+	UINT64 start_tick;
+};
+
+// Traffic test worker thread
+struct TTC_WORKER
+{
+	THREAD *WorkerThread;
+	TTC *Ttc;
+	LIST *SockList;			// Client socket list
+	SOCK_EVENT *SockEvent;	// Socket event
+	EVENT *StartEvent;		// Start event
+	bool Ok;				// The result
 };
 
 // Server side socket
@@ -202,7 +219,10 @@ struct TTS_SOCK
 	UINT64 SessionId;		// Session ID
 	bool NoMoreSendData;	// Flag not to send more data
 	UINT64 FirstRecvTick;	// Time which the data has been received last
+	UINT64 FirstSendTick;	// Time which the data has been sent last
 	UINT64 Span;			// Period
+	UINT64 GiveupSpan;
+	UINT64 LastCommTime;
 };
 
 // Traffic test server
@@ -213,15 +233,22 @@ struct TTS
 	volatile bool Halt;		// Halting flag
 	UINT Port;				// Port number
 	THREAD *Thread;			// Thread
-	THREAD *WorkThread;		// Worker thread
 	THREAD *IPv6AcceptThread;	// IPv6 Accept thread
 	SOCK *ListenSocket;		// Socket to wait
 	SOCK *ListenSocketV6;	// Socket to wait (IPv6)
 	UINT ErrorCode;			// Error code
+	UINT IdSeed;			// ID value
+	LIST *WorkerList;		// Worker threads list
+};
+
+// Traffic test worker thread
+struct TTS_WORKER
+{
+	TTS *Tts;				// TTS
+	THREAD *WorkThread;		// Worker thread
 	SOCK_EVENT *SockEvent;	// Socket event
 	LIST *TtsSockList;		// Server socket list
 	bool NewSocketArrived;	// New socket has arrived
-	UINT IdSeed;			// ID value
 };
 
 // VPN Tools context
@@ -673,7 +700,3 @@ UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 #endif	// COMMAND_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

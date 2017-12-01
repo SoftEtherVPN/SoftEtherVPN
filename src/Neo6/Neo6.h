@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Kernel Device Driver
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -124,7 +124,7 @@
 #define	NDIS_NEO_EVENT_NAME_WIN32			"Global\\NEO_EVENT_NEOADAPTER_%s"
 
 // Constant
-#define	NEO_MAX_PACKET_SIZE			1560
+#define	NEO_MAX_PACKET_SIZE			1600
 #define	NEO_MAX_PACKET_SIZE_ANNOUNCE	1514
 #define	NEO_MIN_PACKET_SIZE			14
 #define	NEO_PACKET_HEADER_SIZE		14
@@ -268,10 +268,12 @@ typedef struct _PACKET_BUFFER
 typedef struct _NEO_CTX
 {
 	NEO_EVENT *Event;					// Packet reception notification event
-	BOOL Opened;						// Flag of whether opened
-	BOOL Inited;						// Initialization flag
-	BOOL Initing;						// Starting-up flag
+	volatile BOOL Opened;				// Flag of whether opened
+	volatile BOOL Paused;				// Flag of whether paused
+	volatile BOOL Inited;				// Initialization flag
+	volatile BOOL Initing;				// Starting-up flag
 	volatile BOOL Halting;				// Stopping flag
+	volatile UINT NumCurrentDispatch;	// Number of current dispatch requests
 	BYTE MacAddress[6];					// MAC address
 	BYTE padding[2];					// padding
 	NEO_QUEUE *PacketQueue;				// Transmit packet queue
@@ -308,7 +310,7 @@ BOOL NeoInit();
 void NeoShutdown();
 void NeoInitPacketQueue();
 void NeoFreePacketQueue();
-void NeoClearPacketQueue();
+void NeoClearPacketQueue(bool no_lock);
 void NeoLockPacketQueue();
 void NeoUnlockPacketQueue();
 NEO_QUEUE *NeoGetNextQueue();
@@ -335,7 +337,6 @@ NEO_EVENT *NeoCreateWin9xEvent(DWORD h);
 void NeoFreeEvent(NEO_EVENT *event);
 void NeoSet(NEO_EVENT *event);
 void NeoReset(NEO_EVENT *event);
-BOOL NeoIsKernelAddress(void *addr);
 
 #endif	// NEO_DEVICE_DRIVER
 
@@ -344,7 +345,3 @@ BOOL NeoIsKernelAddress(void *addr);
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

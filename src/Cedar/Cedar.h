@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					415
+#define	CEDAR_VER					423
 
 // Build Number
-#define	CEDAR_BUILD					9546
+#define	CEDAR_BUILD					9647
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc30"
+#define	BUILD_PLACE			"pc37"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2015
-#define	BUILD_DATE_M		4
-#define	BUILD_DATE_D		5
-#define	BUILD_DATE_HO		2
-#define	BUILD_DATE_MI		54
-#define	BUILD_DATE_SE		8
+#define	BUILD_DATE_Y		2017
+#define	BUILD_DATE_M		10
+#define	BUILD_DATE_D		19
+#define	BUILD_DATE_HO		14
+#define	BUILD_DATE_MI		28
+#define	BUILD_DATE_SE		18
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -242,7 +242,7 @@
 #define	FIFO_BUDGET					VPN_GP(GP_FIFO_BUDGET, 1000000)
 #endif	// USE_STRATEGY_LOW_MEMORY
 
-#define	MAX_PACKET_SIZE				1560	// Maximum packet size
+#define	MAX_PACKET_SIZE				1600	// Maximum packet size
 #define	UDP_BUF_SIZE				(32 * 1024) // Aim of the UDP packet size
 
 #ifndef	USE_STRATEGY_LOW_MEMORY
@@ -670,7 +670,7 @@
 
 #define	ARP_ENTRY_EXPIRES			(30 * 1000)		// ARP table expiration date
 #define	ARP_ENTRY_POLLING_TIME		(1 * 1000)		// ARP table cleaning timer
-#define	ARP_REQUEST_TIMEOUT			(200)			// ARP request time-out period
+#define	ARP_REQUEST_TIMEOUT			(1000)			// ARP request time-out period
 #define	ARP_REQUEST_GIVEUP			(5 * 1000)		// Time to give up sending the ARP request
 #define	IP_WAIT_FOR_ARP_TIMEOUT		(5 * 1000)		// Total time that an IP packet waiting for ARP table
 #define	IP_COMBINE_TIMEOUT			(10 * 1000)		// Time-out of IP packet combining
@@ -1052,7 +1052,7 @@ typedef struct CEDAR
 	UINT QueueBudget;				// Queue budget
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
-	bool AcceptOnlyTls;				// Accept only TLS (Disable SSL)
+	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 
@@ -1259,12 +1259,9 @@ UINT CedarGetQueueBudgetConsuming(CEDAR *c);
 UINT CedarGetFifoBudgetConsuming(CEDAR *c);
 UINT CedarGetQueueBudgetBalance(CEDAR *c);
 UINT CedarGetFifoBudgetBalance(CEDAR *c);
+bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 
 
 #endif	// CEDAR_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

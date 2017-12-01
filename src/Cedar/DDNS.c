@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -624,8 +624,9 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 	PackAddInt(req, "lasterror_ipv4", c->Err_IPv4_GetMyIp);
 	PackAddInt(req, "lasterror_ipv6", c->Err_IPv6_GetMyIp);
 	PackAddBool(req, "use_azure", use_azure);
-	PackAddStr(req, "product_str", CEDAR_PRODUCT_STR);
+	PackAddStr(req, "product_str", "SoftEther OSS");
 	PackAddInt(req, "ddns_protocol_version", DDNS_VERSION);
+	PackAddInt(req, "ddns_oss", 1);
 
 
 	if (use_azure)
@@ -670,9 +671,12 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 	if (ret == NULL)
 	{
 		Debug("WpcCall: %s\n", url3);
-		ret = WpcCallEx(url3, &t, DDNS_CONNECT_TIMEOUT, DDNS_COMM_TIMEOUT, "register", req,
-			NULL, NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL), NULL, DDNS_RPC_MAX_RECV_SIZE,
-			add_header_name, add_header_value);
+		ret = WpcCallEx2(url3, &t, DDNS_CONNECT_TIMEOUT, DDNS_COMM_TIMEOUT, "register", req,
+			NULL, NULL, ((cert_hash != NULL && ((cert_hash->Size % SHA1_SIZE) == 0)) ? cert_hash->Buf : NULL),
+			(cert_hash != NULL ? cert_hash->Size / SHA1_SIZE : 0),
+			NULL, DDNS_RPC_MAX_RECV_SIZE,
+			add_header_name, add_header_value,
+			DDNS_SNI_VER_STRING);
 		Debug("WpcCall Ret: %u\n", ret);
 	}
 
@@ -874,8 +878,11 @@ UINT DCGetMyIpMain(DDNS_CLIENT *c, bool ipv6, char *dst, UINT dst_size, bool use
 	}
 
 
-	recv = HttpRequest(&data, (ipv6 ? NULL : &c->InternetSetting), DDNS_CONNECT_TIMEOUT, DDNS_COMM_TIMEOUT, &ret, false, NULL, NULL,
-		NULL, ((cert_hash != NULL && cert_hash->Size == SHA1_SIZE) ? cert_hash->Buf : NULL));
+	StrCpy(data.SniString, sizeof(data.SniString), DDNS_SNI_VER_STRING);
+
+	recv = HttpRequestEx3(&data, (ipv6 ? NULL : &c->InternetSetting), DDNS_CONNECT_TIMEOUT, DDNS_COMM_TIMEOUT, &ret, false, NULL, NULL,
+		NULL, ((cert_hash != NULL && (cert_hash->Size % SHA1_SIZE) == 0) ? cert_hash->Buf : NULL),
+		(cert_hash != NULL ? cert_hash->Size / SHA1_SIZE : 0), NULL, 0, NULL, NULL);
 
 	FreeBuf(cert_hash);
 
@@ -1040,7 +1047,3 @@ void DCGenNewKey(UCHAR *key)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

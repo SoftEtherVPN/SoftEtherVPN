@@ -14,17 +14,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{234994FD-5966-4CFE-AC38-960DE089FBED}"
 	ProjectSection(SolutionItems) = preProject
 		bin\hamcore\lang.config = bin\hamcore\lang.config
-		bin\hamcore\languages.txt = bin\hamcore\languages.txt
-		bin\hamcore\SeLow_x64.inf = bin\hamcore\SeLow_x64.inf
-		bin\hamcore\SeLow_x86.inf = bin\hamcore\SeLow_x86.inf
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
 		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb
 		bin\hamcore\time.htm = bin\hamcore\time.htm
 		bin\hamcore\vpn16.exe = bin\hamcore\vpn16.exe
-		bin\hamcore\vpn_driver.inf = bin\hamcore\vpn_driver.inf
-		bin\hamcore\vpn_driver_9x.inf = bin\hamcore\vpn_driver_9x.inf
-		bin\hamcore\vpn_driver_x64.inf = bin\hamcore\vpn_driver_x64.inf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildFiles", "BuildFiles", "{ECFF92D4-8F03-4DDF-ACEF-9A68589BC282}"
@@ -319,14 +313,13 @@ Global
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Debug|Win32.ActiveCfg = Release|Win32
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Debug|Win32.Build.0 = Release|Win32
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Debug|x64.ActiveCfg = Release|x64
-		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Debug|x64.Build.0 = Release|x64
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Release|Win32.ActiveCfg = Release|Win32
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Release|Win32.Build.0 = Release|Win32
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Release|x64.ActiveCfg = Release|x64
 		{CF2B20BF-9799-40EF-A987-9E4C25E68E1C}.Release|x64.Build.0 = Release|x64
 		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Debug|Win32.Build.0 = Debug|Win32
-		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Debug|x64.ActiveCfg = Debug|Win32
+		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Debug|x64.ActiveCfg = Release|Win32
 		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Release|Win32.ActiveCfg = Release|Win32
 		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Release|Win32.Build.0 = Release|Win32
 		{F2C40D5C-1C86-43D8-B3FE-8E8F8B488432}.Release|x64.ActiveCfg = Release|Win32

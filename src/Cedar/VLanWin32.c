@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2014 Daiyuu Nobori.
-// Copyright (c) 2012-2014 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2014 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -1135,19 +1135,24 @@ void VLanPaFree(SESSION *s)
 	{
 		char tmp[MAX_SIZE];
 		MS_ADAPTER *a;
+		UINT64 now = Tick64();
+		UINT64 suspend_tick = MsGetSuspendModeBeginTick();
 
-		Format(tmp, sizeof(tmp), VLAN_ADAPTER_NAME_TAG, v->InstanceName);
-		a = MsGetAdapter(tmp);
-
-		if (a != NULL)
+		if (suspend_tick == 0 || (suspend_tick + (UINT64)(30 * 1000)) < now)
 		{
-			if (a->UseDhcp)
-			{
-				bool ret = Win32ReleaseAddressByGuidEx(a->Guid, 50);
-				Debug("*** Win32ReleaseAddressByGuid = %u\n", ret);
-			}
+			Format(tmp, sizeof(tmp), VLAN_ADAPTER_NAME_TAG, v->InstanceName);
+			a = MsGetAdapter(tmp);
 
-			MsFreeAdapter(a);
+			if (a != NULL)
+			{
+				if (a->UseDhcp)
+				{
+					bool ret = Win32ReleaseAddressByGuidEx(a->Guid, 50);
+					Debug("*** Win32ReleaseAddressByGuid = %u\n", ret);
+				}
+
+				MsFreeAdapter(a);
+			}
 		}
 	}
 
@@ -1613,7 +1618,3 @@ CLEANUP:
 
 #endif	//VLAN_C
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
