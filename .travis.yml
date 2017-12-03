@@ -1,0 +1,12 @@
+sudo: required
+dist: trusty
+
+os: linux
+
+language: c
+
+compiler: [ gcc, clang ]
+
+script:
+  - ./configure
+  - make
