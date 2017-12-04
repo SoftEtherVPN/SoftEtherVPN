@@ -1,3 +1,10 @@
+# SoftEther VPN
+
+[![Build Status](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN.svg?branch=master)](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN)
+
+---
+
+
 SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
 http://www.softether.org/
