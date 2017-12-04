@@ -7,6 +7,14 @@ language: c
 
 compiler: [ gcc, clang ]
 
+cache:
+  ccache: true
+
+before_script:
+  - mkdir -p "${HOME}/bin"
+  - ln -s "$(which ccache)" "${HOME}/bin/${CC}"
+  - PATH="${HOME}/bin:${PATH}"
+
 script:
   - ./configure
   - make
