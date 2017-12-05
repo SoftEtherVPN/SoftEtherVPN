@@ -114,7 +114,7 @@ installers from:
         http://www.softether-download.com/
 
 To build from the source,
-see "BUILD_UNIX.TXT" or "BUILD_WINDOWS.TXT" files.
+see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md) files.
 
 
 # HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
