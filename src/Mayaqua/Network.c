@@ -12752,7 +12752,6 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure)
 // Set the cipher algorithm name to want to use
 void SetWantToUseCipher(SOCK *sock, char *name)
 {
-	char tmp[1024];
 	// Validate arguments
 	if (sock == NULL || name == NULL)
 	{
