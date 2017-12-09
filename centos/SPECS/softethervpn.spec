@@ -87,6 +87,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Dec 14 2017 Quintin Beukes <github.com@last.za.net> - 4.23-9647
+- Update upstream to 4.23-9647
+
 * Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9582-1
 - Update upstream to 4.19.9582-beta
 

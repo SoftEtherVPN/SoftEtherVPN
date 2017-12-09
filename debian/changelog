@@ -1,5 +1,5 @@
-softether-vpn (0:4.04.9412-rtm) unstable; urgency=low
+softether-vpn (0:4.23.9647) unstable; urgency=low
 
-  * Testing debianization
+  * Updated release version
 
- -- Dmitry Orlov <me@mosquito.su>  Tue, 4 Feb 2014 20:24:43 +0000
+ -- Quintin Beukes <github.com@last.za.net>  Thu, 14 Dec 2017 13:41:00 +0000
