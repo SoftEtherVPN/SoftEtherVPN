@@ -140,10 +140,10 @@ from GitHub. You may make your own fork project from our project.
 ### 1. Debian/Ubuntu
 
 - gcc
-- libncurses-dev
+- libncurses5-dev
 - libreadline-dev
 - make
-- openssl-dev
+- libssl-dev
 
 ### 2. Redhat/CentOS
 - gcc
@@ -163,8 +163,7 @@ $ make
 $ make install
 ```
 
-
- 
+Please see src/BUILD_UNIX.md for more build instructions.
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
