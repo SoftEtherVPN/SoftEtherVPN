@@ -1688,6 +1688,10 @@ PKT *ClonePacket(PKT *p, bool copy_data)
 		ret->L7.IkeHeader = MallocFast(sizeof(IKE_HEADER));
 		Copy(ret->L7.IkeHeader, p->L7.IkeHeader, sizeof(IKE_HEADER));
 		break;
+ 
+ 	case L7_DNS:
+ 		StrCpy(ret->DnsQueryHost, sizeof(ret->DnsQueryHost), p->DnsQueryHost);
+ 		break;
 	}
 
 	// Address data
@@ -3010,6 +3014,104 @@ bool ParseTCP(PKT *p, UCHAR *buf, UINT size)
 	return true;
 }
 
+// Get the next byte
+UCHAR GetNextByte(BUF *b)
+{
+	UCHAR c = 0;
+	// Validate arguments
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	if (ReadBuf(b, &c, 1) != 1)
+	{
+		return 0;
+	}
+
+	return c;
+}
+
+// Interpret the DNS query
+bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size)
+{
+	BUF *b;
+	char tmp[257];
+	bool ok = true;
+	USHORT val;
+	// Validate arguments
+	if (name == NULL || data == NULL || data_size == 0)
+	{
+		return false;
+	}
+	StrCpy(name, name_size, "");
+
+	b = NewBuf();
+	WriteBuf(b, data, data_size);
+	SeekBuf(b, 0, 0);
+
+	while (true)
+	{
+		UINT next_len = (UINT)GetNextByte(b);
+		if (next_len > 0)
+		{
+			// Read only the specified length
+			Zero(tmp, sizeof(tmp));
+			if (ReadBuf(b, tmp, next_len) != next_len)
+			{
+				ok = false;
+				break;
+			}
+			// Append
+			if (StrLen(name) != 0)
+			{
+				StrCat(name, name_size, ".");
+			}
+			StrCat(name, name_size, tmp);
+		}
+		else
+		{
+			// Read all
+			break;
+		}
+	}
+
+	if (ReadBuf(b, &val, sizeof(val)) != sizeof(val))
+	{
+		ok = false;
+	}
+	else
+	{
+		if (Endian16(val) != 0x01 && Endian16(val) != 0x0c)
+		{
+			ok = false;
+		}
+	}
+
+	if (ReadBuf(b, &val, sizeof(val)) != sizeof(val))
+	{
+		ok = false;
+	}
+	else
+	{
+		if (Endian16(val) != 0x01)
+		{
+			ok = false;
+		}
+	}
+
+	FreeBuf(b);
+
+	if (ok == false || StrLen(name) == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 // UDP parsing
 bool ParseUDP(PKT *p, UCHAR *buf, UINT size)
 {
@@ -3052,6 +3154,13 @@ bool ParseUDP(PKT *p, UCHAR *buf, UINT size)
 			return true;
 		}
 	}
+  
+ 	if (dst_port == 53)
+	{
+ 		ParseDNS(p, buf, size);
+ 		return true;
+ 	}
+ 
 
 	if (src_port == 500 || dst_port == 500 || src_port == 4500 || dst_port == 4500)
 	{
