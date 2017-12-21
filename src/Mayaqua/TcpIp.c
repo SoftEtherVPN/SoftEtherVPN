@@ -3113,6 +3113,50 @@ bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size)
 	}
 }
 
+// DNS parsing
+void ParseDNS(PKT *p, UCHAR *buf, UINT size)
+{
+	UCHAR *query_data;
+	UINT query_data_size;
+	DNSV4_HEADER *dns;
+	char hostname[MAX_SIZE];
+	if (p == NULL|| buf == NULL)
+	{
+		return;
+	}
+
+	if (size < sizeof(DNSV4_HEADER))
+	{
+		return;
+	}
+
+	dns = (DNSV4_HEADER *)buf;
+
+	if ((dns->Flag1 & 78) != 0 || (dns->Flag1 & 0x80) != 0)
+	{
+		// Illegal opcode
+		return;
+	}
+	if (Endian16(dns->NumQuery) != 1)
+	{
+		// Number of queries is invalid
+		return;
+	}
+
+	query_data = ((UCHAR *)dns) + sizeof(DNSV4_HEADER);
+	query_data_size = size - sizeof(DNSV4_HEADER);
+
+	// Interpret the query
+	if (ParseDnsQuery(hostname, sizeof(hostname), query_data, query_data_size) == false)
+	{
+		// Interpretation fails
+		return;
+	}
+
+	StrCpy(p->DnsQueryHost, sizeof(p->DnsQueryHost), hostname);
+	p->TypeL7 = L7_DNS;
+}
+
 // UDP parsing
 bool ParseUDP(PKT *p, UCHAR *buf, UINT size)
 {
