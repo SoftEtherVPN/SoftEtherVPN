@@ -1631,8 +1631,8 @@ void GetDateTimeStrMilli(char *str, UINT size, SYSTEMTIME *st)
 		st->wMilliseconds);
 }
 
-// Get the date and time string in RFC3164 format (example: 2017-09-27T18:25:55.434-9:00)
-void GetDateTimeStrRFC3164(char *str, UINT size, SYSTEMTIME *st, int timezone_min){
+// Get the date and time string in RFC3339 format (example: 2017-09-27T18:25:55.434-9:00)
+void GetDateTimeStrRFC3339(char *str, UINT size, SYSTEMTIME *st, int timezone_min){
 	// Validate arguments
 	if (str == NULL || st == NULL)
 	{

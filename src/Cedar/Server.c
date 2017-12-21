@@ -924,7 +924,7 @@ void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 	// Date and time
 	LocalTime(&st);
 	if(s->StrictSyslogDatetimeFormat){
-		GetDateTimeStrRFC3164(datetime, sizeof(datetime), &st, GetCurrentTimezone());
+		GetDateTimeStrRFC3339(datetime, sizeof(datetime), &st, GetCurrentTimezone());
 	}else{
 		GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
 	}

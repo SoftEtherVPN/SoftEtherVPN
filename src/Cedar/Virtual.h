@@ -594,9 +594,7 @@ void SendTcp(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, UI
 void DnsProxy(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, void *data, UINT size);
 bool ParseDnsPacket(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, void *data, UINT size);
 bool ParseDnsPacketEx(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT dest_port, void *data, UINT size, DNS_PARSED_PACKET *parsed_result);
-bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size);
 void SetDnsProxyVgsHostname(char *hostname);
-UCHAR GetNextByte(BUF *b);
 bool NatTransactDns(VH *v, NAT_ENTRY *n);
 void NatDnsThread(THREAD *t, void *param);
 bool NatGetIP(IP *ip, char *hostname);

@@ -1307,6 +1307,11 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 				// OpenVPN connection request
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
+
+			case L7_DNS:
+				// DNS request
+				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+				break;
 			}
 
 			break;
@@ -1352,6 +1357,11 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 
 			case L7_OPENVPNCONN:
 				// OpenVPN connection request
+				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+				break;
+
+			case L7_DNS:
+				// DNS request
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
 			}
@@ -1759,6 +1769,13 @@ char *PacketLogParseProc(RECORD *rec)
 					}
 					break;
 
+				case L7_DNS:
+					// DNS query
+					t->Token[6] = CopyStr("DNSv4");
+					t->Token[7] = CopyStr("DNS_Query");
+					t->Token[14] = CopyStr(p->DnsQueryHost);
+					break;
+
 				default:
 					// Unknown Packet
 					t->Token[6] = CopyStr("UDPv4");
@@ -2022,6 +2039,13 @@ char *PacketLogParseProc(RECORD *rec)
 							t->Token[14] = CopyStr(tmp);
 						}
 					}
+					break;
+
+				case L7_DNS:
+					// DNS query
+					t->Token[6] = CopyStr("DNSv6");
+					t->Token[7] = CopyStr("DNS_Query");
+					t->Token[14] = CopyStr(p->DnsQueryHost);
 					break;
 
 				default:

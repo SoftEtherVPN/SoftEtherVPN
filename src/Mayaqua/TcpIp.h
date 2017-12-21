@@ -705,6 +705,7 @@ struct PKT
 	UCHAR				*Payload;		// Pointer to the payload of TCP or UDP
 	UINT				PayloadSize;	// Payload size
 	struct HTTPLOG		*HttpLog;		// HTTP log
+	char DnsQueryHost[64];				// DNS hostname
 } GCC_PACKED;
 
 // Layer-3 packet classification
@@ -728,6 +729,7 @@ struct PKT
 #define	L7_DHCPV4			1		// DHCPv4 packet
 #define	L7_IKECONN			2		// IKE connection request packet
 #define	L7_OPENVPNCONN		3		// OpenVPN connection request packet
+#define L7_DNS				4		// DNS packet
 
 
 // IKE header
@@ -869,6 +871,7 @@ bool ParseICMPv6(PKT *p, UCHAR *buf, UINT size);
 bool ParseTCP(PKT *p, UCHAR *buf, UINT size);
 bool ParseUDP(PKT *p, UCHAR *buf, UINT size);
 void ParseDHCPv4(PKT *p, UCHAR *buf, UINT size);
+void ParseDNS(PKT *p, UCHAR *buf, UINT size);
 PKT *ClonePacket(PKT *p, bool copy_data);
 void FreeClonePacket(PKT *p);
 
@@ -901,6 +904,8 @@ void FreeDHCPv4Data(DHCPV4_DATA *d);
 bool AdjustTcpMssL3(UCHAR *src, UINT src_size, UINT mss);
 bool AdjustTcpMssL2(UCHAR *src, UINT src_size, UINT mss, USHORT tag_vlan_tpid);
 UINT GetIpHeaderSize(UCHAR *src, UINT src_size);
+bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size);
+UCHAR GetNextByte(BUF *b);
 
 bool IsDhcpPacketForSpecificMac(UCHAR *data, UINT size, UCHAR *mac_address);
 
