@@ -139,6 +139,9 @@ CONTRIBUTORS on GitHub:
   - Guanzhong Chen
     https://github.com/quantum5
 
+  - Nguyễn Hồng Quân
+    https://github.com/hongquan
+
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
 

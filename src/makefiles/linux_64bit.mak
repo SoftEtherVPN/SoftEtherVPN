@@ -1,37 +1,43 @@
 # SoftEther VPN Source Code
-# 
+#
 # Copyright (c) 2012-2017 SoftEther VPN Project at University of Tsukuba, Japan.
 # Copyright (c) 2012-2017 Daiyuu Nobori.
 # All Rights Reserved.
-# 
+#
 # http://www.softether.org/
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2 as published by the Free Software Foundation.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License version 2
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-# 
+#
 # Platform: os=Linux, bits=64bit
 
 # Variables
 
 #CC=gcc
 
-OPTIONS_COMPILE_DEBUG=-D_DEBUG -DDEBUG -DUNIX -DUNIX_LINUX -DCPU_64 -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./src/ -I./src/Cedar/ -I./src/Mayaqua/ -g -fsigned-char -m64
+ifeq ($(shell uname -m),aarch64)
+	M64:=
+else
+	M64:=-m64
+endif
 
-OPTIONS_LINK_DEBUG=-g -fsigned-char -m64 -lm -ldl -lrt -lpthread -lssl -lcrypto -lreadline -lncurses -lz
+OPTIONS_COMPILE_DEBUG=-D_DEBUG -DDEBUG -DUNIX -DUNIX_LINUX -DCPU_64 -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./src/ -I./src/Cedar/ -I./src/Mayaqua/ -g -fsigned-char $(M64)
 
-OPTIONS_COMPILE_RELEASE=-DNDEBUG -DVPN_SPEED -DUNIX -DUNIX_LINUX -DCPU_64 -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./src/ -I./src/Cedar/ -I./src/Mayaqua/ -O2 -fsigned-char -m64
+OPTIONS_LINK_DEBUG=-g -fsigned-char $(M64) -lm -ldl -lrt -lpthread -lssl -lcrypto -lreadline -lncurses -lz
 
-OPTIONS_LINK_RELEASE=-O2 -fsigned-char -m64 -lm -ldl -lrt -lpthread -lssl -lcrypto -lreadline -lncurses -lz
+OPTIONS_COMPILE_RELEASE=-DNDEBUG -DVPN_SPEED -DUNIX -DUNIX_LINUX -DCPU_64 -D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64 -I./src/ -I./src/Cedar/ -I./src/Mayaqua/ -O2 -fsigned-char $(M64)
+
+OPTIONS_LINK_RELEASE=-O2 -fsigned-char $(M64) -lm -ldl -lrt -lpthread -lssl -lcrypto -lreadline -lncurses -lz
 
 INSTALL_BINDIR=/usr/bin/
 INSTALL_VPNSERVER_DIR=/usr/vpnserver/
@@ -422,6 +428,7 @@ $(INSTALL_BINDIR)vpncmd: bin/vpncmd/hamcore.se2 bin/vpncmd/vpncmd
 	@mkdir -p $(INSTALL_VPNCMD_DIR)
 	cp bin/vpncmd/hamcore.se2 $(INSTALL_VPNCMD_DIR)hamcore.se2
 	cp bin/vpncmd/vpncmd $(INSTALL_VPNCMD_DIR)vpncmd
+	chmod 644 $(INSTALL_VPNCMD_DIR)hamcore.se2
 	echo "#!/bin/sh" > $(INSTALL_BINDIR)vpncmd
 	echo $(INSTALL_VPNCMD_DIR)vpncmd '"$$@"' >> $(INSTALL_BINDIR)vpncmd
 	echo 'exit $$?' >> $(INSTALL_BINDIR)vpncmd

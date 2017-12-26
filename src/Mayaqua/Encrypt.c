@@ -183,8 +183,8 @@ void Enc_tls1_P_hash(const EVP_MD *md, const unsigned char *sec, int sec_len,
 	HMAC_CTX ctx_tmp_;
 	ctx = &ctx_;
 	ctx_tmp = &ctx_tmp_;
-	Zero(ctx, sizeof(ctx));
-	Zero(ctx_tmp, sizeof(ctx_tmp));
+	Zero(ctx, sizeof(HMAC_CTX));
+	Zero(ctx_tmp, sizeof(HMAC_CTX));
 #endif
 	chunk=EVP_MD_size(md);
 
