@@ -140,10 +140,11 @@ from GitHub. You may make your own fork project from our project.
 ### 1. Debian/Ubuntu
 
 - gcc
-- libncurses-dev
-- libreadline-dev
 - make
+- libreadline-dev
 - libssl-dev
+- libncurses-dev
+- zlib1g-dev
 
 ### 2. Redhat/CentOS
 - gcc
