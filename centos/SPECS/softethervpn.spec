@@ -1,7 +1,7 @@
 %define majorversion 4
-%define minorversion 19
-%define buildversion 9582
-%define dateversion 2015.10.06
+%define minorversion 23
+%define buildversion 9647
+%define dateversion 2017.10.18
 %define buildrelease beta
 
 Name:           softethervpn
@@ -87,6 +87,25 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Dec 18 2017 You Xiaojie <yxj790222@163.com> - 4.23.9647-1
+- Upgraded OpenSSL to 1.0.2l.
+- Source code is now compatible with OpenSSL 1.1.x. Supports DHE-RSA-CHACHA 20-POLY 1305 and ECDHE-RSA-CHACHA 20-POLY 1305, which are new encryption methods of TLS 1.2. (In order to use this new function, you need to recompile yourself using OpenSSL 1.1.x.)
+- TrafficServer / TrafficClient function (The traffic throughput measurement function) is now multithreaded and compatible with about 10 Gbps using NIC with the RSS feature.
+- Changed the default algorithm for SSL from RC4-MD5 to AES128-SHA.
+- Fixed a bug that occurr wrong checksum recalculation in special case of the TCP-MSS clamp processing.
+- Fixed the calculation interval of update interval of DHCP client packet issued by kernel mode virtual NAT function of SecureNAT function.
+- Driver upgrade and DLL name change with Crypto ID support of USB security token.
+- Fixed a problem that CPU sleep processing was not performed when the wait time of the Select () function was INFINITE on Mac OS X.
+- Added the StrictSyslogDatetimeFormat flag onto the ServerConfiguration section on the VPN Server configuration file, which sets Syslog date format to RFC3164.
+- Fixed wrong English in the UI.
+- Using client parameter in function CtConnect
+- Stop Radius Delay from counting to next_resend
+- Add DH groups 2048,3072,4096 to IPSec_IKE
+- Add HMAC SHA2-256, HMAC SHA2-384, HMAC SHA2-512 support
+- Openvpn extend ciphers
+- Fixed RSA key bits wrong calculation for certain x509 certificate
+- Added support for RuToken USB key PKCS#11
+
 * Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9582-1
 - Update upstream to 4.19.9582-beta
 
