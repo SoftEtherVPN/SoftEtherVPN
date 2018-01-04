@@ -3055,7 +3055,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	// Generation of data 2
 	data2_size = h->HashSize + hmac_block_size;
 
-	for (i = 0;i < HMAC_BLOCK_SIZE;i++)
+	for (i = 0;i < hmac_block_size;i++)
 	{
 		data2[i] = k[i] ^ 0x5c;
 	}
