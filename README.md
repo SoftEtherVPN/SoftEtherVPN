@@ -143,7 +143,8 @@ from GitHub. You may make your own fork project from our project.
 - libncurses-dev
 - libreadline-dev
 - make
-- openssl-dev
+- libssl-dev
+- zlib1g-dev
 
 ### 2. Redhat/CentOS
 - gcc
