@@ -356,7 +356,7 @@ void ListenerUDPMainLoop(LISTENER *r)
 			}
 
 			Debug("NewUDP()\n");
-			r->Sock = NewUDP(r->Port);
+			r->Sock = NewUDPEx2(r->Port, false, &r->Cedar->Server->ListenIP);
 			if (r->Sock != NULL)
 			{
 				// Wait success
@@ -465,7 +465,14 @@ void ListenerTCPMainLoop(LISTENER *r)
 			{
 				if (r->ShadowIPv6 == false)
 				{
-					s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept);
+					if (r->Cedar->Server == NULL)
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, NULL);
+					}
+					else
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, &r->Cedar->Server->ListenIP);
+					}
 				}
 				else
 				{
@@ -478,7 +485,7 @@ void ListenerTCPMainLoop(LISTENER *r)
 			}
 			else if (r->Protocol == LISTENER_RUDP)
 			{
-				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 0, false, false, r->NatTGlobalUdpPort, r->RandPortId);
+				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 0, false, false, r->NatTGlobalUdpPort, r->RandPortId, &r->Cedar->Server->ListenIP);
 			}
 			else if (r->Protocol == LISTENER_ICMP)
 			{

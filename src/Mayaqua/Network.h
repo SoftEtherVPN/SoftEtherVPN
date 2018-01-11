@@ -608,6 +608,7 @@ struct UDPLISTENER
 	bool IsEspRawPortOpened;			// Whether the raw port opens
 	bool PollMyIpAndPort;				// Examine whether the global IP and the port number of its own
 	QUERYIPTHREAD *GetNatTIpThread;		// NAT-T IP address acquisition thread
+	IP ListenIP;						// Listen IP
 };
 
 #define	QUERYIPTHREAD_INTERVAL_LAST_OK	(3 * 60 * 60 * 1000)
@@ -1076,9 +1077,9 @@ void ConnectThreadForTcp(THREAD *thread, void *param);
 void ConnectThreadForRUDP(THREAD *thread, void *param);
 void ConnectThreadForOverDnsOrIcmp(THREAD *thread, void *param);
 SOCK *NewRUDPClientNatT(char *svc_name, IP *ip, UINT *error_code, UINT timeout, bool *cancel, char *hint_str, char *target_hostname);
-RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id);
+RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, UINT timeout, bool *cancel, SOCK *sock, SOCK_EVENT *sock_event, UINT local_port, bool over_dns_mode);
-RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id);
+RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 void FreeRUDP(RUDP_STACK *r);
 void RUDPMainThread(THREAD *thread, void *param);
 void RUDPRecvProc(RUDP_STACK *r, UDPPACKET *p);
@@ -1105,7 +1106,7 @@ UINT64 RUDPGetCurrentSendingMinSeqNo(RUDP_SESSION *se);
 UINT64 RUDPGetCurrentSendingMaxSeqNo(RUDP_SESSION *se);
 SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode);
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id);
+				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 SOCK *AcceptRUDP(SOCK *s);
 void *InitWaitUntilHostIPAddressChanged();
 void FreeWaitUntilHostIPAddressChanged(void *p);
@@ -1296,7 +1297,7 @@ bool SetTtl(SOCK *sock, UINT ttl);
 void Disconnect(SOCK *sock);
 SOCK *Listen(UINT port);
 SOCK *ListenEx(UINT port, bool local_only);
-SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca);
+SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip);
 SOCK *Listen6(UINT port);
 SOCK *ListenEx6(UINT port, bool local_only);
 SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca);
@@ -1567,7 +1568,7 @@ void AddHostIPAddressToList(LIST *o, IP *ip);
 int CmpIpAddressList(void *p1, void *p2);
 UINT64 GetHostIPAddressListHash();
 
-UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param);
+UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
 void UdpListenerThread(THREAD *thread, void *param);
 void UdpListenerGetPublicPortList(UDPLISTENER *u, char *dst, UINT size);
 void FreeUdpListener(UDPLISTENER *u);

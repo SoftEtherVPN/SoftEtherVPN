@@ -227,13 +227,13 @@ void SetSysLog(SLOG *g, char *hostname, UINT port)
 }
 
 // Create a syslog client
-SLOG *NewSysLog(char *hostname, UINT port)
+SLOG *NewSysLog(char *hostname, UINT port, IP *ip)
 {
 	// Validate arguments
 	SLOG *g = ZeroMalloc(sizeof(SLOG));
 
 	g->lock = NewLock();
-	g->Udp = NewUDP(0);
+	g->Udp = NewUDPEx2(0, false, ip);
 
 	SetSysLog(g, hostname, port);
 
