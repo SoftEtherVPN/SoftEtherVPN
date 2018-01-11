@@ -142,6 +142,9 @@ CONTRIBUTORS on GitHub:
   - Nguyễn Hồng Quân
     https://github.com/hongquan
 
+  - macvk
+    https://github.com/macvk
+
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
 
