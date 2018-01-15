@@ -1981,6 +1981,18 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		X509_EXTENSION_free(eku);
 	}
 
+	// Alternative subject name
+	if (UniIsEmptyStr(name->CommonName) == false)
+	{
+		char alt_dns[MAX_PATH];
+
+		Format(alt_dns, sizeof(alt_dns), "DNS.1:%S", name->CommonName);
+
+		ex = X509V3_EXT_conf_nid(NULL, NULL, NID_subject_alt_name,	alt_dns);
+		X509_add_ext(x509, ex, -1);
+		X509_EXTENSION_free(ex);
+	}
+
 	Lock(openssl_lock);
 	{
 		// Set the public key
