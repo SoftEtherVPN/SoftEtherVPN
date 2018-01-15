@@ -548,7 +548,7 @@ DIRLIST *Win32EnumDirExW(wchar_t *dirname, COMPARE *compare)
 
 	UniStrCpy(tmp2, sizeof(tmp2), dirname);
 
-	if (UniStrLen(tmp2) >= 1 && tmp[UniStrLen(tmp2) - 1] == L'\\')
+	if (UniStrLen(tmp2) >= 1 && tmp2[UniStrLen(tmp2) - 1] == L'\\')
 	{
 		tmp2[UniStrLen(tmp2) - 1] = 0;
 	}
