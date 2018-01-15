@@ -354,7 +354,7 @@ VALUE *ReadValue(BUF *b, UINT type)
 		break;
 	case VALUE_STR:			// ANSI string
 		len = ReadBufInt(b);
-		if ((len + 1) > MAX_VALUE_SIZE)
+		if (len > (MAX_VALUE_SIZE - 1))
 		{
 			// Size over
 			break;

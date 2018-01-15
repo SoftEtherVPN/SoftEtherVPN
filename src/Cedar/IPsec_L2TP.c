@@ -792,6 +792,12 @@ L2TP_PACKET *ParseL2TPPacket(UDPPACKET *p)
 			size -= 2;
 
 			a.DataSize = a.Length - 6;
+
+			if (a.DataSize > size)
+			{
+				goto LABEL_ERROR;
+			}
+
 			a.Data = Clone(buf, a.DataSize);
 
 			buf += a.DataSize;

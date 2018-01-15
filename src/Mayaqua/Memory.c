@@ -4313,6 +4313,21 @@ void Copy(void *dst, void *src, UINT size)
 	memcpy(dst, src, size);
 }
 
+// Memory move
+void Move(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || src == NULL || size == 0 || dst == src)
+	{
+		return;
+	}
+
+	// KS
+	KS_INC(KS_COPY_COUNT);
+
+	memmove(dst, src, size);
+}
+
 // Memory comparison
 int Cmp(void *p1, void *p2, UINT size)
 {
