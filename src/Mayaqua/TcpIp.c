@@ -174,14 +174,14 @@ ICMP_RESULT *IcmpParseResult(IP *dest_ip, USHORT src_id, USHORT src_seqno, UCHAR
 	if (true)
 	{
 		UINT ip_header_size = GetIpHeaderSize(recv_buffer, i);
-		if (ip_header_size >= sizeof(IPV4_HEADER))
+		if (ip_header_size >= sizeof(IPV4_HEADER) && (ip_header_size <= i))
 		{
 			IPV4_HEADER *ipv4 = (IPV4_HEADER *)recv_buffer;
 			if ((IPV4_GET_VERSION(ipv4) == 4) && (ipv4->Protocol == IP_PROTO_ICMPV4))
 			{
 				UINT ip_total_len = (UINT)Endian16(ipv4->TotalLength);
 
-				if ((ip_total_len >= sizeof(IPV4_HEADER)) && (ip_total_len <= i))
+				if ((ip_total_len >= sizeof(IPV4_HEADER)) && (ip_total_len <= i) && (ip_total_len >= ip_header_size))
 				{
 					UINT icmp_packet_size = ip_total_len - ip_header_size;
 					ICMP_HEADER *icmp = (ICMP_HEADER *)(recv_buffer + ip_header_size);
@@ -1957,7 +1957,7 @@ void CorrectChecksum(PKT *p)
 						{
 							udp->Checksum = 0;
 
-							if ((IPV4_GET_FLAGS(v4) & 0x01) == 0)
+							if ((IPV4_GET_FLAGS(v4) & 0x01) == 0 && (p->IPv4PayloadSize >= udp_len))
 							{
 								// Calculate the checksum correctly based on the data in case of a non-fragmented packet
 								udp->Checksum = CalcChecksumForIPv4(v4->SrcIP, v4->DstIP, IP_PROTO_UDP, udp, udp_len, 0);
@@ -2023,7 +2023,7 @@ void CorrectChecksum(PKT *p)
 						{
 							udp->Checksum = 0;
 
-							if (v6info->FragmentHeader == NULL || ((IPV6_GET_FLAGS(v6info->FragmentHeader) & IPV6_FRAGMENT_HEADER_FLAG_MORE_FRAGMENTS) == 0))
+							if ((v6info->FragmentHeader == NULL || ((IPV6_GET_FLAGS(v6info->FragmentHeader) & IPV6_FRAGMENT_HEADER_FLAG_MORE_FRAGMENTS) == 0)) && (v6info->PayloadSize >= udp_len))
 							{
 								// If the packet is not fragmented, recalculate the checksum
 								udp->Checksum = CalcChecksumForIPv6(&v6->SrcAddress, &v6->DestAddress, IP_PROTO_UDP, udp, udp_len, 0);
@@ -2868,6 +2868,7 @@ PKT *ParsePacketIPv4WithDummyMacHeader(UCHAR *buf, UINT size)
 {
 	UCHAR *tmp;
 	UINT tmp_size;
+	PKT *ret;
 	// Validate arguments
 	if (buf == NULL)
 	{
@@ -2880,7 +2881,14 @@ PKT *ParsePacketIPv4WithDummyMacHeader(UCHAR *buf, UINT size)
 	WRITE_USHORT(tmp + 12, MAC_PROTO_IPV4);
 	Copy(tmp + 14, buf, size);
 
-	return ParsePacket(tmp, tmp_size);
+	ret = ParsePacket(tmp, tmp_size);
+
+	if (ret == NULL)
+	{
+		Free(tmp);
+	}
+
+	return ret;
 }
 
 // IPv4 parsing

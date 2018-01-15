@@ -2250,6 +2250,7 @@ BUF *NnReadDnsRecord(BUF *buf, bool answer, USHORT *ret_type, USHORT *ret_class)
 		data = Malloc(data_len);
 		if (ReadBuf(buf, data, data_len) != data_len)
 		{
+			Free(data);
 			return false;
 		}
 

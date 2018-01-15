@@ -2840,7 +2840,7 @@ bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock)
 			{
 				void *ptr = FifoPtr(tcp_recv_fifo);
 				USHORT packet_size = READ_USHORT(ptr);
-				if (packet_size <= OPENVPN_TCP_MAX_PACKET_SIZE)
+				if (packet_size != 0 && packet_size <= OPENVPN_TCP_MAX_PACKET_SIZE)
 				{
 					UINT total_len = (UINT)packet_size + sizeof(USHORT);
 					if (r >= total_len)

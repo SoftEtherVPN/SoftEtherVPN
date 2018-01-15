@@ -1827,6 +1827,13 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 		if (encrypted_password == NULL)
 		{
 			// Encryption failure
+
+			// Release the ip_list
+			for(i = 0; i < LIST_NUM(ip_list); i++)
+			{
+				IP *tmp_ip = LIST_DATA(ip_list, i);
+				Free(tmp_ip);
+			}
 			ReleaseList(ip_list);
 			return false;
 		}

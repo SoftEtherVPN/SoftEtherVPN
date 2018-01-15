@@ -7373,7 +7373,7 @@ bool StrToIP6(IP *ip, char *str)
 	if (StartWith(tmp, "[") && EndWith(tmp, "]"))
 	{
 		// If the string is enclosed in square brackets, remove brackets
-		StrCpy(tmp, sizeof(tmp), &tmp[1]);
+		StrCpyAllowOverlap(tmp, sizeof(tmp), &tmp[1]);
 
 		if (StrLen(tmp) >= 1)
 		{
@@ -12691,6 +12691,14 @@ bool RecvAll(SOCK *sock, void *data, UINT size, bool secure)
 		{
 			return false;
 		}
+		if (ret == SOCK_LATER)
+		{
+			// I suppose that this is safe because the RecvAll() function is used only 
+			// if the sock->AsyncMode == true. And the Recv() function may return
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// Recv() function in the RecvAll() function never returns SOCK_LATER.
+			return false;
+		}
 		recv_size += ret;
 		if (recv_size >= size)
 		{
@@ -17590,7 +17598,7 @@ void IPToInAddr6(struct in6_addr *addr, IP *ip)
 		return;
 	}
 
-	Zero(addr, sizeof(struct in_addr));
+	Zero(addr, sizeof(struct in6_addr));
 
 	if (IsIP6(ip))
 	{

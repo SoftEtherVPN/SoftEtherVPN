@@ -3346,6 +3346,54 @@ UINT StrCpy(char *dst, UINT size, char *src)
 
 	return len;
 }
+UINT StrCpyAllowOverlap(char *dst, UINT size, char *src)
+{
+	UINT len;
+	// Validate arguments
+	if (dst == src)
+	{
+		return StrLen(src);
+	}
+	if (dst == NULL || src == NULL)
+	{
+		if (src == NULL && dst != NULL)
+		{
+			if (size >= 1)
+			{
+				dst[0] = '\0';
+			}
+		}
+		return 0;
+	}
+	if (size == 1)
+	{
+		dst[0] = '\0';
+		return 0;
+	}
+	if (size == 0)
+	{
+		// Ignore the length
+		size = 0x7fffffff;
+	}
+
+	// Check the length
+	len = StrLen(src);
+	if (len <= (size - 1))
+	{
+		Move(dst, src, len + 1);
+	}
+	else
+	{
+		len = size - 1;
+		Move(dst, src, len);
+		dst[len] = '\0';
+	}
+
+	// KS
+	KS_INC(KS_STRCPY_COUNT);
+
+	return len;
+}
 
 // Check whether the string buffer is within the specified size
 bool StrCheckSize(char *str, UINT size)

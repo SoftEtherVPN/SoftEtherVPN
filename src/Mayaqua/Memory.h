@@ -284,6 +284,7 @@ void *InternalReAlloc(void *addr, UINT size);
 void InternalFree(void *addr);
 
 void Copy(void *dst, void *src, UINT size);
+void Move(void *dst, void *src, UINT size);
 int Cmp(void *p1, void *p2, UINT size);
 int CmpCaseIgnore(void *p1, void *p2, UINT size);
 void ZeroMem(void *addr, UINT size);

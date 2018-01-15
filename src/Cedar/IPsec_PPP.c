@@ -291,7 +291,7 @@ void PPPThread(THREAD *thread, void *param)
 						ReadBuf(b, client_response_buffer, 49);
 
 						Zero(username_tmp, sizeof(username_tmp));
-						ReadBuf(b, username_tmp, sizeof(username_tmp));
+						ReadBuf(b, username_tmp, sizeof(username_tmp) - 1);
 
 						Debug("First MS-CHAPv2: id=%s\n", username_tmp);
 
@@ -977,7 +977,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					ReadBuf(b, client_response_buffer, 49);
 
 					Zero(username_tmp, sizeof(username_tmp));
-					ReadBuf(b, username_tmp, sizeof(username_tmp));
+					ReadBuf(b, username_tmp, sizeof(username_tmp) - 1);
 
 					client_challenge_16 = client_response_buffer + 0;
 					client_response_24 = client_response_buffer + 16 + 8;

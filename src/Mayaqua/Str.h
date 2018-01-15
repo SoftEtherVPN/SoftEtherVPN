@@ -135,6 +135,7 @@ UINT StrSize(char *str);
 bool StrCheckLen(char *str, UINT len);
 bool StrCheckSize(char *str, UINT size);
 UINT StrCpy(char *dst, UINT size, char *src);
+UINT StrCpyAllowOverlap(char *dst, UINT size, char *src);
 UINT StrCat(char *dst, UINT size, char *src);
 UINT StrCatLeft(char *dst, UINT size, char *src);
 char ToLower(char c);
