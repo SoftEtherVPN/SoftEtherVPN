@@ -148,6 +148,9 @@ CONTRIBUTORS on GitHub:
   - Guido Vranken
     https://github.com/guidovranken
 
+  - Maks Naumov
+    https://github.com/maksqwe
+    
 
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
