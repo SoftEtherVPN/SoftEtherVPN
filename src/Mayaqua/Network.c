@@ -22940,3 +22940,13 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 
 	return ret;
 }
+
+void SetDhParam(DH_CTX *dh)
+ {
+	if (dh_param)
+	{
+ 		DhFree(dh_param);
+ 	}
+
+ 	dh_param = dh;
+ }
