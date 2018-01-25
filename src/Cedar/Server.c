@@ -6186,6 +6186,18 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
 
 		s->StrictSyslogDatetimeFormat = CfgGetBool(f, "StrictSyslogDatetimeFormat");
+                // Bits of Diffie-Hellman parameters
+		c->DhParamBits = CfgGetInt(f, "DhParamBits");
+		if (c->DhParamBits == 0)
+		{
+			c->DhParamBits = DH_PARAM_BITS_DEFAULT;
+		}
+
+		SetDhParam(DhNewFromBits(c->DhParamBits));
+		if (s->OpenVpnServerUdp)
+		{
+			OpenVpnServerUdpSetDhParam(s->OpenVpnServerUdp, DhNewFromBits(c->DhParamBits));
+		}
 	}
 	Unlock(c->lock);
 
@@ -6289,6 +6301,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 	CfgAddBool(f, "BackupConfigOnlyWhenModified", s->BackupConfigOnlyWhenModified);
 
 	CfgAddIp(f, "ListenIP", &s->ListenIP);
+
 	if (s->Logger != NULL)
 	{
 		CfgAddInt(f, "ServerLogSwitchType", s->Logger->SwitchType);
@@ -6499,6 +6512,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
 		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
 		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);
+		CfgAddInt(f, "DhParamBits", c->DhParamBits);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));

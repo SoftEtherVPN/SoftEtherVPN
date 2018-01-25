@@ -150,8 +150,8 @@ void RAND_Free_For_SoftEther();
 // HMAC block size
 #define	HMAC_BLOCK_SIZE					64
 // The block size for sha-384 and sha-512 as defined by rfc4868
-#define HMAC_BLOCK_SIZE_1024			128
-#define HMAC_BLOCK_SIZE_MAX				512
+#define HMAC_BLOCK_SIZE_1024					128
+#define HMAC_BLOCK_SIZE_MAX					512
 
 #define DH_GROUP1_PRIME_768 \
 	"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" \
@@ -540,6 +540,7 @@ DH_CTX *DhNewSimple160();
 DH_CTX *DhNew2048();
 DH_CTX *DhNew3072();
 DH_CTX *DhNew4096();
+DH_CTX *DhNewFromBits(UINT bits);
 DH_CTX *DhNew(char *prime, UINT g);
 void DhFree(DH_CTX *dh);
 BUF *DhToBuf(DH_CTX *dh);

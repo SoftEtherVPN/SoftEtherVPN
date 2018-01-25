@@ -1020,6 +1020,8 @@ int GetCurrentTimezone();
 bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UINT sni_size);
 bool GetSniNameFromPreSslConnection(SOCK *s, char *sni, UINT sni_size);
 
+void SetDhParam(DH_CTX *dh);
+
 bool IsUseDnsProxy();
 bool IsUseAlternativeHostname();
 

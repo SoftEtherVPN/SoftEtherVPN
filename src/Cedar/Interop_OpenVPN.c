@@ -2595,7 +2595,7 @@ OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOC
 
 	OvsLog(s, NULL, NULL, "LO_START");
 
-	s->Dh = DhNewGroup2();
+	s->Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
 
 	return s;
 }
@@ -2701,6 +2701,21 @@ OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
 	u->OpenVpnServer = NewOpenVpnServer(cedar, u->UdpListener->Interrupts, u->UdpListener->Event);
 
 	return u;
+}
+
+void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh)
+{
+	// Validate arguments
+	if (u == NULL) {
+		return;
+	}
+
+	if (u->OpenVpnServer->Dh)
+	{
+		DhFree(u->OpenVpnServer->Dh);
+	}
+
+	u->OpenVpnServer->Dh = dh;
 }
 
 // Apply the port list to the OpenVPN server

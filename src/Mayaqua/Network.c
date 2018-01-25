@@ -250,7 +250,7 @@ static UINT rand_port_numbers[256] = {0};
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
 
-static DH_CTX *dh_2048 = NULL;
+static DH_CTX *dh_param = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -17810,9 +17810,9 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
 	DH *ret = NULL;
 
-	if (dh_2048 != NULL)
+	if (dh_param != NULL)
 	{
-		ret = dh_2048->dh;
+		ret = dh_param->dh;
 	}
 
 	return ret;
@@ -17931,9 +17931,6 @@ void InitNetwork()
 	current_global_ip_set = false;
 
 	disable_cache = false;
-
-
-	dh_2048 = DhNew2048();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
@@ -18367,10 +18364,10 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 void FreeNetwork()
 {
 
-	if (dh_2048 != NULL)
+	if (dh_param != NULL)
 	{
-		DhFree(dh_2048);
-		dh_2048 = NULL;
+		DhFree(dh_param);
+		dh_param = NULL;
 	}
 
 	// Release of thread-related
@@ -20282,6 +20279,8 @@ LABEL_RESTART:
 
 		if (u->PollMyIpAndPort)
 		{
+			// Create a thread to get a NAT-T IP address if necessary
+			if (u->GetNatTIpThread == NULL)
 			{
 				// Create a thread to get a NAT-T IP address if necessary
 				if (u->GetNatTIpThread == NULL)

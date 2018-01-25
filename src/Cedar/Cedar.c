@@ -1765,6 +1765,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->UdpPortList = NewIntList(false);
 
+	c->DhParamBits = DH_PARAM_BITS_DEFAULT;
+
 	InitNetSvcList(c);
 
 	InitLocalBridgeList(c);
