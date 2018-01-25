@@ -151,7 +151,9 @@ CONTRIBUTORS on GitHub:
   - Maks Naumov
     https://github.com/maksqwe
     
-
+  - nvsofts
+    https://github.com/nvsofts
+   
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
 
