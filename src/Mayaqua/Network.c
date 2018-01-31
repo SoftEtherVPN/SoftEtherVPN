@@ -13355,7 +13355,7 @@ void SetNoNeedToRead(SOCK *sock)
 UINT SecureRecv(SOCK *sock, void *data, UINT size)
 {
 	SOCKET s;
-	int ret, e = 0;
+	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
 
 #ifdef UNIX_SOLARIS
