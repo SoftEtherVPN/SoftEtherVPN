@@ -6652,7 +6652,10 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL
 		|| server_port == 0)
 	{
-		c->Err = ERR_PROXY_CONNECT_FAILED;
+		if (c != NULL)
+		{
+			c->Err = ERR_PROXY_CONNECT_FAILED;
+		}
 		return NULL;
 	}
 
@@ -6846,7 +6849,10 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL ||
 		server_port == 0)
 	{
-		c->Err = ERR_PROXY_CONNECT_FAILED;
+		if( c != NULL)
+		{
+			c->Err = ERR_PROXY_CONNECT_FAILED;
+		}
 		return NULL;
 	}
 	if (username != NULL && password != NULL &&

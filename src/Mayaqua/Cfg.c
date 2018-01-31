@@ -2338,6 +2338,11 @@ void CfgDeleteFolder(FOLDER *f)
 		return;
 	}
 
+	if(f->Folders == NULL)
+	{
+		return;
+	}
+
 	// Remove all subfolders
 	num = LIST_NUM(f->Folders);
 	ff = Malloc(sizeof(FOLDER *) * num);

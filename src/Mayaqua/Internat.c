@@ -2038,7 +2038,7 @@ UINT Utf8ToUni(wchar_t *s, UINT size, BYTE *u, UINT u_size)
 	while (true)
 	{
 		UINT type;
-		wchar_t c;
+		wchar_t c = 0;
 		BYTE c1, c2;
 
 		type = GetUtf8Type(u, u_size, i);
@@ -2062,8 +2062,6 @@ UINT Utf8ToUni(wchar_t *s, UINT size, BYTE *u, UINT u_size)
 			break;
 		}
 		i += type;
-
-		c = 0;
 
 		if (IsBigEndian())
 		{

@@ -410,11 +410,12 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 
 	server = a->Server;
 
-	if (server != NULL)
+	if (server == NULL)
 	{
-		cedar = server->Cedar;
+		return NULL;
 	}
 
+	cedar = server->Cedar;
 	Lock(cedar->CedarSuperLock);
 
 	if (true)
