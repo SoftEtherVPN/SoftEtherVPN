@@ -1451,25 +1451,6 @@ bool WriteSecData(SECURE *sec, bool private_obj, char *name, void *data, UINT si
 	return true;
 }
 
-// Add the information of the newly created object to the cache
-void AddSecObjToEnumCache(SECURE *sec, char *name, UINT type, bool private_obj, UINT object)
-{
-	SEC_OBJ *obj;
-	// Validate arguments
-	if (sec == NULL || name == NULL || sec->EnumCache == NULL)
-	{
-		return;
-	}
-
-	obj = ZeroMalloc(sizeof(SEC_OBJ));
-	obj->Name = CopyStr(name);
-	obj->Object = object;
-	obj->Private = private_obj;
-	obj->Type = type;
-
-	Add(sec->EnumCache, obj);
-}
-
 // Display the token information
 void PrintSecInfo(SECURE *sec)
 {

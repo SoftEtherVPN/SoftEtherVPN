@@ -243,7 +243,6 @@ SEC_OBJ *CloneSecObject(SEC_OBJ *obj);
 LIST *CloneEnumSecObject(LIST *o);
 void EraseEnumSecObjectCache(SECURE *sec);
 void DeleteSecObjFromEnumCache(SECURE *sec, char *name, UINT type);
-void AddSecObjToEnumCache(SECURE *sec, char *name, UINT type, bool private_obj, UINT object);
 bool WriteSecData(SECURE *sec, bool private_obj, char *name, void *data, UINT size);
 int ReadSecDataFromObject(SECURE *sec, SEC_OBJ *obj, void *data, UINT size);
 int ReadSecData(SECURE *sec, char *name, void *data, UINT size);

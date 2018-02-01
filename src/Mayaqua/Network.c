@@ -6490,38 +6490,6 @@ L_LOOP:
 
 #endif	// OS_WIN32
 
-
-// Get whether the aquirement of the Process ID of the TCP connection succeed
-bool CanGetTcpProcessId()
-{
-	UINT i;
-	bool ret = false;
-	LIST *o = GetTcpTableList();
-
-	if (o == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		TCPTABLE *t = LIST_DATA(o, i);
-
-		if (t->ProcessId != 0)
-		{
-			ret = true;
-			break;
-		}
-	}
-
-	FreeTcpTableList(o);
-
-	return ret;
-}
-
-
-
-
 #define	USE_OLD_GETIP
 
 // Set the arp_filter in Linux
@@ -18439,27 +18407,6 @@ void FreeNetwork()
 	DeleteCounter(getip_thread_counter);
 	getip_thread_counter = NULL;
 
-}
-
-// Add a socket to socket list
-void AddSockList(SOCKLIST *sl, SOCK *s)
-{
-	// Validate arguments
-	if (sl == NULL || s == NULL)
-	{
-		return;
-	}
-
-	LockList(sl->SockList);
-	{
-		if (IsInList(sl->SockList, s) == false)
-		{
-			AddRef(s->ref);
-
-			Insert(sl->SockList, s);
-		}
-	}
-	UnlockList(sl->SockList);
 }
 
 // Remove the socket from socket list
