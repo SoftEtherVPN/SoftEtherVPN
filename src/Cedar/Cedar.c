@@ -571,42 +571,6 @@ void FreeNoSslList(CEDAR *c)
 	c->NonSslList = NULL;
 }
 
-// Write a message into Cedar log
-void CedarLog(char *str)
-{
-	char *tmp;
-	// Validate arguments
-	if (str == NULL)
-	{
-		return;
-	}
-	if (cedar_log_ref == NULL)
-	{
-		return;
-	}
-
-	tmp = CopyStr(str);
-
-	if (StrLen(tmp) > 1)
-	{
-		if (tmp[StrLen(tmp) - 1] == '\n')
-		{
-			tmp[StrLen(tmp) - 1] = 0;
-		}
-		if (StrLen(tmp) > 1)
-		{
-			if (tmp[StrLen(tmp) - 1] == '\r')
-			{
-				tmp[StrLen(tmp) - 1] = 0;
-			}
-		}
-	}
-
-	InsertStringRecord(cedar_log, tmp);
-
-	Free(tmp);
-}
-
 // Start Cedar log
 void StartCedarLog()
 {

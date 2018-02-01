@@ -201,7 +201,6 @@ bool ReadPack(BUF *b, PACK *p);
 ELEMENT *ReadElement(BUF *b);
 VALUE *ReadValue(BUF *b, UINT type);
 void Bit160ToStr(char *str, UCHAR *data);
-void Bit128ToStr(char *str, UCHAR *data);
 VALUE *NewInt64Value(UINT64 i);
 TOKEN_LIST *GetPackElementNames(PACK *p);
 

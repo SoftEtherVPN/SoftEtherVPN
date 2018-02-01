@@ -805,21 +805,6 @@ UINT RsaPublicSize(K *k)
 	return ret;
 }
 
-// Stupid test
-void CertTest2()
-{
-}
-
-// Yagi test
-void CertTest()
-{
-}
-
-// Test function related to certificate
-void CertTest_()
-{
-}
-
 // Hash a pointer to a 32-bit
 UINT HashPtrToUINT(void *p)
 {
@@ -851,33 +836,6 @@ NAME *CopyName(NAME *n)
 		n->Country, n->State, n->Local);
 }
 
-// Convert a BIGNUM to a string
-char *BigNumToStr(BIGNUM *bn)
-{
-	BIO *bio;
-	BUF *b;
-	char *ret;
-	// Validate arguments
-	if (bn == NULL)
-	{
-		return NULL;
-	}
-
-	bio = NewBio();
-
-	BN_print(bio, bn);
-
-	b = BioToBuf(bio);
-
-	FreeBio(bio);
-
-	ret = ZeroMalloc(b->Size + 1);
-	Copy(ret, b->Buf, b->Size);
-	FreeBuf(b);
-
-	return ret;
-}
-
 // Convert the binary to the BIGNUM
 BIGNUM *BinToBigNum(void *data, UINT size)
 {
@@ -892,17 +850,6 @@ BIGNUM *BinToBigNum(void *data, UINT size)
 	BN_bin2bn(data, size, bn);
 
 	return bn;
-}
-
-// Convert the buffer to a BIGNUM
-BIGNUM *BufToBigNum(BUF *b)
-{
-	if (b == NULL)
-	{
-		return NULL;
-	}
-
-	return BinToBigNum(b->Buf, b->Size);
 }
 
 // Convert a BIGNUM to a buffer

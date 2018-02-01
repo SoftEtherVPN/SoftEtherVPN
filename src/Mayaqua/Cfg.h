@@ -210,7 +210,6 @@ BUF *CfgGetBuf(FOLDER *f, char *name);
 bool CfgGetStr(FOLDER *f, char *name, char *str, UINT size);
 bool CfgGetUniStr(FOLDER *f, char *name, wchar_t *str, UINT size);
 bool CfgIsItem(FOLDER *f, char *name);
-bool CfgIsFolder(FOLDER *f, char *name);
 void CfgTest();
 void CfgTest2(FOLDER *f, UINT n);
 char *CfgEscape(char *name);

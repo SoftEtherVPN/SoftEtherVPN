@@ -7223,20 +7223,6 @@ UINT CbAddStr9xA(HWND hWnd, UINT id, char *str, UINT data)
 }
 
 // Insert a string
-UINT CbInsertStrA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
-{
-	wchar_t *tmp;
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-	tmp = CopyStrToUni(str);
-	ret = CbInsertStr(hWnd, id, index, tmp, data);
-	Free(tmp);
-	return ret;
-}
 UINT CbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data)
 {
 	UINT ret;
@@ -9828,49 +9814,6 @@ void Center(HWND hWnd)
 	if (win_y < (UINT)(screen.bottom - screen.top))
 	{
 		y = (screen.bottom - screen.top - win_y) / 2;
-	}
-	else
-	{
-		y = 0;
-	}
-
-	SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
-}
-
-// Move the window to the center 2
-void Center2(HWND hWnd)
-{
-	RECT screen;
-	RECT win;
-	UINT x, y;
-	UINT win_x, win_y;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	if (SystemParametersInfo(SPI_GETWORKAREA, 0, &screen, 0) == false)
-	{
-		return;
-	}
-
-	GetWindowRect(hWnd, &win);
-	win_x = win.right - win.left;
-	win_y = win.bottom - win.top;
-
-	if (win_x < (UINT)(screen.right - screen.left))
-	{
-		x = (screen.right - screen.left - win_x) / 2;
-	}
-	else
-	{
-		x = 0;
-	}
-
-	if (win_y < (UINT)(screen.bottom - screen.top))
-	{
-		y = (screen.bottom - screen.top - win_y) / 4;
 	}
 	else
 	{

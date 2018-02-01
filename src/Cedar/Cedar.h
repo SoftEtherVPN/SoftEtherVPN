@@ -1234,7 +1234,6 @@ UINT64 GetTrafficPacketNum(TRAFFIC *t);
 void EnableDebugLog(CEDAR *c);
 void StartCedarLog();
 void StopCedarLog();
-void CedarLog(char *str);
 int CompareNoSslList(void *p1, void *p2);
 void InitNoSslList(CEDAR *c);
 void FreeNoSslList(CEDAR *c);

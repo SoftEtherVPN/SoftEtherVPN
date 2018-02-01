@@ -850,38 +850,6 @@ void SetUserAuthData(USER *u, UINT authtype, void *authdata)
 	Unlock(u->lock);
 }
 
-// Cumulate group traffic data
-void AddGroupTraffic(USERGROUP *g, TRAFFIC *diff)
-{
-	// Validate arguments
-	if (g == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	Lock(g->lock);
-	{
-		AddTraffic(g->Traffic, diff);
-	}
-	Unlock(g->lock);
-}
-
-// Cumulate user traffic data
-void AddUserTraffic(USER *u, TRAFFIC *diff)
-{
-	// Validate arguments
-	if (u == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	Lock(u->lock);
-	{
-		AddTraffic(u->Traffic, diff);
-	}
-	Unlock(u->lock);
-}
-
 // Set traffic data for group
 void SetGroupTraffic(USERGROUP *g, TRAFFIC *t)
 {

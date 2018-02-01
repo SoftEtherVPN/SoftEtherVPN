@@ -1815,33 +1815,6 @@ UINT Utf8ToStr(char *str, UINT str_size, BYTE *u, UINT size)
 	return ret;
 }
 
-// Get the size required when UTF-8 string is converted to ANSI string
-UINT CalcUtf8ToStr(BYTE *u, UINT size)
-{
-	UINT ret, uni_size;
-	wchar_t *tmp;
-	// Validate arguments
-	if (u == NULL)
-	{
-		return 0;
-	}
-
-	// Convert to Unicode
-	uni_size = CalcUtf8ToUni(u, size);
-	if (uni_size == 0)
-	{
-		return 0;
-	}
-	tmp = Malloc(uni_size);
-	Utf8ToUni(tmp, uni_size, u, size);
-
-	// Convert to ANSI
-	ret = CalcUniToStr(tmp);
-	Free(tmp);
-
-	return ret;
-}
-
 // Convert an ANSI string to UTF-8 string
 UINT StrToUtf8(BYTE *u, UINT size, char *str)
 {
@@ -1865,34 +1838,6 @@ UINT StrToUtf8(BYTE *u, UINT size, char *str)
 	// Convert to UTF-8
 	ret = UniToUtf8(u, size, tmp);
 
-	Free(tmp);
-
-	return ret;
-}
-
-// Get the required buffer size to convert an ANSI string to an UTF-8 string
-UINT CalcStrToUtf8(char *str)
-{
-	UINT ret;
-	UINT uni_size;
-	wchar_t *tmp;
-	// Validate arguments
-	if (str == NULL)
-	{
-		return 0;
-	}
-
-	// Convert to Unicode
-	uni_size = CalcStrToUni(str);
-	if (uni_size == 0)
-	{
-		return 0;
-	}
-	tmp = Malloc(uni_size);
-	StrToUni(tmp, uni_size, str);
-
-	// Get the size as it was converted to UTF-8
-	ret = CalcUniToUtf8(tmp);
 	Free(tmp);
 
 	return ret;

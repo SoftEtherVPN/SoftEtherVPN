@@ -1701,18 +1701,6 @@ bool CfgGetUniStr(FOLDER *f, char *name, wchar_t *str, UINT size)
 	return true;
 }
 
-// Check for the existence of a folder
-bool CfgIsFolder(FOLDER *f, char *name)
-{
-	// Validate arguments
-	if (f == NULL || name == NULL)
-	{
-		return false;
-	}
-
-	return (CfgGetFolder(f, name) == NULL) ? false : true;
-}
-
 // Check for the existence of item
 bool CfgIsItem(FOLDER *f, char *name)
 {

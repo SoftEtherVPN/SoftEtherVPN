@@ -2821,69 +2821,6 @@ UINT CcDeleteCa(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_CA *c)
 	return err;
 }
 
-
-// Get the proxy setting
-UINT CcGetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a)
-{
-	PACK *p, *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || a == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	p = NewPack();
-	OutRpcInternetSetting(p, a);
-
-	ret = RpcCall(r->Rpc, "GetCommonProxySetting", p);
-
-	if (RpcIsOk(ret))
-	{
-		Zero(a, sizeof(INTERNET_SETTING));
-		InRpcInternetSetting(a, ret);
-	}
-	else
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
-// Set the proxy setting
-UINT CcSetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a)
-{
-	PACK *p, *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || a == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	p = NewPack();
-	OutRpcInternetSetting(p, a);
-
-	ret = RpcCall(r->Rpc, "SetCommonProxySetting", p);
-
-	if (RpcIsOk(ret))
-	{
-		Zero(a, sizeof(INTERNET_SETTING));
-		InRpcInternetSetting(a, ret);
-	}
-	else
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
 // Get the issuer
 UINT CcGetIssuer(REMOTE_CLIENT *r, RPC_GET_ISSUER *a)
 {
@@ -3022,33 +2959,6 @@ UINT CcUseSecure(REMOTE_CLIENT *r, RPC_USE_SECURE *sec)
 	ret = RpcCall(r->Rpc, "UseSecure", p);
 
 	if (RpcIsOk(ret) == false)
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
-// Enumerate objects in the secure device
-UINT CcEnumObjectInSecure(REMOTE_CLIENT *r, RPC_ENUM_OBJECT_IN_SECURE *e)
-{
-	PACK *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || e == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	ret = RpcCall(r->Rpc, "EnumObjectInSecure", NULL);
-
-	if (RpcIsOk(ret))
-	{
-		InRpcEnumObjectInSecure(e, ret);
-	}
-	else
 	{
 		err = RpcGetError(ret);
 	}

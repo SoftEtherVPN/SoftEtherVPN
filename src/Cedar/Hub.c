@@ -6686,17 +6686,6 @@ void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY
 		diff->UnicastBytes = current->UnicastBytes - old->UnicastBytes;
 	}
 }
-void CalcTrafficDiff(TRAFFIC *diff, TRAFFIC *old, TRAFFIC *current)
-{
-	Zero(diff, sizeof(TRAFFIC));
-	if (old == NULL || current == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	CalcTrafficEntryDiff(&diff->Send, &old->Send, &current->Send);
-	CalcTrafficEntryDiff(&diff->Recv, &old->Recv, &current->Recv);
-}
 
 // Add the traffic information for Virtual HUB
 void IncrementHubTraffic(HUB *h)

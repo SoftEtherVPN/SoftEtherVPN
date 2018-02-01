@@ -655,7 +655,6 @@ LIST *EnumLogFile(char *hubname);
 void EnumLogFileDir(LIST *o, char *dirname);
 void FreeEnumLogFile(LIST *o);
 bool CheckLogFileNameFromEnumList(LIST *o, char *name, char *server_name);
-void AdjoinEnumLogFile(LIST *o, LIST *src);
 void IncrementServerConfigRevision(SERVER *s);
 void GetServerProductName(SERVER *s, char *name, UINT size);
 void GetServerProductNameInternal(SERVER *s, char *name, UINT size);

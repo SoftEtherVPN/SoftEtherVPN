@@ -388,7 +388,6 @@ UCHAR Rand8();
 bool Rand1();
 UINT HashPtrToUINT(void *p);
 
-void CertTest();
 BIO *BufToBio(BUF *b);
 BUF *BioToBuf(BIO *bio);
 BIO *NewBio();
@@ -481,8 +480,6 @@ void GetAllNameFromXEx(wchar_t *str, UINT size, X *x);
 void GetAllNameFromXExA(char *str, UINT size, X *x);
 BUF *BigNumToBuf(const BIGNUM *bn);
 BIGNUM *BinToBigNum(void *data, UINT size);
-BIGNUM *BufToBigNum(BUF *b);
-char *BigNumToStr(BIGNUM *bn);
 X_SERIAL *CloneXSerial(X_SERIAL *src);
 bool CompareXSerial(X_SERIAL *s1, X_SERIAL *s2);
 void GetXDigest(X *x, UCHAR *buf, bool sha1);

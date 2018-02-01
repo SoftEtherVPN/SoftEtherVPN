@@ -2109,21 +2109,6 @@ void Bit160ToStr(char *str, UCHAR *data)
 		data[10], data[11], data[12], data[13], data[14], data[15], data[16], data[17], data[18], data[19]);
 }
 
-// Make a string from a 128-bit sequence
-void Bit128ToStr(char *str, UCHAR *data)
-{
-	// Validate arguments
-	if (str == NULL || data == NULL)
-	{
-		return;
-	}
-
-	Format(str, 0,
-		"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-		data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], 
-		data[10], data[11], data[12], data[13], data[14], data[15]);
-}
-
 // Copy a string
 char *CopyStr(char *str)
 {

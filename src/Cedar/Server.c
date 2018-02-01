@@ -1041,24 +1041,6 @@ void GetServerProductNameInternal(SERVER *s, char *name, UINT size)
 #endif	// BETA_NUMBER
 }
 
-// Adjoin the enumerations of log files
-void AdjoinEnumLogFile(LIST *o, LIST *src)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL || src == NULL)
-	{
-		return;
-	}
-
-	for (i = 0;i < LIST_NUM(src);i++)
-	{
-		LOG_FILE *f = LIST_DATA(src, i);
-
-		Insert(o, Clone(f, sizeof(LOG_FILE)));
-	}
-}
-
 // Check whether the log file with the specified name is contained in the enumerated list
 bool CheckLogFileNameFromEnumList(LIST *o, char *name, char *server_name)
 {

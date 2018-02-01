@@ -283,8 +283,6 @@ bool AcDeleteGroup(HUB *h, char *name);
 void JoinUserToGroup(USER *u, USERGROUP *g);
 void SetUserTraffic(USER *u, TRAFFIC *t);
 void SetGroupTraffic(USERGROUP *g, TRAFFIC *t);
-void AddUserTraffic(USER *u, TRAFFIC *diff);
-void AddGroupTraffic(USERGROUP *g, TRAFFIC *diff);
 void SetUserAuthData(USER *u, UINT authtype, void *authdata);
 void *NewPasswordAuthData(char *username, char *password);
 void *NewPasswordAuthDataRaw(UCHAR *hashed_password, UCHAR *ntlm_secure_hash);
