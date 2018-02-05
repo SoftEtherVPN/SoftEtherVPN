@@ -111,8 +111,8 @@
 // Protocol.h
 // Header of Protocol.c
 
-#ifndef	PROTOCOL_H
-#define	PROTOCOL_H
+#ifndef	SE_PROTOCOL_H
+#define	SE_PROTOCOL_H
 
 // The parameters that will be passed to the certificate confirmation thread
 struct CHECK_CERT_THREAD_PROC
@@ -313,4 +313,4 @@ bool TryGetParentCertFromCertList(LIST *o, X *x, LIST *found_chain);
 bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x);
 
 
-#endif	// PROTOCOL_H
+#endif	// SE_PROTOCOL_H

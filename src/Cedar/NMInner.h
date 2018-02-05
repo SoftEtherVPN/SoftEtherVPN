@@ -111,6 +111,8 @@
 // NMInner.h
 // The internal header of NM.c
 
+#ifndef SE_NM_INNER_H
+#define  SE_NM_INNER_H
 
 // Constants
 #define	NM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\PacketiX VPN\\User-mode Router Manager"
@@ -176,3 +178,4 @@ bool NmEditPushRoute(HWND hWnd, SM_HUB *r);
 UINT NmEditPushRouteProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 
 
+#endif SE_NM_INNER_H

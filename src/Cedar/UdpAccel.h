@@ -111,8 +111,8 @@
 // UdpAccel.h
 // Header of UdpAccel.c
 
-#ifndef	UDPACCEL_H
-#define	UDPACCEL_H
+#ifndef	SE_UDPACCEL_H
+#define	SE_UDPACCEL_H
 
 // Constants
 #define	UDP_ACCELERATION_COMMON_KEY_SIZE	20			// Common key size
@@ -217,6 +217,6 @@ void UdpAccelSendBlock(UDP_ACCEL *a, BLOCK *b);
 UINT UdpAccelCalcMss(UDP_ACCEL *a);
 void NatT_GetIpThread(THREAD *thread, void *param);
 
-#endif	// UDPACCEL_H
+#endif	// SE_UDPACCEL_H
 
 

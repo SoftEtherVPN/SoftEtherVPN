@@ -111,8 +111,8 @@
 // AzureClient.h
 // Header of AzureClient.c
 
-#ifndef	AZURE_CLIENT_H
-#define	AZURE_CLIENT_H
+#ifndef	SE_AZURE_CLIENT_H
+#define	SE_AZURE_CLIENT_H
 
 // Constants
 #define	AZURE_SERVER_PORT					443
@@ -170,6 +170,6 @@ bool AcGetEnable(AZURE_CLIENT *ac);
 void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param);
 
 
-#endif	// AZURE_CLIENT_H
+#endif	// SE_AZURE_CLIENT_H
 
 

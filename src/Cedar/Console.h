@@ -111,8 +111,8 @@
 // Console.h
 // Header of Console.c
 
-#ifndef	CONSOLE_H
-#define	CONSOLE_H
+#ifndef	SE_CONSOLE_H
+#define	SE_CONSOLE_H
 
 // Constant
 #define	MAX_PROMPT_STRSIZE			65536
@@ -244,7 +244,7 @@ wchar_t *ConsoleReadNextFromInFile(CONSOLE *c);
 UINT ConsoleLocalGetWidth(CONSOLE *c);
 
 
-#endif	// CONSOLE_H
+#endif	// SE_CONSOLE_H
 
 
 

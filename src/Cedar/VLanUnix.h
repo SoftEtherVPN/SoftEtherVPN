@@ -111,8 +111,8 @@
 // VLanUnix.h
 // Header of VLanUnix.c
 
-#ifndef	VLANUNIX_H
-#define	VLANUNIX_H
+#ifndef	SE_VLANUNIX_H
+#define	SE_VLANUNIX_H
 
 // Constant
 #define	TAP_READ_BUF_SIZE			1600
@@ -166,5 +166,5 @@ void UnixVLanDelete(char *name);
 int UnixVLanGet(char *name);
 int UnixCompareVLan(void *p1, void *p2);
 
-#endif	// VLANUNIX_H
+#endif	// SE_VLANUNIX_H
 

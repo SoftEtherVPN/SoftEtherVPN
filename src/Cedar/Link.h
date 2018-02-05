@@ -111,8 +111,8 @@
 // Link.h
 // Header of Link.c
 
-#ifndef	LINK_H
-#define	LINK_H
+#ifndef	SE_LINK_H
+#define	SE_LINK_H
 
 struct LINK
 {
@@ -164,7 +164,7 @@ void CleanupLink(LINK *k);
 void ReleaseAllLink(HUB *h);
 void NormalizeLinkPolicy(POLICY *p);
 
-#endif	// LINK_H
+#endif	// SE_LINK_H
 
 
 

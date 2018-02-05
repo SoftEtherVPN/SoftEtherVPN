@@ -111,8 +111,8 @@
 // VLan.h
 // Header of VLan.c
 
-#ifndef	VLAN_H
-#define	VLAN_H
+#ifndef	SE_VLAN_H
+#define	SE_VLAN_H
 
 // Parameters related to VLAN
 struct VLAN_PARAM
@@ -133,6 +133,6 @@ struct VLAN_PARAM
 
 #endif	// OS_WIN32
 
-#endif	// VLAN_H
+#endif	// SE_VLAN_H
 
 

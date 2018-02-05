@@ -111,11 +111,11 @@
 // SM.h
 // Header of SM.c
 
-#ifndef	SM_H
-#define	SM_H
+#ifndef	SE_SM_H
+#define	SE_SM_H
 
 void SMExec();
 
-#endif	// SM_H
+#endif	// SE_SM_H
 
 

@@ -111,8 +111,8 @@
 // Logging.h
 // Header of Logging.c
 
-#ifndef	LOGGING_H
-#define	LOGGING_H
+#ifndef	SE_LOGGING_H
+#define	SE_LOGGING_H
 
 
 // Port number for HTTP monitoring
@@ -276,5 +276,5 @@ UINT GetEraserCheckInterval();
 void SetMaxLogSize(UINT64 size);
 UINT64 GetMaxLogSize();
 
-#endif	// LOGGING_G
+#endif	// SE_LOGGING_G
 

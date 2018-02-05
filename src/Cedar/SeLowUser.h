@@ -111,8 +111,8 @@
 // SeLowUser.h
 // Header for SeLowUser.c
 
-#ifndef	SELOWUSER_H
-#define	SELOWUSER_H
+#ifndef	SE_SELOWUSER_H
+#define	SE_SELOWUSER_H
 
 #include <SeLow/SeLowCommon.h>
 
@@ -180,7 +180,7 @@ void SuDeleteGarbageInfsInner();
 bool SuLoadDriversHive();
 bool SuUnloadDriversHive();
 
-#endif	// SELOWUSER_H
+#endif	// SE_SELOWUSER_H
 
 
 

@@ -111,8 +111,8 @@
 // Object.h
 // Header of Object.c
 
-#ifndef	OBJECT_H
-#define	OBJECT_H
+#ifndef	SE_OBJECT_H
+#define	SE_OBJECT_H
 
 
 // Constants
@@ -211,5 +211,5 @@ bool WaitEx(EVENT *e, UINT timeout, volatile bool *cancel);
 void CheckDeadLock(LOCK *lock, UINT timeout, char *name);
 void CheckDeadLockThread(THREAD *t, void *param);
 
-#endif	// OBJECT_H
+#endif	// SE_OBJECT_H
 

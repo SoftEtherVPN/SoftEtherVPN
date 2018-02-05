@@ -111,12 +111,12 @@
 // EM.h
 // Header of EM.c
 
-#ifndef	EM_H
-#define	EM_H
+#ifndef	SE_EM_H
+#define	SE_EM_H
 
 // Public function
 void EMExec();
 
-#endif	// EM_H
+#endif	// SE_EM_H
 
 

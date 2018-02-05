@@ -111,8 +111,8 @@
 // Command.h
 // Header of Command.c
 
-#ifndef	COMMAND_H
-#define	COMMAND_H
+#ifndef	SE_COMMAND_H
+#define	SE_COMMAND_H
 
 // Constants
 #define	TRAFFIC_DEFAULT_PORT		9821
@@ -697,6 +697,6 @@ UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 
 
-#endif	// COMMAND_H
+#endif	// SE_COMMAND_H
 
 

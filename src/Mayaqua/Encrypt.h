@@ -23,7 +23,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
-// You should have received a copy of the GNU General Public License version 2
+// You should have received a copy of the GNU Gener0al Public License version 2
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 // 
@@ -111,8 +111,8 @@
 // Encrypt.h
 // Header of Encrypt.c
 
-#ifndef	ENCRYPT_H
-#define	ENCRYPT_H
+#ifndef	SE_ENCRYPT_H
+#define	SE_ENCRYPT_H
 
 // Function of OpenSSL
 void RAND_Init_For_SoftEther();
@@ -590,5 +590,5 @@ void DisableIntelAesAccel();
 
 #endif	// ENCRYPT_C
 
-#endif	// ENCRYPT_H
+#endif	// SE_ENCRYPT_H
 

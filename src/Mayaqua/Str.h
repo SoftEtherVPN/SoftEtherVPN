@@ -111,8 +111,8 @@
 // Str.h
 // Header of Str.c
 
-#ifndef	STR_H
-#define	STR_H
+#ifndef	SE_STR_H
+#define	SE_STR_H
 
 // String token
 struct TOKEN_LIST
@@ -251,5 +251,5 @@ void NormalizeIntListStr(char *dst, UINT dst_size, char *src, bool sorted, char 
 void ClearStr(char *str, UINT str_size);
 void SetStrCaseAccordingToBits(char *str, UINT bits);
 
-#endif	// STR_H
+#endif	// SE_STR_H
 

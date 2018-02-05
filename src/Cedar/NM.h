@@ -111,12 +111,12 @@
 // NM.h
 // Header of NM.c
 
-#ifndef	NM_H
-#define	NM_H
+#ifndef	SE_NM_H
+#define	SE_NM_H
 
 // External function
 void NMExec();
 
-#endif	// NM_H
+#endif	// SE_NM_H
 
 

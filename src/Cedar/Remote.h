@@ -111,8 +111,8 @@
 // Remote.h
 // Header of Remote.c
 
-#ifndef	REMOTE_H
-#define	REMOTE_H
+#ifndef	SE_REMOTE_H
+#define	SE_REMOTE_H
 
 // RPC execution function
 typedef PACK *(RPC_DISPATCHER)(RPC *r, char *function_name, PACK *p);
@@ -149,5 +149,5 @@ UINT RpcGetError(PACK *p);
 void EndRpc(RPC *rpc);
 void RpcFree(RPC *rpc);
 
-#endif	// REMOTE_H
+#endif	// SE_REMOTE_H
 

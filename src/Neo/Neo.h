@@ -111,8 +111,8 @@
 // Neo.h
 // Header of Neo.c
 
-#ifndef	NEO_H
-#define	NEO_H
+#ifndef	SE_NEO_H
+#define	SE_NEO_H
 
 
 // Identification string (NDIS)
@@ -332,7 +332,7 @@ void NeoReset(NEO_EVENT *event);
 #endif	// NEO_DEVICE_DRIVER
 
 
-#endif	// NEO_H
+#endif	// SE_NEO_H
 
 
 

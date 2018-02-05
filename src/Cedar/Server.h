@@ -111,8 +111,8 @@
 // Server.h
 // Header of Server.c
 
-#ifndef	SERVER_H
-#define	SERVER_H
+#ifndef	SE_SERVER_H
+#define	SE_SERVER_H
 
 // Default ports
 #define	SERVER_DEF_PORTS_1				443
@@ -747,7 +747,7 @@ void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size);
 bool SiIsEnterpriseFunctionsRestrictedOnOpenSource(CEDAR *c);
 bool SiCheckCurrentRegion(CEDAR *c, char *r);
 
-#endif	// SERVER_H
+#endif	// SE_SERVER_H
 
 
 

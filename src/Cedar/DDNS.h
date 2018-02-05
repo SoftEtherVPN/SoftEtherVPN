@@ -111,8 +111,8 @@
 // DDNS.h
 // Header of DDNS.c
 
-#ifndef	DDNS_H
-#define	DDNS_H
+#ifndef	SE_DDNS_H
+#define	SE_DDNS_H
 
 // Certificate hash
 #define	DDNS_CERT_HASH		"78BF0499A99396907C9F49DD13571C81FE26E6F5" \
@@ -245,6 +245,6 @@ void DCGetInternetSetting(DDNS_CLIENT *c, INTERNET_SETTING *t);
 
 
 
-#endif	// DDNS_H
+#endif	// SE_DDNS_H
 
 

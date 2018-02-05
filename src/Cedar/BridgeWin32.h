@@ -111,8 +111,8 @@
 // BridgeWin32.h
 // Header of BridgeWin32.c
 
-#ifndef	BRIDGEWIN32_H
-#define	BRIDGEWIN32_H
+#ifndef	SE_BRIDGEWIN32_H
+#define	SE_BRIDGEWIN32_H
 
 #define	BRIDGE_WIN32_PACKET_DLL		"Packet.dll"
 #define	BRIDGE_WIN32_PCD_DLL		"|see.dll"
@@ -263,6 +263,6 @@ bool Win32IsUsingSeLow();
 void Win32SetEnableSeLow(bool b);
 bool Win32GetEnableSeLow();
 
-#endif	// BRIDGEWIN32_H
+#endif	// SE_BRIDGEWIN32_H
 
 

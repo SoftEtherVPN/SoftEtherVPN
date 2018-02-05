@@ -111,8 +111,8 @@
 // TcpIp.h
 // Header of TcpIp.c
 
-#ifndef	TCPIP_H
-#define	TCPIP_H
+#ifndef	SE_TCPIP_H
+#define	SE_TCPIP_H
 
 #ifdef	OS_WIN32
 #pragma pack(push, 1)
@@ -946,6 +946,6 @@ bool NormalizeClasslessRouteTableStr(char *dst, UINT dst_size, char *src);
 #pragma pack(pop)
 #endif	// OS_WIN32
 
-#endif	// TCPIP_H
+#endif	// SE_TCPIP_H
 
 

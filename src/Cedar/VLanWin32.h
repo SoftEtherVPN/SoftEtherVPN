@@ -111,8 +111,8 @@
 // VLanWin32.h
 // Header of VLanWin32.c
 
-#ifndef	VLANWIN32_H
-#define	VLANWIN32_H
+#ifndef	SE_VLANWIN32_H
+#define	SE_VLANWIN32_H
 
 // Routing table tracking timer
 #define	TRACKING_INTERVAL_INITIAL		444		// Initial
@@ -197,4 +197,4 @@ void Win32ReleaseAllDhcp9x(bool wait);
 
 void Win32GetWinVer(RPC_WINVER *v);
 
-#endif	// VLANWIN32_H
+#endif	// SE_VLANWIN32_H

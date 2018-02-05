@@ -111,8 +111,8 @@
 // Interop_OpenVPN.h
 // Header of Interop_OpenVPN.c
 
-#ifndef	INTEROP_OPENVPN_H
-#define	INTEROP_OPENVPN_H
+#ifndef	SE_INTEROP_OPENVPN_H
+#define	SE_INTEROP_OPENVPN_H
 
 
 //// Constants
@@ -388,6 +388,6 @@ void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh);
 
 
 
-#endif	// INTEROP_OPENVPN_H
+#endif	// SE_INTEROP_OPENVPN_H
 
 

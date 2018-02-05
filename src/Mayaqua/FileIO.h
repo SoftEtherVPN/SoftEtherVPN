@@ -111,8 +111,8 @@
 // FileIO.h
 // Header of FileIO.c
 
-#ifndef	FILEIO_H
-#define	FILEIO_H
+#ifndef	SE_FILEIO_H
+#define	SE_FILEIO_H
 
 // Constant
 #define	HAMCORE_DIR_NAME			"hamcore"
@@ -384,7 +384,7 @@ bool IsFileWriteLocked(char *name);
 bool IsInLines(BUF *buf, char *str, bool instr);
 bool IsInLinesFile(wchar_t *filename, char *str, bool instr);
 
-#endif	// FILEIO_H
+#endif	// SE_FILEIO_H
 
 
 

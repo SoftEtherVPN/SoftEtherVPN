@@ -111,8 +111,8 @@
 // OS.h
 // Header of OS.c
 
-#ifndef	OS_H
-#define	OS_H
+#ifndef	SE_OS_H
+#define	SE_OS_H
 
 // Function prototype
 char *OsTypeToStr(UINT type);
@@ -242,5 +242,5 @@ typedef struct OS_DISPATCH_TABLE
 #include <Mayaqua/Unix.h>
 #endif	// OS_WIN32
 
-#endif	// OS_H
+#endif	// SE_OS_H
 

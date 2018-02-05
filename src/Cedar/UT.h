@@ -111,8 +111,8 @@
 // UT.h
 // Header of UT.c
 
-#ifndef	UT_H
-#define	UT_H
+#ifndef	SE_UT_H
+#define	SE_UT_H
 
 // Constant
 #define	SPEED_METER_REFRESH_INTERVAL			500
@@ -134,5 +134,5 @@ void UtSpeedMeterDlgRefreshStatus(HWND hWnd);
 void UtSpeedMeter();
 void UtSpeedMeterEx(void *hWnd);
 
-#endif	// UT_H
+#endif	// SE_UT_H
 

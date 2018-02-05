@@ -111,8 +111,8 @@
 // Virtual.h
 // Header of Virtual.c
 
-#ifndef	VIRTUAL_H
-#define	VIRTUAL_H
+#ifndef	SE_VIRTUAL_H
+#define	SE_VIRTUAL_H
 
 
 #define	NN_RAW_IP_PORT_START			61001
@@ -693,6 +693,6 @@ void NnDeleteOldestNatSessionIfNecessary(NATIVE_NAT *t, UINT ip, UINT protocol);
 void NnSetSecureNatTargetHostname(char *name);
 
 
-#endif	// VIRTUAL_H
+#endif	// SE_VIRTUAL_H
 
 

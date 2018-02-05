@@ -111,8 +111,8 @@
 // Win32Com.h
 // Header of Win32Com.c
 
-#ifndef	WIN32COM_H
-#define	WIN32COM_H
+#ifndef	SE_WIN32COM_H
+#define	SE_WIN32COM_H
 
 #ifdef	WIN32COM_CPP
 
@@ -425,4 +425,4 @@ public:
 
 
 
-#endif	// WIN32COM_H
+#endif	// SE_WIN32COM_H

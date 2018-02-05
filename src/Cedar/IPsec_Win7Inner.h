@@ -111,8 +111,8 @@
 // IPsec_Win7.h
 // Internal header of IPsec_Win7.c
 
-#ifndef	IPSEC_WIN7_INNER_H
-#define	IPSEC_WIN7_INNER_H
+#ifndef	SE_IPSEC_WIN7_INNER_H
+#define	SE_IPSEC_WIN7_INNER_H
 
 // API function
 typedef struct IPSEC_WIN7_FUNCTIONS
@@ -180,7 +180,7 @@ struct IPSEC_WIN7
 };
 
 
-#endif	// IPSEC_WIN7_INNER_H
+#endif	// SE_IPSEC_WIN7_INNER_H
 
 
 

@@ -111,8 +111,8 @@
 // Bridge.h
 // Header of Bridge.c
 
-#ifndef	BRIDGE_H
-#define	BRIDGE_H
+#ifndef	SE_BRIDGE_H
+#define	SE_BRIDGE_H
 
 #ifdef	OS_WIN32
 
@@ -176,7 +176,7 @@ bool IsNeedWinPcap();
 UINT GetEthDeviceHash();
 bool IsRawIpBridgeSupported();
 
-#endif	// BRIDGE_H
+#endif	// SE_BRIDGE_H
 
 
 

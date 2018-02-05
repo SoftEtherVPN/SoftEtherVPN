@@ -111,14 +111,14 @@
 // Database.h
 // Header of Database.c
 
-#ifndef	DATABASE_H
-#define	DATABASE_H
+#ifndef	SE_DATABASE_H
+#define	SE_DATABASE_H
 
 wchar_t *LiGetLicenseStatusStr(UINT i);
 bool LiIsLicenseKey(char *str);
 bool LiStrToKeyBit(UCHAR *keybit, char *keystr);
 
 
-#endif	// DATABASE_H
+#endif	// SE_DATABASE_H
 
 

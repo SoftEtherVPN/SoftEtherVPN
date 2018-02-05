@@ -111,8 +111,8 @@
 // VG.h
 // Header for VG.c
 
-#ifndef	VG_H
-#define	VG_H
+#ifndef	SE_VG_H
+#define	SE_VG_H
 
 #define	VG_HUBNAME			"VPNGATE"
 
@@ -121,7 +121,7 @@ bool InitVg();
 void FreeVg();
 void VgUseStaticLink();
 
-#endif	// VG_H
+#endif	// SE_VG_H
 
 
 

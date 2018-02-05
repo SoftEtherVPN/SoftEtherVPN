@@ -111,8 +111,8 @@
 // IPsec.h
 // Header of IPsec.c
 
-#ifndef	IPSEC_H
-#define	IPSEC_H
+#ifndef	SE_IPSEC_H
+#define	SE_IPSEC_H
 
 //// Constants
 
@@ -201,5 +201,5 @@ bool IPsecCheckOsService(IPSEC_SERVER *s);
 void IPSecSetDisable(bool b);
 
 
-#endif	// IPSEC_H
+#endif	// SE_IPSEC_H
 

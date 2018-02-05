@@ -120,8 +120,8 @@
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
 
-#ifndef	WATERMARK_H
-#define	WATERMARK_H
+#ifndef	SE_WATERKMARK_H
+#define	SE_WATERKMARK_H
 
 // Digital watermark
 extern BYTE WaterMark[];
@@ -132,5 +132,5 @@ UINT SizeOfSaitama();
 
 #define	MAX_WATERMARK_SIZE		(SizeOfWaterMark() + HTTP_PACK_RAND_SIZE_MAX * 2)
 
-#endif	// WATERMARK_H
+#endif	// SE_WATERKMARK_H
 

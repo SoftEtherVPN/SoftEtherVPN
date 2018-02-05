@@ -111,8 +111,8 @@
 // Cfg.h
 // Header of Cfg.c
 
-#ifndef	CFG_H
-#define	CFG_H
+#ifndef	SE_CFG_H
+#define	SE_CFG_H
 
 // Macro
 //#define	CHECK_CFG_NAME_EXISTS			// Check duplication of the existing name
@@ -271,7 +271,7 @@ bool CfgGetIp(FOLDER *f, char *name, struct IP *ip);
 ITEM *CfgAddIp(FOLDER *f, char *name, struct IP *ip);
 #endif
 
-#endif	// CFG_H
+#endif	// SE_CFG_H
 
 
 

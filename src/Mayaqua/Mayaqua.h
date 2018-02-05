@@ -111,8 +111,8 @@
 // Mayaqua.h
 // Mayaqua Kernel header file
 
-#ifndef	MAYAQUA_H
-#define	MAYAQUA_H
+#ifndef	SE_MAYAQUA_H
+#define	SE_MAYAQUA_H
 
 // PenCore.dll related
 #define	PENCORE_DLL_NAME		"|PenCore.dll"
@@ -624,6 +624,6 @@ USHORT CalcChecksum16(void *buf, UINT size);
 #endif
 
 
-#endif	// MAYAQUA_H
+#endif	// SE_MAYAQUA_H
 
 

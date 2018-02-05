@@ -111,8 +111,8 @@
 // IPsec_IPC.h
 // Header of IPsec_IPC.c
 
-#ifndef	IPSEC_IPC
-#define	IPSEC_IPC
+#ifndef	SE_IPSEC_IPC
+#define	SE_IPSEC_IPC
 
 // Constants
 #define	IPC_ARP_LIFETIME				(3 * 60 * 1000)
@@ -265,7 +265,7 @@ void FreeIPCAsync(IPC_ASYNC *a);
 
 bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 
-#endif	// IPSEC_IPC
+#endif	// SE_IPSEC_IPC
 
 
 

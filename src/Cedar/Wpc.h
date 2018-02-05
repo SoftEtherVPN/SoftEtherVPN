@@ -111,8 +111,8 @@
 // Wpc.h
 // Header of Wpc.c
 
-#ifndef	WPC_H
-#define	WPC_H
+#ifndef	SE_WPC_H
+#define	SE_WPC_H
 
 // Constant
 #define WPC_HTTP_POST_NAME			"POST"		// POST
@@ -234,6 +234,6 @@ PACK *WpcCallEx2(char *url, INTERNET_SETTING *setting, UINT timeout_connect, UIN
 				char *additional_header_name, char *additional_header_value, char *sni_string);
 bool IsProxyPrivateIp(INTERNET_SETTING *s);
 
-#endif	// WPC_H
+#endif	// SE_WPC_H
 
 

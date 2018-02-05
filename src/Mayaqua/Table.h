@@ -111,8 +111,8 @@
 // Table.h
 // Header of Table.c
 
-#ifndef	TABLE_H
-#define	TABLE_H
+#ifndef	SE_TABLE_H
+#define	SE_TABLE_H
 
 #define	UNICODE_CACHE_FILE		L".unicode_cache_%s.dat"
 
@@ -208,7 +208,7 @@ UINT GetCurrentLangId();
 void GetCurrentOsLang(LANGLIST *e);
 UINT GetCurrentOsLangId();
 
-#endif	// TABLE_H
+#endif	// SE_TABLE_H
 
 
 

@@ -111,6 +111,9 @@
 // WebUI.h
 // Header of WebUI.c
 
+#ifndef SE_WEBUI_H
+#define SE_WEBUI_H
+
 #define WU_PASSWORD_NOCHANGE	"********"
 #define WU_CONTEXT_EXPIRE 600000
 
@@ -143,3 +146,4 @@ WEBUI *WuNewWebUI(CEDAR *cedar);
 WU_WEBPAGE *WuGetPage(char *target, WEBUI *wu);
 void WuFreeWebPage(WU_WEBPAGE *page);
 
+#endif // SE_WEBUI_H

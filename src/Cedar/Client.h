@@ -111,8 +111,8 @@
 // Client.h
 // Header of Client.c
 
-#ifndef	CLIENT_H
-#define	CLIENT_H
+#ifndef	SE_CLIENT_H
+#define	SE_CLIENT_H
 
 #define	CLIENT_CONFIG_PORT					GC_CLIENT_CONFIG_PORT		// Client port number
 #define	CLIENT_NOTIFY_PORT					GC_CLIENT_NOTIFY_PORT		// Client notification port number
@@ -875,6 +875,6 @@ void InRpcCmSetting(CM_SETTING *c, PACK *p);
 void CiInitDriverVerStruct(MS_DRIVER_VER *ver);
 #endif	// OS_EIN32
 
-#endif	// CLIENT_H
+#endif	// SE_CLIENT_H
 
 
