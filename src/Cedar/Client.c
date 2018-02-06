@@ -10175,7 +10175,7 @@ BUF *EncryptPassword(char *password)
 	size = StrLen(password) + 1;
 	tmp = ZeroMalloc(size);
 
-	c = NewCrypt(key, sizeof(key));
+	c = NewCrypt(key, strlen(key));
 	Encrypt(c, tmp, password, size - 1);
 	FreeCrypt(c);
 
