@@ -129,7 +129,9 @@
 #define	SERVER_DEF_PORTS_INCLIENT_DYN_MAX	1999
 
 extern char *SERVER_CONFIG_FILE_NAME;
-#define	SERVER_DEFAULT_CIPHER_NAME		"AES128-SHA"
+// This is set to an invalid OpenSSL cipher specification by default.
+// The server will default to a list of sane and secure modern ciphers.
+#define	SERVER_DEFAULT_CIPHER_NAME		"~DEFAULT~"
 #define	SERVER_DEFAULT_CERT_DAYS		(365 * 10)
 #define	SERVER_DEFAULT_HUB_NAME			"DEFAULT"
 #define	SERVER_DEFAULT_BRIDGE_NAME		"BRIDGE"
