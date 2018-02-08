@@ -1992,30 +1992,6 @@ bool Win32CnCheckAlreadyExists(bool lock)
 	return false;
 }
 
-// Get whether it is set to not display the dialog about the free version
-bool IsRegistedToDontShowFreeEditionDialog(char *server_name)
-{
-	// Validate arguments
-	if (server_name == NULL)
-	{
-		return false;
-	}
-
-	if (MsRegReadInt(REG_LOCAL_MACHINE, FREE_REGKEY, server_name) != 0)
-	{
-		return true;
-	}
-
-	if (MsRegWriteInt(REG_LOCAL_MACHINE, FREE_REGKEY, "__test__", 1) == false)
-	{
-		return true;
-	}
-
-	MsRegDeleteValue(REG_LOCAL_MACHINE, FREE_REGKEY, "__test__");
-
-	return false;
-}
-
 // Set in the registry not to show a dialog about the free version
 void RegistToDontShowFreeEditionDialog(char *server_name)
 {
@@ -2085,19 +2061,6 @@ void ShowFreeInfoDialog(HWND hWnd, FREEINFO *info)
 
 	Dialog(hWnd, D_FREEINFO, FreeInfoDialogProc, info);
 	Set(info->Event);
-}
-
-// Free Edition dialog thread
-void FreeInfoThread(THREAD *thread, void *param)
-{
-	FREEINFO *info = (FREEINFO *)param;
-	// Validate arguments
-	if (thread == NULL || info == NULL)
-	{
-		return;
-	}
-
-	ShowFreeInfoDialog(NULL, info);
 }
 
 // Show the Easter Egg
@@ -2813,40 +2776,6 @@ HFONT GetDialogDefaultFontEx(bool meiryo)
 	}
 
 	return GetFont(default_font_name, default_font_size, false, false, false, false);
-}
-
-// Get the adjustment scale between the control size and the window size
-void GetWindowAndControlSizeResizeScale(HWND hWnd, bool *need_resize, double *factor_x, double *factor_y)
-{
-	UINT dlgfont_x, dlgfont_y;
-	HFONT hDlgFont;
-	// Validate arguments
-	if (hWnd == NULL || need_resize == NULL || factor_x == NULL || factor_y == NULL)
-	{
-		return;
-	}
-
-	*need_resize = true;
-
-	// Get the font of the current window
-	hDlgFont = (HFONT)SendMsg(hWnd, 0, WM_GETFONT, 0, 0);
-
-	// Get the width and height of the font of the current window
-	CalcFontSize(hDlgFont, &dlgfont_x, &dlgfont_y);
-
-	if ((dlgfont_x == WINUI_DEFAULT_DIALOG_UNIT_X) &&
-		(dlgfont_y == WINUI_DEFAULT_DIALOG_UNIT_Y))
-	{
-		// There is no need to adjust
-		*need_resize = false;
-		*factor_x = 1.0;
-		*factor_y = 1.0;
-		return;
-	}
-
-	// Calculate the adjustment amount
-	*factor_x = (double)dlgfont_x / (double)WINUI_DEFAULT_DIALOG_UNIT_X;
-	*factor_y = (double)dlgfont_y / (double)WINUI_DEFAULT_DIALOG_UNIT_Y;
 }
 
 // Adjust the control size and window size
@@ -6593,48 +6522,6 @@ UINT LbNum(HWND hWnd, UINT id)
 	return SendMsg(hWnd, id, LB_GETCOUNT, 0, 0);
 }
 
-// Add a string
-UINT LbAddStrA(HWND hWnd, UINT id, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_ADDSTRING, 0, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelectIndex(hWnd, id, 0);
-	}
-
-	return ret;
-}
-
-// Insert a string
-UINT LbInsertStrA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
-
 // Remove all
 void LbReset(HWND hWnd, UINT id)
 {
@@ -6724,18 +6611,6 @@ void LbSelect(HWND hWnd, UINT id, int data)
 
 	// Select
 	LbSelectIndex(hWnd, id, index);
-}
-
-// Get the currently selected item
-UINT LbGetSelectIndex(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	return SendMsg(hWnd, id, LB_GETCURSEL, 0, 0);
 }
 
 // Password input dialog state change
@@ -6890,27 +6765,6 @@ UINT CbAddStr9xA(HWND hWnd, UINT id, char *str, UINT data)
 		{
 			CbSelectIndex(hWnd, id, 0);
 		}
-	}
-
-	return ret;
-}
-
-// Insert a string
-UINT CbInsertStr9xA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, CB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, CB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (CbNum(hWnd, id) == 1)
-	{
-		CbSelect(hWnd, id, 0);
 	}
 
 	return ret;
@@ -7578,49 +7432,6 @@ void PkcsUtilErase(HWND hWnd)
 			MsgBox(hWnd, MB_ICONINFORMATION, _UU("PKCS_UTIL_DELETE_OK_MSG"));
 		}
 	}
-}
-
-// PKCS Utility dialog
-UINT PkcsUtilProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	switch (msg)
-	{
-	case WM_INITDIALOG:
-		DlgFont(hWnd, S_TITLE, 12, true);
-		SetIcon(hWnd, 0, ICO_CERT);
-		SetFont(hWnd, S_COPYRIGHT, GetFont("Arial", 8, false, false, false, false));
-		break;
-
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case B_WRITE:
-			PkcsUtilWrite(hWnd);
-			break;
-
-		case B_ERASE:
-			PkcsUtilErase(hWnd);
-			break;
-
-		case IDCANCEL:
-			Close(hWnd);
-			break;
-		}
-
-		break;
-
-	case WM_CLOSE:
-		EndDialog(hWnd, 0);
-		break;
-	}
-
-	return 0;
 }
 
 // [Save File] dialog
