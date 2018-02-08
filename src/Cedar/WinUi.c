@@ -1126,25 +1126,6 @@ void FreeWizard(WIZARD *w)
 	Free(w);
 }
 
-// Get the index page of the wizard
-UINT GetWizardPageIndex(WIZARD *w, UINT id)
-{
-	WIZARD_PAGE *p;
-	// Validate arguments
-	if (w == NULL || id == 0)
-	{
-		return INFINITE;
-	}
-
-	p = GetWizardPage(w, id);
-	if (p == NULL)
-	{
-		return INFINITE;
-	}
-
-	return p->Index;
-}
-
 // Get the wizard page
 WIZARD_PAGE *GetWizardPage(WIZARD *w, UINT id)
 {
@@ -1551,10 +1532,6 @@ UINT WinConnectDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 }
 
 // TCP connection with showing the UI
-SOCK *WinConnectEx2(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, bool try_start_ssl, bool ssl_no_tls)
-{
-	return WinConnectEx3(hWnd, server, port, timeout, icon_id, caption, info, NULL, false, try_start_ssl, ssl_no_tls);
-}
 SOCK *WinConnectEx3(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, UINT *nat_t_error_code, char *nat_t_svc_name, bool try_start_ssl, bool ssl_no_tls)
 {
 	wchar_t tmp[MAX_SIZE];
@@ -2121,75 +2098,6 @@ void FreeInfoThread(THREAD *thread, void *param)
 	}
 
 	ShowFreeInfoDialog(NULL, info);
-}
-
-// Start the Free Edition Announcement dialog
-FREEINFO *StartFreeInfoDlg(char *server_name)
-{
-	FREEINFO *info;
-
-	if (IsRegistedToDontShowFreeEditionDialog(server_name))
-	{
-		return NULL;
-	}
-
-	info = ZeroMalloc(sizeof(FREEINFO));
-
-	StrCpy(info->ServerName, sizeof(info->ServerName), server_name);
-	info->Event = NewEvent();
-
-	info->Thread = NewThread(FreeInfoThread, info);
-	Wait(info->Event, INFINITE);
-	ReleaseEvent(info->Event);
-	info->Event = NULL;
-
-	return info;
-}
-
-// End the Free Edition Announcement dialog
-void EndFreeInfoDlg(FREEINFO *info)
-{
-	// Validate arguments
-	if (info == NULL)
-	{
-		return;
-	}
-
-	SendMsg(info->hWnd, 0, WM_CLOSE, 0, 0);
-	WaitThread(info->Thread, INFINITE);
-	ReleaseThread(info->Thread);
-
-	Free(info);
-}
-
-// Execute a EXE in the hamcore
-bool ExecuteHamcoreExe(char *name)
-{
-	BUF *b;
-	wchar_t tmp[MAX_PATH];
-	char tmp2[MAX_PATH];
-	UCHAR hash[MD5_SIZE];
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	b = ReadDump(name);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	Hash(hash, name, StrLen(name), false);
-	BinToStr(tmp2, sizeof(tmp2), hash, sizeof(hash));
-	UniFormat(tmp, sizeof(tmp), L"%s\\tmp_%S.exe", MsGetMyTempDirW(), tmp2);
-	SeekBuf(b, 0, 0);
-	DumpBufW(b, tmp);
-
-	FreeBuf(b);
-
-	return RunW(tmp, NULL, false, false);
 }
 
 // Show the Easter Egg
@@ -3634,20 +3542,6 @@ char *StringDlgA(HWND hWnd, wchar_t *title, wchar_t *info, char *def, UINT icon,
 	return ret;
 }
 
-// Draw frame
-void LedDrawRect(LED *d)
-{
-	RECT r;
-	// Validate arguments
-	if (d == NULL)
-	{
-		return;
-	}
-
-	SetRect(&r, 0, 0, LED_WIDTH, LED_HEIGHT);
-	FrameRect(d->hDC, &r, GetStockObject(WHITE_BRUSH));
-}
-
 // Restarting dialog
 UINT Win9xRebootDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 {
@@ -3944,18 +3838,6 @@ bool IpIsFilled(HWND hWnd, UINT id)
 	{
 		return true;
 	}
-}
-
-// Clear the IP address
-void IpClear(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, IPM_CLEARADDRESS, 0, 0);
 }
 
 // Get an IP address
@@ -4516,39 +4398,6 @@ void SetMenuItemBold(HMENU hMenu, UINT pos, bool bold)
 	else
 	{
 		info.fState = info.fState & ~MFS_DEFAULT;
-	}
-
-	SetMenuItemInfo(hMenu, pos, true, &info);
-}
-
-// Enable / disable the menu item
-void SetMenuItemEnable(HMENU hMenu, UINT pos, bool enable)
-{
-	MENUITEMINFO info;
-	// Validate arguments
-	if (hMenu == NULL || pos == INFINITE)
-	{
-		return;
-	}
-
-	Zero(&info, sizeof(info));
-	info.cbSize = sizeof(info);
-	info.fMask = MIIM_STATE;
-
-	if (GetMenuItemInfo(hMenu, pos, true, &info) == false)
-	{
-		return;
-	}
-
-	if (enable)
-	{
-		info.fState |= MFS_ENABLED;
-		info.fState = info.fState & ~MFS_DISABLED;
-	}
-	else
-	{
-		info.fState |= MFS_DISABLED;
-		info.fState = info.fState & ~MFS_ENABLED;
 	}
 
 	SetMenuItemInfo(hMenu, pos, true, &info);
@@ -5686,10 +5535,6 @@ UINT LvInsertItemByImageListIdA(HWND hWnd, UINT id, UINT image, void *param, cha
 }
 
 // Change the image
-void LvSetItemImage(HWND hWnd, UINT id, UINT index, UINT icon)
-{
-	LvSetItemImageByImageListId(hWnd, id, index, GetIcon(icon));
-}
 void LvSetItemImageByImageListId(HWND hWnd, UINT id, UINT index, UINT image)
 {
 	LVITEM t;
@@ -5811,18 +5656,6 @@ void LvSetView(HWND hWnd, UINT id, bool details)
 		RemoveStyle(hWnd, id, LVS_REPORT);
 		SetStyle(hWnd, id, LVS_ICON);
 	}
-}
-
-// Ensure that the specified item is visible
-void LvShow(HWND hWnd, UINT id, UINT index)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	ListView_EnsureVisible(DlgItem(hWnd, id), index, false);
 }
 
 // Get whether there is currently selected item
@@ -5982,31 +5815,6 @@ bool LvIsMasked(HWND hWnd, UINT id)
 	return true;
 }
 
-// Get the number of items that are currently masked
-UINT LvGetMaskedNum(HWND hWnd, UINT id)
-{
-	UINT i = INFINITE;
-	UINT num = 0;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	while (true)
-	{
-		i = LvGetNextMasked(hWnd, id, i);
-		if (i == INFINITE)
-		{
-			break;
-		}
-
-		num++;
-	}
-
-	return num;
-}
-
 // Get the items that is currently masked
 UINT LvGetNextMasked(HWND hWnd, UINT id, UINT start)
 {
@@ -6017,27 +5825,6 @@ UINT LvGetNextMasked(HWND hWnd, UINT id, UINT start)
 	}
 
 	return ListView_GetNextItem(DlgItem(hWnd, id), start, LVNI_SELECTED);
-}
-
-// Search an item with the specified string
-UINT LvSearchStr_(HWND hWnd, UINT id, UINT pos, wchar_t *str)
-{
-	UINT ret;
-	LVFINDINFOW t;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	Zero(&t, sizeof(t));
-	t.flags = LVFI_STRING;
-	t.psz = str;
-	t.vkDirection = VK_DOWN;
-
-	ret = SendMsg(hWnd, id, LVM_FINDITEMW, -1, (LPARAM)&t);
-
-	return ret;
 }
 
 // Search an item with the specified string
@@ -6794,33 +6581,6 @@ STATUS_WINDOW *StatusPrinterWindowStart(SOCK *s, wchar_t *account_name)
 	return sw;
 }
 
-// Get the string
-wchar_t *LbGetStr(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return NULL;
-	}
-
-	return GetText(hWnd, id);
-}
-
-// String search
-UINT LbFindStr(HWND hWnd, UINT id, wchar_t *str)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_FINDSTRING, -1, (LPARAM)str);
-
-	return ret;
-}
-
 // Get the number of items
 UINT LbNum(HWND hWnd, UINT id)
 {
@@ -6834,34 +6594,6 @@ UINT LbNum(HWND hWnd, UINT id)
 }
 
 // Add a string
-UINT LbAddStr(HWND hWnd, UINT id, wchar_t *str, UINT data)
-{
-	UINT ret;
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = LbAddStrA(hWnd, id, s, data);
-		Free(s);
-		return ret;
-	}
-
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_ADDSTRING, 0, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelectIndex(hWnd, id, 0);
-	}
-
-	return ret;
-}
 UINT LbAddStrA(HWND hWnd, UINT id, char *str, UINT data)
 {
 	UINT ret;
@@ -6883,34 +6615,6 @@ UINT LbAddStrA(HWND hWnd, UINT id, char *str, UINT data)
 }
 
 // Insert a string
-UINT LbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data)
-{
-	UINT ret;
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = LbInsertStrA(hWnd, id, index, s, data);
-		Free(s);
-		return ret;
-	}
-
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
 UINT LbInsertStrA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
 {
 	UINT ret;
@@ -6994,18 +6698,6 @@ UINT LbFindData(HWND hWnd, UINT id, UINT data)
 	return INFINITE;
 }
 
-// Set the height of the item
-void LbSetHeight(HWND hWnd, UINT id, UINT value)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, LB_SETITEMHEIGHT, 0, (UINT)(GetTextScalingFactor() * (double)value));
-}
-
 // Search by specifying the data
 void LbSelect(HWND hWnd, UINT id, int data)
 {
@@ -7044,25 +6736,6 @@ UINT LbGetSelectIndex(HWND hWnd, UINT id)
 	}
 
 	return SendMsg(hWnd, id, LB_GETCURSEL, 0, 0);
-}
-
-// Get the value that is currently selected
-UINT LbGetSelect(HWND hWnd, UINT id)
-{
-	UINT index;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	index = LbGetSelectIndex(hWnd, id);
-	if (index == INFINITE)
-	{
-		return INFINITE;
-	}
-
-	return LbGetData(hWnd, id, index);
 }
 
 // Password input dialog state change
@@ -7223,33 +6896,6 @@ UINT CbAddStr9xA(HWND hWnd, UINT id, char *str, UINT data)
 }
 
 // Insert a string
-UINT CbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = CbInsertStr9xA(hWnd, id, index, s, data);
-		Free(s);
-		return ret;
-	}
-
-	ret = SendMsg(hWnd, id, CB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, CB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (CbNum(hWnd, id) == 1)
-	{
-		CbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
 UINT CbInsertStr9xA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
 {
 	UINT ret;
@@ -7834,14 +7480,6 @@ UINT PassphraseDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 	}
 
 	return 0;
-}
-
-// PKCS utility
-void PkcsUtil()
-{
-	InitWinUi(_UU("PKCS_UTIL_TITLE"), _SS("DEFAULT_FONT"), _II("DEFAULT_FONT_SIZE"));
-	Dialog(NULL, D_PKCSUTIL, PkcsUtilProc, NULL);
-	FreeWinUi();
 }
 
 // PKCS writing
@@ -8918,114 +8556,6 @@ UINT DialogEx2(HWND hWnd, UINT id, WINUI_DIALOG_PROC *proc, void *param, bool wh
 	return ret;
 }
 
-// Create a modeless dialog
-HWND DialogCreateEx(HWND hWnd, UINT id, WINUI_DIALOG_PROC *proc, void *param, bool white)
-{
-	HWND ret = NULL;
-	DIALOG_PARAM p;
-	// Validate arguments
-	if (id == 0)
-	{
-		return 0;
-	}
-
-	Zero(&p, sizeof(p));
-	p.param = param;
-	p.white = white;
-	p.proc = proc;
-
-	if (MsIsNt() == false)
-	{
-		// Win9x
-		ret = CreateDialogParamA(hDll, MAKEINTRESOURCEA(id), hWnd,
-			(DLGPROC)proc, (LPARAM)param);
-	}
-	else
-	{
-		// WinNT
-		ret = CreateDialogParamW(hDll, MAKEINTRESOURCEW(id), hWnd,
-			(DLGPROC)proc, (LPARAM)param);
-	}
-
-	return ret;
-}
-
-// Set the bitmap to the button
-void SetBitmap(HWND hWnd, UINT id, UINT bmp_id)
-{
-	HBITMAP bmp;
-	char *class_name;
-	DIALOG_PARAM *dialog_param = NULL;
-	bool need_resize = 0;
-	double resize_x = 1.0;
-	double resize_y = 1.0;
-	bool add_to_free_list = false;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	bmp = LoadImage(hDll, MAKEINTRESOURCE(bmp_id), IMAGE_BITMAP, 0, 0, (MsIsNt() ? LR_SHARED : 0) | LR_VGACOLOR);
-	if (bmp == NULL)
-	{
-		return;
-	}
-
-	dialog_param = GetParam(hWnd);
-
-	// Determine the need for resizing
-	if (dialog_param)
-	{
-		if (MsIsVista())
-		{
-			GetWindowAndControlSizeResizeScale(hWnd, &need_resize, &resize_x, &resize_y);
-
-			if (need_resize)
-			{
-				// Resize
-				UINT src_x, src_y, dst_x, dst_y;
-
-				if (GetBitmapSize(bmp, &src_x, &src_y))
-				{
-					HBITMAP new_bmp;
-					double scale_factor = MIN(resize_x, resize_y);
-
-					dst_x = (UINT)((double)src_x * scale_factor);
-					dst_y = (UINT)((double)src_y * scale_factor);
-
-					new_bmp = ResizeBitmap(bmp, src_x, src_y, dst_x, dst_y);
-
-					if (new_bmp != NULL)
-					{
-						bmp = new_bmp;
-
-						add_to_free_list = true;
-					}
-				}
-			}
-		}
-	}
-
-	class_name = GetClassA(hWnd, id);
-
-	if (StrCmpi(class_name, "Static") != 0)
-	{
-		SendMsg(hWnd, id, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-	}
-	else
-	{
-		SendMsg(hWnd, id, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-	}
-
-	Free(class_name);
-
-	if (add_to_free_list)
-	{
-		Add(dialog_param->BitmapList, bmp);
-	}
-}
-
 // Initialize the icon cache
 void InitIconCache()
 {
@@ -9265,58 +8795,6 @@ void SetFontEx(HWND hWnd, UINT id, HFONT hFont, bool no_adjust_font_size)
 	{
 		AdjustFontSize(hWnd, id);
 	}
-}
-
-// Get the font size
-bool GetFontSize(HFONT hFont, UINT *x, UINT *y)
-{
-	bool ret = false;
-	UINT xx = 0;
-	UINT yy = 0;
-
-	// Search for the font handle
-	LockList(font_list);
-	{
-		UINT i;
-
-		for (i = 0;i < LIST_NUM(font_list);i++)
-		{
-			FONT *f = LIST_DATA(font_list, i);
-
-			if (f->hFont == hFont)
-			{
-				xx = f->x;
-				yy = f->y;
-
-				ret = true;
-				break;
-			}
-		}
-	}
-	UnlockList(font_list);
-
-	if (ret == false)
-	{
-		ret = CalcFontSize(hFont, &xx, &yy);
-	}
-
-	if (xx == 0 || yy == 0)
-	{
-		xx = 8;
-		yy = 16;
-	}
-
-	if (x != NULL)
-	{
-		*x = xx;
-	}
-
-	if (y != NULL)
-	{
-		*y = yy;
-	}
-
-	return ret;
 }
 
 // Calculate the font size
@@ -9703,45 +9181,6 @@ void CenterParent(HWND hWnd)
 	SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
-// Get the coordinates of the client region of the window
-void GetWindowClientRect(HWND hWnd, struct tagRECT *rect)
-{
-	RECT r1, r2;
-	HWND hParent;
-	WINDOWINFO info;
-	Zero(rect, sizeof(RECT));
-	// Validate arguments
-	if (hWnd == NULL || rect == NULL)
-	{
-		return;
-	}
-
-	hParent = GetParent(hWnd);
-	if (hParent == NULL)
-	{
-		return;
-	}
-
-	Zero(&info, sizeof(info));
-	info.cbSize = sizeof(WINDOWINFO);
-
-	if (GetWindowInfo(hParent, &info) == false)
-	{
-		return;
-	}
-
-	if (GetWindowRect(hWnd, &r1) == false ||
-		GetWindowRect(hParent, &r2) == false)
-	{
-		return;
-	}
-
-	rect->left = r1.left - r2.left - (info.rcClient.left - info.rcWindow.left);
-	rect->right = r1.right - r2.left - (info.rcClient.left - info.rcWindow.left);
-	rect->top = r1.top - r2.top - (info.rcClient.top - info.rcWindow.top);
-	rect->bottom = r1.bottom - r2.top - (info.rcClient.top - info.rcWindow.top);
-}
-
 // Move the window to the center
 void Center(HWND hWnd)
 {
@@ -9785,19 +9224,6 @@ void Center(HWND hWnd)
 	SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
-// Get the size of the monitor
-void GetMonitorSize(UINT *width, UINT *height)
-{
-	// Validate arguments
-	if (width == NULL || height == NULL)
-	{
-		return;
-	}
-
-	*width = GetSystemMetrics(SM_CXSCREEN);
-	*height = GetSystemMetrics(SM_CYSCREEN);
-}
-
 // Format the string in the window
 void FormatText(HWND hWnd, UINT id, ...)
 {
@@ -9828,83 +9254,6 @@ void FormatText(HWND hWnd, UINT id, ...)
 	Free(buf);
 
 	Free(str);
-	va_end(args);
-}
-void FormatTextA(HWND hWnd, UINT id, ...)
-{
-	va_list args;
-	char *buf;
-	UINT size;
-	char *str;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	str = GetTextA(hWnd, id);
-	if (str == NULL)
-	{
-		return;
-	}
-
-	size = MAX(StrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, id);
-	FormatArgs(buf, size, str, args);
-
-	SetTextA(hWnd, id, buf);
-
-	Free(buf);
-
-	Free(str);
-	va_end(args);
-}
-
-// Set a variable-length argument string to the window
-void SetTextEx(HWND hWnd, UINT id, wchar_t *str, ...)
-{
-	va_list args;
-	wchar_t *buf;
-	UINT size;
-	// Validate arguments
-	if (str == NULL || hWnd == NULL)
-	{
-		return;
-	}
-
-	size = MAX(UniStrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, str);
-	UniFormatArgs(buf, size, str, args);
-
-	SetText(hWnd, id, buf);
-
-	Free(buf);
-	va_end(args);
-}
-void SetTextExA(HWND hWnd, UINT id, char *str, ...)
-{
-	va_list args;
-	char *buf;
-	UINT size;
-	// Validate arguments
-	if (str == NULL || hWnd == NULL)
-	{
-		return;
-	}
-
-	size = MAX(StrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, str);
-	FormatArgs(buf, size, str, args);
-
-	SetTextA(hWnd, id, buf);
-
-	Free(buf);
 	va_end(args);
 }
 
@@ -9989,13 +9338,6 @@ UINT DialogInternal(HWND hWnd, UINT id, DIALOG_PROC *proc, void *param)
 		// WinNT
 		return (UINT)DialogBoxParamW(hDll, MAKEINTRESOURCEW(id), hWnd, (DLGPROC)proc, (LPARAM)param);
 	}
-}
-
-// Notice that the system configuration has been updated
-void NoticeSettingChange()
-{
-	PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0);
-	DoEvents(NULL);
 }
 
 // Dialog box procedure managed by WinUi
@@ -10097,18 +9439,6 @@ void *GetParam(HWND hWnd)
 
 	ret = (void *)GetWindowLongPtr(hWnd, DWLP_USER);
 	return ret;
-}
-
-// Relieve the window from foreground
-void NoTop(HWND hWnd)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 // Show the windows as foreground
@@ -10299,21 +9629,6 @@ UINT GetStyle(HWND hWnd, UINT id)
 	}
 
 	return GetWindowLong(DlgItem(hWnd, id), GWL_STYLE);
-}
-
-// Get the number of bytes of the text
-UINT GetTextSize(HWND hWnd, UINT id, bool unicode)
-{
-	UINT len;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	len = GetTextLen(hWnd, id, unicode);
-
-	return len + (unicode ? 2 : 1);
 }
 
 // Get the number of characters in the text
@@ -11214,19 +10529,6 @@ HWND DlgItem(HWND hWnd, UINT id)
 	{
 		return GetDlgItem(hWnd, id);
 	}
-}
-
-// Set the title
-void SetWinUiTitle(wchar_t *title)
-{
-	// Validate arguments
-	if (title == NULL)
-	{
-		return;
-	}
-
-	Free(title_bar);
-	title_bar = CopyUniStr(title);
 }
 
 // Initialize the WinUi
