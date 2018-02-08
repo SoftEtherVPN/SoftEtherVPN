@@ -2050,19 +2050,6 @@ UINT FreeInfoDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void 
 	return 0;
 }
 
-// Display the dialog about the Free Edition
-void ShowFreeInfoDialog(HWND hWnd, FREEINFO *info)
-{
-	// Validate arguments
-	if (info == NULL)
-	{
-		return;
-	}
-
-	Dialog(hWnd, D_FREEINFO, FreeInfoDialogProc, info);
-	Set(info->Event);
-}
-
 // Show the Easter Egg
 void ShowEasterEgg(HWND hWnd)
 {
@@ -6585,34 +6572,6 @@ UINT LbFindData(HWND hWnd, UINT id, UINT data)
 	return INFINITE;
 }
 
-// Search by specifying the data
-void LbSelect(HWND hWnd, UINT id, int data)
-{
-	UINT index;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	if (data == INFINITE)
-	{
-		// Get the first item
-		LbSelectIndex(hWnd, id, 0);
-		return;
-	}
-
-	index = LbFindData(hWnd, id, data);
-	if (index == INFINITE)
-	{
-		// Can not be found
-		return;
-	}
-
-	// Select
-	LbSelectIndex(hWnd, id, index);
-}
-
 // Password input dialog state change
 void PasswordDlgProcChange(HWND hWnd, UI_PASSWORD_DLG *p)
 {
@@ -7334,104 +7293,6 @@ UINT PassphraseDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 	}
 
 	return 0;
-}
-
-// PKCS writing
-void PkcsUtilWrite(HWND hWnd)
-{
-	wchar_t *filename;
-	BUF *in_buf;
-	char filename_ansi[MAX_SIZE];
-	char pass[MAX_SIZE];
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	filename = OpenDlg(hWnd, _UU("DLG_PKCS12_FILTER"), _UU("PKCS_UTIL_SAVEDLG_TITLE"));
-	if (filename == NULL)
-	{
-		return;
-	}
-
-	UniToStr(filename_ansi, sizeof(filename_ansi), filename);
-
-	in_buf = ReadDump(filename_ansi);
-
-	if (in_buf == NULL)
-	{
-		MsgBoxEx(hWnd, MB_ICONEXCLAMATION, _UU("PKCS_UTIL_READ_ERROR"), filename);
-	}
-	else
-	{
-		if (PassphraseDlg(hWnd, pass, sizeof(pass), in_buf, true))
-		{
-			P12 *p12 = BufToP12(in_buf);
-			if (p12 == NULL)
-			{
-				MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("PKCS_UTIL_BAD_FILE"));
-			}
-			else
-			{
-				X *x = NULL;
-				K *k = NULL;
-				BUF *b;
-				ParseP12(p12, &x, &k, pass);
-				FreeP12(p12);
-				p12 = NewP12(x, k, NULL);
-				FreeX(x);
-				FreeK(k);
-				b = P12ToBuf(p12);
-				FreeP12(p12);
-				if (b != NULL)
-				{
-					// Batch processing
-					WINUI_SECURE_BATCH batch[] =
-					{
-						{WINUI_SECURE_WRITE_DATA, _SS("PKCS_UTIL_SECA_FILENAME"), false,
-							b, NULL, NULL, NULL, NULL, NULL},
-					};
-
-					if (SecureDeviceWindow(hWnd, batch, sizeof(batch) / sizeof(batch[0]), 2, 0))
-					{
-						MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("PKCS_UTIL_WRITE_OK_MSG"), filename);
-					}
-				}
-				FreeBuf(b);
-			}
-		}
-
-		FreeBuf(in_buf);
-	}
-
-	Free(filename);
-}
-
-// PKCS erase
-void PkcsUtilErase(HWND hWnd)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2,
-		_UU("PKCS_MAKE_SURE")) == IDYES)
-	{
-		// Batch processing
-		WINUI_SECURE_BATCH batch[] =
-		{
-			{WINUI_SECURE_DELETE_OBJECT, _SS("PKCS_UTIL_SECA_FILENAME"), false,
-				NULL, NULL, NULL, NULL, NULL, NULL},
-		};
-
-		if (SecureDeviceWindow(hWnd, batch, sizeof(batch) / sizeof(batch[0]), 2, 0))
-		{
-			MsgBox(hWnd, MB_ICONINFORMATION, _UU("PKCS_UTIL_DELETE_OK_MSG"));
-		}
-	}
 }
 
 // [Save File] dialog
