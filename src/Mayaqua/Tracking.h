@@ -166,7 +166,6 @@ void GetCallStackStr(char *str, UINT size, CALLSTACK_DATA *s);
 void PrintCallStack(CALLSTACK_DATA *s);
 void InitTracking();
 void FreeTracking();
-int CompareTrackingObject(const void *p1, const void *p2);
 void LockTrackingList();
 void UnlockTrackingList();
 void InsertTrackingList(TRACKING_OBJECT *o);

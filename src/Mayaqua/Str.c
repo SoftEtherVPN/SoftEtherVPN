@@ -2021,23 +2021,6 @@ char *CopyBinToStrEx(void *data, UINT data_size)
 
 	return ret;
 }
-char *CopyBinToStr(void *data, UINT data_size)
-{
-	char *ret;
-	UINT size;
-	// Validate arguments
-	if (data == NULL)
-	{
-		return NULL;
-	}
-
-	size = data_size * 2 + 1;
-	ret = ZeroMalloc(size);
-
-	BinToStr(ret, size, data, data_size);
-
-	return ret;
-}
 
 // Convert the binary data to a hexadecimal string
 void BinToStr(char *str, UINT str_size, void *data, UINT data_size)

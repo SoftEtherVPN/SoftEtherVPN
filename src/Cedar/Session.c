@@ -1849,23 +1849,6 @@ SKIP:
 	}
 }
 
-// Name comparison of sessions
-int CompareSession(void *p1, void *p2)
-{
-	SESSION *s1, *s2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	s1 = *(SESSION **)p1;
-	s2 = *(SESSION **)p2;
-	if (s1 == NULL || s2 == NULL)
-	{
-		return 0;
-	}
-	return StrCmpi(s1->Name, s2->Name);
-}
-
 // Create an RPC session
 SESSION *NewRpcSession(CEDAR *cedar, CLIENT_OPTION *option)
 {

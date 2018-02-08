@@ -661,8 +661,6 @@ bool GetFontSize(HFONT hFont, UINT *x, UINT *y);
 void SetFont(HWND hWnd, UINT id, HFONT hFont);
 void SetFontEx(HWND hWnd, UINT id, HFONT hFont, bool no_adjust_font_size);
 void LimitText(HWND hWnd, UINT id, UINT count);
-bool CheckTextLen(HWND hWnd, UINT id, UINT len, bool unicode);
-bool CheckTextSize(HWND hWnd, UINT id, UINT size, bool unicode);
 void Check(HWND hWnd, UINT id, bool b);
 bool IsChecked(HWND hWnd, UINT id);
 void SetIcon(HWND hWnd, UINT id, UINT icon_id);

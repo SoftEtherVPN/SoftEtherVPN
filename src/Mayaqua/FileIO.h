@@ -370,7 +370,6 @@ int CompareDirListByName(void *p1, void *p2);
 bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size);
 bool GetDiskFreeW(wchar_t *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size);
 void ConvertSafeFileName(char *dst, UINT size, char *src);
-void ConvertSafeFileNameW(wchar_t *dst, UINT size, wchar_t *src);
 bool FileReplaceRename(char *old_name, char *new_name);
 bool FileReplaceRenameW(wchar_t *old_name, wchar_t *new_name);
 bool IsFile(char *name);

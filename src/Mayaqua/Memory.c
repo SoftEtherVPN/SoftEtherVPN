@@ -2601,20 +2601,6 @@ void PadFifoFront(FIFO *f, UINT size)
 	f->p = ReAlloc(f->p, f->memsize);
 }
 
-// Clear the FIFO
-void ClearFifo(FIFO *f)
-{
-	// Validate arguments
-	if (f == NULL)
-	{
-		return;
-	}
-
-	f->size = f->pos = 0;
-	f->memsize = FIFO_INIT_MEM_SIZE;
-	f->p = ReAlloc(f->p, f->memsize);
-}
-
 // Get the current pointer of the FIFO
 UCHAR *GetFifoPointer(FIFO *f)
 {
@@ -4261,25 +4247,6 @@ void *AddHead(void *src, UINT src_size, void *head, UINT head_size)
 	Copy(((UCHAR *)ret) + head_size, src, src_size);
 
 	return ret;
-}
-
-// Clone the memory area (only the tail)
-void *CloneTail(void *src, UINT src_size, UINT dst_size)
-{
-	// Validate arguments
-	if (src_size != 0 && src == NULL)
-	{
-		return NULL;
-	}
-
-	if (src_size >= dst_size)
-	{
-		return Clone(((UCHAR *)src) + (src_size - dst_size), dst_size);
-	}
-	else
-	{
-		return Clone(src, src_size);
-	}
 }
 
 // Clone the memory area

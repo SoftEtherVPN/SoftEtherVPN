@@ -9234,44 +9234,6 @@ void Check(HWND hWnd, UINT id, bool b)
 	}
 }
 
-// Confirm that the character size of the text-box is less than or equal to specified size
-bool CheckTextSize(HWND hWnd, UINT id, UINT size, bool unicode)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return false;
-	}
-
-	if (GetTextSize(hWnd, id, unicode) <= size)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-// Confirm that a length of the string in the text-box is less than or equal to the specified size
-bool CheckTextLen(HWND hWnd, UINT id, UINT len, bool unicode)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return false;
-	}
-
-	if (GetTextLen(hWnd, id, unicode) <= len)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 // Limit the number of characters that can be entered into the text-box
 void LimitText(HWND hWnd, UINT id, UINT count)
 {

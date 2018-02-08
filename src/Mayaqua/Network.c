@@ -6823,23 +6823,6 @@ bool IsNetworkPrefixAddress6(IP *ip, IP *subnet)
 	return false;
 }
 
-// Check whether the unicast address is available
-bool CheckUnicastAddress(IP *ip)
-{
-	// Validate arguments
-	if (ip == NULL)
-	{
-		return false;
-	}
-
-	if ((GetIPAddrType6(ip) & IPV6_ADDR_UNICAST) == 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Get the host address
 void GetHostAddress6(IP *dst, IP *ip, IP *subnet)
 {
@@ -7778,17 +7761,6 @@ void CopyIP(IP *dst, IP *src)
 	Copy(dst, src, sizeof(IP));
 }
 
-// Check the length of the IPv6 subnet
-bool CheckSubnetLength6(UINT i)
-{
-	if (i >= 1 && i <= 127)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 // Get the process ID of the corresponding TCP connection by the socket
 UINT GetTcpProcessIdFromSocket(SOCK *s)
 {
@@ -8165,24 +8137,6 @@ void PrintTcpTableList(LIST *o)
 			t->ProcessId);
 	}
 	Print("------\n\n");
-}
-
-// Comparison of TCP table items
-int CompareTcpTable(void *p1, void *p2)
-{
-	TCPTABLE *t1, *t2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	t1 = *(TCPTABLE **)p1;
-	t2 = *(TCPTABLE **)p2;
-	if (t1 == NULL || t2 == NULL)
-	{
-		return 0;
-	}
-
-	return Cmp(t1, t2, sizeof(TCPTABLE));
 }
 
 // Get the TCP table list
@@ -14609,39 +14563,6 @@ typedef struct TCP_PORT_CHECK
 	UINT port;
 	bool ok;
 } TCP_PORT_CHECK;
-
-// The thread to check the TCP port
-void CheckTCPPortThread(THREAD *thread, void *param)
-{
-	TCP_PORT_CHECK *c;
-	SOCK *s;
-	// Validate arguments
-	if (thread == NULL || param == NULL)
-	{
-		return;
-	}
-
-	c = (TCP_PORT_CHECK *)param;
-	AddRef(c->ref);
-	NoticeThreadInit(thread);
-
-	AddWaitThread(thread);
-
-	s = Connect(c->hostname, c->port);
-	if (s != NULL)
-	{
-		c->ok = true;
-		Disconnect(s);
-		ReleaseSock(s);
-	}
-
-	if (Release(c->ref) == 0)
-	{
-		Free(c);
-	}
-
-	DelWaitThread(thread);
-}
 
 // Check whether the TCP port can be connected
 bool CheckTCPPortEx(char *hostname, UINT port, UINT timeout)

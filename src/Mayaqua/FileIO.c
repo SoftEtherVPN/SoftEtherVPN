@@ -725,24 +725,6 @@ void ConvertSafeFileName(char *dst, UINT size, char *src)
 		}
 	}
 }
-void ConvertSafeFileNameW(wchar_t *dst, UINT size, wchar_t *src)
-{
-	UINT i;
-	// Validate arguments
-	if (dst == NULL || src == NULL)
-	{
-		return;
-	}
-
-	UniStrCpy(dst, size, src);
-	for (i = 0;i < UniStrLen(dst);i++)
-	{
-		if (UniIsSafeChar(dst[i]) == false)
-		{
-			dst[i] = L'_';
-		}
-	}
-}
 
 // Get the free disk space
 bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)

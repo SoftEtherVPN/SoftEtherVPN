@@ -589,33 +589,6 @@ void TrackChangeObjSize(UINT64 addr, UINT size, UINT64 new_addr)
 	UnlockTrackingList();
 }
 
-// Memory address comparison function
-int CompareTrackingObject(const void *p1, const void *p2)
-{
-	TRACKING_OBJECT *o1, *o2;
-	// Validate arguments
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	o1 = *(TRACKING_OBJECT **)p1;
-	o2 = *(TRACKING_OBJECT **)p2;
-	if (o1 == NULL || o2 == NULL)
-	{
-		return 0;
-	}
-
-	if (o1->Address > o2->Address)
-	{
-		return 1;
-	}
-	if (o1->Address == o2->Address)
-	{
-		return 0;
-	}
-	return -1;
-}
-
 // Search an object in the tracking list
 TRACKING_OBJECT *SearchTrackingList(UINT64 Address)
 {

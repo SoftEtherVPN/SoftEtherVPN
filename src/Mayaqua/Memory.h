@@ -290,7 +290,6 @@ int CmpCaseIgnore(void *p1, void *p2, UINT size);
 void ZeroMem(void *addr, UINT size);
 void Zero(void *addr, UINT size);
 void *Clone(void *addr, UINT size);
-void *CloneTail(void *src, UINT src_size, UINT dst_size);
 void *AddHead(void *src, UINT src_size, void *head, UINT head_size);
 
 char B64_CodeToChar(BYTE c);
@@ -360,7 +359,6 @@ UCHAR *FifoPtr(FIFO *f);
 void WriteFifo(FIFO *f, void *p, UINT size);
 void WriteFifoFront(FIFO *f, void *p, UINT size);
 void PadFifoFront(FIFO *f, UINT size);
-void ClearFifo(FIFO *f);
 UINT FifoSize(FIFO *f);
 void LockFifo(FIFO *f);
 void UnlockFifo(FIFO *f);
