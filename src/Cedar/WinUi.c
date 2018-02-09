@@ -2004,52 +2004,6 @@ void RegistToDontShowFreeEditionDialog(char *server_name)
 	MsRegWriteInt(REG_LOCAL_MACHINE, FREE_REGKEY, server_name, 1);
 }
 
-// Free Edition dialog procedure
-UINT FreeInfoDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
-{
-	FREEINFO *info = (FREEINFO *)param;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	switch (msg)
-	{
-	case WM_INITDIALOG:
-		SetIcon(hWnd, 0, ICO_HUB);
-		Top(hWnd);
-		info->hWnd = hWnd;
-		Set(info->Event);
-		FormatText(hWnd, S_INFO_2, info->ServerName);
-		DlgFont(hWnd, S_INFO_1, 13, true);
-		DlgFont(hWnd, S_INFO_3, 13, false);
-		DlgFont(hWnd, B_HIDE, 10, true);
-		break;
-
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case IDOK:
-		case IDCANCEL:
-			if (IsChecked(hWnd, B_HIDE))
-			{
-				RegistToDontShowFreeEditionDialog(info->ServerName);
-			}
-
-			Close(hWnd);
-			break;
-		}
-		break;
-
-	case WM_CLOSE:
-		EndDialog(hWnd, 0);
-		break;
-	}
-
-	return 0;
-}
-
 // Show the Easter Egg
 void ShowEasterEgg(HWND hWnd)
 {
@@ -6521,18 +6475,6 @@ void LbReset(HWND hWnd, UINT id)
 	SendMsg(hWnd, id, LB_RESETCONTENT, 0, 0);
 }
 
-// Select by specifying the index
-void LbSelectIndex(HWND hWnd, UINT id, UINT index)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, LB_SETCURSEL, index, 0);
-}
-
 // Get the data
 UINT LbGetData(HWND hWnd, UINT id, UINT index)
 {
@@ -6543,33 +6485,6 @@ UINT LbGetData(HWND hWnd, UINT id, UINT index)
 	}
 
 	return SendMsg(hWnd, id, LB_GETITEMDATA, index, 0);
-}
-
-// Search for the data
-UINT LbFindData(HWND hWnd, UINT id, UINT data)
-{
-	UINT i, num;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	num = LbNum(hWnd, id);
-	if (num == INFINITE)
-	{
-		return INFINITE;
-	}
-
-	for (i = 0;i < num;i++)
-	{
-		if (LbGetData(hWnd, id, i) == data)
-		{
-			return i;
-		}
-	}
-
-	return INFINITE;
 }
 
 // Password input dialog state change
