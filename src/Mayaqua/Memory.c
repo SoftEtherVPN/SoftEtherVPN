@@ -2011,16 +2011,6 @@ void InsertInt(LIST *o, UINT i)
 
 	Insert(o, Clone(&i, sizeof(UINT)));
 }
-void InsertInt64(LIST *o, UINT64 i)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	Insert(o, Clone(&i, sizeof(UINT64)));
-}
 
 // Add an integer to the list (no duplicates)
 void AddIntDistinct(LIST *o, UINT i)
@@ -2184,32 +2174,6 @@ LIST *NewListEx2(COMPARE *cmp, bool fast, bool fast_malloc)
 	return o;
 }
 
-// Peek from the FIFO
-UINT PeekFifo(FIFO *f, void *p, UINT size)
-{
-	UINT read_size;
-	if (f == NULL || size == 0)
-	{
-		return 0;
-	}
-
-	// KS
-	KS_INC(KS_PEEK_FIFO_COUNT);
-
-	read_size = MIN(size, f->size);
-	if (read_size == 0)
-	{
-		return 0;
-	}
-
-	if (p != NULL)
-	{
-		Copy(p, (UCHAR *)f->p + f->pos, read_size);
-	}
-
-	return read_size;
-}
-
 // Read all data from FIFO
 BUF *ReadFifoAll(FIFO *f)
 {
@@ -2344,20 +2308,6 @@ void WriteFifo(FIFO *f, void *p, UINT size)
 
 	// KS
 	KS_INC(KS_WRITE_FIFO_COUNT);
-}
-
-// Add a padding before the head of fifo
-void PadFifoFront(FIFO *f, UINT size)
-{
-	// Validate arguments
-	if (f == NULL || size == 0)
-	{
-		return;
-	}
-
-	f->memsize += size;
-
-	f->p = ReAlloc(f->p, f->memsize);
 }
 
 // Get the current pointer of the FIFO

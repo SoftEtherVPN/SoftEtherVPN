@@ -348,14 +348,12 @@ BUF *ReadRemainBuf(BUF *b);
 UINT ReadBufRemainSize(BUF *b);
 bool CompareBuf(BUF *b1, BUF *b2);
 
-UINT PeekFifo(FIFO *f, void *p, UINT size);
 UINT ReadFifo(FIFO *f, void *p, UINT size);
 BUF *ReadFifoAll(FIFO *f);
 void ShrinkFifoMemory(FIFO *f);
 UCHAR *GetFifoPointer(FIFO *f);
 UCHAR *FifoPtr(FIFO *f);
 void WriteFifo(FIFO *f, void *p, UINT size);
-void PadFifoFront(FIFO *f, UINT size);
 UINT FifoSize(FIFO *f);
 void ReleaseFifo(FIFO *f);
 void CleanupFifo(FIFO *f);
@@ -409,7 +407,6 @@ LIST *NewInt64List(bool sorted);
 int CompareInt(void *p1, void *p2);
 int CompareInt64(void *p1, void *p2);
 void InsertInt(LIST *o, UINT i);
-void InsertInt64(LIST *o, UINT64 i);
 void InsertIntDistinct(LIST *o, UINT i);
 
 void *GetNext(QUEUE *q);
