@@ -911,18 +911,6 @@ void WriteServerLog(CEDAR *c, wchar_t *str)
 	}
 }
 
-// Take a security log
-void WriteSecurityLog(HUB *h, char *str)
-{
-	// Validate arguments
-	if (h == NULL || str == NULL)
-	{
-		return;
-	}
-
-	InsertStringRecord(h->SecurityLogger, str);
-}
-
 // Take a packet log
 bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packet, UINT64 now)
 {

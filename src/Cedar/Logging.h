@@ -232,7 +232,6 @@ char *GenCsvLine(TOKEN_LIST *t);
 void ReplaceForCsv(char *str);
 char *PortStr(CEDAR *cedar, UINT port, bool udp);
 char *TcpFlagStr(UCHAR flag);
-void WriteSecurityLog(HUB *h, char *str);
 void SiSetDefaultLogSetting(HUB_LOG *g);
 void DebugLog(CEDAR *c, char *fmt, ...);
 void SLog(CEDAR *c, char *name, ...);
