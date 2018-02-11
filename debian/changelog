@@ -1,5 +1,24 @@
-softether-vpn (0:4.04.9412-rtm) unstable; urgency=low
+softether-vpn (4.23.9647-beta) unstable; urgency=low
 
-  * Testing debianization
+  * Upgraded OpenSSL to 1.0.2l.
+  * Source code is now compatible with OpenSSL 1.1.x. Supports DHE-RSA-CHACHA 20-POLY 1305 and ECDHE-RSA-CHACHA 20-POLY 1305, which are new encryption methods of TLS 1.2. (In order to use this new function, you need to recompile yourself using OpenSSL 1.1.x.)
+  * TrafficServer / TrafficClient function (The traffic throughput measurement function) is now multithreaded and compatible with about 10 Gbps using NIC with the RSS feature.
+  * Changed the default algorithm for SSL from RC4-MD5 to AES128-SHA.
+  * Fixed a bug that occurr wrong checksum recalculation in special case of the TCP-MSS clamp processing.
+  * Fixed the calculation interval of update interval of DHCP client packet issued by kernel mode virtual NAT function of SecureNAT function.
+  * Driver upgrade and DLL name change with Crypto ID support of USB security token.
+  * Fixed a problem that CPU sleep processing was not performed when the wait time of the Select () function was INFINITE on Mac OS X.
+  * Added the StrictSyslogDatetimeFormat flag onto the ServerConfiguration section on the VPN Server configuration file, which sets Syslog date format to RFC3164.
+  * Fixed wrong English in the UI.
+  * Using client parameter in function CtConnect
+  * Remove blank line at the start from init file (Debian)
+  * Stop Radius Delay from counting to next_resend
+  * Add DH groups 2048,3072,4096 to IPSec_IKE
+  * Add HMAC SHA2-256, HMAC SHA2-384, HMAC SHA2-512 support
+  * Openvpn extend ciphers
+  * Fixed RSA key bits wrong calculation for certain x509 certificate
+  * Added support for RuToken USB key PKCS#11
 
- -- Dmitry Orlov <me@mosquito.su>  Tue, 4 Feb 2014 20:24:43 +0000
+
+
+ -- You Xiaojie <yxj790222@163.com>  Wed, 18 Oct 2017 00:00:00 +0000

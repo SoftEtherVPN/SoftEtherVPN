@@ -140,17 +140,19 @@ from GitHub. You may make your own fork project from our project.
 ### 1. Debian/Ubuntu
 
 - gcc
-- libncurses-dev
-- libreadline-dev
 - make
-- openssl-dev
+- libreadline-dev
+- libssl-dev
+- libncurses-dev
+- zlib1g-dev
 
 ### 2. Redhat/CentOS
 - gcc
-- openssl-devel
 - make
-- ncurses-devel
 - readline-devel
+- openssl-devel
+- ncurses-devel
+
 ## Compile and install
 
 The download and build instruction is following:
@@ -163,8 +165,17 @@ $ make
 $ make install
 ```
 
+## Build Deb packages
+Dependencies:
+- debhelper
+- dh-exec
 
- 
+Command line:
+```sh 
+$ ./configure
+$ dpkg-buildpackage -b -us -uc
+```
+The Deb packages will locate in parent dirctory.
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
