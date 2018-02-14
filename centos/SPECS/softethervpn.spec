@@ -1,8 +1,8 @@
-%define majorversion 4
-%define minorversion 19
-%define buildversion 9582
-%define dateversion 2015.10.06
-%define buildrelease beta
+%define majorversion 5
+%define minorversion 01
+%define buildversion 9657
+%define dateversion 2018.01.14
+%define buildrelease unstable
 
 Name:           softethervpn
 Version:        %{majorversion}.%{minorversion}.%{buildversion}

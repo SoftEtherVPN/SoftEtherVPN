@@ -1,3 +1,22 @@
+SoftEther VPN 5.1 (February 14, 2018)
+Use the new agreed versioning pattern, where we use 5.x for the unstable version and slowely drop the incremental number
+Add the Alternative subject name field on the new X.509 certificate creation. PR #421
+Fix a bug in the Win32EnumDirExW() function. PR #420
+remove unused functions (identified by cppcheck). PR #440
+Allow specifying cipher suites instead of single ciphers. PR #343
+Add parameter "ListenIP" to server configuration (vpn_server.config). PR #202
+cppcheck findings. PR #275
+Add DhParamBits configuration to set Diffie-Hellman parameters. PR #129
+Fix log msg for IKE with agressive exchange mode. PR #425
+Fixes 11 vulnerabilities found by Max Planck Institute for Molecular Genetics and Mr. Guido Vranken. PR #419
+Fixed the bug which occurs the L2TP/IPsec connection error with Android Oreo, etc. PR #405
+build documentation refactoring. PR #395
+initial travis-ci support feature. PR #348
+Reformat README. Add compile requirements. PR #379
+Fix: vpncmd thinks that "hamcore.se2" is missing or broken. PR #339
+fix aarch64 build. PR #281
+Initial Commit of gitignore. PR #380 
+
 SoftEther VPN 4.23 Build 9647 Beta (October 18, 2017)
 Upgraded OpenSSL to 1.0.2l.
 Source code is now compatible with OpenSSL 1.1.x. Supports DHE-RSA-CHACHA 20-POLY 1305 and ECDHE-RSA-CHACHA 20-POLY 1305, which are new encryption methods of TLS 1.2. (In order to use this new function, you need to recompile yourself using OpenSSL 1.1.x.)
