@@ -153,6 +153,9 @@ CONTRIBUTORS on GitHub:
     
   - nvsofts
     https://github.com/nvsofts
+
+  -Quintin Beukes
+   https://github.com/qbeukes 
    
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
