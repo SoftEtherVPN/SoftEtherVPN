@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ì˙ñ{åÍ resources
+// §È§Â resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 #ifdef _WIN32
@@ -220,7 +220,6 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 326
         BOTTOMMARGIN, 304
-        HORZGUIDE, 315
     END
 
     D_REMOTE, DIALOG
@@ -4842,12 +4841,33 @@ END
 //
 
 BIN_WINPCAP             BIN                     "Dummy.bin"
-#endif    // ì˙ñ{åÍ resources
+#endif    // §È§Â resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// âpåÍ (ïƒçë) resources
+// §§§Â (•x∆W) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHT)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL
+#pragma code_page(950)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+ICO_LANG_TRADITIONAL_CHINESE ICON                    "LANG_TRADITIONAL_CHINESE.ico"
+#endif    // §§§Â (•x∆W) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// ≠^§Â (¨¸∞Í) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -4908,7 +4928,7 @@ BMP_ZURUKKO             BITMAP                  "Zurukko.bmp"
 BMP_VPNGATEEN           BITMAP                  "VPNGateEN.bmp"
 BMP_VPNGATEJA           BITMAP                  "VPNGateJA.bmp"
 BMP_UNIVTSUKUBA         BITMAP                  "UnivTsukuba.bmp"
-#endif    // âpåÍ (ïƒçë) resources
+#endif    // ≠^§Â (¨¸∞Í) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
