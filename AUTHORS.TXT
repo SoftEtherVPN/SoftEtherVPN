@@ -158,7 +158,10 @@ CONTRIBUTORS on GitHub:
     https://github.com/qbeukes 
 
   - Diego Schulz
-    https://github.com/dschulz   
+    https://github.com/dschulz
+
+  - Holoreimu
+    https://github.com/holoreimu
      
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
