@@ -144,6 +144,7 @@ from GitHub. You may make your own fork project from our project.
 - libreadline-dev
 - make
 - libssl-dev
+- zlib1g-dev
 
 ### 2. Redhat/CentOS
 - gcc
@@ -151,6 +152,8 @@ from GitHub. You may make your own fork project from our project.
 - make
 - ncurses-devel
 - readline-devel
+- zlib-devel
+
 ## Compile and install
 
 The download and build instruction is following:
