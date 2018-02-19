@@ -162,6 +162,10 @@ CONTRIBUTORS on GitHub:
 
   - Holoreimu
     https://github.com/holoreimu
+
+  - Ryoga
+    https://github.com/proelbtn
+
      
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
