@@ -4309,7 +4309,7 @@ namespace CoreUtil.Internal
 		/// Performs an unsigned bitwise right shift with the specified number
 		/// </summary>
 		/// <param name="number">Number to operate on</param>
-		/// <param name="bits">Ammount of bits to shift</param>
+		/// <param name="bits">Amount of bits to shift</param>
 		/// <returns>The resulting number from the shift operation</returns>
 		public static int URShift(int number, int bits)
 		{
@@ -4323,7 +4323,7 @@ namespace CoreUtil.Internal
 		/// Performs an unsigned bitwise right shift with the specified number
 		/// </summary>
 		/// <param name="number">Number to operate on</param>
-		/// <param name="bits">Ammount of bits to shift</param>
+		/// <param name="bits">Amount of bits to shift</param>
 		/// <returns>The resulting number from the shift operation</returns>
 		public static int URShift(int number, long bits)
 		{
@@ -4334,7 +4334,7 @@ namespace CoreUtil.Internal
 		/// Performs an unsigned bitwise right shift with the specified number
 		/// </summary>
 		/// <param name="number">Number to operate on</param>
-		/// <param name="bits">Ammount of bits to shift</param>
+		/// <param name="bits">Amount of bits to shift</param>
 		/// <returns>The resulting number from the shift operation</returns>
 		public static long URShift(long number, int bits)
 		{
@@ -4348,7 +4348,7 @@ namespace CoreUtil.Internal
 		/// Performs an unsigned bitwise right shift with the specified number
 		/// </summary>
 		/// <param name="number">Number to operate on</param>
-		/// <param name="bits">Ammount of bits to shift</param>
+		/// <param name="bits">Amount of bits to shift</param>
 		/// <returns>The resulting number from the shift operation</returns>
 		public static long URShift(long number, long bits)
 		{
