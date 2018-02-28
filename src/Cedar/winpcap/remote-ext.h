@@ -299,7 +299,7 @@ extern "C" {
 
 /*!
 
-	\brief This structure keeps the information needed to autheticate
+	\brief This structure keeps the information needed to authenticate
 	the user on a remote machine.
 	
 	The remote machine can either grant or refuse the access according 
