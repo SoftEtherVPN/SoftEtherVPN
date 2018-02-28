@@ -287,7 +287,7 @@ typedef struct __CPU_Private_Data
 	ULONG	C;					///< Zero-based index of the consumer in the buffer. It indicates the first free byte to be read.
 	ULONG	Free;				///< Number of the free bytes in the buffer
 	PUCHAR	Buffer;				///< Pointer to the kernel buffer used to capture packets.
-	ULONG	Accepted;			///< Number of packet that current capture instance acepted, from its opening. A packet 
+	ULONG	Accepted;			///< Number of packet that current capture instance accepted, from its opening. A packet 
 								///< is accepted if it passes the filter and fits in the buffer. Accepted packets are the
 								///< ones that reach the application. 
 								///< This number is related to the particular CPU this structure is referring to.
