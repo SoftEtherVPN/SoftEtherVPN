@@ -1835,7 +1835,7 @@ ESCAPE:
 	return;
 }
 
-// Eable / disable the SecureNAT
+// Enable / disable the SecureNAT
 void EnableSecureNAT(HUB *h, bool enable)
 {
 	EnableSecureNATEx(h, enable, false);
