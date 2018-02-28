@@ -313,7 +313,7 @@ bool LinkPaPutPacket(SESSION *s, void *data, UINT size)
 			}
 			else
 			{
-				InsertReveicedBlockToQueue(server_connection, block, true);
+				InsertReceivedBlockToQueue(server_connection, block, true);
 			}
 		}
 	}

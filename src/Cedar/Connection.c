@@ -892,7 +892,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 					block = NewBlock(tmp, size, 0);
 
 					// Insert Block
-					InsertReveicedBlockToQueue(c, block, false);
+					InsertReceivedBlockToQueue(c, block, false);
 				}
 			}
 
@@ -909,7 +909,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 }
 
 // Add a block to the receive queue
-void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock)
+void InsertReceivedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock)
 {
 	SESSION *s;
 	// Validate arguments
@@ -1831,7 +1831,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 					else
 					{
 						// Add the data block to queue
-						InsertReveicedBlockToQueue(c, b, true);
+						InsertReceivedBlockToQueue(c, b, true);
 
 						if ((current_packet_index % 32) == 0)
 						{
@@ -1914,7 +1914,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 								else
 								{
 									// Add the data block to queue
-									InsertReveicedBlockToQueue(c, block, true);
+									InsertReceivedBlockToQueue(c, block, true);
 
 									if ((current_packet_index % 32) == 0)
 									{
@@ -1979,7 +1979,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 						else
 						{
 							// Add the data block to queue
-							InsertReveicedBlockToQueue(c, block, true);
+							InsertReceivedBlockToQueue(c, block, true);
 
 							if ((current_packet_index % 32) == 0)
 							{
@@ -2208,7 +2208,7 @@ DISCONNECT_THIS_TCP:
 							else
 							{
 								// Add the data block to queue
-								InsertReveicedBlockToQueue(c, block, true);
+								InsertReceivedBlockToQueue(c, block, true);
 
 								if ((current_packet_index % 32) == 0)
 								{
@@ -2477,7 +2477,7 @@ DISCONNECT_THIS_TCP:
 			else
 			{
 				// Add the data block to queue
-				InsertReveicedBlockToQueue(c, block, true);
+				InsertReceivedBlockToQueue(c, block, true);
 			}
 			num++;
 			if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
@@ -2558,7 +2558,7 @@ DISCONNECT_THIS_TCP:
 			}
 			else
 			{
-				InsertReveicedBlockToQueue(c, block, true);
+				InsertReceivedBlockToQueue(c, block, true);
 			}
 
 			num++;
@@ -2675,7 +2675,7 @@ DISCONNECT_THIS_TCP:
 						}
 						else
 						{
-							InsertReveicedBlockToQueue(c, block, true);
+							InsertReceivedBlockToQueue(c, block, true);
 						}
 						num++;
 						if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
