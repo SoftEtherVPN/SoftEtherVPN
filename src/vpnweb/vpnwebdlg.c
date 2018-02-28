@@ -556,7 +556,7 @@ DOWNLOAD_FAILED:
 			}
 			else
 			{
-				VwPrint(hWnd, msgUserCancal);
+				VwPrint(hWnd, msgUserCancel);
 			}
 		}
 	}

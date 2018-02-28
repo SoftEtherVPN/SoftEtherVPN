@@ -136,7 +136,7 @@ static wchar_t *msgProcessCreating =NULL;
 static wchar_t *msgProcessCreated = NULL;
 static wchar_t *msgWarning = NULL;
 static wchar_t *msgWarningTitle = NULL;
-static wchar_t *msgUserCancal = NULL;
+static wchar_t *msgUserCancel = NULL;
 static wchar_t *msgStartTextForVpnServer = NULL;
 static wchar_t *msgButtonForVpnServer = NULL;
 static wchar_t *msgProcessCreatedForVpnServer = NULL;
@@ -150,7 +150,7 @@ typedef enum MessageType {
 	_e_msgAppTitle,_e_msgNotSupported,_e_msgInfDownloag,_e_msgInfDownloadFailed,
 	_e_msgBadInfFile,_e_msgWriteFailed,_e_msgDownloading,_e_msgProcessFailed,
 	_e_msgProcessCreating,_e_msgProcessCreated,_e_msgWarning,_e_msgWarningTitle,
-	_e_msgUserCancal,_e_msgStartTextForVpnServer,_e_msgButtonForVpnServer,_e_msgProcessCreatedForVpnServer,
+	_e_msgUserCancel,_e_msgStartTextForVpnServer,_e_msgButtonForVpnServer,_e_msgProcessCreatedForVpnServer,
 	_e_msgNoParam, _e_msgStartTextForVpnClient, _e_msgButtonForVpnClient, _e_msgEnd} MessageType_t;
 
 	int currentPage=MESSAGE_OFFSET_EN;
@@ -193,7 +193,7 @@ int LoadTables(char *pTag){
 	msgProcessCreated=LoadMessageW(_e_msgProcessCreated);
 	msgWarning=LoadMessageW(_e_msgWarning);
 	msgWarningTitle=LoadMessageW(_e_msgWarningTitle);
-	msgUserCancal=LoadMessageW(_e_msgUserCancal);
+	msgUserCancel=LoadMessageW(_e_msgUserCancel);
 	msgStartTextForVpnServer=LoadMessageW(_e_msgStartTextForVpnServer);
 	msgButtonForVpnServer=LoadMessageW(_e_msgButtonForVpnServer);
 	msgProcessCreatedForVpnServer=LoadMessageW(_e_msgProcessCreatedForVpnServer);

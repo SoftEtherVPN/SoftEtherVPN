@@ -5152,7 +5152,7 @@ void CiNotifyMain(CLIENT *c, SOCK *s)
 		return;
 	}
 
-	// Register a Cencel
+	// Register a Cancel
 	cancel = NewCancel();
 	LockList(c->NotifyCancelList);
 	{
