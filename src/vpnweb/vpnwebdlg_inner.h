@@ -126,7 +126,7 @@ extern HINSTANCE hDllInstance;
 
 static wchar_t *msgAppTitle = NULL;
 static char *msgNotSupported = NULL;
-static wchar_t *msgInfDownloag = NULL;
+static wchar_t *msgInfDownload = NULL;
 static wchar_t *msgInfDownloadFailed = NULL;
 static wchar_t *msgBadInfFile = NULL;
 static wchar_t *msgWriteFailed = NULL;
@@ -147,7 +147,7 @@ static char *msgNoParam = NULL;
 static void **_messages;
 
 typedef enum MessageType {
-	_e_msgAppTitle,_e_msgNotSupported,_e_msgInfDownloag,_e_msgInfDownloadFailed,
+	_e_msgAppTitle,_e_msgNotSupported,_e_msgInfDownload,_e_msgInfDownloadFailed,
 	_e_msgBadInfFile,_e_msgWriteFailed,_e_msgDownloading,_e_msgProcessFailed,
 	_e_msgProcessCreating,_e_msgProcessCreated,_e_msgWarning,_e_msgWarningTitle,
 	_e_msgUserCancel,_e_msgStartTextForVpnServer,_e_msgButtonForVpnServer,_e_msgProcessCreatedForVpnServer,
@@ -183,7 +183,7 @@ int LoadTables(char *pTag){
 
 	msgAppTitle=LoadMessageW(_e_msgAppTitle);
 	msgNotSupported=LoadMessageA(_e_msgNotSupported);
-	msgInfDownloag=LoadMessageW(_e_msgInfDownloag);
+	msgInfDownload=LoadMessageW(_e_msgInfDownload);
 	msgInfDownloadFailed=LoadMessageW(_e_msgInfDownloadFailed);
 	msgBadInfFile=LoadMessageW(_e_msgBadInfFile);
 	msgWriteFailed=LoadMessageW(_e_msgWriteFailed);
