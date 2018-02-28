@@ -872,7 +872,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			char tmp[64];
 
 			DHCP_OPTION_LIST req;
-			IPC_DHCP_RELESAE_QUEUE *q;
+			IPC_DHCP_RELEASE_QUEUE *q;
 
 			// If the offered IP address is not used, place the address
 			// in release memo list to release at the end of this function
@@ -880,7 +880,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			req.Opcode = DHCP_RELEASE;
 			req.ServerAddress = d->ParsedOptionList->ServerAddress;
 
-			q = ZeroMalloc(sizeof(IPC_DHCP_RELESAE_QUEUE));
+			q = ZeroMalloc(sizeof(IPC_DHCP_RELEASE_QUEUE));
 			Copy(&q->Req, &req, sizeof(DHCP_OPTION_LIST));
 			q->TranId = tran_id;
 			Copy(q->MacAddress, ipc->MacAddress, 6);
@@ -994,7 +994,7 @@ LABEL_CLEANUP:
 
 		for (i = 0;i < LIST_NUM(release_list);i++)
 		{
-			IPC_DHCP_RELESAE_QUEUE *q = LIST_DATA(release_list, i);
+			IPC_DHCP_RELEASE_QUEUE *q = LIST_DATA(release_list, i);
 
 			Copy(ipc->MacAddress, q->MacAddress, 6);
 			FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, q->TranId, &q->Req, 0, 0, NULL));

@@ -140,7 +140,7 @@ struct IPC_ARP
 };
 
 // DHCP release queue
-struct IPC_DHCP_RELESAE_QUEUE
+struct IPC_DHCP_RELEASE_QUEUE
 {
 	DHCP_OPTION_LIST Req;
 	UINT TranId;

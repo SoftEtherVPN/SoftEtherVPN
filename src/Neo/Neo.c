@@ -434,7 +434,7 @@ void NeoShutdown()
 		return;
 	}
 
-	// Relaese the status information
+	// Release the status information
 	NeoFreeStatus(&ctx->Status);
 
 	NeoZero(ctx, sizeof(NEO_CTX));
