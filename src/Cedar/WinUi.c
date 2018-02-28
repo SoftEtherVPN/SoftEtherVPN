@@ -214,7 +214,7 @@ UINT UpdateConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 		LoadUpdateUiSetting(u, &s);
 
 		Check(hWnd, S_ENABLE, s.DisableCheck == false);
-		Check(hWnd, S_DISBLE, s.DisableCheck);
+		Check(hWnd, S_DISABLE, s.DisableCheck);
 
 		DlgFont(hWnd, S_TITLE, 10, true);
 		FormatText(hWnd, S_TITLE, u->SoftwareTitle);
@@ -246,7 +246,7 @@ UINT UpdateConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 LABEL_CLOSE:
 		LoadUpdateUiSetting(u, &s);
 
-		s.DisableCheck = IsChecked(hWnd, S_DISBLE);
+		s.DisableCheck = IsChecked(hWnd, S_DISABLE);
 
 		if (s.DisableCheck)
 		{

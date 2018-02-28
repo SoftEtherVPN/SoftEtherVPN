@@ -4059,7 +4059,7 @@ CAPTION					Configuration of Update Notification
 S_INFO					Checks the new versions of %s periodically and popup a notification when a new version will be released.\r\n\r\nHTTPS packets will be used between this computer and the SoftEther Update server located in Tsukuba-city, Ibaraki-prefecture, Japan in order to check updates. No personal information will be sent.
 S_TITLE					%s Update and Notify Settings
 S_ENABLE				&Enable Update Checks
-S_DISBLE				&Disable Update Checks
+S_DISABLE				&Disable Update Checks
 IDCANCEL				&Close
 
 

@@ -4075,7 +4075,7 @@ CAPTION					升级提示的配置
 S_INFO					当新版本将要发布时，请定期查询 %s 的新版本和弹出提示窗口。\r\n\r\nHTTPS 数据包将会用在本电脑和位于日本驻波的 SoftEther 升级服务器之间，用于查询有无升级信息。个人信息不会外泄。
 S_TITLE					%s 升级以及提示设置
 S_ENABLE				启用升级查询(&E)
-S_DISBLE				禁用升级查询(&D)
+S_DISABLE				禁用升级查询(&D)
 IDCANCEL				关闭(&C)
 
 

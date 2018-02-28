@@ -4075,7 +4075,7 @@ CAPTION					更新提醒設定
 S_INFO					當新版本將要發佈時，請定期查詢 %s 的新版本和彈出提示窗口。\r\n\r\nHTTPS 封包將會用在本電腦和位於日本筑波的 SoftEther 升級伺服器之間，用於查詢有無升級資訊。個人資訊不會外泄。
 S_TITLE					%s 升級以及提示設置
 S_ENABLE				啟用更新提醒(&E)
-S_DISBLE				停用更新提醒(&D)
+S_DISABLE				停用更新提醒(&D)
 IDCANCEL				關閉(&C)
 
 

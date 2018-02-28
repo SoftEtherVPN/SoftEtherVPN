@@ -936,7 +936,7 @@
 #define R_UNESTABLISHED                 1435
 #define R_USER                          1435
 #define R_CUSTOM                        1435
-#define S_DISBLE                        1435
+#define S_DISABLE                        1435
 #define R_PERMANENT                     1435
 #define R_FOR_SYSTEM                    1436
 #define IDC_NETADDRESS1                 1437
