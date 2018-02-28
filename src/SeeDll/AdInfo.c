@@ -181,7 +181,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 	else
 	{
 		
-		// Query the registry key with the interface's adresses
+		// Query the registry key with the interface's addresses
 		status = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("SYSTEM\\CurrentControlSet\\Services"),0,KEY_READ,&SystemKey);
 		if (status != ERROR_SUCCESS)
 			goto fail;
@@ -222,7 +222,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 		DHCPEnabled=0;
 	
 	
-	/* Retrieve the adrresses */
+	/* Retrieve the addresses */
 	if(DHCPEnabled){
 		
 		BufLen = sizeof String;
@@ -284,7 +284,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 			else break;
 		}		
 		
-		// The number of masks MUST be equal to the number of adresses
+		// The number of masks MUST be equal to the number of addresses
 		if(nmasks != naddrs){
 			RegCloseKey(TcpIpKey);
 			RegCloseKey(UnderTcpKey);
@@ -353,7 +353,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 			else break;
 		}		
 		
-		// The number of masks MUST be equal to the number of adresses
+		// The number of masks MUST be equal to the number of addresses
 		if(nmasks != naddrs){
 			RegCloseKey(TcpIpKey);
 			RegCloseKey(UnderTcpKey);
@@ -432,7 +432,7 @@ BOOLEAN PacketAddIP6Addresses(PADAPTER_INFO AdInfo)
 	ODS("PacketAddIP6Addresses, retrieved addresses\n");
 
 	//
-	// Scan the list of adddresses obtained from the IP helper API
+	// Scan the list of addresses obtained from the IP helper API
 	//
 	for(TmpAddr = AdBuffer; TmpAddr != NULL; TmpAddr = TmpAddr->Next)
 	{

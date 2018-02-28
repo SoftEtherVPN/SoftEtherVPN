@@ -893,7 +893,7 @@ struct RUDP_STACK
 	volatile UINT *NatTGlobalUdpPort;	// NAT-T global UDP port
 	UCHAR RandPortId;					// Random UDP port ID
 	bool NatT_EnableSourceIpValidation;	// Enable the source IP address validation mechanism
-	LIST *NatT_SourceIpList;			// Authenticated source IP adddress list
+	LIST *NatT_SourceIpList;			// Authenticated source IP address list
 
 	// For Client
 	bool TargetIpAndPortInited;			// The target IP address and the port number are initialized
