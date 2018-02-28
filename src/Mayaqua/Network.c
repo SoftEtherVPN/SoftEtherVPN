@@ -22144,7 +22144,7 @@ bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size)
 		return false;
 	}
 
-	// Check whether the Content-Lentgh exists?
+	// Check whether the Content-Length exists?
 	if (GetHttpValue(header, "Content-Length") == NULL)
 	{
 		char tmp[MAX_SIZE];

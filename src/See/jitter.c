@@ -45,7 +45,7 @@
 //
 // emit routine to update the jump table
 //
-void emit_lenght(binary_stream *stream, ULONG value, UINT len)
+void emit_length(binary_stream *stream, ULONG value, UINT len)
 {
 	(stream->refs)[stream->bpf_pc]+=len;
 	stream->cur_ip+=len;
@@ -115,7 +115,7 @@ BPF_filter_function BPFtoX86(struct bpf_insn *prog, UINT nins, INT *mem)
 
 	// the first pass will emit the lengths of the instructions 
 	// to create the reference table
-	emitm=emit_lenght;
+	emitm=emit_length;
 	
 	for(pass=0;;){
 
