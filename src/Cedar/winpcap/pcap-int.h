@@ -128,7 +128,7 @@ struct pcap_md {
 	\brief It keeps the number of packets that have been received by the application.
 	
 	Packets dropped by the kernel buffer are not counted in this variable. The variable is always 
-	equal to (TotAccepted - TotDrops), exept for the case of remote capture, in which we have also
+	equal to (TotAccepted - TotDrops), except for the case of remote capture, in which we have also
 	packets in fligh, i.e. that have been transmitted by the remote host, but that have not been 
 	received (yet) from the client. In this case, (TotAccepted - TotDrops - TotNetDrops) gives a
 	wrong result, since this number does not corresponds always to the number of packet received by 
