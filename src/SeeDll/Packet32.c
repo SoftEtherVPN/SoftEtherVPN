@@ -435,7 +435,7 @@ LONG PacketDumpRegistryKey(PCHAR KeyName, PCHAR FileName)
   \brief Returns the version of a dll or exe file 
   \param FileName Name of the file whose version has to be retrieved.
   \param VersionBuff Buffer that will contain the string with the file version.
-  \param VersionBuffLen Length of the buffer poited by VersionBuff.
+  \param VersionBuffLen Length of the buffer pointed by VersionBuff.
   \return If the function succeeds, the return value is TRUE.
 
   \note uses the GetFileVersionInfoSize() and GetFileVersionInfo() WIN32 API functions
