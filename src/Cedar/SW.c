@@ -1759,7 +1759,7 @@ UINT SwFinish(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard,
 	return 0;
 }
 
-// Error occuring screen
+// Error occurring screen
 UINT SwError(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, WIZARD_PAGE *wizard_page, void *param)
 {
 	SW *sw = (SW *)param;
