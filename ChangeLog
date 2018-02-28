@@ -22,7 +22,7 @@ Upgraded OpenSSL to 1.0.2l.
 Source code is now compatible with OpenSSL 1.1.x. Supports DHE-RSA-CHACHA 20-POLY 1305 and ECDHE-RSA-CHACHA 20-POLY 1305, which are new encryption methods of TLS 1.2. (In order to use this new function, you need to recompile yourself using OpenSSL 1.1.x.)
 TrafficServer / TrafficClient function (The traffic throughput measurement function) is now multithreaded and compatible with about 10 Gbps using NIC with the RSS feature.
 Changed the default algorithm for SSL from RC4-MD5 to AES128-SHA.
-Fixed a bug that occurr wrong checksum recalculation in special case of the TCP-MSS clamp processing.
+Fixed a bug that occur wrong checksum recalculation in special case of the TCP-MSS clamp processing.
 Fixed the calculation interval of update interval of DHCP client packet issued by kernel mode virtual NAT function of SecureNAT function.
 Driver upgrade and DLL name change with Crypto ID support of USB security token.
 Fixed a problem that CPU sleep processing was not performed when the wait time of the Select () function was INFINITE on Mac OS X.
