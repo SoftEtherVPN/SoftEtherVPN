@@ -3377,7 +3377,7 @@ UINT CcEnumAccount(REMOTE_CLIENT *r, RPC_CLIENT_ENUM_ACCOUNT *e)
 	return err;
 }
 
-// Unset the startup flag of the accout
+// Unset the startup flag of the account
 UINT CcRemoveStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a)
 {
 	PACK *ret, *p;
