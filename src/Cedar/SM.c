@@ -3470,7 +3470,7 @@ void SmSetupDlgOnOk(HWND hWnd, SM_SETUP *s)
 			s->s->IPsecMessageDisplayed = true;
 		}
 
-		// Confgure the VPN Azure if VPN Azure feature is available
+		// Configure the VPN Azure if VPN Azure feature is available
 		if (GetCapsBool(s->s->CapsList, "b_support_azure"))
 		{
 			SmAzure(hWnd, s->s, true);
