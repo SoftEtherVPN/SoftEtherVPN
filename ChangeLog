@@ -345,7 +345,7 @@ Improvement of the stability of UDP-based communication.
 Fixed a problem: SecureNAT's connectivity polling packet interval was too short.
 
 SoftEther VPN 1.00 Build 9035 RC2 Fix8 (March 26, 2013)
-Fixed a crash bug: While you are changeing the X.509 server certificate, if a new SSL-VPN connection is being made, the new connection attempt will cause the crash because lack of critical section locking. However this bug was very rare. We found it in the heavy stress test.
+Fixed a crash bug: While you are changing the X.509 server certificate, if a new SSL-VPN connection is being made, the new connection attempt will cause the crash because lack of critical section locking. However this bug was very rare. We found it in the heavy stress test.
 
 SoftEther VPN 1.00 Build 9033 RC2 Fix7 (March 22, 2013)
 Fixed a minor bug.
