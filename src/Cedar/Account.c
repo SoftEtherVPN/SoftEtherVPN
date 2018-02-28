@@ -1180,7 +1180,7 @@ void CleanupUser(USER *u)
 		ReleaseGroup(u->Group);
 	}
 
-	// Free authntication data
+	// Free authentication data
 	FreeAuthData(u->AuthType, u->AuthData);
 
 	if (u->Policy)
@@ -1194,7 +1194,7 @@ void CleanupUser(USER *u)
 	Free(u);
 }
 
-// Free authntication data
+// Free authentication data
 void FreeAuthData(UINT authtype, void *authdata)
 {
 	AUTHPASSWORD *pw = (AUTHPASSWORD *)authdata;
