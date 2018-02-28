@@ -2794,7 +2794,7 @@ void SiInitConfiguration(SERVER *s)
 		}
 	}
 
-	if (s->DisableDosProction)
+	if (s->DisableDosProtection)
 	{
 		DisableDosProtect();
 	}
@@ -5905,7 +5905,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		s->Cedar->DisableIPv6Listener = CfgGetBool(f, "DisableIPv6Listener");
 
 		// DoS
-		s->DisableDosProction = CfgGetBool(f, "DisableDosProction");
+		s->DisableDosProtection = CfgGetBool(f, "DisableDosProtection");
 
 		// Num Connections Per IP
 		SetMaxConnectionsPerIp(CfgGetInt(f, "MaxConnectionsPerIP"));
@@ -6329,7 +6329,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableIPv6Listener", s->Cedar->DisableIPv6Listener);
 
 		// DoS
-		CfgAddBool(f, "DisableDosProction", s->DisableDosProction);
+		CfgAddBool(f, "DisableDosProtection", s->DisableDosProtection);
 
 		// MaxConnectionsPerIP
 		CfgAddInt(f, "MaxConnectionsPerIP", GetMaxConnectionsPerIp());

@@ -277,7 +277,7 @@ struct SERVER
 	bool DontBackupConfig;				// Do not save a backup of the configuration automatically
 	bool BackupConfigOnlyWhenModified;	// Save a backup of the configuration only if there is a modification
 	UINT ConfigRevision;				// Configuration file revision
-	bool DisableDosProction;			// Disable the DoS attack protection
+	bool DisableDosProtection;			// Disable the DoS attack protection
 	UCHAR MyRandomKey[SHA1_SIZE];		// Their own random key
 	bool FarmControllerInited;			// Initialization of farm controller has been completed
 	bool DisableDeadLockCheck;			// Disable the deadlock check
