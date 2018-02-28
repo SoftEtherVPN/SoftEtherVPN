@@ -1819,7 +1819,7 @@ BOOLEAN PacketSetBuff(LPADAPTER AdapterObject,int dim)
   \return This function returns TRUE if the filter is set successfully, FALSE if an error occurs 
    or if the filter program is not accepted after a safeness check by the driver.  The driver performs 
    the check in order to avoid system crashes due to buggy or malicious filters, and it rejects non
-   conformat filters.
+   conformant filters.
 
   This function associates a new BPF filter to the adapter AdapterObject. The filter, pointed by fp, is a 
   set of bpf_insn instructions.
