@@ -82,7 +82,7 @@ VPN over ICMP / DNS functions.
 1.5. VPN Azure Cloud Service
 If your SoftEther VPN Server is placed behind the NAT or firwall, and by some
 reason you cannot use NAT Traversal function, Dynamic DNS function or VPN over
-ICMP/DNS function, you can use VPN Azure Clouse Service. SoftEther Corporation
+ICMP/DNS function, you can use VPN Azure Cloud Service. SoftEther Corporation
 operates VPN Azure Cloud on Internet. After the VPN Server makes a connection
 to the VPN Azure Cloud, the hostname "abc.vpnazure.net" ( "abc" is a unique
 hostname) can be specified to connect to the VPN Server via the VPN Azure
