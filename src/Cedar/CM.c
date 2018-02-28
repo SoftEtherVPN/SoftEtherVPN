@@ -10386,7 +10386,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 	UINT num_connecting = 0, num_connected = 0;
 	wchar_t tmp[MAX_SIZE];
 	wchar_t new_inserted_item[MAX_ACCOUNT_NAME_LEN + 1];
-	bool select_new_insteted_item = true;
+	bool select_new_inserted_item = true;
 	// Validate arguments
 	if (hWnd == NULL)
 	{
@@ -10435,7 +10435,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 
 	if (LvNum(hWnd, L_ACCOUNT) == 0)
 	{
-		select_new_insteted_item = false;
+		select_new_inserted_item = false;
 	}
 
 	// Enumerate the account list
@@ -10573,7 +10573,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 
 		CiFreeClientEnumAccount(&a);
 
-		if (select_new_insteted_item)
+		if (select_new_inserted_item)
 		{
 			if (UniStrLen(new_inserted_item) >= 1)
 			{
