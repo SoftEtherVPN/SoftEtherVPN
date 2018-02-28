@@ -250,7 +250,7 @@ PCHAR WChar2SChar(PWCHAR string)
 	PCHAR TmpStr;
 	TmpStr = (CHAR*) GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT, (wcslen(string)+2));
 
-	// Conver to ASCII
+	// Convert to ASCII
 	WideCharToMultiByte(
 		CP_ACP,
 		0,

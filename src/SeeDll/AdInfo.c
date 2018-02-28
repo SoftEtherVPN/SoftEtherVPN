@@ -966,7 +966,7 @@ BOOLEAN PacketGetAdapters()
 			continue;
 		}
 
-		// Conver to ASCII
+		// Convert to ASCII
 		WideCharToMultiByte(
 			CP_ACP,
 			0,
