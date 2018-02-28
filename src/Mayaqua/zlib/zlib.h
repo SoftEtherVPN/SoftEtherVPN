@@ -270,7 +270,7 @@ ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
   output buffer because there might be more output pending.
 
     Normally the parameter flush is set to Z_NO_FLUSH, which allows deflate to
-  decide how much data to accumualte before producing output, in order to
+  decide how much data to accumulate before producing output, in order to
   maximize compression.
 
     If the parameter flush is set to Z_SYNC_FLUSH, all pending output is
