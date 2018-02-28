@@ -4480,7 +4480,7 @@ UINT CmMainWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *p
 // Specify the notification service to the foreground process
 void CmSetForegroundProcessToCnService()
 {
-	if (cm->MenuPopuping)
+	if (cm->PopupMenuOpen)
 	{
 		return;
 	}
@@ -4657,7 +4657,7 @@ void CmShowTrayMenu(HWND hWnd)
 		return;
 	}
 
-	cm->MenuPopuping = true;
+	cm->PopupMenuOpen = true;
 
 	locked = cm->CmSetting.LockMode;
 	easy = cm->CmSetting.EasyMode;
@@ -4786,7 +4786,7 @@ void CmShowTrayMenu(HWND hWnd)
 
 	DestroyMenu(h);
 
-	cm->MenuPopuping = false;
+	cm->PopupMenuOpen = false;
 }
 
 // Hide or show the main window

@@ -208,7 +208,7 @@ typedef struct CM
 	bool CheckedAndShowedAdminPackMessage;
 	INSTANCE *StartupMutex;
 	bool BadProcessChecked;
-	bool MenuPopuping;
+	bool PopupMenuOpen;
 	WINUI_UPDATE *Update;
 } CM;
 
