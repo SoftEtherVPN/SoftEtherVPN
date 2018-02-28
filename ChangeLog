@@ -108,7 +108,7 @@ SoftEther VPN 4.19 Build 9578 Beta (September 15, 2015)
 Solved the problem that kernel mode drivers do not pass the general tests of "Driver Verifier Manager" in Windows 10.
 
 SoftEther VPN 4.18 Build 9570 RTM (July 26, 2015)
-Compabible with Windows 10.
+Compatible with Windows 10.
 Solved the problem that the customized language setting on the "lang.config" file.
 config sometimes corrupts in the rare condition.
 
