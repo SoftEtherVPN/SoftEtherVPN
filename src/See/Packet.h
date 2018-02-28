@@ -812,7 +812,7 @@ NPF_ReadRegistry(
     );
 
 /*!
-  \brief Function used by NPF_ReadRegistry() to quesry the registry keys associated woth NPF if the driver 
+  \brief Function used by NPF_ReadRegistry() to query the registry keys associated woth NPF if the driver 
   is manually installed via the control panel.
 
   Normally not used in recent versions of NPF.
