@@ -651,7 +651,7 @@ namespace BuildUtil.Properties {
         }
         
         /// <summary>
-        ///   [j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the &quot;OK&quot; button after you complete filling all nessesary fields. To cancel inputting, click the &quot;Cancel&quot; button.[/] に類似しているローカライズされた文字列を検索します。
+        ///   [j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the &quot;OK&quot; button after you complete filling all necessary fields. To cancel inputting, click the &quot;Cancel&quot; button.[/] に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CDF_TEXT_OK {
             get {

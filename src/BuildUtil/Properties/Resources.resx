@@ -283,7 +283,7 @@
     <value>[j]エラーが発生しました。内容を見直してください。修正する場合は [修正する] ボタンをクリックしてください。[e]An error has been occurred. Please confirm the fields. To modify it, click the "Modify" button.[/]</value>
   </data>
   <data name="CDF_TEXT_OK" xml:space="preserve">
-    <value>[j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the "OK" button after you complete filling all nessesary fields. To cancel inputting, click the "Cancel" button.[/]</value>
+    <value>[j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the "OK" button after you complete filling all necessary fields. To cancel inputting, click the "Cancel" button.[/]</value>
   </data>
   <data name="CDF_TIME_EMPTY" xml:space="preserve">
     <value>[j]時刻が入力されていません。[e]Time is empty.[/]</value>
