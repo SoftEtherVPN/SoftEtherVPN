@@ -165,7 +165,7 @@
 
   Command used to send a buffer of packets in a single system call. Every packet in the buffer is preceded by
   a sf_pkthdr structure. The timestamps of the packets are used to synchronize the write, i.e. the packets 
-  are sent to the network respecting the intervals specified in the sf_pkthdr structure assiciated with each
+  are sent to the network respecting the intervals specified in the sf_pkthdr structure associated with each
   packet. NPF_BufferedWrite() function is invoked to send the packets. 
 */
 #define  BIOCSENDPACKETSSYNC 9033
