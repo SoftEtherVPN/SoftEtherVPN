@@ -1212,7 +1212,7 @@ CM_EDIT_HUB_2 %S의 속성
 
 CM_EDIT_HUB_STANDALONE 현재 서버는 독립형 모드에서 작동하고 있습니다. 이 가상 HUB는 독립형 HUB 역할을합니다.
 CM_EDIT_HUB_TYPE_FIXED 현재 서버가 클러스터 모드로 실행하고 있습니다. 이 가상 HUB의 종류는 다음과 같습니다 동적 변경은 할 수 없습니다.
-CM_EDIT_HUB_CREATER 새로운 가상 HUB %S를 만들었습니다.
+CM_EDIT_HUB_CREATED 새로운 가상 HUB %S를 만들었습니다.
 CM_OFFLINE_MSG %s를 오프라인 하시겠습니까? \r\n\r\n 가상 HUB를 오프라인으로하면 현재 가상 HUB에 연결되어있는 모든 세션이 끊어지고 새로운 세션이 연결할 수 없습니다.
 CM_DELETE_HUB_MSG %S를 삭제 하시겠습니까? \r\n\r\n 가상 HUB를 제거하면 현재 가상 HUB에 연결되어있는 세션이 끊어지고 새로운 세션이 가상 HUB에 연결할 수 없습니다. \r\n 또한 가상 HUB의 모든 설정 사용자 개체, 그룹 개체, 인증서 및 계단식가 삭제됩니다. \r\n\r\n 가상 HUB를 삭제하면 되돌릴 수 없습니다. \r\n 삭제 하시겠습니까?
 CM_HUB_DELETED_MSG 가상 HUB %S를 제거했습니다.

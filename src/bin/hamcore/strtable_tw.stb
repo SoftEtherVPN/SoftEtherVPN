@@ -1220,7 +1220,7 @@ CM_EDIT_HUB_2			%S 的屬性
 
 CM_EDIT_HUB_STANDALONE	當前，伺服器正以獨立模式運行。而該虛擬 HUB 作為一個獨立的 HUB 運行。
 CM_EDIT_HUB_TYPE_FIXED	當前，伺服器正以群集模式運行。如果虛擬 HUB 處於這種模式，動態變化將無法進行。
-CM_EDIT_HUB_CREATER		一個新的虛擬 HUB "%S" 已經建立
+CM_EDIT_HUB_CREATED		一個新的虛擬 HUB "%S" 已經建立
 CM_OFFLINE_MSG			你想切換 "%s" 到離線狀態?\r\n\r\n如果您切換虛擬 HUB 至離線狀態，當前連接到虛擬 HUB 上的所有會話將無法連接。
 CM_DELETE_HUB_MSG		你想刪除"%S"嗎?\r\n\r\n如果你刪除虛擬 HUB，當前連接到虛擬 HUB 的所有會話將被斷開，新的會話將無法連接。\r\n這還將刪除所有 HUB 設置，使用者物件，組物件，證書和級聯連接。\r\n\r\n一旦你將虛擬 HUB 刪除，將無法恢復。\r\n你確定要刪除嗎?
 CM_HUB_DELETED_MSG		虛擬 HUB "%S" 被刪除。

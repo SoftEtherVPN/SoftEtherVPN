@@ -1218,7 +1218,7 @@ CM_EDIT_HUB_2				%S 的属性
 
 CM_EDIT_HUB_STANDALONE		当前，服务器正以独立模式运行。而该虚拟 HUB 作为一个独立的 HUB 运行。
 CM_EDIT_HUB_TYPE_FIXED		当前，服务器正以群集模式运行。如果虚拟 HUB 处于这种模式，动态变化将无法进行。
-CM_EDIT_HUB_CREATER			一个新的虚拟 HUB "%S" 已经建立
+CM_EDIT_HUB_CREATED			一个新的虚拟 HUB "%S" 已经建立
 CM_OFFLINE_MSG				你想切换 "%s" 到离线状态?\r\n\r\n如果您切换虚拟 HUB 至离线状态，当前连接到虚拟 HUB 上的所有会话将无法连接。
 CM_DELETE_HUB_MSG			你想删除"%S"吗?\r\n\r\n如果你删除虚拟 HUB，当前连接到虚拟 HUB 的所有会话将被断开，新的会话将无法连接。\r\n这还将删除所有 HUB 设置，用户对象，组对象，证书和级联连接。\r\n\r\n一旦你将虚拟 HUB 删除，将无法恢复。\r\n你确定要删除吗?
 CM_HUB_DELETED_MSG			虚拟 HUB "%S" 被删除。

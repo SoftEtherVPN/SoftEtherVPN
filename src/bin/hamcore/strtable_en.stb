@@ -1207,7 +1207,7 @@ CM_EDIT_HUB_2			Properties of %S
 
 CM_EDIT_HUB_STANDALONE	Currently the server is operating in Standalone Mode. This Virtual Hub is operating as a Standalone Hub.
 CM_EDIT_HUB_TYPE_FIXED	Currently the server is operating in Cluster Mode. This Virtual Hub is of the following type, which means it is not possible to make dynamic changes.
-CM_EDIT_HUB_CREATER		A new Virtual Hub '%S' has been created.
+CM_EDIT_HUB_CREATED		A new Virtual Hub '%S' has been created.
 CM_OFFLINE_MSG			Do you want to switch %s to offline?\r\n\r\nIf you switch the Virtual Hub to offline all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect.
 CM_DELETE_HUB_MSG		Do you want to delete %S?\r\n\r\nIf you delete the Virtual Hub, all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect. \r\nThis will also delete all the Hub settings, user objects, group objects, certificates and Cascade Connections. \r\n\r\nOnce you delete the Virtual Hub, it cannot be recovered. \r\nAre you sure you want to delete it?
 CM_HUB_DELETED_MSG		Virtual Hub %S has been deleted.

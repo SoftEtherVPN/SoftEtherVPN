@@ -17571,7 +17571,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	{
 		if (CALL(hWnd, ScCreateHub(s->p->Rpc, &t)))
 		{
-			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATER"), hubname);
+			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATED"), hubname);
 			EndDialog(hWnd, true);
 		}
 	}
