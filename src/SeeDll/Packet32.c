@@ -1759,7 +1759,7 @@ BOOLEAN PacketSetReadTimeout(LPADAPTER AdapterObject,int timeout)
 		else
 			if(timeout == 1)
 			{
-				// tell the DAG card to wait forvever
+				// tell the DAG card to wait forever
 				AdapterObject->DagReadTimeout.tv_sec = -1;
 				AdapterObject->DagReadTimeout.tv_usec = -1;
 			}
