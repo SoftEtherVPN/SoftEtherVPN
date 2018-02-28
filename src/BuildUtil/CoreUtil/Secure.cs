@@ -872,7 +872,7 @@ namespace CoreUtil
 			RevocationCheckNone = 16,
 			RevocationCheckEndCert = 32,
 			RevocationCheckChain = 64,
-			RecovationCheckChainExcludeRoot = 128,
+			RevocationCheckChainExcludeRoot = 128,
 			Safer = 256,
 			HashOnly = 512,
 			UseDefaultOSVerCheck = 1024,
