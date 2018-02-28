@@ -168,7 +168,7 @@ bool SuPutPacket(SU_ADAPTER *a, void *buf, UINT size);
 SU_ADAPTER_LIST *SuAdapterInfoToAdapterList(SL_ADAPTER_INFO *info);
 LIST *SuGetAdapterList(SU *u);
 void SuFreeAdapterList(LIST *o);
-int SuCmpAdaterList(void *p1, void *p2);
+int SuCmpAdapterList(void *p1, void *p2);
 
 bool SuInstallDriver(bool force);
 bool SuInstallDriverInner(bool force);
