@@ -121,7 +121,7 @@ struct CHECK_CERT_THREAD_PROC
 	X *ServerX;
 	CHECK_CERT_PROC *CheckCertProc;
 	bool UserSelected;
-	bool Exipred;
+	bool Expired;
 	bool Ok;
 };
 

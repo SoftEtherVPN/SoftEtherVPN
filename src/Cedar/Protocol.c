@@ -4618,7 +4618,7 @@ void ClientCheckServerCertThread(THREAD *thread, void *param)
 	NoticeThreadInit(thread);
 
 	// Query for the selection to the user
-	p->Ok = p->CheckCertProc(p->Connection->Session, p->Connection, p->ServerX, &p->Exipred);
+	p->Ok = p->CheckCertProc(p->Connection->Session, p->Connection, p->ServerX, &p->Expired);
 	p->UserSelected = true;
 }
 
@@ -4764,7 +4764,7 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
 
 	if (expired != NULL)
 	{
-		*expired = p->Exipred;
+		*expired = p->Expired;
 	}
 
 	ret = p->Ok;
