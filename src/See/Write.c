@@ -217,7 +217,7 @@ NPF_BufferedWrite(
 	// Start from the first packet
 	winpcap_hdr = (struct sf_pkthdr*)UserBuff;
 	
-	// Chech the consistency of the user buffer
+	// Check the consistency of the user buffer
 	if( (PCHAR)winpcap_hdr + winpcap_hdr->caplen + sizeof(struct sf_pkthdr) > EndOfUserBuff )
 	{
 		IF_LOUD(DbgPrint("Buffered Write: bogus packet buffer\n");)

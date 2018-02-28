@@ -13402,7 +13402,7 @@ UINT AdminAccept(CONNECTION *c, PACK *p)
 		StrCpy(hubname, sizeof(hubname), "");
 	}
 
-	// Cehck source IP address
+	// Check source IP address
 	if (CheckAdminSourceAddress(sock, hubname) == false)
 	{
 		SLog(c->Cedar, "LA_IP_DENIED", c->Name);
