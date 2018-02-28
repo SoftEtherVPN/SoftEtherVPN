@@ -3982,7 +3982,7 @@ S_INFO8					SoftEther VPN is a work of the research and development project of J
 
 PREFIX					D_SW_ERROR
 CAPTION					D_SW_ERROR
-S_INFO					An error occureed and the setup of %s is aborted.\r\n\r\nRestart the Setup Wizard if you want to retry.
+S_INFO					An error occurred and the setup of %s is aborted.\r\n\r\nRestart the Setup Wizard if you want to retry.
 
 
 PREFIX					D_SW_FINISH
