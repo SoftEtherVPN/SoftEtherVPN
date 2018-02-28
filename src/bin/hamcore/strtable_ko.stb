@@ -5381,7 +5381,7 @@ CMD_CascadePolicySet_VALUE 정책의 새 값을 지정합니다. 그 정책이 �
 CMD_CascadePolicySet_PROMPT_POLNAME 값을 변경하는 정책의 이름:
 CMD_CascadePolicySet_PROMPT_POLVALUE 새롭게 설정 값:
 CMD_CascadePolicySet_Invalid_Name 지정된 정책 이름 "%S"는 부정합니다. \nPolicyList 명령으로 설정할 수있는 정책 이름 목록을 확인하십시오.
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade 지정된 정책 이름 "%S"는 계단식의 보안 정책 설정을 사용할 수 없습니다.
+CMD_CascadePolicySet_Invalid_Name_For_Cascade 지정된 정책 이름 "%S"는 계단식의 보안 정책 설정을 사용할 수 없습니다.
 CMD_CascadePolicySet_Invalid_Range 정책 "%S"%s의 범위에서 지정하십시오.
 
 

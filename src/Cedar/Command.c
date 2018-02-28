@@ -14186,7 +14186,7 @@ bool EditPolicy(CONSOLE *c, POLICY *pol, char *name, char *value, bool cascade_m
 
 	if (cascade_mode && (PolicyIsSupportedForCascade(id) == false))
 	{
-		UniFormat(tmp, sizeof(tmp), _UU("CMD_CascadePolicySet_Invalid_Name_For_Cadcade"), name);
+		UniFormat(tmp, sizeof(tmp), _UU("CMD_CascadePolicySet_Invalid_Name_For_Cascade"), name);
 		c->Write(c, tmp);
 		FreePack(p);
 		return false;

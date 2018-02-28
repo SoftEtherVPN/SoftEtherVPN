@@ -5385,7 +5385,7 @@ CMD_CascadePolicySet_VALUE	ポリシーの新しい値を指定します。そ�
 CMD_CascadePolicySet_PROMPT_POLNAME	値を変更するポリシーの名前: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	新しく設定する値: 
 CMD_CascadePolicySet_Invalid_Name	指定されたポリシー名 "%S" は不正です。\nPolicyList コマンドで設定できるポリシー名の一覧を確認してください。
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
 CMD_CascadePolicySet_Invalid_Range	ポリシー "%S" は %s の範囲で指定してください。
 
 

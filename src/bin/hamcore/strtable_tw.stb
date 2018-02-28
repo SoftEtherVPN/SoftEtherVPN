@@ -5401,7 +5401,7 @@ CMD_CascadePolicySet_VALUE	設定協定的新值，如果協議是數值，請�
 CMD_CascadePolicySet_PROMPT_POLNAME	更改值得協定的名稱: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	設置新值: 
 CMD_CascadePolicySet_Invalid_Name	指定的協定名稱 "%S" 是無效的。\n請運行 PolicyList 命令，您可以獲取設置協定的清單。
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	指定協議 "%S" 在設置級聯的安全協議時不可用。
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	指定協議 "%S" 在設置級聯的安全協議時不可用。
 CMD_CascadePolicySet_Invalid_Range	協議 "%S" 請在 %s 範圍內選定。
 
 
