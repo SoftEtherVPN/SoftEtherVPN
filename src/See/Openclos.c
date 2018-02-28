@@ -129,7 +129,7 @@ NTSTATUS NPF_Open(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
     Open->DeviceExtension=DeviceExtension;
 	
 	
-    //  Save the Irp here for the completeion routine to retrieve
+    //  Save the Irp here for the completion routine to retrieve
     Open->OpenCloseIrp=Irp;
 	
     //  Allocate a packet pool for our xmit and receive packets
