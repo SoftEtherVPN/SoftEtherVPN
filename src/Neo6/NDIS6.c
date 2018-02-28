@@ -310,7 +310,7 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	}
 
 	// Read the information from the registry
-	if (NeoLoadRegistory() == FALSE)
+	if (NeoLoadRegistry() == FALSE)
 	{
 		// Failure
 		ctx->Initing = FALSE;
@@ -749,7 +749,7 @@ void NeoFreeControlDevice()
 
 
 // Read the information from the registry
-BOOL NeoLoadRegistory()
+BOOL NeoLoadRegistry()
 {
 	void *buf;
 	NDIS_STATUS ret;

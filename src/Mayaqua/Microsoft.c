@@ -7346,7 +7346,7 @@ bool MsIsRemoteDesktopEnabled()
 }
 
 // Examine whether the remote desktop becomes available by registry operation
-bool MsIsRemoteDesktopCanEnableByRegistory()
+bool MsIsRemoteDesktopCanEnableByRegistry()
 {
 	OS_INFO *info = GetOsInfo();
 	if (MsIsRemoteDesktopAvailable() == false)

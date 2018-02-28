@@ -268,7 +268,7 @@ NDIS_STATUS NeoNdisInit(NDIS_STATUS *OpenErrorStatus,
 	}
 
 	// Read the information from the registry
-	if (NeoLoadRegistory() == FALSE)
+	if (NeoLoadRegistry() == FALSE)
 	{
 		// Failure
 		ctx->Initing = FALSE;
@@ -688,7 +688,7 @@ void NeoFreeControlDevice()
 
 
 // Read the information from the registry
-BOOL NeoLoadRegistory()
+BOOL NeoLoadRegistry()
 {
 	void *buf;
 	NDIS_STATUS ret;
