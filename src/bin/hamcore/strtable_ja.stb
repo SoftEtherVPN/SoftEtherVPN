@@ -1367,7 +1367,7 @@ SM_EDIT_USER_POL_DLG	ユーザー %S のセキュリティポリシー
 SM_POLICY_DEF_CAPTION	セキュリティポリシー
 SM_LIMIT_STR			%u ～ %u の範囲の整数値を指定してください。
 SM_POLICY_INIT_TITLE	左のリストからポリシー項目を選択してください。
-SM_USER_CREEATE_OK		ユーザー %S を作成しました。
+SM_USER_CREATE_OK		ユーザー %S を作成しました。
 SM_USERINFO_CAPTION		ユーザー "%S" の情報
 SM_USERINFO_NAME		ユーザー名
 SM_USERINFO_GROUP		グループ名
@@ -7077,7 +7077,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT			簡易インストーラに内蔵されてい
 SW_PERFORM_MSG_DELETE_SETUP_INFO			インストール情報およびログを削除中...
 SW_PERFORM_MSG_WRITE_LOG					セットアップログを書き出しています...
 SW_PERFORM_MSG_COPY_ERROR					ファイル "%s" へのコピーに失敗しました。
-SW_PERFORM_MSG_CRAETE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
+SW_PERFORM_MSG_CREATE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_WRITE_LOG_ERROR				セットアップログファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_STOP_SVC_ERROR				サービス 「%s」 (内部名: "%S") の停止に失敗しました。
 SW_PERFORM_MSG_START_SVC_ERROR				サービス 「%s」 (内部名: "%S") の開始に失敗しました。

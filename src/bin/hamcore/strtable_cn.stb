@@ -1374,7 +1374,7 @@ SM_EDIT_USER_POL_DLG		用户 %S 的安全策略
 SM_POLICY_DEF_CAPTION		安全策略
 SM_LIMIT_STR				指定一个在 %u 与 %u 之间的整数。
 SM_POLICY_INIT_TITLE		从左边的列表中选择一个策略项目。
-SM_USER_CREEATE_OK			用户 %S 已创建。
+SM_USER_CREATE_OK			用户 %S 已创建。
 SM_USERINFO_CAPTION			用户 "%S" 的信息
 SM_USERINFO_NAME			用户名
 SM_USERINFO_GROUP			组名
@@ -7081,7 +7081,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT		在简单安装工具中的导入嵌入的 VPN
 SW_PERFORM_MSG_DELETE_SETUP_INFO		删除安装信息和日志...
 SW_PERFORM_MSG_WRITE_LOG				写入一个设置日志...
 SW_PERFORM_MSG_COPY_ERROR				复制文件 "%s" 失败。
-SW_PERFORM_MSG_CRAETE_LINK_ERROR		创建快捷方式文件 "%s" 失败。\r\n\r\n您要重试吗？
+SW_PERFORM_MSG_CREATE_LINK_ERROR		创建快捷方式文件 "%s" 失败。\r\n\r\n您要重试吗？
 SW_PERFORM_MSG_WRITE_LOG_ERROR			安装日志文件 "%s" 创建中。\r\n\r\n您要重试吗？
 SW_PERFORM_MSG_STOP_SVC_ERROR			关闭 "%s" 服务(内部名: "%S")失败。
 SW_PERFORM_MSG_START_SVC_ERROR			开启 "%s" 服务(内部名: "%S")失败。

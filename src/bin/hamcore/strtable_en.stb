@@ -1363,7 +1363,7 @@ SM_EDIT_USER_POL_DLG	Security Policy of User %S
 SM_POLICY_DEF_CAPTION	Security Policy
 SM_LIMIT_STR			Specify an integer that is within the range %u to %u.
 SM_POLICY_INIT_TITLE	Select a policy item from the list on the left.
-SM_USER_CREEATE_OK		User %S has been created.
+SM_USER_CREATE_OK		User %S has been created.
 SM_USERINFO_CAPTION		User "%S" Information
 SM_USERINFO_NAME		User Name
 SM_USERINFO_GROUP		Group Name
@@ -7076,7 +7076,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT			Importing the Built-in VPN Connection Setting
 SW_PERFORM_MSG_DELETE_SETUP_INFO			Deleting the install information and logs...
 SW_PERFORM_MSG_WRITE_LOG					Writing a setup log...
 SW_PERFORM_MSG_COPY_ERROR					Copying to the file "%s" failed.
-SW_PERFORM_MSG_CRAETE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
+SW_PERFORM_MSG_CREATE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
 SW_PERFORM_MSG_WRITE_LOG_ERROR				Creating the setup log file "%s".\r\n\r\nDo you want to retry?
 SW_PERFORM_MSG_STOP_SVC_ERROR				Stopping the "%s" service (internal name: "%S") failed.
 SW_PERFORM_MSG_START_SVC_ERROR				Starting the "%s" service (internal name: "%S") failed.

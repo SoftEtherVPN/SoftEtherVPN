@@ -1368,7 +1368,7 @@ SM_EDIT_USER_POL_DLG 사용자 %S의 보안 정책
 SM_POLICY_DEF_CAPTION 보안 정책
 SM_LIMIT_STR %u~%u의 범위의 정수 값을 지정하십시오.
 SM_POLICY_INIT_TITLE 왼쪽 목록에서 정책 항목을 선택하십시오.
-SM_USER_CREEATE_OK 사용자 %S를 만들었습니다.
+SM_USER_CREATE_OK 사용자 %S를 만들었습니다.
 SM_USERINFO_CAPTION 사용자 "%S"의 정보
 SM_USERINFO_NAME 사용자 이름
 SM_USERINFO_GROUP 그룹 이름
@@ -7070,7 +7070,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT 간이 설치 프로그램에 내장되어있�
 SW_PERFORM_MSG_DELETE_SETUP_INFO 설치 정보 및 로그 삭제 중...
 SW_PERFORM_MSG_WRITE_LOG 설치 로그를 내보낼 수 있습니다...
 SW_PERFORM_MSG_COPY_ERROR 파일 "%s"에 복사에 실패했습니다.
-SW_PERFORM_MSG_CRAETE_LINK_ERROR 바로 가기 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
+SW_PERFORM_MSG_CREATE_LINK_ERROR 바로 가기 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
 SW_PERFORM_MSG_WRITE_LOG_ERROR 설치 로그 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
 SW_PERFORM_MSG_STOP_SVC_ERROR 서비스 '%s'(내부 이름:"%S") 중지에 실패했습니다.
 SW_PERFORM_MSG_START_SVC_ERROR 서비스 '%s'(내부 이름:"%S")의 시작에 실패했습니다.
