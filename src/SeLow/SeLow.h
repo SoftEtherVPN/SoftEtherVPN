@@ -260,7 +260,7 @@ typedef struct SL_FILE
 	SL_PACKET *RecvPacketTail;			// Tail of the received packet
 	UINT NumRecvPackets;				// Number of items of the received packet queue
 	NDIS_HANDLE NetBufferListPool;		// NET_BUFFER_LIST Pool
-	volatile UINT NumSendingPacketets;	// Number of packets being transmitted
+	volatile UINT NumSendingPackets;	// Number of packets being transmitted
 	bool SetEventFlag;					// Flag to set an event
 	bool FinalWakeUp;
 } SL_FILE;
