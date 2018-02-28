@@ -274,7 +274,7 @@ UINT DoNothing();
 LIST *NewThreadList();
 void AddThreadToThreadList(LIST *o, THREAD *t);
 void DelThreadFromThreadList(LIST *o, THREAD *t);
-void MainteThreadList(LIST *o);
+void MaintainThreadList(LIST *o);
 void FreeThreadList(LIST *o);
 void StopThreadList(LIST *o);
 void WaitAllThreadsWillBeStopped(LIST *o);

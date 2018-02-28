@@ -5757,7 +5757,7 @@ void ProcessIKEInterrupts(IKE_SERVER *ike)
 	while (ike->StateHasChanged);
 
 	// Maintenance of the thread list
-	MainteThreadList(ike->ThreadList);
+	MaintainThreadList(ike->ThreadList);
 	/*Debug("ike->ThreadList: %u\n", LIST_NUM(ike->ThreadList));
 	{
 		UINT i;
