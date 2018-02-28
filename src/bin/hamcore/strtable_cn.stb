@@ -2089,8 +2089,8 @@ LC_SET_PASSWORD				连接到客户端服务的密码设置已变更。
 LC_TAP_NOT_FOUND			无法找到 tun/tap 的 Mac OS X 驱动。请安装 tun/tap 驱动。
 
 #(删除日志)
-LE_START					正在监控目录 "%S"。如果可用磁盘空间变得小于 %S，此目录和其子目录下的日志文件和配置文件的备份文件将按照从旧到新的顺序被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeletCheckDiskFreeSpaceMin”项目中修改。
-LE_DELETE					可用磁盘空间已小于 %S，因此旧文件 "%S" 被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeletCheckDiskFreeSpaceMin”项目中修改。
+LE_START					正在监控目录 "%S"。如果可用磁盘空间变得小于 %S，此目录和其子目录下的日志文件和配置文件的备份文件将按照从旧到新的顺序被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeleteCheckDiskFreeSpaceMin”项目中修改。
+LE_DELETE					可用磁盘空间已小于 %S，因此旧文件 "%S" 被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeleteCheckDiskFreeSpaceMin”项目中修改。
 LE_NOT_ENOUGH_FREE			<<警告>> 如果可用磁盘空间小于 %S，将不能自动删除日志文件和配置文件的旧备份文件。我们建议您即刻从次计算机上手动删除不必要的文件来恢复可用磁盘空间。当可用磁盘空间过小时，计算机运行将被变得不稳定。
 
 # (三层交换机日志)

@@ -2090,8 +2090,8 @@ LC_SET_PASSWORD			連接到用戶端服務的密碼設置已變更。
 LC_TAP_NOT_FOUND		無法找到 tun/tap 的 Mac OS X 驅動。請安裝 tun/tap 驅動。
 
 #(刪除日誌)
-LE_START				正在監控目錄 "%S"。如果可用磁碟空間變得小於 %S，此目錄和其子目錄下的日誌檔和設定檔的備份檔案將按照從舊到新的順序被自動刪除。決定何時開始刪除的可用磁碟空間大小，可以在設定檔的“AutoDeletCheckDiskFreeSpaceMin”項目中修改。
-LE_DELETE				可用磁碟空間已小於 %S，因此舊檔 "%S" 被自動刪除。決定何時開始刪除的可用磁碟空間大小，可以在設定檔的“AutoDeletCheckDiskFreeSpaceMin”項目中修改。
+LE_START				正在監控目錄 "%S"。如果可用磁碟空間變得小於 %S，此目錄和其子目錄下的日誌檔和設定檔的備份檔案將按照從舊到新的順序被自動刪除。決定何時開始刪除的可用磁碟空間大小，可以在設定檔的“AutoDeleteCheckDiskFreeSpaceMin”項目中修改。
+LE_DELETE				可用磁碟空間已小於 %S，因此舊檔 "%S" 被自動刪除。決定何時開始刪除的可用磁碟空間大小，可以在設定檔的“AutoDeleteCheckDiskFreeSpaceMin”項目中修改。
 LE_NOT_ENOUGH_FREE		<<警告>> 如果可用磁碟空間小於 %S，將不能自動刪除日誌檔和設定檔的舊備份檔案。我們建議您即刻從次電腦上手動刪除不必要的檔來恢復可用磁碟空間。當可用磁碟空間過小時，電腦運行將被變得不穩定。
 
 # (三層交換機日誌)

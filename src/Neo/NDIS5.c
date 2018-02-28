@@ -682,7 +682,7 @@ void NeoFreeControlDevice()
 		ctx->Event = NULL;
 		ctx->Opened = FALSE;
 	}
-	// Delet the device
+	// Delete the device
 	NdisMDeregisterDevice(ctx->NdisControl);
 }
 
