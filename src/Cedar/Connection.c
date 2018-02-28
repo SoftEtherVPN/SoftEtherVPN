@@ -2690,7 +2690,7 @@ DISCONNECT_THIS_TCP:
 		else
 		{
 			ETH *e;
-			// Bridge is stopped cureently
+			// Bridge is stopped currently
 			Select(NULL, SELECT_TIME, c1, NULL);
 
 			if (b->LastBridgeTry == 0 || (b->LastBridgeTry + BRIDGE_TRY_SPAN) <= Tick64())
