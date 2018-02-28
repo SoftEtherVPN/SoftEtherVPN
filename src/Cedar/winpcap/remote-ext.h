@@ -118,8 +118,8 @@ extern "C" {
 	- rpcap://devicename [opens the selected device devices available on the local host, without using the RPCAP protocol]
 	- rpcap://host/devicename [opens the selected device available on a remote host]
 	- rpcap://host:port/devicename [opens the selected device available on a remote host, using a non-standard port for RPCAP]
-	- adaptername [to open a local adapter; kept for compability, but it is strongly discouraged]
-	- (NULL) [to open the first local adapter; kept for compability, but it is strongly discouraged]
+	- adaptername [to open a local adapter; kept for compatibility, but it is strongly discouraged]
+	- (NULL) [to open the first local adapter; kept for compatibility, but it is strongly discouraged]
 
 	The formats allowed by the pcap_findalldevs_ex() are the following:
 	- file://folder/ [lists all the files in the given folder]
