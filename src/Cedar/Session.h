@@ -265,9 +265,9 @@ struct SESSION
 	UINT NumDisconnected;			// Number of socket disconnection
 	bool NoReconnectToSession;		// Disable to reconnect to the session
 	char UnderlayProtocol[64];		// Physical communication protocol
-	UINT64 FirstConnectionEstablisiedTime;	// Connection completion time of the first connection
+	UINT64 FirstConnectionEstablishedTime;	// Connection completion time of the first connection
 	UINT64 CurrentConnectionEstablishTime;	// Completion time of this connection
-	UINT NumConnectionsEatablished;	// Number of connections established so far
+	UINT NumConnectionsEstablished;	// Number of connections established so far
 	UINT AdjustMss;					// MSS adjustment value
 	bool IsVPNClientAndVLAN_Win32;	// Is the VPN Client session with a VLAN card (Win32)
 

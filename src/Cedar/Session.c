@@ -212,11 +212,11 @@ void SessionMain(SESSION *s)
 		s->NextConnectionTime = Tick64() + (UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000);
 	}
 
-	s->NumConnectionsEatablished++;
+	s->NumConnectionsEstablished++;
 	s->CurrentConnectionEstablishTime = Tick64();
-	if (s->FirstConnectionEstablisiedTime == 0)
+	if (s->FirstConnectionEstablishedTime == 0)
 	{
-		s->FirstConnectionEstablisiedTime = Tick64();
+		s->FirstConnectionEstablishedTime = Tick64();
 	}
 
 	if (s->ServerMode == false && s->Cedar->Client != NULL)
