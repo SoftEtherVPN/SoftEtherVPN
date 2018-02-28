@@ -172,7 +172,7 @@ struct RPC_SERVER_STATUS
 	UINT NumTcpConnectionsLocal;		// Number of Local TCP connections
 	UINT NumTcpConnectionsRemote;		// Number of remote TCP connections
 	UINT NumHubTotal;					// Total number of HUBs
-	UINT NumHubStandalone;				// Nymber of stand-alone HUB
+	UINT NumHubStandalone;				// Number of stand-alone HUB
 	UINT NumHubStatic;					// Number of static HUBs
 	UINT NumHubDynamic;					// Number of Dynamic HUBs
 	UINT NumSessionsTotal;				// Total number of sessions

@@ -309,7 +309,7 @@ struct SESSION
 	LIST *DelayedPacketList;		// Delayed packet list
 	UINT Flag1;
 
-	USER *NumLoginIncrementUserObject;	// User objects to increment the nymber of logins
+	USER *NumLoginIncrementUserObject;	// User objects to increment the number of logins
 	HUB *NumLoginIncrementHubObject;	// Virtual HUB object to increment the number of logins
 	UINT64 NumLoginIncrementTick;		// Time to perform increment a number of log
 
