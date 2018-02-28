@@ -7,7 +7,7 @@ Allow specifying cipher suites instead of single ciphers. PR #343
 Add parameter "ListenIP" to server configuration (vpn_server.config). PR #202
 cppcheck findings. PR #275
 Add DhParamBits configuration to set Diffie-Hellman parameters. PR #129
-Fix log msg for IKE with agressive exchange mode. PR #425
+Fix log msg for IKE with aggressive exchange mode. PR #425
 Fixes 11 vulnerabilities found by Max Planck Institute for Molecular Genetics and Mr. Guido Vranken. PR #419
 Fixed the bug which occurs the L2TP/IPsec connection error with Android Oreo, etc. PR #405
 build documentation refactoring. PR #395

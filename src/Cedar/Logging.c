@@ -1750,7 +1750,7 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{
@@ -2022,7 +2022,7 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{

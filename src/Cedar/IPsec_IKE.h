@@ -120,7 +120,7 @@
 
 // State
 #define	IKE_SA_MAIN_MODE					0	// Main mode
-#define	IKE_SA_AGRESSIVE_MODE				1	// Aggressive mode
+#define	IKE_SA_AGGRESSIVE_MODE				1	// Aggressive mode
 
 #define	IKE_SA_MM_STATE_1_SA				0	// Main mode state 1 (SA exchange is complete. Wait for key exchange)
 #define	IKE_SA_MM_STATE_2_KEY				1	// Main mode state 2 (Key exchange is complete. Wait for exchange ID)
