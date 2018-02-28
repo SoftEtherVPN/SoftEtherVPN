@@ -302,7 +302,7 @@ void L3RecvIp(L3IF *f, PKT *p, bool self)
 				ip->TimeToLive = 0xff;
 
 				// Recalculates the checksum
-				ip->FlagsAndFlagmentOffset[0] = ip->FlagsAndFlagmentOffset[1] = 0;
+				ip->FlagsAndFragmentOffset[0] = ip->FlagsAndFragmentOffset[1] = 0;
 				icmp->Checksum = 0;
 				icmp->Type = ICMP_TYPE_ECHO_RESPONSE;
 				icmp->Checksum = IpChecksum(icmp, p->PacketSize - sizeof(MAC_HEADER) - header_size);

@@ -244,7 +244,7 @@ typedef struct WFP_IPV4_HEADER
 	UCHAR	TypeOfService;				// Service Type
 	USHORT	TotalLength;				// Total size
 	USHORT	Identification;				// Identifier
-	UCHAR	FlagsAndFlagmentOffset[2];	// The flag and fragment offset
+	UCHAR	FlagsAndFragmentOffset[2];	// The flag and fragment offset
 	UCHAR	TimeToLive;					// TTL
 	UCHAR	Protocol;					// Protocol
 	USHORT	Checksum;					// Checksum

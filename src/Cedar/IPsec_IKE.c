@@ -206,7 +206,7 @@ void IPsecSendPacketByIPsecSa(IKE_SERVER *ike, IPSECSA *sa, UCHAR *data, UINT da
 				IPV4_SET_HEADER_LEN(&h, sizeof(IPV4_HEADER) / 4);
 				h.TotalLength = Endian16((USHORT)(data_size + sizeof(IPV4_HEADER)));
 				h.Identification = Endian16(c->TunnelSendIpId++);
-				h.FlagsAndFlagmentOffset[0] = h.FlagsAndFlagmentOffset[1] = 0;
+				h.FlagsAndFragmentOffset[0] = h.FlagsAndFragmentOffset[1] = 0;
 				h.TimeToLive = DEFAULT_IP_TTL;
 				h.Protocol = protocol_id;
 				h.SrcIP = IPToUINT(&c->TunnelModeServerIP);

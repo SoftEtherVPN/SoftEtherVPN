@@ -436,7 +436,7 @@ void NnCombineIp(NATIVE_NAT *t, IP_COMBINE *c, UINT offset, void *data, UINT siz
 
 	if (last_packet)
 	{
-		// If No More Flagment packet arrives, the size of this datagram is finalized
+		// If No More Fragment packet arrives, the size of this datagram is finalized
 		c->Size = offset + size;
 	}
 
@@ -1178,7 +1178,7 @@ void NnIpSendFragmentedForInternet(NATIVE_NAT *t, UCHAR ip_protocol, UINT src_ip
 	ip->TypeOfService = DEFAULT_IP_TOS;
 	ip->TotalLength = Endian16((USHORT)(size + IP_HEADER_SIZE));
 	ip->Identification = Endian16(id);
-	ip->FlagsAndFlagmentOffset[0] = ip->FlagsAndFlagmentOffset[1] = 0;
+	ip->FlagsAndFragmentOffset[0] = ip->FlagsAndFragmentOffset[1] = 0;
 	IPV4_SET_OFFSET(ip, (offset / 8));
 	if ((offset + size) >= total_size)
 	{
@@ -7637,7 +7637,7 @@ void CombineIp(VH *v, IP_COMBINE *c, UINT offset, void *data, UINT size, bool la
 
 	if (last_packet)
 	{
-		// If No More Flagment packet arrives, the size of this datagram is finalized
+		// If No More Fragment packet arrives, the size of this datagram is finalized
 		c->Size = offset + size;
 	}
 
@@ -8847,7 +8847,7 @@ void SendFragmentedIp(VH *v, UINT dest_ip, UINT src_ip, USHORT id, USHORT total_
 	ip->TypeOfService = DEFAULT_IP_TOS;
 	ip->TotalLength = Endian16((USHORT)(size + IP_HEADER_SIZE));
 	ip->Identification = Endian16(id);
-	ip->FlagsAndFlagmentOffset[0] = ip->FlagsAndFlagmentOffset[1] = 0;
+	ip->FlagsAndFragmentOffset[0] = ip->FlagsAndFragmentOffset[1] = 0;
 	IPV4_SET_OFFSET(ip, (offset / 8));
 	if ((offset + size) >= total_size)
 	{
