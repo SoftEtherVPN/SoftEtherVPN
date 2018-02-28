@@ -126,7 +126,7 @@ extern "C" {
 	- rpcap:// [lists all local adapters]
 	- rpcap://host:port/ [lists the devices available on a remote host]
 
-	Referring to the 'host' and 'port' paramters, they can be either numeric or literal. Since
+	Referring to the 'host' and 'port' parameters, they can be either numeric or literal. Since
 	IPv6 is fully supported, these are the allowed formats:
 
 	- host (literal): e.g. host.foo.bar

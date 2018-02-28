@@ -869,7 +869,7 @@ ZEXTERN int ZEXPORT inflateBackInit OF((z_streamp strm, int windowBits,
      See inflateBack() for the usage of these routines.
 
      inflateBackInit will return Z_OK on success, Z_STREAM_ERROR if any of
-   the paramaters are invalid, Z_MEM_ERROR if the internal state could not
+   the parameters are invalid, Z_MEM_ERROR if the internal state could not
    be allocated, or Z_VERSION_ERROR if the version of the library does not
    match the version of the header file.
 */
