@@ -257,7 +257,7 @@ public class MultiLang
 	public readonly Page Page;
 	public readonly HttpRequest Request;
 	public readonly HttpResponse Response;
-	public readonly bool IsUrlModefied;
+	public readonly bool IsUrlModified;
 	public readonly string OriginalUrl;
 	public readonly string PhysicalUrl;
 	public readonly bool IsFilenameModified;
@@ -394,7 +394,7 @@ public class MultiLang
 		this.IsSSL = isSsl;
 		this.Host = host;
 
-		this.IsUrlModefied = Str.StrToBool((string)Request.Headers["SEISAPI_MODIFIED_URL"]);
+		this.IsUrlModified = Str.StrToBool((string)Request.Headers["SEISAPI_MODIFIED_URL"]);
 		this.OriginalUrl = (string)Request.Headers["SEISAPI_ORIGINAL_URL"];
 
 		int i;
@@ -404,7 +404,7 @@ public class MultiLang
 			this.OriginalUrl = this.OriginalUrl.Substring(0, i);
 		}
 
-		if (Str.IsEmptyStr(this.OriginalUrl) || this.IsUrlModefied == false)
+		if (Str.IsEmptyStr(this.OriginalUrl) || this.IsUrlModified == false)
 		{
 			this.OriginalUrl = AspUtil.RemoveDefaultHtml(AspUtil.GetCurrentRequestUrl(Page));
 		}
