@@ -4915,7 +4915,7 @@ namespace CoreUtil.Internal
 			{
 				if ((z.avail_in == 0) && (!nomoreinput))
 				{
-					// if buffer is empty and more input is avaiable, refill it
+					// if buffer is empty and more input is available, refill it
 					z.next_in_index = 0;
 					z.avail_in = SupportClass.ReadInput(in_Renamed, buf, 0, bufsize); //(bufsize<z.avail_out ? bufsize : z.avail_out));
 					if (z.avail_in == - 1)
