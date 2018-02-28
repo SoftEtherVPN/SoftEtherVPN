@@ -6075,7 +6075,7 @@ UINT StGetLinkStatus(ADMIN *a, RPC_LINK_STATUS *t)
 		return ERR_OBJECT_NOT_FOUND;
 	}
 
-	// Get status infomation from session
+	// Get status information from session
 	Lock(k->lock);
 	{
 		sess = k->ClientSession;
