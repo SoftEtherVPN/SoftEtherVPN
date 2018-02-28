@@ -1,5 +1,5 @@
 <html><head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-<title>Lisner Creation</title>
+<title>Listener Creation</title>
 <link rel=stylesheet type=text/css href=/webui/webui.css>
 </head><body>
 <h2>新しい仮想 HUB の作成</h2>
