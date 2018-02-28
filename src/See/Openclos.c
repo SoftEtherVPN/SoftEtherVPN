@@ -259,7 +259,7 @@ NTSTATUS NPF_Open(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
     //
     //  Try to open the MAC
     //
-    IF_LOUD(DbgPrint("NPF: Openinig the device %ws, BindingContext=%d\n",DeviceExtension->AdapterName.Buffer, Open);)
+    IF_LOUD(DbgPrint("NPF: Opening the device %ws, BindingContext=%d\n",DeviceExtension->AdapterName.Buffer, Open);)
 
 	NdisOpenAdapter(
         &Status,
