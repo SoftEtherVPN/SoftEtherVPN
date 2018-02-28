@@ -3976,7 +3976,7 @@ void *MsLoadLibraryAsDataFile(char *name)
 	return MsLoadLibraryAsDataFileW(name_w);
 }
 
-// Simple LoadLibaray
+// Simple LoadLibrary
 void *MsLoadLibraryRawW(wchar_t *name)
 {
 	// Validate arguments
