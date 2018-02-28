@@ -552,7 +552,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 	// Initialize the network communication module
 	InitNetwork();
 
-	// Initialization of the aquisition of the EXE file name
+	// Initialization of the acquisition of the EXE file name
 	InitGetExeName(argc >= 1 ? argv[0] : NULL);
 
 	// Initialization of the command line string

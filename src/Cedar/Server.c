@@ -1390,7 +1390,7 @@ UINT GetGlobalServerFlag(UINT index)
 	return global_server_flags[index];
 }
 
-// Main of the aquisition of Caps of the server
+// Main of the acquisition of Caps of the server
 void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 {
 	bool is_restricted = false;
