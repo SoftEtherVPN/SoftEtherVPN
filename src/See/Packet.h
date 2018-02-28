@@ -318,7 +318,7 @@ typedef struct _OPEN_INSTANCE
 {
 	PDEVICE_EXTENSION   DeviceExtension;	///< Pointer to the _DEVICE_EXTENSION structure of the device on which
 											///< the instance is bound.
-	NDIS_HANDLE         AdapterHandle;		///< NDIS idetifier of the adapter used by this instance.
+	NDIS_HANDLE         AdapterHandle;		///< NDIS Identifier of the adapter used by this instance.
 	UINT				Medium;				///< Type of physical medium the underlying NDIS driver uses. See the
 											///< documentation of NdisOpenAdapter in the MS DDK for details.
 	NDIS_HANDLE         PacketPool;			///< Pool of NDIS_PACKET structures used to transfer the packets from and to the NIC driver.
