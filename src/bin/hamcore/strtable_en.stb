@@ -3095,7 +3095,7 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_NM_OPTION
-CAPTION					SecureNAT Configration
+CAPTION					SecureNAT Configuration
 S_TITLE					Set how SecureNAT virtual host performs operation on the virtual network of Virtual Hub "%S".
 STATIC1					Virtual Host's Network Interface Settings:
 STATIC2					&MAC Address:
