@@ -2123,7 +2123,7 @@ void TestSecMain(SECURE *sec)
 									}
 									else
 									{
-										Print("[DIFFIRENT]\n");
+										Print("[DIFFERENT]\n");
 									}
 								}
 							}
