@@ -4358,7 +4358,7 @@ namespace CoreUtil.Internal
 		/*******************************/
 		/// <summary>Reads a number of characters from the current source Stream and writes the data to the target array at the specified index.</summary>
 		/// <param name="sourceStream">The source Stream to read from.</param>
-		/// <param name="target">Contains the array of characteres read from the source Stream.</param>
+		/// <param name="target">Contains the array of characters read from the source Stream.</param>
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source Stream.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source Stream. Returns -1 if the end of the stream is reached.</returns>
@@ -4383,7 +4383,7 @@ namespace CoreUtil.Internal
 
 		/// <summary>Reads a number of characters from the current source TextReader and writes the data to the target array at the specified index.</summary>
 		/// <param name="sourceTextReader">The source TextReader to read from</param>
-		/// <param name="target">Contains the array of characteres read from the source TextReader.</param>
+		/// <param name="target">Contains the array of characters read from the source TextReader.</param>
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source TextReader.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source TextReader. Returns -1 if the end of the stream is reached.</returns>
