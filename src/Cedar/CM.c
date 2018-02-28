@@ -631,7 +631,7 @@ void CmRefreshEasy()
 	SendMessage(cm->hEasyWnd, WM_CM_EASY_REFRESH, 0, 0);
 }
 
-// Initialze the Simple Connect Manager
+// Initialize the Simple Connect Manager
 void CmEasyDlgInit(HWND hWnd, CM_EASY_DLG *d)
 {
 	HFONT hFontForList;
