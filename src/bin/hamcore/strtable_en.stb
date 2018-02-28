@@ -18,7 +18,7 @@ DEFAULT_FONT			Tahoma
 DEFAULT_FONT_WIN7		Segoe UI
 DEFAULT_FONT_2			Tahoma
 DEFAULT_FONT_SIZE		8
-DEFAULE_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
+DEFAULT_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
 
 
 # 言語

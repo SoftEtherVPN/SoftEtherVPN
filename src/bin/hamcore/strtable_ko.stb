@@ -22,7 +22,7 @@ DEFAULT_FONT Gulim
 DEFAULT_FONT_WIN7		Malgun Gothic
 DEFAULT_FONT_2 Gulim
 DEFAULT_FONT_SIZE 9
-DEFAULE_LOCALE 년 월 일 분 초 일 월 화 수 목 금 토 일 시 분 초 (없음)
+DEFAULT_LOCALE 년 월 일 분 초 일 월 화 수 목 금 토 일 시 분 초 (없음)
 
 
 # 언어

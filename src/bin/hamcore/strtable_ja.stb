@@ -18,7 +18,7 @@ DEFAULT_FONT			MS UI Gothic
 DEFAULT_FONT_HIGHDPI	Meiryo UI
 DEFAULT_FONT_2			MS Gothic
 DEFAULT_FONT_SIZE		9
-DEFAULE_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
+DEFAULT_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
 
 
 # 言語

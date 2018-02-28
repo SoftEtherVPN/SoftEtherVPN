@@ -24,7 +24,7 @@ DEFAULT_FONT			MingLiU
 DEFAULT_FONT_HIGHDPI	Microsoft JhengHei
 DEFAULT_FONT_2			Microsoft JhengHei
 DEFAULT_FONT_SIZE		9
-DEFAULE_LOCALE			年 月 日 點 分 秒 星期日 星期一 星期二 星期三 星期四 星期五 星期六 天 小時 分 秒 (無)
+DEFAULT_LOCALE			年 月 日 點 分 秒 星期日 星期一 星期二 星期三 星期四 星期五 星期六 天 小時 分 秒 (無)
 
 
 # 語言
