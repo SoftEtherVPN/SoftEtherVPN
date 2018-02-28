@@ -381,7 +381,7 @@ typedef struct _OPEN_INSTANCE
 	MEM_TYPE			mem_ex;				///< Memory used by the TME virtual co-processor
 	TME_CORE			tme;				///< Data structure containing the virtualization of the TME co-processor
 	NDIS_SPIN_LOCK		MachineLock;		///< SpinLock that protects the mem_ex buffer
-	UINT				MaxFrameSize;		///< Maximum frame size that the underlying MAC acceptes. Used to perform a check on the 
+	UINT				MaxFrameSize;		///< Maximum frame size that the underlying MAC accepts. Used to perform a check on the 
 											///< size of the frames sent with NPF_Write() or NPF_BufferedWrite().
 	CpuPrivateData		CpuData[1024];		///< Pool of kernel buffer structures, one for each CPU.
 	ULONG				ReaderSN;			///< Sequence number of the next packet to be read from the pool of kernel buffers.
