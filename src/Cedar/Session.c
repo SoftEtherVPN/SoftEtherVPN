@@ -919,7 +919,7 @@ void IncrementUserTraffic(HUB *hub, char *username, SESSION *s)
 	Unlock(s->TrafficLock);
 }
 
-// Cummulate the traffic information of the connection
+// Cumulate the traffic information of the connection
 void AddTrafficForSession(SESSION *s, TRAFFIC *t)
 {
 	HUB *h;
