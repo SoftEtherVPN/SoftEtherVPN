@@ -133,7 +133,7 @@ struct RPC_ADD_DEVICE
 {
 	char DeviceName[MAX_SIZE];			// Device name
 	HUB_LOG LogSetting;					// Log settings
-	bool NoPromiscus;					// Without promiscuous mode
+	bool NoPromiscuous;					// Without promiscuous mode
 };
 
 struct RPC_DELETE_DEVICE
@@ -173,7 +173,7 @@ struct EL_DEVICE
 	CANCEL *Cancel2;					// Cancel 2
 	volatile bool Halt;					// Halting flag
 	bool Active;						// Running flag
-	bool NoPromiscus;					// Without promiscuous mode
+	bool NoPromiscuous;					// Without promiscuous mode
 	LOG *Logger;						// Logger
 };
 
@@ -219,7 +219,7 @@ void ElLoadConfigFromFolder(EL *e, FOLDER *root);
 void ElSaveConfig(EL *e);
 void ElSaveConfigToFolder(EL *e, FOLDER *root);
 int ElCompareDevice(void *p1, void *p2);
-bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscus);
+bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscuous);
 bool ElDeleteCaptureDevice(EL *e, char *name);
 bool ElSetCaptureDeviceLogSetting(EL *e, char *name, HUB_LOG *log);
 void ElCaptureThread(THREAD *thread, void *param);

@@ -3212,7 +3212,7 @@ IDCANCEL				E&xit
 
 PREFIX					D_EM_ADD
 STATIC1					Name of Network Adapter Used for Capture:
-R_PROMISCUS				Do&n't Use Promiscuous Mode During Capture
+R_PROMISCUOUS				Do&n't Use Promiscuous Mode During Capture
 STATIC2					&Packet Log: 
 S_PACKET				Log File S&witch Cycle: 
 S_PACKET_0				TCP Connection Log: 

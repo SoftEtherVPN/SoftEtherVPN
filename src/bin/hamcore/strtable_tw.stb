@@ -3230,7 +3230,7 @@ IDCANCEL				關閉(&X)
 
 PREFIX					D_EM_ADD
 STATIC1					用於捕獲的網路介面卡名稱(&L):
-R_PROMISCUS				捕獲時不要使用混雜模式(&N)
+R_PROMISCUOUS				捕獲時不要使用混雜模式(&N)
 STATIC2					封包日誌 (&P) :
 S_PACKET				日誌檔切換週期 (&W) :
 S_PACKET_0				TCP 連接日誌:

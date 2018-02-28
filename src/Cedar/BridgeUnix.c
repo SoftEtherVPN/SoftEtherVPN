@@ -648,7 +648,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 
 	if (local == false)
 	{
-		// Enable promiscious mode
+		// Enable promiscuous mode
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), name);
 		if (ioctl(s, SIOCGIFFLAGS, &ifr) < 0)

@@ -3218,7 +3218,7 @@ IDCANCEL				閉じる(&X)
 
 PREFIX					D_EM_ADD
 STATIC1					キャプチャに使用する LAN カード名(&L):
-R_PROMISCUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
+R_PROMISCUOUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
 STATIC2					パケットログ(&P):
 S_PACKET				ログファイルの切り替え周期(&W):
 S_PACKET_0				TCP コネクションログ:

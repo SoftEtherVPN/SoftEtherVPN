@@ -711,7 +711,7 @@
 #define S_TSUKUBA2                      1281
 #define IDC_CHECK1                      1285
 #define R_NO_SAVE_PASSWORD              1285
-#define R_PROMISCUS                     1285
+#define R_PROMISCUOUS                   1285
 #define R_NO_ENUM                       1285
 #define R_ETHERNET                      1285
 #define R_CONTROLLER_ONLY               1285

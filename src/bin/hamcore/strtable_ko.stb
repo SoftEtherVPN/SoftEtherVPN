@@ -3214,7 +3214,7 @@ IDCANCEL 닫기 (&X)
 
 PREFIX D_EM_ADD
 STATIC1 캡처에 사용하는 LAN 카드 이름 (&L):
-R_PROMISCUS 캡처로 인해 무차별 모드를 사용 안함 (&N)
+R_PROMISCUOUS 캡처로 인해 무차별 모드를 사용 안함 (&N)
 STATIC2 패킷 로그 (&P):
 S_PACKET 로그 파일 전환주기 (&W):
 S_PACKET_0 TCP 연결 로그:
