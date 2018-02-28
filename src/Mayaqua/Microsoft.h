@@ -764,7 +764,7 @@ bool MsCheckLogon(wchar_t *username, char *password);
 bool MsIsPasswordEmpty(wchar_t *username);
 TOKEN_LIST *MsEnumNetworkAdapters(char *start_with_name, char *start_with_name_2);
 TOKEN_LIST *MsEnumNetworkAdaptersNeo();
-bool MsGetNeoDeiverFilename(char *name, UINT size, char *instance_name);
+bool MsGetNeoDriverFilename(char *name, UINT size, char *instance_name);
 bool MsMakeNewNeoDriverFilename(char *name, UINT size);
 void MsGenerateNeoDriverFilenameFromInt(char *name, UINT size, UINT n);
 TOKEN_LIST *MsEnumNeoDriverFilenames();
