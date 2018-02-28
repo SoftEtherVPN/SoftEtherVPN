@@ -130,7 +130,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject,IN PIRP Irp)
 			*(LONGLONG*)(CurrBuff+sizeof(struct bpf_hdr))=Open->Npackets.QuadPart;
 			*(LONGLONG*)(CurrBuff+sizeof(struct bpf_hdr)+8)=Open->Nbytes.QuadPart;
 			
-			//reset the countetrs
+			//reset the counters
 			NdisAcquireSpinLock( &Open->CountersLock );
 			Open->Npackets.QuadPart=0;
 			Open->Nbytes.QuadPart=0;
