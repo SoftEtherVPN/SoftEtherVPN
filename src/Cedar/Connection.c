@@ -667,7 +667,7 @@ void WriteSendFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 	WriteFifo(ts->SendFifo, data, size);
 }
 
-// Write data to the reception FIFO (automatic deccyption)
+// Write data to the reception FIFO (automatic decryption)
 void WriteRecvFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Validate arguments
