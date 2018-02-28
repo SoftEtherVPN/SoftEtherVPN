@@ -228,7 +228,7 @@ struct pcap {
 	SOCKET rmt_sockctrl;		//!< socket ID of the socket used for the control connection
 	SOCKET rmt_sockdata;		//!< socket ID of the socket used for the data connection
 	int rmt_flags;				//!< we have to save flags, since they are passed by the pcap_open_live(), but they are used by the pcap_startcapture()
-	int rmt_capstarted;			//!< 'true' if the capture is already started (needed to knoe if we have to call the pcap_startcapture()
+	int rmt_capstarted;			//!< 'true' if the capture is already started (needed to know if we have to call the pcap_startcapture()
 	struct pcap_samp rmt_samp;	//!< Keeps the parameters related to the sampling process.
 	char *currentfilter;		//!< Pointer to a buffer (allocated at run-time) that stores the current filter. Needed when flag PCAP_OPENFLAG_NOCAPTURE_RPCAP is turned on.
 #endif /* HAVE_REMOTE */
