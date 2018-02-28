@@ -1968,7 +1968,7 @@ bool IsInt64InList(LIST *o, UINT64 i)
 	return false;
 }
 
-// Remove all int from the interger list
+// Remove all int from the integer list
 void DelAllInt(LIST *o)
 {
 	UINT i;
