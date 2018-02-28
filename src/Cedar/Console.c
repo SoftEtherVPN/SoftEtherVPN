@@ -933,11 +933,11 @@ RETRY:
 			wchar_t tmp[MAX_SIZE];
 
 			// There is more than one candidate
-			UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_CMD"), cmd_name);
+			UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_CMD"), cmd_name);
 			c->Write(c, tmp);
-			c->Write(c, _UU("CON_AMBIGIOUS_CMD_1"));
+			c->Write(c, _UU("CON_AMBIGUOUS_CMD_1"));
 			PrintCandidateHelp(c, NULL, candidate, 1);
-			c->Write(c, _UU("CON_AMBIGIOUS_CMD_2"));
+			c->Write(c, _UU("CON_AMBIGUOUS_CMD_2"));
 
 			c->RetCode = ERR_BAD_COMMAND_OR_PARAM;
 		}
@@ -1338,14 +1338,14 @@ LIST *ParseCommandList(CONSOLE *c, char *cmd_name, wchar_t *command, PARAM param
 				wchar_t tmp[MAX_SIZE];
 
 				// There is more than one candidate
-				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_PARAM"), param_list->Token[i]);
+				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_PARAM"), param_list->Token[i]);
 				c->Write(c, tmp);
-				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_PARAM_1"), cmd_name);
+				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_PARAM_1"), cmd_name);
 				c->Write(c, tmp);
 
 				PrintCandidateHelp(c, cmd_name, candidate, 1);
 
-				c->Write(c, _UU("CON_AMBIGIOUS_PARAM_2"));
+				c->Write(c, _UU("CON_AMBIGUOUS_PARAM_2"));
 
 				ok = false;
 			}

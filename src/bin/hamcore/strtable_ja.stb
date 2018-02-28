@@ -4297,13 +4297,13 @@ CON_INFILE_START		ファイル "%s" に記述されているコマンドを、�
 CON_OUTFILE_START		画面に出力されたメッセージは、ファイル "%s" にも保存されます。
 CON_USER_CANCEL			[EOF]
 CON_UNKNOWN_CMD			"%S": コマンドが見つかりません。\nHELP コマンドで使用できるコマンド一覧を表示できます。
-CON_AMBIGIOUS_CMD		"%S": コマンドが曖昧です。
-CON_AMBIGIOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
-CON_AMBIGIOUS_CMD_2		より厳密にコマンド名を指定し直してください。
+CON_AMBIGUOUS_CMD		"%S": コマンドが曖昧です。
+CON_AMBIGUOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
+CON_AMBIGUOUS_CMD_2		より厳密にコマンド名を指定し直してください。
 CON_INVALID_PARAM		パラメータ "/%S" が指定されています。コマンド "%S" ではそのようなパラメータは指定できません。詳しくは "%S /HELP" と入力して使用できるパラメータ一覧を確認してください。
-CON_AMBIGIOUS_PARAM		"/%S": パラメータ名が曖昧です。
-CON_AMBIGIOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
-CON_AMBIGIOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
+CON_AMBIGUOUS_PARAM		"/%S": パラメータ名が曖昧です。
+CON_AMBIGUOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
+CON_AMBIGUOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
 
 
 # 不明なコマンド

@@ -4309,13 +4309,13 @@ CON_INFILE_START			在文件 "%s" 中写入命令将被使用代替键盘输入�
 CON_OUTFILE_START			该消息输出到控制台将被保存在文件 "%s"。
 CON_USER_CANCEL				[EOF]
 CON_UNKNOWN_CMD				"%S": 命令未找到。\n您可以使用 "HELP" 命令来查看一个可用的命令列表。
-CON_AMBIGIOUS_CMD			"%S": 命令名称是模糊的。
-CON_AMBIGIOUS_CMD_1			指定的命令名称匹配以下多个命令:
-CON_AMBIGIOUS_CMD_2			请更严格地重新指定命令名称。
+CON_AMBIGUOUS_CMD			"%S": 命令名称是模糊的。
+CON_AMBIGUOUS_CMD_1			指定的命令名称匹配以下多个命令:
+CON_AMBIGUOUS_CMD_2			请更严格地重新指定命令名称。
 CON_INVALID_PARAM			参数 "/%S" 已被指定。使用命令 "%S" 时，不可能指定此参数。输入 "%S /HELP" 来看被使用的参数清单。
-CON_AMBIGIOUS_PARAM			"/%S": 参数名称是不明确的。
-CON_AMBIGIOUS_PARAM_1		指定的参数名称符合以下，被指定的做为命令 "%S" 参数的参数:
-CON_AMBIGIOUS_PARAM_2		请更严格地重新指定参数名称。
+CON_AMBIGUOUS_PARAM			"/%S": 参数名称是不明确的。
+CON_AMBIGUOUS_PARAM_1		指定的参数名称符合以下，被指定的做为命令 "%S" 参数的参数:
+CON_AMBIGUOUS_PARAM_2		请更严格地重新指定参数名称。
 
 
 # 不明命令

@@ -4293,13 +4293,13 @@ CON_INFILE_START 파일 "%s"에 설명 된 명령을 키보드 입력 대신 사
 CON_OUTFILE_START 화면에 출력 된 메시지 파일 "%s"에 저장됩니다.
 CON_USER_CANCEL [EOF]
 CON_UNKNOWN_CMD "%S": 명령을 찾을 수 없습니다. \nHELP 명령에서 사용할 수있는 명령 목록을 볼 수 있습니다.
-CON_AMBIGIOUS_CMD "%S": 명령이 모호합니다.
-CON_AMBIGIOUS_CMD_1 지정된 명령 이름 다음의 여러 명령과 일치합니다:
-CON_AMBIGIOUS_CMD_2 보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGUOUS_CMD "%S": 명령이 모호합니다.
+CON_AMBIGUOUS_CMD_1 지정된 명령 이름 다음의 여러 명령과 일치합니다:
+CON_AMBIGUOUS_CMD_2 보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
 CON_INVALID_PARAM 매개 변수 "/%S"가 지정되어 있습니다. 명령 "%S"는 이러한 매개 변수는 지정할 수 없습니다. 자세한 내용은 "%S/HELP"를 입력하여 사용할 수있는 매개 변수 목록을 확인하십시오.
-CON_AMBIGIOUS_PARAM "/%S": 매개 변수 이름이 모호합니다.
-CON_AMBIGIOUS_PARAM_1 지정된 매개 변수 이름은 명령 "%S"매개 변수로 지정할 수있는 다음의 여러 매개 변수와 일치합니다:
-CON_AMBIGIOUS_PARAM_2 보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGUOUS_PARAM "/%S": 매개 변수 이름이 모호합니다.
+CON_AMBIGUOUS_PARAM_1 지정된 매개 변수 이름은 명령 "%S"매개 변수로 지정할 수있는 다음의 여러 매개 변수와 일치합니다:
+CON_AMBIGUOUS_PARAM_2 보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
 
 
 # 알 수없는 명령

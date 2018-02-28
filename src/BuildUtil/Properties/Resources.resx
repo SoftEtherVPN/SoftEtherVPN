@@ -386,22 +386,22 @@ IP アドレスは 192.168.0.1 のように 10 進数をドットで区切って
   <data name="CMD_UNKNOWN_PARAM" xml:space="preserve">
     <value>There is no description for this parameter.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD" xml:space="preserve">
     <value>"%S": The command-name is ambiguous.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD_1" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD_1" xml:space="preserve">
     <value>The specified command name matches the following multiple commands.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD_2" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD_2" xml:space="preserve">
     <value>Please re-specify the command name more strictly.</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM" xml:space="preserve">
     <value>"%S": The parameter name is ambiguous.</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM_1" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM_1" xml:space="preserve">
     <value>The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM_2" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM_2" xml:space="preserve">
     <value>Please re-specify the parameter name more strictly.</value>
   </data>
   <data name="CON_INFILE_ERROR" xml:space="preserve">

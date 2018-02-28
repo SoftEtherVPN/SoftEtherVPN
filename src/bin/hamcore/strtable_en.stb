@@ -4292,13 +4292,13 @@ CON_INFILE_START		The commands written in the file "%s" will be used instead of 
 CON_OUTFILE_START		The message output to the console will be saved in the file "%s".
 CON_USER_CANCEL			[EOF]
 CON_UNKNOWN_CMD			"%S": Command not found. \nYou can use the HELP command to view a list of the available commands.
-CON_AMBIGIOUS_CMD		"%S": The command-name is ambiguous.
-CON_AMBIGIOUS_CMD_1		The specified command name matches the following multiple commands.
-CON_AMBIGIOUS_CMD_2		Please re-specify the command name more strictly.
+CON_AMBIGUOUS_CMD		"%S": The command-name is ambiguous.
+CON_AMBIGUOUS_CMD_1		The specified command name matches the following multiple commands.
+CON_AMBIGUOUS_CMD_2		Please re-specify the command name more strictly.
 CON_INVALID_PARAM		The parameter "/%S" has been specified. It is not possible to specify this parameter when using the command "%S". Input "%S /HELP" to see the list of what parameters can be used. 
-CON_AMBIGIOUS_PARAM		"%S": The parameter name is ambiguous.
-CON_AMBIGIOUS_PARAM_1	The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".
-CON_AMBIGIOUS_PARAM_2	Please re-specify the parameter name more strictly.
+CON_AMBIGUOUS_PARAM		"%S": The parameter name is ambiguous.
+CON_AMBIGUOUS_PARAM_1	The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".
+CON_AMBIGUOUS_PARAM_2	Please re-specify the parameter name more strictly.
 
 
 # Unknown command

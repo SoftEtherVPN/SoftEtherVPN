@@ -949,54 +949,54 @@ namespace BuildUtil.Properties {
         /// <summary>
         ///   &quot;%S&quot;: The command-name is ambiguous. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD {
+        internal static string CON_AMBIGUOUS_CMD {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD", resourceCulture);
             }
         }
         
         /// <summary>
         ///   The specified command name matches the following multiple commands. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD_1 {
+        internal static string CON_AMBIGUOUS_CMD_1 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD_1", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD_1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Please re-specify the command name more strictly. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD_2 {
+        internal static string CON_AMBIGUOUS_CMD_2 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD_2", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD_2", resourceCulture);
             }
         }
         
         /// <summary>
         ///   &quot;%S&quot;: The parameter name is ambiguous. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM {
+        internal static string CON_AMBIGUOUS_PARAM {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM", resourceCulture);
             }
         }
         
         /// <summary>
         ///   The specified parameter name matches with the following parameters that can be specified as a parameter of command &quot;%S&quot;. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM_1 {
+        internal static string CON_AMBIGUOUS_PARAM_1 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM_1", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM_1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Please re-specify the parameter name more strictly. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM_2 {
+        internal static string CON_AMBIGUOUS_PARAM_2 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM_2", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM_2", resourceCulture);
             }
         }
         
