@@ -6492,7 +6492,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 	volatile bool *cancel_flag = NULL;
 	void *hWnd;
 	UINT nat_t_err = 0;
-	bool is_additonal_rudp_session = false;
+	bool is_additional_rudp_session = false;
 	UCHAR uc = 0;
 	IP ret_ip;
 	// Validate arguments
@@ -6508,7 +6508,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 	if (sess != NULL)
 	{
 		cancel_flag = &sess->CancelConnect;
-		is_additonal_rudp_session = sess->IsRUDPSession;
+		is_additional_rudp_session = sess->IsRUDPSession;
 	}
 
 	hWnd = c->hWndForUI;
@@ -6552,7 +6552,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				// If additional_connect == false, enable trying to NAT-T connection
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
-					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additonal_rudp_session) : false),
+					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additional_rudp_session) : false),
 					true, no_tls, &ret_ip);
 			}
 		}

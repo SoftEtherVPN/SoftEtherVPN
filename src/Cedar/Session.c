@@ -980,7 +980,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 		return;
 	}
 
-	if (s->IsRUDPSession && (s->Connection->AdditionalConnectionFailedCounter > MAX_ADDITONAL_CONNECTION_FAILED_COUNTER))
+	if (s->IsRUDPSession && (s->Connection->AdditionalConnectionFailedCounter > MAX_ADDITIONAL_CONNECTION_FAILED_COUNTER))
 	{
 		// Not to make a large amount of repeated connection retry within a certain time in the case of R-UDP session
 		return;
