@@ -1943,7 +1943,7 @@ BOOLEAN PacketGetStats(LPADAPTER AdapterObject,struct bpf_stat *s)
   \param s Pointer to a user provided bpf_stat structure that will be filled by the function.
   \return If the function succeeds, the return value is nonzero.
 
-  With this function, the programmer can retireve the sname values provided by PacketGetStats(), plus:
+  With this function, the programmer can retrieve the sname values provided by PacketGetStats(), plus:
 
   - the number of drops by interface (not yet supported, always 0). 
   - the number of packets that reached the application, i.e that were accepted by the kernel filter and
