@@ -6739,10 +6739,10 @@ CMD_AccountRetrySet		Set Interval between Connection Retries for Connection Fail
 CMD_AccountRetrySet_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting attempts to connect to a VPN Server, use this to specify the interval to wait between connection attempts and the limit of how many times to retry connecting when communication with the VPN Server has been disconnected or when the connection process failed. \nIf the user authentication type is Smart Card Authentication, no connection retry will be performed regardless of the Number of Connection Attempts setting.
 CMD_AccountRetrySet_Args	AccountRetrySet [name] [/NUM:num_retry] [/INTERVAL:retry_interval]
 CMD_AccountRetrySet_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountRetrySet_NUM	Specify the number of times to make consecutive retries. By specifying "999", there will be limitless attempts to reconection (always connect). By specifying "0", not attempt at reconnection will be made.
+CMD_AccountRetrySet_NUM	Specify the number of times to make consecutive retries. By specifying "999", there will be limitless attempts to reconnection (always connect). By specifying "0", not attempt at reconnection will be made.
 CMD_AccountRetrySet_INTERVAL	When attempting a reconnection, this sets how many seconds to wait after the previous disconnection or connection failure before starting the reconnection process.
-CMD_AccountRetrySet_PROMPT_NUM	Reconection Count ("999" is unlimited): 
-CMD_AccountRetrySet_PROMPT_INTERVAL	Reconection Interval (Seconds): 
+CMD_AccountRetrySet_PROMPT_NUM	Reconnection Count ("999" is unlimited): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	Reconnection Interval (Seconds): 
 CMD_AccountRetrySet_EVAL_INTERVAL	Specify 5 seconds or more for the retries interval.
 
 
