@@ -197,7 +197,7 @@ struct tun_pi {
 #define _SYS_IF_TUN_H
 
 #ifdef _KERNEL
-/* Uncomment to enable debuging */
+/* Uncomment to enable debugging */
 /* #define TUN_DEBUG 1 */
 
 #ifdef TUN_DEBUG
