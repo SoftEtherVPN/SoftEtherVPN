@@ -6970,7 +6970,7 @@ UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT
 
 			case SVC_MODE_SERVICE:
 				// Run as a service
-				// Obsolated (2012.12.31) (Do this in the above code)
+				// Obsoleted (2012.12.31) (Do this in the above code)
 				//MsServiceMode(start, stop);
 				break;
 
