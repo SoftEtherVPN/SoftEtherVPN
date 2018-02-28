@@ -70,7 +70,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject,IN PIRP Irp)
 
 	if( Open->Bound == FALSE )
 	{
-		// The Network adapter has been removed or diasabled
+		// The Network adapter has been removed or disabled
 		EXIT_FAILURE(0);
 	}
 	
