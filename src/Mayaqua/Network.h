@@ -822,7 +822,7 @@ typedef bool (RUDP_STACK_RPC_RECV_PROC)(RUDP_STACK *r, UDPPACKET *p);
 #define	RUDP_PROTOCOL_ICMP				1	// ICMP
 #define	RUDP_PROTOCOL_DNS				2	// DNS
 
-// Maximum time of continously changing of the NAT-T hostname
+// Maximum time of continuously changing of the NAT-T hostname
 #define	RUDP_NATT_MAX_CONT_CHANGE_HOSTNAME	30
 #define	RUDP_NATT_CONT_CHANGE_HOSTNAME_RESET_INTERVAL	(5 * 60 * 1000)
 
@@ -869,7 +869,7 @@ struct RUDP_STACK
 	UINT64 TotalPhysicalSent;			// Physical amount of data transmitted
 	UINT64 TotalLogicalSent;			// Logical amount of data transmitted
 	char CurrentRegisterHostname[MAX_SIZE];	// The host name of the the current destination of registration
-	UINT NumChangedHostname;			// How number of changing NAT-T hostname has occured continously
+	UINT NumChangedHostname;			// How number of changing NAT-T hostname has occured continuously
 	UINT64 NumChangedHostnameValueResetTick;
 
 	// NAT-T server related
