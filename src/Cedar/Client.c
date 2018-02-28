@@ -235,7 +235,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	}
 
 #ifdef	OS_WIN32
-	// Priduct ID
+	// Product ID
 	product_id = MsRegReadStr(REG_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductId");
 	if (product_id == NULL)
 	{
