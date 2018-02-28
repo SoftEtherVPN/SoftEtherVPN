@@ -133,7 +133,7 @@ BOOLEAN PacketGetLinkLayerFromRegistry(LPADAPTER AdapterObject, NetType *type)
   This function grabs from the registry information like the IP addresses, the netmasks 
   and the broadcast addresses of an interface. The buffer passed by the user is filled with 
   npf_if_addr structures, each of which contains the data for a single address. If the buffer
-  is full, the reaming addresses are dropeed, therefore set its dimension to sizeof(npf_if_addr)
+  is full, the reaming addresses are dropped, therefore set its dimension to sizeof(npf_if_addr)
   if you want only the first address.
 */
 BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, PLONG NEntries)
