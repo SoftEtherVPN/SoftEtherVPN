@@ -317,7 +317,7 @@ struct SESSION
 	char FirstTimeHttpRedirectUrl[128];	// URL for redirection only the first time
 	UINT FirstTimeHttpAccessCheckIp;	// IP address for access checking
 
-	// To examine the maximum number of alowed logging target packets per minute
+	// To examine the maximum number of allowed logging target packets per minute
 	UINT64 MaxLoggedPacketsPerMinuteStartTick;	// Inspection start time
 	UINT CurrentNumPackets;				// Current number of packets
 
