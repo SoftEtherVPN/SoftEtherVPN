@@ -1558,7 +1558,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// Maximum NAT table size / Virtual HUB
 	AddCapsInt(t, "i_max_secnat_tables", NAT_MAX_SESSIONS);
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);
@@ -1620,7 +1620,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 		AddCapsBool(t, "b_tap_supported", GetOsInfo()->OsType == OSTYPE_LINUX ? true : false);
 	}
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);

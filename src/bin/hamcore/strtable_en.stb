@@ -371,7 +371,7 @@ SEC_PIN_CHANGE_FAILED	Changing of PIN code failed.
 SEC_PIN_OK				The PIN code has been changed.
 
 
-# TCP Connecion Dialog
+# TCP Connection Dialog
 CONNECTDLG_CAPTION		Connecting
 CONNECTDLG_MESSAGE		Connecting to the server "%S" (TCP port: %u)...
 CONNECTDLG_CANCELING	Aborting the connection. Please wait...

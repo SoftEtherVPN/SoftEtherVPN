@@ -8791,7 +8791,7 @@ UINT PsConnectionList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	CtFree(ct, c);
 
-	FreeRpcEnumConnetion(&t);
+	FreeRpcEnumConnection(&t);
 
 	FreeParamValueList(o);
 

@@ -1355,7 +1355,7 @@ void InRpcDeleteHub(RPC_DELETE_HUB *t, PACK *p);
 void OutRpcDeleteHub(PACK *p, RPC_DELETE_HUB *t);
 void InRpcEnumConnection(RPC_ENUM_CONNECTION *t, PACK *p);
 void OutRpcEnumConnection(PACK *p, RPC_ENUM_CONNECTION *t);
-void FreeRpcEnumConnetion(RPC_ENUM_CONNECTION *t);
+void FreeRpcEnumConnection(RPC_ENUM_CONNECTION *t);
 void InRpcDisconnectConnection(RPC_DISCONNECT_CONNECTION *t, PACK *p);
 void OutRpcDisconnectConnection(PACK *p, RPC_DISCONNECT_CONNECTION *t);
 void InRpcConnectionInfo(RPC_CONNECTION_INFO *t, PACK *p);
