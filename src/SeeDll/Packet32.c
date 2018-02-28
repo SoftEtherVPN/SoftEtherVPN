@@ -64,7 +64,7 @@ GAAHandler GetAdaptersAddressesPointer = NULL;
 #endif // _WINNT4
 
 #ifdef HAVE_DAG_API
-/* We load dinamically the dag library in order link it only when it's present on the system */
+/* We load dynamically the dag library in order link it only when it's present on the system */
 dagc_open_handler p_dagc_open = NULL;
 dagc_close_handler p_dagc_close = NULL;
 dagc_getlinktype_handler p_dagc_getlinktype = NULL;
@@ -127,7 +127,7 @@ BOOL APIENTRY DllMain (HANDLE DllHandle,DWORD Reason,LPVOID lpReserved)
 		PacketGetFileVersion(TEXT("drivers\\see.sys"), PacketDriverVersion, sizeof(PacketDriverVersion));
 
 		//
-		// Locate GetAdaptersAddresses dinamically since it is not present in Win2k
+		// Locate GetAdaptersAddresses dynamically since it is not present in Win2k
 		//
 		IPHMod = GetModuleHandle(TEXT("Iphlpapi"));
 		
@@ -136,7 +136,7 @@ BOOL APIENTRY DllMain (HANDLE DllHandle,DWORD Reason,LPVOID lpReserved)
 #endif // _WINNT4
 
 #ifdef HAVE_DAG_API
-		/* We load dinamically the dag library in order link it only when it's present on the system */
+		/* We load dynamically the dag library in order link it only when it's present on the system */
 		if((DagcLib =  LoadLibrary(TEXT("dagc.dll"))) == NULL)
 		{
 			// Report the error but go on

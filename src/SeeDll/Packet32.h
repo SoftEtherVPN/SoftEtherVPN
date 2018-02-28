@@ -347,7 +347,7 @@ LONG PacketDumpRegistryKey(PCHAR KeyName, PCHAR FileName);
 #endif
 #endif
 
-/* We load dinamically the dag library in order link it only when it's present on the system */
+/* We load dynamically the dag library in order link it only when it's present on the system */
 #ifdef HAVE_DAG_API
 typedef dagc_t* (*dagc_open_handler)(const char *source, unsigned flags, char *ebuf);	///< prototype used to dynamically load the dag dll
 typedef void (*dagc_close_handler)(dagc_t *dagcfd);										///< prototype used to dynamically load the dag dll
