@@ -333,7 +333,7 @@ typedef struct _OPEN_INSTANCE
 	HANDLE				ReadEventHandle;	///< Handle of the event on which the read calls on this instance must wait.
 	UNICODE_STRING		ReadEventName;		///< Name of the event on which the read calls on this instance must wait.
 											///< The event is created with a name, so it can be used at user level to know when it 
-											///< is possible to access the driver without being blocked. This fiels stores the name 
+											///< is possible to access the driver without being blocked. This field stores the name 
 											///< that and is used by the BIOCGEVNAME IOCTL call.
 	PUCHAR				bpfprogram;			///< Pointer to the filtering pseudo-code associated with current instance of the driver.
 											///< This code is used only in particular situations (for example when the packet received
