@@ -2083,7 +2083,7 @@ BOOLEAN PacketSetHwFilter(LPADAPTER  AdapterObject,ULONG Filter)
   - a variable number of ASCII strings, each with the names of an adapter, separated by a "\0"
   - a double "\0"
   - a number of ASCII strings, each with the description of an adapter, separated by a "\0". The number 
-   of descriptions is the same of the one of names. The fisrt description corresponds to the first name, and
+   of descriptions is the same of the one of names. The first description corresponds to the first name, and
    so on.
   - a double "\0". 
 */
