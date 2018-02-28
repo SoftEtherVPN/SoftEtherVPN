@@ -4321,7 +4321,7 @@ CMD_HELP_DESCRIPTION	Purpose:
 CMD_HELP_USAGE			Usage:
 CMD_HELP_HELP			Description:
 CMD_HELP_ARGS			Parameters:
-CMD_PROPMT_PORT			Input the port number: 
+CMD_PROMPT_PORT			Input the port number: 
 CMD_EVAL_PORT			Port number is invalid. Specify a port number that is within the range of 1 to 65535.
 CMD_CT_STD_COLUMN_1		Item
 CMD_CT_STD_COLUMN_2		Value
@@ -6742,7 +6742,7 @@ CMD_AccountRetrySet_[name]	Specify the name of the VPN Connection Setting whose 
 CMD_AccountRetrySet_NUM	Specify the number of times to make consecutive retries. By specifying "999", there will be limitless attempts to reconection (always connect). By specifying "0", not attempt at reconnection will be made.
 CMD_AccountRetrySet_INTERVAL	When attempting a reconnection, this sets how many seconds to wait after the previous disconnection or connection failure before starting the reconnection process.
 CMD_AccountRetrySet_PROMPT_NUM	Reconection Count ("999" is unlimited): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	Reconection Interval (Seconds): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	Reconection Interval (Seconds): 
 CMD_AccountRetrySet_EVAL_INTERVAL	Specify 5 seconds or more for the retries interval.
 
 

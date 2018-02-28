@@ -4326,7 +4326,7 @@ CMD_HELP_DESCRIPTION	[目的]
 CMD_HELP_USAGE			[使用方法]
 CMD_HELP_HELP			[説明]
 CMD_HELP_ARGS			[パラメータ]
-CMD_PROPMT_PORT			ポート番号を入力してください :
+CMD_PROMPT_PORT			ポート番号を入力してください :
 CMD_EVAL_PORT			ポート番号が不正です。ポート番号は 1 以上 65535 以下で指定してください。
 CMD_CT_STD_COLUMN_1		項目
 CMD_CT_STD_COLUMN_2		値
@@ -6746,7 +6746,7 @@ CMD_AccountRetrySet_[name]	設定を変更する接続設定の名前を指定�
 CMD_AccountRetrySet_NUM	連続して再接続を行う回数を指定します。"999" と指定すると、無限に再接続を試行します (常時接続)。0 を指定すると再接続を行いません。
 CMD_AccountRetrySet_INTERVAL	再接続を行う場合、前回接続が切断または接続失敗してから、何秒後に再接続処理を開始するかを設定します。
 CMD_AccountRetrySet_PROMPT_NUM	再接続回数 ("999" で無限): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	再接続間隔 (秒): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	再接続間隔 (秒): 
 CMD_AccountRetrySet_EVAL_INTERVAL	再接続間隔は 5 秒以上で指定してください。
 
 

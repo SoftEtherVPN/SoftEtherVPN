@@ -4338,7 +4338,7 @@ CMD_HELP_DESCRIPTION		[目的]
 CMD_HELP_USAGE				[使用方法]
 CMD_HELP_HELP				[說明]
 CMD_HELP_ARGS				[參數]
-CMD_PROPMT_PORT				輸入埠號: 
+CMD_PROMPT_PORT				輸入埠號: 
 CMD_EVAL_PORT				埠號無效。指定一個範圍是 1 到 65535 的埠號。
 CMD_CT_STD_COLUMN_1			項目
 CMD_CT_STD_COLUMN_2			價值
@@ -6755,7 +6755,7 @@ CMD_AccountRetrySet_[name]	指定要更改設置的連接設置名。
 CMD_AccountRetrySet_NUM		指定連續進行重新連接的次數。 如指定 "999"，重試次數為無限次 (永久連接)。如指定 "0"，不進行重新連接。
 CMD_AccountRetrySet_INTERVAL	重新進行連接時，設置距離上次斷開或連接失敗後需多少秒開始重新連接處理。
 CMD_AccountRetrySet_PROMPT_NUM	重新連接次數 ("999" 為無限次): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	重新連接間隔 (秒): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	重新連接間隔 (秒): 
 CMD_AccountRetrySet_EVAL_INTERVAL	請指定 5 秒以上的重新連接間隔。
 
 

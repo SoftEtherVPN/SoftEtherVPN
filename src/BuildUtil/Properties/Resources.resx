@@ -371,7 +371,7 @@ IP アドレスは 192.168.0.1 のように 10 進数をドットで区切って
   <data name="CMD_PROMPT" xml:space="preserve">
     <value>Enter a value: </value>
   </data>
-  <data name="CMD_PROPMT_PORT" xml:space="preserve">
+  <data name="CMD_PROMPT_PORT" xml:space="preserve">
     <value>Input the port number: </value>
   </data>
   <data name="CMD_UNKNOWM" xml:space="preserve">

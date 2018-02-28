@@ -904,9 +904,9 @@ namespace BuildUtil.Properties {
         /// <summary>
         ///   Input the port number:  に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CMD_PROPMT_PORT {
+        internal static string CMD_PROMPT_PORT {
             get {
-                return ResourceManager.GetString("CMD_PROPMT_PORT", resourceCulture);
+                return ResourceManager.GetString("CMD_PROMPT_PORT", resourceCulture);
             }
         }
         
