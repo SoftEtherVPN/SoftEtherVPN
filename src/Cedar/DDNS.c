@@ -227,7 +227,7 @@ UINT DCChangeHostName(DDNS_CLIENT *c, char *hostname)
 void DCThread(THREAD *thread, void *param)
 {
 	DDNS_CLIENT *c;
-	INTERRUPT_MANAGER *interrput;
+	INTERRUPT_MANAGER *interrupt;
 	UINT last_ip_hash = 0;
 	void *route_change_poller = NULL;
 	bool last_time_ip_changed = false;
@@ -243,7 +243,7 @@ void DCThread(THREAD *thread, void *param)
 
 	c = (DDNS_CLIENT *)param;
 
-	interrput = NewInterruptManager();
+	interrupt = NewInterruptManager();
 
 	route_change_poller = NewRouteChange();
 	IsRouteChanged(route_change_poller);
@@ -346,7 +346,7 @@ void DCThread(THREAD *thread, void *param)
 
 				c->NextGetMyIpTick_IPv4 = Tick64() + (UINT64)next_interval;
 
-				AddInterrupt(interrput, c->NextGetMyIpTick_IPv4);
+				AddInterrupt(interrupt, c->NextGetMyIpTick_IPv4);
 			}
 
 			// Self IPv6 address acquisition
@@ -381,7 +381,7 @@ void DCThread(THREAD *thread, void *param)
 
 				c->NextGetMyIpTick_IPv6 = Tick64() + (UINT64)next_interval;
 
-				AddInterrupt(interrput, c->NextGetMyIpTick_IPv6);
+				AddInterrupt(interrupt, c->NextGetMyIpTick_IPv6);
 			}
 		}
 
@@ -419,7 +419,7 @@ void DCThread(THREAD *thread, void *param)
 				SiApplyAzureConfig(c->Cedar->Server, &st);
 			}
 
-			AddInterrupt(interrput, c->NextRegisterTick_IPv4);
+			AddInterrupt(interrupt, c->NextRegisterTick_IPv4);
 		}
 
 		if (c->Halt)
@@ -454,10 +454,10 @@ void DCThread(THREAD *thread, void *param)
 				SiApplyAzureConfig(c->Cedar->Server, &st);
 			}
 
-			AddInterrupt(interrput, c->NextRegisterTick_IPv6);
+			AddInterrupt(interrupt, c->NextRegisterTick_IPv6);
 		}
 
-		interval = GetNextIntervalForInterrupt(interrput);
+		interval = GetNextIntervalForInterrupt(interrupt);
 		interval = MIN(interval, 1234);
 
 		if (n == 1)
@@ -490,7 +490,7 @@ void DCThread(THREAD *thread, void *param)
 	}
 
 	FreeRouteChange(route_change_poller);
-	FreeInterruptManager(interrput);
+	FreeInterruptManager(interrupt);
 }
 
 // Command to update immediately
