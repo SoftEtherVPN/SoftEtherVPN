@@ -6979,7 +6979,7 @@ SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN Server
 SW_COMPONENT_VPNSERVER_DESCRIPTION			Install it on a server computer at the central site of VPN. The management tools will be also installed.
 
 SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN Client
-SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client comuters. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client computers. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
 
 SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN Bridge
 SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Install it on computers at each site. Each VPN Bridge will establish a VPN connection to the central VPN Server. The management tools will be also installed.
