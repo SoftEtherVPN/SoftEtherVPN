@@ -279,7 +279,7 @@ Whole English UI texts are checked and corrected by a native speaker of English.
 SoftEther VPN 4.03 Build 9411 (January 7, 2014)
 Modified the source-code tree. In the build 9408, some C# build-utility source codes were missing. In this build, full set of all source codes including the BuildUtil program are appended. No functional differences between this build and the last build.
 
-SoftEther VPN 4.03 Build 9408 (Jaunary 4, 2014)
+SoftEther VPN 4.03 Build 9408 (January 4, 2014)
 SoftEther VPN became open source software from this build. More details on this page. Note that the major version 3.xx was skipped for internal reason of our project. So this open-sourced new version starts with major version 4.xx.
 
 SoftEther VPN 2.00 Build 9387 (September 16, 2013)
