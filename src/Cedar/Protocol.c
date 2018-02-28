@@ -1576,7 +1576,7 @@ bool ServerAccept(CONNECTION *c)
 
 		if (hub->ForceDisableComm)
 		{
-			// Commnunication function is disabled
+			// Communication function is disabled
 			FreePack(p);
 			c->Err = ERR_SERVER_CANT_ACCEPT;
 			error_detail = "ERR_COMM_DISABLED";
