@@ -356,7 +356,7 @@ void L3RecvL2(L3IF *f, PKT *p)
 		return;
 	}
 
-	// Ignore any packets except a unicast packet which is destinated other
+	// Ignore any packets except a unicast packet which is at destination
 	// or a packet which I sent
 	if (Cmp(p->MacAddressSrc, f->MacAddress, 6) == 0 ||
 		(p->BroadcastPacket == false && Cmp(p->MacAddressDest, f->MacAddress, 6) != 0))
