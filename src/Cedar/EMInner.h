@@ -114,7 +114,7 @@
 // Constants
 #define	EM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\EtherLogger\\Manager"
 
-// Innner structure
+// Inner structure
 typedef struct EM_ADD
 {
 	RPC *Rpc;
