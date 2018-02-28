@@ -174,7 +174,7 @@
 
 //// Type
 
-// SSTP Attibute
+// SSTP Attribute
 struct SSTP_ATTRIBUTE
 {
 	UCHAR AttributeId;
@@ -191,7 +191,7 @@ struct SSTP_PACKET
 	UCHAR *Data;
 	UINT DataSize;
 	USHORT MessageType;
-	LIST *AttibuteList;
+	LIST *AttributeList;
 };
 
 // SSTP Server
