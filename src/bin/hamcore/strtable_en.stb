@@ -3320,7 +3320,7 @@ PREFIX					D_SM_MSG
 CAPTION					Set the Message
 S_MSG_2					You can set a message to display on the screen of a user when a VPN Client connects to the Virtual Hub "%S". To show a message, input the message that you want to show.
 C_USEMSG				Show &Message
-STATIC1					About the Message Display Funcion
+STATIC1					About the Message Display Function
 S_INFO					The VPN Client must be Version 3.0 or later.\r\n\r\nSpecify a single line starts with "http://" as the message to open the default Web browser on the client instead to showing a message.
 IDOK					&OK
 IDCANCEL				Cancel
