@@ -9465,7 +9465,7 @@ void SmSessionDlgUpdate(HWND hWnd, SM_HUB *s)
 
 	if (s->p->ServerInfo.ServerBuildInt < 2844)
 	{
-		// Old version doen't support for remote management of the sessions
+		// Old version doesn't support for remote management of the sessions
 		ok2 = ok;
 	}
 

@@ -1854,7 +1854,7 @@ BOOLEAN PacketSetBpf(LPADAPTER AdapterObject, struct bpf_program *fp)
   \param AdapterObject Pointer to an _ADAPTER structure.
   \param snaplen Desired snap len for this capture.
   \return If the function succeeds, the return value is nonzero and specifies the actual snaplen that 
-   the card is using. If the function fails or if the card does't allow to set sna length, the return 
+   the card is using. If the function fails or if the card doesn't allow to set sna length, the return 
    value is 0.
 
   The snap len is the amount of packet that is actually captured by the interface and received by the
