@@ -844,7 +844,7 @@ VOID NPF_BindAdapter(
   \brief Callback for NDIS UnbindAdapterHandler.
   \param Status out variable filled by NPF_UnbindAdapter with the status of the unbind operation.
   \param ProtocolBindingContext Context of the function. Contains a pointer to the OPEN_INSTANCE structure associated with current instance.
-  \param UnbindContext Specifies a handle, supplied by NDIS, that NPF can use to complete the opration.
+  \param UnbindContext Specifies a handle, supplied by NDIS, that NPF can use to complete the operation.
   
   Function called by NDIS when a new adapter is removed from the machine without shutting it down.
   NPF_UnbindAdapter closes the adapter calling NdisCloseAdapter() and frees the memory and the structures
