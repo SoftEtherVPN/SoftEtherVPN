@@ -665,7 +665,7 @@ bool SwSfxCopyVgFiles(HWND hWnd, wchar_t *src, wchar_t *dst)
 	}
 
 	msg = L"The file \"%s\" was not found on the directory which the installer \"%s\" is located on.\r\n\r\n"
-		L"To continue the installation, the file \"%s\" is required on the same direcotry.\r\n"
+		L"To continue the installation, the file \"%s\" is required on the same directory.\r\n"
 		L"If you have extracted the installer from a ZIP archive, you have to also extract the file \"%s\" from the ZIP archive together.";
 
 	MsgBoxEx(hWnd, MB_ICONINFORMATION, msg, srcfilename, exefilename, srcfilename, srcfilename);
