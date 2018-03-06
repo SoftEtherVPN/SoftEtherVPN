@@ -166,6 +166,9 @@ CONTRIBUTORS on GitHub:
   - Ryoga
     https://github.com/proelbtn
 
+  - parly
+    https://github.com/parly
+
      
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
