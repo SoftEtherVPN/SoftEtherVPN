@@ -1,11 +1,17 @@
 sudo: required
 dist: trusty
-os: linux
-language: c
-compiler:
-- gcc
-- clang
-script:
-- "./configure"
-- make
 
+os: linux
+
+addons:
+  apt:
+    packages: [ debhelper ]
+
+language: c
+
+compiler: [ gcc, clang ]
+
+script:
+  - ./configure
+  - make
+  - dh build-arch
