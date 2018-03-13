@@ -491,7 +491,11 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 	}
 
 	g_memcheck = memcheck;
+#ifdef DEBUG
+	g_debug = true;
+#else
 	g_debug = debug;
+#endif
 	cmdline = NULL;
 	if (dot_net_mode == false)
 	{
