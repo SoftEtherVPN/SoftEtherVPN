@@ -797,13 +797,13 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 			OvsLog(s, se, c, "LO_CLIENT_CERT", "(unknown CN)");
 		}
 	}
-	else if (!!c->ClientCert.PreverifyErr)
+	else if (!c->ClientCert.PreverifyErr)
 	{
-		OvsLog(s, se, c, "LO_CLIENT_UNVERIFIED_CERT", c->ClientCert.PreverifyErrMessage);
+		OvsLog(s, se, c, "LO_CLIENT_NO_CERT");
 	}
 	else
 	{
-		OvsLog(s, se, c, "LO_CLIENT_NO_CERT");
+		OvsLog(s, se, c, "LO_CLIENT_UNVERIFIED_CERT", c->ClientCert.PreverifyErrMessage);
 	}
 
 	Zero(opt_str, sizeof(opt_str));

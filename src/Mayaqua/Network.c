@@ -5822,7 +5822,6 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 
 	if (clientcert != NULL)
 	{
-		clientcert->PreverifyOk = preverify_ok;
 		clientcert->PreverifyErr = 0;
 		clientcert->PreverifyErrMessage[0] = '\0';
 		if (!preverify_ok)
@@ -5845,7 +5844,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 		}
 	}
 
-	return 1;
+	return 1; /* allow the verification process to continue */
 }
 
 // Create a new SSL pipe
@@ -5880,7 +5879,8 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
-		if (verify_peer) {  
+		if (verify_peer)
+		{
 			SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, SslCertVerifyCallback);
 		}
 

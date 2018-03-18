@@ -2073,7 +2073,6 @@ bool ServerAccept(CONNECTION *c)
 					{
 						// Certificate authentication
 						cert_size = PackGetDataSize(p, "cert");
-
 						if (cert_size >= 1 && cert_size <= 100000)
 						{
 							cert_buf = ZeroMalloc(cert_size);
