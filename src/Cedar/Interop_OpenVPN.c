@@ -710,7 +710,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 		pi = OvsParsePeerInfo(c->ClientKey.PeerInfo);
 
 		// Check presence of custom hostname
-		if (OvsHasOption(pi, "UV_HOSTNAME"))
+		if (OvsHasEntry(pi, "UV_HOSTNAME"))
 		{
 			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "UV_HOSTNAME"));
 		}
@@ -719,7 +719,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "IV_HWADDR"));
 		}
 
-		OvsFreeOptions(pi);
+		OvsFreeList(pi);
 
 		if (se->Mode == OPENVPN_MODE_L3)
 		{
@@ -932,7 +932,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	SetMdKey(c->MdRecv, c->ExpansionKey + 64, c->MdRecv->Size);
 	SetMdKey(c->MdSend, c->ExpansionKey + 192, c->MdSend->Size);
 
-	OvsFreeOptions(o);
+	OvsFreeList(o);
 
 	// Generate the response option string
 	Format(c->ServerKey.OptionString, sizeof(c->ServerKey.OptionString),
@@ -1055,7 +1055,7 @@ LIST *OvsParsePeerInfo(char *str)
 }
 
 // Release the option list
-void OvsFreeOptions(LIST *o)
+void OvsFreeList(LIST *o)
 {
 	// Validate arguments
 	if (o == NULL)
@@ -1067,13 +1067,13 @@ void OvsFreeOptions(LIST *o)
 }
 
 // Create an Option List
-LIST *OvsNewOptions()
+LIST *OvsNewList()
 {
 	return NewListFast(NULL);
 }
 
 // Add a value to the option list
-void OvsAddOption(LIST *o, char *key, char *value)
+void OvsAddEntry(LIST *o, char *key, char *value)
 {
 	INI_ENTRY *e;
 	// Validate arguments
@@ -1105,7 +1105,7 @@ void OvsAddOption(LIST *o, char *key, char *value)
 }
 
 // Confirm whether there is specified option key string
-bool OvsHasOption(LIST *o, char *key)
+bool OvsHasEntry(LIST *o, char *key)
 {
 	// Validate arguments
 	if (o == NULL || key == NULL)

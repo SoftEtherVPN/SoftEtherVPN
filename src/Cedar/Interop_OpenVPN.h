@@ -363,10 +363,10 @@ void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
 LIST *OvsParseOptions(char *str);
 LIST *OvsParsePeerInfo(char *str);
-void OvsFreeOptions(LIST *o);
-LIST *OvsNewOptions();
-void OvsAddOption(LIST *o, char *key, char *value);
-bool OvsHasOption(LIST *o, char *key);
+void OvsFreeList(LIST *o);
+LIST *OvsNewList();
+void OvsAddEntry(LIST *o, char *key, char *value);
+bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 bool OvsIsCompatibleL3IP(UINT ip);
