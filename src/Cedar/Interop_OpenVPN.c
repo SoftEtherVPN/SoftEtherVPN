@@ -707,7 +707,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 		// if the option --push-peer-info is enabled.
 		// It also sends all of the client's environment
 		// variables whose names start with "UV_".
-		pi = OvsParsePeerInfo(c->ClientKey.PeerInfo);
+		pi = OvsParseData(c->ClientKey.PeerInfo, OPENVPN_DATA_PEERINFO);
 
 		// Check presence of custom hostname
 		if (OvsHasEntry(pi, "UV_HOSTNAME"))
@@ -832,7 +832,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		StrCpy(opt_str, sizeof(opt_str), s->Cedar->OpenVPNDefaultClientOption);
 	}
 
-	o = OvsParseOptions(opt_str);
+	o = OvsParseData(opt_str, OPENVPN_DATA_OPTIONS);
 
 	if (se->Mode == OPENVPN_MODE_UNKNOWN)
 	{
@@ -984,13 +984,13 @@ MD *OvsGetMd(char *name)
 	return m;
 }
 
-// Parse the option string
-LIST *OvsParseOptions(char *str)
+// Parse data string
+LIST *OvsParseData(char *str, int type)
 {
 	LIST *o = NewListFast(NULL);
 	TOKEN_LIST *t;
 
-	t = ParseTokenWithoutNullStr(str, ",");
+	t = ParseTokenWithoutNullStr(str, type == OPENVPN_DATA_OPTIONS ? "," : "\n");
 	if (t != NULL)
 	{
 		UINT i;
@@ -1002,42 +1002,7 @@ LIST *OvsParseOptions(char *str)
 			char *line = t->Token[i];
 			Trim(line);
 
-			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), " \t"))
-			{
-				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
-
-				e->Key = CopyStr(key);
-				e->Value = CopyStr(value);
-
-				Add(o, e);
-			}
-		}
-
-		FreeToken(t);
-	}
-
-	return o;
-}
-
-// Parse the peer info string
-LIST *OvsParsePeerInfo(char *str)
-{
-	LIST *o = NewListFast(NULL);
-	TOKEN_LIST *t;
-
-	t = ParseTokenWithoutNullStr(str, "\n");
-	if (t != NULL)
-	{
-		UINT i;
-
-		for (i = 0;i < t->NumTokens;i++)
-		{
-			char key[MAX_SIZE];
-			char value[MAX_SIZE];
-			char *line = t->Token[i];
-			Trim(line);
-
-			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), "=\t"))
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), type == OPENVPN_DATA_OPTIONS ? " \t" : "=\t"))
 			{
 				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
 
