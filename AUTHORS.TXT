@@ -169,6 +169,9 @@ CONTRIBUTORS on GitHub:
   - parly
     https://github.com/parly
 
+  - Alexey Kryuchkov
+    https://github.com/a-kr
+
      
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
