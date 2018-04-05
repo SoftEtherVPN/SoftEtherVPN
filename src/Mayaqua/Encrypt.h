@@ -581,6 +581,8 @@ BUF *EasyDecrypt(BUF *src_buf);
 
 void DisableIntelAesAccel();
 
+int GetSslClientCertIndex();
+
 #ifdef	ENCRYPT_C
 // Inner function
 

@@ -1795,6 +1795,9 @@ bool ServerAccept(CONNECTION *c)
 				case AUTHTYPE_TICKET:
 					authtype_str = _UU("LH_AUTH_TICKET");
 					break;
+				case AUTHTYPE_OPENVPN_CERT:
+					authtype_str = _UU("LH_AUTH_OPENVPN_CERT");
+					break;
 				}
 				IPToStr(ip1, sizeof(ip1), &c->FirstSock->RemoteIP);
 				IPToStr(ip2, sizeof(ip2), &c->FirstSock->LocalIP);
@@ -2120,6 +2123,50 @@ bool ServerAccept(CONNECTION *c)
 					{
 						// Certificate authentication is not supported in the open source version
 						HLog(hub, "LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE", c->Name, username);
+						Unlock(hub->lock);
+						ReleaseHub(hub);
+						FreePack(p);
+						c->Err = ERR_AUTHTYPE_NOT_SUPPORTED;
+						goto CLEANUP;
+					}
+					break;
+
+				case AUTHTYPE_OPENVPN_CERT:
+					// For OpenVPN; mostly same as CLIENT_AUTHTYPE_CERT, but without
+					// signature verification, because it was already performed during TLS handshake.
+					if (c->IsInProc)
+					{
+						// Certificate authentication
+						cert_size = PackGetDataSize(p, "cert");
+						if (cert_size >= 1 && cert_size <= 100000)
+						{
+							cert_buf = ZeroMalloc(cert_size);
+							if (PackGetData(p, "cert", cert_buf))
+							{
+								BUF *b = NewBuf();
+								X *x;
+								WriteBuf(b, cert_buf, cert_size);
+								x = BufToX(b, false);
+								if (x != NULL && x->is_compatible_bit)
+								{
+									Debug("Got to SamAuthUserByCert %s\n", username); // XXX
+									// Check whether the certificate is valid.
+									auth_ret = SamAuthUserByCert(hub, username, x);
+									if (auth_ret)
+									{
+										// Copy the certificate
+										c->ClientX = CloneX(x);
+									}
+								}
+								FreeX(x);
+								FreeBuf(b);
+							}
+							Free(cert_buf);
+						}
+					}
+					else
+					{
+						// OpenVPN certificate authentication cannot be used directly by external clients
 						Unlock(hub->lock);
 						ReleaseHub(hub);
 						FreePack(p);
@@ -7243,6 +7290,45 @@ PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_pass
 	PackAddStr(p, "username", username);
 	PackAddInt(p, "authtype", CLIENT_AUTHTYPE_PLAIN_PASSWORD);
 	PackAddStr(p, "plain_password", plain_password);
+
+	return p;
+}
+
+// Generate a packet of OpenVPN certificate login
+PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
+{
+	PACK *p;
+	// Validate arguments
+	if (hubname == NULL || username == NULL || x == NULL)
+	{
+		return NULL;
+	}
+
+	p = NewPack();
+	PackAddStr(p, "method", "login");
+	PackAddStr(p, "hubname", hubname);
+
+	char cn_username[128];
+	if (IsEmptyStr(username))
+	{
+		if (x->subject_name == NULL)
+		{
+			return NULL;
+		}
+		wcstombs(cn_username, x->subject_name->CommonName, 127);
+		cn_username[127] = '\0';
+		PackAddStr(p, "username", cn_username);
+	}
+	else
+	{
+		PackAddStr(p, "username", username);
+	}
+
+	PackAddInt(p, "authtype", AUTHTYPE_OPENVPN_CERT);
+
+	BUF *cert_buf = XToBuf(x, false);
+	PackAddBuf(p, "cert", cert_buf);
+	FreeBuf(cert_buf);
 
 	return p;
 }

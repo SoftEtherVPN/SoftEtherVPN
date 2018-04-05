@@ -5809,14 +5809,52 @@ SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca)
 	return NULL;
 }
 
-int cb_test(int a, X509_STORE_CTX *ctx)
+// Verify client SSL certificate during TLS handshake.
+//
+// (actually, only save the certificate for later authentication in Protocol.c)
+int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 {
-	WHERE;
-	return 1;
+	SSL *ssl;
+	struct SslClientCertInfo *clientcert;
+
+	ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+	clientcert = SSL_get_ex_data(ssl, GetSslClientCertIndex());
+
+	if (clientcert != NULL)
+	{
+		clientcert->PreverifyErr = 0;
+		clientcert->PreverifyErrMessage[0] = '\0';
+		if (!preverify_ok)
+		{
+			clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
+			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
+			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, msg);
+			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
+		}
+		else
+		{
+			if (ctx->cert != NULL)
+			{
+				X *tmpX = X509ToX(ctx->cert); // this only wraps ctx->cert, but we need to make a copy
+				X *copyX = CloneX(tmpX);
+				tmpX->do_not_free = true; // do not release inner X509 object
+				FreeX(tmpX);
+				clientcert->X = copyX;
+			}
+		}
+	}
+
+	return 1; /* allow the verification process to continue */
 }
 
 // Create a new SSL pipe
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
+{
+	return NewSslPipeEx(server_mode, x, k, dh, false, NULL);
+}
+
+// Create a new SSL pipe with extended options
+SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert)
 {
 	SSL_PIPE *s;
 	SSL *ssl;
@@ -5841,7 +5879,10 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
-		//SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, cb_test);
+		if (verify_peer)
+		{
+			SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, SslCertVerifyCallback);
+		}
 
 		if (dh != NULL)
 		{
@@ -5854,6 +5895,8 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 		}
 
 		ssl = SSL_new(ssl_ctx);
+
+		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
 	Unlock(openssl_lock);
 

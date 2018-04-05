@@ -151,6 +151,8 @@
 
 LOCK *openssl_lock = NULL;
 
+int ssl_clientcert_index = 0;
+
 LOCK **ssl_lock_obj = NULL;
 UINT ssl_lock_num;
 static bool openssl_inited = false;
@@ -4064,6 +4066,8 @@ void InitCryptLibrary()
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
 
+	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);
+
 #ifdef	OS_UNIX
 	{
 		char *name1 = "/dev/random";
@@ -5289,5 +5293,9 @@ static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned c
 }
 
 
+int GetSslClientCertIndex()
+{
+	return ssl_clientcert_index;
+}
 
 

@@ -1810,6 +1810,9 @@ LO_PREFIX_CHANNEL		OpenVPN 会话%u (%r:%u -> %r:%u) 通道 %u:
 LO_NEW_CHANNEL			已创创建一个新通道。
 LO_CHANNEL_ESTABLISHED_NEWKEY	通道已建立。(触发器: Re-key完成。)
 LO_OPTION_STR_RECV		接收到的选项字符串："%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		发送选项字符串："%S"
 LO_NEW_SESSION			已创建新的会话。协议：%S
 LO_INITIATE_REKEY			re-keying 进程已开始。
@@ -1906,6 +1909,7 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为 RADIUS 身份验证或 Active Directory 身份验证 (NT 域验证)。然而，这样一个外部用户身份验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为证书认证。然而，证书验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。

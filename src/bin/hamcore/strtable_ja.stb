@@ -1796,6 +1796,9 @@ LO_PREFIX_CHANNEL		OpenVPN セッション %u (%r:%u -> %r:%u) チャネル %u:
 LO_NEW_CHANNEL			新しいチャネルを作成しました。
 LO_CHANNEL_ESTABLISHED_NEWKEY	チャネルが確立状態になりました (原因: リキーの完了)。
 LO_OPTION_STR_RECV		受信したオプション文字列: "%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		送信するオプション文字列: "%S"
 LO_NEW_SESSION			新しいセッションを作成しました。プロトコル: %S
 LO_INITIATE_REKEY		このチャネルのリキーを開始します。
@@ -1892,6 +1895,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として証明書認証が指定されましたが、証明書認証を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。

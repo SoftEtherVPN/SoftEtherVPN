@@ -1792,6 +1792,9 @@ LO_PREFIX_CHANNEL		OpenVPN Session %u (%r:%u -> %r:%u) Channel %u:
 LO_NEW_CHANNEL			A new channel is created.
 LO_CHANNEL_ESTABLISHED_NEWKEY	The channel is established. (Trigger: Re-key completion.)
 LO_OPTION_STR_RECV		Option Strings Received: "%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		Option Strings to Send: "%S"
 LO_NEW_SESSION			A new session is created. Protocol: %S
 LO_INITIATE_REKEY		The re-keying process is started.
@@ -1888,6 +1891,7 @@ LH_AUTH_PASSWORD		Password authentication
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT			Certificate authentication
 LH_AUTH_TICKET			Ticket authentication
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
@@ -7164,5 +7168,3 @@ SW_LINK_NAME_LANGUAGE_COMMENT				Change the display language setting of %s.
 
 SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
 SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
-
-

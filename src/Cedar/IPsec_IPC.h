@@ -165,6 +165,7 @@ struct IPC_PARAM
 	UINT Mss;
 	bool IsL3Mode;
 	bool IsOpenVPN;
+	X *ClientCertificate;
 };
 
 // IPC_ASYNC object
@@ -224,7 +225,7 @@ struct IPC_MSCHAP_V2_AUTHINFO
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client);
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate);
 IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code);
 IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address);
 void FreeIPC(IPC *ipc);
