@@ -1,0 +1,29 @@
+Hi  there. Thank you for using SoftEtherVPN. Before you submit an issue, please think about the following: 
+
+* [ ] Is this a question? If the answer is yes, then please ask your question on [www.vpnusers.com](www.vpnusers.com). The issue section on github is reserved for bugs and feature requests. 
+
+### Prerequisites for bug report
+
+* [ ] Can you reproduce?
+* [ ] Are you running the latest version of SoftEther?
+
+### Description for bug report
+
+[Description of the bug or feature]
+
+OS: [MacOS, Linux, etc..]
+SoftEther Version: 
+Hardware: [Amd/Intel 32/64 Bit, Rasberrypie...]
+Component: [Server, client, bridge, etc..]
+
+
+### Steps to Reproduce
+
+1. [First Step]
+2. [Second Step]
+3. [and so on...]
+
+**Expected behavior:** [What you expected to happen]
+
+**Actual behavior:** [What actually happened]
+
