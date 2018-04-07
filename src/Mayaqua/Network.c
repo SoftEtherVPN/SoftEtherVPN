@@ -5809,6 +5809,11 @@ SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca)
 	return NULL;
 }
 
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define X509_STORE_CTX_get0_cert(o) ((o)->cert)
+#endif
+
 // Verify client SSL certificate during TLS handshake.
 //
 // (actually, only save the certificate for later authentication in Protocol.c)
@@ -5816,6 +5821,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 {
 	SSL *ssl;
 	struct SslClientCertInfo *clientcert;
+	X509 *cert;
 
 	ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
 	clientcert = SSL_get_ex_data(ssl, GetSslClientCertIndex());
@@ -5833,9 +5839,10 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 		}
 		else
 		{
-			if (ctx->cert != NULL)
+			cert = X509_STORE_CTX_get0_cert(ctx);
+			if (cert != NULL)
 			{
-				X *tmpX = X509ToX(ctx->cert); // this only wraps ctx->cert, but we need to make a copy
+				X *tmpX = X509ToX(cert); // this only wraps cert, but we need to make a copy
 				X *copyX = CloneX(tmpX);
 				tmpX->do_not_free = true; // do not release inner X509 object
 				FreeX(tmpX);
