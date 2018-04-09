@@ -9,9 +9,36 @@ addons:
 
 language: c
 
-compiler: [ gcc, clang ]
+env:
+  global:
+    - PREFIX="${HOME}/opt"
+    - CFLAGS="-I${PREFIX}/include"
+    - LDFLAGS="-L${PREFIX}/lib"
+
+matrix:
+  include:
+    - env: OPENSSL_VERSION="1.0.2o"
+      os: linux
+      compiler: gcc
+    - env: OPENSSL_VERSION="1.1.0f"
+      os: linux
+      compiler: gcc
+    - env: OPENSSL_VERSION="1.0.2o"
+      os: linux
+      compiler: clang
+    - env: OPENSSL_VERSION="1.1.0f"
+      os: linux
+      compiler: clang
+
+cache:
+  directories:
+  - download-cache
+  - ${HOME}/opt
 
 script:
+  - .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
+  - export LD_LIBRARY_PATH="${PREFIX}/lib:${LD_LIBRARY_PATH:-}"
   - ./configure
   - make
+  - ldd bin/vpnserver/vpnserver
   - dh build-arch
