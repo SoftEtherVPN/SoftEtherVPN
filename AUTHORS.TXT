@@ -172,7 +172,10 @@ CONTRIBUTORS on GitHub:
   - Alexey Kryuchkov
     https://github.com/a-kr
 
-     
+  - Davide Beatrici
+    https://github.com/davidebeatrici
+
+       
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
 
