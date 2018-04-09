@@ -2194,7 +2194,7 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 	}
 	if (bits == 0)
 	{
-		bits = 1024;
+		bits = RSA_KEY_SIZE;
 	}
 
 	// Hash the data
@@ -2233,7 +2233,7 @@ bool RsaSignEx(void *dst, void *src, UINT size, K *k, UINT bits)
 	}
 	if (bits == 0)
 	{
-		bits = 1024;
+		bits = RSA_KEY_SIZE;
 	}
 
 	Zero(dst, bits / 8);
@@ -2302,7 +2302,7 @@ bool RsaCheck()
 	BIO *bio;
 	char errbuf[MAX_SIZE];
 	UINT size = 0;
-	UINT bit = 32;
+	UINT bit = RSA_KEY_SIZE;
 	// Validate arguments
 
 	// Key generation
@@ -2372,7 +2372,7 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	}
 	if (bit == 0)
 	{
-		bit = 1024;
+		bit = RSA_KEY_SIZE;
 	}
 
 	// Key generation
