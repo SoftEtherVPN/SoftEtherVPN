@@ -1,29 +1,47 @@
-Hi  there. Thank you for using SoftEtherVPN. Before you submit an issue, please think about the following: 
+Hi, there!
 
-* [ ] Is this a question? If the answer is yes, then please ask your question on [www.vpnusers.com](www.vpnusers.com). The issue section on github is reserved for bugs and feature requests. 
+Thank you for using SoftEther.
 
-### Prerequisites for bug report
+Before you submit an issue, please read the following:
+
+Is this a question?
+
+- If the answer is "yes", then please ask your question on [www.vpnusers.com](http://www.vpnusers.com).
+The issue section on GitHub is reserved for bugs and feature requests.
+
+- If the answer is "no", please read the following:
+
+We provide a template which is specifically made for bug reports, in order to be sure that the report includes enough details to be helpful.
+
+Please use or adapt it as needed.
+
+---
+
+### Prerequisites
 
 * [ ] Can you reproduce?
-* [ ] Are you running the latest version of SoftEther?
+* [ ] Are you running the latest version of SoftEtherVPN?
 
-### Description for bug report
+**SoftEther version:**
+**Component:** [Server, Client, Bridge, etc.]
+**Operating system:** [Windows, Linux, BSD, macOS, etc.]
+**Architecture:** [64 bit, 32 bit]
 
-[Description of the bug or feature]
+[In case it's a computer with known specs, such as the Raspberry Pi, you can specify it omitting the details.]
+**Processor:** [Specify brand and model. Example: AMD Ryzen 7 1800x]
 
-OS: [MacOS, Linux, etc..]
-SoftEther Version: 
-Hardware: [Amd/Intel 32/64 Bit, Rasberrypie...]
-Component: [Server, client, bridge, etc..]
+### Description
 
+[Description of the bug]
 
-### Steps to Reproduce
+**Expected behavior:**
+[What you expected to happen]
 
-1. [First Step]
-2. [Second Step]
-3. [and so on...]
+**Actual behavior:**
+[What actually happened]
 
-**Expected behavior:** [What you expected to happen]
+### Steps to reproduce
 
-**Actual behavior:** [What actually happened]
-
+1. [First step]
+2. [Second step]
+3. [And so on...]
