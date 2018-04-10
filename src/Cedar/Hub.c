@@ -5514,7 +5514,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 		}
 	}
 
-	if (dest != NULL && src != NULL && dest->Session != NULL && src->Hub != NULL && src->Hub->Option != NULL)
+	if (src != NULL && dest->Session != NULL && src->Hub != NULL && src->Hub->Option != NULL)
 	{
 		if (dest->Session->AdjustMss != 0 ||
 			(dest->Session->IsUsingUdpAcceleration && dest->Session->UdpAccelMss != 0) ||

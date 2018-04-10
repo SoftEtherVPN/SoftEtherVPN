@@ -13489,7 +13489,7 @@ UINT AdminAccept(CONNECTION *c, PACK *p)
 	else
 	{
 		// Hub admin mode
-		if (cedar->Server != NULL && cedar->Server->ServerType == SERVER_TYPE_FARM_MEMBER)
+		if (server != NULL && server->ServerType == SERVER_TYPE_FARM_MEMBER)
 		{
 			// Connection with hub admin mode to cluster member is not permitted
 			return ERR_NOT_ENOUGH_RIGHT;
