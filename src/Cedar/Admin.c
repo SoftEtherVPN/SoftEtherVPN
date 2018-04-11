@@ -1619,7 +1619,7 @@ UINT StGetHubMsg(ADMIN *a, RPC_MSG *t)
 	else
 	{
 		FreeRpcMsg(t);
-		Zero(t, sizeof(t));
+		Zero(t, sizeof(RPC_MSG));
 
 		t->Msg = GetHubMsg(h);
 
@@ -6304,7 +6304,7 @@ UINT StGetLink(ADMIN *a, RPC_CREATE_LINK *t)
 
 	StrCpy(hubname, sizeof(hubname), t->HubName);
 	FreeRpcCreateLink(t);
-	Zero(t, sizeof(t));
+	Zero(t, sizeof(RPC_CREATE_LINK));
 	StrCpy(t->HubName, sizeof(t->HubName), hubname);
 
 	Lock(k->lock);
@@ -7750,7 +7750,7 @@ UINT StGetHubRadius(ADMIN *a, RPC_RADIUS *t)
 		return ERR_HUB_NOT_FOUND;
 	}
 
-	Zero(t, sizeof(t));
+	Zero(t, sizeof(RPC_RADIUS));
 	//GetRadiusServer(h, t->RadiusServerName, sizeof(t->RadiusServerName),
 	//	&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret));
 	GetRadiusServerEx(h, t->RadiusServerName, sizeof(t->RadiusServerName),

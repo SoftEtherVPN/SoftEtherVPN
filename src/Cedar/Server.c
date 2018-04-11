@@ -1341,7 +1341,7 @@ void GetServerCaps(SERVER *s, CAPSLIST *t)
 			GetServerCapsMain(s, s->CapsListCache);
 		}
 
-		Copy(t, s->CapsListCache, sizeof(s->CapsListCache));
+		Copy(t, s->CapsListCache, sizeof(CAPSLIST));
 	}
 	Unlock(s->CapsCacheLock);
 }
