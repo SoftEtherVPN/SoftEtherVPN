@@ -4040,6 +4040,22 @@ void FreeOpenSSLThreadState()
 	ERR_remove_state(0);
 }
 
+void FreeSsl()
+{
+	/* thread-safe cleanup */ 
+	ERR_remove_state(0);
+	ENGINE_cleanup(); 
+	CONF_modules_unload(1); 
+
+	sk_free(SSL_COMP_get_compression_methods());
+
+	/* global application exit cleanup (after all SSL activity is shutdown) */ 
+	ERR_free_strings(); 
+	EVP_cleanup(); 
+	CRYPTO_cleanup_all_ex_data();
+
+}
+
 // Release the Crypt library
 void FreeCryptLibrary()
 {
@@ -4049,6 +4065,8 @@ void FreeCryptLibrary()
 	openssl_lock = NULL;
 //	RAND_Free_For_SoftEther();
 	OpenSSL_FreeLock();
+
+	FreeSsl();
 }
 
 // Initialize the Crypt library
