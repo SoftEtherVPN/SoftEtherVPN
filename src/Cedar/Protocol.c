@@ -2948,12 +2948,9 @@ bool ServerAccept(CONNECTION *c)
 			// VLAN ID
 			if (assigned_vlan_id != 0)
 			{
-				if (policy != NULL)
+				if (policy->VLanId == 0)
 				{
-					if (policy->VLanId == 0)
-					{
-						policy->VLanId = assigned_vlan_id;
-					}
+					policy->VLanId = assigned_vlan_id;
 				}
 			}
 
@@ -3146,12 +3143,7 @@ bool ServerAccept(CONNECTION *c)
 			s->Timeout = timeout;
 			s->QoS = qos;
 			s->NoReconnectToSession = no_reconnect_to_session;
-
-
-			if (policy != NULL)
-			{
-				s->VLanId = policy->VLanId;
-			}
+			s->VLanId = policy->VLanId;
 
 			// User name
 			s->Username = CopyStr(username);

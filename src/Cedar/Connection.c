@@ -1082,12 +1082,12 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			for (i = 0;i < num;i++)
 			{
 				TCPSOCK *tcpsock = tcpsocks[i];
-				if (tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
+				if (s != NULL && tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
 					IS_SEND_TCP_SOCK(tcpsock))
 				{
 					// Processing of KeepAlive
 					if (now >= tcpsock->NextKeepAliveTime || tcpsock->NextKeepAliveTime == 0 ||
-						(s != NULL && s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
+						(s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
 					{
 						// Send the KeepAlive
 						SendKeepAlive(c, tcpsock);
