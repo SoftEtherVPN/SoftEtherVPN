@@ -999,15 +999,6 @@ namespace BuildUtil
 				}
 			}
 
-			if (this.Os == OSList.Linux)
-			{
-				if (this.Cpu == CpuList.x86 || this.Cpu == CpuList.x64)
-				{
-					// Include libintelaes.a only for x86 / x64 in Linux
-					libs.Add(string.Format("lib/{0}.a", "libintelaes"));
-				}
-			}
-
 			gccOptionForCompile = MakeGccOptions(macros.ToArray(), includes.ToArray(), options.ToArray(), null);
 
 			if (crossCompile)
