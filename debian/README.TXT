@@ -9,6 +9,6 @@ See also:
 Add simple debian packaging #20
 https://github.com/SoftEtherVPN/SoftEtherVPN/pull/20
 
-February 5, 2004
+February 5, 2014
 Daiyuu Nobori
 SoftEther VPN Project
