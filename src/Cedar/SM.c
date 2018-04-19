@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -872,16 +872,18 @@ UINT SmDDnsDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 
 // Get the ddns key from the server configuration file
 static UINT SmDdnsGetKey(char *key, SM_DDNS *d){
-	RPC *rpc = d->s->Rpc;
 	RPC_CONFIG config;
 	UINT err;
 	BUF *buf;
 	FOLDER *root, *ddnsfolder;
+	RPC *rpc;
 
 	// Validate arguments
 	if(d == NULL || d->s == NULL || key == NULL){
 		return ERR_INTERNAL_ERROR;
 	}
+
+	rpc = d->s->Rpc;
 
 	Zero(&config, sizeof(config));
 	err = ScGetConfig(d->s->Rpc, &config);
@@ -17011,6 +17013,7 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 
 	// Set the encryption algorithm list
 	cipher_list = GetCipherList();
+	SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
 	CbSetHeight(hWnd, C_CIPHER, 18);
 	for (i = 0;i < cipher_list->NumTokens;i++)
 	{
@@ -18362,6 +18365,7 @@ void SmServerDlgInit(HWND hWnd, SM_SERVER *p)
 void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 {
 	RPC_ENUM_HUB t;
+	RPC_LISTENER_LIST t2;
 	DDNS_CLIENT_STATUS st;
 	RPC_AZURE_STATUS sta;
 	UINT i;
@@ -18449,38 +18453,34 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 	}
 
 	// Listener list update
-	if (p != NULL)
+	Zero(&t2, sizeof(RPC_LISTENER_LIST));
+	if (CALL(hWnd, ScEnumListener(p->Rpc, &t2)))
 	{
-		RPC_LISTENER_LIST t;
-		Zero(&t, sizeof(RPC_LISTENER_LIST));
-		if (CALL(hWnd, ScEnumListener(p->Rpc, &t)))
+		LVB *b = LvInsertStart();
+		for (i = 0;i < t2.NumPort;i++)
 		{
-			LVB *b = LvInsertStart();
-			for (i = 0;i < t.NumPort;i++)
+			wchar_t tmp[MAX_SIZE];
+			wchar_t *status;
+			UINT icon;
+			UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t2.Ports[i]);
+
+			status = _UU("CM_LISTENER_ONLINE");
+			icon = ICO_PROTOCOL;
+			if (t2.Errors[i])
 			{
-				wchar_t tmp[MAX_SIZE];
-				wchar_t *status;
-				UINT icon;
-				UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t.Ports[i]);
-
-				status = _UU("CM_LISTENER_ONLINE");
-				icon = ICO_PROTOCOL;
-				if (t.Errors[i])
-				{
-					status = _UU("CM_LISTENER_ERROR");
-					icon = ICO_PROTOCOL_X;
-				}
-				else if (t.Enables[i] == false)
-				{
-					status = _UU("CM_LISTENER_OFFLINE");
-					icon = ICO_PROTOCOL_OFFLINE;
-				}
-
-				LvInsertAdd(b, icon, (void *)t.Ports[i], 2, tmp, status);
+				status = _UU("CM_LISTENER_ERROR");
+				icon = ICO_PROTOCOL_X;
 			}
-			LvInsertEnd(b, hWnd, L_LISTENER);
-			FreeRpcListenerList(&t);
+			else if (t2.Enables[i] == false)
+			{
+				status = _UU("CM_LISTENER_OFFLINE");
+				icon = ICO_PROTOCOL_OFFLINE;
+			}
+
+			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2, tmp, status);
 		}
+		LvInsertEnd(b, hWnd, L_LISTENER);
+		FreeRpcListenerList(&t2);
 	}
 
 	// Get the DDNS client state
@@ -20695,7 +20695,3 @@ void SMExec()
 #endif	// WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
