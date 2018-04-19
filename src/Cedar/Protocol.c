@@ -7298,6 +7298,8 @@ PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_pass
 PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 {
 	PACK *p;
+	char cn_username[128];
+	BUF *cert_buf = NULL;
 	// Validate arguments
 	if (hubname == NULL || username == NULL || x == NULL)
 	{
@@ -7308,7 +7310,6 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 	PackAddStr(p, "method", "login");
 	PackAddStr(p, "hubname", hubname);
 
-	char cn_username[128];
 	if (IsEmptyStr(username))
 	{
 		if (x->subject_name == NULL)
@@ -7326,7 +7327,7 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 
 	PackAddInt(p, "authtype", AUTHTYPE_OPENVPN_CERT);
 
-	BUF *cert_buf = XToBuf(x, false);
+	cert_buf = XToBuf(x, false);
 	PackAddBuf(p, "cert", cert_buf);
 	FreeBuf(cert_buf);
 
