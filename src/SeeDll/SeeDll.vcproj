@@ -67,6 +67,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="C:\WinDDK\7600.16385.1\inc\mfc42;$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -166,6 +167,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="C:\WinDDK\7600.16385.1\inc\mfc42;$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
