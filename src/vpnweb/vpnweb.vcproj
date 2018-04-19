@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				AdditionalDependencies="atlthunk.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\not_signed\vpnweb.ocx"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\WinDDK\7600.16385.1\lib\ATL\i386&quot;"
@@ -183,7 +183,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="&quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
+				AdditionalDependencies="atlthunk.lib &quot;$(SolutionDir)tmp\VersionResources\$(ProjectName)_$(PlatformName).res&quot;"
 				OutputFile="$(OutDir)\not_signed\vpnweb.ocx"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\WinDDK\7600.16385.1\lib\ATL\i386&quot;;&quot;C:\Program Files (x86)\Microsoft Visual Studio 8\VC\lib&quot;"
