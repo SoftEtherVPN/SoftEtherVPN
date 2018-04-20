@@ -2333,23 +2333,29 @@ void CfgDeleteFolder(FOLDER *f)
 
 	// Remove all subfolders
 	num = LIST_NUM(f->Folders);
-	ff = Malloc(sizeof(FOLDER *) * num);
-	Copy(ff, f->Folders->p, sizeof(FOLDER *) * num);
-	for (i = 0;i < num;i++)
+	if (num  != 0)
 	{
-		CfgDeleteFolder(ff[i]);
+		ff = Malloc(sizeof(FOLDER *) * num);
+		Copy(ff, f->Folders->p, sizeof(FOLDER *) * num);
+		for (i = 0;i < num;i++)
+		{
+			CfgDeleteFolder(ff[i]);
+		}
+		Free(ff);
 	}
-	Free(ff);
 
 	// Remove all items
 	num = LIST_NUM(f->Items);
-	tt = Malloc(sizeof(ITEM *) * num);
-	Copy(tt, f->Items->p, sizeof(ITEM *) * num);
-	for (i = 0;i < num;i++)
+	if (num != 0)
 	{
-		CfgDeleteItem(tt[i]);
+		tt = Malloc(sizeof(ITEM *) * num);
+		Copy(tt, f->Items->p, sizeof(ITEM *) * num);
+		for (i = 0;i < num;i++)
+		{
+			CfgDeleteItem(tt[i]);
+		}
+		Free(tt);
 	}
-	Free(tt);
 
 	// Memory release
 	Free(f->Name);
