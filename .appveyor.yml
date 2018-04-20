@@ -16,3 +16,6 @@ build_script:
 - cmd: >-
     src\BuildAll.cmd
     exit %errorlevel%
+
+artifacts:
+  - path: output\pkg\*\*
