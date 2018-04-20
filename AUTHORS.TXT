@@ -175,6 +175,11 @@ CONTRIBUTORS on GitHub:
   - Davide Beatrici
     https://github.com/davidebeatrici
 
+  - tidatida
+    tidatida@foxmail.com
+
+
+
        
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
