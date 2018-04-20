@@ -362,6 +362,7 @@ BUF *OvsBuildKeyMethod2(OPENVPN_KEY_METHOD_2 *d);
 void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
 LIST *OvsParseOptions(char *str);
+LIST *OvsParsePeerInfo(char *str);
 void OvsFreeOptions(LIST *o);
 LIST *OvsNewOptions();
 void OvsAddOption(LIST *o, char *key, char *value);

@@ -673,6 +673,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 
 	if (se->IpcAsync == NULL)
 	{
+		LIST *pi;
 		IPC_PARAM p;
 		ETHERIP_ID id;
 
@@ -701,6 +702,24 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 		{
 			StrCpy(p.CryptName, sizeof(p.CryptName), c->CipherEncrypt->Name);
 		}
+
+		// OpenVPN sends the default gateway's MAC address,
+		// if the option --push-peer-info is enabled.
+		// It also sends all of the client's environment
+		// variables whose names start with "UV_".
+		pi = OvsParsePeerInfo(c->ClientKey.PeerInfo);
+
+		// Check presence of custom hostname
+		if (OvsHasOption(pi, "UV_HOSTNAME"))
+		{
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "UV_HOSTNAME"));
+		}
+		else // Use the default gateway's MAC address
+		{
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "IV_HWADDR"));
+		}
+
+		OvsFreeOptions(pi);
 
 		if (se->Mode == OPENVPN_MODE_L3)
 		{
@@ -984,6 +1003,41 @@ LIST *OvsParseOptions(char *str)
 			Trim(line);
 
 			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), " \t"))
+			{
+				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
+
+				e->Key = CopyStr(key);
+				e->Value = CopyStr(value);
+
+				Add(o, e);
+			}
+		}
+
+		FreeToken(t);
+	}
+
+	return o;
+}
+
+// Parse the peer info string
+LIST *OvsParsePeerInfo(char *str)
+{
+	LIST *o = NewListFast(NULL);
+	TOKEN_LIST *t;
+
+	t = ParseTokenWithoutNullStr(str, "\n");
+	if (t != NULL)
+	{
+		UINT i;
+
+		for (i = 0;i < t->NumTokens;i++)
+		{
+			char key[MAX_SIZE];
+			char value[MAX_SIZE];
+			char *line = t->Token[i];
+			Trim(line);
+
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), "=\t"))
 			{
 				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
 
