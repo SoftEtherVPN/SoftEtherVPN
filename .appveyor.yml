@@ -7,12 +7,12 @@ skip_branch_with_pr: true
 clone_depth: 1
 
 init:
-- ps: Update-AppveyorBuild -Version "build-$env:appveyor_build_number-$($env:appveyor_repo_commit.substring(0,7))"
+  - ps: Update-AppveyorBuild -Version "build-$env:appveyor_build_number-$($env:appveyor_repo_commit.substring(0,7))"
 
 build_script:
-- cmd: >-
-    src\BuildAll.cmd
-    exit %errorlevel%
+  - cmd: >-
+      src\BuildAll.cmd
+      exit %errorlevel%
 
 artifacts:
   - path: output\pkg\*\*
