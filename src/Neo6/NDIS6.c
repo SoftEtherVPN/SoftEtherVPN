@@ -119,6 +119,7 @@
 
 static UINT64 max_speed = NEO_MAX_SPEED_DEFAULT;
 static bool keep_link = false;
+static UINT reg_if_type = IF_TYPE_ETHERNET_CSMACD;
 
 BOOLEAN
 PsGetVersion(
@@ -350,8 +351,8 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	gen.AccessType = NET_IF_ACCESS_BROADCAST;
 	gen.DirectionType = NET_IF_DIRECTION_SENDRECEIVE;
 	gen.ConnectionType = NET_IF_CONNECTION_DEDICATED;
-	gen.IfType = IF_TYPE_ETHERNET_CSMACD;
-	gen.IfConnectorPresent = TRUE;
+	gen.IfType = reg_if_type;
+	gen.IfConnectorPresent = FALSE;
 	gen.SupportedStatistics =
 		NDIS_STATISTICS_FLAGS_VALID_DIRECTED_FRAMES_RCV |
 		NDIS_STATISTICS_FLAGS_VALID_MULTICAST_FRAMES_RCV |
@@ -896,6 +897,20 @@ BOOL NeoLoadRegistory()
 	}
 
 	keep_link = keep;
+
+	// Read the *IfType value
+	name = NewUnicode("*IfType");
+	NdisReadConfiguration(&ret, &param, config, GetUnicode(name), NdisParameterInteger);
+	FreeUnicode(name);
+
+	if (NG(ret) || param->ParameterType != NdisParameterInteger)
+	{
+		reg_if_type = IF_TYPE_ETHERNET_CSMACD;
+	}
+	else
+	{
+		reg_if_type = param->ParameterData.IntegerData;
+	}
 
 	// Close the config handle
 	NdisCloseConfiguration(config);

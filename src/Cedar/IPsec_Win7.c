@@ -266,6 +266,8 @@ void IPsecWin7UpdateHostIPAddressList(IPSEC_WIN7 *w)
 
 	buf = NewBuf();
 
+	Debug("***** IPsecWin7UpdateHostIPAddressList Begin *****\n");
+
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		IP *ip = LIST_DATA(o, i);
@@ -287,6 +289,8 @@ void IPsecWin7UpdateHostIPAddressList(IPSEC_WIN7 *w)
 				Copy(a.IpAddress.IPv6Address, ip->ipv6_addr, 16);
 			}
 
+			Debug("IP %u: %r\n", i, ip);
+
 			WriteBuf(buf, &a, sizeof(WFP_LOCAL_IP));
 		}
 	}
@@ -299,6 +303,8 @@ void IPsecWin7UpdateHostIPAddressList(IPSEC_WIN7 *w)
 	FreeHostIPAddressList(o);
 
 	FreeBuf(buf);
+
+	Debug("***** IPsecWin7UpdateHostIPAddressList End *****\n");
 }
 
 // Release the module

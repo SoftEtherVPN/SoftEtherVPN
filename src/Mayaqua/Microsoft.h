@@ -1160,6 +1160,7 @@ void MsTest();
 
 bool MsSaveSystemInfo(wchar_t *dst_filename);
 bool MsCollectVpnInfo(BUF *bat, char *tmpdir, char *svc_name, wchar_t *config_name, wchar_t *logdir_name);
+void MsInitProcessCallOnce();
 
 MS_SUSPEND_HANDLER *MsNewSuspendHandler();
 void MsFreeSuspendHandler(MS_SUSPEND_HANDLER *h);

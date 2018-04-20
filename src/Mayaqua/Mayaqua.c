@@ -156,6 +156,20 @@ static bool probe_enabled = false;
 
 
 
+// The function which should be called once as soon as possible after the process is started
+static bool init_proc_once_flag = false;
+void InitProcessCallOnce()
+{
+	if (init_proc_once_flag == false)
+	{
+		init_proc_once_flag = true;
+
+#ifdef	OS_WIN32
+		MsInitProcessCallOnce();
+#endif	// OS_WIN32
+	}
+}
+
 // Calculate the checksum
 USHORT CalcChecksum16(void *buf, UINT size)
 {
@@ -489,6 +503,8 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 	{
 		return;
 	}
+
+	InitProcessCallOnce();
 
 	g_memcheck = memcheck;
 	g_debug = debug;
