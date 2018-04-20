@@ -638,7 +638,6 @@ USERLIST *FindUserList(LIST *o, char *filename);
 bool IsUserMatchInUserList(LIST *o, char *filename, UINT64 user_hash);
 bool IsUserMatchInUserListWithCacheExpires(LIST *o, char *filename, UINT64 user_hash, UINT64 lifetime);
 bool IsUserMatchInUserListWithCacheExpiresAcl(LIST *o, char *name_in_acl, UINT64 user_hash, UINT64 lifetime);
-void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
 void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);

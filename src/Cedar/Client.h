@@ -598,9 +598,6 @@ void CcSetServiceToForegroundProcess(REMOTE_CLIENT *r);
 char *CiGetFirstVLan(CLIENT *c);
 void CiNormalizeAccountVLan(CLIENT *c);
 
-bool CompareInternetSetting(INTERNET_SETTING *s1, INTERNET_SETTING *s2);
-
-
 void CnStart();
 void CnListenerProc(THREAD *thread, void *param);
 
@@ -642,7 +639,6 @@ SOCK *CncConnect();
 SOCK *CncConnectEx(UINT timeout);
 void CncReleaseSocket();
 void CncExit();
-UINT CncGetSessionId();
 bool CncExecDriverInstaller(char *arg);
 SOCK *CncStatusPrinterWindowStart(SESSION *s);
 void CncStatusPrinterWindowPrint(SOCK *s, wchar_t *str);
@@ -651,7 +647,6 @@ void CncStatusPrinterWindowThreadProc(THREAD *thread, void *param);
 bool CncConnectErrorDlg(SESSION *session, UI_CONNECTERROR_DLG *dlg);
 void CncConnectErrorDlgHaltThread(THREAD *thread, void *param);
 bool CncPasswordDlg(SESSION *session, UI_PASSWORD_DLG *dlg);
-void CncPasswordDlgHaltThread(THREAD *thread, void *param);
 void CncCheckCert(SESSION *session, UI_CHECKCERT *dlg);
 void CncCheckCertHaltThread(THREAD *thread, void *param);
 bool CncSecureSignDlg(SECURE_SIGN *sign);
@@ -793,13 +788,9 @@ bool CiTryToParseAccount(BUF *b);
 bool CiTryToParseAccountFile(wchar_t *name);
 bool CiEraseSensitiveInAccount(BUF *b);
 bool CiHasAccountSensitiveInformation(BUF *b);
-bool CiHasAccountSensitiveInformationFile(wchar_t *name);
 void CiApplyInnerVPNServerConfig(CLIENT *c);
-SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server);
-void CiFreeInnerVPNServer(CLIENT *c, SERVER *s);
 void CiIncrementNumActiveSessions();
 void CiDecrementNumActiveSessions();
-UINT CiGetNumActiveSessions();
 
 BUF *EncryptPassword(char *password);
 BUF *EncryptPassword2(char *password);

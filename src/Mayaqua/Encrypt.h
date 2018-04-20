@@ -427,7 +427,6 @@ bool CompareName(NAME *n1, NAME *n2);
 K *GetKFromX(X *x);
 bool CheckSignature(X *x, K *k);
 X *X509ToX(X509 *x509);
-bool CheckX(X *x, X *x_issuer);
 bool CheckXEx(X *x, X *x_issuer, bool check_name, bool check_date);
 bool Asn1TimeToSystem(SYSTEMTIME *s, void *asn1_time);
 bool StrToSystem(SYSTEMTIME *s, char *str);

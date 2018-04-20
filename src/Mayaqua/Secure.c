@@ -838,32 +838,6 @@ bool DeleteSecCert(SECURE *sec, char *name)
 	return DeleteSecObjectByName(sec, name, SEC_X);
 }
 
-// Convert the the CK_DATE to the 64 bit time
-UINT64 CkDateToUINT64(struct CK_DATE *ck_date)
-{
-	SYSTEMTIME st;
-	char year[32], month[32], day[32];
-	// Validate arguments
-	if (ck_date == NULL)
-	{
-		return 0;
-	}
-
-	Zero(year, sizeof(year));
-	Zero(month, sizeof(month));
-	Zero(day, sizeof(day));
-
-	Copy(year, ck_date->year, 4);
-	Copy(month, ck_date->month, 2);
-	Copy(day, ck_date->day, 2);
-
-	st.wYear = ToInt(year);
-	st.wMonth = ToInt(month);
-	st.wDay = ToInt(day);
-
-	return SystemToUINT64(&st);
-}
-
 // Convert the 64 bit time to the CK_DATE
 void UINT64ToCkDate(void *p_ck_date, UINT64 time64)
 {

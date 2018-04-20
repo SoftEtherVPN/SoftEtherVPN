@@ -287,23 +287,6 @@ void FreeEraseFileList(LIST *o)
 	ReleaseList(o);
 }
 
-// Show the deleting file list
-void PrintEraseFileList(LIST *o)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		ERASE_FILE *f = LIST_DATA(o, i);
-		Print("%I64u - %s\n", f->UpdateTime, f->FullPath);
-	}
-}
-
 // Generate a deleting file list of the specified directory
 void EnumEraseFile(LIST *o, char *dirname)
 {
@@ -614,23 +597,6 @@ void ELog(ERASER *e, char *name, ...)
 	va_end(args);
 }
 
-// Take the log of the server
-void ServerLog(CEDAR *c, wchar_t *fmt, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	UniFormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteServerLog(c, buf);
-	va_end(args);
-}
 void SLog(CEDAR *c, char *name, ...)
 {
 	wchar_t buf[MAX_SIZE * 2];
@@ -672,22 +638,6 @@ void CLog(CLIENT *c, char *name, ...)
 }
 
 // Take the security log of the HUB
-void HubLog(HUB *h, wchar_t *fmt, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	UniFormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteHubLog(h, buf);
-	va_end(args);
-}
 void ALog(ADMIN *a, HUB *h, char *name, ...)
 {
 	wchar_t buf[MAX_SIZE * 2];
@@ -880,34 +830,6 @@ void PPPLog(PPP_SESSION *p, char *name, ...)
 	WriteServerLog(p->Cedar, buf);
 }
 
-// Write an IPC log
-void IPCLog(IPC *ipc, char *name, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	HUB *h;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return;
-	}
-
-	h = GetHub(ipc->Cedar, ipc->HubName);
-
-	if (h == NULL)
-	{
-		return;
-	}
-
-	va_start(args, name);
-	UniFormatArgs(buf, sizeof(buf), _UU(name), args);
-
-	WriteHubLog(h, buf);
-	va_end(args);
-
-	ReleaseHub(h);
-}
-
 // Save the security log of the HUB
 void WriteHubLog(HUB *h, wchar_t *str)
 {
@@ -987,69 +909,6 @@ void WriteServerLog(CEDAR *c, wchar_t *str)
 	{
 		InsertUnicodeRecord(s->Logger, str);
 	}
-}
-
-// Write a multi-line log
-void WriteMultiLineLog(LOG *g, BUF *b)
-{
-	// Validate arguments
-	if (g == NULL || b == NULL)
-	{
-		return;
-	}
-
-	SeekBuf(b, 0, 0);
-
-	while (true)
-	{
-		char *s = CfgReadNextLine(b);
-		if (s == NULL)
-		{
-			break;
-		}
-
-		if (IsEmptyStr(s) == false)
-		{
-			InsertStringRecord(g, s);
-		}
-
-		Free(s);
-	}
-}
-
-// Take the security log (variable-length argument) *abolished
-void SecLog(HUB *h, char *fmt, ...)
-{
-	char buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	if (h->LogSetting.SaveSecurityLog == false)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	FormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteSecurityLog(h, buf);
-	va_end(args);
-}
-
-// Take a security log
-void WriteSecurityLog(HUB *h, char *str)
-{
-	// Validate arguments
-	if (h == NULL || str == NULL)
-	{
-		return;
-	}
-
-	InsertStringRecord(h->SecurityLogger, str);
 }
 
 // Take a packet log
@@ -2270,46 +2129,6 @@ void ReplaceForCsv(char *str)
 			str[i] = '_';
 		}
 	}
-}
-
-// Set the directory name of the log
-void SetLogDirName(LOG *g, char *dir)
-{
-	// Validate arguments
-	if (g == NULL || dir == NULL)
-	{
-		return;
-	}
-
-	LockLog(g);
-	{
-		if (g->DirName != NULL)
-		{
-			Free(g->DirName);
-		}
-		g->DirName = CopyStr(dir);
-	}
-	UnlockLog(g);
-}
-
-// Set the name of the log
-void SetLogPrefix(LOG *g, char *prefix)
-{
-	// Validate arguments
-	if (g == NULL || prefix == NULL)
-	{
-		return;
-	}
-
-	LockLog(g);
-	{
-		if (g->DirName != NULL)
-		{
-			Free(g->Prefix);
-		}
-		g->DirName = CopyStr(prefix);
-	}
-	UnlockLog(g);
 }
 
 // Set the switch type of log

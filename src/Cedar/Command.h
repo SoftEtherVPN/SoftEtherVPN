@@ -325,7 +325,6 @@ void InRpcTtResult(PACK *p, TT_RESULT *t);
 
 void CmdPrintError(CONSOLE *c, UINT err);
 void CmdPrintAbout(CONSOLE *c);
-void CmdPrintRow(CONSOLE *c, wchar_t *title, wchar_t *tag, ...);
 wchar_t *CmdPromptPort(CONSOLE *c, void *param);
 wchar_t *CmdPromptChoosePassword(CONSOLE *c, void *param);
 bool CmdEvalPort(CONSOLE *c, wchar_t *str, void *param);
@@ -346,10 +345,8 @@ wchar_t *GetConnectionTypeStr(UINT type);
 bool CmdEvalHostAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalNetworkAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalNetworkAndSubnetMask6(CONSOLE *c, wchar_t *str, void *param);
-bool CmdEvalNetworkAndSubnetMask46(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalIpAndMask4(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalIpAndMask6(CONSOLE *c, wchar_t *str, void *param);
-bool CmdEvalIpAndMask46(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *GetLogSwitchStr(UINT i);
 wchar_t *GetPacketLogNameStr(UINT i);
 UINT StrToLogSwitchType(char *str);

@@ -207,7 +207,6 @@ bool IsEmptyStr(char *str);
 void BinToStrEx(char *str, UINT str_size, void *data, UINT data_size);
 void BinToStrEx2(char *str, UINT str_size, void *data, UINT data_size, char padding_char);
 char *CopyBinToStrEx(void *data, UINT data_size);
-char *CopyBinToStr(void *data, UINT data_size);
 BUF *StrToBin(char *str);
 void MacToStr(char *str, UINT size, UCHAR *mac_address);
 void ToStr3(char *str, UINT size, UINT64 v);

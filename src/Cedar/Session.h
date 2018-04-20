@@ -413,7 +413,6 @@ void StopSession(SESSION *s);
 void StopSessionEx(SESSION *s, bool no_wait);
 bool SessionConnect(SESSION *s);
 bool ClientConnect(CONNECTION *c);
-int CompareSession(void *p1, void *p2);
 PACKET_ADAPTER *NewPacketAdapter(PA_INIT *init, PA_GETCANCEL *getcancel, PA_GETNEXTPACKET *getnext,
 								 PA_PUTPACKET *put, PA_FREE *free);
 void FreePacketAdapter(PACKET_ADAPTER *pa);
@@ -435,7 +434,6 @@ LIST *NewCancelList();
 void ReleaseCancelList(LIST *o);
 void AddCancelList(LIST *o, CANCEL *c);
 void CancelList(LIST *o);
-bool CompareNodeInfo(NODE_INFO *a, NODE_INFO *b);
 bool IsPriorityHighestPacketForQoS(void *data, UINT size);
 UINT GetNextDelayedPacketTickDiff(SESSION *s);
 

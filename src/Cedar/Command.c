@@ -9736,39 +9736,6 @@ bool CmdEvalIpAndMask6(CONSOLE *c, wchar_t *str, void *param)
 
 	return true;
 }
-bool CmdEvalIpAndMask46(CONSOLE *c, wchar_t *str, void *param)
-{
-	char tmp[MAX_SIZE];
-	TOKEN_LIST *t;
-	bool ret = false;
-
-	Zero(tmp, sizeof(tmp));
-	UniToStr(tmp, sizeof(tmp), str);
-
-	t = ParseToken(tmp, "/");
-	if (t == NULL)
-	{
-		return false;
-	}
-
-	if (t->NumTokens >= 1)
-	{
-		Trim(t->Token[0]);
-
-		if (IsIpStr4(t->Token[0]))
-		{
-			ret = CmdEvalIpAndMask4(c, str, param);
-		}
-		else
-		{
-			ret = CmdEvalIpAndMask6(c, str, param);
-		}
-	}
-
-	FreeToken(t);
-
-	return ret;
-}
 
 // Evaluate the network address and the subnet mask
 bool CmdEvalNetworkAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param)
@@ -9822,39 +9789,6 @@ bool CmdEvalNetworkAndSubnetMask6(CONSOLE *c, wchar_t *str, void *param)
 	}
 
 	return true;
-}
-bool CmdEvalNetworkAndSubnetMask46(CONSOLE *c, wchar_t *str, void *param)
-{
-	char tmp[MAX_SIZE];
-	TOKEN_LIST *t;
-	bool ret = false;
-
-	Zero(tmp, sizeof(tmp));
-	UniToStr(tmp, sizeof(tmp), str);
-
-	t = ParseToken(tmp, "/");
-	if (t == NULL)
-	{
-		return false;
-	}
-
-	if (t->NumTokens >= 1)
-	{
-		Trim(t->Token[0]);
-
-		if (IsIpStr4(t->Token[0]))
-		{
-			ret = CmdEvalNetworkAndSubnetMask4(c, str, param);
-		}
-		else
-		{
-			ret = CmdEvalNetworkAndSubnetMask6(c, str, param);
-		}
-	}
-
-	FreeToken(t);
-
-	return ret;
 }
 
 // Evaluate the IP address and subnet mask
@@ -22761,28 +22695,6 @@ UINT PsListenerDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	return 0;
-}
-
-// Draw a row
-void CmdPrintRow(CONSOLE *c, wchar_t *title, wchar_t *tag, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	wchar_t buf2[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (title == NULL || c == NULL || tag == NULL)
-	{
-		return;
-	}
-
-	va_start(args, tag);
-	UniFormatArgs(buf, sizeof(buf), tag, args);
-
-	UniFormat(buf2, sizeof(buf2), L"[%s] %s", title, buf);
-
-	va_end(args);
-
-	c->Write(c, buf2);
 }
 
 // ServerInfoGet command

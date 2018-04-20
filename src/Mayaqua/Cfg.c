@@ -536,15 +536,6 @@ bool CfgSaveExW3(CFG_RW *rw, FOLDER *f, wchar_t *name, UINT *written_size, bool 
 }
 
 // Read the settings from the file
-FOLDER *CfgRead(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	FOLDER *ret = CfgReadW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
 FOLDER *CfgReadW(wchar_t *name)
 {
 	wchar_t tmp[MAX_SIZE];
@@ -1423,17 +1414,6 @@ void CfgAddData(BUF *b, UINT type, char *name, char *data, char *sub, UINT depth
 	}
 	CfgAddLine(b, tmp, depth);
 	Free(tmp);
-}
-
-// Convert the data type string to an integer value
-UINT CfgStrToType(char *str)
-{
-	if (!StrCmpi(str, TAG_INT)) return ITEM_TYPE_INT;
-	if (!StrCmpi(str, TAG_INT64)) return ITEM_TYPE_INT64;
-	if (!StrCmpi(str, TAG_BYTE)) return ITEM_TYPE_BYTE;
-	if (!StrCmpi(str, TAG_STRING)) return ITEM_TYPE_STRING;
-	if (!StrCmpi(str, TAG_BOOL)) return ITEM_TYPE_BOOL;
-	return 0;
 }
 
 // Convert the type of data to a string

@@ -6659,34 +6659,6 @@ void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT inter
 	Unlock(hub->RadiusOptionLock);
 }
 
-// Get the difference between the traffic data
-void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current)
-{
-	// Validate arguments
-	Zero(diff, sizeof(TRAFFIC_ENTRY));
-	if (old == NULL || current == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	if (current->BroadcastCount >= old->BroadcastCount)
-	{
-		diff->BroadcastCount = current->BroadcastCount - old->BroadcastCount;
-	}
-	if (current->BroadcastBytes >= old->BroadcastBytes)
-	{
-		diff->BroadcastBytes = current->BroadcastBytes - old->BroadcastBytes;
-	}
-	if (current->UnicastCount >= old->UnicastCount)
-	{
-		diff->UnicastCount = current->UnicastCount - old->UnicastCount;
-	}
-	if (current->UnicastBytes >= old->UnicastBytes)
-	{
-		diff->UnicastBytes = current->UnicastBytes - old->UnicastBytes;
-	}
-}
-
 // Add the traffic information for Virtual HUB
 void IncrementHubTraffic(HUB *h)
 {

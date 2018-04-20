@@ -2759,10 +2759,6 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 }
 
 // Confirm whether the certificate X is signed by the issuer of the certificate x_issuer
-bool CheckX(X *x, X *x_issuer)
-{
-	return CheckXEx(x, x_issuer, false, false);
-}
 bool CheckXEx(X *x, X *x_issuer, bool check_name, bool check_date)
 {
 	K *k;

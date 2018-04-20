@@ -763,29 +763,6 @@ void CndMsgDlgFree(SOCK *s)
 	ReleaseSock(s);
 }
 
-// The thread to stop the password input dialog client forcibly
-void CncPasswordDlgHaltThread(THREAD *thread, void *param)
-{
-	CNC_CONNECT_ERROR_DLG_THREAD_PARAM *dp = (CNC_CONNECT_ERROR_DLG_THREAD_PARAM *)param;
-	// Validate arguments
-	if (thread == NULL || param == NULL)
-	{
-		return;
-	}
-
-	while (true)
-	{
-		if (dp->Session->Halt || dp->HaltThread)
-		{
-			break;
-		}
-
-		Wait(dp->Event, 100);
-	}
-
-	Disconnect(dp->Sock);
-}
-
 // Show the password input dialog
 bool CncPasswordDlg(SESSION *session, UI_PASSWORD_DLG *dlg)
 {
@@ -1122,41 +1099,6 @@ void CncReleaseSocket()
 
 	Disconnect(s);
 	ReleaseSock(s);
-}
-
-// Get the Session ID of the client notification service
-UINT CncGetSessionId()
-{
-	SOCK *s = CncConnect();
-	PACK *p;
-	UINT ret;
-	if (s == NULL)
-	{
-		return INFINITE;
-	}
-
-	p = NewPack();
-	PackAddStr(p, "function", "get_session_id");
-
-	SendPack(s, p);
-	FreePack(p);
-
-	p = RecvPack(s);
-	if (p == NULL)
-	{
-		Disconnect(s);
-		ReleaseSock(s);
-		return INFINITE;
-	}
-
-	ret = PackGetInt(p, "session_id");
-
-	FreePack(p);
-
-	Disconnect(s);
-	ReleaseSock(s);
-
-	return ret;
 }
 
 // Terminate the process of the client notification service
@@ -2036,28 +1978,6 @@ bool CiHasAccountSensitiveInformation(BUF *b)
 
 	CiFreeClientCreateAccount(a);
 	Free(a);
-
-	return ret;
-}
-bool CiHasAccountSensitiveInformationFile(wchar_t *name)
-{
-	bool ret = false;
-	BUF *b;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	b = ReadDumpW(name);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	ret = CiHasAccountSensitiveInformation(b);
-
-	FreeBuf(b);
 
 	return ret;
 }
@@ -10373,35 +10293,6 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 	}
 }
 
-// Create the inner VPN Server
-SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server)
-{
-	SERVER *s = NULL;
-	// Validate arguments
-	if (c == NULL)
-	{
-		return NULL;
-	}
-
-	SetNatTLowPriority();
-
-	s = SiNewServerEx(false, true, relay_server);
-
-	return s;
-}
-
-// Stop the inner VPN Server
-void CiFreeInnerVPNServer(CLIENT *c, SERVER *s)
-{
-	// Validate arguments
-	if (c == NULL || s == NULL)
-	{
-		return;
-	}
-
-	SiReleaseServer(s);
-}
-
 // Apply settings of Inner VPN Server
 void CiApplyInnerVPNServerConfig(CLIENT *c)
 {
@@ -10585,48 +10476,6 @@ CLIENT *CiNewClient()
 	return c;
 }
 
-// Examine whether two proxy server settings equal
-bool CompareInternetSetting(INTERNET_SETTING *s1, INTERNET_SETTING *s2)
-{
-	// Validate arguments
-	if (s1 == NULL || s2 == NULL)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType != s2->ProxyType)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType == PROXY_DIRECT)
-	{
-		return true;
-	}
-
-	if (s1->ProxyPort != s2->ProxyPort)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyHostName, s2->ProxyHostName) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyUsername, s2->ProxyUsername) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyPassword, s2->ProxyPassword) != 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Send a global pulse
 void CiSendGlobalPulse(CLIENT *c)
 {
@@ -10779,20 +10628,6 @@ void CiDecrementNumActiveSessions()
 		}
 	}
 	Unlock(ci_active_sessions_lock);
-}
-
-// Get the number of active sessions
-UINT CiGetNumActiveSessions()
-{
-	UINT ret;
-
-	Lock(ci_active_sessions_lock);
-	{
-		ret = ci_num_active_sessions;
-	}
-	Unlock(ci_active_sessions_lock);
-
-	return ret;
 }
 
 // Release the client
