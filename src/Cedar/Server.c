@@ -5946,9 +5946,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Disable the NAT-traversal feature
 		s->DisableNatTraversal = CfgGetBool(f, "DisableNatTraversal");
 
-		// Intel AES
-		s->DisableIntelAesAcceleration = CfgGetBool(f, "DisableIntelAesAcceleration");
-
 		if (s->Cedar->Bridge == false)
 		{
 			// Enable the VPN-over-ICMP
@@ -6371,9 +6368,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 			// VPN over DNS
 			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
 		}
-
-		// Intel AES
-		CfgAddBool(f, "DisableIntelAesAcceleration", s->DisableIntelAesAcceleration);
 
 		if (c->Bridge == false)
 		{
@@ -10981,12 +10975,6 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 
 	SetFifoCurrentReallocMemSize(MEM_FIFO_REALLOC_MEM_SIZE);
 
-
-	if (s->DisableIntelAesAcceleration)
-	{
-		// Disable the Intel AES acceleration
-		DisableIntelAesAccel();
-	}
 
 	// Raise the priority
 	if (s->NoHighPriorityProcess == false)

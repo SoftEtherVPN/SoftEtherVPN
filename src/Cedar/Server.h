@@ -293,7 +293,6 @@ struct SERVER
 	bool DisableNatTraversal;			// Disable the NAT-traversal feature
 	bool EnableVpnOverIcmp;				// VPN over ICMP is enabled
 	bool EnableVpnOverDns;				// VPN over DNS is enabled
-	bool DisableIntelAesAcceleration;	// Disable the Intel AES acceleration
 	bool NoMoreSave;					// Do not save any more
 	bool EnableConditionalAccept;		// Apply the Conditional Accept the Listener
 	bool EnableLegacySSL;				// Enable Legacy SSL

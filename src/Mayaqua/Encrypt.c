@@ -145,9 +145,11 @@
 #include <openssl/x509v3.h>
 #include <Mayaqua/Mayaqua.h>
 
-#ifdef	USE_INTEL_AESNI_LIBRARY
-#include <intelaes/iaesni.h>
-#endif	// USE_INTEL_AESNI_LIBRARY
+#ifdef _MSC_VER
+#include <intrin.h> // For __cpuid()
+#else
+#include <cpuid.h> // For __get_cpuid()
+#endif
 
 LOCK *openssl_lock = NULL;
 
@@ -156,7 +158,6 @@ int ssl_clientcert_index = 0;
 LOCK **ssl_lock_obj = NULL;
 UINT ssl_lock_num;
 static bool openssl_inited = false;
-static bool is_intel_aes_supported = false;
 
 static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md);
 
@@ -3662,7 +3663,6 @@ void InitCryptLibrary()
 {
 	char tmp[16];
 
-	CheckIfIntelAesNiSupportedInit();
 //	RAND_Init_For_SoftEther()
 	openssl_lock = NewLock();
 	SSL_library_init();
@@ -4106,135 +4106,171 @@ void AesFreeKey(AES_KEY_VALUE *k)
 // AES encryption
 void AesEncrypt(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec)
 {
-	UCHAR ivec_copy[AES_IV_SIZE];
+	EVP_CIPHER_CTX *ctx = NULL;
+	int dest_len = 0;
+	int len = 0;
+	int ret = 0;
+
 	// Validate arguments
 	if (dest == NULL || src == NULL || size == 0 || k == NULL || ivec == NULL)
 	{
 		return;
 	}
 
-#ifdef	USE_INTEL_AESNI_LIBRARY
-	if (is_intel_aes_supported)
+	// Create and initialize the context
+	ctx = EVP_CIPHER_CTX_new();
+
+	if (!ctx)
 	{
-		AesEncryptWithIntel(dest, src, size, k, ivec);
+		ERR_print_errors_fp(stderr);
 		return;
 	}
-#endif	// USE_INTEL_AESNI_LIBRARY
 
-	Copy(ivec_copy, ivec, AES_IV_SIZE);
+	// Disable padding, as it's handled by IkeEncryptWithPadding()
+	EVP_CIPHER_CTX_set_padding(ctx, false);
 
-	AES_cbc_encrypt(src, dest, size, k->EncryptKey, ivec, 1);
+	// Initialize the encryption operation
+	switch (k->KeySize)
+	{
+	case 16:
+		ret = EVP_EncryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, k->KeyValue, ivec);
+		break;
+
+	case 24:
+		ret = EVP_EncryptInit_ex(ctx, EVP_aes_192_cbc(), NULL, k->KeyValue, ivec);
+		break;
+
+	case 32:
+		ret = EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, k->KeyValue, ivec);
+		break;
+	}
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	// Provide the message to be encrypted and obtain the cipher output
+	ret = EVP_EncryptUpdate(ctx, dest, &dest_len, src, size);
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	// Finalize the encryption
+	ret = EVP_EncryptFinal_ex(ctx, (unsigned char *) dest + dest_len, &len);
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	dest_len += len;
+
+	// Clean up
+	EVP_CIPHER_CTX_free(ctx);
 }
 
 // AES decryption
 void AesDecrypt(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec)
 {
-	UCHAR ivec_copy[AES_IV_SIZE];
+	EVP_CIPHER_CTX *ctx = NULL;
+	int dest_len = 0;
+	int len = 0;
+	int ret = 0;
+
 	// Validate arguments
 	if (dest == NULL || src == NULL || size == 0 || k == NULL || ivec == NULL)
 	{
 		return;
 	}
 
-#ifdef	USE_INTEL_AESNI_LIBRARY
-	if (is_intel_aes_supported)
+	// Create and initialize the context
+	ctx = EVP_CIPHER_CTX_new();
+
+	if (!ctx)
 	{
-		AesDecryptWithIntel(dest, src, size, k, ivec);
+		ERR_print_errors_fp(stderr);
 		return;
 	}
-#endif	// USE_INTEL_AESNI_LIBRARY
 
-	Copy(ivec_copy, ivec, AES_IV_SIZE);
+	// Disable padding, as it's handled by IkeEncryptWithPadding()
+	EVP_CIPHER_CTX_set_padding(ctx, false);
 
-	AES_cbc_encrypt(src, dest, size, k->DecryptKey, ivec, 0);
+	// Initialize the decryption operation
+	switch (k->KeySize)
+	{
+	case 16:
+		ret = EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, k->KeyValue, ivec);
+		break;
+
+	case 24:
+		ret = EVP_DecryptInit_ex(ctx, EVP_aes_192_cbc(), NULL, k->KeyValue, ivec);
+		break;
+
+	case 32:
+		ret = EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, k->KeyValue, ivec);
+		break;
+	}
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	// Provide the message to be decrypted and obtain the plaintext output
+	ret = EVP_DecryptUpdate(ctx, dest, &dest_len, src, size);
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	// Finalize the decryption
+	ret = EVP_DecryptFinal_ex(ctx, (unsigned char *) dest + dest_len, &len);
+
+	if (ret != 1)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_CIPHER_CTX_free(ctx);
+		return;
+	}
+
+	dest_len += len;
+
+	// Clean up
+	EVP_CIPHER_CTX_free(ctx);
 }
 
 // Determine whether the Intel AES-NI is supported
 bool IsIntelAesNiSupported()
 {
-	return is_intel_aes_supported;
+	bool supported = false;
+
+	// Unfortunately OpenSSL doesn't provide a function to do it
+#ifdef _MSC_VER
+	int regs[4]; // EAX, EBX, ECX, EDX
+	__cpuid(regs, 1);
+	supported = (regs[2] >> 25) & 1;
+#else
+	uint32_t eax, ebx, ecx, edx;
+	__get_cpuid(1, &eax, &ebx, &ecx, &edx);
+	supported = (ecx & bit_AES) > 0;
+#endif
+
+	return supported;
 }
-void CheckIfIntelAesNiSupportedInit()
-{
-#ifdef	USE_INTEL_AESNI_LIBRARY
-	if (check_for_aes_instructions())
-	{
-		is_intel_aes_supported = true;
-	}
-	else
-	{
-		is_intel_aes_supported = false;
-	}
-#else	// USE_INTEL_AESNI_LIBRARY
-	is_intel_aes_supported = false;
-#endif	// USE_INTEL_AESNI_LIBRARY
-}
-
-// Disable the Intel AES-NI
-void DisableIntelAesAccel()
-{
-	is_intel_aes_supported = false;
-}
-
-#ifdef	USE_INTEL_AESNI_LIBRARY
-// Encrypt AES using the Intel AES-NI
-void AesEncryptWithIntel(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec)
-{
-	UCHAR ivec_copy[AES_IV_SIZE];
-
-	// Validate arguments
-	if (dest == NULL || src == NULL || size == 0 || k == NULL || ivec == NULL)
-	{
-		return;
-	}
-
-	Copy(ivec_copy, ivec, AES_IV_SIZE);
-
-	switch (k->KeySize)
-	{
-	case 16:
-		intel_AES_enc128_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-
-	case 24:
-		intel_AES_enc192_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-
-	case 32:
-		intel_AES_enc256_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-	}
-}
-
-// Decrypt AES using the Intel AES-NI
-void AesDecryptWithIntel(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec)
-{
-	UCHAR ivec_copy[AES_IV_SIZE];
-
-	// Validate arguments
-	if (dest == NULL || src == NULL || size == 0 || k == NULL || ivec == NULL)
-	{
-		return;
-	}
-
-	Copy(ivec_copy, ivec, AES_IV_SIZE);
-
-	switch (k->KeySize)
-	{
-	case 16:
-		intel_AES_dec128_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-
-	case 24:
-		intel_AES_dec192_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-
-	case 32:
-		intel_AES_dec256_CBC(src, dest, k->KeyValue, (size / AES_IV_SIZE), ivec_copy);
-		break;
-	}
-}
-#endif	// USE_INTEL_AESNI_LIBRARY
 
 // Calculation of HMAC-SHA-1
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
