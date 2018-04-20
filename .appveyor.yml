@@ -2,9 +2,6 @@ version: '{build}'
 
 image: Visual Studio 2015
 
-pull_requests:
-  do_not_increment_build_number: true
-
 skip_branch_with_pr: true
 
 clone_depth: 1
