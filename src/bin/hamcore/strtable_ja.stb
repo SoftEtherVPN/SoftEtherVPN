@@ -998,6 +998,7 @@ CM_WOULDYOULOAD_IE_PROXY	現在、このコンピュータは Internet Explorer 
 CM_MSG_TITLE			VPN サーバー "%S" (仮想 HUB: "%S")
 CM_JUMPLIST_RCCONNECT	最近の接続先
 CM_VPNGATE_MESSAGE		VPN Gate 学術実験プロジェクトの Web サイトには、公開 VPN 中継サーバーの一覧が公開されています。\r\nこれらの VPN サーバーには、誰でもユーザー登録なしで VPN 接続することができます。\r\n\r\nVPN Gate 学術実験プロジェクトは SoftEther VPN の一部ではありません。\r\nこのアイコンは http://www.vpngate.net/ へのリンクを提供しているに過ぎません。\r\nVPN Gate に接続するためには、VPN Gate Plugin をインストールする必要があります。\r\n\r\nhttp://www.vpngate.net/ (筑波大学における学術実験サイト) を開きますか?
+CM_VLAN_REINSTALL_MSG	仮想 LAN カードのドライバを再インストールした後に、正常に動作しない場合があります。その場合は、一度仮想 LAN カードを削除し、再度作成してください。それでも正常に動作しない場合は、別の名前で仮想 LAN カードを作成してください。
 
 
 # VPN Gate Service 関係
