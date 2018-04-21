@@ -8431,6 +8431,76 @@ bool MsUpgradeVLan(char *tag_name, char *connection_tag_name, char *instance_nam
 }
 bool MsUpgradeVLanWithoutLock(char *tag_name, char *connection_tag_name, char *instance_name, MS_DRIVER_VER *ver)
 {
+	char hwid[MAX_PATH];
+	wchar_t hwid_w[MAX_PATH];
+	bool ret = false;
+	UCHAR old_mac_address[6];
+	char *s;
+	// Validate arguments
+	if (instance_name == NULL || tag_name == NULL || connection_tag_name == NULL || ver == NULL)
+	{
+		return false;
+	}
+
+	if (MsIsNt() == false)
+	{
+		// Can not be upgraded in Windows 9x
+		return false;
+	}
+
+	if (MsIsInfCatalogRequired())
+	{
+		if (MsIsValidVLanInstanceNameForInfCatalog(instance_name) == false)
+		{
+			return false;
+		}
+
+		StrUpper(instance_name);
+	}
+
+	Zero(hwid, sizeof(hwid));
+	Format(hwid, sizeof(hwid), DRIVER_DEVICE_ID_TAG, instance_name);
+	StrToUni(hwid_w, sizeof(hwid_w), hwid);
+
+	// Examine whether the virtual LAN card with the specified name has already registered
+	if (MsIsVLanExists(tag_name, instance_name) == false)
+	{
+		// Not registered
+		return false;
+	}
+
+	// Get the previous MAC address
+	s = MsGetMacAddress(tag_name, instance_name);
+	if (s == NULL)
+	{
+		Zero(old_mac_address, 6);
+	}
+	else
+	{
+		BUF *b;
+		b = StrToBin(s);
+		Free(s);
+
+		if (b->Size == 6)
+		{
+			Copy(old_mac_address, b->Buf, b->Size);
+		}
+		else
+		{
+			Zero(old_mac_address, 6);
+		}
+
+		FreeBuf(b);
+	}
+
+	ret = MsUninstallVLanWithoutLock(instance_name);
+
+	ret = MsInstallVLanWithoutLock(tag_name, connection_tag_name, instance_name, ver);
+
+	return ret;
+}
+bool MsUpgradeVLanWithoutLock_old(char *tag_name, char *connection_tag_name, char *instance_name, MS_DRIVER_VER *ver)
+{
 	wchar_t infpath[MAX_PATH];
 	char hwid[MAX_PATH];
 	wchar_t hwid_w[MAX_PATH];
@@ -10546,12 +10616,12 @@ void MsGenMacAddress(UCHAR *mac)
 
 	Hash(hash, hash_src, sizeof(hash_src), true);
 
-	mac[0] = 0x00;
-	mac[1] = 0xAC;
-	mac[2] = hash[0];
-	mac[3] = hash[1];
-	mac[4] = hash[2];
-	mac[5] = hash[3];
+	mac[0] = 0x5E;
+	mac[1] = hash[0];
+	mac[2] = hash[1];
+	mac[3] = hash[2];
+	mac[4] = hash[3];
+	mac[5] = hash[4];
 }
 
 // Finish the driver installation

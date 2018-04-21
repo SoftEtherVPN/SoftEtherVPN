@@ -1004,7 +1004,7 @@ CM_WOULDYOULOAD_IE_PROXY	目前，这台计算机的 Internet Explorer 配置使
 CM_MSG_TITLE				VPN Server "%S" (虚拟 HUB: "%S")
 CM_JUMPLIST_RCCONNECT		最近使用的连接设置
 CM_VPNGATE_MESSAGE			在 VPN Gate 学术项目网站上有一个公共 VPN 中继服务器列表。\r\n互联网上的任何人都可以建立 VPN 连接至任一列表上的 VPN 服务器。无需用户注册。\r\n\r\nVPN Gate 不是 SoftEther VPN 的一部分。\r\n此图标只提供了一个超链接到 http://www.vpngate.net/。\r\n\r\n安装带有 SoftEther VPN Client 的 VPN Gate Client 插件。它可用简单的配置连接到 VPN Gate 的一个公共 VPN 中继服务器。\r\n\r\n你想访问 http://www.vpngate.net/ (设在日本筑波大学) ?
-CM_VLAN_REINSTALL_MSG	After reinstalling the driver of the Virtual Network Adapter, it may not operate properly. In that case, delete the Virtual Network Adapter once and create it again. If it still does not work properly please create a new Virtual Network Adapter with a different name.
+CM_VLAN_REINSTALL_MSG	After reinstalling the driver of the Virtual Network Adapter, the MAC address associated to the current Virtual Network Adapter will change. Also, all TCP/IP settings with the Virtual Network Adapter will reset.\r\n\r\nIn the case that the reinstalled Virtual Network Adapter fails to activate, delete the Virtual Network Adapter once and create it again. If it still does not work properly please create a new Virtual Network Adapter with a different name.
 
 
 # VPN Gate Service
