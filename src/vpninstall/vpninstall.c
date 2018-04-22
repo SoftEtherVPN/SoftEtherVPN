@@ -1634,6 +1634,7 @@ void ViFreeStringTables()
 int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	INSTANCE *instance;
+	InitProcessCallOnce();
 	is_debug = false;
 	MayaquaMinimalMode();
 	InitMayaqua(false, is_debug, 0, NULL);

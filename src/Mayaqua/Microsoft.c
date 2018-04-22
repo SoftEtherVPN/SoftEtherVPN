@@ -273,6 +273,43 @@ typedef struct MS_MSCHAPV2_PARAMS
 	UCHAR ResponseBuffer[MAX_SIZE];
 } MS_MSCHAPV2_PARAMS;
 
+// The function which should be called once as soon as possible after the process is started
+void MsInitProcessCallOnce()
+{
+	// Mitigate the DLL injection attack
+	char system_dir[MAX_PATH];
+	char kernel32_path[MAX_PATH];
+	UINT len;
+	HINSTANCE hKernel32;
+
+	// Get the full path of kernel32.dll
+	memset(system_dir, 0, sizeof(system_dir));
+	GetSystemDirectory(system_dir, sizeof(system_dir));
+	len = lstrlenA(system_dir);
+	if (system_dir[len] == '\\')
+	{
+		system_dir[len] = 0;
+	}
+	wsprintfA(kernel32_path, "%s\\kernel32.dll", system_dir);
+
+	// Load kernel32.dll
+	hKernel32 = LoadLibraryA(kernel32_path);
+	if (hKernel32 != NULL)
+	{
+		BOOL (WINAPI *_SetDllDirectoryA)(LPCTSTR);
+
+		_SetDllDirectoryA = (BOOL (WINAPI *)(LPCTSTR))
+			GetProcAddress(hKernel32, "SetDllDirectoryA");
+
+		if (_SetDllDirectoryA != NULL)
+		{
+			_SetDllDirectoryA("");
+		}
+
+		FreeLibrary(hKernel32);
+	}
+}
+
 // Collect the information of the VPN software
 bool MsCollectVpnInfo(BUF *bat, char *tmpdir, char *svc_name, wchar_t *config_name, wchar_t *logdir_name)
 {

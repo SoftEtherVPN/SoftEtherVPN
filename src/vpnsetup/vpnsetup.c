@@ -134,6 +134,8 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	UINT ret;
 
+	InitProcessCallOnce();
+
 	VgUseStaticLink();
 
 	ret = SWExec();

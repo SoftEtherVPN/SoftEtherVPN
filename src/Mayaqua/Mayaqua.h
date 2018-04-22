@@ -133,6 +133,8 @@
 
 #endif	// VPN_SPEED
 
+void InitProcessCallOnce();
+
 #ifdef	VPN_EXE
 // To build the executable file
 #ifdef	WIN32
@@ -142,6 +144,7 @@ int main(int argc, char *argv[]);
 int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	char *argv[] = { CmdLine, };
+	InitProcessCallOnce();
 	return main(1, argv);
 }
 #endif	// WIN32
