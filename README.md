@@ -118,6 +118,9 @@ installers from:
 To build from the source,
 see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md) files.
 
+# PREBUILT BINARY PACKAGES
+
+[Launchpad PPA](https://launchpad.net/~paskal-07/+archive/ubuntu/softethervpn/+packages) maintained by [Dmitry Verkhoturov](https://github.com/paskal)
 
 # HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
 
@@ -125,7 +128,6 @@ Go to http://www.softether-download.com/ and you can find the latest
 source-code package file in both .ZIP and .TAR.GZ format.
 
 This is the easiest way to obtain the source code of SoftEther VPN.
-
 
 # HOW TO GET THE LATEST SOURCE CODE TREE FOR DEVELOPERS
 
