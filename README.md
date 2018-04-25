@@ -142,6 +142,7 @@ from GitHub. You may make your own fork project from our project.
 - libncurses5-dev
 - libreadline-dev
 - make
+- cmake
 - libssl-dev
 - zlib1g-dev
 
@@ -149,6 +150,7 @@ from GitHub. You may make your own fork project from our project.
 - gcc
 - openssl-devel
 - make
+- cmake
 - ncurses-devel
 - readline-devel
 - zlib-devel
