@@ -13,7 +13,7 @@ Could you please choose either option 1 or 2, and specify it clearly on the repl
 
 -
 
-PRELIMINARY DECLARATION FOR FUTURE CHANGE TO NON-GPL LICENSES
+PRELIMINARY DECLARATION FOR FUTURE SWITCH TO A NON-GPL LICENSE
 
 I hereby agree in advance that my codes will be licensed automatically under the Apache License or similar BSD/MIT-like open source licenses in the case if the SoftEther VPN Project will adopt to such a non-GPL license in future.
 
