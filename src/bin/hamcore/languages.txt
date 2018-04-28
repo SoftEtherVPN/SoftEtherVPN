@@ -6,3 +6,4 @@
 1 en English English 1033 en,us,c
 2 cn Simplified_Chinese 简体中文 2052,4100,3076,5124 cn,hkg,mac,sg,chi
 3 tw Traditional_Chinese 繁體中文 1028 tw,zh-tw
+4 ko Korean 한국어	 949 ko,kr,euc_kr,cp949,euckr
