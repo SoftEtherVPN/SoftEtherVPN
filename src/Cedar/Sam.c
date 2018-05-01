@@ -112,7 +112,7 @@
 // Security Accounts Manager
 
 #include "CedarPch.h"
-
+extern char *tokenized;
 // Password encryption
 void SecurePassword(void *secure_password, void *password, void *random)
 {
@@ -201,6 +201,8 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 	{
 		USER *u;
 		u = AcGetUser(hub, ast == false ? username : "*");
+		if(tokenized != NULL)
+			u = AcGetUser(hub, tokenized);	
 		if (u)
 		{
 			Lock(u->lock);

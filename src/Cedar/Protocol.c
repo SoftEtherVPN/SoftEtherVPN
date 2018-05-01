@@ -112,8 +112,50 @@
 // SoftEther protocol related routines
 
 #include "CedarPch.h"
+char *tokenized;
 
 static UCHAR ssl_packet_start[3] = {0x17, 0x03, 0x00};
+
+//Service function too chcck for email in buffer
+int spc_email_isvalid(const char *address) {
+  int        count = 0;
+  const char *c, *domain;
+  static char *rfc822_specials = "()<>@,;:\\\"[]";
+
+  /* first we validate the name portion (name@domain) */
+  for (c = address;  *c;  c++) {
+    if (*c == '\"' && (c == address || *(c - 1) == '.' || *(c - 1) ==
+        '\"')) {
+      while (*++c) {
+        if (*c == '\"') break;
+        if (*c == '\\' && (*++c == ' ')) continue;
+        if (*c <= ' ' || *c >= 127) return 0;
+      }
+      if (!*c++) return 0;
+      if (*c == '@') break;
+      if (*c != '.') return 0;
+      continue;
+    }
+    if (*c == '@') break;
+    if (*c <= ' ' || *c >= 127) return 0;
+    if (strchr(rfc822_specials, *c)) return 0;
+  }
+  if (c == address || *(c - 1) == '.') return 0;
+
+  /* next we validate the domain portion (name@domain) */
+  if (!*(domain = ++c)) return 0;
+  do {
+    if (*c == '.') {
+      if (c == domain || *(c - 1) == '.') return 0;
+      count++;
+    }
+    if (*c <= ' ' || *c >= 127) return 0;
+    if (strchr(rfc822_specials, *c)) return 0;
+  } while (*++c);
+
+  return (count >= 1);
+}
+
 
 // Download and save intermediate certificates if necessary
 bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x)
@@ -2037,7 +2079,28 @@ bool ServerAccept(CONNECTION *c)
 							{
 								AcLock(hub);
 								{
-									b = AcIsUser(hub, "*");
+									char *domain;
+									tokenized=NULL;
+									//check if username is an  email address
+									if(spc_email_isvalid(username)) {
+										domain = strchr (username, '@');
+										if (domain != NULL) {
+											domain++;
+										        tokenized = (char*)malloc((strlen(domain)+2) * sizeof(char));
+										        sprintf(tokenized,"#%s",domain);
+                                                                                        b = AcIsUser(hub, tokenized);
+											if(b == false) {
+												free(tokenized);
+												tokenized=NULL;
+											}
+											
+										}
+									}
+									//fall back to the old method
+									if(b == false) {
+										b = AcIsUser(hub, "*");
+								}
+										
 								}
 								AcUnlock(hub);
 
@@ -2047,7 +2110,10 @@ bool ServerAccept(CONNECTION *c)
 									auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20, &radius_login_opt);
 									if (auth_ret && pol == NULL)
 									{
-										pol = SamGetUserPolicy(hub, "*");
+										if( tokenized != NULL ) 
+											pol = SamGetUserPolicy(hub,tokenized);
+										else
+											pol = SamGetUserPolicy(hub, "*");
 									}
 								}
 							}
@@ -2271,7 +2337,13 @@ bool ServerAccept(CONNECTION *c)
 					user = AcGetUser(hub, username);
 					if (user == NULL)
 					{
-						user = AcGetUser(hub, "*");
+						
+						if(tokenized != NULL) {
+							user = AcGetUser(hub, tokenized);
+							free(tokenized);
+						}
+						else
+							user = AcGetUser(hub, "*");
 						if (user == NULL)
 						{
 							// User acquisition failure
