@@ -176,9 +176,10 @@ CONTRIBUTORS on GitHub:
     https://github.com/davidebeatrici
 
   - tidatida
-    tidatida@foxmail.com
+    https://github.com/tidatida
 
-
+  - Tim Schneider
+    https://github.com/timschneider
 
        
 JOIN THE SOFTETHER VPN DEVELOPMENT
