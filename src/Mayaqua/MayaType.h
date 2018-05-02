@@ -254,6 +254,14 @@ typedef int (COMPARE)(void *p1, void *p2);
 // Type declaration
 // 
 
+// PID type
+#ifdef OS_UNIX
+typedef int PID;
+#endif // OS_UNIX
+#ifdef OS_WIN32
+typedef unsigned long PID;
+#endif // WINDOWS_H
+
 // bool type
 #ifndef	WINDOWS_H
 typedef	unsigned int		BOOL;
