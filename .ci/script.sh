@@ -6,12 +6,12 @@ if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
 	export CFLAGS="-I${HOME}/opt/include"
 	export LDFLAGS="-L${HOME}/opt/lib"
 	./configure
-	make
+	make -C tmp
 	ldd bin/vpnserver/vpnserver
 	dh build-arch
 elif [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
 	./configure
-	make
+	make -C tmp
 else
 	exit 1
 fi
