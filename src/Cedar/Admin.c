@@ -1113,11 +1113,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		UCHAR *zero_buffer;
 		UINT zero_buffer_size = 128 * 1024;
 		char name_tmp[MAX_SIZE];
-		X *dummy_x = NULL;
-		K *dummy_private_k = NULL;
-		K *dummy_public_k = NULL;
-		BUF *dummy_x_buf = NULL;
-		BUF *dummy_k_buf = NULL;
 
 		zero_buffer = ZeroMalloc(zero_buffer_size);
 
@@ -1154,34 +1149,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		SeekBufToEnd(x_buf);
 		WriteBufChar(x_buf, 0);
 		SeekBufToBegin(x_buf);
-
-		// Generate a dummy certificate
-		if (x != NULL)
-		{
-			if (RsaGen(&dummy_private_k, &dummy_public_k, x->bits))
-			{
-				NAME *name;
-				wchar_t cn[128];
-
-				UniToStr64(cn, Rand64());
-
-				name = NewName(cn, cn, cn, L"US", NULL, NULL);
-
-				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, GetDaysUntil2038Ex(), NULL);
-
-				FreeName(name);
-
-				dummy_x_buf = XToBuf(dummy_x, true);
-				SeekBufToEnd(dummy_x_buf);
-				WriteBufChar(dummy_x_buf, 0);
-				SeekBufToBegin(dummy_x_buf);
-
-				dummy_k_buf = KToBuf(dummy_private_k, true, NULL);
-				SeekBufToEnd(dummy_k_buf);
-				WriteBufChar(dummy_k_buf, 0);
-				SeekBufToBegin(dummy_k_buf);
-			}
-		}
 
 		FreeX(x);
 		Zero(hostname, sizeof(hostname));
@@ -1300,18 +1267,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 				"$CA$", x_buf->Buf, false);
 		}
 
-		if (dummy_x_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l3_buf->Buf, config_l3_buf->Size, (char *)config_l3_buf->Buf,
-				"$CERT$", dummy_x_buf->Buf, false);
-		}
-
-		if (dummy_k_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l3_buf->Buf, config_l3_buf->Size, (char *)config_l3_buf->Buf,
-				"$KEY$", dummy_k_buf->Buf, false);
-		}
-
 		Format(name_tmp, sizeof(name_tmp), "%sopenvpn_remote_access_l3.ovpn", my_hostname);
 		ZipAddFileSimple(p, name_tmp, LocalTime64(), 0, config_l3_buf->Buf, StrLen(config_l3_buf->Buf));
 
@@ -1330,18 +1285,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		{
 			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
 				"$CA$", x_buf->Buf, false);
-		}
-
-		if (dummy_x_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
-				"$CERT$", dummy_x_buf->Buf, false);
-		}
-
-		if (dummy_k_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
-				"$KEY$", dummy_k_buf->Buf, false);
 		}
 
 		Format(name_tmp, sizeof(name_tmp), "%sopenvpn_site_to_site_bridge_l2.ovpn", my_hostname);
@@ -1363,13 +1306,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		FreeBuf(sample_buf);
 		FreeBuf(readme_pdf_buf);
 		FreeBuf(x_buf);
-
-		FreeX(dummy_x);
-		FreeK(dummy_private_k);
-		FreeK(dummy_public_k);
-
-		FreeBuf(dummy_k_buf);
-		FreeBuf(dummy_x_buf);
 
 		Free(zero_buffer);
 	}
