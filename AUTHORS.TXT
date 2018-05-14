@@ -181,6 +181,9 @@ CONTRIBUTORS on GitHub:
   - Tim Schneider
     https://github.com/timschneider
 
+  - Max Miroshnikov
+    https://github.com/mogikanin
+
        
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
