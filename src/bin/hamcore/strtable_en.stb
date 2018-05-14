@@ -6656,6 +6656,7 @@ CMD_AccountDetailSet_BRIDGE	Specify "yes" when connecting to the VPN Server usin
 CMD_AccountDetailSet_MONITOR	Specify "yes" when connecting to the VPN Server using Monitoring Mode. When a connection is made using Monitoring Mode, you can receive all packets that flow through the Virtual Hub. However, if the security policy of the user who is being used for connection does not allow Monitoring Mode, then connection will fail.
 CMD_AccountDetailSet_NOTRACK	Specify "yes" will disable the adjustments of routing table. Normally "no" is specified.
 CMD_AccountDetailSet_NOQOS	Specify "yes" when disabling VoIP / QoS functions. Normally "no" is specified.
+CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
 CMD_AccountDetailSet_Eval_MaxTcp	Specify an integer in the range 1 to 32 for the number of TCP connections.
 CMD_AccountDetailSet_Eval_Interval	Set at least 1 second for the interval to establish a TCP connection.
 CMD_AccountDetailSet_Prompt_MaxTcp	Number of TCP Connections to Use in VPN Communication: 
@@ -6666,6 +6667,7 @@ CMD_AccountDetailSet_Prompt_BRIDGE	Enable Bridge / Router Mode (yes/no):
 CMD_AccountDetailSet_Prompt_MONITOR	Enable Monitoring Mode (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	Disable Adjustment of Routing Table (yes/no): 
 CMD_AccountDetailSet_Prompt_NOQOS	 Disable QoS Control Function (yes/no): 
+CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no): 
 
 
 # AccountRename command
