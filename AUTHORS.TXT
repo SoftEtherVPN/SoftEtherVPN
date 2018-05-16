@@ -184,6 +184,8 @@ CONTRIBUTORS on GitHub:
   - Max Miroshnikov
     https://github.com/mogikanin
 
+  - Josh Soref
+    https://github.com/jsoref
        
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
