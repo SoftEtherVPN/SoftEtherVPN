@@ -234,7 +234,7 @@ struct EAP_MSCHAPV2_RESPONSE
 	UCHAR Chap_Id;
 	USHORT Chap_Len;
 	UCHAR Chap_ValueSize;	// = 49
-	UCHAR Chap_PeerChallange[16];
+	UCHAR Chap_PeerChallenge[16];
 	UCHAR Chap_Reserved[8];
 	UCHAR Chap_NtResponse[24];
 	UCHAR Chap_Flags;

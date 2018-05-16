@@ -18,7 +18,7 @@ DEFAULT_FONT			Tahoma
 DEFAULT_FONT_WIN7		Segoe UI
 DEFAULT_FONT_2			Tahoma
 DEFAULT_FONT_SIZE		8
-DEFAULE_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
+DEFAULT_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
 
 
 # 言語
@@ -371,7 +371,7 @@ SEC_PIN_CHANGE_FAILED	Changing of PIN code failed.
 SEC_PIN_OK				The PIN code has been changed.
 
 
-# TCP Connecion Dialog
+# TCP Connection Dialog
 CONNECTDLG_CAPTION		Connecting
 CONNECTDLG_MESSAGE		Connecting to the server "%S" (TCP port: %u)...
 CONNECTDLG_CANCELING	Aborting the connection. Please wait...
@@ -558,7 +558,7 @@ HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, t
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
 HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub. (For only L2TP/IPsec and OpenVPN sessions.)
-HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identidier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
+HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identifier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
 
 
 # Concerning failed connection dialogs
@@ -1207,7 +1207,7 @@ CM_EDIT_HUB_2			Properties of %S
 
 CM_EDIT_HUB_STANDALONE	Currently the server is operating in Standalone Mode. This Virtual Hub is operating as a Standalone Hub.
 CM_EDIT_HUB_TYPE_FIXED	Currently the server is operating in Cluster Mode. This Virtual Hub is of the following type, which means it is not possible to make dynamic changes.
-CM_EDIT_HUB_CREATER		A new Virtual Hub '%S' has been created.
+CM_EDIT_HUB_CREATED		A new Virtual Hub '%S' has been created.
 CM_OFFLINE_MSG			Do you want to switch %s to offline?\r\n\r\nIf you switch the Virtual Hub to offline all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect.
 CM_DELETE_HUB_MSG		Do you want to delete %S?\r\n\r\nIf you delete the Virtual Hub, all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect. \r\nThis will also delete all the Hub settings, user objects, group objects, certificates and Cascade Connections. \r\n\r\nOnce you delete the Virtual Hub, it cannot be recovered. \r\nAre you sure you want to delete it?
 CM_HUB_DELETED_MSG		Virtual Hub %S has been deleted.
@@ -1363,7 +1363,7 @@ SM_EDIT_USER_POL_DLG	Security Policy of User %S
 SM_POLICY_DEF_CAPTION	Security Policy
 SM_LIMIT_STR			Specify an integer that is within the range %u to %u.
 SM_POLICY_INIT_TITLE	Select a policy item from the list on the left.
-SM_USER_CREEATE_OK		User %S has been created.
+SM_USER_CREATE_OK		User %S has been created.
 SM_USERINFO_CAPTION		User "%S" Information
 SM_USERINFO_NAME		User Name
 SM_USERINFO_GROUP		Group Name
@@ -3095,7 +3095,7 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_NM_OPTION
-CAPTION					SecureNAT Configration
+CAPTION					SecureNAT Configuration
 S_TITLE					Set how SecureNAT virtual host performs operation on the virtual network of Virtual Hub "%S".
 STATIC1					Virtual Host's Network Interface Settings:
 STATIC2					&MAC Address:
@@ -3212,7 +3212,7 @@ IDCANCEL				E&xit
 
 PREFIX					D_EM_ADD
 STATIC1					Name of Network Adapter Used for Capture:
-R_PROMISCUS				Do&n't Use Promiscuous Mode During Capture
+R_PROMISCUOUS				Do&n't Use Promiscuous Mode During Capture
 STATIC2					&Packet Log: 
 S_PACKET				Log File S&witch Cycle: 
 S_PACKET_0				TCP Connection Log: 
@@ -3320,7 +3320,7 @@ PREFIX					D_SM_MSG
 CAPTION					Set the Message
 S_MSG_2					You can set a message to display on the screen of a user when a VPN Client connects to the Virtual Hub "%S". To show a message, input the message that you want to show.
 C_USEMSG				Show &Message
-STATIC1					About the Message Display Funcion
+STATIC1					About the Message Display Function
 S_INFO					The VPN Client must be Version 3.0 or later.\r\n\r\nSpecify a single line starts with "http://" as the message to open the default Web browser on the client instead to showing a message.
 IDOK					&OK
 IDCANCEL				Cancel
@@ -3982,7 +3982,7 @@ S_INFO8					SoftEther VPN is a work of the research and development project of J
 
 PREFIX					D_SW_ERROR
 CAPTION					D_SW_ERROR
-S_INFO					An error occureed and the setup of %s is aborted.\r\n\r\nRestart the Setup Wizard if you want to retry.
+S_INFO					An error occurred and the setup of %s is aborted.\r\n\r\nRestart the Setup Wizard if you want to retry.
 
 
 PREFIX					D_SW_FINISH
@@ -4059,7 +4059,7 @@ CAPTION					Configuration of Update Notification
 S_INFO					Checks the new versions of %s periodically and popup a notification when a new version will be released.\r\n\r\nHTTPS packets will be used between this computer and the SoftEther Update server located in Tsukuba-city, Ibaraki-prefecture, Japan in order to check updates. No personal information will be sent.
 S_TITLE					%s Update and Notify Settings
 S_ENABLE				&Enable Update Checks
-S_DISBLE				&Disable Update Checks
+S_DISABLE				&Disable Update Checks
 IDCANCEL				&Close
 
 
@@ -4292,13 +4292,13 @@ CON_INFILE_START		The commands written in the file "%s" will be used instead of 
 CON_OUTFILE_START		The message output to the console will be saved in the file "%s".
 CON_USER_CANCEL			[EOF]
 CON_UNKNOWN_CMD			"%S": Command not found. \nYou can use the HELP command to view a list of the available commands.
-CON_AMBIGIOUS_CMD		"%S": The command-name is ambiguous.
-CON_AMBIGIOUS_CMD_1		The specified command name matches the following multiple commands.
-CON_AMBIGIOUS_CMD_2		Please re-specify the command name more strictly.
+CON_AMBIGUOUS_CMD		"%S": The command-name is ambiguous.
+CON_AMBIGUOUS_CMD_1		The specified command name matches the following multiple commands.
+CON_AMBIGUOUS_CMD_2		Please re-specify the command name more strictly.
 CON_INVALID_PARAM		The parameter "/%S" has been specified. It is not possible to specify this parameter when using the command "%S". Input "%S /HELP" to see the list of what parameters can be used. 
-CON_AMBIGIOUS_PARAM		"%S": The parameter name is ambiguous.
-CON_AMBIGIOUS_PARAM_1	The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".
-CON_AMBIGIOUS_PARAM_2	Please re-specify the parameter name more strictly.
+CON_AMBIGUOUS_PARAM		"%S": The parameter name is ambiguous.
+CON_AMBIGUOUS_PARAM_1	The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".
+CON_AMBIGUOUS_PARAM_2	Please re-specify the parameter name more strictly.
 
 
 # Unknown command
@@ -4321,7 +4321,7 @@ CMD_HELP_DESCRIPTION	Purpose:
 CMD_HELP_USAGE			Usage:
 CMD_HELP_HELP			Description:
 CMD_HELP_ARGS			Parameters:
-CMD_PROPMT_PORT			Input the port number: 
+CMD_PROMPT_PORT			Input the port number: 
 CMD_EVAL_PORT			Port number is invalid. Specify a port number that is within the range of 1 to 65535.
 CMD_CT_STD_COLUMN_1		Item
 CMD_CT_STD_COLUMN_2		Value
@@ -5384,7 +5384,7 @@ CMD_CascadePolicySet_VALUE	Specify a new policy value. If the policy is an integ
 CMD_CascadePolicySet_PROMPT_POLNAME	Name of Policy Whose Value you want to Change: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	Value to newly set: 
 CMD_CascadePolicySet_Invalid_Name	The specified policy name "%S" is invalid. \nCheck the list of policy names that can be set using the PolicyList command.
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	The specified policy name "%S" cannot be used for a Cascade Connection security policy setting.
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	The specified policy name "%S" cannot be used for a Cascade Connection security policy setting.
 CMD_CascadePolicySet_Invalid_Range	Specify policy "%S" within the range of %s.
 
 
@@ -6179,8 +6179,8 @@ CMD_IPsecGet_PRINT_DEFAULTHUB	Name of Default Virtual Hub
 
 
 # EtherIpClientAdd command
-CMD_EtherIpClientAdd	Add New EtherIP / L2TPv3 over IPsec Client Setting to Accept EthreIP / L2TPv3 Client Devices
-CMD_EtherIpClientAdd_Help	Add a new setting entry to enable the EtherIP / L2TPv3 over IPsec Server Function to accept client devices.\nIn order to accept connections from routers by the EtherIP / L2TPv3 over IPsec Server Function, you have to define the relation table between an IPsec Phase 1 string which is presented by client devices of EtherIP / L2TPv3 over IPsec compatible router, and the designation of the destination Virtual Hub.\nAfter you add a definition entry by EtherIpClientAdd command, the defined connection setting to the Virtual Hub will be applied on the login-attepting session from an EtherIP / L2TPv3 over IPsec client device.\nThe username and password in an entry must be registered on the Virtual Hub. An EtherIP / L2TPv3 client will be regarded as it connected the Virtual HUB with the identification of the above user information.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_EtherIpClientAdd	Add New EtherIP / L2TPv3 over IPsec Client Setting to Accept EtherIP / L2TPv3 Client Devices
+CMD_EtherIpClientAdd_Help	Add a new setting entry to enable the EtherIP / L2TPv3 over IPsec Server Function to accept client devices.\nIn order to accept connections from routers by the EtherIP / L2TPv3 over IPsec Server Function, you have to define the relation table between an IPsec Phase 1 string which is presented by client devices of EtherIP / L2TPv3 over IPsec compatible router, and the designation of the destination Virtual Hub.\nAfter you add a definition entry by EtherIpClientAdd command, the defined connection setting to the Virtual Hub will be applied on the login-attempting session from an EtherIP / L2TPv3 over IPsec client device.\nThe username and password in an entry must be registered on the Virtual Hub. An EtherIP / L2TPv3 client will be regarded as it connected the Virtual HUB with the identification of the above user information.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_EtherIpClientAdd_Args	EtherIpClientAdd [ID] [/HUB:hubname] [/USERNAME:username] [/PASSWORD:password]
 CMD_EtherIpClientAdd_[ID]	Specify an ISAKMP Phase 1 ID. The ID must be exactly same as a ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP Client uses IP address as Phase 1 ID. If you specify '*' (asterisk), it will be a wildcard to match any clients which doesn't match other explicit rules.
 CMD_EtherIpClientAdd_HUB	Specify the name of the Virtual Hub to connect.
@@ -6276,7 +6276,7 @@ CMD_VpnOverIcmpDnsGet_PRINT_DNS		VPN over DNS Server Enabled
 
 # DynamicDnsGetStatus command
 CMD_DynamicDnsGetStatus		Show the Current Status of Dynamic DNS Function
-CMD_DynamicDnsGetStatus_Help	Get and show the current status of the Dynamic DNS function.\n\nThe Dynamic DNS assigns a unique and permanent DNS hostname for this VPN Server. You can use that hostname to specify this VPN Server on the settings for VPN Client and VPN Bridge. You need not to register and keep a domain name.\nAlso, if your ISP assignes you a dynamic (not-fixed) IP address, the corresponding IP address of your Dynamic DNS hostname will be automatically changed. It enables you to keep running the VPN Server by using only a dynamic IP address.\r\nTherefore, you need not any longer to keep static global IP addresses with expenses monthly costs.\n[Caution]\nTo disable the Dynamic DNS Function, modify the configuration file of VPN Server.\r\n\r\nThe "declare root" directive has the "declare DDnsClient" directive. In this directive, you can switch "bool Disable" from false to true, and reboot the VPN Server, then the Dynamic DNS Function will be disabled.\r\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.
+CMD_DynamicDnsGetStatus_Help	Get and show the current status of the Dynamic DNS function.\n\nThe Dynamic DNS assigns a unique and permanent DNS hostname for this VPN Server. You can use that hostname to specify this VPN Server on the settings for VPN Client and VPN Bridge. You need not to register and keep a domain name.\nAlso, if your ISP assigns you a dynamic (not-fixed) IP address, the corresponding IP address of your Dynamic DNS hostname will be automatically changed. It enables you to keep running the VPN Server by using only a dynamic IP address.\r\nTherefore, you need not any longer to keep static global IP addresses with expenses monthly costs.\n[Caution]\nTo disable the Dynamic DNS Function, modify the configuration file of VPN Server.\r\n\r\nThe "declare root" directive has the "declare DDnsClient" directive. In this directive, you can switch "bool Disable" from false to true, and reboot the VPN Server, then the Dynamic DNS Function will be disabled.\r\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.
 CMD_DynamicDnsGetStatus_Args	DynamicDnsGetStatus
 CMD_DynamicDnsGetStatus_PRINT_FQDN	Assigned Dynamic DNS Hostname (Full)
 CMD_DynamicDnsGetStatus_PRINT_HOSTNAME	Assigned Dynamic DNS Hostname (Hostname)
@@ -6287,7 +6287,7 @@ CMD_DynamicDnsGetStatus_PRINT_IPv6		Global IPv6 Address
 
 # DynamicDnsSetHostname command
 CMD_DynamicDnsSetHostname	Set the Dynamic DNS Hostname
-CMD_DynamicDnsSetHostname_Help	You can use this command to change the hostname assigned by the Dynamic DNS function. The currently assigned hostname can be showen by the DynamicDnsGetStatus command.\n\nThe Dynamic DNS assigns a unique and permanent DNS hostname for this VPN Server. You can use that hostname to specify this VPN Server on the settings for VPN Client and VPN Bridge. You need not to register and keep a domain name.\nAlso, if your ISP assignes you a dynamic (not-fixed) IP address, the corresponding IP address of your Dynamic DNS hostname will be automatically changed. It enables you to keep running the VPN Server by using only a dynamic IP address.\r\nTherefore, you need not any longer to keep static global IP addresses with expenses monthly costs.\n[Caution]\nTo disable the Dynamic DNS Function, modify the configuration file of VPN Server.\r\n\r\nThe "declare root" directive has the "declare DDnsClient" directive. In this directive, you can switch "bool Disable" from false to true, and reboot the VPN Server, then the Dynamic DNS Function will be disabled.\r\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.
+CMD_DynamicDnsSetHostname_Help	You can use this command to change the hostname assigned by the Dynamic DNS function. The currently assigned hostname can be showen by the DynamicDnsGetStatus command.\n\nThe Dynamic DNS assigns a unique and permanent DNS hostname for this VPN Server. You can use that hostname to specify this VPN Server on the settings for VPN Client and VPN Bridge. You need not to register and keep a domain name.\nAlso, if your ISP assigns you a dynamic (not-fixed) IP address, the corresponding IP address of your Dynamic DNS hostname will be automatically changed. It enables you to keep running the VPN Server by using only a dynamic IP address.\r\nTherefore, you need not any longer to keep static global IP addresses with expenses monthly costs.\n[Caution]\nTo disable the Dynamic DNS Function, modify the configuration file of VPN Server.\r\n\r\nThe "declare root" directive has the "declare DDnsClient" directive. In this directive, you can switch "bool Disable" from false to true, and reboot the VPN Server, then the Dynamic DNS Function will be disabled.\r\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.
 CMD_DynamicDnsSetHostname_Args	DynamicDnsSetHostname [hostname]
 CMD_DynamicDnsSetHostname_[hostname]	Specify the new hostname with 3 letters at least and 31 letters at most. Only alphabets and numerics can be used.
 CMD_DynamicDnsSetHostname_Prompt_hostname	Dynamic DNS Hostname (3 - 31 letters): 
@@ -6739,10 +6739,10 @@ CMD_AccountRetrySet		Set Interval between Connection Retries for Connection Fail
 CMD_AccountRetrySet_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting attempts to connect to a VPN Server, use this to specify the interval to wait between connection attempts and the limit of how many times to retry connecting when communication with the VPN Server has been disconnected or when the connection process failed. \nIf the user authentication type is Smart Card Authentication, no connection retry will be performed regardless of the Number of Connection Attempts setting.
 CMD_AccountRetrySet_Args	AccountRetrySet [name] [/NUM:num_retry] [/INTERVAL:retry_interval]
 CMD_AccountRetrySet_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountRetrySet_NUM	Specify the number of times to make consecutive retries. By specifying "999", there will be limitless attempts to reconection (always connect). By specifying "0", not attempt at reconnection will be made.
+CMD_AccountRetrySet_NUM	Specify the number of times to make consecutive retries. By specifying "999", there will be limitless attempts to reconnection (always connect). By specifying "0", not attempt at reconnection will be made.
 CMD_AccountRetrySet_INTERVAL	When attempting a reconnection, this sets how many seconds to wait after the previous disconnection or connection failure before starting the reconnection process.
-CMD_AccountRetrySet_PROMPT_NUM	Reconection Count ("999" is unlimited): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	Reconection Interval (Seconds): 
+CMD_AccountRetrySet_PROMPT_NUM	Reconnection Count ("999" is unlimited): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	Reconnection Interval (Seconds): 
 CMD_AccountRetrySet_EVAL_INTERVAL	Specify 5 seconds or more for the retries interval.
 
 
@@ -6979,7 +6979,7 @@ SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN Server
 SW_COMPONENT_VPNSERVER_DESCRIPTION			Install it on a server computer at the central site of VPN. The management tools will be also installed.
 
 SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN Client
-SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client comuters. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client computers. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
 
 SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN Bridge
 SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Install it on computers at each site. Each VPN Bridge will establish a VPN connection to the central VPN Server. The management tools will be also installed.
@@ -7076,7 +7076,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT			Importing the Built-in VPN Connection Setting
 SW_PERFORM_MSG_DELETE_SETUP_INFO			Deleting the install information and logs...
 SW_PERFORM_MSG_WRITE_LOG					Writing a setup log...
 SW_PERFORM_MSG_COPY_ERROR					Copying to the file "%s" failed.
-SW_PERFORM_MSG_CRAETE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
+SW_PERFORM_MSG_CREATE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
 SW_PERFORM_MSG_WRITE_LOG_ERROR				Creating the setup log file "%s".\r\n\r\nDo you want to retry?
 SW_PERFORM_MSG_STOP_SVC_ERROR				Stopping the "%s" service (internal name: "%S") failed.
 SW_PERFORM_MSG_START_SVC_ERROR				Starting the "%s" service (internal name: "%S") failed.

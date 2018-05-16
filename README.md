@@ -145,7 +145,7 @@ from GitHub. You may make your own fork project from our project.
 - libssl-dev
 - zlib1g-dev
 
-### 2. Redhat/CentOS
+### 2. Red Hat/CentOS
 - gcc
 - openssl-devel
 - make

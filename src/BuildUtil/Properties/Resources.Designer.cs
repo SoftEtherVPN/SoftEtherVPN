@@ -651,7 +651,7 @@ namespace BuildUtil.Properties {
         }
         
         /// <summary>
-        ///   [j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the &quot;OK&quot; button after you complete filling all nessesary fields. To cancel inputting, click the &quot;Cancel&quot; button.[/] に類似しているローカライズされた文字列を検索します。
+        ///   [j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the &quot;OK&quot; button after you complete filling all necessary fields. To cancel inputting, click the &quot;Cancel&quot; button.[/] に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CDF_TEXT_OK {
             get {
@@ -904,9 +904,9 @@ namespace BuildUtil.Properties {
         /// <summary>
         ///   Input the port number:  に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CMD_PROPMT_PORT {
+        internal static string CMD_PROMPT_PORT {
             get {
-                return ResourceManager.GetString("CMD_PROPMT_PORT", resourceCulture);
+                return ResourceManager.GetString("CMD_PROMPT_PORT", resourceCulture);
             }
         }
         
@@ -949,54 +949,54 @@ namespace BuildUtil.Properties {
         /// <summary>
         ///   &quot;%S&quot;: The command-name is ambiguous. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD {
+        internal static string CON_AMBIGUOUS_CMD {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD", resourceCulture);
             }
         }
         
         /// <summary>
         ///   The specified command name matches the following multiple commands. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD_1 {
+        internal static string CON_AMBIGUOUS_CMD_1 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD_1", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD_1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Please re-specify the command name more strictly. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_CMD_2 {
+        internal static string CON_AMBIGUOUS_CMD_2 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_CMD_2", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_CMD_2", resourceCulture);
             }
         }
         
         /// <summary>
         ///   &quot;%S&quot;: The parameter name is ambiguous. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM {
+        internal static string CON_AMBIGUOUS_PARAM {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM", resourceCulture);
             }
         }
         
         /// <summary>
         ///   The specified parameter name matches with the following parameters that can be specified as a parameter of command &quot;%S&quot;. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM_1 {
+        internal static string CON_AMBIGUOUS_PARAM_1 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM_1", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM_1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Please re-specify the parameter name more strictly. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string CON_AMBIGIOUS_PARAM_2 {
+        internal static string CON_AMBIGUOUS_PARAM_2 {
             get {
-                return ResourceManager.GetString("CON_AMBIGIOUS_PARAM_2", resourceCulture);
+                return ResourceManager.GetString("CON_AMBIGUOUS_PARAM_2", resourceCulture);
             }
         }
         

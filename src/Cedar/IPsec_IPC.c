@@ -561,7 +561,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	ipc->ArpTable = NewList(IPCCmpArpTable);
 
 	// Create an IPv4 reception queue
-	ipc->IPv4RecviedQueue = NewQueue();
+	ipc->IPv4ReceivedQueue = NewQueue();
 
 	return ipc;
 
@@ -601,7 +601,7 @@ IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address)
 	ipc->ArpTable = NewList(IPCCmpArpTable);
 
 	// Create an IPv4 reception queue
-	ipc->IPv4RecviedQueue = NewQueue();
+	ipc->IPv4ReceivedQueue = NewQueue();
 
 	ipc->FlushList = NewTubeFlushList();
 
@@ -671,7 +671,7 @@ void FreeIPC(IPC *ipc)
 
 	while (true)
 	{
-		BLOCK *b = GetNext(ipc->IPv4RecviedQueue);
+		BLOCK *b = GetNext(ipc->IPv4ReceivedQueue);
 		if (b == NULL)
 		{
 			break;
@@ -680,7 +680,7 @@ void FreeIPC(IPC *ipc)
 		FreeBlock(b);
 	}
 
-	ReleaseQueue(ipc->IPv4RecviedQueue);
+	ReleaseQueue(ipc->IPv4ReceivedQueue);
 
 	Free(ipc);
 }
@@ -872,7 +872,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			char tmp[64];
 
 			DHCP_OPTION_LIST req;
-			IPC_DHCP_RELESAE_QUEUE *q;
+			IPC_DHCP_RELEASE_QUEUE *q;
 
 			// If the offered IP address is not used, place the address
 			// in release memo list to release at the end of this function
@@ -880,7 +880,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			req.Opcode = DHCP_RELEASE;
 			req.ServerAddress = d->ParsedOptionList->ServerAddress;
 
-			q = ZeroMalloc(sizeof(IPC_DHCP_RELESAE_QUEUE));
+			q = ZeroMalloc(sizeof(IPC_DHCP_RELEASE_QUEUE));
 			Copy(&q->Req, &req, sizeof(DHCP_OPTION_LIST));
 			q->TranId = tran_id;
 			Copy(q->MacAddress, ipc->MacAddress, 6);
@@ -994,7 +994,7 @@ LABEL_CLEANUP:
 
 		for (i = 0;i < LIST_NUM(release_list);i++)
 		{
-			IPC_DHCP_RELESAE_QUEUE *q = LIST_DATA(release_list, i);
+			IPC_DHCP_RELEASE_QUEUE *q = LIST_DATA(release_list, i);
 
 			Copy(ipc->MacAddress, q->MacAddress, 6);
 			FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, q->TranId, &q->Req, 0, 0, NULL));
@@ -1456,7 +1456,7 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 	}
 }
 
-// Identifiy whether the MAC address is a normal unicast address
+// Identify whether the MAC address is a normal unicast address
 bool IsValidUnicastMacAddress(UCHAR *mac)
 {
 	// Validate arguments
@@ -1626,7 +1626,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								IPCAssociateOnArpTable(ipc, &ip_src, src_mac);
 
 								// Place in the reception queue
-								InsertQueue(ipc->IPv4RecviedQueue, NewBlock(data, size, 0));
+								InsertQueue(ipc->IPv4ReceivedQueue, NewBlock(data, size, 0));
 							}
 							else
 							{
@@ -2086,7 +2086,7 @@ BLOCK *IPCRecvIPv4(IPC *ipc)
 		return NULL;
 	}
 
-	b = GetNext(ipc->IPv4RecviedQueue);
+	b = GetNext(ipc->IPv4ReceivedQueue);
 
 	return b;
 }

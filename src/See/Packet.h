@@ -165,7 +165,7 @@
 
   Command used to send a buffer of packets in a single system call. Every packet in the buffer is preceded by
   a sf_pkthdr structure. The timestamps of the packets are used to synchronize the write, i.e. the packets 
-  are sent to the network respecting the intervals specified in the sf_pkthdr structure assiciated with each
+  are sent to the network respecting the intervals specified in the sf_pkthdr structure associated with each
   packet. NPF_BufferedWrite() function is invoked to send the packets. 
 */
 #define  BIOCSENDPACKETSSYNC 9033
@@ -287,7 +287,7 @@ typedef struct __CPU_Private_Data
 	ULONG	C;					///< Zero-based index of the consumer in the buffer. It indicates the first free byte to be read.
 	ULONG	Free;				///< Number of the free bytes in the buffer
 	PUCHAR	Buffer;				///< Pointer to the kernel buffer used to capture packets.
-	ULONG	Accepted;			///< Number of packet that current capture instance acepted, from its opening. A packet 
+	ULONG	Accepted;			///< Number of packet that current capture instance accepted, from its opening. A packet 
 								///< is accepted if it passes the filter and fits in the buffer. Accepted packets are the
 								///< ones that reach the application. 
 								///< This number is related to the particular CPU this structure is referring to.
@@ -318,7 +318,7 @@ typedef struct _OPEN_INSTANCE
 {
 	PDEVICE_EXTENSION   DeviceExtension;	///< Pointer to the _DEVICE_EXTENSION structure of the device on which
 											///< the instance is bound.
-	NDIS_HANDLE         AdapterHandle;		///< NDIS idetifier of the adapter used by this instance.
+	NDIS_HANDLE         AdapterHandle;		///< NDIS Identifier of the adapter used by this instance.
 	UINT				Medium;				///< Type of physical medium the underlying NDIS driver uses. See the
 											///< documentation of NdisOpenAdapter in the MS DDK for details.
 	NDIS_HANDLE         PacketPool;			///< Pool of NDIS_PACKET structures used to transfer the packets from and to the NIC driver.
@@ -333,7 +333,7 @@ typedef struct _OPEN_INSTANCE
 	HANDLE				ReadEventHandle;	///< Handle of the event on which the read calls on this instance must wait.
 	UNICODE_STRING		ReadEventName;		///< Name of the event on which the read calls on this instance must wait.
 											///< The event is created with a name, so it can be used at user level to know when it 
-											///< is possible to access the driver without being blocked. This fiels stores the name 
+											///< is possible to access the driver without being blocked. This field stores the name 
 											///< that and is used by the BIOCGEVNAME IOCTL call.
 	PUCHAR				bpfprogram;			///< Pointer to the filtering pseudo-code associated with current instance of the driver.
 											///< This code is used only in particular situations (for example when the packet received
@@ -381,7 +381,7 @@ typedef struct _OPEN_INSTANCE
 	MEM_TYPE			mem_ex;				///< Memory used by the TME virtual co-processor
 	TME_CORE			tme;				///< Data structure containing the virtualization of the TME co-processor
 	NDIS_SPIN_LOCK		MachineLock;		///< SpinLock that protects the mem_ex buffer
-	UINT				MaxFrameSize;		///< Maximum frame size that the underlying MAC acceptes. Used to perform a check on the 
+	UINT				MaxFrameSize;		///< Maximum frame size that the underlying MAC accepts. Used to perform a check on the 
 											///< size of the frames sent with NPF_Write() or NPF_BufferedWrite().
 	CpuPrivateData		CpuData[1024];		///< Pool of kernel buffer structures, one for each CPU.
 	ULONG				ReaderSN;			///< Sequence number of the next packet to be read from the pool of kernel buffers.
@@ -812,7 +812,7 @@ NPF_ReadRegistry(
     );
 
 /*!
-  \brief Function used by NPF_ReadRegistry() to quesry the registry keys associated woth NPF if the driver 
+  \brief Function used by NPF_ReadRegistry() to query the registry keys associated woth NPF if the driver 
   is manually installed via the control panel.
 
   Normally not used in recent versions of NPF.
@@ -844,7 +844,7 @@ VOID NPF_BindAdapter(
   \brief Callback for NDIS UnbindAdapterHandler.
   \param Status out variable filled by NPF_UnbindAdapter with the status of the unbind operation.
   \param ProtocolBindingContext Context of the function. Contains a pointer to the OPEN_INSTANCE structure associated with current instance.
-  \param UnbindContext Specifies a handle, supplied by NDIS, that NPF can use to complete the opration.
+  \param UnbindContext Specifies a handle, supplied by NDIS, that NPF can use to complete the operation.
   
   Function called by NDIS when a new adapter is removed from the machine without shutting it down.
   NPF_UnbindAdapter closes the adapter calling NdisCloseAdapter() and frees the memory and the structures

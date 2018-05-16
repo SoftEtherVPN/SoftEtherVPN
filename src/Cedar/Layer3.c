@@ -302,7 +302,7 @@ void L3RecvIp(L3IF *f, PKT *p, bool self)
 				ip->TimeToLive = 0xff;
 
 				// Recalculates the checksum
-				ip->FlagsAndFlagmentOffset[0] = ip->FlagsAndFlagmentOffset[1] = 0;
+				ip->FlagsAndFragmentOffset[0] = ip->FlagsAndFragmentOffset[1] = 0;
 				icmp->Checksum = 0;
 				icmp->Type = ICMP_TYPE_ECHO_RESPONSE;
 				icmp->Checksum = IpChecksum(icmp, p->PacketSize - sizeof(MAC_HEADER) - header_size);
@@ -356,7 +356,7 @@ void L3RecvL2(L3IF *f, PKT *p)
 		return;
 	}
 
-	// Ignore any packets except a unicast packet which is destinated other
+	// Ignore any packets except a unicast packet which is at destination
 	// or a packet which I sent
 	if (Cmp(p->MacAddressSrc, f->MacAddress, 6) == 0 ||
 		(p->BroadcastPacket == false && Cmp(p->MacAddressDest, f->MacAddress, 6) != 0))

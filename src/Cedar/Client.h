@@ -427,9 +427,9 @@ struct RPC_CLIENT_GET_CONNECTION_STATUS
 	X *ServerX;								// Server certificate
 	X *ClientX;								// Client certificate
 	UINT64 StartTime;						// Connection start time
-	UINT64 FirstConnectionEstablisiedTime;	// Connection completion time of the first connection
+	UINT64 FirstConnectionEstablishedTime;	// Connection completion time of the first connection
 	UINT64 CurrentConnectionEstablishTime;	// Connection completion time of this connection
-	UINT NumConnectionsEatablished;			// Number of connections have been established so far
+	UINT NumConnectionsEstablished;			// Number of connections have been established so far
 	bool HalfConnection;					// Half-connection
 	bool QoS;								// VoIP / QoS
 	UINT MaxTcpConnections;					// Maximum number of the TCP connections

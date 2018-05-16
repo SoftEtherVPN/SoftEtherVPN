@@ -562,7 +562,7 @@ void ListenerTCPMainLoop(LISTENER *r)
 			goto STOP;
 		}
 
-		// Accpet loop
+		// Accept loop
 		while (true)
 		{
 			// Accept

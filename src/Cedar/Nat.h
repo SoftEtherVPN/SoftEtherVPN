@@ -164,7 +164,7 @@ struct RPC_NAT_STATUS
 	char HubName[MAX_HUBNAME_LEN + 1];			// HUB name
 	UINT NumTcpSessions;						// Number of TCP sessions
 	UINT NumUdpSessions;						// Ntmber of UDP sessions
-	UINT NumIcmpSessions;						// Nymber of ICMP sessions
+	UINT NumIcmpSessions;						// Number of ICMP sessions
 	UINT NumDnsSessions;						// Number of DNS sessions
 	UINT NumDhcpClients;						// Number of DHCP clients
 	bool IsKernelMode;							// Whether kernel mode

@@ -18,7 +18,7 @@ DEFAULT_FONT			MS UI Gothic
 DEFAULT_FONT_HIGHDPI	Meiryo UI
 DEFAULT_FONT_2			MS Gothic
 DEFAULT_FONT_SIZE		9
-DEFAULE_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
+DEFAULT_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
 
 
 # 言語
@@ -579,7 +579,7 @@ HUB_AO_SecureNAT_RandomizeAssignIp			この項目が 1 (有効) の場合は、S
 HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指定された秒数無通信であった VPN セッションをドーマント状態 (休止状態) として識別します。ドーマント状態の VPN セッションに対しては、仮想 HUB 内でフラッディングされるべきパケットがフラッディングされなくなります。
 HUB_AO_NoPhysicalIPOnPacketLog				この項目が 1 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
 HUB_AO_UseHubNameAsDhcpUserClassOption		この項目が 1 (有効) の場合は、仮想 HUB は DHCP サーバーに対して IP アドレスの取得を要求する際に仮想 HUB 名を DHCP パケットの "User-Class" オプションに埋め込むようになります。この機能は、複数の仮想 HUB がある場合に、DHCP サーバーがそれぞれの仮想 HUB 用に IP プールを確保する場合に便利です。(L2TP/IPsec および OpenVPN セッションのみ対応。)
-HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identidier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
+HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identifier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
 
 
 # Caps 関係
@@ -1211,7 +1211,7 @@ CM_EDIT_HUB_2			%S のプロパティ
 
 CM_EDIT_HUB_STANDALONE	現在、サーバーはスタンドアロンモードで動作しています。この仮想 HUB はスタンドアロン HUB として動作します。
 CM_EDIT_HUB_TYPE_FIXED	現在、サーバーはクラスタモードで動作しています。この仮想 HUB の種類は下記のとおりで、動的な変更はできません。
-CM_EDIT_HUB_CREATER		新しい仮想 HUB %S を作成しました。
+CM_EDIT_HUB_CREATED		新しい仮想 HUB %S を作成しました。
 CM_OFFLINE_MSG			%s をオフラインにしますか?\r\n\r\n仮想 HUB をオフラインにすると、現在仮想 HUB に接続しているすべてのセッションが切断され、新しいセッションが接続できなくなります。
 CM_DELETE_HUB_MSG		%S を削除しますか?\r\n\r\n仮想 HUB を削除すると、現在仮想 HUB に接続しているセッションがすべて切断され、新たなセッションが仮想 HUB に接続できなくなります。\r\nまた、仮想 HUB のすべての設定、ユーザー オブジェクト、グループオブジェクト、証明書、およびカスケード接続が削除されます。\r\n\r\n仮想 HUB を削除すると、元に戻すことはできません。\r\n削除しますか?
 CM_HUB_DELETED_MSG		仮想 HUB %S を削除しました。
@@ -1367,7 +1367,7 @@ SM_EDIT_USER_POL_DLG	ユーザー %S のセキュリティポリシー
 SM_POLICY_DEF_CAPTION	セキュリティポリシー
 SM_LIMIT_STR			%u ～ %u の範囲の整数値を指定してください。
 SM_POLICY_INIT_TITLE	左のリストからポリシー項目を選択してください。
-SM_USER_CREEATE_OK		ユーザー %S を作成しました。
+SM_USER_CREATE_OK		ユーザー %S を作成しました。
 SM_USERINFO_CAPTION		ユーザー "%S" の情報
 SM_USERINFO_NAME		ユーザー名
 SM_USERINFO_GROUP		グループ名
@@ -3218,7 +3218,7 @@ IDCANCEL				閉じる(&X)
 
 PREFIX					D_EM_ADD
 STATIC1					キャプチャに使用する LAN カード名(&L):
-R_PROMISCUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
+R_PROMISCUOUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
 STATIC2					パケットログ(&P):
 S_PACKET				ログファイルの切り替え周期(&W):
 S_PACKET_0				TCP コネクションログ:
@@ -4066,7 +4066,7 @@ CAPTION					アップデート通知の設定
 S_INFO					%s の新しいバージョンがリリースされていないかどうか定期的にチェックし、リリースされていた場合は通知画面を表示します。\r\n\r\nアップデートチェックのために日本の茨城県つくば市に設置されている SoftEther Update サーバーとの間で HTTPS 通信を行います。お客様の個人情報が送信されることはありません。
 S_TITLE					%s のアップデートチェックと通知の設定
 S_ENABLE				アップデートチェックを有効にする(&E)
-S_DISBLE				アップデートチェックを無効にする(&D)
+S_DISABLE				アップデートチェックを無効にする(&D)
 IDCANCEL				閉じる(&C)
 
 
@@ -4297,13 +4297,13 @@ CON_INFILE_START		ファイル "%s" に記述されているコマンドを、�
 CON_OUTFILE_START		画面に出力されたメッセージは、ファイル "%s" にも保存されます。
 CON_USER_CANCEL			[EOF]
 CON_UNKNOWN_CMD			"%S": コマンドが見つかりません。\nHELP コマンドで使用できるコマンド一覧を表示できます。
-CON_AMBIGIOUS_CMD		"%S": コマンドが曖昧です。
-CON_AMBIGIOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
-CON_AMBIGIOUS_CMD_2		より厳密にコマンド名を指定し直してください。
+CON_AMBIGUOUS_CMD		"%S": コマンドが曖昧です。
+CON_AMBIGUOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
+CON_AMBIGUOUS_CMD_2		より厳密にコマンド名を指定し直してください。
 CON_INVALID_PARAM		パラメータ "/%S" が指定されています。コマンド "%S" ではそのようなパラメータは指定できません。詳しくは "%S /HELP" と入力して使用できるパラメータ一覧を確認してください。
-CON_AMBIGIOUS_PARAM		"/%S": パラメータ名が曖昧です。
-CON_AMBIGIOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
-CON_AMBIGIOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
+CON_AMBIGUOUS_PARAM		"/%S": パラメータ名が曖昧です。
+CON_AMBIGUOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
+CON_AMBIGUOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
 
 
 # 不明なコマンド
@@ -4326,7 +4326,7 @@ CMD_HELP_DESCRIPTION	[目的]
 CMD_HELP_USAGE			[使用方法]
 CMD_HELP_HELP			[説明]
 CMD_HELP_ARGS			[パラメータ]
-CMD_PROPMT_PORT			ポート番号を入力してください :
+CMD_PROMPT_PORT			ポート番号を入力してください :
 CMD_EVAL_PORT			ポート番号が不正です。ポート番号は 1 以上 65535 以下で指定してください。
 CMD_CT_STD_COLUMN_1		項目
 CMD_CT_STD_COLUMN_2		値
@@ -5385,7 +5385,7 @@ CMD_CascadePolicySet_VALUE	ポリシーの新しい値を指定します。そ�
 CMD_CascadePolicySet_PROMPT_POLNAME	値を変更するポリシーの名前: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	新しく設定する値: 
 CMD_CascadePolicySet_Invalid_Name	指定されたポリシー名 "%S" は不正です。\nPolicyList コマンドで設定できるポリシー名の一覧を確認してください。
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
 CMD_CascadePolicySet_Invalid_Range	ポリシー "%S" は %s の範囲で指定してください。
 
 
@@ -6746,7 +6746,7 @@ CMD_AccountRetrySet_[name]	設定を変更する接続設定の名前を指定�
 CMD_AccountRetrySet_NUM	連続して再接続を行う回数を指定します。"999" と指定すると、無限に再接続を試行します (常時接続)。0 を指定すると再接続を行いません。
 CMD_AccountRetrySet_INTERVAL	再接続を行う場合、前回接続が切断または接続失敗してから、何秒後に再接続処理を開始するかを設定します。
 CMD_AccountRetrySet_PROMPT_NUM	再接続回数 ("999" で無限): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	再接続間隔 (秒): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	再接続間隔 (秒): 
 CMD_AccountRetrySet_EVAL_INTERVAL	再接続間隔は 5 秒以上で指定してください。
 
 
@@ -7077,7 +7077,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT			簡易インストーラに内蔵されてい
 SW_PERFORM_MSG_DELETE_SETUP_INFO			インストール情報およびログを削除中...
 SW_PERFORM_MSG_WRITE_LOG					セットアップログを書き出しています...
 SW_PERFORM_MSG_COPY_ERROR					ファイル "%s" へのコピーに失敗しました。
-SW_PERFORM_MSG_CRAETE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
+SW_PERFORM_MSG_CREATE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_WRITE_LOG_ERROR				セットアップログファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_STOP_SVC_ERROR				サービス 「%s」 (内部名: "%S") の停止に失敗しました。
 SW_PERFORM_MSG_START_SVC_ERROR				サービス 「%s」 (内部名: "%S") の開始に失敗しました。

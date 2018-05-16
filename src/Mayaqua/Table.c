@@ -1440,7 +1440,7 @@ bool LoadTableMain(wchar_t *filename)
 
 	FreeBuf(b);
 
-	SetLocale(_UU("DEFAULE_LOCALE"));
+	SetLocale(_UU("DEFAULT_LOCALE"));
 
 	UniStrCpy(old_table_name, sizeof(old_table_name), filename);
 

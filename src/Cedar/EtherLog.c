@@ -444,7 +444,7 @@ UINT EtSetPassword(EL *e, RPC_SET_PASSWORD *t)
 // Add a device
 UINT EtAddDevice(EL *e, RPC_ADD_DEVICE *t)
 {
-	if (ElAddCaptureDevice(e, t->DeviceName, &t->LogSetting, t->NoPromiscus) == false)
+	if (ElAddCaptureDevice(e, t->DeviceName, &t->LogSetting, t->NoPromiscuous) == false)
 	{
 		return ERR_CAPTURE_DEVICE_ADD_ERROR;
 	}
@@ -485,7 +485,7 @@ UINT EtGetDevice(EL *e, RPC_ADD_DEVICE *t)
 			ret = ERR_NO_ERROR;
 
 			Copy(&t->LogSetting, &d->LogSetting, sizeof(HUB_LOG));
-			t->NoPromiscus = d->NoPromiscus;
+			t->NoPromiscuous = d->NoPromiscuous;
 		}
 	}
 	UnlockList(e->DeviceList);
@@ -583,7 +583,7 @@ void InRpcAddDevice(RPC_ADD_DEVICE *t, PACK *p)
 
 	Zero(t, sizeof(RPC_ADD_DEVICE));
 	PackGetStr(p, "DeviceName", t->DeviceName, sizeof(t->DeviceName));
-	t->NoPromiscus = PackGetInt(p, "NoPromiscus");
+	t->NoPromiscuous = PackGetInt(p, "NoPromiscuous");
 	t->LogSetting.PacketLogSwitchType = PackGetInt(p, "PacketLogSwitchType");
 
 	for (i = 0;i < NUM_PACKET_LOG;i++)
@@ -602,7 +602,7 @@ void OutRpcAddDevice(PACK *p, RPC_ADD_DEVICE *t)
 	}
 
 	PackAddStr(p, "DeviceName", t->DeviceName);
-	PackAddInt(p, "NoPromiscus", t->NoPromiscus);
+	PackAddInt(p, "NoPromiscuous", t->NoPromiscuous);
 	PackAddInt(p, "PacketLogSwitchType", t->LogSetting.PacketLogSwitchType);
 
 	for (i = 0;i < NUM_PACKET_LOG;i++)
@@ -969,7 +969,7 @@ bool ElDeleteCaptureDevice(EL *e, char *name)
 }
 
 // Add a capture device
-bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscus)
+bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscuous)
 {
 	EL_DEVICE *d, t;
 	// Validate arguments
@@ -995,7 +995,7 @@ bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscus)
 		d = ZeroMalloc(sizeof(EL_DEVICE));
 		StrCpy(d->DeviceName, sizeof(d->DeviceName), name);
 		Copy(&d->LogSetting, log, sizeof(HUB_LOG));
-		d->NoPromiscus = no_promiscus;
+		d->NoPromiscuous = no_promiscuous;
 		d->el = e;
 		Insert(e->DeviceList, d);
 
@@ -1091,7 +1091,7 @@ void ElSaveConfigToFolder(EL *e, FOLDER *root)
 
 			f = CfgCreateFolder(devices, d->DeviceName);
 			SiWriteHubLogCfgEx(f, &d->LogSetting, true);
-			CfgAddBool(f, "NoPromiscusMode", d->NoPromiscus);
+			CfgAddBool(f, "NoPromiscuousMode", d->NoPromiscuous);
 		}
 	}
 	UnlockList(e->DeviceList);
@@ -1157,7 +1157,7 @@ void ElLoadConfigFromFolder(EL *e, FOLDER *root)
 
 					Zero(&g, sizeof(g));
 					SiLoadHubLogCfg(&g, f);
-					ElAddCaptureDevice(e, name, &g, CfgGetBool(f, "NoPromiscusMode"));
+					ElAddCaptureDevice(e, name, &g, CfgGetBool(f, "NoPromiscuousMode"));
 				}
 			}
 			FreeToken(t);

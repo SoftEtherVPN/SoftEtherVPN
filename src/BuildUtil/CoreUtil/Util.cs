@@ -255,7 +255,7 @@ namespace CoreUtil
 			return DefaultLanguage;
 		}
 
-		public static CoreLanguageClass GetLangugageClassByEnum(CoreLanguage lang)
+		public static CoreLanguageClass GetLanguageClassByEnum(CoreLanguage lang)
 		{
 			foreach (CoreLanguageClass c in LanguageList)
 			{

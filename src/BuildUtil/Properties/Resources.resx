@@ -283,7 +283,7 @@
     <value>[j]エラーが発生しました。内容を見直してください。修正する場合は [修正する] ボタンをクリックしてください。[e]An error has been occurred. Please confirm the fields. To modify it, click the "Modify" button.[/]</value>
   </data>
   <data name="CDF_TEXT_OK" xml:space="preserve">
-    <value>[j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the "OK" button after you complete filling all nessesary fields. To cancel inputting, click the "Cancel" button.[/]</value>
+    <value>[j]入力が完了したら [OK] ボタンを、入力をキャンセルするには [キャンセル] ボタンをクリックしてください。[e]Please click the "OK" button after you complete filling all necessary fields. To cancel inputting, click the "Cancel" button.[/]</value>
   </data>
   <data name="CDF_TIME_EMPTY" xml:space="preserve">
     <value>[j]時刻が入力されていません。[e]Time is empty.[/]</value>
@@ -371,7 +371,7 @@ IP アドレスは 192.168.0.1 のように 10 進数をドットで区切って
   <data name="CMD_PROMPT" xml:space="preserve">
     <value>Enter a value: </value>
   </data>
-  <data name="CMD_PROPMT_PORT" xml:space="preserve">
+  <data name="CMD_PROMPT_PORT" xml:space="preserve">
     <value>Input the port number: </value>
   </data>
   <data name="CMD_UNKNOWM" xml:space="preserve">
@@ -386,22 +386,22 @@ IP アドレスは 192.168.0.1 のように 10 進数をドットで区切って
   <data name="CMD_UNKNOWN_PARAM" xml:space="preserve">
     <value>There is no description for this parameter.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD" xml:space="preserve">
     <value>"%S": The command-name is ambiguous.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD_1" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD_1" xml:space="preserve">
     <value>The specified command name matches the following multiple commands.</value>
   </data>
-  <data name="CON_AMBIGIOUS_CMD_2" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_CMD_2" xml:space="preserve">
     <value>Please re-specify the command name more strictly.</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM" xml:space="preserve">
     <value>"%S": The parameter name is ambiguous.</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM_1" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM_1" xml:space="preserve">
     <value>The specified parameter name matches with the following parameters that can be specified as a parameter of command "%S".</value>
   </data>
-  <data name="CON_AMBIGIOUS_PARAM_2" xml:space="preserve">
+  <data name="CON_AMBIGUOUS_PARAM_2" xml:space="preserve">
     <value>Please re-specify the parameter name more strictly.</value>
   </data>
   <data name="CON_INFILE_ERROR" xml:space="preserve">

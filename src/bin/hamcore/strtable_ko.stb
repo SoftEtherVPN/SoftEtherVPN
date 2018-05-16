@@ -22,7 +22,7 @@ DEFAULT_FONT Gulim
 DEFAULT_FONT_WIN7		Malgun Gothic
 DEFAULT_FONT_2 Gulim
 DEFAULT_FONT_SIZE 9
-DEFAULE_LOCALE 년 월 일 분 초 일 월 화 수 목 금 토 일 시 분 초 (없음)
+DEFAULT_LOCALE 년 월 일 분 초 일 월 화 수 목 금 토 일 시 분 초 (없음)
 
 
 # 언어
@@ -1212,7 +1212,7 @@ CM_EDIT_HUB_2 %S의 속성
 
 CM_EDIT_HUB_STANDALONE 현재 서버는 독립형 모드에서 작동하고 있습니다. 이 가상 HUB는 독립형 HUB 역할을합니다.
 CM_EDIT_HUB_TYPE_FIXED 현재 서버가 클러스터 모드로 실행하고 있습니다. 이 가상 HUB의 종류는 다음과 같습니다 동적 변경은 할 수 없습니다.
-CM_EDIT_HUB_CREATER 새로운 가상 HUB %S를 만들었습니다.
+CM_EDIT_HUB_CREATED 새로운 가상 HUB %S를 만들었습니다.
 CM_OFFLINE_MSG %s를 오프라인 하시겠습니까? \r\n\r\n 가상 HUB를 오프라인으로하면 현재 가상 HUB에 연결되어있는 모든 세션이 끊어지고 새로운 세션이 연결할 수 없습니다.
 CM_DELETE_HUB_MSG %S를 삭제 하시겠습니까? \r\n\r\n 가상 HUB를 제거하면 현재 가상 HUB에 연결되어있는 세션이 끊어지고 새로운 세션이 가상 HUB에 연결할 수 없습니다. \r\n 또한 가상 HUB의 모든 설정 사용자 개체, 그룹 개체, 인증서 및 계단식가 삭제됩니다. \r\n\r\n 가상 HUB를 삭제하면 되돌릴 수 없습니다. \r\n 삭제 하시겠습니까?
 CM_HUB_DELETED_MSG 가상 HUB %S를 제거했습니다.
@@ -1368,7 +1368,7 @@ SM_EDIT_USER_POL_DLG 사용자 %S의 보안 정책
 SM_POLICY_DEF_CAPTION 보안 정책
 SM_LIMIT_STR %u~%u의 범위의 정수 값을 지정하십시오.
 SM_POLICY_INIT_TITLE 왼쪽 목록에서 정책 항목을 선택하십시오.
-SM_USER_CREEATE_OK 사용자 %S를 만들었습니다.
+SM_USER_CREATE_OK 사용자 %S를 만들었습니다.
 SM_USERINFO_CAPTION 사용자 "%S"의 정보
 SM_USERINFO_NAME 사용자 이름
 SM_USERINFO_GROUP 그룹 이름
@@ -3214,7 +3214,7 @@ IDCANCEL 닫기 (&X)
 
 PREFIX D_EM_ADD
 STATIC1 캡처에 사용하는 LAN 카드 이름 (&L):
-R_PROMISCUS 캡처로 인해 무차별 모드를 사용 안함 (&N)
+R_PROMISCUOUS 캡처로 인해 무차별 모드를 사용 안함 (&N)
 STATIC2 패킷 로그 (&P):
 S_PACKET 로그 파일 전환주기 (&W):
 S_PACKET_0 TCP 연결 로그:
@@ -4062,7 +4062,7 @@ CAPTION 업데이트 알림 설정
 S_INFO %s의 새 버전이 출시되지 않았는지 정기적으로 확인하고 분리되어 있던 경우는 통지 화면을 표시합니다. \r\n\r\n 업데이트 확인을 위해 일본의 이바라키 현 츠쿠바시에 설치되어있는 SoftEther Update 서버 사이에 HTTPS 통신을합니다. 고객의 개인 정보가 전송되는 것은 아닙니다.
 S_TITLE %s 업데이트 확인 및 알림 설정
 S_ENABLE 업데이트 확인을 활성화 (&E)
-S_DISBLE 업데이트 확인을 비활성화 (&D)
+S_DISABLE 업데이트 확인을 비활성화 (&D)
 IDCANCEL 닫기 (&C)
 
 
@@ -4293,13 +4293,13 @@ CON_INFILE_START 파일 "%s"에 설명 된 명령을 키보드 입력 대신 사
 CON_OUTFILE_START 화면에 출력 된 메시지 파일 "%s"에 저장됩니다.
 CON_USER_CANCEL [EOF]
 CON_UNKNOWN_CMD "%S": 명령을 찾을 수 없습니다. \nHELP 명령에서 사용할 수있는 명령 목록을 볼 수 있습니다.
-CON_AMBIGIOUS_CMD "%S": 명령이 모호합니다.
-CON_AMBIGIOUS_CMD_1 지정된 명령 이름 다음의 여러 명령과 일치합니다:
-CON_AMBIGIOUS_CMD_2 보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGUOUS_CMD "%S": 명령이 모호합니다.
+CON_AMBIGUOUS_CMD_1 지정된 명령 이름 다음의 여러 명령과 일치합니다:
+CON_AMBIGUOUS_CMD_2 보다 엄격하게 명령 이름을 지정하고 다시 시도하십시오.
 CON_INVALID_PARAM 매개 변수 "/%S"가 지정되어 있습니다. 명령 "%S"는 이러한 매개 변수는 지정할 수 없습니다. 자세한 내용은 "%S/HELP"를 입력하여 사용할 수있는 매개 변수 목록을 확인하십시오.
-CON_AMBIGIOUS_PARAM "/%S": 매개 변수 이름이 모호합니다.
-CON_AMBIGIOUS_PARAM_1 지정된 매개 변수 이름은 명령 "%S"매개 변수로 지정할 수있는 다음의 여러 매개 변수와 일치합니다:
-CON_AMBIGIOUS_PARAM_2 보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
+CON_AMBIGUOUS_PARAM "/%S": 매개 변수 이름이 모호합니다.
+CON_AMBIGUOUS_PARAM_1 지정된 매개 변수 이름은 명령 "%S"매개 변수로 지정할 수있는 다음의 여러 매개 변수와 일치합니다:
+CON_AMBIGUOUS_PARAM_2 보다 엄격하게 매개 변수 이름을 지정하고 다시 시도하십시오.
 
 
 # 알 수없는 명령
@@ -4322,7 +4322,7 @@ CMD_HELP_DESCRIPTION [목적]
 CMD_HELP_USAGE [사용 방법]
 CMD_HELP_HELP 설명
 CMD_HELP_ARGS [매개 변수]
-CMD_PROPMT_PORT 포트 번호를 입력하십시오:
+CMD_PROMPT_PORT 포트 번호를 입력하십시오:
 CMD_EVAL_PORT 포트 번호가 잘못되었습니다. 포트 번호는 1 이상 65535 이하로 지정하십시오.
 CMD_CT_STD_COLUMN_1 항목
 CMD_CT_STD_COLUMN_2 값
@@ -5381,7 +5381,7 @@ CMD_CascadePolicySet_VALUE 정책의 새 값을 지정합니다. 그 정책이 �
 CMD_CascadePolicySet_PROMPT_POLNAME 값을 변경하는 정책의 이름:
 CMD_CascadePolicySet_PROMPT_POLVALUE 새롭게 설정 값:
 CMD_CascadePolicySet_Invalid_Name 지정된 정책 이름 "%S"는 부정합니다. \nPolicyList 명령으로 설정할 수있는 정책 이름 목록을 확인하십시오.
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade 지정된 정책 이름 "%S"는 계단식의 보안 정책 설정을 사용할 수 없습니다.
+CMD_CascadePolicySet_Invalid_Name_For_Cascade 지정된 정책 이름 "%S"는 계단식의 보안 정책 설정을 사용할 수 없습니다.
 CMD_CascadePolicySet_Invalid_Range 정책 "%S"%s의 범위에서 지정하십시오.
 
 
@@ -6740,7 +6740,7 @@ CMD_AccountRetrySet_ [name] 설정을 변경하려면 연결 설정의 이름을
 CMD_AccountRetrySet_NUM 계속해서 다시 연결하는 횟수를 지정합니다. "999"로 지정하면 무한 재 연결을 시도합니다 (상시 접속). 0을 지정하면 다시 연결을하지 않습니다.
 CMD_AccountRetrySet_INTERVAL 다시 연결을 할 경우 마지막으로 연결이 끊기거나 연결 실패 후 몇 초 후에 다시 연결 처리를 시작할지 여부를 설정합니다.
 CMD_AccountRetrySet_PROMPT_NUM 다시 연결 횟수 ( "999"무한):
-CMD_AccountRetrySet_PROMPY_INTERVAL 다시 연결 간격 (초):
+CMD_AccountRetrySet_PROMPT_INTERVAL 다시 연결 간격 (초):
 CMD_AccountRetrySet_EVAL_INTERVAL 다시 연결 간격은 5 초 이상이어야합니다.
 
 
@@ -7070,7 +7070,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT 간이 설치 프로그램에 내장되어있�
 SW_PERFORM_MSG_DELETE_SETUP_INFO 설치 정보 및 로그 삭제 중...
 SW_PERFORM_MSG_WRITE_LOG 설치 로그를 내보낼 수 있습니다...
 SW_PERFORM_MSG_COPY_ERROR 파일 "%s"에 복사에 실패했습니다.
-SW_PERFORM_MSG_CRAETE_LINK_ERROR 바로 가기 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
+SW_PERFORM_MSG_CREATE_LINK_ERROR 바로 가기 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
 SW_PERFORM_MSG_WRITE_LOG_ERROR 설치 로그 파일 "%s"의 작성에 실패했습니다. \r\n\r\n 다시 시도 하시겠습니까?
 SW_PERFORM_MSG_STOP_SVC_ERROR 서비스 '%s'(내부 이름:"%S") 중지에 실패했습니다.
 SW_PERFORM_MSG_START_SVC_ERROR 서비스 '%s'(내부 이름:"%S")의 시작에 실패했습니다.

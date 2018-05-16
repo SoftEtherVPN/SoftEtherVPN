@@ -3976,7 +3976,7 @@ void *MsLoadLibraryAsDataFile(char *name)
 	return MsLoadLibraryAsDataFileW(name_w);
 }
 
-// Simple LoadLibaray
+// Simple LoadLibrary
 void *MsLoadLibraryRawW(wchar_t *name)
 {
 	// Validate arguments
@@ -6602,7 +6602,7 @@ UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT
 			mode == SVC_MODE_STOP || mode == SVC_MODE_SERVICE) &&
 			(ms->IsAdmin == false))
 		{
-			// Do not have Administrators privillage
+			// Do not have Administrators privilege
 			MsgBox(NULL, MB_ICONEXCLAMATION, _UU("SVC_NOT_ADMIN"));
 		}
 		else
@@ -6970,7 +6970,7 @@ UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT
 
 			case SVC_MODE_SERVICE:
 				// Run as a service
-				// Obsolated (2012.12.31) (Do this in the above code)
+				// Obsoleted (2012.12.31) (Do this in the above code)
 				//MsServiceMode(start, stop);
 				break;
 
@@ -7346,7 +7346,7 @@ bool MsIsRemoteDesktopEnabled()
 }
 
 // Examine whether the remote desktop becomes available by registry operation
-bool MsIsRemoteDesktopCanEnableByRegistory()
+bool MsIsRemoteDesktopCanEnableByRegistry()
 {
 	OS_INFO *info = GetOsInfo();
 	if (MsIsRemoteDesktopAvailable() == false)
@@ -8452,7 +8452,7 @@ bool MsUpgradeVLanWithoutLock(char *tag_name, char *connection_tag_name, char *i
 	Free(reg_key);
 
 	// Get the .sys file name that is currently being used
-	if (MsGetNeoDeiverFilename(neo_sys, sizeof(neo_sys), instance_name) == false)
+	if (MsGetNeoDriverFilename(neo_sys, sizeof(neo_sys), instance_name) == false)
 	{
 		if (MsIsInfCatalogRequired())
 		{
@@ -12014,7 +12014,7 @@ TOKEN_LIST *MsEnumNeoDriverFilenames()
 	for (i = 0;i < neos->NumTokens;i++)
 	{
 		char filename[MAX_PATH];
-		if (MsGetNeoDeiverFilename(filename, sizeof(filename), neos->Token[i]))
+		if (MsGetNeoDriverFilename(filename, sizeof(filename), neos->Token[i]))
 		{
 			Add(o, CopyStr(filename));
 		}
@@ -12029,7 +12029,7 @@ TOKEN_LIST *MsEnumNeoDriverFilenames()
 }
 
 // Get the driver file name of Neo
-bool MsGetNeoDeiverFilename(char *name, UINT size, char *instance_name)
+bool MsGetNeoDriverFilename(char *name, UINT size, char *instance_name)
 {
 	char tmp[MAX_SIZE];
 	char *ret;

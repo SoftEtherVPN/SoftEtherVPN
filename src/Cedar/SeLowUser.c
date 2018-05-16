@@ -839,7 +839,7 @@ LIST *SuGetAdapterList(SU *u)
 		return NULL;
 	}
 
-	ret = NewList(SuCmpAdaterList);
+	ret = NewList(SuCmpAdapterList);
 
 	// Enumerate adapters
 	Zero(&u->AdapterInfoList, sizeof(u->AdapterInfoList));
@@ -869,7 +869,7 @@ LIST *SuGetAdapterList(SU *u)
 }
 
 // Comparison function of the adapter list
-int SuCmpAdaterList(void *p1, void *p2)
+int SuCmpAdapterList(void *p1, void *p2)
 {
 	int r;
 	SU_ADAPTER_LIST *a1, *a2;

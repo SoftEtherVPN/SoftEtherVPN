@@ -235,7 +235,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	}
 
 #ifdef	OS_WIN32
-	// Priduct ID
+	// Product ID
 	product_id = MsRegReadStr(REG_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductId");
 	if (product_id == NULL)
 	{
@@ -3377,7 +3377,7 @@ UINT CcEnumAccount(REMOTE_CLIENT *r, RPC_CLIENT_ENUM_ACCOUNT *e)
 	return err;
 }
 
-// Unset the startup flag of the accout
+// Unset the startup flag of the account
 UINT CcRemoveStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a)
 {
 	PACK *ret, *p;
@@ -5000,14 +5000,14 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 	s->ServerPort = PackGetInt(p, "ServerPort");
 	s->ServerProductVer = PackGetInt(p, "ServerProductVer");
 	s->ServerProductBuild = PackGetInt(p, "ServerProductBuild");
-	s->NumConnectionsEatablished = PackGetInt(p, "NumConnectionsEatablished");
+	s->NumConnectionsEstablished = PackGetInt(p, "NumConnectionsEstablished");
 	s->MaxTcpConnections = PackGetInt(p, "MaxTcpConnections");
 	s->NumTcpConnections = PackGetInt(p, "NumTcpConnections");
 	s->NumTcpConnectionsUpload = PackGetInt(p, "NumTcpConnectionsUpload");
 	s->NumTcpConnectionsDownload = PackGetInt(p, "NumTcpConnectionsDownload");
 
 	s->StartTime = PackGetInt64(p, "StartTime");
-	s->FirstConnectionEstablisiedTime = PackGetInt64(p, "FirstConnectionEstablisiedTime");
+	s->FirstConnectionEstablishedTime = PackGetInt64(p, "FirstConnectionEstablishedTime");
 	s->CurrentConnectionEstablishTime = PackGetInt64(p, "CurrentConnectionEstablishTime");
 	s->TotalSendSize = PackGetInt64(p, "TotalSendSize");
 	s->TotalRecvSize = PackGetInt64(p, "TotalRecvSize");
@@ -5073,7 +5073,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	PackAddInt(p, "ServerPort", c->ServerPort);
 	PackAddInt(p, "ServerProductVer", c->ServerProductVer);
 	PackAddInt(p, "ServerProductBuild", c->ServerProductBuild);
-	PackAddInt(p, "NumConnectionsEatablished", c->NumConnectionsEatablished);
+	PackAddInt(p, "NumConnectionsEstablished", c->NumConnectionsEstablished);
 	PackAddInt(p, "HalfConnection", c->HalfConnection);
 	PackAddInt(p, "QoS", c->QoS);
 	PackAddInt(p, "MaxTcpConnections", c->MaxTcpConnections);
@@ -5091,7 +5091,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	PackAddBool(p, "IsMonitorMode", c->IsMonitorMode);
 
 	PackAddInt64(p, "StartTime", c->StartTime);
-	PackAddInt64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
+	PackAddInt64(p, "FirstConnectionEstablishedTime", c->FirstConnectionEstablishedTime);
 	PackAddInt64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
 	PackAddInt64(p, "TotalSendSize", c->TotalSendSize);
 	PackAddInt64(p, "TotalRecvSize", c->TotalRecvSize);
@@ -5152,7 +5152,7 @@ void CiNotifyMain(CLIENT *c, SOCK *s)
 		return;
 	}
 
-	// Register a Cencel
+	// Register a Cancel
 	cancel = NewCancel();
 	LockList(c->NotifyCancelList);
 	{
@@ -6088,9 +6088,9 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 		// Connection start time
 		st->StartTime = TickToTime(s->CreatedTime);
 		// Connection completion time of the first connection
-		st->FirstConnectionEstablisiedTime = TickToTime(s->FirstConnectionEstablisiedTime);
+		st->FirstConnectionEstablishedTime = TickToTime(s->FirstConnectionEstablishedTime);
 		// Number of connections have been established so far
-		st->NumConnectionsEatablished = s->NumConnectionsEatablished;
+		st->NumConnectionsEstablished = s->NumConnectionsEstablished;
 	}
 	Unlock(s->lock);
 }

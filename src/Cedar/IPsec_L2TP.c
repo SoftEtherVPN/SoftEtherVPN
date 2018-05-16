@@ -2562,7 +2562,7 @@ void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 	// Maintenance the thread list
 	if (l2tp->IkeServer == NULL)
 	{
-		MainteThreadList(l2tp->ThreadList);
+		MaintainThreadList(l2tp->ThreadList);
 		//Debug("l2tp->ThreadList: %u\n", LIST_NUM(l2tp->ThreadList));
 	}
 }

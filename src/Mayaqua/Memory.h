@@ -265,7 +265,7 @@ UINT PRandInt(PRAND *p);
 
 LIST *NewCandidateList();
 void FreeCandidateList(LIST *o);
-int ComapreCandidate(void *p1, void *p2);
+int CompareCandidate(void *p1, void *p2);
 void AddCandidate(LIST *o, wchar_t *str, UINT num_max);
 BUF *CandidateToBuf(LIST *o);
 LIST *BufToCandidate(BUF *b);

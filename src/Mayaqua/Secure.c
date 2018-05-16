@@ -2084,7 +2084,7 @@ void TestSecMain(SECURE *sec)
 							UCHAR sign_cpu[512];
 							UCHAR sign_sec[512];
 							K *pub = GetKFromX(cert);
-							UINT keybtytes = (cert->bits)/8;
+							UINT keybytes = (cert->bits)/8;
 							Print("Ok.\n");
 							Print("Signing Data by CPU...\n");
 							if (RsaSign(sign_cpu, test_str, StrLen(test_str), private_key) == false)
@@ -2095,7 +2095,7 @@ void TestSecMain(SECURE *sec)
 							{
 								Print("Ok.\n");
 								Print("sign_cpu: ");
-								PrintBin(sign_cpu, keybtytes);
+								PrintBin(sign_cpu, keybytes);
 								Print("Signing Data by %s..\n", sec->Dev->DeviceName);
 								if (SignSec(sec, "test_key", sign_sec, test_str, StrLen(test_str)) == false)
 								{
@@ -2105,9 +2105,9 @@ void TestSecMain(SECURE *sec)
 								{
 									Print("Ok.\n");
 									Print("sign_sec: ");
-									PrintBin(sign_sec, keybtytes);
+									PrintBin(sign_sec, keybytes);
 									Print("Compare...");
-									if (Cmp(sign_sec, sign_cpu, keybtytes) == 0)
+									if (Cmp(sign_sec, sign_cpu, keybytes) == 0)
 									{
 										Print("Ok.\n");
 										Print("Verify...");
@@ -2123,7 +2123,7 @@ void TestSecMain(SECURE *sec)
 									}
 									else
 									{
-										Print("[DIFFIRENT]\n");
+										Print("[DIFFERENT]\n");
 									}
 								}
 							}

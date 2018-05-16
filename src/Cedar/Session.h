@@ -265,9 +265,9 @@ struct SESSION
 	UINT NumDisconnected;			// Number of socket disconnection
 	bool NoReconnectToSession;		// Disable to reconnect to the session
 	char UnderlayProtocol[64];		// Physical communication protocol
-	UINT64 FirstConnectionEstablisiedTime;	// Connection completion time of the first connection
+	UINT64 FirstConnectionEstablishedTime;	// Connection completion time of the first connection
 	UINT64 CurrentConnectionEstablishTime;	// Completion time of this connection
-	UINT NumConnectionsEatablished;	// Number of connections established so far
+	UINT NumConnectionsEstablished;	// Number of connections established so far
 	UINT AdjustMss;					// MSS adjustment value
 	bool IsVPNClientAndVLAN_Win32;	// Is the VPN Client session with a VLAN card (Win32)
 
@@ -309,7 +309,7 @@ struct SESSION
 	LIST *DelayedPacketList;		// Delayed packet list
 	UINT Flag1;
 
-	USER *NumLoginIncrementUserObject;	// User objects to increment the nymber of logins
+	USER *NumLoginIncrementUserObject;	// User objects to increment the number of logins
 	HUB *NumLoginIncrementHubObject;	// Virtual HUB object to increment the number of logins
 	UINT64 NumLoginIncrementTick;		// Time to perform increment a number of log
 
@@ -317,7 +317,7 @@ struct SESSION
 	char FirstTimeHttpRedirectUrl[128];	// URL for redirection only the first time
 	UINT FirstTimeHttpAccessCheckIp;	// IP address for access checking
 
-	// To examine the maximum number of alowed logging target packets per minute
+	// To examine the maximum number of allowed logging target packets per minute
 	UINT64 MaxLoggedPacketsPerMinuteStartTick;	// Inspection start time
 	UINT CurrentNumPackets;				// Current number of packets
 

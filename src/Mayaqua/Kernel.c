@@ -423,7 +423,7 @@ void AddThreadToThreadList(LIST *o, THREAD *t)
 }
 
 // Maintain thread list
-void MainteThreadList(LIST *o)
+void MaintainThreadList(LIST *o)
 {
 	UINT i;
 	LIST *delete_list = NULL;

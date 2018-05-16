@@ -524,7 +524,7 @@ NTSTATUS SlDeviceCloseProc(DEVICE_OBJECT *device_object, IRP *irp)
 			// Wait until the number of packet being sent becomes the zero
 			while (true)
 			{
-				if (f->NumSendingPacketets == 0)
+				if (f->NumSendingPackets == 0)
 				{
 					break;
 				}
@@ -1060,7 +1060,7 @@ NTSTATUS SlDeviceWriteProc(DEVICE_OBJECT *device_object, IRP *irp)
 
 							if (nbl_head != NULL)
 							{
-								InterlockedExchangeAdd(&f->NumSendingPacketets, num_packets);
+								InterlockedExchangeAdd(&f->NumSendingPackets, num_packets);
 								InterlockedExchangeAdd(&f->Adapter->NumPendingSendPackets, num_packets);
 
 								SlUnlock(f->Adapter->Lock);
@@ -1741,7 +1741,7 @@ void SlNdisSendNetBufferListsCompleteProc(NDIS_HANDLE protocol_binding_context, 
 		NdisFreeNetBufferList(current_nbl);
 
 		// Reduce the number of packets being sent by 1
-		InterlockedExchangeAdd(&f->NumSendingPacketets, (LONG)-1);
+		InterlockedExchangeAdd(&f->NumSendingPackets, (LONG)-1);
 		InterlockedExchangeAdd(&f->Adapter->NumPendingSendPackets, (LONG)-1);
 	}
 }

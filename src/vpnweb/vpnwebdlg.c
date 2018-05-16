@@ -556,7 +556,7 @@ DOWNLOAD_FAILED:
 			}
 			else
 			{
-				VwPrint(hWnd, msgUserCancal);
+				VwPrint(hWnd, msgUserCancel);
 			}
 		}
 	}
@@ -769,7 +769,7 @@ INT_PTR CALLBACK VpnWebDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			Hide(hWnd, B_START);
 			Hide(hWnd, S_INFO2);
 			Show(hWnd, S_INFO);
-			VwPrint(hWnd, msgInfDownloag);
+			VwPrint(hWnd, msgInfDownload);
 			task.Thread = VwNewThread(VwTaskThread, NULL);
 			break;
 
