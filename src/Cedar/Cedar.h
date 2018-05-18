@@ -1114,7 +1114,9 @@ typedef struct CEDAR
 #include <Cedar/IPsec_IPC.h>
 #include <Cedar/IPsec_IkePacket.h>
 #include <Cedar/IPsec_IKE.h>
+#ifdef	OS_WIN32
 #include <Cedar/IPsec_Win7.h>
+#endif	// OS_WIN32
 #include <Cedar/IPsec_EtherIP.h>
 // SSTP
 #include <Cedar/Interop_SSTP.h>
