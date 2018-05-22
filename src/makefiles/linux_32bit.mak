@@ -379,7 +379,7 @@ tmp/objs/vpncmd.o: src/vpncmd/vpncmd.c $(HEADERS_MAYAQUA) $(HEADERS_CEDAR) $(OBJ
 	$(CC) $(OPTIONS_COMPILE) -c src/vpncmd/vpncmd.c -o tmp/objs/vpncmd.o
 
 # Install
-install: $(INSTALL_BINDIR)vpnserver $(INSTALL_BINDIR)vpnbridge $(INSTALL_BINDIR)vpnclient $(INSTALL_BINDIR)vpncmd
+install: $(DESTDIR)$(INSTALL_BINDIR)vpnserver $(DESTDIR)$(INSTALL_BINDIR)vpnbridge $(DESTDIR)$(INSTALL_BINDIR)vpnclient $(DESTDIR)$(INSTALL_BINDIR)vpncmd
 	@echo
 	@echo "--------------------------------------------------------------------"
 	@echo "Installation completed successfully."
@@ -391,42 +391,46 @@ install: $(INSTALL_BINDIR)vpnserver $(INSTALL_BINDIR)vpnbridge $(INSTALL_BINDIR)
 	@echo "--------------------------------------------------------------------"
 	@echo
 
-$(INSTALL_BINDIR)vpnserver: bin/vpnserver/hamcore.se2 bin/vpnserver/vpnserver
-	@mkdir -p $(INSTALL_VPNSERVER_DIR)
-	cp bin/vpnserver/hamcore.se2 $(INSTALL_VPNSERVER_DIR)hamcore.se2
-	cp bin/vpnserver/vpnserver $(INSTALL_VPNSERVER_DIR)vpnserver
-	echo "#!/bin/sh" > $(INSTALL_BINDIR)vpnserver
-	echo $(INSTALL_VPNSERVER_DIR)vpnserver '"$$@"' >> $(INSTALL_BINDIR)vpnserver
-	echo 'exit $$?' >> $(INSTALL_BINDIR)vpnserver
-	chmod 755 $(INSTALL_BINDIR)vpnserver
+$(DESTDIR)$(INSTALL_BINDIR)vpnserver: bin/vpnserver/hamcore.se2 bin/vpnserver/vpnserver
+	@mkdir -p $(DESTDIR)$(INSTALL_VPNSERVER_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
+	cp bin/vpnserver/hamcore.se2 $(DESTDIR)$(INSTALL_VPNSERVER_DIR)hamcore.se2
+	cp bin/vpnserver/vpnserver $(DESTDIR)$(INSTALL_VPNSERVER_DIR)vpnserver
+	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnserver
+	echo $(INSTALL_VPNSERVER_DIR)vpnserver '"$$@"' >> $(DESTDIR)$(INSTALL_BINDIR)vpnserver
+	echo 'exit $$?' >> $(DESTDIR)$(INSTALL_BINDIR)vpnserver
+	chmod 755 $(DESTDIR)$(INSTALL_BINDIR)vpnserver
 
-$(INSTALL_BINDIR)vpnbridge: bin/vpnbridge/hamcore.se2 bin/vpnbridge/vpnbridge
-	@mkdir -p $(INSTALL_VPNBRIDGE_DIR)
-	cp bin/vpnbridge/hamcore.se2 $(INSTALL_VPNBRIDGE_DIR)hamcore.se2
-	cp bin/vpnbridge/vpnbridge $(INSTALL_VPNBRIDGE_DIR)vpnbridge
-	echo "#!/bin/sh" > $(INSTALL_BINDIR)vpnbridge
-	echo $(INSTALL_VPNBRIDGE_DIR)vpnbridge '"$$@"' >> $(INSTALL_BINDIR)vpnbridge
-	echo 'exit $$?' >> $(INSTALL_BINDIR)vpnbridge
-	chmod 755 $(INSTALL_BINDIR)vpnbridge
+$(DESTDIR)$(INSTALL_BINDIR)vpnbridge: bin/vpnbridge/hamcore.se2 bin/vpnbridge/vpnbridge
+	@mkdir -p $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
+	cp bin/vpnbridge/hamcore.se2 $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)hamcore.se2
+	cp bin/vpnbridge/vpnbridge $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)vpnbridge
+	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnbridge
+	echo $(INSTALL_VPNBRIDGE_DIR)vpnbridge '"$$@"' >> $(DESTDIR)$(INSTALL_BINDIR)vpnbridge
+	echo 'exit $$?' >> $(DESTDIR)$(INSTALL_BINDIR)vpnbridge
+	chmod 755 $(DESTDIR)$(INSTALL_BINDIR)vpnbridge
 
-$(INSTALL_BINDIR)vpnclient: bin/vpnclient/hamcore.se2 bin/vpnclient/vpnclient
-	@mkdir -p $(INSTALL_VPNCLIENT_DIR)
-	cp bin/vpnclient/hamcore.se2 $(INSTALL_VPNCLIENT_DIR)hamcore.se2
-	cp bin/vpnclient/vpnclient $(INSTALL_VPNCLIENT_DIR)vpnclient
-	echo "#!/bin/sh" > $(INSTALL_BINDIR)vpnclient
-	echo $(INSTALL_VPNCLIENT_DIR)vpnclient '"$$@"' >> $(INSTALL_BINDIR)vpnclient
-	echo 'exit $$?' >> $(INSTALL_BINDIR)vpnclient
-	chmod 755 $(INSTALL_BINDIR)vpnclient
+$(DESTDIR)$(INSTALL_BINDIR)vpnclient: bin/vpnclient/hamcore.se2 bin/vpnclient/vpnclient
+	@mkdir -p $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
+	cp bin/vpnclient/hamcore.se2 $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)hamcore.se2
+	cp bin/vpnclient/vpnclient $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)vpnclient
+	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnclient
+	echo $(INSTALL_VPNCLIENT_DIR)vpnclient '"$$@"' >> $(DESTDIR)$(INSTALL_BINDIR)vpnclient
+	echo 'exit $$?' >> $(DESTDIR)$(INSTALL_BINDIR)vpnclient
+	chmod 755 $(DESTDIR)$(INSTALL_BINDIR)vpnclient
 
-$(INSTALL_BINDIR)vpncmd: bin/vpncmd/hamcore.se2 bin/vpncmd/vpncmd
-	@mkdir -p $(INSTALL_VPNCMD_DIR)
-	cp bin/vpncmd/hamcore.se2 $(INSTALL_VPNCMD_DIR)hamcore.se2
-	cp bin/vpncmd/vpncmd $(INSTALL_VPNCMD_DIR)vpncmd
-	chmod 644 $(INSTALL_VPNCMD_DIR)hamcore.se2
-	echo "#!/bin/sh" > $(INSTALL_BINDIR)vpncmd
-	echo $(INSTALL_VPNCMD_DIR)vpncmd '"$$@"' >> $(INSTALL_BINDIR)vpncmd
-	echo 'exit $$?' >> $(INSTALL_BINDIR)vpncmd
-	chmod 755 $(INSTALL_BINDIR)vpncmd
+$(DESTDIR)$(INSTALL_BINDIR)vpncmd: bin/vpncmd/hamcore.se2 bin/vpncmd/vpncmd
+	@mkdir -p $(DESTDIR)$(INSTALL_VPNCMD_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
+	cp bin/vpncmd/hamcore.se2 $(DESTDIR)$(INSTALL_VPNCMD_DIR)hamcore.se2
+	cp bin/vpncmd/vpncmd $(DESTDIR)$(INSTALL_VPNCMD_DIR)vpncmd
+	chmod 644 $(DESTDIR)$(INSTALL_VPNCMD_DIR)hamcore.se2
+	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpncmd
+	echo $(INSTALL_VPNCMD_DIR)vpncmd '"$$@"' >> $(DESTDIR)$(INSTALL_BINDIR)vpncmd
+	echo 'exit $$?' >> $(DESTDIR)$(INSTALL_BINDIR)vpncmd
+	chmod 755 $(DESTDIR)$(INSTALL_BINDIR)vpncmd
 
 # Clean
 clean:
