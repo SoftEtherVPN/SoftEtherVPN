@@ -167,7 +167,7 @@ $ make
 $ make install
 ```
 
-Please see src/BUILD_UNIX.md for more build instructions.
+Please see [BUILD_UNIX](src/BUILD_UNIX.md) for more build instructions.
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
