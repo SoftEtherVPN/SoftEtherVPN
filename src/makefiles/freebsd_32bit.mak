@@ -393,6 +393,7 @@ install: $(DESTDIR)$(INSTALL_BINDIR)vpnserver $(DESTDIR)$(INSTALL_BINDIR)vpnbrid
 
 $(DESTDIR)$(INSTALL_BINDIR)vpnserver: bin/vpnserver/hamcore.se2 bin/vpnserver/vpnserver
 	@mkdir -p $(DESTDIR)$(INSTALL_VPNSERVER_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
 	cp bin/vpnserver/hamcore.se2 $(DESTDIR)$(INSTALL_VPNSERVER_DIR)hamcore.se2
 	cp bin/vpnserver/vpnserver $(DESTDIR)$(INSTALL_VPNSERVER_DIR)vpnserver
 	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnserver
@@ -402,6 +403,7 @@ $(DESTDIR)$(INSTALL_BINDIR)vpnserver: bin/vpnserver/hamcore.se2 bin/vpnserver/vp
 
 $(DESTDIR)$(INSTALL_BINDIR)vpnbridge: bin/vpnbridge/hamcore.se2 bin/vpnbridge/vpnbridge
 	@mkdir -p $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
 	cp bin/vpnbridge/hamcore.se2 $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)hamcore.se2
 	cp bin/vpnbridge/vpnbridge $(DESTDIR)$(INSTALL_VPNBRIDGE_DIR)vpnbridge
 	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnbridge
@@ -411,6 +413,7 @@ $(DESTDIR)$(INSTALL_BINDIR)vpnbridge: bin/vpnbridge/hamcore.se2 bin/vpnbridge/vp
 
 $(DESTDIR)$(INSTALL_BINDIR)vpnclient: bin/vpnclient/hamcore.se2 bin/vpnclient/vpnclient
 	@mkdir -p $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
 	cp bin/vpnclient/hamcore.se2 $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)hamcore.se2
 	cp bin/vpnclient/vpnclient $(DESTDIR)$(INSTALL_VPNCLIENT_DIR)vpnclient
 	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpnclient
@@ -420,6 +423,7 @@ $(DESTDIR)$(INSTALL_BINDIR)vpnclient: bin/vpnclient/hamcore.se2 bin/vpnclient/vp
 
 $(DESTDIR)$(INSTALL_BINDIR)vpncmd: bin/vpncmd/hamcore.se2 bin/vpncmd/vpncmd
 	@mkdir -p $(DESTDIR)$(INSTALL_VPNCMD_DIR)
+	@mkdir -p $(DESTDIR)$(INSTALL_BINDIR)
 	cp bin/vpncmd/hamcore.se2 $(DESTDIR)$(INSTALL_VPNCMD_DIR)hamcore.se2
 	cp bin/vpncmd/vpncmd $(DESTDIR)$(INSTALL_VPNCMD_DIR)vpncmd
 	echo "#!/bin/sh" > $(DESTDIR)$(INSTALL_BINDIR)vpncmd
