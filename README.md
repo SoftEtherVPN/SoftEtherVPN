@@ -2,6 +2,17 @@
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/softethervpn/softethervpn?branch=master&svg=true)](https://ci.appveyor.com/project/softethervpn/softethervpn) [![Travis CI build status](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN.svg?branch=master)](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN)
 
+- [SoftEther VPN](#softether-vpn)
+- [BOARD MEMBERS OF THIS REPOSITORY](#board-members-of-this-repository)
+- [SOFTETHER VPN ADVANTAGES](#softether-vpn-advantages)
+- [Installation](#installation)
+  * [For Ubuntu](#for-ubuntu)
+  * [From binary installers:](#from-binary-installers)
+  * [Build from Source code](#build-from-source-code)
+- [TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION](#to-circumvent-your-governments-firewall-restriction)
+- [SOURCE CODE CONTRIBUTION](#source-code-contribution)
+- [DEAR SECURITY EXPERTS](#dear-security-experts)
+
 SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
 http://www.softether.org/
@@ -13,7 +24,7 @@ Stable Edition is available on
 https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 which the non-developer user can stable use.
 
-Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:
+Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
 http://www.softether-download.com/
 
 We accept your patches by the acceptance policy:
@@ -101,73 +112,25 @@ https://github.com/GildedHonour
 - More details at http://www.softether.org/.
 
 
-# GETTING STARTED
+# Installation
 
-Visit the SoftEther VPN Project official web site at first:
-        http://www.softether.org/
-
-If you are not a developer, it is recommended to download the binary
-installers from:
-        http://www.softether-download.com/
-
-To build from the source,
-see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md) files.
-
-# PREBUILT BINARY PACKAGES
+## For Ubuntu
 
 [Launchpad PPA](https://launchpad.net/~paskal-07/+archive/ubuntu/softethervpn/+packages) maintained by [Dmitry Verkhoturov](https://github.com/paskal)
 
-# HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
+## From binary installers:
 
-Go to http://www.softether-download.com/ and you can find the latest
-source-code package file in both .ZIP and .TAR.GZ format.
+Those can be found under http://www.softether-download.com/
+There you can also find SoftEtherVPN source code in zip and tar formats.
 
-This is the easiest way to obtain the source code of SoftEther VPN.
+## Build from Source code
 
-# HOW TO GET THE LATEST SOURCE CODE TREE FOR DEVELOPERS
+see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md)
 
-If you are an open-source developer, visit our GitHub repository:
-https://github.com/SoftEtherVPN/SoftEtherVPN/
+There are two flavours of SoftEtherVPN source code:
 
-You can download the up-to-date source-code tree of SoftEther VPN
-from GitHub. You may make your own fork project from our project.
-
-
-
-##  Requirements
-
-### 1. Debian/Ubuntu
-
-- gcc
-- libncurses5-dev
-- libreadline-dev
-- make
-- cmake
-- libssl-dev
-- zlib1g-dev
-
-### 2. Red Hat/CentOS
-- gcc
-- openssl-devel
-- make
-- cmake
-- ncurses-devel
-- readline-devel
-- zlib-devel
-
-## Compile and install
-
-The download and build instruction is following:
- 
-```sh
-$ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-$ cd SoftEtherVPN
-$ ./configure
-$ make
-$ make install
-```
-
-Please see [BUILD_UNIX](src/BUILD_UNIX.md) for more build instructions.
+1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
+2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
@@ -204,7 +167,7 @@ about the problem immediately so that we can fix the security problem
 to protect a lot of users around the world as soon as possible.
 
 Our e-mail address for security reports is:
-softether-vpn-security [at] softether.org
+**softether-vpn-security at softether.org**
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit
