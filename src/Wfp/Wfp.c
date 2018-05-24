@@ -524,7 +524,7 @@ void NTAPI CalloutClassify(const FWPS_INCOMING_VALUES0* inFixedValues,
 						   FWPS_CLASSIFY_OUT0* classifyOut)
 {
 	NET_BUFFER_LIST *nbl = layerData;
-	FWPS_PACKET_INJECTION_STATE injecton_state;
+	FWPS_PACKET_INJECTION_STATE injection_state;
 	bool block = false;
 	HANDLE hInjection = NULL;
 	UINT ip_header_len = 0;
@@ -552,9 +552,9 @@ void NTAPI CalloutClassify(const FWPS_INCOMING_VALUES0* inFixedValues,
 
 	if (hInjection != NULL)
 	{
-		injecton_state = FwpsQueryPacketInjectionState0(hInjection, nbl, NULL);
+		injection_state = FwpsQueryPacketInjectionState0(hInjection, nbl, NULL);
 
-		if (injecton_state == FWPS_PACKET_INJECTED_BY_SELF || injecton_state == FWPS_PACKET_PREVIOUSLY_INJECTED_BY_SELF)
+		if (injection_state == FWPS_PACKET_INJECTED_BY_SELF || injection_state == FWPS_PACKET_PREVIOUSLY_INJECTED_BY_SELF)
 		{
 			//SetEvent(wfp->Event);
 			classifyOut->actionType = FWP_ACTION_CONTINUE; // continue

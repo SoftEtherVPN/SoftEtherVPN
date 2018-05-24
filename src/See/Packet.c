@@ -118,7 +118,7 @@ DriverEntry(
 	}
 	else
 	{
-		// Windows XP, 2003 and follwing want only  NDIS_FLAGS_DONT_LOOPBACK
+		// Windows XP, 2003 and following want only  NDIS_FLAGS_DONT_LOOPBACK
 		g_SendPacketFlags =  NDIS_FLAGS_DONT_LOOPBACK;
 	}
 

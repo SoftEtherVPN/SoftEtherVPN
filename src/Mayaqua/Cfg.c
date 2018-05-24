@@ -296,7 +296,7 @@ CFG_RW *NewCfgRwEx2W(FOLDER **root, wchar_t *cfg_name, bool dont_backup, wchar_t
 			{
 				loaded_from_template = true;
 
-				goto LABEL_CONTIUNE;
+				goto LABEL_CONTINUE;
 			}
 		}
 
@@ -311,7 +311,7 @@ CFG_RW *NewCfgRwEx2W(FOLDER **root, wchar_t *cfg_name, bool dont_backup, wchar_t
 		return rw;
 	}
 
-LABEL_CONTIUNE:
+LABEL_CONTINUE:
 	rw = ZeroMalloc(sizeof(CFG_RW));
 	rw->FileNameW = CopyUniStr(cfg_name);
 	rw->FileName = CopyUniToStr(cfg_name);

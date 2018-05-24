@@ -133,7 +133,7 @@ BOOLEAN PacketGetLinkLayerFromRegistry(LPADAPTER AdapterObject, NetType *type)
   This function grabs from the registry information like the IP addresses, the netmasks 
   and the broadcast addresses of an interface. The buffer passed by the user is filled with 
   npf_if_addr structures, each of which contains the data for a single address. If the buffer
-  is full, the reaming addresses are dropeed, therefore set its dimension to sizeof(npf_if_addr)
+  is full, the reaming addresses are dropped, therefore set its dimension to sizeof(npf_if_addr)
   if you want only the first address.
 */
 BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, PLONG NEntries)
@@ -181,7 +181,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 	else
 	{
 		
-		// Query the registry key with the interface's adresses
+		// Query the registry key with the interface's addresses
 		status = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("SYSTEM\\CurrentControlSet\\Services"),0,KEY_READ,&SystemKey);
 		if (status != ERROR_SUCCESS)
 			goto fail;
@@ -222,7 +222,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 		DHCPEnabled=0;
 	
 	
-	/* Retrieve the adrresses */
+	/* Retrieve the addresses */
 	if(DHCPEnabled){
 		
 		BufLen = sizeof String;
@@ -284,7 +284,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 			else break;
 		}		
 		
-		// The number of masks MUST be equal to the number of adresses
+		// The number of masks MUST be equal to the number of addresses
 		if(nmasks != naddrs){
 			RegCloseKey(TcpIpKey);
 			RegCloseKey(UnderTcpKey);
@@ -353,7 +353,7 @@ BOOLEAN PacketGetAddressesFromRegistry(LPTSTR AdapterName, npf_if_addr* buffer, 
 			else break;
 		}		
 		
-		// The number of masks MUST be equal to the number of adresses
+		// The number of masks MUST be equal to the number of addresses
 		if(nmasks != naddrs){
 			RegCloseKey(TcpIpKey);
 			RegCloseKey(UnderTcpKey);
@@ -432,7 +432,7 @@ BOOLEAN PacketAddIP6Addresses(PADAPTER_INFO AdInfo)
 	ODS("PacketAddIP6Addresses, retrieved addresses\n");
 
 	//
-	// Scan the list of adddresses obtained from the IP helper API
+	// Scan the list of addresses obtained from the IP helper API
 	//
 	for(TmpAddr = AdBuffer; TmpAddr != NULL; TmpAddr = TmpAddr->Next)
 	{
@@ -966,7 +966,7 @@ BOOLEAN PacketGetAdapters()
 			continue;
 		}
 
-		// Conver to ASCII
+		// Convert to ASCII
 		WideCharToMultiByte(
 			CP_ACP,
 			0,

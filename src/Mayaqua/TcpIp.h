@@ -200,7 +200,7 @@ struct IPV4_HEADER
 	UCHAR	TypeOfService;				// Service Type
 	USHORT	TotalLength;				// Total size
 	USHORT	Identification;				// Identifier
-	UCHAR	FlagsAndFlagmentOffset[2];	// Flag and Fragment offset
+	UCHAR	FlagsAndFragmentOffset[2];	// Flag and Fragment offset
 	UCHAR	TimeToLive;					// TTL
 	UCHAR	Protocol;					// Protocol
 	USHORT	Checksum;					// Checksum
@@ -215,10 +215,10 @@ struct IPV4_HEADER
 #define	IPV4_SET_HEADER_LEN(h, v)	((h)->VersionAndHeaderLength |= ((v) & 0x0f))
 
 // Macro for IPv4 fragment related operation
-#define	IPV4_GET_FLAGS(h)			(((h)->FlagsAndFlagmentOffset[0] >> 5) & 0x07)
-#define	IPV4_SET_FLAGS(h, v)		((h)->FlagsAndFlagmentOffset[0] |= (((v) & 0x07) << 5))
-#define	IPV4_GET_OFFSET(h)			(((h)->FlagsAndFlagmentOffset[0] & 0x1f) * 256 + ((h)->FlagsAndFlagmentOffset[1]))
-#define	IPV4_SET_OFFSET(h, v)		{(h)->FlagsAndFlagmentOffset[0] |= (UCHAR)((v) / 256); (h)->FlagsAndFlagmentOffset[1] = (UCHAR)((v) % 256);}
+#define	IPV4_GET_FLAGS(h)			(((h)->FlagsAndFragmentOffset[0] >> 5) & 0x07)
+#define	IPV4_SET_FLAGS(h, v)		((h)->FlagsAndFragmentOffset[0] |= (((v) & 0x07) << 5))
+#define	IPV4_GET_OFFSET(h)			(((h)->FlagsAndFragmentOffset[0] & 0x1f) * 256 + ((h)->FlagsAndFragmentOffset[1]))
+#define	IPV4_SET_OFFSET(h, v)		{(h)->FlagsAndFragmentOffset[0] |= (UCHAR)((v) / 256); (h)->FlagsAndFragmentOffset[1] = (UCHAR)((v) % 256);}
 
 // IPv4 / IPv6 common protocol
 #define	IP_PROTO_TCP		0x06	// TCP protocol
@@ -359,7 +359,7 @@ struct DNSV4_HEADER
 struct NBTDG_HEADER
 {
 	UCHAR MessageType;
-	UCHAR MoreFlagments;
+	UCHAR MoreFragments;
 	USHORT DatagramId;
 	UINT SrcIP;
 	USHORT SrcPort;
@@ -441,17 +441,17 @@ struct IPV6_FRAGMENT_HEADER
 {
 	UCHAR NextHeader;					// Next header
 	UCHAR Reserved;						// Reserved
-	UCHAR FlagmentOffset1;				// Fragment offset 1 (/8, 8 bit)
-	UCHAR FlagmentOffset2AndFlags;		// Fragment offset 2 (/8, 5 bit) + Reserved (2 bit) + More flag (1 bit)
+	UCHAR FragmentOffset1;				// Fragment offset 1 (/8, 8 bit)
+	UCHAR FragmentOffset2AndFlags;		// Fragment offset 2 (/8, 5 bit) + Reserved (2 bit) + More flag (1 bit)
 	UINT Identification;				// ID
 } GCC_PACKED;
 
 // Macro for IPv6 fragment header operation
-#define IPV6_GET_FRAGMENT_OFFSET(h)		(((((h)->FlagmentOffset1) << 5) & 0x1fe0) | (((h)->FlagmentOffset2AndFlags >> 3) & 0x1f))
-#define IPV6_SET_FRAGMENT_OFFSET(h, v)	((h)->FlagmentOffset1 = (v / 32) & 0xff,	\
-	((h)->FlagmentOffset2AndFlags = ((v % 256) << 3) & 0xf8) | ((h)->FlagmentOffset2AndFlags & 0x07))
-#define IPV6_GET_FLAGS(h)				((h)->FlagmentOffset2AndFlags & 0x0f)
-#define IPV6_SET_FLAGS(h, v)				((h)->FlagmentOffset2AndFlags = (((h)->FlagmentOffset2AndFlags & 0xf8) | (v & 0x07)))
+#define IPV6_GET_FRAGMENT_OFFSET(h)		(((((h)->FragmentOffset1) << 5) & 0x1fe0) | (((h)->FragmentOffset2AndFlags >> 3) & 0x1f))
+#define IPV6_SET_FRAGMENT_OFFSET(h, v)	((h)->FragmentOffset1 = (v / 32) & 0xff,	\
+	((h)->FragmentOffset2AndFlags = ((v % 256) << 3) & 0xf8) | ((h)->FragmentOffset2AndFlags & 0x07))
+#define IPV6_GET_FLAGS(h)				((h)->FragmentOffset2AndFlags & 0x0f)
+#define IPV6_SET_FLAGS(h, v)				((h)->FragmentOffset2AndFlags = (((h)->FragmentOffset2AndFlags & 0xf8) | (v & 0x07)))
 
 // Flag
 #define IPV6_FRAGMENT_HEADER_FLAG_MORE_FRAGMENTS		0x01	// There are more fragments

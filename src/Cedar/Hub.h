@@ -348,7 +348,7 @@ struct ACCESS
 	UCHAR DstMacAddress[6];				// Destination MAC address
 	UCHAR DstMacMask[6];				// Destination MAC address mask
 	bool CheckTcpState;					// The state of the TCP connection
-	bool Established;					// Establieshed(TCP)
+	bool Established;					// Established(TCP)
 	UINT Delay;							// Delay
 	UINT Jitter;						// Jitter
 	UINT Loss;							// Packet loss

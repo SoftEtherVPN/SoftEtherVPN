@@ -648,7 +648,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 
 	if (local == false)
 	{
-		// Enable promiscious mode
+		// Enable promiscuous mode
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), name);
 		if (ioctl(s, SIOCGIFFLAGS, &ifr) < 0)
@@ -935,7 +935,7 @@ ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 	}
 
 	// Attach to the device
-	if (DlipAttatchRequest(fd, devid) == false)
+	if (DlipAttachRequest(fd, devid) == false)
 	{
 		// Failed
 		close(fd);
@@ -1104,7 +1104,7 @@ bool DlipBindRequest(int fd)
 }
 
 // Attach to the device
-bool DlipAttatchRequest(int fd, UINT devid)
+bool DlipAttachRequest(int fd, UINT devid)
 {
 	dl_attach_req_t req;
 	struct strbuf ctl;

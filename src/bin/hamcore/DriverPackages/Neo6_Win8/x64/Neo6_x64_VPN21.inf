@@ -3,14 +3,14 @@
 ; Copyright (c) SoftEther Corporation. All Rights Reserved.
 ; http://www.softether.co.jp/
 ; 
-; BUILD 9594
+; BUILD 9658
 
 [Version]
 Signature					= "$Windows NT$"
 Class						= Net
 ClassGUID					= {4D36E972-E325-11CE-BFC1-08002BE10318}
 Provider					= %CompanyName%
-DriverVer					= 10/17/2015, 4.19.0.9594
+DriverVer					= 02/04/2018, 4.25.0.9658
 CatalogFile.NT				= inf_VPN21.cat
 
 [Manufacturer]
@@ -36,7 +36,7 @@ Neo_VPN21.sys, , , 2
 Characteristics				= 0x1
 AddReg						= Neo.Reg, NeoAdapter.Ndi
 CopyFiles					= Neo.CopyFiles.Sys
-*IfType						= 6
+*IfType						= 53
 *MediaType					= 0
 *PhysicalMediaType			= 0
 
@@ -110,5 +110,5 @@ On							= "On"
 Off							= "Off"
 
 
-; Auto Generated 20151018_201628.838
+; Auto Generated 20180205_163610.750
 

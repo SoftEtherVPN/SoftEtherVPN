@@ -306,7 +306,7 @@ struct _PACKET_OID_DATA {
     ULONG Oid;					///< OID code. See the Microsoft DDK documentation or the file ntddndis.h
 								///< for a complete list of valid codes.
     ULONG Length;				///< Length of the data field
-    UCHAR Data[1];				///< variable-lenght field that contains the information passed to or received 
+    UCHAR Data[1];				///< variable-length field that contains the information passed to or received 
 								///< from the adapter.
 }; 
 typedef struct _PACKET_OID_DATA PACKET_OID_DATA, *PPACKET_OID_DATA;
@@ -346,7 +346,7 @@ LONG PacketDumpRegistryKey(PCHAR KeyName, PCHAR FileName);
 #endif
 #endif
 
-/* We load dinamically the dag library in order link it only when it's present on the system */
+/* We load dynamically the dag library in order link it only when it's present on the system */
 #ifdef HAVE_DAG_API
 typedef dagc_t* (*dagc_open_handler)(const char *source, unsigned flags, char *ebuf);	///< prototype used to dynamically load the dag dll
 typedef void (*dagc_close_handler)(dagc_t *dagcfd);										///< prototype used to dynamically load the dag dll

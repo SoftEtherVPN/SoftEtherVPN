@@ -3470,7 +3470,7 @@ void SmSetupDlgOnOk(HWND hWnd, SM_SETUP *s)
 			s->s->IPsecMessageDisplayed = true;
 		}
 
-		// Confgure the VPN Azure if VPN Azure feature is available
+		// Configure the VPN Azure if VPN Azure feature is available
 		if (GetCapsBool(s->s->CapsList, "b_support_azure"))
 		{
 			SmAzure(hWnd, s->s, true);
@@ -9465,7 +9465,7 @@ void SmSessionDlgUpdate(HWND hWnd, SM_HUB *s)
 
 	if (s->p->ServerInfo.ServerBuildInt < 2844)
 	{
-		// Old version doen't support for remote management of the sessions
+		// Old version doesn't support for remote management of the sessions
 		ok2 = ok;
 	}
 
@@ -13776,7 +13776,7 @@ void SmEditUserDlgOk(HWND hWnd, SM_EDIT_USER *s)
 		}
 		FreeRpcSetUser(&t);
 
-		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREEATE_OK"), u->Name);
+		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREATE_OK"), u->Name);
 	}
 	else
 	{
@@ -16120,7 +16120,7 @@ void SmConnectionDlgRefresh(HWND hWnd, SM_SERVER *p)
 
 	LvInsertEnd(b, hWnd, L_LIST);
 
-	FreeRpcEnumConnetion(&t);
+	FreeRpcEnumConnection(&t);
 }
 
 // Update the control
@@ -17571,7 +17571,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	{
 		if (CALL(hWnd, ScCreateHub(s->p->Rpc, &t)))
 		{
-			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATER"), hubname);
+			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATED"), hubname);
 			EndDialog(hWnd, true);
 		}
 	}

@@ -543,7 +543,7 @@ enum {
   PTHREAD_SCOPE_SYSTEM		= 1,  /* Default */
 
 /*
- * pthread_setcancelstate paramters
+ * pthread_setcancelstate parameters
  */
   PTHREAD_CANCEL_ENABLE 	= 0,  /* Default */
   PTHREAD_CANCEL_DISABLE	= 1,

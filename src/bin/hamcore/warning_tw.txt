@@ -17,7 +17,7 @@ SoftEther VPN 可以進行 VPN 通信。不同於傳統的 VPN 協定， SoftEth
 如果你想在 SoftEther VPN 用戶端 / 橋接器和 SoftEther VPN 伺服器之間建立一個 VPN 連接，但如果 TCP 和 UDP 封包被防火牆禁止通過，那麼你可以把有效載荷封裝進 "ICMP" (被稱為 Ping) 或 "DNS" 封包。通過使用 ICMP 或 DNS ，即使防火牆或路由器阻止每個 TCP 或 UDP 連接，此功能可以實現 VPN 連接。VPN over ICMP/ VPN over DNS 功能盡可能的設計符合標準 ICMP 和 DNS 規範，但有時也不完全符合他們的行為。因此，一些劣質路由器可能會導致記憶體溢出或當有很多 ICMP 或 DNS 封包通過時產生麻煩，這種路由器有時當機或重新啟動。它可能會影響在同一網路上的其他使用者。為了避免這樣的風險，在 VPN 用戶端指定的目標主機名稱上附加尾碼 "/tcp" ，禁用 VPN over ICMP / DNS 功能。
 
 1.5. VPN Azure 雲服務
-如果您的 SoftEther VPN 伺服器放置在 NAT 或防火牆後面，由於某種原因，你不能使用 NAT 穿透功能、動態 DNS 功能或 VPN over ICMP/DNS 功能，您可以使用 VPN Azure Clouse 服務。 SoftEther 公司在網際網路上運行 VPN Azure 雲。VPN 伺服器連接到 VPN Azure 雲，主機名稱 "abc.vpnazure.net" ( "abc" 是一個唯一的主機名稱) 通過 VPN Azure 雲可以被指定連接到 VPN 伺服器。實際上，這樣的一個主機名稱指向一個由 SoftEther 公司所操作的雲伺服器的全球 IP 位址。如果一個 VPN 用戶端連接到一個 VPN Azure 主機，那麼 VPN Azure 主機轉播在 VPN 用戶端和 VPN 伺服器之間的所有流量。VPN Azure 在預設情況下是禁用的。您可以通過使用 VPN 伺服器配置工具很容易地啟動它。
+如果您的 SoftEther VPN 伺服器放置在 NAT 或防火牆後面，由於某種原因，你不能使用 NAT 穿透功能、動態 DNS 功能或 VPN over ICMP/DNS 功能，您可以使用 VPN Azure Cloud 服務。 SoftEther 公司在網際網路上運行 VPN Azure 雲。VPN 伺服器連接到 VPN Azure 雲，主機名稱 "abc.vpnazure.net" ( "abc" 是一個唯一的主機名稱) 通過 VPN Azure 雲可以被指定連接到 VPN 伺服器。實際上，這樣的一個主機名稱指向一個由 SoftEther 公司所操作的雲伺服器的全球 IP 位址。如果一個 VPN 用戶端連接到一個 VPN Azure 主機，那麼 VPN Azure 主機轉播在 VPN 用戶端和 VPN 伺服器之間的所有流量。VPN Azure 在預設情況下是禁用的。您可以通過使用 VPN 伺服器配置工具很容易地啟動它。
 
 1.6. UDP 加速
 SoftEther VPN 具有 UDP 加速功能。如果一個 VPN 是由兩個網站組成檢測到 UDP 通道已建立， UDP 將自動使用。通過此功能， UDP 的輸送量增加了。如果直接的 UDP 通道已被建立，直接的 UDP 封包將被使用。但是，如果有一些障礙，如防火牆或 NAT ， "UDP 沖孔" 技術將被使用。 "UDP 沖孔" 使用 SoftEther 公司在網際網路上操作的雲伺服器。UDP 加速通過在 VPN 用戶端一側進行設置在任何時候可以被禁用。

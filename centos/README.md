@@ -14,7 +14,7 @@ You can also have it start automatically:
 
 ## Files
 
-This project containts the following files to build an RPM of SoftEther VPN:
+This project contains the following files to build an RPM of SoftEther VPN:
 
 * SPEC/softethervpn.spec - The main spec file
 * SOURCES/fix-makefiles.sh - Script that modifies the original makefiles so it properly makes with BUILDROOT.

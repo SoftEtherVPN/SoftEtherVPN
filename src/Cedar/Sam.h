@@ -124,7 +124,7 @@ bool SamAuthUserByCert(HUB *h, char *username, X *x);
 bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *password, bool ast, UCHAR *mschap_v2_server_response_20, RADIUS_LOGIN_OPTION *opt);
 POLICY *SamGetUserPolicy(HUB *h, char *username);
 
-void GenRamdom(void *random);
+void GenRandom(void *random);
 void SecurePassword(void *secure_password, void *password, void *random);
 X *GetIssuerFromList(LIST *cert_list, X *cert);
 

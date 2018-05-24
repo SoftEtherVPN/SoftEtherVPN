@@ -781,7 +781,7 @@ void EmAddInit(HWND hWnd, EM_ADD *p)
 		// Edit mode (to obtain a configuration)
 		wchar_t tmp[MAX_PATH];
 		RPC_ADD_DEVICE t;
-		Hide(hWnd, R_PROMISCUS);
+		Hide(hWnd, R_PROMISCUOUS);
 
 		Zero(&t, sizeof(t));
 		StrCpy(t.DeviceName, sizeof(t.DeviceName), p->DeviceName);
@@ -827,7 +827,7 @@ void EmAddOk(HWND hWnd, EM_ADD *p)
 
 	if (p->NewMode)
 	{
-		t.NoPromiscus = IsChecked(hWnd, R_PROMISCUS);
+		t.NoPromiscuous = IsChecked(hWnd, R_PROMISCUOUS);
 	}
 
 	if (p->NewMode)

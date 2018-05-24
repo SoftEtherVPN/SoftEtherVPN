@@ -255,74 +255,6 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 	Free(out2);
 }
 
-// Easy encryption
-BUF *EasyEncrypt(BUF *src_buf)
-{
-	UCHAR key[SHA1_SIZE];
-	BUF *tmp_data;
-	CRYPT *rc4;
-	BUF *ret;
-	// Validate arguments
-	if (src_buf == NULL)
-	{
-		return NULL;
-	}
-
-	Rand(key, SHA1_SIZE);
-
-	tmp_data = CloneBuf(src_buf);
-
-	rc4 = NewCrypt(key, SHA1_SIZE);
-
-	Encrypt(rc4, tmp_data->Buf, tmp_data->Buf, tmp_data->Size);
-
-	ret = NewBuf();
-
-	WriteBuf(ret, key, SHA1_SIZE);
-	WriteBufBuf(ret, tmp_data);
-
-	FreeCrypt(rc4);
-	FreeBuf(tmp_data);
-
-	SeekBufToBegin(ret);
-
-	return ret;
-}
-
-// Easy decryption
-BUF *EasyDecrypt(BUF *src_buf)
-{
-	UCHAR key[SHA1_SIZE];
-	BUF *tmp_buf;
-	CRYPT *rc4;
-	// Validate arguments
-	if (src_buf == NULL)
-	{
-		return NULL;
-	}
-
-	SeekBufToBegin(src_buf);
-
-	if (ReadBuf(src_buf, key, SHA1_SIZE) != SHA1_SIZE)
-	{
-		return NULL;
-	}
-
-	tmp_buf = ReadRemainBuf(src_buf);
-	if (tmp_buf == NULL)
-	{
-		return NULL;
-	}
-
-	rc4 = NewCrypt(key, SHA1_SIZE);
-	Encrypt(rc4, tmp_buf->Buf, tmp_buf->Buf, tmp_buf->Size);
-	FreeCrypt(rc4);
-
-	SeekBufToBegin(tmp_buf);
-
-	return tmp_buf;
-}
-
 // Calculation of HMAC (MD5)
 void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
@@ -666,62 +598,6 @@ void FreeCipher(CIPHER *c)
 	Free(c);
 }
 
-// Convert the buffer to the public key
-K *RsaBinToPublic(void *data, UINT size)
-{
-	RSA *rsa;
-	K *k;
-	BIO *bio;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	BIGNUM *e, *n;
-#endif
-	// Validate arguments
-	if (data == NULL || size < 4)
-	{
-		return NULL;
-	}
-
-	rsa = RSA_new();
-
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	e = BN_new();
-	BN_set_word(e, RSA_F4);
-
-	n = BinToBigNum(data, size);
-
-	RSA_set0_key(rsa, n, e, NULL);
-#else
-	if (rsa->e != NULL)
-	{
-		BN_free(rsa->e);
-	}
-
-	rsa->e = BN_new();
-	BN_set_word(rsa->e, RSA_F4);
-
-	if (rsa->n != NULL)
-	{
-		BN_free(rsa->n);
-	}
-
-	rsa->n = BinToBigNum(data, size);
-#endif
-
-	bio = NewBio();
-	Lock(openssl_lock);
-	{
-		i2d_RSA_PUBKEY_bio(bio, rsa);
-	}
-	Unlock(openssl_lock);
-	BIO_seek(bio, 0);
-	k = BioToK(bio, false, false, NULL);
-	FreeBio(bio);
-
-	RSA_free(rsa);
-
-	return k;
-}
-
 // Convert the public key to a buffer
 BUF *RsaPublicToBuf(K *k)
 {
@@ -765,27 +641,6 @@ BUF *RsaPublicToBuf(K *k)
 	}
 
 	return b;
-}
-
-// Convert the public key to a binary
-void RsaPublicToBin(K *k, void *data)
-{
-	BUF *b;
-	// Validate arguments
-	if (data == NULL)
-	{
-		return;
-	}
-
-	b = RsaPublicToBuf(k);
-	if (b == NULL)
-	{
-		return;
-	}
-
-	Copy(data, b->Buf, b->Size);
-
-	FreeBuf(b);
 }
 
 // Get public key size
@@ -970,19 +825,6 @@ void GetAllNameFromXEx(wchar_t *str, UINT size, X *x)
 
 	GetAllNameFromNameEx(str, size, x->subject_name);
 }
-void GetAllNameFromXExA(char *str, UINT size, X *x)
-{
-	wchar_t tmp[MAX_SIZE];
-	// Validate arguments
-	if (str == NULL || x == NULL)
-	{
-		return;
-	}
-
-	GetAllNameFromXEx(tmp, sizeof(tmp), x);
-
-	UniToStr(str, size, tmp);
-}
 
 // Get the display name from NAME
 void GetPrintNameFromName(wchar_t *str, UINT size, NAME *name)
@@ -1057,18 +899,6 @@ void GetAllNameFromX(wchar_t *str, UINT size, X *x)
 
 	UniFormat(tmp3, sizeof(tmp3), L" (Digest: MD5=\"%S\", SHA1=\"%S\")", tmp1, tmp2);
 	UniStrCat(str, size, tmp3);
-}
-void GetAllNameFromA(char *str, UINT size, X *x)
-{
-	wchar_t tmp[MAX_SIZE];
-	// Validate arguments
-	if (str == NULL || x == NULL)
-	{
-		return;
-	}
-
-	GetAllNameFromX(tmp, sizeof(tmp), x);
-	UniToStr(str, size, tmp);
 }
 
 // Get the all name strings from NAME
@@ -1321,13 +1151,6 @@ bool ParseP12(P12 *p12, X **x, K **k, char *password)
 }
 
 // Write the P12 to a file
-bool P12ToFile(P12 *p12, char *filename)
-{
-	wchar_t *filename_w = CopyStrToUni(filename);
-	bool ret = P12ToFileW(p12, filename_w);
-
-	return ret;
-}
 bool P12ToFileW(P12 *p12, wchar_t *filename)
 {
 	BUF *b;
@@ -1355,15 +1178,6 @@ bool P12ToFileW(P12 *p12, wchar_t *filename)
 }
 
 // Read a P12 from the file
-P12 *FileToP12(char *filename)
-{
-	wchar_t *filename_w = CopyStrToUni(filename);
-	P12 *ret = FileToP12W(filename_w);
-
-	Free(filename_w);
-
-	return ret;
-}
 P12 *FileToP12W(wchar_t *filename)
 {
 	BUF *b;
@@ -1518,33 +1332,6 @@ P12 *PKCS12ToP12(PKCS12 *pkcs12)
 	p12->pkcs12 = pkcs12;
 
 	return p12;
-}
-
-// Convert a binary to a string
-char *ByteToStr(BYTE *src, UINT src_size)
-{
-	UINT size;
-	char *dst;
-	UINT i;
-	// Validate arguments
-	if (src == NULL)
-	{
-		return NULL;
-	}
-
-	size = MAX(src_size * 3, 1);
-	dst = Malloc(size);
-	dst[size - 1] = 0;
-	for (i = 0;i < src_size;i++)
-	{
-		char tmp[3];
-		Format(tmp, sizeof(tmp), "%02x", src[i]);
-		dst[i * 3 + 0] = tmp[0];
-		dst[i * 3 + 1] = tmp[1];
-		dst[i * 3 + 2] = ((i == (src_size - 1) ? 0 : ' '));
-	}
-
-	return dst;
 }
 
 // Release of X_SERIAL
@@ -2490,124 +2277,6 @@ bool HashForSign(void *dst, UINT dst_size, void *src, UINT src_size)
 	return true;
 }
 
-// Decrypt with the RSA public key
-bool RsaPublicDecrypt(void *dst, void *src, UINT size, K *k)
-{
-	void *tmp;
-	int ret;
-	// Validate arguments
-	if (src == NULL || size == 0 || k == NULL)
-	{
-		return false;
-	}
-
-	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
-	{
-		ret = RSA_public_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
-	}
-	Unlock(openssl_lock);
-	if (ret <= 0)
-	{
-/*		Debug("RSA Error: 0x%x\n",
-			ERR_get_error());
-*/		Free(tmp);
-		return false;
-	}
-
-	Copy(dst, tmp, size);
-	Free(tmp);
-
-	return true;
-}
-
-// Encrypt with the RSA private key
-bool RsaPrivateEncrypt(void *dst, void *src, UINT size, K *k)
-{
-	void *tmp;
-	int ret;
-	// Validate arguments
-	if (src == NULL || size == 0 || k == NULL)
-	{
-		return false;
-	}
-
-	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
-	{
-		ret = RSA_private_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
-	}
-	Unlock(openssl_lock);
-	if (ret <= 0)
-	{
-/*		Debug("RSA Error: %u\n",
-			ERR_GET_REASON(ERR_get_error()));
-*/		Free(tmp);
-		return false;
-	}
-
-	Copy(dst, tmp, size);
-	Free(tmp);
-
-	return true;
-}
-
-// Decrypt with the RSA private key
-bool RsaPrivateDecrypt(void *dst, void *src, UINT size, K *k)
-{
-	void *tmp;
-	int ret;
-	// Validate arguments
-	if (src == NULL || size == 0 || k == NULL)
-	{
-		return false;
-	}
-
-	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
-	{
-		ret = RSA_private_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
-	}
-	Unlock(openssl_lock);
-	if (ret <= 0)
-	{
-		return false;
-	}
-
-	Copy(dst, tmp, size);
-	Free(tmp);
-
-	return true;
-}
-
-// Encrypt with the RSA public key
-bool RsaPublicEncrypt(void *dst, void *src, UINT size, K *k)
-{
-	void *tmp;
-	int ret;
-	// Validate arguments
-	if (src == NULL || size == 0 || k == NULL)
-	{
-		return false;
-	}
-
-	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
-	{
-		ret = RSA_public_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
-	}
-	Unlock(openssl_lock);
-	if (ret <= 0)
-	{
-		return false;
-	}
-
-	Copy(dst, tmp, size);
-	Free(tmp);
-
-	return true;
-}
-
 // RSA operating environment check
 bool RsaCheckEx()
 {
@@ -2759,10 +2428,6 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 }
 
 // Confirm whether the certificate X is signed by the issuer of the certificate x_issuer
-bool CheckX(X *x, X *x_issuer)
-{
-	return CheckXEx(x, x_issuer, false, false);
-}
 bool CheckXEx(X *x, X *x_issuer, bool check_name, bool check_date)
 {
 	K *k;
@@ -3141,17 +2806,6 @@ bool XToFileW(X *x, wchar_t *filename, bool text)
 }
 
 // Read a K from the file
-K *FileToK(char *filename, bool private_key, char *password)
-{
-	wchar_t *filename_w = CopyStrToUni(filename);
-	K *ret;
-
-	ret = FileToKW(filename_w, private_key, password);
-
-	Free(filename_w);
-
-	return ret;
-}
 K *FileToKW(wchar_t *filename, bool private_key, char *password)
 {
 	bool text;
@@ -3189,15 +2843,6 @@ K *FileToKW(wchar_t *filename, bool private_key, char *password)
 }
 
 // Save the K to a file
-bool KToFile(K *k, char *filename, bool text, char *password)
-{
-	wchar_t *filename_w = CopyStrToUni(filename);
-	bool ret = KToFileW(k, filename_w, text, password);
-
-	Free(filename_w);
-
-	return ret;
-}
 bool KToFileW(K *k, wchar_t *filename, bool text, char *password)
 {
 	BUF *b;
@@ -3668,39 +3313,6 @@ X *BufToX(BUF *b, bool text)
 	return x;
 }
 
-// Create a new buffer by skipping the contents of the buffer to the specified string
-BUF *SkipBufBeforeString(BUF *b, char *str)
-{
-	char *tmp;
-	UINT tmp_size;
-	BUF *ret;
-	UINT i;
-	UINT offset = 0;
-	// Validate arguments
-	if (b == NULL || str == NULL)
-	{
-		return NULL;
-	}
-
-	tmp_size = b->Size + 1;
-	tmp = ZeroMalloc(tmp_size);
-	Copy(tmp, b->Buf, b->Size);
-
-	i = SearchStrEx(tmp, str, 0, false);
-	if (i != INFINITE)
-	{
-		offset = i;
-	}
-
-	ret = NewBuf();
-	WriteBuf(ret, ((UCHAR *)b->Buf) + offset, b->Size - offset);
-	SeekBuf(ret, 0, 0);
-
-	Free(tmp);
-
-	return ret;
-}
-
 // Get a digest of the X
 void GetXDigest(X *x, UCHAR *buf, bool sha1)
 {
@@ -3979,12 +3591,6 @@ BIO *BufToBio(BUF *b)
 	return bio;
 }
 
-// 128-bit random number generation
-void Rand128(void *buf)
-{
-	Rand(buf, 16);
-}
-
 // 64-bit random number generation
 UINT64 Rand64()
 {
@@ -4178,17 +3784,6 @@ void HashSha1(void *dst, void *src, UINT size)
 	SHA1(src, size, dst);
 }
 
-// SHA-256 specific hash function
-void HashSha256(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (size != 0 && src == NULL))
-	{
-		return;
-	}
-	SHA256(src, size, dst);
-}
-
 // Creating a new CRYPT object
 CRYPT *NewCrypt(void *key, UINT size)
 {
@@ -4260,10 +3855,6 @@ void Sha1(void *dst, void *src, UINT size)
 	SHA1(src, size, dst);
 }
 
-void Sha1__(void *dst, void *src, UINT size) {
-	Sha(SHA1_160, dst, src, size);
-}
-
 void Sha2_256(void *dst, void *src, UINT size) {
 	Sha(SHA2_256, dst, src, size);
 }
@@ -4287,24 +3878,6 @@ void Md5(void *dst, void *src, UINT size)
 }
 
 // 3DES encryption
-void Des3Encrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec)
-{
-	UCHAR ivec_copy[DES_IV_SIZE];
-	// Validate arguments
-	if (dest == NULL || src == NULL || size == 0 || key == NULL || ivec == NULL)
-	{
-		return;
-	}
-
-	Copy(ivec_copy, ivec, DES_IV_SIZE);
-
-	DES_ede3_cbc_encrypt(src, dest, size,
-		key->k1->KeySchedule,
-		key->k2->KeySchedule,
-		key->k3->KeySchedule,
-		(DES_cblock *)ivec_copy,
-		1);
-}
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec)
 {
 	UCHAR ivec_copy[DES_IV_SIZE];
@@ -4343,24 +3916,6 @@ void DesEncrypt(void *dest, void *src, UINT size, DES_KEY_VALUE *k, void *ivec)
 }
 
 // 3DES decryption
-void Des3Decrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec)
-{
-	UCHAR ivec_copy[DES_IV_SIZE];
-	// Validate arguments
-	if (dest == NULL || src == NULL || size == 0 || key == NULL || ivec == NULL)
-	{
-		return;
-	}
-
-	Copy(ivec_copy, ivec, DES_IV_SIZE);
-
-	DES_ede3_cbc_encrypt(src, dest, size,
-		key->k1->KeySchedule,
-		key->k2->KeySchedule,
-		key->k3->KeySchedule,
-		(DES_cblock *)ivec_copy,
-		0);
-}
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec)
 {
 	UCHAR ivec_copy[DES_IV_SIZE];
@@ -4430,30 +3985,6 @@ void DesDecrypt(void *dest, void *src, UINT size, DES_KEY_VALUE *k, void *ivec)
 		0);
 }
 
-// Generate a random 3DES key
-DES_KEY *Des3RandKey()
-{
-	DES_KEY *k = ZeroMalloc(sizeof(DES_KEY));
-
-	k->k1 = DesRandKeyValue();
-	k->k2 = DesRandKeyValue();
-	k->k3 = DesRandKeyValue();
-
-	return k;
-}
-
-// Generate a random DES key
-DES_KEY *DesRandKey()
-{
-	DES_KEY *k = ZeroMalloc(sizeof(DES_KEY));
-
-	k->k1 = DesRandKeyValue();
-	k->k2 = DesNewKeyValue(k->k1->KeyValue);
-	k->k3 = DesNewKeyValue(k->k1->KeyValue);
-
-	return k;
-}
-
 // Release the 3DES key
 void Des3FreeKey(DES_KEY *k)
 {
@@ -4468,12 +3999,6 @@ void Des3FreeKey(DES_KEY *k)
 	DesFreeKeyValue(k->k3);
 
 	Free(k);
-}
-
-// Release the DES key
-void DesFreeKey(DES_KEY *k)
-{
-	Des3FreeKey(k);
 }
 
 // Create a 3DES key
@@ -4493,12 +4018,6 @@ DES_KEY *Des3NewKey(void *k1, void *k2, void *k3)
 	k->k3 = DesNewKeyValue(k3);
 
 	return k;
-}
-
-// Create a DES key
-DES_KEY *DesNewKey(void *k1)
-{
-	return Des3NewKey(k1, k1, k1);
 }
 
 // Create a new DES key element
@@ -4717,21 +4236,6 @@ void AesDecryptWithIntel(void *dest, void *src, UINT size, AES_KEY_VALUE *k, voi
 }
 #endif	// USE_INTEL_AESNI_LIBRARY
 
-// Calculation of HMAC-SHA-1-96
-void MacSha196(void *dst, void *key, void *data, UINT data_size)
-{
-	UCHAR tmp[HMAC_SHA1_SIZE];
-	// Validate arguments
-	if (dst == NULL || key == NULL || data == NULL)
-	{
-		return;
-	}
-
-	MacSha1(tmp, key, HMAC_SHA1_96_KEY_SIZE, data, data_size);
-
-	Copy(dst, tmp, HMAC_SHA1_96_HASH_SIZE);
-}
-
 // Calculation of HMAC-SHA-1
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
@@ -4886,31 +4390,6 @@ DH_CTX *DhNewFromBits(UINT bits)
 	default:
 		return DhNew2048();
 	}
-}
-
-// Convert the DH parameters to file
-BUF *DhToBuf(DH_CTX *dh)
-{
-	BIO *bio;
-	BUF *buf = NULL;
-	int r;
-	// Validate arguments
-	if (dh == NULL)
-	{
-		return NULL;
-	}
-
-	bio = NewBio();
-
-	r = i2d_DHparams_bio(bio, dh->dh);
-	if (r > 1)
-	{
-		buf = BioToBuf(bio);
-	}
-
-	FreeBio(bio);
-
-	return buf;
 }
 
 // Creating a new DH

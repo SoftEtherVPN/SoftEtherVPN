@@ -465,7 +465,7 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("DeleteHub", RPC_DELETE_HUB, StDeleteHub, InRpcDeleteHub, OutRpcDeleteHub)
 	DECLARE_RPC("GetHubRadius", RPC_RADIUS, StGetHubRadius, InRpcRadius, OutRpcRadius)
 	DECLARE_RPC("SetHubRadius", RPC_RADIUS, StSetHubRadius, InRpcRadius, OutRpcRadius)
-	DECLARE_RPC_EX("EnumConnection", RPC_ENUM_CONNECTION, StEnumConnection, InRpcEnumConnection, OutRpcEnumConnection, FreeRpcEnumConnetion)
+	DECLARE_RPC_EX("EnumConnection", RPC_ENUM_CONNECTION, StEnumConnection, InRpcEnumConnection, OutRpcEnumConnection, FreeRpcEnumConnection)
 	DECLARE_RPC("DisconnectConnection", RPC_DISCONNECT_CONNECTION, StDisconnectConnection, InRpcDisconnectConnection, OutRpcDisconnectConnection)
 	DECLARE_RPC("GetConnectionInfo", RPC_CONNECTION_INFO, StGetConnectionInfo, InRpcConnectionInfo, OutRpcConnectionInfo)
 	DECLARE_RPC("SetHubOnline", RPC_SET_HUB_ONLINE, StSetHubOnline, InRpcSetHubOnline, OutRpcSetHubOnline)
@@ -644,7 +644,7 @@ DECLARE_SC_EX("EnumHub", RPC_ENUM_HUB, ScEnumHub, InRpcEnumHub, OutRpcEnumHub, F
 DECLARE_SC("DeleteHub", RPC_DELETE_HUB, ScDeleteHub, InRpcDeleteHub, OutRpcDeleteHub)
 DECLARE_SC("GetHubRadius", RPC_RADIUS, ScGetHubRadius, InRpcRadius, OutRpcRadius)
 DECLARE_SC("SetHubRadius", RPC_RADIUS, ScSetHubRadius, InRpcRadius, OutRpcRadius)
-DECLARE_SC_EX("EnumConnection", RPC_ENUM_CONNECTION, ScEnumConnection, InRpcEnumConnection, OutRpcEnumConnection, FreeRpcEnumConnetion)
+DECLARE_SC_EX("EnumConnection", RPC_ENUM_CONNECTION, ScEnumConnection, InRpcEnumConnection, OutRpcEnumConnection, FreeRpcEnumConnection)
 DECLARE_SC("DisconnectConnection", RPC_DISCONNECT_CONNECTION, ScDisconnectConnection, InRpcDisconnectConnection, OutRpcDisconnectConnection)
 DECLARE_SC("GetConnectionInfo", RPC_CONNECTION_INFO, ScGetConnectionInfo, InRpcConnectionInfo, OutRpcConnectionInfo)
 DECLARE_SC("SetHubOnline", RPC_SET_HUB_ONLINE, ScSetHubOnline, InRpcSetHubOnline, OutRpcSetHubOnline)
@@ -1113,11 +1113,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		UCHAR *zero_buffer;
 		UINT zero_buffer_size = 128 * 1024;
 		char name_tmp[MAX_SIZE];
-		X *dummy_x = NULL;
-		K *dummy_private_k = NULL;
-		K *dummy_public_k = NULL;
-		BUF *dummy_x_buf = NULL;
-		BUF *dummy_k_buf = NULL;
 
 		zero_buffer = ZeroMalloc(zero_buffer_size);
 
@@ -1154,34 +1149,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		SeekBufToEnd(x_buf);
 		WriteBufChar(x_buf, 0);
 		SeekBufToBegin(x_buf);
-
-		// Generate a dummy certificate
-		if (x != NULL)
-		{
-			if (RsaGen(&dummy_private_k, &dummy_public_k, x->bits))
-			{
-				NAME *name;
-				wchar_t cn[128];
-
-				UniToStr64(cn, Rand64());
-
-				name = NewName(cn, cn, cn, L"US", NULL, NULL);
-
-				dummy_x = NewRootX(dummy_public_k, dummy_private_k, name, GetDaysUntil2038Ex(), NULL);
-
-				FreeName(name);
-
-				dummy_x_buf = XToBuf(dummy_x, true);
-				SeekBufToEnd(dummy_x_buf);
-				WriteBufChar(dummy_x_buf, 0);
-				SeekBufToBegin(dummy_x_buf);
-
-				dummy_k_buf = KToBuf(dummy_private_k, true, NULL);
-				SeekBufToEnd(dummy_k_buf);
-				WriteBufChar(dummy_k_buf, 0);
-				SeekBufToBegin(dummy_k_buf);
-			}
-		}
 
 		FreeX(x);
 		Zero(hostname, sizeof(hostname));
@@ -1300,18 +1267,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 				"$CA$", x_buf->Buf, false);
 		}
 
-		if (dummy_x_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l3_buf->Buf, config_l3_buf->Size, (char *)config_l3_buf->Buf,
-				"$CERT$", dummy_x_buf->Buf, false);
-		}
-
-		if (dummy_k_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l3_buf->Buf, config_l3_buf->Size, (char *)config_l3_buf->Buf,
-				"$KEY$", dummy_k_buf->Buf, false);
-		}
-
 		Format(name_tmp, sizeof(name_tmp), "%sopenvpn_remote_access_l3.ovpn", my_hostname);
 		ZipAddFileSimple(p, name_tmp, LocalTime64(), 0, config_l3_buf->Buf, StrLen(config_l3_buf->Buf));
 
@@ -1330,18 +1285,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		{
 			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
 				"$CA$", x_buf->Buf, false);
-		}
-
-		if (dummy_x_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
-				"$CERT$", dummy_x_buf->Buf, false);
-		}
-
-		if (dummy_k_buf != NULL)
-		{
-			ReplaceStrEx((char *)config_l2_buf->Buf, config_l2_buf->Size, (char *)config_l2_buf->Buf,
-				"$KEY$", dummy_k_buf->Buf, false);
 		}
 
 		Format(name_tmp, sizeof(name_tmp), "%sopenvpn_site_to_site_bridge_l2.ovpn", my_hostname);
@@ -1363,13 +1306,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		FreeBuf(sample_buf);
 		FreeBuf(readme_pdf_buf);
 		FreeBuf(x_buf);
-
-		FreeX(dummy_x);
-		FreeK(dummy_private_k);
-		FreeK(dummy_public_k);
-
-		FreeBuf(dummy_k_buf);
-		FreeBuf(dummy_x_buf);
 
 		Free(zero_buffer);
 	}
@@ -6139,7 +6075,7 @@ UINT StGetLinkStatus(ADMIN *a, RPC_LINK_STATUS *t)
 		return ERR_OBJECT_NOT_FOUND;
 	}
 
-	// Get status infomation from session
+	// Get status information from session
 	Lock(k->lock);
 	{
 		sess = k->ClientSession;
@@ -7644,7 +7580,7 @@ UINT StEnumConnection(ADMIN *a, RPC_ENUM_CONNECTION *t)
 
 	SERVER_ADMIN_ONLY;
 
-	FreeRpcEnumConnetion(t);
+	FreeRpcEnumConnection(t);
 	Zero(t, sizeof(RPC_ENUM_CONNECTION));
 
 	LockList(c->ConnectionList);
@@ -11571,7 +11507,7 @@ void OutRpcEnumConnection(PACK *p, RPC_ENUM_CONNECTION *t)
 		PackAddIntEx(p, "Type", e->Type, i, t->NumConnection);
 	}
 }
-void FreeRpcEnumConnetion(RPC_ENUM_CONNECTION *t)
+void FreeRpcEnumConnection(RPC_ENUM_CONNECTION *t)
 {
 	// Validate arguments
 	if (t == NULL)
@@ -13466,7 +13402,7 @@ UINT AdminAccept(CONNECTION *c, PACK *p)
 		StrCpy(hubname, sizeof(hubname), "");
 	}
 
-	// Cehck source IP address
+	// Check source IP address
 	if (CheckAdminSourceAddress(sock, hubname) == false)
 	{
 		SLog(c->Cedar, "LA_IP_DENIED", c->Name);

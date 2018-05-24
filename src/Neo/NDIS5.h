@@ -282,7 +282,7 @@ void NeoNdisSendPackets(NDIS_HANDLE MiniportAdapterContext,
 NDIS_STATUS NeoNdisSend(NDIS_HANDLE MiniportAdapterContext,
 						NDIS_PACKET *Packet, UINT Flags);
 BOOL NeoNdisSendPacketsHaltCheck(NDIS_PACKET **PacketArray, UINT NumberOfPackets);
-BOOL NeoLoadRegistory();
+BOOL NeoLoadRegistry();
 void NeoInitControlDevice();
 void NeoFreeControlDevice();
 NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp);

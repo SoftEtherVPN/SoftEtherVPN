@@ -1,19 +1,10 @@
 sudo: required
-dist: trusty
-
-os: linux
-
-addons:
-  apt:
-    packages: [ debhelper ]
 
 language: c
 
 env:
   global:
-    - PREFIX="${HOME}/opt"
-    - CFLAGS="-I${PREFIX}/include"
-    - LDFLAGS="-L${PREFIX}/lib"
+    - OPENSSL_INSTALL_DIR="${HOME}/opt"
 
 matrix:
   include:
@@ -29,16 +20,18 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: clang
+    - os: osx
+      compiler: gcc
+    - os: osx
+      compiler: clang
 
 cache:
   directories:
   - download-cache
   - ${HOME}/opt
 
+before_install:
+  - bash .ci/before_install.sh
+
 script:
-  - .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
-  - export LD_LIBRARY_PATH="${PREFIX}/lib:${LD_LIBRARY_PATH:-}"
-  - ./configure
-  - make
-  - ldd bin/vpnserver/vpnserver
-  - dh build-arch
+  - bash .ci/script.sh

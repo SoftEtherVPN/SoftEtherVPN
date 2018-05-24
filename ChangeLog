@@ -7,7 +7,7 @@ Allow specifying cipher suites instead of single ciphers. PR #343
 Add parameter "ListenIP" to server configuration (vpn_server.config). PR #202
 cppcheck findings. PR #275
 Add DhParamBits configuration to set Diffie-Hellman parameters. PR #129
-Fix log msg for IKE with agressive exchange mode. PR #425
+Fix log msg for IKE with aggressive exchange mode. PR #425
 Fixes 11 vulnerabilities found by Max Planck Institute for Molecular Genetics and Mr. Guido Vranken. PR #419
 Fixed the bug which occurs the L2TP/IPsec connection error with Android Oreo, etc. PR #405
 build documentation refactoring. PR #395
@@ -22,7 +22,7 @@ Upgraded OpenSSL to 1.0.2l.
 Source code is now compatible with OpenSSL 1.1.x. Supports DHE-RSA-CHACHA 20-POLY 1305 and ECDHE-RSA-CHACHA 20-POLY 1305, which are new encryption methods of TLS 1.2. (In order to use this new function, you need to recompile yourself using OpenSSL 1.1.x.)
 TrafficServer / TrafficClient function (The traffic throughput measurement function) is now multithreaded and compatible with about 10 Gbps using NIC with the RSS feature.
 Changed the default algorithm for SSL from RC4-MD5 to AES128-SHA.
-Fixed a bug that occurr wrong checksum recalculation in special case of the TCP-MSS clamp processing.
+Fixed a bug that occur wrong checksum recalculation in special case of the TCP-MSS clamp processing.
 Fixed the calculation interval of update interval of DHCP client packet issued by kernel mode virtual NAT function of SecureNAT function.
 Driver upgrade and DLL name change with Crypto ID support of USB security token.
 Fixed a problem that CPU sleep processing was not performed when the wait time of the Select () function was INFINITE on Mac OS X.
@@ -102,13 +102,13 @@ Added the compatibility with Cisco 800 series routers (e.g. Cisco 841M) on the L
 
 Added the support the compatibility to YAMAHA RTX series routers on the L2TPv3 over IPsec protocol.
 
-Added the support for EAP and PEAP. SoftEther VPN Server can now speak RFC3579 (EAP) or Protected EAP (PEAP) to request user authentications to the RADIUS server with the MS-CHAPv2 mechanism. If this function is enabled, all requests from L2TP VPN clients which contain MS-CHAPv2 authentication data will be converted automatically to EAP or PEAP when it is transferred to the RADIUS server. You must enable this function manually for each of Virtual Hubs. To enable the function converting from MS-CHAPv2 to EAP, set the "RadiusConvertAllMsChapv2AuthRequestToEap" value to "true" in the vpn_server.config. To enable the functin converting from MS-CHAPv2 to PEAP, set both "RadiusConvertAllMsChapv2AuthRequestToEap" and "RadiusUsePeapInsteadOfEap" options to "true".
+Added the support for EAP and PEAP. SoftEther VPN Server can now speak RFC3579 (EAP) or Protected EAP (PEAP) to request user authentications to the RADIUS server with the MS-CHAPv2 mechanism. If this function is enabled, all requests from L2TP VPN clients which contain MS-CHAPv2 authentication data will be converted automatically to EAP or PEAP when it is transferred to the RADIUS server. You must enable this function manually for each of Virtual Hubs. To enable the function converting from MS-CHAPv2 to EAP, set the "RadiusConvertAllMsChapv2AuthRequestToEap" value to "true" in the vpn_server.config. To enable the function converting from MS-CHAPv2 to PEAP, set both "RadiusConvertAllMsChapv2AuthRequestToEap" and "RadiusUsePeapInsteadOfEap" options to "true".
 
 SoftEther VPN 4.19 Build 9578 Beta (September 15, 2015)
 Solved the problem that kernel mode drivers do not pass the general tests of "Driver Verifier Manager" in Windows 10.
 
 SoftEther VPN 4.18 Build 9570 RTM (July 26, 2015)
-Compabible with Windows 10.
+Compatible with Windows 10.
 Solved the problem that the customized language setting on the "lang.config" file.
 config sometimes corrupts in the rare condition.
 
@@ -279,7 +279,7 @@ Whole English UI texts are checked and corrected by a native speaker of English.
 SoftEther VPN 4.03 Build 9411 (January 7, 2014)
 Modified the source-code tree. In the build 9408, some C# build-utility source codes were missing. In this build, full set of all source codes including the BuildUtil program are appended. No functional differences between this build and the last build.
 
-SoftEther VPN 4.03 Build 9408 (Jaunary 4, 2014)
+SoftEther VPN 4.03 Build 9408 (January 4, 2014)
 SoftEther VPN became open source software from this build. More details on this page. Note that the major version 3.xx was skipped for internal reason of our project. So this open-sourced new version starts with major version 4.xx.
 
 SoftEther VPN 2.00 Build 9387 (September 16, 2013)
@@ -345,7 +345,7 @@ Improvement of the stability of UDP-based communication.
 Fixed a problem: SecureNAT's connectivity polling packet interval was too short.
 
 SoftEther VPN 1.00 Build 9035 RC2 Fix8 (March 26, 2013)
-Fixed a crash bug: While you are changeing the X.509 server certificate, if a new SSL-VPN connection is being made, the new connection attempt will cause the crash because lack of critical section locking. However this bug was very rare. We found it in the heavy stress test.
+Fixed a crash bug: While you are changing the X.509 server certificate, if a new SSL-VPN connection is being made, the new connection attempt will cause the crash because lack of critical section locking. However this bug was very rare. We found it in the heavy stress test.
 
 SoftEther VPN 1.00 Build 9033 RC2 Fix7 (March 22, 2013)
 Fixed a minor bug.

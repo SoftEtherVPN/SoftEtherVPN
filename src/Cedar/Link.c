@@ -266,7 +266,7 @@ bool LinkPaPutPacket(SESSION *s, void *data, UINT size)
 	k->Flag1++;
 	if ((k->Flag1 % 32) == 0)
 	{
-		// Ommit for performance
+		// Omit for performance
 		UINT current_num;
 		int diff;
 
@@ -313,7 +313,7 @@ bool LinkPaPutPacket(SESSION *s, void *data, UINT size)
 			}
 			else
 			{
-				InsertReveicedBlockToQueue(server_connection, block, true);
+				InsertReceivedBlockToQueue(server_connection, block, true);
 			}
 		}
 	}

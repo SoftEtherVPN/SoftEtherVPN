@@ -1463,7 +1463,7 @@ void GetExeNameW(wchar_t *name, UINT size)
 	UniStrCpy(name, size, exe_file_name_w);
 }
 
-// Initialization of the aquisition of the EXE file name
+// Initialization of the acquisition of the EXE file name
 void InitGetExeName(char *arg)
 {
 	wchar_t *arg_w = NULL;

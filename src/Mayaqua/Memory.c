@@ -778,7 +778,7 @@ void AddCandidate(LIST *o, wchar_t *str, UINT num_max)
 }
 
 // Comparison of candidates
-int ComapreCandidate(void *p1, void *p2)
+int CompareCandidate(void *p1, void *p2)
 {
 	CANDIDATE *c1, *c2;
 	if (p1 == NULL || p2 == NULL)
@@ -828,7 +828,7 @@ void FreeCandidateList(LIST *o)
 // Creating a new candidate list
 LIST *NewCandidateList()
 {
-	return NewList(ComapreCandidate);
+	return NewList(CompareCandidate);
 }
 
 // Fill a range of memory
@@ -1968,7 +1968,7 @@ bool IsInt64InList(LIST *o, UINT64 i)
 	return false;
 }
 
-// Remove all int from the interger list
+// Remove all int from the integer list
 void DelAllInt(LIST *o)
 {
 	UINT i;

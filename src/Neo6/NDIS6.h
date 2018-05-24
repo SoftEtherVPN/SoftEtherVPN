@@ -240,7 +240,7 @@ void NeoNdisSendNetBufferLists(NDIS_HANDLE MiniportAdapterContext,
 							   NDIS_PORT_NUMBER PortNumber,
 							   ULONG SendFlags);
 void NeoNdisSetNetBufferListsStatus(NET_BUFFER_LIST *nbl, UINT status);
-BOOL NeoLoadRegistory();
+BOOL NeoLoadRegistry();
 void NeoInitControlDevice();
 void NeoFreeControlDevice();
 NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp);

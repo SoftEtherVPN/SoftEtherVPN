@@ -1095,7 +1095,7 @@ BUF *BuildICMPv6(IPV6_ADDR *src_ip, IPV6_ADDR *dest_ip, UCHAR hop_limit, UCHAR t
 		return NULL;
 	}
 
-	// Assembe the header
+	// Assemble the header
 	icmp = ZeroMalloc(sizeof(ICMP_HEADER) + size);
 	data_buf = ((UCHAR *)icmp) + sizeof(ICMP_HEADER);
 	Copy(data_buf, data, size);

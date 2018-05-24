@@ -142,7 +142,7 @@ namespace BuildUtil
 			"All [yes|no] [/NORMALIZESRC:yes|no] [/IGNOREERROR:yes|no] [/DEBUG:yes|no] [/SERIAL:yes|no]",
 			"Builds all sources and releases all packages.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts.",
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts.",
 			"IGNOREERROR:Specify yes if you'd like to ignore the child process to show the error message.",
 			"SERIAL:Specify yes not to use parallel mode.",
 			"DEBUG:Specity yes to enable debug mode. (UNIX only)"
@@ -945,7 +945,7 @@ namespace BuildUtil
 			"BuildWin32 [yes|no] [/NORMALIZESRC:yes|no]",
 			"Builds all executable files for win32 and HamCore for all OS.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts."
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts."
 			)]
 		static int BuildWin32(ConsoleService c, string cmdName, string str)
 		{

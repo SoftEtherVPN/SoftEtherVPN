@@ -7289,7 +7289,7 @@ void IPToStr6Inner(char *str, IP *ip)
 		values[i] = Endian16(values[i]);
 	}
 
-	// Search for omitable part
+	// Search for omittable part
 	zero_started_index = INFINITE;
 	max_zero_len = 0;
 	max_zero_start = INFINITE;
@@ -20735,7 +20735,7 @@ UINT GetUdpListenerPortList(UDPLISTENER *u, UINT **port_list)
 	return num_ports;
 }
 
-// Dekete all the UDP ports
+// Delete all the UDP ports
 void DeleteAllPortFromUdpListener(UDPLISTENER *u)
 {
 	// Validate arguments
@@ -22144,7 +22144,7 @@ bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size)
 		return false;
 	}
 
-	// Check whether the Content-Lentgh exists?
+	// Check whether the Content-Length exists?
 	if (GetHttpValue(header, "Content-Length") == NULL)
 	{
 		char tmp[MAX_SIZE];

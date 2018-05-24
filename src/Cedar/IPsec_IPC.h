@@ -140,7 +140,7 @@ struct IPC_ARP
 };
 
 // DHCP release queue
-struct IPC_DHCP_RELESAE_QUEUE
+struct IPC_DHCP_RELEASE_QUEUE
 {
 	DHCP_OPTION_LIST Req;
 	UINT TranId;
@@ -206,7 +206,7 @@ struct IPC
 	UCHAR MacAddress[6];				// MAC address
 	UCHAR Padding[2];
 	LIST *ArpTable;						// ARP table
-	QUEUE *IPv4RecviedQueue;			// IPv4 reception queue
+	QUEUE *IPv4ReceivedQueue;			// IPv4 reception queue
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table

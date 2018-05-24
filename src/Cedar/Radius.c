@@ -137,7 +137,7 @@ bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respo
 	msg1.Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	msg1.Chap_Len = Endian16(54 + StrLen(e->Username));
 	msg1.Chap_ValueSize = 49;
-	Copy(msg1.Chap_PeerChallange, client_challenge, 16);
+	Copy(msg1.Chap_PeerChallenge, client_challenge, 16);
 	Copy(msg1.Chap_NtResponse, client_response, 24);
 	Copy(msg1.Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
@@ -757,7 +757,7 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 	eap1->Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	eap1->Chap_Len = Endian16(54 + StrLen(e->Username));
 	eap1->Chap_ValueSize = 49;
-	Copy(eap1->Chap_PeerChallange, client_challenge, 16);
+	Copy(eap1->Chap_PeerChallenge, client_challenge, 16);
 	Copy(eap1->Chap_NtResponse, client_response, 24);
 	Copy(eap1->Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
