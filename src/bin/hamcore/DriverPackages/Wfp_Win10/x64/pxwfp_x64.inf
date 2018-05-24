@@ -3,14 +3,14 @@
 ; Copyright (c) SoftEther Corporation. All Rights Reserved.
 ; http://www.softether.co.jp/
 ; 
-; BUILD 9594
+; BUILD 9658
 
 [Version]
 Signature					= "$Windows NT$"
 Class                       = WFPCALLOUTS
 ClassGuid                   = {57465043-616C-6C6F-7574-5F636C617373}
 Provider					= "SoftEther Corporation"
-DriverVer					= 10/17/2015, 4.19.0.9594
+DriverVer					= 02/04/2018, 4.25.0.9658
 CatalogFile.NT				= pxwfp_Win10_x64.cat
 
 [SourceDisksNames]
@@ -48,5 +48,5 @@ ErrorControl				= 1
 ServiceBinary				= %12%\pxwfp_x64.sys
 
 
-; Auto Generated 20151018_201706.515
+; Auto Generated 20180205_163639.512
 
