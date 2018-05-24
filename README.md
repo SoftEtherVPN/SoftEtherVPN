@@ -101,73 +101,26 @@ https://github.com/GildedHonour
 - More details at http://www.softether.org/.
 
 
-# GETTING STARTED
+# Installation
 
-Visit the SoftEther VPN Project official web site at first:
-        http://www.softether.org/
-
-If you are not a developer, it is recommended to download the binary
-installers from:
-        http://www.softether-download.com/
-
-To build from the source,
-see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md) files.
-
-# PREBUILT BINARY PACKAGES
+## For Ubuntu
 
 [Launchpad PPA](https://launchpad.net/~paskal-07/+archive/ubuntu/softethervpn/+packages) maintained by [Dmitry Verkhoturov](https://github.com/paskal)
 
-# HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
+## From binary installers:
 
-Go to http://www.softether-download.com/ and you can find the latest
-source-code package file in both .ZIP and .TAR.GZ format.
+Those can be found under http://www.softether-download.com/
+There you can also find SoftEtherVPN source code in zip and tar formats.
 
-This is the easiest way to obtain the source code of SoftEther VPN.
+## Build from Source code
 
-# HOW TO GET THE LATEST SOURCE CODE TREE FOR DEVELOPERS
+see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md)
 
-If you are an open-source developer, visit our GitHub repository:
-https://github.com/SoftEtherVPN/SoftEtherVPN/
+There are two flavours of SoftEtherVPN source code:
 
-You can download the up-to-date source-code tree of SoftEther VPN
-from GitHub. You may make your own fork project from our project.
+1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
+2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 
-
-
-##  Requirements
-
-### 1. Debian/Ubuntu
-
-- gcc
-- libncurses5-dev
-- libreadline-dev
-- make
-- cmake
-- libssl-dev
-- zlib1g-dev
-
-### 2. Red Hat/CentOS
-- gcc
-- openssl-devel
-- make
-- cmake
-- ncurses-devel
-- readline-devel
-- zlib-devel
-
-## Compile and install
-
-The download and build instruction is following:
- 
-```sh
-$ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-$ cd SoftEtherVPN
-$ ./configure
-$ make
-$ make install
-```
-
-Please see src/BUILD_UNIX.md for more build instructions.
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
@@ -204,7 +157,7 @@ about the problem immediately so that we can fix the security problem
 to protect a lot of users around the world as soon as possible.
 
 Our e-mail address for security reports is:
-softether-vpn-security [at] softether.org
+**softether-vpn-security at softether.org**
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit

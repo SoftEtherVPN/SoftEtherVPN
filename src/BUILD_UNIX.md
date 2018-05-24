@@ -1,9 +1,7 @@
-How to build SoftEther VPN for UNIX
-===================================
+This document describes how to build SoftEtherVPN for Unix based Operating systems
 
 
-Requirements
-------------
+# Requirements
 
 You need to install the following software to build SoftEther VPN for UNIX.
 
@@ -17,77 +15,60 @@ You need to install the following software to build SoftEther VPN for UNIX.
 - readline.
 - ncurses.
 
-*** It has been noted that clang is also supported as an alternative to gcc.
-
-For example, the following commands help you to install the above programs
-on Fedora or CentOS Linux:
-```
-$ sudo yum -y groupinstall "Development Tools"
-$ sudo yum -y install readline-devel ncurses-devel openssl-devel
-```
-
-And this command for Debian/Ubuntu:
-```
-$ sudo apt -y install gcc libncurses5-dev libreadline-dev libssl-dev make 
-```
+*It has been noted that clang is also supported as an alternative to gcc.*
 
 
-How to Build
-------------
+## Install requirements on Centos/RedHat
+
+```bash
+sudo yum -y groupinstall "Development Tools"
+sudo yum -y install cmake ncurses-devel openssl-devel readline-devel zlib-devel
+```
+
+## Install Requirements on Debian/Ubuntu
+```bash
+sudo apt -y install cmake gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+```
+
+
+# Build from source code and instal
 
 To build the programs from the source code, run the following commands:
 
+```bash
+git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+cd SoftEtherVPN
+./configure
+make
+make install
 ```
-$ ./configure
-$ make
-```
+
+This will compile and install SoftEther VPN Server, Bridge and Client binaries under your executable path.
 
 If any error occurs, please check the above requirements.
 
 
-How to Install SoftEther VPN Server, Bridge or Client
------------------------------------------------------
+# How to Run SoftEther
 
-To install the vpnserver, vpnbridge and vpnclient programs into the
-/usr/bin directory, run the following as the root user:
-
-```
-# make install
-```
-
-After the installation will complete successfully:
-
-- Execute 'vpnserver start' to run the SoftEther VPN Server background service.
-- Execute 'vpnbridge start' to run the SoftEther VPN Bridge background service.
-- Execute 'vpnclient start' to run the SoftEther VPN Client background service.
-- Execute 'vpncmd' to run SoftEther VPN Command-Line Utility to configure
-  VPN Server, VPN Bridge or VPN Client.
-
-- You can also use VPN Server/Client Manager GUI Tool on other Windows PC to
-  connect to VPN services remotely.
-  You can download the GUI Tools from http://www.softether-download.com/.
-
-
-How to Run SoftEther VPN Server for Test
-----------------------------------------
+## Start/Stop SoftEther VPN Server
 
 To start the SoftEther VPN Server background service, run the following:
 
-```
-$ bin/vpnserver/vpnserver start
+```bash
+vpnserver start
 ```
 
 To stop the service, run the following:
 
-```
-$ bin/vpnserver/vpnserver stop
+```bash
+vpnserver stop
 ```
 
 To configure the running SoftEther VPN Server service,
 you can use SoftEther VPN Command Line Management Utility as following:
 
-```
-$ bin/vpncmd/vpncmd
+```bash
+vpncmd
 ```
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
@@ -95,26 +76,25 @@ connect to the VPN Server remotely. You can download the GUI Tool
 from http://www.softether-download.com/.
 
 
-How to Run SoftEther VPN Bridge for Test
-----------------------------------------
+## Start/Stop SoftEther VPN Bridge
 
 To start the SoftEther VPN Bridge background service, run the following:
 
-```
-$ bin/vpnbridge/vpnbridge start
+```bash
+vpnbridge start
 ```
 
 To stop the service, run the following:
 
-```
-$ bin/vpnbridge/vpnbridge stop
+```bash
+vpnbridge stop
 ```
 
 To configure the running SoftEther VPN Bridge service,
 you can use SoftEther VPN Command Line Management Utility as following:
 
-```
-$ bin/vpncmd/vpncmd
+```bash
+vpncmd
 ```
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
@@ -122,32 +102,37 @@ connect to the VPN Bridge remotely. You can download the GUI Tool
 from http://www.softether-download.com/.
 
 
-How to Run SoftEther VPN Client for Test
-----------------------------------------
+## Start/Stop SoftEther VPN Client
 
 To start the SoftEther VPN Client background service, run the following:
 
-```
-$ bin/vpnclient/vpnclient start
+```bash
+vpnclient start
 ```
 
 To stop the service, run the following:
 
-```
-$ bin/vpnclient/vpnclient stop
+```bash
+vpnclient stop
 ```
 
 To configure the running SoftEther VPN Client service,
 you can use SoftEther VPN Command Line Management Utility as following:
 
-```
-$ bin/vpncmd/vpncmd
+```bash
+vpncmd
 ```
 
 Or you can also use VPN Client Manager GUI Tool on other Windows PC to
 connect to the VPN Client remotely. You can download the GUI Tool
 from http://www.softether-download.com/.
 
+
+# Using SoftEther without installation.
+
+You can use any SoftEtherVPN component (server, client, bridge) without installing it, if you wish so.
+
+In this case please do not run the `make install` command after compiling the source code, and head directly to the **bin/** directory. There you will find the generated binaries for SoftEtherVPN and those could be used without installing SoftEtherVPN.
 
 ************************************
 Thank You Using SoftEther VPN !
