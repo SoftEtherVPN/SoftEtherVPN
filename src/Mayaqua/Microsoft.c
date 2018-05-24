@@ -8431,19 +8431,11 @@ bool MsUpgradeVLan(char *tag_name, char *connection_tag_name, char *instance_nam
 }
 bool MsUpgradeVLanWithoutLock(char *tag_name, char *connection_tag_name, char *instance_name, MS_DRIVER_VER *ver)
 {
-	wchar_t infpath[MAX_PATH];
 	char hwid[MAX_PATH];
 	wchar_t hwid_w[MAX_PATH];
 	bool ret = false;
-	bool need_reboot;
-	bool before_status;
 	UCHAR old_mac_address[6];
-	UCHAR new_mac_address[6];
 	char *s;
-	NO_WARNING *nw;
-	char neo_sys[MAX_PATH];
-	char *reg_key;
-	UINT i;
 	// Validate arguments
 	if (instance_name == NULL || tag_name == NULL || connection_tag_name == NULL || ver == NULL)
 	{
@@ -8477,38 +8469,6 @@ bool MsUpgradeVLanWithoutLock(char *tag_name, char *connection_tag_name, char *i
 		return false;
 	}
 
-	reg_key = MsGetNetCfgRegKeyName(tag_name, instance_name);
-
-	if (IsEmptyStr(reg_key) == false)
-	{
-		// Add a value to the registry key
-		MsRegWriteInt(REG_LOCAL_MACHINE, reg_key, "*IfType", 6);
-		MsRegWriteInt(REG_LOCAL_MACHINE, reg_key, "*MediaType", 0);
-		MsRegWriteInt(REG_LOCAL_MACHINE, reg_key, "*PhysicalMediaType", 0);
-	}
-	Free(reg_key);
-
-	// Get the .sys file name that is currently being used
-	if (MsGetNeoDriverFilename(neo_sys, sizeof(neo_sys), instance_name) == false)
-	{
-		if (MsIsInfCatalogRequired())
-		{
-			// Can not be upgraded if getting current .sys file name failed
-			// in the Windows 8 or later
-			return false;
-		}
-
-		// Create a new file name because it is unknown
-		if (MsMakeNewNeoDriverFilename(neo_sys, sizeof(neo_sys)) == false)
-		{
-			// Failure
-			return false;
-		}
-	}
-
-	// Get the current operating status
-	before_status = MsIsVLanEnabled(instance_name);
-
 	// Get the previous MAC address
 	s = MsGetMacAddress(tag_name, instance_name);
 	if (s == NULL)
@@ -8533,57 +8493,9 @@ bool MsUpgradeVLanWithoutLock(char *tag_name, char *connection_tag_name, char *i
 		FreeBuf(b);
 	}
 
-	// Starting the installation
-	if (MsStartDriverInstall(instance_name, IsZero(old_mac_address, 6) ? NULL : old_mac_address, neo_sys,
-		new_mac_address, ver) == false)
-	{
-		return false;
-	}
-	MsGetDriverPath(instance_name, NULL, NULL, infpath, NULL, NULL, NULL, neo_sys);
+	ret = MsUninstallVLanWithoutLock(instance_name);
 
-	nw = NULL;
-
-	//if (MsIsVista() == false)
-	{
-		nw = MsInitNoWarning();
-	}
-
-	// Do the installation
-	if (ms->nt->UpdateDriverForPlugAndPlayDevicesW(
-		NULL, hwid_w, infpath, 1, &need_reboot))
-	{
-		ret = true;
-	}
-	MsFreeNoWarning(nw);
-
-	// Installation complete
-	MsFinishDriverInstall(instance_name, neo_sys);
-
-	for (i = 0;i < 5;i++)
-	{
-		MsInitNetworkConfig(tag_name, instance_name, connection_tag_name);
-		if (MsIsInfCatalogRequired())
-		{
-			// Write the MAC address
-			char mac_address_str[MAX_SIZE];
-			BinToStr(mac_address_str, sizeof(mac_address_str), new_mac_address, sizeof(new_mac_address));
-			MsSetMacAddress(VLAN_ADAPTER_NAME_TAG, instance_name, mac_address_str);
-		}
-
-		SleepThread(MsIsVista() ? 1000 : 300);
-	}
-
-	SleepThread(MsIsVista() ? 1000 : 300);
-
-	// Restore operation
-	if (before_status)
-	{
-		MsEnableVLan(instance_name);
-	}
-	else
-	{
-		MsDisableVLan(instance_name);
-	}
+	ret = MsInstallVLanWithoutLock(tag_name, connection_tag_name, instance_name, ver);
 
 	return ret;
 }
