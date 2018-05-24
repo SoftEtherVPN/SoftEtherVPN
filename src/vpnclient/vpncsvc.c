@@ -143,6 +143,8 @@ void StopProcess()
 // WinMain function
 int main(int argc, char *argv[])
 {
+	InitProcessCallOnce();
+
 #ifdef	OS_WIN32
 
 	return MsService(GC_SVC_NAME_VPNCLIENT, StartProcess, StopProcess, ICO_MACHINE, argv[0]);

@@ -353,6 +353,8 @@ void MainFunction(char *cmd)
 // winmain function
 int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
+	InitProcessCallOnce();
+
 	InitMayaqua(false, false, 0, NULL);
 	EnableProbe(false);
 	InitCedar();
