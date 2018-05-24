@@ -132,7 +132,6 @@ There are two flavours of SoftEtherVPN source code:
 1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
 2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 
-
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
 Because SoftEther VPN is overly strong tool to build a VPN tunnel,
