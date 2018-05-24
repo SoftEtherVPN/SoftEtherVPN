@@ -2514,21 +2514,6 @@ void SiInitDefaultHubList(SERVER *s)
 	SiSetDefaultLogSetting(&g);
 	SetHubLogSetting(h, &g);
 
-	{
-		UINT i;
-		for (i = 0;i < 0;i++)
-		{
-			char tmp[MAX_SIZE];
-			USER *u;
-			sprintf(tmp, "user%u", i);
-			AcLock(h);
-			u = NewUser(tmp, L"test", L"", AUTHTYPE_ANONYMOUS, NULL);
-			AcAddUser(h, u);
-			ReleaseUser(u);
-			AcUnlock(h);
-		}
-	}
-
 	ReleaseHub(h);
 }
 
