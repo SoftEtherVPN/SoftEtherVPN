@@ -431,7 +431,7 @@ void CiChangeAllVLanMacAddress(CLIENT *c)
 			RPC_CLIENT_ENUM_VLAN_ITEM *e = t.Items[i];
 			UCHAR mac[6];
 
-			if (StrToMac(mac, e->MacAddress) && mac[1] == 0xAC)
+			if (StrToMac(mac, e->MacAddress) && ((mac[0] == 0x00 && mac[1] == 0xAC) || (mac[0] == 0x5E)))
 			{
 				char *name = e->DeviceName;
 				RPC_CLIENT_SET_VLAN s;

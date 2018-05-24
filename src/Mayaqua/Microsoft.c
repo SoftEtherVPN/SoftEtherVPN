@@ -10509,12 +10509,12 @@ void MsGenMacAddress(UCHAR *mac)
 
 	Hash(hash, hash_src, sizeof(hash_src), true);
 
-	mac[0] = 0x00;
-	mac[1] = 0xAC;
-	mac[2] = hash[0];
-	mac[3] = hash[1];
-	mac[4] = hash[2];
-	mac[5] = hash[3];
+	mac[0] = 0x5E;
+	mac[1] = hash[0];
+	mac[2] = hash[1];
+	mac[3] = hash[2];
+	mac[4] = hash[3];
+	mac[5] = hash[4];
 }
 
 // Finish the driver installation
