@@ -995,7 +995,7 @@ CM_WOULDYOULOAD_IE_PROXY	Currently the Internet Explorer on this computer is con
 CM_MSG_TITLE			VPN Server "%S" (Virtual Hub: "%S")
 CM_JUMPLIST_RCCONNECT	Recent VPN Servers
 CM_VPNGATE_MESSAGE		There is the list of Public VPN Relay Servers on the VPN Gate Academic Project Web Site.\r\nAnyone on the Internet can connect a VPN connection to any VPN servers on the list.\r\n\r\nVPN Gate Academic Project is not a part of SoftEther VPN.\r\nThis icon provides just a link to http://www.vpngate.net/.\r\nYou need to install VPN Gate Plugin to connect VPN Gate.\r\n\r\nDo you want to visit http://www.vpngate.net/ (provided by University of Tsukuba) ?
-CM_VLAN_REINSTALL_MSG	After reinstalling the driver of the Virtual Network Adapter, the MAC address associated to the current Virtual Network Adapter will change. Also, all TCP/IP settings with the Virtual Network Adapter will reset.\r\n\r\nIn the case that the reinstalled Virtual Network Adapter fails to activate, delete the Virtual Network Adapter once and create it again. If it still does not work properly please create a new Virtual Network Adapter with a different name.
+CM_VLAN_REINSTALL_MSG	After reinstalling the Virtual Network Adapter driver, the current Virtual Network Adapter's MAC address will change. Also, all TCP/IP settings within the Virtual Network Adapter will reset.\r\n\r\nIn case the reinstalled Virtual Network Adapter fails to work, delete it and create a new one. If it still doesn't work properly, please create a new Virtual Network Adapter with a different name.
 
 
 VGC_COLUMN_0			DDNS Hostname

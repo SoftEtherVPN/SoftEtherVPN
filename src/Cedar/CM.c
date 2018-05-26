@@ -5719,13 +5719,10 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 			break;
 		}
 		// Warning message
-		if (MsIsWindows10())
+		if (MsgBox(hWnd, MB_ICONINFORMATION | MB_OKCANCEL, _UU("CM_VLAN_REINSTALL_MSG")) == IDCANCEL)
 		{
-			if (MsgBox(hWnd, MB_ICONINFORMATION | MB_OKCANCEL, _UU("CM_VLAN_REINSTALL_MSG")) == IDCANCEL)
-			{
-				// Cancel
-				break;
-			}
+			// Cancel
+			break;
 		}
 		index = LvGetSelected(hWnd, L_VLAN);
 		if (index != INFINITE)

@@ -957,6 +957,15 @@ namespace BuildUtil
 			{
 				options.Add("-O2");
 			}
+
+			if (this.Os == OSList.Linux)
+			{
+				if (this.Cpu == CpuList.x64 || this.Cpu == CpuList.x86 || this.Cpu == CpuList.intel)
+				{
+					options.Add("-no-pie");
+				}
+			}
+
 			options.Add("-fsigned-char");
 			if (this.NoPThreadOption == false)
 			{
