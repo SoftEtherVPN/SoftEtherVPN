@@ -21,9 +21,17 @@ matrix:
       os: linux
       compiler: clang
     - os: osx
-      compiler: gcc
-    - os: osx
       compiler: clang
+      before_install:
+        - brew update && brew upgrade openssl
+      script:
+        - ./configure
+        - make -C tmp
+        - otool -L bin/vpnserver/vpnserver
+
+addons:
+  apt:
+    packages: [ debhelper ]
 
 cache:
   directories:
@@ -31,7 +39,13 @@ cache:
   - ${HOME}/opt
 
 before_install:
-  - bash .ci/before_install.sh
+  - bash .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
 
 script:
-  - bash .ci/script.sh
+  - export LD_LIBRARY_PATH="${HOME}/opt/lib:${LD_LIBRARY_PATH:-}"
+  - export CFLAGS="-I${HOME}/opt/include"
+  - export LDFLAGS="-L${HOME}/opt/lib"
+  - ./configure
+  - make -C tmp
+  - ldd bin/vpnserver/vpnserver
+  - dh build-arch
