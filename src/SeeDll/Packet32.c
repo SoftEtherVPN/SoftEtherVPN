@@ -64,7 +64,7 @@ GAAHandler GetAdaptersAddressesPointer = NULL;
 #endif // _WINNT4
 
 #ifdef HAVE_DAG_API
-/* We load dinamically the dag library in order link it only when it's present on the system */
+/* We load dynamically the dag library in order link it only when it's present on the system */
 dagc_open_handler p_dagc_open = NULL;
 dagc_close_handler p_dagc_close = NULL;
 dagc_getlinktype_handler p_dagc_getlinktype = NULL;
@@ -127,7 +127,7 @@ BOOL APIENTRY DllMain (HANDLE DllHandle,DWORD Reason,LPVOID lpReserved)
 		PacketGetFileVersion(TEXT("drivers\\see.sys"), PacketDriverVersion, sizeof(PacketDriverVersion));
 
 		//
-		// Locate GetAdaptersAddresses dinamically since it is not present in Win2k
+		// Locate GetAdaptersAddresses dynamically since it is not present in Win2k
 		//
 		IPHMod = GetModuleHandle(TEXT("Iphlpapi"));
 		
@@ -136,7 +136,7 @@ BOOL APIENTRY DllMain (HANDLE DllHandle,DWORD Reason,LPVOID lpReserved)
 #endif // _WINNT4
 
 #ifdef HAVE_DAG_API
-		/* We load dinamically the dag library in order link it only when it's present on the system */
+		/* We load dynamically the dag library in order link it only when it's present on the system */
 		if((DagcLib =  LoadLibrary(TEXT("dagc.dll"))) == NULL)
 		{
 			// Report the error but go on
@@ -250,7 +250,7 @@ PCHAR WChar2SChar(PWCHAR string)
 	PCHAR TmpStr;
 	TmpStr = (CHAR*) GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT, (wcslen(string)+2));
 
-	// Conver to ASCII
+	// Convert to ASCII
 	WideCharToMultiByte(
 		CP_ACP,
 		0,
@@ -435,7 +435,7 @@ LONG PacketDumpRegistryKey(PCHAR KeyName, PCHAR FileName)
   \brief Returns the version of a dll or exe file 
   \param FileName Name of the file whose version has to be retrieved.
   \param VersionBuff Buffer that will contain the string with the file version.
-  \param VersionBuffLen Length of the buffer poited by VersionBuff.
+  \param VersionBuffLen Length of the buffer pointed by VersionBuff.
   \return If the function succeeds, the return value is TRUE.
 
   \note uses the GetFileVersionInfoSize() and GetFileVersionInfo() WIN32 API functions
@@ -1759,7 +1759,7 @@ BOOLEAN PacketSetReadTimeout(LPADAPTER AdapterObject,int timeout)
 		else
 			if(timeout == 1)
 			{
-				// tell the DAG card to wait forvever
+				// tell the DAG card to wait forever
 				AdapterObject->DagReadTimeout.tv_sec = -1;
 				AdapterObject->DagReadTimeout.tv_usec = -1;
 			}
@@ -1819,7 +1819,7 @@ BOOLEAN PacketSetBuff(LPADAPTER AdapterObject,int dim)
   \return This function returns TRUE if the filter is set successfully, FALSE if an error occurs 
    or if the filter program is not accepted after a safeness check by the driver.  The driver performs 
    the check in order to avoid system crashes due to buggy or malicious filters, and it rejects non
-   conformat filters.
+   conformant filters.
 
   This function associates a new BPF filter to the adapter AdapterObject. The filter, pointed by fp, is a 
   set of bpf_insn instructions.
@@ -1854,7 +1854,7 @@ BOOLEAN PacketSetBpf(LPADAPTER AdapterObject, struct bpf_program *fp)
   \param AdapterObject Pointer to an _ADAPTER structure.
   \param snaplen Desired snap len for this capture.
   \return If the function succeeds, the return value is nonzero and specifies the actual snaplen that 
-   the card is using. If the function fails or if the card does't allow to set sna length, the return 
+   the card is using. If the function fails or if the card doesn't allow to set sna length, the return 
    value is 0.
 
   The snap len is the amount of packet that is actually captured by the interface and received by the
@@ -1943,7 +1943,7 @@ BOOLEAN PacketGetStats(LPADAPTER AdapterObject,struct bpf_stat *s)
   \param s Pointer to a user provided bpf_stat structure that will be filled by the function.
   \return If the function succeeds, the return value is nonzero.
 
-  With this function, the programmer can retireve the sname values provided by PacketGetStats(), plus:
+  With this function, the programmer can retrieve the sname values provided by PacketGetStats(), plus:
 
   - the number of drops by interface (not yet supported, always 0). 
   - the number of packets that reached the application, i.e that were accepted by the kernel filter and
@@ -2083,7 +2083,7 @@ BOOLEAN PacketSetHwFilter(LPADAPTER  AdapterObject,ULONG Filter)
   - a variable number of ASCII strings, each with the names of an adapter, separated by a "\0"
   - a double "\0"
   - a number of ASCII strings, each with the description of an adapter, separated by a "\0". The number 
-   of descriptions is the same of the one of names. The fisrt description corresponds to the first name, and
+   of descriptions is the same of the one of names. The first description corresponds to the first name, and
    so on.
   - a double "\0". 
 */
@@ -2175,7 +2175,7 @@ BOOLEAN PacketGetAdapterNames(PTSTR pStr,PULONG  BufferSize)
   This function grabs from the registry information like the IP addresses, the netmasks 
   and the broadcast addresses of an interface. The buffer passed by the user is filled with 
   npf_if_addr structures, each of which contains the data for a single address. If the buffer
-  is full, the reaming addresses are dropeed, therefore set its dimension to sizeof(npf_if_addr)
+  is full, the reaming addresses are dropped, therefore set its dimension to sizeof(npf_if_addr)
   if you want only the first address.
 */
 BOOLEAN PacketGetNetInfoEx(PCHAR AdapterName, npf_if_addr* buffer, PLONG NEntries)

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -3470,7 +3470,7 @@ void SmSetupDlgOnOk(HWND hWnd, SM_SETUP *s)
 			s->s->IPsecMessageDisplayed = true;
 		}
 
-		// Confgure the VPN Azure if VPN Azure feature is available
+		// Configure the VPN Azure if VPN Azure feature is available
 		if (GetCapsBool(s->s->CapsList, "b_support_azure"))
 		{
 			SmAzure(hWnd, s->s, true);
@@ -9465,7 +9465,7 @@ void SmSessionDlgUpdate(HWND hWnd, SM_HUB *s)
 
 	if (s->p->ServerInfo.ServerBuildInt < 2844)
 	{
-		// Old version doen't support for remote management of the sessions
+		// Old version doesn't support for remote management of the sessions
 		ok2 = ok;
 	}
 
@@ -13776,7 +13776,7 @@ void SmEditUserDlgOk(HWND hWnd, SM_EDIT_USER *s)
 		}
 		FreeRpcSetUser(&t);
 
-		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREEATE_OK"), u->Name);
+		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREATE_OK"), u->Name);
 	}
 	else
 	{
@@ -16120,7 +16120,7 @@ void SmConnectionDlgRefresh(HWND hWnd, SM_SERVER *p)
 
 	LvInsertEnd(b, hWnd, L_LIST);
 
-	FreeRpcEnumConnetion(&t);
+	FreeRpcEnumConnection(&t);
 }
 
 // Update the control
@@ -17571,7 +17571,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	{
 		if (CALL(hWnd, ScCreateHub(s->p->Rpc, &t)))
 		{
-			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATER"), hubname);
+			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATED"), hubname);
 			EndDialog(hWnd, true);
 		}
 	}
@@ -18365,6 +18365,7 @@ void SmServerDlgInit(HWND hWnd, SM_SERVER *p)
 void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 {
 	RPC_ENUM_HUB t;
+	RPC_LISTENER_LIST t2;
 	DDNS_CLIENT_STATUS st;
 	RPC_AZURE_STATUS sta;
 	UINT i;
@@ -18452,38 +18453,34 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 	}
 
 	// Listener list update
-	if (p != NULL)
+	Zero(&t2, sizeof(RPC_LISTENER_LIST));
+	if (CALL(hWnd, ScEnumListener(p->Rpc, &t2)))
 	{
-		RPC_LISTENER_LIST t;
-		Zero(&t, sizeof(RPC_LISTENER_LIST));
-		if (CALL(hWnd, ScEnumListener(p->Rpc, &t)))
+		LVB *b = LvInsertStart();
+		for (i = 0;i < t2.NumPort;i++)
 		{
-			LVB *b = LvInsertStart();
-			for (i = 0;i < t.NumPort;i++)
+			wchar_t tmp[MAX_SIZE];
+			wchar_t *status;
+			UINT icon;
+			UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t2.Ports[i]);
+
+			status = _UU("CM_LISTENER_ONLINE");
+			icon = ICO_PROTOCOL;
+			if (t2.Errors[i])
 			{
-				wchar_t tmp[MAX_SIZE];
-				wchar_t *status;
-				UINT icon;
-				UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t.Ports[i]);
-
-				status = _UU("CM_LISTENER_ONLINE");
-				icon = ICO_PROTOCOL;
-				if (t.Errors[i])
-				{
-					status = _UU("CM_LISTENER_ERROR");
-					icon = ICO_PROTOCOL_X;
-				}
-				else if (t.Enables[i] == false)
-				{
-					status = _UU("CM_LISTENER_OFFLINE");
-					icon = ICO_PROTOCOL_OFFLINE;
-				}
-
-				LvInsertAdd(b, icon, (void *)t.Ports[i], 2, tmp, status);
+				status = _UU("CM_LISTENER_ERROR");
+				icon = ICO_PROTOCOL_X;
 			}
-			LvInsertEnd(b, hWnd, L_LISTENER);
-			FreeRpcListenerList(&t);
+			else if (t2.Enables[i] == false)
+			{
+				status = _UU("CM_LISTENER_OFFLINE");
+				icon = ICO_PROTOCOL_OFFLINE;
+			}
+
+			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2, tmp, status);
 		}
+		LvInsertEnd(b, hWnd, L_LISTENER);
+		FreeRpcListenerList(&t2);
 	}
 
 	// Get the DDNS client state
@@ -20698,7 +20695,3 @@ void SMExec()
 #endif	// WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -442,7 +442,8 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 			// Create an SSL pipe
 			Lock(s->Cedar->lock);
 			{
-				c->SslPipe = NewSslPipe(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh);
+				bool cert_verify = true;
+				c->SslPipe = NewSslPipeEx(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh, cert_verify, &c->ClientCert);
 			}
 			Unlock(s->Cedar->lock);
 
@@ -712,6 +713,11 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			p.BridgeMode = true;
 		}
 
+		if (c->ClientCert.X != NULL)
+		{
+			p.ClientCertificate = c->ClientCert.X;
+		}
+
 		p.IsOpenVPN = true;
 
 		// Calculate the MSS
@@ -779,6 +785,26 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	Debug("Parsing Option Str: %s\n", data->OptionString);
 
 	OvsLog(s, se, c, "LO_OPTION_STR_RECV", data->OptionString);
+
+	if (c->ClientCert.X != NULL)
+	{
+		if (c->ClientCert.X->subject_name != NULL)
+		{
+			OvsLog(s, se, c, "LO_CLIENT_CERT", c->ClientCert.X->subject_name->CommonName);
+		}
+		else
+		{
+			OvsLog(s, se, c, "LO_CLIENT_CERT", "(unknown CN)");
+		}
+	}
+	else if (!c->ClientCert.PreverifyErr)
+	{
+		OvsLog(s, se, c, "LO_CLIENT_NO_CERT");
+	}
+	else
+	{
+		OvsLog(s, se, c, "LO_CLIENT_UNVERIFIED_CERT", c->ClientCert.PreverifyErrMessage);
+	}
 
 	Zero(opt_str, sizeof(opt_str));
 	StrCpy(opt_str, sizeof(opt_str), data->OptionString);
@@ -1154,9 +1180,12 @@ UINT OvsParseKeyMethod2(OPENVPN_KEY_METHOD_2 *ret, UCHAR *data, UINT size, bool 
 						// String
 						if (OvsReadStringFromBuf(b, ret->OptionString, sizeof(ret->OptionString)) &&
 							OvsReadStringFromBuf(b, ret->Username, sizeof(ret->Username)) &&
-							OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)) &&
-							OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
-						{
+							OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)))
+							{
+								if (!OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
+								{
+									Zero(ret->PeerInfo, sizeof(ret->PeerInfo));
+								}
 							read_size = b->Current;
 						}
 					}
@@ -1358,6 +1387,11 @@ void OvsFreeChannel(OPENVPN_CHANNEL *c)
 
 	FreeMd(c->MdRecv);
 	FreeMd(c->MdSend);
+
+	if (c->ClientCert.X != NULL)
+	{
+		FreeX(c->ClientCert.X);
+	}
 
 	Free(c);
 }
@@ -2595,7 +2629,7 @@ OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOC
 
 	OvsLog(s, NULL, NULL, "LO_START");
 
-	s->Dh = DhNewGroup2();
+	s->Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
 
 	return s;
 }
@@ -2695,7 +2729,7 @@ OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
 	AddRef(u->Cedar->ref);
 
 	// Create a UDP listener
-	u->UdpListener = NewUdpListener(OpenVpnServerUdpListenerProc, u);
+	u->UdpListener = NewUdpListener(OpenVpnServerUdpListenerProc, u, &cedar->Server->ListenIP);
 
 	// Create an OpenVPN server
 	u->OpenVpnServer = NewOpenVpnServer(cedar, u->UdpListener->Interrupts, u->UdpListener->Event);
@@ -2703,8 +2737,23 @@ OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
 	return u;
 }
 
+void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh)
+{
+	// Validate arguments
+	if (u == NULL) {
+		return;
+	}
+
+	if (u->OpenVpnServer->Dh)
+	{
+		DhFree(u->OpenVpnServer->Dh);
+	}
+
+	u->OpenVpnServer->Dh = dh;
+}
+
 // Apply the port list to the OpenVPN server
-void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list)
+void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip)
 {
 	LIST *o;
 	UINT i;
@@ -2715,6 +2764,11 @@ void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list)
 	}
 
 	DeleteAllPortFromUdpListener(u->UdpListener);
+
+	if (u->UdpListener != NULL && listen_ip != NULL)
+	{
+		Copy(&u->UdpListener->ListenIP, listen_ip, sizeof(IP));
+	}
 
 	o = StrToIntList(port_list, true);
 
@@ -2840,7 +2894,7 @@ bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock)
 			{
 				void *ptr = FifoPtr(tcp_recv_fifo);
 				USHORT packet_size = READ_USHORT(ptr);
-				if (packet_size <= OPENVPN_TCP_MAX_PACKET_SIZE)
+				if (packet_size != 0 && packet_size <= OPENVPN_TCP_MAX_PACKET_SIZE)
 				{
 					UINT total_len = (UINT)packet_size + sizeof(USHORT);
 					if (r >= total_len)
@@ -3016,7 +3070,3 @@ bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

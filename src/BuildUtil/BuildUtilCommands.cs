@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Build Utility
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -142,7 +142,7 @@ namespace BuildUtil
 			"All [yes|no] [/NORMALIZESRC:yes|no] [/IGNOREERROR:yes|no] [/DEBUG:yes|no] [/SERIAL:yes|no]",
 			"Builds all sources and releases all packages.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts.",
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts.",
 			"IGNOREERROR:Specify yes if you'd like to ignore the child process to show the error message.",
 			"SERIAL:Specify yes not to use parallel mode.",
 			"DEBUG:Specity yes to enable debug mode. (UNIX only)"
@@ -945,7 +945,7 @@ namespace BuildUtil
 			"BuildWin32 [yes|no] [/NORMALIZESRC:yes|no]",
 			"Builds all executable files for win32 and HamCore for all OS.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts."
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts."
 			)]
 		static int BuildWin32(ConsoleService c, string cmdName, string str)
 		{
@@ -1346,7 +1346,3 @@ namespace BuildUtil
 	}
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

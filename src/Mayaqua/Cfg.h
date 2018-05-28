@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -210,7 +210,6 @@ BUF *CfgGetBuf(FOLDER *f, char *name);
 bool CfgGetStr(FOLDER *f, char *name, char *str, UINT size);
 bool CfgGetUniStr(FOLDER *f, char *name, wchar_t *str, UINT size);
 bool CfgIsItem(FOLDER *f, char *name);
-bool CfgIsFolder(FOLDER *f, char *name);
 void CfgTest();
 void CfgTest2(FOLDER *f, UINT n);
 char *CfgEscape(char *name);
@@ -275,7 +274,3 @@ ITEM *CfgAddIp(FOLDER *f, char *name, struct IP *ip);
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

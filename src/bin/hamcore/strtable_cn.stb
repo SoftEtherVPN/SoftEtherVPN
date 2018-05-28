@@ -21,7 +21,7 @@ DEFAULT_FONT				SimSun
 DEFAULT_FONT_HIGHDPI		Microsoft YaHei
 DEFAULT_FONT_2				SimSun
 DEFAULT_FONT_SIZE			9
-DEFAULE_LOCALE				年 月 日 点 分 秒 星期日 星期一 星期二 星期三 星期四 星期五 星期六 天 小时 分 秒 (无)
+DEFAULT_LOCALE				年 月 日 点 分 秒 星期日 星期一 星期二 星期三 星期四 星期五 星期六 天 小时 分 秒 (无)
 
 
 # 语言
@@ -35,13 +35,13 @@ CM_JAPANESE_ONLY_OLD_STARTUP	%s\\SoftEther VPN Client 2.0 タスクトレイ.lnk
 
 
 # 软件信息
-PRODUCT_NAME_VPN_CLI		SoftEther VPN Client
-PRODUCT_NAME_VPN_CMGR		SoftEther VPN Client 管理器
-PRODUCT_NAME_VPN_SVR		SoftEther VPN Server
-PRODUCT_NAME_VPN_BRIDGE		SoftEther VPN Bridge
-PRODUCT_NAME_VPN_SMGR		SoftEther VPN Server 管理器
-PRODUCT_NAME_ELOGSVC		SoftEther EtherLogger 测试版
-PRODUCT_NAME_ELOGMGR		SoftEther EtherLogger 管理器 测试版
+PRODUCT_NAME_VPN_CLI		SoftEther VPN Client Developer Edition
+PRODUCT_NAME_VPN_CMGR		SoftEther VPN Client Developer Edition 管理器
+PRODUCT_NAME_VPN_SVR		SoftEther VPN Server Developer Edition
+PRODUCT_NAME_VPN_BRIDGE		SoftEther VPN Bridge Developer Edition
+PRODUCT_NAME_VPN_SMGR		SoftEther VPN Server Developer Edition 管理器
+PRODUCT_NAME_ELOGSVC		SoftEther EtherLogger Developer Edition
+PRODUCT_NAME_ELOGMGR		SoftEther EtherLogger Developer Edition 管理器
 
 
 # BRANDED_C_TO_S		Branded_VPN
@@ -50,7 +50,7 @@ PRODUCT_NAME_ELOGMGR		SoftEther EtherLogger 管理器 测试版
 # CLIENT_ID				123
 
 # Family Name for Software Update Check
-PRODUCT_FAMILY_NAME		SoftEther
+PRODUCT_FAMILY_NAME		SoftEtherDev
 
 # 产品信息
 SE_COMPANY_URL			https://selinks.org/?se
@@ -564,7 +564,7 @@ HUB_AO_SecureNAT_RandomizeAssignIp			If you set this option to non-zero value, t
 HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, then the Virtual Hub will treat the VPN sessions, which have transmitted no packets for the last specified intervals (in seconds), as Dormant Sessions. The Virtual Hub will not flood packets, which should be flood, to any Dormant Sessions.
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
 HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub. (For only L2TP/IPsec and OpenVPN sessions.)
-HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identidier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
+HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identifier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
 
 
 
@@ -777,11 +777,11 @@ REMOTE_DEF_TITLE			指定你要进行远程连接的计算机。
 
 
 #关于客户通知服务
-CN_TITLE					SoftEther VPN Client
+CN_TITLE				SoftEther VPN Client Developer Edition
 
 
 # 关于连接管理器
-CM_TITLE					SoftEther VPN Client 管理器
+CM_TITLE					SoftEther VPN Client Developer Edition 管理器
 CM_PW_LOCALMACHINE			本地计算机
 CM_NO_REMOTE				VPN Client 服务运行在 %s 上，不允许远程连接。
 CM_CONNECT_FAILED			无法连接到 %s 上的 VPN Client 服务。\r\n确认 VPN 服务已开启并正常运行。
@@ -964,11 +964,11 @@ CM_VPN_FILE_IMPORT_NG		无法导入 VPN 连接设置文件。由于 VPN Client �
 CM_VLAN_INSTALLING			请稍候...
 CM_SECURE_MUST_LOCAL		因为目前您对远程计算机进行连接并管理 VPN Client，因此无法修改智能卡设置。
 CM_DETAIL_MODE_LINK_STR		使用级联，则“通过网桥，路由模式连接”始终启用。
-CM_TRAY_INITING				VPN Client 管理器
-CM_TRAY_NOT_CONNECTED		VPN Client 管理器\r\n未连接
-CM_TRAY_CONNECTED_0			VPN Client 管理器\r\n主动连接到%u个服务器，并尝试连接到 %u 个服务器
-CM_TRAY_CONNECTED_1			VPN Client 管理器\r\n尝试连接到%u个服务器
-CM_TRAY_CONNECTED_2			VPN Client 管理器\r\n的 %u 个服务器中的连接
+CM_TRAY_INITING				VPN Client 管理器 (Developer Edition)
+CM_TRAY_NOT_CONNECTED		VPN Client 管理器 (Developer Edition)\r\n未连接
+CM_TRAY_CONNECTED_0			VPN Client 管理器 (Developer Edition)\r\n主动连接到%u个服务器，并尝试连接到 %u 个服务器
+CM_TRAY_CONNECTED_1			VPN Client 管理器 (Developer Edition)\r\n尝试连接到%u个服务器
+CM_TRAY_CONNECTED_2			VPN Client 管理器 (Developer Edition)\r\n的 %u 个服务器中的连接
 CM_TRAY_MENU_1_SHOW			显示 VPN Client 管理器(&S)
 CM_TRAY_MENU_1_HIDE			关闭 VPN Client 管理器(&O)
 CM_TRAY_MENU_2_QUIT			退出 VPN Client 管理器程序(&X)
@@ -1004,6 +1004,7 @@ CM_WOULDYOULOAD_IE_PROXY	目前，这台计算机的 Internet Explorer 配置使
 CM_MSG_TITLE				VPN Server "%S" (虚拟 HUB: "%S")
 CM_JUMPLIST_RCCONNECT		最近使用的连接设置
 CM_VPNGATE_MESSAGE			在 VPN Gate 学术项目网站上有一个公共 VPN 中继服务器列表。\r\n互联网上的任何人都可以建立 VPN 连接至任一列表上的 VPN 服务器。无需用户注册。\r\n\r\nVPN Gate 不是 SoftEther VPN 的一部分。\r\n此图标只提供了一个超链接到 http://www.vpngate.net/。\r\n\r\n安装带有 SoftEther VPN Client 的 VPN Gate Client 插件。它可用简单的配置连接到 VPN Gate 的一个公共 VPN 中继服务器。\r\n\r\n你想访问 http://www.vpngate.net/ (设在日本筑波大学) ?
+CM_VLAN_REINSTALL_MSG	After reinstalling the Virtual Network Adapter driver, the current Virtual Network Adapter's MAC address will change. Also, all TCP/IP settings within the Virtual Network Adapter will reset.\r\n\r\nIn case the reinstalled Virtual Network Adapter fails to work, delete it and create a new one. If it still doesn't work properly, please create a new Virtual Network Adapter with a different name.
 
 
 # VPN Gate Service
@@ -1112,37 +1113,37 @@ SVC_VPNBRIDGE_DESCRIPT		它管理 SoftEther VPN Bridge 服务进程。SoftEther 
 
 
 # 服务定义 (SoftEther VPN Client)
-SVC_SEVPNCLIENT_NAME			sevpnclient
-SVC_SEVPNCLIENT_TITLE			SoftEther VPN Client
-SVC_SEVPNCLIENT_DESCRIPT		它为 SoftEther VPN Client 管理虚拟网络适配器设备驱动和连接服务。当服务停止时，此计算机将无法使用 SoftEther VPN Client 连接到 SoftEther VPN Server。
+SVC_SEVPNCLIENTDEV_NAME			sevpnclientdev
+SVC_SEVPNCLIENTDEV_TITLE			SoftEther VPN Client Developer Edition
+SVC_SEVPNCLIENTDEV_DESCRIPT		它为 SoftEther VPN Client 管理虚拟网络适配器设备驱动和连接服务。当服务停止时，此计算机将无法使用 SoftEther VPN Client 连接到 SoftEther VPN Server。
 
 
 # 服务定义 (SoftEther VPN Server)
-SVC_SEVPNSERVER_NAME			sevpnserver
-SVC_SEVPNSERVER_TITLE			SoftEther VPN Server
-SVC_SEVPNSERVER_DESCRIPT		它管理 SoftEther VPN Server 服务进程。SoftEther VPN Server 通过 TCP/IP 协议提供高性能 SoftEther VPN Server 功能。当此服务被停止时，此计算机上的 SoftEther VPN Client 也将停止，且 SoftEther VPN Client 将无法与此计算机建立 VPN 连接。
+SVC_SEVPNSERVERDEV_NAME			sevpnserverdev
+SVC_SEVPNSERVERDEV_TITLE			SoftEther VPN Server Developer Edition
+SVC_SEVPNSERVERDEV_DESCRIPT		它管理 SoftEther VPN Server 服务进程。SoftEther VPN Server 通过 TCP/IP 协议提供高性能 SoftEther VPN Server 功能。当此服务被停止时，此计算机上的 SoftEther VPN Client 也将停止，且 SoftEther VPN Client 将无法与此计算机建立 VPN 连接。
 
 
 # 服务定义 (SoftEther VPN Bridge)
-SVC_SEVPNBRIDGE_NAME			sevpnbridge
-SVC_SEVPNBRIDGE_TITLE			SoftEther VPN Bridge
-SVC_SEVPNBRIDGE_DESCRIPT		它管理 SoftEther VPN Bridge 服务进程。SoftEther VPN Bridge 提供此计算机连接的网络与远程 SoftEther VPN Server 之间的连接。当此服务被停止时，此计算机上的 SoftEther VPN Bridge 也将停止，且无法再通过网桥连接进行通信。
+SVC_SEVPNBRIDGEDEV_NAME			sevpnbridgedev
+SVC_SEVPNBRIDGEDEV_TITLE			SoftEther VPN Bridge Developer Edition
+SVC_SEVPNBRIDGEDEV_DESCRIPT		它管理 SoftEther VPN Bridge 服务进程。SoftEther VPN Bridge 提供此计算机连接的网络与远程 SoftEther VPN Server 之间的连接。当此服务被停止时，此计算机上的 SoftEther VPN Bridge 也将停止，且无法再通过网桥连接进行通信。
 
 
 # 服务定义 (SoftEther VPN User-mode Router)
 SVC_VPNROUTER_NAME		vpnrouter
-SVC_VPNROUTER_TITLE		SoftEther VPN Router
+SVC_VPNROUTER_TITLE		SoftEther VPN Router Developer Edition
 SVC_VPNROUTER_DESCRIPT	这是用来管理 SoftEther VPN 路由器(服务模式)的服务器进程。 SoftEther VPN 的路由器是一个程序，它提供了一个虚拟 NAT 和 DHCP 服务器，在用户模式下运行，通过使用简单的操作，它可以建立一个在虚拟 IP 网络和一个物理 IP 网络之间的安全连接。如果此服务被停止，在这台电脑上的 SoftEther VPN 路由器将停止， SoftEther VPN Client 将无法在这台电脑上使用路由服务。
 
 
 # サービス定義 (EtherLogger)
 SVC_ELOGSVC_NAME		elogsvc
-SVC_ELOGSVC_TITLE		SoftEther EtherLogger
+SVC_ELOGSVC_TITLE		SoftEther EtherLogger Developer Edition
 SVC_ELOGSVC_DESCRIPT	SoftEther EtherLogger 是一个捕捉从局域网卡连接到电脑上数据流的服务，保存由管理员指定类型的数据包的包头日志，所有数据以文本文件格式。
 
 
 #关于 SoftEther VPN Server 管理器
-SM_TITLE					SoftEther VPN Server 管理器
+SM_TITLE					SoftEther VPN Server 管理器 Developer Edition
 SM_LOCALHOST				本地主机 (此服务器)
 SM_SERVER_BRIDGE_TITLE		管理 VPN Bridge "%S"
 SM_S_VHUB_BRIDGE			当使用 VPN Bridge 时，管理虚拟 HUB“BRIDGE”运行 VPN Bridge 的管理。
@@ -1218,7 +1219,7 @@ CM_EDIT_HUB_2				%S 的属性
 
 CM_EDIT_HUB_STANDALONE		当前，服务器正以独立模式运行。而该虚拟 HUB 作为一个独立的 HUB 运行。
 CM_EDIT_HUB_TYPE_FIXED		当前，服务器正以群集模式运行。如果虚拟 HUB 处于这种模式，动态变化将无法进行。
-CM_EDIT_HUB_CREATER			一个新的虚拟 HUB "%S" 已经建立
+CM_EDIT_HUB_CREATED			一个新的虚拟 HUB "%S" 已经建立
 CM_OFFLINE_MSG				你想切换 "%s" 到离线状态?\r\n\r\n如果您切换虚拟 HUB 至离线状态，当前连接到虚拟 HUB 上的所有会话将无法连接。
 CM_DELETE_HUB_MSG			你想删除"%S"吗?\r\n\r\n如果你删除虚拟 HUB，当前连接到虚拟 HUB 的所有会话将被断开，新的会话将无法连接。\r\n这还将删除所有 HUB 设置，用户对象，组对象，证书和级联连接。\r\n\r\n一旦你将虚拟 HUB 删除，将无法恢复。\r\n你确定要删除吗?
 CM_HUB_DELETED_MSG			虚拟 HUB "%S" 被删除。
@@ -1374,7 +1375,7 @@ SM_EDIT_USER_POL_DLG		用户 %S 的安全策略
 SM_POLICY_DEF_CAPTION		安全策略
 SM_LIMIT_STR				指定一个在 %u 与 %u 之间的整数。
 SM_POLICY_INIT_TITLE		从左边的列表中选择一个策略项目。
-SM_USER_CREEATE_OK			用户 %S 已创建。
+SM_USER_CREATE_OK			用户 %S 已创建。
 SM_USERINFO_CAPTION			用户 "%S" 的信息
 SM_USERINFO_NAME			用户名
 SM_USERINFO_GROUP			组名
@@ -1654,7 +1655,7 @@ SM_DDNS_OK_MSG2		动态 DNS 主机名被更改为'%S'。\r\n\r\n单击提示读�
 SM_DDNS_KEY_TITLE		动态 DNS 密钥
 SM_DDNS_KEY_MSG			动态 DNS 密钥: %s\r\n\r\n此密钥与当前的 DDNS 名称相关联。如果你的 VPN 服务器电脑损坏，丢失了密钥，当前的 DDNS 名称将被永远占用，且其他 VPN 服务器将无法使用相同的名称。\r\n如果你想继续使用相同的名称，请在互联网服务上、或另一台电脑上、或在便笺纸上保留密钥。\r\n当在新的 VPN 服务器设置密钥时，编辑 VPN 服务器的配置文件。请在 "declare DDnsClient" 指令下，用跟随 "byte Key" 的值替换​字符串的密钥。\r\n请不要同时在两个或多个 VPN 服务器上设置相同的密钥。
 SM_DDNS_KEY_ERR			无法读取 DNS 密钥。
-SM_IPSEC_PSK_TOO_LONG		预共享密钥(PSK)有 10 个或更多的字母。\r\n\r\n据报道谷歌安卓的几个版本有一个 10 个或更多字母作为预共享密钥的严重故障。\r\n因此 9 个或少于 9 个字母被推荐作为预共享密钥。\r\n\r\n您要修改预共享密钥吗？
+SM_IPSEC_PSK_TOO_LONG		预共享密钥(PSK)有 10 个或更多的字母。\r\n\r\n据报道谷歌安卓的几个版本有一个 10 个或更多字母作为预共享密钥的严重故障。\r\n因此 9 个或少于 9 个字母被推荐作为预共享密钥。\r\n\r\n您要尝试其他预共享密钥吗？
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	如何使用高级 HTTP 重定向功能
 SM_ADVANCED_REDIRECT_URL_HINT	高级 HTTP 重定向(为专家)\r\n\r\n此字符串“<INFO>”是一个占位符。它可以嵌入重定向的 URL 中。\r\n\r\n嵌入 URL 示例：\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\n当客户端将被重定向，重定向的实际 URL 目的地将被取代如下。\r\n\r\n用户名|会话ID|IP 地址|日期和时间|哈希值\r\n\r\n替换后示例：zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\n各字段的详情描述如下。\r\n\r\n用户名：当前 VPN 会话的用户名将被放置。\r\n\r\n会话ID：VPN 会话的会话 ID 将被放置\r\n\r\n日期和时间：14 位数字将以'YYYYMMDDHHMMSS’格式放置(时区是 UTC)\r\n\r\n哈希值：代表 20 个字节二进制数据的一个 40 字符的十六进制字符串。二进制数据是 SHA-1 哈希函数至临时字符串的结果。在重定向 URL 中“|”符号后，临时字符串是上述字段的位阵列加上秘密字符串的结合。(在上面的例子中，“秘密”是秘密字符串)。如果在 URL 中没有“|”符号，没有哈希值将被添加。\r\n\r\n哈希值的目的：秘密字符串如密钥般有效。感谢密钥。在重定向 URL 中接收重定向查询字符串的 CGI 程序，可以验证包含在 URL 中参数的完整性。\r\n
 SM_ADVANCED_REDIRECT_URL_MSG	URL 必须以“http://”或“https://”开始
@@ -1810,6 +1811,9 @@ LO_PREFIX_CHANNEL		OpenVPN 会话%u (%r:%u -> %r:%u) 通道 %u:
 LO_NEW_CHANNEL			已创创建一个新通道。
 LO_CHANNEL_ESTABLISHED_NEWKEY	通道已建立。(触发器: Re-key完成。)
 LO_OPTION_STR_RECV		接收到的选项字符串："%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		发送选项字符串："%S"
 LO_NEW_SESSION			已创建新的会话。协议：%S
 LO_INITIATE_REKEY			re-keying 进程已开始。
@@ -1906,6 +1910,7 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为 RADIUS 身份验证或 Active Directory 身份验证 (NT 域验证)。然而，这样一个外部用户身份验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为证书认证。然而，证书验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
@@ -2085,8 +2090,8 @@ LC_SET_PASSWORD				连接到客户端服务的密码设置已变更。
 LC_TAP_NOT_FOUND			无法找到 tun/tap 的 Mac OS X 驱动。请安装 tun/tap 驱动。
 
 #(删除日志)
-LE_START					正在监控目录 "%S"。如果可用磁盘空间变得小于 %S，此目录和其子目录下的日志文件和配置文件的备份文件将按照从旧到新的顺序被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeletCheckDiskFreeSpaceMin”项目中修改。
-LE_DELETE					可用磁盘空间已小于 %S，因此旧文件 "%S" 被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeletCheckDiskFreeSpaceMin”项目中修改。
+LE_START					正在监控目录 "%S"。如果可用磁盘空间变得小于 %S，此目录和其子目录下的日志文件和配置文件的备份文件将按照从旧到新的顺序被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeleteCheckDiskFreeSpaceMin”项目中修改。
+LE_DELETE					可用磁盘空间已小于 %S，因此旧文件 "%S" 被自动删除。决定何时开始删除的可用磁盘空间大小，可以在配置文件的“AutoDeleteCheckDiskFreeSpaceMin”项目中修改。
 LE_NOT_ENOUGH_FREE			<<警告>> 如果可用磁盘空间小于 %S，将不能自动删除日志文件和配置文件的旧备份文件。我们建议您即刻从次计算机上手动删除不必要的文件来恢复可用磁盘空间。当可用磁盘空间过小时，计算机运行将被变得不稳定。
 
 # (三层交换机日志)
@@ -2447,8 +2452,8 @@ STATIC7						保持互联网连接功能(&K)
 
 
 PREFIX						D_ABOUT
-S_INFO1					SoftEther VPN %u.0 (Ver %u.%02u, Build %u)
-S_INFO2				An Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
+S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				此 VPN 服务器作为的一个学术研究且由 (http://www.softether.org/) 为公众利益免费发布的。本软件是日本筑波大学 SoftEther 项目下开发的免费软件，无任何担保。开发人员、版权所有者或分销商在任何情况下对于使用本软件的任何索赔、损害赔偿或其他情况不承担责任。\r\n\r\nSoftEther VPN 是日本政府的研究和开发项目的一项工作，由日本的经济、贸易和工业部资助，由信息化推进机构管理。
 IDCANCEL				确定(&O)
@@ -2492,7 +2497,7 @@ S_STATIC					※注意: 如果认证类型是 RADIUS 或 NT 域认证，您不�
 
 
 PREFIX						D_SM_MAIN
-CAPTION						SoftEther VPN Server 管理器
+CAPTION						SoftEther VPN Server 管理器 Developer Edition
 STATIC1						SoftEther VPN Server 连接设置(&S):
 STATIC2						VPN Server 或 VPN Bridge 的连接设置被定义如下。双击该项以连接到服务端。\r\n要添加新连接，单击“新设置”。
 B_NEW_SETTING				新设置(&N)
@@ -3226,7 +3231,7 @@ IDCANCEL					关闭(&X)
 
 PREFIX						D_EM_ADD
 STATIC1						用于捕获的网络适配器名称(&L):
-R_PROMISCUS					捕获时不要使用混杂模式(&N)
+R_PROMISCUOUS					捕获时不要使用混杂模式(&N)
 STATIC2						数据包日志 (&P) :
 S_PACKET					日志文件切换周期 (&W) :
 S_PACKET_0					TCP 连接日志:
@@ -3741,7 +3746,7 @@ B_VGS						VPN 和门户服务设置 (&G)...
 
 
 PREFIX						D_CM_EASY
-CAPTION						SoftEther VPN Client 简易管理器
+CAPTION						SoftEther VPN Client 简易管理器 (Developer Edition)
 B_MODE						切换运行模式(&M)
 IDCANCEL					关闭(&C)
 B_STATUS					查看连接模式(&S)
@@ -3749,8 +3754,8 @@ B_VGC						VPN Gate 学术项目
 
 
 PREFIX						D_SM_SETUP
-CAPTION						SoftEther VPN Server / Bridge 简单安装
-S_TITLE						SoftEther VPN Server / Bridge 简单安装
+CAPTION						SoftEther VPN Server / Bridge 简单安装 (Developer Edition)
+S_TITLE						SoftEther VPN Server / Bridge 简单安装 (Developer Edition)
 IDC_STATIC_1				通过使用此安装，您可以为以下使用和目的轻松地安装 SoftEther VPN Server 或 VPN Bridge。退出安装后，您可以使用 VPN Server 管理器自由配置更高级的设置。
 S_BOLD						选择你要构建的 VPN Server 类型。可以一起选择多种类型。
 C_REMOTE					远程访问 VPN Server (&R)
@@ -4071,7 +4076,7 @@ CAPTION					升级提示的配置
 S_INFO					当新版本将要发布时，请定期查询 %s 的新版本和弹出提示窗口。\r\n\r\nHTTPS 数据包将会用在本电脑和位于日本驻波的 SoftEther 升级服务器之间，用于查询有无升级信息。个人信息不会外泄。
 S_TITLE					%s 升级以及提示设置
 S_ENABLE				启用升级查询(&E)
-S_DISBLE				禁用升级查询(&D)
+S_DISABLE				禁用升级查询(&D)
 IDCANCEL				关闭(&C)
 
 
@@ -4305,13 +4310,13 @@ CON_INFILE_START			在文件 "%s" 中写入命令将被使用代替键盘输入�
 CON_OUTFILE_START			该消息输出到控制台将被保存在文件 "%s"。
 CON_USER_CANCEL				[EOF]
 CON_UNKNOWN_CMD				"%S": 命令未找到。\n您可以使用 "HELP" 命令来查看一个可用的命令列表。
-CON_AMBIGIOUS_CMD			"%S": 命令名称是模糊的。
-CON_AMBIGIOUS_CMD_1			指定的命令名称匹配以下多个命令:
-CON_AMBIGIOUS_CMD_2			请更严格地重新指定命令名称。
+CON_AMBIGUOUS_CMD			"%S": 命令名称是模糊的。
+CON_AMBIGUOUS_CMD_1			指定的命令名称匹配以下多个命令:
+CON_AMBIGUOUS_CMD_2			请更严格地重新指定命令名称。
 CON_INVALID_PARAM			参数 "/%S" 已被指定。使用命令 "%S" 时，不可能指定此参数。输入 "%S /HELP" 来看被使用的参数清单。
-CON_AMBIGIOUS_PARAM			"/%S": 参数名称是不明确的。
-CON_AMBIGIOUS_PARAM_1		指定的参数名称符合以下，被指定的做为命令 "%S" 参数的参数:
-CON_AMBIGIOUS_PARAM_2		请更严格地重新指定参数名称。
+CON_AMBIGUOUS_PARAM			"/%S": 参数名称是不明确的。
+CON_AMBIGUOUS_PARAM_1		指定的参数名称符合以下，被指定的做为命令 "%S" 参数的参数:
+CON_AMBIGUOUS_PARAM_2		请更严格地重新指定参数名称。
 
 
 # 不明命令
@@ -4334,7 +4339,7 @@ CMD_HELP_DESCRIPTION		[目的]
 CMD_HELP_USAGE				[使用方法]
 CMD_HELP_HELP				[说明]
 CMD_HELP_ARGS				[参数]
-CMD_PROPMT_PORT				输入端口号: 
+CMD_PROMPT_PORT				输入端口号: 
 CMD_EVAL_PORT				端口号无效。指定一个范围是 1 到 65535 的端口号。
 CMD_CT_STD_COLUMN_1			项目
 CMD_CT_STD_COLUMN_2			价值
@@ -4435,7 +4440,7 @@ CMD_DISCONNECTED_MSG		\n---Error---\n\n与您正管理的主机通信会话被�
 
 
 # VPN CMD 命令
-CMD_VPNCMD					SoftEther VPN 命令行管理工具
+CMD_VPNCMD					SoftEther VPN Developer Edition 命令行管理工具
 CMD_VPNCMD_HELP				“vpncmd ”程序是一个允许您通过使用命令行来管理 SoftEther VPN 软件的实用工具。通过使用 vpncmd，您可以连接到运行在本地或远程计算机的 VPN Client，VPN Server 或 VPN Bridge 并管理它们。此外，通过使用 VPN 工具模式，您可以调用网络传输速度测试工具和证书创建功能。即使不连接到 VPN Server 或 VPN Client，vpncmd 也是可以使用的。\n当使用 vpncmd 时，如果文件名是通过使用 /IN 和 /OUT 参数指定的，该命令就可以根据一个文件被批量执行。该文件列举了可执行命令的文件和执行结果可以被写入文件中。通常，vpncmd 启动后命令提示符会出现，但是，当用 /IN 参数指定一个输入文件时，在输入文件的所有行执行完成后，该程序将自动终止。此外，当指定 /CMD 参数来执行一个命令时，在命令执行完成后，程序将自动终止。您不能同时刻指定 /IN 参数和 /CMD 参数。vpncmd 程序的终止代码将是最后执行命令的错误代码 (在成功执行的情况下是 0)。在 Windows 环境下，当具有管理员权限的用户一次或多次启动 vpncmd 时，有可能只需输入 "vpncmd" 到 Windows 命令提示符或 [运行...] Windows 启动 vpncmd。为了在 UNIX 系统下得到同样的结果，您可以手动设置，PATH 环境是可变的。
 CMD_VPNCMD_ARGS				vpncmd [host:port] [/CLIENT|/SERVER|/TOOLS] [/HUB:hub] [/ADMINHUB:adminhub] [/PASSWORD:password] [/IN:infile] [/OUT:outfile] [/CMD commands...]
 CMD_VPNCMD_[host:port]		通过指定格式的参数 [主机名:端口号]，可自动连接到主机。如果这是没有指定的，会出现一个提示让输入连接目的地。当连接到一个 VPN Client，您不能指定一个端口号。
@@ -4456,7 +4461,7 @@ CMD_VPNCMD_HOST_2			指定的主机名或正在运行的目标 VPN Client 计算
 CMD_VPNCMD_HOST_3			目标 IP 地址的主机名:
 CMD_VPNCMD_HUB_1			如果通过虚拟 HUB 管理模式连接到服务器，请输入虚拟 HUB 的名称。\n如果通过服务器管理模式连接，无须输入任何内容请按回车键。\n
 CMD_VPNCMD_HUB_2			指定虚拟 HUB 名称:
-CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
 CMD_VPNCMD_PASSWORD_1		访问被拒绝。可能是密码不正确，或者是您以不正确的管理模式连接。您可以尝试再次输入密码。要取消，请按 Ctrl + D。
 CMD_VPNCMD_PASSWORD_2		密码: 
 CMD_VPNCMD_ERROR			发生错误。(错误代码: %u)\n%s
@@ -5397,7 +5402,7 @@ CMD_CascadePolicySet_VALUE	设定协议的新值，如果协议是数值，请�
 CMD_CascadePolicySet_PROMPT_POLNAME	更改值得协议的名称: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	设置新值: 
 CMD_CascadePolicySet_Invalid_Name	指定的协议名称 "%S" 是无效的。\n请运行 PolicyList 命令，您可以获取设置协议的清单。
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	指定协议 "%S" 在设置级联的安全协议时不可用。
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	指定协议 "%S" 在设置级联的安全协议时不可用。
 CMD_CascadePolicySet_Invalid_Range	协议 "%S" 请在 %s 范围内选定。
 
 
@@ -6750,7 +6755,7 @@ CMD_AccountRetrySet_[name]	指定要更改设置的连接设置名。
 CMD_AccountRetrySet_NUM		指定连续进行重新连接的次数。 如指定 "999"，重试次数为无限次 (永久连接)。如指定 "0"，不进行重新连接。
 CMD_AccountRetrySet_INTERVAL	重新进行连接时，设置距离上次断开或连接失败后需多少秒开始重新连接处理。
 CMD_AccountRetrySet_PROMPT_NUM	重新连接次数 ("999" 为无限次): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	重新连接间隔 (秒): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	重新连接间隔 (秒): 
 CMD_AccountRetrySet_EVAL_INTERVAL	请指定 5 秒以上的重新连接间隔。
 
 
@@ -6947,7 +6952,7 @@ CMD_Check_Args				Check
 
 # 关于系统 checker
 # (包含着一部分奇怪的字符串,不过，是检测字符编码变换用的)
-CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 运行环境检查工具\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 运行环境检查工具\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
 CHECK_NOTE					如果运行了此运行环境检测工具的系统通过了测试，SoftEther VPN 软件有较高的运行可能性。检测可能需要一定的时间。请稍候...\n\n
 CHECK_EXEC_TAG				'%s' 的检测中...\n
 CHECK_PASS					[合格] ○
@@ -6971,7 +6976,7 @@ CHECK_PROC_NETWORK			网络系统
 #                                                    #
 ######################################################
 
-SW_TITLE				SoftEther VPN 安装向导 (版本 %S)
+SW_TITLE				SoftEther VPN Developer Edition 安装向导 (版本 %S)
 SW_EXIT_CONFIRM			SoftEther VPN 的安装未完成。\r\n\r\n您确定要退出吗？
 SW_UNINSTALL_CONFIRM	开启%s卸载程序。\r\n\r\n您确定要继续吗？
 
@@ -6991,7 +6996,7 @@ SW_COMPONENT_VPNSMGR_DESCRIPTION			安装的只有 VPN Server 管理工具。不
 SW_COMPONENT_VPNCMGR_TITLE					SoftEther VPN Client 管理工具(仅限管理工具)
 SW_COMPONENT_VPNCMGR_DESCRIPTION			安装的只有 VPN Client 管理工具。不会安装 VPN Client 服务程序。您可以在 Windows 或 Linux 的系统上使用此 VPN Client 管理工具进行连接和管理远程的 VPN Client 。
 
-SW_WELCOME_TITLE					欢迎来到 SoftEther VPN 安装向导
+SW_WELCOME_TITLE					欢迎来到 SoftEther VPN Developer Edition 安装向导
 SW_MODE_TITLE						选择一个安装模式
 SW_NOT_ADMIN_TITLE					没有足够权限
 SW_COMPONENTS_TITLE					选择安装一个软件部分
@@ -7077,7 +7082,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT		在简单安装工具中的导入嵌入的 VPN
 SW_PERFORM_MSG_DELETE_SETUP_INFO		删除安装信息和日志...
 SW_PERFORM_MSG_WRITE_LOG				写入一个设置日志...
 SW_PERFORM_MSG_COPY_ERROR				复制文件 "%s" 失败。
-SW_PERFORM_MSG_CRAETE_LINK_ERROR		创建快捷方式文件 "%s" 失败。\r\n\r\n您要重试吗？
+SW_PERFORM_MSG_CREATE_LINK_ERROR		创建快捷方式文件 "%s" 失败。\r\n\r\n您要重试吗？
 SW_PERFORM_MSG_WRITE_LOG_ERROR			安装日志文件 "%s" 创建中。\r\n\r\n您要重试吗？
 SW_PERFORM_MSG_STOP_SVC_ERROR			关闭 "%s" 服务(内部名: "%S")失败。
 SW_PERFORM_MSG_START_SVC_ERROR			开启 "%s" 服务(内部名: "%S")失败。
@@ -7112,39 +7117,39 @@ SW_RUN_TEXT_VPNCMGR					开启 SoftEther VPN Client 管理工具.
 SW_NIC_UNINSTALL						SoftEther VPN 客户端的虚拟网络适配器已在系统上创建。\r\n你要删除这些虚拟网络适配器?
 
 # --- Do not translate this section !!! stay them in English !!! ---
-SW_TAG_USERNAME_ENGLISH					\ (User-Mode)
-SW_LINK_NAME_VPNSERVER_SVC				SoftEther VPN Server User-mode Service
-SW_LINK_NAME_VPNBRIDGE_SVC				SoftEther VPN Bridge User-mode Service
-SW_LONG_VPNSERVER						SoftEther VPN Server
-SW_LONG_VPNCLIENT						SoftEther VPN Client
-SW_LONG_VPNBRIDGE						SoftEther VPN Bridge
-SW_LONG_VPNSMGR						SoftEther VPN Server Manager
-SW_LONG_VPNCMGR						SoftEther VPN Client Manager
-SW_LANG_SET_FAILED						Failed to write the new language setting on lang.config file.
+SW_TAG_USERNAME_ENGLISH						\ (User-Mode)
+SW_LINK_NAME_VPNSERVER_SVC					SoftEther VPN Server Developer User-mode Service
+SW_LINK_NAME_VPNBRIDGE_SVC					SoftEther VPN Bridge Developer User-mode Service
+SW_LONG_VPNSERVER							SoftEther VPN Server Developer Edition
+SW_LONG_VPNCLIENT							SoftEther VPN Client Developer Edition
+SW_LONG_VPNBRIDGE							SoftEther VPN Bridge Developer Edition
+SW_LONG_VPNSMGR								SoftEther VPN Server Manager Developer Edition
+SW_LONG_VPNCMGR								SoftEther VPN Client Manager Developer Edition
+SW_LANG_SET_FAILED							Failed to write the new language setting on lang.config file.
 # --- end of "Do not translate this section" ---
 
 
 # 快捷方式文件名
-SW_LINK_NAME_VPNSMGR_SHORT				SoftEther VPN Server 管理工具
-SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (User)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Tools)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (User)
-SW_LINK_NAME_VPNSMGR_FULL				SoftEther VPN Server 管理工具
+SW_LINK_NAME_VPNSMGR_SHORT				SoftEther VPN Server 管理工具 (Dev)
+SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (Dev User)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Dev Tools)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (Dev User Tools)
+SW_LINK_NAME_VPNSMGR_FULL				SoftEther VPN Server 管理工具 Developer Edition
 SW_LINK_NAME_VPNSMGR_COMMENT			您在一个远程计算机上可以管理 SoftEther VPN Server 或者 SoftEther VPN Bridge 端。
 
-SW_LINK_NAME_VPNCMGR_SHORT				SoftEther VPN Client 管理工具
-SW_LINK_NAME_VPNCMGR_FULL				SoftEther VPN Client 管理工具
+SW_LINK_NAME_VPNCMGR_SHORT				SoftEther VPN Client 管理工具 (Dev)
+SW_LINK_NAME_VPNCMGR_FULL				SoftEther VPN Client 管理工具 Developer Edition
 SW_LINK_NAME_VPNCMGR_COMMENT			您可以通过使用 SoftEther VPN Client 连接到 VPN Server。
 
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT		SoftEther VPN Client 远程管理工具
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (User)
-SW_LINK_NAME_VPNCMGRTOOLS_FULL			SoftEther VPN Client 远程管理工具
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT		SoftEther VPN Client 远程管理工具 (Dev)
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (Dev User)
+SW_LINK_NAME_VPNCMGRTOOLS_FULL			SoftEther VPN Client 远程管理工具 Developer Edition
 
 SW_LINK_NAME_VPNCMGR2_FULL				管理远程电脑上的 SoftEther VPN Client
 SW_LINK_NAME_VPNCMGR2_COMMENT			您可以建立一个远程连接来管理远程电脑上的 SoftEther VPN Client 。
 
-SW_LINK_NAME_VPNCMGRTRAY_FULL			SoftEther VPN Client 管理工具启动菜单
-SW_LINK_NAME_VPNCMGRTRAY_COMMENT		在任务栏的通知区域注册一个 SoftEther VPN Client 图标。
+SW_LINK_NAME_VPNCMGRTRAY_FULL			SoftEther VPN Client Manager Developer Edition Startup
+SW_LINK_NAME_VPNCMGRTRAY_COMMENT		在任务栏的通知区域注册一个 SoftEther VPN Client Developer Edition图标。
 
 SW_LINK_NAME_EASYINSTALLER				简单安装工具创建工具
 SW_LINK_NAME_EASYINSTALLER_COMMENT		为公司系统管理员创建 SoftEther VPN Client 简单安装工具的工具，有自动快速启动到指定目标 VPN 连接的功能。

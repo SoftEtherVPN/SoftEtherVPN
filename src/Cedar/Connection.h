@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -352,7 +352,7 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts);
 void DisconnectUDPSockets(CONNECTION *c);
 void PutUDPPacketData(CONNECTION *c, void *data, UINT size);
 void SendDataWithUDP(SOCK *s, CONNECTION *c);
-void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock);
+void InsertReceivedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock);
 void InitTcpSockRc4Key(TCPSOCK *ts, bool server_mode);
 UINT TcpSockRecv(SESSION *s, TCPSOCK *ts, void *data, UINT size);
 UINT TcpSockSend(SESSION *s, TCPSOCK *ts, void *data, UINT size);
@@ -372,7 +372,3 @@ UINT GetMachineRand();
 
 
 #endif	// CONNECTION_H
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

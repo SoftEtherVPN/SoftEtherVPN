@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -137,7 +137,7 @@ void SstpProcessControlPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 		return;
 	}
 
-	Debug("SSTP Control Packet Recv: Msg = %u, Num = %u\n", p->MessageType, LIST_NUM(p->AttibuteList));
+	Debug("SSTP Control Packet Recv: Msg = %u, Num = %u\n", p->MessageType, LIST_NUM(p->AttributeList));
 
 	switch (p->MessageType)
 	{
@@ -266,7 +266,7 @@ void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 
 	if (p->IsControl)
 	{
-		Debug("SSTP Control Packet Send: Msg = %u, Num = %u\n", p->MessageType, LIST_NUM(p->AttibuteList));
+		Debug("SSTP Control Packet Send: Msg = %u, Num = %u\n", p->MessageType, LIST_NUM(p->AttributeList));
 	}
 	else
 	{
@@ -438,7 +438,7 @@ SSTP_PACKET *SstpNewControlPacketWithAnAttribute(USHORT message_type, SSTP_ATTRI
 
 	if (a != NULL)
 	{
-		Add(p->AttibuteList, a);
+		Add(p->AttributeList, a);
 	}
 
 	return p;
@@ -452,7 +452,7 @@ SSTP_PACKET *SstpNewControlPacket(USHORT message_type)
 	p->IsControl = true;
 	p->MessageType = message_type;
 	p->Version = SSTP_VERSION_1;
-	p->AttibuteList = NewListFast(NULL);
+	p->AttributeList = NewListFast(NULL);
 
 	return p;
 }
@@ -469,7 +469,7 @@ SSTP_PACKET *SstpNewDataPacket(UCHAR *data, UINT size)
 	return p;
 }
 
-// Get the Attibute with the specified ID from SSTP packet
+// Get the Attribute with the specified ID from SSTP packet
 SSTP_ATTRIBUTE *SstpFindAttribute(SSTP_PACKET *p, UCHAR attribute_id)
 {
 	UINT i;
@@ -479,9 +479,9 @@ SSTP_ATTRIBUTE *SstpFindAttribute(SSTP_PACKET *p, UCHAR attribute_id)
 		return NULL;
 	}
 
-	for (i = 0;i < LIST_NUM(p->AttibuteList);i++)
+	for (i = 0;i < LIST_NUM(p->AttributeList);i++)
 	{
-		SSTP_ATTRIBUTE *a = LIST_DATA(p->AttibuteList, i);
+		SSTP_ATTRIBUTE *a = LIST_DATA(p->AttributeList, i);
 
 		if (a->AttributeId == attribute_id)
 		{
@@ -665,7 +665,7 @@ BUF *SstpBuildPacket(SSTP_PACKET *p)
 			Free(p->Data);
 		}
 
-		ab = SstpBuildAttributeList(p->AttibuteList, p->MessageType);
+		ab = SstpBuildAttributeList(p->AttributeList, p->MessageType);
 		p->Data = ab->Buf;
 		p->DataSize = ab->Size;
 		Free(ab);
@@ -753,9 +753,9 @@ SSTP_PACKET *SstpParsePacket(UCHAR *data, UINT size)
 	if (p->IsControl)
 	{
 		// Parse the Attribute list
-		p->AttibuteList = SstpParseAttributeList(p->Data, p->DataSize, p);
+		p->AttributeList = SstpParseAttributeList(p->Data, p->DataSize, p);
 
-		if (p->AttibuteList == NULL)
+		if (p->AttributeList == NULL)
 		{
 			// Failure of parsing list
 			SstpFreePacket(p);
@@ -794,7 +794,7 @@ LIST *SstpParseAttributeList(UCHAR *data, UINT size, SSTP_PACKET *p)
 	data += sizeof(USHORT);
 	size -= sizeof(USHORT);
 
-	// Attibutes List
+	// Attributes List
 	o = NewListFast(NULL);
 
 	while (LIST_NUM(o) < num)
@@ -874,7 +874,7 @@ SSTP_ATTRIBUTE *SstpParseAttribute(UCHAR *data, UINT size)
 	return a;
 }
 
-// Release the Attibute
+// Release the Attribute
 void SstpFreeAttribute(SSTP_ATTRIBUTE *a)
 {
 	// Validate arguments
@@ -917,9 +917,9 @@ void SstpFreePacket(SSTP_PACKET *p)
 		return;
 	}
 
-	if (p->AttibuteList != NULL)
+	if (p->AttributeList != NULL)
 	{
-		SstpFreeAttributeList(p->AttibuteList);
+		SstpFreeAttributeList(p->AttributeList);
 	}
 
 	if (p->Data != NULL)
@@ -1248,7 +1248,3 @@ bool AcceptSstp(CONNECTION *c)
 	return ret2;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

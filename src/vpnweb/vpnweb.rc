@@ -144,7 +144,7 @@ BEGIN
     IDS_STRING11004         "Failed to download file %S.\r\nInstallation of VPN software aborted."
     IDS_STRING11005         "Invalid file %S. \r\nInstallation of VPN software aborted."
     IDS_STRING11006         "Failed to create temporary file %s."
-    IDS_STRING11007         "Getting data and installing VPN software...\r\nPlease wait.\r\n\r\nAny of your private infomation is not sent to the Internet."
+    IDS_STRING11007         "Getting data and installing VPN software...\r\nPlease wait.\r\n\r\nAny of your private information is not sent to the Internet."
 END
 
 STRINGTABLE 
@@ -152,7 +152,7 @@ BEGIN
     IDS_STRING11008         "Failed to start process %S. Installation of VPN software aborted."
     IDS_STRING11009         "Starting installation of VPN Software."
     IDS_STRING11010         "Installation process finished. Connection process are started correctly.\r\n\r\nYou can now close your browser or move the other pages."
-    IDS_STRING11011         "The automatically downloaded file %S from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file %S is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappered when the file %S is signed by valid code signing certificate authentication."
+    IDS_STRING11011         "The automatically downloaded file %S from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file %S is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappeared when the file %S is signed by valid code signing certificate authentication."
     IDS_STRING11012         "Security Alert"
     IDS_STRING11013         "Installation cancelled by user."
     IDS_STRING11014         "Press [Manage Virtual HUB] button to manage Virtual HUB with VPN Server Manager started."

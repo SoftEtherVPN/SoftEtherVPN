@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -778,7 +778,7 @@ void AddCandidate(LIST *o, wchar_t *str, UINT num_max)
 }
 
 // Comparison of candidates
-int ComapreCandidate(void *p1, void *p2)
+int CompareCandidate(void *p1, void *p2)
 {
 	CANDIDATE *c1, *c2;
 	if (p1 == NULL || p2 == NULL)
@@ -828,7 +828,7 @@ void FreeCandidateList(LIST *o)
 // Creating a new candidate list
 LIST *NewCandidateList()
 {
-	return NewList(ComapreCandidate);
+	return NewList(CompareCandidate);
 }
 
 // Fill a range of memory
@@ -1968,7 +1968,7 @@ bool IsInt64InList(LIST *o, UINT64 i)
 	return false;
 }
 
-// Remove all int from the interger list
+// Remove all int from the integer list
 void DelAllInt(LIST *o)
 {
 	UINT i;
@@ -4313,6 +4313,21 @@ void Copy(void *dst, void *src, UINT size)
 	memcpy(dst, src, size);
 }
 
+// Memory move
+void Move(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || src == NULL || size == 0 || dst == src)
+	{
+		return;
+	}
+
+	// KS
+	KS_INC(KS_COPY_COUNT);
+
+	memmove(dst, src, size);
+}
+
 // Memory comparison
 int Cmp(void *p1, void *p2, UINT size)
 {
@@ -4427,7 +4442,3 @@ void XorData(void *dst, void *src1, void *src2, UINT size)
 		c2++;
 	}
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

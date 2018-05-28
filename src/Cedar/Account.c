@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -850,38 +850,6 @@ void SetUserAuthData(USER *u, UINT authtype, void *authdata)
 	Unlock(u->lock);
 }
 
-// Cumulate group traffic data
-void AddGroupTraffic(USERGROUP *g, TRAFFIC *diff)
-{
-	// Validate arguments
-	if (g == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	Lock(g->lock);
-	{
-		AddTraffic(g->Traffic, diff);
-	}
-	Unlock(g->lock);
-}
-
-// Cumulate user traffic data
-void AddUserTraffic(USER *u, TRAFFIC *diff)
-{
-	// Validate arguments
-	if (u == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	Lock(u->lock);
-	{
-		AddTraffic(u->Traffic, diff);
-	}
-	Unlock(u->lock);
-}
-
 // Set traffic data for group
 void SetGroupTraffic(USERGROUP *g, TRAFFIC *t)
 {
@@ -1212,7 +1180,7 @@ void CleanupUser(USER *u)
 		ReleaseGroup(u->Group);
 	}
 
-	// Free authntication data
+	// Free authentication data
 	FreeAuthData(u->AuthType, u->AuthData);
 
 	if (u->Policy)
@@ -1226,7 +1194,7 @@ void CleanupUser(USER *u)
 	Free(u);
 }
 
-// Free authntication data
+// Free authentication data
 void FreeAuthData(UINT authtype, void *authdata)
 {
 	AUTHPASSWORD *pw = (AUTHPASSWORD *)authdata;
@@ -1448,7 +1416,3 @@ int CompareUserName(void *p1, void *p2)
 	return StrCmpi(u1->Name, u2->Name);
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

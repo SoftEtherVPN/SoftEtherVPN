@@ -129,7 +129,7 @@ NTSTATUS NPF_Open(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
     Open->DeviceExtension=DeviceExtension;
 	
 	
-    //  Save the Irp here for the completeion routine to retrieve
+    //  Save the Irp here for the completion routine to retrieve
     Open->OpenCloseIrp=Irp;
 	
     //  Allocate a packet pool for our xmit and receive packets
@@ -259,7 +259,7 @@ NTSTATUS NPF_Open(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
     //
     //  Try to open the MAC
     //
-    IF_LOUD(DbgPrint("NPF: Openinig the device %ws, BindingContext=%d\n",DeviceExtension->AdapterName.Buffer, Open);)
+    IF_LOUD(DbgPrint("NPF: Opening the device %ws, BindingContext=%d\n",DeviceExtension->AdapterName.Buffer, Open);)
 
 	NdisOpenAdapter(
         &Status,
@@ -675,7 +675,7 @@ NPF_ResetComplete(IN NDIS_HANDLE  ProtocolBindingContext,IN NDIS_STATUS  Status)
 
     PLIST_ENTRY         ResetListEntry;
 
-    IF_LOUD(DbgPrint("NPF: PacketResetComplte\n");)
+    IF_LOUD(DbgPrint("NPF: PacketResetComplete\n");)
 
     Open= (POPEN_INSTANCE)ProtocolBindingContext;
 
@@ -700,7 +700,7 @@ NPF_ResetComplete(IN NDIS_HANDLE  ProtocolBindingContext,IN NDIS_STATUS  Status)
     Irp->IoStatus.Status = STATUS_SUCCESS;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
-    IF_LOUD(DbgPrint("NPF: PacketResetComplte exit\n");)
+    IF_LOUD(DbgPrint("NPF: PacketResetComplete exit\n");)
 
     return;
 

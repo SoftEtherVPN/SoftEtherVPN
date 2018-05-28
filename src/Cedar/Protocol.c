@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -1576,7 +1576,7 @@ bool ServerAccept(CONNECTION *c)
 
 		if (hub->ForceDisableComm)
 		{
-			// Commnunication function is disabled
+			// Communication function is disabled
 			FreePack(p);
 			c->Err = ERR_SERVER_CANT_ACCEPT;
 			error_detail = "ERR_COMM_DISABLED";
@@ -1795,6 +1795,9 @@ bool ServerAccept(CONNECTION *c)
 				case AUTHTYPE_TICKET:
 					authtype_str = _UU("LH_AUTH_TICKET");
 					break;
+				case AUTHTYPE_OPENVPN_CERT:
+					authtype_str = _UU("LH_AUTH_OPENVPN_CERT");
+					break;
 				}
 				IPToStr(ip1, sizeof(ip1), &c->FirstSock->RemoteIP);
 				IPToStr(ip2, sizeof(ip2), &c->FirstSock->LocalIP);
@@ -1848,7 +1851,7 @@ bool ServerAccept(CONNECTION *c)
 						Add(o, "p");
 						Add(o, "guest");
 						Add(o, "anony");
-						Add(o, "anonymouse");
+						Add(o, "anonymous");
 						Add(o, "password");
 						Add(o, "passwd");
 						Add(o, "pass");
@@ -2120,6 +2123,50 @@ bool ServerAccept(CONNECTION *c)
 					{
 						// Certificate authentication is not supported in the open source version
 						HLog(hub, "LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE", c->Name, username);
+						Unlock(hub->lock);
+						ReleaseHub(hub);
+						FreePack(p);
+						c->Err = ERR_AUTHTYPE_NOT_SUPPORTED;
+						goto CLEANUP;
+					}
+					break;
+
+				case AUTHTYPE_OPENVPN_CERT:
+					// For OpenVPN; mostly same as CLIENT_AUTHTYPE_CERT, but without
+					// signature verification, because it was already performed during TLS handshake.
+					if (c->IsInProc)
+					{
+						// Certificate authentication
+						cert_size = PackGetDataSize(p, "cert");
+						if (cert_size >= 1 && cert_size <= 100000)
+						{
+							cert_buf = ZeroMalloc(cert_size);
+							if (PackGetData(p, "cert", cert_buf))
+							{
+								BUF *b = NewBuf();
+								X *x;
+								WriteBuf(b, cert_buf, cert_size);
+								x = BufToX(b, false);
+								if (x != NULL && x->is_compatible_bit)
+								{
+									Debug("Got to SamAuthUserByCert %s\n", username); // XXX
+									// Check whether the certificate is valid.
+									auth_ret = SamAuthUserByCert(hub, username, x);
+									if (auth_ret)
+									{
+										// Copy the certificate
+										c->ClientX = CloneX(x);
+									}
+								}
+								FreeX(x);
+								FreeBuf(b);
+							}
+							Free(cert_buf);
+						}
+					}
+					else
+					{
+						// OpenVPN certificate authentication cannot be used directly by external clients
 						Unlock(hub->lock);
 						ReleaseHub(hub);
 						FreePack(p);
@@ -2901,12 +2948,9 @@ bool ServerAccept(CONNECTION *c)
 			// VLAN ID
 			if (assigned_vlan_id != 0)
 			{
-				if (policy != NULL)
+				if (policy->VLanId == 0)
 				{
-					if (policy->VLanId == 0)
-					{
-						policy->VLanId = assigned_vlan_id;
-					}
+					policy->VLanId = assigned_vlan_id;
 				}
 			}
 
@@ -3099,12 +3143,7 @@ bool ServerAccept(CONNECTION *c)
 			s->Timeout = timeout;
 			s->QoS = qos;
 			s->NoReconnectToSession = no_reconnect_to_session;
-
-
-			if (policy != NULL)
-			{
-				s->VLanId = policy->VLanId;
-			}
+			s->VLanId = policy->VLanId;
 
 			// User name
 			s->Username = CopyStr(username);
@@ -4579,7 +4618,7 @@ void ClientCheckServerCertThread(THREAD *thread, void *param)
 	NoticeThreadInit(thread);
 
 	// Query for the selection to the user
-	p->Ok = p->CheckCertProc(p->Connection->Session, p->Connection, p->ServerX, &p->Exipred);
+	p->Ok = p->CheckCertProc(p->Connection->Session, p->Connection, p->ServerX, &p->Expired);
 	p->UserSelected = true;
 }
 
@@ -4725,7 +4764,7 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
 
 	if (expired != NULL)
 	{
-		*expired = p->Exipred;
+		*expired = p->Expired;
 	}
 
 	ret = p->Ok;
@@ -5187,7 +5226,7 @@ REDIRECTED:
 
 		sess->EnableBulkOnRUDP = false;
 		sess->EnableHMacOnBulkOfRUDP = false;
-		if (s != NULL && s->IsRUDPSocket && s->BulkRecvKey != NULL && s->BulkSendKey != NULL)
+		if (s->IsRUDPSocket && s->BulkRecvKey != NULL && s->BulkSendKey != NULL)
 		{
 			// Bulk transfer on R-UDP
 			if (PackGetBool(p, "enable_bulk_on_rudp"))
@@ -6453,7 +6492,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 	volatile bool *cancel_flag = NULL;
 	void *hWnd;
 	UINT nat_t_err = 0;
-	bool is_additonal_rudp_session = false;
+	bool is_additional_rudp_session = false;
 	UCHAR uc = 0;
 	IP ret_ip;
 	// Validate arguments
@@ -6469,7 +6508,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 	if (sess != NULL)
 	{
 		cancel_flag = &sess->CancelConnect;
-		is_additonal_rudp_session = sess->IsRUDPSession;
+		is_additional_rudp_session = sess->IsRUDPSession;
 	}
 
 	hWnd = c->hWndForUI;
@@ -6513,7 +6552,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				// If additional_connect == false, enable trying to NAT-T connection
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
-					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additonal_rudp_session) : false),
+					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additional_rudp_session) : false),
 					true, no_tls, &ret_ip);
 			}
 		}
@@ -6652,7 +6691,10 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL
 		|| server_port == 0)
 	{
-		c->Err = ERR_PROXY_CONNECT_FAILED;
+		if (c != NULL)
+		{
+			c->Err = ERR_PROXY_CONNECT_FAILED;
+		}
 		return NULL;
 	}
 
@@ -6846,7 +6888,10 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL ||
 		server_port == 0)
 	{
-		c->Err = ERR_PROXY_CONNECT_FAILED;
+		if( c != NULL)
+		{
+			c->Err = ERR_PROXY_CONNECT_FAILED;
+		}
 		return NULL;
 	}
 	if (username != NULL && password != NULL &&
@@ -7241,6 +7286,46 @@ PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_pass
 	return p;
 }
 
+// Generate a packet of OpenVPN certificate login
+PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
+{
+	PACK *p;
+	char cn_username[128];
+	BUF *cert_buf = NULL;
+	// Validate arguments
+	if (hubname == NULL || username == NULL || x == NULL)
+	{
+		return NULL;
+	}
+
+	p = NewPack();
+	PackAddStr(p, "method", "login");
+	PackAddStr(p, "hubname", hubname);
+
+	if (IsEmptyStr(username))
+	{
+		if (x->subject_name == NULL)
+		{
+			return NULL;
+		}
+		wcstombs(cn_username, x->subject_name->CommonName, 127);
+		cn_username[127] = '\0';
+		PackAddStr(p, "username", cn_username);
+	}
+	else
+	{
+		PackAddStr(p, "username", username);
+	}
+
+	PackAddInt(p, "authtype", AUTHTYPE_OPENVPN_CERT);
+
+	cert_buf = XToBuf(x, false);
+	PackAddBuf(p, "cert", cert_buf);
+	FreeBuf(cert_buf);
+
+	return p;
+}
+
 // Create a packet of password authentication login
 PACK *PackLoginWithPassword(char *hubname, char *username, void *secure_password)
 {
@@ -7311,7 +7396,3 @@ void GenerateRC4KeyPair(RC4_KEY_PAIR *k)
 	Rand(k->ServerToClientKey, sizeof(k->ServerToClientKey));
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

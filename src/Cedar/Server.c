@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -159,11 +159,11 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 		{
 			if (s->DisableOpenVPNServer)
 			{
-				OvsApplyUdpPortList(s->OpenVpnServerUdp, "");
+				OvsApplyUdpPortList(s->OpenVpnServerUdp, "", NULL);
 			}
 			else
 			{
-				OvsApplyUdpPortList(s->OpenVpnServerUdp, s->OpenVpnServerUdpPorts);
+				OvsApplyUdpPortList(s->OpenVpnServerUdp, s->OpenVpnServerUdpPorts, &s->ListenIP);
 			}
 		}
 	}
@@ -923,7 +923,11 @@ void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 
 	// Date and time
 	LocalTime(&st);
-	GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
+	if(s->StrictSyslogDatetimeFormat){
+		GetDateTimeStrRFC3339(datetime, sizeof(datetime), &st, GetCurrentTimezone());
+	}else{
+		GetDateTimeStrMilli(datetime, sizeof(datetime), &st);
+	}
 
 	if (IsEmptyStr(hubname) == false)
 	{
@@ -935,6 +939,8 @@ void SiWriteSysLog(SERVER *s, char *typestr, char *hubname, wchar_t *message)
 		UniFormat(tmp, sizeof(tmp), L"[%S/VPN] (%S) <%S>: %s",
 			machinename, datetime, typestr, message);
 	}
+
+	Debug("Syslog send: %S\n",tmp);
 
 	SendSysLog(s->Syslog, tmp);
 }
@@ -1033,24 +1039,6 @@ void GetServerProductNameInternal(SERVER *s, char *name, UINT size)
 		StrCpy(name, size, CEDAR_SERVER_STR);
 	}
 #endif	// BETA_NUMBER
-}
-
-// Adjoin the enumerations of log files
-void AdjoinEnumLogFile(LIST *o, LIST *src)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL || src == NULL)
-	{
-		return;
-	}
-
-	for (i = 0;i < LIST_NUM(src);i++)
-	{
-		LOG_FILE *f = LIST_DATA(src, i);
-
-		Insert(o, Clone(f, sizeof(LOG_FILE)));
-	}
 }
 
 // Check whether the log file with the specified name is contained in the enumerated list
@@ -1353,7 +1341,7 @@ void GetServerCaps(SERVER *s, CAPSLIST *t)
 			GetServerCapsMain(s, s->CapsListCache);
 		}
 
-		Copy(t, s->CapsListCache, sizeof(s->CapsListCache));
+		Copy(t, s->CapsListCache, sizeof(CAPSLIST));
 	}
 	Unlock(s->CapsCacheLock);
 }
@@ -1402,7 +1390,7 @@ UINT GetGlobalServerFlag(UINT index)
 	return global_server_flags[index];
 }
 
-// Main of the aquisition of Caps of the server
+// Main of the acquisition of Caps of the server
 void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 {
 	bool is_restricted = false;
@@ -1570,7 +1558,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// Maximum NAT table size / Virtual HUB
 	AddCapsInt(t, "i_max_secnat_tables", NAT_MAX_SESSIONS);
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);
@@ -1632,7 +1620,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 		AddCapsBool(t, "b_tap_supported", GetOsInfo()->OsType == OSTYPE_LINUX ? true : false);
 	}
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);
@@ -2526,21 +2514,6 @@ void SiInitDefaultHubList(SERVER *s)
 	SiSetDefaultLogSetting(&g);
 	SetHubLogSetting(h, &g);
 
-	{
-		UINT i;
-		for (i = 0;i < 0;i++)
-		{
-			char tmp[MAX_SIZE];
-			USER *u;
-			sprintf(tmp, "user%u", i);
-			AcLock(h);
-			u = NewUser(tmp, L"test", L"", AUTHTYPE_ANONYMOUS, NULL);
-			AcAddUser(h, u);
-			ReleaseUser(u);
-			AcUnlock(h);
-		}
-	}
-
 	ReleaseHub(h);
 }
 
@@ -2806,7 +2779,7 @@ void SiInitConfiguration(SERVER *s)
 		}
 	}
 
-	if (s->DisableDosProction)
+	if (s->DisableDosProtection)
 	{
 		DisableDosProtect();
 	}
@@ -5825,6 +5798,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	}
 
 	s->DontBackupConfig = CfgGetBool(f, "DontBackupConfig");
+	CfgGetIp(f, "ListenIP", &s->ListenIP);
 
 	if (CfgIsItem(f, "BackupConfigOnlyWhenModified"))
 	{
@@ -5916,7 +5890,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		s->Cedar->DisableIPv6Listener = CfgGetBool(f, "DisableIPv6Listener");
 
 		// DoS
-		s->DisableDosProction = CfgGetBool(f, "DisableDosProction");
+		s->DisableDosProtection = CfgGetBool(f, "DisableDosProtection");
 
 		// Num Connections Per IP
 		SetMaxConnectionsPerIp(CfgGetInt(f, "MaxConnectionsPerIP"));
@@ -6047,10 +6021,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		if (CfgGetStr(f, "CipherName", tmp, sizeof(tmp)))
 		{
 			StrUpper(tmp);
-			if (CheckCipherListName(tmp))
-			{
-				SetCedarCipherList(c, tmp);
-			}
+			SetCedarCipherList(c, tmp);
 		}
 
 		// Traffic information
@@ -6177,6 +6148,20 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		c->SslAcceptSettings.Tls_Disable1_0 = CfgGetBool(f, "Tls_Disable1_0");
 		c->SslAcceptSettings.Tls_Disable1_1 = CfgGetBool(f, "Tls_Disable1_1");
 		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
+
+		s->StrictSyslogDatetimeFormat = CfgGetBool(f, "StrictSyslogDatetimeFormat");
+                // Bits of Diffie-Hellman parameters
+		c->DhParamBits = CfgGetInt(f, "DhParamBits");
+		if (c->DhParamBits == 0)
+		{
+			c->DhParamBits = DH_PARAM_BITS_DEFAULT;
+		}
+
+		SetDhParam(DhNewFromBits(c->DhParamBits));
+		if (s->OpenVpnServerUdp)
+		{
+			OpenVpnServerUdpSetDhParam(s->OpenVpnServerUdp, DhNewFromBits(c->DhParamBits));
+		}
 	}
 	Unlock(c->lock);
 
@@ -6279,6 +6264,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 	CfgAddBool(f, "DontBackupConfig", s->DontBackupConfig);
 	CfgAddBool(f, "BackupConfigOnlyWhenModified", s->BackupConfigOnlyWhenModified);
 
+	CfgAddIp(f, "ListenIP", &s->ListenIP);
+
 	if (s->Logger != NULL)
 	{
 		CfgAddInt(f, "ServerLogSwitchType", s->Logger->SwitchType);
@@ -6327,7 +6314,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableIPv6Listener", s->Cedar->DisableIPv6Listener);
 
 		// DoS
-		CfgAddBool(f, "DisableDosProction", s->DisableDosProction);
+		CfgAddBool(f, "DisableDosProtection", s->DisableDosProtection);
 
 		// MaxConnectionsPerIP
 		CfgAddInt(f, "MaxConnectionsPerIP", GetMaxConnectionsPerIp());
@@ -6489,9 +6476,12 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
 		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
 		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);
+		CfgAddInt(f, "DhParamBits", c->DhParamBits);
 
 		// Disable session reconnect
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));
+
+		CfgAddBool(f, "StrictSyslogDatetimeFormat", s->StrictSyslogDatetimeFormat);
 	}
 	Unlock(c->lock);
 }
@@ -10955,8 +10945,6 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	s->Cedar->CheckExpires = true;
 	s->ServerListenerList = NewList(CompareServerListener);
 	s->StartTime = SystemTime64();
-	s->Syslog = NewSysLog(NULL, 0);
-	s->SyslogLock = NewLock();
 	s->TasksFromFarmControllerLock = NewLock();
 
 	if (bridge)
@@ -10987,6 +10975,9 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 
 	// Initialize the configuration
 	SiInitConfiguration(s);
+
+	s->Syslog = NewSysLog(NULL, 0, &s->Cedar->Server->ListenIP);
+	s->SyslogLock = NewLock();
 
 	SetFifoCurrentReallocMemSize(MEM_FIFO_REALLOC_MEM_SIZE);
 
@@ -11067,7 +11058,3 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	return s;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -164,7 +164,7 @@ struct RPC_NAT_STATUS
 	char HubName[MAX_HUBNAME_LEN + 1];			// HUB name
 	UINT NumTcpSessions;						// Number of TCP sessions
 	UINT NumUdpSessions;						// Ntmber of UDP sessions
-	UINT NumIcmpSessions;						// Nymber of ICMP sessions
+	UINT NumIcmpSessions;						// Number of ICMP sessions
 	UINT NumDnsSessions;						// Number of DNS sessions
 	UINT NumDhcpClients;						// Number of DHCP clients
 	bool IsKernelMode;							// Whether kernel mode
@@ -316,7 +316,3 @@ void OutRpcDummy(PACK *p, RPC_DUMMY *t);
 #endif	// NAT_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

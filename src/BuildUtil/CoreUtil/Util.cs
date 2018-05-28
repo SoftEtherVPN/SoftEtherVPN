@@ -255,7 +255,7 @@ namespace CoreUtil
 			return DefaultLanguage;
 		}
 
-		public static CoreLanguageClass GetLangugageClassByEnum(CoreLanguage lang)
+		public static CoreLanguageClass GetLanguageClassByEnum(CoreLanguage lang)
 		{
 			foreach (CoreLanguageClass c in LanguageList)
 			{
@@ -1058,7 +1058,3 @@ namespace CoreUtil
 		public string XsdFileName;
 	}
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

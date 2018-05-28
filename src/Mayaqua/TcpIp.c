@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -174,14 +174,14 @@ ICMP_RESULT *IcmpParseResult(IP *dest_ip, USHORT src_id, USHORT src_seqno, UCHAR
 	if (true)
 	{
 		UINT ip_header_size = GetIpHeaderSize(recv_buffer, i);
-		if (ip_header_size >= sizeof(IPV4_HEADER))
+		if (ip_header_size >= sizeof(IPV4_HEADER) && (ip_header_size <= i))
 		{
 			IPV4_HEADER *ipv4 = (IPV4_HEADER *)recv_buffer;
 			if ((IPV4_GET_VERSION(ipv4) == 4) && (ipv4->Protocol == IP_PROTO_ICMPV4))
 			{
 				UINT ip_total_len = (UINT)Endian16(ipv4->TotalLength);
 
-				if ((ip_total_len >= sizeof(IPV4_HEADER)) && (ip_total_len <= i))
+				if ((ip_total_len >= sizeof(IPV4_HEADER)) && (ip_total_len <= i) && (ip_total_len >= ip_header_size))
 				{
 					UINT icmp_packet_size = ip_total_len - ip_header_size;
 					ICMP_HEADER *icmp = (ICMP_HEADER *)(recv_buffer + ip_header_size);
@@ -669,6 +669,7 @@ bool AdjustTcpMssL3(UCHAR *src, UINT src_size, UINT mss)
 	if (ip_ver == 4)
 	{
 		UINT ip_header_size;
+		UINT ip_total_length;
 		// IPv4
 		if (src_size < sizeof(IPV4_HEADER))
 		{
@@ -709,8 +710,22 @@ bool AdjustTcpMssL3(UCHAR *src, UINT src_size, UINT mss)
 			return false;
 		}
 
+		ip_total_length = READ_USHORT(&ip->TotalLength);
+
+		if (ip_total_length < ip_header_size)
+		{
+			// Invalid total length
+			return false;
+		}
+
+		if (src_size < ip_total_length)
+		{
+			// No total length
+			return false;
+		}
+
 		src += ip_header_size;
-		src_size -= ip_header_size;
+		src_size = ip_total_length - ip_header_size;
 
 		if (src_size < sizeof(TCP_HEADER))
 		{
@@ -1080,7 +1095,7 @@ BUF *BuildICMPv6(IPV6_ADDR *src_ip, IPV6_ADDR *dest_ip, UCHAR hop_limit, UCHAR t
 		return NULL;
 	}
 
-	// Assembe the header
+	// Assemble the header
 	icmp = ZeroMalloc(sizeof(ICMP_HEADER) + size);
 	data_buf = ((UCHAR *)icmp) + sizeof(ICMP_HEADER);
 	Copy(data_buf, data, size);
@@ -1673,6 +1688,10 @@ PKT *ClonePacket(PKT *p, bool copy_data)
 		ret->L7.IkeHeader = MallocFast(sizeof(IKE_HEADER));
 		Copy(ret->L7.IkeHeader, p->L7.IkeHeader, sizeof(IKE_HEADER));
 		break;
+ 
+ 	case L7_DNS:
+ 		StrCpy(ret->DnsQueryHost, sizeof(ret->DnsQueryHost), p->DnsQueryHost);
+ 		break;
 	}
 
 	// Address data
@@ -1830,12 +1849,13 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 		USHORT port_raw = Endian16(80);
 		USHORT port_raw2 = Endian16(8080);
 		USHORT port_raw3 = Endian16(443);
+		USHORT port_raw4 = Endian16(3128);
 
 		// Analyze if the packet is a part of HTTP
 		if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) && p->TypeL4 == L4_TCP)
 		{
 			TCP_HEADER *tcp = p->L4.TCPHeader;
-			if (tcp != NULL && (tcp->DstPort == port_raw || tcp->DstPort == port_raw2) &&
+			if (tcp != NULL && (tcp->DstPort == port_raw || tcp->DstPort == port_raw2 || tcp->DstPort == port_raw4) &&
 				(!((tcp->Flag & TCP_SYN) || (tcp->Flag & TCP_RST) || (tcp->Flag & TCP_FIN))))
 			{
 				if (p->PayloadSize >= 1)
@@ -1937,7 +1957,7 @@ void CorrectChecksum(PKT *p)
 						{
 							udp->Checksum = 0;
 
-							if ((IPV4_GET_FLAGS(v4) & 0x01) == 0)
+							if ((IPV4_GET_FLAGS(v4) & 0x01) == 0 && (p->IPv4PayloadSize >= udp_len))
 							{
 								// Calculate the checksum correctly based on the data in case of a non-fragmented packet
 								udp->Checksum = CalcChecksumForIPv4(v4->SrcIP, v4->DstIP, IP_PROTO_UDP, udp, udp_len, 0);
@@ -2003,7 +2023,7 @@ void CorrectChecksum(PKT *p)
 						{
 							udp->Checksum = 0;
 
-							if (v6info->FragmentHeader == NULL || ((IPV6_GET_FLAGS(v6info->FragmentHeader) & IPV6_FRAGMENT_HEADER_FLAG_MORE_FRAGMENTS) == 0))
+							if ((v6info->FragmentHeader == NULL || ((IPV6_GET_FLAGS(v6info->FragmentHeader) & IPV6_FRAGMENT_HEADER_FLAG_MORE_FRAGMENTS) == 0)) && (v6info->PayloadSize >= udp_len))
 							{
 								// If the packet is not fragmented, recalculate the checksum
 								udp->Checksum = CalcChecksumForIPv6(&v6->SrcAddress, &v6->DestAddress, IP_PROTO_UDP, udp, udp_len, 0);
@@ -2848,6 +2868,7 @@ PKT *ParsePacketIPv4WithDummyMacHeader(UCHAR *buf, UINT size)
 {
 	UCHAR *tmp;
 	UINT tmp_size;
+	PKT *ret;
 	// Validate arguments
 	if (buf == NULL)
 	{
@@ -2860,7 +2881,14 @@ PKT *ParsePacketIPv4WithDummyMacHeader(UCHAR *buf, UINT size)
 	WRITE_USHORT(tmp + 12, MAC_PROTO_IPV4);
 	Copy(tmp + 14, buf, size);
 
-	return ParsePacket(tmp, tmp_size);
+	ret = ParsePacket(tmp, tmp_size);
+
+	if (ret == NULL)
+	{
+		Free(tmp);
+	}
+
+	return ret;
 }
 
 // IPv4 parsing
@@ -2995,6 +3023,148 @@ bool ParseTCP(PKT *p, UCHAR *buf, UINT size)
 	return true;
 }
 
+// Get the next byte
+UCHAR GetNextByte(BUF *b)
+{
+	UCHAR c = 0;
+	// Validate arguments
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	if (ReadBuf(b, &c, 1) != 1)
+	{
+		return 0;
+	}
+
+	return c;
+}
+
+// Interpret the DNS query
+bool ParseDnsQuery(char *name, UINT name_size, void *data, UINT data_size)
+{
+	BUF *b;
+	char tmp[257];
+	bool ok = true;
+	USHORT val;
+	// Validate arguments
+	if (name == NULL || data == NULL || data_size == 0)
+	{
+		return false;
+	}
+	StrCpy(name, name_size, "");
+
+	b = NewBuf();
+	WriteBuf(b, data, data_size);
+	SeekBuf(b, 0, 0);
+
+	while (true)
+	{
+		UINT next_len = (UINT)GetNextByte(b);
+		if (next_len > 0)
+		{
+			// Read only the specified length
+			Zero(tmp, sizeof(tmp));
+			if (ReadBuf(b, tmp, next_len) != next_len)
+			{
+				ok = false;
+				break;
+			}
+			// Append
+			if (StrLen(name) != 0)
+			{
+				StrCat(name, name_size, ".");
+			}
+			StrCat(name, name_size, tmp);
+		}
+		else
+		{
+			// Read all
+			break;
+		}
+	}
+
+	if (ReadBuf(b, &val, sizeof(val)) != sizeof(val))
+	{
+		ok = false;
+	}
+	else
+	{
+		if (Endian16(val) != 0x01 && Endian16(val) != 0x0c)
+		{
+			ok = false;
+		}
+	}
+
+	if (ReadBuf(b, &val, sizeof(val)) != sizeof(val))
+	{
+		ok = false;
+	}
+	else
+	{
+		if (Endian16(val) != 0x01)
+		{
+			ok = false;
+		}
+	}
+
+	FreeBuf(b);
+
+	if (ok == false || StrLen(name) == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+// DNS parsing
+void ParseDNS(PKT *p, UCHAR *buf, UINT size)
+{
+	UCHAR *query_data;
+	UINT query_data_size;
+	DNSV4_HEADER *dns;
+	char hostname[MAX_SIZE];
+	if (p == NULL|| buf == NULL)
+	{
+		return;
+	}
+
+	if (size < sizeof(DNSV4_HEADER))
+	{
+		return;
+	}
+
+	dns = (DNSV4_HEADER *)buf;
+
+	if ((dns->Flag1 & 78) != 0 || (dns->Flag1 & 0x80) != 0)
+	{
+		// Illegal opcode
+		return;
+	}
+	if (Endian16(dns->NumQuery) != 1)
+	{
+		// Number of queries is invalid
+		return;
+	}
+
+	query_data = ((UCHAR *)dns) + sizeof(DNSV4_HEADER);
+	query_data_size = size - sizeof(DNSV4_HEADER);
+
+	// Interpret the query
+	if (ParseDnsQuery(hostname, sizeof(hostname), query_data, query_data_size) == false)
+	{
+		// Interpretation fails
+		return;
+	}
+
+	StrCpy(p->DnsQueryHost, sizeof(p->DnsQueryHost), hostname);
+	p->TypeL7 = L7_DNS;
+}
+
 // UDP parsing
 bool ParseUDP(PKT *p, UCHAR *buf, UINT size)
 {
@@ -3037,6 +3207,13 @@ bool ParseUDP(PKT *p, UCHAR *buf, UINT size)
 			return true;
 		}
 	}
+  
+ 	if (dst_port == 53)
+	{
+ 		ParseDNS(p, buf, size);
+ 		return true;
+ 	}
+ 
 
 	if (src_port == 500 || dst_port == 500 || src_port == 4500 || dst_port == 4500)
 	{
@@ -4310,7 +4487,3 @@ LABEL_CLEANUP:
 		return NULL;
 	}
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

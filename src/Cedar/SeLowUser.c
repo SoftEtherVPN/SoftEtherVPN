@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // SeLow: SoftEther Lightweight Network Protocol
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -839,7 +839,7 @@ LIST *SuGetAdapterList(SU *u)
 		return NULL;
 	}
 
-	ret = NewList(SuCmpAdaterList);
+	ret = NewList(SuCmpAdapterList);
 
 	// Enumerate adapters
 	Zero(&u->AdapterInfoList, sizeof(u->AdapterInfoList));
@@ -869,7 +869,7 @@ LIST *SuGetAdapterList(SU *u)
 }
 
 // Comparison function of the adapter list
-int SuCmpAdaterList(void *p1, void *p2)
+int SuCmpAdapterList(void *p1, void *p2)
 {
 	int r;
 	SU_ADAPTER_LIST *a1, *a2;
@@ -1083,7 +1083,3 @@ void SuFree(SU *u)
 
 #endif	// WIN32
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -141,8 +141,17 @@ void RAND_Free_For_SoftEther();
 #define	AES_IV_SIZE					16			// AES IV size
 #define	AES_MAX_KEY_SIZE			32			// Maximum AES key size
 
+// IANA definitions taken from IKEv1 Phase 1
+#define SHA1_160						2
+#define SHA2_256						4
+#define SHA2_384						5
+#define SHA2_512						6
+
 // HMAC block size
 #define	HMAC_BLOCK_SIZE					64
+// The block size for sha-384 and sha-512 as defined by rfc4868
+#define HMAC_BLOCK_SIZE_1024					128
+#define HMAC_BLOCK_SIZE_MAX					512
 
 #define DH_GROUP1_PRIME_768 \
 	"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" \
@@ -228,7 +237,14 @@ void RAND_Free_For_SoftEther();
 // Macro
 #define	HASHED_DATA(p)			(((UCHAR *)p) + 15)
 
-
+// OpenSSL <1.1 Shims
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
+#	define EVP_PKEY_base_id(pkey) ((pkey)->type)
+#	define X509_get0_notBefore(x509) ((x509)->cert_info->validity->notBefore)
+#	define X509_get0_notAfter(x509) ((x509)->cert_info->validity->notAfter)
+#	define X509_get_serialNumber(x509) ((x509)->cert_info->serialNumber)
+#endif
 
 // Crypt context
 struct CRYPT
@@ -294,6 +310,8 @@ struct X_CRL
 #define	MD5_SIZE	16
 #define	SHA1_SIZE	20
 #define	SHA256_SIZE	32
+#define	SHA384_SIZE	48
+#define	SHA512_SIZE	64
 
 // Key element of DES
 struct DES_KEY_VALUE
@@ -341,7 +359,7 @@ struct CIPHER
 struct MD
 {
 	char Name[MAX_PATH];
-	const struct env_md_st *Md;
+	const struct evp_md_st *Md;
 	struct hmac_ctx_st *Ctx;
 	UINT Size;
 };
@@ -356,12 +374,10 @@ void FreeCrypt(CRYPT *c);
 void Encrypt(CRYPT *c, void *dst, void *src, UINT size);
 void Hash(void *dst, void *src, UINT size, bool sha);
 void HashSha1(void *dst, void *src, UINT size);
-void HashSha256(void *dst, void *src, UINT size);
 void HashMd4(void *dst, void *src, UINT size);
 void HashMd4(void *dst, void *src, UINT size);
 void InitCryptLibrary();
 void Rand(void *buf, UINT size);
-void Rand128(void *buf);
 UINT HashToUINT(void *data, UINT size);
 UINT64 Rand64();
 UINT Rand32();
@@ -370,14 +386,12 @@ UCHAR Rand8();
 bool Rand1();
 UINT HashPtrToUINT(void *p);
 
-void CertTest();
 BIO *BufToBio(BUF *b);
 BUF *BioToBuf(BIO *bio);
 BIO *NewBio();
 void FreeBio(BIO *bio);
 X *BioToX(BIO *bio, bool text);
 X *BufToX(BUF *b, bool text);
-BUF *SkipBufBeforeString(BUF *b, char *str);
 void FreeX509(X509 *x509);
 void FreeX(X *x);
 BIO *XToBio(X *x, bool text);
@@ -395,9 +409,7 @@ X *FileToX(char *filename);
 X *FileToXW(wchar_t *filename);
 bool XToFile(X *x, char *filename, bool text);
 bool XToFileW(X *x, wchar_t *filename, bool text);
-K *FileToK(char *filename, bool private_key, char *password);
 K *FileToKW(wchar_t *filename, bool private_key, char *password);
-bool KToFile(K *k, char *filename, bool text, char *password);
 bool KToFileW(K *k, wchar_t *filename, bool text, char *password);
 bool CheckXandK(X *x, K *k);
 bool CompareX(X *x1, X *x2);
@@ -410,7 +422,6 @@ bool CompareName(NAME *n1, NAME *n2);
 K *GetKFromX(X *x);
 bool CheckSignature(X *x, K *k);
 X *X509ToX(X509 *x509);
-bool CheckX(X *x, X *x_issuer);
 bool CheckXEx(X *x, X *x_issuer, bool check_name, bool check_date);
 bool Asn1TimeToSystem(SYSTEMTIME *s, void *asn1_time);
 bool StrToSystem(SYSTEMTIME *s, char *str);
@@ -434,7 +445,6 @@ UINT GetDaysUntil2038();
 UINT GetDaysUntil2038Ex();
 X_SERIAL *NewXSerial(void *data, UINT size);
 void FreeXSerial(X_SERIAL *serial);
-char *ByteToStr(BYTE *src, UINT src_size);
 P12 *BioToP12(BIO *bio);
 P12 *PKCS12ToP12(PKCS12 *pkcs12);
 P12 *BufToP12(BUF *b);
@@ -442,9 +452,7 @@ BIO *P12ToBio(P12 *p12);
 BUF *P12ToBuf(P12 *p12);
 void FreePKCS12(PKCS12 *pkcs12);
 void FreeP12(P12 *p12);
-P12 *FileToP12(char *filename);
 P12 *FileToP12W(wchar_t *filename);
-bool P12ToFile(P12 *p12, char *filename);
 bool P12ToFileW(P12 *p12, wchar_t *filename);
 bool ParseP12(P12 *p12, X **x, K **k, char *password);
 bool IsEncryptedP12(P12 *p12);
@@ -456,15 +464,11 @@ void GetPrintNameFromX(wchar_t *str, UINT size, X *x);
 void GetPrintNameFromXA(char *str, UINT size, X *x);
 void GetPrintNameFromName(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromX(wchar_t *str, UINT size, X *x);
-void GetAllNameFromA(char *str, UINT size, X *x);
 void GetAllNameFromName(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromNameEx(wchar_t *str, UINT size, NAME *name);
 void GetAllNameFromXEx(wchar_t *str, UINT size, X *x);
-void GetAllNameFromXExA(char *str, UINT size, X *x);
-BUF *BigNumToBuf(BIGNUM *bn);
+BUF *BigNumToBuf(const BIGNUM *bn);
 BIGNUM *BinToBigNum(void *data, UINT size);
-BIGNUM *BufToBigNum(BUF *b);
-char *BigNumToStr(BIGNUM *bn);
 X_SERIAL *CloneXSerial(X_SERIAL *src);
 bool CompareXSerial(X_SERIAL *s1, X_SERIAL *s2);
 void GetXDigest(X *x, UCHAR *buf, bool sha1);
@@ -474,44 +478,29 @@ NAME *CopyName(NAME *n);
 bool RsaGen(K **priv, K **pub, UINT bit);
 bool RsaCheck();
 bool RsaCheckEx();
-bool RsaPublicEncrypt(void *dst, void *src, UINT size, K *k);
-bool RsaPrivateDecrypt(void *dst, void *src, UINT size, K *k);
-bool RsaPrivateEncrypt(void *dst, void *src, UINT size, K *k);
-bool RsaPublicDecrypt(void *dst, void *src, UINT size, K *k);
 bool RsaSign(void *dst, void *src, UINT size, K *k);
 bool RsaSignEx(void *dst, void *src, UINT size, K *k, UINT bits);
 bool HashForSign(void *dst, UINT dst_size, void *src, UINT src_size);
 bool RsaVerify(void *data, UINT data_size, void *sign, K *k);
 bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits);
 UINT RsaPublicSize(K *k);
-void RsaPublicToBin(K *k, void *data);
 BUF *RsaPublicToBuf(K *k);
-K *RsaBinToPublic(void *data, UINT size);
-
-X_CRL *FileToXCrl(char *filename);
-X_CRL *FileToXCrlW(wchar_t *filename);
-X_CRL *BufToXCrl(BUF *b);
-void FreeXCrl(X_CRL *r);
-bool IsXRevokedByXCrl(X *x, X_CRL *r);
-bool IsXRevoked(X *x);
 
 DES_KEY_VALUE *DesNewKeyValue(void *value);
 DES_KEY_VALUE *DesRandKeyValue();
 void DesFreeKeyValue(DES_KEY_VALUE *v);
 DES_KEY *Des3NewKey(void *k1, void *k2, void *k3);
 void Des3FreeKey(DES_KEY *k);
-DES_KEY *DesNewKey(void *k1);
-void DesFreeKey(DES_KEY *k);
-DES_KEY *Des3RandKey();
-DES_KEY *DesRandKey();
-void Des3Encrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
-void Des3Decrypt(void *dest, void *src, UINT size, DES_KEY *key, void *ivec);
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
+void Sha(UINT sha_type, void *dst, void *src, UINT size);
 void Sha1(void *dst, void *src, UINT size);
+void Sha2_256(void *dst, void *src, UINT size);
+void Sha2_384(void *dst, void *src, UINT size);
+void Sha2_512(void *dst, void *src, UINT size);
+
 void Md5(void *dst, void *src, UINT size);
 void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
-void MacSha196(void *dst, void *key, void *data, UINT data_size);
 void DesEncrypt(void *dest, void *src, UINT size, DES_KEY_VALUE *k, void *ivec);
 void DesDecrypt(void *dest, void *src, UINT size, DES_KEY_VALUE *k, void *ivec);
 void DesEcbEncrypt(void *dst, void *src, void *key_7bytes);
@@ -524,9 +513,9 @@ DH_CTX *DhNewSimple160();
 DH_CTX *DhNew2048();
 DH_CTX *DhNew3072();
 DH_CTX *DhNew4096();
+DH_CTX *DhNewFromBits(UINT bits);
 DH_CTX *DhNew(char *prime, UINT g);
 void DhFree(DH_CTX *dh);
-BUF *DhToBuf(DH_CTX *dh);
 
 AES_KEY_VALUE *AesNewKey(void *data, UINT size);
 void AesFreeKey(AES_KEY_VALUE *k);
@@ -562,10 +551,9 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 
-BUF *EasyEncrypt(BUF *src_buf);
-BUF *EasyDecrypt(BUF *src_buf);
-
 void DisableIntelAesAccel();
+
+int GetSslClientCertIndex();
 
 #ifdef	ENCRYPT_C
 // Inner function
@@ -575,7 +563,3 @@ void DisableIntelAesAccel();
 
 #endif	// ENCRYPT_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -235,7 +235,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	}
 
 #ifdef	OS_WIN32
-	// Priduct ID
+	// Product ID
 	product_id = MsRegReadStr(REG_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductId");
 	if (product_id == NULL)
 	{
@@ -431,7 +431,7 @@ void CiChangeAllVLanMacAddress(CLIENT *c)
 			RPC_CLIENT_ENUM_VLAN_ITEM *e = t.Items[i];
 			UCHAR mac[6];
 
-			if (StrToMac(mac, e->MacAddress) && mac[1] == 0xAC)
+			if (StrToMac(mac, e->MacAddress) && ((mac[0] == 0x00 && mac[1] == 0xAC) || (mac[0] == 0x5E)))
 			{
 				char *name = e->DeviceName;
 				RPC_CLIENT_SET_VLAN s;
@@ -2821,69 +2821,6 @@ UINT CcDeleteCa(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_CA *c)
 	return err;
 }
 
-
-// Get the proxy setting
-UINT CcGetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a)
-{
-	PACK *p, *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || a == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	p = NewPack();
-	OutRpcInternetSetting(p, a);
-
-	ret = RpcCall(r->Rpc, "GetCommonProxySetting", p);
-
-	if (RpcIsOk(ret))
-	{
-		Zero(a, sizeof(INTERNET_SETTING));
-		InRpcInternetSetting(a, ret);
-	}
-	else
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
-// Set the proxy setting
-UINT CcSetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a)
-{
-	PACK *p, *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || a == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	p = NewPack();
-	OutRpcInternetSetting(p, a);
-
-	ret = RpcCall(r->Rpc, "SetCommonProxySetting", p);
-
-	if (RpcIsOk(ret))
-	{
-		Zero(a, sizeof(INTERNET_SETTING));
-		InRpcInternetSetting(a, ret);
-	}
-	else
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
 // Get the issuer
 UINT CcGetIssuer(REMOTE_CLIENT *r, RPC_GET_ISSUER *a)
 {
@@ -3022,33 +2959,6 @@ UINT CcUseSecure(REMOTE_CLIENT *r, RPC_USE_SECURE *sec)
 	ret = RpcCall(r->Rpc, "UseSecure", p);
 
 	if (RpcIsOk(ret) == false)
-	{
-		err = RpcGetError(ret);
-	}
-
-	FreePack(ret);
-
-	return err;
-}
-
-// Enumerate objects in the secure device
-UINT CcEnumObjectInSecure(REMOTE_CLIENT *r, RPC_ENUM_OBJECT_IN_SECURE *e)
-{
-	PACK *ret;
-	UINT err = 0;
-	// Validate arguments
-	if (r == NULL || e == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	ret = RpcCall(r->Rpc, "EnumObjectInSecure", NULL);
-
-	if (RpcIsOk(ret))
-	{
-		InRpcEnumObjectInSecure(e, ret);
-	}
-	else
 	{
 		err = RpcGetError(ret);
 	}
@@ -3467,7 +3377,7 @@ UINT CcEnumAccount(REMOTE_CLIENT *r, RPC_CLIENT_ENUM_ACCOUNT *e)
 	return err;
 }
 
-// Unset the startup flag of the accout
+// Unset the startup flag of the account
 UINT CcRemoveStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a)
 {
 	PACK *ret, *p;
@@ -5090,14 +5000,14 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 	s->ServerPort = PackGetInt(p, "ServerPort");
 	s->ServerProductVer = PackGetInt(p, "ServerProductVer");
 	s->ServerProductBuild = PackGetInt(p, "ServerProductBuild");
-	s->NumConnectionsEatablished = PackGetInt(p, "NumConnectionsEatablished");
+	s->NumConnectionsEstablished = PackGetInt(p, "NumConnectionsEstablished");
 	s->MaxTcpConnections = PackGetInt(p, "MaxTcpConnections");
 	s->NumTcpConnections = PackGetInt(p, "NumTcpConnections");
 	s->NumTcpConnectionsUpload = PackGetInt(p, "NumTcpConnectionsUpload");
 	s->NumTcpConnectionsDownload = PackGetInt(p, "NumTcpConnectionsDownload");
 
 	s->StartTime = PackGetInt64(p, "StartTime");
-	s->FirstConnectionEstablisiedTime = PackGetInt64(p, "FirstConnectionEstablisiedTime");
+	s->FirstConnectionEstablishedTime = PackGetInt64(p, "FirstConnectionEstablishedTime");
 	s->CurrentConnectionEstablishTime = PackGetInt64(p, "CurrentConnectionEstablishTime");
 	s->TotalSendSize = PackGetInt64(p, "TotalSendSize");
 	s->TotalRecvSize = PackGetInt64(p, "TotalRecvSize");
@@ -5163,7 +5073,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	PackAddInt(p, "ServerPort", c->ServerPort);
 	PackAddInt(p, "ServerProductVer", c->ServerProductVer);
 	PackAddInt(p, "ServerProductBuild", c->ServerProductBuild);
-	PackAddInt(p, "NumConnectionsEatablished", c->NumConnectionsEatablished);
+	PackAddInt(p, "NumConnectionsEstablished", c->NumConnectionsEstablished);
 	PackAddInt(p, "HalfConnection", c->HalfConnection);
 	PackAddInt(p, "QoS", c->QoS);
 	PackAddInt(p, "MaxTcpConnections", c->MaxTcpConnections);
@@ -5181,7 +5091,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	PackAddBool(p, "IsMonitorMode", c->IsMonitorMode);
 
 	PackAddInt64(p, "StartTime", c->StartTime);
-	PackAddInt64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
+	PackAddInt64(p, "FirstConnectionEstablishedTime", c->FirstConnectionEstablishedTime);
 	PackAddInt64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
 	PackAddInt64(p, "TotalSendSize", c->TotalSendSize);
 	PackAddInt64(p, "TotalRecvSize", c->TotalRecvSize);
@@ -5242,7 +5152,7 @@ void CiNotifyMain(CLIENT *c, SOCK *s)
 		return;
 	}
 
-	// Register a Cencel
+	// Register a Cancel
 	cancel = NewCancel();
 	LockList(c->NotifyCancelList);
 	{
@@ -6178,9 +6088,9 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 		// Connection start time
 		st->StartTime = TickToTime(s->CreatedTime);
 		// Connection completion time of the first connection
-		st->FirstConnectionEstablisiedTime = TickToTime(s->FirstConnectionEstablisiedTime);
+		st->FirstConnectionEstablishedTime = TickToTime(s->FirstConnectionEstablishedTime);
 		// Number of connections have been established so far
-		st->NumConnectionsEatablished = s->NumConnectionsEatablished;
+		st->NumConnectionsEstablished = s->NumConnectionsEstablished;
 	}
 	Unlock(s->lock);
 }
@@ -6663,7 +6573,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 				CiSetError(c, ERR_ACCOUNT_ACTIVE);
 			}
 			else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_SECURE &&
-				client->UseSecureDeviceId == 0)
+				c->UseSecureDeviceId == 0)
 			{
 				// Secure device is not specified
 				CiSetError(c, ERR_NO_SECURE_DEVICE_SPECIFIED);
@@ -11112,7 +11022,3 @@ void CiClientStatusPrinter(SESSION *s, wchar_t *status)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

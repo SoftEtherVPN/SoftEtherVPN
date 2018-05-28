@@ -1,11 +1,11 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
@@ -326,7 +326,7 @@ static wchar_t *WpListener(WEBUI *wu, LIST *params)
 	WU_CONTEXT *context = WuGetContext(wu->Contexts, sessionkey);
 	char *cmd = (char*)StrMapSearch(params, "CMD");
 	RPC_LISTENER t;
-	UINT retcode;
+	UINT retcode = ERR_NO_ERROR;
 
 	if(context == NULL)
 	{
@@ -1987,7 +1987,3 @@ static WU_CONTEXT *WuGetContext(LIST *contexts, char *sessionkey)
 	}
 	return ret;
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

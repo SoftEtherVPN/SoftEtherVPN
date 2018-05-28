@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -302,7 +302,7 @@ void L3RecvIp(L3IF *f, PKT *p, bool self)
 				ip->TimeToLive = 0xff;
 
 				// Recalculates the checksum
-				ip->FlagsAndFlagmentOffset[0] = ip->FlagsAndFlagmentOffset[1] = 0;
+				ip->FlagsAndFragmentOffset[0] = ip->FlagsAndFragmentOffset[1] = 0;
 				icmp->Checksum = 0;
 				icmp->Type = ICMP_TYPE_ECHO_RESPONSE;
 				icmp->Checksum = IpChecksum(icmp, p->PacketSize - sizeof(MAC_HEADER) - header_size);
@@ -356,7 +356,7 @@ void L3RecvL2(L3IF *f, PKT *p)
 		return;
 	}
 
-	// Ignore any packets except a unicast packet which is destinated other
+	// Ignore any packets except a unicast packet which is at destination
 	// or a packet which I sent
 	if (Cmp(p->MacAddressSrc, f->MacAddress, 6) == 0 ||
 		(p->BroadcastPacket == false && Cmp(p->MacAddressDest, f->MacAddress, 6) != 0))
@@ -2203,7 +2203,3 @@ int CmpL3ArpEntry(void *p1, void *p2)
 	}
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

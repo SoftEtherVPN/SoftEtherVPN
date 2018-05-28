@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
 // Comments: Tetsuo Sugiyama, Ph.D.
@@ -233,7 +233,12 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384";
+static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384"
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	" DHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305";
+#endif
+;
+
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -245,7 +250,7 @@ static UINT rand_port_numbers[256] = {0};
 static bool g_use_privateip_file = false;
 static bool g_source_ip_validation_force_disable = false;
 
-static DH_CTX *dh_2048 = NULL;
+static DH_CTX *dh_param = NULL;
 
 typedef struct PRIVATE_IP_SUBNET
 {
@@ -1722,7 +1727,7 @@ void RUDPDo_NatT_Interrupt(RUDP_STACK *r)
 				PackAddInt64(p, "tran_id", r->NatT_TranId);
 				PackAddStr(p, "token", r->NatT_Token);
 				PackAddStr(p, "svc_name", r->SvcName);
-				PackAddStr(p, "product_str", CEDAR_PRODUCT_STR);
+				PackAddStr(p, "product_str", "SoftEther OSS");
 				PackAddInt64(p, "session_key", r->NatT_SessionKey);
 				PackAddInt(p, "nat_traversal_version", UDP_NAT_TRAVERSAL_VERSION);
 
@@ -2654,7 +2659,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 	CRYPT *c;
 	UCHAR crypt_key_src[SHA1_SIZE * 2];
 	UCHAR crypt_key[SHA1_SIZE];
-	UINT icmp_type;
+	UINT icmp_type = 0;
 	UCHAR sign[SHA1_SIZE];
 	UCHAR iv[SHA1_SIZE + 1];
 	// Validate arguments
@@ -2724,16 +2729,16 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 // Start a socket for R-UDP Listening
 SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode)
 {
-	return ListenRUDPEx(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, NULL, 0);
+	return ListenRUDPEx(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, NULL, 0, NULL);
 }
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	SOCK *s;
 	RUDP_STACK *r;
 
 	// Creating a R-UDP stack
-	r = NewRUDPServer(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, natt_global_udp_port, rand_port_id);
+	r = NewRUDPServer(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, natt_global_udp_port, rand_port_id, listen_ip);
 	if (r == NULL)
 	{
 		return NULL;
@@ -5259,7 +5264,7 @@ SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, U
 		return NULL;
 	}
 
-	r = NewRUDP(false, svc_name, NULL, NULL, NULL, local_port, sock, sock_event, false, over_dns_mode, ip, NULL, 0);
+	r = NewRUDP(false, svc_name, NULL, NULL, NULL, local_port, sock, sock_event, false, over_dns_mode, ip, NULL, 0, NULL);
 	if (r == NULL)
 	{
 		*error_code = RUDP_ERROR_UNKNOWN;
@@ -5318,7 +5323,7 @@ SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, U
 }
 
 // Creating a R-UDP server
-RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	RUDP_STACK *r;
 	// Validate arguments
@@ -5334,7 +5339,7 @@ RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_inter
 
 	ListenTcpForPopupFirewallDialog();
 
-	r = NewRUDP(true, svc_name, proc_interrupts, proc_rpc_recv, param, port, NULL, NULL, no_natt_register, over_dns_mode, NULL, natt_global_udp_port, rand_port_id);
+	r = NewRUDP(true, svc_name, proc_interrupts, proc_rpc_recv, param, port, NULL, NULL, no_natt_register, over_dns_mode, NULL, natt_global_udp_port, rand_port_id, listen_ip);
 
 	if (r == NULL)
 	{
@@ -5345,7 +5350,7 @@ RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_inter
 }
 
 // Creating a R-UDP
-RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id)
+RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, SOCK *sock, SOCK_EVENT *sock_event, bool server_no_natt_register, bool over_dns_mode, IP *client_target_ip, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	RUDP_STACK *r;
 	char tmp[MAX_SIZE];
@@ -5371,11 +5376,11 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 		{
 			if (rand_port_id == 0)
 			{
-				sock = NewUDP(port);
+				sock = NewUDPEx2(port, false, listen_ip);
 			}
 			else
 			{
-				sock = NewUDPEx2RandMachineAndExePath(false, NULL, 0, rand_port_id);
+				sock = NewUDPEx2RandMachineAndExePath(false, listen_ip, 0, rand_port_id);
 			}
 		}
 
@@ -5804,14 +5809,58 @@ SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca)
 	return NULL;
 }
 
-int cb_test(int a, X509_STORE_CTX *ctx)
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define X509_STORE_CTX_get0_cert(o) ((o)->cert)
+#endif
+
+// Verify client SSL certificate during TLS handshake.
+//
+// (actually, only save the certificate for later authentication in Protocol.c)
+int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 {
-	WHERE;
-	return 1;
+	SSL *ssl;
+	struct SslClientCertInfo *clientcert;
+	X509 *cert;
+
+	ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+	clientcert = SSL_get_ex_data(ssl, GetSslClientCertIndex());
+
+	if (clientcert != NULL)
+	{
+		clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
+		clientcert->PreverifyErrMessage[0] = '\0';
+		if (!preverify_ok)
+		{
+			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
+			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, msg);
+			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
+		}
+		else
+		{
+			cert = X509_STORE_CTX_get0_cert(ctx);
+			if (cert != NULL)
+			{
+				X *tmpX = X509ToX(cert); // this only wraps cert, but we need to make a copy
+				X *copyX = CloneX(tmpX);
+				tmpX->do_not_free = true; // do not release inner X509 object
+				FreeX(tmpX);
+				clientcert->X = copyX;
+			}
+		}
+	}
+
+	return 1; /* allow the verification process to continue */
 }
 
 // Create a new SSL pipe
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
+{
+	return NewSslPipeEx(server_mode, x, k, dh, false, NULL);
+}
+
+// Create a new SSL pipe with extended options
+SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert)
 {
 	SSL_PIPE *s;
 	SSL *ssl;
@@ -5836,7 +5885,10 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
-		//SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, cb_test);
+		if (verify_peer)
+		{
+			SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, SslCertVerifyCallback);
+		}
 
 		if (dh != NULL)
 		{
@@ -5849,6 +5901,8 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 		}
 
 		ssl = SSL_new(ssl_ctx);
+
+		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
 	Unlock(openssl_lock);
 
@@ -6484,38 +6538,6 @@ L_LOOP:
 }
 
 #endif	// OS_WIN32
-
-
-// Get whether the aquirement of the Process ID of the TCP connection succeed
-bool CanGetTcpProcessId()
-{
-	UINT i;
-	bool ret = false;
-	LIST *o = GetTcpTableList();
-
-	if (o == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		TCPTABLE *t = LIST_DATA(o, i);
-
-		if (t->ProcessId != 0)
-		{
-			ret = true;
-			break;
-		}
-	}
-
-	FreeTcpTableList(o);
-
-	return ret;
-}
-
-
-
 
 #define	USE_OLD_GETIP
 
@@ -7267,7 +7289,7 @@ void IPToStr6Inner(char *str, IP *ip)
 		values[i] = Endian16(values[i]);
 	}
 
-	// Search for omitable part
+	// Search for omittable part
 	zero_started_index = INFINITE;
 	max_zero_len = 0;
 	max_zero_start = INFINITE;
@@ -7368,7 +7390,7 @@ bool StrToIP6(IP *ip, char *str)
 	if (StartWith(tmp, "[") && EndWith(tmp, "]"))
 	{
 		// If the string is enclosed in square brackets, remove brackets
-		StrCpy(tmp, sizeof(tmp), &tmp[1]);
+		StrCpyAllowOverlap(tmp, sizeof(tmp), &tmp[1]);
 
 		if (StrLen(tmp) >= 1)
 		{
@@ -9254,14 +9276,9 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	if (num != 0)
 	{
 #ifdef	UNIX_MACOS
-		if (timeout == INFINITE) {
-			tv.tv_sec = 0;
-			tv.tv_usec = 0;
-		} else {
-			tv.tv_sec = timeout / 1000;
-			tv.tv_usec = (timeout % 1000) * 1000l;
-		}
-		select(max_fd + 1, &rfds, &wfds, NULL, &tv);
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) * 1000l;
+		select(max_fd + 1, &rfds, &wfds, NULL, timeout == INFINITE ? NULL : &tv);
 #else	// UNIX_MACOS
 		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
@@ -9429,11 +9446,13 @@ void UnixInitAsyncSocket(SOCK *sock)
 		UnixSetSocketNonBlockingMode(sock->socket, true);
 	}
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	if (sock->ssl != NULL && sock->ssl->s3 != NULL)
 	{
 		sock->Ssl_Init_Async_SendAlert[0] = sock->ssl->s3->send_alert[0];
 		sock->Ssl_Init_Async_SendAlert[1] = sock->ssl->s3->send_alert[1];
 	}
+#endif
 }
 
 // Initializing the socket library
@@ -11134,27 +11153,6 @@ void FreeWaitThread()
 	WaitThreadList = NULL;
 }
 
-// Check the cipher list name
-bool CheckCipherListName(char *name)
-{
-	UINT i;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < cipher_list_token->NumTokens;i++)
-	{
-		if (StrCmpi(cipher_list_token->Token[i], name) == 0)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 // Renewing the IP address of the DHCP server
 void RenewDhcp()
 {
@@ -12689,6 +12687,14 @@ bool RecvAll(SOCK *sock, void *data, UINT size, bool secure)
 		{
 			return false;
 		}
+		if (ret == SOCK_LATER)
+		{
+			// I suppose that this is safe because the RecvAll() function is used only 
+			// if the sock->AsyncMode == true. And the Recv() function may return
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// Recv() function in the RecvAll() function never returns SOCK_LATER.
+			return false;
+		}
 		recv_size += ret;
 		if (recv_size >= size)
 		{
@@ -12771,7 +12777,6 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure)
 // Set the cipher algorithm name to want to use
 void SetWantToUseCipher(SOCK *sock, char *name)
 {
-	char tmp[1024];
 	// Validate arguments
 	if (sock == NULL || name == NULL)
 	{
@@ -12783,12 +12788,7 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 		Free(sock->WaitToUseCipher);
 	}
 
-	Zero(tmp, sizeof(tmp));
-	StrCpy(tmp, sizeof(tmp), name);
-	StrCat(tmp, sizeof(tmp), " ");
-	StrCat(tmp, sizeof(tmp), cipher_list);
-
-	sock->WaitToUseCipher = CopyStr(tmp);
+	sock->WaitToUseCipher = CopyStr(name);
 }
 
 // Add all the chain certificates in the chain_certs directory
@@ -13015,7 +13015,11 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		{
 			if (client_tls == false)
 			{
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
+#else
+				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+#endif
 			}
 			else
 			{
@@ -13062,7 +13066,8 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		// Set the cipher algorithm name to want to use
 		Lock(openssl_lock);
 		{
-			SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher);
+			if (SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher) == 0)
+				SSL_set_cipher_list(sock->ssl, DEFAULT_CIPHER_LIST);
 		}
 		Unlock(openssl_lock);
 	}
@@ -13341,7 +13346,7 @@ void SetNoNeedToRead(SOCK *sock)
 UINT SecureRecv(SOCK *sock, void *data, UINT size)
 {
 	SOCKET s;
-	int ret, e = 0;
+	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
 
 #ifdef UNIX_SOLARIS
@@ -13381,10 +13386,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			e = SSL_get_error(ssl, ret);
 			if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 			{
-				if (e == SSL_ERROR_SSL &&
+				if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+					&&
 					sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+					)
 				{
 					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 					Disconnect(sock);
@@ -13467,10 +13476,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 	{
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 		{
-			if (e == SSL_ERROR_SSL &&
+			if (e == SSL_ERROR_SSL
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+				&&
 				sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
 				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1])
+				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+#endif
+				)
 			{
 				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 				Disconnect(sock);
@@ -13490,7 +13503,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 UINT SecureSend(SOCK *sock, void *data, UINT size)
 {
 	SOCKET s;
-	int ret, e;
+	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
 	s = sock->socket;
 	ssl = sock->ssl;
@@ -14241,9 +14254,9 @@ SOCK *Listen(UINT port)
 }
 SOCK *ListenEx(UINT port, bool local_only)
 {
-	return ListenEx2(port, local_only, false);
+	return ListenEx2(port, local_only, false, NULL);
 }
-SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
+SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 {
 	SOCKET s;
 	SOCK *sock;
@@ -14272,7 +14285,14 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
 	SetIP(&localhost, 127, 0, 0, 1);
 
 	addr.sin_port = htons((UINT)port);
-	*((UINT *)&addr.sin_addr) = htonl(INADDR_ANY);
+	if (listen_ip == NULL)
+	{
+		*((UINT *)&addr.sin_addr) = htonl(INADDR_ANY);
+	}
+	else
+	{
+		IPToInAddr(&addr.sin_addr, listen_ip);
+	}
 	addr.sin_family = AF_INET;
 
 	if (local_only)
@@ -17576,7 +17596,7 @@ void IPToInAddr6(struct in6_addr *addr, IP *ip)
 		return;
 	}
 
-	Zero(addr, sizeof(struct in_addr));
+	Zero(addr, sizeof(struct in6_addr));
 
 	if (IsIP6(ip))
 	{
@@ -17781,9 +17801,9 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
 	DH *ret = NULL;
 
-	if (dh_2048 != NULL)
+	if (dh_param != NULL)
 	{
-		ret = dh_2048->dh;
+		ret = dh_param->dh;
 	}
 
 	return ret;
@@ -17902,9 +17922,6 @@ void InitNetwork()
 	current_global_ip_set = false;
 
 	disable_cache = false;
-
-
-	dh_2048 = DhNew2048();
 
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
@@ -18313,7 +18330,7 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 		return;
 	}
 
-	if (IsZeroIp(ip));
+	if (IsZeroIp(ip))
 	{
 		return;
 	}
@@ -18338,10 +18355,10 @@ void SetCurrentGlobalIP(IP *ip, bool ipv6)
 void FreeNetwork()
 {
 
-	if (dh_2048 != NULL)
+	if (dh_param != NULL)
 	{
-		DhFree(dh_2048);
-		dh_2048 = NULL;
+		DhFree(dh_param);
+		dh_param = NULL;
 	}
 
 	// Release of thread-related
@@ -18413,27 +18430,6 @@ void FreeNetwork()
 	DeleteCounter(getip_thread_counter);
 	getip_thread_counter = NULL;
 
-}
-
-// Add a socket to socket list
-void AddSockList(SOCKLIST *sl, SOCK *s)
-{
-	// Validate arguments
-	if (sl == NULL || s == NULL)
-	{
-		return;
-	}
-
-	LockList(sl->SockList);
-	{
-		if (IsInList(sl->SockList, s) == false)
-		{
-			AddRef(s->ref);
-
-			Insert(sl->SockList, s);
-		}
-	}
-	UnlockList(sl->SockList);
 }
 
 // Remove the socket from socket list
@@ -20105,6 +20101,11 @@ void UdpListenerThread(THREAD *thread, void *param)
 				{
 					IP *ip = LIST_DATA(iplist, i);
 
+					if (CmpIpAddr(ip, &u->ListenIP) != 0)
+					{
+						continue;
+					}
+
 					WriteBuf(ip_list_buf_new, ip, sizeof(IP));
 
 					for (j = 0;j < LIST_NUM(u->PortList);j++)
@@ -20248,6 +20249,8 @@ LABEL_RESTART:
 
 		if (u->PollMyIpAndPort)
 		{
+			// Create a thread to get a NAT-T IP address if necessary
+			if (u->GetNatTIpThread == NULL)
 			{
 				// Create a thread to get a NAT-T IP address if necessary
 				if (u->GetNatTIpThread == NULL)
@@ -20620,7 +20623,7 @@ void UdpListenerSendPacket(UDPLISTENER *u, UDPPACKET *packet)
 }
 
 // Creating a UDP listener
-UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
+UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
 {
 	UDPLISTENER *u;
 	// Validate arguments
@@ -20635,6 +20638,11 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
 
 	u->PortList = NewList(NULL);
 	u->Event = NewSockEvent();
+
+	if (listen_ip)
+	{
+		Copy(&u->ListenIP, listen_ip, sizeof(IP));
+	}
 
 	u->RecvProc = recv_proc;
 	u->SendPacketList = NewList(NULL);
@@ -20727,7 +20735,7 @@ UINT GetUdpListenerPortList(UDPLISTENER *u, UINT **port_list)
 	return num_ports;
 }
 
-// Dekete all the UDP ports
+// Delete all the UDP ports
 void DeleteAllPortFromUdpListener(UDPLISTENER *u)
 {
 	// Validate arguments
@@ -22136,7 +22144,7 @@ bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size)
 		return false;
 	}
 
-	// Check whether the Content-Lentgh exists?
+	// Check whether the Content-Length exists?
 	if (GetHttpValue(header, "Content-Length") == NULL)
 	{
 		char tmp[MAX_SIZE];
@@ -22903,6 +22911,12 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	return ret;
 }
 
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
+void SetDhParam(DH_CTX *dh)
+ {
+	if (dh_param)
+	{
+ 		DhFree(dh_param);
+ 	}
+
+ 	dh_param = dh;
+ }

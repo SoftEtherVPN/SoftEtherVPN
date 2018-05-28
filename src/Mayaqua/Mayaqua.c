@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -154,7 +154,19 @@ static UINT64 probe_start = 0;
 static UINT64 probe_last = 0;
 static bool probe_enabled = false;
 
+// The function which should be called once as soon as possible after the process is started
+static bool init_proc_once_flag = false;
+void InitProcessCallOnce()
+{
+	if (init_proc_once_flag == false)
+	{
+		init_proc_once_flag = true;
 
+#ifdef	OS_WIN32
+		MsInitProcessCallOnce();
+#endif	// OS_WIN32
+	}
+}
 
 // Calculate the checksum
 USHORT CalcChecksum16(void *buf, UINT size)
@@ -490,6 +502,8 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		return;
 	}
 
+	InitProcessCallOnce();
+
 	g_memcheck = memcheck;
 	g_debug = debug;
 	cmdline = NULL;
@@ -552,7 +566,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 	// Initialize the network communication module
 	InitNetwork();
 
-	// Initialization of the aquisition of the EXE file name
+	// Initialization of the acquisition of the EXE file name
 	InitGetExeName(argc >= 1 ? argv[0] : NULL);
 
 	// Initialization of the command line string
@@ -1224,7 +1238,3 @@ void PrintDebugInformation()
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

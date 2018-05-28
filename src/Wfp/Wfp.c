@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Windows Filtering Platform Callout Driver for Capturing IPsec Packets on Windows Vista / 7 / Server 2008
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -524,7 +524,7 @@ void NTAPI CalloutClassify(const FWPS_INCOMING_VALUES0* inFixedValues,
 						   FWPS_CLASSIFY_OUT0* classifyOut)
 {
 	NET_BUFFER_LIST *nbl = layerData;
-	FWPS_PACKET_INJECTION_STATE injecton_state;
+	FWPS_PACKET_INJECTION_STATE injection_state;
 	bool block = false;
 	HANDLE hInjection = NULL;
 	UINT ip_header_len = 0;
@@ -552,9 +552,9 @@ void NTAPI CalloutClassify(const FWPS_INCOMING_VALUES0* inFixedValues,
 
 	if (hInjection != NULL)
 	{
-		injecton_state = FwpsQueryPacketInjectionState0(hInjection, nbl, NULL);
+		injection_state = FwpsQueryPacketInjectionState0(hInjection, nbl, NULL);
 
-		if (injecton_state == FWPS_PACKET_INJECTED_BY_SELF || injecton_state == FWPS_PACKET_PREVIOUSLY_INJECTED_BY_SELF)
+		if (injection_state == FWPS_PACKET_INJECTED_BY_SELF || injection_state == FWPS_PACKET_PREVIOUSLY_INJECTED_BY_SELF)
 		{
 			//SetEvent(wfp->Event);
 			classifyOut->actionType = FWP_ACTION_CONTINUE; // continue
@@ -1347,7 +1347,3 @@ void Crush(UINT a, UINT b, UINT c, UINT d)
 {
 	KeBugCheckEx(0x00000061, (ULONG_PTR)a, (ULONG_PTR)b, (ULONG_PTR)c, (ULONG_PTR)d);
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

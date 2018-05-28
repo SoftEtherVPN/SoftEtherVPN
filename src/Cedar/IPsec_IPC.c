@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -323,7 +323,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 		param->UserName, param->Password, error_code, &param->ClientIp,
 		param->ClientPort, &param->ServerIp, param->ServerPort,
 		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss, NULL);
+		param->BridgeMode, param->Mss, NULL, param->ClientCertificate);
 
 	return ipc;
 }
@@ -332,7 +332,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client)
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -425,7 +425,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	FreePack(p);
 
 	// Upload the authentication data
-	p = PackLoginWithPlainPassword(hubname, username, password);
+	if (client_certificate != NULL)
+	{
+		p = PackLoginWithOpenVPNCertificate(hubname, username, client_certificate);
+	}
+	else
+	{
+		p = PackLoginWithPlainPassword(hubname, username, password);
+	}
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
@@ -554,7 +561,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	ipc->ArpTable = NewList(IPCCmpArpTable);
 
 	// Create an IPv4 reception queue
-	ipc->IPv4RecviedQueue = NewQueue();
+	ipc->IPv4ReceivedQueue = NewQueue();
 
 	return ipc;
 
@@ -594,7 +601,7 @@ IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address)
 	ipc->ArpTable = NewList(IPCCmpArpTable);
 
 	// Create an IPv4 reception queue
-	ipc->IPv4RecviedQueue = NewQueue();
+	ipc->IPv4ReceivedQueue = NewQueue();
 
 	ipc->FlushList = NewTubeFlushList();
 
@@ -664,7 +671,7 @@ void FreeIPC(IPC *ipc)
 
 	while (true)
 	{
-		BLOCK *b = GetNext(ipc->IPv4RecviedQueue);
+		BLOCK *b = GetNext(ipc->IPv4ReceivedQueue);
 		if (b == NULL)
 		{
 			break;
@@ -673,7 +680,7 @@ void FreeIPC(IPC *ipc)
 		FreeBlock(b);
 	}
 
-	ReleaseQueue(ipc->IPv4RecviedQueue);
+	ReleaseQueue(ipc->IPv4ReceivedQueue);
 
 	Free(ipc);
 }
@@ -865,7 +872,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			char tmp[64];
 
 			DHCP_OPTION_LIST req;
-			IPC_DHCP_RELESAE_QUEUE *q;
+			IPC_DHCP_RELEASE_QUEUE *q;
 
 			// If the offered IP address is not used, place the address
 			// in release memo list to release at the end of this function
@@ -873,7 +880,7 @@ LABEL_RETRY_FOR_OPENVPN:
 			req.Opcode = DHCP_RELEASE;
 			req.ServerAddress = d->ParsedOptionList->ServerAddress;
 
-			q = ZeroMalloc(sizeof(IPC_DHCP_RELESAE_QUEUE));
+			q = ZeroMalloc(sizeof(IPC_DHCP_RELEASE_QUEUE));
 			Copy(&q->Req, &req, sizeof(DHCP_OPTION_LIST));
 			q->TranId = tran_id;
 			Copy(q->MacAddress, ipc->MacAddress, 6);
@@ -987,7 +994,7 @@ LABEL_CLEANUP:
 
 		for (i = 0;i < LIST_NUM(release_list);i++)
 		{
-			IPC_DHCP_RELESAE_QUEUE *q = LIST_DATA(release_list, i);
+			IPC_DHCP_RELEASE_QUEUE *q = LIST_DATA(release_list, i);
 
 			Copy(ipc->MacAddress, q->MacAddress, 6);
 			FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, q->TranId, &q->Req, 0, 0, NULL));
@@ -1449,7 +1456,7 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 	}
 }
 
-// Identifiy whether the MAC address is a normal unicast address
+// Identify whether the MAC address is a normal unicast address
 bool IsValidUnicastMacAddress(UCHAR *mac)
 {
 	// Validate arguments
@@ -1619,7 +1626,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								IPCAssociateOnArpTable(ipc, &ip_src, src_mac);
 
 								// Place in the reception queue
-								InsertQueue(ipc->IPv4RecviedQueue, NewBlock(data, size, 0));
+								InsertQueue(ipc->IPv4ReceivedQueue, NewBlock(data, size, 0));
 							}
 							else
 							{
@@ -2079,7 +2086,7 @@ BLOCK *IPCRecvIPv4(IPC *ipc)
 		return NULL;
 	}
 
-	b = GetNext(ipc->IPv4RecviedQueue);
+	b = GetNext(ipc->IPv4ReceivedQueue);
 
 	return b;
 }
@@ -2117,7 +2124,3 @@ BLOCK *IPCRecvL2(IPC *ipc)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

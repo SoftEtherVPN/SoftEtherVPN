@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -120,7 +120,7 @@
 
 // State
 #define	IKE_SA_MAIN_MODE					0	// Main mode
-#define	IKE_SA_AGRESSIVE_MODE				1	// Aggressive mode
+#define	IKE_SA_AGGRESSIVE_MODE				1	// Aggressive mode
 
 #define	IKE_SA_MM_STATE_1_SA				0	// Main mode state 1 (SA exchange is complete. Wait for key exchange)
 #define	IKE_SA_MM_STATE_2_KEY				1	// Main mode state 2 (Key exchange is complete. Wait for exchange ID)
@@ -474,7 +474,3 @@ IKE_SA *SearchIkeSaByCookie(IKE_SERVER *ike, UINT64 init_cookie, UINT64 resp_coo
 
 #endif	// IPSEC_IKE_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

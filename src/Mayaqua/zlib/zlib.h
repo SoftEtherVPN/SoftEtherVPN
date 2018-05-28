@@ -270,7 +270,7 @@ ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
   output buffer because there might be more output pending.
 
     Normally the parameter flush is set to Z_NO_FLUSH, which allows deflate to
-  decide how much data to accumualte before producing output, in order to
+  decide how much data to accumulate before producing output, in order to
   maximize compression.
 
     If the parameter flush is set to Z_SYNC_FLUSH, all pending output is
@@ -869,7 +869,7 @@ ZEXTERN int ZEXPORT inflateBackInit OF((z_streamp strm, int windowBits,
      See inflateBack() for the usage of these routines.
 
      inflateBackInit will return Z_OK on success, Z_STREAM_ERROR if any of
-   the paramaters are invalid, Z_MEM_ERROR if the internal state could not
+   the parameters are invalid, Z_MEM_ERROR if the internal state could not
    be allocated, or Z_VERSION_ERROR if the version of the library does not
    match the version of the header file.
 */

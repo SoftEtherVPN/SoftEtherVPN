@@ -1,8 +1,8 @@
-%define majorversion 4
-%define minorversion 22
-%define buildversion 9634
-%define dateversion 2016.11.27
-%define buildrelease beta
+%define majorversion 5
+%define minorversion 01
+%define buildversion 9657
+%define dateversion 2018.01.14
+%define buildrelease unstable
 
 Name:           softethervpn
 Version:        %{majorversion}.%{minorversion}.%{buildversion}
@@ -116,6 +116,10 @@ fi
 
 
 %changelog
+
+* Thu Dec 14 2017 Quintin Beukes <github.com@last.za.net> - 4.23-9647
+- Update upstream to 4.23-9647
+
 * Tue Feb 14 2017 Oleg Zaitsev <me@ozaitsev.ru> - 4.22.9634-1
 - Update upstream to 4.22.9634-beta
 - More macrofication

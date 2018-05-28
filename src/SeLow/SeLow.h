@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // SeLow - SoftEther Lightweight Network Protocol
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -260,7 +260,7 @@ typedef struct SL_FILE
 	SL_PACKET *RecvPacketTail;			// Tail of the received packet
 	UINT NumRecvPackets;				// Number of items of the received packet queue
 	NDIS_HANDLE NetBufferListPool;		// NET_BUFFER_LIST Pool
-	volatile UINT NumSendingPacketets;	// Number of packets being transmitted
+	volatile UINT NumSendingPackets;	// Number of packets being transmitted
 	bool SetEventFlag;					// Flag to set an event
 	bool FinalWakeUp;
 } SL_FILE;
@@ -384,7 +384,3 @@ void SlSleep(int milliSeconds);
 
 #endif	// SELOW_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -397,7 +397,7 @@ u_int bpf_filter(register struct bpf_insn *pc,
   \return The portion of the packet to keep, in bytes. 0 means that the packet must be rejected, -1 means that
    the whole packet must be kept.
   
-  This function is used when NDIS passes the packet to NPF_tap() in two buffers instaed than in a single one.
+  This function is used when NDIS passes the packet to NPF_tap() in two buffers instead than in a single one.
 */
 u_int bpf_filter_with_2_buffers(register struct bpf_insn *pc,
 							   register u_char *p,

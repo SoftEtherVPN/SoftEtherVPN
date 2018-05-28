@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -140,7 +140,7 @@ struct IPC_ARP
 };
 
 // DHCP release queue
-struct IPC_DHCP_RELESAE_QUEUE
+struct IPC_DHCP_RELEASE_QUEUE
 {
 	DHCP_OPTION_LIST Req;
 	UINT TranId;
@@ -165,6 +165,7 @@ struct IPC_PARAM
 	UINT Mss;
 	bool IsL3Mode;
 	bool IsOpenVPN;
+	X *ClientCertificate;
 };
 
 // IPC_ASYNC object
@@ -205,7 +206,7 @@ struct IPC
 	UCHAR MacAddress[6];				// MAC address
 	UCHAR Padding[2];
 	LIST *ArpTable;						// ARP table
-	QUEUE *IPv4RecviedQueue;			// IPv4 reception queue
+	QUEUE *IPv4ReceivedQueue;			// IPv4 reception queue
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
@@ -224,7 +225,7 @@ struct IPC_MSCHAP_V2_AUTHINFO
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client);
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate);
 IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code);
 IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address);
 void FreeIPC(IPC *ipc);
@@ -269,7 +270,3 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

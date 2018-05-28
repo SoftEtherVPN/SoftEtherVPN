@@ -12,14 +12,14 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "CompanyName", "SoftEther VPN Project at University of Tsukuba, Japan. (Open-source Customized Build)"
-            VALUE "FileDescription", "$PRODUCTNAME$ (Open-source Customized Build)"
+            VALUE "CompanyName", "SoftEther VPN Project at University of Tsukuba, Japan. (Developer Edition)"
+            VALUE "FileDescription", "$PRODUCTNAME$ (Developer Edition)"
             VALUE "FileVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
-            VALUE "InternalName", "$INTERNALNAME$ (Open-source Customized Build)"
-            VALUE "LegalCopyright", "Copyright (C) 2012-$YEAR$ SoftEther VPN Project. All Rights Reserved. (Open-source Customized Build)"
+            VALUE "InternalName", "$INTERNALNAME$ (Developer Edition)"
+            VALUE "LegalCopyright", "Copyright (C) 2012-$YEAR$ SoftEther VPN Project. All Rights Reserved. (Developer Edition)"
             VALUE "LegalTrademarks", "SoftEther(R) is a registered trademark of SoftEther Corporation in Japan, United Status and People's Republic of China. SoftEther Corporation is a company founded at University of Tsukuba, Japan."
             VALUE "OriginalFilename", "$FILENAME$"
-            VALUE "ProductName", "$PRODUCTNAME$  (Open-source Customized Build)"
+            VALUE "ProductName", "$PRODUCTNAME$ (Developer Edition)"
             VALUE "ProductVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
         END
     END

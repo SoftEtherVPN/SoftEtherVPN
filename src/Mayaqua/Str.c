@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -2109,21 +2109,6 @@ void Bit160ToStr(char *str, UCHAR *data)
 		data[10], data[11], data[12], data[13], data[14], data[15], data[16], data[17], data[18], data[19]);
 }
 
-// Make a string from a 128-bit sequence
-void Bit128ToStr(char *str, UCHAR *data)
-{
-	// Validate arguments
-	if (str == NULL || data == NULL)
-	{
-		return;
-	}
-
-	Format(str, 0,
-		"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-		data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], 
-		data[10], data[11], data[12], data[13], data[14], data[15]);
-}
-
 // Copy a string
 char *CopyStr(char *str)
 {
@@ -3346,6 +3331,54 @@ UINT StrCpy(char *dst, UINT size, char *src)
 
 	return len;
 }
+UINT StrCpyAllowOverlap(char *dst, UINT size, char *src)
+{
+	UINT len;
+	// Validate arguments
+	if (dst == src)
+	{
+		return StrLen(src);
+	}
+	if (dst == NULL || src == NULL)
+	{
+		if (src == NULL && dst != NULL)
+		{
+			if (size >= 1)
+			{
+				dst[0] = '\0';
+			}
+		}
+		return 0;
+	}
+	if (size == 1)
+	{
+		dst[0] = '\0';
+		return 0;
+	}
+	if (size == 0)
+	{
+		// Ignore the length
+		size = 0x7fffffff;
+	}
+
+	// Check the length
+	len = StrLen(src);
+	if (len <= (size - 1))
+	{
+		Move(dst, src, len + 1);
+	}
+	else
+	{
+		len = size - 1;
+		Move(dst, src, len);
+		dst[len] = '\0';
+	}
+
+	// KS
+	KS_INC(KS_STRCPY_COUNT);
+
+	return len;
+}
 
 // Check whether the string buffer is within the specified size
 bool StrCheckSize(char *str, UINT size)
@@ -3415,7 +3448,3 @@ UINT StrLen(char *str)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ struct RPC_ADD_DEVICE
 {
 	char DeviceName[MAX_SIZE];			// Device name
 	HUB_LOG LogSetting;					// Log settings
-	bool NoPromiscus;					// Without promiscuous mode
+	bool NoPromiscuous;					// Without promiscuous mode
 };
 
 struct RPC_DELETE_DEVICE
@@ -173,7 +173,7 @@ struct EL_DEVICE
 	CANCEL *Cancel2;					// Cancel 2
 	volatile bool Halt;					// Halting flag
 	bool Active;						// Running flag
-	bool NoPromiscus;					// Without promiscuous mode
+	bool NoPromiscuous;					// Without promiscuous mode
 	LOG *Logger;						// Logger
 };
 
@@ -219,7 +219,7 @@ void ElLoadConfigFromFolder(EL *e, FOLDER *root);
 void ElSaveConfig(EL *e);
 void ElSaveConfigToFolder(EL *e, FOLDER *root);
 int ElCompareDevice(void *p1, void *p2);
-bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscus);
+bool ElAddCaptureDevice(EL *e, char *name, HUB_LOG *log, bool no_promiscuous);
 bool ElDeleteCaptureDevice(EL *e, char *name);
 bool ElSetCaptureDeviceLogSetting(EL *e, char *name, HUB_LOG *log);
 void ElCaptureThread(THREAD *thread, void *param);
@@ -279,7 +279,3 @@ void OutRpcElLicenseStatus(PACK *p, RPC_EL_LICENSE_STATUS *t);
 #endif	// ETHERLOG_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

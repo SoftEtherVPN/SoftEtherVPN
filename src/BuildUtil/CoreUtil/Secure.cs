@@ -872,7 +872,7 @@ namespace CoreUtil
 			RevocationCheckNone = 16,
 			RevocationCheckEndCert = 32,
 			RevocationCheckChain = 64,
-			RecovationCheckChainExcludeRoot = 128,
+			RevocationCheckChainExcludeRoot = 128,
 			Safer = 256,
 			HashOnly = 512,
 			UseDefaultOSVerCheck = 1024,
@@ -1053,7 +1053,3 @@ namespace CoreUtil
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

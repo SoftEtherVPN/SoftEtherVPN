@@ -207,7 +207,7 @@ int dagc_stats(dagc_t *dagcfd, dagc_stats_t *ps);
  * for open, close and write. However, if the programmer uses these functions, he is more protected
  * against file format changes (for example if the file format will have an header in the future).
  * Moreover, assuming that the user knows the file format is a bad practice: providing 
- * simple simple save functionality is more intutive and user-friendly.
+ * simple simple save functionality is more intuitive and user-friendly.
  */
 int dagc_dumpfile_open(dagc_t *dagcfd, char* name);
 

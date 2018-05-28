@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					422
+#define	CEDAR_VER					501
 
 // Build Number
-#define	CEDAR_BUILD					9634
+#define	CEDAR_BUILD					9657
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -153,16 +153,16 @@
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc30"
+#define	BUILD_PLACE			"pc37"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2016
-#define	BUILD_DATE_M		11
-#define	BUILD_DATE_D		27
-#define	BUILD_DATE_HO		14
-#define	BUILD_DATE_MI		33
-#define	BUILD_DATE_SE		59
+#define	BUILD_DATE_Y		2018
+#define	BUILD_DATE_M		1
+#define	BUILD_DATE_D		14
+#define	BUILD_DATE_HO		0
+#define	BUILD_DATE_MI		36
+#define	BUILD_DATE_SE		20
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -274,7 +274,7 @@
 #define	MAX_RETRY_INTERVAL			(300 * 1000)	// Maximum retry interval
 #define	RETRY_INTERVAL_SPECIAL		(60 * 1000)		// Reconnection interval of a special case
 
-#define	MAX_ADDITONAL_CONNECTION_FAILED_COUNTER	16	// Allowable number that can be serially failed to additional connection
+#define	MAX_ADDITIONAL_CONNECTION_FAILED_COUNTER	16	// Allowable number that can be serially failed to additional connection
 #define	ADDITIONAL_CONNECTION_COUNTER_RESET_INTERVAL	(30 * 60 * 1000)	// Reset period of additional connection failure counter
 
 #define	MAC_MIN_LIMIT_COUNT			3		// Minimum number of MAC addresses
@@ -308,6 +308,7 @@
 #define	FARM_BASE_POINT				100000		// Reference value of the cluster score
 #define	FARM_DEFAULT_WEIGHT			100			// Standard performance ratio
 
+#define DH_PARAM_BITS_DEFAULT		2048		// Bits of Diffie-Hellman Parameters
 
 
 #define	SE_UDP_SIGN			"SE2P"		// Not used (only old UDP mode)
@@ -447,6 +448,7 @@
 #define	AUTHTYPE_ROOTCERT				3			// Root certificate which is issued by trusted Certificate Authority
 #define	AUTHTYPE_RADIUS					4			// Radius authentication
 #define	AUTHTYPE_NT						5			// Windows NT authentication
+#define	AUTHTYPE_OPENVPN_CERT    		98			// TLS client certificate authentication
 #define	AUTHTYPE_TICKET					99			// Ticket authentication
 
 // Constant of the client side
@@ -1053,6 +1055,7 @@ typedef struct CEDAR
 	LOCK *FifoBudgetLock;			// Fifo budget lock
 	UINT FifoBudget;				// Fifo budget
 	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
+	UINT DhParamBits;  // Bits of Diffie-Hellman parameters
 	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN Default Client Option String
 } CEDAR;
 
@@ -1232,7 +1235,6 @@ UINT64 GetTrafficPacketNum(TRAFFIC *t);
 void EnableDebugLog(CEDAR *c);
 void StartCedarLog();
 void StopCedarLog();
-void CedarLog(char *str);
 int CompareNoSslList(void *p1, void *p2);
 void InitNoSslList(CEDAR *c);
 void FreeNoSslList(CEDAR *c);
@@ -1265,7 +1267,3 @@ bool CedarIsThereAnyEapEnabledRadiusConfig(CEDAR *c);
 
 #endif	// CEDAR_H
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

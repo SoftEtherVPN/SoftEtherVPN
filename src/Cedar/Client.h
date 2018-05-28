@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -427,9 +427,9 @@ struct RPC_CLIENT_GET_CONNECTION_STATUS
 	X *ServerX;								// Server certificate
 	X *ClientX;								// Client certificate
 	UINT64 StartTime;						// Connection start time
-	UINT64 FirstConnectionEstablisiedTime;	// Connection completion time of the first connection
+	UINT64 FirstConnectionEstablishedTime;	// Connection completion time of the first connection
 	UINT64 CurrentConnectionEstablishTime;	// Connection completion time of this connection
-	UINT NumConnectionsEatablished;			// Number of connections have been established so far
+	UINT NumConnectionsEstablished;			// Number of connections have been established so far
 	bool HalfConnection;					// Half-connection
 	bool QoS;								// VoIP / QoS
 	UINT MaxTcpConnections;					// Maximum number of the TCP connections
@@ -570,7 +570,6 @@ UINT CcGetCa(REMOTE_CLIENT *r, RPC_GET_CA *get);
 UINT CcEnumSecure(REMOTE_CLIENT *r, RPC_CLIENT_ENUM_SECURE *e);
 UINT CcUseSecure(REMOTE_CLIENT *r, RPC_USE_SECURE *sec);
 UINT CcGetUseSecure(REMOTE_CLIENT *r, RPC_USE_SECURE *sec);
-UINT CcEnumObjectInSecure(REMOTE_CLIENT *r, RPC_ENUM_OBJECT_IN_SECURE *e);
 UINT CcCreateVLan(REMOTE_CLIENT *r, RPC_CLIENT_CREATE_VLAN *create);
 UINT CcUpgradeVLan(REMOTE_CLIENT *r, RPC_CLIENT_CREATE_VLAN *create);
 UINT CcGetVLan(REMOTE_CLIENT *r, RPC_CLIENT_GET_VLAN *get);
@@ -593,8 +592,6 @@ UINT CcGetAccountStatus(REMOTE_CLIENT *r, RPC_CLIENT_GET_CONNECTION_STATUS *st);
 UINT CcSetStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a);
 UINT CcRemoveStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a);
 UINT CcGetIssuer(REMOTE_CLIENT *r, RPC_GET_ISSUER *a);
-UINT CcGetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a);
-UINT CcSetCommonProxySetting(REMOTE_CLIENT *r, INTERNET_SETTING *a);
 
 
 void CcSetServiceToForegroundProcess(REMOTE_CLIENT *r);
@@ -878,7 +875,3 @@ void CiInitDriverVerStruct(MS_DRIVER_VER *ver);
 #endif	// CLIENT_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

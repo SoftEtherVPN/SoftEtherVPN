@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -227,13 +227,13 @@ void SetSysLog(SLOG *g, char *hostname, UINT port)
 }
 
 // Create a syslog client
-SLOG *NewSysLog(char *hostname, UINT port)
+SLOG *NewSysLog(char *hostname, UINT port, IP *ip)
 {
 	// Validate arguments
 	SLOG *g = ZeroMalloc(sizeof(SLOG));
 
 	g->lock = NewLock();
-	g->Udp = NewUDP(0);
+	g->Udp = NewUDPEx2(0, false, ip);
 
 	SetSysLog(g, hostname, port);
 
@@ -1307,6 +1307,11 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 				// OpenVPN connection request
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
+
+ 			case L7_DNS:
+ 				// DNS request
+ 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+ 				break;
 			}
 
 			break;
@@ -1354,6 +1359,11 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 				// OpenVPN connection request
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
+
+ 			case L7_DNS:
+ 				// DNS request
+ 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+ 				break;
 			}
 
 			break;
@@ -1738,9 +1748,9 @@ char *PacketLogParseProc(RECORD *rec)
 						{
 							t->Token[7] = CopyStr("MainMode");
 						}
-						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_MAIN)
+						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{
@@ -1758,6 +1768,13 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 					}
 					break;
+  
+ 				case L7_DNS:
+ 					// DNS query
+ 					t->Token[6] = CopyStr("DNSv4");
+ 					t->Token[7] = CopyStr("DNS_Query");
+ 					t->Token[14] = CopyStr(p->DnsQueryHost);
+ 					break;
 
 				default:
 					// Unknown Packet
@@ -2003,9 +2020,9 @@ char *PacketLogParseProc(RECORD *rec)
 						{
 							t->Token[7] = CopyStr("MainMode");
 						}
-						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_MAIN)
+						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{
@@ -2023,6 +2040,13 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 					}
 					break;
+  
+ 				case L7_DNS:
+ 					// DNS query
+ 					t->Token[6] = CopyStr("DNSv6");
+ 					t->Token[7] = CopyStr("DNS_Query");
+ 					t->Token[14] = CopyStr(p->DnsQueryHost);
+ 					break;
 
 				default:
 					t->Token[6] = CopyStr("UDPv6");
@@ -2526,7 +2550,7 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 	if (strcmp(old_datestr, tmp) != 0)
 	{
 		ret = true;
-		strcpy(old_datestr, tmp);
+		StrCpy(old_datestr, MAX_SIZE, tmp);
 	}
 
 	snprintf(name, size, "%s%s%s%s%s.log", dir,
@@ -3017,7 +3041,3 @@ LOG *NewLog(char *dir, char *prefix, UINT switch_type)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

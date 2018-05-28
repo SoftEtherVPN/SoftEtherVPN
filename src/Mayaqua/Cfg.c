@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -296,7 +296,7 @@ CFG_RW *NewCfgRwEx2W(FOLDER **root, wchar_t *cfg_name, bool dont_backup, wchar_t
 			{
 				loaded_from_template = true;
 
-				goto LABEL_CONTIUNE;
+				goto LABEL_CONTINUE;
 			}
 		}
 
@@ -311,7 +311,7 @@ CFG_RW *NewCfgRwEx2W(FOLDER **root, wchar_t *cfg_name, bool dont_backup, wchar_t
 		return rw;
 	}
 
-LABEL_CONTIUNE:
+LABEL_CONTINUE:
 	rw = ZeroMalloc(sizeof(CFG_RW));
 	rw->FileNameW = CopyUniStr(cfg_name);
 	rw->FileName = CopyUniToStr(cfg_name);
@@ -1701,18 +1701,6 @@ bool CfgGetUniStr(FOLDER *f, char *name, wchar_t *str, UINT size)
 	return true;
 }
 
-// Check for the existence of a folder
-bool CfgIsFolder(FOLDER *f, char *name)
-{
-	// Validate arguments
-	if (f == NULL || name == NULL)
-	{
-		return false;
-	}
-
-	return (CfgGetFolder(f, name) == NULL) ? false : true;
-}
-
 // Check for the existence of item
 bool CfgIsItem(FOLDER *f, char *name)
 {
@@ -2338,25 +2326,36 @@ void CfgDeleteFolder(FOLDER *f)
 		return;
 	}
 
+	if(f->Folders == NULL)
+	{
+		return;
+	}
+
 	// Remove all subfolders
 	num = LIST_NUM(f->Folders);
-	ff = Malloc(sizeof(FOLDER *) * num);
-	Copy(ff, f->Folders->p, sizeof(FOLDER *) * num);
-	for (i = 0;i < num;i++)
+	if (num  != 0)
 	{
-		CfgDeleteFolder(ff[i]);
+		ff = Malloc(sizeof(FOLDER *) * num);
+		Copy(ff, f->Folders->p, sizeof(FOLDER *) * num);
+		for (i = 0;i < num;i++)
+		{
+			CfgDeleteFolder(ff[i]);
+		}
+		Free(ff);
 	}
-	Free(ff);
 
 	// Remove all items
 	num = LIST_NUM(f->Items);
-	tt = Malloc(sizeof(ITEM *) * num);
-	Copy(tt, f->Items->p, sizeof(ITEM *) * num);
-	for (i = 0;i < num;i++)
+	if (num != 0)
 	{
-		CfgDeleteItem(tt[i]);
+		tt = Malloc(sizeof(ITEM *) * num);
+		Copy(tt, f->Items->p, sizeof(ITEM *) * num);
+		for (i = 0;i < num;i++)
+		{
+			CfgDeleteItem(tt[i]);
+		}
+		Free(tt);
 	}
-	Free(tt);
 
 	// Memory release
 	Free(f->Name);
@@ -2427,7 +2426,3 @@ FOLDER *CfgCreateFolder(FOLDER *parent, char *name)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

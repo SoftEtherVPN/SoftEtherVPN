@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -121,7 +121,7 @@ struct CHECK_CERT_THREAD_PROC
 	X *ServerX;
 	CHECK_CERT_PROC *CheckCertProc;
 	bool UserSelected;
-	bool Exipred;
+	bool Expired;
 	bool Ok;
 };
 
@@ -242,6 +242,7 @@ PACK *PackLoginWithAnonymous(char *hubname, char *username);
 PACK *PackLoginWithPassword(char *hubname, char *username, void *secure_password);
 PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_password);
 PACK *PackLoginWithCert(char *hubname, char *username, X *x, void *sign, UINT sign_size);
+PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x);
 bool GetMethodFromPack(PACK *p, char *method, UINT size);
 bool GetHubnameAndUsernameFromPack(PACK *p, char *username, UINT username_size,
 								   char *hubname, UINT hubname_size);
@@ -314,7 +315,3 @@ bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x);
 
 
 #endif	// PROTOCOL_H
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

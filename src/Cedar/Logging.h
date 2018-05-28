@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -263,7 +263,7 @@ LIST *GenerateEraseFileList(ERASER *e);
 void FreeEraseFileList(LIST *o);
 void PrintEraseFileList(LIST *o);
 void EnumEraseFile(LIST *o, char *dirname);
-SLOG *NewSysLog(char *hostname, UINT port);
+SLOG *NewSysLog(char *hostname, UINT port, IP *ip);
 void SetSysLog(SLOG *g, char *hostname, UINT port);
 void FreeSysLog(SLOG *g);
 void SendSysLog(SLOG *g, wchar_t *str);
@@ -278,7 +278,3 @@ UINT64 GetMaxLogSize();
 
 #endif	// LOGGING_G
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

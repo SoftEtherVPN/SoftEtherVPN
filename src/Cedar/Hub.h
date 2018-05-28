@@ -3,15 +3,15 @@
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -348,7 +348,7 @@ struct ACCESS
 	UCHAR DstMacAddress[6];				// Destination MAC address
 	UCHAR DstMacMask[6];				// Destination MAC address mask
 	bool CheckTcpState;					// The state of the TCP connection
-	bool Established;					// Establieshed(TCP)
+	bool Established;					// Established(TCP)
 	UINT Delay;							// Delay
 	UINT Jitter;						// Jitter
 	UINT Loss;							// Packet loss
@@ -639,7 +639,6 @@ bool IsUserMatchInUserList(LIST *o, char *filename, UINT64 user_hash);
 bool IsUserMatchInUserListWithCacheExpires(LIST *o, char *filename, UINT64 user_hash, UINT64 lifetime);
 bool IsUserMatchInUserListWithCacheExpiresAcl(LIST *o, char *name_in_acl, UINT64 user_hash, UINT64 lifetime);
 void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current);
-void CalcTrafficDiff(TRAFFIC *diff, TRAFFIC *old, TRAFFIC *current);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
 void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);
@@ -648,7 +647,3 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 #endif	// HUB_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

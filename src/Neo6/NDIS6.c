@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Kernel Device Driver
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -119,6 +119,7 @@
 
 static UINT64 max_speed = NEO_MAX_SPEED_DEFAULT;
 static bool keep_link = false;
+static UINT reg_if_type = IF_TYPE_ETHERNET_CSMACD;
 
 BOOLEAN
 PsGetVersion(
@@ -310,7 +311,7 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	}
 
 	// Read the information from the registry
-	if (NeoLoadRegistory() == FALSE)
+	if (NeoLoadRegistry() == FALSE)
 	{
 		// Failure
 		ctx->Initing = FALSE;
@@ -350,8 +351,8 @@ NDIS_STATUS NeoNdisInitEx(NDIS_HANDLE MiniportAdapterHandle,
 	gen.AccessType = NET_IF_ACCESS_BROADCAST;
 	gen.DirectionType = NET_IF_DIRECTION_SENDRECEIVE;
 	gen.ConnectionType = NET_IF_CONNECTION_DEDICATED;
-	gen.IfType = IF_TYPE_ETHERNET_CSMACD;
-	gen.IfConnectorPresent = TRUE;
+	gen.IfType = reg_if_type;
+	gen.IfConnectorPresent = FALSE;
 	gen.SupportedStatistics =
 		NDIS_STATISTICS_FLAGS_VALID_DIRECTED_FRAMES_RCV |
 		NDIS_STATISTICS_FLAGS_VALID_MULTICAST_FRAMES_RCV |
@@ -749,7 +750,7 @@ void NeoFreeControlDevice()
 
 
 // Read the information from the registry
-BOOL NeoLoadRegistory()
+BOOL NeoLoadRegistry()
 {
 	void *buf;
 	NDIS_STATUS ret;
@@ -896,6 +897,20 @@ BOOL NeoLoadRegistory()
 	}
 
 	keep_link = keep;
+
+	// Read the *IfType value
+	name = NewUnicode("*IfType");
+	NdisReadConfiguration(&ret, &param, config, GetUnicode(name), NdisParameterInteger);
+	FreeUnicode(name);
+
+	if (NG(ret) || param->ParameterType != NdisParameterInteger)
+	{
+		reg_if_type = IF_TYPE_ETHERNET_CSMACD;
+	}
+	else
+	{
+		reg_if_type = param->ParameterData.IntegerData;
+	}
 
 	// Close the config handle
 	NdisCloseConfiguration(config);
@@ -1942,7 +1957,3 @@ void NeoFree(void *p)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -129,7 +129,9 @@
 #define	SERVER_DEF_PORTS_INCLIENT_DYN_MAX	1999
 
 extern char *SERVER_CONFIG_FILE_NAME;
-#define	SERVER_DEFAULT_CIPHER_NAME		"RC4-MD5"
+// This is set to an invalid OpenSSL cipher specification by default.
+// The server will default to a list of sane and secure modern ciphers.
+#define	SERVER_DEFAULT_CIPHER_NAME		"~DEFAULT~"
 #define	SERVER_DEFAULT_CERT_DAYS		(365 * 10)
 #define	SERVER_DEFAULT_HUB_NAME			"DEFAULT"
 #define	SERVER_DEFAULT_BRIDGE_NAME		"BRIDGE"
@@ -275,7 +277,7 @@ struct SERVER
 	bool DontBackupConfig;				// Do not save a backup of the configuration automatically
 	bool BackupConfigOnlyWhenModified;	// Save a backup of the configuration only if there is a modification
 	UINT ConfigRevision;				// Configuration file revision
-	bool DisableDosProction;			// Disable the DoS attack protection
+	bool DisableDosProtection;			// Disable the DoS attack protection
 	UCHAR MyRandomKey[SHA1_SIZE];		// Their own random key
 	bool FarmControllerInited;			// Initialization of farm controller has been completed
 	bool DisableDeadLockCheck;			// Disable the deadlock check
@@ -367,6 +369,9 @@ struct SERVER
 
 
 	volatile UINT NatTGlobalUdpPort;	// NAT-T global UDP port
+
+	IP ListenIP;						// Listen IP
+	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
 };
 
 
@@ -650,7 +655,6 @@ LIST *EnumLogFile(char *hubname);
 void EnumLogFileDir(LIST *o, char *dirname);
 void FreeEnumLogFile(LIST *o);
 bool CheckLogFileNameFromEnumList(LIST *o, char *name, char *server_name);
-void AdjoinEnumLogFile(LIST *o, LIST *src);
 void IncrementServerConfigRevision(SERVER *s);
 void GetServerProductName(SERVER *s, char *name, UINT size);
 void GetServerProductNameInternal(SERVER *s, char *name, UINT size);
@@ -748,7 +752,3 @@ bool SiCheckCurrentRegion(CEDAR *c, char *r);
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

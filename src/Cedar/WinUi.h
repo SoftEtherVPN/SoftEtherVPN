@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -646,7 +646,6 @@ void SetTextExA(HWND hWnd, UINT id, char *str, ...);
 void FormatText(HWND hWnd, UINT id, ...);
 void FormatTextA(HWND hWnd, UINT id, ...);
 void Center(HWND hWnd);
-void Center2(HWND hWnd);
 void GetWindowClientRect(HWND hWnd, struct tagRECT *rect);
 void CenterParent(HWND hWnd);
 void GetMonitorSize(UINT *width, UINT *height);
@@ -704,7 +703,6 @@ UINT CbAddStr(HWND hWnd, UINT id, wchar_t *str, UINT data);
 UINT CbAddStrA(HWND hWnd, UINT id, char *str, UINT data);
 UINT CbAddStr9xA(HWND hWnd, UINT id, char *str, UINT data);
 UINT CbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data);
-UINT CbInsertStrA(HWND hWnd, UINT id, UINT index, char *str, UINT data);
 UINT CbInsertStr9xA(HWND hWnd, UINT id, UINT index, char *str, UINT data);
 void CbSelectIndex(HWND hWnd, UINT id, UINT index);
 UINT CbNum(HWND hWnd, UINT id);
@@ -934,7 +932,3 @@ void ShowTextFile(HWND hWnd, char *filename, wchar_t *caption, UINT icon);
 #endif	// OS_WIN32
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

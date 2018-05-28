@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -137,7 +137,7 @@ bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respo
 	msg1.Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	msg1.Chap_Len = Endian16(54 + StrLen(e->Username));
 	msg1.Chap_ValueSize = 49;
-	Copy(msg1.Chap_PeerChallange, client_challenge, 16);
+	Copy(msg1.Chap_PeerChallenge, client_challenge, 16);
 	Copy(msg1.Chap_NtResponse, client_response, 24);
 	Copy(msg1.Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
@@ -757,7 +757,7 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 	eap1->Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	eap1->Chap_Len = Endian16(54 + StrLen(e->Username));
 	eap1->Chap_ValueSize = 49;
-	Copy(eap1->Chap_PeerChallange, client_challenge, 16);
+	Copy(eap1->Chap_PeerChallenge, client_challenge, 16);
 	Copy(eap1->Chap_NtResponse, client_response, 24);
 	Copy(eap1->Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
@@ -1827,6 +1827,13 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 		if (encrypted_password == NULL)
 		{
 			// Encryption failure
+
+			// Release the ip_list
+			for(i = 0; i < LIST_NUM(ip_list); i++)
+			{
+				IP *tmp_ip = LIST_DATA(ip_list, i);
+				Free(tmp_ip);
+			}
 			ReleaseList(ip_list);
 			return false;
 		}
@@ -2412,7 +2419,3 @@ BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT se
 	return buf;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

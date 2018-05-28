@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -545,6 +545,8 @@ void IPsecServerSetServices(IPSEC_SERVER *s, IPSEC_SERVICES *sl)
 	{
 		Copy(&s->Services, sl, sizeof(IPSEC_SERVICES));
 
+		Copy(&s->UdpListener->ListenIP, &s->Cedar->Server->ListenIP, sizeof(IP));
+
 		if (sl->L2TP_Raw)
 		{
 			AddPortToUdpListener(s->UdpListener, IPSEC_PORT_L2TP);
@@ -782,7 +784,7 @@ IPSEC_SERVER *NewIPsecServer(CEDAR *cedar)
 	s->Ike = NewIKEServer(cedar, s);
 	StrCpy(s->Ike->Secret, sizeof(s->Ike->Secret), IPSEC_DEFAULT_SECRET);
 
-	s->UdpListener = NewUdpListener(IPsecServerUdpPacketRecvProc, s);
+	s->UdpListener = NewUdpListener(IPsecServerUdpPacketRecvProc, s, &cedar->Server->ListenIP);
 
 	s->EtherIPIdList = NewList(CmpEtherIPId);
 
@@ -793,7 +795,3 @@ IPSEC_SERVER *NewIPsecServer(CEDAR *cedar)
 	return s;
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

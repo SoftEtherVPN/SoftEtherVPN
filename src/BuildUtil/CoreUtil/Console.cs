@@ -1129,12 +1129,12 @@ namespace CoreUtil
 					}
 					else if (candidate.Count >= 2)
 					{
-						this.write(Str.FormatC(Resources.CON_AMBIGIOUS_CMD, cmd_name));
-						this.write(Resources.CON_AMBIGIOUS_CMD_1);
+						this.write(Str.FormatC(Resources.CON_AMBIGUOUS_CMD, cmd_name));
+						this.write(Resources.CON_AMBIGUOUS_CMD_1);
 						string[] candidateArray = candidate.ToArray();
 
 						PrintCandidateHelp(null, candidateArray, 1, cmdList);
-						this.write(Resources.CON_AMBIGIOUS_CMD_2);
+						this.write(Resources.CON_AMBIGUOUS_CMD_2);
 
 						this.retCode = ConsoleErrorCode.ERR_BAD_COMMAND_OR_PARAM;
 					}
@@ -1552,14 +1552,14 @@ namespace CoreUtil
 				{
 					if (candidate.Length >= 2)
 					{
-						this.write(Str.FormatC(Resources.CON_AMBIGIOUS_PARAM,
+						this.write(Str.FormatC(Resources.CON_AMBIGUOUS_PARAM,
 							param_list[i]));
 
-						this.write(Str.FormatC(Resources.CON_AMBIGIOUS_PARAM_1,
+						this.write(Str.FormatC(Resources.CON_AMBIGUOUS_PARAM_1,
 							cmdName));
 
 						PrintCandidateHelp(cmdName, candidate, 1, this.currentCmdList);
-						this.write(Resources.CON_AMBIGIOUS_PARAM_2);
+						this.write(Resources.CON_AMBIGUOUS_PARAM_2);
 
 						ok = false;
 					}
@@ -2204,7 +2204,3 @@ namespace CoreUtil
 		}
 	}
 }
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

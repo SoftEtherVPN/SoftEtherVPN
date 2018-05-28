@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -933,11 +933,11 @@ RETRY:
 			wchar_t tmp[MAX_SIZE];
 
 			// There is more than one candidate
-			UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_CMD"), cmd_name);
+			UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_CMD"), cmd_name);
 			c->Write(c, tmp);
-			c->Write(c, _UU("CON_AMBIGIOUS_CMD_1"));
+			c->Write(c, _UU("CON_AMBIGUOUS_CMD_1"));
 			PrintCandidateHelp(c, NULL, candidate, 1);
-			c->Write(c, _UU("CON_AMBIGIOUS_CMD_2"));
+			c->Write(c, _UU("CON_AMBIGUOUS_CMD_2"));
 
 			c->RetCode = ERR_BAD_COMMAND_OR_PARAM;
 		}
@@ -1338,14 +1338,14 @@ LIST *ParseCommandList(CONSOLE *c, char *cmd_name, wchar_t *command, PARAM param
 				wchar_t tmp[MAX_SIZE];
 
 				// There is more than one candidate
-				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_PARAM"), param_list->Token[i]);
+				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_PARAM"), param_list->Token[i]);
 				c->Write(c, tmp);
-				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGIOUS_PARAM_1"), cmd_name);
+				UniFormat(tmp, sizeof(tmp), _UU("CON_AMBIGUOUS_PARAM_1"), cmd_name);
 				c->Write(c, tmp);
 
 				PrintCandidateHelp(c, cmd_name, candidate, 1);
 
-				c->Write(c, _UU("CON_AMBIGIOUS_PARAM_2"));
+				c->Write(c, _UU("CON_AMBIGUOUS_PARAM_2"));
 
 				ok = false;
 			}
@@ -2237,6 +2237,7 @@ CONSOLE *NewLocalConsole(wchar_t *infile, wchar_t *outfile)
 	c->ReadPassword = ConsoleLocalReadPassword;
 	c->Write = ConsoleLocalWrite;
 	c->GetWidth = ConsoleLocalGetWidth;
+	c->OutputLock = NewLock();
 
 	if (UniIsEmptyStr(infile) == false)
 	{
@@ -2347,6 +2348,8 @@ void ConsoleLocalFree(CONSOLE *c)
 
 		Free(p);
 	}
+
+	DeleteLock(c->OutputLock);
 
 	// Memory release
 	Free(c);
@@ -2558,7 +2561,3 @@ void ConsoleWriteOutFile(CONSOLE *c, wchar_t *str, bool add_last_crlf)
 
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

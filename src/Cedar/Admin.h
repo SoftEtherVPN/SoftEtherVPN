@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -172,7 +172,7 @@ struct RPC_SERVER_STATUS
 	UINT NumTcpConnectionsLocal;		// Number of Local TCP connections
 	UINT NumTcpConnectionsRemote;		// Number of remote TCP connections
 	UINT NumHubTotal;					// Total number of HUBs
-	UINT NumHubStandalone;				// Nymber of stand-alone HUB
+	UINT NumHubStandalone;				// Number of stand-alone HUB
 	UINT NumHubStatic;					// Number of static HUBs
 	UINT NumHubDynamic;					// Number of Dynamic HUBs
 	UINT NumSessionsTotal;				// Total number of sessions
@@ -1003,7 +1003,6 @@ struct RPC_AZURE_STATUS
 UINT AdminAccept(CONNECTION *c, PACK *p);
 void HashAdminPassword(void *hash, char *password);
 SESSION *AdminConnectMain(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, bool *empty_password);
-RPC *AdminConnect(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err);
 RPC *AdminConnectEx(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name);
 RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd);
 void AdminDisconnect(RPC *rpc);
@@ -1356,7 +1355,7 @@ void InRpcDeleteHub(RPC_DELETE_HUB *t, PACK *p);
 void OutRpcDeleteHub(PACK *p, RPC_DELETE_HUB *t);
 void InRpcEnumConnection(RPC_ENUM_CONNECTION *t, PACK *p);
 void OutRpcEnumConnection(PACK *p, RPC_ENUM_CONNECTION *t);
-void FreeRpcEnumConnetion(RPC_ENUM_CONNECTION *t);
+void FreeRpcEnumConnection(RPC_ENUM_CONNECTION *t);
 void InRpcDisconnectConnection(RPC_DISCONNECT_CONNECTION *t, PACK *p);
 void OutRpcDisconnectConnection(PACK *p, RPC_DISCONNECT_CONNECTION *t);
 void InRpcConnectionInfo(RPC_CONNECTION_INFO *t, PACK *p);
@@ -1533,7 +1532,3 @@ void OutRpcInternetSetting(PACK *p, INTERNET_SETTING *t);
 #endif	// ADMIN_H
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

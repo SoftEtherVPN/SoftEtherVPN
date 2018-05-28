@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -356,7 +356,7 @@ void ListenerUDPMainLoop(LISTENER *r)
 			}
 
 			Debug("NewUDP()\n");
-			r->Sock = NewUDP(r->Port);
+			r->Sock = NewUDPEx2(r->Port, false, &r->Cedar->Server->ListenIP);
 			if (r->Sock != NULL)
 			{
 				// Wait success
@@ -465,7 +465,14 @@ void ListenerTCPMainLoop(LISTENER *r)
 			{
 				if (r->ShadowIPv6 == false)
 				{
-					s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept);
+					if (r->Cedar->Server == NULL)
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, NULL);
+					}
+					else
+					{
+						s = ListenEx2(r->Port, r->LocalOnly, r->EnableConditionalAccept, &r->Cedar->Server->ListenIP);
+					}
 				}
 				else
 				{
@@ -478,7 +485,7 @@ void ListenerTCPMainLoop(LISTENER *r)
 			}
 			else if (r->Protocol == LISTENER_RUDP)
 			{
-				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 0, false, false, r->NatTGlobalUdpPort, r->RandPortId);
+				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 0, false, false, r->NatTGlobalUdpPort, r->RandPortId, &r->Cedar->Server->ListenIP);
 			}
 			else if (r->Protocol == LISTENER_ICMP)
 			{
@@ -555,7 +562,7 @@ void ListenerTCPMainLoop(LISTENER *r)
 			goto STOP;
 		}
 
-		// Accpet loop
+		// Accept loop
 		while (true)
 		{
 			// Accept
@@ -1103,7 +1110,3 @@ void ApplyDynamicListener(DYNAMIC_LISTENER *d)
 }
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

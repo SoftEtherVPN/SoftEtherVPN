@@ -296,11 +296,11 @@ namespace CoreUtil
 		{
 			bool do_delete = false;
 			long now = Tick64.Value;
-			long delete_inveral = expireSpan.Milliseconds / 10;
+			long delete_interval = expireSpan.Milliseconds / 10;
 
 			lock (lockObj)
 			{
-				if (last_deleted == 0 || now > (last_deleted + delete_inveral))
+				if (last_deleted == 0 || now > (last_deleted + delete_interval))
 				{
 					last_deleted = now;
 					do_delete = true;
@@ -344,7 +344,3 @@ namespace CoreUtil
 	}
 }
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

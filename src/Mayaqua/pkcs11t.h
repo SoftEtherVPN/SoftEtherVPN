@@ -88,7 +88,7 @@ typedef CK_VERSION CK_PTR CK_VERSION_PTR;
 
 
 typedef struct CK_INFO {
-  /* manufacturerID and libraryDecription have been changed from
+  /* manufacturerID and libraryDescription have been changed from
    * CK_CHAR to CK_UTF8CHAR for v2.10 */
   CK_VERSION    cryptokiVersion;     /* Cryptoki interface ver */
   CK_UTF8CHAR   manufacturerID[32];  /* blank padded */

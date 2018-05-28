@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -665,7 +665,7 @@ bool SwSfxCopyVgFiles(HWND hWnd, wchar_t *src, wchar_t *dst)
 	}
 
 	msg = L"The file \"%s\" was not found on the directory which the installer \"%s\" is located on.\r\n\r\n"
-		L"To continue the installation, the file \"%s\" is required on the same direcotry.\r\n"
+		L"To continue the installation, the file \"%s\" is required on the same directory.\r\n"
 		L"If you have extracted the installer from a ZIP archive, you have to also extract the file \"%s\" from the ZIP archive together.";
 
 	MsgBoxEx(hWnd, MB_ICONINFORMATION, msg, srcfilename, exefilename, srcfilename, srcfilename);
@@ -1220,6 +1220,10 @@ UINT SwGetLangIcon(char *name)
 	{
 		ret = ICO_LANG_CHINESE;
 	}
+	else if (StrCmpi(name, "tw") == 0)
+	{
+		ret = ICO_LANG_TRADITIONAL_CHINESE;
+	}
 
 	return ret;
 }
@@ -1755,7 +1759,7 @@ UINT SwFinish(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard,
 	return 0;
 }
 
-// Error occuring screen
+// Error occurring screen
 UINT SwError(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, WIZARD_PAGE *wizard_page, void *param)
 {
 	SW *sw = (SW *)param;
@@ -4151,7 +4155,7 @@ L_RETRY_LINK:
 		{
 			// Show the error message if it fails
 			UINT msgret;
-			UniFormat(tmp, sizeof(tmp), _UU("SW_PERFORM_MSG_CRAETE_LINK_ERROR"), lnk_fullpath);
+			UniFormat(tmp, sizeof(tmp), _UU("SW_PERFORM_MSG_CREATE_LINK_ERROR"), lnk_fullpath);
 			msgret = SwPerformMsgBox(wp, MB_ICONEXCLAMATION | MB_YESNO, tmp);
 
 			if (msgret == IDYES)
@@ -5859,9 +5863,6 @@ void SwUiMain(SW *sw)
 	GetCedarVersion(ver, sizeof(ver));
 	UniFormat(verstr, sizeof(verstr), _UU("SW_TITLE"), ver);
 
-	// DO NOT REMOVE THIS INDICATION !!!
-	UniStrCat(verstr, sizeof(verstr), L" - Customized Version");
-
 	w = NewWizard(ICO_SETUP, BMP_SELOGO49x49, verstr, sw);
 
 	w->CloseConfirmMsg = _UU("SW_EXIT_CONFIRM");
@@ -6677,7 +6678,3 @@ UINT SWExecMain()
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

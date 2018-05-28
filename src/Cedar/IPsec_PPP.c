@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -291,7 +291,7 @@ void PPPThread(THREAD *thread, void *param)
 						ReadBuf(b, client_response_buffer, 49);
 
 						Zero(username_tmp, sizeof(username_tmp));
-						ReadBuf(b, username_tmp, sizeof(username_tmp));
+						ReadBuf(b, username_tmp, sizeof(username_tmp) - 1);
 
 						Debug("First MS-CHAPv2: id=%s\n", username_tmp);
 
@@ -977,7 +977,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					ReadBuf(b, client_response_buffer, 49);
 
 					Zero(username_tmp, sizeof(username_tmp));
-					ReadBuf(b, username_tmp, sizeof(username_tmp));
+					ReadBuf(b, username_tmp, sizeof(username_tmp) - 1);
 
 					client_challenge_16 = client_response_buffer + 0;
 					client_response_24 = client_response_buffer + 16 + 8;
@@ -1018,7 +1018,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					// Attempt to connect with IPC
 					ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 						&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient);
+						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL);
 
 					if (ipc != NULL)
 					{
@@ -1151,7 +1151,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 
 								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 									&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL);
+									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL);
 
 								if (ipc != NULL)
 								{
@@ -1749,8 +1749,15 @@ PPP_PACKET *PPPRecvResponsePacket(PPP_SESSION *p, PPP_PACKET *req, USHORT expect
 
 			if (pp->IsControl && PPP_CODE_IS_REQUEST(pp->Protocol, pp->Lcp->Code))
 			{
+				// Record current resend because next steps may take a while
+				UINT64 currentresend = next_resend - now;
+
 				// Process when the received packet is a request packet
 				response = PPPProcessRequestPacket(p, pp);
+
+				// Increase next resend because this may have taken a while
+				next_resend = Tick64() + currentresend;
+
 				FreePPPPacket(pp);
 
 				if (response == NULL)
@@ -2835,7 +2842,3 @@ char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list)
 
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/

@@ -1,17 +1,17 @@
-// SoftEther VPN Source Code
+// SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
 // 
 // SoftEther VPN Server, Client and Bridge are free software under GPLv2.
 // 
-// Copyright (c) 2012-2016 Daiyuu Nobori.
-// Copyright (c) 2012-2016 SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) 2012-2016 SoftEther Corporation.
+// Copyright (c) Daiyuu Nobori.
+// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+// Copyright (c) SoftEther Corporation.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori
+// Author: Daiyuu Nobori, Ph.D.
 // Comments: Tetsuo Sugiyama, Ph.D.
 // 
 // This program is free software; you can redistribute it and/or
@@ -648,7 +648,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 
 	if (local == false)
 	{
-		// Enable promiscious mode
+		// Enable promiscuous mode
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), name);
 		if (ioctl(s, SIOCGIFFLAGS, &ifr) < 0)
@@ -935,7 +935,7 @@ ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 	}
 
 	// Attach to the device
-	if (DlipAttatchRequest(fd, devid) == false)
+	if (DlipAttachRequest(fd, devid) == false)
 	{
 		// Failed
 		close(fd);
@@ -1104,7 +1104,7 @@ bool DlipBindRequest(int fd)
 }
 
 // Attach to the device
-bool DlipAttatchRequest(int fd, UINT devid)
+bool DlipAttachRequest(int fd, UINT devid)
 {
 	dl_attach_req_t req;
 	struct strbuf ctl;
@@ -2808,7 +2808,3 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 #endif	// BRIDGE_C
 
 
-
-// Developed by SoftEther VPN Project at University of Tsukuba in Japan.
-// Department of Computer Science has dozens of overly-enthusiastic geeks.
-// Join us: http://www.tsukuba.ac.jp/english/admission/
