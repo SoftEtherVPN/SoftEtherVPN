@@ -222,19 +222,19 @@ add_custom_command(TARGET hamcore-archive-build
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
 )
 
-# Copy contents of "bin" directory to /usr
+# Copy contents of "bin" directory to /usr/lib(exec)/softether/
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/"
-  DESTINATION "/usr"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
   PATTERN "*"
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
 # Create wrapper scripts in the user's binaries directory, which is usually "/usr/local/bin".
 # This is required because symlinks use the folder they are in as working directory.
-install_wrapper_script("/usr/vpnserver/vpnserver" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("/usr/vpnclient/vpnclient" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("/usr/vpnbridge/vpnbridge" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("/usr/vpncmd/vpncmd" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpncmd/vpncmd" ${CMAKE_INSTALL_FULL_BINDIR})
 
 # Print message after installing the targets
 install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")
