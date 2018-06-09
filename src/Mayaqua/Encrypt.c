@@ -4253,8 +4253,8 @@ void AesDecrypt(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec)
 	EVP_CIPHER_CTX_free(ctx);
 }
 
-// Determine whether the Intel AES-NI is supported
-bool IsIntelAesNiSupported()
+// Determine whether the AES-NI instruction set is supported by the CPU
+bool IsAesNiSupported()
 {
 	bool supported = false;
 

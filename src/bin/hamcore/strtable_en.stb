@@ -659,7 +659,7 @@ CT_b_support_special_listener	VPN over ICMP and VPN over DNS is Supported
 CT_b_support_redirect_url_acl	HTTP URL Redirection in Access List is Supported
 CT_b_is_in_vm			Running on VM (Virtual Machine)
 CT_b_support_azure		VPN Azure is Supported
-CT_b_support_intel_aes	Intel CPU AES Acceleration (AES-NI) is Active
+CT_b_support_aes_ni	CPU AES Acceleration (AES-NI) is Active
 CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode Ethernet Driver is Active
 CT_b_support_vgs		VPN Gate Service Server Functions are Supported
 CT_b_support_vgs_in_client	VPN Gate Service Server Functions (VPN Client integrated)

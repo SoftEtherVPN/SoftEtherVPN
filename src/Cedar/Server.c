@@ -1770,8 +1770,8 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// UDP acceleration feature
 	AddCapsBool(t, "b_support_udp_acceleration", true);
 
-	// Intel AES Acceleration function
-	AddCapsBool(t, "b_support_intel_aes", IsIntelAesNiSupported());
+	// AES acceleration function
+	AddCapsBool(t, "b_support_aes_ni", IsAesNiSupported());
 
 #ifdef	OS_WIN32
 	// SeLow driver

@@ -661,7 +661,7 @@ CT_b_support_special_listener	VPN over ICMP および VPN over DNS 接続の受�
 CT_b_support_redirect_url_acl	アクセスリストで HTTP の URL リダイレクト機能をサポート
 CT_b_is_in_vm			VM (仮想マシン) 内で動作中
 CT_b_support_azure		VPN Azure 機能が利用可能
-CT_b_support_intel_aes	Intel CPU AES Acceleration (AES-NI) が動作中
+CT_b_support_aes_ni	CPU AES Acceleration (AES-NI) が動作中
 CT_b_using_selow_driver	SoftEther 軽量カーネルモード Ethernet ドライバを使用中
 CT_b_support_vgs		VPN Gate サービス サーバー機能が利用可能
 CT_b_support_vgs_in_client	VPN Gate サービス サーバー機能 (VPN Client 統合)

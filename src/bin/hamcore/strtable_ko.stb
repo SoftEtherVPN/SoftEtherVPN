@@ -662,7 +662,7 @@ CT_b_support_special_listener VPN over ICMP 및 VPN over DNS 연결 접수
 CT_b_support_redirect_url_acl 액세스 목록에서 HTTP의 URL 리디렉션 기능을 지원
 CT_b_is_in_vm VM(가상 머신)에서 실행중인
 CT_b_support_azure VPN Azure 기능을 사용할 수
-CT_b_support_intel_aes Intel CPU AES Acceleration (AES-NI)가 동작 중
+CT_b_support_aes_ni CPU AES Acceleration (AES-NI)가 동작 중
 CT_b_using_selow_driver SoftEther 경량 커널 모드 Ethernet 드라이버를 사용 중
 CT_b_support_vgs VPN Gate 서비스 서버 기능을 사용할 수
 CT_b_support_vgs_in_client VPN Gate 서비스 서버 기능 (VPN Client 통합)

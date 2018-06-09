@@ -665,7 +665,7 @@ CT_b_support_special_listener	支持 VPN over ICMP 和 VPN over DNS
 CT_b_support_redirect_url_acl	支持访问列表 HTTP URL 改道
 CT_b_is_in_vm				虚拟机上运行
 CT_b_support_azure			支持 VPN Azure
-CT_b_support_intel_aes		支持 Intel CPU AES 加密加速功能 (AES-NI)
+CT_b_support_aes_ni		支持 CPU AES 加密加速功能 (AES-NI)
 CT_b_using_selow_driver		支持 SoftEther Lightweight Kernel-mode Ethernet Driver
 CT_b_support_vgs			支持 VPN Gate 服务的服务器功能
 CT_b_support_vgs_in_client	VPN Gate 服务的服务器功能 (VPN 客户端集成)

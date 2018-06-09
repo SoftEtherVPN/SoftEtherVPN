@@ -522,7 +522,7 @@ void AesFreeKey(AES_KEY_VALUE *k);
 void AesEncrypt(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec);
 void AesDecrypt(void *dest, void *src, UINT size, AES_KEY_VALUE *k, void *ivec);
 
-bool IsIntelAesNiSupported();
+bool IsAesNiSupported();
 
 void OpenSSL_InitLock();
 void OpenSSL_FreeLock();
