@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 export DH_VERBOSE=1
+export CMAKE_INSTALL_PREFIX=`pwd`/../../usr
 CFLAGS := $(shell dpkg-buildflags --get CFLAGS)
 LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
 
@@ -9,13 +10,14 @@ LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
 
 override_dh_auto_configure: configure_config
 
+override_dh_auto_make:
+	make -C tmp
+
 override_dh_auto_clean:
 	rm -fr Makefile* usr bin tmp src/bin/BuiltHamcoreFiles
 
 override_dh_auto_install:
-	patch -f < debian/makefile.patch
-	mkdir -p usr/bin
-	make install
+	make -C tmp install
 
 configure_config:
 	if [ $(shell uname -m) = 'x86_64' ]; then echo -e "1\n2\n" | ./configure; fi

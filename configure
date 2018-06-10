@@ -21,7 +21,12 @@ if [ ! -d "tmp" ]; then
   mkdir tmp
 fi
 
-(cd tmp && cmake .. || exit 1)
+if [ ! -z ${CMAKE_INSTALL_PREFIX+x} ]; then
+	CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+fi
+
+(cd tmp && cmake ${CMAKE_FLAGS} .. || exit 1)
+
 
 echo ""
 
