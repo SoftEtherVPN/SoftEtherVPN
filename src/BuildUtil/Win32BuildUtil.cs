@@ -627,19 +627,19 @@ namespace BuildUtil
 				StreamWriter bat = new StreamWriter(batFileName, false, Str.ShiftJisEncoding);
 				bat.WriteLine("call \"{0}\"", Paths.VisualStudioVCBatchFileName);
 				bat.WriteLine("echo on");
-				bat.WriteLine("\"{0}\" /toolsversion:3.5 /verbosity:detailed /target:Clean /property:Configuration=Release /property:Platform=Win32 \"{1}\"",
+				bat.WriteLine("\"{0}\" /toolsversion:3.5 /target:Clean /property:Configuration=Release /property:Platform=Win32 \"{1}\"",
 					Paths.MSBuildFileName, Paths.VPN4SolutionFileName);
 				bat.WriteLine("IF ERRORLEVEL 1 GOTO LABEL_ERROR");
 
-				bat.WriteLine("\"{0}\" /toolsversion:3.5 /verbosity:detailed /target:Clean /property:Configuration=Release /property:Platform=x64 \"{1}\"",
+				bat.WriteLine("\"{0}\" /toolsversion:3.5 /target:Clean /property:Configuration=Release /property:Platform=x64 \"{1}\"",
 					Paths.MSBuildFileName, Paths.VPN4SolutionFileName);
 				bat.WriteLine("IF ERRORLEVEL 1 GOTO LABEL_ERROR");
 
-				bat.WriteLine("\"{0}\" /toolsversion:3.5 /verbosity:detailed /target:Rebuild /property:Configuration=Release /property:Platform=Win32 \"{1}\"",
+				bat.WriteLine("\"{0}\" /toolsversion:3.5 /target:Rebuild /property:Configuration=Release /property:Platform=Win32 \"{1}\"",
 					Paths.MSBuildFileName, Paths.VPN4SolutionFileName);
 				bat.WriteLine("IF ERRORLEVEL 1 GOTO LABEL_ERROR");
 
-				bat.WriteLine("\"{0}\" /toolsversion:3.5 /verbosity:detailed /target:Rebuild /property:Configuration=Release /property:Platform=x64 \"{1}\"",
+				bat.WriteLine("\"{0}\" /toolsversion:3.5 /target:Rebuild /property:Configuration=Release /property:Platform=x64 \"{1}\"",
 					Paths.MSBuildFileName, Paths.VPN4SolutionFileName);
 				bat.WriteLine("IF ERRORLEVEL 1 GOTO LABEL_ERROR");
 
