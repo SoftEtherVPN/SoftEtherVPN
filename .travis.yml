@@ -20,6 +20,12 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: clang
+    - env: DESCRIPTION="check debian package version"
+      os: linux
+      before_install:
+        - true
+      script:
+        - .ci/check-debian-package-version.sh
     - os: osx
       compiler: clang
       before_install:
