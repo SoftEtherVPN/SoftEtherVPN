@@ -2137,6 +2137,15 @@ UINT64 SystemToUINT64(SYSTEMTIME *st)
 	}
 
 	time = SystemToTime(st);
+
+	//For times before 1970-01-01, clamp to the minimum
+	//because we have to return an unsigned integer.
+	//This is less wrong than casting it to UINT64
+	//and returning a time far in the future.
+	//For some reason we subtract 9 hours below, so
+	//account for that here.
+	if( time < 32400000LL ) return 0;
+
 	sec64 = (UINT64)time * (UINT64)1000;
 	sec64 += st->wMilliseconds;
 

@@ -2135,6 +2135,9 @@ bool Asn1TimeToSystem(SYSTEMTIME *s, void *asn1_time)
 // Convert the string to the system time
 bool StrToSystem(SYSTEMTIME *s, char *str)
 {
+	char century[3] = {0, 0, 0};
+	bool fourdigityear = false;
+
 	// Validate arguments
 	if (s == NULL || str == NULL)
 	{
@@ -2142,7 +2145,14 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 	}
 	if (StrLen(str) != 13)
 	{
-		return false;
+		if (StrLen(str) != 15) return false;
+
+		//Year has 4 digits - save first two and use the rest
+		//as if it had two digits
+		fourdigityear = true;
+		century[0] = str[0];
+		century[1] = str[1];
+		str += 2;
 	}
 	if (str[12] != 'Z')
 	{
@@ -2159,7 +2169,10 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 			second[3] = {str[10], str[11], 0};
 		Zero(s, sizeof(SYSTEMTIME));
 		s->wYear = ToInt(year);
-		if (s->wYear >= 60)
+		if( fourdigityear ) {
+			s->wYear += ToInt(century) * 100;
+		}
+		else if (s->wYear >= 60)
 		{
 			s->wYear += 1900;
 		}
