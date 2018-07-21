@@ -190,6 +190,10 @@
 #define	OPENVPN_MODE_L2							1		// TAP (Ethernet)
 #define	OPENVPN_MODE_L3							2		// TUN (IP)
 
+// Data
+#define OPENVPN_DATA_OPTIONS	0
+#define OPENVPN_DATA_PEERINFO	1
+
 
 //// Type
 
@@ -361,11 +365,11 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 BUF *OvsBuildKeyMethod2(OPENVPN_KEY_METHOD_2 *d);
 void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
-LIST *OvsParseOptions(char *str);
-void OvsFreeOptions(LIST *o);
-LIST *OvsNewOptions();
-void OvsAddOption(LIST *o, char *key, char *value);
-bool OvsHasOption(LIST *o, char *key);
+LIST *OvsParseData(char *str, int type);
+void OvsFreeList(LIST *o);
+LIST *OvsNewList();
+void OvsAddEntry(LIST *o, char *key, char *value);
+bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 bool OvsIsCompatibleL3IP(UINT ip);

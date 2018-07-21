@@ -673,6 +673,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 
 	if (se->IpcAsync == NULL)
 	{
+		LIST *pi;
 		IPC_PARAM p;
 		ETHERIP_ID id;
 
@@ -701,6 +702,24 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 		{
 			StrCpy(p.CryptName, sizeof(p.CryptName), c->CipherEncrypt->Name);
 		}
+
+		// OpenVPN sends the default gateway's MAC address,
+		// if the option --push-peer-info is enabled.
+		// It also sends all of the client's environment
+		// variables whose names start with "UV_".
+		pi = OvsParseData(c->ClientKey.PeerInfo, OPENVPN_DATA_PEERINFO);
+
+		// Check presence of custom hostname
+		if (OvsHasEntry(pi, "UV_HOSTNAME"))
+		{
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "UV_HOSTNAME"));
+		}
+		else // Use the default gateway's MAC address
+		{
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "IV_HWADDR"));
+		}
+
+		OvsFreeList(pi);
 
 		if (se->Mode == OPENVPN_MODE_L3)
 		{
@@ -813,7 +832,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		StrCpy(opt_str, sizeof(opt_str), s->Cedar->OpenVPNDefaultClientOption);
 	}
 
-	o = OvsParseOptions(opt_str);
+	o = OvsParseData(opt_str, OPENVPN_DATA_OPTIONS);
 
 	if (se->Mode == OPENVPN_MODE_UNKNOWN)
 	{
@@ -913,7 +932,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	SetMdKey(c->MdRecv, c->ExpansionKey + 64, c->MdRecv->Size);
 	SetMdKey(c->MdSend, c->ExpansionKey + 192, c->MdSend->Size);
 
-	OvsFreeOptions(o);
+	OvsFreeList(o);
 
 	// Generate the response option string
 	Format(c->ServerKey.OptionString, sizeof(c->ServerKey.OptionString),
@@ -965,13 +984,13 @@ MD *OvsGetMd(char *name)
 	return m;
 }
 
-// Parse the option string
-LIST *OvsParseOptions(char *str)
+// Parse data string
+LIST *OvsParseData(char *str, int type)
 {
 	LIST *o = NewListFast(NULL);
 	TOKEN_LIST *t;
 
-	t = ParseTokenWithoutNullStr(str, ",");
+	t = ParseTokenWithoutNullStr(str, type == OPENVPN_DATA_OPTIONS ? "," : "\n");
 	if (t != NULL)
 	{
 		UINT i;
@@ -983,7 +1002,7 @@ LIST *OvsParseOptions(char *str)
 			char *line = t->Token[i];
 			Trim(line);
 
-			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), " \t"))
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), type == OPENVPN_DATA_OPTIONS ? " \t" : "=\t"))
 			{
 				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
 
@@ -1001,7 +1020,7 @@ LIST *OvsParseOptions(char *str)
 }
 
 // Release the option list
-void OvsFreeOptions(LIST *o)
+void OvsFreeList(LIST *o)
 {
 	// Validate arguments
 	if (o == NULL)
@@ -1013,13 +1032,13 @@ void OvsFreeOptions(LIST *o)
 }
 
 // Create an Option List
-LIST *OvsNewOptions()
+LIST *OvsNewList()
 {
 	return NewListFast(NULL);
 }
 
 // Add a value to the option list
-void OvsAddOption(LIST *o, char *key, char *value)
+void OvsAddEntry(LIST *o, char *key, char *value)
 {
 	INI_ENTRY *e;
 	// Validate arguments
@@ -1051,7 +1070,7 @@ void OvsAddOption(LIST *o, char *key, char *value)
 }
 
 // Confirm whether there is specified option key string
-bool OvsHasOption(LIST *o, char *key)
+bool OvsHasEntry(LIST *o, char *key)
 {
 	// Validate arguments
 	if (o == NULL || key == NULL)
