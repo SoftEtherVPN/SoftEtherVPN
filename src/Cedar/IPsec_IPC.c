@@ -1235,7 +1235,6 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 {
 	LIST *o;
 	UCHAR opcode;
-	UCHAR client_id[7];
 	BUF *ret;
 	// Validate arguments
 	if (ipc == NULL || opt == NULL)
@@ -1255,11 +1254,6 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 		Add(o, NewDhcpOption(DHCP_ID_SERVER_ADDRESS, &opt->ServerAddress, 4));
 	}
 
-	// Client MAC Address
-	client_id[0] = ARP_HARDWARE_TYPE_ETHERNET;
-	Copy(client_id + 1, ipc->MacAddress, 6);
-	Add(o, NewDhcpOption(DHCP_ID_CLIENT_ID, client_id, sizeof(client_id)));
-
 	// Requested IP Address
 	if (opt->RequestedIp != 0)
 	{
@@ -1270,6 +1264,14 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 	if (IsEmptyStr(opt->Hostname) == false)
 	{
 		Add(o, NewDhcpOption(DHCP_ID_HOST_NAME, opt->Hostname, StrLen(opt->Hostname)));
+		Add(o, NewDhcpOption(DHCP_ID_CLIENT_ID, opt->Hostname, StrLen(opt->Hostname)));
+	}
+	else // Client MAC Address
+	{
+		UCHAR client_id[7];
+		client_id[0] = ARP_HARDWARE_TYPE_ETHERNET;
+		Copy(client_id + 1, ipc->MacAddress, 6);
+		Add(o, NewDhcpOption(DHCP_ID_CLIENT_ID, client_id, sizeof(client_id)));
 	}
 
 	// User Class
