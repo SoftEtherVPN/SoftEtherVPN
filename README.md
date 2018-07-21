@@ -70,6 +70,8 @@ https://github.com/zulzardi
 Alex Maslakov (Since Nov 6, 2017)
 https://github.com/GildedHonour
 
+Davide Beatrici (Since Jul 21, 2018)
+https://github.com/davidebeatrici
 
 
 # SOFTETHER VPN ADVANTAGES
