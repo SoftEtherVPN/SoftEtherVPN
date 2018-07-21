@@ -69,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -212,7 +212,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -286,7 +286,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -824,14 +824,6 @@
 			</File>
 			<File
 				RelativePath=".\zlib\zlib.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="intelaes"
-			>
-			<File
-				RelativePath=".\intelaes\iaesni.h"
 				>
 			</File>
 		</Filter>
