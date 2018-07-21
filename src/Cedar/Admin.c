@@ -7392,8 +7392,8 @@ UINT StGetSecureNATOption(ADMIN *a, VH_OPTION *t)
 	}
 
 	Zero(t, sizeof(VH_OPTION));
-	StrCpy(t->HubName, sizeof(t->HubName), hubname);
 	Copy(t, h->SecureNATOption, sizeof(VH_OPTION));
+	StrCpy(t->HubName, sizeof(t->HubName), h->Name);
 	t->ApplyDhcpPushRoutes = true;
 
 	ReleaseHub(h);
