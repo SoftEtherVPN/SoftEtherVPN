@@ -2145,10 +2145,13 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 	}
 	if (StrLen(str) != 13)
 	{
-		if (StrLen(str) != 15) return false;
+		if (StrLen(str) != 15)
+		{
+			return false;
+		}
 
-		//Year has 4 digits - save first two and use the rest
-		//as if it had two digits
+		// Year has 4 digits - save first two and use the rest
+		// as if it had two digits
 		fourdigityear = true;
 		century[0] = str[0];
 		century[1] = str[1];
@@ -2169,7 +2172,8 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 			second[3] = {str[10], str[11], 0};
 		Zero(s, sizeof(SYSTEMTIME));
 		s->wYear = ToInt(year);
-		if( fourdigityear ) {
+		if (fourdigityear)
+		{
 			s->wYear += ToInt(century) * 100;
 		}
 		else if (s->wYear >= 60)
