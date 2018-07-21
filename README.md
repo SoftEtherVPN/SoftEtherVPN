@@ -73,6 +73,9 @@ https://github.com/GildedHonour
 Davide Beatrici (Since Jul 21, 2018)
 https://github.com/davidebeatrici
 
+Ilya Shipitsin (Since Jul 21, 2018)
+https://github.com/chipitsine
+
 
 # SOFTETHER VPN ADVANTAGES
 
