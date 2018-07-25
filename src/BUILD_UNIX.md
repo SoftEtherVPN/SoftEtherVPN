@@ -47,9 +47,9 @@ To build the programs from the source code, run the following commands:
 ```bash
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
-cmake .
-make
-make install
+./configure
+make -C tmp
+make -C tmp install
 ```
 
 This will compile and install SoftEther VPN Server, Bridge and Client binaries under your executable path.
