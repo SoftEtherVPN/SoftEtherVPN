@@ -47,7 +47,7 @@ To build the programs from the source code, run the following commands:
 ```bash
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
-./configure
+cmake .
 make
 make install
 ```
