@@ -1,3 +1,5 @@
 #! /usr/bin/dh-exec
-debian/bin/vpnbridge usr/bin/
-usr/bin/vpnbridge opt/
+debian/usr/libexec/softether/vpnbridge/vpnbridge  usr/libexec/softether/vpnbridge/
+debian/usr/libexec/softether/vpnbridge/hamcore.se2  usr/libexec/softether/vpnbridge/
+debian/usr/bin/vpnbridge usr/bin/
+
