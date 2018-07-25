@@ -3661,8 +3661,13 @@ void Rand(void *buf, UINT size)
 // Delete a thread-specific information that OpenSSL has holded
 void FreeOpenSSLThreadState()
 {
+	CRYPTO_cleanup_all_ex_data();
 	ERR_remove_state(0);
 }
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define SSL_COMP_free_compression_methods() (sk_free(SSL_COMP_get_compression_methods()))
+#endif
 
 // Release the Crypt library
 void FreeCryptLibrary()
@@ -3673,6 +3678,17 @@ void FreeCryptLibrary()
 	openssl_lock = NULL;
 //	RAND_Free_For_SoftEther();
 	OpenSSL_FreeLock();
+
+	FIPS_mode_set(0);
+	ENGINE_cleanup();
+	CONF_modules_unload(1);
+	EVP_cleanup();
+
+	FreeOpenSSLThreadState();
+
+	ERR_free_strings();
+
+	SSL_COMP_free_compression_methods();
 }
 
 // Initialize the Crypt library
