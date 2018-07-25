@@ -128,7 +128,7 @@ if(UNIX)
 
   add_definitions(-DUNIX)
 
-  find_library(LIB_PTHREAD pthread)
+  find_package(Threads)
   find_library(LIB_READLINE readline)
   find_library(LIB_NCURSES ncurses)
   find_library(LIB_Z z)
@@ -176,7 +176,7 @@ if(UNIX)
   endif()
 endif()
 
-target_link_libraries(mayaqua ${LIB_PTHREAD} ${LIB_SSL} ${LIB_CRYPTO} ${LIB_READLINE} ${LIB_NCURSES} ${LIB_Z})
+target_link_libraries(mayaqua ${CMAKE_THREAD_LIBS_INIT} ${LIB_SSL} ${LIB_CRYPTO} ${LIB_READLINE} ${LIB_NCURSES} ${LIB_Z})
 
 if(LIB_ICONV)
   target_link_libraries(mayaqua ${LIB_ICONV})
