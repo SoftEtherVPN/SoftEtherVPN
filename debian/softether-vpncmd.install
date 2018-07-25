@@ -1,3 +1,5 @@
 #! /usr/bin/dh-exec
-debian/bin/vpncmd usr/bin/
-usr/bin/vpncmd opt/
+debian/usr/libexec/softether/vpncmd/vpncmd  usr/libexec/softether/vpncmd/
+debian/usr/libexec/softether/vpncmd/hamcore.se2  usr/libexec/softether/vpncmd/
+debian/usr/bin/vpncmd usr/bin/
+
