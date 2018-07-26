@@ -128,7 +128,7 @@ void RAND_Free_For_SoftEther();
 #define	DES_IV_SIZE					8			// DES IV size
 #define DES_BLOCK_SIZE				8			// DES block size
 #define DES3_KEY_SIZE				(8 * 3)		// 3DES key size
-#define RSA_KEY_SIZE				128			// RSA key size
+#define RSA_KEY_SIZE				1024		// RSA key size
 #define DH_KEY_SIZE					128			// DH key size
 #define	RSA_MIN_SIGN_HASH_SIZE		(15 + SHA1_HASH_SIZE)	// Minimum RSA hash size
 #define	RSA_SIGN_HASH_SIZE			(RSA_MIN_SIGN_HASH_SIZE)	// RSA hash size
