@@ -13,92 +13,6 @@ macro(install_wrapper_script target destination)
   )
 endmacro(install_wrapper_script)
 
-# Cedar communication module
-file(GLOB SOURCES_CEDAR "Cedar/*.c")
-file(GLOB HEADERS_CEDAR "Cedar/*.h")
-
-add_library(cedar STATIC ${SOURCES_CEDAR} ${HEADERS_CEDAR})
-
-set_target_properties(cedar
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Cedar"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Cedar"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Cedar"
-)
-
-# Mayaqua kernel
-file(GLOB SOURCES_MAYAQUA "Mayaqua/*.c")
-file(GLOB HEADERS_MAYAQUA "Mayaqua/*.h")
-
-add_library(mayaqua STATIC ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})
-
-target_include_directories(mayaqua PUBLIC Mayaqua)
-
-set_target_properties(mayaqua
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Mayaqua"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Mayaqua"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Mayaqua"
-)
-
-# hamcorebuilder utility
-add_executable(hamcorebuilder hamcorebuilder/hamcorebuilder.c)
-
-set_target_properties(hamcorebuilder
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp"
-)
-
-# vpnserver
-add_executable(vpnserver vpnserver/vpnserver.c)
-
-set_target_properties(vpnserver
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/vpnserver"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnserver"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnserver"
-)
-
-get_target_property(VPNSERVER_RUNTIME_OUTPUT_DIRECTORY vpnserver RUNTIME_OUTPUT_DIRECTORY)
-
-# vpnclient
-add_executable(vpnclient vpnclient/vpncsvc.c)
-
-set_target_properties(vpnclient
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/vpnclient"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnclient"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnclient"
-)
-
-get_target_property(VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY vpnclient RUNTIME_OUTPUT_DIRECTORY)
-
-# vpnbridge
-add_executable(vpnbridge vpnbridge/vpnbridge.c)
-
-set_target_properties(vpnbridge
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/vpnbridge"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnbridge"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpnbridge"
-)
-
-get_target_property(VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY vpnbridge RUNTIME_OUTPUT_DIRECTORY)
-
-# vpncmd
-add_executable(vpncmd vpncmd/vpncmd.c)
-
-set_target_properties(vpncmd
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/vpncmd"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpncmd"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/vpncmd"
-)
-
-get_target_property(VPNCMD_RUNTIME_OUTPUT_DIRECTORY vpncmd RUNTIME_OUTPUT_DIRECTORY)
-
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG -DDEBUG)
 endif()
@@ -113,8 +27,6 @@ endif()
 
 add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
-
 # Add /src to the include paths
 include_directories(.)
 
@@ -123,29 +35,11 @@ if(WIN32)
 endif()
 
 if(UNIX)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
   add_definitions(-DUNIX)
-
-  find_package(Threads)
-  find_library(LIB_READLINE readline)
-  find_library(LIB_NCURSES ncurses)
-  find_library(LIB_Z z)
-
-  # In some cases libiconv is not included in libc
-  find_library(LIB_ICONV iconv)
-
-  # This is required in order to link to the correct OpenSSL library
-  find_library(LIB_SSL
-    NAMES ssl
-    HINTS "/usr/local/opt/openssl/lib"
-  )
-
-  find_library(LIB_CRYPTO
-    NAMES crypto
-    HINTS "/usr/local/opt/openssl/lib"
-  )
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_definitions(-DUNIX_LINUX)
@@ -165,29 +59,39 @@ if(UNIX)
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
     add_definitions(-DUNIX_SOLARIS -DNO_VLAN)
-    target_link_libraries(mayaqua nsl socket)
   endif()
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_definitions(-DUNIX_MACOS -DBRIDGE_PCAP)
     include_directories(SYSTEM /usr/local/opt/openssl/include)
     link_directories(SYSTEM /usr/local/opt/openssl/lib)
-    target_link_libraries(cedar pcap)
   endif()
 endif()
 
-target_link_libraries(mayaqua ${CMAKE_THREAD_LIBS_INIT} ${LIB_SSL} ${LIB_CRYPTO} ${LIB_READLINE} ${LIB_NCURSES} ${LIB_Z})
+# Cedar communication module
+add_subdirectory(Cedar)
 
-if(LIB_ICONV)
-  target_link_libraries(mayaqua ${LIB_ICONV})
-endif()
+# Mayaqua kernel
+add_subdirectory(Mayaqua)
 
-target_link_libraries(hamcorebuilder cedar mayaqua)
+# hamcorebuilder utility
+add_subdirectory(hamcorebuilder)
 
-target_link_libraries(vpnserver cedar mayaqua)
-target_link_libraries(vpnclient cedar mayaqua)
-target_link_libraries(vpnbridge cedar mayaqua)
-target_link_libraries(vpncmd cedar mayaqua)
+# vpnserver
+add_subdirectory(vpnserver)
+get_target_property(VPNSERVER_RUNTIME_OUTPUT_DIRECTORY vpnserver RUNTIME_OUTPUT_DIRECTORY)
+
+# vpnclient
+add_subdirectory(vpnclient)
+get_target_property(VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY vpnclient RUNTIME_OUTPUT_DIRECTORY)
+
+# vpnbridge
+add_subdirectory(vpnbridge)
+get_target_property(VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY vpnbridge RUNTIME_OUTPUT_DIRECTORY)
+
+# vpncmd
+add_subdirectory(vpncmd)
+get_target_property(VPNCMD_RUNTIME_OUTPUT_DIRECTORY vpncmd RUNTIME_OUTPUT_DIRECTORY)
 
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
