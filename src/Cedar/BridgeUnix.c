@@ -908,7 +908,6 @@ bool EthIsChangeMtuSupported(ETH *e)
 ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 {
 	char devname[MAX_SIZE];
-	UINT devid;
 	int fd;
 	ETH *e;
 	CANCEL *c;
@@ -921,32 +920,16 @@ ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 	}
 
 	// Parse device name
-	if (ParseUnixEthDeviceName(devname, sizeof(devname), &devid, name) == false)
+	if (ParseUnixEthDeviceName(devname, sizeof(devname), name) == false)
 	{
 		return NULL;
 	}
 
-	// Open the device
+	// Open the device - use style 1 attachment
 	fd = open(devname, O_RDWR);
 	if (fd == -1)
 	{
 		// Failed
-		return NULL;
-	}
-
-	// Attach to the device
-	if (DlipAttachRequest(fd, devid) == false)
-	{
-		// Failed
-		close(fd);
-		return NULL;
-	}
-
-	// Verify ACK message
-	if (DlipReceiveAck(fd) == false)
-	{
-		// Failed
-		close(fd);
 		return NULL;
 	}
 
@@ -1174,12 +1157,16 @@ bool DlipReceiveAck(int fd)
 #endif	// UNIX_SOLARIS
 
 // Separate UNIX device name string into device name and id number
-bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, UINT *dst_devid, char *src_name)
+bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_name)
 {
-	UINT len, i, j;
+	UINT len, i;
+	struct stat s;
+	int err;
+	char *device_path;
+	int device_pathlen;
 
 	// Validate arguments
-	if (dst_devname == NULL || dst_devid == NULL || src_name == NULL)
+	if (dst_devname == NULL || src_name == NULL)
 	{
 		return false;
 	}
@@ -1191,6 +1178,19 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, UINT *dst_
 		return false;
 	}
 
+	// Solaris 10 and higher make real and virtual devices available in /dev/net
+	err = stat("/dev/net", &s);
+	if (err != -1 && S_ISDIR(s.st_mode))
+	{
+		device_path = "/dev/net/";
+	}
+	else
+	{
+		device_path = "/dev/";
+	}
+
+	device_pathlen = strlen(device_path);
+
 	for (i = len-1; i+1 != 0; i--)
 	{
 		// Find last non-numeric character
@@ -1201,15 +1201,12 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, UINT *dst_
 			{
 				return false;
 			}
-			*dst_devid = ToInt(src_name + i + 1);
-			StrCpy(dst_devname, dst_devname_size, "/dev/");
-			for (j = 0; j<i+1 && j<dst_devname_size-6; j++)
-			{
-				dst_devname[j+5] = src_name[j];
-			}
-			dst_devname[j+5]=0;
-			return true;
 		}
+
+		StrCpy(dst_devname, dst_devname_size, device_path);
+		StrCpy(dst_devname + device_pathlen, dst_devname_size-device_pathlen, src_name);
+		dst_devname[device_pathlen + len] = 0;
+		return true;
 	}
 	// All characters in the string was numeric: error
 	return false;
