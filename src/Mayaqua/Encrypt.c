@@ -3690,7 +3690,9 @@ void FreeCryptLibrary()
 
 	ERR_free_strings();
 
+#ifndef OPENSSL_NO_COMP
 	SSL_COMP_free_compression_methods();
+#endif
 }
 
 // Initialize the Crypt library
