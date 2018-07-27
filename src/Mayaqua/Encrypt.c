@@ -3679,7 +3679,9 @@ void FreeCryptLibrary()
 //	RAND_Free_For_SoftEther();
 	OpenSSL_FreeLock();
 
+#ifdef OPENSSL_FIPS
 	FIPS_mode_set(0);
+#endif
 	ENGINE_cleanup();
 	CONF_modules_unload(1);
 	EVP_cleanup();
@@ -3688,7 +3690,9 @@ void FreeCryptLibrary()
 
 	ERR_free_strings();
 
+#ifndef OPENSSL_NO_COMP
 	SSL_COMP_free_compression_methods();
+#endif
 }
 
 // Initialize the Crypt library
