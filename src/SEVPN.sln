@@ -104,11 +104,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpncmd", "vpncmd\vpncmd.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpncmdsys", "vpncmdsys\vpncmdsys.vcproj", "{78CD48D9-0B4B-43B1-A1D1-E079362B6864}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnbrand", "vpnbrand\vpnbrand.vcproj", "{ABAB0B91-91DD-4FF4-9773-18B37A820B9F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnbridge", "vpnbridge\vpnbridge.vcproj", "{BA0DBC31-5BBF-41BF-A2DB-7B6F3F71E919}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
