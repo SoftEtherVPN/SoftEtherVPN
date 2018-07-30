@@ -364,7 +364,7 @@ void UnixDisableInterfaceOffload(char *name)
 		{
 			char *a = t->Token[i];
 
-			Format(tmp, sizeof(tmp), "/sbin/ethtool -K %s %s off 2>/dev/null", name, a);
+			Format(tmp, sizeof(tmp), "ethtool -K %s %s off 2>/dev/null", name, a);
 			FreeToken(UnixExec(tmp));
 		}
 	}
