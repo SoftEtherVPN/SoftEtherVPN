@@ -2550,9 +2550,6 @@ void SiLoadInitialConfiguration(SERVER *s)
 		return;
 	}
 
-	// Default to TLS only; mitigates CVE-2016-0800
-	s->Cedar->SslAcceptSettings.AcceptOnlyTls = true;
-
 	// Auto saving interval related
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
 	s->BackupConfigOnlyWhenModified = true;
@@ -6132,16 +6129,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Disable session reconnect
 		SetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT, CfgGetBool(f, "DisableSessionReconnect"));
 
-		// AcceptOnlyTls
-		if (CfgIsItem(f, "AcceptOnlyTls"))
-		{
-			c->SslAcceptSettings.AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
-		}
-		else
-		{
-			// Default to TLS only; mitigates CVE-2016-0800
-			c->SslAcceptSettings.AcceptOnlyTls = true;
-		}
 		c->SslAcceptSettings.Tls_Disable1_0 = CfgGetBool(f, "Tls_Disable1_0");
 		c->SslAcceptSettings.Tls_Disable1_1 = CfgGetBool(f, "Tls_Disable1_1");
 		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
@@ -6466,7 +6453,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
-		CfgAddBool(f, "AcceptOnlyTls", c->SslAcceptSettings.AcceptOnlyTls);
 		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
 		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
 		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);

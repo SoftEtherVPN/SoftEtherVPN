@@ -4431,7 +4431,7 @@ void NatTcpConnectThread(THREAD *t, void *p)
 
 	// Attempt to connect to the TCP host
 	Debug("NatTcpConnect Connecting to %s:%u\n", hostname, port_number);
-	sock = ConnectEx3(hostname, port_number, 0, &n->NatTcpCancelFlag, NULL, NULL, false, false, true);
+	sock = ConnectEx3(hostname, port_number, 0, &n->NatTcpCancelFlag, NULL, NULL, false, true);
 	if (sock == NULL)
 	{
 		// Connection failure

@@ -4548,7 +4548,6 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 	c->RequireMonitorMode = PackGetBool(p, "RequireMonitorMode");
 	c->RequireBridgeRoutingMode = PackGetBool(p, "RequireBridgeRoutingMode");
 	c->FromAdminPack = PackGetBool(p, "FromAdminPack");
-	c->NoTls1 = PackGetBool(p, "NoTls1");
 	c->NoUdpAcceleration = PackGetBool(p, "NoUdpAcceleration");
 	PackGetData2(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 }
@@ -4586,7 +4585,6 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddBool(p, "RequireBridgeRoutingMode", c->RequireBridgeRoutingMode);
 	PackAddBool(p, "DisableQoS", c->DisableQoS);
 	PackAddBool(p, "FromAdminPack", c->FromAdminPack);
-	PackAddBool(p, "NoTls1", c->NoTls1);
 	PackAddBool(p, "NoUdpAcceleration", c->NoUdpAcceleration);
 	PackAddData(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 }
@@ -9580,7 +9578,6 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 	o->RequireBridgeRoutingMode = CfgGetBool(f, "RequireBridgeRoutingMode");
 	o->DisableQoS = CfgGetBool(f, "DisableQoS");
 	o->FromAdminPack = CfgGetBool(f, "FromAdminPack");
-	o->NoTls1 = CfgGetBool(f, "NoTls1");
 	o->NoUdpAcceleration = CfgGetBool(f, "NoUdpAcceleration");
 	
 	b = CfgGetBuf(f, "HostUniqueKey");
@@ -10114,7 +10111,6 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	CfgAddBool(f, "RequireMonitorMode", o->RequireMonitorMode);
 	CfgAddBool(f, "RequireBridgeRoutingMode", o->RequireBridgeRoutingMode);
 	CfgAddBool(f, "DisableQoS", o->DisableQoS);
-	CfgAddBool(f, "NoTls1", o->NoTls1);
 	CfgAddBool(f, "NoUdpAcceleration", o->NoUdpAcceleration);
 
 	if (o->FromAdminPack)

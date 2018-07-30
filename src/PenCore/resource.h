@@ -360,8 +360,6 @@
 #define B_IE                            1087
 #define B_EXPORT                        1088
 #define IDC_STATIC1                     1088
-#define R_R_NOTLS1                      1088
-#define R_NOTLS1                        1088
 #define R_USE_PASSWORD                  1089
 #define IDC_STATIC3                     1089
 #define B_IMPORT2                       1089

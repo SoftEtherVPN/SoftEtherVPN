@@ -6373,7 +6373,6 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					t->ClientOption->RequireMonitorMode = old_option->RequireMonitorMode;
 					t->ClientOption->RequireBridgeRoutingMode = old_option->RequireBridgeRoutingMode;
 					t->ClientOption->DisableQoS = old_option->DisableQoS;
-					t->ClientOption->NoTls1 = old_option->NoTls1;
 
 					// Inherit the authentication data
 					CiFreeClientAuth(t->ClientAuth);
@@ -6987,8 +6986,6 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	}
 	a->ClientOption->RetryInterval = GetInt(hWnd, E_RETRY_SPAN);
 
-	a->ClientOption->NoTls1 = IsChecked(hWnd, R_NOTLS1);
-
 	// Information determining
 	if (UniStrLen(a->ClientOption->AccountName) == 0 && a->NatMode == false)
 	{
@@ -7441,8 +7438,6 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 		}
 	}
 	SetIntEx(hWnd, E_RETRY_SPAN, a->ClientOption->RetryInterval);
-
-	Check(hWnd, R_NOTLS1, a->ClientOption->NoTls1);
 
 	// Title
 	if (a->NatMode == false)

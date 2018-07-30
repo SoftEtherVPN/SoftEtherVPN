@@ -3659,9 +3659,6 @@ CONNECTION *NewClientConnectionEx(SESSION *s, char *client_str, UINT client_ver,
 	StrCpy(c->ServerName, sizeof(c->ServerName), s->ClientOption->Hostname);
 	c->ServerPort = s->ClientOption->Port;
 
-	// TLS 1.0 using flag
-	c->DontUseTls1 = s->ClientOption->NoTls1;
-
 	// Create queues
 	c->ReceivedBlocks = NewQueue();
 	c->SendBlocks = NewQueue();
