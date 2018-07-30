@@ -2201,9 +2201,9 @@ UNI_TOKEN_LIST *UniParseToken(wchar_t *src, wchar_t *separator)
 	wchar_t *str1, *str2;
 	UINT len, num;
 
-#ifdef	OS_UNIX
+#if	(!defined _MSC_VER) || (_MSC_VER >= 1900)
 	wchar_t *state = NULL;
-#endif	// OS_UNIX
+#endif	// (!defined _MSC_VER) || (_MSC_VER >= 1900)
 
 	// Validate arguments
 	if (src == NULL)
@@ -2225,18 +2225,18 @@ UNI_TOKEN_LIST *UniParseToken(wchar_t *src, wchar_t *separator)
 	Lock(token_lock);
 	{
 		tmp = wcstok(str1, separator
-#ifdef	OS_UNIX
+#if	(!defined _MSC_VER) || (_MSC_VER >= 1900)
 			, &state
-#endif	// OS_UNIX
+#endif	// (!defined _MSC_VER) || (_MSC_VER >= 1900)
 			);
 		num = 0;
 		while (tmp != NULL)
 		{
 			num++;
 			tmp = wcstok(NULL, separator
-#ifdef	OS_UNIX
+#if	(!defined _MSC_VER) || (_MSC_VER >= 1900)
 				, &state
-#endif	// OS_UNIX
+#endif	// (!defined _MSC_VER) || (_MSC_VER >= 1900)
 				);
 		}
 		ret = Malloc(sizeof(UNI_TOKEN_LIST));
@@ -2244,9 +2244,9 @@ UNI_TOKEN_LIST *UniParseToken(wchar_t *src, wchar_t *separator)
 		ret->Token = (wchar_t **)Malloc(sizeof(wchar_t *) * num);
 		num = 0;
 		tmp = wcstok(str2, separator
-#ifdef	OS_UNIX
+#if	(!defined _MSC_VER) || (_MSC_VER >= 1900)
 			, &state
-#endif	// OS_UNIX
+#endif	// (!defined _MSC_VER) || (_MSC_VER >= 1900)
 			);
 		while (tmp != NULL)
 		{
@@ -2254,9 +2254,9 @@ UNI_TOKEN_LIST *UniParseToken(wchar_t *src, wchar_t *separator)
 			UniStrCpy(ret->Token[num], 0, tmp);
 			num++;
 			tmp = wcstok(NULL, separator
-#ifdef	OS_UNIX
+#if	(!defined _MSC_VER) || (_MSC_VER >= 1900)
 				, &state
-#endif	// OS_UNIX
+#endif	// (!defined _MSC_VER) || (_MSC_VER >= 1900)
 				);
 		}
 	}

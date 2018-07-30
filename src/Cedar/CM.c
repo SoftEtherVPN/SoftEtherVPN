@@ -123,6 +123,7 @@
 
 #define	_WIN32_WINNT		0x0502
 #define	WINVER				0x0502
+#define	SECURITY_WIN32
 #include <winsock2.h>
 #include <windows.h>
 #include <Iphlpapi.h>
@@ -136,6 +137,7 @@
 #include <psapi.h>
 #include <wtsapi32.h>
 #include <Ntsecapi.h>
+#include <security.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
