@@ -120,7 +120,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
-#include <zlib/zlib.h>
+#include <zlib.h>
 #include <Mayaqua/Mayaqua.h>
 
 #define	MEMORY_SLEEP_TIME		150
