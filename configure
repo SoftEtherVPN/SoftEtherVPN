@@ -25,6 +25,14 @@ if [ ! -z ${CMAKE_INSTALL_PREFIX+x} ]; then
 	CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
 fi
 
+if [ -z ${OPENSSL_ROOT_DIR} ]; then
+	unameOut="$(uname -s)"
+	if [ "$unameOut" = "Darwin" ]; then
+		echo "Environment variable OPENSSL_ROOT_DIR not set, using default Homebrew path: /usr/local/opt/openssl/"
+		export OPENSSL_ROOT_DIR="/usr/local/opt/openssl/"
+	fi
+fi
+
 (cd tmp && cmake ${CMAKE_FLAGS} .. || exit 1)
 
 

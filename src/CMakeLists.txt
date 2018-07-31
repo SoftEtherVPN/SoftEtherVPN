@@ -63,8 +63,6 @@ if(UNIX)
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_definitions(-DUNIX_MACOS -DBRIDGE_PCAP)
-    include_directories(SYSTEM /usr/local/opt/openssl/include)
-    link_directories(SYSTEM /usr/local/opt/openssl/lib)
   endif()
 endif()
 
