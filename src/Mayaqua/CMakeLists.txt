@@ -12,26 +12,14 @@ set_target_properties(mayaqua
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/tmp/Mayaqua"
 )
 
-find_package(Threads)
-find_library(LIB_READLINE readline)
-find_library(LIB_NCURSES ncurses)
-find_library(LIB_Z z)
+find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
+find_package(ZLIB REQUIRED)
 
 # In some cases libiconv is not included in libc
 find_library(LIB_ICONV iconv)
 
-# This is required in order to link to the correct OpenSSL library
-find_library(LIB_SSL
-  NAMES ssl
-  HINTS "/usr/local/opt/openssl/lib"
-)
-
-find_library(LIB_CRYPTO
-  NAMES crypto
-  HINTS "/usr/local/opt/openssl/lib"
-)
-
-target_link_libraries(mayaqua ${CMAKE_THREAD_LIBS_INIT} ${LIB_SSL} ${LIB_CRYPTO} ${LIB_READLINE} ${LIB_NCURSES} ${LIB_Z})
+target_link_libraries(mayaqua OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
 
 if(LIB_ICONV)
   target_link_libraries(mayaqua ${LIB_ICONV})
