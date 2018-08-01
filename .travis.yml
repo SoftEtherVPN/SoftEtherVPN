@@ -29,7 +29,7 @@ matrix:
     - os: osx
       compiler: clang
       before_install:
-        - brew update && brew upgrade openssl
+        - brew update && brew upgrade
       script:
         - ./configure
         - make -C tmp
