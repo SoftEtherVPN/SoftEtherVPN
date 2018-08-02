@@ -953,7 +953,7 @@ CIPHER *OvsGetCipher(char *name)
 {
 	CIPHER *c = NULL;
 
-	if (IsEmptyStr(name) == false && IsStrInStrTokenList(OPENVPN_CIPHER_LIST, name, NULL, false))
+	if (IsEmptyStr(name) == false)
 	{
 		c = NewCipher(name);
 	}
@@ -971,7 +971,7 @@ MD *OvsGetMd(char *name)
 {
 	MD *m = NULL;
 
-	if (IsEmptyStr(name) == false && IsStrInStrTokenList(OPENVPN_MD_LIST, name, NULL, false))
+	if (IsEmptyStr(name) == false)
 	{
 		m = NewMd(name);
 	}
