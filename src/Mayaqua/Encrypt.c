@@ -816,16 +816,6 @@ void GetPrintNameFromXA(char *str, UINT size, X *x)
 
 	UniToStr(str, size, tmp);
 }
-void GetAllNameFromXEx(wchar_t *str, UINT size, X *x)
-{
-	// Validate arguments
-	if (x == NULL || str == NULL)
-	{
-		return;
-	}
-
-	GetAllNameFromNameEx(str, size, x->subject_name);
-}
 
 // Get the display name from NAME
 void GetPrintNameFromName(wchar_t *str, UINT size, NAME *name)
@@ -1176,29 +1166,6 @@ bool P12ToFileW(P12 *p12, wchar_t *filename)
 	FreeBuf(b);
 
 	return true;
-}
-
-// Read a P12 from the file
-P12 *FileToP12W(wchar_t *filename)
-{
-	BUF *b;
-	P12 *p12;
-	// Validate arguments
-	if (filename == NULL)
-	{
-		return NULL;
-	}
-
-	b = ReadDumpW(filename);
-	if (b == NULL)
-	{
-		return NULL;
-	}
-
-	p12 = BufToP12(b);
-	FreeBuf(b);
-
-	return p12;
 }
 
 // Release of P12
@@ -4022,41 +3989,6 @@ void DesDecrypt(void *dest, void *src, UINT size, DES_KEY_VALUE *k, void *ivec)
 		0);
 }
 
-// Release the 3DES key
-void Des3FreeKey(DES_KEY *k)
-{
-	// Validate arguments
-	if (k == NULL)
-	{
-		return;
-	}
-
-	DesFreeKeyValue(k->k1);
-	DesFreeKeyValue(k->k2);
-	DesFreeKeyValue(k->k3);
-
-	Free(k);
-}
-
-// Create a 3DES key
-DES_KEY *Des3NewKey(void *k1, void *k2, void *k3)
-{
-	DES_KEY *k;
-	// Validate arguments
-	if (k1 == NULL || k2 == NULL || k3 == NULL)
-	{
-		return NULL;
-	}
-
-	k = ZeroMalloc(sizeof(DES_KEY));
-
-	k->k1 = DesNewKeyValue(k1);
-	k->k2 = DesNewKeyValue(k2);
-	k->k3 = DesNewKeyValue(k3);
-
-	return k;
-}
-
 // Create a new DES key element
 DES_KEY_VALUE *DesNewKeyValue(void *value)
 {
@@ -4076,16 +4008,6 @@ DES_KEY_VALUE *DesNewKeyValue(void *value)
 	DES_set_key_unchecked(value, v->KeySchedule);
 
 	return v;
-}
-
-// Random generation of new DES key element
-DES_KEY_VALUE *DesRandKeyValue()
-{
-	UCHAR key_value[DES_KEY_SIZE];
-
-	DES_random_key((DES_cblock *)key_value);
-
-	return DesNewKeyValue(key_value);
 }
 
 // Release of DES key element
@@ -4307,58 +4229,6 @@ bool IsAesNiSupported()
 #endif
 
 	return supported;
-}
-
-// Calculation of HMAC-SHA-1
-void MacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
-{
-	UCHAR key_plus[SHA1_BLOCK_SIZE];
-	UCHAR key_plus2[SHA1_BLOCK_SIZE];
-	UCHAR key_plus5[SHA1_BLOCK_SIZE];
-	UCHAR hash4[SHA1_HASH_SIZE];
-	UINT i;
-	BUF *buf3;
-	BUF *buf6;
-	// Validate arguments
-	if (dst == NULL || key == NULL || data == NULL)
-	{
-		return;
-	}
-
-	Zero(key_plus, sizeof(key_plus));
-	if (key_size <= SHA1_BLOCK_SIZE)
-	{
-		Copy(key_plus, key, key_size);
-	}
-	else
-	{
-		Sha1(key_plus, key, key_size);
-	}
-
-	for (i = 0;i < sizeof(key_plus);i++)
-	{
-		key_plus2[i] = key_plus[i] ^ 0x36;
-	}
-
-	buf3 = NewBuf();
-	WriteBuf(buf3, key_plus2, sizeof(key_plus2));
-	WriteBuf(buf3, data, data_size);
-
-	Sha1(hash4, buf3->Buf, buf3->Size);
-
-	for (i = 0;i < sizeof(key_plus);i++)
-	{
-		key_plus5[i] = key_plus[i] ^ 0x5c;
-	}
-
-	buf6 = NewBuf();
-	WriteBuf(buf6, key_plus5, sizeof(key_plus5));
-	WriteBuf(buf6, hash4, sizeof(hash4));
-
-	Sha1(dst, buf6->Buf, buf6->Size);
-
-	FreeBuf(buf3);
-	FreeBuf(buf6);
 }
 
 // DH calculation
