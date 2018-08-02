@@ -244,7 +244,6 @@ void ToHex64(char *str, UINT64 value);
 UINT HexToInt(char *str);
 UINT64 HexToInt64(char *str);
 UINT SearchAsciiInBinary(void *data, UINT size, char *str, bool case_sensitive);
-bool IsStrInStrTokenList(char *str_list, char *str, char *split_chars, bool case_sensitive);
 void IntListToStr(char *str, UINT str_size, LIST *o, char *separate_str);
 LIST *StrToIntList(char *str, bool sorted);
 void NormalizeIntListStr(char *dst, UINT dst_size, char *src, bool sorted, char *separate_str);

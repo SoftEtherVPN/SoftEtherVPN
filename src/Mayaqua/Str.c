@@ -579,45 +579,6 @@ bool InStrList(char *target_str, char *tokens, char *splitter, bool case_sensiti
 	return ret;
 }
 
-// Confirm whether the specified string is in the token list
-bool IsStrInStrTokenList(char *str_list, char *str, char *split_chars, bool case_sensitive)
-{
-	TOKEN_LIST *t;
-	bool ret = false;
-	UINT i;
-	// Validate arguments
-	if (str_list == NULL || str == NULL)
-	{
-		return false;
-	}
-
-	t = ParseTokenWithoutNullStr(str_list, split_chars);
-
-	if (t != NULL)
-	{
-		for (i = 0;i < t->NumTokens;i++)
-		{
-			if ((case_sensitive == false) && (StrCmpi(t->Token[i], str) == 0))
-			{
-				ret = true;
-			}
-			if ((case_sensitive) && (StrCmp(t->Token[i], str) == 0))
-			{
-				ret = true;
-			}
-
-			if (ret)
-			{
-				break;
-			}
-		}
-
-		FreeToken(t);
-	}
-
-	return ret;
-}
-
 // Cut out the token from string (Ignore blanks between delimiters)
 TOKEN_LIST *ParseTokenWithoutNullStr(char *str, char *split_chars)
 {
