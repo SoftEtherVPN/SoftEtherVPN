@@ -3,7 +3,7 @@ This document describes how to build SoftEtherVPN for Unix based Operating syste
 - [Requirements](#requirements)
   * [Install requirements on Centos/RedHat](#install-requirements-on-centosredhat)
   * [Install Requirements on Debian/Ubuntu](#install-requirements-on-debianubuntu)
-- [Build from source code and instal](#build-from-source-code-and-instal)
+- [Build from source code and install](#build-from-source-code-and-install)
 - [How to Run SoftEther](#how-to-run-softether)
   * [Start/Stop SoftEther VPN Server](#startstop-softether-vpn-server)
   * [Start/Stop SoftEther VPN Bridge](#startstop-softether-vpn-bridge)
@@ -40,7 +40,7 @@ sudo apt -y install cmake gcc libncurses5-dev libreadline-dev libssl-dev make zl
 ```
 
 
-# Build from source code and instal
+# Build from source code and install
 
 To build the programs from the source code, run the following commands:
 
