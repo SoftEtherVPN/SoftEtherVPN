@@ -1,7 +1,0 @@
-LIBRARY VpnGatePlugin_x86
-
-EXPORTS
-	LoadPluginDll
-	FreePluginDll
-
-
