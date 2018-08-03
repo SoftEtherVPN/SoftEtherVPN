@@ -1,0 +1,3 @@
+[submodule "src/Mayaqua/cpu_features"]
+	path = src/Mayaqua/cpu_features
+	url = https://github.com/google/cpu_features.git
