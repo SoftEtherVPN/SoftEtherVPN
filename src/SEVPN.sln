@@ -99,7 +99,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpncmdsys", "vpncmdsys\vpnc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnbridge", "vpnbridge\vpnbridge.vcproj", "{BA0DBC31-5BBF-41BF-A2DB-7B6F3F71E919}"
 	ProjectSection(ProjectDependencies) = postProject
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
 		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 	EndProjectSection
 EndProject
@@ -110,19 +109,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpncmgr", "vpncmgr\vpncmgr.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnclient", "vpnclient\vpnclient.vcproj", "{D7216F25-434B-45D3-BA48-6772AF997C84}"
 	ProjectSection(ProjectDependencies) = postProject
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
 		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnserver", "vpnserver\vpnserver.vcproj", "{7CF21BD6-659F-449C-91CB-CE52AABAD22D}"
 	ProjectSection(ProjectDependencies) = postProject
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
 		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpnsmgr", "vpnsmgr\vpnsmgr.vcproj", "{A4DC7ACC-9FED-418F-92B2-6BE3EF39DC86}"
 	ProjectSection(ProjectDependencies) = postProject
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
 		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 	EndProjectSection
 EndProject
@@ -163,11 +159,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SeLow", "SeLow\SeLow.vcproj", "{94CA5DD2-1543-42F6-9F96-EE7694DDC837}"
 	ProjectSection(ProjectDependencies) = postProject
 		{384815C3-333C-4CEC-9DCD-B6AB2602EBB9} = {384815C3-333C-4CEC-9DCD-B6AB2602EBB9}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VGate", "VGate\VGate.vcproj", "{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 	EndProjectSection
 EndProject
 Global
@@ -337,10 +328,6 @@ Global
 		{94CA5DD2-1543-42F6-9F96-EE7694DDC837}.Debug|x64.ActiveCfg = Release|x64
 		{94CA5DD2-1543-42F6-9F96-EE7694DDC837}.Release|Win32.ActiveCfg = Release|Win32
 		{94CA5DD2-1543-42F6-9F96-EE7694DDC837}.Release|x64.ActiveCfg = Release|x64
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}.Debug|x64.ActiveCfg = Debug|x64
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}.Release|Win32.ActiveCfg = Release|Win32
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

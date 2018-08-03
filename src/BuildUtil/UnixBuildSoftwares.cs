@@ -145,7 +145,6 @@ namespace BuildUtil
 			"Cedar",
 			"Mayaqua",
 			"Neo",
-			"VGate",
 			"vpnbridge",
 			"vpnclient",
 			"vpncmd",
