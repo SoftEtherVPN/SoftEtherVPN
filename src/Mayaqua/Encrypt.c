@@ -146,10 +146,21 @@
 #include <Mayaqua/Mayaqua.h>
 
 #ifdef _MSC_VER
-#include <intrin.h> // For __cpuid()
-#else
-#include <cpuid.h> // For __get_cpuid()
-#endif
+	#include <intrin.h> // For __cpuid()
+#else // _MSC_VER
+	#include "cpu_features_macros.h"
+	#if defined(CPU_FEATURES_ARCH_X86)
+		#include "cpuinfo_x86.h"
+	#elif defined(CPU_FEATURES_ARCH_ARM)
+		#include "cpuinfo_arm.h"
+	#elif defined(CPU_FEATURES_ARCH_AARCH64)
+		#include "cpuinfo_aarch64.h"
+	#elif defined(CPU_FEATURES_ARCH_MIPS)
+		#include "cpuinfo_mips.h"
+	#elif defined(CPU_FEATURES_ARCH_PPC)
+		#include "cpuinfo_ppc.h"
+	#endif
+#endif // _MSC_VER
 
 LOCK *openssl_lock = NULL;
 
@@ -4222,11 +4233,24 @@ bool IsAesNiSupported()
 	int regs[4]; // EAX, EBX, ECX, EDX
 	__cpuid(regs, 1);
 	supported = (regs[2] >> 25) & 1;
-#else
-	uint32_t eax, ebx, ecx, edx;
-	__get_cpuid(1, &eax, &ebx, &ecx, &edx);
-	supported = (ecx & bit_AES) > 0;
-#endif
+#else // _MSC_VER
+	#if defined(CPU_FEATURES_ARCH_X86)
+		const X86Features features = GetX86Info().features;
+		supported = features.aes;
+	#elif defined(CPU_FEATURES_ARCH_ARM)
+		const ArmFeatures features = GetArmInfo().features;
+		supported = features.aes;
+	#elif defined(CPU_FEATURES_ARCH_AARCH64)
+		const Aarch64Features features = GetAarch64Info().features;
+		supported = features.aes;
+	#elif defined(CPU_FEATURES_ARCH_MIPS)
+		const MipsFeatures features = GetMipsInfo().features;
+		supported = features.aes;
+	#elif defined(CPU_FEATURES_ARCH_PPC)
+		const PPCFeatures features = GetPPCInfo().features;
+		supported = features.aes;
+	#endif
+#endif // _MSC_VER
 
 	return supported;
 }
