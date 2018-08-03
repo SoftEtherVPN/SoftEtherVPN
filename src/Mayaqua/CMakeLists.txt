@@ -19,7 +19,11 @@ find_package(ZLIB REQUIRED)
 # In some cases libiconv is not included in libc
 find_library(LIB_ICONV iconv)
 
-target_link_libraries(mayaqua OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
+add_subdirectory(cpu_features)
+
+target_include_directories(mayaqua PRIVATE cpu_features/include)
+
+target_link_libraries(mayaqua cpu_features OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
 
 if(LIB_ICONV)
   target_link_libraries(mayaqua ${LIB_ICONV})
