@@ -498,7 +498,6 @@ if (kernel_status_inited) {					\
 #define	KS_FREEFIFO_COUNT		37		// Number of times the FIFO object is deleted
 #define	KS_READ_FIFO_COUNT		38		// Number of calls ReadFifo
 #define	KS_WRITE_FIFO_COUNT		39		// Number of calls WriteFifo
-#define	KS_PEEK_FIFO_COUNT		40		// Number of calls PeekFifo
 // List related
 #define	KS_NEWLIST_COUNT		41		// Number of calls NewList
 #define	KS_FREELIST_COUNT		42		// Number of times the object LIST was deleted
