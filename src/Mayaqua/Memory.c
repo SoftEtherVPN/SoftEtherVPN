@@ -1326,6 +1326,20 @@ QUEUE *NewQueueFast()
 	return q;
 }
 
+// Clone the list
+LIST *CloneList(LIST *o)
+{
+	LIST *n = NewList(o->cmp);
+
+	// Memory reallocation
+	Free(n->p);
+	n->p = ToArray(o);
+	n->num_item = n->num_reserved = LIST_NUM(o);
+	n->sorted = o->sorted;
+
+	return n;
+}
+
 // Copy the list to an array
 void CopyToArray(LIST *o, void *p)
 {
