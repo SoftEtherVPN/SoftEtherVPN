@@ -4356,6 +4356,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT 프록시 서버의 포트 번호
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME 프록시 서버의 사용자 이름
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE 서버 인증서 확인
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME 등록 된 서버 별 인증서
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
 CMD_ACCOUNT_COLUMN_DEVICE_NAME 연결에 사용할 장치 이름
 CMD_ACCOUNT_COLUMN_AUTH_TYPE 인증의 종류
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME 사용자 이름
@@ -6633,6 +6634,20 @@ CMD_AccountServerCertDisable 연결 설정 서버 인증서 검증 옵션 비활
 CMD_AccountServerCertDisable_Help VPN Client에 등록되어있는 연결 설정을 지정하고 연결 설정 VPN Server에 연결할 때 연결하려는 VPN Server가 제시하는 SSL 인증서를 신뢰할 수 있는지 검사하는 옵션을 해제 합니다.
 CMD_AccountServerCertDisable_Args AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_ [name] 설정을 변경하려면 연결 설정의 이름을 지정합니다.
+
+
+# AccountRetryOnServerCertEnable command
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertDisable command
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet 명령

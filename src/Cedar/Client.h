@@ -170,6 +170,7 @@ struct ACCOUNT
 	CLIENT_OPTION *ClientOption;			// Client Option
 	CLIENT_AUTH *ClientAuth;				// Client authentication data
 	bool CheckServerCert;					// Check the server certificate
+	bool RetryOnServerCert;					// Retry on invalid server certificate
 	X *ServerCert;							// Server certificate
 	bool StartupAccount;					// Start-up account
 	UCHAR ShortcutKey[SHA1_SIZE];			// Key
@@ -348,6 +349,7 @@ struct RPC_CLIENT_CREATE_ACCOUNT
 	CLIENT_AUTH *ClientAuth;				// Client authentication data
 	bool StartupAccount;					// Startup account
 	bool CheckServerCert;					// Checking of the server certificate
+	bool RetryOnServerCert;					// Retry on invalid server certificate
 	X *ServerCert;							// Server certificate
 	UCHAR ShortcutKey[SHA1_SIZE];			// Shortcut Key
 };
@@ -400,6 +402,7 @@ struct RPC_CLIENT_GET_ACCOUNT
 	CLIENT_AUTH *ClientAuth;				// Client authentication data
 	bool StartupAccount;					// Startup account
 	bool CheckServerCert;					// Check the server certificate
+	bool RetryOnServerCert;					// Retry on invalid server certificate
 	X *ServerCert;							// Server certificate
 	UCHAR ShortcutKey[SHA1_SIZE];			// Shortcut Key
 	UINT64 CreateDateTime;					// Creation date and time (Ver 3.0 or later)

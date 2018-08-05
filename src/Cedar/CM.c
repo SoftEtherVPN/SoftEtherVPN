@@ -6242,6 +6242,7 @@ void CmExportAccount(HWND hWnd, wchar_t *account_name)
 		t.ClientAuth = a->ClientAuth;
 		t.StartupAccount = a->Startup;
 		t.CheckServerCert = a->CheckServerCert;
+		t.RetryOnServerCert = a->RetryOnServerCert;
 		t.ServerCert = a->ServerCert;
 		t.ClientOption->FromAdminPack = false;
 
@@ -6381,6 +6382,7 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					// Other Settings
 					t->StartupAccount = get.StartupAccount;
 					t->CheckServerCert = get.CheckServerCert;
+					t->RetryOnServerCert = get.RetryOnServerCert;
 					if (t->ServerCert != NULL)
 					{
 						FreeX(t->ServerCert);
@@ -6489,6 +6491,7 @@ void CmCopyAccount(HWND hWnd, wchar_t *account_name)
 		c.ServerCert = CloneX(a->ServerCert);
 	}
 	c.CheckServerCert = a->CheckServerCert;
+	c.RetryOnServerCert = a->RetryOnServerCert;
 	c.StartupAccount = false;		// Don't copy the startup attribute
 
 	CALL(hWnd, CcCreateAccount(cm->Client, &c));
@@ -8899,6 +8902,7 @@ CM_ACCOUNT *CmGetExistAccountObject(HWND hWnd, wchar_t *account_name)
 	a = ZeroMalloc(sizeof(CM_ACCOUNT));
 	a->EditMode = true;
 	a->CheckServerCert = c.CheckServerCert;
+	a->RetryOnServerCert = c.RetryOnServerCert;
 	a->Startup = c.StartupAccount;
 	if (c.ServerCert != NULL)
 	{
@@ -8928,6 +8932,7 @@ CM_ACCOUNT *CmCreateNewAccountObject(HWND hWnd)
 	a = ZeroMalloc(sizeof(CM_ACCOUNT));
 	a->EditMode = false;
 	a->CheckServerCert = false;
+	a->RetryOnServerCert = false;
 	a->Startup = false;
 	a->ClientOption = ZeroMalloc(sizeof(CLIENT_OPTION));
 
