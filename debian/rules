@@ -1,8 +1,9 @@
 #!/usr/bin/make -f
 
 define generate_stub
+	mkdir -p debian/usr/bin
 	echo '#!/bin/sh'                              > debian/usr/bin/$(1)
-	echo '/usr/libexec/softether/$(1)/$(1) "$@"' >> debian/usr/bin/$(1)
+	echo '/usr/libexec/softether/$(1)/$(1) "$$@"' >> debian/usr/bin/$(1)
 	echo 'exit $?'                               >> debian/usr/bin/$(1)
 	chmod +x debian/usr/bin/$(1)
 endef
@@ -13,10 +14,11 @@ export export CMAKE_INSTALL_PREFIX=../debian/usr
 %:
 	dh $@ 
 
-override_dh_auto_make:
-	make -C tmp
+override_dh_auto_configure:
+	cmake .
 
 override_dh_auto_install:
+	dh_auto_install
 	$(call generate_stub,vpnserver)
 	$(call generate_stub,vpnbridge)
 	$(call generate_stub,vpncmd)

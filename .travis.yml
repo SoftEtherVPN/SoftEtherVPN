@@ -8,7 +8,7 @@ env:
 
 matrix:
   include:
-    - env: OPENSSL_VERSION="1.0.2o"
+    - env: OPENSSL_VERSION="1.0.2o" BUILD_DEB="1"
       os: linux
       compiler: gcc
     - env: OPENSSL_VERSION="1.1.0f"
@@ -40,7 +40,7 @@ matrix:
 
 addons:
   apt:
-    packages: [ debhelper ]
+    packages: [ debhelper, devscripts, fakeroot, cmake3, dh-exec ]
 
 cache:
   directories:
@@ -58,4 +58,4 @@ script:
   - ./configure
   - make -C tmp
   - ldd bin/vpnserver/vpnserver
-  - dh build-arch
+  - if [ "${BUILD_DEB}" = "1" ]; then debuild -i -us -uc -b; fi
