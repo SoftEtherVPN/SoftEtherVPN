@@ -380,6 +380,7 @@ LIST *NewListFast(COMPARE *cmp);
 LIST *NewListEx(COMPARE *cmp, bool fast);
 LIST *NewListEx2(COMPARE *cmp, bool fast, bool fast_malloc);
 LIST *NewListSingle(void *p);
+LIST *CloneList(LIST *o);
 void CopyToArray(LIST *o, void *p);
 void *ToArray(LIST *o);
 void *ToArrayEx(LIST *o, bool fast);

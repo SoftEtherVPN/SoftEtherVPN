@@ -3119,6 +3119,9 @@ void PcMain(PC *pc)
 			{"AccountImport", PcAccountImport},
 			{"RemoteEnable", PcRemoteEnable},
 			{"RemoteDisable", PcRemoteDisable},
+			{"TUNDownOnDisconnectEnable", PcTunDownOnDisconnectEnable},
+			{"TUNDownOnDisconnectDisable", PcTunDownOnDisconnectDisable},
+			{"TUNDownOnDisconnectGet", PcTunDownOnDisconnectGet},
 			{"KeepEnable", PcKeepEnable},
 			{"KeepDisable", PcKeepDisable},
 			{"KeepSet", PcKeepSet},
@@ -6627,6 +6630,136 @@ UINT PcRemoteDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	if (ret == ERR_NO_ERROR)
 	{
 		// Success
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Enable turning TUN interface up/down on client connect/disconnect
+UINT PcTunDownOnDisconnectEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	CLIENT_CONFIG t;
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	ret = CcGetClientConfig(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		// Change the settings
+		t.NicDownOnDisconnect = true;
+		ret = CcSetClientConfig(pc->RemoteClient, &t);
+	}
+
+	if (ret == ERR_NO_ERROR)
+	{
+		// Success
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Disable turning TUN interface up/down on client connect/disconnect
+UINT PcTunDownOnDisconnectDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	CLIENT_CONFIG t;
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	ret = CcGetClientConfig(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		// Change the settings
+		t.NicDownOnDisconnect = false;
+		ret = CcSetClientConfig(pc->RemoteClient, &t);
+	}
+
+	if (ret == ERR_NO_ERROR)
+	{
+		// Success
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Get status of turning TUN interface up/down on client connect/disconnect
+UINT PcTunDownOnDisconnectGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	CLIENT_CONFIG t;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	ret = CcGetClientConfig(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		wchar_t tmp[MAX_SIZE];
+		CT *ct = CtNewStandard();
+
+		CtInsert(ct, _UU("CMD_TUNDownOnDisconnectGet_COLUMN1"),
+			t.NicDownOnDisconnect ? _UU("SM_ACCESS_ENABLE") : _UU("SM_ACCESS_DISABLE"));
+
+		CtFree(ct, c);
 	}
 
 	if (ret != ERR_NO_ERROR)
