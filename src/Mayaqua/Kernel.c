@@ -171,7 +171,6 @@ L"- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)";
 
 static LOCALE current_locale;
 LOCK *tick_manual_lock = NULL;
-UINT g_zero = 0;
 
 #define MONSPERYEAR 12
 #define DAYSPERNYEAR 365
