@@ -598,7 +598,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 #ifndef	NO_VLAN
 		// In tap mode
-		VLAN *v = NewTap(name, tapaddr);
+		VLAN *v = NewTap(name, tapaddr, true);
 		if (v == NULL)
 		{
 			return NULL;

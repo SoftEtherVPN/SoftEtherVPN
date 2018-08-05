@@ -4669,6 +4669,21 @@ CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	This specifies the encrypted and electronic signature algorithm to set. You can obtain the list of usable algorithms by using the ServerCipherGet command.
 CMD_ServerCipherSet_PROMPT_NAME	Encrypted Algorithm Name to Specify: 
 
+# TUNDownOnDisconnectEnable command
+CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
+
+# TUNDownOnDisconnectDisable command
+CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
+
+# TUNDownOnDisconnectGet command
+CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
+CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 
 # KeepEnable command
 CMD_KeepEnable			Enable the Keep Alive Internet Connection Function

@@ -360,7 +360,7 @@ void FreeVLan(VLAN *v)
 }
 
 // Create a tap
-VLAN *NewTap(char *name, char *mac_address)
+VLAN *NewTap(char *name, char *mac_address, bool create_up)
 {
 	int fd;
 	VLAN *v;
@@ -370,7 +370,7 @@ VLAN *NewTap(char *name, char *mac_address)
 		return NULL;
 	}
 
-	fd = UnixCreateTapDeviceEx(name, "tap", mac_address);
+	fd = UnixCreateTapDeviceEx(name, "tap", mac_address, create_up);
 	if (fd == -1)
 	{
 		return NULL;
@@ -423,13 +423,25 @@ VLAN *NewVLan(char *instance_name, VLAN_PARAM *param)
 	return v;
 }
 
+// Generate TUN interface name
+void GenerateTunName(char *name, char *prefix, char *tun_name, size_t tun_name_len)
+{
+	char instance_name_lower[MAX_SIZE];
+
+	// Generate the device name
+	StrCpy(instance_name_lower, sizeof(instance_name_lower), name);
+	Trim(instance_name_lower);
+	StrLower(instance_name_lower);
+	Format(tun_name, tun_name_len, "%s_%s", prefix, instance_name_lower);
+
+	tun_name[15] = 0;
+}
 // Create a tap device
-int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool create_up)
 {
 	int fd;
 	struct ifreq ifr;
 	char eth_name[MAX_SIZE];
-	char instance_name_lower[MAX_SIZE];
 	struct sockaddr sa;
 	char *tap_name = TAP_FILENAME_1;
 	int s;
@@ -442,13 +454,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 		return -1;
 	}
 
-	// Generate the device name
-	StrCpy(instance_name_lower, sizeof(instance_name_lower), name);
-	Trim(instance_name_lower);
-	StrLower(instance_name_lower);
-	Format(eth_name, sizeof(eth_name), "%s_%s", prefix, instance_name_lower);
-
-	eth_name[15] = 0;
+	GenerateTunName(name, prefix, eth_name, sizeof(eth_name));
 
 	// Open the tun / tap
 #ifndef	UNIX_MACOS
@@ -531,8 +537,11 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 		ioctl(s, SIOCGIFFLAGS, &ifr);
 
-		ifr.ifr_flags |= IFF_UP;
-		ioctl(s, SIOCSIFFLAGS, &ifr);
+		if (create_up)
+		{
+			ifr.ifr_flags |= IFF_UP;
+			ioctl(s, SIOCSIFFLAGS, &ifr);
+		}
 
 		close(s);
 	}
@@ -560,8 +569,11 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
 		ioctl(s, SIOCGIFFLAGS, &ifr);
 
-		ifr.ifr_flags |= IFF_UP;
-		ioctl(s, SIOCSIFFLAGS, &ifr);
+		if (create_up)
+		{
+			ifr.ifr_flags |= IFF_UP;
+			ioctl(s, SIOCSIFFLAGS, &ifr);
+		}
 
 		close(s);
 	}
@@ -637,9 +649,9 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
 
 	return fd;
 }
-int UnixCreateTapDevice(char *name, UCHAR *mac_address)
+int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixCreateTapDeviceEx(name, "vpn", mac_address);
+	return UnixCreateTapDeviceEx(name, "vpn", mac_address, create_up);
 }
 
 // Close the tap device
@@ -696,7 +708,7 @@ void UnixVLanInit()
 }
 
 // Create a VLAN
-bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address)
+bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address, bool create_up)
 {
 	// Validate arguments
 	char tmp[MAX_SIZE];
@@ -727,7 +739,7 @@ bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address)
 		}
 
 		// Create a tap device
-		fd = UnixCreateTapDeviceEx(name, prefix, mac_address);
+		fd = UnixCreateTapDeviceEx(name, prefix, mac_address, create_up);
 		if (fd == -1)
 		{
 			// Failure to create
@@ -745,9 +757,63 @@ bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address)
 
 	return true;
 }
-bool UnixVLanCreate(char *name, UCHAR *mac_address)
+bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixVLanCreateEx(name, "vpn", mac_address);
+	return UnixVLanCreateEx(name, "vpn", mac_address, create_up);
+}
+
+// Set a VLAN up/down
+bool UnixVLanSetState(char* name, bool state_up)
+{
+#ifdef UNIX_LINUX
+	UNIX_VLAN_LIST *t, tt;
+	struct ifreq ifr;
+	int s;
+	char eth_name[MAX_SIZE];
+
+	LockList(unix_vlan);
+	{
+		int result;
+		// Find a device with the same name
+		Zero(&tt, sizeof(tt));
+		StrCpy(tt.Name, sizeof(tt.Name), name);
+
+		t = Search(unix_vlan, &tt);
+		if (t == NULL)
+		{
+			// No such device
+			UnlockList(unix_vlan);
+			return false;
+		}
+
+		GenerateTunName(name, "vpn", eth_name, sizeof(eth_name));
+		Zero(&ifr, sizeof(ifr));
+		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
+
+		s = socket(AF_INET, SOCK_DGRAM, 0);
+		if (s == -1)
+		{
+			// Failed to create socket
+			UnlockList(unix_vlan);
+			return false;
+		}
+
+		ioctl(s, SIOCGIFFLAGS, &ifr);
+		if (state_up)
+		{
+			ifr.ifr_flags |= IFF_UP;
+		}
+		else
+		{
+			ifr.ifr_flags &= ~IFF_UP;
+		}
+		result = ioctl(s, SIOCSIFFLAGS, &ifr);
+		close(s);
+	}
+	UnlockList(unix_vlan);
+#endif // UNIX_LINUX
+
+	return true;
 }
 
 // Enumerate VLANs

@@ -5385,6 +5385,14 @@ REDIRECTED:
 
 	PrintStatus(sess, _UU("STATUS_9"));
 
+#ifdef OS_UNIX
+	// Set TUN up if session has NicDownOnDisconnect set
+	if (c->Session->NicDownOnDisconnect != NULL)
+	{
+		UnixVLanSetState(c->Session->ClientOption->DeviceName, true);
+	}
+#endif
+
 	// Shift the connection to the tunneling mode
 	StartTunnelingMode(c);
 	s = NULL;
