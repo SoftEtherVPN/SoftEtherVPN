@@ -1166,12 +1166,6 @@ void SetThreadName(UINT thread_id, char *name, void *param)
 #endif	// OS_WIN32
 }
 
-// Do Nothing
-UINT DoNothing()
-{
-	return g_zero;
-}
-
 // Thread creation (pool)
 THREAD *NewThreadNamed(THREAD_PROC *thread_proc, void *param, char *name)
 {
@@ -1183,11 +1177,6 @@ THREAD *NewThreadNamed(THREAD_PROC *thread_proc, void *param, char *name)
 	if (thread_proc == NULL)
 	{
 		return NULL;
-	}
-
-	if (IsTrackingEnabled() == false)
-	{
-		DoNothing();
 	}
 
 	Inc(thread_count);

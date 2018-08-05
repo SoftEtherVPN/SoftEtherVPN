@@ -270,7 +270,6 @@ void GetHomeDirW(wchar_t *path, UINT size);
 void AbortExit();
 void AbortExitEx(char *msg);
 void YieldCpu();
-UINT DoNothing();
 LIST *NewThreadList();
 void AddThreadToThreadList(LIST *o, THREAD *t);
 void DelThreadFromThreadList(LIST *o, THREAD *t);
