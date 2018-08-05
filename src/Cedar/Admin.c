@@ -188,7 +188,7 @@
 		return err;														\
 	}
 #define	CHECK_RIGHT														\
-	if (a->ServerAdmin == false && (t->HubName == NULL || StrCmpi(a->HubName, t->HubName) != 0))	\
+	if (a->ServerAdmin == false && (StrCmpi(a->HubName, t->HubName) != 0))	\
 		return ERR_NOT_ENOUGH_RIGHT;	\
 	if (IsEmptyStr(t->HubName))			\
 		return ERR_INVALID_PARAMETER;
