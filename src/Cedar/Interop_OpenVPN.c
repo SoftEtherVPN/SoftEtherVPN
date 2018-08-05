@@ -343,13 +343,8 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 									data += sizeof(UINT);
 									size -= sizeof(UINT);
 
-									if (size >= sizeof(ping_signature) &&
-										Cmp(data, ping_signature, sizeof(ping_signature)) == 0)
-									{
-										// Ignore since a ping packet has been received
-										DoNothing();
-									}
-									else
+									if (size < sizeof(ping_signature) ||
+										Cmp(data, ping_signature, sizeof(ping_signature)) != 0)
 									{
 										// Receive a packet!!
 										if (se->Ipc != NULL)

@@ -9206,8 +9206,6 @@ void Win32NetworkTest()
 	for (i = 0;i < (int)(LIST_NUM(o));i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
-
-		DoNothing();
 	}
 
 	ReleaseList(o);
@@ -14327,9 +14325,8 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 		{
 			ReleaseSock(p->CancelDisconnectSock);
 			p->CancelDisconnectSock = NULL;
-LABEL_CANCEL:
-			DoNothing();
 		}
+LABEL_CANCEL:
 		Unlock(p->CancelLock);
 
 		if (ssl_ret == false)
