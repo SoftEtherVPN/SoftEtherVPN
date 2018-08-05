@@ -875,7 +875,7 @@ void GetCallStackStr(char *str, UINT size, CALLSTACK_DATA *s)
 
 			if (s->name == NULL)
 			{
-				Format(tmp, sizeof(tmp), "0x%p ---", UINT64_TO_POINTER(s->offset));
+				Format(tmp, sizeof(tmp), "0x%02x ---", UINT64_TO_POINTER(s->offset));
 			}
 			else
 			{
