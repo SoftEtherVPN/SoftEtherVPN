@@ -4357,6 +4357,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		Proxy Server Port Number
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	Proxy Server User Name
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	Verify Server Certificate
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	Registered Server Individual Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		Device Name Used for Connection
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		Authentication Type
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	User Name
@@ -6619,6 +6620,20 @@ CMD_AccountServerCertDisable	Disable VPN Connection Setting Server Certificate V
 CMD_AccountServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to check whether the SSL certificate provided by the destination VPN Server can be trusted.
 CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertEnable command
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertDisable command
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet command

@@ -4916,7 +4916,8 @@ REDIRECTED:
 			c->Err = ERR_SERVER_CERT_EXPIRES;
 		}
 
-		if (c->Session->LinkModeClient == false && c->Err == ERR_CERT_NOT_TRUSTED)
+		if (c->Session->LinkModeClient == false && c->Err == ERR_CERT_NOT_TRUSTED
+			&& (c->Session->Account == NULL || ! c->Session->Account->RetryOnServerCert))
 		{
 			c->Session->ForceStopFlag = true;
 		}

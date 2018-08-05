@@ -3100,6 +3100,8 @@ void PcMain(PC *pc)
 			{"AccountProxySocks", PcAccountProxySocks},
 			{"AccountServerCertEnable", PcAccountServerCertEnable},
 			{"AccountServerCertDisable", PcAccountServerCertDisable},
+			{"AccountRetryOnServerCertEnable", PcAccountRetryOnServerCertEnable},
+			{"AccountRetryOnServerCertDisable", PcAccountRetryOnServerCertDisable},
 			{"AccountServerCertSet", PcAccountServerCertSet},
 			{"AccountServerCertDelete", PcAccountServerCertDelete},
 			{"AccountServerCertGet", PcAccountServerCertGet},
@@ -4328,6 +4330,7 @@ UINT PcAccountSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		c.ClientAuth = t.ClientAuth;
 		c.ClientOption = t.ClientOption;
 		c.CheckServerCert = t.CheckServerCert;
+		c.RetryOnServerCert = t.RetryOnServerCert;
 		c.ServerCert = t.ServerCert;
 		c.StartupAccount = t.StartupAccount;
 
@@ -4425,6 +4428,12 @@ UINT PcAccountGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			GetAllNameFromX(tmp, sizeof(tmp), t.ServerCert);
 			CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME"), tmp);
+		}
+
+		if (t.CheckServerCert)
+		{
+			CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT"),
+				t.RetryOnServerCert ? _UU("CMD_MSG_ENABLE") : _UU("CMD_MSG_DISABLE"));
 		}
 
 		// Device name to be used for the connection
@@ -4597,6 +4606,7 @@ UINT PcAccountUsernameSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -4654,6 +4664,7 @@ UINT PcAccountAnonymousSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -4735,6 +4746,7 @@ UINT PcAccountPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			Zero(&z, sizeof(z));
 			z.CheckServerCert = t.CheckServerCert;
+			z.RetryOnServerCert = t.RetryOnServerCert;
 			z.ClientAuth = t.ClientAuth;
 			z.ClientOption = t.ClientOption;
 			z.ServerCert = t.ServerCert;
@@ -4813,6 +4825,7 @@ UINT PcAccountCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -4933,6 +4946,7 @@ UINT PcAccountEncryptDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *par
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -4990,6 +5004,7 @@ UINT PcAccountEncryptEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5047,6 +5062,7 @@ UINT PcAccountCompressEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *par
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5104,6 +5120,7 @@ UINT PcAccountCompressDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *pa
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5161,6 +5178,7 @@ UINT PcAccountProxyNone(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5232,6 +5250,7 @@ UINT PcAccountProxyHttp(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5303,6 +5322,7 @@ UINT PcAccountProxySocks(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5360,6 +5380,7 @@ UINT PcAccountServerCertEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *p
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5417,6 +5438,123 @@ UINT PcAccountServerCertDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
+		z.ClientAuth = t.ClientAuth;
+		z.ClientOption = t.ClientOption;
+		z.ServerCert = t.ServerCert;
+		z.StartupAccount = t.StartupAccount;
+
+		ret = CcSetAccount(pc->RemoteClient, &z);
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	CiFreeClientGetAccount(&t);
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Enable retry option of the invalid server certificate of connection settings
+UINT PcAccountRetryOnServerCertEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	RPC_CLIENT_GET_ACCOUNT t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		{"[name]", CmdPrompt, _UU("CMD_AccountCreate_Prompt_Name"), CmdEvalNotEmpty, NULL},
+	};
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	UniStrCpy(t.AccountName, sizeof(t.AccountName), GetParamUniStr(o, "[name]"));
+
+	ret = CcGetAccount(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		RPC_CLIENT_CREATE_ACCOUNT z;
+		// Change the settings
+		t.RetryOnServerCert = true;
+
+		Zero(&z, sizeof(z));
+		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
+		z.ClientAuth = t.ClientAuth;
+		z.ClientOption = t.ClientOption;
+		z.ServerCert = t.ServerCert;
+		z.StartupAccount = t.StartupAccount;
+
+		ret = CcSetAccount(pc->RemoteClient, &z);
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	CiFreeClientGetAccount(&t);
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Disable retry option of the invalid server certificate of connection settings
+UINT PcAccountRetryOnServerCertDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	RPC_CLIENT_GET_ACCOUNT t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		{"[name]", CmdPrompt, _UU("CMD_AccountCreate_Prompt_Name"), CmdEvalNotEmpty, NULL},
+	};
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	UniStrCpy(t.AccountName, sizeof(t.AccountName), GetParamUniStr(o, "[name]"));
+
+	ret = CcGetAccount(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		RPC_CLIENT_CREATE_ACCOUNT z;
+		// Change the settings
+		t.RetryOnServerCert = false;
+
+		Zero(&z, sizeof(z));
+		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5488,6 +5626,7 @@ UINT PcAccountServerCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5551,6 +5690,7 @@ UINT PcAccountServerCertDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *p
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5613,6 +5753,7 @@ UINT PcAccountServerCertGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -5946,6 +6087,7 @@ UINT PcAccountNicSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		c.ClientAuth = t.ClientAuth;
 		c.ClientOption = t.ClientOption;
 		c.CheckServerCert = t.CheckServerCert;
+		c.RetryOnServerCert = t.RetryOnServerCert;
 		c.ServerCert = t.ServerCert;
 		c.StartupAccount = t.StartupAccount;
 
@@ -6001,6 +6143,7 @@ UINT PcAccountStatusShow(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -6058,6 +6201,7 @@ UINT PcAccountStatusHide(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -6121,6 +6265,7 @@ UINT PcAccountSecureCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -6190,6 +6335,7 @@ UINT PcAccountRetrySet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -6248,6 +6394,7 @@ UINT PcAccountStartupSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;
@@ -6305,6 +6452,7 @@ UINT PcAccountStartupRemove(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		Zero(&z, sizeof(z));
 		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
 		z.ClientAuth = t.ClientAuth;
 		z.ClientOption = t.ClientOption;
 		z.ServerCert = t.ServerCert;

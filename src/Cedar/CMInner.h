@@ -236,6 +236,7 @@ typedef struct CM_ACCOUNT
 	CLIENT_AUTH *ClientAuth;			// Authentication data
 	bool Startup;						// Startup account
 	bool CheckServerCert;				// Check the server certificate
+	bool RetryOnServerCert;				// Retry on invalid server certificate
 	X *ServerCert;						// Server certificate
 	char old_server_name[MAX_HOST_NAME_LEN + 1];	// Old server name
 	bool Inited;						// Initialization flag

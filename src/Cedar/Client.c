@@ -2144,6 +2144,7 @@ RPC_CLIENT_CREATE_ACCOUNT *CiCfgToAccount(BUF *b)
 	t->ClientAuth = a->ClientAuth;
 	t->StartupAccount = a->StartupAccount;
 	t->CheckServerCert = a->CheckServerCert;
+	t->RetryOnServerCert = a->RetryOnServerCert;
 	t->ServerCert = a->ServerCert;
 	Free(a);
 
@@ -2167,6 +2168,7 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 	a.ClientOption = t->ClientOption;
 	a.ClientAuth = t->ClientAuth;
 	a.CheckServerCert = t->CheckServerCert;
+	a.RetryOnServerCert = t->RetryOnServerCert;
 	a.ServerCert = t->ServerCert;
 	a.StartupAccount = t->StartupAccount;
 
@@ -4704,6 +4706,7 @@ void InRpcClientCreateAccount(RPC_CLIENT_CREATE_ACCOUNT *c, PACK *p)
 
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
+	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4726,6 +4729,7 @@ void OutRpcClientCreateAccount(PACK *p, RPC_CLIENT_CREATE_ACCOUNT *c)
 
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
+	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
 	if (c->ServerCert != NULL)
 	{
 		b = XToBuf(c->ServerCert, false);
@@ -4873,6 +4877,7 @@ void InRpcClientGetAccount(RPC_CLIENT_GET_ACCOUNT *c, PACK *p)
 	PackGetUniStr(p, "AccountName", c->AccountName, sizeof(c->AccountName));
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
+	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4901,6 +4906,7 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 	PackAddUniStr(p, "AccountName", c->AccountName);
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
+	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
 
 	if (c->ServerCert != NULL)
 	{
@@ -6724,6 +6730,7 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 			a->StartupAccount = r->StartupAccount;
 
 			a->CheckServerCert = r->CheckServerCert;
+			a->RetryOnServerCert = r->RetryOnServerCert;
 			a->ServerCert = NULL;
 			if (r->ServerCert != NULL)
 			{
@@ -7250,6 +7257,7 @@ bool CtSetAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 			ret->StartupAccount = a->StartupAccount;
 
 			ret->CheckServerCert = a->CheckServerCert;
+			ret->RetryOnServerCert = a->RetryOnServerCert;
 
 			if (a->ServerCert != NULL)
 			{
@@ -7356,6 +7364,7 @@ bool CtCreateAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 		new_account->StartupAccount = a->StartupAccount;
 
 		new_account->CheckServerCert = a->CheckServerCert;
+		new_account->RetryOnServerCert = a->RetryOnServerCert;
 		if (a->ServerCert != NULL)
 		{
 			new_account->ServerCert = CloneX(a->ServerCert);
@@ -9530,6 +9539,7 @@ ACCOUNT *CiLoadClientAccount(FOLDER *f)
 
 	a->StartupAccount = CfgGetBool(f, "StartupAccount");
 	a->CheckServerCert = CfgGetBool(f, "CheckServerCert");
+	a->RetryOnServerCert = CfgGetBool(f, "RetryOnServerCert");
 	a->CreateDateTime = CfgGetInt64(f, "CreateDateTime");
 	a->UpdateDateTime = CfgGetInt64(f, "UpdateDateTime");
 	a->LastConnectDateTime = CfgGetInt64(f, "LastConnectDateTime");
@@ -10144,6 +10154,9 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
 
 	// Server certificate check flag
 	CfgAddBool(f, "CheckServerCert", a->CheckServerCert);
+
+	// Retry on invalid server certificate flag
+	CfgAddBool(f, "RetryOnServerCert", a->RetryOnServerCert);
 
 	// Date and time
 	CfgAddInt64(f, "CreateDateTime", a->CreateDateTime);

@@ -4374,6 +4374,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT	代理服务器的端口号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	代理服务器的用户名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	验证服务器证书
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	注册的服务器个人证书
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
 CMD_ACCOUNT_COLUMN_DEVICE_NAME	用于连接的设备名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE	验证类型
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	用户名
@@ -6633,6 +6634,20 @@ CMD_AccountServerCertDisable	禁用连接设置服务器证书验证选项
 CMD_AccountServerCertDisable_Help	指定注册到 VPN Client 的连接设置，其连接设置与 VPN Server 连接时，禁止检验由目标 VPN Server 提供的 SSL 证明书是否可信的选项。
 CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	指定要更改设置的连接设置名。
+
+
+# AccountRetryOnServerCertEnable command
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertDisable command
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet 命令
