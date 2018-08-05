@@ -1111,27 +1111,20 @@ void UnixGetOsInfo(OS_INFO *info)
 	}
 
 	Zero(info, sizeof(OS_INFO));
-	info->OsType = OSTYPE_UNIX_UNKNOWN;
 
 #ifdef	UNIX_SOLARIS
 	info->OsType = OSTYPE_SOLARIS;
-#endif	// UNIX_SOLARIS
-
-#ifdef	UNIX_CYGWIN
+#elif	UNIX_CYGWIN
 	info->OsType = OSTYPE_CYGWIN;
-#endif	// UNIX_CYGWIN
-
-#ifdef	UNIX_MACOS
+#elif	UNIX_MACOS
 	info->OsType = OSTYPE_MACOS_X;
-#endif	// UNIX_MACOS
-
-#ifdef	UNIX_BSD
+#elif	UNIX_BSD
 	info->OsType = OSTYPE_BSD;
-#endif	// UNIX_BSD
-
-#ifdef	UNIX_LINUX
+#elif	UNIX_LINUX
 	info->OsType = OSTYPE_LINUX;
-#endif	// UNIX_LINUX
+#else
+	info->OsType = OSTYPE_UNIX_UNKNOWN;
+#endif
 
 	info->OsServicePack = 0;
 
