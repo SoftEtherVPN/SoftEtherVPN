@@ -2625,7 +2625,6 @@ void LogThread(THREAD *thread, void *param)
 	bool flag = false;
 	char current_file_name[MAX_SIZE];
 	char current_logfile_datename[MAX_SIZE];
-	bool last_priority_flag = false;
 	bool log_date_changed = false;
 	// Validate arguments
 	if (thread == NULL || param == NULL)
@@ -2729,23 +2728,15 @@ static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *l
 	if (num >= LOG_ENGINE_SAVE_START_CACHE_COUNT)
 	{
 		// Raise the priority
-		if (last_priority_flag == false)
-		{
-			Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
-			MsSetThreadPriorityRealtime();
-			last_priority_flag = true;
-		}
+		Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
+		MsSetThreadPriorityRealtime();
 	}
 
 	if (num < (LOG_ENGINE_SAVE_START_CACHE_COUNT / 2))
 	{
 		// Restore the priority
-		if (last_priority_flag)
-		{
-			Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
-			MsSetThreadPriorityIdle();
-			last_priority_flag = false;
-		}
+		Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
+		MsSetThreadPriorityIdle();
 	}
 #endif	// OS_WIN32
 
