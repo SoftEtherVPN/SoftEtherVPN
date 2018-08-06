@@ -824,8 +824,6 @@ bool Win32CnCheckAlreadyExists(bool lock);
 void RegistWindowsFirewallAll();
 void RegistWindowsFirewallAllEx(char *dir);
 void InitVistaWindowTheme(HWND hWnd);
-void WinUiDebugInit();
-void WinUiDebugFree();
 void OnceMsg(HWND hWnd, wchar_t *title, wchar_t *message, bool show_checkbox, UINT icon);
 void OnceMsgEx(HWND hWnd, wchar_t *title, wchar_t *message, bool show_checkbox, UINT icon, bool *halt);
 UINT GetOnceMsgHash(wchar_t *title, wchar_t *message);

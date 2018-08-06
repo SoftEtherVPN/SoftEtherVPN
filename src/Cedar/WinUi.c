@@ -9608,13 +9608,6 @@ bool IsEnable(HWND hWnd, UINT id)
 	return IsWindowEnabled(DlgItem(hWnd, id));
 }
 
-static LOCK *winui_debug_lock = NULL;
-
-// Release the debug function
-void WinUiDebugFree()
-{
-	DeleteLock(winui_debug_lock);
-}
 // If the control protrude by large font size, adjust into appropriate size
 void AdjustFontSize(HWND hWnd, UINT id)
 {
@@ -10052,8 +10045,6 @@ void InitWinUi(wchar_t *software_name, char *font, UINT fontsize)
 		return;
 	}
 
-	WinUiDebugInit();
-
 	if (MayaquaIsMinimalMode() == false)
 	{
 		if (Is64())
@@ -10177,8 +10168,6 @@ void FreeWinUi()
 
 	Free(font_name);
 	font_name = NULL;
-
-	WinUiDebugFree();
 
 	if (hCommonDC != NULL)
 	{
