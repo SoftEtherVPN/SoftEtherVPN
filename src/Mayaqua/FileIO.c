@@ -232,24 +232,6 @@ bool IsFileWriteLockedW(wchar_t *name)
 
 	return false;
 }
-bool IsFileWriteLocked(char *name)
-{
-	bool ret;
-	wchar_t *tmp;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	tmp = CopyStrToUni(name);
-
-	ret = IsFileWriteLockedW(tmp);
-
-	Free(tmp);
-
-	return ret;
-}
 
 // Creating a ZIP packer
 ZIP_PACKER *NewZipPacker()
@@ -677,17 +659,6 @@ bool IsFileW(wchar_t *name)
 }
 
 // Rename to replace the file
-bool FileReplaceRename(char *old_name, char *new_name)
-{
-	wchar_t *old_name_w = CopyStrToUni(old_name);
-	wchar_t *new_name_w = CopyStrToUni(new_name);
-	bool ret = FileReplaceRenameW(old_name_w, new_name_w);
-
-	Free(old_name_w);
-	Free(new_name_w);
-
-	return ret;
-}
 bool FileReplaceRenameW(wchar_t *old_name, wchar_t *new_name)
 {
 	// Validate arguments
@@ -725,24 +696,6 @@ void ConvertSafeFileName(char *dst, UINT size, char *src)
 		}
 	}
 }
-void ConvertSafeFileNameW(wchar_t *dst, UINT size, wchar_t *src)
-{
-	UINT i;
-	// Validate arguments
-	if (dst == NULL || src == NULL)
-	{
-		return;
-	}
-
-	UniStrCpy(dst, size, src);
-	for (i = 0;i < UniStrLen(dst);i++)
-	{
-		if (UniIsSafeChar(dst[i]) == false)
-		{
-			dst[i] = L'_';
-		}
-	}
-}
 
 // Get the free disk space
 bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
@@ -758,23 +711,6 @@ bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total
 	ret = Win32GetDiskFree(path, free_size, used_size, total_size);
 #else	// OS_WIN32
 	ret = UnixGetDiskFree(path, free_size, used_size, total_size);
-#endif	// OS_WIN32
-
-	return ret;
-}
-bool GetDiskFreeW(wchar_t *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
-{
-	bool ret;
-	// Validate arguments
-	if (path == NULL)
-	{
-		path = L"./";
-	}
-
-#ifdef	OS_WIN32
-	ret = Win32GetDiskFreeW(path, free_size, used_size, total_size);
-#else	// OS_WIN32
-	ret = UnixGetDiskFreeW(path, free_size, used_size, total_size);
 #endif	// OS_WIN32
 
 	return ret;
@@ -991,10 +927,6 @@ void UniSafeFileName(wchar_t *name)
 		}
 		name[i] = c;
 	}
-}
-void SafeFileNameW(wchar_t *name)
-{
-	UniSafeFileName(name);
 }
 
 // Read HamCore file
@@ -1565,24 +1497,6 @@ void MakeSafeFileName(char *dst, UINT size, char *src)
 
 	StrCpy(dst, size, tmp);
 }
-void MakeSafeFileNameW(wchar_t *dst, UINT size, wchar_t *src)
-{
-	wchar_t tmp[MAX_PATH];
-	// Validate arguments
-	if (dst == NULL || src == NULL)
-	{
-		return;
-	}
-
-	UniStrCpy(tmp, sizeof(tmp), src);
-	UniReplaceStrEx(tmp, sizeof(tmp), tmp, L"..", L"__", false);
-	UniReplaceStrEx(tmp, sizeof(tmp), tmp, L"/", L"_", false);
-	UniReplaceStrEx(tmp, sizeof(tmp), tmp, L"\\", L"_", false);
-	UniReplaceStrEx(tmp, sizeof(tmp), tmp, L"@", L"_", false);
-	UniReplaceStrEx(tmp, sizeof(tmp), tmp, L"|", L"_", false);
-
-	UniStrCpy(dst, size, tmp);
-}
 
 // Get the file name from the file path
 void GetFileNameFromFilePathW(wchar_t *dst, UINT size, wchar_t *filepath)
@@ -1849,15 +1763,6 @@ bool IsFileExistsW(wchar_t *name)
 
 	return IsFileExistsInnerW(tmp);
 }
-bool IsFileExistsInner(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	bool ret = IsFileExistsInnerW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
 bool IsFileExistsInnerW(wchar_t *name)
 {
 	IO *o;
@@ -1937,65 +1842,6 @@ UNI_TOKEN_LIST *ParseSplitedPathW(wchar_t *path)
 	Free(tmp);
 
 	return ret;
-}
-TOKEN_LIST *ParseSplitedPath(char *path)
-{
-	TOKEN_LIST *ret;
-	char *tmp = CopyStr(path);
-	char *split_str;
-	UINT i;
-
-	Trim(tmp);
-	TrimCrlf(tmp);
-	Trim(tmp);
-	TrimCrlf(tmp);
-
-#ifdef	OS_WIN32
-	split_str = ";";
-#else	// OS_WIN32
-	split_str = ":";
-#endif	// OS_WIN32
-
-	ret = ParseToken(tmp, split_str);
-
-	if (ret != NULL)
-	{
-		for (i = 0;i < ret->NumTokens;i++)
-		{
-			Trim(ret->Token[i]);
-			TrimCrlf(ret->Token[i]);
-			Trim(ret->Token[i]);
-			TrimCrlf(ret->Token[i]);
-		}
-	}
-
-	Free(tmp);
-
-	return ret;
-}
-
-// Get the current directory
-void GetCurrentDirW(wchar_t *name, UINT size)
-{
-	// Validate arguments
-	if (name == NULL)
-	{
-		return;
-	}
-
-#ifdef	OS_WIN32
-	Win32GetCurrentDirW(name, size);
-#else	// OS_WIN32
-	UnixGetCurrentDirW(name, size);
-#endif	// OS_WIN32
-}
-void GetCurrentDir(char *name, UINT size)
-{
-	wchar_t name_w[MAX_PATH];
-
-	GetCurrentDirW(name_w, sizeof(name_w));
-
-	UniToStr(name, size, name_w);
 }
 
 // Get the relative path
@@ -2228,24 +2074,6 @@ void NormalizePath(char *dst, UINT size, char *src)
 	UniToStr(dst, size, dst_w);
 }
 
-// Close and delete the file
-void FileCloseAndDelete(IO *o)
-{
-	wchar_t *name;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	name = CopyUniStr(o->NameW);
-	FileClose(o);
-
-	FileDeleteW(name);
-
-	Free(name);
-}
-
 // Rename the file
 bool FileRename(char *old_name, char *new_name)
 {
@@ -2273,17 +2101,6 @@ bool FileRenameW(wchar_t *old_name, wchar_t *new_name)
 
 	return FileRenameInnerW(tmp1, tmp2);
 }
-bool FileRenameInner(char *old_name, char *new_name)
-{
-	wchar_t *old_name_w = CopyStrToUni(old_name);
-	wchar_t *new_name_w = CopyStrToUni(new_name);
-	bool ret = FileRenameInnerW(old_name_w, new_name_w);
-
-	Free(old_name_w);
-	Free(new_name_w);
-
-	return ret;
-}
 bool FileRenameInnerW(wchar_t *old_name, wchar_t *new_name)
 {
 	// Validate arguments
@@ -2296,24 +2113,6 @@ bool FileRenameInnerW(wchar_t *old_name, wchar_t *new_name)
 }
 
 // Convert the path
-void ConvertPath(char *path)
-{
-	UINT i, len;
-#ifdef	PATH_BACKSLASH
-	char new_char = '\\';
-#else
-	char new_char = '/';
-#endif
-
-	len = StrLen(path);
-	for (i = 0;i < len;i++)
-	{
-		if (path[i] == '\\' || path[i] == '/')
-		{
-			path[i] = new_char;
-		}
-	}
-}
 void ConvertPathW(wchar_t *path)
 {
 	UINT i, len;
@@ -2355,15 +2154,6 @@ bool DeleteDirW(wchar_t *name)
 	InnerFilePathW(tmp, sizeof(tmp), name);
 
 	return DeleteDirInnerW(tmp);
-}
-bool DeleteDirInner(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	bool ret = DeleteDirInnerW(name_w);
-
-	Free(name_w);
-
-	return ret;
 }
 bool DeleteDirInnerW(wchar_t *name)
 {
@@ -2491,15 +2281,6 @@ bool MakeDirW(wchar_t *name)
 
 	return MakeDirInnerW(tmp);
 }
-bool MakeDirInner(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	bool ret = MakeDirInnerW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
 bool MakeDirInnerW(wchar_t *name)
 {
 	// Validate arguments
@@ -2534,15 +2315,6 @@ bool FileDeleteW(wchar_t *name)
 
 	return FileDeleteInnerW(tmp);
 }
-bool FileDeleteInner(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	bool ret = FileDeleteInnerW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
 bool FileDeleteInnerW(wchar_t *name)
 {
 	wchar_t name2[MAX_SIZE];
@@ -2575,39 +2347,6 @@ bool FileSeek(IO *o, UINT mode, int offset)
 	{
 		return false;
 	}
-}
-
-// Get the file size by specifying the file name
-UINT FileSizeEx(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	UINT ret = FileSizeExW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
-UINT FileSizeExW(wchar_t *name)
-{
-	IO *io;
-	UINT size;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return 0;
-	}
-
-	io = FileOpenW(name, false);
-	if (io == NULL)
-	{
-		return 0;
-	}
-
-	size = FileSize(io);
-
-	FileClose(io);
-
-	return size;
 }
 
 // Get the file size
@@ -2745,15 +2484,6 @@ void FileCloseEx(IO *o, bool no_flush)
 }
 
 // Create a file
-IO *FileCreateInner(char *name)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	IO *ret = FileCreateInnerW(name_w);
-
-	Free(name_w);
-
-	return ret;
-}
 IO *FileCreateInnerW(wchar_t *name)
 {
 	IO *o;
@@ -2809,28 +2539,6 @@ IO *FileCreateW(wchar_t *name)
 }
 
 // Write all the data to the file
-bool FileWriteAll(char *name, void *data, UINT size)
-{
-	IO *io;
-	// Validate arguments
-	if (name == NULL || (data == NULL && size != 0))
-	{
-		return false;
-	}
-
-	io = FileCreate(name);
-
-	if (io == NULL)
-	{
-		return false;
-	}
-
-	FileWrite(io, data, size);
-
-	FileClose(io);
-
-	return true;
-}
 bool FileWriteAllW(wchar_t *name, void *data, UINT size)
 {
 	IO *io;
@@ -2855,15 +2563,6 @@ bool FileWriteAllW(wchar_t *name, void *data, UINT size)
 }
 
 // Open the file
-IO *FileOpenInner(char *name, bool write_mode, bool read_lock)
-{
-	wchar_t *name_w = CopyStrToUni(name);
-	IO *ret = FileOpenInnerW(name_w, write_mode, read_lock);
-
-	Free(name_w);
-
-	return ret;
-}
 IO *FileOpenInnerW(wchar_t *name, bool write_mode, bool read_lock)
 {
 	IO *o;
