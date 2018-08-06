@@ -150,10 +150,17 @@ on all the following open-source repositories:
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-To fetch the source code from GitHub:
 ```
 $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 ```
+
+  - GitLab (mirrored from GitHub)
+    https://gitlab.com/SoftEther/SoftEtherVPN/
+
+```
+$ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
+```
+
 We hope that you can reach one of the above URLs at least!
 
 
