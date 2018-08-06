@@ -2533,8 +2533,8 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 				// Respond if there is providable IP address
 				DHCP_OPTION_LIST ret;
 				LIST *o;
-				UINT hw_type;
-				UINT hw_addr_size;
+				UINT hw_type = 0U;
+				UINT hw_addr_size = 0U;
 				UINT new_ip = ip;
 				IP default_dns;
 
