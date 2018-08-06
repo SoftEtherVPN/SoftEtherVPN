@@ -2426,7 +2426,7 @@ bool MakeDirExW(wchar_t *name)
 	wchar_t tmp[MAX_PATH];
 	wchar_t tmp2[MAX_PATH];
 	UINT i;
-	bool ret;
+	bool ret = false;
 	// Validate arguments
 	if (name == NULL)
 	{
