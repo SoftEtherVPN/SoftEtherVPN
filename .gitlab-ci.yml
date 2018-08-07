@@ -1,0 +1,35 @@
+.ubuntu: &ubuntu_def
+  before_script:
+    - apt-get update && apt-get install -y debhelper devscripts fakeroot ${CMAKE} dh-exec gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git
+  script:
+    - debuild -i -us -uc -b
+
+bionic: 
+  <<: *ubuntu_def
+  image: ubuntu:bionic
+  variables:     
+    CMAKE: cmake
+
+xenial:     
+  <<: *ubuntu_def
+  image: ubuntu:xenial
+  variables:     
+    CMAKE: cmake
+
+trusty:      
+  <<: *ubuntu_def
+  image: ubuntu:trusty
+  variables:     
+    CMAKE: cmake3
+
+
+#
+# there's no cmake3 for 12.04
+# maybe, there's ppa ?
+#
+#precise:
+#  <<: *ubuntu_def
+#  image: ubuntu:precise
+#  variables:
+#    CMAKE: cmake3
+
