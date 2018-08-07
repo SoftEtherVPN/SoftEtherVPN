@@ -7,5 +7,5 @@ cmake-build-debug/
 src/bin/BuiltHamcoreFiles/
 tmp/
 .gitconfig
-
-
+CMakeCache.txt
+CMakeFiles/
