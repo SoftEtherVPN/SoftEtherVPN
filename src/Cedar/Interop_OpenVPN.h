@@ -139,8 +139,8 @@
 
 
 // The default algorithm
-#define	OPENVPN_DEFAULT_CIPHER					"AES-128-CBC"
-#define	OPENVPN_DEFAULT_MD						"SHA1"
+#define	OPENVPN_DEFAULT_CIPHER					"AES-256-CBC"
+#define	OPENVPN_DEFAULT_MD						"RMD160"
 
 // Encryption related
 #define	OPENVPN_PREMASTER_LABEL					"OpenVPN master secret"
@@ -311,7 +311,7 @@ struct OPENVPN_SERVER_UDP
 };
 
 // OpenVPN Default Client Option String
-#define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
+#define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-256-CBC,auth RMD160,keysize 128,key-method 2,tls-client"
 
 
 //// Function prototype
