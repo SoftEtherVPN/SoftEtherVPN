@@ -2312,7 +2312,7 @@ S_RETRY_NUM_2			times
 S_RETRY_SPAN_1			Reconnect Interval:
 S_RETRY_SPAN_2			seconds
 R_INFINITE				&Infinite Reconnects (Keep VPN Always Online)
-R_NOTLS1				Do not use TLS &1.0
+R_NOTLS1				Use SSL 3.0 (&1)
 B_DETAIL				A&dvanced Settings...
 IDOK					&OK
 IDCANCEL				Cancel

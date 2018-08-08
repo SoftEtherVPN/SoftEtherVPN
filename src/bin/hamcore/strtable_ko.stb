@@ -2312,7 +2312,7 @@ S_RETRY_NUM_2 회
 S_RETRY_SPAN_1 다시 연결 간격 (&K):
 S_RETRY_SPAN_2 초
 R_INFINITE 무한 재 연결을 시도하는 (상시 접속) (&I)
-R_NOTLS1 TLS 및 1.0을 사용하지
+R_NOTLS1 사용 SSL 3.0(&1)
 B_DETAIL 고급 통신 설정 (&N)...
 IDOK & OK
 IDCANCEL 취소
