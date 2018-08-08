@@ -935,7 +935,11 @@ void InitInternational()
 	d = IconvWideToStrInternal();
 	if (d == (void *)-1)
 	{
+#if defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL)
 		StrCpy(charset, sizeof(charset), "utf-8");
+#else // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
+		StrCpy(charset, sizeof(charset), "EUCJP");
+#endif // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
 		d = IconvWideToStrInternal();
 		if (d == (void *)-1)
 		{
