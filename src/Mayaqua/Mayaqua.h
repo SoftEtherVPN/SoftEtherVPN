@@ -395,6 +395,7 @@ extern char *cmdline;
 extern wchar_t *uni_cmdline;
 extern bool g_little_endian;
 extern LOCK *tick_manual_lock;
+extern bool g_foreground;
 
 // Kernel state
 #define	NUM_KERNEL_STATUS	128

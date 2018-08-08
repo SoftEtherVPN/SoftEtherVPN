@@ -133,6 +133,7 @@ BOOL kernel_status_inited = false;				// Kernel state initialization flag
 bool g_little_endian = true;
 char *cmdline = NULL;							// Command line
 wchar_t *uni_cmdline = NULL;					// Unicode command line
+bool g_foreground = false;					// Execute service in foreground mode
 
 // Static variable
 static char *exename = NULL;						// EXE file name (ANSI)
@@ -512,6 +513,12 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		// Fail this for some reason when this is called this in .NET mode
 		setbuf(stdout, NULL);
 	}
+
+#ifdef OS_UNIX
+	g_foreground = (argc >= 3 && StrCmpi(argv[2], UNIX_SVC_ARG_FOREGROUND) == 0);
+#else
+	g_foreground = false;
+#endif // OS_UNIX
 
 	// Acquisition whether NT
 #ifdef	OS_WIN32

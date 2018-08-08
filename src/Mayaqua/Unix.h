@@ -141,6 +141,7 @@ typedef void (SERVICE_FUNCTION)();
 #define	UNIX_SVC_ARG_STOP				"stop"
 #define	UNIX_SVC_ARG_EXEC_SVC			"execsvc"
 #define	UNIX_ARG_EXIT					"exit"
+#define UNIX_SVC_ARG_FOREGROUND				"--foreground"
 
 #define	UNIX_SVC_MODE_START				1
 #define	UNIX_SVC_MODE_STOP				2
@@ -178,6 +179,7 @@ void *UnixFileOpen(char *name, bool write_mode, bool read_lock);
 void *UnixFileOpenW(wchar_t *name, bool write_mode, bool read_lock);
 void *UnixFileCreate(char *name);
 void *UnixFileCreateW(wchar_t *name);
+void *GetUnixio4Stdout();
 bool UnixFileWrite(void *pData, void *buf, UINT size);
 bool UnixFileRead(void *pData, void *buf, UINT size);
 void UnixFileClose(void *pData, bool no_flush);
