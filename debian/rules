@@ -14,8 +14,11 @@ export export CMAKE_INSTALL_PREFIX=../debian/usr
 %:
 	dh $@ 
 
-override_dh_auto_configure:
+override_dh_auto_clean:
 	git submodule update --init --recursive
+	dh_auto_clean
+
+override_dh_auto_configure:
 	cmake .
 
 override_dh_auto_install:
