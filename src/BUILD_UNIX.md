@@ -57,6 +57,21 @@ This will compile and install SoftEther VPN Server, Bridge and Client binaries u
 
 If any error occurs, please check the above requirements.
 
+# Build on musl-based linux 
+
+To build the programs from the source code when using musl as libc, run the following commands:
+
+```bash
+export USE_MUSL=YES
+git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+git submodule init && git submodule update
+cd SoftEtherVPN
+./configure
+make -C tmp
+make -C tmp install
+```
+
+Building without USE_MUSL environment variable set compiles, but produced executabled exhibit bad run-time behaviour.
 
 # How to Run SoftEther
 
