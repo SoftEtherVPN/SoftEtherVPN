@@ -71,7 +71,7 @@ make -C tmp
 make -C tmp install
 ```
 
-Building without USE_MUSL environment variable set compiles, but produced executabled exhibit bad run-time behaviour.
+Building without USE_MUSL environment variable set compiles, but produced executables exhibit bad run-time behaviour.
 
 # How to Run SoftEther
 
