@@ -2293,23 +2293,33 @@ bool RsaCheckEx()
 }
 bool RsaCheck()
 {
-	RSA *rsa;
+	int ret = 0;
+	RSA *rsa = NULL;
+	BIGNUM *e = NULL;
 	K *priv_key, *pub_key;
 	BIO *bio;
 	char errbuf[MAX_SIZE];
 	UINT size = 0;
 	UINT bit = RSA_KEY_SIZE;
-	// Validate arguments
+
+	e = BN_new();
+	ret = BN_set_word(e, RSA_F4);
+	if (ret == 0)
+	{
+		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
+		return false;
+	}
 
 	// Key generation
 	Lock(openssl_lock);
 	{
-		rsa = RSA_generate_key(bit, RSA_F4, NULL, NULL);
+		rsa = RSA_new();
+		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
 	}
 	Unlock(openssl_lock);
-	if (rsa == NULL)
+	if (ret == 0)
 	{
-		Debug("RSA_generate_key: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
+		Debug("RSA_generate_key_ex: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
 
@@ -2356,7 +2366,9 @@ bool RsaCheck()
 // Generation of RSA key
 bool RsaGen(K **priv, K **pub, UINT bit)
 {
-	RSA *rsa;
+	int ret = 0;
+	RSA *rsa = NULL;
+	BIGNUM *e = NULL;
 	K *priv_key, *pub_key;
 	BIO *bio;
 	char errbuf[MAX_SIZE];
@@ -2371,15 +2383,24 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 		bit = RSA_KEY_SIZE;
 	}
 
+	e = BN_new();
+	ret = BN_set_word(e, RSA_F4);
+	if (ret == 0)
+	{
+		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
+		return false;
+	}
+
 	// Key generation
 	Lock(openssl_lock);
 	{
-		rsa = RSA_generate_key(bit, RSA_F4, NULL, NULL);
+		rsa = RSA_new();
+		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
 	}
 	Unlock(openssl_lock);
-	if (rsa == NULL)
+	if (ret == 0)
 	{
-		Debug("RSA_generate_key: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
+		Debug("RSA_generate_key_ex: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
 
@@ -3432,8 +3453,11 @@ X *X509ToX(X509 *x509)
 				{
 					if (OBJ_obj2nid(ad->method) == NID_ad_ca_issuers && ad->location->type == GEN_URI)
 					{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+						char *uri = (char *)ASN1_STRING_get0_data(ad->location->d.uniformResourceIdentifier);
+#else
 						char *uri = (char *)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier);
-
+#endif
 						if (IsEmptyStr(uri) == false)
 						{
 							StrCpy(x->issuer_url, sizeof(x->issuer_url), uri);
@@ -3639,8 +3663,10 @@ void Rand(void *buf, UINT size)
 // Delete a thread-specific information that OpenSSL has holded
 void FreeOpenSSLThreadState()
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	CRYPTO_cleanup_all_ex_data();
-	ERR_remove_state(0);
+	ERR_remove_thread_state(NULL);
+#endif
 }
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
