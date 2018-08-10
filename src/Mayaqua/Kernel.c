@@ -2104,7 +2104,7 @@ void UINT64ToSystem(SYSTEMTIME *st, UINT64 sec64)
 		return;
 	}
 
-	sec64 = SafeTime64(sec64 + 32400000ULL);
+	sec64 = SafeTime64(sec64);
 	tmp64 = sec64 / (UINT64)1000;
 	millisec = (UINT)(sec64 - tmp64 * (UINT64)1000);
 	sec = (UINT)tmp64;
@@ -2137,7 +2137,7 @@ UINT64 SystemToUINT64(SYSTEMTIME *st)
 	sec64 = (UINT64)time * (UINT64)1000;
 	sec64 += st->wMilliseconds;
 
-	return sec64 - 32400000ULL;
+	return sec64;
 }
 
 // Get local time in UINT64
