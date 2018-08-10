@@ -1,6 +1,6 @@
 include(GNUInstallDirs)
 
-macro(install_wrapper_script target destination)
+macro(install_wrapper_script component target destination)
   get_filename_component(filename ${target} NAME)
 
   file(WRITE ${CMAKE_SOURCE_DIR}/tmp/script/${filename} "#!/bin/sh\n")
@@ -8,6 +8,7 @@ macro(install_wrapper_script target destination)
   file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${filename} "exit $?\n")
 
   install(FILES ${CMAKE_SOURCE_DIR}/tmp/script/${filename}
+    COMPONENT ${component}
     DESTINATION ${destination}
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
   )
@@ -124,8 +125,33 @@ add_custom_command(TARGET hamcore-archive-build
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
 )
 
-# Copy contents of "bin" directory to /usr/lib(exec)/softether/
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/"
+# Copy "vpnserver" directory to /usr/lib(exec)/softether/
+install(DIRECTORY ${VPNSERVER_RUNTIME_OUTPUT_DIRECTORY}
+  COMPONENT "vpnserver"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
+  PATTERN "*"
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Copy "vpnclient" directory to /usr/lib(exec)/softether/
+install(DIRECTORY ${VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY}
+  COMPONENT "vpnclient"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
+  PATTERN "*"
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Copy "vpnbridge" directory to /usr/lib(exec)/softether/
+install(DIRECTORY ${VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY}
+  COMPONENT "vpnbridge"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
+  PATTERN "*"
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Copy "vpncmd" directory to /usr/lib(exec)/softether/
+install(DIRECTORY ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
+  COMPONENT "vpncmd"
   DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
   PATTERN "*"
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
@@ -133,10 +159,10 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/"
 
 # Create wrapper scripts in the user's binaries directory, which is usually "/usr/local/bin".
 # This is required because symlinks use the folder they are in as working directory.
-install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge" ${CMAKE_INSTALL_FULL_BINDIR})
-install_wrapper_script("${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpncmd/vpncmd" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("vpnserver" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("vpnclient" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("vpnbridge" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge" ${CMAKE_INSTALL_FULL_BINDIR})
+install_wrapper_script("vpncmd" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpncmd/vpncmd" ${CMAKE_INSTALL_FULL_BINDIR})
 
 # Print message after installing the targets
 install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")

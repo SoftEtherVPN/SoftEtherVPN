@@ -1,5 +1,0 @@
-#! /usr/bin/dh-exec
-debian/tmp/usr/local/libexec/softether/vpnbridge/vpnbridge usr/libexec/softether/vpnbridge/
-debian/tmp/usr/local/libexec/softether/vpnbridge/hamcore.se2  usr/libexec/softether/vpnbridge/
-debian/usr/bin/vpnbridge usr/bin/
-

@@ -1,4 +1,0 @@
-#! /usr/bin/dh-exec
-debian/tmp/usr/local/libexec/softether/vpnserver/vpnserver  usr/libexec/softether/vpnserver/
-debian/tmp/usr/local/libexec/softether/vpnserver/hamcore.se2  usr/libexec/softether/vpnserver/
-debian/usr/bin/vpnserver usr/bin/
