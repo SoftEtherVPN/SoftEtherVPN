@@ -2,7 +2,8 @@
   before_script:
     - apt-get update && apt-get install -y debhelper devscripts fakeroot ${CMAKE} dh-exec gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git
   script:
-    - debuild -i -us -uc -b
+    - ./configure
+    - make package -C tmp
 
 bionic: 
   <<: *ubuntu_def
