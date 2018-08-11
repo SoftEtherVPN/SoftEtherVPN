@@ -1912,7 +1912,9 @@ void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src)
 	UNI_TOKEN_LIST *t;
 	bool first_double_slash = false;
 	bool first_single_slash = false;
+#ifdef  OS_WIN32
 	wchar_t win32_drive_char = 0;
+#endif  // OS_WIN32
 	bool is_full_path = false;
 	UINT i;
 	SK *sk;
@@ -2036,6 +2038,7 @@ void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src)
 		UniStrCat(tmp, sizeof(tmp), L"/");
 	}
 
+#ifdef  OS_WIN32
 	if (win32_drive_char != 0)
 	{
 		wchar_t d[2];
@@ -2044,6 +2047,7 @@ void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src)
 		UniStrCat(tmp, sizeof(tmp), d);
 		UniStrCat(tmp, sizeof(tmp), L":/");
 	}
+#endif  // OS_WIN32
 
 	for (i = 0;i < sk->num_item;i++)
 	{
