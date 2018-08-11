@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 echo '---------------------------------------------------------------------'
 echo 'SoftEther VPN for Unix'
 echo
