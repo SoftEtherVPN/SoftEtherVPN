@@ -462,7 +462,7 @@ void DCThread(THREAD *thread, void *param)
 
 		if (n == 1)
 		{
-			interval = MIN(interval, 0);
+			interval = 0;
 		}
 
 		if (c->Halt)

@@ -663,17 +663,15 @@ LIST *GetNicList()
 
 #ifdef	OS_WIN32
 	o = Win32GetNicList();
-#endif	// OS_WIN32
 
-#ifdef	UNIX_LINUX
-#endif	// UNIX_LINUX
-
-	if (o == NULL)
+	if (o != NULL)
 	{
-		return NewListFast(NULL);
+		return o;
 	}
 
-	return o;
+#endif	// OS_WIN32
+
+	return NewListFast(NULL);
 }
 
 #ifdef	OS_WIN32
