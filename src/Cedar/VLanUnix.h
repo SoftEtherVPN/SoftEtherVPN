@@ -131,6 +131,7 @@ struct VLAN
 VLAN *NewVLan(char *instance_name, VLAN_PARAM *param);
 VLAN *NewTap(char *name, char *mac_address, bool create_up);
 void FreeVLan(VLAN *v);
+void FreeTap(VLAN *v);
 CANCEL *VLanGetCancel(VLAN *v);
 bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size);
 bool VLanPutPacket(VLAN *v, void *buf, UINT size);

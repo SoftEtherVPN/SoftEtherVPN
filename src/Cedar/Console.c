@@ -2048,7 +2048,11 @@ bool PasswordPrompt(char *password, UINT size)
 		else if (c == 0xE0)
 		{
 			// Read one more character
+#ifdef	OS_WIN32
 			c = getch();
+#else	// OS_WIN32
+			c = getc(stdin);
+#endif	// OS_WIN32
 			if (c == 0x4B || c == 0x53)
 			{
 				// Backspace
