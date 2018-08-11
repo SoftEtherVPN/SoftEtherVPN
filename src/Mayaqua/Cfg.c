@@ -1366,10 +1366,6 @@ void CfgAddItemText(BUF *b, ITEM *t, UINT depth)
 
 	// Memory release
 	Free(data);
-	if (sub != NULL)
-	{
-		Free(sub);
-	}
 }
 
 // Output the data line
