@@ -36,7 +36,7 @@ sudo yum -y install cmake ncurses-devel openssl-devel readline-devel zlib-devel
 
 ## Install Requirements on Debian/Ubuntu
 ```bash
-sudo apt -y install cmake gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
 ```
 
 
