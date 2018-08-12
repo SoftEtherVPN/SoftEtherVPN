@@ -408,7 +408,18 @@ void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
 // Calculate the HMAC
 void MdProcess(MD *md, void *dest, void *src, UINT size)
 {
-	int r;
+	int r = 0;
+
+	if (md != NULL && md->isNullMd)
+	{
+		if (dest != src)
+		{
+			Copy(dest, src, size);
+		}
+
+		return;
+	}
+
 	// Validate arguments
 	if (md == NULL || dest == NULL || (src != NULL && size == 0))
 	{
@@ -417,8 +428,6 @@ void MdProcess(MD *md, void *dest, void *src, UINT size)
 
 	HMAC_Init_ex(md->Ctx, NULL, 0, NULL, NULL);
 	HMAC_Update(md->Ctx, src, size);
-
-	r = 0;
 	HMAC_Final(md->Ctx, dest, &r);
 }
 
@@ -447,6 +456,15 @@ MD *NewMd(char *name)
 	m = ZeroMalloc(sizeof(MD));
 
 	StrCpy(m->Name, sizeof(m->Name), name);
+
+	if (StrCmpi(name, "[null-digest]") == 0 ||
+		StrCmpi(name, "NULL") == 0 ||
+		IsEmptyStr(name))
+	{
+		m->isNullMd = true;
+		return m;
+	}
+
 	m->Md = (const struct evp_md_st *)EVP_get_digestbyname(name);
 	if (m->Md == NULL)
 	{

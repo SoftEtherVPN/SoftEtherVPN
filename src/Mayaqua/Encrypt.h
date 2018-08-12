@@ -359,6 +359,7 @@ struct CIPHER
 struct MD
 {
 	char Name[MAX_PATH];
+	bool isNullMd;
 	const struct evp_md_st *Md;
 	struct hmac_ctx_st *Ctx;
 	UINT Size;
