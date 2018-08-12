@@ -2792,7 +2792,7 @@ IPSECSA *NewIPsecSa(IKE_SERVER *ike, IKE_CLIENT *c, IKE_SA *ike_sa, bool initiat
 	// Set the expiration time
 	if (setting->LifeSeconds != 0)
 	{
-		UINT64 span = (UINT64)(setting->LifeSeconds * 1000) + (UINT64)IKE_SOFT_EXPIRES_MARGIN;
+		UINT64 span = setting->LifeSeconds * (UINT64)1000 + (UINT64)IKE_SOFT_EXPIRES_MARGIN;
 		sa->ExpiresHardTick = ike->Now + span;
 		sa->ExpiresSoftTick = ike->Now + span;
 		//sa->ExpiresSoftTick = ike->Now + (UINT64)5000;
