@@ -1623,11 +1623,6 @@ OPENVPN_PACKET *OvsParsePacket(UCHAR *data, UINT size)
 
 	ret = ZeroMalloc(sizeof(OPENVPN_PACKET));
 
-	// OpCode + KeyID
-	if (size < 1)
-	{
-		goto LABEL_ERROR;
-	}
 	uc = *((UCHAR *)data);
 	data++;
 	size--;

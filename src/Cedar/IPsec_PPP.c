@@ -2142,11 +2142,6 @@ PPP_PACKET *ParsePPPPacket(void *data, UINT size)
 
 	buf = (UCHAR *)data;
 
-	// Address
-	if (size < 1)
-	{
-		goto LABEL_ERROR;
-	}
 	if (buf[0] != 0xff)
 	{
 		goto LABEL_ERROR;
@@ -2370,20 +2365,10 @@ PPP_LCP *ParseLCP(USHORT protocol, void *data, UINT size)
 
 			Zero(&o, sizeof(o));
 
-			// Type
-			if (len < 1)
-			{
-				goto LABEL_ERROR;
-			}
 			o.Type = buf[0];
 			buf++;
 			len--;
 
-			// Length
-			if (len < 1)
-			{
-				goto LABEL_ERROR;
-			}
 			o.DataSize = buf[0];
 			if (o.DataSize < 2)
 			{
