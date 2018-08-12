@@ -5766,7 +5766,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	char tmp[MAX_SIZE];
 	X *x = NULL;
 	K *k = NULL;
-	bool cluster_allowed = false;
 	UINT num_connections_per_ip = 0;
 	FOLDER *params_folder;
 	UINT i;
@@ -6028,13 +6027,8 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		}
 		Unlock(c->TrafficLock);
 
-		// Get whether the current license allows cluster mode
-		cluster_allowed = true;
-
-
 		// Type of server
-		s->UpdatedServerType = s->ServerType = 
-			cluster_allowed ? CfgGetInt(f, "ServerType") : SERVER_TYPE_STANDALONE;
+		s->UpdatedServerType = s->ServerType = CfgGetInt(f, "ServerType");
 
 		// Password
 		if (CfgGetByte(f, "HashedPassword", s->HashedPassword, sizeof(s->HashedPassword)) != sizeof(s->HashedPassword))
