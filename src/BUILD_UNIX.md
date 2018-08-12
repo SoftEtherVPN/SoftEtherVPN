@@ -64,8 +64,8 @@ To build the programs from the source code when using musl as libc, run the foll
 ```bash
 export USE_MUSL=YES
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-git submodule init && git submodule update
 cd SoftEtherVPN
+git submodule init && git submodule update
 ./configure
 make -C tmp
 make -C tmp install
