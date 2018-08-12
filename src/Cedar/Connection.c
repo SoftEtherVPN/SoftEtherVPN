@@ -659,11 +659,6 @@ void WriteSendFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 		return;
 	}
 
-	if (s->UseFastRC4)
-	{
-		Encrypt(ts->SendKey, data, data, size);
-	}
-
 	WriteFifo(ts->SendFifo, data, size);
 }
 
@@ -676,11 +671,6 @@ void WriteRecvFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 		return;
 	}
 
-	if (s->UseFastRC4)
-	{
-		Encrypt(ts->RecvKey, data, data, size);
-	}
-
 	WriteFifo(ts->RecvFifo, data, size);
 }
 
@@ -688,14 +678,14 @@ void WriteRecvFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 UINT TcpSockRecv(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Receive
-	return Recv(ts->Sock, data, size, s->UseSSLDataEncryption);
+	return Recv(ts->Sock, data, size, s->UseEncrypt);
 }
 
 // TCP socket send
 UINT TcpSockSend(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Transmission
-	return Send(ts->Sock, data, size, s->UseSSLDataEncryption);
+	return Send(ts->Sock, data, size, s->UseEncrypt);
 }
 
 // Send the data as UDP packet

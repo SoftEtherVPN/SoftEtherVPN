@@ -217,7 +217,6 @@ struct SESSION
 	UINT64 NextConnectionTime;		// Time to put next additional connection
 	IP ServerIP;					// IP address of the server
 	bool ClientModeAndUseVLan;		// Use a virtual LAN card in client mode
-	bool UseSSLDataEncryption;		// Use SSL data encryption
 	LOCK *TrafficLock;				// Traffic data lock
 	LINK *Link;						// A reference to the link object
 	SNAT *SecureNAT;				// A reference to the SecureNAT object
@@ -255,7 +254,6 @@ struct SESSION
 	char SessionKeyStr[64];			// Session key string
 	UINT MaxConnection;				// Maximum number of concurrent TCP connections
 	bool UseEncrypt;				// Use encrypted communication
-	bool UseFastRC4;				// Use high speed RC4 encryption
 	bool UseCompress;				// Use data compression
 	bool HalfConnection;			// Half connection mode
 	bool QoS;						// VoIP / QoS

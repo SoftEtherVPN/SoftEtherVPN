@@ -258,7 +258,6 @@ bool ClientAdditionalConnect(CONNECTION *c, THREAD *t);
 SOCK *ClientAdditionalConnectToServer(CONNECTION *c);
 bool ClientUploadAuth2(CONNECTION *c, SOCK *s);
 bool GetSessionKeyFromPack(PACK *p, UCHAR *session_key, UINT *session_key_32);
-void GenerateRC4KeyPair(RC4_KEY_PAIR *k);
 
 SOCK *ProxyConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
