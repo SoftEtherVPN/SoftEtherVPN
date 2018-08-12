@@ -2142,11 +2142,6 @@ PPP_PACKET *ParsePPPPacket(void *data, UINT size)
 
 	buf = (UCHAR *)data;
 
-	// Address
-	if (size < 1)
-	{
-		goto LABEL_ERROR;
-	}
 	if (buf[0] != 0xff)
 	{
 		goto LABEL_ERROR;
