@@ -6112,51 +6112,12 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				{
 					// Root directory
 					SERVER *s = c->Cedar->Server;
-					bool is_free = false;
 
 					*error_detail_str = "HTTP_ROOT";
 
 					{
-						if (is_free == false)
-						{
-							// Other than free version
-							HttpSendForbidden(c->FirstSock, h->Target, "");
-						}
-						else
-						{
-							// Free version
-							BUF *b = ReadDump("|free.htm");
-
-							if (b != NULL)
-							{
-								char *src = ZeroMalloc(b->Size + 1);
-								UINT dst_size = b->Size * 2 + 64;
-								char *dst = ZeroMalloc(dst_size);
-								char host[MAX_PATH];
-								char portstr[64];
-
-								GetMachineName(host, sizeof(host));
-								ToStr(portstr, c->FirstSock->LocalPort);
-
-								Copy(src, b->Buf, b->Size);
-								ReplaceStrEx(dst, dst_size, src,
-									"$HOST$", host, false);
-								ReplaceStrEx(dst, dst_size, dst,
-									"$PORT$", portstr, false);
-
-								FreeHttpHeader(h);
-								h = NewHttpHeader("HTTP/1.1", "202", "OK");
-								AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE4));
-								AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-								AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-								PostHttp(c->FirstSock, h, dst, StrLen(dst));
-
-								Free(src);
-								Free(dst);
-
-								FreeBuf(b);
-							}
-						}
+						// Other than free version
+						HttpSendForbidden(c->FirstSock, h->Target, "");
 					}
 				}
 				else
