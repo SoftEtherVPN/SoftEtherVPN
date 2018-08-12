@@ -775,7 +775,7 @@ bool PPPParseUsername(CEDAR *cedar, char *src_username, ETHERIP_ID *dst)
 	char src[MAX_SIZE];
 	// Validate arguments
 	Zero(dst, sizeof(ETHERIP_ID));
-	if (cedar == NULL || src == NULL || dst == NULL)
+	if (cedar == NULL || dst == NULL)
 	{
 		return false;
 	}
@@ -1318,7 +1318,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 							t = 1;
 						}
 
-						p->DhcpRenewInterval = (UINT64)(t * 1000);
+						p->DhcpRenewInterval = t * (UINT64)1000;
 						p->DhcpNextRenewTime = Tick64() + p->DhcpRenewInterval;
 
 						if (true)

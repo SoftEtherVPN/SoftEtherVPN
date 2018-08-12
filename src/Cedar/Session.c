@@ -209,7 +209,7 @@ void SessionMain(SESSION *s)
 	s->LastCommTime = Tick64();
 	if (s->ServerMode == false)
 	{
-		s->NextConnectionTime = Tick64() + (UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000);
+		s->NextConnectionTime = Tick64() + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000;
 	}
 
 	s->NumConnectionsEstablished++;

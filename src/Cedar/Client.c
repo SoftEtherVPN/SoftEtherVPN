@@ -8941,14 +8941,8 @@ bool CtSetPassword(CLIENT *c, RPC_CLIENT_PASSWORD *pass)
 	{
 		return false;
 	}
-	if (pass->Password == NULL)
-	{
-		str = "";
-	}
-	else
-	{
-		str = pass->Password;
-	}
+
+	str = pass->Password;
 
 	if (StrCmp(str, "********") != 0)
 	{
