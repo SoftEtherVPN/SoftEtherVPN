@@ -133,7 +133,7 @@ void BackupCfgWEx(CFG_RW *rw, FOLDER *f, wchar_t *original, UINT revision_number
 	wchar_t datestr[MAX_PATH];
 	SYSTEMTIME st;
 	// Validate arguments
-	if (f == NULL || filename == NULL || rw == NULL)
+	if (f == NULL || rw == NULL)
 	{
 		return;
 	}
