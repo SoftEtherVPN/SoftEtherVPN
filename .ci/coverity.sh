@@ -4,7 +4,7 @@ set -eu
 RUN_COVERITY="${RUN_COVERITY:-0}"
 
 export COVERITY_SCAN_PROJECT_NAME="SoftEtherVPN/SoftEtherVPN"
-export COVERITY_SCAN_BRANCH_PATTERN="coverity"
+export COVERITY_SCAN_BRANCH_PATTERN="master"
 export COVERITY_SCAN_NOTIFICATION_EMAIL="chipitsine@gmail.com"
 export COVERITY_SCAN_BUILD_COMMAND_PREPEND="./configure"
 export COVERITY_SCAN_BUILD_COMMAND="make -C tmp"
