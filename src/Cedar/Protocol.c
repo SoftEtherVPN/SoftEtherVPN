@@ -1265,7 +1265,6 @@ bool ServerAccept(CONNECTION *c)
 	char groupname[MAX_SIZE];
 	UCHAR session_key[SHA1_SIZE];
 	UCHAR ticket[SHA1_SIZE];
-	RC4_KEY_PAIR key_pair;
 	UINT authtype;
 	POLICY *policy;
 	UINT assigned_vlan_id = 0;
@@ -1284,7 +1283,6 @@ bool ServerAccept(CONNECTION *c)
 	IP udp_acceleration_client_ip;
 	UCHAR udp_acceleration_client_key[UDP_ACCELERATION_COMMON_KEY_SIZE];
 	UINT udp_acceleration_client_port;
-	bool use_fast_rc4;
 	bool admin_mode = false;
 	UINT direction;
 	UINT max_connection;
@@ -1643,7 +1641,6 @@ bool ServerAccept(CONNECTION *c)
 			use_compress = PackGetInt(p, "use_compress") == 0 ? false : true;
 			max_connection = PackGetInt(p, "max_connection");
 			half_connection = PackGetInt(p, "half_connection") == 0 ? false : true;
-			use_fast_rc4 = PackGetInt(p, "use_fast_rc4") == 0 ? false : true;
 			qos = PackGetInt(p, "qos") ? true : false;
 			client_id = PackGetInt(p, "client_id");
 			adjust_mss = PackGetInt(p, "adjust_mss");
@@ -3134,10 +3131,6 @@ bool ServerAccept(CONNECTION *c)
 			// Set the parameters
 			s->MaxConnection = max_connection;
 			s->UseEncrypt = use_encrypt;
-			if (s->UseEncrypt && use_fast_rc4)
-			{
-				s->UseFastRC4 = use_fast_rc4;
-			}
 			s->UseCompress = use_compress;
 			s->HalfConnection = half_connection;
 			s->Timeout = timeout;
@@ -3294,26 +3287,6 @@ bool ServerAccept(CONNECTION *c)
 
 		Free(msg);
 
-
-		if (s->UseFastRC4)
-		{
-			// Generate a RC4 key pair
-			GenerateRC4KeyPair(&key_pair);
-
-			// Add to Welcome packet
-			PackAddData(p, "rc4_key_client_to_server", key_pair.ClientToServerKey, sizeof(key_pair.ClientToServerKey));
-			PackAddData(p, "rc4_key_server_to_client", key_pair.ServerToClientKey, sizeof(key_pair.ServerToClientKey));
-			{
-				char key1[64], key2[64];
-				BinToStr(key1, sizeof(key1), key_pair.ClientToServerKey, 16);
-				BinToStr(key2, sizeof(key2), key_pair.ServerToClientKey, 16);
-				Debug(
-					"Client to Server Key: %s\n"
-					"Server to Client Key: %s\n",
-					key1, key2);
-			}
-		}
-
 		// Brand string for the connection limit
 		{
 			char *branded_cfroms = _SS("BRANDED_C_FROM_S");
@@ -3351,24 +3324,6 @@ bool ServerAccept(CONNECTION *c)
 			// The direction of the first socket is client to server
 			TCPSOCK *ts = (TCPSOCK *)LIST_DATA(c->Tcp->TcpSockList, 0);
 			ts->Direction = TCP_CLIENT_TO_SERVER;
-		}
-
-		if (s->UseFastRC4)
-		{
-			// Set the RC4 key information to the first TCP connection
-			TCPSOCK *ts = (TCPSOCK *)LIST_DATA(c->Tcp->TcpSockList, 0);
-			Copy(&ts->Rc4KeyPair, &key_pair, sizeof(RC4_KEY_PAIR));
-
-			InitTcpSockRc4Key(ts, true);
-		}
-
-		if (s->UseEncrypt && s->UseFastRC4 == false)
-		{
-			s->UseSSLDataEncryption = true;
-		}
-		else
-		{
-			s->UseSSLDataEncryption = false;
 		}
 
 		if (s->Hub->Type == HUB_TYPE_FARM_DYNAMIC && s->Cedar->Server != NULL && s->Cedar->Server->ServerType == SERVER_TYPE_FARM_CONTROLLER)
@@ -3536,12 +3491,6 @@ bool ServerAccept(CONNECTION *c)
 			goto CLEANUP;
 		}
 
-		// Generate a high-speed RC4 encryption key
-		if (s->UseFastRC4)
-		{
-			GenerateRC4KeyPair(&key_pair);
-		}
-
 		// Add the socket of this connection to the connection list of the session (TCP)
 		sock = c->FirstSock;
 		ts = NewTcpSock(sock);
@@ -3581,33 +3530,9 @@ bool ServerAccept(CONNECTION *c)
 		}
 		UnlockList(s->Connection->Tcp->TcpSockList);
 
-		if (s->UseFastRC4)
-		{
-			// Set the RC4 key information
-			Copy(&ts->Rc4KeyPair, &key_pair, sizeof(RC4_KEY_PAIR));
-
-			InitTcpSockRc4Key(ts, true);
-		}
-
 		// Return a success result
 		p = PackError(ERR_NO_ERROR);
 		PackAddInt(p, "direction", direction);
-
-		if (s->UseFastRC4)
-		{
-			// Add a RC4 key information
-			PackAddData(p, "rc4_key_client_to_server", key_pair.ClientToServerKey, sizeof(key_pair.ClientToServerKey));
-			PackAddData(p, "rc4_key_server_to_client", key_pair.ServerToClientKey, sizeof(key_pair.ServerToClientKey));
-			{
-				char key1[64], key2[64];
-				BinToStr(key1, sizeof(key1), key_pair.ClientToServerKey, 16);
-				BinToStr(key2, sizeof(key2), key_pair.ServerToClientKey, 16);
-				Debug(
-					"Client to Server Key: %s\n"
-					"Server to Client Key: %s\n",
-					key1, key2);
-			}
-		}
 
 		HttpServerSend(c->FirstSock, p);
 		FreePack(p);
@@ -4345,7 +4270,7 @@ bool ClientAdditionalConnect(CONNECTION *c, THREAD *t)
 	TCPSOCK *ts;
 	UINT err;
 	UINT direction;
-	RC4_KEY_PAIR key_pair;
+
 	// Validate arguments
 	if (c == NULL)
 	{
@@ -4409,28 +4334,6 @@ bool ClientAdditionalConnect(CONNECTION *c, THREAD *t)
 	err = GetErrorFromPack(p);
 	direction = PackGetInt(p, "direction");
 
-	if (c->Session->UseFastRC4)
-	{
-		// Get the RC4 key information
-		if (PackGetDataSize(p, "rc4_key_client_to_server") == 16)
-		{
-			PackGetData(p, "rc4_key_client_to_server", key_pair.ClientToServerKey);
-		}
-		if (PackGetDataSize(p, "rc4_key_server_to_client") == 16)
-		{
-			PackGetData(p, "rc4_key_server_to_client", key_pair.ServerToClientKey);
-		}
-		{
-			char key1[64], key2[64];
-			BinToStr(key1, sizeof(key1), key_pair.ClientToServerKey, 16);
-			BinToStr(key2, sizeof(key2), key_pair.ServerToClientKey, 16);
-			Debug(
-				"Client to Server Key: %s\n"
-				"Server to Client Key: %s\n",
-				key1, key2);
-		}
-	}
-
 	FreePack(p);
 	p = NULL;
 
@@ -4473,14 +4376,6 @@ bool ClientAdditionalConnect(CONNECTION *c, THREAD *t)
 		Debug("New Half Connection: %s\n",
 			direction == TCP_SERVER_TO_CLIENT ? "TCP_SERVER_TO_CLIENT" : "TCP_CLIENT_TO_SERVER"
 			);
-	}
-
-	if (c->Session->UseFastRC4)
-	{
-		// Set the RC4 encryption key
-		Copy(&ts->Rc4KeyPair, &key_pair, sizeof(RC4_KEY_PAIR));
-
-		InitTcpSockRc4Key(ts, false);
 	}
 
 	// Issue the Cancel to the session
@@ -4788,7 +4683,6 @@ bool ClientConnect(CONNECTION *c)
 	char session_name[MAX_SESSION_NAME_LEN + 1];
 	char connection_name[MAX_CONNECTION_NAME_LEN + 1];
 	UCHAR session_key[SHA1_SIZE];
-	RC4_KEY_PAIR key_pair;
 	POLICY *policy;
 	bool expired = false;
 	IP server_ip;
@@ -5137,10 +5031,6 @@ REDIRECTED:
 		c->Session->UseCompress = PackGetInt(p, "use_compress") == 0 ? false : true;
 		c->Session->UseEncrypt = PackGetInt(p, "use_encrypt") == 0 ? false : true;
 		c->Session->NoSendSignature = PackGetBool(p, "no_send_signature");
-		if (c->Session->UseEncrypt)
-		{
-			c->Session->UseFastRC4 = PackGetInt(p, "use_fast_rc4") == 0 ? false : true;
-		}
 		c->Session->HalfConnection = PackGetInt(p, "half_connection") == 0 ? false : true;
 		c->Session->IsAzureSession = PackGetInt(p, "is_azure_session") == 0 ? false : true;
 		c->Session->Timeout = PackGetInt(p, "timeout");
@@ -5200,28 +5090,6 @@ REDIRECTED:
 			if (PackGetDataSize(p, "udp_recv_key") == sizeof(c->Session->UdpRecvKey))
 			{
 				PackGetData(p, "udp_recv_key", c->Session->UdpRecvKey);
-			}
-		}
-
-		if (c->Session->UseFastRC4)
-		{
-			// Get the RC4 key information
-			if (PackGetDataSize(p, "rc4_key_client_to_server") == 16)
-			{
-				PackGetData(p, "rc4_key_client_to_server", key_pair.ClientToServerKey);
-			}
-			if (PackGetDataSize(p, "rc4_key_server_to_client") == 16)
-			{
-				PackGetData(p, "rc4_key_server_to_client", key_pair.ServerToClientKey);
-			}
-			{
-				char key1[64], key2[64];
-				BinToStr(key1, sizeof(key1), key_pair.ClientToServerKey, 16);
-				BinToStr(key2, sizeof(key2), key_pair.ServerToClientKey, 16);
-				Debug(
-					"Client to Server Key: %s\n"
-					"Server to Client Key: %s\n",
-					key1, key2);
 			}
 		}
 
@@ -5405,25 +5273,6 @@ REDIRECTED:
 		ts->Direction = TCP_CLIENT_TO_SERVER;
 	}
 
-	if (c->Session->UseFastRC4)
-	{
-		// Set the high-speed RC4 encryption key
-		TCPSOCK *ts = (TCPSOCK *)LIST_DATA(c->Tcp->TcpSockList, 0);
-		Copy(&ts->Rc4KeyPair, &key_pair, sizeof(key_pair));
-
-		InitTcpSockRc4Key(ts, false);
-	}
-
-	// SSL encryption flag
-	if (c->Session->UseEncrypt && c->Session->UseFastRC4 == false)
-	{
-		c->Session->UseSSLDataEncryption = true;
-	}
-	else
-	{
-		c->Session->UseSSLDataEncryption = false;
-	}
-
 	PrintStatus(sess, L"free");
 
 	CLog(c->Cedar->Client, "LC_CONNECT_2", c->Session->ClientOption->AccountName,
@@ -5525,7 +5374,6 @@ PACK *PackWelcome(SESSION *s)
 	// Parameters
 	PackAddInt(p, "max_connection", s->MaxConnection);
 	PackAddInt(p, "use_encrypt", s->UseEncrypt == false ? 0 : 1);
-	PackAddInt(p, "use_fast_rc4", s->UseFastRC4 == false ? 0 : 1);
 	PackAddInt(p, "use_compress", s->UseCompress == false ? 0 : 1);
 	PackAddInt(p, "half_connection", s->HalfConnection == false ? 0 : 1);
 	PackAddInt(p, "timeout", s->Timeout);
@@ -5930,8 +5778,6 @@ bool ClientUploadAuth(CONNECTION *c)
 	PackAddInt(p, "max_connection", o->MaxConnection);
 	// Flag to use of cryptography
 	PackAddInt(p, "use_encrypt", o->UseEncrypt == false ? 0 : 1);
-	// Fast encryption using flag
-	//	PackAddInt(p, "use_fast_rc4", o->UseFastRC4 == false ? 0 : 1);
 	// Data compression flag
 	PackAddInt(p, "use_compress", o->UseCompress == false ? 0 : 1);
 	// Half connection flag
@@ -7390,18 +7236,3 @@ PACK *PackAdditionalConnect(UCHAR *session_key)
 
 	return p;
 }
-
-
-// Generate a RC4 key pair
-void GenerateRC4KeyPair(RC4_KEY_PAIR *k)
-{
-	// Validate arguments
-	if (k == NULL)
-	{
-		return;
-	}
-
-	Rand(k->ClientToServerKey, sizeof(k->ClientToServerKey));
-	Rand(k->ServerToClientKey, sizeof(k->ServerToClientKey));
-}
-
