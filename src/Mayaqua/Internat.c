@@ -789,11 +789,11 @@ void InitInternational()
 	d = IconvWideToStrInternal();
 	if (d == (void *)-1)
 	{
-#ifdef	UNIX_MACOS
+#if defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL)
 		StrCpy(charset, sizeof(charset), "utf-8");
-#else	// UNIX_MACOS
+#else // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
 		StrCpy(charset, sizeof(charset), "EUCJP");
-#endif	// UNIX_MACOS
+#endif // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
 		d = IconvWideToStrInternal();
 		if (d == (void *)-1)
 		{

@@ -44,6 +44,9 @@ if(UNIX)
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_definitions(-DUNIX_LINUX)
+    if("$ENV{USE_MUSL}" STREQUAL "YES")
+      add_definitions(-DUNIX_LINUX_MUSL)
+    endif()
   endif()
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
