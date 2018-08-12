@@ -3,6 +3,7 @@
 .settings/
 Makefile
 bin/
+build/
 cmake-build-debug/
 src/bin/BuiltHamcoreFiles/
 tmp/

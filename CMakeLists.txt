@@ -12,12 +12,14 @@ if(EXISTS "${SoftEtherVPN_SOURCE_DIR}/.git" AND NOT EXISTS "${SoftEtherVPN_SOURC
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
 endif()
 
+set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
+
 add_subdirectory(src)
 
 # Packaging
 set(CPACK_GENERATOR "DEB")
 set(CPACK_COMPONENTS_ALL vpnserver vpnclient vpnbridge vpncmd)
-set(CPACK_PACKAGE_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/bin)
+set(CPACK_PACKAGE_DIRECTORY ${BUILD_DIRECTORY})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "SoftEther")
 set(CPACK_PACKAGE_NAME "softether")

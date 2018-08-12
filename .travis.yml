@@ -33,7 +33,7 @@ matrix:
       script:
         - ./configure
         - make -C tmp
-        - otool -L bin/vpnserver/vpnserver
+        - otool -L build/vpnserver/vpnserver
 
 addons:
   apt:
@@ -57,5 +57,5 @@ script:
   - export LDFLAGS="-L${HOME}/opt/lib"
   - ./configure
   - make -C tmp
-  - ldd bin/vpnserver/vpnserver
+  - ldd build/vpnserver/vpnserver
   - if [ "${BUILD_DEB}" = "1" ]; then make package -C tmp; fi
