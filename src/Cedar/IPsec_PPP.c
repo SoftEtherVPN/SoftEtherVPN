@@ -775,7 +775,7 @@ bool PPPParseUsername(CEDAR *cedar, char *src_username, ETHERIP_ID *dst)
 	char src[MAX_SIZE];
 	// Validate arguments
 	Zero(dst, sizeof(ETHERIP_ID));
-	if (cedar == NULL || src == NULL || dst == NULL)
+	if (cedar == NULL || dst == NULL)
 	{
 		return false;
 	}
