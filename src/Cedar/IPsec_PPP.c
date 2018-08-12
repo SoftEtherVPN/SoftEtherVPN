@@ -1318,7 +1318,7 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 							t = 1;
 						}
 
-						p->DhcpRenewInterval = (UINT64)(t * 1000);
+						p->DhcpRenewInterval = t * (UINT64)1000;
 						p->DhcpNextRenewTime = Tick64() + p->DhcpRenewInterval;
 
 						if (true)
