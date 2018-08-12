@@ -1145,14 +1145,7 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	pl->Cedar = hub->Cedar;
 	pl->Packet = p;
 	pl->NoLog = no_log;
-	if (src_session != NULL)
-	{
-		pl->SrcSessionName = CopyStr(src_session->Name);
-	}
-	else
-	{
-		pl->SrcSessionName = CopyStr("");
-	}
+	pl->SrcSessionName = CopyStr(src_session->Name);
 	if (dest_session != NULL)
 	{
 		pl->DestSessionName = CopyStr(dest_session->Name);
