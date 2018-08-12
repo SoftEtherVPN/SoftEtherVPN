@@ -513,6 +513,7 @@ CIPHER *NewCipher(char *name)
 	c->Cipher = EVP_get_cipherbyname(c->Name);
 	if (c->Cipher == NULL)
 	{
+		Debug("NewCipher(): Cipher %s not found by EVP_get_cipherbyname().\n", c->Name);
 		FreeCipher(c);
 		return NULL;
 	}

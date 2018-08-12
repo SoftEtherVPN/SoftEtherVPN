@@ -787,6 +787,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	LIST *o;
 	BUF *b;
 	char opt_str[MAX_SIZE];
+	char *cipher_name;
 	// Validate arguments
 	if (s == NULL || se == NULL || c == NULL || data == NULL)
 	{
@@ -889,8 +890,9 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	}
 
 	// Encryption algorithm
-	c->CipherEncrypt = OvsGetCipher(IniStrValue(o, "cipher"));
-	c->CipherDecrypt = NewCipher(c->CipherEncrypt->Name);
+	cipher_name = IniStrValue(o, "cipher");
+	c->CipherEncrypt = OvsGetCipher(cipher_name);
+	c->CipherDecrypt = OvsGetCipher(cipher_name);
 
 	// Hash algorithm
 	c->MdSend = OvsGetMd(IniStrValue(o, "auth"));
@@ -929,6 +931,15 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 
 	OvsFreeList(o);
 
+	// We pass the cipher name sent from the OpenVPN client, unless it's a different cipher, to prevent a message such as:
+	// WARNING: 'cipher' is used inconsistently, local='cipher AES-128-GCM', remote='cipher aes-128-gcm'
+	// It happens because OpenVPN uses "strcmp()" to compare the local and remote parameters:
+	// https://github.com/OpenVPN/openvpn/blob/a6fd48ba36ede465b0905a95568c3ec0d425ca71/src/openvpn/options.c#L3819-L3831
+	if (StrCmpi(cipher_name, c->CipherEncrypt->Name) != 0)
+	{
+		cipher_name = c->CipherEncrypt->Name;
+	}
+
 	// Generate the response option string
 	Format(c->ServerKey.OptionString, sizeof(c->ServerKey.OptionString),
 		"V4,dev-type %s,link-mtu %u,tun-mtu %u,proto %s,"
@@ -937,7 +948,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		se->LinkMtu,
 		se->TunMtu,
 		c->Proto,
-		c->CipherEncrypt->Name, c->MdSend->Name, c->CipherEncrypt->KeySize * 8);
+		cipher_name, c->MdSend->Name, c->CipherEncrypt->KeySize * 8);
 	Debug("Building OptionStr: %s\n", c->ServerKey.OptionString);
 
 	OvsLog(s, se, c, "LO_OPTION_STR_SEND", c->ServerKey.OptionString);
@@ -948,9 +959,15 @@ CIPHER *OvsGetCipher(char *name)
 {
 	CIPHER *c = NULL;
 
-	if (IsEmptyStr(name) == false)
+	// OpenVPN sends the cipher name in uppercase, even if it's not standard,
+	// thus we have to convert it to lowercase for EVP_get_cipherbyname().
+	char lowercase_name[MAX_SIZE];
+	StrCpy(lowercase_name, sizeof(lowercase_name), name);
+	StrLower(lowercase_name);
+
+	if (IsEmptyStr(lowercase_name) == false)
 	{
-		c = NewCipher(name);
+		c = NewCipher(lowercase_name);
 	}
 
 	if (c == NULL)
