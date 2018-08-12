@@ -5,6 +5,9 @@ language: c
 env:
   global:
     - OPENSSL_INSTALL_DIR="${HOME}/opt"
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "jw9uSG1d409UIGvURofaOm5Ajs0/cqMi318SyRjP0BEznxBlp/+rzEhu83PRZDp/VACTmUugh6c+dcxSlICofzMRqhIjwvxedCpPprqR4nnWlocxon/MiOrgufeH18B5mEJhE5bCGzoGCMNkpWRXukNg7AOApEuvgkiIi6zGNrlGO7AVtfGO+OeZzi3bgh1JRDP2gfG13K5fLVPEmEYXSMAYBrH/P6vcadjPmnV0/AV4sDojkYh95Iw4VV9izUrBQ42ocp2k5tnvODEnFpIzUIjq5Ctas3Q7/yCknfcml31kj1qRXuDFx8h8Elcky/HulT3vrocPaw16JSxm2E6UYHgb7hHxXh+s55F+GvpPBYvueLHd8A0XboTdt5FMTeDRmGBHrgJC28HZffWLMCcOwSIAUk+YRkEGTm3nsApw0/CIvDZx4g1l3MY4BeNhCJTrB/S/Ewdg7kxiyZEtUP3YeYTTqt7Xuqh07LHwzX36EIxVlIvS3nnZrgXpNx97mhUoHj1RxBAFGDUyjUrwJI3ssnzoIEHjUGACtki0w+xVXdJAT9xa6pcAaUx+Hp8uyCaxQPwXmN9W6A9LCtZ3bZPDt6wMC5KC/mlUaZnQO7zpcQ9IPBDaRVxc1pMpE6RkDRrYI+wder5pwzsie4YteNtnaT2b9aZqHzS8oemlASwZbjA="
 
 matrix:
   include:
@@ -14,7 +17,7 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: gcc
-    - env: OPENSSL_VERSION="1.0.2o"
+    - env: OPENSSL_VERSION="1.0.2o" RUN_COVERITY="1"
       os: linux
       compiler: clang
     - env: OPENSSL_VERSION="1.1.0f"
@@ -43,6 +46,9 @@ cache:
 
 before_install:
   - bash .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
+
+before_script:
+  - .ci/coverity.sh
 
 script:
   - export OPENSSL_ROOT_DIR=${OPENSSL_INSTALL_DIR}
