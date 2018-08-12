@@ -2370,20 +2370,10 @@ PPP_LCP *ParseLCP(USHORT protocol, void *data, UINT size)
 
 			Zero(&o, sizeof(o));
 
-			// Type
-			if (len < 1)
-			{
-				goto LABEL_ERROR;
-			}
 			o.Type = buf[0];
 			buf++;
 			len--;
 
-			// Length
-			if (len < 1)
-			{
-				goto LABEL_ERROR;
-			}
 			o.DataSize = buf[0];
 			if (o.DataSize < 2)
 			{
