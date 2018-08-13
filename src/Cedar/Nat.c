@@ -299,7 +299,7 @@ RPC *NatAdminConnect(CEDAR *cedar, char *hostname, UINT port, void *hashed_passw
 // RPC server function
 PACK *NiRpcServer(RPC *r, char *name, PACK *p)
 {
-	NAT *n = (NAT *)r->Param;
+	NAT *n;
 	PACK *ret;
 	UINT err;
 	bool ok;
@@ -309,6 +309,7 @@ PACK *NiRpcServer(RPC *r, char *name, PACK *p)
 		return NULL;
 	}
 
+	n = (NAT *)r->Param;
 	ret = NewPack();
 	err = ERR_NO_ERROR;
 	ok = false;
