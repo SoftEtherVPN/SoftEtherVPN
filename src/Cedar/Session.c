@@ -1006,7 +1006,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 				(s->NextConnectionTime <= now))
 			{
 				// Start the work to put an additional connection
-				s->NextConnectionTime = now + (UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000);
+				s->NextConnectionTime = now + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000U;
 				SessionAdditionalConnect(s);
 			}
 			else

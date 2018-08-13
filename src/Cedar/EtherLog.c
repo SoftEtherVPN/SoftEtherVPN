@@ -276,7 +276,7 @@ UINT EcConnect(char *host, UINT port, char *password, RPC **rpc)
 // RPC server function
 PACK *ElRpcServer(RPC *r, char *name, PACK *p)
 {
-	EL *e = (EL *)r->Param;
+	EL *e;
 	PACK *ret;
 	UINT err;
 	bool ok;
@@ -286,6 +286,7 @@ PACK *ElRpcServer(RPC *r, char *name, PACK *p)
 		return NULL;
 	}
 
+	e = (EL *)r->Param;
 	ret = NewPack();
 	err = ERR_NO_ERROR;
 	ok = false;

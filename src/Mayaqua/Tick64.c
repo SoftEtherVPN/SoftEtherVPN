@@ -133,11 +133,10 @@ static EVENT *halt_tick_event = NULL;
 // Get the high-resolution time
 UINT64 TickHighres64()
 {
-	UINT64 ret = 0;
 
 #ifdef	OS_WIN32
 
-	ret = (UINT64)(MsGetHiResTimeSpan(MsGetHiResCounter()) * 1000.0f);
+	return (UINT64)(MsGetHiResTimeSpan(MsGetHiResCounter()) * 1000.0f);
 
 #else	// OS_WIN32
 
@@ -145,7 +144,6 @@ UINT64 TickHighres64()
 
 #endif	// OS_WIN32
 
-	return ret;
 }
 
 // Convert the Tick value to time
