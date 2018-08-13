@@ -281,7 +281,7 @@ PACK *ElRpcServer(RPC *r, char *name, PACK *p)
 	UINT err;
 	bool ok;
 	// Validate arguments
-	if (r == NULL || name == NULL || p == NULL || e == NULL)
+	if (r == NULL || name == NULL || p == NULL || r->Param == NULL)
 	{
 		return NULL;
 	}
@@ -1364,20 +1364,5 @@ void ElStop()
 		el = NULL;
 	}
 	Unlock(el_lock);
-}
-
-// EL initialization
-void ElInit()
-{
-	// Lock initialization
-	el_lock = NewLock();
-}
-
-// EL release
-void ElFree()
-{
-	// Lock release
-	DeleteLock(el_lock);
-	el_lock = NULL;
 }
 
