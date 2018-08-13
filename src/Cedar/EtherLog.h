@@ -205,8 +205,6 @@ struct EL
 };
 
 // Function prototype
-void ElInit();
-void ElFree();
 void ElStart();
 void ElStop();
 EL *NewEl();
