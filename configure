@@ -35,6 +35,16 @@ if [ -z ${OPENSSL_ROOT_DIR} ]; then
 	fi
 fi
 
+if [ -x "$(command -v rpmbuild)" ]; then
+	echo "'rpmbuild' executable found, CPack will generate RPM packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR='RPM' ${CMAKE_FLAGS}"
+else
+	echo "'rpmbuild' executable not found, CPack will generate DEB packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR='DEB' ${CMAKE_FLAGS}"
+fi
+
+echo ""
+
 (cd tmp && cmake ${CMAKE_FLAGS} .. || exit 1)
 
 

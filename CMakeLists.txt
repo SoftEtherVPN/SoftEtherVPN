@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.7)
 
 project(SoftEtherVPN
   VERSION 5.01.9657
@@ -17,7 +17,6 @@ set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
 add_subdirectory(src)
 
 # Packaging
-set(CPACK_GENERATOR "DEB")
 set(CPACK_COMPONENTS_ALL vpnserver vpnclient vpnbridge vpncmd)
 set(CPACK_PACKAGE_DIRECTORY ${BUILD_DIRECTORY})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
@@ -32,5 +31,11 @@ set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
 set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Unknown")
+
+# RPM
+set(CPACK_RPM_COMPONENT_INSTALL ON)
+set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
+set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
+set(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
 
 include(CPack)
