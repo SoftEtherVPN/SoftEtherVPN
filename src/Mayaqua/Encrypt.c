@@ -4289,11 +4289,9 @@ bool IsAesNiSupported()
 		const Aarch64Features features = GetAarch64Info().features;
 		supported = features.aes;
 	#elif defined(CPU_FEATURES_ARCH_MIPS)
-		const MipsFeatures features = GetMipsInfo().features;
-		supported = features.aes;
+		//const MipsFeatures features = GetMipsInfo().features;  // no features.aes
 	#elif defined(CPU_FEATURES_ARCH_PPC)
-		const PPCFeatures features = GetPPCInfo().features;
-		supported = features.aes;
+		//const PPCFeatures features = GetPPCInfo().features;  // no features.aes
 	#endif
 #endif // _MSC_VER
 
