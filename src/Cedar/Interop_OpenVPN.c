@@ -124,22 +124,10 @@ static UCHAR ping_signature[] =
 	0x07, 0xed, 0x2d, 0x0a, 0x98, 0x1f, 0xc7, 0x48
 };
 
-// Set the OpenVPN over TCP disabling flag
-void OvsSetNoOpenVpnTcp(bool b)
-{
-	g_no_openvpn_tcp = b;
-}
-
 // Get the OpenVPN over TCP disabling flag
 bool OvsGetNoOpenVpnTcp()
 {
 	return g_no_openvpn_tcp;
-}
-
-// Set the OpenVPN over UDP disabling flag
-void OvsSetNoOpenVpnUdp(bool b)
-{
-	g_no_openvpn_udp = b;
 }
 
 // Get the OpenVPN over UDP disabling flag
@@ -1041,44 +1029,6 @@ void OvsFreeList(LIST *o)
 	}
 
 	FreeIni(o);
-}
-
-// Create an Option List
-LIST *OvsNewList()
-{
-	return NewListFast(NULL);
-}
-
-// Add a value to the option list
-void OvsAddEntry(LIST *o, char *key, char *value)
-{
-	INI_ENTRY *e;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	e = GetIniEntry(o, key);
-	if (e != NULL)
-	{
-		// Overwrite existing keys
-		Free(e->Key);
-		e->Key = CopyStr(key);
-
-		Free(e->Value);
-		e->Value = CopyStr(value);
-	}
-	else
-	{
-		// Create a new key
-		e = ZeroMalloc(sizeof(INI_ENTRY));
-
-		e->Key = CopyStr(key);
-		e->Value = CopyStr(value);
-
-		Add(o, e);
-	}
 }
 
 // Confirm whether there is specified option key string
@@ -2606,22 +2556,6 @@ bool OvsIsCompatibleL3IP(UINT ip)
 	return false;
 }
 
-// Get an IP address that is compatible to tun device of the OpenVPN after the specified IP address
-UINT OvsGetCompatibleL3IPNext(UINT ip)
-{
-	ip = Endian32(ip);
-
-	while (true)
-	{
-		if (OvsIsCompatibleL3IP(Endian32(ip)))
-		{
-			return Endian32(ip);
-		}
-
-		ip++;
-	}
-}
-
 // Create a new OpenVPN server
 OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event)
 {
@@ -2708,7 +2642,6 @@ void FreeOpenVpnServer(OPENVPN_SERVER *s)
 void OpenVpnServerUdpListenerProc(UDPLISTENER *u, LIST *packet_list)
 {
 	OPENVPN_SERVER_UDP *us;
-	UINT64 now = Tick64();
 	// Validate arguments
 	if (u == NULL || packet_list == NULL)
 	{
