@@ -361,13 +361,10 @@ void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
 LIST *OvsParseData(char *str, int type);
 void OvsFreeList(LIST *o);
-LIST *OvsNewList();
-void OvsAddEntry(LIST *o, char *key, char *value);
 bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 bool OvsIsCompatibleL3IP(UINT ip);
-UINT OvsGetCompatibleL3IPNext(UINT ip);
 UINT OvsCalcTcpMss(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 
 CIPHER *OvsGetCipher(char *name);
@@ -378,10 +375,7 @@ bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock);
 
 void OvsSetReplyForVgsPollEnable(bool b);
 
-void OvsSetNoOpenVpnTcp(bool b);
 bool OvsGetNoOpenVpnTcp();
-
-void OvsSetNoOpenVpnUdp(bool b);
 
 void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh);
 
