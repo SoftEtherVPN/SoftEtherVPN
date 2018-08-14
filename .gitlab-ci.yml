@@ -1,7 +1,7 @@
 .ubuntu: &ubuntu_def
   before_script:
     - REPOSITORY="$PWD" && cd ..
-    - apt-get update && apt-get install -y g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
+    - apt-get update && apt-get install -y wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
     - wget https://cmake.org/files/v3.12/cmake-3.12.1.tar.gz && tar -xzvf cmake-3.12.1.tar.gz
     - cd cmake-3.12.1 && ./bootstrap && make install
     - cd "$REPOSITORY" && git submodule update --init --recursive
