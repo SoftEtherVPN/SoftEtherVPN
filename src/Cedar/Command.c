@@ -144,46 +144,6 @@ typedef struct CHECK_NETWORK_2
 } CHECK_NETWORK_2;
 
 
-// Convert the TT_RESULT to RPC
-void OutRpcTtResult(PACK *p, TT_RESULT *t)
-{
-	if (p == NULL || t == NULL)
-	{
-		return;
-	}
-
-	PackAddBool(p, "Raw", t->Raw);
-	PackAddBool(p, "Double", t->Double);
-	PackAddInt64(p, "NumBytesUpload", t->NumBytesUpload);
-	PackAddInt64(p, "NumBytesDownload", t->NumBytesDownload);
-	PackAddInt64(p, "NumBytesTotal", t->NumBytesTotal);
-	PackAddInt64(p, "Span", t->Span);
-	PackAddInt64(p, "BpsUpload", t->BpsUpload);
-	PackAddInt64(p, "BpsDownload", t->BpsDownload);
-	PackAddInt64(p, "BpsTotal", t->BpsTotal);
-}
-
-// Convert an RPC to a TT_RESULT
-void InRpcTtResult(PACK *p, TT_RESULT *t)
-{
-	if (p == NULL || t == NULL)
-	{
-		return;
-	}
-
-	Zero(t, sizeof(TT_RESULT));
-
-	t->Raw = PackGetBool(p, "Raw");
-	t->Double = PackGetBool(p, "Double");
-	t->NumBytesUpload = PackGetInt64(p, "NumBytesUpload");
-	t->NumBytesDownload = PackGetInt64(p, "NumBytesDownload");
-	t->NumBytesTotal = PackGetInt64(p, "NumBytesTotal");
-	t->Span = PackGetInt64(p, "Span");
-	t->BpsUpload = PackGetInt64(p, "BpsUpload");
-	t->BpsDownload = PackGetInt64(p, "BpsDownload");
-	t->BpsTotal = PackGetInt64(p, "BpsTotal");
-}
-
 // Accept thread
 void CheckNetworkAcceptThread(THREAD *thread, void *param)
 {
@@ -520,7 +480,7 @@ bool CheckThread()
 // File system check
 bool CheckFileSystem()
 {
-	bool ok = true;
+	bool ok = false;
 	char exe[MAX_PATH];
 	char exe_dir[MAX_PATH];
 	DIRLIST *dirs;
@@ -529,7 +489,6 @@ bool CheckFileSystem()
 	GetExeName(exe, sizeof(exe));
 	GetExeDir(exe_dir, sizeof(exe_dir));
 
-	ok = false;
 	dirs = EnumDir(exe_dir);
 	for (i = 0;i < dirs->NumFiles;i++)
 	{
@@ -769,11 +728,10 @@ bool CheckKernel()
 	{
 		UINT64 tick1 = Tick64();
 		UINT64 time1;
-		UINT64 tick2, time2;
+		UINT64 time2;
 
 		SleepThread(1000);
 
-		tick2 = Tick64();
 		time2 = LocalTime64();
 		time1 = SystemToLocal64(TickToTime(tick1));
 
@@ -2241,10 +2199,7 @@ void TtcThread(THREAD *thread, void *param)
 	if (ok)
 	{
 		UINT64 start_tick, end_tick;
-		UINT64 halt_timeout = 0;
 		wchar_t tmp1[MAX_SIZE], tmp2[MAX_SIZE];
-		UINT check_clock_seed = 0;
-		bool halting = false;
 		UINT64 session_id = Rand64();
 		UINT i, num_cpu;
 		bool all_ok = false;
@@ -6901,7 +6856,6 @@ UINT PcTunDownOnDisconnectGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *pa
 
 	if (ret == ERR_NO_ERROR)
 	{
-		wchar_t tmp[MAX_SIZE];
 		CT *ct = CtNewStandard();
 
 		CtInsert(ct, _UU("CMD_TUNDownOnDisconnectGet_COLUMN1"),
@@ -10019,39 +9973,6 @@ bool CmdEvalIpAndMask6(CONSOLE *c, wchar_t *str, void *param)
 
 	return true;
 }
-bool CmdEvalIpAndMask46(CONSOLE *c, wchar_t *str, void *param)
-{
-	char tmp[MAX_SIZE];
-	TOKEN_LIST *t;
-	bool ret = false;
-
-	Zero(tmp, sizeof(tmp));
-	UniToStr(tmp, sizeof(tmp), str);
-
-	t = ParseToken(tmp, "/");
-	if (t == NULL)
-	{
-		return false;
-	}
-
-	if (t->NumTokens >= 1)
-	{
-		Trim(t->Token[0]);
-
-		if (IsIpStr4(t->Token[0]))
-		{
-			ret = CmdEvalIpAndMask4(c, str, param);
-		}
-		else
-		{
-			ret = CmdEvalIpAndMask6(c, str, param);
-		}
-	}
-
-	FreeToken(t);
-
-	return ret;
-}
 
 // Evaluate the network address and the subnet mask
 bool CmdEvalNetworkAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param)
@@ -10105,39 +10026,6 @@ bool CmdEvalNetworkAndSubnetMask6(CONSOLE *c, wchar_t *str, void *param)
 	}
 
 	return true;
-}
-bool CmdEvalNetworkAndSubnetMask46(CONSOLE *c, wchar_t *str, void *param)
-{
-	char tmp[MAX_SIZE];
-	TOKEN_LIST *t;
-	bool ret = false;
-
-	Zero(tmp, sizeof(tmp));
-	UniToStr(tmp, sizeof(tmp), str);
-
-	t = ParseToken(tmp, "/");
-	if (t == NULL)
-	{
-		return false;
-	}
-
-	if (t->NumTokens >= 1)
-	{
-		Trim(t->Token[0]);
-
-		if (IsIpStr4(t->Token[0]))
-		{
-			ret = CmdEvalNetworkAndSubnetMask4(c, str, param);
-		}
-		else
-		{
-			ret = CmdEvalNetworkAndSubnetMask6(c, str, param);
-		}
-	}
-
-	FreeToken(t);
-
-	return ret;
 }
 
 // Evaluate the IP address and subnet mask
@@ -12214,7 +12102,6 @@ UINT PsLogPacketSaveType(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	PS *ps = (PS *)param;
 	UINT ret = 0;
 	RPC_HUB_LOG t;
-	bool packet_log = false;
 	UINT packet_type = INFINITE;
 	UINT packet_save_info_type = INFINITE;
 	// Parameter list that can be specified
@@ -19751,7 +19638,6 @@ UINT PsDhcpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		bool ok = true;
 
 		StrToIP(&t.DhcpLeaseIPStart, GetParamStr(o, "START"));
 		StrToIP(&t.DhcpLeaseIPEnd, GetParamStr(o, "END"));
@@ -19766,34 +19652,23 @@ UINT PsDhcpSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		StrCpy(t.DhcpPushRoutes, sizeof(t.DhcpPushRoutes), GetParamStr(o, "PUSHROUTE"));
 		t.ApplyDhcpPushRoutes = true;
 
-		if (ok == false)
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
 		{
-			// Parameter is invalid
-			ret = ERR_INVALID_PARAMETER;
+			// An error has occured
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
 		}
-		else
+
+		if (IsEmptyStr(GetParamStr(o, "PUSHROUTE")) == false)
 		{
-			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
-			ret = ScSetSecureNATOption(ps->Rpc, &t);
-
-			if (ret != ERR_NO_ERROR)
+			if (GetCapsBool(ps->CapsList, "b_suppport_push_route") == false &&
+				GetCapsBool(ps->CapsList, "b_suppport_push_route_config"))
 			{
-				// An error has occured
-				CmdPrintError(c, ret);
-				FreeParamValueList(o);
-				return ret;
-			}
-
-			if (IsEmptyStr(GetParamStr(o, "PUSHROUTE")) == false)
-			{
-				if (GetCapsBool(ps->CapsList, "b_suppport_push_route") == false &&
-					GetCapsBool(ps->CapsList, "b_suppport_push_route_config"))
-				{
-					CmdPrintError(c, ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE);
-				}
+				CmdPrintError(c, ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE);
 			}
 		}
 	}
@@ -20834,7 +20709,6 @@ UINT PsDebug(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
 	LIST *o;
 	PS *ps = (PS *)param;
-	UINT ret = 0;
 	UINT id;
 	// Parameter list that can be specified
 	PARAM args[] =
@@ -20892,7 +20766,6 @@ UINT PsFlush(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
 	LIST *o;
 	PS *ps = (PS *)param;
-	UINT ret = 0;
 
 	o = ParseCommandList(c, cmd_name, str, NULL, 0);
 	if (o == NULL)
@@ -20936,7 +20809,6 @@ UINT PsCrash(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
 	LIST *o;
 	PS *ps = (PS *)param;
-	UINT ret = 0;
 	char *yes;
 	// Parameter list that can be specified
 	PARAM args[] =
@@ -23031,28 +22903,6 @@ UINT PsListenerDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	return 0;
-}
-
-// Draw a row
-void CmdPrintRow(CONSOLE *c, wchar_t *title, wchar_t *tag, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	wchar_t buf2[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (title == NULL || c == NULL || tag == NULL)
-	{
-		return;
-	}
-
-	va_start(args, tag);
-	UniFormatArgs(buf, sizeof(buf), tag, args);
-
-	UniFormat(buf2, sizeof(buf2), L"[%s] %s", title, buf);
-
-	va_end(args);
-
-	c->Write(c, buf2);
 }
 
 // ServerInfoGet command
