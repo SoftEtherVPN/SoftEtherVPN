@@ -364,7 +364,6 @@ void OvsFreeList(LIST *o);
 bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
-bool OvsIsCompatibleL3IP(UINT ip);
 UINT OvsCalcTcpMss(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 
 CIPHER *OvsGetCipher(char *name);
