@@ -223,13 +223,13 @@ void IPCAsyncThreadProc(THREAD *thread, void *param)
 			Zero(&cao, sizeof(cao));
 
 			// Get an IP address from the DHCP server in the case of L3 mode
-			Debug("IPCDhcpAllocateIPEx() start...\n");
-			if (IPCDhcpAllocateIPEx(a->Ipc, &cao, a->TubeForDisconnect, a->Param.IsOpenVPN))
+			Debug("IPCDhcpAllocateIP() start...\n");
+			if (IPCDhcpAllocateIP(a->Ipc, &cao, a->TubeForDisconnect))
 			{
 				UINT t;
 				IP ip, subnet, gw;
 
-				Debug("IPCDhcpAllocateIPEx() Ok.\n");
+				Debug("IPCDhcpAllocateIP() Ok.\n");
 
 				// Calculate the DHCP update interval
 				t = cao.LeaseTime;
@@ -260,7 +260,7 @@ void IPCAsyncThreadProc(THREAD *thread, void *param)
 			}
 			else
 			{
-				Debug("IPCDhcpAllocateIPEx() Error.\n");
+				Debug("IPCDhcpAllocateIP() Error.\n");
 
 				a->DhcpAllocFailed = true;
 
@@ -792,38 +792,19 @@ bool IPCDhcpRequestInformIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_t
 // Make a request for IP addresses using DHCP
 bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 {
-	return IPCDhcpAllocateIPEx(ipc, opt, discon_poll_tube, false);
-}
-bool IPCDhcpAllocateIPEx(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube, bool openvpn_compatible)
-{
 	DHCP_OPTION_LIST req;
 	DHCPV4_DATA *d, *d2;
 	UINT tran_id = Rand32();
 	bool ok;
-	UINT request_ip = 0;
-	IP current_scanning_ip;
-	UCHAR current_scanning_addr8;
-	UCHAR begin_scanning_addr8;
-	UINT64 giveup = Tick64() + (UINT64)IPC_DHCP_TIMEOUT_TOTAL_GIVEUP;
-	LIST *release_list;
-	bool ret = false;
 	// Validate arguments
 	if (ipc == NULL || opt == NULL)
 	{
 		return false;
 	}
 
-	release_list = NewListFast(NULL);
-
-	Zero(&current_scanning_ip, sizeof(current_scanning_ip));
-	current_scanning_addr8 = 0;
-	begin_scanning_addr8 = 0;
-
-LABEL_RETRY_FOR_OPENVPN:
-	tran_id = Rand32();
 	// Send a DHCP Discover
 	Zero(&req, sizeof(req));
-	req.RequestedIp = request_ip;
+	req.RequestedIp = 0;
 	req.Opcode = DHCP_DISCOVER;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	IPCDhcpSetConditionalUserClass(ipc, &req);
@@ -831,7 +812,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube);
 	if (d == NULL)
 	{
-		goto LABEL_CLEANUP;
+		return false;
 	}
 
 	// Analyze the DHCP Offer
@@ -860,75 +841,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	if (ok == false)
 	{
 		FreeDHCPv4Data(d);
-		goto LABEL_CLEANUP;
-	}
-
-	if (openvpn_compatible)
-	{
-		UINT ip = d->ParsedOptionList->ClientAddress;
-
-		if (OvsIsCompatibleL3IP(ip) == false)
-		{
-			char tmp[64];
-
-			DHCP_OPTION_LIST req;
-			IPC_DHCP_RELEASE_QUEUE *q;
-
-			// If the offered IP address is not used, place the address
-			// in release memo list to release at the end of this function
-			Zero(&req, sizeof(req));
-			req.Opcode = DHCP_RELEASE;
-			req.ServerAddress = d->ParsedOptionList->ServerAddress;
-
-			q = ZeroMalloc(sizeof(IPC_DHCP_RELEASE_QUEUE));
-			Copy(&q->Req, &req, sizeof(DHCP_OPTION_LIST));
-			q->TranId = tran_id;
-			Copy(q->MacAddress, ipc->MacAddress, 6);
-
-			Add(release_list, q);
-
-			FreeDHCPv4Data(d);
-
-			if (Tick64() >= giveup)
-			{
-				goto LABEL_CLEANUP;
-			}
-
-			if (IsZero(&current_scanning_ip, sizeof(IP)))
-			{
-				UINTToIP(&current_scanning_ip, ip);
-				current_scanning_addr8 = current_scanning_ip.addr[3];
-
-				if ((current_scanning_addr8 % 4) != 1)
-				{
-					current_scanning_addr8 = (UCHAR)(((((UINT)current_scanning_addr8 - 1) / 4) + 1) * 4 + 1);
-				}
-
-				begin_scanning_addr8 = current_scanning_addr8;
-			}
-			else
-			{
-				current_scanning_addr8 += 4;
-				
-				if (current_scanning_addr8 == begin_scanning_addr8)
-				{
-					goto LABEL_CLEANUP;
-				}
-			}
-
-			current_scanning_ip.addr[3] = current_scanning_addr8;
-
-			request_ip = IPToUINT(&current_scanning_ip);
-
-			IPToStr32(tmp, sizeof(tmp), request_ip);
-
-			// Generate another MAC address
-			ipc->MacAddress[5]++;
-
-			Debug("Trying Allocating IP for OpenVPN: %s\n", tmp);
-
-			goto LABEL_RETRY_FOR_OPENVPN;
-		}
+		return false;
 	}
 
 	// Send a DHCP Request
@@ -943,7 +856,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	if (d2 == NULL)
 	{
 		FreeDHCPv4Data(d);
-		goto LABEL_CLEANUP;
+		return false;
 	}
 
 	// Analyze the DHCP Ack
@@ -973,7 +886,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	{
 		FreeDHCPv4Data(d);
 		FreeDHCPv4Data(d2);
-		goto LABEL_CLEANUP;
+		return false;
 	}
 
 	Copy(opt, d2->ParsedOptionList, sizeof(DHCP_OPTION_LIST));
@@ -981,34 +894,7 @@ LABEL_RETRY_FOR_OPENVPN:
 	FreeDHCPv4Data(d);
 	FreeDHCPv4Data(d2);
 
-	ret = true;
-
-LABEL_CLEANUP:
-	if (release_list != NULL)
-	{
-		// Release the IP address that was acquired from the DHCP server to no avail on the way
-		UINT i;
-		UCHAR mac_backup[6];
-
-		Copy(mac_backup, ipc->MacAddress, 6);
-
-		for (i = 0;i < LIST_NUM(release_list);i++)
-		{
-			IPC_DHCP_RELEASE_QUEUE *q = LIST_DATA(release_list, i);
-
-			Copy(ipc->MacAddress, q->MacAddress, 6);
-			FreeDHCPv4Data(IPCSendDhcpRequest(ipc, NULL, q->TranId, &q->Req, 0, 0, NULL));
-
-			IPCProcessInterrupts(ipc);
-
-			Free(q);
-		}
-
-		Copy(ipc->MacAddress, mac_backup, 6);
-
-		ReleaseList(release_list);
-	}
-	return ret;
+	return true;
 }
 
 // Send out a DHCP request, and wait for a corresponding response

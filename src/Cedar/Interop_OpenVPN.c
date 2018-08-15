@@ -720,8 +720,6 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			p.ClientCertificate = c->ClientCert.X;
 		}
 
-		p.IsOpenVPN = true;
-
 		// Calculate the MSS
 		p.Mss = OvsCalcTcpMss(s, se, c);
 		Debug("MSS=%u\n", p.Mss);
@@ -1984,9 +1982,6 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									// if the L3 mode to the option character string
 									DHCP_OPTION_LIST *cao = &se->IpcAsync->L3ClientAddressOption;
 									char ip_client[64];
-									char ip_tunnel_endpoint[64];
-									UINT ip_tunnel_endpoint_32;
-									char ip_network[64];
 									char ip_subnet_mask[64];
 									char ip_dns1[64];
 									char ip_dns2[64];
@@ -2003,25 +1998,17 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									IPToStr32(ip_client, sizeof(ip_client),
 										cao->ClientAddress);
 
-									// Generate a virtual gateway address to be passed to the OpenVPN
-									ip_tunnel_endpoint_32 = Endian32(cao->ClientAddress);
-									ip_tunnel_endpoint_32++;
-									ip_tunnel_endpoint_32 = Endian32(ip_tunnel_endpoint_32);
-									IPToStr32(ip_tunnel_endpoint, sizeof(ip_tunnel_endpoint), ip_tunnel_endpoint_32);
-
-									// Create a subnet information for the LAN
-									IPToStr32(ip_network, sizeof(ip_network),
-										GetNetworkAddress(cao->ClientAddress,
-										cao->SubnetMask));
-
 									IPToStr32(ip_subnet_mask, sizeof(ip_subnet_mask),
 										cao->SubnetMask);
 
 									Format(l3_options, sizeof(l3_options),
+										",topology subnet");
+									StrCat(option_str, sizeof(option_str), l3_options);
+
+									Format(l3_options, sizeof(l3_options),
 										",ifconfig %s %s",
-//										",ifconfig %s %s,route %s %s %s 1",
-										ip_client, ip_tunnel_endpoint, ip_network, ip_subnet_mask,
-										ip_tunnel_endpoint);
+										ip_client,
+										ip_subnet_mask);
 									StrCat(option_str, sizeof(option_str), l3_options);
 
 									// Domain name
@@ -2083,11 +2070,13 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									// Default gateway
 									if (cao->Gateway != 0)
 									{
+										char ip_str[64];
+										IPToStr32(ip_str, sizeof(ip_str), cao->Gateway);
 										Format(l3_options, sizeof(l3_options),
-											",route-gateway %s,redirect-gateway def1", ip_tunnel_endpoint);
+											",route-gateway %s,redirect-gateway def1", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
-										IPToStr32(ip_defgw, sizeof(ip_defgw), cao->Gateway);
+										StrCpy(ip_defgw, sizeof(ip_defgw), ip_str);
 									}
 									else
 									{
@@ -2540,20 +2529,6 @@ int OvsCompareSessionList(void *p1, void *p2)
 	}
 
 	return 0;
-}
-
-// Identify whether the IP address is compatible to the tun device of OpenVPN
-bool OvsIsCompatibleL3IP(UINT ip)
-{
-	IP p;
-
-	UINTToIP(&p, ip);
-	if ((p.addr[3] % 4) == 1)
-	{
-		return true;
-	}
-
-	return false;
 }
 
 // Create a new OpenVPN server
