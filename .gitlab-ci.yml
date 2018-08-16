@@ -1,9 +1,11 @@
 .ubuntu: &ubuntu_def
+  variables:
+    CMAKE_VERSION: 3.12.1
   before_script:
     - REPOSITORY="$PWD" && cd ..
-    - apt-get update && apt-get install -y wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
-    - wget https://cmake.org/files/v3.12/cmake-3.12.1.tar.gz && tar -xzvf cmake-3.12.1.tar.gz
-    - cd cmake-3.12.1 && ./bootstrap && make install
+    - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
+    - wget https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}.tar.gz && tar -xzf cmake-${CMAKE_VERSION}.tar.gz
+    - cd cmake-${CMAKE_VERSION} && ./bootstrap && make install
     - cd "$REPOSITORY" && git submodule update --init --recursive
   script:
     - ./configure
@@ -12,21 +14,14 @@
 bionic: 
   <<: *ubuntu_def
   image: ubuntu:bionic
-  variables:     
-    CMAKE: cmake
 
 xenial:     
   <<: *ubuntu_def
   image: ubuntu:xenial
-  variables:     
-    CMAKE: cmake
 
 trusty:      
   <<: *ubuntu_def
   image: ubuntu:trusty
-  variables:     
-    CMAKE: cmake3
-
 
 #
 # there's no cmake3 for 12.04
@@ -35,6 +30,4 @@ trusty:
 #precise:
 #  <<: *ubuntu_def
 #  image: ubuntu:precise
-#  variables:
-#    CMAKE: cmake3
 
