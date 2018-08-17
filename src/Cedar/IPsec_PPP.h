@@ -329,7 +329,6 @@ bool IsHubExistsWithLock(CEDAR *cedar, char *hubname);
 void GenerateNtPasswordHash(UCHAR *dst, char *password);
 void GenerateNtPasswordHashHash(UCHAR *dst_hash, UCHAR *src_hash);
 void MsChapV2Server_GenerateChallenge(UCHAR *dst);
-void MsChapV2Client_GenerateChallenge(UCHAR *dst);
 void MsChapV2_GenerateChallenge8(UCHAR *dst, UCHAR *client_challenge, UCHAR *server_challenge, char *username);
 void MsChapV2Client_GenerateResponse(UCHAR *dst, UCHAR *challenge8, UCHAR *nt_password_hash);
 void MsChapV2Server_GenerateResponse(UCHAR *dst, UCHAR *nt_password_hash_hash, UCHAR *client_response, UCHAR *challenge8);
