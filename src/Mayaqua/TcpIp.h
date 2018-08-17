@@ -860,7 +860,6 @@ void FreePacketUDPv4(PKT *p);
 void FreePacketTCPv4(PKT *p);
 void FreePacketICMPv4(PKT *p);
 void FreePacketDHCPv4(PKT *p);
-bool ParsePacketL2(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3);
 bool ParsePacketARPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketIPv4(PKT *p, UCHAR *buf, UINT size);
@@ -909,8 +908,6 @@ UCHAR GetNextByte(BUF *b);
 
 bool IsDhcpPacketForSpecificMac(UCHAR *data, UINT size, UCHAR *mac_address);
 
-ICMP_RESULT *IcmpEchoSendBySocket(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
-ICMP_RESULT *IcmpEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
 ICMP_RESULT *IcmpParseResult(IP *dest_ip, USHORT src_id, USHORT src_seqno, UCHAR *recv_buffer, UINT recv_buffer_size);
 void IcmpFreeResult(ICMP_RESULT *r);
 
