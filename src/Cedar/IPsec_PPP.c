@@ -2312,10 +2312,6 @@ PPP_LCP *ParseLCP(USHORT protocol, void *data, UINT size)
 	c->OptionList = NewListFast(NULL);
 
 	// Code
-	if (size < 1)
-	{
-		goto LABEL_ERROR;
-	}
 	c->Code = buf[0];
 	buf++;
 	size--;
@@ -2645,18 +2641,6 @@ void GenerateNtPasswordHash(UCHAR *dst, char *password)
 
 // Generate the MS-CHAPv2 server-side challenge
 void MsChapV2Server_GenerateChallenge(UCHAR *dst)
-{
-	// Validate arguments
-	if (dst == NULL)
-	{
-		return;
-	}
-
-	Rand(dst, 16);
-}
-
-// Generate the MS-CHAPv2 client-side challenge
-void MsChapV2Client_GenerateChallenge(UCHAR *dst)
 {
 	// Validate arguments
 	if (dst == NULL)
