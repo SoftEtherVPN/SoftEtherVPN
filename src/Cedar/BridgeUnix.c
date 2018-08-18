@@ -267,18 +267,19 @@ int UnixEthOpenRawSocket()
 // Is Ethernet device control supported?
 bool IsEthSupported()
 {
-	bool ret = false;
 
-#if		defined(UNIX_LINUX)
-	ret = IsEthSupportedLinux();
+#if	defined(UNIX_LINUX)
+	return IsEthSupportedLinux();
 #elif	defined(UNIX_SOLARIS)
-	ret = IsEthSupportedSolaris();
+	return IsEthSupportedSolaris();
 #elif	defined(BRIDGE_PCAP)
-	ret = true;
+	return true;
 #elif	defined(BRIDGE_BPF)
-	ret = true;
+	return true;
+#else
+	return false;
 #endif
-	return ret;
+
 }
 
 #ifdef	UNIX_LINUX
@@ -557,19 +558,19 @@ TOKEN_LIST *GetEthList()
 }
 TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip)
 {
-	TOKEN_LIST *t = NULL;
 
 #if	defined(UNIX_LINUX)
-	t = GetEthListLinux(enum_normal, enum_rawip);
+	return GetEthListLinux(enum_normal, enum_rawip);
 #elif	defined(UNIX_SOLARIS)
-	t = GetEthListSolaris();
+	return GetEthListSolaris();
 #elif	defined(BRIDGE_PCAP)
-	t = GetEthListPcap();
+	return GetEthListPcap();
 #elif	defined(BRIDGE_BPF)
-	t = GetEthListBpf();
+	return GetEthListBpf();
+#else
+	return NULL;
 #endif
 
-	return t;
 }
 
 #ifdef	UNIX_LINUX
@@ -1086,37 +1087,6 @@ bool DlipBindRequest(int fd)
 	return true;
 }
 
-// Attach to the device
-bool DlipAttachRequest(int fd, UINT devid)
-{
-	dl_attach_req_t req;
-	struct strbuf ctl;
-	int flags;
-	// Validate arguments
-	if (fd == -1)
-	{
-		return false;
-	}
-
-	Zero(&req, sizeof(req));
-	req.dl_primitive = DL_ATTACH_REQ;
-	req.dl_ppa = devid;
-
-	Zero(&ctl, sizeof(ctl));
-	ctl.maxlen = 0;
-	ctl.len = sizeof(req);
-	ctl.buf = (char *)&req;
-
-	flags = 0;
-
-	if (putmsg(fd, &ctl, NULL, flags) < 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Verify the ACK message
 bool DlipReceiveAck(int fd)
 {
@@ -1275,7 +1245,6 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 	char errbuf[PCAP_ERRBUF_SIZE];
 	ETH *e;
 	pcap_t *p;
-	CANCEL *c;
 
 	// Validate arguments
 	if (name == NULL || tapmode != false)
@@ -1525,19 +1494,19 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 // Open Ethernet adapter
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr)
 {
-	ETH *ret = NULL;
 
-#if		defined(UNIX_LINUX)
-	ret = OpenEthLinux(name, local, tapmode, tapaddr);
+#if	defined(UNIX_LINUX)
+	return OpenEthLinux(name, local, tapmode, tapaddr);
 #elif	defined(UNIX_SOLARIS)
-	ret = OpenEthSolaris(name, local, tapmode, tapaddr);
+	return OpenEthSolaris(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_PCAP)
-	ret = OpenEthPcap(name, local, tapmode, tapaddr);
+	return OpenEthPcap(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_BPF)
-	ret = OpenEthBpf(name, local, tapmode, tapaddr);
+	return OpenEthBpf(name, local, tapmode, tapaddr);
+#else
+	return NULL;
 #endif
 
-	return ret;
 }
 
 typedef struct UNIXTHREAD
@@ -2695,7 +2664,7 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 
 	p = ParsePacket(data, size);
 
-	if (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
+	if (p && p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
 	{
 		if (IsValidUnicastMacAddress(p->MacAddressSrc))
 		{
