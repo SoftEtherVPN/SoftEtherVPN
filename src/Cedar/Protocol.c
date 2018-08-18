@@ -3920,7 +3920,7 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c)
 	}
 
 	// Socket connection
-	s = ClientConnectGetSocket(c, true, (c->DontUseTls1 ? false : true));
+	s = ClientConnectGetSocket(c, true);
 	if (s == NULL)
 	{
 		// Connection failure
@@ -3955,7 +3955,7 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c)
 	SetTimeout(s, CONNECTING_TIMEOUT);
 
 	// Start the SSL communication
-	if (StartSSLEx(s, NULL, NULL, (c->DontUseTls1 ? false : true), 0, c->ServerName) == false)
+	if (StartSSLEx(s, NULL, NULL, 0, c->ServerName) == false)
 	{
 		// SSL communication failure
 		Disconnect(s);
@@ -6252,7 +6252,7 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 	}
 
 	// Get the socket by connecting
-	s = ClientConnectGetSocket(c, false, (c->DontUseTls1 ? false : true));
+	s = ClientConnectGetSocket(c, false);
 	if (s == NULL)
 	{
 		// Connection failure
@@ -6273,7 +6273,7 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 	SetTimeout(s, CONNECTING_TIMEOUT);
 
 	// Start the SSL communication
-	if (StartSSLEx(s, x, k, (c->DontUseTls1 ? false : true), 0, c->ServerName) == false)
+	if (StartSSLEx(s, x, k, 0, c->ServerName) == false)
 	{
 		// SSL communication start failure
 		Disconnect(s);
@@ -6297,7 +6297,7 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 }
 
 // Return a socket by connecting to the server
-SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls)
+SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 {
 	SOCK *s = NULL;
 	CLIENT_OPTION *o;
@@ -6369,7 +6369,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
 					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additional_rudp_session) : false),
-					true, no_tls, &ret_ip);
+					true, &ret_ip);
 			}
 		}
 		else
@@ -6530,7 +6530,7 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// Connection
-	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false, ret_ip);
+	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, ret_ip);
 	if (s == NULL)
 	{
 		// Failure
@@ -6737,7 +6737,7 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// Connection
-	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, false, NULL);
+	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, NULL);
 	if (s == NULL)
 	{
 		// Failure
@@ -6887,32 +6887,32 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 }
 
 // TCP connection function
-SOCK *TcpConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool try_start_ssl, bool ssl_no_tls)
+SOCK *TcpConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool try_start_ssl)
 {
-	return TcpConnectEx3(hostname, port, timeout, cancel_flag, hWnd, false, NULL, try_start_ssl, ssl_no_tls, NULL);
+	return TcpConnectEx3(hostname, port, timeout, cancel_flag, hWnd, false, NULL, try_start_ssl, NULL);
 }
-SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, IP *ret_ip)
+SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
 {
 #ifdef	OS_WIN32
 	if (hWnd == NULL)
 	{
 #endif	// OS_WIN32
-		return ConnectEx4(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, ssl_no_tls, true, ret_ip);
+		return ConnectEx4(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, ret_ip);
 #ifdef	OS_WIN32
 	}
 	else
 	{
-		return WinConnectEx3((HWND)hWnd, hostname, port, timeout, 0, NULL, NULL, nat_t_error_code, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), try_start_ssl, ssl_no_tls);
+		return WinConnectEx3((HWND)hWnd, hostname, port, timeout, 0, NULL, NULL, nat_t_error_code, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), try_start_ssl);
 	}
 #endif	// OS_WIN32
 }
 
 // Connect with TCP/IP
-SOCK *TcpIpConnect(char *hostname, UINT port, bool try_start_ssl, bool ssl_no_tls)
+SOCK *TcpIpConnect(char *hostname, UINT port, bool try_start_ssl)
 {
-	return TcpIpConnectEx(hostname, port, NULL, NULL, NULL, false, try_start_ssl, ssl_no_tls, NULL);
+	return TcpIpConnectEx(hostname, port, NULL, NULL, NULL, false, try_start_ssl, NULL);
 }
-SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, bool ssl_no_tls, IP *ret_ip)
+SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
 {
 	SOCK *s = NULL;
 	UINT dummy_int = 0;
@@ -6927,7 +6927,7 @@ SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, U
 		return NULL;
 	}
 
-	s = TcpConnectEx3(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_no_tls, ret_ip);
+	s = TcpConnectEx3(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ret_ip);
 	if (s == NULL)
 	{
 		return NULL;

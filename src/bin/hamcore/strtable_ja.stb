@@ -2317,7 +2317,6 @@ S_RETRY_NUM_2			回
 S_RETRY_SPAN_1			再接続間隔(&K):
 S_RETRY_SPAN_2			秒
 R_INFINITE				無限に再接続を試行する (常時接続) (&I)
-R_NOTLS1				SSL 3.0 を使用する(&1)
 B_DETAIL				高度な通信設定(&N)...
 IDOK					&OK
 IDCANCEL				キャンセル

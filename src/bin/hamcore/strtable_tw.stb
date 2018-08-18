@@ -2333,7 +2333,6 @@ S_RETRY_NUM_2			次
 S_RETRY_SPAN_1			重連間隔(&K):
 S_RETRY_SPAN_2			秒
 R_INFINITE				無限重連(總是保持 VPN 線上) (&I)
-R_NOTLS1				使用 SSL 3.0 (&1)
 B_DETAIL				進階設置(&D)...
 IDOK					確定(&O)
 IDCANCEL				取消

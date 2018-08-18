@@ -189,7 +189,6 @@ struct CLIENT_OPTION
 	bool RequireBridgeRoutingMode;					// Bridge or routing mode
 	bool DisableQoS;								// Disable the VoIP / QoS function
 	bool FromAdminPack;								// For Administration Pack
-	bool NoTls1;									// Do not use TLS 1.0
 	bool NoUdpAcceleration;							// Do not use UDP acceleration mode
 	UCHAR HostUniqueKey[SHA1_SIZE];					// Host unique key
 };
@@ -310,7 +309,6 @@ struct CONNECTION
 	IP ClientIp;					// Client IP address
 	char ClientHostname[MAX_HOST_NAME_LEN + 1];	// Client host name
 	UINT Type;						// Type
-	bool DontUseTls1;				// Do not use TLS 1.0
 	void *hWndForUI;				// Parent window
 	bool IsInProc;					// In-process
 	char InProcPrefix[64];			// Prefix

@@ -250,7 +250,6 @@ struct SOCK_EVENT
 // SSL Accept Settings
 struct SSL_ACCEPT_SETTINGS
 {
-	bool AcceptOnlyTls;
 	bool Tls_Disable1_0;
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
@@ -927,7 +926,6 @@ struct CONNECT_TCP_RUDP_PARAM
 	UINT RUdpProtocol;
 	UINT Delay;
 	bool Tcp_TryStartSsl;
-	bool Tcp_SslNoTls;
 	LOCK *CancelLock;
 	SOCK *CancelDisconnectSock;
 	bool Tcp_InNegotiation;
@@ -1271,8 +1269,8 @@ void CleanupSock(SOCK *s);
 SOCK *Connect(char *hostname, UINT port);
 SOCK *ConnectEx(char *hostname, UINT port, UINT timeout);
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag);
-SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname);
-SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname, IP *ret_ip);
+SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname);
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
 void SetSocketSendRecvBufferSize(SOCKET s, UINT size);
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size);
@@ -1295,7 +1293,7 @@ void SetNoNeedToRead(SOCK *sock);
 UINT SecureSend(SOCK *sock, void *data, UINT size);
 UINT SecureRecv(SOCK *sock, void *data, UINT size);
 bool StartSSL(SOCK *sock, X *x, K *priv);
-bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname);
+bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname);
 bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x);
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx);
 bool SendAll(SOCK *sock, void *data, UINT size, bool secure);

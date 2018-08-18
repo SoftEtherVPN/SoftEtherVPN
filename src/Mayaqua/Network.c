@@ -829,7 +829,7 @@ bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT t
 		Format(connect_hostname2, sizeof(connect_hostname2), "[%s]", connect_hostname);
 	}
 
-	s = ConnectEx3(connect_hostname, BFLETS_DNS_PROXY_PORT, timeout, cancel, NULL, NULL, false, false, false);
+	s = ConnectEx3(connect_hostname, BFLETS_DNS_PROXY_PORT, timeout, cancel, NULL, NULL, false, false);
 
 	if (s == NULL)
 	{
@@ -847,7 +847,7 @@ bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT t
 	SetTimeout(s, timeout);
 
 	// Start the SSL
-	if (StartSSLEx(s, NULL, NULL, true, 0, NULL) && (*cancel == false))
+	if (StartSSLEx(s, NULL, NULL, 0, NULL) && (*cancel == false))
 	{
 		UCHAR hash[SHA1_SIZE];
 		BUF *hash2 = StrToBin(BFLETS_DNS_PROXY_CERT_HASH);
@@ -12141,9 +12141,9 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 // Start a TCP-SSL communication
 bool StartSSL(SOCK *sock, X *x, K *priv)
 {
-	return StartSSLEx(sock, x, priv, true, 0, NULL);
+	return StartSSLEx(sock, x, priv, 0, NULL);
 }
-bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname)
+bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 {
 	X509 *x509;
 	EVP_PKEY *key;
@@ -12203,39 +12203,32 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	{
 		if (sock->ServerMode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_server_method());
 
-#ifdef	SSL_OP_NO_SSLv2
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
-#endif	// SSL_OP_NO_SSLv2
-
-			if (sock->SslAcceptSettings.AcceptOnlyTls)
-			{
 #ifdef	SSL_OP_NO_SSLv3
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
 #endif	// SSL_OP_NO_SSLv3
-			}
 
+#ifdef	SSL_OP_NO_TLSv1
 			if (sock->SslAcceptSettings.Tls_Disable1_0)
 			{
-#ifdef	SSL_OP_NO_TLSv1
 				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1);
-#endif	// SSL_OP_NO_TLSv1
 			}
+#endif	// SSL_OP_NO_TLSv1
 
+#ifdef	SSL_OP_NO_TLSv1_1
 			if (sock->SslAcceptSettings.Tls_Disable1_1)
 			{
-#ifdef	SSL_OP_NO_TLSv1_1
 				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_1);
-#endif	// SSL_OP_NO_TLSv1_1
 			}
+#endif	// SSL_OP_NO_TLSv1_1
 
+#ifdef	SSL_OP_NO_TLSv1_2
 			if (sock->SslAcceptSettings.Tls_Disable1_2)
 			{
-#ifdef	SSL_OP_NO_TLSv1_2
 				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_2);
-#endif	// SSL_OP_NO_TLSv1_2
 			}
+#endif	// SSL_OP_NO_TLSv1_2
 
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
@@ -12243,24 +12236,18 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		}
 		else
 		{
-			if (client_tls == false)
-			{
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
-#else
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
-#endif
-			}
-			else
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
-			}
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
 		}
+
 		sock->ssl = SSL_new(ssl_ctx);
 		SSL_set_fd(sock->ssl, (int)sock->socket);
 
 #ifdef	SSL_CTRL_SET_TLSEXT_HOSTNAME
-		if (sock->ServerMode == false && client_tls)
+		if (sock->ServerMode == false)
 		{
 			if (IsEmptyStr(sni_hostname) == false)
 			{
@@ -14279,7 +14266,7 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 
 	// Connecting process
 	IPToStr(hostname, sizeof(hostname), &p->Ip);
-	sock = ConnectEx3(hostname, p->Port, p->Timeout, p->CancelFlag, NULL, NULL, false, false, true);
+	sock = ConnectEx3(hostname, p->Port, p->Timeout, p->CancelFlag, NULL, NULL, false, true);
 
 	if (sock != NULL && p->Tcp_TryStartSsl)
 	{
@@ -14304,7 +14291,7 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 		Unlock(p->CancelLock);
 
 		// Start the SSL communication
-		ssl_ret = StartSSLEx(sock, NULL, NULL, p->Tcp_SslNoTls, 0, p->Hostname);
+		ssl_ret = StartSSLEx(sock, NULL, NULL, 0, p->Hostname);
 
 		if (ssl_ret)
 		{
@@ -14417,14 +14404,13 @@ SOCK *ConnectEx(char *hostname, UINT port, UINT timeout)
 }
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag)
 {
-	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, false, true);
+	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, true);
 }
-SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname)
+SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname)
 {
-	return ConnectEx4(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, ssl_no_tls,
-		no_get_hostname, NULL);
+	return ConnectEx4(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL);
 }
-SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname, IP *ret_ip)
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
 {
 	SOCK *sock;
 	SOCKET s;
@@ -14603,7 +14589,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			p1.CancelFlag = &cancel_flag2;
 			p1.FinishEvent = finish_event;
 			p1.Tcp_TryStartSsl = try_start_ssl;
-			p1.Tcp_SslNoTls = ssl_no_tls;
 			p1.CancelLock = NewLock();
 
 			// p2: NAT-T
