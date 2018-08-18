@@ -225,7 +225,6 @@ void ElStartListener(EL *e);
 void ElStopListener(EL *e);
 void ElListenerProc(THREAD *thread, void *param);
 PACK *ElRpcServer(RPC *r, char *name, PACK *p);
-void ElCheckLicense(EL_LICENSE_STATUS *st, LICENSE *e);
 void ElParseCurrentLicenseStatus(LICENSE_SYSTEM *s, EL_LICENSE_STATUS *st);
 bool ElIsBetaExpired();
 
@@ -251,7 +250,6 @@ UINT EcGetDevice(RPC *r, RPC_ADD_DEVICE *t);
 UINT EcEnumDevice(RPC *r, RPC_ENUM_DEVICE *t);
 UINT EcEnumAllDevice(RPC *r, RPC_ENUM_DEVICE *t);
 UINT EcSetPassword(RPC *r, RPC_SET_PASSWORD *t);
-UINT EcAddLicenseKey(RPC *r, RPC_TEST *t);
 UINT EcDelLicenseKey(RPC *r, RPC_TEST *t);
 UINT EcEnumLicenseKey(RPC *r, RPC_ENUM_LICENSE_KEY *t);
 UINT EcGetLicenseStatus(RPC *r, RPC_EL_LICENSE_STATUS *t);

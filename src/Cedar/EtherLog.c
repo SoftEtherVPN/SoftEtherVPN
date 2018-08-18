@@ -240,7 +240,7 @@ UINT EcConnect(char *host, UINT port, char *password, RPC **rpc)
 
 	// Receive the random number
 	Zero(rand, sizeof(rand));
-	RecvAll(s, rand, sizeof(rand), false);
+	(void)RecvAll(s, rand, sizeof(rand), false);
 	SecurePassword(response, password_hash, rand);
 
 	// Send a response
@@ -324,7 +324,6 @@ DECLARE_SC("GetDevice", RPC_ADD_DEVICE, EcGetDevice, InRpcAddDevice, OutRpcAddDe
 DECLARE_SC_EX("EnumDevice", RPC_ENUM_DEVICE, EcEnumDevice, InRpcEnumDevice, OutRpcEnumDevice, FreeRpcEnumDevice)
 DECLARE_SC("SetPassword", RPC_SET_PASSWORD, EcSetPassword, InRpcSetPassword, OutRpcSetPassword)
 DECLARE_SC_EX("EnumAllDevice", RPC_ENUM_DEVICE, EcEnumAllDevice, InRpcEnumDevice, OutRpcEnumDevice, FreeRpcEnumDevice)
-DECLARE_SC("AddLicenseKey", RPC_TEST, EcAddLicenseKey, InRpcTest, OutRpcTest)
 DECLARE_SC("DelLicenseKey", RPC_TEST, EcDelLicenseKey, InRpcTest, OutRpcTest)
 DECLARE_SC_EX("EnumLicenseKey", RPC_ENUM_LICENSE_KEY, EcEnumLicenseKey, InRpcEnumLicenseKey, OutRpcEnumLicenseKey, FreeRpcEnumLicenseKey)
 DECLARE_SC("GetLicenseStatus", RPC_EL_LICENSE_STATUS, EcGetLicenseStatus, InRpcElLicenseStatus, OutRpcElLicenseStatus)
@@ -379,11 +378,6 @@ UINT EtGetBridgeSupport(EL *a, RPC_BRIDGE_SUPPORT *t)
 	t->IsWinPcapNeeded = IsNeedWinPcap();
 
 	return ERR_NO_ERROR;
-}
-
-// Update the status by checking the all licenses
-void ElCheckLicense(EL_LICENSE_STATUS *st, LICENSE *e)
-{
 }
 
 // Save by analyzing the status of the current license
@@ -755,7 +749,7 @@ void ElListenerProc(THREAD *thread, void *param)
 	// Receive a response
 	SecurePassword(pass1, e->HashedPassword, rand);
 	Zero(pass2, sizeof(pass2));
-	RecvAll(s, pass2, sizeof(pass2), false);
+	(void)RecvAll(s, pass2, sizeof(pass2), false);
 
 	if (Cmp(pass1, pass2, SHA1_SIZE) != 0)
 	{
