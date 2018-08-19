@@ -680,7 +680,6 @@ SOCK *CncNicInfo(UI_NICINFO *info)
 {
 	SOCK *s;
 	PACK *p;
-	bool ret = false;
 	// Validate arguments
 	if (info == NULL)
 	{
@@ -722,7 +721,6 @@ SOCK *CncMsgDlg(UI_MSG_DLG *dlg)
 {
 	SOCK *s;
 	PACK *p;
-	bool ret = false;
 	char *utf;
 	// Validate arguments
 	if (dlg == NULL)
@@ -761,29 +759,6 @@ void CndMsgDlgFree(SOCK *s)
 
 	Disconnect(s);
 	ReleaseSock(s);
-}
-
-// The thread to stop the password input dialog client forcibly
-void CncPasswordDlgHaltThread(THREAD *thread, void *param)
-{
-	CNC_CONNECT_ERROR_DLG_THREAD_PARAM *dp = (CNC_CONNECT_ERROR_DLG_THREAD_PARAM *)param;
-	// Validate arguments
-	if (thread == NULL || param == NULL)
-	{
-		return;
-	}
-
-	while (true)
-	{
-		if (dp->Session->Halt || dp->HaltThread)
-		{
-			break;
-		}
-
-		Wait(dp->Event, 100);
-	}
-
-	Disconnect(dp->Sock);
 }
 
 // Show the password input dialog
@@ -1025,15 +1000,12 @@ SOCK *CncStatusPrinterWindowStart(SESSION *s)
 // Send a string to the status indicator
 void CncStatusPrinterWindowPrint(SOCK *s, wchar_t *str)
 {
-	CNC_STATUS_PRINTER_WINDOW_PARAM *param;
 	PACK *p;
 	// Validate arguments
 	if (s == NULL || str == NULL)
 	{
 		return;
 	}
-
-	param = (CNC_STATUS_PRINTER_WINDOW_PARAM *)s->Param;
 
 	p = NewPack();
 	PackAddUniStr(p, "string", str);
@@ -1122,41 +1094,6 @@ void CncReleaseSocket()
 
 	Disconnect(s);
 	ReleaseSock(s);
-}
-
-// Get the Session ID of the client notification service
-UINT CncGetSessionId()
-{
-	SOCK *s = CncConnect();
-	PACK *p;
-	UINT ret;
-	if (s == NULL)
-	{
-		return INFINITE;
-	}
-
-	p = NewPack();
-	PackAddStr(p, "function", "get_session_id");
-
-	SendPack(s, p);
-	FreePack(p);
-
-	p = RecvPack(s);
-	if (p == NULL)
-	{
-		Disconnect(s);
-		ReleaseSock(s);
-		return INFINITE;
-	}
-
-	ret = PackGetInt(p, "session_id");
-
-	FreePack(p);
-
-	Disconnect(s);
-	ReleaseSock(s);
-
-	return ret;
 }
 
 // Terminate the process of the client notification service
@@ -2036,28 +1973,6 @@ bool CiHasAccountSensitiveInformation(BUF *b)
 
 	CiFreeClientCreateAccount(a);
 	Free(a);
-
-	return ret;
-}
-bool CiHasAccountSensitiveInformationFile(wchar_t *name)
-{
-	bool ret = false;
-	BUF *b;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	b = ReadDumpW(name);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	ret = CiHasAccountSensitiveInformation(b);
-
-	FreeBuf(b);
 
 	return ret;
 }
@@ -4337,33 +4252,6 @@ void CiFreeEnumObjectInSecure(RPC_ENUM_OBJECT_IN_SECURE *a)
 }
 
 // RPC_ENUM_OBJECT_IN_SECURE
-void InRpcEnumObjectInSecure(RPC_ENUM_OBJECT_IN_SECURE *e, PACK *p)
-{
-	UINT i;
-	// Validate arguments
-	if (e == NULL || p == NULL)
-	{
-		return;
-	}
-
-	Zero(e, sizeof(RPC_ENUM_OBJECT_IN_SECURE));
-
-	e->NumItem = PackGetNum(p, "NumItem");
-	e->hWnd = PackGetInt(p, "hWnd");
-	e->ItemName = ZeroMalloc(sizeof(char *) * e->NumItem);
-	e->ItemType = ZeroMalloc(sizeof(bool) * e->NumItem);
-
-	for (i = 0;i < e->NumItem;i++)
-	{
-		char name[MAX_SIZE];
-
-		Zero(name, sizeof(name));
-		PackGetStrEx(p, "ItemName", name, sizeof(name), i);
-		e->ItemName[i] = CopyStr(name);
-
-		e->ItemType[i] = PackGetIntEx(p, "ItemType", i) ? true : false;
-	}
-}
 void OutRpcEnumObjectInSecure(PACK *p, RPC_ENUM_OBJECT_IN_SECURE *e)
 {
 	UINT i;
@@ -5125,29 +5013,6 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	}
 }
 
-void InRpcClientNotify(RPC_CLIENT_NOTIFY *n, PACK *p)
-{
-	// Validate arguments
-	if (n == NULL || p == NULL)
-	{
-		return;
-	}
-
-	Zero(n, sizeof(RPC_CLIENT_NOTIFY));
-
-	n->NotifyCode = PackGetInt(p, "NotifyCode");
-}
-void OutRpcClientNotify(PACK *p, RPC_CLIENT_NOTIFY *n)
-{
-	// Validate arguments
-	if (n == NULL || p == NULL)
-	{
-		return;
-	}
-
-	PackAddInt(p, "NotifyCode", n->NotifyCode);
-}
-
 // Notification main
 void CiNotifyMain(CLIENT *c, SOCK *s)
 {
@@ -5781,9 +5646,7 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 			reg_port = 0;
 		}
 	}
-#endif	// OS_WIN32
 
-	port_start = CLIENT_CONFIG_PORT - 1;
 	if (reg_port != 0)
 	{
 		s = Connect(server_name, reg_port);
@@ -5793,6 +5656,10 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 			goto L_TRY;
 		}
 	}
+
+#endif	// OS_WIN32
+
+	port_start = CLIENT_CONFIG_PORT - 1;
 
 RETRY:
 	port_start++;
@@ -6349,11 +6216,6 @@ bool CiCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expired)
 			}
 			return false;
 		}
-	}
-
-	if (old_x != NULL)
-	{
-		FreeX(old_x);
 	}
 
 	return false;
@@ -10470,35 +10332,6 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 	}
 }
 
-// Create the inner VPN Server
-SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server)
-{
-	SERVER *s = NULL;
-	// Validate arguments
-	if (c == NULL)
-	{
-		return NULL;
-	}
-
-	SetNatTLowPriority();
-
-	s = SiNewServerEx(false, true, relay_server);
-
-	return s;
-}
-
-// Stop the inner VPN Server
-void CiFreeInnerVPNServer(CLIENT *c, SERVER *s)
-{
-	// Validate arguments
-	if (c == NULL || s == NULL)
-	{
-		return;
-	}
-
-	SiReleaseServer(s);
-}
-
 // Apply settings of Inner VPN Server
 void CiApplyInnerVPNServerConfig(CLIENT *c)
 {
@@ -10682,48 +10515,6 @@ CLIENT *CiNewClient()
 	return c;
 }
 
-// Examine whether two proxy server settings equal
-bool CompareInternetSetting(INTERNET_SETTING *s1, INTERNET_SETTING *s2)
-{
-	// Validate arguments
-	if (s1 == NULL || s2 == NULL)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType != s2->ProxyType)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType == PROXY_DIRECT)
-	{
-		return true;
-	}
-
-	if (s1->ProxyPort != s2->ProxyPort)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyHostName, s2->ProxyHostName) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyUsername, s2->ProxyUsername) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyPassword, s2->ProxyPassword) != 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Send a global pulse
 void CiSendGlobalPulse(CLIENT *c)
 {
@@ -10876,20 +10667,6 @@ void CiDecrementNumActiveSessions()
 		}
 	}
 	Unlock(ci_active_sessions_lock);
-}
-
-// Get the number of active sessions
-UINT CiGetNumActiveSessions()
-{
-	UINT ret;
-
-	Lock(ci_active_sessions_lock);
-	{
-		ret = ci_num_active_sessions;
-	}
-	Unlock(ci_active_sessions_lock);
-
-	return ret;
 }
 
 // Release the client
@@ -11059,19 +10836,6 @@ void CiCheckOs()
 			exit(0);
 		}
 	}
-}
-
-// Get the client object
-CLIENT *CtGetClient()
-{
-	if (client == NULL)
-	{
-		return NULL;
-	}
-
-	AddRef(client->ref);
-
-	return client;
 }
 
 // Client status indicator

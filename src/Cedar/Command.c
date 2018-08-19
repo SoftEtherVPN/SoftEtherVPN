@@ -549,6 +549,10 @@ bool CheckFileSystem()
 
 				FileClose(io);
 				b = ReadDumpW(filename);
+				if(b == NULL)
+				{
+					return false;
+				}
 
 				for (i = 0;i < b->Size;i++)
 				{
@@ -1335,7 +1339,7 @@ void TtsWorkerThread(THREAD *thread, void *param)
 						// Notice the size information from the server to the client
 						tmp64 = Endian64(ts->NumBytes);
 
-						Recv(ts->Sock, recv_buf_data, buf_size, false);
+						(void)Recv(ts->Sock, recv_buf_data, buf_size, false);
 
 						if (ts->LastWaitTick == 0 || ts->LastWaitTick <= Tick64())
 						{
@@ -2012,7 +2016,7 @@ void TtcWorkerThread(THREAD *thread, void *param)
 							suprise[i] = '!';
 						}
 
-						ret = Send(ts->Sock, suprise, sizeof(suprise), false);
+						(void)Send(ts->Sock, suprise, sizeof(suprise), false);
 					}
 
 					ret = Recv(ts->Sock, &tmp64, sizeof(tmp64), false);
@@ -9370,8 +9374,10 @@ UINT PsCaps(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
 	LIST *o;
 	PS *ps = (PS *)param;
-	UINT ret = 0;
 	CAPSLIST *t;
+	UINT i;
+	CT *ct;
+
 
 	o = ParseCommandList(c, cmd_name, str, NULL, 0);
 	if (o == NULL)
@@ -9382,55 +9388,42 @@ UINT PsCaps(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	// RPC call
 	t = ScGetCapsEx(ps->Rpc);
 
-	if (ret != ERR_NO_ERROR)
-	{
-		// An error has occured
-		CmdPrintError(c, ret);
-		FreeParamValueList(o);
-		return ret;
-	}
-	else
-	{
-		UINT i;
-		CT *ct;
+	ct = CtNewStandard();
 
-		ct = CtNewStandard();
+	for (i = 0;i < LIST_NUM(t->CapsList);i++)
+	{
+		CAPS *c = LIST_DATA(t->CapsList, i);
+		wchar_t title[MAX_SIZE];
+		char name[256];
 
-		for (i = 0;i < LIST_NUM(t->CapsList);i++)
+		Format(name, sizeof(name), "CT_%s", c->Name);
+
+		UniStrCpy(title, sizeof(title), _UU(name));
+
+		if (UniIsEmptyStr(title))
 		{
-			CAPS *c = LIST_DATA(t->CapsList, i);
-			wchar_t title[MAX_SIZE];
-			char name[256];
-
-			Format(name, sizeof(name), "CT_%s", c->Name);
-
-			UniStrCpy(title, sizeof(title), _UU(name));
-
-			if (UniIsEmptyStr(title))
-			{
-				UniFormat(title, sizeof(title), L"%S", (StrLen(c->Name) >= 2) ? c->Name + 2 : c->Name);
-			}
-
-			if (StartWith(c->Name, "b_"))
-			{
-				bool icon_pass = c->Value == 0 ? false : true;
-				if (StrCmpi(c->Name, "b_must_install_pcap") == 0)
-				{
-					// Reverse only item of WinPcap
-					icon_pass = !icon_pass;
-				}
-				CtInsert(ct, title, c->Value == 0 ? _UU("CAPS_NO") : _UU("CAPS_YES"));
-			}
-			else
-			{
-				wchar_t str[64];
-				UniToStru(str, c->Value);
-				CtInsert(ct, title, str);
-			}
+			UniFormat(title, sizeof(title), L"%S", (StrLen(c->Name) >= 2) ? c->Name + 2 : c->Name);
 		}
 
-		CtFree(ct, c);
+		if (StartWith(c->Name, "b_"))
+		{
+			bool icon_pass = c->Value == 0 ? false : true;
+			if (StrCmpi(c->Name, "b_must_install_pcap") == 0)
+			{
+				// Reverse only item of WinPcap
+				icon_pass = !icon_pass;
+			}
+			CtInsert(ct, title, c->Value == 0 ? _UU("CAPS_NO") : _UU("CAPS_YES"));
+		}
+		else
+		{
+			wchar_t str[64];
+			UniToStru(str, c->Value);
+			CtInsert(ct, title, str);
+		}
 	}
+
+	CtFree(ct, c);
 
 	FreeCapsList(t);
 
@@ -9996,32 +9989,6 @@ bool CmdEvalNetworkAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param)
 	if (IsNetworkAddress32(ip, mask) == false)
 	{
 		c->Write(c, _UU("CMD_PARSE_IP_SUBNET_ERROR_2"));
-		return false;
-	}
-
-	return true;
-}
-bool CmdEvalNetworkAndSubnetMask6(CONSOLE *c, wchar_t *str, void *param)
-{
-	char tmp[MAX_SIZE];
-	IP ip, mask;
-	// Validate arguments
-	if (c == NULL || str == NULL)
-	{
-		return false;
-	}
-
-	UniToStr(tmp, sizeof(tmp), str);
-
-	if (ParseIpAndSubnetMask6(tmp, &ip, &mask) == false)
-	{
-		c->Write(c, _UU("CMD_PARSE_IP_SUBNET_ERROR_1_6"));
-		return false;
-	}
-
-	if (IsNetworkPrefixAddress6(&ip, &mask) == false)
-	{
-		c->Write(c, _UU("CMD_PARSE_IP_SUBNET_ERROR_3"));
 		return false;
 	}
 
@@ -17131,7 +17098,7 @@ UINT64 StrToDateTime64(char *str)
 	ret = INFINITE;
 
 	if (a >= 1000 && a <= 9999 && b >= 1 && b <= 12 && c >= 1 && c <= 31 &&
-		d >= 0 && d <= 23 && e >= 0 && e <= 59 && f >= 0 && f <= 59)
+		d <= 23 && e <= 59 && f <= 59)
 	{
 		SYSTEMTIME t;
 
@@ -19020,30 +18987,17 @@ UINT PsNatEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		bool ok = true;
-
 		t.UseNat = true;
 
-		if (ok == false)
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
 		{
-			// Parameter is invalid
-			ret = ERR_INVALID_PARAMETER;
+			// An error has occured
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
-		}
-		else
-		{
-			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
-			ret = ScSetSecureNATOption(ps->Rpc, &t);
-
-			if (ret != ERR_NO_ERROR)
-			{
-				// An error has occured
-				CmdPrintError(c, ret);
-				FreeParamValueList(o);
-				return ret;
-			}
 		}
 	}
 
@@ -19088,30 +19042,17 @@ UINT PsNatDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		bool ok = true;
-
 		t.UseNat = false;
 
-		if (ok == false)
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
 		{
-			// Parameter is invalid
-			ret = ERR_INVALID_PARAMETER;
+			// An error has occured
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
-		}
-		else
-		{
-			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
-			ret = ScSetSecureNATOption(ps->Rpc, &t);
-
-			if (ret != ERR_NO_ERROR)
-			{
-				// An error has occured
-				CmdPrintError(c, ret);
-				FreeParamValueList(o);
-				return ret;
-			}
 		}
 	}
 
@@ -19177,33 +19118,20 @@ UINT PsNatSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		bool ok = true;
-
 		t.Mtu = GetParamInt(o, "MTU");
 		t.NatTcpTimeout = GetParamInt(o, "TCPTIMEOUT");
 		t.NatUdpTimeout = GetParamInt(o, "UDPTIMEOUT");
 		t.SaveLog = GetParamYes(o, "LOG");
 
-		if (ok == false)
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
 		{
-			// Parameter is invalid
-			ret = ERR_INVALID_PARAMETER;
+			// An error has occured
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
-		}
-		else
-		{
-			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
-			ret = ScSetSecureNATOption(ps->Rpc, &t);
-
-			if (ret != ERR_NO_ERROR)
-			{
-				// An error has occured
-				CmdPrintError(c, ret);
-				FreeParamValueList(o);
-				return ret;
-			}
 		}
 	}
 
@@ -19497,30 +19425,17 @@ UINT PsDhcpEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		bool ok = true;
-
 		t.UseDhcp = true;
 
-		if (ok == false)
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
 		{
-			// Parameter is invalid
-			ret = ERR_INVALID_PARAMETER;
+			// An error has occured
 			CmdPrintError(c, ret);
 			FreeParamValueList(o);
 			return ret;
-		}
-		else
-		{
-			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
-			ret = ScSetSecureNATOption(ps->Rpc, &t);
-
-			if (ret != ERR_NO_ERROR)
-			{
-				// An error has occured
-				CmdPrintError(c, ret);
-				FreeParamValueList(o);
-				return ret;
-			}
 		}
 	}
 

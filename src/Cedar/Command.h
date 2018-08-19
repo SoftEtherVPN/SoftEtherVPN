@@ -342,7 +342,6 @@ bool CmdEvalTcpOrUdp(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *GetConnectionTypeStr(UINT type);
 bool CmdEvalHostAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalNetworkAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param);
-bool CmdEvalNetworkAndSubnetMask6(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalIpAndMask4(CONSOLE *c, wchar_t *str, void *param);
 bool CmdEvalIpAndMask6(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *GetLogSwitchStr(UINT i);
