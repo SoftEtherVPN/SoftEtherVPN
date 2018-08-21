@@ -178,7 +178,7 @@ int local_scandir(const char *dir, struct dirent ***namelist,
   *namelist=NULL;
   while ((entry=readdir(d)) != NULL)
   {
-    if (select == NULL || (select != NULL && (*select)(entry)))
+    if (select == NULL || (*select)(entry))
     {
       *namelist=(struct dirent **)realloc((void *)(*namelist),
                  (size_t)((i+1)*sizeof(struct dirent *)));
@@ -516,7 +516,7 @@ void UnixInitSolarisSleep()
 	char tmp[MAX_SIZE];
 
 	UnixNewPipe(&solaris_sleep_p1, &solaris_sleep_p2);
-	read(solaris_sleep_p1, tmp, sizeof(tmp));
+	(void)read(solaris_sleep_p1, tmp, sizeof(tmp));
 }
 
 // Release the Sleep for Solaris
@@ -540,17 +540,6 @@ void UnixSolarisSleep(UINT msec)
 }
 
 // Get the free space of the disk
-bool UnixGetDiskFreeW(wchar_t *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
-{
-	char *path_a = CopyUniToStr(path);
-	bool ret;
-
-	ret = UnixGetDiskFree(path_a, free_size, used_size, total_size);
-
-	Free(path_a);
-
-	return ret;
-}
 bool UnixGetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
 {
 	char tmp[MAX_PATH];
@@ -803,42 +792,6 @@ void UnixSetThreadPriorityRealtime()
 	pthread_setschedparam(pthread_self(), SCHED_RR, &p);
 }
 
-// Lower the priority of the thread
-void UnixSetThreadPriorityLow()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 32;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
-// Raise the priority of the thread
-void UnixSetThreadPriorityHigh()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 127;
-	pthread_setschedparam(pthread_self(), SCHED_RR, &p);
-}
-
-// Set the priority of the thread to idle
-void UnixSetThreadPriorityIdle()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 1;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
-// Restore the priority of the thread to normal
-void UnixRestoreThreadPriority()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 64;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
 // Get the current directory
 void UnixGetCurrentDir(char *dir, UINT size)
 {
@@ -899,7 +852,7 @@ void UnixFreeSingleInstance(void *data)
 	lock.l_type = F_UNLCK;
 	lock.l_whence = SEEK_SET;
 
-	fcntl(o->fd, F_SETLK, &lock);
+	(void)fcntl(o->fd, F_SETLK, &lock);
 	close(o->fd);
 
 	remove(o->FileName);
@@ -947,7 +900,7 @@ void *UnixNewSingleInstance(char *instance_name)
 	}
 
 	fchmod(fd, mode);
-	chmod(name, mode);
+	(void)chmod(name, mode);
 
 	Zero(&lock, sizeof(lock));
 	lock.l_type = F_WRLCK;
@@ -1290,43 +1243,6 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 		}
 
 		return true;
-	}
-}
-
-// Initialize the daemon
-void UnixDaemon(bool debug_mode)
-{
-	UINT ret;
-
-	if (debug_mode)
-	{
-		// Debug mode
-		signal(SIGHUP, SIG_IGN);
-		return;
-	}
-
-	ret = fork();
-
-	if (ret == -1)
-	{
-		// Error
-		return;
-	}
-	else if (ret == 0)
-	{
-		// Create a new session for the child process
-		setsid();
-
-		// Close the standard I/O
-		UnixCloseIO();
-
-		// Mute the unwanted signal
-		signal(SIGHUP, SIG_IGN);
-	}
-	else
-	{
-		// Terminate the parent process
-		exit(0);
 	}
 }
 
@@ -1826,7 +1742,7 @@ bool UnixInitThread(THREAD *t)
 	{
 		// An error has occured
 		t->pData = NULL;
-		Release(t->ref);
+		(void)Release(t->ref);
 		UnixMemoryFree(ut);
 		UnixMemoryFree(info);
 		pthread_attr_destroy(&attr);
@@ -2640,8 +2556,6 @@ void UnixStopService(char *name)
 	}
 	else
 	{
-		int status;
-
 		// Stop the service
 		UniPrint(_UU("UNIX_SVC_STOPPING"), svc_title);
 
@@ -2801,10 +2715,6 @@ bool UnixWaitProcessEx(UINT pid,  UINT timeout)
 		SleepThread(100);
 	}
 	return true;
-}
-void UnixWaitProcess(UINT pid)
-{
-	UnixWaitProcessEx(pid, INFINITE);
 }
 
 // Description of how to start
