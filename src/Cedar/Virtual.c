@@ -1072,9 +1072,9 @@ void NnFragmentedIpReceived(NATIVE_NAT *t, PKT *packet)
 			c = NnInsertIpCombine(
 				t, ip->SrcIP, ip->DstIP, Endian16(ip->Identification), ip->Protocol, packet->BroadcastPacket,
 				ip->TimeToLive, false);
-			c->MaxL3Size = MAX(c->MaxL3Size, l3_size);
 			if (c != NULL)
 			{
+				c->MaxL3Size = MAX(c->MaxL3Size, l3_size);
 				NnCombineIp(t, c, offset, data, size, last_packet, head_ip_header_data, head_ip_header_size);
 			}
 		}
