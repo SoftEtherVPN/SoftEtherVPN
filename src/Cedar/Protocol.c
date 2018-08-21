@@ -5645,7 +5645,7 @@ void ClientUploadNoop(CONNECTION *c)
 
 	p = PackError(0);
 	PackAddInt(p, "noop", 1);
-	HttpClientSend(c->FirstSock, p);
+	(void)HttpClientSend(c->FirstSock, p);
 	FreePack(p);
 
 	p = HttpClientRecv(c->FirstSock);
@@ -5942,14 +5942,11 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	UINT num = 0, max = 19;
 	SERVER *server;
 	char *vpn_http_target = HTTP_VPN_TARGET2;
-	bool check_hostname = false;
 	// Validate arguments
 	if (c == NULL)
 	{
 		return false;
 	}
-
-
 
 	server = c->Cedar->Server;
 
@@ -5976,33 +5973,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			c->Err = ERR_CLIENT_IS_NOT_VPN;
 			return false;
 		}
-
-		if (check_hostname && (StrCmpi(h->Version, "HTTP/1.1") == 0 || StrCmpi(h->Version, "HTTP/1.2") == 0))
-		{
-			HTTP_VALUE *v;
-			char hostname[64];
-
-			Zero(hostname, sizeof(hostname));
-
-			v = GetHttpValue(h, "Host");
-			if (v != NULL)
-			{
-				StrCpy(hostname, sizeof(hostname), v->Data);
-			}
-
-			if (IsEmptyStr(hostname))
-			{
-				// Invalid hostname
-				HttpSendInvalidHostname(s, h->Target);
-				FreeHttpHeader(h);
-				c->Err = ERR_CLIENT_IS_NOT_VPN;
-				*error_detail_str = "Invalid_hostname";
-				return false;
-			}
-		}
-
-
-
 
 		// Interpret
 		if (StrCmpi(h->Method, "POST") == 0)
