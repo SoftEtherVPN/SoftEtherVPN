@@ -469,12 +469,6 @@ void DisableRDUPServerGlobally()
 	g_no_rudp_server = true;
 }
 
-// Lower the priority of the host at NAT-T
-void SetNatTLowPriority()
-{
-	g_natt_low_priority = true;
-}
-
 // Get the current time zone
 int GetCurrentTimezone()
 {
@@ -6245,65 +6239,11 @@ typedef struct WIN32_ACCEPT_CHECK_DATA
 	bool Rejected;
 } WIN32_ACCEPT_CHECK_DATA;
 
-// Function for determining  whether accept or not in Win32
-int CALLBACK Win32AcceptCheckCallback_Delay(LPWSABUF lpCallerId, LPWSABUF lpCallerData, LPQOS pQos,
-									  LPQOS lpGQOS, LPWSABUF lpCalleeId, LPWSABUF lpCalleeData,
-									  GROUP FAR * g, DWORD_PTR dwCallbackData)
-{
-	return CF_DEFER;
-}
-
 int CALLBACK Win32AcceptCheckCallback(LPWSABUF lpCallerId, LPWSABUF lpCallerData, LPQOS pQos,
 									  LPQOS lpGQOS, LPWSABUF lpCalleeId, LPWSABUF lpCalleeData,
 									  GROUP FAR * g, DWORD_PTR dwCallbackData)
 {
 	return CF_ACCEPT;
-}
-
-// Accept function for Win32
-SOCKET Win32Accept_XP(SOCK *sock, SOCKET s, struct sockaddr *addr, int *addrlen, bool ipv6)
-{
-	SOCKET ret;
-	WIN32_ACCEPT_CHECK_DATA d;
-	UINT err;
-	int initial_addrlen = *addrlen;
-	UINT num_error = 0;
-	// Validate arguments
-	if (s == INVALID_SOCKET)
-	{
-		return INVALID_SOCKET;
-	}
-
-L_LOOP:
-
-	Zero(&d, sizeof(d));
-
-	d.IsIPv6 = ipv6;
-
-	*addrlen = initial_addrlen;
-	Zero(addr, initial_addrlen);
-	ret = WSAAccept(s, addr, addrlen, Win32AcceptCheckCallback, (DWORD_PTR)&d);
-
-	if (ret == INVALID_SOCKET)
-	{
-		err = WSAGetLastError();
-
-		num_error++;
-
-		Debug("!!! WSAAccept Error: %u  rej=%u  num=%u  tick=%I64u\n", WSAGetLastError(), d.Rejected, num_error, Tick64());
-
-		if (d.Rejected && err == WSAECONNREFUSED)
-		{
-			goto L_LOOP;
-		}
-
-		if (err == WSAETIMEDOUT)
-		{
-			goto L_LOOP;
-		}
-	}
-
-	return ret;
 }
 
 // Accept function for Win32
@@ -6636,48 +6576,6 @@ bool IsInSameNetwork4Standard(IP *a1, IP *a2)
 	return IsInSameNetwork4(a1, a2, &subnet);
 }
 
-// Check whether it is a network address prefix
-bool IsNetworkPrefixAddress6(IP *ip, IP *subnet)
-{
-	IP host;
-	// Validate arguments
-	if (ip == NULL || subnet == NULL)
-	{
-		return false;
-	}
-
-	if (IsIP6(ip) == false || IsIP6(subnet) == false)
-	{
-		return false;
-	}
-
-	GetHostAddress6(&host, ip, subnet);
-
-	if (IsZeroIp(&host))
-	{
-		return true;
-	}
-
-	return false;
-}
-
-// Get the host address
-void GetHostAddress6(IP *dst, IP *ip, IP *subnet)
-{
-	IP not;
-	// Validate arguments
-	if (dst == NULL || ip == NULL || subnet == NULL)
-	{
-		return;
-	}
-
-	IPNot6(&not, subnet);
-
-	IPAnd6(dst, ip, &not);
-
-	dst->ipv6_scope_id = ip->ipv6_scope_id;
-}
-
 // Get the prefix address
 void GetPrefixAddress6(IP *dst, IP *ip, IP *subnet)
 {
@@ -6854,22 +6752,6 @@ void IPAnd6(IP *dst, IP *a, IP *b)
 	for (i = 0;i < 16;i++)
 	{
 		dst->ipv6_addr[i] = a->ipv6_addr[i] & b->ipv6_addr[i];
-	}
-}
-void IPNot6(IP *dst, IP *a)
-{
-	UINT i;
-	// Validate arguments
-	if (dst == NULL || IsIP6(a) == false)
-	{
-		ZeroIP6(dst);
-		return;
-	}
-
-	ZeroIP6(dst);
-	for (i = 0;i < 16;i++)
-	{
-		dst->ipv6_addr[i] = ~(a->ipv6_addr[i]);
 	}
 }
 
@@ -7461,246 +7343,6 @@ bool IsIP4(IP *ip)
 
 	return (IsIP6(ip) ? false : true);
 }
-
-// Get the TCP table list (Win32)
-#ifdef	OS_WIN32
-LIST *Win32GetTcpTableList()
-{
-	LIST *o;
-
-	// Windows XP SP2 or later
-	o = Win32GetTcpTableListByGetExtendedTcpTable();
-	if (o != NULL)
-	{
-		return o;
-	}
-
-	// Windows XP or later
-	o = Win32GetTcpTableListByAllocateAndGetTcpExTableFromStack();
-	if (o != NULL)
-	{
-		return o;
-	}
-
-	// For legacy Windows
-	return Win32GetTcpTableListByGetTcpTable();
-}
-
-// Get the TCP table list (for Windows XP SP2 or later)
-LIST *Win32GetTcpTableListByGetExtendedTcpTable()
-{
-	UINT need_size;
-	UINT i;
-	MIB_TCPTABLE_OWNER_PID *table;
-	bool ok = false;
-	LIST *o;
-	if (w32net->GetExtendedTcpTable == NULL)
-	{
-		return NULL;
-	}
-
-	for (i = 0;i < 128;i++)
-	{
-		UINT ret;
-		table = MallocFast(sizeof(MIB_TCPTABLE_OWNER_PID));
-		need_size = sizeof(MIB_TCPTABLE_OWNER_PID);
-		ret = w32net->GetExtendedTcpTable(table, &need_size, true, AF_INET, _TCP_TABLE_OWNER_PID_ALL, 0);
-		if (ret == NO_ERROR)
-		{
-			ok = true;
-			break;
-		}
-		else
-		{
-			Free(table);
-			if (ret != ERROR_INSUFFICIENT_BUFFER)
-			{
-				return NULL;
-			}
-		}
-
-		table = MallocFast(need_size);
-
-		ret = w32net->GetExtendedTcpTable(table, &need_size, true, AF_INET, _TCP_TABLE_OWNER_PID_ALL, 0);
-		if (ret == NO_ERROR)
-		{
-			ok = true;
-			break;
-		}
-		else
-		{
-			Free(table);
-
-			if (ret != ERROR_INSUFFICIENT_BUFFER)
-			{
-				return NULL;
-			}
-		}
-	}
-
-	if (ok == false)
-	{
-		return NULL;
-	}
-
-	o = NewListEx(NULL, true);
-
-	for (i = 0;i < table->dwNumEntries;i++)
-	{
-		MIB_TCPROW_OWNER_PID *r = &table->table[i];
-		TCPTABLE *t = ZeroMallocFast(sizeof(TCPTABLE));
-
-		UINTToIP(&t->LocalIP, r->dwLocalAddr);
-		t->LocalPort = Endian16((USHORT)r->dwLocalPort);
-
-		if (r->dwState != TCP_STATE_LISTEN)
-		{
-			UINTToIP(&t->RemoteIP, r->dwRemoteAddr);
-			t->RemotePort = Endian16((USHORT)r->dwRemotePort);
-		}
-
-		t->Status = r->dwState;
-		t->ProcessId = r->dwOwningPid;
-
-		Add(o, t);
-	}
-
-	Free(table);
-
-	return o;
-}
-
-// Get the TCP table list (Windows XP or later)
-LIST *Win32GetTcpTableListByAllocateAndGetTcpExTableFromStack()
-{
-	HANDLE heap;
-	UINT i;
-	MIB_TCPTABLE_OWNER_PID *table;
-	bool ok = false;
-	LIST *o;
-	if (w32net->AllocateAndGetTcpExTableFromStack == NULL)
-	{
-		return NULL;
-	}
-
-	heap = GetProcessHeap();
-
-	if (w32net->AllocateAndGetTcpExTableFromStack(&table, true, heap, HEAP_GROWABLE, AF_INET) != ERROR_SUCCESS)
-	{
-		return NULL;
-	}
-
-	o = NewListEx(NULL, true);
-
-	for (i = 0;i < table->dwNumEntries;i++)
-	{
-		MIB_TCPROW_OWNER_PID *r = &table->table[i];
-		TCPTABLE *t = ZeroMallocFast(sizeof(TCPTABLE));
-
-		UINTToIP(&t->LocalIP, r->dwLocalAddr);
-		t->LocalPort = Endian16((USHORT)r->dwLocalPort);
-
-		if (r->dwState != TCP_STATE_LISTEN)
-		{
-			UINTToIP(&t->RemoteIP, r->dwRemoteAddr);
-			t->RemotePort = Endian16((USHORT)r->dwRemotePort);
-		}
-
-		t->ProcessId = r->dwOwningPid;
-		t->Status = r->dwState;
-
-		Add(o, t);
-	}
-
-	HeapFree(heap, 0, table);
-
-	return o;
-}
-
-// Get the TCP table list (For legacy Windows)
-LIST *Win32GetTcpTableListByGetTcpTable()
-{
-	UINT need_size;
-	UINT i;
-	MIB_TCPTABLE *table;
-	bool ok = false;
-	LIST *o;
-	if (w32net->GetTcpTable == NULL)
-	{
-		return NULL;
-	}
-
-	for (i = 0;i < 128;i++)
-	{
-		UINT ret;
-		table = MallocFast(sizeof(MIB_TCPTABLE));
-		need_size = sizeof(MIB_TCPTABLE);
-		ret = w32net->GetTcpTable(table, &need_size, true);
-		if (ret == NO_ERROR)
-		{
-			ok = true;
-			break;
-		}
-		else
-		{
-			Free(table);
-			if (ret != ERROR_INSUFFICIENT_BUFFER)
-			{
-				return NULL;
-			}
-		}
-
-		table = MallocFast(need_size);
-
-		ret = w32net->GetTcpTable(table, &need_size, true);
-		if (ret == NO_ERROR)
-		{
-			ok = true;
-			break;
-		}
-		else
-		{
-			Free(table);
-
-			if (ret != ERROR_INSUFFICIENT_BUFFER)
-			{
-				return NULL;
-			}
-		}
-	}
-
-	if (ok == false)
-	{
-		return NULL;
-	}
-
-	o = NewListEx(NULL, true);
-
-	for (i = 0;i < table->dwNumEntries;i++)
-	{
-		MIB_TCPROW *r = &table->table[i];
-		TCPTABLE *t = ZeroMallocFast(sizeof(TCPTABLE));
-
-		UINTToIP(&t->LocalIP, r->dwLocalAddr);
-		t->LocalPort = Endian16((USHORT)r->dwLocalPort);
-
-		if (r->dwState != TCP_STATE_LISTEN)
-		{
-			UINTToIP(&t->RemoteIP, r->dwRemoteAddr);
-			t->RemotePort = Endian16((USHORT)r->dwRemotePort);
-		}
-
-		t->Status = r->dwState;
-
-		Add(o, t);
-	}
-
-	Free(table);
-
-	return o;
-}
-
-#endif	// OS_WIN32
 
 // Get the number of clients connected from the specified IP address
 UINT GetNumIpClient(IP *ip)
@@ -8680,7 +8322,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		tv.tv_usec = (timeout % 1000) * 1000l;
 		select(max_fd + 1, &rfds, &wfds, NULL, timeout == INFINITE ? NULL : &tv);
 #else	// UNIX_MACOS
-		poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
+		(void)poll(p, num, timeout == INFINITE ? -1 : (int)timeout);
 #endif	// UNIX_MACOS
 	}
 	else
@@ -9165,50 +8807,6 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 	Free(info);
 
 	return ret;
-}
-
-// Test
-void Win32NetworkTest()
-{
-	IP_INTERFACE_INFO *info;
-	UINT size;
-	int i;
-	LIST *o;
-
-	size = sizeof(IP_INTERFACE_INFO);
-	info = ZeroMallocFast(size);
-
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
-	{
-		Free(info);
-		info = ZeroMallocFast(size);
-	}
-
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
-	{
-		Free(info);
-		return;
-	}
-
-	o = NewListFast(CompareIpAdapterIndexMap);
-
-	for (i = 0;i < info->NumAdapters;i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
-
-		Add(o, a);
-	}
-
-	Sort(o);
-
-	for (i = 0;i < (int)(LIST_NUM(o));i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
-	}
-
-	ReleaseList(o);
-
-	Free(info);
 }
 
 // Clear the DNS cache on Win32
@@ -10596,25 +10194,21 @@ bool GetDomainName(char *name, UINT size)
 // Get the default DNS server
 bool GetDefaultDns(IP *ip)
 {
-	bool ret = false;
 #ifdef	OS_WIN32
-	ret = Win32GetDefaultDns(ip, NULL, 0);
+	return Win32GetDefaultDns(ip, NULL, 0);
 #else
-	ret = UnixGetDefaultDns(ip);
+	return UnixGetDefaultDns(ip);
 #endif	// OS_WIN32
-	return ret;
 }
 
 // Creating a socket event
 SOCK_EVENT *NewSockEvent()
 {
-	SOCK_EVENT *e = NULL;
 #ifdef	OS_WIN32
-	e = Win32NewSockEvent();
+	return Win32NewSockEvent();
 #else
-	e = UnixNewSockEvent();
+	return UnixNewSockEvent();
 #endif	// OS_WIN32
-	return e;
 }
 
 // Set of the socket event
@@ -11345,7 +10939,7 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 
 			sock->UdpBroadcast = true;
 
-			setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes));
+			(void)setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes));
 		}
 	}
 
@@ -11444,7 +11038,7 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 
 			sock->UdpBroadcast = true;
 
-			setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes));
+			(void)setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&yes, sizeof(yes));
 		}
 	}
 
@@ -11586,7 +11180,7 @@ void ClearSockDfBit(SOCK *s)
 		return;
 	}
 
-	setsockopt(s->socket, IPPROTO_IP, IP_MTU_DISCOVER, (char *)&value, sizeof(value));
+	(void)setsockopt(s->socket, IPPROTO_IP, IP_MTU_DISCOVER, (char *)&value, sizeof(value));
 #endif	// IP_MTU_DISCOVER
 #endif	// IP_PMTUDISC_DONT
 }
@@ -11600,7 +11194,7 @@ void SetRawSockHeaderIncludeOption(SOCK *s, bool enable)
 		return;
 	}
 
-	setsockopt(s->socket, IPPROTO_IP, IP_HDRINCL, (char *)&value, sizeof(value));
+	(void)setsockopt(s->socket, IPPROTO_IP, IP_HDRINCL, (char *)&value, sizeof(value));
 
 	s->RawIP_HeaderIncludeFlag = enable;
 }
@@ -11734,7 +11328,7 @@ SOCK *NewUDP4(UINT port, IP *ip)
 	if (IS_SPECIAL_PORT(port))
 	{
 		bool no = false;
-		setsockopt(sock->socket, IPPROTO_IP, IP_HDRINCL, (char *)&no, sizeof(no));
+		(void)setsockopt(sock->socket, IPPROTO_IP, IP_HDRINCL, (char *)&no, sizeof(no));
 
 		sock->IsRawSocket = true;
 		sock->RawSocketIPProtocol = GET_SPECIAL_PORT(port);
@@ -11833,9 +11427,9 @@ SOCK *NewUDP6(UINT port, IP *ip)
 	{
 		bool no = false;
 #ifdef	IPV6_HDRINCL
-		setsockopt(sock->socket, IPPROTO_IP, IPV6_HDRINCL, (char *)&no, sizeof(no));
+		(void)setsockopt(sock->socket, IPPROTO_IP, IPV6_HDRINCL, (char *)&no, sizeof(no));
 #endif	// IPV6_HDRINCL
-		setsockopt(sock->socket, IPPROTO_IP, IP_HDRINCL, (char *)&no, sizeof(no));
+		(void)setsockopt(sock->socket, IPPROTO_IP, IP_HDRINCL, (char *)&no, sizeof(no));
 
 		sock->IsRawSocket = true;
 		sock->RawSocketIPProtocol = GET_SPECIAL_PORT(port);
@@ -12562,7 +12156,6 @@ void SetNoNeedToRead(SOCK *sock)
 // TCP-SSL receive
 UINT SecureRecv(SOCK *sock, void *data, UINT size)
 {
-	SOCKET s;
 	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
 
@@ -12570,7 +12163,6 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 	SOCKET_TIMEOUT_PARAM *ttparam;
 #endif //UNIX_SOLARIS
 
-	s = sock->socket;
 	ssl = sock->ssl;
 
 	if (sock->AsyncMode)
@@ -12719,10 +12311,8 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 // TCP-SSL transmission
 UINT SecureSend(SOCK *sock, void *data, UINT size)
 {
-	SOCKET s;
 	int ret, e = SSL_ERROR_NONE;
 	SSL *ssl;
-	s = sock->socket;
 	ssl = sock->ssl;
 
 	if (sock->AsyncMode)
@@ -13069,8 +12659,8 @@ void SetTimeout(SOCK *sock, UINT timeout)
 			tv_timeout.tv_sec = timeout / 1000; // miliseconds to seconds
 			tv_timeout.tv_usec = (timeout % 1000) * 1000; // miliseconds to microseconds
 
-			setsockopt(sock->socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv_timeout, sizeof(tv_timeout));
-			setsockopt(sock->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv_timeout, sizeof(tv_timeout));
+			(void)setsockopt(sock->socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv_timeout, sizeof(tv_timeout));
+			(void)setsockopt(sock->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv_timeout, sizeof(tv_timeout));
 		}
 #endif // UNIX_SOLARIS
 #endif // OS_UNIX
@@ -13214,7 +12804,7 @@ SOCK *Accept(SOCK *sock)
 	ret->SecureMode = false;
 
 	// Configuring the TCP options
-	setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
 
 	// Initialization of the time-out value
 	SetTimeout(ret, TIMEOUT_INFINITE);
@@ -13325,7 +12915,7 @@ SOCK *Accept6(SOCK *sock)
 	ret->SecureMode = false;
 
 	// Configuring the TCP options
-	setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
 
 	// Initialize the time-out value
 	SetTimeout(ret, TIMEOUT_INFINITE);
@@ -13365,7 +12955,6 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	struct sockaddr_in6 addr;
 	struct in6_addr in;
 	bool true_flag = true;
-	bool disable_conditional_accept = false;
 	IP localhost;
 	UINT backlog = SOMAXCONN;
 	// Validate arguments
@@ -13409,12 +12998,10 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
 #endif	// OS_UNIX
 
-	//SetSocketSendRecvBufferSize(s, SOCKET_BUFFER_SIZE);
-
 #ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 #endif	// OS_UNIX
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(struct sockaddr_in6)) != 0)
@@ -13522,12 +13109,10 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 		return NULL;
 	}
 
-	//SetSocketSendRecvBufferSize(s, SOCKET_BUFFER_SIZE);
-
 #ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 #endif	// OS_UNIX
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) != 0)
@@ -13650,9 +13235,9 @@ void Disconnect(SOCK *sock)
 		{
 			// Forced disconnection flag
 			#ifdef	SO_DONTLINGER
-				setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
+				(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 			#else	// SO_DONTLINGER
-				setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
+				(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 			#endif	// SO_DONTLINGER
 //			setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 		}
@@ -14083,7 +13668,7 @@ void SetSockTos(SOCK *s, int tos)
 	}
 
 #ifdef	IP_TOS
-	setsockopt(s->socket, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
+	(void)setsockopt(s->socket, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
 #endif	// IP_TOS
 
 	s->CurrentTos = tos;
@@ -14894,7 +14479,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 //	setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 
 	// Configuring TCP options
-	setsockopt(sock->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(sock->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
 
 	// Initialization of the time-out value
 	SetTimeout(sock, TIMEOUT_INFINITE);
@@ -14918,20 +14503,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	sock->IPv6 = is_ipv6;
 
 	return sock;
-}
-
-// Maximize the I/O buffer size of the socket
-void SetSocketSendRecvBufferSize(SOCKET s, UINT size)
-{
-	int value = (int)size;
-	// Validate arguments
-	if (s == INVALID_SOCKET)
-	{
-		return;
-	}
-
-	setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
-	setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
 }
 
 // Setting the buffer size of the socket
@@ -17589,20 +17160,6 @@ bool ParseIpAndSubnetMask46(char *src, IP *ip, IP *mask)
 	{
 		return IsSubnetMask6(mask);
 	}
-}
-bool ParseIpAndSubnetMask6(char *src, IP *ip, IP *mask)
-{
-	if (ParseIpAndSubnetMask46(src, ip, mask) == false)
-	{
-		return false;
-	}
-
-	if (IsIP6(ip) == false)
-	{
-		return false;
-	}
-
-	return true;
 }
 bool ParseIpAndSubnetMask4(char *src, UINT *ip, UINT *mask)
 {
@@ -20654,49 +20211,6 @@ void ReplaceUnsafeCharInTarget(char *target){
 		else if(target[i] == '>')
 			target[i] = ')';
 	}
-}
-
-// Sending the 400 Bad Request: Invalid Hostname
-bool HttpSendInvalidHostname(SOCK *s, char *method)
-{
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	char *str;
-	bool ret;
-	char host[MAX_SIZE];
-	UINT port;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return false;
-	}
-
-	// Get the host name
-	//GetMachineName(host, MAX_SIZE);
-	Zero(host, sizeof(host));
-	IPToStr(host, sizeof(host), &s->LocalIP);
-	// Get the port number
-	port = s->LocalPort;
-
-	// Creating a header
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-
-	h = NewHttpHeader("HTTP/1.1", "400", "Bad Request");
-
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
-
-	// Creating a Data
-	str = "<h1>Bad Request (Invalid Hostname)</h1>\n";
-
-	// Transmission
-	ret = PostHttp(s, h, str, StrLen(str));
-
-	FreeHttpHeader(h);
-
-	return ret;
 }
 
 // Sending the 501 Not Implemented error
