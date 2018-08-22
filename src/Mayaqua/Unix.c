@@ -536,7 +536,7 @@ void UnixSolarisSleep(UINT msec)
 	p.fd = solaris_sleep_p1;
 	p.events = POLLIN;
 
-	poll(&p, 1, msec == INFINITE ? -1 : (int)msec);
+	(void)poll(&p, 1, msec == INFINITE ? -1 : (int)msec);
 }
 
 // Get the free space of the disk
@@ -855,7 +855,7 @@ void UnixFreeSingleInstance(void *data)
 	(void)fcntl(o->fd, F_SETLK, &lock);
 	close(o->fd);
 
-	remove(o->FileName);
+	(void)remove(o->FileName);
 
 	Free(data);
 }
@@ -1261,7 +1261,7 @@ void UnixCloseIO()
 		close(0);
 		close(1);
 		close(2);
-		open("/dev/null", O_RDWR);
+		(void)open("/dev/null", O_RDWR);
 		dup2(0, 1);
 		dup2(0, 2);
 		close_io_first = false;

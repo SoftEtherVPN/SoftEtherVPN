@@ -1995,12 +1995,9 @@ LABEL_RESTART:
 			}
 			Unlock(t->CancelLock);
 
-			if (c != NULL)
-			{
-				Cancel(c);
+			Cancel(c);
 
-				ReleaseCancel(c);
-			}
+			ReleaseCancel(c);
 		}
 
 		if (IsTubeConnected(ipc->Sock->RecvTube) == false || IsTubeConnected(ipc->Sock->SendTube) == false)
