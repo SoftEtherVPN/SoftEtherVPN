@@ -11292,9 +11292,9 @@ SOCK *NewUDP4(UINT port, IP *ip)
 			if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 			{
 				bool false_flag = false;
-				setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&false_flag, sizeof(bool));
+				(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&false_flag, sizeof(bool));
 #ifdef	SO_EXCLUSIVEADDRUSE
-				setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&true_flag, sizeof(bool));
+				(void)setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&true_flag, sizeof(bool));
 #endif	// SO_EXCLUSIVEADDRUSE
 				if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 				{
@@ -11389,9 +11389,9 @@ SOCK *NewUDP6(UINT port, IP *ip)
 			if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 			{
 				bool false_flag = false;
-				setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&false_flag, sizeof(bool));
+				(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&false_flag, sizeof(bool));
 #ifdef	SO_EXCLUSIVEADDRUSE
-				setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&true_flag, sizeof(bool));
+				(void)setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&true_flag, sizeof(bool));
 #endif	// SO_EXCLUSIVEADDRUSE
 				if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 				{
@@ -12995,7 +12995,7 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 
 #ifdef	OS_UNIX
 	// It is necessary to set the IPv6 Only flag on a UNIX system
-	setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
+	(void)setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
 #endif	// OS_UNIX
 
 #ifdef	OS_UNIX
@@ -14472,9 +14472,9 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	Zero(&ling, sizeof(ling));
 	// Forced disconnection flag
 #ifdef	SO_DONTLINGER
-	setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
+	(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 #else	// SO_DONTLINGER
-	setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
+	(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 #endif	// SO_DONTLINGER
 //	setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 

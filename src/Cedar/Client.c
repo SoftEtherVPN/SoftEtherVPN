@@ -5161,7 +5161,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 
 			err = Endian32(err);
 			SendAll(s, &err, sizeof(UINT), false);
-			RecvAll(s, &err, sizeof(UINT), false);
+			(void)RecvAll(s, &err, sizeof(UINT), false);
 		}
 		return;
 	}
