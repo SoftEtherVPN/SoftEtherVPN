@@ -497,13 +497,11 @@ bool CnIsCnServiceReady()
 // Check whether the notification service is already running
 bool CnCheckAlreadyExists(bool lock)
 {
-	bool ret = false;
-
 #ifdef	OS_WIN32
-	ret = Win32CnCheckAlreadyExists(lock);
+	return Win32CnCheckAlreadyExists(lock);
+#else
+	return false;
 #endif
-
-	return ret;
 }
 
 typedef struct CNC_STATUS_PRINTER_WINDOW_PARAM
@@ -9091,7 +9089,6 @@ void CiSetVLanToDefault(CLIENT *c)
 	}
 #else	// OS_WIN32
 	{
-		UINT i;
 		UNIX_VLAN *v;
 
 		LockList(c->UnixVLanList);
@@ -9163,16 +9160,8 @@ void CiInitConfiguration(CLIENT *c)
 		// Clear the password
 		Hash(c->EncryptedPassword, "", 0, true);
 		// Initialize the client configuration
-		if (OS_IS_WINDOWS(GetOsInfo()->OsType))
-		{
-			// Disable remote management in Windows
-			c->Config.AllowRemoteConfig = false;
-		}
-		else
-		{
-			// Disable the remote management also in case of UNIX
-			c->Config.AllowRemoteConfig = false;
-		}
+		// Disable remote management
+		c->Config.AllowRemoteConfig = false;
 		StrCpy(c->Config.KeepConnectHost, sizeof(c->Config.KeepConnectHost), CLIENT_DEFAULT_KEEPALIVE_HOST);
 		c->Config.KeepConnectPort = CLIENT_DEFAULT_KEEPALIVE_PORT;
 		c->Config.KeepConnectProtocol = CONNECTION_UDP;
