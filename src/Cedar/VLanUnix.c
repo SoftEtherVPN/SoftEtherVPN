@@ -126,9 +126,13 @@
 #include <errno.h>
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
-#ifdef	UNIX_MACOS
+#ifdef	UNIX_BSD
+#ifdef	UNIX_OPENBSD
+#include <netinet/if_ether.h>
+#else	// UNIX_OPENBSD
 #include <net/ethernet.h>
-#endif
+#endif	// UNIX_OPENBSD
+#endif	// UNIX_BSD
 
 #ifdef	OS_UNIX
 
@@ -445,8 +449,8 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 	struct sockaddr sa;
 	char *tap_name = TAP_FILENAME_1;
 	int s;
-#ifdef	UNIX_MACOS
-	char tap_macos_name[256] = TAP_MACOS_DIR TAP_MACOS_FILENAME;
+#ifdef	UNIX_BSD
+	char tap_bsd_name[256] = TAP_BSD_DIR TAP_BSD_FILENAME;
 #endif
 	// Validate arguments
 	if (name == NULL)
@@ -457,7 +461,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 	GenerateTunName(name, prefix, eth_name, sizeof(eth_name));
 
 	// Open the tun / tap
-#ifndef	UNIX_MACOS
+#ifndef	UNIX_BSD
 	if (GetOsInfo()->OsType == OSTYPE_LINUX)
 	{
 		// Linux
@@ -472,7 +476,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 			Run("chmod", tmp, true, true);
 		}
 	}
-	// Other than MacOS X
+
 	fd = open(TAP_FILENAME_1, O_RDWR);
 	if (fd == -1)
 	{
@@ -484,16 +488,16 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		}
 		tap_name = TAP_FILENAME_2;
 	}
-#else	// UNIX_MACOS
+#else	// UNIX_BSD
 	{
 		int i;
 		fd = -1;
-		for (i = 0; i < TAP_MACOS_NUMBER; i++) {
-			sprintf(tap_macos_name + strlen(TAP_MACOS_DIR TAP_MACOS_FILENAME), "%d", i);
-			fd = open(tap_macos_name, O_RDWR);
+		for (i = 0; i < TAP_BSD_NUMBER; i++) {
+			sprintf(tap_bsd_name + strlen(TAP_BSD_DIR TAP_BSD_FILENAME), "%d", i);
+			fd = open(tap_bsd_name, O_RDWR);
 			if (fd != -1)
 			{
-				tap_name = tap_macos_name;
+				tap_name = tap_bsd_name;
 				break;
 			}
 		}
@@ -502,7 +506,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 			return -1;
 		}
 	}
-#endif	// UNIX_MACOS
+#endif	// UNIX_BSD
 
 #ifdef	UNIX_LINUX
 	// Create a tap for Linux
@@ -547,18 +551,18 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 	}
 
 #else	// UNIX_LINUX
-#ifdef	UNIX_MACOS
+#ifdef	UNIX_BSD
 	// MAC address setting
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s != -1)
 	{
-		char *macos_eth_name;
-		macos_eth_name = tap_macos_name + strlen(TAP_MACOS_DIR);
+		char *bsd_eth_name;
+		bsd_eth_name = tap_bsd_name + strlen(TAP_BSD_DIR);
 
 		if (mac_address != NULL)
 		{
 			Zero(&ifr, sizeof(ifr));
-			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), bsd_eth_name);
 			ifr.ifr_addr.sa_len = ETHER_ADDR_LEN;
 			ifr.ifr_addr.sa_family = AF_LINK;
 			Copy(&ifr.ifr_addr.sa_data, mac_address, ETHER_ADDR_LEN);
@@ -566,7 +570,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		}
 
 		Zero(&ifr, sizeof(ifr));
-		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), macos_eth_name);
+		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), bsd_eth_name);
 		ioctl(s, SIOCGIFFLAGS, &ifr);
 
 		if (create_up)
@@ -577,7 +581,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 
 		close(s);
 	}
-#endif	// UNIX_MACOS
+#endif	// UNIX_BSD
 #ifdef	UNIX_SOLARIS
 	// Create a tap for Solaris
 	{

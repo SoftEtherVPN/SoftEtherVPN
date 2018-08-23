@@ -1491,12 +1491,52 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 }
 #endif // BRIDGE_BPF
 
+#ifdef UNIX_BSD
+ETH *OpenEthBSD(name, local, tapmode, tapaddr)
+{
+	if (tapmode)
+	{
+#ifndef	NO_VLAN
+		// In tap mode
+		VLAN *v = NewTap(name, tapaddr, true);
+		if (v == NULL)
+		{
+			return NULL;
+		}
+
+		ETH *e;
+		e = ZeroMalloc(sizeof(ETH));
+		e->Name = CopyStr(name);
+		e->Title = CopyStr(name);
+		e->Cancel = VLanGetCancel(v);
+		e->IfIndex = 0;
+		e->Socket = INVALID_SOCKET;
+		e->Tap = v;
+
+		return e;
+#else	// NO_VLAN
+		return NULL:
+#endif	// NO_VLAN
+	}
+
+#if	defined(BRIDGE_BPF)
+		return OpenEthBpf(name, local, tapmode, tapaddr);
+#elif	defined(BRIDGE_PCAP)
+		return OpenEthPcap(name, local, tapmode, tapaddr);
+#else
+		return NULL;
+#endif
+}
+#endif // UNIX_BSD
+
 // Open Ethernet adapter
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr)
 {
 
 #if	defined(UNIX_LINUX)
 	return OpenEthLinux(name, local, tapmode, tapaddr);
+#elif	defined(UNIX_BSD)
+	return OpenEthBSD(name, local, tapmode, tapaddr);
 #elif	defined(UNIX_SOLARIS)
 	return OpenEthSolaris(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_PCAP)
