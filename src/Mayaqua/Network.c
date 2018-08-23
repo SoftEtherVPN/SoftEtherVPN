@@ -11288,7 +11288,7 @@ SOCK *NewUDP4(UINT port, IP *ip)
 		if (port != 0)
 		{
 			bool true_flag = true;
-			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
+			(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 			if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 			{
 				bool false_flag = false;
@@ -11385,7 +11385,7 @@ SOCK *NewUDP6(UINT port, IP *ip)
 		if (port != 0)
 		{
 			bool true_flag = true;
-			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
+			(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 			if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 			{
 				bool false_flag = false;
