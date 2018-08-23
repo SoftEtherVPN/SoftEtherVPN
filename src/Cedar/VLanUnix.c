@@ -672,11 +672,11 @@ void UnixCloseTapDevice(int fd)
 {
 }
 
-int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool create_up)
 {
 	return -1;
 }
-int UnixCreateTapDevice(char *name, UCHAR *mac_address)
+int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up)
 {
 	return -1;
 }
