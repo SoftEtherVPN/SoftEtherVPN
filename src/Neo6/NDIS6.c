@@ -634,18 +634,25 @@ NTSTATUS NeoNdisDispatch(DEVICE_OBJECT *DeviceObject, IRP *Irp)
 						{
 							MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
 						}
-
-						ProbeForRead(buf, NEO_EXCHANGE_BUFFER_SIZE, 1);
-
-						// Write
-						NeoWrite(buf);
-						Irp->IoStatus.Information = stack->Parameters.Write.Length;
-						ok = true;
-
-						if (mdl != NULL)
+						__try
 						{
+							ProbeForRead(buf, NEO_EXCHANGE_BUFFER_SIZE, 1);	
+						}
+						__except (EXCEPTION_EXECUTE_HANDLER)
+						{
+							check_ok = false;	
+						}
+						if (check_ok) {
+							// Write
+							NeoWrite(buf);
+							Irp->IoStatus.Information = stack->Parameters.Write.Length;
+							ok = true;
+
+							if (mdl != NULL)
+							{
 							MmUnlockPages(mdl);
 							IoFreeMdl(mdl);
+							}
 						}
 					}
 				}
