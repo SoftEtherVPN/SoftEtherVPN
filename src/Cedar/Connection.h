@@ -351,7 +351,6 @@ void DisconnectUDPSockets(CONNECTION *c);
 void PutUDPPacketData(CONNECTION *c, void *data, UINT size);
 void SendDataWithUDP(SOCK *s, CONNECTION *c);
 void InsertReceivedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock);
-void InitTcpSockRc4Key(TCPSOCK *ts, bool server_mode);
 UINT TcpSockRecv(SESSION *s, TCPSOCK *ts, void *data, UINT size);
 UINT TcpSockSend(SESSION *s, TCPSOCK *ts, void *data, UINT size);
 void WriteSendFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size);
