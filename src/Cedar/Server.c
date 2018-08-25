@@ -1616,8 +1616,9 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 
 	if (IsBridgeSupported())
 	{
-		// Tun / tap device is available (only Linux)
-		AddCapsBool(t, "b_tap_supported", GetOsInfo()->OsType == OSTYPE_LINUX ? true : false);
+		// TUN / TAP device availability (Linux and BSD)
+		const UINT OsType = GetOsInfo()->OsType;
+		AddCapsBool(t, "b_tap_supported", OsType == OSTYPE_LINUX || OsType == OSTYPE_BSD);
 	}
 
 	// Cascade connection
