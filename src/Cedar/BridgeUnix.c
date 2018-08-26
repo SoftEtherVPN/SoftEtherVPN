@@ -1492,7 +1492,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 #endif // BRIDGE_BPF
 
 #ifdef UNIX_BSD
-ETH *OpenEthBSD(name, local, tapmode, tapaddr)
+ETH *OpenEthBSD(char *name, bool local, bool tapmode, char *tapaddr)
 {
 	if (tapmode)
 	{
