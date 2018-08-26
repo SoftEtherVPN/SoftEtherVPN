@@ -443,22 +443,17 @@ void GenerateTunName(char *name, char *prefix, char *tun_name, size_t tun_name_l
 // Create a tap device
 int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool create_up)
 {
-	int fd;
+	int fd = -1, s = -1;
+	char tap_name[MAX_SIZE], tap_path[MAX_SIZE];
 	struct ifreq ifr;
-	char eth_name[MAX_SIZE];
-	struct sockaddr sa;
-	char *tap_name = TAP_FILENAME_1;
-	int s;
-#ifdef	UNIX_BSD
-	char tap_bsd_name[256] = TAP_BSD_DIR TAP_BSD_FILENAME;
-#endif
+
 	// Validate arguments
 	if (name == NULL)
 	{
 		return -1;
 	}
 
-	GenerateTunName(name, prefix, eth_name, sizeof(eth_name));
+	GenerateTunName(name, prefix, tap_name, sizeof(tap_name));
 
 	// Open the tun / tap
 #ifndef	UNIX_BSD
@@ -486,21 +481,19 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		{
 			return -1;
 		}
-		tap_name = TAP_FILENAME_2;
 	}
 #else	// UNIX_BSD
 	{
-		int i;
-		fd = -1;
-		for (i = 0; i < TAP_BSD_NUMBER; i++) {
-			sprintf(tap_bsd_name + strlen(TAP_BSD_DIR TAP_BSD_FILENAME), "%d", i);
-			fd = open(tap_bsd_name, O_RDWR);
+		sprintf(tap_path, "%s", TAP_DIR TAP_NAME);
+		for (int i = 0; i < TAP_MAX; i++) {
+			sprintf(tap_path + StrLen(TAP_DIR TAP_NAME), "%d", i);
+			fd = open(tap_path, O_RDWR);
 			if (fd != -1)
 			{
-				tap_name = tap_bsd_name;
 				break;
 			}
 		}
+
 		if (fd == -1)
 		{
 			return -1;
@@ -509,13 +502,12 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 #endif	// UNIX_BSD
 
 #ifdef	UNIX_LINUX
-	// Create a tap for Linux
+	// Create a TAP device for Linux
 
-	// Set the device name
+	// Set the name and the flags
 	Zero(&ifr, sizeof(ifr));
-
+	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
 	ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 
 	if (ioctl(fd, TUNSETIFF, &ifr) == -1)
 	{
@@ -524,57 +516,66 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		return -1;
 	}
 
-	// MAC address setting
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s != -1)
 	{
+		// Set the MAC address
 		if (mac_address != NULL)
 		{
 			Zero(&ifr, sizeof(ifr));
-			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
 			ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-			Copy(&ifr.ifr_addr.sa_data, mac_address, 6);
+			Copy(&ifr.ifr_hwaddr.sa_data, mac_address, ETHER_ADDR_LEN);
 			ioctl(s, SIOCSIFHWADDR, &ifr);
 		}
 
-		Zero(&ifr, sizeof(ifr));
-		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
-		ioctl(s, SIOCGIFFLAGS, &ifr);
-
 		if (create_up)
 		{
+			Zero(&ifr, sizeof(ifr));
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
+			ioctl(s, SIOCGIFFLAGS, &ifr);
 			ifr.ifr_flags |= IFF_UP;
 			ioctl(s, SIOCSIFFLAGS, &ifr);
 		}
 
 		close(s);
 	}
+#endif	// UNIX_LINUX
 
-#else	// UNIX_LINUX
 #ifdef	UNIX_BSD
-	// MAC address setting
+	// Create a TAP device for BSD
+	Zero(&ifr, sizeof(ifr));
+
+	// Get the current name
+	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_path + StrLen(TAP_DIR));
+
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s != -1)
 	{
-		char *bsd_eth_name;
-		bsd_eth_name = tap_bsd_name + strlen(TAP_BSD_DIR);
+		// Set the name, if possible
+#ifdef	SIOCSIFNAME
+		ifr.ifr_data = tap_name;
+		ioctl(s, SIOCSIFNAME, &ifr);
+#else	// SIOCSIFNAME
+		StrCpy(tap_name, sizeof(tap_name), ifr.ifr_name);
+#endif	// SIOCSIFNAME
 
+		// Set the MAC address
 		if (mac_address != NULL)
 		{
 			Zero(&ifr, sizeof(ifr));
-			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), bsd_eth_name);
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
 			ifr.ifr_addr.sa_len = ETHER_ADDR_LEN;
 			ifr.ifr_addr.sa_family = AF_LINK;
 			Copy(&ifr.ifr_addr.sa_data, mac_address, ETHER_ADDR_LEN);
 			ioctl(s, SIOCSIFLLADDR, &ifr);
 		}
 
-		Zero(&ifr, sizeof(ifr));
-		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), bsd_eth_name);
-		ioctl(s, SIOCGIFFLAGS, &ifr);
-
 		if (create_up)
 		{
+			Zero(&ifr, sizeof(ifr));
+			StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), tap_name);
+			ioctl(s, SIOCGIFFLAGS, &ifr);
 			ifr.ifr_flags |= IFF_UP;
 			ioctl(s, SIOCSIFFLAGS, &ifr);
 		}
@@ -582,8 +583,9 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		close(s);
 	}
 #endif	// UNIX_BSD
+
 #ifdef	UNIX_SOLARIS
-	// Create a tap for Solaris
+	// Create a TAP device for Solaris
 	{
 		int ip_fd;
 		int tun_fd;
@@ -647,9 +649,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		close(tun_fd);
 		close(ip_fd);
 	}
-
 #endif	// UNIX_SOLARIS
-#endif	// UNIX_LINUX
 
 	return fd;
 }
