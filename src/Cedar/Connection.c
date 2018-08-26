@@ -1171,7 +1171,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			UINT j;
 			QUEUE *q;
 
-			if (s->UdpAccel != NULL)
+			if (s != NULL && s->UdpAccel != NULL)
 			{
 				UdpAccelSetTick(s->UdpAccel, now);
 			}
@@ -2855,34 +2855,6 @@ TCPSOCK *NewTcpSock(SOCK *s)
 	SetTimeout(s, TIMEOUT_INFINITE);
 
 	return ts;
-}
-
-// Set a encryption key for the TCP socket
-void InitTcpSockRc4Key(TCPSOCK *ts, bool server_mode)
-{
-	RC4_KEY_PAIR *pair;
-	CRYPT *c1, *c2;
-	// Validate arguments
-	if (ts == NULL)
-	{
-		return;
-	}
-
-	pair = &ts->Rc4KeyPair;
-
-	c1 = NewCrypt(pair->ClientToServerKey, sizeof(pair->ClientToServerKey));
-	c2 = NewCrypt(pair->ServerToClientKey, sizeof(pair->ServerToClientKey));
-
-	if (server_mode)
-	{
-		ts->RecvKey = c1;
-		ts->SendKey = c2;
-	}
-	else
-	{
-		ts->SendKey = c1;
-		ts->RecvKey = c2;
-	}
 }
 
 // Release of TCP socket
