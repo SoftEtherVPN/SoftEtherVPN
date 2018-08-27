@@ -135,18 +135,18 @@
 
 
 // Version number
-#ifndef CEDAR_VERSION_MAJOR
-#define	CEDAR_VERSION_MAJOR				0
-#endif // CEDAR_VERSION_MAJOR
+#ifndef	CEDAR_VERSION_MAJOR
+#define	CEDAR_VERSION_MAJOR		0
+#endif	// CEDAR_VERSION_MAJOR
 
-#ifndef CEDAR_VERSION_MINOR
-#define	CEDAR_VERSION_MINOR				0
-#endif // CEDAR_VER_MINOR
+#ifndef	CEDAR_VERSION_MINOR
+#define	CEDAR_VERSION_MINOR		0
+#endif	// CEDAR_VER_MINOR
 
-// Build Number
-#ifndef CEDAR_VERSION_BUILD
-#define	CEDAR_VERSION_BUILD				0
-#endif // CEDAR_VERSION_BUILD
+// Build number
+#ifndef	CEDAR_VERSION_BUILD
+#define	CEDAR_VERSION_BUILD		0
+#endif	// CEDAR_VERSION_BUILD
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -156,38 +156,38 @@
 
 // Specify the name of the person in charge building
 #ifndef	BUILDER_NAME
-#define	BUILDER_NAME		"Unknown"
+#define	BUILDER_NAME			"Unknown"
 #endif	// BUILDER_NAME
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"Unknown"
+#define	BUILD_PLACE				"Unknown"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#ifndef BUILD_DATE_Y
-#define	BUILD_DATE_Y		1970
-#endif // BUILD_DATE_Y
+#ifndef	BUILD_DATE_Y
+#define	BUILD_DATE_Y			1970
+#endif	// BUILD_DATE_Y
 
-#ifndef BUILD_DATE_M
-#define	BUILD_DATE_M		1
-#endif // BUILD_DATE_M
+#ifndef	BUILD_DATE_M
+#define	BUILD_DATE_M			1
+#endif	// BUILD_DATE_M
 
-#ifndef BUILD_DATE_D
-#define	BUILD_DATE_D		1
-#endif // BUILD_DATE_D
+#ifndef	BUILD_DATE_D
+#define	BUILD_DATE_D			1
+#endif	// BUILD_DATE_D
 
-#ifndef BUILD_DATE_HO
-#define	BUILD_DATE_HO		0
-#endif // BUILD_DATE_HO
+#ifndef	BUILD_DATE_HO
+#define	BUILD_DATE_HO			0
+#endif	// BUILD_DATE_HO
 
-#ifndef BUILD_DATE_MI
-#define	BUILD_DATE_MI		0
-#endif // BUILD_DATE_MI
+#ifndef	BUILD_DATE_MI
+#define	BUILD_DATE_MI			0
+#endif	// BUILD_DATE_MI
 
-#ifndef BUILD_DATE_SE
-#define	BUILD_DATE_SE		0
-#endif // BUILD_DATE_SE
+#ifndef	BUILD_DATE_SE
+#define	BUILD_DATE_SE			0
+#endif	// BUILD_DATE_SE
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
