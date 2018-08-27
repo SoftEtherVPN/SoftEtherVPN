@@ -358,7 +358,7 @@ bool IPsecWin7InitDriverInner()
 
 	if (IsFileExists(sys_filename) && MsIsServiceInstalled(IPSEC_WIN7_DRIVER_NAME))
 	{
-		if (GetCurrentIPsecWin7DriverBuild() >= CEDAR_BUILD)
+		if (GetCurrentIPsecWin7DriverBuild() >= CEDAR_VERSION_BUILD)
 		{
 			// Not to install since the latest version has been already installed
 			install_driver = false;
@@ -485,7 +485,7 @@ void SetCurrentIPsecWin7DriverBuild()
 {
 	MsRegWriteInt(REG_LOCAL_MACHINE, IPSEC_WIN7_DRIVER_REGKEY,
 		(MsIsWindows10() ? IPSEC_WIN7_DRIVER_BUILDNUMBER_WIN10 : IPSEC_WIN7_DRIVER_BUILDNUMBER),
-		CEDAR_BUILD);
+		CEDAR_VERSION_BUILD);
 }
 
 // Get the build number of the current driver

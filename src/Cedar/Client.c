@@ -8078,7 +8078,6 @@ bool CtGetVLan(CLIENT *c, RPC_CLIENT_GET_VLAN *get)
 // Initialize the driver version information structure
 void CiInitDriverVerStruct(MS_DRIVER_VER *ver)
 {
-	UINT cedar_ver = CEDAR_VER;
 	// Validate arguments
 	if (ver == NULL)
 	{
@@ -8090,9 +8089,9 @@ void CiInitDriverVerStruct(MS_DRIVER_VER *ver)
 	ver->Year = BUILD_DATE_Y;
 	ver->Month = BUILD_DATE_M;
 	ver->Day = BUILD_DATE_D;
-	ver->Major = cedar_ver / 100;
-	ver->Minor = cedar_ver % 100;
-	ver->Build = CEDAR_BUILD;
+	ver->Major = CEDAR_VERSION_MAJOR;
+	ver->Minor = CEDAR_VERSION_MINOR;
+	ver->Build = CEDAR_VERSION_BUILD;
 }
 #endif	// OS_WIN32
 

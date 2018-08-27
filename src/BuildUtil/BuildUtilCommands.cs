@@ -255,14 +255,14 @@ namespace BuildUtil
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
-			int build, version;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 
 			string baseName = string.Format("v{0}-{1}-{2}-{3:D4}.{4:D2}.{5:D2}",
-									BuildHelper.VersionIntToString(version),
-									build,
+									BuildHelper.VersionIntToString(versionMajor, versionMinor),
+									versionBuild,
 									name,
 									date.Year, date.Month, date.Day);
 
@@ -389,9 +389,9 @@ namespace BuildUtil
 					txt_cpu += " (x86 and x64)";
 				}
 
-				string txt_version = BuildHelper.VersionIntToString(version);
+				string txt_version = BuildHelper.VersionIntToString(versionMajor, versionMinor);
 
-				string txt_build = build.ToString();
+				string txt_build = versionBuild.ToString();
 
 				string txt_verstr = name;
 
@@ -435,7 +435,7 @@ namespace BuildUtil
 			 * */
 
 			string zipFileName = string.Format("VPN-CD-v{0}.{1:D2}-{2}-{3}-{4:D4}.{5:D2}.{6:D2}.zip",
-				version / 100, version % 100, build, name,
+				versionMajor, versionMinor, versionBuild, name,
 				date.Year, date.Month, date.Day);
 			w.WriteLine("del {0}", zipFileName);
 			w.WriteLine("CD {0}", cddir);
@@ -502,8 +502,8 @@ namespace BuildUtil
 			txt.WriteLine("OS\t" + "Any");
 			txt.WriteLine("OSLIST\t" + "Any");
 			txt.WriteLine("CPU\t" + "CD-ROM");
-			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(version));
-			txt.WriteLine("BUILD\t" + build.ToString());
+			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(versionMajor, versionMinor));
+			txt.WriteLine("BUILD\t" + versionBuild.ToString());
 			txt.WriteLine("VERSTR\t" + name);
 			txt.WriteLine("DATE\t" + Str.DateTimeToStrShortWithMilliSecs(date));
 			txt.WriteLine("LANGUAGE\t" + "English, Japanese, Simplified Chinese");
@@ -517,7 +517,7 @@ namespace BuildUtil
 				"softether-" + 
 #endif	// BU_SOFTETHER
 			string.Format("vpn_admin_tools-v{0}.{1:D2}-{2}-{3}-{4:D4}.{5:D2}.{6:D2}-win32.zip",
-				version / 100, version % 100, build, name,
+				versionMajor, versionMinor, versionBuild, name,
 				date.Year, date.Month, date.Day);
 
 			string vpnsmgr_zip_filename_full = Path.Combine(Path.Combine(publicDir, cddir), vpnsmgr_zip_filename_relative);
@@ -556,8 +556,8 @@ namespace BuildUtil
 			txt.WriteLine("OS\t" + "Windows (.zip package without installers)");
 			txt.WriteLine("OSLIST\t" + OSList.Windows.OSSimpleList);
 			txt.WriteLine("CPU\t" + "Intel (x86 and x64)");
-			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(version));
-			txt.WriteLine("BUILD\t" + build.ToString());
+			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(versionMajor, versionMinor));
+			txt.WriteLine("BUILD\t" + versionBuild.ToString());
 			txt.WriteLine("VERSTR\t" + name);
 			txt.WriteLine("DATE\t" + Str.DateTimeToStrShortWithMilliSecs(date));
 			txt.WriteLine("LANGUAGE\t" + "English, Japanese, Simplified Chinese");
@@ -616,10 +616,10 @@ namespace BuildUtil
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
-			int version, build;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 			BuildSoftware[] softs = BuildSoftwareList.List;
 			bool serial = vl["SERIAL"].BoolValue;
 
@@ -630,7 +630,7 @@ namespace BuildUtil
 				{
 					if (soft.Os.IsWindows == false)
 					{
-						soft.SetBuildNumberVersionName(build, version, name, date);
+						soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 						Con.WriteLine("  {0}", soft.IDString);
 						Con.WriteLine("    - \"{0}\"", soft.OutputFileName);
 					}
@@ -658,7 +658,7 @@ namespace BuildUtil
 
 				foreach (BuildSoftware soft in softs)
 				{
-					soft.SetBuildNumberVersionName(build, version, name, date);
+					soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 
 					if (soft.Os.IsWindows == false)
 					{
@@ -772,10 +772,10 @@ namespace BuildUtil
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
 			bool serial = vl["SERIAL"].BoolValue;
-			int version, build;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 			BuildSoftware[] softs = BuildSoftwareList.List;
 
 			if (Str.IsEmptyStr(vl.DefaultParam.StrValue))
@@ -785,7 +785,7 @@ namespace BuildUtil
 				{
 					if (soft.Os.IsWindows)
 					{
-						soft.SetBuildNumberVersionName(build, version, name, date);
+						soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 						Con.WriteLine("  {0}", soft.IDString);
 						Con.WriteLine("    - \"{0}\"", soft.OutputFileName);
 					}
@@ -813,7 +813,7 @@ namespace BuildUtil
 
 				foreach (BuildSoftware soft in softs)
 				{
-					soft.SetBuildNumberVersionName(build, version, name, date);
+					soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 
 					if (soft.Os.IsWindows)
 					{

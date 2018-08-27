@@ -138,8 +138,8 @@ namespace BuildUtil
 	// Build Win32 software
 	public class BuildSoftwareWin32 : BuildSoftware
 	{
-		public BuildSoftwareWin32(Software software, int buildNumber, int version, string buildName, Cpu cpu, OS os)
-			: base(software, buildNumber, version, buildName, cpu, os)
+		public BuildSoftwareWin32(Software software, int versionMajor, int versionMinor, int versionBuild, string buildName, Cpu cpu, OS os)
+			: base(software, versionMajor, versionMinor, versionBuild, buildName, cpu, os)
 		{
 		}
 

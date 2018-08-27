@@ -20270,7 +20270,7 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 
 		// Updater start
 		sm->Update = InitUpdateUi(_UU("PRODUCT_NAME_VPN_SMGR"), NAME_OF_VPN_SERVER_MANAGER, NULL, GetCurrentBuildDate(),
-			CEDAR_BUILD, CEDAR_VER, NULL, false);
+			CEDAR_VERSION_BUILD, GetCedarVersionNumber(), NULL, false);
 		break;
 
 	case WM_TIMER:

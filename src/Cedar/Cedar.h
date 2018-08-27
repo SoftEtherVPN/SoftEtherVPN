@@ -135,10 +135,18 @@
 
 
 // Version number
-#define	CEDAR_VER					501
+#ifndef CEDAR_VERSION_MAJOR
+#define	CEDAR_VERSION_MAJOR				0
+#endif // CEDAR_VERSION_MAJOR
+
+#ifndef CEDAR_VERSION_MINOR
+#define	CEDAR_VERSION_MINOR				0
+#endif // CEDAR_VER_MINOR
 
 // Build Number
-#define	CEDAR_BUILD					9657
+#ifndef CEDAR_VERSION_BUILD
+#define	CEDAR_VERSION_BUILD				0
+#endif // CEDAR_VERSION_BUILD
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -148,21 +156,38 @@
 
 // Specify the name of the person in charge building
 #ifndef	BUILDER_NAME
-#define	BUILDER_NAME		"yagi"
+#define	BUILDER_NAME		"Unknown"
 #endif	// BUILDER_NAME
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc37"
+#define	BUILD_PLACE			"Unknown"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2018
+#ifndef BUILD_DATE_Y
+#define	BUILD_DATE_Y		1970
+#endif // BUILD_DATE_Y
+
+#ifndef BUILD_DATE_M
 #define	BUILD_DATE_M		1
-#define	BUILD_DATE_D		14
+#endif // BUILD_DATE_M
+
+#ifndef BUILD_DATE_D
+#define	BUILD_DATE_D		1
+#endif // BUILD_DATE_D
+
+#ifndef BUILD_DATE_HO
 #define	BUILD_DATE_HO		0
-#define	BUILD_DATE_MI		36
-#define	BUILD_DATE_SE		20
+#endif // BUILD_DATE_HO
+
+#ifndef BUILD_DATE_MI
+#define	BUILD_DATE_MI		0
+#endif // BUILD_DATE_MI
+
+#ifndef BUILD_DATE_SE
+#define	BUILD_DATE_SE		0
+#endif // BUILD_DATE_SE
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -1243,6 +1268,7 @@ bool IsSupportedWinVer(RPC_WINVER *v);
 SOCK *GetInProcListeningSock(CEDAR *c);
 SOCK *GetReverseListeningSock(CEDAR *c);
 void GetCedarVersion(char *tmp, UINT size);
+UINT GetCedarVersionNumber();
 UINT64 GetCurrentBuildDate();
 void CedarAddCurrentTcpQueueSize(CEDAR *c, int diff);
 UINT CedarGetCurrentTcpQueueSize(CEDAR *c);

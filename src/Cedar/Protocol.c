@@ -1489,8 +1489,8 @@ bool ServerAccept(CONNECTION *c)
 		{
 			StrCpy(c->ClientStr, sizeof(c->ClientStr), "Unknown");
 		}
-		c->ServerVer = CEDAR_VER;
-		c->ServerBuild = CEDAR_BUILD;
+		c->ServerVer = GetCedarVersionNumber();
+		c->ServerBuild = CEDAR_VERSION_BUILD;
 
 		// Get the NODE_INFO
 		Zero(&node, sizeof(node));
