@@ -1517,9 +1517,19 @@ void GetCedarVersion(char *tmp, UINT size)
 		return;
 	}
 
-	Format(tmp, size, "%u.%02u.%u",
-		CEDAR_VER / 100, CEDAR_VER - (CEDAR_VER / 100) * 100,
-		CEDAR_BUILD);
+	Format(tmp, size, "%u.%02u.%u", CEDAR_VERSION_MAJOR, CEDAR_VERSION_MINOR, CEDAR_VERSION_BUILD);
+}
+
+UINT GetCedarVersionNumber()
+{
+	UINT pow = 10;
+
+	while (CEDAR_VERSION_MAJOR >= pow)
+	{
+		pow *= 10;
+	}
+
+	return CEDAR_VERSION_MAJOR * pow + CEDAR_VERSION_MINOR;
 }
 
 // Create Cedar object
@@ -1581,8 +1591,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 		c->ServerX = CloneX(server_x);
 	}
 
-	c->Version = CEDAR_VER;
-	c->Build = CEDAR_BUILD;
+	c->Version = GetCedarVersionNumber();
+	c->Build = CEDAR_VERSION_BUILD;
 	c->ServerStr = CopyStr(CEDAR_SERVER_STR);
 
 	GetMachineName(tmp, sizeof(tmp));
@@ -1628,8 +1638,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 	ToStr(tmp2, c->Beta);
 
 	Format(tmp, sizeof(tmp), "Version %u.%02u Build %u %s %s (%s)",
-		CEDAR_VER / 100, CEDAR_VER - (CEDAR_VER / 100) * 100,
-		CEDAR_BUILD,
+		CEDAR_VERSION_MAJOR, CEDAR_VERSION_MINOR, CEDAR_VERSION_BUILD,
 		c->Beta == 0 ? "" : beta_str,
 		c->Beta == 0 ? "" : tmp2,
 		_SS("LANGSTR"));

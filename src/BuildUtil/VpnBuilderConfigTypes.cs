@@ -187,27 +187,30 @@ namespace BuildUtil
 	public class BuildSoftware
 	{
 		public Software Software;				// Software
-		public int Version;						// Version number
-		public int BuildNumber;					// Build Number
+		public int VersionMajor;				// Version number (major)
+		public int VersionMinor;				// Version number (minor)
+		public int VersionBuild;				// Version number (build)
 		public string BuildName;				// Build name
 		public Cpu Cpu;							// CPU
 		public OS Os;							// OS
 		public DateTime BuildDate;				// Build date
 
-		public BuildSoftware(Software software, int buildNumber, int version, string buildName, Cpu cpu, OS os)
+		public BuildSoftware(Software software, int versionMajor, int versionMinor, int versionBuild, string buildName, Cpu cpu, OS os)
 		{
 			this.Software = software;
-			this.BuildNumber = buildNumber;
-			this.Version = version;
+			this.VersionMajor = versionMajor;
+			this.VersionMinor = versionMinor;
+			this.VersionBuild = versionBuild;
 			this.BuildName = buildName;
 			this.Cpu = cpu;
 			this.Os = os;
 		}
 
-		public void SetBuildNumberVersionName(int buildNumber, int version, string buildName, DateTime date)
+		public void SetBuildNumberVersionName(int versionMajor, int versionMinor, int versionBuild, string buildName, DateTime date)
 		{
-			this.BuildNumber = buildNumber;
-			this.Version = version;
+			this.VersionMajor = versionMajor;
+			this.VersionMinor = versionMinor;
+			this.VersionBuild = versionBuild;
 			this.BuildName = buildName;
 			this.BuildDate = date;
 		}
@@ -243,8 +246,11 @@ namespace BuildUtil
 			}
 
 			this.Software = (Software)Enum.Parse(typeof(Software), tokens[0], true);
-			this.Version = (int)(double.Parse(tokens[1].Substring(1)) * 100);
-			this.BuildNumber = int.Parse(tokens[2]);
+
+			string[] vs = tokens[1].Substring(1).Split('.');
+			this.VersionMajor = int.Parse(vs[0]);
+			this.VersionMinor = int.Parse(vs[1]);
+			this.VersionBuild = int.Parse(tokens[2]);
 			this.BuildName = tokens[3];
 
 			string[] ds = tokens[4].Split('.');
@@ -260,12 +266,12 @@ namespace BuildUtil
 			{
 				return string.Format("{0}-v{6}-{1}-{2}-{8:D4}.{9:D2}.{10:D2}-{4}-{3}-{7}",
 					Paths.Prefix + this.Software.ToString(),
-					this.BuildNumber,
+					this.VersionBuild,
 					this.BuildName,
 					this.Cpu.Name,
 					this.Os.Name,
 					0,
-					BuildHelper.VersionIntToString(this.Version),
+					BuildHelper.VersionIntToString(this.VersionMajor, this.VersionMinor),
 					CPUBitsUtil.CPUBitsToString(this.Cpu.Bits),
 					BuildDate.Year, BuildDate.Month, BuildDate.Day).ToLower();
 			}
@@ -291,7 +297,7 @@ namespace BuildUtil
 			get
 			{
 				return string.Format("{0} (Ver {2}, Build {1}, {3}) for {5}", BuildHelper.GetSoftwareTitle(this.Software),
-					this.BuildNumber, BuildHelper.VersionIntToString(this.Version), this.Cpu.Title, 0, this.Os.Title);
+					this.VersionBuild, BuildHelper.VersionIntToString(this.VersionMajor, this.VersionMinor), this.Cpu.Title, 0, this.Os.Title);
 			}
 		}
 

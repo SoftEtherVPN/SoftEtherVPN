@@ -1961,7 +1961,7 @@ HINSTANCE InstallPcdDriverInternal()
 	if (IsFileExists(tmp))
 	{
 		// If driver file is exist, try to get build number from registry
-		if (LoadPcdDriverBuild() >= CEDAR_BUILD)
+		if (LoadPcdDriverBuild() >= CEDAR_VERSION_BUILD)
 		{
 			// Already latest driver is installed
 			install_driver = false;
@@ -1990,7 +1990,7 @@ HINSTANCE InstallPcdDriverInternal()
 		}
 
 		// Save build number
-		SavePcdDriverBuild(CEDAR_BUILD);
+		SavePcdDriverBuild(CEDAR_VERSION_BUILD);
 	}
 
 	dll_filename = BRIDGE_WIN32_PCD_DLL;

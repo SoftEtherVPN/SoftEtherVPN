@@ -194,7 +194,7 @@ namespace BuildUtil
 		// Build
 		public static void BuildMain(BuildSoftware soft, bool debugModeIfUnix)
 		{
-			int version, build;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
 
@@ -203,9 +203,9 @@ namespace BuildUtil
 
 			try
 			{
-				Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+				Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 
-				soft.SetBuildNumberVersionName(build, version, name, date);
+				soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 
 				Con.WriteLine("Building '{0}' - {1}...", soft.IDString, soft.TitleString);
 
@@ -227,9 +227,9 @@ namespace BuildUtil
 		}
 
 		// Convert the number to a version number
-		public static string VersionIntToString(int version)
+		public static string VersionIntToString(int versionMajor, int versionMinor)
 		{
-			return string.Format("{0}.{1:D2}", version / 100, version % 100);
+			return string.Format("{0}.{1:D2}", versionMajor, versionMinor);
 		}
 
 		// Get a product list that is included in the software
