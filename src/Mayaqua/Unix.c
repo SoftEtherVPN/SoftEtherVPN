@@ -2060,12 +2060,6 @@ UINT64 UnixGetTick64()
 
 	struct timespec t;
 	UINT64 ret;
-	static bool akirame = false;
-
-	if (akirame)
-	{
-		return TickRealtimeManual();
-	}
 
 	Zero(&t, sizeof(t));
 
@@ -2073,20 +2067,17 @@ UINT64 UnixGetTick64()
 	// Be careful. The Implementation is depend on the system.
 #ifdef	CLOCK_HIGHRES
 	clock_gettime(CLOCK_HIGHRES, &t);
-#else	// CLOCK_HIGHRES
-#ifdef	CLOCK_MONOTONIC
+#elif	CLOCK_MONOTONIC
 	clock_gettime(CLOCK_MONOTONIC, &t);
-#else	// CLOCK_MONOTONIC
+#else
 	clock_gettime(CLOCK_REALTIME, &t);
-#endif	// CLOCK_MONOTONIC
-#endif	// CLOCK_HIGHRES
+#endif
 
 	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 
-	if (akirame == false && ret == 0)
+	if (ret == 0)
 	{
 		ret = TickRealtimeManual();
-		akirame = true;
 	}
 
 	return ret;
