@@ -769,20 +769,14 @@
 // 
 //////////////////////////////////////////////////////////////////////
 
+#ifndef	UNIX_BSD
 #define	TAP_FILENAME_1				"/dev/net/tun"
 #define	TAP_FILENAME_2				"/dev/tun"
-#ifdef	UNIX_BSD
-#ifdef	NO_VLAN
-#define	TAP_BSD_FILENAME			"/dev/tap0"
-#else	// NO_VLAN
-#define	TAP_BSD_FILENAME			"tap"
-#endif	// NO_VLAN
-#define	TAP_BSD_DIR				"/dev/"
-#define	TAP_BSD_NUMBER			(16)
-#endif	// UNIX_MACOS
-
-
-
+#else	// UNIX_BSD
+#define	TAP_NAME					"tap"
+#define	TAP_DIR						"/dev/"
+#define	TAP_MAX						(512)
+#endif	// UNIX_BSD
 
 
 #define	LICENSE_EDITION_VPN3_NO_LICENSE					0		// Without license
