@@ -1261,21 +1261,10 @@ void StopSessionEx(SESSION *s, bool no_wait)
 	// Event
 	Set(s->HaltEvent);
 
-	if (s->ServerMode == false)
+	// Server and client mode
+	if (s->Connection)
 	{
-		// Client mode
-		if (s->Connection)
-		{
-			StopConnection(s->Connection, no_wait);
-		}
-	}
-	else
-	{
-		// Server mode
-		if (s->Connection)
-		{
-			StopConnection(s->Connection, no_wait);
-		}
+		StopConnection(s->Connection, no_wait);
 	}
 
 	// Wait until the stop
@@ -1863,23 +1852,6 @@ SKIP:
 	}
 }
 
-// Name comparison of sessions
-int CompareSession(void *p1, void *p2)
-{
-	SESSION *s1, *s2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	s1 = *(SESSION **)p1;
-	s2 = *(SESSION **)p2;
-	if (s1 == NULL || s2 == NULL)
-	{
-		return 0;
-	}
-	return StrCmpi(s1->Name, s2->Name);
-}
-
 // Create an RPC session
 SESSION *NewRpcSession(CEDAR *cedar, CLIENT_OPTION *option)
 {
@@ -2107,52 +2079,6 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, bool *NicDownOnDisconnect)
 {
 	return NewClientSessionEx(cedar, option, auth, pa, NULL, NicDownOnDisconnect);
-}
-
-// Get the session from the 32bit session key
-SESSION *GetSessionFromKey32(CEDAR *cedar, UINT key32)
-{
-	HUB *h;
-	UINT i, j;
-	// Validate arguments
-	if (cedar == NULL)
-	{
-		return NULL;
-	}
-
-	LockList(cedar->HubList);
-	{
-		for (i = 0;i < LIST_NUM(cedar->HubList);i++)
-		{
-			h = LIST_DATA(cedar->HubList, i);
-			LockList(h->SessionList);
-			{
-				for (j = 0;j < LIST_NUM(h->SessionList);j++)
-				{
-					SESSION *s = LIST_DATA(h->SessionList, j);
-					Lock(s->lock);
-					{
-						if (s->SessionKey32 == key32)
-						{
-							// Session found
-							AddRef(s->ref);
-
-							// Unlock
-							Unlock(s->lock);
-							UnlockList(h->SessionList);
-							UnlockList(cedar->HubList);
-							return s;
-						}
-					}
-					Unlock(s->lock);
-				}
-			}
-			UnlockList(h->SessionList);
-		}
-	}
-	UnlockList(cedar->HubList);
-
-	return NULL;
 }
 
 // Get the session from the session key
@@ -2389,20 +2315,6 @@ bool IsIpcMacAddress(UCHAR *mac)
 	}
 
 	return false;
-}
-
-// Display the session key for debugging
-void DebugPrintSessionKey(UCHAR *session_key)
-{
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (session_key == NULL)
-	{
-		return;
-	}
-
-	Bit160ToStr(tmp, session_key);
-	Debug("SessionKey: %s\n", tmp);
 }
 
 // Display the status on the client
