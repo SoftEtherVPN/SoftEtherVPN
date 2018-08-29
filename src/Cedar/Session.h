@@ -413,15 +413,12 @@ void StopSession(SESSION *s);
 void StopSessionEx(SESSION *s, bool no_wait);
 bool SessionConnect(SESSION *s);
 bool ClientConnect(CONNECTION *c);
-int CompareSession(void *p1, void *p2);
 PACKET_ADAPTER *NewPacketAdapter(PA_INIT *init, PA_GETCANCEL *getcancel, PA_GETNEXTPACKET *getnext,
 								 PA_PUTPACKET *put, PA_FREE *free);
 void FreePacketAdapter(PACKET_ADAPTER *pa);
 void SessionMain(SESSION *s);
 void NewSessionKey(CEDAR *cedar, UCHAR *session_key, UINT *session_key_32);
 SESSION *GetSessionFromKey(CEDAR *cedar, UCHAR *session_key);
-SESSION *GetSessionFromKey32(CEDAR *cedar, UINT key32);
-void DebugPrintSessionKey(UCHAR *session_key);
 bool IsIpcMacAddress(UCHAR *mac);
 void ClientAdditionalConnectChance(SESSION *s);
 void SessionAdditionalConnect(SESSION *s);
