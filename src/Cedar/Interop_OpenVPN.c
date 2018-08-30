@@ -1661,10 +1661,7 @@ OPENVPN_PACKET *OvsParsePacket(UCHAR *data, UINT size)
 
 LABEL_ERROR:
 	Debug("OvsParsePacket Error.\n");
-	if (ret != NULL)
-	{
-		OvsFreePacket(ret);
-	}
+	OvsFreePacket(ret);
 	return NULL;
 }
 

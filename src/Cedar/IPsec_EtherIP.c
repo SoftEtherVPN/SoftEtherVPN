@@ -541,16 +541,8 @@ UINT CalcEtherIPTcpMss(ETHERIP_SERVER *s)
 		}
 	}
 
-	if (s->L2TPv3 == false)
-	{
-		// EtherIP
-		ret -= 2;
-	}
-	else
-	{
-		// L2TPv3
-		ret -= 2;
-	}
+	// EtherIP, L2TPv3
+	ret -= 2;
 
 	// Ethernet
 	ret -= 14;
