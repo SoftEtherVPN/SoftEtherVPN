@@ -3700,7 +3700,7 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 	pa->Now = Tick64();
 
 	// Processing of Adjust TCP MSS
-	if (hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
+	if (hub != NULL && hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
 	{
 		UINT target_mss = (hub->Option->AdjustTcpMssValue == 0 ? INFINITE : hub->Option->AdjustTcpMssValue);
 		UINT session_mss = (s->AdjustMss == 0 ? INFINITE : s->AdjustMss);
