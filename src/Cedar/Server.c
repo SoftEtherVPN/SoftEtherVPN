@@ -204,38 +204,6 @@ bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore)
 	return false;
 }
 
-// Get the number of user objects that are registered in the VPN Server
-UINT SiGetServerNumUserObjects(SERVER *s)
-{
-	CEDAR *c;
-	UINT ret = 0;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return 0;
-	}
-
-	c = s->Cedar;
-
-	LockList(c->HubList);
-	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(c->HubList);i++)
-		{
-			HUB *h = LIST_DATA(c->HubList, i);
-
-			if (h->HubDb != NULL)
-			{
-				ret += LIST_NUM(h->HubDb->UserList);
-			}
-		}
-	}
-	UnlockList(c->HubList);
-
-	return ret;
-}
-
-
 typedef struct SI_DEBUG_PROC_LIST
 {
 	UINT Id;
@@ -2431,34 +2399,6 @@ void SiUnlockListenerList(SERVER *s)
 	UnlockList(s->ServerListenerList);
 }
 
-// Initialize the Bridge
-void SiInitBridge(SERVER *s)
-{
-	HUB *h;
-	HUB_OPTION o;
-	HUB_LOG g;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return;
-	}
-
-	Zero(&o, sizeof(o));
-	o.MaxSession = 0;
-
-	h = NewHub(s->Cedar, SERVER_DEFAULT_BRIDGE_NAME, &o);
-	AddHub(s->Cedar, h);
-
-	h->Offline = true;
-	SetHubOnline(h);
-
-	// Log settings
-	SiSetDefaultLogSetting(&g);
-	SetHubLogSetting(h, &g);
-
-	ReleaseHub(h);
-}
-
 // Set the default value of the Virtual HUB options
 void SiSetDefaultHubOption(HUB_OPTION *o)
 {
@@ -2534,11 +2474,6 @@ void SiSetDefaultLogSetting(HUB_LOG *g)
 	g->PacketLogSwitchType = LOG_SWITCH_DAY;
 	g->PacketLogConfig[PACKET_LOG_TCP_CONN] =
 		g->PacketLogConfig[PACKET_LOG_DHCP] = PACKET_LOG_HEADER;
-}
-
-// Test
-void SiTest(SERVER *s)
-{
 }
 
 // Set the initial configuration
@@ -2827,25 +2762,6 @@ void SiSetAzureEnable(SERVER *s, bool enabled)
 	s->EnableVpnAzure = enabled;
 }
 
-// Get the state of Enabled / Disabled of Azure Client
-bool SiGetAzureEnable(SERVER *s)
-{
-	// Validate arguments
-	if (s == NULL)
-	{
-		return false;
-	}
-
-	if (s->AzureClient != NULL)
-	{
-		return AcGetEnable(s->AzureClient);
-	}
-	else
-	{
-		return false;
-	}
-}
-
 // Apply the Config to the Azure Client
 void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status)
 {
@@ -2896,7 +2812,6 @@ bool SiIsAzureSupported(SERVER *s)
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 {
 	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f;
-	bool is_vgs_enabled = false;
 	// Validate arguments
 	if (s == NULL || root == NULL)
 	{
@@ -3958,7 +3873,6 @@ void SiLoadHubAccessLists(HUB *h, FOLDER *f)
 	for (i = 0;i < t->NumTokens;i++)
 	{
 		char *name = t->Token[i];
-		UINT id = ToInt(name);
 		SiLoadHubAccessCfg(h, CfgGetFolder(f, name));
 	}
 
@@ -5712,7 +5626,6 @@ void SiLoadHubs(SERVER *s, FOLDER *f)
 {
 	UINT i;
 	FOLDER *hub_folder;
-	CEDAR *c;
 	TOKEN_LIST *t;
 	bool b = false;
 	// Validate arguments
@@ -5720,7 +5633,6 @@ void SiLoadHubs(SERVER *s, FOLDER *f)
 	{
 		return;
 	}
-	c = s->Cedar;
 
 	t = CfgEnumFolderToTokenList(f);
 	for (i = 0;i < t->NumTokens;i++)
@@ -5764,7 +5676,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	char tmp[MAX_SIZE];
 	X *x = NULL;
 	K *k = NULL;
-	UINT num_connections_per_ip = 0;
 	FOLDER *params_folder;
 	UINT i;
 	// Validate arguments
@@ -6263,7 +6174,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 	Lock(c->lock);
 	{
-		bool is_vgs_cert = false;
 		FOLDER *syslog_f;
 		Lock(s->Keep->lock);
 		{
@@ -6344,16 +6254,13 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		if (c->Bridge == false)
 		{
+			OPENVPN_SSTP_CONFIG config;
+
 			// VPN over ICMP
 			CfgAddBool(f, "EnableVpnOverIcmp", s->EnableVpnOverIcmp);
 
 			// VPN over DNS
 			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
-		}
-
-		if (c->Bridge == false)
-		{
-			OPENVPN_SSTP_CONFIG config;
 
 			SiGetOpenVPNAndSSTPConfig(s, &config);
 
@@ -6369,19 +6276,15 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		// Let the client not to send a signature
 		CfgAddBool(f, "NoSendSignature", s->NoSendSignature);
 
+		// Server certificate
+		b = XToBuf(c->ServerX, false);
+		CfgAddBuf(f, "ServerCert", b);
+		FreeBuf(b);
 
-		if (is_vgs_cert == false)
-		{
-			// Server certificate
-			b = XToBuf(c->ServerX, false);
-			CfgAddBuf(f, "ServerCert", b);
-			FreeBuf(b);
-
-			// Server private key
-			b = KToBuf(c->ServerK, false, NULL);
-			CfgAddBuf(f, "ServerKey", b);
-			FreeBuf(b);
-		}
+		// Server private key
+		b = KToBuf(c->ServerK, false, NULL);
+		CfgAddBuf(f, "ServerKey", b);
+		FreeBuf(b);
 
 		// Traffic information
 		Lock(c->TrafficLock);
@@ -6701,16 +6604,6 @@ void StStartServer(bool bridge)
 	Unlock(server_lock);
 
 //	StartCedarLog();
-}
-
-// Get the server
-SERVER *StGetServer()
-{
-	if (server == NULL)
-	{
-		return NULL;
-	}
-	return server;
 }
 
 // Stop the server
@@ -7324,7 +7217,6 @@ void SiCalledEnumHub(SERVER *s, PACK *p, PACK *req)
 {
 	UINT i;
 	CEDAR *c;
-	UINT num = 0;
 	// Validate arguments
 	if (s == NULL || p == NULL || req == NULL)
 	{
@@ -8440,27 +8332,6 @@ void SiStopFarmControl(SERVER *s)
 	ReleaseThread(s->FarmControlThread);
 }
 
-// HUB enumeration directive (asynchronous start)
-void SiCallEnumHubBegin(SERVER *s, FARM_MEMBER *f)
-{
-	// Validate arguments
-	if (s == NULL || f == NULL)
-	{
-		return;
-	}
-}
-
-// HUB enumeration directive (asynchronous end)
-void SiCallEnumHubEnd(SERVER *s, FARM_MEMBER *f)
-{
-	// Validate arguments
-	if (s == NULL || f == NULL)
-	{
-		return;
-	}
-}
-
-
 // HUB enumeration directive
 void SiCallEnumHub(SERVER *s, FARM_MEMBER *f)
 {
@@ -9402,7 +9273,7 @@ void SiHubUpdateProc(HUB *h)
 	SERVER *s;
 	UINT i;
 	// Validate arguments
-	if (h == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
+	if (h == NULL || h->Cedar == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
 	{
 		return;
 	}
@@ -9917,62 +9788,6 @@ PACK *SiCalledTask(FARM_CONTROLLER *f, PACK *p, char *taskname)
 	}
 
 	return ret;
-}
-
-// Call the task (asynchronous)
-FARM_TASK *SiCallTaskAsyncBegin(FARM_MEMBER *f, PACK *p, char *taskname)
-{
-	char tmp[MAX_PATH];
-	FARM_TASK *t;
-	// Validate arguments
-	if (f == NULL || p == NULL || taskname == NULL)
-	{
-		return NULL;
-	}
-
-	PackAddStr(p, "taskname", taskname);
-
-	Debug("Call Async Task [%s] (%s)\n", taskname, f->hostname);
-
-	Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Entering Call [%s] to %s", taskname, f->hostname);
-	SiDebugLog(f->Cedar->Server, tmp);
-
-	t = SiFarmServPostTask(f, p);
-	StrCpy(t->TaskName, sizeof(t->TaskName), taskname);
-	StrCpy(t->HostName, sizeof(t->HostName), f->hostname);
-	t->FarmMember = f;
-
-	return t;
-}
-
-// Get the results of the asynchronous task
-PACK *SiCallTaskAsyncEnd(CEDAR *c, FARM_TASK *t)
-{
-	PACK *p;
-	char taskname[MAX_PATH];
-	char hostname[MAX_PATH];
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (t == NULL || c == NULL)
-	{
-		return NULL;
-	}
-
-	StrCpy(taskname, sizeof(taskname), t->TaskName);
-	StrCpy(hostname, sizeof(hostname), t->HostName);
-
-	p = SiFarmServWaitTask(t);
-	if (p == NULL)
-	{
-		Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Call ERROR [%s] to %s", taskname, hostname);
-		SiDebugLog(c->Server, tmp);
-		return NULL;
-	}
-
-	Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Retrieving Call Result [%s] to %s", taskname, hostname);
-	SiDebugLog(c->Server, tmp);
-
-	return p;
 }
 
 // Call the task
@@ -10502,8 +10317,6 @@ void SiConnectToControllerThread(THREAD *thread, void *param)
 
 	server = f->Server;
 
-	f->StartedTime = SystemTime64();
-
 	SLog(server->Cedar, "LS_FARM_CONNECT_1", server->ControllerName);
 
 	first_failed = true;
@@ -10763,21 +10576,6 @@ void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size)
 			StrCpy(region, region_size, "CN");
 		}
 	}
-}
-
-// Check the current region
-bool SiCheckCurrentRegion(CEDAR *c, char *r)
-{
-	char tmp[64];
-	// Validate arguments
-	if (c == NULL || r == NULL)
-	{
-		return false;
-	}
-
-	SiGetCurrentRegion(c, tmp, sizeof(tmp));
-
-	return (StrCmpi(r, tmp) == 0);
 }
 
 // Check whether some enterprise functions are restricted
