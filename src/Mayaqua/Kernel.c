@@ -381,25 +381,6 @@ LIST *NewThreadList()
 	return o;
 }
 
-// Remove the thread from the thread list
-void DelThreadFromThreadList(LIST *o, THREAD *t)
-{
-	// Validate arguments
-	if (o == NULL || t == NULL)
-	{
-		return;
-	}
-
-	LockList(o);
-	{
-		if (Delete(o, t))
-		{
-			ReleaseThread(t);
-		}
-	}
-	UnlockList(o);
-}
-
 // Add the thread to the thread list
 void AddThreadToThreadList(LIST *o, THREAD *t)
 {
@@ -464,21 +445,6 @@ void MaintainThreadList(LIST *o)
 		}
 	}
 	UnlockList(o);
-}
-
-// Wait until all threads in the thread list will be stopped
-void WaitAllThreadsWillBeStopped(LIST *o)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	while (LIST_NUM(o) != 0)
-	{
-		SleepThread(100);
-	}
 }
 
 // Stop all the threads in the thread list
@@ -555,33 +521,6 @@ void GetHomeDirW(wchar_t *path, UINT size)
 			Win32GetCurrentDirW(path, size);
 #else	// OS_WIN32
 			UnixGetCurrentDirW(path, size);
-#endif	// OS_WIN32
-		}
-	}
-}
-void GetHomeDir(char *path, UINT size)
-{
-	// Validate arguments
-	if (path == NULL)
-	{
-		return;
-	}
-
-	if (GetEnv("HOME", path, size) == false)
-	{
-		char drive[MAX_SIZE];
-		char hpath[MAX_SIZE];
-		if (GetEnv("HOMEDRIVE", drive, sizeof(drive)) &&
-			GetEnv("HOMEPATH", hpath, sizeof(hpath)))
-		{
-			Format(path, sizeof(path), "%s%s", drive, hpath);
-		}
-		else
-		{
-#ifdef	OS_WIN32
-			Win32GetCurrentDir(path, size);
-#else	// OS_WIN32
-			UnixGetCurrentDir(path, size);
 #endif	// OS_WIN32
 		}
 	}
@@ -906,21 +845,6 @@ void GetDateTimeStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale)
 	UINT64ToSystem(&st, sec64);
 	GetDateTimeStrEx(str, size, &st, locale);
 }
-void GetTimeStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale)
-{
-	SYSTEMTIME st;
-	if (locale == NULL)
-	{
-		locale = &current_locale;
-	}
-	if (sec64 == 0 || SystemToLocal64(sec64) == 0 || LocalToSystem64(sec64) == 0)
-	{
-		UniStrCpy(str, size, locale->Unknown);
-		return;
-	}
-	UINT64ToSystem(&st, sec64);
-	GetTimeStrEx(str, size, &st, locale);
-}
 void GetDateStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale)
 {
 	SYSTEMTIME st;
@@ -946,17 +870,6 @@ void GetTimeStrMilli64(char *str, UINT size, UINT64 sec64)
 	}
 	UINT64ToSystem(&st, sec64);
 	GetTimeStrMilli(str, size, &st);
-}
-void GetTimeStr64(char *str, UINT size, UINT64 sec64)
-{
-	SYSTEMTIME st;
-	if (sec64 == 0 || SystemToLocal64(sec64) == 0 || LocalToSystem64(sec64) == 0)
-	{
-		StrCpy(str, size, "(Unknown)");
-		return;
-	}
-	UINT64ToSystem(&st, sec64);
-	GetTimeStr(str, size, &st);
 }
 
 // Convert to a time to be used safely in the current POSIX implementation
@@ -1171,7 +1084,6 @@ THREAD *NewThreadNamed(THREAD_PROC *thread_proc, void *param, char *name)
 	THREAD *host = NULL;
 	THREAD_POOL_DATA *pd = NULL;
 	THREAD *ret;
-	bool new_thread = false;
 	// Validate arguments
 	if (thread_proc == NULL)
 	{
@@ -1195,8 +1107,6 @@ THREAD *NewThreadNamed(THREAD_PROC *thread_proc, void *param, char *name)
 		pd->InitFinishEvent = NewEvent();
 		host = NewThreadInternal(ThreadPoolProc, pd);
 		WaitThreadInitInternal(host);
-
-		new_thread = true;
 	}
 	else
 	{
@@ -1564,19 +1474,6 @@ void GetTimeStrMilli(char *str, UINT size, SYSTEMTIME *st)
 		st->wHour, st->wMinute, st->wSecond, st->wMilliseconds);
 }
 
-// Get the time string (for example, 12:34:56)
-void GetTimeStr(char *str, UINT size, SYSTEMTIME *st)
-{
-	// Validate arguments
-	if (str == NULL || st == NULL)
-	{
-		return;
-	}
-
-	Format(str, size, "%02u:%02u:%02u",
-		st->wHour, st->wMinute, st->wSecond);
-}
-
 // Get the date string (example: 2004/07/23)
 void GetDateStr(char *str, UINT size, SYSTEMTIME *st)
 {
@@ -1640,31 +1537,6 @@ void GetDateTimeStrRFC3339(char *str, UINT size, SYSTEMTIME *st, int timezone_mi
 	}
 }
 
-// Get the time string
-void GetSpanStr(char *str, UINT size, UINT64 sec64)
-{
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (str == NULL)
-	{
-		return;
-	}
-
-	StrCpy(tmp, sizeof(tmp), "");
-	if (sec64 >= (UINT64)(1000 * 3600 * 24))
-	{
-		Format(tmp, sizeof(tmp), "%u:", (UINT)(sec64 / (UINT64)(1000 * 3600 * 24)));
-	}
-
-	Format(tmp, sizeof(tmp), "%s%02u:%02u:%02u", tmp,
-		(UINT)(sec64 % (UINT64)(1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-		(UINT)(sec64 % (UINT64)(1000 * 60 * 60)) / (1000 * 60),
-		(UINT)(sec64 % (UINT64)(1000 * 60)) / 1000);
-
-	Trim(tmp);
-	StrCpy(str, size, tmp);
-}
-
 // Get the time string (in milliseconds)
 void GetSpanStrMilli(char *str, UINT size, UINT64 sec64)
 {
@@ -1689,49 +1561,6 @@ void GetSpanStrMilli(char *str, UINT size, UINT64 sec64)
 
 	Trim(tmp);
 	StrCpy(str, size, tmp);
-}
-
-// Get the time string (extended)
-void GetSpanStrEx(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale)
-{
-	wchar_t tmp[MAX_SIZE];
-	// Validate arguments
-	if (str == NULL)
-	{
-		return;
-	}
-
-	locale = (locale != NULL ? locale : &current_locale);
-
-	UniStrCpy(tmp, sizeof(tmp), L"");
-	if (sec64 >= (UINT64)(1000 * 3600 * 24))
-	{
-		UniFormat(tmp, sizeof(tmp), L"%u%s ", (UINT)(sec64 / (UINT64)(1000 * 3600 * 24)),
-			locale->SpanDay);
-	}
-
-	UniFormat(tmp, sizeof(tmp), L"%s%u%s %02u%s %02u%s", tmp,
-		(UINT)(sec64 % (UINT64)(1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-		locale->SpanHour,
-		(UINT)(sec64 % (UINT64)(1000 * 60 * 60)) / (1000 * 60),
-		locale->SpanMinute,
-		(UINT)(sec64 % (UINT64)(1000 * 60)) / 1000,
-		locale->SpanSecond);
-
-	UniTrim(tmp);
-	UniStrCpy(str, size, tmp);
-}
-
-// Get the current locale information
-void GetCurrentLocale(LOCALE *locale)
-{
-	// Validate arguments
-	if (locale == NULL)
-	{
-		return;
-	}
-
-	Copy(locale, &current_locale, sizeof(LOCALE));
 }
 
 // Set the locale information
@@ -1896,16 +1725,6 @@ void TimeToSystem(SYSTEMTIME *st, time_64t t)
 	TmToSystem(st, &tmp);
 }
 
-// Convert the time_t to 64-bit SYSTEMTIME
-UINT64 TimeToSystem64(time_64t t)
-{
-	SYSTEMTIME st;
-
-	TimeToSystem(&st, t);
-
-	return SystemToUINT64(&st);
-}
-
 // Convert the SYSTEMTIME to time_t
 time_64t SystemToTime(SYSTEMTIME *st)
 {
@@ -1918,16 +1737,6 @@ time_64t SystemToTime(SYSTEMTIME *st)
 
 	SystemToTm(&t, st);
 	return TmToTime(&t);
-}
-
-// Convert a 64-bit SYSTEMTIME to a time_t
-time_64t System64ToTime(UINT64 i)
-{
-	SYSTEMTIME st;
-
-	UINT64ToSystem(&st, i);
-
-	return SystemToTime(&st);
 }
 
 // Convert the tm to time_t
