@@ -2704,7 +2704,7 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 
 	p = ParsePacket(data, size);
 
-	if (p != NULL && p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
+	if (p != NULL && (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0))
 	{
 		if (IsValidUnicastMacAddress(p->MacAddressSrc))
 		{
