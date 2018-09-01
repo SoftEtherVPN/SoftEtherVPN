@@ -504,8 +504,6 @@ int CompareServerListener(void *p1, void *p2);
 void SiStopAllListener(SERVER *s);
 void SiInitDefaultHubList(SERVER *s);
 void SiSetDefaultHubOption(HUB_OPTION *o);
-void SiInitBridge(SERVER *s);
-void SiTest(SERVER *s);
 FOLDER *SiWriteConfigurationToCfg(SERVER *s);
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root);
 void SiWriteLocalBridges(FOLDER *f, SERVER *s);
@@ -578,7 +576,6 @@ void SiRebootServer(bool bridge);
 void SiRebootServerThread(THREAD *thread, void *param);
 void StInit();
 void StFree();
-SERVER *StGetServer();
 void SiSetServerType(SERVER *s, UINT type,
 					 UINT ip, UINT num_port, UINT *ports,
 					 char *controller_name, UINT controller_port, UCHAR *password, UINT weight, bool controller_only);
@@ -591,8 +588,6 @@ FARM_TASK *SiFarmServPostTask(FARM_MEMBER *f, PACK *request);
 PACK *SiFarmServWaitTask(FARM_TASK *t);
 PACK *SiExecTask(FARM_MEMBER *f, PACK *p);
 PACK *SiCallTask(FARM_MEMBER *f, PACK *p, char *taskname);
-FARM_TASK *SiCallTaskAsyncBegin(FARM_MEMBER *f, PACK *p, char *taskname);
-PACK *SiCallTaskAsyncEnd(CEDAR *c, FARM_TASK *t);
 void SiAcceptTasksFromController(FARM_CONTROLLER *f, SOCK *sock);
 void SiAcceptTasksFromControllerMain(FARM_CONTROLLER *f, SOCK *sock);
 PACK *SiCalledTask(FARM_CONTROLLER *f, PACK *p, char *taskname);
@@ -630,8 +625,6 @@ void SiCalledEnumHub(SERVER *s, PACK *p, PACK *req);
 void SiPackAddCreateHub(PACK *p, HUB *h);
 FARM_MEMBER *SiGetHubHostingMember(SERVER *s, HUB *h, bool admin_mode, CONNECTION *c);
 void SiCallEnumHub(SERVER *s, FARM_MEMBER *f);
-void SiCallEnumHubBegin(SERVER *s, FARM_MEMBER *f);
-void SiCallEnumHubEnd(SERVER *s, FARM_MEMBER *f);
 void SiStartFarmControl(SERVER *s);
 void SiStopFarmControl(SERVER *s);
 void SiFarmControlThread(THREAD *thread, void *param);
@@ -726,7 +719,6 @@ void SiAddHubCreateHistory(SERVER *s, char *name);
 void SiDelHubCreateHistory(SERVER *s, char *name);
 bool SiIsHubRegistedOnCreateHistory(SERVER *s, char *name);
 
-UINT SiGetServerNumUserObjects(SERVER *s);
 bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore);
 
 void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c);
@@ -740,12 +732,10 @@ bool SiIsAzureEnabled(SERVER *s);
 bool SiIsAzureSupported(SERVER *s);
 void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status);
 void SiSetAzureEnable(SERVER *s, bool enabled);
-bool SiGetAzureEnable(SERVER *s);
 
 void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update);
 void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size);
 bool SiIsEnterpriseFunctionsRestrictedOnOpenSource(CEDAR *c);
-bool SiCheckCurrentRegion(CEDAR *c, char *r);
 
 #endif	// SERVER_H
 
