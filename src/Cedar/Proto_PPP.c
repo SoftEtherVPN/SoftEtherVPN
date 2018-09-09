@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_PPP.c
+// Proto_PPP.c
 // PPP protocol stack
 
 #include "CedarPch.h"

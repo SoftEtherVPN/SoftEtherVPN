@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IPC.h
-// Header of IPsec_IPC.c
+// IPC.h
+// Header of IPC.c
 
-#ifndef	IPSEC_IPC
-#define	IPSEC_IPC
+#ifndef	IPC_H
+#define	IPC_H
 
 // Constants
 #define	IPC_ARP_LIFETIME				(3 * 60 * 1000)
@@ -263,7 +263,4 @@ void FreeIPCAsync(IPC_ASYNC *a);
 
 bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 
-#endif	// IPSEC_IPC
-
-
-
+#endif	// IPC_H

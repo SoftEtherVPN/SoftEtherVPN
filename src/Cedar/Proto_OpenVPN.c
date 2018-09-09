@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// Interop_OpenVPN.c
+// Proto_OpenVPN.c
 // OpenVPN protocol stack
 
 #include "CedarPch.h"

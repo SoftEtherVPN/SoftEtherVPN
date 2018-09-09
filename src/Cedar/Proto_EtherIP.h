@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_EtherIP.h
-// Header of IPsec_EtherIP.c
+// Proto_EtherIP.h
+// Header of Proto_EtherIP.c
 
-#ifndef	IPSEC_ETHERIP_H
-#define	IPSEC_ETHERIP_H
+#ifndef	PROTO_ETHERIP_H
+#define	PROTO_ETHERIP_H
 
 //// Macro
 
@@ -171,6 +171,4 @@ void EtherIPIpcConnectThread(THREAD *t, void *p);
 UINT CalcEtherIPTcpMss(ETHERIP_SERVER *s);
 
 
-#endif	// IPSEC_ETHERIP_H
-
-
+#endif	// PROTO_ETHERIP_H

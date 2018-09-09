@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IPC.c
+// IPC.c
 // In-process VPN client module
 
 #include "CedarPch.h"

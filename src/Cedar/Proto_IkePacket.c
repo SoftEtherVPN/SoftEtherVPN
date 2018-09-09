@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IkePacket.c
+// Proto_IkePacket.c
 // IKE (ISAKMP) packet processing
 
 #include "CedarPch.h"

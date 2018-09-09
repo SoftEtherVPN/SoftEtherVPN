@@ -583,76 +583,8 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Interop_OpenVPN.c"
+				RelativePath=".\IPC.c"
 				>
-			</File>
-			<File
-				RelativePath=".\Interop_SSTP.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_EtherIP.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IKE.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IkePacket.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IPC.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_L2TP.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_PPP.c"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_Win7.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Layer3.c"
@@ -717,6 +649,74 @@
 			<File
 				RelativePath=".\NullLan.c"
 				>
+			</File>
+			<File
+				RelativePath=".\Proto_EtherIP.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IKE.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IkePacket.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IPsec.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_L2TP.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_OpenVPN.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_PPP.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_SSTP.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_Win7.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Protocol.c"
@@ -1241,47 +1241,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Interop_OpenVPN.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Interop_SSTP.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_EtherIP.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IKE.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IkePacket.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_IPC.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_L2TP.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_PPP.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_Win7.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPsec_Win7Inner.h"
+				RelativePath=".\IPC.h"
 				>
 			</File>
 			<File
@@ -1318,6 +1278,46 @@
 			</File>
 			<File
 				RelativePath=".\NullLan.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_EtherIP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IKE.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IkePacket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_IPsec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_L2TP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_OpenVPN.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_PPP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_SSTP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_Win7.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto_Win7Inner.h"
 				>
 			</File>
 			<File

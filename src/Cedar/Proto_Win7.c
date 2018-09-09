@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_Win7.c
+// Proto_Win7.c
 // Initialize the helper module for Windows 7 / Windows 8 / Windows Vista / Windows Server 2008 / Windows Server 2008 R2 / Windows Server 2012 / Windows 10
 
 #include <GlobalConst.h>
@@ -137,7 +137,7 @@
 #include <errno.h>
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
-#include "IPsec_Win7Inner.h"
+#include "Proto_Win7Inner.h"
 #include <Wfp/Wfp.h>
 
 static IPSEC_WIN7_FUNCTIONS *api = NULL;

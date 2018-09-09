@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_L2TP.c
+// Proto_L2TP.c
 // L2TP protocol stack
 
 #include "CedarPch.h"

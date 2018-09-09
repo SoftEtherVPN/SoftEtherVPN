@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IKE.h
-// Header of IPsec_IKE.c
+// Proto_IKE.h
+// Header of Proto_IKE.c
 
-#ifndef	IPSEC_IKE_H
-#define	IPSEC_IKE_H
+#ifndef	PROTO_IKE_H
+#define	PROTO_IKE_H
 
 //// Macro
 
@@ -472,5 +472,5 @@ void ProcL2TPv3PacketRecv(IKE_SERVER *ike, IKE_CLIENT *c, UCHAR *data, UINT data
 
 IKE_SA *SearchIkeSaByCookie(IKE_SERVER *ike, UINT64 init_cookie, UINT64 resp_cookie);
 
-#endif	// IPSEC_IKE_H
+#endif	// PROTO_IKE_H
 

@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_PPP.h
-// Header of IPsec_PPP.c
+// Proto_PPP.h
+// Header of Proto_PPP.c
 
-#ifndef	IPSEC_PPP_H
-#define	IPSEC_PPP_H
+#ifndef	PROTO_PPP_H
+#define	PROTO_PPP_H
 
 
 //// Macro
@@ -336,6 +336,4 @@ bool MsChapV2VerityPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list);
 void PPPFreeEapClient(PPP_SESSION *p);
 
-#endif	// IPSEC_PPP_H
-
-
+#endif	// PROTO_PPP_H
