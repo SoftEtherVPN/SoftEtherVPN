@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IKE.c
+// Proto_IKE.c
 // IKE (ISAKMP) and ESP protocol stack
 
 #include "CedarPch.h"

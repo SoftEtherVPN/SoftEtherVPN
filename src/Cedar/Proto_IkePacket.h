@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_IkePacket.h
-// Header of IPsec_IkePacket.c
+// Proto_IkePacket.h
+// Header of Proto_IkePacket.c
 
-#ifndef	IPSEC_PACKET_H
-#define	IPSEC_PACKET_H
+#ifndef	PROTO_IKEPACKET_H
+#define	PROTO_IKEPACKET_H
 
 // Constants
 #ifdef	OS_WIN32
@@ -768,6 +768,4 @@ DH_CTX *IkeDhNewCtx(IKE_DH *d);
 void IkeDhFreeCtx(DH_CTX *dh);
 
 
-#endif	// IPSEC_PACKET_H
-
-
+#endif	// PROTO_IKEPACKET_H

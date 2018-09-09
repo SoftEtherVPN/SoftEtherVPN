@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// Interop_SSTP.c
+// Proto_SSTP.c
 // SSTP (Microsoft Secure Socket Tunneling Protocol) protocol stack
 
 #include "CedarPch.h"

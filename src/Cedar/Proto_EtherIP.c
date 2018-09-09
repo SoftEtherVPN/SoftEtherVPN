@@ -108,7 +108,7 @@
 // test has been passed before release this source code.
 
 
-// IPsec_EtherIP.c
+// Proto_EtherIP.c
 // EtherIP protocol stack
 
 #include "CedarPch.h"

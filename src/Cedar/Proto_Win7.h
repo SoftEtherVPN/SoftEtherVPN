@@ -108,11 +108,11 @@
 // test has been passed before release this source code.
 
 
-// IPsec_Win7.h
-// Header of IPsec_Win7.c
+// Proto_Win7.h
+// Header of Proto_Win7.c
 
-#ifndef	IPSEC_WIN7_H
-#define	IPSEC_WIN7_H
+#ifndef	PROTO_WIN7_H
+#define	PROTO_WIN7_H
 
 // Constants
 #define	IPSEC_WIN7_SRC_SYS_X86	"|pxwfp_x86.sys"
@@ -142,7 +142,4 @@ void SetCurrentIPsecWin7DriverBuild();
 bool IPsecWin7InitApi();
 
 
-#endif	// IPSEC_WIN7_H
-
-
-
+#endif	// PROTO_WIN7_H

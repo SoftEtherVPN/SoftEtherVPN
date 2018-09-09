@@ -1108,7 +1108,7 @@ typedef struct CEDAR
 #include <Cedar/Sam.h>
 // Radius authentication module
 #include <Cedar/Radius.h>
-// Protocol
+// Native protocol
 #include <Cedar/Protocol.h>
 // Inter-HUB link
 #include <Cedar/Link.h>
@@ -1126,19 +1126,18 @@ typedef struct CEDAR
 #include <Cedar/Command.h>
 // RPC over HTTP
 #include <Cedar/Wpc.h>
-// IPsec
-#include <Cedar/IPsec.h>
-#include <Cedar/IPsec_L2TP.h>
-#include <Cedar/IPsec_PPP.h>
-#include <Cedar/IPsec_IPC.h>
-#include <Cedar/IPsec_IkePacket.h>
-#include <Cedar/IPsec_IKE.h>
-#include <Cedar/IPsec_Win7.h>
-#include <Cedar/IPsec_EtherIP.h>
-// SSTP
-#include <Cedar/Interop_SSTP.h>
-// OpenVPN
-#include <Cedar/Interop_OpenVPN.h>
+// Layer-2/Layer-3 converter
+#include <Cedar/IPC.h>
+// Third party protocols
+#include <Cedar/Proto_IPsec.h>
+#include <Cedar/Proto_EtherIP.h>
+#include <Cedar/Proto_IkePacket.h>
+#include <Cedar/Proto_IKE.h>
+#include <Cedar/Proto_L2TP.h>
+#include <Cedar/Proto_OpenVPN.h>
+#include <Cedar/Proto_PPP.h>
+#include <Cedar/Proto_SSTP.h>
+#include <Cedar/Proto_Win7.h>
 // UDP Acceleration
 #include <Cedar/UdpAccel.h>
 // DDNS Client
