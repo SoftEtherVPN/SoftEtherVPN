@@ -1,6 +1,6 @@
 SoftEther VPN (Stable Edition Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
-http://www.softether.org/
+https://www.softether.org/
 
 We use GitHub as the primary official SoftEther VPN repository:
 https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/
@@ -11,10 +11,10 @@ Developer Edition Master Repository on
 https://github.com/SoftEtherVPN/SoftEtherVPN
 
 Source code packages (.zip and .tar.gz) and binary files are also available:
-http://www.softether-download.com/
+https://www.softether-download.com/
 
 We accept your patches by the acceptance policy:
-http://www.softether.org/5-download/src/9.patch
+https://www.softether.org/5-download/src/9.patch
 
 Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 
@@ -37,7 +37,7 @@ SoftEther VPN supports most of widely-used VPN protocols
 including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
-More details on http://www.softether.org/.
+More details on https://www.softether.org/.
 
 
 SOFTETHER VPN ADVANTAGES
@@ -77,18 +77,18 @@ SOFTETHER VPN ADVANTAGES
 - No memory leaks. High quality stable codes, intended for long-term runs.
   We always verify that there are no memory or resource leaks before
   releasing the build.
-- More details at http://www.softether.org/.
+- More details at https://www.softether.org/.
 
 
 GETTING STARTED
 ---------------
 
 Visit the SoftEther VPN Project official web site at first:
-        http://www.softether.org/
+        https://www.softether.org/
 
 If you are not a developer, it is recommended to download the binary
 installers from:
-        http://www.softether-download.com/
+        https://www.softether-download.com/
 
 To build from the source,
 see "BUILD_UNIX.TXT" or "BUILD_WINDOWS.TXT" files.
@@ -97,7 +97,7 @@ see "BUILD_UNIX.TXT" or "BUILD_WINDOWS.TXT" files.
 HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
 ----------------------------------------------
 
-Go to http://www.softether-download.com/ and you can find the latest
+Go to https://www.softether-download.com/ and you can find the latest
 source-code package file in both .ZIP and .TAR.GZ format.
 
 This is the easiest way to obtain the source code of SoftEther VPN.
@@ -147,7 +147,7 @@ SOURCE CODE CONTRIBUTION
 Your contribution to SoftEther VPN Project is much appreciated.
 Please send patches to us through GitHub.
 Read the SoftEther VPN Patch Acceptance Policy in advance:
-http://www.softether.org/5-download/src/9.patch
+https://www.softether.org/5-download/src/9.patch
 
 
 DEAR SECURITY EXPERTS
@@ -162,7 +162,7 @@ softether-vpn-security [at] softether.org
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit
-http://www.softether.org/ and ask your question on the users forum.
+https://www.softether.org/ and ask your question on the users forum.
 
 
 DISCLAIMER

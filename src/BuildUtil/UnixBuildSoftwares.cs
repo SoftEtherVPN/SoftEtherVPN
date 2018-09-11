@@ -648,11 +648,16 @@ namespace BuildUtil
 				sr.WriteLine("\t-ranlib lib/{0}", Path.GetFileName(filename));
 			}
 
+			bool no_pie_first = false;
 			bool try_no_pie = false;
 
-			if (this.Os == OSList.Linux && (this.Cpu == CpuList.x86 || this.Cpu == CpuList.x64 || this.Cpu == CpuList.intel))
+			if (this.Os == OSList.Linux)
 			{
 				try_no_pie = true;
+				if (this.Cpu == CpuList.x86 || this.Cpu == CpuList.x64 || this.Cpu == CpuList.intel)
+				{
+					no_pie_first = true;
+				}
 			}
 
 			sr.WriteLine("\t-ranlib code/{0}.a", this.Software.ToString());
@@ -663,17 +668,32 @@ namespace BuildUtil
 			}
 			else
 			{
-				sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
+				if (no_pie_first == false)
+				{
+					sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
+				}
+				else
+				{
+					sr.WriteLine("\t$(CC) -no-pie code/{0}.a $(OPTIONS) -o {0} || $(CC) code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
+				}
 			}
 
 			sr.WriteLine("\t-ranlib code/{0}.a", "vpncmd");
+
 			if (try_no_pie == false)
 			{
 				sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
 			}
 			else
 			{
-				sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
+				if (no_pie_first == false)
+				{
+					sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
+				}
+				else
+				{
+					sr.WriteLine("\t$(CC) -no-pie code/{0}.a $(OPTIONS) -o {0} || $(CC) code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
+				}
 			}
 
 			if (this.Software == Software.vpnserver_vpnbridge || this.Software == Software.vpnbridge || this.Software == Software.vpnserver)

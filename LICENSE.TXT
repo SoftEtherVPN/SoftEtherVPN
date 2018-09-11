@@ -7,7 +7,7 @@ Copyright (c) Daiyuu Nobori.
 Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 Copyright (c) SoftEther Corporation.
 All Rights Reserved.
-http://www.softether.org/
+https://www.softether.org/
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License version 2 as published by the Free

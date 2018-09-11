@@ -13222,6 +13222,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		sock->CipherName = CopyStr((char *)SSL_get_cipher(sock->ssl));
 	}
 	Unlock(openssl_lock);
+	Debug("SSL connected with %s\n", SSL_get_version(sock->ssl));
 
 	Unlock(sock->ssl_lock);
 

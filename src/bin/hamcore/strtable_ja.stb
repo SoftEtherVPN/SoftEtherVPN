@@ -468,7 +468,7 @@ WINVER_ERROR_PC_REMOTE	接続先のサーバーコンピュータ
 
 
 # オープンソース版に関する警告
-OSS_MSG					はじめに - SoftEther VPN Server について\r\n\r\nこの VPN Server は、筑波大学において学術実験目的で開発され SoftEther プロジェクト http://www.softether.org/ で無償配布されているオープンソースのフリーソフトです。\r\nSoftEther VPN ソフトウェアは国立大学法人筑波大学とソフトイーサ株式会社との共同研究契約の一環として広く公開されているものです。SoftEther VPN ソフトウェアは学術実験目的で開発・公開されております。SoftEther VPN ソフトウェアに含まれる不具合等についてのサポート等は提供されておらず、利用者がすべての責任を負うことになります。本ソフトウェアの開発者・配布者は、SoftEther VPN ソフトウェアの利用の結果、利用者に生じる損失等について、一切責任を負いません。\r\n\r\nこれらのことに合意いただいた上で、SoftEther VPN Server を用いた通信をお楽しみください。\r\n\r\nSoftEther VPN について詳しくは http://www.softether.org/ をご参照ください。\r\n\r\n
+OSS_MSG					はじめに - SoftEther VPN Server について\r\n\r\nこの VPN Server は、筑波大学において学術実験目的で開発され SoftEther プロジェクト https://www.softether.org/ で無償配布されているオープンソースのフリーソフトです。\r\nSoftEther VPN ソフトウェアは国立大学法人筑波大学とソフトイーサ株式会社との共同研究契約の一環として広く公開されているものです。SoftEther VPN ソフトウェアは学術実験目的で開発・公開されております。SoftEther VPN ソフトウェアに含まれる不具合等についてのサポート等は提供されておらず、利用者がすべての責任を負うことになります。本ソフトウェアの開発者・配布者は、SoftEther VPN ソフトウェアの利用の結果、利用者に生じる損失等について、一切責任を負いません。\r\n\r\nこれらのことに合意いただいた上で、SoftEther VPN Server を用いた通信をお楽しみください。\r\n\r\nSoftEther VPN について詳しくは http://www.softether.org/ をご参照ください。\r\n\r\n
 
 
 # NAT Traversal に関する警告
@@ -2313,7 +2313,7 @@ S_RETRY_NUM_2			回
 S_RETRY_SPAN_1			再接続間隔(&K):
 S_RETRY_SPAN_2			秒
 R_INFINITE				無限に再接続を試行する (常時接続) (&I)
-R_NOTLS1				TLS &1.0 を使用しない
+R_NOTLS1				SSL 3.0 を使用する(&1)
 B_DETAIL				高度な通信設定(&N)...
 IDOK					&OK
 IDCANCEL				キャンセル
@@ -2434,7 +2434,7 @@ STATIC7					インターネット接続の維持機能(&N)
 
 PREFIX					D_ABOUT
 S_INFO1					SoftEther VPN %u.0 (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: https://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				本ソフトウェアは筑波大学 SoftEther VPN プロジェクトで開発されたフリーウェアです。本ソフトウェアは一切の保証がない状態で提供されるものであり、開発および配布元は使用の結果の損害について一切責任を負いません。\r\n\r\nSoftEther VPN ソフトウェアは日本国経済産業省のソフトウェア研究開発プロジェクトの成果物です。IPA (独立行政法人 情報処理推進機構) の未踏ソフトウェア創造事業に採択され開発されました。詳しくは http://www.ipa.go.jp/ をご覧ください。
 IDCANCEL				&OK

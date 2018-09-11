@@ -2983,6 +2983,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 	{
 		case IKE_HASH_SHA1_ID:
 		case IKE_HASH_SHA2_256_ID:
+		case IKE_HASH_MD5_ID:
 			hmac_block_size = HMAC_BLOCK_SIZE;
 			break;
 

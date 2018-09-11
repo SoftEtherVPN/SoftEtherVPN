@@ -53,7 +53,7 @@ After the installation will complete successfully:
 
 - You can also use VPN Server/Client Manager GUI Tool on other Windows PC to
   connect to VPN services remotely.
-  You can download the GUI Tools from http://www.softether-download.com/.
+  You can download the GUI Tools from https://www.softether-download.com/.
 
 
 How to Run SoftEther VPN Server for Test
@@ -74,7 +74,7 @@ $ bin/vpncmd/vpncmd
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
 connect to the VPN Server remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
+from https://www.softether-download.com/.
 
 
 How to Run SoftEther VPN Bridge for Test
@@ -95,7 +95,7 @@ $ bin/vpncmd/vpncmd
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
 connect to the VPN Bridge remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
+from https://www.softether-download.com/.
 
 
 How to Run SoftEther VPN Client for Test
@@ -116,10 +116,10 @@ $ bin/vpncmd/vpncmd
 
 Or you can also use VPN Client Manager GUI Tool on other Windows PC to
 connect to the VPN Client remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
+from https://www.softether-download.com/.
 
 
 ************************************
 Thank You Using SoftEther VPN !
 By SoftEther VPN Open-Source Project
-http://www.softether.org/
+https://www.softether.org/

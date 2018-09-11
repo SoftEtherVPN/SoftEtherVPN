@@ -41,4 +41,4 @@ with Visual Studio 2008 to customize. Open "src\SEVPN.sln" and enjoy it.
 ************************************
 Thank You Using SoftEther VPN !
 By SoftEther VPN Open-Source Project
-http://www.softether.org/
+https://www.softether.org/

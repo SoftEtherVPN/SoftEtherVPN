@@ -5009,7 +5009,7 @@ void PollingNatTcp(VH *v, NAT_ENTRY *n)
 			if (n->TcpFinished)
 			{
 				// Disconnect if all data transmission has completed
-				if (n->SendFifo->size == 0)
+				if (n->SendFifo->size == 0 && n->RecvFifo->size == 0)
 				{
 					n->TcpStatus = NAT_TCP_SEND_RESET;
 				}
