@@ -2963,108 +2963,44 @@ void IkeHash(IKE_HASH *h, void *dst, void *src, UINT size)
 // Calculation of HMAC
 void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT data_size)
 {
-	UINT hmac_block_size = HMAC_BLOCK_SIZE;
-	UCHAR k[HMAC_BLOCK_SIZE_MAX];
-	UCHAR *data1;
-	UCHAR hash1[IKE_MAX_HASH_SIZE];
-	UINT data1_size;
-	UCHAR data2[IKE_MAX_HASH_SIZE + HMAC_BLOCK_SIZE_MAX];
-	UINT data2_size;
-	UCHAR tmp1600[1600];
-	bool no_free = false;
-	UINT i;
+	MD *md = NULL;
+
 	// Validate arguments
 	if (h == NULL || dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
 	{
 		return;
 	}
 
-	switch (h->HashId)
+	switch(h->HashId)
 	{
-		case IKE_HASH_SHA1_ID:
-		case IKE_HASH_SHA2_256_ID:
-			hmac_block_size = HMAC_BLOCK_SIZE;
-			break;
-
-		case IKE_HASH_SHA2_384_ID:
-		case IKE_HASH_SHA2_512_ID:
-			hmac_block_size = HMAC_BLOCK_SIZE_1024;
-			break;
-
-		default:
-			return;
+	case IKE_HASH_MD5_ID:
+		md = NewMd("MD5");
+		break;
+	case IKE_HASH_SHA1_ID:
+		md = NewMd("SHA1");
+		break;
+	case IKE_HASH_SHA2_256_ID:
+		md = NewMd("SHA256");
+		break;
+	case IKE_HASH_SHA2_384_ID:
+		md = NewMd("SHA384");
+		break;
+	case IKE_HASH_SHA2_512_ID:
+		md = NewMd("SHA512");
+		break;
 	}
 
-	if (hmac_block_size > HMAC_BLOCK_SIZE_MAX)
+	if (md == NULL)
 	{
+		Debug("IkeHMac(): The MD object is NULL! Either NewMd() failed or the current algorithm is not handled by the switch-case block.");
 		return;
 	}
 
-	if (h->HashId == IKE_HASH_SHA1_ID)
-	{
-		// Use special function (fast) in the case of SHA-1
-		HMacSha1(dst, key, key_size, data, data_size);
-		return;
-	}
-	else if (h->HashId == IKE_HASH_MD5_ID)
-	{
-		// Use the special function (fast) in the case of MD5
-		HMacMd5(dst, key, key_size, data, data_size);
-		return;
-	}
-
-	// Creating a K
-	Zero(k, sizeof(k));
-	if (key_size <= hmac_block_size)
-	{
-		Copy(k, key, key_size);
-	}
-	else
-	{
-		IkeHash(h, k, key, key_size);
-	}
-
-	// Generation of data 1
-	data1_size = data_size + hmac_block_size;
-
-	if (data1_size > sizeof(tmp1600))
-	{
-		data1 = Malloc(data1_size);
-	}
-	else
-	{
-		data1 = tmp1600;
-		no_free = true;
-	}
-
-	for (i = 0;i < hmac_block_size;i++)
-	{
-		data1[i] = k[i] ^ 0x36;
-	}
-
-	Copy(data1 + hmac_block_size, data, data_size);
-
-	// Calculate the hash value
-	IkeHash(h, hash1, data1, data1_size);
-
-	if (no_free == false)
-	{
-		Free(data1);
-	}
-
-	// Generation of data 2
-	data2_size = h->HashSize + hmac_block_size;
-
-	for (i = 0;i < hmac_block_size;i++)
-	{
-		data2[i] = k[i] ^ 0x5c;
-	}
-
-	Copy(data2 + hmac_block_size, hash1, h->HashSize);
-
-	// Calculate the hash value
-	IkeHash(h, dst, data2, data2_size);
+	SetMdKey(md, key, key_size);
+	MdProcess(md, dst, data, data_size);
+	FreeMd(md);
 }
+
 void IkeHMacBuf(IKE_HASH *h, void *dst, BUF *key, BUF *data)
 {
 	// Validate arguments
