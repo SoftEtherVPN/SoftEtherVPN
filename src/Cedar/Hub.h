@@ -547,7 +547,6 @@ bool StorePacketFilter(SESSION *s, PKT *packet);
 void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *packet, bool is_flooding, bool no_check_acl);
 void SetHubOnline(HUB *h);
 void SetHubOffline(HUB *h);
-SESSION *GetSessionByPtr(HUB *hub, void *ptr);
 SESSION *GetSessionByName(HUB *hub, char *name);
 int CompareIpTable(void *p1, void *p2);
 bool StorePacketFilterByPolicy(SESSION *s, PKT *p);
@@ -566,7 +565,6 @@ void InitAccessList(HUB *hub);
 void FreeAccessList(HUB *hub);
 void AddAccessList(HUB *hub, ACCESS *a);
 void AddAccessListEx(HUB *hub, ACCESS *a, bool no_sort, bool no_reassign_id);
-bool SetSessionFirstRedirectHttpUrl(SESSION *s, char *url);
 bool IsTcpPacketNcsiHttpAccess(PKT *p);
 UINT64 UsernameToInt64(char *name);
 void MakeSimpleUsernameRemoveNtDomain(char *dst, UINT dst_size, char *src);
@@ -638,10 +636,7 @@ USERLIST *FindUserList(LIST *o, char *filename);
 bool IsUserMatchInUserList(LIST *o, char *filename, UINT64 user_hash);
 bool IsUserMatchInUserListWithCacheExpires(LIST *o, char *filename, UINT64 user_hash, UINT64 lifetime);
 bool IsUserMatchInUserListWithCacheExpiresAcl(LIST *o, char *name_in_acl, UINT64 user_hash, UINT64 lifetime);
-void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
-void VgsSetUserAgentValue(char *str);
-void VgsSetEmbTag(bool b);
 EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username);
 
 #endif	// HUB_H

@@ -3023,7 +3023,7 @@ bool ApplyAccessListToStoredPacket(HUB *hub, SESSION *s, PKT *p)
 
 	if (pass)
 	{
-		if (s != NULL && s->FirstTimeHttpRedirect && s->FirstTimeHttpAccessCheckIp != 0)
+		if (s->FirstTimeHttpRedirect && s->FirstTimeHttpAccessCheckIp != 0)
 		{
 			if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) &&
 				p->TypeL4 == L4_TCP)
@@ -3133,39 +3133,6 @@ bool IsTcpPacketNcsiHttpAccess(PKT *p)
 	}
 
 	return false;
-}
-
-// Set the URL to which to redirect first
-bool SetSessionFirstRedirectHttpUrl(SESSION *s, char *url)
-{
-	URL_DATA d;
-	IP ip;
-	// Validate arguments
-	if (s == NULL || url == NULL || IsEmptyStr(url))
-	{
-		return false;
-	}
-
-	if (ParseUrl(&d, url, false, NULL) == false)
-	{
-		return false;
-	}
-
-	if (StrToIP(&ip, d.HostName) == false)
-	{
-		return false;
-	}
-
-	if (IsIP4(&ip) == false)
-	{
-		return false;
-	}
-
-	s->FirstTimeHttpAccessCheckIp = IPToUINT(&ip);
-	StrCpy(s->FirstTimeHttpRedirectUrl, sizeof(s->FirstTimeHttpRedirectUrl), url);
-	s->FirstTimeHttpRedirect = true;
-
-	return true;
 }
 
 // Adding Access List
@@ -3381,35 +3348,6 @@ UINT64 UsernameToInt64(char *name)
 	Copy(&ret, hash, sizeof(ret));
 
 	return ret;
-}
-
-// Search the session from the session pointer
-SESSION *GetSessionByPtr(HUB *hub, void *ptr)
-{
-	// Validate arguments
-	if (hub == NULL || ptr == NULL)
-	{
-		return NULL;
-	}
-
-	LockList(hub->SessionList);
-	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(hub->SessionList);i++)
-		{
-			SESSION *s = LIST_DATA(hub->SessionList, i);
-			if (s == (SESSION *)ptr)
-			{
-				// Found
-				AddRef(s->ref);
-				UnlockList(hub->SessionList);
-				return s;
-			}
-		}
-	}
-	UnlockList(hub->SessionList);
-
-	return NULL;
 }
 
 // Search the session from the session name
@@ -3908,26 +3846,6 @@ LABEL_TRY_AGAIN:
 	return true;
 }
 
-// VGS: Setting for embedding UA tag
-void VgsSetEmbTag(bool b)
-{
-	g_vgs_emb_tag = b;
-}
-
-// VGS: Setting for the User-Agent value
-void VgsSetUserAgentValue(char *str)
-{
-	// Validate arguments
-	if (str == NULL || StrLen(str) != 8)
-	{
-		Zero(vgs_ua_str, sizeof(vgs_ua_str));
-	}
-	else
-	{
-		StrCpy(vgs_ua_str, sizeof(vgs_ua_str), str);
-	}
-}
-
 // Checking algorithm to prevent broadcast-storm
 // If broadcast from a specific endpoint came frequently, filter it
 bool CheckBroadcastStorm(HUB *hub, SESSION *s, PKT *p)
@@ -3952,7 +3870,7 @@ bool CheckBroadcastStorm(HUB *hub, SESSION *s, PKT *p)
 		return true;
 	}
 
-	if (hub != NULL && hub->Option != NULL)
+	if (hub->Option != NULL)
 	{
 		strict = hub->Option->BroadcastLimiterStrictMode;
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
@@ -5621,7 +5539,7 @@ bool StorePacketFilterByPolicy(SESSION *s, PKT *p)
 
 	hub = s->Hub;
 
-	if (hub->Option != NULL)
+	if (hub != NULL && hub->Option != NULL)
 	{
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
 	}
@@ -6657,34 +6575,6 @@ void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT inter
 		}
 	}
 	Unlock(hub->RadiusOptionLock);
-}
-
-// Get the difference between the traffic data
-void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current)
-{
-	// Validate arguments
-	Zero(diff, sizeof(TRAFFIC_ENTRY));
-	if (old == NULL || current == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	if (current->BroadcastCount >= old->BroadcastCount)
-	{
-		diff->BroadcastCount = current->BroadcastCount - old->BroadcastCount;
-	}
-	if (current->BroadcastBytes >= old->BroadcastBytes)
-	{
-		diff->BroadcastBytes = current->BroadcastBytes - old->BroadcastBytes;
-	}
-	if (current->UnicastCount >= old->UnicastCount)
-	{
-		diff->UnicastCount = current->UnicastCount - old->UnicastCount;
-	}
-	if (current->UnicastBytes >= old->UnicastBytes)
-	{
-		diff->UnicastBytes = current->UnicastBytes - old->UnicastBytes;
-	}
 }
 
 // Add the traffic information for Virtual HUB
