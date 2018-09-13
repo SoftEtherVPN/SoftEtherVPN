@@ -1126,7 +1126,7 @@ bool DlipReceiveAck(int fd)
 
 #endif	// UNIX_SOLARIS
 
-// Separate UNIX device name string into device name and id number
+// Validate device name and return proper device path according to system type
 bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_name)
 {
 	UINT len, i;
@@ -1141,9 +1141,8 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_
 		return false;
 	}
 
-	len = strlen(src_name);
 	// Check string length
-	if(len == 0)
+	if (IsEmptyStr(src_name))
 	{
 		return false;
 	}
@@ -1159,27 +1158,22 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_
 		device_path = "/dev/";
 	}
 
-	device_pathlen = strlen(device_path);
+	device_pathlen = StrLen(device_path);
 
-	for (i = len-1; i+1 != 0; i--)
+	// Last character must be a number
+	if (src_name[i] < '0' || '9' < src_name[i])
 	{
-		// Find last non-numeric character
-		if (src_name[i] < '0' || '9' < src_name[i])
+		if (src_name[i + 1] == 0)
 		{
-			// last character must be a number
-			if(src_name[i+1]==0)
-			{
-				return false;
-			}
+			return false;
 		}
-
-		StrCpy(dst_devname, dst_devname_size, device_path);
-		StrCpy(dst_devname + device_pathlen, dst_devname_size-device_pathlen, src_name);
-		dst_devname[device_pathlen + len] = 0;
-		return true;
 	}
-	// All characters in the string was numeric: error
-	return false;
+
+	StrCpy(dst_devname, dst_devname_size, device_path);
+	StrCpy(dst_devname + device_pathlen, dst_devname_size - device_pathlen, src_name);
+	dst_devname[device_pathlen + len] = 0;
+	
+	return true;
 }
 
 #if defined(BRIDGE_BPF) || defined(BRIDGE_PCAP)
