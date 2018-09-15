@@ -2753,7 +2753,11 @@ RESTART_PROCESS:
 	}
 	else if (argc >= 3 && StrCmpi(argv[1], UNIX_SVC_ARG_START) == 0 && StrCmpi(argv[2], UNIX_SVC_ARG_FOREGROUND) == 0)
 	{
+#ifdef DEBUG
+		InitMayaqua(true, true, argc, argv);
+#else
 		InitMayaqua(false, false, argc, argv);
+#endif
 		UnixExecService(name, start, stop);
 		FreeMayaqua();
 	}
@@ -2769,7 +2773,11 @@ void UnixServiceMain(int argc, char *argv[], char *name, SERVICE_FUNCTION *start
 {
 	UINT mode = 0;
 	// Start of the Mayaqua
+#ifdef DEBUG
+	InitMayaqua(true, true, argc, argv);
+#else
 	InitMayaqua(false, false, argc, argv);
+#endif
 
 	if (argc >= 2)
 	{

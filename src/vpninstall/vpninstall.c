@@ -1635,9 +1635,13 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	INSTANCE *instance;
 	InitProcessCallOnce();
+#ifdef DEBUG
+	is_debug = true;
+#else
 	is_debug = false;
+#endif
 	MayaquaMinimalMode();
-	InitMayaqua(false, is_debug, 0, NULL);
+	InitMayaqua(is_debug, is_debug, 0, NULL);
 	InitCedar();
 	ViSetSkip();
 	ViLoadStringTables();

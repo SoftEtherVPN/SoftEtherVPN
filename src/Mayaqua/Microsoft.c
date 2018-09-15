@@ -4565,7 +4565,11 @@ void CALLBACK MsServiceDispatcher(DWORD argc, LPTSTR *argv)
 
 	//// Initialization
 	// Start of the Mayaqua
+#ifdef DEBUG
+	InitMayaqua(true, true, 0, NULL);
+#else
 	InitMayaqua(false, false, 0, NULL);
+#endif
 
 	// Stop the MS-IME
 	MsDisableIme();
@@ -4740,7 +4744,11 @@ UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT
 	}
 
 	// Start of the Mayaqua
+#ifdef DEBUG
+	InitMayaqua(true, true, 0, NULL);
+#else
 	InitMayaqua(false, false, 0, NULL);
+#endif
 
 	// Stop the MS-IME
 	MsDisableIme();

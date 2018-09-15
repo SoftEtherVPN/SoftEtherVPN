@@ -355,7 +355,11 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	InitProcessCallOnce();
 
+#ifdef DEBUG
+	InitMayaqua(true, true, 0, NULL);
+#else
 	InitMayaqua(false, false, 0, NULL);
+#endif
 	EnableProbe(false);
 	InitCedar();
 	SetHamMode();

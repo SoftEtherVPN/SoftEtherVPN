@@ -143,7 +143,11 @@ int main(int argc, char *argv[])
 	SetConsoleTitleA(CEDAR_PRODUCT_STR " VPN Command Line Utility");
 #endif	// OS_WIN32
 
+#ifdef DEBUG
+	InitMayaqua(true, true, argc, argv);
+#else
 	InitMayaqua(false, false, argc, argv);
+#endif
 	InitCedar();
 
 	s = GetCommandLineUniStr();
