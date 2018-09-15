@@ -136,7 +136,11 @@
 int main(int argc, char *argv[])
 {
 	MayaquaMinimalMode();
+#ifdef DEBUG
+	InitMayaqua(true, true, argc, argv);
+#else
 	InitMayaqua(false, false, argc, argv);
+#endif
 	InitCedar();
 
 	Print("hamcore.se2 Build Utility\n");

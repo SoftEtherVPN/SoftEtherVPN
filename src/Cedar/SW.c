@@ -783,7 +783,11 @@ UINT SWExec()
 		MayaquaMinimalMode();
 	}
 
+#ifdef DEBUG
+	InitMayaqua(true, true, 0, NULL);
+#else
 	InitMayaqua(false, false, 0, NULL);
+#endif
 	InitCedar();
 
 	if (is_datafile_exists == false)
