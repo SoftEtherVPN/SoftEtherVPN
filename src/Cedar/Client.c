@@ -1869,24 +1869,21 @@ BEGIN_LISTENER:
 			// If the port cannot be opened
 			if (cn_next_allow <= Tick64())
 			{
-				if (cursor_changed || cn_listener->Halt)
+				if (cursor_changed)
 				{
-					if (cursor_changed)
-					{
-						// It can be judged to have the rights to open the port
-						// since the mouse cursor is moving.
-						// So, take over the port which is owned by other process forcibly
-						CncReleaseSocket();
-					}
+					// It can be judged to have the rights to open the port
+					// since the mouse cursor is moving.
+					// So, take over the port which is owned by other process forcibly
+					CncReleaseSocket();
+				}
 
-					if (cn_listener->Halt)
-					{
-						ReleaseListener(cn_listener);
-						cn_listener = NULL;
+				if (cn_listener->Halt)
+				{
+					ReleaseListener(cn_listener);
+					cn_listener = NULL;
 
-						Unlock(cn_listener_lock);
-						goto BEGIN_LISTENER;
-					}
+					Unlock(cn_listener_lock);
+					goto BEGIN_LISTENER;
 				}
 			}
 		}
