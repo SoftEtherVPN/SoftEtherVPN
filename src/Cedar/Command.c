@@ -4465,6 +4465,10 @@ UINT PcAccountGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		// Disable the QoS control
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_QOS_DISABLE"),
 			t.ClientOption->DisableQoS ? _UU("CMD_MSG_ENABLE") : _UU("CMD_MSG_DISABLE"));
+			
+		// Disable UDP Acceleration
+		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_DISABLEUDP"),
+			t.ClientOption->NoUdpAcceleration ? _UU("CMD_MSG_ENABLE") : _UU("CMD_MSG_DISABLE"));	
 
 		CtFree(ct, c);
 	}
