@@ -1651,19 +1651,47 @@ CANCEL *EthGetCancel(ETH *e)
 // Read a packet
 UINT EthGetPacket(ETH *e, void **data)
 {
-	UINT ret = 0;
+	// Validate arguments
+	if (e == NULL || data == NULL)
+	{
+		return INFINITE;
+	}
 
-#if		defined(UNIX_LINUX)
-	ret = EthGetPacketLinux(e, data);
-#elif	defined(UNIX_SOLARIS)
-	ret = EthGetPacketSolaris(e, data);
-#elif	defined(BRIDGE_PCAP)
-	ret = EthGetPacketPcap(e, data);
-#elif	defined(BRIDGE_BPF)
-	ret = EthGetPacketBpf(e, data);
+#ifdef	UNIX_LINUX
+	if (e->IsRawIpMode)
+	{
+		return EthGetPacketLinuxIpRaw(e, data);
+	}
 #endif
 
-	return ret;
+	if (e->Tap != NULL)
+	{
+#ifndef	NO_VLAN
+		// TAP mode
+		void *buf;
+		UINT size;
+
+		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
+		{
+			return INFINITE;
+		}
+
+		*data = buf;
+		return size;
+#else
+		return INFINITE;
+#endif
+	}
+
+#if		defined(UNIX_LINUX)
+	return EthGetPacketLinux(e, data);
+#elif	defined(UNIX_SOLARIS)
+	return EthGetPacketSolaris(e, data);
+#elif	defined(BRIDGE_PCAP)
+	return EthGetPacketPcap(e, data);
+#elif	defined(BRIDGE_BPF)
+	return EthGetPacketBpf(e, data);
+#endif
 }
 
 #ifdef	UNIX_LINUX
@@ -1680,35 +1708,6 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 		struct cmsghdr cmsg;
 		char buf[CMSG_SPACE(sizeof(struct my_tpacket_auxdata))];
 	} cmsg_buf;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
-
-	if (e->IsRawIpMode)
-	{
-		return EthGetPacketLinuxIpRaw(e, data);
-	}
-
-	if (e->Tap != NULL)
-	{
-#ifndef	NO_VLAN
-		// tap mode
-		void *buf;
-		UINT size;
-
-		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
-		{
-			return INFINITE;
-		}
-
-		*data = buf;
-		return size;
-#else	// NO_VLAN
-		return INFINITE;
-#endif
-	}
 
 	s = e->Socket;
 
@@ -1839,11 +1838,6 @@ UINT EthGetPacketSolaris(ETH *e, void **data)
 	int s;
 	int flags = 0;
 	int ret;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
 
 	s = e->Socket;
 	if (s == INVALID_SOCKET)
