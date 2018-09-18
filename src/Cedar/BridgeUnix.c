@@ -331,7 +331,7 @@ TOKEN_LIST *GetEthListSolaris()
 			struct lifreq *buf;
 			UINT numifs;
 			UINT bufsize;
-			
+
 			numifs = lifn.lifn_count;
 			Debug("NumIFs:%d\n",numifs);
 			bufsize = numifs * sizeof(struct lifreq);
@@ -491,7 +491,7 @@ TOKEN_LIST *GetEthListPcap()
 		}
 		pcap_freealldevs(alldevs);
 	}
-	
+
 	Sort(o);
 	t = ZeroMalloc(sizeof(TOKEN_LIST));
 	t->NumTokens = LIST_NUM(o);
@@ -1172,7 +1172,7 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_
 	StrCpy(dst_devname, dst_devname_size, device_path);
 	StrCpy(dst_devname + device_pathlen, dst_devname_size - device_pathlen, src_name);
 	dst_devname[device_pathlen + len] = 0;
-	
+
 	return true;
 }
 
@@ -1198,7 +1198,7 @@ void PcapHandler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 	ETH *e = (ETH*) user;
 	struct CAPTUREBLOCK *block;
 	UCHAR *data;
-	
+
 	data = Malloc(h->caplen);
 	Copy(data, bytes, h->caplen);
 	block = NewCaptureBlock(data, h->caplen);
@@ -1245,7 +1245,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 		return NULL;
 	}
-	
+
 	// Initialize error message buffer
 	errbuf[0] = 0;
 
@@ -1266,7 +1266,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 		return NULL;
 	}
 	*/
-	
+
 	e = ZeroMalloc(sizeof(ETH));
 	e->Name = CopyStr(name);
 	e->Title = CopyStr(name);
@@ -1276,7 +1276,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 	e->IfIndex = -1;
 	e->Socket = pcap_get_selectable_fd(p);
 	e->Pcap = p;
-	
+
 	e->CaptureThread = NewThread(PcapThread, e);
 	WaitThreadInit(e->CaptureThread);
 
@@ -1300,7 +1300,7 @@ void BpfThread(THREAD *thread, void *param)
 
 	// Allocate the buffer
 	UCHAR *buf = Malloc(e->BufSize);
-	
+
 	// Notify initialize completed
 	NoticeThreadInit(thread);
 
@@ -1309,7 +1309,7 @@ void BpfThread(THREAD *thread, void *param)
 		if(e->Socket == INVALID_SOCKET){
 			break;
 		}
-		
+
 		rest = read(fd, buf, e->BufSize);
 		if(rest < 0 && errno != EAGAIN){
 			// Error
@@ -1359,7 +1359,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 	UINT bufsize;
 	struct ifreq ifr;
 	struct timeval to;
-	
+
 	// Find unused bpf device and open it
 	do{
 		Format(devname, sizeof(devname), "/dev/bpf%d", n++);
@@ -1368,13 +1368,13 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 			perror("open");
 		}
 	}while(fd < 0 && errno == EBUSY);
-	
+
 	// No free bpf device was found
 	if(fd < 0){
 		Debug("BPF: No minor number are free.\n");
 		return NULL;
 	}
-	
+
 	// Enlarge buffer size
 	n = 524288; // Somehow(In libpcap, this size is 32768)
 	while(true){
@@ -1410,7 +1410,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		}
 	}
 
-	
+
 	// Set to immediate mode (Return immediately when packet arrives)
 	n = 1;
 	if (ioctl(fd, BIOCIMMEDIATE, &n) < 0){
@@ -1434,7 +1434,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		close(fd);
 		return NULL;
 	}
-	
+
 	// Set timeout delay to 1 second
 	to.tv_sec = 1;
 	to.tv_usec = 0;
@@ -1443,7 +1443,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		close(fd);
 		return NULL;
 	}
-	
+
 	e = ZeroMalloc(sizeof(ETH));
 	e->Name = CopyStr(name);
 	e->Title = CopyStr(name);
@@ -1651,19 +1651,47 @@ CANCEL *EthGetCancel(ETH *e)
 // Read a packet
 UINT EthGetPacket(ETH *e, void **data)
 {
-	UINT ret = 0;
+	// Validate arguments
+	if (e == NULL || data == NULL)
+	{
+		return INFINITE;
+	}
 
-#if		defined(UNIX_LINUX)
-	ret = EthGetPacketLinux(e, data);
-#elif	defined(UNIX_SOLARIS)
-	ret = EthGetPacketSolaris(e, data);
-#elif	defined(BRIDGE_PCAP)
-	ret = EthGetPacketPcap(e, data);
-#elif	defined(BRIDGE_BPF)
-	ret = EthGetPacketBpf(e, data);
+#ifdef	UNIX_LINUX
+	if (e->IsRawIpMode)
+	{
+		return EthGetPacketLinuxIpRaw(e, data);
+	}
 #endif
 
-	return ret;
+	if (e->Tap != NULL)
+	{
+#ifndef	NO_VLAN
+		// TAP mode
+		void *buf;
+		UINT size;
+
+		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
+		{
+			return INFINITE;
+		}
+
+		*data = buf;
+		return size;
+#else
+		return INFINITE;
+#endif
+	}
+
+#if		defined(UNIX_LINUX)
+	return EthGetPacketLinux(e, data);
+#elif	defined(UNIX_SOLARIS)
+	return EthGetPacketSolaris(e, data);
+#elif	defined(BRIDGE_PCAP)
+	return EthGetPacketPcap(e, data);
+#elif	defined(BRIDGE_BPF)
+	return EthGetPacketBpf(e, data);
+#endif
 }
 
 #ifdef	UNIX_LINUX
@@ -1680,35 +1708,6 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 		struct cmsghdr cmsg;
 		char buf[CMSG_SPACE(sizeof(struct my_tpacket_auxdata))];
 	} cmsg_buf;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
-
-	if (e->IsRawIpMode)
-	{
-		return EthGetPacketLinuxIpRaw(e, data);
-	}
-
-	if (e->Tap != NULL)
-	{
-#ifndef	NO_VLAN
-		// tap mode
-		void *buf;
-		UINT size;
-
-		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
-		{
-			return INFINITE;
-		}
-
-		*data = buf;
-		return size;
-#else	// NO_VLAN
-		return INFINITE;
-#endif
-	}
 
 	s = e->Socket;
 
@@ -1839,11 +1838,6 @@ UINT EthGetPacketSolaris(ETH *e, void **data)
 	int s;
 	int flags = 0;
 	int ret;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
 
 	s = e->Socket;
 	if (s == INVALID_SOCKET)
@@ -1883,14 +1877,14 @@ UINT EthGetPacketPcap(ETH *e, void **data)
 {
 	struct CAPTUREBLOCK *block;
 	UINT size;
-	
+
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
 	if(block != NULL){
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
-	
+
 	if(block == NULL){
 		*data = NULL;
 		if(e->Socket == INVALID_SOCKET){
@@ -1898,11 +1892,11 @@ UINT EthGetPacketPcap(ETH *e, void **data)
 		}
 		return 0;
 	}
-	
+
 	*data = block->Buf;
 	size = block->Size;
 	FreeCaptureBlock(block);
-	
+
 	return size;
 }
 #endif // BRIDGE_PCAP
@@ -1913,14 +1907,14 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 {
 	struct CAPTUREBLOCK *block;
 	UINT size;
-	
+
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
 	if(block != NULL){
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
-	
+
 	if(block == NULL){
 		*data = NULL;
 		if(e->Socket == INVALID_SOCKET){
@@ -1928,18 +1922,18 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 		}
 		return 0;
 	}
-	
+
 	*data = block->Buf;
 	size = block->Size;
 	FreeCaptureBlock(block);
-	
+
 	return size;
 }
 #else // BRIDGE_BPF_THREAD
 UINT EthGetPacketBpf(ETH *e, void **data)
 {
 	struct bpf_hdr *hdr;
-	
+
 	if(e->Rest<=0){
 		e->Rest = read(e->Socket, e->Buffer, e->BufSize);
 		if(e->Rest < 0){
@@ -1961,7 +1955,7 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 	// Find the head of next packet
 	e->Rest -= BPF_WORDALIGN(hdr->bh_hdrlen + hdr->bh_caplen);
 	e->Next += BPF_WORDALIGN(hdr->bh_hdrlen + hdr->bh_caplen);
-	
+
 	return hdr->bh_caplen;
 }
 #endif // BRIDGE_BPF_THREAD
@@ -2062,12 +2056,9 @@ void EthPutPacket(ETH *e, void *data, UINT size)
 	}
 #endif	// UNIX_LINUX
 #endif //BRIDGE_PCAP
-	
+
 	Free(data);
 }
-
-
-
 
 // Open ETH by using IP raw packets
 ETH *OpenEthLinuxIpRaw()
@@ -2806,5 +2797,3 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 
 
 #endif	// BRIDGE_C
-
-
