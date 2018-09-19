@@ -5264,7 +5264,6 @@ bool IsIPManagementTargetForHUB(IP *ip, HUB *hub)
 void DeleteOldIpTableEntry(LIST *o)
 {
 	UINT i;
-	UINT64 oldest_time = 0xffffffffffffffffULL;
 	IP_TABLE_ENTRY *old = NULL;
 	// Validate arguments
 	if (o == NULL)
@@ -5275,11 +5274,7 @@ void DeleteOldIpTableEntry(LIST *o)
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		IP_TABLE_ENTRY *e = LIST_DATA(o, i);
-
-		if (e->UpdatedTime <= oldest_time)
-		{
-			old = e;
-		}
+		old = e;
 	}
 
 	if (old != NULL)
@@ -5394,7 +5389,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 		}
 	}
 
-	if (src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
+	if (packet != NULL && src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
 	{
 		// Measures for D-Link bug
 		UCHAR *mac = packet->MacAddressSrc;
@@ -5840,10 +5835,8 @@ UPDATE_DHCP_ALLOC_ENTRY:
 										DeleteOldIpTableEntry(hub->IpTable);
 									}
 									Insert(hub->IpTable, e);
-								}
 
-								if (new_entry)
-								{
+								
 									if ((hub->Option != NULL && hub->Option->NoDhcpPacketLogOutsideHub == false) || mac_table->Session != s)
 									{
 										char dhcp_mac_addr[64];
