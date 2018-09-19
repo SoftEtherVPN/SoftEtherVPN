@@ -4371,6 +4371,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	Connect by Bridge / Router Mode
 CMD_ACCOUNT_COLUMN_MONITOR			Connect by Monitoring Mode
 CMD_ACCOUNT_COLUMN_NO_TRACKING		No Adjustment for Routing Table
 CMD_ACCOUNT_COLUMN_QOS_DISABLE		Do not Use QoS Control Function
+CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
 
 
 # Debugging Information Collecting Tool
