@@ -268,6 +268,91 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 	Free(out2);
 }
 
+// MD4 specific hash function
+void HashMd4(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || (src == NULL && size != 0))
+	{
+		return;
+	}
+
+	MD4(src, size, dst);
+}
+
+// MD5 hash
+void Md5(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || (src == NULL && size != 0))
+	{
+		return;
+	}
+
+	MD5(src, size, dst);
+}
+
+// SHA hash
+void Sha(UINT sha_type, void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || (src == NULL && size != 0))
+	{
+		return;
+	}
+
+	switch(sha_type) {
+	case SHA1_160:
+		SHA1(src, size, dst);
+		break;
+	case SHA2_256:
+		SHA256(src, size, dst);
+		break;
+	case SHA2_384:
+		SHA384(src, size, dst);
+		break;
+	case SHA2_512:
+		SHA512(src, size, dst);
+		break;
+	}
+}
+
+void Sha0(void *dst, void *src, UINT size)
+{
+	// Validate arguments
+	if (dst == NULL || (src == NULL && size != 0))
+	{
+		return;
+	}
+
+	Internal_Sha0(dst, src, size);
+}
+
+void Sha1(void *dst, void *src, UINT size)
+{
+	Sha(SHA1_160, dst, src, size);
+}
+
+void Sha2_256(void *dst, void *src, UINT size)
+{
+	Sha(SHA2_256, dst, src, size);
+}
+
+void Sha2_384(void *dst, void *src, UINT size)
+{
+	Sha(SHA2_384, dst, src, size);
+}
+
+void Sha2_512(void *dst, void *src, UINT size)
+{
+	Sha(SHA2_512, dst, src, size);
+}
+
+void HashSha1(void *dst, void *src, UINT size)
+{
+	Sha1(dst, src, size);
+}
+
 // Calculation of HMAC (MD5)
 UINT HMacMd5(void *dst, void *key, UINT key_size, void *src, UINT src_size)
 {
@@ -278,65 +363,6 @@ UINT HMacMd5(void *dst, void *key, UINT key_size, void *src, UINT src_size)
 UINT HMacSha1(void *dst, void *key, UINT key_size, void *src, UINT src_size)
 {
 	return Internal_HMac(EVP_sha1(), dst, key, key_size, src, src_size);
-}
-
-// Calculate the hash/HMAC
-UINT MdProcess(MD *md, void *dest, void *src, UINT size)
-{
-	UINT len = 0;
-
-	// Validate arguments
-	if (md == NULL || md->IsNullMd || dest == NULL || (src == NULL && size != 0))
-	{
-		return 0;
-	}
-
-	if (md->IsHMac)
-	{
-		if (HMAC_Update(md->Ctx, src, size) == false)
-		{
-			Debug("MdProcess(): HMAC_Update() failed with error: %s\n", OpenSSL_Error());
-			return 0;
-		}
-
-		if (HMAC_Final(md->Ctx, dest, &len) == false)
-		{
-			Debug("MdProcess(): HMAC_Final() failed with error: %s\n", OpenSSL_Error());
-		}
-	}
-	else
-	{
-		if (EVP_DigestUpdate(md->Ctx, src, size) == false)
-		{
-			Debug("MdProcess(): EVP_DigestUpdate() failed with error: %s\n", OpenSSL_Error());
-			return 0;
-		}
-
-		if (EVP_DigestFinal_ex(md->Ctx, dest, &len) == false)
-		{
-			Debug("MdProcess(): EVP_DigestFinal_ex() failed with error: %s\n", OpenSSL_Error());
-		}
-	}
-
-	return len;
-}
-
-// Set the key to the message digest object
-bool SetMdKey(MD *md, void *key, UINT key_size)
-{
-	// Validate arguments
-	if (md == NULL || md->IsHMac == false || key == NULL || key_size == 0)
-	{
-		return false;
-	}
-
-	if (HMAC_Init_ex(md->Ctx, key, key_size, (const EVP_MD *)md->Md, NULL) == false)
-	{
-		Debug("SetMdKey(): HMAC_Init_ex() failed with error: %s\n", OpenSSL_Error());
-		return false;
-	}
-
-	return true;
 }
 
 // Creating a message digest object
@@ -402,6 +428,65 @@ MD *NewMdEx(char *name, bool hmac)
 	}
 
 	return m;
+}
+
+// Set the key to the message digest object
+bool SetMdKey(MD *md, void *key, UINT key_size)
+{
+	// Validate arguments
+	if (md == NULL || md->IsHMac == false || key == NULL || key_size == 0)
+	{
+		return false;
+	}
+
+	if (HMAC_Init_ex(md->Ctx, key, key_size, (const EVP_MD *)md->Md, NULL) == false)
+	{
+		Debug("SetMdKey(): HMAC_Init_ex() failed with error: %s\n", OpenSSL_Error());
+		return false;
+	}
+
+	return true;
+}
+
+// Calculate the hash/HMAC
+UINT MdProcess(MD *md, void *dest, void *src, UINT size)
+{
+	UINT len = 0;
+
+	// Validate arguments
+	if (md == NULL || md->IsNullMd || dest == NULL || (src == NULL && size != 0))
+	{
+		return 0;
+	}
+
+	if (md->IsHMac)
+	{
+		if (HMAC_Update(md->Ctx, src, size) == false)
+		{
+			Debug("MdProcess(): HMAC_Update() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
+		if (HMAC_Final(md->Ctx, dest, &len) == false)
+		{
+			Debug("MdProcess(): HMAC_Final() failed with error: %s\n", OpenSSL_Error());
+		}
+	}
+	else
+	{
+		if (EVP_DigestUpdate(md->Ctx, src, size) == false)
+		{
+			Debug("MdProcess(): EVP_DigestUpdate() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
+		if (EVP_DigestFinal_ex(md->Ctx, dest, &len) == false)
+		{
+			Debug("MdProcess(): EVP_DigestFinal_ex() failed with error: %s\n", OpenSSL_Error());
+		}
+	}
+
+	return len;
 }
 
 // Release of the message digest object
@@ -3717,18 +3802,6 @@ void InitCryptLibrary()
 	openssl_inited = true;
 }
 
-// MD4 specific hash function
-void HashMd4(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (src == NULL && size != 0))
-	{
-		return;
-	}
-
-	MD4(src, size, dst);
-}
-
 // Hash with the SHA-1 and convert it to UINT
 UINT HashToUINT(void *data, UINT size)
 {
@@ -3747,12 +3820,6 @@ UINT HashToUINT(void *data, UINT size)
 	u = Endian32(u);
 
 	return u;
-}
-
-// SHA-1 specific hash function
-void HashSha1(void *dst, void *src, UINT size)
-{
-	Sha1(dst, src, size);
 }
 
 // Creating a new CRYPT object
@@ -3785,74 +3852,6 @@ void FreeCrypt(CRYPT *c)
 void Encrypt(CRYPT *c, void *dst, void *src, UINT size)
 {
 	RC4(c->Rc4Key, size, src, dst);
-}
-
-// SHA hash
-void Sha(UINT sha_type, void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (src == NULL && size != 0))
-	{
-		return;
-	}
-
-	switch(sha_type) {
-	case SHA1_160:
-		SHA1(src, size, dst);
-		break;
-	case SHA2_256:
-		SHA256(src, size, dst);
-		break;
-	case SHA2_384:
-		SHA384(src, size, dst);
-		break;
-	case SHA2_512:
-		SHA512(src, size, dst);
-		break;
-	}
-}
-
-void Sha0(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (src == NULL && size != 0))
-	{
-		return;
-	}
-
-	Internal_Sha0(dst, src, size);
-}
-
-void Sha1(void *dst, void *src, UINT size)
-{
-	Sha(SHA1_160, dst, src, size);
-}
-
-void Sha2_256(void *dst, void *src, UINT size)
-{
-	Sha(SHA2_256, dst, src, size);
-}
-
-void Sha2_384(void *dst, void *src, UINT size)
-{
-	Sha(SHA2_384, dst, src, size);
-}
-
-void Sha2_512(void *dst, void *src, UINT size)
-{
-	Sha(SHA2_512, dst, src, size);
-}
-
-// MD5 hash
-void Md5(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (src == NULL && size != 0))
-	{
-		return;
-	}
-
-	MD5(src, size, dst);
 }
 
 // 3DES encryption
