@@ -1,18 +1,29 @@
 version: '{build}'
 
-image: Visual Studio 2015
+image:
+  - Visual Studio 2015
+  - Ubuntu1604
+  - Ubuntu1804
 
 skip_branch_with_pr: true
 
 clone_depth: 1
 
 init:
-  - ps: Update-AppveyorBuild -Version "build-$env:appveyor_build_number-$($env:appveyor_repo_commit.substring(0,7))"
+  - ps: Update-AppveyorBuild -Version "build-$env:APPVEYOR_BUILD_NUMBER-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
+
+install: git submodule update --init --recursive
 
 build_script:
   - cmd: >-
       src\BuildAll.cmd
       exit %errorlevel%
+  - sh: >-
+      ./configure && make package -C tmp
 
 artifacts:
   - path: output\pkg\*\*
+    name: Windows
+
+  - path: build/*.deb
+    name: Ubuntu
