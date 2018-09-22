@@ -145,7 +145,7 @@ void NullGenerateMacAddress(UCHAR *mac, UINT id, UINT seq)
 #endif	// OS_WIN32
 	WriteBufStr(b, name);
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 

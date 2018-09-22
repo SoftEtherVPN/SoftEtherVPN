@@ -7789,7 +7789,7 @@ UINT PsClusterSettingMember(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		pw = GetParamStr(o, "PASSWORD");
 
-		Hash(t.MemberPassword, pw, StrLen(pw), true);
+		Sha0(t.MemberPassword, pw, StrLen(pw));
 		t.PublicIp = StrToIP32(GetParamStr(o, "IP"));
 		t.ServerType = SERVER_TYPE_FARM_MEMBER;
 
@@ -10468,7 +10468,7 @@ UINT PsHubCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		pass = GetParamStr(o, "PASSWORD");
 	}
 
-	Hash(t.HashedPassword, pass, StrLen(pass), true);
+	Sha0(t.HashedPassword, pass, StrLen(pass));
 	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
 	t.Online = true;
 
@@ -10520,7 +10520,7 @@ UINT PsHubCreateDynamic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		pass = GetParamStr(o, "PASSWORD");
 	}
 
-	Hash(t.HashedPassword, pass, StrLen(pass), true);
+	Sha0(t.HashedPassword, pass, StrLen(pass));
 	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
 	t.Online = true;
 
@@ -10572,7 +10572,7 @@ UINT PsHubCreateStatic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		pass = GetParamStr(o, "PASSWORD");
 	}
 
-	Hash(t.HashedPassword, pass, StrLen(pass), true);
+	Sha0(t.HashedPassword, pass, StrLen(pass));
 	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
 	t.Online = true;
 
@@ -11102,7 +11102,7 @@ UINT PsSetHubPassword(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	// Change the settings
 	pw = GetParamStr(o, "[password]");
 	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pw);
-	Hash(t.HashedPassword, pw, StrLen(pw), true);
+	Sha0(t.HashedPassword, pw, StrLen(pw));
 
 	// Write the configuration of Virtual HUB
 	ret = ScSetHub(ps->Rpc, &t);
@@ -22110,7 +22110,7 @@ UINT PsServerPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	pw = GetParamStr(o, "[password]");
 
 	Zero(&t, sizeof(t));
-	Hash(t.HashedPassword, pw, StrLen(pw), true);
+	Sha0(t.HashedPassword, pw, StrLen(pw));
 
 	ret = ScSetServerPassword(ps->Rpc, &t);
 
@@ -23351,7 +23351,7 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 	o.Port = port;
 	o.ProxyType = PROXY_DIRECT;
 
-	Hash(hashed_password, password, StrLen(password), true);
+	Sha0(hashed_password, password, StrLen(password));
 
 	if (IsEmptyStr(password) == false)
 	{
@@ -23386,7 +23386,7 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 
 				if (pass != NULL)
 				{
-					Hash(hashed_password, pass, StrLen(pass), true);
+					Sha0(hashed_password, pass, StrLen(pass));
 					Free(pass);
 				}
 				else

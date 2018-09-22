@@ -714,7 +714,7 @@ void HashInstanceName(char *name, UINT size, char *instance_name)
 	Trim(tmp);
 	StrUpper(tmp);
 
-	Hash(hash, tmp, StrLen(tmp), SHA1_SIZE);
+	Sha0(hash, tmp, StrLen(tmp));
 	BinToStr(key, sizeof(key), hash, 5);
 	key[10] = 0;
 
@@ -745,7 +745,7 @@ void HashInstanceNameLocal(char *name, UINT size, char *instance_name)
 	Trim(tmp);
 	StrUpper(tmp);
 
-	Hash(hash, tmp, StrLen(tmp), SHA1_SIZE);
+	Sha0(hash, tmp, StrLen(tmp));
 	BinToStr(key, sizeof(key), hash, 5);
 	key[10] = 0;
 

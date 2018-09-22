@@ -466,7 +466,7 @@ bool CfgSaveExW3(CFG_RW *rw, FOLDER *f, wchar_t *name, UINT *written_size, bool 
 		return false;
 	}
 	// Hash the contents
-	Hash(hash, b->Buf, b->Size, true);
+	Sha0(hash, b->Buf, b->Size);
 
 	// Compare the contents to be written with the content which was written last
 	if (rw != NULL)
@@ -661,7 +661,7 @@ FOLDER *CfgReadW(wchar_t *name)
 		// Check the hash 
 		ReadBuf(b, hash1, sizeof(hash1));
 
-		Hash(hash2, ((UCHAR *)b->Buf) + 8 + SHA1_SIZE, b->Size - 8 - SHA1_SIZE, true);
+		Sha0(hash2, ((UCHAR *)b->Buf) + 8 + SHA1_SIZE, b->Size - 8 - SHA1_SIZE);
 
 		if (Cmp(hash1, hash2, SHA1_SIZE) != 0)
 		{
@@ -1105,7 +1105,7 @@ BUF *CfgFolderToBufBin(FOLDER *f)
 	CfgOutputFolderBin(b, f);
 
 	// Hash
-	Hash(((UCHAR *)b->Buf) + 8, ((UCHAR *)b->Buf) + 8 + SHA1_SIZE, b->Size - 8 - SHA1_SIZE, true);
+	Sha0(((UCHAR *)b->Buf) + 8, ((UCHAR *)b->Buf) + 8 + SHA1_SIZE, b->Size - 8 - SHA1_SIZE);
 
 	return b;
 }

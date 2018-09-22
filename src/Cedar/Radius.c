@@ -2396,7 +2396,7 @@ BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT se
 		{
 			WriteBuf(tmp, c[i - 1], 16);
 		}
-		Hash(b[i], tmp->Buf, tmp->Size, false);
+		Md5(b[i], tmp->Buf, tmp->Size);
 		FreeBuf(tmp);
 
 		// Calculation of c[i]

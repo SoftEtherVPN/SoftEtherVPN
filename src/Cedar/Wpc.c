@@ -267,7 +267,7 @@ bool WpcParsePacket(WPC_PACKET *packet, BUF *buf)
 	b = WpcDataEntryToBuf(WpcFindDataEntry(o, "PACK"));
 	if (b != NULL)
 	{
-		HashSha1(hash, b->Buf, b->Size);
+		Sha1(hash, b->Buf, b->Size);
 
 		packet->Pack = BufToPack(b);
 		FreeBuf(b);
@@ -362,7 +362,7 @@ BUF *WpcGeneratePacket(PACK *pack, X *cert, K *key)
 	}
 
 	pack_data = PackToBuf(pack);
-	HashSha1(hash, pack_data->Buf, pack_data->Size);
+	Sha1(hash, pack_data->Buf, pack_data->Size);
 
 	if (cert != NULL && key != NULL)
 	{

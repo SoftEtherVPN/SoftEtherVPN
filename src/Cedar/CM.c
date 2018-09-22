@@ -1166,7 +1166,7 @@ void CmSettingDlgUpdate(HWND hWnd, CM_SETTING_DLG *d)
 		bool password_ok = false;
 		UCHAR hash[SHA1_SIZE];
 
-		Hash(hash, tmp1, StrLen(tmp1), true);
+		Sha0(hash, tmp1, StrLen(tmp1));
 		if (Cmp(hash, d->HashedPassword, sizeof(hash)) == 0)
 		{
 			password_ok = true;
@@ -1221,7 +1221,7 @@ void CmSettingDlgOnOk(HWND hWnd, CM_SETTING_DLG *d)
 		{
 			if (StrLen(tmp1) >= 1)
 			{
-				Hash(a.HashedPassword, tmp1, StrLen(tmp1), true);
+				Sha0(a.HashedPassword, tmp1, StrLen(tmp1));
 			}
 		}
 	}

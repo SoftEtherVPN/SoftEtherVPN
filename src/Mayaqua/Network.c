@@ -559,7 +559,7 @@ UINT GetCurrentDDnsFqdnHash()
 	Trim(name);
 	StrUpper(name);
 
-	HashSha1(hash, name, StrLen(name));
+	Sha1(hash, name, StrLen(name));
 
 	Copy(&ret, hash, sizeof(UINT));
 
@@ -2555,7 +2555,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 	Copy(iv, se->BulkNextIv, SHA1_SIZE);
 	Copy(crypt_key_src + 0, se->BulkSendKey->Data, SHA1_SIZE);
 	Copy(crypt_key_src + SHA1_SIZE, iv, SHA1_SIZE);
-	HashSha1(crypt_key, crypt_key_src, SHA1_SIZE * 2);
+	Sha1(crypt_key, crypt_key_src, SHA1_SIZE * 2);
 	c = NewCrypt(crypt_key, sizeof(crypt_key));
 	Encrypt(c, buf + SHA1_SIZE + SHA1_SIZE, buf + SHA1_SIZE + SHA1_SIZE, sizeof(UINT64) + data_size + padding_size);
 	FreeCrypt(c);
@@ -2567,7 +2567,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 	if (se->UseHMac == false)
 	{
 		Copy(buf + 0, se->BulkSendKey->Data, SHA1_SIZE);
-		HashSha1(sign, buf, SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
+		Sha1(sign, buf, SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
 		Copy(buf + 0, sign, SHA1_SIZE);
 	}
 	else
@@ -2690,7 +2690,7 @@ bool RUDPCheckSignOfRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 	// Verification the signature (segment packet)
 	Copy(sign, p, SHA1_SIZE);
 	Copy(p, se->Key_Recv, SHA1_SIZE);
-	HashSha1(sign2, p, recv_size);
+	Sha1(sign2, p, recv_size);
 
 	if (r->Protocol == RUDP_PROTOCOL_DNS || r->Protocol == RUDP_PROTOCOL_ICMP)
 	{
@@ -2713,7 +2713,7 @@ bool RUDPCheckSignOfRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 	{
 		Copy(sign, p, SHA1_SIZE);
 		Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
-		HashSha1(sign2, p, recv_size);
+		Sha1(sign2, p, recv_size);
 		Copy(p, sign, SHA1_SIZE);
 
 		if (Cmp(sign, sign2, SHA1_SIZE) == 0)
@@ -2765,7 +2765,7 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 	{
 		Copy(sign, p, SHA1_SIZE);
 		Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
-		HashSha1(sign2, p, recv_size);
+		Sha1(sign2, p, recv_size);
 		Copy(p, sign, SHA1_SIZE);
 
 		if (Cmp(sign, sign2, SHA1_SIZE) != 0)
@@ -2814,7 +2814,7 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 	}
 	Copy(keygen + 0, se->BulkRecvKey->Data, SHA1_SIZE);
 	Copy(keygen + SHA1_SIZE, iv, SHA1_SIZE);
-	HashSha1(key, keygen, sizeof(keygen));
+	Sha1(key, keygen, sizeof(keygen));
 
 	c = NewCrypt(key, sizeof(key));
 	Encrypt(c, p, p, size);
@@ -2910,7 +2910,7 @@ bool RUDPProcessRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data, UIN
 	// Validate the signature
 	Copy(sign, p, SHA1_SIZE);
 	Copy(p, se->Key_Recv, SHA1_SIZE);
-	HashSha1(sign2, p, recv_size);
+	Sha1(sign2, p, recv_size);
 	Copy(p, sign, SHA1_SIZE);
 
 	if (r->Protocol == RUDP_PROTOCOL_DNS || r->Protocol == RUDP_PROTOCOL_ICMP)
@@ -2942,7 +2942,7 @@ bool RUDPProcessRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data, UIN
 	}
 	Copy(keygen + 0, iv, SHA1_SIZE);
 	Copy(keygen + SHA1_SIZE, se->Key_Recv, SHA1_SIZE);
-	HashSha1(key, keygen, sizeof(keygen));
+	Sha1(key, keygen, sizeof(keygen));
 
 	c = NewCrypt(key, sizeof(key));
 	Encrypt(c, p, p, size);
@@ -3505,13 +3505,13 @@ void RUDPSendSegmentNow(RUDP_STACK *r, RUDP_SESSION *se, UINT64 seq_no, void *da
 	// Encrypt
 	Copy(keygen + 0, iv, SHA1_SIZE);
 	Copy(keygen + SHA1_SIZE, se->Key_Send, SHA1_SIZE);
-	HashSha1(key, keygen, sizeof(keygen));
+	Sha1(key, keygen, sizeof(keygen));
 	c = NewCrypt(key, sizeof(key));
 	Encrypt(c, dst + SHA1_SIZE * 2, dst + SHA1_SIZE * 2, current_size - (SHA1_SIZE * 2));
 	FreeCrypt(c);
 
 	// Sign
-	HashSha1(sign, dst, current_size);
+	Sha1(sign, dst, current_size);
 	if (r->Protocol == RUDP_PROTOCOL_DNS || r->Protocol == RUDP_PROTOCOL_ICMP)
 	{
 		XorData(sign, sign, r->SvcNameHash, SHA1_SIZE);
@@ -3671,26 +3671,26 @@ RUDP_SESSION *RUDPNewSession(bool server_mode, IP *my_ip, UINT my_port, IP *your
 	b = NewBuf();
 	WriteBuf(b, init_key, SHA1_SIZE);
 	WriteBufStr(b, "zurukko");
-	HashSha1(key1, b->Buf, b->Size);
+	Sha1(key1, b->Buf, b->Size);
 	FreeBuf(b);
 
 	b = NewBuf();
 	WriteBuf(b, init_key, SHA1_SIZE);
 	WriteBuf(b, key1, SHA1_SIZE);
 	WriteBufStr(b, "yasushineko");
-	HashSha1(key2, b->Buf, b->Size);
+	Sha1(key2, b->Buf, b->Size);
 	FreeBuf(b);
 
 	// Generate the magic number for the KeepAlive
 	b = NewBuf();
 	WriteBuf(b, init_key, SHA1_SIZE);
 	WriteBufStr(b, "Magic_KeepAliveRequest");
-	HashSha1(se->Magic_KeepAliveRequest, b->Buf, b->Size);
+	Sha1(se->Magic_KeepAliveRequest, b->Buf, b->Size);
 	FreeBuf(b);
 	b = NewBuf();
 	WriteBuf(b, init_key, SHA1_SIZE);
 	WriteBufStr(b, "Magic_KeepAliveResponse");
-	HashSha1(se->Magic_KeepAliveResponse, b->Buf, b->Size);
+	Sha1(se->Magic_KeepAliveResponse, b->Buf, b->Size);
 	FreeBuf(b);
 
 	if (server_mode == false)
@@ -3852,7 +3852,7 @@ void RUDPMainThread(THREAD *thread, void *param)
 							{
 								UCHAR hash[SHA1_SIZE];
 
-								HashSha1(hash, ((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE,
+								Sha1(hash, ((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE,
 									p->Size - (ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE));
 
 								if (Cmp(hash, ((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO), SHA1_SIZE) == 0)
@@ -3990,7 +3990,7 @@ void RUDPMainThread(THREAD *thread, void *param)
 				Copy(icmp_data, p->Data, p->Size);
 
 				// Hash
-				HashSha1(hash, icmp_data, p->Size);
+				Sha1(hash, icmp_data, p->Size);
 
 				// Checksum calculation
 				icmp_header->Checksum = IpChecksum(dst_data, dst_size);
@@ -4166,7 +4166,7 @@ void RUDPGetRegisterHostNameByIP(char *dst, UINT size, IP *ip)
 	{
 		UCHAR hash[SHA1_SIZE];
 
-		HashSha1(hash, ip->addr, 4);
+		Sha1(hash, ip->addr, 4);
 		BinToStr(tmp, sizeof(tmp), hash, 2);
 	}
 	else
@@ -4661,7 +4661,7 @@ UINT GetHostIPAddressHash32()
 
 	WriteBuf(b, rand_port_numbers, sizeof(rand_port_numbers));
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 
@@ -5291,7 +5291,7 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 	Trim(tmp);
 	StrLower(tmp);
 
-	HashSha1(r->SvcNameHash, tmp, StrLen(tmp));
+	Sha1(r->SvcNameHash, tmp, StrLen(tmp));
 
 	r->Client_IcmpId = (USHORT)(Rand32() % 65534 + 1);
 	r->Client_IcmpSeqNo = (USHORT)(Rand32() % 65534 + 1);
@@ -5310,7 +5310,7 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 #endif	// OS_WIN32
 
 		pid = Endian32(pid);
-		HashSha1(pid_hash, &pid, sizeof(UINT));
+		Sha1(pid_hash, &pid, sizeof(UINT));
 
 		pid_us = READ_USHORT(pid_hash);
 		if (pid_us == 0 || pid_us == 0xFFFF)
@@ -5564,7 +5564,7 @@ void GetCurrentMachineIpProcessHashInternal(void *hash)
 	}
 	FreeHostIPAddressList(ip_list);
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 
@@ -10677,7 +10677,7 @@ ROUTE_TABLE *GetRouteTable()
 		WriteBuf(buf, e, sizeof(ROUTE_ENTRY));
 	}
 
-	Hash(hash, buf->Buf, buf->Size, false);
+	Md5(hash, buf->Buf, buf->Size);
 
 	FreeBuf(buf);
 
@@ -11108,7 +11108,7 @@ SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UIN
 		WriteBuf(buf, rand_seed, rand_seed_size);
 		WriteBufInt(buf, i);
 
-		HashSha1(hash, buf->Buf, buf->Size);
+		Sha1(hash, buf->Buf, buf->Size);
 
 		FreeBuf(buf);
 
@@ -11160,7 +11160,7 @@ SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR ra
 	WriteBufChar(b, rand_port_id);
 	//WriteBufInt(b, GetHostIPAddressHash32());
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 
@@ -18092,7 +18092,7 @@ UINT64 GetHostIPAddressListHash()
 
 	WriteBufStr(buf, "test");
 
-	HashSha1(hash, buf->Buf, buf->Size);
+	Sha1(hash, buf->Buf, buf->Size);
 
 	FreeBuf(buf);
 
@@ -20926,7 +20926,7 @@ PACK *RecvPackWithHash(SOCK *s)
 		return false;
 	}
 
-	HashSha1(hash1, data, sz);
+	Sha1(hash1, data, sz);
 	if (RecvAll(s, hash2, sizeof(hash2), s->SecureMode) == false)
 	{
 		Free(data);
@@ -20987,7 +20987,7 @@ bool SendPackWithHash(SOCK *s, PACK *p)
 
 	SendAdd(s, &sz, sizeof(UINT));
 	SendAdd(s, b->Buf, b->Size);
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 	SendAdd(s, hash, sizeof(hash));
 
 	FreeBuf(b);

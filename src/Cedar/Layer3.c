@@ -823,7 +823,7 @@ void L3GenerateMacAddress(L3IF *f)
 	WriteBuf(b, &f->IpAddress, sizeof(f->IpAddress));
 
 	GenMacAddress(f->MacAddress);
-	Hash(hash, b->Buf, b->Size, true);
+	Sha0(hash, b->Buf, b->Size);
 	Copy(f->MacAddress + 2, hash, 4);
 	f->MacAddress[1] = 0xA3;
 	FreeBuf(b);

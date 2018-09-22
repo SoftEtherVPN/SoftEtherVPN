@@ -2995,7 +2995,7 @@ UINT GetMachineRand()
 	Zero(pcname, sizeof(pcname));
 	GetMachineName(pcname, sizeof(pcname));
 
-	HashSha1(hash, pcname, StrLen(pcname));
+	Sha1(hash, pcname, StrLen(pcname));
 
 	return READ_UINT(hash);
 }

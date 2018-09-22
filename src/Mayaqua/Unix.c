@@ -2288,7 +2288,7 @@ void UnixGenPidFileName(char *name, UINT size)
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");
 	StrUpper(exe_name);
 
-	Hash(hash, exe_name, StrLen(exe_name), false);
+	Md5(hash, exe_name, StrLen(exe_name));
 	BinToStr(tmp1, sizeof(tmp1), hash, sizeof(hash));
 
 	Format(name, size, "%s/.pid_%s", dir, tmp1);
@@ -2333,7 +2333,7 @@ void UnixGenCtlFileName(char *name, UINT size)
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");
 	StrUpper(exe_name);
 
-	Hash(hash, exe_name, StrLen(exe_name), false);
+	Md5(hash, exe_name, StrLen(exe_name));
 	BinToStr(tmp1, sizeof(tmp1), hash, sizeof(hash));
 
 	Format(name, size, "%s/.ctl_%s", dir, tmp1);

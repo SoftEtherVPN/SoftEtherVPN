@@ -2284,7 +2284,7 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 		StrUpper(tmp);
 		Trim(tmp);
 
-		Hash(hash, tmp, StrLen(tmp), true);
+		Sha0(hash, tmp, StrLen(tmp));
 
 		s->IpcMacAddress[0] = 0xCA;
 		s->IpcMacAddress[1] = hash[1];

@@ -467,7 +467,7 @@ void SecurePassword(void *secure_password, void *password, void *random)
 	b = NewBuf();
 	WriteBuf(b, password, SHA1_SIZE);
 	WriteBuf(b, random, SHA1_SIZE);
-	Hash(secure_password, b->Buf, b->Size, true);
+	Sha0(secure_password, b->Buf, b->Size);
 
 	FreeBuf(b);
 }

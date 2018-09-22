@@ -206,7 +206,7 @@ static wchar_t *WpLogin(WEBUI *wu, LIST *params)
 
 	// Administrator authentication
 	Rand(random,sizeof(random));
-	Hash(securepass, password, StrLen(password), true);
+	Sha0(securepass, password, StrLen(password));
 	SecurePassword(securepass, securepass, random);
 	result = AdminCheckPassword(wu->Cedar, random, securepass, hubname, false, NULL);
 
@@ -730,7 +730,7 @@ static wchar_t *WpNewHub(WEBUI *wu, LIST *params)
 
 		Zero(&t, sizeof(t));
 		StrCpy(t.HubName, sizeof(t.HubName), hubname);
-		Hash(t.HashedPassword, passwd, StrLen(passwd), true);
+		Sha0(t.HashedPassword, passwd, StrLen(passwd));
 		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, passwd);
 		t.Online = true;
 		t.HubType = HUB_TYPE_STANDALONE;

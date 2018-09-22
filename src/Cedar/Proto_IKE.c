@@ -3937,7 +3937,7 @@ BUF *IkeStrToVendorId(char *str)
 		BUF *buf;
 		UCHAR hash[MD5_SIZE];
 
-		Hash(hash, str, StrLen(str), false);
+		Md5(hash, str, StrLen(str));
 
 		buf = MemToBuf(hash, sizeof(hash));
 

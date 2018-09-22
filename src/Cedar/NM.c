@@ -263,7 +263,7 @@ UINT NmChangePasswordProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 		{
 		case IDOK:
 			Zero(&t, sizeof(t));
-			Hash(t.HashedPassword, tmp1, StrLen(tmp1), true);
+			Sha0(t.HashedPassword, tmp1, StrLen(tmp1));
 
 			if (CALL(hWnd, NcSetPassword(r, &t)))
 			{
@@ -1411,7 +1411,7 @@ UINT NmLogin(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 		{
 		case IDOK:
 			GetTxtA(hWnd, E_PASSWORD, tmp, sizeof(tmp));
-			Hash(login->hashed_password, tmp, StrLen(tmp), true);
+			Sha0(login->hashed_password, tmp, StrLen(tmp));
 			EndDialog(hWnd, true);
 			break;
 
@@ -1463,7 +1463,7 @@ RETRY_PASSWORD:
 				Zero(&login, sizeof(login));
 				login.Hostname = t->Hostname;
 				login.Port = t->Port;
-				Hash(login.hashed_password, "", 0, true);
+				Sha0(login.hashed_password, "", 0);
 
 				if (flag)
 				{
