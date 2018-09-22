@@ -3152,7 +3152,7 @@ bool SmSetupInit(HWND hWnd, SM_SETUP *s)
 		char *password = "";
 
 		Zero(&t, sizeof(t));
-		Hash(t.HashedPassword, password, StrLen(password), true);
+		Sha0(t.HashedPassword, password, StrLen(password));
 		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password);
 		StrCpy(t.HubName, sizeof(t.HubName), s->HubName);
 		t.HubType = HUB_TYPE_STANDALONE;
@@ -15243,7 +15243,7 @@ UINT SmChangeServerPasswordDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 			}
 			Zero(&t, sizeof(t));
-			Hash(t.HashedPassword, tmp1, StrLen(tmp1), true);
+			Sha0(t.HashedPassword, tmp1, StrLen(tmp1));
 			Copy(hash, t.HashedPassword, sizeof(hash));
 			if (CALL(hWnd, ScSetServerPassword(p->Rpc, &t)) == false)
 			{
@@ -15905,7 +15905,7 @@ void SmFarmDlgOnOk(HWND hWnd, SM_SERVER *p)
 			GetTxtA(hWnd, E_PASSWORD, pass, sizeof(pass));
 			if (StrCmp(pass, HIDDEN_PASSWORD) != 0)
 			{
-				Hash(t.MemberPassword, pass, StrLen(pass), true);
+				Sha0(t.MemberPassword, pass, StrLen(pass));
 			}
 		}
 
@@ -17545,7 +17545,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 
 	if (s->EditMode == false || StrCmp(pass1, HIDDEN_PASSWORD) != 0)
 	{
-		Hash(t.HashedPassword, pass1, StrLen(pass1), true);
+		Sha0(t.HashedPassword, pass1, StrLen(pass1));
 		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1);
 	}
 
@@ -19128,7 +19128,7 @@ ENTER_PASSWORD:
 		pass = SmPassword(hWnd, s->ClientOption.Hostname);
 		if (pass != NULL)
 		{
-			Hash(s->HashedPassword, pass, StrLen(pass), true);
+			Sha0(s->HashedPassword, pass, StrLen(pass));
 			Free(pass);
 			ok = true;
 		}
@@ -19173,7 +19173,7 @@ ENTER_PASSWORD:
 			RPC_TEST flag;
 			bool cancel = false;
 
-			Hash(test, "", 0, true);
+			Sha0(test, "", 0);
 
 			if (Cmp(test, s->HashedPassword, SHA1_SIZE) == 0 || Cmp(test, rpc->VpnServerHashedPassword, SHA1_SIZE) == 0)
 			{
@@ -19450,7 +19450,7 @@ void SmEditSettingDlgInit(HWND hWnd, SM_EDIT_SETTING *p)
 	{
 		UCHAR test[SHA1_SIZE];
 
-		Hash(test, "", 0, true);
+		Sha0(test, "", 0);
 		if (Cmp(test, s->HashedPassword, SHA1_SIZE) != 0)
 		{
 			SetTextA(hWnd, E_PASSWORD, HIDDEN_PASSWORD);
@@ -19585,7 +19585,7 @@ void SmEditSettingDlgUpdate(HWND hWnd, SM_EDIT_SETTING *p)
 		GetTxtA(hWnd, E_PASSWORD, tmp, sizeof(tmp));
 		if (StrCmp(tmp, HIDDEN_PASSWORD) != 0)
 		{
-			Hash(s->HashedPassword, tmp, StrLen(tmp), true);
+			Sha0(s->HashedPassword, tmp, StrLen(tmp));
 		}
 	}
 
@@ -19787,7 +19787,7 @@ bool SmAddSettingDlg(HWND hWnd, wchar_t *new_name, UINT new_name_size)
 		if (SmGetSetting(tmp) == NULL)
 		{
 			UniStrCpy(s.Title, sizeof(s.Title), tmp);
-			Hash(s.HashedPassword, "", 0, true);
+			Sha0(s.HashedPassword, "", 0);
 			s.ServerAdminMode = true;
 			break;
 		}
@@ -20111,7 +20111,7 @@ void SmInitDefaultSettingList()
 
 			UniStrCpy(s->Title, sizeof(s->Title), _UU("SM_LOCALHOST"));
 			s->ServerAdminMode = true;
-			Hash(s->HashedPassword, "", 0, true);
+			Sha0(s->HashedPassword, "", 0);
 			UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s->Title);
 			StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), "localhost");
 			s->ClientOption.Port = GC_DEFAULT_PORT;
@@ -20610,7 +20610,7 @@ void SmParseCommandLine()
 					b = StrToBin(password);
 					if (b == NULL || b->Size != SHA1_SIZE)
 					{
-						Hash(s->HashedPassword, password, StrLen(password), true);
+						Sha0(s->HashedPassword, password, StrLen(password));
 					}
 					else
 					{

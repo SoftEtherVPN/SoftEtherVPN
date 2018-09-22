@@ -2719,7 +2719,7 @@ BUF *BuildRedirectToUrlPayload(HUB *hub, SESSION *s, char *redirect_url)
 			WriteBuf(b2, tmp, StrLen(tmp));
 			WriteBuf(b2, secret, StrLen(secret));
 
-			HashSha1(hash, b2->Buf, b2->Size);
+			Sha1(hash, b2->Buf, b2->Size);
 
 			BinToStr(hash_str, sizeof(hash_str), hash, sizeof(hash));
 
@@ -3344,7 +3344,7 @@ UINT64 UsernameToInt64(char *name)
 		return 0;
 	}
 
-	Hash(hash, tmp, StrLen(tmp), true);
+	Sha0(hash, tmp, StrLen(tmp));
 	Copy(&ret, hash, sizeof(ret));
 
 	return ret;
@@ -4282,7 +4282,7 @@ DISCARD_PACKET:
 									UCHAR hash[MD5_SIZE];
 									UINT64 tick_diff = Tick64() - s->LastDLinkSTPPacketSendTick;
 
-									Hash(hash, packet->PacketData, packet->PacketSize, false);
+									Md5(hash, packet->PacketData, packet->PacketSize);
 
 									if ((s->LastDLinkSTPPacketSendTick != 0) &&
 										(tick_diff < 750ULL) &&
@@ -5403,7 +5403,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 				if (session->Policy != NULL && session->Policy->CheckMac)
 				{
 					UCHAR hash[MD5_SIZE];
-					Hash(hash, packet->PacketData, packet->PacketSize, false);
+					Md5(hash, packet->PacketData, packet->PacketSize);
 
 					Copy(session->LastDLinkSTPPacketDataHash, hash, MD5_SIZE);
 					session->LastDLinkSTPPacketSendTick = Tick64();
@@ -6889,7 +6889,7 @@ void GenHubIpAddress(IP *ip, char *name)
 	StrCat(tmp2, sizeof(tmp2), tmp1);
 	StrUpper(tmp2);
 
-	Hash(hash, tmp2, StrLen(tmp2), true);
+	Sha0(hash, tmp2, StrLen(tmp2));
 
 	Zero(ip, sizeof(IP));
 	ip->addr[0] = 172;
@@ -6917,7 +6917,7 @@ void GenHubMacAddress(UCHAR *mac, char *name)
 	StrCat(tmp2, sizeof(tmp2), tmp1);
 	StrUpper(tmp2);
 
-	Hash(hash, tmp2, StrLen(tmp2), true);
+	Sha0(hash, tmp2, StrLen(tmp2));
 
 	mac[0] = 0x00;
 	mac[1] = SE_HUB_MAC_ADDR_SIGN;
@@ -6990,7 +6990,7 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 	}
 
 	h = ZeroMalloc(sizeof(HUB));
-	Hash(h->HashedPassword, "", 0, true);
+	Sha0(h->HashedPassword, "", 0);
 	HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "");
 	h->lock = NewLock();
 	h->lock_online = NewLock();

@@ -236,7 +236,7 @@ UINT EcConnect(char *host, UINT port, char *password, RPC **rpc)
 	SetTimeout(s, 5000);
 
 	// Hash the password
-	Hash(password_hash, password, StrLen(password), true);
+	Sha0(password_hash, password, StrLen(password));
 
 	// Receive the random number
 	Zero(rand, sizeof(rand));
@@ -1127,7 +1127,7 @@ void ElLoadConfigFromFolder(EL *e, FOLDER *root)
 
 	if (CfgGetByte(root, "AdminPassword", e->HashedPassword, sizeof(e->HashedPassword)) != sizeof(e->HashedPassword))
 	{
-		Hash(e->HashedPassword, "", 0, true);
+		Sha0(e->HashedPassword, "", 0);
 	}
 
 	if (ELOG_IS_BETA == false)
@@ -1185,7 +1185,7 @@ bool ElLoadConfig(EL *e)
 	else
 	{
 		char *pass = "";
-		Hash(e->HashedPassword, pass, StrLen(pass), true);
+		Sha0(e->HashedPassword, pass, StrLen(pass));
 		e->AutoDeleteCheckDiskFreeSpaceMin = DISK_FREE_SPACE_DEFAULT;
 	}
 

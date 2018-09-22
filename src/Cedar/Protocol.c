@@ -873,7 +873,7 @@ void GenerateMachineUniqueHash(void *data)
 	WriteBuf(b, osinfo->OsVendorName, StrLen(osinfo->OsVendorName));
 	WriteBuf(b, osinfo->OsVersion, StrLen(osinfo->OsVersion));
 
-	Hash(data, b->Buf, b->Size, true);
+	Sha0(data, b->Buf, b->Size);
 
 	FreeBuf(b);
 }

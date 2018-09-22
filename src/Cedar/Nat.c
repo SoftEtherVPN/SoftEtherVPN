@@ -1193,7 +1193,7 @@ void NiAdminThread(THREAD *thread, void *param)
 					{
 						UCHAR test[SHA1_SIZE];
 						// Password match
-						Hash(test, "", 0, true);
+						Sha0(test, "", 0);
 						SecurePassword(test, test, random);
 
 #if	0
@@ -1793,7 +1793,7 @@ NAT *NiNewNatEx(SNAT *snat, VH_OPTION *o)
 	NAT *n = ZeroMalloc(sizeof(NAT));
 
 	n->lock = NewLock();
-	Hash(n->HashedPassword, "", 0, true);
+	Sha0(n->HashedPassword, "", 0);
 	n->HaltEvent = NewEvent();
 
 	//n->Cedar = NewCedar(NULL, NULL);

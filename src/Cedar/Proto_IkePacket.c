@@ -2965,13 +2965,7 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 {
 	MD *md = NULL;
 
-	// Validate arguments
-	if (h == NULL || dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
-	{
-		return;
-	}
-
-	switch(h->HashId)
+	switch (h->HashId)
 	{
 	case IKE_HASH_MD5_ID:
 		md = NewMd("MD5");
@@ -2992,12 +2986,22 @@ void IkeHMac(IKE_HASH *h, void *dst, void *key, UINT key_size, void *data, UINT 
 
 	if (md == NULL)
 	{
-		Debug("IkeHMac(): The MD object is NULL! Either NewMd() failed or the current algorithm is not handled by the switch-case block.");
+		Debug("IkeHMac(): The MD object is NULL! Either NewMd() failed or the current algorithm is not handled by the switch-case block.\n");
 		return;
 	}
 
-	SetMdKey(md, key, key_size);
-	MdProcess(md, dst, data, data_size);
+	if (SetMdKey(md, key, key_size) == false)
+	{
+		Debug("IkeHMac(): SetMdKey() failed!\n");
+		goto cleanup;
+	}
+
+	if (MdProcess(md, dst, data, data_size) == 0)
+	{
+		Debug("IkeHMac(): MdProcess() returned 0!\n");
+	}
+
+cleanup:
 	FreeMd(md);
 }
 

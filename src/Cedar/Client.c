@@ -253,7 +253,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 // Get current machine hash
@@ -272,7 +272,7 @@ void CiGetCurrentMachineHash(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 // Get current machine hash (without using domain name)
@@ -297,7 +297,7 @@ void CiGetCurrentMachineHashNew(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 
@@ -5722,7 +5722,7 @@ L_TRY:
 
 	SetTimeout(s, 10000);
 
-	Hash(hash_password, password, StrLen(password), true);
+	Sha0(hash_password, password, StrLen(password));
 
 	if (key != NULL)
 	{
@@ -8772,7 +8772,7 @@ bool CtGetPasswordSetting(CLIENT *c, RPC_CLIENT_PASSWORD_SETTING *a)
 		return false;
 	}
 
-	Hash(hash, "", 0, true);
+	Sha0(hash, "", 0);
 	if (Cmp(hash, c->EncryptedPassword, SHA1_SIZE) == 0)
 	{
 		a->IsPasswordPresented = false;
@@ -8801,7 +8801,7 @@ bool CtSetPassword(CLIENT *c, RPC_CLIENT_PASSWORD *pass)
 	if (StrCmp(str, "********") != 0)
 	{
 		// Hash the password
-		Hash(c->EncryptedPassword, str, StrLen(str), true);
+		Sha0(c->EncryptedPassword, str, StrLen(str));
 	}
 
 	c->PasswordRemoteOnly = pass->PasswordRemoteOnly;
@@ -9154,7 +9154,7 @@ void CiInitConfiguration(CLIENT *c)
 		CLog(c, "LC_LOAD_CONFIG_3");
 		// Do the initial setup because the configuration file does not exist
 		// Clear the password
-		Hash(c->EncryptedPassword, "", 0, true);
+		Sha0(c->EncryptedPassword, "", 0);
 		// Initialize the client configuration
 		// Disable remote management
 		c->Config.AllowRemoteConfig = false;
@@ -9773,7 +9773,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 
 	if (CfgGetByte(root, "EncryptedPassword", c->EncryptedPassword, SHA1_SIZE) == false)
 	{
-		Hash(c->EncryptedPassword, "", 0, true);
+		Sha0(c->EncryptedPassword, "", 0);
 	}
 
 	c->PasswordRemoteOnly = CfgGetBool(root, "PasswordRemoteOnly");
@@ -10439,7 +10439,7 @@ CLIENT *CiNewClient()
 
 	c->NotifyCancelList = NewList(NULL);
 
-	Hash(c->EncryptedPassword, "", 0, true);
+	Sha0(c->EncryptedPassword, "", 0);
 
 #ifdef	OS_WIN32
 	c->GlobalPulse = MsOpenOrCreateGlobalPulse(CLIENT_GLOBAL_PULSE_NAME);

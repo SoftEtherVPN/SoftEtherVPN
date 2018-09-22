@@ -1205,7 +1205,7 @@ void GenerateUnicodeCacheFileName(wchar_t *name, UINT size, wchar_t *strfilename
 	UniStrCat(hashtemp, sizeof(hashtemp), exe);
 	UniStrLower(hashtemp);
 
-	Hash(hash, hashtemp, UniStrLen(hashtemp) * sizeof(wchar_t), true);
+	Sha0(hash, hashtemp, UniStrLen(hashtemp) * sizeof(wchar_t));
 	BinToStrW(hashstr, sizeof(hashstr), hash, 4);
 	UniFormat(tmp, sizeof(tmp), UNICODE_CACHE_FILE, hashstr);
 	UniStrLower(tmp);
@@ -1266,7 +1266,7 @@ void SaveUnicodeCache(wchar_t *strfilename, UINT strfilesize, UCHAR *hash)
 		WriteBuf(b, t->unistr, UniStrLen(t->unistr) * sizeof(wchar_t));
 	}
 
-	Hash(binhash, b->Buf, b->Size, false);
+	Md5(binhash, b->Buf, b->Size);
 	WriteBuf(b, binhash, MD5_SIZE);
 
 	GenerateUnicodeCacheFileName(name, sizeof(name), strfilename, strfilesize, hash);
@@ -1316,7 +1316,7 @@ bool LoadUnicodeCache(wchar_t *strfilename, UINT strfilesize, UCHAR *hash)
 	SeekBuf(b, 0, 0);
 	FileClose(io);
 
-	Hash(binhash, b->Buf, b->Size >= MD5_SIZE ? (b->Size - MD5_SIZE) : 0, false);
+	Md5(binhash, b->Buf, b->Size >= MD5_SIZE ? (b->Size - MD5_SIZE) : 0);
 	Copy(binhash_2, ((UCHAR *)b->Buf) + (b->Size >= MD5_SIZE ? (b->Size - MD5_SIZE) : 0), MD5_SIZE);
 	if (Cmp(binhash, binhash_2, MD5_SIZE) != 0)
 	{
@@ -1419,7 +1419,7 @@ bool LoadTableMain(wchar_t *filename)
 		return false;
 	}
 
-	Hash(hash, b->Buf, b->Size, false);
+	Md5(hash, b->Buf, b->Size);
 
 	if (LoadUnicodeCache(filename, b->Size, hash) == false)
 	{

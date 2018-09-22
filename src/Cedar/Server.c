@@ -2519,7 +2519,7 @@ void SiLoadInitialConfiguration(SERVER *s)
 
 	// Initialize the password
 	{
-		Hash(s->HashedPassword, "", 0, true);
+		Sha0(s->HashedPassword, "", 0);
 	}
 
 	// Set the encryption algorithm name to default
@@ -5103,7 +5103,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 		// Password
 		if (CfgGetByte(f, "HashedPassword", h->HashedPassword, sizeof(h->HashedPassword)) != sizeof(h->HashedPassword))
 		{
-			Hash(h->HashedPassword, "", 0, true);
+			Sha0(h->HashedPassword, "", 0);
 		}
 		if (CfgGetByte(f, "SecurePassword", h->SecurePassword, sizeof(h->SecurePassword)) != sizeof(h->SecurePassword))
 		{
@@ -5942,7 +5942,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Password
 		if (CfgGetByte(f, "HashedPassword", s->HashedPassword, sizeof(s->HashedPassword)) != sizeof(s->HashedPassword))
 		{
-			Hash(s->HashedPassword, "", 0, true);
+			Sha0(s->HashedPassword, "", 0);
 		}
 
 		if (s->ServerType != SERVER_TYPE_STANDALONE)

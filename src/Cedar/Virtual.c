@@ -9384,7 +9384,7 @@ UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac)
 		WRITE_UINT(&rand_seed[0], i);
 		Copy(rand_seed + sizeof(UINT), mac, 6);
 
-		Hash(hash, rand_seed, sizeof(rand_seed), false);
+		Md5(hash, rand_seed, sizeof(rand_seed));
 
 		rand_int = READ_UINT(hash);
 
@@ -10300,7 +10300,7 @@ void GenMacAddress(UCHAR *mac)
 	WriteBuf(b, rand_data, sizeof(rand_data));
 
 	// Hash
-	Hash(hash, b->Buf, b->Size, true);
+	Sha0(hash, b->Buf, b->Size);
 
 	// Generate a MAC address
 	mac[0] = 0x5E;

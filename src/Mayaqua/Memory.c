@@ -147,7 +147,7 @@ PRAND *NewPRand(void *key, UINT key_size)
 
 	r = ZeroMalloc(sizeof(PRAND));
 
-	HashSha1(r->Key, key, key_size);
+	Sha1(r->Key, key, key_size);
 
 	r->Rc4 = NewCrypt(key, key_size);
 
@@ -2459,7 +2459,7 @@ BUF *FileToBuf(IO *o)
 	}
 
 	// Take a hash
-	Hash(hash2, buf, size, false);
+	Md5(hash2, buf, size);
 
 	// Compare the hashes
 	if (Cmp(hash1, hash2, sizeof(hash1)) != 0)
@@ -2664,7 +2664,7 @@ bool BufToFile(IO *o, BUF *b)
 	}
 
 	// Hash the data
-	Hash(hash, b->Buf, b->Size, false);
+	Md5(hash, b->Buf, b->Size);
 
 	size = Endian32(b->Size);
 

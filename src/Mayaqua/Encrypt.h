@@ -359,9 +359,10 @@ struct CIPHER
 struct MD
 {
 	char Name[MAX_PATH];
-	bool isNullMd;
+	bool IsNullMd;
+	bool IsHMac;
 	const struct evp_md_st *Md;
-	struct hmac_ctx_st *Ctx;
+	void *Ctx;
 	UINT Size;
 };
 
@@ -490,6 +491,7 @@ void DesFreeKeyValue(DES_KEY_VALUE *v);
 void Des3Encrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
 void Des3Decrypt2(void *dest, void *src, UINT size, DES_KEY_VALUE *k1, DES_KEY_VALUE *k2, DES_KEY_VALUE *k3, void *ivec);
 void Sha(UINT sha_type, void *dst, void *src, UINT size);
+void Sha0(void *dst, void *src, UINT size);
 void Sha1(void *dst, void *src, UINT size);
 void Sha2_256(void *dst, void *src, UINT size);
 void Sha2_384(void *dst, void *src, UINT size);
@@ -524,6 +526,7 @@ void OpenSSL_FreeLock();
 void OpenSSL_Lock(int mode, int n, const char *file, int line);
 unsigned long OpenSSL_Id(void);
 void FreeOpenSSLThreadState();
+char *OpenSSL_Error();
 
 CIPHER *NewCipher(char *name);
 void FreeCipher(CIPHER *c);
@@ -531,14 +534,15 @@ void SetCipherKey(CIPHER *c, void *key, bool enc);
 UINT CipherProcess(CIPHER *c, void *iv, void *dest, void *src, UINT size);
 
 MD *NewMd(char *name);
+MD *NewMdEx(char *name, bool hmac);
 void FreeMd(MD *md);
-void SetMdKey(MD *md, void *key, UINT key_size);
-void MdProcess(MD *md, void *dest, void *src, UINT size);
+bool SetMdKey(MD *md, void *key, UINT key_size);
+UINT MdProcess(MD *md, void *dest, void *src, UINT size);
 void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 				  int slen, unsigned char *out1, int olen);
 
-void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
-void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
+UINT HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size);
+UINT HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 
 int GetSslClientCertIndex();
 

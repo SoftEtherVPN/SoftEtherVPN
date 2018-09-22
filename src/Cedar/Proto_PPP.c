@@ -2676,7 +2676,7 @@ void MsChapV2_GenerateChallenge8(UCHAR *dst, UCHAR *client_challenge, UCHAR *ser
 		WriteBuf(b, username2, StrLen(username2));
 	}
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 
@@ -2739,14 +2739,14 @@ void MsChapV2Server_GenerateResponse(UCHAR *dst, UCHAR *nt_password_hash_hash, U
 	WriteBuf(b, nt_password_hash_hash, 16);
 	WriteBuf(b, client_response, 24);
 	WriteBuf(b, magic1, StrLen(magic1));
-	HashSha1(digest, b->Buf, b->Size);
+	Sha1(digest, b->Buf, b->Size);
 	FreeBuf(b);
 
 	b = NewBuf();
 	WriteBuf(b, digest, sizeof(digest));
 	WriteBuf(b, challenge8, 8);
 	WriteBuf(b, magic2, StrLen(magic2));
-	HashSha1(dst, b->Buf, b->Size);
+	Sha1(dst, b->Buf, b->Size);
 	FreeBuf(b);
 }
 

@@ -150,7 +150,7 @@ UINT GetEthDeviceHash()
 	}
 	FreeToken(t);
 
-	Hash(hash, tmp, StrLen(tmp), true);
+	Sha0(hash, tmp, StrLen(tmp));
 
 	Copy(&num, hash, sizeof(UINT));
 
@@ -174,7 +174,7 @@ UINT GetEthDeviceHash()
 	}
 	MsFreeAdapterList(a);
 
-	Hash(hash, tmp, StrLen(tmp), true);
+	Sha0(hash, tmp, StrLen(tmp));
 
 	Copy(&num, hash, sizeof(UINT));
 

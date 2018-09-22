@@ -701,7 +701,7 @@ void HashPassword(void *dst, char *username, char *password)
 	StrUpper(username_upper);
 	WriteBuf(b, password, StrLen(password));
 	WriteBuf(b, username_upper, StrLen(username_upper));
-	Hash(dst, b->Buf, b->Size, true);
+	Sha0(dst, b->Buf, b->Size);
 
 	FreeBuf(b);
 	Free(username_upper);

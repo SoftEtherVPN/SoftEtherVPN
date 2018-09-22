@@ -1337,7 +1337,7 @@ UINT Win32EthGenIdFromGuid(char *guid)
 	Trim(tmp);
 	StrUpper(tmp);
 
-	HashSha1(hash, tmp, StrLen(tmp));
+	Sha1(hash, tmp, StrLen(tmp));
 
 	Copy(&i, hash, sizeof(UINT));
 

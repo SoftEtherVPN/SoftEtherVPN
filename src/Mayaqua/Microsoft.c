@@ -988,7 +988,7 @@ void *MsOpenOrCreateGlobalPulse(char *name)
 	Trim(tmp);
 	StrUpper(tmp);
 
-	HashSha1(hash, name, StrLen(name));
+	Sha1(hash, name, StrLen(name));
 
 	BinToStr(tmp, sizeof(tmp), hash, sizeof(hash));
 
@@ -2110,13 +2110,13 @@ void MsRegistWindowsFirewallEx(char *title, char *exe)
 	tmp_size = StrLen(data) * 4;
 	tmp = ZeroMalloc(tmp_size);
 
-	HashSha1(hashbin, exe, StrLen(exe));
+	Sha1(hashbin, exe, StrLen(exe));
 	BinToStr(hash, sizeof(hash), hashbin, 6);
 
 	ReplaceStrEx(tmp, tmp_size, data, "$TITLE$", title, false);
 	ReplaceStrEx(tmp, tmp_size, tmp, "$PATH$", exe, false);
 
-	HashSha1(file_hash_bin, tmp, StrLen(tmp));
+	Sha1(file_hash_bin, tmp, StrLen(tmp));
 	BinToStr(file_hash_str, sizeof(file_hash_str), file_hash_bin, sizeof(file_hash_bin));
 
 	if (MsIsVista() == false || MsRegReadIntEx2(REG_LOCAL_MACHINE, SOFTETHER_FW_SCRIPT_HASH, file_hash_str, false, true) == 0)
@@ -2357,7 +2357,7 @@ void *MsLoadLibraryAsDataFileW(wchar_t *name)
 		return NULL;
 	}
 
-	Hash(hash, name, UniStrLen(name), true);
+	Sha0(hash, name, UniStrLen(name));
 
 	BinToStr(hash_str, sizeof(hash_str), hash, 4);
 
@@ -2404,7 +2404,7 @@ void *MsLoadLibraryW(wchar_t *name)
 		return NULL;
 	}
 
-	Hash(hash, name, UniStrSize(name), true);
+	Sha0(hash, name, UniStrSize(name));
 
 	BinToStr(hash_str, sizeof(hash_str), hash, 4);
 
@@ -4075,7 +4075,7 @@ void MsGenerateUserModeSvcGlobalPulseName(char *name, UINT size, char *svc_name)
 	UniTrim(tmp);
 	UniStrUpper(tmp);
 
-	HashSha1(hash, tmp, UniStrLen(tmp) * sizeof(wchar_t));
+	Sha1(hash, tmp, UniStrLen(tmp) * sizeof(wchar_t));
 
 	BinToStr(name, size, hash, sizeof(hash));
 }
@@ -8365,7 +8365,7 @@ void MsGenMacAddress(UCHAR *mac)
 	now = SystemTime64();
 	Copy(hash_src, &now, sizeof(now));
 
-	Hash(hash, hash_src, sizeof(hash_src), true);
+	Sha0(hash, hash_src, sizeof(hash_src));
 
 	mac[0] = 0x5E;
 	mac[1] = hash[0];
@@ -12017,7 +12017,7 @@ bool MsCheckIsAdmin()
 	DWORD size;
 	char name[MAX_SIZE];
 
-	HashSha1(exe_hash, MsGetExeFileNameW(), UniStrLen(MsGetExeFileNameW()));
+	Sha1(exe_hash, MsGetExeFileNameW(), UniStrLen(MsGetExeFileNameW()));
 
 	Format(name, sizeof(name), name_tag, *((UINT *)exe_hash));
 

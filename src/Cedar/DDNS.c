@@ -635,7 +635,7 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 		PackAddStr(req, "current_azure_ip", current_azure_ip);
 	}
 
-	HashSha1(key_hash, key_str, StrLen(key_str));
+	Sha1(key_hash, key_str, StrLen(key_str));
 	BinToStr(key_hash_str, sizeof(key_hash_str), key_hash, sizeof(key_hash));
 	StrLower(key_hash_str);
 
@@ -963,7 +963,7 @@ DDNS_CLIENT *NewDDNSClient(CEDAR *cedar, UCHAR *key, INTERNET_SETTING *t)
 		Copy(c->Key, key, SHA1_SIZE);
 	}
 
-	HashSha1(key_hash, c->Key, sizeof(c->Key));
+	Sha1(key_hash, c->Key, sizeof(c->Key));
 
 
 	if (t != NULL)
@@ -1035,7 +1035,7 @@ void DCGenNewKey(UCHAR *key)
 	GetCurrentMachineIpProcessHash(hash);
 	WriteBuf(b, hash, sizeof(hash));
 
-	HashSha1(key, b->Buf, b->Size);
+	Sha1(key, b->Buf, b->Size);
 	Rand(rand, sizeof(rand));
 
 	for (i = 0;i < SHA1_SIZE;i++)

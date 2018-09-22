@@ -870,7 +870,7 @@ void UdpAccelCalcKey(UCHAR *key, UCHAR *common_key, UCHAR *iv)
 	Copy(tmp, common_key, UDP_ACCELERATION_COMMON_KEY_SIZE);
 	Copy(tmp + UDP_ACCELERATION_COMMON_KEY_SIZE, iv, UDP_ACCELERATION_PACKET_IV_SIZE);
 
-	HashSha1(key, tmp, sizeof(tmp));
+	Sha1(key, tmp, sizeof(tmp));
 }
 
 // Set the current time

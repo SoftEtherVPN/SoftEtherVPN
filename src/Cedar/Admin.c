@@ -8018,7 +8018,7 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	{
 		UCHAR hash1[SHA1_SIZE], hash2[SHA1_SIZE];
 		HashPassword(hash1, ADMINISTRATOR_USERNAME, "");
-		Hash(hash2, "", 0, true);
+		Sha0(hash2, "", 0);
 
 		if (Cmp(t->HashedPassword, hash2, SHA1_SIZE) == 0 || Cmp(t->SecurePassword, hash1, SHA1_SIZE) == 0)
 		{
@@ -13602,7 +13602,7 @@ void HashAdminPassword(void *hash, char *password)
 		return;
 	}
 
-	Hash(hash, password, StrLen(password), true);
+	Sha0(hash, password, StrLen(password));
 }
 
 // Disconnect admin connection
@@ -13823,7 +13823,7 @@ bool SiIsEmptyPassword(void *hash_password)
 		return false;
 	}
 
-	Hash(hash, "", 0, true);
+	Sha0(hash, "", 0);
 
 	if (Cmp(hash_password, hash, SHA1_SIZE) == 0)
 	{

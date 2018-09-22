@@ -626,7 +626,7 @@ UINT EmPasswordDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 		{
 		case IDOK:
 			GetTxtA(hWnd, E_PASSWORD1, pass1, sizeof(pass1));
-			Hash(hash, pass1, StrLen(pass1), true);
+			Sha0(hash, pass1, StrLen(pass1));
 			Zero(&t, sizeof(t));
 			Copy(t.HashedPassword, hash, SHA1_SIZE);
 			if (CALL(hWnd, EcSetPassword(r, &t)) == false)

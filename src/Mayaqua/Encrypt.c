@@ -170,7 +170,8 @@ LOCK **ssl_lock_obj = NULL;
 UINT ssl_lock_num;
 static bool openssl_inited = false;
 
-static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md);
+static UINT Internal_HMac(const EVP_MD *md, void *dest, void *key, UINT key_size, const void *src, const UINT src_size);
+static void Internal_Sha0(unsigned char *dest, const unsigned char *src, const UINT size);
 
 // For the callback function
 typedef struct CB_PARAM
@@ -268,185 +269,86 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 }
 
 // Calculation of HMAC (MD5)
-void HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size)
+UINT HMacMd5(void *dst, void *key, UINT key_size, void *src, UINT src_size)
 {
-	UCHAR k[HMAC_BLOCK_SIZE];
-	UCHAR hash1[MD5_SIZE];
-	UCHAR data2[HMAC_BLOCK_SIZE];
-	MD5_CTX md5_ctx1;
-	UCHAR pad1[HMAC_BLOCK_SIZE];
-	UINT i;
-	// Validate arguments
-	if (dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
-	{
-		return;
-	}
-
-	// Creating a K
-	if (key_size <= HMAC_BLOCK_SIZE)
-	{
-		for (i = 0;i < key_size;i++)
-		{
-			pad1[i] = ((UCHAR *)key)[i] ^ 0x36;
-		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
-		{
-			pad1[i] = 0 ^ 0x36;
-		}
-	}
-	else
-	{
-		Zero(k, sizeof(k));
-		Hash(k, key, key_size, false);
-
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
-		{
-			pad1[i] = k[i] ^ 0x36;
-		}
-	}
-
-	MD5_Init(&md5_ctx1);
-	MD5_Update(&md5_ctx1, pad1, sizeof(pad1));
-	MD5_Update(&md5_ctx1, data, data_size);
-	MD5_Final(hash1, &md5_ctx1);
-
-	// Generation of data 2
-	if (key_size <= HMAC_BLOCK_SIZE)
-	{
-		for (i = 0;i < key_size;i++)
-		{
-			data2[i] = ((UCHAR *)key)[i] ^ 0x5c;
-		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
-		{
-			data2[i] = 0 ^ 0x5c;
-		}
-	}
-	else
-	{
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
-		{
-			data2[i] = k[i] ^ 0x5c;
-		}
-	}
-
-	MD5_Init(&md5_ctx1);
-	MD5_Update(&md5_ctx1, data2, HMAC_BLOCK_SIZE);
-	MD5_Update(&md5_ctx1, hash1, MD5_SIZE);
-	MD5_Final(dst, &md5_ctx1);
+	return Internal_HMac(EVP_md5(), dst, key, key_size, src, src_size);
 }
 
 // Calculation of HMAC (SHA-1)
-void HMacSha1(void *dst, void *key, UINT key_size, void *data, UINT data_size)
+UINT HMacSha1(void *dst, void *key, UINT key_size, void *src, UINT src_size)
 {
-	UCHAR k[HMAC_BLOCK_SIZE];
-	UCHAR hash1[SHA1_SIZE];
-	UCHAR data2[HMAC_BLOCK_SIZE];
-	SHA_CTX sha_ctx1;
-	UCHAR pad1[HMAC_BLOCK_SIZE];
-	UINT i;
-	// Validate arguments
-	if (dst == NULL || (key == NULL && key_size != 0) || (data == NULL && data_size != 0))
-	{
-		return;
-	}
-
-	// Creating a K
-	if (key_size <= HMAC_BLOCK_SIZE)
-	{
-		for (i = 0;i < key_size;i++)
-		{
-			pad1[i] = ((UCHAR *)key)[i] ^ 0x36;
-		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
-		{
-			pad1[i] = 0 ^ 0x36;
-		}
-	}
-	else
-	{
-		Zero(k, sizeof(k));
-		HashSha1(k, key, key_size);
-
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
-		{
-			pad1[i] = k[i] ^ 0x36;
-		}
-	}
-
-	SHA1_Init(&sha_ctx1);
-	SHA1_Update(&sha_ctx1, pad1, sizeof(pad1));
-	SHA1_Update(&sha_ctx1, data, data_size);
-	SHA1_Final(hash1, &sha_ctx1);
-
-	// Generation of data 2
-	if (key_size <= HMAC_BLOCK_SIZE)
-	{
-		for (i = 0;i < key_size;i++)
-		{
-			data2[i] = ((UCHAR *)key)[i] ^ 0x5c;
-		}
-		for (i = key_size;i < HMAC_BLOCK_SIZE;i++)
-		{
-			data2[i] = 0 ^ 0x5c;
-		}
-	}
-	else
-	{
-		for (i = 0;i < HMAC_BLOCK_SIZE;i++)
-		{
-			data2[i] = k[i] ^ 0x5c;
-		}
-	}
-
-	SHA1_Init(&sha_ctx1);
-	SHA1_Update(&sha_ctx1, data2, HMAC_BLOCK_SIZE);
-	SHA1_Update(&sha_ctx1, hash1, SHA1_SIZE);
-	SHA1_Final(dst, &sha_ctx1);
+	return Internal_HMac(EVP_sha1(), dst, key, key_size, src, src_size);
 }
 
-// Calculate the HMAC
-void MdProcess(MD *md, void *dest, void *src, UINT size)
+// Calculate the hash/HMAC
+UINT MdProcess(MD *md, void *dest, void *src, UINT size)
 {
-	int r = 0;
-
-	if (md != NULL && md->isNullMd)
-	{
-		if (dest != src)
-		{
-			Copy(dest, src, size);
-		}
-
-		return;
-	}
+	UINT len = 0;
 
 	// Validate arguments
-	if (md == NULL || dest == NULL || (src != NULL && size == 0))
+	if (md == NULL || md->IsNullMd || dest == NULL || (src == NULL && size != 0))
 	{
-		return;
+		return 0;
 	}
 
-	HMAC_Init_ex(md->Ctx, NULL, 0, NULL, NULL);
-	HMAC_Update(md->Ctx, src, size);
-	HMAC_Final(md->Ctx, dest, &r);
+	if (md->IsHMac)
+	{
+		if (HMAC_Update(md->Ctx, src, size) == false)
+		{
+			Debug("MdProcess(): HMAC_Update() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
+		if (HMAC_Final(md->Ctx, dest, &len) == false)
+		{
+			Debug("MdProcess(): HMAC_Final() failed with error: %s\n", OpenSSL_Error());
+		}
+	}
+	else
+	{
+		if (EVP_DigestUpdate(md->Ctx, src, size) == false)
+		{
+			Debug("MdProcess(): EVP_DigestUpdate() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
+		if (EVP_DigestFinal_ex(md->Ctx, dest, &len) == false)
+		{
+			Debug("MdProcess(): EVP_DigestFinal_ex() failed with error: %s\n", OpenSSL_Error());
+		}
+	}
+
+	return len;
 }
 
 // Set the key to the message digest object
-void SetMdKey(MD *md, void *key, UINT key_size)
+bool SetMdKey(MD *md, void *key, UINT key_size)
 {
 	// Validate arguments
-	if (md == NULL || (key != NULL && key_size == 0))
+	if (md == NULL || md->IsHMac == false || key == NULL || key_size == 0)
 	{
-		return;
+		return false;
 	}
 
-	HMAC_Init_ex(md->Ctx, key, key_size, (const EVP_MD *)md->Md, NULL);
+	if (HMAC_Init_ex(md->Ctx, key, key_size, (const EVP_MD *)md->Md, NULL) == false)
+	{
+		Debug("SetMdKey(): HMAC_Init_ex() failed with error: %s\n", OpenSSL_Error());
+		return false;
+	}
+
+	return true;
 }
 
 // Creating a message digest object
 MD *NewMd(char *name)
 {
+	return NewMdEx(name, true);
+}
+
+MD *NewMdEx(char *name, bool hmac)
+{
 	MD *m;
+
 	// Validate arguments
 	if (name == NULL)
 	{
@@ -461,25 +363,43 @@ MD *NewMd(char *name)
 		StrCmpi(name, "NULL") == 0 ||
 		IsEmptyStr(name))
 	{
-		m->isNullMd = true;
+		m->IsNullMd = true;
 		return m;
 	}
 
 	m->Md = (const struct evp_md_st *)EVP_get_digestbyname(name);
 	if (m->Md == NULL)
 	{
+		Debug("NewMdEx(): Algorithm %s not found by EVP_get_digestbyname().\n", m->Name);
 		FreeMd(m);
 		return NULL;
 	}
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	m->Ctx = HMAC_CTX_new();
-#else
-	m->Ctx = ZeroMalloc(sizeof(struct hmac_ctx_st));
-	HMAC_CTX_init(m->Ctx);
-#endif
-
 	m->Size = EVP_MD_size((const EVP_MD *)m->Md);
+	m->IsHMac = hmac;
+
+	if (hmac)
+	{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		m->Ctx = HMAC_CTX_new();
+#else
+		m->Ctx = ZeroMalloc(sizeof(struct hmac_ctx_st));
+		HMAC_CTX_init(m->Ctx);
+#endif
+	}
+	else
+	{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		m->Ctx = EVP_MD_CTX_new();
+#else
+		m->Ctx = EVP_MD_CTX_create();
+#endif
+		if (EVP_DigestInit_ex(m->Ctx, m->Md, NULL) == false)
+		{
+			Debug("NewMdEx(): EVP_DigestInit_ex() failed with error: %s\n", OpenSSL_Error());
+			FreeMd(m);
+		}
+	}
 
 	return m;
 }
@@ -495,12 +415,23 @@ void FreeMd(MD *md)
 
 	if (md->Ctx != NULL)
 	{
+		if (md->IsHMac)
+		{
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-		HMAC_CTX_free(md->Ctx);
+			HMAC_CTX_free(md->Ctx);
 #else
-		HMAC_CTX_cleanup(md->Ctx);
-		Free(md->Ctx);
+			HMAC_CTX_cleanup(md->Ctx);
+			Free(md->Ctx);
 #endif
+		}
+		else
+		{
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+			EVP_MD_CTX_free(md->Ctx);
+#else
+			EVP_MD_CTX_destroy(md->Ctx);
+#endif
+		}
 	}
 
 	Free(md);
@@ -704,7 +635,7 @@ UINT HashPtrToUINT(void *p)
 		return 0;
 	}
 
-	Hash(hash_data, &p, sizeof(p), false);
+	Md5(hash_data, &p, sizeof(p));
 
 	Copy(&ret, hash_data, sizeof(ret));
 
@@ -820,6 +751,11 @@ void OpenSSL_Lock(int mode, int n, const char *file, int line)
 unsigned long OpenSSL_Id(void)
 {
 	return (unsigned long)ThreadId();
+}
+
+char *OpenSSL_Error()
+{
+	return ERR_error_string(ERR_get_error(), NULL);
 }
 
 // Get the display name of the certificate
@@ -2287,7 +2223,7 @@ bool HashForSign(void *dst, UINT dst_size, void *src, UINT src_size)
 	Copy(buf, sign_data, sizeof(sign_data));
 
 	// Hash
-	HashSha1(HASHED_DATA(buf), src, src_size);
+	Sha1(HASHED_DATA(buf), src, src_size);
 
 	return true;
 }
@@ -3781,8 +3717,8 @@ void InitCryptLibrary()
 	openssl_inited = true;
 }
 
-// Hash function
-void Hash(void *dst, void *src, UINT size, bool sha)
+// MD4 specific hash function
+void HashMd4(void *dst, void *src, UINT size)
 {
 	// Validate arguments
 	if (dst == NULL || (src == NULL && size != 0))
@@ -3790,26 +3726,6 @@ void Hash(void *dst, void *src, UINT size, bool sha)
 		return;
 	}
 
-	if (sha == false)
-	{
-		// MD5 hash
-		MD5(src, size, dst);
-	}
-	else
-	{
-		// SHA hash
-		Internal_SHA0(src, size, dst);
-	}
-}
-
-// MD4 specific hash function
-void HashMd4(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (size != 0 && src == NULL))
-	{
-		return;
-	}
 	MD4(src, size, dst);
 }
 
@@ -3824,7 +3740,7 @@ UINT HashToUINT(void *data, UINT size)
 		return 0;
 	}
 
-	HashSha1(hash, data, size);
+	Sha1(hash, data, size);
 
 	Copy(&u, hash, sizeof(UINT));
 
@@ -3836,12 +3752,7 @@ UINT HashToUINT(void *data, UINT size)
 // SHA-1 specific hash function
 void HashSha1(void *dst, void *src, UINT size)
 {
-	// Validate arguments
-	if (dst == NULL || (size != 0 && src == NULL))
-	{
-		return;
-	}
-	SHA1(src, size, dst);
+	Sha1(dst, src, size);
 }
 
 // Creating a new CRYPT object
@@ -3876,11 +3787,11 @@ void Encrypt(CRYPT *c, void *dst, void *src, UINT size)
 	RC4(c->Rc4Key, size, src, dst);
 }
 
-// SHA-1 hash
+// SHA hash
 void Sha(UINT sha_type, void *dst, void *src, UINT size)
 {
 	// Validate arguments
-	if (dst == NULL || src == NULL)
+	if (dst == NULL || (src == NULL && size != 0))
 	{
 		return;
 	}
@@ -3899,29 +3810,36 @@ void Sha(UINT sha_type, void *dst, void *src, UINT size)
 		SHA512(src, size, dst);
 		break;
 	}
-
 }
 
-
-// SHA-1 hash
-void Sha1(void *dst, void *src, UINT size)
+void Sha0(void *dst, void *src, UINT size)
 {
 	// Validate arguments
-	if (dst == NULL || src == NULL)
+	if (dst == NULL || (src == NULL && size != 0))
 	{
 		return;
 	}
 
-	SHA1(src, size, dst);
+	Internal_Sha0(dst, src, size);
 }
 
-void Sha2_256(void *dst, void *src, UINT size) {
+void Sha1(void *dst, void *src, UINT size)
+{
+	Sha(SHA1_160, dst, src, size);
+}
+
+void Sha2_256(void *dst, void *src, UINT size)
+{
 	Sha(SHA2_256, dst, src, size);
 }
-void Sha2_384(void *dst, void *src, UINT size) {
+
+void Sha2_384(void *dst, void *src, UINT size)
+{
 	Sha(SHA2_384, dst, src, size);
 }
-void Sha2_512(void *dst, void *src, UINT size) {
+
+void Sha2_512(void *dst, void *src, UINT size)
+{
 	Sha(SHA2_512, dst, src, size);
 }
 
@@ -3929,7 +3847,7 @@ void Sha2_512(void *dst, void *src, UINT size) {
 void Md5(void *dst, void *src, UINT size)
 {
 	// Validate arguments
-	if (dst == NULL || src == NULL)
+	if (dst == NULL || (src == NULL && size != 0))
 	{
 		return;
 	}
@@ -4468,6 +4386,50 @@ void DhFree(DH_CTX *dh)
 	Free(dh);
 }
 
+int GetSslClientCertIndex()
+{
+	return ssl_clientcert_index;
+}
+
+// Internal functions
+static UINT Internal_HMac(const EVP_MD *md, void *dest, void *key, UINT key_size, const void *src, const UINT src_size)
+{
+	MD *m;
+	UINT len = 0;
+
+	// Validate arguments
+	if (md == NULL || dest == NULL || key == NULL || key_size == 0 || (src == NULL && src_size != 0))
+	{
+		return 0;
+	}
+
+	m = ZeroMalloc(sizeof(MD));
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	m->Ctx = HMAC_CTX_new();
+#else
+	m->Ctx = ZeroMalloc(sizeof(HMAC_CTX));
+	HMAC_CTX_init(m->Ctx);
+#endif
+	m->Md = md;
+	m->IsHMac = true;
+
+	if (SetMdKey(m, key, key_size) == false)
+	{
+		Debug("Internal_HMac(): SetMdKey() failed!\n");
+		goto final;
+	}
+
+	len = MdProcess(m, dest, src, src_size);
+	if (len == 0)
+	{
+		Debug("Internal_HMac(): MdProcess() returned 0!\n");
+	}
+
+final:
+	FreeMd(m);
+	return len;
+}
+
 /////////////////////////
 // SHA0 implementation //
 /////////////////////////
@@ -4767,24 +4729,12 @@ static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest)
 	UNPACK_32_BE(tmp.h[3], &digest[12]);
 	UNPACK_32_BE(tmp.h[4], &digest[16]);
 }
-static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md)
+
+static void Internal_Sha0(unsigned char *dest, const unsigned char *src, const UINT size)
 {
 	struct ampheck_sha0 c;
-	static unsigned char m[SHA_DIGEST_LENGTH];
-
-	if (md == NULL) md=m;
 
 	ampheck_sha0_init(&c);
-	ampheck_sha0_update(&c, d, (UINT)n);
-	ampheck_sha0_finish(&c, md);
-
-	return md;
+	ampheck_sha0_update(&c, src, size);
+	ampheck_sha0_finish(&c, dest);
 }
-
-
-int GetSslClientCertIndex()
-{
-	return ssl_clientcert_index;
-}
-
-

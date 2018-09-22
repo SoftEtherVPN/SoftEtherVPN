@@ -1893,7 +1893,7 @@ UINT GetOnceMsgHash(wchar_t *title, wchar_t *message)
 	// 2013.5.19: Exclude the title from the hash calculation
 	//WriteBuf(b, title, UniStrSize(title));
 	WriteBuf(b, message, UniStrSize(message));
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 	FreeBuf(b);
 
 	Copy(&ret, hash, sizeof(UINT));

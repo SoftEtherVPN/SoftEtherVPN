@@ -509,7 +509,7 @@ void NsGenMacAddressSignatureForMachine(UCHAR *dst_last_2, UCHAR *src_mac_addr_4
 	WriteBuf(b, src_mac_addr_4, 4);
 	WriteBufStr(b, machine_name);
 
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 
 	FreeBuf(b);
 
@@ -533,7 +533,7 @@ void NsGenMacAddress(void *dest, char *mac_address_seed, char *device_name)
 
 	StrLower(tmp);
 
-	HashSha1(hash, tmp, StrLen(tmp));
+	Sha1(hash, tmp, StrLen(tmp));
 
 	mac[0] = NS_MAC_ADDRESS_BYTE_1;
 	mac[1] = hash[1];
@@ -562,7 +562,7 @@ IPTABLES_STATE *StartAddIpTablesEntryForNativeStack(void *seed, UINT seed_size)
 
 		ret->EntryList = NewListFast(NULL);
 
-		HashSha1(ret->SeedHash, seed, seed_size);
+		Sha1(ret->SeedHash, seed, seed_size);
 
 		// Create a pair of entry
 		e = ZeroMalloc(sizeof(IPTABLES_ENTRY));
