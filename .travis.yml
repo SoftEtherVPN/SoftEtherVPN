@@ -20,6 +20,17 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: clang
+    - os: linux
+      language: csharp
+      mono: none
+      dotnet: 2.1.300
+      before_install:
+        - true
+      before_script:
+        - true
+      script:
+        - cd developer_tools/stbchecker
+        - dotnet run ../../src/bin/hamcore
     - os: osx
       compiler: clang
       cache:
