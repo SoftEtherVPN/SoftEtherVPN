@@ -955,7 +955,7 @@ CM_ACCOUNT_FILE_BANNER	# VPN Client 連接設置檔案\r\n# \r\n# 此檔案是�
 CM_FAILED_TO_OPEN_FILE	無法打開檔案。
 CM_FAILED_TO_SAVE_FILE	無法保存檔案。
 CM_ACCOUNT_PARSE_FAILED	無法從指定檔案裝載 VPN 連接設置。\r\n請檢查檔案內容。
-CM_ACCOUNT_MSG_SENSITIVE此 VPN 連接設置有用戶名和密碼。\r\n您想從匯出的設置檔中刪除這些敏感資訊嗎？\r\n\r\n按一下“是”以刪除敏感資訊。\r\n在這種情況下，當他正試圖連接到 VPN Server 時，使用者需要輸入用戶名和密碼。\r\n\r\n按一下“否”將敏感資訊留在檔內。
+CM_ACCOUNT_MSG_SENSITIVE	此 VPN 連接設置有用戶名和密碼。\r\n您想從匯出的設置檔中刪除這些敏感資訊嗎？\r\n\r\n按一下“是”以刪除敏感資訊。\r\n在這種情況下，當他正試圖連接到 VPN Server 時，使用者需要輸入用戶名和密碼。\r\n\r\n按一下“否”將敏感資訊留在檔內。
 CM_SHORTCUT_FILE		快捷方式檔案|*.lnk
 CM_SHORTCUT_SAVE_TITLE	輸入快捷方式檔案名。
 CM_SHORTCUT_UNSUPPORTED	該連接的快捷方式的功能不支援此 VPN Client 的版本。\r\n更新到新版本。
@@ -6712,6 +6712,8 @@ CMD_AccountDetailSet_Prompt_BRIDGE	啟用橋/路由器模式 (yes/no):
 CMD_AccountDetailSet_Prompt_MONITOR	啟用監控模式 (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	禁用路由表項調節器 (yes/no): 
 CMD_AccountDetailSet_Prompt_NOQOS	禁用 QoS 控制功能 (yes/no): 
+CMD_AccountDetailSet_DISABLEUDP Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
+CMD_AccountDetailSet_Prompt_DISABLEUDP   Disable UDP Acceleration Function (yes/no):
 
 
 # AccountRename 命令
