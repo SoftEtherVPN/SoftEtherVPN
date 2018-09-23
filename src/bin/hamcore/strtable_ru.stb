@@ -2312,7 +2312,6 @@ S_RETRY_NUM_2			times
 S_RETRY_SPAN_1			Reconnect Interval:
 S_RETRY_SPAN_2			seconds
 R_INFINITE				&Infinite Reconnects (Keep VPN Always Online)
-R_NOTLS1				Do not use TLS &1.0
 B_DETAIL				A&dvanced Settings...
 IDOK					&OK
 IDCANCEL				Cancel
@@ -6669,7 +6668,7 @@ CMD_AccountDetailSet_Prompt_BRIDGE	Enable Bridge / Router Mode (yes/no):
 CMD_AccountDetailSet_Prompt_MONITOR	Enable Monitoring Mode (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	Disable Adjustment of Routing Table (yes/no): 
 CMD_AccountDetailSet_Prompt_NOQOS	 Disable QoS Control Function (yes/no): 
-CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no): 
+CMD_AccountDetailSet_Prompt_DISABLEUDP	Disable UDP Acceleration Function (yes/no): 
 
 
 # AccountRename command
@@ -7172,3 +7171,24 @@ SW_LINK_NAME_LANGUAGE_COMMENT				Change the display language setting of %s.
 
 SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
 SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
+
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
+CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
+CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
+CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+

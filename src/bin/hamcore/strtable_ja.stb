@@ -7201,4 +7201,5 @@ SW_LINK_NAME_LANGUAGE_COMMENT				%s の表示言語を変更します。
 SW_LINK_NAME_DEBUG							デバッグ情報収集ツール
 SW_LINK_NAME_DEBUG_COMMENT					SoftEther VPN のデバッグ情報を収集します。サポート担当者から依頼があった場合のみ使用してください。
 
-
+CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
+CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no):
