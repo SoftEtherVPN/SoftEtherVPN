@@ -3782,7 +3782,7 @@ LABEL_TRY_AGAIN:
 
 	if (no_parse_dhcp == false && packet != NULL)
 	{
-		if (hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
+		if (hub != NULL && hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
 		{
 			// Remove the designation of the DHCP server from the DHCP response packet addressed to localhost
 			if (packet->TypeL7 == L7_DHCPV4)
