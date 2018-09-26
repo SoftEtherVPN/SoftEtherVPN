@@ -20,7 +20,8 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: clang
-    - os: linux
+    - env: LABEL="check stb files"
+      os: linux
       language: csharp
       mono: none
       dotnet: 2.1.300
@@ -31,6 +32,22 @@ matrix:
       script:
         - cd developer_tools/stbchecker
         - dotnet run ../../src/bin/hamcore
+    - env: LABEL="create release from tag"
+      os: linux
+      deploy:
+        provider: releases
+        api_key: ${GITHUB_OAUTH_TOKEN}
+        file: se.tar.gz
+        skip_cleanup: true
+        on:
+          tags: true
+          repo: SoftEtherVPN/SoftEtherVPN
+      before_install:
+        - true
+      before_script:
+        - if [ -z "$TRAVIS_TAG" ]; then exit 0; fi
+      script:
+        - true
     - os: osx
       compiler: clang
       cache:
