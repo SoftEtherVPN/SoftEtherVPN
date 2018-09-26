@@ -11,7 +11,11 @@ tmp/
 .gitconfig
 CMakeCache.txt
 CMakeFiles/
-
+output/
+Win32_Release
+x64_Release
+/src/DebugFiles
+/src/BuildUtil/obj/
 
 # Applied for 'developer_tools/stbchecker/'
 # Copied from by https://www.gitignore.io/api/visualstudio
