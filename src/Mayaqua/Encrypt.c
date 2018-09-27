@@ -461,6 +461,13 @@ UINT MdProcess(MD *md, void *dest, void *src, UINT size)
 
 	if (md->IsHMac)
 	{
+		// WARNING: Do not remove the call to HMAC_Init_ex(), it's required even if the context is initialized by SetMdKey()!
+		if (HMAC_Init_ex(md->Ctx, NULL, 0, NULL, NULL) == false)
+		{
+			Debug("MdProcess(): HMAC_Init_ex() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
 		if (HMAC_Update(md->Ctx, src, size) == false)
 		{
 			Debug("MdProcess(): HMAC_Update() failed with error: %s\n", OpenSSL_Error());
