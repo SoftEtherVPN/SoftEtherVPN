@@ -12,6 +12,20 @@ if(EXISTS "${SoftEtherVPN_SOURCE_DIR}/.git" AND NOT EXISTS "${SoftEtherVPN_SOURC
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
 endif()
 
+# Compare ${PROJECT_VERSION} and src/CurrentBuild.txt
+file(READ ${SoftEtherVPN_SOURCE_DIR}/src/CurrentBuild.txt CurrentBuild)
+
+string(REGEX MATCH "VERSION_MAJOR ([0-9]+)" temp ${CurrentBuild})
+string(REGEX REPLACE "VERSION_MAJOR ([0-9]+)" "\\1" CurrentBuild_MAJOR ${temp})
+string(REGEX MATCH "VERSION_MINOR ([0-9]+)" temp ${CurrentBuild})
+string(REGEX REPLACE "VERSION_MINOR ([0-9]+)" "\\1" CurrentBuild_MINOR ${temp})
+string(REGEX MATCH "VERSION_BUILD ([0-9]+)" temp ${CurrentBuild})
+string(REGEX REPLACE "VERSION_BUILD ([0-9]+)" "\\1" CurrentBuild_BUILD ${temp})
+
+if (NOT ${PROJECT_VERSION} VERSION_EQUAL "${CurrentBuild_MAJOR}.${CurrentBuild_MINOR}.${CurrentBuild_BUILD}")
+  message (FATAL_ERROR "PROJECT_VERSION does not match to src/CurrentBuild.txt")
+endif()
+
 set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
 
 add_subdirectory(src)
