@@ -270,12 +270,10 @@ bool IsEthSupported()
 
 #if	defined(UNIX_LINUX)
 	return IsEthSupportedLinux();
+#elif	defined(UNIX_BSD)
+	return true;
 #elif	defined(UNIX_SOLARIS)
 	return IsEthSupportedSolaris();
-#elif	defined(BRIDGE_PCAP)
-	return true;
-#elif	defined(BRIDGE_BPF)
-	return true;
 #else
 	return false;
 #endif
