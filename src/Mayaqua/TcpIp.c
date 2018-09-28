@@ -999,7 +999,7 @@ BUF *BuildICMPv6NeighborSoliciation(IPV6_ADDR *src_ip, IPV6_ADDR *target_ip, UCH
 UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q)
 {
 	UINT *p;
-	UCHAR v;
+	UCHAR v = 0;
 	// Validate arguments
 	if (q == NULL)
 	{
@@ -1007,8 +1007,11 @@ UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q)
 	}
 
 	p = (UINT *)GetNext(q);
-	v = (UCHAR)(*p);
-	Free(p);
+	if (p != NULL)
+	{
+		v = (UCHAR)(*p);
+		Free(p);
+	}
 
 	return v;
 }

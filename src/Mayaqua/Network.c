@@ -15081,7 +15081,7 @@ void GetMachineNameEx(char *name, UINT size, bool no_load_hosts)
 			{
 				if (GetMachineNameFromHosts(tmp2, sizeof(tmp2)))
 				{
-					StrCpy(name, sizeof(name), tmp2);
+					StrCpy(name, size, tmp2);
 				}
 			}
 		}

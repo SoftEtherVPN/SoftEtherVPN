@@ -513,7 +513,7 @@ void GetHomeDirW(wchar_t *path, UINT size)
 		if (GetEnvW(L"HOMEDRIVE", drive, sizeof(drive)) &&
 			GetEnvW(L"HOMEPATH", hpath, sizeof(hpath)))
 		{
-			UniFormat(path, sizeof(path), L"%s%s", drive, hpath);
+			UniFormat(path, size, L"%s%s", drive, hpath);
 		}
 		else
 		{

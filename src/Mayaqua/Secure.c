@@ -1824,7 +1824,7 @@ SECURE *OpenSec(UINT id)
 		return NULL;
 	}
 
-	sec->SlotIdList = (UINT *)ZeroMalloc(sizeof(UINT *) * sec->NumSlot);
+	sec->SlotIdList = (UINT *)ZeroMalloc(sizeof(UINT) * sec->NumSlot);
 
 	if (sec->Api->C_GetSlotList(TRUE, sec->SlotIdList, &sec->NumSlot) != CKR_OK)
 	{

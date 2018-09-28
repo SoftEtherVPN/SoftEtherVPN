@@ -6011,7 +6011,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			{
 				// Compare posted data with the WaterMark
 				if ((data_size == StrLen(HTTP_VPN_TARGET_POSTDATA) && (Cmp(data, HTTP_VPN_TARGET_POSTDATA, data_size) == 0))
-					|| (Cmp(data, WaterMark, SizeOfWaterMark()) == 0))
+					|| ((data_size >= SizeOfWaterMark()) && Cmp(data, WaterMark, SizeOfWaterMark()) == 0))
 				{
 					// Check the WaterMark
 					Free(data);

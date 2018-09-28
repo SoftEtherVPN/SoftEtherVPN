@@ -2054,6 +2054,12 @@ UINT SiCalcPoint(SERVER *s, UINT num, UINT weight)
 
 	server_max_sessions = GetServerCapsInt(s, "i_max_sessions");
 
+	if (server_max_sessions == 0)
+	{
+		// Avoid divide by zero
+		server_max_sessions = 1;
+	}
+
 	return (UINT)(((double)server_max_sessions -
 		MIN((double)num * 100.0 / (double)weight, (double)server_max_sessions))
 		* (double)FARM_BASE_POINT / (double)server_max_sessions);
