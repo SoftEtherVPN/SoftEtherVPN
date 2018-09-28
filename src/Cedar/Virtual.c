@@ -5307,7 +5307,7 @@ TCP_RESET:
 			seq64 = n->RecvSeq + (UINT64)seq - (n->RecvSeqInit + n->RecvSeq) % X32;
 			if ((n->RecvSeqInit + n->RecvSeq) % X32 > seq)
 			{
-				if (((n->RecvSeqInit + n->RecvSeq) % X32 - ack) >= 0x80000000)
+				if (((n->RecvSeqInit + n->RecvSeq) % X32 - seq) >= 0x80000000)
 				{
 					seq64 = n->RecvSeq + (UINT64)seq + X32 - (n->RecvSeqInit + n->RecvSeq) % X32;
 				}

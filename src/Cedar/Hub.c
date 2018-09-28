@@ -3717,9 +3717,12 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 		CancelList(s->CancelList);
 
 		// Yield
-		if (hub->Option != NULL && hub->Option->YieldAfterStorePacket)
+		if (hub != NULL)
 		{
-			YieldCpu();
+			if (hub->Option != NULL && hub->Option->YieldAfterStorePacket)
+			{
+				YieldCpu();
+			}
 		}
 
 		return true;

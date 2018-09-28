@@ -1579,7 +1579,7 @@ SEND_START:
 				{
 					// Packet data array
 					void **datas = MallocFast(sizeof(void *) * num_packet);
-					UINT *sizes = MallocFast(sizeof(UINT *) * num_packet);
+					UINT *sizes = MallocFast(sizeof(UINT) * num_packet);
 					UINT i;
 
 					i = 0;

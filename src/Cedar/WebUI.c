@@ -1222,7 +1222,7 @@ static wchar_t *WpSecureNAT(WEBUI *wu, LIST *params)
 	// Get the enable / disable state of the current SecureNAT
 	{
 		RPC_HUB_STATUS t;
-		Zero(&t, sizeof(&t));
+		Zero(&t, sizeof(t));
 		StrCpy(t.HubName, sizeof(t.HubName), hubname);
 
 		retcode = StGetHubStatus(context->Admin, &t);
@@ -1649,7 +1649,7 @@ static LIST *WuAnalyzeTarget(char *target,char *filename, UINT size)
 
 			while(*body != '=' && *body != '\0')
 			{
-				*body ++;
+				body++;
 			}
 			if(*body == '=')
 			{
