@@ -315,14 +315,7 @@ UINT Count(COUNTER *c)
 
 	Lock(c->lock);
 	{
-		if (c->Ready == false)
-		{
-			ret = 0;
-		}
-		else
-		{
-			ret = c->c;
-		}
+		ret = c->c;
 	}
 	Unlock(c->lock);
 
@@ -345,15 +338,8 @@ UINT Inc(COUNTER *c)
 
 	Lock(c->lock);
 	{
-		if (c->Ready == false)
-		{
-			ret = 0;
-		}
-		else
-		{
-			c->c++;
-			ret = c->c;
-		}
+		c->c++;
+		ret = c->c;
 	}
 	Unlock(c->lock);
 
@@ -380,21 +366,14 @@ UINT Dec(COUNTER *c)
 
 	Lock(c->lock);
 	{
-		if (c->Ready == false)
+		if (c->c != 0)
 		{
-			ret = 0;
+			c->c--;
+			ret = c->c;
 		}
 		else
 		{
-			if (c->c != 0)
-			{
-				c->c--;
-				ret = c->c;
-			}
-			else
-			{
-				ret = 0;
-			}
+			ret = 0;
 		}
 	}
 	Unlock(c->lock);

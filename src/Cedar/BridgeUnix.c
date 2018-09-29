@@ -2674,6 +2674,7 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 {
 	PKT *p;
+	SOCK *s = NULL;
 	// Validate arguments
 	if (e == NULL || data == NULL)
 	{
@@ -2686,8 +2687,13 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 	}
 
 	p = ParsePacket(data, size);
+	if (p == NULL)
+	{
+		Free(data);
+		return;
+	}
 
-	if (p != NULL && (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0))
+	if (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
 	{
 		if (IsValidUnicastMacAddress(p->MacAddressSrc))
 		{
@@ -2703,93 +2709,88 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 		return;
 	}
 
-	if (p != NULL)
+
+	if (p->TypeL3 == L3_IPV4)
 	{
-		SOCK *s = NULL;
-
-		if (p->TypeL3 == L3_IPV4)
+		if (p->TypeL4 == L4_TCP)
 		{
-			if (p->TypeL4 == L4_TCP)
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
 			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawTcp;
-				}
-			}
-			else if (p->TypeL4 == L4_UDP)
-			{
-				if (EthProcessIpPacketInnerIpRaw(e, p) == false)
-				{
-					s = e->RawUdp;
-				}
-			}
-			else if (p->TypeL4 == L4_ICMPV4)
-			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawIcmp;
-				}
-			}
-			else if (p->TypeL4 == L4_FRAGMENT)
-			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawIcmp;
-				}
+				s = e->RawTcp;
 			}
 		}
-		else if (p->TypeL3 == L3_ARPV4)
+		else if (p->TypeL4 == L4_UDP)
 		{
-			EthProcessIpPacketInnerIpRaw(e, p);
-		}
-
-		if (s != NULL && p->L3.IPv4Header->DstIP != 0xffffffff && p->BroadcastPacket == false &&
-			p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
-		{
-			UCHAR *send_data = p->IPv4PayloadData;
-			UCHAR *head = p->PacketData;
-			UINT remove_header_size = (UINT)(send_data - head);
-
-			if (p->PacketSize > remove_header_size)
+			if (EthProcessIpPacketInnerIpRaw(e, p) == false)
 			{
-				IP dest;
-				UINT send_data_size = p->PacketSize - remove_header_size;
-
-				// checksum
-				if (p->TypeL4 == L4_UDP)
-				{
-					p->L4.UDPHeader->Checksum = 0;
-				}
-				else if (p->TypeL4 == L4_TCP)
-				{
-					p->L4.TCPHeader->Checksum = 0;
-					p->L4.TCPHeader->Checksum = CalcChecksumForIPv4(IPToUINT(&e->MyPhysicalIP),
-						p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
-						p->L4.TCPHeader, p->IPv4PayloadSize, 0);
-				}
-
-				UINTToIP(&dest, p->L3.IPv4Header->DstIP);
-
-				if (s->RawIP_HeaderIncludeFlag == false)
-				{
-					SendTo(s, &dest, 0, send_data, send_data_size);
-				}
-				else
-				{
-					IPV4_HEADER *ip = p->L3.IPv4Header;
-
-					ip->SrcIP = IPToUINT(&e->MyPhysicalIP);
-					ip->Checksum = 0;
-					ip->Checksum = IpChecksum(ip, IPV4_GET_HEADER_LEN(ip) * 4);
-
-					SendTo(s, &dest, 0, ip, ((UCHAR *)p->PacketData - (UCHAR *)ip) + p->PacketSize);
-				}
+				s = e->RawUdp;
 			}
 		}
-
-		FreePacket(p);
+		else if (p->TypeL4 == L4_ICMPV4)
+		{
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
+			{
+				s = e->RawIcmp;
+			}
+		}
+		else if (p->TypeL4 == L4_FRAGMENT)
+		{
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
+			{
+				s = e->RawIcmp;
+			}
+		}
+	}
+	else if (p->TypeL3 == L3_ARPV4)
+	{
+		EthProcessIpPacketInnerIpRaw(e, p);
 	}
 
+	if (s != NULL && p->L3.IPv4Header->DstIP != 0xffffffff && p->BroadcastPacket == false &&
+		p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
+	{
+		UCHAR *send_data = p->IPv4PayloadData;
+		UCHAR *head = p->PacketData;
+		UINT remove_header_size = (UINT)(send_data - head);
+
+		if (p->PacketSize > remove_header_size)
+		{
+			IP dest;
+			UINT send_data_size = p->PacketSize - remove_header_size;
+
+			// checksum
+			if (p->TypeL4 == L4_UDP)
+			{
+				p->L4.UDPHeader->Checksum = 0;
+			}
+			else if (p->TypeL4 == L4_TCP)
+			{
+				p->L4.TCPHeader->Checksum = 0;
+				p->L4.TCPHeader->Checksum = CalcChecksumForIPv4(IPToUINT(&e->MyPhysicalIP),
+					p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
+					p->L4.TCPHeader, p->IPv4PayloadSize, 0);
+			}
+
+			UINTToIP(&dest, p->L3.IPv4Header->DstIP);
+
+			if (s->RawIP_HeaderIncludeFlag == false)
+			{
+				SendTo(s, &dest, 0, send_data, send_data_size);
+			}
+			else
+			{
+				IPV4_HEADER *ip = p->L3.IPv4Header;
+
+				ip->SrcIP = IPToUINT(&e->MyPhysicalIP);
+				ip->Checksum = 0;
+				ip->Checksum = IpChecksum(ip, IPV4_GET_HEADER_LEN(ip) * 4);
+
+				SendTo(s, &dest, 0, ip, ((UCHAR *)p->PacketData - (UCHAR *)ip) + p->PacketSize);
+			}
+		}
+	}
+
+	FreePacket(p);
 	Free(data);
 }
 
