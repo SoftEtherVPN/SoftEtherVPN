@@ -62,19 +62,19 @@ COMMON_UNKNOWN			(Неизвестно)
 
 # Protocol error strings
 ERR_UNKNOWN				Незивестная ошибка.
-ERR_0					No error.
-ERR_1					Ошибка подключения к серверу. Check network connection and make sure that address and port number of destination server are correct.
-ERR_2					Protocol error occurred. Error was returned from the destination server.
+ERR_0					Нет ошибки.
+ERR_1					Ошибка подключения к серверу. Проверьте сетевое подключение и убедитесь, что адрес и номер порта подключения к удаленному серверу верны.
+ERR_2					Произошла ошибка протокола. Ошибка была возвращена с удаленного сервера.
 ERR_3					Соединение было разорвано.
-ERR_4					Protocol error occurred.
-ERR_5					A client which is non-SoftEther VPN software has connected to the port.
+ERR_4					Произошла ошибка протокола.
+ERR_5					Не SoftEther VPN клиент подключился к порту.
 ERR_6					Действие было отменено пользователем.
-ERR_7					The server denied the specified auth type.
-ERR_8					The specified Virtual Hub does not exist on the server.
+ERR_7					Сервер отказал в указанном типе авторизации.
+ERR_8					Указанный Virtual Hub не существует на сервере.
 ERR_9					Ошибка авторизации пользователя.
-ERR_10					The specified Virtual Hub is currently stopped. Wait for a while and then reconnect.
-ERR_11					The VPN session has been deleted. It is possible that either the administrator disconnected the session or the connection from the client to the VPN Server has been disconnected.
-ERR_12					Access has been denied.
+ERR_10					Указанный Virtual Hub в настоящий момент остановлен. Подождите немного и повторите подключение.
+ERR_11					VPN сессия была прекращена. Возможно, что либо администратор завершил сеанс, либо соединение клиента с VPN-сервером было отключено.
+ERR_12					Доступ запрещен.
 ERR_13					Time-out occurred during VPN session communication. It is possible the connection from the client to the VPN Server has been disconnected.
 ERR_14					Protocol number is invalid.
 ERR_15					Слишком много TCP/IP соединений.
