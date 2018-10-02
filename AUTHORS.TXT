@@ -35,6 +35,24 @@ WEB-SITE DESIGNER:
     College of Information Science, University of Tsukuba
 
 
+DEVELOPMENT BOARD MEMBERS:
+
+  - Moataz Elmasry
+    https://github.com/moatazelmasry2
+
+  - Zulyandri Zardi
+    https://github.com/zulzardi
+
+  - Alex Maslakov
+    https://github.com/GildedHonour
+
+  - Davide Beatrici
+    https://github.com/davidebeatrici
+
+  - Ilya Shipitsin
+    https://github.com/chipitsine
+
+
 CONTRIBUTORS on GitHub:
 
   - Melvyn
@@ -75,9 +93,6 @@ CONTRIBUTORS on GitHub:
 
   - Den Lesnov
     https://github.com/Leden
-
-  - Ilya Shipitsin
-    https://github.com/chipitsine
 
   - Matt Lewandowsky
     https://github.com/lewellyn
@@ -127,12 +142,6 @@ CONTRIBUTORS on GitHub:
   - Noah O'Donoghue
     https://github.com/NoahO
 
-  - Moataz Elmasry
-    https://github.com/moatazelmasry2
-
-  - Zulyandri Zardi
-    https://github.com/zulzardi
-
   - rel22
     https://github.com/rel22
 
@@ -171,9 +180,6 @@ CONTRIBUTORS on GitHub:
 
   - Alexey Kryuchkov
     https://github.com/a-kr
-
-  - Davide Beatrici
-    https://github.com/davidebeatrici
 
   - tidatida
     https://github.com/tidatida
