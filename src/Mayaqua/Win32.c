@@ -3528,6 +3528,9 @@ void Win32PrintToFileW(wchar_t *str)
 	{
 		return;
 	}
+	
+	/* When debugging in windows, you can use dbgview.exe( sysinternal.com ) or other same tools to trace debug print */
+	OutputDebugStringW(str);
 
 	utf = CopyUniToUtf(str);
 
