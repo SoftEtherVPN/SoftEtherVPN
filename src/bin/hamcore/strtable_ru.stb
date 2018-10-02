@@ -63,8 +63,8 @@ COMMON_UNKNOWN			(Неизвестно)
 # Protocol error strings
 ERR_UNKNOWN				Незивестная ошибка.
 ERR_0					Нет ошибки.
-ERR_1					Ошибка подключения к серверу. Проверьте сетевое подключение и убедитесь, что адрес и номер порта подключения к удаленному серверу верны.
-ERR_2					Произошла ошибка протокола. Ошибка была возвращена с удаленного сервера.
+ERR_1					Ошибка подключения к серверу. Проверьте сетевое подключение и убедитесь, что адрес и номер порта подключения к серверу верны.
+ERR_2					Произошла ошибка протокола. Ошибка была возвращена от сервера.
 ERR_3					Соединение было разорвано.
 ERR_4					Произошла ошибка протокола.
 ERR_5					Не SoftEther VPN клиент подключился к порту.
@@ -75,37 +75,37 @@ ERR_9					Ошибка авторизации пользователя.
 ERR_10					Указанный Virtual Hub в настоящий момент остановлен. Подождите немного и повторите подключение.
 ERR_11					VPN сессия была прекращена. Возможно, что либо администратор завершил сеанс, либо соединение клиента с VPN-сервером было отключено.
 ERR_12					Доступ запрещен.
-ERR_13					Time-out occurred during VPN session communication. It is possible the connection from the client to the VPN Server has been disconnected.
-ERR_14					Protocol number is invalid.
+ERR_13					Произошел тайм-аут VPN сессии. Возможно, соединение клиента с VPN-сервером было отключено.
+ERR_14					Номер протокола недействителен.
 ERR_15					Слишком много TCP/IP соединений.
-ERR_16					There are too many sessions connected to either the destination server or Virtual Hub.
+ERR_16					Слишком много VPN сессий подключено к серверу или Virtual Hub. 
 ERR_17					Ошибка подключения к прокси-серверу.
-ERR_18					An error occurred on the proxy server.
+ERR_18					Произошла ошибка на прокси-сервере.
 ERR_19					Ошибка авторизации на прокси-сервере.
-ERR_20					There are too many sessions by the same user. Other person might be connected to the Virtual Hub as the same user.
-ERR_21					A license error occurred on the VPN Server. Contact the VPN Server's administrator.
-ERR_22					Cannot access the Virtual Network Adapter device driver. Check the Virtual Network Adapter is installed and make sure that it has not been disabled.
+ERR_20					Слишком много VPN сессий от одного и того же имени пользователя. Другой человек может быть подключен к Virtual Hub под тем же именем пользователя.
+ERR_21					На VPN-сервере произошла ошибка лицензии. Обратитесь к администратору VPN-сервера.
+ERR_22					Не удается получить доступ к драйверу Виртуального Сетевого Адаптера. Проверьте, установлен ли Виртуальный Сетевой Адаптер, и убедитесь, что он не отключен.
 ERR_23					Внутренняя ошибка.
-ERR_24					Access to either the smart card or USB hardware token device failed.
+ERR_24					Не удалось получить доступ к смарт-карте или USB ключу.
 ERR_25					Неверный PIN-код.
-ERR_26					The specified certificate is not stored on either the smart card or the USB hardware token device.
-ERR_27					The specified private key is not stored on either the smart card or the USB hardware token device.
-ERR_28					Write operation to the smart card or USB hardware token device failed.
+ERR_26					Указанный сертификат не хранится ни на смарт-карте, ни на USB ключе.
+ERR_27					Указанный закрытый ключ не хранится ни на смарт-карте, ни на USB ключе.
+ERR_28					Не удалось выполнить запись на смарт-карту или USB ключ.
 ERR_29					Объект не найден.
-ERR_30					A Virtual Network Adapter with the specified name already exists. Specify a different name.
-ERR_31					Installation of the Virtual Network Adapter device driver failed.
-ERR_32					You cannot use the specified name for a Virtual Network Adapter device.
+ERR_30					Виртуальный Сетевой Адаптер с указанным именем уже существует. Укажите другое имя.
+ERR_31					Не удалось установить драйвер Виртуального Сетевого Адаптера.
+ERR_32					Вы не можете использовать указанное имя для Виртуального Сетевого Адаптера.
 ERR_33					Не поддерживается.
-ERR_34					VPN Connection Setting with the specified name already exists.
-ERR_35					The specified VPN Connection Setting is currently connected.
-ERR_36					The specified VPN Connection Setting does not exist.
-ERR_37					The specified VPN Connection Setting is not connected.
+ERR_34					VPN-подключение с указанным именем уже существует.
+ERR_35					Указанное VPN-подключение уже подключено.
+ERR_36					Указанное VPN-подключение не существует.
+ERR_37					Указанное VPN-подключение не подключено.
 ERR_38					Неверный параметр.
-ERR_39					Error occurred on smart card or USB hardware token.
-ERR_40					Although authentication of smart card or USB hardware token was selected, but the device to be used has not been selected. Select from the Smart Card menu of Connection Manager.
-ERR_41					The specified Virtual Network Adapter is being used by at least one VPN Connection Setting. \r\nEither delete the VPN Connection Setting that is using this Virtual Network Adapter or change Virtual Network Adapter that this VPN Connection Setting is using.
-ERR_42					Cannot find the Virtual Network Adapter that the specified VPN Connection Setting is using. \r\nMake sure this Virtual Network Adapter exists. Also make sure the Virtual Network Adapter device has not been disabled. \r\n\r\nIf you cannot resolve the problem, either change the Virtual Network Adapter being used by this VPN Connection Setting or create a new Virtual Network Adapter with the same name.
-ERR_43					The Virtual Network Adapter used by the specified VPN Connection Setting is already being used by another VPN Connection Setting. \r\nIf there is another VPN Connection Setting that is using the same Virtual Network Adapter, disconnect that VPN Connection Setting.
+ERR_39					Ошибка смарт-карты или USB ключа.
+ERR_40					Хотя была выбрана аутентификация по смарт-карте или USB, но устройство, которое будет использоваться, не было выбрано. Выберите устройство в меню «Смарт-карта» Диспетчера подключений. 
+ERR_41					Указанный Виртуальный Сетевой Адаптер используется по меньшей мере одним VPN-подключением. \r\nУдалите VPN-подключение, использующее этот Виртуальный Сетевой Адаптер, или измените Виртуальный Сетевой Адаптер, который использует это VPN-подключение.
+ERR_42					Не удается найти Виртуальный Сетевой Адаптер, который использует указанное VPN-подключение. \r\nУбедитесь, что этот Виртуальный Сетевой Адаптер существует. Также убедитесь, что Виртуального Сетевого Адаптера не отключен. \r\n\r\nЕсли вы не можете решить проблему, измените Виртуальный Сетевой Адаптер, используемый этим VPN-подключением, или создайте новый Виртуальный Сетевой Адаптер с тем же именем.
+ERR_43					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, уже используется другим VPN-подключением. \r\nЕсли есть еще одно VPN-подключение, использующее тот же Виртуальный Сетевой Адаптер, отключите это VPN-подключение.If there is another VPN Connection Setting that is using the same Virtual Network Adapter, disconnect that VPN Connection Setting.
 ERR_44					The Virtual Network Adapter being used by the specified VPN Connection Setting has been disabled. \r\nBefore using this VPN Connection Setting, enable the Virtual Network Adapter.
 ERR_45					The specified value is invalid.
 ERR_46					The connection destination is not a cluster controller.
