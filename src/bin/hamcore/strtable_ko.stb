@@ -2063,6 +2063,7 @@ L3_SWITCH_STOP 가상 레이어 3 스위치 "%S"가 종료되었습니다.
 
 
 # Microsoft.c 관계
+MS_VIRTUAL 독점적 인 가상 / 내부 인터페이스
 MS_ETHERNET Ethernet 인터페이스
 MS_TOKENRING 토큰 링 인터페이스
 MS_FDDI FDDI 인터페이스
