@@ -6,6 +6,7 @@ Makefile
 bin/
 build/
 cmake-build-debug/
+src/bin/hamcore/authors.txt
 src/bin/BuiltHamcoreFiles/
 tmp/
 .gitconfig

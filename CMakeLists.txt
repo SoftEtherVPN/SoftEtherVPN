@@ -26,6 +26,8 @@ if (NOT ${PROJECT_VERSION} VERSION_EQUAL "${CurrentBuild_MAJOR}.${CurrentBuild_M
   message (FATAL_ERROR "PROJECT_VERSION does not match to src/CurrentBuild.txt")
 endif()
 
+configure_file("${SoftEtherVPN_SOURCE_DIR}/AUTHORS.TXT" "${SoftEtherVPN_SOURCE_DIR}/src/bin/hamcore/authors.txt" COPYONLY)
+
 set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
 
 add_subdirectory(src)
