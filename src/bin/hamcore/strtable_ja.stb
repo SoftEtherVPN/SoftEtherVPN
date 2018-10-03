@@ -2086,6 +2086,7 @@ L3_SWITCH_STOP			仮想レイヤ 3 スイッチ "%S" が終了しました。
 
 
 # Microsoft.c 関係
+MS_VIRTUAL				独自の仮想/内部インタフェース
 MS_ETHERNET				Ethernet インターフェイス
 MS_TOKENRING			トークンリングインターフェイス
 MS_FDDI					FDDI インターフェイス

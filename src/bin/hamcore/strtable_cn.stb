@@ -2102,6 +2102,7 @@ L3_SWITCH_STOP				虚拟 3 层交换机 "%S" 终止。
 
 
 #关于Microsoft.c
+MS_VIRTUAL					专有的虚拟/内部接口
 MS_ETHERNET					以太网接口
 MS_TOKENRING				令牌环接口
 MS_FDDI						FDDI 接口

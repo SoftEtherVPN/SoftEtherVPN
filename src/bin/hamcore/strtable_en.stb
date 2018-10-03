@@ -2082,6 +2082,7 @@ L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
 
 
 # Concerning Microsoft.c
+MS_VIRTUAL				Proprietary Virtual/Internal Interface
 MS_ETHERNET				Ethernet Interface
 MS_TOKENRING			Token Ring Interface
 MS_FDDI					FDDI Interface

@@ -3119,6 +3119,10 @@ wchar_t *MsGetAdapterTypeStr(UINT type)
 
 	switch (type)
 	{
+	case IF_TYPE_PROP_VIRTUAL:
+		ret = _UU("MS_VIRTUAL");
+		break;
+
 	case MIB_IF_TYPE_ETHERNET:
 		ret = _UU("MS_ETHERNET");
 		break;

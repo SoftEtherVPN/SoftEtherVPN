@@ -2103,6 +2103,7 @@ L3_SWITCH_STOP			虛擬 3 層交換機 "%S" 終止。
 
 
 #關於Microsoft.c
+MS_VIRTUAL				专有的虚拟/内部接口
 MS_ETHERNET				網路介面
 MS_TOKENRING			標記環介面
 MS_FDDI					FDDI 介面
