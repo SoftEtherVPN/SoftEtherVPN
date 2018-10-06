@@ -359,9 +359,6 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 BUF *OvsBuildKeyMethod2(OPENVPN_KEY_METHOD_2 *d);
 void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
-LIST *OvsParseData(char *str, int type);
-void OvsFreeList(LIST *o);
-bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 UINT OvsCalcTcpMss(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
