@@ -2412,6 +2412,33 @@ void TrimCrlf(char *str)
 	}
 }
 
+// Remove quotes at the beginning and at the end of the string
+void TrimQuotes(char *str)
+{
+	UINT len = 0;
+	// Validate arguments
+	if (str == NULL)
+	{
+		return;
+	}
+
+	len = StrLen(str);
+	if (len == 0)
+	{
+		return;
+	}
+
+	if (str[len - 1] == '\"')
+	{
+		str[len - 1] = 0;
+	}
+
+	if (str[0] == '\"')
+	{
+		Move(str, str + 1, len);
+	}
+}
+
 // Remove white spaces of the both side of the string
 void Trim(char *str)
 {

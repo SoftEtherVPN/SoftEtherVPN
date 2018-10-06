@@ -155,6 +155,7 @@ bool ToBool(char *str);
 int ToInti(char *str);
 void ToStr(char *str, UINT i);
 void TrimCrlf(char *str);
+void TrimQuotes(char *str);
 void Trim(char *str);
 void TrimRight(char *str);
 void TrimLeft(char *str);
