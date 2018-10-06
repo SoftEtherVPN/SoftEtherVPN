@@ -105,8 +105,8 @@ ERR_39					Ошибка смарт-карты или USB ключа.
 ERR_40					Хотя была выбрана аутентификация по смарт-карте или USB, но устройство, которое будет использоваться, не было выбрано. Выберите устройство в меню «Смарт-карта» Диспетчера подключений. 
 ERR_41					Указанный Виртуальный Сетевой Адаптер используется по меньшей мере одним VPN-подключением. \r\nУдалите VPN-подключение, использующее этот Виртуальный Сетевой Адаптер, или измените Виртуальный Сетевой Адаптер, который использует это VPN-подключение.
 ERR_42					Не удается найти Виртуальный Сетевой Адаптер, который использует указанное VPN-подключение. \r\nУбедитесь, что этот Виртуальный Сетевой Адаптер существует. Также убедитесь, что Виртуального Сетевого Адаптера не отключен. \r\n\r\nЕсли вы не можете решить проблему, измените Виртуальный Сетевой Адаптер, используемый этим VPN-подключением, или создайте новый Виртуальный Сетевой Адаптер с тем же именем.
-ERR_43					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, уже используется другим VPN-подключением. \r\nЕсли есть еще одно VPN-подключение, использующее тот же Виртуальный Сетевой Адаптер, отключите это VPN-подключение.If there is another VPN Connection Setting that is using the same Virtual Network Adapter, disconnect that VPN Connection Setting.
-ERR_44					The Virtual Network Adapter being used by the specified VPN Connection Setting has been disabled. \r\nBefore using this VPN Connection Setting, enable the Virtual Network Adapter.
+ERR_43					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, уже используется другим VPN-подключением. \r\nЕсли есть еще одно VPN-подключение, использующее тот же Виртуальный Сетевой Адаптер, отключите это VPN-подключение.
+ERR_44					Виртуальный Сетевой Адаптер, используемый указанной VPN-подключением, отключен.The Virtual Network Adapter being used by the specified VPN Connection Setting has been disabled. \r\nBefore using this VPN Connection Setting, enable the Virtual Network Adapter.
 ERR_45					The specified value is invalid.
 ERR_46					The connection destination is not a cluster controller.
 ERR_47					Trying to connect.
