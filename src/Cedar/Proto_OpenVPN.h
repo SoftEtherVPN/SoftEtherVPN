@@ -184,10 +184,6 @@
 #define	OPENVPN_MODE_L2							1		// TAP (Ethernet)
 #define	OPENVPN_MODE_L3							2		// TUN (IP)
 
-// Data
-#define OPENVPN_DATA_OPTIONS	0
-#define OPENVPN_DATA_PEERINFO	1
-
 
 //// Type
 
