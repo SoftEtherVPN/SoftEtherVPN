@@ -18,13 +18,13 @@ DEFAULT_FONT			Tahoma
 DEFAULT_FONT_WIN7		Segoe UI
 DEFAULT_FONT_2			Tahoma
 DEFAULT_FONT_SIZE		8
-DEFAULT_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
+DEFAULT_LOCALE			- - $ : : $ Вс Пн Вт Ср Чт Пт Сб : : : $ (None)
 
 
 # 言語
 # (0: 日本語, 1: 英語)
 LANG					5
-LANGSTR					Russian
+LANGSTR					Русский
 
 STRTABLE_ID				SE_VPN_20121007
 
