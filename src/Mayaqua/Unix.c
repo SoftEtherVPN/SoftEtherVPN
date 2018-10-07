@@ -125,6 +125,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/utsname.h>
 #include <Mayaqua/Mayaqua.h>
 
 #ifdef	UNIX_MACOS
@@ -1057,6 +1058,8 @@ void UnixAlert(char *msg, char *caption)
 // Get the information of the current OS
 void UnixGetOsInfo(OS_INFO *info)
 {
+	struct utsname unix_info;
+
 	// Validate arguments
 	if (info == NULL)
 	{
@@ -1079,68 +1082,75 @@ void UnixGetOsInfo(OS_INFO *info)
 	info->OsType = OSTYPE_UNIX_UNKNOWN;
 #endif
 
-	info->OsServicePack = 0;
+	info->OsSystemName = CopyStr(OsTypeToStr(info->OsType));
+	info->KernelName = CopyStr("UNIX");
 
-	if (info->OsType != OSTYPE_LINUX)
+	if (uname(&unix_info) > -1)
 	{
-		info->OsSystemName = CopyStr("UNIX");
-		info->OsProductName = CopyStr("UNIX");
+		info->OsProductName = CopyStr(unix_info.sysname);
+		info->OsVersion = CopyStr(unix_info.release);
+		info->KernelVersion = CopyStr(unix_info.version);
 	}
 	else
 	{
-		info->OsSystemName = CopyStr("Linux");
-		info->OsProductName = CopyStr("Linux");
-	}
+		Debug("UnixGetOsInfo(): uname() failed with error: %s\n", strerror(errno));
 
-	if (info->OsType == OSTYPE_LINUX)
+		info->OsProductName = CopyStr(OsTypeToStr(info->OsType));
+		info->OsVersion = CopyStr("Unknown");
+		info->KernelVersion = CopyStr("Unknown");
+	}
+#ifdef	UNIX_LINUX
 	{
-		// Get the distribution name on Linux
-		BUF *b;
-		b = ReadDump("/etc/redhat-release");
-		if (b != NULL)
+		BUF *buffer = ReadDump("/etc/os-release");
+		if (buffer == NULL)
 		{
-			info->OsVersion = CfgReadNextLine(b);
-			info->OsVendorName = CopyStr("Red Hat, Inc.");
-			FreeBuf(b);
+			buffer = ReadDump("/usr/lib/os-release");
 		}
-		else
+
+		if (buffer != NULL)
 		{
-			b = ReadDump("/etc/turbolinux-release");
-			if (b != NULL)
+			LIST *values = NewEntryList(buffer->Buf, "\n", "=");
+
+			FreeBuf(buffer);
+
+			if (EntryListHasKey(values, "NAME"))
 			{
-				info->OsVersion = CfgReadNextLine(b);
-				info->OsVendorName = CopyStr("Turbolinux, Inc.");
-				FreeBuf(b);
+				char *str = EntryListStrValue(values, "NAME");
+				TrimQuotes(str);
+				Free(info->OsProductName);
+				info->OsProductName = CopyStr(str);
+			}
+
+			if (EntryListHasKey(values, "HOME_URL"))
+			{
+				char *str = EntryListStrValue(values, "HOME_URL");
+				TrimQuotes(str);
+				info->OsVendorName = CopyStr(str);
+			}
+
+			if (EntryListHasKey(values, "VERSION"))
+			{
+				char *str = EntryListStrValue(values, "VERSION");
+				TrimQuotes(str);
+				Free(info->OsVersion);
+				info->OsVersion = CopyStr(str);
 			}
 			else
 			{
-				info->OsVersion = CopyStr("Unknown Linux Version");
-				info->OsVendorName = CopyStr("Unknown Vendor");
+				// Debian testing/sid doesn't provide the version in /etc/os-release
+				buffer = ReadDump("/etc/debian_version");
+				if (buffer != NULL)
+				{
+					Free(info->OsVersion);
+					info->OsVersion = CfgReadNextLine(buffer);
+					FreeBuf(buffer);
+				}
 			}
-		}
 
-		info->KernelName = CopyStr("Linux Kernel");
-
-		b = ReadDump("/proc/sys/kernel/osrelease");
-		if (b != NULL)
-		{
-			info->KernelVersion = CfgReadNextLine(b);
-			FreeBuf(b);
-		}
-		else
-		{
-			info->KernelVersion = CopyStr("Unknown Version");
+			FreeEntryList(values);
 		}
 	}
-	else
-	{
-		// In other cases
-		Free(info->OsProductName);
-		info->OsProductName = CopyStr(OsTypeToStr(info->OsType));
-		info->OsVersion = CopyStr("Unknown Version");
-		info->KernelName = CopyStr(OsTypeToStr(info->OsType));
-		info->KernelVersion = CopyStr("Unknown Version");
-	}
+#endif
 }
 
 // Examine whether the current OS is supported by the PacketiX VPN Kernel

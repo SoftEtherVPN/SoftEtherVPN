@@ -2155,6 +2155,81 @@ LIST *NewListEx2(COMPARE *cmp, bool fast, bool fast_malloc)
 	return o;
 }
 
+// Parses a string by identifying its parts using the specified separators
+LIST *NewEntryList(char *src, char *key_separator, char *value_separator)
+{
+	LIST *o = NewListFast(NULL);
+	TOKEN_LIST *t;
+
+	t = ParseTokenWithoutNullStr(src, key_separator);
+	if (t != NULL)
+	{
+		UINT i;
+
+		for (i = 0; i < t->NumTokens; i++)
+		{
+			char key[MAX_SIZE];
+			char value[MAX_SIZE];
+			char *line = t->Token[i];
+			Trim(line);
+
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), value_separator))
+			{
+				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
+
+				e->Key = CopyStr(key);
+				e->Value = CopyStr(value);
+
+				Add(o, e);
+			}
+		}
+
+		FreeToken(t);
+	}
+
+	return o;
+}
+
+// Checks whether the list contains the specified entry
+bool EntryListHasKey(LIST *o, char *key)
+{
+	// Validate arguments
+	if (o == NULL || key == NULL)
+	{
+		return false;
+	}
+
+	if (GetIniEntry(o, key) != NULL)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// Gets the value of the specified key from the entry list
+char *EntryListStrValue(LIST *o, char *key)
+{
+	return IniStrValue(o, key);
+}
+
+UINT EntryListIntValue(LIST *o, char *key)
+{
+	return IniIntValue(o, key);
+}
+
+// Release the entry list
+void FreeEntryList(LIST *o)
+{
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	FreeIni(o);
+}
+
 // Read all data from FIFO
 BUF *ReadFifoAll(FIFO *f)
 {

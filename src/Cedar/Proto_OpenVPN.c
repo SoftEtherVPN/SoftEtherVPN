@@ -690,19 +690,19 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 		// if the option --push-peer-info is enabled.
 		// It also sends all of the client's environment
 		// variables whose names start with "UV_".
-		pi = OvsParseData(c->ClientKey.PeerInfo, OPENVPN_DATA_PEERINFO);
+		pi = NewEntryList(c->ClientKey.PeerInfo, "\n", "=\t");
 
 		// Check presence of custom hostname
-		if (OvsHasEntry(pi, "UV_HOSTNAME"))
+		if (EntryListHasKey(pi, "UV_HOSTNAME"))
 		{
-			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "UV_HOSTNAME"));
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), EntryListStrValue(pi, "UV_HOSTNAME"));
 		}
 		else // Use the default gateway's MAC address
 		{
-			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), IniStrValue(pi, "IV_HWADDR"));
+			StrCpy(p.ClientHostname, sizeof(p.ClientHostname), EntryListStrValue(pi, "IV_HWADDR"));
 		}
 
-		OvsFreeList(pi);
+		FreeEntryList(pi);
 
 		if (se->Mode == OPENVPN_MODE_L3)
 		{
@@ -814,13 +814,13 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		StrCpy(opt_str, sizeof(opt_str), s->Cedar->OpenVPNDefaultClientOption);
 	}
 
-	o = OvsParseData(opt_str, OPENVPN_DATA_OPTIONS);
+	o = NewEntryList(opt_str, ",", " \t");
 
 	if (se->Mode == OPENVPN_MODE_UNKNOWN)
 	{
 		UINT mtu;
 		// Layer
-		if (StrCmpi(IniStrValue(o, "dev-type"), "tun") == 0)
+		if (StrCmpi(EntryListStrValue(o, "dev-type"), "tun") == 0)
 		{
 			// L3
 			se->Mode = OPENVPN_MODE_L3;
@@ -832,7 +832,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		}
 
 		// Link MTU
-		mtu = IniIntValue(o, "link-mtu");
+		mtu = EntryListIntValue(o, "link-mtu");
 		if (mtu == 0)
 		{
 			mtu = OPENVPN_MTU_LINK;
@@ -840,7 +840,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 		se->LinkMtu = mtu;
 
 		// Tun MTU
-		mtu = IniIntValue(o, "tun-mtu");
+		mtu = EntryListIntValue(o, "tun-mtu");
 		if (mtu == 0)
 		{
 			mtu = OPENVPN_MTU_TUN;
@@ -876,12 +876,12 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	}
 
 	// Encryption algorithm
-	cipher_name = IniStrValue(o, "cipher");
+	cipher_name = EntryListStrValue(o, "cipher");
 	c->CipherEncrypt = OvsGetCipher(cipher_name);
 	c->CipherDecrypt = OvsGetCipher(cipher_name);
 
 	// Hash algorithm
-	c->MdSend = OvsGetMd(IniStrValue(o, "auth"));
+	c->MdSend = OvsGetMd(EntryListStrValue(o, "auth"));
 	c->MdRecv = NewMd(c->MdSend->Name);
 
 	// Random number generation
@@ -915,7 +915,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	SetMdKey(c->MdRecv, c->ExpansionKey + 64, c->MdRecv->Size);
 	SetMdKey(c->MdSend, c->ExpansionKey + 192, c->MdSend->Size);
 
-	OvsFreeList(o);
+	FreeEntryList(o);
 
 	// We pass the cipher name sent from the OpenVPN client, unless it's a different cipher, to prevent a message such as:
 	// WARNING: 'cipher' is used inconsistently, local='cipher AES-128-GCM', remote='cipher aes-128-gcm'
@@ -980,70 +980,6 @@ MD *OvsGetMd(char *name)
 	}
 
 	return m;
-}
-
-// Parse data string
-LIST *OvsParseData(char *str, int type)
-{
-	LIST *o = NewListFast(NULL);
-	TOKEN_LIST *t;
-
-	t = ParseTokenWithoutNullStr(str, type == OPENVPN_DATA_OPTIONS ? "," : "\n");
-	if (t != NULL)
-	{
-		UINT i;
-
-		for (i = 0;i < t->NumTokens;i++)
-		{
-			char key[MAX_SIZE];
-			char value[MAX_SIZE];
-			char *line = t->Token[i];
-			Trim(line);
-
-			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), type == OPENVPN_DATA_OPTIONS ? " \t" : "=\t"))
-			{
-				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
-
-				e->Key = CopyStr(key);
-				e->Value = CopyStr(value);
-
-				Add(o, e);
-			}
-		}
-
-		FreeToken(t);
-	}
-
-	return o;
-}
-
-// Release the option list
-void OvsFreeList(LIST *o)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	FreeIni(o);
-}
-
-// Confirm whether there is specified option key string
-bool OvsHasEntry(LIST *o, char *key)
-{
-	// Validate arguments
-	if (o == NULL || key == NULL)
-	{
-		return false;
-	}
-
-	if (GetIniEntry(o, key) != NULL)
-	{
-		return true;
-	}
-
-	return false;
 }
 
 // Build the data from KEY_METHOD2
