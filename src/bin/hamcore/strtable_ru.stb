@@ -106,14 +106,14 @@ ERR_40					Хотя была выбрана аутентификация по с
 ERR_41					Указанный Виртуальный Сетевой Адаптер используется по меньшей мере одним VPN-подключением. \r\nУдалите VPN-подключение, использующее этот Виртуальный Сетевой Адаптер, или измените Виртуальный Сетевой Адаптер, который использует это VPN-подключение.
 ERR_42					Не удается найти Виртуальный Сетевой Адаптер, который использует указанное VPN-подключение. \r\nУбедитесь, что этот Виртуальный Сетевой Адаптер существует. Также убедитесь, что Виртуального Сетевого Адаптера не отключен. \r\n\r\nЕсли вы не можете решить проблему, измените Виртуальный Сетевой Адаптер, используемый этим VPN-подключением, или создайте новый Виртуальный Сетевой Адаптер с тем же именем.
 ERR_43					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, уже используется другим VPN-подключением. \r\nЕсли есть еще одно VPN-подключение, использующее тот же Виртуальный Сетевой Адаптер, отключите это VPN-подключение.
-ERR_44					Виртуальный Сетевой Адаптер, используемый указанной VPN-подключением, отключен.The Virtual Network Adapter being used by the specified VPN Connection Setting has been disabled. \r\nBefore using this VPN Connection Setting, enable the Virtual Network Adapter.
-ERR_45					The specified value is invalid.
-ERR_46					The connection destination is not a cluster controller.
-ERR_47					Trying to connect.
-ERR_48					Connection to the cluster controller failed.
-ERR_49					The cluster controller was unable to assign a new session on a cluster.
-ERR_50					Unable to manage the Virtual Hub of the cluster member server.
-ERR_51					The user's password used to connect was blank so the connection from remote is prohibited. Blank password can be allowed only to connections from the VPN Server's localhost (127.0.0.1).
+ERR_44					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, отключен. \r\nПеред использованием этого VPN-подключения включите Виртуальный Сетевой Адаптер.
+ERR_45					Неверное значение.
+ERR_46					Указанное подключение не является контроллером кластера.
+ERR_47					Попытка подключения.
+ERR_48					Не удалось подключиться к контроллеру кластера.
+ERR_49					Контроллеру кластера не удалось установить новую сессию в кластере.
+ERR_50					Не удается управлять Virtual Hub-ом сервера-члена кластера.
+ERR_51					Удаленное подключение запрещено, т.к. использован пустой пароль пользователя. Пустой пароль может быть разрешен только для соединений с локального хоста VPN-сервера (127.0.0.1).
 ERR_52					Не достаточно прав.
 ERR_53					Specified listener not found.
 ERR_54					The listener of the specified port number already exists.
