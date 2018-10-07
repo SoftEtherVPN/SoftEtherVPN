@@ -115,113 +115,113 @@ ERR_49					Контроллеру кластера не удалось уста�
 ERR_50					Не удается управлять Virtual Hub-ом сервера-члена кластера.
 ERR_51					Удаленное подключение запрещено, т.к. использован пустой пароль пользователя. Пустой пароль может быть разрешен только для соединений с локального хоста VPN-сервера (127.0.0.1).
 ERR_52					Не достаточно прав.
-ERR_53					Specified listener not found.
-ERR_54					The listener of the specified port number already exists.
-ERR_55					This is not a cluster member server.
-ERR_56					The specified encryption algorithm name is not supported.
-ERR_57					The Virtual Hub with the specified name already exists on the server.
-ERR_58					There are too many registered Virtual Hubs. No more can be created. Delete the old Virtual Hubs.
-ERR_59					The Cascade Connection with the specified name already exists.
-ERR_60					A Cascade Connection cannot be created on a server on a cluster.
-ERR_61					The specified Cascade Connection is offline. 
-ERR_62					There are too many access lists.
-ERR_63					There are too many users.
-ERR_64					There are too many groups.
-ERR_65					The specified group does not exist.
-ERR_66					The user with the specified name already exists on the Virtual Hub.
-ERR_67					The group with the specified name already exists on the Virtual Hub.
-ERR_68					A user with the specified name exists on the server but the type of authentication is not password authentication. Unable to change the password.
-ERR_69					The user name or old password you entered is incorrect. Note that the password is case-sensitive.
-ERR_70					Saitama.
-ERR_71					SoftEther has temporarily stopped the current distribution by order of the Japan Ministry of Economy Trade and Industry.
-ERR_72					SoftEther has temporarily stopped the current distribution by order of the IPA.
-ERR_73					Unable to disconnect the Cascade Connection's session. To delete the session, stop the Cascade Connection.
-ERR_74					The VPN Connection Setting for connection with the VPN Server is incomplete. At first you have to complete the VPN Connection Setting for connection with the VPN Server.
-ERR_75					VPN Connection to the VPN Server has already started.
-ERR_76					Not connected to the VPN Server.
-ERR_77					The specified X509 certificate file does not contain a RSA 1024 bit or 2048 bit public key. SoftEther VPN software supports only RSA 1024 bit or 2048 bit certificates.
-ERR_78					Unable to disconnect the SecureNAT session. To delete the session, stop the SecureNAT function.
-ERR_79					Cannot enable the SecureNAT in a clustering environment.
-ERR_80					The SecureNAT is not operating.
-ERR_81					This VPN Connection session to the VPN Server has been disconnected by the firewall device installed by the network administrator. Contact the network administrator.
-ERR_82					Unable to disconnect the Local Bridge session. To delete the session, stop the Local Bridge.
-ERR_83					The Local Bridge is not operating.
-ERR_84					Local Bridge cannot be used by the destination VPN Server. Refer to online help or other documentation for the setting method when using Local Bridge on the VPN Server you are using.
-ERR_85					Unable to trust the certificate provided by the destination server. The setting to always verify the server certificate is enabled in the VPN Connection Settings. Either register a root certificate that can be trusted or register a individual certificate.
-ERR_86					The product code of the destination server is incorrect. It is not possible to connect from this client.
-ERR_87					The client and server version is different. Update the software.
-ERR_88					Failed to add a capture device. A same capture device might be already registered.
-ERR_89					Unable to connect to the destination server from this client. A special client software is required.
-ERR_90					The specified capture device is not registered.
-ERR_91					Unable to disconnect the Virtual Layer 3 Switch session. To delete the session, stop the Virtual Layer 3 Switch.
-ERR_92					A Virtual Layer 3 Switch with the specified name already exists. Specify a different name.
-ERR_93					Specified Virtual Layer 3 Switch not found.
-ERR_94					The specified name is invalid. Check if the name contains characters that cannot be used.
-ERR_95					Failed to add the Virtual Layer 3 interface.
-ERR_96					Failed to delete the Virtual Layer 3 interface.
-ERR_97					The Virtual Layer 3 interface that is connecting to the destination Virtual Hub of the specified Virtual Layer 3 interface already exists in the Virtual Layer 3 Switch. No more than one Virtual Layer 3 interface that connects to the same Virtual Hub can be defined in a Virtual Layer 3 Switch.
-ERR_98					Failed to add routing table entry.
-ERR_99					Failed to delete routing table entry.
-ERR_100					The specified routing table entry already exists.
-ERR_101					The client clock and the server clock are not synchronized with each other. Check the time settings.
-ERR_102					Unable to start this Virtual Layer 3 Switch. \r\n\r\nTo start the Virtual Layer 3 Switch, at least 1 virtual interface must be defined in the Virtual Layer 3 Switch.
-ERR_103					Not enough Client Connection Licenses on the destination VPN Server. Contact the server administrator.
-ERR_104					Not enough Bridge Connection Licenses on the destination VPN Server. Contact the server administrator.
-ERR_105					Due to current technical difficulties, the destination VPN Server is not receiving the connection. Either wait a while, or contact the VPN Server administrator requesting that the server log file be checked.
-ERR_106					The destination VPN Server's certificate has expired. Contact the VPN Server's administrator.
-ERR_107					A connection has beens requested in Monitoring Mode. But the security policy for the connecting user does not permit Monitoring Mode.
-ERR_108					A connection has been requested in Bridge / Router Mode. But the security policy for the connecting user forbids both bridge mode and router mode.
-ERR_109					A connection from a client IP address has been denied by the Source IP Restriction List of the Virtual Hub.
-ERR_110					There are too many items.
-ERR_111					Out of memory.
-ERR_112					The specified object already exists.
-ERR_113					A fatal error occurred. It is possible that the program operation is unable to continue.
-ERR_114					The destination VPN Server has detected a software license violation. Connection is refused. Contact the VPN Server's administrator.
-ERR_115					The destination VPN Server has connected via the Internet to an important server provided by SoftEther VPN Project and cannot validate a license. Either wait a while, or contact the VPN Server administrator requesting that the server log file and the Internet connection status of the server itself be checked.
-ERR_116					A software license violation has been detected on the client side. Connection is refused.
-ERR_117					The command or file name is incorrect.
-ERR_118					The license key is incorrect.
-ERR_119					No valid product license is registered on the VPN Server. Contact the VPN Server's administrator.
-ERR_120					The product license required for the VPN Server to operate as a cluster is not registered. Contact the VPN Server's administrator.
-ERR_121					This VPN Connection Setting has been installed using the "Web Installer Creation Kit" or "Simple Installer Creation Kit". The destination server is not an edition that supports the SoftEther VPN 2.0 Administration Pack. Contact the system administrator or person who created the installer.
-ERR_122					With the VPN Server SDK for .NET, it is only possible to connect to the SoftEther VPN Server edition that supports the SoftEther VPN 2.0 Administration Pack. The destination VPN Server is not an edition that supports the SoftEther VPN 2.0 Administration Pack. Contact the system administrator.
-ERR_123					Beta Version Software on the destination server is expired. Contact to system administrator of the server to download a new beta version or full version from http://selinks.org/.
-ERR_124					The VPN connection to VPN Server is refused at server side.
-ERR_125					The VPN connection to VPN Server is refused at client side.
-ERR_126					The security policy enforced the VPN session to disconnect automatically because the specific time has been elapsed. If you wish to continue please re-connect.
-ERR_127					The VPN Server requires the special-version VPN Client software. Consult with the administrator.
-ERR_128					The number of registered user objects exceeds the maximum number which is allowed the product license applied on the VPN Server. You cannot add user objects anymore unless you delete old one, or upgrade the edition of the product.
-ERR_129					The subscription contract has already expired before the release-date of this version of VPN Server. The customer has been authorized to use VPN Server's builds only in the period of the subscription contract. The customer has to extend the period of the subscription. The customer also be able to 'downgrade' the version of VPN Server to older version which has released before the end of the subscription. If you want to downgrade the version, older versions might be available on http://selinks.org/.
-ERR_130					We are afraid that the trial license keys cannot be obtained frequently by the same customer. Please consider to purchase the product version.
-ERR_131					Several VPN Servers on the same IP address. You can specify the destination server's private IP or hostname concretely such as "Global IP address or host name/192.168.x.x". Or if a NAT is used on the server's side, configure the NAT to open, relay or transfer appropriate ports.
-ERR_132					The key for Dynamic DNS Service duplicates to others. The key will be reset automatically.
-ERR_133					The specified Dynamic DNS hostname is already used. Please change the hostname.
-ERR_134					The specified Dynamic DNS hostname has an invalid characters. Please change the hostname.
-ERR_135					The length of the specified Dynamic DNS hostname is too long. A hostname must be equal or shorter than 31 letters.
-ERR_136					The Dynamic DNS hostname is not specified.
-ERR_137					The length of the specified Dynamic DNS hostname is too long. A hostname must be equal of longer than 3 letters.
-ERR_138					The password of the specified user in the Virtual Hub must be reset before using MS-CHAP v2 authentication. Please ask the administrator of the VPN Server to reset the password by the VPN Server Manager or vpncmd which internal version is 4.0 or greater. Or you can change the password with VPN Client by yourself.
-ERR_139					The connection to the Dynamic DNS server has been disconnected.
-ERR_140					Failed to initialize the ICMP (Ping) protocol. The process of the VPN Server might be running in a normal-user privileges. In such case, run the VPN Server as a system service. (in Linux / UNIX, run it in root privileges.)
-ERR_141					Failed to open the DNS port 53. Make sure that there are no other DNS server program (for example, BIND or Microsoft DNS Server) on the same computer. If there are conflicting services stop them. Or run the VPN Server's process in root privileges on Linux / UNIX/
-ERR_142					The OpenVPN Server function is not enabled.
-ERR_143					The Certificate Authentication function and the External Server Authentication function have not been implemented on the open-source version of SoftEther VPN yet. Choose either Anonymous Authentication or Password Authentication instead.
-ERR_144					Unacceptable operation. Use the VPN Gate Control Panel to change the VPN Gate Relay Server settings.
-ERR_145					Unacceptable operation. Use the VPN Gate Utility to modify the connection setting for VPN Gate Public VPN Relay Servers.
-ERR_146					The VPN Gate Service is running inside the VPN Client program. You cannot stop the VPN Gate Service on this screen. Use the VPN Client Manager to enable or disable the VPN Gate Service.
-ERR_147					This feature is not supported. It hasn't been implemented yet on the open-source version of SoftEther VPN.
-ERR_148					The VPN connection was disconnected because the system is being suspended.
+ERR_53					Указанный порт прослушивания не найден.
+ERR_54					Указанный порт прослушивания уже существует.
+ERR_55					Этот сервер не член кластера.
+ERR_56					Указанный алгоритм шифрования не поддерживается.
+ERR_57					Virtual Hub с указанным именем уже существует на сервере.
+ERR_58					Слишком много зарегистрированных Virtual Hub. Больше не может быть создано. Удалите старые Virtual Hub.
+ERR_59					Каскадное Подключение с указанным именем уже существует.
+ERR_60					Невозможно создать Каскадное Подключение на сервере в кластере.
+ERR_61					Указанное Каскадное Подключение выключено. 
+ERR_62					Слишком много списков доступа.
+ERR_63					Слишком много пользователей.
+ERR_64					Слишком много групп.
+ERR_65					Указанная группа не существует.
+ERR_66					Пользователь с указанным именем уже существует в Virtual Hub.
+ERR_67					Группа с указанным именем уже существует в Virtual Hub.
+ERR_68					Пользователь с указанным именем существует на сервере, но его тип аутентификации не пароль. Поэтому невозможно изменить пароль.
+ERR_69					Неверное имя пользователя или пароль. Обратите внимание, что пароль чувствителен к регистру.
+ERR_70					Сайтам.
+ERR_71					SoftEther временно остановил текущее распространение по заказу Министерства экономики и торговли Японии.
+ERR_72					SoftEther временно остановил текущее распространение по заказу IPA.
+ERR_73					Невозможно отключить Каскадное Подключение. Чтобы удалить сессию, остановите Каскадное Подключение.
+ERR_74					Неверное VPN-подключение к VPN-серверу. Необходимо выполнить корректную настройку VPN-подключения.
+ERR_75					VPN-подключение к VPN-серверу уже запущено.
+ERR_76					Нет подключения к VPN-серверу.
+ERR_77					Указанный файл сертификата X509 не содержит открытый ключ RSA 1024 бит или 2048 бит. SoftEther VPN поддерживает только сертификаты RSA 1024 бит или 2048 бит.
+ERR_78					Невозможно отключить SecureNAT сесиию. Чтобы удалить сесиию, остановите функцию SecureNAT.
+ERR_79					Невозможно включить SecureNAT в кластерной среде.
+ERR_80					SecureNAT не работает.
+ERR_81					Это VPN-подключение отключено брандмауэром, установленным сетевым администратором. Обратитесь к сетевому администратору. 
+ERR_82					Невозможно отключить сессию Сетевого Моста. Чтобы удалить сессию, остановите Сетевой Мост.
+ERR_83					Сетевой Мост не работает.
+ERR_84					Сетевой Мост не может использоваться целевым VPN-сервером. Обратитесь к онлайн справке или другой документации по настройке Сетевого Моста на используемом VPN-сервере.
+ERR_85					Нет доверия к сертификату, предоставленному сервером. Параметр "Всегда Проверять Сертификат Сервера" включен в настройках VPN-подключения. Либо зарегистрируйте корневой сертификат, которому можно доверять, либо зарегистрируйте личный сертификат.
+ERR_86					Код продукта удаленного сервера неверен. Соединение невозможно.
+ERR_87					Версии клиента и сервера отличаются. Обновите программное обеспечение.
+ERR_88					Не удалось добавить устройство захвата. Возможно устройство захвата уже зарегистрировано.
+ERR_89					Не удается подключиться к серверу с этого клиента. Требуется специальное клиентское программное обеспечение.
+ERR_90					Указанное устройство захвата не зарегистрировано.
+ERR_91					Невозможно отключить сессию Virtual Layer 3 Switch. Чтобы удалить сессию, остановите Virtual Layer 3 Switch.
+ERR_92					Virtual Layer 3 Switch с указанным именем уже существует. Укажите другое имя.
+ERR_93					Указанный Virtual Layer 3 Switch не найден.
+ERR_94					Указанное имя недействительно. Проверьте, содержит ли имя символы, которые нельзя использовать.
+ERR_95					Не удалось добавить Virtual Layer 3 интерфейс.
+ERR_96					Не удалось удалить Virtual Layer 3 интерфейс.
+ERR_97					Интерфейс Virtual Layer 3, который подключается к Virtual Hub, уже существует в Virtual Layer 3 Switch. В Virtual Layer 3 Switch можно определить не более одного интерфейса Virtual Layer 3, подключаемого к одному Virtual Hub.
+ERR_98					Не удалось добавить запись в таблицу маршрутизации.
+ERR_99					Не удалось удалить запись таблицы маршрутизации.
+ERR_100					Указанная запись таблицы маршрутизации уже существует.
+ERR_101					Часы на клиенте и сервере не синхронизированы друг с другом. Проверьте настройки времени.
+ERR_102					Не удалось запустить этот Virtual Layer 3 Switch. \r\n\r\nЧтобы запустить Virtual Layer 3 Switch, должен быть определен как минимум 1 виртуальный интерфейс.
+ERR_103					Недостаточно лицензий для Клиентских подключений к VPN-серверу. Обратитесь к администратору сервера.
+ERR_104					Недостаточно лицензий для подключения Моста к VPN-серверу. Обратитесь к администратору сервера.
+ERR_105					Из-за текущих технических трудностей VPN-сервер не получает соединение. Подождите некоторое время или обратитесь к администратору VPN-сервера с просьбой проверить файл журнала сервера.
+ERR_106					Срок действия сертификата VPN-сервера истек. Обратитесь к администратору VPN-сервера.
+ERR_107					Запрошено подключение в Режиме Мониторинга. Но политика безопасности для подключаемого пользователя не разрешает Режим Мониторинга.
+ERR_108					Запрошено подключение в Режиме Мост / Роутер. Но политика безопасности для подключаемого пользователя не разрешает Режим Мост / Роутер. 
+ERR_109					Соединение с IP-адреса клиента было отклонено списком контроля доступа Virtual Hub.
+ERR_110					Слишком много элементов.
+ERR_111					Недостаточно памяти.
+ERR_112					Указанный объект уже существует.
+ERR_113					Произошла критическая ошибка. Возможно программа не сможет продолжить работу.
+ERR_114					VPN-сервер обнаружил нарушение лицензии на программное обеспечение. Соединение отклонено. Обратитесь к администратору VPN-сервера.
+ERR_115					VPN-сервер подключен через Интернет к важному серверу, предоставленному SoftEther VPN Project, и не может подтвердить лицензию. Подождите некоторое время или обратитесь к администратору VPN-сервера с просьбой проверить файл журнала сервера и статус подключения к Интернету на сервере.
+ERR_116					Нарушение лицензии на программное обеспечение было обнаружено на стороне клиента. Соединение отклонено.
+ERR_117					Неверная команда или имя файла.
+ERR_118					Недопустимый ключ лицензии.
+ERR_119					На VPN-сервере не зарегистрирована действующая лицензия на продукт. Обратитесь к администратору VPN-сервера.
+ERR_120					Лицензия, требуемая для работы VPN-сервера в качестве кластера, не зарегистрирована. Обратитесь к администратору VPN-сервера.
+ERR_121					Это VPN-подключение было настроено с помощью «Набора для создания веб-установщика» или «Набора для создания простого установщика». Текущая версия сервера не поддерживает пакет администрирования SoftEther VPN 2.0. Обратитесь к системному администратору или лицу, создавшему установщик.
+ERR_122					С VPN Server SDK для .NET можно подключиться только к версии SoftEther VPN Server, поддерживающей пакет администрирования SoftEther VPN 2.0.0. Целевой VPN-сервер не поддерживает пакет администрирования SoftEther VPN 2.0. Обратитесь к системному администратору.
+ERR_123					Бета-версии ПО на сервере истекла. Обратитесь к системному администратору сервера, чтобы загрузить новую бета-версию или полную версию с http://selinks.org/.
+ERR_124					VPN соединение отклонено со стороны сервера.
+ERR_125					VPN соединение отклонено со стороны клиента.
+ERR_126					Политика безопасности принудительно отключила VPN сессию по достижению тайм-аута. Если вы хотите продолжить, повторите подключение.
+ERR_127					VPN-сервер требует специальной версии VPN-клиента. Проконсультируйтесь с администратором.
+ERR_128					Количество зарегистрированных пользовательских объектов превышает максимальное число, которое разрешено лицензией на VPN-сервере. Вы не можете больше добавлять пользовательские объекты, пока не удалите старые или не обновите версию продукта.
+ERR_129					Подписка истекла раньше даты выпуска этой версии VPN-сервера. The subscription contract has already expired before the release-date of this version of VPN Server. Клиент имеет право использовать сборки VPN-сервера, выпущенные только в период действия договора подписки. Клиент должен продлить срок подписки. Клиент также может «понизить» версию VPN-сервера до более старой версии, выпущенной до конца подписки. Если вы хотите понизить версию, более старые версии могут быть доступны на http://selinks.org/.
+ERR_130					Пробные лицензионные ключи не могут быть получены несколько раз одним и тем же клиентом. Пожалуйста, подумайте о покупке полной версии продукта.
+ERR_131					Несколько VPN-серверов на одном IP-адресе. Вы можете указать IP-адрес или имя узла конечного сервера, например «Внешний IP-адрес или Имя Хоста / 192.168.x.x». Или, если NAT используется на стороне сервера, настройте NAT для открытия, переключения или переадрисации соответствующих портов.
+ERR_132					Дублировать ключ хоста для Dynamic DNS Service. Ключ будет сброшен автоматически.
+ERR_133					Указанное имя хоста Dynamic DNS уже используется. Измените имя хоста.
+ERR_134					Указанное имя хоста Dynamic DNS имеет недопустимые символы. Измените имя хоста.
+ERR_135					Длина указанного имени хоста Dynamic DNS слишком велика. Имя хоста должно быть не более 31 символа.
+ERR_136					Имя хоста Dynamic DNS не указано.
+ERR_137					Указанное имя хоста Dynamic DNS слишком короткое. Имя хоста должно быть не менее 3 символов.
+ERR_138					Пароль пользователя в Virtual Hub должен быть сброшен перед использованием проверки подлинности MS-CHAP v2. Попросите администратора VPN-сервера сбросить пароль с помощью Диспетчера VPN-сервера или vpncmd версии 4.0 или выше. Или вы можете самостоятельно изменить пароль с помощью VPN-клиента.
+ERR_139					Соединение с Dynamic DNS сервером отключено.
+ERR_140					Не удалось инициализировать протокол ICMP (Ping). Служба VPN-сервера может выполняться с привилегиями обычного пользователя. В этом случае запустите VPN-сервер как системную службу. (в Linux / UNIX запустите его с правами root.)
+ERR_141					Не удалось открыть DNS порт 53. Убедитесь, что в системе нет другого DNS-сервера (например, BIND или Microsoft DNS Server). Если есть конфликтующие службы, остановите их. Возможно необходимо запустить службу VPN-сервера с правами root в Linux / UNIX.
+ERR_142					Функция OpenVPN Server не включена.
+ERR_143					Функция "Проверка подлинности сертификата" и функция "Проверка подлинности внешнего сервера" еще не реализованы в версии SoftEther VPN с открытым исходным кодом. Вместо этого выберите либо анонимную аутентификацию, либо аутентификацию по паролю.
+ERR_144					Неприемлемая операция. Используйте VPN Gate Control Panel, чтобы изменить настройки VPN Gate Relay Server.
+ERR_145					Неприемлемая операция. Используйте VPN Gate Utility для изменения настроек соединений VPN Gate Public VPN Relay Servers.
+ERR_146					Служба VPN Gate запускается внутри Softether VPN-клиента. Вы не можете остановить службу VPN Gate на этом экране. Используйте "Управление Softether VPN клиентом" для включения или отключения службы VPN Gate.
+ERR_147					Эта функция не поддерживается. Она еще не реализована в данной версии SoftEther VPN с открытым исходным кодом.
+ERR_148					VPN соединение было отключено, так как система переходит в спящий режим.
 
 # Concerning licenses
 LICENSE_INFO_URL		https://selinks.org/?new_license
 LICENSE_SUPPORT_URL		https://selinks.org/?q=license_info&id=%s
-LICENSE_STATUS_OK		Валидный
+LICENSE_STATUS_OK		Действующая
 LICENSE_STATUS_EXPIRED	Истек
-LICENSE_STATUS_ID_DIFF	Server ID Mismatch
+LICENSE_STATUS_ID_DIFF	Неверный ID сервера
 LICENSE_STATUS_DUP		Дубликат
-LICENSE_STATUS_INSUFFICIENT	Other Licenses are Required
-LICENSE_STATUS_COMPETITION	Competition with Other Licenses
-LICENSE_STATUS_NONSENSE		Meaningless for Current Edition
+LICENSE_STATUS_INSUFFICIENT	Требуются другие лицензии
+LICENSE_STATUS_COMPETITION	Конфликт с другими лицензиями
+LICENSE_STATUS_NONSENSE		Не актуальна для текущей версии
 LICENSE_STATUS_CPU		Несовместимый тип ЦП
 LICENSE_STATUS_OTHERERROR	Неизвестная ошибка
 
