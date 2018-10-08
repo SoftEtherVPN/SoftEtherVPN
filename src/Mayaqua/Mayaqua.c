@@ -1151,6 +1151,11 @@ void PrintKernelStatus()
 		Print("      !!! MEMORY LEAKS DETECTED !!!\n\n");
 		if (g_memcheck == false)
 		{
+			if (IsHamMode())
+			{
+				Print("    Enable /memcheck startup option to see the leaking memory heap.\n");
+				Print("    Press Enter key to exit the process.\n");
+			}
 			GetLine(NULL, 0);
 		}
 	}
