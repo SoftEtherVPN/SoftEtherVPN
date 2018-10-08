@@ -1635,13 +1635,16 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 {
 	INSTANCE *instance;
 	InitProcessCallOnce();
-#ifdef DEBUG
+#if defined(_DEBUG) || defined(DEBUG)	// In VC++ compilers, the macro is "_DEBUG", not "DEBUG".
 	is_debug = true;
 #else
 	is_debug = false;
 #endif
 	MayaquaMinimalMode();
-	InitMayaqua(is_debug, is_debug, 0, NULL);
+	// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+	// For normal debug we set memcheck = false.
+	// Please set memcheck = true if you want to test the cause of memory leaks.
+	InitMayaqua(false, is_debug, 0, NULL);
 	InitCedar();
 	ViSetSkip();
 	ViLoadStringTables();

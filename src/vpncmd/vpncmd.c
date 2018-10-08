@@ -143,8 +143,11 @@ int main(int argc, char *argv[])
 	SetConsoleTitleA(CEDAR_PRODUCT_STR " VPN Command Line Utility");
 #endif	// OS_WIN32
 
-#ifdef DEBUG
-	InitMayaqua(true, true, argc, argv);
+#if defined(_DEBUG) || defined(DEBUG)	// In VC++ compilers, the macro is "_DEBUG", not "DEBUG".
+	// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+	// For normal debug we set memcheck = false.
+	// Please set memcheck = true if you want to test the cause of memory leaks.
+	InitMayaqua(false, true, argc, argv);
 #else
 	InitMayaqua(false, false, argc, argv);
 #endif

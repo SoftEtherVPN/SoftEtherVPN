@@ -2766,7 +2766,10 @@ RESTART_PROCESS:
 	else if (argc >= 3 && StrCmpi(argv[1], UNIX_SVC_ARG_START) == 0 && StrCmpi(argv[2], UNIX_SVC_ARG_FOREGROUND) == 0)
 	{
 #ifdef DEBUG
-		InitMayaqua(true, true, argc, argv);
+		// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+		// For normal debug we set memcheck = false.
+		// Please set memcheck = true if you want to test the cause of memory leaks.
+		InitMayaqua(false, true, argc, argv);
 #else
 		InitMayaqua(false, false, argc, argv);
 #endif
@@ -2786,7 +2789,10 @@ void UnixServiceMain(int argc, char *argv[], char *name, SERVICE_FUNCTION *start
 	UINT mode = 0;
 	// Start of the Mayaqua
 #ifdef DEBUG
-	InitMayaqua(true, true, argc, argv);
+	// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+	// For normal debug we set memcheck = false.
+	// Please set memcheck = true if you want to test the cause of memory leaks.
+	InitMayaqua(false, true, argc, argv);
 #else
 	InitMayaqua(false, false, argc, argv);
 #endif
