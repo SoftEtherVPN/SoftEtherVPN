@@ -10707,36 +10707,40 @@ void FreeRouteTable(ROUTE_TABLE *t)
 // UDP receiving
 UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 {
-	SOCKET s;
-	int ret, sz;
 	struct sockaddr_in addr;
+	int ret = 0;
+#ifdef	OS_WIN32
+	int socklen = sizeof(addr);
+#else
+	socklen_t socklen = sizeof(addr);
+#endif
+
 	// Validate arguments
 	if (sock != NULL)
 	{
+		if (sock->IPv6)
+		{
+			return RecvFrom6(sock, src_addr, src_port, data, size);
+		}
+
 		sock->IgnoreRecvErr = false;
 	}
-	if (sock == NULL || src_addr == NULL || src_port == NULL || data == NULL)
+	else
 	{
-		return false;
+		return 0;
 	}
+
+	if (src_addr == NULL || src_port == NULL || data == NULL || size == 0)
+	{
+		return 0;
+	}
+
 	if (sock->Type != SOCK_UDP || sock->socket == INVALID_SOCKET)
 	{
-		return false;
-	}
-	if (size == 0)
-	{
-		return false;
+		return 0;
 	}
 
-	if (sock->IPv6)
-	{
-		return RecvFrom6(sock, src_addr, src_port, data, size);
-	}
-
-	s = sock->socket;
-
-	sz = sizeof(addr);
-	ret = recvfrom(s, data, size, 0, (struct sockaddr *)&addr, (int *)&sz);
+	ret = recvfrom(sock->socket, data, size, 0, (struct sockaddr *)&addr, &socklen);
 	if (ret > 0)
 	{
 		InAddrToIP(src_addr, &addr.sin_addr);
@@ -10744,13 +10748,6 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		if (sock->IsRawSocket)
 		{
 			*src_port = sock->LocalPort;
-/*
-			{
-				char tmp[MAX_SIZE];
-
-				IPToStr(tmp, sizeof(tmp), &sock->LocalIP);
-				Debug("Raw: %u from %s\n", sock->LocalPort, tmp);
-			}*/
 		}
 
 		Lock(sock->lock);
@@ -10760,14 +10757,10 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		Unlock(sock->lock);
 
-		// Debug("UDP RecvFrom: %u\n", ret);
-
 		return (UINT)ret;
 	}
 	else
 	{
-		sock->IgnoreRecvErr = false;
-
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
 			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
@@ -10780,10 +10773,9 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		else
 		{
-			UINT e = WSAGetLastError();
-//			Debug("RecvFrom Error: %u\n", e);
+			Debug("RecvFrom(): recvfrom() failed with error: %u\n", WSAGetLastError());
 		}
-#else	// OS_WIN32
+#else
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
 		{
 			sock->IgnoreRecvErr = true;
@@ -10792,37 +10784,46 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		{
 			return SOCK_LATER;
 		}
-#endif	// OS_WIN32
+		else
+		{
+			Debug("RecvFrom(): recvfrom() failed with error: %s\n", strerror(errno));
+		}
+#endif
 		return 0;
 	}
 }
 UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 {
-	SOCKET s;
-	int ret, sz;
 	struct sockaddr_in6 addr;
+	int ret = 0;
+#ifdef	OS_WIN32
+	int socklen = sizeof(addr);
+#else
+	socklen_t socklen = sizeof(addr);
+#endif
+
 	// Validate arguments
 	if (sock != NULL)
 	{
 		sock->IgnoreRecvErr = false;
 	}
-	if (sock == NULL || src_addr == NULL || src_port == NULL || data == NULL)
+	else
 	{
-		return false;
+		return 0;
 	}
+
+	if (src_addr == NULL || src_port == NULL || data == NULL || size == 0)
+	{
+		return 0;
+	}
+
 	if (sock->Type != SOCK_UDP || sock->socket == INVALID_SOCKET)
 	{
-		return false;
-	}
-	if (size == 0)
-	{
-		return false;
+		return 0;
 	}
 
-	s = sock->socket;
 
-	sz = sizeof(addr);
-	ret = recvfrom(s, data, size, 0, (struct sockaddr *)&addr, (int *)&sz);
+	ret = recvfrom(sock->socket, data, size, 0, (struct sockaddr *)&addr, &socklen);
 	if (ret > 0)
 	{
 		InAddrToIP6(src_addr, &addr.sin6_addr);
@@ -10840,14 +10841,10 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		Unlock(sock->lock);
 
-		// Debug("UDP RecvFrom: %u\n", ret);
-
 		return (UINT)ret;
 	}
 	else
 	{
-		sock->IgnoreRecvErr = false;
-
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
 			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
@@ -10860,10 +10857,9 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		else
 		{
-			UINT e = WSAGetLastError();
-			//			Debug("RecvFrom Error: %u\n", e);
+			Debug("RecvFrom(): recvfrom() failed with error: %u\n", WSAGetLastError());
 		}
-#else	// OS_WIN32
+#else
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
 		{
 			sock->IgnoreRecvErr = true;
@@ -10872,7 +10868,11 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		{
 			return SOCK_LATER;
 		}
-#endif	// OS_WIN32
+		else
+		{
+			Debug("RecvFrom(): recvfrom() failed with error: %s\n", strerror(errno));
+		}
+#endif
 		return 0;
 	}
 }
