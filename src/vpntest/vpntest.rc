@@ -54,7 +54,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON2               ICON                    "NIC.ico"
+IDI_ICON2               ICON                    "vpntest.ico"
 #endif    // Japanese resources
 /////////////////////////////////////////////////////////////////////////////
 
