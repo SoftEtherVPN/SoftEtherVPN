@@ -143,6 +143,7 @@ namespace BuildUtil
 			@"bin\BuiltHamcoreFiles",
 			@"bin\hamcore",
 			"Cedar",
+			"Ham",
 			"Mayaqua",
 			"Neo",
 			"vpnbridge",
