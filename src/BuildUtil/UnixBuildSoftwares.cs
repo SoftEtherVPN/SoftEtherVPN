@@ -143,6 +143,7 @@ namespace BuildUtil
 			@"bin\BuiltHamcoreFiles",
 			@"bin\hamcore",
 			"Cedar",
+			"vpntest",
 			"Mayaqua",
 			"Neo",
 			"vpnbridge",
@@ -731,7 +732,7 @@ namespace BuildUtil
 		{
 			string[] programNames =
 			{
-				"Ham",
+				"vpntest",
 				"vpnserver",
 				"vpnbridge",
 				"vpnclient",

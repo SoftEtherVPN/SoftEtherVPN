@@ -157,7 +157,15 @@ void MemoryDebugMenu()
 	TOKEN_LIST *t;
 	char *cmd;
 	Print("Mayaqua Kernel Memory Debug Tools\n"
-		"Copyright (c) SoftEther Corporation. All Rights Reserved.\n\n");
+		"Copyright (c) SoftEther VPN Project. All Rights Reserved.\n\n");
+
+#ifndef	OS_WIN32
+	Print("Unfortunately The call stack is not recorded on non-Windows systems\n");
+	Print("since UnixGetCallStack() and UnixGetCallStackSymbolInfo() is not implemented.\n");
+	Print("Therefore please use valgrind or other memory leak check tools\n");
+	Print("to get the actual call stacks of memory leak causes.\n\n");
+#endif	// OS_WIN32
+
 	g_memcheck = false;
 	while (true)
 	{

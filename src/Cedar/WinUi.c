@@ -1964,6 +1964,9 @@ void RegistWindowsFirewallAllEx(char *dir)
 
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd.exe", dir);
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd_x64.exe", dir);
+
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest.exe", dir);
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest_x64.exe", dir);
 }
 
 // Check whether the notification service is already running
