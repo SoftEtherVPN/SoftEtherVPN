@@ -115,6 +115,10 @@ get_target_property(VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY vpnbridge RUNTIME_OUTPUT_
 add_subdirectory(vpncmd)
 get_target_property(VPNCMD_RUNTIME_OUTPUT_DIRECTORY vpncmd RUNTIME_OUTPUT_DIRECTORY)
 
+# vpntest
+add_subdirectory(vpntest)
+get_target_property(VPNTEST_RUNTIME_OUTPUT_DIRECTORY vpntest RUNTIME_OUTPUT_DIRECTORY)
+
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
   ALL
@@ -146,6 +150,12 @@ add_custom_command(TARGET hamcore-archive-build
 add_custom_command(TARGET hamcore-archive-build
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+# Copy hamcore.se2 to vpntest's directory
+add_custom_command(TARGET hamcore-archive-build
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNTEST_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # Copy "vpnserver" directory to /usr/lib(exec)/softether/, install launch script and systemd service
