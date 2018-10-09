@@ -15,8 +15,17 @@ CMakeFiles/
 output/
 Win32_Release
 x64_Release
+Win32_Debug
+x64_Debug
 /src/DebugFiles
 /src/BuildUtil/obj/
+/src/vpnweb/vpnweb.h
+/src/vpnweb/vpnweb_i.c
+/src/vpnweb/vpnweb_p.c
+*.user
+*.ncb
+*.opt
+!/src/BuildFiles/**/*
 
 # Applied for 'developer_tools/stbchecker/'
 # Copied from by https://www.gitignore.io/api/visualstudio

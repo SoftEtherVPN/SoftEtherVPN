@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -213,7 +213,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -287,7 +287,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
