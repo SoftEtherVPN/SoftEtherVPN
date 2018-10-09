@@ -89,7 +89,7 @@ ERR_23					Внутренняя ошибка.
 ERR_24					Не удалось получить доступ к смарт-карте или USB ключу.
 ERR_25					Неверный PIN-код.
 ERR_26					Указанный сертификат не хранится ни на смарт-карте, ни на USB ключе.
-ERR_27					Указанный закрытый ключ не хранится ни на смарт-карте, ни на USB ключе.
+ERR_27					Указанный приватный ключ не хранится ни на смарт-карте, ни на USB ключе.
 ERR_28					Не удалось выполнить запись на смарт-карту или USB ключ.
 ERR_29					Объект не найден.
 ERR_30					Виртуальный Сетевой Адаптер с указанным именем уже существует. Укажите другое имя.
@@ -227,28 +227,28 @@ LICENSE_STATUS_OTHERERROR	Неизвестная ошибка
 
 
 # Concerning TCP optimization
-TCPOPT_NOT_SUPPORTED	Утилита оптимизации TCP не может быть использована на этой ОС.
+TCPOPT_NOT_SUPPORTED	Утилита оптимизации TCP не может быть использована в этой ОС.
 TCPOPT_NOT_ADMIN		Пользователь без прав администратора не может использовать Утилиту оптимизации TCP.
 
 
 # Windows Vista / Windows 7 / Windows 8 Optimization
-VISTA_MMCSS_MSG			Do you wish to optimize Windows Vista / Windows 7 / Windows 8 / Windows 10 for playing multimedia files with VPN? (e.g. videos, audios and streaming)
-VISTA_MMCSS_MSG_2		Optimization for Windows Vista / Windows 7 / Windows 8 / Windows 10 with VPN has already done.\r\nDo you wish to remove optimized configuration?
-VISTA_MMCSS_MSG_3		You cannot use optimization in currently environment.
-VISTA_MMCSS_MSG_4		You must have administrator privileges for this function.\r\nPlease note that in Windows Vista / Windows 7 / Windows 8 / Windows 10 you should use "Run as Administrators" to execute program.
+VISTA_MMCSS_MSG			Вы хотите оптимизировать Windows Vista / Windows 7 / Windows 8 / Windows 10 для воспроизведения мультимедийных файлов с помощью VPN? (например, видео, аудио и потоковое мультимедиа)
+VISTA_MMCSS_MSG_2		Оптимизация для Windows Vista / Windows 7 / Windows 8 / Windows 10 с помощью VPN уже выполнена. \r\nХотите удалить оптимизированную конфигурацию?
+VISTA_MMCSS_MSG_3		Вы не можете использовать оптимизацию в текущей системе.
+VISTA_MMCSS_MSG_4		У вас должны быть права администратора для этой функции.\r\nОбратите внимание, что в Windows Vista / Windows 7 / Windows 8 / Windows 10 вы должны использовать «Запуск от имени администратора» для запуска программы.
 VISTA_MMCSS_MSG_5		Оптимизация завершена.
 VISTA_MMCSS_MSG_6		Оптимизация удалена.
 
 
 # Concerning PKCS utility
-PKCS_UTIL_TITLE			PKCS#12 Writing Utility
-PKCS_UTIL_SAVEDLG_TITLE	Select the PKCS#12 file that you want to write to the USB token.
-PKCS_UTIL_READ_ERROR	Unable to read the file: %s.
-PKCS_UTIL_WRITE_OK_MSG	The file %s has been written to the USB hardware token.
-PKCS_UTIL_DELETE_OK_MSG	The PKCS#12 certificate data has been deleted from the USB hardware token.
+PKCS_UTIL_TITLE			Утилита Записи PKCS#12
+PKCS_UTIL_SAVEDLG_TITLE	Выберите файл PKCS#12, который вы хотите записать на USB ключ.
+PKCS_UTIL_READ_ERROR	Не удалось прочитать файл: %s.
+PKCS_UTIL_WRITE_OK_MSG	Файл %s был записан на USB ключ.
+PKCS_UTIL_DELETE_OK_MSG	Данные сертификата PKCS#12 были удалены с USB ключа.
 PKCS_UTIL_SECA_FILENAME	seca_p12
-PKCS_MAKE_SURE			The PKCS#12 certificate data written to USB token will be deleted. \r\n Once data is deleted it cannot be restored. \r\r\n\r\r\nDo you wish to continue?
-PKCS_UTIL_BAD_FILE		The specified file could not be identified as a PKCS#12 file.
+PKCS_MAKE_SURE			Данные сертификата PKCS#12, записанные на USB ключ, будут удалены. \r\n После удаления его невозможно будет восстановить. \r\r\n\r\r\nВы хотите продолжить?
+PKCS_UTIL_BAD_FILE		Указанный файл не может быть идентифицирован как файл PKCS#12.
 
 
 # Concerning common dialogs
@@ -262,16 +262,16 @@ DLG_KEY_OR_P12_FILTER	Файлы приватных ключей или PKCS#12 
 DLG_ZIP_FILER			ZIP файлы (*.ZIP)|*.zip|Все файлы (*.*)|*.*
 DLG_OPEN_CERT			Выберите файл сертификата
 DLG_OPEN_KEY			Выберите файл приватного ключа
-DLG_OPEN_KEY_WITH_CERT	Select the Corresponding Private Key file
+DLG_OPEN_KEY_WITH_CERT	Выберите соответствующий файл приватного ключа
 DLG_OPEN_FILE_ERROR		Невозможно прочитать выбранный файл: %S.
 DLG_OPEN_FILE_ERROR_W	Невозможно прочитать выбранный файл: %s.
-DLG_BAD_P12				The file "%S" is not a valid PKCS#12 certificate file.
-DLG_BAD_P12_W			The file "%s" is not a valid PKCS#12 certificate file.
-DLG_BAD_X509			The file "%S" is not a valid X509 certificate file.
-DLG_BAD_X509_W			The file "%s" is not a valid X509 certificate file.
-DLG_BAD_KEY				The file "%S" is not a valid RSA private key file.
-DLG_BAD_KEY_W			The file "%s" is not a valid RSA private key file.
-DLG_BAD_SIGNATURE		The private key does not correctly correspond with the public key contained in the specified certificate. \r\nA private key that corresponds to the certificate public key is required.
+DLG_BAD_P12				Файл «%S» не является файлом сертификата PKCS#12.
+DLG_BAD_P12_W			Файл «%s» не является файлом сертификата PKCS#12.
+DLG_BAD_X509			Файл «%S» не является файлом сертификата X509.
+DLG_BAD_X509_W			Файл «%s» не является файлом сертификата X509.
+DLG_BAD_KEY				Файл «%S» не является файлом приватного RSA ключа.
+DLG_BAD_KEY_W			Файл «%s» не является файлом приватного RSA ключа.
+DLG_BAD_SIGNATURE		Приватный ключ не соответствует открытому ключу, содержащемуся в указанном сертификате. \r\nТребуется приватный ключ, соответствующий открытому ключу сертификата.
 DLG_SAVE_CERT			Specify a file name where you want to save the certificate
 DLG_SAVE_KEY			Specify a file name where you want to save the private key
 DLG_SAVE_P12			Specify a file name where you want to save the certificate and private key
