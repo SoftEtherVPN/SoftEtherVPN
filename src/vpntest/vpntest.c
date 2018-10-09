@@ -14,7 +14,23 @@
 #include <Cedar/Cedar.h>
 #include "vpntest.h"
 
+void server_manager_test(UINT num, char **arg)
+{
+#ifdef	OS_WIN32
+	SMExec();
+#else	// OS_WIN32
+	Print("This command is supported only on Win32.");
+#endif	// OS_WIN32
+}
 
+void client_manager_test(UINT num, char **arg)
+{
+#ifdef	OS_WIN32
+	CMExec();
+#else	// OS_WIN32
+	Print("This command is supported only on Win32.");
+#endif	// OS_WIN32
+}
 
 void client_test(UINT num, char **arg)
 {
@@ -79,6 +95,8 @@ TEST_LIST test_list[] =
 	{"c", client_test, "VPN Client in Test Mode, enter key to graceful stop."},
 	{"s", server_test, "VPN Server in Test Mode, enter key to graceful stop."},
 	{"b", bridge_test, "VPN Bridge in Test Mode, enter key to graceful stop."},
+	{"sm", server_manager_test, "VPN Server Manager UI in Test Mode (Win32 only)"},
+	{"cm", client_manager_test, "VPN Client Manager UI in Test Mode (Win32 only)"},
 	{"memory_leak", memory_leak_test, "Memory leak test: Try to leak one byte by malloc()."},
 };
 
