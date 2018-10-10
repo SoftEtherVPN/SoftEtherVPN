@@ -272,11 +272,11 @@ DLG_BAD_X509_W			Файл «%s» не является файлом сертиф
 DLG_BAD_KEY				Файл «%S» не является файлом приватного RSA ключа.
 DLG_BAD_KEY_W			Файл «%s» не является файлом приватного RSA ключа.
 DLG_BAD_SIGNATURE		Приватный ключ не соответствует открытому ключу, содержащемуся в указанном сертификате. \r\nТребуется приватный ключ, соответствующий открытому ключу сертификата.
-DLG_SAVE_CERT			Specify a file name where you want to save the certificate
-DLG_SAVE_KEY			Specify a file name where you want to save the private key
-DLG_SAVE_P12			Specify a file name where you want to save the certificate and private key
-DLG_SAVE_FILE			Specify a file name to save a file
-DLG_SAVE_OPENVPN_CONFIG	Specify a file name to save the ZIP file contains OpenVPN settings
+DLG_SAVE_CERT			Укажите имя для файла сертификата
+DLG_SAVE_KEY			Укажите имя для файла приватного ключа
+DLG_SAVE_P12			Укажите имя для файла сертификата и приватного ключа
+DLG_SAVE_FILE			Укажите имя файла
+DLG_SAVE_OPENVPN_CONFIG	Укажите имя для ZIP-файла, содержащего настройки OpenVPN
 DLG_CERT_SAVE_OK		Сертификат был успешно сохранен.
 DLG_CERT_SAVE_ERROR		Невозможно сохранить сертификат.
 DLG_KEY_SAVE_OK			Приватный ключ был успешно сохранен.
@@ -286,20 +286,20 @@ DLG_KEY_PAIR_SAVE_ERROR	Невозможно сохранить сертифик
 DLG_REBOOT_INFO			Компьютер будет перезагружен через %u сек.
 DLG_REBOOT_INFO_2		Перезагрузка компьютера.
 DLG_REBOOT_ERROR		Ошибка перезагрузки компьюетра. \r\n\r\nПожалуйста перезагрузите компьютер вручную. 
-DLG_SAVE_CONFIG			Specify a File Name for Saving the Configuration
-DLG_OPEN_CONFIG			Specify the Configuration File to Import
-DLG_STRING_DEFTITLE		String Input
-DLG_STRING_DEFINFO		Enter strings.
-DLG_ABOUT_LEGAL			Legal Notices
+DLG_SAVE_CONFIG			Укажите имя для файла конфигурации
+DLG_OPEN_CONFIG			Укажите файл конфигурации для импорта
+DLG_STRING_DEFTITLE		Строка ввода
+DLG_STRING_DEFINFO		Введите строки.
+DLG_ABOUT_LEGAL			Юридическая информация
 DLG_ABOUT_AUTHORS		Список авторов
-DLG_UPDATE_DATE			\ (Released on %S)
-DLG_UPDATE_HINT			Press OK to view the information of the latest update on the web browser.\r\n\r\nYou have to download and install updates manually. If you want to update software on the other computer you have to log in to the computer by Remote Desktop or SSH to perform the download and update.
+DLG_UPDATE_DATE			\ (Выпущен %S)
+DLG_UPDATE_HINT			Нажмите OK, чтобы просмотреть информацию о последнем обновлении в веб-браузере.\r\n\r\nВы должны загружать и устанавливать обновления вручную. Если вы хотите обновить программное обеспечение на другом компьютере, вам необходимо войти на компьютер с помощью удаленного рабочего стола или SSH для выполнения загрузки и обновления.
 
 
 
 # Concerning competing processes
-BAD_PROCESS_TITLE		Warning concerning %S
-BAD_PROCESS_MESSAGE		It is possible that the software "%S" is running on this computer, which could cause problems. \r\n\r\nThere is a possibility that problems in "%S" will cause instability in VPN communication and errors. \r\n\r\nIf, by using VPN together with the software "%S" VPN becomes unstable, either stop or uninstall "%S". (Note that in some cases, because of the nature of the software, there are cases that the problems will still remain on the computer where even if you stop the software.) \r\n
+BAD_PROCESS_TITLE		Предупреждение относительно %S
+BAD_PROCESS_MESSAGE		Возможно, программа «%S» запущена на этом компьютере, что может вызвать проблемы. \r\n\r\nСуществует вероятность того, что проблемы в «%S» вызовут ошибки и нестабильность VPN-подключений. \r\n\r\nЕсли при использовании VPN вместе с программой «%S» VPN становится неустойчивым, остановите или удалите «%S». (Обратите внимание, что в некоторых случаях из-за характера программного обеспечения существуют случаи, когда проблемы останутся на компьютере, даже если вы остановите проблемную программу.) \r\n
 
 
 # Concerning hardware tokens
@@ -2082,6 +2082,7 @@ L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
 
 
 # Concerning Microsoft.c
+MS_VIRTUAL				Proprietary Virtual/Internal Interface
 MS_ETHERNET				Ethernet Interface
 MS_TOKENRING			Token Ring Interface
 MS_FDDI					FDDI Interface
