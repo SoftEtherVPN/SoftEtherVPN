@@ -26,6 +26,9 @@ if (NOT ${PROJECT_VERSION} VERSION_EQUAL "${CurrentBuild_MAJOR}.${CurrentBuild_M
   message (FATAL_ERROR "PROJECT_VERSION does not match to src/CurrentBuild.txt")
 endif()
 
+include(CheckIncludeFile)
+Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
+
 configure_file("${SoftEtherVPN_SOURCE_DIR}/AUTHORS.TXT" "${SoftEtherVPN_SOURCE_DIR}/src/bin/hamcore/authors.txt" COPYONLY)
 
 set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)

@@ -1,6 +1,6 @@
 .ubuntu: &ubuntu_def
   variables:
-    CMAKE_VERSION: 3.12.1
+    CMAKE_VERSION: 3.9.6
   before_script:
     - REPOSITORY="$PWD" && cd ..
     - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
@@ -23,11 +23,7 @@ trusty:
   <<: *ubuntu_def
   image: ubuntu:trusty
 
-#
-# there's no cmake3 for 12.04
-# maybe, there's ppa ?
-#
-#precise:
-#  <<: *ubuntu_def
-#  image: ubuntu:precise
+precise:
+  <<: *ubuntu_def
+  image: ubuntu:precise
 
