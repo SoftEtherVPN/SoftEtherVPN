@@ -19,11 +19,24 @@ find_package(ZLIB REQUIRED)
 # In some cases libiconv is not included in libc
 find_library(LIB_ICONV iconv)
 
-add_subdirectory(cpu_features)
+if(HAVE_SYS_AUXV)
+  add_subdirectory(cpu_features)
+endif()
 
 target_include_directories(mayaqua PRIVATE cpu_features/include)
 
-target_link_libraries(mayaqua cpu_features OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
+target_link_libraries(mayaqua OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
+
+if(HAVE_SYS_AUXV)
+  target_link_libraries(mayaqua cpu_features)
+else()
+  add_definitions(-DSKIP_CPU_FEATURES)
+endif()
+
+find_library(LIB_RT rt)
+if(LIB_RT)
+  target_link_libraries(mayaqua rt)
+endif()
 
 if(LIB_ICONV)
   target_link_libraries(mayaqua ${LIB_ICONV})

@@ -148,7 +148,11 @@
 #ifdef _MSC_VER
 	#include <intrin.h> // For __cpuid()
 #else // _MSC_VER
+
+#ifndef SKIP_CPU_FEATURES
 	#include "cpu_features_macros.h"
+#endif
+
 	#if defined(CPU_FEATURES_ARCH_X86)
 		#include "cpuinfo_x86.h"
 	#elif defined(CPU_FEATURES_ARCH_ARM)
