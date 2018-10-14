@@ -3915,7 +3915,7 @@ void *InternalReAlloc(void *addr, UINT size)
 	}
 
 #ifndef	DONT_USE_KERNEL_STATUS
-	TrackChangeObjSize((DWORD)addr, size, (DWORD)new_addr);
+	TrackChangeObjSize(POINTER_TO_UINT64(addr), size, POINTER_TO_UINT64(new_addr));
 #endif	// DONT_USE_KERNEL_STATUS
 
 	return new_addr;
