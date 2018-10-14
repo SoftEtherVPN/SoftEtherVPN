@@ -247,7 +247,7 @@ typedef int (COMPARE)(void *p1, void *p2);
 #ifdef	CPU_64
 #define	UINT64_TO_POINTER(i)	(void *)(i)
 #else
-#define	UINT64_TO_POINTER(i)	(void *)((UINT)(i)))
+#define	UINT64_TO_POINTER(i)	(void *)((UINT)(i))
 #endif
 
 // Add the value
