@@ -227,13 +227,28 @@ typedef int (COMPARE)(void *p1, void *p2);
 #define	GET_ABS(a)			((a) >= 0 ? (a) : -(a))
 
 // Convert the pointer to UINT
-#define	POINTER_TO_KEY(p)		((sizeof(void *) == sizeof(UINT)) ? (UINT)(p) : HashPtrToUINT(p))
+#ifdef	CPU_64
+#define	POINTER_TO_KEY(p)		HashPtrToUINT(p)
+#else
+#define	POINTER_TO_KEY(p)		(UINT)(p)
+#endif
+
 // Compare the pointer and UINT
 #define	COMPARE_POINTER_AND_KEY(p, i)	(POINTER_TO_KEY(p) == (i))
+
 // Convert the pointer to UINT64
-#define	POINTER_TO_UINT64(p)	(((sizeof(void *) == sizeof(UINT64)) ? (UINT64)(p) : (UINT64)((UINT)(p))))
+#ifdef	CPU_64
+#define	POINTER_TO_UINT64(p)	(UINT64)(p)
+#else
+#define	POINTER_TO_UINT64(p)	(UINT64)((UINT)(p))
+#endif
+
 // Convert a UINT64 to pointer
-#define	UINT64_TO_POINTER(i)	((sizeof(void *) == sizeof(UINT64)) ? (void *)(i) : (void *)((UINT)(i)))
+#ifdef	CPU_64
+#define	UINT64_TO_POINTER(i)	(void *)(i)
+#else
+#define	UINT64_TO_POINTER(i)	(void *)((UINT)(i)))
+#endif
 
 // Add the value
 #define	UINT_ADD(i, j)		((i == INFINITE || i == 0x7fffffff) ? (i) : (i += j))
