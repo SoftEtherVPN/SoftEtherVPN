@@ -370,6 +370,7 @@ SEC_PIN_CURRENT_BAD		Неверный PIN-код.
 SEC_PIN_CHANGE_FAILED	Не удалось сменить PIN-код.
 SEC_PIN_OK				PIN-код был изменен.
 
+
 # TCP Connection Dialog
 CONNECTDLG_CAPTION		Подключение
 CONNECTDLG_MESSAGE		Подключение к серверу "%S" (TCP порт: %u)...
@@ -432,16 +433,16 @@ CERT_BITS_FORMAT		%u бит
 
 
 # Concerning certificate confirmation dialogs
-CC_DANGEROUS_MSG		The server certificate that was saved on the previous VPN connection to this server (%S) does not match the current server certificate provided by the server. \r\n\r\nDigest Value (MD5) of Previous: %S\r\nDigest Value (SHA1) of Previous: %S\r\n\r\nDigest Value (MD5) of Current: %S\r\nDigest Value (SHA1) of Current: %S\r\n\r\nIt is possible the server administrator changed the certificate on the VPN Server side. However, it is also possible a man-in-the-middle attack such as spoofing is occurring. \r\nIt is strongly recommended that you ask for clarification from the administrator of VPN Server you want to connect to.
-CC_WARNING_MSG			Do you want the certificate of the VPN Server you are currently connecting to be automatically trusted next time you connect to %s?\r\n\r\nDigest Value (SHA1): %S\r\nDigest Value (MD5): %S\r\n\r\nIf there is doubt regarding the authenticity of this server's certificate, contact the server's owner, by a sure and safe method, and quote the above digest value to confirm the facts. \r\n\r\nClick Yes to automatically trust this certificate if this server provides the same certificate next time you connect to it. \r\nClick No to trust the certificate for this time only and to display this warning again next time you connect to this server. \r\nClick Cancel to return to the Security Warnings window. \r\n\r\nNote: This setting can be changed on an account-by-account basis. You can make this setting in Account Properties of VPN Client Manager.
+CC_DANGEROUS_MSG		Сертификат сервера, который был сохранен при предыдущем VPN-подключении к этому серверу (%S), не соответствует текущему сертификату, предоставленному сервером. \r\n\r\nЗначение предыдущего отпечатка (MD5): %S\r\nЗначение предыдущего отпечатка (SHA1): %S\r\n\r\nЗначение текущего отпечатка (MD5): %S\r\nЗначение текущего отпечатка (SHA1): %S\r\n\r\nВозможно, администратор сервера изменил сертификат на стороне VPN-сервера. Однако также возможна атака типа «человек посередине», такая как спуфинг. \r\nНастоятельно рекомендуется запросить разъяснения у администратора VPN-сервера, к которому вы хотите подключиться.
+CC_WARNING_MSG			Хотите доверять сертификату VPN-сервера, к которому вы подключены, при последующих подключениях к %s?\r\n\r\nЗначение отпечатка (SHA1): %S\r\nЗначение отпечатка (MD5): %S\r\n\r\nЕсли есть сомнения относительно подлинности сертификата этого сервера, свяжитесь с владельцем сервера с помощью надежного и безопасного метода и сравните приведенные выше значения отпечатков. \r\n\r\nНажмите «Да», чтобы автоматически доверять этому сертификату при следующем подключении к серверу, если он предоставит тот же сертификат. \r\nНажмите «Нет», чтобы доверять сертификату только в течении текущей сессии, и снова отобразить предупреждение при следующем подключении к этому серверу. \r\nНажмите «Отмена», чтобы вернуться в окно «Предупреждения безопасности». \r\n\r\nПримечание:  Этот параметр можно настроить в свойствах подключения Диспетчера VPN-подключений.
 
 
 # Errors about Windows Versions
-WINVER_TITLE			Warning about Windows versions
-WINVER_ERROR_FORMAT		The version and Service Pack of Windows on %s is "%S".\r\n\r\nThe latest supported version and Service Pack of Windows by %s is as follows:\r\n%S\r\nBecause of the version of Windows on %s is newer than the version of Windows which %s supports, unexpected troubles or compatible issues might occur.\r\nIn order to avoid problems, we will recommend you to obtain and install the latest update of %s.\r\n(It is possible to continue using the current version without updates although that is not what we recommend.)\r\n\r\nIf you are the administrator, you can download the latest update-patch of %s from the web site http://selinks.org/?se for free.\r\n\r\nIf you are not the administrator you should notify the VPN Server's administrator of this message.\r\n\r\n----- MSG%04u%02u -----\r\n\r\n
-WINVER_ERROR_VPNSERVER	the VPN Server on the destination computer
-WINVER_ERROR_VPNBRIDGE	the VPN Bridge on the destination computer
-WINVER_ERROR_VPNCLIENT	the VPN Client on this local computer
+WINVER_TITLE			Предупреждение о версиях Windows
+WINVER_ERROR_FORMAT		Версия Windows и Service Pack на %s - "%S".\r\n\r\nПоследней поддерживаемой версией Windows и Service Pack для %s является:\r\n%S\r\nИз-за того, что версия Windows на %s новее, чем версия Windows, которую поддерживает %s, могут возникнуть непредвиденные проблемы совместимости.\r\nЧтобы избежать проблем, мы рекомендуем вам установить последнее обновление %s.\r\n(Можно, но не рекомендуется, использовать текущую версию без обновлений.)\r\n\r\nЕсли вы являетесь администратором, вы можете загрузить последнюю версию обновления %s с веб-сайта https://www.softether.org бесплатно.\r\n\r\nЕсли вы не являетесь администратором, вы должны уведомить администратора VPN-сервера об этом сообщении.\r\n\r\n----- MSG%04u%02u -----\r\n\r\n
+WINVER_ERROR_VPNSERVER	VPN-сервер на удаленном компьютере
+WINVER_ERROR_VPNBRIDGE	VPN мост на удаленном компьютере
+WINVER_ERROR_VPNCLIENT	VPN клиент на этом компьютере
 WINVER_ERROR_PC_LOCAL	этот компьютер
 WINVER_ERROR_PC_REMOTE	удаленный сервер
 
