@@ -136,19 +136,23 @@ UINT GetEthDeviceHash()
 {
 #ifdef	OS_UNIX
 	// UNIX
-	UINT num;
+	UINT num = 0;
 	UINT i;
 	char tmp[4096];
 	UCHAR hash[SHA1_SIZE];
 	TOKEN_LIST *t = GetEthList();
 
-	num = t->NumTokens;
 	tmp[0] = 0;
-	for (i = 0;i < t->NumTokens;i++)
+
+	if (t != NULL)
 	{
-		StrCat(tmp, sizeof(tmp), t->Token[i]);
+		num = t->NumTokens;
+		for (i = 0; i < t->NumTokens; i++)
+		{
+			StrCat(tmp, sizeof(tmp), t->Token[i]);
+		}
+		FreeToken(t);
 	}
-	FreeToken(t);
 
 	Sha0(hash, tmp, StrLen(tmp));
 
