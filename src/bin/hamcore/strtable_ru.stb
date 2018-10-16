@@ -366,19 +366,19 @@ SEC_CURRENT_DEVICE		Выбрано устройство %S.
 SEC_CURRENT_NO_DEVICE	Выберите, какое устройство чтения смарт-карт использовать.
 SEC_NO_SECURE_DEVICE	В системе не установлена совместимая с SoftEther VPN смарт-карта или USB-ключ. \r\n\r\nДля использования смарт-карты или USB-ключа с SoftEther VPN необходимо установить Windows драйвер PKCS#11-совместимого устройства. Кроме того, необходимо, чтобы SoftEther VPN поддерживал данный тип устройства. \r\n\r\nУбедитесь, что установлен драйвер устройства, совместимый с системой.  \r\nПосетите веб-сайт SoftEther VPN Project для уточнения списка совместимых с SoftEther VPN устройств. Также возможно увеличить кол-во совместимых устройств, обновив версию SoftEther VPN.
 SEC_PIN_DEVICE_OPEN_ERR	Не удалось подключить устройство «%S». Убедитесь, что оборудование подключено правильно.
-SEC_PIN_CURRENT_BAD		Неверный Пин-код.
+SEC_PIN_CURRENT_BAD		Неверный PIN-код.
 SEC_PIN_CHANGE_FAILED	Не удалось сменить PIN-код.
 SEC_PIN_OK				PIN-код был изменен.
 
 # TCP Connection Dialog
 CONNECTDLG_CAPTION		Подключение
 CONNECTDLG_MESSAGE		Подключение к серверу "%S" (TCP порт: %u)...
-CONNECTDLG_CANCELING	Прерывание пордключения. Пожалуйста подождите...
+CONNECTDLG_CANCELING	Отмена подключения. Пожалуйста подождите...
 
 
 # NIC Info Dialog
 NICINFO_1				Подключено к VPN-серверу.
-NICINFO_1_1				Запрашивание IP адреса у DHCP-сервера в VPN...
+NICINFO_1_1				Запрос IP адреса у DHCP-сервера в VPN...
 NICINFO_1_2				Определение IP адреса для использования в VPN...
 
 NICINFO_2				VPN соединение установлено.
@@ -389,16 +389,16 @@ NICINFO_3_1				Ваш IP адрес %S готов к использованию.
 
 
 # Concerning password input dialogs during login
-PW_RETRYCOUNT			Automatic reconnection will be made after %u seconds with no input.
-PW_LOGIN_DLG_TITLE		Login
-PW_TYPE_0				Anonymous Authentication
-PW_TYPE_1				Standard Password Authentication
-PW_TYPE_2				RADIUS or NT Domain Authentication
-PW_TYPE_3				Client Certificate Authentication
-PW_TYPE_4				Smart Card Authentication
+PW_RETRYCOUNT			Автоматическое переподключение будет произведено через %u секунд бездействия.
+PW_LOGIN_DLG_TITLE		Вход
+PW_TYPE_0				Анонимный вход
+PW_TYPE_1				Авторизация по логину и паролю
+PW_TYPE_2				RADIUS или доменная авторизация
+PW_TYPE_3				Авторизация по сертификату
+PW_TYPE_4				Авторизация по смарт-карте
 
-PW_MSG_PROXY			User authentication failed on the proxy server %S. Re-enter the correct user name and password.
-PW_TYPE_PROXY			Proxy Server Authentication
+PW_MSG_PROXY			Ошибка авторизации пользователя на прокси-сервере %S. Введите правильное имя пользователя и пароль.
+PW_TYPE_PROXY			Авторизация на прокси-сервере
 
 
 # Concerning VPN connection status
@@ -414,21 +414,21 @@ STATUS_9				VPN сессия была установлена.
 
 
 # Concerning certificate dialogs
-CERT_NOT_FOUND			Unable to find the certificate of the certificate authority who issued this certificate on the list of trusted certificates.
-CERT_ROOT				This certificate is a root certificate (self-signed certificate). 
-CERT_LV_C1				Field
-CERT_LV_C2				Value
-CERT_SERIAL				Serial Number
-CERT_ISSUER				Issuer
-CERT_SUBJECT			Subject
-CERT_NOT_BEFORE			Issued at
-CERT_NOT_AFTER			Expires at
-CERT_BITS				Bits
-CERT_PUBLIC_KEY			Public Key
-CERT_DIGEST_MD5			Digest (MD5)
-CERT_DIGEST_SHA1		Digest (SHA-1)
-CERT_NO_SERIAL			There is no serial number
-CERT_BITS_FORMAT		%u bits
+CERT_NOT_FOUND			Не удалось найти сертификат в списке доверенных сертификатов, выдавшего его центра сертификации.
+CERT_ROOT				Этот сертификат является корневым сертификатом (самоподписанный сертификат).
+CERT_LV_C1				Поле
+CERT_LV_C2				Значение
+CERT_SERIAL				Серийный номер
+CERT_ISSUER				Издатель
+CERT_SUBJECT			Субъект
+CERT_NOT_BEFORE			Выпущен
+CERT_NOT_AFTER			Истекает
+CERT_BITS				Бит
+CERT_PUBLIC_KEY			Открытый ключ
+CERT_DIGEST_MD5			Отпечаток (MD5)
+CERT_DIGEST_SHA1		Отпечаток (SHA-1)
+CERT_NO_SERIAL			Нет серийного номера
+CERT_BITS_FORMAT		%u бит
 
 
 # Concerning certificate confirmation dialogs
