@@ -102,7 +102,7 @@ ERR_36					Указанное VPN-подключение не существуе
 ERR_37					Указанное VPN-подключение не подключено.
 ERR_38					Неверный параметр.
 ERR_39					Ошибка смарт-карты или USB ключа.
-ERR_40					Хотя была выбрана аутентификация по смарт-карте или USB, но устройство, которое будет использоваться, не было выбрано. Выберите устройство в меню «Смарт-карта» Диспетчера подключений. 
+ERR_40					Была выбрана аутентификация по смарт-карте или USB-ключу, но устройство, которое будет использоваться, не было выбрано. Выберите устройство в меню «Смарт-карта» Диспетчера подключений. 
 ERR_41					Указанный Виртуальный Сетевой Адаптер используется по меньшей мере одним VPN-подключением. \r\nУдалите VPN-подключение, использующее этот Виртуальный Сетевой Адаптер, или измените Виртуальный Сетевой Адаптер, который использует это VPN-подключение.
 ERR_42					Не удается найти Виртуальный Сетевой Адаптер, который использует указанное VPN-подключение. \r\nУбедитесь, что этот Виртуальный Сетевой Адаптер существует. Также убедитесь, что Виртуального Сетевого Адаптера не отключен. \r\n\r\nЕсли вы не можете решить проблему, измените Виртуальный Сетевой Адаптер, используемый этим VPN-подключением, или создайте новый Виртуальный Сетевой Адаптер с тем же именем.
 ERR_43					Виртуальный Сетевой Адаптер, используемый указанным VPN-подключением, уже используется другим VPN-подключением. \r\nЕсли есть еще одно VPN-подключение, использующее тот же Виртуальный Сетевой Адаптер, отключите это VPN-подключение.
@@ -321,55 +321,54 @@ SEC_WRITE_CERT			Запись сертификата...
 SEC_DELETE				Удаление объекта...
 SEC_SIGN				Обработка цифровой подписи приватного ключа...
 SEC_WRITE_KEY			Запись приватного ключа...
-SEC_ENUM				Запрос информации...
+SEC_ENUM				Перечисление объекта...
 SEC_FINISHED			Операция завершена.
-SEC_ERROR_INVALID_ID	The specified security device (device %u) is invalid.
-SEC_ERROR_OPEN_DEVICE	Unable to open the device %S. Make sure the device is connected to the computer.
-SEC_ERROR_OPEN_DEVICEEX	Unable to open the device %S. Make sure the device is connected to the computer. \r\n\r\nIf using public key infrastructure (PKI) with special client software, it is necessary to select the smart card device in PKI Utility from the Start menu beforehand.
-SEC_ERROR_OPEN_SESSION	Unable to start security session in device: %S. Make sure the correct device is selected.
-SEC_ERROR_LOGIN			The entered PIN code is incorrect.
-SEC_ERROR_NOT_FOUND_1	The specified object does not exist in smart card. Make sure the correct smart card is inserted.
-SEC_ERROR_NOT_FOUND_2	The specified object does not exist in USB token hardware. Make sure the correct USB token hardware is connected.
-SEC_ERROR_SIGN_1		Either private key does not exist in smart card or digital signature operation failed. Make sure the correct smart card is inserted.
-SEC_ERROR_SIGN_2		Either private key does not exist in USB token hardware or digital signature operation failed. Make sure the correct USB token hardware is connected.
-SEC_ERROR_WRITE_1		Unable to write object to smart card. There is a possibility that there is insufficient free memory available on smart card.
-SEC_ERROR_WRITE_2		Unable to write object to USB token hardware. There is a possibility that is insufficient free memory available on the USB token.
-SEC_ERROR_ENUM			Enumeration of object stored in token failed.
-SEC_ERROR_DELETE		Deletion of specified object failed. It is possible the specified object does not exist in the memory.
-SEC_COLUMN1				Device Name
-SEC_COLUMN2				Type
-SEC_COLUMN3				Manufacturer
-SEC_COLUMN4				DLL Name
-SEC_INVALID_ID			The specified smart card device does not exist. Select the smart card type again.
-SEC_MGR_COLUMN1			Name
-SEC_MGR_COLUMN2			Type
-SEC_MGR_COLUMN3			Private
-SEC_TYPE_DATA			Data
-SEC_TYPE_CERT			Certificate
-SEC_TYPE_KEY			Private Key
-SEC_TYPE_PUB			Public Key
+SEC_ERROR_INVALID_ID	Указанное устройство безопасности (устройство %u) недействительно.
+SEC_ERROR_OPEN_DEVICE	Не удалось открыть устройство %S. Убедитесь, что устройство подключено к компьютеру.
+SEC_ERROR_OPEN_DEVICEEX	Не удалось открыть устройство %S. Убедитесь, что устройство подключено к компьютеру. \r\n\r\nПри использовании инфраструктуры открытого ключа (PKI) со специальным программным обеспечением необходимо заранее выбрать смарт-карту в PKI Utility.
+SEC_ERROR_OPEN_SESSION	Не удалось запустить сеанс безопасности на устройстве: %S. Убедитесь, что выбрано правильное устройство.
+SEC_ERROR_LOGIN			Введенный PIN-код неверен.
+SEC_ERROR_NOT_FOUND_1	Указанный объект не существует на смарт-карте. Убедитесь, что установлена правильная смарт-карта.
+SEC_ERROR_NOT_FOUND_2	Указанный объект не существует на USB-ключе. Убедитесь, что установлен правильный USB-ключ.
+SEC_ERROR_SIGN_1		Либо приватный ключ отсутствует на смарт-карте, либо ошибочная цифровая подпись. Убедитесь, что установлена правильная смарт-карта.
+SEC_ERROR_SIGN_2		Либо приватный ключ отсутствует на USB-ключе, либо ошибочная цифровая подпись. Убедитесь, что установлен правильный USB-ключ.
+SEC_ERROR_WRITE_1		Невозможно записать объект на смарт-карту. Возможно на смарт-карте недостаточно свободного места. 
+SEC_ERROR_WRITE_2		Невозможно записать объект на USB-ключ. Возможно на USB-ключе недостаточно свободного места.
+SEC_ERROR_ENUM			Перечисление объекта, хранящегося на ключе, не выполнено.
+SEC_ERROR_DELETE		Не удалось удалить указанный объект. Возможно, указанный объект не существует в памяти.
+SEC_COLUMN1				Имя устройства
+SEC_COLUMN2				Тип
+SEC_COLUMN3				Производитель
+SEC_COLUMN4				DLL Имя
+SEC_INVALID_ID			Указанное устройство чтения смарт-карт не существует. Выберите другой тип смарт-карты.
+SEC_MGR_COLUMN1			Название
+SEC_MGR_COLUMN2			Тип
+SEC_MGR_COLUMN3			Приватный
+SEC_TYPE_DATA			Данные
+SEC_TYPE_CERT			Сертификат
+SEC_TYPE_KEY			Приватный ключ
+SEC_TYPE_PUB			Открытый ключ
 SEC_YES					Да
 SEC_NO					Нет
-SEC_NONE				None
-SEC_IMPORT_DATA			Select the data you want to import.
-SEC_IMPORT_CERT			Select the certificate you want to import.
-SEC_IMPORT_KEY			Select the private key you want to import.
-SEC_READ_FAILED			Reading from specified file failed.
-SEC_DATA_TOO_BIG		The specified data size is too big. Data larger than %u bytes cannot be written to the smart card.
-SEC_OBJECT_NAME_TITLE	Name of object to insert
-SEC_OBJECT_NAME_INFO	Specify the name of the object to be written to the new smart card. You can specify alphanumeric characters excluding double-byte and special characters for the object name. \r\n\r\nCaution: If there is an object with the same name of the same type already written on the card, that object will be overwritten.
-SEC_DELETE_MSG			The selected object will be deleted from the smart card. \r\nDo you really want to do this?
-SEC_OBJECT_IMPORT_OK	Object has been written to smart card.
-SEC_OBJECT_EXPORT_OK	The data read from the smart card has been saved.
-SEC_NEW_CERT_IMPORT_OK	The newly created certificate has been written to the smart card.
-SEC_CURRENT_DEVICE		Currently the device %S is selected.
-SEC_CURRENT_NO_DEVICE	Select which smart card device to use. 
-SEC_NO_SECURE_DEVICE	A SoftEther VPN-compatible smart card or hardware security token device is not installed on the system. \r\n\r\nTo use a smart card or hardware token using SoftEther VPN it is necessary to install a PKCS#11-compatible device driver on Windows. In addition, it is necessary that SoftEther VPN supports the device type. \r\n\r\nMake sure a system-compatible device driver has been installed. \r\nRefer to the SoftEther VPN Project website for the list of SoftEther VPN-compatible devices. Also, it may be possible to increase the compatible devices by updating to the most recent software version.
-SEC_PIN_DEVICE_OPEN_ERR	Unable to connect the device "%S". Make sure the hardware is correctly connected.
-SEC_PIN_CURRENT_BAD		Current PIN code is incorrect.
-SEC_PIN_CHANGE_FAILED	Changing of PIN code failed.
-SEC_PIN_OK				The PIN code has been changed.
-
+SEC_NONE				Нет
+SEC_IMPORT_DATA			Выберите данные, которые вы хотите импортировать.
+SEC_IMPORT_CERT			Выберите сертификат, который вы хотите импортировать.
+SEC_IMPORT_KEY			Выберите приватный ключ, который вы хотите импортировать.
+SEC_READ_FAILED			Чтение из указанного файла не удалось.
+SEC_DATA_TOO_BIG		Указанный размер данных слишком велик. Данные, превышающие %u байт, не могут быть записаны на смарт-карту.
+SEC_OBJECT_NAME_TITLE	Имя объекта для вставки
+SEC_OBJECT_NAME_INFO	Укажите имя объекта, который будет записан на новую смарт-карту. Вы можете использовать цифры и буквы, за исключением двухбайтовых и специальных символов. \r\n\r\nВнимание: если на карте уже есть объект с тем же именем и тем же типом, этот объект будет перезаписан.
+SEC_DELETE_MSG			Выбранный объект будет удален со смарт-карты. \r\nВы действительно хотите это сделать?
+SEC_OBJECT_IMPORT_OK	Объект был записан на смарт-карту.
+SEC_OBJECT_EXPORT_OK	Данные, считываемые со смарт-карты, были сохранены.
+SEC_NEW_CERT_IMPORT_OK	Созданный сертификат был записан на смарт-карту.
+SEC_CURRENT_DEVICE		Выбрано устройство %S.
+SEC_CURRENT_NO_DEVICE	Выберите, какое устройство чтения смарт-карт использовать.
+SEC_NO_SECURE_DEVICE	В системе не установлена совместимая с SoftEther VPN смарт-карта или USB-ключ. \r\n\r\nДля использования смарт-карты или USB-ключа с SoftEther VPN необходимо установить Windows драйвер PKCS#11-совместимого устройства. Кроме того, необходимо, чтобы SoftEther VPN поддерживал данный тип устройства. \r\n\r\nУбедитесь, что установлен драйвер устройства, совместимый с системой.  \r\nПосетите веб-сайт SoftEther VPN Project для уточнения списка совместимых с SoftEther VPN устройств. Также возможно увеличить кол-во совместимых устройств, обновив версию SoftEther VPN.
+SEC_PIN_DEVICE_OPEN_ERR	Не удалось подключить устройство «%S». Убедитесь, что оборудование подключено правильно.
+SEC_PIN_CURRENT_BAD		Неверный Пин-код.
+SEC_PIN_CHANGE_FAILED	Не удалось сменить PIN-код.
+SEC_PIN_OK				PIN-код был изменен.
 
 # TCP Connection Dialog
 CONNECTDLG_CAPTION		Подключение
