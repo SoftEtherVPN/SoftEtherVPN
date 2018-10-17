@@ -2287,7 +2287,7 @@ void MakeLogFileNameStringFromTick(LOG *g, char *str, UINT size, UINT64 tick, UI
 		break;
 
 	default:				// Without switching
-		snprintf(str, size, "");
+		snprintf(str, size, "%s");
 		break;
 	}
 
