@@ -7094,8 +7094,7 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 		{
 			return NULL;
 		}
-		wcstombs(cn_username, x->subject_name->CommonName, 127);
-		cn_username[127] = '\0';
+		UniToStr(cn_username, sizeof(cn_username), x->subject_name->CommonName);
 		PackAddStr(p, "username", cn_username);
 	}
 	else
