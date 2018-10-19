@@ -2,9 +2,25 @@ add_executable(vpnbridge vpnbridge.c)
 
 set_target_properties(vpnbridge
   PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}/vpnbridge"
-  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}/vpnbridge"
-  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}/vpnbridge"
+  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
 target_link_libraries(vpnbridge cedar mayaqua)
+
+# Copy binary and "hamcore.se2" to /usr/lib(exec)/softether/, install launch script and systemd service
+install(TARGETS vpnbridge
+  COMPONENT "vpnbridge"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether/vpnbridge"
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+install(FILES "${BUILD_DIRECTORY}/hamcore.se2"
+  COMPONENT "vpnbridge"
+  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether/vpnbridge"
+  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+)
+
+install_wrapper_script("vpnbridge" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
+install_systemd_service("vpnbridge" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnbridge.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")

@@ -101,105 +101,27 @@ add_subdirectory(hamcorebuilder)
 
 # vpnserver
 add_subdirectory(vpnserver)
-get_target_property(VPNSERVER_RUNTIME_OUTPUT_DIRECTORY vpnserver RUNTIME_OUTPUT_DIRECTORY)
 
 # vpnclient
 add_subdirectory(vpnclient)
-get_target_property(VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY vpnclient RUNTIME_OUTPUT_DIRECTORY)
 
 # vpnbridge
 add_subdirectory(vpnbridge)
-get_target_property(VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY vpnbridge RUNTIME_OUTPUT_DIRECTORY)
 
 # vpncmd
 add_subdirectory(vpncmd)
-get_target_property(VPNCMD_RUNTIME_OUTPUT_DIRECTORY vpncmd RUNTIME_OUTPUT_DIRECTORY)
 
 # vpntest
 add_subdirectory(vpntest)
-get_target_property(VPNTEST_RUNTIME_OUTPUT_DIRECTORY vpntest RUNTIME_OUTPUT_DIRECTORY)
 
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
   ALL
-  COMMAND hamcorebuilder ${CMAKE_SOURCE_DIR}/src/bin/hamcore/ ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2
+  COMMAND hamcorebuilder "${CMAKE_SOURCE_DIR}/src/bin/hamcore/" "${BUILD_DIRECTORY}/hamcore.se2"
   DEPENDS hamcorebuilder
   COMMENT "Building hamcore.se2 archive file..."
   VERBATIM
 )
-
-# Copy hamcore.se2 to vpnserver's directory
-add_custom_command(TARGET hamcore-archive-build
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNSERVER_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-# Copy hamcore.se2 to vpnclient's directory
-add_custom_command(TARGET hamcore-archive-build
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-# Copy hamcore.se2 to vpnbridge's directory
-add_custom_command(TARGET hamcore-archive-build
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-# Copy hamcore.se2 to vpncmd's directory
-add_custom_command(TARGET hamcore-archive-build
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-# Copy hamcore.se2 to vpntest's directory
-add_custom_command(TARGET hamcore-archive-build
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tmp/hamcore.se2 ${VPNTEST_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-# Copy "vpnserver" directory to /usr/lib(exec)/softether/, install launch script and systemd service
-install(DIRECTORY ${VPNSERVER_RUNTIME_OUTPUT_DIRECTORY}
-  COMPONENT "vpnserver"
-  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
-  PATTERN "*"
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-install_wrapper_script("vpnserver" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver")
-install_systemd_service("vpnserver" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnserver.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver")
-
-# Copy "vpnclient" directory to /usr/lib(exec)/softether/, install launch script and systemd service
-install(DIRECTORY ${VPNCLIENT_RUNTIME_OUTPUT_DIRECTORY}
-  COMPONENT "vpnclient"
-  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
-  PATTERN "*"
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-install_wrapper_script("vpnclient" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient")
-install_systemd_service("vpnclient" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnclient.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient")
-
-# Copy "vpnbridge" directory to /usr/lib(exec)/softether/, install launch script and systemd service
-install(DIRECTORY ${VPNBRIDGE_RUNTIME_OUTPUT_DIRECTORY}
-  COMPONENT "vpnbridge"
-  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
-  PATTERN "*"
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-install_wrapper_script("vpnbridge" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
-install_systemd_service("vpnbridge" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnbridge.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
-
-# Copy "vpncmd" directory to /usr/lib(exec)/softether/, install launch script and systemd service
-install(DIRECTORY ${VPNCMD_RUNTIME_OUTPUT_DIRECTORY}
-  COMPONENT "vpncmd"
-  DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/softether"
-  PATTERN "*"
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-install_wrapper_script("vpncmd" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpncmd/vpncmd")
 
 # Print message after installing the targets
 install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")
