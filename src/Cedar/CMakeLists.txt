@@ -16,7 +16,7 @@ find_package(Curses REQUIRED)
 target_link_libraries(cedar PRIVATE ${LIB_READLINE} ${CURSES_LIBRARIES})
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_link_libraries(cedar PRIVATE pcap)
+  target_link_libraries(cedar PRIVATE mayaqua pcap)
 endif()
 
 # Version
