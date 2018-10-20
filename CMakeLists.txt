@@ -36,7 +36,7 @@ set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
 add_subdirectory(src)
 
 # Packaging
-set(CPACK_COMPONENTS_ALL vpnserver vpnclient vpnbridge vpncmd)
+set(CPACK_COMPONENTS_ALL common vpnserver vpnclient vpnbridge vpncmd)
 set(CPACK_PACKAGE_DIRECTORY ${BUILD_DIRECTORY})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "SoftEther")
