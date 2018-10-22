@@ -16,24 +16,6 @@ macro(install_wrapper_script component target)
   )
 endmacro(install_wrapper_script)
 
-macro(install_systemd_service component file_path binary_path)
-    get_filename_component(file_name ${file_path} NAME)
-    get_filename_component(binary_directory ${binary_path} DIRECTORY)
-
-    file(READ ${file_path} FILE_CONTENT)
-    string(REPLACE "[DIRECTORY]" ${binary_directory} FILE_CONTENT ${FILE_CONTENT})
-    string(REPLACE "[BINARY]" ${binary_path} FILE_CONTENT ${FILE_CONTENT})
-    file(WRITE ${CMAKE_SOURCE_DIR}/tmp/systemd/${file_name} ${FILE_CONTENT})
-
-  if(EXISTS "/lib/systemd/system")
-    install(FILES ${CMAKE_SOURCE_DIR}/tmp/systemd/${file_name}
-      COMPONENT ${component}
-      DESTINATION "/lib/systemd/system"
-      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-    )
-  endif()
-endmacro(install_systemd_service)
-
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG -DDEBUG)
 endif()

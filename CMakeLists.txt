@@ -32,6 +32,7 @@ Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
 configure_file("${SoftEtherVPN_SOURCE_DIR}/AUTHORS.TXT" "${SoftEtherVPN_SOURCE_DIR}/src/bin/hamcore/authors.txt" COPYONLY)
 
 set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(src)
 
@@ -45,6 +46,8 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${SoftEtherVPN_SOURCE_DIR}/description")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "SoftEther VPN is an open-source cross-platform multi-protocol VPN program, created as an academic project in the University of Tsukuba.")
 
 # DEB
+file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/postinst" "#!/bin/sh\nldconfig")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")

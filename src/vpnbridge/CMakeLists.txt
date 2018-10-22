@@ -23,4 +23,11 @@ install(FILES "${BUILD_DIRECTORY}/hamcore.se2"
 )
 
 install_wrapper_script("vpnbridge" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
-install_systemd_service("vpnbridge" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnbridge.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
+if(EXISTS "/lib/systemd/system")
+  configure_file(${CMAKE_SOURCE_DIR}/systemd/softether-vpnbridge.service ${CMAKE_SOURCE_DIR}/tmp/systemd/softether-vpnbridge.service)
+  install(FILES ${CMAKE_SOURCE_DIR}/tmp/systemd/softether-vpnbridge.service
+    COMPONENT "vpnbridge"
+    DESTINATION "/lib/systemd/system"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+  )
+endif()
