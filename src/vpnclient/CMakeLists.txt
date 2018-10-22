@@ -23,4 +23,11 @@ install(FILES "${BUILD_DIRECTORY}/hamcore.se2"
 )
 
 install_wrapper_script("vpnclient" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient")
-install_systemd_service("vpnclient" "${CMAKE_SOURCE_DIR}/systemd/softether-vpnclient.service" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient")
+if(EXISTS "/lib/systemd/system")
+  configure_file(${CMAKE_SOURCE_DIR}/systemd/softether-vpnclient.service ${CMAKE_SOURCE_DIR}/tmp/systemd/softether-vpnclient.service)
+  install(FILES ${CMAKE_SOURCE_DIR}/tmp/systemd/softether-vpnclient.service
+    COMPONENT "vpnclient"
+    DESTINATION "/lib/systemd/system"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+  )
+endif()

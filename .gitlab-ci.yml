@@ -10,6 +10,7 @@
   script:
     - ./configure
     - make package -C tmp
+    - dpkg -i build/softether-vpn*.deb
 
 bionic: 
   <<: *ubuntu_def
