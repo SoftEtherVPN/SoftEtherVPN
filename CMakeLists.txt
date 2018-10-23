@@ -26,6 +26,9 @@ if (NOT ${PROJECT_VERSION} VERSION_EQUAL "${CurrentBuild_MAJOR}.${CurrentBuild_M
   message (FATAL_ERROR "PROJECT_VERSION does not match to src/CurrentBuild.txt")
 endif()
 
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+
 include(CheckIncludeFile)
 Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
 
@@ -46,8 +49,11 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${SoftEtherVPN_SOURCE_DIR}/description")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "SoftEther VPN is an open-source cross-platform multi-protocol VPN program, created as an academic project in the University of Tsukuba.")
 
 # DEB
-file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/postinst" "#!/bin/sh\nldconfig")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CPACK_DEBIAN_PACKAGE_DEBUG ON)
+endif()
+
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
