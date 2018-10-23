@@ -491,13 +491,13 @@ HUB_AO_no_enum_session					Если вы установите для этого 
 HUB_AO_no_query_session					Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено получать информацию по сессиям. 
 HUB_AO_no_change_admin_password			Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять пароль от Virtual Hub.
 HUB_AO_no_change_log_switch_type		Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять параметр "Ротация Лог-файлов" в Настройках Лог-файлов Virtual Hub.
-HUB_AO_no_change_access_list			Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять Cписок доступа к Virtual Hub. 
+HUB_AO_no_change_access_list			Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять Cписки доступа к Virtual Hub. 
 HUB_AO_no_change_access_control_list	Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять Фильтр IP-адресов в свойствах Virtual Hub.
 HUB_AO_no_change_cert_list				Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять список Доверенных центров сертификации Virtual Hub.
 HUB_AO_no_change_crl_list				Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять список Отозванных сертификатов Virtual Hub.
 HUB_AO_no_read_log_file					Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено удаленно просматривать или загружать лог-файлы Virtual Hub.
 HUB_AO_no_change_msg					Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено изменять сообщение, которое должно отображаться при подключении VPN-клиента к Virtual Hub.
-HUB_AO_no_access_list_include_file		Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено указывать инструкцию «include:» или «exclude:» в качестве источника или назначения поля пользователя  в записи списка доступа виртуального концентратора , If you set this option to non-zero value, then the administrator of the Virtual HUB will be forbidden to specify "include:" or "exclude:" instruction as a source or a destination user field on a access list entry of the Virtual Hub.
+HUB_AO_no_access_list_include_file		Если вы установите для этого параметра ненулевое значение, то Virtual HUB администратору будет запрещено использовать параметр "include:" или "exclude:" в полях "Имя источника" или "Имя получателя" в записях Списков доступа Virtual Hub.
 
 
 
