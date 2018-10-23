@@ -20,8 +20,10 @@ build_script:
       exit %errorlevel%
   - sh: >-
       ./configure && make package -C tmp
-      dpkg -i build/softether-vpn*.deb
-      systemctl restart softether-vpnserver
+
+      sudo dpkg -i build/softether-vpn*.deb
+
+      sudo systemctl restart softether-vpnserver
 
 artifacts:
   - path: output\pkg\*\*
