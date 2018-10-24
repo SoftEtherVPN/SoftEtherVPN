@@ -1,5 +1,3 @@
-include(GNUInstallDirs)
-
 # Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
 # This is required because symlinks use the folder they are in as working directory.
 macro(install_wrapper_script component target)
