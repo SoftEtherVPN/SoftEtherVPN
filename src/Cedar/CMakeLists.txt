@@ -1,7 +1,16 @@
 file(GLOB SOURCES_CEDAR "*.c")
 file(GLOB HEADERS_CEDAR "*.h")
 
-add_library(cedar SHARED ${SOURCES_CEDAR} ${HEADERS_CEDAR})
+if(WIN32)
+  enable_language(CXX)
+  file(GLOB SOURCES_CEDAR_CPP "*.cpp")
+endif()
+
+if(WIN32)
+  add_library(cedar STATIC ${SOURCES_CEDAR} ${SOURCES_CEDAR_CPP} ${HEADERS_CEDAR})
+else()
+  add_library(cedar SHARED ${SOURCES_CEDAR} ${SOURCES_CEDAR_CPP} ${HEADERS_CEDAR})
+endif()
 
 set_target_properties(cedar
   PROPERTIES
@@ -10,13 +19,19 @@ set_target_properties(cedar
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-find_library(LIB_READLINE readline)
-find_package(Curses REQUIRED)
+if(WIN32)
+  target_include_directories(cedar PRIVATE winpcap)
+endif()
 
-target_link_libraries(cedar PRIVATE ${LIB_READLINE} ${CURSES_LIBRARIES})
+if(UNIX)
+  find_library(LIB_READLINE readline)
+  find_package(Curses REQUIRED)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_link_libraries(cedar PRIVATE mayaqua pcap)
+  target_link_libraries(cedar PRIVATE ${LIB_READLINE} ${CURSES_LIBRARIES})
+
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    target_link_libraries(cedar PRIVATE mayaqua pcap)
+  endif()
 endif()
 
 # Version
@@ -55,8 +70,10 @@ message(STATUS "Build time: ${BUILD_HOUR}:${BUILD_MINUTE}:${BUILD_SECOND}")
 add_definitions(-DBUILD_DATE_D=${BUILD_DAY} -DBUILD_DATE_M=${BUILD_MONTH} -DBUILD_DATE_Y=${BUILD_YEAR})
 add_definitions(-DBUILD_DATE_HO=${BUILD_HOUR} -DBUILD_DATE_MI=${BUILD_MINUTE} -DBUILD_DATE_SE=${BUILD_SECOND})
 
-install(TARGETS cedar
-  COMPONENT "common"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-)
+if(UNIX)
+  install(TARGETS cedar
+    COMPONENT "common"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+  )
+endif()

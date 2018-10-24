@@ -1,7 +1,11 @@
 file(GLOB SOURCES_MAYAQUA "*.c")
 file(GLOB HEADERS_MAYAQUA "*.h")
 
-add_library(mayaqua SHARED ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})
+if(WIN32)
+  add_library(mayaqua STATIC ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})
+else()
+  add_library(mayaqua SHARED ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})
+endif()
 
 target_include_directories(mayaqua PUBLIC .)
 
@@ -12,43 +16,72 @@ set_target_properties(mayaqua
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-find_package(OpenSSL REQUIRED)
-find_package(Threads REQUIRED)
-find_package(ZLIB REQUIRED)
+if(WIN32)
+  add_subdirectory(3rdparty/zlib)
 
-# In some cases libiconv is not included in libc
-find_library(LIB_ICONV iconv)
+  target_include_directories(mayaqua PRIVATE win32_inc)
+  target_include_directories(mayaqua PRIVATE 3rdparty/zlib)
 
-if(HAVE_SYS_AUXV)
-  add_subdirectory(cpu_features)
-  set_property(TARGET cpu_features PROPERTY POSITION_INDEPENDENT_CODE ON)
+  if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
+    find_library(LIB_SSL
+      NAMES libssl ssleay32
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${CMAKE_BUILD_TYPE}"
+    )
+
+    find_library(LIB_CRYPTO
+      NAMES libcrypto libeay32
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${CMAKE_BUILD_TYPE}"
+    )
+  else()
+    find_library(LIB_SSL
+      NAMES libssl ssleay32
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${CMAKE_BUILD_TYPE}"
+    )
+
+    find_library(LIB_CRYPTO
+      NAMES libcrypto libeay32
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${CMAKE_BUILD_TYPE}"
+    )
+  endif()
+
+  target_link_libraries(mayaqua PRIVATE zlibstatic ${LIB_SSL} ${LIB_CRYPTO})
 endif()
 
-target_include_directories(mayaqua PRIVATE cpu_features/include)
+if(UNIX)
+  find_package(OpenSSL REQUIRED)
+  find_package(Threads REQUIRED)
+  find_package(ZLIB REQUIRED)
 
-target_link_libraries(mayaqua PRIVATE OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
+  # In some cases libiconv is not included in libc
+  find_library(LIB_ICONV iconv)
 
-if(HAVE_SYS_AUXV)
-  target_link_libraries(mayaqua PRIVATE cpu_features)
-else()
-  add_definitions(-DSKIP_CPU_FEATURES)
+  find_library(LIB_RT rt)
+
+  target_link_libraries(mayaqua PRIVATE OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
+
+  if(HAVE_SYS_AUXV)
+    add_subdirectory(3rdparty/cpu_features)
+    set_property(TARGET cpu_features PROPERTY POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(mayaqua PRIVATE cpu_features)
+  else()
+    add_definitions(-DSKIP_CPU_FEATURES)
+  endif()
+
+  if(LIB_RT)
+    target_link_libraries(mayaqua PRIVATE rt)
+  endif()
+
+  if(LIB_ICONV)
+    target_link_libraries(mayaqua PRIVATE ${LIB_ICONV})
+  endif()
+
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+    target_link_libraries(mayaqua PRIVATE nsl socket)
+  endif()
+
+  install(TARGETS mayaqua
+    COMPONENT "common"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+  )
 endif()
-
-find_library(LIB_RT rt)
-if(LIB_RT)
-  target_link_libraries(mayaqua PRIVATE ${LIB_RT})
-endif()
-
-if(LIB_ICONV)
-  target_link_libraries(mayaqua PRIVATE ${LIB_ICONV})
-endif()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
-  target_link_libraries(mayaqua PRIVATE nsl socket)
-endif()
-
-install(TARGETS mayaqua
-  COMPONENT "common"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)

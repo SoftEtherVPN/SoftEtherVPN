@@ -1,18 +1,20 @@
-# Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
-# This is required because symlinks use the folder they are in as working directory.
-macro(install_wrapper_script component target)
-  get_filename_component(file_name ${target} NAME)
+if(UNIX)
+  # Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
+  # This is required because symlinks use the folder they are in as working directory.
+  macro(install_wrapper_script component target)
+    get_filename_component(file_name ${target} NAME)
 
-  file(WRITE ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "#!/bin/sh\n")
-  file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "${target} \"$@\"\n")
-  file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "exit $?\n")
+    file(WRITE ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "#!/bin/sh\n")
+    file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "${target} \"$@\"\n")
+    file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "exit $?\n")
 
-  install(FILES ${CMAKE_SOURCE_DIR}/tmp/script/${file_name}
-    COMPONENT ${component}
-    DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-  )
-endmacro(install_wrapper_script)
+    install(FILES ${CMAKE_SOURCE_DIR}/tmp/script/${file_name}
+      COMPONENT ${component}
+      DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
+  endmacro(install_wrapper_script)
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG -DDEBUG)
@@ -23,7 +25,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    add_definitions(-DCPU_64)
+  set(COMPILER_ARCHITECTURE "x64")
+  add_definitions(-DCPU_64)
+else()
+  set(COMPILER_ARCHITECTURE "x86")
 endif()
 
 add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
@@ -32,7 +37,7 @@ add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_S
 include_directories(.)
 
 if(WIN32)
-  message(FATAL_ERROR "Windows compilation via CMake is currently not supported.")
+  add_definitions(-DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(UNIX)
@@ -103,11 +108,25 @@ add_custom_target(hamcore-archive-build
   VERBATIM
 )
 
-# Print message after installing the targets
-install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")
-install(CODE "message(\"Build completed successfully.\n\")")
-install(CODE "message(\"Execute 'vpnserver start' to run the SoftEther VPN Server background service.\")")
-install(CODE "message(\"Execute 'vpnbridge start' to run the SoftEther VPN Bridge background service.\")")
-install(CODE "message(\"Execute 'vpnclient start' to run the SoftEther VPN Client background service.\")")
-install(CODE "message(\"Execute 'vpncmd' to run the SoftEther VPN Command-Line Utility to configure VPN Server, VPN Bridge or VPN Client.\")")
-install(CODE "message(\"----------------------------------------------------------------------------------------------------------------------------\n\")")
+if(WIN32)
+  # PenCore
+  add_subdirectory(PenCore)
+  add_dependencies(hamcore-archive-build PenCore)
+
+  # vpnsmgr
+  add_subdirectory(vpnsmgr)
+
+  # vpncmgr
+  add_subdirectory(vpncmgr)
+endif()
+
+if(UNIX)
+  # Print message after installing the targets
+  install(CODE "message(\"\n----------------------------------------------------------------------------------------------------------------------------\")")
+  install(CODE "message(\"Build completed successfully.\n\")")
+  install(CODE "message(\"Execute 'vpnserver start' to run the SoftEther VPN Server background service.\")")
+  install(CODE "message(\"Execute 'vpnbridge start' to run the SoftEther VPN Bridge background service.\")")
+  install(CODE "message(\"Execute 'vpnclient start' to run the SoftEther VPN Client background service.\")")
+  install(CODE "message(\"Execute 'vpncmd' to run the SoftEther VPN Command-Line Utility to configure VPN Server, VPN Bridge or VPN Client.\")")
+  install(CODE "message(\"----------------------------------------------------------------------------------------------------------------------------\n\")")
+endif()
