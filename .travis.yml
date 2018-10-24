@@ -54,16 +54,12 @@ matrix:
         directories:
         - ${HOME}/Library/Caches/Homebrew
       before_install:
-        - brew update && brew upgrade
+        - brew update
       script:
         - ./configure
         - make -C tmp
         - otool -L build/vpnserver
         - sudo make -C tmp install
-
-addons:
-  apt:
-    packages: [ debhelper, devscripts, fakeroot, cmake3, dh-exec ]
 
 cache:
   directories:
