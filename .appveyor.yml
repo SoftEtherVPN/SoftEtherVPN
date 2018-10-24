@@ -2,11 +2,13 @@ version: '{build}'
 
 image:
   - Visual Studio 2015
+  - Visual Studio 2017
   - Ubuntu1604
   - Ubuntu1804
 
-skip_branch_with_pr: true
+configuration: Release
 
+skip_branch_with_pr: true
 clone_depth: 1
 
 init:
@@ -14,20 +16,58 @@ init:
 
 install: git submodule update --init --recursive
 
-build_script:
-  - cmd: >-
-      src\BuildAll.cmd
-      exit %errorlevel%
-  - sh: >-
-      ./configure && make package -C tmp
-
-      sudo dpkg -i build/softether-vpn*.deb
-
-      sudo systemctl restart softether-vpnserver
-
-artifacts:
-  - path: output\pkg\*\*
-    name: Windows
-
-  - path: build/*.deb
-    name: Ubuntu
+for:
+-
+  matrix:
+    only:
+      - image: Visual Studio 2015
+  build_script:
+    - src\BuildAll.cmd
+    - exit %errorlevel%
+  artifacts:
+    - path: output\pkg\*\*
+      name: Windows
+-
+  matrix:
+    only:
+      - image: Visual Studio 2017
+  init:
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  before_build:
+    - configure
+  build_script:
+    - nmake
+  after_build:
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
+  artifacts:
+    - path: build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip
+      name: Windows
+-
+  matrix:
+    only:
+      - image: Ubuntu1604
+  before_build:
+    - ./configure
+  build_script:
+    - make package -C tmp
+  after_build:
+    - sudo dpkg -i build/softether-vpn*.deb
+    - sudo systemctl restart softether-vpnserver
+  artifacts:
+    - path: build/*.deb
+      name: Ubuntu
+-
+  matrix:
+    only:
+      - image: Ubuntu1804
+  before_build:
+    - ./configure
+  build_script:
+    - make package -C tmp
+  after_build:
+    - sudo dpkg -i build/softether-vpn*.deb
+    - sudo systemctl restart softether-vpnserver
+  artifacts:
+    - path: build/*.deb
+      name: Ubuntu
