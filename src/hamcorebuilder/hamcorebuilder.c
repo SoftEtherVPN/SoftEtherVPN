@@ -164,7 +164,11 @@ int main(int argc, char *argv[])
 
 		Print("\nProcessing...\n");
 
+#ifdef	WIN32
+		BuildHamcore(dst_filename, src_dir, false);
+#else
 		BuildHamcore(dst_filename, src_dir, true);
+#endif
 
 		Print("\nDone.\n");
 	}
