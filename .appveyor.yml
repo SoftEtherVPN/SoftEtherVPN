@@ -52,8 +52,7 @@ for:
   build_script:
     - make package -C tmp
   after_build:
-    - sudo dpkg -i build/softether-vpn*.deb
-    - sudo systemctl restart softether-vpnserver
+    - .ci/appveyor_afterbuild.sh
   artifacts:
     - path: build/*.deb
       name: Ubuntu
@@ -66,8 +65,7 @@ for:
   build_script:
     - make package -C tmp
   after_build:
-    - sudo dpkg -i build/softether-vpn*.deb
-    - sudo systemctl restart softether-vpnserver
+    - .ci/appveyor_afterbuild.sh
   artifacts:
     - path: build/*.deb
       name: Ubuntu
