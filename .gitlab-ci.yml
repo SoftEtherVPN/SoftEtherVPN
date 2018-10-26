@@ -12,14 +12,6 @@
     - make package -C tmp
     - dpkg -i build/softether-vpn*.deb
 
-bionic: 
-  <<: *ubuntu_def
-  image: ubuntu:bionic
-
-xenial:     
-  <<: *ubuntu_def
-  image: ubuntu:xenial
-
 trusty:      
   <<: *ubuntu_def
   image: ubuntu:trusty
