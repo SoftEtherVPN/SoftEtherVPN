@@ -101,11 +101,12 @@ TEST_LIST test_list[] =
 };
 
 // Test function
-void TestMain(char *cmd)
+int TestMain(char *cmd)
 {
 	char tmp[MAX_SIZE];
 	bool first = true;
 	bool exit_now = false;
+	int status = 0;
 
 	Print("SoftEther VPN Project\n");
 	Print("vpntest: VPN Server / VPN Client / VPN Bridge test program\n");
@@ -204,6 +205,7 @@ void TestMain(char *cmd)
 				}
 				if (b == false)
 				{
+					status = 2;
 					Print("Invalid Command: %s\n\n", cmd);
 				}
 			}
@@ -216,6 +218,7 @@ void TestMain(char *cmd)
 		}
 	}
 	Print("Exiting...\n\n");
+	return status;
 }
 
 // Main function
@@ -225,6 +228,7 @@ int main(int argc, char *argv[])
 	UINT i;
 	char cmd[MAX_SIZE];
 	char *s;
+	int status = 0;
 
 	InitProcessCallOnce();
 
@@ -252,10 +256,10 @@ int main(int argc, char *argv[])
 	EnableProbe(true);
 	InitCedar();
 	SetHamMode();
-	TestMain(cmdline);
+	status = TestMain(cmdline);
 	FreeCedar();
 	FreeMayaqua();
 
-	return 0;
+	return status;
 }
 
