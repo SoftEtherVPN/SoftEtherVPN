@@ -54,7 +54,7 @@ for:
   after_build:
     - .ci/appveyor_afterbuild.sh
   on_failure:
-    - sudo journalctl -xe
+    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
@@ -69,7 +69,7 @@ for:
   after_build:
     - .ci/appveyor_afterbuild.sh
   on_failure:
-    - sudo journalctl -xe
+    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
