@@ -2357,6 +2357,7 @@ bool RsaCheck()
 	ret = BN_set_word(e, RSA_F4);
 	if (ret == 0)
 	{
+		BN_free(e);
 		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
@@ -2366,6 +2367,7 @@ bool RsaCheck()
 	{
 		rsa = RSA_new();
 		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
+		BN_free(e);
 	}
 	Unlock(openssl_lock);
 	if (ret == 0)
@@ -2438,6 +2440,7 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	ret = BN_set_word(e, RSA_F4);
 	if (ret == 0)
 	{
+		BN_free(e);
 		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
@@ -2447,6 +2450,7 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	{
 		rsa = RSA_new();
 		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
+		BN_free(e);
 	}
 	Unlock(openssl_lock);
 	if (ret == 0)
