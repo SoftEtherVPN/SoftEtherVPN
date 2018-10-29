@@ -59,7 +59,7 @@ matrix:
         - ./configure
         - make -C tmp
         - otool -L build/vpnserver
-        - sudo make -C tmp install
+        - .ci/memory-leak-test.sh
 
 cache:
   directories:
@@ -80,5 +80,5 @@ script:
   - ./configure
   - make -C tmp
   - ldd build/vpnserver
-  - sudo LD_LIBRARY_PATH="${HOME}/opt/lib:${LD_LIBRARY_PATH:-}" make -C tmp install
   - if [ "${BUILD_DEB}" = "1" ]; then make package -C tmp; fi
+  - .ci/memory-leak-test.sh
