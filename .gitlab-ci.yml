@@ -11,6 +11,7 @@
     - ./configure
     - make package -C tmp
     - dpkg -i build/softether-vpn*.deb
+    - .ci/memory-leak-test.sh
 
 trusty:      
   <<: *ubuntu_def
