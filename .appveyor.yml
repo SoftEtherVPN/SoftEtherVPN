@@ -66,6 +66,7 @@ for:
     - ./configure
   build_script:
     - make package -C tmp
+    - .ci/memory-leak-test.sh
   after_build:
     - .ci/appveyor_afterbuild.sh
   on_failure:
