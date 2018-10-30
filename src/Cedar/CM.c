@@ -222,6 +222,7 @@ void CmProxyDlgSet(HWND hWnd, CLIENT_OPTION *o, CM_INTERNET_SETTING *setting)
 	Check(hWnd, R_DIRECT_TCP,	setting->ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS,		setting->ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS,		setting->ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5,		setting->ProxyType == PROXY_SOCKS5);
 
 	// Proxy Settings
 	if(setting->ProxyType != PROXY_DIRECT)
@@ -6906,6 +6907,10 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	{
 		a->ClientOption->ProxyType = PROXY_SOCKS;
 	}
+	if (IsChecked(hWnd, R_SOCKS5))
+	{
+		a->ClientOption->ProxyType = PROXY_SOCKS5;
+	}
 
 	// To validate the server certificate
 	a->CheckServerCert = IsChecked(hWnd, R_CHECK_CERT);
@@ -7344,6 +7349,7 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 	Check(hWnd, R_DIRECT_TCP, a->ClientOption->ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS, a->ClientOption->ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS, a->ClientOption->ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5, a->ClientOption->ProxyType == PROXY_SOCKS5);
 
 	// Verify the server certificate
 	Check(hWnd, R_CHECK_CERT, a->CheckServerCert);
@@ -8619,6 +8625,10 @@ void CmEditAccountDlgStartEnumHub(HWND hWnd, CM_ACCOUNT *a)
 	if (IsChecked(hWnd, R_SOCKS))
 	{
 		a->ClientOption->ProxyType = PROXY_SOCKS;
+	}
+	if (IsChecked(hWnd, R_SOCKS5))
+	{
+		a->ClientOption->ProxyType = PROXY_SOCKS5;
 	}
 
 	CmEnumHubStart(hWnd, a->ClientOption);

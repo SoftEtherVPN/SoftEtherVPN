@@ -317,6 +317,7 @@
 #define R_DIRECT_TCP                    1057
 #define R_HTTPS                         1059
 #define R_SOCKS                         1060
+#define R_SOCKS5                        1061
 #define S_USERNAME                      1062
 #define E_RETRY_SPAN                    1065
 #define C_HUBNAME                       1066

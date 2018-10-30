@@ -581,7 +581,8 @@ ERRDLG_DEVICE_ERROR			与 VPN Server 的连接被中断，因为虚拟网络适�
 # 关于协议
 PROTO_DIRECT_TCP			直接的 TCP/IP 连接
 PROTO_HTTP_PROXY			通过 HTTP 代理服务器连接
-PROTO_SOCKS_PROXY			通过 SOCKS 代理服务器连接
+PROTO_SOCKS_PROXY			通过 SOCKS4 代理服务器连接
+PROTO_SOCKS5_PROXY			通过 SOCKS5 代理服务器连接
 PROTO_SSH					通过 SSH 服务器连接
 PROTO_UNKNOWN				未知协议
 
@@ -2311,7 +2312,8 @@ STATIC9						您可以通过代理服务器连接到 VPN Server。
 STATIC10					代理类型(&T):
 R_DIRECT_TCP				直接 TCP/IP 连接(无代理)(&D)
 R_HTTPS						通过 HTTP 代理服务器连接(&T)
-R_SOCKS						通过 SOCKS 代理服务器连接(&S)
+R_SOCKS						通过 SOCKS4 代理服务器连接(&S)
+R_SOCKS5					通过 SOCKS5 代理服务器连接(&S)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					服务端证书验证选项(&F):
 R_CHECK_CERT				总是验证服务端证书(&C)
@@ -2526,7 +2528,8 @@ STATIC9						您可以通过代理服务器连接到 VPN Server。
 STATIC10					代理类型(&T):
 R_DIRECT_TCP				直接 TCP/IP 连接 (无代理) (&D)
 R_HTTPS						通过 HTTP 代理服务器连接(&T)
-R_SOCKS						通过 SOCKS 代理服务器连接(&O)
+R_SOCKS						通过 SOCKS4 代理服务器连接(&O)
+R_SOCKS5					通过 SOCKS4 代理服务器连接(&O)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					选择管理模式并输入密码(&M)
 STATIC12					您可以使用服务端管理模式或虚拟 HUB 管理模式连接到 VPN Server。\r\n\r\n服务器管理模式允许您管理整个 VPN Server 和所有虚拟 HUB 。\r\n\r\n虚拟 HUB 管理模式允许您只能管理您拥有权限的一个虚拟 HUB 。
@@ -4111,7 +4114,8 @@ STATIC9					您可以通过代理服务器连接
 STATIC10				代表类型:
 R_DIRECT_TCP			直接 TCP/IP 连接(无代理)(&D)
 R_HTTPS					通过 HTTP 代理服务器连接(&T)
-R_SOCKS					通过 SOCKS 代理服务器连接(&K)
+R_SOCKS					通过 SOCKS4 代理服务器连接(&K)
+R_SOCKS5				通过 SOCKS5 代理服务器连接(&K)
 B_PROXY_CONFIG			代理服务器设置(&R)
 IDOK					确定(&O)
 IDCANCEL				取消
@@ -5343,15 +5347,24 @@ CMD_CascadeProxyHttp_PASSWORD	如果连接到 HTTP 代理服务器时需要用�
 CMD_CascadeProxyHttp_Prompt_Server	代理服务器主机名和端口号: 
 
 
-
 # CascadeProxySocks 命令
-CMD_CascadeProxySocks		将级联连接方法设定为通过 SOCKS 代理服务器
-CMD_CascadeProxySocks_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS 代理服务器]，设置 SOCKS8 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\nSOCKS 服务器，需与 SOCKS 第 4 版想匹配。\n此命令在集群虚拟 HUB 中不能运行。
+CMD_CascadeProxySocks		将级联连接方法设定为通过 SOCKS4 代理服务器
+CMD_CascadeProxySocks_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS4 代理服务器]，设置 SOCKS4 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n此命令在集群虚拟 HUB 中不能运行。
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	指定级联名称来改变设置。
 CMD_CascadeProxySocks_SERVER	按照 [主机名:端口号] 的格式，设定代理服务器主机名或 IP 地址和端口号。
-CMD_CascadeProxySocks_USERNAME	如果连接到 SOCKS 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
-CMD_CascadeProxySocks_PASSWORD	如果连接到 SOCKS 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
+CMD_CascadeProxySocks_USERNAME	如果连接到 SOCKS4 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
+CMD_CascadeProxySocks_PASSWORD	如果连接到 SOCKS4 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
+
+
+# CascadeProxySocks5 命令
+CMD_CascadeProxySocks5		将级联连接方法设定为通过 SOCKS5 代理服务器
+CMD_CascadeProxySocks5_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS5 代理服务器]，设置 SOCKS5 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n此命令在集群虚拟 HUB 中不能运行。
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	指定级联名称来改变设置。
+CMD_CascadeProxySocks5_SERVER	按照 [主机名:端口号] 的格式，设定代理服务器主机名或 IP 地址和端口号。
+CMD_CascadeProxySocks5_USERNAME	如果连接到 SOCKS5 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
+CMD_CascadeProxySocks5_PASSWORD	如果连接到 SOCKS5 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
 
 
 # CascadeServerCertEnable 命令
@@ -6627,15 +6640,24 @@ CMD_AccountProxyHttp_PASSWORD	如果因为连接通过 HTTP 代理服务器而�
 CMD_AccountProxyHttp_Prompt_Server	代理服务器主机名和端口号: 
 
 
-
 # AccountProxySocks 命令
-CMD_AccountProxySocks		将连接设置的连接方法设置为通过 SOCKS 代理服务器连接
-CMD_AccountProxySocks_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS 服务器连接]，并指定要通过的 SOCKS 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n通过 SOCKS 服务器，必须对应 SOCKS 版本 4。
+CMD_AccountProxySocks		将连接设置的连接方法设置为通过 SOCKS4 代理服务器连接
+CMD_AccountProxySocks_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS4 服务器连接]，并指定要通过的 SOCKS4 代理服务器的主机名和端口号，用户名和密码 (如果需要)。
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	指定要更改设置的连接设置名。
-CMD_AccountProxySocks_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS 代理服务器主机名或 IP 地址和端口号。
-CMD_AccountProxySocks_USERNAME	如果因为连接通过 SOCKS 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
-CMD_AccountProxySocks_PASSWORD	如果因为连接通过 SOCKS 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
+CMD_AccountProxySocks_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS4 代理服务器主机名或 IP 地址和端口号。
+CMD_AccountProxySocks_USERNAME	如果因为连接通过 SOCKS4 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
+CMD_AccountProxySocks_PASSWORD	如果因为连接通过 SOCKS4 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
+
+
+# AccountProxySocks5 命令
+CMD_AccountProxySocks5		将连接设置的连接方法设置为通过 SOCKS5 代理服务器连接
+CMD_AccountProxySocks5_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS5 服务器连接]，并指定要通过的 SOCKS5 代理服务器的主机名和端口号，用户名和密码 (如果需要)。
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	指定要更改设置的连接设置名。
+CMD_AccountProxySocks5_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS5 代理服务器主机名或 IP 地址和端口号。
+CMD_AccountProxySocks5_USERNAME	如果因为连接通过 SOCKS5 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
+CMD_AccountProxySocks5_PASSWORD	如果因为连接通过 SOCKS5 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
 
 
 # AccountServerCertEnable 命令
