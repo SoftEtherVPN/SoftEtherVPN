@@ -309,6 +309,7 @@ SECURE_DEVICE SupportedList[] =
 	{21,	SECURE_USB_TOKEN,	"ePass 1000ND/2000/3000",			"Feitian Technologies",	"ngp11v211.dll"},
 	{22,	SECURE_USB_TOKEN,	"CryptoID",				"Longmai Technology",	"cryptoide_pkcs11.dll"},
 	{23,	SECURE_USB_TOKEN,	"RuToken",				"Aktiv Co.",			"rtPKCS11.dll"},
+	{24,	SECURE_USB_TOKEN,	"OpenSC",				"OpenSC Project",		"opensc-pkcs11.dll"}
 };
 
 #ifdef	OS_WIN32
