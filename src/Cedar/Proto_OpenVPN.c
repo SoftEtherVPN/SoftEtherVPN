@@ -175,6 +175,94 @@ void OvsLog(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c, char *na
 	WriteServerLog(s->Cedar, prefix);
 }
 
+// Encrypt the data
+UINT OvsEncrypt(CIPHER *cipher, MD *md, UCHAR *iv, UCHAR *dest, UCHAR *src, UINT size)
+{
+	UINT dest_size, ret;
+	// Validate arguments
+	if (cipher == NULL || md == NULL)
+	{
+		return 0;
+	}
+
+	// Encrypt
+	dest_size = CipherProcess(cipher, iv, dest + md->Size + cipher->IvSize, src, size);
+	if (dest_size == 0)
+	{
+		Debug("OvsEncrypt(): CipherProcess() failed!\n");
+		return 0;
+	}
+
+	// Copy the IV
+	Copy(dest + md->Size, iv, cipher->IvSize);
+	dest_size += cipher->IvSize;
+
+	// Calculate the HMAC
+	ret = MdProcess(md, dest, dest + md->Size, dest_size);
+	if (ret == 0)
+	{
+		Debug("OvsEncrypt(): MdProcess() failed!\n");
+		return 0;
+	}
+
+	return dest_size + ret;
+}
+
+// Decrypt the data
+UINT OvsDecrypt(CIPHER *cipher, MD *md, UCHAR *dest, UCHAR *src, UINT size)
+{
+	UCHAR *hmac;
+	UCHAR *iv;
+	UCHAR hmac_test[128];
+	// Validate arguments
+	if (cipher == NULL || md == NULL)
+	{
+		return 0;
+	}
+
+	if (size < (md->Size + cipher->IvSize + sizeof(UINT)))
+	{
+		return 0;
+	}
+
+	// HMAC
+	hmac = src;
+	src += md->Size;
+	size -= md->Size;
+
+	if (MdProcess(md, hmac_test, src, size) == 0)
+	{
+		Debug("OvsDecrypt(): MdProcess() failed!\n");
+		return 0;
+	}
+
+	if (Cmp(hmac_test, hmac, md->Size) != 0)
+	{
+		Debug("OvsDecrypt(): HMAC verification failed!\n");
+		return 0;
+	}
+
+	// IV
+	iv = src;
+	src += cipher->IvSize;
+	size -= cipher->IvSize;
+
+	// Payload
+	if (size >= 1 && (cipher->BlockSize == 0 || (size % cipher->BlockSize) == 0))
+	{
+		// Decryption
+		UINT ret = CipherProcess(cipher, iv, dest, src, size);
+		if (ret == 0)
+		{
+			Debug("OvsDecrypt(): CipherProcess() failed!\n");
+		}
+
+		return ret;
+	}
+
+	return 0;
+}
+
 // Process the received packet
 void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 {
@@ -285,76 +373,33 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 				OPENVPN_CHANNEL *c = se->Channels[recv_packet->KeyId];
 				if (c->Status == OPENVPN_CHANNEL_STATUS_ESTABLISHED)
 				{
-					UCHAR *data;
-					UINT size;
-
-					data = recv_packet->Data;
-					size = recv_packet->DataSize;
-
-					if (size >= (c->MdRecv->Size + c->CipherDecrypt->IvSize + sizeof(UINT)))
+					UINT size = OvsDecrypt(c->CipherDecrypt, c->MdRecv, s->TmpBuf, recv_packet->Data, recv_packet->DataSize);
+					if (size >= sizeof(UINT))
 					{
-						UCHAR *hmac;
-						UCHAR *iv;
-						UCHAR hmac_test[128];
+						UCHAR *data = s->TmpBuf;
 
-						// HMAC
-						hmac = data;
-						data += c->MdRecv->Size;
-						size -= c->MdRecv->Size;
+						// Update of last communication time
+						se->LastCommTick = s->Now;
 
-						// Confirmation of HMAC
-						MdProcess(c->MdRecv, hmac_test, data, size);
-						if (Cmp(hmac_test, hmac, c->MdRecv->Size) == 0)
+						// Seek buffer after the packet ID
+						data += sizeof(UINT);
+						size -= sizeof(UINT);
+
+						if (size < sizeof(ping_signature) || Cmp(data, ping_signature, sizeof(ping_signature)) != 0)
 						{
-							// Update of last communication time
-							se->LastCommTick = s->Now;
-
-							// IV
-							iv = data;
-							data += c->CipherDecrypt->IvSize;
-							size -= c->CipherDecrypt->IvSize;
-
-							// Payload
-							if (size >= 1 && (c->CipherDecrypt->BlockSize == 0 || (size % c->CipherDecrypt->BlockSize) == 0))
+							// Receive a packet!
+							if (se->Ipc != NULL)
 							{
-								UINT data_packet_id;
-
-								// Decryption
-								size = CipherProcess(c->CipherDecrypt, iv, s->TmpBuf, data, size);
-
-								data = s->TmpBuf;
-
-								if (size >= sizeof(UINT))
+								switch (se->Mode)
 								{
-									data_packet_id = READ_UINT(data);
-
-									data += sizeof(UINT);
-									size -= sizeof(UINT);
-
-									if (size < sizeof(ping_signature) ||
-										Cmp(data, ping_signature, sizeof(ping_signature)) != 0)
-									{
-										// Receive a packet!!
-										if (se->Ipc != NULL)
-										{
-											switch (se->Mode)
-											{
-											case OPENVPN_MODE_L2:	// Send an Ethernet packet to a session
-												IPCSendL2(se->Ipc, data, size);
-												break;
-
-											case OPENVPN_MODE_L3:	// Send an IPv4 packet to a session
-												IPCSendIPv4(se->Ipc, data, size);
-												break;
-											}
-										}
-									}
+									case OPENVPN_MODE_L2:	// Send an Ethernet packet to a session
+										IPCSendL2(se->Ipc, data, size);
+										break;
+									case OPENVPN_MODE_L3:	// Send an IPv4 packet to a session
+										IPCSendIPv4(se->Ipc, data, size);
+										break;
 								}
 							}
-						}
-						else
-						{
-//							Debug("HMAC Failed (c=%u)\n", c->KeyId);
 						}
 					}
 				}
@@ -1382,23 +1427,17 @@ UINT64 OvsNewServerSessionId(OPENVPN_SERVER *s)
 // Build and submit the OpenVPN data packet
 void OvsSendDataPacket(OPENVPN_CHANNEL *c, UCHAR key_id, UINT data_packet_id, void *data, UINT data_size)
 {
-	UCHAR uc;
 	UCHAR *encrypted_data;
 	UINT encrypted_size;
 	UCHAR *dest_data;
 	UINT dest_size;
-	UINT r;
-
 	// Validate arguments
 	if (c == NULL || data == NULL || data_size == 0)
 	{
 		return;
 	}
 
-	uc = ((OPENVPN_P_DATA_V1 << 3) & 0xF8) | (key_id & 0x07);
-
 	// Generate the data to be encrypted
-
 	encrypted_size = sizeof(UINT) + data_size;
 	encrypted_data = ZeroMalloc(encrypted_size);
 
@@ -1409,22 +1448,14 @@ void OvsSendDataPacket(OPENVPN_CHANNEL *c, UCHAR key_id, UINT data_packet_id, vo
 	dest_data = Malloc(sizeof(UCHAR) + c->MdSend->Size + c->CipherEncrypt->IvSize + encrypted_size + 256);
 
 	// Encrypt
-	r = CipherProcess(c->CipherEncrypt, c->NextIv, dest_data + sizeof(UCHAR) + c->MdSend->Size + c->CipherEncrypt->IvSize,
-		encrypted_data, encrypted_size);
-	dest_size = sizeof(UCHAR) + c->MdSend->Size + c->CipherEncrypt->IvSize + r;
-
-	// Copy the IV
-	Copy(dest_data + sizeof(UCHAR) + c->MdSend->Size, c->NextIv, c->CipherEncrypt->IvSize);
-
-	// Calculate the HMAC
-	MdProcess(c->MdSend, dest_data + sizeof(UCHAR), dest_data + sizeof(UCHAR) + c->MdSend->Size,
-		dest_size - sizeof(UCHAR) - c->MdSend->Size);
+	dest_size = OvsEncrypt(c->CipherEncrypt, c->MdSend, c->NextIv, dest_data + sizeof(CHAR), encrypted_data, encrypted_size);
+	dest_size += sizeof(UCHAR);
 
 	// Update the NextIV
 	Copy(c->NextIv, dest_data + dest_size - c->CipherEncrypt->IvSize, c->CipherEncrypt->IvSize);
 
 	// Op-code
-	dest_data[0] = uc;
+	dest_data[0] = ((OPENVPN_P_DATA_V1 << 3) & 0xF8) | (key_id & 0x07);
 
 	OvsSendPacketRawNow(c->Server, c->Session, dest_data, dest_size);
 
