@@ -3,6 +3,7 @@ This document describes how to build SoftEtherVPN for Unix based Operating syste
 - [Requirements](#requirements)
   * [Install requirements on Centos/RedHat](#install-requirements-on-centosredhat)
   * [Install Requirements on Debian/Ubuntu](#install-requirements-on-debianubuntu)
+  * [Install Requirements on macOS](#install-requirements-on-macos)
 - [Build from source code and install](#build-from-source-code-and-install)
 - [How to Run SoftEther](#how-to-run-softether)
   * [Start/Stop SoftEther VPN Server](#startstop-softether-vpn-server)
@@ -34,11 +35,16 @@ sudo yum -y groupinstall "Development Tools"
 sudo yum -y install cmake ncurses-devel openssl-devel readline-devel zlib-devel
 ```
 
-## Install Requirements on Debian/Ubuntu
+## Install requirements on Debian/Ubuntu
 ```bash
 sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
 ```
 
+## Install requirements on macOS
+```bash
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew install cmake openssl readline
+```
 
 # Build from source code and install
 
