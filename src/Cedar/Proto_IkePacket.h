@@ -698,15 +698,12 @@ IKE_PACKET_PAYLOAD *IkeNewProposalPayload(UCHAR number, UCHAR protocol_id, void 
 IKE_PACKET_PAYLOAD *IkeNewTransformPayload(UCHAR number, UCHAR transform_id, LIST *value_list);
 IKE_PACKET_TRANSFORM_VALUE *IkeNewTransformValue(UCHAR type, UINT value);
 IKE_PACKET_PAYLOAD *IkeNewIdPayload(UCHAR id_type, UCHAR protocol_id, USHORT port, void *id_data, UINT id_size);
-IKE_PACKET_PAYLOAD *IkeNewCertPayload(UCHAR cert_type, void *cert_data, UINT cert_size);
-IKE_PACKET_PAYLOAD *IkeNewCertRequestPayload(UCHAR cert_type, void *data, UINT size);
 IKE_PACKET_PAYLOAD *IkeNewNoticePayload(UCHAR protocol_id, USHORT message_type,
 										void *spi, UINT spi_size,
 										void *message, UINT message_size);
 IKE_PACKET_PAYLOAD *IkeNewDeletePayload(UCHAR protocol_id, LIST *spi_list);
 
 IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidCookiePayload(UINT64 init_cookie, UINT64 resp_cookie);
-IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidExchangeTypePayload(UINT64 init_cookie, UINT64 resp_cookie, UCHAR exchange_type);
 IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidSpiPayload(UINT spi);
 IKE_PACKET_PAYLOAD *IkeNewNoticeErrorNoProposalChosenPayload(bool quick_mode, UINT64 init_cookie, UINT64 resp_cookie);
 IKE_PACKET_PAYLOAD *IkeNewNoticeDpdPayload(bool ack, UINT64 init_cookie, UINT64 resp_cookie, UINT seq_no);
@@ -732,15 +729,7 @@ BUF *IkeBuildTransformPayload(IKE_PACKET_TRANSFORM_PAYLOAD *t);
 UINT IkeGetTransformValue(IKE_PACKET_TRANSFORM_PAYLOAD *t, UINT type, UINT index);
 UINT IkeGetTransformValueNum(IKE_PACKET_TRANSFORM_PAYLOAD *t, UINT type);
 
-UCHAR IkeStrToPhase1CryptId(char *name);
-UCHAR IkeStrToPhase1HashId(char *name);
-UCHAR IkeStrToPhase2CryptId(char *name);
-UCHAR IkeStrToPhase2HashId(char *name);
 BUF *IkeStrToPassword(char *str);
-UINT IkePhase1CryptIdToKeySize(UCHAR id);
-UINT IkePhase2CryptIdToKeySize(UCHAR id);
-
-UINT IkeNewSpi();
 
 IKE_ENGINE *NewIkeEngine();
 IKE_CRYPTO *NewIkeCrypto(IKE_ENGINE *e, UINT crypto_id, char *name, UINT *key_sizes, UINT num_key_sizes, UINT block_size);
