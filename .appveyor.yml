@@ -50,11 +50,9 @@ for:
   before_build:
     - ./configure
   build_script:
-    - make package -C tmp
+    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
   after_build:
     - .ci/appveyor_afterbuild.sh
-  on_failure:
-    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
@@ -65,12 +63,10 @@ for:
   before_build:
     - ./configure
   build_script:
-    - make package -C tmp
+    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
     - .ci/memory-leak-test.sh
   after_build:
     - .ci/appveyor_afterbuild.sh
-  on_failure:
-    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
