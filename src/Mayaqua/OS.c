@@ -328,10 +328,6 @@ UINT OSThreadId()
 }
 
 // Rename
-bool OSFileRename(char *old_name, char *new_name)
-{
-	return os->FileRename(old_name, new_name);
-}
 bool OSFileRenameW(wchar_t *old_name, wchar_t *new_name)
 {
 	return os->FileRenameW(old_name, new_name);
@@ -350,50 +346,30 @@ bool OSFileSeek(void *pData, UINT mode, int offset)
 }
 
 // Delete the file
-bool OSFileDelete(char *name)
-{
-	return os->FileDelete(name);
-}
 bool OSFileDeleteW(wchar_t *name)
 {
 	return os->FileDeleteW(name);
 }
 
 // Create a directory
-bool OSMakeDir(char *name)
-{
-	return os->MakeDir(name);
-}
 bool OSMakeDirW(wchar_t *name)
 {
 	return os->MakeDirW(name);
 }
 
 // Delete the directory
-bool OSDeleteDir(char *name)
-{
-	return os->DeleteDir(name);
-}
 bool OSDeleteDirW(wchar_t *name)
 {
 	return os->DeleteDirW(name);
 }
 
 // Open the file
-void *OSFileOpen(char *name, bool write_mode, bool read_lock)
-{
-	return os->FileOpen(name, write_mode, read_lock);
-}
 void *OSFileOpenW(wchar_t *name, bool write_mode, bool read_lock)
 {
 	return os->FileOpenW(name, write_mode, read_lock);
 }
 
 // Create a file
-void *OSFileCreate(char *name)
-{
-	return os->FileCreate(name);
-}
 void *OSFileCreateW(wchar_t *name)
 {
 	return os->FileCreateW(name);
@@ -483,18 +459,6 @@ void OSGetSystemTime(SYSTEMTIME *system_time)
 	os->GetSystemTime(system_time);
 }
 
-// 32bit increment
-void OSInc32(UINT *value)
-{
-	os->Inc32(value);
-}
-
-// 32bit decrement
-void OSDec32(UINT *value)
-{
-	os->Dec32(value);
-}
-
 // Sleep the thread
 void OSSleep(UINT time)
 {
@@ -535,12 +499,6 @@ void OSInitEvent(EVENT *event)
 void OSSetEvent(EVENT *event)
 {
 	os->SetEvent(event);
-}
-
-// Reset event
-void OSResetEvent(EVENT *event)
-{
-	os->ResetEvent(event);
 }
 
 // Wait for event
