@@ -18711,16 +18711,9 @@ LABEL_RESTART:
 			// Create a thread to get a NAT-T IP address if necessary
 			if (u->GetNatTIpThread == NULL)
 			{
-				// Create a thread to get a NAT-T IP address if necessary
-				if (u->GetNatTIpThread == NULL)
-				{
-					char natt_hostname[MAX_SIZE];
-
-					RUDPGetRegisterHostNameByIP(natt_hostname, sizeof(natt_hostname), NULL);
-
-					u->GetNatTIpThread = NewQueryIpThread(natt_hostname, QUERYIPTHREAD_INTERVAL_LAST_OK, QUERYIPTHREAD_INTERVAL_LAST_NG);
-				}
-
+				char natt_hostname[MAX_SIZE];
+				RUDPGetRegisterHostNameByIP(natt_hostname, sizeof(natt_hostname), NULL);
+				u->GetNatTIpThread = NewQueryIpThread(natt_hostname, QUERYIPTHREAD_INTERVAL_LAST_OK, QUERYIPTHREAD_INTERVAL_LAST_NG);
 				GetQueryIpThreadResult(u->GetNatTIpThread, &nat_t_ip);
 			}
 		}

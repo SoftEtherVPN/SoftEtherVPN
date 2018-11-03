@@ -5580,19 +5580,16 @@ UINT StAddAccess(ADMIN *a, RPC_ADD_ACCESS *t)
 
 	if (no_include)
 	{
-		if (no_include)
+		if (StartWith(t->Access.SrcUsername, ACCESS_LIST_INCLUDED_PREFIX) ||
+			StartWith(t->Access.SrcUsername, ACCESS_LIST_EXCLUDED_PREFIX))
 		{
-			if (StartWith(t->Access.SrcUsername, ACCESS_LIST_INCLUDED_PREFIX) ||
-				StartWith(t->Access.SrcUsername, ACCESS_LIST_EXCLUDED_PREFIX))
-			{
-				ClearStr(t->Access.SrcUsername, sizeof(t->Access.SrcUsername));
-			}
+			ClearStr(t->Access.SrcUsername, sizeof(t->Access.SrcUsername));
+		}
 
-			if (StartWith(t->Access.DestUsername, ACCESS_LIST_INCLUDED_PREFIX) ||
-				StartWith(t->Access.DestUsername, ACCESS_LIST_EXCLUDED_PREFIX))
-			{
-				ClearStr(t->Access.DestUsername, sizeof(t->Access.DestUsername));
-			}
+		if (StartWith(t->Access.DestUsername, ACCESS_LIST_INCLUDED_PREFIX) ||
+			StartWith(t->Access.DestUsername, ACCESS_LIST_EXCLUDED_PREFIX))
+		{
+			ClearStr(t->Access.DestUsername, sizeof(t->Access.DestUsername));
 		}
 	}
 
