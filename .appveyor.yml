@@ -53,8 +53,6 @@ for:
     - make package -C tmp
   after_build:
     - .ci/appveyor_afterbuild.sh
-  on_failure:
-    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
@@ -69,8 +67,6 @@ for:
     - .ci/memory-leak-test.sh
   after_build:
     - .ci/appveyor_afterbuild.sh
-  on_failure:
-    - sudo journalctl -xe --no-pager
   artifacts:
     - path: build/*.deb
       name: Ubuntu
