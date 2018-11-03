@@ -50,7 +50,7 @@ for:
   before_build:
     - ./configure
   build_script:
-    - make package -C tmp
+    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
   after_build:
     - .ci/appveyor_afterbuild.sh
   artifacts:
@@ -63,7 +63,7 @@ for:
   before_build:
     - ./configure
   build_script:
-    - make package -C tmp
+    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
     - .ci/memory-leak-test.sh
   after_build:
     - .ci/appveyor_afterbuild.sh
