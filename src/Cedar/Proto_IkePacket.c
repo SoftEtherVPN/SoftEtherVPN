@@ -138,86 +138,6 @@ BUF *IkeStrToPassword(char *str)
 	return b;
 }
 
-// Phase 1: Convert the encryption algorithm name to key size
-UINT IkePhase1CryptIdToKeySize(UCHAR id)
-{
-	switch (id)
-	{
-	case IKE_P1_CRYPTO_3DES_CBC:
-		return DES3_KEY_SIZE;
-
-	case IKE_P1_CRYPTO_DES_CBC:
-		return DES_KEY_SIZE;
-	}
-
-	return 0;
-}
-
-// Phase 2: Convert the encryption algorithm name to key size
-UINT IkePhase2CryptIdToKeySize(UCHAR id)
-{
-	switch (id)
-	{
-	case IKE_TRANSFORM_ID_P2_ESP_3DES:
-		return DES3_KEY_SIZE;
-
-	case IKE_TRANSFORM_ID_P2_ESP_DES:
-		return DES_KEY_SIZE;
-	}
-
-	return 0;
-}
-
-// Convert a string to an algorithm name
-UCHAR IkeStrToPhase1CryptId(char *name)
-{
-	if (StartWith(name, "3DES") || StartWith("3DES", name))
-	{
-		return IKE_P1_CRYPTO_3DES_CBC;
-	}
-	else if (StartWith(name, "DES") || StartWith("DES", name))
-	{
-		return IKE_P1_CRYPTO_DES_CBC;
-	}
-	else
-	{
-		return 0;
-	}
-}
-UCHAR IkeStrToPhase1HashId(char *name)
-{
-	if (StartWith(name, "SHA-1") || StartWith("SHA-1", name))
-	{
-		return IKE_P1_HASH_SHA1;
-	}
-
-	return 0;
-}
-UCHAR IkeStrToPhase2CryptId(char *name)
-{
-	if (StartWith(name, "3DES") || StartWith("3DES", name))
-	{
-		return IKE_TRANSFORM_ID_P2_ESP_3DES;
-	}
-	else if (StartWith(name, "DES") || StartWith("DES", name))
-	{
-		return IKE_TRANSFORM_ID_P2_ESP_DES;
-	}
-	else
-	{
-		return 0;
-	}
-}
-UCHAR IkeStrToPhase2HashId(char *name)
-{
-	if (StartWith(name, "SHA-1") || StartWith("SHA-1", name))
-	{
-		return IKE_P2_HMAC_SHA1_96;
-	}
-
-	return 0;
-}
-
 // Build a data payload
 BUF *IkeBuildDataPayload(IKE_PACKET_DATA_PAYLOAD *t)
 {
@@ -871,23 +791,6 @@ IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidCookiePayload(UINT64 init_cookie, UI
 	return ret;
 }
 
-// Create an Invalid Exchange Type Payload
-IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidExchangeTypePayload(UINT64 init_cookie, UINT64 resp_cookie, UCHAR exchange_type)
-{
-	IKE_PACKET_PAYLOAD *ret;
-	BUF *b = NewBuf();
-
-	WriteBufInt64(b, init_cookie);
-	WriteBufInt64(b, resp_cookie);
-
-	ret = IkeNewNoticePayload(IKE_PROTOCOL_ID_IKE, IKE_NOTICE_ERROR_INVALID_EXCHANGE_TYPE, b->Buf, b->Size,
-		&exchange_type, 1);
-
-	FreeBuf(b);
-
-	return ret;
-}
-
 // Create an Invalid SPI payload
 IKE_PACKET_PAYLOAD *IkeNewNoticeErrorInvalidSpiPayload(UINT spi)
 {
@@ -936,38 +839,6 @@ IKE_PACKET_PAYLOAD *IkeNewNoticeDpdPayload(bool ack, UINT64 init_cookie, UINT64 
 	FreeBuf(b);
 
 	return ret;
-}
-
-// Create a Certificate Request Payload
-IKE_PACKET_PAYLOAD *IkeNewCertRequestPayload(UCHAR cert_type, void *data, UINT size)
-{
-	IKE_PACKET_PAYLOAD *p;
-	if (data == NULL && size != 0)
-	{
-		return NULL;
-	}
-
-	p = IkeNewPayload(IKE_PAYLOAD_CERT_REQUEST);
-	p->Payload.CertRequest.CertType = cert_type;
-	p->Payload.CertRequest.Data = MemToBuf(data, size);
-
-	return p;
-}
-
-// Create a Certificate payload
-IKE_PACKET_PAYLOAD *IkeNewCertPayload(UCHAR cert_type, void *cert_data, UINT cert_size)
-{
-	IKE_PACKET_PAYLOAD *p;
-	if (cert_data == NULL && cert_size != 0)
-	{
-		return NULL;
-	}
-
-	p = IkeNewPayload(IKE_PAYLOAD_CERT);
-	p->Payload.Cert.CertType = cert_type;
-	p->Payload.Cert.CertData = MemToBuf(cert_data, cert_size);
-
-	return p;
 }
 
 // Create an ID payload
@@ -2292,12 +2163,7 @@ void IkeDebugUdpSendRawPacket(IKE_PACKET *p)
 
 	p->FlagEncrypted = false;
 
-	b = NULL;
-
-	if (b == NULL)
-	{
-		b = IkeBuildEx(p, NULL, true);
-	}
+	b = IkeBuildEx(p, NULL, true);
 
 	if (b == NULL)
 	{
@@ -2537,21 +2403,6 @@ IKE_PACKET *IkeNew(UINT64 init_cookie, UINT64 resp_cookie, UCHAR exchange_type,
 
 	return p;
 }
-
-// Create a new SPI value
-UINT IkeNewSpi()
-{
-	while (true)
-	{
-		UINT i = Rand32();
-
-		if (i >= 4096)
-		{
-			return i;
-		}
-	}
-}
-
 
 // Create an encryption engine for IKE
 IKE_ENGINE *NewIkeEngine()
