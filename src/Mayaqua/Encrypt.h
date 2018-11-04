@@ -239,6 +239,8 @@ void RAND_Free_For_SoftEther();
 
 // OpenSSL <1.1 Shims
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
+#	define EVP_CTRL_AEAD_GET_TAG EVP_CTRL_GCM_GET_TAG
+#	define EVP_CTRL_AEAD_SET_TAG EVP_CTRL_GCM_SET_TAG
 #	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
 #	define EVP_PKEY_base_id(pkey) ((pkey)->type)
 #	define X509_get0_notBefore(x509) ((x509)->cert_info->validity->notBefore)
@@ -348,7 +350,7 @@ struct DH_CTX
 struct CIPHER
 {
 	char Name[MAX_PATH];
-	bool IsNullCipher;
+	bool IsNullCipher, IsAeadCipher;
 	const struct evp_cipher_st *Cipher;
 	struct evp_cipher_ctx_st *Ctx;
 	bool Encrypt;
@@ -523,6 +525,7 @@ CIPHER *NewCipher(char *name);
 void FreeCipher(CIPHER *c);
 void SetCipherKey(CIPHER *c, void *key, bool enc);
 UINT CipherProcess(CIPHER *c, void *iv, void *dest, void *src, UINT size);
+UINT CipherProcessAead(CIPHER *c, void *iv, void *tag, UINT tag_size, void *dest, void *src, UINT src_size, void *aad, UINT aad_size);
 
 // Hashing
 MD *NewMd(char *name);

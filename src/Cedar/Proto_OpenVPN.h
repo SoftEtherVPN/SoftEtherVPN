@@ -127,6 +127,7 @@
 #define	OPENVPN_MAX_SSL_RECV_BUF_SIZE			(256 * 1024)	// SSL receive buffer maximum length
 
 #define	OPENVPN_MAX_KEY_SIZE					64		// Maximum key size
+#define	OPENVPN_TAG_SIZE						16		// Tag size (for packet authentication in AEAD mode)
 
 #define	OPENVPN_TMP_BUFFER_SIZE					(65536 + 256)	// Temporary buffer size
 
@@ -241,9 +242,10 @@ struct OPENVPN_CHANNEL
 	CIPHER *CipherDecrypt;								// Decryption algorithm
 	MD *MdSend;											// Transmission MD algorithm
 	MD *MdRecv;											// Reception MD algorithm
+	UCHAR IvSend[64];									// Transmission IV
+	UCHAR IvRecv[64];									// Reception IV
 	UCHAR MasterSecret[48];								// Master Secret
 	UCHAR ExpansionKey[256];							// Expansion Key
-	UCHAR NextIv[64];									// Next IV
 	UINT LastDataPacketId;								// Previous Data Packet ID
 	UINT64 EstablishedTick;								// Established time
 	UCHAR KeyId;										// KEY ID
