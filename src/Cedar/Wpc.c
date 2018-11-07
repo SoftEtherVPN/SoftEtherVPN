@@ -641,6 +641,7 @@ SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool 
 		break;
 
 	case PROXY_SOCKS:
+		// SOCKS4 connection
 		sock = SocksConnectEx2(&c, param->ProxyHostName, param->ProxyPort,
 			param->HostName, param->Port,
 			param->ProxyUsername, false, cancel, NULL, timeout, NULL);
@@ -649,6 +650,14 @@ SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool 
 			err = c.Err;
 		}
 		break;
+
+	case PROXY_SOCKS5:
+		// SOCKS5 connection
+		sock = Socks5Connect(&c, param, false, cancel, NULL, timeout, NULL);
+		if (sock == NULL)
+		{
+			err = c.Err;
+		}
 	}
 
 	if (error_code != NULL)

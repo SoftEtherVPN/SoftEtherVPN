@@ -452,7 +452,8 @@ ERRDLG_DEVICE_ERROR		仮想 LAN カード (デバイス名: %S) が停止され�
 # プロトコル関係
 PROTO_DIRECT_TCP		直接 TCP/IP 接続
 PROTO_HTTP_PROXY		HTTP プロキシ経由接続
-PROTO_SOCKS_PROXY		SOCKS プロキシ経由接続
+PROTO_SOCKS_PROXY		SOCKS4 プロキシ経由接続
+PROTO_SOCKS5_PROXY		SOCKS5 プロキシ経由接続
 PROTO_SSH				SSH サーバー経由接続
 PROTO_UNKNOWN			不明なプロトコル
 
@@ -2296,7 +2297,8 @@ STATIC9					プロキシサーバーを経由して VPN Server に接続する�
 STATIC10				プロキシの種類(&M):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&Q)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&S)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&S)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&S)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&2)
 STATIC11				サーバー証明書の検証オプション(&F):
 R_CHECK_CERT			サーバー証明書を必ず検証する(&3)
@@ -2510,7 +2512,8 @@ STATIC9					プロキシサーバーを経由して VPN Server に接続する�
 STATIC10				プロキシの種類(&Y):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&T)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&K)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&K)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&K)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&R)
 STATIC11				管理モードの選択とパスワードの入力(&M)
 STATIC12				VPN Server には、サーバー管理モードと仮想 HUB 管理モードのどちらかのモードで接続できます。\r\n\r\nサーバー管理モードで接続すると、VPN Server の設定とすべての仮想 HUB が管理できます。\r\n\r\n仮想 HUB 管理モードで接続すると、権限を持っている仮想 HUB の管理ができます。
@@ -4102,7 +4105,8 @@ STATIC9					プロキシサーバーを経由してサーバーに接続する�
 STATIC10				プロキシの種類(&Y):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&T)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&K)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&K)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&K)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&R)
 IDOK					&OK
 IDCANCEL				キャンセル
@@ -5327,15 +5331,24 @@ CMD_CascadeProxyHttp_PASSWORD	経由する HTTP プロキシサーバーに接�
 CMD_CascadeProxyHttp_Prompt_Server	プロキシサーバーのホスト名とポート番号: 
 
 
-
 # CascadeProxySocks コマンド
-CMD_CascadeProxySocks	カスケード接続の接続方法を SOCKS プロキシサーバー経由接続に設定
-CMD_CascadeProxySocks_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS プロキシサーバー経由接続] に設定し、経由する SOCKS プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS サーバーは、SOCKS バージョン 4 に対応している必要があります。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_CascadeProxySocks	カスケード接続の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_CascadeProxySocks_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS4 プロキシサーバー経由接続] に設定し、経由する SOCKS4 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS4 サーバーは、SOCKS4 バージョン 4 に対応している必要があります。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	設定を変更するカスケード接続の名前を指定します。
-CMD_CascadeProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
-CMD_CascadeProxySocks_USERNAME	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
-CMD_CascadeProxySocks_PASSWORD	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+CMD_CascadeProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS4 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_CascadeProxySocks_USERNAME	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_CascadeProxySocks_PASSWORD	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+
+
+# CascadeProxySocks5 コマンド
+CMD_CascadeProxySocks5	カスケード接続の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_CascadeProxySocks5_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS5 プロキシサーバー経由接続] に設定し、経由する SOCKS5 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	設定を変更するカスケード接続の名前を指定します。
+CMD_CascadeProxySocks5_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS5 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_CascadeProxySocks5_USERNAME	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_CascadeProxySocks5_PASSWORD	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
 
 
 # CascadeServerCertEnable コマンド
@@ -6619,15 +6632,24 @@ CMD_AccountProxyHttp_PASSWORD	経由する HTTP プロキシサーバーに接�
 CMD_AccountProxyHttp_Prompt_Server	プロキシサーバーのホスト名とポート番号: 
 
 
-
 # AccountProxySocks コマンド
-CMD_AccountProxySocks	接続設定の接続方法を SOCKS プロキシサーバー経由接続に設定
-CMD_AccountProxySocks_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS プロキシサーバー経由接続] に設定し、経由する SOCKS プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS サーバーは、SOCKS バージョン 4 に対応している必要があります。
+CMD_AccountProxySocks	接続設定の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_AccountProxySocks_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS4 プロキシサーバー経由接続] に設定し、経由する SOCKS4 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	設定を変更する接続設定の名前を指定します。
-CMD_AccountProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
-CMD_AccountProxySocks_USERNAME	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
-CMD_AccountProxySocks_PASSWORD	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+CMD_AccountProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS4 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_AccountProxySocks_USERNAME	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_AccountProxySocks_PASSWORD	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+
+
+# AccountProxySocks5 コマンド
+CMD_AccountProxySocks5	接続設定の接続方法を SOCKS5 プロキシサーバー経由接続に設定
+CMD_AccountProxySocks5_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS5 プロキシサーバー経由接続] に設定し、経由する SOCKS5 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	設定を変更する接続設定の名前を指定します。
+CMD_AccountProxySocks5_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS5 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_AccountProxySocks5_USERNAME	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_AccountProxySocks5_PASSWORD	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
 
 
 # AccountServerCertEnable コマンド

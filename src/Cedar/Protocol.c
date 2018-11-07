@@ -6271,8 +6271,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 {
 	SOCK *s = NULL;
 	CLIENT_OPTION *o;
-	char *host_for_direct_connection;
-	UINT port_for_direct_connection;
+	WPC_CONNECT w;
 	wchar_t tmp[MAX_SIZE];
 	SESSION *sess;
 	volatile bool *cancel_flag = NULL;
@@ -6288,6 +6287,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 	}
 
 	Zero(&ret_ip, sizeof(IP));
+	Zero(&w, sizeof(w));
 
 	sess = c->Session;
 
@@ -6323,21 +6323,26 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		c->ServerPort = o->Port;
 	}
 
-	host_for_direct_connection = c->ServerName;
-	port_for_direct_connection = c->ServerPort;
+	StrCpy(w.HostName, sizeof(w.HostName), c->ServerName);
+	w.Port = c->ServerPort;
+	StrCpy(w.ProxyHostName, sizeof(w.ProxyHostName), o->ProxyName);
+	w.ProxyPort = o->ProxyPort;
+	StrCpy(w.ProxyUsername, sizeof(w.ProxyUsername), o->ProxyUsername);
+	StrCpy(w.ProxyPassword, sizeof(w.ProxyPassword), o->ProxyPassword);
 
 	switch (o->ProxyType)
 	{
 	case PROXY_DIRECT:	// TCP/IP
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_4"), c->ServerName);
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_4"), w.HostName);
 		PrintStatus(sess, tmp);
+
 		// Production job
 		if (o->PortUDP == 0)
 		{
 			{
 				// If additional_connect == false, enable trying to NAT-T connection
 				// If additional_connect == true, follow the IsRUDPSession setting in this session
-				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
+				s = TcpIpConnectEx(w.HostName, w.Port,
 					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additional_rudp_session) : false),
 					true, &ret_ip);
 			}
@@ -6376,16 +6381,12 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		break;
 
 	case PROXY_HTTP:	// HTTP Proxy
-		host_for_direct_connection = o->ProxyName;
-		port_for_direct_connection = o->ProxyPort;
-
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), c->ServerName, o->ProxyName);
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
 		PrintStatus(sess, tmp);
 
-
 		// Proxy connection
-		s = ProxyConnectEx(c, host_for_direct_connection, port_for_direct_connection,
-			c->ServerName, c->ServerPort, o->ProxyUsername, o->ProxyPassword,
+		s = ProxyConnectEx(c, w.ProxyHostName, w.ProxyPort,
+			w.HostName, w.Port, w.ProxyUsername, w.ProxyPassword,
 			additional_connect, (bool *)cancel_flag, hWnd);
 		if (s == NULL)
 		{
@@ -6394,19 +6395,27 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		}
 		break;
 
-	case PROXY_SOCKS:	// SOCKS Proxy
-		host_for_direct_connection = o->ProxyName;
-
-		port_for_direct_connection = o->ProxyPort;
-
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), c->ServerName, o->ProxyName);
+	case PROXY_SOCKS:	// SOCKS4 Proxy
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
 		PrintStatus(sess, tmp);
 
+		// SOCKS4 connection
+		s = SocksConnectEx2(c, w.ProxyHostName, w.ProxyPort,
+			w.HostName, w.Port, w.ProxyUsername, additional_connect, (bool *)cancel_flag,
+			hWnd, 0, &ret_ip);
+		if (s == NULL)
+		{
+			// Connection failure
+			return NULL;
+		}
+		break;
 
-		// SOCKS connection
-		s = SocksConnectEx2(c, host_for_direct_connection, port_for_direct_connection,
-			c->ServerName, c->ServerPort, o->ProxyUsername,
-			additional_connect, (bool *)cancel_flag, hWnd, 0, &ret_ip);
+	case PROXY_SOCKS5:	// SOCKS5 Proxy
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
+		PrintStatus(sess, tmp);
+
+		// SOCKS5 connection
+		s = Socks5Connect(c, &w, additional_connect, (bool *)cancel_flag, hWnd, 0, &ret_ip);
 		if (s == NULL)
 		{
 			// Connection failure
@@ -6426,7 +6435,8 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		// Keep a note of the IP address
 		if (additional_connect == false || IsZeroIP(&s->RemoteIP))
 		{
-			if (((s->IsRUDPSocket || s->IPv6) && IsZeroIP(&s->RemoteIP) == false && o->ProxyType == PROXY_DIRECT) || GetIP(&c->Session->ServerIP, host_for_direct_connection) == false)
+			char *hostname = o->ProxyType == PROXY_DIRECT ? w.HostName : w.ProxyHostName;
+			if (((s->IsRUDPSocket || s->IPv6) && IsZeroIP(&s->RemoteIP) == false && o->ProxyType == PROXY_DIRECT) || GetIP(&c->Session->ServerIP, hostname) == false)
 			{
 				Copy(&c->Session->ServerIP, &s->RemoteIP, sizeof(IP));
 			}
@@ -6449,7 +6459,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 	return s;
 }
 
-// Connect via SOCKS
+// Connect via SOCKS4
 SOCK *SocksConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
 				   char *username, bool additional_connect)
@@ -6547,7 +6557,7 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	return s;
 }
 
-// Receive a SOCKS response packet
+// Receive a SOCKS4 response packet
 bool SocksRecvResponsePacket(CONNECTION *c, SOCK *s)
 {
 	BUF *b;
@@ -6599,7 +6609,7 @@ bool SocksRecvResponsePacket(CONNECTION *c, SOCK *s)
 	}
 }
 
-// Send a SOCKS request packet
+// Send a SOCKS4 request packet
 bool SocksSendRequestPacket(CONNECTION *c, SOCK *s, UINT dest_port, IP *dest_ip, char *userid)
 {
 	BUF *b;
@@ -6637,6 +6647,321 @@ bool SocksSendRequestPacket(CONNECTION *c, SOCK *s, UINT dest_port, IP *dest_ip,
 	FreeBuf(b);
 
 	return ret;
+}
+
+// Connect via SOCKS5 (RFC1928)
+SOCK *Socks5Connect(CONNECTION *c, WPC_CONNECT *w, bool additional_connect, bool *cancel_flag, void *hWnd, UINT timeout, IP *ret_ip)
+{
+	UCHAR tmp, recv_buf[2], *recv_buf_final;
+	USHORT port;
+	bool ret;
+	SOCK *s;
+	BUF *b;
+	IP ip;
+	// Validate arguments
+	if (c == NULL || w == NULL || w->Port == 0 || w->ProxyPort == 0 || IsEmptyStr(w->HostName) || IsEmptyStr(w->ProxyHostName))
+	{
+		if (c != NULL)
+		{
+			c->Err = ERR_PROXY_CONNECT_FAILED;
+		}
+		return NULL;
+	}
+
+	if (c->Halt)
+	{
+		// Stop
+		c->Err = ERR_USER_CANCEL;
+		return NULL;
+	}
+
+	// Open TCP connection to the proxy server
+	s = TcpConnectEx3(w->ProxyHostName, w->ProxyPort, timeout, cancel_flag, hWnd, true, NULL, false, ret_ip);
+	if (s == NULL)
+	{
+		// Failure
+		c->Err = ERR_PROXY_CONNECT_FAILED;
+		return NULL;
+	}
+
+	// Set the timeout setting
+	SetTimeout(s, MIN(CONNECTING_TIMEOUT_PROXY, (timeout == 0 ? INFINITE : timeout)));
+
+	if (additional_connect == false)
+	{
+		c->FirstSock = s;
+	}
+
+	// +----+----------+----------+
+	// |VER | NMETHODS | METHODS  |
+	// +----+----------+----------+
+	// | 1  |    1     | 1 to 255 |
+	// +----+----------+----------+
+	//
+	// X'00'			NO AUTHENTICATION REQUIRED
+	// X'01'			GSSAPI
+	// X'02'			USERNAME/PASSWORD
+	// X'03' to X'7F'	IANA ASSIGNED
+	// X'80' to X'FE'	RESERVED FOR PRIVATE METHODS
+	// X'FF'			NO ACCEPTABLE METHOD
+
+	b = NewBuf();
+	tmp = 5;
+	WriteBuf(b, &tmp, sizeof(tmp));	// SOCKS version
+	tmp = 2;
+	WriteBuf(b, &tmp, sizeof(tmp));	// Number of supported methods
+	tmp = 0;
+	WriteBuf(b, &tmp, sizeof(tmp));	// No authentication
+	tmp = 2;
+	WriteBuf(b, &tmp, sizeof(tmp));	// Username/password
+
+	ret = SendAll(s, b->Buf, b->Size, false);
+	FreeBuf(b);
+
+	if (ret == false)
+	{
+		Debug("Socks5Connect(): [Phase 1] Failed to send initial data to the server.\n");
+		c->Err = ERR_DISCONNECTED;
+		goto failure;
+	}
+
+	// +----+--------+
+	// |VER | METHOD |
+	// +----+--------+
+	// | 1  |   1    |
+	// +----+--------+
+
+	if (RecvAll(s, recv_buf, sizeof(recv_buf), false) == false)
+	{
+		Debug("Socks5Connect(): [Phase 1] Failed to receive initial data response from the server.\n");
+		c->Err = ERR_DISCONNECTED;
+		goto failure;
+	}
+
+	if (recv_buf[0] != 5)
+	{
+		Debug("Socks5Connect(): [Phase 1] Unmatching version: %u.\n", recv_buf[0]);
+		c->Err = ERR_PROXY_ERROR;
+		goto failure;
+	}
+
+	// Username/password authentication (RFC1929)
+	if (recv_buf[1] == 2)
+	{
+		// +----+------+----------+------+----------+
+		// |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
+		// +----+------+----------+------+----------+
+		// | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
+		// +----+------+----------+------+----------+
+
+		b = NewBuf();
+		tmp = 1;
+		WriteBuf(b, &tmp, sizeof(tmp));		// Authentication protocol version
+		tmp = StrLen(w->ProxyUsername);
+		WriteBuf(b, &tmp, sizeof(tmp));		// Username length
+		WriteBuf(b, w->ProxyUsername, tmp);	// Username
+		tmp = StrLen(w->ProxyPassword);
+		WriteBuf(b, &tmp, sizeof(tmp));		// Password length
+		WriteBuf(b, w->ProxyPassword, tmp);	// Password
+
+		ret = SendAll(s, b->Buf, b->Size, false);
+		FreeBuf(b);
+
+		if (ret == false)
+		{
+			Debug("Socks5Connect(): [Phase 1] Failed to send authentication data to the server.\n");
+			c->Err = ERR_DISCONNECTED;
+			goto failure;
+		}
+
+		// +----+--------+
+		// |VER | STATUS |
+		// +----+--------+
+		// | 1  |   1    |
+		// +----+--------+
+
+		if (RecvAll(s, recv_buf, sizeof(recv_buf), false) == false)
+		{
+			Debug("Socks5Connect(): [Phase 1] Failed to receive authentication data response from the server.\n");
+			c->Err = ERR_DISCONNECTED;
+			goto failure;
+		}
+
+		if (recv_buf[1] != 0)
+		{
+			Debug("Socks5Connect(): [Phase 1] Authentication failure error code sent by the server: %u.\n", recv_buf[1]);
+			c->Err = ERR_PROXY_AUTH_FAILED;
+			goto failure;
+		}
+	}
+
+	// +----+-----+-------+------+----------+----------+
+	// |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+	// +----+-----+-------+------+----------+----------+
+	// | 1  |  1  | X'00' |  1   | Variable |    2     |
+	// +----+-----+-------+------+----------+----------+
+	//
+	// VER				protocol version: X'05'
+	// CMD
+	// CONNECT			X'01'
+	// BIND				X'02'
+	// UDP ASSOCIATE	X'03'
+	// RSV				RESERVED
+	// ATYP				address type of following address
+	// IP V4 address	X'01'
+	// DOMAINNAME		X'03'
+	// IP V6 address	X'04'
+	// DST.ADDR			desired destination address
+	// DST.PORT			desired destination port in network octet order
+
+	// Prepare data to send
+	b = NewBuf();
+	tmp = 5;
+	WriteBuf(b, &tmp, sizeof(tmp));	// SOCKS version
+	tmp = 1;
+	WriteBuf(b, &tmp, sizeof(tmp));	// Command
+	tmp = 0;
+	WriteBuf(b, &tmp, sizeof(tmp));	// Reserved byte
+
+	// Convert the hostname to an IP structure (if it's an IP address)
+	StrToIP(&ip, w->HostName);
+
+	// If the IP structure doesn't contain an IP address, it means that the string is an hostname
+	if (IsZeroIp(&ip))
+	{
+		UCHAR dest_length = StrLen(w->HostName);
+		tmp = 3;
+		WriteBuf(b, &tmp, sizeof(tmp));							// Destination type (hostname)
+		WriteBuf(b, &dest_length, sizeof(dest_length));			// Destination hostname length
+		WriteBuf(b, w->HostName, dest_length);					// Destination hostname
+	}
+	else
+	{
+		if (IsIP6(&ip))
+		{
+			tmp = 4;
+			WriteBuf(b, &tmp, sizeof(tmp));						// Destination type (IPv6)
+			WriteBuf(b, ip.ipv6_addr, sizeof(ip.ipv6_addr));	// Destination IPv6 address
+		}
+		else
+		{
+			tmp = 1;
+			WriteBuf(b, &tmp, sizeof(tmp));						// Destination type (IPv4)
+			WriteBuf(b, ip.addr, sizeof(ip.addr));				// Destination IPv4 address
+		}
+	}
+
+	// Convert the port in network octet order
+	port = Endian16((USHORT)w->Port);
+	WriteBuf(b, &port, sizeof(port));							// Destination port
+
+	// Send data
+	ret = SendAll(s, b->Buf, b->Size, false);
+	FreeBuf(b);
+
+	if (ret == false)
+	{
+		Debug("Socks5Connect(): [Phase 2] Failed to send data to the server.\n");
+		c->Err = ERR_DISCONNECTED;
+		goto failure;
+	}
+
+	// +----+-----+-------+------+----------+----------+
+	// |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+	// +----+-----+-------+------+----------+----------+
+	// | 1  |  1  | X’00’ |  1   | Variable |   2      |
+	// +----+-----+-------+------+----------+----------+
+	//
+	// VER protocol version: X’05’
+	// REP Reply field:
+	// X’00’	succeeded
+	// X’01’	general SOCKS server failure
+	// X’02’	connection not allowed by ruleset
+	// X’03’	Network unreachable
+	// X’04’	Host unreachable
+	// X’05’	Connection refused
+	// X’06’	TTL expired
+	// X’07’	Command not supported
+	// X’08’	Address type not supported
+	// X’09’	to X’FF’ unassigned
+
+	// The packet sent by the server should always have the same size as the one we sent to it.
+	// However, there are some implementations which send fixed values (aside from the first 2 bytes).
+	// In order to support such implementations, we read the first 4 bytes in order to know the address type before trying to read the rest of the packet.
+	recv_buf_final = Malloc(4);
+
+	if (RecvAll(s, recv_buf_final, 4, false) == false)
+	{
+		Free(recv_buf_final);
+		Debug("Socks5Connect(): [Phase 2] Failed to receive response from the server.\n");
+		c->Err = ERR_DISCONNECTED;
+		goto failure;
+	}
+
+	// We only need the first two bytes (version and response code), but we have to read the entire packet from the socket
+	recv_buf[0] = recv_buf_final[0];
+	recv_buf[1] = recv_buf_final[1];
+
+	// We receive the rest of the packet by knowing the size according to the address type
+	switch (recv_buf_final[3])
+	{
+	case 1:
+		// IPv4
+		recv_buf_final = ReAlloc(recv_buf_final, 6);			// 4 bytes (IPv4) + 2 bytes (port)
+		ret = RecvAll(s, recv_buf_final, 6, false);
+		break;
+	case 4:
+		// IPv6
+		recv_buf_final = ReAlloc(recv_buf_final, 18);			// 4 bytes (IPv4) + 2 bytes (port)
+		ret = RecvAll(s, recv_buf_final, 18, false);
+		break;
+	case 3:
+		// Hostname
+		ret = RecvAll(s, &tmp, 1, false);
+		if (ret == true)
+		{
+			recv_buf_final = ReAlloc(recv_buf_final, tmp + 2);	// Hostname length + 2 bytes (port)
+			ret = RecvAll(s, recv_buf_final, tmp + 2, false);
+		}
+	}
+
+	Free(recv_buf_final);
+
+	if (ret == false)
+	{
+		Debug("Socks5Connect(): [Phase 2] Malformed response received from the server.\n");
+		c->Err = ERR_DISCONNECTED;
+		goto failure;
+	}
+
+	if (recv_buf[0] != 5)
+	{
+		Debug("Socks5Connect(): [Phase 2] Unmatching version: %u.\n", recv_buf_final[0]);
+		c->Err = ERR_PROXY_ERROR;
+		goto failure;
+	}
+
+	if (recv_buf[1] == 0)
+	{
+		// Success
+		SetTimeout(s, INFINITE);
+		return s;
+	}
+	else
+	{
+		Debug("Socks5Connect(): [Phase 2] Connection failed with error: %u\n", recv_buf[1]);
+		c->Err = ERR_PROXY_ERROR;
+	}
+
+failure:
+	if (additional_connect == false)
+	{
+		c->FirstSock = NULL;
+	}
+
+	Disconnect(s);
+	ReleaseSock(s);
+	return NULL;
 }
 
 // Connect through a proxy

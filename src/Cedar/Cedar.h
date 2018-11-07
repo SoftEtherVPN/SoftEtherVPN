@@ -391,7 +391,8 @@
 // Type of proxy
 #define	PROXY_DIRECT			0	// Direct TCP connection
 #define	PROXY_HTTP				1	// Connection via HTTP proxy server
-#define	PROXY_SOCKS				2	// Connection via SOCKS proxy server
+#define	PROXY_SOCKS				2	// Connection via SOCKS4 proxy server
+#define	PROXY_SOCKS5			3	// Connection via SOCKS5 proxy server
 
 // Direction of data flow
 #define	TCP_BOTH				0	// Bi-directional

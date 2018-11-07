@@ -160,6 +160,7 @@ void SmProxyDlgInit(HWND hWnd, INTERNET_SETTING *t)
 	Check(hWnd, R_DIRECT_TCP, t->ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS, t->ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS, t->ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5, t->ProxyType == PROXY_SOCKS5);
 
 	SmProxyDlgUpdate(hWnd, t);
 }
@@ -225,6 +226,10 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 			else if (IsChecked(hWnd, R_SOCKS))
 			{
 				t->ProxyType = PROXY_SOCKS;
+			}
+			else if (IsChecked(hWnd, R_SOCKS5))
+			{
+				t->ProxyType = PROXY_SOCKS5;
 			}
 			else
 			{
@@ -19434,6 +19439,7 @@ void SmEditSettingDlgInit(HWND hWnd, SM_EDIT_SETTING *p)
 	Check(hWnd, R_DIRECT_TCP, s->ClientOption.ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS, s->ClientOption.ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS, s->ClientOption.ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5, s->ClientOption.ProxyType == PROXY_SOCKS5);
 
 	// Management mode setting
 	Check(hWnd, R_SERVER_ADMIN, s->ServerAdminMode);

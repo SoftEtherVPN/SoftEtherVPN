@@ -574,7 +574,8 @@ ERRDLG_DEVICE_ERROR		The connection with the VPN Server has been disconnected be
 # Concerning protocols
 PROTO_DIRECT_TCP		Прямое TCP/IP подключение
 PROTO_HTTP_PROXY		Подключение через HTTP-прокси
-PROTO_SOCKS_PROXY		Подключение через SOCKS-прокси
+PROTO_SOCKS_PROXY		Подключение через SOCKS4-прокси
+PROTO_SOCKS5_PROXY		Подключение через SOCKS5-прокси
 PROTO_SSH				Подключение черзе SSH-сервер
 PROTO_UNKNOWN			Неизвестный протокол
 
@@ -2291,7 +2292,8 @@ STATIC9					You can connect to a VPN Server via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via &SOCKS Proxy Server
+R_SOCKS					Connect via &SOCKS4 Proxy Server
+R_SOCKS5				Connect via &SOCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Server Certificate Veri&fication Option:
 R_CHECK_CERT			Always Verify Server &Certificate
@@ -2505,7 +2507,8 @@ STATIC9					You can connect to a VPN Server via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
+R_SOCKS					Connect via S&OCKS4 Proxy Server
+R_SOCKS5				Connect via S&OCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Select Administration &Mode and Enter Password
 STATIC12				You can connect to VPN Server using either Server Admin Mode or Virtual Hub Admin Mode.\r\n\r\nServer Admin Mode allows you manage entire VPN Server and all Virtual Hubs. \r\n\r\nVirtual Hub Admin Mode allows you manage only one Virtual Hub for which you hold privileges.
@@ -4095,7 +4098,8 @@ STATIC9					You can connect via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
+R_SOCKS					Connect via S&OCKS4 Proxy Server
+R_SOCKS5				Connect via S&OCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 IDOK					&OK
 IDCANCEL				Cancel
@@ -5310,15 +5314,24 @@ CMD_CascadeProxyHttp_PASSWORD	When user authentication is required to connect to
 CMD_CascadeProxyHttp_Prompt_Server	Proxy Server Host Name and Port Number: 
 
 
-
 # CascadeProxySocks command
-CMD_CascadeProxySocks	Set Connection Method of Cascade Connection to be via an SOCKS Proxy Server
-CMD_CascadeProxySocks_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nThe on-route SOCKS server must be compatible with SOCKS Version 4. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CascadeProxySocks	Set Connection Method of Cascade Connection to be via a SOCKS4 Proxy Server
+CMD_CascadeProxySocks_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS4 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS4 Proxy server to communicate via as well as a user name and password (when required). \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS proxy server using the format "host name:port number".
-CMD_CascadeProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
-CMD_CascadeProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS proxy server, specify the password. Specify this together with the /USERNAME parameter.
+CMD_CascadeProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS4 proxy server using the format "host name:port number".
+CMD_CascadeProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_CascadeProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the password. Specify this together with the /USERNAME parameter.
+
+
+# CascadeProxySocks5 command
+CMD_CascadeProxySocks5	Set Connection Method of Cascade Connection to be via a SOCKS5 Proxy Server
+CMD_CascadeProxySocks5_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS5 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeProxySocks5_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS5 proxy server using the format "host name:port number".
+CMD_CascadeProxySocks5_USERNAME	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_CascadeProxySocks5_PASSWORD	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the password. Specify this together with the /USERNAME parameter.
 
 
 # CascadeServerCertEnable command
@@ -6597,15 +6610,24 @@ CMD_AccountProxyHttp_PASSWORD	When user authentication is required to connect to
 CMD_AccountProxyHttp_Prompt_Server	Proxy Server Host Name and Port Number: 
 
 
-
 # AccountProxySocks command
-CMD_AccountProxySocks	Set Connection Method of VPN Connection Setting to be via an SOCKS Proxy Server
-CMD_AccountProxySocks_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nThe on-route SOCKS server must be compatible with SOCKS Version 4.
+CMD_AccountProxySocks	Set Connection Method of VPN Connection Setting to be via a SOCKS4 Proxy Server
+CMD_AccountProxySocks_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS4 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS4 Proxy server to communicate via as well as a user name and password (when required).
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS proxy server using the format [host name:port number].
-CMD_AccountProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
-CMD_AccountProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS proxy server, specify the password. Specify this together with the /USERNAME parameter.
+CMD_AccountProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS4 proxy server using the format [host name:port number].
+CMD_AccountProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_AccountProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the password. Specify this together with the /USERNAME parameter.
+
+
+# AccountProxySocks5 command
+CMD_AccountProxySocks5	Set Connection Method of VPN Connection Setting to be via a SOCKS5 Proxy Server
+CMD_AccountProxySocks5_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS5 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS5 Proxy server to communicate via as well as a user name and password (when required).
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountProxySocks5_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS5 proxy server using the format [host name:port number].
+CMD_AccountProxySocks5_USERNAME	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_AccountProxySocks5_PASSWORD	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the password. Specify this together with the /USERNAME parameter.
 
 
 # AccountServerCertEnable command
