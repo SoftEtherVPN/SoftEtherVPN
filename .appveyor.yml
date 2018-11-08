@@ -70,3 +70,11 @@ for:
   artifacts:
     - path: build/*.deb
       name: Ubuntu
+
+deploy:
+  description: 'automatic release'
+  provider: GitHub
+  auth_token:
+    secure: FJU1W6Li4W7h3mYJj206ybyhRvBqdSeiSoFJ4lhCkQl6n92ljSVnZiPKPtaSuP6i
+  on:
+    appveyor_repo_tag: true
