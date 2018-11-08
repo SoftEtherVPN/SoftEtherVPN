@@ -53,12 +53,8 @@ Requirements:
 1. Download Visual Studio 2017 (Community Edition is fine).
 2. During install, make sure to check "Desktop development with C++" under "Workloads".
 3. Click on individual components and scroll until you see "Visual C++ tools for CMake" under the compilers section. Make sure this is checked.
-4. Continue scrolling down until you reach "SDKs, libraries, and frameworks". Under this tab you want to check to options:
-    1. Visual C++ ATL for x86 and x64
-    2. Visual C++ MFC for x86 and x64
-
-5. Proceed with and finish Visual Studio 2017 install.
-6. Install the needed submodules to build the project, avoiding CMake telling you to do so with: `git submodule update --init --recursive`
+4. Proceed with and finish Visual Studio 2017 install.
+5. Install the needed submodules to build the project, avoiding CMake telling you to do so with: `git submodule update --init --recursive`
 
 Building:
 
