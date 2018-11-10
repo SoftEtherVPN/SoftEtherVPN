@@ -20,6 +20,11 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: clang
+    - env: LIBRESSL_VERSION="2.8.2"
+      os: linux
+      compiler: gcc
+      before_install:
+        - bash .ci/build-libressl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
     - env: LABEL="check stb files"
       os: linux
       language: csharp
@@ -50,11 +55,8 @@ matrix:
         - true
     - os: osx
       compiler: clang
-      cache:
-        directories:
-        - ${HOME}/Library/Caches/Homebrew
       before_install:
-        - brew update
+        - true
       script:
         - ./configure
         - make -C tmp
@@ -78,7 +80,7 @@ script:
   - export CFLAGS="-I${HOME}/opt/include"
   - export LDFLAGS="-L${HOME}/opt/lib"
   - ./configure
-  - make -C tmp
+  - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
   - ldd build/vpnserver
   - if [ "${BUILD_DEB}" = "1" ]; then make package -C tmp; fi
   - .ci/memory-leak-test.sh
