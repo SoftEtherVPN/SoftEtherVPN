@@ -432,7 +432,6 @@ LIST *NewCancelList();
 void ReleaseCancelList(LIST *o);
 void AddCancelList(LIST *o, CANCEL *c);
 void CancelList(LIST *o);
-bool CompareNodeInfo(NODE_INFO *a, NODE_INFO *b);
 bool IsPriorityHighestPacketForQoS(void *data, UINT size);
 UINT GetNextDelayedPacketTickDiff(SESSION *s);
 

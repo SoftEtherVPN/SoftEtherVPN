@@ -768,14 +768,11 @@ void UpdateClientThreadProc(THREAD *thread, void *param)
 // Update the configuration of the update client
 void SetUpdateClientSetting(UPDATE_CLIENT *c, UPDATE_CLIENT_SETTING *s)
 {
-	bool old_disable;
 	// Validate arguments
 	if (c == NULL || s == NULL)
 	{
 		return;
 	}
-
-	old_disable = c->Setting.DisableCheck;
 
 	Copy(&c->Setting, s, sizeof(UPDATE_CLIENT_SETTING));
 
@@ -903,95 +900,6 @@ void NodeInfoToStr(wchar_t *str, UINT size, NODE_INFO *info)
 		info->HubName, unique_id);
 }
 
-// Comparison of node information
-bool CompareNodeInfo(NODE_INFO *a, NODE_INFO *b)
-{
-	// Validate arguments
-	if (a == NULL || b == NULL)
-	{
-		return false;
-	}
-
-	if (StrCmp(a->ClientProductName, b->ClientProductName) != 0)
-	{
-		return false;
-	}
-	if (a->ClientProductVer != b->ClientProductVer)
-	{
-		return false;
-	}
-	if (a->ClientProductBuild != b->ClientProductBuild)
-	{
-		return false;
-	}
-	if (StrCmp(a->ServerProductName, b->ServerProductName) != 0)
-	{
-		return false;
-	}
-	if (a->ServerProductVer != b->ServerProductVer)
-	{
-		return false;
-	}
-	if (a->ServerProductBuild != b->ServerProductBuild)
-	{
-		return false;
-	}
-	if (StrCmp(a->ClientOsName, b->ClientOsName) != 0)
-	{
-		return false;
-	}
-	if (StrCmp(a->ClientOsVer, b->ClientOsVer) != 0)
-	{
-		return false;
-	}
-	if (StrCmp(a->ClientOsProductId, b->ClientOsProductId) != 0)
-	{
-		return false;
-	}
-	if (StrCmp(a->ClientHostname, b->ClientHostname) != 0)
-	{
-		return false;
-	}
-	if (a->ClientIpAddress != b->ClientIpAddress)
-	{
-		return false;
-	}
-	if (StrCmp(a->ServerHostname, b->ServerHostname) != 0)
-	{
-		return false;
-	}
-	if (a->ServerIpAddress != b->ServerIpAddress)
-	{
-		return false;
-	}
-	if (a->ServerPort != b->ServerPort)
-	{
-		return false;
-	}
-	if (StrCmp(a->ProxyHostname, b->ProxyHostname) != 0)
-	{
-		return false;
-	}
-	if (a->ProxyIpAddress != b->ProxyIpAddress)
-	{
-		return false;
-	}
-	if (a->ProxyPort != b->ProxyPort)
-	{
-		return false;
-	}
-	if (StrCmp(a->HubName, b->HubName) != 0)
-	{
-		return false;
-	}
-	if (Cmp(a->UniqueId, b->UniqueId, 16) != 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Accept the password change
 UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 {
@@ -1005,7 +913,6 @@ UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 	UCHAR check_secure_old_password[SHA1_SIZE];
 	UINT ret = ERR_NO_ERROR;
 	HUB *hub;
-	bool save = false;
 	// Validate arguments
 	if (c == NULL || p == NULL)
 	{
@@ -1107,7 +1014,6 @@ UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 									Copy(pw->NtLmSecureHash, new_password_ntlm, MD5_SIZE);
 								}
 								HLog(hub, "LH_CHANGE_PASSWORD_5", c->Name, username);
-								save = true;
 							}
 						}
 						else
@@ -3162,7 +3068,7 @@ bool ServerAccept(CONNECTION *c)
 
 		PackAddBool(p, "suppress_client_update_notification", suppress_client_update_notification);
 
-		if (s->InProcMode)
+		if (s != NULL && s->InProcMode)
 		{
 			if (IsZero(mschap_v2_server_response_20, sizeof(mschap_v2_server_response_20)) == false)
 			{
@@ -3794,7 +3700,6 @@ void CreateNodeInfo(NODE_INFO *info, CONNECTION *c)
 	OS_INFO *os;
 	char *product_id;
 	IP ip;
-	bool is_vgc = false;
 	// Validate arguments
 	if (c == NULL)
 	{
@@ -3980,216 +3885,6 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c)
 	}
 
 	return s;
-}
-
-// Remove the key and certificate in the secure device
-UINT SecureDelete(UINT device_id, char *pin, char *cert_name, char *key_name)
-{
-	SECURE *sec;
-	// Validate arguments
-	if (pin == NULL || device_id == 0)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	// Open the device
-	sec = OpenSec(device_id);
-	if (sec == NULL)
-	{
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Open the session
-	if (OpenSecSession(sec, 0) == false)
-	{
-		CloseSec(sec);
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Login
-	if (LoginSec(sec, pin) == false)
-	{
-		CloseSecSession(sec);
-		CloseSec(sec);
-		return ERR_SECURE_PIN_LOGIN_FAILED;
-	}
-
-	// Delete the certificate
-	if (cert_name != NULL)
-	{
-		DeleteSecCert(sec, cert_name);
-	}
-
-	// Delete the Private key
-	if (key_name != NULL)
-	{
-		DeleteSecKey(sec, key_name);
-	}
-
-	// Log out
-	LogoutSec(sec);
-
-	// Close the session
-	CloseSecSession(sec);
-
-	// Close the device
-	CloseSec(sec);
-
-	return ERR_NO_ERROR;
-}
-
-// Enumerate certificates and keys in the secure device
-UINT SecureEnum(UINT device_id, char *pin, TOKEN_LIST **cert_list, TOKEN_LIST **key_list)
-{
-	SECURE *sec;
-	LIST *o;
-	LIST *cert_name_list, *key_name_list;
-	// Validate arguments
-	if (pin == NULL || device_id == 0 || cert_list == NULL || key_list == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	// Open the device
-	sec = OpenSec(device_id);
-	if (sec == NULL)
-	{
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Open the session
-	if (OpenSecSession(sec, 0) == false)
-	{
-		CloseSec(sec);
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Login
-	if (LoginSec(sec, pin) == false)
-	{
-		CloseSecSession(sec);
-		CloseSec(sec);
-		return ERR_SECURE_PIN_LOGIN_FAILED;
-	}
-
-	// Enumerate objects
-	if ((o = EnumSecObject(sec)) != NULL)
-	{
-		UINT i;
-
-		cert_name_list = NewList(CompareStr);
-		key_name_list = NewList(CompareStr);
-
-		for (i = 0;i < LIST_NUM(o);i++)
-		{
-			SEC_OBJ *obj = LIST_DATA(o, i);
-
-			if (obj->Type == SEC_X)
-			{
-				Add(cert_name_list, CopyStr(obj->Name));
-			}
-			else if (obj->Type == SEC_K)
-			{
-				Add(key_name_list, CopyStr(obj->Name));
-			}
-		}
-
-		Sort(cert_name_list);
-		Sort(key_name_list);
-
-		*cert_list = ListToTokenList(cert_name_list);
-		*key_list = ListToTokenList(key_name_list);
-
-		// Release the memory
-		FreeStrList(cert_name_list);
-		FreeStrList(key_name_list);
-		FreeEnumSecObject(o);
-	}
-	else
-	{
-		*cert_list = NullToken();
-		*key_list = NullToken();
-	}
-
-	// Log out
-	LogoutSec(sec);
-
-	// Close the session
-	CloseSecSession(sec);
-
-	// Close the device
-	CloseSec(sec);
-
-	return ERR_NO_ERROR;
-}
-
-// Record the certificate and key to secure device
-UINT SecureWrite(UINT device_id, char *cert_name, X *x, char *key_name, K *k, char *pin)
-{
-	SECURE *sec;
-	bool failed;
-	// Validate arguments
-	if (pin == NULL || device_id == 0 || cert_name == NULL || x == NULL || key_name == NULL || k == NULL)
-	{
-		return ERR_INTERNAL_ERROR;
-	}
-
-	// Open the device
-	sec = OpenSec(device_id);
-	if (sec == NULL)
-	{
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Open the session
-	if (OpenSecSession(sec, 0) == false)
-	{
-		CloseSec(sec);
-		return ERR_SECURE_DEVICE_OPEN_FAILED;
-	}
-
-	// Login
-	if (LoginSec(sec, pin) == false)
-	{
-		CloseSecSession(sec);
-		CloseSec(sec);
-		return ERR_SECURE_PIN_LOGIN_FAILED;
-	}
-
-	// Registration
-	failed = false;
-
-	// Register the certificate
-	if (WriteSecCert(sec, true, cert_name, x) == false)
-	{
-		failed = true;
-	}
-
-	// Register the private key
-	if (WriteSecKey(sec, true, key_name, k) == false)
-	{
-		failed = true;
-	}
-
-	// Log out
-	LogoutSec(sec);
-
-	// Close the session
-	CloseSecSession(sec);
-
-	// Close the device
-	CloseSec(sec);
-
-	if (failed == false)
-	{
-		// Success
-		return ERR_NO_ERROR;
-	}
-	else
-	{
-		// Failure
-		return ERR_SECURE_CANT_WRITE;
-	}
 }
 
 // Attempt to sign by the secure device
@@ -6081,8 +5776,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				if (StrCmpi(h->Target, "/") == 0)
 				{
 					// Root directory
-					SERVER *s = c->Cedar->Server;
-
 					*error_detail_str = "HTTP_ROOT";
 
 					{
@@ -6460,22 +6153,6 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 }
 
 // Connect via SOCKS4
-SOCK *SocksConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, bool additional_connect)
-{
-	return SocksConnectEx(c, proxy_host_name, proxy_port,
-		server_host_name, server_port, username, additional_connect, NULL, NULL);
-}
-SOCK *SocksConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, bool additional_connect,
-				   bool *cancel_flag, void *hWnd)
-{
-	return SocksConnectEx2(c, proxy_host_name, proxy_port,
-		server_host_name, server_port, username, additional_connect, cancel_flag,
-		hWnd, 0, NULL);
-}
 SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
 				   char *username, bool additional_connect,
@@ -6561,7 +6238,6 @@ SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 bool SocksRecvResponsePacket(CONNECTION *c, SOCK *s)
 {
 	BUF *b;
-	UINT size = 8;
 	UCHAR tmp[8];
 	UCHAR vn, cd;
 	// Validate arguments
@@ -6965,13 +6641,6 @@ failure:
 }
 
 // Connect through a proxy
-SOCK *ProxyConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, char *password, bool additional_connect)
-{
-	return ProxyConnectEx(c, proxy_host_name, proxy_port,
-		server_host_name, server_port, username, password, additional_connect, NULL, NULL);
-}
 SOCK *ProxyConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
 				   char *username, char *password, bool additional_connect,
@@ -7182,10 +6851,6 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 }
 
 // TCP connection function
-SOCK *TcpConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool try_start_ssl)
-{
-	return TcpConnectEx3(hostname, port, timeout, cancel_flag, hWnd, false, NULL, try_start_ssl, NULL);
-}
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
 {
 #ifdef	OS_WIN32
@@ -7203,10 +6868,6 @@ SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, 
 }
 
 // Connect with TCP/IP
-SOCK *TcpIpConnect(char *hostname, UINT port, bool try_start_ssl)
-{
-	return TcpIpConnectEx(hostname, port, NULL, NULL, NULL, false, try_start_ssl, NULL);
-}
 SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
 {
 	SOCK *s = NULL;

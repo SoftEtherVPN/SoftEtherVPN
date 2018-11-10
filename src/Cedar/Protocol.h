@@ -217,7 +217,6 @@ UINT64 ShortStrToDate64(char *str);
 bool ServerAccept(CONNECTION *c);
 bool ClientConnect(CONNECTION *c);
 SOCK *ClientConnectToServer(CONNECTION *c);
-SOCK *TcpIpConnect(char *hostname, UINT port, bool try_start_ssl);
 SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip);
 bool ClientUploadSignature(SOCK *s);
 bool ClientDownloadHello(CONNECTION *c, SOCK *s);
@@ -225,7 +224,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str);
 bool ServerUploadHello(CONNECTION *c);
 bool ClientUploadAuth(CONNECTION *c);
 SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect);
-SOCK *TcpConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool try_start_ssl);
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip);
 
 void InitProtocol();
@@ -259,9 +257,6 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c);
 bool ClientUploadAuth2(CONNECTION *c, SOCK *s);
 bool GetSessionKeyFromPack(PACK *p, UCHAR *session_key, UINT *session_key_32);
 
-SOCK *ProxyConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, char *password, bool additional_connect);
 SOCK *ProxyConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, char *password, bool additional_connect,
@@ -270,13 +265,6 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, char *password, bool additional_connect,
 					 bool *cancel_flag, void *hWnd, UINT timeout);
-SOCK *SocksConnect(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, bool additional_connect);
-SOCK *SocksConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-					 char *server_host_name, UINT server_port,
-					 char *username, bool additional_connect,
-					 bool *cancel_flag, void *hWnd);
 SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, bool additional_connect,
@@ -291,9 +279,6 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired);
 void ClientCheckServerCertThread(THREAD *thread, void *param);
 bool ClientSecureSign(CONNECTION *c, UCHAR *sign, UCHAR *random, X **x);
 void ClientSecureSignThread(THREAD *thread, void *param);
-UINT SecureWrite(UINT device_id, char *cert_name, X *x, char *key_name, K *k, char *pin);
-UINT SecureEnum(UINT device_id, char *pin, TOKEN_LIST **cert_list, TOKEN_LIST **key_list);
-UINT SecureDelete(UINT device_id, char *pin, char *cert_name, char *key_name);
 TOKEN_LIST *EnumHub(SESSION *s);
 UINT ChangePasswordAccept(CONNECTION *c, PACK *p);
 UINT ChangePassword(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, char *username, char *old_pass, char *new_pass);
