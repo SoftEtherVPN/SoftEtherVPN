@@ -687,6 +687,8 @@ UINT PsEtherIpClientList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOpenVpnEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOpenVpnGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOpenVpnMakeConfig(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsOpenVpnObfuscationEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsOpenVpnObfuscationGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSstpEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSstpGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsServerCertRegenerate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

@@ -8919,6 +8919,8 @@ void InOpenVpnSstpConfig(OPENVPN_SSTP_CONFIG *t, PACK *p)
 	t->EnableOpenVPN = PackGetBool(p, "EnableOpenVPN");
 	t->EnableSSTP = PackGetBool(p, "EnableSSTP");
 	PackGetStr(p, "OpenVPNPortList", t->OpenVPNPortList, sizeof(t->OpenVPNPortList));
+	t->OpenVPNObfuscation= PackGetBool(p, "OpenVPNObfuscation");
+	PackGetStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask, sizeof(t->OpenVPNObfuscationMask));
 }
 void OutOpenVpnSstpConfig(PACK *p, OPENVPN_SSTP_CONFIG *t)
 {
@@ -8931,6 +8933,8 @@ void OutOpenVpnSstpConfig(PACK *p, OPENVPN_SSTP_CONFIG *t)
 	PackAddBool(p, "EnableOpenVPN", t->EnableOpenVPN);
 	PackAddBool(p, "EnableSSTP", t->EnableSSTP);
 	PackAddStr(p, "OpenVPNPortList", t->OpenVPNPortList);
+	PackAddBool(p, "OpenVPNObfuscation", t->OpenVPNObfuscation);
+	PackAddStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask);
 }
 
 // DDNS_CLIENT_STATUS

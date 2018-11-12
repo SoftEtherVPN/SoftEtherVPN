@@ -7573,6 +7573,8 @@ void PsMain(PS *ps)
 			{"OpenVpnEnable", PsOpenVpnEnable},
 			{"OpenVpnGet", PsOpenVpnGet},
 			{"OpenVpnMakeConfig", PsOpenVpnMakeConfig},
+			{"OpenVpnObfuscationEnable", PsOpenVpnObfuscationEnable},
+			{"OpenVpnObfuscationGet", PsOpenVpnObfuscationGet},
 			{"SstpEnable", PsSstpEnable},
 			{"SstpGet", PsSstpGet},
 			{"ServerCertRegenerate", PsServerCertRegenerate},
@@ -21409,6 +21411,103 @@ UINT PsOpenVpnMakeConfig(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	return ret;
+}
+
+// Enable / disable the OpenVPN compatible server function's obfuscation mode
+UINT PsOpenVpnObfuscationEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	OPENVPN_SSTP_CONFIG t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"[yes|no]", CmdPrompt, _UU("CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]"), CmdEvalNotEmpty, NULL},
+		{"MASK", CmdPrompt, _UU("CMD_OpenVpnObfuscationEnable_Prompt_MASK"), NULL, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	// RPC call
+	ret = ScGetOpenVpnSstpConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	t.OpenVPNObfuscation = GetParamYes(o, "[yes|no]");
+	StrCpy(t.OpenVPNObfuscationMask, sizeof(t.OpenVPNObfuscationMask), GetParamStr(o, "MASK"));
+
+	// RPC call
+	ret = ScSetOpenVpnSstpConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Get the current settings for the OpenVPN compatible server function's obfuscation mode
+UINT PsOpenVpnObfuscationGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	OPENVPN_SSTP_CONFIG t;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	// RPC call
+	ret = ScGetOpenVpnSstpConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		wchar_t tmp[MAX_PATH];
+		CT *ct = CtNewStandard();
+
+		CtInsert(ct, _UU("CMD_OpenVpnObfuscationGet_PRINT_Enabled"), _UU(t.OpenVPNObfuscation ? "SEC_YES" : "SEC_NO"));
+
+		StrToUni(tmp, sizeof(tmp), t.OpenVPNObfuscationMask);
+		CtInsert(ct, _UU("CMD_OpenVpnObfuscationGet_PRINT_Mask"), tmp);
+
+		CtFree(ct, c);
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
 }
 
 // Enable / disable the Microsoft SSTP VPN compatible server function

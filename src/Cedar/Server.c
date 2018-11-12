@@ -154,6 +154,9 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 		NormalizeIntListStr(s->OpenVpnServerUdpPorts, sizeof(s->OpenVpnServerUdpPorts),
 			c->OpenVPNPortList, true, ", ");
 
+		s->Cedar->OpenVPNObfuscation = c->OpenVPNObfuscation;
+		StrCpy(s->Cedar->OpenVPNObfuscationMask, sizeof(s->Cedar->OpenVPNObfuscationMask), c->OpenVPNObfuscationMask);
+
 		// Apply the OpenVPN configuration
 		if (s->OpenVpnServerUdp != NULL)
 		{
@@ -194,6 +197,9 @@ void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 		}
 
 		StrCpy(c->OpenVPNPortList, sizeof(c->OpenVPNPortList), s->OpenVpnServerUdpPorts);
+
+		c->OpenVPNObfuscation = s->Cedar->OpenVPNObfuscation;
+		StrCpy(c->OpenVPNObfuscationMask, sizeof(c->OpenVPNObfuscationMask), s->Cedar->OpenVPNObfuscationMask);
 	}
 	Unlock(s->OpenVpnSstpConfigLock);
 }
@@ -2568,6 +2574,8 @@ void SiLoadInitialConfiguration(SERVER *s)
 		{
 			ToStr(c.OpenVPNPortList, OPENVPN_UDP_PORT);
 		}
+
+		c.OpenVPNObfuscation = false;
 
 		SiSetOpenVPNAndSSTPConfig(s, &c);
 
@@ -6000,6 +6008,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		config.EnableSSTP = !s->DisableSSTPServer;
 		StrCpy(config.OpenVPNPortList, sizeof(config.OpenVPNPortList), tmp);
 
+		config.OpenVPNObfuscation = CfgGetBool(f, "OpenVPNObfuscation");
+
+		if (CfgGetStr(f, "OpenVPNObfuscationMask", tmp, sizeof(tmp)))
+		{
+			if (IsEmptyStr(tmp) == false)
+			{
+				StrCpy(config.OpenVPNObfuscationMask, sizeof(config.OpenVPNObfuscationMask), tmp);
+			}
+		}
+
 		SiSetOpenVPNAndSSTPConfig(s, &config);
 
 		if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
@@ -6271,6 +6289,9 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 			SiGetOpenVPNAndSSTPConfig(s, &config);
 
 			CfgAddStr(f, "OpenVPN_UdpPortList", config.OpenVPNPortList);
+
+			CfgAddBool(f, "OpenVPNObfuscation", config.OpenVPNObfuscation);
+			CfgAddStr(f, "OpenVPNObfuscationMask", config.OpenVPNObfuscationMask);
 		}
 
 		// WebTimePage

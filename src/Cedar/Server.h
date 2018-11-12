@@ -253,6 +253,8 @@ struct OPENVPN_SSTP_CONFIG
 {
 	bool EnableOpenVPN;						// OpenVPN is enabled
 	char OpenVPNPortList[MAX_SIZE];			// OpenVPN UDP port number list
+	bool OpenVPNObfuscation;				// OpenVPN: Obfuscation mode
+	char OpenVPNObfuscationMask[MAX_SIZE];	// OpenVPN: String (mask) for XOR obfuscation
 	bool EnableSSTP;						// SSTP is enabled
 };
 
