@@ -575,7 +575,7 @@ ERRDLG_DEVICE_ERROR		Соединение с VPN-сервером отключе
 PROTO_DIRECT_TCP		Прямое TCP/IP подключение
 PROTO_HTTP_PROXY		Подключение через HTTP-прокси
 PROTO_SOCKS_PROXY		Подключение через SOCKS-прокси
-PROTO_SSH				Подключение черзе SSH-сервер
+PROTO_SSH				Подключение через SSH-сервер
 PROTO_UNKNOWN			Неизвестный протокол
 
 
@@ -584,84 +584,84 @@ PROTO_UNKNOWN			Неизвестный протокол
 CAPS_YES				Да
 CAPS_NO					Нет
 # (Title)
-CT_i_max_packet_size	Maximum Ethernet Packet Size
-CT_i_max_hubs			Maximum Virtual Hubs
-CT_i_max_user_creation	Maximum Users on Entire VPN Server
-CT_i_max_sessions		Maximum Total Sessions
-CT_i_max_clients		Maximum Client Sessions
-CT_i_max_bridges		Maximum Bridge Sessions
-CT_i_max_users_per_hub	Maximum Users per Virtual Hub
-CT_i_max_groups_per_hub	Maximum Groups per Virtual Hub
-CT_i_max_access_lists	Maximum Access Lists per Virtual Hub
-CT_i_max_mac_tables		Maximum MAC Address Entries per Virtual Hub
-CT_i_max_ip_tables		Maximum IP Address Entries per Virtual Hub
-CT_i_max_secnat_tables	Maximum SecureNAT Entries per Virtual Hub
-CT_i_max_l3_sw			Maximum Virtual Layer 3 Switches
-CT_i_max_l3_if			Maximum Virtual Interfaces per Layer 3 Switch
-CT_i_max_l3_table		Maximum Routing Tables per Layer 3 Switch
-CT_b_bridge				Works as VPN Bridge Software
-CT_b_standalone			Standalone Mode
-CT_b_cluster_controller	Cluster Controller Mode
-CT_b_cluster_member		Cluster Member Mode
-CT_b_vpn_client_connect	Accepting Connection from VPN Client / Bridge
-CT_b_local_bridge		Local Bridge is Supported
-CT_b_must_install_pcap	Packet Capture Driver is Not Installed
-CT_b_tap_supported		Tun/Tap Device is Supported (only in Linux)
-CT_b_support_config_hub	Changing Virtual Hub Settings is Supported
-CT_b_support_securenat	SecureNAT is Supported
-CT_b_virtual_nat_disabled	Virtual NAT is Disabled (only DHCP Enabled)
-CT_b_support_cascade	Cascade Connection is Supported
-CT_b_support_cascade_cert	Server Authentication for Cascade Connection is Supported
-CT_b_support_config_log	Changing Settings for Saving Log is Supported
-CT_b_support_autodelete	Automatic Deletion of Log Files is Supported
-CT_b_support_radius		External Authentication Server is Supported
-CT_b_support_config_rw	Remote Reading and Writing of Config File is Supported
-CT_b_support_hub_admin_option	Virtual Hub Administration Options is Supported
-CT_b_support_cascade_client_cert	Client Certificates for Cascade Connection is Supported
-CT_b_support_hide_hub	Virtual Hub Enumeration Setting is Supported
-CT_b_support_cluster_admin	Integrated Administration for All Cluster Nodes is Supported
-CT_b_support_cluster	Operation as Part of a Cluster is Supported
-CT_b_support_cluster_controller		Operating as a Cluster Controller
-CT_b_support_layer3		The Virtual Layer 3 Switch is Supported
-CT_b_support_crl		Virtual Hub-Specific Certificate Revocation Lists is Supported
-CT_b_support_ac			Virtual Hub-Specific Source IP Address Limit Lists is Supported
-CT_b_support_read_log	Downloading of Log Files is Supported
-CT_b_support_rename_cascade	Renaming of Cascade Connection is Supported
-CT_b_support_license	Management of Licenses is Supported
-CT_b_support_limit_multilogin	Limits for Multiple Login by Same User is Supported
-CT_b_support_qos		VoIP / QoS Functions is Supported
-CT_b_support_syslog		Syslog Sending Functions is Supported
-CT_b_cluster_hub_type_fixed	The Virtual Hub Types in a Cluster are Fixed
-CT_b_beta_version		Beta Version (Pre-release build)
-CT_b_support_check_mac	Specifing MAC Address in Access Lists is Supported
-CT_b_support_check_tcp_state	Checking TCP Connection State Filtering is Supported
-CT_b_support_network_connection_name	Getting Network Friendly Name is Supported
+CT_i_max_packet_size	Максимальный размер Ethernet пакета
+CT_i_max_hubs			Максимальное кол-во Virtual Hub
+CT_i_max_user_creation	Максимальное кол-во пользователей на всем VPN-сервере
+CT_i_max_sessions		Максимальное кол-во всех сессий
+CT_i_max_clients		Максимальное кол-во сессий VPN-клиентов
+CT_i_max_bridges		Максимальное кол-во сессий в режиме Мост
+CT_i_max_users_per_hub	Максимальное кол-во пользователей для каждого Virtual Hub
+CT_i_max_groups_per_hub	Максимальное кол-во групп для каждого Virtual Hub
+CT_i_max_access_lists	Максимальное кол-во записей в Списках доступа для каждого Virtual Hub
+CT_i_max_mac_tables		Максимальное кол-во записей MAC-адресов для каждого Virtual Hub
+CT_i_max_ip_tables		Максимальное кол-во записей IP-адресов для каждого Virtual Hub
+CT_i_max_secnat_tables	Максимальное кол-во записей SecureNAT для каждого Virtual Hub
+CT_i_max_l3_sw			Максимальное кол-во Layer 3 Switches
+CT_i_max_l3_if			Максимальное кол-во виртуальных интерфейсов для каждого Layer 3 Switch
+CT_i_max_l3_table		Максимальное кол-во записей таблицы маршрутизации для каждого Layer 3 Switch
+CT_b_bridge				Работа в режиме VPN Моста
+CT_b_standalone			Автономный режим
+CT_b_cluster_controller	Режим "Контроллер кластера"
+CT_b_cluster_member		Режим "Член кластера"
+CT_b_vpn_client_connect	Прием соединений от VPN-клиента / Моста
+CT_b_local_bridge		Локальный Мост поддерживается
+CT_b_must_install_pcap	Драйвер захвата пакетов не установлен
+CT_b_tap_supported		Tun/Tap устройство поддерживается (только в Linux)
+CT_b_support_config_hub	Изменение настроек Virtual Hub поддерживается
+CT_b_support_securenat	SecureNAT поддерживается
+CT_b_virtual_nat_disabled	Виртуальный NAT отключен (только DHCP включен)
+CT_b_support_cascade	Каскадное Подключение поддерживается
+CT_b_support_cascade_cert	Сервер авторизации для Каскадного Подключения поддерживается 
+CT_b_support_config_log	Изменение настроек для сохранения лог-файлов поддерживается
+CT_b_support_autodelete	Автоматическое удаление лог-файлов поддерживается
+CT_b_support_radius		Внешний сервер авторизации поддерживается
+CT_b_support_config_rw	Удаленное чтение и запись файла конфигурации поддерживается
+CT_b_support_hub_admin_option	Параметры администрирования Virtual Hub поддерживаются
+CT_b_support_cascade_client_cert	Клиентские сертификаты для Каскадного подключения поддерживаются
+CT_b_support_hide_hub	Настройка скрытия Virtual Hub поддерживается
+CT_b_support_cluster_admin	Интегрированное администрирование для всех узлов кластера поддерживается 
+CT_b_support_cluster	Операции в качестве части кластера поддерживаются
+CT_b_support_cluster_controller		Работа в качестве Контроллера кластера
+CT_b_support_layer3		Virtual Layer 3 Switch поддерживается
+CT_b_support_crl		Cписки Отозванных сертификатов Virtual Hub поддерживаются 
+CT_b_support_ac			Фильтр IP адресов Virtual Hub поддерживается
+CT_b_support_read_log	Загрузка лог-файлов поддерживается
+CT_b_support_rename_cascade	Переименование Каскадного подключения поддерживается
+CT_b_support_license	Управление лицензиями поддерживается
+CT_b_support_limit_multilogin	Ограничение многократного входа одним пользователем поддерживается
+CT_b_support_qos		VoIP / QoS функции поддерживаются
+CT_b_support_syslog		Функция отправки системных лог-файлов поддерживается
+CT_b_cluster_hub_type_fixed	Типы Virtual Hub в кластере фиксированы
+CT_b_beta_version		Бета-версия (Предварительная сборка)
+CT_b_support_check_mac	Указание MAC-адреса в списках доступа поддерживается
+CT_b_support_check_tcp_state	Проверка состояния TCP подключения поддерживается
+CT_b_support_network_connection_name	Получение удобного для понимания сетевого имени поддерживается
 
-CT_b_support_radius_retry_interval_and_several_servers	Retry Interval and Multi server is Supported in RADIUS Auth
-CT_b_support_vlan		Tagged VLAN ID is Supported in MAC Address Table
-CT_b_support_hub_ext_options	Virtual Hub Extended Option is Supported
-CT_b_support_policy_ver_3	Security Policy version 3 is Supported
-CT_b_support_ipv6_acl	IPv6 Access List is Supported
-CT_b_support_ex_acl		Delay, Jitter and Packet Loss is Supported in Access List
-CT_b_support_acl_group	Conditioning by Group name is Supported in Access List
-CT_b_support_ipv6_ac	IPv6 IP Access Control Lists is Supported
-CT_b_support_eth_vlan	Tagged VLAN Packet Transparency Support tool is Supported
-CT_b_support_msg		Message of Today function is Supported
-CT_b_vpn3				Internal Version 3.0 functions are Supported
-CT_b_vpn4				Internal Version 4.0 functions are Supported
-CT_b_support_ipsec		IPsec / L2TP / EtherIP / L2TPv3 Server Functions are Supported
-CT_b_support_sstp		MS-SSTP VPN Server Function is Supported
-CT_b_support_udp_acceleration	UDP Acceleration Function is Supported
-CT_b_support_openvpn	OpenVPN Server Function is Supported
-CT_b_support_ddns		Dynamic DNS Client Function is Supported
-CT_b_support_ddns_proxy	DDNS via Proxy Server is Supported
-CT_b_support_special_listener	VPN over ICMP and VPN over DNS is Supported
-CT_b_support_redirect_url_acl	HTTP URL Redirection in Access List is Supported
-CT_b_is_in_vm			Running on VM (Virtual Machine)
-CT_b_support_azure		VPN Azure is Supported
-CT_b_support_aes_ni	CPU AES Acceleration (AES-NI) is Active
-CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode Ethernet Driver is Active
-CT_b_support_vgs		VPN Gate Service Server Functions are Supported
+CT_b_support_radius_retry_interval_and_several_servers	Интервал повтора и Мульти сервер в RADIUS Auth поддерживаются
+CT_b_support_vlan		Тегированный VLAN ID в таблице MAC-адресов поддерживается
+CT_b_support_hub_ext_options	Расширенные параметры Virtual Hub поддерживаются
+CT_b_support_policy_ver_3	Политика безопасности версии 3 поддерживается
+CT_b_support_ipv6_acl	IPv6 Список доступа поддерживается
+CT_b_support_ex_acl		Задержка, джиттер и потеря пакетов в списке доступа поддерживаются
+CT_b_support_acl_group	Фильтрация по имени группы в списке доступа поддерживается
+CT_b_support_ipv6_ac	IPv6 cписок контроля доступа поддерживается
+CT_b_support_eth_vlan	Инструмент "Tagged VLAN Packet Transparency Support" поддерживается
+CT_b_support_msg		Функция "Сообщение дня" поддерживается
+CT_b_vpn3				Функции Внутренней версии 3.0 поддерживаются 
+CT_b_vpn4				Функции Внутренней версии 4.0 поддерживаются
+CT_b_support_ipsec		IPsec / L2TP / EtherIP / L2TPv3 Сервер поддерживаются
+CT_b_support_sstp		MS-SSTP VPN Сервер поддерживается
+CT_b_support_udp_acceleration	Функция "Ускорения UDP" поддерживается 
+CT_b_support_openvpn	OpenVPN Сервер поддерживается
+CT_b_support_ddns		Функция "Динамический DNS-клиент" поддерживается
+CT_b_support_ddns_proxy	DDNS через Прокси-сервер поддерживается
+CT_b_support_special_listener	VPN через ICMP и VPN через DNS поддерживаются
+CT_b_support_redirect_url_acl	Перенаправление HTTP URL-адресов в списке доступа поддерживается
+CT_b_is_in_vm			Запущен на ВМ (Виртуальной Машине)
+CT_b_support_azure		VPN Azure поддерживается
+CT_b_support_aes_ni	Ускорение CPU AES ускорение (AES-NI) активно
+CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode сетевой драйвер активен
+CT_b_support_vgs		Функция "VPN Gate" поддерживается Service Server Functions are Supported
 CT_b_support_vgs_in_client	VPN Gate Service Server Functions (VPN Client integrated)
 CT_b_is_softether		Either Free or Open-Source Version of SoftEther VPN
 CT_b_suppport_push_route		Static Routing Table Pushing Function
