@@ -13,6 +13,13 @@ set_target_properties(vpnclient
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
+if(WIN32)
+  set_target_properties(vpnclient
+    PROPERTIES
+    PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  )
+endif()
+
 target_link_libraries(vpnclient cedar mayaqua)
 
 if(UNIX)

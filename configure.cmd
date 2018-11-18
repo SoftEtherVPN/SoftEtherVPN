@@ -23,7 +23,7 @@ if not exist "tmp" (
 
 cd tmp
 
-cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" ..
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" ..
 
 if %errorlevel% == 0 (
 	echo.

@@ -125,10 +125,8 @@
 // Macro for the release flag
 #ifdef	VPN_SPEED
 
-#define	DONT_USE_KERNEL_STATUS			// Do not update the kernel status
 #define	WIN32_USE_HEAP_API_FOR_MEMORY	// Use the heap API to allocate memory
 #define	WIN32_NO_DEBUG_HELP_DLL			// Do not call the DLL for debugging
-#define	DONT_CHECK_HEAP					// Do not check the status of the heap
 #define	DONT_ALLOW_RUN_ON_DEBUGGER		// Do not allow running on the debugger
 
 #endif	// VPN_SPEED
@@ -412,43 +410,35 @@ extern BOOL kernel_status_inited;
 #define	KS_GETMAX64(id)	(kernel_status_max[id])
 #define	KS_GETMAX(id)	((UINT)KS_GETMAX64(id))
 
-#ifdef	DONT_USE_KERNEL_STATUS
-// Disable operations of the kernel status
-#define	KS_INC(id)
-#define	KS_DEC(id)
-#define	KS_ADD(id, n)
-#define	KS_SUB(id, n)
-#else	// DONT_USE_KERNEL_STATUS
-// Enable operations of the kernel status
-#define	KS_INC(id)							\
-if (kernel_status_inited) {					\
-	KS_LOCK(id);							\
-	kernel_status[id]++;					\
+// Operations of the kernel status
+#define	KS_INC(id)															\
+if (IsTrackingEnabled()) {													\
+	KS_LOCK(id);															\
+	kernel_status[id]++;													\
 	kernel_status_max[id] = MAX(kernel_status_max[id], kernel_status[id]);	\
-	KS_UNLOCK(id);							\
+	KS_UNLOCK(id);															\
 }
-#define	KS_DEC(id)							\
-if (kernel_status_inited) {					\
-	KS_LOCK(id);							\
-	kernel_status[id]--;					\
+#define	KS_DEC(id)															\
+if (IsTrackingEnabled()) {													\
+	KS_LOCK(id);															\
+	kernel_status[id]--;													\
 	kernel_status_max[id] = MAX(kernel_status_max[id], kernel_status[id]);	\
-	KS_UNLOCK(id);							\
+	KS_UNLOCK(id);															\
 }
-#define	KS_ADD(id, n)						\
-if (kernel_status_inited) {					\
-	KS_LOCK(id);							\
-	kernel_status[id] += n;					\
+#define	KS_ADD(id, n)														\
+if (IsTrackingEnabled()) {													\
+	KS_LOCK(id);															\
+	kernel_status[id] += n;													\
 	kernel_status_max[id] = MAX(kernel_status_max[id], kernel_status[id]);	\
-	KS_UNLOCK(id);							\
+	KS_UNLOCK(id);															\
 }
-#define	KS_SUB(id, n)						\
-if (kernel_status_inited) {					\
-	KS_LOCK(id);							\
-	kernel_status[id] -= n;					\
+#define	KS_SUB(id, n)														\
+if (IsTrackingEnabled()) {													\
+	KS_LOCK(id);															\
+	kernel_status[id] -= n;													\
 	kernel_status_max[id] = MAX(kernel_status_max[id], kernel_status[id]);	\
-	KS_UNLOCK(id);							\
+	KS_UNLOCK(id);															\
 }
-#endif	// DONT_USE_KERNEL_STATUS
 
 // Kernel status
 // String related

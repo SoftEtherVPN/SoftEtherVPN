@@ -45,7 +45,7 @@ fi
 
 echo ""
 
-(cd tmp && cmake ${CMAKE_FLAGS} .. || exit 1)
+(cd tmp && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_FLAGS} .. || exit 1)
 
 
 echo ""

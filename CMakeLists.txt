@@ -5,7 +5,13 @@ project(SoftEtherVPN
   LANGUAGES C
 )
 
-set(default_build_type "Release")
+# We define a dedicated variable because CMAKE_BUILD_TYPE can have different
+# configurations than "Debug" and "Release", such as "RelWithDebInfo".
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(BUILD_TYPE "Debug")
+else()
+  set(BUILD_TYPE "Release")
+endif()
 
 # Check that submodules are present only if source was downloaded with git
 if(EXISTS "${SoftEtherVPN_SOURCE_DIR}/.git" AND NOT EXISTS "${SoftEtherVPN_SOURCE_DIR}/src/Mayaqua/3rdparty/cpu_features/CMakeLists.txt")

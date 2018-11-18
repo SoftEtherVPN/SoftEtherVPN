@@ -552,8 +552,11 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 	// Initialize the Kernel status
 	InitKernelStatus();
 
-	// Initialize the tracking
-	InitTracking();
+	if (IsTrackingEnabled())
+	{
+		// Initialize the tracking
+		InitTracking();
+	}
 
 	// Initialization of thread pool
 	InitThreading();
@@ -696,22 +699,23 @@ void FreeMayaqua()
 	// Release of thread pool
 	FreeThreading();
 
-#ifndef	VPN_SPEED
-	// Show the kernel status
-	if (g_debug)
+	if (IsTrackingEnabled())
 	{
-		PrintKernelStatus();
-	}
+		// Show the kernel status
+		if (g_debug)
+		{
+			PrintKernelStatus();
+		}
 
-	// Display the debug information
-	if (g_memcheck)
-	{
-		PrintDebugInformation();
-	}
-#endif	// VPN_SPEED
+		// Display the debug information
+		if (g_memcheck)
+		{
+			PrintDebugInformation();
+		}
 
-	// Release the tracking
-	FreeTracking();
+		// Release the tracking
+		FreeTracking();
+	}
 
 	// Release of the kernel status
 	FreeKernelStatus();
