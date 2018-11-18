@@ -20,6 +20,12 @@ set_target_properties(cedar
 )
 
 if(WIN32)
+  set_target_properties(cedar
+    PROPERTIES
+    COMPILE_PDB_NAME "cedar"
+    COMPILE_PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  )
+
   target_include_directories(cedar PRIVATE winpcap)
 endif()
 

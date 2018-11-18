@@ -17,4 +17,11 @@ set_target_properties(vpntest
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
+if(WIN32)
+  set_target_properties(vpntest
+    PROPERTIES
+    PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  )
+endif()
+
 target_link_libraries(vpntest cedar mayaqua)

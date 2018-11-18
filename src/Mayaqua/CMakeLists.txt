@@ -17,6 +17,12 @@ set_target_properties(mayaqua
 )
 
 if(WIN32)
+  set_target_properties(mayaqua
+    PROPERTIES
+    COMPILE_PDB_NAME "mayaqua"
+    COMPILE_PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  )
+
   add_subdirectory(3rdparty/zlib)
 
   target_include_directories(mayaqua PRIVATE win32_inc)
@@ -25,22 +31,22 @@ if(WIN32)
   if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
     find_library(LIB_SSL
       NAMES libssl ssleay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${CMAKE_BUILD_TYPE}"
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
     )
 
     find_library(LIB_CRYPTO
       NAMES libcrypto libeay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${CMAKE_BUILD_TYPE}"
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
     )
   else()
     find_library(LIB_SSL
       NAMES libssl ssleay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${CMAKE_BUILD_TYPE}"
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
     )
 
     find_library(LIB_CRYPTO
       NAMES libcrypto libeay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${CMAKE_BUILD_TYPE}"
+      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
     )
   endif()
 

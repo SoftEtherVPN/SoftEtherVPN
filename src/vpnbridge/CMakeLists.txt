@@ -13,6 +13,13 @@ set_target_properties(vpnbridge
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
+if(WIN32)
+  set_target_properties(vpnbridge
+    PROPERTIES
+    PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  )
+endif()
+
 target_link_libraries(vpnbridge cedar mayaqua)
 
 if(UNIX)
