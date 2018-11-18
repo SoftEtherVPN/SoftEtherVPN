@@ -127,27 +127,14 @@ static LOCK *obj_lock;
 static LOCK *obj_id_lock;
 static UINT obj_id;
 static LOCK *cs_lock;
-static bool disable_tracking = false;
 static TRACKING_LIST **hashlist;
 
 static bool do_not_get_callstack;
 
-// Enable the tracking
-void TrackingEnable()
-{
-	disable_tracking = false;
-}
-
-// Disable the tracking
-void TrackingDisable()
-{
-	disable_tracking = true;
-}
-
 // Get whether the tracking is enabled
 bool IsTrackingEnabled()
 {
-	return !disable_tracking;
+	return (IsDebug() || IsMemCheck()) && kernel_status_inited;
 }
 
 // Memory debug menu
@@ -482,14 +469,9 @@ void TrackNewObj(UINT64 addr, char *name, UINT size)
 		return;
 	}
 
-	if (IsMemCheck() == false)
+	if ((IsTrackingEnabled() && IsMemCheck()) == false)
 	{
-		// Don't track in the release mode
-		return;
-	}
-
-	if (disable_tracking)
-	{
+		// Don't track in detail if the memory check option is not specified
 		return;
 	}
 
@@ -528,14 +510,9 @@ void TrackDeleteObj(UINT64 addr)
 		return;
 	}
 
-	if (IsMemCheck() == false)
+	if ((IsTrackingEnabled() && IsMemCheck()) == false)
 	{
-		// Don't track in the release mode
-		return;
-	}
-
-	if (disable_tracking)
-	{
+		// Don't track in detail if the memory check option is not specified
 		return;
 	}
 
@@ -545,11 +522,7 @@ void TrackDeleteObj(UINT64 addr)
 		if (o == NULL)
 		{
 			UnlockTrackingList();
-
-			if (IsDebug())
-			{
-				printf("TrackDeleteObj: 0x%x is not Object!!\n", (void *)addr);
-			}
+			Debug("TrackDeleteObj(): 0x%x not found in tracking list!\n", addr);
 			return;
 		}
 		DeleteTrackingList(o, true);
@@ -567,14 +540,9 @@ void TrackChangeObjSize(UINT64 addr, UINT size, UINT64 new_addr)
 		return;
 	}
 
-	if (IsMemCheck() == false)
+	if ((IsTrackingEnabled() && IsMemCheck()) == false)
 	{
-		// Don't track in the release mode
-		return;
-	}
-
-	if (disable_tracking)
-	{
+		// Don't track in detail if the memory check option is not specified
 		return;
 	}
 

@@ -1071,8 +1071,6 @@ void FreeTable()
 		return;
 	}
 
-	TrackingDisable();
-
 	num = LIST_NUM(TableList);
 	tables = ToArray(TableList);
 	for (i = 0;i < num;i++)
@@ -1088,8 +1086,6 @@ void FreeTable()
 	Free(tables);
 
 	Zero(old_table_name, sizeof(old_table_name));
-
-	TrackingEnable();
 }
 
 // Read a string table from the buffer
@@ -1479,8 +1475,6 @@ bool LoadTableW(wchar_t *filename)
 
 	Zero(replace_name, sizeof(replace_name));
 
-	TrackingDisable();
-
 	b = ReadDump("@table_name.txt");
 	if (b != NULL)
 	{
@@ -1500,9 +1494,5 @@ bool LoadTableW(wchar_t *filename)
 
 	ret = LoadTableMain(filename);
 
-	TrackingEnable();
-
 	return ret;
 }
-
-

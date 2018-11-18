@@ -188,10 +188,6 @@ void PrintObjectList(TRACKING_OBJECT *o);
 void PrintObjectInfo(TRACKING_OBJECT *o);
 void DebugPrintObjectInfo(UINT id);
 
-void TrackingEnable();
-void TrackingDisable();
 bool IsTrackingEnabled();
 
 #endif	// TRACKING_H
-
-
