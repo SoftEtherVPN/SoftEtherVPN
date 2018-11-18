@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(SoftEtherVPN
+project("SoftEther VPN"
   VERSION 5.01.9664
   LANGUAGES C
 )
+
+set(TOP_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(BUILD_DIRECTORY ${TOP_DIRECTORY}/build)
 
 # We define a dedicated variable because CMAKE_BUILD_TYPE can have different
 # configurations than "Debug" and "Release", such as "RelWithDebInfo".
@@ -14,12 +17,12 @@ else()
 endif()
 
 # Check that submodules are present only if source was downloaded with git
-if(EXISTS "${SoftEtherVPN_SOURCE_DIR}/.git" AND NOT EXISTS "${SoftEtherVPN_SOURCE_DIR}/src/Mayaqua/3rdparty/cpu_features/CMakeLists.txt")
+if(EXISTS "${TOP_DIRECTORY}/.git" AND NOT EXISTS "${TOP_DIRECTORY}/src/Mayaqua/3rdparty/cpu_features/CMakeLists.txt")
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
 endif()
 
 # Compare ${PROJECT_VERSION} and src/CurrentBuild.txt
-file(READ ${SoftEtherVPN_SOURCE_DIR}/src/CurrentBuild.txt CurrentBuild)
+file(READ ${TOP_DIRECTORY}/src/CurrentBuild.txt CurrentBuild)
 
 string(REGEX MATCH "VERSION_MAJOR ([0-9]+)" temp ${CurrentBuild})
 string(REGEX REPLACE "VERSION_MAJOR ([0-9]+)" "\\1" CurrentBuild_MAJOR ${temp})
@@ -40,9 +43,8 @@ if(UNIX)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
 endif()
 
-configure_file("${SoftEtherVPN_SOURCE_DIR}/AUTHORS.TXT" "${SoftEtherVPN_SOURCE_DIR}/src/bin/hamcore/authors.txt" COPYONLY)
+configure_file("${TOP_DIRECTORY}/AUTHORS.TXT" "${TOP_DIRECTORY}/src/bin/hamcore/authors.txt" COPYONLY)
 
-set(BUILD_DIRECTORY ${SoftEtherVPN_SOURCE_DIR}/build)
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(src)
@@ -54,11 +56,11 @@ if(UNIX)
   set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
   set(CPACK_PACKAGE_VENDOR "SoftEther")
   set(CPACK_PACKAGE_NAME "softether")
-  set(CPACK_PACKAGE_DESCRIPTION_FILE "${SoftEtherVPN_SOURCE_DIR}/description")
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${TOP_DIRECTORY}/description")
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "SoftEther VPN is an open-source cross-platform multi-protocol VPN program, created as an academic project in the University of Tsukuba.")
 
   # DEB
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(BUILD_TYPE STREQUAL "Debug")
     set(CPACK_DEBIAN_PACKAGE_DEBUG ON)
   endif()
 

@@ -31,22 +31,22 @@ if(WIN32)
   if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
     find_library(LIB_SSL
       NAMES libssl ssleay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
+      HINTS "${TOP_DIRECTORY}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
     )
 
     find_library(LIB_CRYPTO
       NAMES libcrypto libeay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
+      HINTS "${TOP_DIRECTORY}/src/BuildFiles/Library/vs2017/x64_${BUILD_TYPE}"
     )
   else()
     find_library(LIB_SSL
       NAMES libssl ssleay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
+      HINTS "${TOP_DIRECTORY}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
     )
 
     find_library(LIB_CRYPTO
       NAMES libcrypto libeay32
-      HINTS "${CMAKE_SOURCE_DIR}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
+      HINTS "${TOP_DIRECTORY}/src/BuildFiles/Library/vs2017/Win32_${BUILD_TYPE}"
     )
   endif()
 

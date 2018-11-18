@@ -5,9 +5,9 @@ endif()
 set(VPNCMGR_SOURCES vpncmgr.c vpncmgr.rc)
 
 if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-  set(VPNCMGR_SOURCES ${VPNCMGR_SOURCES} ${CMAKE_SOURCE_DIR}/src/BuildFiles/Manifests/x64_user.manifest)
+  set(VPNCMGR_SOURCES ${VPNCMGR_SOURCES} ${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest)
 else()
-  set(VPNCMGR_SOURCES ${VPNCMGR_SOURCES} ${CMAKE_SOURCE_DIR}/src/BuildFiles/Manifests/x86_user.manifest)
+  set(VPNCMGR_SOURCES ${VPNCMGR_SOURCES} ${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest)
 endif()
 
 add_executable(vpncmgr WIN32 ${VPNCMGR_SOURCES})

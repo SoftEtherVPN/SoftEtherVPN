@@ -38,7 +38,7 @@ if(UNIX)
 
   install_wrapper_script("vpnclient" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnclient/vpnclient")
   if(EXISTS "/lib/systemd/system")
-    configure_file(${CMAKE_SOURCE_DIR}/systemd/softether-vpnclient.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnclient.service)
+    configure_file(${TOP_DIRECTORY}/systemd/softether-vpnclient.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnclient.service)
     install(FILES ${CMAKE_BINARY_DIR}/systemd/softether-vpnclient.service
       COMPONENT "vpnclient"
       DESTINATION "/lib/systemd/system"
