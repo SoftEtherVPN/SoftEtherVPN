@@ -6271,6 +6271,24 @@ CMD_OpenVpnMakeConfig_OK			サンプル設定ファイルを "%s" ファイル�
 CMD_OpenVpnMakeConfig_ERROR			サンプル設定ファイルを "%s" ファイルに保存できませんでした。ファイル名が正しくない可能性があります。\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable コマンド
 CMD_SstpEnable			Microsoft SSTP VPN 互換サーバー機能を有効化 / 無効化
 CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。

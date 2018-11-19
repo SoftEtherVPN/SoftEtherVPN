@@ -185,6 +185,12 @@
 #define	OPENVPN_MODE_L2							1		// TAP (Ethernet)
 #define	OPENVPN_MODE_L3							2		// TUN (IP)
 
+// Scramble mode
+#define	OPENVPN_SCRAMBLE_MODE_DISABLED			0		// No scramble
+#define	OPENVPN_SCRAMBLE_MODE_XORMASK			1		// XOR the bytes with the specified string
+#define	OPENVPN_SCRAMBLE_MODE_XORPTRPOS			2		// XOR each byte with its position in the buffer
+#define	OPENVPN_SCRAMBLE_MODE_REVERSE			3		// Reverses bytes order, keeping the first byte unchanged
+#define	OPENVPN_SCRAMBLE_MODE_OBFUSCATE			4		// Performs the above steps using the specified string for xormask
 
 //// Type
 
@@ -271,6 +277,7 @@ struct OPENVPN_SESSION
 	OPENVPN_CHANNEL *Channels[OPENVPN_NUM_CHANNELS];	// Channels (up to 8)
 	UINT LastCreatedChannelIndex;						// Channel number that is created in the last
 	UINT Mode;											// Mode (L3 or L2)
+	UINT ObfuscationMode;								// Packet obfuscation/scrambling mode
 	UINT LinkMtu;										// link-mtu
 	UINT TunMtu;										// tun-mtu
 	IPC_ASYNC *IpcAsync;								// Asynchronous IPC connection

@@ -306,9 +306,150 @@ UINT OvsDecrypt(CIPHER *cipher, MD *md, UCHAR *iv, UCHAR *dest, UCHAR *src, UINT
 	return 0;
 }
 
+// XOR the bytes with the specified string
+void OvsDataXorMask(void *data, const UINT data_size, const char *mask, const UINT mask_size)
+{
+	UINT i;
+	UCHAR *buf;
+	// Validate arguments
+	if (data == NULL || data_size == 0 || mask == NULL || mask_size == 0)
+	{
+		return;
+	}
+
+	for (i = 0, buf = data; i < data_size; i++, buf++)
+	{
+		*buf = *buf ^ mask[i % mask_size];
+	}
+}
+
+// XOR each byte with its position within the buffer
+void OvsDataXorPtrPos(void *data, const UINT size)
+{
+	UINT i;
+	UCHAR *buf;
+	// Validate arguments
+	if (data == NULL || size == 0)
+	{
+		return;
+	}
+
+	for (i = 0, buf = data; i < size; i++, buf++)
+	{
+		*buf = *buf ^ i + 1;
+	}
+}
+
+// Reverse bytes order if they're more than 2, keeping the first byte unchanged
+void OvsDataReverse(void *data, const UINT size)
+{
+	UINT i;
+	UCHAR tmp;
+	UCHAR *buf_start, *buf_end;
+	// Validate arguments
+	if (data == NULL || size < 3)
+	{
+		return;
+	}
+
+	for (i = 0, buf_start = (UCHAR *)data + 1, buf_end = (UCHAR *)data + (size - 1); i < (size - 1 ) / 2; i++, buf_start++, buf_end--)
+	{
+		tmp = *buf_start;
+		*buf_start = *buf_end;
+		*buf_end = tmp;
+	}
+}
+
+// Detects the method used to obfuscate the packet
+UINT OvsDetectObfuscation(void *data, UINT size, char *xormask)
+{
+	UINT ret;
+	void *tmp;
+	OPENVPN_PACKET *parsed_packet;
+	// Validate arguments
+	if (data == NULL || size == 0)
+	{
+		return INFINITE;
+	}
+
+	ret = INFINITE;
+	tmp = NULL;
+
+	// OPENVPN_SCRAMBLE_MODE_DISABLED
+	parsed_packet = OvsParsePacket(data, size);
+	if (parsed_packet != NULL)
+	{
+		ret = OPENVPN_SCRAMBLE_MODE_DISABLED;
+		goto final;
+	}
+
+	// OPENVPN_SCRAMBLE_MODE_XORMASK
+	tmp = Clone(data, size);
+
+	OvsDataXorMask(tmp, size, xormask, StrLen(xormask));
+
+	parsed_packet = OvsParsePacket(tmp, size);
+	if (parsed_packet != NULL)
+	{
+		ret = OPENVPN_SCRAMBLE_MODE_XORMASK;
+		goto final;
+	}
+
+	Free(tmp);
+
+	// OPENVPN_SCRAMBLE_MODE_XORPTRPOS
+	tmp = Clone(data, size);
+
+	OvsDataXorPtrPos(tmp, size);
+
+	parsed_packet = OvsParsePacket(tmp, size);
+	if (parsed_packet != NULL)
+	{
+		ret = OPENVPN_SCRAMBLE_MODE_XORPTRPOS;
+		goto final;
+	}
+
+	Free(tmp);
+
+	// OPENVPN_SCRAMBLE_MODE_REVERSE
+	tmp = Clone(data, size);
+
+	OvsDataReverse(tmp, size);
+
+	parsed_packet = OvsParsePacket(tmp, size);
+	if (parsed_packet != NULL)
+	{
+		ret = OPENVPN_SCRAMBLE_MODE_REVERSE;
+		goto final;
+	}
+
+	Free(tmp);
+
+	// OPENVPN_SCRAMBLE_MODE_OBFUSCATE
+	tmp = Clone(data, size);
+
+	OvsDataXorMask(tmp, size, xormask, StrLen(xormask));
+	OvsDataXorPtrPos(tmp, size);
+	OvsDataReverse(tmp, size);
+	OvsDataXorPtrPos(tmp, size);
+
+	parsed_packet = OvsParsePacket(tmp, size);
+	if (parsed_packet != NULL)
+	{
+		ret = OPENVPN_SCRAMBLE_MODE_OBFUSCATE;
+		goto final;
+	}
+
+final:
+	OvsFreePacket(parsed_packet);
+	Free(tmp);
+	return ret;
+}
+
 // Process the received packet
 void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 {
+	OPENVPN_CHANNEL *c;
 	OPENVPN_SESSION *se;
 	OPENVPN_PACKET *recv_packet;
 	// Validate arguments
@@ -317,7 +458,6 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 		return;
 	}
 
-
 	// Search for the session
 	se = OvsFindOrCreateSession(s, &p->DstIP, p->DestPort, &p->SrcIP, p->SrcPort, protocol);
 	if (se == NULL)
@@ -325,142 +465,179 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 		return;
 	}
 
-	// Parse the packet
-	recv_packet = OvsParsePacket(p->Data, p->Size);
-
-	if (recv_packet != NULL)
+	// Detect obfuscation mode and save it for the next packets in the same session
+	if (se->ObfuscationMode == INFINITE)
 	{
-		OPENVPN_CHANNEL *c = NULL;
-		if (recv_packet->OpCode != OPENVPN_P_DATA_V1 && recv_packet->MySessionId != 0)
+		se->ObfuscationMode = OvsDetectObfuscation(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask);
+		if (se->ObfuscationMode != INFINITE)
 		{
-			Debug("RECV PACKET: %u %I64u\n", recv_packet->KeyId, recv_packet->MySessionId);
-		}
-		if (recv_packet->OpCode != OPENVPN_P_DATA_V1)
-		{
-			Debug("   PKT %u %u\n", recv_packet->OpCode, recv_packet->KeyId);
-		}
-
-		if (recv_packet->OpCode != OPENVPN_P_DATA_V1)
-		{
-			// Control packet
-			if (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2 ||
-				recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
-			{
-				// Connection request packet
-				if (se->Channels[recv_packet->KeyId] != NULL)
-				{
-					// Release when there is a channel data already
-					OvsFreeChannel(se->Channels[recv_packet->KeyId]);
-					se->Channels[recv_packet->KeyId] = NULL;
-				}
-
-				// Create a new channel
-				c = OvsNewChannel(se, recv_packet->KeyId);
-				if (se->ClientSessionId == 0)
-				{
-					se->ClientSessionId = recv_packet->MySessionId;
-				}
-				se->Channels[recv_packet->KeyId] = c;
-				Debug("OpenVPN New Channel :%u\n", recv_packet->KeyId);
-				OvsLog(s, se, c, "LO_NEW_CHANNEL");
-			}
-/*			else if (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
-			{
-				// Response to soft reset request packet
-				OPENVPN_PACKET *p;
-
-				p = OvsNewControlPacket(OPENVPN_P_CONTROL_SOFT_RESET_V1, recv_packet->KeyId, se->ServerSessionId,
-					0, NULL, 0, 0, 0, NULL);
-
-				OvsSendPacketNow(s, se, p);
-
-				OvsFreePacket(p);
-			}*/
-			else
-			{
-				// Packet other than the connection request
-				if (se->Channels[recv_packet->KeyId] != NULL)
-				{
-					c = se->Channels[recv_packet->KeyId];
-				}
-			}
-
-			if (c != NULL)
-			{
-				// Delete the send packet list by looking the packet ID in the ACK list of arrived packet
-				OvsDeleteFromSendingControlPacketList(c, recv_packet->NumAck, recv_packet->AckPacketId);
-
-				if (recv_packet->OpCode != OPENVPN_P_ACK_V1)
-				{
-					// Add the Packet ID of arrived packet to the list
-					InsertIntDistinct(c->AckReplyList, recv_packet->PacketId);
-					Debug("Recv Packet ID (c=%u): %u\n", c->KeyId, recv_packet->PacketId);
-
-					if ((recv_packet->PacketId > c->MaxRecvPacketId)
-						|| (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2)
-						|| (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1))
-					{
-						c->MaxRecvPacketId = recv_packet->PacketId;
-
-						// Process the received control packet
-						OvsProcessRecvControlPacket(s, se, c, recv_packet);
-					}
-				}
-			}
+			Debug("OvsProceccRecvPacket(): detected packet obfuscation/scrambling mode: %u\n", se->ObfuscationMode);
 		}
 		else
 		{
-			// Data packet
+			Debug("OvsProceccRecvPacket(): failed to detect packet obfuscation/scrambling mode!\n");
+			return;
+		}
+	}
+
+	// Handle scrambled packet
+	switch (se->ObfuscationMode)
+	{
+	case OPENVPN_SCRAMBLE_MODE_DISABLED:
+		break;
+	case OPENVPN_SCRAMBLE_MODE_XORMASK:
+		OvsDataXorMask(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		break;
+	case OPENVPN_SCRAMBLE_MODE_XORPTRPOS:
+		OvsDataXorPtrPos(p->Data, p->Size);
+		break;
+	case OPENVPN_SCRAMBLE_MODE_REVERSE:
+		OvsDataReverse(p->Data, p->Size);
+		break;
+	case OPENVPN_SCRAMBLE_MODE_OBFUSCATE:
+		OvsDataXorMask(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		OvsDataXorPtrPos(p->Data, p->Size);
+		OvsDataReverse(p->Data, p->Size);
+		OvsDataXorPtrPos(p->Data, p->Size);
+	}
+
+	// Parse the packet
+	recv_packet = OvsParsePacket(p->Data, p->Size);
+	if (recv_packet == NULL)
+	{
+		Debug("OvsProceccRecvPacket(): OvsParsePacket() returned NULL!\n");
+		return;
+	}
+
+	if (recv_packet->OpCode != OPENVPN_P_DATA_V1 && recv_packet->MySessionId != 0)
+	{
+		Debug("RECV PACKET: %u %I64u\n", recv_packet->KeyId, recv_packet->MySessionId);
+	}
+	if (recv_packet->OpCode != OPENVPN_P_DATA_V1)
+	{
+		Debug("   PKT %u %u\n", recv_packet->OpCode, recv_packet->KeyId);
+	}
+
+	if (recv_packet->OpCode != OPENVPN_P_DATA_V1)
+	{
+		// Control packet
+		if (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2 ||
+			recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
+		{
+			// Connection request packet
 			if (se->Channels[recv_packet->KeyId] != NULL)
 			{
-				OPENVPN_CHANNEL *c = se->Channels[recv_packet->KeyId];
-				if (c->Status == OPENVPN_CHANNEL_STATUS_ESTABLISHED)
+				// Release when there is a channel data already
+				OvsFreeChannel(se->Channels[recv_packet->KeyId]);
+				se->Channels[recv_packet->KeyId] = NULL;
+			}
+
+			// Create a new channel
+			c = OvsNewChannel(se, recv_packet->KeyId);
+			if (se->ClientSessionId == 0)
+			{
+				se->ClientSessionId = recv_packet->MySessionId;
+			}
+			se->Channels[recv_packet->KeyId] = c;
+			Debug("OpenVPN New Channel :%u\n", recv_packet->KeyId);
+			OvsLog(s, se, c, "LO_NEW_CHANNEL");
+		}
+/*		else if (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
+		{
+			// Response to soft reset request packet
+			OPENVPN_PACKET *p;
+
+			p = OvsNewControlPacket(OPENVPN_P_CONTROL_SOFT_RESET_V1, recv_packet->KeyId, se->ServerSessionId,
+				0, NULL, 0, 0, 0, NULL);
+
+			OvsSendPacketNow(s, se, p);
+
+			OvsFreePacket(p);
+		}*/
+		else
+		{
+			// Packet other than the connection request
+			if (se->Channels[recv_packet->KeyId] != NULL)
+			{
+				c = se->Channels[recv_packet->KeyId];
+			}
+		}
+
+		if (c != NULL)
+		{
+			// Delete the send packet list by looking the packet ID in the ACK list of arrived packet
+			OvsDeleteFromSendingControlPacketList(c, recv_packet->NumAck, recv_packet->AckPacketId);
+
+			if (recv_packet->OpCode != OPENVPN_P_ACK_V1)
+			{
+				// Add the Packet ID of arrived packet to the list
+				InsertIntDistinct(c->AckReplyList, recv_packet->PacketId);
+				Debug("Recv Packet ID (c=%u): %u\n", c->KeyId, recv_packet->PacketId);
+
+				if ((recv_packet->PacketId > c->MaxRecvPacketId)
+					|| (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2)
+					|| (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1))
 				{
-					UINT size;
-					UCHAR *data = s->TmpBuf;
-					if (c->CipherDecrypt->IsAeadCipher)
+					c->MaxRecvPacketId = recv_packet->PacketId;
+
+					// Process the received control packet
+					OvsProcessRecvControlPacket(s, se, c, recv_packet);
+				}
+			}
+		}
+	}
+	else
+	{
+		// Data packet
+		if (se->Channels[recv_packet->KeyId] != NULL)
+		{
+			OPENVPN_CHANNEL *c = se->Channels[recv_packet->KeyId];
+			if (c->Status == OPENVPN_CHANNEL_STATUS_ESTABLISHED)
+			{
+				UINT size;
+				UCHAR *data = s->TmpBuf;
+				if (c->CipherDecrypt->IsAeadCipher)
+				{
+					// Update variable part (packet ID) of IV
+					Copy(c->IvRecv, recv_packet->Data, sizeof(recv_packet->PacketId));
+
+					// Decrypt
+					size = OvsDecrypt(c->CipherDecrypt, NULL, c->IvRecv, data, recv_packet->Data + sizeof(UINT), recv_packet->DataSize - sizeof(UINT));
+				}
+				else
+				{
+					// Decrypt
+					size = OvsDecrypt(c->CipherDecrypt, c->MdRecv, c->IvRecv, data, recv_packet->Data, recv_packet->DataSize);
+
+					// Seek buffer after the packet ID
+					data += sizeof(UINT);
+					size -= sizeof(UINT);
+				}
+
+				// Update of last communication time
+				se->LastCommTick = s->Now;
+
+				if (size < sizeof(ping_signature) || Cmp(data, ping_signature, sizeof(ping_signature)) != 0)
+				{
+					// Receive a packet!
+					if (se->Ipc != NULL)
 					{
-						// Update variable part (packet ID) of IV
-						Copy(c->IvRecv, recv_packet->Data, sizeof(recv_packet->PacketId));
-
-						// Decrypt
-						size = OvsDecrypt(c->CipherDecrypt, NULL, c->IvRecv, data, recv_packet->Data + sizeof(UINT), recv_packet->DataSize - sizeof(UINT));
-					}
-					else
-					{
-						// Decrypt
-						size = OvsDecrypt(c->CipherDecrypt, c->MdRecv, c->IvRecv, data, recv_packet->Data, recv_packet->DataSize);
-
-						// Seek buffer after the packet ID
-						data += sizeof(UINT);
-						size -= sizeof(UINT);
-					}
-
-					// Update of last communication time
-					se->LastCommTick = s->Now;
-
-					if (size < sizeof(ping_signature) || Cmp(data, ping_signature, sizeof(ping_signature)) != 0)
-					{
-						// Receive a packet!
-						if (se->Ipc != NULL)
+						switch (se->Mode)
 						{
-							switch (se->Mode)
-							{
-							case OPENVPN_MODE_L2:	// Send an Ethernet packet to a session
-								IPCSendL2(se->Ipc, data, size);
-								break;
-							case OPENVPN_MODE_L3:	// Send an IPv4 packet to a session
-								IPCSendIPv4(se->Ipc, data, size);
-								break;
-							}
+						case OPENVPN_MODE_L2:	// Send an Ethernet packet to a session
+							IPCSendL2(se->Ipc, data, size);
+							break;
+						case OPENVPN_MODE_L3:	// Send an IPv4 packet to a session
+							IPCSendIPv4(se->Ipc, data, size);
+							break;
 						}
 					}
 				}
 			}
 		}
-
-		OvsFreePacket(recv_packet);
 	}
+
+	OvsFreePacket(recv_packet);
 }
 
 // Remove a packet which the opponent has received from the transmission list
@@ -1725,7 +1902,6 @@ OPENVPN_PACKET *OvsParsePacket(UCHAR *data, UINT size)
 	return ret;
 
 LABEL_ERROR:
-	Debug("OvsParsePacket Error.\n");
 	OvsFreePacket(ret);
 	return NULL;
 }
@@ -1829,6 +2005,8 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 
 	Copy(&se->ServerIp, server_ip, sizeof(IP));
 	se->ServerPort = server_port;
+
+	se->ObfuscationMode = s->Cedar->OpenVPNObfuscation ? INFINITE : OPENVPN_SCRAMBLE_MODE_DISABLED;
 
 	se->LastCommTick = s->Now;
 
@@ -2506,6 +2684,27 @@ void OvsSendPacketRawNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, void *data, UIN
 	{
 		Free(data);
 		return;
+	}
+
+	// Scramble the packet
+	switch (se->ObfuscationMode)
+	{
+	case OPENVPN_SCRAMBLE_MODE_DISABLED:
+		break;
+	case OPENVPN_SCRAMBLE_MODE_XORMASK:
+		OvsDataXorMask(data, size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		break;
+	case OPENVPN_SCRAMBLE_MODE_XORPTRPOS:
+		OvsDataXorPtrPos(data, size);
+		break;
+	case OPENVPN_SCRAMBLE_MODE_REVERSE:
+		OvsDataReverse(data, size);
+		break;
+	case OPENVPN_SCRAMBLE_MODE_OBFUSCATE:
+		OvsDataXorPtrPos(data, size);
+		OvsDataReverse(data, size);
+		OvsDataXorPtrPos(data, size);
+		OvsDataXorMask(data, size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
 	}
 
 	u = NewUdpPacket(&se->ServerIp, se->ServerPort, &se->ClientIp, se->ClientPort,

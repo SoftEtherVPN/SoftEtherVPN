@@ -6281,6 +6281,24 @@ CMD_OpenVpnMakeConfig_OK				樣本設置檔案被保存為 "%s"。您可以解�
 CMD_OpenVpnMakeConfig_ERROR				本樣本設置檔案不能保存為 "%s"。該檔案名無效。\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable 命令
 CMD_SstpEnable						啟用/禁用 Microsoft SSTP VPN 克隆伺服器功能
 CMD_SstpEnable_Help					本 VPN Server 擁有植入在微軟 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT / 10 中的標準 MS-SSTP 用戶端可以連接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 證書 CN 值必須要和指定給用戶端的主機名稱吻合。並且，該證書必須在 SSTP VPN Client 的信任清單中。詳情請參見微軟相關檔。\n您可以用用 ServerCertRegenerate 命令來取代當前 VPN Server 的證書，形成一個新的，有 CN 值欄位的自我認證證書。這樣的話，您需要在 SSTP VPN Client 註冊這樣一個新的自我認證證書作為一個可信任根證書。如果您的確想做這件複雜的事，請考慮購買一個商業權威機構的 SSL 證書，如 VeriSign 或者 GlobalSign。\n\n指定用戶名連接到虛擬 HUB 的的方式，使用本克隆伺服器功能來為預設虛擬 HUB 的選擇規則都與 IPsec 伺服器功能相同。詳情，請參見 IPsecEnable 命令的幫助。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。

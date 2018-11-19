@@ -6264,6 +6264,24 @@ CMD_OpenVpnMakeConfig_OK			The sample setting file was saved as "%s". You can un
 CMD_OpenVpnMakeConfig_ERROR			The sample setting files were unable to be saved as "%s". The filename might be invalid.\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable command
 CMD_SstpEnable			Enable / Disable Microsoft SSTP VPN Clone Server Function
 CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
