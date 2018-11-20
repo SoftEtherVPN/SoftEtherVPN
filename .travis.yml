@@ -32,8 +32,6 @@ matrix:
       dotnet: 2.1.300
       before_install:
         - true
-      before_script:
-        - true
       script:
         - cd developer_tools/stbchecker
         - dotnet run ../../src/bin/hamcore
@@ -71,14 +69,12 @@ cache:
 before_install:
   - bash .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
 
-before_script:
-  - .ci/coverity.sh
-
 script:
   - export OPENSSL_ROOT_DIR=${OPENSSL_INSTALL_DIR}
   - export LD_LIBRARY_PATH="${HOME}/opt/lib:${LD_LIBRARY_PATH:-}"
   - export CFLAGS="-I${HOME}/opt/include"
   - export LDFLAGS="-L${HOME}/opt/lib"
+  - .ci/coverity.sh
   - ./configure
   - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
   - ldd build/vpnserver
