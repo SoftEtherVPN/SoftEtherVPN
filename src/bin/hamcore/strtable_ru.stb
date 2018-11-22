@@ -700,32 +700,32 @@ POL_7					Запретить дублирование IP-адресов (IPv4)
 POL_EX_7				Компьютеры из разных сессий с этой политикой не смогут использовать одинаковые IPv4-адреса.
 POL_8					Запретить широковещательные Non-ARP / Non-DHCP / Non-ICMPv6
 POL_EX_8				Отправка или получение в виртуальной сети широковещательных пакетов, которые не являются протоколами ARP, DHCP или ICMPv6, будет запрещена для сессий с этой политикой.
-POL_9					Privacy Filter Mode
-POL_EX_9				All direct communication between sessions with the privacy filter mode policy setting will be filtered.
-POL_10					Deny Operation as TCP/IP Server (IPv4)
-POL_EX_10				Computers of sessions with this policy setting can't listen and accept TCP/IP connections in IPv4.
-POL_11					Unlimited Number of Broadcasts
-POL_EX_11				If a computer of a session with this policy setting sends broadcast packets of a number unusually larger than what would be considered normal on the virtual network, there will be no automatic limiting.
-POL_12					Allow Monitoring Mode
-POL_EX_12				Users with this policy setting will be granted to connect to the Virtual Hub in Monitoring Mode. Sessions in Monitoring Mode are able to monitor (tap) all packets flowing through the Virtual Hub.
-POL_13					Maximum Number of TCP Connections
-POL_EX_13				For sessions with this policy setting, this sets the maximum number of physical TCP connections consists in a physical VPN session. 
-POL_14					Time-out Period
-POL_EX_14				For sessions with this policy setting, this sets, in seconds, the time-out period to wait before disconnecting a session when communication trouble occurs between the VPN Client / VPN Server.
-POL_15					Maximum Number of MAC Addresses
-POL_EX_15				For sessions with this policy setting, this limits the number of MAC addresses per session.
-POL_16					Maximum Number of IP Addresses (IPv4)
-POL_EX_16				For sessions with this policy setting, this specifies the number of IPv4 addresses that can be registered for a single session.
-POL_17					Upload Bandwidth
-POL_EX_17				For sessions with this policy setting, this limits the traffic bandwidth that is in the inwards direction from outside to inside the Virtual Hub.
-POL_18					Download Bandwidth
-POL_EX_18				For sessions with this policy setting, this limits the traffic bandwidth that is in the outwards direction from inside the Virtual Hub to outside the Virtual Hub.
-POL_19					Deny Changing Password
-POL_EX_19				The users which use password authentication with this policy setting are not allowed to change their own password from the VPN Client Manager or similar.
-POL_20					Maximum Number of Multiple Logins
-POL_EX_20				Users with this policy setting are unable to have more than this number of concurrent logins. Bridge Mode sessions are not subjects to this policy. This security policy is only available on VPN Server 3.0 or greater, or VPN Server 2.0 with the multi-login restriction function.
-POL_21					Deny VoIP / QoS Function
-POL_EX_21				Users with this security policy are unable to use VoIP / QoS functions in VPN connection sessions. This security policy is only available on VPN Server 3.0 or greater, or VPN Server 2.0 with the VoIP / QoS functions.
+POL_9					Режим конфиденциальности
+POL_EX_9				Обмен данными между сессиями с этой политикой будет невозможен.
+POL_10					Запретить TCP/IP соединения (IPv4)
+POL_EX_10				Компьютеры в сессиях с этой политикой не смогут слушать и принимать IPv4 TCP/IP-соединения.
+POL_11					Неограниченная широковещательная рассылка 
+POL_EX_11				Для компьютера в сессии с этой политикой не будет автоматически ограничиваться ненужное количество широковещательных пакетов, отправленных в виртуальную сеть.  
+POL_12					Разрешить режим Мониторинга
+POL_EX_12				Пользователям с этой политикой будет разрешено подключение к Virtual Hub в режиме Мониторинга. Сессии в режиме Мониторинга могут отслеживать все пакеты, протекающие через Virtual Hub.
+POL_13					Максимальное кол-во TCP-соединений
+POL_EX_13				Устанавливает максимальное количество физических TCP-соединений, которые могут быть выделены сессии с этой политикой.
+POL_14					Время ожидания
+POL_EX_14				Этот параметр устанавливает время ожидания до отключения сессии, если возникают проблемы связи между VPN-клиентом / VPN-сервером в сессии с этой политикой.
+POL_15					Максимальное кол-во MAC-адресов
+POL_EX_15				Ограничивает количество MAC-адресов для каждой сессии с этой политикой.
+POL_16					Максимальное количество IP-адресов (IPv4)
+POL_EX_16				Ограничивает количество IPv4 IP-адресов для каждой сессии с этой политикой.
+POL_17					Исходящая скорость
+POL_EX_17				Ограничивает полосу пропускания трафика из сессии с этой политикой в сторону Virtual Hub. 
+POL_18					Входящая скорость
+POL_EX_18				Ограничивает полосу пропускания трафика из Virtual Hub в сторону сессии с этой политикой.
+POL_19					Запретить изменение пароля
+POL_EX_19				Пользователям с этой политикой, использующим аутентификацию с помощью пароля будет запрещено изменять свой пароль.
+POL_20					Максимальное кол-во многократных входов
+POL_EX_20				Пользователям с этой политикой будет ограничено количество одновременных сессий, использующих один и тот же логин. Сесии в режиме Моста не подпадают под эту политику. Эта политика безопасности доступна только на VPN Server 3.0 или более поздней версии или VPN Server 2.0 с функцией "Ограничение многократного входа".
+POL_21					Запретить функции VoIP / QoS
+POL_EX_21				Пользователи с этой политикой не могут использовать функции VoIP / QoS в VPN-сессиях. Эта политика безопасности доступна только на VPN Server 3.0 или выше или VPN Server 2.0 с функциями VoIP / QoS.
 
 # Ver 3.0
 POL_22					Filter RS / RA Packets (IPv6)
