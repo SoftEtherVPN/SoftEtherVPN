@@ -661,45 +661,45 @@ CT_b_is_in_vm			Запущен на ВМ (Виртуальной Машине)
 CT_b_support_azure		VPN Azure поддерживается
 CT_b_support_aes_ni	Ускорение CPU AES ускорение (AES-NI) активно
 CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode сетевой драйвер активен
-CT_b_support_vgs		Функция "VPN Gate" поддерживается Service Server Functions are Supported
-CT_b_support_vgs_in_client	VPN Gate Service Server Functions (VPN Client integrated)
-CT_b_is_softether		Either Free or Open-Source Version of SoftEther VPN
-CT_b_suppport_push_route		Static Routing Table Pushing Function
-CT_b_suppport_push_route_config	Static Routing Table Pushing Function (Configurable)
+CT_b_support_vgs		Сервис "VPN Gate" поддерживается
+CT_b_support_vgs_in_client	Сервис "VPN Gate" интегрирован в VPN-клиент
+CT_b_is_softether		SoftEther VPN бесплатная версия или с открытым исходным кодом
+CT_b_suppport_push_route		Функция передачи статических маршрутов
+CT_b_suppport_push_route_config	Функция передачи статических маршрутов (Настраиваемая)
 
 # Concerning policies
-POL_TITLE_STR			Policy Name
-POL_VALUE_STR			Current Value
-POL_TYPE_BOOL			ON / OFF
-POL_TYPE_INT			Integer
-POL_BOOL_ENABLE			Enabled
+POL_TITLE_STR			Название политики
+POL_VALUE_STR			Текущее значение
+POL_TYPE_BOOL			ВКЛ / ВЫКЛ
+POL_TYPE_INT			Целое число
+POL_BOOL_ENABLE			Включено
 POL_BOOL_DISABLE		-
 POL_BOOL_DISABLE_EX		-
 POL_INT_ZERO			-
 POL_INT_COUNT			%u 
-POL_INT_SEC				%u seconds
-POL_INT_BPS				%u bps
+POL_INT_SEC				%u сек.
+POL_INT_BPS				%u б/с
 POL_INT_VLAN			%u
 
 # Ver 2.0
-POL_0					Allow Access
-POL_EX_0				The users defined this policy have permission to make VPN connection to VPN Server.
-POL_1					Filter DHCP Packets (IPv4)
-POL_EX_1				All IPv4 DHCP packets in sessions defined this policy will be filtered.
-POL_2					Disallow DHCP Server Operation (IPv4)
-POL_EX_2				Computers connected to sessions that have this policy setting will not be allowed to become a DHCP server and distribute IPv4 addresses to DHCP clients.
-POL_3					Enforce DHCP Allocated IP Addresses (IPv4)
-POL_EX_3				Computers in sessions that have this policy setting will only be able to use IPv4 addresses allocated by a DHCP server on the virtual network side.
-POL_4					Deny Bridge Operation
-POL_EX_4				Bridge-mode connections are denied for user sessions that have this policy setting. Even in cases when the Ethernet Bridge is configured in the client side, communication will not be possible.
-POL_5					Deny Routing Operation (IPv4)
-POL_EX_5				IPv4 routing will be denied for sessions that have this policy setting. Even in the case where the IP router is operating on the user client side, communication will not be possible.
-POL_6					Deny MAC Addresses Duplication
-POL_EX_6				The use of duplicating MAC addresses that are in use by computers of different sessions cannot be used by sessions with this policy setting.
-POL_7					Deny IP Address Duplication (IPv4)
-POL_EX_7				The use of duplicating IPv4 addresses that are in use by computers of different sessions cannot be used by sessions with this policy setting.
-POL_8					Deny Non-ARP / Non-DHCP / Non-ICMPv6 broadcasts
-POL_EX_8				The sending or receiving of broadcast packets that are not ARP protocol, DHCP protocol, nor ICMPv6 on the virtual network will not be allowed for sessions with this policy setting.
+POL_0					Разрешить доступ
+POL_EX_0				У пользователей с этой политикой есть разрешение на подключение к VPN-серверу.
+POL_1					Фильтровать DHCP пакеты (IPv4)
+POL_EX_1				Все DHCP IPv4-пакеты в сессиях с этой политикой, будут отфильтрованы.
+POL_2					Запретить работу DHCP-сервера (IPv4)
+POL_EX_2				Компьютеры, подключенные к сессиям с этой политикой, не смогут стать DHCP-сервером и распространять IPv4-адреса для DHCP-клиентов.
+POL_3					Принудительно использовать IP-адреса выделенные DHCP-сервером (IPv4)
+POL_EX_3				Компьютеры в сессиях с этой политикой, смогут использовать только IPv4-адреса, выделенные DHCP-сервером на стороне виртуальной сети.
+POL_4					Запретить работу Моста
+POL_EX_4				Соединения в режиме Мост запрещены для пользовательских сессий с этой политикой. Даже в случаях, когда Ethernet-мост настроен на стороне клиента, связь будет невозможна.
+POL_5					Запретить маршрутизацию (IPv4)
+POL_EX_5				IPv4 маршрутизация будет запрещена для сессий с этой политикой. Даже в случаях, когда IP маршрутизация работает на стороне пользователя, связь будет невозможна.
+POL_6					Запретить дублирование MAC-адресов
+POL_EX_6				Компьютеры из разных сессий с этой политикой не смогут использовать одинаковые MAC-адреса.
+POL_7					Запретить дублирование IP-адресов (IPv4)
+POL_EX_7				Компьютеры из разных сессий с этой политикой не смогут использовать одинаковые IPv4-адреса.
+POL_8					Запретить широковещательные Non-ARP / Non-DHCP / Non-ICMPv6
+POL_EX_8				Отправка или получение в виртуальной сети широковещательных пакетов, которые не являются протоколами ARP, DHCP или ICMPv6, будет запрещена для сессий с этой политикой.
 POL_9					Privacy Filter Mode
 POL_EX_9				All direct communication between sessions with the privacy filter mode policy setting will be filtered.
 POL_10					Deny Operation as TCP/IP Server (IPv4)
