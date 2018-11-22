@@ -685,7 +685,7 @@ POL_INT_VLAN			%u
 POL_0					Разрешить доступ
 POL_EX_0				У пользователей с этой политикой есть разрешение на подключение к VPN-серверу.
 POL_1					Фильтровать DHCP пакеты (IPv4)
-POL_EX_1				Все DHCP IPv4-пакеты в сессиях с этой политикой, будут отфильтрованы.
+POL_EX_1				Все DHCP IPv4-пакеты в сессиях с этой политикой будут отфильтрованы.
 POL_2					Запретить работу DHCP-сервера (IPv4)
 POL_EX_2				Компьютеры, подключенные к сессиям с этой политикой, не смогут стать DHCP-сервером и распространять IPv4-адреса для DHCP-клиентов.
 POL_3					Принудительно использовать IP-адреса выделенные DHCP-сервером (IPv4)
@@ -715,7 +715,7 @@ POL_EX_14				Этот параметр устанавливает время о�
 POL_15					Максимальное кол-во MAC-адресов
 POL_EX_15				Ограничивает количество MAC-адресов для каждой сессии с этой политикой.
 POL_16					Максимальное количество IP-адресов (IPv4)
-POL_EX_16				Ограничивает количество IPv4 IP-адресов для каждой сессии с этой политикой.
+POL_EX_16				Ограничивает количество IPv4-адресов для каждой сессии с этой политикой.
 POL_17					Исходящая скорость
 POL_EX_17				Ограничивает полосу пропускания трафика из сессии с этой политикой в сторону Virtual Hub. 
 POL_18					Входящая скорость
@@ -728,24 +728,24 @@ POL_21					Запретить функции VoIP / QoS
 POL_EX_21				Пользователи с этой политикой не могут использовать функции VoIP / QoS в VPN-сессиях. Эта политика безопасности доступна только на VPN Server 3.0 или выше или VPN Server 2.0 с функциями VoIP / QoS.
 
 # Ver 3.0
-POL_22					Filter RS / RA Packets (IPv6)
-POL_EX_22				All ICMPv6 packets which the message-type is 133 (Router Solicitation) or 134 (Router Advertisement) in sessions defined this policy will be filtered. As a result, an IPv6 client will be unable to use IPv6 address prefix auto detection and IPv6 default gateway auto detection.
-POL_23					Filter RA Packets (IPv6)
-POL_EX_23				All ICMPv6 packets which the message-type is 134 (Router Advertisement) in sessions defined this policy will be filtered. As a result, a malicious users will be unable to spread illegal IPv6 prefix or default gateway advertisements on the network.
-POL_24					Filter DHCP Packets (IPv6)
-POL_EX_24				All IPv6 DHCP packets in sessions defined this policy will be filtered.
-POL_25					Disallow DHCP Server Operation (IPv6)
-POL_EX_25				Computers connected to sessions that have this policy setting will not be allowed to become a DHCP server and distribute IPv6 addresses to DHCP clients.
-POL_26					Deny Routing Operation (IPv6)
-POL_EX_26				IPv6 routing will be denied for sessions that have this policy setting. Even in the case where the IP router is operating on the user client side, communication will not be possible.
-POL_27					Deny IP Address Duplication (IPv6)
-POL_EX_27				The use of duplicating IPv6 addresses that are in use by computers of different sessions cannot be used by sessions with this policy setting.
-POL_28					Deny Operation as TCP/IP Server (IPv6)
-POL_EX_28				Computers of sessions with this policy setting can't listen and accept TCP/IP connections in IPv6.
-POL_29					Maximum Number of IP Addresses (IPv6)
-POL_EX_29				For sessions with this policy setting, this specifies the number of IPv6 addresses that can be registered for a single session.
-POL_30					Disallow Password Save in VPN Client
-POL_EX_30				For users with this policy setting, when the user is using *standard* password authentication, the user will be unable to save the password in VPN Client. The user will be required to input passwords for every time to connect a VPN. This will improve the security. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
+POL_22					Фильтровать RS / RA пакеты (IPv6)
+POL_EX_22				Все ICMPv6-пакеты c типами сообщений 133 (Router Solicitation) или 134 (Router Advertisement) в сессиях с этой политикой будут отфильтрованы. В результате клиент IPv6 не сможет использовать автоматическое обнаружение префикса IPv6-адреса и автоматическое обнаружение IPv6-шлюза по умолчанию.
+POL_23					Фильтровать RA-пакеты (IPv6)
+POL_EX_23				Все ICMPv6-пакеты c типами сообщений 134 (Router Advertisement) в сессиях с этой политикой будут отфильтрованы. В результате злоумышленники не смогут распространять в сети поддельные префиксы IPv6 или шлюзы по умолчанию.
+POL_24					Фильтровать DHCP пакеты (IPv6)
+POL_EX_24				Все DHCP IPv6-пакеты в сессиях с этой политикой будут отфильтрованы.
+POL_25					Запретить работу DHCP-сервера (IPv6)
+POL_EX_25				Компьютеры, подключенные к сессиям с этой политикой, не смогут стать DHCP-сервером и распространять IPv6-адреса для DHCP-клиентов.
+POL_26					Запретить маршрутизацию (IPv6)
+POL_EX_26				IPv6 маршрутизация будет запрещена для сессий с этой политикой. Даже в случаях, когда IP маршрутизация работает на стороне пользователя, связь будет невозможна.
+POL_27					Запретить дублирование IP-адресов (IPv6)
+POL_EX_27				Компьютеры из разных сессий с этой политикой не смогут использовать одинаковые IPv6-адреса.
+POL_28					Запретить TCP/IP соединения (IPv6)
+POL_EX_28				Компьютеры в сессиях с этой политикой не смогут слушать и принимать IPv6 TCP/IP-соединения.
+POL_29					Максимальное количество IP-адресов (IPv6)
+POL_EX_29				Ограничивает количество IPv6-адресов для каждой сессии с этой политикой.
+POL_30					Запретить сохранение пароля в VPN-клиенте Disallow Password Save in VPN Client
+POL_EX_30				Пользователям с этой политикой, использующим аутентификацию с помощью пароля For users with this policy setting, when the user is using *standard* password authentication, the user will be unable to save the password in VPN Client. The user will be required to input passwords for every time to connect a VPN. This will improve the security. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
 POL_31					VPN Client Automatic Disconnect
 POL_EX_31				For users with this policy setting, a user's VPN session will be disconnected automatically after the specific period will elapse. In this case no automatic re-connection will be performed. This can prevent a lot of inactive VPN Sessions. If this policy is enabled, VPN Client Version 2.0 will be denied to access.
 POL_32					Filter All IPv4 Packets
