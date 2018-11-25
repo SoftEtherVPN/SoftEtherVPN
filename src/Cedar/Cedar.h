@@ -209,6 +209,9 @@
 // Hidden password string of 8 characters
 #define	HIDDEN_PASSWORD				"********"
 
+// Default separator character for the hub name in the username
+#define	DEFAULT_USERNAME_HUB_SEPARATOR	'@'
+
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1024,6 +1027,7 @@ typedef struct CEDAR
 	COUNTER *ConnectionIncrement;	// Connection increment counter
 	X *ServerX;						// Server certificate
 	K *ServerK;						// Private key of the server certificate
+	char UsernameHubSeparator;		// Character which separates the username from the hub name
 	char *CipherList;				// List of encryption algorithms
 	UINT Version;					// Version information
 	UINT Build;						// Build Number
