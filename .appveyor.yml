@@ -44,6 +44,9 @@ for:
     - configure
   build_script:
     - nmake
+  test_script:
+    - ps: cd $env:APPVEYOR_BUILD_FOLDER
+    - ps: .\.ci\appveyor-vpntest.ps1
   after_build:
     - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
     - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
@@ -85,6 +88,6 @@ deploy:
   description: 'automatic release'
   provider: GitHub
   auth_token:
-    secure: FJU1W6Li4W7h3mYJj206ybyhRvBqdSeiSoFJ4lhCkQl6n92ljSVnZiPKPtaSuP6i
+    secure: AMFTEsa7hI1osVhKFo+e8ueIWyzP7dITIGVWkhCoOfHEnHaYBzz7acqrJD/qB0H8
   on:
-    appveyor_repo_tag: true
+    APPVEYOR_REPO_TAG: true
