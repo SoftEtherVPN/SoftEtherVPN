@@ -244,10 +244,6 @@ CFG_RW *NewCfgRw(FOLDER **root, char *cfg_name)
 {
 	return NewCfgRwEx(root, cfg_name, false);
 }
-CFG_RW *NewCfgRwW(FOLDER **root, wchar_t *cfg_name)
-{
-	return NewCfgRwExW(root, cfg_name, false);
-}
 CFG_RW *NewCfgRwEx(FOLDER **root, char *cfg_name, bool dont_backup)
 {
 	wchar_t *cfg_name_w = CopyStrToUni(cfg_name);
@@ -556,7 +552,6 @@ FOLDER *CfgReadW(wchar_t *name)
 	FOLDER *f;
 	bool delete_new = false;
 	bool binary_file = false;
-	bool invalid_file = false;
 	UCHAR header[8];
 	bool has_eof = false;
 	// Validate arguments
@@ -614,11 +609,6 @@ FOLDER *CfgReadW(wchar_t *name)
 		// Read the original file too if the size of temporary file is 0
 		if (FileSize(o) == 0)
 		{
-			invalid_file = true;
-		}
-
-		if (invalid_file)
-		{
 			FileClose(o);
 			o = FileOpenW(name, false);
 		}
@@ -666,7 +656,6 @@ FOLDER *CfgReadW(wchar_t *name)
 		if (Cmp(hash1, hash2, SHA1_SIZE) != 0)
 		{
 			// Corrupted file
-			invalid_file = true;
 			FreeBuf(b);
 			return NULL;
 		}
@@ -698,46 +687,6 @@ FOLDER *CfgReadW(wchar_t *name)
 	FileDeleteW(newfile);
 
 	return f;
-}
-
-// Test of Cfg
-void CfgTest2(FOLDER *f, UINT n)
-{
-}
-
-void CfgTest()
-{
-#if	0
-	FOLDER *root;
-	BUF *b;
-	Debug("\nCFG Test Begin\n");
-
-	root = CfgCreateFolder(NULL, TAG_ROOT);
-	CfgTest2(root, 5);
-
-	b = CfgFolderToBufText(root);
-	//Print("%s\n", b->Buf);
-	SeekBuf(b, 0, 0);
-
-	CfgDeleteFolder(root);
-
-	DumpBuf(b, "test1.config");
-
-	root = CfgBufTextToFolder(b);
-
-	FreeBuf(b);
-
-	b = CfgFolderToBufText(root);
-//	Print("%s\n", b->Buf);
-	DumpBuf(b, "test2.config");
-	FreeBuf(b);
-
-	CfgSave(root, "test.txt");
-
-	CfgDeleteFolder(root);
-
-	Debug("\nCFG Test End\n");
-#endif
 }
 
 // Read one line
@@ -1111,10 +1060,6 @@ BUF *CfgFolderToBufBin(FOLDER *f)
 }
 
 // Convert the folder to a stream text
-BUF *CfgFolderToBufText(FOLDER *f)
-{
-	return CfgFolderToBufTextEx(f, false);
-}
 BUF *CfgFolderToBufTextEx(FOLDER *f, bool no_banner)
 {
 	BUF *b;
@@ -1419,17 +1364,6 @@ void CfgAddData(BUF *b, UINT type, char *name, char *data, char *sub, UINT depth
 	}
 	CfgAddLine(b, tmp, depth);
 	Free(tmp);
-}
-
-// Convert the data type string to an integer value
-UINT CfgStrToType(char *str)
-{
-	if (!StrCmpi(str, TAG_INT)) return ITEM_TYPE_INT;
-	if (!StrCmpi(str, TAG_INT64)) return ITEM_TYPE_INT64;
-	if (!StrCmpi(str, TAG_BYTE)) return ITEM_TYPE_BYTE;
-	if (!StrCmpi(str, TAG_STRING)) return ITEM_TYPE_STRING;
-	if (!StrCmpi(str, TAG_BOOL)) return ITEM_TYPE_BOOL;
-	return 0;
 }
 
 // Convert the type of data to a string
@@ -2101,14 +2035,12 @@ ITEM *CfgAddInt(FOLDER *f, char *name, UINT i)
 // Adding a bool type
 ITEM *CfgAddBool(FOLDER *f, char *name, bool b)
 {
-	bool v;
 	// Validate arguments
 	if (f == NULL || name == NULL)
 	{
 		return NULL;
 	}
 
-	v = b ? 1 : 0;
 	return CfgCreateItem(f, name, ITEM_TYPE_BOOL, &b, sizeof(bool));
 }
 
