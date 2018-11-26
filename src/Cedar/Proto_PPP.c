@@ -807,14 +807,14 @@ bool PPPParseUsername(CEDAR *cedar, char *src_username, ETHERIP_ID *dst)
 	}
 	else
 	{
-		// Search for the last "@" in the string
+		// Search for the separator character's last position in the string
 		len = StrLen(src);
 		last_at = INFINITE;
 		for (i = 0;i < len;i++)
 		{
 			char c = src[i];
 
-			if (c == '@')
+			if (c == cedar->UsernameHubSeparator)
 			{
 				last_at = i;
 			}
@@ -825,12 +825,11 @@ bool PPPParseUsername(CEDAR *cedar, char *src_username, ETHERIP_ID *dst)
 
 		if (last_at == INFINITE)
 		{
-			// "@" is not specified
+			// The separator character is not specified
 			StrCpy(token1, sizeof(token1), src);
 		}
 		else
 		{
-			// Split with last "@"
 			StrCpy(token1, sizeof(token1), src);
 			token1[last_at] = 0;
 

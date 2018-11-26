@@ -2540,6 +2540,9 @@ void SiLoadInitialConfiguration(SERVER *s)
 	// Set the server certificate to default
 	SiInitDefaultServerCert(s);
 
+	// Set the character which separates the username from the hub name
+	s->Cedar->UsernameHubSeparator = DEFAULT_USERNAME_HUB_SEPARATOR;
+
 	// Create a default HUB
 	{
 		SiInitDefaultHubList(s);
@@ -5936,6 +5939,12 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			FreeK(k);
 		}
 
+		// Character which separates the username from the hub name
+		if (CfgGetStr(f, "UsernameHubSeparator", tmp, sizeof(tmp)))
+		{
+			c->UsernameHubSeparator = IsPrintableAsciiChar(tmp[0]) ? tmp[0] : DEFAULT_USERNAME_HUB_SEPARATOR;
+		}
+
 		// Cipher Name
 		if (CfgGetStr(f, "CipherName", tmp, sizeof(tmp)))
 		{
@@ -6312,6 +6321,13 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		b = KToBuf(c->ServerK, false, NULL);
 		CfgAddBuf(f, "ServerKey", b);
 		FreeBuf(b);
+
+		{
+			// Character which separates the username from the hub name
+			char str[2];
+			StrCpy(str, sizeof(str), &c->UsernameHubSeparator);
+			CfgAddStr(f, "UsernameHubSeparator", str);
+		}
 
 		// Traffic information
 		Lock(c->TrafficLock);
