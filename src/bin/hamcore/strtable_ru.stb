@@ -96,7 +96,7 @@ ERR_30					Виртуальный Сетевой Адаптер с указан�
 ERR_31					Не удалось установить драйвер Виртуального Сетевого Адаптера.
 ERR_32					Вы не можете использовать указанное имя для Виртуального Сетевого Адаптера.
 ERR_33					Не поддерживается.
-ERR_34					VPN-подключение с указанным именем уже существует.
+ERR_34					VPN-подключение с указанным названием уже существует.
 ERR_35					Указанное VPN-подключение уже подключено.
 ERR_36					Указанное VPN-подключение не существует.
 ERR_37					Указанное VPN-подключение не подключено.
@@ -759,12 +759,12 @@ POL_EX_35				Во всех VPN-сессиях с этой политикой, д
 POL_36					Нет маршрута по умолчанию в IPv6 RA (физический IPv6)
 POL_EX_36				Во всех VPN-сессиях с этой политикой (только когда протоколом связи между VPN-клиентом / VPN-мостом и VPN-сервером является IPv6), для любого IPv6 RA (Router Advertisement) пакета Hop Limit будет установлен в нулевое значение. Это эффективно, когда надо избежать ужасной путаницы маршрутизации IPv6, вызванной попытками VPN-клиента использовать удаленный IPv6 маршрут в качестве своего маршрута по умолчанию.
 POL_37					VLAN ID (IEEE802.1Q)
-POL_EX_37				Вы можете указать VLAN ID в политике безопасности. Для VPN-сессий с этой политикой, во все Ethernet пакеты в направлении к Virtual Hub от пользователя будут вставлены VLAN теги (IEEE 802.1Q) с указанным VLAN ID. Кроме того, пользователи могут получать только пакеты с VLAN тегами, совпадающими с VLAN ID (VLAN теги автоматически удаляются при получении). Любые Ethernet-пакеты с любыми другими VLAN ID или не VLAN-пакетами не будут получены. Все VPN-сессии без этой политики могут отправлять / получать любые виды Ethernet-пакетов независимо от VLAN тегов, кроме того VLAN теги не вставляются и не удаляются автоматически. Любые тегированные VLAN пакеты, идущие через Virtual Hub, будут рассматриваться как не IP-пакеты. Таким образом, тегированные VLAN пакеты не относятся к политикам безопасности, спискам доступа и другим действиям обработки IPv4 / IPv6 пакетов.
+POL_EX_37				Вы можете указать VLAN ID в политике безопасности. Для VPN-сессий с этой политикой, во все Ethernet пакеты в направлении к Virtual Hub от пользователя будут вставлены VLAN теги (IEEE 802.1Q) с указанным VLAN ID. Кроме того, пользователи смогут получать только пакеты с VLAN тегами, совпадающими с VLAN ID (по-умолчанию VLAN теги автоматически удаляются при получении). Ethernet-пакеты с любыми другими VLAN ID или не VLAN-пакетами не будут получены. Все VPN-сессии без этой политики могут отправлять / получать любые виды Ethernet-пакетов независимо от VLAN тегов, кроме того VLAN теги не вставляются и не удаляются автоматически. Любые тегированные VLAN пакеты, идущие через Virtual Hub, будут рассматриваться как не IP-пакеты. Таким образом, тегированные VLAN пакеты не относятся к политикам безопасности, спискам доступа и другим действиям обработки IPv4 / IPv6 пакетов.
 
 
 # Concerning remote connection dialog
-REMOTE_DEF_CAPTION		Remote Connection
-REMOTE_DEF_TITLE		Specify the computer you want to remotely connect to.
+REMOTE_DEF_CAPTION		Удаленное подключение
+REMOTE_DEF_TITLE		Укажите компьютер, к которому вы хотите удаленно подключиться.
 
 
 # Concerning client notification service
@@ -773,92 +773,92 @@ CN_TITLE				SoftEther VPN Client Developer Edition
 
 # Concerning Connection Manager
 CM_TITLE				SoftEther VPN Client Developer Edition Manager
-CM_PW_LOCALMACHINE		Local Computer
-CM_NO_REMOTE			The VPN Client service running on %s disallows remote connections.
-CM_CONNECT_FAILED		Unable to connect to the VPN Client service operating on %s. \r\nMake sure the VPN Client service has started and is running normally.
-CM_BAD_PASSWORD			The password is incorrect. Re-enter password. The password is case-sensitive so be sure to discern between upper and lower case letters.
-CM_NUM_CONN_COUNT		%u VPN Sessions
-CM_CONN_NO				Not Connected
+CM_PW_LOCALMACHINE		Локальный компьютер
+CM_NO_REMOTE			Служба VPN-клиента, работающая на %s, запрещает удаленные подключения.
+CM_CONNECT_FAILED		Не удается подключиться к службе VPN-клиентов, работающей на %s. \r\nУбедитесь, что служба VPN-клиента запущена и работает нормально.
+CM_BAD_PASSWORD			Пароль неверен. Повторно введите пароль. Пароль чувствителен к регистру, поэтому обязательно различайте буквы верхнего и нижнего регистра.
+CM_NUM_CONN_COUNT		%u VPN-сессий
+CM_CONN_NO				Не подключено
 CM_PRODUCT_NAME			SoftEther VPN Client Build %u
-CM_ACCOUNT_COLUMN_1		VPN Connection Setting Name
-CM_ACCOUNT_COLUMN_2		Status
-CM_ACCOUNT_COLUMN_3		VPN Server Hostname
+CM_ACCOUNT_COLUMN_1		Название VPN подключения
+CM_ACCOUNT_COLUMN_2		Статус
+CM_ACCOUNT_COLUMN_3		Имя хоста VPN-сервера
 CM_ACCOUNT_COLUMN_3_2	Virtual Hub
-CM_ACCOUNT_COLUMN_4		Virtual Network Adapter Name
-CM_VLAN_COLUMN_1		Virtual Network Adapter Name
-CM_VLAN_COLUMN_2		Status
-CM_VLAN_COLUMN_3		MAC Address
-CM_VLAN_COLUMN_4		Version
-CM_ACCOUNT_OFFLINE		Offline
-CM_ACCOUNT_ONLINE		Connected
-CM_ACCOUNT_CONNECTING	Connecting
-CM_VLAN_ENABLED			Enabled
-CM_VLAN_DISABLED		Disabled
-CM_DELETE_ACCOUNT_MSG	This will delete the VPN Connection Setting "%s". Do you really want to do this?
-CM_ST_ACCOUNT_NAME		VPN Connection Setting Name
-CM_ST_CONNECTED			Session Status
-CM_ST_CONNECTED_TRUE	Connection Completed (Session Established)
-CM_ST_CONNECTED_FALSE	Trying to Connect
-CM_ST_CONNECTING		Connection to VPN Server Started
-CM_ST_NEGOTIATION		Negotiating
-CM_ST_AUTH				Authenticating User
-CM_ST_ESTABLISHED		Connection is Established
-CM_ST_RETRY				Retrying
-CM_ST_IDLE				Idle
-CM_ST_SERVER_NAME		Server Name
-CM_ST_SERVER_PORT		Port Number
-CM_ST_PORT_TCP			TCP Port %u
-CM_ST_SERVER_P_NAME		Server Product Name
-CM_ST_SERVER_P_VER		Server Version
-CM_ST_SERVER_P_BUILD	Server Build
-CM_ST_START_TIME		Connection Started at
-CM_ST_FIRST_ESTAB_TIME	First Session has been Established since
+CM_ACCOUNT_COLUMN_4		Название виртуального сетевого адаптера
+CM_VLAN_COLUMN_1		Название виртуального сетевого адаптера
+CM_VLAN_COLUMN_2		Статус
+CM_VLAN_COLUMN_3		MAC-адрес
+CM_VLAN_COLUMN_4		Версия
+CM_ACCOUNT_OFFLINE		Отключено
+CM_ACCOUNT_ONLINE		Подключено
+CM_ACCOUNT_CONNECTING	Подключение
+CM_VLAN_ENABLED			Включено
+CM_VLAN_DISABLED		Выключено
+CM_DELETE_ACCOUNT_MSG	Это удалит настройки VPN-подключения «%s». Вы действительно хотите это сделать?
+CM_ST_ACCOUNT_NAME		Название VPN подключения
+CM_ST_CONNECTED			Статус сессии
+CM_ST_CONNECTED_TRUE	Подключение завершено (соединение установлено)
+CM_ST_CONNECTED_FALSE	Попытка подключения
+CM_ST_CONNECTING		Начало подключения к VPN-серверу
+CM_ST_NEGOTIATION		Установка связи
+CM_ST_AUTH				Авторизация пользователя
+CM_ST_ESTABLISHED		Соединение установлено
+CM_ST_RETRY				Повтор
+CM_ST_IDLE				Простой
+CM_ST_SERVER_NAME		Адрес сервера
+CM_ST_SERVER_PORT		Номер порта
+CM_ST_PORT_TCP			TCP порт %u
+CM_ST_SERVER_P_NAME		Название сервера
+CM_ST_SERVER_P_VER		Версия сервера
+CM_ST_SERVER_P_BUILD	Сборка сервера
+CM_ST_START_TIME		Время начала подключения
+CM_ST_FIRST_ESTAB_TIME	Время создания первой сессии
 CM_ST_NONE				-
-CM_ST_CURR_ESTAB_TIME	Current Session has been Established since
-CM_ST_NUM_ESTABLISHED	Number of Established Sessions
-CM_ST_NUM_STR			%u Times
-CM_ST_HALF_CONNECTION	Half Duplex TCP Connection Mode
-CM_ST_HALF_TRUE			Yes (Half Duplex Mode)
-CM_ST_HALF_FALSE		No (Full Duplex Mode)
-CM_ST_QOS				VoIP / QoS Function
-CM_ST_QOS_TRUE			Enabled
-CM_ST_QOS_FALSE			Disabled
-CM_ST_NUM_TCP			Number of TCP Connections
-CM_ST_NUM_TCP_UPLOAD	Number of Uplink TCP Connections
-CM_ST_NUM_TCP_DOWNLOAD	Number of Downlink TCP Connections
-CM_ST_MAX_TCP			Maximum Number of TCP Connections
+CM_ST_CURR_ESTAB_TIME	Время создания текущей сессии
+CM_ST_NUM_ESTABLISHED	Кол-во установленных сессий
+CM_ST_NUM_STR			%u
+CM_ST_HALF_CONNECTION	Режим полудуплексного TCP-соединения
+CM_ST_HALF_TRUE			Yes (Полудуплексный режим)
+CM_ST_HALF_FALSE		No (Дуплексный режим)
+CM_ST_QOS				Функция VoIP / QoS
+CM_ST_QOS_TRUE			Включена
+CM_ST_QOS_FALSE			Выключена
+CM_ST_NUM_TCP			Кол-во TCP соединений
+CM_ST_NUM_TCP_UPLOAD	Кол-во исходящих TCP соединений
+CM_ST_NUM_TCP_DOWNLOAD	Кол-во входящих TCP соединений
+CM_ST_MAX_TCP			Максимальное кол-во TCP соединений
 CM_ST_VLAN_ID			VLAN ID
 CM_ST_NO_VLAN			-
-CM_ST_USE_ENCRYPT		Encryption
-CM_ST_USE_ENCRYPT_TRUE	Enabled (Algorithm: %S)
-CM_ST_USE_ENCRYPT_TRUE2	Enabled
-CM_ST_USE_ENCRYPT_FALSE	Disabled (No Encryption)
-CM_ST_USE_COMPRESS		Use of Compression
-CM_ST_UDP_ACCEL_ENABLED	UDP Acceleration is Supported
-CM_ST_UDP_ACCEL_USING	UDP Acceleration is Active
-CM_ST_RUDP				TCP over UDP (NAT Traversal)
-CM_ST_UNDERLAY_PROTOCOL	Physical Underlay Protocol
-CM_ST_COMPRESS_TRUE		Yes (%u %%)
-CM_ST_COMPRESS_FALSE	No (No Compression)
-CM_ST_SESSION_NAME		Session Name
-CM_ST_CONNECTION_NAME	Connection Name
-CM_ST_SESSION_KEY		Session Key (160 bit)
-CM_ST_BRIDGE_MODE		Bridge / Router Mode
-CM_ST_MONITOR_MODE		Monitoring Mode
-CM_ST_YES				Yes
-CM_ST_NO				No
-CM_ST_SEND_SIZE			Outgoing Data Size
-CM_ST_RECV_SIZE			Incoming Data Size
+CM_ST_USE_ENCRYPT		Шифрование
+CM_ST_USE_ENCRYPT_TRUE	Включено (Алгоритм: %S)
+CM_ST_USE_ENCRYPT_TRUE2	Включено
+CM_ST_USE_ENCRYPT_FALSE	Выключено (Без шифрования)
+CM_ST_USE_COMPRESS		Использование сжатия
+CM_ST_UDP_ACCEL_ENABLED	Ускорение UDP поддерживается
+CM_ST_UDP_ACCEL_USING	Ускорение UDP активно
+CM_ST_RUDP				TCP через UDP (NAT Traversal)
+CM_ST_UNDERLAY_PROTOCOL	Протокол
+CM_ST_COMPRESS_TRUE		Да (%u %%)
+CM_ST_COMPRESS_FALSE	Нет (Без сжатия)
+CM_ST_SESSION_NAME		Название сессии
+CM_ST_CONNECTION_NAME	Название соединения
+CM_ST_SESSION_KEY		Ключ сессии (160 bit)
+CM_ST_BRIDGE_MODE		Режим Мост / Роутер
+CM_ST_MONITOR_MODE		Режим мониторинга
+CM_ST_YES				Да
+CM_ST_NO				нет
+CM_ST_SEND_SIZE			Размер исходящих данных
+CM_ST_RECV_SIZE			Размер входящих данных
 
-CM_ST_SEND_UCAST_NUM	Outgoing Unicast Packets
-CM_ST_SEND_UCAST_SIZE	Outgoing Unicast Total Size
-CM_ST_SEND_BCAST_NUM	Outgoing Broadcast Packets
-CM_ST_SEND_BCAST_SIZE	Outgoing Broadcast Total Size
+CM_ST_SEND_UCAST_NUM	Кол-во исходящих пакетов
+CM_ST_SEND_UCAST_SIZE	Размер исходящих пакетов
+CM_ST_SEND_BCAST_NUM	Кол-во исх. широковещательных пакетов
+CM_ST_SEND_BCAST_SIZE	Размер исх. широковещательных пакетов
 
-CM_ST_RECV_UCAST_NUM	Incoming Unicast Packets
-CM_ST_RECV_UCAST_SIZE	Incoming Unicast Total Size
-CM_ST_RECV_BCAST_NUM	Incoming Broadcast Packets
-CM_ST_RECV_BCAST_SIZE	Incoming Broadcast Total Size
+CM_ST_RECV_UCAST_NUM	Кол-во входящих пакетов
+CM_ST_RECV_UCAST_SIZE	Размер входящих пакетов
+CM_ST_RECV_BCAST_NUM	Кол-во вх. широковещательных пакетов
+CM_ST_RECV_BCAST_SIZE	Размер вх. широковещательных пакетов
 
 CM_ST_NUM_PACKET_STR	%S packets
 CM_ST_SIZE_BYTE_STR		%S bytes
