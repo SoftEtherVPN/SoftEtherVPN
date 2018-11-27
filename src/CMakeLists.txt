@@ -4,11 +4,11 @@ if(UNIX)
   macro(install_wrapper_script component target)
     get_filename_component(file_name ${target} NAME)
 
-    file(WRITE ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "#!/bin/sh\n")
-    file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "${target} \"$@\"\n")
-    file(APPEND ${CMAKE_SOURCE_DIR}/tmp/script/${file_name} "exit $?\n")
+    file(WRITE ${TOP_DIRECTORY}/tmp/script/${file_name} "#!/bin/sh\n")
+    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "${target} \"$@\"\n")
+    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "exit $?\n")
 
-    install(FILES ${CMAKE_SOURCE_DIR}/tmp/script/${file_name}
+    install(FILES ${TOP_DIRECTORY}/tmp/script/${file_name}
       COMPONENT ${component}
       DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
       PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
@@ -100,7 +100,7 @@ add_subdirectory(vpntest)
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
   ALL
-  COMMAND hamcorebuilder "${CMAKE_SOURCE_DIR}/src/bin/hamcore/" "${BUILD_DIRECTORY}/hamcore.se2"
+  COMMAND hamcorebuilder "${TOP_DIRECTORY}/src/bin/hamcore/" "${BUILD_DIRECTORY}/hamcore.se2"
   DEPENDS hamcorebuilder
   COMMENT "Building hamcore.se2 archive file..."
   VERBATIM

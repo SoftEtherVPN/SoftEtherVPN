@@ -1,10 +1,7 @@
-set(VPNSERVER_SOURCES vpnserver.c)
+set(COMPONENT_NAME "Server")
+set(COMPONENT_INTERNAL_NAME "vpnserver")
 
-if(WIN32)
-  set(VPNSERVER_SOURCES ${VPNSERVER_SOURCES} vpnserver.rc)
-endif()
-
-add_executable(vpnserver ${VPNSERVER_SOURCES})
+add_executable(vpnserver vpnserver.c)
 
 set_target_properties(vpnserver
   PROPERTIES
@@ -18,6 +15,12 @@ if(WIN32)
     PROPERTIES
     PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
   )
+
+  get_filename_component(COMPONENT_FILE_NAME vpnserver NAME)
+  set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
+
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpnserver.rc")
+  target_sources(vpnserver PRIVATE vpnserver.rc "${CMAKE_BINARY_DIR}/VerScript/vpnserver.rc")
 endif()
 
 target_link_libraries(vpnserver cedar mayaqua)
@@ -38,7 +41,7 @@ if(UNIX)
 
   install_wrapper_script("vpnserver" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver")
   if(EXISTS "/lib/systemd/system")
-    configure_file(${CMAKE_SOURCE_DIR}/systemd/softether-vpnserver.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnserver.service)
+    configure_file(${TOP_DIRECTORY}/systemd/softether-vpnserver.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnserver.service)
     install(FILES ${CMAKE_BINARY_DIR}/systemd/softether-vpnserver.service
       COMPONENT "vpnserver"
       DESTINATION "/lib/systemd/system"

@@ -2,15 +2,22 @@ if(NOT WIN32)
   message(FATAL_ERROR "VPN Server Manager is available only for Windows.")
 endif()
 
-set(VPNSMGR_SOURCES vpnsmgr.c vpnsmgr.rc)
+set(COMPONENT_NAME "Server Manager")
+set(COMPONENT_INTERNAL_NAME "vpnsmgr")
+
+add_executable(vpnsmgr WIN32 vpnsmgr.c vpnsmgr.rc)
+
+get_filename_component(COMPONENT_FILE_NAME vpnsmgr NAME)
+set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
+
+configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpnsmgr.rc")
+target_sources(vpnsmgr PRIVATE "${CMAKE_BINARY_DIR}/VerScript/vpnsmgr.rc")
 
 if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-  set(VPNSMGR_SOURCES ${VPNSMGR_SOURCES} ${CMAKE_SOURCE_DIR}/src/BuildFiles/Manifests/x64_user.manifest)
+  target_sources(vpnsmgr PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
 else()
-  set(VPNSMGR_SOURCES ${VPNSMGR_SOURCES} ${CMAKE_SOURCE_DIR}/src/BuildFiles/Manifests/x86_user.manifest)
+  target_sources(vpnsmgr PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
 endif()
-
-add_executable(vpnsmgr WIN32 ${VPNSMGR_SOURCES})
 
 set_target_properties(vpnsmgr
   PROPERTIES

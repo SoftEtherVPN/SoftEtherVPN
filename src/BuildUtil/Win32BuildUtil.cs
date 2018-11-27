@@ -199,24 +199,19 @@ namespace BuildUtil
 			string exeFileName = Path.GetFileName(targetExeName);
 			string internalName = Path.GetFileNameWithoutExtension(exeFileName);
 
-			if (Str.IsEmptyStr(product_name) == false)
-			{
-				body = Str.ReplaceStr(body, "$PRODUCTNAME$", product_name);
-			}
-			else
-			{
 #if !BU_SOFTETHER
-				body = Str.ReplaceStr(body, "$PRODUCTNAME$", "PacketiX VPN");
+			body = Str.ReplaceStr(body, "${PROJECT_NAME}", "PacketiX VPN");
 #else		
-				body = Str.ReplaceStr(body, "$PRODUCTNAME$", "SoftEther VPN");
+			body = Str.ReplaceStr(body, "${PROJECT_NAME}", "SoftEther VPN");
 #endif
-			}
-			body = Str.ReplaceStr(body, "$INTERNALNAME$", internalName);
-			body = Str.ReplaceStr(body, "$YEAR$", date.Year.ToString());
-			body = Str.ReplaceStr(body, "$FILENAME$", exeFileName);
-			body = Str.ReplaceStr(body, "$VER_MAJOR$", versionMajor.ToString());
-			body = Str.ReplaceStr(body, "$VER_MINOR$", versionMinor.ToString());
-			body = Str.ReplaceStr(body, "$VER_BUILD$", versionBuild.ToString());
+
+			body = Str.ReplaceStr(body, "${COMPONENT_NAME}", product_name);
+			body = Str.ReplaceStr(body, "${COMPONENT_INTERNAL_NAME}", internalName);
+			body = Str.ReplaceStr(body, "${DATE_YEAR}", date.Year.ToString());
+			body = Str.ReplaceStr(body, "${COMPONENT_FILE_NAME}", exeFileName);
+			body = Str.ReplaceStr(body, "${PROJECT_VERSION_MAJOR}", versionMajor.ToString());
+			body = Str.ReplaceStr(body, "${PROJECT_VERSION_MINOR}", versionMinor.ToString());
+			body = Str.ReplaceStr(body, "${PROJECT_VERSION_PATCH}", versionBuild.ToString());
 
 			IO f = IO.CreateTempFileByExt(".rc");
 			string filename = f.Name;
