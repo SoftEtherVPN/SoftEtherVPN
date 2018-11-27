@@ -25,14 +25,14 @@ for:
     - src\BuildAll.cmd
     - exit %errorlevel%
   after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\Win32_Release\*.pdb"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\x64_Release\*.pdb"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\Win32_Release\*.pdb"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\x64_Release\*.pdb"
   artifacts:
     - path: output\pkg\*\*
       name: Release
-    - path: src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs.zip
+    - path: src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip
       name: PDBs (x86)
-    - path: src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs.zip
+    - path: src\bin\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip
       name: PDBs (x64)
 -
   matrix:
@@ -48,13 +48,13 @@ for:
     - ps: cd $env:APPVEYOR_BUILD_FOLDER
     - ps: .\.ci\appveyor-vpntest.ps1
   after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.pdb"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
+    - 7z a "%APPVEYOR_BUILD_FOLDER%\build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.pdb"
   artifacts:
-    - path: build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%.zip
+    - path: build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip
       name: Release
-    - path: build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs.zip
+    - path: build\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip
       name: PDBs
 -
   matrix:
@@ -64,11 +64,8 @@ for:
     - ./configure
   build_script:
     - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
-  after_build:
-    - .ci/appveyor_afterbuild.sh
-  artifacts:
-    - path: build/*.deb
-      name: Ubuntu
+  test_script:
+    - .ci/appveyor-deb-install-test.sh
 -
   matrix:
     only:
@@ -78,11 +75,8 @@ for:
   build_script:
     - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
     - .ci/memory-leak-test.sh
-  after_build:
-    - .ci/appveyor_afterbuild.sh
-  artifacts:
-    - path: build/*.deb
-      name: Ubuntu
+  test_script:
+    - .ci/appveyor-deb-install-test.sh
 
 deploy:
   description: 'automatic release'
