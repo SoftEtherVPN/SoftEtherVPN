@@ -45,6 +45,17 @@ endif()
 
 configure_file("${TOP_DIRECTORY}/AUTHORS.TXT" "${TOP_DIRECTORY}/src/bin/hamcore/authors.txt" COPYONLY)
 
+# Date and time
+string(TIMESTAMP DATE_DAY "%d" UTC)
+string(TIMESTAMP DATE_MONTH "%m" UTC)
+string(TIMESTAMP DATE_YEAR "%Y" UTC)
+string(TIMESTAMP TIME_HOUR "%H" UTC)
+string(TIMESTAMP TIME_MINUTE "%M" UTC)
+string(TIMESTAMP TIME_SECOND "%S" UTC)
+
+message(STATUS "Build date: ${DATE_DAY}/${DATE_MONTH}/${DATE_YEAR}")
+message(STATUS "Build time: ${TIME_HOUR}:${TIME_MINUTE}:${TIME_SECOND}")
+
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(src)

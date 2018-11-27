@@ -54,24 +54,13 @@ cmake_host_system_information(RESULT BUILDER_HOSTNAME QUERY HOSTNAME)
 
 add_definitions(-DBUILD_PLACE="${BUILDER_HOSTNAME}")
 
-# Date and time
-string(TIMESTAMP BUILD_DAY "%d" UTC)
-string(TIMESTAMP BUILD_MONTH "%m" UTC)
-string(TIMESTAMP BUILD_YEAR "%Y" UTC)
-string(TIMESTAMP BUILD_HOUR "%H" UTC)
-string(TIMESTAMP BUILD_MINUTE "%M" UTC)
-string(TIMESTAMP BUILD_SECOND "%S" UTC)
-
-## Remove leading 0
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_DAY "${BUILD_DAY}")
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_MONTH "${BUILD_MONTH}")
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_YEAR "${BUILD_YEAR}")
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_HOUR "${BUILD_HOUR}")
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_MINUTE "${BUILD_MINUTE}")
-string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_SECOND "${BUILD_SECOND}")
-
-message(STATUS "Build date: ${BUILD_DAY}/${BUILD_MONTH}/${BUILD_YEAR}")
-message(STATUS "Build time: ${BUILD_HOUR}:${BUILD_MINUTE}:${BUILD_SECOND}")
+# Remove leading 0 from date and time
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_DAY "${DATE_DAY}")
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_MONTH "${DATE_MONTH}")
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_YEAR "${DATE_YEAR}")
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_HOUR "${TIME_HOUR}")
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_MINUTE "${TIME_MINUTE}")
+string(REGEX REPLACE "^0([^ ]*)" "\\1" BUILD_SECOND "${TIME_SECOND}")
 
 add_definitions(-DBUILD_DATE_D=${BUILD_DAY} -DBUILD_DATE_M=${BUILD_MONTH} -DBUILD_DATE_Y=${BUILD_YEAR})
 add_definitions(-DBUILD_DATE_HO=${BUILD_HOUR} -DBUILD_DATE_MI=${BUILD_MINUTE} -DBUILD_DATE_SE=${BUILD_SECOND})

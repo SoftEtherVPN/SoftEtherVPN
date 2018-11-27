@@ -1,10 +1,7 @@
-set(VPNCMD_SOURCES vpncmd.c)
+set(COMPONENT_NAME "Command Line Management Utility")
+set(COMPONENT_INTERNAL_NAME "vpncmd")
 
-if(WIN32)
-  set(VPNCMD_SOURCES ${VPNCMD_SOURCES} vpncmd.rc)
-endif()
-
-add_executable(vpncmd ${VPNCMD_SOURCES})
+add_executable(vpncmd vpncmd.c)
 
 set_target_properties(vpncmd
   PROPERTIES
@@ -18,6 +15,12 @@ if(WIN32)
     PROPERTIES
     PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
   )
+
+  get_filename_component(COMPONENT_FILE_NAME vpncmd NAME)
+  set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
+
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
+  target_sources(vpncmd PRIVATE vpncmd.rc "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
 endif()
 
 target_link_libraries(vpncmd cedar mayaqua)

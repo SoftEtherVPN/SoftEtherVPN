@@ -1,10 +1,7 @@
-set(VPNBRIDGE_SOURCES vpnbridge.c)
+set(COMPONENT_NAME "Bridge")
+set(COMPONENT_INTERNAL_NAME "vpnbridge")
 
-if(WIN32)
-  set(VPNBRIDGE_SOURCES ${VPNBRIDGE_SOURCES} vpnbridge.rc)
-endif()
-
-add_executable(vpnbridge ${VPNBRIDGE_SOURCES})
+add_executable(vpnbridge vpnbridge.c)
 
 set_target_properties(vpnbridge
   PROPERTIES
@@ -18,6 +15,12 @@ if(WIN32)
     PROPERTIES
     PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
   )
+
+  get_filename_component(COMPONENT_FILE_NAME vpnbridge NAME)
+  set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
+
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpnbridge.rc")
+  target_sources(vpnbridge PRIVATE vpnbridge.rc "${CMAKE_BINARY_DIR}/VerScript/vpnbridge.rc")
 endif()
 
 target_link_libraries(vpnbridge cedar mayaqua)
