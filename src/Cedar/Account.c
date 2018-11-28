@@ -348,6 +348,7 @@ UINT PolicyNum()
 // Check the name is valid for account name
 bool IsUserName(char *name)
 {
+	UINT i, len;
 	char tmp[MAX_SIZE];
 	// Validate arguments
 	if (name == NULL)
@@ -360,7 +361,8 @@ bool IsUserName(char *name)
 
 	Trim(name);
 
-	if (StrLen(name) == 0)
+	len = StrLen(name);
+	if (len == 0)
 	{
 		return false;
 	}
@@ -370,14 +372,12 @@ bool IsUserName(char *name)
 		return true;
 	}
 
-	if (IsSafeStr(name) == false)
+	for (i = 0; i < len; i++)
 	{
-		return false;
-	}
-
-	if (StrCmpi(name, "link") == 0)
-	{
-		return false;
+		if (IsSafeChar(name[i]) == false && name[i] != '@')
+		{
+			return false;
+		}
 	}
 
 	if (StrCmpi(name, LINK_USER_NAME) == 0)
