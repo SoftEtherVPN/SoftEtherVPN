@@ -535,6 +535,8 @@ namespace BuildUtil
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_ja.txt")), true);
 			zip.AddFileSimple("ReadMeFirst_Important_Notices_en.txt", DateTime.Now, FileAttributes.Normal,
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_en.txt")), true);
+			zip.AddFileSimple("ReadMeFirst_Important_Notices_ru.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_ru.txt")), true);
 			zip.AddFileSimple("ReadMeFirst_Important_Notices_cn.txt", DateTime.Now, FileAttributes.Normal,
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_cn.txt")), true);
 			zip.Finish();
