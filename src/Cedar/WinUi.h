@@ -776,6 +776,8 @@ void RemoveShortcutKeyStrFromMenu(HMENU hMenu);
 UINT GetMenuNum(HMENU hMenu);
 void PrintMenu(HWND hWnd, HMENU hMenu);
 void LvRename(HWND hWnd, UINT id, UINT pos);
+void LvSetEnhanced(HWND hWnd, UINT id, bool enable);
+void EditBoxSetEnhanced(HWND hWnd, UINT id, bool enable);
 void AllowFGWindow(UINT process_id);
 HWND SearchWindow(wchar_t *caption);
 char *RemoteDlg(HWND hWnd, char *regkey, UINT icon, wchar_t *caption, wchar_t *title, char *default_host);

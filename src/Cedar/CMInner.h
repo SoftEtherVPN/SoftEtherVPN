@@ -289,6 +289,14 @@ typedef struct CM_TRAFFIC_DLG
 	bool CloseDialogAfter;	// Flag of whether or not to close the dialog
 } CM_TRAFFIC_DLG;
 
+typedef struct CM_PROXY_HTTP_HEADER_DLG
+{
+	CLIENT_OPTION *ClientOption;
+	HWND EditBox;
+	UINT CurrentItem;
+	UINT CurrentSubItem;
+} CM_PROXY_HTTP_HEADER_DLG;
+
 // Internet connection settings
 typedef struct CM_INTERNET_SETTING
 {
@@ -639,4 +647,8 @@ void CmProxyDlgSet(HWND hWnd, CLIENT_OPTION *o, CM_INTERNET_SETTING *setting);
 bool CmGetProxyServerNameAndPortFromIeProxyRegStr(char *name, UINT name_size, UINT *port, char *str, char *server_type);
 void *CmUpdateJumpList(UINT start_id);
 
-
+void CmProxyHttpHeaderDlgUpdate(HWND hWnd);
+void CmProxyHttpHeaderDlgRefresh(HWND hWnd, CM_PROXY_HTTP_HEADER_DLG *d);
+void CmProxyHttpHeaderDlgInit(HWND hWnd, CM_PROXY_HTTP_HEADER_DLG *d);
+UINT CmProxyHttpHeaderDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
+bool CmProxyHttpHeaderDlg(HWND hWnd, CLIENT_OPTION *a);

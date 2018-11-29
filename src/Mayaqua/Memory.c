@@ -1542,6 +1542,28 @@ bool IsInListStr(LIST *o, char *str)
 	return false;
 }
 
+bool IsInListUniStr(LIST *o, wchar_t *str)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < LIST_NUM(o); i++)
+	{
+		wchar_t *s = LIST_DATA(o, i);
+
+		if (UniStrCmpi(s, str) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Get the pointer by scanning by UINT pointer in the list
 void *ListKeyToPointer(LIST *o, UINT key)
 {

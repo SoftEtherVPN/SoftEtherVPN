@@ -935,7 +935,7 @@
 #define R_UNESTABLISHED                 1435
 #define R_USER                          1435
 #define R_CUSTOM                        1435
-#define S_DISABLE                        1435
+#define S_DISABLE                       1435
 #define R_PERMANENT                     1435
 #define R_FOR_SYSTEM                    1436
 #define IDC_NETADDRESS1                 1437
@@ -1026,6 +1026,10 @@
 #define S_TSUKUBA                       1515
 #define R_DISABLE_NATT                  1516
 #define S_SMARTCARD_ICON                1517
+#define L_VALUES_LIST                   1519
+#define B_HTTP_HEADER                   1520
+#define B_NEW                           1521
+#define B_CLEAR                         1522
 #define B_ONLINE                        1655
 #define D_NM_CONNECT                    1998
 #define D_NM_MAIN                       1999
@@ -1136,6 +1140,7 @@
 #define D_VGS_WARNING                   2096
 #define D_DEFAULT3                      2097
 #define D_NM_PUSH                       2097
+#define D_CM_PROXY_HTTP_HEADER          2098
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021
@@ -1208,7 +1213,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         40111
-#define _APS_NEXT_CONTROL_VALUE         1518
+#define _APS_NEXT_CONTROL_VALUE         1521
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

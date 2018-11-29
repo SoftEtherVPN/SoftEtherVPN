@@ -177,6 +177,7 @@ void EnPrintableAsciiStr(char *str, char replace);
 bool IsSafeChar(char c);
 bool IsSafeStr(char *str);
 void EnSafeStr(char *str, char replace);
+void EnSafeHttpHeaderValueStr(char *str, char replace);
 void TruncateCharFromStr(char *str, char replace);
 char *CopyStr(char *str);
 void BinToStr(char *str, UINT str_size, void *data, UINT data_size);

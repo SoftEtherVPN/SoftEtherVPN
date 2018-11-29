@@ -1001,6 +1001,8 @@ struct HTTP_HEADER
 #define HTTP_VPN_TARGET_POSTDATA	"VPNCONNECT"
 #define	HTTP_SAITAMA		"/saitama.jpg"
 #define	HTTP_PICTURES		"/picture"
+// Maximum size of the custom HTTP header
+#define	HTTP_CUSTOM_HEADER_MAX_SIZE	1024
 // Maximum size of a single line in the HTTP header
 #define	HTTP_HEADER_LINE_MAX_SIZE	4096
 // Maximum number of lines in the HTTP header
@@ -1029,6 +1031,7 @@ int GetCurrentTimezoneWin32();
 
 HTTP_VALUE *GetHttpValue(HTTP_HEADER *header, char *name);
 void AddHttpValue(HTTP_HEADER *header, HTTP_VALUE *value);
+bool AddHttpValueStr(HTTP_HEADER* header, char *string);
 HTTP_HEADER *NewHttpHeader(char *method, char *target, char *version);
 HTTP_HEADER *NewHttpHeaderEx(char *method, char *target, char *version, bool no_sort);
 int CompareHttpValue(void *p1, void *p2);

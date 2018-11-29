@@ -6022,6 +6022,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 	w.ProxyPort = o->ProxyPort;
 	StrCpy(w.ProxyUsername, sizeof(w.ProxyUsername), o->ProxyUsername);
 	StrCpy(w.ProxyPassword, sizeof(w.ProxyPassword), o->ProxyPassword);
+	StrCpy(w.CustomHttpHeader, sizeof(w.CustomHttpHeader), w.CustomHttpHeader);
 
 	switch (o->ProxyType)
 	{
@@ -6078,9 +6079,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		PrintStatus(sess, tmp);
 
 		// Proxy connection
-		s = ProxyConnectEx(c, w.ProxyHostName, w.ProxyPort,
-			w.HostName, w.Port, w.ProxyUsername, w.ProxyPassword,
-			additional_connect, (bool *)cancel_flag, hWnd);
+		s = ProxyConnectEx3(c, &w, additional_connect, (bool *)cancel_flag, hWnd, 0);
 		if (s == NULL)
 		{
 			// Connection failure
@@ -6655,6 +6654,22 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *username, char *password, bool additional_connect,
 				   bool *cancel_flag, void *hWnd, UINT timeout)
 {
+	WPC_CONNECT wpc_connect;
+	Zero(&wpc_connect, sizeof(wpc_connect));
+
+	StrCpy(wpc_connect.ProxyHostName, sizeof(wpc_connect.ProxyHostName), proxy_host_name);
+	wpc_connect.ProxyPort = proxy_port;
+	StrCpy(wpc_connect.HostName, sizeof(wpc_connect.HostName), server_host_name);
+	wpc_connect.Port = server_port;
+	StrCpy(wpc_connect.ProxyUsername, sizeof(wpc_connect.ProxyUsername), username);
+	StrCpy(wpc_connect.ProxyPassword, sizeof(wpc_connect.ProxyPassword), password);
+
+	return ProxyConnectEx3(c, &wpc_connect, additional_connect, cancel_flag, hWnd, timeout);
+}
+SOCK *ProxyConnectEx3(CONNECTION *c, WPC_CONNECT *wpc_connect,
+					  bool additional_connect, bool *cancel_flag, void *hWnd,
+					  UINT timeout)
+{
 	SOCK *s = NULL;
 	bool use_auth = false;
 	char tmp[MAX_SIZE];
@@ -6665,17 +6680,16 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	char server_host_name_tmp[256];
 	UINT i, len;
 	// Validate arguments
-	if (c == NULL || proxy_host_name == NULL || proxy_port == 0 || server_host_name == NULL ||
-		server_port == 0)
+	if (c == NULL || IsEmptyStr(wpc_connect->ProxyHostName) || wpc_connect->ProxyPort == 0 || IsEmptyStr(wpc_connect->HostName) || wpc_connect->Port == 0)
 	{
-		if( c != NULL)
+		if (c != NULL)
 		{
 			c->Err = ERR_PROXY_CONNECT_FAILED;
 		}
 		return NULL;
 	}
-	if (username != NULL && password != NULL &&
-		(StrLen(username) != 0 || StrLen(password) != 0))
+
+	if ((IsEmptyStr(wpc_connect->ProxyUsername) || IsEmptyStr(wpc_connect->ProxyPassword)) == false)
 	{
 		use_auth = true;
 	}
@@ -6688,7 +6702,7 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	Zero(server_host_name_tmp, sizeof(server_host_name_tmp));
-	StrCpy(server_host_name_tmp, sizeof(server_host_name_tmp), server_host_name);
+	StrCpy(server_host_name_tmp, sizeof(server_host_name_tmp), wpc_connect->HostName);
 
 	len = StrLen(server_host_name_tmp);
 
@@ -6701,7 +6715,7 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 	}
 
 	// Connection
-	s = TcpConnectEx3(proxy_host_name, proxy_port, timeout, cancel_flag, hWnd, true, NULL, false, NULL);
+	s = TcpConnectEx3(wpc_connect->ProxyHostName, wpc_connect->ProxyPort, timeout, cancel_flag, hWnd, true, NULL, false, NULL);
 	if (s == NULL)
 	{
 		// Failure
@@ -6726,27 +6740,61 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 		StrToIP(&ip, server_host_name_tmp);
 		IPToStr(iptmp, sizeof(iptmp), &ip);
 
-		Format(tmp, sizeof(tmp), "[%s]:%u", iptmp, server_port);
+		Format(tmp, sizeof(tmp), "[%s]:%u", iptmp, wpc_connect->Port);
 	}
 	else
 	{
-		Format(tmp, sizeof(tmp), "%s:%u", server_host_name_tmp, server_port);
+		Format(tmp, sizeof(tmp), "%s:%u", server_host_name_tmp, wpc_connect->Port);
 	}
 
 	h = NewHttpHeader("CONNECT", tmp, "HTTP/1.0");
-	AddHttpValue(h, NewHttpValue("User-Agent", (c->Cedar == NULL ? DEFAULT_USER_AGENT : c->Cedar->HttpUserAgent)));
-	AddHttpValue(h, NewHttpValue("Host", server_host_name_tmp));
-	AddHttpValue(h, NewHttpValue("Content-Length", "0"));
-	AddHttpValue(h, NewHttpValue("Proxy-Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Pragma", "no-cache"));
 
-	if (use_auth)
+	if (IsEmptyStr(wpc_connect->CustomHttpHeader) == false)
+	{
+		TOKEN_LIST *tokens = ParseToken(wpc_connect->CustomHttpHeader, "\r\n");
+		if (tokens != NULL)
+		{
+			for (i = 0; i < tokens->NumTokens; i++)
+			{
+				AddHttpValueStr(h, tokens->Token[i]);
+			}
+
+			FreeToken(tokens);
+		}
+	}
+
+	if (GetHttpValue(h, "User-Agent") == NULL)
+	{
+		AddHttpValue(h, NewHttpValue("User-Agent", (c->Cedar == NULL ? DEFAULT_USER_AGENT : c->Cedar->HttpUserAgent)));
+	}
+
+	if (GetHttpValue(h, "Host") == NULL)
+	{
+		AddHttpValue(h, NewHttpValue("Host", server_host_name_tmp));
+	}
+
+	if (GetHttpValue(h, "Content-Length") == NULL)
+	{
+		AddHttpValue(h, NewHttpValue("Content-Length", "0"));
+	}
+
+	if (GetHttpValue(h, "Proxy-Connection") == NULL)
+	{
+		AddHttpValue(h, NewHttpValue("Proxy-Connection", "Keep-Alive"));
+	}
+
+	if (GetHttpValue(h, "Pragma") == NULL)
+	{
+		AddHttpValue(h, NewHttpValue("Pragma", "no-cache"));
+	}
+
+	if (use_auth && GetHttpValue(h, "Proxy-Authorization") == NULL)
 	{
 		wchar_t tmp[MAX_SIZE];
 		UniFormat(tmp, sizeof(tmp), _UU("STATUS_3"), server_host_name_tmp);
 		// Generate the authentication string
 		Format(auth_tmp_str, sizeof(auth_tmp_str), "%s:%s",
-			username, password);
+			   wpc_connect->ProxyUsername, wpc_connect->ProxyPassword);
 
 		// Base64 encode
 		Zero(auth_b64_str, sizeof(auth_b64_str));

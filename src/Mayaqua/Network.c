@@ -20558,7 +20558,7 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 	str = RecvLine(s, HTTP_HEADER_LINE_MAX_SIZE);
 	if (str == NULL)
 	{
-		goto LABEL_ERROR;
+		return NULL;
 	}
 
 	// Split into tokens
@@ -20569,89 +20569,45 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 	}
 
 	Free(str);
-	str = NULL;
 
 	// Creating a header object
 	header = NewHttpHeader(token->Token[0], token->Token[1], token->Token[2]);
+	FreeToken(token);
 
 	if (StrCmpi(header->Version, "HTTP/0.9") == 0)
 	{
 		// The header ends with this line
-		FreeToken(token);
 		return header;
 	}
 
 	// Get the subsequent lines
 	while (true)
 	{
-		UINT pos;
-		HTTP_VALUE *v;
-		char *value_name, *value_data;
 		str = RecvLine(s, HTTP_HEADER_LINE_MAX_SIZE);
-		if (str == NULL)
-		{
-			goto LABEL_ERROR;
-		}
 		Trim(str);
-
-		if (StrLen(str) == 0)
+		if (IsEmptyStr(str))
 		{
 			// End of header
 			Free(str);
-			str = NULL;
 			break;
 		}
 
-		// Get the position of the colon
-		pos = SearchStr(str, ":", 0);
-		if (pos == INFINITE)
+		if (AddHttpValueStr(header, str) == false)
 		{
-			// The colon does not exist
-			goto LABEL_ERROR;
-		}
-		if ((pos + 1) >= StrLen(str))
-		{
-			// There is no data
 			goto LABEL_ERROR;
 		}
 
-		// Divide into the name and the data
-		value_name = Malloc(pos + 1);
-		Copy(value_name, str, pos);
-		value_name[pos] = 0;
-		value_data = &str[pos + 1];
-
-		v = NewHttpValue(value_name, value_data);
-		if (v == NULL)
-		{
-			Free(value_name);
-			goto LABEL_ERROR;
-		}
-
-		Free(value_name);
-
-		AddHttpValue(header, v);
 		Free(str);
 	}
-
-	FreeToken(token);
 
 	return header;
 
 LABEL_ERROR:
 	// Memory release
-	if (token)
-	{
-		FreeToken(token);
-	}
-	if (str)
-	{
-		Free(str);
-	}
-	if (header)
-	{
-		FreeHttpHeader(header);
-	}
+	Free(str);
+	FreeToken(token);
+	FreeHttpHeader(header);
+
 	return NULL;
 }
 
@@ -20764,6 +20720,57 @@ void AddHttpValue(HTTP_HEADER *header, HTTP_VALUE *value)
 	{
 		FreeHttpValue(value);
 	}
+}
+
+// Adds the HTTP value contained in the string to the HTTP header
+bool AddHttpValueStr(HTTP_HEADER* header, char *string)
+{
+	HTTP_VALUE *value = NULL;
+	UINT pos = 0;
+	char *value_name = NULL;
+	char *value_data = NULL;
+
+	// Validate arguments
+	if (header == NULL || IsEmptyStr(string))
+	{
+		return false;
+	}
+
+	// Sanitize string
+	EnSafeHttpHeaderValueStr(string, ' ');
+
+	// Get the position of the colon
+	pos = SearchStr(string, ":", 0);
+	if (pos == INFINITE)
+	{
+		// The colon does not exist
+		return false;
+	}
+
+	if ((pos + 1) >= StrLen(string))
+	{
+		// There is no data
+		return false;
+	}
+
+	// Divide into the name and the data
+	value_name = Malloc(pos + 1);
+	Copy(value_name, string, pos);
+	value_name[pos] = 0;
+	value_data = &string[pos + 1];
+
+	value = NewHttpValue(value_name, value_data);
+	if (value == NULL)
+	{
+		Free(value_name);
+		return false;
+	}
+
+	Free(value_name);
+
+	AddHttpValue(header, value);
+
+	return true;
 }
 
 // Create an HTTP header

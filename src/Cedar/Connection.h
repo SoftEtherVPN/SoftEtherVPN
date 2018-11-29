@@ -163,34 +163,35 @@ struct RC4_KEY_PAIR
 // Client Options
 struct CLIENT_OPTION
 {
-	wchar_t AccountName[MAX_ACCOUNT_NAME_LEN + 1];	// Connection setting name
-	char Hostname[MAX_HOST_NAME_LEN + 1];			// Host name
-	UINT Port;										// Port number
-	UINT PortUDP;									// UDP port number (0: Use only TCP)
-	UINT ProxyType;									// Type of proxy
-	char ProxyName[MAX_HOST_NAME_LEN + 1];			// Proxy server name
-	UINT ProxyPort;									// Port number of the proxy server
-	char ProxyUsername[MAX_PROXY_USERNAME_LEN + 1];	// Maximum user name length
-	char ProxyPassword[MAX_PROXY_PASSWORD_LEN + 1];	// Maximum password length
-	UINT NumRetry;									// Automatic retries
-	UINT RetryInterval;								// Retry interval
-	char HubName[MAX_HUBNAME_LEN + 1];				// HUB name
-	UINT MaxConnection;								// Maximum number of concurrent TCP connections
-	bool UseEncrypt;								// Use encrypted communication
-	bool UseCompress;								// Use data compression
-	bool HalfConnection;							// Use half connection in TCP
-	bool NoRoutingTracking;							// Disable the routing tracking
-	char DeviceName[MAX_DEVICE_NAME_LEN + 1];		// VLAN device name
-	UINT AdditionalConnectionInterval;				// Connection attempt interval when additional connection establish
-	UINT ConnectionDisconnectSpan;					// Disconnection interval
-	bool HideStatusWindow;							// Hide the status window
-	bool HideNicInfoWindow;							// Hide the NIC status window
-	bool RequireMonitorMode;						// Monitor port mode
-	bool RequireBridgeRoutingMode;					// Bridge or routing mode
-	bool DisableQoS;								// Disable the VoIP / QoS function
-	bool FromAdminPack;								// For Administration Pack
-	bool NoUdpAcceleration;							// Do not use UDP acceleration mode
-	UCHAR HostUniqueKey[SHA1_SIZE];					// Host unique key
+	wchar_t AccountName[MAX_ACCOUNT_NAME_LEN + 1];			// Connection setting name
+	char Hostname[MAX_HOST_NAME_LEN + 1];					// Host name
+	UINT Port;												// Port number
+	UINT PortUDP;											// UDP port number (0: Use only TCP)
+	UINT ProxyType;											// Type of proxy
+	char ProxyName[MAX_HOST_NAME_LEN + 1];					// Proxy server name
+	UINT ProxyPort;											// Port number of the proxy server
+	char ProxyUsername[MAX_PROXY_USERNAME_LEN + 1];			// Maximum user name length
+	char ProxyPassword[MAX_PROXY_PASSWORD_LEN + 1];			// Maximum password length
+	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP proxy header
+	UINT NumRetry;											// Automatic retries
+	UINT RetryInterval;										// Retry interval
+	char HubName[MAX_HUBNAME_LEN + 1];						// HUB name
+	UINT MaxConnection;										// Maximum number of concurrent TCP connections
+	bool UseEncrypt;										// Use encrypted communication
+	bool UseCompress;										// Use data compression
+	bool HalfConnection;									// Use half connection in TCP
+	bool NoRoutingTracking;									// Disable the routing tracking
+	char DeviceName[MAX_DEVICE_NAME_LEN + 1];				// VLAN device name
+	UINT AdditionalConnectionInterval;						// Connection attempt interval when additional connection establish
+	UINT ConnectionDisconnectSpan;							// Disconnection interval
+	bool HideStatusWindow;									// Hide the status window
+	bool HideNicInfoWindow;									// Hide the NIC status window
+	bool RequireMonitorMode;								// Monitor port mode
+	bool RequireBridgeRoutingMode;							// Bridge or routing mode
+	bool DisableQoS;										// Disable the VoIP / QoS function
+	bool FromAdminPack;										// For Administration Pack
+	bool NoUdpAcceleration;									// Do not use UDP acceleration mode
+	UCHAR HostUniqueKey[SHA1_SIZE];							// Host unique key
 };
 
 // Client authentication data

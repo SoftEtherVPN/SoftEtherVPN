@@ -2945,6 +2945,8 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 					FreeBuf(pw);
 				}
 
+				CfgGetStr(f8, "CustomHttpHeader", t.CustomHttpHeader, sizeof(t.CustomHttpHeader));
+
 				GetMachineHostName(machine_name, sizeof(machine_name));
 
 				CfgGetStr(f8, "LocalHostname", machine_name2, sizeof(machine_name2));
@@ -3314,6 +3316,8 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 
 				FreeBuf(pw);
 			}
+
+			CfgAddStr(ddns_folder, "CustomHttpHeader", t->CustomHttpHeader);
 		}
 	}
 
