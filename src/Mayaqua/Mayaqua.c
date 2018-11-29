@@ -434,12 +434,6 @@ bool Is32()
 	return Is64() ? false : true;
 }
 
-// .NET mode
-void MayaquaDotNetMode()
-{
-	dot_net_mode = true;
-}
-
 // Acquisition whether in .NET mode
 bool MayaquaIsDotNetMode()
 {
@@ -478,18 +472,6 @@ bool MayaquaIsMinimalMode()
 bool IsNt()
 {
 	return is_nt;
-}
-
-// Whether the Unicode is supported
-bool IsUnicode()
-{
-#ifdef	OS_WIN32
-	// Windows
-	return IsNt();
-#else	// OS_WIN32
-	// UNIX
-	return true;
-#endif	// OS_WIN32
 }
 
 // Initialization of Mayaqua library
@@ -750,7 +732,6 @@ void CheckUnixTempDir()
 			{
 				Print("Unable to use /tmp.\n\n");
 				exit(0);
-				return;
 			}
 		}
 
@@ -768,53 +749,6 @@ void Alert(char *msg, char *caption)
 void AlertW(wchar_t *msg, wchar_t *caption)
 {
 	OSAlertW(msg, caption);
-}
-
-// Display of OS information
-void PrintOsInfo(OS_INFO *info)
-{
-	// Validate arguments
-	if (info == NULL)
-	{
-		return;
-	}
-
-	Print(
-		"OS Type          : %u\n"
-		"OS Service Pack  : %u\n"
-		"os_is_windows    : %s\n"
-		"os_is_windows_nt : %s\n"
-		"OS System Name   : %s\n"
-		"OS Product Name  : %s\n"
-		"OS Vendor Name   : %s\n"
-		"OS Version       : %s\n"
-		"Kernel Name      : %s\n"
-		"Kernel Version   : %s\n",
-		info->OsType,
-		info->OsServicePack,
-		OS_IS_WINDOWS(info->OsType) ? "true" : "false",
-		OS_IS_WINDOWS_NT(info->OsType) ? "true" : "false",
-		info->OsSystemName,
-		info->OsProductName,
-		info->OsVendorName,
-		info->OsVersion,
-		info->KernelName,
-		info->KernelVersion);
-
-#ifdef	OS_WIN32
-	{
-		char *exe, *dir;
-		exe = MsGetExeFileName();
-		dir = MsGetExeDirName();
-
-		Print(
-			"EXE File Path    : %s\n"
-			"EXE Dir Path     : %s\n"
-			"Process Id       : %u\n"
-			"Process Handle   : 0x%X\n",
-			exe, dir, MsGetCurrentProcessId(), MsGetCurrentProcess());
-	}
-#endif	// OS_WIN32
 }
 
 // Get the OS type
