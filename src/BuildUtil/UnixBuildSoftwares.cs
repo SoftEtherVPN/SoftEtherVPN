@@ -310,6 +310,17 @@ namespace BuildUtil
 
 			if (true)
 			{
+				string srcData = File.ReadAllText(Path.Combine(Paths.BinDirName, @"hamcore\warning_ru.txt"),
+					enc);
+
+				byte[] destData = enc.GetBytes(srcData);
+
+				tar.AddFileSimple(targetName + @"\" + "ReadMeFirst_Important_Notices_ru.txt", destData, 0, destData.Length, DateTime.Now);
+			}
+
+
+			if (true)
+			{
 				string srcData = File.ReadAllText(Path.Combine(Paths.BinDirName, @"hamcore\warning_cn.txt"),
 					enc);
 
