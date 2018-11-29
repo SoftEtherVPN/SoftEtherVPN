@@ -540,8 +540,6 @@ if (IsTrackingEnabled()) {													\
 void InitMayaqua(bool memcheck, bool debug, int argc, char **argv);
 void FreeMayaqua();
 bool IsNt();
-bool IsUnicode();
-void MayaquaDotNetMode();
 bool MayaquaIsDotNetMode();
 void MayaquaMinimalMode();
 bool MayaquaIsMinimalMode();
@@ -571,7 +569,6 @@ void Alert(char *msg, char *caption);
 void AlertW(wchar_t *msg, wchar_t *caption);
 OS_INFO *GetOsInfo();
 UINT GetOsType();
-void PrintOsInfo(OS_INFO *info);
 void CheckEndian();
 void CheckUnixTempDir();
 void TimeCheck();
