@@ -265,6 +265,9 @@ SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, char *password, bool additional_connect,
 					 bool *cancel_flag, void *hWnd, UINT timeout);
+SOCK *ProxyConnectEx3(CONNECTION *c, WPC_CONNECT *wpc_connect,
+					  bool additional_connect, bool *cancel_flag, void *hWnd,
+					  UINT timeout);
 SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, bool additional_connect,

@@ -4086,6 +4086,186 @@ void LvRename(HWND hWnd, UINT id, UINT pos)
 	ListView_EditLabel(DlgItem(hWnd, id), pos);
 }
 
+// Enhanced function
+LRESULT CALLBACK LvEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("LvEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	case WM_MOUSEWHEEL:
+	{
+		// Prevent graphical glitches with the edit box by sending the NM_RETURN signal
+		// to the parent dialog (the parent dialog has to delete the edit box on NM_RETURN)
+		NMHDR nmh;
+		nmh.code = NM_RETURN;
+		nmh.idFrom = GetDlgCtrlID(hWnd);
+		nmh.hwndFrom = hWnd;
+		SendMsg(GetParent(hWnd), 0, WM_NOTIFY, nmh.idFrom, (LPARAM)&nmh);
+
+		break;
+	}
+	case WM_CLOSE:
+		// Prevent list view from disappearing after pressing ESC in an edit box
+		return 0;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		LvSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void LvSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
+}
+
+// Enhanced function
+LRESULT CALLBACK EditBoxEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("EditBoxEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_CHAR:
+		switch (wParam)
+		{
+		// CTRL + A
+		case 1:
+			SelectEdit(hWnd, 0);
+			return 0;
+		case VK_RETURN:
+			SendMsg(GetParent(hWnd), 0, WM_KEYDOWN, VK_RETURN, 0);
+			return 0;
+		case VK_ESCAPE:
+			DestroyWindow(hWnd);
+			return 0;
+		}
+		break;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		EditBoxSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void EditBoxSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
+}
+
 // Show the menu
 void PrintMenu(HWND hWnd, HMENU hMenu)
 {

@@ -631,9 +631,7 @@ SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool 
 		break;
 
 	case PROXY_HTTP:
-		sock = ProxyConnectEx2(&c, param->ProxyHostName, param->ProxyPort,
-			param->HostName, param->Port,
-			param->ProxyUsername, param->ProxyPassword, false, cancel, NULL, timeout);
+		sock = ProxyConnectEx3(&c, param, false, cancel, NULL, timeout);
 		if (sock == NULL)
 		{
 			err = c.Err;
@@ -687,6 +685,7 @@ SOCK *WpcSockConnect2(char *hostname, UINT port, INTERNET_SETTING *t, UINT *erro
 	c.ProxyPort = t->ProxyPort;
 	StrCpy(c.ProxyUsername, sizeof(c.ProxyUsername), t->ProxyUsername);
 	StrCpy(c.ProxyPassword, sizeof(c.ProxyPassword), t->ProxyPassword);
+	StrCpy(c.CustomHttpHeader, sizeof(c.CustomHttpHeader), t->CustomHttpHeader);
 
 	return WpcSockConnect(&c, error_code, timeout);
 }
@@ -779,6 +778,7 @@ BUF *HttpRequestEx3(URL_DATA *data, INTERNET_SETTING *setting,
 	con.ProxyPort = setting->ProxyPort;
 	StrCpy(con.ProxyUsername, sizeof(con.ProxyUsername), setting->ProxyUsername);
 	StrCpy(con.ProxyPassword, sizeof(con.ProxyPassword), setting->ProxyPassword);
+	StrCpy(con.CustomHttpHeader, sizeof(con.CustomHttpHeader), setting->CustomHttpHeader);
 
 	if (setting->ProxyType != PROXY_HTTP || data->Secure)
 	{

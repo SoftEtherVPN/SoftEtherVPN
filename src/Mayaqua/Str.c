@@ -2027,6 +2027,53 @@ void EnSafeStr(char *str, char replace)
 	}
 }
 
+// Replace '\r' and '\n' with the specified character.
+// If the specified character is a space (unsafe), the original character is removed.
+void EnSafeHttpHeaderValueStr(char *str, char replace)
+{
+	UINT length = 0;
+	UINT index = 0;
+
+	// Validate arguments
+	if (str == NULL)
+	{
+		return;
+	}
+
+	length = StrLen(str);
+	while (index < length)
+	{
+		if (str[index] == '\r' || str[index] == '\n')
+		{
+			if (replace == ' ')
+			{
+				Move(&str[index], &str[index + 1], length - index);
+			}
+			else
+			{
+				str[index] = replace;
+			}
+		}
+		else if (str[index] == '\\')
+		{
+			if (str[index + 1] == 'r' || str[index + 1] == 'n')
+			{
+				if (replace == ' ')
+				{
+					Move(&str[index], &str[index + 2], length - index);
+					index--;
+				}
+				else
+				{
+					str[index] = str[index + 1] = replace;
+					index++;
+				}
+			}
+		}
+		index++;
+	}
+}
+
 // Operation check of string library
 bool CheckStringLibrary()
 {

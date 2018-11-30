@@ -396,6 +396,7 @@ bool IsInList(LIST *o, void *p);
 bool IsInListKey(LIST *o, UINT key);
 void *ListKeyToPointer(LIST *o, UINT key);
 bool IsInListStr(LIST *o, char *str);
+bool IsInListUniStr(LIST *o, wchar_t *str);
 bool ReplaceListPointer(LIST *o, void *oldptr, void *newptr);
 void AddInt(LIST *o, UINT i);
 void AddInt64(LIST *o, UINT64 i);

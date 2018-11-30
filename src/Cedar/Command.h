@@ -453,6 +453,9 @@ UINT PcAccountEncryptDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *par
 UINT PcAccountEncryptEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountCompressEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountCompressDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PcAccountHttpHeaderAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PcAccountHttpHeaderDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PcAccountHttpHeaderGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountProxyNone(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountProxyHttp(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountProxySocks(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
@@ -591,6 +594,9 @@ UINT PsCascadeEncryptEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 UINT PsCascadeEncryptDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsCascadeCompressEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsCascadeCompressDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsCascadeHttpHeaderAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsCascadeHttpHeaderDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsCascadeHttpHeaderGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsCascadeProxyNone(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsCascadeProxyHttp(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsCascadeProxySocks(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

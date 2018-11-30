@@ -126,25 +126,27 @@
 // Connection parameters
 struct WPC_CONNECT
 {
-	char HostName[MAX_HOST_NAME_LEN + 1];		// Host name
-	UINT Port;									// Port number
-	UINT ProxyType;								// Type of proxy server
-	char ProxyHostName[MAX_HOST_NAME_LEN + 1];	// Proxy server host name
-	UINT ProxyPort;								// Proxy server port number
-	char ProxyUsername[MAX_USERNAME_LEN + 1];	// Proxy server user name
-	char ProxyPassword[MAX_USERNAME_LEN + 1];	// Proxy server password
-	bool UseCompress;							// Use of compression
-	bool DontCheckCert;							// Do not check the certificate
+	char HostName[MAX_HOST_NAME_LEN + 1];					// Host name
+	UINT Port;												// Port number
+	UINT ProxyType;											// Type of proxy server
+	char ProxyHostName[MAX_HOST_NAME_LEN + 1];				// Proxy server host name
+	UINT ProxyPort;											// Proxy server port number
+	char ProxyUsername[MAX_USERNAME_LEN + 1];				// Proxy server user name
+	char ProxyPassword[MAX_USERNAME_LEN + 1];				// Proxy server password
+	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP header
+	bool UseCompress;										// Use of compression
+	bool DontCheckCert;										// Do not check the certificate
 };
 
 // Internet connection settings
 struct INTERNET_SETTING
 {
-	UINT ProxyType;								// Type of proxy server
-	char ProxyHostName[MAX_HOST_NAME_LEN + 1];	// Proxy server host name
-	UINT ProxyPort;								// Proxy server port number
-	char ProxyUsername[MAX_USERNAME_LEN + 1];	// Proxy server user name
-	char ProxyPassword[MAX_USERNAME_LEN + 1];	// Proxy server password
+	UINT ProxyType;											// Type of proxy server
+	char ProxyHostName[MAX_HOST_NAME_LEN + 1];				// Proxy server host name
+	UINT ProxyPort;											// Proxy server port number
+	char ProxyUsername[MAX_USERNAME_LEN + 1];				// Proxy server user name
+	char ProxyPassword[MAX_USERNAME_LEN + 1];				// Proxy server password
+	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP header
 };
 
 // URL
