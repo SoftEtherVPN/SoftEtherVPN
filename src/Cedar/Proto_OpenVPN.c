@@ -2351,6 +2351,18 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									OvsLog(s, se, c, "LP_SET_IPV4_PARAM",
 										ip_client, ip_subnet_mask, ip_defgw, ip_dns1, ip_dns2, ip_wins1, ip_wins2);
 								}
+								else
+								{
+									// OpenVPN L2 mode. To fix the bug of OpenVPN 2.4.6 and particular version of kernel mode TAP driver
+									// on Linux, the TAP device must be up after the OpenVPN client is connected.
+									// However there is no direct push instruction to do so to OpenVPN client.
+									// Therefore we push the dummy IPv4 address (RFC7600) to the OpenVPN client.
+
+									if (s->Cedar->OpenVPNPushDummyIPv4AddressOnL2Mode)
+									{
+										StrCat(option_str, sizeof(option_str), ",ifconfig 192.0.0.8 255.255.255.240");
+									}
+								}
 
 								WriteFifo(c->SslPipe->SslInOut->SendFifo, option_str, StrSize(option_str));
 

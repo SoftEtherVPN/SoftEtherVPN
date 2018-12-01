@@ -1554,6 +1554,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	StrCpy(c->OpenVPNDefaultClientOption, sizeof(c->OpenVPNDefaultClientOption), OVPN_DEF_CLIENT_OPTION_STRING);
 
+	c->OpenVPNPushDummyIPv4AddressOnL2Mode = true; // Default true. Override by the config file.
+
 #ifdef	BETA_NUMBER
 	c->Beta = BETA_NUMBER;
 #endif	// BETA_NUMBER
