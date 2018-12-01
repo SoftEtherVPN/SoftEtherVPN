@@ -5872,6 +5872,17 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 		}
 
+		// OpenVPN Push a dummy IPv4 address on L2 mode
+		if (CfgIsItem(f, "OpenVPNPushDummyIPv4AddressOnL2Mode") == false)
+		{
+			// Default enable
+			c->OpenVPNPushDummyIPv4AddressOnL2Mode = true;
+		}
+		else
+		{
+			c->OpenVPNPushDummyIPv4AddressOnL2Mode = CfgGetBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode");
+		}
+
 		// Disable the NAT-traversal feature
 		s->DisableNatTraversal = CfgGetBool(f, "DisableNatTraversal");
 
@@ -6288,6 +6299,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		}
 
 		CfgAddStr(f, "OpenVPNDefaultClientOption", c->OpenVPNDefaultClientOption);
+
+		CfgAddBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode", c->OpenVPNPushDummyIPv4AddressOnL2Mode);
 
 		if (c->Bridge == false)
 		{
