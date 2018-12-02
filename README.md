@@ -30,7 +30,8 @@ http://www.softether-download.com/
 We accept your patches by the acceptance policy:
 http://www.softether.org/5-download/src/9.patch
 
-Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
+Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
 
 The development of SoftEther VPN was supported by the MITOH Project,
 a research and development project by Japanese Government,
@@ -39,9 +40,11 @@ administrated by Information Promotion Agency.
 https://www.ipa.go.jp/english/humandev/
 
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
 
 SoftEther VPN ("SoftEther" means "Software Ethernet") is one of the
 world's most powerful and easy-to-use multi-protocol VPN software.
