@@ -106,23 +106,11 @@
 
 // -----------------------------------------------------------------
 // Tap header for Linux
+// This header definitions are from Universal TUN/TAP device driver
+// written by Maxim Krasnyansky <max_mk@yahoo.com>.
+// This definitions includes only types and constants definitions,
+// and it does not include any programs.
 // -----------------------------------------------------------------
-/*
- *  Universal TUN/TAP device driver.
- *  Copyright (C) 1999-2000 Maxim Krasnyansky <max_mk@yahoo.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  $Id: if_tun.h,v 1.2 2001/10/31 15:27:57 arjanv Exp $
- */
 
 #ifndef __IF_TUN_H
 #define __IF_TUN_H
@@ -171,27 +159,12 @@ struct tun_pi {
 #ifdef	UNIX_SOLARIS
 
 // -----------------------------------------------------------------
-// Tap header for Solaris
+// Tap header for Linux
+// This header definitions are from Multithreaded STREAMS tun pseudo device driver
+// written by Maxim Krasnyansky <max_mk@yahoo.com>.
+// This definitions includes only types and constants definitions,
+// and it does not include any programs.
 // -----------------------------------------------------------------
-/*
- *  Universal TUN/TAP device driver.
- *
- *  Multithreaded STREAMS tun pseudo device driver.
- *
- *  Copyright (C) 1999-2000 Maxim Krasnyansky <max_mk@yahoo.com>
- *  
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  $Id: if_tun.h,v 1.4 2000/05/01 12:23:27 maxk Exp $
- */
 
 #ifndef _SYS_IF_TUN_H
 #define _SYS_IF_TUN_H
