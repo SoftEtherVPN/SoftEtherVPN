@@ -159,7 +159,7 @@ struct tun_pi {
 #ifdef	UNIX_SOLARIS
 
 // -----------------------------------------------------------------
-// Tap header for Linux
+// Tap header for Solaris
 // This header definitions are from Multithreaded STREAMS tun pseudo device driver
 // written by Maxim Krasnyansky <max_mk@yahoo.com>.
 // This definitions includes only types and constants definitions,
