@@ -161,8 +161,8 @@ struct IPC_PARAM
 	char ClientHostname[MAX_SIZE];
 	char CryptName[MAX_SIZE];
 	bool BridgeMode;
+	bool DisableDhcp;
 	UINT Mss;
-	bool IsL3Mode;
 	X *ClientCertificate;
 };
 
@@ -177,9 +177,9 @@ struct IPC_ASYNC
 	IPC *Ipc;							// IPC object (if it fails to connect, the value is NULL)
 	TUBE *TubeForDisconnect;			// Tube for disconnection notification
 	UINT ErrorCode;						// Error code in the case of failing to connect
-	DHCP_OPTION_LIST L3ClientAddressOption;	// Client IP address option (Only in the case of L3 mode)
-	UINT64 L3DhcpRenewInterval;			// DHCP update interval
-	UINT64 L3NextDhcpRenewTick;			// DHCP renewal time of the next
+	DHCP_OPTION_LIST DhcpOptionList;	// Client IP address option
+	UINT64 DhcpRenewInterval;			// DHCP update interval
+	UINT64 DhcpNextRenewTick;			// DHCP renewal time of the next
 	bool DhcpAllocFailed;				// Failed to get IP address from the DHCP server
 };
 
