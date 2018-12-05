@@ -777,7 +777,7 @@ CM_PW_LOCALMACHINE		Локальный компьютер
 CM_NO_REMOTE			Служба VPN-клиента, работающая на %s, запрещает удаленные подключения.
 CM_CONNECT_FAILED		Не удается подключиться к службе VPN-клиентов, работающей на %s. \r\nУбедитесь, что служба VPN-клиента запущена и работает нормально.
 CM_BAD_PASSWORD			Пароль неверен. Повторно введите пароль. Пароль чувствителен к регистру, поэтому обязательно различайте буквы верхнего и нижнего регистра.
-CM_NUM_CONN_COUNT		%u VPN-сессий
+CM_NUM_CONN_COUNT		VPN-сессий: %u 
 CM_CONN_NO				Не подключено
 CM_PRODUCT_NAME			SoftEther VPN Client Build %u
 CM_ACCOUNT_COLUMN_1		Название VPN подключения
@@ -860,23 +860,23 @@ CM_ST_RECV_UCAST_SIZE	Размер входящих пакетов
 CM_ST_RECV_BCAST_NUM	Кол-во вх. широковещательных пакетов
 CM_ST_RECV_BCAST_SIZE	Размер вх. широковещательных пакетов
 
-CM_ST_NUM_PACKET_STR	%S packets
-CM_ST_SIZE_BYTE_STR		%S bytes
+CM_ST_NUM_PACKET_STR	Пакеты: %S
+CM_ST_SIZE_BYTE_STR		Байты: %S
 
-CM_NEW_ICON				Добавить VPN соединение
+CM_NEW_ICON				Добавить VPN подключение
 CM_VGC_ICON				VPN Gate Public VPN Relay Servers
 CM_VGC_LINK				VPN Gate Academic Web Site
-CM_ST_TITLE				Статус соединения %s
+CM_ST_TITLE				Статус подключения %s
 CM_ST_COLUMN_1			Item
 CM_ST_COLUMN_2			Статус
-CM_NEW_ACCOUNT_NAME_1	Новое VPN соединение
-CM_NEW_ACCOUNT_NAME_2	Новое VPN соединение (%u)
-CM_ACCOUNT_TITLE_1		New VPN Connection Setting Properties
-CM_ACCOUNT_TITLE_2		Параметры %s
-CM_SERVER_CERT_1		&Specify Individual Cert
-CM_SERVER_CERT_2		&Delete Certificate
-CM_CLIENT_CERT_1		Specify Client &Certificate
-CM_CLIENT_CERT_2		Delete &Client Certificate
+CM_NEW_ACCOUNT_NAME_1	Новое VPN подключение
+CM_NEW_ACCOUNT_NAME_2	Новое VPN подключение (%u)
+CM_ACCOUNT_TITLE_1		Настройки нового VPN подключения
+CM_ACCOUNT_TITLE_2		Настройки %s
+CM_SERVER_CERT_1		&Использовать личный сертификат
+CM_SERVER_CERT_2		&Удалить сертификат
+CM_CLIENT_CERT_1		Использовать клиентский &сертификат
+CM_CLIENT_CERT_2		Удалить &клиентский сертификат
 CM_CERT_INFO			Issued to: %s\r\nIssuer: %s\r\nExpiration: %s
 CM_NO_CERT				You must specify a client certificate to be used for user authentication.
 CM_NO_SECURE			Specify the client certificate and private key inside the smart card to be used for user authentication.
