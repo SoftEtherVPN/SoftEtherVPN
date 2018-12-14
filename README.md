@@ -32,12 +32,25 @@ http://www.softether.org/5-download/src/9.patch
 
 Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 
+---
+
 The development of SoftEther VPN was supported by the MITOH Project,
 a research and development project by Japanese Government,
 subsidized by Ministry of Economy, Trade and Industry of Japan,
 administrated by Information Promotion Agency.
 https://www.ipa.go.jp/english/humandev/
 
+---
+
+![https://icons8.com](resources/icons8.png "Icons8")
+
+[Icons8](https://icons8.com) kindly supported the project by gifting a license which allows to edit and redistribute their icons.
+
+Please note that you are not allowed to redistribute those icons outside of this repository.
+
+The developers of SoftEther VPN love Icons8's work and kindly ask the users to support them as much as possible.
+
+---
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2
