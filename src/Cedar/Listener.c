@@ -489,12 +489,12 @@ void ListenerTCPMainLoop(LISTENER *r)
 			}
 			else if (r->Protocol == LISTENER_ICMP)
 			{
-				s = ListenRUDP(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4),
-					true, false);
+				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4),
+					true, false, NULL, 0, &r->Cedar->Server->ListenIP);
 			}
 			else if (r->Protocol == LISTENER_DNS)
 			{
-				s = ListenRUDP(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 53, true, true);
+				s = ListenRUDPEx(VPN_RUDP_SVC_NAME, NULL, ListenerRUDPRpcRecvProc, NULL, 53, true, true, NULL, 0, &r->Cedar->Server->ListenIP);
 			}
 			else if (r->Protocol == LISTENER_REVERSE)
 			{
