@@ -1,0 +1,16 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+  
+variables:
+  CPACK_GENERATOR: DEB
+
+steps:
+- checkout: self  
+  submodules: recursive
+
+- script: |
+    sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+    ./configure
+    make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
+    .ci/appveyor-deb-install-test.sh
+  displayName: 'Ubuntu 16.04'
