@@ -998,10 +998,10 @@ CM_VPNGATE_MESSAGE		There is the list of Public VPN Relay Servers on the VPN Gat
 CM_VLAN_REINSTALL_MSG	After reinstalling the Virtual Network Adapter driver, the current Virtual Network Adapter's MAC address will change. Also, all TCP/IP settings within the Virtual Network Adapter will reset.\r\n\r\nIn case the reinstalled Virtual Network Adapter fails to work, delete it and create a new one. If it still doesn't work properly, please create a new Virtual Network Adapter with a different name.
 
 
-VGC_COLUMN_0			DDNS Hostname
-VGC_COLUMN_1			IP адрес (Hostname)
+VGC_COLUMN_0			Имя хоста DDNS
+VGC_COLUMN_1			IP адрес (Имя хоста)
 VGC_COLUMN_2			Регион
-VGC_COLUMN_3			Uptime
+VGC_COLUMN_3			Время работы
 VGC_COLUMN_4			VPN сессии
 VGC_COLUMN_5			Скорость линии
 VGC_COLUMN_6			Пинг (Google, SE)
@@ -1044,12 +1044,12 @@ VGS_START				This will activate the VPN Gate Relay Service function.\r\n\r\nVPN 
 
 
 # Concerning services (Win32)
-SVC_HELP				*** Command Line Arguments of %s (%S) ***\r\n\r\nThis program (%s) is a process runs as a background task. Start the program by specifying the following arguments on the command line. \r\n\r\n\r\n/install : Installs %s service (service name: %S) in Windows. After this, the service will automatically start. \r\n\r\n/uninstall... Uninstalls %s service (service name: %S) from Windows. \r\n\r\n/start : Starts %s service (service name: %S). \r\n\r\n/stop : Stops %s service (service name: %S). \r\n\r\n/test : Starts %s program in test mode. (For debug)\r\n\r\n/usermode : Starts %s program in the user mode. (When possible)\r\n\r\n/usermode_showtray : When starting in the user mode, this is used to display task tray icons when they were set to be hidden on a previous occasion. \r\n\r\n/usermode_hidetray : When starting in the user mode, this sets the task tray icons to be hidden. \r\n\r\n\r\nNote: Commands related to service operation other than /test and /usermode can only be operated on Windows NT / XP / Server 2003 / Vista / Server 2008.
-SVC_NT_ONLY				The service related operation commands can only operate on Windows NT / 2000 / XP / Server 2003 / Vista / Server 2008. \r\nThey do not operate on Windows 98 / Me.
-SVC_ALREADY_INSTALLED	The "%s" service (service name: %S) is already installed on this computer. Do you want to uninstall it and then re-install?
-SVC_INSTALL_OK			The "%s" service (Service name: %S) has been installed successfully. \r\n\r\n(Execution path: %s)\r\n\r\nThe service has started.
-SVC_INSTALL_FAILED		The installation of the "%s" service (service name: %S) failed.
-SVC_INSTALL_FAILED_2	The "%s" service (Service name: %S) has been successfully installed. \r\n\r\n(Execution path: %s)\r\n\r\nAn attempt to start the service, however, failed.
+SVC_HELP				*** Аргументы командной строки %s (%S) ***\r\n\r\nЭта программа (%s) выполняется в фоновом режиме. Запустите программу, указав следующие аргументы в командной строке. \r\n\r\n\r\n/install : Устанавливает службу %s (название службы: %S) в Windows. После этого служба автоматически запустится. \r\n\r\n/uninstall... Удаляет службу %s (название службы: %S) из Windows. \r\n\r\n/start : Запускает службу %s (название службы: %S). \r\n\r\n/stop : Останавливает службу %s (название службы: %S). \r\n\r\n/test : Запускает программу %s в тестовом режиме. (Для отладки)\r\n\r\n/usermode : Запускает программу %s в пользовательском режиме. (Когда возможно)\r\n\r\n/usermode_showtray : Используется для отображения значков на панели задач при запуске в пользовательском режиме, если они были скрыты ранее. \r\n\r\n/usermode_hidetray : Скрывает значки на панели задач при запуске в пользовательском режиме.  \r\n\r\n\r\nNote: Команды, связанные с работой служб, отличные от /test и /usermode, работают только в Windows NT / XP / Server 2003 / Vista / Server 2008.
+SVC_NT_ONLY				Команды, связанные с работой служб, работают только в Windows NT / XP / Server 2003 / Vista / Server 2008. \r\nНе работают в Windows 98 / Me.
+SVC_ALREADY_INSTALLED	Служба "%s" (название службы: %S) уже установлена на этом компьютере. Вы хотите удалить её, а затем переустановить?
+SVC_INSTALL_OK			Служба "%s" (название службы: %S) успешно установлена.  \r\n\r\n(Путь: %s)\r\n\r\nСлужба запущена.
+SVC_INSTALL_FAILED		Установка службы "%s" (название службы: %S) завершилась неудачно.
+SVC_INSTALL_FAILED_2	Служба "%s" (название службы: %S) успешно установлена. \r\n\r\n(Путь: %s)\r\n\r\nПопытка запустить службу не удалась.
 SVC_NOT_INSTALLED		The "%s" service (service name: %S) is not yet installed on this computer. Use the /install command line argument to install it.
 SVC_START_OK			The "%s" service (service name: %S) started successfully.
 SVC_START_FAILED		The "%s" service (service name: %S) failed to start.
