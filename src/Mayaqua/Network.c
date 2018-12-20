@@ -20563,12 +20563,14 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 
 	// Split into tokens
 	token = ParseToken(str, " ");
+
+	FreeSafe((void **)&str);
+
 	if (token->NumTokens < 3)
 	{
-		goto LABEL_ERROR;
+		FreeToken(token);
+		return NULL;
 	}
-
-	Free(str);
 
 	// Creating a header object
 	header = NewHttpHeader(token->Token[0], token->Token[1], token->Token[2]);
@@ -20588,27 +20590,21 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 		if (IsEmptyStr(str))
 		{
 			// End of header
-			Free(str);
+			FreeSafe((void **)&str);
 			break;
 		}
 
 		if (AddHttpValueStr(header, str) == false)
 		{
-			goto LABEL_ERROR;
+			FreeSafe((void **)&str);
+			FreeHttpHeader(header);
+			break;
 		}
 
-		Free(str);
+		FreeSafe((void **)&str);
 	}
 
 	return header;
-
-LABEL_ERROR:
-	// Memory release
-	Free(str);
-	FreeToken(token);
-	FreeHttpHeader(header);
-
-	return NULL;
 }
 
 // Receive a line
