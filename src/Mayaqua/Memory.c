@@ -3777,6 +3777,13 @@ void Free(void *addr)
 	InternalFree(tag);
 }
 
+// Free and set pointer's value to NULL
+void FreeSafe(void **addr)
+{
+	Free(*addr);
+	*addr = NULL;
+}
+
 // Check the memtag
 void CheckMemTag(MEMTAG *tag)
 {

@@ -20564,7 +20564,7 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 	// Split into tokens
 	token = ParseToken(str, " ");
 
-	Free(str);
+	FreeSafe((void **)&str);
 
 	if (token->NumTokens < 3)
 	{
@@ -20590,18 +20590,18 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 		if (IsEmptyStr(str))
 		{
 			// End of header
-			Free(str);
+			FreeSafe((void **)&str);
 			break;
 		}
 
 		if (AddHttpValueStr(header, str) == false)
 		{
-			Free(str);
+			FreeSafe((void **)&str);
 			FreeHttpHeader(header);
 			break;
 		}
 
-		Free(str);
+		FreeSafe((void **)&str);
 	}
 
 	return header;

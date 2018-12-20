@@ -276,6 +276,7 @@ void *ZeroMalloc(UINT size);
 void *ZeroMallocEx(UINT size, bool zero_clear_when_free);
 void *ReAlloc(void *addr, UINT size);
 void Free(void *addr);
+void FreeSafe(void **addr);
 void CheckMemTag(MEMTAG *tag);
 UINT GetMemSize(void *addr);
 
