@@ -205,7 +205,6 @@ static LOCK *socket_library_lock = NULL;
 extern LOCK *openssl_lock;
 static LOCK *ssl_accept_lock = NULL;
 static LOCK *ssl_connect_lock = NULL;
-static TOKEN_LIST *cipher_list_token = NULL;
 static COUNTER *num_tcp_connections = NULL;
 static LOCK *dns_lock = NULL;
 static LOCK *unix_dns_server_addr_lock = NULL;
@@ -232,12 +231,6 @@ static bool disable_gethostname_by_accept = false;
 static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
-
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384"
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	" DHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305";
-#endif
-;
 
 static LIST *ip_clients = NULL;
 
@@ -16532,8 +16525,6 @@ void InitNetwork()
 	Zero(&unix_dns_server, sizeof(unix_dns_server));
 	local_mac_list_lock = NewLock();
 
-	cipher_list_token = ParseToken(cipher_list, " ");
-
 	current_global_ip_lock = NewLock();
 	current_fqdn_lock = NewLock();
 	current_global_ip_set = false;
@@ -16566,7 +16557,67 @@ bool IsNetworkNameCacheEnabled()
 // Get the cipher algorithm list
 TOKEN_LIST *GetCipherList()
 {
-	return cipher_list_token;
+	UINT i;
+	SSL *ssl;
+	SSL_CTX *ctx;
+	const char *name;
+	STACK_OF(SSL_CIPHER) *sk;
+
+	TOKEN_LIST *ciphers = ZeroMalloc(sizeof(TOKEN_LIST));
+
+	ctx = NewSSLCtx(true);
+	if (ctx == NULL)
+	{
+		return ciphers;
+	}
+
+	SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
+#endif
+
+	ssl = SSL_new(ctx);
+	if (ssl == NULL)
+	{
+		FreeSSLCtx(ctx);
+		return ciphers;
+	}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+	sk = SSL_get1_supported_ciphers(ssl);
+#else
+	sk = SSL_get_ciphers(ssl);
+#endif
+
+	for (i = 0; i < sk_SSL_CIPHER_num(sk); i++)
+	{
+		const SSL_CIPHER *c = sk_SSL_CIPHER_value(sk, i);
+
+		name = SSL_CIPHER_get_name(c);
+		if (IsEmptyStr(name))
+		{
+			break;
+		}
+
+		ciphers->NumTokens++;
+
+		if (ciphers->Token != NULL) {
+			ciphers->Token = ReAlloc(ciphers->Token, sizeof(char *) * ciphers->NumTokens);
+		}
+		else
+		{
+			ciphers->Token = Malloc(sizeof(char *));
+		}
+
+		ciphers->Token[i] = CopyStr(name);
+	}
+
+	sk_SSL_CIPHER_free(sk);
+	FreeSSLCtx(ctx);
+	SSL_free(ssl);
+
+	return ciphers;
 }
 
 // Get the TCP connections counter
@@ -16953,9 +17004,6 @@ void FreeNetwork()
 
 	// Release of thread-related
 	FreeWaitThread();
-
-	FreeToken(cipher_list_token);
-	cipher_list_token = NULL;
 
 	Zero(&unix_dns_server, sizeof(unix_dns_server));
 

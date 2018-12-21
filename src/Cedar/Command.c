@@ -8850,6 +8850,8 @@ UINT PsServerCipherGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		c->Write(c, tmp);
 	}
 
+	FreeToken(ciphers);
+
 	FreeRpcStr(&t);
 
 	FreeParamValueList(o);

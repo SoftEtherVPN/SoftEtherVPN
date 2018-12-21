@@ -17029,6 +17029,7 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 		StrToUni(tmp, sizeof(tmp), name);
 		CbAddStr(hWnd, C_CIPHER, tmp, 0);
 	}
+	FreeToken(cipher_list);
 
 	if (s->p != NULL)
 	{
