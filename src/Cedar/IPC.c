@@ -433,6 +433,13 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	{
 		p = PackLoginWithPlainPassword(hubname, username, password);
 	}
+
+	if (p == NULL)
+	{
+		err = ERR_AUTH_FAILED;
+		goto LABEL_ERROR;
+	}
+
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
