@@ -7126,6 +7126,7 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 	{
 		if (x->subject_name == NULL)
 		{
+			FreePack(p);
 			return NULL;
 		}
 		UniToStr(cn_username, sizeof(cn_username), x->subject_name->CommonName);
