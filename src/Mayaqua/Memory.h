@@ -128,6 +128,7 @@
 #define	MEMTAG_TO_POINTER(p)				((void *)(((UCHAR *)(p)) + sizeof(MEMTAG)))
 #define	POINTER_TO_MEMTAG(p)				((MEMTAG *)(((UCHAR *)(p)) - sizeof(MEMTAG)))
 #define	IS_NULL_POINTER(p)					(((p) == NULL) || ((POINTER_TO_UINT64(p) == (UINT64)sizeof(MEMTAG))))
+#define	PTR_TO_PTR(p)						((void **)(&p))
 
 // Fixed size of a block of memory pool
 #define	MEMPOOL_MAX_SIZE					3000
