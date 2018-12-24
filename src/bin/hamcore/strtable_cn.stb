@@ -3893,7 +3893,7 @@ S_4						指定用户名连接到虚拟 HUB 的方式，和通过使用克隆服
 B_IPSEC					IPsec 服务器配置(&P)
 S_13					OpenVPN 克隆服务器功能
 IDOK					确定(&O)
-IDCANCEL				取消l
+IDCANCEL				取消
 
 
 PREFIX					D_SM_DDNS
