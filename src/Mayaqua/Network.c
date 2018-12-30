@@ -20645,7 +20645,7 @@ HTTP_HEADER *RecvHttpHeader(SOCK *s)
 		if (AddHttpValueStr(header, str) == false)
 		{
 			FreeSafe(PTR_TO_PTR(str));
-			FreeHttpHeader(header);
+			FreeHttpHeaderSafe(&header);
 			break;
 		}
 
@@ -20898,6 +20898,13 @@ void FreeHttpHeader(HTTP_HEADER *header)
 	ReleaseList(header->ValueList);
 
 	Free(header);
+}
+
+// Release the HTTP header and set pointer's value to NULL
+void FreeHttpHeaderSafe(HTTP_HEADER **header)
+{
+	FreeHttpHeader(*header);
+	*header = NULL;
 }
 
 // Receive a PACK
