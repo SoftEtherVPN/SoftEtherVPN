@@ -1037,6 +1037,7 @@ HTTP_HEADER *NewHttpHeaderEx(char *method, char *target, char *version, bool no_
 int CompareHttpValue(void *p1, void *p2);
 void FreeHttpValue(HTTP_VALUE *value);
 void FreeHttpHeader(HTTP_HEADER *header);
+void FreeHttpHeaderSafe(HTTP_HEADER **header);
 
 bool SendPack(SOCK *s, PACK *p);
 PACK *RecvPack(SOCK *s);
