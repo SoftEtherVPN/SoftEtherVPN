@@ -16602,7 +16602,8 @@ TOKEN_LIST *GetCipherList()
 
 		ciphers->NumTokens++;
 
-		if (ciphers->Token != NULL) {
+		if (ciphers->Token != NULL)
+		{
 			ciphers->Token = ReAlloc(ciphers->Token, sizeof(char *) * ciphers->NumTokens);
 		}
 		else

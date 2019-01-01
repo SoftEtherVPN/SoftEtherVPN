@@ -8834,25 +8834,32 @@ UINT PsServerCipherGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		return ret;
 	}
 
-	ciphers = GetCipherList();
+	UniFormat(tmp, sizeof(tmp), L" %S", t.String);
+	FreeRpcStr(&t);
+	Zero(&t, sizeof(RPC_STR));
 
 	c->Write(c, _UU("CMD_ServerCipherGet_SERVER"));
-
-	UniFormat(tmp, sizeof(tmp), L" %S", t.String);
 	c->Write(c, tmp);
 
-	c->Write(c, L"");
-	c->Write(c, _UU("CMD_ServerCipherGet_CIPHERS"));
+	ret = ScGetServerCipherList(ps->Rpc, &t);
 
-	for (i = 0;i < ciphers->NumTokens;i++)
+	if (ret == ERR_NO_ERROR)
 	{
-		UniFormat(tmp, sizeof(tmp), L" %S", ciphers->Token[i]);
-		c->Write(c, tmp);
+		ciphers = ParseToken(t.String, ";");
+
+		FreeRpcStr(&t);
+
+		c->Write(c, L"");
+		c->Write(c, _UU("CMD_ServerCipherGet_CIPHERS"));
+
+		for (i = 0; i < ciphers->NumTokens; i++)
+		{
+			UniFormat(tmp, sizeof(tmp), L" %S", ciphers->Token[i]);
+			c->Write(c, tmp);
+		}
+
+		FreeToken(ciphers);
 	}
-
-	FreeToken(ciphers);
-
-	FreeRpcStr(&t);
 
 	FreeParamValueList(o);
 
