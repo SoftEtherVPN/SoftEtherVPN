@@ -17018,24 +17018,34 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 		return;
 	}
 
-	// Set the encryption algorithm list
-	cipher_list = GetCipherList();
-	SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
-	CbSetHeight(hWnd, C_CIPHER, 18);
-	for (i = 0;i < cipher_list->NumTokens;i++)
-	{
-		wchar_t tmp[MAX_SIZE];
-		char *name = cipher_list->Token[i];
-		StrToUni(tmp, sizeof(tmp), name);
-		CbAddStr(hWnd, C_CIPHER, tmp, 0);
-	}
-	FreeToken(cipher_list);
-
 	if (s->p != NULL)
 	{
-		// Get the encryption algorithm name from the server
 		RPC_STR t;
 		Zero(&t, sizeof(t));
+
+		SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
+		CbSetHeight(hWnd, C_CIPHER, 18);
+
+		// Get the list of available encryption algorithms from the server
+		if (ScGetServerCipherList(s->p->Rpc, &t) == ERR_NO_ERROR)
+		{
+			cipher_list = ParseToken(t.String, ";");
+
+			FreeRpcStr(&t);
+			Zero(&t, sizeof(t));
+
+			for (i = 0; i < cipher_list->NumTokens; i++)
+			{
+				wchar_t tmp[MAX_SIZE];
+				char *name = cipher_list->Token[i];
+				StrToUni(tmp, sizeof(tmp), name);
+				CbAddStr(hWnd, C_CIPHER, tmp, 0);
+			}
+
+			FreeToken(cipher_list);
+		}
+
+		// Get the current encryption algorithm's name from the server
 		if (CALL(hWnd, ScGetServerCipher(s->p->Rpc, &t)))
 		{
 			wchar_t tmp[MAX_SIZE];

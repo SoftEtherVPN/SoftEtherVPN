@@ -456,6 +456,7 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("GetFarmConnectionStatus", RPC_FARM_CONNECTION_STATUS, StGetFarmConnectionStatus, InRpcFarmConnectionStatus, OutRpcFarmConnectionStatus)
 	DECLARE_RPC_EX("SetServerCert", RPC_KEY_PAIR, StSetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
 	DECLARE_RPC_EX("GetServerCert", RPC_KEY_PAIR, StGetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
+	DECLARE_RPC_EX("GetServerCipherList", RPC_STR, StGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("GetServerCipher", RPC_STR, StGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("SetServerCipher", RPC_STR, StSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC("CreateHub", RPC_CREATE_HUB, StCreateHub, InRpcCreateHub, OutRpcCreateHub)
@@ -635,6 +636,7 @@ DECLARE_SC_EX("EnumFarmMember", RPC_ENUM_FARM, ScEnumFarmMember, InRpcEnumFarm, 
 DECLARE_SC("GetFarmConnectionStatus", RPC_FARM_CONNECTION_STATUS, ScGetFarmConnectionStatus, InRpcFarmConnectionStatus, OutRpcFarmConnectionStatus)
 DECLARE_SC_EX("SetServerCert", RPC_KEY_PAIR, ScSetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
 DECLARE_SC_EX("GetServerCert", RPC_KEY_PAIR, ScGetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
+DECLARE_SC_EX("GetServerCipherList", RPC_STR, ScGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("GetServerCipher", RPC_STR, ScGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("SetServerCipher", RPC_STR, ScSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC("CreateHub", RPC_CREATE_HUB, ScCreateHub, InRpcCreateHub, OutRpcCreateHub)
@@ -8239,6 +8241,43 @@ UINT StGetServerCipher(ADMIN *a, RPC_STR *t)
 	Lock(c->lock);
 	{
 		t->String = CopyStr(c->CipherList);
+	}
+	Unlock(c->lock);
+
+	return ERR_NO_ERROR;
+}
+
+// Get list of available ciphers for SSL
+UINT StGetServerCipherList(ADMIN *a, RPC_STR *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+
+	FreeRpcStr(t);
+	Zero(t, sizeof(RPC_STR));
+
+	Lock(c->lock);
+	{
+		UINT i;
+		TOKEN_LIST *ciphers = GetCipherList();
+		if (ciphers->NumTokens > 0)
+		{
+			UINT size = StrSize(ciphers->Token[0]);
+			t->String = Malloc(size);
+			StrCat(t->String, size, ciphers->Token[0]);
+			i = 1;
+
+			for (; i < ciphers->NumTokens; i++)
+			{
+				// We use StrSize() because we need the extra space for ';'
+				size += StrSize(ciphers->Token[i]);
+				t->String = ReAlloc(t->String, size);
+				StrCat(t->String, size, ";");
+				StrCat(t->String, size, ciphers->Token[i]);
+			}
+		}
+
+		FreeToken(ciphers);
 	}
 	Unlock(c->lock);
 
