@@ -72,6 +72,10 @@ for:
     - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
   test_script:
     - .ci/appveyor-deb-install-test.sh
+    - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
+    - sudo .ci/start-se-openvpn.sh
+    - sudo .ci/run-openvpn-tests.sh
+
 -
   matrix:
     only:
@@ -84,6 +88,9 @@ for:
     - .ci/memory-leak-test.sh
   test_script:
     - .ci/appveyor-deb-install-test.sh
+    - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
+    - sudo .ci/start-se-openvpn.sh
+    - sudo .ci/run-openvpn-tests.sh
 
 deploy:
   description: 'automatic release'

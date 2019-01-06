@@ -27,4 +27,4 @@ RUN_TITLE_2="testing tcp/ipv4"
 OPENVPN_CONF_2="--dev null --proto tcp --port 1194 \$OPENVPN_BASE"
 EOF
 
-sudo make test_scripts=t_client.sh check
+make test_scripts=t_client.sh check
