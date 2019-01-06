@@ -2079,17 +2079,6 @@ void NormalizePath(char *dst, UINT size, char *src)
 }
 
 // Rename the file
-bool FileRename(char *old_name, char *new_name)
-{
-	wchar_t *old_name_w = CopyStrToUni(old_name);
-	wchar_t *new_name_w = CopyStrToUni(new_name);
-	bool ret = FileRenameW(old_name_w, new_name_w);
-
-	Free(old_name_w);
-	Free(new_name_w);
-
-	return ret;
-}
 bool FileRenameW(wchar_t *old_name, wchar_t *new_name)
 {
 	wchar_t tmp1[MAX_SIZE];

@@ -131,7 +131,6 @@ void UtSpeedMeterDlgRefreshStatus(HWND hWnd);
 #endif	// UT_C
 
 // Function prototype
-void UtSpeedMeter();
 void UtSpeedMeterEx(void *hWnd);
 
 #endif	// UT_H

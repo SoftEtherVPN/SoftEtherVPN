@@ -122,12 +122,6 @@ bool GetNoSstp()
 	return g_no_sstp;
 }
 
-// Set the SSTP disabling flag
-void SetNoSstp(bool b)
-{
-	g_no_sstp = b;
-}
-
 // Process the SSTP control packet reception
 void SstpProcessControlPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 {

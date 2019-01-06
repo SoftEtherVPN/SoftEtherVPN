@@ -307,7 +307,6 @@ IO *FileOpenEx(char *name, bool write_mode, bool read_lock);
 IO *FileOpenExW(wchar_t *name, bool write_mode, bool read_lock);
 void ConvertPathW(wchar_t *path);
 bool FileRenameInnerW(wchar_t *old_name, wchar_t *new_name);
-bool FileRename(char *old_name, char *new_name);
 bool FileRenameW(wchar_t *old_name, wchar_t *new_name);
 void NormalizePath(char *dst, UINT size, char *src);
 void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src);

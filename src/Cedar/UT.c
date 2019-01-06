@@ -406,10 +406,6 @@ UINT UtSpeedMeterDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 }
 
 // Speedometer
-void UtSpeedMeter()
-{
-	UtSpeedMeterEx(NULL);
-}
 void UtSpeedMeterEx(void *hWnd)
 {
 	Dialog((HWND)hWnd, D_SPEEDMETER, UtSpeedMeterDlgProc, NULL);

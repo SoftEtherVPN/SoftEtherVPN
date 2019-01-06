@@ -198,7 +198,6 @@ void AddEtherIPId(IPSEC_SERVER *s, ETHERIP_ID *id);
 bool DeleteEtherIPId(IPSEC_SERVER *s, char *id_str);
 void IPsecOsServiceCheckThread(THREAD *t, void *p);
 bool IPsecCheckOsService(IPSEC_SERVER *s);
-void IPSecSetDisable(bool b);
 
 
 #endif	// PROTO_IPSEC_H

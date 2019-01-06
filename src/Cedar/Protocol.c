@@ -6640,15 +6640,6 @@ failure:
 }
 
 // Connect through a proxy
-SOCK *ProxyConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-				   char *server_host_name, UINT server_port,
-				   char *username, char *password, bool additional_connect,
-				   bool *cancel_flag, void *hWnd)
-{
-	return ProxyConnectEx2(c, proxy_host_name, proxy_port,
-		server_host_name, server_port, username, password, additional_connect,
-		cancel_flag, hWnd, 0);
-}
 SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 				   char *server_host_name, UINT server_port,
 				   char *username, char *password, bool additional_connect,
