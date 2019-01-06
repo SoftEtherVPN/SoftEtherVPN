@@ -116,13 +116,6 @@
 
 static bool ipsec_disable = false;
 
-// Disabling whole IPsec
-void IPSecSetDisable(bool b)
-{
-	ipsec_disable = b;
-}
-
-
 // Monitor the IPsec service of the OS, and stop it if it will conflict
 void IPsecOsServiceCheckThread(THREAD *t, void *p)
 {
