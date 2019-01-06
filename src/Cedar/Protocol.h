@@ -257,10 +257,6 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c);
 bool ClientUploadAuth2(CONNECTION *c, SOCK *s);
 bool GetSessionKeyFromPack(PACK *p, UCHAR *session_key, UINT *session_key_32);
 
-SOCK *ProxyConnectEx(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-					 char *server_host_name, UINT server_port,
-					 char *username, char *password, bool additional_connect,
-					 bool *cancel_flag, void *hWnd);
 SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
 					 char *server_host_name, UINT server_port,
 					 char *username, char *password, bool additional_connect,
