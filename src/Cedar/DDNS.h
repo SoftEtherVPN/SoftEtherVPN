@@ -237,7 +237,6 @@ void DCThread(THREAD *thread, void *param);
 UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace_v6);
 UINT DCGetMyIpMain(DDNS_CLIENT *c, bool ipv6, char *dst, UINT dst_size, bool use_ssl, char *replace_v6);
 UINT DCGetMyIp(DDNS_CLIENT *c, bool ipv6, char *dst, UINT dst_size, char *replace_v6);
-void DCUpdateNow(DDNS_CLIENT *c);
 void DCGetStatus(DDNS_CLIENT *c, DDNS_CLIENT_STATUS *st);
 UINT DCChangeHostName(DDNS_CLIENT *c, char *hostname);
 void DCSetInternetSetting(DDNS_CLIENT *c, INTERNET_SETTING *t);
