@@ -166,7 +166,6 @@ void FreeAzureClient(AZURE_CLIENT *ac);
 void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status);
 void AcMainThread(THREAD *thread, void *param);
 void AcSetEnable(AZURE_CLIENT *ac, bool enabled);
-bool AcGetEnable(AZURE_CLIENT *ac);
 void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param);
 
 
