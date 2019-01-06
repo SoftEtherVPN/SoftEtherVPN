@@ -257,6 +257,5 @@ SSTP_PACKET *SstpNewControlPacket(USHORT message_type);
 SSTP_PACKET *SstpNewControlPacketWithAnAttribute(USHORT message_type, SSTP_ATTRIBUTE *a);
 void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p);
 bool GetNoSstp();
-void SetNoSstp(bool b);
 
 #endif	// PROTO_SSTP_H
