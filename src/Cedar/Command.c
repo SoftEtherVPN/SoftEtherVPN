@@ -23229,7 +23229,6 @@ void CtEscapeCsv(wchar_t *dst, UINT size, wchar_t *src){
 	}
 
 	// If there is no character that need to be escaped in the input characters, copy it to the output
-	len = UniStrLen(src);
 	for (i=0; i<len; i++)
 	{
 		tmp[0] = src[i];

@@ -4504,9 +4504,6 @@ HMENU CmCreateRecentSubMenu(HWND hWnd, UINT start_id)
 	UINT i;
 	RPC_CLIENT_ENUM_ACCOUNT a;
 	LIST *o;
-	bool easy;
-
-	easy = cm->CmSetting.EasyMode;
 
 	Zero(&a, sizeof(a));
 
@@ -4534,7 +4531,6 @@ HMENU CmCreateRecentSubMenu(HWND hWnd, UINT start_id)
 			wchar_t tmp[MAX_PATH];
 			wchar_t *account_name;
 			char *server_name;
-			char *hub_name;
 			UINT pos;
 
 			if (h == NULL)
@@ -4544,7 +4540,6 @@ HMENU CmCreateRecentSubMenu(HWND hWnd, UINT start_id)
 
 			account_name = item->AccountName;
 			server_name = item->ServerName;
-			hub_name = item->HubName;
 
 			UniStrCpy(tmp, sizeof(tmp), account_name);
 
@@ -4586,7 +4581,6 @@ HMENU CmCreateTraySubMenu(HWND hWnd, bool flag, UINT start_id)
 		if (status_str != NULL)
 		{
 			bool b = false;
-			bool is_account = false;
 
 			if (UniStrCmpi(status_str, _UU("CM_ACCOUNT_OFFLINE")) == 0)
 			{
@@ -4594,8 +4588,6 @@ HMENU CmCreateTraySubMenu(HWND hWnd, bool flag, UINT start_id)
 				{
 					b = true;
 				}
-
-				is_account = true;
 			}
 
 			if (UniStrCmpi(status_str, _UU("CM_ACCOUNT_ONLINE")) == 0 ||
@@ -4605,8 +4597,6 @@ HMENU CmCreateTraySubMenu(HWND hWnd, bool flag, UINT start_id)
 				{
 					b = true;
 				}
-
-				is_account = true;
 			}
 
 			if (b)
@@ -8542,10 +8532,6 @@ bool CmLoadXExW(HWND hWnd, X **x, wchar_t *filename, UINT size)
 }
 
 // Read the secret key
-bool CmLoadK(HWND hWnd, K **k)
-{
-	return CmLoadKEx(hWnd, k, NULL, 0);
-}
 bool CmLoadKEx(HWND hWnd, K **k, char *filename, UINT size)
 {
 	wchar_t *filename_w = CopyStrToUni(filename);

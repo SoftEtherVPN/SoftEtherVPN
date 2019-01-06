@@ -159,18 +159,6 @@ POLICY_ITEM policy_item[] =
 	{37,	true,	true,	1,	4095,	0,	"POL_INT_VLAN"},	// VLanId
 };
 
-// Normalize policy name
-char *NormalizePolicyName(char *name)
-{
-	// Validate arguments
-	if (name == NULL)
-	{
-		return NULL;
-	}
-
-	return PolicyIdToStr(PolicyStrToId(name));
-}
-
 // Format policy value
 void FormatPolicyValue(wchar_t *str, UINT size, UINT id, UINT value)
 {
@@ -517,32 +505,6 @@ void SetUserPolicy(USER *u, POLICY *policy)
 		OverwritePolicy(&u->Policy, policy);
 	}
 	Unlock(u->lock);
-}
-
-// Get user policy
-POLICY *GetUserPolicy(USER *u)
-{
-	POLICY *ret;
-	// Validate arguments
-	if (u == NULL)
-	{
-		return NULL;
-	}
-
-	Lock(u->lock);
-	{
-		if (u->Policy == NULL)
-		{
-			ret = NULL;
-		}
-		else
-		{
-			ret = ClonePolicy(u->Policy);
-		}
-	}
-	Unlock(u->lock);
-
-	return ret;
 }
 
 // Set group policy

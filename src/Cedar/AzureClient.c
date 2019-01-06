@@ -522,18 +522,6 @@ void AcMainThread(THREAD *thread, void *param)
 	}
 }
 
-// Get enabled or disabled VPN Azure client
-bool AcGetEnable(AZURE_CLIENT *ac)
-{
-	// Validate arguments
-	if (ac == NULL)
-	{
-		return false;
-	}
-
-	return ac->IsEnabled;
-}
-
 // Enable or disable VPN Azure client
 void AcSetEnable(AZURE_CLIENT *ac, bool enabled)
 {
