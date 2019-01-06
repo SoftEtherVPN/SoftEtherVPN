@@ -295,7 +295,6 @@ POLICY *GetDefaultPolicy();
 POLICY *ClonePolicy(POLICY *policy);
 void SetUserPolicy(USER *u, POLICY *policy);
 void OverwritePolicy(POLICY **target, POLICY *p);
-POLICY *GetUserPolicy(USER *u);
 void SetGroupPolicy(USERGROUP *g, POLICY *policy);
 POLICY *GetGroupPolicy(USERGROUP *g);
 wchar_t *GetPolicyTitle(UINT id);
@@ -309,8 +308,6 @@ char *PolicyIdToStr(UINT i);
 POLICY_ITEM *GetPolicyItem(UINT id);
 void GetPolicyValueRangeStr(wchar_t *str, UINT size, UINT id);
 void FormatPolicyValue(wchar_t *str, UINT size, UINT id, UINT value);
-char *NormalizePolicyName(char *name);
-
 
 #endif	// ACCOUNT_H
 
