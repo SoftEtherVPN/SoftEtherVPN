@@ -1,7 +1,8 @@
 # SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 
 
 ###########################################################################
@@ -1075,7 +1076,7 @@ SVC_HIDE_TRAY_MSG		This will hide the tasktray icons when starting %S in user mo
 
 
 # Concerning services (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -4462,7 +4463,7 @@ CMD_VPNCMD_HOST_2		Specify the host name or IP address of the computer that the 
 CMD_VPNCMD_HOST_3		Hostname of IP Address of Destination: 
 CMD_VPNCMD_HUB_1		If connecting to the server by Virtual Hub Admin Mode, please input the Virtual Hub name. \nIf connecting by server admin mode, please press Enter without inputting anything.
 CMD_VPNCMD_HUB_2		Specify Virtual Hub Name: 
-CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1	Access has been denied. Possibly the password is incorrect, or perhaps you are connecting by an incorrect admin mode. You can try inputting the password again. To cancel, press Ctrl+D.
 CMD_VPNCMD_PASSWORD_2	Password: 
 CMD_VPNCMD_ERROR		Error occurred. (Error code: %u)\n%s
@@ -7052,7 +7053,7 @@ CMD_Check_Args			Check
 
 # Concerning System Checker
 # (This contains some strange character strings which are used to check character code conversion.)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE				If this operation environment check tool is run on a system and that system passes, it is most likely that SoftEther VPN software can operate on that system. This check may take a while. Please wait...\n\n
 CHECK_EXEC_TAG			Checking '%s'... \n
 CHECK_PASS				Pass

@@ -1,7 +1,8 @@
 ﻿# SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 #
 # Contributors:
 # - YF (https://github.com/yfdyh000)
@@ -1088,7 +1089,7 @@ SVC_HIDE_TRAY_MSG		啟動 %S 使用者模式時將隱藏工作列圖示。\r\n�
 
 
 #關於服務 (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -4479,7 +4480,7 @@ CMD_VPNCMD_HOST_2			指定的主機名稱或正在運行的目標 VPN Client 電
 CMD_VPNCMD_HOST_3			目標 IP 位址的主機名稱:
 CMD_VPNCMD_HUB_1			如果通過虛擬 HUB 管理模式連接到伺服器，請輸入虛擬 HUB 的名稱。\n如果通過伺服器管理模式連接，無須輸入任何內容請按Backspace鍵。\n
 CMD_VPNCMD_HUB_2			指定虛擬 HUB 名稱:
-CMD_VPNCMD_ABOUT			SoftEther VPN 命令列管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT			SoftEther VPN 命令列管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1		訪問被拒絕。可能是密碼不正確，或者是您以不正確的管理模式連接。您可以嘗試再次輸入密碼。要取消，請按 Ctrl + D。
 CMD_VPNCMD_PASSWORD_2		密碼: 
 CMD_VPNCMD_ERROR			發生錯誤。(錯誤代碼: %u)\n%s
@@ -7096,7 +7097,7 @@ CMD_Check_Args				Check
 
 # 關於系統 checker
 # (包含著一部分奇怪的字串,不過，是檢測字元編碼變換用的)
-CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 運行環境檢查工具\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 運行環境檢查工具\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE					如果運行了此運行環境檢測工具的系統通過了測試，SoftEther VPN 軟體有較高的運行可能性。檢測可能需要一定的時間。請稍候...\n\n
 CHECK_EXEC_TAG				'%s' 的檢測中...\n
 CHECK_PASS					[合格] ○
