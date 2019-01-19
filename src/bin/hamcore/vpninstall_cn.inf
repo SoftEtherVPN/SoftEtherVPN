@@ -1,5 +1,5 @@
 ﻿# SoftEther VPN Client 自动安装设定文件
-# (为了 VPN Client Web 安装程序的样品设定文件)
+# (VPN Client Web 安装程序示例设定文件)
 # 
 # Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 # All Rights Reserved.
@@ -9,22 +9,22 @@
 # ※ 如果在这个文件内包含中文等的 2 字节字符，
 #    字符编码请使用 UTF-8。
 # 
-# 文字 "#" 在 (sharp) 开始的行是评语。
+# “#” 之后的文字为注释。
 
 
 # vpninstall.exe 版本号
-# (请在 vpninstall.exe 文件的 [属性] 画面确认。
+# (请在 vpninstall.exe 文件的 [属性] 页中确认。
 #  请在这里输入文件版本的末尾的 4 位整数。)
 VpnInstallBuild				$VER_BUILD$
 VpnClientBuild				$VER_BUILD$
 
 
-# 有关Windows 事情的 VPN Client 包装文件的信息
-# ※ 请指定 Web 服务器上的 URL。盘上的传球名不能指定。
+# Windows 下的 VPN Client 安装包路径
+# ※ 请指定 Web 服务器上的 URL 路径。 不可指定本地文件路径。
 VpnClientPath				http://example.com/any_folder/$PACKAGE_FILENAME$
 
-# 是不是要 VPN Client 的安装完成紧接之后的动作方式 "简单模式" 和 "标准模式" 的哪边。
-# 写 true 的话 "标准模式"，那个以外的情况成为 "简单模式"。
+# 该值为 "true" 时, VPN Client Manager将会使用标准模式。
+# 保留默认值则为简单模式。
 NormalMode					$NORMAL_MODE$
 
 
