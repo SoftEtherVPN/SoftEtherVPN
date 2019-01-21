@@ -16,7 +16,7 @@ BEGIN
             VALUE "FileDescription", "${PROJECT_NAME} ${COMPONENT_NAME} (Developer Edition)"
             VALUE "FileVersion", "${PROJECT_VERSION_MAJOR}, ${PROJECT_VERSION_MINOR}, 0, ${PROJECT_VERSION_PATCH}"
             VALUE "InternalName", "${COMPONENT_INTERNAL_NAME}"
-            VALUE "LegalCopyright", "Copyright (C) 2012-${DATE_YEAR} SoftEther VPN Project. All Rights Reserved."
+            VALUE "LegalCopyright", "Copyright (c) 2012-${DATE_YEAR} all contributors on SoftEther VPN project in GitHub. Copyright (C) 2004-${DATE_YEAR} Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation. All Rights Reserved."
             VALUE "LegalTrademarks", "SoftEther(R) is a registered trademark of SoftEther Corporation in Japan, United Status and People's Republic of China. SoftEther Corporation is a company founded at University of Tsukuba, Japan."
             VALUE "OriginalFilename", "${COMPONENT_FILE_NAME}"
             VALUE "ProductName", "${PROJECT_NAME} ${COMPONENT_NAME}"

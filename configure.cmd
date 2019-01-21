@@ -3,14 +3,10 @@
 echo ---------------------------------------------------------------------
 echo SoftEther VPN for Windows
 echo.
-echo Copyright (c) SoftEther VPN Project at University of Tsukuba, Japan.
-echo Copyright (c) Daiyuu Nobori. All Rights Reserved.
+echo Copyright (c) all contributors on SoftEther VPN project in GitHub.
+echo Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
 echo.
-echo This program is free software; you can redistribute it and/or
-echo modify it under the terms of the GNU General Public License
-echo version 2 as published by the Free Software Foundation.
-echo.
-echo Read and understand README.TXT, LICENSE.TXT and WARNING.TXT before use.
+echo Read and understand README, LICENSE and WARNING before use.
 echo ---------------------------------------------------------------------
 echo.
 

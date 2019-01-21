@@ -1,7 +1,8 @@
 # SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 
 
 ###########################################################################
@@ -1079,7 +1080,7 @@ SVC_HIDE_TRAY_MSG		%S のユーザーモード起動時のタスクトレイア�
 
 
 # サービス関係 (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -2452,7 +2453,7 @@ STATIC7					インターネット接続の維持機能(&N)
 
 PREFIX					D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				本ソフトウェアは筑波大学 SoftEther VPN プロジェクトで開発されたフリーウェアです。本ソフトウェアは一切の保証がない状態で提供されるものであり、開発および配布元は使用の結果の損害について一切責任を負いません。\r\n\r\nSoftEther VPN ソフトウェアは日本国経済産業省のソフトウェア研究開発プロジェクトの成果物です。IPA (独立行政法人 情報処理推進機構) の未踏ソフトウェア創造事業に採択され開発されました。詳しくは http://www.ipa.go.jp/ をご覧ください。
 IDCANCEL				&OK
@@ -4466,7 +4467,7 @@ CMD_VPNCMD_HOST_2		接続先の VPN Client が動作しているコンピュー�
 CMD_VPNCMD_HOST_3		接続先のホスト名または IP アドレス: 
 CMD_VPNCMD_HUB_1		サーバーに仮想 HUB 管理モードで接続する場合は、仮想 HUB 名を入力してください。\nサーバー管理モードで接続する場合は、何も入力せずに Enter を押してください。
 CMD_VPNCMD_HUB_2		接続先の仮想 HUB 名を入力: 
-CMD_VPNCMD_ABOUT		SoftEther VPN コマンドライン管理ユーティリティ (vpncmd コマンド)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT		SoftEther VPN コマンドライン管理ユーティリティ (vpncmd コマンド)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1	アクセスが拒否されました。パスワードが間違っているか、接続する管理モードが正しくない可能性があります。パスワードをもう一度入力することができます。キャンセルする場合は、Ctrl + D を押してください。
 CMD_VPNCMD_PASSWORD_2	パスワード: 
 CMD_VPNCMD_ERROR		エラーが発生しました。(エラーコード: %u)\n%s
@@ -7085,7 +7086,7 @@ CMD_Check_Args			Check
 
 # システムチェッカ関係
 # (一部奇妙な文字列が含まれていますが、文字コード変換のチェック用です)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN 動作環境チェックツール\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE				---------------------------------------------------\nSoftEther VPN 動作環境チェックツール\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE				この動作環境チェックツールを実行したシステムがテストに合格した場合は、SoftEther VPN ソフトウェアが動作する可能性が高いです。チェックにはしばらく時間がかかる場合があります。そのままお待ちください...\n\n
 CHECK_EXEC_TAG			'%s' のチェック中...\n
 CHECK_PASS				[合格] ○

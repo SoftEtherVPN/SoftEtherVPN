@@ -27,10 +27,8 @@ which the non-developer user can stable use.
 Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
 http://www.softether-download.com/
 
-We accept your patches by the acceptance policy:
-http://www.softether.org/5-download/src/9.patch
-
-Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
+Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
 
 ---
 
@@ -52,9 +50,11 @@ The developers of SoftEther VPN love Icons8's work and kindly ask the users to s
 
 ---
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
 
 SoftEther VPN ("SoftEther" means "Software Ethernet") is one of the
 world's most powerful and easy-to-use multi-protocol VPN software.
@@ -181,8 +181,6 @@ We hope that you can reach one of the above URLs at least!
 
 Your contribution to SoftEther VPN Project is much appreciated.
 Please send patches to us through GitHub.
-Read the SoftEther VPN Patch Acceptance Policy in advance:
-http://www.softether.org/5-download/src/9.patch
 
 
 # DEAR SECURITY EXPERTS
