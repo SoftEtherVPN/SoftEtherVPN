@@ -8156,7 +8156,7 @@ UINT StGetServerCipherList(ADMIN *a, RPC_STR *t)
 		{
 			UINT size = StrSize(ciphers->Token[0]);
 			t->String = Malloc(size);
-			StrCat(t->String, size, ciphers->Token[0]);
+			StrCpy(t->String, size, ciphers->Token[0]);
 			i = 1;
 
 			for (; i < ciphers->NumTokens; i++)
