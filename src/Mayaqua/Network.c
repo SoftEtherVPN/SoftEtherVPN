@@ -16507,7 +16507,6 @@ TOKEN_LIST *GetCipherList()
 	}
 
 	sk_SSL_CIPHER_free(sk);
-	FreeSSLCtx(ctx);
 	SSL_free(ssl);
 
 	return ciphers;
