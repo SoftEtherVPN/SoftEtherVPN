@@ -1416,14 +1416,7 @@ void GetCedarVersion(char *tmp, UINT size)
 
 UINT GetCedarVersionNumber()
 {
-	UINT pow = 10;
-
-	while (CEDAR_VERSION_MAJOR >= pow)
-	{
-		pow *= 10;
-	}
-
-	return CEDAR_VERSION_MAJOR * pow + CEDAR_VERSION_MINOR;
+	return CEDAR_VERSION_MAJOR * 100 + CEDAR_VERSION_MINOR;
 }
 
 // Create Cedar object
