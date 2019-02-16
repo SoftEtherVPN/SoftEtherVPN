@@ -134,7 +134,11 @@ https://github.com/chipitsine
 
 ## For Ubuntu
 
-[Launchpad PPA](https://launchpad.net/~paskal-07/+archive/ubuntu/softethervpn/+packages) maintained by [Dmitry Verkhoturov](https://github.com/paskal)
+Launchpad PPA maintained by [Dmitry Verkhoturov](https://github.com/paskal):
+
+[Daily builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn) (latest released tag)
+
+[Nightly builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn-nightly)
 
 ## From binary installers:
 
