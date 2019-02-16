@@ -12212,7 +12212,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		if (sock->Connected == false)
 		{
 			Unlock(sock->ssl_lock);
-			Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+			Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 			return 0;
 		}
 
@@ -12242,7 +12242,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 	if (ret == 0)
 	{
 		// Disconnect
-		Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+		Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 		Disconnect(sock);
 		return 0;
 	}
@@ -12257,7 +12257,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		}
 		Debug("%s %u e=%u\n", __FILE__, __LINE__, e);
 	}
-	//Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+	//Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 	Disconnect(sock);
 	return 0;
 }
