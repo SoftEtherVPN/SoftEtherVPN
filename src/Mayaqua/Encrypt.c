@@ -3704,7 +3704,9 @@ void FreeCryptLibrary()
 #ifdef OPENSSL_FIPS
 	FIPS_mode_set(0);
 #endif
+#ifndef OPENSSL_NO_ENGINE
 	ENGINE_cleanup();
+#endif
 	CONF_modules_unload(1);
 	EVP_cleanup();
 
