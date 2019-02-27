@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
+#include <openssl/crypto.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -3684,6 +3685,10 @@ void FreeOpenSSLThreadState()
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 	CRYPTO_cleanup_all_ex_data();
 	ERR_remove_thread_state(NULL);
+#else
+#ifndef LIBRESSL_VERSION_NUMBER
+	OPENSSL_thread_stop();
+#endif
 #endif
 }
 
