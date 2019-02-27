@@ -566,14 +566,14 @@ void FreeMayaqua()
 	// Release of real-time clock
 	FreeTick64();
 
-	// Release of crypt library
-	FreeCryptLibrary();
-
 	// Release of the string library
 	FreeStringLibrary();
 
 	// Release of thread pool
 	FreeThreading();
+
+	// Release of crypt library
+	FreeCryptLibrary();
 
 	if (IsTrackingEnabled())
 	{
