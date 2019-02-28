@@ -1,23 +1,22 @@
 # SoftEther VPN Source Code
 # 
-# Copyright (c) SoftEther VPN Project at University of Tsukuba, Japan.
 # Copyright (c) Daiyuu Nobori.
-# All Rights Reserved.
+# Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
+# Copyright (c) SoftEther Corporation.
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
 # 
 # http://www.softether.org/
 # 
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# version 2 as published by the Free Software Foundation.
+# License: The Apache License, Version 2.0
+# https://www.apache.org/licenses/LICENSE-2.0
 # 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License version 2
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 # 
 # Platform: os=Linux, bits=64bit
 

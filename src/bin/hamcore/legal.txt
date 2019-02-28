@@ -312,6 +312,34 @@ Issue Date: Aug 6, 2010
 
 -------------------
 
+libmincrypt:
+
+ Copyright 2013 The Android Open Source Project
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+     * Neither the name of Google Inc. nor the names of its contributors may
+       be used to endorse or promote products derived from this software
+       without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY Google Inc. ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ EVENT SHALL Google Inc. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-------------------
+
 NOTES WRITTEN BY SOFTETHER CORPORATION
 
 Note for users of non-Windows version of PacketiX VPN: The enumerated bundle of License Agreements above are copies of original License Agreements of each library programs which PacketiX VPN uses. PacketiX VPN is not a delivered work from these libraries. PacketiX VPN is a separated work from the libraries, but it may call functions of the libraries (whether or not PacketiX VPN calls such functions are depended on the user's intention to link them or not on user's side computer). While some libraries indicate GPL or LGPL as a condition to re-distribute, PacketiX VPN is not license under GPL nor LGPL. Therefore, we took special care not to make PacketiX VPN become delivered works of any GPL or LGPL libraries. In order to achieve that, both PacketiX VPN and GPL/LGPL libraries are distributed with isolated forms (means that any program files of PacketiX VPN are not bound nor linked to any GPL/LGPL libraries). If a user of PacketiX VPN wants to link GPL/LGPL libraries by their own decisions, operations and responsibilities, he may do that on his computer. However, if a delivered work under copyright law is created as a result of such an operation, such a delivered work must not re-distributed to other people, because it may violate GPL/LGPL libraries' conditions.

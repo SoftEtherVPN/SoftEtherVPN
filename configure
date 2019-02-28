@@ -3,12 +3,12 @@
 echo '---------------------------------------------------------------------'
 echo 'SoftEther VPN for Unix'
 echo
-echo 'Copyright (c) SoftEther VPN Project at University of Tsukuba, Japan.'
-echo 'Copyright (c) Daiyuu Nobori. All Rights Reserved.'
+echo 'Copyright (c) Daiyuu Nobori.'
+echo 'Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.'
+echo 'Copyright (c) SoftEther Corporation.'
+echo 'Copyright (c) all contributors on SoftEther VPN project in GitHub.'
 echo
-echo 'This program is free software; you can redistribute it and/or'
-echo 'modify it under the terms of the GNU General Public License'
-echo 'version 2 as published by the Free Software Foundation.'
+echo 'License: The Apache License, Version 2.0'
 echo
 echo 'Read and understand README.TXT, LICENSE.TXT and WARNING.TXT before use.'
 echo '---------------------------------------------------------------------'
