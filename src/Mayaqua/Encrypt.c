@@ -2197,7 +2197,9 @@ bool RsaVerify(void *data, UINT data_size, void *sign, K *k)
 bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 {
 	UCHAR hash_data[SIGN_HASH_SIZE];
-	UCHAR decrypt_data[SIGN_HASH_SIZE];
+	UCHAR *decrypt_data;
+	RSA *rsa;
+	UINT rsa_size;
 	// Validate arguments
 	if (data == NULL || sign == NULL || k == NULL || k->private_key != false)
 	{
@@ -2208,23 +2210,37 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 		bits = RSA_KEY_SIZE;
 	}
 
+	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	if (rsa == NULL)
+	{
+		return false;
+	}
+
 	// Hash the data
 	if (HashForSign(hash_data, sizeof(hash_data), data, data_size) == false)
 	{
 		return false;
 	}
 
+	rsa_size = RSA_size(rsa);
+	rsa_size = MAX(rsa_size, 1024); // For just in case
+	decrypt_data = ZeroMalloc(rsa_size);
+
 	// Decode the signature
-	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
+	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, rsa, RSA_PKCS1_PADDING) <= 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
 
 	// Comparison
 	if (Cmp(decrypt_data, hash_data, SIGN_HASH_SIZE) != 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
+
+	Free(decrypt_data);
 
 	return true;
 }
