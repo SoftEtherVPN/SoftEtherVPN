@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Build Utility
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -609,6 +609,13 @@ namespace BuildUtil
 			string gccOptionForLink;
 			string gccOptionForCompile;
 
+			bool try_no_pie = false;
+
+			if (this.Os == OSList.Linux)
+			{
+				try_no_pie = true;
+			}
+
 			generateGccOptions(srcDir, false, false, out gccOptionForLink, out gccOptionForCompile);
 
 			string codeDir = Path.Combine(srcDir, "code");
@@ -630,7 +637,23 @@ namespace BuildUtil
 			sr.WriteLine("# Platform: {0}", this.CrossLibName);
 			sr.WriteLine();
 			sr.WriteLine("CC={0}", this.Compiler);
-			sr.WriteLine("OPTIONS={0}", gccOptionForLink);
+			sr.WriteLine();
+			if (try_no_pie)
+			{
+				sr.WriteLine("#For Ubuntu 18.04 or later we must add -no-pie option for gcc if supported");
+				sr.WriteLine("RET_NO_PIE_CHECK := $(shell $(CC) -no-pie 2>&1 | grep no-pie | wc -w)");
+				sr.WriteLine("ifeq ($(RET_NO_PIE_CHECK),0)");
+				sr.WriteLine("\tNO_PIE_OPTION=-no-pie");
+				sr.WriteLine("else");
+				sr.WriteLine("\tNO_PIE_OPTION=");
+				sr.WriteLine("endif");
+			}
+			else
+			{
+				sr.WriteLine("NO_PIE_OPTION=");
+			}
+			sr.WriteLine();
+			sr.WriteLine("OPTIONS=$(NO_PIE_OPTION) {0}", gccOptionForLink);
 			sr.WriteLine();
 			sr.WriteLine("default:");
 			sr.WriteLine("\t@./.install.sh");
@@ -648,53 +671,13 @@ namespace BuildUtil
 				sr.WriteLine("\t-ranlib lib/{0}", Path.GetFileName(filename));
 			}
 
-			bool no_pie_first = false;
-			bool try_no_pie = false;
-
-			if (this.Os == OSList.Linux)
-			{
-				try_no_pie = true;
-				if (this.Cpu == CpuList.x86 || this.Cpu == CpuList.x64 || this.Cpu == CpuList.intel)
-				{
-					no_pie_first = true;
-				}
-			}
-
 			sr.WriteLine("\t-ranlib code/{0}.a", this.Software.ToString());
 
-			if (try_no_pie == false)
-			{
-				sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
-			}
-			else
-			{
-				if (no_pie_first == false)
-				{
-					sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
-				}
-				else
-				{
-					sr.WriteLine("\t$(CC) -no-pie code/{0}.a $(OPTIONS) -o {0} || $(CC) code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
-				}
-			}
+			sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0}", this.Software.ToString());
 
 			sr.WriteLine("\t-ranlib code/{0}.a", "vpncmd");
 
-			if (try_no_pie == false)
-			{
-				sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
-			}
-			else
-			{
-				if (no_pie_first == false)
-				{
-					sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0} || $(CC) -no-pie code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
-				}
-				else
-				{
-					sr.WriteLine("\t$(CC) -no-pie code/{0}.a $(OPTIONS) -o {0} || $(CC) code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
-				}
-			}
+			sr.WriteLine("\t$(CC) code/{0}.a $(OPTIONS) -o {0}", "vpncmd");
 
 			if (this.Software == Software.vpnserver_vpnbridge || this.Software == Software.vpnbridge || this.Software == Software.vpnserver)
 			{

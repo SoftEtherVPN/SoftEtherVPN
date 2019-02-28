@@ -1,21 +1,21 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // Contributors:
 // - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -8930,14 +8930,7 @@ bool CtSetPassword(CLIENT *c, RPC_CLIENT_PASSWORD *pass)
 	{
 		return false;
 	}
-	if (pass->Password == NULL)
-	{
-		str = "";
-	}
-	else
-	{
-		str = pass->Password;
-	}
+	str = pass->Password;
 
 	if (StrCmp(str, "********") != 0)
 	{
@@ -10129,7 +10122,7 @@ char *DecryptPassword(BUF *b)
 	}
 
 	str = ZeroMalloc(b->Size + 1);
-	c = NewCrypt(key, sizeof(key));
+	c = NewCrypt(key, sizeof(key)); // NOTE by Daiyuu Nobori 2018-09-28: This is not a bug! Do not try to fix it!!
 	Encrypt(c, str, b->Buf, b->Size);
 	FreeCrypt(c);
 
@@ -10175,7 +10168,7 @@ BUF *EncryptPassword(char *password)
 	size = StrLen(password) + 1;
 	tmp = ZeroMalloc(size);
 
-	c = NewCrypt(key, sizeof(key));
+	c = NewCrypt(key, sizeof(key)); // NOTE by Daiyuu Nobori 2018-09-28: This is not a bug! Do not try to fix it!!
 	Encrypt(c, tmp, password, size - 1);
 	FreeCrypt(c);
 

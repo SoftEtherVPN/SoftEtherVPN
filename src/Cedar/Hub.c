@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -3700,7 +3700,7 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 	pa->Now = Tick64();
 
 	// Processing of Adjust TCP MSS
-	if (hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
+	if (hub != NULL && hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
 	{
 		UINT target_mss = (hub->Option->AdjustTcpMssValue == 0 ? INFINITE : hub->Option->AdjustTcpMssValue);
 		UINT session_mss = (s->AdjustMss == 0 ? INFINITE : s->AdjustMss);
@@ -3779,7 +3779,7 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 		CancelList(s->CancelList);
 
 		// Yield
-		if (hub->Option != NULL && hub->Option->YieldAfterStorePacket)
+		if (hub != NULL && hub->Option != NULL && hub->Option->YieldAfterStorePacket)
 		{
 			YieldCpu();
 		}
@@ -3844,7 +3844,7 @@ LABEL_TRY_AGAIN:
 
 	if (no_parse_dhcp == false && packet != NULL)
 	{
-		if (hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
+		if (hub != NULL && hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
 		{
 			// Remove the designation of the DHCP server from the DHCP response packet addressed to localhost
 			if (packet->TypeL7 == L7_DHCPV4)
@@ -5361,6 +5361,7 @@ void DeleteOldIpTableEntry(LIST *o)
 		if (e->UpdatedTime <= oldest_time)
 		{
 			old = e;
+			oldest_time = e->UpdatedTime;
 		}
 	}
 
@@ -5476,7 +5477,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 		}
 	}
 
-	if (src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
+	if (packet != NULL && src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
 	{
 		// Measures for D-Link bug
 		UCHAR *mac = packet->MacAddressSrc;
@@ -5621,7 +5622,7 @@ bool StorePacketFilterByPolicy(SESSION *s, PKT *p)
 
 	hub = s->Hub;
 
-	if (hub->Option != NULL)
+	if (hub != NULL && hub->Option != NULL)
 	{
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
 	}
@@ -6098,7 +6099,7 @@ void IntoTrafficLimiter(TRAFFIC_LIMITER *tr, PKT *p)
 	}
 
 	// Value increase
-	tr->Value += (UINT64)(p->PacketSize * 8);
+	tr->Value += (UINT64)p->PacketSize * (UINT64)8;
 }
 
 // The bandwidth reduction by traffic limiter

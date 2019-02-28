@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Mayaqua Kernel
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -2398,6 +2398,9 @@ bool Asn1TimeToSystem(SYSTEMTIME *s, void *asn1_time)
 // Convert the string to the system time
 bool StrToSystem(SYSTEMTIME *s, char *str)
 {
+	char century[3] = {0, 0, 0};
+	bool fourdigityear = false;
+
 	// Validate arguments
 	if (s == NULL || str == NULL)
 	{
@@ -2405,7 +2408,14 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 	}
 	if (StrLen(str) != 13)
 	{
-		return false;
+		if (StrLen(str) != 15) return false;
+
+		//Year has 4 digits - save first two and use the rest
+		//as if it had two digits
+		fourdigityear = true;
+		century[0] = str[0];
+		century[1] = str[1];
+		str += 2;
 	}
 	if (str[12] != 'Z')
 	{
@@ -2422,7 +2432,10 @@ bool StrToSystem(SYSTEMTIME *s, char *str)
 			second[3] = {str[10], str[11], 0};
 		Zero(s, sizeof(SYSTEMTIME));
 		s->wYear = ToInt(year);
-		if (s->wYear >= 60)
+		if( fourdigityear ) {
+			s->wYear += ToInt(century) * 100;
+		}
+		else if (s->wYear >= 60)
 		{
 			s->wYear += 1900;
 		}
@@ -2450,7 +2463,9 @@ bool RsaVerify(void *data, UINT data_size, void *sign, K *k)
 bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 {
 	UCHAR hash_data[SIGN_HASH_SIZE];
-	UCHAR decrypt_data[SIGN_HASH_SIZE];
+	UCHAR *decrypt_data;
+	RSA *rsa;
+	UINT rsa_size;
 	// Validate arguments
 	if (data == NULL || sign == NULL || k == NULL || k->private_key != false)
 	{
@@ -2461,23 +2476,37 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 		bits = 1024;
 	}
 
+	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	if (rsa == NULL)
+	{
+		return false;
+	}
+
 	// Hash the data
 	if (HashForSign(hash_data, sizeof(hash_data), data, data_size) == false)
 	{
 		return false;
 	}
 
+	rsa_size = RSA_size(rsa);
+	rsa_size = MAX(rsa_size, 1024); // For just in case
+	decrypt_data = ZeroMalloc(rsa_size);
+
 	// Decode the signature
-	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
+	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, rsa, RSA_PKCS1_PADDING) <= 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
 
 	// Comparison
 	if (Cmp(decrypt_data, hash_data, SIGN_HASH_SIZE) != 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
+
+	Free(decrypt_data);
 
 	return true;
 }
@@ -2591,9 +2620,9 @@ bool RsaPrivateEncrypt(void *dst, void *src, UINT size, K *k)
 	Unlock(openssl_lock);
 	if (ret <= 0)
 	{
-/*		Debug("RSA Error: %u\n",
+		Debug("RSA Error: %u\n",
 			ERR_GET_REASON(ERR_get_error()));
-*/		Free(tmp);
+		Free(tmp);
 		return false;
 	}
 
@@ -2684,7 +2713,7 @@ bool RsaCheck()
 	BIO *bio;
 	char errbuf[MAX_SIZE];
 	UINT size = 0;
-	UINT bit = 32;
+	UINT bit = 1024;
 	// Validate arguments
 
 	// Key generation
@@ -5004,317 +5033,150 @@ void DhFree(DH_CTX *dh)
 	Free(dh);
 }
 
+
 /////////////////////////
 // SHA0 implementation //
 /////////////////////////
-// 
-// From: https://bitbucket.org/Polarina/ampheck/src/097585ce2a74/src/
+
+// Source codes from:
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/libmincrypt/sha.c
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/include/mincrypt/hash-internal.h
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/include/mincrypt/sha.h
+
 /*
-	Copyright (C) 2009  Gabriel A. Petursson
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2013 The Android Open Source Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Google Inc. nor the names of its contributors may
+ *       be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Google Inc. ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL Google Inc. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-struct ampheck_sha0
-{
-	UINT h[5];
-	UCHAR buffer[64];
-	UINT64 length;
-};
-#define ROR(x, y) (((x) >> (y)) ^ ((x) << ((sizeof(x) * 8) - (y))))
-#define ROL(x, y) (((x) << (y)) ^ ((x) >> ((sizeof(x) * 8) - (y))))
-#define UNPACK_32_BE(x, str) { \
-	*((str))     = (UCHAR) ((x) >> 24); \
-	*((str) + 1) = (UCHAR) ((x) >> 16); \
-	*((str) + 2) = (UCHAR) ((x) >>  8); \
-	*((str) + 3) = (UCHAR) (x); \
-}
-#define UNPACK_64_BE(x, str) { \
-	*((str))     = (UCHAR) ((x) >> 56); \
-	*((str) + 1) = (UCHAR) ((x) >> 48); \
-	*((str) + 2) = (UCHAR) ((x) >> 40); \
-	*((str) + 3) = (UCHAR) ((x) >> 32); \
-	*((str) + 4) = (UCHAR) ((x) >> 24); \
-	*((str) + 5) = (UCHAR) ((x) >> 16); \
-	*((str) + 6) = (UCHAR) ((x) >>  8); \
-	*((str) + 7) = (UCHAR) (x); \
-}
-#define PACK_32_BE(str, x) { \
-	*(x) = ((UINT) *((str)    ) << 24) \
-	^ ((UINT) *((str) + 1) << 16) \
-	^ ((UINT) *((str) + 2) <<  8) \
-	^ ((UINT) *((str) + 3)); \
-}
-#define PACK_64_BE(str, x) { \
-	*(x) = ((UINT64) *((str)    ) << 56) \
-	^ ((UINT64) *((str) + 1) << 48) \
-	^ ((UINT64) *((str) + 2) << 40) \
-	^ ((UINT64) *((str) + 3) << 32) \
-	^ ((UINT64) *((str) + 4) << 24) \
-	^ ((UINT64) *((str) + 5) << 16) \
-	^ ((UINT64) *((str) + 6) << 8) \
-	^ ((UINT64) *((str) + 7)); \
-}
-#define UNPACK_32_LE(x, str) { \
-	*((str))     = (UCHAR) (x); \
-	*((str) + 1) = (UCHAR) ((x) >>  8); \
-	*((str) + 2) = (UCHAR) ((x) >> 16); \
-	*((str) + 3) = (UCHAR) ((x) >> 24); \
-}
-#define UNPACK_64_LE(x, str) { \
-	*((str))     = (UCHAR) (x); \
-	*((str) + 1) = (UCHAR) ((x) >>  8); \
-	*((str) + 2) = (UCHAR) ((x) >> 16); \
-	*((str) + 3) = (UCHAR) ((x) >> 24); \
-	*((str) + 4) = (UCHAR) ((x) >> 32); \
-	*((str) + 5) = (UCHAR) ((x) >> 40); \
-	*((str) + 6) = (UCHAR) ((x) >> 48); \
-	*((str) + 7) = (UCHAR) ((x) >> 56); \
-}
-#define PACK_32_LE(str, x) { \
-	*(x) = ((UINT) *((str)    )) \
-	^ ((UINT) *((str) + 1) <<  8) \
-	^ ((UINT) *((str) + 2) << 16) \
-	^ ((UINT) *((str) + 3) << 24); \
-}
-#define PACK_64_LE(str, x) { \
-	*(x) = ((UINT64) *((str)    )) \
-	^ ((UINT64) *((str) + 1) <<  8) \
-	^ ((UINT64) *((str) + 2) << 16) \
-	^ ((UINT64) *((str) + 3) << 24) \
-	^ ((UINT64) *((str) + 4) << 32) \
-	^ ((UINT64) *((str) + 5) << 40) \
-	^ ((UINT64) *((str) + 6) << 48) \
-	^ ((UINT64) *((str) + 7) << 56); \
-}
-#define SHA0_R1(x, y, z) ((z ^ (x & (y ^ z)))       + 0x5a827999)
-#define SHA0_R2(x, y, z) ((x ^ y ^ z)               + 0x6ed9eba1)
-#define SHA0_R3(x, y, z) (((x & y) | (z & (x | y))) + 0x8f1bbcdc)
-#define SHA0_R4(x, y, z) ((x ^ y ^ z)               + 0xca62c1d6)
-#define SHA0_PRC(a, b, c, d, e, idx, rnd) { \
-	wv[e] += ROR(wv[a], 27) + SHA0_R##rnd(wv[b], wv[c], wv[d]) + idx; \
-	wv[b]  = ROR(wv[b], 2); \
-}
-#define SHA0_EXT(i) ( \
-	w[i] ^= w[(i - 3) & 0x0F] ^ w[(i - 8) & 0x0F] ^ w[(i - 14) & 0x0F] \
-	)
-static void ampheck_sha0_init(struct ampheck_sha0 *ctx);
-static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT length);
-static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest);
-static void ampheck_sha0_init(struct ampheck_sha0 *ctx)
-{
-	ctx->h[0] = 0x67452301;
-	ctx->h[1] = 0xefcdab89;
-	ctx->h[2] = 0x98badcfe;
-	ctx->h[3] = 0x10325476;
-	ctx->h[4] = 0xc3d2e1f0;
 
-	ctx->length = 0;
+#define rol(bits, value) (((value) << (bits)) | ((value) >> (32 - (bits))))
+
+typedef struct MY_SHA0_CTX {
+//	const HASH_VTAB * f;
+	UINT64 count;
+	UCHAR buf[64];
+	UINT state[8];  // upto SHA2
+} MY_SHA0_CTX;
+
+#define MY_SHA0_DIGEST_SIZE 20
+
+static void MY_SHA0_Transform(MY_SHA0_CTX* ctx) {
+	UINT W[80];
+	UINT A, B, C, D, E;
+	UCHAR* p = ctx->buf;
+	int t;
+	for(t = 0; t < 16; ++t) {
+		UINT tmp =  *p++ << 24;
+		tmp |= *p++ << 16;
+		tmp |= *p++ << 8;
+		tmp |= *p++;
+		W[t] = tmp;
+	}
+	for(; t < 80; t++) {
+		//W[t] = rol(1,W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]);
+		W[t] = (1,W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]);
+	}
+	A = ctx->state[0];
+	B = ctx->state[1];
+	C = ctx->state[2];
+	D = ctx->state[3];
+	E = ctx->state[4];
+	for(t = 0; t < 80; t++) {
+		UINT tmp = rol(5,A) + E + W[t];
+		if (t < 20)
+			tmp += (D^(B&(C^D))) + 0x5A827999;
+		else if ( t < 40)
+			tmp += (B^C^D) + 0x6ED9EBA1;
+		else if ( t < 60)
+			tmp += ((B&C)|(D&(B|C))) + 0x8F1BBCDC;
+		else
+			tmp += (B^C^D) + 0xCA62C1D6;
+		E = D;
+		D = C;
+		C = rol(30,B);
+		B = A;
+		A = tmp;
+	}
+	ctx->state[0] += A;
+	ctx->state[1] += B;
+	ctx->state[2] += C;
+	ctx->state[3] += D;
+	ctx->state[4] += E;
 }
-
-static void ampheck_sha0_transform(struct ampheck_sha0 *ctx, const UCHAR *data, UINT blocks)
-{
-	UINT i;
-	for (i = 0; i < blocks; ++i)
-	{
-		UINT wv[5];
-		UINT w[16];
-
-		PACK_32_BE(&data[(i << 6)     ], &w[ 0]);
-		PACK_32_BE(&data[(i << 6) +  4], &w[ 1]);
-		PACK_32_BE(&data[(i << 6) +  8], &w[ 2]);
-		PACK_32_BE(&data[(i << 6) + 12], &w[ 3]);
-		PACK_32_BE(&data[(i << 6) + 16], &w[ 4]);
-		PACK_32_BE(&data[(i << 6) + 20], &w[ 5]);
-		PACK_32_BE(&data[(i << 6) + 24], &w[ 6]);
-		PACK_32_BE(&data[(i << 6) + 28], &w[ 7]);
-		PACK_32_BE(&data[(i << 6) + 32], &w[ 8]);
-		PACK_32_BE(&data[(i << 6) + 36], &w[ 9]);
-		PACK_32_BE(&data[(i << 6) + 40], &w[10]);
-		PACK_32_BE(&data[(i << 6) + 44], &w[11]);
-		PACK_32_BE(&data[(i << 6) + 48], &w[12]);
-		PACK_32_BE(&data[(i << 6) + 52], &w[13]);
-		PACK_32_BE(&data[(i << 6) + 56], &w[14]);
-		PACK_32_BE(&data[(i << 6) + 60], &w[15]);
-
-		wv[0] = ctx->h[0];
-		wv[1] = ctx->h[1];
-		wv[2] = ctx->h[2];
-		wv[3] = ctx->h[3];
-		wv[4] = ctx->h[4];
-
-		SHA0_PRC(0, 1, 2, 3, 4, w[ 0], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[ 1], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[ 2], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[ 3], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[ 4], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[ 5], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[ 6], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[ 7], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[ 8], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[ 9], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[10], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[11], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[12], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[13], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[14], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[15], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 0), 1);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 1), 1);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 2), 1);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 3), 1);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 4), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 5), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 6), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 7), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 8), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 9), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(10), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(11), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(12), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(13), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(14), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(15), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 0), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 1), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 2), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 3), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 4), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 5), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 6), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 7), 2);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 8), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 9), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(10), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(11), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(12), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(13), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(14), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(15), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 0), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 1), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 2), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 3), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 4), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 5), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 6), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 7), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 8), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 9), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(10), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(11), 3);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(12), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(13), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(14), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(15), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 0), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 1), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 2), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 3), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 4), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 5), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 6), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 7), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 8), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 9), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(10), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(11), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(12), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(13), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(14), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(15), 4);
-
-		ctx->h[0] += wv[0];
-		ctx->h[1] += wv[1];
-		ctx->h[2] += wv[2];
-		ctx->h[3] += wv[3];
-		ctx->h[4] += wv[4];
+void MY_SHA0_init(MY_SHA0_CTX* ctx) {
+	//ctx->f = &SHA_VTAB;
+	ctx->state[0] = 0x67452301;
+	ctx->state[1] = 0xEFCDAB89;
+	ctx->state[2] = 0x98BADCFE;
+	ctx->state[3] = 0x10325476;
+	ctx->state[4] = 0xC3D2E1F0;
+	ctx->count = 0;
+}
+void MY_SHA0_update(MY_SHA0_CTX* ctx, const void* data, int len) {
+	int i = (int) (ctx->count & 63);
+	const UCHAR* p = (const UCHAR*)data;
+	ctx->count += len;
+	while (len--) {
+		ctx->buf[i++] = *p++;
+		if (i == 64) {
+			MY_SHA0_Transform(ctx);
+			i = 0;
+		}
 	}
 }
-
-static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT size)
-{
-	UINT tmp = size;
-
-	if (size >= 64 - ctx->length % 64)
-	{
-		memcpy(&ctx->buffer[ctx->length % 64], data, 64 - ctx->length % 64);
-
-		data += 64 - ctx->length % 64;
-		size -= 64 - ctx->length % 64;
-
-		ampheck_sha0_transform(ctx, ctx->buffer, 1);
-		ampheck_sha0_transform(ctx, data, size / 64);
-
-		data += size & ~63;
-		size %= 64;
-
-		memcpy(ctx->buffer, data, size);
+const UCHAR* MY_SHA0_final(MY_SHA0_CTX* ctx) {
+	UCHAR *p = ctx->buf;
+	UINT64 cnt = ctx->count * 8;
+	int i;
+	MY_SHA0_update(ctx, (UCHAR*)"\x80", 1);
+	while ((ctx->count & 63) != 56) {
+		MY_SHA0_update(ctx, (UCHAR*)"\0", 1);
 	}
-	else
-	{
-		memcpy(&ctx->buffer[ctx->length % 64], data, size);
+	for (i = 0; i < 8; ++i) {
+		UCHAR tmp = (UCHAR) (cnt >> ((7 - i) * 8));
+		MY_SHA0_update(ctx, &tmp, 1);
 	}
-
-	ctx->length += tmp;
+	for (i = 0; i < 5; i++) {
+		UINT tmp = ctx->state[i];
+		*p++ = tmp >> 24;
+		*p++ = tmp >> 16;
+		*p++ = tmp >> 8;
+		*p++ = tmp >> 0;
+	}
+	return ctx->buf;
 }
-
-static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest)
-{
-	struct ampheck_sha0 tmp;
-
-	memcpy(tmp.h, ctx->h, 5 * sizeof(UINT));
-	memcpy(tmp.buffer, ctx->buffer, ctx->length % 64);
-
-	tmp.buffer[ctx->length % 64] = 0x80;
-
-	if (ctx->length % 64 < 56)
-	{
-		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 55 - ctx->length % 64);
-	}
-	else
-	{
-		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 63 - ctx->length % 64);
-		ampheck_sha0_transform(&tmp, tmp.buffer, 1);
-
-		memset(tmp.buffer, 0x00, 56);
-	}
-
-	UNPACK_64_BE(ctx->length * 8, &tmp.buffer[56]);
-	ampheck_sha0_transform(&tmp, tmp.buffer, 1);
-
-	UNPACK_32_BE(tmp.h[0], &digest[ 0]);
-	UNPACK_32_BE(tmp.h[1], &digest[ 4]);
-	UNPACK_32_BE(tmp.h[2], &digest[ 8]);
-	UNPACK_32_BE(tmp.h[3], &digest[12]);
-	UNPACK_32_BE(tmp.h[4], &digest[16]);
+/* Convenience function */
+const UCHAR* MY_SHA0_hash(const void* data, int len, UCHAR* digest) {
+	MY_SHA0_CTX ctx;
+	MY_SHA0_init(&ctx);
+	MY_SHA0_update(&ctx, data, len);
+	memcpy(digest, MY_SHA0_final(&ctx), MY_SHA0_DIGEST_SIZE);
+	return digest;
 }
 static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md)
 {
-	struct ampheck_sha0 c;
-	static unsigned char m[SHA_DIGEST_LENGTH];
-
-	if (md == NULL) md=m;
-
-	ampheck_sha0_init(&c);
-	ampheck_sha0_update(&c, d, (UINT)n);
-	ampheck_sha0_finish(&c, md);
-
-	return md;
+	return (unsigned char *)MY_SHA0_hash(d, (int)n, md);
 }
 
 

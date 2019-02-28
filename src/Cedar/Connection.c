@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -1082,12 +1082,12 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			for (i = 0;i < num;i++)
 			{
 				TCPSOCK *tcpsock = tcpsocks[i];
-				if (tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
+				if (s != NULL && tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
 					IS_SEND_TCP_SOCK(tcpsock))
 				{
 					// Processing of KeepAlive
 					if (now >= tcpsock->NextKeepAliveTime || tcpsock->NextKeepAliveTime == 0 ||
-						(s != NULL && s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
+						(s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
 					{
 						// Send the KeepAlive
 						SendKeepAlive(c, tcpsock);
@@ -1181,7 +1181,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			UINT j;
 			QUEUE *q;
 
-			if (s->UdpAccel != NULL)
+			if (s != NULL && s->UdpAccel != NULL)
 			{
 				UdpAccelSetTick(s->UdpAccel, now);
 			}
@@ -1589,7 +1589,7 @@ SEND_START:
 				{
 					// Packet data array
 					void **datas = MallocFast(sizeof(void *) * num_packet);
-					UINT *sizes = MallocFast(sizeof(UINT *) * num_packet);
+					UINT *sizes = MallocFast(sizeof(UINT) * num_packet);
 					UINT i;
 
 					i = 0;

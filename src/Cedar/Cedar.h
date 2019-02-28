@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -135,10 +135,10 @@
 
 
 // Version number
-#define	CEDAR_VER					428
+#define	CEDAR_VER					429
 
 // Build Number
-#define	CEDAR_BUILD					9669
+#define	CEDAR_BUILD					9678
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -157,12 +157,12 @@
 #endif	// BUILD_PLACE
 
 // Specifies the build date
-#define	BUILD_DATE_Y		2018
-#define	BUILD_DATE_M		9
-#define	BUILD_DATE_D		11
-#define	BUILD_DATE_HO		11
-#define	BUILD_DATE_MI		48
-#define	BUILD_DATE_SE		34
+#define	BUILD_DATE_Y		2019
+#define	BUILD_DATE_M		2
+#define	BUILD_DATE_D		28
+#define	BUILD_DATE_HO		8
+#define	BUILD_DATE_MI		44
+#define	BUILD_DATE_SE		58
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)

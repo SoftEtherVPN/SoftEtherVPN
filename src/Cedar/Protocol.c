@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -2901,14 +2901,11 @@ bool ServerAccept(CONNECTION *c)
 			// VLAN ID
 			if (assigned_vlan_id != 0)
 			{
-				if (policy != NULL)
-				{
 					if (policy->VLanId == 0)
 					{
 						policy->VLanId = assigned_vlan_id;
 					}
 				}
-			}
 
 			// Create a Session
 			StrLower(username);
@@ -3100,11 +3097,7 @@ bool ServerAccept(CONNECTION *c)
 			s->QoS = qos;
 			s->NoReconnectToSession = no_reconnect_to_session;
 
-
-			if (policy != NULL)
-			{
 				s->VLanId = policy->VLanId;
-			}
 
 			// User name
 			s->Username = CopyStr(username);

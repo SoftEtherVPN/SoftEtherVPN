@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -2792,7 +2792,7 @@ IPSECSA *NewIPsecSa(IKE_SERVER *ike, IKE_CLIENT *c, IKE_SA *ike_sa, bool initiat
 	// Set the expiration time
 	if (setting->LifeSeconds != 0)
 	{
-		UINT64 span = (UINT64)(setting->LifeSeconds * 1000) + (UINT64)IKE_SOFT_EXPIRES_MARGIN;
+		UINT64 span = (UINT64)((UINT64)setting->LifeSeconds * (UINT64)1000) + (UINT64)IKE_SOFT_EXPIRES_MARGIN;
 		sa->ExpiresHardTick = ike->Now + span;
 		sa->ExpiresSoftTick = ike->Now + span;
 		//sa->ExpiresSoftTick = ike->Now + (UINT64)5000;
@@ -3842,6 +3842,10 @@ bool IkeIsVendorIdExists(IKE_PACKET *p, char *str)
 	for (i = 0;i < num;i++)
 	{
 		IKE_PACKET_PAYLOAD *payload = IkeGetPayload(p->PayloadList, IKE_PAYLOAD_VENDOR_ID, i);
+		if (payload == NULL)
+		{
+			break;
+		}
 
 		if (CompareBuf(payload->Payload.VendorId.Data, buf))
 		{

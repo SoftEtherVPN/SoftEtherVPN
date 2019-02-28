@@ -177,7 +177,8 @@
 
 
    Copyright (c) all contributors on SoftEther VPN project in GitHub.
-   Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+   Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba,
+and SoftEther Corporation.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -239,5 +240,4 @@ STATEMENT FOR WARNING AND DISCLAIMER.
 READ AND UNDERSTAND THE 'src/WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
 SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE WITH
 LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'src/THIRD_PARTY.TXT' FILE.
-
 

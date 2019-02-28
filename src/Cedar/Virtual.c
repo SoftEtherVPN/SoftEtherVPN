@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -1072,9 +1072,9 @@ void NnFragmentedIpReceived(NATIVE_NAT *t, PKT *packet)
 			c = NnInsertIpCombine(
 				t, ip->SrcIP, ip->DstIP, Endian16(ip->Identification), ip->Protocol, packet->BroadcastPacket,
 				ip->TimeToLive, false);
-			c->MaxL3Size = MAX(c->MaxL3Size, l3_size);
 			if (c != NULL)
 			{
+				c->MaxL3Size = MAX(c->MaxL3Size, l3_size);
 				NnCombineIp(t, c, offset, data, size, last_packet, head_ip_header_data, head_ip_header_size);
 			}
 		}
@@ -5310,7 +5310,7 @@ TCP_RESET:
 			seq64 = n->RecvSeq + (UINT64)seq - (n->RecvSeqInit + n->RecvSeq) % X32;
 			if ((n->RecvSeqInit + n->RecvSeq) % X32 > seq)
 			{
-				if (((n->RecvSeqInit + n->RecvSeq) % X32 - ack) >= 0x80000000)
+				if (((n->RecvSeqInit + n->RecvSeq) % X32 - seq) >= 0x80000000)
 				{
 					seq64 = n->RecvSeq + (UINT64)seq + X32 - (n->RecvSeqInit + n->RecvSeq) % X32;
 				}

@@ -1,19 +1,19 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
+// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
+// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -1359,7 +1359,7 @@ void GetServerCaps(SERVER *s, CAPSLIST *t)
 			GetServerCapsMain(s, s->CapsListCache);
 		}
 
-		Copy(t, s->CapsListCache, sizeof(s->CapsListCache));
+		Copy(t, s->CapsListCache, sizeof(CAPSLIST));
 	}
 	Unlock(s->CapsCacheLock);
 }
@@ -2103,6 +2103,12 @@ UINT SiCalcPoint(SERVER *s, UINT num, UINT weight)
 
 	server_max_sessions = GetServerCapsInt(s, "i_max_sessions");
 
+	if (server_max_sessions == 0)
+	{
+		// Avoid divide by zero
+		server_max_sessions = 1;
+	}
+
 	return (UINT)(((double)server_max_sessions -
 		MIN((double)num * 100.0 / (double)weight, (double)server_max_sessions))
 		* (double)FARM_BASE_POINT / (double)server_max_sessions);
@@ -2531,21 +2537,6 @@ void SiInitDefaultHubList(SERVER *s)
 	// Log settings
 	SiSetDefaultLogSetting(&g);
 	SetHubLogSetting(h, &g);
-
-	{
-		UINT i;
-		for (i = 0;i < 0;i++)
-		{
-			char tmp[MAX_SIZE];
-			USER *u;
-			sprintf(tmp, "user%u", i);
-			AcLock(h);
-			u = NewUser(tmp, L"test", L"", AUTHTYPE_ANONYMOUS, NULL);
-			AcAddUser(h, u);
-			ReleaseUser(u);
-			AcUnlock(h);
-		}
-	}
 
 	ReleaseHub(h);
 }
@@ -9447,7 +9438,7 @@ void SiHubUpdateProc(HUB *h)
 	SERVER *s;
 	UINT i;
 	// Validate arguments
-	if (h == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
+	if (h == NULL || h->Cedar == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
 	{
 		return;
 	}

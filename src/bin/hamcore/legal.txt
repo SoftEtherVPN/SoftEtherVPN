@@ -330,17 +330,7 @@ These contributed codes have been granted by contributors to be imported into th
 
 The list of contributors for SoftEther VPN Project:
 
-  - Melvyn
-    https://github.com/yaurthek
-
-  - nattoheaven
-    https://github.com/nattoheaven
-
-  - ELIN
-    https://github.com/el1n
-
-  - YF
-    https://github.com/yfdyh000
+https://github.com/SoftEtherVPN/SoftEtherVPN/blob/master/AUTHORS.TXT
 
 
 SoftEther Corporation, the distributor of PacketiX VPN, appreciates all contributors for SoftEther VPN Project very much.

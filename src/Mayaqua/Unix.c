@@ -1,22 +1,18 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Mayaqua Kernel
 // 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
+// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
 // 
 // Copyright (c) Daiyuu Nobori.
 // Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
 // Copyright (c) SoftEther Corporation.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
 // 
 // All Rights Reserved.
 // 
 // http://www.softether.org/
 // 
 // Authors: Daiyuu Nobori
-// Contributors:
-// - Melvyn (https://github.com/yaurthek)
-// - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 2 as published by the Free Software Foundation.
@@ -364,7 +360,7 @@ void UnixDisableInterfaceOffload(char *name)
 		{
 			char *a = t->Token[i];
 
-			Format(tmp, sizeof(tmp), "/sbin/ethtool -K %s %s off 2>/dev/null", name, a);
+			Format(tmp, sizeof(tmp), "ethtool -K %s %s off 2>/dev/null", name, a);
 			FreeToken(UnixExec(tmp));
 		}
 	}
@@ -955,6 +951,8 @@ void *UnixNewSingleInstance(char *instance_name)
 
 	if (fcntl(fd, F_SETLK, &lock) == -1)
 	{
+		close(fd);
+		(void)remove(name);
 		return NULL;
 	}
 	else
