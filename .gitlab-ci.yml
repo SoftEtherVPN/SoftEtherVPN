@@ -5,7 +5,7 @@
     changes:
       - .appveyor.yml
       - .travis.yml
-      - azure-pipelines.yml
+      - .azure-pipelines.yml
   before_script:
     - REPOSITORY="$PWD" && cd ..
     - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
