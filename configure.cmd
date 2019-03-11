@@ -26,4 +26,5 @@ if %errorlevel% == 0 (
 	echo The Makefile is generated. Run 'nmake' to build SoftEther VPN.
 ) else (
 	cd ..
+	exit /b 1
 )
