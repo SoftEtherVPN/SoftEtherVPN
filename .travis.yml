@@ -14,6 +14,15 @@ matrix:
     - env: OPENSSL_VERSION="1.1.0f"
       os: linux
       compiler: gcc
+    - env: OPENSSL_VERSION="1.1.0f" LABEL="linux-ppc64le" CMAKE_VERSION="3.9.6"
+      os: linux-ppc64le
+      compiler: gcc
+      install:
+        - wget https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}.tar.gz && tar -xzf cmake-${CMAKE_VERSION}.tar.gz
+        - cd cmake-${CMAKE_VERSION} 
+        - ./bootstrap > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
+        - sudo make install > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
+        - cd ..
     - env: OPENSSL_VERSION="1.0.2o" RUN_COVERITY="1"
       os: linux
       compiler: clang
