@@ -16,6 +16,7 @@ skip_commits:
     - .travis.yml
     - .gitlab-ci.yml
     - .azure-pipelines.yml
+    - .cirrus.yml
 
 init:
   - ps: Update-AppveyorBuild -Version "build-$env:APPVEYOR_BUILD_NUMBER-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
