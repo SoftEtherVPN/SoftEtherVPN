@@ -875,10 +875,10 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 
 	if (true)
 	{
-		if (GetGlobalServerFlag(GSF_DISABLE_DEEP_LOGGING) != 0)
-		{
-			no_log = true;
-		}
+//		if (GetGlobalServerFlag(GSF_DISABLE_DEEP_LOGGING) != 0)
+//		{
+//			no_log = true;
+//		}
 
 		if (hub->IsVgsHub)
 		{

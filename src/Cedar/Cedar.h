@@ -963,8 +963,8 @@ typedef struct CEDAR
 	char CurrentDDnsFqdn[MAX_SIZE];	// FQDN of the current DDNS
 	char OpenVPNPublicPorts[MAX_SIZE];	// OpenVPN public UDP port list
 	LOCK *OpenVPNPublicPortsLock;	// Lock of OpenVPN public UDP port list
-	LOCK *CurrentRegionLock;		// Current region lock
-	char CurrentRegion[128];		// Current region
+//	LOCK *CurrentRegionLock;		// Current region lock
+//	char CurrentRegion[128];		// Current region
 	LOCK *CurrentTcpQueueSizeLock;	// Current TCP send queue size lock
 	UINT CurrentTcpQueueSize;		// Current TCP send queue size
 	COUNTER *CurrentActiveLinks;	// Current active cascade connections

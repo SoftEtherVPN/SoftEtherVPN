@@ -654,10 +654,10 @@ bool SamAuthUserByCert(HUB *h, char *username, X *x)
 		return false;
 	}
 
-	if (GetGlobalServerFlag(GSF_DISABLE_CERT_AUTH) != 0)
-	{
-		return false;
-	}
+//	if (GetGlobalServerFlag(GSF_DISABLE_CERT_AUTH) != 0)
+//	{
+//		return false;
+//	}
 
 	// Check expiration date
 	if (CheckXDateNow(x) == false)

@@ -597,11 +597,11 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 				c->CurrentIPv4, c->CurrentIPv6,
 				c->CurrentAzureIp, c->CurrentAzureTimestamp, c->CurrentAzureSignature, c->AzureCertHash);
 
-			if (IsEmptyStr(current_region) == false)
-			{
-				// Update the current region
-				SiUpdateCurrentRegion(c->Cedar, current_region, false);
-			}
+//			if (IsEmptyStr(current_region) == false)
+//			{
+//				// Update the current region
+//				SiUpdateCurrentRegion(c->Cedar, current_region, false);
+//			}
 		}
 	}
 	Unlock(c->Lock);

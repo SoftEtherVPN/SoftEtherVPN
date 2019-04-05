@@ -1177,7 +1177,7 @@ void CleanupCedar(CEDAR *c)
 
 	DeleteLock(c->OpenVPNPublicPortsLock);
 
-	DeleteLock(c->CurrentRegionLock);
+//	DeleteLock(c->CurrentRegionLock);
 
 	DeleteLock(c->CurrentTcpQueueSizeLock);
 	DeleteLock(c->QueueBudgetLock);
@@ -1437,7 +1437,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->CedarSuperLock = NewLock();
 
-	c->CurrentRegionLock = NewLock();
+//	c->CurrentRegionLock = NewLock();
 
 	StrCpy(c->OpenVPNDefaultClientOption, sizeof(c->OpenVPNDefaultClientOption), OVPN_DEF_CLIENT_OPTION_STRING);
 
