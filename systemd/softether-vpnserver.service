@@ -5,6 +5,7 @@ ConditionPathExists=!${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserv
 
 [Service]
 Type=forking
+TasksMax=16777216
 EnvironmentFile=-${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver
 ExecStart=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver/vpnserver start
 ExecStop=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver/vpnserver stop
