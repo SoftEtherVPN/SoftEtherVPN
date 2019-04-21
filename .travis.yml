@@ -1,4 +1,5 @@
 sudo: required
+dist: xenial
 
 language: c
 
@@ -38,7 +39,7 @@ matrix:
       os: linux
       language: csharp
       mono: none
-      dotnet: 2.1.300
+      dotnet: 2.2.203
       before_install:
         - true
       script:
