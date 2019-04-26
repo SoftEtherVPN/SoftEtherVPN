@@ -27,6 +27,14 @@ precise:
   <<: *ubuntu_def
   image: ubuntu:precise
 
+build_illumos:
+  tags: 
+    - illumos
+  stage: build
+  script:
+    - git submodule init && git submodule update
+    - CMAKE_FLAGS="-DCMAKE_PREFIX_PATH=/opt/local -DCMAKE_CXX_FLAGS=-m64 -DCMAKE_C_FLAGS=-m64" ./configure
+    - gmake -C tmp
 
 #
 # flawfinder
