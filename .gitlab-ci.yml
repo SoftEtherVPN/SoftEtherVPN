@@ -27,10 +27,10 @@ precise:
   <<: *ubuntu_def
   image: ubuntu:precise
 
+# illumos gitlab-runner maintained by @hww3
 build_illumos:
   tags: 
     - illumos
-  stage: build
   script:
     - git submodule init && git submodule update
     - CMAKE_FLAGS="-DCMAKE_PREFIX_PATH=/opt/local -DCMAKE_CXX_FLAGS=-m64 -DCMAKE_C_FLAGS=-m64" ./configure
