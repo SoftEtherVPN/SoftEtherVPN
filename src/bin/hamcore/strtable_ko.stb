@@ -164,11 +164,11 @@ ERR_91 가상 레이어 3 스위치 연결이 끊어 수 없습니다. 세션을
 ERR_92 지정된 이름의 가상 레이어 3 스위치는 이미 존재합니다. 다른 이름을 지정하십시오.
 ERR_93 지정된 이름의 가상 레이어 3 스위치가 없습니다.
 ERR_94 지정된 이름이 잘못되었습니다. 사용할 수없는 문자가 포함되어 있는지 확인하십시오.
-ERR_95 가상 레이어 3 인터페이스의 추가에 실패했습니다.
-ERR_96 가상 레이어 3 인터페이스의 삭제에 실패했습니다.
+ERR_95 가상 레이어 3 인터페이스의 추가에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96 가상 레이어 3 인터페이스의 삭제에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97 지정된 가상 레이어 3 인터페이스가 연결된 가상 HUB에 연결하는 가상 레이어 3 인터페이스가 가상 레이어 3 스위치에 이미 존재합니다. 하나의 가상 레이어 3 스위치에서 동일한 가상 HUB에 연결하는 가상 레이어 3 인터페이스는 하나 밖에 정의 할 수 없습니다.
-ERR_98 라우팅 테이블 추가에 실패했습니다.
-ERR_99 라우팅 테이블의 삭제에 실패했습니다.
+ERR_98 라우팅 테이블 추가에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99 라우팅 테이블의 삭제에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100 지정된 라우팅 테이블이 이미 존재합니다.
 ERR_101 클라이언트와 서버 사이의 시계가 어긋나 있습니다. 시간 설정을 확인하십시오.
 ERR_102 이 가상 레이어 3 스위치를 시작할 수 없습니다. \r\n\r\n 가상 레이어 3 스위치를 시작하려면 최소한 1 개의 가상 인터페이스가 가상 레이어 3 스위치에 정의되어 있어야합니다.
@@ -1773,6 +1773,9 @@ LS_LICENSE_NOT_VPNSERVER 연결 "%S": 라이센스 오류가 발생했습니다.
 LS_LICENSE_NOT_VPNCLUSTER 연결 "%S": 라이센스 오류가 발생했습니다. 이 VPN Server는 현재 클러스터링 기능을 사용할 수없는 종류의 라이센스가 등록되어 있지만 클러스터 모드로 실행 중에 VPN Client가 연결을 시도했습니다. VPN Server를 다시 시작해야합니다.
 LS_LICENSE_VIOLATION 연결 "%S": VPN Server에서 라이센스 위반이 발생하고 있기 때문에 연결을 받아 들일 수 없습니다.
 LS_LICENSE_VIOLATION_DETECTED 라이센스 위반을 감지했습니다. 다른 VPN Server가 이 VPN Server와 동일한 서버 ID "%I64u"으로 동작합니다. 클러스터에 동일한 라이센스를 사용하여 두 개 이상의 VPN Server가 있을 수 있습니다. 각 VPN Server의 라이센스 정보를 확인하십시오.
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN 로그)
