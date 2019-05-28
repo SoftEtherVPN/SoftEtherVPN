@@ -1,0 +1,34 @@
+﻿# SoftEther VPN Server JSON-RPC Document
+This reference describes all JSON-RPC functions available on SoftEther VPN Server.
+
+
+Please note that you can use [SoftEther VPN Server JSON-RPC Client Library](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/) to call these APIs easily instead of calling JSON through HTTPS.
+
+
+## Principle
+
+### Entry point
+The entry point URL of JSON-RPC is:
+```
+https://<vpn_server_hostname>:<port>/api/
+```
+
+### JSON-RPC specification
+You must use HTTPS 1.1 `POST` method to call each of JSON-RPC APIs.  
+All APIs are based on the [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification).
+  - JSON-RPC Notification is not supported.
+  - JSON-RPC Batch is not supported.
+
+### Authentication
+You must specify the following HTTPS custom headers for authentication on each of requests.
+
+
+Value | Description
+--- | ---
+`X-VPNADMIN-HUBNAME` | The name of the Virtual Hub if you want to connect to the VPN Server as a Virtual Hub Admin Mode. Specify empty string if you want to connect to the VPN Server as the Entire VPN Server Admin Mode.
+`X-VPNADMIN-PASSWORD` | Specify the administration password.
+
+
+- You can omit the above HTTPS custom authentication headers if you are calling JSON-RPC APIs from the web browser which is already logged in to the VPN Server with HTTPS Basic Authentication. In such usage the credential of HTTPS Basic Authtication will be used.
+
+***

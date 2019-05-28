@@ -1,0 +1,17 @@
+﻿// SoftEther VPN Server JSON-RPC Stub code for C#
+// 
+// Program.cs - The Main() entry point
+//
+// Automatically generated at __TIMESTAMP__ by vpnserver-jsonrpc-codegen
+//
+// Licensed under the Apache License 2.0
+// Copyright (c) 2014-__YEAR__ SoftEther VPN Project
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        VPNRPCTest test = new VPNRPCTest();
+        test.Test_All();
+    }
+}
