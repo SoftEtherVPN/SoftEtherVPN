@@ -7229,6 +7229,12 @@ bool IsIP4(IP *ip)
 	return (IsIP6(ip) ? false : true);
 }
 
+// Copy the IP address
+void CopyIP(IP *dst, IP *src)
+{
+	Copy(dst, src, sizeof(IP));
+}
+
 // Get the number of clients connected from the specified IP address
 UINT GetNumIpClient(IP *ip)
 {
@@ -11366,6 +11372,50 @@ void InitSockSet(SOCKSET *set)
 	}
 
 	Zero(set, sizeof(SOCKSET));
+}
+
+// Receive data and discard all of them
+bool RecvAllWithDiscard(SOCK *sock, UINT size, bool secure)
+{
+	static UCHAR buffer[4096];
+	UINT recv_size, sz, ret;
+	if (sock == NULL)
+	{
+		return false;
+	}
+	if (size == 0)
+	{
+		return true;
+	}
+	if (sock->AsyncMode)
+	{
+		return false;
+	}
+
+	recv_size = 0;
+
+	while (true)
+	{
+		sz = MIN(size - recv_size, sizeof(buffer));
+		ret = Recv(sock, buffer, sz, secure);
+		if (ret == 0)
+		{
+			return false;
+		}
+		if (ret == SOCK_LATER)
+		{
+			// I suppose that this is safe because the RecvAll() function is used only 
+			// if the sock->AsyncMode == true. And the Recv() function may return
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// Recv() function in the RecvAll() function never returns SOCK_LATER.
+			return false;
+		}
+		recv_size += ret;
+		if (recv_size >= size)
+		{
+			return true;
+		}
+	}
 }
 
 // Receive all by TCP

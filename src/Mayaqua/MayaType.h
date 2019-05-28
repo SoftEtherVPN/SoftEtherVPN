@@ -347,6 +347,9 @@ typedef struct PRAND PRAND;
 // Str.h
 typedef struct TOKEN_LIST TOKEN_LIST;
 typedef struct INI_ENTRY INI_ENTRY;
+typedef struct JSON_OBJECT JSON_OBJECT;
+typedef struct JSON_ARRAY  JSON_ARRAY;
+typedef struct JSON_VALUE  JSON_VALUE;
 
 // Internat.h
 typedef struct UNI_TOKEN_LIST UNI_TOKEN_LIST;
@@ -383,6 +386,8 @@ typedef struct INSTANCE INSTANCE;
 typedef struct VALUE VALUE;
 typedef struct ELEMENT ELEMENT;
 typedef struct PACK PACK;
+typedef struct JSONPACKHINT JSONPACKHINT;
+typedef struct JSONPACKHINT_ITEM JSONPACKHINT_ITEM;
 
 // Cfg.h
 typedef struct FOLDER FOLDER;

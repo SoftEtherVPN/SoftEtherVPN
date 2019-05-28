@@ -9578,8 +9578,9 @@ void CmPrintStatusToListViewEx(LVB *b, RPC_CLIENT_GET_CONNECTION_STATUS *s, bool
 
 	GetDateTimeStrEx64(tmp, sizeof(tmp), SystemToLocal64(s->StartTime), NULL);
 	LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_START_TIME"), tmp);
-	GetDateTimeStrEx64(tmp, sizeof(tmp), SystemToLocal64(s->FirstConnectionEstablishedTime), NULL);
-	LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_FIRST_ESTAB_TIME"), s->FirstConnectionEstablishedTime == 0 ? _UU("CM_ST_NONE") : tmp);
+	GetDateTimeStrEx64(tmp, sizeof(tmp), SystemToLocal64(s->FirstConnectionEstablisiedTime), NULL);
+	/* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
+	LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_FIRST_ESTAB_TIME"), s->FirstConnectionEstablisiedTime == 0 ? _UU("CM_ST_NONE") : tmp);
 
 	if (s->Connected)
 	{

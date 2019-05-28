@@ -274,6 +274,1157 @@ CAPSLIST *ScGetCapsEx(RPC *rpc)
 	return t;
 }
 
+
+
+// Process server side include
+BUF *AdminWebProcessServerSideInclude(BUF *src_txt, char *filename, UINT depth)
+{
+	char *src_str;
+	UINT src_str_size;
+	UINT i, len;
+	BUF *ret = NULL;
+	UINT pos = 0;
+	char dirname[MAX_PATH];
+	if (src_txt == NULL || filename == NULL || depth >= 4)
+	{
+		return CloneBuf(src_txt);
+	}
+	if (EndWith(filename, ".html") == false)
+	{
+		// We process only .html files
+		return CloneBuf(src_txt);
+	}
+
+	GetDirNameFromFilePath(dirname, sizeof(dirname), filename);
+
+	src_str_size = src_txt->Size + 1;
+	src_str = ZeroMalloc(src_str_size);
+
+	Copy(src_str, src_txt->Buf, src_txt->Size);
+
+	len = StrLen(src_str);
+
+	ret = NewBuf();
+
+	for (i = 0;i < len;i++)
+	{
+		char *start_tag = "<!--#include file=";
+		bool is_ssi = false;
+
+		if (StartWith(src_str + i, start_tag))
+		{
+			UINT a = i + StrLen(start_tag);
+
+			if (src_str[a] == '\"' || src_str[a] == '\'')
+			{
+				char delimier = src_str[a];
+				char delimier_str[2];
+				UINT b;
+
+				delimier_str[0] = delimier;
+				delimier_str[1] = 0;
+				b = SearchStrEx(src_str, delimier_str, i + StrLen(start_tag) + 1, true);
+
+				if ((b != INFINITE) && (b >= i + StrLen(start_tag) + 1) && ((b - (i + StrLen(start_tag) + 1)) < 32))
+				{
+					char inc_filename[MAX_PATH];
+					char *end_tag = "-->";
+					UINT x;
+
+					Zero(inc_filename, sizeof(inc_filename));
+
+					StrCpy(inc_filename, sizeof(inc_filename), src_str + i + StrLen(start_tag) + 1);
+					inc_filename[b - (i + StrLen(start_tag) + 1)] = 0;
+
+					x = SearchStrEx(src_str, end_tag, b + 1, true);
+
+					if ((x != INFINITE) && (x >= (b + 1)))
+					{
+						BUF *inc_buf;
+						char full_inc_filename[MAX_PATH];
+
+						if (StartWith(inc_filename, "/"))
+						{
+							Format(full_inc_filename, sizeof(full_inc_filename), "|wwwroot/%s", inc_filename + 1);
+						}
+						else
+						{
+							StrCpy(full_inc_filename, sizeof(full_inc_filename), dirname);
+							StrCat(full_inc_filename, sizeof(full_inc_filename), "/");
+							StrCat(full_inc_filename, sizeof(full_inc_filename), inc_filename);
+						}
+
+						Debug("dirname = %s, full_inc_filename (src) = %s\n\n", dirname, full_inc_filename);
+						NormalizePath(full_inc_filename, sizeof(full_inc_filename), full_inc_filename);
+
+						if (StartWith(full_inc_filename, "|wwwroot/") == false
+							&& StartWith(full_inc_filename, "|wwwroot\\") == false)
+						{
+							char tmp[MAX_PATH];
+							Format(tmp, sizeof(tmp), "|wwwroot/%s", full_inc_filename);
+							StrCpy(full_inc_filename, sizeof(full_inc_filename), tmp);
+						}
+
+						Debug("inc_filename = %s\nfull_inc_filename = %s\n\n", inc_filename, full_inc_filename);
+
+						inc_buf = ReadDump(full_inc_filename);
+
+						if (inc_buf != NULL)
+						{
+							BUF *inc_buf2;
+
+							inc_buf2 = AdminWebProcessServerSideInclude(inc_buf, full_inc_filename, depth + 1);
+
+							BufSkipUtf8Bom(inc_buf2);
+							WriteBufBufWithOffset(ret, inc_buf2);
+
+							FreeBuf(inc_buf);
+							FreeBuf(inc_buf2);
+						}
+						else
+						{
+							Debug("Loading SSI '%s' error.\n", inc_buf);
+						}
+
+						i = (x + StrLen(end_tag) - 1);
+
+						is_ssi = true;
+					}
+				}
+			}
+		}
+
+		if (is_ssi == false)
+		{
+			WriteBufChar(ret, src_str[i]);
+		}
+	}
+
+	Free(src_str);
+
+	return ret;
+}
+
+// Handle the file request
+bool AdminWebHandleFileRequest(ADMIN *a, CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_src, char *query_string, char *virtual_root_dir, char *physical_root_dir)
+{
+	bool ret = false;
+	char url[MAX_PATH];
+	UINT i, len;
+	if (a == NULL || c == NULL || s == NULL || h == NULL || url == NULL || query_string == NULL ||
+		virtual_root_dir == NULL || physical_root_dir == NULL)
+	{
+		return false;
+	}
+
+	StrCpy(url, sizeof(url), url_src);
+
+	len = StrLen(url);
+	for (i = 0;i < len;i++)
+	{
+		if (url[i] == '\\')
+		{
+			url[i] = '/';
+		}
+	}
+
+	// Is dangerous URL?
+	if (InStr(url, "..") || InStr(url, "//") || InStr(url, "\\\\") || InStr(url, "/\\") || InStr(url, "\\/"))
+	{
+		ret = AdminWebSend404Error(s, h);
+	}
+	else
+	{
+		char filename[MAX_PATH];
+		bool is_index_file = false;
+
+		BUF *b = AdminWebTryFindAndReadFile(virtual_root_dir, physical_root_dir, url,
+			filename, sizeof(filename), &is_index_file);
+
+		if (b == NULL)
+		{
+			ret = AdminWebSend404Error(s, h);
+		}
+		else
+		{
+			if (is_index_file && EndWith(url, "/") == false)
+			{
+				char url2[MAX_PATH];
+				StrCpy(url2, sizeof(url2), url);
+				StrCat(url2, sizeof(url2), "/");
+				ret = AdminWebSend302Redirect(s, url2, query_string, h);
+			}
+			else if (is_index_file == false && EndWith(url, "/"))
+			{
+				char url2[MAX_PATH];
+				TrimEndWith(url2, sizeof(url2), url, "/");
+				ret = AdminWebSend302Redirect(s, url2, query_string, h);
+			}
+			else
+			{
+				BUF *b2 = AdminWebProcessServerSideInclude(b, filename, 0);
+				char *mime = GetMimeTypeFromFileName(filename);
+
+				if (mime == NULL)
+				{
+					mime = "application/octet-stream";
+				}
+
+				ret = AdminWebSendBody(s, 200, "OK", b2->Buf, b2->Size, mime, NULL, NULL, h);
+
+				FreeBuf(b2);
+			}
+			FreeBuf(b);
+		}
+	}
+
+	return ret;
+}
+
+// Try to find a file, and if exists return the file contents
+BUF *AdminWebTryFindAndReadFile(char *vroot, char *proot, char *url, char *ret_filename, UINT ret_filename_size, bool *is_index_html)
+{
+	char tmp[MAX_PATH];
+	char tmp2[MAX_PATH];
+	UINT vroot_len;
+	UINT url_len;
+	char relative_path[MAX_PATH];
+	BUF *b;
+	if (vroot == NULL || proot == NULL || url == NULL || ret_filename == NULL || is_index_html == NULL)
+	{
+		return NULL;
+	}
+
+	*is_index_html = false;
+
+	if (StartWith(url, vroot) == false)
+	{
+		return NULL;
+	}
+
+	vroot_len = StrLen(vroot);
+	url_len = StrLen(url);
+
+	StrCpy(relative_path, sizeof(relative_path), url + vroot_len);
+
+	if (StartWith(relative_path, "/"))
+	{
+		char tmp3[MAX_PATH];
+
+		StrCpy(tmp3, sizeof(tmp3), relative_path + 1);
+		StrCpy(relative_path, sizeof(relative_path), tmp3);
+	}
+
+	CombinePath(tmp, sizeof(tmp), proot, relative_path);
+
+	// index.html
+	CombinePath(tmp2, sizeof(tmp2), tmp, "index.html");
+	b = AdminWebTryOneFile(tmp2, ret_filename, ret_filename_size);
+	if (b != NULL)
+	{
+		*is_index_html = true;
+		return b;
+	}
+
+	// dirname/filename
+	StrCpy(tmp2, sizeof(tmp2), tmp);
+	b = AdminWebTryOneFile(tmp2, ret_filename, ret_filename_size);
+	if (b != NULL)
+	{
+		return b;
+	}
+
+	return NULL;
+}
+BUF *AdminWebTryOneFile(char *filename, char *ret_filename, UINT ret_filename_size)
+{
+	BUF *b;
+	if (filename == NULL || ret_filename == NULL)
+	{
+		return NULL;
+	}
+
+	b = ReadDump(filename);
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	StrCpy(ret_filename, ret_filename_size, filename);
+
+	return b;
+}
+
+// Send a 401 Unauthorized error
+bool AdminWebSendUnauthorized(SOCK *s, HTTP_HEADER *http_request_headers)
+{
+	char *http_401_str = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<html><head>\r\n<title>401 Unauthorized</title>\r\n</head><body>\r\n<h1>" CEDAR_SERVER_STR ": Administrative authentication required.</h1>\r\n<p>This VPN Server could not verify that you are authorized to access to the \r\nserver in administrative mode.</p>\r\n<p><strong>For web browser logins:<br></strong>You must supply the HTTP basic \r\nauthentication credential as following.</p>\r\n<ul>\r\n\t<li>To login to the VPN server as the entire server administrator, specify empty or &quot;administrator&quot; as the username field, and specify the server administrative \r\n\tpassword as the password field.<br></li>\r\n\t<li>To login to a particular Virtual Hub as the hub administrator, specify \r\n\tthe hub name as the username field, and specify the hub administrative \r\n\tpassword as the password field.</li>\r\n</ul>\r\n<p><strong>For JSON-RPC client logins:<br></strong>Instead to HTTP basic \r\nauthentication, you can also specify the HTTP header parameters as following.</p>\r\n<ul>\r\n\t<li>X-VPNADMIN-HUBNAME: Empty to login to the VPN Server as the entire \r\n\tserver administrator, or specify the target Virtual Hub name as the hub \r\n\tadministrator.</li>\r\n\t<li>X-VPNADMIN-PASSWORD: Specify the administrative password.</li>\r\n</ul>\r\n</body></html>\r\n";
+	bool ret;
+	// Validate arguments
+	if (s == NULL || http_request_headers == NULL)
+	{
+		return false;
+	}
+
+	// Creating a Data
+	ret = AdminWebSendBody(s, 401, "Unauthorized", http_401_str, StrLen(http_401_str), HTTP_CONTENT_TYPE,
+		"WWW-Authenticate",
+		"Basic realm=\"Username 'administrator' for entire VPN Server privilege, or specify Virtual Hub name as the username for specified Virtual Hub administrative privilege.\"",
+		http_request_headers);
+
+	return ret;
+}
+
+// Send reply
+bool AdminWebSendBody(SOCK *s, UINT status_code, char *status_string, UCHAR *data, UINT data_size, char *content_type, char *add_header_name, char *add_header_value,
+					  HTTP_HEADER *request_headers)
+{
+	HTTP_HEADER *h;
+	char date_str[MAX_SIZE];
+	char error_code_str[16];
+	bool ret = false;
+	HTTP_VALUE *origin;
+	if (s == NULL || status_string == NULL || (data_size != 0 && data == NULL) || request_headers == NULL)
+	{
+		return false;
+	}
+	if (content_type == NULL)
+	{
+		content_type = "text/html; charset=utf-8";
+	}
+
+	ToStr(error_code_str, status_code);
+	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
+
+	h = NewHttpHeader("HTTP/1.1", error_code_str, status_string);
+
+	if (StrCmpi(request_headers->Method, "OPTIONS") == 0)
+	{
+		AddHttpValue(h, NewHttpValue("Allow", "OPTIONS, GET, POST"));
+	}
+
+	AddHttpValue(h, NewHttpValue("Cache-Control", "no-cache"));
+	AddHttpValue(h, NewHttpValue("Content-Type", content_type));
+	AddHttpValue(h, NewHttpValue("Date", date_str));
+	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
+	AddHttpValue(h, NewHttpValue("Access-Control-Allow-Methods", "OPTIONS,GET,POST"));
+	AddHttpValue(h, NewHttpValue("Access-Control-Allow-Headers", "X-VPNADMIN-HUBNAME,X-VPNADMIN-PASSWORD"));
+	AddHttpValue(h, NewHttpValue("Access-Control-Allow-Credentials", "true"));
+
+	origin = GetHttpValue(request_headers, "Origin");
+	if (origin != NULL)
+	{
+		AddHttpValue(h, NewHttpValue("Access-Control-Allow-Origin", origin->Data));
+	}
+
+	if (add_header_name != NULL && add_header_value != NULL)
+	{
+		AddHttpValue(h, NewHttpValue(add_header_name, add_header_value));
+	}
+
+	ret = PostHttp(s, h, data, data_size);
+
+	FreeHttpHeader(h);
+
+	return ret;
+}
+
+// Send 404 error
+bool AdminWebSend404Error(SOCK *s, HTTP_HEADER *request_headers)
+{
+	char *body = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL was not found on this server.</p></body></html>\r\n";
+	if (s == NULL || request_headers == NULL)
+	{
+		return false;
+	}
+
+	return AdminWebSendBody(s, 404, "Not Found", body, StrLen(body), NULL, NULL, NULL, request_headers);
+}
+
+// Send 302 redirect
+bool AdminWebSend302Redirect(SOCK *s, char *url, char *query_string, HTTP_HEADER *request_headers)
+{
+	bool ret = false;
+	char *txt;
+	UINT txt_size;
+	char *url2;
+	UINT url2_size;
+	char *body = "<html><head><title>Object moved</title></head><body>\r\n<h2>Object moved to <a href=\"$URL$\">here</a>.</h2>\r\n</body></html>";
+	if (s == NULL || url == NULL || request_headers == NULL)
+	{
+		return false;
+	}
+
+	url2_size = (StrSize(url) + StrSize(query_string) + MAX_SIZE) * 2;
+	url2 = ZeroMalloc(url2_size);
+
+	StrCpy(url2, url2_size, url);
+	if (IsEmptyStr(query_string) == false)
+	{
+		StrCat(url2, url2_size, "?");
+		StrCat(url2, url2_size, query_string);
+	}
+
+	txt_size = (StrSize(body) + StrSize(url2) + MAX_SIZE) * 2;
+	txt = ZeroMalloc(txt_size);
+
+	ReplaceStrEx(txt, txt_size, body, "$URL$", url2, false);
+
+	ret = AdminWebSendBody(s, 302, "Found", txt, StrLen(txt), NULL, "Location", url2, request_headers);
+
+	Free(txt);
+
+	Free(url2);
+
+	return ret;
+}
+
+// "/admin" web page POST handler
+void AdminWebProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size, char *url_target)
+{
+	ADMIN *a;
+	UCHAR *data;
+	char url[MAX_PATH];
+	char query_string[MAX_SIZE];
+	UINT i;
+	if (c == NULL || s == NULL || h == NULL || url_target == NULL)
+	{
+		return;
+	}
+
+	a = JsonRpcAuthLogin(c->Cedar, s, h);
+	if (a == NULL)
+	{
+		RecvAllWithDiscard(s, post_data_size, s->SecureMode);
+		AdminWebSendUnauthorized(s, h);
+		return;
+	}
+
+	if (post_data_size > a->MaxJsonRpcRecvSize)
+	{
+		Disconnect(s);
+		return;
+	}
+
+	data = ZeroMalloc(post_data_size + 1);
+
+	if (RecvAll(s, data, post_data_size, s->SecureMode))
+	{
+		c->JsonRpcAuthed = true;
+#ifndef	GC_SOFTETHER_OSS
+		RemoveDosEntry(c->Listener, s);
+#endif	// GC_SOFTETHER_OSS
+
+		// Divide url_target into URL and query string
+		StrCpy(url, sizeof(url), url_target);
+		Zero(query_string, sizeof(query_string));
+		i = SearchStr(url, "?", 0);
+		if (i != INFINITE)
+		{
+			StrCpy(query_string, sizeof(query_string), url + i + 1);
+			url[i] = 0;
+		}
+
+		AdminWebHandleFileRequest(a, c, s, h, url, query_string, "/admin", "|wwwroot/admin");
+	}
+
+	Free(data);
+	Free(a);
+}
+
+// "/admin" web page GET handler
+void AdminWebProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
+{
+	ADMIN *a;
+	char url[MAX_PATH];
+	char query_string[MAX_SIZE];
+	UINT i;
+	if (c == NULL || s == NULL || h == NULL || url_target == NULL)
+	{
+		return;
+	}
+
+	a = JsonRpcAuthLogin(c->Cedar, s, h);
+	if (a == NULL)
+	{
+		AdminWebSendUnauthorized(s, h);
+		return;
+	}
+
+	c->JsonRpcAuthed = true;
+#ifndef	GC_SOFTETHER_OSS
+	RemoveDosEntry(c->Listener, s);
+#endif	// GC_SOFTETHER_OSS
+
+	// Divide url_target into URL and query string
+	StrCpy(url, sizeof(url), url_target);
+	Zero(query_string, sizeof(query_string));
+	i = SearchStr(url, "?", 0);
+	if (i != INFINITE)
+	{
+		StrCpy(query_string, sizeof(query_string), url + i + 1);
+		url[i] = 0;
+	}
+
+	AdminWebHandleFileRequest(a, c, s, h, url, query_string, "/admin", "|wwwroot/admin");
+
+	Free(a);
+}
+
+// New JSON-RPC Result
+JSON_VALUE *JsonRpcNewResponse(PACK *p)
+{
+	JSON_VALUE *jv;
+	JSON_OBJECT *jo;
+	JSON_VALUE *jv2;
+
+	if (p == NULL)
+	{
+		return NULL;
+	}
+
+	jv = JsonNewObject();
+	jo = JsonValueGetObject(jv);
+
+	jv2 = PackToJson(p);
+
+	JsonSet(jo, "result", jv2);
+
+	return jv;
+}
+
+// New JSON-RPC Error
+JSON_VALUE *JsonRpcNewError(int code, wchar_t *message)
+{
+	wchar_t msg[MAX_PATH];
+	JSON_VALUE *jv;
+	JSON_OBJECT *jo;
+	JSON_VALUE *jv2;
+	JSON_OBJECT *jo2;
+
+	if (UniIsEmptyStr(message))
+	{
+		UniFormat(msg, sizeof(msg), L"Error code %u", code);
+	}
+	else
+	{
+		UniFormat(msg, sizeof(msg), L"Error code %u: %s", code, message);
+	}
+
+	jv = JsonNewObject();
+	jo = JsonValueGetObject(jv);
+
+	jv2 = JsonNewObject();
+	jo2 = JsonValueGetObject(jv2);
+
+	JsonSet(jo, "error", jv2);
+
+	JsonSetNumber(jo2, "code", (UINT64)code);
+	JsonSetUniStr(jo2, "message", msg);
+
+	return jv;
+}
+
+// JSON-RPC process request object
+JSON_VALUE *JsonRpcProcRequestObject(ADMIN *admin, CONNECTION *c, SOCK *s, JSON_VALUE *json_req, char *method_name)
+{
+	PACK *pack_request;
+	JSON_VALUE *ret = NULL;
+	if (c == NULL || s == NULL || json_req == NULL || admin == NULL)
+	{
+		return NULL;
+	}
+
+	pack_request = JsonToPack(json_req);
+
+	PackAddStr(pack_request, "function_name", method_name);
+
+	if (pack_request != NULL)
+	{
+		RPC *rpc;
+		PACK *pack_response;
+		UINT err;
+
+		// RPC Server
+		rpc = StartRpcServer(s, AdminDispatch, admin);
+
+		admin->Rpc = rpc;
+
+		pack_response = CallRpcDispatcher(rpc, pack_request);
+
+		if (pack_response == NULL)
+		{
+			pack_response = PackError(ERR_NOT_SUPPORTED);
+		}
+
+		RpcFreeEx(rpc, true);
+
+		FreePack(pack_request);
+
+		// Construct response object
+		err = GetErrorFromPack(pack_response);
+		if (err != 0)
+		{
+			// Return the error
+			ret = JsonRpcNewError(err, _E(err));
+		}
+		else
+		{
+			// Return the PACK
+			ret = JsonRpcNewResponse(pack_response);
+		}
+
+		SLog(admin->Server->Cedar, "LS_API_RPC_CALL",
+			&s->RemoteIP, s->RemotePort, s->RemoteHostname,
+			method_name, err, _E(err));
+
+		FreePack(pack_response);
+	}
+
+	return ret;
+}
+
+// JSON-RPC HTTP user authentication
+bool HttpParseBasicAuthHeader(HTTP_HEADER *h, char *username, UINT username_size, char *password, UINT password_size)
+{
+	bool ret = false;
+	HTTP_VALUE *auth_value;
+	HTTP_VALUE *vpnadmin_hubname;
+	HTTP_VALUE *vpnadmin_password;
+	if (h == NULL || username == NULL || password == NULL)
+	{
+		return false;
+	}
+
+	auth_value = GetHttpValue(h, "Authorization");
+	vpnadmin_hubname = GetHttpValue(h, "X-VPNADMIN-HUBNAME");
+	vpnadmin_password = GetHttpValue(h, "X-VPNADMIN-PASSWORD");
+
+	if (vpnadmin_password != NULL)
+	{
+		if (vpnadmin_hubname == NULL)
+		{
+			StrCpy(username, username_size, "");
+		}
+		else
+		{
+			StrCpy(username, username_size, vpnadmin_hubname->Data);
+		}
+
+		StrCpy(password, password_size, vpnadmin_password->Data);
+
+		ret = true;
+	}
+
+	if (ret == false && auth_value != NULL)
+	{
+		char key[32], value[MAX_SIZE];
+
+		if (GetKeyAndValue(auth_value->Data, key, sizeof(key), value, sizeof(value), " \t"))
+		{
+			if (StrCmpi(key, "Basic") == 0 && IsEmptyStr(value) == false)
+			{
+				UINT b64_dest_size = StrSize(value) * 2 + 256;
+				char *b64_dest = ZeroMalloc(b64_dest_size);
+
+				Decode64(b64_dest, value);
+
+				if (IsEmptyStr(b64_dest) == false)
+				{
+					if (b64_dest[0] == ':')
+					{
+						// Empty username
+						StrCpy(username, username_size, "");
+						StrCpy(password, password_size, b64_dest + 1);
+						ret = true;
+					}
+					else
+					{
+						if (GetKeyAndValue(b64_dest, username, username_size, password, password_size, ":"))
+						{
+							ret = true;
+						}
+					}
+				}
+
+				Free(b64_dest);
+			}
+		}
+	}
+
+	return ret;
+}
+
+// JSON-RPC Login
+ADMIN *JsonRpcAuthLogin(CEDAR *c, SOCK *sock, HTTP_HEADER *h)
+{
+	ADMIN *a = NULL;
+	char username[MAX_HUBNAME_LEN + 1];
+	char password[MAX_PASSWORD_LEN + 1];
+	SERVER *s;
+	char empty_pw_hash[SHA1_SIZE];
+
+	if (c == NULL || h == NULL || sock == NULL)
+	{
+		return NULL;
+	}
+
+	s = c->Server;
+
+	HashAdminPassword(empty_pw_hash, "");
+
+	Zero(username, sizeof(username));
+	Zero(password, sizeof(password));
+
+	if (HttpParseBasicAuthHeader(h, username, sizeof(username), password, sizeof(password)))
+	{
+		char pw_hash[SHA1_SIZE];
+		bool is_server_admin = false;
+		bool is_hub_admin = false;
+		char hub_name[MAX_HUBNAME_LEN + 1];
+
+		HashAdminPassword(pw_hash, password);
+
+		Zero(hub_name, sizeof(hub_name));
+
+		// Check if the server administrator password is empty. If yes, login always success.
+		if (Cmp(s->HashedPassword, empty_pw_hash, SHA1_SIZE) == 0)
+		{
+			is_server_admin = true;
+		}
+		else
+		{
+			if (IsEmptyStr(username) || StrCmpi(username, ADMINISTRATOR_USERNAME) == 0)
+			{
+				// If the username is empty or 'administrator', verify with the server admin password.
+				if (Cmp(s->HashedPassword, pw_hash, SHA1_SIZE) == 0)
+				{
+					is_server_admin = true;
+				}
+			}
+		}
+
+		if (is_server_admin == false)
+		{
+			HUB *h;
+			// Hub admin mode
+			LockHubList(c);
+			{
+				h = GetHub(c, username);
+			}
+			UnlockHubList(c);
+
+			if (h != NULL)
+			{
+				Lock(h->lock);
+				{
+					if (Cmp(pw_hash, h->HashedPassword, SHA1_SIZE) == 0)
+					{
+						is_hub_admin = true;
+
+						StrCpy(hub_name, sizeof(hub_name), h->Name);
+					}
+				}
+				Unlock(h->lock);
+
+				ReleaseHub(h);
+			}
+		}
+
+		if (is_server_admin || is_hub_admin)
+		{
+			if (CheckAdminSourceAddress(sock, hub_name))
+			{
+				a = ZeroMalloc(sizeof(ADMIN));
+
+				a->Server = s;
+				a->ServerAdmin = is_server_admin;
+				a->ClientBuild = c->Build;
+
+				if (is_hub_admin)
+				{
+					StrCpy(a->dummy1, sizeof(a->dummy1), hub_name);
+					a->HubName = a->dummy1;
+				}
+			}
+		}
+	}
+
+	if (a != NULL)
+	{
+		char admin_mode[256];
+		if (a->ServerAdmin)
+		{
+			a->MaxJsonRpcRecvSize = ADMIN_RPC_MAX_POST_SIZE_BY_SERVER_ADMIN;
+		}
+		else
+		{
+			a->MaxJsonRpcRecvSize = ADMIN_RPC_MAX_POST_SIZE_BY_HUB_ADMIN;
+		}
+
+		if (IsEmptyStr(a->HubName))
+		{
+			StrCpy(admin_mode, sizeof(admin_mode),
+				"Entire VPN Server Admin Mode");
+		}
+		else
+		{
+			Format(admin_mode, sizeof(admin_mode),
+				"Virtual Hub Admin Mode for '%s'",
+				a->HubName);
+		}
+
+		SLog(s->Cedar, "LS_API_AUTH_OK",
+			&sock->RemoteIP, sock->RemotePort, sock->RemoteHostname,
+			admin_mode, username, h->Method, h->Target);
+	}
+	else
+	{
+		SLog(s->Cedar, "LS_API_AUTH_ERROR",
+			&sock->RemoteIP, sock->RemotePort, sock->RemoteHostname,
+			username, h->Method, h->Target);
+	}
+
+
+	return a;
+}
+
+// Query string to JSON list value
+JSON_VALUE *QueryStringToJsonListValue(char *qs)
+{
+	TOKEN_LIST *t;
+	UINT i;
+	LIST *distinct_list = NULL;
+	JSON_VALUE *v = NULL;
+	JSON_OBJECT *o = NULL;
+	if (qs == NULL)
+	{
+		return NULL;
+	}
+
+	t = ParseTokenWithoutNullStr(qs, "&");
+	if (t == NULL)
+	{
+		return NULL;
+	}
+
+	distinct_list = NewStrList();
+
+	v = JsonNewObject();
+	o = JsonValueGetObject(v);
+
+	for (i = 0;i < t->NumTokens;i++)
+	{
+		char *token = t->Token[i];
+		UINT pos;
+
+		pos = SearchStr(token, "=", 0);
+		if (pos != INFINITE)
+		{
+			char *key_decoded;
+			char *value_decoded;
+			char *key = CopyStr(token);
+			char *value = CopyStr(token + pos + 1);
+
+			key[pos] = 0;
+			key_decoded = UrlDecode(key);
+			value_decoded = UrlDecode(value);
+
+			if (key_decoded != NULL && value_decoded != NULL)
+			{
+				if (AddStrToStrListDistinct(distinct_list, key_decoded))
+				{
+					JsonSetStr(o, key_decoded, value_decoded);
+				}
+			}
+
+			Free(value_decoded);
+			Free(key_decoded);
+			Free(key);
+			Free(value);
+		}
+	}
+
+	FreeToken(t);
+
+	FreeStrList(distinct_list);
+
+	return v;
+}
+
+// Construct new JSON-RPC dummy request
+JSON_VALUE *ConstructDummyJsonRpcRequest(char *method_name, JSON_VALUE *p)
+{
+	JSON_VALUE *ret;
+	JSON_OBJECT *ret_object;
+	UCHAR rand[16];
+	char id_str[64];
+
+	Rand(rand, sizeof(rand));
+
+	BinToStr(id_str, sizeof(id_str), rand, sizeof(rand));
+
+	ret = JsonNewObject();
+	ret_object = JsonObject(ret);
+
+	JsonSetStr(ret_object, "jsonrpc", "2.0");
+	JsonSetStr(ret_object, "method", method_name);
+	JsonSet(ret_object, "params", p);
+	JsonSetStr(ret_object, "id", id_str);
+
+	return ret;
+}
+
+// JSON-RPC Options Dispatch
+void JsonRpcProcOptions(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
+{
+	if (c == NULL || s == NULL || h == NULL || url_target == NULL)
+	{
+		return;
+	}
+
+	c->JsonRpcAuthed = true;
+
+#ifndef	GC_SOFTETHER_OSS
+	RemoveDosEntry(c->Listener, s);
+#endif	// GC_SOFTETHER_OSS
+
+	AdminWebSendBody(s, 200, "OK", NULL, 0, NULL, NULL, NULL, h);
+}
+
+// JSON-RPC GET Dispatch
+void JsonRpcProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
+{
+	ADMIN *a;
+	char url[MAX_PATH];
+	char query_string[MAX_SIZE];
+	UINT i;
+	bool reply_sent = false;
+	if (c == NULL || s == NULL || h == NULL || url_target == NULL)
+	{
+		return;
+	}
+
+	a = JsonRpcAuthLogin(c->Cedar, s, h);
+	if (a == NULL)
+	{
+		AdminWebSendUnauthorized(s, h);
+		return;
+	}
+
+	c->JsonRpcAuthed = true;
+
+#ifndef	GC_SOFTETHER_OSS
+	RemoveDosEntry(c->Listener, s);
+#endif	// GC_SOFTETHER_OSS
+
+	// Divide url_target into URL and query string
+	StrCpy(url, sizeof(url), url_target);
+	Zero(query_string, sizeof(query_string));
+	i = SearchStr(url, "?", 0);
+	if (i != INFINITE)
+	{
+		StrCpy(query_string, sizeof(query_string), url + i + 1);
+		url[i] = 0;
+	}
+
+	if (StartWith(url, "/api/"))
+	{
+		// Call a method
+		JSON_VALUE *params_value = NULL;
+		JSON_OBJECT *params_object = NULL;
+		UINT i;
+		char method_name[MAX_PATH];
+
+		StrCpy(method_name, sizeof(method_name), url + 5);
+
+		i = SearchStr(method_name, "/", 0);
+		if (i != INFINITE)
+		{
+			method_name[i] = 0;
+		}
+
+		if (IsEmptyStr(method_name) == false)
+		{
+			// Call a method
+			params_value = QueryStringToJsonListValue(query_string);
+
+			if (params_value != NULL)
+			{
+				JSON_VALUE *json_ret = NULL;
+				char id[96];
+				char *ret_str = NULL;
+
+				GetDateTimeStrMilli64(id, sizeof(id), LocalTime64());
+
+				params_object = JsonObject(params_value);
+
+				// Process the request
+				json_ret = JsonRpcProcRequestObject(a, c, s, params_value, method_name);
+
+				if (json_ret == NULL)
+				{
+					json_ret = JsonRpcNewError(ERR_INTERNAL_ERROR, L"Internal error");
+				}
+
+				JsonSetStr(JsonObject(json_ret), "jsonrpc", "2.0");
+				JsonSetStr(JsonObject(json_ret), "id", id);
+
+				ret_str = JsonToStr(json_ret);
+
+				AdminWebSendBody(s, 200, "OK", ret_str, StrLen(ret_str), "text/plain; charset=UTF-8", NULL, NULL, h);
+
+				Free(ret_str);
+				JsonFree(json_ret);
+				JsonFree(params_value);
+			}
+		}
+	}
+
+
+	if (reply_sent == false)
+	{
+		BUF *html_buf = ReadDump("|vpnserver_api_doc.html");
+
+		if (html_buf != NULL)
+		{
+			AdminWebSendBody(s, 200, "OK", html_buf->Buf, html_buf->Size, "text/html; charset=UTF-8", NULL, NULL, h);
+
+			FreeBuf(html_buf);
+		}
+		else
+		{
+			AdminWebSend404Error(s, h);
+		}
+	}
+
+	if (a->LogFileList != NULL)
+	{
+		FreeEnumLogFile(a->LogFileList);
+	}
+	Free(a);
+}
+
+// JSON-RPC POST Dispatch
+void JsonRpcProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size)
+{
+	ADMIN *a;
+	UCHAR *data;
+	if (c == NULL || s == NULL || h == NULL)
+	{
+		return;
+	}
+
+	a = JsonRpcAuthLogin(c->Cedar, s, h);
+	if (a == NULL)
+	{
+		RecvAllWithDiscard(s, post_data_size, s->SecureMode);
+		AdminWebSendUnauthorized(s, h);
+		return;
+	}
+
+	if (post_data_size > a->MaxJsonRpcRecvSize)
+	{
+		Disconnect(s);
+		return;
+	}
+
+	data = ZeroMalloc(post_data_size + 1);
+
+	if (RecvAll(s, data, post_data_size, s->SecureMode))
+	{
+		// Parse JSON
+		JSON_VALUE *json_req = StrToJson(data);
+		JSON_OBJECT *json_req_object = JsonObject(json_req);
+		JSON_VALUE *json_ret = NULL;
+		char *res = NULL;
+		char *request_id = NULL;
+		char *method_name = NULL;
+
+		c->JsonRpcAuthed = true;
+
+#ifndef	GC_SOFTETHER_OSS
+		RemoveDosEntry(c->Listener, s);
+#endif	// GC_SOFTETHER_OSS
+
+		if (json_req == NULL || json_req_object == NULL)
+		{
+			// Parse error
+			json_ret = JsonRpcNewError(ERR_INVALID_PARAMETER, L"Parameter is invalid: JSON-RPC Parse Error");
+		}
+		else
+		{
+			// check the JSON-RPC version
+			char *ver_str = JsonGetStr(json_req_object, "jsonrpc");
+			if (StrCmpi(ver_str, "2.0") != 0)
+			{
+				// Invalid version
+				json_ret = JsonRpcNewError(ERR_INVALID_PARAMETER, L"JSON-RPC version is invalid");
+			}
+			else
+			{
+				JSON_VALUE *params_value = NULL;
+				JSON_OBJECT *params_object = NULL;
+
+				// Get Request ID
+				request_id = JsonGetStr(json_req_object, "id");
+
+				// Get method name
+				method_name = JsonGetStr(json_req_object, "method");
+
+				// Get parameters
+				params_value = JsonGet(json_req_object, "params");
+				params_object = JsonObject(params_value);
+
+				if (IsEmptyStr(method_name))
+				{
+					// method is empty
+					json_ret = JsonRpcNewError(ERR_INVALID_PARAMETER, L"JSON-RPC method name is empty");
+				}
+				else if (params_value == NULL || params_object == NULL)
+				{
+					// params is empty
+					json_ret = JsonRpcNewError(ERR_INVALID_PARAMETER, L"JSON-RPC parameter is empty");
+				}
+				else
+				{
+					// Process the request
+					json_ret = JsonRpcProcRequestObject(a, c, s, params_value, method_name);
+				}
+			}
+		}
+
+		if (json_ret == NULL)
+		{
+			json_ret = JsonRpcNewError(ERR_INTERNAL_ERROR, L"Internal error");
+		}
+
+		JsonSetStr(JsonObject(json_ret), "jsonrpc", "2.0");
+		if (request_id == NULL)
+		{
+			request_id = "0";
+		}
+		JsonSetStr(JsonObject(json_ret), "id", request_id);
+
+		res = JsonToStr(json_ret);
+
+		AdminWebSendBody(s, 200, "OK", res, StrLen(res), "application/json", NULL, NULL, h);
+
+		Free(res);
+
+		JsonFree(json_ret);
+		JsonFree(json_req);
+	}
+
+	Free(data);
+
+	if (a->LogFileList != NULL)
+	{
+		FreeEnumLogFile(a->LogFileList);
+	}
+	Free(a);
+}
+
 // Dispatch routine for Administration RPC 
 PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 {
@@ -1794,8 +2945,20 @@ UINT StReadLogFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 	// Check the permission to read the log file
 	if (a->LogFileList == NULL)
 	{
-		// Cache not found
-		return ERR_OBJECT_NOT_FOUND;
+		// Enum the log files first
+		RPC_ENUM_LOG_FILE elf;
+		UINT elf_ret;
+
+		Zero(&elf, sizeof(elf));
+
+		elf_ret = StEnumLogFile(a, &elf);
+
+		FreeRpcEnumLogFile(&elf);
+
+		if (elf_ret != ERR_NO_ERROR)
+		{
+			return elf_ret;
+		}
 	}
 	if (CheckLogFileNameFromEnumList(a->LogFileList, logfilename, servername) == false)
 	{
@@ -1859,6 +3022,10 @@ UINT StReadLogFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 	{
 		ALog(a, NULL, "LA_READ_LOG_FILE", servername, logfilename);
 	}
+
+	StrCpy(t->FilePath, sizeof(t->FilePath), logfilename);
+	StrCpy(t->ServerName, sizeof(t->ServerName), servername);
+	t->Offset = offset;
 
 	return ERR_NO_ERROR;
 }
@@ -2150,7 +3317,7 @@ UINT StSetCrl(ADMIN *a, RPC_CRL *t)
 
 					if (crl == NULL)
 					{
-						ret = ERR_INTERNAL_ERROR;
+						ret = ERR_OBJECT_NOT_FOUND;
 					}
 					else
 					{
@@ -2219,7 +3386,7 @@ UINT StGetCrl(ADMIN *a, RPC_CRL *t)
 
 				if (crl == NULL)
 				{
-					ret = ERR_INTERNAL_ERROR;
+					ret = ERR_OBJECT_NOT_FOUND;
 				}
 				else
 				{
@@ -2279,7 +3446,7 @@ UINT StDelCrl(ADMIN *a, RPC_CRL *t)
 
 					if (crl == NULL)
 					{
-						ret = ERR_INTERNAL_ERROR;
+						ret = ERR_OBJECT_NOT_FOUND;
 					}
 					else
 					{
@@ -3176,6 +4343,7 @@ UINT StGetHubAdminOptions(ADMIN *a, RPC_ADMIN_OPTION *t)
 
 			StrCpy(e->Name, sizeof(e->Name), a->Name);
 			e->Value = a->Value;
+			UniStrCpy(e->Descrption, sizeof(e->Descrption), GetHubAdminOptionHelpString(e->Name));
 		}
 	}
 	UnlockList(h->AdminOptionList);
@@ -3208,6 +4376,7 @@ UINT StGetDefaultHubAdminOptions(ADMIN *a, RPC_ADMIN_OPTION *t)
 
 		StrCpy(a->Name, sizeof(a->Name), admin_options[i].Name);
 		a->Value = admin_options[i].Value;
+		UniStrCpy(a->Descrption, sizeof(a->Descrption), GetHubAdminOptionHelpString(a->Name));
 	}
 
 	return ERR_NO_ERROR;
@@ -3712,6 +4881,7 @@ UINT SiEnumIpTable(SERVER *s, char *hubname, RPC_ENUM_IP_TABLE *t)
 			StrCpy(e->SessionName, sizeof(e->SessionName), table->Session->Name);
 			e->Ip = IPToUINT(&table->Ip);
 			Copy(&e->IpV6, &table->Ip, sizeof(IP));
+			Copy(&e->IpAddress, &table->Ip, sizeof(IP));
 			e->DhcpAllocated = table->DhcpAllocated;
 			e->CreatedTime = TickToTime(table->CreatedTime);
 			e->UpdatedTime = TickToTime(table->UpdatedTime);
@@ -4162,6 +5332,8 @@ UINT StGetSessionStatus(ADMIN *a, RPC_SESSION_STATUS *t)
 				{
 					Copy(&t->ClientIp6, &s->Connection->ClientIp.ipv6_addr, sizeof(t->ClientIp6));
 				}
+
+				CopyIP(&t->ClientIpAddress, &s->Connection->ClientIp);
 
 				StrCpy(t->ClientHostName, sizeof(t->ClientHostName), s->Connection->ClientHostname);
 			}
@@ -5324,31 +6496,34 @@ UINT StSetAccessList(ADMIN *a, RPC_ENUM_ACCESS_LIST *t)
 	{
 		UINT i;
 
-		// Confirm whether the access list of form which cannot handle by the old client already exists
-		if (a->ClientBuild < 6560)
+		if (a->ClientBuild != 0)
 		{
-			for (i = 0;i < LIST_NUM(h->AccessList);i++)
+			// Confirm whether the access list of form which cannot handle by the old client already exists
+			if (a->ClientBuild < 6560)
 			{
-				ACCESS *access = LIST_DATA(h->AccessList, i);
-				if (access->IsIPv6 ||
-					access->Jitter != 0 || access->Loss != 0 || access->Delay != 0)
+				for (i = 0;i < LIST_NUM(h->AccessList);i++)
 				{
-					ret = ERR_VERSION_INVALID;
-					break;
+					ACCESS *access = LIST_DATA(h->AccessList, i);
+					if (access->IsIPv6 ||
+						access->Jitter != 0 || access->Loss != 0 || access->Delay != 0)
+					{
+						ret = ERR_VERSION_INVALID;
+						break;
+					}
 				}
 			}
-		}
 
-		if (a->ClientBuild < 8234)
-		{
-			for (i = 0;i < LIST_NUM(h->AccessList);i++)
+			if (a->ClientBuild < 8234)
 			{
-				ACCESS *access = LIST_DATA(h->AccessList, i);
-
-				if (IsEmptyStr(access->RedirectUrl) == false)
+				for (i = 0;i < LIST_NUM(h->AccessList);i++)
 				{
-					ret = ERR_VERSION_INVALID;
-					break;
+					ACCESS *access = LIST_DATA(h->AccessList, i);
+
+					if (IsEmptyStr(access->RedirectUrl) == false)
+					{
+						ret = ERR_VERSION_INVALID;
+						break;
+					}
 				}
 			}
 		}
@@ -6449,6 +7624,7 @@ UINT StGetCa(ADMIN *a, RPC_HUB_GET_CA *t)
 
 	FreeRpcHubGetCa(t);
 	Zero(t, sizeof(RPC_HUB_GET_CA));
+	t->Key = key;
 	StrCpy(t->HubName, sizeof(t->HubName), hubname);
 
 	CHECK_RIGHT;
@@ -7044,6 +8220,7 @@ UINT StGetSecureNATStatus(ADMIN *a, RPC_NAT_STATUS *t)
 
 	ReleaseHub(h);
 
+	StrCpy(t->HubName, sizeof(t->HubName), hubname);
 	ret = ERR_NO_ERROR;
 
 	return ret;
@@ -7895,6 +9072,13 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 		return ERR_NOT_SUPPORTED;
 	}
 
+	// For JSON-RPC
+	if (StrLen(t->AdminPasswordPlainText) != 0)
+	{
+		Sha0(t->HashedPassword, t->AdminPasswordPlainText, StrLen(t->AdminPasswordPlainText));
+		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText);
+	}
+
 	if (IsZero(t->HashedPassword, sizeof(t->HashedPassword)) == false &&
 		IsZero(t->SecurePassword, sizeof(t->SecurePassword)) == false)
 	{
@@ -8064,6 +9248,15 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 	}
 
 	ALog(a, NULL, "LA_CREATE_HUB", t->HubName);
+
+	// For JSON-RPC
+	if ((IsZero(t->HashedPassword, sizeof(t->HashedPassword)) &&
+		IsZero(t->SecurePassword, sizeof(t->SecurePassword))) ||
+		StrLen(t->AdminPasswordPlainText) != 0)
+	{
+		Sha0(t->HashedPassword, t->AdminPasswordPlainText, StrLen(t->AdminPasswordPlainText));
+		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText);
+	}
 
 	h = NewHub(c, t->HubName, &o);
 	Copy(h->HashedPassword, t->HashedPassword, SHA1_SIZE);
@@ -8518,6 +9711,11 @@ UINT StSetServerPassword(ADMIN *a, RPC_SET_PASSWORD *t)
 {
 	SERVER_ADMIN_ONLY;
 
+	if (IsZero(t->HashedPassword, sizeof(t->HashedPassword)))
+	{
+		// For JSON-RPC
+		HashAdminPassword(t->HashedPassword, t->PlainTextPassword);
+	}
 
 	Copy(a->Server->HashedPassword, t->HashedPassword, SHA1_SIZE);
 
@@ -8887,6 +10085,8 @@ void InDDnsClientStatus(DDNS_CLIENT_STATUS *t, PACK *p)
 	PackGetStr(p, "DnsSuffix", t->DnsSuffix, sizeof(t->DnsSuffix));
 	PackGetStr(p, "CurrentIPv4", t->CurrentIPv4, sizeof(t->CurrentIPv4));
 	PackGetStr(p, "CurrentIPv6", t->CurrentIPv6, sizeof(t->CurrentIPv6));
+	PackGetUniStr(p, "ErrStr_IPv4", t->ErrStr_IPv4, sizeof(t->ErrStr_IPv4));
+	PackGetUniStr(p, "ErrStr_IPv6", t->ErrStr_IPv6, sizeof(t->ErrStr_IPv6));
 }
 void OutDDnsClientStatus(PACK *p, DDNS_CLIENT_STATUS *t)
 {
@@ -8903,6 +10103,8 @@ void OutDDnsClientStatus(PACK *p, DDNS_CLIENT_STATUS *t)
 	PackAddStr(p, "DnsSuffix", t->DnsSuffix);
 	PackAddStr(p, "CurrentIPv4", t->CurrentIPv4);
 	PackAddStr(p, "CurrentIPv6", t->CurrentIPv6);
+	PackAddUniStr(p, "ErrStr_IPv4", t->ErrStr_IPv4);
+	PackAddUniStr(p, "ErrStr_IPv6", t->ErrStr_IPv6);
 }
 
 // INTERNET_SETTING
@@ -9056,6 +10258,7 @@ void OutRpcEnumEtherIpId(PACK *p, RPC_ENUM_ETHERIP_ID *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "Settings");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		ETHERIP_ID *e = &t->IdList[i];
@@ -9065,6 +10268,7 @@ void OutRpcEnumEtherIpId(PACK *p, RPC_ENUM_ETHERIP_ID *t)
 		PackAddStrEx(p, "UserName", e->UserName, i, t->NumItem);
 		PackAddStrEx(p, "Password", e->Password, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumEtherIpId(RPC_ENUM_ETHERIP_ID *t)
 {
@@ -9235,6 +10439,7 @@ void OutRpcEnumEthVLan(PACK *p, RPC_ENUM_ETH_VLAN *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "Devices");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_ETH_VLAN_ITEM *e = &t->Items[i];
@@ -9247,6 +10452,7 @@ void OutRpcEnumEthVLan(PACK *p, RPC_ENUM_ETH_VLAN *t)
 		PackAddBoolEx(p, "Support", e->Support, i, t->NumItem);
 		PackAddBoolEx(p, "Enabled", e->Enabled, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumEthVLan(RPC_ENUM_ETH_VLAN *t)
 {
@@ -9294,6 +10500,7 @@ void OutRpcEnumLogFile(PACK *p, RPC_ENUM_LOG_FILE *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "LogFiles");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_LOG_FILE_ITEM *e = &t->Items[i];
@@ -9301,8 +10508,9 @@ void OutRpcEnumLogFile(PACK *p, RPC_ENUM_LOG_FILE *t)
 		PackAddStrEx(p, "FilePath", e->FilePath, i, t->NumItem);
 		PackAddStrEx(p, "ServerName", e->ServerName, i, t->NumItem);
 		PackAddIntEx(p, "FileSize", e->FileSize, i, t->NumItem);
-		PackAddInt64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumItem);
+		PackAddTime64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumLogFile(RPC_ENUM_LOG_FILE *t)
 {
@@ -9437,12 +10645,13 @@ void InRpcAcList(RPC_AC_LIST *t, PACK *p)
 	o = NewAcList();
 
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
-	num = PackGetInt(p, "NumItem");
+	num = PackGetIndexCount(p, "IpAddress");
 
 	for (i = 0;i < num;i++)
 	{
 		AC *ac = ZeroMalloc(sizeof(AC));
 
+		ac->Id = PackGetIntEx(p, "Id", i);
 		ac->Deny = PackGetBoolEx(p, "Deny", i);
 		PackGetIpEx(p, "IpAddress", &ac->IpAddress, i);
 		ac->Masked = PackGetBoolEx(p, "Masked", i);
@@ -9478,10 +10687,12 @@ void OutRpcAcList(PACK *p, RPC_AC_LIST *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "ACList");
 	for (i = 0;i < num;i++)
 	{
 		AC *ac = LIST_DATA(o, i);
 
+		PackAddIntEx(p, "Id", ac->Id, i, num);
 		PackAddBoolEx(p, "Deny", ac->Deny, i, num);
 		PackAddIpEx(p, "IpAddress", &ac->IpAddress, i, num);
 		PackAddBoolEx(p, "Masked", ac->Masked, i, num);
@@ -9490,6 +10701,7 @@ void OutRpcAcList(PACK *p, RPC_AC_LIST *t)
 
 		PackAddIntEx(p, "Priority", ac->Priority, i, num);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcAcList(RPC_AC_LIST *t)
 {
@@ -9560,6 +10772,7 @@ void OutRpcEnumCrl(PACK *p, RPC_ENUM_CRL *t)
 	PackAddStr(p, "HubName", t->HubName);
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "CRLList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_CRL_ITEM *e = &t->Items[i];
@@ -9567,6 +10780,7 @@ void OutRpcEnumCrl(PACK *p, RPC_ENUM_CRL *t)
 		PackAddIntEx(p, "Key", e->Key, i, t->NumItem);
 		PackAddUniStrEx(p, "CrlInfo", e->CrlInfo, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumCrl(RPC_ENUM_CRL *t)
 {
@@ -9739,6 +10953,7 @@ void OutRpcEnumL3Table(PACK *p, RPC_ENUM_L3TABLE *t)
 	PackAddInt(p, "NumItem", t->NumItem);
 	PackAddStr(p, "Name", t->Name);
 
+	PackSetCurrentJsonGroupName(p, "L3Table");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_L3TABLE *e = &t->Items[i];
@@ -9748,6 +10963,7 @@ void OutRpcEnumL3Table(PACK *p, RPC_ENUM_L3TABLE *t)
 		PackAddIp32Ex(p, "GatewayAddress", e->GatewayAddress, i, t->NumItem);
 		PackAddIntEx(p, "Metric", e->Metric, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumL3Table(RPC_ENUM_L3TABLE *t)
 {
@@ -9821,6 +11037,7 @@ void OutRpcEnumL3If(PACK *p, RPC_ENUM_L3IF *t)
 	PackAddInt(p, "NumItem", t->NumItem);
 	PackAddStr(p, "Name", t->Name);
 
+	PackSetCurrentJsonGroupName(p, "L3IFList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_L3IF *f = &t->Items[i];
@@ -9829,6 +11046,7 @@ void OutRpcEnumL3If(PACK *p, RPC_ENUM_L3IF *t)
 		PackAddIp32Ex(p, "IpAddress", f->IpAddress, i, t->NumItem);
 		PackAddIp32Ex(p, "SubnetMask", f->SubnetMask, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumL3If(RPC_ENUM_L3IF *t)
 {
@@ -9929,6 +11147,7 @@ void OutRpcEnumL3Sw(PACK *p, RPC_ENUM_L3SW *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "L3SWList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_L3SW_ITEM *s = &t->Items[i];
@@ -9939,6 +11158,7 @@ void OutRpcEnumL3Sw(PACK *p, RPC_ENUM_L3SW *t)
 		PackAddBoolEx(p, "Active", s->Active, i, t->NumItem);
 		PackAddBoolEx(p, "Online", s->Online, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumL3Sw(RPC_ENUM_L3SW *t)
 {
@@ -9983,12 +11203,14 @@ void OutRpcEnumEth(PACK *p, RPC_ENUM_ETH *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "EthList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_ETH_ITEM *e = &t->Items[i];
 		PackAddStrEx(p, "DeviceName", e->DeviceName, i, t->NumItem);
 		PackAddUniStrEx(p, "NetworkConnectionName", e->NetworkConnectionName, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumEth(RPC_ENUM_ETH *t)
 {
@@ -10064,6 +11286,7 @@ void OutRpcEnumLocalBridge(PACK *p, RPC_ENUM_LOCALBRIDGE *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "LocalBridgeList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_LOCALBRIDGE *e = &t->Items[i];
@@ -10074,6 +11297,7 @@ void OutRpcEnumLocalBridge(PACK *p, RPC_ENUM_LOCALBRIDGE *t)
 		PackAddBoolEx(p, "Active", e->Active, i, t->NumItem);
 		PackAddBoolEx(p, "TapMode", e->TapMode, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumLocalBridge(RPC_ENUM_LOCALBRIDGE *t)
 {
@@ -10303,8 +11527,11 @@ void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 				StrCpy(e->Name, sizeof(e->Name), s->Name);
 				StrCpy(e->Username, sizeof(e->Username), s->Username);
 				e->Ip = IPToUINT(&s->Connection->ClientIp);
+				CopyIP(&e->ClientIP, &s->Connection->ClientIp);
 				StrCpy(e->Hostname, sizeof(e->Hostname), s->Connection->ClientHostname);
 				e->MaxNumTcp = s->MaxConnection;
+				e->CreatedTime = Tick64ToTime64(s->CreatedTime);
+				e->LastCommTime = Tick64ToTime64(s->LastCommTime);
 				e->LinkMode = s->LinkModeServer;
 				e->SecureNATMode = s->SecureNATMode;
 				e->BridgeMode = s->BridgeMode;
@@ -10400,6 +11627,8 @@ void OutRpcEnumLicenseKey(PACK *p, RPC_ENUM_LICENSE_KEY *t)
 	}
 
 	PackAddInt(p, "NumItem", t->NumItem);
+
+	PackSetCurrentJsonGroupName(p, "LicenseKeyList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_LICENSE_KEY_ITEM *e = &t->Items[i];
@@ -10408,12 +11637,13 @@ void OutRpcEnumLicenseKey(PACK *p, RPC_ENUM_LICENSE_KEY *t)
 		PackAddStrEx(p, "LicenseKey", e->LicenseKey, i, t->NumItem);
 		PackAddStrEx(p, "LicenseId", e->LicenseId, i, t->NumItem);
 		PackAddStrEx(p, "LicenseName", e->LicenseName, i, t->NumItem);
-		PackAddInt64Ex(p, "Expires", e->Expires, i, t->NumItem);
+		PackAddTime64Ex(p, "Expires", e->Expires, i, t->NumItem);
 		PackAddIntEx(p, "Status", e->Status, i, t->NumItem);
 		PackAddIntEx(p, "ProductId", e->ProductId, i, t->NumItem);
 		PackAddInt64Ex(p, "SystemId", e->SystemId, i, t->NumItem);
 		PackAddIntEx(p, "SerialId", e->SerialId, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumLicenseKey(RPC_ENUM_LICENSE_KEY *t)
 {
@@ -10463,17 +11693,17 @@ void OutRpcLicenseStatus(PACK *p, RPC_LICENSE_STATUS *t)
 	PackAddInt(p, "EditionId", t->EditionId);
 	PackAddStr(p, "EditionStr", t->EditionStr);
 	PackAddInt64(p, "SystemId", t->SystemId);
-	PackAddInt64(p, "SystemExpires", t->SystemExpires);
+	PackAddTime64(p, "SystemExpires", t->SystemExpires);
 	PackAddInt(p, "NumClientConnectLicense", t->NumClientConnectLicense);
 	PackAddInt(p, "NumBridgeConnectLicense", t->NumBridgeConnectLicense);
 
 	// v3.0
 	PackAddBool(p, "NeedSubscription", t->NeedSubscription);
 	PackAddBool(p, "AllowEnterpriseFunction", t->AllowEnterpriseFunction);
-	PackAddInt64(p, "SubscriptionExpires", t->SubscriptionExpires);
+	PackAddTime64(p, "SubscriptionExpires", t->SubscriptionExpires);
 	PackAddBool(p, "IsSubscriptionExpired", t->IsSubscriptionExpired);
 	PackAddInt(p, "NumUserCreationLicense", t->NumUserCreationLicense);
-	PackAddInt64(p, "ReleaseDate", t->ReleaseDate);
+	PackAddTime64(p, "ReleaseDate", t->ReleaseDate);
 }
 
 // RPC_ADMIN_OPTION
@@ -10487,7 +11717,7 @@ void InRpcAdminOption(RPC_ADMIN_OPTION *t, PACK *p)
 	}
 
 	Zero(t, sizeof(RPC_ADMIN_OPTION));
-	t->NumItem = PackGetInt(p, "NumItem");
+	t->NumItem = PackGetIndexCount(p, "Name");
 	t->Items = ZeroMalloc(sizeof(ADMIN_OPTION) * t->NumItem);
 
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
@@ -10498,6 +11728,7 @@ void InRpcAdminOption(RPC_ADMIN_OPTION *t, PACK *p)
 
 		PackGetStrEx(p, "Name", o->Name, sizeof(o->Name), i);
 		o->Value = PackGetIntEx(p, "Value", i);
+		PackGetUniStrEx(p, "Descrption", o->Descrption, sizeof(o->Descrption), i);
 	}
 }
 void OutRpcAdminOption(PACK *p, RPC_ADMIN_OPTION *t)
@@ -10513,13 +11744,16 @@ void OutRpcAdminOption(PACK *p, RPC_ADMIN_OPTION *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "AdminOptionList");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		ADMIN_OPTION *o = &t->Items[i];
 
 		PackAddStrEx(p, "Name", o->Name, i, t->NumItem);
 		PackAddIntEx(p, "Value", o->Value, i, t->NumItem);
+		PackAddUniStrEx(p, "Descrption", o->Descrption, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcAdminOption(RPC_ADMIN_OPTION *t)
 {
@@ -10686,7 +11920,7 @@ void OutRpcServerInfo(PACK *p, RPC_SERVER_INFO *t)
 	PackAddInt(p, "ServerBuildInt", t->ServerBuildInt);
 	PackAddStr(p, "ServerHostName", t->ServerHostName);
 	PackAddInt(p, "ServerType", t->ServerType);
-	PackAddInt64(p, "ServerBuildDate", t->ServerBuildDate);
+	PackAddTime64(p, "ServerBuildDate", t->ServerBuildDate);
 	PackAddStr(p, "ServerFamilyName", t->ServerFamilyName);
 	OutRpcOsInfo(p, &t->OsInfo);
 }
@@ -10761,13 +11995,13 @@ void OutRpcServerStatus(PACK *p, RPC_SERVER_STATUS *t)
 	PackAddInt(p, "NumIpTables", t->NumIpTables);
 	PackAddInt(p, "NumUsers", t->NumUsers);
 	PackAddInt(p, "NumGroups", t->NumGroups);
-	PackAddInt64(p, "CurrentTime", t->CurrentTime);
+	PackAddTime64(p, "CurrentTime", t->CurrentTime);
 	PackAddInt64(p, "CurrentTick", t->CurrentTick);
 	PackAddInt(p, "AssignedBridgeLicenses", t->AssignedBridgeLicenses);
 	PackAddInt(p, "AssignedClientLicenses", t->AssignedClientLicenses);
 	PackAddInt(p, "AssignedBridgeLicensesTotal", t->AssignedBridgeLicensesTotal);
 	PackAddInt(p, "AssignedClientLicensesTotal", t->AssignedClientLicensesTotal);
-	PackAddInt64(p, "StartTime", t->StartTime);
+	PackAddTime64(p, "StartTime", t->StartTime);
 
 	OutRpcTraffic(p, &t->Traffic);
 
@@ -10830,12 +12064,14 @@ void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "ListenerList");
 	for (i = 0;i < t->NumPort;i++)
 	{
 		PackAddIntEx(p, "Ports", t->Ports[i], i, t->NumPort);
 		PackAddBoolEx(p, "Enables", t->Enables[i], i, t->NumPort);
 		PackAddBoolEx(p, "Errors", t->Errors[i], i, t->NumPort);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcListenerList(RPC_LISTENER_LIST *t)
 {
@@ -10904,6 +12140,7 @@ void InRpcSetPassword(RPC_SET_PASSWORD *t, PACK *p)
 
 	Zero(t, sizeof(RPC_SET_PASSWORD));
 	PackGetData2(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
+	PackGetStr(p, "PlainTextPassword", t->PlainTextPassword, sizeof(t->PlainTextPassword));
 }
 void OutRpcSetPassword(PACK *p, RPC_SET_PASSWORD *t)
 {
@@ -10914,6 +12151,7 @@ void OutRpcSetPassword(PACK *p, RPC_SET_PASSWORD *t)
 	}
 
 	PackAddData(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
+	PackAddStr(p, "PlainTextPassword", t->PlainTextPassword);
 }
 
 // RPC_FARM
@@ -10938,6 +12176,7 @@ void InRpcFarm(RPC_FARM *t, PACK *p)
 	PackGetStr(p, "ControllerName", t->ControllerName, sizeof(t->ControllerName));
 	t->ControllerPort = PackGetInt(p, "ControllerPort");
 	PackGetData2(p, "MemberPassword", t->MemberPassword, sizeof(t->MemberPassword));
+	PackGetStr(p, "MemberPasswordPlaintext", t->MemberPasswordPlaintext, sizeof(t->MemberPasswordPlaintext));
 	t->Weight = PackGetInt(p, "Weight");
 	t->ControllerOnly = PackGetBool(p, "ControllerOnly");
 }
@@ -10959,6 +12198,7 @@ void OutRpcFarm(PACK *p, RPC_FARM *t)
 	PackAddStr(p, "ControllerName", t->ControllerName);
 	PackAddInt(p, "ControllerPort", t->ControllerPort);
 	PackAddData(p, "MemberPassword", t->MemberPassword, sizeof(t->MemberPassword));
+	PackAddStr(p, "MemberPasswordPlaintext", t->MemberPasswordPlaintext);
 	PackAddInt(p, "Weight", t->Weight);
 	PackAddBool(p, "ControllerOnly", t->ControllerOnly);
 }
@@ -11044,7 +12284,7 @@ void OutRpcFarmInfo(PACK *p, RPC_FARM_INFO *t)
 
 	PackAddInt(p, "Id", t->Id);
 	PackAddBool(p, "Controller", t->Controller);
-	PackAddInt64(p, "ConnectedTime", t->ConnectedTime);
+	PackAddTime64(p, "ConnectedTime", t->ConnectedTime);
 	PackAddIp32(p, "Ip", t->Ip);
 	PackAddStr(p, "Hostname", t->Hostname);
 	PackAddInt(p, "Point", t->Point);
@@ -11053,11 +12293,15 @@ void OutRpcFarmInfo(PACK *p, RPC_FARM_INFO *t)
 		PackAddIntEx(p, "Ports", t->Ports[i], i, t->NumPort);
 	}
 	PackAddX(p, "ServerCert", t->ServerCert);
+
+	PackSetCurrentJsonGroupName(p, "HubsList");
 	for (i = 0;i < t->NumFarmHub;i++)
 	{
 		PackAddStrEx(p, "HubName", t->FarmHubs[i].HubName, i, t->NumFarmHub);
 		PackAddBoolEx(p, "DynamicHub", t->FarmHubs[i].DynamicHub, i, t->NumFarmHub);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
+
 	PackAddInt(p, "NumSessions", t->NumSessions);
 	PackAddInt(p, "NumTcpConnections", t->NumTcpConnections);
 	PackAddInt(p, "Weight", t->Weight);
@@ -11114,13 +12358,14 @@ void OutRpcEnumFarm(PACK *p, RPC_ENUM_FARM *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "FarmMemberList");
 	for (i = 0;i < t->NumFarm;i++)
 	{
 		RPC_ENUM_FARM_ITEM *e = &t->Farms[i];
 
 		PackAddIntEx(p, "Id", e->Id, i, t->NumFarm);
 		PackAddBoolEx(p, "Controller", e->Controller, i, t->NumFarm);
-		PackAddInt64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumFarm);
+		PackAddTime64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumFarm);
 		PackAddIp32Ex(p, "Ip", e->Ip, i, t->NumFarm);
 		PackAddStrEx(p, "Hostname", e->Hostname, i, t->NumFarm);
 		PackAddIntEx(p, "Point", e->Point, i, t->NumFarm);
@@ -11130,6 +12375,7 @@ void OutRpcEnumFarm(PACK *p, RPC_ENUM_FARM *t)
 		PackAddIntEx(p, "AssignedClientLicense", e->AssignedClientLicense, i, t->NumFarm);
 		PackAddIntEx(p, "AssignedBridgeLicense", e->AssignedBridgeLicense, i, t->NumFarm);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumFarm(RPC_ENUM_FARM *t)
 {
@@ -11175,9 +12421,9 @@ void OutRpcFarmConnectionStatus(PACK *p, RPC_FARM_CONNECTION_STATUS *t)
 	PackAddInt(p, "Port", t->Port);
 	PackAddBool(p, "Online", t->Online);
 	PackAddInt(p, "LastError", t->LastError);
-	PackAddInt64(p, "StartedTime", t->StartedTime);
-	PackAddInt64(p, "CurrentConnectedTime", t->CurrentConnectedTime);
-	PackAddInt64(p, "FirstConnectedTime", t->FirstConnectedTime);
+	PackAddTime64(p, "StartedTime", t->StartedTime);
+	PackAddTime64(p, "CurrentConnectedTime", t->CurrentConnectedTime);
+	PackAddTime64(p, "FirstConnectedTime", t->FirstConnectedTime);
 	PackAddInt(p, "NumConnected", t->NumConnected);
 	PackAddInt(p, "NumTry", t->NumTry);
 	PackAddInt(p, "NumFailed", t->NumFailed);
@@ -11275,6 +12521,7 @@ void InRpcCreateHub(RPC_CREATE_HUB *t, PACK *p)
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
 	PackGetData2(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
 	PackGetData2(p, "SecurePassword", t->SecurePassword, sizeof(t->SecurePassword));
+	PackGetStr(p, "AdminPasswordPlainText", t->AdminPasswordPlainText, sizeof(t->AdminPasswordPlainText));
 	t->Online = PackGetBool(p, "Online");
 	InRpcHubOption(&t->HubOption, p);
 	t->HubType = PackGetInt(p, "HubType");
@@ -11291,6 +12538,7 @@ void OutRpcCreateHub(PACK *p, RPC_CREATE_HUB *t)
 	PackAddData(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
 	PackAddData(p, "SecurePassword", t->SecurePassword, sizeof(t->SecurePassword));
 	PackAddBool(p, "Online", t->Online);
+	PackAddStr(p, "AdminPasswordPlainText", t->AdminPasswordPlainText);
 	OutRpcHubOption(p, &t->HubOption);
 	PackAddInt(p, "HubType", t->HubType);
 }
@@ -11339,6 +12587,7 @@ void OutRpcEnumHub(PACK *p, RPC_ENUM_HUB *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "HubList");
 	for (i = 0;i < t->NumHub;i++)
 	{
 		RPC_ENUM_HUB_ITEM *e = &t->Hubs[i];
@@ -11351,14 +12600,15 @@ void OutRpcEnumHub(PACK *p, RPC_ENUM_HUB *t)
 		PackAddIntEx(p, "NumGroups", e->NumGroups, i, t->NumHub);
 		PackAddIntEx(p, "NumMacTables", e->NumMacTables, i, t->NumHub);
 		PackAddIntEx(p, "NumIpTables", e->NumIpTables, i, t->NumHub);
-		PackAddInt64Ex(p, "LastCommTime", e->LastCommTime, i, t->NumHub);
-		PackAddInt64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumHub);
-		PackAddInt64Ex(p, "LastLoginTime", e->LastLoginTime, i, t->NumHub);
+		PackAddTime64Ex(p, "LastCommTime", e->LastCommTime, i, t->NumHub);
+		PackAddTime64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumHub);
+		PackAddTime64Ex(p, "LastLoginTime", e->LastLoginTime, i, t->NumHub);
 		PackAddIntEx(p, "NumLogin", e->NumLogin, i, t->NumHub);
 		PackAddBoolEx(p, "IsTrafficFilled", e->IsTrafficFilled, i, t->NumHub);
 
 		OutRpcTrafficEx(&e->Traffic, p, i, t->NumHub);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumHub(RPC_ENUM_HUB *t)
 {
@@ -11429,6 +12679,7 @@ void OutRpcEnumConnection(PACK *p, RPC_ENUM_CONNECTION *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "ConnectionList");
 	for (i = 0;i < t->NumConnection;i++)
 	{
 		RPC_ENUM_CONNECTION_ITEM *e = &t->Connections[i];
@@ -11437,9 +12688,10 @@ void OutRpcEnumConnection(PACK *p, RPC_ENUM_CONNECTION *t)
 		PackAddIntEx(p, "Port", e->Port, i, t->NumConnection);
 		PackAddStrEx(p, "Name", e->Name, i, t->NumConnection);
 		PackAddStrEx(p, "Hostname", e->Hostname, i, t->NumConnection);
-		PackAddInt64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumConnection);
+		PackAddTime64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumConnection);
 		PackAddIntEx(p, "Type", e->Type, i, t->NumConnection);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumConnection(RPC_ENUM_CONNECTION *t)
 {
@@ -11509,7 +12761,7 @@ void OutRpcConnectionInfo(PACK *p, RPC_CONNECTION_INFO *t)
 	PackAddStr(p, "Name", t->Name);
 	PackAddIp32(p, "Ip", t->Ip);
 	PackAddInt(p, "Port", t->Port);
-	PackAddInt64(p, "ConnectedTime", t->ConnectedTime);
+	PackAddTime64(p, "ConnectedTime", t->ConnectedTime);
 	PackAddStr(p, "Hostname", t->Hostname);
 	PackAddStr(p, "ServerStr", t->ServerStr);
 	PackAddStr(p, "ClientStr", t->ClientStr);
@@ -11594,9 +12846,9 @@ void OutRpcHubStatus(PACK *p, RPC_HUB_STATUS *t)
 	PackAddInt(p, "NumIpTables", t->NumIpTables);
 	PackAddBool(p, "SecureNATEnabled", t->SecureNATEnabled);
 	OutRpcTraffic(p, &t->Traffic);
-	PackAddInt64(p, "LastCommTime", t->LastCommTime);
-	PackAddInt64(p, "CreatedTime", t->CreatedTime);
-	PackAddInt64(p, "LastLoginTime", t->LastLoginTime);
+	PackAddTime64(p, "LastCommTime", t->LastCommTime);
+	PackAddTime64(p, "CreatedTime", t->CreatedTime);
+	PackAddTime64(p, "LastLoginTime", t->LastLoginTime);
 	PackAddInt(p, "NumLogin", t->NumLogin);
 }
 
@@ -11711,6 +12963,7 @@ void OutRpcHubEnumCa(PACK *p, RPC_HUB_ENUM_CA *t)
 	}
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "CAList");
 	for (i = 0;i < t->NumCa;i++)
 	{
 		RPC_HUB_ENUM_CA_ITEM *e = &t->Ca[i];
@@ -11718,8 +12971,9 @@ void OutRpcHubEnumCa(PACK *p, RPC_HUB_ENUM_CA *t)
 		PackAddIntEx(p, "Key", e->Key, i, t->NumCa);
 		PackAddUniStrEx(p, "SubjectName", e->SubjectName, i, t->NumCa);
 		PackAddUniStrEx(p, "IssuerName", e->IssuerName, i, t->NumCa);
-		PackAddInt64Ex(p, "Expires", e->Expires, i, t->NumCa);
+		PackAddTime64Ex(p, "Expires", e->Expires, i, t->NumCa);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcHubEnumCa(RPC_HUB_ENUM_CA *t)
 {
@@ -11886,6 +13140,7 @@ void InRpcEnumLink(RPC_ENUM_LINK *t, PACK *p)
 		e->ConnectedTime = PackGetInt64Ex(p, "ConnectedTime", i);
 		e->Connected = PackGetBoolEx(p, "Connected", i);
 		e->LastError = PackGetIntEx(p, "LastError", i);
+		PackGetStrEx(p, "LinkHubName", e->HubName, sizeof(e->HubName), i);
 	}
 }
 void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)
@@ -11899,6 +13154,7 @@ void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "LinkList");
 	for (i = 0;i < t->NumLink;i++)
 	{
 		RPC_ENUM_LINK_ITEM *e = &t->Links[i];
@@ -11907,10 +13163,12 @@ void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)
 		PackAddStrEx(p, "ConnectedHubName", e->HubName, i, t->NumLink);
 		PackAddStrEx(p, "Hostname", e->Hostname, i, t->NumLink);
 		PackAddBoolEx(p, "Online", e->Online, i, t->NumLink);
-		PackAddInt64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumLink);
+		PackAddTime64Ex(p, "ConnectedTime", e->ConnectedTime, i, t->NumLink);
 		PackAddBoolEx(p, "Connected", e->Connected, i, t->NumLink);
 		PackAddIntEx(p, "LastError", e->LastError, i, t->NumLink);
+		PackAddStrEx(p, "TargetHubName", e->HubName, i, t->NumLink);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumLink(RPC_ENUM_LINK *t)
 {
@@ -12184,12 +13442,14 @@ void OutRpcEnumAccessList(PACK *p, RPC_ENUM_ACCESS_LIST *a)
 	}
 	PackAddStr(p, "HubName", a->HubName);
 
+	PackSetCurrentJsonGroupName(p, "AccessList");
 	for (i = 0;i < a->NumAccess;i++)
 	{
 		ACCESS *e = &a->Accesses[i];
 
 		OutRpcAccessEx(p, e, i, a->NumAccess);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a)
 {
@@ -12203,7 +13463,7 @@ void FreeRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a)
 }
 
 // AUTHDATA
-void *InRpcAuthData(PACK *p, UINT *authtype)
+void *InRpcAuthData(PACK *p, UINT *authtype, char *username)
 {
 	wchar_t tmp[MAX_SIZE];
 	AUTHPASSWORD *pw;
@@ -12212,6 +13472,7 @@ void *InRpcAuthData(PACK *p, UINT *authtype)
 	AUTHRADIUS *radius;
 	AUTHNT *nt;
 	BUF *b;
+	char plain_pw[MAX_SIZE];
 	// Validate arguments
 	if (p == NULL)
 	{
@@ -12230,6 +13491,15 @@ void *InRpcAuthData(PACK *p, UINT *authtype)
 		pw = ZeroMalloc(sizeof(AUTHPASSWORD));
 		PackGetData2(p, "HashedKey", pw->HashedKey, sizeof(pw->HashedKey));
 		PackGetData2(p, "NtLmSecureHash", pw->NtLmSecureHash, sizeof(pw->NtLmSecureHash));
+
+		if (PackGetStr(p, "Auth_Password", plain_pw, sizeof(plain_pw)))
+		{
+			if (IsZero(pw->HashedKey, sizeof(pw->HashedKey)))
+			{
+				HashPassword(pw->HashedKey, username, plain_pw);
+				GenerateNtPasswordHash(pw->NtLmSecureHash, plain_pw);
+			}
+		}
 		return pw;
 
 	case AUTHTYPE_USERCERT:
@@ -12347,7 +13617,7 @@ void InRpcSetUser(RPC_SET_USER *t, PACK *p)
 	t->CreatedTime = PackGetInt64(p, "CreatedTime");
 	t->UpdatedTime = PackGetInt64(p, "UpdatedTime");
 	t->ExpireTime = PackGetInt64(p, "ExpireTime");
-	t->AuthData = InRpcAuthData(p, &t->AuthType);
+	t->AuthData = InRpcAuthData(p, &t->AuthType, t->Name);
 	t->NumLogin = PackGetInt(p, "NumLogin");
 	InRpcTraffic(&t->Traffic, p);
 
@@ -12371,9 +13641,9 @@ void OutRpcSetUser(PACK *p, RPC_SET_USER *t)
 	PackAddStr(p, "GroupName", t->GroupName);
 	PackAddUniStr(p, "Realname", t->Realname);
 	PackAddUniStr(p, "Note", t->Note);
-	PackAddInt64(p, "CreatedTime", t->CreatedTime);
-	PackAddInt64(p, "UpdatedTime", t->UpdatedTime);
-	PackAddInt64(p, "ExpireTime", t->ExpireTime);
+	PackAddTime64(p, "CreatedTime", t->CreatedTime);
+	PackAddTime64(p, "UpdatedTime", t->UpdatedTime);
+	PackAddTime64(p, "ExpireTime", t->ExpireTime);
 	OutRpcAuthData(p, t->AuthData, t->AuthType);
 	PackAddInt(p, "NumLogin", t->NumLogin);
 	OutRpcTraffic(p, &t->Traffic);
@@ -12444,6 +13714,7 @@ void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 	}
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "UserList");
 	for (i = 0;i < t->NumUser;i++)
 	{
 		RPC_ENUM_USER_ITEM *e = &t->Users[i];
@@ -12453,7 +13724,7 @@ void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 		PackAddUniStrEx(p, "Realname", e->Realname, i, t->NumUser);
 		PackAddUniStrEx(p, "Note", e->Note, i, t->NumUser);
 		PackAddIntEx(p, "AuthType", e->AuthType, i, t->NumUser);
-		PackAddInt64Ex(p, "LastLoginTime", e->LastLoginTime, i, t->NumUser);
+		PackAddTime64Ex(p, "LastLoginTime", e->LastLoginTime, i, t->NumUser);
 		PackAddIntEx(p, "NumLogin", e->NumLogin, i, t->NumUser);
 		PackAddBoolEx(p, "DenyAccess", e->DenyAccess, i, t->NumUser);
 
@@ -12461,8 +13732,9 @@ void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 		OutRpcTrafficEx(&e->Traffic, p, i, t->NumUser);
 
 		PackAddBoolEx(p, "IsExpiresFilled", e->IsExpiresFilled, i, t->NumUser);
-		PackAddInt64Ex(p, "Expires", e->Expires, i, t->NumUser);
+		PackAddTime64Ex(p, "Expires", e->Expires, i, t->NumUser);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumUser(RPC_ENUM_USER *t)
 {
@@ -12559,6 +13831,7 @@ void OutRpcEnumGroup(PACK *p, RPC_ENUM_GROUP *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "GroupList");
 	for (i = 0;i < t->NumGroup;i++)
 	{
 		RPC_ENUM_GROUP_ITEM *e = &t->Groups[i];
@@ -12569,6 +13842,7 @@ void OutRpcEnumGroup(PACK *p, RPC_ENUM_GROUP *t)
 		PackAddIntEx(p, "NumUsers", e->NumUsers, i, t->NumGroup);
 		PackAddBoolEx(p, "DenyAccess", e->DenyAccess, i, t->NumGroup);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumGroup(RPC_ENUM_GROUP *t)
 {
@@ -12628,6 +13902,7 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 		PackGetStrEx(p, "Name", e->Name, sizeof(e->Name), i);
 		PackGetStrEx(p, "Username", e->Username, sizeof(e->Username), i);
 		e->Ip = PackGetIntEx(p, "Ip", i);
+		PackGetIpEx(p, "ClientIP", &e->ClientIP, i);
 		PackGetStrEx(p, "Hostname", e->Hostname, sizeof(e->Hostname), i);
 		e->MaxNumTcp = PackGetIntEx(p, "MaxNumTcp", i);
 		e->CurrentNumTcp = PackGetIntEx(p, "CurrentNumTcp", i);
@@ -12646,6 +13921,8 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 		e->IsDormantEnabled = PackGetBoolEx(p, "IsDormantEnabled", i);
 		e->IsDormant = PackGetBoolEx(p, "IsDormant", i);
 		e->LastCommDormant = PackGetInt64Ex(p, "LastCommDormant", i);
+		e->CreatedTime = PackGetInt64Ex(p, "CreatedTime", i);
+		e->LastCommTime = PackGetInt64Ex(p, "LastCommTime", i);
 	}
 }
 void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
@@ -12658,6 +13935,7 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 	}
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "SessionList");
 	for (i = 0;i < t->NumSession;i++)
 	{
 		RPC_ENUM_SESSION_ITEM *e = &t->Sessions[i];
@@ -12665,6 +13943,7 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 		PackAddStrEx(p, "Name", e->Name, i, t->NumSession);
 		PackAddStrEx(p, "Username", e->Username, i, t->NumSession);
 		PackAddIp32Ex(p, "Ip", e->Ip, i, t->NumSession);
+		PackAddIpEx(p, "ClientIP", &e->ClientIP, i, t->NumSession);
 		PackAddStrEx(p, "Hostname", e->Hostname, i, t->NumSession);
 		PackAddIntEx(p, "MaxNumTcp", e->MaxNumTcp, i, t->NumSession);
 		PackAddIntEx(p, "CurrentNumTcp", e->CurrentNumTcp, i, t->NumSession);
@@ -12682,8 +13961,11 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 		PackAddDataEx(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i, t->NumSession);
 		PackAddBoolEx(p, "IsDormantEnabled", e->IsDormantEnabled, i, t->NumSession);
 		PackAddBoolEx(p, "IsDormant", e->IsDormant, i, t->NumSession);
-		PackAddInt64Ex(p, "LastCommDormant", e->LastCommDormant, i, t->NumSession);
+		PackAddTime64Ex(p, "LastCommDormant", e->LastCommDormant, i, t->NumSession);
+		PackAddTime64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumSession);
+		PackAddTime64Ex(p, "LastCommTime", e->LastCommTime, i, t->NumSession);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumSession(RPC_ENUM_SESSION *t)
 {
@@ -12814,6 +14096,7 @@ void InRpcSessionStatus(RPC_SESSION_STATUS *t, PACK *p)
 	t->ClientIp = PackGetIp32(p, "SessionStatus_ClientIp");
 	PackGetData2(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackGetStr(p, "SessionStatus_ClientHostName", t->ClientHostName, sizeof(t->ClientHostName));
+	PackGetIp(p, "Client_Ip_Address", &t->ClientIpAddress);
 
 	InRpcClientGetConnectionStatus(&t->Status, p);
 	InRpcNodeInfo(&t->NodeInfo, p);
@@ -12834,6 +14117,7 @@ void OutRpcSessionStatus(PACK *p, RPC_SESSION_STATUS *t)
 	PackAddIp32(p, "SessionStatus_ClientIp", t->ClientIp);
 	PackAddData(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackAddStr(p, "SessionStatus_ClientHostName", t->ClientHostName);
+	PackAddIp(p, "Client_Ip_Address", &t->ClientIpAddress);
 
 	OutRpcClientGetConnectionStatus(p, &t->Status);
 	OutRpcNodeInfo(p, &t->NodeInfo);
@@ -12914,6 +14198,7 @@ void OutRpcEnumMacTable(PACK *p, RPC_ENUM_MAC_TABLE *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "MacTable");
 	for (i = 0;i < t->NumMacTable;i++)
 	{
 		RPC_ENUM_MAC_TABLE_ITEM *e = &t->MacTables[i];
@@ -12922,11 +14207,12 @@ void OutRpcEnumMacTable(PACK *p, RPC_ENUM_MAC_TABLE *t)
 		PackAddStrEx(p, "SessionName", e->SessionName, i, t->NumMacTable);
 		PackAddDataEx(p, "MacAddress", e->MacAddress, sizeof(e->MacAddress), i, t->NumMacTable);
 		PackAddIntEx(p, "VlanId", e->VlanId, i, t->NumMacTable);
-		PackAddInt64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumMacTable);
-		PackAddInt64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumMacTable);
+		PackAddTime64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumMacTable);
+		PackAddTime64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumMacTable);
 		PackAddBoolEx(p, "RemoteItem", e->RemoteItem, i, t->NumMacTable);
 		PackAddStrEx(p, "RemoteHostname", e->RemoteHostname, i, t->NumMacTable);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumMacTable(RPC_ENUM_MAC_TABLE *t)
 {
@@ -12965,6 +14251,7 @@ void InRpcEnumIpTable(RPC_ENUM_IP_TABLE *t, PACK *p)
 		{
 			UINTToIP(&e->IpV6, e->Ip);
 		}
+		PackGetIp(p, "IpAddress", &e->IpAddress);
 		e->DhcpAllocated = PackGetBoolEx(p, "DhcpAllocated", i);
 		e->CreatedTime = PackGetInt64Ex(p, "CreatedTime", i);
 		e->UpdatedTime = PackGetInt64Ex(p, "UpdatedTime", i);
@@ -12983,6 +14270,7 @@ void OutRpcEnumIpTable(PACK *p, RPC_ENUM_IP_TABLE *t)
 
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "IpTable");
 	for (i = 0;i < t->NumIpTable;i++)
 	{
 		RPC_ENUM_IP_TABLE_ITEM *e = &t->IpTables[i];
@@ -12991,12 +14279,14 @@ void OutRpcEnumIpTable(PACK *p, RPC_ENUM_IP_TABLE *t)
 		PackAddStrEx(p, "SessionName", e->SessionName, i, t->NumIpTable);
 		PackAddIp32Ex(p, "Ip", e->Ip, i, t->NumIpTable);
 		PackAddIpEx(p, "IpV6", &e->IpV6, i, t->NumIpTable);
+		PackAddIpEx(p, "IpAddress", &e->IpAddress, i, t->NumIpTable);
 		PackAddBoolEx(p, "DhcpAllocated", e->DhcpAllocated, i, t->NumIpTable);
-		PackAddInt64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumIpTable);
-		PackAddInt64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumIpTable);
+		PackAddTime64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumIpTable);
+		PackAddTime64Ex(p, "UpdatedTime", e->UpdatedTime, i, t->NumIpTable);
 		PackAddBoolEx(p, "RemoteItem", e->RemoteItem, i, t->NumIpTable);
 		PackAddStrEx(p, "RemoteHostname", e->RemoteHostname, i, t->NumIpTable);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumIpTable(RPC_ENUM_IP_TABLE *t)
 {

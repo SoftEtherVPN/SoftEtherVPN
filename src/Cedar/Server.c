@@ -974,52 +974,70 @@ LIST *EnumLogFile(char *hubname)
 
 	// Enumerate in the packet_log
 	Format(tmp, sizeof(tmp), "%s/packet_log", exe_dir);
-	dir = EnumDir(tmp);
-	if (dir != NULL)
+
+	if (hubname == NULL)
 	{
-		UINT i;
-		for (i = 0;i < dir->NumFiles;i++)
+		dir = EnumDir(tmp);
+		if (dir != NULL)
 		{
-			DIRENT *e = dir->File[i];
-
-			if (e->Folder)
+			UINT i;
+			for (i = 0;i < dir->NumFiles;i++)
 			{
-				char dir_name[MAX_PATH];
+				DIRENT *e = dir->File[i];
 
-				if (hubname == NULL || StrCmpi(hubname, e->FileName) == 0)
+				if (e->Folder)
 				{
+					char dir_name[MAX_PATH];
 					Format(dir_name, sizeof(dir_name), "packet_log/%s", e->FileName);
 					EnumLogFileDir(o, dir_name);
 				}
 			}
-		}
 
-		FreeDir(dir);
+			FreeDir(dir);
+		}
+	}
+	else
+	{
+		char dir_name[MAX_PATH];
+
+		Format(dir_name, sizeof(dir_name), "packet_log/%s", hubname);
+
+		EnumLogFileDir(o, dir_name);
 	}
 
 	// Enumerate in the security_log
 	Format(tmp, sizeof(tmp), "%s/security_log", exe_dir);
-	dir = EnumDir(tmp);
-	if (dir != NULL)
+
+	if (hubname == NULL)
 	{
-		UINT i;
-		for (i = 0;i < dir->NumFiles;i++)
+		dir = EnumDir(tmp);
+		if (dir != NULL)
 		{
-			DIRENT *e = dir->File[i];
-
-			if (e->Folder)
+			UINT i;
+			for (i = 0;i < dir->NumFiles;i++)
 			{
-				char dir_name[MAX_PATH];
+				DIRENT *e = dir->File[i];
 
-				if (hubname == NULL || StrCmpi(hubname, e->FileName) == 0)
+				if (e->Folder)
 				{
+					char dir_name[MAX_PATH];
+
 					Format(dir_name, sizeof(dir_name), "security_log/%s", e->FileName);
+
 					EnumLogFileDir(o, dir_name);
 				}
 			}
-		}
 
-		FreeDir(dir);
+			FreeDir(dir);
+		}
+	}
+	else
+	{
+		char dir_name[MAX_PATH];
+
+		Format(dir_name, sizeof(dir_name), "security_log/%s", hubname);
+
+		EnumLogFileDir(o, dir_name);
 	}
 
 	return o;
@@ -1731,14 +1749,37 @@ void OutRpcCapsList(PACK *p, CAPSLIST *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "CapsList");
 	for (i = 0;i < LIST_NUM(t->CapsList);i++)
 	{
 		char tmp[MAX_SIZE];
+		char ct_key[MAX_PATH];
+		wchar_t ct_description[MAX_PATH];
+		wchar_t *w;
 		CAPS *c = LIST_DATA(t->CapsList, i);
 
 		Format(tmp, sizeof(tmp), "caps_%s", c->Name);
+
+		Format(ct_key, sizeof(ct_key), "CT_%s", c->Name);
+
+		Zero(ct_description, sizeof(ct_description));
+		w = _UU(ct_key);
+		if (UniIsEmptyStr(w) == false)
+		{
+			UniStrCpy(ct_description, sizeof(ct_description), w);
+		}
+		else
+		{
+			StrToUni(ct_description, sizeof(ct_description), c->Name);
+		}
+
 		PackAddInt(p, tmp, c->Value);
+
+		PackAddStrEx(p, "CapsName", c->Name, i, LIST_NUM(t->CapsList));
+		PackAddIntEx(p, "CapsValue", c->Value, i, LIST_NUM(t->CapsList));
+		PackAddUniStrEx(p, "CapsDescrption", ct_description, i, LIST_NUM(t->CapsList));
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcCapsList(CAPSLIST *t)
 {
@@ -5982,7 +6023,11 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
 
 		s->StrictSyslogDatetimeFormat = CfgGetBool(f, "StrictSyslogDatetimeFormat");
-                // Bits of Diffie-Hellman parameters
+
+		// Disable JSON-RPC Web API
+		s->DisableJsonRpcWebApi = CfgGetBool(f, "DisableJsonRpcWebApi");
+
+		// Bits of Diffie-Hellman parameters
 		c->DhParamBits = CfgGetInt(f, "DhParamBits");
 		if (c->DhParamBits == 0)
 		{
@@ -6314,6 +6359,9 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));
 
 		CfgAddBool(f, "StrictSyslogDatetimeFormat", s->StrictSyslogDatetimeFormat);
+
+		// Disable JSON-RPC Web API
+		CfgAddBool(f, "DisableJsonRpcWebApi", s->DisableJsonRpcWebApi);
 	}
 	Unlock(c->lock);
 }
@@ -7031,7 +7079,7 @@ FARM_MEMBER *SiGetNextFarmMember(SERVER *s, CONNECTION *c, HUB *h)
 				PackAddIntEx(p, "NumTcpConnections", f->NumTcpConnections, i, num);
 				PackAddIntEx(p, "NumHubs", LIST_NUM(f->HubList), i, num);
 				PackAddBoolEx(p, "Me", f->Me, i, num);
-				PackAddInt64Ex(p, "ConnectedTime", f->ConnectedTime, i, num);
+				PackAddTime64Ex(p, "ConnectedTime", f->ConnectedTime, i, num);
 				PackAddInt64Ex(p, "SystemId", f->SystemId, i, num);
 				PackAddBoolEx(p, "DoNotSelect", do_not_select, i, num);
 			}
@@ -7060,7 +7108,7 @@ FARM_MEMBER *SiGetNextFarmMember(SERVER *s, CONNECTION *c, HUB *h)
 			PackAddStr(p, "CipherName", c->CipherName);
 			PackAddStr(p, "ClientStr", c->ClientStr);
 			PackAddInt(p, "ClientVer", c->ClientVer);
-			PackAddInt64(p, "ConnectedTime", Tick64ToTime64(c->ConnectedTick));
+			PackAddTime64(p, "ConnectedTime", Tick64ToTime64(c->ConnectedTick));
 
 			PackAddStr(p, "HubName", h->Name);
 			PackAddBool(p, "StaticHub", h->Type == HUB_TYPE_FARM_STATIC);
@@ -7200,8 +7248,8 @@ void SiCalledEnumHub(SERVER *s, PACK *p, PACK *req)
 
 				PackAddIntEx(p, "NumIpTables", LIST_NUM(h->IpTable), i, num);
 
-				PackAddInt64Ex(p, "LastCommTime", h->LastCommTime, i, num);
-				PackAddInt64Ex(p, "CreatedTime", h->CreatedTime, i, num);
+				PackAddTime64Ex(p, "LastCommTime", h->LastCommTime, i, num);
+				PackAddTime64Ex(p, "CreatedTime", h->CreatedTime, i, num);
 			}
 			Unlock(h->lock);
 		}

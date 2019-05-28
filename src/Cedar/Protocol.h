@@ -8,6 +8,13 @@
 #ifndef	PROTOCOL_H
 #define	PROTOCOL_H
 
+// MIME types
+struct HTTP_MIME_TYPE
+{
+	char *Extension;
+	char *MimeType;
+};
+
 // The parameters that will be passed to the certificate confirmation thread
 struct CHECK_CERT_THREAD_PROC
 {
@@ -190,6 +197,6 @@ X *FindCertIssuerFromCertList(LIST *o, X *x);
 bool TryGetRootCertChain(LIST *o, X *x, bool auto_save, X **found_root_x);
 bool TryGetParentCertFromCertList(LIST *o, X *x, LIST *found_chain);
 bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x);
-
+char *GetMimeTypeFromFileName(char *filename);
 
 #endif	// PROTOCOL_H

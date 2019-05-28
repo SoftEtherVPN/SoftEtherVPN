@@ -137,6 +137,7 @@ typedef struct BLACK BLACK;
 typedef struct SEND_SIGNATURE_PARAM SEND_SIGNATURE_PARAM;
 typedef struct UPDATE_CLIENT UPDATE_CLIENT;
 typedef struct UPDATE_CLIENT_SETTING UPDATE_CLIENT_SETTING;
+typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 
 
 // ==============================================================
