@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vpnserver-jsonrpc-client-csharp", "vpnserver-jsonrpc-client-csharp.csproj", "{81CA3EC4-026E-4D37-9889-828186BBB8C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81CA3EC4-026E-4D37-9889-828186BBB8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81CA3EC4-026E-4D37-9889-828186BBB8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81CA3EC4-026E-4D37-9889-828186BBB8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81CA3EC4-026E-4D37-9889-828186BBB8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D87E5CF1-9A10-431C-AC42-F1041470AEE8}
+	EndGlobalSection
+EndGlobal
