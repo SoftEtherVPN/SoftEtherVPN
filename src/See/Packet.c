@@ -668,6 +668,8 @@ NTSTATUS NPF_IoControl(IN PDEVICE_OBJECT DeviceObject,IN PIRP Irp)
 	PUINT				pStats;
 	ULONG				Information = 0;
 
+	BOOLEAN check_ok;
+
     IF_LOUD(DbgPrint("NPF: IoControl\n");)
 		
 	IrpSp = IoGetCurrentIrpStackLocation(Irp);
@@ -686,22 +688,39 @@ NTSTATUS NPF_IoControl(IN PDEVICE_OBJECT DeviceObject,IN PIRP Irp)
 			EXIT_FAILURE(0);
 		}
 
-		pStats = (PUINT)(Irp->UserBuffer);
-
-		pStats[3] = 0;
-		pStats[0] = 0;
-		pStats[1] = 0;
-		pStats[2] = 0;		// Not yet supported
-
-		for(i = 0 ; i < NCpu ; i++)
+		check_ok = TRUE;
+		__try
 		{
-
-			pStats[3] += Open->CpuData[i].Accepted;
-			pStats[0] += Open->CpuData[i].Received;
-			pStats[1] += Open->CpuData[i].Dropped;
-			pStats[2] += 0;		// Not yet supported
+			ProbeForWrite(Irp->UserBuffer, IrpSp->Parameters.DeviceIoControl.OutputBufferLength, 1);
 		}
-		EXIT_SUCCESS(4*sizeof(UINT));
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			check_ok = FALSE;
+		}
+
+		if (check_ok == FALSE)
+		{
+			EXIT_FAILURE(0);
+		}
+		else
+		{
+			pStats = (PUINT)(Irp->UserBuffer);
+
+			pStats[3] = 0;
+			pStats[0] = 0;
+			pStats[1] = 0;
+			pStats[2] = 0;		// Not yet supported
+
+			for(i = 0 ; i < NCpu ; i++)
+			{
+
+				pStats[3] += Open->CpuData[i].Accepted;
+				pStats[0] += Open->CpuData[i].Received;
+				pStats[1] += Open->CpuData[i].Dropped;
+				pStats[2] += 0;		// Not yet supported
+			}
+			EXIT_SUCCESS(4*sizeof(UINT));
+		}
 		
 		break;
 		
@@ -711,9 +730,26 @@ NTSTATUS NPF_IoControl(IN PDEVICE_OBJECT DeviceObject,IN PIRP Irp)
 			EXIT_FAILURE(0);
 		}
 
-		RtlCopyMemory(Irp->UserBuffer,(Open->ReadEventName.Buffer)+18,26);
+		check_ok = TRUE;
+		__try
+		{
+			ProbeForWrite(Irp->UserBuffer, IrpSp->Parameters.DeviceIoControl.OutputBufferLength, 1);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			check_ok = FALSE;
+		}
 
-		EXIT_SUCCESS(26);
+		if (check_ok == FALSE)
+		{
+			EXIT_FAILURE(0);
+		}
+		else
+		{
+			RtlCopyMemory(Irp->UserBuffer,(Open->ReadEventName.Buffer)+18,26);
+
+			EXIT_SUCCESS(26);
+		}
 
 		break;
 
