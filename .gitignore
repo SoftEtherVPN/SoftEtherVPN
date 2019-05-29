@@ -3,7 +3,10 @@
 .project
 .settings/
 Makefile
-bin/
+/src/bin/*
+!/src/bin/hamcore/
+/src/bin/hamcore/*
+!/src/bin/hamcore/wwwroot/
 build/
 cmake-build-debug/
 src/bin/hamcore/authors.txt
