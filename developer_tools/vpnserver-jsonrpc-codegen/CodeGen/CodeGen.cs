@@ -1521,6 +1521,8 @@ namespace VPNServer_JSONRPC_CodeGen
             w.WriteLine($"<a id=\"{rpc.Name.ToLowerInvariant()}\"></a>");
             w.WriteLine($"## \"{rpc.Name}\" RPC API - {func_summary}");
 
+            w.WriteLine("### Description");
+
             w.WriteLine(rpc.Symbol.GetDocumentStr());
 
             var model = cs_tests.Model;
@@ -1809,13 +1811,16 @@ namespace VPNServer_JSONRPC_CodeGen
 
             foreach (RpcInfo rpc in rpc_list.Values)
             {
-                doc_write_function(w, rpc);
+                if (rpc.Name.IndexOf("Vgs", StringComparison.Ordinal) == -1)
+                {
+                    doc_write_function(w, rpc);
 
-                w.WriteLine("***");
+                    w.WriteLine("***");
+                }
             }
 
             w.WriteLine($"Automatically generated at {timestamp.ToString("yyyy-MM-dd HH:mm:ss")} by vpnserver-jsonrpc-codegen.  ");
-            w.WriteLine("Copyright (c) 2014 - " + DateTime.Now.Year + " [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  ");
+            w.WriteLine("Copyright (c) 2014-" + DateTime.Now.Year + " [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  ");
             w.WriteLine();
 
             ret.DocsRpc = w.ToString();
@@ -1967,6 +1972,9 @@ namespace VPNServer_JSONRPC_CodeGen
 
             save(Path.Combine(output_dir, "vpnrpc.ts"), ts_rpc, true);
             save(Path.Combine(output_dir, "sample.ts"), ts_test, true);
+
+            save(Path.Combine(output_dir + "/../vpnserver-jsonrpc-client-nodejs-package/src/", "vpnrpc.ts"), ts_rpc, true);
+            save(Path.Combine(output_dir + "/../vpnserver-jsonrpc-client-nodejs-package/src/", "sample.ts"), ts_test, true);
         }
 
         void output_csharp(string output_dir)
