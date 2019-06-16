@@ -108,9 +108,9 @@ void SessionMain(SESSION *s)
 
 	s->NumConnectionsEstablished++;
 	s->CurrentConnectionEstablishTime = Tick64();
-	if (s->FirstConnectionEstablishedTime == 0)
+	if (s->FirstConnectionEstablisiedTime == 0) /* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	{
-		s->FirstConnectionEstablishedTime = Tick64();
+		s->FirstConnectionEstablisiedTime = Tick64(); /* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	}
 
 	if (s->ServerMode == false && s->Cedar->Client != NULL)
@@ -1158,7 +1158,10 @@ void StopSessionEx(SESSION *s, bool no_wait)
 	// Server and client mode
 	if (s->Connection)
 	{
-		StopConnection(s->Connection, no_wait);
+		CONNECTION *c = s->Connection;
+		AddRef(c->ref);
+		StopConnection(c, no_wait);
+		ReleaseConnection(c);
 	}
 
 	// Wait until the stop

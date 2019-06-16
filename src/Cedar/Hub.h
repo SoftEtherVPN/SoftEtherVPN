@@ -287,6 +287,7 @@ struct ADMIN_OPTION
 {
 	char Name[MAX_ADMIN_OPTION_NAME_LEN + 1];	// Name
 	UINT Value;									// Data
+	wchar_t Descrption[MAX_SIZE];				// Descrption
 };
 
 // Certificate Revocation List entry

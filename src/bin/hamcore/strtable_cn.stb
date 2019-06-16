@@ -157,11 +157,11 @@ ERR_91						无法断开虚拟 3 层交换机会话。要删除会话，请停�
 ERR_92						具有指定名称的虚拟 3 层交换机已存在。指定一个不同的名称。
 ERR_93						找不到指定的虚拟 3 层交换机。
 ERR_94						指定的名称无效。检查名称是否有不能使用的字符
-ERR_95						无法添加虚拟 3 层接口。
-ERR_96						无法删除虚拟 3 层接口。
+ERR_95						无法添加虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96						无法删除虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97						与指定虚拟 3 层交换接口的目标虚拟 HUB 连接的虚拟 3 层接口已在虚拟 3 层交换机中存在。不能在同一个虚拟 3 层交换机中定义超过一个连接到同一个虚拟 HUB 的虚拟 3 层接口。
-ERR_98						无法添加路由表项。
-ERR_99						无法删除路由表项。
+ERR_98						无法添加路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99						无法删除路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100						指定的路由表项已存在。
 ERR_101						客户端和服务器的时钟彼此不同步。检查时间设置。
 ERR_102						无法启动此虚拟 3 层交换机。 要启动虚拟 3 层交换机，必须在虚拟 3 层交换机定义至少一个虚拟接口。
@@ -1805,6 +1805,9 @@ LS_LICENSE_NOT_VPNSERVER	连接 "%S": 许可证错误。VPN Client 尝试连接�
 LS_LICENSE_NOT_VPNCLUSTER	连接 "%S": 许可证错误。此 VPN Server 上注册的许可证是禁止使用当前群集功能的类型，且一个 VPN Client 已尝试在群集模式下连接。您必须重启 VPN Server。
 LS_LICENSE_VIOLATION		连接 "%S": VPN Server 发生违反许可证错误，不接受连接。
 LS_LICENSE_VIOLATION_DETECTED	发现许可证违反错误，一个不同的 VPN Server 与此服务端具有相同的服务端ID "%I64u"。可能是在群集中有两个或以上 VPN Server 正在使用相同的许可证。请检查每一个 VPN Server 的许可证信息。
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN Logs)

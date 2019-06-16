@@ -1,0 +1,576 @@
+﻿// SoftEther VPN Server JSON-RPC Stub code for TypeScript
+// 
+// vpnrpc.ts
+// Automatically generated at __TIMESTAMP__ by vpnserver-jsonrpc-codegen
+//
+// Licensed under the Apache License 2.0
+// Copyright (c) 2014-__YEAR__ SoftEther VPN Project
+
+
+// Trivial utility codes
+let is_node_js = (typeof navigator === "undefined") || navigator.userAgent.indexOf("Node.js") !== -1 || navigator.userAgent.indexOf("jsdom") !== -1;
+function is_null(obj: any)
+{
+  return (typeof obj === "undefined") || (obj === null);
+}
+let debug_mode: boolean = false;
+
+/** VPN Server RPC Stubs */
+export class VpnServerRpc
+{
+    /** Determine if this JavaScript environment is on the Node.js or not. */
+    public static IsNodeJS(): boolean
+    {
+        return is_node_js;
+    }
+
+    /** Set the debug mode flag */
+    public static SetDebugMode(flag: boolean): void
+    {
+        debug_mode = flag;
+    }
+
+    private rpc_url: string;
+    private rpc_client: JsonRpcClient;
+
+    /** 
+     * Constructor of the VpnServerRpc class
+     * @param vpnserver_hostname The hostname or IP address of the destination VPN Server. In the web browser you can specify null if you want to connect to the server itself.
+     * @param vpnserver_port The port number of the destination VPN Server. In the web browser you can specify null if you want to connect to the server itself.
+     * @param hubname The name of the Virtual Hub if you want to connect to the VPN Server as a Virtual Hub Admin Mode. Specify null if you want to connect to the VPN Server as the Entire VPN Server Admin Mode.
+     * @param password Specify the administration password. This value is valid only if vpnserver_hostname is sepcified.
+     * @param nodejs_https_client_reject_untrusted_server_cert In Node.js set this true to check the SSL server certificate on the destination VPN Server. Set this false to ignore the SSL server certification.
+     */
+    constructor(vpnserver_hostname?: string, vpnserver_port?: number, hubname?: string, password?: string, nodejs_https_client_reject_untrusted_server_cert?: boolean)
+    {
+        let headers: { [name: string]: string } = {};
+        let send_credentials: boolean = false;
+
+        nodejs_https_client_reject_untrusted_server_cert = is_null(nodejs_https_client_reject_untrusted_server_cert) ? false : nodejs_https_client_reject_untrusted_server_cert!;
+
+        if (is_null(vpnserver_hostname))
+        {
+            this.rpc_url = "/api/";
+            send_credentials = true;
+        }
+        else
+        {
+            if (is_null(vpnserver_port)) vpnserver_port = 443;
+            this.rpc_url = `https://${vpnserver_hostname}:${vpnserver_port}/api/`;
+
+
+            headers["X-VPNADMIN-HUBNAME"] = is_null(hubname) ? "" : hubname!;
+            headers["X-VPNADMIN-PASSWORD"] = is_null(password) ? "" : password!;
+        }
+
+        if (is_null(nodejs_https_client_reject_untrusted_server_cert)) nodejs_https_client_reject_untrusted_server_cert = false;
+
+        this.rpc_client = new JsonRpcClient(this.rpc_url, headers, send_credentials, nodejs_https_client_reject_untrusted_server_cert);
+    }
+
+    // --- Stubs ---
+__STUBS__
+
+    // -- Utility functions --
+    /** Call a RPC procedure */
+    public async CallAsync<T>(method_name: string, request: T): Promise<T>
+    {
+        let response: T = await this.rpc_client.CallAsync<T>(method_name, request);
+
+        return response;
+    }
+}
+
+
+
+
+// --- Types ---
+__TYPES__
+
+
+
+// --- Utility codes ---
+
+/** JSON-RPC request class. See https://www.jsonrpc.org/specification */
+export class JsonRpcRequest
+{
+    public jsonrpc: string = "2.0";
+    public method: string;
+    public params: any;
+    public id: string;
+
+    constructor(method: string = "", param: any = null, id: string = "")
+    {
+        this.method = method;
+        this.params = param;
+        this.id = id;
+    }
+}
+
+/** JSON-RPC error class. See https://www.jsonrpc.org/specification */
+export class JsonRpcError
+{
+    public code: number;
+    public message: string;
+    public data: any;
+
+    constructor(code: number = 0, message: string = "", data: any = null)
+    {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+}
+
+/** JSON-RPC response class with generics */
+export class JsonRpcResponse<TResult>
+{
+    public jsonrpc: string = "2.0";
+    public result: TResult = null!;
+    public error: JsonRpcError = null!;
+    public id: string = "";
+}
+
+/** JSON-RPC client class. See https://www.jsonrpc.org/specification */
+export class JsonRpcClient
+{
+    /** A utility function to convert any object to JSON string */
+    public static ObjectToJson(obj: any): string
+    {
+        return JSON.stringify(obj,
+            (key, value) =>
+            {
+                if (key.endsWith("_bin"))
+                {
+                    return Util_Base64_Encode(value);
+                }
+                return value;
+            }
+            , 4);
+    }
+
+    /** A utility function to convert JSON string to object */
+    public static JsonToObject(str: string): any
+    {
+        return JSON.parse(str,
+            (key, value) =>
+            {
+                if (key.endsWith("_bin"))
+                {
+                    return Util_Base64_Decode(value);
+                }
+                else if (key.endsWith("_dt"))
+                {
+                    return new Date(value);
+                }
+                return value;
+            });
+    }
+
+    /** Base URL */
+    public BaseUrl: string;
+
+    /** The instance of HTTP client */
+    private client: HttpClient;
+
+    /** Additional HTTP headers */
+    private headers: { [name: string]: string };
+
+    /**
+     * JSON-RPC client class constructor
+     * @param url The URL
+     * @param headers Additional HTTP headers
+     * @param send_credential Set true to use the same credential with the browsing web site. Valid only if the code is running on the web browser.
+     */
+    constructor(url: string, headers: { [name: string]: string }, send_credential: boolean, nodejs_https_client_reject_untrusted_server_cert: boolean)
+    {
+        this.BaseUrl = url;
+        this.headers = headers;
+
+        this.client = new HttpClient();
+        this.client.SendCredential = send_credential;
+        this.client.NodeJS_HTTPS_Client_Reject_Unauthorized = nodejs_https_client_reject_untrusted_server_cert;
+    }
+
+    /**
+     * Call a single RPC call (without error check). You can wait for the response with Promise<string> or await statement.
+     * @param method_name The name of RPC method
+     * @param param The parameters
+     */
+    public async CallInternalAsync(method_name: string, param: any): Promise<string>
+    {
+        let id = "1";
+
+        let req = new JsonRpcRequest(method_name, param, id);
+
+        let req_string = JsonRpcClient.ObjectToJson(req);
+
+        if (debug_mode)
+        {
+            console.log("--- RPC Request Body ---");
+            console.log(req_string);
+            console.log("------------------------");
+        }
+
+        let http_response = await this.client.PostAsync(this.BaseUrl, this.headers,
+            req_string, "application/json");
+
+        let ret_string = http_response.Body;
+
+        if (debug_mode)
+        {
+            console.log("--- RPC Response Body ---");
+            console.log(ret_string);
+            console.log("-------------------------");
+        }
+
+        return ret_string;
+    }
+
+    /**
+     * Call a single RPC call (with error check). You can wait for the response with Promise<TResult> or await statement. In the case of error, it will be thrown.
+     * @param method_name The name of RPC method
+     * @param param The parameters
+     */
+    public async CallAsync<TResult>(method_name: string, param: any): Promise<TResult>
+    {
+        let ret_string = await this.CallInternalAsync(method_name, param);
+
+        let ret: JsonRpcResponse<TResult> = JSON.parse(ret_string);
+
+        if (is_null(ret.error) === false)
+        {
+            throw new JsonRpcException(ret.error);
+        }
+
+        return ret.result;
+    }
+}
+
+/** JSON-RPC exception class */
+export class JsonRpcException extends Error
+{
+    public Error: JsonRpcError;
+
+    constructor(error: JsonRpcError)
+    {
+        super(`Code=${error.code}, Message=${error.message}`);
+        this.Error = error;
+    }
+}
+
+/** HTTP client exception class */
+export class HttpClientException extends Error
+{
+    constructor(message: string)
+    {
+        super(message);
+    }
+}
+
+/** HTTP client response class */
+export class HttpClientResponse
+{
+    public Body: string = "";
+}
+
+/** An HTTP client which can be used in both web browsers and Node.js */
+export class HttpClient
+{
+    public TimeoutMsecs: number = 60 * 5 * 1000;
+    public SendCredential: boolean = true;
+    public NodeJS_HTTPS_Client_Reject_Unauthorized: boolean = false;
+
+    /** Post method. In web browsers this function will process the request by itself. In Node.js this function will call PostAsync_NodeJS() instead. */
+    public async PostAsync(url: string, headers: { [name: string]: string },
+        req_body: string, req_media_type: string): Promise<HttpClientResponse>
+    {
+        if (is_node_js)
+        {
+            return this.PostAsync_NodeJS(url, headers, req_body, req_media_type);
+        }
+
+        let fetch_header_list = new Headers();
+
+        for (let name of Object.keys(headers))
+        {
+            fetch_header_list.append(name, headers[name]);
+        }
+
+        let fetch_init: RequestInit =
+        {
+            mode: "cors",
+            headers: fetch_header_list,
+            credentials: (this.SendCredential ? "include" : "omit"),
+            method: "POST",
+            cache: "no-cache",
+            keepalive: true,
+            redirect: "follow",
+            body: req_body,
+        };
+
+        let fetch_response = await fetch(url, fetch_init);
+
+        if (fetch_response.ok === false)
+        {
+            throw new HttpClientException("HTTP Error: " + fetch_response.status + " " + fetch_response.statusText);
+        }
+
+        let ret = new HttpClientResponse();
+
+        ret.Body = await fetch_response.text();
+
+        return ret;
+    }
+
+    /** Post method for Node.js. */
+    public PostAsync_NodeJS(url: string, headers: { [name: string]: string },
+        req_body: string, req_media_type: string): Promise<HttpClientResponse>
+    {
+        const https = require("https");
+        const keepAliveAgent = new https.Agent({ keepAlive: true });
+        const urlparse = require("url");
+
+        const urlobj = urlparse.parse(url);
+
+        if (is_null(urlobj.host)) throw new Error("URL is invalid.");
+
+        let options =
+        {
+            host: urlobj.hostname,
+            port: urlobj.port,
+            path: urlobj.path,
+            rejectUnauthorized: this.NodeJS_HTTPS_Client_Reject_Unauthorized,
+            method: "POST",
+            timeout: this.TimeoutMsecs,
+            agent: keepAliveAgent,
+        };
+
+        return new Promise(function (resolve, reject)
+        {
+            let req = https.request(options, (res: any) =>
+            {
+                if (res.statusCode !== 200)
+                {
+                    reject(new HttpClientException("HTTP Error: " + res.statusCode + " " + res.statusMessage));
+                }
+
+                let recv_str: string = "";
+
+                res.on("data", (body: any) =>
+                {
+                    recv_str += body;
+                });
+
+                res.on("end", () =>
+                {
+                    let ret = new HttpClientResponse();
+
+                    ret.Body = recv_str;
+
+                    resolve(ret);
+                });
+            }).on("error", (err: any) =>
+            {
+                throw err;
+            }
+            );
+
+            for (let name of Object.keys(headers))
+            {
+                req.setHeader(name, !is_null(headers[name]) ? headers[name] : "");
+            }
+            req.setHeader("Content-Type", req_media_type);
+            req.setHeader("Content-Length", Buffer.byteLength(req_body));
+            req.write(req_body);
+            req.end();
+        });
+    }
+}
+
+
+
+
+//////// BEGIN: Base64 encode / decode utility functions from https://github.com/beatgammit/base64-js
+// The MIT License(MIT)
+// Copyright(c) 2014
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+var lookup: any = [];
+var revLookup: any = [];
+
+var code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+for (var i = 0, len = code.length; i < len; ++i)
+{
+    lookup[i] = code[i];
+    revLookup[code.charCodeAt(i)] = i;
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup["-".charCodeAt(0)] = 62;
+revLookup["_".charCodeAt(0)] = 63;
+
+function getLens(b64: any)
+{
+    var len = b64.length;
+
+    if (len % 4 > 0)
+    {
+        throw new Error("Invalid string. Length must be a multiple of 4");
+    }
+
+    // Trim off extra bytes after placeholder bytes are found
+    // See: https://github.com/beatgammit/base64-js/issues/42
+    var validLen = b64.indexOf("=");
+    if (validLen === -1) validLen = len;
+
+    var placeHoldersLen = validLen === len
+        ? 0
+        : 4 - (validLen % 4);
+
+    return [validLen, placeHoldersLen];
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength(b64: any)
+{
+    var lens = getLens(b64);
+    var validLen = lens[0];
+    var placeHoldersLen = lens[1];
+    return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen;
+}
+
+function _byteLength(b64: any, validLen: any, placeHoldersLen: any)
+{
+    return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen;
+}
+
+export function Util_Base64_Decode(b64: any)
+{
+    var tmp;
+    var lens = getLens(b64);
+    var validLen = lens[0];
+    var placeHoldersLen = lens[1];
+
+    var arr = new Uint8Array(_byteLength(b64, validLen, placeHoldersLen));
+
+    var curByte = 0;
+
+    // if there are placeholders, only get up to the last complete 4 chars
+    var len = placeHoldersLen > 0
+        ? validLen - 4
+        : validLen;
+
+    for (var i = 0; i < len; i += 4)
+    {
+        tmp =
+            (revLookup[b64.charCodeAt(i)] << 18) |
+            (revLookup[b64.charCodeAt(i + 1)] << 12) |
+            (revLookup[b64.charCodeAt(i + 2)] << 6) |
+            revLookup[b64.charCodeAt(i + 3)];
+        arr[curByte++] = (tmp >> 16) & 0xFF;
+        arr[curByte++] = (tmp >> 8) & 0xFF;
+        arr[curByte++] = tmp & 0xFF;
+    }
+
+    if (placeHoldersLen === 2)
+    {
+        tmp =
+            (revLookup[b64.charCodeAt(i)] << 2) |
+            (revLookup[b64.charCodeAt(i + 1)] >> 4);
+        arr[curByte++] = tmp & 0xFF;
+    }
+
+    if (placeHoldersLen === 1)
+    {
+        tmp =
+            (revLookup[b64.charCodeAt(i)] << 10) |
+            (revLookup[b64.charCodeAt(i + 1)] << 4) |
+            (revLookup[b64.charCodeAt(i + 2)] >> 2);
+        arr[curByte++] = (tmp >> 8) & 0xFF;
+        arr[curByte++] = tmp & 0xFF;
+    }
+
+    return arr;
+}
+
+function tripletToBase64(num: any)
+{
+    return lookup[num >> 18 & 0x3F] +
+        lookup[num >> 12 & 0x3F] +
+        lookup[num >> 6 & 0x3F] +
+        lookup[num & 0x3F];
+}
+
+function encodeChunk(uint8: any, start: any, end: any)
+{
+    var tmp;
+    var output = [];
+    for (var i = start; i < end; i += 3)
+    {
+        tmp =
+            ((uint8[i] << 16) & 0xFF0000) +
+            ((uint8[i + 1] << 8) & 0xFF00) +
+            (uint8[i + 2] & 0xFF);
+        output.push(tripletToBase64(tmp));
+    }
+    return output.join("");
+}
+
+export function Util_Base64_Encode(uint8: any)
+{
+    var tmp;
+    var len = uint8.length;
+    var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
+    var parts = [];
+    var maxChunkLength = 16383; // must be multiple of 3
+
+    // go through the array every three bytes, we'll deal with trailing stuff later
+    for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength)
+    {
+        parts.push(encodeChunk(
+            uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+        ));
+    }
+
+    // pad the end with zeros, but make sure to not forget the extra bytes
+    if (extraBytes === 1)
+    {
+        tmp = uint8[len - 1];
+        parts.push(
+            lookup[tmp >> 2] +
+            lookup[(tmp << 4) & 0x3F] +
+            "=="
+        );
+    } else if (extraBytes === 2)
+    {
+        tmp = (uint8[len - 2] << 8) + uint8[len - 1];
+        parts.push(
+            lookup[tmp >> 10] +
+            lookup[(tmp >> 4) & 0x3F] +
+            lookup[(tmp << 2) & 0x3F] +
+            "="
+        );
+    }
+
+    return parts.join("");
+}
+//////// END: Base64 encode / decode utility functions from https://github.com/beatgammit/base64-js
+
+
+

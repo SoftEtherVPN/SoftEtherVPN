@@ -267,6 +267,7 @@ struct SERVER
 
 	IP ListenIP;						// Listen IP
 	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
+	bool DisableJsonRpcWebApi;					// Disable JSON-RPC Web API
 };
 
 
@@ -290,6 +291,7 @@ struct RPC_SESSION_STATUS
 	RPC_CLIENT_GET_CONNECTION_STATUS Status;		// Status
 	UINT ClientIp;									// Client IP address
 	UCHAR ClientIp6[16];							// Client IPv6 address
+	IP ClientIpAddress;								// Client IP address (IPv4/IPv6)
 	char ClientHostName[MAX_HOST_NAME_LEN + 1];		// Client host name
 	NODE_INFO NodeInfo;								// Node information
 };

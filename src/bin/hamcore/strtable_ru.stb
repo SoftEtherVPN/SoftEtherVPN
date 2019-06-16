@@ -158,11 +158,11 @@ ERR_91					Unable to disconnect the Virtual Layer 3 Switch session. To delete th
 ERR_92					A Virtual Layer 3 Switch with the specified name already exists. Specify a different name.
 ERR_93					Specified Virtual Layer 3 Switch not found.
 ERR_94					The specified name is invalid. Check if the name contains characters that cannot be used.
-ERR_95					Failed to add the Virtual Layer 3 interface.
-ERR_96					Failed to delete the Virtual Layer 3 interface.
+ERR_95					Failed to add the Virtual Layer 3 interface. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96					Failed to delete the Virtual Layer 3 interface. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97					The Virtual Layer 3 interface that is connecting to the destination Virtual Hub of the specified Virtual Layer 3 interface already exists in the Virtual Layer 3 Switch. No more than one Virtual Layer 3 interface that connects to the same Virtual Hub can be defined in a Virtual Layer 3 Switch.
-ERR_98					Failed to add routing table entry.
-ERR_99					Failed to delete routing table entry.
+ERR_98					Failed to add routing table entry. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99					Failed to delete routing table entry. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100					The specified routing table entry already exists.
 ERR_101					The client clock and the server clock are not synchronized with each other. Check the time settings.
 ERR_102					Unable to start this Virtual Layer 3 Switch. \r\n\r\nTo start the Virtual Layer 3 Switch, at least 1 virtual interface must be defined in the Virtual Layer 3 Switch.
@@ -1788,6 +1788,9 @@ LS_LICENSE_NOT_VPNSERVER	Connection "%S": License error occurred. The VPN Client
 LS_LICENSE_NOT_VPNCLUSTER	Connection "%S": License error occurred. The license registered on this VPN Server is of a type that prevents the use of the current clustering function and a VPN Client has attempted connection while operating in Cluster mode. You must restart the VPN Server.
 LS_LICENSE_VIOLATION		Connection "%S": A license violation has occurred on the VPN Server and connections are not being received.
 LS_LICENSE_VIOLATION_DETECTED	A license violation has been detected. A different VPN Server is operating with the same server ID "%I64u" as this VPN Server. It is possible that there are two or more VPN Servers in the cluster that are using the same license. Check the license information of each VPN Server.
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN Logs)

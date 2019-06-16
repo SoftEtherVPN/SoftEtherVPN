@@ -681,6 +681,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	{
 		ADMIN_OPTION *a = LIST_DATA(aol, i);
 
+		UniStrCpy(a->Descrption, sizeof(a->Descrption), GetHubAdminOptionHelpString(a->Name));
+
 		Copy(&ao->Items[i], a, sizeof(ADMIN_OPTION));
 
 		Free(a);

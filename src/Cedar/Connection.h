@@ -216,6 +216,9 @@ struct CONNECTION
 	UINT LastPacketQueueSize;		// The last queue size of packets
 	UINT LastRecvFifoTotalSize;		// The last RecvFifo total size
 	UINT LastRecvBlocksNum;			// The last ReceivedBlocks num
+	bool IsJsonRpc;					// Is JSON-RPC
+	bool JsonRpcAuthed;				// JSON-RPC Authed
+	LISTENER *Listener;				// Listener ref
 };
 
 

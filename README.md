@@ -9,6 +9,9 @@
   * [For Ubuntu](#for-ubuntu)
   * [From binary installers:](#from-binary-installers)
   * [Build from Source code](#build-from-source-code)
+- [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
+  * [Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console](#built-in-softether-vpn-server-html5-ajax-based-web-administration-console)
+  * [Built-in SoftEther Server VPN JSON-RPC API Suite](#built-in-softether-server-vpn-json-rpc-api-suite)
 - [TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION](#to-circumvent-your-governments-firewall-restriction)
 - [SOURCE CODE CONTRIBUTION](#source-code-contribution)
 - [DEAR SECURITY EXPERTS](#dear-security-experts)
@@ -153,6 +156,39 @@ There are two flavours of SoftEtherVPN source code:
 
 1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
 2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
+
+
+# About HTML5-based Modern Admin Console and JSON-RPC API Suite
+
+## Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console
+We are developing the HTML5 Ajax-based Web Administration Console (currently very limited, under construction) in the embedded HTTPS server on the SoftEther VPN Server.
+
+Access to the following URL from your favorite web browser.
+
+```
+https://<vpn_server_hostname>:<port>/admin/
+```
+
+For example if your VPN Server is running as the port 5555 on the host at 192.168.0.1, you can access to the web console by:
+
+```
+https://192.168.0.1:5555/admin/
+```
+
+Note: Your HTML5 development contribution is very appreciated. The current HTML5 pages are written by Daiyuu Nobori (the core developer of SoftEther VPN). He is obviously lack of HTML5 development ability. Please kindly consider to contribute for SoftEther VPN's development on GitHub. Your code will help every people running SoftEther VPN Server.
+
+
+## Built-in SoftEther Server VPN JSON-RPC API Suite
+The API Suite allows you to easily develop your original SoftEther VPN Server management application to control the VPN Server (e.g. creating users, adding Virtual Hubs, disconnecting a specified VPN sessions).
+
+You can access to the [latest SoftEther VPN Server JSON-RPC Document on GitHub.](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/)
+
+- Almost all control APIs, which the VPN Server provides, are available as JSON-RPC API.
+You can write your own VPN Server management application in your favorite languages (JavaScript, TypeScript, Java, Python, Ruby, C#, ... etc.)
+- If you are planning to develop your own VPN cloud service, the JSON-RPC API is the best choice to realize the automated operations for the VPN Server.
+- No need to use any specific API client library since all APIs are provided on the JSON-RPC 2.0 Specification. You can use your favorite JSON and HTTPS client library to call any of all APIs in your pure runtime environment.
+- Also, the SoftEther VPN Project provides high-quality JSON-RPC client stub libraries which define all of the API client stub codes. These libraries are written in C#, JavaScript and TypeScript. The Node.js Client Library for VPN Server RPC (vpnrpc) package is also available.
+
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
