@@ -871,9 +871,13 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			p.BridgeMode = true;
 		}
 
-		if (c->ClientCert.X != NULL)
+		if (IsEmptyStr(c->ClientKey.Username) || IsEmptyStr(c->ClientKey.Password))
 		{
-			p.ClientCertificate = c->ClientCert.X;
+			// OpenVPN X.509 certificate authentication will be used only when no username / password is specified
+			if (c->ClientCert.X != NULL)
+			{
+				p.ClientCertificate = c->ClientCert.X;
+			}
 		}
 
 		// Calculate the MSS
