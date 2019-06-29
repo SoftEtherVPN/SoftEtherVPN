@@ -1717,6 +1717,59 @@ HANDLE MsCreateUserToken()
 	return hNewToken;
 }
 
+// Check whether SHA-2 kernel mode signature is supported
+bool MsIsSha2KernelModeSignatureSupported()
+{
+	HINSTANCE hDll;
+	bool ret = false;
+
+	if (MsIsWindows8())
+	{
+		return true;
+	}
+
+	hDll = LoadLibrary("Wintrust.dll");
+	if (hDll == NULL)
+	{
+		return false;
+	}
+
+	if (GetProcAddress(hDll, "CryptCATAdminAcquireContext2") != NULL)
+	{
+		ret = true;
+	}
+
+	FreeLibrary(hDll);
+
+	return ret;
+}
+
+// Check whether KB3033929 is required
+bool MsIsKB3033929RequiredAndMissing()
+{
+	OS_INFO *info = GetOsInfo();
+
+	if (info == NULL)
+	{
+		return false;
+	}
+
+	if (OS_IS_WINDOWS_NT(info->OsType))
+	{
+		if (GET_KETA(info->OsType, 100) == 6)
+		{
+			if (MsIsX64())
+			{
+				if (MsIsSha2KernelModeSignatureSupported() == false)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
 
 // Check the digital signature of the file
 bool MsCheckFileDigitalSignatureW(HWND hWnd, wchar_t *name, bool *danger)
