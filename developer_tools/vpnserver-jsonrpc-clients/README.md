@@ -55,10 +55,10 @@ If you are willing to develop your original JSON-RPC client for SoftEther VPN, y
 
 
 ### "vpnserver-jsonrpc-client-csharp": C# Client Library for VPN Server JSON-RPC
-If you are willing to develop your original JSON-RPC client for SoftEther VPN, you can use the [vpnserver-jsonrpc-client-csharp C# library](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-client-csharp/).
+If you are willing to develop your original JSON-RPC client for SoftEther VPN, you can use the [vpnserver-jsonrpc-client-csharp C# library](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/).
 
-  - The [client library codes for C#](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-client-csharp/rpc-stubs/) is written in pure C# 7.3. It works on .NET Core 2.1 or later on Windows, Linux and macOS. Very comfort with Visual Studio for both Windows or macOS.
-  - As a sample code there is the [VpnServerRpcTest.cs](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-client-csharp/sample/VpnServerRpcTest.cs) program in C#. This sample calls one by one all of available JSON-RPC APIs against the specified SoftEther VPN Server.
+  - The [client library codes for C#](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/rpc-stubs/) is written in pure C# 7.3. It works on .NET Core 2.1 or later on Windows, Linux and macOS. Very comfort with Visual Studio for both Windows or macOS.
+  - As a sample code there is the [VpnServerRpcTest.cs](https://github.com/SoftEtherVPN/SoftEtherVPN/blob/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/sample/VpnServerRpcTest.cs) program in C#. This sample calls one by one all of available JSON-RPC APIs against the specified SoftEther VPN Server.
 
 
 
@@ -8730,6 +8730,6 @@ Name | Type | Descrption
 `ProxyPassword_str` | `string` (ASCII) | Proxy server password
 
 ***
-Automatically generated at 2019-05-29 18:21:39 by vpnserver-jsonrpc-codegen.  
+Automatically generated at 2019-06-29 21:13:00 by vpnserver-jsonrpc-codegen.  
 Copyright (c) 2014-2019 [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  
 
