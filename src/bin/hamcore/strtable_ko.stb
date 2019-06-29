@@ -7134,6 +7134,8 @@ SW_WEB2_TITLE 파일 지정
 SW_UNINSTALLINFO_URL http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER SoftEther VPN Project
 
+SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
+
 
 SW_COMPONENTS_ABOUT_TAG '%s'는
 SW_COMPONENTS_REQUIRE_ADMIN 설치하려면 관리자 권한이 있어야합니다
