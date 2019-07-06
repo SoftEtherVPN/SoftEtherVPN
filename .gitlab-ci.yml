@@ -29,6 +29,8 @@ precise:
 
 # illumos gitlab-runner maintained by @hww3
 build_illumos:
+  only:
+    - master@SoftEther/SoftEtherVPN
   tags: 
     - illumos
   script:
