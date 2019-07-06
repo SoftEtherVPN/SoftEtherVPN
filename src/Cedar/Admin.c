@@ -411,7 +411,7 @@ bool AdminWebHandleFileRequest(ADMIN *a, CONNECTION *c, SOCK *s, HTTP_HEADER *h,
 	bool ret = false;
 	char url[MAX_PATH];
 	UINT i, len;
-	if (a == NULL || c == NULL || s == NULL || h == NULL || url == NULL || query_string == NULL ||
+	if (a == NULL || c == NULL || s == NULL || h == NULL || query_string == NULL ||
 		virtual_root_dir == NULL || physical_root_dir == NULL)
 	{
 		return false;
