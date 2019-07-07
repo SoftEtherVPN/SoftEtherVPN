@@ -306,6 +306,7 @@ struct SOCK
 	UINT CurrentTtl;			// Current TTL value
 	RUDP_STACK *R_UDP_Stack;	// R-UDP stack
 	char UnderlayProtocol[64];	// Underlying protocol
+	char ProtocolDetails[256];		// Protocol Details
 	QUEUE *ReverseAcceptQueue;	// Accept queue for the reverse socket
 	EVENT *ReverseAcceptEvent;	// Accept event for the reverse socket
 	bool IsReverseAcceptedSocket;	// Whether it is a reverse socket
@@ -660,6 +661,12 @@ struct IPBLOCK
 #define	RUDP_TIMEOUT					12000		// Time-out of R-UDP communication
 #define	RUDP_DIRECT_CONNECT_TIMEOUT		5000		// R-UDP direct connection time-out
 #define	RUDP_MAX_SEGMENT_SIZE			512			// Maximum segment size
+#define	RUDP_BULK_KEY_SIZE_MAX			128			// Bulk key size Max
+
+#define	RUDP_BULK_KEY_SIZE_V2			32			// V2: Bulk key size
+#define RUDP_BULK_IV_SIZE_V2			12			// V2: Bulk IV size
+#define RUDP_BULK_MAC_SIZE_V2			16			// V2: Bulk MAC size
+
 // Maximum R-UDP packet size
 #define	RUDP_MAX_PACKET_SIZE			(RUDP_MAX_SEGMENT_SIZE + sizeof(UINT64) * RUDP_MAX_NUM_ACK + SHA1_SIZE * 2 + sizeof(UINT64) * 4 + sizeof(UINT) + 255)
 #define	RUDP_MAX_NUM_ACK				64			// Maximum number of ACKs
@@ -748,6 +755,7 @@ struct RUDP_SESSION
 	UINT64 BulkNextSeqNo;				// Next SEQ NO to the bulk send
 	bool FlushBulkSendTube;				// Flag to be Flush the bulk send Tube
 	UINT64 BulkRecvSeqNoMax;			// Highest sequence number received
+	UCHAR BulkNextIv_V2[RUDP_BULK_IV_SIZE_V2];		// Next IV to the bulk send (Ver 2)
 };
 
 // NAT Traversal Server Information
@@ -1045,11 +1053,13 @@ UINT GetContentLength(HTTP_HEADER *header);
 void GetHttpDateStr(char *str, UINT size, UINT64 t);
 bool HttpSendForbidden(SOCK *s, char *target, char *server_id);
 bool HttpSendNotFound(SOCK *s, char *target);
+bool HttpSendBody(SOCK *s, void *data, UINT size, char *contents_type);
 bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);
 bool HttpSendInvalidHostname(SOCK *s, char *method);
 bool HttpServerSend(SOCK *s, PACK *p);
 bool HttpClientSend(SOCK *s, PACK *p);
 PACK *HttpServerRecv(SOCK *s);
+PACK *HttpServerRecvEx(SOCK *s, UINT max_data_size);
 PACK *HttpClientRecv(SOCK *s);
 
 bool HttpSendServerError(SOCK *s, char *target);
@@ -1307,7 +1317,7 @@ bool SendAll(SOCK *sock, void *data, UINT size, bool secure);
 void SendAdd(SOCK *sock, void *data, UINT size);
 bool SendNow(SOCK *sock, int secure);
 bool RecvAll(SOCK *sock, void *data, UINT size, bool secure);
-bool RecvAllEx(SOCK *sock, void **data_new_ptr, UINT size, bool secure);
+bool RecvAllWithDiscard(SOCK *sock, UINT size, bool secure);
 void InitSockSet(SOCKSET *set);
 void AddSockSet(SOCKSET *set, SOCK *sock);
 CANCEL *NewCancel();
@@ -1433,6 +1443,10 @@ void DebugPrintRoute(ROUTE_ENTRY *e);
 void DebugPrintRouteTable(ROUTE_TABLE *r);
 bool IsIPv6LocalNetworkAddress(IP *ip);
 UINT GetNumWaitThread();
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str);
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value);
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value);
+void TryGetCurrentAcceptingIPv4Address(IP *ip);
 
 #ifdef	ENABLE_SSL_LOGGING
 void SockEnableSslLogging(SOCK *s);
@@ -1605,7 +1619,16 @@ void Win32WaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 #endif	// OS_WIN32
 
+#define PREVERIFY_ERR_MESSAGE_SIZE 100
+// Info on client certificate collected during TLS handshake
+struct SslClientCertInfo {
+	int PreverifyErr;
+	char PreverifyErrMessage[PREVERIFY_ERR_MESSAGE_SIZE];
+	X *X;
+};
+
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh);
+SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
 void FreeSslPipe(SSL_PIPE *s);
 bool SyncSslPipe(SSL_PIPE *s);
 

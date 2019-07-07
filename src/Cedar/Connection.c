@@ -1267,6 +1267,8 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 										s->TotalSendSizeReal += b->Size;
 
 										c->CurrentSendQueueSize -= b->Size;
+
+										Free(new_buf);
 									}
 
 									FreeBlock(b);
@@ -1860,6 +1862,18 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 			if (s->IsRUDPSession)
 			{
 				TUBE *t = sock->BulkRecvTube;
+
+				//for testing purpose
+				//if (sock->test_tmp1 == 0) sock->test_tmp1 = now;
+				//if ((sock->test_tmp1 + 5000ULL) <= now)
+				//{
+				//	// bugbug
+				//	if (c->ServerMode == false)
+				//	{
+				//		WHERE;
+				//		Disconnect(sock);
+				//	}
+				//}
 
 				if (s->EnableBulkOnRUDP)
 				{
@@ -2788,6 +2802,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 	}
 
 	b = MallocFast(sizeof(BLOCK));
+
+	b->RawFlagRetUdpAccel = 0;
 
 	b->IsFlooding = false;
 

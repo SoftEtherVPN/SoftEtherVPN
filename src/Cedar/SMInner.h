@@ -166,6 +166,7 @@ typedef struct SM_SERVER
 	bool VgsMessageDisplayed;	// Whether to have already displayed a message about VGS
 	WINUI_UPDATE *Update;		// Update notification
 	bool IsInClient;			// Within VPN Client mode
+	bool LicenseWarnFlag;
 } SM_SERVER;
 
 typedef void (SM_STATUS_INIT_PROC)(HWND hWnd, SM_SERVER *p, void *param);

@@ -104,6 +104,25 @@ be disabled anytime by setting up so on the VPN-client side.
 
 
 2. VPN Software
+The notes in this section are not specific to SoftEther VPN or VPN Gate, but
+apply to general system software. SoftEther VPN Client, SoftEther VPN Server,
+SoftEther VPN Bridge, and VPN Gate Relay Service will be installed on your
+computer as system services. System services always run in the background.
+System services usually do not appear on the computer display. Then your
+computer system is booted, system services automatically start in the
+background even before you or other users log in. To check whether
+PacketiX-related system service is running, check the process list or the
+background service list of your OS (called as "Services" in Windows, or
+"Daemons" in UNIX.) You can activate, deactivate, start, or stop system
+services using the functions of the OS anytime. PacketiX-related GUI tools for
+managing system services communicate with these system services. After you
+terminate these management GUI tools, PacketiX-related system services will
+continue to run in the background. System services consume CPU time, computer
+power, memory and disk space. Because system services consume power, your
+electricity charges and amount of thermal of your computer increase as result.
+In addition, there is a possibility that the mechanical parts of the life of
+your computer is reduced.
+
 2.1. SoftEther VPN Client
 If you use SoftEther VPN Client on Windows, the Virtual Network Adapter device
 driver will be installed on Windows. The Virtual Network Adapter is

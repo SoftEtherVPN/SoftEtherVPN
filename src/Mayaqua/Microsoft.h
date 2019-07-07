@@ -1017,6 +1017,9 @@ bool MsIsInfCatalogRequired();
 bool MsCheckFileDigitalSignature(HWND hWnd, char *name, bool *danger);
 bool MsCheckFileDigitalSignatureW(HWND hWnd, wchar_t *name, bool *danger);
 
+bool MsIsKB3033929RequiredAndMissing();
+bool MsIsSha2KernelModeSignatureSupported();
+
 
 bool MsGetProcessExeName(char *path, UINT size, UINT id);
 bool MsGetProcessExeNameW(wchar_t *path, UINT size, UINT id);

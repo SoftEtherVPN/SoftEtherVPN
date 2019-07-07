@@ -367,8 +367,8 @@ void RouteTrackingMain(SESSION *s)
 			if (IPToUINT(&e->DestIP) == 0 &&
 				IPToUINT(&e->DestMask) == 0)
 			{
-				Debug("e->InterfaceID = %u, t->VLanInterfaceId = %u\n",
-					e->InterfaceID, t->VLanInterfaceId);
+				//Debug("e->InterfaceID = %u, t->VLanInterfaceId = %u\n",
+				//	e->InterfaceID, t->VLanInterfaceId);
 
 				if (e->InterfaceID == t->VLanInterfaceId)
 				{

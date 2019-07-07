@@ -240,6 +240,8 @@ void GetDateStrEx64(wchar_t *str, UINT size, UINT64 sec64, LOCALE *locale);
 void GetTimeStrMilli64(char *str, UINT size, UINT64 sec64);
 void GetTimeStr64(char *str, UINT size, UINT64 sec64);
 void GetDateTimeStrRFC3339(char *str, UINT size, SYSTEMTIME *st, int timezone_min);
+bool DateTimeStrRFC3339ToSystemTime(SYSTEMTIME *st, char *str);
+UINT64 DateTimeStrRFC3339ToSystemTime64(char *str);
 UINT64 SafeTime64(UINT64 sec64);
 bool Run(char *filename, char *arg, bool hide, bool wait);
 bool RunW(wchar_t *filename, wchar_t *arg, bool hide, bool wait);

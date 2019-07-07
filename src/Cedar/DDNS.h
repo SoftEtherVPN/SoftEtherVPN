@@ -208,6 +208,8 @@ struct DDNS_REGISTER_PARAM
 struct DDNS_CLIENT_STATUS
 {
 	UINT Err_IPv4, Err_IPv6;				// Last error
+	wchar_t ErrStr_IPv4[MAX_SIZE];
+	wchar_t ErrStr_IPv6[MAX_SIZE];
 	char CurrentHostName[DDNS_MAX_HOSTNAME + 1];	// Current host name
 	char CurrentFqdn[MAX_SIZE];				// Current FQDN
 	char DnsSuffix[MAX_SIZE];				// DNS suffix

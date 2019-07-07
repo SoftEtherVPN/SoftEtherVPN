@@ -152,12 +152,40 @@ struct ELEMENT
 	UINT num_value;			// Number of values (>=1)
 	UINT type;				// Type
 	VALUE **values;			// List of pointers to the value
+	bool JsonHint_IsArray;
+	bool JsonHint_IsBool;
+	bool JsonHint_IsDateTime;
+	bool JsonHint_IsIP;
+	char JsonHint_GroupName[MAX_ELEMENT_NAME_LEN + 1];
 };
+
+
 
 // PACK object
 struct PACK
 {
 	LIST *elements;			// Element list
+	LIST *json_subitem_names;	// JSON sub-item names
+	char CurrentJsonHint_GroupName[MAX_ELEMENT_NAME_LEN + 1];
+};
+
+
+#define MAX_JSONPACK_HINT_ITEMS			64
+#define JSONPACK_HINT_TYPE_ARRAY		1
+
+// JSON/PACK converter hint element
+struct JSONPACKHINT_ITEM
+{
+	UINT Type;
+	char ArrayNumNameInPack[MAX_ELEMENT_NAME_LEN + 1];
+	char ArrayMembersInPack[MAX_SIZE + 1];
+};
+
+// JSON/PACK converter hint
+struct JSONPACKHINT
+{
+	UINT NumHints;
+	JSONPACKHINT_ITEM Hints[MAX_JSONPACK_HINT_ITEMS];
 };
 
 
@@ -198,21 +226,23 @@ TOKEN_LIST *GetPackElementNames(PACK *p);
 
 X *PackGetX(PACK *p, char *name);
 K *PackGetK(PACK *p, char *name);
-void PackAddX(PACK *p, char *name, X *x);
-void PackAddK(PACK *p, char *name, K *k);
-void PackAddStr(PACK *p, char *name, char *str);
-void PackAddStrEx(PACK *p, char *name, char *str, UINT index, UINT total);
-void PackAddUniStr(PACK *p, char *name, wchar_t *unistr);
-void PackAddUniStrEx(PACK *p, char *name, wchar_t *unistr, UINT index, UINT total);
-void PackAddInt(PACK *p, char *name, UINT i);
-void PackAddNum(PACK *p, char *name, UINT num);
-void PackAddIntEx(PACK *p, char *name, UINT i, UINT index, UINT total);
-void PackAddInt64(PACK *p, char *name, UINT64 i);
-void PackAddInt64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total);
-void PackAddData(PACK *p, char *name, void *data, UINT size);
-void PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT total);
-void PackAddBuf(PACK *p, char *name, BUF *b);
-void PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total);
+ELEMENT *PackAddX(PACK *p, char *name, X *x);
+ELEMENT *PackAddK(PACK *p, char *name, K *k);
+ELEMENT *PackAddStr(PACK *p, char *name, char *str);
+ELEMENT *PackAddStrEx(PACK *p, char *name, char *str, UINT index, UINT total);
+ELEMENT *PackAddUniStr(PACK *p, char *name, wchar_t *unistr);
+ELEMENT *PackAddUniStrEx(PACK *p, char *name, wchar_t *unistr, UINT index, UINT total);
+ELEMENT *PackAddInt(PACK *p, char *name, UINT i);
+ELEMENT *PackAddNum(PACK *p, char *name, UINT num);
+ELEMENT *PackAddIntEx(PACK *p, char *name, UINT i, UINT index, UINT total);
+ELEMENT *PackAddInt64(PACK *p, char *name, UINT64 i);
+ELEMENT *PackAddInt64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total);
+ELEMENT *PackAddTime64(PACK *p, char *name, UINT64 i);
+ELEMENT *PackAddTime64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total);
+ELEMENT *PackAddData(PACK *p, char *name, void *data, UINT size);
+ELEMENT *PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT total);
+ELEMENT *PackAddBuf(PACK *p, char *name, BUF *b);
+ELEMENT *PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total);
 bool PackGetStr(PACK *p, char *name, char *str, UINT size);
 bool PackGetStrEx(PACK *p, char *name, char *str, UINT size, UINT index);
 bool PackGetUniStr(PACK *p, char *name, wchar_t *unistr, UINT size);
@@ -231,23 +261,39 @@ bool PackGetDataEx(PACK *p, char *name, void *data, UINT index);
 BUF *PackGetBuf(PACK *p, char *name);
 BUF *PackGetBufEx(PACK *p, char *name, UINT index);
 bool PackGetBool(PACK *p, char *name);
-void PackAddBool(PACK *p, char *name, bool b);
-void PackAddBoolEx(PACK *p, char *name, bool b, UINT index, UINT total);
+ELEMENT *PackAddBool(PACK *p, char *name, bool b);
+ELEMENT *PackAddBoolEx(PACK *p, char *name, bool b, UINT index, UINT total);
 bool PackGetBoolEx(PACK *p, char *name, UINT index);
 void PackAddIp(PACK *p, char *name, IP *ip);
 void PackAddIpEx(PACK *p, char *name, IP *ip, UINT index, UINT total);
+void PackAddIpEx2(PACK *p, char *name, IP *ip, UINT index, UINT total, bool is_single);
 bool PackGetIp(PACK *p, char *name, IP *ip);
 bool PackGetIpEx(PACK *p, char *name, IP *ip, UINT index);
 UINT PackGetIp32(PACK *p, char *name);
 UINT PackGetIp32Ex(PACK *p, char *name, UINT index);
 void PackAddIp32(PACK *p, char *name, UINT ip32);
 void PackAddIp32Ex(PACK *p, char *name, UINT ip32, UINT index, UINT total);
-void PackAddIp6AddrEx(PACK *p, char *name, IPV6_ADDR *addr, UINT index, UINT total);
+void PackAddIp32Ex2(PACK *p, char *name, UINT ip32, UINT index, UINT total, bool is_single);
+ELEMENT *PackAddIp6AddrEx(PACK *p, char *name, IPV6_ADDR *addr, UINT index, UINT total);
 bool PackGetIp6AddrEx(PACK *p, char *name, IPV6_ADDR *addr, UINT index);
-void PackAddIp6Addr(PACK *p, char *name, IPV6_ADDR *addr);
+ELEMENT *PackAddIp6Addr(PACK *p, char *name, IPV6_ADDR *addr);
 bool PackGetIp6Addr(PACK *p, char *name, IPV6_ADDR *addr);
 bool PackGetData2(PACK *p, char *name, void *data, UINT size);
 bool PackGetDataEx2(PACK *p, char *name, void *data, UINT size, UINT index);
 bool PackIsValueExists(PACK *p, char *name);
+void PackSetCurrentJsonGroupName(PACK *p, char *json_group_name);
+ELEMENT *ElementNullSafe(ELEMENT *p);
+
+JSON_VALUE *PackToJson(PACK *p);
+char *PackToJsonStr(PACK *p);
+
+PACK *JsonToPack(JSON_VALUE *v);
+PACK *JsonStrToPack(char *str);
+
+void PackArrayElementToJsonArray(JSON_ARRAY *ja, PACK *p, ELEMENT *e, UINT index);
+void PackElementToJsonObject(JSON_OBJECT *o, PACK *p, ELEMENT *e, UINT index);
+char *DetermineJsonSuffixForPackElement(ELEMENT *e);
+bool JsonTryParseValueAddToPack(PACK *p, JSON_VALUE *v, char *v_name, UINT index, UINT total, bool is_single);
+
 
 #endif	// PACK_H

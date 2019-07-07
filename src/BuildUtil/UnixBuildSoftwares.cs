@@ -696,6 +696,9 @@ namespace BuildUtil
 
 			sr.WriteLine("\t@echo");
 			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo \"Note: the administrative password is not set on the VPN Server. Please set your own administrative password as soon as possible by vpncmd or the GUI manager.\"");
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo");
 
 			sr.WriteLine("\t@echo \"*** How to start the {0} Service ***\"", BuildHelper.GetSoftwareTitle(this.Software));
 			sr.WriteLine("\t@echo");
@@ -707,6 +710,7 @@ namespace BuildUtil
 			sr.WriteLine("\t@echo \"And please execute './vpncmd' to run the SoftEther VPN Command-Line Utility to configure {0}.\"", BuildHelper.GetSoftwareTitle(this.Software));
 #endif
 			sr.WriteLine("\t@echo");
+
 #if !BU_SOFTETHER
 			sr.WriteLine("\t@echo \"Of course, you can use the VPN Server Manager GUI Application for Windows on the other Windows PC in order to configure the {0} remotely.\"", BuildHelper.GetSoftwareTitle(this.Software));
 #else
@@ -715,7 +719,6 @@ namespace BuildUtil
 
 #if !BU_SOFTETHER
 #else
-			sr.WriteLine("\t@echo");
 			sr.WriteLine("\t@echo");
 			sr.WriteLine("\t@echo \"*** For Windows users ***\"");
 			sr.WriteLine("\t@echo \"You can download the SoftEther VPN Server Manager for Windows\"");
@@ -730,6 +733,30 @@ namespace BuildUtil
 			sr.WriteLine("\t@echo");
 #endif
 
+			sr.WriteLine("\t@echo");
+
+			sr.WriteLine("\t@echo");
+#if !BU_SOFTETHER
+			sr.WriteLine("\t@echo \"*** SoftEther VPN Server HTML5 Web Administration Console (NEW) ***\"");
+#else
+			sr.WriteLine("\t@echo \"*** PacketiX VPN Server HTML5 Web Administration Console (NEW) ***\"");
+#endif
+			sr.WriteLine("\t@echo \"This VPN Server / Bridge has the built-in HTML5 Web Administration Console.\"");
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo \"After you start the server daemon, you can open the HTML5 Web Administration Console is available at\"");
+			sr.WriteLine("\t@echo");
+#if !BU_SOFTETHER
+			sr.WriteLine("\t@echo \"https://127.0.0.1:8888/\"");
+			sr.WriteLine("\t@echo \"  or\"");
+			sr.WriteLine("\t@echo \"https://ip_address_of_the_vpn_server:8888/\"");
+#else
+			sr.WriteLine("\t@echo \"https://127.0.0.1:5555/\"");
+			sr.WriteLine("\t@echo \"or\"");
+			sr.WriteLine("\t@echo \"https://ip_address_of_the_vpn_server:5555/\"");
+#endif
+			sr.WriteLine("\t@echo");
+			sr.WriteLine("\t@echo \"This HTML5 page is obviously under construction, and your HTML5 development contribution is very appreciated.\"");
+			sr.WriteLine("\t@echo");
 
 			sr.WriteLine("\t@echo \"--------------------------------------------------------------------\"");
 			sr.WriteLine("\t@echo");

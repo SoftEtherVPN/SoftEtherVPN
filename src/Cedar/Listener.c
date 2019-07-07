@@ -247,6 +247,9 @@ void TCPAcceptedThread(THREAD *t, void *param)
 	// Create a connection
 	c = NewServerConnection(r->Cedar, s, t);
 
+	AddRef(r->ref);
+	c->Listener = r;
+
 	// Register to Cedar as a transient connection
 	AddConnection(c->Cedar, c);
 
@@ -264,8 +267,11 @@ void TCPAcceptedThread(THREAD *t, void *param)
 	ConnectionAccept(c);
 	flag1 = c->flag1;
 
+
 	// Release
 	SLog(r->Cedar, "LS_CONNECTION_END_1", c->Name);
+	ReleaseListener(c->Listener);
+	c->Listener = NULL;
 	ReleaseConnection(c);
 
 	// Release

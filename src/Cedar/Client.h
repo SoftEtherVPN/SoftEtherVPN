@@ -433,6 +433,7 @@ struct RPC_CLIENT_GET_CONNECTION_STATUS
 	bool UseCompress;						// Use of compression
 	bool IsRUDPSession;						// R-UDP session
 	char UnderlayProtocol[64];				// Physical communication protocol
+	char ProtocolDetails[256];				// Protocol Details
 	bool IsUdpAccelerationEnabled;			// The UDP acceleration is enabled
 	bool IsUsingUdpAcceleration;			// Using the UDP acceleration function
 	char SessionName[MAX_SESSION_NAME_LEN + 1];	// Session name

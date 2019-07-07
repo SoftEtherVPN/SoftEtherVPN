@@ -384,6 +384,7 @@ struct ADMIN_OPTION
 {
 	char Name[MAX_ADMIN_OPTION_NAME_LEN + 1];	// Name
 	UINT Value;									// Data
+	wchar_t Descrption[MAX_SIZE];				// Descrption
 };
 
 // Certificate Revocation List entry
@@ -634,7 +635,7 @@ void CalcTrafficDiff(TRAFFIC *diff, TRAFFIC *old, TRAFFIC *current);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
 void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username);
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str);
 
 #endif	// HUB_H
 

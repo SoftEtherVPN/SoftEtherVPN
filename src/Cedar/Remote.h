@@ -139,6 +139,7 @@ bool RpcIsOk(PACK *p);
 UINT RpcGetError(PACK *p);
 void EndRpc(RPC *rpc);
 void RpcFree(RPC *rpc);
+void RpcFreeEx(RPC *rpc, bool no_disconnect);
 
 #endif	// REMOTE_H
 

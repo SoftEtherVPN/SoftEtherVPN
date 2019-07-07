@@ -552,6 +552,24 @@ namespace BuildUtil
 			}
 		}
 
+		// Delete node_modules file
+		public static void DeleteNodeModulesFilesFromHamCoreBuilder(HamCoreBuilder b)
+		{
+			List<string> removeFiles = new List<string>();
+			foreach (HamCoreBuilderFileEntry f in b.FileList)
+			{
+				string name = f.Name;
+				if (name.IndexOf(@"\node_modules\", StringComparison.InvariantCultureIgnoreCase) != -1)
+				{
+					removeFiles.Add(name);
+				}
+			}
+			foreach (string file in removeFiles)
+			{
+				b.DeleteFile(file);
+			}
+		}
+
 		// Build Hamcore file
 		public static void BuildHamcore()
 		{
@@ -594,6 +612,7 @@ namespace BuildUtil
 			Con.WriteLine("* Building hamcore ...");
 
 			DeleteSVNFilesFromHamCoreBuilder(b);
+			DeleteNodeModulesFilesFromHamCoreBuilder(b);
 
 			try
 			{
@@ -619,6 +638,7 @@ namespace BuildUtil
 			}
 
 			DeleteSVNFilesFromHamCoreBuilder(b);
+			DeleteNodeModulesFilesFromHamCoreBuilder(b);
 
 			try
 			{

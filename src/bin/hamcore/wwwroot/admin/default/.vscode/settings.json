@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "tsconfig_webpack.json": "jsonc"
+    }
+}

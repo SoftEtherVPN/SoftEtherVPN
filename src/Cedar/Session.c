@@ -1257,7 +1257,10 @@ void StopSessionEx(SESSION *s, bool no_wait)
 		// Client mode
 		if (s->Connection)
 		{
-			StopConnection(s->Connection, no_wait);
+			CONNECTION *c = s->Connection;
+			AddRef(c->ref);
+			StopConnection(c, no_wait);
+			ReleaseConnection(c);
 		}
 	}
 	else
@@ -1265,7 +1268,10 @@ void StopSessionEx(SESSION *s, bool no_wait)
 		// Server mode
 		if (s->Connection)
 		{
-			StopConnection(s->Connection, no_wait);
+			CONNECTION *c = s->Connection;
+			AddRef(c->ref);
+			StopConnection(c, no_wait);
+			ReleaseConnection(c);
 		}
 	}
 
@@ -1390,6 +1396,8 @@ void CleanupSession(SESSION *s)
 	}
 
 	DeleteCounter(s->LoggingRecordCount);
+
+	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
 
 	Free(s);
 }
@@ -2199,9 +2207,9 @@ void if_free(SESSION *s);
 // Create a server session
 SESSION *NewServerSession(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy)
 {
-	return NewServerSessionEx(cedar, c, h, username, policy, false);
+	return NewServerSessionEx(cedar, c, h, username, policy, false, NULL);
 }
-SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy, bool inproc_mode)
+SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy, bool inproc_mode, UCHAR *ipc_mac_address)
 {
 	SESSION *s;
 	char name[MAX_SIZE];
@@ -2322,28 +2330,35 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 	// Generate a MAC address for IPC
 	if (s->InProcMode)
 	{
-		char tmp[MAX_SIZE];
-		char machine[MAX_SIZE];
-		UCHAR hash[SHA1_SIZE];
+		if (ipc_mac_address != NULL)
+		{
+			Copy(s->IpcMacAddress, ipc_mac_address, 6);
+		}
+		else
+		{
+			char tmp[MAX_SIZE];
+			char machine[MAX_SIZE];
+			UCHAR hash[SHA1_SIZE];
 
-		GetMachineName(machine, sizeof(machine));
+			GetMachineName(machine, sizeof(machine));
 
-		Format(tmp, sizeof(tmp), "%s@%s@%u", machine, h->Name, s->UniqueId);
+			Format(tmp, sizeof(tmp), "%s@%s@%u", machine, h->Name, s->UniqueId);
 
-		StrUpper(tmp);
-		Trim(tmp);
+			StrUpper(tmp);
+			Trim(tmp);
 
-		Hash(hash, tmp, StrLen(tmp), true);
+			Hash(hash, tmp, StrLen(tmp), true);
 
-		s->IpcMacAddress[0] = 0xCA;
-		s->IpcMacAddress[1] = hash[1];
-		s->IpcMacAddress[2] = hash[2];
-		s->IpcMacAddress[3] = hash[3];
-		s->IpcMacAddress[4] = hash[4];
-		s->IpcMacAddress[5] = hash[5];
+			s->IpcMacAddress[0] = 0xCA;
+			s->IpcMacAddress[1] = hash[1];
+			s->IpcMacAddress[2] = hash[2];
+			s->IpcMacAddress[3] = hash[3];
+			s->IpcMacAddress[4] = hash[4];
+			s->IpcMacAddress[5] = hash[5];
 
-		MacToStr(tmp, sizeof(tmp), s->IpcMacAddress);
-		Debug("MAC Address for IPC: %s\n", tmp);
+			MacToStr(tmp, sizeof(tmp), s->IpcMacAddress);
+			Debug("MAC Address for IPC: %s\n", tmp);
+		}
 	}
 
 	return s;

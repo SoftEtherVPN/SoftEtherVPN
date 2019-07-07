@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- 9C37197CA7C2428388C2E6E59B829B30 -->
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>SoftEther VPN Server</title>
+</head>
+
+<body>
+
+<h1>SoftEther VPN Server / Bridge</h1>
+<p>For VPN users:</p>
+<ul>
+	<li>Connect to this VPN Server<ul>
+		<li>by <a href="https://www.softether-download.com/">Official SoftEther VPN 
+		Client (download)</a></li>
+		<li>by <a href="https://www.softether.org/">L2TP/IPsec, OpenVPN or SSTP 
+		traditional clients</a></li>
+	</ul>
+	</li>
+</ul>
+<p>For VPN administrators:</p>
+<ul>
+	<li>Manage this VPN Server or VPN Bridge<ul>
+		<li>by <a href="https://www.softether-download.com/">SoftEther VPN 
+		Server Manager GUI for Windows / macOS (download)</a> (Recommended)</li>
+		<li>by <a href="https://www.google.com/search?q=vpncmd">SoftEther VPN 
+		Command Line Management Utility (vpncmd)</a> for CUI</li>
+		<li>by <a href="/api/">JSON-RPC API</a> from your favorite programming 
+		language (JavaScript, TypeScript, Java, Python, Ruby, C#, ... etc.)<br />
+		(ID: &#39;administrator&#39;, Password: same to the VPN Server&#39;s password. 
+		Default: empty)</li>
+		<li>by <a href="/admin/">Built-in HTML5 Web Administration Console</a> 
+		(New, under construction)<br />
+		(ID: &#39;administrator&#39;, Password: same to the VPN Server&#39;s password. 
+		Default: empty)<br />
+		<br />
+		</li>
+	</ul>
+	</li>
+	<li>If you want to disable this embedded web server and JSON-RPC server:<ol>
+		<li>Stop the daemon.</li>
+		<li>Modify the value of <strong>&quot;bool DisableJsonRpcWebApi&quot;</strong> 
+		from <strong>&quot;false&quot;</strong> to <strong>&quot;true&quot;</strong> on the 
+		vpn_server.config or vpn_bridge.config.</li>
+		<li>Restart the daemon.</li>
+	</ol>
+	</li>
+</ul>
+
+<p>&nbsp;</p>
+
+</body>
+
+</html>

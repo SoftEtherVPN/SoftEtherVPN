@@ -741,13 +741,13 @@ ELEMENT *NewElement(char *name, UINT type, UINT num_value, VALUE **values)
 	}
 
 	// Memory allocation
-	e = Malloc(sizeof(ELEMENT));
+	e = ZeroMalloc(sizeof(ELEMENT));
 	StrCpy(e->name, sizeof(e->name), name);
 	e->num_value = num_value;
 	e->type = type;
 
 	// Copy of the pointer list to the element
-	e->values = (VALUE **)Malloc(sizeof(VALUE *) * num_value);
+	e->values = (VALUE **)ZeroMalloc(sizeof(VALUE *) * num_value);
 	for (i = 0;i < e->num_value;i++)
 	{
 		e->values[i] = values[i];
@@ -864,6 +864,10 @@ bool AddElement(PACK *p, ELEMENT *e)
 
 	// Adding
 	Add(p->elements, e);
+
+	// Set JsonHint_GroupName
+	StrCpy(e->JsonHint_GroupName, sizeof(e->JsonHint_GroupName), p->CurrentJsonHint_GroupName);
+
 	return true;
 }
 
@@ -885,6 +889,11 @@ void FreePack(PACK *p)
 	}
 	Free(elements);
 
+	if (p->json_subitem_names != NULL)
+	{
+		FreeStrList(p->json_subitem_names);
+	}
+
 	ReleaseList(p->elements);
 	Free(p);
 }
@@ -895,7 +904,7 @@ PACK *NewPack()
 	PACK *p;
 
 	// Memory allocation
-	p = MallocEx(sizeof(PACK), true);
+	p = ZeroMallocEx(sizeof(PACK), true);
 
 	// Creating a List
 	p->elements = NewListFast(ComparePackName);
@@ -921,6 +930,12 @@ K *PackGetK(PACK *p, char *name)
 	}
 
 	k = BufToK(b, true, false, NULL);
+
+	if (k == NULL)
+	{
+		k = BufToK(b, true, true, NULL);
+	}
+
 	FreeBuf(b);
 
 	return k;
@@ -944,49 +959,61 @@ X *PackGetX(PACK *p, char *name)
 	}
 
 	x = BufToX(b, false);
+
+	if (x == NULL)
+	{
+		x = BufToX(b, true);
+	}
+
 	FreeBuf(b);
 
 	return x;
 }
 
 // Add the K to the PACK
-void PackAddK(PACK *p, char *name, K *k)
+ELEMENT *PackAddK(PACK *p, char *name, K *k)
 {
 	BUF *b;
+	ELEMENT *e = NULL;
 	// Validate arguments
 	if (p == NULL || name == NULL || k == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	b = KToBuf(k, false, NULL);
 	if (b == NULL)
 	{
-		return;
+		return NULL;
 	}
 
-	PackAddBuf(p, name, b);
+	e = PackAddBuf(p, name, b);
 	FreeBuf(b);
+
+	return e;
 }
 
 // Add an X into the PACK
-void PackAddX(PACK *p, char *name, X *x)
+ELEMENT *PackAddX(PACK *p, char *name, X *x)
 {
 	BUF *b;
+	ELEMENT *e = NULL;
 	// Validate arguments
 	if (p == NULL || name == NULL || x == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	b = XToBuf(x, false);
 	if (b == NULL)
 	{
-		return;
+		return NULL;
 	}
 
-	PackAddBuf(p, name, b);
+	e = PackAddBuf(p, name, b);
 	FreeBuf(b);
+
+	return e;
 }
 
 // Get a buffer from the PACK
@@ -1149,30 +1176,65 @@ bool PackGetBoolEx(PACK *p, char *name, UINT index)
 	return PackGetIntEx(p, name, index) == 0 ? false : true;
 }
 
-// Add a bool type into the PACK
-void PackAddBool(PACK *p, char *name, bool b)
+// Set CurrentJsonHint_GroupName to PACK
+void PackSetCurrentJsonGroupName(PACK *p, char *json_group_name)
 {
-	PackAddInt(p, name, b ? 1 : 0);
-}
-void PackAddBoolEx(PACK *p, char *name, bool b, UINT index, UINT total)
-{
-	PackAddIntEx(p, name, b ? 1 : 0, index, total);
-}
-
-// Add the IPV6_ADDR to the PACK
-void PackAddIp6AddrEx(PACK *p, char *name, IPV6_ADDR *addr, UINT index, UINT total)
-{
-	// Validate arguments
-	if (p == NULL || name == NULL || addr == NULL)
+	if (p == NULL)
 	{
 		return;
 	}
 
-	PackAddDataEx(p, name, addr, sizeof(IPV6_ADDR), index, total);
+	if (json_group_name == NULL)
+	{
+		ClearStr(p->CurrentJsonHint_GroupName, sizeof(p->CurrentJsonHint_GroupName));
+	}
+	else
+	{
+		StrCpy(p->CurrentJsonHint_GroupName, sizeof(p->CurrentJsonHint_GroupName), json_group_name);
+
+		if (p->json_subitem_names == NULL)
+		{
+			p->json_subitem_names = NewStrList();
+		}
+
+		AddStrToStrListDistinct(p->json_subitem_names, json_group_name);
+	}
 }
-void PackAddIp6Addr(PACK *p, char *name, IPV6_ADDR *addr)
+
+// Add a bool type into the PACK
+ELEMENT *PackAddBool(PACK *p, char *name, bool b)
 {
-	PackAddIp6AddrEx(p, name, addr, 0, 1);
+	ELEMENT *e = PackAddInt(p, name, b ? 1 : 0);
+	if (e != NULL)
+	{
+		e->JsonHint_IsBool = true;
+	}
+	return e;
+}
+ELEMENT *PackAddBoolEx(PACK *p, char *name, bool b, UINT index, UINT total)
+{
+	ELEMENT *e = PackAddIntEx(p, name, b ? 1 : 0, index, total);
+	if (e != NULL)
+	{
+		e->JsonHint_IsBool = true;
+	}
+	return e;
+}
+
+// Add the IPV6_ADDR to the PACK
+ELEMENT *PackAddIp6AddrEx(PACK *p, char *name, IPV6_ADDR *addr, UINT index, UINT total)
+{
+	// Validate arguments
+	if (p == NULL || name == NULL || addr == NULL)
+	{
+		return NULL;
+	}
+
+	return PackAddDataEx(p, name, addr, sizeof(IPV6_ADDR), index, total);
+}
+ELEMENT *PackAddIp6Addr(PACK *p, char *name, IPV6_ADDR *addr)
+{
+	return PackAddIp6AddrEx(p, name, addr, 0, 1);
 }
 
 // Get an IPV6_ADDR from the PACK
@@ -1195,6 +1257,10 @@ bool PackGetIp6Addr(PACK *p, char *name, IPV6_ADDR *addr)
 // Add the IP to the PACK
 void PackAddIp32Ex(PACK *p, char *name, UINT ip32, UINT index, UINT total)
 {
+	PackAddIp32Ex2(p, name, ip32, index, total, false);
+}
+void PackAddIp32Ex2(PACK *p, char *name, UINT ip32, UINT index, UINT total, bool is_single)
+{
 	IP ip;
 	// Validate arguments
 	if (p == NULL || name == NULL)
@@ -1204,32 +1270,45 @@ void PackAddIp32Ex(PACK *p, char *name, UINT ip32, UINT index, UINT total)
 
 	UINTToIP(&ip, ip32);
 
-	PackAddIpEx(p, name, &ip, index, total);
+	PackAddIpEx2(p, name, &ip, index, total, is_single);
 }
 void PackAddIp32(PACK *p, char *name, UINT ip32)
 {
-	PackAddIp32Ex(p, name, ip32, 0, 1);
+	PackAddIp32Ex2(p, name, ip32, 0, 1, true);
 }
 void PackAddIpEx(PACK *p, char *name, IP *ip, UINT index, UINT total)
+{
+	PackAddIpEx2(p, name, ip, index, total, false);
+}
+void PackAddIpEx2(PACK *p, char *name, IP *ip, UINT index, UINT total, bool is_single)
 {
 	UINT i;
 	bool b = false;
 	char tmp[MAX_PATH];
+	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL || ip == NULL)
 	{
 		return;
 	}
+	if (total >= 2)
+	{
+		is_single = false;
+	}
 
 	b = IsIP6(ip);
 
 	Format(tmp, sizeof(tmp), "%s@ipv6_bool", name);
-	PackAddBoolEx(p, tmp, b, index, total);
+	e = PackAddBoolEx(p, tmp, b, index, total);
+	if (e != NULL && is_single) e->JsonHint_IsArray = false;
+	if (e != NULL) e->JsonHint_IsIP = true;
 
 	Format(tmp, sizeof(tmp), "%s@ipv6_array", name);
 	if (b)
 	{
-		PackAddDataEx(p, tmp, ip->ipv6_addr, sizeof(ip->ipv6_addr), index, total);
+		e = PackAddDataEx(p, tmp, ip->ipv6_addr, sizeof(ip->ipv6_addr), index, total);
+		if (e != NULL && is_single) e->JsonHint_IsArray = false;
+		if (e != NULL) e->JsonHint_IsIP = true;
 	}
 	else
 	{
@@ -1237,17 +1316,23 @@ void PackAddIpEx(PACK *p, char *name, IP *ip, UINT index, UINT total)
 
 		Zero(dummy, sizeof(dummy));
 
-		PackAddDataEx(p, tmp, dummy, sizeof(dummy), index, total);
+		e = PackAddDataEx(p, tmp, dummy, sizeof(dummy), index, total);
+		if (e != NULL && is_single) e->JsonHint_IsArray = false;
+		if (e != NULL) e->JsonHint_IsIP = true;
 	}
 
 	Format(tmp, sizeof(tmp), "%s@ipv6_scope_id", name);
 	if (b)
 	{
-		PackAddIntEx(p, tmp, ip->ipv6_scope_id, index, total);
+		e = PackAddIntEx(p, tmp, ip->ipv6_scope_id, index, total);
+		if (e != NULL && is_single) e->JsonHint_IsArray = false;
+		if (e != NULL) e->JsonHint_IsIP = true;
 	}
 	else
 	{
-		PackAddIntEx(p, tmp, 0, index, total);
+		e = PackAddIntEx(p, tmp, 0, index, total);
+		if (e != NULL && is_single) e->JsonHint_IsArray = false;
+		if (e != NULL) e->JsonHint_IsIP = true;
 	}
 
 	i = IPToUINT(ip);
@@ -1257,11 +1342,13 @@ void PackAddIpEx(PACK *p, char *name, IP *ip, UINT index, UINT total)
 		i = Swap32(i);
 	}
 
-	PackAddIntEx(p, name, i, index, total);
+	e = PackAddIntEx(p, name, i, index, total);
+	if (e != NULL && is_single) e->JsonHint_IsArray = false;
+	if (e != NULL) e->JsonHint_IsIP = true;
 }
 void PackAddIp(PACK *p, char *name, IP *ip)
 {
-	PackAddIpEx(p, name, ip, 0, 1);
+	PackAddIpEx2(p, name, ip, 0, 1, true);
 }
 
 // Get an IP from the PACK
@@ -1441,34 +1528,35 @@ bool PackGetStrEx(PACK *p, char *name, char *str, UINT size, UINT index)
 }
 
 // Add the buffer to the PACK (array)
-void PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total)
+ELEMENT *PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total)
 {
 	// Validate arguments
 	if (p == NULL || name == NULL || b == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
-	PackAddDataEx(p, name, b->Buf, b->Size, index, total);
+	return PackAddDataEx(p, name, b->Buf, b->Size, index, total);
 }
 
 // Add the data to the PACK (array)
-void PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT total)
+ELEMENT *PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT total)
 {
 	VALUE *v;
 	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || data == NULL || name == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewDataValue(data, size);
 	e = GetElement(p, name, VALUE_DATA);
 	if (e != NULL)
 	{
-		if (e->num_value <= total)
+		if (e->num_value >= total)
 		{
+			FreeValue(e->values[index], VALUE_DATA);
 			e->values[index] = v;
 		}
 		else
@@ -1484,53 +1572,68 @@ void PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT 
 		e->type = VALUE_DATA;
 		e->values = ZeroMallocEx(sizeof(VALUE *) * total, true);
 		e->values[index] = v;
-		AddElement(p, e);
+		if (AddElement(p, e) == false)
+		{
+			return NULL;
+		}
 	}
+
+	e->JsonHint_IsArray = true;
+
+	return e;
 }
 
 // Add the buffer to the PACK
-void PackAddBuf(PACK *p, char *name, BUF *b)
+ELEMENT *PackAddBuf(PACK *p, char *name, BUF *b)
 {
 	// Validate arguments
 	if (p == NULL || name == NULL || b == NULL)
 	{
-		return;
+		return NULL;
 	}
 
-	PackAddData(p, name, b->Buf, b->Size);
+	return PackAddData(p, name, b->Buf, b->Size);
 }
 
 // Add the data to the PACK
-void PackAddData(PACK *p, char *name, void *data, UINT size)
+ELEMENT *PackAddData(PACK *p, char *name, void *data, UINT size)
 {
 	VALUE *v;
+	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || data == NULL || name == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewDataValue(data, size);
-	AddElement(p, NewElement(name, VALUE_DATA, 1, &v));
+	e = NewElement(name, VALUE_DATA, 1, &v);
+	if (AddElement(p, e) == false)
+	{
+		return NULL;
+	}
+
+	return e;
 }
 
 // Add a 64 bit integer (array) to the PACK
-void PackAddInt64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total)
+ELEMENT *PackAddInt64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total)
 {
 	VALUE *v;
 	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewInt64Value(i);
 	e = GetElement(p, name, VALUE_INT64);
 	if (e != NULL)
 	{
-		if (e->num_value <= total)
+		if (e->num_value >= total)
 		{
+			FreeValue(e->values[index], VALUE_INT64);
 			e->values[index] = v;
 		}
 		else
@@ -1546,27 +1649,36 @@ void PackAddInt64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total)
 		e->type = VALUE_INT64;
 		e->values = ZeroMallocEx(sizeof(VALUE *) * total, true);
 		e->values[index] = v;
-		AddElement(p, e);
+
+		if (AddElement(p, e) == false)
+		{
+			return NULL;
+		}
 	}
+
+	e->JsonHint_IsArray = true;
+
+	return e;
 }
 
 // Add an integer to the PACK (array)
-void PackAddIntEx(PACK *p, char *name, UINT i, UINT index, UINT total)
+ELEMENT *PackAddIntEx(PACK *p, char *name, UINT i, UINT index, UINT total)
 {
 	VALUE *v;
 	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewIntValue(i);
 	e = GetElement(p, name, VALUE_INT);
 	if (e != NULL)
 	{
-		if (e->num_value <= total)
+		if (e->num_value >= total)
 		{
+			FreeValue(e->values[index], VALUE_INT);
 			e->values[index] = v;
 		}
 		else
@@ -1582,61 +1694,103 @@ void PackAddIntEx(PACK *p, char *name, UINT i, UINT index, UINT total)
 		e->type = VALUE_INT;
 		e->values = ZeroMallocEx(sizeof(VALUE *) * total, true);
 		e->values[index] = v;
-		AddElement(p, e);
+
+		if (AddElement(p, e) == false)
+		{
+			return NULL;
+		}
 	}
+
+	e->JsonHint_IsArray = true;
+
+	return e;
 }
 
+// Add 64 bit integer time value to the PACK
+ELEMENT *PackAddTime64(PACK *p, char *name, UINT64 i)
+{
+	ELEMENT *e = PackAddInt64(p, name, i);
+	if (e != NULL)
+	{
+		e->JsonHint_IsDateTime = true;
+	}
+	return e;
+}
+ELEMENT *PackAddTime64Ex(PACK *p, char *name, UINT64 i, UINT index, UINT total)
+{
+	ELEMENT *e = PackAddInt64Ex(p, name, i, index, total);
+	if (e != NULL)
+	{
+		e->JsonHint_IsDateTime = true;
+	}
+	return e;
+}
+
+
 // Add a 64 bit integer to the PACK
-void PackAddInt64(PACK *p, char *name, UINT64 i)
+ELEMENT *PackAddInt64(PACK *p, char *name, UINT64 i)
 {
 	VALUE *v;
+	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewInt64Value(i);
-	AddElement(p, NewElement(name, VALUE_INT64, 1, &v));
+	e = NewElement(name, VALUE_INT64, 1, &v);
+	if (AddElement(p, e) == false)
+	{
+		return NULL;
+	}
+	return e;
 }
 
 // Add the number of items to the PACK
-void PackAddNum(PACK *p, char *name, UINT num)
+ELEMENT *PackAddNum(PACK *p, char *name, UINT num)
 {
-	PackAddInt(p, name, num);
+	return PackAddInt(p, name, num);
 }
 
 // Add an integer to the PACK
-void PackAddInt(PACK *p, char *name, UINT i)
+ELEMENT *PackAddInt(PACK *p, char *name, UINT i)
 {
 	VALUE *v;
+	ELEMENT *e = NULL;
 	// Validate arguments
 	if (p == NULL || name == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewIntValue(i);
-	AddElement(p, NewElement(name, VALUE_INT, 1, &v));
+	e = NewElement(name, VALUE_INT, 1, &v);
+	if (AddElement(p, e) == false)
+	{
+		return NULL;
+	}
+	return e;
 }
 
 // Add a Unicode string (array) to the PACK
-void PackAddUniStrEx(PACK *p, char *name, wchar_t *unistr, UINT index, UINT total)
+ELEMENT *PackAddUniStrEx(PACK *p, char *name, wchar_t *unistr, UINT index, UINT total)
 {
 	VALUE *v;
 	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL || unistr == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewUniStrValue(unistr);
 	e = GetElement(p, name, VALUE_UNISTR);
 	if (e != NULL)
 	{
-		if (e->num_value <= total)
+		if (e->num_value >= total)
 		{
+			FreeValue(e->values[index], VALUE_UNISTR);
 			e->values[index] = v;
 		}
 		else
@@ -1652,41 +1806,55 @@ void PackAddUniStrEx(PACK *p, char *name, wchar_t *unistr, UINT index, UINT tota
 		e->type = VALUE_UNISTR;
 		e->values = ZeroMallocEx(sizeof(VALUE *) * total, true);
 		e->values[index] = v;
-		AddElement(p, e);
+		if (AddElement(p, e) == false)
+		{
+			return NULL;
+		}
 	}
+
+	e->JsonHint_IsArray = true;
+
+	return e;
 }
 
 // Add a Unicode string to the PACK
-void PackAddUniStr(PACK *p, char *name, wchar_t *unistr)
+ELEMENT *PackAddUniStr(PACK *p, char *name, wchar_t *unistr)
 {
 	VALUE *v;
+	ELEMENT *e = NULL;
 	// Validate arguments
 	if (p == NULL || name == NULL || unistr == NULL)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewUniStrValue(unistr);
-	AddElement(p, NewElement(name, VALUE_UNISTR, 1, &v));
+	e = NewElement(name, VALUE_UNISTR, 1, &v);
+	if (AddElement(p, e) == false)
+	{
+		return NULL;
+	}
+	return e;
 }
 
 // Add a string to the PACK (array)
-void PackAddStrEx(PACK *p, char *name, char *str, UINT index, UINT total)
+ELEMENT *PackAddStrEx(PACK *p, char *name, char *str, UINT index, UINT total)
 {
 	VALUE *v;
 	ELEMENT *e;
 	// Validate arguments
 	if (p == NULL || name == NULL || str == NULL || total == 0)
 	{
-		return;
+		return NULL;
 	}
 
 	v = NewStrValue(str);
 	e = GetElement(p, name, VALUE_STR);
 	if (e != NULL)
 	{
-		if (e->num_value <= total)
+		if (e->num_value >= total)
 		{
+			FreeValue(e->values[index], VALUE_STR);
 			e->values[index] = v;
 		}
 		else
@@ -1702,22 +1870,704 @@ void PackAddStrEx(PACK *p, char *name, char *str, UINT index, UINT total)
 		e->type = VALUE_STR;
 		e->values = ZeroMallocEx(sizeof(VALUE *) * total, true);
 		e->values[index] = v;
-		AddElement(p, e);
+		if (AddElement(p, e) == false)
+		{
+			return NULL;
+		}
 	}
+
+	e->JsonHint_IsArray = true;
+
+	return e;
 }
 
 // Add a string to the PACK
-void PackAddStr(PACK *p, char *name, char *str)
+ELEMENT *PackAddStr(PACK *p, char *name, char *str)
 {
 	VALUE *v;
+	ELEMENT *e = NULL;
 	// Validate arguments
 	if (p == NULL || name == NULL || str == NULL)
+	{
+		return NULL;
+	}
+
+	v = NewStrValue(str);
+	e = NewElement(name, VALUE_STR, 1, &v);
+	if (AddElement(p, e) == false)
+	{
+		return NULL;
+	}
+	return e;
+}
+
+// Add an element of PACK array to JSON Array
+void PackArrayElementToJsonArray(JSON_ARRAY *ja, PACK *p, ELEMENT *e, UINT index)
+{
+	if (ja == NULL || p == NULL || e == NULL || index >= e->num_value)
 	{
 		return;
 	}
 
-	v = NewStrValue(str);
-	AddElement(p, NewElement(name, VALUE_STR, 1, &v));
+	switch (e->type)
+	{
+	case VALUE_INT:
+		if (e->JsonHint_IsIP)
+		{
+			if (InStr(e->name, "@") == false)
+			{
+				IP ip;
+				if (PackGetIpEx(p, e->name, &ip, index))
+				{
+					char ip_str[64];
+					IPToStr(ip_str, sizeof(ip_str), &ip);
+					JsonArrayAddStr(ja, ip_str);
+				}
+			}
+		}
+		else if (e->JsonHint_IsBool)
+		{
+			JsonArrayAddBool(ja, PackGetBoolEx(p, e->name, index));
+		}
+		else
+		{
+			JsonArrayAddNumber(ja, PackGetIntEx(p, e->name, index));
+		}
+		break;
+	case VALUE_INT64:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->JsonHint_IsDateTime == false)
+			{
+				JsonArrayAddNumber(ja, PackGetInt64Ex(p, e->name, index));
+			}
+			else
+			{
+				char dtstr[64];
+
+				SystemTime64ToJsonStr(dtstr, sizeof(dtstr), PackGetInt64Ex(p, e->name, index));
+				JsonArrayAddStr(ja, dtstr);
+			}
+		}
+		break;
+	case VALUE_DATA:
+		if (e->JsonHint_IsIP == false)
+		{
+			BUF *buf = PackGetBufEx(p, e->name, index);
+			if (buf != NULL)
+			{
+				JsonArrayAddData(ja, buf->Buf, buf->Size);
+				FreeBuf(buf);
+			}
+			else
+			{
+				UCHAR zero = 0;
+				JsonArrayAddData(ja, &zero, 0);
+			}
+		}
+		break;
+	case VALUE_STR:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->values[index] != NULL)
+			{
+				JsonArrayAddStr(ja, e->values[index]->Str);
+			}
+			else
+			{
+				JsonArrayAddStr(ja, "");
+			}
+		}
+		break;
+	case VALUE_UNISTR:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->values[index] != NULL)
+			{
+				JsonArrayAddUniStr(ja, e->values[index]->UniStr);
+			}
+			else
+			{
+				JsonArrayAddUniStr(ja, L"");
+			}
+		}
+		break;
+	}
 }
+
+// Add an element of PACK to JSON Object
+void PackElementToJsonObject(JSON_OBJECT *o, PACK *p, ELEMENT *e, UINT index)
+{
+	char *suffix;
+	char name[MAX_PATH];
+	if (o == NULL || p == NULL || e == NULL)
+	{
+		return;
+	}
+
+	suffix = DetermineJsonSuffixForPackElement(e);
+
+	if (suffix == NULL)
+	{
+		return;
+	}
+
+	StrCpy(name, sizeof(name), e->name);
+	StrCat(name, sizeof(name), suffix);
+
+	switch (e->type)
+	{
+	case VALUE_INT:
+		if (e->JsonHint_IsIP)
+		{
+			if (InStr(e->name, "@") == false)
+			{
+				IP ip;
+				if (PackGetIpEx(p, e->name, &ip, index))
+				{
+					char ip_str[64];
+					IPToStr(ip_str, sizeof(ip_str), &ip);
+					JsonSetStr(o, name, ip_str);
+				}
+			}
+		}
+		else if (e->JsonHint_IsBool)
+		{
+			JsonSetBool(o, name, PackGetBoolEx(p, e->name, index));
+		}
+		else
+		{
+			JsonSetNumber(o, name, PackGetIntEx(p, e->name, index));
+		}
+		break;
+	case VALUE_INT64:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->JsonHint_IsDateTime == false)
+			{
+				JsonSetNumber(o, name, PackGetInt64Ex(p, e->name, index));
+			}
+			else
+			{
+				char dtstr[64];
+
+				SystemTime64ToJsonStr(dtstr, sizeof(dtstr), PackGetInt64Ex(p, e->name, index));
+				JsonSetStr(o, name, dtstr);
+			}
+		}
+		break;
+	case VALUE_DATA:
+		if (e->JsonHint_IsIP == false)
+		{
+			BUF *buf = PackGetBufEx(p, e->name, index);
+			if (buf != NULL)
+			{
+				JsonSetData(o, name, buf->Buf, buf->Size);
+				FreeBuf(buf);
+			}
+			else
+			{
+				UCHAR zero = 0;
+				JsonSetData(o, name, &zero, 0);
+			}
+		}
+		break;
+	case VALUE_STR:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->values[index] != NULL)
+			{
+				JsonSetStr(o, name, e->values[index]->Str);
+			}
+			else
+			{
+				JsonSetStr(o, name, "");
+			}
+		}
+		break;
+	case VALUE_UNISTR:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->values[index] != NULL)
+			{
+				JsonSetUniStr(o, name, e->values[index]->UniStr);
+			}
+			else
+			{
+				JsonSetUniStr(o, name, L"");
+			}
+		}
+		break;
+	}
+}
+
+// Determine JSON element suffix for PACK element
+char *DetermineJsonSuffixForPackElement(ELEMENT *e)
+{
+	switch (e->type)
+	{
+	case VALUE_INT:
+		if (e->JsonHint_IsIP)
+		{
+			if (InStr(e->name, "@") == false)
+			{
+				return "_ip";
+			}
+		}
+		else if (e->JsonHint_IsBool)
+		{
+			return "_bool";
+		}
+		else
+		{
+			return "_u32";
+		}
+		break;
+	case VALUE_INT64:
+		if (e->JsonHint_IsIP == false)
+		{
+			if (e->JsonHint_IsDateTime == false)
+			{
+				return "_u64";
+			}
+			else
+			{
+				return "_dt";
+			}
+		}
+		break;
+	case VALUE_DATA:
+		if (e->JsonHint_IsIP == false)
+		{
+			return "_bin";
+		}
+		break;
+	case VALUE_STR:
+		if (e->JsonHint_IsIP == false)
+		{
+			return "_str";
+		}
+		break;
+	case VALUE_UNISTR:
+		if (e->JsonHint_IsIP == false)
+		{
+			return "_utf";
+		}
+		break;
+	}
+
+	return NULL;
+}
+
+// Convert JSON to PACK
+PACK *JsonToPack(JSON_VALUE *v)
+{
+	PACK *p = NULL;
+	JSON_OBJECT *jo;
+	if (v == NULL)
+	{
+		return NULL;
+	}
+
+	p = NewPack();
+
+	jo = JsonValueGetObject(v);
+
+	if (jo != NULL)
+	{
+		UINT i;
+		for (i = 0;i < jo->count;i++)
+		{
+			char *name = jo->names[i];
+			JSON_VALUE *value = jo->values[i];
+
+			if (value->type == JSON_TYPE_ARRAY)
+			{
+				UINT j;
+				JSON_ARRAY *ja = value->value.array;
+
+				for (j = 0;j < ja->count;j++)
+				{
+					if (ja->items[j]->type != JSON_TYPE_OBJECT)
+					{
+						JsonTryParseValueAddToPack(p, ja->items[j], name, j, ja->count, false);
+					}
+					else
+					{
+						JSON_VALUE *v = ja->items[j];
+						JSON_OBJECT *o = v->value.object;
+						UINT k;
+
+						for (k = 0;k < o->count;k++)
+						{
+							char *name2 = o->names[k];
+							JSON_VALUE *value2 = o->values[k];
+
+							PackSetCurrentJsonGroupName(p, name);
+							JsonTryParseValueAddToPack(p, value2, name2, j, ja->count, false);
+							PackSetCurrentJsonGroupName(p, NULL);
+						}
+					}
+				}
+			}
+			else
+			{
+				JsonTryParseValueAddToPack(p, value, name, 0, 1, true);
+			}
+		}
+	}
+
+	return p;
+}
+
+ELEMENT *ElementNullSafe(ELEMENT *p)
+{
+	static ELEMENT dummy;
+	if (p == NULL)
+	{
+		Zero(&dummy, sizeof(dummy));
+		return &dummy;
+	}
+	return p;
+}
+
+bool JsonTryParseValueAddToPack(PACK *p, JSON_VALUE *v, char *v_name, UINT index, UINT total, bool is_single)
+{
+	char name[MAX_PATH];
+	bool ok = true;
+	if (p == NULL || v == NULL)
+	{
+		return false;
+	}
+
+	if (TrimEndWith(name, sizeof(name), v_name, "_bool"))
+	{
+		if (v->type == JSON_TYPE_BOOL)
+		{
+			ElementNullSafe(PackAddBoolEx(p, name, MAKEBOOL(v->value.boolean), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_NUMBER)
+		{
+			ElementNullSafe(PackAddBoolEx(p, name, MAKEBOOL(v->value.number), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			ElementNullSafe(PackAddBoolEx(p, name, ToBool(v->value.string), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_u32"))
+	{
+		if (v->type == JSON_TYPE_BOOL)
+		{
+			ElementNullSafe(PackAddIntEx(p, name, MAKEBOOL(v->value.boolean), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_NUMBER)
+		{
+			ElementNullSafe(PackAddIntEx(p, name, (UINT)v->value.number, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			ElementNullSafe(PackAddIntEx(p, name, ToInt(v->value.string), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_u64"))
+	{
+		if (v->type == JSON_TYPE_BOOL)
+		{
+			ElementNullSafe(PackAddInt64Ex(p, name, MAKEBOOL(v->value.boolean), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_NUMBER)
+		{
+			ElementNullSafe(PackAddInt64Ex(p, name, v->value.number, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			ElementNullSafe(PackAddInt64Ex(p, name, ToInt64(v->value.string), index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_str"))
+	{
+		if (v->type == JSON_TYPE_BOOL)
+		{
+			ElementNullSafe(PackAddStrEx(p, name, MAKEBOOL(v->value.boolean) ? "true" : "false", index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_NUMBER)
+		{
+			char tmp[64];
+			ToStr64(tmp, v->value.number);
+			ElementNullSafe(PackAddStrEx(p, name, tmp, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			ElementNullSafe(PackAddStrEx(p, name, v->value.string, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_utf"))
+	{
+		if (v->type == JSON_TYPE_BOOL)
+		{
+			ElementNullSafe(PackAddUniStrEx(p, name, MAKEBOOL(v->value.boolean) ? L"true" : L"false", index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_NUMBER)
+		{
+			char tmp[64];
+			wchar_t tmp2[64];
+			ToStr64(tmp, v->value.number);
+			StrToUni(tmp2, sizeof(tmp2), tmp);
+			ElementNullSafe(PackAddUniStrEx(p, name, tmp2, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			wchar_t *uni = CopyUtfToUni(v->value.string);
+			ElementNullSafe(PackAddUniStrEx(p, name, uni, index, total))->JsonHint_IsArray = !is_single;
+			Free(uni);
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_bin"))
+	{
+		if (v->type == JSON_TYPE_STRING)
+		{
+			UINT len = StrLen(v->value.string);
+			UCHAR *data = ZeroMalloc(len * 4 + 64);
+			UINT size = B64_Decode(data, v->value.string, len);
+			ElementNullSafe(PackAddDataEx(p, name, data, size, index, total))->JsonHint_IsArray = !is_single;
+			Free(data);
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_dt"))
+	{
+		if (v->type == JSON_TYPE_NUMBER)
+		{
+			ElementNullSafe(PackAddInt64Ex(p, name, v->value.number, index, total))->JsonHint_IsArray = !is_single;
+			ok = true;
+		}
+		else if (v->type == JSON_TYPE_STRING)
+		{
+			UINT64 time = DateTimeStrRFC3339ToSystemTime64(v->value.string);
+			ELEMENT *e = PackAddInt64Ex(p, name, time, index, total);
+			if (e != NULL)
+			{
+				e->JsonHint_IsArray = !is_single;
+				e->JsonHint_IsDateTime = true;
+			}
+			ok = true;
+		}
+	}
+	else if (TrimEndWith(name, sizeof(name), v_name, "_ip"))
+	{
+		if (v->type == JSON_TYPE_STRING)
+		{
+			IP ip;
+			if (StrToIP(&ip, v->value.string))
+			{
+				PackAddIpEx2(p, name, &ip, index, total, is_single);
+				ok = true;
+			}
+		}
+	}
+
+	return ok;
+}
+
+// Convert JSON string to PACK
+PACK *JsonStrToPack(char *str)
+{
+	JSON_VALUE *v = StrToJson(str);
+	PACK *ret;
+
+	if (v == NULL)
+	{
+		return NULL;
+	}
+
+	ret = JsonToPack(v);
+
+	JsonFree(v);
+
+	return ret;
+}
+
+// Convert PACK to JSON string
+char *PackToJsonStr(PACK *p)
+{
+	char *ret;
+	JSON_VALUE *json = PackToJson(p);
+
+	ret = JsonToStr(json);
+
+	JsonFree(json);
+
+	return ret;
+}
+
+// Convert PACK to JSON
+JSON_VALUE *PackToJson(PACK *p)
+{
+	JSON_VALUE *v;
+	JSON_OBJECT *o;
+	UINT i, j, k;
+	LIST *json_group_id_list;
+	if (p == NULL)
+	{
+		return JsonNewObject();
+	}
+
+	// suppress quick sort in the enumeration process
+	GetElement(p, "_dummy_", VALUE_INT);
+
+	json_group_id_list = NewStrList();
+
+	for (i = 0;i < LIST_NUM(p->elements);i++)
+	{
+		ELEMENT *e = LIST_DATA(p->elements, i);
+
+		if (e->num_value >= 2 || e->JsonHint_IsArray)
+		{
+			if (IsEmptyStr(e->JsonHint_GroupName) == false)
+			{
+				AddStrToStrListDistinct(json_group_id_list, e->JsonHint_GroupName);
+			}
+		}
+	}
+
+	for (i = 0;i < LIST_NUM(p->json_subitem_names);i++)
+	{
+		char *group_name = LIST_DATA(p->json_subitem_names, i);
+
+		if (IsEmptyStr(group_name) == false)
+		{
+			AddStrToStrListDistinct(json_group_id_list, group_name);
+		}
+	}
+
+	v = JsonNewObject();
+	o = JsonValueGetObject(v);
+
+	for (k = 0;k < LIST_NUM(json_group_id_list);k++)
+	{
+		char *group_name = LIST_DATA(json_group_id_list, k);
+		UINT array_count = INFINITE;
+		bool ok = true;
+
+		for (i = 0;i < LIST_NUM(p->elements);i++)
+		{
+			ELEMENT *e = LIST_DATA(p->elements, i);
+
+			if (e->num_value >= 2 || e->JsonHint_IsArray)
+			{
+				if (StrCmpi(e->JsonHint_GroupName, group_name) == 0)
+				{
+					if (array_count == INFINITE)
+					{
+						array_count = e->num_value;
+					}
+					else
+					{
+						if (array_count != e->num_value)
+						{
+							ok = false;
+						}
+					}
+				}
+			}
+		}
+
+		if (array_count == INFINITE)
+		{
+			array_count = 0;
+		}
+
+		if (ok)
+		{
+			JSON_VALUE **json_objects = ZeroMalloc(sizeof(void *) * array_count);
+			JSON_VALUE *jav = JsonNewArray();
+			JSON_ARRAY *ja = JsonArray(jav);
+
+			JsonSet(o, group_name, jav);
+
+			for (j = 0;j < array_count;j++)
+			{
+				json_objects[j] = JsonNewObject();
+
+				JsonArrayAdd(ja, json_objects[j]);
+			}
+
+			for (i = 0;i < LIST_NUM(p->elements);i++)
+			{
+				ELEMENT *e = LIST_DATA(p->elements, i);
+
+				if (e->num_value >= 2 || e->JsonHint_IsArray)
+				{
+					if (StrCmpi(e->JsonHint_GroupName, group_name) == 0)
+					{
+						for (j = 0;j < e->num_value;j++)
+						{
+							PackElementToJsonObject(JsonValueGetObject(json_objects[j]),
+								p, e, j);
+						}
+					}
+				}
+			}
+
+			Free(json_objects);
+		}
+	}
+
+	for (i = 0;i < LIST_NUM(p->elements);i++)
+	{
+		ELEMENT *e = LIST_DATA(p->elements, i);
+
+		if (e->num_value >= 2 || e->JsonHint_IsArray)
+		{
+			if (IsEmptyStr(e->JsonHint_GroupName))
+			{
+				char *suffix = DetermineJsonSuffixForPackElement(e);
+
+				if (suffix != NULL)
+				{
+					JSON_VALUE *jav = JsonNewArray();
+					JSON_ARRAY *ja = JsonArray(jav);
+					char name[MAX_PATH];
+
+					for (j = 0;j < e->num_value;j++)
+					{
+						PackArrayElementToJsonArray(ja, p, e, j);
+					}
+
+					StrCpy(name, sizeof(name), e->name);
+					StrCat(name, sizeof(name), suffix);
+
+					JsonSet(o, name, jav);
+				}
+			}
+		}
+		else if (e->num_value == 1)
+		{
+			PackElementToJsonObject(o, p, e, 0);
+		}
+	}
+
+	ReleaseStrList(json_group_id_list);
+
+	return v;
+}
+
+
 
 

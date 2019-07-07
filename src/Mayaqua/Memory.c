@@ -1646,6 +1646,48 @@ bool ReplaceListPointer(LIST *o, void *oldptr, void *newptr)
 	return false;
 }
 
+// New string list
+LIST *NewStrList()
+{
+	return NewListFast(CompareStr);
+}
+
+// Release string list
+void ReleaseStrList(LIST *o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		char *s = LIST_DATA(o, i);
+		Free(s);
+	}
+
+	ReleaseList(o);
+}
+
+// Add a string distinct to the string list
+bool AddStrToStrListDistinct(LIST *o, char *str)
+{
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	if (IsInListStr(o, str) == false)
+	{
+		Add(o, CopyStr(str));
+
+		return true;
+	}
+
+	return false;
+}
+
 // Examine whether a string items are present in the list
 bool IsInListStr(LIST *o, char *str)
 {
@@ -3361,6 +3403,43 @@ void WriteBufBuf(BUF *b, BUF *bb)
 	WriteBuf(b, bb->Buf, bb->Size);
 }
 
+// Write the buffer (from the offset) to a buffer
+void WriteBufBufWithOffset(BUF *b, BUF *bb)
+{
+	// Validate arguments
+	if (b == NULL || bb == NULL)
+	{
+		return;
+	}
+
+	WriteBuf(b, ((UCHAR *)bb->Buf) + bb->Current, bb->Size - bb->Current);
+}
+
+// Skip UTF-8 BOM
+bool BufSkipUtf8Bom(BUF *b)
+{
+	if (b == NULL)
+	{
+		return false;
+	}
+
+	SeekBufToBegin(b);
+
+	if (b->Size >= 3)
+	{
+		UCHAR *data = b->Buf;
+
+		if (data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+		{
+			SeekBuf(b, 3, 1);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Read into a buffer from the buffer
 BUF *ReadBufFromBuf(BUF *b, UINT size)
 {
@@ -4226,7 +4305,7 @@ void *InternalReAlloc(void *addr, UINT size)
 	}
 
 #ifndef	DONT_USE_KERNEL_STATUS
-	TrackChangeObjSize((DWORD)addr, size, (DWORD)new_addr);
+	TrackChangeObjSize(POINTER_TO_UINT64(addr), size, POINTER_TO_UINT64(new_addr));
 #endif	// DONT_USE_KERNEL_STATUS
 
 	return new_addr;

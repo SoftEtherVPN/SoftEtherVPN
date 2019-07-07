@@ -4083,14 +4083,16 @@ void OutRpcClientEnumCa(PACK *p, RPC_CLIENT_ENUM_CA *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "CAList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_CA_ITEM *item = e->Items[i];
 		PackAddIntEx(p, "Key", item->Key, i, e->NumItem);
 		PackAddUniStrEx(p, "SubjectName", item->SubjectName, i, e->NumItem);
 		PackAddUniStrEx(p, "IssuerName", item->IssuerName, i, e->NumItem);
-		PackAddInt64Ex(p, "Expires", item->Expires, i, e->NumItem);
+		PackAddTime64Ex(p, "Expires", item->Expires, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_GET_ISSUER
@@ -4361,6 +4363,7 @@ void OutRpcClientEnumSecure(PACK *p, RPC_CLIENT_ENUM_SECURE *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "SecureDeviceList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_SECURE_ITEM *item = e->Items[i];
@@ -4370,6 +4373,7 @@ void OutRpcClientEnumSecure(PACK *p, RPC_CLIENT_ENUM_SECURE *e)
 		PackAddStrEx(p, "DeviceName", item->DeviceName, i, e->NumItem);
 		PackAddStrEx(p, "Manufacturer", item->Manufacturer, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_USE_SECURE
@@ -4453,11 +4457,13 @@ void OutRpcEnumObjectInSecure(PACK *p, RPC_ENUM_OBJECT_IN_SECURE *e)
 	PackAddNum(p, "NumItem", e->NumItem);
 	PackAddInt(p, "hWnd", e->hWnd);
 
+	PackSetCurrentJsonGroupName(p, "ObjectList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		PackAddStrEx(p, "ItemName", e->ItemName[i], i, e->NumItem);
 		PackAddIntEx(p, "ItemType", e->ItemType[i], i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_CLIENT_CREATE_VLAN
@@ -4577,6 +4583,7 @@ void OutRpcClientEnumVLan(PACK *p, RPC_CLIENT_ENUM_VLAN *v)
 
 	PackAddNum(p, "NumItem", v->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "VLanList");
 	for (i = 0;i < v->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_VLAN_ITEM *item = v->Items[i];
@@ -4586,6 +4593,7 @@ void OutRpcClientEnumVLan(PACK *p, RPC_CLIENT_ENUM_VLAN *v)
 		PackAddStrEx(p, "MacAddress", item->MacAddress, i, v->NumItem);
 		PackAddStrEx(p, "Version", item->Version, i, v->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // CLIENT_OPTION
@@ -4651,10 +4659,10 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddInt(p, "NumRetry", c->NumRetry);
 	PackAddInt(p, "RetryInterval", c->RetryInterval);
 	PackAddInt(p, "MaxConnection", c->MaxConnection);
-	PackAddInt(p, "UseEncrypt", c->UseEncrypt);
-	PackAddInt(p, "UseCompress", c->UseCompress);
-	PackAddInt(p, "HalfConnection", c->HalfConnection);
-	PackAddInt(p, "NoRoutingTracking", c->NoRoutingTracking);
+	PackAddBool(p, "UseEncrypt", c->UseEncrypt);
+	PackAddBool(p, "UseCompress", c->UseCompress);
+	PackAddBool(p, "HalfConnection", c->HalfConnection);
+	PackAddBool(p, "NoRoutingTracking", c->NoRoutingTracking);
 	PackAddInt(p, "AdditionalConnectionInterval", c->AdditionalConnectionInterval);
 	PackAddInt(p, "ConnectionDisconnectSpan", c->ConnectionDisconnectSpan);
 	PackAddBool(p, "HideStatusWindow", c->HideStatusWindow);
@@ -4866,6 +4874,7 @@ void OutRpcClientEnumAccount(PACK *p, RPC_CLIENT_ENUM_ACCOUNT *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "AccountList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_ACCOUNT_ITEM *item = e->Items[i];
@@ -4881,10 +4890,11 @@ void OutRpcClientEnumAccount(PACK *p, RPC_CLIENT_ENUM_ACCOUNT *e)
 		PackAddBoolEx(p, "Connected", item->Connected, i, e->NumItem);
 		PackAddIntEx(p, "Port", item->Port, i, e->NumItem);
 		PackAddStrEx(p, "HubName", item->HubName, i, e->NumItem);
-		PackAddInt64Ex(p, "CreateDateTime", item->CreateDateTime, i, e->NumItem);
-		PackAddInt64Ex(p, "UpdateDateTime", item->UpdateDateTime, i, e->NumItem);
-		PackAddInt64Ex(p, "LastConnectDateTime", item->LastConnectDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "CreateDateTime", item->CreateDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "UpdateDateTime", item->UpdateDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "LastConnectDateTime", item->LastConnectDateTime, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_CLIENT_DELETE_ACCOUNT
@@ -4998,9 +5008,9 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 
 	PackAddData(p, "ShortcutKey", c->ShortcutKey, SHA1_SIZE);
 
-	PackAddInt64(p, "CreateDateTime", c->CreateDateTime);
-	PackAddInt64(p, "UpdateDateTime", c->UpdateDateTime);
-	PackAddInt64(p, "LastConnectDateTime", c->LastConnectDateTime);
+	PackAddTime64(p, "CreateDateTime", c->CreateDateTime);
+	PackAddTime64(p, "UpdateDateTime", c->UpdateDateTime);
+	PackAddTime64(p, "LastConnectDateTime", c->LastConnectDateTime);
 }
 
 // RPC_CLIENT_CONNECT
@@ -5103,6 +5113,7 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 	s->UseCompress = PackGetInt(p, "UseCompress") ? true : false;
 	s->IsRUDPSession = PackGetInt(p, "IsRUDPSession") ? true : false;
 	PackGetStr(p, "UnderlayProtocol", s->UnderlayProtocol, sizeof(s->UnderlayProtocol));
+	PackGetStr(p, "ProtocolDetails", s->ProtocolDetails, sizeof(s->ProtocolDetails));
 	s->IsUdpAccelerationEnabled = PackGetInt(p, "IsUdpAccelerationEnabled") ? true : false;
 	s->IsUsingUdpAcceleration = PackGetInt(p, "IsUsingUdpAcceleration") ? true : false;
 
@@ -5148,32 +5159,33 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 
 	PackAddData(p, "SessionKey", c->SessionKey, SHA1_SIZE);
 
-	PackAddInt(p, "Active", c->Active);
-	PackAddInt(p, "Connected", c->Connected);
+	PackAddBool(p, "Active", c->Active);
+	PackAddBool(p, "Connected", c->Connected);
 	PackAddInt(p, "SessionStatus", c->SessionStatus);
 	PackAddInt(p, "ServerPort", c->ServerPort);
 	PackAddInt(p, "ServerProductVer", c->ServerProductVer);
 	PackAddInt(p, "ServerProductBuild", c->ServerProductBuild);
 	PackAddInt(p, "NumConnectionsEatablished", c->NumConnectionsEatablished);
-	PackAddInt(p, "HalfConnection", c->HalfConnection);
-	PackAddInt(p, "QoS", c->QoS);
+	PackAddBool(p, "HalfConnection", c->HalfConnection);
+	PackAddBool(p, "QoS", c->QoS);
 	PackAddInt(p, "MaxTcpConnections", c->MaxTcpConnections);
 	PackAddInt(p, "NumTcpConnections", c->NumTcpConnections);
 	PackAddInt(p, "NumTcpConnectionsUpload", c->NumTcpConnectionsUpload);
 	PackAddInt(p, "NumTcpConnectionsDownload", c->NumTcpConnectionsDownload);
-	PackAddInt(p, "UseEncrypt", c->UseEncrypt);
-	PackAddInt(p, "UseCompress", c->UseCompress);
-	PackAddInt(p, "IsRUDPSession", c->IsRUDPSession);
+	PackAddBool(p, "UseEncrypt", c->UseEncrypt);
+	PackAddBool(p, "UseCompress", c->UseCompress);
+	PackAddBool(p, "IsRUDPSession", c->IsRUDPSession);
 	PackAddStr(p, "UnderlayProtocol", c->UnderlayProtocol);
-	PackAddInt(p, "IsUdpAccelerationEnabled", c->IsUdpAccelerationEnabled);
-	PackAddInt(p, "IsUsingUdpAcceleration", c->IsUsingUdpAcceleration);
+	PackAddStr(p, "ProtocolDetails", c->ProtocolDetails);
+	PackAddBool(p, "IsUdpAccelerationEnabled", c->IsUdpAccelerationEnabled);
+	PackAddBool(p, "IsUsingUdpAcceleration", c->IsUsingUdpAcceleration);
 
 	PackAddBool(p, "IsBridgeMode", c->IsBridgeMode);
 	PackAddBool(p, "IsMonitorMode", c->IsMonitorMode);
 
-	PackAddInt64(p, "StartTime", c->StartTime);
-	PackAddInt64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
-	PackAddInt64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
+	PackAddTime64(p, "StartTime", c->StartTime);
+	PackAddTime64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
+	PackAddTime64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
 	PackAddInt64(p, "TotalSendSize", c->TotalSendSize);
 	PackAddInt64(p, "TotalRecvSize", c->TotalRecvSize);
 	PackAddInt64(p, "TotalSendSizeReal", c->TotalSendSizeReal);
@@ -6124,9 +6136,23 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				st->IsRUDPSession = s->IsRUDPSession;
 				// Physical communication protocol
 				StrCpy(st->UnderlayProtocol, sizeof(st->UnderlayProtocol), s->UnderlayProtocol);
+				// Protocol details
+				StrCpy(st->ProtocolDetails, sizeof(st->ProtocolDetails), s->ProtocolDetails);
+				Trim(st->ProtocolDetails);
 				// UDP acceleration function
 				st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
 				st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;
+				if (s->IpcSessionShared != NULL && IsEmptyStr(s->IpcSessionShared->ProtocolDetails) == false)
+				{
+					char tmp[256];
+					StrCpy(tmp, sizeof(tmp), s->IpcSessionShared->ProtocolDetails);
+					Trim(tmp);
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), " ");
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), tmp);
+
+					st->IsUdpAccelerationEnabled = s->IpcSessionShared->EnableUdpAccel;
+					st->IsUsingUdpAcceleration = s->IpcSessionShared->UsingUdpAccel;
+				}
 				// Session key
 				Copy(st->SessionKey, s->SessionKey, SHA1_SIZE);
 				// Policy

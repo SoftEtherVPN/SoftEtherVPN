@@ -129,6 +129,8 @@ struct ADMIN
 	LIST *LogFileList;			// Accessible log file list
 	UINT ClientBuild;			// Build number of the client
 	RPC_WINVER ClientWinVer;	// Windows version of client
+	UINT MaxJsonRpcRecvSize;	// Max JSON-RPC Receive Size
+	char dummy1[MAX_HUBNAME_LEN + 1];	// hubname buffer (dummy)
 };
 
 // Test
@@ -215,7 +217,8 @@ struct RPC_INT
 // Set Password
 struct RPC_SET_PASSWORD
 {
-	UCHAR HashedPassword[SHA1_SIZE];	// Hashed password
+	UCHAR HashedPassword[SHA1_SIZE];	// Hashed password (for traditional RPC)
+	char PlainTextPassword[MAX_SIZE];	// Plaintext password (for JSON-RPC)
 };
 
 // Server farm configuration *
@@ -228,6 +231,7 @@ struct RPC_FARM
 	char ControllerName[MAX_HOST_NAME_LEN + 1];	// Controller name
 	UINT ControllerPort;				// Controller port
 	UCHAR MemberPassword[SHA1_SIZE];	// Member password
+	char MemberPasswordPlaintext[MAX_SIZE];	// Member password (plaintext)
 	UINT Weight;						// Performance ratio
 	bool ControllerOnly;				// Only controller function
 };
@@ -333,6 +337,7 @@ struct RPC_CREATE_HUB
 	char HubName[MAX_HUBNAME_LEN + 1];	// HUB Name
 	UCHAR HashedPassword[SHA1_SIZE];	// Administrative password
 	UCHAR SecurePassword[SHA1_SIZE];	// Administrator password
+	char AdminPasswordPlainText[MAX_SIZE];	// Password (plaintext)
 	bool Online;						// Online flag
 	RPC_HUB_OPTION HubOption;			// HUB options
 	UINT HubType;						// Type of HUB
@@ -650,6 +655,7 @@ struct RPC_ENUM_SESSION_ITEM
 	char RemoteHostname[MAX_HOST_NAME_LEN + 1];		// Remote server name
 	char Username[MAX_USERNAME_LEN + 1];			// User name
 	UINT Ip;										// IP address (IPv4)
+	IP ClientIP;									// IP address (IPv4 / IPv6)
 	char Hostname[MAX_HOST_NAME_LEN	+ 1];			// Host name
 	UINT MaxNumTcp;									// Maximum number of TCP connections
 	UINT CurrentNumTcp;								// Number of currentl TCP connections
@@ -666,6 +672,8 @@ struct RPC_ENUM_SESSION_ITEM
 	bool IsDormantEnabled;							// Is the dormant state enabled
 	bool IsDormant;									// Is in the dormant state
 	UINT64 LastCommDormant;							// Last comm interval in the dormant state
+	UINT64 CreatedTime;								// Creation date and time
+	UINT64 LastCommTime;							// Last communication date and time
 };
 
 // Disconnect the session
@@ -702,8 +710,9 @@ struct RPC_ENUM_IP_TABLE_ITEM
 {
 	UINT Key;										// Key
 	char SessionName[MAX_SESSION_NAME_LEN + 1];		// Session name
-	UINT Ip;										// IP address
+	UINT Ip;										// IPv4 address
 	IP IpV6;										// IPv6 address
+	IP IpAddress;									// IPv4 / IPv6 Address
 	bool DhcpAllocated;								// Assigned by the DHCP
 	UINT64 CreatedTime;								// Creation date and time
 	UINT64 UpdatedTime;								// Updating date
@@ -990,6 +999,11 @@ struct RPC_AZURE_STATUS
 };
 
 
+// Constants
+#define ADMIN_RPC_MAX_POST_SIZE_BY_SERVER_ADMIN		MAX_PACK_SIZE
+#define ADMIN_RPC_MAX_POST_SIZE_BY_HUB_ADMIN		(8 * 1024 * 1024)
+
+
 // Function prototype
 UINT AdminAccept(CONNECTION *c, PACK *p);
 void HashAdminPassword(void *hash, char *password);
@@ -1014,6 +1028,26 @@ BUF *DownloadFileFromServer(RPC *r, char *server_name, char *filepath, UINT tota
 bool CheckAdminSourceAddress(SOCK *sock, char *hubname);
 void SiEnumSessionMain(SERVER *s, RPC_ENUM_SESSION *t);
 bool SiIsEmptyPassword(void *hash_password);
+void JsonRpcProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size);
+void JsonRpcProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target);
+void JsonRpcProcOptions(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target);
+JSON_VALUE *JsonRpcProcRequestObject(ADMIN *admin, CONNECTION *c, SOCK *s, JSON_VALUE *json_req, char *method_name);
+JSON_VALUE *JsonRpcNewError(int code, wchar_t *message);
+JSON_VALUE *JsonRpcNewResponse(PACK *p);
+bool HttpParseBasicAuthHeader(HTTP_HEADER *h, char *username, UINT username_size, char *password, UINT password_size);
+ADMIN *JsonRpcAuthLogin(CEDAR *c, SOCK *sock, HTTP_HEADER *h);
+JSON_VALUE *QueryStringToJsonListValue(char *qs);
+JSON_VALUE *ConstructDummyJsonRpcRequest(char *method_name, JSON_VALUE *p);
+void AdminWebProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size, char *url_target);
+void AdminWebProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target);
+bool AdminWebHandleFileRequest(ADMIN *a, CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_src, char *query_string, char *virtual_root_dir, char *physical_root_dir);
+BUF *AdminWebProcessServerSideInclude(BUF *src_txt, char *filename, UINT depth);
+bool AdminWebSendBody(SOCK *s, UINT status_code, char *status_string, UCHAR *data, UINT data_size, char *content_type, char *add_header_name, char *add_header_value, HTTP_HEADER *request_headers);
+bool AdminWebSend404Error(SOCK *s, HTTP_HEADER *request_headers);
+bool AdminWebSend302Redirect(SOCK *s, char *url, char *query_string, HTTP_HEADER *request_headers);
+BUF *AdminWebTryFindAndReadFile(char *vroot, char *proot, char *url, char *ret_filename, UINT ret_filename_size, bool *is_index_html);
+BUF *AdminWebTryOneFile(char *filename, char *ret_filename, UINT ret_filename_size);
+bool AdminWebSendUnauthorized(SOCK *s, HTTP_HEADER *http_request_headers);
 
 UINT StTest(ADMIN *a, RPC_TEST *t);
 UINT StGetServerInfo(ADMIN *a, RPC_SERVER_INFO *t);
@@ -1387,7 +1421,7 @@ void OutRpcAccess(PACK *p, ACCESS *a);
 void InRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a, PACK *p);
 void OutRpcEnumAccessList(PACK *p, RPC_ENUM_ACCESS_LIST *a);
 void FreeRpcEnumAccessList(RPC_ENUM_ACCESS_LIST *a);
-void *InRpcAuthData(PACK *p, UINT *authtype);
+void *InRpcAuthData(PACK *p, UINT *authtype, char *username);
 void OutRpcAuthData(PACK *p, void *authdata, UINT authtype);
 void FreeRpcAuthData(void *authdata, UINT authtype);
 void InRpcSetUser(RPC_SET_USER *t, PACK *p);

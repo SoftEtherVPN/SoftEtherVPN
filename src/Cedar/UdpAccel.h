@@ -106,9 +106,14 @@
 #define	UDPACCEL_H
 
 // Constants
-#define	UDP_ACCELERATION_COMMON_KEY_SIZE	20			// Common key size
-#define	UDP_ACCELERATION_PACKET_KEY_SIZE	20			// Key size for the packet
-#define	UDP_ACCELERATION_PACKET_IV_SIZE		20			// IV size for the packet
+#define	UDP_ACCELERATION_COMMON_KEY_SIZE_V1	20			// V1: Common key size
+#define	UDP_ACCELERATION_PACKET_KEY_SIZE_V1	20			// V1: Key size for the packet
+#define	UDP_ACCELERATION_PACKET_IV_SIZE_V1	20			// V1: IV size for the packet
+
+#define	UDP_ACCELERATION_COMMON_KEY_SIZE_V2	128			// V2: Common key size
+#define	UDP_ACCELERATION_PACKET_IV_SIZE_V2	12			// V2: IV size for the packet
+#define UDP_ACCELERATION_PACKET_MAC_SIZE_V2	16			// V2: MAC size for the packet
+
 #define	UDP_ACCELERATION_TMP_BUF_SIZE		2048		// Temporary buffer size
 #define	UDP_ACCELERATION_WINDOW_SIZE_MSEC	(30 * 1000)	// Receive window size (in milliseconds)
 
@@ -142,8 +147,8 @@ struct UDP_ACCEL
 	bool ClientMode;									// Whether client mode
 	bool IsInCedarPortList;								// Whether included in the port list of the Cedar
 	UINT64 Now;											// Current time
-	UCHAR MyKey[UDP_ACCELERATION_COMMON_KEY_SIZE];		// Submit-direction common key
-	UCHAR YourKey[UDP_ACCELERATION_COMMON_KEY_SIZE];	// Receiving-direction common key
+	UCHAR MyKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];		// Submit-direction common key
+	UCHAR YourKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];	// Receiving-direction common key
 	SOCK *UdpSock;										// UDP socket
 	UINT MyPort;										// My port number
 	UINT YourPort;										// Port number of the other party
@@ -160,7 +165,7 @@ struct UDP_ACCEL
 	UINT64 LastSetSrcIpAndPortTick;						// Opponent's tick ??value at the time of storing the IP address and port number of the opponent at the end
 	UINT64 LastRecvTick;								// Tick when data has received at the end
 	UINT64 NextSendKeepAlive;							// Next time to send a KeepAlive packet
-	UCHAR NextIv[UDP_ACCELERATION_PACKET_IV_SIZE];		// IV to be used next
+	UCHAR NextIv[UDP_ACCELERATION_PACKET_IV_SIZE_V1];		// IV to be used next
 	UINT MyCookie;										// My cookie
 	UINT YourCookie;									// Cookie of the other party
 	bool Inited;										// Initialized flag
@@ -191,6 +196,11 @@ struct UDP_ACCEL
 	UCHAR UdpIpQueryPacketData[16];						// Query packet data (final transmission)
 	UINT UdpIpQueryPacketSize;							// Query packet data size (final transmission)
 	UCHAR UdpHostUniqueKey[SHA1_SIZE];					// Unique key for UDP self endpoint query
+	UINT Version;										// Version
+	UCHAR MyKey_V2[UDP_ACCELERATION_COMMON_KEY_SIZE_V2];	// Submit-direction common key (Ver 2)
+	UCHAR YourKey_V2[UDP_ACCELERATION_COMMON_KEY_SIZE_V2];	// Receiving-direction common key (Ver 2)
+	UCHAR NextIv_V2[UDP_ACCELERATION_PACKET_IV_SIZE_V2];	// IV to be used next (Ver 2)
+	bool ReadRawFlagMode;								// Read raw flag mode
 };
 
 // Function prototype
@@ -203,7 +213,7 @@ void UdpAccelSetTick(UDP_ACCEL *a, UINT64 tick64);
 BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip, UINT src_port);
 void UdpAccelCalcKey(UCHAR *key, UCHAR *common_key, UCHAR *iv);
 bool UdpAccelIsSendReady(UDP_ACCEL *a, bool check_keepalive);
-void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, bool compressed, UINT max_size, bool high_priority);
+void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT max_size, bool high_priority);
 void UdpAccelSendBlock(UDP_ACCEL *a, BLOCK *b);
 UINT UdpAccelCalcMss(UDP_ACCEL *a);
 void NatT_GetIpThread(THREAD *thread, void *param);

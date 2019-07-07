@@ -895,18 +895,21 @@ void OutRpcEnumDhcp(PACK *p, RPC_ENUM_DHCP *t)
 	PackAddInt(p, "NumItem", t->NumItem);
 	PackAddStr(p, "HubName", t->HubName);
 
+	PackSetCurrentJsonGroupName(p, "DhcpTable");
+
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_DHCP_ITEM *e = &t->Items[i];
 
 		PackAddIntEx(p, "Id", e->Id, i, t->NumItem);
-		PackAddInt64Ex(p, "LeasedTime", e->LeasedTime, i, t->NumItem);
-		PackAddInt64Ex(p, "ExpireTime", e->ExpireTime, i, t->NumItem);
+		PackAddTime64Ex(p, "LeasedTime", e->LeasedTime, i, t->NumItem);
+		PackAddTime64Ex(p, "ExpireTime", e->ExpireTime, i, t->NumItem);
 		PackAddDataEx(p, "MacAddress", e->MacAddress, 6, i, t->NumItem);
 		PackAddIp32Ex(p, "IpAddress", e->IpAddress, i, t->NumItem);
 		PackAddIntEx(p, "Mask", e->Mask, i, t->NumItem);
 		PackAddStrEx(p, "Hostname", e->Hostname, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumDhcp(RPC_ENUM_DHCP *t)
 {
@@ -963,6 +966,8 @@ void OutRpcEnumNat(PACK *p, RPC_ENUM_NAT *t)
 
 	PackAddInt(p, "NumItem", t->NumItem);
 	PackAddStr(p, "HubName", t->HubName);
+
+	PackSetCurrentJsonGroupName(p, "NatTable");
 	for (i = 0;i < t->NumItem;i++)
 	{
 		RPC_ENUM_NAT_ITEM *e = &t->Items[i];
@@ -975,12 +980,13 @@ void OutRpcEnumNat(PACK *p, RPC_ENUM_NAT *t)
 		PackAddIp32Ex(p, "DestIp", e->DestIp, i, t->NumItem);
 		PackAddStrEx(p, "DestHost", e->DestHost, i, t->NumItem);
 		PackAddIntEx(p, "DestPort", e->DestPort, i, t->NumItem);
-		PackAddInt64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumItem);
-		PackAddInt64Ex(p, "LastCommTime", e->LastCommTime, i, t->NumItem);
+		PackAddTime64Ex(p, "CreatedTime", e->CreatedTime, i, t->NumItem);
+		PackAddTime64Ex(p, "LastCommTime", e->LastCommTime, i, t->NumItem);
 		PackAddInt64Ex(p, "SendSize", e->SendSize, i, t->NumItem);
 		PackAddInt64Ex(p, "RecvSize", e->RecvSize, i, t->NumItem);
 		PackAddIntEx(p, "TcpStatus", e->TcpStatus, i, t->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcEnumNat(RPC_ENUM_NAT *t)
 {

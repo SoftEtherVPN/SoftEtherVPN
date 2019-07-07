@@ -105,6 +105,13 @@
 #ifndef	PROTOCOL_H
 #define	PROTOCOL_H
 
+// MIME types
+struct HTTP_MIME_TYPE
+{
+	char *Extension;
+	char *MimeType;
+};
+
 // The parameters that will be passed to the certificate confirmation thread
 struct CHECK_CERT_THREAD_PROC
 {
@@ -195,6 +202,73 @@ struct UPDATE_CLIENT
 #define	PROTO_SUPPRESS_CLIENT_UPDATE_NOTIFICATION_REGKEY	"Software\\" GC_REG_COMPANY_NAME "\\" CEDAR_PRODUCT_STR " VPN\\Client Update Notification"
 #define	PROTO_SUPPRESS_CLIENT_UPDATE_NOTIFICATION_REGVALUE	"Suppress"
 
+// WebSocket
+struct WS
+{
+	SOCK *Sock;
+	WSP *Wsp;
+	REF *Ref;
+	bool Disconnected;
+	UINT MaxBufferSize;
+	UCHAR TmpBuf[65536];
+};
+
+// WebSocket Protocol
+struct WSP
+{
+	UINT MaxBufferSize;
+	FIFO *PhysicalSendFifo;		// WSP -> Network
+	FIFO *PhysicalRecvFifo;		// WSP <- Network
+	FIFO *AppSendFifo;			// APP -> WSP
+	FIFO *AppRecvFifo;			// APP <- WSP
+	bool HasError;
+};
+
+// WebSocket constants
+#define WS_MAX_PAYLOAD_LEN_PER_FRAME	(8 * 1024 * 1024)
+#define WS_SEND_SINGLE_FRAGMENT_SIZE	(32 * 1024)
+
+#define WS_OPCODE_CONTINUE		0x00
+#define WS_OPCODE_TEXT			0x01
+#define WS_OPCODE_BIN			0x02
+#define WS_OPCODE_CLOSE			0x08
+#define WS_OPCODE_PING			0x09
+#define WS_OPCODE_PONG			0x0A
+
+// MVPN constants
+#define MVPN_VERSION_MIN			100
+#define MVPN_VERSION_CURRENT		100
+#define MVPN_MAX_AUTH_RETRY			10
+#define	MVPN_CLIENT_NAME			"Modern VPN Client"
+#define	NVPN_POSTFIX				"MVPN"
+
+// MVPN protocol constants
+#define MVPN_AUTHTYPE_ANONYMOUS				"anonymous"
+#define MVPN_AUTHTYPE_PASSWORD_PLAIN		"password_plain"
+#define MVPN_AUTHTYPE_PASSWORD_MSCHAPV2		"password_mschapv2"
+#define MVPN_AUTHTYPE_CERT					"x509cert"
+
+#define MVPN_HEARTBEAT_INTERVAL_DEFAULT		1234
+#define	MVPN_HEARTBEAT_INTERVAL_MIN			100
+#define	MVPN_HEARTBEAT_INTERVAL_MAX			15000
+
+#define MVPN_DISCONNECT_TIMEOUT_DEFAULT		15000
+#define MVPN_DISCONNECT_TIMEOUT_MIN			5000
+#define MVPN_DISCONNECT_TIMEOUT_MAX			60000
+
+#define MVPN_PACKET_MAGIC_NUMBER		0xCAFEBEEF
+#define MVPN_PACKET_TYPE_ETHERNET		0
+#define MVPN_PACKET_TYPE_IPV4			1
+#define MVPN_PACKET_TYPE_HEARTBEAT		254
+
+
+
+#define MVPN_AUTHTYPE_ALL_SUPPORTED			MVPN_AUTHTYPE_ANONYMOUS "," MVPN_AUTHTYPE_PASSWORD_PLAIN "," MVPN_AUTHTYPE_PASSWORD_MSCHAPV2 "," MVPN_AUTHTYPE_CERT
+
+
+
+
+
 // Function prototype
 UPDATE_CLIENT *NewUpdateClient(UPDATE_NOTIFY_PROC *cb, UPDATE_ISFOREGROUND_PROC *isforeground_cb, void *param, char *family_name, char *software_name, wchar_t *software_title, UINT my_build, UINT64 my_date, char *my_lang, UPDATE_CLIENT_SETTING *current_setting, char *client_id);
 void FreeUpdateClient(UPDATE_CLIENT *c);
@@ -233,6 +307,7 @@ PACK *PackLoginWithAnonymous(char *hubname, char *username);
 PACK *PackLoginWithPassword(char *hubname, char *username, void *secure_password);
 PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_password);
 PACK *PackLoginWithCert(char *hubname, char *username, X *x, void *sign, UINT sign_size);
+PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x);
 bool GetMethodFromPack(PACK *p, char *method, UINT size);
 bool GetHubnameAndUsernameFromPack(PACK *p, char *username, UINT username_size,
 								   char *hubname, UINT hubname_size);
@@ -302,6 +377,36 @@ X *FindCertIssuerFromCertList(LIST *o, X *x);
 bool TryGetRootCertChain(LIST *o, X *x, bool auto_save, X **found_root_x);
 bool TryGetParentCertFromCertList(LIST *o, X *x, LIST *found_chain);
 bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x);
+char *GetMimeTypeFromFileName(char *filename);
+
+void MvpnProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target);
+bool MvpnSendReply(SOCK *s, UINT status_code, char *status_string, UCHAR *data, UINT data_size, char *content_type,
+						char *add_header_name, char *add_header_value, HTTP_HEADER *request_headers);
+void MvpnAccept(CONNECTION *c, SOCK *s);
+UINT MvpnDoAccept(CONNECTION *c, WS *w);
+
+
+WS *NewWs(SOCK *s);
+void ReleaseWs(WS *w);
+void CleanupWs(WS *w);
+UINT WsRecvSync(WS *w, void *data, UINT size);
+bool WsRecvSyncAll(WS *w, void *data, UINT size);
+bool WsSendSync(WS *w, void *data, UINT size);
+UINT WsRecvAsync(WS *w, void *data, UINT size);
+UINT WsSendAsync(WS *w, void *data, UINT size);
+bool WsTrySendAsync(WS *w);
+PACK *WsRecvPack(WS *w);
+bool WsSendPack(WS *w, PACK *p);
+PACK *WsNewErrorPack(UINT err);
+char *WsErrorCodeToString(UINT err);
+
+WSP *NewWsp();
+void FreeWsp(WSP *p);
+void WspTry(WSP *p);
+BLOCK *WspTryRecvNextFrame(WSP *p, UINT *read_buffer_size);
+void WspTrySendFrame(WSP *p, UCHAR opcode, void *data, UINT size);
+
+
 
 
 #endif	// PROTOCOL_H

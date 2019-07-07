@@ -936,6 +936,8 @@ TABLE *ParseTableLine(char *line, char *prefix, UINT prefix_size, LIST *replace_
 			UniReplaceStrEx(tmp, tmp_size, tmp, (wchar_t *)r->name, r->unistr, false);
 		}
 
+		Free(unistr);
+
 		unistr = CopyUniStr(tmp);
 
 		Free(tmp);

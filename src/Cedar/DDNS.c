@@ -134,6 +134,9 @@ void DCGetStatus(DDNS_CLIENT *c, DDNS_CLIENT_STATUS *st)
 		Copy(&st->InternetSetting, &c->InternetSetting, sizeof(INTERNET_SETTING));
 	}
 	Unlock(c->Lock);
+
+	UniStrCpy(st->ErrStr_IPv4, sizeof(st->ErrStr_IPv4), _E(st->Err_IPv4));
+	UniStrCpy(st->ErrStr_IPv6, sizeof(st->ErrStr_IPv6), _E(st->Err_IPv6));
 }
 
 // Set the Internet settings

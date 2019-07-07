@@ -14494,6 +14494,12 @@ void CmdPrintStatusToListViewEx(CT *ct, RPC_CLIENT_GET_CONNECTION_STATUS *s, boo
 			CtInsert(ct, _UU("CM_ST_UNDERLAY_PROTOCOL"), tmp);
 		}
 
+		if (IsEmptyStr(s->ProtocolDetails) == false)
+		{
+			StrToUni(tmp, sizeof(tmp), s->ProtocolDetails);
+			CtInsert(ct, _UU("CM_ST_PROTOCOL_DETAILS"), tmp);
+		}
+
 		CtInsert(ct, _UU("CM_ST_UDP_ACCEL_ENABLED"), (s->IsUdpAccelerationEnabled ? _UU("CM_ST_YES") : _UU("CM_ST_NO")));
 		CtInsert(ct, _UU("CM_ST_UDP_ACCEL_USING"), (s->IsUsingUdpAcceleration ? _UU("CM_ST_YES") : _UU("CM_ST_NO")));
 
@@ -21662,6 +21668,9 @@ UINT PsLicenseAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	FreeParamValueList(o);
+
+	c->Write(c, _UU("SM_LICENSE_WARNING"));
+	c->Write(c, L"\n");
 
 	return 0;
 }

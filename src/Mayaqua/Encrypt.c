@@ -142,6 +142,8 @@
 
 LOCK *openssl_lock = NULL;
 
+int ssl_clientcert_index = 0;
+
 LOCK **ssl_lock_obj = NULL;
 UINT ssl_lock_num;
 static bool openssl_inited = false;
@@ -2456,7 +2458,6 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 	UCHAR hash_data[SIGN_HASH_SIZE];
 	UCHAR *decrypt_data;
 	RSA *rsa;
-	UINT rsa_size;
 	// Validate arguments
 	if (data == NULL || sign == NULL || k == NULL || k->private_key != false)
 	{
@@ -2473,15 +2474,14 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 		return false;
 	}
 
+	decrypt_data = ZeroMalloc(RSA_size(rsa));
+
 	// Hash the data
 	if (HashForSign(hash_data, sizeof(hash_data), data, data_size) == false)
 	{
+		Free(decrypt_data);
 		return false;
 	}
-
-	rsa_size = RSA_size(rsa);
-	rsa_size = MAX(rsa_size, 1024); // For just in case
-	decrypt_data = ZeroMalloc(rsa_size);
 
 	// Decode the signature
 	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, rsa, RSA_PKCS1_PADDING) <= 0)
@@ -4137,6 +4137,8 @@ void InitCryptLibrary()
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
 
+	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);
+
 #ifdef	OS_UNIX
 	{
 		char *name1 = "/dev/random";
@@ -5171,5 +5173,1056 @@ static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned c
 }
 
 
+int GetSslClientCertIndex()
+{
+	return ssl_clientcert_index;
+}
 
+
+
+//// RFC 8439: ChaCha20 and Poly1305 for IETF Protocols
+//// Implementation from libsodium: https://github.com/jedisct1/libsodium
+//// 
+//// SoftEther VPN must support OpenSSL versions between 1.0.2 to the latest version.
+//// Since we are unable to use ChaCha20 and Poly1305 on OpenSSL 1.0.x,
+//// we copied the C implementation from libsodium.
+//// Please note that the C implementation for ChaCha20 and Poly1305 is slow than
+//// the OpenSSL 1.0.0 or later's implementation for ChaCha20 and Poly1305.
+//// 
+//// If OpenSSL 1.1.0 or later is linked, we use OpenSSL's ChaCha20 and Poly1305 implementation.
+
+/*
+ * ISC License
+ *
+ * Copyright (c) 2013-2018
+ * Frank Denis <j at pureftpd dot org>
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#ifdef	OS_WIN32
+#define inline __inline
+#endif
+
+#define poly1305_block_size 16
+
+#define U32C(v) (v##U)
+#define U32V(v) ((UINT)(v) &U32C(0xFFFFFFFF))
+#define ROTATE(v, c) (ROTL32(v, c))
+#define XOR(v, w) ((v) ^ (w))
+#define PLUS(v, w) (U32V((v) + (w)))
+#define PLUSONE(v) (PLUS((v), 1))
+
+#define QUARTERROUND(a, b, c, d) \
+	a = PLUS(a, b);              \
+	d = ROTATE(XOR(d, a), 16);   \
+	c = PLUS(c, d);              \
+	b = ROTATE(XOR(b, c), 12);   \
+	a = PLUS(a, b);              \
+	d = ROTATE(XOR(d, a), 8);    \
+	c = PLUS(c, d);              \
+	b = ROTATE(XOR(b, c), 7);
+
+#define ROTL32(X, B) rotl32((X), (B))
+static inline UINT
+rotl32(const UINT x, const int b)
+{
+	return (x << b) | (x >> (32 - b));
+}
+
+
+#define LOAD32_LE(SRC) load32_le(SRC)
+
+static inline UINT
+load32_le(const UCHAR src[4])
+{
+	if (IsBigEndian() == false)
+	{
+		UINT w;
+		memcpy(&w, src, sizeof w);
+		return w;
+	}
+	else
+	{
+		UINT w = (UINT) src[0];
+		w |= (UINT) src[1] <<  8;
+		w |= (UINT) src[2] << 16;
+		w |= (UINT) src[3] << 24;
+		return w;
+	}
+}
+
+#define STORE32_LE(DST, W) store32_le((DST), (W))
+static inline void
+store32_le(UCHAR dst[4], UINT w)
+{
+	if (IsBigEndian() == false)
+	{
+		memcpy(dst, &w, sizeof w);
+	}
+	else
+	{
+		dst[0] = (UCHAR) w; w >>= 8;
+		dst[1] = (UCHAR) w; w >>= 8;
+		dst[2] = (UCHAR) w; w >>= 8;
+		dst[3] = (UCHAR) w;
+	}
+}
+
+
+#define LOAD64_LE(SRC) load64_le(SRC)
+static inline UINT64
+load64_le(const UCHAR src[8])
+{
+	if (IsBigEndian() == false)
+	{
+		UINT64 w;
+		memcpy(&w, src, sizeof w);
+		return w;
+	}
+	else
+	{
+		UINT64 w = (UINT64) src[0];
+		w |= (UINT64) src[1] <<  8;
+		w |= (UINT64) src[2] << 16;
+		w |= (UINT64) src[3] << 24;
+		w |= (UINT64) src[4] << 32;
+		w |= (UINT64) src[5] << 40;
+		w |= (UINT64) src[6] << 48;
+		w |= (UINT64) src[7] << 56;
+		return w;
+	}
+}
+
+#define STORE64_LE(DST, W) store64_le((DST), (W))
+static inline void
+store64_le(UCHAR dst[8], UINT64 w)
+{
+	if (IsBigEndian() == false)
+	{
+		memcpy(dst, &w, sizeof w);
+	}
+	else
+	{
+		dst[0] = (UCHAR) w; w >>= 8;
+		dst[1] = (UCHAR) w; w >>= 8;
+		dst[2] = (UCHAR) w; w >>= 8;
+		dst[3] = (UCHAR) w; w >>= 8;
+		dst[4] = (UCHAR) w; w >>= 8;
+		dst[5] = (UCHAR) w; w >>= 8;
+		dst[6] = (UCHAR) w; w >>= 8;
+		dst[7] = (UCHAR) w;
+	}
+}
+
+
+
+typedef struct chacha_ctx {
+	UINT input[16];
+} chacha_ctx;
+
+
+
+
+#define crypto_stream_chacha20_ietf_MESSAGEBYTES_MAX \
+	(64ULL * (1ULL << 32))
+
+typedef struct crypto_onetimeauth_poly1305_state {
+	unsigned char opaque[256];
+} crypto_onetimeauth_poly1305_state;
+
+/* 17 + sizeof(unsigned long long) + 14*sizeof(unsigned long) */
+typedef struct poly1305_state_internal_t {
+	unsigned long      r[5];
+	unsigned long      h[5];
+	unsigned long      pad[4];
+	unsigned long long leftover;
+	unsigned char      buffer[poly1305_block_size];
+	unsigned char      final;
+} poly1305_state_internal_t;
+static void
+chacha_keysetup(chacha_ctx *ctx, const UCHAR *k)
+{
+	ctx->input[0]  = U32C(0x61707865);
+	ctx->input[1]  = U32C(0x3320646e);
+	ctx->input[2]  = U32C(0x79622d32);
+	ctx->input[3]  = U32C(0x6b206574);
+	ctx->input[4]  = LOAD32_LE(k + 0);
+	ctx->input[5]  = LOAD32_LE(k + 4);
+	ctx->input[6]  = LOAD32_LE(k + 8);
+	ctx->input[7]  = LOAD32_LE(k + 12);
+	ctx->input[8]  = LOAD32_LE(k + 16);
+	ctx->input[9]  = LOAD32_LE(k + 20);
+	ctx->input[10] = LOAD32_LE(k + 24);
+	ctx->input[11] = LOAD32_LE(k + 28);
+}
+
+static void
+chacha_ietf_ivsetup(chacha_ctx *ctx, const UCHAR *iv, const UCHAR *counter)
+{
+	ctx->input[12] = counter == NULL ? 0 : LOAD32_LE(counter);
+	ctx->input[13] = LOAD32_LE(iv + 0);
+	ctx->input[14] = LOAD32_LE(iv + 4);
+	ctx->input[15] = LOAD32_LE(iv + 8);
+}
+
+static void
+chacha20_encrypt_bytes(chacha_ctx *ctx, const UCHAR *m, UCHAR *c,
+					   unsigned long long bytes)
+{
+	UINT x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14,
+		x15;
+	UINT j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14,
+		j15;
+	UCHAR     *ctarget = NULL;
+	UCHAR      tmp[64];
+	unsigned int i;
+
+	if (!bytes) {
+		return; /* LCOV_EXCL_LINE */
+	}
+	j0  = ctx->input[0];
+	j1  = ctx->input[1];
+	j2  = ctx->input[2];
+	j3  = ctx->input[3];
+	j4  = ctx->input[4];
+	j5  = ctx->input[5];
+	j6  = ctx->input[6];
+	j7  = ctx->input[7];
+	j8  = ctx->input[8];
+	j9  = ctx->input[9];
+	j10 = ctx->input[10];
+	j11 = ctx->input[11];
+	j12 = ctx->input[12];
+	j13 = ctx->input[13];
+	j14 = ctx->input[14];
+	j15 = ctx->input[15];
+
+	for (;;) {
+		if (bytes < 64) {
+			memset(tmp, 0, 64);
+			for (i = 0; i < bytes; ++i) {
+				tmp[i] = m[i];
+			}
+			m       = tmp;
+			ctarget = c;
+			c       = tmp;
+		}
+		x0  = j0;
+		x1  = j1;
+		x2  = j2;
+		x3  = j3;
+		x4  = j4;
+		x5  = j5;
+		x6  = j6;
+		x7  = j7;
+		x8  = j8;
+		x9  = j9;
+		x10 = j10;
+		x11 = j11;
+		x12 = j12;
+		x13 = j13;
+		x14 = j14;
+		x15 = j15;
+		for (i = 20; i > 0; i -= 2) {
+			QUARTERROUND(x0, x4, x8, x12)
+				QUARTERROUND(x1, x5, x9, x13)
+				QUARTERROUND(x2, x6, x10, x14)
+				QUARTERROUND(x3, x7, x11, x15)
+				QUARTERROUND(x0, x5, x10, x15)
+				QUARTERROUND(x1, x6, x11, x12)
+				QUARTERROUND(x2, x7, x8, x13)
+				QUARTERROUND(x3, x4, x9, x14)
+		}
+		x0  = PLUS(x0, j0);
+		x1  = PLUS(x1, j1);
+		x2  = PLUS(x2, j2);
+		x3  = PLUS(x3, j3);
+		x4  = PLUS(x4, j4);
+		x5  = PLUS(x5, j5);
+		x6  = PLUS(x6, j6);
+		x7  = PLUS(x7, j7);
+		x8  = PLUS(x8, j8);
+		x9  = PLUS(x9, j9);
+		x10 = PLUS(x10, j10);
+		x11 = PLUS(x11, j11);
+		x12 = PLUS(x12, j12);
+		x13 = PLUS(x13, j13);
+		x14 = PLUS(x14, j14);
+		x15 = PLUS(x15, j15);
+
+		x0  = XOR(x0, LOAD32_LE(m + 0));
+		x1  = XOR(x1, LOAD32_LE(m + 4));
+		x2  = XOR(x2, LOAD32_LE(m + 8));
+		x3  = XOR(x3, LOAD32_LE(m + 12));
+		x4  = XOR(x4, LOAD32_LE(m + 16));
+		x5  = XOR(x5, LOAD32_LE(m + 20));
+		x6  = XOR(x6, LOAD32_LE(m + 24));
+		x7  = XOR(x7, LOAD32_LE(m + 28));
+		x8  = XOR(x8, LOAD32_LE(m + 32));
+		x9  = XOR(x9, LOAD32_LE(m + 36));
+		x10 = XOR(x10, LOAD32_LE(m + 40));
+		x11 = XOR(x11, LOAD32_LE(m + 44));
+		x12 = XOR(x12, LOAD32_LE(m + 48));
+		x13 = XOR(x13, LOAD32_LE(m + 52));
+		x14 = XOR(x14, LOAD32_LE(m + 56));
+		x15 = XOR(x15, LOAD32_LE(m + 60));
+
+		j12 = PLUSONE(j12);
+		/* LCOV_EXCL_START */
+		if (!j12) {
+			j13 = PLUSONE(j13);
+		}
+		/* LCOV_EXCL_STOP */
+
+		STORE32_LE(c + 0, x0);
+		STORE32_LE(c + 4, x1);
+		STORE32_LE(c + 8, x2);
+		STORE32_LE(c + 12, x3);
+		STORE32_LE(c + 16, x4);
+		STORE32_LE(c + 20, x5);
+		STORE32_LE(c + 24, x6);
+		STORE32_LE(c + 28, x7);
+		STORE32_LE(c + 32, x8);
+		STORE32_LE(c + 36, x9);
+		STORE32_LE(c + 40, x10);
+		STORE32_LE(c + 44, x11);
+		STORE32_LE(c + 48, x12);
+		STORE32_LE(c + 52, x13);
+		STORE32_LE(c + 56, x14);
+		STORE32_LE(c + 60, x15);
+
+		if (bytes <= 64) {
+			if (bytes < 64) {
+				for (i = 0; i < (unsigned int) bytes; ++i) {
+					ctarget[i] = c[i]; /* ctarget cannot be NULL */
+				}
+			}
+			ctx->input[12] = j12;
+			ctx->input[13] = j13;
+
+			return;
+		}
+		bytes -= 64;
+		c += 64;
+		m += 64;
+	}
+}
+
+static int
+stream_ietf_ext_ref(unsigned char *c, unsigned long long clen,
+					const unsigned char *n, const unsigned char *k)
+{
+	struct chacha_ctx ctx;
+
+	if (!clen) {
+		return 0;
+	}
+	chacha_keysetup(&ctx, k);
+	chacha_ietf_ivsetup(&ctx, n, NULL);
+	memset(c, 0, (UINT)clen);
+	chacha20_encrypt_bytes(&ctx, c, c, clen);
+	Zero(&ctx, sizeof ctx);
+
+	return 0;
+}
+
+int
+crypto_stream_chacha20_ietf(unsigned char *c, unsigned long long clen,
+							const unsigned char *n, const unsigned char *k)
+{
+	return stream_ietf_ext_ref(c, clen, n, k);
+}
+
+static void
+poly1305_init(poly1305_state_internal_t *st, const unsigned char key[32])
+{
+	/* r &= 0xffffffc0ffffffc0ffffffc0fffffff - wiped after finalization */
+	st->r[0] = (LOAD32_LE(&key[0])) & 0x3ffffff;
+	st->r[1] = (LOAD32_LE(&key[3]) >> 2) & 0x3ffff03;
+	st->r[2] = (LOAD32_LE(&key[6]) >> 4) & 0x3ffc0ff;
+	st->r[3] = (LOAD32_LE(&key[9]) >> 6) & 0x3f03fff;
+	st->r[4] = (LOAD32_LE(&key[12]) >> 8) & 0x00fffff;
+
+	/* h = 0 */
+	st->h[0] = 0;
+	st->h[1] = 0;
+	st->h[2] = 0;
+	st->h[3] = 0;
+	st->h[4] = 0;
+
+	/* save pad for later */
+	st->pad[0] = LOAD32_LE(&key[16]);
+	st->pad[1] = LOAD32_LE(&key[20]);
+	st->pad[2] = LOAD32_LE(&key[24]);
+	st->pad[3] = LOAD32_LE(&key[28]);
+
+	st->leftover = 0;
+	st->final    = 0;
+}
+
+static void
+poly1305_blocks(poly1305_state_internal_t *st, const unsigned char *m,
+				unsigned long long bytes)
+{
+	const unsigned long hibit = (st->final) ? 0UL : (1UL << 24); /* 1 << 128 */
+	unsigned long       r0, r1, r2, r3, r4;
+	unsigned long       s1, s2, s3, s4;
+	unsigned long       h0, h1, h2, h3, h4;
+	unsigned long long  d0, d1, d2, d3, d4;
+	unsigned long       c;
+
+	r0 = st->r[0];
+	r1 = st->r[1];
+	r2 = st->r[2];
+	r3 = st->r[3];
+	r4 = st->r[4];
+
+	s1 = r1 * 5;
+	s2 = r2 * 5;
+	s3 = r3 * 5;
+	s4 = r4 * 5;
+
+	h0 = st->h[0];
+	h1 = st->h[1];
+	h2 = st->h[2];
+	h3 = st->h[3];
+	h4 = st->h[4];
+
+	while (bytes >= poly1305_block_size) {
+		/* h += m[i] */
+		h0 += (LOAD32_LE(m + 0)) & 0x3ffffff;
+		h1 += (LOAD32_LE(m + 3) >> 2) & 0x3ffffff;
+		h2 += (LOAD32_LE(m + 6) >> 4) & 0x3ffffff;
+		h3 += (LOAD32_LE(m + 9) >> 6) & 0x3ffffff;
+		h4 += (LOAD32_LE(m + 12) >> 8) | hibit;
+
+		/* h *= r */
+		d0 = ((unsigned long long) h0 * r0) + ((unsigned long long) h1 * s4) +
+			((unsigned long long) h2 * s3) + ((unsigned long long) h3 * s2) +
+			((unsigned long long) h4 * s1);
+		d1 = ((unsigned long long) h0 * r1) + ((unsigned long long) h1 * r0) +
+			((unsigned long long) h2 * s4) + ((unsigned long long) h3 * s3) +
+			((unsigned long long) h4 * s2);
+		d2 = ((unsigned long long) h0 * r2) + ((unsigned long long) h1 * r1) +
+			((unsigned long long) h2 * r0) + ((unsigned long long) h3 * s4) +
+			((unsigned long long) h4 * s3);
+		d3 = ((unsigned long long) h0 * r3) + ((unsigned long long) h1 * r2) +
+			((unsigned long long) h2 * r1) + ((unsigned long long) h3 * r0) +
+			((unsigned long long) h4 * s4);
+		d4 = ((unsigned long long) h0 * r4) + ((unsigned long long) h1 * r3) +
+			((unsigned long long) h2 * r2) + ((unsigned long long) h3 * r1) +
+			((unsigned long long) h4 * r0);
+
+		/* (partial) h %= p */
+		c  = (unsigned long) (d0 >> 26);
+		h0 = (unsigned long) d0 & 0x3ffffff;
+		d1 += c;
+		c  = (unsigned long) (d1 >> 26);
+		h1 = (unsigned long) d1 & 0x3ffffff;
+		d2 += c;
+		c  = (unsigned long) (d2 >> 26);
+		h2 = (unsigned long) d2 & 0x3ffffff;
+		d3 += c;
+		c  = (unsigned long) (d3 >> 26);
+		h3 = (unsigned long) d3 & 0x3ffffff;
+		d4 += c;
+		c  = (unsigned long) (d4 >> 26);
+		h4 = (unsigned long) d4 & 0x3ffffff;
+		h0 += c * 5;
+		c  = (h0 >> 26);
+		h0 = h0 & 0x3ffffff;
+		h1 += c;
+
+		m += poly1305_block_size;
+		bytes -= poly1305_block_size;
+	}
+
+	st->h[0] = h0;
+	st->h[1] = h1;
+	st->h[2] = h2;
+	st->h[3] = h3;
+	st->h[4] = h4;
+}
+
+static void
+poly1305_update(poly1305_state_internal_t *st, const unsigned char *m,
+				unsigned long long bytes)
+{
+	unsigned long long i;
+
+	/* handle leftover */
+	if (st->leftover) {
+		unsigned long long want = (poly1305_block_size - st->leftover);
+
+		if (want > bytes) {
+			want = bytes;
+		}
+		for (i = 0; i < want; i++) {
+			st->buffer[st->leftover + i] = m[i];
+		}
+		bytes -= want;
+		m += want;
+		st->leftover += want;
+		if (st->leftover < poly1305_block_size) {
+			return;
+		}
+		poly1305_blocks(st, st->buffer, poly1305_block_size);
+		st->leftover = 0;
+	}
+
+	/* process full blocks */
+	if (bytes >= poly1305_block_size) {
+		unsigned long long want = (bytes & ~(poly1305_block_size - 1));
+
+		poly1305_blocks(st, m, want);
+		m += want;
+		bytes -= want;
+	}
+
+	/* store leftover */
+	if (bytes) {
+		for (i = 0; i < bytes; i++) {
+			st->buffer[st->leftover + i] = m[i];
+		}
+		st->leftover += bytes;
+	}
+}
+
+static int
+crypto_onetimeauth_poly1305_init(crypto_onetimeauth_poly1305_state *state,
+									   const unsigned char *key)
+{
+	poly1305_init((poly1305_state_internal_t *) (void *) state, key);
+
+	return 0;
+}
+
+static int
+crypto_onetimeauth_poly1305_update(
+	crypto_onetimeauth_poly1305_state *state, const unsigned char *in,
+	unsigned long long inlen)
+{
+	poly1305_update((poly1305_state_internal_t *) (void *) state, in, inlen);
+
+	return 0;
+}
+
+static int
+stream_ietf_ext_ref_xor_ic(unsigned char *c, const unsigned char *m,
+						   unsigned long long mlen, const unsigned char *n,
+						   UINT ic, const unsigned char *k)
+{
+	struct chacha_ctx ctx;
+	UCHAR           ic_bytes[4];
+
+	if (!mlen) {
+		return 0;
+	}
+	STORE32_LE(ic_bytes, ic);
+	chacha_keysetup(&ctx, k);
+	chacha_ietf_ivsetup(&ctx, n, ic_bytes);
+	chacha20_encrypt_bytes(&ctx, m, c, mlen);
+	Zero(&ctx, sizeof ctx);
+
+	return 0;
+}
+
+int
+crypto_stream_chacha20_ietf_xor_ic(unsigned char *c, const unsigned char *m,
+								   unsigned long long mlen,
+								   const unsigned char *n, UINT ic,
+								   const unsigned char *k)
+{
+	return stream_ietf_ext_ref_xor_ic(c, m, mlen, n, ic, k);
+}
+
+
+static void
+poly1305_finish(poly1305_state_internal_t *st, unsigned char mac[16])
+{
+	unsigned long      h0, h1, h2, h3, h4, c;
+	unsigned long      g0, g1, g2, g3, g4;
+	unsigned long long f;
+	unsigned long      mask;
+
+	/* process the remaining block */
+	if (st->leftover) {
+		unsigned long long i = st->leftover;
+
+		st->buffer[i++] = 1;
+		for (; i < poly1305_block_size; i++) {
+			st->buffer[i] = 0;
+		}
+		st->final = 1;
+		poly1305_blocks(st, st->buffer, poly1305_block_size);
+	}
+
+	/* fully carry h */
+	h0 = st->h[0];
+	h1 = st->h[1];
+	h2 = st->h[2];
+	h3 = st->h[3];
+	h4 = st->h[4];
+
+	c  = h1 >> 26;
+	h1 = h1 & 0x3ffffff;
+	h2 += c;
+	c  = h2 >> 26;
+	h2 = h2 & 0x3ffffff;
+	h3 += c;
+	c  = h3 >> 26;
+	h3 = h3 & 0x3ffffff;
+	h4 += c;
+	c  = h4 >> 26;
+	h4 = h4 & 0x3ffffff;
+	h0 += c * 5;
+	c  = h0 >> 26;
+	h0 = h0 & 0x3ffffff;
+	h1 += c;
+
+	/* compute h + -p */
+	g0 = h0 + 5;
+	c  = g0 >> 26;
+	g0 &= 0x3ffffff;
+	g1 = h1 + c;
+	c  = g1 >> 26;
+	g1 &= 0x3ffffff;
+	g2 = h2 + c;
+	c  = g2 >> 26;
+	g2 &= 0x3ffffff;
+	g3 = h3 + c;
+	c  = g3 >> 26;
+	g3 &= 0x3ffffff;
+	g4 = h4 + c - (1UL << 26);
+
+	/* select h if h < p, or h + -p if h >= p */
+	mask = (g4 >> ((sizeof(unsigned long) * 8) - 1)) - 1;
+	g0 &= mask;
+	g1 &= mask;
+	g2 &= mask;
+	g3 &= mask;
+	g4 &= mask;
+	mask = ~mask;
+
+	h0 = (h0 & mask) | g0;
+	h1 = (h1 & mask) | g1;
+	h2 = (h2 & mask) | g2;
+	h3 = (h3 & mask) | g3;
+	h4 = (h4 & mask) | g4;
+
+	/* h = h % (2^128) */
+	h0 = ((h0) | (h1 << 26)) & 0xffffffff;
+	h1 = ((h1 >> 6) | (h2 << 20)) & 0xffffffff;
+	h2 = ((h2 >> 12) | (h3 << 14)) & 0xffffffff;
+	h3 = ((h3 >> 18) | (h4 << 8)) & 0xffffffff;
+
+	/* mac = (h + pad) % (2^128) */
+	f  = (unsigned long long) h0 + st->pad[0];
+	h0 = (unsigned long) f;
+	f  = (unsigned long long) h1 + st->pad[1] + (f >> 32);
+	h1 = (unsigned long) f;
+	f  = (unsigned long long) h2 + st->pad[2] + (f >> 32);
+	h2 = (unsigned long) f;
+	f  = (unsigned long long) h3 + st->pad[3] + (f >> 32);
+	h3 = (unsigned long) f;
+
+	STORE32_LE(mac + 0, (UINT) h0);
+	STORE32_LE(mac + 4, (UINT) h1);
+	STORE32_LE(mac + 8, (UINT) h2);
+	STORE32_LE(mac + 12, (UINT) h3);
+
+	/* zero out the state */
+	Zero((void *) st, sizeof *st);
+}
+
+static int
+crypto_onetimeauth_poly1305_final(
+										crypto_onetimeauth_poly1305_state *state, unsigned char *out)
+{
+	poly1305_finish((poly1305_state_internal_t *) (void *) state, out);
+
+	return 0;
+}
+
+static const unsigned char _pad0[16] = { 0 };
+
+int
+crypto_aead_chacha20poly1305_ietf_encrypt_detached(unsigned char *c,
+												   unsigned char *mac,
+												   unsigned long long *maclen_p,
+												   const unsigned char *m,
+												   unsigned long long mlen,
+												   const unsigned char *ad,
+												   unsigned long long adlen,
+												   const unsigned char *nsec,
+												   const unsigned char *npub,
+												   const unsigned char *k)
+{
+	crypto_onetimeauth_poly1305_state state;
+	unsigned char                     block0[64U];
+	unsigned char                     slen[8U];
+
+	(void) nsec;
+	Zero(block0, sizeof block0);
+	crypto_stream_chacha20_ietf(block0, sizeof block0, npub, k);
+	crypto_onetimeauth_poly1305_init(&state, block0);
+
+	crypto_onetimeauth_poly1305_update(&state, ad, adlen);
+	crypto_onetimeauth_poly1305_update(&state, _pad0, (0x10 - adlen) & 0xf);
+
+	crypto_stream_chacha20_ietf_xor_ic(c, m, mlen, npub, 1U, k);
+
+	crypto_onetimeauth_poly1305_update(&state, c, mlen);
+	crypto_onetimeauth_poly1305_update(&state, _pad0, (0x10 - mlen) & 0xf);
+
+	STORE64_LE(slen, (UINT64) adlen);
+	crypto_onetimeauth_poly1305_update(&state, slen, sizeof slen);
+
+	STORE64_LE(slen, (UINT64) mlen);
+	crypto_onetimeauth_poly1305_update(&state, slen, sizeof slen);
+
+	crypto_onetimeauth_poly1305_final(&state, mac);
+	Zero(&state, sizeof state);
+
+	if (maclen_p != NULL) {
+		*maclen_p = 16;
+	}
+	return 0;
+}
+
+
+
+int
+crypto_aead_chacha20poly1305_ietf_decrypt_detached(unsigned char *m,
+												   unsigned char *nsec,
+												   const unsigned char *c,
+												   unsigned long long clen,
+												   const unsigned char *mac,
+												   const unsigned char *ad,
+												   unsigned long long adlen,
+												   const unsigned char *npub,
+												   const unsigned char *k)
+{
+	crypto_onetimeauth_poly1305_state state;
+	unsigned char                     block0[64U];
+	unsigned char                     slen[8U];
+	unsigned char                     computed_mac[16];
+	unsigned long long                mlen;
+	int                               ret;
+
+	(void) nsec;
+	Zero(block0, sizeof block0);
+	crypto_stream_chacha20_ietf(block0, sizeof block0, npub, k);
+	crypto_onetimeauth_poly1305_init(&state, block0);
+
+	crypto_onetimeauth_poly1305_update(&state, ad, adlen);
+	crypto_onetimeauth_poly1305_update(&state, _pad0, (0x10 - adlen) & 0xf);
+
+	mlen = clen;
+	crypto_onetimeauth_poly1305_update(&state, c, mlen);
+	crypto_onetimeauth_poly1305_update(&state, _pad0, (0x10 - mlen) & 0xf);
+
+	STORE64_LE(slen, (UINT64) adlen);
+	crypto_onetimeauth_poly1305_update(&state, slen, sizeof slen);
+
+	STORE64_LE(slen, (UINT64) mlen);
+	crypto_onetimeauth_poly1305_update(&state, slen, sizeof slen);
+
+	crypto_onetimeauth_poly1305_final(&state, computed_mac);
+	Zero(&state, sizeof state);
+
+	ret = Cmp((void *)computed_mac, (void *)mac, 16);
+	Zero(computed_mac, sizeof computed_mac);
+	if (m == NULL) {
+		return ret;
+	}
+	if (ret != 0) {
+		memset(m, 0, (UINT)mlen);
+		return -1;
+	}
+	crypto_stream_chacha20_ietf_xor_ic(m, c, mlen, npub, 1U, k);
+
+	return 0;
+}
+
+int
+crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m,
+										  unsigned long long *mlen_p,
+										  unsigned char *nsec,
+										  const unsigned char *c,
+										  unsigned long long clen,
+										  const unsigned char *ad,
+										  unsigned long long adlen,
+										  const unsigned char *npub,
+										  const unsigned char *k)
+{
+	unsigned long long mlen = 0ULL;
+	int                ret = -1;
+
+	if (clen >= 16) {
+		ret = crypto_aead_chacha20poly1305_ietf_decrypt_detached
+			(m, nsec,
+			c, clen - 16,
+			c + clen - AEAD_CHACHA20_POLY1305_MAC_SIZE,
+			ad, adlen, npub, k);
+	}
+	if (mlen_p != NULL) {
+		if (ret == 0) {
+			mlen = clen - AEAD_CHACHA20_POLY1305_MAC_SIZE;
+		}
+		*mlen_p = mlen;
+	}
+	return ret;
+}
+
+
+int
+crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c,
+										  unsigned long long *clen_p,
+										  const unsigned char *m,
+										  unsigned long long mlen,
+										  const unsigned char *ad,
+										  unsigned long long adlen,
+										  const unsigned char *nsec,
+										  const unsigned char *npub,
+										  const unsigned char *k)
+{
+	unsigned long long clen = 0ULL;
+	int                ret;
+
+	ret = crypto_aead_chacha20poly1305_ietf_encrypt_detached(c,
+		c + mlen, NULL,
+		m, mlen,
+		ad, adlen,
+		nsec, npub, k);
+	if (clen_p != NULL) {
+		if (ret == 0) {
+			clen = mlen + AEAD_CHACHA20_POLY1305_MAC_SIZE;
+		}
+		*clen_p = clen;
+	}
+	return ret;
+}
+
+// RFC 8439: ChaCha20-Poly1305-IETF Encryption with AEAD
+void Aead_ChaCha20Poly1305_Ietf_Encrypt(void *dst, void *src, UINT src_size,
+										void *key, void *nonce, void *aad, UINT aad_size)
+{
+#ifdef USE_OPENSSL_AEAD_CHACHA20POLY1305
+	Aead_ChaCha20Poly1305_Ietf_Encrypt_OpenSSL(dst, src, src_size, key, nonce, aad, aad_size);
+#else // USE_OPENSSL_AEAD_CHACHA20POLY1305
+	Aead_ChaCha20Poly1305_Ietf_Encrypt_Embedded(dst, src, src_size, key, nonce, aad, aad_size);
+#endif // USE_OPENSSL_AEAD_CHACHA20POLY1305
+}
+void Aead_ChaCha20Poly1305_Ietf_Encrypt_OpenSSL(void *dst, void *src, UINT src_size,
+												 void *key, void *nonce, void *aad, UINT aad_size)
+{
+#ifdef USE_OPENSSL_AEAD_CHACHA20POLY1305
+	EVP_CIPHER_CTX *ctx;
+	int outlen = 0;
+
+	if ((src_size != 0 && (dst == NULL || src == NULL)) ||
+		key == NULL || nonce == NULL ||
+		(aad_size != 0 && aad == NULL))
+	{
+		Zero(dst, src_size);
+		return;
+	}
+
+	ctx = EVP_CIPHER_CTX_new();
+
+	EVP_EncryptInit_ex(ctx, EVP_chacha20_poly1305(), 0, 0, 0);
+	EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_IVLEN, AEAD_CHACHA20_POLY1305_NONCE_SIZE, 0);
+	EVP_EncryptInit_ex(ctx, NULL, NULL, key, nonce);
+	EVP_EncryptUpdate(ctx, NULL, &outlen, aad, aad_size);
+	EVP_EncryptUpdate(ctx, dst, &outlen, src, src_size);
+	EVP_EncryptFinal_ex(ctx, dst, &outlen);
+	EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_GET_TAG, AEAD_CHACHA20_POLY1305_MAC_SIZE,
+		((UCHAR *)dst) + src_size);
+
+	EVP_CIPHER_CTX_free(ctx);
+#endif	// USE_OPENSSL_AEAD_CHACHA20POLY1305
+}
+void Aead_ChaCha20Poly1305_Ietf_Encrypt_Embedded(void *dst, void *src, UINT src_size,
+										void *key, void *nonce, void *aad, UINT aad_size)
+{
+	if ((src_size != 0 && (dst == NULL || src == NULL)) ||
+		key == NULL || nonce == NULL ||
+		(aad_size != 0 && aad == NULL))
+	{
+		Zero(dst, src_size);
+		return;
+	}
+	crypto_aead_chacha20poly1305_ietf_encrypt(dst, NULL, src, src_size, aad, aad_size,
+		NULL, nonce, key);
+}
+
+// RFC 8439: ChaCha20-Poly1305-IETF Decryption with AEAD
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size)
+{
+#ifdef USE_OPENSSL_AEAD_CHACHA20POLY1305
+	return Aead_ChaCha20Poly1305_Ietf_Decrypt_OpenSSL(dst, src, src_size, key,
+		nonce, aad, aad_size);
+#else // USE_OPENSSL_AEAD_CHACHA20POLY1305
+	return Aead_ChaCha20Poly1305_Ietf_Decrypt_Embedded(dst, src, src_size, key,
+		nonce, aad, aad_size);
+#endif // USE_OPENSSL_AEAD_CHACHA20POLY1305
+}
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt_OpenSSL(void *dst, void *src, UINT src_size, void *key,
+												 void *nonce, void *aad, UINT aad_size)
+{
+#ifdef USE_OPENSSL_AEAD_CHACHA20POLY1305
+	EVP_CIPHER_CTX *ctx;
+	int outlen = 0;
+	bool ret = false;
+
+	if ((src_size != 0 && (dst == NULL || src == NULL)) ||
+		key == NULL || nonce == NULL ||
+		(aad_size != 0 && aad == NULL) ||
+		(src_size < AEAD_CHACHA20_POLY1305_MAC_SIZE))
+	{
+		Zero(dst, src_size);
+		return false;
+	}
+
+	ctx = EVP_CIPHER_CTX_new();
+
+	EVP_DecryptInit_ex(ctx, EVP_chacha20_poly1305(), 0, 0, 0);
+	EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_IVLEN, AEAD_CHACHA20_POLY1305_NONCE_SIZE, 0);
+	
+	if (EVP_DecryptInit_ex(ctx, NULL, NULL, key, nonce) == 1)
+	{
+		if (EVP_DecryptUpdate(ctx, NULL, &outlen, aad, aad_size) == 1)
+		{
+			if (EVP_DecryptUpdate(ctx, dst, &outlen, src, src_size - AEAD_CHACHA20_POLY1305_MAC_SIZE) == 1)
+			{
+				EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, AEAD_CHACHA20_POLY1305_MAC_SIZE,
+					((UCHAR *)src) + (src_size - AEAD_CHACHA20_POLY1305_MAC_SIZE));
+
+				if (EVP_DecryptFinal_ex(ctx, dst, &outlen))
+				{
+					ret = true;
+				}
+			}
+		}
+	}
+
+	EVP_CIPHER_CTX_free(ctx);
+
+	return ret;
+#else	// USE_OPENSSL_AEAD_CHACHA20POLY1305
+	return false;
+#endif	// USE_OPENSSL_AEAD_CHACHA20POLY1305
+}
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt_Embedded(void *dst, void *src, UINT src_size, void *key,
+										void *nonce, void *aad, UINT aad_size)
+{
+	int ret;
+	if ((src_size != 0 && (dst == NULL || src == NULL)) ||
+		key == NULL || nonce == NULL ||
+		(aad_size != 0 && aad == NULL) ||
+		(src_size < AEAD_CHACHA20_POLY1305_MAC_SIZE))
+	{
+		Zero(dst, src_size);
+		return false;
+	}
+
+	ret = crypto_aead_chacha20poly1305_ietf_decrypt(
+		dst, NULL, NULL, src, src_size, aad, aad_size, nonce, key);
+
+	if (ret == -1)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Aead_ChaCha20Poly1305_Ietf_IsOpenSSL()
+{
+#ifdef USE_OPENSSL_AEAD_CHACHA20POLY1305
+	return true;
+#else	// USE_OPENSSL_AEAD_CHACHA20POLY1305
+	return false;
+#endif	// USE_OPENSSL_AEAD_CHACHA20POLY1305
+}
+
+// RFC 8439: ChaCha20-Poly1305-IETF AEAD Test
+void Aead_ChaCha20Poly1305_Ietf_Test()
+{
+	char *nonce_hex = "07 00 00 00 40 41 42 43 44 45 46 47";
+	char *plaintext_hex =
+		"4c 61 64 69 65 73 20 61 6e 64 20 47 65 6e 74 6c "
+		"65 6d 65 6e 20 6f 66 20 74 68 65 20 63 6c 61 73 "
+		"73 20 6f 66 20 27 39 39 3a 20 49 66 20 49 20 63 "
+		"6f 75 6c 64 20 6f 66 66 65 72 20 79 6f 75 20 6f "
+		"6e 6c 79 20 6f 6e 65 20 74 69 70 20 66 6f 72 20 "
+		"74 68 65 20 66 75 74 75 72 65 2c 20 73 75 6e 73 "
+		"63 72 65 65 6e 20 77 6f 75 6c 64 20 62 65 20 69 "
+		"74 2e";
+	char *aad_hex = "50 51 52 53 c0 c1 c2 c3 c4 c5 c6 c7";
+	char *key_hex =
+		"80 81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f "
+		"90 91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f";
+	BUF *nonce = StrToBin(nonce_hex);
+	BUF *plaintext = StrToBin(plaintext_hex);
+	BUF *aad = StrToBin(aad_hex);
+	BUF *key = StrToBin(key_hex);
+	UINT plaintext_size = plaintext->Size;
+	UCHAR *encrypted = Malloc(plaintext_size + AEAD_CHACHA20_POLY1305_MAC_SIZE);
+	UCHAR *decrypted = Malloc(plaintext_size);
+	char encrypted_hex[MAX_SIZE];
+	char mac_hex[MAX_SIZE];
+
+	Print("Aead_ChaCha20Poly1305_Ietf_Test()\n\n");
+
+	Aead_ChaCha20Poly1305_Ietf_Encrypt(encrypted, plaintext->Buf, plaintext_size,
+		key->Buf, nonce->Buf, aad->Buf, aad->Size);
+
+	BinToStrEx(encrypted_hex, sizeof(encrypted_hex), encrypted, plaintext_size);
+
+	BinToStrEx(mac_hex, sizeof(mac_hex), encrypted + plaintext_size, AEAD_CHACHA20_POLY1305_MAC_SIZE);
+
+	Print("Encrypted:\n%s\n\n", encrypted_hex);
+
+	Print("MAC:\n%s\n\n", mac_hex);
+
+	Print("Please check the results with https://tools.ietf.org/html/rfc8439#section-2.8.2 by your great eyes.\n\n");
+
+	if (Aead_ChaCha20Poly1305_Ietf_Decrypt(decrypted, encrypted, plaintext_size + AEAD_CHACHA20_POLY1305_MAC_SIZE,
+		key->Buf, nonce->Buf, aad->Buf, aad->Size) == false)
+	{
+		Print("Decrypt failed.\n");
+	}
+	else
+	{
+		Print("Decrypt OK.\n");
+		if (Cmp(plaintext->Buf, decrypted, plaintext_size) == 0)
+		{
+			Print("Same OK.\n");
+		}
+		else
+		{
+			Print("Different !!!\n");
+		}
+	}
+
+	FreeBuf(nonce);
+	FreeBuf(plaintext);
+	FreeBuf(aad);
+	FreeBuf(key);
+	Free(encrypted);
+	Free(decrypted);
+}
 

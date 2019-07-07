@@ -314,11 +314,11 @@ bool SendPeapRawPacket(EAP_CLIENT *e, UCHAR *peap_data, UINT peap_size)
 	fragments = NewListFast(NULL);
 	for (num = 0;;num++)
 	{
-		UCHAR tmp[1024];
+		UCHAR tmp[200];
 		EAP_PEAP *send_peap_message;
 		UINT sz;
 
-		sz = ReadBuf(buf, tmp, 1024);
+		sz = ReadBuf(buf, tmp, sizeof(tmp));
 
 		if (sz == 0)
 		{
@@ -690,6 +690,11 @@ void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e)
 
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_NAS_ID, 0, 0, CEDAR_SERVER_STR, StrLen(CEDAR_SERVER_STR)));
 
+	if (IsEmptyStr(e->In_VpnProtocolState) == false)
+	{
+		Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_PROXY_STATE, 0, 0, e->In_VpnProtocolState, StrLen(e->In_VpnProtocolState)));
+	}
+
 	ui = Endian32(2);
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT,
 		RADIUS_MS_NETWORK_ACCESS_SERVER_TYPE, &ui, sizeof(UINT)));
@@ -1011,9 +1016,25 @@ RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r)
 						{
 							RADIUS_AVP *eap_msg = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_EAP_MESSAGE);
 							RADIUS_AVP *vlan_avp = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_VLAN_ID);
+							RADIUS_AVP *framed_interface_id_avp = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_FRAMED_INTERFACE_ID);
 							if (eap_msg != NULL)
 							{
 								e->LastRecvEapId = ((EAP_MESSAGE *)(eap_msg->Data))->Id;
+							}
+
+							if (framed_interface_id_avp != NULL)
+							{
+								// FRAMED_INTERFACE_ID
+								char tmp_str[64];
+								UCHAR mac_address[6];
+
+								Zero(tmp_str, sizeof(tmp_str));
+								Copy(tmp_str, framed_interface_id_avp->Data, MIN(framed_interface_id_avp->DataSize, sizeof(tmp_str) - 1));
+
+								if (StrToMac(mac_address, tmp_str))
+								{
+									Copy(e->LastRecvVirtualMacAddress, mac_address, 6);
+								}
 							}
 
 							if (vlan_avp != NULL)
@@ -1746,6 +1767,11 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 		// Try the EAP authentication for RADIUS first
 		EAP_CLIENT *eap = mschap.MsChapV2_EapClient;
 
+		if (IsEmptyStr(opt->In_VpnProtocolState) == false)
+		{
+			StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), opt->In_VpnProtocolState);
+		}
+
 		if (eap->PeapMode == false)
 		{
 			ret = EapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
@@ -1765,6 +1791,8 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			{
 				opt->Out_VLanId = eap->LastRecvVLanId;
 			}
+
+			Copy(opt->Out_VirtualMacAddress, eap->LastRecvVirtualMacAddress, 6);
 
 			return true;
 		}
@@ -1880,31 +1908,31 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 
 				// Service-Type
 				ui = Endian32(2);
-				RadiusAddValue(p, 6, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_SERVICE_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// NAS-Port-Type
 				ui = Endian32(5);
-				RadiusAddValue(p, 61, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_PORT_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 64, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_MEDIUM_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Called-Station-ID - VPN Hub Name
 				if (IsEmptyStr(hubname) == false)
 				{
-					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLED_STATION_ID, 0, 0, hubname, StrLen(hubname));
 				}
 
 				// Calling-Station-Id
-				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLING_STATION_ID, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// Tunnel-Client-Endpoint
-				RadiusAddValue(p, 66, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_CLIENT_ENDPOINT, 0, 0, client_ip_str, StrLen(client_ip_str));
 			}
 			else
 			{
@@ -1918,67 +1946,73 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				// Acct-Session-Id
 				us = Endian16(session_id % 254 + 1);
 				session_id++;
-				RadiusAddValue(p, 44, 0, 0, &us, sizeof(us));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_ACCT_SESSION_ID, 0, 0, &us, sizeof(us));
 
 				// NAS-IP-Address
 				if (c != NULL && c->FirstSock != NULL && c->FirstSock->IPv6 == false)
 				{
 					ui = IPToUINT(&c->FirstSock->LocalIP);
-					RadiusAddValue(p, 4, 0, 0, &ui, sizeof(ui));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_IP, 0, 0, &ui, sizeof(ui));
 				}
 
 				// Service-Type
 				ui = Endian32(2);
-				RadiusAddValue(p, 6, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_SERVICE_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// MS-RAS-Vendor
-				ui = Endian32(311);
-				RadiusAddValue(p, 26, 311, 9, &ui, sizeof(ui));
+				ui = Endian32(RADIUS_VENDOR_MICROSOFT);
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_VENDOR, &ui, sizeof(ui));
 
 				// MS-RAS-Version
-				RadiusAddValue(p, 26, 311, 18, ms_ras_version, StrLen(ms_ras_version));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_VERSION, ms_ras_version, StrLen(ms_ras_version));
 
 				// NAS-Port-Type
 				ui = Endian32(5);
-				RadiusAddValue(p, 61, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_PORT_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 64, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_MEDIUM_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Called-Station-ID - VPN Hub Name
 				if (IsEmptyStr(hubname) == false)
 				{
-					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLED_STATION_ID, 0, 0, hubname, StrLen(hubname));
 				}
 
 				// Calling-Station-Id
-				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLING_STATION_ID, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// Tunnel-Client-Endpoint
-				RadiusAddValue(p, 66, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_CLIENT_ENDPOINT, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// MS-RAS-Client-Version
-				RadiusAddValue(p, 26, 311, 35, ms_ras_version, StrLen(ms_ras_version));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_CLIENT_VERSION, ms_ras_version, StrLen(ms_ras_version));
 
 				// MS-RAS-Client-Name
-				RadiusAddValue(p, 26, 311, 34, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_CLIENT_NAME, client_ip_str, StrLen(client_ip_str));
 
 				// MS-CHAP-Challenge
-				RadiusAddValue(p, 26, 311, 11, mschap.MsChapV2_ServerChallenge, sizeof(mschap.MsChapV2_ServerChallenge));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_CHAP_CHALLENGE, mschap.MsChapV2_ServerChallenge, sizeof(mschap.MsChapV2_ServerChallenge));
 
 				// MS-CHAP2-Response
 				Zero(ms_chapv2_response, sizeof(ms_chapv2_response));
 				Copy(ms_chapv2_response + 2, mschap.MsChapV2_ClientChallenge, 16);
 				Copy(ms_chapv2_response + 2 + 16 + 8, mschap.MsChapV2_ClientResponse, 24);
-				RadiusAddValue(p, 26, 311, 25, ms_chapv2_response, sizeof(ms_chapv2_response));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_CHAP2_RESPONSE, ms_chapv2_response, sizeof(ms_chapv2_response));
 
 				// NAS-ID
 				WriteBuf(p, nas_id->Buf, nas_id->Size);
+			}
+
+			if (IsEmptyStr(opt->In_VpnProtocolState) == false)
+			{
+				// Proxy state as protocol details
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_PROXY_STATE, 0, 0, opt->In_VpnProtocolState, StrLen(opt->In_VpnProtocolState));
 			}
 
 			SeekBuf(p, 0, 0);
@@ -2071,6 +2105,9 @@ RECV_RETRY:
 					// Success
 					if (recv_buf[0] == 2)
 					{
+						LIST *o;
+						BUF *buf = NewBufFromMemory(recv_buf, recv_size);
+
 						ret = true;
 
 						if (is_mschap && mschap_v2_server_response_20 != NULL)
@@ -2108,12 +2145,26 @@ RECV_RETRY:
 							}
 						}
 
-						if (opt->In_CheckVLanId)
+						o = RadiusParseOptions(buf);
+						if (o != NULL)
 						{
-							BUF *buf = NewBufFromMemory(recv_buf, recv_size);
-							LIST *o = RadiusParseOptions(buf);
+							DHCP_OPTION *framed_interface_id_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_FRAMED_INTERFACE_ID);
 
-							if (o != NULL)
+							if (framed_interface_id_option != NULL)
+							{
+								char tmp_str[64];
+								UCHAR mac_address[6];
+
+								Zero(tmp_str, sizeof(tmp_str));
+								Copy(tmp_str, framed_interface_id_option->Data, MIN(framed_interface_id_option->Size, sizeof(tmp_str) - 1));
+
+								if (StrToMac(mac_address, tmp_str))
+								{
+									Copy(opt->Out_VirtualMacAddress, mac_address, 6);
+								}
+							}
+
+							if (opt->In_CheckVLanId)
 							{
 								DHCP_OPTION *vlan_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_VLAN_ID);
 
@@ -2132,9 +2183,10 @@ RECV_RETRY:
 								}
 							}
 
-							FreeBuf(buf);
 							FreeDhcpOptions(o);
 						}
+
+						FreeBuf(buf);
 					}
 					break;
 				}

@@ -2508,6 +2508,23 @@ UINT UnixGetUID()
 	return (UINT)getuid();
 }
 
+void UnixPrintVpnServerUrlInfo()
+{
+	IP ip;
+
+	TryGetCurrentAcceptingIPv4Address(&ip);
+
+	Print("\nLet's get started by accessing to the following URL from your PC:\n\n"
+		"https://%r:%u/\n"
+		"  or\n"
+		"https://%r/\n\n"
+		"Note: IP address may vary. Specify your server's IP address.\n"
+		"A TLS certificate warning will appear because the server uses self signed certificate by default. That is natural. Continue with ignoring the TLS warning."
+		"\n\n",
+		&ip, GC_DEFAULT_PORT, &ip
+		);
+}
+
 // Start the service
 void UnixStartService(char *name)
 {
@@ -2545,6 +2562,12 @@ void UnixStartService(char *name)
 		{
 			// Non-root warning
 			UniPrint(_UU("UNIX_SVC_NONROOT"));
+		}
+
+		if (StrCmpi(name, "vpnserver") == 0 || StrCmpi(name, "vpnbridge") == 0)
+		{
+			// Print the IP address information
+			UnixPrintVpnServerUrlInfo();
 		}
 
 		FreeSingleInstance(inst);

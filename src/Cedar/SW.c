@@ -5732,6 +5732,15 @@ UINT SwWelcomeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 			break;
 		}
 
+		if (MsIsKB3033929RequiredAndMissing())
+		{
+			// KB3033929 is missing
+			if (MsgBoxEx(hWnd, MB_ICONINFORMATION | MB_OKCANCEL, _UU("SW_KB3033929_REQUIRED")) == IDCANCEL)
+			{
+				break;
+			}
+		}
+
 		if (sw->DoubleClickBlocker)
 		{
 			break;

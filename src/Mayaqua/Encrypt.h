@@ -105,6 +105,10 @@
 #ifndef	ENCRYPT_H
 #define	ENCRYPT_H
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+//#define USE_OPENSSL_AEAD_CHACHA20POLY1305
+#endif
+
 // Function of OpenSSL
 void RAND_Init_For_SoftEther();
 void RAND_Free_For_SoftEther();
@@ -131,6 +135,12 @@ void RAND_Free_For_SoftEther();
 #define HMAC_SHA1_SIZE				(SHA1_HASH_SIZE)	// HMAC-SHA-1 hash size
 #define	AES_IV_SIZE					16			// AES IV size
 #define	AES_MAX_KEY_SIZE			32			// Maximum AES key size
+
+// RFC 8439: ChaCha20 and Poly1305 for IETF Protocols
+#define AEAD_CHACHA20_POLY1305_MAC_SIZE		16	// MAC size
+#define AEAD_CHACHA20_POLY1305_NONCE_SIZE	12	// Nonce size
+#define AEAD_CHACHA20_POLY1305_KEY_SIZE		32	// Key size
+
 
 // IANA definitions taken from IKEv1 Phase 1
 #define SHA1_160						2
@@ -573,6 +583,22 @@ BUF *EasyEncrypt(BUF *src_buf);
 BUF *EasyDecrypt(BUF *src_buf);
 
 void DisableIntelAesAccel();
+
+int GetSslClientCertIndex();
+
+void Aead_ChaCha20Poly1305_Ietf_Encrypt_Embedded(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt_Embedded(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+
+void Aead_ChaCha20Poly1305_Ietf_Encrypt_OpenSSL(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt_OpenSSL(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+
+void Aead_ChaCha20Poly1305_Ietf_Encrypt(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+bool Aead_ChaCha20Poly1305_Ietf_Decrypt(void *dst, void *src, UINT src_size, void *key, void *nonce, void *aad, UINT aad_size);
+
+bool Aead_ChaCha20Poly1305_Ietf_IsOpenSSL();
+
+void Aead_ChaCha20Poly1305_Ietf_Test();
+
 
 #ifdef	ENCRYPT_C
 // Inner function

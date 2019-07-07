@@ -3639,6 +3639,16 @@ void SmLicenseAddDlgOnOk(HWND hWnd, SM_SERVER *s)
 	{
 		RPC_TEST t;
 
+		if (s->LicenseWarnFlag == false)
+		{
+			if (MsgBoxEx(hWnd, MB_ICONINFORMATION | MB_OKCANCEL, _UU("SM_LICENSE_WARNING")) == IDCANCEL)
+			{
+				return;
+			}
+
+			s->LicenseWarnFlag = true;
+		}
+
 		Disable(hWnd, IDOK);
 		Disable(hWnd, IDCANCEL);
 

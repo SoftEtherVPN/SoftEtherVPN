@@ -157,11 +157,11 @@ ERR_91						无法断开虚拟 3 层交换机会话。要删除会话，请停�
 ERR_92						具有指定名称的虚拟 3 层交换机已存在。指定一个不同的名称。
 ERR_93						找不到指定的虚拟 3 层交换机。
 ERR_94						指定的名称无效。检查名称是否有不能使用的字符
-ERR_95						无法添加虚拟 3 层接口。
-ERR_96						无法删除虚拟 3 层接口。
+ERR_95						无法添加虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96						无法删除虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97						与指定虚拟 3 层交换接口的目标虚拟 HUB 连接的虚拟 3 层接口已在虚拟 3 层交换机中存在。不能在同一个虚拟 3 层交换机中定义超过一个连接到同一个虚拟 HUB 的虚拟 3 层接口。
-ERR_98						无法添加路由表项。
-ERR_99						无法删除路由表项。
+ERR_98						无法添加路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99						无法删除路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100						指定的路由表项已存在。
 ERR_101						客户端和服务器的时钟彼此不同步。检查时间设置。
 ERR_102						无法启动此虚拟 3 层交换机。 要启动虚拟 3 层交换机，必须在虚拟 3 层交换机定义至少一个虚拟接口。
@@ -1607,6 +1607,7 @@ SM_LICENSE_NUM_BRIDGE		允许并发 Bridge
 SM_NO_LICENSE_COLUMN		注意: 
 SM_NO_LICENSE				因为没有产品许可证注册，此 VPN Server 通信功能无法运行。
 SM_LICENSE_DELETE_MSG		你确定要从 VPN Server 删除选定的许可证吗?
+SM_LICENSE_WARNING			SoftEther provides Dynamic DNS, NAT Traversal and VPN Azure as academic experiment services. Therefore, there services can be used for free of charge.\r\n\r\nThese services are provided without any warranty. The services may be suspended or discontinued by technical or operational matters. In such occasions, users will not be able to use the services. A user have to understand such risks, and to acknowledge that such risks are borne by a user-self. SoftEther will never be liable to results or damages of use or unable-to-use of the service.
 SM_SYSLOG_0					禁用系统日志发送功能
 SM_SYSLOG_1					经由 Syslog 发送服务器端日志
 SM_SYSLOG_2					经由 Syslog 发送服务器端和虚拟 HUB 安全日志
@@ -1802,6 +1803,9 @@ LS_LICENSE_NOT_VPNSERVER	连接 "%S": 许可证错误。VPN Client 尝试连接�
 LS_LICENSE_NOT_VPNCLUSTER	连接 "%S": 许可证错误。此 VPN Server 上注册的许可证是禁止使用当前群集功能的类型，且一个 VPN Client 已尝试在群集模式下连接。您必须重启 VPN Server。
 LS_LICENSE_VIOLATION		连接 "%S": VPN Server 发生违反许可证错误，不接受连接。
 LS_LICENSE_VIOLATION_DETECTED	发现许可证违反错误，一个不同的 VPN Server 与此服务端具有相同的服务端ID "%I64u"。可能是在群集中有两个或以上 VPN Server 正在使用相同的许可证。请检查每一个 VPN Server 的许可证信息。
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN Logs)
@@ -1811,6 +1815,9 @@ LO_PREFIX_CHANNEL		OpenVPN 会话%u (%r:%u -> %r:%u) 通道 %u:
 LO_NEW_CHANNEL			已创创建一个新通道。
 LO_CHANNEL_ESTABLISHED_NEWKEY	通道已建立。(触发器: Re-key完成。)
 LO_OPTION_STR_RECV		接收到的选项字符串："%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		发送选项字符串："%S"
 LO_NEW_SESSION			已创建新的会话。协议：%S
 LO_INITIATE_REKEY			re-keying 进程已开始。
@@ -1907,6 +1914,7 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为 RADIUS 身份验证或 Active Directory 身份验证 (NT 域验证)。然而，这样一个外部用户身份验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为证书认证。然而，证书验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
@@ -7013,6 +7021,7 @@ SW_WEB2_TITLE						指定文件夹
 SW_UNINSTALLINFO_URL					http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER				SoftEther VPN Project
 
+SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
 
 SW_COMPONENTS_ABOUT_TAG				关于 %s
 SW_COMPONENTS_REQUIRE_ADMIN			安装需要管理员权限
@@ -7055,7 +7064,7 @@ SW_INSTALLER_CACHE_IS_NOT_SIGNED	目前已安装 SoftEther VPN Client 的这台�
 SW_FILE_NOT_FOUNT					没有找到文件 "%s"
 SW_WEB_FINISHED						Web安装工具已创建，并保存为 "%s"。\r\n\r\n请将 ZIP 文件解压缩，并将解压后的文件上传到 Web 服务器，编辑一个HTML文件和一个 inf 文件来适当替换URL。\r\n\r\n部署 Web 安装程序的解释说明在ZIP文件中描述。
 
-SW_VG_CONFIRM_MSG					您想用 SoftEther VPN 客户端安装并激活 VPN Gate P2P 中继功能的插件吗 ?\r\n\r\n本插件可以规避官方防火墙的限制实现通信的稳定性。同时 VPN Gate 的通信经常会消耗一定的网络带宽。所以不推荐在移动连接上使用 VPN Gate。\r\n\r\n请注意，一些国家和地区有规定禁止加密通信绕过官方防火墙。在这种情况下，请您不要在您的计算机上使用 VPN Gate 功能。VPN Gate 主要在日本使用。VPN Gate 仅仅是一个学术研究项目。VPN Gate 受日本法律管辖。使用此软件和服务期间，请您遵守本国相关的法律法规，这是您自己的责任。您将完全承担使用此软件和服务造成的任何损失和责任，不管在日本境内还是境外。
+SW_VG_CONFIRM_MSG					Do you really want to install and activate the VPN Gate P2P Relay Function plug-in module with SoftEther VPN Client?\r\n\r\nThis plug-in will realize the stability of communication to bypass the government censorship firewall. However, the communication of VPN Gate usually consumes some network bandwidth. VPN Gate is not recommended to be used in the mobile connections. \r\n\r\nPlease note that there are some countries and regions which have the regulation to forbid the encrypted communications to bypass government censorship firewalls. In such a case, you must not use the VPN Gate functions on your computer. VPN Gate is intended to be used mainly in Japan. VPN Gate is a research project for just academic purpose only. VPN Gate is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities. By using this software and service, you must observe all concerned laws and rules with your own responsibility. You will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.\r\n\r\nVPN Gate Relay Service will be installed on your computer as system services. System services always run in the background. After you terminate these management GUI tools, this system service will continue to run in the background. System services consume CPU time, computer power, memory and disk space.
 
 
 

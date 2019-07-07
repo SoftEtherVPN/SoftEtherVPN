@@ -113,13 +113,21 @@ void EndRpc(RPC *rpc)
 // Release the RPC
 void RpcFree(RPC *rpc)
 {
+	RpcFreeEx(rpc, false);
+}
+void RpcFreeEx(RPC *rpc, bool no_disconnect)
+{
 	// Validate arguments
 	if (rpc == NULL)
 	{
 		return;
 	}
 
-	Disconnect(rpc->Sock);
+	if (no_disconnect == false)
+	{
+		Disconnect(rpc->Sock);
+	}
+
 	ReleaseSock(rpc->Sock);
 
 	DeleteLock(rpc->Lock);

@@ -250,6 +250,7 @@ void UnixDeleteCtlFile();
 void UnixStopThread(THREAD *t, void *param);
 UINT UnixGetUID();
 void UnixIgnoreSignalForThread(int sig);
+void UnixPrintVpnServerUrlInfo();
 
 bool UnixIsInVmMain();
 bool UnixIsInVm();

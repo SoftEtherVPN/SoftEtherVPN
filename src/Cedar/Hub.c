@@ -159,7 +159,7 @@ UINT num_admin_options = sizeof(admin_options) / sizeof(ADMIN_OPTION);
 
 
 // Create an EAP client for the specified Virtual Hub
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username)
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str)
 {
 	HUB *hub = NULL;
 	EAP_CLIENT *ret = NULL;
@@ -209,6 +209,11 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 
 							if (eap != NULL)
 							{
+								if (IsEmptyStr(vpn_protocol_state_str) == false)
+								{
+									StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), vpn_protocol_state_str);
+								}
+
 								if (use_peap == false)
 								{
 									// EAP
@@ -777,6 +782,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	for (i = 0;i < LIST_NUM(aol);i++)
 	{
 		ADMIN_OPTION *a = LIST_DATA(aol, i);
+
+		UniStrCpy(a->Descrption, sizeof(a->Descrption), GetHubAdminOptionHelpString(a->Name));
 
 		Copy(&ao->Items[i], a, sizeof(ADMIN_OPTION));
 

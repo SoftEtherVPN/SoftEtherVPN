@@ -305,7 +305,9 @@ BUF *NewBufFromMemory(void *buf, UINT size);
 void ClearBuf(BUF *b);
 void WriteBuf(BUF *b, void *buf, UINT size);
 void WriteBufBuf(BUF *b, BUF *bb);
+void WriteBufBufWithOffset(BUF *b, BUF *bb);
 UINT ReadBuf(BUF *b, void *buf, UINT size);
+bool BufSkipUtf8Bom(BUF *b);
 BUF *ReadBufFromBuf(BUF *b, UINT size);
 void AdjustBufSize(BUF *b, UINT new_size);
 void SeekBuf(BUF *b, UINT offset, int mode);
@@ -468,6 +470,10 @@ void CleanupSharedBuffer(SHARED_BUFFER *b);
 
 void AppendBufUtf8(BUF *b, wchar_t *str);
 void AppendBufStr(BUF *b, char *str);
+
+LIST *NewStrList();
+void ReleaseStrList(LIST *o);
+bool AddStrToStrListDistinct(LIST *o, char *str);
 
 #endif	// MEMORY_H
 

@@ -581,6 +581,16 @@ namespace BuildUtil
 						return false;
 					}
 
+					if (Str.InStr(srcPath, @"\node_modules\", false))
+					{
+						return false;
+					}
+
+					if (Str.InStr(srcPath, @"\wwwroot\", false))
+					{
+						return true;
+					}
+
 					foreach (string ext in exts)
 					{
 						if (srcPath.EndsWith(ext, StringComparison.InvariantCultureIgnoreCase))

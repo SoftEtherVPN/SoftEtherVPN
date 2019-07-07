@@ -147,6 +147,8 @@ extern char *SERVER_CONFIG_FILE_NAME;
 #define	MEMBER_SELECTOR_CONNECT_TIMEOUT	2000
 #define	MEMBER_SELECTOR_DATA_TIMEOUT	5000
 
+#define FIRM_SERV_RECV_PACK_MAX_SIZE	(100 * 1024 * 1024)
+
 
 // Virtual HUB list hosted by each farm member
 struct HUB_LIST
@@ -360,6 +362,7 @@ struct SERVER
 	volatile UINT NatTGlobalUdpPort;	// NAT-T global UDP port
 
 	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
+	bool DisableJsonRpcWebApi;					// Disable JSON-RPC Web API
 };
 
 
@@ -383,6 +386,7 @@ struct RPC_SESSION_STATUS
 	RPC_CLIENT_GET_CONNECTION_STATUS Status;		// Status
 	UINT ClientIp;									// Client IP address
 	UCHAR ClientIp6[16];							// Client IPv6 address
+	IP ClientIpAddress;								// Client IP address (IPv4/IPv6)
 	char ClientHostName[MAX_HOST_NAME_LEN + 1];		// Client host name
 	NODE_INFO NodeInfo;								// Node information
 };

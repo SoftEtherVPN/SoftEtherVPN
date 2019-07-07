@@ -1292,6 +1292,12 @@ void BuildHamcore(char *dst_filename, char *src_dir, bool unix_only)
 				}
 			}
 
+			if (InStr(rpath, "\\node_modules\\"))
+			{
+				// Exclude node_modules in the hamcore\webroot
+				ok = false;
+			}
+
 			if (ok)
 			{
 				b = ReadDump(s);

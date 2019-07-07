@@ -16,7 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{2349
 		bin\hamcore\lang.config = bin\hamcore\lang.config
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
-		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb
 		bin\hamcore\time.htm = bin\hamcore\time.htm
 		bin\hamcore\vpn16.exe = bin\hamcore\vpn16.exe
 	EndProjectSection
@@ -92,7 +91,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cedar", "Cedar\Cedar.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ham", "Ham\Ham.vcproj", "{1ED5782B-1734-4FC6-AA9E-F7181CDBA8A7}"
 	ProjectSection(ProjectDependencies) = postProject
-		{DB2A0C4F-D685-41DD-91BA-06E9EEA381CF} = {DB2A0C4F-D685-41DD-91BA-06E9EEA381CF}
 		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 		{384815C3-333C-4CEC-9DCD-B6AB2602EBB9} = {384815C3-333C-4CEC-9DCD-B6AB2602EBB9}
 	EndProjectSection

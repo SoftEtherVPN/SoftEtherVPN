@@ -126,10 +126,10 @@
 
 
 // Version number
-#define	CEDAR_VER					429
+#define	CEDAR_VER					430
 
 // Build Number
-#define	CEDAR_BUILD					9680
+#define	CEDAR_BUILD					9695
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -149,11 +149,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2019
-#define	BUILD_DATE_M		2
-#define	BUILD_DATE_D		28
-#define	BUILD_DATE_HO		18
-#define	BUILD_DATE_MI		39
-#define	BUILD_DATE_SE		47
+#define	BUILD_DATE_M		7
+#define	BUILD_DATE_D		7
+#define	BUILD_DATE_HO		19
+#define	BUILD_DATE_MI		58
+#define	BUILD_DATE_SE		8
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -438,6 +438,7 @@
 #define	AUTHTYPE_ROOTCERT				3			// Root certificate which is issued by trusted Certificate Authority
 #define	AUTHTYPE_RADIUS					4			// Radius authentication
 #define	AUTHTYPE_NT						5			// Windows NT authentication
+#define	AUTHTYPE_OPENVPN_CERT    		98			// TLS client certificate authentication
 #define	AUTHTYPE_TICKET					99			// Ticket authentication
 
 // Constant of the client side

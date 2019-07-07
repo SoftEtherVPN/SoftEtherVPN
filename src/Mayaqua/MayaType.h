@@ -136,7 +136,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	BUF_SIZE			512
 
 // Support Windows OS list
-#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016"
+#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016 / Server 2019"
 
 // Infinite
 #ifndef	WINDOWS_H
@@ -421,6 +421,9 @@ typedef struct PRAND PRAND;
 // Str.h
 typedef struct TOKEN_LIST TOKEN_LIST;
 typedef struct INI_ENTRY INI_ENTRY;
+typedef struct JSON_OBJECT JSON_OBJECT;
+typedef struct JSON_ARRAY  JSON_ARRAY;
+typedef struct JSON_VALUE  JSON_VALUE;
 
 // Internat.h
 typedef struct UNI_TOKEN_LIST UNI_TOKEN_LIST;
@@ -457,6 +460,8 @@ typedef struct INSTANCE INSTANCE;
 typedef struct VALUE VALUE;
 typedef struct ELEMENT ELEMENT;
 typedef struct PACK PACK;
+typedef struct JSONPACKHINT JSONPACKHINT;
+typedef struct JSONPACKHINT_ITEM JSONPACKHINT_ITEM;
 
 // Cfg.h
 typedef struct FOLDER FOLDER;
