@@ -82,7 +82,7 @@ for:
     only:
       - image: Ubuntu1804
   before_build:
-    - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then tar --exclude=.git -czf /tmp/${APPVEYOR_REPO_TAG_NAME}.tar.gz . && appveyor PushArtifact /tmp/${APPVEYOR_REPO_TAG_NAME}.tar.gz \nfi"
+    - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
     - ./configure
   build_script:
     - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
