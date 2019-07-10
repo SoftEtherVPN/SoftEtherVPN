@@ -5,7 +5,7 @@
 // This sample code shows how to call all available RPC functions.
 // You can copy and paste test code to write your own C# codes.
 //
-// Automatically generated at 2019-05-29 18:21:39 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
 //
 // Licensed under the Apache License 2.0
 // Copyright (c) 2014-2019 SoftEther VPN Project

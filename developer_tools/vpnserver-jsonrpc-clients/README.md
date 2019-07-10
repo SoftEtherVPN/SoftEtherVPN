@@ -247,7 +247,7 @@ Test RPC function. Input any integer value to the IntValue_u32 field. Then the s
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -299,7 +299,7 @@ Get server information. This allows you to obtain the server information of the 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerProductName_str` | `string` (ASCII) | Server product name
 `ServerVersionString_str` | `string` (ASCII) | Server version string
@@ -383,7 +383,7 @@ Get Current Server Status. This allows you to obtain in real-time the current st
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerType_u32` | `number` (enum) | Type of server<BR>Values:<BR>`0`: Stand-alone server<BR>`1`: Farm controller server<BR>`2`: Farm member server
 `NumTcpConnections_u32` | `number` (uint32) | Total number of TCP connections
@@ -455,7 +455,7 @@ Create New TCP Listener. This allows you to create a new TCP Listener on the ser
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Port_u32` | `number` (uint32) | Port number (Range: 1 - 65535)
 `Enable_bool` | `boolean` | Active state
@@ -505,7 +505,7 @@ Get List of TCP Listeners. This allows you to get a list of TCP listeners regist
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ListenerList` | `Array object` | List of listener items
 `Ports_u32` | `number` (uint32) | TCP port number (range: 1 - 65535)
@@ -544,7 +544,7 @@ Delete TCP Listener. This allows you to delete a TCP Listener that's registered 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Port_u32` | `number` (uint32) | Port number (Range: 1 - 65535)
 `Enable_bool` | `boolean` | Active state
@@ -582,7 +582,7 @@ Enable / Disable TCP Listener. This starts or stops the operation of TCP Listene
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Port_u32` | `number` (uint32) | Port number (Range: 1 - 65535)
 `Enable_bool` | `boolean` | Active state
@@ -618,7 +618,7 @@ Set VPN Server Administrator Password. This sets the VPN Server administrator pa
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `PlainTextPassword_str` | `string` (ASCII) | The plaintext password
 
@@ -677,7 +677,7 @@ Set the VPN Server clustering configuration. Use this to set the VPN Server type
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerType_u32` | `number` (enum) | Type of server<BR>Values:<BR>`0`: Stand-alone server<BR>`1`: Farm controller server<BR>`2`: Farm member server
 `NumPort_u32` | `number` (uint32) | Valid only for Cluster Member servers. Number of the Ports_u32 element.
@@ -730,7 +730,7 @@ Get Clustering Configuration of Current VPN Server. You can use this to acquire 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerType_u32` | `number` (enum) | Type of server<BR>Values:<BR>`0`: Stand-alone server<BR>`1`: Farm controller server<BR>`2`: Farm member server
 `NumPort_u32` | `number` (uint32) | Valid only for Cluster Member servers. Number of the Ports_u32 element.
@@ -803,7 +803,7 @@ Get Cluster Member Information. When the VPN Server is operating as a cluster co
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Id_u32` | `number` (uint32) | ID
 `Controller_bool` | `boolean` | The flag if the server is Cluster Controller (false: Cluster Member servers)
@@ -892,7 +892,7 @@ Get List of Cluster Members. Use this API when the VPN Server is operating as a 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `NumFarm_u32` | `number` (uint32) | Number of Cluster Members
 `FarmMemberList` | `Array object` | Cluster Members list
@@ -946,7 +946,7 @@ Get Connection Status to Cluster Controller. Use this API when the VPN Server is
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Ip_ip` | `string` (IP address) | IP address
 `Port_u32` | `number` (uint32) | Port number
@@ -992,7 +992,7 @@ Set SSL Certificate and Private Key of VPN Server. You can set the SSL certifica
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Cert_bin` | `string` (Base64 binary) | The body of the certificate
 `Key_bin` | `string` (Base64 binary) | The body of the private key
@@ -1027,7 +1027,7 @@ Get SSL Certificate and Private Key of VPN Server. Use this to get the SSL certi
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Cert_bin` | `string` (Base64 binary) | The body of the certificate
 `Key_bin` | `string` (Base64 binary) | The body of the private key
@@ -1061,7 +1061,7 @@ Get the Encrypted Algorithm Used for VPN Communication. Use this API to get the 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `String_str` | `string` (ASCII) | A string value
 
@@ -1096,7 +1096,7 @@ Set the Encrypted Algorithm Used for VPN Communication. Use this API to set the 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `String_str` | `string` (ASCII) | A string value
 
@@ -1141,7 +1141,7 @@ Create New Virtual Hub. Use this to create a new Virtual Hub on the VPN Server. 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to create / update.
 `AdminPasswordPlainText_str` | `string` (ASCII) | Specify an administrator password when the administrator password is going to be set for the Virtual Hub. On the update, leave it to empty string if you don't want to change the password.
@@ -1191,7 +1191,7 @@ Set the Virtual Hub configuration. You can call this API to change the configura
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to create / update.
 `AdminPasswordPlainText_str` | `string` (ASCII) | Specify an administrator password when the administrator password is going to be set for the Virtual Hub. On the update, leave it to empty string if you don't want to change the password.
@@ -1236,7 +1236,7 @@ Get the Virtual Hub configuration. You can call this API to get the current conf
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to create / update.
 `AdminPasswordPlainText_str` | `string` (ASCII) | Specify an administrator password when the administrator password is going to be set for the Virtual Hub. On the update, leave it to empty string if you don't want to change the password.
@@ -1345,7 +1345,7 @@ Get List of Virtual Hubs. Use this to get a list of existing Virtual Hubs on the
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `NumHub_u32` | `number` (uint32) | Number of Virtual Hubs
 `HubList` | `Array object` | Virtual Hubs
@@ -1402,7 +1402,7 @@ Delete Virtual Hub. Use this to delete an existing Virtual Hub on the VPN Server
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 
@@ -1441,7 +1441,7 @@ Get Setting of RADIUS Server Used for User Authentication. Use this to get the c
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `RadiusServerName_str` | `string` (ASCII) | RADIUS server name
@@ -1488,7 +1488,7 @@ Set RADIUS Server to use for User Authentication. To accept users to the current
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `RadiusServerName_str` | `string` (ASCII) | RADIUS server name
@@ -1551,7 +1551,7 @@ Get List of TCP Connections Connecting to the VPN Server. Use this to get a list
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `NumConnection_u32` | `number` (uint32) | Number of connections
 `ConnectionList` | `Array object` | Connection list
@@ -1593,7 +1593,7 @@ Disconnect TCP Connections Connecting to the VPN Server. Use this to forcefully 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Connection name
 
@@ -1639,7 +1639,7 @@ Get Information of TCP Connections Connecting to the VPN Server. Use this to get
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Connection name
 `Type_u32` | `number` (enum) | Type<BR>Values:<BR>`0`: VPN Client<BR>`1`: During initialization<BR>`2`: Login connection<BR>`3`: Additional connection<BR>`4`: RPC for server farm<BR>`5`: RPC for Management<BR>`6`: HUB enumeration<BR>`7`: Password change<BR>`8`: SSTP<BR>`9`: OpenVPN
@@ -1687,7 +1687,7 @@ Switch Virtual Hub to Online or Offline. Use this to set the Virtual Hub to onli
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Online_bool` | `boolean` | Online / offline flag
@@ -1746,7 +1746,7 @@ Get Current Status of Virtual Hub. Use this to get the current status of the Vir
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Online_bool` | `boolean` | Online
@@ -1822,7 +1822,7 @@ Set the logging configuration of the Virtual Hub. Use this to enable or disable 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `SaveSecurityLog_bool` | `boolean` | The flag to enable / disable saving the security log
@@ -1871,7 +1871,7 @@ Get the logging configuration of the Virtual Hub. Use this to get the configurat
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `SaveSecurityLog_bool` | `boolean` | The flag to enable / disable saving the security log
@@ -1913,7 +1913,7 @@ Add Trusted CA Certificate. Use this to add a new certificate to a list of CA ce
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Cert_bin` | `string` (Base64 binary) | The body of the X.509 certificate
@@ -1969,7 +1969,7 @@ Get List of Trusted CA Certificates. Here you can manage the certificate authori
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `CAList` | `Array object` | The list of CA
@@ -2012,7 +2012,7 @@ Get Trusted CA Certificate. Use this to get an existing certificate from the lis
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | The key id of the certificate
@@ -2051,7 +2051,7 @@ Delete Trusted CA Certificate. Use this to delete an existing certificate from t
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Certificate key id to be deleted
@@ -2184,7 +2184,7 @@ Create New Cascade Connection. Use this to create a new Cascade Connection on th
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_Ex_str` | `string` (ASCII) | The Virtual Hub name
 `Online_bool` | `boolean` | Online flag
@@ -2326,7 +2326,7 @@ Get the Cascade Connection Setting. Use this to get the Connection Setting of a 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_Ex_str` | `string` (ASCII) | The Virtual Hub name
 `Online_bool` | `boolean` | Online flag
@@ -2511,7 +2511,7 @@ Change Existing Cascade Connection. Use this to alter the setting of an existing
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_Ex_str` | `string` (ASCII) | The Virtual Hub name
 `Online_bool` | `boolean` | Online flag
@@ -2629,7 +2629,7 @@ Get List of Cascade Connections. Use this to get a list of Cascade Connections t
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `NumLink_u32` | `number` (uint32) | Number of cascade connections
@@ -2675,7 +2675,7 @@ Switch Cascade Connection to Online Status. When a Cascade Connection registered
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccountName_utf` | `string` (UTF8) | The name of the cascade connection
@@ -2713,7 +2713,7 @@ Switch Cascade Connection to Offline Status. When a Cascade Connection registere
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccountName_utf` | `string` (UTF8) | The name of the cascade connection
@@ -2751,7 +2751,7 @@ Delete Cascade Connection Setting. Use this to delete a Cascade Connection that 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccountName_utf` | `string` (UTF8) | The name of the cascade connection
@@ -2791,7 +2791,7 @@ Change Name of Cascade Connection. When a Cascade Connection registered on the c
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `OldAccountName_utf` | `string` (UTF8) | The old name of the cascade connection
@@ -2867,7 +2867,7 @@ Get Current Cascade Connection Status. When a Cascade Connection registered on t
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_Ex_str` | `string` (ASCII) | The Virtual Hub name
 `AccountName_utf` | `string` (UTF8) | The name of the cascade connection
@@ -3014,7 +3014,7 @@ Add Access List Rule. Use this to add a new rule to the access list of the curre
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccessListSingle` | `Array object` | Access list (Must be a single item)
@@ -3085,7 +3085,7 @@ Delete Rule from Access List. Use this to specify a packet filter rule registere
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Id_u32` | `number` (uint32) | ID
@@ -3228,7 +3228,7 @@ Get Access List Rule List. Use this to get a list of packet filter rules that ar
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccessList` | `Array object` | Access list
@@ -3511,7 +3511,7 @@ Replace all access lists on a single bulk API call. This API removes all existin
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `AccessList` | `Array object` | Access list
@@ -3694,7 +3694,7 @@ Create a user. Use this to create a new user in the security account database of
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | Specify the user name of the user
@@ -3907,7 +3907,7 @@ Change User Settings. Use this to change user settings that is registered on the
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | Specify the user name of the user
@@ -4069,7 +4069,7 @@ Get User Settings. Use this to get user settings information that is registered 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | Specify the user name of the user
@@ -4169,7 +4169,7 @@ Delete a user. Use this to delete a user that is registered on the security acco
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | User or group name
@@ -4270,7 +4270,7 @@ Get List of Users. Use this to get a list of users that are registered on the se
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `UserList` | `Array object` | User list
@@ -4419,7 +4419,7 @@ Create Group. Use this to create a new group in the security account database of
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | The group name
@@ -4599,7 +4599,7 @@ Set group settings. Use this to set group settings that is registered on the sec
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | The group name
@@ -4737,7 +4737,7 @@ Get Group Setting (Sync mode). Use this to get the setting of a group that is re
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | The group name
@@ -4825,7 +4825,7 @@ Delete User from Group. Use this to delete a specified user from the group that 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | User or group name
@@ -4884,7 +4884,7 @@ Get List of Groups. Use this to get a list of groups that are registered on the 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `GroupList` | `Array object` | Group list
@@ -4993,7 +4993,7 @@ Get List of Connected VPN Sessions. Use this to get a list of the sessions conne
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `SessionList` | `Array object` | VPN sessions list
@@ -5100,7 +5100,7 @@ Get Session Status. Use this to specify a session currently connected to the cur
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | VPN session name
@@ -5187,7 +5187,7 @@ Disconnect Session. Use this to specify a session currently connected to the cur
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Name_str` | `string` (ASCII) | Session name
@@ -5255,7 +5255,7 @@ Get the MAC Address Table Database. Use this to get the MAC address table databa
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `MacTable` | `Array object` | MAC table
@@ -5301,7 +5301,7 @@ Delete MAC Address Table Entry. Use this API to operate the MAC address table da
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -5369,7 +5369,7 @@ Get the IP Address Table Database. Use this to get the IP address table database
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `IpTable` | `Array object` | MAC table
@@ -5415,7 +5415,7 @@ Delete IP Address Table Entry. Use this API to operate the IP address table data
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -5459,7 +5459,7 @@ Set the Keep Alive Internet Connection Function. Use this to set the destination
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `UseKeepConnect_bool` | `boolean` | The flag to enable keep-alive to the Internet
 `KeepConnectHost_str` | `string` (ASCII) | Specify the host name or IP address of the destination
@@ -5500,7 +5500,7 @@ Get the Keep Alive Internet Connection Function. Use this to get the current set
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `UseKeepConnect_bool` | `boolean` | The flag to enable keep-alive to the Internet
 `KeepConnectHost_str` | `string` (ASCII) | Specify the host name or IP address of the destination
@@ -5539,7 +5539,7 @@ Enable the Virtual NAT and DHCP Server Function (SecureNAT Function). Use this t
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 
@@ -5574,7 +5574,7 @@ Disable the Virtual NAT and DHCP Server Function (SecureNAT Function). Use this 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 
@@ -5647,7 +5647,7 @@ Change Settings of SecureNAT Function. Use this to change and save the virtual h
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `RpcHubName_str` | `string` (ASCII) | Target Virtual HUB name
 `MacAddress_bin` | `string` (Base64 binary) | MAC address
@@ -5720,7 +5720,7 @@ Get Settings of SecureNAT Function. This API get the registered settings for the
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `RpcHubName_str` | `string` (ASCII) | Target Virtual HUB name
 `MacAddress_bin` | `string` (Base64 binary) | MAC address
@@ -5821,7 +5821,7 @@ Get Virtual NAT Function Session Table of SecureNAT Function. Use this to get th
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual Hub Name
 `NatTable` | `Array object` | NAT item
@@ -5899,7 +5899,7 @@ Get Virtual DHCP Server Function Lease Table of SecureNAT Function. Use this to 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual Hub Name
 `DhcpTable` | `Array object` | DHCP Item
@@ -5949,7 +5949,7 @@ Get the Operating Status of the Virtual NAT and DHCP Server Function (SecureNAT 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual Hub Name
 `NumTcpSessions_u32` | `number` (uint32) | Number of TCP sessions
@@ -6002,7 +6002,7 @@ Get List of Network Adapters Usable as Local Bridge. Use this to get a list of E
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `EthList` | `Array object` | Ethernet Network Adapters list
 `DeviceName_str` | `string` (ASCII) | Device name
@@ -6044,7 +6044,7 @@ Create Local Bridge Connection. Use this to create a new Local Bridge connection
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `DeviceName_str` | `string` (ASCII) | Physical Ethernet device name
 `HubNameLB_str` | `string` (ASCII) | The Virtual Hub name
@@ -6088,7 +6088,7 @@ Delete Local Bridge Connection. Use this to delete an existing Local Bridge conn
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `DeviceName_str` | `string` (ASCII) | Physical Ethernet device name
 `HubNameLB_str` | `string` (ASCII) | The Virtual Hub name
@@ -6147,7 +6147,7 @@ Get List of Local Bridge Connection. Use this to get a list of the currently def
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `LocalBridgeList` | `Array object` | Local Bridge list
 `DeviceName_str` | `string` (ASCII) | Physical Ethernet device name
@@ -6186,7 +6186,7 @@ Get whether the localbridge function is supported on the current system.
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IsBridgeSupportedOs_bool` | `boolean` | Whether the OS supports the Local Bridge function
 `IsWinPcapNeeded_bool` | `boolean` | Whether WinPcap is necessary to install
@@ -6223,7 +6223,7 @@ Reboot VPN Server Service. Use this to restart the VPN Server service. When you 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -6275,7 +6275,7 @@ Get List of Server Functions / Capability. Use this get a list of functions and 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `CapsList` | `Array object` | Caps list of the VPN Server
 `CapsName_str` | `string` (ASCII) | Name
@@ -6312,7 +6312,7 @@ Get the current configuration of the VPN Server. Use this to get a text file (.c
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `FileName_str` | `string` (ASCII) | File name (valid only for returning from the server)
 `FileData_bin` | `string` (Base64 binary) | File data
@@ -6349,7 +6349,7 @@ Write Configuration File to VPN Server. Use this to write the configuration file
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `FileName_str` | `string` (ASCII) | File name (valid only for returning from the server)
 `FileData_bin` | `string` (Base64 binary) | File data
@@ -6402,7 +6402,7 @@ Get Virtual Hub Administration Option default values.
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual HUB name
 `AdminOptionList` | `Array object` | List data
@@ -6458,7 +6458,7 @@ Get List of Virtual Hub Administration Options. Use this to get a list of Virtua
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual HUB name
 `AdminOptionList` | `Array object` | List data
@@ -6531,7 +6531,7 @@ Set Values of Virtual Hub Administration Options. Use this to change the values 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual HUB name
 `AdminOptionList` | `Array object` | List data
@@ -6587,7 +6587,7 @@ Get List of Virtual Hub Extended Options. Use this to get a Virtual Hub Extended
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual HUB name
 `AdminOptionList` | `Array object` | List data
@@ -6660,7 +6660,7 @@ Set a Value of Virtual Hub Extended Options. Use this to set a value in the Virt
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | Virtual HUB name
 `AdminOptionList` | `Array object` | List data
@@ -6699,7 +6699,7 @@ Define New Virtual Layer 3 Switch. Use this to define a new Virtual Layer 3 Swit
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Layer-3 Switch name
 
@@ -6734,7 +6734,7 @@ Delete Virtual Layer 3 Switch. Use this to delete an existing Virtual Layer 3 Sw
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Layer-3 Switch name
 
@@ -6789,7 +6789,7 @@ Get List of Virtual Layer 3 Switches. Use this to define a new Virtual Layer 3 S
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `L3SWList` | `Array object` | Layer-3 switch list
 `Name_str` | `string` (ASCII) | Name of the layer-3 switch
@@ -6829,7 +6829,7 @@ Start Virtual Layer 3 Switch Operation. Use this to start the operation of an ex
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Layer-3 Switch name
 
@@ -6864,7 +6864,7 @@ Stop Virtual Layer 3 Switch Operation. Use this to stop the operation of an exis
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Layer-3 Switch name
 
@@ -6905,7 +6905,7 @@ Add Virtual Interface to Virtual Layer 3 Switch. Use this to add to a specified 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | L3 switch name
 `HubName_str` | `string` (ASCII) | Virtual HUB name
@@ -6947,7 +6947,7 @@ Delete Virtual Interface of Virtual Layer 3 Switch. Use this to delete a virtual
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | L3 switch name
 `HubName_str` | `string` (ASCII) | Virtual HUB name
@@ -7005,7 +7005,7 @@ Get List of Interfaces Registered on the Virtual Layer 3 Switch. Use this to get
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | Layer-3 switch name
 `L3IFList` | `Array object` | Layer-3 interface list
@@ -7053,7 +7053,7 @@ Add Routing Table Entry for Virtual Layer 3 Switch. Here you can add a new routi
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | L3 switch name
 `NetworkAddress_ip` | `string` (IP address) | Network address
@@ -7100,7 +7100,7 @@ Delete Routing Table Entry of Virtual Layer 3 Switch. Use this to delete a routi
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | L3 switch name
 `NetworkAddress_ip` | `string` (IP address) | Network address
@@ -7162,7 +7162,7 @@ Get List of Routing Tables of Virtual Layer 3 Switch. Use this to get a list of 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Name_str` | `string` (ASCII) | L3 switch name
 `L3Table` | `Array object` | Routing table item list
@@ -7217,7 +7217,7 @@ Get List of Certificates Revocation List. Use this to get a Certificates Revocat
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `CRLList` | `Array object` | CRL list
@@ -7274,7 +7274,7 @@ Add a Revoked Certificate. Use this to add a new revoked certificate definition 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -7330,7 +7330,7 @@ Delete a Revoked Certificate. Use this to specify and delete a revoked certifica
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -7386,7 +7386,7 @@ Get a Revoked Certificate. Use this to specify and get the contents of a revoked
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -7439,7 +7439,7 @@ Change Existing CRL (Certificate Revocation List) Entry. Use this to alter an ex
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Key_u32` | `number` (uint32) | Key ID
@@ -7536,7 +7536,7 @@ Add Rule to Source IP Address Limit List. Use this to add a new rule to the Sour
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `ACList` | `Array object` | Source IP Address Limit List
@@ -7604,7 +7604,7 @@ Get List of Rule Items of Source IP Address Limit List. Use this to get a list o
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `ACList` | `Array object` | Source IP Address Limit List
@@ -7663,7 +7663,7 @@ Get List of Log Files. Use this to display a list of log files outputted by the 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `LogFiles` | `Array object` | Log file list
 `ServerName_str` | `string` (ASCII) | Server name
@@ -7705,7 +7705,7 @@ Download a part of Log File. Use this to download the log file that is saved on 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerName_str` | `string` (ASCII) | Server name
 `FilePath_str` | `string` (ASCII) | File Path
@@ -7747,7 +7747,7 @@ Set syslog Send Function. Use this to set the usage of syslog send function and 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `SaveType_u32` | `number` (enum) | The behavior of the syslog function<BR>Values:<BR>`0`: Do not use syslog<BR>`1`: Only server log<BR>`2`: Server and Virtual HUB security log<BR>`3`: Server, Virtual HUB security, and packet log
 `Hostname_str` | `string` (ASCII) | Specify the host name or IP address of the syslog server
@@ -7784,7 +7784,7 @@ Get syslog Send Function. This allows you to get the current setting contents of
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `SaveType_u32` | `number` (enum) | The behavior of the syslog function<BR>Values:<BR>`0`: Do not use syslog<BR>`1`: Only server log<BR>`2`: Server and Virtual HUB security log<BR>`3`: Server, Virtual HUB security, and packet log
 `Hostname_str` | `string` (ASCII) | Specify the host name or IP address of the syslog server
@@ -7823,7 +7823,7 @@ Set Today's Message of Virtual Hub. The message will be displayed on VPN Client 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Msg_bin` | `string` (Base64 binary) | Message (Unicode strings acceptable)
@@ -7860,7 +7860,7 @@ Get Today's Message of Virtual Hub. The message will be displayed on VPN Client 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Msg_bin` | `string` (Base64 binary) | Message (Unicode strings acceptable)
@@ -7897,7 +7897,7 @@ Raise a vital error on the VPN Server / Bridge to terminate the process forceful
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -7934,7 +7934,7 @@ Get the message for administrators.
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `HubName_str` | `string` (ASCII) | The Virtual Hub name
 `Msg_bin` | `string` (Base64 binary) | Message (Unicode strings acceptable)
@@ -7971,7 +7971,7 @@ Save All Volatile Data of VPN Server / Bridge to the Configuration File. The num
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -8017,7 +8017,7 @@ Enable or Disable IPsec VPN Server Function. Enable or Disable IPsec VPN Server 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `L2TP_Raw_bool` | `boolean` | Enable or Disable the L2TP Server Function (Raw L2TP with No Encryptions). To accept special VPN clients, enable this option.
 `L2TP_IPsec_bool` | `boolean` | Enable or Disable the L2TP over IPsec Server Function. To accept VPN connections from iPhone, iPad, Android, Windows or Mac OS X, enable this option.
@@ -8058,7 +8058,7 @@ Get the Current IPsec VPN Server Settings. Get and view the current IPsec VPN Se
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `L2TP_Raw_bool` | `boolean` | Enable or Disable the L2TP Server Function (Raw L2TP with No Encryptions). To accept special VPN clients, enable this option.
 `L2TP_IPsec_bool` | `boolean` | Enable or Disable the L2TP over IPsec Server Function. To accept VPN connections from iPhone, iPad, Android, Windows or Mac OS X, enable this option.
@@ -8103,7 +8103,7 @@ Add New EtherIP / L2TPv3 over IPsec Client Setting to Accept EthreIP / L2TPv3 Cl
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Id_str` | `string` (ASCII) | Specify an ISAKMP Phase 1 ID. The ID must be exactly same as a ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP Client uses IP address as Phase 1 ID. If you specify '*' (asterisk), it will be a wildcard to match any clients which doesn't match other explicit rules.
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to connect.
@@ -8144,7 +8144,7 @@ Get the Current List of EtherIP / L2TPv3 Client Device Entry Definitions. This A
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Id_str` | `string` (ASCII) | Specify an ISAKMP Phase 1 ID. The ID must be exactly same as a ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP Client uses IP address as Phase 1 ID. If you specify '*' (asterisk), it will be a wildcard to match any clients which doesn't match other explicit rules.
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to connect.
@@ -8185,7 +8185,7 @@ Delete an EtherIP / L2TPv3 over IPsec Client Setting. This API deletes an entry 
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Id_str` | `string` (ASCII) | Specify an ISAKMP Phase 1 ID. The ID must be exactly same as a ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP Client uses IP address as Phase 1 ID. If you specify '*' (asterisk), it will be a wildcard to match any clients which doesn't match other explicit rules.
 `HubName_str` | `string` (ASCII) | Specify the name of the Virtual Hub to connect.
@@ -8240,7 +8240,7 @@ Get the Current List of EtherIP / L2TPv3 Client Device Entry Definitions. This A
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Settings` | `Array object` | Setting list
 `Id_str` | `string` (ASCII) | Specify an ISAKMP Phase 1 ID. The ID must be exactly same as a ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP Client uses IP address as Phase 1 ID. If you specify '*' (asterisk), it will be a wildcard to match any clients which doesn't match other explicit rules.
@@ -8283,7 +8283,7 @@ Set Settings for OpenVPN Clone Server Function. The VPN Server has the clone fun
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `EnableOpenVPN_bool` | `boolean` | Specify true to enable the OpenVPN Clone Server Function. Specify false to disable.
 `OpenVPNPortList_str` | `string` (ASCII) | Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
@@ -8320,7 +8320,7 @@ Get the Current Settings of OpenVPN Clone Server Function. Get and show the curr
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `EnableOpenVPN_bool` | `boolean` | Specify true to enable the OpenVPN Clone Server Function. Specify false to disable.
 `OpenVPNPortList_str` | `string` (ASCII) | Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
@@ -8363,7 +8363,7 @@ Show the Current Status of Dynamic DNS Function. Get and show the current status
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `Err_IPv4_u32` | `number` (uint32) | Last error code (IPv4)
 `ErrStr_IPv4_utf` | `string` (UTF8) | Last error string (IPv4)
@@ -8409,7 +8409,7 @@ Set the Dynamic DNS Hostname. You must specify the new hostname on the StrValue_
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -8450,7 +8450,7 @@ Generate New Self-Signed Certificate with Specified CN (Common Name) and Registe
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IntValue_u32` | `number` (uint32) | A 32-bit integer field
 `Int64Value_u64` | `number` (uint64) | A 64-bit integer field
@@ -8489,7 +8489,7 @@ Generate a Sample Setting File for OpenVPN Client. Originally, the OpenVPN Clien
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ServerName_str` | `string` (ASCII) | Server name
 `FilePath_str` | `string` (ASCII) | File Path
@@ -8529,7 +8529,7 @@ Enable / Disable the VPN over ICMP / VPN over DNS Server Function. You can estab
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `VpnOverIcmpListener_bool` | `boolean` | The flag to activate the VPN over ICMP server function
 `VpnOverDnsListener_bool` | `boolean` | The flag to activate the VPN over DNS function
@@ -8564,7 +8564,7 @@ Get Current Setting of the VPN over ICMP / VPN over DNS Function. Get and show t
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `VpnOverIcmpListener_bool` | `boolean` | The flag to activate the VPN over ICMP server function
 `VpnOverDnsListener_bool` | `boolean` | The flag to activate the VPN over DNS function
@@ -8599,7 +8599,7 @@ Show the current status of VPN Azure function. Get and show the current status o
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IsEnabled_bool` | `boolean` | Whether VPN Azure Function is Enabled
 `IsConnected_bool` | `boolean` | Whether connection to VPN Azure Cloud Server is established
@@ -8636,7 +8636,7 @@ Enable / Disable VPN Azure Function. Enable or disable the VPN Azure function. V
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `IsEnabled_bool` | `boolean` | Whether VPN Azure Function is Enabled
 `IsConnected_bool` | `boolean` | Whether connection to VPN Azure Cloud Server is established
@@ -8674,7 +8674,7 @@ Get the Proxy Settings for Connecting to the DDNS server.
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ProxyType_u32` | `number` (enum) | Type of proxy server<BR>Values:<BR>`0`: Direct TCP connection<BR>`1`: Connection via HTTP proxy server<BR>`2`: Connection via SOCKS proxy server
 `ProxyHostName_str` | `string` (ASCII) | Proxy server host name
@@ -8721,7 +8721,7 @@ Set the Proxy Settings for Connecting to the DDNS server.
 
 ### Parameters
 
-Name | Type | Descrption
+Name | Type | Description
 --- | --- | ---
 `ProxyType_u32` | `number` (enum) | Type of proxy server<BR>Values:<BR>`0`: Direct TCP connection<BR>`1`: Connection via HTTP proxy server<BR>`2`: Connection via SOCKS proxy server
 `ProxyHostName_str` | `string` (ASCII) | Proxy server host name
@@ -8730,6 +8730,6 @@ Name | Type | Descrption
 `ProxyPassword_str` | `string` (ASCII) | Proxy server password
 
 ***
-Automatically generated at 2019-06-29 21:13:00 by vpnserver-jsonrpc-codegen.  
+Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen.  
 Copyright (c) 2014-2019 [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  
 
