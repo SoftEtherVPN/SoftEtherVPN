@@ -2,7 +2,7 @@
 // Runs on both web browsers and Node.js
 // 
 // sample.ts
-// Automatically generated at 2019-05-29 18:21:39 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
 // 
 // This sample code shows how to call all available RPC functions.
 // You can copy and paste test code to write your own web browser TypeScript / JavaScript codes.

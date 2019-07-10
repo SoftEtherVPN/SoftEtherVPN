@@ -1503,7 +1503,7 @@ namespace VPNServer_JSONRPC_CodeGen
                 }
             }
 
-            w.WriteLine("Name | Type | Descrption");
+            w.WriteLine("Name | Type | Description");
             w.WriteLine("--- | --- | ---");
             foreach (RpcTypeParameterInfo p in plist)
             {
