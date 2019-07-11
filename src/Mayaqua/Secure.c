@@ -32,6 +32,7 @@
 #include <openssl/rc4.h>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
+#include <openssl/rsa.h>
 #include <Mayaqua/Mayaqua.h>
 #include <Mayaqua/cryptoki.h>
 
