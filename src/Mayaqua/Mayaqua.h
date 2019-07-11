@@ -157,8 +157,8 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #ifdef	UNIX_SOLARIS
 #include <sys/filio.h>
 #endif	// UNIX_SOLARIS
-#include <sys/poll.h>
 #include <sys/resource.h>
+#include <poll.h>
 #include <pthread.h>
 #ifdef	UNIX_LINUX
 #include <sys/prctl.h>
