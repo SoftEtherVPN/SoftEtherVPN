@@ -8956,8 +8956,8 @@ void FreeDhcpServer(VH *v)
 		return;
 	}
 
-	// Remove the all lease entries
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+	// Empty the leases lists
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 		FreeDhcpLease(d);
@@ -8965,6 +8965,15 @@ void FreeDhcpServer(VH *v)
 
 	ReleaseList(v->DhcpLeaseList);
 	v->DhcpLeaseList = NULL;
+
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+		FreeDhcpLease(d);
+	}
+
+	ReleaseList(v->DhcpPendingLeaseList);
+	v->DhcpPendingLeaseList = NULL;
 }
 
 // Initialize the DHCP server
@@ -8978,6 +8987,29 @@ void InitDhcpServer(VH *v)
 
 	// Create a list
 	v->DhcpLeaseList = NewList(CompareDhcpLeaseList);
+	v->DhcpPendingLeaseList = NewList(CompareDhcpLeaseList);
+}
+
+// Search for a pending DHCP lease item by the IP address
+DHCP_LEASE *SearchDhcpPendingLeaseByIp(VH *v, UINT ip)
+{
+	UINT i;
+	// Validate arguments
+	if (v == NULL)
+	{
+		return NULL;
+	}
+
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+		if (d->IpAddress == ip)
+		{
+			return d;
+		}
+	}
+
+	return NULL;
 }
 
 // Search for a DHCP lease item by the IP address
@@ -8990,7 +9022,7 @@ DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip)
 		return NULL;
 	}
 
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 		if (d->IpAddress == ip)
@@ -9000,6 +9032,22 @@ DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip)
 	}
 
 	return NULL;
+}
+
+// Search for a pending DHCP lease item by the MAC address
+DHCP_LEASE *SearchDhcpPendingLeaseByMac(VH *v, UCHAR *mac)
+{
+	DHCP_LEASE *d, t;
+	// Validate arguments
+	if (v == NULL || mac == NULL)
+	{
+		return NULL;
+	}
+
+	Copy(&t.MacAddress, mac, 6);
+	d = Search(v->DhcpPendingLeaseList, &t);
+
+	return d;
 }
 
 // Search for a DHCP lease item by the MAC address
@@ -9099,9 +9147,8 @@ void PollingDhcpServer(VH *v)
 	}
 	v->LastDhcpPolling = v->Now;
 
-	// Remove expired entries
-FIRST_LIST:
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+LIST_CLEANUP:
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 
@@ -9109,7 +9156,21 @@ FIRST_LIST:
 		{
 			FreeDhcpLease(d);
 			Delete(v->DhcpLeaseList, d);
-			goto FIRST_LIST;
+			goto LIST_CLEANUP;
+		}
+	}
+
+PENDING_LIST_CLEANUP:
+	// Remove expired entries
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+
+		if (d->ExpireTime < v->Now)
+		{
+			FreeDhcpLease(d);
+			Delete(v->DhcpPendingLeaseList, d);
+			goto PENDING_LIST_CLEANUP;
 		}
 	}
 }
@@ -9151,6 +9212,11 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 	{
 		// IP address is specified
 		DHCP_LEASE *d = SearchDhcpLeaseByIp(v, request_ip);
+		if (d == NULL)
+		{
+			d = SearchDhcpPendingLeaseByIp(v, request_ip);
+		}
+
 		if (d != NULL)
 		{
 			// If an entry for the same IP address already exists,
@@ -9187,6 +9253,11 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 		// If there is any entry with the same MAC address
 		// that are already registered, use it with priority
 		DHCP_LEASE *d = SearchDhcpLeaseByMac(v, mac);
+		if (d == NULL)
+		{
+			d = SearchDhcpPendingLeaseByMac(v, mac);
+		}
+
 		if (d != NULL)
 		{
 			// Examine whether the found IP address is in the allocation region
@@ -9234,7 +9305,7 @@ UINT GetFreeDhcpIpAddress(VH *v)
 	for (i = ip_start; i <= ip_end;i++)
 	{
 		UINT ip = Endian32(i);
-		if (SearchDhcpLeaseByIp(v, ip) == NULL)
+		if (SearchDhcpLeaseByIp(v, ip) == NULL && SearchDhcpPendingLeaseByIp(v, ip) == NULL)
 		{
 			// A free IP address is found
 			return ip;
@@ -9284,7 +9355,7 @@ UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac)
 
 		new_ip = Endian32(ip_start + (rand_int % (ip_end - ip_start + 1)));
 
-		if (SearchDhcpLeaseByIp(v, new_ip) == NULL)
+		if (SearchDhcpLeaseByIp(v, new_ip) == NULL && SearchDhcpPendingLeaseByIp(v, new_ip) == NULL)
 		{
 			// A free IP address is found
 			return new_ip;
@@ -9401,8 +9472,9 @@ void VirtualDhcpServer(VH *v, PKT *p)
 			if (opt->Opcode == DHCP_REQUEST)
 			{
 				DHCP_LEASE *d;
-				char mac[MAX_SIZE];
-				char str[MAX_SIZE];
+				char client_mac[MAX_SIZE];
+				char client_ip[MAX_SIZE];
+
 				// Remove old records with the same IP address
 				d = SearchDhcpLeaseByIp(v, ip);
 				if (d != NULL)
@@ -9411,17 +9483,22 @@ void VirtualDhcpServer(VH *v, PKT *p)
 					Delete(v->DhcpLeaseList, d);
 				}
 
+				d = SearchDhcpPendingLeaseByIp(v, ip);
+				if (d != NULL)
+				{
+					FreeDhcpLease(d);
+					Delete(v->DhcpPendingLeaseList, d);
+				}
+
 				// Create a new entry
-				d = NewDhcpLease(v->DhcpExpire, p->MacAddressSrc,
-					ip, v->DhcpMask,
-					opt->Hostname);
+				d = NewDhcpLease(v->DhcpExpire, p->MacAddressSrc, ip, v->DhcpMask, opt->Hostname);
 				d->Id = ++v->DhcpId;
 				Add(v->DhcpLeaseList, d);
-				MacToStr(mac, sizeof(mac), d->MacAddress);
 
-				IPToStr32(str, sizeof(str), d->IpAddress);
+				MacToStr(client_mac, sizeof(client_mac), d->MacAddress);
+				IPToStr32(client_ip, sizeof(client_ip), d->IpAddress);
 
-				NLog(v, "LH_NAT_DHCP_CREATED", d->Id, mac, str, d->Hostname, v->DhcpExpire / 1000);
+				NLog(v, "LH_NAT_DHCP_CREATED", d->Id, client_mac, client_ip, d->Hostname, v->DhcpExpire / 1000);
 			}
 
 			// Respond
@@ -9510,12 +9587,25 @@ void VirtualDhcpServer(VH *v, PKT *p)
 					char client_mac[MAX_SIZE];
 					char client_ip[64];
 					IP ips;
+
 					BinToStr(client_mac, sizeof(client_mac), p->MacAddressSrc, 6);
 					UINTToIP(&ips, ip);
 					IPToStr(client_ip, sizeof(client_ip), &ips);
-					Debug("DHCP %s : %s given %s\n",
-						ret.Opcode == DHCP_OFFER ? "DHCP_OFFER" : "DHCP_ACK",
-						client_mac, client_ip);
+
+					if (ret.Opcode == DHCP_OFFER)
+					{
+						// DHCP_OFFER
+						DHCP_LEASE *d = NewDhcpLease(5000, p->MacAddressSrc, ip, v->DhcpMask, opt->Hostname);
+						d->Id = LIST_NUM(v->DhcpPendingLeaseList);
+						Add(v->DhcpPendingLeaseList, d);
+
+						Debug("VirtualDhcpServer(): %s has been marked as pending for %s\n", client_ip, client_mac);
+					}
+					else
+					{
+						// DHCP_ACK
+						Debug("VirtualDhcpServer(): %s has been assigned to %s\n", client_ip, client_mac);
+					}
 				}
 
 				// Build a DHCP option
