@@ -5946,6 +5946,10 @@ int cb_test(int a, X509_STORE_CTX *ctx)
 	return 1;
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define X509_STORE_CTX_get0_cert(o) ((o)->cert)
+#endif
+
 // Verify client SSL certificate during TLS handshake.
 //
 // (actually, only save the certificate for later authentication in Protocol.c)
@@ -5953,27 +5957,27 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 {
 	SSL *ssl;
 	struct SslClientCertInfo *clientcert;
+	X509 *cert;
 
 	ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
 	clientcert = SSL_get_ex_data(ssl, GetSslClientCertIndex());
 
 	if (clientcert != NULL)
 	{
-		clientcert->PreverifyErr = 0;
+		clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
 		clientcert->PreverifyErrMessage[0] = '\0';
 		if (!preverify_ok)
 		{
-			char *msg;
-			clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
-			msg = (char *)X509_verify_cert_error_string(clientcert->PreverifyErr);
-			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, msg);
+			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
+			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);
 			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
 		}
 		else
 		{
-			if (ctx->cert != NULL)
+			cert = X509_STORE_CTX_get0_cert(ctx);
+			if (cert != NULL)
 			{
-				X *tmpX = X509ToX(ctx->cert); // this only wraps ctx->cert, but we need to make a copy
+				X *tmpX = X509ToX(cert); // this only wraps cert, but we need to make a copy
 				X *copyX = CloneX(tmpX);
 				tmpX->do_not_free = true; // do not release inner X509 object
 				FreeX(tmpX);
