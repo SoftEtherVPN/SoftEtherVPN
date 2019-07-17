@@ -7,15 +7,19 @@ env:
   global:
     - OPENSSL_INSTALL_DIR="${HOME}/opt"
 
+addons:
+  sonarcloud:
+    organization: "softethervpn"
+
 matrix:
   include:
-    - env: OPENSSL_VERSION="1.0.2o" BUILD_DEB="1"
+    - env: OPENSSL_VERSION="1.0.2s" BUILD_DEB="1"
       os: linux
       compiler: gcc
-    - env: OPENSSL_VERSION="1.1.0f"
+    - env: RUN_SONARCLOUD=1 OPENSSL_VERSION="1.1.1c"
       os: linux
       compiler: gcc
-    - env: OPENSSL_VERSION="1.1.0f" LABEL="linux-ppc64le" CMAKE_VERSION="3.9.6"
+    - env: OPENSSL_VERSION="1.1.1c" LABEL="linux-ppc64le" CMAKE_VERSION="3.9.6"
       os: linux-ppc64le
       compiler: gcc
       install:
@@ -24,13 +28,13 @@ matrix:
         - ./bootstrap > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
         - sudo make install > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
         - cd ..
-    - env: OPENSSL_VERSION="1.0.2o" RUN_COVERITY="1"
+    - env: OPENSSL_VERSION="1.0.2s" RUN_COVERITY="1"
       os: linux
       compiler: clang
-    - env: OPENSSL_VERSION="1.1.0f"
+    - env: OPENSSL_VERSION="1.1.1c"
       os: linux
       compiler: clang
-    - env: LIBRESSL_VERSION="2.8.2"
+    - env: LIBRESSL_VERSION="2.9.2"
       os: linux
       compiler: gcc
       before_install:
@@ -70,6 +74,7 @@ script:
   - export LDFLAGS="-L${HOME}/opt/lib"
   - echo "check_certificate = off" > ~/.wgetrc
   - .ci/coverity.sh
+  - .ci/sonarcloud.sh
   - ./configure
   - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
   - ldd build/vpnserver
