@@ -416,7 +416,6 @@ bool IsAesNiSupported();
 void OpenSSL_InitLock();
 void OpenSSL_FreeLock();
 void OpenSSL_Lock(int mode, int n, const char *file, int line);
-unsigned long OpenSSL_Id(void);
 void FreeOpenSSLThreadState();
 char *OpenSSL_Error();
 

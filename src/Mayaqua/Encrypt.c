@@ -758,6 +758,14 @@ BUF *BigNumToBuf(const BIGNUM *bn)
 	return b;
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+// Return the thread ID
+static void OpenSSL_Id(CRYPTO_THREADID *id)
+{
+	CRYPTO_THREADID_set_numeric(id, (unsigned long)ThreadId());
+}
+#endif
+
 // Initialization of the lock of OpenSSL
 void OpenSSL_InitLock()
 {
@@ -774,7 +782,7 @@ void OpenSSL_InitLock()
 
 	// Setting the lock function
 	CRYPTO_set_locking_callback(OpenSSL_Lock);
-	CRYPTO_set_id_callback(OpenSSL_Id);
+	CRYPTO_THREADID_set_callback(OpenSSL_Id);
 #endif
 }
 
@@ -792,7 +800,7 @@ void OpenSSL_FreeLock()
 	ssl_lock_obj = NULL;
 
 	CRYPTO_set_locking_callback(NULL);
-	CRYPTO_set_id_callback(NULL);
+	CRYPTO_THREADID_set_callback(NULL);
 #endif
 }
 
@@ -813,12 +821,6 @@ void OpenSSL_Lock(int mode, int n, const char *file, int line)
 		Unlock(lock);
 	}
 #endif
-}
-
-// Return the thread ID
-unsigned long OpenSSL_Id(void)
-{
-	return (unsigned long)ThreadId();
 }
 
 char *OpenSSL_Error()
