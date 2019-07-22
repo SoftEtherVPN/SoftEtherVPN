@@ -758,7 +758,7 @@ BUF *BigNumToBuf(const BIGNUM *bn)
 	return b;
 }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 // Return the thread ID
 static void OpenSSL_Id(CRYPTO_THREADID *id)
 {
@@ -769,7 +769,7 @@ static void OpenSSL_Id(CRYPTO_THREADID *id)
 // Initialization of the lock of OpenSSL
 void OpenSSL_InitLock()
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	UINT i;
 
 	// Initialization of the lock object
@@ -789,7 +789,7 @@ void OpenSSL_InitLock()
 // Release of the lock of OpenSSL
 void OpenSSL_FreeLock()
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	UINT i;
 
 	for (i = 0;i < ssl_lock_num;i++)
@@ -807,7 +807,7 @@ void OpenSSL_FreeLock()
 // Lock function for OpenSSL
 void OpenSSL_Lock(int mode, int n, const char *file, int line)
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	LOCK *lock = ssl_lock_obj[n];
 
 	if (mode & CRYPTO_LOCK)
@@ -3731,7 +3731,7 @@ void FreeCryptLibrary()
 	openssl_lock = NULL;
 //	RAND_Free_For_SoftEther();
 	OpenSSL_FreeLock();
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 #ifdef OPENSSL_FIPS
 	FIPS_mode_set(0);
 #endif
@@ -3756,7 +3756,7 @@ void InitCryptLibrary()
 {
 	char tmp[16];
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 //	RAND_Init_For_SoftEther()
 	openssl_lock = NewLock();
 	SSL_library_init();
