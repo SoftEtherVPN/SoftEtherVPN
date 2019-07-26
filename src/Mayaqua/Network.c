@@ -18792,6 +18792,8 @@ LABEL_FATAL_ERROR:
 							p->SrcPort = p->DestPort = MAKE_SPECIAL_PORT(50);
 						}
 
+						p->Type = u->PacketType;
+
 						Add(recv_list, p);
 					}
 
@@ -19085,6 +19087,11 @@ void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list)
 // Creating a UDP listener
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
 {
+	return NewUdpListenerEx(recv_proc, param, listen_ip, INFINITE);
+}
+
+UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type)
+{
 	UDPLISTENER *u;
 	// Validate arguments
 	if (recv_proc == NULL)
@@ -19095,6 +19102,7 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *l
 	u = ZeroMalloc(sizeof(UDPLISTENER));
 
 	u->Param = param;
+	u->PacketType = packet_type;
 
 	u->PortList = NewList(NULL);
 	u->Event = NewSockEvent();

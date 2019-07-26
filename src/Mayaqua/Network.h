@@ -506,6 +506,7 @@ struct UDPLISTENER
 	UINT64 LastCheckTick;				// Time which the socket list was checked last
 	UDPLISTENER_RECV_PROC *RecvProc;	// Receive procedure
 	LIST *SendPacketList;				// Transmission packet list
+	UINT PacketType;					// The type to set when creating an UDPPACKET
 	void *Param;						// Parameters
 	INTERRUPT_MANAGER *Interrupts;		// Interrupt manager
 	bool HostIPAddressListChanged;		// IP address list of the host has changed
@@ -1415,6 +1416,7 @@ int CmpIpAddressList(void *p1, void *p2);
 UINT64 GetHostIPAddressListHash();
 
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
+UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type);
 void UdpListenerThread(THREAD *thread, void *param);
 void FreeUdpListener(UDPLISTENER *u);
 void AddPortToUdpListener(UDPLISTENER *u, UINT port);
