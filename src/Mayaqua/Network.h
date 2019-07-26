@@ -456,6 +456,16 @@ struct TUBEPAIR_DATA
 	SOCK_EVENT *SockEvent1, *SockEvent2;	// SockEvent
 };
 
+// TCP raw data
+struct TCP_RAW_DATA
+{
+	IP SrcIP;							// Source IP address
+	IP DstIP;							// Destination IP address
+	UINT SrcPort;						// Source port
+	UINT DstPort;						// Destination port
+	FIFO *Data;							// Data body
+};
+
 // UDP listener socket entry
 struct UDPLISTENER_SOCK
 {
@@ -1411,6 +1421,8 @@ void AddPortToUdpListener(UDPLISTENER *u, UINT port);
 void DeletePortFromUdpListener(UDPLISTENER *u, UINT port);
 void DeleteAllPortFromUdpListener(UDPLISTENER *u);
 void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list);
+TCP_RAW_DATA *NewTcpRawData(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port);
+void FreeTcpRawData(TCP_RAW_DATA *trd);
 UDPPACKET *NewUdpPacket(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port, void *data, UINT size);
 void FreeUdpPacket(UDPPACKET *p);
 UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p);

@@ -18980,6 +18980,40 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 	return NULL;
 }
 
+void FreeTcpRawData(TCP_RAW_DATA *trd)
+{
+	// Validate arguments
+	if (trd == NULL)
+	{
+		return;
+	}
+
+	ReleaseFifo(trd->Data);
+	Free(trd);
+}
+
+TCP_RAW_DATA *NewTcpRawData(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port)
+{
+	TCP_RAW_DATA *trd;
+	// Validate arguments
+	if (dst_ip == NULL || dst_port == 0)
+	{
+		return NULL;
+	}
+
+	trd = ZeroMalloc(sizeof(TCP_RAW_DATA));
+
+	Copy(&trd->SrcIP, src_ip, sizeof(IP));
+	trd->SrcPort = src_port;
+
+	Copy(&trd->DstIP, dst_ip, sizeof(IP));
+	trd->DstPort = dst_port;
+
+	trd->Data = NewFifoFast();
+
+	return trd;
+}
+
 // Release of the UDP packet
 void FreeUdpPacket(UDPPACKET *p)
 {

@@ -305,8 +305,7 @@
 #define	CONNECTION_TYPE_ADMIN_RPC		5	// RPC for Management
 #define	CONNECTION_TYPE_ENUM_HUB		6	// HUB enumeration
 #define	CONNECTION_TYPE_PASSWORD		7	// Password change
-#define	CONNECTION_TYPE_SSTP			8	// SSTP
-#define	CONNECTION_TYPE_OPENVPN			9	// OpenVPN
+#define	CONNECTION_TYPE_OTHER			0xffffffff	// E.g. Third-party protocol
 
 // Protocol
 #define	CONNECTION_TCP					0	// TCP protocol
@@ -1031,6 +1030,7 @@ typedef struct CEDAR
 // Layer-2/Layer-3 converter
 #include <Cedar/IPC.h>
 // Third party protocols
+#include <Cedar/Proto.h>
 #include <Cedar/Proto_IPsec.h>
 #include <Cedar/Proto_EtherIP.h>
 #include <Cedar/Proto_IkePacket.h>
