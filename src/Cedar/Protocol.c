@@ -6412,7 +6412,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			{
 				bool sstp_ret;
 				// Accept the SSTP connection
-				c->Type = CONNECTION_TYPE_SSTP;
+				c->Type = CONNECTION_TYPE_OTHER;
 
 				sstp_ret = AcceptSstp(c);
 

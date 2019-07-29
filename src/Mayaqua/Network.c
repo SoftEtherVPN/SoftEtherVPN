@@ -18792,6 +18792,8 @@ LABEL_FATAL_ERROR:
 							p->SrcPort = p->DestPort = MAKE_SPECIAL_PORT(50);
 						}
 
+						p->Type = u->PacketType;
+
 						Add(recv_list, p);
 					}
 
@@ -18980,6 +18982,40 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 	return NULL;
 }
 
+void FreeTcpRawData(TCP_RAW_DATA *trd)
+{
+	// Validate arguments
+	if (trd == NULL)
+	{
+		return;
+	}
+
+	ReleaseFifo(trd->Data);
+	Free(trd);
+}
+
+TCP_RAW_DATA *NewTcpRawData(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port)
+{
+	TCP_RAW_DATA *trd;
+	// Validate arguments
+	if (dst_ip == NULL || dst_port == 0)
+	{
+		return NULL;
+	}
+
+	trd = ZeroMalloc(sizeof(TCP_RAW_DATA));
+
+	Copy(&trd->SrcIP, src_ip, sizeof(IP));
+	trd->SrcPort = src_port;
+
+	Copy(&trd->DstIP, dst_ip, sizeof(IP));
+	trd->DstPort = dst_port;
+
+	trd->Data = NewFifoFast();
+
+	return trd;
+}
+
 // Release of the UDP packet
 void FreeUdpPacket(UDPPACKET *p)
 {
@@ -19051,6 +19087,11 @@ void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list)
 // Creating a UDP listener
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
 {
+	return NewUdpListenerEx(recv_proc, param, listen_ip, INFINITE);
+}
+
+UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type)
+{
 	UDPLISTENER *u;
 	// Validate arguments
 	if (recv_proc == NULL)
@@ -19061,6 +19102,7 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *l
 	u = ZeroMalloc(sizeof(UDPLISTENER));
 
 	u->Param = param;
+	u->PacketType = packet_type;
 
 	u->PortList = NewList(NULL);
 	u->Event = NewSockEvent();

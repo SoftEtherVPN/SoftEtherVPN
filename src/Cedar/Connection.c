@@ -2901,21 +2901,8 @@ void ConnectionAccept(CONNECTION *c)
 	X *x;
 	K *k;
 	char tmp[128];
-	UCHAR openssl_check_buf[2];
-	char *error_details = NULL;
-	SERVER *server;
-	UCHAR *peek_buf = NULL;
-	UINT peek_buf_size = 1500;
-	char sni[256] = {0};
-	bool native1 = false;
-	bool native2 = false;
-	bool native3 = false;
-	bool no_native = false;
-	UINT peek_size = 0;
 	UINT initial_timeout = CONNECTING_TIMEOUT;
-	bool no_peek_log = false;
 	UCHAR ctoken_hash[SHA1_SIZE];
-	bool no_write_ctoken_log = false;
 
 	// Validate arguments
 	if (c == NULL)
@@ -2925,13 +2912,7 @@ void ConnectionAccept(CONNECTION *c)
 
 	Zero(ctoken_hash, sizeof(ctoken_hash));
 
-	peek_buf = ZeroMalloc(peek_buf_size);
-
-	Debug("ConnectionAccept()\n");
-
-	server = c->Cedar->Server;
-
-	// get a socket
+	// Get a socket
 	s = c->FirstSock;
 	AddRef(s->ref);
 
@@ -2945,37 +2926,18 @@ void ConnectionAccept(CONNECTION *c)
 	initial_timeout += GetMachineRand() % (CONNECTING_TIMEOUT / 2);
 	SetTimeout(s, initial_timeout);
 
-
-	// Peek whether OpenSSL packet
-	if (s->IsReverseAcceptedSocket == false)
+	// Handle third-party protocols
+	if (s->IsReverseAcceptedSocket == false && s->Type == SOCK_TCP)
 	{
-		if (s->Type == SOCK_TCP && (c->Cedar != NULL && c->Cedar->Server != NULL && c->Cedar->Server->DisableOpenVPNServer == false))
+		if (c->Cedar != NULL && c->Cedar->Server != NULL)
 		{
-			if (Peek(s, openssl_check_buf, sizeof(openssl_check_buf)) == sizeof(openssl_check_buf))
+			c->Type = CONNECTION_TYPE_OTHER;
+
+			if (ProtoHandleConnection(c->Cedar, s) == true)
 			{
-				if (OvsCheckTcpRecvBufIfOpenVPNProtocol(openssl_check_buf, sizeof(openssl_check_buf)))
-				{
-					// Detect OpenSSL packet
-					Debug("Detect OpenSSL on TCP!\n");
-
-					no_native = true;
-
-					if (OvsGetNoOpenVpnTcp() == false)
-					{
-						// Do OpenSSL processing
-						c->Type = CONNECTION_TYPE_OPENVPN;
-						if (OvsPerformTcpServer(c->Cedar, s) == false)
-						{
-							error_details = "OpenVPN_TCP_Aborted";
-						}
-					}
-
-					goto ERROR;
-				}
+				goto FINAL;
 			}
 		}
-
-
 	}
 
 	// Specify the encryption algorithm
@@ -2992,21 +2954,17 @@ void ConnectionAccept(CONNECTION *c)
 	Unlock(c->Cedar->lock);
 
 	// Start the SSL communication
-	Debug("StartSSL()\n");
 	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
 	if (StartSSL(s, x, k) == false)
 	{
 		// Failed
 		AddNoSsl(c->Cedar, &s->RemoteIP);
-		Debug("Failed to StartSSL.\n");
+		Debug("ConnectionAccept(): StartSSL() failed\n");
 		FreeX(x);
 		FreeK(k);
 
-		error_details = "StartSSL";
-
-		goto ERROR;
+		goto FINAL;
 	}
-
 
 	FreeX(x);
 	FreeK(k);
@@ -3019,29 +2977,18 @@ void ConnectionAccept(CONNECTION *c)
 	if (ServerAccept(c) == false)
 	{
 		// Failed
-		Debug("ServerAccept Failed. Err = %u\n", c->Err);
-		goto ERROR;
+		Debug("ConnectionAccept(): ServerAccept() failed with error %u\n", c->Err);
 	}
 
+FINAL:
 	if (c->flag1 == false)
 	{
 		Debug("%s %u c->flag1 == false\n", __FILE__, __LINE__);
 		Disconnect(s);
 	}
+
 	DelConnection(c->Cedar, c);
 	ReleaseSock(s);
-
-	Free(peek_buf);
-	return;
-
-ERROR:
-	Debug("ConnectionAccept() Error.\n");
-
-
-	Disconnect(s);
-	DelConnection(c->Cedar, c);
-	ReleaseSock(s);
-	Free(peek_buf);
 }
 
 // Stop the threads putting additional connection of all that are currently running

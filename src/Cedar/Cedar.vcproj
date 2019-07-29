@@ -651,6 +651,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Proto.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Proto_EtherIP.c"
 				>
 			</File>
@@ -1278,6 +1282,10 @@
 			</File>
 			<File
 				RelativePath=".\NullLan.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proto.h"
 				>
 			</File>
 			<File
