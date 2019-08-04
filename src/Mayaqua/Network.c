@@ -5563,7 +5563,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 		if (!preverify_ok)
 		{
 			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
-			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, msg);
+			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);
 			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
 		}
 		else
@@ -16532,12 +16532,12 @@ TOKEN_LIST *GetCipherList()
 	sk = SSL_get_ciphers(ssl);
 #endif
 
-	for (i = 0; i < sk_SSL_CIPHER_num(sk); i++)
+	for (i = 0; i < (UINT)sk_SSL_CIPHER_num(sk); i++)
 	{
 		const SSL_CIPHER *c = sk_SSL_CIPHER_value(sk, i);
 
 		name = SSL_CIPHER_get_name(c);
-		if (IsEmptyStr(name))
+		if (IsEmptyStr((char *)name))
 		{
 			break;
 		}
@@ -16553,7 +16553,7 @@ TOKEN_LIST *GetCipherList()
 			ciphers->Token = Malloc(sizeof(char *));
 		}
 
-		ciphers->Token[i] = CopyStr(name);
+		ciphers->Token[i] = CopyStr((char *)name);
 	}
 
 	sk_SSL_CIPHER_free(sk);

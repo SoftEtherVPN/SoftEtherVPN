@@ -195,13 +195,13 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		return false;
 	}
 
-	if (base64_enc_len(strlen(name)) < sizeof(buffer)-1 &&
-		base64_enc_len(strlen(password)) < sizeof(buffer)-1 &&
-		base64_enc_len(strlen(domainname)) < sizeof(buffer)-1)
+	if (base64_enc_len((unsigned int)strlen(name)) < sizeof(buffer)-1 &&
+		base64_enc_len((unsigned int)strlen(password)) < sizeof(buffer)-1 &&
+		base64_enc_len((unsigned int)strlen(domainname)) < sizeof(buffer)-1)
 	{
 		char  answer[300];
 
-		unsigned int end = B64_Encode(buffer, name, strlen(name));
+		unsigned int end = B64_Encode(buffer, name, (int)strlen(name));
 		buffer[end] = '\0';
 		fputs("Username:: ", out);
 		fputs(buffer, out);
@@ -209,7 +209,7 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		Debug("Username: %s\n", buffer);
 		buffer[0] = 0;
 
-		end = B64_Encode(buffer, domainname, strlen(domainname));
+		end = B64_Encode(buffer, domainname, (int)strlen(domainname));
 		buffer[end] = '\0';
 		fputs("NT-Domain:: ", out);
 		fputs(buffer, out);
@@ -220,7 +220,7 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		if (password[0] != '\0')
 		{
 			Debug("Password authentication\n");
-			end = B64_Encode(buffer, password, strlen(password));
+			end = B64_Encode(buffer, password, (int)strlen(password));
 			buffer[end] = '\0';
 			fputs("Password:: ", out);
 			fputs(buffer, out);
