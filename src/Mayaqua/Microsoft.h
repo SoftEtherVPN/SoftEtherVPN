@@ -886,6 +886,7 @@ bool MsIsWinXPOrWinVista();
 bool MsGetFileInformation(void *h, void *info);
 void MsSetErrorModeToSilent();
 void MsSetEnableMinidump(bool enabled);
+bool MsIsMinidumpEnabled();
 void MsWriteMinidump(wchar_t *filename, void *ex);
 
 

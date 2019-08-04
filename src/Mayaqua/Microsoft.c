@@ -12338,6 +12338,12 @@ bool MsGetMsiInstalledDir(char *component_code, wchar_t *dir, UINT dir_size)
 	return ret;
 }
 
+// Determine whether minidump is enabled
+bool MsIsMinidumpEnabled()
+{
+	return ms->MiniDumpEnabled;
+}
+
 // Determine whether to create a minidump
 void MsSetEnableMinidump(bool enabled)
 {

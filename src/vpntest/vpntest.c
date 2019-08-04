@@ -116,7 +116,7 @@ int TestMain(char *cmd)
 	Print("   - In Jurassic Park: \"It's a UNIX system! I know this!\"\n\n");
 
 #ifdef	OS_WIN32
-	MsSetEnableMinidump(false);
+	MsSetEnableMinidump(true);
 #endif	// OS_WIN32
 
 	while (true)
