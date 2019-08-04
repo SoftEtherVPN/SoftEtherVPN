@@ -1650,12 +1650,12 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	// Set the Expiration
 	t1 = X509_get0_notBefore(x509);
 	t2 = X509_get0_notAfter(x509);
-	if (!UINT64ToAsn1Time(t1, notBefore))
+	if (!UINT64ToAsn1Time((void *)t1, notBefore))
 	{
 		FreeX509(x509);
 		return NULL;
 	}
-	if (!UINT64ToAsn1Time(t2, notAfter))
+	if (!UINT64ToAsn1Time((void *)t2, notAfter))
 	{
 		FreeX509(x509);
 		return NULL;
@@ -1792,12 +1792,12 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	// Set the Expiration
 	t1 = X509_get0_notBefore(x509);
 	t2 = X509_get0_notAfter(x509);
-	if (!UINT64ToAsn1Time(t1, notBefore))
+	if (!UINT64ToAsn1Time((void *)t1, notBefore))
 	{
 		FreeX509(x509);
 		return NULL;
 	}
-	if (!UINT64ToAsn1Time(t2, notAfter))
+	if (!UINT64ToAsn1Time((void *)t2, notAfter))
 	{
 		FreeX509(x509);
 		return NULL;
@@ -4432,7 +4432,7 @@ static UINT Internal_HMac(const EVP_MD *md, void *dest, void *key, UINT key_size
 		goto final;
 	}
 
-	len = MdProcess(m, dest, src, src_size);
+	len = MdProcess(m, dest, (void *)src, src_size);
 	if (len == 0)
 	{
 		Debug("Internal_HMac(): MdProcess() returned 0!\n");
