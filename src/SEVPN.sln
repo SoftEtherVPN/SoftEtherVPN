@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{2349
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
 		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb
+		bin\hamcore\strtable_pt_br.stb = bin\hamcore\strtable_pt_br.stb
 		bin\hamcore\time.htm = bin\hamcore\time.htm
 		bin\hamcore\vpn16.exe = bin\hamcore\vpn16.exe
 	EndProjectSection
