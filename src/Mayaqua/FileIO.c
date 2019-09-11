@@ -2122,15 +2122,21 @@ void InnerFilePathW(wchar_t *dst, UINT size, wchar_t *src)
 		return;
 	}
 
-	if (src[0] != L'@')
+	if (src[0] == L'@')
 	{
-		NormalizePathW(dst, size, src);
+		wchar_t dir[MAX_SIZE];
+		GetLogDirW(dir, sizeof(dir));
+		ConbinePathW(dst, size, dir, &src[1]);
+	}
+	else if (src[0] == L'$')
+	{
+		wchar_t dir[MAX_SIZE];
+		GetDbDirW(dir, sizeof(dir));
+		ConbinePathW(dst, size, dir, &src[1]);
 	}
 	else
 	{
-		wchar_t dir[MAX_SIZE];
-		GetExeDirW(dir, sizeof(dir));
-		ConbinePathW(dst, size, dir, &src[1]);
+		NormalizePathW(dst, size, src);
 	}
 }
 void InnerFilePath(char *dst, UINT size, char *src)

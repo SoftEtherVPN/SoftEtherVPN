@@ -48,7 +48,7 @@ extern char *SERVER_CONFIG_FILE_NAME;
 
 #define	MAX_PUBLIC_PORT_NUM				128
 
-#define	MEMBER_SELECTOR_TXT_FILENAME	"@member_selector.config"
+#define	MEMBER_SELECTOR_TXT_FILENAME	"$member_selector.config"
 #define	MEMBER_SELECTOR_CONNECT_TIMEOUT	2000
 #define	MEMBER_SELECTOR_DATA_TIMEOUT	5000
 

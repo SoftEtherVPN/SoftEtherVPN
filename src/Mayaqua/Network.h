@@ -54,7 +54,7 @@ struct DYN_VALUE
 #define	SSL_LOGGING_DIRNAME			"@ssl_log"
 
 // Private IP list file
-#define	PRIVATE_IP_TXT_FILENAME		"@private_ip.txt"
+#define	PRIVATE_IP_TXT_FILENAME		"$private_ip.txt"
 
 // Start range of the random UDP port
 #define	RAND_UDP_PORT_START			5000
