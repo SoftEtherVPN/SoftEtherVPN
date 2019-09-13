@@ -434,19 +434,23 @@
 #define	LOG_ENGINE_BUFFER_CACHE_SIZE_MAX	(10 * 1024 * 1024)	// Write cache size
 
 // Constant such as a file name
-#define	SERVER_LOG_DIR_NAME			"@server_log"
+#define	SERVER_LOG_DIR				"server_log"
+#define	SERVER_LOG_DIR_NAME			"@"SERVER_LOG_DIR
 #define	BRIDGE_LOG_DIR_NAME			SERVER_LOG_DIR_NAME
 #define	SERVER_LOG_PERFIX			"vpn"
 
-#define	HUB_SECURITY_LOG_DIR_NAME	"@security_log"
-#define	HUB_SECURITY_LOG_FILE_NAME	"@security_log/%s"
+#define	HUB_SECURITY_LOG_DIR		"security_log"
+#define	HUB_SECURITY_LOG_DIR_NAME	"@"HUB_SECURITY_LOG_DIR
+#define	HUB_SECURITY_LOG_FILE_NAME	HUB_SECURITY_LOG_DIR_NAME"/%s"
 #define	HUB_SECURITY_LOG_PREFIX		"sec"
-#define	HUB_PACKET_LOG_DIR_NAME		"@packet_log"
-#define	HUB_PACKET_LOG_FILE_NAME	"@packet_log/%s"
+#define	HUB_PACKET_LOG_DIR		"packet_log"
+#define	HUB_PACKET_LOG_DIR_NAME		"@"HUB_PACKET_LOG_DIR
+#define	HUB_PACKET_LOG_FILE_NAME	HUB_PACKET_LOG_DIR_NAME"/%s"
 #define	HUB_PACKET_LOG_PREFIX		"pkt"
 
-#define	NAT_LOG_DIR_NAME			"@secure_nat_log"
-#define	NAT_LOG_FILE_NAME			"@secure_nat_log/%s"
+#define	NAT_LOG_DIR				"secure_nat_log"
+#define	NAT_LOG_DIR_NAME			"@"NAT_LOG_DIR
+#define	NAT_LOG_FILE_NAME			NAT_LOG_DIR_NAME"/%s"
 #define	NAT_LOG_PREFIX				"snat"
 
 #define	CLIENT_LOG_DIR_NAME			"@client_log"
@@ -567,8 +571,9 @@
 
 #define	EL_ADMIN_PORT			22888
 #define	EL_CONFIG_FILENAME		"@etherlogger.config"
-#define	EL_PACKET_LOG_DIR_NAME	"@etherlogger_log"
-#define	EL_PACKET_LOG_FILE_NAME	"@etherlogger_log/%s"
+#define	EL_PACKET_LOG_DIR	"etherlogger_log"
+#define	EL_PACKET_LOG_DIR_NAME	"@"EL_PACKET_LOG_DIR
+#define	EL_PACKET_LOG_FILE_NAME	EL_PACKET_LOG_DIR_NAME"/%s"
 #define	EL_PACKET_LOG_PREFIX	"pkt"
 #define	EL_LICENSE_CHECK_SPAN	(10 * 1000)
 
