@@ -1663,7 +1663,7 @@ SM_ADVANCED_REDIRECT_URL_HINT_TITLE	如何使用高级 HTTP 重定向功能
 SM_ADVANCED_REDIRECT_URL_HINT	高级 HTTP 重定向(为专家)\r\n\r\n此字符串“<INFO>”是一个占位符。它可以嵌入重定向的 URL 中。\r\n\r\n嵌入 URL 示例：\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\n当客户端将被重定向，重定向的实际 URL 目的地将被取代如下。\r\n\r\n用户名|会话ID|IP 地址|日期和时间|哈希值\r\n\r\n替换后示例：zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\n各字段的详情描述如下。\r\n\r\n用户名：当前 VPN 会话的用户名将被放置。\r\n\r\n会话ID：VPN 会话的会话 ID 将被放置\r\n\r\n日期和时间：14 位数字将以'YYYYMMDDHHMMSS’格式放置(时区是 UTC)\r\n\r\n哈希值：代表 20 个字节二进制数据的一个 40 字符的十六进制字符串。二进制数据是 SHA-1 哈希函数至临时字符串的结果。在重定向 URL 中“|”符号后，临时字符串是上述字段的位阵列加上秘密字符串的结合。(在上面的例子中，“秘密”是秘密字符串)。如果在 URL 中没有“|”符号，没有哈希值将被添加。\r\n\r\n哈希值的目的：秘密字符串如密钥般有效。感谢密钥。在重定向 URL 中接收重定向查询字符串的 CGI 程序，可以验证包含在 URL 中参数的完整性。\r\n
 SM_ADVANCED_REDIRECT_URL_MSG	URL 必须以“http://”或“https://”开始
 SM_DISABLE_DDNS_HINT_CAPTION	禁用动态 DNS 功能
-SM_DISABLE_DDNS_HINT		禁用动态 DNS 功能，修改 VPN Server 的配置文件。\r\n\r\n此“declare root”指令具有“declare DDnsClient”的指令。在该指令中，你可以切换“bool Disable”从假到 true，并重新启动 VPN Server ，然后动态 DNS 功能将被禁用。\r\n
+SM_DISABLE_DDNS_HINT		需要修改 VPN Server 的配置文件以禁用动态 DNS 功能。\r\n\r\n“declare root”指令下具有“declare DDnsClient”指令。在该指令中，你可以将“bool Disable”从false切换到 true，并重新启动 VPN Server ，然后动态 DNS 功能将被禁用。\r\n
 SM_REGENERATE_CERT_MSG		VPN Server 的证书被替换为新的。\r\n\r\n这会影响到被配置验证 VPN Server 证书的所有 VPN Client。\r\n您要继续吗？
 SM_DDNS_SERVER_CERT_MSG	DDNS 主机名更改为“%S”。\r\n\r\n如果您计划使用 Microsoft SSTP VPN 连接到 VPN Server ，从 Windows Vista 或 Windows 更高版本指定 DDNS 主机名为 VPN Server 的目标，由于安全原因， VPN Server 的目标主机名必须与 VPN Server 证书的 CN(Common Name)字段完全匹配。\r\n\r\n您要重新生成的服务器证书，以匹配 CN 值到“%S”吗？\r\n(单击“否”继续使用当前的服务器证书)。
 SM_DDNS_SERVER_CERT_OK		VPN Server 的 SSL 证书现在已再次生成。\r\n\r\n当你让Microsoft SSTP VPN Client 连接到 VPN Server 时，你应该指定当前的 DDNS 主机名“%S”作为目标服务器的主机名。\r\n你也必须事先在 Windows 的“受信任的根证书”列表中添加这个 VPN Server 的证书。\r\n(要安装根证书到 Windows 中，在“证书“的小程序里打开 MMC，并导航到“本地计算机”。之后，你可以导入证书到的受信任的根证书列表。\r\详细说明请参考 Microsoft 的文档。)\r\n\ṛ\n您要以 X.509 格式保存新的 SSL 证书作为一个文件吗？
@@ -7163,7 +7163,7 @@ SW_WEB2_TITLE						指定文件夹
 SW_UNINSTALLINFO_URL					http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER				SoftEther VPN Project
 
-SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
+SW_KB3033929_REQUIRED						在 Windows 7 以及 Windows Server 2008 R2系统上, SoftEther VPN 的一些功能需要安全更新程序KB3033929。\r\n\r\n如果 KB3033929 未在你的系统中安装, 在安装SoftEther VPN 前请从 Windows Update 或 Microsoft 网站上下载安装该更新程序。
 
 
 SW_COMPONENTS_ABOUT_TAG				关于 %s
