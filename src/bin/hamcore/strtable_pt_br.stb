@@ -335,7 +335,7 @@ NICINFO_1	Connected to the VPN Server.
 NICINFO_1_1	Requesting an IP address to the DHCP server in the VPN...
 NICINFO_1_2	Determining the IP address to use in the VPN...
 NICINFO_2	The VPN Connection is Established.
-NICINFO_2_1	O endereço de IP atribuído a você &S.
+NICINFO_2_1	O endereço de IP atribuído a você %S.
 NICINFO_3	The VPN Connection is Established.
 NICINFO_3_1	Seu endereço de IP %S está pronto para o uso.
 # Concerning password input dialogs during login	
