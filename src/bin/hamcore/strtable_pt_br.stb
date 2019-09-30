@@ -6171,7 +6171,7 @@ SW_DIRNAME_LANGUAGE_TOOLS	Language Settings
 SW_RUN_TEXT_VPNSMGR	Start the SoftEther VPN Server Manager.
 SW_RUN_TEXT_VPNCMGR	Start the SoftEther VPN Client Manager.
 SW_NIC_UNINSTALL	Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
-# Do not translate this section !!!	
+# Do not translate this section !!!
 SW_TAG_USERNAME_ENGLISH	\ (User-Mode)
 SW_LINK_NAME_VPNSERVER_SVC	SoftEther VPN Server Developer User-mode Service
 SW_LINK_NAME_VPNBRIDGE_SVC	SoftEther VPN Bridge Developer User-mode Service
@@ -6181,7 +6181,7 @@ SW_LONG_VPNBRIDGE	SoftEther VPN Bridge Developer Edition
 SW_LONG_VPNSMGR	SoftEther VPN Server Manager Developer Edition
 SW_LONG_VPNCMGR	SoftEther VPN Client Manager Developer Edition
 SW_LANG_SET_FAILED	Failed to write the new language setting on lang.config file.
-"# --- end of ""Do not translate this section"" ---"	
+# --- end of "Do not translate this section" ---
 # Shortcuts Filenames	
 SW_LINK_NAME_VPNSMGR_SHORT	SoftEther VPN Server Manager (Dev)
 SW_LINK_NAME_VPNSMGR_SHORT_UM	SE-VPN Server Manager (Dev User)
