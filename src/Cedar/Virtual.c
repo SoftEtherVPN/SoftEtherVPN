@@ -6118,7 +6118,7 @@ void EncodeNetBiosName(UCHAR *dst, char *src)
 		copy_len = 16;
 	}
 
-	Copy(tmp, src, StrLen(src));
+	Copy(tmp, src, copy_len);
 
 	wp = 0;
 
