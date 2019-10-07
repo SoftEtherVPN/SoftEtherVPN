@@ -1200,7 +1200,7 @@ SM_ST_RECV_BCAST_SIZE	Tamanho total broadcast de entrada
 SM_ST_NUM_PACKET_STR	%S pacotes
 SM_ST_SIZE_BYTE_STR	%S bytes
 CM_EDIT_HUB_1	New Virtual Hub
-CM_EDIT_HUB_2	Propriedade de $S
+CM_EDIT_HUB_2	Propriedade de %S
 CM_EDIT_HUB_STANDALONE	Currently the server is operating in Standalone Mode. This Virtual Hub is operating as a Standalone Hub.
 CM_EDIT_HUB_TYPE_FIXED	Currently the server is operating in Cluster Mode. This Virtual Hub is of the following type, which means it is not possible to make dynamic changes.
 CM_EDIT_HUB_CREATED	A new Virtual Hub '%S' has been created.
@@ -3923,17 +3923,9 @@ IDCANCEL	Cancelar
 
 
 ###########################################################################	
-
-
 #                                                                         #	
-
-
 #String data of menus in software                                         #	
-
-
 #                                                                         #	
-
-
 ###########################################################################	
 
 
@@ -4022,17 +4014,9 @@ CMD_ABOUT	&Sobre...
 
 
 ###########################################################################	
-
-
 #                                                                         #	
-
-
 # Command prompt string data                                              #	
-
-
 #                                                                         #	
-
-
 ###########################################################################	
 PREFIX	NULL
 
@@ -6859,17 +6843,9 @@ CHECK_PROC_NETWORK	Network system
 
 
 ######################################################	
-
-
 #                                                    #	
-
-
 # Setup Wizard (SW) Strings                          #	
-
-
 #                                                    #	
-
-
 ######################################################	
 SW_TITLE	Assistente de configuração da Edição de Desenvolvedor do SoftEther VPN (Versão %S)
 SW_EXIT_CONFIRM	O processo de instalação do SoftEther VPN ainda não foi concluído.\r\n\r\nDeseja sair da instalação?
