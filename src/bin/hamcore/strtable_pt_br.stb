@@ -13,25 +13,25 @@
 ###########################################################################
 
 
-# Environment parameters	
-DEFAULT_FONT	Tahoma
-DEFAULT_FONT_WIN7	Segoe UI
-DEFAULT_FONT_2	Tahoma
-DEFAULT_FONT_SIZE	8
-DEFAULT_LOCALE	- - $ : : $ Dom Seg Ter Qua Qui Sex Sáb : : : $ (Nenhum)
+
+# Environment parameters
+DEFAULT_FONT			Tahoma
+DEFAULT_FONT_WIN7		Segoe UI
+DEFAULT_FONT_2			Tahoma
+DEFAULT_FONT_SIZE		8
+DEFAULT_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
 
 
-# ??
-# (0: ???, 1: ??)
+# 言語
+# (0: 日本語, 1: 英語)
 LANG					6
-LANGSTR					Portuguese-Brazil
+LANGSTR				Portuguese-Brazil	
 
 STRTABLE_ID				SE_VPN_20121007
 
 
 # Strings for Japanese version only (not required for other language versions.)
-CM_JAPANESE_ONLY_OLD_STARTUP	%s\\SoftEther VPN Client 2.0 ??????.lnk
-
+CM_JAPANESE_ONLY_OLD_STARTUP	%s\\SoftEther VPN Client 2.0 タスクトレイ.lnk
 
 # Software information	
 PRODUCT_NAME_VPN_CLI	Edição de desenvolvedor do SoftEther VPN Cliente
