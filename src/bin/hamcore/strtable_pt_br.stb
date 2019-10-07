@@ -1310,9 +1310,9 @@ SM_FMINFO_WEIGHT	Performance Standard Ratio
 SM_FMINFO_NUM_PORT	Number of Public Ports
 SM_FMINFO_PORT	Public Port #%u (TCP/IP)
 SM_FMINFO_NUM_HUB	Number of Running Virtual Hubs
-SM_FMINFO_HUB	Hub Virtual '%S'
+SM_FMINFO_HUB	Hub Virtual #%u
 SM_FMINFO_HUB_TAG_1	%S (Dinâmico)
-SM_FMINFO_HUB_TAG_2	%S (estático)
+SM_FMINFO_HUB_TAG_2	%S (Estático)
 SM_FMINFO_NUM_SESSION	Número de sessões
 SM_FMINFO_NUN_CONNECTION	Número de conexões TCP
 SM_FMINFO_CAPTION	Cluster Member Server Status
@@ -1648,7 +1648,7 @@ SM_AZURE_STATUS_CONNECTED	Status: Conectado
 SM_AZURE_STATUS_NOT_CONNECTED	Status: Desconectado
 SM_NO_BRIDGE_NICS	No physical network adapters suitable for Local Bridge were found on the VPN server computer.\r\nIn order to create a Local Bridge, you have to install at least one physical network adapters on the computer.\r\nYou cannot use Wi-Fi adapters or 3G adapters for Local Bridge.\r\nPlease install a physical network adapter which is compatible to wired Ethernet.\r\n\r\nIf a recently-installed network adapter doesn't appear, once reboot the computer.\r\n\r\nIf the Local Bridge cannot be used anyway, you can use ""SecureNAT Function"" instead.\r\n\r\nIf you have a certain reason to use unusual network adapters (i.e. Wi-Fi adapters, 3G adapters or virtual adapters), set the ""ShowAllInterfaces"" variable on the ""LocalBridgeList"" directive to ""true"" and restart the VPN Server. Then such devices will appear on the list. (For advanced Windows users only.)\r\n\r\nIf this error occurs after you upgraded Windows, please re-install SoftEther VPN Server or SoftEther VPN Bridge>
 SM_CERT_MESSAGE	The current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nDo you want to regenerate the server certificate now?
-SM_CERT_MESSAGE_CLI	 
+SM_CERT_MESSAGE_CLI	--- Caution ---\r\n\r\nThe current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nTo regenerate and update the server certificate, execute the "ServerCertRegenerate" command after updating the VPN Server to the latest version.
 SM_CERT_NEED_ROOT	The specified SSL certificate is a sub-certificate which was issued by a CA (Certificate Authority).\r\n\r\nIf you are planning to support either Microsoft SSTP or OpenVPN protocol on this VPN server, you have to install the root certificate and all intermediate certificates (if exists) on this VPN Server.\r\n\r\nTo install these certificates, copy the root certificate and all intermediate certificate files (in the X.509 format) into the ""chain_certs"" subdirectory on the directory which is VPN Server has been installed on.\r\n\r\nIf you don't know how to obtain root and intermediate certificate files for your certificate authority (CA), please refer to the CA's web site or contact technical support staffs of the CA.
 
 
@@ -1890,7 +1890,7 @@ LH_AUTH_PASSWORD	Password authentication
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT	Certificate authentication
 LH_AUTH_TICKET	Ticket authentication
-LH_AUTH_OPENVPN_CERT	
+LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection ""%S"": The authentication method of the user ""%S"" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is ""%S"". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection ""%S"": The authentication method of the user ""%S"" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection ""%S"": The authentication method of the user ""%S"" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
@@ -4022,9 +4022,17 @@ CMD_ABOUT	&Sobre...
 
 
 ###########################################################################	
+
+
 #                                                                         #	
+
+
 # Command prompt string data                                              #	
+
+
 #                                                                         #	
+
+
 ###########################################################################	
 PREFIX	NULL
 
@@ -4205,9 +4213,17 @@ CMD_VPNCMD_TOOLS_CONNECTED	VPN Tools has been launched. By inputting HELP, you c
 
 
 #######################################################	
+
+
 #                                                     #	
+
+
 # Management commands for VPN Server are listed below #	
+
+
 #                                                     #	
+
+
 #######################################################	
 
 
@@ -6135,9 +6151,17 @@ CMD_VpnAzureSetEnable_PROMPT	Enable VPN Azure (yes / no):
 
 
 #######################################################	
+
+
 #                                                     #	
+
+
 # Management commands for VPN Client are listed below #	
+
+
 #                                                     #	
+
+
 #######################################################	
 
 
@@ -6666,9 +6690,17 @@ CMD_RemoteDisable_Args	RemoteDisable
 
 
 ###################################################	
+
+
 #                                                 #	
+
+
 # Commands for VPN Tools are listed below         #	
+
+
 #                                                 #	
+
+
 ###################################################	
 
 
@@ -6827,9 +6859,17 @@ CHECK_PROC_NETWORK	Network system
 
 
 ######################################################	
+
+
 #                                                    #	
+
+
 # Setup Wizard (SW) Strings                          #	
+
+
 #                                                    #	
+
+
 ######################################################	
 SW_TITLE	Assistente de configuração da Edição de Desenvolvedor do SoftEther VPN (Versão %S)
 SW_EXIT_CONFIRM	O processo de instalação do SoftEther VPN ainda não foi concluído.\r\n\r\nDeseja sair da instalação?
@@ -6889,7 +6929,7 @@ SW_NOTICE_VPNBRIDGE_IS_INSTALLED	SoftEther VPN Server is selected as a component
 SW_OS_FAILED	This operating system doesn't support %s.
 SW_LANG_NOT_CHANGED	The language settings of %s were not changed.
 SW_LANG_LIST_LOAD_FAILED	Loading the available language list failed.
-SW_LANG_OK	 
+SW_LANG_OK	The display language of %s has been changed successfully.\r\nIf %s programs are currently running, exit a program and restart it to apply the new display language. If the display language still doesn't effect, reboot Windows.\r\n
 SW_LANG_OK_SERVICE	\r\nThe language of log files which the service program records will be changed to the new language after a reboot.
 SW_LANG_OK_VPNCMGR	\r\nThe display setting of VPN Client Manager will be changed after exit and reboot VPN Client Manager. (Including complete termination from the task tray.)
 SW_CHILD_PROCESS_ERROR	Failed to execute a child process.
@@ -6951,17 +6991,17 @@ SW_RUN_TEXT_VPNCMGR	Iniciar o gerenciador de clientes VPN SoftEther.
 SW_NIC_UNINSTALL	Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
 
 
-# Do not translate this section !!!
-SW_TAG_USERNAME_ENGLISH						\ (User-Mode)
-SW_LINK_NAME_VPNSERVER_SVC					SoftEther VPN Server Developer User-mode Service
-SW_LINK_NAME_VPNBRIDGE_SVC					SoftEther VPN Bridge Developer User-mode Service
-SW_LONG_VPNSERVER							SoftEther VPN Server Developer Edition
-SW_LONG_VPNCLIENT							SoftEther VPN Client Developer Edition
-SW_LONG_VPNBRIDGE							SoftEther VPN Bridge Developer Edition
-SW_LONG_VPNSMGR								SoftEther VPN Server Manager Developer Edition
-SW_LONG_VPNCMGR								SoftEther VPN Client Manager Developer Edition
-SW_LANG_SET_FAILED							Failed to write the new language setting on lang.config file.
-# --- end of "Do not translate this section" ---	
+# Do not translate this section !!!	
+SW_TAG_USERNAME_ENGLISH	\ (User-Mode)
+SW_LINK_NAME_VPNSERVER_SVC	SoftEther VPN Server Developer User-mode Service
+SW_LINK_NAME_VPNBRIDGE_SVC	SoftEther VPN Bridge Developer User-mode Service
+SW_LONG_VPNSERVER	Edição de desenvolvedor do SoftEther VPN Servidor
+SW_LONG_VPNCLIENT	Edição de desenvolvedor do SoftEther VPN Cliente
+SW_LONG_VPNBRIDGE	Edição de desenvolvedor do SoftEther VPN Bridge
+SW_LONG_VPNSMGR	Edição de desenvolvedor do gerenciador SoftEther VPN Servidor
+SW_LONG_VPNCMGR	Edição de desenvolvedor do gerenciador SoftEther VPN Cliente
+SW_LANG_SET_FAILED	Failed to write the new language setting on lang.config file.
+"# --- end of ""Do not translate this section"" ---"	
 
 
 # Shortcuts Filenames	
