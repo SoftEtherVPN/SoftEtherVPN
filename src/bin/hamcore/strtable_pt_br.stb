@@ -888,7 +888,7 @@ CM_ST_TITLE	Connection Status of %s
 CM_ST_COLUMN_1	Item
 CM_ST_COLUMN_2	Status
 CM_NEW_ACCOUNT_NAME_1	Nova conexão VPN
-CM_NEW_ACCOUNT_NAME_2	Nova conexão VPN (&u)
+CM_NEW_ACCOUNT_NAME_2	Nova conexão VPN (%u)
 CM_ACCOUNT_TITLE_1	Propriedades da nova configuração de conexão VPN...
 CM_ACCOUNT_TITLE_2	Propriedade de %s
 CM_SERVER_CERT_1	Certificado &individual
@@ -1657,7 +1657,7 @@ SM_AZURE_STATUS_CONNECTED	Status: Conectado
 SM_AZURE_STATUS_NOT_CONNECTED	Status: Desconectado
 SM_NO_BRIDGE_NICS	No physical network adapters suitable for Local Bridge were found on the VPN server computer.\r\nIn order to create a Local Bridge, you have to install at least one physical network adapters on the computer.\r\nYou cannot use Wi-Fi adapters or 3G adapters for Local Bridge.\r\nPlease install a physical network adapter which is compatible to wired Ethernet.\r\n\r\nIf a recently-installed network adapter doesn't appear, once reboot the computer.\r\n\r\nIf the Local Bridge cannot be used anyway, you can use "SecureNAT Function" instead.\r\n\r\nIf you have a certain reason to use unusual network adapters (i.e. Wi-Fi adapters, 3G adapters or virtual adapters), set the "ShowAllInterfaces" variable on the "LocalBridgeList" directive to "true" and restart the VPN Server. Then such devices will appear on the list. (For advanced Windows users only.)\r\n\r\nIf this error occurs after you upgraded Windows, please re-install SoftEther VPN Server or SoftEther VPN Bridge>
 SM_CERT_MESSAGE	The current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nDo you want to regenerate the server certificate now?
-SM_CERT_MESSAGE_CLI	 
+SM_CERT_MESSAGE_CLI --- Caution ---\r\n\r\nThe current SSL self-signed root certificate on this VPN Server is in the old format.\r\n\r\nSome versions of OpenVPN Connect for Android have a bug to misinterpret SSL certificates in the old format. It might cause the connection problem from OpenVPN Connect for Android to this VPN Server.\r\n\r\nIf you are planning to use OpenVPN Connect for Android as a VPN client, it is recommended to regenerate the SSL server certificate.\r\n\r\nTo regenerate and update the server certificate, execute the "ServerCertRegenerate" command after updating the VPN Server to the latest version.
 SM_CERT_NEED_ROOT	The specified SSL certificate is a sub-certificate which was issued by a CA (Certificate Authority).\r\n\r\nIf you are planning to support either Microsoft SSTP or OpenVPN protocol on this VPN server, you have to install the root certificate and all intermediate certificates (if exists) on this VPN Server.\r\n\r\nTo install these certificates, copy the root certificate and all intermediate certificate files (in the X.509 format) into the "chain_certs" subdirectory on the directory which is VPN Server has been installed on.\r\n\r\nIf you don't know how to obtain root and intermediate certificate files for your certificate authority (CA), please refer to the CA's web site or contact technical support staffs of the CA.
 
 
@@ -1899,7 +1899,7 @@ LH_AUTH_PASSWORD	Senha
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT	Certificate authentication
 LH_AUTH_TICKET	Ticket authentication
-LH_AUTH_OPENVPN_CERT
+LH_AUTH_OPENVPN_CERT  OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
