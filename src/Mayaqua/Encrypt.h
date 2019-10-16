@@ -432,7 +432,6 @@ MD *NewMdEx(char *name, bool hmac);
 bool SetMdKey(MD *md, void *key, UINT key_size);
 UINT MdProcess(MD *md, void *dest, void *src, UINT size);
 void FreeMd(MD *md);
-void HashMd4(void *dst, void *src, UINT size);
 void HashSha1(void *dst, void *src, UINT size);
 void Md5(void *dst, void *src, UINT size);
 void Sha(UINT sha_type, void *dst, void *src, UINT size);
