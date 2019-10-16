@@ -29,7 +29,6 @@
 #include <openssl/pkcs12.h>
 #include <openssl/rc4.h>
 #include <openssl/md5.h>
-#include <openssl/md4.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <openssl/des.h>
@@ -167,18 +166,6 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 
 	memset (out2, 0, olen);
 	Free(out2);
-}
-
-// MD4 specific hash function
-void HashMd4(void *dst, void *src, UINT size)
-{
-	// Validate arguments
-	if (dst == NULL || (src == NULL && size != 0))
-	{
-		return;
-	}
-
-	MD4(src, size, dst);
 }
 
 // MD5 hash
