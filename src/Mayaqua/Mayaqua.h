@@ -9,6 +9,7 @@
 #define	MAYAQUA_H
 
 #include <stddef.h>
+#include <stdio.h>
 
 // PenCore.dll related
 #define	PENCORE_DLL_NAME		"|PenCore.dll"
