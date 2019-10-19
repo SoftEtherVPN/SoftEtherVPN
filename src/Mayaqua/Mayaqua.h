@@ -273,6 +273,9 @@ int iconv_close (iconv_t __cd);
 // TCP/IP
 #include <Mayaqua/TcpIp.h>
 
+// HTTP
+#include <Mayaqua/HTTP.h>
+
 // 64 bit real-time clock
 #include <Mayaqua/Tick64.h>
 
