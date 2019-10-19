@@ -19948,6 +19948,10 @@ void FlushTubeFlushList(TUBE_FLUSH_LIST *f)
 // The server receives a PACK from the client
 PACK *HttpServerRecv(SOCK *s)
 {
+	return HttpServerRecvEx(s, 0);
+}
+PACK *HttpServerRecvEx(SOCK *s, UINT max_data_size)
+{
 	BUF *b;
 	PACK *p;
 	HTTP_HEADER *h;
@@ -19955,6 +19959,7 @@ PACK *HttpServerRecv(SOCK *s)
 	UCHAR *tmp;
 	HTTP_VALUE *v;
 	UINT num_noop = 0;
+	if (max_data_size == 0) max_data_size = HTTP_PACK_MAX_SIZE;
 	// Validate arguments
 	if (s == NULL)
 	{
@@ -19985,7 +19990,7 @@ START:
 	}
 
 	size = GetContentLength(h);
-	if (size == 0 || size > HTTP_PACK_MAX_SIZE)
+	if (size == 0 || (size > max_data_size))
 	{
 		FreeHttpHeader(h);
 		goto BAD_REQUEST;

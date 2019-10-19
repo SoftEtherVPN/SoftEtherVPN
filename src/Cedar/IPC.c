@@ -217,7 +217,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 		param->UserName, param->Password, error_code, &param->ClientIp,
 		param->ClientPort, &param->ServerIp, param->ServerPort,
 		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss, NULL, param->ClientCertificate);
+		param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->Layer);
 
 	return ipc;
 }
@@ -226,7 +226,8 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate)
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
+			UINT layer)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -273,6 +274,12 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	ipc->Cedar = cedar;
 	AddRef(cedar->ref);
+
+	ipc->Layer = layer;
+	if (ipc->Layer == 0)
+	{
+		ipc->Layer = IPC_LAYER_2;
+	}
 
 	ipc->FlushList = NewTubeFlushList();
 
@@ -368,6 +375,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	PackAddStr(p, "inproc_postfix", postfix);
 	PackAddStr(p, "inproc_cryptname", crypt_name);
+	PackAddInt(p, "inproc_layer", ipc->Layer);
 
 	// Node information
 	Zero(&info, sizeof(info));

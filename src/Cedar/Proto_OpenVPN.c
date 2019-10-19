@@ -1071,6 +1071,8 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 			}
 		}
 
+		p.Layer = (se->Mode == OPENVPN_MODE_L2) ? IPC_LAYER_2 : IPC_LAYER_3;
+
 		// Calculate the MSS
 		p.Mss = OvsCalcTcpMss(s, se, c);
 		Debug("MSS=%u\n", p.Mss);

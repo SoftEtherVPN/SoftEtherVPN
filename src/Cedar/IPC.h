@@ -21,6 +21,9 @@
 
 #define	IPC_PASSWORD_MSCHAPV2_TAG		"xH7DiNlurDhcYV4a:"
 
+#define IPC_LAYER_2						2
+#define IPC_LAYER_3						3
+
 // ARP table entry
 struct IPC_ARP
 {
@@ -58,6 +61,7 @@ struct IPC_PARAM
 	UINT Mss;
 	bool IsL3Mode;
 	X *ClientCertificate;
+	UINT Layer;
 };
 
 // IPC_ASYNC object
@@ -102,6 +106,7 @@ struct IPC
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
+	UINT Layer;
 };
 
 // MS-CHAPv2 authentication information
@@ -117,7 +122,8 @@ struct IPC_MSCHAP_V2_AUTHINFO
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
 			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
 			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate);
+			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
+			UINT layer);
 IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code);
 IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address);
 void FreeIPC(IPC *ipc);

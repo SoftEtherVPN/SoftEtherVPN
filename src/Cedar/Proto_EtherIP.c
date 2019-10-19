@@ -64,7 +64,7 @@ void EtherIPIpcConnectThread(THREAD *t, void *p)
 			&s->ClientIP, s->ClientPort,
 			&s->ServerIP, s->ServerPort,
 			tmp,
-			s->CryptName, true, mss, NULL, NULL);
+			s->CryptName, true, mss, NULL, NULL, IPC_LAYER_2);
 
 		if (ipc != NULL)
 		{

@@ -8,6 +8,8 @@
 #ifndef	ACCOUNT_H
 #define	ACCOUNT_H
 
+#define	USER_MAC_STR_PREFIX		L"MAC:"
+
 // Policy item
 struct POLICY_ITEM
 {
@@ -202,6 +204,7 @@ char *PolicyIdToStr(UINT i);
 POLICY_ITEM *GetPolicyItem(UINT id);
 void GetPolicyValueRangeStr(wchar_t *str, UINT size, UINT id);
 void FormatPolicyValue(wchar_t *str, UINT size, UINT id, UINT value);
+bool GetUserMacAddressFromUserNote(UCHAR *mac, wchar_t *note);
 
 #endif	// ACCOUNT_H
 

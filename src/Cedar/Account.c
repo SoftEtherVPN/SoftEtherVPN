@@ -1272,3 +1272,49 @@ int CompareUserName(void *p1, void *p2)
 	return StrCmpi(u1->Name, u2->Name);
 }
 
+// Get the MAC address from the user's note string
+bool GetUserMacAddressFromUserNote(UCHAR *mac, wchar_t *note)
+{
+	bool ret = false;
+	UINT i;
+
+	Zero(mac, 6);
+	if (mac == NULL || note == NULL)
+	{
+		return false;
+	}
+
+	i = UniSearchStrEx(note, USER_MAC_STR_PREFIX, 0, false);
+	if (i != INFINITE)
+	{
+		wchar_t *macstr_start = &note[i + UniStrLen(USER_MAC_STR_PREFIX)];
+		wchar_t macstr2[MAX_SIZE];
+		UNI_TOKEN_LIST *tokens;
+
+		UniStrCpy(macstr2, sizeof(macstr2), macstr_start);
+
+		UniTrim(macstr2);
+
+		tokens = UniParseToken(macstr2, L" ,/()[].");
+		if (tokens != NULL)
+		{
+			if (tokens->NumTokens >= 1)
+			{
+				wchar_t *macstr = tokens->Token[0];
+
+				if (UniIsEmptyStr(macstr) == false)
+				{
+					char macstr_a[MAX_SIZE];
+
+					UniToStr(macstr_a, sizeof(macstr_a), macstr);
+
+					ret = StrToMac(mac, macstr_a);
+				}
+			}
+
+			UniFreeToken(tokens);
+		}
+	}
+
+	return ret;
+}

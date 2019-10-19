@@ -207,6 +207,7 @@ struct CONNECTION
 	void *hWndForUI;				// Parent window
 	bool IsInProc;					// In-process
 	char InProcPrefix[64];			// Prefix
+	UINT InProcLayer;				// InProc layer
 	UINT AdditionalConnectionFailedCounter;		// Additional connection failure counter
 	UINT64 LastCounterResetTick;	// Time the counter was reset finally
 	bool WasSstp;					// Processed the SSTP
