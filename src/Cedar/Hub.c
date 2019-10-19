@@ -62,7 +62,7 @@ UINT num_admin_options = sizeof(admin_options) / sizeof(ADMIN_OPTION);
 
 
 // Create an EAP client for the specified Virtual Hub
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username)
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str)
 {
 	HUB *hub = NULL;
 	EAP_CLIENT *ret = NULL;
@@ -112,6 +112,11 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 
 							if (eap != NULL)
 							{
+								if (IsEmptyStr(vpn_protocol_state_str) == false)
+								{
+									StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), vpn_protocol_state_str);
+								}
+
 								if (use_peap == false)
 								{
 									// EAP

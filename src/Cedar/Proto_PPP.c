@@ -202,7 +202,7 @@ void PPPThread(THREAD *thread, void *param)
 
 						IPToStr(client_ip_tmp, sizeof(client_ip_tmp), &p->ClientIP);
 
-						eap = HubNewEapClient(p->Cedar, hub, client_ip_tmp, id);
+						eap = HubNewEapClient(p->Cedar, hub, client_ip_tmp, id, "L3:PPP");
 
 						if (eap)
 						{
@@ -913,7 +913,8 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 					// Attempt to connect with IPC
 					ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 						&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL);
+						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL,
+						IPC_LAYER_3);
 
 					if (ipc != NULL)
 					{
@@ -1046,7 +1047,8 @@ PPP_PACKET *PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *req)
 
 								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
 									&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL);
+									p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL,
+									IPC_LAYER_3);
 
 								if (ipc != NULL)
 								{

@@ -1788,6 +1788,7 @@ bool ServerAccept(CONNECTION *c)
 	UINT authtype;
 	POLICY *policy;
 	UINT assigned_vlan_id = 0;
+	UCHAR assigned_ipc_mac_address[6];
 	HUB *hub;
 	SESSION *s = NULL;
 	UINT64 user_expires = 0;
@@ -1855,6 +1856,8 @@ bool ServerAccept(CONNECTION *c)
 	GenerateMachineUniqueHash(unique2);
 
 	Zero(ctoken_hash_str, sizeof(ctoken_hash_str));
+
+	Zero(assigned_ipc_mac_address, sizeof(assigned_ipc_mac_address));
 
 	Zero(mschap_v2_server_response_20, sizeof(mschap_v2_server_response_20));
 
@@ -2190,6 +2193,7 @@ bool ServerAccept(CONNECTION *c)
 				PackGetStr(p, "inproc_postfix", c->InProcPrefix, sizeof(c->InProcPrefix));
 				Zero(tmp, sizeof(tmp));
 				PackGetStr(p, "inproc_cryptname", tmp, sizeof(tmp));
+				c->InProcLayer = PackGetInt(p, "inproc_layer");
 
 				if (c->FirstSock != NULL)
 				{
@@ -2214,6 +2218,9 @@ bool ServerAccept(CONNECTION *c)
 				}
 
 				use_udp_acceleration_client = false;
+
+				Format(radius_login_opt.In_VpnProtocolState, sizeof(radius_login_opt.In_VpnProtocolState),
+					"L%u:%s", c->InProcLayer, c->InProcPrefix);
 			}
 			else
 			{
@@ -2227,6 +2234,9 @@ bool ServerAccept(CONNECTION *c)
 				{
 					c->CipherName = CopyStr(c->FirstSock->CipherName);
 				}
+
+				Format(radius_login_opt.In_VpnProtocolState, sizeof(radius_login_opt.In_VpnProtocolState),
+					"L%u:%s", IPC_LAYER_2, "SEVPN");
 			}
 
 			if (support_bulk_on_rudp && c->FirstSock != NULL && c->FirstSock->IsRUDPSocket &&
@@ -2784,11 +2794,19 @@ bool ServerAccept(CONNECTION *c)
 				}
 			}
 
+			// Check the assigned MAC Address
+			if (radius_login_opt.Out_IsRadiusLogin)
+			{
+				Copy(assigned_ipc_mac_address, radius_login_opt.Out_VirtualMacAddress, 6);
+			}
+
 			if (StrCmpi(username, ADMINISTRATOR_USERNAME) != 0)
 			{
 				// Get the policy
 				if (farm_member == false)
 				{
+					bool is_asterisk_user = false;
+
 					// In the case of not a farm member
 					user = AcGetUser(hub, username);
 					if (user == NULL)
@@ -2803,12 +2821,29 @@ bool ServerAccept(CONNECTION *c)
 							error_detail = "AcGetUser";
 							goto CLEANUP;
 						}
+
+						is_asterisk_user = true;
 					}
 
 					policy = NULL;
 
 					Lock(user->lock);
 					{
+						if (is_asterisk_user == false)
+						{
+							UCHAR associated_mac_address[6];
+
+							// Get the associated virtual MAC address
+							if (GetUserMacAddressFromUserNote(associated_mac_address, user->Note))
+							{
+								if (IsZero(assigned_ipc_mac_address, 6))
+								{
+									WHERE;
+									Copy(assigned_ipc_mac_address, associated_mac_address, 6);
+								}
+							}
+						}
+
 						// Get the expiration date
 						user_expires = user->ExpireTime;
 
@@ -3478,7 +3513,8 @@ bool ServerAccept(CONNECTION *c)
 
 			// Create a Session
 			StrLower(username);
-			s = NewServerSessionEx(c->Cedar, c, hub, username, policy, c->IsInProc);
+			s = NewServerSessionEx(c->Cedar, c, hub, username, policy, c->IsInProc,
+				(c->IsInProc && IsZero(assigned_ipc_mac_address, 6) == false) ? assigned_ipc_mac_address : NULL);
 
 			s->EnableUdpRecovery = enable_udp_recovery;
 			s->LocalHostSession = local_host_session;

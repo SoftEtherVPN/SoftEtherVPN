@@ -969,6 +969,7 @@ bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);
 bool HttpServerSend(SOCK *s, PACK *p);
 bool HttpClientSend(SOCK *s, PACK *p);
 PACK *HttpServerRecv(SOCK *s);
+PACK *HttpServerRecvEx(SOCK *s, UINT max_data_size);
 PACK *HttpClientRecv(SOCK *s);
 
 bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT timeout, bool *cancel, char *dns_proxy_hostname);

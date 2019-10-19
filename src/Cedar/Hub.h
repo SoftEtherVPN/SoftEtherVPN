@@ -532,7 +532,7 @@ bool IsUserMatchInUserList(LIST *o, char *filename, UINT64 user_hash);
 bool IsUserMatchInUserListWithCacheExpires(LIST *o, char *filename, UINT64 user_hash, UINT64 lifetime);
 bool IsUserMatchInUserListWithCacheExpiresAcl(LIST *o, char *name_in_acl, UINT64 user_hash, UINT64 lifetime);
 bool CheckMaxLoggedPacketsPerMinute(SESSION *s, UINT max_packets, UINT64 now);
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username);
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str);
 
 #endif	// HUB_H
 

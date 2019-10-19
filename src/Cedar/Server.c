@@ -10099,12 +10099,17 @@ void SiFarmServMain(SERVER *server, SOCK *sock, FARM_MEMBER *f)
 				}
 
 				// Receive
-				p = HttpServerRecv(sock);
+				p = HttpServerRecvEx(sock, FIRM_SERV_RECV_PACK_MAX_SIZE);
 
 				t->Response = p;
 				Set(t->CompleteEvent);
 
-				send_noop = false;
+				if (p == NULL)
+				{
+					// Avoid infinite loop
+					Disconnect(sock);
+					goto DISCONNECTED;
+				}
 			}
 		}
 		while (t != NULL);
