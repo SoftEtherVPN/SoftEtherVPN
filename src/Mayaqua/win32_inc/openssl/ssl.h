@@ -1,5 +1,5 @@
 /*
- * Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
  * Copyright (c) 2002, Oracle and/or its affiliates. All rights reserved
  * Copyright 2005 Nokia. All rights reserved.
  *
@@ -493,6 +493,19 @@ typedef int (*SSL_verify_cb)(int preverify_ok, X509_STORE_CTX *x509_ctx);
  * Support Asynchronous operation
  */
 # define SSL_MODE_ASYNC 0x00000100U
+
+/*
+ * When using DTLS/SCTP, include the terminating zero in the label
+ * used for computing the endpoint-pair shared secret. Required for
+ * interoperability with implementations having this bug like these
+ * older version of OpenSSL:
+ * - OpenSSL 1.0.0 series
+ * - OpenSSL 1.0.1 series
+ * - OpenSSL 1.0.2 series
+ * - OpenSSL 1.1.0 series
+ * - OpenSSL 1.1.1 and 1.1.1a
+ */
+# define SSL_MODE_DTLS_SCTP_LABEL_LENGTH_BUG 0x00000400U
 
 /* Cert related flags */
 /*
@@ -1271,7 +1284,7 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 # define SSL_CTRL_SET_VERIFY_CERT_STORE          106
 # define SSL_CTRL_SET_CHAIN_CERT_STORE           107
 # define SSL_CTRL_GET_PEER_SIGNATURE_NID         108
-# define SSL_CTRL_GET_SERVER_TMP_KEY             109
+# define SSL_CTRL_GET_PEER_TMP_KEY               109
 # define SSL_CTRL_GET_RAW_CIPHERLIST             110
 # define SSL_CTRL_GET_EC_POINT_FORMATS           111
 # define SSL_CTRL_GET_CHAIN_CERTS                115
@@ -1290,6 +1303,8 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 # define SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG   129
 # define SSL_CTRL_GET_MIN_PROTO_VERSION          130
 # define SSL_CTRL_GET_MAX_PROTO_VERSION          131
+# define SSL_CTRL_GET_SIGNATURE_NID              132
+# define SSL_CTRL_GET_TMP_KEY                    133
 # define SSL_CERT_SET_FIRST                      1
 # define SSL_CERT_SET_NEXT                       2
 # define SSL_CERT_SET_SERVER                     3
@@ -1349,24 +1364,24 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CHAIN_CERT_STORE,0,(char *)(st))
 # define SSL_CTX_set1_chain_cert_store(ctx,st) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CHAIN_CERT_STORE,1,(char *)(st))
-# define SSL_set0_chain(ctx,sk) \
-        SSL_ctrl(ctx,SSL_CTRL_CHAIN,0,(char *)(sk))
-# define SSL_set1_chain(ctx,sk) \
-        SSL_ctrl(ctx,SSL_CTRL_CHAIN,1,(char *)(sk))
-# define SSL_add0_chain_cert(ctx,x509) \
-        SSL_ctrl(ctx,SSL_CTRL_CHAIN_CERT,0,(char *)(x509))
-# define SSL_add1_chain_cert(ctx,x509) \
-        SSL_ctrl(ctx,SSL_CTRL_CHAIN_CERT,1,(char *)(x509))
-# define SSL_get0_chain_certs(ctx,px509) \
-        SSL_ctrl(ctx,SSL_CTRL_GET_CHAIN_CERTS,0,px509)
-# define SSL_clear_chain_certs(ctx) \
-        SSL_set0_chain(ctx,NULL)
+# define SSL_set0_chain(s,sk) \
+        SSL_ctrl(s,SSL_CTRL_CHAIN,0,(char *)(sk))
+# define SSL_set1_chain(s,sk) \
+        SSL_ctrl(s,SSL_CTRL_CHAIN,1,(char *)(sk))
+# define SSL_add0_chain_cert(s,x509) \
+        SSL_ctrl(s,SSL_CTRL_CHAIN_CERT,0,(char *)(x509))
+# define SSL_add1_chain_cert(s,x509) \
+        SSL_ctrl(s,SSL_CTRL_CHAIN_CERT,1,(char *)(x509))
+# define SSL_get0_chain_certs(s,px509) \
+        SSL_ctrl(s,SSL_CTRL_GET_CHAIN_CERTS,0,px509)
+# define SSL_clear_chain_certs(s) \
+        SSL_set0_chain(s,NULL)
 # define SSL_build_cert_chain(s, flags) \
         SSL_ctrl(s,SSL_CTRL_BUILD_CERT_CHAIN, flags, NULL)
-# define SSL_select_current_cert(ctx,x509) \
-        SSL_ctrl(ctx,SSL_CTRL_SELECT_CURRENT_CERT,0,(char *)(x509))
-# define SSL_set_current_cert(ctx,op) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_CURRENT_CERT, op, NULL)
+# define SSL_select_current_cert(s,x509) \
+        SSL_ctrl(s,SSL_CTRL_SELECT_CURRENT_CERT,0,(char *)(x509))
+# define SSL_set_current_cert(s,op) \
+        SSL_ctrl(s,SSL_CTRL_SET_CURRENT_CERT, op, NULL)
 # define SSL_set0_verify_cert_store(s,st) \
         SSL_ctrl(s,SSL_CTRL_SET_VERIFY_CERT_STORE,0,(char *)(st))
 # define SSL_set1_verify_cert_store(s,st) \
@@ -1375,34 +1390,34 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
         SSL_ctrl(s,SSL_CTRL_SET_CHAIN_CERT_STORE,0,(char *)(st))
 # define SSL_set1_chain_cert_store(s,st) \
         SSL_ctrl(s,SSL_CTRL_SET_CHAIN_CERT_STORE,1,(char *)(st))
-# define SSL_get1_groups(ctx, s) \
-        SSL_ctrl(ctx,SSL_CTRL_GET_GROUPS,0,(char *)(s))
+# define SSL_get1_groups(s, glist) \
+        SSL_ctrl(s,SSL_CTRL_GET_GROUPS,0,(int*)(glist))
 # define SSL_CTX_set1_groups(ctx, glist, glistlen) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_GROUPS,glistlen,(char *)(glist))
 # define SSL_CTX_set1_groups_list(ctx, s) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_GROUPS_LIST,0,(char *)(s))
-# define SSL_set1_groups(ctx, glist, glistlen) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_GROUPS,glistlen,(char *)(glist))
-# define SSL_set1_groups_list(ctx, s) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_GROUPS_LIST,0,(char *)(s))
+# define SSL_set1_groups(s, glist, glistlen) \
+        SSL_ctrl(s,SSL_CTRL_SET_GROUPS,glistlen,(char *)(glist))
+# define SSL_set1_groups_list(s, str) \
+        SSL_ctrl(s,SSL_CTRL_SET_GROUPS_LIST,0,(char *)(str))
 # define SSL_get_shared_group(s, n) \
         SSL_ctrl(s,SSL_CTRL_GET_SHARED_GROUP,n,NULL)
 # define SSL_CTX_set1_sigalgs(ctx, slist, slistlen) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SIGALGS,slistlen,(int *)(slist))
 # define SSL_CTX_set1_sigalgs_list(ctx, s) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SIGALGS_LIST,0,(char *)(s))
-# define SSL_set1_sigalgs(ctx, slist, slistlen) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_SIGALGS,slistlen,(int *)(slist))
-# define SSL_set1_sigalgs_list(ctx, s) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_SIGALGS_LIST,0,(char *)(s))
+# define SSL_set1_sigalgs(s, slist, slistlen) \
+        SSL_ctrl(s,SSL_CTRL_SET_SIGALGS,slistlen,(int *)(slist))
+# define SSL_set1_sigalgs_list(s, str) \
+        SSL_ctrl(s,SSL_CTRL_SET_SIGALGS_LIST,0,(char *)(str))
 # define SSL_CTX_set1_client_sigalgs(ctx, slist, slistlen) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS,slistlen,(int *)(slist))
 # define SSL_CTX_set1_client_sigalgs_list(ctx, s) \
         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS_LIST,0,(char *)(s))
-# define SSL_set1_client_sigalgs(ctx, slist, slistlen) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS,clistlen,(int *)(slist))
-# define SSL_set1_client_sigalgs_list(ctx, s) \
-        SSL_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS_LIST,0,(char *)(s))
+# define SSL_set1_client_sigalgs(s, slist, slistlen) \
+        SSL_ctrl(s,SSL_CTRL_SET_CLIENT_SIGALGS,slistlen,(int *)(slist))
+# define SSL_set1_client_sigalgs_list(s, str) \
+        SSL_ctrl(s,SSL_CTRL_SET_CLIENT_SIGALGS_LIST,0,(char *)(str))
 # define SSL_get0_certificate_types(s, clist) \
         SSL_ctrl(s, SSL_CTRL_GET_CLIENT_CERT_TYPES, 0, (char *)(clist))
 # define SSL_CTX_set1_client_certificate_types(ctx, clist, clistlen) \
@@ -1410,10 +1425,14 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
                      (char *)(clist))
 # define SSL_set1_client_certificate_types(s, clist, clistlen) \
         SSL_ctrl(s,SSL_CTRL_SET_CLIENT_CERT_TYPES,clistlen,(char *)(clist))
+# define SSL_get_signature_nid(s, pn) \
+        SSL_ctrl(s,SSL_CTRL_GET_SIGNATURE_NID,0,pn)
 # define SSL_get_peer_signature_nid(s, pn) \
         SSL_ctrl(s,SSL_CTRL_GET_PEER_SIGNATURE_NID,0,pn)
-# define SSL_get_server_tmp_key(s, pk) \
-        SSL_ctrl(s,SSL_CTRL_GET_SERVER_TMP_KEY,0,pk)
+# define SSL_get_peer_tmp_key(s, pk) \
+        SSL_ctrl(s,SSL_CTRL_GET_PEER_TMP_KEY,0,pk)
+# define SSL_get_tmp_key(s, pk) \
+        SSL_ctrl(s,SSL_CTRL_GET_TMP_KEY,0,pk)
 # define SSL_get0_raw_cipherlist(s, plst) \
         SSL_ctrl(s,SSL_CTRL_GET_RAW_CIPHERLIST,0,plst)
 # define SSL_get0_ec_point_formats(s, plst) \
@@ -1434,6 +1453,12 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
         SSL_ctrl(s, SSL_CTRL_GET_MIN_PROTO_VERSION, 0, NULL)
 # define SSL_get_max_proto_version(s) \
         SSL_ctrl(s, SSL_CTRL_GET_MAX_PROTO_VERSION, 0, NULL)
+
+/* Backwards compatibility, original 1.1.0 names */
+# define SSL_CTRL_GET_SERVER_TMP_KEY \
+         SSL_CTRL_GET_PEER_TMP_KEY
+# define SSL_get_server_tmp_key(s, pk) \
+         SSL_get_peer_tmp_key(s, pk)
 
 /*
  * The following symbol names are old and obsolete. They are kept
@@ -1892,17 +1917,17 @@ __owur STACK_OF(SSL_CIPHER) *SSL_get1_supported_ciphers(SSL *s);
 
 __owur int SSL_do_handshake(SSL *s);
 int SSL_key_update(SSL *s, int updatetype);
-int SSL_get_key_update_type(SSL *s);
+int SSL_get_key_update_type(const SSL *s);
 int SSL_renegotiate(SSL *s);
 int SSL_renegotiate_abbreviated(SSL *s);
-__owur int SSL_renegotiate_pending(SSL *s);
+__owur int SSL_renegotiate_pending(const SSL *s);
 int SSL_shutdown(SSL *s);
 __owur int SSL_verify_client_post_handshake(SSL *s);
 void SSL_CTX_set_post_handshake_auth(SSL_CTX *ctx, int val);
 void SSL_set_post_handshake_auth(SSL *s, int val);
 
-__owur const SSL_METHOD *SSL_CTX_get_ssl_method(SSL_CTX *ctx);
-__owur const SSL_METHOD *SSL_get_ssl_method(SSL *s);
+__owur const SSL_METHOD *SSL_CTX_get_ssl_method(const SSL_CTX *ctx);
+__owur const SSL_METHOD *SSL_get_ssl_method(const SSL *s);
 __owur int SSL_set_ssl_method(SSL *s, const SSL_METHOD *method);
 __owur const char *SSL_alert_type_string_long(int value);
 __owur const char *SSL_alert_type_string(int value);
@@ -2050,8 +2075,8 @@ void SSL_set_tmp_dh_callback(SSL *ssl,
                                         int keylength));
 # endif
 
-__owur const COMP_METHOD *SSL_get_current_compression(SSL *s);
-__owur const COMP_METHOD *SSL_get_current_expansion(SSL *s);
+__owur const COMP_METHOD *SSL_get_current_compression(const SSL *s);
+__owur const COMP_METHOD *SSL_get_current_expansion(const SSL *s);
 __owur const char *SSL_COMP_get_name(const COMP_METHOD *comp);
 __owur const char *SSL_COMP_get0_name(const SSL_COMP *comp);
 __owur int SSL_COMP_get_id(const SSL_COMP *comp);
@@ -2095,26 +2120,26 @@ void SSL_CTX_set_record_padding_callback(SSL_CTX *ctx,
                                          size_t (*cb) (SSL *ssl, int type,
                                                        size_t len, void *arg));
 void SSL_CTX_set_record_padding_callback_arg(SSL_CTX *ctx, void *arg);
-void *SSL_CTX_get_record_padding_callback_arg(SSL_CTX *ctx);
+void *SSL_CTX_get_record_padding_callback_arg(const SSL_CTX *ctx);
 int SSL_CTX_set_block_padding(SSL_CTX *ctx, size_t block_size);
 
 void SSL_set_record_padding_callback(SSL *ssl,
                                     size_t (*cb) (SSL *ssl, int type,
                                                   size_t len, void *arg));
 void SSL_set_record_padding_callback_arg(SSL *ssl, void *arg);
-void *SSL_get_record_padding_callback_arg(SSL *ssl);
+void *SSL_get_record_padding_callback_arg(const SSL *ssl);
 int SSL_set_block_padding(SSL *ssl, size_t block_size);
 
 int SSL_set_num_tickets(SSL *s, size_t num_tickets);
-size_t SSL_get_num_tickets(SSL *s);
+size_t SSL_get_num_tickets(const SSL *s);
 int SSL_CTX_set_num_tickets(SSL_CTX *ctx, size_t num_tickets);
-size_t SSL_CTX_get_num_tickets(SSL_CTX *ctx);
+size_t SSL_CTX_get_num_tickets(const SSL_CTX *ctx);
 
 # if OPENSSL_API_COMPAT < 0x10100000L
 #  define SSL_cache_hit(s) SSL_session_reused(s)
 # endif
 
-__owur int SSL_session_reused(SSL *s);
+__owur int SSL_session_reused(const SSL *s);
 __owur int SSL_is_server(const SSL *s);
 
 __owur __owur SSL_CONF_CTX *SSL_CONF_CTX_new(void);

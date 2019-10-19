@@ -1,5 +1,5 @@
 /*
- * Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
  *
  * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -260,6 +260,8 @@ int (*EVP_CIPHER_meth_get_ctrl(const EVP_CIPHER *cipher))(EVP_CIPHER_CTX *,
 # define         EVP_CIPH_RAND_KEY               0x200
 /* cipher has its own additional copying logic */
 # define         EVP_CIPH_CUSTOM_COPY            0x400
+/* Don't use standard iv length function */
+# define         EVP_CIPH_CUSTOM_IV_LENGTH       0x800
 /* Allow use default ASN1 get/set iv */
 # define         EVP_CIPH_FLAG_DEFAULT_ASN1      0x1000
 /* Buffer length in bits not bytes: CFB1 mode only */
@@ -348,6 +350,8 @@ int (*EVP_CIPHER_meth_get_ctrl(const EVP_CIPHER *cipher))(EVP_CIPHER_CTX *,
 # define         EVP_CTRL_SET_PIPELINE_INPUT_BUFS        0x23
 /* Set the input buffer lengths to use for a pipelined operation */
 # define         EVP_CTRL_SET_PIPELINE_INPUT_LENS        0x24
+
+# define         EVP_CTRL_GET_IVLEN                      0x25
 
 /* Padding modes */
 #define EVP_PADDING_PKCS7       1
@@ -945,14 +949,9 @@ const EVP_CIPHER *EVP_sm4_ctr(void);
                         | OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
 
 #  ifdef OPENSSL_LOAD_CONF
-#   define OpenSSL_add_all_algorithms() \
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS \
-                        | OPENSSL_INIT_ADD_ALL_DIGESTS \
-                        | OPENSSL_INIT_LOAD_CONFIG, NULL)
+#   define OpenSSL_add_all_algorithms() OPENSSL_add_all_algorithms_conf()
 #  else
-#   define OpenSSL_add_all_algorithms() \
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS \
-                        | OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
+#   define OpenSSL_add_all_algorithms() OPENSSL_add_all_algorithms_noconf()
 #  endif
 
 #  define OpenSSL_add_all_ciphers() \
@@ -994,12 +993,13 @@ int EVP_PKEY_id(const EVP_PKEY *pkey);
 int EVP_PKEY_base_id(const EVP_PKEY *pkey);
 int EVP_PKEY_bits(const EVP_PKEY *pkey);
 int EVP_PKEY_security_bits(const EVP_PKEY *pkey);
-int EVP_PKEY_size(EVP_PKEY *pkey);
+int EVP_PKEY_size(const EVP_PKEY *pkey);
 int EVP_PKEY_set_type(EVP_PKEY *pkey, int type);
 int EVP_PKEY_set_type_str(EVP_PKEY *pkey, const char *str, int len);
 int EVP_PKEY_set_alias_type(EVP_PKEY *pkey, int type);
 # ifndef OPENSSL_NO_ENGINE
 int EVP_PKEY_set1_engine(EVP_PKEY *pkey, ENGINE *e);
+ENGINE *EVP_PKEY_get0_engine(const EVP_PKEY *pkey);
 # endif
 int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key);
 void *EVP_PKEY_get0(const EVP_PKEY *pkey);
