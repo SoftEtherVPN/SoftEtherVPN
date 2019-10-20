@@ -327,6 +327,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTP.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Internat.c"
 				>
 			</File>
@@ -414,6 +418,10 @@
 			</File>
 			<File
 				RelativePath=".\FileIO.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HTTP.h"
 				>
 			</File>
 			<File

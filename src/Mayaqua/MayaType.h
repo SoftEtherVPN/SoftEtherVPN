@@ -507,7 +507,8 @@ typedef struct DHCP_MODIFY_OPTION DHCP_MODIFY_OPTION;
 typedef struct NBTDG_HEADER NBTDG_HEADER;
 typedef struct IKE_HEADER IKE_HEADER;
 
-
+// HTTP.h
+typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 
 #endif	// MAYATYPE_H
 
