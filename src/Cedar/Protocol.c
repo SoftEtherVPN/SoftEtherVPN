@@ -6056,7 +6056,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 	w.ProxyPort = o->ProxyPort;
 	StrCpy(w.ProxyUsername, sizeof(w.ProxyUsername), o->ProxyUsername);
 	StrCpy(w.ProxyPassword, sizeof(w.ProxyPassword), o->ProxyPassword);
-	StrCpy(w.CustomHttpHeader, sizeof(w.CustomHttpHeader), w.CustomHttpHeader);
+	StrCpy(w.CustomHttpHeader, sizeof(w.CustomHttpHeader), o->CustomHttpHeader);
 
 	switch (o->ProxyType)
 	{
