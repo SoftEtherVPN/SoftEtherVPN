@@ -8,6 +8,7 @@
 #ifndef	MAYAQUA_H
 #define	MAYAQUA_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 
