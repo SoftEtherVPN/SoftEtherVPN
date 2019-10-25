@@ -681,10 +681,12 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p)
 			{
 				// Decrypt
 				size = OvsDecrypt(c->CipherDecrypt, c->MdRecv, c->IvRecv, data, recv_packet->Data, recv_packet->DataSize);
-
-				// Seek buffer after the packet ID
-				data += sizeof(UINT);
-				size -= sizeof(UINT);
+				if (size > sizeof(UINT))
+				{
+					// Seek buffer after the packet ID
+					data += sizeof(UINT);
+					size -= sizeof(UINT);
+				}
 			}
 
 			// Update of last communication time
