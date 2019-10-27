@@ -95,45 +95,42 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 	while (true)
 	{
 		UDPPACKET *packet;
-		UCHAR *packet_ptr;
-		UINT packet_size, total_packet_size;
-		FIFO *recv_fifo = received_data->Data;
-		const UINT data_size = FifoSize(recv_fifo);
+		USHORT payload_size, packet_size;
+		FIFO *fifo = received_data->Data;
+		const UINT fifo_size = FifoSize(fifo);
 
-		if (data_size < sizeof(USHORT))
+		if (fifo_size < sizeof(USHORT))
 		{
-			// Corrupt data
+			// Non-arrival
 			break;
 		}
 
-		packet_size = READ_USHORT(FifoPtr(recv_fifo));
+		// The beginning of a packet contains the data size
+		payload_size = READ_USHORT(FifoPtr(fifo));
+		packet_size = payload_size + sizeof(USHORT);
 
-		if (packet_size == 0 || packet_size > sizeof(buf))
+		if (payload_size == 0 || packet_size > sizeof(buf))
 		{
-			// Invalid packet size
 			ret = false;
+			Debug("OvsProcessData(): Invalid payload size: %u bytes\n", payload_size);
 			break;
 		}
 
-		total_packet_size = packet_size + sizeof(USHORT);
-
-		if (data_size < total_packet_size)
+		if (fifo_size < packet_size)
 		{
-			// Corrupt data
+			// Non-arrival
 			break;
 		}
 
-		if (ReadFifo(recv_fifo, buf, total_packet_size) != total_packet_size)
+		if (ReadFifo(fifo, buf, packet_size) != packet_size)
 		{
-			// Mismatch
 			ret = false;
+			Debug("OvsProcessData(): ReadFifo() failed to read the packet\n");
 			break;
 		}
 
-		// Read one packet and put it in the list
-		packet_ptr = buf + sizeof(USHORT);
-
-		packet = NewUdpPacket(&received_data->SrcIP, received_data->SrcPort, &received_data->DstIP, received_data->DstPort, Clone(packet_ptr, packet_size), packet_size);
+		// Insert packet into the list
+		packet = NewUdpPacket(&received_data->SrcIP, received_data->SrcPort, &received_data->DstIP, received_data->DstPort, Clone(buf + sizeof(USHORT), payload_size), payload_size);
 		packet->Type = OPENVPN_PROTOCOL_TCP;
 		Add(server->RecvPacketList, packet);
 	}
