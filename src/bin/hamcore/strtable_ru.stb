@@ -884,9 +884,9 @@ CM_CERT_SECURE_INFO		Certificate: "%S"\r\nPrivate Key: "%S"
 CM_SELECT_SECURE_DEVICE	Select Smart Card
 CM_SELECT_CERT_INCARD	Specify Cert and Pri&vate Key
 CM_VIEW_CLIENT_CERT		&View Client Certificate
-CM_NO_VLAN				Before you can create a new VPN Connection Setting you need to create a Virtual Network Adapter. \r\n\r\nDo you want to create a Virtual Network Adapter?
-CM_NO_VLAN_2			Before connecting to VPN Server you need to create a Virtual Network Adapter. \r\n\r\nDo you want to create a Virtual Network Adapter?
-CM_VLAN_REMOTE_ERROR	Unable to create a Virtual Network Adapter from a remote location. \r\n\rStart the VPN Client Manager on the local computer on which the VPN Client service is running and install a Virtual Network Adapter.
+CM_NO_VLAN				Прежде чем вы сможете создать новое VPN-подключение, вам нужно создать Виртуальный Сетевой Адаптер. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
+CM_NO_VLAN_2			Перед подключением к VPN-серверу необходимо создать Виртуальный Сетевой Адаптер.. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
+CM_VLAN_REMOTE_ERROR	Невозможно создать Виртуальный Сетевой Адаптер из удаленного местоположения. \r\n\rStart the VPN Client Manager on the local computer on which the VPN Client service is running and install a Virtual Network Adapter.
 CM_9X_VLAN_INSTALL		A new Virtual Network Adapter will now be created. \r\n\r\nAfter a Virtual Network Adapter is created, it is necessary to restart Windows directly afterwards. \r\nWhile the Virtual Network Adapter is being installed, you may be asked to insert the Windows installation CD-ROM. \r\n\r\nClose all currently running applications except the VPN Client Manager, have your Windows installation CD-ROM ready at hand, and click OK. \r\nClicking OK will start the installation of the Virtual Network Adapter. When this is finished, Windows will automatically restart.
 CM_9X_VLAN_ME_MESSAGE	A Virtual Network Adapter has been created. After you click OK, the computer will automatically restart. \r\n\r\nAfter the computer restarts, the Install New Device wizard might appear. \r\nIf the wizard does appear, click Next for each screen until the installation is completed.
 CM_9X_VLAN_UNINSTALL	To delete a Virtual Network Adapter, delete it from Network Properties. \r\n\r\nDo you want to display the Network Properties window?
