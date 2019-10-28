@@ -873,9 +873,9 @@ CM_NEW_ACCOUNT_NAME_1	Новое VPN подключение
 CM_NEW_ACCOUNT_NAME_2	Новое VPN подключение (%u)
 CM_ACCOUNT_TITLE_1		Настройки нового VPN подключения
 CM_ACCOUNT_TITLE_2		Настройки %s
-CM_SERVER_CERT_1		&Использовать личный сертификат
+CM_SERVER_CERT_1		&Исп. личный сертификат
 CM_SERVER_CERT_2		&Удалить сертификат
-CM_CLIENT_CERT_1		Использовать клиентский &сертификат
+CM_CLIENT_CERT_1		Исп. клиентский &сертификат
 CM_CLIENT_CERT_2		Удалить &клиентский сертификат
 CM_CERT_INFO			Issued to: %s\r\nIssuer: %s\r\nExpiration: %s
 CM_NO_CERT				You must specify a client certificate to be used for user authentication.
@@ -2278,52 +2278,52 @@ IDCANCEL				&Close
 
 
 PREFIX					D_CM_ACCOUNT
-STATIC1					Please configure the VPN Connection Setting for VPN Server.
-S_ACCOUNT_NAME			Setting &Name: 
-STATIC2					Destination VPN Server:
-STATIC3					Specify the host name or IP address, and the port number and the Virtual Hub on the destination VPN Server.
-STATIC4					&Host Name:
-STATIC5					&Port Number:
+STATIC1					Пожалуйста, настройте VPN-подключение к VPN-серверу.
+S_ACCOUNT_NAME			Название: 
+STATIC2					Подключение к VPN-серверу:
+STATIC3					Укажите имя хоста или IP-адрес, а также номер порта и Virtual Hub VPN-сервера.
+STATIC4					&Имя хоста:
+STATIC5					&Номер порта:
 STATIC6					(TCP Port)
-STATIC7					&Virtual Hub Name:
-STATIC8					Pro&xy Server as Relay:
-STATIC9					You can connect to a VPN Server via a proxy server.
-STATIC10				Proxy &Type:
-R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
-R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via &SOCKS Proxy Server
-B_PROXY_CONFIG			P&roxy Server Setting
-STATIC11				Server Certificate Veri&fication Option:
-R_CHECK_CERT			Always Verify Server &Certificate
-B_TRUST					Manage Trusted CA &Certificate List
-B_SERVER_CERT			&Specify Individual Cert
-B_VIEW_SERVER_CERT		Show Indi&vidual Cert
-S_VLAN_GROUP			Virtua&l Network Adapter to Use:
-S_POLICY_1				You can configure the security policy which will be applied to the Cascade Connection on this Virtual Hub's side.
-B_POLICY				Security Po&licy
-STATIC12				User &Authentication Setting:
-STATIC13				Auth &Type:
-S_USERNAME				&User Name:
-S_PASSWORD				Password:
-S_CERT_INFO				You must specify a client certificate to be used for user authentication.
-STATIC14				Advanc&ed Setting of Communication: 
-R_RETRY					Reconnects Automatically After Disconnected
-S_RETRY_NUM_1			Reconnect &Count:
-S_RETRY_NUM_2			times
-S_RETRY_SPAN_1			Reconnect Interval:
-S_RETRY_SPAN_2			seconds
-R_INFINITE				&Infinite Reconnects (Keep VPN Always Online)
-B_DETAIL				A&dvanced Settings...
+STATIC7					&Имя Virtual Hub:
+STATIC8					Подключение через прокси-сервер:
+STATIC9					Вы можете подключиться к VPN-серверу через прокси-сервер.
+STATIC10				Тип прокси:
+R_DIRECT_TCP			&Прямое TCP/IP подключение (без прокси)
+R_HTTPS					Подключиться через HTTP прокси-сервер
+R_SOCKS					Подключиться через SOCKS прокси-сервер
+B_PROXY_CONFIG			Настройка прокси-сервера
+STATIC11				Параметры проверки сертификата сервера:
+R_CHECK_CERT			Всегда Проверять Сертификат Сервера
+B_TRUST					Управление доверенными корневыми сертификатами 
+B_SERVER_CERT			Выбрать личный сертификат
+B_VIEW_SERVER_CERT		Показать личный сертификат
+S_VLAN_GROUP			Выбор Виртуального Сетевого Адаптера:
+S_POLICY_1				Вы можете настроить политику безопасности, которая будет применяться к Каскадному подключению на стороне этого Virtual Hub.
+B_POLICY				Политика безопасности
+STATIC12				Настройка авторизации пользователя:
+STATIC13				Тип:
+S_USERNAME				&Имя пользователя:
+S_PASSWORD				Пароль:
+S_CERT_INFO				Вы должны выбрать клиентский сертификат, который будет использоваться для авторизации пользователя.
+STATIC14				Расширенные настройки связи: 
+R_RETRY					Автоматически переподключаться после отключения
+S_RETRY_NUM_1			Кол-во переподключений:
+S_RETRY_NUM_2			
+S_RETRY_SPAN_1			Интервал переподключения:
+S_RETRY_SPAN_2			сек
+R_INFINITE				Бесконечные переподключения (VPN всегда онлайн)
+B_DETAIL				Расширенные настройки...
 IDOK					&OK
-IDCANCEL				Cancel
-B_CHANGE_PASSWORD		Change &Password
-S_CHANGE_PASSWORD		You can change the user's password on the VPN Server.
-R_HIDE					Hide Status and Errors Screens
-R_HIDE2					Hide IP Address Screens
-STATIC15				Set the user authentication information that is required when connecting to the VPN Server.
-B_REGIST_CLIENT_CERT	Specify Client &Certificate
-B_IE					Import I&E Proxy Server Settings
-R_DISABLE_NATT			Disable NAT-T
+IDCANCEL				Отмена
+B_CHANGE_PASSWORD		Изменить пароль
+S_CHANGE_PASSWORD		Вы можете изменить пароль пользователя на VPN-сервере.
+R_HIDE					Скрыть окна со статусом и ошибками
+R_HIDE2					Скрыть окно с IP-адресом
+STATIC15				Укажите все необходимые данные, которые требуются для авторизации пользователя на VPN-сервере.
+B_REGIST_CLIENT_CERT	Выбрать Сертификат Клиента
+B_IE					Импорт настроек прокси-сервера из IE
+R_DISABLE_NATT			Отключить NAT-T
 
 
 PREFIX					D_CM_PROXY
