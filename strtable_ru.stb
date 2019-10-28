@@ -875,29 +875,29 @@ CM_ACCOUNT_TITLE_1		Настройки нового VPN подключения
 CM_ACCOUNT_TITLE_2		Настройки %s
 CM_SERVER_CERT_1		&Исп. личный сертификат
 CM_SERVER_CERT_2		&Удалить сертификат
-CM_CLIENT_CERT_1		Исп. клиентский &сертификат
-CM_CLIENT_CERT_2		Удалить &клиентский сертификат
-CM_CERT_INFO			Issued to: %s\r\nIssuer: %s\r\nExpiration: %s
-CM_NO_CERT				You must specify a client certificate to be used for user authentication.
-CM_NO_SECURE			Specify the client certificate and private key inside the smart card to be used for user authentication.
-CM_CERT_SECURE_INFO		Certificate: "%S"\r\nPrivate Key: "%S"
-CM_SELECT_SECURE_DEVICE	Select Smart Card
-CM_SELECT_CERT_INCARD	Specify Cert and Pri&vate Key
-CM_VIEW_CLIENT_CERT		&View Client Certificate
-CM_NO_VLAN				Прежде чем вы сможете создать новое VPN-подключение, вам нужно создать Виртуальный Сетевой Адаптер. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
+CM_CLIENT_CERT_1		Исп. &сертификат клиента
+CM_CLIENT_CERT_2		Удалить &сертификат клиента 
+CM_CERT_INFO			Кому выдан: %s\r\nКем выдан: %s\r\nИстекает: %s
+CM_NO_CERT				Необходимо выбрать сертификат клиента, который будет использоваться для авторизации пользователя.
+CM_NO_SECURE			Выберите сертификат клиента и приватный ключ внутри смарт-карты, которые будут использоваться для авторизации пользователя.
+CM_CERT_SECURE_INFO		Сертификат: "%S"\r\Приватный ключ: "%S"
+CM_SELECT_SECURE_DEVICE	Выберите смарт-карту
+CM_SELECT_CERT_INCARD	Выберите сертификат и приватный ключ
+CM_VIEW_CLIENT_CERT		&Посмотреть сертификат клиента
+CM_NO_VLAN				Прежде чем вы сможете создать новое VPN подключение, вам нужно создать Виртуальный Сетевой Адаптер. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
 CM_NO_VLAN_2			Перед подключением к VPN-серверу необходимо создать Виртуальный Сетевой Адаптер.. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
-CM_VLAN_REMOTE_ERROR	Невозможно создать Виртуальный Сетевой Адаптер из удаленного местоположения. \r\n\rStart the VPN Client Manager on the local computer on which the VPN Client service is running and install a Virtual Network Adapter.
-CM_9X_VLAN_INSTALL		A new Virtual Network Adapter will now be created. \r\n\r\nAfter a Virtual Network Adapter is created, it is necessary to restart Windows directly afterwards. \r\nWhile the Virtual Network Adapter is being installed, you may be asked to insert the Windows installation CD-ROM. \r\n\r\nClose all currently running applications except the VPN Client Manager, have your Windows installation CD-ROM ready at hand, and click OK. \r\nClicking OK will start the installation of the Virtual Network Adapter. When this is finished, Windows will automatically restart.
-CM_9X_VLAN_ME_MESSAGE	A Virtual Network Adapter has been created. After you click OK, the computer will automatically restart. \r\n\r\nAfter the computer restarts, the Install New Device wizard might appear. \r\nIf the wizard does appear, click Next for each screen until the installation is completed.
-CM_9X_VLAN_UNINSTALL	To delete a Virtual Network Adapter, delete it from Network Properties. \r\n\r\nDo you want to display the Network Properties window?
+CM_VLAN_REMOTE_ERROR	Невозможно создать Виртуальный Сетевой Адаптер из удаленного местоположения. \r\n\rЗапустите Диспетчер VPN-подключений на локальном компьютере, где запущен VPN-клиент, и установите Виртуальный Сетевой Адаптер
+CM_9X_VLAN_INSTALL		 Будет создан новый Виртуальный Сетевой Адаптер. \r\n\r\nПосле создания Виртуального Сетевого Адаптера необходимо сразу же перезагрузить Windows. \r\nВо время установки Виртуального Сетевого Адаптера вас могут попросить вставить установочный компакт-диск Windows. \r\n\r\nЗакройте все запущенные в данный момент приложения, кроме Диспетчера VPN-подключений, подготовьте установочный компакт-диск Windows и нажмите ОК. \r\nПри нажатии кнопки ОК начнется установка Виртуального Сетевого Адаптера. Когда все закончится, Windows будет автоматически перезагружен.
+CM_9X_VLAN_ME_MESSAGE	Создан Виртуальный Сетевой Адаптер. После того, как вы нажмете ОК, компьютер автоматически перезагрузится. \r\n\r\nПосле перезагрузки компьютера может появиться мастер установки нового устройства. \r\nЕсли мастер все-таки появится, нажимайте "Далее" для каждого экрана, пока установка не будет завершена.
+CM_9X_VLAN_UNINSTALL	Чтобы удалить Виртуальный Сетевой Адаптер, удалите его из "Свойства сети". \r\n\r\nВы хотите отобразить окно "Свойства сети"?
 CM_PORT_1				8888 (PX-VPN порт)
 CM_PORT_2				443 (HTTPS порт)
 CM_PORT_3				992 (TELNETS порт)
 CM_PORT_4				5555 (SE-VPN порт)
-CM_RETRY_INTERVAL_ERROR	Set a re-connection interval (at least 5 seconds) when VPN connection has been disconnected.
-CM_DELETE_CLIENT_CERT	This will delete the client certificate that has been set. Do you really want to do this?
-CM_DELETE_SERVER_CERT	This will delete the server individual certificate that has been set. Do you really want to do this?
-CM_SET_STARTUP			The VPN Connection Setting "%s" is now set as a startup connection.\r\n\r\nThis account will be connected automatically next time the computer restarts.\r\n(If you are using Windows, the automatic connection will be started in the background mode before a user logs on to Windows.)
+CM_RETRY_INTERVAL_ERROR	Установите интервал переподключения (не менее 5 секунд), когда VPN-подключение было отключено.
+CM_DELETE_CLIENT_CERT	Это действие удалит установленный сертификат клиента. Вы действительно хотите это сделать?
+CM_DELETE_SERVER_CERT	Это действие удалит установленный индивидуальный сертификат сервера. Вы действительно хотите это сделать?
+CM_SET_STARTUP			VPN подключение "%s" is now set as a startup connection.\r\n\r\nThis account will be connected automatically next time the computer restarts.\r\n(If you are using Windows, the automatic connection will be started in the background mode before a user logs on to Windows.)
 CM_REMOVE_STARTUP		Do you wish to delete the startup connection property of VPN Connection Setting "%s"?
 CM_NO_DISCONNECT_SPAN	Please set the life of the TCP connection.
 CM_HALF_MSG				When using half-duplex mode, set at least 2 for the number of TCP connections.
@@ -907,13 +907,13 @@ CM_COPY_NAME_1			Copy of %s
 CM_COPY_NAME_2			Copy (%u) of %s
 CM_IMPORT_NAME_1		%s
 CM_IMPORT_NAME_2		%s (%u)
-CM_CERT_COLUMN_1		Issued to
-CM_CERT_COLUMN_2		Issuer
-CM_CERT_COLUMN_3		Expiration
-CM_CERT_DELETE_MSG		Delete this certificate from the list?
-CM_PASSWORD_SET			The password has been set.
-CM_PASSWORD_REMOVE		The password setting has been deleted.
-CM_UNDER_CONSTRUCTION	Incomplete.
+CM_CERT_COLUMN_1		Кому выдан
+CM_CERT_COLUMN_2		Кем выдан
+CM_CERT_COLUMN_3		Истекает
+CM_CERT_DELETE_MSG		Удалить этот сертификат из списка?
+CM_PASSWORD_SET			Пароль был установлен.
+CM_PASSWORD_REMOVE		Пароль был удален.
+CM_UNDER_CONSTRUCTION	Незавершено.
 CM_CURRENT_ACTIVE		The settings of VPN Connection Setting "%s" were saved. But this VPN Connection Setting is currently online and the new settings will apply in the next connection.
 CM_DISCONNECT_ALL		This will disconnect all %u VPN Connection Settings that are currently connected. \r\nDo you really want to do this?
 CM_HTTPS_MSG			You have chosen to connect via an HTTP proxy server. \r\n\r\nUsual HTTP proxy servers do not allow access to a TCP port of your choice. \r\nWhen a VPN Client connects to a VPN Server via a HTTP proxy server, it is possible to connect by using HTTPS (HTTP over SSL) communication. \r\nIn this case it is recommended that you specify 443 (HTTPS Port) as the destination VPN Server port number. \r\n(If you specify a different port number, there are cases where it will not be possible to connect via an HTTP proxy server. \r\n Make sure that port 443 is enabled on the destination VPN Server.)\r\n\r\nFor detailed information contact either the system administrator or network administrator of the HTTP proxy server you plan to connect via. \r\n\r\nDo you want to change the port number specification of the destination VPN Server to 443 (HTTPS Port)?
@@ -2213,18 +2213,18 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_CERT
-CAPTION					Certificate
-S_TITLE					The following information is available for this certificate.
-STATIC1					Basic Information of this Certificate:
-STATIC2					Issued to:
-STATIC3					Issuer:
-STATIC4					Expires at:
-STATIC5					Advanced Information of this Certificate:
-STATIC6					Certificate of Authority Who Signed This Certificate:
-S_PARENT				The certificate of the certificate authority who signed this certificate is registered on the list of trusted certificates.
-S_PARENT_BUTTON_STR		&View Certificate
+CAPTION					Сертификат
+S_TITLE					Следующая информация доступна для этого сертификата.
+STATIC1					Основная информация о сертификате:
+STATIC2					Кому выдан:
+STATIC3					Кем выдан:
+STATIC4					Истекает:
+STATIC5					Расширенная информация о сертификате:
+STATIC6					Сертификат органа, подписавшего этот сертификат:
+S_PARENT				Сертификат центра сертификации, подписавшего этот сертификат, регистрируется в списке доверенных сертификатов.
+S_PARENT_BUTTON_STR		&Просмотр сертификата
 IDCANCEL				&OK
-B_SAVE					&Save to File
+B_SAVE					&Сохранить в файл
 
 
 PREFIX					D_CHECKCERT
@@ -2287,15 +2287,16 @@ STATIC5					&Номер порта:
 STATIC6					(TCP Port)
 STATIC7					&Имя Virtual Hub:
 STATIC8					Подключение через прокси-сервер:
-STATIC9					Вы можете подключиться к VPN-серверу через прокси-сервер.
+STATIC9					Вы можете подкл. к VPN-серверу через прокси-сервер.
 STATIC10				Тип прокси:
 R_DIRECT_TCP			&Прямое TCP/IP подключение (без прокси)
-R_HTTPS					Подключиться через HTTP прокси-сервер
-R_SOCKS					Подключиться через SOCKS прокси-сервер
+R_HTTPS					Через HTTP прокси-сервер
+R_SOCKS					Через SOCKS прокси-сервер
+R_SOCKS5				Через &SOCKS5 прокси-сервер
 B_PROXY_CONFIG			Настройка прокси-сервера
 STATIC11				Параметры проверки сертификата сервера:
 R_CHECK_CERT			Всегда Проверять Сертификат Сервера
-B_TRUST					Управление доверенными корневыми сертификатами 
+B_TRUST					Управление доверенными корневыми серт. 
 B_SERVER_CERT			Выбрать личный сертификат
 B_VIEW_SERVER_CERT		Показать личный сертификат
 S_VLAN_GROUP			Выбор Виртуального Сетевого Адаптера:
@@ -2303,13 +2304,13 @@ S_POLICY_1				Вы можете настроить политику безопа
 B_POLICY				Политика безопасности
 STATIC12				Настройка авторизации пользователя:
 STATIC13				Тип:
-S_USERNAME				&Имя пользователя:
+S_USERNAME				&Пользователь:
 S_PASSWORD				Пароль:
 S_CERT_INFO				Вы должны выбрать клиентский сертификат, который будет использоваться для авторизации пользователя.
 STATIC14				Расширенные настройки связи: 
 R_RETRY					Автоматически переподключаться после отключения
-S_RETRY_NUM_1			Кол-во переподключений:
-S_RETRY_NUM_2			
+S_RETRY_NUM_1			&Кол-во переподключений:
+S_RETRY_NUM_2			&
 S_RETRY_SPAN_1			Интервал переподключения:
 S_RETRY_SPAN_2			сек
 R_INFINITE				Бесконечные переподключения (VPN всегда онлайн)
@@ -2322,19 +2323,19 @@ R_HIDE					Скрыть окна со статусом и ошибками
 R_HIDE2					Скрыть окно с IP-адресом
 STATIC15				Укажите все необходимые данные, которые требуются для авторизации пользователя на VPN-сервере.
 B_REGIST_CLIENT_CERT	Выбрать Сертификат Клиента
-B_IE					Импорт настроек прокси-сервера из IE
-R_DISABLE_NATT			Отключить NAT-T
+B_IE					Импорт настроек прокси из IE
+R_DISABLE_NATT			Откл. NAT-T
 
 
 PREFIX					D_CM_PROXY
-CAPTION					Proxy Server Connection Setting
-STATIC1					Enter the host name of the proxy server for relaying (HTTP proxy or SOCKS proxy), and the IP address, port, and when necessary, the user name and password.
-STATIC2					&Host Name:
-STATIC3					Port:
-STATIC4					&User Name:
-STATIC5					&Password:
+CAPTION					Настройка соединения с прокси-сервером
+STATIC1					Введите имя хоста прокси-сервера (HTTP-прокси или SOCKS-прокси), а также IP-адрес, порт и, при необходимости, имя пользователя и пароль.
+STATIC2					&Имя хоста:
+STATIC3					Порт:
+STATIC4					&Пользователь:
+STATIC5					&Пароль:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 STATIC6					(optional)
 STATIC7					(optional)
 
@@ -2376,12 +2377,12 @@ S_UDPACCEL				You can use data compression to save VPN communication bandwidth. 
 
 
 PREFIX					D_CM_NEW_VLAN
-CAPTION					Create New Virtual Network Adapter
-S_INFO					A new Virtual Network Adapter will be created on the system.\r\nYou can specify a name for the Virtual Network Adapter, which can be a maximum of %u alphanumeric characters.
-STATIC1					Virtual Network Adapter &Name: 
+CAPTION					Создать новый Виртуальный Сетевой Адаптер
+S_INFO					В системе будет создан новый Виртуальный Сетевой Адаптер. \r\nВы можете указать название для Виртуального Сетевого Адаптера, кол-во символов должно быть не более %u.
+STATIC1					Название Виртуального Сетевого Адаптера: 
 IDOK					&OK
-IDCANCEL				Cancel
-S_WIN8					The name of a Virtual Network Adapter must be 'VPN' or 'VPN2' to 'VPN127'. (Maximum 127 adapters can be created.)
+IDCANCEL				Отмена
+S_WIN8					Название виртуального сетевого адаптера должен быть 'VPN' или 'VPN2' вплоть до 'VPN127'. (Можно создать максимум 127 адаптеров.)
 
 
 PREFIX					D_CM_TRUST
