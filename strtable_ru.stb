@@ -876,14 +876,14 @@ CM_ACCOUNT_TITLE_2		Настройки %s
 CM_SERVER_CERT_1		&Исп. личный сертификат
 CM_SERVER_CERT_2		&Удалить сертификат
 CM_CLIENT_CERT_1		Исп. &сертификат клиента
-CM_CLIENT_CERT_2		Удалить &сертификат клиента 
+CM_CLIENT_CERT_2		Удалить &сертификат 
 CM_CERT_INFO			Кому выдан: %s\r\nКем выдан: %s\r\nИстекает: %s
 CM_NO_CERT				Необходимо выбрать сертификат клиента, который будет использоваться для авторизации пользователя.
 CM_NO_SECURE			Выберите сертификат клиента и приватный ключ внутри смарт-карты, которые будут использоваться для авторизации пользователя.
 CM_CERT_SECURE_INFO		Сертификат: "%S"\r\Приватный ключ: "%S"
 CM_SELECT_SECURE_DEVICE	Выберите смарт-карту
 CM_SELECT_CERT_INCARD	Выберите сертификат и приватный ключ
-CM_VIEW_CLIENT_CERT		&Посмотреть сертификат клиента
+CM_VIEW_CLIENT_CERT		&Посмотреть сертификат
 CM_NO_VLAN				Прежде чем вы сможете создать новое VPN подключение, вам нужно создать Виртуальный Сетевой Адаптер. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
 CM_NO_VLAN_2			Перед подключением к VPN-серверу необходимо создать Виртуальный Сетевой Адаптер.. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
 CM_VLAN_REMOTE_ERROR	Невозможно создать Виртуальный Сетевой Адаптер из удаленного местоположения. \r\n\rЗапустите Диспетчер VPN-подключений на локальном компьютере, где запущен VPN-клиент, и установите Виртуальный Сетевой Адаптер
@@ -2287,12 +2287,12 @@ STATIC5					&Номер порта:
 STATIC6					(TCP Port)
 STATIC7					&Имя Virtual Hub:
 STATIC8					Подключение через прокси-сервер:
-STATIC9					Вы можете подкл. к VPN-серверу через прокси-сервер.
+STATIC9					Подключение к VPN-серверу через прокси сервер.
 STATIC10				Тип прокси:
 R_DIRECT_TCP			&Прямое TCP/IP подключение (без прокси)
-R_HTTPS					Через HTTP прокси-сервер
-R_SOCKS					Через SOCKS прокси-сервер
-R_SOCKS5				Через &SOCKS5 прокси-сервер
+R_HTTPS					HTTP прокси-сервер
+R_SOCKS					SOCKS прокси-сервер
+R_SOCKS5				&SOCKS5 прокси-сервер
 B_PROXY_CONFIG			Настройка прокси-сервера
 STATIC11				Параметры проверки сертификата сервера:
 R_CHECK_CERT			Всегда Проверять Сертификат Сервера
@@ -2309,9 +2309,9 @@ S_PASSWORD				Пароль:
 S_CERT_INFO				Вы должны выбрать клиентский сертификат, который будет использоваться для авторизации пользователя.
 STATIC14				Расширенные настройки связи: 
 R_RETRY					Автоматически переподключаться после отключения
-S_RETRY_NUM_1			&Кол-во переподключений:
-S_RETRY_NUM_2			&
-S_RETRY_SPAN_1			Интервал переподключения:
+S_RETRY_NUM_1			&Кол-во
+S_RETRY_NUM_2			&переподключений
+S_RETRY_SPAN_1			Интервал:
 S_RETRY_SPAN_2			сек
 R_INFINITE				Бесконечные переподключения (VPN всегда онлайн)
 B_DETAIL				Расширенные настройки...
@@ -2334,34 +2334,42 @@ STATIC2					&Имя хоста:
 STATIC3					Порт:
 STATIC4					&Пользователь:
 STATIC5					&Пароль:
+B_HTTP_HEADER   Значения HTTP заголовка 
 IDOK					&OK
 IDCANCEL				Отмена
-STATIC6					(optional)
-STATIC7					(optional)
+STATIC6					(необязательно)
+STATIC7					(необязательно)
 
+PREFIX					D_CM_PROXY_HTTP_HEADER
+CAPTION					Пользовательские значения HTTP-заголовка прокси
+B_NEW					Новый
+B_DELETE				Удалить
+B_CLEAR					Очистить
+IDOK					&OK
+IDCANCEL				Отмена
 
 PREFIX					D_CM_DETAIL
-CAPTION					Advanced Settings
-STATIC1					Optional settings for system administrators and experts for networking, communication protocol, and security. Customize the VPN protocol communication settings.
-STATIC2					Op&timization of VPN Communication:
-STATIC3					Uses multiple physical TCP connection aggregation for a logical VPN connection to increase the communication throughput.
-STATIC4					&Number of TCP Connections:
-STATIC5					connections
-STATIC6					Note: It is recommend that about 8 connections for broadband and 1 connection for slow line (e.g. dialup).
-STATIC7					Advanced Settings: 
-STATIC8					Establi&shing Interval:
-STATIC9					seconds
-R_USE_DISCONNECT		Set Connection Lifetime of E&ach TCP Connection
-STATIC10				Lifetime:
-STATIC11				seconds
-STATIC12				When using two or more TCP connections, Half Duplex Mode is available. The half-duplex mode fixes the data direction as half and half for each TCP connection. For example when a VPN using 8 TCP connections is established, physical consists of the VPN tunnel will be fixed so that 4 TCP connections are dedicated to the upload direction and the other 4 connections are dedicated to the download direction. 
-R_USE_HALF_CONNECTION	Use &Half-Duplex Mode
-STATIC13				Encryption and &Compression:
-STATIC14				Normally the VPN session is encrypted for secure. You can disable encryption to improve the throughput. Please note that the data flows in plain over the network when disabled.
-R_USE_ENCRYPT			&Encrypt VPN Session with SSL
-STATIC15				You can use data compression to save VPN communication bandwidth. Enable this option when using a slow connectivity such as dial-up or mobile connection.
-R_DISABLE_UDP			Disable UD&P Acceleration
-R_USE_COMPRESS			&Use Data Compression
+CAPTION					Расширенные настройки
+STATIC1					Дополнительные настройки для системных администраторов и экспертов по работе в сети, протоколам связи и безопасности. Настройки параметров VPN протокола.
+STATIC2					Оптимизация VPN:
+STATIC3					Использование нескольких физических TCP-соединений для логического VPN-соединения для увеличения пропускной способности.
+STATIC4					&Количество TCP-соединений:
+STATIC5					соединения
+STATIC6					Примечание. Рекомендуется около 8 соединений для широкополосного доступа и 1 соединение для медленной линии (например, модем).
+STATIC7					Расширенные настройки:
+STATIC8					Интервал TCP соединения:
+STATIC9					сек
+R_USE_DISCONNECT		 Установить время жизни каждого TCP соединения
+STATIC10				Время жизни:
+STATIC11				сек
+STATIC12				При использовании двух или более TCP соединений доступен полудуплексный режим. Полудуплексный режим фиксирует направление данных как половина и половина для каждого соединения TCP. Например, когда для VPN установлено 8 TCP соединений, то 4 TCP соединения будут выделены для отправки данных, а остальные 4 - для получения данных. 
+R_USE_HALF_CONNECTION	Использовать полудуплексный режим
+STATIC13				Шифрование и сжатие:
+STATIC14				Обычно VPN сессия шифруется для обеспечения безопасности. Вы можете отключить шифрование для повышения пропускной способности. Обратите внимание, что при отключении данные по сети передаются в открытом виде.
+R_USE_ENCRYPT			&Шифровать VPN-сессию с помощью SSL
+STATIC15				Вы можете использовать сжатие данных для экономии пропускной способности VPN подключения. Включите эту опцию при использовании медленного подключения, например через модем или мобильный интернет.
+R_DISABLE_UDP			Отключить UDP ускорение
+R_USE_COMPRESS			&Использовать сжатие данных
 STATIC16				VPN Connection &Mode:
 S_MODE					You can specify the following connection modes. (Options for network administrators.)
 R_BRIDGE				&Bridge / Router Mode
@@ -2379,7 +2387,7 @@ S_UDPACCEL				You can use data compression to save VPN communication bandwidth. 
 PREFIX					D_CM_NEW_VLAN
 CAPTION					Создать новый Виртуальный Сетевой Адаптер
 S_INFO					В системе будет создан новый Виртуальный Сетевой Адаптер. \r\nВы можете указать название для Виртуального Сетевого Адаптера, кол-во символов должно быть не более %u.
-STATIC1					Название Виртуального Сетевого Адаптера: 
+STATIC1					Название Адаптера: 
 IDOK					&OK
 IDCANCEL				Отмена
 S_WIN8					Название виртуального сетевого адаптера должен быть 'VPN' или 'VPN2' вплоть до 'VPN127'. (Можно создать максимум 127 адаптеров.)
