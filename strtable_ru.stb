@@ -784,8 +784,8 @@ CM_ACCOUNT_COLUMN_1		Название VPN подключения
 CM_ACCOUNT_COLUMN_2		Статус
 CM_ACCOUNT_COLUMN_3		Имя хоста VPN-сервера
 CM_ACCOUNT_COLUMN_3_2	Virtual Hub
-CM_ACCOUNT_COLUMN_4		Название виртуального сетевого адаптера
-CM_VLAN_COLUMN_1		Название виртуального сетевого адаптера
+CM_ACCOUNT_COLUMN_4		Название Виртуального Сетевого Адаптера
+CM_VLAN_COLUMN_1		Название Виртуального Сетевого Адаптера
 CM_VLAN_COLUMN_2		Статус
 CM_VLAN_COLUMN_3		MAC-адрес
 CM_VLAN_COLUMN_4		Версия
@@ -976,7 +976,7 @@ CM_TRAY_MENU_SETTING	Change Operation &Mode...
 CM_TRAY_MENU_CANCEL		Закрыть это меню
 CM_EXIT_MESSAGE			This will exit the VPN Client Manager program. \r\nDo you really want to do this?
 CM_IMPORT_MESSAGE		From file "%S", VPN Connection Setting "%s" has been installed.
-CM_VLAN_CREATING		Creating a new Virtual Network Adapter for Windows. \r\n\r\nThis process can take several seconds or over a minute. \r\nPlease wait...\r\n\r\n(Please do not perform other operations while the Virtual Network Adapter is being installed.)
+CM_VLAN_CREATING		Создание нового Виртуального Сетевого Адаптера для Windows. \r\n\r\nЭтот процесс может занять несколько секунд или более минуты. \r\nПожалуйста, подождите...\r\n\r\n(Пожалуйста, не выполняйте другие операции во время создания Виртуального Сетевого Адаптера.)
 CM_SETTING_PASSWORD		The setting is locked. To remove the setting-locker, you must enter a password.
 CM_EASY_MODE_NOT_ON_REMOTE	Unable to connect because of the VPN Client on the remote computer is running in Easy Mode.
 CM_EASY_CONNECT_BUTTON_1	Start VPN &Connection
@@ -6399,11 +6399,11 @@ CMD_SecureGet_NoPrint	Currently, a smart card is not selected.
 
 
 # NicCreate command
-CMD_NicCreate			Create New Virtual Network Adapter
-CMD_NicCreate_Help		Use this to add a new Virtual Network Adapter to the system. You can give the virtual network adapter a name of your choice. \nYou can set a name that consists of alphanumeric characters for the virtual network adapter. For Windows 2000 or newer systems, this name can be up to 31 characters, but for Windows 98, 98SE and ME it can be up to 4 characters. \nIf the NicCreate command was called, a new virtual network adapter device driver will be installed on the operating system that the VPN Client is operating on. \nIn this case, depending on the operating system, a dialog box may appear to confirm if it is OK to install the device driver.
+CMD_NicCreate			Создать новый Виртуальный Сетевой Адаптер
+CMD_NicCreate_Help		Используется для создания нового Виртуального Сетевого Адаптера в систему. Вы можете дать Виртуальному Сетевому Адаптеру название по вашему выбору.\nВ названии Виртуального Сетевого Адаптера вы можете использовать буквы, цифры и знаки препинания. Для Windows 2000 или более новых систем это название может содержать до 31 символа, а для Windows 98, 98SE и ME - до 4 символов.\nПри вызове команды NicCreate в операционной системе, на которой работает VPN-клиент, будет установлен новый Виртуальный Сетевой Адаптер. \nВ зависимости от операционной системы, может появиться диалоговое окно для подтверждения правильности установки драйвера устройства.
 CMD_NicCreate_Args		NicCreate [name]
-CMD_NicCreate_[name]	Specify the name of the virtual network adapter.
-CMD_NicCreate_PROMPT_NAME	Virtual Network Adapter Name: 
+CMD_NicCreate_[name]	Укажите название Виртуального Сетевого Адаптера.
+CMD_NicCreate_PROMPT_NAME	Название Виртуального Сетевого Адаптера: 
 
 
 # NicDelete command
