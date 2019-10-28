@@ -1,8 +1,8 @@
 #pragma code_page(932)
 
 1 VERSIONINFO
- FILEVERSION $VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$
- PRODUCTVERSION $VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$
+ FILEVERSION ${PROJECT_VERSION_MAJOR},${PROJECT_VERSION_MINOR},0,${PROJECT_VERSION_PATCH}
+ PRODUCTVERSION ${PROJECT_VERSION_MAJOR},${PROJECT_VERSION_MINOR},0,${PROJECT_VERSION_PATCH}
  FILEFLAGSMASK 0x17L
  FILEOS 0x4L
  FILETYPE 0x1L
@@ -12,15 +12,15 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "CompanyName", "SoftEther VPN Project at University of Tsukuba, Japan. (Developer Edition)"
-            VALUE "FileDescription", "$PRODUCTNAME$ (Developer Edition)"
-            VALUE "FileVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
-            VALUE "InternalName", "$INTERNALNAME$ (Developer Edition)"
-            VALUE "LegalCopyright", "Copyright (C) 2012-$YEAR$ SoftEther VPN Project. All Rights Reserved. (Developer Edition)"
-            VALUE "LegalTrademarks", "SoftEther(R) is a registered trademark of SoftEther Corporation in Japan, United Status and People's Republic of China. SoftEther Corporation is a company founded at University of Tsukuba, Japan."
-            VALUE "OriginalFilename", "$FILENAME$"
-            VALUE "ProductName", "$PRODUCTNAME$ (Developer Edition)"
-            VALUE "ProductVersion", "$VER_MAJOR$, $VER_MINOR$, 0, $VER_BUILD$"
+            VALUE "CompanyName", "SoftEther VPN Project at University of Tsukuba, Japan."
+            VALUE "FileDescription", "${PROJECT_NAME} ${COMPONENT_NAME} (Developer Edition)"
+            VALUE "FileVersion", "${PROJECT_VERSION_MAJOR}, ${PROJECT_VERSION_MINOR}, 0, ${PROJECT_VERSION_PATCH}"
+            VALUE "InternalName", "${COMPONENT_INTERNAL_NAME}"
+            VALUE "LegalCopyright", "Copyright (c) 2012-${DATE_YEAR} all contributors on SoftEther VPN project in GitHub. Copyright (C) 2004-${DATE_YEAR} Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation. All Rights Reserved."
+            VALUE "LegalTrademarks", "SoftEther(R) is a registered trademark of SoftEther Corporation in Japan, United States and People's Republic of China. SoftEther Corporation is a company founded at University of Tsukuba, Japan."
+            VALUE "OriginalFilename", "${COMPONENT_FILE_NAME}"
+            VALUE "ProductName", "${PROJECT_NAME} ${COMPONENT_NAME}"
+            VALUE "ProductVersion", "${PROJECT_VERSION_MAJOR}, ${PROJECT_VERSION_MINOR}, 0, ${PROJECT_VERSION_PATCH}"
         END
     END
     BLOCK "VarFileInfo"

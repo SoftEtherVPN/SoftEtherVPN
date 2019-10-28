@@ -1,113 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Contributors:
-// - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Network.c
@@ -184,13 +76,7 @@ struct ROUTE_CHANGE_DATA
 #endif	// IPV6_V6ONLY
 #endif	// UNIX_SOLARIS
 
-
-
 // HTTP constant
-static char http_404_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>404 Not Found</TITLE>\r\n</HEAD><BODY>\r\n<H1>Not Found</H1>\r\nThe requested URL $TARGET$ was not found on this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
-static char http_403_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>403 Forbidden</TITLE>\r\n</HEAD><BODY>\r\n<H1>Forbidden</H1>\r\nYou don't have permission to access $TARGET$\r\non this server.<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
-static char http_500_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>500 Server Error</TITLE>\r\n</HEAD><BODY>\r\n<H1>Server Error</H1>\r\nServer Error<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
-static char http_501_str[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>501 Method Not Implemented</TITLE>\r\n</HEAD><BODY>\r\n<H1>Method Not Implemented</H1>\r\n$METHOD$ to $TARGET$ not supported.<P>\r\nInvalid method in request $METHOD$ $TARGET$ $VERSION$<P>\r\n<HR>\r\n<ADDRESS>HTTP Server at $HOST$ Port $PORT$</ADDRESS>\r\n</BODY></HTML>\r\n";
 static char http_detect_server_startwith[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>403 Forbidden</TITLE>\r\n</HEAD><BODY>\r\n<H1>Forbidden</H1>\r\nYou don't have permission to access ";
 static char http_detect_server_tag_future[] = "9C37197CA7C2428388C2E6E59B829B30";
 
@@ -205,7 +91,6 @@ static LOCK *socket_library_lock = NULL;
 extern LOCK *openssl_lock;
 static LOCK *ssl_accept_lock = NULL;
 static LOCK *ssl_connect_lock = NULL;
-static TOKEN_LIST *cipher_list_token = NULL;
 static COUNTER *num_tcp_connections = NULL;
 static LOCK *dns_lock = NULL;
 static LOCK *unix_dns_server_addr_lock = NULL;
@@ -232,12 +117,6 @@ static bool disable_gethostname_by_accept = false;
 static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
-
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384"
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	" DHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305";
-#endif
-;
 
 static LIST *ip_clients = NULL;
 
@@ -5678,7 +5557,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 		if (!preverify_ok)
 		{
 			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
-			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, msg);
+			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);
 			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
 		}
 		else
@@ -7342,6 +7221,12 @@ bool IsIP4(IP *ip)
 	}
 
 	return (IsIP6(ip) ? false : true);
+}
+
+// Copy the IP address
+void CopyIP(IP *dst, IP *src)
+{
+	Copy(dst, src, sizeof(IP));
 }
 
 // Get the number of clients connected from the specified IP address
@@ -10707,36 +10592,40 @@ void FreeRouteTable(ROUTE_TABLE *t)
 // UDP receiving
 UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 {
-	SOCKET s;
-	int ret, sz;
 	struct sockaddr_in addr;
+	int ret = 0;
+#ifdef	OS_WIN32
+	int socklen = sizeof(addr);
+#else
+	socklen_t socklen = sizeof(addr);
+#endif
+
 	// Validate arguments
 	if (sock != NULL)
 	{
+		if (sock->IPv6)
+		{
+			return RecvFrom6(sock, src_addr, src_port, data, size);
+		}
+
 		sock->IgnoreRecvErr = false;
 	}
-	if (sock == NULL || src_addr == NULL || src_port == NULL || data == NULL)
+	else
 	{
-		return false;
+		return 0;
 	}
+
+	if (src_addr == NULL || src_port == NULL || data == NULL || size == 0)
+	{
+		return 0;
+	}
+
 	if (sock->Type != SOCK_UDP || sock->socket == INVALID_SOCKET)
 	{
-		return false;
-	}
-	if (size == 0)
-	{
-		return false;
+		return 0;
 	}
 
-	if (sock->IPv6)
-	{
-		return RecvFrom6(sock, src_addr, src_port, data, size);
-	}
-
-	s = sock->socket;
-
-	sz = sizeof(addr);
-	ret = recvfrom(s, data, size, 0, (struct sockaddr *)&addr, (int *)&sz);
+	ret = recvfrom(sock->socket, data, size, 0, (struct sockaddr *)&addr, &socklen);
 	if (ret > 0)
 	{
 		InAddrToIP(src_addr, &addr.sin_addr);
@@ -10744,13 +10633,6 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		if (sock->IsRawSocket)
 		{
 			*src_port = sock->LocalPort;
-/*
-			{
-				char tmp[MAX_SIZE];
-
-				IPToStr(tmp, sizeof(tmp), &sock->LocalIP);
-				Debug("Raw: %u from %s\n", sock->LocalPort, tmp);
-			}*/
 		}
 
 		Lock(sock->lock);
@@ -10760,14 +10642,10 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		Unlock(sock->lock);
 
-		// Debug("UDP RecvFrom: %u\n", ret);
-
 		return (UINT)ret;
 	}
 	else
 	{
-		sock->IgnoreRecvErr = false;
-
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
 			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
@@ -10780,10 +10658,9 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		else
 		{
-			UINT e = WSAGetLastError();
-//			Debug("RecvFrom Error: %u\n", e);
+			Debug("RecvFrom(): recvfrom() failed with error: %u\n", WSAGetLastError());
 		}
-#else	// OS_WIN32
+#else
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
 		{
 			sock->IgnoreRecvErr = true;
@@ -10792,37 +10669,46 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		{
 			return SOCK_LATER;
 		}
-#endif	// OS_WIN32
+		else
+		{
+			Debug("RecvFrom(): recvfrom() failed with error: %s\n", strerror(errno));
+		}
+#endif
 		return 0;
 	}
 }
 UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 {
-	SOCKET s;
-	int ret, sz;
 	struct sockaddr_in6 addr;
+	int ret = 0;
+#ifdef	OS_WIN32
+	int socklen = sizeof(addr);
+#else
+	socklen_t socklen = sizeof(addr);
+#endif
+
 	// Validate arguments
 	if (sock != NULL)
 	{
 		sock->IgnoreRecvErr = false;
 	}
-	if (sock == NULL || src_addr == NULL || src_port == NULL || data == NULL)
+	else
 	{
-		return false;
+		return 0;
 	}
+
+	if (src_addr == NULL || src_port == NULL || data == NULL || size == 0)
+	{
+		return 0;
+	}
+
 	if (sock->Type != SOCK_UDP || sock->socket == INVALID_SOCKET)
 	{
-		return false;
-	}
-	if (size == 0)
-	{
-		return false;
+		return 0;
 	}
 
-	s = sock->socket;
 
-	sz = sizeof(addr);
-	ret = recvfrom(s, data, size, 0, (struct sockaddr *)&addr, (int *)&sz);
+	ret = recvfrom(sock->socket, data, size, 0, (struct sockaddr *)&addr, &socklen);
 	if (ret > 0)
 	{
 		InAddrToIP6(src_addr, &addr.sin6_addr);
@@ -10840,14 +10726,10 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		Unlock(sock->lock);
 
-		// Debug("UDP RecvFrom: %u\n", ret);
-
 		return (UINT)ret;
 	}
 	else
 	{
-		sock->IgnoreRecvErr = false;
-
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
 			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
@@ -10860,10 +10742,9 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		}
 		else
 		{
-			UINT e = WSAGetLastError();
-			//			Debug("RecvFrom Error: %u\n", e);
+			Debug("RecvFrom(): recvfrom() failed with error: %u\n", WSAGetLastError());
 		}
-#else	// OS_WIN32
+#else
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
 		{
 			sock->IgnoreRecvErr = true;
@@ -10872,7 +10753,11 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		{
 			return SOCK_LATER;
 		}
-#endif	// OS_WIN32
+		else
+		{
+			Debug("RecvFrom(): recvfrom() failed with error: %s\n", strerror(errno));
+		}
+#endif
 		return 0;
 	}
 }
@@ -11481,6 +11366,50 @@ void InitSockSet(SOCKSET *set)
 	}
 
 	Zero(set, sizeof(SOCKSET));
+}
+
+// Receive data and discard all of them
+bool RecvAllWithDiscard(SOCK *sock, UINT size, bool secure)
+{
+	static UCHAR buffer[4096];
+	UINT recv_size, sz, ret;
+	if (sock == NULL)
+	{
+		return false;
+	}
+	if (size == 0)
+	{
+		return true;
+	}
+	if (sock->AsyncMode)
+	{
+		return false;
+	}
+
+	recv_size = 0;
+
+	while (true)
+	{
+		sz = MIN(size - recv_size, sizeof(buffer));
+		ret = Recv(sock, buffer, sz, secure);
+		if (ret == 0)
+		{
+			return false;
+		}
+		if (ret == SOCK_LATER)
+		{
+			// I suppose that this is safe because the RecvAll() function is used only 
+			// if the sock->AsyncMode == true. And the Recv() function may return
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// Recv() function in the RecvAll() function never returns SOCK_LATER.
+			return false;
+		}
+		recv_size += ret;
+		if (recv_size >= size)
+		{
+			return true;
+		}
+	}
 }
 
 // Receive all by TCP
@@ -12327,7 +12256,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		if (sock->Connected == false)
 		{
 			Unlock(sock->ssl_lock);
-			Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+			Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 			return 0;
 		}
 
@@ -12357,7 +12286,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 	if (ret == 0)
 	{
 		// Disconnect
-		Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+		Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 		Disconnect(sock);
 		return 0;
 	}
@@ -12372,7 +12301,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		}
 		Debug("%s %u e=%u\n", __FILE__, __LINE__, e);
 	}
-	//Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+	//Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
 	Disconnect(sock);
 	return 0;
 }
@@ -15081,7 +15010,7 @@ void GetMachineNameEx(char *name, UINT size, bool no_load_hosts)
 			{
 				if (GetMachineNameFromHosts(tmp2, sizeof(tmp2)))
 				{
-					StrCpy(name, sizeof(name), tmp2);
+					StrCpy(name, size, tmp2);
 				}
 			}
 		}
@@ -16532,8 +16461,6 @@ void InitNetwork()
 	Zero(&unix_dns_server, sizeof(unix_dns_server));
 	local_mac_list_lock = NewLock();
 
-	cipher_list_token = ParseToken(cipher_list, " ");
-
 	current_global_ip_lock = NewLock();
 	current_fqdn_lock = NewLock();
 	current_global_ip_set = false;
@@ -16566,7 +16493,67 @@ bool IsNetworkNameCacheEnabled()
 // Get the cipher algorithm list
 TOKEN_LIST *GetCipherList()
 {
-	return cipher_list_token;
+	UINT i;
+	SSL *ssl;
+	SSL_CTX *ctx;
+	const char *name;
+	STACK_OF(SSL_CIPHER) *sk;
+
+	TOKEN_LIST *ciphers = ZeroMalloc(sizeof(TOKEN_LIST));
+
+	ctx = NewSSLCtx(true);
+	if (ctx == NULL)
+	{
+		return ciphers;
+	}
+
+	SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
+#endif
+
+	ssl = SSL_new(ctx);
+	if (ssl == NULL)
+	{
+		FreeSSLCtx(ctx);
+		return ciphers;
+	}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+	sk = SSL_get1_supported_ciphers(ssl);
+#else
+	sk = SSL_get_ciphers(ssl);
+#endif
+
+	for (i = 0; i < (UINT)sk_SSL_CIPHER_num(sk); i++)
+	{
+		const SSL_CIPHER *c = sk_SSL_CIPHER_value(sk, i);
+
+		name = SSL_CIPHER_get_name(c);
+		if (IsEmptyStr((char *)name))
+		{
+			break;
+		}
+
+		ciphers->NumTokens++;
+
+		if (ciphers->Token != NULL)
+		{
+			ciphers->Token = ReAlloc(ciphers->Token, sizeof(char *) * ciphers->NumTokens);
+		}
+		else
+		{
+			ciphers->Token = Malloc(sizeof(char *));
+		}
+
+		ciphers->Token[i] = CopyStr((char *)name);
+	}
+
+	sk_SSL_CIPHER_free(sk);
+	SSL_free(ssl);
+
+	return ciphers;
 }
 
 // Get the TCP connections counter
@@ -16953,9 +16940,6 @@ void FreeNetwork()
 
 	// Release of thread-related
 	FreeWaitThread();
-
-	FreeToken(cipher_list_token);
-	cipher_list_token = NULL;
 
 	Zero(&unix_dns_server, sizeof(unix_dns_server));
 
@@ -18711,16 +18695,9 @@ LABEL_RESTART:
 			// Create a thread to get a NAT-T IP address if necessary
 			if (u->GetNatTIpThread == NULL)
 			{
-				// Create a thread to get a NAT-T IP address if necessary
-				if (u->GetNatTIpThread == NULL)
-				{
-					char natt_hostname[MAX_SIZE];
-
-					RUDPGetRegisterHostNameByIP(natt_hostname, sizeof(natt_hostname), NULL);
-
-					u->GetNatTIpThread = NewQueryIpThread(natt_hostname, QUERYIPTHREAD_INTERVAL_LAST_OK, QUERYIPTHREAD_INTERVAL_LAST_NG);
-				}
-
+				char natt_hostname[MAX_SIZE];
+				RUDPGetRegisterHostNameByIP(natt_hostname, sizeof(natt_hostname), NULL);
+				u->GetNatTIpThread = NewQueryIpThread(natt_hostname, QUERYIPTHREAD_INTERVAL_LAST_OK, QUERYIPTHREAD_INTERVAL_LAST_NG);
 				GetQueryIpThreadResult(u->GetNatTIpThread, &nat_t_ip);
 			}
 		}
@@ -18808,6 +18785,8 @@ LABEL_FATAL_ERROR:
 						{
 							p->SrcPort = p->DestPort = MAKE_SPECIAL_PORT(50);
 						}
+
+						p->Type = u->PacketType;
 
 						Add(recv_list, p);
 					}
@@ -18997,6 +18976,40 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 	return NULL;
 }
 
+void FreeTcpRawData(TCP_RAW_DATA *trd)
+{
+	// Validate arguments
+	if (trd == NULL)
+	{
+		return;
+	}
+
+	ReleaseFifo(trd->Data);
+	Free(trd);
+}
+
+TCP_RAW_DATA *NewTcpRawData(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port)
+{
+	TCP_RAW_DATA *trd;
+	// Validate arguments
+	if (dst_ip == NULL || dst_port == 0)
+	{
+		return NULL;
+	}
+
+	trd = ZeroMalloc(sizeof(TCP_RAW_DATA));
+
+	Copy(&trd->SrcIP, src_ip, sizeof(IP));
+	trd->SrcPort = src_port;
+
+	Copy(&trd->DstIP, dst_ip, sizeof(IP));
+	trd->DstPort = dst_port;
+
+	trd->Data = NewFifoFast();
+
+	return trd;
+}
+
 // Release of the UDP packet
 void FreeUdpPacket(UDPPACKET *p)
 {
@@ -19068,6 +19081,11 @@ void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list)
 // Creating a UDP listener
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
 {
+	return NewUdpListenerEx(recv_proc, param, listen_ip, INFINITE);
+}
+
+UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type)
+{
 	UDPLISTENER *u;
 	// Validate arguments
 	if (recv_proc == NULL)
@@ -19078,6 +19096,7 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *l
 	u = ZeroMalloc(sizeof(UDPLISTENER));
 
 	u->Param = param;
+	u->PacketType = packet_type;
 
 	u->PortList = NewList(NULL);
 	u->Event = NewSockEvent();
@@ -19920,104 +19939,6 @@ void FlushTubeFlushList(TUBE_FLUSH_LIST *f)
 	DeleteAll(f->List);
 }
 
-// The server receives a PACK from the client
-PACK *HttpServerRecv(SOCK *s)
-{
-	BUF *b;
-	PACK *p;
-	HTTP_HEADER *h;
-	UINT size;
-	UCHAR *tmp;
-	HTTP_VALUE *v;
-	UINT num_noop = 0;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return NULL;
-	}
-
-START:
-
-	h = RecvHttpHeader(s);
-	if (h == NULL)
-	{
-		goto BAD_REQUEST;
-	}
-
-	if (StrCmpi(h->Method, "POST") != 0 ||
-		StrCmpi(h->Target, HTTP_VPN_TARGET) != 0 ||
-		StrCmpi(h->Version, "HTTP/1.1") != 0)
-	{
-		FreeHttpHeader(h);
-		goto BAD_REQUEST;
-	}
-
-	v = GetHttpValue(h, "Content-Type");
-	if (v == NULL || StrCmpi(v->Data, HTTP_CONTENT_TYPE2) != 0)
-	{
-		FreeHttpHeader(h);
-		goto BAD_REQUEST;
-	}
-
-	size = GetContentLength(h);
-	if (size == 0 || size > HTTP_PACK_MAX_SIZE)
-	{
-		FreeHttpHeader(h);
-		goto BAD_REQUEST;
-	}
-
-	tmp = MallocEx(size, true);
-	if (RecvAll(s, tmp, size, s->SecureMode) == false)
-	{
-		Free(tmp);
-		FreeHttpHeader(h);
-		return NULL;
-	}
-
-	b = NewBuf();
-	WriteBuf(b, tmp, size);
-	Free(tmp);
-	FreeHttpHeader(h);
-
-	SeekBuf(b, 0, 0);
-	p = BufToPack(b);
-	FreeBuf(b);
-
-	// Determine whether it's a NOOP
-	if (PackGetInt(p, "noop") != 0)
-	{
-		Debug("recv: noop\n");
-		FreePack(p);
-
-		p = PackError(0);
-		PackAddInt(p, "noop", 1);
-		if (HttpServerSend(s, p) == false)
-		{
-			FreePack(p);
-			return NULL;
-		}
-
-		FreePack(p);
-
-		num_noop++;
-
-		if (num_noop > MAX_NOOP_PER_SESSION)
-		{
-			return NULL;
-		}
-
-		goto START;
-	}
-
-	return p;
-
-BAD_REQUEST:
-	// Return an error
-
-
-	return NULL;
-}
-
 // Store the error value into PACK
 PACK *PackError(UINT error)
 {
@@ -20041,68 +19962,6 @@ UINT GetErrorFromPack(PACK *p)
 	return PackGetInt(p, "error");
 }
 
-// Client receives a PACK from the server
-PACK *HttpClientRecv(SOCK *s)
-{
-	BUF *b;
-	PACK *p;
-	HTTP_HEADER *h;
-	UINT size;
-	UCHAR *tmp;
-	HTTP_VALUE *v;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return NULL;
-	}
-
-	h = RecvHttpHeader(s);
-	if (h == NULL)
-	{
-		return NULL;
-	}
-
-	if (StrCmpi(h->Method, "HTTP/1.1") != 0 ||
-		StrCmpi(h->Target, "200") != 0)
-	{
-		FreeHttpHeader(h);
-		return NULL;
-	}
-
-	v = GetHttpValue(h, "Content-Type");
-	if (v == NULL || StrCmpi(v->Data, HTTP_CONTENT_TYPE2) != 0)
-	{
-		FreeHttpHeader(h);
-		return NULL;
-	}
-
-	size = GetContentLength(h);
-	if (size == 0 || size > MAX_PACK_SIZE)
-	{
-		FreeHttpHeader(h);
-		return NULL;
-	}
-
-	tmp = MallocEx(size, true);
-	if (RecvAll(s, tmp, size, s->SecureMode) == false)
-	{
-		Free(tmp);
-		FreeHttpHeader(h);
-		return NULL;
-	}
-
-	b = NewBuf();
-	WriteBuf(b, tmp, size);
-	Free(tmp);
-	FreeHttpHeader(h);
-
-	SeekBuf(b, 0, 0);
-	p = BufToPack(b);
-	FreeBuf(b);
-
-	return p;
-}
-
 // Create an entry to PACK for the dummy
 void CreateDummyValue(PACK *p)
 {
@@ -20121,545 +19980,6 @@ void CreateDummyValue(PACK *p)
 	PackAddData(p, "pencore", buf, size);
 
 	Free(buf);
-}
-
-// Client sends a PACK to the server
-bool HttpClientSend(SOCK *s, PACK *p)
-{
-	BUF *b;
-	bool ret;
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	char ip_str[MAX_SIZE];
-
-	// Validate arguments
-	if (s == NULL || p == NULL)
-	{
-		return false;
-	}
-
-	IPToStr(ip_str, sizeof(ip_str), &s->RemoteIP);
-
-	CreateDummyValue(p);
-
-	b = PackToBuf(p);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	h = NewHttpHeader("POST", HTTP_VPN_TARGET, "HTTP/1.1");
-
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Host", ip_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE2));
-
-	ret = PostHttp(s, h, b->Buf, b->Size);
-
-	FreeHttpHeader(h);
-	FreeBuf(b);
-
-	return ret;
-}
-
-// Server sends a PACK to the client
-bool HttpServerSend(SOCK *s, PACK *p)
-{
-	BUF *b;
-	bool ret;
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	// Validate arguments
-	if (s == NULL || p == NULL)
-	{
-		return false;
-	}
-
-	CreateDummyValue(p);
-
-	b = PackToBuf(p);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	h = NewHttpHeader("HTTP/1.1", "200", "OK");
-
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE2));
-
-	ret = PostHttp(s, h, b->Buf, b->Size);
-
-	FreeHttpHeader(h);
-	FreeBuf(b);
-
-	return ret;
-}
-
-// Replace unsafe characters in target
-void ReplaceUnsafeCharInTarget(char *target){
-	UINT i;
-	for(i = 0; target[i] ; i++) {
-		if(target[i] == '<')
-			target[i] = '(';
-		else if(target[i] == '>')
-			target[i] = ')';
-	}
-}
-
-// Sending the 501 Not Implemented error
-bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version)
-{
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	char *str;
-	UINT str_size;
-	char port_str[MAX_SIZE];
-	bool ret;
-	char host[MAX_SIZE];
-	UINT port;
-	// Validate arguments
-	if (s == NULL || target == NULL)
-	{
-		return false;
-	}
-
-	// Get the host name
-	//GetMachineName(host, MAX_SIZE);
-	Zero(host, sizeof(host));
-	IPToStr(host, sizeof(host), &s->LocalIP);
-	// Get the port number
-	port = s->LocalPort;
-
-	// Creating a header
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-
-	h = NewHttpHeader("HTTP/1.1", "501", "Method Not Implemented");
-
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
-
-	// Creating a Data
-	str_size = sizeof(http_501_str) * 2 + StrLen(target) + StrLen(host) + StrLen(method) + StrLen(version);
-	str = Malloc(str_size);
-	StrCpy(str, str_size, http_501_str);
-
-	// TARGET
-	ReplaceUnsafeCharInTarget(target);
-	ReplaceStri(str, str_size, str, "$TARGET$", target);
-
-	// HOST
-	ReplaceStri(str, str_size, str, "$HOST$", host);
-
-	// PORT
-	ToStr(port_str, port);
-	ReplaceStri(str, str_size, str, "$PORT$", port_str);
-
-	// METHOD
-	ReplaceStri(str, str_size, str, "$METHOD$", method);
-
-	// VERSION
-	ReplaceStri(str, str_size, str, "$VERSION$", version);
-
-	// Transmission
-	ret = PostHttp(s, h, str, StrLen(str));
-
-	FreeHttpHeader(h);
-	Free(str);
-
-	return ret;
-}
-
-// Sending a 404 Not Found error
-bool HttpSendNotFound(SOCK *s, char *target)
-{
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	char *str;
-	UINT str_size;
-	char port_str[MAX_SIZE];
-	bool ret;
-	char host[MAX_SIZE];
-	UINT port;
-	// Validate arguments
-	if (s == NULL || target == NULL)
-	{
-		return false;
-	}
-
-	// Get the host name
-	//GetMachineName(host, MAX_SIZE);
-	Zero(host, sizeof(host));
-	IPToStr(host, sizeof(host), &s->LocalIP);
-	// Get the port number
-	port = s->LocalPort;
-
-	// Creating a header
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-
-	h = NewHttpHeader("HTTP/1.1", "404", "Not Found");
-
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
-
-	// Creating a Data
-	str_size = sizeof(http_404_str) * 2 + StrLen(target) + StrLen(host);
-	str = Malloc(str_size);
-	StrCpy(str, str_size, http_404_str);
-
-	// TARGET
-	ReplaceUnsafeCharInTarget(target);
-	ReplaceStri(str, str_size, str, "$TARGET$", target);
-
-	// HOST
-	ReplaceStri(str, str_size, str, "$HOST$", host);
-
-	// PORT
-	ToStr(port_str, port);
-	ReplaceStri(str, str_size, str, "$PORT$", port_str);
-
-	// Transmission
-	ret = PostHttp(s, h, str, StrLen(str));
-
-	FreeHttpHeader(h);
-	Free(str);
-
-	return ret;
-}
-
-// Sending a 403 Forbidden error
-bool HttpSendForbidden(SOCK *s, char *target, char *server_id)
-{
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	char *str;
-	UINT str_size;
-	char port_str[MAX_SIZE];
-	bool ret;
-	char host[MAX_SIZE];
-	UINT port;
-	// Validate arguments
-	if (s == NULL || target == NULL)
-	{
-		return false;
-	}
-
-	// Get the host name
-	//GetMachineName(host, MAX_SIZE);
-	Zero(host, sizeof(host));
-	IPToStr(host, sizeof(host), &s->LocalIP);
-	// Get the port number
-	port = s->LocalPort;
-
-	// Creating a header
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-
-	h = NewHttpHeader("HTTP/1.1", "403", "Forbidden");
-
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-	AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
-	AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
-	AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE));
-
-	// Creating a Data
-	str_size = sizeof(http_403_str) * 2 + StrLen(target) + StrLen(host);
-	str = Malloc(str_size);
-	StrCpy(str, str_size, http_403_str);
-
-	// TARGET
-	ReplaceUnsafeCharInTarget(target);
-	ReplaceStri(str, str_size, str, "$TARGET$", target);
-
-	// HOST
-	ReplaceStri(str, str_size, str, "$HOST$", host);
-
-	// PORT
-	ToStr(port_str, port);
-	ReplaceStri(str, str_size, str, "$PORT$", port_str);
-
-	// Transmission
-	ret = PostHttp(s, h, str, StrLen(str));
-
-	FreeHttpHeader(h);
-	Free(str);
-
-	return ret;
-}
-
-// Get the date and time string for the HTTP header
-void GetHttpDateStr(char *str, UINT size, UINT64 t)
-{
-	SYSTEMTIME s;
-	static char *wday[] =
-	{
-		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-	};
-	static char *month[] =
-	{
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
-		"Nov", "Dec",
-	};
-	// Validate arguments
-	if (str == NULL)
-	{
-		return;
-	}
-	UINT64ToSystem(&s, t);
-
-	Format(str, size, "%s, %02u %s %04u %02u:%02u:%02u GMT",
-		wday[s.wDayOfWeek], s.wDay, month[s.wMonth - 1], s.wYear,
-		s.wHour, s.wMinute, s.wSecond);
-}
-
-// Get the Content-Length from the HTTP header
-UINT GetContentLength(HTTP_HEADER *header)
-{
-	UINT ret;
-	HTTP_VALUE *v;
-	// Validate arguments
-	if (header == NULL)
-	{
-		return 0;
-	}
-
-	v = GetHttpValue(header, "Content-Length");
-	if (v == NULL)
-	{
-		return 0;
-	}
-
-	ret = ToInt(v->Data);
-
-	return ret;
-}
-
-// Send the data in the HTTP
-bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size)
-{
-	char *header_str;
-	BUF *b;
-	bool ret;
-	// Validate arguments
-	if (s == NULL || header == NULL || (post_size != 0 && post_data == NULL))
-	{
-		return false;
-	}
-
-	// Check whether the Content-Length exists?
-	if (GetHttpValue(header, "Content-Length") == NULL)
-	{
-		char tmp[MAX_SIZE];
-		// Add because it does not exist
-		ToStr(tmp, post_size);
-		AddHttpValue(header, NewHttpValue("Content-Length", tmp));
-	}
-
-	// Convert the header to string
-	header_str = HttpHeaderToStr(header);
-	if (header_str == NULL)
-	{
-		return false;
-	}
-	b = NewBuf();
-	WriteBuf(b, header_str, StrLen(header_str));
-	Free(header_str);
-
-	// Append the data
-	WriteBuf(b, post_data, post_size);
-
-	// Send
-	ret = SendAll(s, b->Buf, b->Size, s->SecureMode);
-
-	FreeBuf(b);
-
-	return ret;
-}
-
-// Convert a HTTP header to a string
-char *HttpHeaderToStr(HTTP_HEADER *header)
-{
-	BUF *b;
-	char *tmp;
-	UINT i;
-	char *s;
-	// Validate arguments
-	if (header == NULL)
-	{
-		return NULL;
-	}
-
-	tmp = Malloc(HTTP_HEADER_LINE_MAX_SIZE);
-	b = NewBuf();
-
-	// Header
-	Format(tmp, HTTP_HEADER_LINE_MAX_SIZE,
-		"%s %s %s\r\n", header->Method, header->Target, header->Version);
-	WriteBuf(b, tmp, StrLen(tmp));
-
-	// Value
-	for (i = 0;i < LIST_NUM(header->ValueList);i++)
-	{
-		HTTP_VALUE *v = (HTTP_VALUE *)LIST_DATA(header->ValueList, i);
-		Format(tmp, HTTP_HEADER_LINE_MAX_SIZE,
-			"%s: %s\r\n", v->Name, v->Data);
-		WriteBuf(b, tmp, StrLen(tmp));
-	}
-
-	// Trailing newline
-	WriteBuf(b, "\r\n", 2);
-	s = Malloc(b->Size + 1);
-	Copy(s, b->Buf, b->Size);
-	s[b->Size] = 0;
-
-	FreeBuf(b);
-	Free(tmp);
-
-	return s;
-}
-
-// Send the HTTP header
-bool SendHttpHeader(SOCK *s, HTTP_HEADER *header)
-{
-	char *str;
-	bool ret;
-	// Validate arguments
-	if (s == NULL || header == NULL)
-	{
-		return false;
-	}
-
-	// Convert to string
-	str = HttpHeaderToStr(header);
-
-	// Transmission
-	ret = SendAll(s, str, StrLen(str), s->SecureMode);
-
-	Free(str);
-
-	return ret;
-}
-
-// Receive an HTTP header
-HTTP_HEADER *RecvHttpHeader(SOCK *s)
-{
-	TOKEN_LIST *token = NULL;
-	char *str = NULL;
-	HTTP_HEADER *header = NULL;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return NULL;
-	}
-
-	// Get the first line
-	str = RecvLine(s, HTTP_HEADER_LINE_MAX_SIZE);
-	if (str == NULL)
-	{
-		goto LABEL_ERROR;
-	}
-
-	// Split into tokens
-	token = ParseToken(str, " ");
-	if (token->NumTokens < 3)
-	{
-		goto LABEL_ERROR;
-	}
-
-	Free(str);
-	str = NULL;
-
-	// Creating a header object
-	header = NewHttpHeader(token->Token[0], token->Token[1], token->Token[2]);
-
-	if (StrCmpi(header->Version, "HTTP/0.9") == 0)
-	{
-		// The header ends with this line
-		FreeToken(token);
-		return header;
-	}
-
-	// Get the subsequent lines
-	while (true)
-	{
-		UINT pos;
-		HTTP_VALUE *v;
-		char *value_name, *value_data;
-		str = RecvLine(s, HTTP_HEADER_LINE_MAX_SIZE);
-		if (str == NULL)
-		{
-			goto LABEL_ERROR;
-		}
-		Trim(str);
-
-		if (StrLen(str) == 0)
-		{
-			// End of header
-			Free(str);
-			str = NULL;
-			break;
-		}
-
-		// Get the position of the colon
-		pos = SearchStr(str, ":", 0);
-		if (pos == INFINITE)
-		{
-			// The colon does not exist
-			goto LABEL_ERROR;
-		}
-		if ((pos + 1) >= StrLen(str))
-		{
-			// There is no data
-			goto LABEL_ERROR;
-		}
-
-		// Divide into the name and the data
-		value_name = Malloc(pos + 1);
-		Copy(value_name, str, pos);
-		value_name[pos] = 0;
-		value_data = &str[pos + 1];
-
-		v = NewHttpValue(value_name, value_data);
-		if (v == NULL)
-		{
-			Free(value_name);
-			goto LABEL_ERROR;
-		}
-
-		Free(value_name);
-
-		AddHttpValue(header, v);
-		Free(str);
-	}
-
-	FreeToken(token);
-
-	return header;
-
-LABEL_ERROR:
-	// Memory release
-	if (token)
-	{
-		FreeToken(token);
-	}
-	if (str)
-	{
-		Free(str);
-	}
-	if (header)
-	{
-		FreeHttpHeader(header);
-	}
-	return NULL;
 }
 
 // Receive a line
@@ -20711,149 +20031,6 @@ char *RecvLine(SOCK *s, UINT max_size)
 			}
 		}
 	}
-}
-
-// Creating a new HTTP value
-HTTP_VALUE *NewHttpValue(char *name, char *data)
-{
-	HTTP_VALUE *v;
-	// Validate arguments
-	if (name == NULL || data == NULL)
-	{
-		return NULL;
-	}
-
-	v = ZeroMalloc(sizeof(HTTP_VALUE));
-
-	v->Name = CopyStr(name);
-	v->Data = CopyStr(data);
-
-	Trim(v->Name);
-	Trim(v->Data);
-
-	return v;
-}
-
-// Look for the HTTP value from the HTTP header
-HTTP_VALUE *GetHttpValue(HTTP_HEADER *header, char *name)
-{
-	HTTP_VALUE *v, t;
-	// Validate arguments
-	if (header == NULL || name == NULL)
-	{
-		return NULL;
-	}
-
-	t.Name = name;
-	v = Search(header->ValueList, &t);
-	if (v == NULL)
-	{
-		return NULL;
-	}
-
-	return v;
-}
-
-// Add a HTTP value to the HTTP header
-void AddHttpValue(HTTP_HEADER *header, HTTP_VALUE *value)
-{
-	// Validate arguments
-	if (header == NULL || value == NULL)
-	{
-		return;
-	}
-
-	if (LIST_NUM(header->ValueList) < HTTP_HEADER_MAX_LINES)
-	{
-		Insert(header->ValueList, value);
-	}
-	else
-	{
-		FreeHttpValue(value);
-	}
-}
-
-// Create an HTTP header
-HTTP_HEADER *NewHttpHeader(char *method, char *target, char *version)
-{
-	return NewHttpHeaderEx(method, target, version, false);
-}
-HTTP_HEADER *NewHttpHeaderEx(char *method, char *target, char *version, bool no_sort)
-{
-	HTTP_HEADER *header;
-	// Validate arguments
-	if (method == NULL || target == NULL || version == NULL)
-	{
-		return NULL;
-	}
-
-	header = ZeroMalloc(sizeof(HTTP_HEADER));
-
-	header->Method = CopyStr(method);
-	header->Target = CopyStr(target);
-	header->Version = CopyStr(version);
-	header->ValueList = NewListFast(no_sort ? NULL : CompareHttpValue);
-
-	return header;
-}
-
-// Comparison function of the HTTP value
-int CompareHttpValue(void *p1, void *p2)
-{
-	HTTP_VALUE *v1, *v2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	v1 = *(HTTP_VALUE **)p1;
-	v2 = *(HTTP_VALUE **)p2;
-	if (v1 == NULL || v2 == NULL)
-	{
-		return 0;
-	}
-	return StrCmpi(v1->Name, v2->Name);
-}
-
-// Release the HTTP value
-void FreeHttpValue(HTTP_VALUE *value)
-{
-	// Validate arguments
-	if (value == NULL)
-	{
-		return;
-	}
-
-	Free(value->Data);
-	Free(value->Name);
-
-	Free(value);
-}
-
-// Release the HTTP header
-void FreeHttpHeader(HTTP_HEADER *header)
-{
-	UINT i;
-	HTTP_VALUE **values;
-	// Validate arguments
-	if (header == NULL)
-	{
-		return;
-	}
-
-	Free(header->Method);
-	Free(header->Target);
-	Free(header->Version);
-
-	values = ToArray(header->ValueList);
-	for (i = 0;i < LIST_NUM(header->ValueList);i++)
-	{
-		FreeHttpValue(values[i]);
-	}
-	Free(values);
-
-	ReleaseList(header->ValueList);
-
-	Free(header);
 }
 
 // Receive a PACK

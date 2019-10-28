@@ -1,7 +1,8 @@
 # SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 
 
 ###########################################################################
@@ -157,11 +158,11 @@ ERR_91					Unable to disconnect the Virtual Layer 3 Switch session. To delete th
 ERR_92					A Virtual Layer 3 Switch with the specified name already exists. Specify a different name.
 ERR_93					Specified Virtual Layer 3 Switch not found.
 ERR_94					The specified name is invalid. Check if the name contains characters that cannot be used.
-ERR_95					Failed to add the Virtual Layer 3 interface.
-ERR_96					Failed to delete the Virtual Layer 3 interface.
+ERR_95					Failed to add the Virtual Layer 3 interface. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96					Failed to delete the Virtual Layer 3 interface. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97					The Virtual Layer 3 interface that is connecting to the destination Virtual Hub of the specified Virtual Layer 3 interface already exists in the Virtual Layer 3 Switch. No more than one Virtual Layer 3 interface that connects to the same Virtual Hub can be defined in a Virtual Layer 3 Switch.
-ERR_98					Failed to add routing table entry.
-ERR_99					Failed to delete routing table entry.
+ERR_98					Failed to add routing table entry. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99					Failed to delete routing table entry. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100					The specified routing table entry already exists.
 ERR_101					The client clock and the server clock are not synchronized with each other. Check the time settings.
 ERR_102					Unable to start this Virtual Layer 3 Switch. \r\n\r\nTo start the Virtual Layer 3 Switch, at least 1 virtual interface must be defined in the Virtual Layer 3 Switch.
@@ -574,7 +575,8 @@ ERRDLG_DEVICE_ERROR		The connection with the VPN Server has been disconnected be
 # Concerning protocols
 PROTO_DIRECT_TCP		Direct TCP/IP Connection
 PROTO_HTTP_PROXY		Connection via HTTP Proxy
-PROTO_SOCKS_PROXY		Connection via SOCKS Proxy
+PROTO_SOCKS_PROXY		Connection via SOCKS4 Proxy
+PROTO_SOCKS5_PROXY		Connection via SOCKS5 Proxy
 PROTO_SSH				Connection via SSH Server
 PROTO_UNKNOWN			Unknown Protocol
 
@@ -936,6 +938,8 @@ CM_STOP_INST_VLAN_1		To install a Virtual Network Adapter on this computer you m
 CM_STOP_INST_VLAN_2		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter you must start the VPN Client Manager within a "Console Session". \r\n(Currently the user is not logged on to the Console Session (Session ID: 0).) \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_SHORTCUT_DESKTOP_MSG	To start a connection using the shortcut to the VPN Connection Setting, you must launch the shortcut file within the "Console Session". \r\n\r\nCurrently the user is logged on as the remote session (session ID: %u) and not as the Console Session.
 CM_HTTP_PROXY_WARNING	Connect via HTTP Proxy Server is selected. \r\n\r\nIn many cases, the HTTP proxy server will only allow 2 kinds of TCP port to be used for the connection to the destination server port number, HTTP protocol (TCP port number 80) and HTTPS protocol (TCP port number 443). \r\n(There are also cases when the proxy server does allow a wider choice of TCP port for connection.) \r\n\r\nWhen making a VPN connection via an HTTP proxy server that denies connections to server ports other than HTTP ports or HTTPS ports, you must specify 443 (HTTPS protocol) as the destination VPN Server port number. \r\n\r\nTo check whether the HTTP proxy server you are connecting via allows connection to ports other than port numbers 80 or 443, contact the administrator of the HTTP proxy server. \r\n\r\nCurrently, %d is specified as the destination VPN Server port number. Do you want to change the port number to 443 (HTTPS protocol)?\r\n(The port 443 of the VPN Servers you connect to must be set to listening status and ready for connection.) \r\nIf you are unsure, then contact the system administrator or the network administrator.
+CM_HTTP_HEADER_COLUMN_0	Name
+CM_HTTP_HEADER_COLUMN_1	Value
 CM_PASSWORD_CHANGED		The password has been changed.
 CM_ACCOUNT_SETTING_FILE	VPN Connection Setting Files (*.VPN)|*.vpn|All Files (*.*)|*.*
 CM_ACCOUNT_SAVE_TITLE	Enter a VPN Connection Setting File's File Name for the Export Destination
@@ -1072,7 +1076,7 @@ SVC_HIDE_TRAY_MSG		This will hide the tasktray icons when starting %S in user mo
 
 
 # Concerning services (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start [--foreground] - Start the %S service. '--foreground' parameter prevents switching to daemon mode.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -1784,7 +1788,9 @@ LS_LICENSE_NOT_VPNSERVER	Connection "%S": License error occurred. The VPN Client
 LS_LICENSE_NOT_VPNCLUSTER	Connection "%S": License error occurred. The license registered on this VPN Server is of a type that prevents the use of the current clustering function and a VPN Client has attempted connection while operating in Cluster mode. You must restart the VPN Server.
 LS_LICENSE_VIOLATION		Connection "%S": A license violation has occurred on the VPN Server and connections are not being received.
 LS_LICENSE_VIOLATION_DETECTED	A license violation has been detected. A different VPN Server is operating with the same server ID "%I64u" as this VPN Server. It is possible that there are two or more VPN Servers in the cluster that are using the same license. Check the license information of each VPN Server.
-
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN Module: 
@@ -2082,6 +2088,7 @@ L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
 
 
 # Concerning Microsoft.c
+MS_VIRTUAL				Proprietary Virtual/Internal Interface
 MS_ETHERNET				Ethernet Interface
 MS_TOKENRING			Token Ring Interface
 MS_FDDI					FDDI Interface
@@ -2290,7 +2297,8 @@ STATIC9					You can connect to a VPN Server via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via &SOCKS Proxy Server
+R_SOCKS					Connect via &SOCKS4 Proxy Server
+R_SOCKS5				Connect via &SOCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Server Certificate Veri&fication Option:
 R_CHECK_CERT			Always Verify Server &Certificate
@@ -2332,10 +2340,20 @@ STATIC2					&Host Name:
 STATIC3					Port:
 STATIC4					&User Name:
 STATIC5					&Password:
+B_HTTP_HEADER			Custom HTTP header values
 IDOK					&OK
 IDCANCEL				Cancel
 STATIC6					(optional)
 STATIC7					(optional)
+
+
+PREFIX					D_CM_PROXY_HTTP_HEADER
+CAPTION					Custom Proxy HTTP Header Values
+B_NEW					New
+B_DELETE				Delete
+B_CLEAR					Clear
+IDOK					&OK
+IDCANCEL				Cancel
 
 
 PREFIX					D_CM_DETAIL
@@ -2432,7 +2450,7 @@ STATIC7					&Keep Alive Internet Connection Function:
 
 PREFIX					D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				THIS SOFTWARE IS FREEWARE DEVELOPED UNDER THE SOFTETHER VPN PROJECT AT UNIVERSITY OF TSUKUBA, WITHOUT WARRANTY OF AND KIND. IN NO EVENT SHALL THE DEVELOPERS, COPYRIGHT OWNERS OR DISTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.\r\n\r\nSoftEther VPN is a work of the research and development project of Japanese Government, subsidized by Ministry of Economy, Trade and Industry of Japan, administrated by Information Promotion Agency.
 IDCANCEL				&OK
@@ -2504,7 +2522,8 @@ STATIC9					You can connect to a VPN Server via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
+R_SOCKS					Connect via S&OCKS4 Proxy Server
+R_SOCKS5				Connect via S&OCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Select Administration &Mode and Enter Password
 STATIC12				You can connect to VPN Server using either Server Admin Mode or Virtual Hub Admin Mode.\r\n\r\nServer Admin Mode allows you manage entire VPN Server and all Virtual Hubs. \r\n\r\nVirtual Hub Admin Mode allows you manage only one Virtual Hub for which you hold privileges.
@@ -4094,7 +4113,8 @@ STATIC9					You can connect via a proxy server.
 STATIC10				Proxy &Type:
 R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
 R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
+R_SOCKS					Connect via S&OCKS4 Proxy Server
+R_SOCKS5				Connect via S&OCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 IDOK					&OK
 IDCANCEL				Cancel
@@ -4441,12 +4461,12 @@ CMD_VPNCMD_CMD			If the optional command 'commands...' is included after /CMD, t
 CMD_VPNCMD_CSV			You can specify this option to enable CSV outputs. Results of each command will be printed in the CSV format. It is useful for processing the results by other programs.
 CMD_VPNCMD_CS_1			By using vpncmd program, the following can be achieved. \n\n1. Management of VPN Server or VPN Bridge \n2. Management of VPN Client\n3. Use of VPN Tools (certificate creation and Network Traffic Speed Test Tool)\n\n
 CMD_VPNCMD_CS_2			Select 1, 2 or 3: 
-CMD_VPNCMD_HOST_1		Specify the host name or IP address of the computer that the destination VPN Server or VPN Bridge is operating on. \nBy specifying according to the format 'host name:port number', you can also specify the port number. \n(When the port number is unspecified, 443 is used.)\nIf nothing is input and the Enter key is pressed, the connection will be made to the port number 8888 of localhost (this computer).
+CMD_VPNCMD_HOST_1		Specify the host name or IP address of the computer that the destination VPN Server or VPN Bridge is operating on. \nBy specifying according to the format 'host name:port number', you can also specify the port number. \n(When the port number is unspecified, 443 is used.)\nIf nothing is input and the Enter key is pressed, the connection will be made to the port number 443 of localhost (this computer).
 CMD_VPNCMD_HOST_2		Specify the host name or IP address of the computer that the destination VPN Client is operating on. \nIf nothing is input and Enter is pressed, connection will be made to localhost (this computer).
 CMD_VPNCMD_HOST_3		Hostname of IP Address of Destination: 
 CMD_VPNCMD_HUB_1		If connecting to the server by Virtual Hub Admin Mode, please input the Virtual Hub name. \nIf connecting by server admin mode, please press Enter without inputting anything.
 CMD_VPNCMD_HUB_2		Specify Virtual Hub Name: 
-CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT		SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1	Access has been denied. Possibly the password is incorrect, or perhaps you are connecting by an incorrect admin mode. You can try inputting the password again. To cancel, press Ctrl+D.
 CMD_VPNCMD_PASSWORD_2	Password: 
 CMD_VPNCMD_ERROR		Error occurred. (Error code: %u)\n%s
@@ -5307,6 +5327,35 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
 
 
+# CascadeHttpHeader* commands
+CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# CascadeHttpHeaderAdd command
+CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# CascadeHttpHeaderDelete command
+CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
+CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# CascadeHttpHeaderGet command
+CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
+CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+
+
 # CascadeProxyNone command
 CMD_CascadeProxyNone	Specify Direct TCP/IP Connection as the Connection Method of Cascade Connection
 CMD_CascadeProxyNone_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Direct TCP/IP Connection as the connection method to use, in which case the connection route will not be via a proxy server. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -5325,15 +5374,24 @@ CMD_CascadeProxyHttp_PASSWORD	When user authentication is required to connect to
 CMD_CascadeProxyHttp_Prompt_Server	Proxy Server Host Name and Port Number: 
 
 
-
 # CascadeProxySocks command
-CMD_CascadeProxySocks	Set Connection Method of Cascade Connection to be via an SOCKS Proxy Server
-CMD_CascadeProxySocks_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nThe on-route SOCKS server must be compatible with SOCKS Version 4. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CascadeProxySocks	Set Connection Method of Cascade Connection to be via a SOCKS4 Proxy Server
+CMD_CascadeProxySocks_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS4 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS4 Proxy server to communicate via as well as a user name and password (when required). \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS proxy server using the format "host name:port number".
-CMD_CascadeProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
-CMD_CascadeProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS proxy server, specify the password. Specify this together with the /USERNAME parameter.
+CMD_CascadeProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS4 proxy server using the format "host name:port number".
+CMD_CascadeProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_CascadeProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the password. Specify this together with the /USERNAME parameter.
+
+
+# CascadeProxySocks5 command
+CMD_CascadeProxySocks5	Set Connection Method of Cascade Connection to be via a SOCKS5 Proxy Server
+CMD_CascadeProxySocks5_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to set Connect via SOCKS5 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeProxySocks5_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS5 proxy server using the format "host name:port number".
+CMD_CascadeProxySocks5_USERNAME	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_CascadeProxySocks5_PASSWORD	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the password. Specify this together with the /USERNAME parameter.
 
 
 # CascadeServerCertEnable command
@@ -6250,6 +6308,24 @@ CMD_OpenVpnMakeConfig_OK			The sample setting file was saved as "%s". You can un
 CMD_OpenVpnMakeConfig_ERROR			The sample setting files were unable to be saved as "%s". The filename might be invalid.\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable command
 CMD_SstpEnable			Enable / Disable Microsoft SSTP VPN Clone Server Function
 CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -6594,6 +6670,35 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
+# AccountHttpHeader* commands
+CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# AccountHttpHeaderAdd command
+CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# AccountHttpHeaderDelete command
+CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
+CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# AccountHttpHeaderGet command
+CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
+CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+
+
 # AccountProxyNone command
 CMD_AccountProxyNone	Specify Direct TCP/IP Connection as the Connection Method of VPN Connection Setting
 CMD_AccountProxyNone_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Direct TCP/IP Connection as the connection method to use, in which case the connection route will not be via a proxy server.
@@ -6612,15 +6717,24 @@ CMD_AccountProxyHttp_PASSWORD	When user authentication is required to connect to
 CMD_AccountProxyHttp_Prompt_Server	Proxy Server Host Name and Port Number: 
 
 
-
 # AccountProxySocks command
-CMD_AccountProxySocks	Set Connection Method of VPN Connection Setting to be via an SOCKS Proxy Server
-CMD_AccountProxySocks_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS Proxy server to communicate via as well as a user name and password (when required). \nThe on-route SOCKS server must be compatible with SOCKS Version 4.
+CMD_AccountProxySocks	Set Connection Method of VPN Connection Setting to be via a SOCKS4 Proxy Server
+CMD_AccountProxySocks_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS4 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS4 Proxy server to communicate via as well as a user name and password (when required).
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS proxy server using the format [host name:port number].
-CMD_AccountProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
-CMD_AccountProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS proxy server, specify the password. Specify this together with the /USERNAME parameter.
+CMD_AccountProxySocks_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS4 proxy server using the format [host name:port number].
+CMD_AccountProxySocks_USERNAME	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_AccountProxySocks_PASSWORD	When user authentication is required to connect to the on-route SOCKS4 proxy server, specify the password. Specify this together with the /USERNAME parameter.
+
+
+# AccountProxySocks5 command
+CMD_AccountProxySocks5	Set Connection Method of VPN Connection Setting to be via a SOCKS5 Proxy Server
+CMD_AccountProxySocks5_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to set Connect via SOCKS5 Proxy Server as the method of connection to use, which requires the specification of the host name and port number of the SOCKS5 Proxy server to communicate via as well as a user name and password (when required).
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountProxySocks5_SERVER	Specify the host name or IP address, and port number of the on-route SOCKS5 proxy server using the format [host name:port number].
+CMD_AccountProxySocks5_USERNAME	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the user name. Also, specify the /PASSWORD parameter at the same time. If the parameters /USERNAME and /PASSWORD are not specified, the user authentication data will not be set.
+CMD_AccountProxySocks5_PASSWORD	When user authentication is required to connect to the on-route SOCKS5 proxy server, specify the password. Specify this together with the /USERNAME parameter.
 
 
 # AccountServerCertEnable command
@@ -7041,6 +7155,8 @@ SW_WEB2_TITLE								Specify Files
 
 SW_UNINSTALLINFO_URL						http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER					SoftEther VPN Project
+
+SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
 
 
 SW_COMPONENTS_ABOUT_TAG						About %s

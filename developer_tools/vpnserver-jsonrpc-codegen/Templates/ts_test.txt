@@ -1,0 +1,48 @@
+﻿// Test sample code for SoftEther VPN Server JSON-RPC Stub
+// Runs on both web browsers and Node.js
+// 
+// sample.ts
+// Automatically generated at __TIMESTAMP__ by vpnserver-jsonrpc-codegen
+// 
+// This sample code shows how to call all available RPC functions.
+// You can copy and paste test code to write your own web browser TypeScript / JavaScript codes.
+//
+// Licensed under the Apache License 2.0
+// Copyright (c) 2014-__YEAR__ SoftEther VPN Project
+
+// On the web browser uncomment below imports as necessary to support old browsers.
+// import "core-js/es6/promise";
+// import "core-js/es6/string";
+// import "whatwg-fetch";
+
+
+// Import the vpnrpc.ts RPC stub.
+import * as VPN from "./vpnrpc";
+
+// Output JSON-RPC request / reply strings to the debug console.
+VPN.VpnServerRpc.SetDebugMode(true);
+
+let api: VPN.VpnServerRpc;
+// Creating the VpnServerRpc class instance here.
+if (VPN.VpnServerRpc.IsNodeJS() === false) // // Determine if this JavaScript environment is on the Node.js or not
+{
+    // On the web browser. We do not need to specify any hostname, port or credential as the web browser already knows it.
+    api = new VPN.VpnServerRpc();
+}
+else
+{
+    // On the Node.js. We need to specify the target VPN Server's hostname, port and credential.
+    api = new VPN.VpnServerRpc("127.0.0.1", 443, "", "PASSWORD_HERE", false);
+}
+
+// A variable for test
+let hub_name = "test";
+
+// Call the Test_All() function to test almost all VPN APIs.
+Test_All();
+
+
+
+__TESTS__
+
+

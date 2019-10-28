@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Virtual.c
@@ -5307,7 +5201,7 @@ TCP_RESET:
 			seq64 = n->RecvSeq + (UINT64)seq - (n->RecvSeqInit + n->RecvSeq) % X32;
 			if ((n->RecvSeqInit + n->RecvSeq) % X32 > seq)
 			{
-				if (((n->RecvSeqInit + n->RecvSeq) % X32 - ack) >= 0x80000000)
+				if (((n->RecvSeqInit + n->RecvSeq) % X32 - seq) >= 0x80000000)
 				{
 					seq64 = n->RecvSeq + (UINT64)seq + X32 - (n->RecvSeqInit + n->RecvSeq) % X32;
 				}
@@ -6224,7 +6118,7 @@ void EncodeNetBiosName(UCHAR *dst, char *src)
 		copy_len = 16;
 	}
 
-	Copy(tmp, src, StrLen(src));
+	Copy(tmp, src, copy_len);
 
 	wp = 0;
 
@@ -9062,8 +8956,8 @@ void FreeDhcpServer(VH *v)
 		return;
 	}
 
-	// Remove the all lease entries
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+	// Empty the leases lists
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 		FreeDhcpLease(d);
@@ -9071,6 +8965,15 @@ void FreeDhcpServer(VH *v)
 
 	ReleaseList(v->DhcpLeaseList);
 	v->DhcpLeaseList = NULL;
+
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+		FreeDhcpLease(d);
+	}
+
+	ReleaseList(v->DhcpPendingLeaseList);
+	v->DhcpPendingLeaseList = NULL;
 }
 
 // Initialize the DHCP server
@@ -9084,6 +8987,29 @@ void InitDhcpServer(VH *v)
 
 	// Create a list
 	v->DhcpLeaseList = NewList(CompareDhcpLeaseList);
+	v->DhcpPendingLeaseList = NewList(CompareDhcpLeaseList);
+}
+
+// Search for a pending DHCP lease item by the IP address
+DHCP_LEASE *SearchDhcpPendingLeaseByIp(VH *v, UINT ip)
+{
+	UINT i;
+	// Validate arguments
+	if (v == NULL)
+	{
+		return NULL;
+	}
+
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+		if (d->IpAddress == ip)
+		{
+			return d;
+		}
+	}
+
+	return NULL;
 }
 
 // Search for a DHCP lease item by the IP address
@@ -9096,7 +9022,7 @@ DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip)
 		return NULL;
 	}
 
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 		if (d->IpAddress == ip)
@@ -9106,6 +9032,22 @@ DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip)
 	}
 
 	return NULL;
+}
+
+// Search for a pending DHCP lease item by the MAC address
+DHCP_LEASE *SearchDhcpPendingLeaseByMac(VH *v, UCHAR *mac)
+{
+	DHCP_LEASE *d, t;
+	// Validate arguments
+	if (v == NULL || mac == NULL)
+	{
+		return NULL;
+	}
+
+	Copy(&t.MacAddress, mac, 6);
+	d = Search(v->DhcpPendingLeaseList, &t);
+
+	return d;
 }
 
 // Search for a DHCP lease item by the MAC address
@@ -9205,9 +9147,8 @@ void PollingDhcpServer(VH *v)
 	}
 	v->LastDhcpPolling = v->Now;
 
-	// Remove expired entries
-FIRST_LIST:
-	for (i = 0;i < LIST_NUM(v->DhcpLeaseList);i++)
+LIST_CLEANUP:
+	for (i = 0; i < LIST_NUM(v->DhcpLeaseList); ++i)
 	{
 		DHCP_LEASE *d = LIST_DATA(v->DhcpLeaseList, i);
 
@@ -9215,7 +9156,21 @@ FIRST_LIST:
 		{
 			FreeDhcpLease(d);
 			Delete(v->DhcpLeaseList, d);
-			goto FIRST_LIST;
+			goto LIST_CLEANUP;
+		}
+	}
+
+PENDING_LIST_CLEANUP:
+	// Remove expired entries
+	for (i = 0; i < LIST_NUM(v->DhcpPendingLeaseList); ++i)
+	{
+		DHCP_LEASE *d = LIST_DATA(v->DhcpPendingLeaseList, i);
+
+		if (d->ExpireTime < v->Now)
+		{
+			FreeDhcpLease(d);
+			Delete(v->DhcpPendingLeaseList, d);
+			goto PENDING_LIST_CLEANUP;
 		}
 	}
 }
@@ -9257,6 +9212,11 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 	{
 		// IP address is specified
 		DHCP_LEASE *d = SearchDhcpLeaseByIp(v, request_ip);
+		if (d == NULL)
+		{
+			d = SearchDhcpPendingLeaseByIp(v, request_ip);
+		}
+
 		if (d != NULL)
 		{
 			// If an entry for the same IP address already exists,
@@ -9293,6 +9253,11 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 		// If there is any entry with the same MAC address
 		// that are already registered, use it with priority
 		DHCP_LEASE *d = SearchDhcpLeaseByMac(v, mac);
+		if (d == NULL)
+		{
+			d = SearchDhcpPendingLeaseByMac(v, mac);
+		}
+
 		if (d != NULL)
 		{
 			// Examine whether the found IP address is in the allocation region
@@ -9340,7 +9305,7 @@ UINT GetFreeDhcpIpAddress(VH *v)
 	for (i = ip_start; i <= ip_end;i++)
 	{
 		UINT ip = Endian32(i);
-		if (SearchDhcpLeaseByIp(v, ip) == NULL)
+		if (SearchDhcpLeaseByIp(v, ip) == NULL && SearchDhcpPendingLeaseByIp(v, ip) == NULL)
 		{
 			// A free IP address is found
 			return ip;
@@ -9390,7 +9355,7 @@ UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac)
 
 		new_ip = Endian32(ip_start + (rand_int % (ip_end - ip_start + 1)));
 
-		if (SearchDhcpLeaseByIp(v, new_ip) == NULL)
+		if (SearchDhcpLeaseByIp(v, new_ip) == NULL && SearchDhcpPendingLeaseByIp(v, new_ip) == NULL)
 		{
 			// A free IP address is found
 			return new_ip;
@@ -9507,8 +9472,9 @@ void VirtualDhcpServer(VH *v, PKT *p)
 			if (opt->Opcode == DHCP_REQUEST)
 			{
 				DHCP_LEASE *d;
-				char mac[MAX_SIZE];
-				char str[MAX_SIZE];
+				char client_mac[MAX_SIZE];
+				char client_ip[MAX_SIZE];
+
 				// Remove old records with the same IP address
 				d = SearchDhcpLeaseByIp(v, ip);
 				if (d != NULL)
@@ -9517,17 +9483,22 @@ void VirtualDhcpServer(VH *v, PKT *p)
 					Delete(v->DhcpLeaseList, d);
 				}
 
+				d = SearchDhcpPendingLeaseByIp(v, ip);
+				if (d != NULL)
+				{
+					FreeDhcpLease(d);
+					Delete(v->DhcpPendingLeaseList, d);
+				}
+
 				// Create a new entry
-				d = NewDhcpLease(v->DhcpExpire, p->MacAddressSrc,
-					ip, v->DhcpMask,
-					opt->Hostname);
+				d = NewDhcpLease(v->DhcpExpire, p->MacAddressSrc, ip, v->DhcpMask, opt->Hostname);
 				d->Id = ++v->DhcpId;
 				Add(v->DhcpLeaseList, d);
-				MacToStr(mac, sizeof(mac), d->MacAddress);
 
-				IPToStr32(str, sizeof(str), d->IpAddress);
+				MacToStr(client_mac, sizeof(client_mac), d->MacAddress);
+				IPToStr32(client_ip, sizeof(client_ip), d->IpAddress);
 
-				NLog(v, "LH_NAT_DHCP_CREATED", d->Id, mac, str, d->Hostname, v->DhcpExpire / 1000);
+				NLog(v, "LH_NAT_DHCP_CREATED", d->Id, client_mac, client_ip, d->Hostname, v->DhcpExpire / 1000);
 			}
 
 			// Respond
@@ -9616,12 +9587,25 @@ void VirtualDhcpServer(VH *v, PKT *p)
 					char client_mac[MAX_SIZE];
 					char client_ip[64];
 					IP ips;
+
 					BinToStr(client_mac, sizeof(client_mac), p->MacAddressSrc, 6);
 					UINTToIP(&ips, ip);
 					IPToStr(client_ip, sizeof(client_ip), &ips);
-					Debug("DHCP %s : %s given %s\n",
-						ret.Opcode == DHCP_OFFER ? "DHCP_OFFER" : "DHCP_ACK",
-						client_mac, client_ip);
+
+					if (ret.Opcode == DHCP_OFFER)
+					{
+						// DHCP_OFFER
+						DHCP_LEASE *d = NewDhcpLease(5000, p->MacAddressSrc, ip, v->DhcpMask, opt->Hostname);
+						d->Id = LIST_NUM(v->DhcpPendingLeaseList);
+						Add(v->DhcpPendingLeaseList, d);
+
+						Debug("VirtualDhcpServer(): %s has been marked as pending for %s\n", client_ip, client_mac);
+					}
+					else
+					{
+						// DHCP_ACK
+						Debug("VirtualDhcpServer(): %s has been assigned to %s\n", client_ip, client_mac);
+					}
 				}
 
 				// Build a DHCP option

@@ -1,7 +1,7 @@
-﻿# SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+﻿# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 #
 # Contributors:
 # - YF (https://github.com/yfdyh000)
@@ -157,11 +157,11 @@ ERR_91						无法断开虚拟 3 层交换机会话。要删除会话，请停�
 ERR_92						具有指定名称的虚拟 3 层交换机已存在。指定一个不同的名称。
 ERR_93						找不到指定的虚拟 3 层交换机。
 ERR_94						指定的名称无效。检查名称是否有不能使用的字符
-ERR_95						无法添加虚拟 3 层接口。
-ERR_96						无法删除虚拟 3 层接口。
+ERR_95						无法添加虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96						无法删除虚拟 3 层接口。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97						与指定虚拟 3 层交换接口的目标虚拟 HUB 连接的虚拟 3 层接口已在虚拟 3 层交换机中存在。不能在同一个虚拟 3 层交换机中定义超过一个连接到同一个虚拟 HUB 的虚拟 3 层接口。
-ERR_98						无法添加路由表项。
-ERR_99						无法删除路由表项。
+ERR_98						无法添加路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99						无法删除路由表项。Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100						指定的路由表项已存在。
 ERR_101						客户端和服务器的时钟彼此不同步。检查时间设置。
 ERR_102						无法启动此虚拟 3 层交换机。 要启动虚拟 3 层交换机，必须在虚拟 3 层交换机定义至少一个虚拟接口。
@@ -451,7 +451,7 @@ WINVER_ERROR_PC_REMOTE		远程服务器
 
 
 # 开源版本的警告
-OSS_MSG						欢迎来到 SoftEther VPN 服务器学术版 !\r\n\r\n此 VPN 服务器作为日本筑波大学的一个学术研究由免费软件开发的，且由，开源 (GPL) SoftEther 项目 (http://www.softether.org/) 为公众利益免费发布的。\r\n\r\nSoftEther VPN 软件是作为筑波大学和 SoftEther 公司之间的联合研究合同的一部分而发布给公众的。SoftEther VPN 软件的开发和发布仅为学术研究目的。因此，对 SoftEther VPN 软件不提供支持服务，即使它包含错误或漏洞。用户将对使用 SoftEther VPN 的结果承担责任。 SoftEther VPN 的开发者和发行者都将永远不会为任何后果或损失承担责任。\r\n\r\n在您同意上述启示后，使用 SoftEther VPN 服务器享受 VPN 通信。\r\n\r\n对于 SoftEther VPN 的更多细节，请参阅 http://www.softether.org/。\r\n\r\n
+OSS_MSG						欢迎来到 SoftEther VPN 服务器学术版 !\r\n\r\n此 VPN 服务器作为日本筑波大学的一个学术研究由免费软件开发的，且由，开源 SoftEther 项目 (http://www.softether.org/) 为公众利益免费发布的。\r\n\r\nSoftEther VPN 软件是作为筑波大学和 SoftEther 公司之间的联合研究合同的一部分而发布给公众的。SoftEther VPN 软件的开发和发布仅为学术研究目的。因此，对 SoftEther VPN 软件不提供支持服务，即使它包含错误或漏洞。用户将对使用 SoftEther VPN 的结果承担责任。 SoftEther VPN 的开发者和发行者都将永远不会为任何后果或损失承担责任。\r\n\r\n在您同意上述启示后，使用 SoftEther VPN 服务器享受 VPN 通信。\r\n\r\n对于 SoftEther VPN 的更多细节，请参阅 http://www.softether.org/。\r\n\r\n
 
 
 # NAT Traversal warning
@@ -581,7 +581,8 @@ ERRDLG_DEVICE_ERROR			与 VPN Server 的连接被中断，因为虚拟网络适�
 # 关于协议
 PROTO_DIRECT_TCP			直接的 TCP/IP 连接
 PROTO_HTTP_PROXY			通过 HTTP 代理服务器连接
-PROTO_SOCKS_PROXY			通过 SOCKS 代理服务器连接
+PROTO_SOCKS_PROXY			通过 SOCKS4 代理服务器连接
+PROTO_SOCKS5_PROXY			通过 SOCKS5 代理服务器连接
 PROTO_SSH					通过 SSH 服务器连接
 PROTO_UNKNOWN				未知协议
 
@@ -945,6 +946,8 @@ CM_STOP_INST_VLAN_1			要想在此计算机上安装虚拟网络适配器，您�
 CM_STOP_INST_VLAN_2			要想在此计算机上安装虚拟网络适配器，您必须在“控制台会话”下启动 VPN Client 管理器。\r\n\r\n目前，此计算机上已安装 %s，且用户已登入远程会话 (会话ID: %u) 而不是控制台进程。\r\n若要安装虚拟网络适配器，必须在“控制台会话”下启动 VPN Client 管理器。\r\n(目前用户并未登入到控制台会话 (会话ID: 0)。) \r\n\r\n首先使用切换用户功能从本地登入到计算机，或在远程桌面使用 “/console” 论据功能，或切换计算机的本地控制台设备，之后启动 VPN Client 管理器，并安装虚拟网络适配器。
 CM_SHORTCUT_DESKTOP_MSG		若要使用 VPN 连接设置快捷方式启动连接，您必须在“控制台会话”下运行快捷方式文件。\r\n\r\n目前用户作为远程会话 (会话ID: %u) 登入而不是控制台会话。
 CM_HTTP_PROXY_WARNING		已选择“通过 HTTP 代理服务器连接”。\r\n\r\n一般情况下，HTTP 服务器只允许两种 TCP 端口作为连接到目标服务器的端口号: HTTP 协议 (TCP 端口号 80) 和 HTTPS 协议 (TCP 端口号 443)。\r\n(同样，也有的代理服务器提供更宽泛的 TCP 端口供连接使用。) \r\n\r\n当通过一台禁用除 HTTP 端口或 HTTPS 端口的 HTTP 代理服务器建立 VPN 连接时，您必须指定 443 (HTTPS 协议) 作为目标 VPN Server 的端口号。\r\n\r\n要检查您当前使用的 HTTP 代理服务器是否允许 80 或 443 意外的端口，请与 HTTP 代理服务器的管理员联系。\r\n\r\n目前 %d 指定为目标 VPN Server 的端口号。您是否要更改端口号为 443 (HTTPS 协议) ?\r\n(您所连接的 VPN Server 的 443 端口必须被设为监听状态并且空闲。) \r\n如果您无法确定，请与系统管理员或网络管理员联系。
+CM_HTTP_HEADER_COLUMN_0		Name
+CM_HTTP_HEADER_COLUMN_1		Value
 CM_PASSWORD_CHANGED			密码已更改。
 CM_ACCOUNT_SETTING_FILE		VPN 连接设置文件 (*.VPN)|*.vpn|所有文件 (*.*)|*.*
 CM_ACCOUNT_SAVE_TITLE		输入要导出的 VPN 连接设置文件的文件名
@@ -1083,7 +1086,7 @@ SVC_HIDE_TRAY_MSG			启动 %S 用户模式时将隐藏任务栏图标。\r\n从�
 
 
 #关于服务 (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -1660,7 +1663,7 @@ SM_ADVANCED_REDIRECT_URL_HINT_TITLE	如何使用高级 HTTP 重定向功能
 SM_ADVANCED_REDIRECT_URL_HINT	高级 HTTP 重定向(为专家)\r\n\r\n此字符串“<INFO>”是一个占位符。它可以嵌入重定向的 URL 中。\r\n\r\n嵌入 URL 示例：\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\n当客户端将被重定向，重定向的实际 URL 目的地将被取代如下。\r\n\r\n用户名|会话ID|IP 地址|日期和时间|哈希值\r\n\r\n替换后示例：zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\n各字段的详情描述如下。\r\n\r\n用户名：当前 VPN 会话的用户名将被放置。\r\n\r\n会话ID：VPN 会话的会话 ID 将被放置\r\n\r\n日期和时间：14 位数字将以'YYYYMMDDHHMMSS’格式放置(时区是 UTC)\r\n\r\n哈希值：代表 20 个字节二进制数据的一个 40 字符的十六进制字符串。二进制数据是 SHA-1 哈希函数至临时字符串的结果。在重定向 URL 中“|”符号后，临时字符串是上述字段的位阵列加上秘密字符串的结合。(在上面的例子中，“秘密”是秘密字符串)。如果在 URL 中没有“|”符号，没有哈希值将被添加。\r\n\r\n哈希值的目的：秘密字符串如密钥般有效。感谢密钥。在重定向 URL 中接收重定向查询字符串的 CGI 程序，可以验证包含在 URL 中参数的完整性。\r\n
 SM_ADVANCED_REDIRECT_URL_MSG	URL 必须以“http://”或“https://”开始
 SM_DISABLE_DDNS_HINT_CAPTION	禁用动态 DNS 功能
-SM_DISABLE_DDNS_HINT		禁用动态 DNS 功能，修改 VPN Server 的配置文件。\r\n\r\n此“declare root”指令具有“declare DDnsClient”的指令。在该指令中，你可以切换“bool Disable”从假到 true，并重新启动 VPN Server ，然后动态 DNS 功能将被禁用。\r\n
+SM_DISABLE_DDNS_HINT		需要修改 VPN Server 的配置文件以禁用动态 DNS 功能。\r\n\r\n“declare root”指令下具有“declare DDnsClient”指令。在该指令中，你可以将“bool Disable”从false切换到 true，并重新启动 VPN Server ，然后动态 DNS 功能将被禁用。\r\n
 SM_REGENERATE_CERT_MSG		VPN Server 的证书被替换为新的。\r\n\r\n这会影响到被配置验证 VPN Server 证书的所有 VPN Client。\r\n您要继续吗？
 SM_DDNS_SERVER_CERT_MSG	DDNS 主机名更改为“%S”。\r\n\r\n如果您计划使用 Microsoft SSTP VPN 连接到 VPN Server ，从 Windows Vista 或 Windows 更高版本指定 DDNS 主机名为 VPN Server 的目标，由于安全原因， VPN Server 的目标主机名必须与 VPN Server 证书的 CN(Common Name)字段完全匹配。\r\n\r\n您要重新生成的服务器证书，以匹配 CN 值到“%S”吗？\r\n(单击“否”继续使用当前的服务器证书)。
 SM_DDNS_SERVER_CERT_OK		VPN Server 的 SSL 证书现在已再次生成。\r\n\r\n当你让Microsoft SSTP VPN Client 连接到 VPN Server 时，你应该指定当前的 DDNS 主机名“%S”作为目标服务器的主机名。\r\n你也必须事先在 Windows 的“受信任的根证书”列表中添加这个 VPN Server 的证书。\r\n(要安装根证书到 Windows 中，在“证书“的小程序里打开 MMC，并导航到“本地计算机”。之后，你可以导入证书到的受信任的根证书列表。\r\详细说明请参考 Microsoft 的文档。)\r\n\ṛ\n您要以 X.509 格式保存新的 SSL 证书作为一个文件吗？
@@ -1802,6 +1805,9 @@ LS_LICENSE_NOT_VPNSERVER	连接 "%S": 许可证错误。VPN Client 尝试连接�
 LS_LICENSE_NOT_VPNCLUSTER	连接 "%S": 许可证错误。此 VPN Server 上注册的许可证是禁止使用当前群集功能的类型，且一个 VPN Client 已尝试在群集模式下连接。您必须重启 VPN Server。
 LS_LICENSE_VIOLATION		连接 "%S": VPN Server 发生违反许可证错误，不接受连接。
 LS_LICENSE_VIOLATION_DETECTED	发现许可证违反错误，一个不同的 VPN Server 与此服务端具有相同的服务端ID "%I64u"。可能是在群集中有两个或以上 VPN Server 正在使用相同的许可证。请检查每一个 VPN Server 的许可证信息。
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN Logs)
@@ -2102,6 +2108,7 @@ L3_SWITCH_STOP				虚拟 3 层交换机 "%S" 终止。
 
 
 #关于Microsoft.c
+MS_VIRTUAL					专有的虚拟/内部接口
 MS_ETHERNET					以太网接口
 MS_TOKENRING				令牌环接口
 MS_FDDI						FDDI 接口
@@ -2310,7 +2317,8 @@ STATIC9						您可以通过代理服务器连接到 VPN Server。
 STATIC10					代理类型(&T):
 R_DIRECT_TCP				直接 TCP/IP 连接(无代理)(&D)
 R_HTTPS						通过 HTTP 代理服务器连接(&T)
-R_SOCKS						通过 SOCKS 代理服务器连接(&S)
+R_SOCKS						通过 SOCKS4 代理服务器连接(&S)
+R_SOCKS5					通过 SOCKS5 代理服务器连接(&S)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					服务端证书验证选项(&F):
 R_CHECK_CERT				总是验证服务端证书(&C)
@@ -2352,10 +2360,20 @@ STATIC2						主机名(&H):
 STATIC3						端口(&A):
 STATIC4						用户名(&U):
 STATIC5						密码(&P):
+B_HTTP_HEADER				Custom HTTP header values
 IDOK						确定(&O)
 IDCANCEL					取消
 STATIC6						(可选)
 STATIC7						(可选)
+
+
+PREFIX						D_CM_PROXY_HTTP_HEADER
+CAPTION						Custom Proxy HTTP Header Values
+B_NEW						New
+B_DELETE					Delete
+B_CLEAR						Clear
+IDOK						&OK
+IDCANCEL					Cancel
 
 
 PREFIX						D_CM_DETAIL
@@ -2452,7 +2470,7 @@ STATIC7						保持互联网连接功能(&K)
 
 PREFIX						D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				此 VPN 服务器作为的一个学术研究且由 (http://www.softether.org/) 为公众利益免费发布的。本软件是日本筑波大学 SoftEther 项目下开发的免费软件，无任何担保。开发人员、版权所有者或分销商在任何情况下对于使用本软件的任何索赔、损害赔偿或其他情况不承担责任。\r\n\r\nSoftEther VPN 是日本政府的研究和开发项目的一项工作，由日本的经济、贸易和工业部资助，由信息化推进机构管理。
 IDCANCEL				确定(&O)
@@ -2525,7 +2543,8 @@ STATIC9						您可以通过代理服务器连接到 VPN Server。
 STATIC10					代理类型(&T):
 R_DIRECT_TCP				直接 TCP/IP 连接 (无代理) (&D)
 R_HTTPS						通过 HTTP 代理服务器连接(&T)
-R_SOCKS						通过 SOCKS 代理服务器连接(&O)
+R_SOCKS						通过 SOCKS4 代理服务器连接(&O)
+R_SOCKS5					通过 SOCKS4 代理服务器连接(&O)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					选择管理模式并输入密码(&M)
 STATIC12					您可以使用服务端管理模式或虚拟 HUB 管理模式连接到 VPN Server。\r\n\r\n服务器管理模式允许您管理整个 VPN Server 和所有虚拟 HUB 。\r\n\r\n虚拟 HUB 管理模式允许您只能管理您拥有权限的一个虚拟 HUB 。
@@ -3877,7 +3896,7 @@ S_4						指定用户名连接到虚拟 HUB 的方式，和通过使用克隆服
 B_IPSEC					IPsec 服务器配置(&P)
 S_13					OpenVPN 克隆服务器功能
 IDOK					确定(&O)
-IDCANCEL				取消l
+IDCANCEL				取消
 
 
 PREFIX					D_SM_DDNS
@@ -4110,7 +4129,8 @@ STATIC9					您可以通过代理服务器连接
 STATIC10				代表类型:
 R_DIRECT_TCP			直接 TCP/IP 连接(无代理)(&D)
 R_HTTPS					通过 HTTP 代理服务器连接(&T)
-R_SOCKS					通过 SOCKS 代理服务器连接(&K)
+R_SOCKS					通过 SOCKS4 代理服务器连接(&K)
+R_SOCKS5				通过 SOCKS5 代理服务器连接(&K)
 B_PROXY_CONFIG			代理服务器设置(&R)
 IDOK					确定(&O)
 IDCANCEL				取消
@@ -4462,7 +4482,7 @@ CMD_VPNCMD_HOST_2			指定的主机名或正在运行的目标 VPN Client 计算
 CMD_VPNCMD_HOST_3			目标 IP 地址的主机名:
 CMD_VPNCMD_HUB_1			如果通过虚拟 HUB 管理模式连接到服务器，请输入虚拟 HUB 的名称。\n如果通过服务器管理模式连接，无须输入任何内容请按回车键。\n
 CMD_VPNCMD_HUB_2			指定虚拟 HUB 名称:
-CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1		访问被拒绝。可能是密码不正确，或者是您以不正确的管理模式连接。您可以尝试再次输入密码。要取消，请按 Ctrl + D。
 CMD_VPNCMD_PASSWORD_2		密码: 
 CMD_VPNCMD_ERROR			发生错误。(错误代码: %u)\n%s
@@ -5324,6 +5344,35 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	指定级联名称来改变设置。
 
 
+# CascadeHttpHeader* commands
+CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# CascadeHttpHeaderAdd command
+CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# CascadeHttpHeaderDelete command
+CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
+CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# CascadeHttpHeaderGet command
+CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
+CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+
+
 # CascadeProxyNone 命令
 CMD_CascadeProxyNone		将级联的连接方法设置为直接与 TCP/IP 连接
 CMD_CascadeProxyNone_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [直接与 TCP/IP 连接]，而不通过代理服务器。\n此命令在集群虚拟 HUB 中不能运行。
@@ -5342,15 +5391,24 @@ CMD_CascadeProxyHttp_PASSWORD	如果连接到 HTTP 代理服务器时需要用�
 CMD_CascadeProxyHttp_Prompt_Server	代理服务器主机名和端口号: 
 
 
-
 # CascadeProxySocks 命令
-CMD_CascadeProxySocks		将级联连接方法设定为通过 SOCKS 代理服务器
-CMD_CascadeProxySocks_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS 代理服务器]，设置 SOCKS8 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\nSOCKS 服务器，需与 SOCKS 第 4 版想匹配。\n此命令在集群虚拟 HUB 中不能运行。
+CMD_CascadeProxySocks		将级联连接方法设定为通过 SOCKS4 代理服务器
+CMD_CascadeProxySocks_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS4 代理服务器]，设置 SOCKS4 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n此命令在集群虚拟 HUB 中不能运行。
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	指定级联名称来改变设置。
 CMD_CascadeProxySocks_SERVER	按照 [主机名:端口号] 的格式，设定代理服务器主机名或 IP 地址和端口号。
-CMD_CascadeProxySocks_USERNAME	如果连接到 SOCKS 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
-CMD_CascadeProxySocks_PASSWORD	如果连接到 SOCKS 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
+CMD_CascadeProxySocks_USERNAME	如果连接到 SOCKS4 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
+CMD_CascadeProxySocks_PASSWORD	如果连接到 SOCKS4 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
+
+
+# CascadeProxySocks5 命令
+CMD_CascadeProxySocks5		将级联连接方法设定为通过 SOCKS5 代理服务器
+CMD_CascadeProxySocks5_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，设置连接方法为 [通过 SOCKS5 代理服务器]，设置 SOCKS5 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n此命令在集群虚拟 HUB 中不能运行。
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	指定级联名称来改变设置。
+CMD_CascadeProxySocks5_SERVER	按照 [主机名:端口号] 的格式，设定代理服务器主机名或 IP 地址和端口号。
+CMD_CascadeProxySocks5_USERNAME	如果连接到 SOCKS5 代理服务器时需要用户验证，则指定用户名。同时设定密码和参数。如果没有设定用户名和密码参数，则不需要设置用户身份验证。
+CMD_CascadeProxySocks5_PASSWORD	如果连接到 SOCKS5 代理服务器时需要用户验证，则指定密码。/USERNAME，参数等同时设定。
 
 
 # CascadeServerCertEnable 命令
@@ -6266,6 +6324,24 @@ CMD_OpenVpnMakeConfig_OK				样本设置文件被保存为 "%s"。您可以解�
 CMD_OpenVpnMakeConfig_ERROR				本样本设置文件不能保存为 "%s"。该文件名无效。\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable 命令
 CMD_SstpEnable						启用/禁用 Microsoft SSTP VPN 克隆服务器功能
 CMD_SstpEnable_Help					本 VPN Server 拥有植入在微软 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT / 10 中的标准 MS-SSTP 用户端可以连接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 证书 CN 值必须要和指定给客户端的主机名吻合。并且，该证书必须在 SSTP VPN Client 的信任列表中。详情请参见微软相关文件。\n您可以用用 ServerCertRegenerate 命令来取代当前 VPN Server 的证书，形成一个新的，有 CN 值字段的自我认证证书。这样的话，您需要在 SSTP VPN Client 注册这样一个新的自我认证证书作为一个可信任根证书。如果您的确想做这件复杂的事，请考虑购买一个商业权威机构的 SSL 证书，如 VeriSign 或者 GlobalSign。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
@@ -6608,6 +6684,35 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	指定要更改设置的连接设置名。
 
 
+# AccountHttpHeader* commands
+CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# AccountHttpHeaderAdd command
+CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# AccountHttpHeaderDelete command
+CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
+CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# AccountHttpHeaderGet command
+CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
+CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+
+
 # AccountProxyNone 命令
 CMD_AccountProxyNone		将连接设置的连接方法直接设置为 TCP/IP 连接
 CMD_AccountProxyNone_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [直接 TCP/IP连接]，不通过代理服务器。
@@ -6626,15 +6731,24 @@ CMD_AccountProxyHttp_PASSWORD	如果因为连接通过 HTTP 代理服务器而�
 CMD_AccountProxyHttp_Prompt_Server	代理服务器主机名和端口号: 
 
 
-
 # AccountProxySocks 命令
-CMD_AccountProxySocks		将连接设置的连接方法设置为通过 SOCKS 代理服务器连接
-CMD_AccountProxySocks_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS 服务器连接]，并指定要通过的 SOCKS 代理服务器的主机名和端口号，用户名和密码 (如果需要)。\n通过 SOCKS 服务器，必须对应 SOCKS 版本 4。
+CMD_AccountProxySocks		将连接设置的连接方法设置为通过 SOCKS4 代理服务器连接
+CMD_AccountProxySocks_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS4 服务器连接]，并指定要通过的 SOCKS4 代理服务器的主机名和端口号，用户名和密码 (如果需要)。
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	指定要更改设置的连接设置名。
-CMD_AccountProxySocks_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS 代理服务器主机名或 IP 地址和端口号。
-CMD_AccountProxySocks_USERNAME	如果因为连接通过 SOCKS 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
-CMD_AccountProxySocks_PASSWORD	如果因为连接通过 SOCKS 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
+CMD_AccountProxySocks_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS4 代理服务器主机名或 IP 地址和端口号。
+CMD_AccountProxySocks_USERNAME	如果因为连接通过 SOCKS4 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
+CMD_AccountProxySocks_PASSWORD	如果因为连接通过 SOCKS4 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
+
+
+# AccountProxySocks5 命令
+CMD_AccountProxySocks5		将连接设置的连接方法设置为通过 SOCKS5 代理服务器连接
+CMD_AccountProxySocks5_Help	当指定注册到 VPN Client 的连接设置，将其连接设置与 VPN Server 间进行 VPN 连接时使用的连接方法设置为 [通过 SOCKS5 服务器连接]，并指定要通过的 SOCKS5 代理服务器的主机名和端口号，用户名和密码 (如果需要)。
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	指定要更改设置的连接设置名。
+CMD_AccountProxySocks5_SERVER	以 [主机名:端口号] 形式，指定要通过的 SOCKS5 代理服务器主机名或 IP 地址和端口号。
+CMD_AccountProxySocks5_USERNAME	如果因为连接通过 SOCKS5 代理服务器而需要用户认证时，指定用户名。与此同时也指定 /PASSWORD 参数。/USERNAME 和 /PASSWORD 参数没有被指定时，不设置用户身份验证数据。
+CMD_AccountProxySocks5_PASSWORD	如果因为连接通过 SOCKS5 代理服务器而需要用户认证时，指定密码。与 /USERNAME 参数一起指定。
 
 
 # AccountServerCertEnable 命令
@@ -6984,7 +7098,7 @@ CMD_Check_Args				Check
 
 # 关于系统 checker
 # (包含着一部分奇怪的字符串,不过，是检测字符编码变换用的)
-CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 运行环境检查工具\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE					---------------------------------------------------\nSoftEther VPN 运行环境检查工具\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE					如果运行了此运行环境检测工具的系统通过了测试，SoftEther VPN 软件有较高的运行可能性。检测可能需要一定的时间。请稍候...\n\n
 CHECK_EXEC_TAG				'%s' 的检测中...\n
 CHECK_PASS					[合格] ○
@@ -7048,6 +7162,8 @@ SW_WEB2_TITLE						指定文件夹
 
 SW_UNINSTALLINFO_URL					http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER				SoftEther VPN Project
+
+SW_KB3033929_REQUIRED						在 Windows 7 以及 Windows Server 2008 R2系统上, SoftEther VPN 的一些功能需要安全更新程序KB3033929。\r\n\r\n如果 KB3033929 未在你的系统中安装, 在安装SoftEther VPN 前请从 Windows Update 或 Microsoft 网站上下载安装该更新程序。
 
 
 SW_COMPONENTS_ABOUT_TAG				关于 %s

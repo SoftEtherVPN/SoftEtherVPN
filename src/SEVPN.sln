@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hamcore", "hamcore", "{2349
 		bin\hamcore\strtable_cn.stb = bin\hamcore\strtable_cn.stb
 		bin\hamcore\strtable_en.stb = bin\hamcore\strtable_en.stb
 		bin\hamcore\strtable_ja.stb = bin\hamcore\strtable_ja.stb
+		bin\hamcore\strtable_pt_br.stb = bin\hamcore\strtable_pt_br.stb
 		bin\hamcore\time.htm = bin\hamcore\time.htm
 		bin\hamcore\vpn16.exe = bin\hamcore\vpn16.exe
 	EndProjectSection
@@ -27,30 +28,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{90A5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32_Debug", "Win32_Debug", "{979EF6E9-A263-4E9B-964C-DE72344DFB13}"
 	ProjectSection(SolutionItems) = preProject
-		BuildFiles\Library\Win32_Debug\libeay32.lib = BuildFiles\Library\Win32_Debug\libeay32.lib
-		BuildFiles\Library\Win32_Debug\ssleay32.lib = BuildFiles\Library\Win32_Debug\ssleay32.lib
-		BuildFiles\Library\Win32_Debug\zlib.lib = BuildFiles\Library\Win32_Debug\zlib.lib
+		BuildFiles\Library\vs2008\Win32_Debug\libeay32.lib = BuildFiles\Library\vs2008\Win32_Debug\libeay32.lib
+		BuildFiles\Library\vs2008\Win32_Debug\ssleay32.lib = BuildFiles\Library\vs2008\Win32_Debug\ssleay32.lib
+		BuildFiles\Library\vs2008\Win32_Debug\zlib.lib = BuildFiles\Library\vs2008\Win32_Debug\zlib.lib
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32_Release", "Win32_Release", "{7DE9E590-6189-4570-A451-2584E655A539}"
 	ProjectSection(SolutionItems) = preProject
-		BuildFiles\Library\Win32_Release\libeay32.lib = BuildFiles\Library\Win32_Release\libeay32.lib
-		BuildFiles\Library\Win32_Release\ssleay32.lib = BuildFiles\Library\Win32_Release\ssleay32.lib
-		BuildFiles\Library\Win32_Release\zlib.lib = BuildFiles\Library\Win32_Release\zlib.lib
+		BuildFiles\Library\vs2008\Win32_Release\libeay32.lib = BuildFiles\Library\vs2008\Win32_Release\libeay32.lib
+		BuildFiles\Library\vs2008\Win32_Release\ssleay32.lib = BuildFiles\Library\vs2008\Win32_Release\ssleay32.lib
+		BuildFiles\Library\vs2008\Win32_Release\zlib.lib = BuildFiles\Library\vs2008\Win32_Release\zlib.lib
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64_Debug", "x64_Debug", "{696A5B66-04A7-4CE8-A31C-E05026846B5C}"
 	ProjectSection(SolutionItems) = preProject
-		BuildFiles\Library\x64_Debug\libeay32.lib = BuildFiles\Library\x64_Debug\libeay32.lib
-		BuildFiles\Library\x64_Debug\ssleay32.lib = BuildFiles\Library\x64_Debug\ssleay32.lib
-		BuildFiles\Library\x64_Debug\zlib.lib = BuildFiles\Library\x64_Debug\zlib.lib
+		BuildFiles\Library\vs2008\x64_Debug\libeay32.lib = BuildFiles\Library\vs2008\x64_Debug\libeay32.lib
+		BuildFiles\Library\vs2008\x64_Debug\ssleay32.lib = BuildFiles\Library\vs2008\x64_Debug\ssleay32.lib
+		BuildFiles\Library\vs2008\x64_Debug\zlib.lib = BuildFiles\Library\vs2008\x64_Debug\zlib.lib
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64_Release", "x64_Release", "{1AFACDF7-7ECE-42D3-A3BD-563025F247D7}"
 	ProjectSection(SolutionItems) = preProject
-		BuildFiles\Library\x64_Release\libeay32.lib = BuildFiles\Library\x64_Release\libeay32.lib
-		BuildFiles\Library\x64_Release\ssleay32.lib = BuildFiles\Library\x64_Release\ssleay32.lib
-		BuildFiles\Library\x64_Release\zlib.lib = BuildFiles\Library\x64_Release\zlib.lib
+		BuildFiles\Library\vs2008\x64_Release\libeay32.lib = BuildFiles\Library\vs2008\x64_Release\libeay32.lib
+		BuildFiles\Library\vs2008\x64_Release\ssleay32.lib = BuildFiles\Library\vs2008\x64_Release\ssleay32.lib
+		BuildFiles\Library\vs2008\x64_Release\zlib.lib = BuildFiles\Library\vs2008\x64_Release\zlib.lib
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Neo", "Neo\Neo.vcproj", "{D302D5D9-A3B7-4D2E-98BF-3BB305BAE43F}"
@@ -87,6 +88,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cedar", "Cedar\Cedar.vcproj
 		{F7679B65-2FEC-469A-8BAC-B07BF4439422} = {F7679B65-2FEC-469A-8BAC-B07BF4439422}
 		{B75C0F74-0FE6-4BD4-8E54-F8383C58CB69} = {B75C0F74-0FE6-4BD4-8E54-F8383C58CB69}
 		{717B8D7F-9C93-4713-9A23-8CE70A31FD39} = {717B8D7F-9C93-4713-9A23-8CE70A31FD39}
+		{384815C3-333C-4CEC-9DCD-B6AB2602EBB9} = {384815C3-333C-4CEC-9DCD-B6AB2602EBB9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vpntest", "vpntest\vpntest.vcproj", "{1ED5782B-1734-4FC6-AA9E-F7181CDBA8A7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2928D768-DEC3-40D3-8E51-26E364497C9B} = {2928D768-DEC3-40D3-8E51-26E364497C9B}
 		{384815C3-333C-4CEC-9DCD-B6AB2602EBB9} = {384815C3-333C-4CEC-9DCD-B6AB2602EBB9}
 	EndProjectSection
 EndProject

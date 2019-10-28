@@ -12,8 +12,9 @@ build_openssl () {
     if [[ "$(cat ${OPENSSL_INSTALL_DIR}/.openssl-version)" != "${OPENSSL_VERSION}" ]]; then
         tar zxf "download-cache/openssl-${OPENSSL_VERSION}.tar.gz"
         cd "openssl-${OPENSSL_VERSION}/"
-        ./config shared --prefix="${OPENSSL_INSTALL_DIR}" --openssldir="${OPENSSL_INSTALL_DIR}" -DPURIFY
-        make all install_sw
+        ./config shared no-deprecated --prefix="${OPENSSL_INSTALL_DIR}" --openssldir="${OPENSSL_INSTALL_DIR}" -DPURIFY
+        make -j $(nproc || sysctl -n hw.ncpu || echo 4) all
+        make install_sw
         echo "${OPENSSL_VERSION}" > "${OPENSSL_INSTALL_DIR}/.openssl-version"
     fi
 }

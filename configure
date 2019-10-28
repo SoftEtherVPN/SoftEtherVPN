@@ -5,14 +5,12 @@ set -e
 echo '---------------------------------------------------------------------'
 echo 'SoftEther VPN for Unix'
 echo
-echo 'Copyright (c) SoftEther VPN Project at University of Tsukuba, Japan.'
-echo 'Copyright (c) Daiyuu Nobori. All Rights Reserved.'
+echo 'Copyright (c) all contributors on SoftEther VPN project in GitHub.'
+echo 'Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.'
 echo
-echo 'This program is free software; you can redistribute it and/or'
-echo 'modify it under the terms of the GNU General Public License'
-echo 'version 2 as published by the Free Software Foundation.'
+echo 'Licensed under the Apache License, Version 2.0 (the License).'
 echo
-echo 'Read and understand README.TXT, LICENSE.TXT and WARNING.TXT before use.'
+echo 'Read and understand README, LICENSE and WARNING before use.'
 echo '---------------------------------------------------------------------'
 echo
 
@@ -35,7 +33,10 @@ if [ -z ${OPENSSL_ROOT_DIR} ]; then
 	fi
 fi
 
-if [ -x "$(command -v rpm)" ]; then
+if [ ! -z ${CPACK_GENERATOR+x} ]; then
+	echo "CPACK_GENERATOR is set, CPack will generate ${CPACK_GENERATOR} packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR=${CPACK_GENERATOR} ${CMAKE_FLAGS}"
+elif [ -x "$(command -v rpm)" ]; then
 	echo "'rpm' executable found, CPack will generate RPM packages."
 	CMAKE_FLAGS="-DCPACK_GENERATOR='RPM' ${CMAKE_FLAGS}"
 else
@@ -45,7 +46,7 @@ fi
 
 echo ""
 
-(cd tmp && cmake ${CMAKE_FLAGS} .. || exit 1)
+(cd tmp && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_FLAGS} .. || exit 1)
 
 
 echo ""

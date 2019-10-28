@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Proto_OpenVPN.h
@@ -127,6 +21,7 @@
 #define	OPENVPN_MAX_SSL_RECV_BUF_SIZE			(256 * 1024)	// SSL receive buffer maximum length
 
 #define	OPENVPN_MAX_KEY_SIZE					64		// Maximum key size
+#define	OPENVPN_TAG_SIZE						16		// Tag size (for packet authentication in AEAD mode)
 
 #define	OPENVPN_TMP_BUFFER_SIZE					(65536 + 256)	// Temporary buffer size
 
@@ -184,10 +79,12 @@
 #define	OPENVPN_MODE_L2							1		// TAP (Ethernet)
 #define	OPENVPN_MODE_L3							2		// TUN (IP)
 
-// Data
-#define OPENVPN_DATA_OPTIONS	0
-#define OPENVPN_DATA_PEERINFO	1
-
+// Scramble mode
+#define	OPENVPN_SCRAMBLE_MODE_DISABLED			0		// No scramble
+#define	OPENVPN_SCRAMBLE_MODE_XORMASK			1		// XOR the bytes with the specified string
+#define	OPENVPN_SCRAMBLE_MODE_XORPTRPOS			2		// XOR each byte with its position in the buffer
+#define	OPENVPN_SCRAMBLE_MODE_REVERSE			3		// Reverses bytes order, keeping the first byte unchanged
+#define	OPENVPN_SCRAMBLE_MODE_OBFUSCATE			4		// Performs the above steps using the specified string for xormask
 
 //// Type
 
@@ -211,6 +108,8 @@ struct OPENVPN_CONTROL_PACKET
 	UINT DataSize;										// Data size
 	UCHAR *Data;										// Data body
 	UINT64 NextSendTime;								// Scheduled next transmission time
+	bool NoResend;										// Disable re-sending
+	UINT NumSent;										// How many times we have sent this packet
 };
 
 // OpenVPN packet
@@ -245,9 +144,10 @@ struct OPENVPN_CHANNEL
 	CIPHER *CipherDecrypt;								// Decryption algorithm
 	MD *MdSend;											// Transmission MD algorithm
 	MD *MdRecv;											// Reception MD algorithm
+	UCHAR IvSend[64];									// Transmission IV
+	UCHAR IvRecv[64];									// Reception IV
 	UCHAR MasterSecret[48];								// Master Secret
 	UCHAR ExpansionKey[256];							// Expansion Key
-	UCHAR NextIv[64];									// Next IV
 	UINT LastDataPacketId;								// Previous Data Packet ID
 	UINT64 EstablishedTick;								// Established time
 	UCHAR KeyId;										// KEY ID
@@ -273,6 +173,7 @@ struct OPENVPN_SESSION
 	OPENVPN_CHANNEL *Channels[OPENVPN_NUM_CHANNELS];	// Channels (up to 8)
 	UINT LastCreatedChannelIndex;						// Channel number that is created in the last
 	UINT Mode;											// Mode (L3 or L2)
+	UINT ObfuscationMode;								// Packet obfuscation/scrambling mode
 	UINT LinkMtu;										// link-mtu
 	UINT TunMtu;										// tun-mtu
 	IPC_ASYNC *IpcAsync;								// Asynchronous IPC connection
@@ -289,6 +190,7 @@ struct OPENVPN_SERVER
 {
 	CEDAR *Cedar;
 	INTERRUPT_MANAGER *Interrupt;						// Interrupt manager
+	LIST *RecvPacketList;								// Received packets list
 	LIST *SendPacketList;								// Transmission packet list
 	LIST *SessionList;									// Session list
 	UINT64 Now;											// Current time
@@ -313,8 +215,18 @@ struct OPENVPN_SERVER_UDP
 // OpenVPN Default Client Option String
 #define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
 
-
 //// Function prototype
+PROTO_IMPL *OvsGetProtoImpl();
+bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
+void OvsFree(void *param);
+char *OvsName();
+UINT OvsSupportedModes();
+bool OvsIsPacketForMe(const UCHAR *buf, const UINT size);
+bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send);
+void OvsBufferLimit(void *param, const bool reached);
+bool OvsIsOk(void *param);
+UINT OvsEstablishedSessions(void *param);
+
 OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar);
 void FreeOpenVpnServerUdp(OPENVPN_SERVER_UDP *u);
 void OpenVpnServerUdpListenerProc(UDPLISTENER *u, LIST *packet_list);
@@ -322,8 +234,8 @@ void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip);
 
 OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
 void FreeOpenVpnServer(OPENVPN_SERVER *s);
-void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol);
-void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol);
+void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list);
+void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p);
 int OvsCompareSessionList(void *p1, void *p2);
 OPENVPN_SESSION *OvsSearchSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
 OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
@@ -350,6 +262,7 @@ void OvsSendPacketRawNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, void *data, UIN
 
 void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c, OPENVPN_PACKET *p);
 void OvsSendControlPacket(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size);
+void OvsSendControlPacketEx(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size, bool no_resend);
 void OvsSendControlPacketWithAutoSplit(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size);
 void OvsFreeControlPacket(OPENVPN_CONTROL_PACKET *p);
 void OvsDeleteFromSendingControlPacketList(OPENVPN_CHANNEL *c, UINT num_acks, UINT *acks);
@@ -359,25 +272,13 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 BUF *OvsBuildKeyMethod2(OPENVPN_KEY_METHOD_2 *d);
 void OvsWriteStringToBuf(BUF *b, char *str, UINT max_size);
 
-LIST *OvsParseData(char *str, int type);
-void OvsFreeList(LIST *o);
-bool OvsHasEntry(LIST *o, char *key);
 UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size);
 void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 UINT OvsCalcTcpMss(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 
 CIPHER *OvsGetCipher(char *name);
 MD *OvsGetMd(char *name);
-bool OvsCheckTcpRecvBufIfOpenVPNProtocol(UCHAR *buf, UINT size);
-
-bool OvsPerformTcpServer(CEDAR *cedar, SOCK *sock);
-
-void OvsSetReplyForVgsPollEnable(bool b);
-
-bool OvsGetNoOpenVpnTcp();
 
 void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh);
-
-
 
 #endif	// PROTO_OPENVPN_H

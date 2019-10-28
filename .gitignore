@@ -3,9 +3,13 @@
 .project
 .settings/
 Makefile
-bin/
+/src/bin/*
+!/src/bin/hamcore/
+/src/bin/hamcore/*
+!/src/bin/hamcore/wwwroot/
 build/
 cmake-build-debug/
+src/bin/hamcore/authors.txt
 src/bin/BuiltHamcoreFiles/
 tmp/
 .gitconfig
@@ -14,8 +18,18 @@ CMakeFiles/
 output/
 Win32_Release
 x64_Release
+Win32_Debug
+x64_Debug
 /src/DebugFiles
 /src/BuildUtil/obj/
+/src/vpnweb/vpnweb.h
+/src/vpnweb/vpnweb_i.c
+/src/vpnweb/vpnweb_p.c
+*.user
+*.ncb
+*.opt
+*.suo
+!/src/BuildFiles/**/*
 
 # Applied for 'developer_tools/stbchecker/'
 # Copied from by https://www.gitignore.io/api/visualstudio
@@ -194,3 +208,4 @@ developer_tools/stbchecker/**/ASALocalRun/
 developer_tools/stbchecker/**/*.binlog
 developer_tools/stbchecker/**/*.nvuser
 developer_tools/stbchecker/**/.mfractor/
+

@@ -1,0 +1,28 @@
+jobs:
+- job: win_64
+  displayName: 'Visual Studio 2017'
+  pool:
+    vmImage: vs2017-win2016
+  steps:
+  - checkout: self
+    submodules: recursive
+  - script: |
+     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      configure
+  - script: |
+     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      cd tmp
+      nmake
+  - powershell: |
+     . .ci\appveyor-vpntest.ps1
+  - powershell: |
+     New-Item -Path '$(build.artifactstagingdirectory)/publish' -ItemType Directory
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: 'build/?(*.exe|*.se2|*.pdb)'
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(build.artifactstagingdirectory)/publish'
+      artifactName: vs2017

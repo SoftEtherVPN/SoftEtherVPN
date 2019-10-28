@@ -5,7 +5,7 @@ How to build SoftEther VPN for Windows
 Requirements
 ------------
 
-You need to install the following software to build SoftEther VPN for Windows.
+You need to install the following software to run a full release build of SoftEther VPN for Windows.
 
 - Microsoft Windows XP, Vista, 7, 8 or later.
 - Microsoft Visual Studio 2008 with the latest SP (SP1 9.0.30729.4462 QFE).
@@ -24,7 +24,7 @@ the installer packages of SoftEther VPN. It is very easy.
 3. The built files are stored on the "output" directory.
 
 
-Partly Build, Debug or Development Instructions on Visual Studio 2008
+Partly Build, Debug, or Development Instructions on Visual Studio 2008
 ---------------------------------------------------------------------
 
 If you are a programmer, you can open the SoftEther VPN solution file
@@ -40,7 +40,36 @@ If using anything else other than Visual Studio 2008 for development, your code 
 
 It is OK to add newer Visual Studio (2015, 2017) solution files to the project, but there then must be dual solution files for both Visual C++ 2008 and the latest Visual Studio.
 
-Note: There is an update to the CMake configuration that adds support for Windows in the works for future use.
+Build and Development Instructions with Visual Studio 2017 & CMake
+---------------------------------------------------------------------
+
+An alternative method for development of the SoftEtherVPN project on Windows is through CMake.
+
+There are several methods for using CMake but the easiest by far is through Visual Studio 2017 by importing the CMake project directly
+into it. So that is what will be described below.
+
+Requirements:
+
+1. Download Visual Studio 2017 (Community Edition is fine).
+2. During install, make sure to check "Desktop development with C++" under "Workloads".
+3. Click on individual components and scroll until you see "Visual C++ tools for CMake" under the compilers section. Make sure this is checked.
+4. Proceed with and finish Visual Studio 2017 install.
+5. Install the needed submodules to build the project, avoiding CMake telling you to do so with: `git submodule update --init --recursive`
+
+Building:
+
+Once both installs have finished, launch Visual Studio. Once its started go to the File menu click `Open --> CMake`. Then navigate to where you
+cloned the project and open the `CMakeLists.txt` file in the projects root directory.
+
+Visual Studio will proceed to start the CMake configuration process and once its finished, you can simply go to toolbar and click `CMake -> Build All`.
+
+Once it has finished, hopefully with no errors, look in the newly created `/build` directory in the project's folder. Inside are the development versions
+of all the SoftEtherVPN components.
+
+Congrats, you now have a complete CMake development environment for SoftEtherVPN on Windows, enjoy and happy contributing!
+
+Download Links:
+- Visual Studio 2017 from Microsoft: https://visualstudio.microsoft.com/downloads
 
 ************************************
 Thank You Using SoftEther VPN !

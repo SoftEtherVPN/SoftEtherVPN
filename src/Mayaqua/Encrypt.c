@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Encrypt.c
@@ -124,6 +18,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
+#include <openssl/crypto.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -139,7 +34,9 @@
 #include <openssl/sha.h>
 #include <openssl/des.h>
 #include <openssl/aes.h>
+#include <openssl/rsa.h>
 #include <openssl/dh.h>
+#include <openssl/bn.h>
 #include <openssl/pem.h>
 #include <openssl/conf.h>
 #include <openssl/x509v3.h>
@@ -148,7 +45,11 @@
 #ifdef _MSC_VER
 	#include <intrin.h> // For __cpuid()
 #else // _MSC_VER
+
+#ifndef SKIP_CPU_FEATURES
 	#include "cpu_features_macros.h"
+#endif
+
 	#if defined(CPU_FEATURES_ARCH_X86)
 		#include "cpuinfo_x86.h"
 	#elif defined(CPU_FEATURES_ARCH_ARM)
@@ -461,6 +362,13 @@ UINT MdProcess(MD *md, void *dest, void *src, UINT size)
 
 	if (md->IsHMac)
 	{
+		// WARNING: Do not remove the call to HMAC_Init_ex(), it's required even if the context is initialized by SetMdKey()!
+		if (HMAC_Init_ex(md->Ctx, NULL, 0, NULL, NULL) == false)
+		{
+			Debug("MdProcess(): HMAC_Init_ex() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+
 		if (HMAC_Update(md->Ctx, src, size) == false)
 		{
 			Debug("MdProcess(): HMAC_Update() failed with error: %s\n", OpenSSL_Error());
@@ -559,6 +467,7 @@ CIPHER *NewCipher(char *name)
 	EVP_CIPHER_CTX_init(c->Ctx);
 #endif
 
+	c->IsAeadCipher = EVP_CIPHER_flags(c->Cipher) & EVP_CIPH_FLAG_AEAD_CIPHER;
 	c->BlockSize = EVP_CIPHER_block_size(c->Cipher);
 	c->KeySize = EVP_CIPHER_key_length(c->Cipher);
 	c->IvSize = EVP_CIPHER_iv_length(c->Cipher);
@@ -618,6 +527,74 @@ UINT CipherProcess(CIPHER *c, void *iv, void *dest, void *src, UINT size)
 	if (EVP_CipherFinal(c->Ctx, ((UCHAR *)dest) + (UINT)r, &r2) == 0)
 	{
 		return 0;
+	}
+
+	return r + r2;
+}
+
+// Process encryption / decryption (AEAD)
+UINT CipherProcessAead(CIPHER *c, void *iv, void *tag, UINT tag_size, void *dest, void *src, UINT src_size, void *aad, UINT aad_size)
+{
+	int r = src_size;
+	int r2 = 0;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return 0;
+	}
+	else if (c->IsNullCipher)
+	{
+		Copy(dest, src, src_size);
+		return src_size;
+	}
+	else if (c->IsAeadCipher == false || iv == NULL || tag == NULL || tag_size == 0 || dest == NULL || src == NULL || src_size == 0)
+	{
+		return 0;
+	}
+
+	if (EVP_CipherInit_ex(c->Ctx, NULL, NULL, NULL, iv, c->Encrypt) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherInit_ex() failed with error: %s\n", OpenSSL_Error());
+		return 0;
+	}
+
+	if (c->Encrypt == false)
+	{
+		if (EVP_CIPHER_CTX_ctrl(c->Ctx, EVP_CTRL_AEAD_SET_TAG, tag_size, tag) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CIPHER_CTX_ctrl() failed to set the tag!\n");
+			return 0;
+		}
+	}
+
+	if (aad != NULL && aad_size != 0)
+	{
+		if (EVP_CipherUpdate(c->Ctx, NULL, &r, aad, aad_size) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CipherUpdate() failed with error: %s\n", OpenSSL_Error());
+			return 0;
+		}
+	}
+
+	if (EVP_CipherUpdate(c->Ctx, dest, &r, src, src_size) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherUpdate() failed with error: %s\n", OpenSSL_Error());
+		return 0;
+	}
+
+	if (EVP_CipherFinal_ex(c->Ctx, ((UCHAR *)dest) + (UINT)r, &r2) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherFinal_ex() failed with error: %s\n", OpenSSL_Error());
+		return 0;
+	}
+
+	if (c->Encrypt)
+	{
+		if (EVP_CIPHER_CTX_ctrl(c->Ctx, EVP_CTRL_AEAD_GET_TAG, tag_size, tag) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CIPHER_CTX_ctrl() failed to get the tag!\n");
+			return 0;
+		}
 	}
 
 	return r + r2;
@@ -781,9 +758,18 @@ BUF *BigNumToBuf(const BIGNUM *bn)
 	return b;
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+// Return the thread ID
+static void OpenSSL_Id(CRYPTO_THREADID *id)
+{
+	CRYPTO_THREADID_set_numeric(id, (unsigned long)ThreadId());
+}
+#endif
+
 // Initialization of the lock of OpenSSL
 void OpenSSL_InitLock()
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	UINT i;
 
 	// Initialization of the lock object
@@ -796,12 +782,14 @@ void OpenSSL_InitLock()
 
 	// Setting the lock function
 	CRYPTO_set_locking_callback(OpenSSL_Lock);
-	CRYPTO_set_id_callback(OpenSSL_Id);
+	CRYPTO_THREADID_set_callback(OpenSSL_Id);
+#endif
 }
 
 // Release of the lock of OpenSSL
 void OpenSSL_FreeLock()
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	UINT i;
 
 	for (i = 0;i < ssl_lock_num;i++)
@@ -812,12 +800,14 @@ void OpenSSL_FreeLock()
 	ssl_lock_obj = NULL;
 
 	CRYPTO_set_locking_callback(NULL);
-	CRYPTO_set_id_callback(NULL);
+	CRYPTO_THREADID_set_callback(NULL);
+#endif
 }
 
 // Lock function for OpenSSL
 void OpenSSL_Lock(int mode, int n, const char *file, int line)
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 	LOCK *lock = ssl_lock_obj[n];
 
 	if (mode & CRYPTO_LOCK)
@@ -830,12 +820,7 @@ void OpenSSL_Lock(int mode, int n, const char *file, int line)
 		// Unlock
 		Unlock(lock);
 	}
-}
-
-// Return the thread ID
-unsigned long OpenSSL_Id(void)
-{
-	return (unsigned long)ThreadId();
+#endif
 }
 
 char *OpenSSL_Error()
@@ -1629,7 +1614,7 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 {
 	X509 *x509;
 	UINT64 notBefore, notAfter;
-	ASN1_TIME *t1, *t2;
+	const ASN1_TIME *t1, *t2;
 	X509_NAME *subject_name, *issuer_name;
 	X509_EXTENSION *ex = NULL;
 	X509_EXTENSION *eku = NULL;
@@ -1663,14 +1648,14 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	X509_set_version(x509, 2L);
 
 	// Set the Expiration
-	t1 = X509_get_notBefore(x509);
-	t2 = X509_get_notAfter(x509);
-	if (!UINT64ToAsn1Time(t1, notBefore))
+	t1 = X509_get0_notBefore(x509);
+	t2 = X509_get0_notAfter(x509);
+	if (!UINT64ToAsn1Time((void *)t1, notBefore))
 	{
 		FreeX509(x509);
 		return NULL;
 	}
-	if (!UINT64ToAsn1Time(t2, notAfter))
+	if (!UINT64ToAsn1Time((void *)t2, notAfter))
 	{
 		FreeX509(x509);
 		return NULL;
@@ -1767,7 +1752,7 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 {
 	X509 *x509;
 	UINT64 notBefore, notAfter;
-	ASN1_TIME *t1, *t2;
+	const ASN1_TIME *t1, *t2;
 	X509_NAME *subject_name, *issuer_name;
 	X509_EXTENSION *ex = NULL;
 	X509_EXTENSION *eku = NULL;
@@ -1805,14 +1790,14 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 	X509_set_version(x509, 2L);
 
 	// Set the Expiration
-	t1 = X509_get_notBefore(x509);
-	t2 = X509_get_notAfter(x509);
-	if (!UINT64ToAsn1Time(t1, notBefore))
+	t1 = X509_get0_notBefore(x509);
+	t2 = X509_get0_notAfter(x509);
+	if (!UINT64ToAsn1Time((void *)t1, notBefore))
 	{
 		FreeX509(x509);
 		return NULL;
 	}
-	if (!UINT64ToAsn1Time(t2, notAfter))
+	if (!UINT64ToAsn1Time((void *)t2, notAfter))
 	{
 		FreeX509(x509);
 		return NULL;
@@ -2222,7 +2207,9 @@ bool RsaVerify(void *data, UINT data_size, void *sign, K *k)
 bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 {
 	UCHAR hash_data[SIGN_HASH_SIZE];
-	UCHAR decrypt_data[SIGN_HASH_SIZE];
+	UCHAR *decrypt_data;
+	RSA *rsa;
+	UINT rsa_size;
 	// Validate arguments
 	if (data == NULL || sign == NULL || k == NULL || k->private_key != false)
 	{
@@ -2233,23 +2220,37 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 		bits = RSA_KEY_SIZE;
 	}
 
+	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	if (rsa == NULL)
+	{
+		return false;
+	}
+
 	// Hash the data
 	if (HashForSign(hash_data, sizeof(hash_data), data, data_size) == false)
 	{
 		return false;
 	}
 
+	rsa_size = RSA_size(rsa);
+	rsa_size = MAX(rsa_size, 1024); // For just in case
+	decrypt_data = ZeroMalloc(rsa_size);
+
 	// Decode the signature
-	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
+	if (RSA_public_decrypt(bits / 8, sign, decrypt_data, rsa, RSA_PKCS1_PADDING) <= 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
 
 	// Comparison
 	if (Cmp(decrypt_data, hash_data, SIGN_HASH_SIZE) != 0)
 	{
+		Free(decrypt_data);
 		return false;
 	}
+
+	Free(decrypt_data);
 
 	return true;
 }
@@ -2346,6 +2347,7 @@ bool RsaCheck()
 	ret = BN_set_word(e, RSA_F4);
 	if (ret == 0)
 	{
+		BN_free(e);
 		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
@@ -2355,6 +2357,7 @@ bool RsaCheck()
 	{
 		rsa = RSA_new();
 		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
+		BN_free(e);
 	}
 	Unlock(openssl_lock);
 	if (ret == 0)
@@ -2427,6 +2430,7 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	ret = BN_set_word(e, RSA_F4);
 	if (ret == 0)
 	{
+		BN_free(e);
 		Debug("BN_set_word: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
 		return false;
 	}
@@ -2436,6 +2440,7 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	{
 		rsa = RSA_new();
 		ret = RSA_generate_key_ex(rsa, bit, e, NULL);
+		BN_free(e);
 	}
 	Unlock(openssl_lock);
 	if (ret == 0)
@@ -3706,6 +3711,10 @@ void FreeOpenSSLThreadState()
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 	CRYPTO_cleanup_all_ex_data();
 	ERR_remove_thread_state(NULL);
+#else
+#ifndef LIBRESSL_VERSION_NUMBER
+	OPENSSL_thread_stop();
+#endif
 #endif
 }
 
@@ -3722,11 +3731,13 @@ void FreeCryptLibrary()
 	openssl_lock = NULL;
 //	RAND_Free_For_SoftEther();
 	OpenSSL_FreeLock();
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 #ifdef OPENSSL_FIPS
 	FIPS_mode_set(0);
 #endif
+#ifndef OPENSSL_NO_ENGINE
 	ENGINE_cleanup();
+#endif
 	CONF_modules_unload(1);
 	EVP_cleanup();
 
@@ -3737,6 +3748,7 @@ void FreeCryptLibrary()
 #ifndef OPENSSL_NO_COMP
 	SSL_COMP_free_compression_methods();
 #endif
+#endif
 }
 
 // Initialize the Crypt library
@@ -3744,6 +3756,7 @@ void InitCryptLibrary()
 {
 	char tmp[16];
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 //	RAND_Init_For_SoftEther()
 	openssl_lock = NewLock();
 	SSL_library_init();
@@ -3752,6 +3765,7 @@ void InitCryptLibrary()
 	OpenSSL_add_all_digests();
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
+#endif
 
 	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);
 
@@ -4418,7 +4432,7 @@ static UINT Internal_HMac(const EVP_MD *md, void *dest, void *key, UINT key_size
 		goto final;
 	}
 
-	len = MdProcess(m, dest, src, src_size);
+	len = MdProcess(m, dest, (void *)src, src_size);
 	if (len == 0)
 	{
 		Debug("Internal_HMac(): MdProcess() returned 0!\n");
@@ -4432,308 +4446,144 @@ final:
 /////////////////////////
 // SHA0 implementation //
 /////////////////////////
-// 
-// From: https://bitbucket.org/Polarina/ampheck/src/097585ce2a74/src/
+
+// Source codes from:
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/libmincrypt/sha.c
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/include/mincrypt/hash-internal.h
+//  https://android.googlesource.com/platform/system/core/+/81df1cc77722000f8d0025c1ab00ced123aa573c/include/mincrypt/sha.h
+
 /*
-	Copyright (C) 2009  Gabriel A. Petursson
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2013 The Android Open Source Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Google Inc. nor the names of its contributors may
+ *       be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Google Inc. ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL Google Inc. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-struct ampheck_sha0
-{
-	UINT h[5];
-	UCHAR buffer[64];
-	UINT64 length;
-};
-#define ROR(x, y) (((x) >> (y)) ^ ((x) << ((sizeof(x) * 8) - (y))))
-#define ROL(x, y) (((x) << (y)) ^ ((x) >> ((sizeof(x) * 8) - (y))))
-#define UNPACK_32_BE(x, str) { \
-	*((str))     = (UCHAR) ((x) >> 24); \
-	*((str) + 1) = (UCHAR) ((x) >> 16); \
-	*((str) + 2) = (UCHAR) ((x) >>  8); \
-	*((str) + 3) = (UCHAR) (x); \
-}
-#define UNPACK_64_BE(x, str) { \
-	*((str))     = (UCHAR) ((x) >> 56); \
-	*((str) + 1) = (UCHAR) ((x) >> 48); \
-	*((str) + 2) = (UCHAR) ((x) >> 40); \
-	*((str) + 3) = (UCHAR) ((x) >> 32); \
-	*((str) + 4) = (UCHAR) ((x) >> 24); \
-	*((str) + 5) = (UCHAR) ((x) >> 16); \
-	*((str) + 6) = (UCHAR) ((x) >>  8); \
-	*((str) + 7) = (UCHAR) (x); \
-}
-#define PACK_32_BE(str, x) { \
-	*(x) = ((UINT) *((str)    ) << 24) \
-	^ ((UINT) *((str) + 1) << 16) \
-	^ ((UINT) *((str) + 2) <<  8) \
-	^ ((UINT) *((str) + 3)); \
-}
-#define PACK_64_BE(str, x) { \
-	*(x) = ((UINT64) *((str)    ) << 56) \
-	^ ((UINT64) *((str) + 1) << 48) \
-	^ ((UINT64) *((str) + 2) << 40) \
-	^ ((UINT64) *((str) + 3) << 32) \
-	^ ((UINT64) *((str) + 4) << 24) \
-	^ ((UINT64) *((str) + 5) << 16) \
-	^ ((UINT64) *((str) + 6) << 8) \
-	^ ((UINT64) *((str) + 7)); \
-}
-#define UNPACK_32_LE(x, str) { \
-	*((str))     = (UCHAR) (x); \
-	*((str) + 1) = (UCHAR) ((x) >>  8); \
-	*((str) + 2) = (UCHAR) ((x) >> 16); \
-	*((str) + 3) = (UCHAR) ((x) >> 24); \
-}
-#define UNPACK_64_LE(x, str) { \
-	*((str))     = (UCHAR) (x); \
-	*((str) + 1) = (UCHAR) ((x) >>  8); \
-	*((str) + 2) = (UCHAR) ((x) >> 16); \
-	*((str) + 3) = (UCHAR) ((x) >> 24); \
-	*((str) + 4) = (UCHAR) ((x) >> 32); \
-	*((str) + 5) = (UCHAR) ((x) >> 40); \
-	*((str) + 6) = (UCHAR) ((x) >> 48); \
-	*((str) + 7) = (UCHAR) ((x) >> 56); \
-}
-#define PACK_32_LE(str, x) { \
-	*(x) = ((UINT) *((str)    )) \
-	^ ((UINT) *((str) + 1) <<  8) \
-	^ ((UINT) *((str) + 2) << 16) \
-	^ ((UINT) *((str) + 3) << 24); \
-}
-#define PACK_64_LE(str, x) { \
-	*(x) = ((UINT64) *((str)    )) \
-	^ ((UINT64) *((str) + 1) <<  8) \
-	^ ((UINT64) *((str) + 2) << 16) \
-	^ ((UINT64) *((str) + 3) << 24) \
-	^ ((UINT64) *((str) + 4) << 32) \
-	^ ((UINT64) *((str) + 5) << 40) \
-	^ ((UINT64) *((str) + 6) << 48) \
-	^ ((UINT64) *((str) + 7) << 56); \
-}
-#define SHA0_R1(x, y, z) ((z ^ (x & (y ^ z)))       + 0x5a827999)
-#define SHA0_R2(x, y, z) ((x ^ y ^ z)               + 0x6ed9eba1)
-#define SHA0_R3(x, y, z) (((x & y) | (z & (x | y))) + 0x8f1bbcdc)
-#define SHA0_R4(x, y, z) ((x ^ y ^ z)               + 0xca62c1d6)
-#define SHA0_PRC(a, b, c, d, e, idx, rnd) { \
-	wv[e] += ROR(wv[a], 27) + SHA0_R##rnd(wv[b], wv[c], wv[d]) + idx; \
-	wv[b]  = ROR(wv[b], 2); \
-}
-#define SHA0_EXT(i) ( \
-	w[i] ^= w[(i - 3) & 0x0F] ^ w[(i - 8) & 0x0F] ^ w[(i - 14) & 0x0F] \
-	)
-static void ampheck_sha0_init(struct ampheck_sha0 *ctx);
-static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT length);
-static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest);
-static void ampheck_sha0_init(struct ampheck_sha0 *ctx)
-{
-	ctx->h[0] = 0x67452301;
-	ctx->h[1] = 0xefcdab89;
-	ctx->h[2] = 0x98badcfe;
-	ctx->h[3] = 0x10325476;
-	ctx->h[4] = 0xc3d2e1f0;
 
-	ctx->length = 0;
+#define rol(bits, value) (((value) << (bits)) | ((value) >> (32 - (bits))))
+
+typedef struct MY_SHA0_CTX {
+//	const HASH_VTAB * f;
+	UINT64 count;
+	UCHAR buf[64];
+	UINT state[8];  // upto SHA2
+} MY_SHA0_CTX;
+
+#define MY_SHA0_DIGEST_SIZE 20
+
+static void MY_SHA0_Transform(MY_SHA0_CTX* ctx) {
+	UINT W[80];
+	UINT A, B, C, D, E;
+	UCHAR* p = ctx->buf;
+	int t;
+	for(t = 0; t < 16; ++t) {
+		UINT tmp =  *p++ << 24;
+		tmp |= *p++ << 16;
+		tmp |= *p++ << 8;
+		tmp |= *p++;
+		W[t] = tmp;
+	}
+	for(; t < 80; t++) {
+		//W[t] = rol(1,W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]);
+		W[t] = (1,W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]);
+	}
+	A = ctx->state[0];
+	B = ctx->state[1];
+	C = ctx->state[2];
+	D = ctx->state[3];
+	E = ctx->state[4];
+	for(t = 0; t < 80; t++) {
+		UINT tmp = rol(5,A) + E + W[t];
+		if (t < 20)
+			tmp += (D^(B&(C^D))) + 0x5A827999;
+		else if ( t < 40)
+			tmp += (B^C^D) + 0x6ED9EBA1;
+		else if ( t < 60)
+			tmp += ((B&C)|(D&(B|C))) + 0x8F1BBCDC;
+		else
+			tmp += (B^C^D) + 0xCA62C1D6;
+		E = D;
+		D = C;
+		C = rol(30,B);
+		B = A;
+		A = tmp;
+	}
+	ctx->state[0] += A;
+	ctx->state[1] += B;
+	ctx->state[2] += C;
+	ctx->state[3] += D;
+	ctx->state[4] += E;
 }
-
-static void ampheck_sha0_transform(struct ampheck_sha0 *ctx, const UCHAR *data, UINT blocks)
-{
-	UINT i;
-	for (i = 0; i < blocks; ++i)
-	{
-		UINT wv[5];
-		UINT w[16];
-
-		PACK_32_BE(&data[(i << 6)     ], &w[ 0]);
-		PACK_32_BE(&data[(i << 6) +  4], &w[ 1]);
-		PACK_32_BE(&data[(i << 6) +  8], &w[ 2]);
-		PACK_32_BE(&data[(i << 6) + 12], &w[ 3]);
-		PACK_32_BE(&data[(i << 6) + 16], &w[ 4]);
-		PACK_32_BE(&data[(i << 6) + 20], &w[ 5]);
-		PACK_32_BE(&data[(i << 6) + 24], &w[ 6]);
-		PACK_32_BE(&data[(i << 6) + 28], &w[ 7]);
-		PACK_32_BE(&data[(i << 6) + 32], &w[ 8]);
-		PACK_32_BE(&data[(i << 6) + 36], &w[ 9]);
-		PACK_32_BE(&data[(i << 6) + 40], &w[10]);
-		PACK_32_BE(&data[(i << 6) + 44], &w[11]);
-		PACK_32_BE(&data[(i << 6) + 48], &w[12]);
-		PACK_32_BE(&data[(i << 6) + 52], &w[13]);
-		PACK_32_BE(&data[(i << 6) + 56], &w[14]);
-		PACK_32_BE(&data[(i << 6) + 60], &w[15]);
-
-		wv[0] = ctx->h[0];
-		wv[1] = ctx->h[1];
-		wv[2] = ctx->h[2];
-		wv[3] = ctx->h[3];
-		wv[4] = ctx->h[4];
-
-		SHA0_PRC(0, 1, 2, 3, 4, w[ 0], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[ 1], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[ 2], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[ 3], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[ 4], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[ 5], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[ 6], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[ 7], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[ 8], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[ 9], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[10], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, w[11], 1);
-		SHA0_PRC(3, 4, 0, 1, 2, w[12], 1);
-		SHA0_PRC(2, 3, 4, 0, 1, w[13], 1);
-		SHA0_PRC(1, 2, 3, 4, 0, w[14], 1);
-		SHA0_PRC(0, 1, 2, 3, 4, w[15], 1);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 0), 1);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 1), 1);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 2), 1);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 3), 1);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 4), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 5), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 6), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 7), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 8), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 9), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(10), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(11), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(12), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(13), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(14), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(15), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 0), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 1), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 2), 2);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 3), 2);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 4), 2);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 5), 2);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 6), 2);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 7), 2);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 8), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 9), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(10), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(11), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(12), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(13), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(14), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(15), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 0), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 1), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 2), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 3), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 4), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 5), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 6), 3);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 7), 3);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 8), 3);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 9), 3);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(10), 3);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(11), 3);
-
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(12), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(13), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(14), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(15), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 0), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 1), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 2), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 3), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 4), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT( 5), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT( 6), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT( 7), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT( 8), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT( 9), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(10), 4);
-		SHA0_PRC(0, 1, 2, 3, 4, SHA0_EXT(11), 4);
-		SHA0_PRC(4, 0, 1, 2, 3, SHA0_EXT(12), 4);
-		SHA0_PRC(3, 4, 0, 1, 2, SHA0_EXT(13), 4);
-		SHA0_PRC(2, 3, 4, 0, 1, SHA0_EXT(14), 4);
-		SHA0_PRC(1, 2, 3, 4, 0, SHA0_EXT(15), 4);
-
-		ctx->h[0] += wv[0];
-		ctx->h[1] += wv[1];
-		ctx->h[2] += wv[2];
-		ctx->h[3] += wv[3];
-		ctx->h[4] += wv[4];
+void MY_SHA0_init(MY_SHA0_CTX* ctx) {
+	//ctx->f = &SHA_VTAB;
+	ctx->state[0] = 0x67452301;
+	ctx->state[1] = 0xEFCDAB89;
+	ctx->state[2] = 0x98BADCFE;
+	ctx->state[3] = 0x10325476;
+	ctx->state[4] = 0xC3D2E1F0;
+	ctx->count = 0;
+}
+void MY_SHA0_update(MY_SHA0_CTX* ctx, const void* data, int len) {
+	int i = (int) (ctx->count & 63);
+	const UCHAR* p = (const UCHAR*)data;
+	ctx->count += len;
+	while (len--) {
+		ctx->buf[i++] = *p++;
+		if (i == 64) {
+			MY_SHA0_Transform(ctx);
+			i = 0;
+		}
 	}
 }
-
-static void ampheck_sha0_update(struct ampheck_sha0 *ctx, const UCHAR *data, UINT size)
-{
-	UINT tmp = size;
-
-	if (size >= 64 - ctx->length % 64)
-	{
-		memcpy(&ctx->buffer[ctx->length % 64], data, 64 - ctx->length % 64);
-
-		data += 64 - ctx->length % 64;
-		size -= 64 - ctx->length % 64;
-
-		ampheck_sha0_transform(ctx, ctx->buffer, 1);
-		ampheck_sha0_transform(ctx, data, size / 64);
-
-		data += size & ~63;
-		size %= 64;
-
-		memcpy(ctx->buffer, data, size);
+const UCHAR* MY_SHA0_final(MY_SHA0_CTX* ctx) {
+	UCHAR *p = ctx->buf;
+	UINT64 cnt = ctx->count * 8;
+	int i;
+	MY_SHA0_update(ctx, (UCHAR*)"\x80", 1);
+	while ((ctx->count & 63) != 56) {
+		MY_SHA0_update(ctx, (UCHAR*)"\0", 1);
 	}
-	else
-	{
-		memcpy(&ctx->buffer[ctx->length % 64], data, size);
+	for (i = 0; i < 8; ++i) {
+		UCHAR tmp = (UCHAR) (cnt >> ((7 - i) * 8));
+		MY_SHA0_update(ctx, &tmp, 1);
 	}
-
-	ctx->length += tmp;
+	for (i = 0; i < 5; i++) {
+		UINT tmp = ctx->state[i];
+		*p++ = tmp >> 24;
+		*p++ = tmp >> 16;
+		*p++ = tmp >> 8;
+		*p++ = tmp >> 0;
+	}
+	return ctx->buf;
 }
-
-static void ampheck_sha0_finish(const struct ampheck_sha0 *ctx, UCHAR *digest)
-{
-	struct ampheck_sha0 tmp;
-
-	memcpy(tmp.h, ctx->h, 5 * sizeof(UINT));
-	memcpy(tmp.buffer, ctx->buffer, ctx->length % 64);
-
-	tmp.buffer[ctx->length % 64] = 0x80;
-
-	if (ctx->length % 64 < 56)
-	{
-		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 55 - ctx->length % 64);
-	}
-	else
-	{
-		memset(&tmp.buffer[ctx->length % 64 + 1], 0x00, 63 - ctx->length % 64);
-		ampheck_sha0_transform(&tmp, tmp.buffer, 1);
-
-		memset(tmp.buffer, 0x00, 56);
-	}
-
-	UNPACK_64_BE(ctx->length * 8, &tmp.buffer[56]);
-	ampheck_sha0_transform(&tmp, tmp.buffer, 1);
-
-	UNPACK_32_BE(tmp.h[0], &digest[ 0]);
-	UNPACK_32_BE(tmp.h[1], &digest[ 4]);
-	UNPACK_32_BE(tmp.h[2], &digest[ 8]);
-	UNPACK_32_BE(tmp.h[3], &digest[12]);
-	UNPACK_32_BE(tmp.h[4], &digest[16]);
+/* Convenience function */
+const UCHAR* MY_SHA0_hash(const void* data, int len, UCHAR* digest) {
+	MY_SHA0_CTX ctx;
+	MY_SHA0_init(&ctx);
+	MY_SHA0_update(&ctx, data, len);
+	memcpy(digest, MY_SHA0_final(&ctx), MY_SHA0_DIGEST_SIZE);
+	return digest;
 }
-
 static void Internal_Sha0(unsigned char *dest, const unsigned char *src, const UINT size)
 {
-	struct ampheck_sha0 c;
-
-	ampheck_sha0_init(&c);
-	ampheck_sha0_update(&c, src, size);
-	ampheck_sha0_finish(&c, dest);
+	MY_SHA0_hash(src, (int)size, dest);
 }

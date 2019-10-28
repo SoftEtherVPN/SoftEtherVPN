@@ -1,113 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Contributors:
-// - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Kernel.c
@@ -513,7 +405,7 @@ void GetHomeDirW(wchar_t *path, UINT size)
 		if (GetEnvW(L"HOMEDRIVE", drive, sizeof(drive)) &&
 			GetEnvW(L"HOMEPATH", hpath, sizeof(hpath)))
 		{
-			UniFormat(path, sizeof(path), L"%s%s", drive, hpath);
+			UniFormat(path, size, L"%s%s", drive, hpath);
 		}
 		else
 		{
@@ -1516,11 +1408,103 @@ void GetDateTimeStrMilli(char *str, UINT size, SYSTEMTIME *st)
 		st->wMilliseconds);
 }
 
+
+// Convert string RFC3339 format (example: 2017-09-27T18:25:55.434-9:00) to UINT64
+UINT64 DateTimeStrRFC3339ToSystemTime64(char *str)
+{
+	SYSTEMTIME st;
+	if (DateTimeStrRFC3339ToSystemTime(&st, str))
+	{
+		return SystemToUINT64(&st);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Convert string RFC3339 format (example: 2017-09-27T18:25:55.434-9:00) to SYSTEMTIME
+bool DateTimeStrRFC3339ToSystemTime(SYSTEMTIME *st, char *str)
+{
+	bool ok = false;
+	UINT index_plus;
+	char tmp[MAX_PATH];
+	Zero(st, sizeof(SYSTEMTIME));
+	if (st == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	StrCpy(tmp, sizeof(tmp), str);
+
+	index_plus = SearchStrEx(tmp, "+", 0, false);
+	if (index_plus != INFINITE)
+	{
+		tmp[index_plus] = 0;
+	}
+
+	if (StrLen(tmp) >= 19)
+	{
+		if (tmp[4] == '-' && tmp[7] == '-' && tmp[10] == 'T' && tmp[13] == ':' &&
+			tmp[16] == ':')
+		{
+			char str_year[16], str_month[16], str_day[16], str_hour[16], str_minute[16],
+				str_second[16], str_msec[16];
+
+			StrCpy(str_year, sizeof(str_year), tmp + 0);
+			str_year[4] = 0;
+
+			StrCpy(str_month, sizeof(str_month), tmp + 5);
+			str_month[2] = 0;
+
+			StrCpy(str_day, sizeof(str_day), tmp + 8);
+			str_day[2] = 0;
+
+			StrCpy(str_hour, sizeof(str_hour), tmp + 11);
+			str_hour[2] = 0;
+
+			StrCpy(str_minute, sizeof(str_minute), tmp + 14);
+			str_minute[2] = 0;
+
+			StrCpy(str_second, sizeof(str_second), tmp + 17);
+			str_second[2] = 0;
+
+			str_msec[0] = 0;
+
+			if (StrLen(tmp) >= 21 && tmp[19] == '.')
+			{
+				StrCpy(str_msec, sizeof(str_msec), tmp + 20);
+				str_msec[StrLen(tmp) - 21] = 0;
+				while (StrLen(str_msec) < 3)
+				{
+					StrCat(str_msec, sizeof(str_msec), "0");
+				}
+				str_msec[3] = 0;
+			}
+
+			st->wYear = ToInt(str_year);
+			st->wMonth = ToInt(str_month);
+			st->wDay = ToInt(str_day);
+			st->wHour = ToInt(str_hour);
+			st->wMinute = ToInt(str_minute);
+			st->wSecond = ToInt(str_second);
+			st->wMilliseconds = ToInt(str_msec);
+
+			NormalizeSystem(st);
+
+			ok = true;
+		}
+	}
+
+	return ok;
+}
+
 // Get the date and time string in RFC3339 format (example: 2017-09-27T18:25:55.434-9:00)
 void GetDateTimeStrRFC3339(char *str, UINT size, SYSTEMTIME *st, int timezone_min){
 	// Validate arguments
 	if (str == NULL || st == NULL)
 	{
+		ClearStr(str, size);
 		return;
 	}
 

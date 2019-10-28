@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Memory.c
@@ -972,10 +866,6 @@ SK *NewSkEx(bool no_compact)
 	s->p = Malloc(sizeof(void *) * s->num_reserved);
 	s->no_compact = no_compact;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(s), "SK", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWSK_COUNT);
 
@@ -1010,10 +900,6 @@ void CleanupSk(SK *s)
 	Free(s->p);
 	DeleteLock(s->lock);
 	Free(s);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(s));
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_FREESK_COUNT);
@@ -1278,10 +1164,6 @@ void CleanupQueue(QUEUE *q)
 	DeleteLock(q->lock);
 	Free(q);
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(q));
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_FREEQUEUE_COUNT);
 }
@@ -1297,10 +1179,6 @@ QUEUE *NewQueue()
 	q->num_item = 0;
 	q->fifo = NewFifo();
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(q), "QUEUE", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWQUEUE_COUNT);
 
@@ -1315,10 +1193,6 @@ QUEUE *NewQueueFast()
 	q->ref = NULL;
 	q->num_item = 0;
 	q->fifo = NewFifoFast();
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(q), "QUEUE", 0);
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_NEWQUEUE_COUNT);
@@ -1539,6 +1413,48 @@ bool ReplaceListPointer(LIST *o, void *oldptr, void *newptr)
 	return false;
 }
 
+// New string list
+LIST *NewStrList()
+{
+	return NewListFast(CompareStr);
+}
+
+// Release string list
+void ReleaseStrList(LIST *o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		char *s = LIST_DATA(o, i);
+		Free(s);
+	}
+
+	ReleaseList(o);
+}
+
+// Add a string distinct to the string list
+bool AddStrToStrListDistinct(LIST *o, char *str)
+{
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	if (IsInListStr(o, str) == false)
+	{
+		Add(o, CopyStr(str));
+
+		return true;
+	}
+
+	return false;
+}
+
 // Examine whether a string items are present in the list
 bool IsInListStr(LIST *o, char *str)
 {
@@ -1554,6 +1470,28 @@ bool IsInListStr(LIST *o, char *str)
 		char *s = LIST_DATA(o, i);
 
 		if (StrCmpi(s, str) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool IsInListUniStr(LIST *o, wchar_t *str)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < LIST_NUM(o); i++)
+	{
+		wchar_t *s = LIST_DATA(o, i);
+
+		if (UniStrCmpi(s, str) == 0)
 		{
 			return true;
 		}
@@ -1783,10 +1721,6 @@ void CleanupList(LIST *o)
 
 	// KS
 	KS_INC(KS_FREELIST_COUNT);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(o));
-#endif	// DONT_USE_KERNEL_STATUS
 }
 
 // Check whether the specified number is already in the list
@@ -2145,14 +2079,85 @@ LIST *NewListEx2(COMPARE *cmp, bool fast, bool fast_malloc)
 	o->cmp = cmp;
 	o->sorted = true;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(o), "LIST", 0);
-#endif	//DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWLIST_COUNT);
 
 	return o;
+}
+
+// Parses a string by identifying its parts using the specified separators
+LIST *NewEntryList(char *src, char *key_separator, char *value_separator)
+{
+	LIST *o = NewListFast(NULL);
+	TOKEN_LIST *t;
+
+	t = ParseTokenWithoutNullStr(src, key_separator);
+	if (t != NULL)
+	{
+		UINT i;
+
+		for (i = 0; i < t->NumTokens; i++)
+		{
+			char key[MAX_SIZE];
+			char value[MAX_SIZE];
+			char *line = t->Token[i];
+			Trim(line);
+
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), value_separator))
+			{
+				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
+
+				e->Key = CopyStr(key);
+				e->Value = CopyStr(value);
+
+				Add(o, e);
+			}
+		}
+
+		FreeToken(t);
+	}
+
+	return o;
+}
+
+// Checks whether the list contains the specified entry
+bool EntryListHasKey(LIST *o, char *key)
+{
+	// Validate arguments
+	if (o == NULL || key == NULL)
+	{
+		return false;
+	}
+
+	if (GetIniEntry(o, key) != NULL)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// Gets the value of the specified key from the entry list
+char *EntryListStrValue(LIST *o, char *key)
+{
+	return IniStrValue(o, key);
+}
+
+UINT EntryListIntValue(LIST *o, char *key)
+{
+	return IniIntValue(o, key);
+}
+
+// Release the entry list
+void FreeEntryList(LIST *o)
+{
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	FreeIni(o);
 }
 
 // Read all data from FIFO
@@ -2347,10 +2352,6 @@ void CleanupFifo(FIFO *f)
 	Free(f->p);
 	Free(f);
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(f));
-#endif	//DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_FREEFIFO_COUNT);
 }
@@ -2396,10 +2397,6 @@ FIFO *NewFifoEx2(bool fast, bool fixed)
 	f->memsize = FIFO_INIT_MEM_SIZE;
 	f->p = Malloc(FIFO_INIT_MEM_SIZE);
 	f->fixed = false;
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(f), "FIFO", 0);
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_NEWFIFO_COUNT);
@@ -2718,10 +2715,6 @@ BUF *NewBuf()
 	b->Current = 0;
 	b->SizeReserved = INIT_BUF_SIZE;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(b), "BUF", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWBUF_COUNT);
 	KS_INC(KS_CURRENT_BUF_COUNT);
@@ -2997,6 +2990,43 @@ void WriteBufBuf(BUF *b, BUF *bb)
 	WriteBuf(b, bb->Buf, bb->Size);
 }
 
+// Write the buffer (from the offset) to a buffer
+void WriteBufBufWithOffset(BUF *b, BUF *bb)
+{
+	// Validate arguments
+	if (b == NULL || bb == NULL)
+	{
+		return;
+	}
+
+	WriteBuf(b, ((UCHAR *)bb->Buf) + bb->Current, bb->Size - bb->Current);
+}
+
+// Skip UTF-8 BOM
+bool BufSkipUtf8Bom(BUF *b)
+{
+	if (b == NULL)
+	{
+		return false;
+	}
+
+	SeekBufToBegin(b);
+
+	if (b->Size >= 3)
+	{
+		UCHAR *data = b->Buf;
+
+		if (data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+		{
+			SeekBuf(b, 3, 1);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Read into a buffer from the buffer
 BUF *ReadBufFromBuf(BUF *b, UINT size)
 {
@@ -3166,10 +3196,6 @@ void FreeBuf(BUF *b)
 	// KS
 	KS_INC(KS_FREEBUF_COUNT);
 	KS_DEC(KS_CURRENT_BUF_COUNT);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(b));
-#endif	// DONT_USE_KERNEL_STATUS
 }
 
 // Compare BUFs whether two are identical
@@ -3724,10 +3750,21 @@ void Free(void *addr)
 	InternalFree(tag);
 }
 
+// Free and set pointer's value to NULL
+void FreeSafe(void **addr)
+{
+	Free(*addr);
+	*addr = NULL;
+}
+
 // Check the memtag
 void CheckMemTag(MEMTAG *tag)
 {
-#ifndef	DONT_CHECK_HEAP
+	if (IsTrackingEnabled() == false)
+	{
+		return;
+	}
+
 	// Validate arguments
 	if (tag == NULL)
 	{
@@ -3740,7 +3777,6 @@ void CheckMemTag(MEMTAG *tag)
 		AbortExitEx("CheckMemTag: tag->Magic != MEMTAG_MAGIC");
 		return;
 	}
-#endif	// DONT_CHECK_HEAP
 }
 
 // ZeroMalloc
@@ -3784,9 +3820,7 @@ void *InternalMalloc(UINT size)
 		OSSleep(MEMORY_SLEEP_TIME);
 	}
 
-#ifndef	DONT_USE_KERNEL_STATUS
 	TrackNewObj(POINTER_TO_UINT64(addr), "MEM", size);
-#endif	//DONT_USE_KERNEL_STATUS
 
 	return addr;
 }
@@ -3804,9 +3838,7 @@ void InternalFree(void *addr)
 	KS_DEC(KS_CURRENT_MEM_COUNT);
 	KS_INC(KS_FREE_COUNT);
 
-#ifndef	DONT_USE_KERNEL_STATUS
 	TrackDeleteObj(POINTER_TO_UINT64(addr));
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// Memory release
 	OSMemoryFree(addr);
@@ -3839,9 +3871,7 @@ void *InternalReAlloc(void *addr, UINT size)
 		OSSleep(MEMORY_SLEEP_TIME);
 	}
 
-#ifndef	DONT_USE_KERNEL_STATUS
-	TrackChangeObjSize((DWORD)addr, size, (DWORD)new_addr);
-#endif	// DONT_USE_KERNEL_STATUS
+	TrackChangeObjSize(POINTER_TO_UINT64(addr), size, POINTER_TO_UINT64(new_addr));
 
 	return new_addr;
 }

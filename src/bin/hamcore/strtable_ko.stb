@@ -1,7 +1,8 @@
 # SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 # 
 # KOREAN TRANSLATION by Jioh L. Jung (ziozzang@gmail.com)
 # - Powered by Google Translator (From Japanese to Korean)
@@ -163,11 +164,11 @@ ERR_91 가상 레이어 3 스위치 연결이 끊어 수 없습니다. 세션을
 ERR_92 지정된 이름의 가상 레이어 3 스위치는 이미 존재합니다. 다른 이름을 지정하십시오.
 ERR_93 지정된 이름의 가상 레이어 3 스위치가 없습니다.
 ERR_94 지정된 이름이 잘못되었습니다. 사용할 수없는 문자가 포함되어 있는지 확인하십시오.
-ERR_95 가상 레이어 3 인터페이스의 추가에 실패했습니다.
-ERR_96 가상 레이어 3 인터페이스의 삭제에 실패했습니다.
+ERR_95 가상 레이어 3 인터페이스의 추가에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
+ERR_96 가상 레이어 3 인터페이스의 삭제에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting interfaces are unable when the Virtual Layer 3 switch is running.
 ERR_97 지정된 가상 레이어 3 인터페이스가 연결된 가상 HUB에 연결하는 가상 레이어 3 인터페이스가 가상 레이어 3 스위치에 이미 존재합니다. 하나의 가상 레이어 3 스위치에서 동일한 가상 HUB에 연결하는 가상 레이어 3 인터페이스는 하나 밖에 정의 할 수 없습니다.
-ERR_98 라우팅 테이블 추가에 실패했습니다.
-ERR_99 라우팅 테이블의 삭제에 실패했습니다.
+ERR_98 라우팅 테이블 추가에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
+ERR_99 라우팅 테이블의 삭제에 실패했습니다. Please check that the parameters are valid. Also please make sure that the Virtual Layer 3 switch is stopped. Adding or deleting routing table entries are unable when the Virtual Layer 3 switch is running.
 ERR_100 지정된 라우팅 테이블이 이미 존재합니다.
 ERR_101 클라이언트와 서버 사이의 시계가 어긋나 있습니다. 시간 설정을 확인하십시오.
 ERR_102 이 가상 레이어 3 스위치를 시작할 수 없습니다. \r\n\r\n 가상 레이어 3 스위치를 시작하려면 최소한 1 개의 가상 인터페이스가 가상 레이어 3 스위치에 정의되어 있어야합니다.
@@ -456,7 +457,8 @@ ERRDLG_DEVICE_ERROR 가상 LAN 카드 (장치 이름:%S)가 중지 된 때문에
 # 프로토콜 관계
 PROTO_DIRECT_TCP 직접 TCP/IP 연결
 PROTO_HTTP_PROXY HTTP 프록시를 통해 연결
-PROTO_SOCKS_PROXY SOCKS 프록시를 통해 연결
+PROTO_SOCKS_PROXY SOCKS4 프록시를 통해 연결
+PROTO_SOCKS5_PROXY SOCKS5 프록시를 통해 연결
 PROTO_SSH SSH 서버를 통해 연결
 PROTO_UNKNOWN 알 수없는 프로토콜
 
@@ -940,6 +942,8 @@ CM_STOP_INST_VLAN_1 이 컴퓨터에서 가상 LAN 카드의 설치 작업을 �
 CM_STOP_INST_VLAN_2 이 컴퓨터에서 가상 LAN 카드의 설치 작업을 수행하려면 "콘솔 세션"에 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n\r\n 현재이 컴퓨터는 %s가 설치되어 있으며, 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다. \r\n 가상 LAN 카드의 설치 작업은 콘솔 세션에서 VPN 클라이언트 연결 관리자를 시작해야합니다. \r\n (현재 콘솔 세션 (세션 ID:0)은 사용자가 로그온하지 않습니다.) \r\n\r\n 사용자 전환 기능을 사용하거나 원격 데스크톱의/console 스위치 기능 를 사용하거나 컴퓨터의 로컬 콘솔 장치를 사용하여 컴퓨터에 로컬로 로그온 한 후 VPN 클라이언트 연결 관리자를 시작하고 가상 LAN 카드의 설치 작업을 수행합니다.
 CM_SHORTCUT_DESKTOP_MSG 연결 설정의 단축키를 사용하여 연결을 시작하려면 "콘솔 세션"에 바로 가기 파일을 시작해야합니다. \r\n\r\n 현재 사용자가 콘솔 세션이 아닌 원격 세션 (세션 ID:%u)로 로그온합니다.
 CM_HTTP_PROXY_WARNING HTTP 프록시 서버를 통해 연결이 선택되어 있습니다. \r\n\r\n 종종 HTTP 프록시 서버는 연결할 서버의 포트 번호로 HTTP 프로토콜 (TCP 80 번 포트) 및 HTTPS 프로토콜 (TCP 포트 443)의 2 종류의 TCP 포트에 연결 만 를 허용하고 있습니다. \r\n (프록시 서버가 임의의 TCP 포트에 대한 연결을 허용하는 경우도 있습니다.) \r\n\r\nHTTP 또는 HTTPS 포트 이외의 서버 포트에 연결을 금지하고있는 HTTP 프록시 서버를 통해 VPN 연결을 할 경우 연결된 VPN Server의 포트 번호는 443 (HTTPS 프로토콜)에 지정해야합니다. \r\n\r\n 통해 HTTP 프록시 서버가 80 번 또는 443 번 포트 이외의 연결을 허용하는지 여부를 확인하려면 HTTP 프록시 서버의 관리자에게 문의하십시오. \r\n\r\n 현재 연결된 VPN Server의 포트 번호는 %d가 지정되어 있지만 포트 번호를 443 (HTTPS 프로토콜)로 변경 하시겠습니까? \r\n (연결하는 VPN Server의 포트 443에서 연결을 기다리는 설정되어 있어야합니다.) \r\n 알 수없는 경우 시스템 관리자 또는 네트워크 관리자에게 문의하십시오.
+CM_HTTP_HEADER_COLUMN_0 Name
+CM_HTTP_HEADER_COLUMN_1 Value
 CM_PASSWORD_CHANGED 비밀번호가 변경되었습니다.
 CM_ACCOUNT_SETTING_FILE 연결 설정 파일 (* .VPN)|* .vpn|모든 파일 (*.*)|*.*
 CM_ACCOUNT_SAVE_TITLE 대상의 연결 설정 파일 이름을 입력하십시오.
@@ -1076,7 +1080,7 @@ SVC_HIDE_TRAY_MSG %S 사용자 모드 시작시 시스템 트레이 아이콘을
 
 
 # 서비스 관계 (UNIX)
-UNIX_SVC_HELP %S service program \nCopyright (c) SoftEther VPN Project. All Rights Reserved. \n \n %S command usage:\n %S start - Start the %S service \n %S stop - Stop the %S service if the service has been already started. \n \n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED The %S service has been started. \n
 UNIX_SVC_STOPPING Stopping the %S service... \n
 UNIX_SVC_STOPPED %S service has been stopped. \n
@@ -1769,6 +1773,9 @@ LS_LICENSE_NOT_VPNSERVER 연결 "%S": 라이센스 오류가 발생했습니다.
 LS_LICENSE_NOT_VPNCLUSTER 연결 "%S": 라이센스 오류가 발생했습니다. 이 VPN Server는 현재 클러스터링 기능을 사용할 수없는 종류의 라이센스가 등록되어 있지만 클러스터 모드로 실행 중에 VPN Client가 연결을 시도했습니다. VPN Server를 다시 시작해야합니다.
 LS_LICENSE_VIOLATION 연결 "%S": VPN Server에서 라이센스 위반이 발생하고 있기 때문에 연결을 받아 들일 수 없습니다.
 LS_LICENSE_VIOLATION_DETECTED 라이센스 위반을 감지했습니다. 다른 VPN Server가 이 VPN Server와 동일한 서버 ID "%I64u"으로 동작합니다. 클러스터에 동일한 라이센스를 사용하여 두 개 이상의 VPN Server가 있을 수 있습니다. 각 VPN Server의 라이센스 정보를 확인하십시오.
+LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
+LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
+LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
 # (OpenVPN 로그)
@@ -2063,6 +2070,7 @@ L3_SWITCH_STOP 가상 레이어 3 스위치 "%S"가 종료되었습니다.
 
 
 # Microsoft.c 관계
+MS_VIRTUAL 독점적 인 가상 / 내부 인터페이스
 MS_ETHERNET Ethernet 인터페이스
 MS_TOKENRING 토큰 링 인터페이스
 MS_FDDI FDDI 인터페이스
@@ -2272,7 +2280,8 @@ STATIC9 프록시 서버를 통해 VPN Server에 연결할 수 있습니다.
 STATIC10 프록시 유형 (&M):
 R_DIRECT_TCP 직접 TCP/IP 연결 (프록시를 사용하지 않는다) (&D)
 R_HTTPS HTTP 프록시 서버를 통해 연결 (&Q)
-R_SOCKS SOCKS 프록시 서버를 통해 연결 (&S)
+R_SOCKS SOCKS4 프록시 서버를 통해 연결 (&S)
+R_SOCKS5 SOCKS5 프록시 서버를 통해 연결 (&S)
 B_PROXY_CONFIG 프록시 서버 연결 설정 (&2)
 STATIC11 서버 인증서 검증 옵션 (&F):
 R_CHECK_CERT 서버 인증서를 반드시 확인한다 (&3)
@@ -2314,10 +2323,20 @@ STATIC2 호스트 이름 (&H):
 STATIC3 포트 번호 (&A):
 STATIC4 사용자 이름 (&U):
 STATIC5 비밀번호 (&P):
+B_HTTP_HEADER Custom HTTP header values
 IDOK & OK
 IDCANCEL 취소
 STATIC6 (옵션)
 STATIC7 (옵션)
+
+
+PREFIX D_CM_PROXY_HTTP_HEADER
+CAPTION Custom Proxy HTTP Header Values
+B_NEW New
+B_DELETE Delete
+B_CLEAR Clear
+IDOK &OK
+IDCANCEL Cancel
 
 
 PREFIX D_CM_DETAIL
@@ -2414,7 +2433,7 @@ STATIC7 인터넷 연결 유지 기능 (&N)
 
 PREFIX D_ABOUT
 S_INFO1 SoftEther VPN %u.0 (Ver %u %02u, Build %u)
-S_INFO2 An Open-Source VPN Software for Academic Purpose, under the GPLv2 License \r\nCopyright (c) 2012- %u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved. \r\nWeb Site:http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3 This product includes the following software components:\r\nBitVisor:Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved./Microsoft (R) C Runtime Library:(c) 2007 Microsoft Corporation. All Rights Reserved./PKCS # 11 Cryptographic Token Interface (Cryptoki):Copyright (c) RSA Security Inc./WinPcap:Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy ). All rights reserved./libedit:Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved./libiconv:Copyright (C) 2007 Free Software Foundation, Inc./ncurses:Copyright (c) 1998 -2005, 2006 Free Software Foundation, Inc./OpenSSL:Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www. openssl.org/) This product includes cryptographic software written by Eric Young (eay@cryptsoft.com)/zlib:(C) 1995-2004 Jean-loup Gailly and Mark Adler/Special Thanks to:Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4 이 소프트웨어는 츠쿠바 대학 SoftEther VPN 프로젝트에서 개발 된 프리웨어입니다. 본 소프트웨어는 어떠한 보증이없는 상태로 제공되는 것이며, 개발 및 배포자는 사용의 결과 손해에 대해 책임을지지 않습니다. \r\n\r\nSoftEther VPN 소프트웨어는 일본 경제 산업 성 소프트웨어 연구 개발 프로젝트의 결과물입니다. IPA (독립 행정법 인 정보 처리 추진기구)의 미답 소프트웨어 창조 사업에 채택되어 개발되었습니다. 자세한 내용은 http://www.ipa.go.jp/를 참조하십시오.
 IDCANCEL & OK
@@ -2486,7 +2505,8 @@ STATIC9 프록시 서버를 통해 VPN Server에 연결할 수 있습니다.
 STATIC10 프록시 유형 (&Y):
 R_DIRECT_TCP 직접 TCP/IP 연결 (프록시를 사용하지 않는다) (&D)
 R_HTTPS HTTP 프록시 서버를 통해 연결 (&T)
-R_SOCKS SOCKS 프록시 서버를 통해 연결 (&K)
+R_SOCKS SOCKS4 프록시 서버를 통해 연결 (&K)
+R_SOCKS5 SOCKS5 프록시 서버를 통해 연결 (&K)
 B_PROXY_CONFIG 프록시 서버 연결 설정 (&R)
 STATIC11 관리 모드의 선택과 암호 (&M)
 STATIC12 VPN Server는 서버 관리 모드와 가상 HUB 관리 모드 중 하나의 모드로 연결할 수 있습니다. \r\n\r\n 서버 관리 모드로 연결하면 VPN Server 설정 및 모든 가상 HUB가 관리 할 수 있습니다. \r\n\r\n 가상 HUB 관리 모드로 연결하면 권한이있는 가상 HUB 관리 할 수 있습니다.
@@ -4078,7 +4098,8 @@ STATIC9 프록시 서버를 통해 서버에 연결할 수 있습니다.
 STATIC10 프록시 유형 (&Y):
 R_DIRECT_TCP 직접 TCP/IP 연결 (프록시를 사용하지 않는다) (&D)
 R_HTTPS HTTP 프록시 서버를 통해 연결 (&T)
-R_SOCKS SOCKS 프록시 서버를 통해 연결 (&K)
+R_SOCKS SOCKS4 프록시 서버를 통해 연결 (&K)
+R_SOCKS5 SOCKS5 프록시 서버를 통해 연결 (&K)
 B_PROXY_CONFIG 프록시 서버 연결 설정 (&R)
 IDOK & OK
 IDCANCEL 취소
@@ -4426,7 +4447,7 @@ CMD_VPNCMD_HOST_2 연결된 VPN Client를 실행하는 컴퓨터의 IP 주소 �
 CMD_VPNCMD_HOST_3 연결된 호스트 이름 또는 IP 주소:
 CMD_VPNCMD_HUB_1 서버에 가상 HUB 관리 모드로 접속하는 경우에는 가상 HUB 이름을 입력하십시오. \n 서버 관리 모드로 접속하는 경우는 아무것도 입력하지 않고 Enter를 누르십시오.
 CMD_VPNCMD_HUB_2 연결된 가상 HUB 이름을 입력:
-CMD_VPNCMD_ABOUT SoftEther VPN 명령 줄 관리 유틸리티 (vpncmd 명령) \n %S \n %S \nCopyright (c) SoftEther VPN Project. All Rights Reserved. \n
+CMD_VPNCMD_ABOUT SoftEther VPN 명령 줄 관리 유틸리티 (vpncmd 명령)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1 액세스가 거부되었습니다. 암호가 잘못되었거나 연결 관리 모드가 정확하지 않을 수 있습니다. 암호를 다시 입력 할 수 있습니다. 취소하려면 Ctrl + D를 누르십시오.
 CMD_VPNCMD_PASSWORD_2 비밀번호:
 CMD_VPNCMD_ERROR 오류가 발생했습니다. (오류 코드:%u) \n %s
@@ -5285,6 +5306,35 @@ CMD_CascadeCompressDisable_Args CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name] 설정을 변경 계단식의 이름을 지정합니다.
 
 
+# CascadeHttpHeader* commands
+CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# CascadeHttpHeaderAdd command
+CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# CascadeHttpHeaderDelete command
+CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
+CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# CascadeHttpHeaderGet command
+CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
+CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+
+
 # CascadeProxyNone 명령
 CMD_CascadeProxyNone 계단식 연결 방법을 직접 TCP/IP 연결 설정
 CMD_CascadeProxyNone_Help 현재 관리하고있는 가상 HUB에 등록되어있는 계단식 지정하고 계단식가 VPN Server에 연결할 때 사용할 연결 방법을 [직접 TCP/IP 연결을 설정하고 프록시 서버를 경유하지 않도록합니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
@@ -5303,15 +5353,24 @@ CMD_CascadeProxyHttp_PASSWORD 통해 HTTP 프록시 서버에 연결하기 위�
 CMD_CascadeProxyHttp_Prompt_Server 프록시 서버의 호스트 이름과 포트 번호:
 
 
-
 # CascadeProxySocks 명령
 CMD_CascadeProxySocks 계단식 연결 방법을 SOCKS 프록시 서버를 통해 연결 설정
-CMD_CascadeProxySocks_Help 현재 관리하고있는 가상 HUB에 등록되어있는 계단식 지정하고 계단식가 VPN Server에 연결할 때 사용할 연결 방법을 [SOCKS 프록시 서버를 통해 연결을 설정하고 경유 하는 SOCKS 프록시 서버의 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다. \n 통해 SOCKS 서버는 SOCKS 버전 4를 지원해야합니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
+CMD_CascadeProxySocks_Help 현재 관리하고있는 가상 HUB에 등록되어있는 계단식 지정하고 계단식가 VPN Server에 연결할 때 사용할 연결 방법을 [SOCKS4 프록시 서버를 통해 연결을 설정하고 경유 하는 SOCKS4 프록시 서버의 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_CascadeProxySocks_Args CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name] 설정을 변경 계단식의 이름을 지정합니다.
 CMD_CascadeProxySocks_SERVER 호스트 이름:포트 번호 형식으로 통해 SOCKS 프록시 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정합니다.
-CMD_CascadeProxySocks_USERNAME 통해 SOCKS 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
-CMD_CascadeProxySocks_PASSWORD 통해 SOCKS 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
+CMD_CascadeProxySocks_USERNAME 통해 SOCKS4 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
+CMD_CascadeProxySocks_PASSWORD 통해 SOCKS4 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
+
+
+# CascadeProxySocks5 명령
+CMD_CascadeProxySocks5 계단식 연결 방법을 SOCKS 프록시 서버를 통해 연결 설정
+CMD_CascadeProxySocks5_Help 현재 관리하고있는 가상 HUB에 등록되어있는 계단식 지정하고 계단식가 VPN Server에 연결할 때 사용할 연결 방법을 [SOCKS5 프록시 서버를 통해 연결을 설정하고 경유 하는 SOCKS5 프록시 서버의 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
+CMD_CascadeProxySocks5_Args CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name] 설정을 변경 계단식의 이름을 지정합니다.
+CMD_CascadeProxySocks5_SERVER 호스트 이름:포트 번호 형식으로 통해 SOCKS 프록시 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정합니다.
+CMD_CascadeProxySocks5_USERNAME 통해 SOCKS5 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
+CMD_CascadeProxySocks5_PASSWORD 통해 SOCKS5 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
 
 
 # CascadeServerCertEnable 명령
@@ -6232,6 +6291,23 @@ CMD_OpenVpnMakeConfig_OK 예제 구성 파일 "%s"파일에 저장했습니다. 
 CMD_OpenVpnMakeConfig_ERROR 예제 구성 파일 "%s"파일에 저장할 수 없습니다. 파일 이름이 잘못되었을 수 있습니다. \n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no] Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no] Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask XOR mask
+
 # SstpEnable 명령
 CMD_SstpEnable Microsoft SSTP VPN 호환 서버 기능을 활성화/비활성화
 CMD_SstpEnable_Help SoftEther VPN Server는 Microsoft 사의 Windows Server 2008/2012 제품에 탑재 된 MS-SSTP VPN 서버 기능과 호환 기능이 탑재되어 있습니다. Microsoft SSTP VPN 호환 서버 기능을 활성화하면 Windows Vista/7/8/RT에 내장 된 MS-SSTP 클라이언트에서이 VPN Server에 연결할 수 있도록합니다. \n \n [주의] \nVPN Server의 SSL 인증서의 CN 값이 클라이언트 측에서 지정하는 호스트 이름과 일치하며 그 인증서를 신뢰할 수 있어야합니다. 자세한 내용은 Microsoft 문서를 참조하십시오. \n 지정된 CN 값을 가지는 새로운 SSL 인증서 (자체 서명 인증서)를 생성하여 VPN Server의 현재 인증서로 대체하기 위해서는 ServerCertRegenerate 명령을 사용하십시오. 이 경우 해당 인증서를 SSTP VPN 클라이언트 컴퓨터의 신뢰할 수있는 루트 인증서로 등록해야합니다. 이러한 번거 로움 않으려면 대신 VeriSign이나 GlobalSign 사 등의 상용 인증서 공급자의 SSL 인증서 취득을 검토하십시오. \n \nMicrosoft SSTP VPN 호환 서버 기능으로 가상 HUB에 연결하는 경우 사용자 이름 지정 방법 및 기본 가상 HUB 선택 규칙은 IPsec 서버 기능과 유사합니다. 자세한 내용은 IPsecEnable 명령의 도움말을 참조하십시오. \n \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
@@ -6575,6 +6651,35 @@ CMD_AccountCompressDisable_Args AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name] 설정을 변경하려면 연결 설정의 이름을 지정합니다.
 
 
+# AccountHttpHeader* commands
+CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# AccountHttpHeaderAdd command
+CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# AccountHttpHeaderDelete command
+CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
+CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# AccountHttpHeaderGet command
+CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
+CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+
+
 # AccountProxyNone 명령
 CMD_AccountProxyNone 연결 설정의 연결 방법을 직접 TCP/IP 연결 설정
 CMD_AccountProxyNone_Help VPN Client에 등록되어있는 연결 설정을 지정하고 연결 설정 VPN Server에 연결할 때 사용하는 연결 방법을 [직접 TCP/IP 연결을 설정하고 프록시 서버를 경유하지 않도록 합니다.
@@ -6593,15 +6698,24 @@ CMD_AccountProxyHttp_PASSWORD 통해 HTTP 프록시 서버에 연결하기 위�
 CMD_AccountProxyHttp_Prompt_Server 프록시 서버의 호스트 이름과 포트 번호:
 
 
-
 # AccountProxySocks 명령
-CMD_AccountProxySocks 연결 설정의 연결 방법을 SOCKS 프록시 서버를 통해 연결 설정
-CMD_AccountProxySocks_Help VPN Client에 등록되어있는 연결 설정을 지정하고 연결 설정 VPN Server에 연결할 때 사용하는 연결 방법을 [SOCKS 프록시 서버를 통해 연결을 설정하고 통해 SOCKS 프록시 서버 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다. \n 통해 SOCKS 서버는 SOCKS 버전 4를 지원해야합니다.
+CMD_AccountProxySocks 연결 설정의 연결 방법을 SOCKS4 프록시 서버를 통해 연결 설정
+CMD_AccountProxySocks_Help VPN Client에 등록되어있는 연결 설정을 지정하고 연결 설정 VPN Server에 연결할 때 사용하는 연결 방법을 [SOCKS 프록시 서버를 통해 연결을 설정하고 통해 SOCKS4 프록시 서버 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다.
 CMD_AccountProxySocks_Args AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name] 설정을 변경하려면 연결 설정의 이름을 지정합니다.
-CMD_AccountProxySocks_SERVER 호스트 이름:포트 번호 형식으로 통해 SOCKS 프록시 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정합니다.
-CMD_AccountProxySocks_USERNAME 통해 SOCKS 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
-CMD_AccountProxySocks_PASSWORD 통해 SOCKS 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
+CMD_AccountProxySocks_SERVER 호스트 이름:포트 번호 형식으로 통해 SOCKS4 프록시 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정합니다.
+CMD_AccountProxySocks_USERNAME 통해 SOCKS4 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
+CMD_AccountProxySocks_PASSWORD 통해 SOCKS4 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
+
+
+# AccountProxySocks5 명령
+CMD_AccountProxySocks5 연결 설정의 연결 방법을 SOCKS5 프록시 서버를 통해 연결 설정
+CMD_AccountProxySocks5_Help VPN Client에 등록되어있는 연결 설정을 지정하고 연결 설정 VPN Server에 연결할 때 사용하는 연결 방법을 [SOCKS 프록시 서버를 통해 연결을 설정하고 통해 SOCKS5 프록시 서버 호스트 이름과 포트 번호, 사용자 이름과 암호 (필요한 경우)을 지정합니다.
+CMD_AccountProxySocks5_Args AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name] 설정을 변경하려면 연결 설정의 이름을 지정합니다.
+CMD_AccountProxySocks5_SERVER 호스트 이름:포트 번호 형식으로 통해 SOCKS5 프록시 서버의 호스트 이름 또는 IP 주소와 포트 번호를 지정합니다.
+CMD_AccountProxySocks5_USERNAME 통해 SOCKS5 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 사용자 이름을 지정합니다. 또한 동시에/PASSWORD 매개 변수도 지정합니다./USERNAME 및/PASSWORD 매개 변수가 지정되지 않은 경우 사용자 인증 데이터를 설정하지 않습니다.
+CMD_AccountProxySocks5_PASSWORD 통해 SOCKS5 프록시 서버에 연결하기 위해 사용자 인증이 필요한 경우 암호를 지정합니다./USERNAME 매개 변수와 함께 지정합니다.
 
 
 # AccountServerCertEnable 명령
@@ -6950,7 +7064,7 @@ CMD_Check_Args Check
 
 # 시스템 검사기 관계
 # (일부 이상한 문자열이 포함되어 있지만 문자 코드 변환 확인 용입니다)
-CHECK_TITLE -------------------------------------------------- \nSoftEther VPN 동작 환경 검사 도구 \n \nCopyright (c) SoftEther VPN Project \nAll Rights Reserved. \n \n
+CHECK_TITLE -------------------------------------------------- \nSoftEther VPN 동작 환경 검사 도구 \n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE 이 작동 환경 검사 도구를 실행 한 시스템이 테스트를 통과 한 경우 SoftEther VPN 소프트웨어가 작동 할 가능성이 높습니다. 체크에 시간이 걸릴 수 있습니다. 기다리십시오... \n \n
 CHECK_EXEC_TAG '%s'의 체크 중... \n
 CHECK_PASS [합격] ○
@@ -7019,6 +7133,8 @@ SW_WEB2_TITLE 파일 지정
 
 SW_UNINSTALLINFO_URL http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER SoftEther VPN Project
+
+SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
 
 
 SW_COMPONENTS_ABOUT_TAG '%s'는

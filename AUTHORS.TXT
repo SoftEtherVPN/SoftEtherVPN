@@ -35,97 +35,7 @@ WEB-SITE DESIGNER:
     College of Information Science, University of Tsukuba
 
 
-CONTRIBUTORS on GitHub:
-
-  - Melvyn
-    https://github.com/yaurthek
-
-  - nattoheaven
-    https://github.com/nattoheaven
-
-  - ELIN
-    https://github.com/el1n
-
-  - Dmitry Orlov
-    https://github.com/mosquito
-
-  - Renaud Allard
-    https://github.com/renaudallard
-
-  - Hideki Saito
-    https://github.com/hsaito
-
-  - Dexter Ang
-    https://github.com/thepoch
-
-  - YF
-    https://github.com/yfdyh000
-
-  - Sahal Ansari
-    https://github.com/sahal
-
-  - ygrek
-    https://github.com/ygrek
-
-  - ajee cai
-    https://github.com/ajeecai
-
-  - NOKUBI Takatsugu
-    https://github.com/knok
-
-  - Den Lesnov
-    https://github.com/Leden
-
-  - Ilya Shipitsin
-    https://github.com/chipitsine
-
-  - Matt Lewandowsky
-    https://github.com/lewellyn
-
-  - Raymond Tau
-    https://github.com/rtau
-
-  - Luiz Eduardo Gava
-    https://github.com/LegDog
-
-  - Charles Surett
-    https://github.com/scj643
-
-  - Jeff Tang
-    https://github.com/mrjefftang
-
-  - Victor Salgado
-    https://github.com/mcsalgado
-
-  - micsell
-    https://github.com/micsell
-
-  - yehorov
-    https://github.com/yehorov
-
-  - dglushenok
-    https://github.com/dglushenok
-
-  - NoNameA 774
-    https://github.com/nna774
-
-  - Alexandre De Oliveira
-    https://github.com/yodresh
-
-  - Bernhard Rosenkraenzer
-    https://github.com/berolinux
-
-  - Sacha Bernstein
-    https://github.com/sacha
-
-  - cm0x4D
-    https://github.com/cm0x4D
-
-  - DDGo
-    https://github.com/DDGo
-
-  - Noah O'Donoghue
-    https://github.com/NoahO
+DEVELOPMENT BOARD MEMBERS:
 
   - Moataz Elmasry
     https://github.com/moatazelmasry2
@@ -133,64 +43,91 @@ CONTRIBUTORS on GitHub:
   - Zulyandri Zardi
     https://github.com/zulzardi
 
-  - rel22
-    https://github.com/rel22
-
-  - Guanzhong Chen
-    https://github.com/quantum5
-
-  - Nguyễn Hồng Quân
-    https://github.com/hongquan
-
-  - macvk
-    https://github.com/macvk
-
-  - Guido Vranken
-    https://github.com/guidovranken
-
-  - Maks Naumov
-    https://github.com/maksqwe
-    
-  - nvsofts
-    https://github.com/nvsofts
-
-  - Quintin Beukes
-    https://github.com/qbeukes 
-
-  - Diego Schulz
-    https://github.com/dschulz
-
-  - Holoreimu
-    https://github.com/holoreimu
-
-  - Ryoga
-    https://github.com/proelbtn
-
-  - parly
-    https://github.com/parly
-
-  - Alexey Kryuchkov
-    https://github.com/a-kr
+  - Alex Maslakov
+    https://github.com/GildedHonour
 
   - Davide Beatrici
     https://github.com/davidebeatrici
 
-  - tidatida
-    https://github.com/tidatida
+  - Ilya Shipitsin
+    https://github.com/chipitsine
 
-  - Tim Schneider
-    https://github.com/timschneider
 
-  - Max Miroshnikov
-    https://github.com/mogikanin
+SPECIAL CONTRIBUTORS:
 
-  - Josh Soref
-    https://github.com/jsoref
+  - Guido Vranken
+    https://github.com/guidovranken
 
-  - Norbert Preining
-    https://github.com/norbusan
 
-       
+CONTRIBUTORS:
+
+  - ajeecai <ajee.cai@gmail.com>
+  - Alexandre De Oliveira <yodresh@gmail.com>
+  - Alexey Kryuchkov <alexey.kruchkov@gmail.com>
+  - Allen Cui <allen_st_clair@msn.com>
+  - Andy Walsh <andy.walsh44+github@gmail.com>
+  - Bernhard Rosenkränzer <bero@lindev.ch>
+  - Bill Welliver <bill@welliver.org>
+  - Charles Surett <surettcharles@gmail.com>
+  - cm0x4d <cm0x4d@codemonkey.ch>
+  - DDGo <Wiki13@hotmail.nl>
+  - Denis Lesnov <den.lesnov@gmail.com>
+  - Den Lesnov <https://github.com/Leden>
+  - Dexter Ang <thepoch@gmail.com>
+  - Dmitry Glushenok <dglushenok@yandex.ru>
+  - Dmitry Orlov <dorlov@undev.ru>
+  - ELIN <elin@mikomoe.jp>
+  - Guanzhong Chen <quantum2048@gmail.com>
+  - Hideki Saito <hideki@hidekisaito.com>
+  - holoreimu <michael3707@gmail.com>
+  - Holoreimu <michael3707@gmail.com>
+  - hoppler <https://github.com/hoppler>
+  - Igor Pikovets <igor@ahrefs.com>
+  - James Brink <brink.james@gmail.com>
+  - Jeff Tang <https://github.com/mrjefftang>
+  - Jioh L. Jung <ziozzang@gmail.com>
+  - Johan de Vries <devries@wivion.nl>
+  - Josh Soref <https://github.com/jsoref>
+  - Joshua Perry <josh@6bit.com>
+  - Luiz Eduardo Gava <luiz.gava@procempa.com.br>
+  - macvk <tutumbul@gmail.com>
+  - Maks Naumov <maksqwe1@ukr.net>
+  - Matt Lewandowsky <lewellyn@foxmail.com>
+  - Max Miroshnikov <mogikanin.tir@gmail.com>
+  - Melvyn <yaurthek@gmail.com>
+  - Michael B <https://github.com/DownWithUp>
+  - Michael Clausen <cm0x4d@codemonkey.ch>
+  - Michael Clausen <michael.clausen@hevs.ch>
+  - Mike Selivanov <mikes777@gmail.com>
+  - Mikhail Pridushchenko <mikhail.pridushchenko@dsr-company.com>
+  - mogikanin <mogikanin.tir@gmail.com>
+  - Mykhaylo Yehorov <yehorov@gmail.com>
+  - nattoheaven <nattoheaven@gmail.com>
+  - Nguyễn Hồng Quân <ng.hong.quan@gmail.com>
+  - Noah O'Donoghue <https://github.com/NoahO>
+  - NOKUBI Takatsugu <knok@daionet.gr.jp>
+  - NoNameA 774 <nonamea774@gmail.com>
+  - Norbert Preining <norbert@preining.info>
+  - NV <nvsofts@gmail.com>
+  - Olimjon <olim98@bk.ru>
+  - parly <https://github.com/parly>
+  - Quantum <quantum2048@gmail.com>
+  - Quintin <quintin@last.za.net>
+  - Raymond Tau <raymondtau@gmail.com>
+  - rel22 <rel22@inbox.ru>
+  - Renaud Allard <renaud@allard.it>
+  - root <root@vpn.sjbcom.com>
+  - Sacha J Bernstein <sacha@sjbcom.com>
+  - Sahal Ansari <github@sahal.info>
+  - Shadus Black <blackholefoxdev@gmail.com>
+  - thepyper <thepyper@gmail.com>
+  - Tim Schneider <schneider0tim@gmail.com>
+  - tonychung00 <tonychung00@gmail.com>
+  - Victor Salgado <vms@pinhaotec.com.br>
+  - William Welliver <william@welliver.org>
+  - YF <yfdyh000@gmail.com>
+
+
 JOIN THE SOFTETHER VPN DEVELOPMENT
 ----------------------------------
 

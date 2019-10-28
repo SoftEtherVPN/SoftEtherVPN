@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // WinUi.c
@@ -1964,6 +1858,9 @@ void RegistWindowsFirewallAllEx(char *dir)
 
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd.exe", dir);
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd_x64.exe", dir);
+
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest.exe", dir);
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest_x64.exe", dir);
 }
 
 // Check whether the notification service is already running
@@ -4081,6 +3978,186 @@ void LvRename(HWND hWnd, UINT id, UINT pos)
 	}
 
 	ListView_EditLabel(DlgItem(hWnd, id), pos);
+}
+
+// Enhanced function
+LRESULT CALLBACK LvEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("LvEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	case WM_MOUSEWHEEL:
+	{
+		// Prevent graphical glitches with the edit box by sending the NM_RETURN signal
+		// to the parent dialog (the parent dialog has to delete the edit box on NM_RETURN)
+		NMHDR nmh;
+		nmh.code = NM_RETURN;
+		nmh.idFrom = GetDlgCtrlID(hWnd);
+		nmh.hwndFrom = hWnd;
+		SendMsg(GetParent(hWnd), 0, WM_NOTIFY, nmh.idFrom, (LPARAM)&nmh);
+
+		break;
+	}
+	case WM_CLOSE:
+		// Prevent list view from disappearing after pressing ESC in an edit box
+		return 0;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		LvSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void LvSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
+}
+
+// Enhanced function
+LRESULT CALLBACK EditBoxEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("EditBoxEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_CHAR:
+		switch (wParam)
+		{
+		// CTRL + A
+		case 1:
+			SelectEdit(hWnd, 0);
+			return 0;
+		case VK_RETURN:
+			SendMsg(GetParent(hWnd), 0, WM_KEYDOWN, VK_RETURN, 0);
+			return 0;
+		case VK_ESCAPE:
+			DestroyWindow(hWnd);
+			return 0;
+		}
+		break;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		EditBoxSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void EditBoxSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
 }
 
 // Show the menu
