@@ -5996,104 +5996,89 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 // Return a socket by connecting to the server
 SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 {
-	SOCK *s = NULL;
-	CLIENT_OPTION *o;
-	WPC_CONNECT w;
-	wchar_t tmp[MAX_SIZE];
-	SESSION *sess;
 	volatile bool *cancel_flag = NULL;
-	void *hWnd;
-	UINT nat_t_err = 0;
-	bool is_additional_rudp_session = false;
-	UCHAR uc = 0;
-	IP ret_ip;
+	char hostname[MAX_HOST_NAME_LEN];
+	bool save_resolved_ip = false;
+	CLIENT_OPTION *o;
+	SESSION *sess;
+	SOCK *sock = NULL;
+	IP resolved_ip;
 	// Validate arguments
-	if (c == NULL)
+	if (c == NULL || c->Session == NULL || c->Session->ClientOption == NULL)
 	{
 		return NULL;
 	}
 
-	Zero(&ret_ip, sizeof(IP));
-	Zero(&w, sizeof(w));
-
+	cancel_flag = &c->Halt;
 	sess = c->Session;
-
-	if (sess != NULL)
-	{
-		cancel_flag = &sess->CancelConnect;
-		is_additional_rudp_session = sess->IsRUDPSession;
-	}
-
-	hWnd = c->hWndForUI;
-
 	o = c->Session->ClientOption;
 
-	if (additional_connect)
-	{
-		if (sess != NULL)
-		{
-			Copy(&ret_ip, &sess->ServerIP_CacheForNextConnect, sizeof(IP));
-		}
-	}
+	Zero(&resolved_ip, sizeof(resolved_ip));
 
-	if (c->RestoreServerNameAndPort && additional_connect)
+	if (additional_connect == false && c->RestoreServerNameAndPort)
 	{
-		// Restore to the original server name and port number
+		// Update server name and port number.
+		// At the time of writing this comment RestoreServerNameAndPort is never true.
 		c->RestoreServerNameAndPort = false;
 
 		if (StrCmpi(c->ServerName, o->Hostname) != 0)
 		{
 			StrCpy(c->ServerName, sizeof(c->ServerName), o->Hostname);
-			Zero(&ret_ip, sizeof(IP));
 		}
 
 		c->ServerPort = o->Port;
 	}
 
-	StrCpy(w.HostName, sizeof(w.HostName), c->ServerName);
-	w.Port = c->ServerPort;
-	StrCpy(w.ProxyHostName, sizeof(w.ProxyHostName), o->ProxyName);
-	w.ProxyPort = o->ProxyPort;
-	StrCpy(w.ProxyUsername, sizeof(w.ProxyUsername), o->ProxyUsername);
-	StrCpy(w.ProxyPassword, sizeof(w.ProxyPassword), o->ProxyPassword);
-	StrCpy(w.CustomHttpHeader, sizeof(w.CustomHttpHeader), o->CustomHttpHeader);
-
-	switch (o->ProxyType)
+	if (IsZeroIP(&sess->ServerIP_CacheForNextConnect) == false)
 	{
-	case PROXY_DIRECT:	// TCP/IP
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_4"), w.HostName);
+		IPToStr(hostname, sizeof(hostname), &sess->ServerIP_CacheForNextConnect);
+		Debug("ClientConnectGetSocket(): Using cached IP address %s\n", hostname);
+	}
+	else
+	{
+		IP tmp;
+
+		StrCpy(hostname, sizeof(hostname), o->ProxyType == PROXY_DIRECT ? c->ServerName : o->ProxyName);
+
+		if (StrToIP(&tmp, hostname) == false)
+		{
+			// The hostname is not an IP address
+			save_resolved_ip = true;
+		}
+	}
+
+	if (o->ProxyType == PROXY_DIRECT)
+	{
+		UINT nat_t_err = 0;
+		wchar_t tmp[MAX_SIZE];
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_4"), hostname);
 		PrintStatus(sess, tmp);
 
-		// Production job
 		if (o->PortUDP == 0)
 		{
-			{
-				// If additional_connect == false, enable trying to NAT-T connection
-				// If additional_connect == true, follow the IsRUDPSession setting in this session
-				s = TcpIpConnectEx(w.HostName, w.Port,
-					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additional_rudp_session) : false),
-					true, &ret_ip);
-			}
+			// If additional_connect == false, enable trying to NAT-T connection
+			// If additional_connect == true, follow the IsRUDPSession setting in this session
+			sock = TcpIpConnectEx(hostname, c->ServerPort,
+				(bool *)cancel_flag, c->hWndForUI, &nat_t_err, (additional_connect ? (!sess->IsRUDPSession) : false),
+				true, &resolved_ip);
 		}
 		else
 		{
 			// Mode to connect with R-UDP directly without using NAT-T server when using UDP
 			IP ip;
-
-			Zero(&ip, sizeof(ip));
-
-			StrToIP(&ip, o->Hostname);
-
-
-			s = NewRUDPClientDirect(VPN_RUDP_SVC_NAME, &ip, o->PortUDP, &nat_t_err,
-				TIMEOUT_TCP_PORT_CHECK, (bool *)cancel_flag, NULL, NULL, 0, false);
-
-			if (s != NULL)
+			if (StrToIP(&ip, hostname))
 			{
-				StrCpy(s->UnderlayProtocol, sizeof(s->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				sock = NewRUDPClientDirect(VPN_RUDP_SVC_NAME, &ip, o->PortUDP, &nat_t_err,
+					TIMEOUT_TCP_PORT_CHECK, (bool *)cancel_flag, NULL, NULL, 0, false);
+
+				if (sock != NULL)
+				{
+					StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				}
 			}
 		}
-		if (s == NULL)
+
+		if (sock == NULL)
 		{
 			// Connection failure
 			if (nat_t_err != RUDP_ERROR_NAT_T_TWO_OR_MORE)
@@ -6104,85 +6089,85 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 			{
 				c->Err = ERR_NAT_T_TWO_OR_MORE;
 			}
+
 			return NULL;
 		}
-		break;
-
-	case PROXY_HTTP:	// HTTP Proxy
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
-		PrintStatus(sess, tmp);
-
-		// Proxy connection
-		s = ProxyConnectEx3(c, &w, additional_connect, (bool *)cancel_flag, hWnd, 0);
-		if (s == NULL)
-		{
-			// Connection failure
-			return NULL;
-		}
-		break;
-
-	case PROXY_SOCKS:	// SOCKS4 Proxy
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
-		PrintStatus(sess, tmp);
-
-		// SOCKS4 connection
-		s = SocksConnectEx2(c, w.ProxyHostName, w.ProxyPort,
-			w.HostName, w.Port, w.ProxyUsername, additional_connect, (bool *)cancel_flag,
-			hWnd, 0, &ret_ip);
-		if (s == NULL)
-		{
-			// Connection failure
-			return NULL;
-		}
-		break;
-
-	case PROXY_SOCKS5:	// SOCKS5 Proxy
-		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), w.HostName, w.ProxyHostName);
-		PrintStatus(sess, tmp);
-
-		// SOCKS5 connection
-		s = Socks5Connect(c, &w, additional_connect, (bool *)cancel_flag, hWnd, 0, &ret_ip);
-		if (s == NULL)
-		{
-			// Connection failure
-			return NULL;
-		}
-		break;
-	}
-
-	if (s == NULL)
-	{
-		// Connection failure
-		c->Err = ERR_CONNECT_FAILED;
 	}
 	else
 	{
-		// Success to connect
-		// Keep a note of the IP address
-		if (additional_connect == false || IsZeroIP(&s->RemoteIP))
+		wchar_t tmp[MAX_SIZE];
+		PROXY_PARAM_OUT out;
+		PROXY_PARAM_IN in;
+		UINT ret;
+
+		Zero(&in, sizeof(in));
+
+		in.Timeout = 0;
+
+		StrCpy(in.TargetHostname, sizeof(in.TargetHostname), c->ServerName);
+		in.TargetPort = c->ServerPort;
+
+		StrCpy(in.Hostname, sizeof(in.Hostname), IsEmptyStr(hostname) ? o->ProxyName : hostname);
+		in.Port = o->ProxyPort;
+
+		StrCpy(in.Username, sizeof(in.Username), o->ProxyUsername);
+		StrCpy(in.Password, sizeof(in.Password), o->ProxyPassword);
+
+		StrCpy(in.HttpCustomHeader, sizeof(in.HttpCustomHeader), o->CustomHttpHeader);
+		StrCpy(in.HttpUserAgent, sizeof(in.HttpUserAgent), c->Cedar->HttpUserAgent);
+
+#ifdef OS_WIN32
+		in.Hwnd = c->hWndForUI;
+#endif
+
+		UniFormat(tmp, sizeof(tmp), _UU("STATUS_2"), in.TargetHostname, in.Hostname);
+		PrintStatus(sess, tmp);
+
+		switch (o->ProxyType)
 		{
-			char *hostname = o->ProxyType == PROXY_DIRECT ? w.HostName : w.ProxyHostName;
-			if (((s->IsRUDPSocket || s->IPv6) && IsZeroIP(&s->RemoteIP) == false && o->ProxyType == PROXY_DIRECT) || GetIP(&c->Session->ServerIP, hostname) == false)
-			{
-				Copy(&c->Session->ServerIP, &s->RemoteIP, sizeof(IP));
-			}
+		case PROXY_HTTP:
+			ret = ProxyHttpConnect(&out, &in, cancel_flag);
+			break;
+		case PROXY_SOCKS:
+			ret = ProxySocks4Connect(&out, &in, cancel_flag);
+			break;
+		case PROXY_SOCKS5:
+			ret = ProxySocks5Connect(&out, &in, cancel_flag);
+			break;
+		default:
+			c->Err = ERR_INTERNAL_ERROR;
+			Debug("ClientConnectGetSocket(): Unknown proxy type: %u!\n", o->ProxyType);
+			return NULL;
 		}
 
-		if (IsZeroIP(&ret_ip) == false)
-		{
-			if (c->Session != NULL)
-			{
-				if (additional_connect == false)
-				{
-					Copy(&c->Session->ServerIP_CacheForNextConnect, &ret_ip, sizeof(IP));
+		c->Err = ProxyCodeToCedar(ret);
 
-					Debug("Saved ServerIP_CacheForNextConnect: %s = %r\n", c->ServerName, &ret_ip);
-				}
-			}
+		if (c->Err != ERR_NO_ERROR)
+		{
+			Debug("ClientConnectGetSocket(): Connection via proxy server failed with error %u\n", ret);
+			return NULL;
+		}
+
+		sock = out.Sock;
+
+		CopyIP(&resolved_ip, &out.ResolvedIp);
+	}
+
+	if (additional_connect == false || IsZeroIP(&sock->RemoteIP))
+	{
+		if (((sock->IsRUDPSocket || sock->IPv6) && IsZeroIP(&sock->RemoteIP) == false && o->ProxyType == PROXY_DIRECT) || GetIP(&c->Session->ServerIP, hostname) == false)
+		{
+			Copy(&c->Session->ServerIP, &sock->RemoteIP, sizeof(c->Session->ServerIP));
 		}
 	}
 
-	return s;
+	if (save_resolved_ip && IsZeroIP(&resolved_ip) == false)
+	{
+		Copy(&c->Session->ServerIP_CacheForNextConnect, &resolved_ip, sizeof(c->Session->ServerIP_CacheForNextConnect));
+		Debug("ClientConnectGetSocket(): Saved %s IP address %r for future connections.\n", hostname, &resolved_ip);
+	}
+
+	return sock;
 }
 
 UINT ProxyCodeToCedar(UINT code)
