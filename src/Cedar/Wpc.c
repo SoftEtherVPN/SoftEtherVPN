@@ -500,64 +500,73 @@ SOCK *WpcSockConnect(WPC_CONNECT *param, UINT *error_code, UINT timeout)
 }
 SOCK *WpcSockConnectEx(WPC_CONNECT *param, UINT *error_code, UINT timeout, bool *cancel)
 {
-	CONNECTION c;
 	SOCK *sock;
-	UINT err = ERR_NO_ERROR;
+	UINT ret;
 	// Validate arguments
 	if (param == NULL)
 	{
 		return NULL;
 	}
 
-	Zero(&c, sizeof(c));
-
-	sock = NULL;
-	err = ERR_INTERNAL_ERROR;
-
-	switch (param->ProxyType)
+	if (error_code == NULL)
 	{
-	case PROXY_DIRECT:
+		error_code = &ret;
+	}
+
+	if (param->ProxyType == PROXY_DIRECT)
+	{
 		sock = TcpConnectEx3(param->HostName, param->Port, timeout, cancel, NULL, true, NULL, false, NULL);
-		if (sock == NULL)
-		{
-			err = ERR_CONNECT_FAILED;
-		}
-		break;
-
-	case PROXY_HTTP:
-		sock = ProxyConnectEx3(&c, param, false, cancel, NULL, timeout);
-		if (sock == NULL)
-		{
-			err = c.Err;
-		}
-		break;
-
-	case PROXY_SOCKS:
-		// SOCKS4 connection
-		sock = SocksConnectEx2(&c, param->ProxyHostName, param->ProxyPort,
-			param->HostName, param->Port,
-			param->ProxyUsername, false, cancel, NULL, timeout, NULL);
-		if (sock == NULL)
-		{
-			err = c.Err;
-		}
-		break;
-
-	case PROXY_SOCKS5:
-		// SOCKS5 connection
-		sock = Socks5Connect(&c, param, false, cancel, NULL, timeout, NULL);
-		if (sock == NULL)
-		{
-			err = c.Err;
-		}
+		*error_code = (sock != NULL ? ERR_NO_ERROR : ERR_CONNECT_FAILED);
+		return sock;
 	}
-
-	if (error_code != NULL)
+	else
 	{
-		*error_code = err;
-	}
+		PROXY_PARAM_OUT out;
+		PROXY_PARAM_IN in;
+		UINT ret;
 
-	return sock;
+		Zero(&in, sizeof(in));
+
+		in.Timeout = timeout;
+
+		StrCpy(in.TargetHostname, sizeof(in.TargetHostname), param->HostName);
+		in.TargetPort = param->Port;
+
+		StrCpy(in.Hostname, sizeof(in.Hostname), param->ProxyHostName);
+		in.Port = param->ProxyPort;
+
+		StrCpy(in.Username, sizeof(in.Username), param->ProxyUsername);
+		StrCpy(in.Password, sizeof(in.Password), param->ProxyPassword);
+
+		StrCpy(in.HttpCustomHeader, sizeof(in.HttpCustomHeader), param->CustomHttpHeader);
+
+		switch (param->ProxyType)
+		{
+		case PROXY_HTTP:
+			ret = ProxyHttpConnect(&out, &in, cancel);
+			break;
+		case PROXY_SOCKS:
+			ret = ProxySocks4Connect(&out, &in, cancel);
+			break;
+		case PROXY_SOCKS5:
+			ret = ProxySocks5Connect(&out, &in, cancel);
+			break;
+		default:
+			*error_code = ERR_INTERNAL_ERROR;
+			Debug("WpcSockConnect(): Unknown proxy type: %u!\n", param->ProxyType);
+			return NULL;
+		}
+
+		*error_code = ProxyCodeToCedar(ret);
+
+		if (*error_code != ERR_NO_ERROR)
+		{
+			Debug("ClientConnectGetSocket(): Connection via proxy server failed with error %u\n", ret);
+			return NULL;
+		}
+
+		return out.Sock;
+	}
 }
 SOCK *WpcSockConnect2(char *hostname, UINT port, INTERNET_SETTING *t, UINT *error_code, UINT timeout)
 {
