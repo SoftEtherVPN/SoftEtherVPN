@@ -6185,6 +6185,30 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 	return s;
 }
 
+UINT ProxyCodeToCedar(UINT code)
+{
+	switch (code)
+	{
+	case PROXY_ERROR_SUCCESS:
+		return ERR_NO_ERROR;
+	case PROXY_ERROR_GENERIC:
+	case PROXY_ERROR_VERSION:
+		return ERR_PROXY_ERROR;
+	case PROXY_ERROR_CANCELED:
+		return ERR_USER_CANCEL;
+	case PROXY_ERROR_CONNECTION:
+		return ERR_PROXY_CONNECT_FAILED;
+	case PROXY_ERROR_TARGET:
+		return ERR_CONNECT_FAILED;
+	case PROXY_ERROR_DISCONNECTED:
+		return ERR_DISCONNECTED;
+	case PROXY_ERROR_AUTHENTICATION:
+		return ERR_PROXY_AUTH_FAILED;
+	default:
+		return ERR_INTERNAL_ERROR;
+	}
+}
+
 // TCP connection function
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
 {

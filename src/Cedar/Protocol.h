@@ -120,10 +120,10 @@ bool ClientUploadAuth(CONNECTION *c);
 SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect);
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip);
 
+UINT ProxyCodeToCedar(UINT code);
+
 void InitProtocol();
 void FreeProtocol();
-
-
 
 POLICY *PackGetPolicy(PACK *p);
 void PackAddPolicy(PACK *p, POLICY *y);
