@@ -41,6 +41,9 @@ if(UNIX)
 
   include(CheckIncludeFile)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
+  if(EXISTS "/lib/systemd/system")
+    set(CMAKE_INSTALL_SYSTEMD_UNITDIR "/lib/systemd" CACHE STRING "Where to install systemd unit files")
+  endif()
 endif()
 
 configure_file("${TOP_DIRECTORY}/AUTHORS.TXT" "${TOP_DIRECTORY}/src/bin/hamcore/authors.txt" COPYONLY)
