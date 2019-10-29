@@ -40,11 +40,11 @@ if(UNIX)
   )
 
   install_wrapper_script("vpnbridge" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnbridge/vpnbridge")
-  if(EXISTS "/lib/systemd/system")
+  if(NOT "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" STREQUAL "")
     configure_file(${TOP_DIRECTORY}/systemd/softether-vpnbridge.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnbridge.service)
     install(FILES ${CMAKE_BINARY_DIR}/systemd/softether-vpnbridge.service
       COMPONENT "vpnbridge"
-      DESTINATION "/lib/systemd/system"
+      DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNITDIR}
       PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
     )
   endif()
