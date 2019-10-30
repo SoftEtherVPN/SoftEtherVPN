@@ -64,8 +64,8 @@ struct CLIENT_OPTION
 	UINT ProxyType;											// Type of proxy
 	char ProxyName[MAX_HOST_NAME_LEN + 1];					// Proxy server name
 	UINT ProxyPort;											// Port number of the proxy server
-	char ProxyUsername[MAX_PROXY_USERNAME_LEN + 1];			// Maximum user name length
-	char ProxyPassword[MAX_PROXY_PASSWORD_LEN + 1];			// Maximum password length
+	char ProxyUsername[PROXY_MAX_USERNAME_LEN + 1];			// Maximum user name length
+	char ProxyPassword[PROXY_MAX_PASSWORD_LEN + 1];			// Maximum password length
 	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP proxy header
 	UINT NumRetry;											// Automatic retries
 	UINT RetryInterval;										// Retry interval

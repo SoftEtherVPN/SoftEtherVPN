@@ -16,15 +16,17 @@
 #define	HTTP_SAITAMA		"/saitama.jpg"
 #define	HTTP_PICTURES		"/picture"
 // Maximum size of the custom HTTP header
-#define	HTTP_CUSTOM_HEADER_MAX_SIZE	1024
+#define	HTTP_CUSTOM_HEADER_MAX_SIZE		1024
 // Maximum size of a single line in the HTTP header
-#define	HTTP_HEADER_LINE_MAX_SIZE	4096
+#define	HTTP_HEADER_LINE_MAX_SIZE		4096
 // Maximum number of lines in the HTTP header
-#define	HTTP_HEADER_MAX_LINES		128
+#define	HTTP_HEADER_MAX_LINES			128
+// Maximum size of the user agent string
+#define	HTTP_HEADER_USER_AGENT_MAX_SIZE	512
 // Maximum size of the random number to be included in the PACK
-#define	HTTP_PACK_RAND_SIZE_MAX		1000
+#define	HTTP_PACK_RAND_SIZE_MAX			1000
 // Maximum PACK size in the HTTP
-#define	HTTP_PACK_MAX_SIZE			65536
+#define	HTTP_PACK_MAX_SIZE				65536
 
 // HTTP value
 struct HTTP_VALUE

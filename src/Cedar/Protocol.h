@@ -151,20 +151,6 @@ SOCK *ClientAdditionalConnectToServer(CONNECTION *c);
 bool ClientUploadAuth2(CONNECTION *c, SOCK *s);
 bool GetSessionKeyFromPack(PACK *p, UCHAR *session_key, UINT *session_key_32);
 
-SOCK *ProxyConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-					 char *server_host_name, UINT server_port,
-					 char *username, char *password, bool additional_connect,
-					 bool *cancel_flag, void *hWnd, UINT timeout);
-SOCK *ProxyConnectEx3(CONNECTION *c, WPC_CONNECT *wpc_connect,
-					  bool additional_connect, bool *cancel_flag, void *hWnd,
-					  UINT timeout);
-SOCK *SocksConnectEx2(CONNECTION *c, char *proxy_host_name, UINT proxy_port,
-					 char *server_host_name, UINT server_port,
-					 char *username, bool additional_connect,
-					 bool *cancel_flag, void *hWnd, UINT timeout, IP *ret_ip);
-bool SocksSendRequestPacket(CONNECTION *c, SOCK *s, UINT dest_port, IP *dest_ip, char *userid);
-bool SocksRecvResponsePacket(CONNECTION *c, SOCK *s);
-SOCK *Socks5Connect(CONNECTION *c, WPC_CONNECT *w, bool additional_connect, bool *cancel_flag, void *hWnd, UINT timeout, IP *ret_ip);
 void CreateNodeInfo(NODE_INFO *info, CONNECTION *c);
 UINT SecureSign(SECURE_SIGN *sign, UINT device_id, char *pin);
 void ClientUploadNoop(CONNECTION *c);
