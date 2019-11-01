@@ -367,6 +367,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Proxy.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Secure.c"
 				>
 			</File>
@@ -462,6 +466,10 @@
 			</File>
 			<File
 				RelativePath=".\Pack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proxy.h"
 				>
 			</File>
 			<File

@@ -116,8 +116,6 @@
 #define	MAX_ACCOUNT_NAME_LEN		255		// Maximum account name length
 #define	MAX_USERNAME_LEN			255		// User name maximum length
 #define	MAX_PASSWORD_LEN			255		// Password name maximum length
-#define	MAX_PROXY_USERNAME_LEN		255		// Proxy user name maximum length
-#define	MAX_PROXY_PASSWORD_LEN		255		// Proxy Password maximum length
 #define	MAX_SERVER_STR_LEN			255		// Maximum length of server string
 #define	MAX_CLIENT_STR_LEN			255		// Maximum length of client string
 #define	MAX_HUBNAME_LEN				255		// Maximum length of HUB name
@@ -190,7 +188,6 @@
 #define	TIMEOUT_MAX					(60 * 1000)	// Maximum timeout in seconds
 #define	TIMEOUT_DEFAULT				(30 * 1000) // Default number of seconds to timeout
 #define	CONNECTING_TIMEOUT			(15 * 1000)	// Timeout in seconds of being connected
-#define	CONNECTING_TIMEOUT_PROXY	(4 * 1000)	// Timeout in seconds of being connected (Proxy)
 #define	CONNECTING_POOLING_SPAN		(3 * 1000) // Polling interval of connected
 #define	MIN_RETRY_INTERVAL			(5 * 1000)		// Minimum retry interval
 #define	MAX_RETRY_INTERVAL			(300 * 1000)	// Maximum retry interval

@@ -510,5 +510,8 @@ typedef struct IKE_HEADER IKE_HEADER;
 // HTTP.h
 typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 
-#endif	// MAYATYPE_H
+// Proxy.h
+typedef struct PROXY_PARAM_IN PROXY_PARAM_IN;
+typedef struct PROXY_PARAM_OUT PROXY_PARAM_OUT;
 
+#endif	// MAYATYPE_H

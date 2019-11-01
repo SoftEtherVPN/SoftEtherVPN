@@ -277,6 +277,9 @@ int iconv_close (iconv_t __cd);
 // HTTP
 #include <Mayaqua/HTTP.h>
 
+// Proxy
+#include <Mayaqua/Proxy.h>
+
 // 64 bit real-time clock
 #include <Mayaqua/Tick64.h>
 
