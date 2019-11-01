@@ -2370,18 +2370,18 @@ R_USE_ENCRYPT			&Шифровать VPN-сессию с помощью SSL
 STATIC15				Вы можете использовать сжатие данных для экономии пропускной способности VPN подключения. Включите эту опцию при использовании медленного подключения, например через модем или мобильный интернет.
 R_DISABLE_UDP			Отключить UDP ускорение
 R_USE_COMPRESS			&Использовать сжатие данных
-STATIC16				VPN Connection &Mode:
-S_MODE					You can specify the following connection modes. (Options for network administrators.)
-R_BRIDGE				&Bridge / Router Mode
-R_MONITOR				Monitoring Mo&de
-STATIC17				Other Confi&gurations:
-R_NO_ROUTING			No Adjustments of &Routing Table
-STATIC18				Keep the settings default in this dialog unless you are told to do so by a system administrator, or you have expertise for networking and security.
-STATIC19				The VoIP / QoS functions handle high priority packets such as IP telephone packets (VoIP) to be transmitted faster.
-R_DISABLE_QOS			Disable VoIP / &QoS Functions
+STATIC16				Режим VPN подключения:
+S_MODE					Вы можете указать следующие режимы подключения. (Опции для сетевых администраторов.)
+R_BRIDGE				Режим Мост / Роутер
+R_MONITOR				Режим Мониторинга
+STATIC17				Другие конфигурации:
+R_NO_ROUTING			Не вносить изменения в таблицу маршрутизации
+STATIC18				Если системный администратор не попросил вас изменить эти параметры или у вас нет опыта работы с сетью и безопасностью, то оставьте настройки в этом диалоговом окне по умолчанию.
+STATIC19				Функции VoIP / QoS обрабатывают пакеты с высоким приоритетом для более быстрой передачи, такие как пакеты IP-телефонии (VoIP).
+R_DISABLE_QOS			Отключить функции VoIP / QoS
 IDOK					&OK
-IDCANCEL				Cancel
-S_UDPACCEL				You can use data compression to save VPN communication bandwidth. Enable this option when using a slow connectivity such as dial-up or mobile connection.
+IDCANCEL				Отмена
+S_UDPACCEL				Вы можете использовать сжатие данных для экономии пропускной способности VPN подключения. Включите эту опцию при использовании медленного подключения, например через модем или мобильный интернет.
 
 
 PREFIX					D_CM_NEW_VLAN
