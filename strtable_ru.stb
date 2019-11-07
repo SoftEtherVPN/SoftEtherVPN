@@ -340,7 +340,7 @@ SEC_ERROR_DELETE		Не удалось удалить указанный объе
 SEC_COLUMN1				Имя устройства
 SEC_COLUMN2				Тип
 SEC_COLUMN3				Производитель
-SEC_COLUMN4				DLL Имя
+SEC_COLUMN4				Имя dll файла
 SEC_INVALID_ID			Указанное устройство чтения смарт-карт не существует. Выберите другой тип смарт-карты.
 SEC_MGR_COLUMN1			Название
 SEC_MGR_COLUMN2			Тип
@@ -364,7 +364,7 @@ SEC_OBJECT_IMPORT_OK	Объект был записан на смарт-карт
 SEC_OBJECT_EXPORT_OK	Данные, считываемые со смарт-карты, были сохранены.
 SEC_NEW_CERT_IMPORT_OK	Созданный сертификат был записан на смарт-карту.
 SEC_CURRENT_DEVICE		Выбрано устройство %S.
-SEC_CURRENT_NO_DEVICE	Выберите, какое устройство чтения смарт-карт использовать.
+SEC_CURRENT_NO_DEVICE	Выберите, какую смарт-карту использовать.
 SEC_NO_SECURE_DEVICE	В системе не установлена совместимая с SoftEther VPN смарт-карта или USB-ключ. \r\n\r\nДля использования смарт-карты или USB-ключа с SoftEther VPN необходимо установить Windows драйвер PKCS#11-совместимого устройства. Кроме того, необходимо, чтобы SoftEther VPN поддерживал данный тип устройства. \r\n\r\nУбедитесь, что установлен драйвер устройства, совместимый с системой.  \r\nПосетите веб-сайт SoftEther VPN Project для уточнения списка совместимых с SoftEther VPN устройств. Также возможно увеличить кол-во совместимых устройств, обновив версию SoftEther VPN.
 SEC_PIN_DEVICE_OPEN_ERR	Не удалось подключить устройство «%S». Убедитесь, что оборудование подключено правильно.
 SEC_PIN_CURRENT_BAD		Неверный PIN-код.
@@ -884,7 +884,7 @@ CM_NO_CERT				Необходимо выбрать сертификат клие�
 CM_NO_SECURE			Выберите сертификат клиента и приватный ключ внутри смарт-карты, которые будут использоваться для авторизации пользователя.
 CM_CERT_SECURE_INFO		Сертификат: "%S"\r\Приватный ключ: "%S"
 CM_SELECT_SECURE_DEVICE	Выберите смарт-карту
-CM_SELECT_CERT_INCARD	Выберите сертификат и приватный ключ
+CM_SELECT_CERT_INCARD	Выберите сертификат
 CM_VIEW_CLIENT_CERT		&Посмотреть сертификат
 CM_NO_VLAN				Прежде чем вы сможете создать новое VPN подключение, вам нужно создать Виртуальный Сетевой Адаптер. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
 CM_NO_VLAN_2			Перед подключением к VPN-серверу необходимо создать Виртуальный Сетевой Адаптер.. \r\n\r\nХотите создать Виртуальный Сетевой Адаптер?
@@ -899,7 +899,7 @@ CM_PORT_4				5555 (SE-VPN порт)
 CM_RETRY_INTERVAL_ERROR	Установите интервал переподключения (не менее 5 секунд), когда VPN-подключение было отключено.
 CM_DELETE_CLIENT_CERT	Это действие удалит установленный сертификат клиента. Вы действительно хотите это сделать?
 CM_DELETE_SERVER_CERT	Это действие удалит установленный индивидуальный сертификат сервера. Вы действительно хотите это сделать?
-CM_SET_STARTUP			VPN подключение "%s" is now set as a startup connection.\r\n\r\nThis account will be connected automatically next time the computer restarts.\r\n(If you are using Windows, the automatic connection will be started in the background mode before a user logs on to Windows.)
+CM_SET_STARTUP			VPN подключение "%s" добавлено в автозапуск.\r\n\r\nЭто подключение будет автоматически запущено после перезагрузки компьютера.\r\n(Если вы используете Windows, автоматическое подключение будет запущено в фоновом режиме, еще до того как пользователь войдет в систему.)
 CM_REMOVE_STARTUP		Do you wish to delete the startup connection property of VPN Connection Setting "%s"?
 CM_NO_DISCONNECT_SPAN	Please set the life of the TCP connection.
 CM_HALF_MSG				When using half-duplex mode, set at least 2 for the number of TCP connections.
@@ -938,17 +938,17 @@ CM_STOP_INST_VLAN_1		To install a Virtual Network Adapter on this computer you m
 CM_STOP_INST_VLAN_2		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter you must start the VPN Client Manager within a "Console Session". \r\n(Currently the user is not logged on to the Console Session (Session ID: 0).) \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_SHORTCUT_DESKTOP_MSG	To start a connection using the shortcut to the VPN Connection Setting, you must launch the shortcut file within the "Console Session". \r\n\r\nCurrently the user is logged on as the remote session (session ID: %u) and not as the Console Session.
 CM_HTTP_PROXY_WARNING	Connect via HTTP Proxy Server is selected. \r\n\r\nIn many cases, the HTTP proxy server will only allow 2 kinds of TCP port to be used for the connection to the destination server port number, HTTP protocol (TCP port number 80) and HTTPS protocol (TCP port number 443). \r\n(There are also cases when the proxy server does allow a wider choice of TCP port for connection.) \r\n\r\nWhen making a VPN connection via an HTTP proxy server that denies connections to server ports other than HTTP ports or HTTPS ports, you must specify 443 (HTTPS protocol) as the destination VPN Server port number. \r\n\r\nTo check whether the HTTP proxy server you are connecting via allows connection to ports other than port numbers 80 or 443, contact the administrator of the HTTP proxy server. \r\n\r\nCurrently, %d is specified as the destination VPN Server port number. Do you want to change the port number to 443 (HTTPS protocol)?\r\n(The port 443 of the VPN Servers you connect to must be set to listening status and ready for connection.) \r\nIf you are unsure, then contact the system administrator or the network administrator.
-CM_HTTP_HEADER_COLUMN_0	Name
-CM_HTTP_HEADER_COLUMN_1	Value
-CM_PASSWORD_CHANGED		The password has been changed.
-CM_ACCOUNT_SETTING_FILE	VPN Connection Setting Files (*.VPN)|*.vpn|All Files (*.*)|*.*
-CM_ACCOUNT_SAVE_TITLE	Enter a VPN Connection Setting File's File Name for the Export Destination
-CM_ACCOUNT_OPEN_TITLE	Select the VPN Connection Setting File to Import
-CM_ACCOUNT_FILE_BANNER	# VPN Client VPN Connection Setting File\r\n# \r\n# This file is exported using the VPN Client Manager.\r\n# The contents of this file can be edited using a text editor.\r\n# \r\n# When this file is imported to the Client Connection Manager\r\n#  it can be used immediately.\r\n\r\n
+CM_HTTP_HEADER_COLUMN_0	Название
+CM_HTTP_HEADER_COLUMN_1	Значение
+CM_PASSWORD_CHANGED		Пароль был изменен.
+CM_ACCOUNT_SETTING_FILE	Файлы настроек VPN подключения (*.VPN)|*.vpn|Все файлы (*.*)|*.*
+CM_ACCOUNT_SAVE_TITLE	Введите имя экспортируемого файла настроек VPN подключения
+CM_ACCOUNT_OPEN_TITLE	Выберите файл с настройками VPN подключения
+CM_ACCOUNT_FILE_BANNER	# Файл настроек VPN подключения\r\n# \r\n# Этот файл экспортируется с помощью Диспетчера VPN-подключений.\r\n# Содержимое этого файла можно редактировать с помощью текстового редактора.\r\n# \r\n# Когда этот файл будет импортирован в Диспетчера VPN-подключений,\r\n# то он может быть использован немедленно.\r\n\r\n
 CM_FAILED_TO_OPEN_FILE	Невозможно открыть файл.
 CM_FAILED_TO_SAVE_FILE	Невозможно сохранить файл.
-CM_ACCOUNT_PARSE_FAILED	Unable to load the VPN Connection Setting from the specified file. \r\nCheck the contents of the file.
-CM_ACCOUNT_MSG_SENSITIVE	This VPN Connection Setting has the username and the password.\r\nDo you want to remove these sensitive information from the exported setting file?\r\n\r\nClick Yes to remove sensitive information.\r\nIn that case a user will be required to input the username and the password when he is trying to connect to the VPN Server.\r\n\r\nClick No to stay the sensitive information remaining on the file.
+CM_ACCOUNT_PARSE_FAILED	Невозможно загрузить параметры VPN подключения из указанного файла. \r\nПроверьте содержимое файла.
+CM_ACCOUNT_MSG_SENSITIVE	Этот файл настроек VPN подключения содержит имя пользователя и пароль.\r\nХотите удалить эту конфиденциальную информацию из экспортируемого файла настроек?\r\n\r\nНажмите "Да", чтобы удалить конфиденциальную информацию.\r\nВ случае удаления информации пользователь должен будет ввести имя пользователя и пароль, когда попытается подключиться к VPN серверу.\r\n\r\nНажмите "Нет", чтобы оставить конфиденциальную информацию в файле.
 CM_SHORTCUT_FILE		Ярлыки|*.lnk
 CM_SHORTCUT_SAVE_TITLE	Введите название ярлыка.
 CM_SHORTCUT_UNSUPPORTED	The connection shortcut function is not supported by this version of VPN Client. \r\nUpdate to a new version.
@@ -991,9 +991,9 @@ CM_EASY_INFO_2			Click Start VPN Connection to start a VPN connection.
 CM_EASY_INFO_3			VPN connection is active. You can disconnect by clicking Disconnect.
 CM_EXT_VOICE_MSG		It is possible that some of the voice message contents of the Extension Voice Guide has not been played normally. \r\nIs the Extension Voice Guide enabled?
 CM_EASY_TITLE			VPN Client Easy Connection Manager
-CM_EASY_CONNECTED		VPN connection is active.
-CM_EASY_CONNECTING		Establishing VPN connection...
-CM_PROXY_FROM_IE		Currently proxy setting from Internet Explorer has been loaded.
+CM_EASY_CONNECTED		VPN-подключение активно VPN connection is active.
+CM_EASY_CONNECTING		Установка VPN-подключения...
+CM_PROXY_FROM_IE		 Настройки прокси из Internet Explorer загружены.
 CM_TRAY_ICON_RESTORE	The icon in the task tray has been deleted.\r\n\r\nTo restore the icon, run the VPN Client Manager and click Show Task-tray Icon in the View menu.
 CM_WOULDYOULOAD_IE_PROXY	Currently the Internet Explorer on this computer is configured to use the proxy server "%S".\r\nDo you want to apply the current proxy settings on the new VPN connection setting?\r\n\r\nClick Yes to use the proxy settings of Internet Explorer.\r\nClick No to use direct connection to the VPN Server (does not a proxy server.)\r\nThis setting can be modified in the property screen of the connection settings any time later.
 CM_MSG_TITLE			VPN Server "%S" (Virtual Hub: "%S")
@@ -2373,7 +2373,7 @@ STATIC11				сек
 STATIC12				При использовании двух или более TCP соединений доступен полудуплексный режим. Полудуплексный режим фиксирует направление данных как половина и половина для каждого соединения TCP. Например, когда для VPN установлено 8 TCP соединений, то 4 TCP соединения будут выделены для отправки данных, а остальные 4 - для получения данных. 
 R_USE_HALF_CONNECTION	Использовать полудуплексный режим
 STATIC13				Шифрование и сжатие:
-STATIC14				Обычно VPN сессия шифруется для обеспечения безопасности. Вы можете отключить шифрование для повышения пропускной способности. Обратите внимание, что при отключении данные по сети передаются в открытом виде.
+STATIC14				Вы можете отключить шифрование для повышения пропускной способности. Обратите внимание, что при отключении данные по сети передаются в открытом виде.
 R_USE_ENCRYPT			&Шифровать VPN-сессию с помощью SSL
 STATIC15				Вы можете использовать сжатие данных для экономии пропускной способности VPN подключения. Включите эту опцию при использовании медленных линий.
 R_DISABLE_UDP			Отключить UDP ускорение
@@ -2385,7 +2385,7 @@ R_MONITOR				Режим Мониторинга
 STATIC17				Другие конфигурации:
 R_NO_ROUTING			Не вносить изменения в таблицу маршрутизации
 STATIC18				Если у вас нет опыта работы с сетью и безопасностью, то оставьте настройки в этом окне по умолчанию.
-STATIC19				Функции VoIP/QoS обрабатывают пакеты с высоким приоритетом для более быстрой передачи, такие как VoIP.
+STATIC19				Функции VoIP/QoS обрабатывают пакеты (например VoIP) с высоким приоритетом для более быстрой передачи.
 R_DISABLE_QOS			Отключить функции VoIP / QoS
 IDOK					&OK
 IDCANCEL				Отмена
@@ -2402,13 +2402,13 @@ S_WIN8					Название виртуального сетевого адапт
 
 
 PREFIX					D_CM_TRUST
-CAPTION					Manage Trusted CA Certificate List
-STATIC1					Here you can manage the list of certificate authority (CA) certificates that are trusted.\r\n\r\nYou can use the CA certificate list registered here to verify server certificates when connecting to VPN Servers.
-B_IMPORT				&Add
-B_EXPORT				&Export
-IDOK					&View Certificate
-IDCANCEL				&Close
-B_DELETE				&Delete
+CAPTION					Управление списком доверенных корневых сертификатов
+STATIC1					Здесь вы можете управлять списком доверенных корневых сертификатов.\r\n\r\nВы можете использовать этот список для проверки сертификатов серверов при подключении к ним.
+B_IMPORT				&Добавить
+B_EXPORT				&Экспорт
+IDOK					&Показать серт.
+IDCANCEL				&Закрыть
+B_DELETE				&Удалить
 
 
 PREFIX					D_CM_PASSWORD
@@ -2480,17 +2480,17 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_CM_CHANGE_PASSWORD
-CAPTION					Change Password
-S_TITLE					You can change the password of the user registered on server %S.
-STATIC1					Change &Password
-STATIC2					Virtual &Hub Name:
-STATIC3					&User Name:
-STATIC4					&Old Password:
-STATIC5					&New Password:
-STATIC6					&Confirm of New Password:
+CAPTION					Изменить пароль
+S_TITLE					Вы можете изменить пароль пользователя, зарегистрированного на сервере %S.
+STATIC1					Изменить пароль
+STATIC2					Имя Virtual &Hub:
+STATIC3					&Пользователь:
+STATIC4					&Старый пароль:
+STATIC5					&Новый пароль:
+STATIC6					&Подтвердить новый пароль:
 IDOK					&OK
-IDCANCEL				Cancel
-S_STATIC				Note: If authentication type is RADIUS or NT Domain Authentication, you cannot change the user's password here.
+IDCANCEL				Отмена
+S_STATIC				Примечание: Вы не сможете изменить пароль пользователя, если выбран тип авторизации "RADIUS или авторизация в домене".
 
 
 PREFIX					D_SM_MAIN
@@ -3453,10 +3453,10 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_CM_SELECT_SECURE
-CAPTION					Select Smart Card
-STATIC1					Select the type of smart card device to use. \r\n\r\nThe types of smart cards listed in this list have had their drivers installed on the current computer and are supported by VPN software. \r\nIf there is a type of smart card that is currently being used that does not appear in the list, it may be possible that update of the VPN software to a newer version enable you to use it. \r\n\r\nNote: If a driver is not displayed immediately after installation, restart Windows.
+CAPTION					Выберите смарт-карту
+STATIC1					Выберите тип смарт-карты.\r\n\r\nТипы смарт-карт, перечисленные в этом списке, имеют установленные драйверы на текущем компьютере и поддерживаются SoftEther VPN. \r\nЕсли вы используете тип смарт-карты, которого нет в списке, возможно, обновление SoftEther VPN до более новой версии позволит вам использовать его. \r\n\r\nПримечание. Если драйвер не отображается сразу после установки, перезапустите Windows.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_SECURE_MANAGER
@@ -3498,15 +3498,15 @@ B_BOLD2					Select the corresponding private key.
 
 
 PREFIX					D_CM_LOAD_X
-CAPTION					Load Certificate
-STATIC1					Select the method to load the certificate.
-R_FROM_FILE				Load Certificate from &File
-R_FROM_SECURE			Load Certificate from &Smart Card
-S_FILE					You can load a certificate from a file that stores certificate data (extensions: .cer, .crt, .p12, .pfx).
-S_CERT					If a smart card is connected to this computer, you can load a certificate from a smart card.
-B_SELECT				&Select Which Smart Card to Use...
+CAPTION					Загрузить сертификат
+STATIC1					Выберите метод загрузки сертификата.
+R_FROM_FILE				Загрузить сертификат из файла
+R_FROM_SECURE			Загрузить сертификат со смарт-карты
+S_FILE					Вы можете загрузить сертификат из файла, в котором хранятся данные сертификата (расширения: .cer, .crt, .p12, .pfx).
+S_CERT					Если к этому компьютеру подключена смарт-карта, вы можете загрузить сертификат со смарт-карты.
+B_SELECT				&Выберите смарт-карту
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_SECURE_PIN
@@ -4217,49 +4217,49 @@ IDCANCEL				Cancel
 # Connection Manager menu
 PREFIX					CM_MENU
 # [Connect] menu
-CMD_TOP_CONNECT			&Connect
-CMD_CONNECT				C&onnect\tEnter
-CMD_STATUS				View &Status...\tCtrl+S
-CMD_DISCONNECT			D&isconnect\tCtrl+D
-CMD_DISCONNECT_ALL		Disconnect &All\tCtrl+I
-CMD_NEW					&New VPN Connection Setting...\tCtrl+N
-CMD_CLONE				&Copy\tCtrl+C
-CMD_SHORTCUT			Create VPN Connection S&hortcut...
-CMD_EXPORT_ACCOUNT		E&xport VPN Connection Setting...
-CMD_IMPORT_ACCOUNT		Im&port VPN Connection Setting...
-CMD_STARTUP				Se&t as Startup Connection\tCtrl+T
-CMD_NOSTARTUP			R&emove Startup Connection
-CMD_RECENT				Recent &VPN Servers
-CMD_RENAME				Rena&me\tF2
-CMD_DELETE				&Delete\tDel
-CMD_PROPERTY			P&roperties...\tAlt+Enter
-CMD_EXIT				Cl&ose Connection Manager\tAlt+F4
-CMD_QUIT				E&xit Connection Manager Program\tAlt+Q
+CMD_TOP_CONNECT			&Подключить
+CMD_CONNECT				Подключить\tEnter
+CMD_STATUS				Посмотреть статус...\tCtrl+S
+CMD_DISCONNECT			Отключить\tCtrl+D
+CMD_DISCONNECT_ALL		Отключить Все\tCtrl+I
+CMD_NEW					&Настройка нового VPN подключения...\tCtrl+N
+CMD_CLONE				&Копировать\tCtrl+C
+CMD_SHORTCUT			Создать ярлык VPN подключения...
+CMD_EXPORT_ACCOUNT		Экспорт настроек VPN подключения...
+CMD_IMPORT_ACCOUNT		Импорт настроек VPN подключения...
+CMD_STARTUP				Добавить в автозапуск\tCtrl+T
+CMD_NOSTARTUP			Удалить из автозапуска
+CMD_RECENT				Недавние VPN-серверы
+CMD_RENAME				Переименовать\tF2
+CMD_DELETE				&Удалить\tDel
+CMD_PROPERTY			Свойства...\tAlt+Enter
+CMD_EXIT				Закрыть диспетчер подключений\tAlt+F4
+CMD_QUIT				Выйти из программы\tAlt+Q
 # [Edit] menu
-CMD_TOP_EDIT			&Edit
-CMD_SELECT_ALL			Select &All\tCtrl+A
-CMD_SWITCH_SELECT		Sw&itch Selection
+CMD_TOP_EDIT			&Редактировать
+CMD_SELECT_ALL			Выбрать все\tCtrl+A
+CMD_SWITCH_SELECT		Инвертировать выбор
 # [View] menu
-CMD_TOP_VIEW			&View
-CMD_STATUSBAR			Show &Status Bar
-CMD_VISTASTYLE			Windows Vista / 7 / 8 / 10 Styles
-CMD_SHOWPORT			Show &Ports on Connection List
-CMD_TRAYICON			Show Icons on &Task Tray
-CMD_ICON				&Icon
-CMD_DETAIL				&Detail
-CMD_GRID				Display &Grid
-CMD_REFRESH				&Refresh\tF5
+CMD_TOP_VIEW			&Вид
+CMD_STATUSBAR			Показывать строку состояния
+CMD_VISTASTYLE			Стили Windows Vista / 7 / 8 / 10
+CMD_SHOWPORT			Показывать порт в списке подключений
+CMD_TRAYICON			Показывать значек программы на панели задач
+CMD_ICON				&Иконки
+CMD_DETAIL				&Детально
+CMD_GRID				Показывать сетку
+CMD_REFRESH				&Обновить\tF5
 # [VLAN] menu
-CMD_TOP_VLAN			Virtua&l Adapter
-CMD_NEW_VLAN			&New Virtual Network Adapter...\tCtrl+L
-CMD_ENABLE_VLAN			&Enable Virtual Network Adapter\tCtrl+E
-CMD_DISABLE_VLAN		Dis&able Virtual Network Adapter\tCtrl+B
-CMD_DELETE_VLAN			&Delete Virtual Network Adapter\tDel
-CMD_REINSTALL			&Reinstall Driver...\tCtrl+U
-CMD_WINNET				Open Windows Network Connections...\tCtrl+W
+CMD_TOP_VLAN			Виртуальный Адаптер
+CMD_NEW_VLAN			&Новый Виртуальный Сетевой Адаптер...\tCtrl+L
+CMD_ENABLE_VLAN			&Включить Виртуальный Сетевой Адаптер\tCtrl+E
+CMD_DISABLE_VLAN		Отключить Виртуальный Сетевой Адаптер\tCtrl+B
+CMD_DELETE_VLAN			&Удалить Виртуальный Сетевой Адаптер\tDel
+CMD_REINSTALL			&Переустановить драйвер...\tCtrl+U
+CMD_WINNET				Открыть окно Сетевых подключений Windows...\tCtrl+W
 # [Connect] menu
-CMD_TOP_SECURE			&Smart Card
-CMD_SECURE_MANAGER		Smart Card &Manager...\tCtrl+G
+CMD_TOP_SECURE			&Смарт-карты
+CMD_SECURE_MANAGER		Smart Card Manager...\tCtrl+G
 CMD_SECURE_SELECT		&Select a Smart Card to Use...
 # [Tools] menu
 CMD_TOP_TOOL			&Tools
