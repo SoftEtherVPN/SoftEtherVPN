@@ -435,7 +435,7 @@ CERT_BITS_FORMAT		%u бит
 
 # Concerning certificate confirmation dialogs
 CC_DANGEROUS_MSG		Сертификат сервера, который был сохранен при предыдущем VPN-подключении к этому серверу (%S), не соответствует текущему сертификату, предоставленному сервером. \r\n\r\nЗначение предыдущего отпечатка (MD5): %S\r\nЗначение предыдущего отпечатка (SHA1): %S\r\n\r\nЗначение текущего отпечатка (MD5): %S\r\nЗначение текущего отпечатка (SHA1): %S\r\n\r\nВозможно, администратор сервера изменил сертификат на стороне VPN-сервера. Однако также возможна атака типа «человек посередине», такая как спуфинг. \r\nНастоятельно рекомендуется запросить разъяснения у администратора VPN-сервера, к которому вы хотите подключиться.
-CC_WARNING_MSG			Хотите доверять сертификату VPN-сервера, к которому вы подключены, при последующих подключениях к %s?\r\n\r\nЗначение отпечатка (SHA1): %S\r\nЗначение отпечатка (MD5): %S\r\n\r\nЕсли есть сомнения относительно подлинности сертификата этого сервера, свяжитесь с владельцем сервера с помощью надежного и безопасного метода и сравните приведенные выше значения отпечатков. \r\n\r\nНажмите «Да», чтобы автоматически доверять этому сертификату при следующем подключении к серверу, если он предоставит тот же сертификат. \r\nНажмите «Нет», чтобы доверять сертификату только в течении текущей сессии, и снова отобразить предупреждение при следующем подключении к этому серверу. \r\nНажмите «Отмена», чтобы вернуться в окно «Предупреждения безопасности». \r\n\r\nПримечание:  Этот параметр можно настроить в свойствах подключения Диспетчера VPN-подключений.
+CC_WARNING_MSG			Хотите доверять сертификату VPN-сервера, к которому вы подключены, при последующих подключениях к %s?\r\n\r\nЗначение отпечатка (SHA1): %S\r\nЗначение отпечатка (MD5): %S\r\n\r\nЕсли есть сомнения относительно подлинности сертификата этого сервера, свяжитесь с владельцем сервера с помощью надежного и безопасного метода и сравните приведенные выше значения отпечатков. \r\n\r\nНажмите «Да», чтобы автоматически доверять этому сертификату при следующем подключении к серверу, если он предоставит тот же сертификат. \r\nНажмите «Нет», чтобы доверять сертификату только в течении текущей сессии, и снова отобразить предупреждение при следующем подключении к этому серверу. \r\nНажмите «Отмена», чтобы вернуться в окно «Предупреждения безопасности». \r\n\r\nПримечание:  Этот параметр может быть изменен для каждого отдельного подключения. Вы можете сделать это в свойствах подключения Диспетчера VPN-подключений.
 
 
 # Errors about Windows Versions
@@ -937,7 +937,7 @@ CM_DESKTOP_MSG_REMOTE_3	It is recommended that you first log in directly and loc
 CM_STOP_INST_VLAN_1		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter, VPN Client Manager must be started in the Console Session (session ID: %u, user %s is logged on). \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_STOP_INST_VLAN_2		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter you must start the VPN Client Manager within a "Console Session". \r\n(Currently the user is not logged on to the Console Session (Session ID: 0).) \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_SHORTCUT_DESKTOP_MSG	To start a connection using the shortcut to the VPN Connection Setting, you must launch the shortcut file within the "Console Session". \r\n\r\nCurrently the user is logged on as the remote session (session ID: %u) and not as the Console Session.
-CM_HTTP_PROXY_WARNING Выбрано	подключение через HTTP прокси-сервер. \r\n\r\nВо многих случаях HTTP прокси-сервер разрешает использовать только 2 вида TCP порта для подключения серверу, протокол HTTP (TCP порт 80) и протокол HTTPS (TCP порт 443). \r\n(There are also cases when the proxy server does allow a wider choice of TCP port for connection.) \r\n\r\nWhen making a VPN connection via an HTTP proxy server that denies connections to server ports other than HTTP ports or HTTPS ports, you must specify 443 (HTTPS protocol) as the destination VPN Server port number. \r\n\r\nTo check whether the HTTP proxy server you are connecting via allows connection to ports other than port numbers 80 or 443, contact the administrator of the HTTP proxy server. \r\n\r\nCurrently, %d is specified as the destination VPN Server port number. Do you want to change the port number to 443 (HTTPS protocol)?\r\n(The port 443 of the VPN Servers you connect to must be set to listening status and ready for connection.) \r\nIf you are unsure, then contact the system administrator or the network administrator.
+CM_HTTP_PROXY_WARNING Выбрано	подключение через HTTP прокси-сервер. \r\n\r\nВо многих случаях HTTP прокси-сервер разрешает использовать только 2 вида TCP порта для подключения к серверу, протокол HTTP (TCP порт 80) и протокол HTTPS (TCP порт 443). \r\n(Существуют также случаи, когда прокси-сервер допускает более широкий диапазон TCP портов для подключения.) \r\n\r\nПри создании VPN-подключения через HTTP прокси-сервер, который запрещает подключения к портам сервера, отличным от портов HTTP или HTTPS, в качестве номера порта VPN-сервера необходимо указать 443 (протокол HTTPS). \r\n\r\nЧтобы узнать, позволяет ли HTTP прокси-сервер подключаться к портам, отличным от портов 80 или 443, обратитесь к администратору прокси-сервера. \r\n\r\nВ настоящий момент %d указан в качестве номера порта VPN-сервера. Хотите изменить номер порта на 443 (протокол HTTPS)?\r\n(443 порт VPN-сервера, к которому вы подключаетесь, должен быть открыт и готов принимать подключения.) \r\nЕсли вы не уверены, обратитесь к системному или сетевому администратору.
 CM_HTTP_HEADER_COLUMN_0	Название
 CM_HTTP_HEADER_COLUMN_1	Значение
 CM_PASSWORD_CHANGED		Пароль был изменен.
@@ -951,55 +951,55 @@ CM_ACCOUNT_PARSE_FAILED	Невозможно загрузить параметр
 CM_ACCOUNT_MSG_SENSITIVE	Этот файл настроек VPN подключения содержит имя пользователя и пароль.\r\nХотите удалить эту конфиденциальную информацию из экспортируемого файла настроек?\r\n\r\nНажмите "Да", чтобы удалить конфиденциальную информацию.\r\nВ случае удаления информации пользователь должен будет ввести имя пользователя и пароль, когда попытается подключиться к VPN серверу.\r\n\r\nНажмите "Нет", чтобы оставить конфиденциальную информацию в файле.
 CM_SHORTCUT_FILE		Ярлыки|*.lnk
 CM_SHORTCUT_SAVE_TITLE	Введите название ярлыка.
-CM_SHORTCUT_UNSUPPORTED	The connection shortcut function is not supported by this version of VPN Client. \r\nUpdate to a new version.
-CM_SHORTCUT_COMMENT		Using the VPN Connection Setting "%s" to connect to the VPN Server.
-CM_SHORTCUT_ERROR		Failed to create a shortcut.
-CM_VPN_FILE_CLICKED		Do you want to import the VPN Connection File?
-CM_VPN_FILE_IMPORT_NG	Unable to import the VPN Connection Setting File. Because the VPN Client setting has been locked.
-CM_VLAN_INSTALLING		Please Wait a While
-CM_SECURE_MUST_LOCAL	It is currently not possible to configure smart card settings because you are connected to and managing a VPN Client on a remote computer.
-CM_DETAIL_MODE_LINK_STR	With a Cascade Connection, Connect by Bridge / Router mode is always enabled.
-CM_TRAY_INITING			SoftEther VPN Client Manager (Developer Edition) ...
-CM_TRAY_NOT_CONNECTED	SoftEther VPN Client Manager (Developer Edition)\r\nNot connected.
-CM_TRAY_CONNECTED_0		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers and is attempting to connect to %u servers
-CM_TRAY_CONNECTED_1		SoftEther VPN Client Manager (Developer Edition)\r\nAttempting to connect to %u servers
-CM_TRAY_CONNECTED_2		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers
-CM_TRAY_MENU_1_SHOW		Открыть VPN Client Manager (&S)
-CM_TRAY_MENU_1_HIDE		Cl&ose VPN Client Manager
-CM_TRAY_MENU_2_QUIT		E&xit VPN Client Manager Program
-CM_TRAY_MENU_CONNECT	Start VPN &Connection
-CM_TRAY_MENU_DISCONNECT	&Disconnect VPN Connection
-CM_TRAY_MENU_STATUS		Show VPN Connec&tion Status
-CM_TRAY_MENU_DISCONNECT_ALL	Disconnect &All VPN Connections
-CM_TRAY_MENU_NEW		&New VPN Connection Setting...
+CM_SHORTCUT_UNSUPPORTED	Ярлык подключения не поддерживается в этой версии VPN-клиента. \r\nОбновите версию клиента.
+CM_SHORTCUT_COMMENT		Используется VPN подключение "%s" для подключения к VPN-серверу.
+CM_SHORTCUT_ERROR		Не удалось создать ярлык.
+CM_VPN_FILE_CLICKED		Вы хотите импортировать файл VPN подключения?
+CM_VPN_FILE_IMPORT_NG	Невозможно импортировать файл настроек VPN подключения. Потому что настройки VPN-клиента были заблокированы.
+CM_VLAN_INSTALLING		Пожалуйста, подождите
+CM_SECURE_MUST_LOCAL	В настоящее время невозможно настроить параметры смарт-карты, поскольку вы подключены к VPN-клиенту с удаленного компьютера.
+CM_DETAIL_MODE_LINK_STR	При Каскадном подключении режим Мост / Роутер всегда включен.
+CM_TRAY_INITING			Диспетчер VPN подключений SoftEther (Developer Edition) ...
+CM_TRAY_NOT_CONNECTED	Диспетчер VPN подключений SoftEther (Developer Edition)\r\nНет подключения.
+CM_TRAY_CONNECTED_0		Диспетчер VPN подключений SoftEther (Developer Edition)\r\nАктивны подключения к %u серверам, попытка подключиться к %u серверам 
+CM_TRAY_CONNECTED_1		Диспетчер VPN подключений SoftEther (Developer Edition)\r\nПопытка подключиться к %u серверам 
+CM_TRAY_CONNECTED_2		Диспетчер VPN подключений SoftEther (Developer Edition)\r\nАктивны подключения к %u серверам
+CM_TRAY_MENU_1_SHOW		Открыть Диспетчер VPN подключений (&S)
+CM_TRAY_MENU_1_HIDE		Закрыть Диспетчер VPN подключений
+CM_TRAY_MENU_2_QUIT		Выйти из Диспетчера VPN подключений
+CM_TRAY_MENU_CONNECT	Запустить VPN подключение
+CM_TRAY_MENU_DISCONNECT	&Отключить VPN подключение
+CM_TRAY_MENU_STATUS		Показать состояние VPN подключения
+CM_TRAY_MENU_DISCONNECT_ALL	Отключить все VPN подключения
+CM_TRAY_MENU_NEW		&Новое VPN подключение...
 CM_TRAY_MENU_RECENT		Недавние VPN сервера...
-CM_TRAY_MENU_TRAFFIC	Network &Traffic Speed Test Tool...
-CM_TRAY_MENU_NETIF		Show Network &Device Status...
-CM_TRAY_MENU_ABOUT		&About VPN Client Manager...
-CM_TRAY_MENU_SETTING	Change Operation &Mode...
+CM_TRAY_MENU_TRAFFIC	Инструмент тестирования скорости трафика...
+CM_TRAY_MENU_NETIF		Показать состояние сетевого устройства...
+CM_TRAY_MENU_ABOUT		&О Диспетчере VPN подключений...
+CM_TRAY_MENU_SETTING	Изменить режим работы...
 CM_TRAY_MENU_CANCEL		Закрыть это меню
-CM_EXIT_MESSAGE			This will exit the VPN Client Manager program. \r\nDo you really want to do this?
-CM_IMPORT_MESSAGE		From file "%S", VPN Connection Setting "%s" has been installed.
+CM_EXIT_MESSAGE			Это действие закроет Диспетчер VPN подключений. \r\nВы действительно хотите это сделать?
+CM_IMPORT_MESSAGE		Настройки VPN подключения из файла "%S" были установлены.
 CM_VLAN_CREATING		Создание нового Виртуального Сетевого Адаптера для Windows. \r\n\r\nЭтот процесс может занять несколько секунд или более минуты. \r\nПожалуйста, подождите...\r\n\r\n(Пожалуйста, не выполняйте другие операции во время создания Виртуального Сетевого Адаптера.)
-CM_SETTING_PASSWORD		The setting is locked. To remove the setting-locker, you must enter a password.
-CM_EASY_MODE_NOT_ON_REMOTE	Unable to connect because of the VPN Client on the remote computer is running in Easy Mode.
-CM_EASY_CONNECT_BUTTON_1	Start VPN &Connection
-CM_EASY_CONNECT_BUTTON_2	&Disconnect
-CM_EASY_ACCOUNT_WARNING	You can only modify Proxy Server Setting, User Authentication and Virtual Network Adapter Used because the setting has been locked.
-CM_EASY_INFO_1			Select a VPN connection.
-CM_EASY_INFO_2			Click Start VPN Connection to start a VPN connection.
-CM_EASY_INFO_3			VPN connection is active. You can disconnect by clicking Disconnect.
+CM_SETTING_PASSWORD		Настройки заблокированы. Чтобы отключить блокировку, необходимо ввести пароль.
+CM_EASY_MODE_NOT_ON_REMOTE	Невозможно подключиться, так как VPN-клиент на удаленном компьютере работает в Упрощенном режиме.
+CM_EASY_CONNECT_BUTTON_1	Запустить VPN подключение
+CM_EASY_CONNECT_BUTTON_2	&Отключить
+CM_EASY_ACCOUNT_WARNING	Вы можете изменить только настройки прокси-сервера, авторизации пользователя и используемого виртуального сетевого адаптера, поскольку настройки заблокированы.
+CM_EASY_INFO_1			Выберите VPN подключение.
+CM_EASY_INFO_2			Нажмите "Запустить VPN подключение", чтобы подключиться.
+CM_EASY_INFO_3			VPN подключение активно. Вы можете отключиться, нажав "Отключить".
 CM_EXT_VOICE_MSG		It is possible that some of the voice message contents of the Extension Voice Guide has not been played normally. \r\nIs the Extension Voice Guide enabled?
-CM_EASY_TITLE			VPN Client Easy Connection Manager
-CM_EASY_CONNECTED		VPN-подключение активно VPN connection is active.
+CM_EASY_TITLE			Упрощенный режим Диспетчера VPN подключений
+CM_EASY_CONNECTED		VPN подключение активно.
 CM_EASY_CONNECTING		Установка VPN-подключения...
 CM_PROXY_FROM_IE		 Настройки прокси из Internet Explorer загружены.
-CM_TRAY_ICON_RESTORE	The icon in the task tray has been deleted.\r\n\r\nTo restore the icon, run the VPN Client Manager and click Show Task-tray Icon in the View menu.
-CM_WOULDYOULOAD_IE_PROXY	Currently the Internet Explorer on this computer is configured to use the proxy server "%S".\r\nDo you want to apply the current proxy settings on the new VPN connection setting?\r\n\r\nClick Yes to use the proxy settings of Internet Explorer.\r\nClick No to use direct connection to the VPN Server (does not a proxy server.)\r\nThis setting can be modified in the property screen of the connection settings any time later.
-CM_MSG_TITLE			VPN Server "%S" (Virtual Hub: "%S")
-CM_JUMPLIST_RCCONNECT	Recent VPN Servers
-CM_VPNGATE_MESSAGE		There is the list of Public VPN Relay Servers on the VPN Gate Academic Project Web Site.\r\nAnyone on the Internet can connect a VPN connection to any VPN servers on the list.\r\n\r\nVPN Gate Academic Project is not a part of SoftEther VPN.\r\nThis icon provides just a link to http://www.vpngate.net/.\r\nYou need to install VPN Gate Plugin to connect VPN Gate.\r\n\r\nDo you want to visit http://www.vpngate.net/ (provided by University of Tsukuba) ?
-CM_VLAN_REINSTALL_MSG	After reinstalling the Virtual Network Adapter driver, the current Virtual Network Adapter's MAC address will change. Also, all TCP/IP settings within the Virtual Network Adapter will reset.\r\n\r\nIn case the reinstalled Virtual Network Adapter fails to work, delete it and create a new one. If it still doesn't work properly, please create a new Virtual Network Adapter with a different name.
+CM_TRAY_ICON_RESTORE	Значек был удален из панели задач.\r\n\r\nЧтобы восстановить значек, запустите Диспетчер VPN подключений и нажмите «Показать значек на панели задач» в меню «Вид».
+CM_WOULDYOULOAD_IE_PROXY	В настоящее время Internet Explorer на этом компьютере настроен на использование прокси-сервера "%S".\r\nВы хотите применить текущие настройки прокси к новым VPN поключениям?\r\n\r\nНажмите "Да", чтобы использовать настройки прокси в Internet Explorer.\r\nНажмите "Нет", чтобы использовать прямое подключение с VPN-сервером (не через прокси-сервер).\r\nВ любое время этот параметр можно изменить в окне настроек подключения.
+CM_MSG_TITLE			VPN-сервер "%S" (Virtual Hub: "%S")
+CM_JUMPLIST_RCCONNECT	Недавние VPN сервера
+CM_VPNGATE_MESSAGE		Список общедоступных VPN-серверов можно найти на веб-сайте академического проекта VPN Gate. T\r\nЛюбой человек в Интернете может подключиться к любым VPN-серверам из списка. \r\n\r\nАкадемический проект VPN Gate не является частью SoftEther VPN.\r\nЭтот значок предоставляет только ссылку на http://www.vpngate.net/.\r\nДля подключения к VPN Gate вам необходимо установить VPN Gate плагин.\r\n\r\nВы хотите посетить http://www.vpngate.net/ (предоставлено Университетом Цукуба)?
+CM_VLAN_REINSTALL_MSG	После переустановки драйвера виртуального сетевого адаптера MAC-адрес текущего виртуального сетевого адаптера изменится. Кроме того, все настройки TCP/IP в виртуальном сетевом адаптере будут сброшены.\r\n\r\nЕсли переустановленный виртуальный сетевой адаптер не работает, удалите его и создайте новый. Если он по-прежнему не работает должным образом, создайте новый виртуальный сетевой адаптер с другим именем.
 
 
 VGC_COLUMN_0			Имя хоста DDNS
@@ -1011,16 +1011,16 @@ VGC_COLUMN_5			Скорость линии
 VGC_COLUMN_6			Пинг (Google, SE)
 VGC_COLUMN_7			SSL-VPN (TCP)
 VGC_COLUMN_8			Поддержка UDP
-VGC_COLUMN_9			Logging Policy
-VGC_COLUMN_10			Cumulative Transfers
-VGC_COLUMN_11			Cumulative Users
-VGC_COLUMN_12			Operator's Name
-VGC_COLUMN_13			Operator's Message
-VGC_COLUMN_14			Total Score
+VGC_COLUMN_9			Политика журнала
+VGC_COLUMN_10			Всего передано
+VGC_COLUMN_11			Всего авторизаций
+VGC_COLUMN_12			Имя оператора
+VGC_COLUMN_13			Сообщение оператора
+VGC_COLUMN_14			Общий счет
 
-VGC_LOG_PERMANENT		Навсегда
+VGC_LOG_PERMANENT		Всегда
 VGC_LOG_2WEEKS			2 недели
-VGC_LOG_NONE			No Logs
+VGC_LOG_NONE			Не используется
 
 VGC_UPTIME_MIN			%u мин
 VGC_UPTIME_HOUR			%u часов
