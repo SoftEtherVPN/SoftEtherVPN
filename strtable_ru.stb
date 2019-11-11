@@ -1011,16 +1011,16 @@ VGC_COLUMN_5			Скорость линии
 VGC_COLUMN_6			Пинг (Google, SE)
 VGC_COLUMN_7			SSL-VPN (TCP)
 VGC_COLUMN_8			Поддержка UDP
-VGC_COLUMN_9			Политика журнала
+VGC_COLUMN_9			Ведение журнала
 VGC_COLUMN_10			Всего передано
-VGC_COLUMN_11			Всего авторизаций
+VGC_COLUMN_11			Всего входов
 VGC_COLUMN_12			Имя оператора
 VGC_COLUMN_13			Сообщение оператора
 VGC_COLUMN_14			Общий счет
 
-VGC_LOG_PERMANENT		Всегда
+VGC_LOG_PERMANENT		Постоянно
 VGC_LOG_2WEEKS			2 недели
-VGC_LOG_NONE			Не используется
+VGC_LOG_NONE			Не ведется
 
 VGC_UPTIME_MIN			%u мин
 VGC_UPTIME_HOUR			%u часов
@@ -1030,21 +1030,21 @@ VGC_NUM_LOGIN			%S входов
 
 VGC_UDP_AVAILABLE		UDP OK
 
-VGC_TITLE				VPN Gate Plug-in Message
+VGC_TITLE				Сообщение VPN Gate плагина
 
-VGC_VER_DIFF			The version of VPN Gate Client Plug-in is different from SoftEther VPN Client.\r\n\r\n- Current VPN Gate Plug-in: Build %u\r\n- Current SoftEther VPN Client: Build %u\r\n\r\nIt is recommended to download and install VPN Gate Plug-in Build %u. Otherwise, communication errors or list-update errors might be occur. If the VPN Server List updating fails many times, update the VPN Gate Plug-in version.\r\n\r\nThe latest VPN Gate Plug-in is available at http://www.vpngate.net/.\r\n(Use a mirror-site if you cannot visit the above web-site directly.)\r\n\r\n
+VGC_VER_DIFF			Версия VPN Gate плагина отличается от версии SoftEther VPN-клиента.\r\n\r\n- Текущий VPN Gate плагин: Версия %u\r\n- Текущий SoftEther VPN-клиент: Версия %u\r\n\r\nРекомендуется скачать и установить плагин VPN Gate Версия %u. В противном случае могут возникнуть ошибки подключения или ошибки обновления списка. Если много раз не удается обновить список VPN-серверов, обновите версию VPN Gate плагина.\r\n\r\nПоследняя версия VPN Gate плагина доступна по адресу http://www.vpngate.net/.\r\n(Используйте зеркало, если вы не можете посетить вышеуказанный веб-сайт напрямую.)\r\n\r\n
 
-VGC_LIST_STR_OK			%S Public VPN Relay Servers on the Earth! (Updated at %S)
-VGC_LIST_STR_OK_2		%S Servers (at %S) - List update failed. Try again. If fails again, download the latest VPN Gate Client.
-VGC_LIST_STR_NG			List update failed. Try again. If fails again, download the latest VPN Gate Client.
-VGC_PROXY_MSG			If you are using a proxy server, you might not be able to use VPN Relay Servers which don't support the TCP port 443 as "SSL-VPN Connection" from such a proxy-mandated network.
-VGC_PROXY_TITLE			Notice for Proxy Server Users
+VGC_LIST_STR_OK			%S общедоступных VPN-серверов на Земле! (Обновлено %S)
+VGC_LIST_STR_OK_2		%S серверов (%S) - Не удалось обновить список. Попробуйте еще раз. Если не получается, загрузите последнюю версию VPN Gate плагина.
+VGC_LIST_STR_NG			Не удалось обновить список. Попробуйте еще раз. Если не получается, загрузите последнюю версию VPN Gate плагина.
+VGC_PROXY_MSG			Если вы используете прокси-сервер, вы не сможете использовать VPN-серверы, которые не поддерживают TCP-порт 443, в качестве «соединения SSL-VPN».
+VGC_PROXY_TITLE			Уведомление для пользователей прокси-сервера
 
-VGS_NO_HUB_YET			In order to set the message, first you have to commit enabling the VPN Gate service. After the service will be enabled, re-open this window and set the message.
+VGS_NO_HUB_YET			Для того, чтобы установить сообщение, сначала вы включть службу VPN Gate. После того, как служба будет включена, повторно откройте это окно и установите сообщение.
 
-VGS_STOP				VPN Gate Service will stop after you click the OK button.\r\n\r\nAfter VPN Gate Service will be stopped, this computer will never accept new VPN connection requests, however, still-alive VPN Sessions might remain.\r\n (Such VPN sessions sometimes hidden from the enumeration.) \r\n\r\nTo terminate all of still-alive VPN Sessions completely, restart SoftEther VPN Server or SoftEther VPN Client service, or reboot the computer.
+VGS_STOP				Служба VPN Gate остановится после того, как вы нажмете кнопку ОК.\r\n\r\nПосле того, как служба VPN Gate будет остановлена, этот компьютер не будет принимать новые запросы на VPN подключение, однако, все еще действующие VPN сессии могут остаться.\r\n (Такие VPN сессии иногда могут быть не видны.) \r\n\r\nЧтобы полностью завершить все еще действующие VPN сессии, перезапустите службу SoftEther VPN Server или службу SoftEther VPN Client или перезагрузите компьютер.
 
-VGS_START				This will activate the VPN Gate Relay Service function.\r\n\r\nVPN Gate Relay Service function must be activated by your own risk.\r\nSome countries prohibit using of encrypted VPN by laws.\r\nFor more details about VPN Gate Relay Service please visit http://www.vpngate.net/en/join.aspx.\r\n\r\nThe VPN Gate Academic Experiment Service is operated as a research project at the graduate school on University of Tsukuba, Japan. The service is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities.\r\n\r\nBy nature, there are almost 200 countries in the World, with different laws. It is impossible to verify every countries' laws and regulations and make the software comply with all countries' laws in advance to release the software. If a user uses VPN Gate service in a specific country, and damaged by public servants of the authority, the developer of either the service or software will never be liable to recover or compensate such damages or criminal responsibilities.\r\nBy using this software and service, the user must observe all concerned laws and rules with user's own responsibility. The user will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.\r\nIf you don't agree nor understand the above warnings, do not use any of VPN Gate Academic Experiment Service functions.
+VGS_START				Это действие активирует функцию VPN Gate.\r\n\r\nФункция VPN Gate будет активирована на ваш собственный риск.\r\nНекоторые страны законодательно запрещают использование зашифрованных VPN.\r\nДля получения более подробной информации о VPN Gate, пожалуйста, посетите http://www.vpngate.net/en/join.aspx.\r\n\r\nСлужба академических экспериментов VPN Gate работает в качестве исследовательского проекта в аспирантуре Университета Цукуба, Япония. Служба регулируется японским законодательством. Законы других стран не являются ни нашими проблемами, ни обязанностями.\r\n\r\nВ мире существует почти 200 стран с разными законами. Невозможно проверить законы и правила каждой страны и заставить программное обеспечение заранее соответствовать законам всех стран. Если пользователь, использующий службу VPN Gate в определенной стране, будет наказан государственными органами или понесет уголовную ответственность, разработчики службы или программного обеспечения никогда не будут нести за это ответственность. \r\nПользователь под свою ответственность должен использовать это программное обеспечение и сервис, соблюдая все соответствующие законы и правила. Пользователь будет нести полную ответственность за любые убытки, которые являются результатом использования этого программного обеспечения, независимо от того, находится ли он внутри или за пределами территории Японии.\r\nЕсли вы не согласны или не понимаете вышеприведенные предупреждения, не используйте какие-либо функции службы академического эксперимента VPN Gate.
 
 
 # Concerning services (Win32)
