@@ -1054,17 +1054,17 @@ SVC_ALREADY_INSTALLED	Служба "%s" (название службы: %S) уж
 SVC_INSTALL_OK			Служба "%s" (название службы: %S) успешно установлена.  \r\n\r\n(Путь: %s)\r\n\r\nСлужба запущена.
 SVC_INSTALL_FAILED		Установка службы "%s" (название службы: %S) завершилась неудачно.
 SVC_INSTALL_FAILED_2	Служба "%s" (название службы: %S) успешно установлена. \r\n\r\n(Путь: %s)\r\n\r\nПопытка запустить службу не удалась.
-SVC_NOT_INSTALLED		The "%s" service (service name: %S) is not yet installed on this computer. Use the /install command line argument to install it.
-SVC_START_OK			The "%s" service (service name: %S) started successfully.
-SVC_START_FAILED		The "%s" service (service name: %S) failed to start.
-SVR_ALREADY_START		The "%s" service (service name: %S) has already started.
-SVC_STOP_OK				The "%s" service (Service name: %S) has been stopped.
-SVC_STOP_FAILED			The "%s" service (service name: %S) failed to stop.
-SVC_ALREADY_STOP		The "%s" service (service name: %S) is already stopped.
-SVC_UNINSTALL_OK		The "%s" service (Service name: %S) has been uninstalled successfully.
-SVC_UNINSTALL_FAILED	The uninstallation of the "%s" service (service name: %S) failed.
-SVC_NOT_FOUND			Unable to find information related to service %S from the string table.
-SVC_NOT_ADMIN			To install, uninstall, start or stop the service you must have administrator privileges for this computer. \r\n\r\nIf you have an administrators account for this computer, log out and log on as an administrator. \r\nIf you are unclear about administrators accounts, contact your system administrator.
+SVC_NOT_INSTALLED		Служба "%s" (название службы: %S) еще не установлена на этом компьютере. Используйте аргумент командной строки /install, чтобы установить ее.
+SVC_START_OK			Служба "%s" (название службы: %S) успешно запущена.
+SVC_START_FAILED		Не удалось запустить службу "%s" (название службы: %S).
+SVR_ALREADY_START		Служба "%s" (название службы: %S) уже запущена.
+SVC_STOP_OK				Служба "%s" (название службы: %S) остановлена.
+SVC_STOP_FAILED			Не удалось остановить службу "%s" (название службы: %S)
+SVC_ALREADY_STOP		Служба "%s" (название службы: %S) уже остановлена.
+SVC_UNINSTALL_OK		Служба "%s" (название службы: %S) успешно удалена.
+SVC_UNINSTALL_FAILED	Удаление службы "%s" (название службы: %S) завершилось неудачно.
+SVC_NOT_FOUND			Невозможно найти информацию в таблице, относящуюся к службе %S.
+SVC_NOT_ADMIN			Для установки, удаления, запуска или остановки службы у вас должны быть права администратора на этом компьютере.To install, uninstall, start or stop the service you must have administrator privileges for this computer. \r\n\r\nIf you have an administrators account for this computer, log out and log on as an administrator. \r\nIf you are unclear about administrators accounts, contact your system administrator.
 SVC_TEST_MSG			The "%s" service is started in test mode. \r\n\r\nClick OK to exit the service.
 SVC_TRAY_TOOLTIP		%S (User mode)
 SVC_TEST_MUTEX			The executable file %s is already started.
