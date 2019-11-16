@@ -1064,15 +1064,15 @@ SVC_ALREADY_STOP		Служба "%s" (название службы: %S) уже �
 SVC_UNINSTALL_OK		Служба "%s" (название службы: %S) успешно удалена.
 SVC_UNINSTALL_FAILED	Удаление службы "%s" (название службы: %S) завершилось неудачно.
 SVC_NOT_FOUND			Невозможно найти информацию в таблице, относящуюся к службе %S.
-SVC_NOT_ADMIN			Для установки, удаления, запуска или остановки службы у вас должны быть права администратора на этом компьютере.To install, uninstall, start or stop the service you must have administrator privileges for this computer. \r\n\r\nIf you have an administrators account for this computer, log out and log on as an administrator. \r\nIf you are unclear about administrators accounts, contact your system administrator.
-SVC_TEST_MSG			The "%s" service is started in test mode. \r\n\r\nClick OK to exit the service.
-SVC_TRAY_TOOLTIP		%S (User mode)
-SVC_TEST_MUTEX			The executable file %s is already started.
-SVC_USERMODE_MUTEX		Another process of %s is already started.
-SVC_SERVICE_MUTEX		Because service %S has process %s that is already started, the service cannot start.
-SVC_USERMODE_MENU_1		&Hide Tasktray Icon
-SVC_USERMODE_MENU_2		E&xit %s
-SVC_HIDE_TRAY_MSG		This will hide the tasktray icons when starting %S in user mode. \r\nBeginning from next time %S is started in user mode, icons will not be displayed in the tasktray. \r\nThe menu to exit the process will also be hidden. \r\n\r\nTo exit the process in the case of Windows 98 / Me, use the Ctrl + Alt + Del key combination and select to end the process. \r\nWhen using other operating systems, use Task Manager. \r\n\r\nTo redisplay the tasktray icons, use the /usermode_showtray option when starting in user mode next time.
+SVC_NOT_ADMIN			Для установки, удаления, запуска или остановки службы у вас должны быть права администратора на этом компьютере. \r\n\r\nЕсли у вас есть учетная запись администратора, выйдите и войдите как администратор. \r\nЕсли у вас нет ясности относительно учетных записей с правами администратора, обратитесь к системному администратору.
+SVC_TEST_MSG			Служба "%s" запущена в тестовом режиме. \r\n\r\nНажмите OK, чтобы выйти из службы.
+SVC_TRAY_TOOLTIP		%S (пользовательский режим)
+SVC_TEST_MUTEX			Исполняемый файл %s уже запущен.
+SVC_USERMODE_MUTEX		Другой процесс %s уже запущен.
+SVC_SERVICE_MUTEX		Поскольку служба %S исполняет процесс %s, который уже запущен, служба не может запуститься.
+SVC_USERMODE_MENU_1		&Скрыть значек
+SVC_USERMODE_MENU_2		Выйти из %s
+SVC_HIDE_TRAY_MSG		Это действие скроет значки на панели задач при запуске %S в пользовательском режиме. \r\nНачиная со следующего запуска %S в пользовательском режиме, значки не будут отображаться на панели задач. \r\nМеню для выхода из процесса также будет скрыто. \r\n\r\nЧтобы выйти из процесса в случае Windows 98 / Me, используйте комбинацию клавиш Ctrl + Alt + Del, выберите и завершите процесс. \r\nПри использовании других операционных систем используйте Диспетчер задач. \r\n\r\nЧтобы снова отобразить значки на панели задач, используйте параметр /usermode_showtray при следующем запуске в пользовательском режиме.
 
 
 # Concerning services (UNIX)
@@ -1089,26 +1089,26 @@ UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recomme
 
 # Service definition (SoftEther VPN Client)
 SVC_VPNCLIENT_NAME		vpnclient
-SVC_VPNCLIENT_TITLE		SoftEther VPN Client
-SVC_VPNCLIENT_DESCRIPT	This manages the Virtual Network Adapter device driver and connection service for the SoftEther VPN Client. When this service is stopped, it will not be possible to use SoftEther VPN Client on this computer to connect to a SoftEther VPN Server.
+SVC_VPNCLIENT_TITLE		SoftEther VPN-клиент
+SVC_VPNCLIENT_DESCRIPT	Эта служба управляет драйвером виртуального сетевого адаптера и службой подключения SoftEther VPN-клиента. Когда эта служба остановлена, будет невозможно использовать SoftEther VPN-клиент на этом компьютере для подключения к SoftEther VPN-серверу.
 
 
 # Service Definition (SoftEther VPN Server)
 SVC_VPNSERVER_NAME		vpnserver
-SVC_VPNSERVER_TITLE		SoftEther VPN Server
-SVC_VPNSERVER_DESCRIPT	This manages the server processes of SoftEther VPN Server. SoftEther VPN Server provides high-performance SoftEther VPN Server functions via TCP/IP protocol. When this service is stopped, SoftEther VPN Server on this computer will stop and SoftEther VPN Client will be unable to establish a VPN connection with this computer.
+SVC_VPNSERVER_TITLE		SoftEther VPN-сервер
+SVC_VPNSERVER_DESCRIPT	Эта служба управляет процессами SoftEther VPN-сервера. SoftEther VPN-сервер обеспечивает высокопроизводительные функции по протоколу TCP/IP. Когда эта служба остановлена, SoftEther VPN-сервер на этом компьютере не будет работать, и SoftEther VPN-клиент не сможет установить VPN-соединение с этим компьютером.
 
 
 # Service Definition (SoftEther VPN Bridge)
 SVC_VPNBRIDGE_NAME		vpnbridge
-SVC_VPNBRIDGE_TITLE		SoftEther VPN Bridge
-SVC_VPNBRIDGE_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftEther VPN Bridge provides a bridging connection between the network this computer is connected to and a SoftEther VPN Server that is remotely located. When this service is stopped, SoftEther VPN Bridge on this computer will stop and it will no longer be possible to communicate via the bridge connection.
+SVC_VPNBRIDGE_TITLE		SoftEther VPN-мост
+SVC_VPNBRIDGE_DESCRIPT	Эта служба управляет процессами SoftEther VPN-моста. SoftEther VPN-мост обеспечивает мостовое соединение между сетью, к которой подключен этот компьютер, и удаленным SoftEther VPN-сервером. Когда эта служба остановлена, SoftEther VPN-мост на этом компьютере не будет работать, и связь через мостовое соединение будет невозможна.
 
 
 # Service definition (SoftEther VPN Client)
 SVC_SEVPNCLIENTDEV_NAME		sevpnclientdev
-SVC_SEVPNCLIENTDEV_TITLE		SoftEther VPN Client Developer Edition
-SVC_SEVPNCLIENTDEV_DESCRIPT	This manages the Virtual Network Adapter device driver and connection service for the SoftEther VPN Client. When this service is stopped, it will not be possible to use SoftEther VPN Client on this computer to connect to a SoftEther VPN Server.
+SVC_SEVPNCLIENTDEV_TITLE		SoftEther VPN-клиент Developer Edition
+SVC_SEVPNCLIENTDEV_DESCRIPT	Эта служба управляет драйвером виртуального сетевого адаптера и службой подключения SoftEther VPN-клиента. Когда эта служба остановлена, будет невозможно использовать SoftEther VPN-клиент на этом компьютере для подключения к SoftEther VPN-серверу.
 
 
 # Service Definition (SoftEther VPN Server)
