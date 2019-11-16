@@ -1113,26 +1113,26 @@ SVC_SEVPNCLIENTDEV_DESCRIPT	Эта служба управляет драйве�
 
 # Service Definition (SoftEther VPN Server)
 SVC_SEVPNSERVERDEV_NAME		sevpnserverdev
-SVC_SEVPNSERVERDEV_TITLE		SoftEther VPN Server Developer Edition
-SVC_SEVPNSERVERDEV_DESCRIPT	This manages the server processes of SoftEther VPN Server. SoftEther VPN Server provides high-performance SoftEther VPN Server functions via TCP/IP protocol. When this service is stopped, SoftEther VPN Server on this computer will stop and SoftEther VPN Client will be unable to establish a VPN connection with this computer.
+SVC_SEVPNSERVERDEV_TITLE		SoftEther VPN-сервер Developer Edition
+SVC_SEVPNSERVERDEV_DESCRIPT	Эта служба управляет процессами SoftEther VPN-сервера. SoftEther VPN-сервер обеспечивает высокопроизводительные функции по протоколу TCP/IP. Когда эта служба остановлена, SoftEther VPN-сервер на этом компьютере не будет работать, и SoftEther VPN-клиент не сможет установить VPN-соединение с этим компьютером.
 
 
 # Service Definition (SoftEther VPN Bridge)
 SVC_SEVPNBRIDGEDEV_NAME		sevpnbridgedev
-SVC_SEVPNBRIDGEDEV_TITLE		SoftEther VPN Bridge Developer Edition
-SVC_SEVPNBRIDGEDEV_DESCRIPT	This manages the processes of SoftEther VPN Bridge. SoftEther VPN Bridge provides a bridging connection between the network this computer is connected to and a SoftEther VPN Server that is remotely located. When this service is stopped, SoftEther VPN Bridge on this computer will stop and it will no longer be possible to communicate via the bridge connection.
+SVC_SEVPNBRIDGEDEV_TITLE		SoftEther VPN-мост Developer Edition
+SVC_SEVPNBRIDGEDEV_DESCRIPT	Эта служба управляет процессами SoftEther VPN-моста. SoftEther VPN-мост обеспечивает мостовое соединение между сетью, к которой подключен этот компьютер, и удаленным SoftEther VPN-сервером. Когда эта служба остановлена, SoftEther VPN-мост на этом компьютере не будет работать, и связь через мостовое соединение будет невозможна.
 
 
 # Service definition (SoftEther VPN User-mode Router)
 SVC_VPNROUTER_NAME		vpnrouter
-SVC_VPNROUTER_TITLE		SoftEther VPN Router Developer Edition
-SVC_VPNROUTER_DESCRIPT	This manages the server processes of SoftEther VPN Router (service mode). SoftEther VPN Router is a program that provides a virtual NAT and DHCP server that operates in user mode and by using simple operations it is possible to establish a safe connection between a virtual IP network and a physical IP network. When this service is stopped, SoftEther VPN Router on this computer will stop and SoftEther VPN Client will be unable to use the routing service on this computer.
+SVC_VPNROUTER_TITLE		SoftEther VPN-роутер Developer Edition
+SVC_VPNROUTER_DESCRIPT	Эта служба управляет серверными процессами SoftEther VPN-роутера (сервисный режим). SoftEther VPN-роутер - это программа, которая создает виртуальный NAT и DHCP сервер, которые работают в пользовательском режиме, и с помощью простых операций позволяет установить безопасное соединение между виртуальной и физической IP-сетями. Когда эта служба остановлена, SoftEther VPN-роутер на этом компьютере не будет работать, и SoftEther VPN-клиент не сможет использовать службу маршрутизации на этом компьютере.
 
 
 # Service Definition (EtherLogger)
 SVC_ELOGSVC_NAME		elogsvc
 SVC_ELOGSVC_TITLE		SoftEther EtherLogger Developer Edition
-SVC_ELOGSVC_DESCRIPT	SoftEther EtherLogger is a service that captures data flowing through LAN cards connected to the computer and keeps a log of the headers of the packet types specified by the administrator and all data in text file format.
+SVC_ELOGSVC_DESCRIPT	SoftEther EtherLogger это служба, которая собирает данные, передаваемые через сетевые карты, подключенные к компьютеру, и в текстовом формате ведет журнал заголовков пакетов и всех данных, указанных администратором.
 
 
 # Concerning SoftEther VPN Server Manager
@@ -1715,8 +1715,8 @@ NM_PUSH_ROUTE_WARNING	The specified text of the static routing table may have a 
 
 
 # Concerning version information
-ABOUT_CAPTION			About %s
-BETA_EXPIRES			Because the currently installed SoftEther VPN software is a beta version, you cannot use it after the provision of a newer beta version of full version. \r\nAccess http://selinks.org/ and get the latest version of SoftEther VPN software.
+ABOUT_CAPTION			О программе %s
+BETA_EXPIRES			Поскольку установленная SoftEther VPN является бета-версией, ее нельзя использовать после выхода более новой бета-версии. \r\nЗайдите на http://selinks.org/ и получите последнюю версию программы SoftEther VPN.
 
 
 # Concerning the saving of logs
@@ -2162,60 +2162,60 @@ EM_RESOURCE		Unable to read the WinPcap driver.
 
 
 PREFIX					D_SECURE
-CAPTION					Access to %s - %S
-S_TITLE					Access to %S
-S_DEVICE_INFO			Device Name: %S\r\nManufacturer: %S
-IDS_STATIC1				Device Information
-S_WARNING				Take care entering the PIN code because if you have entered it incorrectly for a few times the device will be locked.
+CAPTION					Доступ к %s - %S
+S_TITLE					Доступ к %S
+S_DEVICE_INFO			Имя устройства: %S\r\nИзготовитель: %S
+IDS_STATIC1				Информация об устройстве
+S_WARNING				Будьте осторожны при вводе PIN-кода, потому что если вы введете его неправильно несколько раз, устройство будет заблокировано.
 IDOK					&OK
-IDCANCEL				Cancel
-S_PIN_CODE				&PIN Code: 
+IDCANCEL				Отмена
+S_PIN_CODE				&PIN-код:
 
 
 PREFIX					D_PKCSUTIL
-CAPTION					PKCS#12 Write Utility
-S_TITLE					ePass 1000 USB token PKCS#12 Write Utility
-STATIC1					By using this utility, you can write a PKCS#12 file (certificate file) of your choice to an ePass 1000 USB hardware security token. \r\n\r\nThe USB token that the certificate file is written in can be used for SoftEther VPN authentication.
-STATIC2					Write to PKCS#12 file
-STATIC3					To write an existing PKC#12 file to a USB token, click Write. \r\nNOTE: If a PKCS#12 certificate for SoftEther VPN is already stored in the USB token, it will be overwritten.
-B_WRITE					&Write
-STATIC4					Erase PKCS#12 certificate from USB token.
-STATIC5					You can erase the certificate data from a USB token on which a PKCS#12 certificate for SoftEther VPN is already stored.
-B_ERASE					&Erase
-IDCANCEL				E&xit Utilities
-S_COPYRIGHT				Copyright (c) SoftEther VPN Project.\r\nAll Rights Reserved.
+CAPTION					Утилита записи PKCS#12
+S_TITLE					Утилита записи PKCS#12 в USB-токен ePass 1000
+STATIC1					С помощью этой утилиты вы можете записать файл PKCS#12 (файл сертификата) по вашему выбору на USB-токен ePass 1000. \r\n\r\nUSB-токен, в который записан файл сертификата, можно использовать для авторизации в SoftEther VPN.
+STATIC2					Записать в файл PKCS#12
+STATIC3					Чтобы записать существующий файл PKC#12 на USB-токен, нажмите «Записать». \r\nВнимание: Если сертификат PKCS#12 для SoftEther VPN уже сохранен в USB-токене, он будет перезаписан.
+B_WRITE					&Записать
+STATIC4					Удалите сертификат PKCS#12 с USB-токена.
+STATIC5					Вы можете удалить данные сертификата с USB-токена, на котором уже хранится сертификат PKCS#12 для SoftEther VPN.
+B_ERASE					&Удалить
+IDCANCEL				Выход из утилиты
+S_COPYRIGHT				Авторские права (c) Проект SoftEther VPN.\r\nВсе права защищены.
 
 
 PREFIX					D_PASSPHRASE
-CAPTION					Private Key Passphrase
-STATIC1					The private key is protected by passphrase. \r\n\r\nEnter the passphrase to read the private key.
-STATIC2					&Passphrase: 
+CAPTION					Пароль приватного ключа
+STATIC1					Приватный ключ защищен паролем. \r\n\r\nВведите пароль, чтобы прочитать приватный ключ.
+STATIC2					&Пароль: 
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_NM_CONNECT
-CAPTION					Connect to SoftEther VPN User-mode Router
-S_TITLE					Connecting to "%S"...
+CAPTION					Подключиться к SoftEther VPN-роутеру
+S_TITLE					Подключение к "%S"...
 
 
 PREFIX					D_PASSWORD
-CAPTION					Login to %S
-S_TITLE					Enter your user name and password to log in to server %S. Make sure you select the correct auth type.
-STATIC1					Enter Use&r Info: 
-STATIC2					Auth &Type: 
-STATIC3					User &Name: 
-STATIC4					&Password: 
-R_NO_SAVE_PASSWORD		&Do not Save Password
-S_COUNTDOWN				An automatic reconnection will be made after %u seconds...
+CAPTION					Войти в %S
+S_TITLE					Введите имя пользователя и пароль для входа на сервер %S. Убедитесь, что вы выбрали правильный тип авторизации.
+STATIC1					Введите информацию о пользователе: 
+STATIC2					Тип авторизации: 
+STATIC3					Имя пользователя: 
+STATIC4					Пароль: 
+R_NO_SAVE_PASSWORD		&Не сохранять пароль
+S_COUNTDOWN				Автоматическое переподключение будет выполнено через %u сек...
 IDOK					&OK
-IDCANCEL				Cancel Connection
+IDCANCEL				Отменить подключение
 
 
 PREFIX					D_STATUS
-CAPTION					Connecting to "%s"...
-S_STATUS				Initializing...
-IDCANCEL				Cancel
+CAPTION					Подключение к "%s"...
+S_STATUS				Инициализация...
+IDCANCEL				Отмена
 
 
 PREFIX					D_CERT
@@ -2234,11 +2234,11 @@ B_SAVE					&Сохранить в файл
 
 
 PREFIX					D_CHECKCERT
-CAPTION					Security Alert - %s
-S_TITLE					Although the connection to the destination VPN Server "%S" that you are currently connecting to is encrypted, the trustworthiness of the server certificate provided by the server is unknown.
-STATIC1					About the Server Certificate
-STATIC2					Establishing encrypted tunnel (SSL session) between VPN Server and VPN Client. Checking the server certificate enables to verify the authenticity of the server.
-S_MSG1					The server certificate provided by destination VPN Server "%S" is as follows.
+CAPTION					Предупреждение - %s
+S_TITLE					Хотя подключение к VPN-серверу "%S", к которому вы в данный момент подключаетесь, зашифровано, надежность сертификата, предоставленного сервером, неизвестна.
+STATIC1					О сертификате сервера
+STATIC2					Создание шифрованного туннеля (SSL-сессии) между VPN-сервером и VPN-клиентом. Проверка сертификата сервера позволяет проверить его подлинность.
+S_MSG1					Сертификат, предоставленный VPN-сервером "%S", выглядит следующим образом.
 STATIC3					Issued to: 
 STATIC4					Issuer: 
 STATIC5					Expires at: 
