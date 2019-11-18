@@ -135,7 +135,10 @@ void ProcIKEPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 			break;
 
 		case IKE_EXCHANGE_TYPE_AGGRESSIVE:	// Aggressive mode
-			ProcIkeAggressiveModePacketRecv(ike, p, header);
+			if (ike->Cedar->Server->DisableIPsecAggressiveMode == false)
+			{
+				ProcIkeAggressiveModePacketRecv(ike, p, header);
+			}
 			break;
 
 		case IKE_EXCHANGE_TYPE_QUICK:	// Quick mode

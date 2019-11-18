@@ -163,7 +163,7 @@ namespace BuildUtil
 				null);
 		public static readonly BuildSoftware vpnserver_linux_armeabi_ja =
 			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.armeabi, OSList.Linux,
-				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", true,
+				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
 		public static readonly BuildSoftware vpnserver_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.mipsel, OSList.Linux,
@@ -193,7 +193,7 @@ namespace BuildUtil
 				null);
 		public static readonly BuildSoftware vpnclient_linux_armeabi_ja =
 			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.armeabi, OSList.Linux,
-				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", true,
+				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
 		public static readonly BuildSoftware vpnclient_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.mipsel, OSList.Linux,
@@ -223,7 +223,7 @@ namespace BuildUtil
 				null);
 		public static readonly BuildSoftware vpnbridge_linux_armeabi_ja =
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.armeabi, OSList.Linux,
-				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", true,
+				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
 		public static readonly BuildSoftware vpnbridge_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.mipsel, OSList.Linux,

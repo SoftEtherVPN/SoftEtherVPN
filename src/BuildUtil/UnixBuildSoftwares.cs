@@ -600,13 +600,6 @@ namespace BuildUtil
 			string gccOptionForLink;
 			string gccOptionForCompile;
 
-			bool try_no_pie = false;
-
-			if (this.Os == OSList.Linux)
-			{
-				try_no_pie = true;
-			}
-
 			generateGccOptions(srcDir, false, false, out gccOptionForLink, out gccOptionForCompile);
 
 			string codeDir = Path.Combine(srcDir, "code");
@@ -629,22 +622,8 @@ namespace BuildUtil
 			sr.WriteLine();
 			sr.WriteLine("CC={0}", this.Compiler);
 			sr.WriteLine();
-			if (try_no_pie)
-			{
-				sr.WriteLine("#For Ubuntu 18.04 or later we must add -no-pie option for gcc if supported");
-				sr.WriteLine("RET_NO_PIE_CHECK := $(shell $(CC) -no-pie 2>&1 | grep no-pie | wc -w)");
-				sr.WriteLine("ifeq ($(RET_NO_PIE_CHECK),0)");
-				sr.WriteLine("\tNO_PIE_OPTION=-no-pie");
-				sr.WriteLine("else");
-				sr.WriteLine("\tNO_PIE_OPTION=");
-				sr.WriteLine("endif");
-			}
-			else
-			{
-				sr.WriteLine("NO_PIE_OPTION=");
-			}
 			sr.WriteLine();
-			sr.WriteLine("OPTIONS=$(NO_PIE_OPTION) {0}", gccOptionForLink);
+			sr.WriteLine("OPTIONS={0}", gccOptionForLink);
 			sr.WriteLine();
 			sr.WriteLine("default:");
 			sr.WriteLine("\t@./.install.sh");
@@ -991,6 +970,9 @@ namespace BuildUtil
 			includes.Add("./Cedar/");
 			includes.Add("./Mayaqua/");
 
+			// Generate the PIE code by default
+			options.Add("-fPIE");
+
 			// Determine options
 			if (debugMode)
 			{
@@ -1069,11 +1051,11 @@ namespace BuildUtil
 				options.Add("-lrt");
 				options.Add("-lnsl");
 				options.Add("-lsocket");
-				options.Add("-ldl");
+				//options.Add("-ldl");
 			}
 			else if (this.Os == OSList.Linux)
 			{
-				options.Add("-ldl");
+				//options.Add("-ldl");
 				options.Add("-lrt");
 			}
 			else if (this.Os == OSList.MacOS)
@@ -1095,6 +1077,12 @@ namespace BuildUtil
 			options.Add("-lpthread");
 
 			gccOptionForLink = MakeGccOptions(new string[0], new string[0], options.ToArray(), libs.ToArray());
+
+			if (this.Os == OSList.Linux || this.Os == OSList.Solaris)
+			{
+				// Add the "-ldl" flag on the end of the command line
+				gccOptionForLink += " -ldl";
+			}
 		}
 
 		public static string MakeGccOptions(string[] macros, string[] includeDirs, string[] options, string[] libs)

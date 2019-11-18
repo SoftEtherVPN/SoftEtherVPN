@@ -126,10 +126,10 @@
 
 
 // Version number
-#define	CEDAR_VER					430
+#define	CEDAR_VER					431
 
 // Build Number
-#define	CEDAR_BUILD					9700
+#define	CEDAR_BUILD					9727
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -139,21 +139,21 @@
 
 // Specify the name of the person in charge building
 #ifndef	BUILDER_NAME
-#define	BUILDER_NAME		"yagi"
+#define	BUILDER_NAME		"buildsan"
 #endif	// BUILDER_NAME
 
 // Specify the location to build
 #ifndef	BUILD_PLACE
-#define	BUILD_PLACE			"pc33"
+#define	BUILD_PLACE			"crosswin"
 #endif	// BUILD_PLACE
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2019
-#define	BUILD_DATE_M		7
-#define	BUILD_DATE_D		13
-#define	BUILD_DATE_HO		21
-#define	BUILD_DATE_MI		37
-#define	BUILD_DATE_SE		51
+#define	BUILD_DATE_M		11
+#define	BUILD_DATE_D		18
+#define	BUILD_DATE_HO		10
+#define	BUILD_DATE_MI		55
+#define	BUILD_DATE_SE		38
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)

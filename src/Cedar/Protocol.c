@@ -3021,6 +3021,8 @@ bool ServerAccept(CONNECTION *c)
 				// Get the policy
 				if (farm_member == false)
 				{
+					bool is_asterisk_user = false;
+
 					// In the case of not a farm member
 					user = AcGetUser(hub, username);
 					if (user == NULL)
@@ -3035,12 +3037,28 @@ bool ServerAccept(CONNECTION *c)
 							error_detail = "AcGetUser";
 							goto CLEANUP;
 						}
+
+						is_asterisk_user = true;
 					}
 
 					policy = NULL;
 
 					Lock(user->lock);
 					{
+						if (is_asterisk_user == false)
+						{
+							UCHAR associated_mac_address[6];
+
+							// Get the associated virtual MAC address
+							if (GetUserMacAddressFromUserNote(associated_mac_address, user->Note))
+							{
+								if (IsZero(assigned_ipc_mac_address, 6))
+								{
+									Copy(assigned_ipc_mac_address, associated_mac_address, 6);
+								}
+							}
+						}
+
 						// Get the expiration date
 						user_expires = user->ExpireTime;
 
@@ -7302,7 +7320,12 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 					*error_detail_str = "HTTP_ROOT";
 
 					{
-						BUF *b = ReadDump("|wwwroot\\index.html");
+						BUF *b = NULL;
+						
+						if (disable_json_api == false)
+						{
+							b = ReadDump("|wwwroot\\index.html");
+						}
 
 						if (b != NULL)
 						{

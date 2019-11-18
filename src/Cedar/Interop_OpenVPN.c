@@ -482,7 +482,7 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 
 		case OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2:
 			// New connection (hard reset)
-			OvsSendControlPacket(c, OPENVPN_P_CONTROL_HARD_RESET_SERVER_V2, NULL, 0);
+			OvsSendControlPacketEx(c, OPENVPN_P_CONTROL_HARD_RESET_SERVER_V2, NULL, 0, true);
 
 			c->Status = OPENVPN_CHANNEL_STATUS_TLS_WAIT_CLIENT_KEY;
 			break;
@@ -1268,6 +1268,10 @@ void OvsSendControlPacketWithAutoSplit(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *
 // Send the control packet
 void OvsSendControlPacket(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size)
 {
+	OvsSendControlPacketEx(c, opcode, data, data_size, false);
+}
+void OvsSendControlPacketEx(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size, bool no_resend)
+{
 	OPENVPN_CONTROL_PACKET *p;
 	// Validate arguments
 	if (c == NULL || (data_size != 0 && data == NULL))
@@ -1276,6 +1280,8 @@ void OvsSendControlPacket(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT da
 	}
 
 	p = ZeroMalloc(sizeof(OPENVPN_CONTROL_PACKET));
+
+	p->NoResend = no_resend;
 
 	p->OpCode = opcode;
 	p->PacketId = c->NextSendPacketId++;
@@ -2258,20 +2264,25 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 
 					if (cp->NextSendTime <= s->Now)
 					{
-						OPENVPN_PACKET *p;
+						if (cp->NoResend == false || cp->NumSent == 0) // To address the UDP reflection amplification attack: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1001
+						{
+							OPENVPN_PACKET *p;
 
-						num = OvsGetAckReplyList(c, acks);
+							cp->NumSent++;
 
-						p = OvsNewControlPacket(cp->OpCode, j, se->ServerSessionId, num, acks,
-							se->ClientSessionId, cp->PacketId, cp->DataSize, cp->Data);
+							num = OvsGetAckReplyList(c, acks);
 
-						OvsSendPacketNow(s, se, p);
+							p = OvsNewControlPacket(cp->OpCode, j, se->ServerSessionId, num, acks,
+								se->ClientSessionId, cp->PacketId, cp->DataSize, cp->Data);
 
-						OvsFreePacket(p);
+							OvsSendPacketNow(s, se, p);
 
-						cp->NextSendTime = s->Now + (UINT64)OPENVPN_CONTROL_PACKET_RESEND_INTERVAL;
+							OvsFreePacket(p);
 
-						AddInterrupt(s->Interrupt, cp->NextSendTime);
+							cp->NextSendTime = s->Now + (UINT64)OPENVPN_CONTROL_PACKET_RESEND_INTERVAL;
+
+							AddInterrupt(s->Interrupt, cp->NextSendTime);
+						}
 					}
 				}
 

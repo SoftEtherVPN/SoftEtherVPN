@@ -288,6 +288,7 @@ struct SERVER
 	bool NoMoreSave;					// Do not save any more
 	bool EnableConditionalAccept;		// Apply the Conditional Accept the Listener
 	bool EnableLegacySSL;				// Enable Legacy SSL
+	bool DisableIPsecAggressiveMode;	// Disable IPsec Aggressive Mode
 
 	volatile bool Halt;					// Halting flag
 	LOCK *lock;							// Lock

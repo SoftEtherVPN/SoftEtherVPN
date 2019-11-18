@@ -6003,6 +6003,9 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Disable the NAT-traversal feature
 		s->DisableNatTraversal = CfgGetBool(f, "DisableNatTraversal");
 
+		// Disable IPsec Aggressive Mode
+		s->DisableIPsecAggressiveMode = CfgGetBool(f, "DisableIPsecAggressiveMode");
+
 		// Intel AES
 		s->DisableIntelAesAcceleration = CfgGetBool(f, "DisableIntelAesAcceleration");
 
@@ -6409,6 +6412,8 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 				CfgAddBool(f, "DisableOpenVPNServer", s->DisableOpenVPNServer);
 			}
 		}
+
+		CfgAddBool(f, "DisableIPsecAggressiveMode", s->DisableIPsecAggressiveMode);
 
 		CfgAddStr(f, "OpenVPNDefaultClientOption", c->OpenVPNDefaultClientOption);
 
