@@ -2252,12 +2252,12 @@ STATIC9					Подтвердите содержимое этого сертиф�
 
 
 PREFIX					D_CONNECTERROR
-CAPTION					Connect Error - %s
-S_TITLE					An error occurred while connection to VPN Server "%S".
-S_COUNTDOWN				Automatically reconnects after %u seconds...
-IDOK					&Retry
-IDCANCEL				Cancel Connection
-R_HIDE					&Hide this window when connecting next time
+CAPTION					Ошибка подключения - %s
+S_TITLE					Произошла ошибка при подключении к VPN-серверу "%S".
+S_COUNTDOWN				Автоматическое переподключение через %u сек...
+IDOK					&Повторить
+IDCANCEL				Отменить подключение
+R_HIDE					&Скрыть это окно при подключении в следующий раз
 
 
 PREFIX					D_CM_LOGIN
@@ -2412,71 +2412,71 @@ B_DELETE				&Удалить
 
 
 PREFIX					D_CM_PASSWORD
-CAPTION					Set Password - VPN Client Manager
-S_TITLE					You can set the password to limit the SoftEther VPN Client Service.\r\nAfter setting a password, you will be asked to enter a password the next time you use the VPN Client Connect Manager to connect to the SoftEther VPN Client service.
-STATIC1					Set Client Administration Password: 
-R_USE_PASSWORD			&Use Password
-R_REMOTE_ONLY			Only &Request Password for Remote Operation
-IDC_STATIC1				&Password:
-IDC_STATIC2				&Confirm:
+CAPTION					Установить пароль - Диспетчер VPN подключений
+S_TITLE					Вы можете установить пароль, чтобы ограничить доступ к Диспетчеру VPN подключений. \r\nПосле установки пароля вам будет предложено ввести пароль при следующем использовании Диспетчера VPN подключений.
+STATIC1					Установить пароль администратора: 
+R_USE_PASSWORD			&Использовать пароль
+R_REMOTE_ONLY			Запрос пароля только для удаленного управления
+IDC_STATIC1				&Пароль:
+IDC_STATIC2				&Повторить:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_CONFIG
-CAPTION					Optional Settings
-STATIC1					You can modify the settings for VPN Client.
-STATIC2					R&emote Management:
-STATIC3					You can remotely manage the VPN Client Service Program from another computer by using VPN Client Manager Remote Mode.
-R_ALLOW_REMOTE_CONFIG	Allow &Remote Management of VPN Client Service
-S_WARNING				It is recommended to set a password if you allow remote management. From the menu bar, choose Tools -> Set Password to set the password.
-STATIC4					For environments where Internet connections will automatically be disconnected when idle, you can keep alive the Internet connection by sending dummy packets to any host on the Internet.
-R_USE_KEEP_CONNECT		Use &Keep Alive Internet Connection Function
-S_HOSTNAME				&Host Name:
-S_PORT					&Port Number:
-S_INTERVAL				Packet Send &Interval:
-S_INTERVAL2				seconds
-S_PROTOCOL				Pr&otocol:
-R_TCP					&TCP/IP Protocol
-R_UDP					&UDP/IP Protocol
-S_INFO					Packets sent to keep alive the Internet connection have random bits. No personal information is sent.
+CAPTION					Дополнительные настройки
+STATIC1					Вы можете изменить настройки VPN-клиента.
+STATIC2					Удаленное управление:
+STATIC3					Вы можете удаленно управлять Диспетчером VPN подключений с другого компьютера, используя удаленный режим Диспетчера VPN-подключений.
+R_ALLOW_REMOTE_CONFIG	Разрешить удаленное управление VPN-клиентом
+S_WARNING				При включении удаленного управления рекомендуется установить пароль. В главном меню выберите Инструменты - Установить пароль.
+STATIC4					Там где интернет соединения автоматически отключается во время простоя, вы можете поддерживать интернет-соединение, отправляя фиктивные пакеты на любой хост в Интернете.
+R_USE_KEEP_CONNECT		Использовать функцию поддержания интернет соединения
+S_HOSTNAME				&Имя хоста:
+S_PORT					&Имя хоста:
+S_INTERVAL				Интервал отправки пакетов:
+S_INTERVAL2				сек
+S_PROTOCOL				Протокол:
+R_TCP					&Протокол TCP/IP
+R_UDP					&Протокол UDP/IP
+S_INFO					Пакеты, отправляемые для поддержания интернет соединения, имеют случайные биты. Личная информация не отправляется.
 IDOK					&OK
-IDCANCEL				Cancel
-STATIC5					&Other Configurations:
-R_ALPHA					Transparency of UI:
-STATIC6					Note: The transparency setting will be applied after the connection manager is restarted.
-STATIC7					&Keep Alive Internet Connection Function:
+IDCANCEL				Отмена
+STATIC5					&Другие настройки:
+R_ALPHA					Прозрачность интерфейса:
+STATIC6					Заметка: параметры прозрачности будут применены после перезапуска Диспетчера VPN подключений
+STATIC7					&Функция поддержания интернет соединения:
 
 
 PREFIX					D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
-S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
-S_INFO4				THIS SOFTWARE IS FREEWARE DEVELOPED UNDER THE SOFTETHER VPN PROJECT AT UNIVERSITY OF TSUKUBA, WITHOUT WARRANTY OF AND KIND. IN NO EVENT SHALL THE DEVELOPERS, COPYRIGHT OWNERS OR DISTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.\r\n\r\nSoftEther VPN is a work of the research and development project of Japanese Government, subsidized by Ministry of Economy, Trade and Industry of Japan, administrated by Information Promotion Agency.
+S_INFO2				Программное обеспечение VPN с открытым исходным кодом для академических целей, под лицензией GPLv2.\r\nАвторское право (c) 2012-%u Проект SoftEther Университета Цукуба, Япония. Все права защищены.\r\nВеб-сайт: http://www.softether.org/\r\n%S
+S_INFO3					Этот продукт включает в себя следующие программные компоненты:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. Этот продукт включает ПО, разработанное OpenSSL Project для использования в OpenSSL Toolkit (http://www.openssl.org/). Этот продукт включает криптографическое ПО, написанное Эриком Янгом (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Особая благодарность: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
+S_INFO4				ЭТА ПРОГРАММА БЕСПЛАТНА, РАЗРАБОТАНА В РАМКАХ ПРОЕКТА SOFTETHER VPN В УНИВЕРСИТЕТЕ ЦУКУБА, БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ. НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ РАЗРАБОТЧИКИ, ПРАВООБЛАДАТЕЛИ И ДИСТРИБЬЮТОРЫ НЕ БУДУТ НЕСТИ ОТВЕТСТВЕННОСТЬ ЗА ЛЮБЫЕ ПРЕТЕНЗИИ, УБЫТКИ ИЛИ ДРУГИЕ ВИДЫ ОТВЕТСТВЕННОСТИ ПРИ ИСПОЛЬЗОВАНИИ ЭТОГО ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ.\r\n\r\nSoftEther VPN - это проект научно-исследовательского проекта правительства Японии, финансируемый Министерством экономики, торговли и промышленности Японии, управляемый Агентством по продвижению информации.
 IDCANCEL				&OK
-B_WEB					Visit SoftEther VPN &Website...
-B_EULA					&End User License
-B_IMPORTANT				&Important Notices
-B_LEGAL					&Legal Notices
-B_UPDATE_CONFIG			&Configure Updates
-B_AUTHORS				List of &Authors
+B_WEB					Посетите веб-сайт SoftEther VPN...
+B_EULA					&Лицензия конечного пользователя
+B_IMPORTANT				&Важные замечания
+B_LEGAL					&Юридическая информация
+B_UPDATE_CONFIG			&Настроить обновления
+B_AUTHORS				Список авторов
 
 
 PREFIX					D_REMOTE
-STATIC1					&Specify the Host Name of the Destination Computer, or IP Address:
-R_LOCAL					Connect to &Local Computer (Computer Displaying this Window)
-S_HOSTNAME				&Computer Name: 
+STATIC1					&Укажите имя компьютера или IP-адрес:
+R_LOCAL					Подключиться к локальному компьютеру (компьютеру, отображающему это окно)
+S_HOSTNAME				&Имя компьютера: 
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_DESKTOP
 CAPTION					Connection - %s
 S_TITLE					Starting connect process for VPN Connection Setting "%s".
-S_WARNING				VPN Client will output to the "Console Session" window of %s, the progress status and error messages related to the process of connecting to VPN Server 
-S_INFO					Do you want to proceed with the connection?
-IDOK					&Continue
-IDCANCEL				Cancel
+S_WARNING				VPN-клиент будет выводить в окне "сеанс консоли" %s прогресс состояния и сообщения об ошибках, связанных с процессом подключения к VPN-серверу 
+S_INFO					Вы хотите продолжить подключение?
+IDOK					&Продолжить
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_CHANGE_PASSWORD
