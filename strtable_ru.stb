@@ -2274,13 +2274,13 @@ S_TITLE					Status of VPN Session of %s (Real Time)
 B_POLICY				Security &Policy...
 B_SERVER_CERT			&Server Certificate
 B_CLIENT_CERT			&Client Certificate
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_CM_POLICY
 CAPTION					Security Policy List
 S_TITLE					Security policies defined for the current session %s
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_CM_ACCOUNT
@@ -3317,7 +3317,7 @@ CAPTION					Edit Config File
 IDC_INFO				The current configuration of the VPN Server "%S" is as follows.\r\nYou can edit the contents of this configuration file and apply it to the VPN Server.
 B_EXPORT				&Save to File
 B_IMPORT				&Import File and Apply
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 STATIC1					You can edit the configuration file by using any text editors. When applying the edited configuration file to the VPN Server, the VPN Server will automatically restart and launch according to the new configuration file. If an invalid configuration file is applied, errors will occur and the current setting contents will get lost, so be careful when editing the configuration file.
 B_FACTORY				&Restore to Factory Default
 
@@ -3346,8 +3346,8 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_NICINFO
-CAPTION					Virtual Network Adapter "%S" Status
-IDCANCEL				&Close
+CAPTION					Состояние виртуального сетевого адаптера "%S"
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_VLAN
@@ -3398,7 +3398,7 @@ B_START					&Start
 B_STOP					S&top
 IDOK					&Edit
 B_DELETE				&Delete
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_L3_ADD
@@ -3421,7 +3421,7 @@ B_ADD_TABLE				A&dd Routing Table Entry
 B_DEL_TABLE				De&lete Routing Table Entry
 B_START					&Start
 B_STOP					S&top
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_L3_SW_IF
@@ -3469,7 +3469,7 @@ B_EXPORT				&Export from Card...
 B_DELETE				&Delete from Card
 B_NEW_CERT				&Write New Certificate and Private Key to Card...
 B_PIN					&Change PIN Code...
-IDCANCEL				Close
+IDCANCEL				Закрыть
 
 
 PREFIX					D_CM_SECURE_TYPE
@@ -3527,7 +3527,7 @@ CAPTION					Certificates Revocation List
 STATIC1					You can manage the Certificates Revocation List on this Virtual Hub. \r\n\r\nBy adding certificates in Certificates Revocation List, the clients who provide these certificates will be denied to connect to this Virtual Hub using certificate authentication mode.
 B_ADD					&Add
 IDOK					&Edit
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 B_DELETE				&Delete
 
 
@@ -3591,7 +3591,7 @@ CAPTION					Log File List
 STATIC1					You can download log files that are saved on the server. \r\n\r\nThe administrator of the entire VPN Server is granted to download all Virtual Hub logs and server logs. Virtual Hub administrators are granted to download the log file for that Virtual Hub.
 IDOK					&Download
 B_REFRESH				&Refresh
-IDCANCEL				Close
+IDCANCEL				Закрыть
 
 
 PREFIX					D_SM_READ_LOG_FILE
@@ -3688,7 +3688,7 @@ IDCANCEL				&Exit
 PREFIX					D_CM_TRAFFIC_RESULT
 CAPTION					Communication Traffic Measurement Results
 STATIC1					Communication traffic has been measured. The results are shown below.
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_LICENSE
@@ -3748,7 +3748,7 @@ B_VGS					VPN &Gate Service Settings...
 PREFIX					D_CM_EASY
 CAPTION					SoftEther VPN Client Easy Manager (Developer Edition)
 B_MODE					Switch Operation &Mode
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 B_STATUS				View Connection &Status
 B_VGC					VPN Gate Academic Project
 
@@ -3768,7 +3768,7 @@ C_EDGE					VPN Server or VPN Bridge at Each Site (&Edge)
 C_OTHER					&Other Advanced Configuration of VPN
 S_OTHER					Select this if you are planning to build a VPN system that provides advanced functions such as a clustering function and a Virtual Layer 3 Switch function.
 IDOK					&Next >
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_SETUP_HUB
@@ -3790,7 +3790,7 @@ S_2_2					When this VPN Server is installed on a particular site (edge) of a sit
 B_CASCADE				&Configure Connection Setting
 S_3_1					Step 3. Set Local Bridge
 S_3_2					For an site-to-site VPN, use the Local Bridge Function to connect a bridge between the virtual Ethernet segment on the VPN side and the physical Ethernet segment on the local side. Select an existing Ethernet device (Network Adapter) that will be provide the bridge connection to the VPN.
-IDCANCEL				&Close
+IDCANCEL				&Закрыть
 IDC_STATIC_8			Once the required settings are configured, click Close. An advanced management tool for VPN Server / VPN Bridge will be appeared. You can then configure any advanced settings as you wish.
 B_SECURENAT				Configure SecureN&AT
 
