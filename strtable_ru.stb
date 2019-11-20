@@ -1224,7 +1224,7 @@ CM_LISTENER_OFFLINE		Stopped
 CM_LISTENER_ERROR		Ошибка
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
 CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
-CM_CLOSE_BUTTON			Close
+CM_CLOSE_BUTTON			Закрыть
 CM_CERT_SET_MSG			A new server certificate has been set.\r\n\r\nIf you are using OpenVPN protocols, please mind that you may have to update the inline certificate data in the OpenVPN configuration file.
 
 CM_SHORTCUT_DISCONNECT	There is already an active connection to the specified connection destination. \r\n\r\nDo you want to disconnect?
@@ -2209,7 +2209,7 @@ STATIC4					Пароль:
 R_NO_SAVE_PASSWORD		&Не сохранять пароль
 S_COUNTDOWN				Автоматическое переподключение будет выполнено через %u сек...
 IDOK					&OK
-IDCANCEL				Отменить подключение
+IDCANCEL				Отмена
 
 
 PREFIX					D_STATUS
@@ -2261,12 +2261,12 @@ R_HIDE					&Скрыть это окно при подключении в сле
 
 
 PREFIX					D_CM_LOGIN
-CAPTION					Enter Password - VPN Client Manager
-S_TITLE					You must enter a client administration password to operate the VPN Client that is operating on %s. Enter the client administration password.
-STATIC1					&Password:
-STATIC2					Enter the Client Administration Password:
+CAPTION					Ввод пароля - Диспетчер VPN подключений
+S_TITLE					Вы должны ввести пароль администратора для работы с VPN-клиентом, который запущен на "%S".
+STATIC1					&Пароль:
+STATIC2					Введите пароль администратора:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CONNECTION_STATUS
@@ -2444,7 +2444,7 @@ IDOK					&OK
 IDCANCEL				Отмена
 STATIC5					&Другие настройки:
 R_ALPHA					Прозрачность интерфейса:
-STATIC6					Заметка: параметры прозрачности будут применены после перезапуска Диспетчера VPN подключений
+STATIC6					Заметка: параметры прозрачности будут применены после перезапуска программы
 STATIC7					&Функция поддержания интернет соединения:
 
 
@@ -4262,16 +4262,16 @@ CMD_TOP_SECURE			&Смарт-карты
 CMD_SECURE_MANAGER		Smart Card Manager...\tCtrl+G
 CMD_SECURE_SELECT		&Select a Smart Card to Use...
 # [Tools] menu
-CMD_TOP_TOOL			&Tools
-CMD_PASSWORD			Set &Password...\tCtrl+P
-CMD_TRUST				Manage &Trusted CA Certificate List\tCtrl+R
-CMD_NETIF				&Network Device Status...
-CMD_TCPIP				TCP Optimization &Utility...
-CMD_MMCSS				Optimization for Windows &Vista / 7 / 8 / 10...
-CMD_TRAFFIC				Network T&raffic Speed Test Tool...\tCtrl+Q 
-CMD_CM_SETTING			Switch Operation &Mode...
-CMD_LANGUAGE			&Language Settings...
-CMD_OPTION				&Options...\tCtrl+O
+CMD_TOP_TOOL			&Инструменты
+CMD_PASSWORD			Установить пароль...\tCtrl+P
+CMD_TRUST				Управление список доверенных сертификатов\tCtrl+R
+CMD_NETIF				&Состояние сетевого устройства...
+CMD_TCPIP				Утилита оптимизации TCP...
+CMD_MMCSS				Оптимизация для Windows Vista / 7 / 8 / 10...
+CMD_TRAFFIC				Тест скорости сетевого трафика...\tCtrl+Q 
+CMD_CM_SETTING			Переключить режим работы...
+CMD_LANGUAGE			&Настройки языка...
+CMD_OPTION				&Настройки...\tCtrl+O
 # [Voice] menu
 CMD_TOP_VOICE			V&oice
 CMD_VOIDE_NONE			Voice Gui&de Off 
