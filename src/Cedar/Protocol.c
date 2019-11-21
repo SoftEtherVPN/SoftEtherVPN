@@ -5774,14 +5774,31 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			}
 			else
 			{
-
 				if (StrCmpi(h->Target, "/") == 0)
 				{
 					// Root directory
+					BUF *b = NULL;
 					*error_detail_str = "HTTP_ROOT";
 
+					if (server->DisableJsonRpcWebApi == false)
 					{
-						// Other than free version
+						b = ReadDump("|wwwroot\\index.html");
+					}
+
+					if (b != NULL)
+					{
+						FreeHttpHeader(h);
+						h = NewHttpHeader("HTTP/1.1", "202", "OK");
+						AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE4));
+						AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
+						AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
+
+						PostHttp(c->FirstSock, h, b->Buf, b->Size);
+
+						FreeBuf(b);
+					}
+					else
+					{
 						HttpSendForbidden(c->FirstSock, h->Target, "");
 					}
 				}
