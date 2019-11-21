@@ -43,6 +43,14 @@ struct IPC_DHCP_RELEASE_QUEUE
 	UCHAR MacAddress[6];
 };
 
+// IPC_SESSION_SHARED_BUFFER_DATA
+struct IPC_SESSION_SHARED_BUFFER_DATA
+{
+	char ProtocolDetails[256];
+	bool EnableUdpAccel;
+	bool UsingUdpAccel;
+};
+
 // IPC_PARAM
 struct IPC_PARAM
 {
@@ -106,6 +114,8 @@ struct IPC
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
+	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
+	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 	UINT Layer;
 };
 

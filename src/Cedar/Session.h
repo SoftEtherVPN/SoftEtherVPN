@@ -168,10 +168,12 @@ struct SESSION
 	bool IsRUDPSession;				// Whether R-UDP session
 	UINT RUdpMss;					// The value of the MSS should be applied while the R-UDP is used
 	bool EnableBulkOnRUDP;			// Allow the bulk transfer in the R-UDP session
+	UINT BulkOnRUDPVersion;			// RUDP Bulk version
 	bool EnableHMacOnBulkOfRUDP;	// Use the HMAC to sign the bulk transfer of R-UDP session
 	bool EnableUdpRecovery;			// Enable the R-UDP recovery
 
 	bool UseUdpAcceleration;		// Use of UDP acceleration mode
+	UINT UdpAccelerationVersion;	// UDP acceleration version
 	bool UseHMacOnUdpAcceleration;	// Use the HMAC in the UDP acceleration mode
 	UDP_ACCEL *UdpAccel;			// UDP acceleration
 	bool IsUsingUdpAcceleration;	// Flag of whether the UDP acceleration is used
@@ -211,6 +213,11 @@ struct SESSION
 	char FirstTimeHttpRedirectUrl[128];	// URL for redirection only the first time
 	UINT FirstTimeHttpAccessCheckIp;	// IP address for access checking
 
+	UCHAR BulkSendKey[RUDP_BULK_KEY_SIZE_MAX];	// RUDP Bulk Send Key
+	UINT BulkSendKeySize;						// RUDP Bulk Send Key size
+	UCHAR BulkRecvKey[RUDP_BULK_KEY_SIZE_MAX];	// RUDP Bulk Recv Key
+	UINT BulkRecvKeySize;						// RUDP Bulk Recv Key size
+
 	// To examine the maximum number of allowed logging target packets per minute
 	UINT64 MaxLoggedPacketsPerMinuteStartTick;	// Inspection start time
 	UINT CurrentNumPackets;				// Current number of packets
@@ -220,6 +227,9 @@ struct SESSION
 	UCHAR LastDLinkSTPPacketDataHash[MD5_SIZE];	// Last D-Link STP packet hash
 
 	bool *NicDownOnDisconnect;		// Pointer to client configuration parameter. NULL for non-clients.
+
+	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
+	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 };
 
 // Password dialog

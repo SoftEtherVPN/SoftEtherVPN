@@ -155,6 +155,7 @@ struct BLOCK
 	UINT Ttl;						// TTL value (Used only in ICMP NAT of Virtual.c)
 	UINT Param1;					// Parameter 1
 	bool IsFlooding;				// Is flooding packet
+	UCHAR RawFlagRetUdpAccel;		// Raw flag returned by UDP accel
 };
 
 // Connection structure

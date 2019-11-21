@@ -1293,6 +1293,8 @@ void CleanupSession(SESSION *s)
 
 	DeleteCounter(s->LoggingRecordCount);
 
+	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
+
 	Free(s);
 }
 

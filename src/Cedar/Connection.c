@@ -2684,6 +2684,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 
 	b = MallocFast(sizeof(BLOCK));
 
+	b->RawFlagRetUdpAccel = 0;
+
 	b->IsFlooding = false;
 
 	b->PriorityQoS = b->Ttl = b->Param1 = 0;

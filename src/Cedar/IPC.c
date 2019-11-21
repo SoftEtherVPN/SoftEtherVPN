@@ -242,6 +242,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	NODE_INFO info;
 	BUF *b;
 	UCHAR mschap_v2_server_response_20[20];
+	UINT64 u64;
 	// Validate arguments
 	if (cedar == NULL || username == NULL || password == NULL || client_hostname == NULL)
 	{
@@ -457,6 +458,10 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	Debug("IPC: Session = %s, Connection = %s, Mac = %s\n", ipc->SessionName, ipc->ConnectionName, macstr);
 
+	u64 = PackGetInt64(p, "IpcSessionSharedBuffer");
+	ipc->IpcSessionSharedBuffer = (SHARED_BUFFER *)u64;
+	ipc->IpcSessionShared = ipc->IpcSessionSharedBuffer->Data;
+
 	FreePack(p);
 
 	ReleaseSock(a);
@@ -590,6 +595,8 @@ void FreeIPC(IPC *ipc)
 	}
 
 	ReleaseQueue(ipc->IPv4ReceivedQueue);
+
+	ReleaseSharedBuffer(ipc->IpcSessionSharedBuffer);
 
 	Free(ipc);
 }
