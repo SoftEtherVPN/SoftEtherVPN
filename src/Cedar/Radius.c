@@ -221,7 +221,7 @@ bool SendPeapRawPacket(EAP_CLIENT *e, UCHAR *peap_data, UINT peap_size)
 		EAP_PEAP *send_peap_message;
 		UINT sz;
 
-		sz = ReadBuf(buf, tmp, 200);
+		sz = ReadBuf(buf, tmp, sizeof(tmp));
 
 		if (sz == 0)
 		{
@@ -1856,10 +1856,11 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				RadiusAddValue(p, RADIUS_ATTRIBUTE_SERVICE_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// MS-RAS-Vendor
-				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_VERSION, ms_ras_version, StrLen(ms_ras_version));
+				ui = Endian32(RADIUS_VENDOR_MICROSOFT);
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_VENDOR, &ui, sizeof(ui));
 
 				// MS-RAS-Version
-				RadiusAddValue(p, 26, 311, 18, ms_ras_version, StrLen(ms_ras_version));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_VERSION, ms_ras_version, StrLen(ms_ras_version));
 
 				// NAS-Port-Type
 				ui = Endian32(5);
