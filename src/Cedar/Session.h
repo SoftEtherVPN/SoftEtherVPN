@@ -157,6 +157,7 @@ struct SESSION
 	UINT NumDisconnected;			// Number of socket disconnection
 	bool NoReconnectToSession;		// Disable to reconnect to the session
 	char UnderlayProtocol[64];		// Physical communication protocol
+	char ProtocolDetails[256];		// Protocol details
 	/* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	UINT64 FirstConnectionEstablisiedTime;	// Connection completion time of the first connection
 	UINT64 CurrentConnectionEstablishTime;	// Completion time of this connection

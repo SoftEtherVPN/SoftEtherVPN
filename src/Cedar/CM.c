@@ -9655,6 +9655,12 @@ void CmPrintStatusToListViewEx(LVB *b, RPC_CLIENT_GET_CONNECTION_STATUS *s, bool
 			LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_UNDERLAY_PROTOCOL"), tmp);
 		}
 
+		if (IsEmptyStr(s->ProtocolDetails) == false)
+		{
+			StrToUni(tmp, sizeof(tmp), s->ProtocolDetails);
+			LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_PROTOCOL_DETAILS"), tmp);
+		}
+
 		LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_UDP_ACCEL_ENABLED"), (s->IsUdpAccelerationEnabled ? _UU("CM_ST_YES") : _UU("CM_ST_NO")));
 		LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_UDP_ACCEL_USING"), (s->IsUsingUdpAcceleration ? _UU("CM_ST_YES") : _UU("CM_ST_NO")));
 

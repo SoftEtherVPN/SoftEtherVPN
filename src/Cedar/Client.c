@@ -5818,6 +5818,9 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				st->IsRUDPSession = s->IsRUDPSession;
 				// Physical communication protocol
 				StrCpy(st->UnderlayProtocol, sizeof(st->UnderlayProtocol), s->UnderlayProtocol);
+				// Protocol details
+				StrCpy(st->ProtocolDetails, sizeof(st->ProtocolDetails), s->ProtocolDetails);
+				Trim(st->ProtocolDetails);
 				// UDP acceleration function
 				st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
 				st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;

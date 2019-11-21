@@ -2528,14 +2528,17 @@ SOCK *AcceptRUDP(SOCK *s)
 			{
 			case RUDP_PROTOCOL_UDP:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/UDP");
 				break;
 
 			case RUDP_PROTOCOL_DNS:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_DNS);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/DNS");
 				break;
 
 			case RUDP_PROTOCOL_ICMP:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_ICMP);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/ICMP");
 				break;
 			}
 
@@ -12759,6 +12762,8 @@ SOCK *Accept(SOCK *sock)
 
 	StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NATIVE_V4);
 
+	AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "IPv4");
+
 	return ret;
 }
 
@@ -12868,6 +12873,8 @@ SOCK *Accept6(SOCK *sock)
 	}
 
 	StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NATIVE_V6);
+
+	AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "IPv6");
 
 	return ret;
 }
@@ -14070,6 +14077,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			if (nat_t_sock != NULL)
 			{
 				StrCpy(nat_t_sock->UnderlayProtocol, sizeof(nat_t_sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(nat_t_sock->ProtocolDetails, sizeof(nat_t_sock->ProtocolDetails), "RUDP");
 			}
 
 			Copy(ret_ip, &ip4, sizeof(IP));
@@ -14294,8 +14302,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p4.Result_Nat_T_Sock);
 				ReleaseSock(p4.Result_Nat_T_Sock);
 
-				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_NAT_T);
+				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/UDP");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14308,8 +14316,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p3.Result_Nat_T_Sock);
 				ReleaseSock(p3.Result_Nat_T_Sock);
 
-				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_DNS);
+				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_DNS);
+				AddProtocolDetailsStr(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/DNS");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14318,8 +14326,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			else if (p3.Ok)
 			{
 				// Use this if over ICMP success
-				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_ICMP);
+				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_ICMP);
+				AddProtocolDetailsStr(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/ICMP");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14383,8 +14391,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	sock->Type = SOCK_TCP;
 	sock->ServerMode = false;
 
-	StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol),
-		(is_ipv6 ? SOCK_UNDERLAY_NATIVE_V6 : SOCK_UNDERLAY_NATIVE_V4));
+	StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol), is_ipv6 ? SOCK_UNDERLAY_NATIVE_V6 : SOCK_UNDERLAY_NATIVE_V4);
+	AddProtocolDetailsStr(sock->ProtocolDetails, sizeof(sock->ProtocolDetails), is_ipv6 ? "IPv6" : "IPv4");
 
 	// Host name resolution
 	if (no_get_hostname || (GetHostName(tmp, sizeof(tmp), &current_ip) == false))
@@ -14433,6 +14441,59 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 
 	return sock;
 }
+
+// Add a protocol details strings
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str)
+{
+	TOKEN_LIST *t1, *t2;
+	UINT i, j;
+	if (dst == NULL || str == NULL)
+	{
+		return;
+	}
+
+	t1 = ParseTokenWithoutNullStr(dst, " ");
+	t2 = ParseTokenWithoutNullStr(str, " ");
+
+	for (i = 0;i < t2->NumTokens;i++)
+	{
+		bool exists = false;
+		for (j = 0;j < t1->NumTokens;j++)
+		{
+			if (StrCmpi(t1->Token[j], t2->Token[i]) == 0)
+			{
+				exists = true;
+				break;
+			}
+		}
+
+		if (exists == false)
+		{
+			StrCat(dst, dst_size, t2->Token[i]);
+			StrCat(dst, dst_size, " ");
+		}
+	}
+
+	FreeToken(t1);
+	FreeToken(t2);
+}
+
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value)
+{
+	char tmp[128];
+	StrCpy(tmp, sizeof(tmp), key);
+	StrCat(tmp, sizeof(tmp), "=");
+	StrCat(tmp, sizeof(tmp), value);
+	AddProtocolDetailsStr(dst, dst_size, tmp);
+}
+
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value)
+{
+	char tmp[128];
+	ToStr(tmp, value);
+	AddProtocolDetailsKeyValueStr(dst, dst_size, key, tmp);
+}
+
 
 // Setting the buffer size of the socket
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size)
@@ -19445,6 +19506,8 @@ SOCK *AcceptReverse(SOCK *s)
 		{
 			StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_AZURE);
 
+			AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "VPN Azure");
+
 			return ret;
 		}
 
@@ -19492,6 +19555,8 @@ SOCK *AcceptInProc(SOCK *s)
 		if (ret != NULL)
 		{
 			StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_INPROC);
+
+			AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "InProc");
 
 			return ret;
 		}

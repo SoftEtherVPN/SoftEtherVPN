@@ -1479,8 +1479,8 @@ bool ServerAccept(CONNECTION *c)
 				{
 					if (IsEmptyStr(c->InProcPrefix) == false)
 					{
-						Format(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol),
-							SOCK_UNDERLAY_INPROC_EX, c->InProcPrefix);
+						Format(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol), SOCK_UNDERLAY_INPROC_EX, c->InProcPrefix);
+						AddProtocolDetailsStr(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol), c->InProcPrefix);
 					}
 				}
 
@@ -2807,7 +2807,8 @@ bool ServerAccept(CONNECTION *c)
 				// R-UDP session
 				s->IsRUDPSession = true;
 				s->RUdpMss = c->FirstSock->RUDP_OptimizedMss;
-				Debug("Optimized MSS Value for R-UDP: %u\n", s->RUdpMss);
+				Debug("ServerAccept(): Optimized MSS Value for R-UDP: %u\n", s->RUdpMss);
+				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "RUDP_MSS", s->RUdpMss);
 			}
 
 			if (enable_bulk_on_rudp)
@@ -2820,6 +2821,8 @@ bool ServerAccept(CONNECTION *c)
 			s->IsAzureSession = c->FirstSock->IsReverseAcceptedSocket;
 
 			StrCpy(s->UnderlayProtocol, sizeof(s->UnderlayProtocol), c->FirstSock->UnderlayProtocol);
+
+			AddProtocolDetailsStr(s->ProtocolDetails, sizeof(s->ProtocolDetails), c->FirstSock->ProtocolDetails);
 
 			if (server != NULL)
 			{
@@ -2912,6 +2915,7 @@ bool ServerAccept(CONNECTION *c)
 			if (s->AdjustMss != 0)
 			{
 				Debug("AdjustMSS: %u\n", s->AdjustMss);
+				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "AdjustMSS", s->AdjustMss);
 			}
 
 			s->IsBridgeMode = (policy->NoBridge == false) || (policy->NoRouting == false);
@@ -2957,8 +2961,7 @@ bool ServerAccept(CONNECTION *c)
 			{
 				char ip[128];
 				IPToStr(ip, sizeof(ip), &c->FirstSock->RemoteIP);
-				HLog(hub, "LH_NEW_SESSION", c->Name, s->Name, ip, c->FirstSock->RemotePort,
-					c->FirstSock->UnderlayProtocol);
+				HLog(hub, "LH_NEW_SESSION", c->Name, s->Name, ip, c->FirstSock->RemotePort, c->FirstSock->UnderlayProtocol, c->FirstSock->ProtocolDetails);
 			}
 
 			c->Session = s;
@@ -4704,9 +4707,13 @@ REDIRECTED:
 		// Physical communication protocol
 		StrCpy(c->Session->UnderlayProtocol, sizeof(c->Session->UnderlayProtocol), s->UnderlayProtocol);
 
+		AddProtocolDetailsStr(c->Session->ProtocolDetails, sizeof(c->Session->ProtocolDetails), s->ProtocolDetails);
+
 		if (c->Session->IsAzureSession)
 		{
 			StrCpy(c->Session->UnderlayProtocol, sizeof(c->Session->UnderlayProtocol), SOCK_UNDERLAY_AZURE);
+
+			AddProtocolDetailsStr(c->Session->ProtocolDetails, sizeof(c->Session->ProtocolDetails), "VPN Azure");
 		}
 
 		if (c->Protocol == CONNECTION_UDP)

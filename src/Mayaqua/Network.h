@@ -209,6 +209,7 @@ struct SOCK
 	UINT CurrentTtl;			// Current TTL value
 	RUDP_STACK *R_UDP_Stack;	// R-UDP stack
 	char UnderlayProtocol[64];	// Underlying protocol
+	char ProtocolDetails[256];	// Protocol details
 	QUEUE *ReverseAcceptQueue;	// Accept queue for the reverse socket
 	EVENT *ReverseAcceptEvent;	// Accept event for the reverse socket
 	bool IsReverseAcceptedSocket;	// Whether it is a reverse socket
@@ -1238,6 +1239,9 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e);
 void DebugPrintRoute(ROUTE_ENTRY *e);
 void DebugPrintRouteTable(ROUTE_TABLE *r);
 bool IsIPv6LocalNetworkAddress(IP *ip);
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str);
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value);
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value);
 
 #ifdef	ENABLE_SSL_LOGGING
 void SockEnableSslLogging(SOCK *s);
