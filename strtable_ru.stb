@@ -1721,8 +1721,8 @@ BETA_EXPIRES			Поскольку установленная SoftEther VPN яв�
 
 # Concerning the saving of logs
 # (Common log)
-L_YES					Yes
-L_NO					No
+L_YES					Да
+L_NO					Нет
 L_LINE					------------------------------------------------------
 
 # (Server log)
@@ -2270,16 +2270,16 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_CONNECTION_STATUS
-S_TITLE					Status of VPN Session of %s (Real Time)
-B_POLICY				Security &Policy...
-B_SERVER_CERT			&Server Certificate
-B_CLIENT_CERT			&Client Certificate
+S_TITLE					Состояние VPN-сессии "%s" (в реальном времени)
+B_POLICY				Политика безопасности...
+B_SERVER_CERT			&Сертификат сервера
+B_CLIENT_CERT			&Сертификат клиента
 IDCANCEL				&Закрыть
 
 
 PREFIX					D_CM_POLICY
-CAPTION					Security Policy List
-S_TITLE					Security policies defined for the current session %s
+CAPTION					Список политики безопасности
+S_TITLE					Политики безопасности, определенные для текущей сессии "%s"
 IDCANCEL				&Закрыть
 
 
@@ -2471,8 +2471,8 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_CM_DESKTOP
-CAPTION					Connection - %s
-S_TITLE					Starting connect process for VPN Connection Setting "%s".
+CAPTION					Подключение - %s
+S_TITLE					Запуск VPN-подключения "%s".
 S_WARNING				VPN-клиент будет выводить в окне "сеанс консоли" %s прогресс состояния и сообщения об ошибках, связанных с процессом подключения к VPN-серверу 
 S_INFO					Вы хотите продолжить подключение?
 IDOK					&Продолжить
@@ -2578,12 +2578,12 @@ B_VPNGATE				VPN Gate Setting
 
 
 PREFIX					D_SM_STATUS
-IDOK					Refres&h
-IDCANCEL				E&xit
+IDOK					Обновить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_EDIT_HUB
-STATIC1					Virtual Hub &Name:
+STATIC1					Virtual Hub Name:
 STATIC2					Security &Settings:
 S_BOLD					Administration password for this Virtual Hub.
 STATIC3					&Password:
@@ -2689,56 +2689,56 @@ B_SECURE_MANAGER		Smart Card &Manager...
 
 
 PREFIX					D_SM_CONNECTION
-CAPTION					Connection List
-S_TITLE					The server %S has the following active connections. Connections which have been established as a VPN session are not included.
-IDOK					Show Connection &Information
-B_DISCONNECT			&Disconnect
-B_REFRESH				Refres&h
-IDCANCEL				E&xit
+CAPTION					Список подключений
+S_TITLE					Сервер "%S" имеет следующие активные подключения. Подключения, которые были определены как VPN сессии, не включены.
+IDOK					Показать информацию о подключении
+B_DISCONNECT			&Отключить
+B_REFRESH				Обновить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_FARM
-CAPTION					Clustering Configuration
-S_TITLE					You can change configuration for clustering function of VPN Server "%S". 
-STATIC1					Clustering can realize load balancing and fault balance protection to bundle multiple VPN Servers.
-STATIC2					Current Mode:
-STATIC3					Clustering Se&ttings:
-R_STANDALONE			&Standalone Server (No Clustering)
-R_CONTROLLER			&Cluster Controller
-R_MEMBER				Cluster &Member Server
-STATIC4					C&onfigurable Parameters as a Member Server:
-S_IP_1					Public &IP Address:
-S_IP_2					(When a public IP address is omitted, the IP address of the network interface used when connecting to the cluster controller will be used.)
-S_PORT_1				&Public Port List:
-S_PORT_2				(Separate multiple port numbers by a space or a comma.)
-S_CONTROLLER			Controller &Host Name or IP Address:
-S_CONTROLLER_PORT		Port Number of\r\nControlle&r:
-S_PORT_3				(TCP Port)
-S_PASSWORD				Administration &Password: 
-STATIC5					When you modify a clustering configuration, the VPN Server service restarts automatically. When this happens, all the currently connected sessions and administration-related connections will be disconnected.
+CAPTION					Конфигурация кластера
+S_TITLE					Вы можете изменить кластерную конфигурацию VPN-сервера "%S".
+STATIC1					Кластер может реализовывать балансировку нагрузки и отказоустойчивость, благодаря объединению нескольких VPN-серверов.
+STATIC2					Текущий режим:
+STATIC3					Настройки кластера:
+R_STANDALONE			&Автономный сервер (без кластера)
+R_CONTROLLER			&Контроллер кластера
+R_MEMBER				Узел кластера
+STATIC4					Настраиваемые параметры узла кластера:
+S_IP_1					Публичный IP-адрес:
+S_IP_2					(Если публичный IP-адрес не указан, будет использоваться IP-адрес сетевого интерфейса, используемого при подключении к контроллеру кластера.)
+S_PORT_1				&Список публичных портов:
+S_PORT_2				(Разделите несколько портов пробелом или запятой.)
+S_CONTROLLER			Имя хоста контроллера или IP-адрес:
+S_CONTROLLER_PORT		Номер порта\r\nконтроллера:
+S_PORT_3				(TCP порт)
+S_PASSWORD				Пароль администратора: 
+STATIC5					При изменении конфигурации кластера служба VPN-сервера перезапускается автоматически. Когда это произойдет, все текущие подключенные сессии и связанные с администрированием подключения будут отключены.
 IDOK					&OK
-IDCANCEL				Cancel
-S_1						Standard Ratio in Cluster:
-S_2						(Standard: 100)
-R_CONTROLLER_ONLY		Controller Functions Only (No VPN session in itself)
+IDCANCEL				Отмена
+S_1						Стандартное соотношение в кластере:
+S_2						(Стандарт: 100)
+R_CONTROLLER_ONLY		Только функции контроллера (Нет VPN сессии на самого себя)
 
 
 PREFIX					D_SM_FARM_MEMBER
-CAPTION					Cluster Member List
-S_TITLE					Currently the following Cluster Member Servers are connected to the Cluster Controller %S.
-IDOK					Cluster Member Server &Information
-B_REFRESH				Refres&h
-IDCANCEL				E&xit
-B_CERT					View Server &Certificate
+CAPTION					Список узлов кластера
+S_TITLE					В настоящее время следующие узлы кластера подключены к контроллеру кластера "%S".
+IDOK					Информация о узле кластера
+B_REFRESH				Обновить
+IDCANCEL				Выход
+B_CERT					Посмотреть сертификат сервера
 
 
 PREFIX					D_SM_CHANGE_PASSWORD
-CAPTION					Change Administrator Password of %S
-S_TITLE					Change the administrator password of the server %S. Enter the new password and click OK.
-STATIC1					New &Password:
-STATIC2					&Confirm Password:
+CAPTION					Изменить пароль администратора "%S"
+S_TITLE					Измените пароль администратора сервера "%S". Введите новый пароль и нажмите ОК.
+STATIC1					Новый пароль:
+STATIC2					&Подтвердить пароль:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_HUB
@@ -2840,15 +2840,15 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_SM_EDIT_GROUP
-IDC_STATIC1				&Group Name:
-IDC_STATIC3				&Full Name:
-IDC_STATIC4				&Note:
-S_POLICY_1				Security Policy:
-R_POLICY				Set this group's Securit&y Policy
-B_POLICY				Security Policy
-S_POLICY_2				Statistical Information of the Group:
+IDC_STATIC1				&Название группы:
+IDC_STATIC3				&Полное имя:
+IDC_STATIC4				&Заметка:
+S_POLICY_1				Политика безопасности:
+R_POLICY				Set this group's Security Policy
+B_POLICY				Политика безопасности
+S_POLICY_2				Статистическая информация группы:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_ACCESS_LIST
@@ -2949,19 +2949,19 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_SM_LINK
-CAPTION					Cascade Connections on %S
-STATIC1					Cascade Connection can make a layer-2 Ethernet-level links between this Virtual Hub and other Virtual Hub which is located on either local or remote VPN Server.
-STATIC2					Before Using Cascade Connection
-STATIC3					Cascade Connection realizes a Layer 2 Bridge between multiple Virtual Hubs. But if the connection is incorrectly configured, an infinity loop could inadvertently be created. When using a Cascade Connection function please design the network topology with care.
-B_CREATE				&New
-B_EDIT					&Edit
-B_ONLINE				O&nline
-B_OFFLINE				O&ffline
-IDOK					&Status
-B_DELETE				&Delete
-B_RENAME				Ren&ame
-B_REFRESH				&Refresh
-IDCANCEL				E&xit
+CAPTION					Каскадные соединения на "%S"
+STATIC1					Каскадное соединение может создать Ethernet-соединение 2 уровня между этим Virtual Hub и другим Virtual Hub, который расположен на локальном или удаленном VPN-сервере.
+STATIC2					Перед использованием каскадного соединения
+STATIC3					Каскадное соединение реализует мост 2 уровня между несколькими Virtual Hubs. Но если соединение неправильно настроено, может быть непреднамеренно создан бесконечный цикл. При использовании каскадного соединения, пожалуйста, проектируйте топологию сети с осторожностью.
+B_CREATE				&Новое
+B_EDIT					&Редактировать
+B_ONLINE				Онлайн
+B_OFFLINE				Оффлайн
+IDOK					&Статус
+B_DELETE				&Удалить
+B_RENAME				Переименовать
+B_REFRESH				&Обновить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_LOG
@@ -3085,10 +3085,10 @@ IDCANCEL				deleted
 
 
 PREFIX					D_SPEEDMETER
-CAPTION					Network Device Status
-STATIC1					Select Network Adapter:
-STATIC2					Real-time Status
-STATIC3					&Refresh
+CAPTION					Состояние сетевого устройства
+STATIC1					Выберите сетевой адаптер:
+STATIC2					Статус в реальном времени
+STATIC3					&Обновить
 
 
 PREFIX					D_NM_MAIN
@@ -3483,18 +3483,18 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_STRING
-CAPTION					VPN Software
+CAPTION					VPN программа
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SELECT_KEYPAIR
-CAPTION					Specify Certificate in Smart Card
-S_INFO					Currently selected smart card:\r\n\r\n%S
-B_BOLD1					Select the certificate in the smart card.
+CAPTION					Укажите сертификат в смарт-карте
+S_INFO					Выбранная смарт-карта:\r\n\r\n%S
+B_BOLD1					Выберите сертификат в смарт-карте.
 IDOK					&OK
-IDCANCEL				Cancel
-B_BOLD2					Select the corresponding private key.
+IDCANCEL				Отмена
+B_BOLD2					Выберите соответствующий приватный ключ.
 
 
 PREFIX					D_CM_LOAD_X
