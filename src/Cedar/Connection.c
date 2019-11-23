@@ -1160,6 +1160,8 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 										s->TotalSendSizeReal += b->Size;
 
 										c->CurrentSendQueueSize -= b->Size;
+
+										Free(new_buf);
 									}
 
 									FreeBlock(b);
@@ -2681,6 +2683,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 	}
 
 	b = MallocFast(sizeof(BLOCK));
+
+	b->RawFlagRetUdpAccel = 0;
 
 	b->IsFlooding = false;
 

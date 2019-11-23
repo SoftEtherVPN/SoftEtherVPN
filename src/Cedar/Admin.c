@@ -9696,6 +9696,15 @@ UINT StSetFarmSetting(ADMIN *a, RPC_FARM *t)
 		return ERR_NOT_SUPPORTED;
 	}
 
+	if (IsZero(t->MemberPassword, sizeof(t->MemberPassword)))
+	{
+		if (IsEmptyStr(t->MemberPasswordPlaintext) == false)
+		{
+			// For JSON-RPC
+			HashAdminPassword(t->MemberPassword, t->MemberPasswordPlaintext);
+		}
+	}
+
 	ALog(a, NULL, "LA_SET_FARM_SETTING");
 
 	IncrementServerConfigRevision(a->Server);

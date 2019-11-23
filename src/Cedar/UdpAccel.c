@@ -253,7 +253,7 @@ void UdpAccelSendBlock(UDP_ACCEL *a, BLOCK *b)
 		return;
 	}
 
-	UdpAccelSend(a, b->Buf, b->Size, b->Compressed, a->MaxUdpPacketSize, b->PriorityQoS);
+	UdpAccelSend(a, b->Buf, b->Size, b->Compressed ? 1 : 0, a->MaxUdpPacketSize, b->PriorityQoS);
 }
 
 // Calculate the best MSS
@@ -285,7 +285,7 @@ UINT UdpAccelCalcMss(UDP_ACCEL *a)
 	if (a->PlainTextMode == false)
 	{
 		// IV
-		ret -= UDP_ACCELERATION_PACKET_IV_SIZE;
+		ret -= UDP_ACCELERATION_PACKET_IV_SIZE_V1;
 	}
 
 	// Cookie
@@ -306,7 +306,7 @@ UINT UdpAccelCalcMss(UDP_ACCEL *a)
 	if (a->PlainTextMode == false)
 	{
 		// Verify
-		ret -= UDP_ACCELERATION_PACKET_IV_SIZE;
+		ret -= UDP_ACCELERATION_PACKET_IV_SIZE_V1;
 	}
 
 	// Ethernet header (communication packets)
@@ -322,19 +322,13 @@ UINT UdpAccelCalcMss(UDP_ACCEL *a)
 }
 
 // Send
-void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, bool compressed, UINT max_size, bool high_priority)
+void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT max_size, bool high_priority)
 {
-	UCHAR tmp[UDP_ACCELERATION_TMP_BUF_SIZE];
-	UCHAR *buf;
-	UINT size;
-	UCHAR key[UDP_ACCELERATION_PACKET_KEY_SIZE];
-	UINT64 ui64;
-	USHORT us;
-	UCHAR c;
-	UINT current_size;
-	UINT ui32;
-	bool fatal_error = false;
-	UINT r;
+	UCHAR buffer[UDP_ACCELERATION_TMP_BUF_SIZE];
+	UCHAR *buf = buffer;
+	UINT size = 0;
+	UINT64 tmp;
+	UINT ret;
 	// Validate arguments
 	if (a == NULL || (data_size != 0 && data == NULL))
 	{
@@ -345,171 +339,167 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, bool compressed, UI
 		max_size = INFINITE;
 	}
 
-	buf = tmp;
-	size = 0;
-
-	// IV
 	if (a->PlainTextMode == false)
 	{
-		// IV
-		Copy(buf, a->NextIv, UDP_ACCELERATION_PACKET_IV_SIZE);
-
-		buf += UDP_ACCELERATION_PACKET_IV_SIZE;
-		size += UDP_ACCELERATION_PACKET_IV_SIZE;
-
-		// Calculate the key
-		UdpAccelCalcKey(key, a->MyKey, a->NextIv);
-
-		if (false)
+		if (a->Version > 1)
 		{
-			char tmp1[256];
-			char tmp2[256];
-			char tmp3[256];
-			BinToStr(tmp1, sizeof(tmp1), a->MyKey, sizeof(a->MyKey));
-			BinToStr(tmp2, sizeof(tmp2), a->NextIv, UDP_ACCELERATION_PACKET_IV_SIZE);
-			BinToStr(tmp3, sizeof(tmp3), key, sizeof(key));
-			Debug("My Key  : %s\n"
-				  "IV      : %s\n"
-				  "Comm Key: %s\n",
-				  tmp1, tmp2, tmp3);
+			Copy(buf, a->NextIv_V2, UDP_ACCELERATION_PACKET_IV_SIZE_V2);
+
+			buf += UDP_ACCELERATION_PACKET_IV_SIZE_V2;
+			size += UDP_ACCELERATION_PACKET_IV_SIZE_V2;
+		}
+		else
+		{
+			Copy(buf, a->NextIv, UDP_ACCELERATION_PACKET_IV_SIZE_V1);
+
+			buf += UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+			size += UDP_ACCELERATION_PACKET_IV_SIZE_V1;
 		}
 	}
 
 	// Cookie
-	ui32 = Endian32(a->YourCookie);
-	Copy(buf, &ui32, sizeof(UINT));
+	tmp = Endian32(a->YourCookie);
+	Copy(buf, &tmp, sizeof(UINT));
 	buf += sizeof(UINT);
 	size += sizeof(UINT);
 
-	// My Tick
-	ui64 = Endian64(a->Now == 0 ? 1ULL : a->Now);
-	Copy(buf, &ui64, sizeof(UINT64));
+	// My tick
+	tmp = Endian64(a->Now == 0 ? 1ULL : a->Now);
+	Copy(buf, &tmp, sizeof(UINT64));
 	buf += sizeof(UINT64);
 	size += sizeof(UINT64);
 
-	// Your Tick
-	ui64 = Endian64(a->LastRecvYourTick);
-	Copy(buf, &ui64, sizeof(UINT64));
+	// Your tick
+	tmp = Endian64(a->LastRecvYourTick);
+	Copy(buf, &tmp, sizeof(UINT64));
 	buf += sizeof(UINT64);
 	size += sizeof(UINT64);
 
 	// Size
-	us = Endian16(data_size);
-	Copy(buf, &us, sizeof(USHORT));
+	tmp = Endian16(data_size);
+	Copy(buf, &tmp, sizeof(USHORT));
 	buf += sizeof(USHORT);
 	size += sizeof(USHORT);
 
-	// Compress Flag
-	c = (compressed ? 1 : 0);
-	Copy(buf, &c, sizeof(UCHAR));
+	// Flag
+	Copy(buf, &flag, sizeof(UCHAR));
 	buf += sizeof(UCHAR);
 	size += sizeof(UCHAR);
 
 	// Data
-	if (data_size >= 1)
-	{
-		Copy(buf, data, data_size);
-		buf += data_size;
-		size += data_size;
-	}
+	Copy(buf, data, data_size);
+	buf += data_size;
+	size += data_size;
 
 	if (a->PlainTextMode == false)
 	{
-		static UCHAR zero[UDP_ACCELERATION_PACKET_IV_SIZE] = {0};
-		CRYPT *c;
-
-		current_size = UDP_ACCELERATION_PACKET_IV_SIZE + sizeof(UINT) + sizeof(UINT64) * 2 +
-			sizeof(USHORT) + sizeof(UCHAR) + data_size + UDP_ACCELERATION_PACKET_IV_SIZE;
-
-		if (current_size < max_size)
+		// Add padding to make protocol identification harder to accomplish
+		const UINT current_total_size = size + (a->Version > 1 ? UDP_ACCELERATION_PACKET_MAC_SIZE_V2 : UDP_ACCELERATION_PACKET_IV_SIZE_V1);
+		if (current_total_size < max_size)
 		{
-			// Padding
 			UCHAR pad[UDP_ACCELERATION_MAX_PADDING_SIZE];
-			UINT pad_size = MIN(max_size - current_size, UDP_ACCELERATION_MAX_PADDING_SIZE);
+			UINT pad_size = MIN(max_size - current_total_size, UDP_ACCELERATION_MAX_PADDING_SIZE);
 			pad_size = rand() % pad_size;
-
 			Zero(pad, sizeof(pad));
 			Copy(buf, pad, pad_size);
 			buf += pad_size;
 			size += pad_size;
 		}
 
-		// Verify
-		Copy(buf, zero, UDP_ACCELERATION_PACKET_IV_SIZE);
-		buf += UDP_ACCELERATION_PACKET_IV_SIZE;
-		size += UDP_ACCELERATION_PACKET_IV_SIZE;
+		if (a->Version > 1)
+		{
+			const UINT inner_size = size - UDP_ACCELERATION_PACKET_IV_SIZE_V2;
+			UCHAR *inner = buffer + UDP_ACCELERATION_PACKET_IV_SIZE_V2;
 
-		// Encryption
-		c = NewCrypt(key, UDP_ACCELERATION_PACKET_KEY_SIZE);
-		Encrypt(c, tmp + UDP_ACCELERATION_PACKET_IV_SIZE, tmp + UDP_ACCELERATION_PACKET_IV_SIZE, size - UDP_ACCELERATION_PACKET_IV_SIZE);
-		FreeCrypt(c);
+			ret = CipherProcessAead(a->CipherEncrypt, a->NextIv_V2, inner + inner_size, UDP_ACCELERATION_PACKET_MAC_SIZE_V2, inner, inner, inner_size, NULL, 0);
+			if (ret == 0)
+			{
+				Debug("UdpAccelSend(): CipherProcessAead() failed!\n");
+				return;
+			}
 
-		// Next Iv
-		Copy(a->NextIv, buf - UDP_ACCELERATION_PACKET_IV_SIZE, UDP_ACCELERATION_PACKET_IV_SIZE);
+			Copy(a->NextIv_V2, inner, UDP_ACCELERATION_PACKET_IV_SIZE_V2);
+
+			// Tag (appended to the buffer by CipherProcessAead())
+			size += UDP_ACCELERATION_PACKET_MAC_SIZE_V2;
+		}
+		else
+		{
+			UCHAR *inner = buffer + UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+			UCHAR key[UDP_ACCELERATION_PACKET_KEY_SIZE_V1];
+			const UINT inner_size = size; // We don't have to subtract because we add below
+			CRYPT *c;
+
+			// Simple integrity check system: we fill some bytes with zeroes.
+			// The remote host verifies whether all the zeroes are present.
+			Zero(buf, UDP_ACCELERATION_PACKET_IV_SIZE_V1);
+			buf += UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+			size += UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+
+			UdpAccelCalcKeyV1(key, a->MyKey, a->NextIv);
+
+			c = NewCrypt(key, UDP_ACCELERATION_PACKET_KEY_SIZE_V1);
+			Encrypt(c, inner, inner, inner_size);
+			FreeCrypt(c);
+
+			Copy(a->NextIv, buf - UDP_ACCELERATION_PACKET_IV_SIZE_V1, UDP_ACCELERATION_PACKET_IV_SIZE_V1);
+		}
 	}
 
-	// Send
 	SetSockHighPriority(a->UdpSock, high_priority);
 
-	r = SendTo(a->UdpSock, &a->YourIp, a->YourPort, tmp, size);
-	if (r == 0 && a->UdpSock->IgnoreSendErr == false)
-	{
-		fatal_error = true;
-		Debug("Error: SendTo: %r %u %u\n", &a->YourIp, a->YourPort, size);
-		WHERE;
-	}
-
-	if (data_size == 0)
-	{
-		if (UdpAccelIsSendReady(a, true) == false)
-		{
-			if ((a->YourPortByNatTServer != 0) && (a->YourPort != a->YourPortByNatTServer))
-			{
-				r = SendTo(a->UdpSock, &a->YourIp, a->YourPortByNatTServer, tmp, size);
-				if (r == 0 && a->UdpSock->IgnoreSendErr == false)
-				{
-					fatal_error = true;
-					WHERE;
-				}
-			}
-		}
-	}
-
-	if (data_size == 0)
-	{
-		if (IsZeroIP(&a->YourIp2) == false && CmpIpAddr(&a->YourIp, &a->YourIp2) != 0)
-		{
-			if (UdpAccelIsSendReady(a, true) == false)
-			{
-				// When the KeepAlive, if the opponent may be behind a NAT,
-				// send the packet to the IP address of outside of the NAT
-				r = SendTo(a->UdpSock, &a->YourIp2, a->YourPort, tmp, size);
-				if (r == 0 && a->UdpSock->IgnoreSendErr == false)
-				{
-					fatal_error = true;
-					WHERE;
-				}
-
-				if ((a->YourPortByNatTServer != 0) && (a->YourPort != a->YourPortByNatTServer))
-				{
-					r = SendTo(a->UdpSock, &a->YourIp2, a->YourPortByNatTServer, tmp, size);
-					if (r == 0 && a->UdpSock->IgnoreSendErr == false)
-					{
-						fatal_error = true;
-						WHERE;
-					}
-				}
-			}
-		}
-	}
-
-	if (fatal_error)
+	ret = SendTo(a->UdpSock, &a->YourIp, a->YourPort, buffer, size);
+	if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
 	{
 		a->FatalError = true;
-		WHERE;
+		Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp, a->YourPort, size);
+		return;
 	}
 
-	//Debug("UDP Send: %u\n", size);
+	if (data_size > 0 || UdpAccelIsSendReady(a, true))
+	{
+		return;
+	}
+
+	if (a->YourPortByNatTServer != 0 && a->YourPortByNatTServer != a->YourPort)
+	{
+		ret = SendTo(a->UdpSock, &a->YourIp, a->YourPortByNatTServer, buffer, size);
+		if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+		{
+			a->FatalError = true;
+			Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp, a->YourPortByNatTServer, size);
+			return;
+		}
+	}
+
+	if (UdpAccelIsSendReady(a, true))
+	{
+		return;
+	}
+
+	if (IsZeroIP(&a->YourIp2) == false && CmpIpAddr(&a->YourIp, &a->YourIp2) != 0)
+	{
+		// We sent the packet, but the remote host didn't reply.
+		// It may be behind a NAT, let's try to send the packet to the alternative IP address.
+		ret = SendTo(a->UdpSock, &a->YourIp2, a->YourPort, buffer, size);
+		if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+		{
+			a->FatalError = true;
+			Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp2, a->YourPort, size);
+			return;
+		}
+
+		if (a->YourPortByNatTServer != 0 && a->YourPortByNatTServer != a->YourPort)
+		{
+			ret = SendTo(a->UdpSock, &a->YourIp2, a->YourPortByNatTServer, buffer, size);
+			if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+			{
+				a->FatalError = true;
+				Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp2, a->YourPortByNatTServer, size);
+				return;
+			}
+		}
+	}
 }
 
 // Determine whether transmission is possible
@@ -570,15 +560,11 @@ bool UdpAccelIsSendReady(UDP_ACCEL *a, bool check_keepalive)
 // Process the received packet
 BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip, UINT src_port)
 {
-	UCHAR key[UDP_ACCELERATION_PACKET_KEY_SIZE];
-	UCHAR *iv;
-	CRYPT *c;
 	UINT64 my_tick, your_tick;
 	UINT inner_size;
 	UCHAR *inner_data = NULL;
-	UINT pad_size;
-	UCHAR *verify;
 	bool compress_flag;
+	UCHAR raw_flag;
 	BLOCK *b = NULL;
 	UINT cookie;
 	// Validate arguments
@@ -589,36 +575,54 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 
 	if (a->PlainTextMode == false)
 	{
-		// IV
-		if (size < UDP_ACCELERATION_PACKET_IV_SIZE)
+		UCHAR *iv = buf;
+
+		if (a->Version > 1)
 		{
-			return NULL;
+			UINT data_size;
+
+			if (size < UDP_ACCELERATION_PACKET_IV_SIZE_V2)
+			{
+				return NULL;
+			}
+
+			buf += UDP_ACCELERATION_PACKET_IV_SIZE_V2;
+			size -= UDP_ACCELERATION_PACKET_IV_SIZE_V2;
+
+			if (size < UDP_ACCELERATION_PACKET_MAC_SIZE_V2)
+			{
+				return NULL;
+			}
+
+			data_size = size - UDP_ACCELERATION_PACKET_MAC_SIZE_V2;
+
+			if (CipherProcessAead(a->CipherDecrypt, iv, buf + data_size, UDP_ACCELERATION_PACKET_MAC_SIZE_V2, buf, buf, data_size, NULL, 0) == 0)
+			{
+				Debug("UdpAccelProcessRecvPacket(): CipherProcessAead() failed!\n");
+				return NULL;
+			}
+
+			size -= UDP_ACCELERATION_PACKET_MAC_SIZE_V2;
 		}
-		iv = buf;
-		buf += UDP_ACCELERATION_PACKET_IV_SIZE;
-		size -= UDP_ACCELERATION_PACKET_IV_SIZE;
-
-		// Calculate the key
-		UdpAccelCalcKey(key, a->YourKey, iv);
-
-		if (false)
+		else
 		{
-			char tmp1[256];
-			char tmp2[256];
-			char tmp3[256];
-			BinToStr(tmp1, sizeof(tmp1), a->YourKey, sizeof(a->YourKey));
-			BinToStr(tmp2, sizeof(tmp2), iv, UDP_ACCELERATION_PACKET_IV_SIZE);
-			BinToStr(tmp3, sizeof(tmp3), key, sizeof(key));
-			Debug("Your Key: %s\n"
-				  "IV      : %s\n"
-				  "Comm Key: %s\n",
-				tmp1, tmp2, tmp3);
-		}
+			UCHAR key[UDP_ACCELERATION_PACKET_KEY_SIZE_V1];
+			CRYPT *c;
 
-		// Decryption
-		c = NewCrypt(key, UDP_ACCELERATION_PACKET_KEY_SIZE);
-		Encrypt(c, buf, buf, size);
-		FreeCrypt(c);
+			if (size < UDP_ACCELERATION_PACKET_IV_SIZE_V1)
+			{
+				return NULL;
+			}
+
+			buf += UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+			size -= UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+
+			UdpAccelCalcKeyV1(key, a->YourKey, iv);
+
+			c = NewCrypt(key, UDP_ACCELERATION_PACKET_KEY_SIZE_V1);
+			Encrypt(c, buf, buf, size);
+			FreeCrypt(c);
+		}
 	}
 
 	// Cookie
@@ -635,7 +639,7 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 		return NULL;
 	}
 
-	// My Tick
+	// My tick
 	if (size < sizeof(UINT64))
 	{
 		return NULL;
@@ -644,7 +648,7 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 	buf += sizeof(UINT64);
 	size -= sizeof(UINT64);
 
-	// Your Tick
+	// Your tick
 	if (size < sizeof(UINT64))
 	{
 		return NULL;
@@ -653,7 +657,7 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 	buf += sizeof(UINT64);
 	size -= sizeof(UINT64);
 
-	// inner_size
+	// Inner data size
 	if (size < sizeof(USHORT))
 	{
 		return NULL;
@@ -662,12 +666,20 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 	buf += sizeof(USHORT);
 	size -= sizeof(USHORT);
 
-	// compress_flag
+	// Flag
 	if (size < sizeof(UCHAR))
 	{
 		return NULL;
 	}
-	compress_flag = *((UCHAR *)buf);
+	if (a->ReadRawFlagMode == false)
+	{
+		compress_flag = *((UCHAR *)buf);
+	}
+	else
+	{
+		raw_flag = *((UCHAR *)buf);
+	}
+
 	buf += sizeof(UCHAR);
 	size -= sizeof(UCHAR);
 
@@ -676,7 +688,7 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 		return NULL;
 	}
 
-	// inner_data
+	// Inner_data
 	if (inner_size >= 1)
 	{
 		inner_data = buf;
@@ -686,26 +698,29 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 
 	if (a->PlainTextMode == false)
 	{
-		// padding
-		if (size < UDP_ACCELERATION_PACKET_IV_SIZE)
+		// Verify packet integrity
+		if (a->Version == 1)
 		{
-			return false;
-		}
-		pad_size = size - UDP_ACCELERATION_PACKET_IV_SIZE;
-		buf += pad_size;
-		size -= pad_size;
+			UINT pad_size;
 
-		// verify
-		if (size != UDP_ACCELERATION_PACKET_IV_SIZE)
-		{
-			return NULL;
-		}
+			if (size < UDP_ACCELERATION_PACKET_IV_SIZE_V1)
+			{
+				return false;
+			}
 
-		verify = buf;
+			pad_size = size - UDP_ACCELERATION_PACKET_IV_SIZE_V1;
+			buf += pad_size;
+			size -= pad_size;
 
-		if (IsZero(verify, UDP_ACCELERATION_PACKET_IV_SIZE) == false)
-		{
-			return NULL;
+			if (size != UDP_ACCELERATION_PACKET_IV_SIZE_V1)
+			{
+				return NULL;
+			}
+
+			if (IsZero(buf, UDP_ACCELERATION_PACKET_IV_SIZE_V1) == false)
+			{
+				return NULL;
+			}
 		}
 	}
 
@@ -722,7 +737,11 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 
 	if (inner_size >= 1)
 	{
-		b = NewBlock(Clone(inner_data, inner_size), inner_size, compress_flag ? -1 : 0);
+		b = NewBlock(Clone(inner_data, inner_size), inner_size, a->ReadRawFlagMode == false ? (compress_flag ? -1 : 0) : 0);
+		if (a->ReadRawFlagMode)
+		{
+			b->RawFlagRetUdpAccel = raw_flag;
+		}
 	}
 
 	if (a->LastSetSrcIpAndPortTick < a->LastRecvYourTick)
@@ -751,18 +770,18 @@ BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip
 	return b;
 }
 
-// Calculate the key
-void UdpAccelCalcKey(UCHAR *key, UCHAR *common_key, UCHAR *iv)
+// Calculate V1 key
+void UdpAccelCalcKeyV1(UCHAR *key, UCHAR *common_key, UCHAR *iv)
 {
-	UCHAR tmp[UDP_ACCELERATION_COMMON_KEY_SIZE + UDP_ACCELERATION_PACKET_IV_SIZE];
+	UCHAR tmp[UDP_ACCELERATION_COMMON_KEY_SIZE_V1 + UDP_ACCELERATION_PACKET_IV_SIZE_V1];
 	// Validate arguments
 	if (key == NULL || common_key == NULL || iv == NULL)
 	{
 		return;
 	}
 
-	Copy(tmp, common_key, UDP_ACCELERATION_COMMON_KEY_SIZE);
-	Copy(tmp + UDP_ACCELERATION_COMMON_KEY_SIZE, iv, UDP_ACCELERATION_PACKET_IV_SIZE);
+	Copy(tmp, common_key, UDP_ACCELERATION_COMMON_KEY_SIZE_V1);
+	Copy(tmp + UDP_ACCELERATION_COMMON_KEY_SIZE_V1, iv, UDP_ACCELERATION_PACKET_IV_SIZE_V1);
 
 	Sha1(key, tmp, sizeof(tmp));
 }
@@ -790,15 +809,25 @@ bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT cli
 	}
 
 	IPToStr(tmp, sizeof(tmp), client_ip);
-	Debug("UdpAccelInitServer: client_ip=%s, client_port=%u, server_cookie=%u, client_cookie=%u\n", tmp, client_port,
-		a->MyCookie, a->YourCookie);
+	Debug("UdpAccelInitServer(): version: %u, client IP: %s, client port: %u, server cookie: %u, client cookie: %u\n", a->Version, tmp, client_port, a->MyCookie, a->YourCookie);
 
 	if (IsIP6(client_ip) != a->IsIPv6)
 	{
 		return false;
 	}
 
-	Copy(a->YourKey, client_key, UDP_ACCELERATION_COMMON_KEY_SIZE);
+	if (a->Version > 1)
+	{
+		a->CipherEncrypt = NewCipher("ChaCha20-Poly1305");
+		a->CipherDecrypt = NewCipher("ChaCha20-Poly1305");
+
+		SetCipherKey(a->CipherEncrypt, a->MyKey_V2, true);
+		SetCipherKey(a->CipherDecrypt, client_key, false);
+	}
+	else
+	{
+		Copy(a->YourKey, client_key, sizeof(a->YourKey));
+	}
 
 	Copy(&a->YourIp, client_ip, sizeof(IP));
 	Copy(&a->YourIp2, client_ip_2, sizeof(IP));
@@ -822,14 +851,25 @@ bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *server_key, IP *server_ip, UINT ser
 	}
 
 	IPToStr(tmp, sizeof(tmp), server_ip);
-	Debug("UdpAccelInitClient: server_ip=%s, server_port=%u, server_cookie=%u, client_cookie=%u\n", tmp, server_port, server_cookie, client_cookie);
+	Debug("UdpAccelInitClient(): version: %u, client IP: %s, client port: %u, server cookie: %u, client cookie: %u\n", a->Version, tmp, server_port, server_cookie, client_cookie);
 
 	if (IsIP6(server_ip) != a->IsIPv6)
 	{
 		return false;
 	}
 
-	Copy(a->YourKey, server_key, UDP_ACCELERATION_COMMON_KEY_SIZE);
+	if (a->Version > 1)
+	{
+		a->CipherEncrypt = NewCipher("ChaCha20-Poly1305");
+		a->CipherDecrypt = NewCipher("ChaCha20-Poly1305");
+
+		SetCipherKey(a->CipherEncrypt, a->MyKey_V2, true);
+		SetCipherKey(a->CipherDecrypt, server_key, false);
+	}
+	else
+	{
+		Copy(a->YourKey, server_key, sizeof(a->YourKey));
+	}
 
 	Copy(&a->YourIp, server_ip, sizeof(IP));
 	Copy(&a->YourIp2, server_ip_2, sizeof(IP));
@@ -911,6 +951,7 @@ UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port,
 
 	a->NoNatT = no_nat_t;
 
+	a->Version = 1;
 
 	a->NatT_TranId = Rand64();
 
@@ -922,8 +963,9 @@ UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port,
 
 	a->Now = Tick64();
 	a->UdpSock = s;
+
 	Rand(a->MyKey, sizeof(a->MyKey));
-	Rand(a->YourKey, sizeof(a->YourKey));
+	Rand(a->MyKey_V2, sizeof(a->MyKey_V2));
 
 	Copy(&a->MyIp, ip, sizeof(IP));
 	a->MyPort = s->LocalPort;
@@ -938,6 +980,7 @@ UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port,
 	a->RecvBlockQueue = NewQueue();
 
 	Rand(a->NextIv, sizeof(a->NextIv));
+	Rand(a->NextIv_V2, sizeof(a->NextIv_V2));
 
 	do
 	{
@@ -1091,6 +1134,8 @@ void FreeUdpAccel(UDP_ACCEL *a)
 
 	ReleaseCedar(a->Cedar);
 
+	FreeCipher(a->CipherEncrypt);
+	FreeCipher(a->CipherDecrypt);
+
 	Free(a);
 }
-

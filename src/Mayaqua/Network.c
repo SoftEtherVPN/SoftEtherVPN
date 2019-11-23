@@ -2397,65 +2397,109 @@ void RUDPInterruptProc(RUDP_STACK *r)
 void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 {
 	UCHAR *buf;
-	UINT buf_size;
-	UINT padding_size;
-	UINT i;
-	CRYPT *c;
-	UCHAR crypt_key_src[SHA1_SIZE * 2];
-	UCHAR crypt_key[SHA1_SIZE];
-	UINT icmp_type = 0;
-	UCHAR sign[SHA1_SIZE];
-	UCHAR iv[SHA1_SIZE + 1];
+	UINT i, icmp_type, buf_size, padding_size;
 	// Validate arguments
 	if (r == NULL || se == NULL || (data == NULL && data_size != 0))
 	{
 		return;
 	}
 
-	padding_size = Rand32() % 31 + 1;
-
-	buf_size = SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size;
-	buf = Malloc(buf_size);
-
-	// SEQ NO
-	WRITE_UINT64(buf + SHA1_SIZE + SHA1_SIZE, se->BulkNextSeqNo);
-	se->BulkNextSeqNo++;
-
-	// Data
-	Copy(buf + SHA1_SIZE + SHA1_SIZE + sizeof(UINT64), data, data_size);
-
-	// Padding
-	for (i = 0;i < padding_size;i++)
+	if (se->BulkSendKey->Size == RUDP_BULK_KEY_SIZE_V2)
 	{
-		buf[SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + i] = (UCHAR)padding_size;
-	}
+		UCHAR *tmp, iv[RUDP_BULK_IV_SIZE_V2];
+		UINT size;
+		CIPHER *c;
 
-	// Encryption
-	Copy(iv, se->BulkNextIv, SHA1_SIZE);
-	Copy(crypt_key_src + 0, se->BulkSendKey->Data, SHA1_SIZE);
-	Copy(crypt_key_src + SHA1_SIZE, iv, SHA1_SIZE);
-	Sha1(crypt_key, crypt_key_src, SHA1_SIZE * 2);
-	c = NewCrypt(crypt_key, sizeof(crypt_key));
-	Encrypt(c, buf + SHA1_SIZE + SHA1_SIZE, buf + SHA1_SIZE + SHA1_SIZE, sizeof(UINT64) + data_size + padding_size);
-	FreeCrypt(c);
+		padding_size = Rand32() % 31 + 1;
 
-	// IV
-	Copy(buf + SHA1_SIZE, iv, SHA1_SIZE);
+		size = sizeof(UINT64) + data_size + padding_size;
 
-	// Sign
-	if (se->UseHMac == false)
-	{
-		Copy(buf + 0, se->BulkSendKey->Data, SHA1_SIZE);
-		Sha1(sign, buf, SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
-		Copy(buf + 0, sign, SHA1_SIZE);
+		// Packet: IV + Encrypted(SEQ_NO + Data + padding) + MAC
+		buf_size = RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64) + data_size + padding_size + RUDP_BULK_MAC_SIZE_V2;
+		buf = Malloc(buf_size);
+
+		// IV
+		Copy(iv, se->BulkNextIv_V2, RUDP_BULK_IV_SIZE_V2);
+		Copy(buf, iv, RUDP_BULK_IV_SIZE_V2);
+
+		// SEQ NO
+		WRITE_UINT64(buf + RUDP_BULK_IV_SIZE_V2, se->BulkNextSeqNo);
+		se->BulkNextSeqNo++;
+
+		// Data
+		Copy(buf + RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64), data, data_size);
+
+		// Padding
+		for (i = 0;i < padding_size;i++)
+		{
+			buf[RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64) + data_size + i] = (UCHAR)padding_size;
+		}
+
+		size = sizeof(UINT64) + data_size + padding_size;
+		tmp = buf + RUDP_BULK_IV_SIZE_V2;
+
+		// Encryption
+		c = NewCipher("ChaCha20-Poly1305");
+		SetCipherKey(c, se->BulkSendKey->Data, true);
+		CipherProcessAead(c, iv, tmp + size, RUDP_BULK_MAC_SIZE_V2, tmp, tmp, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		FreeCipher(c);
+
+		// Next IV
+		Copy(se->BulkNextIv_V2, buf + sizeof(UINT64) + data_size + padding_size, RUDP_BULK_IV_SIZE_V2);
 	}
 	else
 	{
-		HMacSha1(buf + 0, se->BulkSendKey->Data, SHA1_SIZE, buf + SHA1_SIZE, SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
-	}
+		UCHAR crypt_key_src[SHA1_SIZE * 2];
+		UCHAR crypt_key[SHA1_SIZE];
+		UCHAR sign[SHA1_SIZE];
+		UCHAR iv[SHA1_SIZE];
+		CRYPT *c;
 
-	// Next IV
-	Copy(se->BulkNextIv, buf + buf_size - SHA1_SIZE, SHA1_SIZE);
+		padding_size = Rand32() % 31 + 1;
+
+		buf_size = SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size;
+		buf = Malloc(buf_size);
+
+		// SEQ NO
+		WRITE_UINT64(buf + SHA1_SIZE + SHA1_SIZE, se->BulkNextSeqNo);
+		se->BulkNextSeqNo++;
+
+		// Data
+		Copy(buf + SHA1_SIZE + SHA1_SIZE + sizeof(UINT64), data, data_size);
+
+		// Padding
+		for (i = 0;i < padding_size;i++)
+		{
+			buf[SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + i] = (UCHAR)padding_size;
+		}
+
+		// Encryption
+		Copy(iv, se->BulkNextIv, SHA1_SIZE);
+		Copy(crypt_key_src + 0, se->BulkSendKey->Data, SHA1_SIZE);
+		Copy(crypt_key_src + SHA1_SIZE, iv, SHA1_SIZE);
+		Sha1(crypt_key, crypt_key_src, SHA1_SIZE * 2);
+		c = NewCrypt(crypt_key, sizeof(crypt_key));
+		Encrypt(c, buf + SHA1_SIZE + SHA1_SIZE, buf + SHA1_SIZE + SHA1_SIZE, sizeof(UINT64) + data_size + padding_size);
+		FreeCrypt(c);
+
+		// IV
+		Copy(buf + SHA1_SIZE, iv, SHA1_SIZE);
+
+		// Sign
+		if (se->UseHMac == false)
+		{
+			Copy(buf + 0, se->BulkSendKey->Data, SHA1_SIZE);
+			Sha1(sign, buf, SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
+			Copy(buf + 0, sign, SHA1_SIZE);
+		}
+		else
+		{
+			HMacSha1(buf + 0, se->BulkSendKey->Data, SHA1_SIZE, buf + SHA1_SIZE, SHA1_SIZE + sizeof(UINT64) + data_size + padding_size);
+		}
+
+		// Next IV
+		Copy(se->BulkNextIv, buf + buf_size - SHA1_SIZE, SHA1_SIZE);
+	}
 
 	if (r->Protocol == RUDP_PROTOCOL_ICMP)
 	{
@@ -2465,6 +2509,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 	{
 		icmp_type = se->Dns_TranId;
 	}
+
 	RUDPSendPacket(r, &se->YourIp, se->YourPort, buf, buf_size, icmp_type);
 
 	Free(buf);
@@ -2528,14 +2573,17 @@ SOCK *AcceptRUDP(SOCK *s)
 			{
 			case RUDP_PROTOCOL_UDP:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/UDP");
 				break;
 
 			case RUDP_PROTOCOL_DNS:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_DNS);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/DNS");
 				break;
 
 			case RUDP_PROTOCOL_ICMP:
 				StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_ICMP);
+				AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "RUDP/ICMP");
 				break;
 			}
 
@@ -2588,24 +2636,60 @@ bool RUDPCheckSignOfRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 	}
 
 	// Verification signature (bulk packet)
-	if (se->UseHMac == false)
+	if (se->BulkRecvKey->Size == RUDP_BULK_KEY_SIZE_V2)
 	{
-		Copy(sign, p, SHA1_SIZE);
-		Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
-		Sha1(sign2, p, recv_size);
-		Copy(p, sign, SHA1_SIZE);
+		UCHAR *iv = p;
+		CIPHER *c;
 
-		if (Cmp(sign, sign2, SHA1_SIZE) == 0)
+		// Packet: IV + Encrypted(SEQ_NO + Data + padding) + MAC
+		// IV
+		if (size < RUDP_BULK_IV_SIZE_V2)
 		{
+			return false;
+		}
+		iv = p;
+		p += RUDP_BULK_IV_SIZE_V2;
+		size -= RUDP_BULK_IV_SIZE_V2;
+
+		// Decrypt
+		if (size < (RUDP_BULK_MAC_SIZE_V2 + 1))
+		{
+			return false;
+		}
+
+		c = NewCipher("ChaCha20-Poly1305");
+		SetCipherKey(c, se->BulkRecvKey->Data, false);
+		size = CipherProcessAead(c, iv, p + size, RUDP_BULK_MAC_SIZE_V2, r->TmpBuf, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		FreeCipher(c);
+
+		if (size == 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+	else
+	{
+		if (se->UseHMac == false)
+		{
+			Copy(sign, p, SHA1_SIZE);
+			Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
+			Sha1(sign2, p, recv_size);
+			Copy(p, sign, SHA1_SIZE);
+
+			if (Cmp(sign, sign2, SHA1_SIZE) == 0)
+			{
+				return true;
+			}
+		}
+
+		HMacSha1(sign2, se->BulkRecvKey->Data, SHA1_SIZE, p + SHA1_SIZE, size - SHA1_SIZE);
+		if (Cmp(p, sign2, SHA1_SIZE) == 0)
+		{
+			se->UseHMac = true;
 			return true;
 		}
-	}
-
-	HMacSha1(sign2, se->BulkRecvKey->Data, SHA1_SIZE, p + SHA1_SIZE, size - SHA1_SIZE);
-	if (Cmp(p, sign2, SHA1_SIZE) == 0)
-	{
-		se->UseHMac = true;
-		return true;
 	}
 
 	return false;
@@ -2614,14 +2698,9 @@ bool RUDPCheckSignOfRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 // Process the received packet (bulk)
 bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data, UINT recv_size)
 {
-	UCHAR sign[SHA1_SIZE];
-	UCHAR sign2[SHA1_SIZE];
 	UCHAR *p;
 	UCHAR *iv;
 	UINT size;
-	UCHAR keygen[SHA1_SIZE * 2];
-	UCHAR key[SHA1_SIZE];
-	CRYPT *c;
 	UCHAR padlen;
 	UINT64 seq_no;
 	UCHAR *payload;
@@ -2639,15 +2718,85 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 		return false;
 	}
 
-	// Validate the signature
-	if (se->UseHMac == false)
+	if (se->BulkRecvKey->Size == RUDP_BULK_KEY_SIZE_V2)
 	{
-		Copy(sign, p, SHA1_SIZE);
-		Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
-		Sha1(sign2, p, recv_size);
-		Copy(p, sign, SHA1_SIZE);
+		UINT ret;
+		CIPHER *c;
 
-		if (Cmp(sign, sign2, SHA1_SIZE) != 0)
+		// Packet: IV + Encrypted(SEQ_NO + Data + padding) + MAC
+		// IV
+		if (size < RUDP_BULK_IV_SIZE_V2)
+		{
+			WHERE;
+			return false;
+		}
+		iv = p;
+		p += RUDP_BULK_IV_SIZE_V2;
+		size -= RUDP_BULK_IV_SIZE_V2;
+
+		// Decrypt
+		if (size < (RUDP_BULK_MAC_SIZE_V2 + 1))
+		{
+			WHERE;
+			return false;
+		}
+
+		c = NewCipher("ChaCha20-Poly1305");
+		SetCipherKey(c, se->BulkRecvKey->Data, false);
+		ret = CipherProcessAead(c, iv, p + size, RUDP_BULK_MAC_SIZE_V2, p, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		FreeCipher(c);
+
+		if (ret == 0)
+		{
+			WHERE;
+			return false;
+		}
+
+		size -= RUDP_BULK_MAC_SIZE_V2;
+
+		// padlen
+		padlen = p[size - 1];
+		if (padlen == 0)
+		{
+			WHERE;
+			return false;
+		}
+		if (size < padlen)
+		{
+			WHERE;
+			return false;
+		}
+		size -= padlen;
+	}
+	else
+	{
+		CRYPT *c;
+		UCHAR sign[SHA1_SIZE], sign2[SHA1_SIZE];
+		UCHAR key[SHA1_SIZE], keygen[SHA1_SIZE * 2];
+
+		// Validate the signature
+		if (se->UseHMac == false)
+		{
+			Copy(sign, p, SHA1_SIZE);
+			Copy(p, se->BulkRecvKey->Data, SHA1_SIZE);
+			Sha1(sign2, p, recv_size);
+			Copy(p, sign, SHA1_SIZE);
+
+			if (Cmp(sign, sign2, SHA1_SIZE) != 0)
+			{
+				HMacSha1(sign2, se->BulkRecvKey->Data, SHA1_SIZE, p + SHA1_SIZE, recv_size - SHA1_SIZE);
+
+				if (Cmp(p, sign2, SHA1_SIZE) != 0)
+				{
+					return false;
+				}
+				else
+				{
+					se->UseHMac = true;
+				}
+			}
+		}
+		else
 		{
 			HMacSha1(sign2, se->BulkRecvKey->Data, SHA1_SIZE, p + SHA1_SIZE, recv_size - SHA1_SIZE);
 
@@ -2655,61 +2804,45 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 			{
 				return false;
 			}
-			else
-			{
-				se->UseHMac = true;
-			}
 		}
-		else
-		{
-		}
-	}
-	else
-	{
-		HMacSha1(sign2, se->BulkRecvKey->Data, SHA1_SIZE, p + SHA1_SIZE, recv_size - SHA1_SIZE);
 
-		if (Cmp(p, sign2, SHA1_SIZE) != 0)
+		p += SHA1_SIZE;
+		size -= SHA1_SIZE;
+
+		// IV
+		if (size < SHA1_SIZE)
 		{
 			return false;
 		}
-	}
+		iv = p;
+		p += SHA1_SIZE;
+		size -= SHA1_SIZE;
 
-	p += SHA1_SIZE;
-	size -= SHA1_SIZE;
+		// Decrypt
+		if (size < 1)
+		{
+			return false;
+		}
+		Copy(keygen + 0, se->BulkRecvKey->Data, SHA1_SIZE);
+		Copy(keygen + SHA1_SIZE, iv, SHA1_SIZE);
+		Sha1(key, keygen, sizeof(keygen));
 
-	// IV
-	if (size < SHA1_SIZE)
-	{
-		return false;
-	}
-	iv = p;
-	p += SHA1_SIZE;
-	size -= SHA1_SIZE;
+		c = NewCrypt(key, sizeof(key));
+		Encrypt(c, p, p, size);
+		FreeCrypt(c);
 
-	// Decrypt
-	if (size < 1)
-	{
-		return false;
+		// padlen
+		padlen = p[size - 1];
+		if (padlen == 0)
+		{
+			return false;
+		}
+		if (size < padlen)
+		{
+			return false;
+		}
+		size -= padlen;
 	}
-	Copy(keygen + 0, se->BulkRecvKey->Data, SHA1_SIZE);
-	Copy(keygen + SHA1_SIZE, iv, SHA1_SIZE);
-	Sha1(key, keygen, sizeof(keygen));
-
-	c = NewCrypt(key, sizeof(key));
-	Encrypt(c, p, p, size);
-	FreeCrypt(c);
-
-	// padlen
-	padlen = p[size - 1];
-	if (padlen == 0)
-	{
-		return false;
-	}
-	if (size < padlen)
-	{
-		return false;
-	}
-	size -= padlen;
 
 	// SEQ NO
 	seq_no = READ_UINT64(p);
@@ -3522,8 +3655,8 @@ RUDP_SESSION *RUDPNewSession(bool server_mode, IP *my_ip, UINT my_port, IP *your
 	RUDP_SESSION *se;
 	UCHAR key1[SHA1_SIZE];
 	UCHAR key2[SHA1_SIZE];
-	UCHAR bulk_send_key[SHA1_SIZE];
-	UCHAR bulk_recv_key[SHA1_SIZE];
+	UCHAR bulk_send_key[RUDP_BULK_KEY_SIZE_MAX];
+	UCHAR bulk_recv_key[RUDP_BULK_KEY_SIZE_MAX];
 	BUF *b;
 
 	se = ZeroMalloc(sizeof(RUDP_SESSION));
@@ -3609,6 +3742,8 @@ RUDP_SESSION *RUDPNewSession(bool server_mode, IP *my_ip, UINT my_port, IP *your
 	se->BulkRecvKey = NewSharedBuffer(bulk_recv_key, sizeof(bulk_recv_key));
 
 	Rand(se->BulkNextIv, sizeof(se->BulkNextIv));
+	Rand(se->BulkNextIv_V2, sizeof(se->BulkNextIv_V2));
+
 	se->BulkNextSeqNo = 1;
 
 	return se;
@@ -12759,6 +12894,8 @@ SOCK *Accept(SOCK *sock)
 
 	StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NATIVE_V4);
 
+	AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "IPv4");
+
 	return ret;
 }
 
@@ -12868,6 +13005,8 @@ SOCK *Accept6(SOCK *sock)
 	}
 
 	StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_NATIVE_V6);
+
+	AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "IPv6");
 
 	return ret;
 }
@@ -14070,6 +14209,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			if (nat_t_sock != NULL)
 			{
 				StrCpy(nat_t_sock->UnderlayProtocol, sizeof(nat_t_sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(nat_t_sock->ProtocolDetails, sizeof(nat_t_sock->ProtocolDetails), "RUDP");
 			}
 
 			Copy(ret_ip, &ip4, sizeof(IP));
@@ -14294,8 +14434,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p4.Result_Nat_T_Sock);
 				ReleaseSock(p4.Result_Nat_T_Sock);
 
-				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_NAT_T);
+				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
+				AddProtocolDetailsStr(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/UDP");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14308,8 +14448,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p3.Result_Nat_T_Sock);
 				ReleaseSock(p3.Result_Nat_T_Sock);
 
-				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_DNS);
+				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_DNS);
+				AddProtocolDetailsStr(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/DNS");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14318,8 +14458,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			else if (p3.Ok)
 			{
 				// Use this if over ICMP success
-				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol),
-					SOCK_UNDERLAY_ICMP);
+				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_ICMP);
+				AddProtocolDetailsStr(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/ICMP");
 
 				Copy(ret_ip, &ip4, sizeof(IP));
 
@@ -14383,8 +14523,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	sock->Type = SOCK_TCP;
 	sock->ServerMode = false;
 
-	StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol),
-		(is_ipv6 ? SOCK_UNDERLAY_NATIVE_V6 : SOCK_UNDERLAY_NATIVE_V4));
+	StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol), is_ipv6 ? SOCK_UNDERLAY_NATIVE_V6 : SOCK_UNDERLAY_NATIVE_V4);
+	AddProtocolDetailsStr(sock->ProtocolDetails, sizeof(sock->ProtocolDetails), is_ipv6 ? "IPv6" : "IPv4");
 
 	// Host name resolution
 	if (no_get_hostname || (GetHostName(tmp, sizeof(tmp), &current_ip) == false))
@@ -14433,6 +14573,59 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 
 	return sock;
 }
+
+// Add a protocol details strings
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str)
+{
+	TOKEN_LIST *t1, *t2;
+	UINT i, j;
+	if (dst == NULL || str == NULL)
+	{
+		return;
+	}
+
+	t1 = ParseTokenWithoutNullStr(dst, " ");
+	t2 = ParseTokenWithoutNullStr(str, " ");
+
+	for (i = 0;i < t2->NumTokens;i++)
+	{
+		bool exists = false;
+		for (j = 0;j < t1->NumTokens;j++)
+		{
+			if (StrCmpi(t1->Token[j], t2->Token[i]) == 0)
+			{
+				exists = true;
+				break;
+			}
+		}
+
+		if (exists == false)
+		{
+			StrCat(dst, dst_size, t2->Token[i]);
+			StrCat(dst, dst_size, " ");
+		}
+	}
+
+	FreeToken(t1);
+	FreeToken(t2);
+}
+
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value)
+{
+	char tmp[128];
+	StrCpy(tmp, sizeof(tmp), key);
+	StrCat(tmp, sizeof(tmp), "=");
+	StrCat(tmp, sizeof(tmp), value);
+	AddProtocolDetailsStr(dst, dst_size, tmp);
+}
+
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value)
+{
+	char tmp[128];
+	ToStr(tmp, value);
+	AddProtocolDetailsKeyValueStr(dst, dst_size, key, tmp);
+}
+
 
 // Setting the buffer size of the socket
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size)
@@ -19445,6 +19638,8 @@ SOCK *AcceptReverse(SOCK *s)
 		{
 			StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_AZURE);
 
+			AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "VPN Azure");
+
 			return ret;
 		}
 
@@ -19492,6 +19687,8 @@ SOCK *AcceptInProc(SOCK *s)
 		if (ret != NULL)
 		{
 			StrCpy(ret->UnderlayProtocol, sizeof(ret->UnderlayProtocol), SOCK_UNDERLAY_INPROC);
+
+			AddProtocolDetailsStr(ret->ProtocolDetails, sizeof(ret->ProtocolDetails), "InProc");
 
 			return ret;
 		}

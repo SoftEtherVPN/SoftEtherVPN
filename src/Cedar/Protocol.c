@@ -1077,12 +1077,17 @@ bool ServerAccept(CONNECTION *c)
 	bool half_connection;
 	UINT adjust_mss;
 	bool use_udp_acceleration_client;
+	UINT client_udp_acceleration_max_version = 1;
+	UINT udp_acceleration_version = 1;
+	UINT client_rudp_bulk_max_version = 1;
+	UINT rudp_bulk_version = 1;
 	bool support_hmac_on_udp_acceleration_client = false;
 	bool support_udp_accel_fast_disconnect_detect;
 	bool use_hmac_on_udp_acceleration = false;
 	bool supress_return_pack_error = false;
 	IP udp_acceleration_client_ip;
-	UCHAR udp_acceleration_client_key[UDP_ACCELERATION_COMMON_KEY_SIZE];
+	UCHAR udp_acceleration_client_key[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];
+	UCHAR udp_acceleration_client_key_v2[UDP_ACCELERATION_COMMON_KEY_SIZE_V2];
 	UINT udp_acceleration_client_port;
 	bool admin_mode = false;
 	UINT direction;
@@ -1144,6 +1149,7 @@ bool ServerAccept(CONNECTION *c)
 	Zero(&udp_acceleration_client_ip, sizeof(udp_acceleration_client_ip));
 	udp_acceleration_client_port = 0;
 	Zero(udp_acceleration_client_key, sizeof(udp_acceleration_client_key));
+	Zero(udp_acceleration_client_key_v2, sizeof(udp_acceleration_client_key_v2));
 
 	Zero(&winver, sizeof(winver));
 
@@ -1453,6 +1459,16 @@ bool ServerAccept(CONNECTION *c)
 			client_id = PackGetInt(p, "client_id");
 			adjust_mss = PackGetInt(p, "adjust_mss");
 			use_udp_acceleration_client = PackGetBool(p, "use_udp_acceleration");
+			client_udp_acceleration_max_version = PackGetInt(p, "udp_acceleration_max_version");
+			if (client_udp_acceleration_max_version == 0)
+			{
+				client_udp_acceleration_max_version = 1;
+			}
+			client_rudp_bulk_max_version = PackGetInt(p, "rudp_bulk_max_version");
+			if (client_rudp_bulk_max_version == 0)
+			{
+				client_rudp_bulk_max_version = 1;
+			}
 			support_hmac_on_udp_acceleration_client = PackGetBool(p, "support_hmac_on_udp_acceleration");
 			support_udp_accel_fast_disconnect_detect = PackGetBool(p, "support_udp_accel_fast_disconnect_detect");
 			support_bulk_on_rudp = PackGetBool(p, "support_bulk_on_rudp");
@@ -1479,8 +1495,8 @@ bool ServerAccept(CONNECTION *c)
 				{
 					if (IsEmptyStr(c->InProcPrefix) == false)
 					{
-						Format(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol),
-							SOCK_UNDERLAY_INPROC_EX, c->InProcPrefix);
+						Format(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol), SOCK_UNDERLAY_INPROC_EX, c->InProcPrefix);
+						AddProtocolDetailsStr(c->FirstSock->UnderlayProtocol, sizeof(c->FirstSock->UnderlayProtocol), c->InProcPrefix);
 					}
 				}
 
@@ -1522,7 +1538,7 @@ bool ServerAccept(CONNECTION *c)
 			if (support_bulk_on_rudp && c->FirstSock != NULL && c->FirstSock->IsRUDPSocket &&
 				c->FirstSock->BulkRecvKey != NULL && c->FirstSock->BulkSendKey != NULL)
 			{
-				// RAllow UDP bulk transfer if the client side supports
+				// Allow UDP bulk transfer if the client side supports
 				// in the case of using R-UDP Socket
 				enable_bulk_on_rudp = true;
 
@@ -1537,9 +1553,11 @@ bool ServerAccept(CONNECTION *c)
 
 			if (use_udp_acceleration_client)
 			{
+				PackGetData2(p, "udp_acceleration_client_key", udp_acceleration_client_key, UDP_ACCELERATION_COMMON_KEY_SIZE_V1);
+				PackGetData2(p, "udp_acceleration_client_key_v2", udp_acceleration_client_key_v2, UDP_ACCELERATION_COMMON_KEY_SIZE_V2);
+
 				// Get the parameters for the UDP acceleration function
-				if (PackGetIp(p, "udp_acceleration_client_ip", &udp_acceleration_client_ip) == false ||
-					PackGetData2(p, "udp_acceleration_client_key", udp_acceleration_client_key, UDP_ACCELERATION_COMMON_KEY_SIZE) == false)
+				if (PackGetIp(p, "udp_acceleration_client_ip", &udp_acceleration_client_ip) == false)
 				{
 					use_udp_acceleration_client = false;
 				}
@@ -2807,7 +2825,8 @@ bool ServerAccept(CONNECTION *c)
 				// R-UDP session
 				s->IsRUDPSession = true;
 				s->RUdpMss = c->FirstSock->RUDP_OptimizedMss;
-				Debug("Optimized MSS Value for R-UDP: %u\n", s->RUdpMss);
+				Debug("ServerAccept(): Optimized MSS Value for R-UDP: %u\n", s->RUdpMss);
+				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "RUDP_MSS", s->RUdpMss);
 			}
 
 			if (enable_bulk_on_rudp)
@@ -2820,6 +2839,8 @@ bool ServerAccept(CONNECTION *c)
 			s->IsAzureSession = c->FirstSock->IsReverseAcceptedSocket;
 
 			StrCpy(s->UnderlayProtocol, sizeof(s->UnderlayProtocol), c->FirstSock->UnderlayProtocol);
+
+			AddProtocolDetailsStr(s->ProtocolDetails, sizeof(s->ProtocolDetails), c->FirstSock->ProtocolDetails);
 
 			if (server != NULL)
 			{
@@ -2849,6 +2870,22 @@ bool ServerAccept(CONNECTION *c)
 				s->UseUdpAcceleration = true;
 
 				s->UdpAccelFastDisconnectDetect = support_udp_accel_fast_disconnect_detect;
+
+				udp_acceleration_version = 1;
+				if (client_udp_acceleration_max_version >= 2)
+				{
+					udp_acceleration_version = 2;
+				}
+			}
+
+			if (client_rudp_bulk_max_version >= 2)
+			{
+				rudp_bulk_version = 2;
+			}
+
+			if (s->EnableBulkOnRUDP)
+			{
+				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "RUDP_Bulk_Ver", s->BulkOnRUDPVersion);
 			}
 
 			if (hub->Option != NULL && hub->Option->DisableUdpAcceleration)
@@ -2872,6 +2909,7 @@ bool ServerAccept(CONNECTION *c)
 
 			Debug("UseUdpAcceleration = %u\n", s->UseUdpAcceleration);
 			Debug("UseHMacOnUdpAcceleration = %u\n", s->UseHMacOnUdpAcceleration);
+			Debug("UdpAccelerationVersion = %u\n", s->UdpAccelerationVersion);
 
 			if (s->UseUdpAcceleration)
 			{
@@ -2887,8 +2925,11 @@ bool ServerAccept(CONNECTION *c)
 				}
 				else
 				{
-					if (UdpAccelInitServer(s->UdpAccel, udp_acceleration_client_key, &udp_acceleration_client_ip, udp_acceleration_client_port,
-						&c->FirstSock->RemoteIP) == false)
+					s->UdpAccel->Version = udp_acceleration_version;
+
+					if (UdpAccelInitServer(s->UdpAccel,
+						s->UdpAccel->Version == 2 ? udp_acceleration_client_key_v2 : udp_acceleration_client_key,
+						&udp_acceleration_client_ip, udp_acceleration_client_port, &c->FirstSock->RemoteIP) == false)
 					{
 						Debug("UdpAccelInitServer Failed.\n");
 						s->UseUdpAcceleration = false;
@@ -2902,6 +2943,12 @@ bool ServerAccept(CONNECTION *c)
 					}
 
 					s->UdpAccel->UseHMac = s->UseHMacOnUdpAcceleration;
+
+					AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "UDPAccel_Ver", s->UdpAccel->Version);
+
+					AddProtocolDetailsStr(s->ProtocolDetails, sizeof(s->ProtocolDetails), s->UdpAccel->Version > 1 ? "ChaCha20-Poly1305" : "RC4");
+
+					AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "UDPAccel_MSS", UdpAccelCalcMss(s->UdpAccel));
 				}
 			}
 
@@ -2912,6 +2959,7 @@ bool ServerAccept(CONNECTION *c)
 			if (s->AdjustMss != 0)
 			{
 				Debug("AdjustMSS: %u\n", s->AdjustMss);
+				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "AdjustMSS", s->AdjustMss);
 			}
 
 			s->IsBridgeMode = (policy->NoBridge == false) || (policy->NoRouting == false);
@@ -2957,8 +3005,7 @@ bool ServerAccept(CONNECTION *c)
 			{
 				char ip[128];
 				IPToStr(ip, sizeof(ip), &c->FirstSock->RemoteIP);
-				HLog(hub, "LH_NEW_SESSION", c->Name, s->Name, ip, c->FirstSock->RemotePort,
-					c->FirstSock->UnderlayProtocol);
+				HLog(hub, "LH_NEW_SESSION", c->Name, s->Name, ip, c->FirstSock->RemotePort, c->FirstSock->UnderlayProtocol, c->FirstSock->ProtocolDetails);
 			}
 
 			c->Session = s;
@@ -3334,6 +3381,19 @@ bool ServerAccept(CONNECTION *c)
 
 		// Add the socket of this connection to the connection list of the session (TCP)
 		sock = c->FirstSock;
+
+		if (sock->IsRUDPSocket && sock->BulkRecvKey != NULL && sock->BulkSendKey != NULL)
+		{
+			if (s->BulkRecvKeySize != 0 && s->BulkSendKeySize != 0)
+			{
+				// Restore R-UDP bulk send/recv keys for additional connections
+				Copy(sock->BulkRecvKey->Data, s->BulkRecvKey, s->BulkRecvKeySize);
+				sock->BulkRecvKey->Size = s->BulkRecvKeySize;
+				Copy(sock->BulkSendKey->Data, s->BulkSendKey, s->BulkSendKeySize);
+				sock->BulkSendKey->Size = s->BulkSendKeySize;
+			}
+		}
+
 		ts = NewTcpSock(sock);
 		SetTimeout(sock, CONNECTING_TIMEOUT);
 		direction = TCP_BOTH;
@@ -3980,6 +4040,19 @@ bool ClientAdditionalConnect(CONNECTION *c, THREAD *t)
 	}
 
 	Debug("Additional Connect Succeed!\n");
+
+	if (s->IsRUDPSocket && s->BulkRecvKey != NULL && s->BulkSendKey != NULL)
+	{
+		// Restore R-UDP bulk send/recv keys for additional connections
+		if (c->Session->BulkRecvKeySize != 0 && c->Session->BulkSendKeySize != 0)
+		{
+			Copy(s->BulkRecvKey->Data, c->Session->BulkRecvKey, c->Session->BulkRecvKeySize);
+			s->BulkRecvKey->Size = c->Session->BulkRecvKeySize;
+
+			Copy(s->BulkSendKey->Data, c->Session->BulkSendKey, c->Session->BulkSendKeySize);
+			s->BulkSendKey->Size = c->Session->BulkSendKeySize;
+		}
+	}
 
 	// Success the additional connection
 	// Add to the TcpSockList of the connection
@@ -4704,9 +4777,13 @@ REDIRECTED:
 		// Physical communication protocol
 		StrCpy(c->Session->UnderlayProtocol, sizeof(c->Session->UnderlayProtocol), s->UnderlayProtocol);
 
+		AddProtocolDetailsStr(c->Session->ProtocolDetails, sizeof(c->Session->ProtocolDetails), s->ProtocolDetails);
+
 		if (c->Session->IsAzureSession)
 		{
 			StrCpy(c->Session->UnderlayProtocol, sizeof(c->Session->UnderlayProtocol), SOCK_UNDERLAY_AZURE);
+
+			AddProtocolDetailsStr(c->Session->ProtocolDetails, sizeof(c->Session->ProtocolDetails), "VPN Azure");
 		}
 
 		if (c->Protocol == CONNECTION_UDP)
@@ -4725,22 +4802,44 @@ REDIRECTED:
 
 		sess->EnableBulkOnRUDP = false;
 		sess->EnableHMacOnBulkOfRUDP = false;
-		if (s->IsRUDPSocket && s->BulkRecvKey != NULL && s->BulkSendKey != NULL)
+		if (s != NULL && s->IsRUDPSocket && s->BulkRecvKey != NULL && s->BulkSendKey != NULL)
 		{
 			// Bulk transfer on R-UDP
+			sess->EnableHMacOnBulkOfRUDP = PackGetBool(p, "enable_hmac_on_bulk_of_rudp");
+			sess->BulkOnRUDPVersion = PackGetInt(p, "rudp_bulk_version");
+
 			if (PackGetBool(p, "enable_bulk_on_rudp"))
 			{
 				// Receive the key
-				UCHAR key_send[SHA1_SIZE];
-				UCHAR key_recv[SHA1_SIZE];
+				UCHAR key_send[RUDP_BULK_KEY_SIZE_MAX];
+				UCHAR key_recv[RUDP_BULK_KEY_SIZE_MAX];
 
-				if (PackGetData2(p, "bulk_on_rudp_send_key", key_send, SHA1_SIZE) &&
-					PackGetData2(p, "bulk_on_rudp_recv_key", key_recv, SHA1_SIZE))
+				UINT key_size = SHA1_SIZE;
+
+				if (sess->BulkOnRUDPVersion == 2)
+				{
+					key_size = RUDP_BULK_KEY_SIZE_V2;
+				}
+
+				if (PackGetData2(p, "bulk_on_rudp_send_key", key_send, key_size) &&
+					PackGetData2(p, "bulk_on_rudp_recv_key", key_recv, key_size))
 				{
 					sess->EnableBulkOnRUDP = true;
 
-					Copy(s->BulkSendKey->Data, key_send, SHA1_SIZE);
-					Copy(s->BulkRecvKey->Data, key_recv, SHA1_SIZE);
+					Copy(s->BulkSendKey->Data, key_send, key_size);
+					Copy(s->BulkRecvKey->Data, key_recv, key_size);
+
+					s->BulkSendKey->Size = key_size;
+					s->BulkRecvKey->Size = key_size;
+
+					// Backup R-UDP bulk send/recv keys for additional connections
+					Copy(sess->BulkSendKey, s->BulkSendKey->Data, s->BulkSendKey->Size);
+					sess->BulkSendKeySize = s->BulkSendKey->Size;
+
+					Copy(sess->BulkRecvKey, s->BulkRecvKey->Data, s->BulkRecvKey->Size);
+					sess->BulkRecvKeySize = s->BulkRecvKey->Size;
+
+					AddProtocolDetailsKeyValueInt(sess->ProtocolDetails, sizeof(sess->ProtocolDetails), "RUDP_Bulk_Ver", sess->BulkOnRUDPVersion);
 				}
 			}
 
@@ -4750,6 +4849,7 @@ REDIRECTED:
 		Debug("EnableBulkOnRUDP = %u\n", sess->EnableBulkOnRUDP);
 		Debug("EnableHMacOnBulkOfRUDP = %u\n", sess->EnableHMacOnBulkOfRUDP);
 		Debug("EnableUdpRecovery = %u\n", sess->EnableUdpRecovery);
+		Debug("BulkOnRUDPVersion = %u\n", sess->BulkOnRUDPVersion);
 
 		sess->UseUdpAcceleration = false;
 		sess->IsUsingUdpAcceleration = false;
@@ -4763,7 +4863,13 @@ REDIRECTED:
 
 			if (PackGetBool(p, "use_udp_acceleration"))
 			{
+				UINT udp_acceleration_version = PackGetInt(p, "udp_acceleration_version");
 				IP udp_acceleration_server_ip;
+
+				if (udp_acceleration_version == 0)
+				{
+					udp_acceleration_version = 1;
+				}
 
 				sess->UdpAccelFastDisconnectDetect = PackGetBool(p, "udp_accel_fast_disconnect_detect");
 
@@ -4778,46 +4884,62 @@ REDIRECTED:
 
 					if (udp_acceleration_server_port != 0)
 					{
-						UCHAR udp_acceleration_server_key[UDP_ACCELERATION_COMMON_KEY_SIZE];
+						UCHAR udp_acceleration_server_key[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];
+						UCHAR udp_acceleration_server_key_v2[UDP_ACCELERATION_COMMON_KEY_SIZE_V2];
+						UINT server_cookie = PackGetInt(p, "udp_acceleration_server_cookie");
+						UINT client_cookie = PackGetInt(p, "udp_acceleration_client_cookie");
+						bool encryption = PackGetBool(p, "udp_acceleration_use_encryption");
 
-						if (PackGetData2(p, "udp_acceleration_server_key", udp_acceleration_server_key, UDP_ACCELERATION_COMMON_KEY_SIZE))
+						Zero(udp_acceleration_server_key, sizeof(udp_acceleration_server_key));
+						Zero(udp_acceleration_server_key_v2, sizeof(udp_acceleration_server_key_v2));
+
+						PackGetData2(p, "udp_acceleration_server_key", udp_acceleration_server_key, UDP_ACCELERATION_COMMON_KEY_SIZE_V1);
+						PackGetData2(p, "udp_acceleration_server_key_v2", udp_acceleration_server_key_v2, UDP_ACCELERATION_COMMON_KEY_SIZE_V2);
+
+						if (server_cookie != 0 && client_cookie != 0)
 						{
-							UINT server_cookie = PackGetInt(p, "udp_acceleration_server_cookie");
-							UINT client_cookie = PackGetInt(p, "udp_acceleration_client_cookie");
-							bool encryption = PackGetBool(p, "udp_acceleration_use_encryption");
+							IP remote_ip;
 
-							if (server_cookie != 0 && client_cookie != 0)
+							Copy(&remote_ip, &s->RemoteIP, sizeof(IP));
+
+							if (IsZeroIp(&c->Session->AzureRealServerGlobalIp) == false)
 							{
-								IP remote_ip;
+								Copy(&remote_ip, &c->Session->AzureRealServerGlobalIp, sizeof(IP));
+							}
 
-								Copy(&remote_ip, &s->RemoteIP, sizeof(IP));
+							sess->UdpAccel->Version = 1;
+							if (udp_acceleration_version == 2)
+							{
+								sess->UdpAccel->Version = 2;
+							}
 
-								if (IsZeroIp(&c->Session->AzureRealServerGlobalIp) == false)
+							if (UdpAccelInitClient(sess->UdpAccel,
+								sess->UdpAccel->Version == 2 ? udp_acceleration_server_key_v2 : udp_acceleration_server_key,
+								&udp_acceleration_server_ip, udp_acceleration_server_port,
+								server_cookie, client_cookie, &remote_ip) == false)
+							{
+								Debug("UdpAccelInitClient failed.\n");
+							}
+							else
+							{
+								sess->UseUdpAcceleration = true;
+
+								sess->UdpAccel->FastDetect = sess->UdpAccelFastDisconnectDetect;
+
+								sess->UdpAccel->PlainTextMode = !encryption;
+
+								sess->UseHMacOnUdpAcceleration = PackGetBool(p, "use_hmac_on_udp_acceleration");
+
+								if (sess->UseHMacOnUdpAcceleration)
 								{
-									Copy(&remote_ip, &c->Session->AzureRealServerGlobalIp, sizeof(IP));
+									sess->UdpAccel->UseHMac = true;
 								}
 
-								if (UdpAccelInitClient(sess->UdpAccel, udp_acceleration_server_key,
-									&udp_acceleration_server_ip, udp_acceleration_server_port,
-									server_cookie, client_cookie, &remote_ip) == false)
-								{
-									Debug("UdpAccelInitClient failed.\n");
-								}
-								else
-								{
-									sess->UseUdpAcceleration = true;
+								AddProtocolDetailsKeyValueInt(sess->ProtocolDetails, sizeof(sess->ProtocolDetails), "UDPAccel_Ver", sess->UdpAccel->Version);
 
-									sess->UdpAccel->FastDetect = sess->UdpAccelFastDisconnectDetect;
+								AddProtocolDetailsStr(sess->ProtocolDetails, sizeof(sess->ProtocolDetails), sess->UdpAccel->Version > 1 ? "ChaCha20-Poly1305" : "RC4");
 
-									sess->UdpAccel->PlainTextMode = !encryption;
-
-									sess->UseHMacOnUdpAcceleration = PackGetBool(p, "use_hmac_on_udp_acceleration");
-
-									if (sess->UseHMacOnUdpAcceleration)
-									{
-										sess->UdpAccel->UseHMac = true;
-									}
-								}
+								AddProtocolDetailsKeyValueInt(sess->ProtocolDetails, sizeof(sess->ProtocolDetails), "UDPAccel_MSS", UdpAccelCalcMss(sess->UdpAccel));
 							}
 						}
 					}
@@ -5044,15 +5166,25 @@ PACK *PackWelcome(SESSION *s)
 
 		// Virtual HUB name
 		PackAddStr(p, "IpcHubName", s->Hub->Name);
+
+		// Shared Buffer
+		s->IpcSessionSharedBuffer = NewSharedBuffer(NULL, sizeof(IPC_SESSION_SHARED_BUFFER_DATA));
+		AddRef(s->IpcSessionSharedBuffer->Ref);
+
+		s->IpcSessionShared = s->IpcSessionSharedBuffer->Data;
+
+		PackAddInt64(p, "IpcSessionSharedBuffer", (UINT64)s->IpcSessionSharedBuffer);
 	}
 
 	if (s->UdpAccel != NULL)
 	{
 		// UDP acceleration function
 		PackAddBool(p, "use_udp_acceleration", true);
+		PackAddInt(p, "udp_acceleration_version", s->UdpAccel->Version);
 		PackAddIp(p, "udp_acceleration_server_ip", &s->UdpAccel->MyIp);
 		PackAddInt(p, "udp_acceleration_server_port", s->UdpAccel->MyPort);
-		PackAddData(p, "udp_acceleration_server_key", s->UdpAccel->MyKey, UDP_ACCELERATION_COMMON_KEY_SIZE);
+		PackAddData(p, "udp_acceleration_server_key", s->UdpAccel->MyKey, sizeof(s->UdpAccel->MyKey));
+		PackAddData(p, "udp_acceleration_server_key_v2", s->UdpAccel->MyKey_V2, sizeof(s->UdpAccel->MyKey_V2));
 		PackAddInt(p, "udp_acceleration_server_cookie", s->UdpAccel->MyCookie);
 		PackAddInt(p, "udp_acceleration_client_cookie", s->UdpAccel->YourCookie);
 		PackAddBool(p, "udp_acceleration_use_encryption", !s->UdpAccel->PlainTextMode);
@@ -5065,9 +5197,35 @@ PACK *PackWelcome(SESSION *s)
 		// Allow bulk transfer on R-UDP
 		PackAddBool(p, "enable_bulk_on_rudp", true);
 		PackAddBool(p, "enable_hmac_on_bulk_of_rudp", s->EnableHMacOnBulkOfRUDP);
+		PackAddInt(p, "rudp_bulk_version", s->BulkOnRUDPVersion);
 
-		PackAddData(p, "bulk_on_rudp_send_key", s->Connection->FirstSock->BulkRecvKey->Data, SHA1_SIZE);
-		PackAddData(p, "bulk_on_rudp_recv_key", s->Connection->FirstSock->BulkSendKey->Data, SHA1_SIZE);
+		if (s->BulkOnRUDPVersion == 2)
+		{
+			PackAddData(p, "bulk_on_rudp_send_key", s->Connection->FirstSock->BulkRecvKey->Data, RUDP_BULK_KEY_SIZE_V2);
+			s->Connection->FirstSock->BulkRecvKey->Size = RUDP_BULK_KEY_SIZE_V2;
+
+			PackAddData(p, "bulk_on_rudp_recv_key", s->Connection->FirstSock->BulkSendKey->Data, RUDP_BULK_KEY_SIZE_V2);
+			s->Connection->FirstSock->BulkSendKey->Size = RUDP_BULK_KEY_SIZE_V2;
+		}
+		else
+		{
+			PackAddData(p, "bulk_on_rudp_send_key", s->Connection->FirstSock->BulkRecvKey->Data, SHA1_SIZE);
+			s->Connection->FirstSock->BulkRecvKey->Size = SHA1_SIZE;
+
+			PackAddData(p, "bulk_on_rudp_recv_key", s->Connection->FirstSock->BulkSendKey->Data, SHA1_SIZE);
+			s->Connection->FirstSock->BulkSendKey->Size = SHA1_SIZE;
+		}
+
+		// Backup R-UDP bulk send/recv keys for additional connections
+		Copy(s->BulkSendKey, s->Connection->FirstSock->BulkSendKey->Data,
+			s->Connection->FirstSock->BulkSendKey->Size);
+
+		s->BulkSendKeySize = s->Connection->FirstSock->BulkSendKey->Size;
+
+		Copy(s->BulkRecvKey, s->Connection->FirstSock->BulkRecvKey->Data,
+			s->Connection->FirstSock->BulkRecvKey->Size);
+
+		s->BulkRecvKeySize = s->Connection->FirstSock->BulkRecvKey->Size;
 	}
 
 	if (s->IsAzureSession)
@@ -5442,6 +5600,8 @@ bool ClientUploadAuth(CONNECTION *c)
 
 		PackAddBool(p, "use_udp_acceleration", true);
 
+		PackAddInt(p, "udp_acceleration_version", c->Session->UdpAccel->Version);
+
 		Copy(&my_ip, &c->Session->UdpAccel->MyIp, sizeof(IP));
 		if (IsLocalHostIP(&my_ip))
 		{
@@ -5457,10 +5617,14 @@ bool ClientUploadAuth(CONNECTION *c)
 
 		PackAddIp(p, "udp_acceleration_client_ip", &my_ip);
 		PackAddInt(p, "udp_acceleration_client_port", c->Session->UdpAccel->MyPort);
-		PackAddData(p, "udp_acceleration_client_key", c->Session->UdpAccel->MyKey, UDP_ACCELERATION_COMMON_KEY_SIZE);
+		PackAddData(p, "udp_acceleration_client_key", c->Session->UdpAccel->MyKey, UDP_ACCELERATION_COMMON_KEY_SIZE_V1);
+		PackAddData(p, "udp_acceleration_client_key_v2", c->Session->UdpAccel->MyKey_V2, UDP_ACCELERATION_COMMON_KEY_SIZE_V2);
 		PackAddBool(p, "support_hmac_on_udp_acceleration", true);
 		PackAddBool(p, "support_udp_accel_fast_disconnect_detect", true);
+		PackAddInt(p, "udp_acceleration_max_version", 2);
 	}
+
+	PackAddInt(p, "rudp_bulk_max_version", 2);
 
 	// Brand string for the connection limit
 	{
@@ -5767,14 +5931,31 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			}
 			else
 			{
-
 				if (StrCmpi(h->Target, "/") == 0)
 				{
 					// Root directory
+					BUF *b = NULL;
 					*error_detail_str = "HTTP_ROOT";
 
+					if (server->DisableJsonRpcWebApi == false)
 					{
-						// Other than free version
+						b = ReadDump("|wwwroot\\index.html");
+					}
+
+					if (b != NULL)
+					{
+						FreeHttpHeader(h);
+						h = NewHttpHeader("HTTP/1.1", "202", "OK");
+						AddHttpValue(h, NewHttpValue("Content-Type", HTTP_CONTENT_TYPE4));
+						AddHttpValue(h, NewHttpValue("Connection", "Keep-Alive"));
+						AddHttpValue(h, NewHttpValue("Keep-Alive", HTTP_KEEP_ALIVE));
+
+						PostHttp(c->FirstSock, h, b->Buf, b->Size);
+
+						FreeBuf(b);
+					}
+					else
+					{
 						HttpSendForbidden(c->FirstSock, h->Target, "");
 					}
 				}

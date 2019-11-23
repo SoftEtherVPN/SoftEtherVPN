@@ -103,7 +103,7 @@ void SessionMain(SESSION *s)
 	s->LastCommTime = Tick64();
 	if (s->ServerMode == false)
 	{
-		s->NextConnectionTime = Tick64() + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000;
+		s->NextConnectionTime = Tick64() + (UINT64)((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 	}
 
 	s->NumConnectionsEstablished++;
@@ -900,7 +900,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 				(s->NextConnectionTime <= now))
 			{
 				// Start the work to put an additional connection
-				s->NextConnectionTime = now + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000U;
+				s->NextConnectionTime = now + ((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 				SessionAdditionalConnect(s);
 			}
 			else
@@ -1292,6 +1292,8 @@ void CleanupSession(SESSION *s)
 	}
 
 	DeleteCounter(s->LoggingRecordCount);
+
+	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
 
 	Free(s);
 }
