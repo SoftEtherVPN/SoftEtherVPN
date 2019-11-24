@@ -2088,48 +2088,48 @@ L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
 
 
 # Concerning Microsoft.c
-MS_VIRTUAL				Proprietary Virtual/Internal Interface
-MS_ETHERNET				Ethernet Interface
-MS_TOKENRING			Token Ring Interface
-MS_FDDI					FDDI Interface
-MS_PPP					PPP (Dialup or VPN)
-MS_LOOPBACK				Loopback Interface
-MS_SLIP					SLIP Interface
-MS_WLAN					Wireless Network Interface
-MS_OTHER				Unknown Other Interface
-MS_NON_OPERATIONAL		Disabled
-MS_UNREACHABLE			Not Connected
-MS_DISCONNECTED			Not Connected
-MS_CONNECTING			Connecting
-MS_CONNECTED			Connected
-MS_OPERATIONAL			Connected
+MS_VIRTUAL				Собственный виртуальный/внутренний интерфейс
+MS_ETHERNET				Интерфейс Ethernet
+MS_TOKENRING			Интерфейс Token Ring
+MS_FDDI					Интерфейс FDDI
+MS_PPP					PPP (Dialup или VPN)
+MS_LOOPBACK				Loopback интерфейс
+MS_SLIP					SLIP интерфейс
+MS_WLAN					Беспроводной сетевой интерфейс
+MS_OTHER				Неизвестный другой интерфейс
+MS_NON_OPERATIONAL		Выключен
+MS_UNREACHABLE			Не подключен
+MS_DISCONNECTED			Не подключен
+MS_CONNECTING			Подключение
+MS_CONNECTED			Подключен
+MS_OPERATIONAL			Подключен
 
 
 # Concerning Network Utility
-UT_SM_COLUMN_1			Item Name
-UT_SM_COLUMN_2			Value
-UT_SM_ST_TITLE			Network Adapter Name
+UT_SM_COLUMN_1			Название
+UT_SM_COLUMN_2			Значение
+UT_SM_ST_TITLE			Имя сетевого адаптера
 UT_SM_ST_GUID			GUID
-UT_SM_ST_TYPE			Type
-UT_SM_ST_TYPE2			Physical Wired Ethernet
-UT_SM_ST_STATUS			Status
+UT_SM_ST_TYPE			Тип
+UT_SM_ST_TYPE2			Физический проводной Ethernet
+UT_SM_ST_STATUS			Статус
 UT_SM_ST_MTU			MTU
-UT_SM_ST_SPEED			Link Speed
-UT_SM_ST_ADDRESS		Physical Address
-UT_SM_ST_RECV_BYTES		Incoming Bytes
-UT_SM_ST_RECV_BCASTS	Incoming Broadcast Packets
-UT_SM_ST_RECV_UNICASTS	Incoming Unicast Packets
-UT_SM_ST_SEND_BYTES		Outgoing Bytes
-UT_SM_ST_SEND_BCASTS	Outgoing Broadcast Packets
-UT_SM_ST_SEND_UNICASTS	Outgoing Unicast Packets
-UT_SM_ST_IP				IP Address %u
-UT_SM_ST_SUBNET			Subnet Mask %u
-UT_SM_ST_GATEWAY		Gateway %u
-UT_SM_ST_DHCP			DHCP Server
-UT_SM_ST_DHCP_1			Lease Start
-UT_SM_ST_DHCP_2			Lease Limit date and time
-UT_SM_ST_WINS_1			WINS Server 1
-UT_SM_ST_WINS_2			WINS Server 2
+UT_SM_ST_SPEED			Скорость соединения
+UT_SM_ST_ADDRESS		Физический адрес
+UT_SM_ST_RECV_BYTES		Входящие байты
+UT_SM_ST_RECV_BCASTS	Вх. широковещательные пакеты
+UT_SM_ST_RECV_UNICASTS	Входящие пакеты
+UT_SM_ST_SEND_BYTES		Исходящие байты
+UT_SM_ST_SEND_BCASTS	Исх. широковещательные пакеты
+UT_SM_ST_SEND_UNICASTS	Исх. пакеты
+UT_SM_ST_IP				IP адрес %u
+UT_SM_ST_SUBNET			Маска подсети %u
+UT_SM_ST_GATEWAY		Шлюз %u
+UT_SM_ST_DHCP			DHCP-сервер
+UT_SM_ST_DHCP_1			Начало аренды
+UT_SM_ST_DHCP_2			Окончание аренды
+UT_SM_ST_WINS_1			WINS-сервер 1
+UT_SM_ST_WINS_2			WINS-сервер 2
 
 
 # Concerning EtherLogger Manager
@@ -3650,44 +3650,44 @@ IDCANCEL				&No
 
 
 PREFIX					D_CM_TRAFFIC
-CAPTION					Network Traffic Speed Test Tool
-STATIC1					Network Traffic Speed Test Tool performs transmitting packets between two computers connected with TCP/IP, with large amount of throughput as possible, in order to measure the actual network traffic speed available. This tool can be used for not limited VPNs, but it is useful for physical networks.
-STATIC2					Use this tool to measure the current bandwidth capacity of the network. Note that the value obtained is sometimes lower than the actual network processing capacity due to the CPU performance of both endpoints, what other programs are currently running and fluctuations in the rate of use of the network.
-S_1						Configurations:
-S_3						Which is the role of this computer?
-R_SERVER				Test &Server
-R_CLIENT				Test &Client
-S_4						To activate the test server, specify the listening port number.\r\nTo use it as the test client, specify the host name of the destination test server or the IP address, and port number. If necessary, configure the optional settings below.
-S_5						Destination Test Server &Hostname: 
-S_6						&Port Number: 
-S_7						(TCP port)
-S_8						Configure following options on the client side.
-S_9						Direction of Data Communication
-R_DOWNLOAD				&Download (Incoming: from Server to Client)
-R_UPLOAD				&Upload (Outgoing: from Client to Server)
-R_FULL					Download and Upload (&Full-Duplex Mode: In and Out Simultaneously)
-S_10					Advanced Settings
-S_11					&Number of Concurrent Parallel TCP Connections:
-S_12					Me&asuring Period:
-S_13					seconds
-R_ETHERNET				Correct L2 Throughput Assuming &Ethernet
-R_DOUBLE				Relay Device Mode
-S_14					connections
-IDOK					&Run
-IDCANCEL				Cancel
-S_15					You can also run this tool from the vpncmd Command-line Management Utility (also available on non-Windows OS).
+CAPTION					Тест скорости сетевого трафика
+STATIC1					Средство тестирования скорости сетевого трафика выполняет передачу пакетов между двумя компьютерами, подключенными по TCP/IP, с максимально возможной пропускной способностью, чтобы измерить фактическую доступную скорость сетевого трафика. Этот инструмент может использоваться для неограниченных VPN, но он полезен для физических сетей.
+STATIC2					Используйте этот инструмент для измерения текущей пропускной способности сети. Обратите внимание, что полученное значение иногда ниже, чем фактическая пропускная способность сети, из-за производительности ЦП обеих конечных точек, запущенных программ и колебаний в скорости используемой сети.
+S_1						Конфигурация:
+S_3						Какова роль этого компьютера?
+R_SERVER				Тестовый Сервер
+R_CLIENT				Тестовый Клиент
+S_4						Чтобы активировать тестовый сервер, укажите номер порта для прослушивания.\r\nЧтобы использовать его в качестве тестового клиента, укажите имя хоста тестового или IP-адрес сервера и номер порта. При необходимости настройте дополнительные параметры ниже.
+S_5						Имя хоста тестового сервера:
+S_6						&Номер порта:
+S_7						(TCP порт)
+S_8						Настройте следующие параметры на стороне клиента.
+S_9						Направление передачи данных
+R_DOWNLOAD				&Скачивание (Входящее: с сервера на клиент)
+R_UPLOAD				&Загрузка (Исходящее: с клиента на сервер)
+R_FULL					Скачивание и загрузка (&Полнодуплексный режим: одновременно в двух направлениях)
+S_10					Расширенные настройки
+S_11					&Количество параллельных TCP-соединений:
+S_12					Период измерения:
+S_13					сек.
+R_ETHERNET				Исправлять предпологаемую пропускную способность L2 Ethernet
+R_DOUBLE				Режим ретрансляции
+S_14					соед.
+IDOK					&Запустить
+IDCANCEL				Отмена
+S_15					Вы также можете запустить этот инструмент из утилиты управления через командную строку "vpncmd" (также доступной в ОС, отличной от Windows).
 
 
 PREFIX					D_CM_TRAFFIC_RUN
-CAPTION					Network Traffic Speed Test Tool
-S_INFO					The Network Traffic Speed Test Tool is running. The operating status is as follows.
-STATIC1					To abort the Network Traffic Speed Test Tool, click Exit.
-IDCANCEL				&Exit
+CAPTION					Тест скорости сетевого трафика
+S_INFO					Средство тестирования скорости сетевого трафика работает. Рабочее состояние выглядит следующим образом.
+STATIC1					Чтобы прервать тест скорости сетевого трафика, нажмите «Выход».
+IDCANCEL				&Выход
 
 
 PREFIX					D_CM_TRAFFIC_RESULT
-CAPTION					Communication Traffic Measurement Results
-STATIC1					Communication traffic has been measured. The results are shown below.
+CAPTION					Результаты измерения сетевого трафика
+STATIC1					Трафик был измерен. Результаты показаны ниже.
 IDCANCEL				&Закрыть
 
 
@@ -4259,8 +4259,8 @@ CMD_REINSTALL			&Переустановить драйвер...\tCtrl+U
 CMD_WINNET				Открыть окно Сетевых подключений Windows...\tCtrl+W
 # [Connect] menu
 CMD_TOP_SECURE			&Смарт-карты
-CMD_SECURE_MANAGER		Smart Card Manager...\tCtrl+G
-CMD_SECURE_SELECT		&Select a Smart Card to Use...
+CMD_SECURE_MANAGER		Управление смарт-картами...\tCtrl+G
+CMD_SECURE_SELECT		&Выберите смарт-карту...
 # [Tools] menu
 CMD_TOP_TOOL			&Инструменты
 CMD_PASSWORD			Установить пароль...\tCtrl+P
@@ -4273,9 +4273,9 @@ CMD_CM_SETTING			Переключить режим работы...
 CMD_LANGUAGE			&Настройки языка...
 CMD_OPTION				&Настройки...\tCtrl+O
 # [Voice] menu
-CMD_TOP_VOICE			V&oice
-CMD_VOIDE_NONE			Voice Gui&de Off 
-CMD_VOICE_NORMAL		&Normal Voice Guide
+CMD_TOP_VOICE			Voice
+CMD_VOIDE_NONE			Voice Guide Off 
+CMD_VOICE_NORMAL		Normal Voice Guide
 CMD_VOICE_ODD			Extended V&oice Guide
 # [Help] menu
 CMD_TOP_HELP			&Help
