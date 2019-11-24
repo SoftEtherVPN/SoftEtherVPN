@@ -2818,14 +2818,14 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_SM_POLICY
-STATIC1					Selected &Policy:
-S_BOLD					Des&cription of the policy:
-S_BOLD2					Current &Value:
-R_ENABLE				&Enable the Policy
-R_DISABLE				&Disable the Policy
-R_DEFINE				De&fine the Policy
+STATIC1					Выбранная политика:
+S_BOLD					Описание политики:
+S_BOLD2					Текущее значение:
+R_ENABLE				&Включить политику
+R_DISABLE				&Выключить политику
+R_DEFINE				Определить политику
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_GROUP
@@ -3164,12 +3164,12 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_NM_CHANGE_PASSWORD
-CAPTION					Change Administrator Password of %S
-S_TITLE					You can change the administrator password of SoftEther VPN User-mode Router (%S). Click OK after entering the new password.
-STATIC1					New &Password: 
-STATIC2					&Confirm Your Input: 
+CAPTION					Изменить пароль администратора "%S"
+S_TITLE					Вы можете изменить пароль администратора SoftEther VPN, работающего в режиме роутера (%S). Нажмите OK после ввода нового пароля.
+STATIC1					Новый пароль:
+STATIC2					&Подтвердить пароль:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SNAT
@@ -3272,12 +3272,12 @@ STATIC3					Saving large volume packet logs can place a large burden on the CPU 
 
 
 PREFIX					D_EM_PASSWORD
-CAPTION					Change Administrator Password
-S_TITLE					You can change the administrator password. Click OK after entering the new password.
-STATIC1					New &Password:
-STATIC2					&Confirm:
+CAPTION					Изменить пароль администратора
+S_TITLE					Вы можете изменить пароль администратора. Нажмите OK после ввода нового пароля.
+STATIC1					Новый пароль:
+STATIC2					&Подтвердить пароль:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_EM_LICENSE
@@ -3295,31 +3295,31 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_EM_LICENSE_ADD
-CAPTION					Add License Key Registration
-S_INFO					You can register a license key of a SoftEther EtherLogger product license.
-STATIC1					The license keys are 36 alphanumeric characters in length plus hyphens. They are key codes that certify the ownership of a license. \r\n\r\nWhen a license certificate is received together with this software, the license key is printed on this license certificate. If the license for this software has been purchased online, the license key is provided by email and on the website window at the time the license is purchased. The license key may also be written down by some other method. If you don't know where the license key is written down, ask the vendor who sold you the license.
-STATIC2					&Input the License Key Correctly: 
-STATIC3					Enter the license key by separating the input into 6-digit groups. You don't need to input the hyphens. It is also possible to copy && paste the license key.
-B_INFO2					This software has world-wide copyright protection. Customers can only make copies and use this software in accordance with the license conditions. Warning: Use of illegitimately obtained license keys, use of a single license on multiple servers, or unauthorized distribution of licenses is a breach of the license agreement and such action may result in civil or legal proceedings.
-IDOK					&Register
-IDCANCEL				Cancel
+CAPTION					Зарегистрировать лицензионный ключ
+S_INFO					Вы можете зарегистрировать лицензионный ключ от SoftEther EtherLogger.
+STATIC1					Лицензионные ключи состоят из 36 символов (букв, цифр и дефисов). Они удостоверяют право собственности на лицензию.\r\n\r\nЛицензионный ключ печатается на этом лицензионном сертификате, когда лицензионный сертификат получен вместе с этим программным обеспечением. Если лицензия на это программное обеспечение была приобретена через Интернет, лицензионный ключ предоставляется по электронной почте и в окне веб-сайта на момент приобретения лицензии. Лицензионный ключ также может быть записан другим способом. Если вы не знаете, где записан лицензионный ключ, обратитесь к продавцу, который продал вам лицензию.
+STATIC2					&Введите лицензионный ключ правильно:
+STATIC3					Введите лицензионный ключ, разделив ввод на 6-значные группы. Вам не нужно вводить дефисы. Также возможно скопировать и вставить лицензионный ключ.
+B_INFO2					Это программное обеспечение имеет всемирную защиту авторских прав. Клиенты могут делать копии и использовать это программное обеспечение только в соответствии с условиями лицензии. Предупреждение. Использование незаконно полученных лицензионных ключей, использование одной лицензии на нескольких серверах или несанкционированное распространение лицензий является нарушением лицензионного соглашения, и такие действия могут привести к гражданским или судебным разбирательствам.
+IDOK					&Зарегистрировать
+IDCANCEL				Отмена
 
 PREFIX					D_EM_REMOTE
-STATIC1					&Specify the Host Name of the Destination Computer, or IP Address: 
-R_LOCAL					Connect to &Local Computer (Computer Displaying this Window)
-S_HOSTNAME				&Computer Name: 
+STATIC1					&Укажите имя хоста компьютера или IP-адрес:
+R_LOCAL					Подключиться к локальному компьютеру (компьютеру, отображающему это окно)
+S_HOSTNAME				&Имя компьютера: 
 IDOK					&OK
-IDCANCEL				Cancel
-B_ABOUT					Version information
+IDCANCEL				Отмена
+B_ABOUT					Информация о версии
 
 PREFIX					D_SM_CONFIG
-CAPTION					Edit Config File
-IDC_INFO				The current configuration of the VPN Server "%S" is as follows.\r\nYou can edit the contents of this configuration file and apply it to the VPN Server.
-B_EXPORT				&Save to File
-B_IMPORT				&Import File and Apply
+CAPTION					Изменить файл конфигурации
+IDC_INFO				Текущая конфигурация VPN-сервера "%S" выглядит следующим образом.\r\nВы можете отредактировать содержимое этого файла конфигурации и применить его к VPN-серверу.
+B_EXPORT				&Сохранить в файл
+B_IMPORT				&Импортировать файл и применить
 IDCANCEL				&Закрыть
-STATIC1					You can edit the configuration file by using any text editors. When applying the edited configuration file to the VPN Server, the VPN Server will automatically restart and launch according to the new configuration file. If an invalid configuration file is applied, errors will occur and the current setting contents will get lost, so be careful when editing the configuration file.
-B_FACTORY				&Restore to Factory Default
+STATIC1					Вы можете редактировать файл конфигурации, используя любые текстовые редакторы. При применении отредактированного файла конфигурации, VPN-сервер автоматически перезапустится и начнет работать в соответствии с новым файлом конфигурации. Если применяется недопустимый файл конфигурации, возникнут ошибки, и содержимое текущего параметра будет потеряно, поэтому будьте осторожны при редактировании файла конфигурации.
+B_FACTORY				&Восстановить настройки по умолчанию
 
 
 PREFIX					D_SM_ADMIN_OPTION
@@ -3379,12 +3379,12 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_SM_AO_VALUE
-CAPTION					Name and Value
-STATIC1					&Name:
-STATIC2					&Value:
-STATIC3					(Integer)
+CAPTION					Имя и значение
+STATIC1					&Имя:
+STATIC2					&Значение:
+STATIC3					(Целое число)
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_L3
@@ -3510,16 +3510,16 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_CM_SECURE_PIN
-CAPTION					Change PIN Code
-STATIC1					You can change the PIN code (secret number) of the smart card. \r\n\r\nTo change the PIN code, you are required to enter the current PIN code and the new PIN code twice.
-STATIC2					&Current PIN code: 
-STATIC3					&New PIN Code: 
-STATIC4					Con&firm New PIN: 
-STATIC5					Note
-STATIC6					If you incorrectly input the current PIN a certain number of times, the smart card will be rendered unusable.
-STATIC7					Please insert the smart card and click OK.
+CAPTION					Изменить PIN-код
+STATIC1					Вы можете изменить PIN-код смарт-карты. \r\n\r\nЧтобы изменить PIN-код, вам необходимо ввести текущий PIN-код и новый PIN-код дважды.
+STATIC2					&Текущий PIN-код:
+STATIC3					&Новый PIN-код:
+STATIC4					Подтвердить PIN-код:
+STATIC5					Заметка
+STATIC6					Если вы неправильно введете текущий PIN-код определенное количество раз, смарт-карта будет непригодна для использования.
+STATIC7					Пожалуйста, вставьте смарт-карту и нажмите ОК.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_CRL
@@ -3595,22 +3595,22 @@ IDCANCEL				Закрыть
 
 
 PREFIX					D_SM_READ_LOG_FILE
-CAPTION					Download File
-S_INFO2					Downloading the file "%S" from the VPN Server. \r\nPlease wait...
-IDCANCEL				&Stop Download
+CAPTION					Скачать файл
+S_INFO2					Скачивание файла "%S" с VPN-сервера.\r\nПожалуйста, подождите...
+IDCANCEL				&Остановить скачивание
 
 
 PREFIX					D_SM_SAVE_LOG
-CAPTION					Downloaded Log File
-S_INFO					The file "%S" has been downloaded. \r\n\r\nYou can open or save this file.
-IDOK					&Open
-B_SAVE					&Save
-IDCANCEL				Cancel
+CAPTION					Скачать файл журнала
+S_INFO					Файл "%S" был скачан.\r\n\r\nВы можете открыть или сохранить этот файл.
+IDOK					&Открыть
+B_SAVE					&Сохранить
+IDCANCEL				Отмена
 
 
 PREFIX					D_TCP
-CAPTION					TCP Optimization Utility
-STATIC1					By optimizing the TCP/IP settings on Windows, it is possible to increase the network communication throughput of this computer. \r\n\r\nBy using this TCP Optimization Utility, you can easily configure the settings for optimize the parameters.
+CAPTION					Утилита оптимизации TCP
+STATIC1					Оптимизируя настройки TCP/IP в Windows, можно увеличить пропускную способность сетевого подключения этого компьютера.\r\n\r\nИспользуя эту утилиту оптимизации TCP, вы можете легко настроить параметры для оптимизации параметров.
 STATIC2					Current TCP/IP setting parameters of Windows is as follows. By changing these values you can optimize the TCP/IP settings. Using this utility any time later you can reset the values or restore them to the previous setting.
 STATIC3					TCP/IP Communication Setting:
 STATIC4					TCP &Receiving Window Size:
