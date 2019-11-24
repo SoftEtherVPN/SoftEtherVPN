@@ -3610,34 +3610,34 @@ IDCANCEL				Отмена
 
 PREFIX					D_TCP
 CAPTION					Утилита оптимизации TCP
-STATIC1					Оптимизируя настройки TCP/IP в Windows, можно увеличить пропускную способность сетевого подключения этого компьютера.\r\n\r\nИспользуя эту утилиту оптимизации TCP, вы можете легко настроить параметры для оптимизации параметров.
-STATIC2					Current TCP/IP setting parameters of Windows is as follows. By changing these values you can optimize the TCP/IP settings. Using this utility any time later you can reset the values or restore them to the previous setting.
-STATIC3					TCP/IP Communication Setting:
-STATIC4					TCP &Receiving Window Size:
-R_RECV_DISABLE			Use OS &Default Value
-R_RECV_ENABLE			S&et the Values Below
-S_RECV					bytes
-B_RECV					Default Value
-STATIC5					TCP &Sending Window Size:
-R_SEND_DISABLE			Use OS Default Value
-R_SEND_ENABLE			Set the Values Below
-S_SEND					bytes
-B_SEND					Default Value
+STATIC1					Оптимизируя настройки TCP/IP в Windows, можно увеличить пропускную способность сетевого подключения этого компьютера.\r\n\r\nИспользуя эту утилиту, вы можете легко оптимизацировать настройки TCP/IP.
+STATIC2					Текущие настройки TCP/IP для Windows следующие. Изменяя эти значения, вы можете оптимизировать настройки TCP/IP. Так же используя эту утилиту, вы можете сбросить значения или восстановить прежние настройки.
+STATIC3					Настройка соединения TCP/IP:
+STATIC4					Размер TCP окна при получении:
+R_RECV_DISABLE			Использовать значение по умолчанию для ОС
+R_RECV_ENABLE			Установить значения ниже
+S_RECV					байт
+B_RECV					Значение по умолчанию
+STATIC5					Размер TCP окна при отправке:
+R_SEND_DISABLE			Использовать значение по умолчанию для ОС
+R_SEND_ENABLE			Установить значения ниже
+S_SEND					байт
+B_SEND					Значение по умолчанию
 IDOK					&OK
-IDCANCEL				Cancel
-STATIC6					The changes above will take effect after Windows has rebooted. After changing the settings, you do not need to immediately reboot the computer, but until it is rebooted the TCP/IP optimized settings will not take effect.
+IDCANCEL				Отмена
+STATIC6					Указанные выше изменения вступят в силу после перезагрузки Windows. После изменения настроек вам не нужно сразу перезагружать компьютер, но до перезагрузки оптимизированные параметры TCP/IP не будут действовать.
 B_DELETE				Do not Manage by this Utility
 
 
 PREFIX					D_TCP_MSG
-CAPTION					TCP Optimization
-STATIC1					By optimizing the TCP/IP settings on Windows, it is possible to increase the network communication throughput of this computer. Do you want to optimize the communication settings?\r\n\r\nYou can start at any time in the future the TCP Optimization Utility and optimize the communication settings or restore them to their previous values. 
-STATIC2					When the TCP/IP settings are changed, the changes will take effect after Windows has restarted. After changing the settings, you do not need to immediately restart the computer, but until it is restarted the TCP/IP optimized settings will not take effect.
-R_OPTIMIZE				&Automatically Optimize Communication Settings
-R_MANUAL				&Manually Optimize Using TCP Optimization Utility
-R_NO					&Do not Optimize
-IDOK					&Next >
-IDOK3					< &Back
+CAPTION					Оптимизация TCP
+STATIC1					Оптимизируя настройки TCP/IP в Windows, можно увеличить пропускную способность сетевого подключения этого компьютера. Хотите оптимизировать настройки соединения?\r\n\r\nВ будущем вы можете в любое время запустить утилиту оптимизации TCP и оптимизировать параметры соединения или восстановить их прежние значения. 
+STATIC2					Изменения настроек TCP/IP вступят в силу после перезапуска Windows. После изменения настроек вам не нужно сразу перезагружать компьютер, но до тех пор, пока это не будет сделанно, оптимизированные настройки TCP/IP не вступят в силу.
+R_OPTIMIZE				&Автоматически оптимизировать настройки соединения
+R_MANUAL				&Оптимизация вручную с помощью утилиты оптимизации TCP
+R_NO					&Не оптимизировать
+IDOK					&Вперед >
+IDOK3					< &Назад
 
 
 PREFIX					D_CM_PKCSEULA
