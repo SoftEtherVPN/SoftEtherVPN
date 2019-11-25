@@ -3670,7 +3670,7 @@ S_10					Расширенные настройки
 S_11					&Количество параллельных TCP-соединений:
 S_12					Период измерения:
 S_13					сек.
-R_ETHERNET				Исправлять предпологаемую пропускную способность L2 Ethernet
+R_ETHERNET				Коррекция данных Ethernet фреймов
 R_DOUBLE				Режим ретрансляции
 S_14					соед.
 IDOK					&Запустить
@@ -7036,45 +7036,45 @@ TTS_ACCEPTED			Соединение %u: подключение от клиент
 TTS_DISCONNECTED		Соединение %u (%S) было отключено.
 TTS_DISCONNECT			Соединение %u (%S) было отключено.
 TTC_INIT				Запуск клиента...
-TTC_FREE				The client program has beens terminated.
-TTC_CONNECT_START		The connection to server %S (port %u) will start. %u TCP connections will be connected.
-TTC_CONNECT_FAILED		The connection of TCP connection number %u failed.
-TTC_CONNECT_NOT_SERVER	Because a program other than TrafficServer is operating on the destination TCP port, traffic cannot be measured.
-TTC_CONNECT_OK			TCP connection number %u has been connected.
-TTC_CONNECT_OK_2		\        Data transfer direction: %s
-TTC_ERROR_ABORTED		The TCP connection initialization with the server failed. Measurement will stop.
+TTC_FREE				Работа клиента была прекращена.
+TTC_CONNECT_START		Будет установлено соединение с сервером %S (порт %u).%u TCP соединений будет подключено.
+TTC_CONNECT_FAILED		TCP-соединение с номером %u не удалось.
+TTC_CONNECT_NOT_SERVER	Поскольку на TCP порту работает программа, отличная от TrafficServer, трафик не может быть измерен.
+TTC_CONNECT_OK			TCP-соединение с номером %u было подключено.
+TTC_CONNECT_OK_2		\        Направление передачи данных: %s
+TTC_ERROR_ABORTED		Не удалось инициализировать TCP-соединение с сервером. Измерение будет остановлено.
 TTC_SUMMARY_BAR			-------------------------------------------------------
-TTC_SUMMARY_TITLE		Network Traffic Speed Test Tool Client Setting Parameters
-TTC_SUMMARY_HOST		Destination Host Name
-TTC_SUMMARY_PORT		Destination TCP Port Number
-TTC_SUMMARY_NUMTCP		Number of TCP Connections to Establish
-TTC_SUMMARY_TYPE		Data Transfer Direction
-TTC_SUMMARY_SPAN		Data Transmission Time
-TTC_SUMMARY_ETHER		Data Correction for Ethernet Frames
+TTC_SUMMARY_TITLE		Параметры инструмента тестирования скорости сетевого трафика
+TTC_SUMMARY_HOST		Имя хоста
+TTC_SUMMARY_PORT		Номер TCP порта
+TTC_SUMMARY_NUMTCP		Количество устанавливаемых TCP-соединений
+TTC_SUMMARY_TYPE		Направление передачи данных
+TTC_SUMMARY_SPAN		Время передачи данных
+TTC_SUMMARY_ETHER		Коррекция данных Ethernet фреймов
 TTC_SUMMARY_DOUBLE		Measurement of Total Speed of Relay Device Input Output
-TTC_TYPE_DOWNLOAD		Download (Server to Client)
-TTC_TYPE_UPLOAD			Upload (Client to Server)
-TTC_TYPE_FULL			Full (Server < -- > Client)
-TTC_SPAN_STR			%.1f seconds
-TTC_COMM_START			\nAll connections were established and so data transfer started. \nMeasurement Start Time: %s\nScheduled Finish Time: %s\n\nMeasuring in progress. Please wait... \n(Do not use any other applications while measuring is in progress.)\n\n
-TTC_COMM_END			Because %.1f seconds or more have passed, the data communication will end. \n\n
-TTC_COMM_USER_CANCEL	Because of cancellation by user, the data communication will end. \n\n
-TTC_COMM_DISCONNECTED	The TCP connection %u has been disconnected.
-TTC_STOPPING			Stopping the operation of the communication throughput measurement tool client...
-TTC_ENTER_TO_EXIT		\n----------------------------------------\nThe Network Traffic Speed Test Tool in Client Mode started. \n\nPress the Enter key to stop the client program. \n----------------------------------------\n\n
-TTC_RES_TITLE			\n\nNetwork Traffic Speed Test Tool\n\n
-TTC_RES_COLUMN_1		Item Name
-TTC_RES_COLUMN_2		Normal View
-TTC_RES_COLUMN_3		Simplified View
-TTC_RES_SPAN			Time Span for Measurement
-TTC_RES_ETHER			Data Correction for Ethernet Frames
-TTC_RES_BYTES_DOWNLOAD	Communication Data Volume in Download Direction
-TTC_RES_BYTES_UPLOAD	Communication Data Volume in Upload Direction
-TTC_RES_BYTES_TOTAL		Total Communication Data Volume
+TTC_TYPE_DOWNLOAD		Скачивание (с сервера на клиент)
+TTC_TYPE_UPLOAD			Загрузка (с клиента на сервер)
+TTC_TYPE_FULL			Общее (Сервер < -- > Клиент)
+TTC_SPAN_STR			%.1f сек
+TTC_COMM_START			\nВсе соединения были установлены и началась передача данных. \nВремя начала измерения: %s\nЗапланированное время окончания: %s\n\nИзмерение в процессе. Пожалуйста, подождите... \n(Во время измерения не используйте никакие другие приложения.)\n\n
+TTC_COMM_END			Поскольку прошло %.1f секунд или более, передача данных будет прервана. \n\n
+TTC_COMM_USER_CANCEL	Передача данных будет прервана из-за отмены пользователем. \n\n
+TTC_COMM_DISCONNECTED	TCP-соединение %u было отключено.
+TTC_STOPPING			Остановка работы инструмента измерения пропускной способности клиента...
+TTC_ENTER_TO_EXIT		\n----------------------------------------\nЗапущен инструмент тестирования скорости сетевого трафика в режиме клиента. \n\nНажмите клавишу Enter, чтобы остановить клиента. \n----------------------------------------\n\n
+TTC_RES_TITLE			\n\nТест скорости сетевого трафика\n\n
+TTC_RES_COLUMN_1		Название
+TTC_RES_COLUMN_2		Нормальный вид
+TTC_RES_COLUMN_3		Упрощенный вид
+TTC_RES_SPAN			Интервал времени измерения
+TTC_RES_ETHER			Коррекция данных Ethernet фреймов
+TTC_RES_BYTES_DOWNLOAD	Объем скачанных с сервера данных
+TTC_RES_BYTES_UPLOAD	Объем загруженных на сервер данных
+TTC_RES_BYTES_TOTAL		Общий объем данных
 TTC_RES_DOUBLE			Relay Device Input Output Total Throughput Computation
-TTC_RES_BPS_DOWNLOAD	Average Throughput in Download Direction
-TTC_RES_BPS_UPLOAD		Average Throughput in Upload Direction
-TTC_RES_BPS_TOTAL		Total Average Throughput
+TTC_RES_BPS_DOWNLOAD	Средняя скорость скачивания с сервера
+TTC_RES_BPS_UPLOAD		Средняя скорость загрузки на сервер
+TTC_RES_BPS_TOTAL		Общая средняя пропускная способность
 
 
 # Check command
