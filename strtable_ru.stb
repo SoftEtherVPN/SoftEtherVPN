@@ -7023,19 +7023,19 @@ CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops
 
 
 # Internal message strings concerning TrafficClient / TrafficServer
-TT_LISTEN_FAILED		Unable to set TCP port %u to Listen status. The port may be being used by another application or this application did not have the authority to open the port.
-TTS_LISTEN_STOP			The port for listening has been closed.
-TTS_ENTER_TO_EXIT		\n----------------------------------------\nThe Network Traffic Speed Test Tool in Server Mode started. \n\nPress the Enter key to stop the server program. \n----------------------------------------\n\n
-TTS_INIT				Starting the server program...
-TTS_LISTEN_STARTED		The server program has been started. Now the IPv4 TCP port %u is set to Listen status and listening for connection from the client.
-TTS_LISTEN_STARTED_V6	The IPv6 TCP Port %u is listening to accept clients.
-TTS_LISTEN_FAILED_V6	Failed to open the IPv6 TCP Port %u. Another application might be using the same IPv6 TCP Port, or the IPv6 stack is not installed on the operating system.
-TTS_STOP_INIT			Stopping the server program...
-TTS_STOP_FINISHED		The stopping of the server program is complete.
-TTS_ACCEPTED			Connection %u: Connected from Client %S Port %u.
-TTS_DISCONNECTED		Connection %u (%S) has been disconnected.
-TTS_DISCONNECT			Connection %u (%S) has been disconnected.
-TTC_INIT				Starting the client program...
+TT_LISTEN_FAILED		Не удалось открыть TCP порта %u. Порт может быть использован другим приложением или это приложение не имеет полномочий для открытия порта.
+TTS_LISTEN_STOP			Прослушиваемый порт закрыт.
+TTS_ENTER_TO_EXIT		\n----------------------------------------\nИнструмент тестирования скорости сетевого трафика запущен в режиме сервера.\n\nНажмите клавишу Enter, чтобы остановить сервер. \n----------------------------------------\n\n
+TTS_INIT				Запуск сервера...
+TTS_LISTEN_STARTED		Сервер был запущен. Теперь IPv4 TCP порт %u открыт и ждет соединения от клиентов.
+TTS_LISTEN_STARTED_V6	IPv6 TCP порт %u ждет соединения от клиентов.
+TTS_LISTEN_FAILED_V6	Не удалось открыть IPv6 TCP порт %u. Другое приложение может использовать тот же IPv6 TCP порт, либо в операционной системе не установлен стек IPv6.
+TTS_STOP_INIT			Остановка сервера...
+TTS_STOP_FINISHED		      Остановка сервера завершена.
+TTS_ACCEPTED			Соединение %u: подключение от клиента %S порт %u.
+TTS_DISCONNECTED		Соединение %u (%S) было отключено.
+TTS_DISCONNECT			Соединение %u (%S) было отключено.
+TTC_INIT				Запуск клиента...
 TTC_FREE				The client program has beens terminated.
 TTC_CONNECT_START		The connection to server %S (port %u) will start. %u TCP connections will be connected.
 TTC_CONNECT_FAILED		The connection of TCP connection number %u failed.
