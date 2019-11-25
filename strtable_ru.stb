@@ -3941,7 +3941,7 @@ S_11					The advanced redirection function can provide the VPN Session informati
 
 PREFIX					D_SW_WELCOME
 CAPTION					D_SW_WELCOME
-S_WELCOME				SoftEther VPN - бесплатная программа, разработанная в Университете Цукуба, Япония. Высокопроизводительный VPN с максимальной совместимостью со многими устройствами. Поддерживаются Windows, Mac, смартфоны, планшеты (iPhone, iPad, Android, Windows RT), Cisco и другие VPN-маршрутизаторы. SoftEther VPN также совместим с OpenVPN и MS-SSTP VPN клиентами.
+S_WELCOME				SoftEther VPN - бесплатная программа, разработанная в Университете Цукуба, Япония. Высокопроизводительный VPN с максимальной совместимостью со многими устройствами. Поддерживаются Windows, Mac, смартфоны, планшеты (iPhone, iPad, Android, Windows RT), Cisco и другие VPN маршрутизаторы. SoftEther VPN также совместим с VPN клиентами OpenVPN и MS-SSTP.
 S_TITLE				Чрезвычайно мощное программное обеспечение VPN с открытым исходным кодом.
 
 PREFIX					D_SW_MODE
@@ -7134,49 +7134,49 @@ SW_COMPONENT_VPNSMGR_DESCRIPTION			Only the VPN Server Manager will be installed
 SW_COMPONENT_VPNCMGR_TITLE					SoftEther VPN Client Manager (Admin Tools Only)
 SW_COMPONENT_VPNCMGR_DESCRIPTION			Only the VPN Client Manager will be installed. The VPN Client service program will not be installed. You can use the VPN Client Manager to connect and manage remote VPN Clients on other computers which can be run on Windows and Linux.
 
-SW_WELCOME_TITLE							Welcome to the SoftEther VPN Developer Edition Setup Wizard
-SW_MODE_TITLE								Select a Setup Mode
-SW_NOT_ADMIN_TITLE							Not Enough Privileges
-SW_COMPONENTS_TITLE							Select Software Components to Install
-SW_EULA_TITLE								End User License Agreement
-SW_WARNING_TITLE							Important Notices
-SW_DIR_TITLE								Directory to Install on
-SW_READY_TITLE								Ready to Install
-SW_PERFORM_TITLE							Setup is in Progress
-SW_ERROR_TITLE								Results of Setup
-SW_FINISH_TITLE								Setup Finished
-SW_UNINST1_TITLE							Uninstaller
-SW_LANG1_TITLE								SoftEther VPN: Configure the Display Language
-SW_EASY1_TITLE								Welcome to SoftEther VPN Client Easy Installer Creator
-SW_EASY2_TITLE								Specify Files
-SW_WEB1_TITLE								Welcome to SoftEther VPN Client Web Installer Creator
-SW_WEB2_TITLE								Specify Files
+SW_WELCOME_TITLE							Добро пожаловать в мастер установки SoftEther VPN Developer Edition
+SW_MODE_TITLE								Выберите режим установки
+SW_NOT_ADMIN_TITLE							Недостаточно прав
+SW_COMPONENTS_TITLE							Выберите компоненты для установки
+SW_EULA_TITLE								Лицензионное соглашение конечного пользователя
+SW_WARNING_TITLE							Важные замечания
+SW_DIR_TITLE								Каталог установки
+SW_READY_TITLE								Готов к установке
+SW_PERFORM_TITLE							Установка в процессе
+SW_ERROR_TITLE								Результаты установки
+SW_FINISH_TITLE								Установка завершена
+SW_UNINST1_TITLE							Деинсталлятор
+SW_LANG1_TITLE								SoftEther VPN: настройка языка
+SW_EASY1_TITLE								Добро пожаловать в программу SoftEther VPN-клиент Easy Installer Creator
+SW_EASY2_TITLE								Укажите файлы
+SW_WEB1_TITLE								Добро пожаловать в SoftEther VPN-клиент Web Installer Creator
+SW_WEB2_TITLE								Укажите файлы
 
 SW_UNINSTALLINFO_URL						http://selinks.org/
-SW_UNINSTALLINFO_PUBLISHER					SoftEther VPN Project
+SW_UNINSTALLINFO_PUBLISHER					Проект SoftEther VPN
 
-SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
+SW_KB3033929_REQUIRED						В Windows 7 и Windows Server 2008 R2 для некоторых функций SoftEther VPN требуется установленное обновление Microsoft Windows Update KB3033929.\r\n\r\nЕсли KB3033929 не установлен в системе, пожалуйста, перед использованием SoftEther VPN установите его из Windows Update или с веб-сайта Microsoft.
 
 
-SW_COMPONENTS_ABOUT_TAG						About %s
-SW_COMPONENTS_REQUIRE_ADMIN					Installation Requires Administrators Privileges
-SW_COMPONENTS_REQUIRE_ADMIN_TEXT			You have to restart the setup wizard by a user who has Administrators privileges to install %s in the System Mode. To install in the System Mode, click Back.
-SW_DIR_SELECT								Please Specify the Directory to Install
-SW_DIR_MORE_THAN_110						The directory name is too long.\r\nSpecify 110 letters at most.
-SW_DIR_WRITE_ERROR							Unable to create the specified directory "%s" or failed to write a file on the directory.\r\n\r\nSpecify another directory.
-SW_DIR_DST_IS_SAME_TO_SRC					The specified directory "%s" is same as the source directory.
-SW_DIR_IS_NOT_HDD							The specified directory "%s" is not a local hard disk drive.\r\n\r\nTo install %s in the System Mode, you have to specify a directory on a local hard disk drive.
-SW_DIR_IS_NOT_FULLPATH						The directory "%s" is not a format of full path.\r\n\r\nPlease specify the full path of the directory.
-SW_DIR_DST_IS_OTHER_PRODUCT					The specified directory has another component already installed.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_NEWER							Newer version of the software has been installed on the specified directory.\r\n\r\nYou need not to install this version.
-SW_DIR_DST_IS_NEWER_2						Newer version of the software has been installed on the specified directory.\r\n\r\nThis installer will import and apply the VPN Connection Settings which is built-in on the Easy Installer. No program files will be overwritten.
-SW_DIR_DST_IS_BROKEN						Unable to read a file "%s" which is on the specified directory.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_SYSTEM_MODE					The same software is already installed on the specified directory as the System Mode.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_USER_MODE						The same software is already installed on the specified directory as the User Mode.\r\n\r\nPlease specify another directory.
-SW_SYSTEM_MODE_ALREADY_INSTALLED			The software "%s" is already installed on this computer as the System Mode.\r\n\r\nBoth the System Mode and the User Mode installation of the same software on the same computer will conflict.\r\n\r\nDo you really want to continue the installation as the User Mode?
+SW_COMPONENTS_ABOUT_TAG						О %s
+SW_COMPONENTS_REQUIRE_ADMIN					Установка требует прав администратора
+SW_COMPONENTS_REQUIRE_ADMIN_TEXT			Для установки %s в системном режиме, вы должны перезапустить мастер настройки с правами администратора. Для установки в системном режиме, нажмите "Назад".
+SW_DIR_SELECT								Пожалуйста, укажите каталог установки
+SW_DIR_MORE_THAN_110						Имя каталога слишком длинное.\r\nУкажите не более 110 символов.
+SW_DIR_WRITE_ERROR							Не удалось создать указанный каталог "%s" или не удалось записать файл в каталог.\r\n\r\nУкажите другой каталог.
+SW_DIR_DST_IS_SAME_TO_SRC					Указанный каталог "%s" совпадает с исходным каталогом.
+SW_DIR_IS_NOT_HDD							Указанный каталог "%s" не является локальным жестким диском.\r\n\r\nЧтобы установить %s в системном режиме, вы должны указать каталог на локальном жестком диске.
+SW_DIR_IS_NOT_FULLPATH						Путь к каталогу "%s" не является полным путем.\r\n\r\nПожалуйста, укажите полный путь к каталогу.
+SW_DIR_DST_IS_OTHER_PRODUCT					В указанном каталоге уже установлен другой компонент.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_NEWER							Более новая версия программного обеспечения была установлена в указанный каталог.\r\n\r\nВам не нужно устанавливать эту версию.
+SW_DIR_DST_IS_NEWER_2						Более новая версия программного обеспечения была установлена в указанный каталог.\r\n\r\nЭтот установщик импортирует и применит параметры VPN-подключения, встроенные в Easy Installer. Никакие файлы программы не будут перезаписаны.
+SW_DIR_DST_IS_BROKEN						Невозможно прочитать файл "%s", который находится в указанном каталоге. \r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_SYSTEM_MODE					В указанном каталоге уже установлено то же программное обеспечение в системном режиме.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_USER_MODE						В указанном каталоге уже установлено то же программное обеспечение в режиме пользователя.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_SYSTEM_MODE_ALREADY_INSTALLED			Программное обеспечение "%s" уже установлено на этом компьютерев системном режиме.\r\n\r\nУстановка программного обеспечения одновременно в ситемном режиме и режиме пользователя на одном компьютере приведет к конфликту.\r\n\r\nВы действительно хотите продолжить установку в режиме пользователя?
 
-SW_NOT_INSTALL_SRC							The setup program has been executed from outside an install source.\r\n\r\nUnable to continue the installation.
-SW_SETUPLOG_CORRUPTED						The "setuplog.dat" file is broken.
+SW_NOT_INSTALL_SRC							Программа установки была выполнена из-за пределов источника установки.\r\n\r\nНе удается продолжить установку.
+SW_SETUPLOG_CORRUPTED						Файл "setuplog.dat" поврежден.
 SW_MSI_UNINSTALL_FAILED						The older version of %s (Product Code: "%S") is installed. Windows Installer failed to uninstall this older version.\r\n\r\nPlease uninstall this older version manually and restart this installer again.
 SW_MSI_UNINSTALL_REBOOT_REQUIRED			Windows Installer has uninstalled the older version of %s. The reboot of computer is required.\r\n\r\nPress Finish button and reboot the computer MANUALLY, and restart this installer after the reboot.
 SW_NOTICE_VPNSERVER_IS_INSTALLED			SoftEther VPN Bridge is selected as a component to install. However, this computer has already had SoftEther VPN Server installed.\r\n\r\nUsually, you don't need to install both SoftEther VPN Server and SoftEther VPN Bridge on the same computer.\r\nIf you install both software, conflicts such as port number duplication will occur.\r\nIf you want to replace the SoftEther VPN Server to SoftEther VPN Bridge, you should exit this installer, uninstall SoftEther VPN Server and restart this installer after that.\r\n\r\nDo you really want to continue the SoftEther VPN Bridge installation?
