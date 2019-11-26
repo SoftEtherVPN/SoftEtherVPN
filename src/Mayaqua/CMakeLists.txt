@@ -59,7 +59,7 @@ if(UNIX)
   find_package(ZLIB REQUIRED)
 
   # In some cases libiconv is not included in libc
-  find_library(LIB_ICONV iconv)
+  find_library(LIB_ICONV iconv HINTS "${ICONV_LIB_PATH}")
 
   find_library(LIB_RT rt)
 
