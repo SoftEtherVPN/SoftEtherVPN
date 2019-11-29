@@ -442,8 +442,8 @@ CC_WARNING_MSG			Хотите доверять сертификату VPN-сер
 WINVER_TITLE			Предупреждение о версиях Windows
 WINVER_ERROR_FORMAT		Версия Windows и Service Pack на %s - "%S".\r\n\r\nПоследней поддерживаемой версией Windows и Service Pack для %s является:\r\n%S\r\nИз-за того, что версия Windows на %s новее, чем версия Windows, которую поддерживает %s, могут возникнуть непредвиденные проблемы совместимости.\r\nЧтобы избежать проблем, мы рекомендуем вам установить последнее обновление %s.\r\n(Можно, но не рекомендуется, использовать текущую версию без обновлений.)\r\n\r\nЕсли вы являетесь администратором, вы можете загрузить последнюю версию обновления %s с веб-сайта https://www.softether.org бесплатно.\r\n\r\nЕсли вы не являетесь администратором, вы должны уведомить администратора VPN-сервера об этом сообщении.\r\n\r\n----- MSG%04u%02u -----\r\n\r\n
 WINVER_ERROR_VPNSERVER	VPN-сервер на удаленном компьютере
-WINVER_ERROR_VPNBRIDGE	VPN мост на удаленном компьютере
-WINVER_ERROR_VPNCLIENT	VPN клиент на этом компьютере
+WINVER_ERROR_VPNBRIDGE	VPN-мост на удаленном компьютере
+WINVER_ERROR_VPNCLIENT	VPN-клиент на этом компьютере
 WINVER_ERROR_PC_LOCAL	этот компьютер
 WINVER_ERROR_PC_REMOTE	удаленный сервер
 
@@ -7178,82 +7178,82 @@ SW_SYSTEM_MODE_ALREADY_INSTALLED			Программное обеспечение
 SW_NOT_INSTALL_SRC							Программа установки была выполнена из-за пределов источника установки.\r\n\r\nНе удается продолжить установку.
 SW_SETUPLOG_CORRUPTED						Файл "setuplog.dat" поврежден.
 SW_MSI_UNINSTALL_FAILED						Старая версия %s (код продукта: "%S") установлена. Установщику Windows не удалось удалить старую версию.\r\n\r\nПожалуйста, удалите старую версию вручную и перезапустите этот установщик снова.
-SW_MSI_UNINSTALL_REBOOT_REQUIRED			Установщик Windows удалил старую версию %s. Требуется перезагрузка компьютера.\r\n\r\nНажмите "Готово" и перезагрузите компьютер ВРУЧНУЮ, и перезапустите этот установщик после перезагрузки.
-SW_NOTICE_VPNSERVER_IS_INSTALLED			SoftEther VPN Bridge is selected as a component to install. However, this computer has already had SoftEther VPN Server installed.\r\n\r\nUsually, you don't need to install both SoftEther VPN Server and SoftEther VPN Bridge on the same computer.\r\nIf you install both software, conflicts such as port number duplication will occur.\r\nIf you want to replace the SoftEther VPN Server to SoftEther VPN Bridge, you should exit this installer, uninstall SoftEther VPN Server and restart this installer after that.\r\n\r\nDo you really want to continue the SoftEther VPN Bridge installation?
-SW_NOTICE_VPNBRIDGE_IS_INSTALLED			SoftEther VPN Server is selected as a component to install. However, this computer has already had SoftEther VPN Bridge installed.\r\n\r\nUsually, you don't need to install both SoftEther VPN Bridge and SoftEther VPN Server on the same computer.\r\nIf you install both software, conflicts such as port number duplication will occur.\r\nIf you want to replace the SoftEther VPN Server to SoftEther VPN Server, you should exit this installer, uninstall SoftEther VPN Bridge and restart this installer after that.\r\n\r\nDo you really want to continue the SoftEther VPN Server installation?
-SW_OS_FAILED								This operating system doesn't support %s.
-SW_LANG_NOT_CHANGED							The language settings of %s were not changed.
-SW_LANG_LIST_LOAD_FAILED					Loading the available language list failed.
-SW_LANG_OK									The display language of %s has been changed successfully.\r\nIf %s programs are currently running, exit a program and restart it to apply the new display language. If the display language still doesn't effect, reboot Windows.\r\n
-SW_LANG_OK_SERVICE							\r\nThe language of log files which the service program records will be changed to the new language after a reboot.
-SW_LANG_OK_VPNCMGR							\r\nThe display setting of VPN Client Manager will be changed after exit and reboot VPN Client Manager. (Including complete termination from the task tray.)
-SW_CHILD_PROCESS_ERROR						Failed to execute a child process.
-SW_EXE_FILTER								Windows Executable Files (*.EXE)|*.exe|All Files (*.*)|*.*
-SW_PERFORM_MSG_EASY_INFO					Compiling the VPN Client Easy Installer...
-SW_EASY_FINISHED_MSG						The VPN Client Easy Installer is created successfully.\r\nThe installer is saved as the following filename.\r\n\r\n%s\r\n\r\nYou can distribute the above file in the enterprise.
-SW_EASY_ERROR_MSG							Failed to create a VPN Client Easy Installer.
-SW_OTHER_INSTANCE_EXISTS					Another SoftEther VPN Setup Wizard is running.\r\n\r\nYou can continue this wizard after another wizard exits.
-SW_PERFORM_MSG_WEB_INFO						Compiling the VPN Client Web Installer...
-SW_WEB_ERROR_MSG							Failed to create a VPN Client Web Installer.
-SW_INSTALLER_CACHE_IS_NOT_SIGNED			The currently installed SoftEther VPN Client of this computer has not been installed from the digital-signed package signed by an Authenticode digital certificate of SoftEther VPN Project.\r\nIt might be installed from a customized installer (for example, an installer created by Easy Installer Creator.)\r\n\r\nIf you continue to create a Web Installer, a warning message will be appeared on the user's screen when its loading.\r\nTo avoid showing the warning message, you should cancel this creating wizard, download the latest version of SoftEther VPN Client from the SoftEther VPN Project's web site, re-install it and restart the Web Installer Creator wizard.\r\n\r\nDo you really to continue to create a Web Installer?
-SW_FILE_NOT_FOUNT							The file "%s" not found.
-SW_WEB_FINISHED								The Web Installer is created and saved as "%s".\r\n\r\nPlease extract inner files from the ZIP file, upload them into the Web server, and edit a HTML file and an inf file to replace URLs appropriately.\r\n\r\nThe explanation to deploy the Web Installer is described on the ZIP file.
+SW_MSI_UNINSTALL_REBOOT_REQUIRED			Установщик Windows удалил старую версию %s. Требуется перезагрузка компьютера.\r\n\r\nНажмите "Готово", перезагрузите компьютер ВРУЧНУЮ и перезапустите этот установщик после перезагрузки.
+SW_NOTICE_VPNSERVER_IS_INSTALLED			SoftEther VPN-мост выбран в качестве компонента для установки. Однако на этом компьютере уже установлен SoftEther VPN-сервер.\r\n\r\nОбычно вам не нужно устанавливать SoftEther VPN-сервер и SoftEther VPN-мост на одном компьютере.\r\nЕсли вы установите оба варианта, могут возникнуть конфликты, такие как дублирование номера порта.\r\nЕсли вы хотите заменить SoftEther VPN-сервер на SoftEther VPN-мост, вы должны удалить SoftEther VPN-сервер и после этого запустить заново этот установщик.\r\n\r\nВы действительно хотите продолжить установку SoftEther VPN-моста?
+SW_NOTICE_VPNBRIDGE_IS_INSTALLED			SoftEther VPN-сервер выбран в качестве компонента для установки. Однако на этом компьютере уже установлен SoftEther VPN-мост.\r\n\r\nОбычно вам не нужно устанавливать SoftEther VPN-мост и SoftEther VPN-сервер на одном компьютере.\r\nЕсли вы установите оба варианта, могут возникнуть конфликты, такие как дублирование номера порта.\r\nЕсли вы хотите заменить SoftEther VPN-мост на SoftEther VPN-сервер, вы должны удалить SoftEther VPN-мост и после этого запустить заново этот установщик.\r\n\r\nВы действительно хотите продолжить установку SoftEther VPN-сервера?
+SW_OS_FAILED								Эта операционная система не поддерживает %s.
+SW_LANG_NOT_CHANGED							Языковые настройки %s не были изменены.
+SW_LANG_LIST_LOAD_FAILED					Не удалось загрузить список доступных языков.
+SW_LANG_OK									Язык программы %s был успешно изменен.\r\nВыйдите из программы и перезапустите ее, чтобы применить новый язык. Если язык по-прежнему не изменился, перезагрузите Windows.\r\n
+SW_LANG_OK_SERVICE							\r\nЯзык файлов журнала, которые записывает сервисная программа, будет изменен на новый язык после перезагрузки.
+SW_LANG_OK_VPNCMGR							\r\nНастройки отображения диспетчера VPN-подключений будут изменены после его перезагрузки. (Включая полное завершение из панели задач.)
+SW_CHILD_PROCESS_ERROR						Не удалось выполнить дочерний процесс.
+SW_EXE_FILTER								Исполняемые файлы Windows (*.EXE)|*.exe|Все файлы (*.*)|*.*
+SW_PERFORM_MSG_EASY_INFO					Компиляция VPN-клиент Easy Installer...
+SW_EASY_FINISHED_MSG						VPN-клиент Easy Installer успешно создан.\r\nУстановщик сохранен под следующим именем.\r\n\r\n%s\r\n\r\nВы можете распространять вышеуказанный файл на предприятии.
+SW_EASY_ERROR_MSG							Не удалось создать VPN-клиент Easy Installer.
+SW_OTHER_INSTANCE_EXISTS					Запущен еще один мастер установки SoftEther VPN.\r\n\r\nВы можете продолжить работу этого мастера после выхода из другого запущенного мастера установки.
+SW_PERFORM_MSG_WEB_INFO						Компиляция VPN-клиент Web Installer...
+SW_WEB_ERROR_MSG							Не удалось создать VPN-клиент Web Installer.
+SW_INSTALLER_CACHE_IS_NOT_SIGNED			Установленный на этот компьютер SoftEther VPN-клиент не был установлен из пакета с цифровой подписью проекта SoftEther VPN, подписанного цифровым сертификатом по технологии Authenticode.\r\nОн мог быть установлен из модифицированного установщика (например, установщика, созданного Easy Installer Creator.)\r\n\r\nЕсли вы продолжите создание Web Installer, предупреждающее сообщение будет появляться на экране пользователя при его загрузке.\r\nЧтобы избежать появления предупреждающего сообщения, следует отменить этот мастер создания, загрузить последнюю версию SoftEther VPN-клиента с веб-сайта проекта SoftEther VPN, переустановить его и перезапустить мастер Web Installer Creator.\r\n\r\nВы действительно хотите продолжить создавать Web Installer?
+SW_FILE_NOT_FOUNT							Файл "%s" не найден.
+SW_WEB_FINISHED								Web Installer создан и сохранен как "%s".\r\n\r\nИзвлеките внутренние файлы из ZIP-файла, загрузите их на веб-сервер и отредактируйте HTML-файл и inf-файл, чтобы соответствующим образом заменить URL-адреса.\r\n\r\nОписание развертывания веб-установщика приведено в ZIP файле.
 
-SW_VG_CONFIRM_MSG							Do you really want to install and activate the VPN Gate P2P Relay Function plug-in module with SoftEther VPN Client?\r\n\r\nThis plug-in will realize the stability of communication to bypass the government censorship firewall. However, the communication of VPN Gate usually consumes some network bandwidth. VPN Gate is not recommended to be used in the mobile connections. \r\n\r\nPlease note that there are some countries and regions which have the regulation to forbid the encrypted communications to bypass government censorship firewalls. In such a case, you must not use the VPN Gate functions on your computer. VPN Gate is intended to be used mainly in Japan. VPN Gate is a research project for just academic purpose only. VPN Gate is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities. By using this software and service, you must observe all concerned laws and rules with your own responsibility. You will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.
-
-
+SW_VG_CONFIRM_MSG							Вы действительно хотите установить и активировать модуль плагина VPN Gate P2P Relay Function с SoftEther VPN-клиентом?\r\n\r\nЭтот плагин обеспечит стабильность связи в обход брандмауэра государственной цензуры. Однако для связи VPN Gate обычно потребляет некоторую пропускная способность сети. VPN Gate не рекомендуется использовать с мобильным интернетом.\r\n\r\nОбратите внимание, что в некоторых странах и регионах действуют правила, запрещающие шифрованние трафика для обхода брандмауэра государственной цензуры. В таком случае вы не должны использовать функции VPN Gate на вашем компьютере. VPN Gate предназначен для использования в основном в Японии. VPN Gate - это исследовательский проект только для академических целей. VPN Gate регулируется японским законодательством. Законы других стран не являются ни нашей заботой, ни ответственностью. Используя это программное обеспечение и услуги, вы должны соблюдать все соответствующие законы и правила. Вы будете нести полную ответственность за любой ущерб, который будет нанесен в результате использования этого программного обеспечения и услуг, независимо от того, происходило это внутри или за пределами территории Японии.
 
 
-SW_PERFORM_MSG_INIT_TASKS					Preparing the tasks...
-SW_PERFORM_MSG_COPY_PREPARE					Preparing the copying of files...
-SW_PERFORM_MSG_WRITE_ERROR					Failed to write the destination file "%s".\r\n\r\nThere might be another person who has been keeping this file open.\r\nIf programs or services of %s are running, please terminate them and click Retry.
-SW_PERFORM_MSG_COPY_FILE					Copying "%s" ...
-SW_PERFORM_MSG_SET_SECURITY					Setting a security on "%s" ...
-SW_PERFORM_MSG_PLUGIN						Installing the plugins...
-SW_PERFORM_MSG_STOP_SVC						Stopping the "%s" service ...
-SW_PERFORM_MSG_WAIT_FOR_FILE_UNLOCK			The file "%s" is locked by a running program. Waiting to unlock...
-SW_PERFORM_MSG_INSTALL_SVC					Installing the %s service...
-SW_PERFORM_MSG_START_SVC					Starting the %s service...
-SW_PERFORM_MSG_CREATE_LINKS					Creating shortcut files...
-SW_PERFORM_MSG_DELETE_LINKS					Deleting shortcut files...
-SW_PERFORM_MSG_DELETE_OLD_LINKS				Deleting old shortcut files...
-SW_PERFORM_MSG_REGISTER_UNINSTALL			Registering uninstall information on the Control Panel...
-SW_PERFORM_MSG_IMPORTING_ACCOUNT			Importing the Built-in VPN Connection Setting in the Easy Installer...
-SW_PERFORM_MSG_DELETE_SETUP_INFO			Deleting the install information and logs...
-SW_PERFORM_MSG_WRITE_LOG					Writing a setup log...
-SW_PERFORM_MSG_COPY_ERROR					Copying to the file "%s" failed.
-SW_PERFORM_MSG_CREATE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
-SW_PERFORM_MSG_WRITE_LOG_ERROR				Creating the setup log file "%s".\r\n\r\nDo you want to retry?
-SW_PERFORM_MSG_STOP_SVC_ERROR				Stopping the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_START_SVC_ERROR				Starting the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			Uninstall of the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_INSTALL_FAILED			Install of the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		Starting the user-mode service "%s" failed.
-SW_PERFORM_MSG_UPDATING						Updating system settings...
-SW_PERFORM_MSG_DELETE_NIC					Removing the Virtual Network Adapters...
-SW_PERFORM_MSG_FINISHED						Setup progress finished.
-SW_PERFORM_MSG_UNINSTALL_MSI				Windows Installer is uninstalling the older version of %s...
-SW_PERFORM_MSG_UPDATE_LANG_CONFIG			Changing the language settings...
 
-SW_PERFORM_MSG_INIT_UNINST					Preparing uninstall...
-SW_PERFORM_MSG_DELETE_PREPARE				Preparing to delete files...
-SW_PERFORM_MSG_DELETE_ERROR					Unable to delete the file "%s".\r\n\r\nThere might be another program who is keeping this file open.\r\nIf programs or services of %s are running, please terminate them and click Retry.
-SW_PERFORM_MSG_UNINSTALL_SVC				Uninstalling the "%s" service ...
-SW_PERFORM_MSG_DELETE						Deleting the "%s" service ...
-SW_PERFORM_MSG_EASY_INIT					Building the Easy Installer...
-SW_PERFORM_MSG_WEB_INIT						Building the Web Installer...
-SW_PERFORM_MSG_INSTALL_SELOW				Creating a restore point of the system and installing essential components. It may take a while...
+
+SW_PERFORM_MSG_INIT_TASKS					Подготовка заданий...
+SW_PERFORM_MSG_COPY_PREPARE					Подготовка к копированию файлов...
+SW_PERFORM_MSG_WRITE_ERROR					Не удалось записать файл "%s".\r\n\r\nВозможно этот файл открыт в другой программе.\r\nЕсли программы или службы %s запущены, завершите их и нажмите «Повторить».
+SW_PERFORM_MSG_COPY_FILE					Копирование "%s"...
+SW_PERFORM_MSG_SET_SECURITY					Настройка безопасности на "%s"...
+SW_PERFORM_MSG_PLUGIN						Установка плагинов...
+SW_PERFORM_MSG_STOP_SVC						Остановка службы "%s"...
+SW_PERFORM_MSG_WAIT_FOR_FILE_UNLOCK			Файл "%s" заблокирован запущенной программой. Ожидание разблокировки...
+SW_PERFORM_MSG_INSTALL_SVC					Установка службы %s...
+SW_PERFORM_MSG_START_SVC					Запуск службы %s...
+SW_PERFORM_MSG_CREATE_LINKS					Создание ярлыков...
+SW_PERFORM_MSG_DELETE_LINKS					Удаление ярлыков ...
+SW_PERFORM_MSG_DELETE_OLD_LINKS				Удаление старых ярлыков ...
+SW_PERFORM_MSG_REGISTER_UNINSTALL			Регистрация деинсталятора в панели управления...
+SW_PERFORM_MSG_IMPORTING_ACCOUNT			Импорт настроек встроенного VPN-подключения в Easy Installer...
+SW_PERFORM_MSG_DELETE_SETUP_INFO			Удаление журналов и информации об установке...
+SW_PERFORM_MSG_WRITE_LOG					Запись в журнал установки...
+SW_PERFORM_MSG_COPY_ERROR					Копирование в файл "%s" не удалось.
+SW_PERFORM_MSG_CREATE_LINK_ERROR			Создание ярлыка "%s" не удалось.\r\n\r\nВы хотите повторить попытку?
+SW_PERFORM_MSG_WRITE_LOG_ERROR				Создание журнала установки "%s" не удалось.\r\n\r\nВы хотите повторить попытку?
+SW_PERFORM_MSG_STOP_SVC_ERROR				Не удалось остановить службу "%s" (внутреннее имя: "%S").
+SW_PERFORM_MSG_START_SVC_ERROR				Запуск службы "%s" (внутреннее имя: "%S") завершился неудачно.
+SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			Не удалось удалить службу "%s" (внутреннее имя: "%S").
+SW_PERFORM_MSG_SVC_INSTALL_FAILED			Установка службы "%s" (внутреннее имя: "%S") завершилась неудачно.
+SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		Не удалось запустить режим пользователя "%s".
+SW_PERFORM_MSG_UPDATING						Обновление настроек системы...
+SW_PERFORM_MSG_DELETE_NIC					Удаление виртуальных сетевых адаптеров...
+SW_PERFORM_MSG_FINISHED						Процесс установки завершен.
+SW_PERFORM_MSG_UNINSTALL_MSI				 Установщик Windows удаляет старую версию %s...
+SW_PERFORM_MSG_UPDATE_LANG_CONFIG			Изменение настроек языка...
+
+SW_PERFORM_MSG_INIT_UNINST					Подготовка к удалению...
+SW_PERFORM_MSG_DELETE_PREPARE				Подготовка к удалению файлов...
+SW_PERFORM_MSG_DELETE_ERROR					Невозможно удалить файл "%s".\r\n\r\nВозможно этот файл открыт в другой программе.\r\nЕсли программы или службы %s запущены, завершите их и нажмите «Повторить».
+SW_PERFORM_MSG_UNINSTALL_SVC				Удаление службы "%s"...
+SW_PERFORM_MSG_DELETE						Удаление службы "%s"...
+SW_PERFORM_MSG_EASY_INIT					Сборка Easy Installer...
+SW_PERFORM_MSG_WEB_INIT						Сборка Web Installer...
+SW_PERFORM_MSG_INSTALL_SELOW				Создание точки восстановления системы и установка необходимых компонентов. Это может занять некоторое время...
 
 
 SW_TAG_USERNAME								\ (User-mode)
-SW_DIRNAME_CONFIG_TOOLS						Configuration Tools
-SW_DIRNAME_ADMIN_TOOLS						Administrative Tools
-SW_DIRNAME_LANGUAGE_TOOLS					Language Settings
+SW_DIRNAME_CONFIG_TOOLS						Инструменты настройки
+SW_DIRNAME_ADMIN_TOOLS						Инструменты управления
+SW_DIRNAME_LANGUAGE_TOOLS					Настройки языка
 
-SW_RUN_TEXT_VPNSMGR							Start the SoftEther VPN Server Manager.
-SW_RUN_TEXT_VPNCMGR							Start the SoftEther VPN Client Manager.
+SW_RUN_TEXT_VPNSMGR							Запустить диспетчер SoftEther VPN-серверов.
+SW_RUN_TEXT_VPNCMGR							Запустить диспетчер SoftEther VPN-подключений.
 
-SW_NIC_UNINSTALL							Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
+SW_NIC_UNINSTALL							Виртуальные сетевые адаптеры SoftEther VPN-клиента были созданы в системе.\r\nВы хотите удалить эти виртуальные сетевые адаптеры?
 
 # Do not translate this section !!!
 SW_TAG_USERNAME_ENGLISH						\ (User-Mode)
@@ -7269,29 +7269,29 @@ SW_LANG_SET_FAILED							Failed to write the new language setting on lang.config
 
 
 # Shortcuts Filenames
-SW_LINK_NAME_VPNSMGR_SHORT					SoftEther VPN Server Manager (Dev)
-SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (Dev User)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Dev Tools)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (Dev Tools User)
-SW_LINK_NAME_VPNSMGR_FULL					SoftEther VPN Server Manager Developer Edition
-SW_LINK_NAME_VPNSMGR_COMMENT				You can manage SoftEther VPN Server or SoftEther VPN Bridge on a remote computer.
+SW_LINK_NAME_VPNSMGR_SHORT					Диспетчер SoftEther VPN-серверов (Dev)
+SW_LINK_NAME_VPNSMGR_SHORT_UM				Диспетчер SE VPN-серверов (Dev User)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		Диспетчер SE VPN-серверов (Dev Tools)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	Диспетчер SE VPN-серверов (Dev Tools User)
+SW_LINK_NAME_VPNSMGR_FULL					Диспетчер SoftEther VPN-серверов Developer Edition
+SW_LINK_NAME_VPNSMGR_COMMENT				Вы можете управлять SoftEther VPN-сервером или SoftEther VPN-мостом на удаленном компьютере.
 
-SW_LINK_NAME_VPNCMGR_SHORT					SoftEther VPN Client Manager (Dev)
-SW_LINK_NAME_VPNCMGR_FULL					SoftEther VPN Client Manager Developer Edition
-SW_LINK_NAME_VPNCMGR_COMMENT				You can connect to a VPN Server by using SoftEther VPN Client.
+SW_LINK_NAME_VPNCMGR_SHORT					Диспетчер SoftEther VPN-подключений (Dev)
+SW_LINK_NAME_VPNCMGR_FULL					Диспетчер SoftEther VPN-подключений Developer Edition
+SW_LINK_NAME_VPNCMGR_COMMENT				Вы можете подключиться к VPN-серверу с помощью SoftEther VPN-клиента.
 
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT				SoftEther VPN Client Remote Manager (Dev)
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (Dev User)
-SW_LINK_NAME_VPNCMGRTOOLS_FULL				SoftEther VPN Client Remote Manager Developer Edition
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT				Удаленное управление SoftEther VPN-клиентом (Dev)
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			Удаленное управление SE VPN-клиентом (Dev User)
+SW_LINK_NAME_VPNCMGRTOOLS_FULL				Удаленное управление SoftEther VPN-клиентом Developer Edition
 
-SW_LINK_NAME_VPNCMGR2_FULL					Manage Remote Computer's SoftEther VPN Client
-SW_LINK_NAME_VPNCMGR2_COMMENT				You can establish a remote connection to and manage a SoftEther VPN Client on a remote computer.
+SW_LINK_NAME_VPNCMGR2_FULL					Управление SoftEther VPN-клиентом на удаленном компьютере
+SW_LINK_NAME_VPNCMGR2_COMMENT				Вы можете установить удаленное соединение с SoftEther VPN-клиентом и управлять им на удаленном компьютере.
 
-SW_LINK_NAME_VPNCMGRTRAY_FULL				SoftEther VPN Client Manager Developer Edition Startup
-SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Registers an icon of SoftEther VPN Client Developer Edition on the taskbar's notification area.
+SW_LINK_NAME_VPNCMGRTRAY_FULL				Запуск диспетчера SoftEther VPN-подключений Developer Edition
+SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Регистрирует значок SoftEther VPN-клиента Developer Edition в области уведомлений панели задач.
 
 SW_LINK_NAME_EASYINSTALLER					Easy Installer Creator
-SW_LINK_NAME_EASYINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Easy Installer which has a function to kick-start a VPN connection to the specific destination automatically.
+SW_LINK_NAME_EASYINSTALLER_COMMENT			Инструмент для системных администраторов предприятия для создания SoftEther VPN Client Easy Installer, который имеет функцию автоматического запуска VPN-подключения к определенному серверу.
 
 SW_LINK_NAME_WEBINSTALLER					Web Installer Creator
 SW_LINK_NAME_WEBINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Web Installer (ActiveX Installer) which has a function to kick-start a VPN connection to the specific destination automatically.
