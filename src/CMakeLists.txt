@@ -71,6 +71,23 @@ if(UNIX)
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_definitions(-DUNIX_BSD -DUNIX_MACOS -DBRIDGE_PCAP)
   endif()
+
+  # custom db, log, pid directory for Unix
+  set(SE_DBDIR "" CACHE STRING "Directory where config files are saved")
+  set(SE_LOGDIR "" CACHE STRING "Directory where log files are written")
+  set(SE_PIDDIR "" CACHE STRING "Directory where PID files are put")
+
+  if(SE_DBDIR)
+    add_definitions(-DSE_DBDIR="${SE_DBDIR}")
+  endif()
+
+  if(SE_LOGDIR)
+    add_definitions(-DSE_LOGDIR="${SE_LOGDIR}")
+  endif()
+
+  if(SE_PIDDIR)
+    add_definitions(-DSE_PIDDIR="${SE_PIDDIR}")
+  endif()
 endif()
 
 # Cedar communication module
