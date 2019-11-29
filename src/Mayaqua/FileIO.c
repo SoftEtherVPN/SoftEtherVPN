@@ -1295,6 +1295,60 @@ void GetExeNameW(wchar_t *name, UINT size)
 	UniStrCpy(name, size, exe_file_name_w);
 }
 
+void GetLogDir(char *name, UINT size)
+{
+#ifdef SE_LOGDIR
+	Format(name, size, SE_LOGDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetLogDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_LOGDIR
+	UniFormat(name, size, L""SE_LOGDIR);
+#else
+	GetExeDirW(name, size);
+#endif
+}
+
+void GetDbDir(char *name, UINT size)
+{
+#ifdef SE_DBDIR
+	Format(name, size, SE_DBDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetDbDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_DBDIR
+	UniFormat(name, size, L""SE_DBDIR);
+#else
+	GetExeDirW(name, size);
+#endif
+}
+
+void GetPidDir(char *name, UINT size)
+{
+#ifdef SE_PIDDIR
+	Format(name, size, SE_PIDDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetPidDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_PIDDIR
+	UniFormat(name, size, L""SE_PIDDIR);
+#else
+	GetExeDirW(name, size);
+#endif
+}
+
 // Initialization of the acquisition of the EXE file name
 void InitGetExeName(char *arg)
 {
