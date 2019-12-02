@@ -7013,8 +7013,8 @@ CMD_TrafficClient_ERROR_HOSTPORT	The host name or port number is incorrectly spe
 
 
 # TrafficServer command
-CMD_TrafficServer		Run Network Traffic Speed Test Tool in Server Mode
-CMD_TrafficServer_Help	Use this to execute the communication throughput measurement tool's server program. \nTwo commands, TrafficClient and TrafficServer, are used for the communication throughput measurement tool to enable the measurement of communication throughput that can be transferred between two computers connected by IP network. \nTo set the TCP port of this computer to the Listen status to listen for the connection from the TrafficClient of another computer, specify the port number and start the server program using the TrafficServer command. \nYou can display more detailed information on the communication throughput measurement tool by inputting "TrafficClient ?". \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually conducts communication and measures the throughput is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
+CMD_TrafficServer		Запустить средство тестирования скорости сетевого трафика в режиме сервера
+CMD_TrafficServer_Help	Используется для запуска инструмента измерения пропускной способности в режиме сервера. \nTwo commands, TrafficClient and TrafficServer, are used for the communication throughput measurement tool to enable the measurement of communication throughput that can be transferred between two computers connected by IP network. \nTo set the TCP port of this computer to the Listen status to listen for the connection from the TrafficClient of another computer, specify the port number and start the server program using the TrafficServer command. \nYou can display more detailed information on the communication throughput measurement tool by inputting "TrafficClient ?". \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually conducts communication and measures the throughput is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
 CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
 CMD_TrafficServer_[port]	Specify, using an integer, the port number at which to listen for the connection. If the specified port has been already being used by another program, or if the port cannot be opened, an error will occur.
 CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.
@@ -7077,29 +7077,29 @@ TTC_RES_BPS_TOTAL		Общая средняя скорость
 
 
 # Check command
-CMD_Check				Check whether SoftEther VPN Operation is Possible
-CMD_Check_Help			Use this to check if the current computer that is running vpncmd is a suitable operation platform for SoftEther VPN Server / Bridge. \nIf this check passes on a system, it is most likely that SoftEther VPN software will operate correctly on that system. \nAlso, if this check does not pass on a system, then this indicates that some type of trouble may arise if SoftEther VPN software is used on that system.
-CMD_Check_Args			Check
+CMD_Check				Проверка возможности работы SoftEther VPN
+CMD_Check_Help			Используется, чтобы проверить, является ли текущий компьютер, на котором работает vpncmd, подходящей рабочей платформой для SoftEther VPN Сервера / Моста.\nЕсли эта проверка пройдена, наиболее вероятно, что программное обеспечение SoftEther VPN будет правильно работать в этой системе. \nЕсли эта проверка не пройдена, это означает, что при использовании программного обеспечения SoftEther VPN в этой системе могут возникнуть проблемы.
+CMD_Check_Args			Проверить
 
 
 # Concerning System Checker
 # (This contains some strange character strings which are used to check character code conversion.)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
-CHECK_NOTE				If this operation environment check tool is run on a system and that system passes, it is most likely that SoftEther VPN software can operate on that system. This check may take a while. Please wait...\n\n
-CHECK_EXEC_TAG			Checking '%s'... \n
-CHECK_PASS				Pass
-CHECK_FAIL				Fail
-CHECK_RESULT_1			All checks passed. It is most likely that SoftEther VPN Server / Bridge can operate normally on this system.
-CHECK_RESULT_2			Some checks failed. Please check the operation environment of this system. If SoftEther VPN Server / Bridge were to be executed on this system, troubles may occur.
+CHECK_TITLE				---------------------------------------------------\nСредство проверки рабочей среды SoftEther VPN\nDeveloper Edition\n\nАвторские права (c) Проект SoftEther VPN.\nВсе права защищены.\n\n
+CHECK_NOTE				Если этот инструмент проверки рабочей среды запущен в системе и эта система прошла проверку, наиболее вероятно, что программное обеспечение SoftEther VPN может работать в этой системе. Эта проверка может занять некоторое время. Пожалуйста, подождите...\n\n
+CHECK_EXEC_TAG			Проверка '%s'... \n
+CHECK_PASS				Пройдена
+CHECK_FAIL				Не пройдена
+CHECK_RESULT_1			Все проверки пройдены. Скорее всего, SoftEther VPN Сервер / Мост может нормально работать в этой системе.
+CHECK_RESULT_2			Некоторые проверки не пройдены. Пожалуйста, проверьте рабочую среду этой системы. Если SoftEther VPN Сервер / Мост должен быть запущен в этой системе, могут возникнуть проблемы.
 CHECK_TEST_123456789	123456789
 
 
-CHECK_PROC_KERNEL		Kernel System
-CHECK_PROC_MEMORY		Memory Operation System
-CHECK_PROC_STRINGS		ANSI / Unicode string processing system
-CHECK_PROC_FILESYSTEM	File system
-CHECK_PROC_THREAD		Thread processing system
-CHECK_PROC_NETWORK		Network system
+CHECK_PROC_KERNEL		Ядро системы
+CHECK_PROC_MEMORY		Память операционной системы
+CHECK_PROC_STRINGS		Система обработки строк ANSI / Unicode
+CHECK_PROC_FILESYSTEM	Файловая система
+CHECK_PROC_THREAD		Система обработки потоков
+CHECK_PROC_NETWORK		Сетевая система
 
 
 
@@ -7114,19 +7114,19 @@ CHECK_PROC_NETWORK		Network system
 #                                                    #
 ######################################################
 
-SW_TITLE									SoftEther VPN Developer Edition Setup Wizard (Version %S)
-SW_EXIT_CONFIRM								The setup process of SoftEther VPN hasn't been finished yet.\r\n\r\nDo you want to exit the setup?
-SW_UNINSTALL_CONFIRM						Starting the uninstall process of %s.\r\n\r\nDo you want to continue?
+SW_TITLE									Мастер установки SoftEther VPN Developer Edition (версия %S)
+SW_EXIT_CONFIRM								Процесс установки SoftEther VPN еще не завершен.\r\n\r\nВы хотите прервать установку?
+SW_UNINSTALL_CONFIRM						Запуск процесса удаления %s.\r\n\r\nВы хотите продолжить?
 
 
-SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN Server
-SW_COMPONENT_VPNSERVER_DESCRIPTION			Install it on a server computer at the central site of VPN. The management tools will be also installed.
+SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN-сервер
+SW_COMPONENT_VPNSERVER_DESCRIPTION			Установите его на серверный компьютер на центральном VPN узле. Инструменты управления также будут установлены.
 
-SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN Client
-SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client computers. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN-клиент
+SW_COMPONENT_VPNCLIENT_DESCRIPTION			Установите его на клиентских VPN компьютерах. Клиентский VPNкомпьютер сможет подключаться к центральному VPN серверу. Инструменты управления также будут установлены.
 
-SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN Bridge
-SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Install it on computers at each site. Each VPN Bridge will establish a VPN connection to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN-мост
+SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Установить его на компьютеры на каждом узле. Каждый VPN-мост будет устанавливать VPN-подключение к центральному VPN серверу. Средства управления также будут установлены.
 
 SW_COMPONENT_VPNSMGR_TITLE					SoftEther VPN Server Manager (Admin Tools Only)
 SW_COMPONENT_VPNSMGR_DESCRIPTION			Only the VPN Server Manager will be installed. The VPN Server service program will not be installed. You can use the VPN Server Manager to connect and manage remote VPN Servers and VPN Bridges on other computers which can be run on Windows, Linux, Mac OS X, Solaris and FreeBSD.
@@ -7294,25 +7294,25 @@ SW_LINK_NAME_EASYINSTALLER					Easy Installer Creator
 SW_LINK_NAME_EASYINSTALLER_COMMENT			Инструмент для системных администраторов предприятия для создания SoftEther VPN Client Easy Installer, который имеет функцию автоматического запуска VPN-подключения к определенному серверу.
 
 SW_LINK_NAME_WEBINSTALLER					Web Installer Creator
-SW_LINK_NAME_WEBINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Web Installer (ActiveX Installer) which has a function to kick-start a VPN connection to the specific destination automatically.
+SW_LINK_NAME_WEBINSTALLER_COMMENT			Инструмент для системных администраторов предприятия для создания SoftEther VPN Client Web Installer (установщик ActiveX), который имеет функцию автоматического запуска VPN-подключения к определенному серверу.
 
 
-SW_LINK_NAME_VPNCMD							SoftEther VPN Command Line Utility (vpncmd)
-SW_LINK_NAME_VPNCMD_COMMENT					Manage SoftEther VPN Server, SoftEther VPN Bridge and SoftEther VPN Client on the command-line interface in vpncmd.
-SW_LINK_NAME_TRAFFIC						Network Traffic Speed Test Tool
-SW_LINK_NAME_TRAFFIC_COMMENT				Performs transmitting packets between two computers connected with TCP/IP, with large amount of throughput as possible, in order to measure the actual network traffic speed available.
-SW_LINK_NAME_TCP							TCP Optimization Utility
-SW_LINK_NAME_TCP_COMMENT					TCP Optimization Utility can adjust the parameters of TCP/IP of Windows in order to increase the network communication throughput of this computer.
-SW_LINK_NAME_SERVICES						Services Running on this Computer
-SW_LINK_NAME_SERVICES_COMMENT				Starts, stops, and configures Windows services. You can start and stop SoftEther VPN services.
-SW_LINK_NAME_VPNSERVER_SVC_COMMENT			Starts SoftEther VPN Server Service in the User Mode.
-SW_LINK_NAME_VPNBRIDGE_SVC_COMMENT			Starts SoftEther VPN Bridge Service in the User Mode.
+SW_LINK_NAME_VPNCMD							Командная строка SoftEther VPN (vpncmd)
+SW_LINK_NAME_VPNCMD_COMMENT					Управляйте SoftEther VPN-сервером, VPN-мостом и VPN-клиентом с помощью интерфейса командной строки в vpncmd.
+SW_LINK_NAME_TRAFFIC						Тест скорости сетевого трафика
+SW_LINK_NAME_TRAFFIC_COMMENT				Выполняет передачу пакетов между двумя компьютерами, подключенными по TCP/IP, с максимально возможной пропускной способностью, чтобы измерить фактическую доступную скорость сетевого трафика.
+SW_LINK_NAME_TCP							Утилита оптимизации TCP
+SW_LINK_NAME_TCP_COMMENT					Утилита оптимизации TCP может регулировать параметры TCP/IP Windows, чтобы увеличить пропускную способность сетевого соединения этого компьютера.
+SW_LINK_NAME_SERVICES						Службы, работающие на этом компьютере
+SW_LINK_NAME_SERVICES_COMMENT				Запускает, останавливает и настраивает службы Windows. Вы можете запускать и останавливать SoftEther VPN службы.
+SW_LINK_NAME_VPNSERVER_SVC_COMMENT			Запускает службу SoftEther VPN-сервер в режиме пользователя.
+SW_LINK_NAME_VPNBRIDGE_SVC_COMMENT			Запускает службу SoftEther VPN-мост в режиме пользователя.
 
-SW_LINK_NAME_UNINSTALL						Uninstall %s
-SW_LINK_NAME_UNINSTALL_COMMENT				Uninstall %s on this computer.
+SW_LINK_NAME_UNINSTALL						Удалить %s
+SW_LINK_NAME_UNINSTALL_COMMENT				Удалить %s на этом компьютере.
 
-SW_LINK_NAME_LANGUAGE						Configure Display Language
-SW_LINK_NAME_LANGUAGE_COMMENT				Change the display language setting of %s.
+SW_LINK_NAME_LANGUAGE						Настроить язык
+SW_LINK_NAME_LANGUAGE_COMMENT				Изменить настройки языка %s.
 
-SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
-SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
+SW_LINK_NAME_DEBUG							Инструмент сбора отладочной информации
+SW_LINK_NAME_DEBUG_COMMENT					Собирает отладочную информацию SoftEther VPN. Используйте этот инструмент, только если ваши сотрудники поддержки просит вас сделать это.
