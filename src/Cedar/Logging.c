@@ -419,7 +419,7 @@ ERASER *NewEraser(LOG *log, UINT64 min_size)
 
 	e = ZeroMalloc(sizeof(ERASER));
 
-	GetExeDir(dir, sizeof(dir));
+	GetLogDir(dir, sizeof(dir));
 
 	e->Log = log;
 	e->MinFreeSpace = min_size;

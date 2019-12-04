@@ -9,12 +9,12 @@
 
 static SERVER *server = NULL;
 static LOCK *server_lock = NULL;
-char *SERVER_CONFIG_FILE_NAME = "@vpn_server.config";
-char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "@vpn_gate_svc.config";
-char *SERVER_CONFIG_FILE_NAME_IN_CLIENT_RELAY = "@vpn_gate_relay.config";
-char *BRIDGE_CONFIG_FILE_NAME = "@vpn_bridge.config";
-char *SERVER_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
-char *BRIDGE_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
+char *SERVER_CONFIG_FILE_NAME = "$vpn_server.config";
+char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "$vpn_gate_svc.config";
+char *SERVER_CONFIG_FILE_NAME_IN_CLIENT_RELAY = "$vpn_gate_relay.config";
+char *BRIDGE_CONFIG_FILE_NAME = "$vpn_bridge.config";
+char *SERVER_CONFIG_TEMPLATE_NAME = "$vpn_server_template.config";
+char *BRIDGE_CONFIG_TEMPLATE_NAME = "$vpn_server_template.config";
 
 static bool server_reset_setting = false;
 
@@ -964,7 +964,7 @@ LIST *EnumLogFile(char *hubname)
 		hubname = NULL;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetLogDir(exe_dir, sizeof(exe_dir));
 
 	// Enumerate in the server_log
 	if (hubname == NULL)
@@ -1056,7 +1056,7 @@ void EnumLogFileDir(LIST *o, char *dirname)
 		return;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetLogDir(exe_dir, sizeof(exe_dir));
 	Format(dir_full_path, sizeof(dir_full_path), "%s/%s", exe_dir, dirname);
 
 	dir = EnumDir(dir_full_path);

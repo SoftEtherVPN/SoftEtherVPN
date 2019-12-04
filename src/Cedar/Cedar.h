@@ -431,6 +431,12 @@
 #define	LOG_ENGINE_BUFFER_CACHE_SIZE_MAX	(10 * 1024 * 1024)	// Write cache size
 
 // Constant such as a file name
+//
+// These placeholders will be replaced in InnerFilePathW().
+//
+// @ - placeholder for LogDir
+// $ - placeholder for DbDir (config directory)
+//
 #define	SERVER_LOG_DIR				"server_log"
 #define	SERVER_LOG_DIR_NAME			"@"SERVER_LOG_DIR
 #define	BRIDGE_LOG_DIR_NAME			SERVER_LOG_DIR_NAME
@@ -516,7 +522,7 @@
 // Expiration date of random size cache
 #define	RAND_SIZE_CACHE_EXPIRE		(24 * 60 * 60 * 1000)
 // Management allowed IP address list file name
-#define	ADMINIP_TXT					"@adminip.txt"
+#define	ADMINIP_TXT					"$adminip.txt"
 
 #define NON_SSL_MIN_COUNT			60
 #define NON_SSL_ENTRY_EXPIRES		(10 * 60 * 1000)
@@ -567,7 +573,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #define	EL_ADMIN_PORT			22888
-#define	EL_CONFIG_FILENAME		"@etherlogger.config"
+#define	EL_CONFIG_FILENAME		"$etherlogger.config"
 #define	EL_PACKET_LOG_DIR	"etherlogger_log"
 #define	EL_PACKET_LOG_DIR_NAME	"@"EL_PACKET_LOG_DIR
 #define	EL_PACKET_LOG_FILE_NAME	EL_PACKET_LOG_DIR_NAME"/%s"
