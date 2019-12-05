@@ -10,3 +10,4 @@ FreeBSD_task:
     - ./configure
     - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
     - ldd build/vpnserver
+    - build/vpncmd /tool /cmd:check
