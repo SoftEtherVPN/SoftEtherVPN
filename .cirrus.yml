@@ -8,5 +8,5 @@ FreeBSD_task:
     - git submodule update --init --recursive
   script:
     - ./configure
-    - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
+    - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
     - ldd build/vpnserver
