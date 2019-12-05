@@ -4,9 +4,9 @@ FreeBSD_task:
   env:
     ASSUME_ALWAYS_YES: TRUE # required for unattanded "pkg" invocation
   install_script:
-    - pkg install cmake gmake openssl111 git
+    - pkg install cmake openssl111 git
     - git submodule update --init --recursive
   script:
     - ./configure
-    - gmake -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
+    - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
     - ldd build/vpnserver
