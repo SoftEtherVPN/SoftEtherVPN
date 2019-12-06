@@ -10,7 +10,8 @@ FreeBSD_task:
     - ./configure
     - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
     - ldd build/vpnserver
-    - build/vpncmd /tool /cmd:check
+    - .ci/memory-leak-test.sh
+    - .ci/vpntools-check.sh
 
 FreeBSD_task:
   freebsd_instance:
@@ -25,4 +26,5 @@ FreeBSD_task:
     - ./configure
     - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
     - ldd build/vpnserver
-    - build/vpncmd /tool /cmd:check
+    - .ci/memory-leak-test.sh
+    - .ci/vpntools-check.sh
