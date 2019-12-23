@@ -1,30 +1,29 @@
 FreeBSD_task:
-  freebsd_instance:
-    image: freebsd-12-1-release-amd64
+  matrix:
+    env:
+      SSL: openssl
+    env:
+      SSL: openssl111
+    env:
+      SSL: libressl
+    env:
+      SSL: libressl-devel
+  matrix:
+    freebsd_instance:
+      image: freebsd-12-1-release-amd64
+    freebsd_instance:
+      # 11-3-release doesn't boot: https://cirrus-ci.org/guide/FreeBSD/
+      image: freebsd-11-3-stable-amd64-v20191205
   env:
     ASSUME_ALWAYS_YES: TRUE # required for unattanded "pkg" invocation
-  install_script:
-    - pkg install cmake openssl111 git
+  prepare_script:
+    - pkg install cmake git $SSL
     - git submodule update --init --recursive
-  script:
+  configure_script:
     - ./configure
+  build_script:
     - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
-    - ldd build/vpnserver
-    - .ci/memory-leak-test.sh
-    - .ci/vpntools-check.sh
-
-FreeBSD_task:
-  freebsd_instance:
-    # 11-3-release doesn't boot: https://cirrus-ci.org/guide/FreeBSD/
-    image: freebsd-11-3-stable-amd64-v20191205
-  env:
-    ASSUME_ALWAYS_YES: TRUE # required for unattanded "pkg" invocation
-  install_script:
-    - pkg install cmake openssl111 git
-    - git submodule update --init --recursive
-  script:
-    - ./configure
-    - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
+  test_script:
     - ldd build/vpnserver
     - .ci/memory-leak-test.sh
     - .ci/vpntools-check.sh
