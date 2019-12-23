@@ -8,6 +8,8 @@ FreeBSD_task:
       SSL: libressl
     env:
       SSL: libressl-devel
+    env:
+      SSL:
   matrix:
     freebsd_instance:
       image: freebsd-12-1-release-amd64
