@@ -7,6 +7,7 @@
 - [SOFTETHER VPN ADVANTAGES](#softether-vpn-advantages)
 - [Installation](#installation)
   * [For Ubuntu](#for-ubuntu)
+  * [For FreeBSD](#for-freebsd)
   * [From binary installers:](#from-binary-installers)
   * [Build from Source code](#build-from-source-code)
 - [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
@@ -18,7 +19,7 @@
 
 SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
-http://www.softether.org/
+https://www.softether.org/
 
 
 This repository has experimental codes. Pull requests are welcome.
@@ -28,7 +29,7 @@ https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 which the non-developer user can stable use.
 
 Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
-http://www.softether-download.com/
+https://www.softether-download.com/
 
 Copyright (c) all contributors on SoftEther VPN project in GitHub.
 Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
@@ -68,7 +69,7 @@ SoftEther VPN supports most of widely-used VPN protocols
 including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
-More details on http://www.softether.org/.
+More details on https://www.softether.org/.
 
 
 # BOARD MEMBERS OF THIS REPOSITORY
@@ -130,7 +131,7 @@ https://github.com/chipitsine
 - No memory leaks. High quality stable codes, intended for long-term runs.
   We always verify that there are no memory or resource leaks before
   releasing the build.
-- More details at http://www.softether.org/.
+- More details at https://www.softether.org/.
 
 
 # Installation
@@ -143,9 +144,37 @@ Launchpad PPA maintained by [Dmitry Verkhoturov](https://github.com/paskal):
 
 [Nightly builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn-nightly)
 
+## For FreeBSD
+
+SoftEther VPN in FreeBSD Ports Collection is maintained by
+[Koichiro Iwao](https://people.FreeBSD.org/~meta/) ([@metalefty](https://github.com/metalefty)).
+
+Binary package can be installed by pkg:
+```
+pkg install softether5
+```
+
+Alternatively, it can be built & installed by ports:
+```
+make install -C /usr/ports/security/softether5
+```
+
+To run SoftEther VPN Server:
+```
+service softether_server start
+```
+
+To configure SoftEther VPN Server startup on boot:
+```
+sysrc softether_server_enable=yes
+```
+
+Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softether-devel/) and
+[RTM version](https://www.freshports.org/security/softether/) are available on FreeBSD.
+
 ## From binary installers:
 
-Those can be found under http://www.softether-download.com/
+Those can be found under https://www.softether-download.com/
 There you can also find SoftEtherVPN source code in zip and tar formats.
 
 ## Build from Source code
@@ -234,4 +263,4 @@ Our e-mail address for security reports is:
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit
-http://www.softether.org/ and ask your question on the users forum.
+https://www.softether.org/ and ask your question on the users forum.
