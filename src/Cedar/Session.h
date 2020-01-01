@@ -326,6 +326,12 @@ struct SESSION
 
 	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
 	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// A shared data between IPC and Session
+
+
+	bool EnableLightRecvFilter;		// Enable light receive filter
+	UINT LightRecvFilterMac;		// Light receive filter MAC address
+	UINT LightRecvFilterIPv4_1;		// Light receive filter IPv4 address #1
+	UINT LightRecvFilterIPv4_2;		// Light receive filter IPv4 address #2
 };
 
 // Password dialog

@@ -1399,6 +1399,7 @@ void CleanupSession(SESSION *s)
 
 	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
 
+
 	Free(s);
 }
 
@@ -2360,6 +2361,7 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 			Debug("MAC Address for IPC: %s\n", tmp);
 		}
 	}
+
 
 	return s;
 }

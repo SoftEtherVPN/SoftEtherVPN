@@ -1543,7 +1543,7 @@ void NnTcpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT 
 		// Create a new session because there is no existing one
 		UINT public_port;
 
-		if (old_tcp->Flag != TCP_SYN)
+		if (((old_tcp->Flag & TCP_SYN) && ((old_tcp->Flag & TCP_ACK) == 0)) == false)
 		{
 			// If there is no existing session, pass through only for SYN packet
 			return;

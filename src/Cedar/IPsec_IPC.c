@@ -179,6 +179,12 @@ IPC_ASYNC *NewIPCAsync(CEDAR *cedar, IPC_PARAM *param, SOCK_EVENT *sock_event)
 
 	Copy(&a->Param, param, sizeof(IPC_PARAM));
 
+	if (param->ClientCertificate != NULL)
+	{
+		// Client certificate must be copied for async processing
+		a->Param.ClientCertificate = CloneX(param->ClientCertificate);
+	}
+
 	if (sock_event != NULL)
 	{
 		a->SockEvent = sock_event;
@@ -297,6 +303,12 @@ void FreeIPCAsync(IPC_ASYNC *a)
 	ReleaseCedar(a->Cedar);
 
 	ReleaseTube(a->TubeForDisconnect);
+
+	if (a->Param.ClientCertificate != NULL)
+	{
+		FreeX(a->Param.ClientCertificate);
+	}
+
 	Free(a);
 }
 
