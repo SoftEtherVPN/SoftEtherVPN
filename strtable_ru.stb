@@ -2494,47 +2494,48 @@ S_STATIC				Примечание: Вы не сможете изменить па
 
 
 PREFIX					D_SM_MAIN
-CAPTION					SoftEther VPN Server Manager Developer Edition
-STATIC1					Connection &Settings for VPN Server:
-STATIC2					Connection Settings for VPN Server or VPN Bridge are defined as follows. Double-click the item to connect to the server.\r\nTo add a new connection, click New Setting.
-B_NEW_SETTING			&New Setting
-B_EDIT_SETTING			&Edit Setting
-B_DELETE				&Delete Setting
-IDOK					&Connect
-B_SECURE_MANAGER		&Smart Card Manager...
-B_SELECT_SECURE			Select S&mart card...
-B_ABOUT					&About SoftEther VPN...
-IDCANCEL				E&xit SoftEther VPN Server Manager
-B_CERT_TOOL				Make a Certificate
+CAPTION					Диспетчер SoftEther VPN-серверов Developer Edition
+STATIC1					Настройки подключения для VPN-сервера:
+STATIC2					Настройки подключения для VPN-сервера или VPN-моста. Чтобы подключиться к серверу дважды щелкните по его настройке.\r\n 
+Чтобы добавить новое подключение, нажмите "Новая настройка".
+B_NEW_SETTING			&Новая настройка
+B_EDIT_SETTING			&Изменить настройку
+B_DELETE				&Удалить настройку
+IDOK					&Подключиться
+B_SECURE_MANAGER		&Диспетчер смарт-карт...
+B_SELECT_SECURE			Выберите смарт-карту...
+B_ABOUT					&О SoftEther VPN...
+IDCANCEL				Выход из диспетчера SoftEther VPN-серверов
+B_CERT_TOOL				Создать сертификат
 
 
 PREFIX					D_SM_EDIT_SETTING
-STATIC1					Please configure the connection setting for the VPN Server or the VPN Bridge to manage.
-STATIC2					Setting &Name:
-STATIC3					Destination VPN Server:
-STATIC4					Specify the host name or IP address, and the port number and the Virtual Hub on the destination VPN Server.
-STATIC5					&Host Name:
-R_LOCALHOST				Connect to &Localhost
-STATIC6					&Port Number:
-STATIC7					(TCP Port)
-STATIC8					Pro&xy Server as Relay:
-STATIC9					You can connect to a VPN Server via a proxy server.
-STATIC10				Proxy &Type:
-R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
-R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
-R_SOCKS5				Connect via S&OCKS5 Proxy Server
-B_PROXY_CONFIG			P&roxy Server Setting
-STATIC11				Select Administration &Mode and Enter Password
-STATIC12				You can connect to VPN Server using either Server Admin Mode or Virtual Hub Admin Mode.\r\n\r\nServer Admin Mode allows you manage entire VPN Server and all Virtual Hubs. \r\n\r\nVirtual Hub Admin Mode allows you manage only one Virtual Hub for which you hold privileges.
-R_SERVER_ADMIN			&Server Admin Mode
-R_HUB_ADMIN				Virtual H&UB Admin Mode
-S_HUBNAME				&Virtual Hub Name:
-STATIC13				Please enter the password to connect administration mode.
-S_PASSWORD				&Password: 
-R_NO_SAVE				Do not &Save Admin's Password
+STATIC1					Пожалуйста, настройте параметры подключения для VPN-сервера или VPN-моста.
+STATIC2					Название настройки:
+STATIC3					VPN-сервер назначения:
+STATIC4					Укажите имя хоста или IP-адрес, а также Virtual Hub и номер порта VPN-сервера.
+STATIC5					&Имя хоста:
+R_LOCALHOST				Подключиться локально
+STATIC6					&Номер порта:
+STATIC7					(TCP порт)
+STATIC8					Прокси-сервер:
+STATIC9					Вы можете подключиться к VPN-серверу через прокси-сервер.
+STATIC10				Тип прокси:
+R_DIRECT_TCP			&Прямое TCP/IP соединение (без прокси)
+R_HTTPS					Подключиться через HTTP прокси-сервер
+R_SOCKS					Подключиться через SOCKS прокси-сервер
+R_SOCKS5				Подключиться через SOCKS5 прокси-сервер
+B_PROXY_CONFIG			Настройки прокси-сервера
+STATIC11				Выберите режим администрирования и введите пароль
+STATIC12				Вы можете подключиться к VPN-серверу, используя либо режим администратора сервера, либо режим Virtual Hub администратора. \r\n\r\nРежим администратора сервера позволяет вам управлять VPN-сервером и всеми Virtual Hub. \r\n\r\nРежим Virtual Hub администратора позволяет вам управлять только одним Virtual Hub, на который у вас есть права.
+R_SERVER_ADMIN			&Режим администратора сервера
+R_HUB_ADMIN				Режим Virtual Hub администратора
+S_HUBNAME				&Имя Virtual Hub:
+STATIC13				Пожалуйста, введите пароль для режима администратора.
+S_PASSWORD				&Пароль: 
+R_NO_SAVE				Не сохранять пароль администратора
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SERVER
@@ -7014,10 +7015,11 @@ CMD_TrafficClient_ERROR_HOSTPORT	The host name or port number is incorrectly spe
 
 # TrafficServer command
 CMD_TrafficServer		Запустить средство тестирования скорости сетевого трафика в режиме сервера
-CMD_TrafficServer_Help	Используется для запуска инструмента измерения пропускной способности в режиме сервера. \nTwo commands, TrafficClient and TrafficServer, are used for the communication throughput measurement tool to enable the measurement of communication throughput that can be transferred between two computers connected by IP network. \nTo set the TCP port of this computer to the Listen status to listen for the connection from the TrafficClient of another computer, specify the port number and start the server program using the TrafficServer command. \nYou can display more detailed information on the communication throughput measurement tool by inputting "TrafficClient ?". \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually conducts communication and measures the throughput is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
-CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
-CMD_TrafficServer_[port]	Specify, using an integer, the port number at which to listen for the connection. If the specified port has been already being used by another program, or if the port cannot be opened, an error will occur.
-CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.
+CMD_TrafficServer_Help	Используется для запуска инструмента измерения пропускной способности в режиме сервера. \n 
+Две команды, TrafficClient и TrafficServer, используются для измерения пропускной способности между двумя компьютерами, соединенными сетью IP. \nУкажите номер порта и запустите серверную часть с помощью команды TrafficServer, чтобы прослушивать подключение от TrafficClient другого компьютера. \nВы можете отобразить более подробную информацию об инструменте измерения пропускной способности, введя "TrafficClient ?". \n\nПримечание. Эту команду можно вызвать из утилиты управления командной строкой SoftEther VPN. Вы также можете выполнить эту команду при подключении к текущему VPN-серверу или VPN-клиенту в режиме администрирования, но фактически осуществляет связь и измеряет пропускную способность тот компьютер, на котором выполняется команда, а не компьютер с которого выполнено подключение в режиме администрирования.
+CMD_TrafficServer_Args	TrafficServer [порт] [/NOHUP:да|нет]
+CMD_TrafficServer_[port]	Укажите номер порта для прослушивания соединения. Если указанный порт уже используется другой программой или порт не может быть открыт, произойдет ошибка
+CMD_TrafficServer_NOHUP	Если указано «да», серверная часть игнорирует любой ввод с консоли и никогда не останавливается. Это удобно, если вы хотите запустить TrafficServer в бесконечном режиме.
 
 
 
