@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // BridgeUnix.c
@@ -267,18 +161,17 @@ int UnixEthOpenRawSocket()
 // Is Ethernet device control supported?
 bool IsEthSupported()
 {
-	bool ret = false;
 
-#if		defined(UNIX_LINUX)
-	ret = IsEthSupportedLinux();
+#if	defined(UNIX_LINUX)
+	return IsEthSupportedLinux();
+#elif	defined(UNIX_BSD)
+	return true;
 #elif	defined(UNIX_SOLARIS)
-	ret = IsEthSupportedSolaris();
-#elif	defined(BRIDGE_PCAP)
-	ret = true;
-#elif	defined(BRIDGE_BPF)
-	ret = true;
+	return IsEthSupportedSolaris();
+#else
+	return false;
 #endif
-	return ret;
+
 }
 
 #ifdef	UNIX_LINUX
@@ -330,7 +223,7 @@ TOKEN_LIST *GetEthListSolaris()
 			struct lifreq *buf;
 			UINT numifs;
 			UINT bufsize;
-			
+
 			numifs = lifn.lifn_count;
 			Debug("NumIFs:%d\n",numifs);
 			bufsize = numifs * sizeof(struct lifreq);
@@ -490,7 +383,7 @@ TOKEN_LIST *GetEthListPcap()
 		}
 		pcap_freealldevs(alldevs);
 	}
-	
+
 	Sort(o);
 	t = ZeroMalloc(sizeof(TOKEN_LIST));
 	t->NumTokens = LIST_NUM(o);
@@ -557,19 +450,19 @@ TOKEN_LIST *GetEthList()
 }
 TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, bool enum_rawip)
 {
-	TOKEN_LIST *t = NULL;
 
 #if	defined(UNIX_LINUX)
-	t = GetEthListLinux(enum_normal, enum_rawip);
+	return GetEthListLinux(enum_normal, enum_rawip);
 #elif	defined(UNIX_SOLARIS)
-	t = GetEthListSolaris();
+	return GetEthListSolaris();
 #elif	defined(BRIDGE_PCAP)
-	t = GetEthListPcap();
+	return GetEthListPcap();
 #elif	defined(BRIDGE_BPF)
-	t = GetEthListBpf();
+	return GetEthListBpf();
+#else
+	return NULL;
 #endif
 
-	return t;
 }
 
 #ifdef	UNIX_LINUX
@@ -598,7 +491,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 #ifndef	NO_VLAN
 		// In tap mode
-		VLAN *v = NewTap(name, tapaddr);
+		VLAN *v = NewTap(name, tapaddr, true);
 		if (v == NULL)
 		{
 			return NULL;
@@ -648,7 +541,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 
 	if (local == false)
 	{
-		// Enable promiscious mode
+		// Enable promiscuous mode
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), name);
 		if (ioctl(s, SIOCGIFFLAGS, &ifr) < 0)
@@ -908,7 +801,6 @@ bool EthIsChangeMtuSupported(ETH *e)
 ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 {
 	char devname[MAX_SIZE];
-	UINT devid;
 	int fd;
 	ETH *e;
 	CANCEL *c;
@@ -921,32 +813,16 @@ ETH *OpenEthSolaris(char *name, bool local, bool tapmode, char *tapaddr)
 	}
 
 	// Parse device name
-	if (ParseUnixEthDeviceName(devname, sizeof(devname), &devid, name) == false)
+	if (ParseUnixEthDeviceName(devname, sizeof(devname), name) == false)
 	{
 		return NULL;
 	}
 
-	// Open the device
+	// Open the device - use style 1 attachment
 	fd = open(devname, O_RDWR);
 	if (fd == -1)
 	{
 		// Failed
-		return NULL;
-	}
-
-	// Attach to the device
-	if (DlipAttatchRequest(fd, devid) == false)
-	{
-		// Failed
-		close(fd);
-		return NULL;
-	}
-
-	// Verify ACK message
-	if (DlipReceiveAck(fd) == false)
-	{
-		// Failed
-		close(fd);
 		return NULL;
 	}
 
@@ -1103,37 +979,6 @@ bool DlipBindRequest(int fd)
 	return true;
 }
 
-// Attach to the device
-bool DlipAttatchRequest(int fd, UINT devid)
-{
-	dl_attach_req_t req;
-	struct strbuf ctl;
-	int flags;
-	// Validate arguments
-	if (fd == -1)
-	{
-		return false;
-	}
-
-	Zero(&req, sizeof(req));
-	req.dl_primitive = DL_ATTACH_REQ;
-	req.dl_ppa = devid;
-
-	Zero(&ctl, sizeof(ctl));
-	ctl.maxlen = 0;
-	ctl.len = sizeof(req);
-	ctl.buf = (char *)&req;
-
-	flags = 0;
-
-	if (putmsg(fd, &ctl, NULL, flags) < 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Verify the ACK message
 bool DlipReceiveAck(int fd)
 {
@@ -1173,46 +1018,54 @@ bool DlipReceiveAck(int fd)
 
 #endif	// UNIX_SOLARIS
 
-// Separate UNIX device name string into device name and id number
-bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, UINT *dst_devid, char *src_name)
+// Validate device name and return proper device path according to system type
+bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_name)
 {
-	UINT len, i, j;
+	UINT len, i;
+	struct stat s;
+	int err;
+	char *device_path;
+	int device_pathlen;
 
 	// Validate arguments
-	if (dst_devname == NULL || dst_devid == NULL || src_name == NULL)
+	if (dst_devname == NULL || src_name == NULL)
 	{
 		return false;
 	}
 
-	len = strlen(src_name);
 	// Check string length
-	if(len == 0)
+	if (IsEmptyStr(src_name))
 	{
 		return false;
 	}
 
-	for (i = len-1; i+1 != 0; i--)
+	// Solaris 10 and higher make real and virtual devices available in /dev/net
+	err = stat("/dev/net", &s);
+	if (err != -1 && S_ISDIR(s.st_mode))
 	{
-		// Find last non-numeric character
-		if (src_name[i] < '0' || '9' < src_name[i])
+		device_path = "/dev/net/";
+	}
+	else
+	{
+		device_path = "/dev/";
+	}
+
+	device_pathlen = StrLen(device_path);
+
+	// Last character must be a number
+	if (src_name[i] < '0' || '9' < src_name[i])
+	{
+		if (src_name[i + 1] == 0)
 		{
-			// last character must be a number
-			if(src_name[i+1]==0)
-			{
-				return false;
-			}
-			*dst_devid = ToInt(src_name + i + 1);
-			StrCpy(dst_devname, dst_devname_size, "/dev/");
-			for (j = 0; j<i+1 && j<dst_devname_size-6; j++)
-			{
-				dst_devname[j+5] = src_name[j];
-			}
-			dst_devname[j+5]=0;
-			return true;
+			return false;
 		}
 	}
-	// All characters in the string was numeric: error
-	return false;
+
+	StrCpy(dst_devname, dst_devname_size, device_path);
+	StrCpy(dst_devname + device_pathlen, dst_devname_size - device_pathlen, src_name);
+	dst_devname[device_pathlen + len] = 0;
+
+	return true;
 }
 
 #if defined(BRIDGE_BPF) || defined(BRIDGE_PCAP)
@@ -1237,7 +1090,7 @@ void PcapHandler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 	ETH *e = (ETH*) user;
 	struct CAPTUREBLOCK *block;
 	UCHAR *data;
-	
+
 	data = Malloc(h->caplen);
 	Copy(data, bytes, h->caplen);
 	block = NewCaptureBlock(data, h->caplen);
@@ -1278,14 +1131,13 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 	char errbuf[PCAP_ERRBUF_SIZE];
 	ETH *e;
 	pcap_t *p;
-	CANCEL *c;
 
 	// Validate arguments
 	if (name == NULL || tapmode != false)
 	{
 		return NULL;
 	}
-	
+
 	// Initialize error message buffer
 	errbuf[0] = 0;
 
@@ -1306,7 +1158,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 		return NULL;
 	}
 	*/
-	
+
 	e = ZeroMalloc(sizeof(ETH));
 	e->Name = CopyStr(name);
 	e->Title = CopyStr(name);
@@ -1316,7 +1168,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 	e->IfIndex = -1;
 	e->Socket = pcap_get_selectable_fd(p);
 	e->Pcap = p;
-	
+
 	e->CaptureThread = NewThread(PcapThread, e);
 	WaitThreadInit(e->CaptureThread);
 
@@ -1340,7 +1192,7 @@ void BpfThread(THREAD *thread, void *param)
 
 	// Allocate the buffer
 	UCHAR *buf = Malloc(e->BufSize);
-	
+
 	// Notify initialize completed
 	NoticeThreadInit(thread);
 
@@ -1349,7 +1201,7 @@ void BpfThread(THREAD *thread, void *param)
 		if(e->Socket == INVALID_SOCKET){
 			break;
 		}
-		
+
 		rest = read(fd, buf, e->BufSize);
 		if(rest < 0 && errno != EAGAIN){
 			// Error
@@ -1399,7 +1251,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 	UINT bufsize;
 	struct ifreq ifr;
 	struct timeval to;
-	
+
 	// Find unused bpf device and open it
 	do{
 		Format(devname, sizeof(devname), "/dev/bpf%d", n++);
@@ -1408,13 +1260,13 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 			perror("open");
 		}
 	}while(fd < 0 && errno == EBUSY);
-	
+
 	// No free bpf device was found
 	if(fd < 0){
 		Debug("BPF: No minor number are free.\n");
 		return NULL;
 	}
-	
+
 	// Enlarge buffer size
 	n = 524288; // Somehow(In libpcap, this size is 32768)
 	while(true){
@@ -1450,7 +1302,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		}
 	}
 
-	
+
 	// Set to immediate mode (Return immediately when packet arrives)
 	n = 1;
 	if (ioctl(fd, BIOCIMMEDIATE, &n) < 0){
@@ -1474,7 +1326,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		close(fd);
 		return NULL;
 	}
-	
+
 	// Set timeout delay to 1 second
 	to.tv_sec = 1;
 	to.tv_usec = 0;
@@ -1483,7 +1335,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 		close(fd);
 		return NULL;
 	}
-	
+
 	e = ZeroMalloc(sizeof(ETH));
 	e->Name = CopyStr(name);
 	e->Title = CopyStr(name);
@@ -1525,22 +1377,62 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 }
 #endif // BRIDGE_BPF
 
+#ifdef UNIX_BSD
+ETH *OpenEthBSD(char *name, bool local, bool tapmode, char *tapaddr)
+{
+	if (tapmode)
+	{
+#ifndef	NO_VLAN
+		// In tap mode
+		VLAN *v = NewTap(name, tapaddr, true);
+		if (v == NULL)
+		{
+			return NULL;
+		}
+
+		ETH *e;
+		e = ZeroMalloc(sizeof(ETH));
+		e->Name = CopyStr(name);
+		e->Title = CopyStr(name);
+		e->Cancel = VLanGetCancel(v);
+		e->IfIndex = 0;
+		e->Socket = INVALID_SOCKET;
+		e->Tap = v;
+
+		return e;
+#else	// NO_VLAN
+		return NULL:
+#endif	// NO_VLAN
+	}
+
+#if	defined(BRIDGE_BPF)
+		return OpenEthBpf(name, local, tapmode, tapaddr);
+#elif	defined(BRIDGE_PCAP)
+		return OpenEthPcap(name, local, tapmode, tapaddr);
+#else
+		return NULL;
+#endif
+}
+#endif // UNIX_BSD
+
 // Open Ethernet adapter
 ETH *OpenEth(char *name, bool local, bool tapmode, char *tapaddr)
 {
-	ETH *ret = NULL;
 
-#if		defined(UNIX_LINUX)
-	ret = OpenEthLinux(name, local, tapmode, tapaddr);
+#if	defined(UNIX_LINUX)
+	return OpenEthLinux(name, local, tapmode, tapaddr);
+#elif	defined(UNIX_BSD)
+	return OpenEthBSD(name, local, tapmode, tapaddr);
 #elif	defined(UNIX_SOLARIS)
-	ret = OpenEthSolaris(name, local, tapmode, tapaddr);
+	return OpenEthSolaris(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_PCAP)
-	ret = OpenEthPcap(name, local, tapmode, tapaddr);
+	return OpenEthPcap(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_BPF)
-	ret = OpenEthBpf(name, local, tapmode, tapaddr);
+	return OpenEthBpf(name, local, tapmode, tapaddr);
+#else
+	return NULL;
 #endif
 
-	return ret;
 }
 
 typedef struct UNIXTHREAD
@@ -1651,19 +1543,47 @@ CANCEL *EthGetCancel(ETH *e)
 // Read a packet
 UINT EthGetPacket(ETH *e, void **data)
 {
-	UINT ret = 0;
+	// Validate arguments
+	if (e == NULL || data == NULL)
+	{
+		return INFINITE;
+	}
 
-#if		defined(UNIX_LINUX)
-	ret = EthGetPacketLinux(e, data);
-#elif	defined(UNIX_SOLARIS)
-	ret = EthGetPacketSolaris(e, data);
-#elif	defined(BRIDGE_PCAP)
-	ret = EthGetPacketPcap(e, data);
-#elif	defined(BRIDGE_BPF)
-	ret = EthGetPacketBpf(e, data);
+#ifdef	UNIX_LINUX
+	if (e->IsRawIpMode)
+	{
+		return EthGetPacketLinuxIpRaw(e, data);
+	}
 #endif
 
-	return ret;
+	if (e->Tap != NULL)
+	{
+#ifndef	NO_VLAN
+		// TAP mode
+		void *buf;
+		UINT size;
+
+		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
+		{
+			return INFINITE;
+		}
+
+		*data = buf;
+		return size;
+#else
+		return INFINITE;
+#endif
+	}
+
+#if		defined(UNIX_LINUX)
+	return EthGetPacketLinux(e, data);
+#elif	defined(UNIX_SOLARIS)
+	return EthGetPacketSolaris(e, data);
+#elif	defined(BRIDGE_PCAP)
+	return EthGetPacketPcap(e, data);
+#elif	defined(BRIDGE_BPF)
+	return EthGetPacketBpf(e, data);
+#endif
 }
 
 #ifdef	UNIX_LINUX
@@ -1680,35 +1600,6 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 		struct cmsghdr cmsg;
 		char buf[CMSG_SPACE(sizeof(struct my_tpacket_auxdata))];
 	} cmsg_buf;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
-
-	if (e->IsRawIpMode)
-	{
-		return EthGetPacketLinuxIpRaw(e, data);
-	}
-
-	if (e->Tap != NULL)
-	{
-#ifndef	NO_VLAN
-		// tap mode
-		void *buf;
-		UINT size;
-
-		if (VLanGetNextPacket(e->Tap, &buf, &size) == false)
-		{
-			return INFINITE;
-		}
-
-		*data = buf;
-		return size;
-#else	// NO_VLAN
-		return INFINITE;
-#endif
-	}
 
 	s = e->Socket;
 
@@ -1839,11 +1730,6 @@ UINT EthGetPacketSolaris(ETH *e, void **data)
 	int s;
 	int flags = 0;
 	int ret;
-	// Validate arguments
-	if (e == NULL || data == NULL)
-	{
-		return INFINITE;
-	}
 
 	s = e->Socket;
 	if (s == INVALID_SOCKET)
@@ -1883,14 +1769,14 @@ UINT EthGetPacketPcap(ETH *e, void **data)
 {
 	struct CAPTUREBLOCK *block;
 	UINT size;
-	
+
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
 	if(block != NULL){
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
-	
+
 	if(block == NULL){
 		*data = NULL;
 		if(e->Socket == INVALID_SOCKET){
@@ -1898,11 +1784,11 @@ UINT EthGetPacketPcap(ETH *e, void **data)
 		}
 		return 0;
 	}
-	
+
 	*data = block->Buf;
 	size = block->Size;
 	FreeCaptureBlock(block);
-	
+
 	return size;
 }
 #endif // BRIDGE_PCAP
@@ -1913,14 +1799,14 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 {
 	struct CAPTUREBLOCK *block;
 	UINT size;
-	
+
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
 	if(block != NULL){
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
-	
+
 	if(block == NULL){
 		*data = NULL;
 		if(e->Socket == INVALID_SOCKET){
@@ -1928,18 +1814,18 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 		}
 		return 0;
 	}
-	
+
 	*data = block->Buf;
 	size = block->Size;
 	FreeCaptureBlock(block);
-	
+
 	return size;
 }
 #else // BRIDGE_BPF_THREAD
 UINT EthGetPacketBpf(ETH *e, void **data)
 {
 	struct bpf_hdr *hdr;
-	
+
 	if(e->Rest<=0){
 		e->Rest = read(e->Socket, e->Buffer, e->BufSize);
 		if(e->Rest < 0){
@@ -1961,7 +1847,7 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 	// Find the head of next packet
 	e->Rest -= BPF_WORDALIGN(hdr->bh_hdrlen + hdr->bh_caplen);
 	e->Next += BPF_WORDALIGN(hdr->bh_hdrlen + hdr->bh_caplen);
-	
+
 	return hdr->bh_caplen;
 }
 #endif // BRIDGE_BPF_THREAD
@@ -2062,12 +1948,9 @@ void EthPutPacket(ETH *e, void *data, UINT size)
 	}
 #endif	// UNIX_LINUX
 #endif //BRIDGE_PCAP
-	
+
 	Free(data);
 }
-
-
-
 
 // Open ETH by using IP raw packets
 ETH *OpenEthLinuxIpRaw()
@@ -2536,8 +2419,8 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 				// Respond if there is providable IP address
 				DHCP_OPTION_LIST ret;
 				LIST *o;
-				UINT hw_type;
-				UINT hw_addr_size;
+				UINT hw_type = 0U;
+				UINT hw_addr_size = 0U;
 				UINT new_ip = ip;
 				IP default_dns;
 
@@ -2685,6 +2568,7 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 {
 	PKT *p;
+	SOCK *s = NULL;
 	// Validate arguments
 	if (e == NULL || data == NULL)
 	{
@@ -2697,6 +2581,11 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 	}
 
 	p = ParsePacket(data, size);
+	if (p == NULL)
+	{
+		Free(data);
+		return;
+	}
 
 	if (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
 	{
@@ -2714,97 +2603,90 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 		return;
 	}
 
-	if (p != NULL)
+
+	if (p->TypeL3 == L3_IPV4)
 	{
-		SOCK *s = NULL;
-
-		if (p->TypeL3 == L3_IPV4)
+		if (p->TypeL4 == L4_TCP)
 		{
-			if (p->TypeL4 == L4_TCP)
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
 			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawTcp;
-				}
-			}
-			else if (p->TypeL4 == L4_UDP)
-			{
-				if (EthProcessIpPacketInnerIpRaw(e, p) == false)
-				{
-					s = e->RawUdp;
-				}
-			}
-			else if (p->TypeL4 == L4_ICMPV4)
-			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawIcmp;
-				}
-			}
-			else if (p->TypeL4 == L4_FRAGMENT)
-			{
-				if (IsZeroIP(&e->MyPhysicalIP) == false)
-				{
-					s = e->RawIcmp;
-				}
+				s = e->RawTcp;
 			}
 		}
-		else if (p->TypeL3 == L3_ARPV4)
+		else if (p->TypeL4 == L4_UDP)
 		{
-			EthProcessIpPacketInnerIpRaw(e, p);
-		}
-
-		if (s != NULL && p->L3.IPv4Header->DstIP != 0xffffffff && p->BroadcastPacket == false &&
-			p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
-		{
-			UCHAR *send_data = p->IPv4PayloadData;
-			UCHAR *head = p->PacketData;
-			UINT remove_header_size = (UINT)(send_data - head);
-
-			if (p->PacketSize > remove_header_size)
+			if (EthProcessIpPacketInnerIpRaw(e, p) == false)
 			{
-				IP dest;
-				UINT send_data_size = p->PacketSize - remove_header_size;
-
-				// checksum
-				if (p->TypeL4 == L4_UDP)
-				{
-					p->L4.UDPHeader->Checksum = 0;
-				}
-				else if (p->TypeL4 == L4_TCP)
-				{
-					p->L4.TCPHeader->Checksum = 0;
-					p->L4.TCPHeader->Checksum = CalcChecksumForIPv4(IPToUINT(&e->MyPhysicalIP),
-						p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
-						p->L4.TCPHeader, p->IPv4PayloadSize, 0);
-				}
-
-				UINTToIP(&dest, p->L3.IPv4Header->DstIP);
-
-				if (s->RawIP_HeaderIncludeFlag == false)
-				{
-					SendTo(s, &dest, 0, send_data, send_data_size);
-				}
-				else
-				{
-					IPV4_HEADER *ip = p->L3.IPv4Header;
-
-					ip->SrcIP = IPToUINT(&e->MyPhysicalIP);
-					ip->Checksum = 0;
-					ip->Checksum = IpChecksum(ip, IPV4_GET_HEADER_LEN(ip) * 4);
-
-					SendTo(s, &dest, 0, ip, ((UCHAR *)p->PacketData - (UCHAR *)ip) + p->PacketSize);
-				}
+				s = e->RawUdp;
 			}
 		}
-
-		FreePacket(p);
+		else if (p->TypeL4 == L4_ICMPV4)
+		{
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
+			{
+				s = e->RawIcmp;
+			}
+		}
+		else if (p->TypeL4 == L4_FRAGMENT)
+		{
+			if (IsZeroIP(&e->MyPhysicalIP) == false)
+			{
+				s = e->RawIcmp;
+			}
+		}
+	}
+	else if (p->TypeL3 == L3_ARPV4)
+	{
+		EthProcessIpPacketInnerIpRaw(e, p);
 	}
 
+	if (s != NULL && p->L3.IPv4Header->DstIP != 0xffffffff && p->BroadcastPacket == false &&
+		p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
+	{
+		UCHAR *send_data = p->IPv4PayloadData;
+		UCHAR *head = p->PacketData;
+		UINT remove_header_size = (UINT)(send_data - head);
+
+		if (p->PacketSize > remove_header_size)
+		{
+			IP dest;
+			UINT send_data_size = p->PacketSize - remove_header_size;
+
+			// checksum
+			if (p->TypeL4 == L4_UDP)
+			{
+				p->L4.UDPHeader->Checksum = 0;
+			}
+			else if (p->TypeL4 == L4_TCP)
+			{
+				p->L4.TCPHeader->Checksum = 0;
+				p->L4.TCPHeader->Checksum = CalcChecksumForIPv4(IPToUINT(&e->MyPhysicalIP),
+					p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
+					p->L4.TCPHeader, p->IPv4PayloadSize, 0);
+			}
+
+			UINTToIP(&dest, p->L3.IPv4Header->DstIP);
+
+			if (s->RawIP_HeaderIncludeFlag == false)
+			{
+				SendTo(s, &dest, 0, send_data, send_data_size);
+			}
+			else
+			{
+				IPV4_HEADER *ip = p->L3.IPv4Header;
+
+				ip->SrcIP = IPToUINT(&e->MyPhysicalIP);
+				ip->Checksum = 0;
+				ip->Checksum = IpChecksum(ip, IPV4_GET_HEADER_LEN(ip) * 4);
+
+				SendTo(s, &dest, 0, ip, ((UCHAR *)p->PacketData - (UCHAR *)ip) + p->PacketSize);
+			}
+		}
+	}
+
+	FreePacket(p);
 	Free(data);
 }
 
 
 #endif	// BRIDGE_C
-
-

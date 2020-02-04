@@ -1,0 +1,5 @@
+SoftEther VPN ("SoftEther" means "Software Ethernet") is an open-source cross-platform multi-protocol VPN program, created as an academic project in the University of Tsukuba.
+Its protocol is very fast and it can be used in very restricted environments, as it's able to transfer packets over DNS and ICMP.
+The server includes a free Dynamic DNS service, which can be used to access the server even if the public IP address changes.
+A NAT-Traversal function is also available, very useful in case the required ports cannot be opened on the firewall.
+The supported third party protocols are OpenVPN, L2TP/IPSec and SSTP.

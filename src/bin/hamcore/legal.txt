@@ -255,7 +255,7 @@ Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.
 
 This package is an SSL implementation written by Eric Young (eay@cryptsoft.com). The implementation was written so as to conform with Netscapes SSL.
 
-This library is free for commercial and non-commercial use as long as the following conditions are aheared to.  The following conditions apply to all code found in this distribution, be it the RC4, RSA, lhash, DES, etc., code; not just the SSL code.  The SSL documentation included with this distribution is covered by the same copyright terms except that the holder is Tim Hudson (tjh@cryptsoft.com).
+This library is free for commercial and non-commercial use as long as the following conditions are adhered to.  The following conditions apply to all code found in this distribution, be it the RC4, RSA, lhash, DES, etc., code; not just the SSL code.  The SSL documentation included with this distribution is covered by the same copyright terms except that the holder is Tim Hudson (tjh@cryptsoft.com).
 
 Copyright remains Eric Young's, and as such any Copyright notices in the code are not to be removed. If this package is used in a product, Eric Young should be given attribution as the author of the parts of the library used. This can be in the form of a textual message at program startup or in documentation (online or textual) provided with the package.
 
@@ -292,58 +292,3 @@ Copyright notice:
 If you use the zlib library in a product, we would appreciate *not* receiving lengthy legal documents to sign. The sources are provided for free but without warranty of any kind.  The library has been entirely written by Jean-loup Gailly and Mark Adler; it does not include third-party code.
 
 If you redistribute modified sources, we would appreciate that you include in the file ChangeLog history information documenting your changes. Please read the FAQ for more information on the distribution of modified source versions.
-
--------------------
-
-Intel AESNI Sample Library:
-
-Copyright (c) 2010, Intel Corporation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-* Neither the name of Intel Corporation nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Issue Date: Aug 6, 2010
-
--------------------
-
-NOTES WRITTEN BY SOFTETHER CORPORATION
-
-Note for users of non-Windows version of PacketiX VPN: The enumerated bundle of License Agreements above are copies of original License Agreements of each library programs which PacketiX VPN uses. PacketiX VPN is not a delivered work from these libraries. PacketiX VPN is a separated work from the libraries, but it may call functions of the libraries (whether or not PacketiX VPN calls such functions are depended on the user's intention to link them or not on user's side computer). While some libraries indicate GPL or LGPL as a condition to re-distribute, PacketiX VPN is not license under GPL nor LGPL. Therefore, we took special care not to make PacketiX VPN become delivered works of any GPL or LGPL libraries. In order to achieve that, both PacketiX VPN and GPL/LGPL libraries are distributed with isolated forms (means that any program files of PacketiX VPN are not bound nor linked to any GPL/LGPL libraries). If a user of PacketiX VPN wants to link GPL/LGPL libraries by their own decisions, operations and responsibilities, he may do that on his computer. However, if a delivered work under copyright law is created as a result of such an operation, such a delivered work must not re-distributed to other people, because it may violate GPL/LGPL libraries' conditions.
-
-Note for users of Windows version of PacketiX VPN: For technical reason, the above texts are exactly same as a file which is also contained on the non-Windows version of PacketiX VPN. Actually, the Windows version of PacketiX VPN has no relations to any GPL/LGPL libraries enumerated above.
-
-SoftEther Corporation provides source codes of some GPL/LGPL/other libraries listed above on its web server. Anyone can download, use and re-distribute them under individual licenses which are contained on each archive file, available from the following URL:
-http://uploader.softether.co.jp/src/
-
--------------------
-
-Copyright Notes and Acknowledgments for PacketiX VPN (Commercial Version):
-
-PacketiX VPN has some contributed codes from SoftEther VPN Project (http://www.softether.org/).
-These contributed codes have been granted by contributors to be imported into the PacketiX VPN source-tree without GPLv2 conditions.
-
-The list of contributors for SoftEther VPN Project:
-
-  - Melvyn
-    https://github.com/yaurthek
-
-  - nattoheaven
-    https://github.com/nattoheaven
-
-  - ELIN
-    https://github.com/el1n
-
-  - YF
-    https://github.com/yfdyh000
-
-
-SoftEther Corporation, the distributor of PacketiX VPN, appreciates all contributors for SoftEther VPN Project very much.
-
-See also: http://www.softether.org/5-download/src/9.patch
-

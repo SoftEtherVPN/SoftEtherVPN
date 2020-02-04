@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Hub.c
@@ -168,7 +62,7 @@ UINT num_admin_options = sizeof(admin_options) / sizeof(ADMIN_OPTION);
 
 
 // Create an EAP client for the specified Virtual Hub
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username)
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str)
 {
 	HUB *hub = NULL;
 	EAP_CLIENT *ret = NULL;
@@ -218,6 +112,11 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 
 							if (eap != NULL)
 							{
+								if (IsEmptyStr(vpn_protocol_state_str) == false)
+								{
+									StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), vpn_protocol_state_str);
+								}
+
 								if (use_peap == false)
 								{
 									// EAP
@@ -786,6 +685,8 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	for (i = 0;i < LIST_NUM(aol);i++)
 	{
 		ADMIN_OPTION *a = LIST_DATA(aol, i);
+
+		UniStrCpy(a->Descrption, sizeof(a->Descrption), GetHubAdminOptionHelpString(a->Name));
 
 		Copy(&ao->Items[i], a, sizeof(ADMIN_OPTION));
 
@@ -1662,12 +1563,14 @@ void HubWatchDogThread(THREAD *t, void *param)
 		o2 = NewListFast(NULL);
 
 		// Send an ARP packet
-		LockList(hub->IpTable);
+		LockHashList(hub->MacHashTable);
 		{
 			num = LIST_NUM(hub->IpTable);
 			for (i = 0;i < LIST_NUM(hub->IpTable);i++)
 			{
 				IP_TABLE_ENTRY *e = LIST_DATA(hub->IpTable, i);
+
+				if (e == NULL) continue;
 
 				if ((e->UpdatedTime + (UINT64)(IP_TABLE_EXPIRE_TIME)) > Tick64())
 				{
@@ -1744,7 +1647,7 @@ void HubWatchDogThread(THREAD *t, void *param)
 				}
 			}
 		}
-		UnlockList(hub->IpTable);
+		UnlockHashList(hub->MacHashTable);
 
 		if ((LIST_NUM(o) + LIST_NUM(o2)) != 0)
 		{
@@ -1835,7 +1738,7 @@ ESCAPE:
 	return;
 }
 
-// Eable / disable the SecureNAT
+// Enable / disable the SecureNAT
 void EnableSecureNAT(HUB *h, bool enable)
 {
 	EnableSecureNATEx(h, enable, false);
@@ -2719,7 +2622,7 @@ BUF *BuildRedirectToUrlPayload(HUB *hub, SESSION *s, char *redirect_url)
 			WriteBuf(b2, tmp, StrLen(tmp));
 			WriteBuf(b2, secret, StrLen(secret));
 
-			HashSha1(hash, b2->Buf, b2->Size);
+			Sha1(hash, b2->Buf, b2->Size);
 
 			BinToStr(hash_str, sizeof(hash_str), hash, sizeof(hash));
 
@@ -3023,7 +2926,7 @@ bool ApplyAccessListToStoredPacket(HUB *hub, SESSION *s, PKT *p)
 
 	if (pass)
 	{
-		if (s != NULL && s->FirstTimeHttpRedirect && s->FirstTimeHttpAccessCheckIp != 0)
+		if (s->FirstTimeHttpRedirect && s->FirstTimeHttpAccessCheckIp != 0)
 		{
 			if ((p->TypeL3 == L3_IPV4 || p->TypeL3 == L3_IPV6) &&
 				p->TypeL4 == L4_TCP)
@@ -3133,39 +3036,6 @@ bool IsTcpPacketNcsiHttpAccess(PKT *p)
 	}
 
 	return false;
-}
-
-// Set the URL to which to redirect first
-bool SetSessionFirstRedirectHttpUrl(SESSION *s, char *url)
-{
-	URL_DATA d;
-	IP ip;
-	// Validate arguments
-	if (s == NULL || url == NULL || IsEmptyStr(url))
-	{
-		return false;
-	}
-
-	if (ParseUrl(&d, url, false, NULL) == false)
-	{
-		return false;
-	}
-
-	if (StrToIP(&ip, d.HostName) == false)
-	{
-		return false;
-	}
-
-	if (IsIP4(&ip) == false)
-	{
-		return false;
-	}
-
-	s->FirstTimeHttpAccessCheckIp = IPToUINT(&ip);
-	StrCpy(s->FirstTimeHttpRedirectUrl, sizeof(s->FirstTimeHttpRedirectUrl), url);
-	s->FirstTimeHttpRedirect = true;
-
-	return true;
 }
 
 // Adding Access List
@@ -3377,39 +3247,10 @@ UINT64 UsernameToInt64(char *name)
 		return 0;
 	}
 
-	Hash(hash, tmp, StrLen(tmp), true);
+	Sha0(hash, tmp, StrLen(tmp));
 	Copy(&ret, hash, sizeof(ret));
 
 	return ret;
-}
-
-// Search the session from the session pointer
-SESSION *GetSessionByPtr(HUB *hub, void *ptr)
-{
-	// Validate arguments
-	if (hub == NULL || ptr == NULL)
-	{
-		return NULL;
-	}
-
-	LockList(hub->SessionList);
-	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(hub->SessionList);i++)
-		{
-			SESSION *s = LIST_DATA(hub->SessionList, i);
-			if (s == (SESSION *)ptr)
-			{
-				// Found
-				AddRef(s->ref);
-				UnlockList(hub->SessionList);
-				return s;
-			}
-		}
-	}
-	UnlockList(hub->SessionList);
-
-	return NULL;
 }
 
 // Search the session from the session name
@@ -3700,7 +3541,7 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 	pa->Now = Tick64();
 
 	// Processing of Adjust TCP MSS
-	if (hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
+	if (hub != NULL && hub->Option != NULL && hub->Option->DisableAdjustTcpMss == false && s != NULL)
 	{
 		UINT target_mss = (hub->Option->AdjustTcpMssValue == 0 ? INFINITE : hub->Option->AdjustTcpMssValue);
 		UINT session_mss = (s->AdjustMss == 0 ? INFINITE : s->AdjustMss);
@@ -3779,9 +3620,12 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 		CancelList(s->CancelList);
 
 		// Yield
-		if (hub->Option != NULL && hub->Option->YieldAfterStorePacket)
+		if (hub != NULL)
 		{
-			YieldCpu();
+			if (hub->Option != NULL && hub->Option->YieldAfterStorePacket)
+			{
+				YieldCpu();
+			}
 		}
 
 		return true;
@@ -3844,7 +3688,7 @@ LABEL_TRY_AGAIN:
 
 	if (no_parse_dhcp == false && packet != NULL)
 	{
-		if (hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
+		if (hub != NULL && hub->Option != NULL && hub->Option->RemoveDefGwOnDhcpForLocalhost)
 		{
 			// Remove the designation of the DHCP server from the DHCP response packet addressed to localhost
 			if (packet->TypeL7 == L7_DHCPV4)
@@ -3908,26 +3752,6 @@ LABEL_TRY_AGAIN:
 	return true;
 }
 
-// VGS: Setting for embedding UA tag
-void VgsSetEmbTag(bool b)
-{
-	g_vgs_emb_tag = b;
-}
-
-// VGS: Setting for the User-Agent value
-void VgsSetUserAgentValue(char *str)
-{
-	// Validate arguments
-	if (str == NULL || StrLen(str) != 8)
-	{
-		Zero(vgs_ua_str, sizeof(vgs_ua_str));
-	}
-	else
-	{
-		StrCpy(vgs_ua_str, sizeof(vgs_ua_str), str);
-	}
-}
-
 // Checking algorithm to prevent broadcast-storm
 // If broadcast from a specific endpoint came frequently, filter it
 bool CheckBroadcastStorm(HUB *hub, SESSION *s, PKT *p)
@@ -3952,7 +3776,7 @@ bool CheckBroadcastStorm(HUB *hub, SESSION *s, PKT *p)
 		return true;
 	}
 
-	if (hub != NULL && hub->Option != NULL)
+	if (hub->Option != NULL)
 	{
 		strict = hub->Option->BroadcastLimiterStrictMode;
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
@@ -4364,7 +4188,7 @@ DISCARD_PACKET:
 									UCHAR hash[MD5_SIZE];
 									UINT64 tick_diff = Tick64() - s->LastDLinkSTPPacketSendTick;
 
-									Hash(hash, packet->PacketData, packet->PacketSize, false);
+									Md5(hash, packet->PacketData, packet->PacketSize);
 
 									if ((s->LastDLinkSTPPacketSendTick != 0) &&
 										(tick_diff < 750ULL) &&
@@ -5346,7 +5170,6 @@ bool IsIPManagementTargetForHUB(IP *ip, HUB *hub)
 void DeleteOldIpTableEntry(LIST *o)
 {
 	UINT i;
-	UINT64 oldest_time = 0xffffffffffffffffULL;
 	IP_TABLE_ENTRY *old = NULL;
 	// Validate arguments
 	if (o == NULL)
@@ -5357,11 +5180,7 @@ void DeleteOldIpTableEntry(LIST *o)
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
 		IP_TABLE_ENTRY *e = LIST_DATA(o, i);
-
-		if (e->UpdatedTime <= oldest_time)
-		{
-			old = e;
-		}
+		old = e;
 	}
 
 	if (old != NULL)
@@ -5476,7 +5295,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 		}
 	}
 
-	if (src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
+	if (packet != NULL && src != NULL && src->Hub != NULL && src->Hub->Option != NULL && src->Hub->Option->FixForDLinkBPDU)
 	{
 		// Measures for D-Link bug
 		UCHAR *mac = packet->MacAddressSrc;
@@ -5490,7 +5309,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 				if (session->Policy != NULL && session->Policy->CheckMac)
 				{
 					UCHAR hash[MD5_SIZE];
-					Hash(hash, packet->PacketData, packet->PacketSize, false);
+					Md5(hash, packet->PacketData, packet->PacketSize);
 
 					Copy(session->LastDLinkSTPPacketDataHash, hash, MD5_SIZE);
 					session->LastDLinkSTPPacketSendTick = Tick64();
@@ -5514,7 +5333,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 		}
 	}
 
-	if (dest != NULL && src != NULL && dest->Session != NULL && src->Hub != NULL && src->Hub->Option != NULL)
+	if (src != NULL && dest->Session != NULL && src->Hub != NULL && src->Hub->Option != NULL)
 	{
 		if (dest->Session->AdjustMss != 0 ||
 			(dest->Session->IsUsingUdpAcceleration && dest->Session->UdpAccelMss != 0) ||
@@ -5621,7 +5440,7 @@ bool StorePacketFilterByPolicy(SESSION *s, PKT *p)
 
 	hub = s->Hub;
 
-	if (hub->Option != NULL)
+	if (hub != NULL && hub->Option != NULL)
 	{
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
 	}
@@ -5922,10 +5741,8 @@ UPDATE_DHCP_ALLOC_ENTRY:
 										DeleteOldIpTableEntry(hub->IpTable);
 									}
 									Insert(hub->IpTable, e);
-								}
 
-								if (new_entry)
-								{
+								
 									if ((hub->Option != NULL && hub->Option->NoDhcpPacketLogOutsideHub == false) || mac_table->Session != s)
 									{
 										char dhcp_mac_addr[64];
@@ -6098,7 +5915,7 @@ void IntoTrafficLimiter(TRAFFIC_LIMITER *tr, PKT *p)
 	}
 
 	// Value increase
-	tr->Value += (UINT64)(p->PacketSize * 8);
+	tr->Value += (UINT64)p->PacketSize * (UINT64)8;
 }
 
 // The bandwidth reduction by traffic limiter
@@ -6659,34 +6476,6 @@ void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT inter
 	Unlock(hub->RadiusOptionLock);
 }
 
-// Get the difference between the traffic data
-void CalcTrafficEntryDiff(TRAFFIC_ENTRY *diff, TRAFFIC_ENTRY *old, TRAFFIC_ENTRY *current)
-{
-	// Validate arguments
-	Zero(diff, sizeof(TRAFFIC_ENTRY));
-	if (old == NULL || current == NULL || diff == NULL)
-	{
-		return;
-	}
-
-	if (current->BroadcastCount >= old->BroadcastCount)
-	{
-		diff->BroadcastCount = current->BroadcastCount - old->BroadcastCount;
-	}
-	if (current->BroadcastBytes >= old->BroadcastBytes)
-	{
-		diff->BroadcastBytes = current->BroadcastBytes - old->BroadcastBytes;
-	}
-	if (current->UnicastCount >= old->UnicastCount)
-	{
-		diff->UnicastCount = current->UnicastCount - old->UnicastCount;
-	}
-	if (current->UnicastBytes >= old->UnicastBytes)
-	{
-		diff->UnicastBytes = current->UnicastBytes - old->UnicastBytes;
-	}
-}
-
 // Add the traffic information for Virtual HUB
 void IncrementHubTraffic(HUB *h)
 {
@@ -7006,7 +6795,7 @@ void GenHubIpAddress(IP *ip, char *name)
 	StrCat(tmp2, sizeof(tmp2), tmp1);
 	StrUpper(tmp2);
 
-	Hash(hash, tmp2, StrLen(tmp2), true);
+	Sha0(hash, tmp2, StrLen(tmp2));
 
 	Zero(ip, sizeof(IP));
 	ip->addr[0] = 172;
@@ -7034,7 +6823,7 @@ void GenHubMacAddress(UCHAR *mac, char *name)
 	StrCat(tmp2, sizeof(tmp2), tmp1);
 	StrUpper(tmp2);
 
-	Hash(hash, tmp2, StrLen(tmp2), true);
+	Sha0(hash, tmp2, StrLen(tmp2));
 
 	mac[0] = 0x00;
 	mac[1] = SE_HUB_MAC_ADDR_SIGN;
@@ -7107,7 +6896,7 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 	}
 
 	h = ZeroMalloc(sizeof(HUB));
-	Hash(h->HashedPassword, "", 0, true);
+	Sha0(h->HashedPassword, "", 0);
 	HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "");
 	h->lock = NewLock();
 	h->lock_online = NewLock();

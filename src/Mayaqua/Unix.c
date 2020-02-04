@@ -1,114 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Authors: Daiyuu Nobori
-// Contributors:
-// - Melvyn (https://github.com/yaurthek)
-// - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Unix.c
@@ -125,11 +16,10 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/utsname.h>
 #include <Mayaqua/Mayaqua.h>
 
 #ifdef	UNIX_MACOS
-#include <mach/clock.h>
-#include <mach/mach.h>
 #ifdef	NO_VLAN
 // Struct statfs for MacOS X
 typedef struct fsid { int32_t val[2]; } fsid_t;
@@ -178,7 +68,7 @@ int local_scandir(const char *dir, struct dirent ***namelist,
   *namelist=NULL;
   while ((entry=readdir(d)) != NULL)
   {
-    if (select == NULL || (select != NULL && (*select)(entry)))
+    if (select == NULL || (*select)(entry))
     {
       *namelist=(struct dirent **)realloc((void *)(*namelist),
                  (size_t)((i+1)*sizeof(struct dirent *)));
@@ -364,7 +254,7 @@ void UnixDisableInterfaceOffload(char *name)
 		{
 			char *a = t->Token[i];
 
-			Format(tmp, sizeof(tmp), "/sbin/ethtool -K %s %s off 2>/dev/null", name, a);
+			Format(tmp, sizeof(tmp), "ethtool -K %s %s off 2>/dev/null", name, a);
 			FreeToken(UnixExec(tmp));
 		}
 	}
@@ -516,7 +406,7 @@ void UnixInitSolarisSleep()
 	char tmp[MAX_SIZE];
 
 	UnixNewPipe(&solaris_sleep_p1, &solaris_sleep_p2);
-	read(solaris_sleep_p1, tmp, sizeof(tmp));
+	(void)read(solaris_sleep_p1, tmp, sizeof(tmp));
 }
 
 // Release the Sleep for Solaris
@@ -536,21 +426,10 @@ void UnixSolarisSleep(UINT msec)
 	p.fd = solaris_sleep_p1;
 	p.events = POLLIN;
 
-	poll(&p, 1, msec == INFINITE ? -1 : (int)msec);
+	(void)poll(&p, 1, msec == INFINITE ? -1 : (int)msec);
 }
 
 // Get the free space of the disk
-bool UnixGetDiskFreeW(wchar_t *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
-{
-	char *path_a = CopyUniToStr(path);
-	bool ret;
-
-	ret = UnixGetDiskFree(path_a, free_size, used_size, total_size);
-
-	Free(path_a);
-
-	return ret;
-}
 bool UnixGetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size)
 {
 	char tmp[MAX_PATH];
@@ -803,42 +682,6 @@ void UnixSetThreadPriorityRealtime()
 	pthread_setschedparam(pthread_self(), SCHED_RR, &p);
 }
 
-// Lower the priority of the thread
-void UnixSetThreadPriorityLow()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 32;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
-// Raise the priority of the thread
-void UnixSetThreadPriorityHigh()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 127;
-	pthread_setschedparam(pthread_self(), SCHED_RR, &p);
-}
-
-// Set the priority of the thread to idle
-void UnixSetThreadPriorityIdle()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 1;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
-// Restore the priority of the thread to normal
-void UnixRestoreThreadPriority()
-{
-	struct sched_param p;
-	Zero(&p, sizeof(p));
-	p.sched_priority = 64;
-	pthread_setschedparam(pthread_self(), SCHED_OTHER, &p);
-}
-
 // Get the current directory
 void UnixGetCurrentDir(char *dir, UINT size)
 {
@@ -899,10 +742,10 @@ void UnixFreeSingleInstance(void *data)
 	lock.l_type = F_UNLCK;
 	lock.l_whence = SEEK_SET;
 
-	fcntl(o->fd, F_SETLK, &lock);
+	(void)fcntl(o->fd, F_SETLK, &lock);
 	close(o->fd);
 
-	remove(o->FileName);
+	(void)remove(o->FileName);
 
 	Free(data);
 }
@@ -928,7 +771,7 @@ void *UnixNewSingleInstance(char *instance_name)
 		StrCpy(tmp, sizeof(tmp), instance_name);
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	// File name generation
 	Format(name, sizeof(name), "%s/.%s", dir, tmp);
@@ -947,7 +790,7 @@ void *UnixNewSingleInstance(char *instance_name)
 	}
 
 	fchmod(fd, mode);
-	chmod(name, mode);
+	(void)chmod(name, mode);
 
 	Zero(&lock, sizeof(lock));
 	lock.l_type = F_WRLCK;
@@ -955,6 +798,8 @@ void *UnixNewSingleInstance(char *instance_name)
 
 	if (fcntl(fd, F_SETLK, &lock) == -1)
 	{
+		close(fd);
+		(void)remove(name);
 		return NULL;
 	}
 	else
@@ -1104,6 +949,8 @@ void UnixAlert(char *msg, char *caption)
 // Get the information of the current OS
 void UnixGetOsInfo(OS_INFO *info)
 {
+	struct utsname unix_info;
+
 	// Validate arguments
 	if (info == NULL)
 	{
@@ -1111,90 +958,90 @@ void UnixGetOsInfo(OS_INFO *info)
 	}
 
 	Zero(info, sizeof(OS_INFO));
-	info->OsType = OSTYPE_UNIX_UNKNOWN;
 
 #ifdef	UNIX_SOLARIS
 	info->OsType = OSTYPE_SOLARIS;
-#endif	// UNIX_SOLARIS
-
-#ifdef	UNIX_CYGWIN
+#elif	UNIX_CYGWIN
 	info->OsType = OSTYPE_CYGWIN;
-#endif	// UNIX_CYGWIN
-
-#ifdef	UNIX_MACOS
+#elif	UNIX_MACOS
 	info->OsType = OSTYPE_MACOS_X;
-#endif	// UNIX_MACOS
-
-#ifdef	UNIX_BSD
+#elif	UNIX_BSD
 	info->OsType = OSTYPE_BSD;
-#endif	// UNIX_BSD
-
-#ifdef	UNIX_LINUX
+#elif	UNIX_LINUX
 	info->OsType = OSTYPE_LINUX;
-#endif	// UNIX_LINUX
+#else
+	info->OsType = OSTYPE_UNIX_UNKNOWN;
+#endif
 
-	info->OsServicePack = 0;
+	info->OsSystemName = CopyStr(OsTypeToStr(info->OsType));
+	info->KernelName = CopyStr("UNIX");
 
-	if (info->OsType != OSTYPE_LINUX)
+	if (uname(&unix_info) > -1)
 	{
-		info->OsSystemName = CopyStr("UNIX");
-		info->OsProductName = CopyStr("UNIX");
+		info->OsProductName = CopyStr(unix_info.sysname);
+		info->OsVersion = CopyStr(unix_info.release);
+		info->KernelVersion = CopyStr(unix_info.version);
 	}
 	else
 	{
-		info->OsSystemName = CopyStr("Linux");
-		info->OsProductName = CopyStr("Linux");
-	}
+		Debug("UnixGetOsInfo(): uname() failed with error: %s\n", strerror(errno));
 
-	if (info->OsType == OSTYPE_LINUX)
+		info->OsProductName = CopyStr(OsTypeToStr(info->OsType));
+		info->OsVersion = CopyStr("Unknown");
+		info->KernelVersion = CopyStr("Unknown");
+	}
+#ifdef	UNIX_LINUX
 	{
-		// Get the distribution name on Linux
-		BUF *b;
-		b = ReadDump("/etc/redhat-release");
-		if (b != NULL)
+		BUF *buffer = ReadDump("/etc/os-release");
+		if (buffer == NULL)
 		{
-			info->OsVersion = CfgReadNextLine(b);
-			info->OsVendorName = CopyStr("Red Hat, Inc.");
-			FreeBuf(b);
+			buffer = ReadDump("/usr/lib/os-release");
 		}
-		else
+
+		if (buffer != NULL)
 		{
-			b = ReadDump("/etc/turbolinux-release");
-			if (b != NULL)
+			LIST *values = NewEntryList(buffer->Buf, "\n", "=");
+
+			FreeBuf(buffer);
+
+			if (EntryListHasKey(values, "NAME"))
 			{
-				info->OsVersion = CfgReadNextLine(b);
-				info->OsVendorName = CopyStr("Turbolinux, Inc.");
-				FreeBuf(b);
+				char *str = EntryListStrValue(values, "NAME");
+				TrimQuotes(str);
+				Free(info->OsProductName);
+				info->OsProductName = CopyStr(str);
+			}
+
+			if (EntryListHasKey(values, "HOME_URL"))
+			{
+				char *str = EntryListStrValue(values, "HOME_URL");
+				TrimQuotes(str);
+				info->OsVendorName = CopyStr(str);
+			}
+
+			if (EntryListHasKey(values, "VERSION"))
+			{
+				char *str = EntryListStrValue(values, "VERSION");
+				TrimQuotes(str);
+				Free(info->OsVersion);
+				info->OsVersion = CopyStr(str);
 			}
 			else
 			{
-				info->OsVersion = CopyStr("Unknown Linux Version");
-				info->OsVendorName = CopyStr("Unknown Vendor");
+				// Debian testing/sid doesn't provide the version in /etc/os-release
+				buffer = ReadDump("/etc/debian_version");
+				if (buffer != NULL)
+				{
+					Free(info->OsVersion);
+					info->OsVersion = CfgReadNextLine(buffer);
+					FreeBuf(buffer);
+				}
 			}
-		}
 
-		info->KernelName = CopyStr("Linux Kernel");
-
-		b = ReadDump("/proc/sys/kernel/osrelease");
-		if (b != NULL)
-		{
-			info->KernelVersion = CfgReadNextLine(b);
-			FreeBuf(b);
-		}
-		else
-		{
-			info->KernelVersion = CopyStr("Unknown Version");
+			FreeEntryList(values);
 		}
 	}
-	else
-	{
-		// In other cases
-		Free(info->OsProductName);
-		info->OsProductName = CopyStr(OsTypeToStr(info->OsType));
-		info->OsVersion = CopyStr("Unknown Version");
-		info->KernelName = CopyStr(OsTypeToStr(info->OsType));
-		info->KernelVersion = CopyStr("Unknown Version");
-	}
+#endif
 }
 
 // Examine whether the current OS is supported by the PacketiX VPN Kernel
@@ -1219,7 +1066,9 @@ bool UnixRunW(wchar_t *filename, wchar_t *arg, bool hide, bool wait)
 bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 {
 	TOKEN_LIST *t;
+	char **args;
 	UINT ret;
+
 	// Validate arguments
 	if (filename == NULL)
 	{
@@ -1230,6 +1079,25 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 		arg = "";
 	}
 
+	Print("", filename, arg);
+	t = ParseToken(arg, " ");
+	if (t == NULL)
+	{
+		return false;
+	}
+	else
+	{
+		UINT num_args;
+		UINT i;
+		num_args = t->NumTokens + 2;
+		args = ZeroMalloc(sizeof(char *) * num_args);
+		args[0] = filename;
+		for (i = 1;i < num_args - 1;i++)
+		{
+			args[i] = t->Token[i - 1];
+		}
+	}
+	
 	// Create a child process
 	ret = fork();
 	if (ret == -1)
@@ -1240,39 +1108,21 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 
 	if (ret == 0)
 	{
-		Print("", filename, arg);
 		// Child process
 		if (hide)
 		{
 			// Close the standard I/O
 			UnixCloseIO();
 		}
-
-		t = ParseToken(arg, " ");
-		if (t == NULL)
-		{
-			AbortExit();
-		}
-		else
-		{
-			char **args;
-			UINT num_args;
-			UINT i;
-			num_args = t->NumTokens + 2;
-			args = ZeroMalloc(sizeof(char *) * num_args);
-			args[0] = filename;
-			for (i = 1;i < num_args - 1;i++)
-			{
-				args[i] = t->Token[i - 1];
-			}
-			execvp(filename, args);
-			AbortExit();
-		}
+		execvp(filename, args);
+		AbortExit();
 	}
 	else
 	{
 		// Parent process
 		pid_t pid = (pid_t)ret;
+		Free(args);
+		FreeToken(t);
 
 		if (wait)
 		{
@@ -1297,43 +1147,6 @@ bool UnixRun(char *filename, char *arg, bool hide, bool wait)
 	}
 }
 
-// Initialize the daemon
-void UnixDaemon(bool debug_mode)
-{
-	UINT ret;
-
-	if (debug_mode)
-	{
-		// Debug mode
-		signal(SIGHUP, SIG_IGN);
-		return;
-	}
-
-	ret = fork();
-
-	if (ret == -1)
-	{
-		// Error
-		return;
-	}
-	else if (ret == 0)
-	{
-		// Create a new session for the child process
-		setsid();
-
-		// Close the standard I/O
-		UnixCloseIO();
-
-		// Mute the unwanted signal
-		signal(SIGHUP, SIG_IGN);
-	}
-	else
-	{
-		// Terminate the parent process
-		exit(0);
-	}
-}
-
 // Close the standard I/O
 void UnixCloseIO()
 {
@@ -1349,7 +1162,7 @@ void UnixCloseIO()
 		close(0);
 		close(1);
 		close(2);
-		open("/dev/null", O_RDWR);
+		(void)open("/dev/null", O_RDWR);
 		dup2(0, 1);
 		dup2(0, 2);
 		close_io_first = false;
@@ -1707,6 +1520,23 @@ void *UnixFileOpen(char *name, bool write_mode, bool read_lock)
 	return (void *)p;
 }
 
+// Get UNIXIO object for stdout
+void* GetUnixio4Stdout()
+{
+	static UNIXIO unixio =
+	{
+		.fd = -1,
+		.write_mode = true
+	};
+
+	if (g_foreground)
+	{
+		unixio.fd = STDOUT_FILENO;
+		return &unixio;
+	}
+	return NULL;
+}
+
 // Return the current thread ID
 UINT UnixThreadId()
 {
@@ -1813,7 +1643,7 @@ bool UnixInitThread(THREAD *t)
 	{
 		// An error has occured
 		t->pData = NULL;
-		Release(t->ref);
+		(void)Release(t->ref);
 		UnixMemoryFree(ut);
 		UnixMemoryFree(info);
 		pthread_attr_destroy(&attr);
@@ -2133,12 +1963,6 @@ UINT64 UnixGetTick64()
 
 	struct timespec t;
 	UINT64 ret;
-	static bool akirame = false;
-
-	if (akirame)
-	{
-		return TickRealtimeManual();
-	}
 
 	Zero(&t, sizeof(t));
 
@@ -2146,39 +1970,22 @@ UINT64 UnixGetTick64()
 	// Be careful. The Implementation is depend on the system.
 #ifdef	CLOCK_HIGHRES
 	clock_gettime(CLOCK_HIGHRES, &t);
-#else	// CLOCK_HIGHRES
-#ifdef	CLOCK_MONOTONIC
+#elif	CLOCK_MONOTONIC
 	clock_gettime(CLOCK_MONOTONIC, &t);
-#else	// CLOCK_MONOTONIC
+#else
 	clock_gettime(CLOCK_REALTIME, &t);
-#endif	// CLOCK_MONOTONIC
-#endif	// CLOCK_HIGHRES
+#endif
 
 	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 
-	if (akirame == false && ret == 0)
+	if (ret == 0)
 	{
 		ret = TickRealtimeManual();
-		akirame = true;
 	}
 
-	return ret;
-
-#else
-#ifdef	UNIX_MACOS
-	static clock_serv_t clock_serv = 0;
-	mach_timespec_t t;
-	UINT64 ret;
-	if (clock_serv == 0) {
-		host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_serv);
-	}
-	clock_get_time(clock_serv, &t);
-	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 	return ret;
 #else
 	return TickRealtimeManual();
-#endif
-
 #endif
 }
 
@@ -2378,13 +2185,13 @@ void UnixGenPidFileName(char *name, UINT size)
 		return;
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	GetExeName(exe_name, sizeof(exe_name));
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");
 	StrUpper(exe_name);
 
-	Hash(hash, exe_name, StrLen(exe_name), false);
+	Md5(hash, exe_name, StrLen(exe_name));
 	BinToStr(tmp1, sizeof(tmp1), hash, sizeof(hash));
 
 	Format(name, size, "%s/.pid_%s", dir, tmp1);
@@ -2423,13 +2230,13 @@ void UnixGenCtlFileName(char *name, UINT size)
 		return;
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	GetExeName(exe_name, sizeof(exe_name));
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");
 	StrUpper(exe_name);
 
-	Hash(hash, exe_name, StrLen(exe_name), false);
+	Md5(hash, exe_name, StrLen(exe_name));
 	BinToStr(tmp1, sizeof(tmp1), hash, sizeof(hash));
 
 	Format(name, size, "%s/.ctl_%s", dir, tmp1);
@@ -2627,8 +2434,6 @@ void UnixStopService(char *name)
 	}
 	else
 	{
-		int status;
-
 		// Stop the service
 		UniPrint(_UU("UNIX_SVC_STOPPING"), svc_title);
 
@@ -2789,10 +2594,6 @@ bool UnixWaitProcessEx(UINT pid,  UINT timeout)
 	}
 	return true;
 }
-void UnixWaitProcess(UINT pid)
-{
-	UnixWaitProcessEx(pid, INFINITE);
-}
 
 // Description of how to start
 void UnixUsage(char *name)
@@ -2853,6 +2654,19 @@ RESTART_PROCESS:
 			}
 		}
 	}
+	else if (argc >= 3 && StrCmpi(argv[1], UNIX_SVC_ARG_START) == 0 && StrCmpi(argv[2], UNIX_SVC_ARG_FOREGROUND) == 0)
+	{
+#ifdef DEBUG
+		// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+		// For normal debug we set memcheck = false.
+		// Please set memcheck = true if you want to test the cause of memory leaks.
+		InitMayaqua(false, true, argc, argv);
+#else
+		InitMayaqua(false, false, argc, argv);
+#endif
+		UnixExecService(name, start, stop);
+		FreeMayaqua();
+	}
 	else
 	{
 		// Start normally
@@ -2865,7 +2679,14 @@ void UnixServiceMain(int argc, char *argv[], char *name, SERVICE_FUNCTION *start
 {
 	UINT mode = 0;
 	// Start of the Mayaqua
+#ifdef DEBUG
+	// If set memcheck = true, the program will be vitally slow since it will log all malloc() / realloc() / free() calls to find the cause of memory leak.
+	// For normal debug we set memcheck = false.
+	// Please set memcheck = true if you want to test the cause of memory leaks.
+	InitMayaqua(false, true, argc, argv);
+#else
 	InitMayaqua(false, false, argc, argv);
+#endif
 
 	if (argc >= 2)
 	{

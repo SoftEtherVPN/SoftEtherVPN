@@ -1,0 +1,60 @@
+.ubuntu: &ubuntu_def
+  variables:
+    CMAKE_VERSION: 3.9.6
+  except:
+    changes:
+      - .appveyor.yml
+      - .travis.yml
+      - .azure-pipelines.yml
+      - .cirrus.yml
+  before_script:
+    - REPOSITORY="$PWD" && cd ..
+    - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
+    - wget https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}.tar.gz && tar -xzf cmake-${CMAKE_VERSION}.tar.gz
+    - cd cmake-${CMAKE_VERSION} && ./bootstrap && make install
+    - cd "$REPOSITORY" && git submodule update --init --recursive
+  script:
+    - ./configure
+    - make package -C tmp
+    - dpkg -i build/softether-vpn*.deb
+    - .ci/memory-leak-test.sh
+
+trusty:      
+  <<: *ubuntu_def
+  image: ubuntu:trusty
+
+precise:
+  <<: *ubuntu_def
+  image: ubuntu:precise
+
+# illumos gitlab-runner maintained by @hww3
+build_illumos:
+  only:
+    - master@SoftEther/SoftEtherVPN
+  tags: 
+    - illumos
+  script:
+    - git submodule init && git submodule update
+    - CMAKE_FLAGS="-DCMAKE_PREFIX_PATH=/opt/local -DCMAKE_CXX_FLAGS=-m64 -DCMAKE_C_FLAGS=-m64" ./configure
+    - gmake -C tmp
+
+#
+# flawfinder
+# see https://docs.gitlab.com/ee/user/project/merge_requests/sast.html
+#
+sast:
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+    - docker run
+        --env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}"
+        --volume "$PWD:/code"
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/security-products/sast:$SP_VERSION" /app/bin/run /code
+  artifacts:
+    paths: [gl-sast-report.json]

@@ -1,7 +1,8 @@
 # SoftEther VPN String Table
-# Copyright (c) SoftEther VPN Project. All Rights Reserved.
-#
-# http://www.softether.co.jp/
+# Copyright (c) all contributors on SoftEther VPN project in GitHub.
+# Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
+# 
+# https://www.softether.org/
 
 
 ###########################################################################
@@ -18,7 +19,7 @@ DEFAULT_FONT			MS UI Gothic
 DEFAULT_FONT_HIGHDPI	Meiryo UI
 DEFAULT_FONT_2			MS Gothic
 DEFAULT_FONT_SIZE		9
-DEFAULE_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
+DEFAULT_LOCALE			年 月 日 時 分 秒 日 月 火 水 木 金 土 日 時間 分 秒 (なし)
 
 
 # 言語
@@ -159,11 +160,11 @@ ERR_91					仮想レイヤ 3 スイッチセッションは切断できません
 ERR_92					指定された名前の仮想レイヤ 3 スイッチは既に存在します。別の名前を指定してください。
 ERR_93					指定された名前の仮想レイヤ 3 スイッチが見つかりません。
 ERR_94					指定された名前が不正です。使用できない文字が含まれていないかどうかチェックしてください。
-ERR_95					仮想レイヤ 3 インターフェイスの追加に失敗しました。
-ERR_96					仮想レイヤ 3 インターフェイスの削除に失敗しました。
+ERR_95					仮想レイヤ 3 インターフェイスの追加に失敗しました。パラメータが正しいかどうか確認してください。また、仮想レイヤ 3 スイッチが動作中の場合は、仮想レイヤ 3 インターフェイスの追加または削除はできません。仮想レイヤ 3 スイッチを停止してください。
+ERR_96					仮想レイヤ 3 インターフェイスの削除に失敗しました。パラメータが正しいかどうか確認してください。また、仮想レイヤ 3 スイッチが動作中の場合は、仮想レイヤ 3 インターフェイスの追加または削除はできません。仮想レイヤ 3 スイッチを停止してください。
 ERR_97					指定された仮想レイヤ 3 インターフェイスの接続先仮想 HUB に接続している仮想レイヤ 3 インターフェイスが仮想レイヤ 3 スイッチの中に既に存在します。1 つの仮想レイヤ 3 スイッチの中では、同一の仮想 HUB に接続する仮想レイヤ 3 インターフェイスは 1 つしか定義できません。
-ERR_98					ルーティングテーブルの追加に失敗しました。
-ERR_99					ルーティングテーブルの削除に失敗しました。
+ERR_98					ルーティングテーブルの追加に失敗しました。パラメータが正しいかどうか確認してください。また、仮想レイヤ 3 スイッチが動作中の場合は、ルーティングテーブルの追加または削除はできません。仮想レイヤ 3 スイッチを停止してください。
+ERR_99					ルーティングテーブルの削除に失敗しました。パラメータが正しいかどうか確認してください。また、仮想レイヤ 3 スイッチが動作中の場合は、ルーティングテーブルの追加または削除はできません。仮想レイヤ 3 スイッチを停止してください。
 ERR_100					指定されたルーティングテーブルはすでに存在します。
 ERR_101					クライアントとサーバーの間の時計がずれています。時刻設定を確認してください。
 ERR_102					この仮想レイヤ 3 スイッチを開始できません。\r\n\r\n仮想レイヤ 3 スイッチを開始するには、最低でも 1 つの仮想インターフェイスが仮想レイヤ 3 スイッチ内に定義されている必要があります。
@@ -452,7 +453,8 @@ ERRDLG_DEVICE_ERROR		仮想 LAN カード (デバイス名: %S) が停止され�
 # プロトコル関係
 PROTO_DIRECT_TCP		直接 TCP/IP 接続
 PROTO_HTTP_PROXY		HTTP プロキシ経由接続
-PROTO_SOCKS_PROXY		SOCKS プロキシ経由接続
+PROTO_SOCKS_PROXY		SOCKS4 プロキシ経由接続
+PROTO_SOCKS5_PROXY		SOCKS5 プロキシ経由接続
 PROTO_SSH				SSH サーバー経由接続
 PROTO_UNKNOWN			不明なプロトコル
 
@@ -579,7 +581,7 @@ HUB_AO_SecureNAT_RandomizeAssignIp			この項目が 1 (有効) の場合は、S
 HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指定された秒数無通信であった VPN セッションをドーマント状態 (休止状態) として識別します。ドーマント状態の VPN セッションに対しては、仮想 HUB 内でフラッディングされるべきパケットがフラッディングされなくなります。
 HUB_AO_NoPhysicalIPOnPacketLog				この項目が 1 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
 HUB_AO_UseHubNameAsDhcpUserClassOption		この項目が 1 (有効) の場合は、仮想 HUB は DHCP サーバーに対して IP アドレスの取得を要求する際に仮想 HUB 名を DHCP パケットの "User-Class" オプションに埋め込むようになります。この機能は、複数の仮想 HUB がある場合に、DHCP サーバーがそれぞれの仮想 HUB 用に IP プールを確保する場合に便利です。(L2TP/IPsec および OpenVPN セッションのみ対応。)
-HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identidier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
+HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identifier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
 
 
 # Caps 関係
@@ -661,7 +663,7 @@ CT_b_support_special_listener	VPN over ICMP および VPN over DNS 接続の受�
 CT_b_support_redirect_url_acl	アクセスリストで HTTP の URL リダイレクト機能をサポート
 CT_b_is_in_vm			VM (仮想マシン) 内で動作中
 CT_b_support_azure		VPN Azure 機能が利用可能
-CT_b_support_intel_aes	Intel CPU AES Acceleration (AES-NI) が動作中
+CT_b_support_aes_ni	CPU AES Acceleration (AES-NI) が動作中
 CT_b_using_selow_driver	SoftEther 軽量カーネルモード Ethernet ドライバを使用中
 CT_b_support_vgs		VPN Gate サービス サーバー機能が利用可能
 CT_b_support_vgs_in_client	VPN Gate サービス サーバー機能 (VPN Client 統合)
@@ -939,6 +941,8 @@ CM_STOP_INST_VLAN_1		このコンピュータで仮想 LAN カードのインス
 CM_STOP_INST_VLAN_2		このコンピュータで仮想 LAN カードのインストール作業を行うには、「コンソールセッション」 上で VPN クライアント接続マネージャを起動する必要があります。\r\n\r\n現在、このコンピュータには%sがインストールされており、現在のユーザーはコンソールセッションではなくリモートセッション (セッション ID: %u) としてログオンしています。\r\n仮想 LAN カードのインストール作業を行うには、コンソールセッション上で VPN クライアント接続マネージャを起動する必要があります。\r\n(現在、コンソールセッション (セッション ID: 0) にはユーザーがログオンしていません。)\r\n\r\nユーザーの切り替え機能を使用するか、リモートデスクトップの /console スイッチ機能を使用するか、またはコンピュータのローカルコンソールデバイスを使用してコンピュータにローカルログオンしてから VPN クライアント接続マネージャを起動し、仮想 LAN カードのインストール作業を行ってください。
 CM_SHORTCUT_DESKTOP_MSG	接続設定へのショートカットを使用して接続を開始するには、「コンソールセッション」上でショートカットファイルを起動する必要があります。\r\n\r\n現在のユーザーはコンソールセッションではなくリモートセッション (セッション ID: %u) としてログオンしています。
 CM_HTTP_PROXY_WARNING	[HTTP プロキシサーバー経由接続] が選択されています。\r\n\r\n多くの場合、HTTP プロキシサーバーは接続先サーバーのポート番号として、HTTP プロトコル (TCP ポート 80 番) および HTTPS プロトコル (TCP ポート 443 番) の 2 種類の TCP ポートに対する接続のみを許可しています。\r\n(プロキシサーバーが任意の TCP ポートに対する接続を許可している場合もあります。)\r\n\r\nHTTP ポートまたは HTTPS ポート以外へのサーバー ポートへの接続を禁止している HTTP プロキシサーバーを経由して VPN 接続を行う場合は、接続先 VPN Server のポート番号は 443 (HTTPS プロトコル) に指定する必要があります。\r\n\r\n経由する HTTP プロキシサーバーが 80 番または 443 番ポート以外への接続を許可しているかどうかを確認するには、HTTP プロキシサーバーの管理者にお問い合わせください。\r\n\r\n現在、接続先 VPN Server のポート番号は %d が指定されていますが、ポート番号を 443 番 (HTTPS プロトコル) に変更しますか?\r\n(接続する VPN Server のポート 443 において接続を待ち受ける設定になっている必要があります。)\r\n不明な場合は、システム管理者またはネットワーク管理者にお問い合わせください。
+CM_HTTP_HEADER_COLUMN_0	Name
+CM_HTTP_HEADER_COLUMN_1	Value
 CM_PASSWORD_CHANGED		パスワードが変更されました。
 CM_ACCOUNT_SETTING_FILE	接続設定ファイル (*.VPN)|*.vpn|すべてのファイル (*.*)|*.*
 CM_ACCOUNT_SAVE_TITLE	エクスポート先の接続設定ファイル名を入力してください。
@@ -998,6 +1002,7 @@ CM_WOULDYOULOAD_IE_PROXY	現在、このコンピュータは Internet Explorer 
 CM_MSG_TITLE			VPN サーバー "%S" (仮想 HUB: "%S")
 CM_JUMPLIST_RCCONNECT	最近の接続先
 CM_VPNGATE_MESSAGE		VPN Gate 学術実験プロジェクトの Web サイトには、公開 VPN 中継サーバーの一覧が公開されています。\r\nこれらの VPN サーバーには、誰でもユーザー登録なしで VPN 接続することができます。\r\n\r\nVPN Gate 学術実験プロジェクトは SoftEther VPN の一部ではありません。\r\nこのアイコンは http://www.vpngate.net/ へのリンクを提供しているに過ぎません。\r\nVPN Gate に接続するためには、VPN Gate Plugin をインストールする必要があります。\r\n\r\nhttp://www.vpngate.net/ (筑波大学における学術実験サイト) を開きますか?
+CM_VLAN_REINSTALL_MSG	仮想 LAN カードのドライバを再インストールすると、MAC アドレスが変更になります。また、仮想 LAN カードに関する TCP/IP などのネットワーク設定は初期化されます。続行しますか?\r\n\r\nなお、仮想 LAN カードのドライバを再インストールしても正常に動作しない場合は、新たに別の名前で仮想 LAN カードを作成してください。
 
 
 # VPN Gate Service 関係
@@ -1075,7 +1080,7 @@ SVC_HIDE_TRAY_MSG		%S のユーザーモード起動時のタスクトレイア�
 
 
 # サービス関係 (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
+UNIX_SVC_HELP			%S service program\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
 UNIX_SVC_STARTED		The %S service has been started.\n
 UNIX_SVC_STOPPING		Stopping the %S service ...\n
 UNIX_SVC_STOPPED		%S service has been stopped.\n
@@ -1211,7 +1216,7 @@ CM_EDIT_HUB_2			%S のプロパティ
 
 CM_EDIT_HUB_STANDALONE	現在、サーバーはスタンドアロンモードで動作しています。この仮想 HUB はスタンドアロン HUB として動作します。
 CM_EDIT_HUB_TYPE_FIXED	現在、サーバーはクラスタモードで動作しています。この仮想 HUB の種類は下記のとおりで、動的な変更はできません。
-CM_EDIT_HUB_CREATER		新しい仮想 HUB %S を作成しました。
+CM_EDIT_HUB_CREATED		新しい仮想 HUB %S を作成しました。
 CM_OFFLINE_MSG			%s をオフラインにしますか?\r\n\r\n仮想 HUB をオフラインにすると、現在仮想 HUB に接続しているすべてのセッションが切断され、新しいセッションが接続できなくなります。
 CM_DELETE_HUB_MSG		%S を削除しますか?\r\n\r\n仮想 HUB を削除すると、現在仮想 HUB に接続しているセッションがすべて切断され、新たなセッションが仮想 HUB に接続できなくなります。\r\nまた、仮想 HUB のすべての設定、ユーザー オブジェクト、グループオブジェクト、証明書、およびカスケード接続が削除されます。\r\n\r\n仮想 HUB を削除すると、元に戻すことはできません。\r\n削除しますか?
 CM_HUB_DELETED_MSG		仮想 HUB %S を削除しました。
@@ -1367,7 +1372,7 @@ SM_EDIT_USER_POL_DLG	ユーザー %S のセキュリティポリシー
 SM_POLICY_DEF_CAPTION	セキュリティポリシー
 SM_LIMIT_STR			%u ～ %u の範囲の整数値を指定してください。
 SM_POLICY_INIT_TITLE	左のリストからポリシー項目を選択してください。
-SM_USER_CREEATE_OK		ユーザー %S を作成しました。
+SM_USER_CREATE_OK		ユーザー %S を作成しました。
 SM_USERINFO_CAPTION		ユーザー "%S" の情報
 SM_USERINFO_NAME		ユーザー名
 SM_USERINFO_GROUP		グループ名
@@ -1787,7 +1792,9 @@ LS_LICENSE_NOT_VPNSERVER	コネクション "%S": ライセンスエラーが発
 LS_LICENSE_NOT_VPNCLUSTER	コネクション "%S": ライセンスエラーが発生しました。この VPN Server には現在クラスタリング機能を使用できない種類のライセンスが登録されていますが、クラスタモードで動作中に VPN Client が接続しようとしました。VPN Server を再起動する必要があります。
 LS_LICENSE_VIOLATION		コネクション "%S": VPN Server でライセンス違反が発生しているため、接続を受け付けられません。
 LS_LICENSE_VIOLATION_DETECTED	ライセンス違反を検出しました。別の VPN Server が、この VPN Server と同じサーバー ID "%I64u" で動作しています。クラスタ内に同一のライセンスを使用した 2 台以上の VPN Server が存在する可能性があります。各 VPN Server のライセンス情報を確認してください。
-
+LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S" で組み込み HTTPS Web サーバーを用いてログインに成功しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
+LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
+LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
 
 # (OpenVPN ログ)
 LO_PREFIX_RAW			OpenVPN モジュール: 
@@ -1796,6 +1803,9 @@ LO_PREFIX_CHANNEL		OpenVPN セッション %u (%r:%u -> %r:%u) チャネル %u:
 LO_NEW_CHANNEL			新しいチャネルを作成しました。
 LO_CHANNEL_ESTABLISHED_NEWKEY	チャネルが確立状態になりました (原因: リキーの完了)。
 LO_OPTION_STR_RECV		受信したオプション文字列: "%S"
+LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
+LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
+LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		送信するオプション文字列: "%S"
 LO_NEW_SESSION			新しいセッションを作成しました。プロトコル: %S
 LO_INITIATE_REKEY		このチャネルのリキーを開始します。
@@ -1892,6 +1902,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
+LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として証明書認証が指定されましたが、証明書認証を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
@@ -2081,6 +2092,7 @@ L3_SWITCH_STOP			仮想レイヤ 3 スイッチ "%S" が終了しました。
 
 
 # Microsoft.c 関係
+MS_VIRTUAL				独自の仮想/内部インタフェース
 MS_ETHERNET				Ethernet インターフェイス
 MS_TOKENRING			トークンリングインターフェイス
 MS_FDDI					FDDI インターフェイス
@@ -2290,7 +2302,8 @@ STATIC9					プロキシサーバーを経由して VPN Server に接続する�
 STATIC10				プロキシの種類(&M):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&Q)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&S)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&S)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&S)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&2)
 STATIC11				サーバー証明書の検証オプション(&F):
 R_CHECK_CERT			サーバー証明書を必ず検証する(&3)
@@ -2312,7 +2325,6 @@ S_RETRY_NUM_2			回
 S_RETRY_SPAN_1			再接続間隔(&K):
 S_RETRY_SPAN_2			秒
 R_INFINITE				無限に再接続を試行する (常時接続) (&I)
-R_NOTLS1				TLS &1.0 を使用しない
 B_DETAIL				高度な通信設定(&N)...
 IDOK					&OK
 IDCANCEL				キャンセル
@@ -2333,10 +2345,20 @@ STATIC2					ホスト名(&H):
 STATIC3					ポート番号(&A):
 STATIC4					ユーザー名(&U):
 STATIC5					パスワード(&P):
+B_HTTP_HEADER			Custom HTTP header values
 IDOK					&OK
 IDCANCEL				キャンセル
 STATIC6					(オプション)
 STATIC7					(オプション)
+
+
+PREFIX					D_CM_PROXY_HTTP_HEADER
+CAPTION					Custom Proxy HTTP Header Values
+B_NEW					New
+B_DELETE				Delete
+B_CLEAR					Clear
+IDOK					&OK
+IDCANCEL				Cancel
 
 
 PREFIX					D_CM_DETAIL
@@ -2433,7 +2455,7 @@ STATIC7					インターネット接続の維持機能(&N)
 
 PREFIX					D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Open-Source VPN Software for Academic Purpose, under the GPLv2 License.\r\nCopyright (c) 2012-%u SoftEther Project at University of Tsukuba, Japan. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				本ソフトウェアは筑波大学 SoftEther VPN プロジェクトで開発されたフリーウェアです。本ソフトウェアは一切の保証がない状態で提供されるものであり、開発および配布元は使用の結果の損害について一切責任を負いません。\r\n\r\nSoftEther VPN ソフトウェアは日本国経済産業省のソフトウェア研究開発プロジェクトの成果物です。IPA (独立行政法人 情報処理推進機構) の未踏ソフトウェア創造事業に採択され開発されました。詳しくは http://www.ipa.go.jp/ をご覧ください。
 IDCANCEL				&OK
@@ -2505,7 +2527,8 @@ STATIC9					プロキシサーバーを経由して VPN Server に接続する�
 STATIC10				プロキシの種類(&Y):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&T)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&K)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&K)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&K)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&R)
 STATIC11				管理モードの選択とパスワードの入力(&M)
 STATIC12				VPN Server には、サーバー管理モードと仮想 HUB 管理モードのどちらかのモードで接続できます。\r\n\r\nサーバー管理モードで接続すると、VPN Server の設定とすべての仮想 HUB が管理できます。\r\n\r\n仮想 HUB 管理モードで接続すると、権限を持っている仮想 HUB の管理ができます。
@@ -3214,7 +3237,7 @@ IDCANCEL				閉じる(&X)
 
 PREFIX					D_EM_ADD
 STATIC1					キャプチャに使用する LAN カード名(&L):
-R_PROMISCUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
+R_PROMISCUOUS				キャプチャの際にプロミスキャスモードを使用しない(&N)
 STATIC2					パケットログ(&P):
 S_PACKET				ログファイルの切り替え周期(&W):
 S_PACKET_0				TCP コネクションログ:
@@ -4062,7 +4085,7 @@ CAPTION					アップデート通知の設定
 S_INFO					%s の新しいバージョンがリリースされていないかどうか定期的にチェックし、リリースされていた場合は通知画面を表示します。\r\n\r\nアップデートチェックのために日本の茨城県つくば市に設置されている SoftEther Update サーバーとの間で HTTPS 通信を行います。お客様の個人情報が送信されることはありません。
 S_TITLE					%s のアップデートチェックと通知の設定
 S_ENABLE				アップデートチェックを有効にする(&E)
-S_DISBLE				アップデートチェックを無効にする(&D)
+S_DISABLE				アップデートチェックを無効にする(&D)
 IDCANCEL				閉じる(&C)
 
 
@@ -4097,7 +4120,8 @@ STATIC9					プロキシサーバーを経由してサーバーに接続する�
 STATIC10				プロキシの種類(&Y):
 R_DIRECT_TCP			直接 TCP/IP 接続 (プロキシを使わない) (&D)
 R_HTTPS					HTTP プロキシサーバー経由接続(&T)
-R_SOCKS					SOCKS プロキシサーバー経由接続(&K)
+R_SOCKS					SOCKS4 プロキシサーバー経由接続(&K)
+R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&K)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&R)
 IDOK					&OK
 IDCANCEL				キャンセル
@@ -4293,13 +4317,13 @@ CON_INFILE_START		ファイル "%s" に記述されているコマンドを、�
 CON_OUTFILE_START		画面に出力されたメッセージは、ファイル "%s" にも保存されます。
 CON_USER_CANCEL			[EOF]
 CON_UNKNOWN_CMD			"%S": コマンドが見つかりません。\nHELP コマンドで使用できるコマンド一覧を表示できます。
-CON_AMBIGIOUS_CMD		"%S": コマンドが曖昧です。
-CON_AMBIGIOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
-CON_AMBIGIOUS_CMD_2		より厳密にコマンド名を指定し直してください。
+CON_AMBIGUOUS_CMD		"%S": コマンドが曖昧です。
+CON_AMBIGUOUS_CMD_1		指定されたコマンド名は、次の複数のコマンドに一致します:
+CON_AMBIGUOUS_CMD_2		より厳密にコマンド名を指定し直してください。
 CON_INVALID_PARAM		パラメータ "/%S" が指定されています。コマンド "%S" ではそのようなパラメータは指定できません。詳しくは "%S /HELP" と入力して使用できるパラメータ一覧を確認してください。
-CON_AMBIGIOUS_PARAM		"/%S": パラメータ名が曖昧です。
-CON_AMBIGIOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
-CON_AMBIGIOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
+CON_AMBIGUOUS_PARAM		"/%S": パラメータ名が曖昧です。
+CON_AMBIGUOUS_PARAM_1	指定されたパラメータ名は、コマンド "%S" のパラメータとして指定可能な次の複数のパラメータに一致します:
+CON_AMBIGUOUS_PARAM_2	より厳密にパラメータ名を指定し直してください。
 
 
 # 不明なコマンド
@@ -4322,7 +4346,7 @@ CMD_HELP_DESCRIPTION	[目的]
 CMD_HELP_USAGE			[使用方法]
 CMD_HELP_HELP			[説明]
 CMD_HELP_ARGS			[パラメータ]
-CMD_PROPMT_PORT			ポート番号を入力してください :
+CMD_PROMPT_PORT			ポート番号を入力してください :
 CMD_EVAL_PORT			ポート番号が不正です。ポート番号は 1 以上 65535 以下で指定してください。
 CMD_CT_STD_COLUMN_1		項目
 CMD_CT_STD_COLUMN_2		値
@@ -4356,6 +4380,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		プロキシサーバーのポート番号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	プロキシサーバーのユーザー名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	サーバー証明書の検証
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	登録されているサーバー固有証明書
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		接続に使用するデバイス名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		認証の種類
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	ユーザー名
@@ -4370,6 +4395,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	ブリッジ / ルータモードで接続
 CMD_ACCOUNT_COLUMN_MONITOR			モニタリングモードで接続
 CMD_ACCOUNT_COLUMN_NO_TRACKING		ルーティングテーブルを調整しない
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	QoS 制御機能を使用しない
+CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
 
 
 # デバッグ情報書き出しコマンド
@@ -4443,7 +4469,7 @@ CMD_VPNCMD_HOST_2		接続先の VPN Client が動作しているコンピュー�
 CMD_VPNCMD_HOST_3		接続先のホスト名または IP アドレス: 
 CMD_VPNCMD_HUB_1		サーバーに仮想 HUB 管理モードで接続する場合は、仮想 HUB 名を入力してください。\nサーバー管理モードで接続する場合は、何も入力せずに Enter を押してください。
 CMD_VPNCMD_HUB_2		接続先の仮想 HUB 名を入力: 
-CMD_VPNCMD_ABOUT		SoftEther VPN コマンドライン管理ユーティリティ (vpncmd コマンド)\nDeveloper Edition\n%S\n%S\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n
+CMD_VPNCMD_ABOUT		SoftEther VPN コマンドライン管理ユーティリティ (vpncmd コマンド)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1	アクセスが拒否されました。パスワードが間違っているか、接続する管理モードが正しくない可能性があります。パスワードをもう一度入力することができます。キャンセルする場合は、Ctrl + D を押してください。
 CMD_VPNCMD_PASSWORD_2	パスワード: 
 CMD_VPNCMD_ERROR		エラーが発生しました。(エラーコード: %u)\n%s
@@ -4666,6 +4692,21 @@ CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	設定するる暗号化および電子署名アルゴリズムを指定します。使用可能なアルゴリズムの一覧は、ServerCipherGet コマンドで取得することができます。
 CMD_ServerCipherSet_PROMPT_NAME	指定する暗号化アルゴリズム名: 
 
+# TUNDownOnDisconnectEnable command
+CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
+
+# TUNDownOnDisconnectDisable command
+CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
+
+# TUNDownOnDisconnectGet command
+CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
+CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
+CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 
 # KeepEnable コマンド
 CMD_KeepEnable			インターネット接続の維持機能の有効化
@@ -5287,6 +5328,35 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	設定を変更するカスケード接続の名前を指定します。
 
 
+# CascadeHttpHeader* commands
+CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# CascadeHttpHeaderAdd command
+CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# CascadeHttpHeaderDelete command
+CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
+CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# CascadeHttpHeaderGet command
+CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
+CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+
+
 # CascadeProxyNone コマンド
 CMD_CascadeProxyNone	カスケード接続の接続方法を直接 TCP/IP 接続に設定
 CMD_CascadeProxyNone_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [直接 TCP/IP 接続] に設定し、プロキシサーバーを経由しないようにします。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -5305,15 +5375,24 @@ CMD_CascadeProxyHttp_PASSWORD	経由する HTTP プロキシサーバーに接�
 CMD_CascadeProxyHttp_Prompt_Server	プロキシサーバーのホスト名とポート番号: 
 
 
-
 # CascadeProxySocks コマンド
-CMD_CascadeProxySocks	カスケード接続の接続方法を SOCKS プロキシサーバー経由接続に設定
-CMD_CascadeProxySocks_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS プロキシサーバー経由接続] に設定し、経由する SOCKS プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS サーバーは、SOCKS バージョン 4 に対応している必要があります。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_CascadeProxySocks	カスケード接続の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_CascadeProxySocks_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS4 プロキシサーバー経由接続] に設定し、経由する SOCKS4 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS4 サーバーは、SOCKS4 バージョン 4 に対応している必要があります。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_CascadeProxySocks_Args	CascadeProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_CascadeProxySocks_[name]	設定を変更するカスケード接続の名前を指定します。
-CMD_CascadeProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
-CMD_CascadeProxySocks_USERNAME	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
-CMD_CascadeProxySocks_PASSWORD	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+CMD_CascadeProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS4 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_CascadeProxySocks_USERNAME	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_CascadeProxySocks_PASSWORD	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+
+
+# CascadeProxySocks5 コマンド
+CMD_CascadeProxySocks5	カスケード接続の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_CascadeProxySocks5_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、使用する接続方法を [SOCKS5 プロキシサーバー経由接続] に設定し、経由する SOCKS5 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
+CMD_CascadeProxySocks5_Args	CascadeProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_CascadeProxySocks5_[name]	設定を変更するカスケード接続の名前を指定します。
+CMD_CascadeProxySocks5_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS5 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_CascadeProxySocks5_USERNAME	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_CascadeProxySocks5_PASSWORD	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
 
 
 # CascadeServerCertEnable コマンド
@@ -5381,7 +5460,7 @@ CMD_CascadePolicySet_VALUE	ポリシーの新しい値を指定します。そ�
 CMD_CascadePolicySet_PROMPT_POLNAME	値を変更するポリシーの名前: 
 CMD_CascadePolicySet_PROMPT_POLVALUE	新しく設定する値: 
 CMD_CascadePolicySet_Invalid_Name	指定されたポリシー名 "%S" は不正です。\nPolicyList コマンドで設定できるポリシー名の一覧を確認してください。
-CMD_CascadePolicySet_Invalid_Name_For_Cadcade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
+CMD_CascadePolicySet_Invalid_Name_For_Cascade	指定されたポリシー名 "%S" はカスケード接続のセキュリティポリシー設定では使用できません。
 CMD_CascadePolicySet_Invalid_Range	ポリシー "%S" は %s の範囲で指定してください。
 
 
@@ -6236,6 +6315,24 @@ CMD_OpenVpnMakeConfig_OK			サンプル設定ファイルを "%s" ファイル�
 CMD_OpenVpnMakeConfig_ERROR			サンプル設定ファイルを "%s" ファイルに保存できませんでした。ファイル名が正しくない可能性があります。\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
 # SstpEnable コマンド
 CMD_SstpEnable			Microsoft SSTP VPN 互換サーバー機能を有効化 / 無効化
 CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -6579,6 +6676,35 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
+# AccountHttpHeader* commands
+CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
+CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+
+
+# AccountHttpHeaderAdd command
+CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
+CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+
+
+# AccountHttpHeaderDelete command
+CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
+CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+
+
+# AccountHttpHeaderGet command
+CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
+CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
+CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+
+
 # AccountProxyNone コマンド
 CMD_AccountProxyNone	接続設定の接続方法を直接 TCP/IP 接続に設定
 CMD_AccountProxyNone_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [直接 TCP/IP 接続] に設定し、プロキシサーバーを経由しないようにします。
@@ -6597,15 +6723,24 @@ CMD_AccountProxyHttp_PASSWORD	経由する HTTP プロキシサーバーに接�
 CMD_AccountProxyHttp_Prompt_Server	プロキシサーバーのホスト名とポート番号: 
 
 
-
 # AccountProxySocks コマンド
-CMD_AccountProxySocks	接続設定の接続方法を SOCKS プロキシサーバー経由接続に設定
-CMD_AccountProxySocks_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS プロキシサーバー経由接続] に設定し、経由する SOCKS プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。\n経由する SOCKS サーバーは、SOCKS バージョン 4 に対応している必要があります。
+CMD_AccountProxySocks	接続設定の接続方法を SOCKS4 プロキシサーバー経由接続に設定
+CMD_AccountProxySocks_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS4 プロキシサーバー経由接続] に設定し、経由する SOCKS4 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。
 CMD_AccountProxySocks_Args	AccountProxySocks [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
 CMD_AccountProxySocks_[name]	設定を変更する接続設定の名前を指定します。
-CMD_AccountProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
-CMD_AccountProxySocks_USERNAME	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
-CMD_AccountProxySocks_PASSWORD	経由する SOCKS プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+CMD_AccountProxySocks_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS4 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_AccountProxySocks_USERNAME	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_AccountProxySocks_PASSWORD	経由する SOCKS4 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
+
+
+# AccountProxySocks5 コマンド
+CMD_AccountProxySocks5	接続設定の接続方法を SOCKS5 プロキシサーバー経由接続に設定
+CMD_AccountProxySocks5_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に使用する接続方法を [SOCKS5 プロキシサーバー経由接続] に設定し、経由する SOCKS5 プロキシサーバーのホスト名とポート番号、ユーザー名とパスワード (必要な場合) を指定します。
+CMD_AccountProxySocks5_Args	AccountProxySocks5 [name] [/SERVER:hostname:port] [/USERNAME:username] [/PASSWORD:password]
+CMD_AccountProxySocks5_[name]	設定を変更する接続設定の名前を指定します。
+CMD_AccountProxySocks5_SERVER	[ホスト名:ポート番号] の形式で、経由する SOCKS5 プロキシサーバーのホスト名、または IP アドレスとポート番号を指定します。
+CMD_AccountProxySocks5_USERNAME	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、ユーザー名を指定します。また、同時に /PASSWORD パラメータも指定します。/USERNAME と /PASSWORD パラメータが指定されない場合は、ユーザー認証データを設定しません。
+CMD_AccountProxySocks5_PASSWORD	経由する SOCKS5 プロキシサーバーに接続するためにユーザー認証が必要な場合、パスワードを指定します。/USERNAME パラメータと共に指定します。
 
 
 # AccountServerCertEnable コマンド
@@ -6620,6 +6755,20 @@ CMD_AccountServerCertDisable	接続設定のサーバー証明書の検証オプ
 CMD_AccountServerCertDisable_Help	VPN Client に登録されている接続設定を指定し、その接続設定が VPN Server に対して接続する際に、接続先の VPN Server の提示する SSL 証明書が信頼できるかどうか検査するオプションを無効にします。
 CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
+
+
+# AccountRetryOnServerCertEnable command
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertDisable command
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet コマンド
@@ -6742,7 +6891,7 @@ CMD_AccountRetrySet_[name]	設定を変更する接続設定の名前を指定�
 CMD_AccountRetrySet_NUM	連続して再接続を行う回数を指定します。"999" と指定すると、無限に再接続を試行します (常時接続)。0 を指定すると再接続を行いません。
 CMD_AccountRetrySet_INTERVAL	再接続を行う場合、前回接続が切断または接続失敗してから、何秒後に再接続処理を開始するかを設定します。
 CMD_AccountRetrySet_PROMPT_NUM	再接続回数 ("999" で無限): 
-CMD_AccountRetrySet_PROMPY_INTERVAL	再接続間隔 (秒): 
+CMD_AccountRetrySet_PROMPT_INTERVAL	再接続間隔 (秒): 
 CMD_AccountRetrySet_EVAL_INTERVAL	再接続間隔は 5 秒以上で指定してください。
 
 
@@ -6939,7 +7088,7 @@ CMD_Check_Args			Check
 
 # システムチェッカ関係
 # (一部奇妙な文字列が含まれていますが、文字コード変換のチェック用です)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN 動作環境チェックツール\nDeveloper Edition\n\nCopyright (c) SoftEther VPN Project.\nAll Rights Reserved.\n\n
+CHECK_TITLE				---------------------------------------------------\nSoftEther VPN 動作環境チェックツール\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
 CHECK_NOTE				この動作環境チェックツールを実行したシステムがテストに合格した場合は、SoftEther VPN ソフトウェアが動作する可能性が高いです。チェックにはしばらく時間がかかる場合があります。そのままお待ちください...\n\n
 CHECK_EXEC_TAG			'%s' のチェック中...\n
 CHECK_PASS				[合格] ○
@@ -7009,6 +7158,8 @@ SW_WEB2_TITLE								ファイルの指定
 SW_UNINSTALLINFO_URL						http://selinks.org/
 SW_UNINSTALLINFO_PUBLISHER					SoftEther VPN Project
 
+SW_KB3033929_REQUIRED						Windows 7 および Windows Server 2008 R2 では、SoftEther VPN の一部の機能を利用するためには、Microsoft 社の Windows Update プログラム KB3033929 がインストールされている必要があります。\r\n\r\nKB3033929 がインストールされていない場合は、SoftEther VPN をインストールする前に、Windows Update または Microsoft 社の Web サイトから KB3033929 をインストールをしてください。
+
 
 SW_COMPONENTS_ABOUT_TAG						「%s」とは
 SW_COMPONENTS_REQUIRE_ADMIN					インストールには管理者権限が必要です
@@ -7073,7 +7224,7 @@ SW_PERFORM_MSG_IMPORTING_ACCOUNT			簡易インストーラに内蔵されてい
 SW_PERFORM_MSG_DELETE_SETUP_INFO			インストール情報およびログを削除中...
 SW_PERFORM_MSG_WRITE_LOG					セットアップログを書き出しています...
 SW_PERFORM_MSG_COPY_ERROR					ファイル "%s" へのコピーに失敗しました。
-SW_PERFORM_MSG_CRAETE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
+SW_PERFORM_MSG_CREATE_LINK_ERROR			ショートカットファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_WRITE_LOG_ERROR				セットアップログファイル "%s" の作成に失敗しました。\r\n\r\n再試行しますか?
 SW_PERFORM_MSG_STOP_SVC_ERROR				サービス 「%s」 (内部名: "%S") の停止に失敗しました。
 SW_PERFORM_MSG_START_SVC_ERROR				サービス 「%s」 (内部名: "%S") の開始に失敗しました。
@@ -7166,4 +7317,5 @@ SW_LINK_NAME_LANGUAGE_COMMENT				%s の表示言語を変更します。
 SW_LINK_NAME_DEBUG							デバッグ情報収集ツール
 SW_LINK_NAME_DEBUG_COMMENT					SoftEther VPN のデバッグ情報を収集します。サポート担当者から依頼があった場合のみ使用してください。
 
-
+CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
+CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no):

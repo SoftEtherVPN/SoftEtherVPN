@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // TcpIp.c
@@ -121,30 +15,6 @@
 #include <time.h>
 #include <errno.h>
 #include <Mayaqua/Mayaqua.h>
-
-
-// Send an ICMP Echo
-ICMP_RESULT *IcmpEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout)
-{
-	// Validate arguments
-	if (dest_ip == NULL || IsIP4(dest_ip) == false || (size != 0 && data == NULL))
-	{
-		return NULL;
-	}
-	if (ttl == 0)
-	{
-		ttl = 127;
-	}
-
-	if (IsIcmpApiSupported())
-	{
-		return IcmpApiEchoSend(dest_ip, ttl, data, size, timeout);
-	}
-	else
-	{
-		return IcmpEchoSendBySocket(dest_ip, ttl, data, size, timeout);
-	}
-}
 
 // Release the memory for the ICMP response
 void IcmpFreeResult(ICMP_RESULT *r)
@@ -266,138 +136,6 @@ ICMP_RESULT *IcmpParseResult(IP *dest_ip, USHORT src_id, USHORT src_seqno, UCHAR
 				}
 			}
 		}
-	}
-
-	return ret;
-}
-
-// Send the ICMP Echo (by a socket)
-ICMP_RESULT *IcmpEchoSendBySocket(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout)
-{
-	SOCK *s;
-	ICMP_RESULT *ret = NULL;
-	USHORT id;
-	USHORT seq;
-	UINT64 sent_tick;
-	UINT64 recv_tick;
-	// Validate arguments
-	if (dest_ip == NULL || IsIP4(dest_ip) == false || (size != 0 && data == NULL))
-	{
-		return NULL;
-	}
-	if (ttl == 0)
-	{
-		ttl = 127;
-	}
-
-	s = NewUDP4(MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4), NULL);
-	if (s != NULL)
-	{
-		// Construction of the ICMP packet
-		UCHAR *send_buffer;
-		UINT send_buffer_size = sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + size;
-		ICMP_HEADER *send_icmp_header;
-		ICMP_ECHO *send_icmp_echo;
-		UINT i;
-
-		id = Rand16();
-		if (id == 0)
-		{
-			id = 1;
-		}
-
-		seq = Rand16();
-		if (seq == 0)
-		{
-			seq = 1;
-		}
-
-		send_buffer = ZeroMalloc(send_buffer_size);
-
-		send_icmp_header = (ICMP_HEADER *)send_buffer;
-		send_icmp_header->Type = ICMP_TYPE_ECHO_REQUEST;
-
-		send_icmp_echo = (ICMP_ECHO *)(send_buffer + sizeof(ICMP_HEADER));
-		send_icmp_echo->Identifier = Endian16(id);
-		send_icmp_echo->SeqNo = Endian16(seq);
-
-		Copy(send_buffer + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO), data, size);
-
-		send_icmp_header->Checksum = IpChecksum(send_buffer, send_buffer_size);
-
-		// Send an ICMP
-		SetTtl(s, ttl);
-		sent_tick = TickHighres64();
-		i = SendTo(s, dest_ip, MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4), send_buffer, send_buffer_size);
-
-		if (i != 0 && i != INFINITE)
-		{
-			// ICMP response received
-			INTERRUPT_MANAGER *interrupt = NewInterruptManager();
-			UINT64 giveup_time = Tick64() + (UINT64)timeout;
-			UINT recv_buffer_size = (sizeof(IPV4_HEADER) + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + size + 64) * 2;
-			UCHAR *recv_buffer = Malloc(recv_buffer_size);
-
-			AddInterrupt(interrupt, giveup_time);
-
-			while (true)
-			{
-				UINT interval = GetNextIntervalForInterrupt(interrupt);
-				IP src_ip;
-				UINT src_port;
-				SOCKSET set;
-
-				InitSockSet(&set);
-				AddSockSet(&set, s);
-
-				Select(&set, interval, NULL, NULL);
-
-				while (true)
-				{
-					Zero(recv_buffer, recv_buffer_size);
-					i = RecvFrom(s, &src_ip, &src_port, recv_buffer, recv_buffer_size);
-					recv_tick = TickHighres64();
-
-					if (i != 0 && i != SOCK_LATER)
-					{
-						ret = IcmpParseResult(dest_ip, id, seq, recv_buffer, i);
-
-						if (ret != NULL)
-						{
-							break;
-						}
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				if (interval == 0)
-				{
-					break;
-				}
-
-				if (ret != NULL)
-				{
-					break;
-				}
-			}
-
-			FreeInterruptManager(interrupt);
-
-			Free(recv_buffer);
-
-			if (ret == NULL)
-			{
-				ret = ZeroMalloc(sizeof(ICMP_RESULT));
-
-				ret->Timeout = true;
-			}
-		}
-
-		Free(send_buffer);
-		ReleaseSock(s);
 	}
 
 	return ret;
@@ -575,7 +313,6 @@ UINT GetIpHeaderSize(UCHAR *src, UINT src_size)
 {
 	UCHAR ip_ver;
 	TCP_HEADER *tcp = NULL;
-	UINT tcp_size = 0;
 	IPV4_HEADER *ip = NULL;
 	IPV6_HEADER *ip6 = NULL;
 	// Validate arguments
@@ -1031,7 +768,6 @@ void VLanInsertTag(void **packet_data, UINT *packet_size, UINT vlan_id, UINT vla
 // Remove the VLAN tag from the packet
 bool VLanRemoveTag(void **packet_data, UINT *packet_size, UINT vlan_id, UINT vlan_tpid)
 {
-	bool has_vlan_tag = false;
 	UCHAR *src_data;
 	UINT src_size;
 	USHORT vlan_tpid_ushort;
@@ -1095,7 +831,7 @@ BUF *BuildICMPv6(IPV6_ADDR *src_ip, IPV6_ADDR *dest_ip, UCHAR hop_limit, UCHAR t
 		return NULL;
 	}
 
-	// Assembe the header
+	// Assemble the header
 	icmp = ZeroMalloc(sizeof(ICMP_HEADER) + size);
 	data_buf = ((UCHAR *)icmp) + sizeof(ICMP_HEADER);
 	Copy(data_buf, data, size);
@@ -1157,7 +893,7 @@ BUF *BuildICMPv6NeighborSoliciation(IPV6_ADDR *src_ip, IPV6_ADDR *target_ip, UCH
 UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q)
 {
 	UINT *p;
-	UCHAR v;
+	UCHAR v = 0;
 	// Validate arguments
 	if (q == NULL)
 	{
@@ -1165,8 +901,11 @@ UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q)
 	}
 
 	p = (UINT *)GetNext(q);
-	v = (UCHAR)(*p);
-	Free(p);
+	if (p != NULL)
+	{
+		v = (UCHAR)(*p);
+		Free(p);
+	}
 
 	return v;
 }
@@ -1993,7 +1732,6 @@ void CorrectChecksum(PKT *p)
 
 						if (tcp != NULL)
 						{
-							UINT tcp_header_size = TCP_GET_HEADER_SIZE(tcp) * 4;
 							USHORT tcp_offloading_checksum1 = CalcChecksumForIPv6(&v6->SrcAddress, &v6->DestAddress, IP_PROTO_TCP, NULL, 0, v6info->PayloadSize);
 							USHORT tcp_offloading_checksum2 = ~tcp_offloading_checksum1;
 
@@ -2191,10 +1929,6 @@ HTTPLOG *ParseHttpAccessLog(PKT *pkt)
 
 
 // Layer-2 parsing
-bool ParsePacketL2(PKT *p, UCHAR *buf, UINT size)
-{
-	return ParsePacketL2Ex(p, buf, size, false);
-}
 bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3)
 {
 	UINT i;
@@ -4062,11 +3796,6 @@ void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT
 		}
 
 		data_len = (subnet_mask_len + 7) / 8;
-		if (data_len > 4)
-		{
-			// Invalid data
-			break;
-		}
 
 		Zero(tmp, sizeof(tmp));
 		if (ReadBuf(b, tmp, data_len) != data_len)

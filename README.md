@@ -1,13 +1,25 @@
 # SoftEther VPN
 
-[![Build Status](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN.svg?branch=master)](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/softethervpn/softethervpn?branch=master&svg=true)](https://ci.appveyor.com/project/softethervpn/softethervpn) [![Travis CI build status](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN.svg?branch=master)](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN) [![gitlab-ci build status](https://gitlab.com/SoftEther/SoftEtherVPN/badges/master/build.svg)](https://gitlab.com/SoftEther/SoftEtherVPN/pipelines) [![Coverity Scan Build Status](https://scan.coverity.com/projects/16304/badge.svg)](https://scan.coverity.com/projects/softethervpn-softethervpn)
 
----
-
+- [SoftEther VPN](#softether-vpn)
+- [BOARD MEMBERS OF THIS REPOSITORY](#board-members-of-this-repository)
+- [SOFTETHER VPN ADVANTAGES](#softether-vpn-advantages)
+- [Installation](#installation)
+  * [For Ubuntu](#for-ubuntu)
+  * [For FreeBSD](#for-freebsd)
+  * [From binary installers:](#from-binary-installers)
+  * [Build from Source code](#build-from-source-code)
+- [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
+  * [Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console](#built-in-softether-vpn-server-html5-ajax-based-web-administration-console)
+  * [Built-in SoftEther Server VPN JSON-RPC API Suite](#built-in-softether-server-vpn-json-rpc-api-suite)
+- [TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION](#to-circumvent-your-governments-firewall-restriction)
+- [SOURCE CODE CONTRIBUTION](#source-code-contribution)
+- [DEAR SECURITY EXPERTS](#dear-security-experts)
 
 SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
-http://www.softether.org/
+https://www.softether.org/
 
 
 This repository has experimental codes. Pull requests are welcome.
@@ -16,13 +28,13 @@ Stable Edition is available on
 https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 which the non-developer user can stable use.
 
-Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:
-http://www.softether-download.com/
+Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
+https://www.softether-download.com/
 
-We accept your patches by the acceptance policy:
-http://www.softether.org/5-download/src/9.patch
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
+Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
 
-Copyright (c) SoftEther Project at University of Tsukuba, Japan.
+---
 
 The development of SoftEther VPN was supported by the MITOH Project,
 a research and development project by Japanese Government,
@@ -30,10 +42,23 @@ subsidized by Ministry of Economy, Trade and Industry of Japan,
 administrated by Information Promotion Agency.
 https://www.ipa.go.jp/english/humandev/
 
+---
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+![https://icons8.com](resources/icons8.png "Icons8")
+
+[Icons8](https://icons8.com) kindly supported the project by gifting a license which allows to edit and redistribute their icons.
+
+Please note that you are not allowed to redistribute those icons outside of this repository.
+
+The developers of SoftEther VPN love Icons8's work and kindly ask the users to support them as much as possible.
+
+---
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
 
 SoftEther VPN ("SoftEther" means "Software Ethernet") is one of the
 world's most powerful and easy-to-use multi-protocol VPN software.
@@ -44,7 +69,7 @@ SoftEther VPN supports most of widely-used VPN protocols
 including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
-More details on http://www.softether.org/.
+More details on https://www.softether.org/.
 
 
 # BOARD MEMBERS OF THIS REPOSITORY
@@ -62,6 +87,11 @@ https://github.com/zulzardi
 Alex Maslakov (Since Nov 6, 2017)
 https://github.com/GildedHonour
 
+Davide Beatrici (Since Jul 21, 2018)
+https://github.com/davidebeatrici
+
+Ilya Shipitsin (Since Jul 21, 2018)
+https://github.com/chipitsine
 
 
 # SOFTETHER VPN ADVANTAGES
@@ -101,72 +131,93 @@ https://github.com/GildedHonour
 - No memory leaks. High quality stable codes, intended for long-term runs.
   We always verify that there are no memory or resource leaks before
   releasing the build.
-- More details at http://www.softether.org/.
+- More details at https://www.softether.org/.
 
 
-# GETTING STARTED
+# Installation
 
-Visit the SoftEther VPN Project official web site at first:
-        http://www.softether.org/
+## For Ubuntu
 
-If you are not a developer, it is recommended to download the binary
-installers from:
-        http://www.softether-download.com/
+Launchpad PPA maintained by [Dmitry Verkhoturov](https://github.com/paskal):
 
-To build from the source,
-see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md) files.
+[Daily builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn) (latest released tag)
 
+[Nightly builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn-nightly)
 
-# HOW TO DOWNLOAD THE LATEST SOURCE CODE PACKAGE
+## For FreeBSD
 
-Go to http://www.softether-download.com/ and you can find the latest
-source-code package file in both .ZIP and .TAR.GZ format.
+SoftEther VPN in FreeBSD Ports Collection is maintained by
+[Koichiro Iwao](https://people.FreeBSD.org/~meta/) ([@metalefty](https://github.com/metalefty)).
 
-This is the easiest way to obtain the source code of SoftEther VPN.
-
-
-# HOW TO GET THE LATEST SOURCE CODE TREE FOR DEVELOPERS
-
-If you are an open-source developer, visit our GitHub repository:
-https://github.com/SoftEtherVPN/SoftEtherVPN/
-
-You can download the up-to-date source-code tree of SoftEther VPN
-from GitHub. You may make your own fork project from our project.
-
-
-
-##  Requirements
-
-### 1. Debian/Ubuntu
-
-- gcc
-- libncurses5-dev
-- libreadline-dev
-- make
-- libssl-dev
-- zlib1g-dev
-
-### 2. Redhat/CentOS
-- gcc
-- openssl-devel
-- make
-- ncurses-devel
-- readline-devel
-- zlib-devel
-
-## Compile and install
-
-The download and build instruction is following:
- 
-```sh
-$ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-$ cd SoftEtherVPN
-$ ./configure
-$ make
-$ make install
+Binary package can be installed by pkg:
+```
+pkg install softether5
 ```
 
-Please see src/BUILD_UNIX.md for more build instructions.
+Alternatively, it can be built & installed by ports:
+```
+make install -C /usr/ports/security/softether5
+```
+
+To run SoftEther VPN Server:
+```
+service softether_server start
+```
+
+To configure SoftEther VPN Server startup on boot:
+```
+sysrc softether_server_enable=yes
+```
+
+Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softether-devel/) and
+[RTM version](https://www.freshports.org/security/softether/) are available on FreeBSD.
+
+## From binary installers:
+
+Those can be found under https://www.softether-download.com/
+There you can also find SoftEtherVPN source code in zip and tar formats.
+
+## Build from Source code
+
+see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md)
+
+There are two flavours of SoftEtherVPN source code:
+
+1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
+2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
+
+
+# About HTML5-based Modern Admin Console and JSON-RPC API Suite
+
+## Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console
+We are developing the HTML5 Ajax-based Web Administration Console (currently very limited, under construction) in the embedded HTTPS server on the SoftEther VPN Server.
+
+Access to the following URL from your favorite web browser.
+
+```
+https://<vpn_server_hostname>:<port>/admin/
+```
+
+For example if your VPN Server is running as the port 5555 on the host at 192.168.0.1, you can access to the web console by:
+
+```
+https://192.168.0.1:5555/admin/
+```
+
+Note: Your HTML5 development contribution is very appreciated. The current HTML5 pages are written by Daiyuu Nobori (the core developer of SoftEther VPN). He is obviously lack of HTML5 development ability. Please kindly consider to contribute for SoftEther VPN's development on GitHub. Your code will help every people running SoftEther VPN Server.
+
+
+## Built-in SoftEther Server VPN JSON-RPC API Suite
+The API Suite allows you to easily develop your original SoftEther VPN Server management application to control the VPN Server (e.g. creating users, adding Virtual Hubs, disconnecting a specified VPN sessions).
+
+You can access to the [latest SoftEther VPN Server JSON-RPC Document on GitHub.](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/)
+
+- Almost all control APIs, which the VPN Server provides, are available as JSON-RPC API.
+You can write your own VPN Server management application in your favorite languages (JavaScript, TypeScript, Java, Python, Ruby, C#, ... etc.)
+- If you are planning to develop your own VPN cloud service, the JSON-RPC API is the best choice to realize the automated operations for the VPN Server.
+- No need to use any specific API client library since all APIs are provided on the JSON-RPC 2.0 Specification. You can use your favorite JSON and HTTPS client library to call any of all APIs in your pure runtime environment.
+- Also, the SoftEther VPN Project provides high-quality JSON-RPC client stub libraries which define all of the API client stub codes. These libraries are written in C#, JavaScript and TypeScript. The Node.js Client Library for VPN Server RPC (vpnrpc) package is also available.
+
 
 # TO CIRCUMVENT YOUR GOVERNMENT'S FIREWALL RESTRICTION
 
@@ -181,10 +232,17 @@ on all the following open-source repositories:
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-To fetch the source code from GitHub:
 ```
 $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 ```
+
+  - GitLab (mirrored from GitHub)
+    https://gitlab.com/SoftEther/SoftEtherVPN/
+
+```
+$ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
+```
+
 We hope that you can reach one of the above URLs at least!
 
 
@@ -192,8 +250,6 @@ We hope that you can reach one of the above URLs at least!
 
 Your contribution to SoftEther VPN Project is much appreciated.
 Please send patches to us through GitHub.
-Read the SoftEther VPN Patch Acceptance Policy in advance:
-http://www.softether.org/5-download/src/9.patch
 
 
 # DEAR SECURITY EXPERTS
@@ -203,59 +259,8 @@ about the problem immediately so that we can fix the security problem
 to protect a lot of users around the world as soon as possible.
 
 Our e-mail address for security reports is:
-softether-vpn-security [at] softether.org
+**softether-vpn-security at softether.org**
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit
-http://www.softether.org/ and ask your question on the users forum.
-
-
-# DISCLAIMER
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-
-USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-
-READ AND UNDERSTAND THE 'WARNING.TXT' FILE BEFORE USING THIS SOFTWARE.
-SOME SOFTWARE PROGRAMS FROM THIRD PARTIES ARE INCLUDED ON THIS SOFTWARE
-WITH LICENSE CONDITIONS WHICH ARE DESCRIBED ON THE 'THIRD_PARTY.TXT' FILE.
-
-
+https://www.softether.org/ and ask your question on the users forum.

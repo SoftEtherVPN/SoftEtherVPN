@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Server.c
@@ -115,12 +9,12 @@
 
 static SERVER *server = NULL;
 static LOCK *server_lock = NULL;
-char *SERVER_CONFIG_FILE_NAME = "@vpn_server.config";
-char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "@vpn_gate_svc.config";
-char *SERVER_CONFIG_FILE_NAME_IN_CLIENT_RELAY = "@vpn_gate_relay.config";
-char *BRIDGE_CONFIG_FILE_NAME = "@vpn_bridge.config";
-char *SERVER_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
-char *BRIDGE_CONFIG_TEMPLATE_NAME = "@vpn_server_template.config";
+char *SERVER_CONFIG_FILE_NAME = "$vpn_server.config";
+char *SERVER_CONFIG_FILE_NAME_IN_CLIENT = "$vpn_gate_svc.config";
+char *SERVER_CONFIG_FILE_NAME_IN_CLIENT_RELAY = "$vpn_gate_relay.config";
+char *BRIDGE_CONFIG_FILE_NAME = "$vpn_bridge.config";
+char *SERVER_CONFIG_TEMPLATE_NAME = "$vpn_server_template.config";
+char *BRIDGE_CONFIG_TEMPLATE_NAME = "$vpn_server_template.config";
 
 static bool server_reset_setting = false;
 
@@ -153,6 +47,9 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 
 		NormalizeIntListStr(s->OpenVpnServerUdpPorts, sizeof(s->OpenVpnServerUdpPorts),
 			c->OpenVPNPortList, true, ", ");
+
+		s->Cedar->OpenVPNObfuscation = c->OpenVPNObfuscation;
+		StrCpy(s->Cedar->OpenVPNObfuscationMask, sizeof(s->Cedar->OpenVPNObfuscationMask), c->OpenVPNObfuscationMask);
 
 		// Apply the OpenVPN configuration
 		if (s->OpenVpnServerUdp != NULL)
@@ -194,6 +91,9 @@ void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 		}
 
 		StrCpy(c->OpenVPNPortList, sizeof(c->OpenVPNPortList), s->OpenVpnServerUdpPorts);
+
+		c->OpenVPNObfuscation = s->Cedar->OpenVPNObfuscation;
+		StrCpy(c->OpenVPNObfuscationMask, sizeof(c->OpenVPNObfuscationMask), s->Cedar->OpenVPNObfuscationMask);
 	}
 	Unlock(s->OpenVpnSstpConfigLock);
 }
@@ -203,38 +103,6 @@ bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore)
 {
 	return false;
 }
-
-// Get the number of user objects that are registered in the VPN Server
-UINT SiGetServerNumUserObjects(SERVER *s)
-{
-	CEDAR *c;
-	UINT ret = 0;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return 0;
-	}
-
-	c = s->Cedar;
-
-	LockList(c->HubList);
-	{
-		UINT i;
-		for (i = 0;i < LIST_NUM(c->HubList);i++)
-		{
-			HUB *h = LIST_DATA(c->HubList, i);
-
-			if (h->HubDb != NULL)
-			{
-				ret += LIST_NUM(h->HubDb->UserList);
-			}
-		}
-	}
-	UnlockList(c->HubList);
-
-	return ret;
-}
-
 
 typedef struct SI_DEBUG_PROC_LIST
 {
@@ -1096,62 +964,80 @@ LIST *EnumLogFile(char *hubname)
 		hubname = NULL;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetLogDir(exe_dir, sizeof(exe_dir));
 
 	// Enumerate in the server_log
 	if (hubname == NULL)
 	{
-		EnumLogFileDir(o, "server_log");
+		EnumLogFileDir(o, SERVER_LOG_DIR);
 	}
 
 	// Enumerate in the packet_log
-	Format(tmp, sizeof(tmp), "%s/packet_log", exe_dir);
-	dir = EnumDir(tmp);
-	if (dir != NULL)
+	Format(tmp, sizeof(tmp), "%s/"HUB_PACKET_LOG_DIR, exe_dir);
+
+	if (hubname == NULL)
 	{
-		UINT i;
-		for (i = 0;i < dir->NumFiles;i++)
+		dir = EnumDir(tmp);
+		if (dir != NULL)
 		{
-			DIRENT *e = dir->File[i];
-
-			if (e->Folder)
+			UINT i;
+			for (i = 0;i < dir->NumFiles;i++)
 			{
-				char dir_name[MAX_PATH];
+				DIRENT *e = dir->File[i];
 
-				if (hubname == NULL || StrCmpi(hubname, e->FileName) == 0)
+				if (e->Folder)
 				{
-					Format(dir_name, sizeof(dir_name), "packet_log/%s", e->FileName);
+					char dir_name[MAX_PATH];
+					Format(dir_name, sizeof(dir_name), HUB_PACKET_LOG_DIR"/%s", e->FileName);
 					EnumLogFileDir(o, dir_name);
 				}
 			}
-		}
 
-		FreeDir(dir);
+			FreeDir(dir);
+		}
+	}
+	else
+	{
+		char dir_name[MAX_PATH];
+
+		Format(dir_name, sizeof(dir_name), HUB_PACKET_LOG_DIR"/%s", hubname);
+
+		EnumLogFileDir(o, dir_name);
 	}
 
 	// Enumerate in the security_log
-	Format(tmp, sizeof(tmp), "%s/security_log", exe_dir);
-	dir = EnumDir(tmp);
-	if (dir != NULL)
+	Format(tmp, sizeof(tmp), "%s/"HUB_SECURITY_LOG_DIR, exe_dir);
+
+	if (hubname == NULL)
 	{
-		UINT i;
-		for (i = 0;i < dir->NumFiles;i++)
+		dir = EnumDir(tmp);
+		if (dir != NULL)
 		{
-			DIRENT *e = dir->File[i];
-
-			if (e->Folder)
+			UINT i;
+			for (i = 0;i < dir->NumFiles;i++)
 			{
-				char dir_name[MAX_PATH];
+				DIRENT *e = dir->File[i];
 
-				if (hubname == NULL || StrCmpi(hubname, e->FileName) == 0)
+				if (e->Folder)
 				{
-					Format(dir_name, sizeof(dir_name), "security_log/%s", e->FileName);
+					char dir_name[MAX_PATH];
+
+					Format(dir_name, sizeof(dir_name), HUB_SECURITY_LOG_DIR"/%s", e->FileName);
+
 					EnumLogFileDir(o, dir_name);
 				}
 			}
-		}
 
-		FreeDir(dir);
+			FreeDir(dir);
+		}
+	}
+	else
+	{
+		char dir_name[MAX_PATH];
+
+		Format(dir_name, sizeof(dir_name), HUB_SECURITY_LOG_DIR"/%s", hubname);
+
+		EnumLogFileDir(o, dir_name);
 	}
 
 	return o;
@@ -1170,7 +1056,7 @@ void EnumLogFileDir(LIST *o, char *dirname)
 		return;
 	}
 
-	GetExeDir(exe_dir, sizeof(exe_dir));
+	GetLogDir(exe_dir, sizeof(exe_dir));
 	Format(dir_full_path, sizeof(dir_full_path), "%s/%s", exe_dir, dirname);
 
 	dir = EnumDir(dir_full_path);
@@ -1341,7 +1227,7 @@ void GetServerCaps(SERVER *s, CAPSLIST *t)
 			GetServerCapsMain(s, s->CapsListCache);
 		}
 
-		Copy(t, s->CapsListCache, sizeof(s->CapsListCache));
+		Copy(t, s->CapsListCache, sizeof(CAPSLIST));
 	}
 	Unlock(s->CapsCacheLock);
 }
@@ -1390,7 +1276,7 @@ UINT GetGlobalServerFlag(UINT index)
 	return global_server_flags[index];
 }
 
-// Main of the aquisition of Caps of the server
+// Main of the acquisition of Caps of the server
 void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 {
 	bool is_restricted = false;
@@ -1558,7 +1444,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// Maximum NAT table size / Virtual HUB
 	AddCapsInt(t, "i_max_secnat_tables", NAT_MAX_SESSIONS);
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);
@@ -1616,11 +1502,12 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 
 	if (IsBridgeSupported())
 	{
-		// Tun / tap device is available (only Linux)
-		AddCapsBool(t, "b_tap_supported", GetOsInfo()->OsType == OSTYPE_LINUX ? true : false);
+		// TUN / TAP device availability (Linux and BSD)
+		const UINT OsType = GetOsInfo()->OsType;
+		AddCapsBool(t, "b_tap_supported", OsType == OSTYPE_LINUX || OsType == OSTYPE_BSD);
 	}
 
-	// Cascade connction
+	// Cascade connection
 	if (s->ServerType == SERVER_TYPE_STANDALONE)
 	{
 		AddCapsBool(t, "b_support_cascade", true);
@@ -1770,8 +1657,8 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	// UDP acceleration feature
 	AddCapsBool(t, "b_support_udp_acceleration", true);
 
-	// Intel AES Acceleration function
-	AddCapsBool(t, "b_support_intel_aes", IsIntelAesNiSupported());
+	// AES acceleration function
+	AddCapsBool(t, "b_support_aes_ni", IsAesNiSupported());
 
 #ifdef	OS_WIN32
 	// SeLow driver
@@ -1862,14 +1749,37 @@ void OutRpcCapsList(PACK *p, CAPSLIST *t)
 		return;
 	}
 
+	PackSetCurrentJsonGroupName(p, "CapsList");
 	for (i = 0;i < LIST_NUM(t->CapsList);i++)
 	{
 		char tmp[MAX_SIZE];
+		char ct_key[MAX_PATH];
+		wchar_t ct_description[MAX_PATH];
+		wchar_t *w;
 		CAPS *c = LIST_DATA(t->CapsList, i);
 
 		Format(tmp, sizeof(tmp), "caps_%s", c->Name);
+
+		Format(ct_key, sizeof(ct_key), "CT_%s", c->Name);
+
+		Zero(ct_description, sizeof(ct_description));
+		w = _UU(ct_key);
+		if (UniIsEmptyStr(w) == false)
+		{
+			UniStrCpy(ct_description, sizeof(ct_description), w);
+		}
+		else
+		{
+			StrToUni(ct_description, sizeof(ct_description), c->Name);
+		}
+
 		PackAddInt(p, tmp, c->Value);
+
+		PackAddStrEx(p, "CapsName", c->Name, i, LIST_NUM(t->CapsList));
+		PackAddIntEx(p, "CapsValue", c->Value, i, LIST_NUM(t->CapsList));
+		PackAddUniStrEx(p, "CapsDescrption", ct_description, i, LIST_NUM(t->CapsList));
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 void FreeRpcCapsList(CAPSLIST *t)
 {
@@ -2084,6 +1994,12 @@ UINT SiCalcPoint(SERVER *s, UINT num, UINT weight)
 	}
 
 	server_max_sessions = GetServerCapsInt(s, "i_max_sessions");
+
+	if (server_max_sessions == 0)
+	{
+		// Avoid divide by zero
+		server_max_sessions = 1;
+	}
 
 	return (UINT)(((double)server_max_sessions -
 		MIN((double)num * 100.0 / (double)weight, (double)server_max_sessions))
@@ -2430,34 +2346,6 @@ void SiUnlockListenerList(SERVER *s)
 	UnlockList(s->ServerListenerList);
 }
 
-// Initialize the Bridge
-void SiInitBridge(SERVER *s)
-{
-	HUB *h;
-	HUB_OPTION o;
-	HUB_LOG g;
-	// Validate arguments
-	if (s == NULL)
-	{
-		return;
-	}
-
-	Zero(&o, sizeof(o));
-	o.MaxSession = 0;
-
-	h = NewHub(s->Cedar, SERVER_DEFAULT_BRIDGE_NAME, &o);
-	AddHub(s->Cedar, h);
-
-	h->Offline = true;
-	SetHubOnline(h);
-
-	// Log settings
-	SiSetDefaultLogSetting(&g);
-	SetHubLogSetting(h, &g);
-
-	ReleaseHub(h);
-}
-
 // Set the default value of the Virtual HUB options
 void SiSetDefaultHubOption(HUB_OPTION *o)
 {
@@ -2514,21 +2402,6 @@ void SiInitDefaultHubList(SERVER *s)
 	SiSetDefaultLogSetting(&g);
 	SetHubLogSetting(h, &g);
 
-	{
-		UINT i;
-		for (i = 0;i < 0;i++)
-		{
-			char tmp[MAX_SIZE];
-			USER *u;
-			sprintf(tmp, "user%u", i);
-			AcLock(h);
-			u = NewUser(tmp, L"test", L"", AUTHTYPE_ANONYMOUS, NULL);
-			AcAddUser(h, u);
-			ReleaseUser(u);
-			AcUnlock(h);
-		}
-	}
-
 	ReleaseHub(h);
 }
 
@@ -2550,11 +2423,6 @@ void SiSetDefaultLogSetting(HUB_LOG *g)
 		g->PacketLogConfig[PACKET_LOG_DHCP] = PACKET_LOG_HEADER;
 }
 
-// Test
-void SiTest(SERVER *s)
-{
-}
-
 // Set the initial configuration
 void SiLoadInitialConfiguration(SERVER *s)
 {
@@ -2564,9 +2432,6 @@ void SiLoadInitialConfiguration(SERVER *s)
 	{
 		return;
 	}
-
-	// Default to TLS only; mitigates CVE-2016-0800
-	s->Cedar->SslAcceptSettings.AcceptOnlyTls = true;
 
 	// Auto saving interval related
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
@@ -2601,7 +2466,7 @@ void SiLoadInitialConfiguration(SERVER *s)
 
 	// Initialize the password
 	{
-		Hash(s->HashedPassword, "", 0, true);
+		Sha0(s->HashedPassword, "", 0);
 	}
 
 	// Set the encryption algorithm name to default
@@ -2609,6 +2474,9 @@ void SiLoadInitialConfiguration(SERVER *s)
 
 	// Set the server certificate to default
 	SiInitDefaultServerCert(s);
+
+	// Set the character which separates the username from the hub name
+	s->Cedar->UsernameHubSeparator = DEFAULT_USERNAME_HUB_SEPARATOR;
 
 	// Create a default HUB
 	{
@@ -2644,6 +2512,8 @@ void SiLoadInitialConfiguration(SERVER *s)
 		{
 			ToStr(c.OpenVPNPortList, OPENVPN_UDP_PORT);
 		}
+
+		c.OpenVPNObfuscation = false;
 
 		SiSetOpenVPNAndSSTPConfig(s, &c);
 
@@ -2794,7 +2664,7 @@ void SiInitConfiguration(SERVER *s)
 		}
 	}
 
-	if (s->DisableDosProction)
+	if (s->DisableDosProtection)
 	{
 		DisableDosProtect();
 	}
@@ -2842,25 +2712,6 @@ void SiSetAzureEnable(SERVER *s, bool enabled)
 	}
 
 	s->EnableVpnAzure = enabled;
-}
-
-// Get the state of Enabled / Disabled of Azure Client
-bool SiGetAzureEnable(SERVER *s)
-{
-	// Validate arguments
-	if (s == NULL)
-	{
-		return false;
-	}
-
-	if (s->AzureClient != NULL)
-	{
-		return AcGetEnable(s->AzureClient);
-	}
-	else
-	{
-		return false;
-	}
 }
 
 // Apply the Config to the Azure Client
@@ -2913,7 +2764,6 @@ bool SiIsAzureSupported(SERVER *s)
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 {
 	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f;
-	bool is_vgs_enabled = false;
 	// Validate arguments
 	if (s == NULL || root == NULL)
 	{
@@ -3029,6 +2879,8 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 					Free(pw_str);
 					FreeBuf(pw);
 				}
+
+				CfgGetStr(f8, "CustomHttpHeader", t.CustomHttpHeader, sizeof(t.CustomHttpHeader));
 
 				GetMachineHostName(machine_name, sizeof(machine_name));
 
@@ -3399,6 +3251,8 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 
 				FreeBuf(pw);
 			}
+
+			CfgAddStr(ddns_folder, "CustomHttpHeader", t->CustomHttpHeader);
 		}
 	}
 
@@ -3975,7 +3829,6 @@ void SiLoadHubAccessLists(HUB *h, FOLDER *f)
 	for (i = 0;i < t->NumTokens;i++)
 	{
 		char *name = t->Token[i];
-		UINT id = ToInt(name);
 		SiLoadHubAccessCfg(h, CfgGetFolder(f, name));
 	}
 
@@ -5206,7 +5059,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 		// Password
 		if (CfgGetByte(f, "HashedPassword", h->HashedPassword, sizeof(h->HashedPassword)) != sizeof(h->HashedPassword))
 		{
-			Hash(h->HashedPassword, "", 0, true);
+			Sha0(h->HashedPassword, "", 0);
 		}
 		if (CfgGetByte(f, "SecurePassword", h->SecurePassword, sizeof(h->SecurePassword)) != sizeof(h->SecurePassword))
 		{
@@ -5729,7 +5582,6 @@ void SiLoadHubs(SERVER *s, FOLDER *f)
 {
 	UINT i;
 	FOLDER *hub_folder;
-	CEDAR *c;
 	TOKEN_LIST *t;
 	bool b = false;
 	// Validate arguments
@@ -5737,7 +5589,6 @@ void SiLoadHubs(SERVER *s, FOLDER *f)
 	{
 		return;
 	}
-	c = s->Cedar;
 
 	t = CfgEnumFolderToTokenList(f);
 	for (i = 0;i < t->NumTokens;i++)
@@ -5781,8 +5632,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	char tmp[MAX_SIZE];
 	X *x = NULL;
 	K *k = NULL;
-	bool cluster_allowed = false;
-	UINT num_connections_per_ip = 0;
 	FOLDER *params_folder;
 	UINT i;
 	// Validate arguments
@@ -5905,7 +5754,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		s->Cedar->DisableIPv6Listener = CfgGetBool(f, "DisableIPv6Listener");
 
 		// DoS
-		s->DisableDosProction = CfgGetBool(f, "DisableDosProction");
+		s->DisableDosProtection = CfgGetBool(f, "DisableDosProtection");
 
 		// Num Connections Per IP
 		SetMaxConnectionsPerIp(CfgGetInt(f, "MaxConnectionsPerIP"));
@@ -5958,11 +5807,22 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 		}
 
+		// OpenVPN Push a dummy IPv4 address on L2 mode
+		if (CfgIsItem(f, "OpenVPNPushDummyIPv4AddressOnL2Mode") == false)
+		{
+			// Default enable
+			c->OpenVPNPushDummyIPv4AddressOnL2Mode = true;
+		}
+		else
+		{
+			c->OpenVPNPushDummyIPv4AddressOnL2Mode = CfgGetBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode");
+		}
+
 		// Disable the NAT-traversal feature
 		s->DisableNatTraversal = CfgGetBool(f, "DisableNatTraversal");
 
-		// Intel AES
-		s->DisableIntelAesAcceleration = CfgGetBool(f, "DisableIntelAesAcceleration");
+		// Disable IPsec's aggressive mode
+		s->DisableIPsecAggressiveMode = CfgGetBool(f, "DisableIPsecAggressiveMode");
 
 		if (s->Cedar->Bridge == false)
 		{
@@ -6032,6 +5892,12 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			FreeK(k);
 		}
 
+		// Character which separates the username from the hub name
+		if (CfgGetStr(f, "UsernameHubSeparator", tmp, sizeof(tmp)))
+		{
+			c->UsernameHubSeparator = IsPrintableAsciiChar(tmp[0]) ? tmp[0] : DEFAULT_USERNAME_HUB_SEPARATOR;
+		}
+
 		// Cipher Name
 		if (CfgGetStr(f, "CipherName", tmp, sizeof(tmp)))
 		{
@@ -6046,18 +5912,13 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		}
 		Unlock(c->TrafficLock);
 
-		// Get whether the current license allows cluster mode
-		cluster_allowed = true;
-
-
 		// Type of server
-		s->UpdatedServerType = s->ServerType = 
-			cluster_allowed ? CfgGetInt(f, "ServerType") : SERVER_TYPE_STANDALONE;
+		s->UpdatedServerType = s->ServerType = CfgGetInt(f, "ServerType");
 
 		// Password
 		if (CfgGetByte(f, "HashedPassword", s->HashedPassword, sizeof(s->HashedPassword)) != sizeof(s->HashedPassword))
 		{
-			Hash(s->HashedPassword, "", 0, true);
+			Sha0(s->HashedPassword, "", 0);
 		}
 
 		if (s->ServerType != SERVER_TYPE_STANDALONE)
@@ -6109,6 +5970,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		config.EnableSSTP = !s->DisableSSTPServer;
 		StrCpy(config.OpenVPNPortList, sizeof(config.OpenVPNPortList), tmp);
 
+		config.OpenVPNObfuscation = CfgGetBool(f, "OpenVPNObfuscation");
+
+		if (CfgGetStr(f, "OpenVPNObfuscationMask", tmp, sizeof(tmp)))
+		{
+			if (IsEmptyStr(tmp) == false)
+			{
+				StrCpy(config.OpenVPNObfuscationMask, sizeof(config.OpenVPNObfuscationMask), tmp);
+			}
+		}
+
 		SiSetOpenVPNAndSSTPConfig(s, &config);
 
 		if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
@@ -6150,22 +6021,16 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Disable session reconnect
 		SetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT, CfgGetBool(f, "DisableSessionReconnect"));
 
-		// AcceptOnlyTls
-		if (CfgIsItem(f, "AcceptOnlyTls"))
-		{
-			c->SslAcceptSettings.AcceptOnlyTls = CfgGetBool(f, "AcceptOnlyTls");
-		}
-		else
-		{
-			// Default to TLS only; mitigates CVE-2016-0800
-			c->SslAcceptSettings.AcceptOnlyTls = true;
-		}
 		c->SslAcceptSettings.Tls_Disable1_0 = CfgGetBool(f, "Tls_Disable1_0");
 		c->SslAcceptSettings.Tls_Disable1_1 = CfgGetBool(f, "Tls_Disable1_1");
 		c->SslAcceptSettings.Tls_Disable1_2 = CfgGetBool(f, "Tls_Disable1_2");
 
 		s->StrictSyslogDatetimeFormat = CfgGetBool(f, "StrictSyslogDatetimeFormat");
-                // Bits of Diffie-Hellman parameters
+
+		// Disable JSON-RPC Web API
+		s->DisableJsonRpcWebApi = CfgGetBool(f, "DisableJsonRpcWebApi");
+
+		// Bits of Diffie-Hellman parameters
 		c->DhParamBits = CfgGetInt(f, "DhParamBits");
 		if (c->DhParamBits == 0)
 		{
@@ -6299,7 +6164,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 	Lock(c->lock);
 	{
-		bool is_vgs_cert = false;
 		FOLDER *syslog_f;
 		Lock(s->Keep->lock);
 		{
@@ -6329,7 +6193,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableIPv6Listener", s->Cedar->DisableIPv6Listener);
 
 		// DoS
-		CfgAddBool(f, "DisableDosProction", s->DisableDosProction);
+		CfgAddBool(f, "DisableDosProtection", s->DisableDosProtection);
 
 		// MaxConnectionsPerIP
 		CfgAddInt(f, "MaxConnectionsPerIP", GetMaxConnectionsPerIp());
@@ -6376,27 +6240,28 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 			}
 		}
 
+		CfgAddBool(f, "DisableIPsecAggressiveMode", s->DisableIPsecAggressiveMode);
+
 		CfgAddStr(f, "OpenVPNDefaultClientOption", c->OpenVPNDefaultClientOption);
 
-		if (c->Bridge == false)
-		{
-			// VPN over ICMP
-			CfgAddBool(f, "EnableVpnOverIcmp", s->EnableVpnOverIcmp);
-
-			// VPN over DNS
-			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
-		}
-
-		// Intel AES
-		CfgAddBool(f, "DisableIntelAesAcceleration", s->DisableIntelAesAcceleration);
+		CfgAddBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode", c->OpenVPNPushDummyIPv4AddressOnL2Mode);
 
 		if (c->Bridge == false)
 		{
 			OPENVPN_SSTP_CONFIG config;
 
+			// VPN over ICMP
+			CfgAddBool(f, "EnableVpnOverIcmp", s->EnableVpnOverIcmp);
+
+			// VPN over DNS
+			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
+
 			SiGetOpenVPNAndSSTPConfig(s, &config);
 
 			CfgAddStr(f, "OpenVPN_UdpPortList", config.OpenVPNPortList);
+
+			CfgAddBool(f, "OpenVPNObfuscation", config.OpenVPNObfuscation);
+			CfgAddStr(f, "OpenVPNObfuscationMask", config.OpenVPNObfuscationMask);
 		}
 
 		// WebTimePage
@@ -6408,18 +6273,21 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		// Let the client not to send a signature
 		CfgAddBool(f, "NoSendSignature", s->NoSendSignature);
 
+		// Server certificate
+		b = XToBuf(c->ServerX, false);
+		CfgAddBuf(f, "ServerCert", b);
+		FreeBuf(b);
 
-		if (is_vgs_cert == false)
+		// Server private key
+		b = KToBuf(c->ServerK, false, NULL);
+		CfgAddBuf(f, "ServerKey", b);
+		FreeBuf(b);
+
 		{
-			// Server certificate
-			b = XToBuf(c->ServerX, false);
-			CfgAddBuf(f, "ServerCert", b);
-			FreeBuf(b);
-
-			// Server private key
-			b = KToBuf(c->ServerK, false, NULL);
-			CfgAddBuf(f, "ServerKey", b);
-			FreeBuf(b);
+			// Character which separates the username from the hub name
+			char str[2];
+			StrCpy(str, sizeof(str), &c->UsernameHubSeparator);
+			CfgAddStr(f, "UsernameHubSeparator", str);
 		}
 
 		// Traffic information
@@ -6487,7 +6355,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);
 		CfgAddBool(f, "DisableCoreDumpOnUnix", s->DisableCoreDumpOnUnix);
 
-		CfgAddBool(f, "AcceptOnlyTls", c->SslAcceptSettings.AcceptOnlyTls);
 		CfgAddBool(f, "Tls_Disable1_0", c->SslAcceptSettings.Tls_Disable1_0);
 		CfgAddBool(f, "Tls_Disable1_1", c->SslAcceptSettings.Tls_Disable1_1);
 		CfgAddBool(f, "Tls_Disable1_2", c->SslAcceptSettings.Tls_Disable1_2);
@@ -6497,6 +6364,9 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableSessionReconnect", GetGlobalServerFlag(GSF_DISABLE_SESSION_RECONNECT));
 
 		CfgAddBool(f, "StrictSyslogDatetimeFormat", s->StrictSyslogDatetimeFormat);
+
+		// Disable JSON-RPC Web API
+		CfgAddBool(f, "DisableJsonRpcWebApi", s->DisableJsonRpcWebApi);
 	}
 	Unlock(c->lock);
 }
@@ -6741,16 +6611,6 @@ void StStartServer(bool bridge)
 	Unlock(server_lock);
 
 //	StartCedarLog();
-}
-
-// Get the server
-SERVER *StGetServer()
-{
-	if (server == NULL)
-	{
-		return NULL;
-	}
-	return server;
 }
 
 // Stop the server
@@ -7224,7 +7084,7 @@ FARM_MEMBER *SiGetNextFarmMember(SERVER *s, CONNECTION *c, HUB *h)
 				PackAddIntEx(p, "NumTcpConnections", f->NumTcpConnections, i, num);
 				PackAddIntEx(p, "NumHubs", LIST_NUM(f->HubList), i, num);
 				PackAddBoolEx(p, "Me", f->Me, i, num);
-				PackAddInt64Ex(p, "ConnectedTime", f->ConnectedTime, i, num);
+				PackAddTime64Ex(p, "ConnectedTime", f->ConnectedTime, i, num);
 				PackAddInt64Ex(p, "SystemId", f->SystemId, i, num);
 				PackAddBoolEx(p, "DoNotSelect", do_not_select, i, num);
 			}
@@ -7253,7 +7113,7 @@ FARM_MEMBER *SiGetNextFarmMember(SERVER *s, CONNECTION *c, HUB *h)
 			PackAddStr(p, "CipherName", c->CipherName);
 			PackAddStr(p, "ClientStr", c->ClientStr);
 			PackAddInt(p, "ClientVer", c->ClientVer);
-			PackAddInt64(p, "ConnectedTime", Tick64ToTime64(c->ConnectedTick));
+			PackAddTime64(p, "ConnectedTime", Tick64ToTime64(c->ConnectedTick));
 
 			PackAddStr(p, "HubName", h->Name);
 			PackAddBool(p, "StaticHub", h->Type == HUB_TYPE_FARM_STATIC);
@@ -7364,7 +7224,6 @@ void SiCalledEnumHub(SERVER *s, PACK *p, PACK *req)
 {
 	UINT i;
 	CEDAR *c;
-	UINT num = 0;
 	// Validate arguments
 	if (s == NULL || p == NULL || req == NULL)
 	{
@@ -7394,8 +7253,8 @@ void SiCalledEnumHub(SERVER *s, PACK *p, PACK *req)
 
 				PackAddIntEx(p, "NumIpTables", LIST_NUM(h->IpTable), i, num);
 
-				PackAddInt64Ex(p, "LastCommTime", h->LastCommTime, i, num);
-				PackAddInt64Ex(p, "CreatedTime", h->CreatedTime, i, num);
+				PackAddTime64Ex(p, "LastCommTime", h->LastCommTime, i, num);
+				PackAddTime64Ex(p, "CreatedTime", h->CreatedTime, i, num);
 			}
 			Unlock(h->lock);
 		}
@@ -8480,27 +8339,6 @@ void SiStopFarmControl(SERVER *s)
 	ReleaseThread(s->FarmControlThread);
 }
 
-// HUB enumeration directive (asynchronous start)
-void SiCallEnumHubBegin(SERVER *s, FARM_MEMBER *f)
-{
-	// Validate arguments
-	if (s == NULL || f == NULL)
-	{
-		return;
-	}
-}
-
-// HUB enumeration directive (asynchronous end)
-void SiCallEnumHubEnd(SERVER *s, FARM_MEMBER *f)
-{
-	// Validate arguments
-	if (s == NULL || f == NULL)
-	{
-		return;
-	}
-}
-
-
 // HUB enumeration directive
 void SiCallEnumHub(SERVER *s, FARM_MEMBER *f)
 {
@@ -9442,7 +9280,7 @@ void SiHubUpdateProc(HUB *h)
 	SERVER *s;
 	UINT i;
 	// Validate arguments
-	if (h == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
+	if (h == NULL || h->Cedar == NULL || h->Cedar->Server == NULL || h->Cedar->Server->ServerType != SERVER_TYPE_FARM_CONTROLLER)
 	{
 		return;
 	}
@@ -9959,62 +9797,6 @@ PACK *SiCalledTask(FARM_CONTROLLER *f, PACK *p, char *taskname)
 	return ret;
 }
 
-// Call the task (asynchronous)
-FARM_TASK *SiCallTaskAsyncBegin(FARM_MEMBER *f, PACK *p, char *taskname)
-{
-	char tmp[MAX_PATH];
-	FARM_TASK *t;
-	// Validate arguments
-	if (f == NULL || p == NULL || taskname == NULL)
-	{
-		return NULL;
-	}
-
-	PackAddStr(p, "taskname", taskname);
-
-	Debug("Call Async Task [%s] (%s)\n", taskname, f->hostname);
-
-	Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Entering Call [%s] to %s", taskname, f->hostname);
-	SiDebugLog(f->Cedar->Server, tmp);
-
-	t = SiFarmServPostTask(f, p);
-	StrCpy(t->TaskName, sizeof(t->TaskName), taskname);
-	StrCpy(t->HostName, sizeof(t->HostName), f->hostname);
-	t->FarmMember = f;
-
-	return t;
-}
-
-// Get the results of the asynchronous task
-PACK *SiCallTaskAsyncEnd(CEDAR *c, FARM_TASK *t)
-{
-	PACK *p;
-	char taskname[MAX_PATH];
-	char hostname[MAX_PATH];
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (t == NULL || c == NULL)
-	{
-		return NULL;
-	}
-
-	StrCpy(taskname, sizeof(taskname), t->TaskName);
-	StrCpy(hostname, sizeof(hostname), t->HostName);
-
-	p = SiFarmServWaitTask(t);
-	if (p == NULL)
-	{
-		Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Call ERROR [%s] to %s", taskname, hostname);
-		SiDebugLog(c->Server, tmp);
-		return NULL;
-	}
-
-	Format(tmp, sizeof(tmp), "CLUSTER_CALL_ASYNC: Retrieving Call Result [%s] to %s", taskname, hostname);
-	SiDebugLog(c->Server, tmp);
-
-	return p;
-}
-
 // Call the task
 PACK *SiCallTask(FARM_MEMBER *f, PACK *p, char *taskname)
 {
@@ -10322,12 +10104,17 @@ void SiFarmServMain(SERVER *server, SOCK *sock, FARM_MEMBER *f)
 				}
 
 				// Receive
-				p = HttpServerRecv(sock);
+				p = HttpServerRecvEx(sock, FIRM_SERV_RECV_PACK_MAX_SIZE);
 
 				t->Response = p;
 				Set(t->CompleteEvent);
 
-				send_noop = false;
+				if (p == NULL)
+				{
+					// Avoid infinite loop
+					Disconnect(sock);
+					goto DISCONNECTED;
+				}
 			}
 		}
 		while (t != NULL);
@@ -10541,8 +10328,6 @@ void SiConnectToControllerThread(THREAD *thread, void *param)
 	f->StartedTime = SystemTime64();
 
 	server = f->Server;
-
-	f->StartedTime = SystemTime64();
 
 	SLog(server->Cedar, "LS_FARM_CONNECT_1", server->ControllerName);
 
@@ -10805,21 +10590,6 @@ void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size)
 	}
 }
 
-// Check the current region
-bool SiCheckCurrentRegion(CEDAR *c, char *r)
-{
-	char tmp[64];
-	// Validate arguments
-	if (c == NULL || r == NULL)
-	{
-		return false;
-	}
-
-	SiGetCurrentRegion(c, tmp, sizeof(tmp));
-
-	return (StrCmpi(r, tmp) == 0);
-}
-
 // Check whether some enterprise functions are restricted
 // 
 // ** Hints by Daiyuu Nobori, written on March 19, 2014 **
@@ -10996,12 +10766,6 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 
 	SetFifoCurrentReallocMemSize(MEM_FIFO_REALLOC_MEM_SIZE);
 
-
-	if (s->DisableIntelAesAcceleration)
-	{
-		// Disable the Intel AES acceleration
-		DisableIntelAesAccel();
-	}
 
 	// Raise the priority
 	if (s->NoHighPriorityProcess == false)

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<!--#include file="include_head.html" -->
+    <body>
+<!--#include file="include_menu.html" -->
+<div class="container theme-showcase" role="main">
+        <H2>SoftEther VPN Server HTML5 Ajax-based Web Administration Console<BR>(Under construction!)</H2>
+        <p>This is the sample of HTML5 Ajax-based VPN Server Web Administration Console.</p>
+        <p>The purpose of this HTML5 admin page is to make administrators easy to set up and manage the running VPN Servers.</p>
+        <h3>Authentication for this page</h3>
+        <p>You must supply the HTTP basic authentication credential as following.</p>
+        <ul>
+            <li>To login to the VPN server as the entire server administrator, specify empty or "administrator" as the username field,
+            and specify the server administrative password as the password field.</li>
+            <li>To login to a particular Virtual Hub as the hub administrator, specify the hub name as the username field, and specify
+            the hub administrative password as the password field.</li>
+        </ul>
+
+        <h3>Your HTML5 development contribution is very appreciated</h3>
+        <p>This HTML5 page is obviously under construction, and providing very minimum functions as sample.<BR>This initial page is written by Daiyuu Nobori (the core developer of SoftEther VPN). He is obviously lack of HTML5 development ability.<BR>Please kindly consider to contribute for <strong><a href="https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/src/bin/hamcore/wwwroot/admin/">SoftEther VPN's development on GitHub.</a></strong> Your code will help every people running SoftEther VPN Server.</p>
+
+        <p>This HTML5 page's JavaScript codes directly call <strong><a href="/api/">SoftEther VPN Server JSON-RPC API</a></strong> on the running VPN Server from the web browser.<BR>You can also call the <strong><a href="/api/">SoftEther VPN Server JSON-RPC API</a></strong> remotely from your original application. (JavaScript, TypeScript, C#, Java, Python, Ruby, etc.)</p>
+            <p><a href="/api/"><strong>The insanely kindness API reference</strong></a> is available.</p>
+
+        <H3>List of Virtual Hubs</H3>
+        <ul id="HUB_LIST"></ul>
+
+        <H3>Create new Virtual Hub</H3>
+        Virtual Hub Name:<BR>
+        <input id="NEW_HUB_NAME" /> <button class="btn btn-lg btn-primary" onclick="JS.CreateNewHub($('#NEW_HUB_NAME').val(), '#HUB_LIST')">Create</button>
+
+        <H3>VPN Server Information</H3>
+        <ul id="VPN_SERVER_INFO"></ul>
+
+        <H3>VPN Server Status</H3>
+        <ul id="VPN_SERVER_STATUS"></ul>
+<!--#include file="include_footer.html" -->
+        </div>
+    </body>
+    <script>
+        JS.ShowVpnServerInfo("#VPN_SERVER_INFO", "#VPN_SERVER_STATUS");
+        JS.ListVirtualHubs("#HUB_LIST");
+    </script>
+</html>
+

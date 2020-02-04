@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Build Utility
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 using System;
@@ -142,7 +36,7 @@ namespace BuildUtil
 			"All [yes|no] [/NORMALIZESRC:yes|no] [/IGNOREERROR:yes|no] [/DEBUG:yes|no] [/SERIAL:yes|no]",
 			"Builds all sources and releases all packages.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts.",
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts.",
 			"IGNOREERROR:Specify yes if you'd like to ignore the child process to show the error message.",
 			"SERIAL:Specify yes not to use parallel mode.",
 			"DEBUG:Specity yes to enable debug mode. (UNIX only)"
@@ -255,14 +149,14 @@ namespace BuildUtil
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
-			int build, version;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 
 			string baseName = string.Format("v{0}-{1}-{2}-{3:D4}.{4:D2}.{5:D2}",
-									BuildHelper.VersionIntToString(version),
-									build,
+									BuildHelper.VersionIntToString(versionMajor, versionMinor),
+									versionBuild,
 									name,
 									date.Year, date.Month, date.Day);
 
@@ -389,9 +283,9 @@ namespace BuildUtil
 					txt_cpu += " (x86 and x64)";
 				}
 
-				string txt_version = BuildHelper.VersionIntToString(version);
+				string txt_version = BuildHelper.VersionIntToString(versionMajor, versionMinor);
 
-				string txt_build = build.ToString();
+				string txt_build = versionBuild.ToString();
 
 				string txt_verstr = name;
 
@@ -435,7 +329,7 @@ namespace BuildUtil
 			 * */
 
 			string zipFileName = string.Format("VPN-CD-v{0}.{1:D2}-{2}-{3}-{4:D4}.{5:D2}.{6:D2}.zip",
-				version / 100, version % 100, build, name,
+				versionMajor, versionMinor, versionBuild, name,
 				date.Year, date.Month, date.Day);
 			w.WriteLine("del {0}", zipFileName);
 			w.WriteLine("CD {0}", cddir);
@@ -502,8 +396,8 @@ namespace BuildUtil
 			txt.WriteLine("OS\t" + "Any");
 			txt.WriteLine("OSLIST\t" + "Any");
 			txt.WriteLine("CPU\t" + "CD-ROM");
-			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(version));
-			txt.WriteLine("BUILD\t" + build.ToString());
+			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(versionMajor, versionMinor));
+			txt.WriteLine("BUILD\t" + versionBuild.ToString());
 			txt.WriteLine("VERSTR\t" + name);
 			txt.WriteLine("DATE\t" + Str.DateTimeToStrShortWithMilliSecs(date));
 			txt.WriteLine("LANGUAGE\t" + "English, Japanese, Simplified Chinese");
@@ -517,7 +411,7 @@ namespace BuildUtil
 				"softether-" + 
 #endif	// BU_SOFTETHER
 			string.Format("vpn_admin_tools-v{0}.{1:D2}-{2}-{3}-{4:D4}.{5:D2}.{6:D2}-win32.zip",
-				version / 100, version % 100, build, name,
+				versionMajor, versionMinor, versionBuild, name,
 				date.Year, date.Month, date.Day);
 
 			string vpnsmgr_zip_filename_full = Path.Combine(Path.Combine(publicDir, cddir), vpnsmgr_zip_filename_relative);
@@ -535,6 +429,8 @@ namespace BuildUtil
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_ja.txt")), true);
 			zip.AddFileSimple("ReadMeFirst_Important_Notices_en.txt", DateTime.Now, FileAttributes.Normal,
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_en.txt")), true);
+			zip.AddFileSimple("ReadMeFirst_Important_Notices_ru.txt", DateTime.Now, FileAttributes.Normal,
+				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_ru.txt")), true);
 			zip.AddFileSimple("ReadMeFirst_Important_Notices_cn.txt", DateTime.Now, FileAttributes.Normal,
 				IO.ReadFile(Path.Combine(src_bindir, @"hamcore\warning_cn.txt")), true);
 			zip.Finish();
@@ -556,8 +452,8 @@ namespace BuildUtil
 			txt.WriteLine("OS\t" + "Windows (.zip package without installers)");
 			txt.WriteLine("OSLIST\t" + OSList.Windows.OSSimpleList);
 			txt.WriteLine("CPU\t" + "Intel (x86 and x64)");
-			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(version));
-			txt.WriteLine("BUILD\t" + build.ToString());
+			txt.WriteLine("VERSION\t" + BuildHelper.VersionIntToString(versionMajor, versionMinor));
+			txt.WriteLine("BUILD\t" + versionBuild.ToString());
 			txt.WriteLine("VERSTR\t" + name);
 			txt.WriteLine("DATE\t" + Str.DateTimeToStrShortWithMilliSecs(date));
 			txt.WriteLine("LANGUAGE\t" + "English, Japanese, Simplified Chinese");
@@ -616,10 +512,10 @@ namespace BuildUtil
 			};
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
-			int version, build;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 			BuildSoftware[] softs = BuildSoftwareList.List;
 			bool serial = vl["SERIAL"].BoolValue;
 
@@ -630,7 +526,7 @@ namespace BuildUtil
 				{
 					if (soft.Os.IsWindows == false)
 					{
-						soft.SetBuildNumberVersionName(build, version, name, date);
+						soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 						Con.WriteLine("  {0}", soft.IDString);
 						Con.WriteLine("    - \"{0}\"", soft.OutputFileName);
 					}
@@ -658,7 +554,7 @@ namespace BuildUtil
 
 				foreach (BuildSoftware soft in softs)
 				{
-					soft.SetBuildNumberVersionName(build, version, name, date);
+					soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 
 					if (soft.Os.IsWindows == false)
 					{
@@ -772,10 +668,10 @@ namespace BuildUtil
 			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
 
 			bool serial = vl["SERIAL"].BoolValue;
-			int version, build;
+			int versionMajor, versionMinor, versionBuild;
 			string name;
 			DateTime date;
-			Win32BuildUtil.ReadBuildInfoFromTextFile(out build, out version, out name, out date);
+			Win32BuildUtil.ReadBuildInfoFromTextFile(out versionMajor, out versionMinor, out versionBuild, out name, out date);
 			BuildSoftware[] softs = BuildSoftwareList.List;
 
 			if (Str.IsEmptyStr(vl.DefaultParam.StrValue))
@@ -785,7 +681,7 @@ namespace BuildUtil
 				{
 					if (soft.Os.IsWindows)
 					{
-						soft.SetBuildNumberVersionName(build, version, name, date);
+						soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 						Con.WriteLine("  {0}", soft.IDString);
 						Con.WriteLine("    - \"{0}\"", soft.OutputFileName);
 					}
@@ -813,7 +709,7 @@ namespace BuildUtil
 
 				foreach (BuildSoftware soft in softs)
 				{
-					soft.SetBuildNumberVersionName(build, version, name, date);
+					soft.SetBuildNumberVersionName(versionMajor, versionMinor, versionBuild, name, date);
 
 					if (soft.Os.IsWindows)
 					{
@@ -945,7 +841,7 @@ namespace BuildUtil
 			"BuildWin32 [yes|no] [/NORMALIZESRC:yes|no]",
 			"Builds all executable files for win32 and HamCore for all OS.",
 			"[yes|no]:Specify 'yes' if you'd like to increment the build number.",
-			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build infomations in the source codes and resource scripts."
+			"NORMALIZESRC:Specity 'yes' if you'd like to normalize the build informations in the source codes and resource scripts."
 			)]
 		static int BuildWin32(ConsoleService c, string cmdName, string str)
 		{

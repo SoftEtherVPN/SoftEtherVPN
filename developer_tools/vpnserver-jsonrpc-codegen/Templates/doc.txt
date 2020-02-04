@@ -1,0 +1,77 @@
+﻿# SoftEther VPN Server JSON-RPC API Suite Document
+This reference describes all JSON-RPC functions available on SoftEther VPN Server.
+
+
+You can access to the latest [SoftEther VPN Server JSON-RPC Document on GitHub](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/).
+
+
+## What is SoftEther VPN Server JSON-RPC API Suite?
+The API Suite allows you to easily develop your original SoftEther VPN Server management application to control the VPN Server (e.g. creating users, adding Virtual Hubs, disconnecting a specified VPN sessions).
+
+  - Almost all control APIs, which the VPN Server provides, are available as JSON-RPC API.
+  - You can write your own VPN Server management application in your favorite languages (JavaScript, TypeScript, Java, Python, Ruby, C#, ... etc.)
+  - If you are planning to develop your own VPN cloud service, the JSON-RPC API is the best choice to realize the automated operations for the VPN Server.
+  - No need to use any specific API client library since all APIs are provided on the [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification). You can use your favorite JSON and HTTPS client library to call any of all APIs in your pure runtime environment.
+  - Also, the SoftEther VPN Project provides high-quality JSON-RPC client stub libraries which define all of the API client stub codes. These libraries are written in C#, JavaScript and TypeScript. [The Node.js Client Library for VPN Server RPC (vpnrpc)](https://www.npmjs.com/package/vpnrpc) package is also available.
+
+
+## Principle
+
+### Entry point
+The entry point URL of JSON-RPC is:
+```
+https://<vpn_server_hostname>:<port>/api/
+```
+
+  - Older versions of SoftEther VPN before June 2019 don't support JSON-RPC APIs.
+  - If you want to completely disable the JSON-RPC on your VPN Server, set the `DisableJsonRpcWebApi` variable to `true` on the `vpn_server.config`.
+
+
+### JSON-RPC specification
+You must use HTTPS 1.1 `POST` method to call each of JSON-RPC APIs.  
+All APIs are based on the [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification).
+  - JSON-RPC Notification is not supported.
+  - JSON-RPC Batch is not supported.
+
+
+### "vpnrpc": Node.js Client Library package for VPN Server JSON-RPC
+If you are willing to develop your original JSON-RPC client for SoftEther VPN, you can use the [JavaScript Client Library for VPN Server RPC (vpnrpc)](https://www.npmjs.com/package/vpnrpc).
+
+  - You can use the `vpnrpc` library in JavaScript for both web browsers (e.g. Chrome, FireFox or Edge) and Node.js.
+  - As a sample code there is the [sample.ts](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/sample.ts) program in TypeScript. This sample calls all of available JSON-RPC APIs against the specified SoftEther VPN Server. (Note: This sample code is written in TypeScript.)
+
+You can use the following command to download the `vpnrpc` library package with Node.js.
+```
+$ npm install --save-dev vpnrpc
+```
+
+
+
+### "vpnrpc.ts": TypeScript Client Library for VPN Server JSON-RPC
+If you are willing to develop your original JSON-RPC client for SoftEther VPN, you can use the [TypeScript Client Library for VPN Server RPC (vpnrpc.ts)](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/).
+
+  - You can use the [vpnrpc.ts](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/vpnrpc.ts) library in TypeScript / JavaScript for both web browsers (e.g. Chrome, FireFox or Edge) and Node.js.
+  - As a sample code there is the [sample.ts](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/sample.ts) program in TypeScript. This sample calls one by one all of available JSON-RPC APIs against the specified SoftEther VPN Server.
+
+
+### "vpnserver-jsonrpc-client-csharp": C# Client Library for VPN Server JSON-RPC
+If you are willing to develop your original JSON-RPC client for SoftEther VPN, you can use the [vpnserver-jsonrpc-client-csharp C# library](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/).
+
+  - The [client library codes for C#](https://github.com/SoftEtherVPN/SoftEtherVPN/tree/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/rpc-stubs/) is written in pure C# 7.3. It works on .NET Core 2.1 or later on Windows, Linux and macOS. Very comfort with Visual Studio for both Windows or macOS.
+  - As a sample code there is the [VpnServerRpcTest.cs](https://github.com/SoftEtherVPN/SoftEtherVPN/blob/master/developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-csharp/sample/VpnServerRpcTest.cs) program in C#. This sample calls one by one all of available JSON-RPC APIs against the specified SoftEther VPN Server.
+
+
+
+### HTTPS Authentication
+You must specify the following HTTPS custom headers for authentication on each of requests.
+
+
+Value | Description
+--- | ---
+`X-VPNADMIN-HUBNAME` | The name of the Virtual Hub if you want to connect to the VPN Server as a Virtual Hub Admin Mode. Specify empty string if you want to connect to the VPN Server as the Entire VPN Server Admin Mode.
+`X-VPNADMIN-PASSWORD` | Specify the administration password.
+
+
+- You can omit the above HTTPS custom authentication headers if you are calling JSON-RPC APIs from the web browser which is already logged in to the VPN Server with HTTPS Basic Authentication. In such usage the credential of HTTPS Basic Authtication will be used.
+
+***

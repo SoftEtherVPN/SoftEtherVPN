@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Session.c
@@ -209,14 +103,14 @@ void SessionMain(SESSION *s)
 	s->LastCommTime = Tick64();
 	if (s->ServerMode == false)
 	{
-		s->NextConnectionTime = Tick64() + (UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000);
+		s->NextConnectionTime = Tick64() + (UINT64)((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 	}
 
-	s->NumConnectionsEatablished++;
+	s->NumConnectionsEstablished++;
 	s->CurrentConnectionEstablishTime = Tick64();
-	if (s->FirstConnectionEstablisiedTime == 0)
+	if (s->FirstConnectionEstablisiedTime == 0) /* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	{
-		s->FirstConnectionEstablisiedTime = Tick64();
+		s->FirstConnectionEstablisiedTime = Tick64(); /* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	}
 
 	if (s->ServerMode == false && s->Cedar->Client != NULL)
@@ -919,7 +813,7 @@ void IncrementUserTraffic(HUB *hub, char *username, SESSION *s)
 	Unlock(s->TrafficLock);
 }
 
-// Cummulate the traffic information of the connection
+// Cumulate the traffic information of the connection
 void AddTrafficForSession(SESSION *s, TRAFFIC *t)
 {
 	HUB *h;
@@ -980,7 +874,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 		return;
 	}
 
-	if (s->IsRUDPSession && (s->Connection->AdditionalConnectionFailedCounter > MAX_ADDITONAL_CONNECTION_FAILED_COUNTER))
+	if (s->IsRUDPSession && (s->Connection->AdditionalConnectionFailedCounter > MAX_ADDITIONAL_CONNECTION_FAILED_COUNTER))
 	{
 		// Not to make a large amount of repeated connection retry within a certain time in the case of R-UDP session
 		return;
@@ -1006,7 +900,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 				(s->NextConnectionTime <= now))
 			{
 				// Start the work to put an additional connection
-				s->NextConnectionTime = now + (UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000);
+				s->NextConnectionTime = now + ((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 				SessionAdditionalConnect(s);
 			}
 			else
@@ -1261,21 +1155,13 @@ void StopSessionEx(SESSION *s, bool no_wait)
 	// Event
 	Set(s->HaltEvent);
 
-	if (s->ServerMode == false)
+	// Server and client mode
+	if (s->Connection)
 	{
-		// Client mode
-		if (s->Connection)
-		{
-			StopConnection(s->Connection, no_wait);
-		}
-	}
-	else
-	{
-		// Server mode
-		if (s->Connection)
-		{
-			StopConnection(s->Connection, no_wait);
-		}
+		CONNECTION *c = s->Connection;
+		AddRef(c->ref);
+		StopConnection(c, no_wait);
+		ReleaseConnection(c);
 	}
 
 	// Wait until the stop
@@ -1381,6 +1267,13 @@ void CleanupSession(SESSION *s)
 		FreePacketAdapter(s->PacketAdapter);
 	}
 
+#ifdef OS_UNIX
+	if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
+	{
+		UnixVLanSetState(s->ClientOption->DeviceName, false);
+	}
+#endif
+
 	if (s->OldTraffic != NULL)
 	{
 		FreeTraffic(s->OldTraffic);
@@ -1399,6 +1292,8 @@ void CleanupSession(SESSION *s)
 	}
 
 	DeleteCounter(s->LoggingRecordCount);
+
+	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
 
 	Free(s);
 }
@@ -1528,6 +1423,13 @@ void ClientThread(THREAD *t, void *param)
 
 		CLog(s->Cedar->Client, "LC_CONNECT_ERROR", s->ClientOption->AccountName,
 			GetUniErrorStr(s->Err), s->Err);
+
+#ifdef OS_UNIX
+		if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
+		{
+			UnixVLanSetState(s->ClientOption->DeviceName, false);
+		}
+#endif
 
 		if (s->LinkModeClient && s->Link != NULL)
 		{
@@ -1849,23 +1751,6 @@ SKIP:
 	}
 }
 
-// Name comparison of sessions
-int CompareSession(void *p1, void *p2)
-{
-	SESSION *s1, *s2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	s1 = *(SESSION **)p1;
-	s2 = *(SESSION **)p2;
-	if (s1 == NULL || s2 == NULL)
-	{
-		return 0;
-	}
-	return StrCmpi(s1->Name, s2->Name);
-}
-
 // Create an RPC session
 SESSION *NewRpcSession(CEDAR *cedar, CLIENT_OPTION *option)
 {
@@ -1953,7 +1838,7 @@ SESSION *NewRpcSessionEx2(CEDAR *cedar, CLIENT_OPTION *option, UINT *err, char *
 }
 
 // Create a client session
-SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account)
+SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account, bool *NicDownOnDisconnect)
 {
 	SESSION *s;
 	THREAD *t;
@@ -2081,6 +1966,8 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		s->ClientOption->NumRetry = 0;
 	}
 
+	s->NicDownOnDisconnect = NicDownOnDisconnect;
+
 	// Create a client thread
 	t = NewThread(ClientThread, (void *)s);
 	WaitThreadInit(t);
@@ -2088,55 +1975,9 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 
 	return s;
 }
-SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa)
+SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, bool *NicDownOnDisconnect)
 {
-	return NewClientSessionEx(cedar, option, auth, pa, NULL);
-}
-
-// Get the session from the 32bit session key
-SESSION *GetSessionFromKey32(CEDAR *cedar, UINT key32)
-{
-	HUB *h;
-	UINT i, j;
-	// Validate arguments
-	if (cedar == NULL)
-	{
-		return NULL;
-	}
-
-	LockList(cedar->HubList);
-	{
-		for (i = 0;i < LIST_NUM(cedar->HubList);i++)
-		{
-			h = LIST_DATA(cedar->HubList, i);
-			LockList(h->SessionList);
-			{
-				for (j = 0;j < LIST_NUM(h->SessionList);j++)
-				{
-					SESSION *s = LIST_DATA(h->SessionList, j);
-					Lock(s->lock);
-					{
-						if (s->SessionKey32 == key32)
-						{
-							// Session found
-							AddRef(s->ref);
-
-							// Unlock
-							Unlock(s->lock);
-							UnlockList(h->SessionList);
-							UnlockList(cedar->HubList);
-							return s;
-						}
-					}
-					Unlock(s->lock);
-				}
-			}
-			UnlockList(h->SessionList);
-		}
-	}
-	UnlockList(cedar->HubList);
-
-	return NULL;
+	return NewClientSessionEx(cedar, option, auth, pa, NULL, NicDownOnDisconnect);
 }
 
 // Get the session from the session key
@@ -2208,9 +2049,9 @@ void if_free(SESSION *s);
 // Create a server session
 SESSION *NewServerSession(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy)
 {
-	return NewServerSessionEx(cedar, c, h, username, policy, false);
+	return NewServerSessionEx(cedar, c, h, username, policy, false, NULL);
 }
-SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy, bool inproc_mode)
+SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username, POLICY *policy, bool inproc_mode, UCHAR *ipc_mac_address)
 {
 	SESSION *s;
 	char name[MAX_SIZE];
@@ -2331,28 +2172,35 @@ SESSION *NewServerSessionEx(CEDAR *cedar, CONNECTION *c, HUB *h, char *username,
 	// Generate a MAC address for IPC
 	if (s->InProcMode)
 	{
-		char tmp[MAX_SIZE];
-		char machine[MAX_SIZE];
-		UCHAR hash[SHA1_SIZE];
+		if (ipc_mac_address != NULL)
+		{
+			Copy(s->IpcMacAddress, ipc_mac_address, 6);
+		}
+		else
+		{
+			char tmp[MAX_SIZE];
+			char machine[MAX_SIZE];
+			UCHAR hash[SHA1_SIZE];
 
-		GetMachineName(machine, sizeof(machine));
+			GetMachineName(machine, sizeof(machine));
 
-		Format(tmp, sizeof(tmp), "%s@%s@%u", machine, h->Name, s->UniqueId);
+			Format(tmp, sizeof(tmp), "%s@%s@%u", machine, h->Name, s->UniqueId);
 
-		StrUpper(tmp);
-		Trim(tmp);
+			StrUpper(tmp);
+			Trim(tmp);
 
-		Hash(hash, tmp, StrLen(tmp), true);
+			Sha0(hash, tmp, StrLen(tmp));
 
-		s->IpcMacAddress[0] = 0xCA;
-		s->IpcMacAddress[1] = hash[1];
-		s->IpcMacAddress[2] = hash[2];
-		s->IpcMacAddress[3] = hash[3];
-		s->IpcMacAddress[4] = hash[4];
-		s->IpcMacAddress[5] = hash[5];
+			s->IpcMacAddress[0] = 0xCA;
+			s->IpcMacAddress[1] = hash[1];
+			s->IpcMacAddress[2] = hash[2];
+			s->IpcMacAddress[3] = hash[3];
+			s->IpcMacAddress[4] = hash[4];
+			s->IpcMacAddress[5] = hash[5];
 
-		MacToStr(tmp, sizeof(tmp), s->IpcMacAddress);
-		Debug("MAC Address for IPC: %s\n", tmp);
+			MacToStr(tmp, sizeof(tmp), s->IpcMacAddress);
+			Debug("MAC Address for IPC: %s\n", tmp);
+		}
 	}
 
 	return s;
@@ -2373,20 +2221,6 @@ bool IsIpcMacAddress(UCHAR *mac)
 	}
 
 	return false;
-}
-
-// Display the session key for debugging
-void DebugPrintSessionKey(UCHAR *session_key)
-{
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (session_key == NULL)
-	{
-		return;
-	}
-
-	Bit160ToStr(tmp, session_key);
-	Debug("SessionKey: %s\n", tmp);
 }
 
 // Display the status on the client

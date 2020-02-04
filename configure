@@ -1,112 +1,54 @@
 #!/bin/sh
 
+set -e
+
 echo '---------------------------------------------------------------------'
 echo 'SoftEther VPN for Unix'
 echo
-echo 'Copyright (c) SoftEther VPN Project at University of Tsukuba, Japan.'
-echo 'Copyright (c) Daiyuu Nobori. All Rights Reserved.'
+echo 'Copyright (c) all contributors on SoftEther VPN project in GitHub.'
+echo 'Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.'
 echo
-echo 'This program is free software; you can redistribute it and/or'
-echo 'modify it under the terms of the GNU General Public License'
-echo 'version 2 as published by the Free Software Foundation.'
+echo 'Licensed under the Apache License, Version 2.0 (the License).'
 echo
-echo 'Read and understand README.TXT, LICENSE.TXT and WARNING.TXT before use.'
+echo 'Read and understand README, LICENSE and WARNING before use.'
 echo '---------------------------------------------------------------------'
 echo
 
 echo 'Welcome to the corner-cutting configure script !'
 echo
 
-OS=""
-case "`uname -s`" in
-Linux)
-	OS="linux"
-	;;
-FreeBSD)
-	OS="freebsd"
-	;;
-SunOS)
-	OS="solaris"
-	;;
-Darwin)
-	OS="macos"
-	;;
-OpenBSD)
-	OS="openbsd"
-	;;
-*)
-	echo 'Select your operating system below:'
-	echo ' 1: Linux'
-	echo ' 2: FreeBSD'
-	echo ' 3: Solaris'
-	echo ' 4: Mac OS X'
-	echo ' 5: OpenBSD'
-	echo
-	echo -n 'Which is your operating system (1 - 5) ? : '
-	read TMP
-	echo
-	if test "$TMP" = "1"
-	then
-		OS="linux"
-	fi
-	if test "$TMP" = "2"
-	then
-		OS="freebsd"
-	fi
-	if test "$TMP" = "3"
-	then
-		OS="solaris"
-	fi
-	if test "$TMP" = "4"
-	then
-		OS="macos"
-	fi
-	if test "$TMP" = "5"
-	then
-		OS="openbsd"
-	fi
+if [ ! -d "tmp" ]; then
+  mkdir tmp
+fi
 
-	if test "$OS" = ""
-	then
-		echo "Wrong number."
-		exit 1
-	fi
-	;;
-esac
+if [ ! -z ${CMAKE_INSTALL_PREFIX+x} ]; then
+	CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+fi
 
-CPU=""
-case "`uname -m`" in
-x86_64|amd64|aarch64|arm64|armv8*|mips64|ppc64|sparc64|alpha|ia64)
-	CPU=64bit
-	;;
-i?86|x86pc|i86pc|armv4*|armv5*|armv6*|armv7*)
-	CPU=32bit
-	;;
-*)
-	echo 'Select your CPU bits below:'
-	echo ' 1: 32-bit'
-	echo ' 2: 64-bit'
-	echo
-	echo -n 'Which is the type of your CPU (1 - 2) ? : '
-	read TMP
-	echo
-	if test "$TMP" = "1"
-	then
-		CPU="32bit"
+if [ -z ${OPENSSL_ROOT_DIR} ]; then
+	unameOut="$(uname -s)"
+	if [ "$unameOut" = "Darwin" ]; then
+		echo "Environment variable OPENSSL_ROOT_DIR not set, using default Homebrew path: /usr/local/opt/openssl/"
+		export OPENSSL_ROOT_DIR="/usr/local/opt/openssl/"
 	fi
-	if test "$TMP" = "2"
-	then
-		CPU="64bit"
-	fi
+fi
 
-	if test "$CPU" = ""
-	then
-		echo "Wrong number."
-		exit 1
-	fi
-	;;
-esac
+if [ ! -z ${CPACK_GENERATOR+x} ]; then
+	echo "CPACK_GENERATOR is set, CPack will generate ${CPACK_GENERATOR} packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR=${CPACK_GENERATOR} ${CMAKE_FLAGS}"
+elif [ -x "$(command -v rpm)" ]; then
+	echo "'rpm' executable found, CPack will generate RPM packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR='RPM' ${CMAKE_FLAGS}"
+else
+	echo "'rpm' executable not found, CPack will generate DEB packages."
+	CMAKE_FLAGS="-DCPACK_GENERATOR='DEB' ${CMAKE_FLAGS}"
+fi
 
-cp src/makefiles/${OS}_${CPU}.mak Makefile
+echo ""
 
-echo "The Makefile is generated. Run 'make' to build SoftEther VPN."
+(cd tmp && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_FLAGS} .. || exit 1)
+
+
+echo ""
+
+echo "The Makefile is generated. Run 'make -C tmp' to build SoftEther VPN."

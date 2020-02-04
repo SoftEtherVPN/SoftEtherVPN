@@ -1,0 +1,19 @@
+jobs:
+- job: linux_64
+  displayName: 'Ubuntu 16.04'
+  pool:
+    vmImage: ubuntu-16.04
+  variables:
+    CPACK_GENERATOR: DEB
+  steps:
+  - checkout: self  
+    submodules: recursive
+  - script: |
+      sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+      ./configure
+      make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
+      .ci/appveyor-deb-install-test.sh
+      sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
+      sudo .ci/start-se-openvpn.sh
+      sudo .ci/run-openvpn-tests.sh
+    displayName: 'Ubuntu 16.04'

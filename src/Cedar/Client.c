@@ -1,113 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Contributors:
-// - nattoheaven (https://github.com/nattoheaven)
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Client.c
@@ -235,7 +127,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	}
 
 #ifdef	OS_WIN32
-	// Priduct ID
+	// Product ID
 	product_id = MsRegReadStr(REG_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductId");
 	if (product_id == NULL)
 	{
@@ -253,7 +145,7 @@ void CiGetCurrentMachineHashOld(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 // Get current machine hash
@@ -272,7 +164,7 @@ void CiGetCurrentMachineHash(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 // Get current machine hash (without using domain name)
@@ -297,7 +189,7 @@ void CiGetCurrentMachineHashNew(void *data)
 	Trim(name);
 	StrUpper(name);
 
-	Hash(data, name, StrLen(name), true);
+	Sha0(data, name, StrLen(name));
 }
 
 
@@ -431,7 +323,7 @@ void CiChangeAllVLanMacAddress(CLIENT *c)
 			RPC_CLIENT_ENUM_VLAN_ITEM *e = t.Items[i];
 			UCHAR mac[6];
 
-			if (StrToMac(mac, e->MacAddress) && mac[1] == 0xAC)
+			if (StrToMac(mac, e->MacAddress) && ((mac[0] == 0x00 && mac[1] == 0xAC) || (mac[0] == 0x5E)))
 			{
 				char *name = e->DeviceName;
 				RPC_CLIENT_SET_VLAN s;
@@ -497,13 +389,11 @@ bool CnIsCnServiceReady()
 // Check whether the notification service is already running
 bool CnCheckAlreadyExists(bool lock)
 {
-	bool ret = false;
-
 #ifdef	OS_WIN32
-	ret = Win32CnCheckAlreadyExists(lock);
+	return Win32CnCheckAlreadyExists(lock);
+#else
+	return false;
 #endif
-
-	return ret;
 }
 
 typedef struct CNC_STATUS_PRINTER_WINDOW_PARAM
@@ -680,7 +570,6 @@ SOCK *CncNicInfo(UI_NICINFO *info)
 {
 	SOCK *s;
 	PACK *p;
-	bool ret = false;
 	// Validate arguments
 	if (info == NULL)
 	{
@@ -722,7 +611,6 @@ SOCK *CncMsgDlg(UI_MSG_DLG *dlg)
 {
 	SOCK *s;
 	PACK *p;
-	bool ret = false;
 	char *utf;
 	// Validate arguments
 	if (dlg == NULL)
@@ -761,29 +649,6 @@ void CndMsgDlgFree(SOCK *s)
 
 	Disconnect(s);
 	ReleaseSock(s);
-}
-
-// The thread to stop the password input dialog client forcibly
-void CncPasswordDlgHaltThread(THREAD *thread, void *param)
-{
-	CNC_CONNECT_ERROR_DLG_THREAD_PARAM *dp = (CNC_CONNECT_ERROR_DLG_THREAD_PARAM *)param;
-	// Validate arguments
-	if (thread == NULL || param == NULL)
-	{
-		return;
-	}
-
-	while (true)
-	{
-		if (dp->Session->Halt || dp->HaltThread)
-		{
-			break;
-		}
-
-		Wait(dp->Event, 100);
-	}
-
-	Disconnect(dp->Sock);
 }
 
 // Show the password input dialog
@@ -1025,15 +890,12 @@ SOCK *CncStatusPrinterWindowStart(SESSION *s)
 // Send a string to the status indicator
 void CncStatusPrinterWindowPrint(SOCK *s, wchar_t *str)
 {
-	CNC_STATUS_PRINTER_WINDOW_PARAM *param;
 	PACK *p;
 	// Validate arguments
 	if (s == NULL || str == NULL)
 	{
 		return;
 	}
-
-	param = (CNC_STATUS_PRINTER_WINDOW_PARAM *)s->Param;
 
 	p = NewPack();
 	PackAddUniStr(p, "string", str);
@@ -1122,41 +984,6 @@ void CncReleaseSocket()
 
 	Disconnect(s);
 	ReleaseSock(s);
-}
-
-// Get the Session ID of the client notification service
-UINT CncGetSessionId()
-{
-	SOCK *s = CncConnect();
-	PACK *p;
-	UINT ret;
-	if (s == NULL)
-	{
-		return INFINITE;
-	}
-
-	p = NewPack();
-	PackAddStr(p, "function", "get_session_id");
-
-	SendPack(s, p);
-	FreePack(p);
-
-	p = RecvPack(s);
-	if (p == NULL)
-	{
-		Disconnect(s);
-		ReleaseSock(s);
-		return INFINITE;
-	}
-
-	ret = PackGetInt(p, "session_id");
-
-	FreePack(p);
-
-	Disconnect(s);
-	ReleaseSock(s);
-
-	return ret;
 }
 
 // Terminate the process of the client notification service
@@ -1934,24 +1761,23 @@ BEGIN_LISTENER:
 			// If the port cannot be opened
 			if (cn_next_allow <= Tick64())
 			{
-				if (cursor_changed || cn_listener->Halt)
+#ifdef  OS_WIN32
+				if (cursor_changed)
 				{
-					if (cursor_changed)
-					{
-						// It can be judged to have the rights to open the port
-						// since the mouse cursor is moving.
-						// So, take over the port which is owned by other process forcibly
-						CncReleaseSocket();
-					}
+					// It can be judged to have the rights to open the port
+					// since the mouse cursor is moving.
+					// So, take over the port which is owned by other process forcibly
+					CncReleaseSocket();
+				}
+#endif  // OS_WIN32
 
-					if (cn_listener->Halt)
-					{
-						ReleaseListener(cn_listener);
-						cn_listener = NULL;
+				if (cn_listener->Halt)
+				{
+					ReleaseListener(cn_listener);
+					cn_listener = NULL;
 
-						Unlock(cn_listener_lock);
-						goto BEGIN_LISTENER;
-					}
+					Unlock(cn_listener_lock);
+					goto BEGIN_LISTENER;
 				}
 			}
 		}
@@ -2039,28 +1865,6 @@ bool CiHasAccountSensitiveInformation(BUF *b)
 
 	return ret;
 }
-bool CiHasAccountSensitiveInformationFile(wchar_t *name)
-{
-	bool ret = false;
-	BUF *b;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	b = ReadDumpW(name);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	ret = CiHasAccountSensitiveInformation(b);
-
-	FreeBuf(b);
-
-	return ret;
-}
 
 // Delete the sensitive information in the account information
 bool CiEraseSensitiveInAccount(BUF *b)
@@ -2144,6 +1948,7 @@ RPC_CLIENT_CREATE_ACCOUNT *CiCfgToAccount(BUF *b)
 	t->ClientAuth = a->ClientAuth;
 	t->StartupAccount = a->StartupAccount;
 	t->CheckServerCert = a->CheckServerCert;
+	t->RetryOnServerCert = a->RetryOnServerCert;
 	t->ServerCert = a->ServerCert;
 	Free(a);
 
@@ -2167,6 +1972,7 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 	a.ClientOption = t->ClientOption;
 	a.ClientAuth = t->ClientAuth;
 	a.CheckServerCert = t->CheckServerCert;
+	a.RetryOnServerCert = t->RetryOnServerCert;
 	a.ServerCert = t->ServerCert;
 	a.StartupAccount = t->StartupAccount;
 
@@ -3377,7 +3183,7 @@ UINT CcEnumAccount(REMOTE_CLIENT *r, RPC_CLIENT_ENUM_ACCOUNT *e)
 	return err;
 }
 
-// Unset the startup flag of the accout
+// Unset the startup flag of the account
 UINT CcRemoveStartupAccount(REMOTE_CLIENT *r, RPC_CLIENT_DELETE_ACCOUNT *a)
 {
 	PACK *ret, *p;
@@ -3854,6 +3660,7 @@ void InRpcClientConfig(CLIENT_CONFIG *c, PACK *p)
 	c->KeepConnectProtocol = PackGetInt(p, "KeepConnectProtocol");
 	c->KeepConnectInterval = PackGetInt(p, "KeepConnectInterval");
 	c->AllowRemoteConfig = PackGetInt(p, "AllowRemoteConfig") == 0 ? false : true;
+	c->NicDownOnDisconnect = PackGetBool(p, "NicDownOnDisconnect");
 	PackGetStr(p, "KeepConnectHost", c->KeepConnectHost, sizeof(c->KeepConnectHost));
 }
 void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
@@ -3869,6 +3676,7 @@ void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
 	PackAddInt(p, "KeepConnectProtocol", c->KeepConnectProtocol);
 	PackAddInt(p, "KeepConnectInterval", c->KeepConnectInterval);
 	PackAddInt(p, "AllowRemoteConfig", c->AllowRemoteConfig);
+	PackAddBool(p, "NicDownOnDisconnect", c->NicDownOnDisconnect);
 	PackAddStr(p, "KeepConnectHost", c->KeepConnectHost);
 }
 
@@ -4002,14 +3810,16 @@ void OutRpcClientEnumCa(PACK *p, RPC_CLIENT_ENUM_CA *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "CAList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_CA_ITEM *item = e->Items[i];
 		PackAddIntEx(p, "Key", item->Key, i, e->NumItem);
 		PackAddUniStrEx(p, "SubjectName", item->SubjectName, i, e->NumItem);
 		PackAddUniStrEx(p, "IssuerName", item->IssuerName, i, e->NumItem);
-		PackAddInt64Ex(p, "Expires", item->Expires, i, e->NumItem);
+		PackAddTime64Ex(p, "Expires", item->Expires, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_GET_ISSUER
@@ -4280,6 +4090,7 @@ void OutRpcClientEnumSecure(PACK *p, RPC_CLIENT_ENUM_SECURE *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "SecureDeviceList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_SECURE_ITEM *item = e->Items[i];
@@ -4289,6 +4100,7 @@ void OutRpcClientEnumSecure(PACK *p, RPC_CLIENT_ENUM_SECURE *e)
 		PackAddStrEx(p, "DeviceName", item->DeviceName, i, e->NumItem);
 		PackAddStrEx(p, "Manufacturer", item->Manufacturer, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_USE_SECURE
@@ -4333,33 +4145,6 @@ void CiFreeEnumObjectInSecure(RPC_ENUM_OBJECT_IN_SECURE *a)
 }
 
 // RPC_ENUM_OBJECT_IN_SECURE
-void InRpcEnumObjectInSecure(RPC_ENUM_OBJECT_IN_SECURE *e, PACK *p)
-{
-	UINT i;
-	// Validate arguments
-	if (e == NULL || p == NULL)
-	{
-		return;
-	}
-
-	Zero(e, sizeof(RPC_ENUM_OBJECT_IN_SECURE));
-
-	e->NumItem = PackGetNum(p, "NumItem");
-	e->hWnd = PackGetInt(p, "hWnd");
-	e->ItemName = ZeroMalloc(sizeof(char *) * e->NumItem);
-	e->ItemType = ZeroMalloc(sizeof(bool) * e->NumItem);
-
-	for (i = 0;i < e->NumItem;i++)
-	{
-		char name[MAX_SIZE];
-
-		Zero(name, sizeof(name));
-		PackGetStrEx(p, "ItemName", name, sizeof(name), i);
-		e->ItemName[i] = CopyStr(name);
-
-		e->ItemType[i] = PackGetIntEx(p, "ItemType", i) ? true : false;
-	}
-}
 void OutRpcEnumObjectInSecure(PACK *p, RPC_ENUM_OBJECT_IN_SECURE *e)
 {
 	UINT i;
@@ -4372,11 +4157,13 @@ void OutRpcEnumObjectInSecure(PACK *p, RPC_ENUM_OBJECT_IN_SECURE *e)
 	PackAddNum(p, "NumItem", e->NumItem);
 	PackAddInt(p, "hWnd", e->hWnd);
 
+	PackSetCurrentJsonGroupName(p, "ObjectList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		PackAddStrEx(p, "ItemName", e->ItemName[i], i, e->NumItem);
 		PackAddIntEx(p, "ItemType", e->ItemType[i], i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_CLIENT_CREATE_VLAN
@@ -4496,6 +4283,7 @@ void OutRpcClientEnumVLan(PACK *p, RPC_CLIENT_ENUM_VLAN *v)
 
 	PackAddNum(p, "NumItem", v->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "VLanList");
 	for (i = 0;i < v->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_VLAN_ITEM *item = v->Items[i];
@@ -4505,6 +4293,7 @@ void OutRpcClientEnumVLan(PACK *p, RPC_CLIENT_ENUM_VLAN *v)
 		PackAddStrEx(p, "MacAddress", item->MacAddress, i, v->NumItem);
 		PackAddStrEx(p, "Version", item->Version, i, v->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // CLIENT_OPTION
@@ -4535,6 +4324,7 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 	PackGetStr(p, "ProxyName", c->ProxyName, sizeof(c->ProxyName));
 	PackGetStr(p, "ProxyUsername", c->ProxyUsername, sizeof(c->ProxyUsername));
 	PackGetStr(p, "ProxyPassword", c->ProxyPassword, sizeof(c->ProxyPassword));
+	PackGetStr(p, "CustomHttpHeader", c->CustomHttpHeader, sizeof(c->CustomHttpHeader));
 	PackGetStr(p, "HubName", c->HubName, sizeof(c->HubName));
 	PackGetStr(p, "DeviceName", c->DeviceName, sizeof(c->DeviceName));
 	c->UseEncrypt = PackGetInt(p, "UseEncrypt") ? true : false;
@@ -4544,7 +4334,6 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 	c->RequireMonitorMode = PackGetBool(p, "RequireMonitorMode");
 	c->RequireBridgeRoutingMode = PackGetBool(p, "RequireBridgeRoutingMode");
 	c->FromAdminPack = PackGetBool(p, "FromAdminPack");
-	c->NoTls1 = PackGetBool(p, "NoTls1");
 	c->NoUdpAcceleration = PackGetBool(p, "NoUdpAcceleration");
 	PackGetData2(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 }
@@ -4561,6 +4350,7 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddStr(p, "ProxyName", c->ProxyName);
 	PackAddStr(p, "ProxyUsername", c->ProxyUsername);
 	PackAddStr(p, "ProxyPassword", c->ProxyPassword);
+	PackAddStr(p, "CustomHttpHeader", c->CustomHttpHeader);
 	PackAddStr(p, "HubName", c->HubName);
 	PackAddStr(p, "DeviceName", c->DeviceName);
 	PackAddInt(p, "Port", c->Port);
@@ -4570,10 +4360,10 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddInt(p, "NumRetry", c->NumRetry);
 	PackAddInt(p, "RetryInterval", c->RetryInterval);
 	PackAddInt(p, "MaxConnection", c->MaxConnection);
-	PackAddInt(p, "UseEncrypt", c->UseEncrypt);
-	PackAddInt(p, "UseCompress", c->UseCompress);
-	PackAddInt(p, "HalfConnection", c->HalfConnection);
-	PackAddInt(p, "NoRoutingTracking", c->NoRoutingTracking);
+	PackAddBool(p, "UseEncrypt", c->UseEncrypt);
+	PackAddBool(p, "UseCompress", c->UseCompress);
+	PackAddBool(p, "HalfConnection", c->HalfConnection);
+	PackAddBool(p, "NoRoutingTracking", c->NoRoutingTracking);
 	PackAddInt(p, "AdditionalConnectionInterval", c->AdditionalConnectionInterval);
 	PackAddInt(p, "ConnectionDisconnectSpan", c->ConnectionDisconnectSpan);
 	PackAddBool(p, "HideStatusWindow", c->HideStatusWindow);
@@ -4582,7 +4372,6 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddBool(p, "RequireBridgeRoutingMode", c->RequireBridgeRoutingMode);
 	PackAddBool(p, "DisableQoS", c->DisableQoS);
 	PackAddBool(p, "FromAdminPack", c->FromAdminPack);
-	PackAddBool(p, "NoTls1", c->NoTls1);
 	PackAddBool(p, "NoUdpAcceleration", c->NoUdpAcceleration);
 	PackAddData(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 }
@@ -4704,6 +4493,7 @@ void InRpcClientCreateAccount(RPC_CLIENT_CREATE_ACCOUNT *c, PACK *p)
 
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
+	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4726,6 +4516,7 @@ void OutRpcClientCreateAccount(PACK *p, RPC_CLIENT_CREATE_ACCOUNT *c)
 
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
+	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
 	if (c->ServerCert != NULL)
 	{
 		b = XToBuf(c->ServerCert, false);
@@ -4785,6 +4576,7 @@ void OutRpcClientEnumAccount(PACK *p, RPC_CLIENT_ENUM_ACCOUNT *e)
 
 	PackAddNum(p, "NumItem", e->NumItem);
 
+	PackSetCurrentJsonGroupName(p, "AccountList");
 	for (i = 0;i < e->NumItem;i++)
 	{
 		RPC_CLIENT_ENUM_ACCOUNT_ITEM *item = e->Items[i];
@@ -4800,10 +4592,11 @@ void OutRpcClientEnumAccount(PACK *p, RPC_CLIENT_ENUM_ACCOUNT *e)
 		PackAddBoolEx(p, "Connected", item->Connected, i, e->NumItem);
 		PackAddIntEx(p, "Port", item->Port, i, e->NumItem);
 		PackAddStrEx(p, "HubName", item->HubName, i, e->NumItem);
-		PackAddInt64Ex(p, "CreateDateTime", item->CreateDateTime, i, e->NumItem);
-		PackAddInt64Ex(p, "UpdateDateTime", item->UpdateDateTime, i, e->NumItem);
-		PackAddInt64Ex(p, "LastConnectDateTime", item->LastConnectDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "CreateDateTime", item->CreateDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "UpdateDateTime", item->UpdateDateTime, i, e->NumItem);
+		PackAddTime64Ex(p, "LastConnectDateTime", item->LastConnectDateTime, i, e->NumItem);
 	}
+	PackSetCurrentJsonGroupName(p, NULL);
 }
 
 // RPC_CLIENT_DELETE_ACCOUNT
@@ -4873,6 +4666,7 @@ void InRpcClientGetAccount(RPC_CLIENT_GET_ACCOUNT *c, PACK *p)
 	PackGetUniStr(p, "AccountName", c->AccountName, sizeof(c->AccountName));
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
+	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4901,6 +4695,7 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 	PackAddUniStr(p, "AccountName", c->AccountName);
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
+	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
 
 	if (c->ServerCert != NULL)
 	{
@@ -4917,9 +4712,9 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 
 	PackAddData(p, "ShortcutKey", c->ShortcutKey, SHA1_SIZE);
 
-	PackAddInt64(p, "CreateDateTime", c->CreateDateTime);
-	PackAddInt64(p, "UpdateDateTime", c->UpdateDateTime);
-	PackAddInt64(p, "LastConnectDateTime", c->LastConnectDateTime);
+	PackAddTime64(p, "CreateDateTime", c->CreateDateTime);
+	PackAddTime64(p, "UpdateDateTime", c->UpdateDateTime);
+	PackAddTime64(p, "LastConnectDateTime", c->LastConnectDateTime);
 }
 
 // RPC_CLIENT_CONNECT
@@ -5000,13 +4795,14 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 	s->ServerPort = PackGetInt(p, "ServerPort");
 	s->ServerProductVer = PackGetInt(p, "ServerProductVer");
 	s->ServerProductBuild = PackGetInt(p, "ServerProductBuild");
-	s->NumConnectionsEatablished = PackGetInt(p, "NumConnectionsEatablished");
+	s->NumConnectionsEstablished = PackGetInt(p, "NumConnectionsEstablished");
 	s->MaxTcpConnections = PackGetInt(p, "MaxTcpConnections");
 	s->NumTcpConnections = PackGetInt(p, "NumTcpConnections");
 	s->NumTcpConnectionsUpload = PackGetInt(p, "NumTcpConnectionsUpload");
 	s->NumTcpConnectionsDownload = PackGetInt(p, "NumTcpConnectionsDownload");
 
 	s->StartTime = PackGetInt64(p, "StartTime");
+	/* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 	s->FirstConnectionEstablisiedTime = PackGetInt64(p, "FirstConnectionEstablisiedTime");
 	s->CurrentConnectionEstablishTime = PackGetInt64(p, "CurrentConnectionEstablishTime");
 	s->TotalSendSize = PackGetInt64(p, "TotalSendSize");
@@ -5067,32 +4863,32 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 
 	PackAddData(p, "SessionKey", c->SessionKey, SHA1_SIZE);
 
-	PackAddInt(p, "Active", c->Active);
-	PackAddInt(p, "Connected", c->Connected);
+	PackAddBool(p, "Active", c->Active);
+	PackAddBool(p, "Connected", c->Connected);
 	PackAddInt(p, "SessionStatus", c->SessionStatus);
 	PackAddInt(p, "ServerPort", c->ServerPort);
 	PackAddInt(p, "ServerProductVer", c->ServerProductVer);
 	PackAddInt(p, "ServerProductBuild", c->ServerProductBuild);
-	PackAddInt(p, "NumConnectionsEatablished", c->NumConnectionsEatablished);
-	PackAddInt(p, "HalfConnection", c->HalfConnection);
-	PackAddInt(p, "QoS", c->QoS);
+	PackAddInt(p, "NumConnectionsEstablished", c->NumConnectionsEstablished);
+	PackAddBool(p, "HalfConnection", c->HalfConnection);
+	PackAddBool(p, "QoS", c->QoS);
 	PackAddInt(p, "MaxTcpConnections", c->MaxTcpConnections);
 	PackAddInt(p, "NumTcpConnections", c->NumTcpConnections);
 	PackAddInt(p, "NumTcpConnectionsUpload", c->NumTcpConnectionsUpload);
 	PackAddInt(p, "NumTcpConnectionsDownload", c->NumTcpConnectionsDownload);
-	PackAddInt(p, "UseEncrypt", c->UseEncrypt);
-	PackAddInt(p, "UseCompress", c->UseCompress);
-	PackAddInt(p, "IsRUDPSession", c->IsRUDPSession);
+	PackAddBool(p, "UseEncrypt", c->UseEncrypt);
+	PackAddBool(p, "UseCompress", c->UseCompress);
+	PackAddBool(p, "IsRUDPSession", c->IsRUDPSession);
 	PackAddStr(p, "UnderlayProtocol", c->UnderlayProtocol);
-	PackAddInt(p, "IsUdpAccelerationEnabled", c->IsUdpAccelerationEnabled);
-	PackAddInt(p, "IsUsingUdpAcceleration", c->IsUsingUdpAcceleration);
+	PackAddBool(p, "IsUdpAccelerationEnabled", c->IsUdpAccelerationEnabled);
+	PackAddBool(p, "IsUsingUdpAcceleration", c->IsUsingUdpAcceleration);
 
 	PackAddBool(p, "IsBridgeMode", c->IsBridgeMode);
 	PackAddBool(p, "IsMonitorMode", c->IsMonitorMode);
 
-	PackAddInt64(p, "StartTime", c->StartTime);
-	PackAddInt64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
-	PackAddInt64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
+	PackAddTime64(p, "StartTime", c->StartTime);
+	PackAddTime64(p, "FirstConnectionEstablisiedTime", c->FirstConnectionEstablisiedTime);
+	PackAddTime64(p, "CurrentConnectionEstablishTime", c->CurrentConnectionEstablishTime);
 	PackAddInt64(p, "TotalSendSize", c->TotalSendSize);
 	PackAddInt64(p, "TotalRecvSize", c->TotalRecvSize);
 	PackAddInt64(p, "TotalSendSizeReal", c->TotalSendSizeReal);
@@ -5119,29 +4915,6 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	}
 }
 
-void InRpcClientNotify(RPC_CLIENT_NOTIFY *n, PACK *p)
-{
-	// Validate arguments
-	if (n == NULL || p == NULL)
-	{
-		return;
-	}
-
-	Zero(n, sizeof(RPC_CLIENT_NOTIFY));
-
-	n->NotifyCode = PackGetInt(p, "NotifyCode");
-}
-void OutRpcClientNotify(PACK *p, RPC_CLIENT_NOTIFY *n)
-{
-	// Validate arguments
-	if (n == NULL || p == NULL)
-	{
-		return;
-	}
-
-	PackAddInt(p, "NotifyCode", n->NotifyCode);
-}
-
 // Notification main
 void CiNotifyMain(CLIENT *c, SOCK *s)
 {
@@ -5152,7 +4925,7 @@ void CiNotifyMain(CLIENT *c, SOCK *s)
 		return;
 	}
 
-	// Register a Cencel
+	// Register a Cancel
 	cancel = NewCancel();
 	LockList(c->NotifyCancelList);
 	{
@@ -5290,7 +5063,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 
 			err = Endian32(err);
 			SendAll(s, &err, sizeof(UINT), false);
-			RecvAll(s, &err, sizeof(UINT), false);
+			(void)RecvAll(s, &err, sizeof(UINT), false);
 		}
 		return;
 	}
@@ -5775,9 +5548,7 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 			reg_port = 0;
 		}
 	}
-#endif	// OS_WIN32
 
-	port_start = CLIENT_CONFIG_PORT - 1;
 	if (reg_port != 0)
 	{
 		s = Connect(server_name, reg_port);
@@ -5787,6 +5558,10 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
 			goto L_TRY;
 		}
 	}
+
+#endif	// OS_WIN32
+
+	port_start = CLIENT_CONFIG_PORT - 1;
 
 RETRY:
 	port_start++;
@@ -5854,7 +5629,7 @@ L_TRY:
 
 	SetTimeout(s, 10000);
 
-	Hash(hash_password, password, StrLen(password), true);
+	Sha0(hash_password, password, StrLen(password));
 
 	if (key != NULL)
 	{
@@ -6043,9 +5818,26 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				st->IsRUDPSession = s->IsRUDPSession;
 				// Physical communication protocol
 				StrCpy(st->UnderlayProtocol, sizeof(st->UnderlayProtocol), s->UnderlayProtocol);
+				// Protocol details
+				StrCpy(st->ProtocolDetails, sizeof(st->ProtocolDetails), s->ProtocolDetails);
+				Trim(st->ProtocolDetails);
 				// UDP acceleration function
-				st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
-				st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;
+				if (s->IpcSessionShared != NULL && IsEmptyStr(s->IpcSessionShared->ProtocolDetails) == false)
+				{
+					char tmp[sizeof(s->IpcSessionShared->ProtocolDetails)];
+					StrCpy(tmp, sizeof(tmp), s->IpcSessionShared->ProtocolDetails);
+					Trim(tmp);
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), " ");
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), tmp);
+
+					st->IsUdpAccelerationEnabled = s->IpcSessionShared->EnableUdpAccel;
+					st->IsUsingUdpAcceleration = s->IpcSessionShared->UsingUdpAccel;
+				}
+				else
+				{
+					st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
+					st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;
+				}
 				// Session key
 				Copy(st->SessionKey, s->SessionKey, SHA1_SIZE);
 				// Policy
@@ -6088,9 +5880,10 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 		// Connection start time
 		st->StartTime = TickToTime(s->CreatedTime);
 		// Connection completion time of the first connection
+		/* !!! Do not correct the spelling to keep the backward protocol compatibility !!!  */
 		st->FirstConnectionEstablisiedTime = TickToTime(s->FirstConnectionEstablisiedTime);
 		// Number of connections have been established so far
-		st->NumConnectionsEatablished = s->NumConnectionsEatablished;
+		st->NumConnectionsEstablished = s->NumConnectionsEstablished;
 	}
 	Unlock(s->lock);
 }
@@ -6343,11 +6136,6 @@ bool CiCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expired)
 			}
 			return false;
 		}
-	}
-
-	if (old_x != NULL)
-	{
-		FreeX(old_x);
 	}
 
 	return false;
@@ -6657,7 +6445,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 
 					CLog(c, "LC_CONNECT", connect->AccountName);
 
-					r->ClientSession = NewClientSessionEx(c->Cedar, r->ClientOption, r->ClientAuth, pa, r);
+					r->ClientSession = NewClientSessionEx(c->Cedar, r->ClientOption, r->ClientAuth, pa, r, &c->Config.NicDownOnDisconnect);
 					Notify(r->ClientSession, CLIENT_NOTIFY_ACCOUNT_CHANGED);
 
 					ret = true;
@@ -6672,6 +6460,82 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 	CiSaveConfigurationFile(c);
 
 	return ret;
+}
+
+// Put all unused TUN interfaces down
+// Requires account and VLan lists of the CLIENT argument to be already locked
+bool CtVLansDown(CLIENT *c)
+{
+#ifndef UNIX_LINUX
+	return true;
+#else
+	int i;
+	LIST *tmpVLanList;
+	UNIX_VLAN t, *r;
+	bool result = true;
+
+	if (c == NULL)
+	{
+		return false;
+	}
+
+	tmpVLanList = CloneList(c->UnixVLanList);
+	if (tmpVLanList == NULL)
+	{
+		return false;
+	}
+
+	// Remove from tmpVLanList all VLans corresponding to active sessions
+	for (i = 0; i < LIST_NUM(c->AccountList); ++i)
+	{
+		ACCOUNT *a = LIST_DATA(c->AccountList, i);
+		if (a->ClientSession == NULL)
+		{
+			continue;
+		}
+
+		Zero(&t, sizeof(t));
+		StrCpy(t.Name, sizeof(t.Name), a->ClientOption->DeviceName);
+		r = Search(tmpVLanList, &t);
+		Delete(tmpVLanList, r);
+	}
+
+	// Set down every VLan in tmpVLanList
+	for (i = 0; i < LIST_NUM(tmpVLanList) && result; ++i)
+	{
+		r = LIST_DATA(tmpVLanList, i);
+		result = UnixVLanSetState(r->Name, false);
+		// [MP:] Should we report *critical* error on failure?
+	}
+
+	ReleaseList(tmpVLanList);
+	return result;
+#endif
+}
+
+// Put all TUN interfaces up
+// Requires VLan list of the CLIENT argument to be already locked
+bool CtVLansUp(CLIENT *c)
+{
+#ifndef UNIX_LINUX
+	return true;
+#else
+	int i;
+	UNIX_VLAN *r;
+
+	if (c == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < LIST_NUM(c->UnixVLanList); ++i)
+	{
+		r = LIST_DATA(c->UnixVLanList, i);
+		UnixVLanSetState(r->Name, true);
+	}
+
+	return true;
+#endif
 }
 
 // Get the account information
@@ -6724,6 +6588,7 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 			a->StartupAccount = r->StartupAccount;
 
 			a->CheckServerCert = r->CheckServerCert;
+			a->RetryOnServerCert = r->RetryOnServerCert;
 			a->ServerCert = NULL;
 			if (r->ServerCert != NULL)
 			{
@@ -6893,6 +6758,20 @@ bool CtSetClientConfig(CLIENT *c, CLIENT_CONFIG *o)
 		}
 	}
 	Unlock(k->lock);
+
+	// Apply TAP state
+	LockList(c->AccountList);
+	LockList(c->UnixVLanList);
+	if (o->NicDownOnDisconnect)
+	{
+		CtVLansDown(c);
+	}
+	else
+	{
+		CtVLansUp(c);
+	}
+	UnlockList(c->UnixVLanList);
+	UnlockList(c->AccountList);
 
 	return true;
 }
@@ -7250,6 +7129,7 @@ bool CtSetAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 			ret->StartupAccount = a->StartupAccount;
 
 			ret->CheckServerCert = a->CheckServerCert;
+			ret->RetryOnServerCert = a->RetryOnServerCert;
 
 			if (a->ServerCert != NULL)
 			{
@@ -7356,6 +7236,7 @@ bool CtCreateAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 		new_account->StartupAccount = a->StartupAccount;
 
 		new_account->CheckServerCert = a->CheckServerCert;
+		new_account->RetryOnServerCert = a->RetryOnServerCert;
 		if (a->ServerCert != NULL)
 		{
 			new_account->ServerCert = CloneX(a->ServerCert);
@@ -8119,7 +8000,6 @@ bool CtGetVLan(CLIENT *c, RPC_CLIENT_GET_VLAN *get)
 // Initialize the driver version information structure
 void CiInitDriverVerStruct(MS_DRIVER_VER *ver)
 {
-	UINT cedar_ver = CEDAR_VER;
 	// Validate arguments
 	if (ver == NULL)
 	{
@@ -8131,9 +8011,9 @@ void CiInitDriverVerStruct(MS_DRIVER_VER *ver)
 	ver->Year = BUILD_DATE_Y;
 	ver->Month = BUILD_DATE_M;
 	ver->Day = BUILD_DATE_D;
-	ver->Major = cedar_ver / 100;
-	ver->Minor = cedar_ver % 100;
-	ver->Build = CEDAR_BUILD;
+	ver->Major = CEDAR_VERSION_MAJOR;
+	ver->Minor = CEDAR_VERSION_MINOR;
+	ver->Build = CEDAR_VERSION_BUILD;
 }
 #endif	// OS_WIN32
 
@@ -8302,8 +8182,8 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		GenMacAddress(r->MacAddress);
 		StrCpy(r->Name, sizeof(r->Name), create->DeviceName);
 
-		// Create a Tap
-		if (UnixVLanCreate(r->Name, r->MacAddress) == false)
+		// Create a TUN
+		if (UnixVLanCreate(r->Name, r->MacAddress, !c->Config.NicDownOnDisconnect) == false)
 		{
 			// Failure
 			Free(r);
@@ -8817,7 +8697,7 @@ bool CtGetPasswordSetting(CLIENT *c, RPC_CLIENT_PASSWORD_SETTING *a)
 		return false;
 	}
 
-	Hash(hash, "", 0, true);
+	Sha0(hash, "", 0);
 	if (Cmp(hash, c->EncryptedPassword, SHA1_SIZE) == 0)
 	{
 		a->IsPasswordPresented = false;
@@ -8840,19 +8720,13 @@ bool CtSetPassword(CLIENT *c, RPC_CLIENT_PASSWORD *pass)
 	{
 		return false;
 	}
-	if (pass->Password == NULL)
-	{
-		str = "";
-	}
-	else
-	{
-		str = pass->Password;
-	}
+
+	str = pass->Password;
 
 	if (StrCmp(str, "********") != 0)
 	{
 		// Hash the password
-		Hash(c->EncryptedPassword, str, StrLen(str), true);
+		Sha0(c->EncryptedPassword, str, StrLen(str));
 	}
 
 	c->PasswordRemoteOnly = pass->PasswordRemoteOnly;
@@ -9136,7 +9010,6 @@ void CiSetVLanToDefault(CLIENT *c)
 	}
 #else	// OS_WIN32
 	{
-		UINT i;
 		UNIX_VLAN *v;
 
 		LockList(c->UnixVLanList);
@@ -9206,18 +9079,10 @@ void CiInitConfiguration(CLIENT *c)
 		CLog(c, "LC_LOAD_CONFIG_3");
 		// Do the initial setup because the configuration file does not exist
 		// Clear the password
-		Hash(c->EncryptedPassword, "", 0, true);
+		Sha0(c->EncryptedPassword, "", 0);
 		// Initialize the client configuration
-		if (OS_IS_WINDOWS(GetOsInfo()->OsType))
-		{
-			// Disable remote management in Windows
-			c->Config.AllowRemoteConfig = false;
-		}
-		else
-		{
-			// Disable the remote management also in case of UNIX
-			c->Config.AllowRemoteConfig = false;
-		}
+		// Disable remote management
+		c->Config.AllowRemoteConfig = false;
 		StrCpy(c->Config.KeepConnectHost, sizeof(c->Config.KeepConnectHost), CLIENT_DEFAULT_KEEPALIVE_HOST);
 		c->Config.KeepConnectPort = CLIENT_DEFAULT_KEEPALIVE_PORT;
 		c->Config.KeepConnectProtocol = CONNECTION_UDP;
@@ -9371,6 +9236,7 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
 	c->AllowRemoteConfig = CfgGetBool(f, "AllowRemoteConfig");
 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
+	c->NicDownOnDisconnect = CfgGetBool(f, "NicDownOnDisconnect");
 }
 
 // Read the client authentication data
@@ -9461,6 +9327,7 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 	StrCpy(o->ProxyPassword, sizeof(o->ProxyPassword), s);
 	Free(s);
 	FreeBuf(b);
+	CfgGetStr(f, "CustomHttpHeader", o->CustomHttpHeader, sizeof(o->CustomHttpHeader));
 	o->NumRetry = CfgGetInt(f, "NumRetry");
 	o->RetryInterval = CfgGetInt(f, "RetryInterval");
 	CfgGetStr(f, "HubName", o->HubName, sizeof(o->HubName));
@@ -9478,7 +9345,6 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 	o->RequireBridgeRoutingMode = CfgGetBool(f, "RequireBridgeRoutingMode");
 	o->DisableQoS = CfgGetBool(f, "DisableQoS");
 	o->FromAdminPack = CfgGetBool(f, "FromAdminPack");
-	o->NoTls1 = CfgGetBool(f, "NoTls1");
 	o->NoUdpAcceleration = CfgGetBool(f, "NoUdpAcceleration");
 	
 	b = CfgGetBuf(f, "HostUniqueKey");
@@ -9530,6 +9396,7 @@ ACCOUNT *CiLoadClientAccount(FOLDER *f)
 
 	a->StartupAccount = CfgGetBool(f, "StartupAccount");
 	a->CheckServerCert = CfgGetBool(f, "CheckServerCert");
+	a->RetryOnServerCert = CfgGetBool(f, "RetryOnServerCert");
 	a->CreateDateTime = CfgGetInt64(f, "CreateDateTime");
 	a->UpdateDateTime = CfgGetInt64(f, "UpdateDateTime");
 	a->LastConnectDateTime = CfgGetInt64(f, "LastConnectDateTime");
@@ -9699,7 +9566,7 @@ void CiLoadVLan(CLIENT *c, FOLDER *f)
 	Add(c->UnixVLanList, v);
 
 #ifdef	OS_UNIX
-	UnixVLanCreate(v->Name, v->MacAddress);
+	UnixVLanCreate(v->Name, v->MacAddress, !c->Config.NicDownOnDisconnect);
 #endif	// OS_UNIX
 }
 
@@ -9786,6 +9653,8 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 			FreeBuf(pw);
 		}
 
+		CfgGetStr(proxy, "CustomHttpHeader", t.CustomHttpHeader, sizeof(t.CustomHttpHeader));
+
 		Copy(&c->CommonProxySetting, &t, sizeof(INTERNET_SETTING));
 	}
 
@@ -9813,7 +9682,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		UNIX_VLAN *uv;
 
 		// Create a Tap for MacOS X
-		if (UnixVLanCreate(CLIENT_MACOS_TAP_NAME, NULL) == false)
+		if (UnixVLanCreate(CLIENT_MACOS_TAP_NAME, NULL, !c->Config.NicDownOnDisconnect) == false)
 		{
 			// Fail (abort)
 			CLog(c, "LC_TAP_NOT_FOUND");
@@ -9832,7 +9701,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 
 	if (CfgGetByte(root, "EncryptedPassword", c->EncryptedPassword, SHA1_SIZE) == false)
 	{
-		Hash(c->EncryptedPassword, "", 0, true);
+		Sha0(c->EncryptedPassword, "", 0);
 	}
 
 	c->PasswordRemoteOnly = CfgGetBool(root, "PasswordRemoteOnly");
@@ -9923,6 +9792,7 @@ void CiWriteClientConfig(FOLDER *cc, CLIENT_CONFIG *config)
 	CfgAddBool(cc, "AllowRemoteConfig", config->AllowRemoteConfig);
 	CfgAddInt(cc, "KeepConnectInterval", config->KeepConnectInterval);
 	CfgAddBool(cc, "NoChangeWcmNetworkSettingOnWindows8", config->NoChangeWcmNetworkSettingOnWindows8);
+	CfgAddBool(cc, "NicDownOnDisconnect", config->NicDownOnDisconnect);
 }
 
 // Write the client authentication data
@@ -9994,6 +9864,7 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	b = EncryptPassword(o->ProxyPassword);
 	CfgAddByte(f, "ProxyPassword", b->Buf, b->Size);
 	FreeBuf(b);
+	CfgAddStr(f, "CustomHttpHeader", o->CustomHttpHeader);
 	CfgAddInt(f, "NumRetry", o->NumRetry);
 	CfgAddInt(f, "RetryInterval", o->RetryInterval);
 	CfgAddStr(f, "HubName", o->HubName);
@@ -10010,7 +9881,6 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	CfgAddBool(f, "RequireMonitorMode", o->RequireMonitorMode);
 	CfgAddBool(f, "RequireBridgeRoutingMode", o->RequireBridgeRoutingMode);
 	CfgAddBool(f, "DisableQoS", o->DisableQoS);
-	CfgAddBool(f, "NoTls1", o->NoTls1);
 	CfgAddBool(f, "NoUdpAcceleration", o->NoUdpAcceleration);
 
 	if (o->FromAdminPack)
@@ -10039,7 +9909,7 @@ char *DecryptPassword(BUF *b)
 	}
 
 	str = ZeroMalloc(b->Size + 1);
-	c = NewCrypt(key, sizeof(key));
+	c = NewCrypt(key, sizeof(key)); // NOTE by Daiyuu Nobori 2018-09-28: This is not a bug! Do not try to fix it!!
 	Encrypt(c, str, b->Buf, b->Size);
 	FreeCrypt(c);
 
@@ -10085,7 +9955,7 @@ BUF *EncryptPassword(char *password)
 	size = StrLen(password) + 1;
 	tmp = ZeroMalloc(size);
 
-	c = NewCrypt(key, sizeof(key));
+	c = NewCrypt(key, sizeof(key)); // NOTE by Daiyuu Nobori 2018-09-28: This is not a bug! Do not try to fix it!!
 	Encrypt(c, tmp, password, size - 1);
 	FreeCrypt(c);
 
@@ -10144,6 +10014,9 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
 
 	// Server certificate check flag
 	CfgAddBool(f, "CheckServerCert", a->CheckServerCert);
+
+	// Retry on invalid server certificate flag
+	CfgAddBool(f, "RetryOnServerCert", a->RetryOnServerCert);
 
 	// Date and time
 	CfgAddInt64(f, "CreateDateTime", a->CreateDateTime);
@@ -10326,6 +10199,8 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 
 			FreeBuf(pw);
 		}
+
+		CfgAddStr(proxy, "CustomHttpHeader", t->CustomHttpHeader);
 	}
 
 	// CA
@@ -10371,35 +10246,6 @@ void CiWriteSettingToCfg(CLIENT *c, FOLDER *root)
 			CfgAddByte(cmsetting, "HashedPassword", s->HashedPassword, sizeof(s->HashedPassword));
 		}
 	}
-}
-
-// Create the inner VPN Server
-SERVER *CiNewInnerVPNServer(CLIENT *c, bool relay_server)
-{
-	SERVER *s = NULL;
-	// Validate arguments
-	if (c == NULL)
-	{
-		return NULL;
-	}
-
-	SetNatTLowPriority();
-
-	s = SiNewServerEx(false, true, relay_server);
-
-	return s;
-}
-
-// Stop the inner VPN Server
-void CiFreeInnerVPNServer(CLIENT *c, SERVER *s)
-{
-	// Validate arguments
-	if (c == NULL || s == NULL)
-	{
-		return;
-	}
-
-	SiReleaseServer(s);
 }
 
 // Apply settings of Inner VPN Server
@@ -10524,7 +10370,7 @@ CLIENT *CiNewClient()
 
 	c->NotifyCancelList = NewList(NULL);
 
-	Hash(c->EncryptedPassword, "", 0, true);
+	Sha0(c->EncryptedPassword, "", 0);
 
 #ifdef	OS_WIN32
 	c->GlobalPulse = MsOpenOrCreateGlobalPulse(CLIENT_GLOBAL_PULSE_NAME);
@@ -10583,48 +10429,6 @@ CLIENT *CiNewClient()
 	CiApplyInnerVPNServerConfig(c);
 
 	return c;
-}
-
-// Examine whether two proxy server settings equal
-bool CompareInternetSetting(INTERNET_SETTING *s1, INTERNET_SETTING *s2)
-{
-	// Validate arguments
-	if (s1 == NULL || s2 == NULL)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType != s2->ProxyType)
-	{
-		return false;
-	}
-
-	if (s1->ProxyType == PROXY_DIRECT)
-	{
-		return true;
-	}
-
-	if (s1->ProxyPort != s2->ProxyPort)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyHostName, s2->ProxyHostName) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyUsername, s2->ProxyUsername) != 0)
-	{
-		return false;
-	}
-
-	if (StrCmp(s1->ProxyPassword, s2->ProxyPassword) != 0)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 // Send a global pulse
@@ -10779,20 +10583,6 @@ void CiDecrementNumActiveSessions()
 		}
 	}
 	Unlock(ci_active_sessions_lock);
-}
-
-// Get the number of active sessions
-UINT CiGetNumActiveSessions()
-{
-	UINT ret;
-
-	Lock(ci_active_sessions_lock);
-	{
-		ret = ci_num_active_sessions;
-	}
-	Unlock(ci_active_sessions_lock);
-
-	return ret;
 }
 
 // Release the client
@@ -10962,19 +10752,6 @@ void CiCheckOs()
 			exit(0);
 		}
 	}
-}
-
-// Get the client object
-CLIENT *CtGetClient()
-{
-	if (client == NULL)
-	{
-		return NULL;
-	}
-
-	AddRef(client->ref);
-
-	return client;
 }
 
 // Client status indicator

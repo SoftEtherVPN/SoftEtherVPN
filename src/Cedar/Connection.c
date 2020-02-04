@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Connection.c
@@ -659,26 +553,16 @@ void WriteSendFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 		return;
 	}
 
-	if (s->UseFastRC4)
-	{
-		Encrypt(ts->SendKey, data, data, size);
-	}
-
 	WriteFifo(ts->SendFifo, data, size);
 }
 
-// Write data to the reception FIFO (automatic deccyption)
+// Write data to the reception FIFO (automatic decryption)
 void WriteRecvFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Validate arguments
 	if (s == NULL || ts == NULL || data == NULL)
 	{
 		return;
-	}
-
-	if (s->UseFastRC4)
-	{
-		Encrypt(ts->RecvKey, data, data, size);
 	}
 
 	WriteFifo(ts->RecvFifo, data, size);
@@ -688,14 +572,14 @@ void WriteRecvFifo(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 UINT TcpSockRecv(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Receive
-	return Recv(ts->Sock, data, size, s->UseSSLDataEncryption);
+	return Recv(ts->Sock, data, size, s->UseEncrypt);
 }
 
 // TCP socket send
 UINT TcpSockSend(SESSION *s, TCPSOCK *ts, void *data, UINT size)
 {
 	// Transmission
-	return Send(ts->Sock, data, size, s->UseSSLDataEncryption);
+	return Send(ts->Sock, data, size, s->UseEncrypt);
 }
 
 // Send the data as UDP packet
@@ -892,7 +776,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 					block = NewBlock(tmp, size, 0);
 
 					// Insert Block
-					InsertReveicedBlockToQueue(c, block, false);
+					InsertReceivedBlockToQueue(c, block, false);
 				}
 			}
 
@@ -909,7 +793,7 @@ void PutUDPPacketData(CONNECTION *c, void *data, UINT size)
 }
 
 // Add a block to the receive queue
-void InsertReveicedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock)
+void InsertReceivedBlockToQueue(CONNECTION *c, BLOCK *block, bool no_lock)
 {
 	SESSION *s;
 	// Validate arguments
@@ -1082,12 +966,12 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			for (i = 0;i < num;i++)
 			{
 				TCPSOCK *tcpsock = tcpsocks[i];
-				if (tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
+				if (s != NULL && tcpsock->Sock->Connected && tcpsock->Sock->AsyncMode &&
 					IS_SEND_TCP_SOCK(tcpsock))
 				{
 					// Processing of KeepAlive
 					if (now >= tcpsock->NextKeepAliveTime || tcpsock->NextKeepAliveTime == 0 ||
-						(s != NULL && s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
+						(s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
 					{
 						// Send the KeepAlive
 						SendKeepAlive(c, tcpsock);
@@ -1181,7 +1065,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 			UINT j;
 			QUEUE *q;
 
-			if (s->UdpAccel != NULL)
+			if (s != NULL && s->UdpAccel != NULL)
 			{
 				UdpAccelSetTick(s->UdpAccel, now);
 			}
@@ -1276,6 +1160,8 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 										s->TotalSendSizeReal += b->Size;
 
 										c->CurrentSendQueueSize -= b->Size;
+
+										Free(new_buf);
 									}
 
 									FreeBlock(b);
@@ -1589,7 +1475,7 @@ SEND_START:
 				{
 					// Packet data array
 					void **datas = MallocFast(sizeof(void *) * num_packet);
-					UINT *sizes = MallocFast(sizeof(UINT *) * num_packet);
+					UINT *sizes = MallocFast(sizeof(UINT) * num_packet);
 					UINT i;
 
 					i = 0;
@@ -1831,7 +1717,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 					else
 					{
 						// Add the data block to queue
-						InsertReveicedBlockToQueue(c, b, true);
+						InsertReceivedBlockToQueue(c, b, true);
 
 						if ((current_packet_index % 32) == 0)
 						{
@@ -1914,7 +1800,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 								else
 								{
 									// Add the data block to queue
-									InsertReveicedBlockToQueue(c, block, true);
+									InsertReceivedBlockToQueue(c, block, true);
 
 									if ((current_packet_index % 32) == 0)
 									{
@@ -1979,7 +1865,7 @@ void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2)
 						else
 						{
 							// Add the data block to queue
-							InsertReveicedBlockToQueue(c, block, true);
+							InsertReceivedBlockToQueue(c, block, true);
 
 							if ((current_packet_index % 32) == 0)
 							{
@@ -2208,7 +2094,7 @@ DISCONNECT_THIS_TCP:
 							else
 							{
 								// Add the data block to queue
-								InsertReveicedBlockToQueue(c, block, true);
+								InsertReceivedBlockToQueue(c, block, true);
 
 								if ((current_packet_index % 32) == 0)
 								{
@@ -2477,7 +2363,7 @@ DISCONNECT_THIS_TCP:
 			else
 			{
 				// Add the data block to queue
-				InsertReveicedBlockToQueue(c, block, true);
+				InsertReceivedBlockToQueue(c, block, true);
 			}
 			num++;
 			if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
@@ -2558,7 +2444,7 @@ DISCONNECT_THIS_TCP:
 			}
 			else
 			{
-				InsertReveicedBlockToQueue(c, block, true);
+				InsertReceivedBlockToQueue(c, block, true);
 			}
 
 			num++;
@@ -2675,7 +2561,7 @@ DISCONNECT_THIS_TCP:
 						}
 						else
 						{
-							InsertReveicedBlockToQueue(c, block, true);
+							InsertReceivedBlockToQueue(c, block, true);
 						}
 						num++;
 						if (num >= MAX_SEND_SOCKET_QUEUE_NUM)
@@ -2690,7 +2576,7 @@ DISCONNECT_THIS_TCP:
 		else
 		{
 			ETH *e;
-			// Bridge is stopped cureently
+			// Bridge is stopped currently
 			Select(NULL, SELECT_TIME, c1, NULL);
 
 			if (b->LastBridgeTry == 0 || (b->LastBridgeTry + BRIDGE_TRY_SPAN) <= Tick64())
@@ -2798,6 +2684,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 
 	b = MallocFast(sizeof(BLOCK));
 
+	b->RawFlagRetUdpAccel = 0;
+
 	b->IsFlooding = false;
 
 	b->PriorityQoS = b->Ttl = b->Param1 = 0;
@@ -2865,34 +2753,6 @@ TCPSOCK *NewTcpSock(SOCK *s)
 	SetTimeout(s, TIMEOUT_INFINITE);
 
 	return ts;
-}
-
-// Set a encryption key for the TCP socket
-void InitTcpSockRc4Key(TCPSOCK *ts, bool server_mode)
-{
-	RC4_KEY_PAIR *pair;
-	CRYPT *c1, *c2;
-	// Validate arguments
-	if (ts == NULL)
-	{
-		return;
-	}
-
-	pair = &ts->Rc4KeyPair;
-
-	c1 = NewCrypt(pair->ClientToServerKey, sizeof(pair->ClientToServerKey));
-	c2 = NewCrypt(pair->ServerToClientKey, sizeof(pair->ServerToClientKey));
-
-	if (server_mode)
-	{
-		ts->RecvKey = c1;
-		ts->SendKey = c2;
-	}
-	else
-	{
-		ts->SendKey = c1;
-		ts->RecvKey = c2;
-	}
 }
 
 // Release of TCP socket
@@ -3033,7 +2893,7 @@ UINT GetMachineRand()
 	Zero(pcname, sizeof(pcname));
 	GetMachineName(pcname, sizeof(pcname));
 
-	HashSha1(hash, pcname, StrLen(pcname));
+	Sha1(hash, pcname, StrLen(pcname));
 
 	return READ_UINT(hash);
 }
@@ -3045,21 +2905,8 @@ void ConnectionAccept(CONNECTION *c)
 	X *x;
 	K *k;
 	char tmp[128];
-	UCHAR openssl_check_buf[2];
-	char *error_details = NULL;
-	SERVER *server;
-	UCHAR *peek_buf = NULL;
-	UINT peek_buf_size = 1500;
-	char sni[256] = {0};
-	bool native1 = false;
-	bool native2 = false;
-	bool native3 = false;
-	bool no_native = false;
-	UINT peek_size = 0;
 	UINT initial_timeout = CONNECTING_TIMEOUT;
-	bool no_peek_log = false;
 	UCHAR ctoken_hash[SHA1_SIZE];
-	bool no_write_ctoken_log = false;
 
 	// Validate arguments
 	if (c == NULL)
@@ -3069,13 +2916,7 @@ void ConnectionAccept(CONNECTION *c)
 
 	Zero(ctoken_hash, sizeof(ctoken_hash));
 
-	peek_buf = ZeroMalloc(peek_buf_size);
-
-	Debug("ConnectionAccept()\n");
-
-	server = c->Cedar->Server;
-
-	// get a socket
+	// Get a socket
 	s = c->FirstSock;
 	AddRef(s->ref);
 
@@ -3089,37 +2930,18 @@ void ConnectionAccept(CONNECTION *c)
 	initial_timeout += GetMachineRand() % (CONNECTING_TIMEOUT / 2);
 	SetTimeout(s, initial_timeout);
 
-
-	// Peek whether OpenSSL packet
-	if (s->IsReverseAcceptedSocket == false)
+	// Handle third-party protocols
+	if (s->IsReverseAcceptedSocket == false && s->Type == SOCK_TCP)
 	{
-		if (s->Type == SOCK_TCP && (c->Cedar != NULL && c->Cedar->Server != NULL && c->Cedar->Server->DisableOpenVPNServer == false))
+		if (c->Cedar != NULL && c->Cedar->Server != NULL)
 		{
-			if (Peek(s, openssl_check_buf, sizeof(openssl_check_buf)) == sizeof(openssl_check_buf))
+			c->Type = CONNECTION_TYPE_OTHER;
+
+			if (ProtoHandleConnection(c->Cedar, s) == true)
 			{
-				if (OvsCheckTcpRecvBufIfOpenVPNProtocol(openssl_check_buf, sizeof(openssl_check_buf)))
-				{
-					// Detect OpenSSL packet
-					Debug("Detect OpenSSL on TCP!\n");
-
-					no_native = true;
-
-					if (OvsGetNoOpenVpnTcp() == false)
-					{
-						// Do OpenSSL processing
-						c->Type = CONNECTION_TYPE_OPENVPN;
-						if (OvsPerformTcpServer(c->Cedar, s) == false)
-						{
-							error_details = "OpenVPN_TCP_Aborted";
-						}
-					}
-
-					goto ERROR;
-				}
+				goto FINAL;
 			}
 		}
-
-
 	}
 
 	// Specify the encryption algorithm
@@ -3136,21 +2958,17 @@ void ConnectionAccept(CONNECTION *c)
 	Unlock(c->Cedar->lock);
 
 	// Start the SSL communication
-	Debug("StartSSL()\n");
 	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
 	if (StartSSL(s, x, k) == false)
 	{
 		// Failed
 		AddNoSsl(c->Cedar, &s->RemoteIP);
-		Debug("Failed to StartSSL.\n");
+		Debug("ConnectionAccept(): StartSSL() failed\n");
 		FreeX(x);
 		FreeK(k);
 
-		error_details = "StartSSL";
-
-		goto ERROR;
+		goto FINAL;
 	}
-
 
 	FreeX(x);
 	FreeK(k);
@@ -3163,29 +2981,18 @@ void ConnectionAccept(CONNECTION *c)
 	if (ServerAccept(c) == false)
 	{
 		// Failed
-		Debug("ServerAccept Failed. Err = %u\n", c->Err);
-		goto ERROR;
+		Debug("ConnectionAccept(): ServerAccept() failed with error %u\n", c->Err);
 	}
 
+FINAL:
 	if (c->flag1 == false)
 	{
 		Debug("%s %u c->flag1 == false\n", __FILE__, __LINE__);
 		Disconnect(s);
 	}
+
 	DelConnection(c->Cedar, c);
 	ReleaseSock(s);
-
-	Free(peek_buf);
-	return;
-
-ERROR:
-	Debug("ConnectionAccept() Error.\n");
-
-
-	Disconnect(s);
-	DelConnection(c->Cedar, c);
-	ReleaseSock(s);
-	Free(peek_buf);
 }
 
 // Stop the threads putting additional connection of all that are currently running
@@ -3658,9 +3465,6 @@ CONNECTION *NewClientConnectionEx(SESSION *s, char *client_str, UINT client_ver,
 	// Server name and port number
 	StrCpy(c->ServerName, sizeof(c->ServerName), s->ClientOption->Hostname);
 	c->ServerPort = s->ClientOption->Port;
-
-	// TLS 1.0 using flag
-	c->DontUseTls1 = s->ClientOption->NoTls1;
 
 	// Create queues
 	c->ReceivedBlocks = NewQueue();

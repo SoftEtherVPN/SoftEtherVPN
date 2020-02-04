@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // WinUi.c
@@ -214,7 +108,7 @@ UINT UpdateConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 		LoadUpdateUiSetting(u, &s);
 
 		Check(hWnd, S_ENABLE, s.DisableCheck == false);
-		Check(hWnd, S_DISBLE, s.DisableCheck);
+		Check(hWnd, S_DISABLE, s.DisableCheck);
 
 		DlgFont(hWnd, S_TITLE, 10, true);
 		FormatText(hWnd, S_TITLE, u->SoftwareTitle);
@@ -246,7 +140,7 @@ UINT UpdateConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 LABEL_CLOSE:
 		LoadUpdateUiSetting(u, &s);
 
-		s.DisableCheck = IsChecked(hWnd, S_DISBLE);
+		s.DisableCheck = IsChecked(hWnd, S_DISABLE);
 
 		if (s.DisableCheck)
 		{
@@ -1130,25 +1024,6 @@ void FreeWizard(WIZARD *w)
 	Free(w);
 }
 
-// Get the index page of the wizard
-UINT GetWizardPageIndex(WIZARD *w, UINT id)
-{
-	WIZARD_PAGE *p;
-	// Validate arguments
-	if (w == NULL || id == 0)
-	{
-		return INFINITE;
-	}
-
-	p = GetWizardPage(w, id);
-	if (p == NULL)
-	{
-		return INFINITE;
-	}
-
-	return p->Index;
-}
-
 // Get the wizard page
 WIZARD_PAGE *GetWizardPage(WIZARD *w, UINT id)
 {
@@ -1479,7 +1354,7 @@ void WinConnectDlgThread(THREAD *thread, void *param)
 		nat_t_svc_name = d->nat_t_svc_name;
 	}
 
-	s = ConnectEx3(d->hostname, d->port, d->timeout, &d->cancel, nat_t_svc_name, &nat_t_error_code, d->try_start_ssl, d->ssl_no_tls, false);
+	s = ConnectEx3(d->hostname, d->port, d->timeout, &d->cancel, nat_t_svc_name, &nat_t_error_code, d->try_start_ssl, false);
 
 	d->ret_sock = s;
 	d->nat_t_error_code = nat_t_error_code;
@@ -1555,11 +1430,7 @@ UINT WinConnectDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 }
 
 // TCP connection with showing the UI
-SOCK *WinConnectEx2(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, bool try_start_ssl, bool ssl_no_tls)
-{
-	return WinConnectEx3(hWnd, server, port, timeout, icon_id, caption, info, NULL, false, try_start_ssl, ssl_no_tls);
-}
-SOCK *WinConnectEx3(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, UINT *nat_t_error_code, char *nat_t_svc_name, bool try_start_ssl, bool ssl_no_tls)
+SOCK *WinConnectEx3(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, UINT *nat_t_error_code, char *nat_t_svc_name, bool try_start_ssl)
 {
 	wchar_t tmp[MAX_SIZE];
 	wchar_t tmp2[MAX_SIZE];
@@ -1595,7 +1466,6 @@ SOCK *WinConnectEx3(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_
 	Zero(&d, sizeof(d));
 
 	d.try_start_ssl = try_start_ssl;
-	d.ssl_no_tls = ssl_no_tls;
 	d.cancel = false;
 	d.caption = caption;
 	d.icon_id = icon_id;
@@ -1917,7 +1787,7 @@ UINT GetOnceMsgHash(wchar_t *title, wchar_t *message)
 	// 2013.5.19: Exclude the title from the hash calculation
 	//WriteBuf(b, title, UniStrSize(title));
 	WriteBuf(b, message, UniStrSize(message));
-	HashSha1(hash, b->Buf, b->Size);
+	Sha1(hash, b->Buf, b->Size);
 	FreeBuf(b);
 
 	Copy(&ret, hash, sizeof(UINT));
@@ -1989,8 +1859,8 @@ void RegistWindowsFirewallAllEx(char *dir)
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd.exe", dir);
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd_x64.exe", dir);
 
-	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "ham.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "ham_x64.exe", dir);
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest.exe", dir);
+	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest_x64.exe", dir);
 }
 
 // Check whether the notification service is already running
@@ -2021,183 +1891,6 @@ bool Win32CnCheckAlreadyExists(bool lock)
 	}
 
 	return false;
-}
-
-// Get whether it is set to not display the dialog about the free version
-bool IsRegistedToDontShowFreeEditionDialog(char *server_name)
-{
-	// Validate arguments
-	if (server_name == NULL)
-	{
-		return false;
-	}
-
-	if (MsRegReadInt(REG_LOCAL_MACHINE, FREE_REGKEY, server_name) != 0)
-	{
-		return true;
-	}
-
-	if (MsRegWriteInt(REG_LOCAL_MACHINE, FREE_REGKEY, "__test__", 1) == false)
-	{
-		return true;
-	}
-
-	MsRegDeleteValue(REG_LOCAL_MACHINE, FREE_REGKEY, "__test__");
-
-	return false;
-}
-
-// Set in the registry not to show a dialog about the free version
-void RegistToDontShowFreeEditionDialog(char *server_name)
-{
-	// Validate arguments
-	if (server_name == NULL)
-	{
-		return;
-	}
-
-	MsRegWriteInt(REG_LOCAL_MACHINE, FREE_REGKEY, server_name, 1);
-}
-
-// Free Edition dialog procedure
-UINT FreeInfoDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
-{
-	FREEINFO *info = (FREEINFO *)param;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	switch (msg)
-	{
-	case WM_INITDIALOG:
-		SetIcon(hWnd, 0, ICO_HUB);
-		Top(hWnd);
-		info->hWnd = hWnd;
-		Set(info->Event);
-		FormatText(hWnd, S_INFO_2, info->ServerName);
-		DlgFont(hWnd, S_INFO_1, 13, true);
-		DlgFont(hWnd, S_INFO_3, 13, false);
-		DlgFont(hWnd, B_HIDE, 10, true);
-		break;
-
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case IDOK:
-		case IDCANCEL:
-			if (IsChecked(hWnd, B_HIDE))
-			{
-				RegistToDontShowFreeEditionDialog(info->ServerName);
-			}
-
-			Close(hWnd);
-			break;
-		}
-		break;
-
-	case WM_CLOSE:
-		EndDialog(hWnd, 0);
-		break;
-	}
-
-	return 0;
-}
-
-// Display the dialog about the Free Edition
-void ShowFreeInfoDialog(HWND hWnd, FREEINFO *info)
-{
-	// Validate arguments
-	if (info == NULL)
-	{
-		return;
-	}
-
-	Dialog(hWnd, D_FREEINFO, FreeInfoDialogProc, info);
-	Set(info->Event);
-}
-
-// Free Edition dialog thread
-void FreeInfoThread(THREAD *thread, void *param)
-{
-	FREEINFO *info = (FREEINFO *)param;
-	// Validate arguments
-	if (thread == NULL || info == NULL)
-	{
-		return;
-	}
-
-	ShowFreeInfoDialog(NULL, info);
-}
-
-// Start the Free Edition Announcement dialog
-FREEINFO *StartFreeInfoDlg(char *server_name)
-{
-	FREEINFO *info;
-
-	if (IsRegistedToDontShowFreeEditionDialog(server_name))
-	{
-		return NULL;
-	}
-
-	info = ZeroMalloc(sizeof(FREEINFO));
-
-	StrCpy(info->ServerName, sizeof(info->ServerName), server_name);
-	info->Event = NewEvent();
-
-	info->Thread = NewThread(FreeInfoThread, info);
-	Wait(info->Event, INFINITE);
-	ReleaseEvent(info->Event);
-	info->Event = NULL;
-
-	return info;
-}
-
-// End the Free Edition Announcement dialog
-void EndFreeInfoDlg(FREEINFO *info)
-{
-	// Validate arguments
-	if (info == NULL)
-	{
-		return;
-	}
-
-	SendMsg(info->hWnd, 0, WM_CLOSE, 0, 0);
-	WaitThread(info->Thread, INFINITE);
-	ReleaseThread(info->Thread);
-
-	Free(info);
-}
-
-// Execute a EXE in the hamcore
-bool ExecuteHamcoreExe(char *name)
-{
-	BUF *b;
-	wchar_t tmp[MAX_PATH];
-	char tmp2[MAX_PATH];
-	UCHAR hash[MD5_SIZE];
-	// Validate arguments
-	if (name == NULL)
-	{
-		return false;
-	}
-
-	b = ReadDump(name);
-	if (b == NULL)
-	{
-		return false;
-	}
-
-	Hash(hash, name, StrLen(name), false);
-	BinToStr(tmp2, sizeof(tmp2), hash, sizeof(hash));
-	UniFormat(tmp, sizeof(tmp), L"%s\\tmp_%S.exe", MsGetMyTempDirW(), tmp2);
-	SeekBuf(b, 0, 0);
-	DumpBufW(b, tmp);
-
-	FreeBuf(b);
-
-	return RunW(tmp, NULL, false, false);
 }
 
 // Show the Easter Egg
@@ -2924,40 +2617,6 @@ HFONT GetDialogDefaultFontEx(bool meiryo)
 	return GetFont(default_font_name, default_font_size, false, false, false, false);
 }
 
-// Get the adjustment scale between the control size and the window size
-void GetWindowAndControlSizeResizeScale(HWND hWnd, bool *need_resize, double *factor_x, double *factor_y)
-{
-	UINT dlgfont_x, dlgfont_y;
-	HFONT hDlgFont;
-	// Validate arguments
-	if (hWnd == NULL || need_resize == NULL || factor_x == NULL || factor_y == NULL)
-	{
-		return;
-	}
-
-	*need_resize = true;
-
-	// Get the font of the current window
-	hDlgFont = (HFONT)SendMsg(hWnd, 0, WM_GETFONT, 0, 0);
-
-	// Get the width and height of the font of the current window
-	CalcFontSize(hDlgFont, &dlgfont_x, &dlgfont_y);
-
-	if ((dlgfont_x == WINUI_DEFAULT_DIALOG_UNIT_X) &&
-		(dlgfont_y == WINUI_DEFAULT_DIALOG_UNIT_Y))
-	{
-		// There is no need to adjust
-		*need_resize = false;
-		*factor_x = 1.0;
-		*factor_y = 1.0;
-		return;
-	}
-
-	// Calculate the adjustment amount
-	*factor_x = (double)dlgfont_x / (double)WINUI_DEFAULT_DIALOG_UNIT_X;
-	*factor_y = (double)dlgfont_y / (double)WINUI_DEFAULT_DIALOG_UNIT_Y;
-}
-
 // Adjust the control size and window size
 void AdjustWindowAndControlSize(HWND hWnd, bool *need_resize, double *factor_x, double *factor_y)
 {
@@ -3651,20 +3310,6 @@ char *StringDlgA(HWND hWnd, wchar_t *title, wchar_t *info, char *def, UINT icon,
 	return ret;
 }
 
-// Draw frame
-void LedDrawRect(LED *d)
-{
-	RECT r;
-	// Validate arguments
-	if (d == NULL)
-	{
-		return;
-	}
-
-	SetRect(&r, 0, 0, LED_WIDTH, LED_HEIGHT);
-	FrameRect(d->hDC, &r, GetStockObject(WHITE_BRUSH));
-}
-
 // Restarting dialog
 UINT Win9xRebootDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 {
@@ -3789,7 +3434,7 @@ void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a)
 	SetText(hWnd, 0, tmp);
 
 	SetFont(hWnd, S_INFO1, GetFont("Arial", 12, false, false, false, false));
-	FormatText(hWnd, S_INFO1, CEDAR_VER / 100, CEDAR_VER / 100, CEDAR_VER % 100, CEDAR_BUILD);
+	FormatText(hWnd, S_INFO1, CEDAR_VERSION_MAJOR, CEDAR_VERSION_MAJOR, CEDAR_VERSION_MINOR, CEDAR_VERSION_BUILD);
 
 	SetFont(hWnd, S_INFO2, GetFont("Arial", 8, false, false, false, false));
 	FormatText(hWnd, S_INFO2, BUILD_DATE_Y, a->Cedar->BuildInfo);
@@ -3919,11 +3564,6 @@ void AboutEx(HWND hWnd, CEDAR *cedar, wchar_t *product_name, WINUI_UPDATE *u)
 	Dialog(hWnd, D_ABOUT, AboutDlgProc, &a);
 }
 
-// Test
-void UiTest()
-{
-}
-
 // Examine the number of fields that an IP address is entered
 UINT IpGetFilledNum(HWND hWnd, UINT id)
 {
@@ -3961,18 +3601,6 @@ bool IpIsFilled(HWND hWnd, UINT id)
 	{
 		return true;
 	}
-}
-
-// Clear the IP address
-void IpClear(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, IPM_CLEARADDRESS, 0, 0);
 }
 
 // Get an IP address
@@ -4352,6 +3980,186 @@ void LvRename(HWND hWnd, UINT id, UINT pos)
 	ListView_EditLabel(DlgItem(hWnd, id), pos);
 }
 
+// Enhanced function
+LRESULT CALLBACK LvEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("LvEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	case WM_MOUSEWHEEL:
+	{
+		// Prevent graphical glitches with the edit box by sending the NM_RETURN signal
+		// to the parent dialog (the parent dialog has to delete the edit box on NM_RETURN)
+		NMHDR nmh;
+		nmh.code = NM_RETURN;
+		nmh.idFrom = GetDlgCtrlID(hWnd);
+		nmh.hwndFrom = hWnd;
+		SendMsg(GetParent(hWnd), 0, WM_NOTIFY, nmh.idFrom, (LPARAM)&nmh);
+
+		break;
+	}
+	case WM_CLOSE:
+		// Prevent list view from disappearing after pressing ESC in an edit box
+		return 0;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		LvSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void LvSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)LvEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
+}
+
+// Enhanced function
+LRESULT CALLBACK EditBoxEnhancedProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WNDPROC func = NULL;
+
+	if (MsIsNt())
+	{
+		func = (WNDPROC)GetPropW(hWnd, L"ORIGINAL_FUNC");
+	}
+	else
+	{
+		func = (WNDPROC)GetPropA(hWnd, "ORIGINAL_FUNC");
+	}
+
+	if (func == NULL)
+	{
+		Debug("EditBoxEnhancedProc(): GetProp() returned NULL!\n");
+		return 1;
+	}
+
+	switch (msg)
+	{
+	case WM_CHAR:
+		switch (wParam)
+		{
+		// CTRL + A
+		case 1:
+			SelectEdit(hWnd, 0);
+			return 0;
+		case VK_RETURN:
+			SendMsg(GetParent(hWnd), 0, WM_KEYDOWN, VK_RETURN, 0);
+			return 0;
+		case VK_ESCAPE:
+			DestroyWindow(hWnd);
+			return 0;
+		}
+		break;
+	case WM_NCDESTROY:
+		// Restore original function during destruction
+		EditBoxSetEnhanced(hWnd, 0, false);
+	}
+
+	if (MsIsNt())
+	{
+		return CallWindowProcW(func, hWnd, msg, wParam, lParam);
+	}
+	else
+	{
+		return CallWindowProcA(func, hWnd, msg, wParam, lParam);
+	}
+}
+
+// Toggle enhanced function
+void EditBoxSetEnhanced(HWND hWnd, UINT id, bool enable)
+{
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		if (MsIsNt())
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC", fn);
+		}
+		else
+		{
+			const HANDLE fn = (HANDLE)SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)EditBoxEnhancedProc);
+			SetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC", fn);
+		}
+	}
+	else
+	{
+		if (MsIsNt())
+		{
+			SetWindowLongPtrW(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC"));
+			RemovePropW(DlgItem(hWnd, id), L"ORIGINAL_FUNC");
+		}
+		else
+		{
+			SetWindowLongPtrA(DlgItem(hWnd, id), GWLP_WNDPROC, (LONG_PTR)GetPropA(DlgItem(hWnd, id), "ORIGINAL_FUNC"));
+			RemovePropA(DlgItem(hWnd, id), "ORIGINAL_FUNC");
+		}
+	}
+}
+
 // Show the menu
 void PrintMenu(HWND hWnd, HMENU hMenu)
 {
@@ -4533,39 +4341,6 @@ void SetMenuItemBold(HMENU hMenu, UINT pos, bool bold)
 	else
 	{
 		info.fState = info.fState & ~MFS_DEFAULT;
-	}
-
-	SetMenuItemInfo(hMenu, pos, true, &info);
-}
-
-// Enable / disable the menu item
-void SetMenuItemEnable(HMENU hMenu, UINT pos, bool enable)
-{
-	MENUITEMINFO info;
-	// Validate arguments
-	if (hMenu == NULL || pos == INFINITE)
-	{
-		return;
-	}
-
-	Zero(&info, sizeof(info));
-	info.cbSize = sizeof(info);
-	info.fMask = MIIM_STATE;
-
-	if (GetMenuItemInfo(hMenu, pos, true, &info) == false)
-	{
-		return;
-	}
-
-	if (enable)
-	{
-		info.fState |= MFS_ENABLED;
-		info.fState = info.fState & ~MFS_DISABLED;
-	}
-	else
-	{
-		info.fState |= MFS_DISABLED;
-		info.fState = info.fState & ~MFS_ENABLED;
 	}
 
 	SetMenuItemInfo(hMenu, pos, true, &info);
@@ -5703,10 +5478,6 @@ UINT LvInsertItemByImageListIdA(HWND hWnd, UINT id, UINT image, void *param, cha
 }
 
 // Change the image
-void LvSetItemImage(HWND hWnd, UINT id, UINT index, UINT icon)
-{
-	LvSetItemImageByImageListId(hWnd, id, index, GetIcon(icon));
-}
 void LvSetItemImageByImageListId(HWND hWnd, UINT id, UINT index, UINT image)
 {
 	LVITEM t;
@@ -5828,18 +5599,6 @@ void LvSetView(HWND hWnd, UINT id, bool details)
 		RemoveStyle(hWnd, id, LVS_REPORT);
 		SetStyle(hWnd, id, LVS_ICON);
 	}
-}
-
-// Ensure that the specified item is visible
-void LvShow(HWND hWnd, UINT id, UINT index)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	ListView_EnsureVisible(DlgItem(hWnd, id), index, false);
 }
 
 // Get whether there is currently selected item
@@ -5999,31 +5758,6 @@ bool LvIsMasked(HWND hWnd, UINT id)
 	return true;
 }
 
-// Get the number of items that are currently masked
-UINT LvGetMaskedNum(HWND hWnd, UINT id)
-{
-	UINT i = INFINITE;
-	UINT num = 0;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	while (true)
-	{
-		i = LvGetNextMasked(hWnd, id, i);
-		if (i == INFINITE)
-		{
-			break;
-		}
-
-		num++;
-	}
-
-	return num;
-}
-
 // Get the items that is currently masked
 UINT LvGetNextMasked(HWND hWnd, UINT id, UINT start)
 {
@@ -6034,27 +5768,6 @@ UINT LvGetNextMasked(HWND hWnd, UINT id, UINT start)
 	}
 
 	return ListView_GetNextItem(DlgItem(hWnd, id), start, LVNI_SELECTED);
-}
-
-// Search an item with the specified string
-UINT LvSearchStr_(HWND hWnd, UINT id, UINT pos, wchar_t *str)
-{
-	UINT ret;
-	LVFINDINFOW t;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	Zero(&t, sizeof(t));
-	t.flags = LVFI_STRING;
-	t.psz = str;
-	t.vkDirection = VK_DOWN;
-
-	ret = SendMsg(hWnd, id, LVM_FINDITEMW, -1, (LPARAM)&t);
-
-	return ret;
 }
 
 // Search an item with the specified string
@@ -6811,143 +6524,6 @@ STATUS_WINDOW *StatusPrinterWindowStart(SOCK *s, wchar_t *account_name)
 	return sw;
 }
 
-// Get the string
-wchar_t *LbGetStr(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return NULL;
-	}
-
-	return GetText(hWnd, id);
-}
-
-// String search
-UINT LbFindStr(HWND hWnd, UINT id, wchar_t *str)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_FINDSTRING, -1, (LPARAM)str);
-
-	return ret;
-}
-
-// Get the number of items
-UINT LbNum(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	return SendMsg(hWnd, id, LB_GETCOUNT, 0, 0);
-}
-
-// Add a string
-UINT LbAddStr(HWND hWnd, UINT id, wchar_t *str, UINT data)
-{
-	UINT ret;
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = LbAddStrA(hWnd, id, s, data);
-		Free(s);
-		return ret;
-	}
-
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_ADDSTRING, 0, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelectIndex(hWnd, id, 0);
-	}
-
-	return ret;
-}
-UINT LbAddStrA(HWND hWnd, UINT id, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_ADDSTRING, 0, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelectIndex(hWnd, id, 0);
-	}
-
-	return ret;
-}
-
-// Insert a string
-UINT LbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data)
-{
-	UINT ret;
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = LbInsertStrA(hWnd, id, index, s, data);
-		Free(s);
-		return ret;
-	}
-
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
-UINT LbInsertStrA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, LB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, LB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (LbNum(hWnd, id) == 1)
-	{
-		LbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
-
 // Remove all
 void LbReset(HWND hWnd, UINT id)
 {
@@ -6958,128 +6534,6 @@ void LbReset(HWND hWnd, UINT id)
 	}
 
 	SendMsg(hWnd, id, LB_RESETCONTENT, 0, 0);
-}
-
-// Select by specifying the index
-void LbSelectIndex(HWND hWnd, UINT id, UINT index)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, LB_SETCURSEL, index, 0);
-}
-
-// Get the data
-UINT LbGetData(HWND hWnd, UINT id, UINT index)
-{
-	// Validate arguments
-	if (hWnd == NULL || index == INFINITE)
-	{
-		return INFINITE;
-	}
-
-	return SendMsg(hWnd, id, LB_GETITEMDATA, index, 0);
-}
-
-// Search for the data
-UINT LbFindData(HWND hWnd, UINT id, UINT data)
-{
-	UINT i, num;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	num = LbNum(hWnd, id);
-	if (num == INFINITE)
-	{
-		return INFINITE;
-	}
-
-	for (i = 0;i < num;i++)
-	{
-		if (LbGetData(hWnd, id, i) == data)
-		{
-			return i;
-		}
-	}
-
-	return INFINITE;
-}
-
-// Set the height of the item
-void LbSetHeight(HWND hWnd, UINT id, UINT value)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SendMsg(hWnd, id, LB_SETITEMHEIGHT, 0, (UINT)(GetTextScalingFactor() * (double)value));
-}
-
-// Search by specifying the data
-void LbSelect(HWND hWnd, UINT id, int data)
-{
-	UINT index;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	if (data == INFINITE)
-	{
-		// Get the first item
-		LbSelectIndex(hWnd, id, 0);
-		return;
-	}
-
-	index = LbFindData(hWnd, id, data);
-	if (index == INFINITE)
-	{
-		// Can not be found
-		return;
-	}
-
-	// Select
-	LbSelectIndex(hWnd, id, index);
-}
-
-// Get the currently selected item
-UINT LbGetSelectIndex(HWND hWnd, UINT id)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	return SendMsg(hWnd, id, LB_GETCURSEL, 0, 0);
-}
-
-// Get the value that is currently selected
-UINT LbGetSelect(HWND hWnd, UINT id)
-{
-	UINT index;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return INFINITE;
-	}
-
-	index = LbGetSelectIndex(hWnd, id);
-	if (index == INFINITE)
-	{
-		return INFINITE;
-	}
-
-	return LbGetData(hWnd, id, index);
 }
 
 // Password input dialog state change
@@ -7234,54 +6688,6 @@ UINT CbAddStr9xA(HWND hWnd, UINT id, char *str, UINT data)
 		{
 			CbSelectIndex(hWnd, id, 0);
 		}
-	}
-
-	return ret;
-}
-
-// Insert a string
-UINT CbInsertStr(HWND hWnd, UINT id, UINT index, wchar_t *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	if (MsIsNt() == false)
-	{
-		char *s = CopyUniToStr(str);
-		ret = CbInsertStr9xA(hWnd, id, index, s, data);
-		Free(s);
-		return ret;
-	}
-
-	ret = SendMsg(hWnd, id, CB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, CB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (CbNum(hWnd, id) == 1)
-	{
-		CbSelect(hWnd, id, 0);
-	}
-
-	return ret;
-}
-UINT CbInsertStr9xA(HWND hWnd, UINT id, UINT index, char *str, UINT data)
-{
-	UINT ret;
-	// Validate arguments
-	if (hWnd == NULL || str == NULL)
-	{
-		return INFINITE;
-	}
-
-	ret = SendMsg(hWnd, id, CB_INSERTSTRING, index, (LPARAM)str);
-	SendMsg(hWnd, id, CB_SETITEMDATA, ret, (LPARAM)data);
-
-	if (CbNum(hWnd, id) == 1)
-	{
-		CbSelect(hWnd, id, 0);
 	}
 
 	return ret;
@@ -7847,155 +7253,6 @@ UINT PassphraseDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 
 	case WM_CLOSE:
 		EndDialog(hWnd, false);
-		break;
-	}
-
-	return 0;
-}
-
-// PKCS utility
-void PkcsUtil()
-{
-	InitWinUi(_UU("PKCS_UTIL_TITLE"), _SS("DEFAULT_FONT"), _II("DEFAULT_FONT_SIZE"));
-	Dialog(NULL, D_PKCSUTIL, PkcsUtilProc, NULL);
-	FreeWinUi();
-}
-
-// PKCS writing
-void PkcsUtilWrite(HWND hWnd)
-{
-	wchar_t *filename;
-	BUF *in_buf;
-	char filename_ansi[MAX_SIZE];
-	char pass[MAX_SIZE];
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	filename = OpenDlg(hWnd, _UU("DLG_PKCS12_FILTER"), _UU("PKCS_UTIL_SAVEDLG_TITLE"));
-	if (filename == NULL)
-	{
-		return;
-	}
-
-	UniToStr(filename_ansi, sizeof(filename_ansi), filename);
-
-	in_buf = ReadDump(filename_ansi);
-
-	if (in_buf == NULL)
-	{
-		MsgBoxEx(hWnd, MB_ICONEXCLAMATION, _UU("PKCS_UTIL_READ_ERROR"), filename);
-	}
-	else
-	{
-		if (PassphraseDlg(hWnd, pass, sizeof(pass), in_buf, true))
-		{
-			P12 *p12 = BufToP12(in_buf);
-			if (p12 == NULL)
-			{
-				MsgBox(hWnd, MB_ICONEXCLAMATION, _UU("PKCS_UTIL_BAD_FILE"));
-			}
-			else
-			{
-				X *x = NULL;
-				K *k = NULL;
-				BUF *b;
-				ParseP12(p12, &x, &k, pass);
-				FreeP12(p12);
-				p12 = NewP12(x, k, NULL);
-				FreeX(x);
-				FreeK(k);
-				b = P12ToBuf(p12);
-				FreeP12(p12);
-				if (b != NULL)
-				{
-					// Batch processing
-					WINUI_SECURE_BATCH batch[] =
-					{
-						{WINUI_SECURE_WRITE_DATA, _SS("PKCS_UTIL_SECA_FILENAME"), false,
-							b, NULL, NULL, NULL, NULL, NULL},
-					};
-
-					if (SecureDeviceWindow(hWnd, batch, sizeof(batch) / sizeof(batch[0]), 2, 0))
-					{
-						MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("PKCS_UTIL_WRITE_OK_MSG"), filename);
-					}
-				}
-				FreeBuf(b);
-			}
-		}
-
-		FreeBuf(in_buf);
-	}
-
-	Free(filename);
-}
-
-// PKCS erase
-void PkcsUtilErase(HWND hWnd)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2,
-		_UU("PKCS_MAKE_SURE")) == IDYES)
-	{
-		// Batch processing
-		WINUI_SECURE_BATCH batch[] =
-		{
-			{WINUI_SECURE_DELETE_OBJECT, _SS("PKCS_UTIL_SECA_FILENAME"), false,
-				NULL, NULL, NULL, NULL, NULL, NULL},
-		};
-
-		if (SecureDeviceWindow(hWnd, batch, sizeof(batch) / sizeof(batch[0]), 2, 0))
-		{
-			MsgBox(hWnd, MB_ICONINFORMATION, _UU("PKCS_UTIL_DELETE_OK_MSG"));
-		}
-	}
-}
-
-// PKCS Utility dialog
-UINT PkcsUtilProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	switch (msg)
-	{
-	case WM_INITDIALOG:
-		DlgFont(hWnd, S_TITLE, 12, true);
-		SetIcon(hWnd, 0, ICO_CERT);
-		SetFont(hWnd, S_COPYRIGHT, GetFont("Arial", 8, false, false, false, false));
-		break;
-
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case B_WRITE:
-			PkcsUtilWrite(hWnd);
-			break;
-
-		case B_ERASE:
-			PkcsUtilErase(hWnd);
-			break;
-
-		case IDCANCEL:
-			Close(hWnd);
-			break;
-		}
-
-		break;
-
-	case WM_CLOSE:
-		EndDialog(hWnd, 0);
 		break;
 	}
 
@@ -8935,114 +8192,6 @@ UINT DialogEx2(HWND hWnd, UINT id, WINUI_DIALOG_PROC *proc, void *param, bool wh
 	return ret;
 }
 
-// Create a modeless dialog
-HWND DialogCreateEx(HWND hWnd, UINT id, WINUI_DIALOG_PROC *proc, void *param, bool white)
-{
-	HWND ret = NULL;
-	DIALOG_PARAM p;
-	// Validate arguments
-	if (id == 0)
-	{
-		return 0;
-	}
-
-	Zero(&p, sizeof(p));
-	p.param = param;
-	p.white = white;
-	p.proc = proc;
-
-	if (MsIsNt() == false)
-	{
-		// Win9x
-		ret = CreateDialogParamA(hDll, MAKEINTRESOURCEA(id), hWnd,
-			(DLGPROC)proc, (LPARAM)param);
-	}
-	else
-	{
-		// WinNT
-		ret = CreateDialogParamW(hDll, MAKEINTRESOURCEW(id), hWnd,
-			(DLGPROC)proc, (LPARAM)param);
-	}
-
-	return ret;
-}
-
-// Set the bitmap to the button
-void SetBitmap(HWND hWnd, UINT id, UINT bmp_id)
-{
-	HBITMAP bmp;
-	char *class_name;
-	DIALOG_PARAM *dialog_param = NULL;
-	bool need_resize = 0;
-	double resize_x = 1.0;
-	double resize_y = 1.0;
-	bool add_to_free_list = false;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	bmp = LoadImage(hDll, MAKEINTRESOURCE(bmp_id), IMAGE_BITMAP, 0, 0, (MsIsNt() ? LR_SHARED : 0) | LR_VGACOLOR);
-	if (bmp == NULL)
-	{
-		return;
-	}
-
-	dialog_param = GetParam(hWnd);
-
-	// Determine the need for resizing
-	if (dialog_param)
-	{
-		if (MsIsVista())
-		{
-			GetWindowAndControlSizeResizeScale(hWnd, &need_resize, &resize_x, &resize_y);
-
-			if (need_resize)
-			{
-				// Resize
-				UINT src_x, src_y, dst_x, dst_y;
-
-				if (GetBitmapSize(bmp, &src_x, &src_y))
-				{
-					HBITMAP new_bmp;
-					double scale_factor = MIN(resize_x, resize_y);
-
-					dst_x = (UINT)((double)src_x * scale_factor);
-					dst_y = (UINT)((double)src_y * scale_factor);
-
-					new_bmp = ResizeBitmap(bmp, src_x, src_y, dst_x, dst_y);
-
-					if (new_bmp != NULL)
-					{
-						bmp = new_bmp;
-
-						add_to_free_list = true;
-					}
-				}
-			}
-		}
-	}
-
-	class_name = GetClassA(hWnd, id);
-
-	if (StrCmpi(class_name, "Static") != 0)
-	{
-		SendMsg(hWnd, id, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-	}
-	else
-	{
-		SendMsg(hWnd, id, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-	}
-
-	Free(class_name);
-
-	if (add_to_free_list)
-	{
-		Add(dialog_param->BitmapList, bmp);
-	}
-}
-
 // Initialize the icon cache
 void InitIconCache()
 {
@@ -9251,44 +8400,6 @@ void Check(HWND hWnd, UINT id, bool b)
 	}
 }
 
-// Confirm that the character size of the text-box is less than or equal to specified size
-bool CheckTextSize(HWND hWnd, UINT id, UINT size, bool unicode)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return false;
-	}
-
-	if (GetTextSize(hWnd, id, unicode) <= size)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-// Confirm that a length of the string in the text-box is less than or equal to the specified size
-bool CheckTextLen(HWND hWnd, UINT id, UINT len, bool unicode)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return false;
-	}
-
-	if (GetTextLen(hWnd, id, unicode) <= len)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 // Limit the number of characters that can be entered into the text-box
 void LimitText(HWND hWnd, UINT id, UINT count)
 {
@@ -9320,58 +8431,6 @@ void SetFontEx(HWND hWnd, UINT id, HFONT hFont, bool no_adjust_font_size)
 	{
 		AdjustFontSize(hWnd, id);
 	}
-}
-
-// Get the font size
-bool GetFontSize(HFONT hFont, UINT *x, UINT *y)
-{
-	bool ret = false;
-	UINT xx = 0;
-	UINT yy = 0;
-
-	// Search for the font handle
-	LockList(font_list);
-	{
-		UINT i;
-
-		for (i = 0;i < LIST_NUM(font_list);i++)
-		{
-			FONT *f = LIST_DATA(font_list, i);
-
-			if (f->hFont == hFont)
-			{
-				xx = f->x;
-				yy = f->y;
-
-				ret = true;
-				break;
-			}
-		}
-	}
-	UnlockList(font_list);
-
-	if (ret == false)
-	{
-		ret = CalcFontSize(hFont, &xx, &yy);
-	}
-
-	if (xx == 0 || yy == 0)
-	{
-		xx = 8;
-		yy = 16;
-	}
-
-	if (x != NULL)
-	{
-		*x = xx;
-	}
-
-	if (y != NULL)
-	{
-		*y = yy;
-	}
-
-	return ret;
 }
 
 // Calculate the font size
@@ -9758,45 +8817,6 @@ void CenterParent(HWND hWnd)
 	SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
-// Get the coordinates of the client region of the window
-void GetWindowClientRect(HWND hWnd, struct tagRECT *rect)
-{
-	RECT r1, r2;
-	HWND hParent;
-	WINDOWINFO info;
-	Zero(rect, sizeof(RECT));
-	// Validate arguments
-	if (hWnd == NULL || rect == NULL)
-	{
-		return;
-	}
-
-	hParent = GetParent(hWnd);
-	if (hParent == NULL)
-	{
-		return;
-	}
-
-	Zero(&info, sizeof(info));
-	info.cbSize = sizeof(WINDOWINFO);
-
-	if (GetWindowInfo(hParent, &info) == false)
-	{
-		return;
-	}
-
-	if (GetWindowRect(hWnd, &r1) == false ||
-		GetWindowRect(hParent, &r2) == false)
-	{
-		return;
-	}
-
-	rect->left = r1.left - r2.left - (info.rcClient.left - info.rcWindow.left);
-	rect->right = r1.right - r2.left - (info.rcClient.left - info.rcWindow.left);
-	rect->top = r1.top - r2.top - (info.rcClient.top - info.rcWindow.top);
-	rect->bottom = r1.bottom - r2.top - (info.rcClient.top - info.rcWindow.top);
-}
-
 // Move the window to the center
 void Center(HWND hWnd)
 {
@@ -9840,19 +8860,6 @@ void Center(HWND hWnd)
 	SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
-// Get the size of the monitor
-void GetMonitorSize(UINT *width, UINT *height)
-{
-	// Validate arguments
-	if (width == NULL || height == NULL)
-	{
-		return;
-	}
-
-	*width = GetSystemMetrics(SM_CXSCREEN);
-	*height = GetSystemMetrics(SM_CYSCREEN);
-}
-
 // Format the string in the window
 void FormatText(HWND hWnd, UINT id, ...)
 {
@@ -9883,83 +8890,6 @@ void FormatText(HWND hWnd, UINT id, ...)
 	Free(buf);
 
 	Free(str);
-	va_end(args);
-}
-void FormatTextA(HWND hWnd, UINT id, ...)
-{
-	va_list args;
-	char *buf;
-	UINT size;
-	char *str;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	str = GetTextA(hWnd, id);
-	if (str == NULL)
-	{
-		return;
-	}
-
-	size = MAX(StrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, id);
-	FormatArgs(buf, size, str, args);
-
-	SetTextA(hWnd, id, buf);
-
-	Free(buf);
-
-	Free(str);
-	va_end(args);
-}
-
-// Set a variable-length argument string to the window
-void SetTextEx(HWND hWnd, UINT id, wchar_t *str, ...)
-{
-	va_list args;
-	wchar_t *buf;
-	UINT size;
-	// Validate arguments
-	if (str == NULL || hWnd == NULL)
-	{
-		return;
-	}
-
-	size = MAX(UniStrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, str);
-	UniFormatArgs(buf, size, str, args);
-
-	SetText(hWnd, id, buf);
-
-	Free(buf);
-	va_end(args);
-}
-void SetTextExA(HWND hWnd, UINT id, char *str, ...)
-{
-	va_list args;
-	char *buf;
-	UINT size;
-	// Validate arguments
-	if (str == NULL || hWnd == NULL)
-	{
-		return;
-	}
-
-	size = MAX(StrSize(str) * 10, MAX_SIZE * 10);
-	buf = MallocEx(size, true);
-
-	va_start(args, str);
-	FormatArgs(buf, size, str, args);
-
-	SetTextA(hWnd, id, buf);
-
-	Free(buf);
 	va_end(args);
 }
 
@@ -10044,13 +8974,6 @@ UINT DialogInternal(HWND hWnd, UINT id, DIALOG_PROC *proc, void *param)
 		// WinNT
 		return (UINT)DialogBoxParamW(hDll, MAKEINTRESOURCEW(id), hWnd, (DLGPROC)proc, (LPARAM)param);
 	}
-}
-
-// Notice that the system configuration has been updated
-void NoticeSettingChange()
-{
-	PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0);
-	DoEvents(NULL);
 }
 
 // Dialog box procedure managed by WinUi
@@ -10152,18 +9075,6 @@ void *GetParam(HWND hWnd)
 
 	ret = (void *)GetWindowLongPtr(hWnd, DWLP_USER);
 	return ret;
-}
-
-// Relieve the window from foreground
-void NoTop(HWND hWnd)
-{
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return;
-	}
-
-	SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 // Show the windows as foreground
@@ -10354,21 +9265,6 @@ UINT GetStyle(HWND hWnd, UINT id)
 	}
 
 	return GetWindowLong(DlgItem(hWnd, id), GWL_STYLE);
-}
-
-// Get the number of bytes of the text
-UINT GetTextSize(HWND hWnd, UINT id, bool unicode)
-{
-	UINT len;
-	// Validate arguments
-	if (hWnd == NULL)
-	{
-		return 0;
-	}
-
-	len = GetTextLen(hWnd, id, unicode);
-
-	return len + (unicode ? 2 : 1);
 }
 
 // Get the number of characters in the text
@@ -10786,70 +9682,6 @@ bool IsEnable(HWND hWnd, UINT id)
 	}
 
 	return IsWindowEnabled(DlgItem(hWnd, id));
-}
-
-static LOCK *winui_debug_lock = NULL;
-
-// Initialize the debug function
-void WinUiDebugInit()
-{
-	winui_debug_lock = NewLock();
-}
-
-// Release the debug function
-void WinUiDebugFree()
-{
-	DeleteLock(winui_debug_lock);
-}
-
-// Write a string to the debug file
-void WinUiDebug(wchar_t *str)
-{
-	wchar_t tmp[1024];
-	char dtstr[256];
-	char *buf;
-	wchar_t exename[MAX_PATH];
-	UINT tid;
-	// Validate arguments
-	if (str == NULL)
-	{
-		return;
-	}
-
-	tid = GetCurrentThreadId();
-
-	GetExeNameW(exename, sizeof(exename));
-	GetFileNameFromFilePathW(exename, sizeof(exename), exename);
-
-	GetDateTimeStrMilli64(dtstr, sizeof(dtstr), LocalTime64());
-
-	UniFormat(tmp, sizeof(tmp), L"[%S] (%s:%u) %s\r\n", dtstr, exename, tid, str);
-
-	buf = CopyUniToUtf(tmp);
-
-	Lock(winui_debug_lock);
-	{
-		IO *o = FileOpenEx(WINUI_DEBUG_TEXT, true, true);
-		if (o == NULL)
-		{
-			o = FileCreate(WINUI_DEBUG_TEXT);
-		}
-
-		if (o != NULL)
-		{
-			UINT size = FileSize(o);
-
-			FileSeek(o, FILE_BEGIN, size);
-
-			FileWrite(o, buf, StrLen(buf));
-			FileFlush(o);
-
-			FileClose(o);
-		}
-	}
-	Unlock(winui_debug_lock);
-
-	Free(buf);
 }
 
 // If the control protrude by large font size, adjust into appropriate size
@@ -11271,19 +10103,6 @@ HWND DlgItem(HWND hWnd, UINT id)
 	}
 }
 
-// Set the title
-void SetWinUiTitle(wchar_t *title)
-{
-	// Validate arguments
-	if (title == NULL)
-	{
-		return;
-	}
-
-	Free(title_bar);
-	title_bar = CopyUniStr(title);
-}
-
 // Initialize the WinUi
 void InitWinUi(wchar_t *software_name, char *font, UINT fontsize)
 {
@@ -11301,8 +10120,6 @@ void InitWinUi(wchar_t *software_name, char *font, UINT fontsize)
 	{
 		return;
 	}
-
-	WinUiDebugInit();
 
 	if (MayaquaIsMinimalMode() == false)
 	{
@@ -11427,8 +10244,6 @@ void FreeWinUi()
 
 	Free(font_name);
 	font_name = NULL;
-
-	WinUiDebugFree();
 
 	if (hCommonDC != NULL)
 	{

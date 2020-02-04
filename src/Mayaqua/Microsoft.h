@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Microsoft.h
@@ -649,7 +543,6 @@ void MsFree();
 char *MsCutExeNameFromCommandLine(char *str);
 wchar_t *MsCutExeNameFromUniCommandLine(wchar_t *str);
 
-DWORD MsRegAccessMaskFor64Bit(bool force32bit);
 DWORD MsRegAccessMaskFor64BitEx(bool force32bit, bool force64bit);
 
 bool MsRegIsKey(UINT root, char *name);
@@ -660,18 +553,7 @@ bool MsRegIsValue(UINT root, char *keyname, char *valuename);
 bool MsRegIsValueEx(UINT root, char *keyname, char *valuename, bool force32bit);
 bool MsRegIsValueEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit);
 
-bool MsRegGetValueTypeAndSize(UINT root, char *keyname, char *valuename, UINT *type, UINT *size);
-bool MsRegGetValueTypeAndSizeEx(UINT root, char *keyname, char *valuename, UINT *type, UINT *size, bool force32bit);
-bool MsRegGetValueTypeAndSizeEx2(UINT root, char *keyname, char *valuename, UINT *type, UINT *size, bool force32bit, bool force64bit);
-bool MsRegGetValueTypeAndSizeW(UINT root, char *keyname, char *valuename, UINT *type, UINT *size);
-bool MsRegGetValueTypeAndSizeExW(UINT root, char *keyname, char *valuename, UINT *type, UINT *size, bool force32bit);
-bool MsRegGetValueTypeAndSizeEx2W(UINT root, char *keyname, char *valuename, UINT *type, UINT *size, bool force32bit, bool force64bit);
-
-bool MsRegReadValue(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size);
-bool MsRegReadValueEx(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit);
 bool MsRegReadValueEx2(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit, bool force64bit);
-bool MsRegReadValueW(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size);
-bool MsRegReadValueExW(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit);
 bool MsRegReadValueEx2W(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit, bool force64bit);
 
 char *MsRegReadStr(UINT root, char *keyname, char *valuename);
@@ -692,15 +574,9 @@ BUF *MsRegReadBin(UINT root, char *keyname, char *valuename);
 BUF *MsRegReadBinEx(UINT root, char *keyname, char *valuename, bool force32bit);
 BUF *MsRegReadBinEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit);
 
-bool MsRegNewKey(UINT root, char *keyname);
-bool MsRegNewKeyEx(UINT root, char *keyname, bool force32bit);
 bool MsRegNewKeyEx2(UINT root, char *keyname, bool force32bit, bool force64bit);
 
-bool MsRegWriteValue(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size);
-bool MsRegWriteValueEx(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size, bool force32bit);
 bool MsRegWriteValueEx2(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size, bool force32bit, bool force64bit);
-bool MsRegWriteValueW(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size);
-bool MsRegWriteValueExW(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size, bool force32bit);
 bool MsRegWriteValueEx2W(UINT root, char *keyname, char *valuename, UINT type, void *data, UINT size, bool force32bit, bool force64bit);
 
 bool MsRegWriteStr(UINT root, char *keyname, char *valuename, char *str);
@@ -750,21 +626,14 @@ char *MsGetExeFileName();
 char *MsGetExeDirName();
 wchar_t *MsGetExeDirNameW();
 
-void MsIsLockedThreadProc(THREAD *thread, void *param);
-MS_ISLOCKED *MsNewIsLocked();
-void MsFreeIsLocked(MS_ISLOCKED *d);
 void MsStartIsLockedThread();
 void MsStopIsLockedThread();
-bool MsDetermineIsLockedByWtsApi();
-
 
 bool MsShutdown(bool reboot, bool force);
-bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message);
 bool MsCheckLogon(wchar_t *username, char *password);
-bool MsIsPasswordEmpty(wchar_t *username);
 TOKEN_LIST *MsEnumNetworkAdapters(char *start_with_name, char *start_with_name_2);
 TOKEN_LIST *MsEnumNetworkAdaptersNeo();
-bool MsGetNeoDeiverFilename(char *name, UINT size, char *instance_name);
+bool MsGetNeoDriverFilename(char *name, UINT size, char *instance_name);
 bool MsMakeNewNeoDriverFilename(char *name, UINT size);
 void MsGenerateNeoDriverFilenameFromInt(char *name, UINT size, UINT n);
 TOKEN_LIST *MsEnumNeoDriverFilenames();
@@ -786,10 +655,6 @@ void MsGenLockFile(wchar_t *name, UINT size, wchar_t *temp_dir);
 void MsDeleteTempDir();
 void MsDeleteAllFile(char *dir);
 void MsDeleteAllFileW(wchar_t *dir);
-char *MsCreateTempFileName(char *name);
-char *MsCreateTempFileNameByExt(char *ext);
-IO *MsCreateTempFile(char *name);
-IO *MsCreateTempFileByExt(char *ext);
 
 bool MsInstallVLan(char *tag_name, char *connection_tag_name, char *instance_name, MS_DRIVER_VER *ver);
 bool MsInstallVLanWithoutLock(char *tag_name, char *connection_tag_name, char *instance_name, MS_DRIVER_VER *ver);
@@ -816,7 +681,6 @@ void MsGetDriverPath(char *instance_name, wchar_t *src_inf, wchar_t *src_sys, wc
 void MsGetDriverPathA(char *instance_name, char *src_inf, char *src_sys, char *dest_inf, char *dest_sys, char *src_cat, char *dst_cat, char *neo_sys);
 void MsGenMacAddress(UCHAR *mac);
 char *MsGetMacAddress(char *tag_name, char *instance_name);
-char *MsGetNetCfgRegKeyName(char *tag_name, char *instance_name);
 void MsSetMacAddress(char *tag_name, char *instance_name, char *mac_address);
 char *MsGetDriverVersion(char *tag_name, char *instance_name);
 char *MsGetDriverFileName(char *tag_name, char *instance_name);
@@ -824,65 +688,36 @@ void MsTest();
 void MsInitGlobalNetworkConfig();
 void MsDisableNetworkOffloadingEtc();
 void MsSetThreadPriorityHigh();
-void MsSetThreadPriorityLow();
 void MsSetThreadPriorityIdle();
 void MsSetThreadPriorityRealtime();
 void MsRestoreThreadPriority();
-char *MsGetLocalAppDataDir();
-char *MsGetCommonAppDataDir();
 char *MsGetWindowsDir();
 char *MsGetSystem32Dir();
 char *MsGetTempDir();
-char *MsGetWindowsDrive();
 char *MsGetProgramFilesDir();
-char *MsGetProgramFilesDirX86();
-char *MsGetProgramFilesDirX64();
-char *MsGetCommonStartMenuDir();
-char *MsGetCommonProgramsDir();
 char *MsGetCommonStartupDir();
-char *MsGetCommonAppDataDir();
-char *MsGetCommonDesktopDir();
-char *MsGetPersonalStartMenuDir();
-char *MsGetPersonalProgramsDir();
-char *MsGetPersonalStartupDir();
-char *MsGetPersonalAppDataDir();
-char *MsGetPersonalDesktopDir();
-char *MsGetMyDocumentsDir();
 char *MsGetMyTempDir();
-char *MsGetUserName();
-char *MsGetUserNameEx();
-char *MsGetWinTempDir();
 wchar_t *MsGetWindowsDirW();
 wchar_t *MsGetExeFileNameW();
 wchar_t *MsGetExeFileDirW();
-wchar_t *MsGetWindowDirW();
 wchar_t *MsGetSystem32DirW();
 wchar_t *MsGetTempDirW();
-wchar_t *MsGetWindowsDriveW();
-wchar_t *MsGetProgramFilesDirW();
-wchar_t *MsGetProgramFilesDirX86W();
 wchar_t *MsGetProgramFilesDirX64W();
 wchar_t *MsGetCommonStartMenuDirW();
 wchar_t *MsGetCommonProgramsDirW();
 wchar_t *MsGetCommonStartupDirW();
-wchar_t *MsGetCommonAppDataDirW();
 wchar_t *MsGetCommonDesktopDirW();
 wchar_t *MsGetPersonalStartMenuDirW();
 wchar_t *MsGetPersonalProgramsDirW();
 wchar_t *MsGetPersonalStartupDirW();
 wchar_t *MsGetPersonalAppDataDirW();
 wchar_t *MsGetPersonalDesktopDirW();
-wchar_t *MsGetMyDocumentsDirW();
-wchar_t *MsGetLocalAppDataDirW();
 wchar_t *MsGetMyTempDirW();
 wchar_t *MsGetUserNameW();
-wchar_t *MsGetUserNameExW();
-wchar_t *MsGetWinTempDirW();
 struct SAFE_TABLE *MsGetSafeTable();
 UINT MsGetProcessId();
 void MsTerminateProcess();
 bool MsIsServiceInstalled(char *name);
-bool MsInstallService(char *name, char *title, wchar_t *description, char *path);
 bool MsInstallServiceExW(char *name, wchar_t *title, wchar_t *description, wchar_t *path, UINT *error_code);
 bool MsInstallServiceW(char *name, wchar_t *title, wchar_t *description, wchar_t *path);
 bool MsInstallDeviceDriverW(char *name, wchar_t *title, wchar_t *path, UINT *error_code);
@@ -895,21 +730,17 @@ bool MsStopService(char *name);
 bool MsIsServiceRunning(char *name);
 bool MsIsTerminalServiceInstalled();
 bool MsIsUserSwitchingInstalled();
-bool MsIsTerminalServiceMultiUserInstalled();
 UINT MsGetCurrentTerminalSessionId();
 bool MsIsTerminalSessionActive(UINT session_id);
 bool MsIsCurrentTerminalSessionActive();
-bool MsIsCurrentDesktopAvailableForVnc();
 wchar_t *MsGetSessionUserName(UINT session_id);
 UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT icon, char *cmd_line);
 void MsTestModeW(wchar_t *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop);
 void MsTestMode(char *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop);
 void MsServiceMode(SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop);
 void MsUserModeW(wchar_t *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT icon);
-void MsUserMode(char *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT icon);
 bool MsIsUserMode();
 void MsTestOnly();
-void MsStopUserModeFromService();
 char *MsGetPenCoreDllFileName();
 void MsPlaySound(char *name);
 void MsSetThreadSingleCpu();
@@ -921,10 +752,8 @@ LIST *MsGetProcessList();
 LIST *MsGetProcessList9x();
 LIST *MsGetProcessListNt();
 void MsFreeProcessList(LIST *o);
-void MsPrintProcessList(LIST *o);
 int MsCompareProcessList(void *p1, void *p2);
 MS_PROCESS *MsSearchProcessById(LIST *o, UINT id);
-void MsGetCurrentProcessExeName(char *name, UINT size);
 void MsGetCurrentProcessExeNameW(wchar_t *name, UINT size);
 bool MsKillProcess(UINT id);
 UINT MsKillProcessByExeName(wchar_t *name);
@@ -966,9 +795,6 @@ void *MsLoadLibrary(char *name);
 void *MsLoadLibraryW(wchar_t *name);
 void *MsLoadLibraryAsDataFile(char *name);
 void *MsLoadLibraryAsDataFileW(wchar_t *name);
-void *MsLoadLibraryRawW(wchar_t *name);
-void MsFreeLibrary(void *h);
-void *MsGetProcAddress(void *h, char *name);
 
 void MsPrintTick();
 bool MsDisableIme();
@@ -1000,13 +826,10 @@ void AddWindow(LIST *o, HWND hWnd);
 void FreeWindowList(LIST *o);
 LIST *EnumAllChildWindow(HWND hWnd);
 LIST *EnumAllChildWindowEx(HWND hWnd, bool no_recursion, bool include_ipcontrol, bool no_self);
-LIST *EnumAllWindow();
-LIST *EnumAllWindowEx(bool no_recursion, bool include_ipcontrol);
 LIST *EnumAllTopWindow();
 
 bool MsExecDriverInstaller(char *arg);
 bool MsIsVista();
-bool MsIsWin2000();
 bool MsIsWin2000OrGreater();
 bool MsIsWinXPOrGreater();
 void MsRegistWindowsFirewallEx(char *title, char *exe);
@@ -1016,112 +839,54 @@ bool MsIsX64();
 bool MsIsIA64();
 void *MsDisableWow64FileSystemRedirection();
 void MsRestoreWow64FileSystemRedirection(void *p);
-void MsSetWow64FileSystemRedirectionEnable(bool enable);
 bool MsIsWindows10();
 bool MsIsWindows81();
 bool MsIsWindows8();
 bool MsIsWindows7();
 bool MsIsInfCatalogRequired();
 
-bool MsCheckFileDigitalSignature(HWND hWnd, char *name, bool *danger);
 bool MsCheckFileDigitalSignatureW(HWND hWnd, wchar_t *name, bool *danger);
 
+bool MsIsKB3033929RequiredAndMissing();
+bool MsIsSha2KernelModeSignatureSupported();
 
 bool MsGetProcessExeName(char *path, UINT size, UINT id);
-bool MsGetProcessExeNameW(wchar_t *path, UINT size, UINT id);
 bool MsGetWindowOwnerProcessExeName(char *path, UINT size, HWND hWnd);
-bool MsGetWindowOwnerProcessExeNameW(wchar_t *path, UINT size, HWND hWnd);
 
-void *MsRunAsUserEx(char *filename, char *arg, bool hide);
 void *MsRunAsUserExW(wchar_t *filename, wchar_t *arg, bool hide);
-void *MsRunAsUserExInner(char *filename, char *arg, bool hide);
 void *MsRunAsUserExInnerW(wchar_t *filename, wchar_t *arg, bool hide);
 
 UINT MsGetCursorPosHash();
-bool MsIsProcessExists(char *exename);
-bool MsIsProcessExistsW(wchar_t *exename);
-bool MsGetProcessNameFromId(wchar_t *exename, UINT exename_size, UINT pid);
-bool MsIsProcessIdExists(UINT pid);
 
 void MsGetComputerName(char *name, UINT size);
-void MsGetComputerNameFull(wchar_t *name, UINT size);
 void MsGetComputerNameFullEx(wchar_t *name, UINT size, bool with_cache);
-void MsNoSleepThread(THREAD *thread, void *param);
-void MsNoSleepThreadVista(THREAD *thread, void *param);
 UINT64 MsGetScreenSaverTimeout();
-void *MsNoSleepStart(bool no_screensaver);
-void MsNoSleepEnd(void *p);
-bool MsIsRemoteDesktopAvailable();
-bool MsIsRemoteDesktopCanEnableByRegistory();
-bool MsIsRemoteDesktopEnabled();
-bool MsEnableRemoteDesktop();
 
-void MsSetFileToHidden(char *name);
-void MsSetFileToHiddenW(wchar_t *name);
-bool MsGetFileVersion(char *name, UINT *v1, UINT *v2, UINT *v3, UINT *v4);
-bool MsGetFileVersionW(wchar_t *name, UINT *v1, UINT *v2, UINT *v3, UINT *v4);
-
-bool MsExtractCabinetFileFromExe(char *exe, char *cab);
-bool MsExtractCabinetFileFromExeW(wchar_t *exe, wchar_t *cab);
-BUF *MsExtractResourceFromExe(char *exe, char *type, char *name);
-BUF *MsExtractResourceFromExeW(wchar_t *exe, char *type, char *name);
-bool MsExtractCab(char *cab_name, char *dest_dir_name);
-bool MsExtractCabW(wchar_t *cab_name, wchar_t *dest_dir_name);
-bool MsGetCabarcExeFilename(char *name, UINT size);
-bool MsGetCabarcExeFilenameW(wchar_t *name, UINT size);
-bool MsExtractCabFromMsi(char *msi, char *cab);
-bool MsExtractCabFromMsiW(wchar_t *msi, wchar_t *cab);
-bool MsIsDirectory(char *name);
-bool MsIsDirectoryW(wchar_t *name);
-bool MsUniIsDirectory(wchar_t *name);
-bool MsUniFileDelete(wchar_t *name);
-bool MsUniDirectoryDelete(wchar_t *name);
 bool MsUniMakeDir(wchar_t *name);
 void MsUniMakeDirEx(wchar_t *name);
-void MsMakeDirEx(char *name);
 bool MsMakeDir(char *name);
-bool MsDirectoryDelete(char *name);
-bool MsFileDelete(char *name);
 bool MsExecute(char *exe, char *arg);
 bool MsExecute2(char *exe, char *arg, bool runas);
 bool MsExecuteW(wchar_t *exe, wchar_t *arg);
 bool MsExecute2W(wchar_t *exe, wchar_t *arg, bool runas);
 bool MsExecuteEx(char *exe, char *arg, void **process_handle);
 bool MsExecuteEx2(char *exe, char *arg, void **process_handle, bool runas);
-bool MsExecuteExW(wchar_t *exe, wchar_t *arg, void **process_handle);
 bool MsExecuteEx2W(wchar_t *exe, wchar_t *arg, void **process_handle, bool runas);
 void MsCloseHandle(void *handle);
 UINT MsWaitProcessExit(void *process_handle);
-bool MsIsFileLocked(char *name);
-bool MsIsFileLockedW(wchar_t *name);
-bool MsIsLocalDrive(char *name);
-bool MsIsLocalDriveW(wchar_t *name);
 void MsUpdateSystem();
-bool MsGetPhysicalMacAddressFromNetbios(void *address);
-bool MsGetPhysicalMacAddressFromApi(void *address);
-bool MsGetPhysicalMacAddress(void *address);
-bool MsIsUseWelcomeLogin();
 UINT64 MsGetHiResCounter();
 double MsGetHiResTimeSpan(UINT64 diff);
 UINT64 MsGetHiResTimeSpanUSec(UINT64 diff);
-BUF *MsRegSubkeysToBuf(UINT root, char *keyname, bool force32bit, bool force64bit);
-void MsBufToRegSubkeys(UINT root, char *keyname, BUF *b, bool overwrite, bool force32bit, bool force64bit);
-void MsRegDeleteSubkeys(UINT root, char *keyname, bool force32bit, bool force64bit);
 void MsRestartMMCSS();
 bool MsIsMMCSSNetworkThrottlingEnabled();
 void MsSetMMCSSNetworkThrottlingEnable(bool enable);
 void MsSetShutdownParameters(UINT level, UINT flag);
-void MsChangeIconOnTrayEx2(void *icon, wchar_t *tooltip, wchar_t *info_title, wchar_t *info, UINT info_flags);
-bool MsIsTrayInited();
-UINT MsGetClipboardOwnerProcessId();
-void MsDeleteClipboard();
-void *MsInitEventLog(wchar_t *src_name);
-void MsFreeEventLog(void *p);
-bool MsWriteEventLog(void *p, UINT type, wchar_t *str);
 bool MsIsWinXPOrWinVista();
 bool MsGetFileInformation(void *h, void *info);
 void MsSetErrorModeToSilent();
 void MsSetEnableMinidump(bool enabled);
+bool MsIsMinidumpEnabled();
 void MsWriteMinidump(wchar_t *filename, void *ex);
 
 
@@ -1144,7 +909,6 @@ bool MsGetMsiInstalledDir(char *component_code, wchar_t *dir, UINT dir_size);
 bool MsMsiUninstall(char *product_code, HWND hWnd, bool *reboot_required);
 
 UINT MsGetUserLocaleId();
-UINT MsGetSystemLocaleId();
 bool MsIsCurrentUserLocaleIdJapanese();
 
 TOKEN_LIST *MsEnumResources(void *hModule, char *type);
@@ -1160,6 +924,7 @@ void MsTest();
 
 bool MsSaveSystemInfo(wchar_t *dst_filename);
 bool MsCollectVpnInfo(BUF *bat, char *tmpdir, char *svc_name, wchar_t *config_name, wchar_t *logdir_name);
+void MsInitProcessCallOnce();
 
 MS_SUSPEND_HANDLER *MsNewSuspendHandler();
 void MsFreeSuspendHandler(MS_SUSPEND_HANDLER *h);
@@ -1205,7 +970,6 @@ HANDLE MsCreateUserToken();
 SID *MsGetSidFromAccountName(char *name);
 void MsFreeSid(SID *sid);
 bool CALLBACK MsEnumResourcesInternalProc(HMODULE hModule, const char *type, char *name, LONG_PTR lParam);
-void CALLBACK MsScmDispatcher(DWORD argc, LPTSTR *argv);
 LRESULT CALLBACK MsSuspendHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void MsSuspendHandlerThreadProc(THREAD *thread, void *param);
 

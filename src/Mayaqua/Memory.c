@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Memory.c
@@ -120,7 +14,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <errno.h>
-#include <zlib/zlib.h>
+#include <zlib.h>
 #include <Mayaqua/Mayaqua.h>
 
 #define	MEMORY_SLEEP_TIME		150
@@ -147,7 +41,7 @@ PRAND *NewPRand(void *key, UINT key_size)
 
 	r = ZeroMalloc(sizeof(PRAND));
 
-	HashSha1(r->Key, key, key_size);
+	Sha1(r->Key, key, key_size);
 
 	r->Rc4 = NewCrypt(key, key_size);
 
@@ -778,7 +672,7 @@ void AddCandidate(LIST *o, wchar_t *str, UINT num_max)
 }
 
 // Comparison of candidates
-int ComapreCandidate(void *p1, void *p2)
+int CompareCandidate(void *p1, void *p2)
 {
 	CANDIDATE *c1, *c2;
 	if (p1 == NULL || p2 == NULL)
@@ -828,19 +722,7 @@ void FreeCandidateList(LIST *o)
 // Creating a new candidate list
 LIST *NewCandidateList()
 {
-	return NewList(ComapreCandidate);
-}
-
-// Fill a range of memory
-void FillBytes(void *data, UINT size, UCHAR c)
-{
-	UCHAR *buf = (UCHAR *)data;
-	UINT i;
-
-	for (i = 0;i < size;i++)
-	{
-		buf[i] = c;
-	}
+	return NewList(CompareCandidate);
 }
 
 // Examine whether the specified address points all-zero area
@@ -984,10 +866,6 @@ SK *NewSkEx(bool no_compact)
 	s->p = Malloc(sizeof(void *) * s->num_reserved);
 	s->no_compact = no_compact;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(s), "SK", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWSK_COUNT);
 
@@ -1022,10 +900,6 @@ void CleanupSk(SK *s)
 	Free(s->p);
 	DeleteLock(s->lock);
 	Free(s);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(s));
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_FREESK_COUNT);
@@ -1114,28 +988,6 @@ void *Pop(SK *s)
 	KS_INC(KS_POP_COUNT);
 
 	return ret;
-}
-
-// Peep
-void *PeekQueue(QUEUE *q)
-{
-	void *p = NULL;
-	// Validate arguments
-	if (q == NULL)
-	{
-		return NULL;
-	}
-
-	if (q->num_item == 0)
-	{
-		// No items
-		return NULL;
-	}
-
-	// Read from the FIFO
-	PeekFifo(q->fifo, &p, sizeof(void *));
-
-	return p;
 }
 
 // Get the number of queued items
@@ -1312,10 +1164,6 @@ void CleanupQueue(QUEUE *q)
 	DeleteLock(q->lock);
 	Free(q);
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(q));
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_FREEQUEUE_COUNT);
 }
@@ -1330,10 +1178,6 @@ QUEUE *NewQueue()
 	q->ref = NewRef();
 	q->num_item = 0;
 	q->fifo = NewFifo();
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(q), "QUEUE", 0);
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_NEWQUEUE_COUNT);
@@ -1350,30 +1194,10 @@ QUEUE *NewQueueFast()
 	q->num_item = 0;
 	q->fifo = NewFifoFast();
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(q), "QUEUE", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWQUEUE_COUNT);
 
 	return q;
-}
-
-// Set the comparison function to list
-void SetCmp(LIST *o, COMPARE *cmp)
-{
-	// Validate arguments
-	if (o == NULL || cmp == NULL)
-	{
-		return;
-	}
-
-	if (o->cmp != cmp)
-	{
-		o->cmp = cmp;
-		o->sorted = false;
-	}
 }
 
 // Clone the list
@@ -1471,23 +1295,6 @@ void *Search(LIST *o, void *target)
 	}
 }
 
-// Insert an item to the list (Do not insert if it already exists)
-void InsertDistinct(LIST *o, void *p)
-{
-	// Validate arguments
-	if (o == NULL || p == NULL)
-	{
-		return;
-	}
-
-	if (IsInList(o, p))
-	{
-		return;
-	}
-
-	Insert(o, p);
-}
-
 // Insert an item to the list
 void Insert(LIST *o, void *p)
 {
@@ -1566,18 +1373,6 @@ void Insert(LIST *o, void *p)
 	KS_INC(KS_INSERT_COUNT);
 }
 
-// Setting the sort flag
-void SetSortFlag(LIST *o, bool sorted)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	o->sorted = sorted;
-}
-
 // Sort the list
 void Sort(LIST *o)
 {
@@ -1592,43 +1387,6 @@ void Sort(LIST *o)
 
 	// KS
 	KS_INC(KS_SORT_COUNT);
-}
-void SortEx(LIST *o, COMPARE *cmp)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	qsort(o->p, o->num_item, sizeof(void *), (int(*)(const void *, const void *))cmp);
-	o->sorted = false;
-
-	// KS
-	KS_INC(KS_SORT_COUNT);
-}
-
-// Examine whether a certain string items are present in the list (Unicode version)
-bool IsInListUniStr(LIST *o, wchar_t *str)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL || str == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		wchar_t *s = LIST_DATA(o, i);
-
-		if (UniStrCmpi(s, str) == 0)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 // Replace the pointer in the list
@@ -1655,6 +1413,48 @@ bool ReplaceListPointer(LIST *o, void *oldptr, void *newptr)
 	return false;
 }
 
+// New string list
+LIST *NewStrList()
+{
+	return NewListFast(CompareStr);
+}
+
+// Release string list
+void ReleaseStrList(LIST *o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		char *s = LIST_DATA(o, i);
+		Free(s);
+	}
+
+	ReleaseList(o);
+}
+
+// Add a string distinct to the string list
+bool AddStrToStrListDistinct(LIST *o, char *str)
+{
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	if (IsInListStr(o, str) == false)
+	{
+		Add(o, CopyStr(str));
+
+		return true;
+	}
+
+	return false;
+}
+
 // Examine whether a string items are present in the list
 bool IsInListStr(LIST *o, char *str)
 {
@@ -1670,6 +1470,28 @@ bool IsInListStr(LIST *o, char *str)
 		char *s = LIST_DATA(o, i);
 
 		if (StrCmpi(s, str) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool IsInListUniStr(LIST *o, wchar_t *str)
+{
+	UINT i;
+	// Validate arguments
+	if (o == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < LIST_NUM(o); i++)
+	{
+		wchar_t *s = LIST_DATA(o, i);
+
+		if (UniStrCmpi(s, str) == 0)
 		{
 			return true;
 		}
@@ -1783,25 +1605,6 @@ void Add(LIST *o, void *p)
 
 	// KS
 	KS_INC(KS_INSERT_COUNT);
-}
-
-// Delete the elements specified by the key from the list
-bool DeleteKey(LIST *o, UINT key)
-{
-	void *p;
-	// Validate arguments
-	if (o == NULL || key == 0)
-	{
-		return false;
-	}
-
-	p = ListKeyToPointer(o, key);
-	if (p == NULL)
-	{
-		return false;
-	}
-
-	return Delete(o, p);
 }
 
 // Delete the element from the list
@@ -1918,10 +1721,6 @@ void CleanupList(LIST *o)
 
 	// KS
 	KS_INC(KS_FREELIST_COUNT);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(o));
-#endif	// DONT_USE_KERNEL_STATUS
 }
 
 // Check whether the specified number is already in the list
@@ -1966,26 +1765,6 @@ bool IsInt64InList(LIST *o, UINT64 i)
 	}
 
 	return false;
-}
-
-// Remove all int from the interger list
-void DelAllInt(LIST *o)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		UINT *p = LIST_DATA(o, i);
-
-		Free(p);
-	}
-
-	DeleteAll(o);
 }
 
 // Release the integer list
@@ -2065,44 +1844,6 @@ void DelInt(LIST *o, UINT i)
 		ReleaseList(o2);
 	}
 }
-void DelInt64(LIST *o, UINT64 i)
-{
-	LIST *o2 = NULL;
-	UINT j;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	for (j = 0;j < LIST_NUM(o);j++)
-	{
-		UINT64 *p = LIST_DATA(o, j);
-
-		if (*p == i)
-		{
-			if (o2 == NULL)
-			{
-				o2 = NewListFast(NULL);
-			}
-			Add(o2, p);
-		}
-	}
-
-	for (j = 0;j < LIST_NUM(o2);j++)
-	{
-		UINT64 *p = LIST_DATA(o2, j);
-
-		Delete(o, p);
-
-		Free(p);
-	}
-
-	if (o2 != NULL)
-	{
-		ReleaseList(o2);
-	}
-}
 
 // Create a new list of integers
 LIST *NewIntList(bool sorted)
@@ -2154,41 +1895,6 @@ int CompareInt64(void *p1, void *p2)
 	return COMPARE_RET(*v1, *v2);
 }
 
-// Randomize the contents of the list
-void RandomizeList(LIST *o)
-{
-	LIST *o2;
-	UINT i;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	o2 = NewListFast(NULL);
-
-	while (LIST_NUM(o) != 0)
-	{
-		UINT num = LIST_NUM(o);
-		UINT i = Rand32() % num;
-		void *p = LIST_DATA(o, i);
-
-		Add(o2, p);
-		Delete(o, p);
-	}
-
-	DeleteAll(o);
-
-	for (i = 0;i < LIST_NUM(o2);i++)
-	{
-		void *p = LIST_DATA(o2, i);
-
-		Add(o, p);
-	}
-
-	ReleaseList(o2);
-}
-
 // Add an integer to the list
 void AddInt(LIST *o, UINT i)
 {
@@ -2219,16 +1925,6 @@ void InsertInt(LIST *o, UINT i)
 	}
 
 	Insert(o, Clone(&i, sizeof(UINT)));
-}
-void InsertInt64(LIST *o, UINT64 i)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	Insert(o, Clone(&i, sizeof(UINT64)));
 }
 
 // Add an integer to the list (no duplicates)
@@ -2269,19 +1965,6 @@ void InsertIntDistinct(LIST *o, UINT i)
 	if (IsIntInList(o, i) == false)
 	{
 		InsertInt(o, i);
-	}
-}
-void InsertInt64Distinct(LIST *o, UINT64 i)
-{
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	if (IsInt64InList(o, i) == false)
-	{
-		InsertInt64(o, i);
 	}
 }
 
@@ -2396,40 +2079,85 @@ LIST *NewListEx2(COMPARE *cmp, bool fast, bool fast_malloc)
 	o->cmp = cmp;
 	o->sorted = true;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(o), "LIST", 0);
-#endif	//DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWLIST_COUNT);
 
 	return o;
 }
 
-// Peek from the FIFO
-UINT PeekFifo(FIFO *f, void *p, UINT size)
+// Parses a string by identifying its parts using the specified separators
+LIST *NewEntryList(char *src, char *key_separator, char *value_separator)
 {
-	UINT read_size;
-	if (f == NULL || size == 0)
+	LIST *o = NewListFast(NULL);
+	TOKEN_LIST *t;
+
+	t = ParseTokenWithoutNullStr(src, key_separator);
+	if (t != NULL)
 	{
-		return 0;
+		UINT i;
+
+		for (i = 0; i < t->NumTokens; i++)
+		{
+			char key[MAX_SIZE];
+			char value[MAX_SIZE];
+			char *line = t->Token[i];
+			Trim(line);
+
+			if (GetKeyAndValue(line, key, sizeof(key), value, sizeof(value), value_separator))
+			{
+				INI_ENTRY *e = ZeroMalloc(sizeof(INI_ENTRY));
+
+				e->Key = CopyStr(key);
+				e->Value = CopyStr(value);
+
+				Add(o, e);
+			}
+		}
+
+		FreeToken(t);
 	}
 
-	// KS
-	KS_INC(KS_PEEK_FIFO_COUNT);
+	return o;
+}
 
-	read_size = MIN(size, f->size);
-	if (read_size == 0)
+// Checks whether the list contains the specified entry
+bool EntryListHasKey(LIST *o, char *key)
+{
+	// Validate arguments
+	if (o == NULL || key == NULL)
 	{
-		return 0;
+		return false;
 	}
 
-	if (p != NULL)
+	if (GetIniEntry(o, key) != NULL)
 	{
-		Copy(p, (UCHAR *)f->p + f->pos, read_size);
+		return true;
 	}
 
-	return read_size;
+	return false;
+}
+
+// Gets the value of the specified key from the entry list
+char *EntryListStrValue(LIST *o, char *key)
+{
+	return IniStrValue(o, key);
+}
+
+UINT EntryListIntValue(LIST *o, char *key)
+{
+	return IniIntValue(o, key);
+}
+
+// Release the entry list
+void FreeEntryList(LIST *o)
+{
+	// Validate arguments
+	if (o == NULL)
+	{
+		return;
+	}
+
+	FreeIni(o);
 }
 
 // Read all data from FIFO
@@ -2528,25 +2256,6 @@ void ShrinkFifoMemory(FIFO *f)
 	}
 }
 
-// Write data to the front of FIFO
-void WriteFifoFront(FIFO *f, void *p, UINT size)
-{
-	// Validate arguments
-	if (f == NULL || size == 0)
-	{
-		return;
-	}
-
-	if (f->pos < size)
-	{
-		PadFifoFront(f, size - f->pos);
-	}
-
-	Copy(((UCHAR *)f->p) + (f->pos - size), p, size);
-	f->pos -= size;
-	f->size += size;
-}
-
 // Write to the FIFO
 void WriteFifo(FIFO *f, void *p, UINT size)
 {
@@ -2587,34 +2296,6 @@ void WriteFifo(FIFO *f, void *p, UINT size)
 	KS_INC(KS_WRITE_FIFO_COUNT);
 }
 
-// Add a padding before the head of fifo
-void PadFifoFront(FIFO *f, UINT size)
-{
-	// Validate arguments
-	if (f == NULL || size == 0)
-	{
-		return;
-	}
-
-	f->memsize += size;
-
-	f->p = ReAlloc(f->p, f->memsize);
-}
-
-// Clear the FIFO
-void ClearFifo(FIFO *f)
-{
-	// Validate arguments
-	if (f == NULL)
-	{
-		return;
-	}
-
-	f->size = f->pos = 0;
-	f->memsize = FIFO_INIT_MEM_SIZE;
-	f->p = ReAlloc(f->p, f->memsize);
-}
-
 // Get the current pointer of the FIFO
 UCHAR *GetFifoPointer(FIFO *f)
 {
@@ -2641,30 +2322,6 @@ UINT FifoSize(FIFO *f)
 	}
 
 	return f->size;
-}
-
-// Lock the FIFO
-void LockFifo(FIFO *f)
-{
-	// Validate arguments
-	if (f == NULL)
-	{
-		return;
-	}
-
-	Lock(f->lock);
-}
-
-// Unlock the FIFO
-void UnlockFifo(FIFO *f)
-{
-	// Validate arguments
-	if (f == NULL)
-	{
-		return;
-	}
-
-	Unlock(f->lock);
 }
 
 // Release the FIFO
@@ -2694,10 +2351,6 @@ void CleanupFifo(FIFO *f)
 	DeleteLock(f->lock);
 	Free(f->p);
 	Free(f);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(f));
-#endif	//DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_FREEFIFO_COUNT);
@@ -2745,20 +2398,10 @@ FIFO *NewFifoEx2(bool fast, bool fixed)
 	f->p = Malloc(FIFO_INIT_MEM_SIZE);
 	f->fixed = false;
 
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(f), "FIFO", 0);
-#endif	// DONT_USE_KERNEL_STATUS
-
 	// KS
 	KS_INC(KS_NEWFIFO_COUNT);
 
 	return f;
-}
-
-// Get the default memory reclaiming size of the FIFO
-UINT GetFifoCurrentReallocMemSize()
-{
-	return fifo_current_realloc_mem_size;
 }
 
 // Set the default memory reclaiming size of the FIFO
@@ -2813,7 +2456,7 @@ BUF *FileToBuf(IO *o)
 	}
 
 	// Take a hash
-	Hash(hash2, buf, size, false);
+	Md5(hash2, buf, size);
 
 	// Compare the hashes
 	if (Cmp(hash1, hash2, sizeof(hash1)) != 0)
@@ -2931,25 +2574,6 @@ bool DumpDataW(void *data, UINT size, wchar_t *filename)
 
 	return true;
 }
-bool DumpData(void *data, UINT size, char *filename)
-{
-	IO *o;
-	// Validate arguments
-	if (filename == NULL || (size != 0 && data == NULL))
-	{
-		return false;
-	}
-
-	o = FileCreate(filename);
-	if (o == NULL)
-	{
-		return false;
-	}
-	FileWrite(o, data, size);
-	FileClose(o);
-
-	return true;
-}
 
 // Dump the contents of the buffer to the file
 bool DumpBuf(BUF *b, char *filename)
@@ -3037,7 +2661,7 @@ bool BufToFile(IO *o, BUF *b)
 	}
 
 	// Hash the data
-	Hash(hash, b->Buf, b->Size, false);
+	Md5(hash, b->Buf, b->Size);
 
 	size = Endian32(b->Size);
 
@@ -3090,10 +2714,6 @@ BUF *NewBuf()
 	b->Size = 0;
 	b->Current = 0;
 	b->SizeReserved = INIT_BUF_SIZE;
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackNewObj(POINTER_TO_UINT64(b), "BUF", 0);
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// KS
 	KS_INC(KS_NEWBUF_COUNT);
@@ -3370,6 +2990,43 @@ void WriteBufBuf(BUF *b, BUF *bb)
 	WriteBuf(b, bb->Buf, bb->Size);
 }
 
+// Write the buffer (from the offset) to a buffer
+void WriteBufBufWithOffset(BUF *b, BUF *bb)
+{
+	// Validate arguments
+	if (b == NULL || bb == NULL)
+	{
+		return;
+	}
+
+	WriteBuf(b, ((UCHAR *)bb->Buf) + bb->Current, bb->Size - bb->Current);
+}
+
+// Skip UTF-8 BOM
+bool BufSkipUtf8Bom(BUF *b)
+{
+	if (b == NULL)
+	{
+		return false;
+	}
+
+	SeekBufToBegin(b);
+
+	if (b->Size >= 3)
+	{
+		UCHAR *data = b->Buf;
+
+		if (data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+		{
+			SeekBuf(b, 3, 1);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Read into a buffer from the buffer
 BUF *ReadBufFromBuf(BUF *b, UINT size)
 {
@@ -3539,10 +3196,6 @@ void FreeBuf(BUF *b)
 	// KS
 	KS_INC(KS_FREEBUF_COUNT);
 	KS_DEC(KS_CURRENT_BUF_COUNT);
-
-#ifndef	DONT_USE_KERNEL_STATUS
-//	TrackDeleteObj(POINTER_TO_UINT64(b));
-#endif	// DONT_USE_KERNEL_STATUS
 }
 
 // Compare BUFs whether two are identical
@@ -3712,28 +3365,6 @@ UINT64 Endian64(UINT64 src)
 	{
 		return src;
 	}
-}
-
-// Swap data of any
-void Swap(void *buf, UINT size)
-{
-	UCHAR *tmp, *src;
-	UINT i;
-	// Validate arguments
-	if (buf == NULL || size == 0)
-	{
-		return;
-	}
-
-	src = (UCHAR *)buf;
-	tmp = Malloc(size);
-	for (i = 0;i < size;i++)
-	{
-		tmp[size - i - 1] = src[i];
-	}
-
-	Copy(buf, tmp, size);
-	Free(buf);
 }
 
 // 16bit swap
@@ -4119,10 +3750,21 @@ void Free(void *addr)
 	InternalFree(tag);
 }
 
+// Free and set pointer's value to NULL
+void FreeSafe(void **addr)
+{
+	Free(*addr);
+	*addr = NULL;
+}
+
 // Check the memtag
 void CheckMemTag(MEMTAG *tag)
 {
-#ifndef	DONT_CHECK_HEAP
+	if (IsTrackingEnabled() == false)
+	{
+		return;
+	}
+
 	// Validate arguments
 	if (tag == NULL)
 	{
@@ -4135,7 +3777,6 @@ void CheckMemTag(MEMTAG *tag)
 		AbortExitEx("CheckMemTag: tag->Magic != MEMTAG_MAGIC");
 		return;
 	}
-#endif	// DONT_CHECK_HEAP
 }
 
 // ZeroMalloc
@@ -4179,9 +3820,7 @@ void *InternalMalloc(UINT size)
 		OSSleep(MEMORY_SLEEP_TIME);
 	}
 
-#ifndef	DONT_USE_KERNEL_STATUS
 	TrackNewObj(POINTER_TO_UINT64(addr), "MEM", size);
-#endif	//DONT_USE_KERNEL_STATUS
 
 	return addr;
 }
@@ -4199,9 +3838,7 @@ void InternalFree(void *addr)
 	KS_DEC(KS_CURRENT_MEM_COUNT);
 	KS_INC(KS_FREE_COUNT);
 
-#ifndef	DONT_USE_KERNEL_STATUS
 	TrackDeleteObj(POINTER_TO_UINT64(addr));
-#endif	// DONT_USE_KERNEL_STATUS
 
 	// Memory release
 	OSMemoryFree(addr);
@@ -4234,9 +3871,7 @@ void *InternalReAlloc(void *addr, UINT size)
 		OSSleep(MEMORY_SLEEP_TIME);
 	}
 
-#ifndef	DONT_USE_KERNEL_STATUS
-	TrackChangeObjSize((DWORD)addr, size, (DWORD)new_addr);
-#endif	// DONT_USE_KERNEL_STATUS
+	TrackChangeObjSize(POINTER_TO_UINT64(addr), size, POINTER_TO_UINT64(new_addr));
 
 	return new_addr;
 }
@@ -4261,25 +3896,6 @@ void *AddHead(void *src, UINT src_size, void *head, UINT head_size)
 	Copy(((UCHAR *)ret) + head_size, src, src_size);
 
 	return ret;
-}
-
-// Clone the memory area (only the tail)
-void *CloneTail(void *src, UINT src_size, UINT dst_size)
-{
-	// Validate arguments
-	if (src_size != 0 && src == NULL)
-	{
-		return NULL;
-	}
-
-	if (src_size >= dst_size)
-	{
-		return Clone(((UCHAR *)src) + (src_size - dst_size), dst_size);
-	}
-	else
-	{
-		return Clone(src, src_size);
-	}
 }
 
 // Clone the memory area

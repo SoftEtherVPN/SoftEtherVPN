@@ -69,8 +69,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -139,8 +139,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -212,8 +212,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -286,8 +286,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib libintelaes.lib"
-				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
+				AdditionalDependencies="libeay32.lib ssleay32.lib zlib.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\vs2008\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -327,6 +327,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTP.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Internat.c"
 				>
 			</File>
@@ -360,6 +364,10 @@
 			</File>
 			<File
 				RelativePath=".\Pack.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Proxy.c"
 				>
 			</File>
 			<File
@@ -417,6 +425,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HTTP.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Internat.h"
 				>
 			</File>
@@ -454,6 +466,10 @@
 			</File>
 			<File
 				RelativePath=".\Pack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Proxy.h"
 				>
 			</File>
 			<File
@@ -824,14 +840,6 @@
 			</File>
 			<File
 				RelativePath=".\zlib\zlib.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="intelaes"
-			>
-			<File
-				RelativePath=".\intelaes\iaesni.h"
 				>
 			</File>
 		</Filter>

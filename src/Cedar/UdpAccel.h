@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // UdpAccel.h
@@ -115,9 +9,14 @@
 #define	UDPACCEL_H
 
 // Constants
-#define	UDP_ACCELERATION_COMMON_KEY_SIZE	20			// Common key size
-#define	UDP_ACCELERATION_PACKET_KEY_SIZE	20			// Key size for the packet
-#define	UDP_ACCELERATION_PACKET_IV_SIZE		20			// IV size for the packet
+#define	UDP_ACCELERATION_COMMON_KEY_SIZE_V1	20			// V1: Common key size
+#define	UDP_ACCELERATION_PACKET_KEY_SIZE_V1	20			// V1: Key size for the packet
+#define	UDP_ACCELERATION_PACKET_IV_SIZE_V1	20			// V1: IV size for the packet
+
+#define	UDP_ACCELERATION_COMMON_KEY_SIZE_V2	128			// V2: Common key size
+#define	UDP_ACCELERATION_PACKET_IV_SIZE_V2	12			// V2: IV size for the packet
+#define	UDP_ACCELERATION_PACKET_MAC_SIZE_V2	16			// V2: MAC size for the packet
+
 #define	UDP_ACCELERATION_TMP_BUF_SIZE		2048		// Temporary buffer size
 #define	UDP_ACCELERATION_WINDOW_SIZE_MSEC	(30 * 1000)	// Receive window size (in milliseconds)
 
@@ -151,8 +50,10 @@ struct UDP_ACCEL
 	bool ClientMode;									// Whether client mode
 	bool IsInCedarPortList;								// Whether included in the port list of the Cedar
 	UINT64 Now;											// Current time
-	UCHAR MyKey[UDP_ACCELERATION_COMMON_KEY_SIZE];		// Submit-direction common key
-	UCHAR YourKey[UDP_ACCELERATION_COMMON_KEY_SIZE];	// Receiving-direction common key
+	CIPHER *CipherEncrypt;								// Encryption context
+	CIPHER *CipherDecrypt;								// Decryption context
+	UCHAR MyKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];	// Send-direction common key
+	UCHAR YourKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];	// Receive-direction common key
 	SOCK *UdpSock;										// UDP socket
 	UINT MyPort;										// My port number
 	UINT YourPort;										// Port number of the other party
@@ -169,7 +70,7 @@ struct UDP_ACCEL
 	UINT64 LastSetSrcIpAndPortTick;						// Opponent's tick ??value at the time of storing the IP address and port number of the opponent at the end
 	UINT64 LastRecvTick;								// Tick when data has received at the end
 	UINT64 NextSendKeepAlive;							// Next time to send a KeepAlive packet
-	UCHAR NextIv[UDP_ACCELERATION_PACKET_IV_SIZE];		// IV to be used next
+	UCHAR NextIv[UDP_ACCELERATION_PACKET_IV_SIZE_V1];	// IV to be used next
 	UINT MyCookie;										// My cookie
 	UINT YourCookie;									// Cookie of the other party
 	bool Inited;										// Initialized flag
@@ -200,6 +101,10 @@ struct UDP_ACCEL
 	UCHAR UdpIpQueryPacketData[16];						// Query packet data (final transmission)
 	UINT UdpIpQueryPacketSize;							// Query packet data size (final transmission)
 	UCHAR UdpHostUniqueKey[SHA1_SIZE];					// Unique key for UDP self endpoint query
+	UINT Version;										// Version
+	UCHAR MyKey_V2[UDP_ACCELERATION_COMMON_KEY_SIZE_V2];	// Send-direction common key (version 2)
+	UCHAR NextIv_V2[UDP_ACCELERATION_PACKET_IV_SIZE_V2];	// IV to be used next (version 2)
+	bool ReadRawFlagMode;								// Read raw flag mode
 };
 
 // Function prototype
@@ -210,9 +115,9 @@ bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT cli
 void UdpAccelPoll(UDP_ACCEL *a);
 void UdpAccelSetTick(UDP_ACCEL *a, UINT64 tick64);
 BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip, UINT src_port);
-void UdpAccelCalcKey(UCHAR *key, UCHAR *common_key, UCHAR *iv);
+void UdpAccelCalcKeyV1(UCHAR *key, UCHAR *common_key, UCHAR *iv);
 bool UdpAccelIsSendReady(UDP_ACCEL *a, bool check_keepalive);
-void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, bool compressed, UINT max_size, bool high_priority);
+void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT max_size, bool high_priority);
 void UdpAccelSendBlock(UDP_ACCEL *a, BLOCK *b);
 UINT UdpAccelCalcMss(UDP_ACCEL *a);
 void NatT_GetIpThread(THREAD *thread, void *param);

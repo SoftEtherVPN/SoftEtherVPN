@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "winres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h""\r\n"
+    "#include ""winres.h""\r\n"
     "\0"
 END
 
@@ -184,8 +184,8 @@ BEGIN
     IDS_DOWNLOADING3_EN     "Downloading file '%S'. Please wait."
     IDS_INSTALLSTART_EN     "Complete the VPN Client Installer displayed on the screen."
     IDS_INSTALLSTART_ERROR_EN "Failed to start installation."
-    IDS_SECURITY_ERROR_EN   "For security reasons, a local file cannot be used as the installation soruce during Web-based installation.\r\nConfirm the inf file of context and check the path specified in the inf file. \r\nInstallaion process aborted."
-    IDS_SIGN_WARNING_EN     "The automatically downloaded file '%s' from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file '%s' is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappered when the file '%s' is signed by valid code signing certificate authentication."
+    IDS_SECURITY_ERROR_EN   "For security reasons, a local file cannot be used as the installation soruce during Web-based installation.\r\nConfirm the inf file of context and check the path specified in the inf file. \r\nInstallation process aborted."
+    IDS_SIGN_WARNING_EN     "The automatically downloaded file '%s' from the Internet is not digitally signed with a trusted certificate.\r\nThe developer and publisher do not guarantee that the downloaded file '%s' is safe and do not take responsibility in case of unsafe code included in the file.\r\n\r\nWe recommend to abort the installation by clicking [Cancel]. Proceed the installation by clicking [OK] at your own risk.\r\n\r\nNotice: the message will not be disappeared when the file '%s' is signed by valid code signing certificate authentication."
 END
 
 STRINGTABLE 

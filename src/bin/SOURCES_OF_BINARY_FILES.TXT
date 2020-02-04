@@ -1,5 +1,5 @@
 All binary files on the 'hamcore' directory are free software under
-the GPLv2 license. (Except WinPcap binaries.)
+the Apache License, Version 2.0. (Except WinPcap binaries.)
 
 Some geeks should be interested in how to rebuild .sys (driver) files on
 this directory. This text file helps such crazy geeks.
@@ -67,25 +67,12 @@ The WinPcap license is at http://www.winpcap.org/misc/copyright.htm page.
 
 License
 -------
+THE APACHE LICENSE, VERSION 2.0 APPLY ON ALL SOFTETHER VPN PROGRAMS WHICH
+ARE DEVELOPED BY SOFTETHER VPN PROJECT.
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License version 2 as published by the Free
-Software Foundation.
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License version 2
-along with this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-Neither the name of SoftEther nor the names of its contributors may be used
-to endorse or promote products derived from this software without specific
-prior written permission.
-
+Disclaimer
+----------
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -128,6 +115,4 @@ RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
 RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
 JUST A STATEMENT FOR WARNING AND DISCLAIMER.
 
-THE GPLV2 CONDITIONS APPLY ON ALL SOFTETHER VPN PROGRAMS WHICH ARE DEVELOPED
-BY SOFTETHER VPN PROJECT.
 

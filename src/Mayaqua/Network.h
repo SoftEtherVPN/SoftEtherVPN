@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Network.h
@@ -160,7 +54,7 @@ struct DYN_VALUE
 #define	SSL_LOGGING_DIRNAME			"@ssl_log"
 
 // Private IP list file
-#define	PRIVATE_IP_TXT_FILENAME		"@private_ip.txt"
+#define	PRIVATE_IP_TXT_FILENAME		"$private_ip.txt"
 
 // Start range of the random UDP port
 #define	RAND_UDP_PORT_START			5000
@@ -250,7 +144,6 @@ struct SOCK_EVENT
 // SSL Accept Settings
 struct SSL_ACCEPT_SETTINGS
 {
-	bool AcceptOnlyTls;
 	bool Tls_Disable1_0;
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
@@ -316,6 +209,7 @@ struct SOCK
 	UINT CurrentTtl;			// Current TTL value
 	RUDP_STACK *R_UDP_Stack;	// R-UDP stack
 	char UnderlayProtocol[64];	// Underlying protocol
+	char ProtocolDetails[256];	// Protocol details
 	QUEUE *ReverseAcceptQueue;	// Accept queue for the reverse socket
 	EVENT *ReverseAcceptEvent;	// Accept event for the reverse socket
 	bool IsReverseAcceptedSocket;	// Whether it is a reverse socket
@@ -563,6 +457,16 @@ struct TUBEPAIR_DATA
 	SOCK_EVENT *SockEvent1, *SockEvent2;	// SockEvent
 };
 
+// TCP raw data
+struct TCP_RAW_DATA
+{
+	IP SrcIP;							// Source IP address
+	IP DstIP;							// Destination IP address
+	UINT SrcPort;						// Source port
+	UINT DstPort;						// Destination port
+	FIFO *Data;							// Data body
+};
+
 // UDP listener socket entry
 struct UDPLISTENER_SOCK
 {
@@ -603,6 +507,7 @@ struct UDPLISTENER
 	UINT64 LastCheckTick;				// Time which the socket list was checked last
 	UDPLISTENER_RECV_PROC *RecvProc;	// Receive procedure
 	LIST *SendPacketList;				// Transmission packet list
+	UINT PacketType;					// The type to set when creating an UDPPACKET
 	void *Param;						// Parameters
 	INTERRUPT_MANAGER *Interrupts;		// Interrupt manager
 	bool HostIPAddressListChanged;		// IP address list of the host has changed
@@ -671,6 +576,12 @@ struct IPBLOCK
 #define	RUDP_TIMEOUT					12000		// Time-out of R-UDP communication
 #define	RUDP_DIRECT_CONNECT_TIMEOUT		5000		// R-UDP direct connection time-out
 #define	RUDP_MAX_SEGMENT_SIZE			512			// Maximum segment size
+#define	RUDP_BULK_KEY_SIZE_MAX			128			// Bulk key size Max
+
+#define	RUDP_BULK_KEY_SIZE_V2			32			// V2: Bulk key size
+#define	RUDP_BULK_IV_SIZE_V2			12			// V2: Bulk IV size
+#define	RUDP_BULK_MAC_SIZE_V2			16			// V2: Bulk MAC size
+
 // Maximum R-UDP packet size
 #define	RUDP_MAX_PACKET_SIZE			(RUDP_MAX_SEGMENT_SIZE + sizeof(UINT64) * RUDP_MAX_NUM_ACK + SHA1_SIZE * 2 + sizeof(UINT64) * 4 + sizeof(UINT) + 255)
 #define	RUDP_MAX_NUM_ACK				64			// Maximum number of ACKs
@@ -759,6 +670,7 @@ struct RUDP_SESSION
 	UINT64 BulkNextSeqNo;				// Next SEQ NO to the bulk send
 	bool FlushBulkSendTube;				// Flag to be Flush the bulk send Tube
 	UINT64 BulkRecvSeqNoMax;			// Highest sequence number received
+	UCHAR BulkNextIv_V2[RUDP_BULK_IV_SIZE_V2];	// Next IV to the bulk send (version 2)
 };
 
 // NAT Traversal Server Information
@@ -822,7 +734,7 @@ typedef bool (RUDP_STACK_RPC_RECV_PROC)(RUDP_STACK *r, UDPPACKET *p);
 #define	RUDP_PROTOCOL_ICMP				1	// ICMP
 #define	RUDP_PROTOCOL_DNS				2	// DNS
 
-// Maximum time of continously changing of the NAT-T hostname
+// Maximum time of continuously changing of the NAT-T hostname
 #define	RUDP_NATT_MAX_CONT_CHANGE_HOSTNAME	30
 #define	RUDP_NATT_CONT_CHANGE_HOSTNAME_RESET_INTERVAL	(5 * 60 * 1000)
 
@@ -869,7 +781,7 @@ struct RUDP_STACK
 	UINT64 TotalPhysicalSent;			// Physical amount of data transmitted
 	UINT64 TotalLogicalSent;			// Logical amount of data transmitted
 	char CurrentRegisterHostname[MAX_SIZE];	// The host name of the the current destination of registration
-	UINT NumChangedHostname;			// How number of changing NAT-T hostname has occured continously
+	UINT NumChangedHostname;			// How number of changing NAT-T hostname has occured continuously
 	UINT64 NumChangedHostnameValueResetTick;
 
 	// NAT-T server related
@@ -893,7 +805,7 @@ struct RUDP_STACK
 	volatile UINT *NatTGlobalUdpPort;	// NAT-T global UDP port
 	UCHAR RandPortId;					// Random UDP port ID
 	bool NatT_EnableSourceIpValidation;	// Enable the source IP address validation mechanism
-	LIST *NatT_SourceIpList;			// Authenticated source IP adddress list
+	LIST *NatT_SourceIpList;			// Authenticated source IP address list
 
 	// For Client
 	bool TargetIpAndPortInited;			// The target IP address and the port number are initialized
@@ -927,7 +839,6 @@ struct CONNECT_TCP_RUDP_PARAM
 	UINT RUdpProtocol;
 	UINT Delay;
 	bool Tcp_TryStartSsl;
-	bool Tcp_SslNoTls;
 	LOCK *CancelLock;
 	SOCK *CancelDisconnectSock;
 	bool Tcp_InNegotiation;
@@ -971,55 +882,9 @@ struct NIC_ENTRY
 	UCHAR MacAddress[6];
 };
 
-
-// HTTP value
-struct HTTP_VALUE
-{
-	char *Name;						// Name
-	char *Data;						// Data
-};
-
-// HTTP header
-struct HTTP_HEADER
-{
-	char *Method;					// Method
-	char *Target;					// Target
-	char *Version;					// Version
-	LIST *ValueList;				// Value list
-};
-
-// HTTPS server / client related string constant
-#define	DEFAULT_USER_AGENT	"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0"
-#define	DEFAULT_ACCEPT		"image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/x-shockwave-flash, application/msword, application/vnd.ms-powerpoint, application/vnd.ms-excel, */*"
-#define	DEFAULT_ENCODING	"gzip, deflate"
-#define	HTTP_CONTENT_TYPE	"text/html; charset=iso-8859-1"
-#define	HTTP_CONTENT_TYPE2	"application/octet-stream"
-#define	HTTP_CONTENT_TYPE3	"image/jpeg"
-#define	HTTP_CONTENT_TYPE4	"text/html"
-#define	HTTP_CONTENT_TYPE5	"message/rfc822"
-#define	HTTP_KEEP_ALIVE		"timeout=15; max=19"
-#define	HTTP_VPN_TARGET		"/vpnsvc/vpn.cgi"
-#define	HTTP_VPN_TARGET2	"/vpnsvc/connect.cgi"
-#define HTTP_VPN_TARGET_POSTDATA	"VPNCONNECT"
-#define	HTTP_SAITAMA		"/saitama.jpg"
-#define	HTTP_PICTURES		"/picture"
-// Maximum size of a single line in the HTTP header
-#define	HTTP_HEADER_LINE_MAX_SIZE	4096
-// Maximum number of lines in the HTTP header
-#define	HTTP_HEADER_MAX_LINES		128
-// Maximum size of the random number to be included in the PACK
-#define	HTTP_PACK_RAND_SIZE_MAX		1000
-// Maximum PACK size in the HTTP
-#define	HTTP_PACK_MAX_SIZE			65536
-
-
-
-
-
 int GetCurrentTimezone();
 
 bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UINT sni_size);
-bool GetSniNameFromPreSslConnection(SOCK *s, char *sni, UINT sni_size);
 
 void SetDhParam(DH_CTX *dh);
 
@@ -1029,14 +894,6 @@ bool IsUseAlternativeHostname();
 #ifdef	OS_WIN32
 int GetCurrentTimezoneWin32();
 #endif	// OS_WIN32
-
-HTTP_VALUE *GetHttpValue(HTTP_HEADER *header, char *name);
-void AddHttpValue(HTTP_HEADER *header, HTTP_VALUE *value);
-HTTP_HEADER *NewHttpHeader(char *method, char *target, char *version);
-HTTP_HEADER *NewHttpHeaderEx(char *method, char *target, char *version, bool no_sort);
-int CompareHttpValue(void *p1, void *p2);
-void FreeHttpValue(HTTP_VALUE *value);
-void FreeHttpHeader(HTTP_HEADER *header);
 
 bool SendPack(SOCK *s, PACK *p);
 PACK *RecvPack(SOCK *s);
@@ -1048,24 +905,7 @@ PACK *PackError(UINT error);
 
 void CreateDummyValue(PACK *p);
 
-HTTP_VALUE *NewHttpValue(char *name, char *data);
 char *RecvLine(SOCK *s, UINT max_size);
-HTTP_HEADER *RecvHttpHeader(SOCK *s);
-bool SendHttpHeader(SOCK *s, HTTP_HEADER *header);
-char *HttpHeaderToStr(HTTP_HEADER *header);
-bool PostHttp(SOCK *s, HTTP_HEADER *header, void *post_data, UINT post_size);
-UINT GetContentLength(HTTP_HEADER *header);
-void GetHttpDateStr(char *str, UINT size, UINT64 t);
-bool HttpSendForbidden(SOCK *s, char *target, char *server_id);
-bool HttpSendNotFound(SOCK *s, char *target);
-bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version);
-bool HttpSendInvalidHostname(SOCK *s, char *method);
-bool HttpServerSend(SOCK *s, PACK *p);
-bool HttpClientSend(SOCK *s, PACK *p);
-PACK *HttpServerRecv(SOCK *s);
-PACK *HttpClientRecv(SOCK *s);
-
-bool HttpSendServerError(SOCK *s, char *target);
 
 bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT timeout, bool *cancel, char *dns_proxy_hostname);
 bool GetDnsProxyIPAddressForJapanBFlets(IP *ip_ret, UINT timeout, bool *cancel);
@@ -1127,8 +967,6 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size);
 bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data, UINT recv_size);
 UINT RUDPCalcBestMssForBulk(RUDP_STACK *r, RUDP_SESSION *se);
 bool IsIPLocalHostOrMySelf(IP *ip);
-UINT RUDPGetRandPortNumber(UCHAR rand_port_id);
-void RUDPSetSourceIpValidationForceDisable(bool b);
 bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip);
 void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip);
 
@@ -1163,15 +1001,10 @@ void Win32CleanupSockEvent(SOCK_EVENT *event);
 bool Win32WaitSockEvent(SOCK_EVENT *event, UINT timeout);
 bool Win32GetDefaultDns(IP *ip, char *domain, UINT size);
 bool Win32GetDnsSuffix(char *domain, UINT size);
-void Win32RenewDhcp();
 void Win32RenewDhcp9x(UINT if_id);
 void Win32ReleaseDhcp9x(UINT if_id, bool wait);
 void Win32FlushDnsCache();
 int CompareIpAdapterIndexMap(void *p1, void *p2);
-LIST *Win32GetTcpTableList();
-LIST *Win32GetTcpTableListByGetExtendedTcpTable();
-LIST *Win32GetTcpTableListByAllocateAndGetTcpExTableFromStack();
-LIST *Win32GetTcpTableListByGetTcpTable();
 ROUTE_CHANGE *Win32NewRouteChange();
 void Win32FreeRouteChange(ROUTE_CHANGE *r);
 bool Win32IsRouteChanged(ROUTE_CHANGE *r);
@@ -1198,9 +1031,6 @@ void UnixSelect(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2);
 void UnixInitAsyncSocket(SOCK *sock);
 void UnixJoinSockToSockEvent(SOCK *sock, SOCK_EVENT *event);
 void UnixFreeAsyncSocket(SOCK *sock);
-void UnixIpForwardRowToRouteEntry(ROUTE_ENTRY *entry, void *ip_forward_row);
-void UnixRouteEntryToIpForwardRow(void *ip_forward_row, ROUTE_ENTRY *entry);
-int UnixCompareRouteEntryByMetric(void *p1, void *p2);
 ROUTE_TABLE *UnixGetRouteTable();
 bool UnixAddRouteEntry(ROUTE_ENTRY *e, bool *already_exists);
 void UnixDeleteRouteEntry(ROUTE_ENTRY *e);
@@ -1214,7 +1044,6 @@ void UnixSetSockEvent(SOCK_EVENT *event);
 void UnixCleanupSockEvent(SOCK_EVENT *event);
 bool UnixWaitSockEvent(SOCK_EVENT *event, UINT timeout);
 bool UnixGetDefaultDns(IP *ip);
-void UnixRenewDhcp();
 void UnixNewPipe(int *pipe_read, int *pipe_write);
 void UnixWritePipe(int pipe_write);
 void UnixDeletePipe(int p1, int p2);
@@ -1244,20 +1073,15 @@ void IPToInAddr(struct in_addr *addr, IP *ip);
 void IPToInAddr6(struct in6_addr *addr, IP *ip);
 bool StrToIP(IP *ip, char *str);
 UINT StrToIP32(char *str);
-bool UniStrToIP(IP *ip, wchar_t *str);
 UINT UniStrToIP32(wchar_t *str);
 void IPToStr(char *str, UINT size, IP *ip);
 void IPToStr4(char *str, UINT size, IP *ip);
 void IPToStr32(char *str, UINT size, UINT ip);
-void IPToStr128(char *str, UINT size, UCHAR *ip_bytes);
 void IPToStr4or6(char *str, UINT size, UINT ip_4_uint, UCHAR *ip_6_bytes);
 void IPToUniStr(wchar_t *str, UINT size, IP *ip);
 void IPToUniStr32(wchar_t *str, UINT size, UINT ip);
 bool GetIPEx(IP *ip, char *hostname, bool ipv6);
-bool GetIP46(IP *ip4, IP *ip6, char *hostname);
 bool GetIP46Ex(IP *ip4, IP *ip6, char *hostname, UINT timeout, bool *cancel);
-bool GetIP46Any4(IP *ip, char *hostname);
-bool GetIP46Any6(IP *ip, char *hostname);
 bool GetIP(IP *ip, char *hostname);
 bool GetIP4(IP *ip, char *hostname);
 bool GetIP6(IP *ip, char *hostname);
@@ -1277,7 +1101,6 @@ void GetHostNameThread(THREAD *t, void *p);
 void GetMachineName(char *name, UINT size);
 void GetMachineNameEx(char *name, UINT size, bool no_load_hosts);
 bool GetMachineNameFromHosts(char *name, UINT size);
-void GetMachineIp(IP *ip);
 void GetMachineHostName(char *name, UINT size);
 void UINTToIP(IP *ip, UINT value);
 UINT IPToUINT(IP *ip);
@@ -1287,11 +1110,9 @@ void CleanupSock(SOCK *s);
 SOCK *Connect(char *hostname, UINT port);
 SOCK *ConnectEx(char *hostname, UINT port, UINT timeout);
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag);
-SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname);
-SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool ssl_no_tls, bool no_get_hostname, IP *ret_ip);
+SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname);
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
-void SetSocketSendRecvBufferSize(SOCKET s, UINT size);
-UINT GetSocketBufferSize(SOCKET s, bool send);
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size);
 UINT SetSocketBufferSizeWithBestEffort(SOCKET s, bool send, UINT size);
 void InitUdpSocketBufferSize(SOCKET s);
@@ -1301,7 +1122,6 @@ void Disconnect(SOCK *sock);
 SOCK *Listen(UINT port);
 SOCK *ListenEx(UINT port, bool local_only);
 SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip);
-SOCK *Listen6(UINT port);
 SOCK *ListenEx6(UINT port, bool local_only);
 SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca);
 SOCK *Accept(SOCK *sock);
@@ -1313,7 +1133,7 @@ void SetNoNeedToRead(SOCK *sock);
 UINT SecureSend(SOCK *sock, void *data, UINT size);
 UINT SecureRecv(SOCK *sock, void *data, UINT size);
 bool StartSSL(SOCK *sock, X *x, K *priv);
-bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname);
+bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname);
 bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x);
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx);
 bool SendAll(SOCK *sock, void *data, UINT size, bool secure);
@@ -1321,6 +1141,7 @@ void SendAdd(SOCK *sock, void *data, UINT size);
 bool SendNow(SOCK *sock, int secure);
 bool RecvAll(SOCK *sock, void *data, UINT size, bool secure);
 bool RecvAllEx(SOCK *sock, void **data_new_ptr, UINT size, bool secure);
+bool RecvAllWithDiscard(SOCK *sock, UINT size, bool secure);
 void InitSockSet(SOCKSET *set);
 void AddSockSet(SOCKSET *set, SOCK *sock);
 CANCEL *NewCancel();
@@ -1330,7 +1151,6 @@ void CleanupCancel(CANCEL *c);
 void Cancel(CANCEL *c);
 void Select(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2);
 void SetWantToUseCipher(SOCK *sock, char *name);
-void InitAsyncSocket(SOCK *sock);
 SOCK *NewUDP(UINT port);
 SOCK *NewUDPEx(UINT port, bool ipv6);
 SOCK *NewUDPEx2(UINT port, bool ipv6, IP *ip);
@@ -1341,12 +1161,8 @@ SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UIN
 SOCK *NewUDPEx2RandMachineAndExePath(bool ipv6, IP *ip, UINT num_retry, UCHAR rand_port_id);
 void ClearSockDfBit(SOCK *s);
 void SetRawSockHeaderIncludeOption(SOCK *s, bool enable);
-UINT GetNewAvailableUdpPortRand();
-UINT NewRandPortByMachineAndExePath(UINT start_port, UINT end_port, UINT additional_int);
-void DisableUDPChecksum(SOCK *s);
 UINT SendTo(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size);
 UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, bool broadcast);
-UINT SendTo6(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size);
 UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, bool broadcast);
 UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size);
 UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size);
@@ -1354,7 +1170,6 @@ void SetTimeout(SOCK *sock, UINT timeout);
 UINT GetTimeout(SOCK *sock);
 bool CheckTCPPort(char *hostname, UINT port);
 bool CheckTCPPortEx(char *hostname, UINT port, UINT timeout);
-void CheckTCPPortThread(THREAD *thread, void *param);
 ROUTE_TABLE *GetRouteTable();
 void FreeRouteTable(ROUTE_TABLE *t);
 bool AddRouteEntryEx(ROUTE_ENTRY *e, bool *already_exists);
@@ -1365,7 +1180,6 @@ void FreeEnumVLan(char **s);
 UINT GetVLanInterfaceID(char *tag_name);
 ROUTE_ENTRY *GetBestRouteEntry(IP *ip);
 ROUTE_ENTRY *GetBestRouteEntryEx(IP *ip, UINT exclude_if_id);
-ROUTE_ENTRY *GetBestRouteEntryFromRouteTable(ROUTE_TABLE *table, IP *ip);
 ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT exclude_if_id);
 void FreeRouteEntry(ROUTE_ENTRY *e);
 void JoinSockToSockEvent(SOCK *sock, SOCK_EVENT *event);
@@ -1379,7 +1193,6 @@ UINT SetIP32(UCHAR a1, UCHAR a2, UCHAR a3, UCHAR a4);
 bool GetDefaultDns(IP *ip);
 bool GetDomainName(char *name, UINT size);
 bool UnixGetDomainName(char *name, UINT size);
-void RenewDhcp();
 void AcceptInit(SOCK *s);
 void AcceptInitEx(SOCK *s, bool no_lookup_hostname);
 void DisableGetHostNameWhenAcceptInit();
@@ -1397,7 +1210,6 @@ bool GetHostCache(char *hostname, UINT size, IP *ip);
 bool IsSubnetMask(IP *ip);
 bool IsSubnetMask4(IP *ip);
 bool IsSubnetMask32(UINT ip);
-bool IsNetworkAddress(IP *ip, IP *mask);
 bool IsNetworkAddress4(IP *ip, IP *mask);
 bool IsNetworkAddress32(UINT ip, UINT mask);
 bool IsHostIPAddress4(IP *ip);
@@ -1410,7 +1222,6 @@ void IntToSubnetMask4(IP *ip, UINT i);
 bool GetNetBiosName(char *name, UINT size, IP *ip);
 bool NormalizeMacAddress(char *dst, UINT size, char *src);
 SOCKLIST *NewSockList();
-void DelSockList(SOCKLIST *sl, SOCK *s);
 void StopSockList(SOCKLIST *sl);
 void FreeSockList(SOCKLIST *sl);
 bool IsIPv6Supported();
@@ -1424,13 +1235,6 @@ void DelIpClient(IP *ip);
 IP_CLIENT *SearchIpClient(IP *ip);
 UINT GetNumIpClient(IP *ip);
 void SetLinuxArpFilter();
-LIST *GetTcpTableList();
-void FreeTcpTableList(LIST *o);
-int CompareTcpTable(void *p1, void *p2);
-void PrintTcpTableList(LIST *o);
-TCPTABLE *GetTcpTableFromEndPoint(LIST *o, IP *local_ip, UINT local_port, IP *remote_ip, UINT remote_port);
-UINT GetTcpProcessIdFromSocket(SOCK *s);
-UINT GetTcpProcessIdFromSocketReverse(SOCK *s);
 int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool *cancel_flag);
 void EnableNetworkNameCache();
 void DisableNetworkNameCache();
@@ -1442,7 +1246,9 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e);
 void DebugPrintRoute(ROUTE_ENTRY *e);
 void DebugPrintRouteTable(ROUTE_TABLE *r);
 bool IsIPv6LocalNetworkAddress(IP *ip);
-UINT GetNumWaitThread();
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str);
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value);
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value);
 
 #ifdef	ENABLE_SSL_LOGGING
 void SockEnableSslLogging(SOCK *s);
@@ -1455,10 +1261,8 @@ SOCKET_TIMEOUT_PARAM *NewSocketTimeout(SOCK *sock);
 void FreeSocketTimeout(SOCKET_TIMEOUT_PARAM *ttp);
 
 void CopyIP(IP *dst, IP *src);
-bool CheckSubnetLength6(UINT i);
 bool IsIP6(IP *ip);
 bool IsIP4(IP *ip);
-bool IsSameIPVer(IP *ip1, IP *ip2);
 void IPv6AddrToIP(IP *ip, IPV6_ADDR *addr);
 bool IPToIPv6Addr(IPV6_ADDR *addr, IP *ip);
 void SetIP6(IP *ip, UCHAR *value);
@@ -1478,42 +1282,27 @@ void IP6AddrToStr(char *str, UINT size, IPV6_ADDR *addr);
 void IPToStr6Array(char *str, UINT size, UCHAR *bytes);
 void IPToStr6Inner(char *str, IP *ip);
 void IntToSubnetMask6(IP *ip, UINT i);
-void IPNot6(IP *dst, IP *a);
-void IPOr6(IP *dst, IP *a, IP *b);
 void IPAnd6(IP *dst, IP *a, IP *b);
 void GetAllRouterMulticastAddress6(IP *ip);
 void GetAllNodeMulticaseAddress6(IP *ip);
 void GetLoopbackAddress6(IP *ip);
-void GetAllFilledAddress6(IP *ip);
 UINT GetIPAddrType6(IP *ip);
 UINT GetIPv6AddrType(IPV6_ADDR *addr);
-void GenerateMulticastMacAddress6(UCHAR *mac, IP *ip);
-void GetSoliciationMulticastAddr6(IP *dst, IP *src);
-bool CheckUnicastAddress(IP *ip);
-bool IsNetworkPrefixAddress6(IP *ip, IP *subnet);
-bool IsNetworkAddress6(IP *ip, IP *subnet);
-void GetHostAddress6(IP *dst, IP *ip, IP *subnet);
 void GetPrefixAddress6(IP *dst, IP *ip, IP *subnet);
-bool IsNetworkPrefixAddress6(IP *ip, IP *subnet);
 bool IsInSameNetwork6(IP *a1, IP *a2, IP *subnet);
 bool IsInSameNetwork6ByStr(char *ip1, char *ip2, char *subnet);
 void GenerateEui64Address6(UCHAR *dst, UCHAR *mac);
 void GenerateEui64LocalAddress(IP *a, UCHAR *mac);
-void GenerateEui64GlobalAddress(IP *ip, IP *prefix, IP *subnet, UCHAR *mac);
 bool IsSubnetMask6(IP *a);
 UINT SubnetMaskToInt(IP *a);
 UINT SubnetMaskToInt6(IP *a);
 UINT SubnetMaskToInt4(IP *a);
 bool IsStrIPv6Address(char *str);
-void IPNot4(IP *dst, IP *a);
-void IPOr4(IP *dst, IP *a, IP *b);
 void IPAnd4(IP *dst, IP *a, IP *b);
 bool IsInSameNetwork4(IP *a1, IP *a2, IP *subnet);
 bool IsInSameNetwork4Standard(IP *a1, IP *a2);
-bool IsInSameLocalNetworkToMe4(IP *a);
 
 bool ParseIpAndSubnetMask4(char *src, UINT *ip, UINT *mask);
-bool ParseIpAndSubnetMask6(char *src, IP *ip, IP *mask);
 bool ParseIpAndSubnetMask46(char *src, IP *ip, IP *mask);
 bool ParseIpAndMask4(char *src, UINT *ip, UINT *mask);
 bool ParseIpAndMask6(char *src, IP *ip, IP *mask);
@@ -1521,11 +1310,8 @@ bool ParseIpAndMask46(char *src, IP *ip, IP *mask);
 bool IsIpStr4(char *str);
 bool IsIpStr6(char *str);
 bool IsIpMask6(char *str);
-bool IsIpStr46(char *str);
-bool StrToMask4(IP *mask, char *str);
 bool StrToMask6(IP *mask, char *str);
 bool StrToMask6Addr(IPV6_ADDR *mask, char *str);
-bool StrToMask46(IP *mask, char *str, bool ipv6);
 void MaskToStr(char *str, UINT size, IP *mask);
 void Mask6AddrToStrEx(char *str, UINT size, IPV6_ADDR *mask, bool always_full_address);
 void Mask6AddrToStr(char *str, UINT size, IPV6_ADDR *mask);
@@ -1569,15 +1355,15 @@ int CmpIpAddressList(void *p1, void *p2);
 UINT64 GetHostIPAddressListHash();
 
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
+UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type);
 void UdpListenerThread(THREAD *thread, void *param);
-void UdpListenerGetPublicPortList(UDPLISTENER *u, char *dst, UINT size);
 void FreeUdpListener(UDPLISTENER *u);
 void AddPortToUdpListener(UDPLISTENER *u, UINT port);
 void DeletePortFromUdpListener(UDPLISTENER *u, UINT port);
 void DeleteAllPortFromUdpListener(UDPLISTENER *u);
-UINT GetUdpListenerPortList(UDPLISTENER *u, UINT **port_list);
 void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list);
-void UdpListenerSendPacket(UDPLISTENER *u, UDPPACKET *packet);
+TCP_RAW_DATA *NewTcpRawData(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port);
+void FreeTcpRawData(TCP_RAW_DATA *trd);
 UDPPACKET *NewUdpPacket(IP *src_ip, UINT src_port, IP *dst_ip, UINT dst_port, void *data, UINT size);
 void FreeUdpPacket(UDPPACKET *p);
 UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p);
@@ -1602,7 +1388,6 @@ SOCK *AcceptReverse(SOCK *s);
 void InjectNewReverseSocketToAccept(SOCK *listen_sock, SOCK *s, IP *client_ip, UINT client_port);
 
 bool NewTcpPair(SOCK **s1, SOCK **s2);
-SOCK *ListenAnyPortEx(bool local_only);
 SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca);
 
 bool IsIcmpApiSupported();
@@ -1615,7 +1400,16 @@ void Win32WaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 #endif	// OS_WIN32
 
+#define PREVERIFY_ERR_MESSAGE_SIZE 100
+// Info on client certificate collected during TLS handshake
+struct SslClientCertInfo {
+	int PreverifyErr;
+	char PreverifyErrMessage[PREVERIFY_ERR_MESSAGE_SIZE];
+	X *X;
+};
+
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh);
+SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
 void FreeSslPipe(SSL_PIPE *s);
 bool SyncSslPipe(SSL_PIPE *s);
 
@@ -1630,7 +1424,6 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6);
 bool IsIPAddressInSameLocalNetwork(IP *a);
 
 bool IsIPPrivate(IP *ip);
-bool IsIPLocalOrPrivate(IP *ip);
 bool IsIPMyHost(IP *ip);
 void LoadPrivateIPFile();
 bool IsOnPrivateIPFile(UINT ip);
@@ -1638,7 +1431,6 @@ void FreePrivateIPFile();
 
 LIST *GetNicList();
 void FreeNicList(LIST *o);
-bool IsMacAddressLocal(void *addr);
 bool IsMacAddressLocalInner(LIST *o, void *addr);
 bool IsMacAddressLocalFast(void *addr);
 void RefreshLocalMacAddressList();
@@ -1650,11 +1442,7 @@ void SetCurrentDDnsFqdn(char *name);
 void GetCurrentDDnsFqdn(char *name, UINT size);
 UINT GetCurrentDDnsFqdnHash();
 
-void GetSimpleHostname(char *hostname, UINT hostname_size, char *fqdn);
-
 void DisableRDUPServerGlobally();
-void DisableRUDPRegisterGlobally();
-void SetNatTLowPriority();
 
 void QueryIpThreadMain(THREAD *thread, void *param);
 QUERYIPTHREAD *NewQueryIpThread(char *hostname, UINT interval_last_ok, UINT interval_last_ng);
@@ -1664,11 +1452,6 @@ void FreeQueryIpThread(QUERYIPTHREAD *t);
 void SetGetIpThreadMaxNum(UINT num);
 UINT GetGetIpThreadMaxNum();
 UINT GetCurrentGetIpThreadNum();
-
-
-
-bool IsIpInStrList(IP *ip, char *ip_list);
-bool IsInStrByStrList(char *str, char *str_list);
 
 #ifdef	OS_WIN32
 LIST *Win32GetNicList();

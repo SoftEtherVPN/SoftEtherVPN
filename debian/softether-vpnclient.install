@@ -1,3 +1,0 @@
-#! /usr/bin/dh-exec
-debian/bin/vpnclient usr/bin/
-usr/vpnclient opt/

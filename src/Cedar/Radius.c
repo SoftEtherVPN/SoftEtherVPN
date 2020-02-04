@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Radius.c
@@ -137,7 +31,7 @@ bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respo
 	msg1.Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	msg1.Chap_Len = Endian16(54 + StrLen(e->Username));
 	msg1.Chap_ValueSize = 49;
-	Copy(msg1.Chap_PeerChallange, client_challenge, 16);
+	Copy(msg1.Chap_PeerChallenge, client_challenge, 16);
 	Copy(msg1.Chap_NtResponse, client_response, 24);
 	Copy(msg1.Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
@@ -323,11 +217,11 @@ bool SendPeapRawPacket(EAP_CLIENT *e, UCHAR *peap_data, UINT peap_size)
 	fragments = NewListFast(NULL);
 	for (num = 0;;num++)
 	{
-		UCHAR tmp[1024];
+		UCHAR tmp[200];
 		EAP_PEAP *send_peap_message;
 		UINT sz;
 
-		sz = ReadBuf(buf, tmp, 1024);
+		sz = ReadBuf(buf, tmp, sizeof(tmp));
 
 		if (sz == 0)
 		{
@@ -699,6 +593,11 @@ void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e)
 
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_NAS_ID, 0, 0, CEDAR_SERVER_STR, StrLen(CEDAR_SERVER_STR)));
 
+	if (IsEmptyStr(e->In_VpnProtocolState) == false)
+	{
+		Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_PROXY_STATE, 0, 0, e->In_VpnProtocolState, StrLen(e->In_VpnProtocolState)));
+	}
+
 	ui = Endian32(2);
 	Add(r->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT,
 		RADIUS_MS_NETWORK_ACCESS_SERVER_TYPE, &ui, sizeof(UINT)));
@@ -757,7 +656,7 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 	eap1->Chap_Id = e->MsChapV2Challenge.Chap_Id;
 	eap1->Chap_Len = Endian16(54 + StrLen(e->Username));
 	eap1->Chap_ValueSize = 49;
-	Copy(eap1->Chap_PeerChallange, client_challenge, 16);
+	Copy(eap1->Chap_PeerChallenge, client_challenge, 16);
 	Copy(eap1->Chap_NtResponse, client_response, 24);
 	Copy(eap1->Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
 
@@ -1020,9 +919,25 @@ RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r)
 						{
 							RADIUS_AVP *eap_msg = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_EAP_MESSAGE);
 							RADIUS_AVP *vlan_avp = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_VLAN_ID);
+							RADIUS_AVP *framed_interface_id_avp = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_FRAMED_INTERFACE_ID);
 							if (eap_msg != NULL)
 							{
 								e->LastRecvEapId = ((EAP_MESSAGE *)(eap_msg->Data))->Id;
+							}
+
+							if (framed_interface_id_avp != NULL)
+							{
+								// FRAMED_INTERFACE_ID
+								char tmp_str[64];
+								UCHAR mac_address[6];
+
+								Zero(tmp_str, sizeof(tmp_str));
+								Copy(tmp_str, framed_interface_id_avp->Data, MIN(framed_interface_id_avp->DataSize, sizeof(tmp_str) - 1));
+
+								if (StrToMac(mac_address, tmp_str))
+								{
+									Copy(e->LastRecvVirtualMacAddress, mac_address, 6);
+								}
 							}
 
 							if (vlan_avp != NULL)
@@ -1577,7 +1492,7 @@ RADIUS_PACKET *ParseRadiusPacket(void *data, UINT size)
 				goto LABEL_ERROR;
 			}
 
-			if (a.Type == RADIUS_ATTRIBUTE_EAP_MESSAGE && a.DataSize >= 5 && a.DataSize <= 1500)
+			if (a.Type == RADIUS_ATTRIBUTE_EAP_MESSAGE && a.DataSize >= 5)
 			{
 				UINT sz_tmp = Endian16(((EAP_MESSAGE *)a.Data)->Len);
 
@@ -1691,15 +1606,8 @@ RADIUS_PACKET *ParseRadiusPacket(void *data, UINT size)
 
 LABEL_ERROR:
 
-	if (p != NULL)
-	{
-		FreeRadiusPacket(p);
-	}
-
-	if (buf != NULL)
-	{
-		FreeBuf(buf);
-	}
+	FreeRadiusPacket(p);
+	FreeBuf(buf);
 
 	return NULL;
 }
@@ -1755,6 +1663,11 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 		// Try the EAP authentication for RADIUS first
 		EAP_CLIENT *eap = mschap.MsChapV2_EapClient;
 
+		if (IsEmptyStr(opt->In_VpnProtocolState) == false)
+		{
+			StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), opt->In_VpnProtocolState);
+		}
+
 		if (eap->PeapMode == false)
 		{
 			ret = EapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
@@ -1774,6 +1687,8 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			{
 				opt->Out_VLanId = eap->LastRecvVLanId;
 			}
+
+			Copy(opt->Out_VirtualMacAddress, eap->LastRecvVirtualMacAddress, 6);
 
 			return true;
 		}
@@ -1889,31 +1804,31 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 
 				// Service-Type
 				ui = Endian32(2);
-				RadiusAddValue(p, 6, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_SERVICE_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// NAS-Port-Type
 				ui = Endian32(5);
-				RadiusAddValue(p, 61, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_PORT_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 64, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_MEDIUM_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Called-Station-ID - VPN Hub Name
 				if (IsEmptyStr(hubname) == false)
 				{
-					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLED_STATION_ID, 0, 0, hubname, StrLen(hubname));
 				}
 
 				// Calling-Station-Id
-				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLING_STATION_ID, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// Tunnel-Client-Endpoint
-				RadiusAddValue(p, 66, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_CLIENT_ENDPOINT, 0, 0, client_ip_str, StrLen(client_ip_str));
 			}
 			else
 			{
@@ -1927,67 +1842,73 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				// Acct-Session-Id
 				us = Endian16(session_id % 254 + 1);
 				session_id++;
-				RadiusAddValue(p, 44, 0, 0, &us, sizeof(us));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_ACCT_SESSION_ID, 0, 0, &us, sizeof(us));
 
 				// NAS-IP-Address
 				if (c != NULL && c->FirstSock != NULL && c->FirstSock->IPv6 == false)
 				{
 					ui = IPToUINT(&c->FirstSock->LocalIP);
-					RadiusAddValue(p, 4, 0, 0, &ui, sizeof(ui));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_IP, 0, 0, &ui, sizeof(ui));
 				}
 
 				// Service-Type
 				ui = Endian32(2);
-				RadiusAddValue(p, 6, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_SERVICE_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// MS-RAS-Vendor
-				ui = Endian32(311);
-				RadiusAddValue(p, 26, 311, 9, &ui, sizeof(ui));
+				ui = Endian32(RADIUS_VENDOR_MICROSOFT);
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_VENDOR, &ui, sizeof(ui));
 
 				// MS-RAS-Version
-				RadiusAddValue(p, 26, 311, 18, ms_ras_version, StrLen(ms_ras_version));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_VERSION, ms_ras_version, StrLen(ms_ras_version));
 
 				// NAS-Port-Type
 				ui = Endian32(5);
-				RadiusAddValue(p, 61, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_NAS_PORT_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 64, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Tunnel-Medium-Type
 				ui = Endian32(1);
-				RadiusAddValue(p, 65, 0, 0, &ui, sizeof(ui));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_MEDIUM_TYPE, 0, 0, &ui, sizeof(ui));
 
 				// Called-Station-ID - VPN Hub Name
 				if (IsEmptyStr(hubname) == false)
 				{
-					RadiusAddValue(p, 30, 0, 0, hubname, StrLen(hubname));
+					RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLED_STATION_ID, 0, 0, hubname, StrLen(hubname));
 				}
 
 				// Calling-Station-Id
-				RadiusAddValue(p, 31, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_CALLING_STATION_ID, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// Tunnel-Client-Endpoint
-				RadiusAddValue(p, 66, 0, 0, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_TUNNEL_CLIENT_ENDPOINT, 0, 0, client_ip_str, StrLen(client_ip_str));
 
 				// MS-RAS-Client-Version
-				RadiusAddValue(p, 26, 311, 35, ms_ras_version, StrLen(ms_ras_version));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_CLIENT_VERSION, ms_ras_version, StrLen(ms_ras_version));
 
 				// MS-RAS-Client-Name
-				RadiusAddValue(p, 26, 311, 34, client_ip_str, StrLen(client_ip_str));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_RAS_CLIENT_NAME, client_ip_str, StrLen(client_ip_str));
 
 				// MS-CHAP-Challenge
-				RadiusAddValue(p, 26, 311, 11, mschap.MsChapV2_ServerChallenge, sizeof(mschap.MsChapV2_ServerChallenge));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_CHAP_CHALLENGE, mschap.MsChapV2_ServerChallenge, sizeof(mschap.MsChapV2_ServerChallenge));
 
 				// MS-CHAP2-Response
 				Zero(ms_chapv2_response, sizeof(ms_chapv2_response));
 				Copy(ms_chapv2_response + 2, mschap.MsChapV2_ClientChallenge, 16);
 				Copy(ms_chapv2_response + 2 + 16 + 8, mschap.MsChapV2_ClientResponse, 24);
-				RadiusAddValue(p, 26, 311, 25, ms_chapv2_response, sizeof(ms_chapv2_response));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_VENDOR_SPECIFIC, RADIUS_VENDOR_MICROSOFT, RADIUS_MS_CHAP2_RESPONSE, ms_chapv2_response, sizeof(ms_chapv2_response));
 
 				// NAS-ID
 				WriteBuf(p, nas_id->Buf, nas_id->Size);
+			}
+
+			if (IsEmptyStr(opt->In_VpnProtocolState) == false)
+			{
+				// Proxy state as protocol details
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_PROXY_STATE, 0, 0, opt->In_VpnProtocolState, StrLen(opt->In_VpnProtocolState));
 			}
 
 			SeekBuf(p, 0, 0);
@@ -2080,6 +2001,9 @@ RECV_RETRY:
 					// Success
 					if (recv_buf[0] == 2)
 					{
+						LIST *o;
+						BUF *buf = NewBufFromMemory(recv_buf, recv_size);
+
 						ret = true;
 
 						if (is_mschap && mschap_v2_server_response_20 != NULL)
@@ -2117,12 +2041,26 @@ RECV_RETRY:
 							}
 						}
 
-						if (opt->In_CheckVLanId)
+						o = RadiusParseOptions(buf);
+						if (o != NULL)
 						{
-							BUF *buf = NewBufFromMemory(recv_buf, recv_size);
-							LIST *o = RadiusParseOptions(buf);
+							DHCP_OPTION *framed_interface_id_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_FRAMED_INTERFACE_ID);
 
-							if (o != NULL)
+							if (framed_interface_id_option != NULL)
+							{
+								char tmp_str[64];
+								UCHAR mac_address[6];
+
+								Zero(tmp_str, sizeof(tmp_str));
+								Copy(tmp_str, framed_interface_id_option->Data, MIN(framed_interface_id_option->Size, sizeof(tmp_str) - 1));
+
+								if (StrToMac(mac_address, tmp_str))
+								{
+									Copy(opt->Out_VirtualMacAddress, mac_address, 6);
+								}
+							}
+
+							if (opt->In_CheckVLanId)
 							{
 								DHCP_OPTION *vlan_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_VLAN_ID);
 
@@ -2141,9 +2079,10 @@ RECV_RETRY:
 								}
 							}
 
-							FreeBuf(buf);
 							FreeDhcpOptions(o);
 						}
+
+						FreeBuf(buf);
 					}
 					break;
 				}
@@ -2403,7 +2342,7 @@ BUF *RadiusEncryptPassword(char *password, UCHAR *random, UCHAR *secret, UINT se
 		{
 			WriteBuf(tmp, c[i - 1], 16);
 		}
-		Hash(b[i], tmp->Buf, tmp->Size, false);
+		Md5(b[i], tmp->Buf, tmp->Size);
 		FreeBuf(tmp);
 
 		// Calculation of c[i]

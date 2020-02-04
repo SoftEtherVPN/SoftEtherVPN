@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // Logging.c
@@ -120,11 +14,11 @@ static char *delete_targets[] =
 	"backup.vpn_server.config",
 	"backup.vpn_gate_svc.config",
 	"backup.etherlogger.config",
-	"packet_log",
-	"etherlogger_log",
+	HUB_PACKET_LOG_DIR,
+	EL_PACKET_LOG_DIR,
 	"secure_nat_log",
-	"security_log",
-	"server_log",
+	HUB_SECURITY_LOG_DIR,
+	SERVER_LOG_DIR,
 	"bridge_log",
 	"packet_log_archive",
 	"azure_log",
@@ -132,6 +26,10 @@ static char *delete_targets[] =
 
 static UINT eraser_check_interval = DISK_FREE_CHECK_INTERVAL_DEFAULT;
 static UINT64 logger_max_log_size = MAX_LOG_SIZE_DEFAULT;
+
+static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *log_date_changed, char *current_logfile_datename, char *current_file_name);
+static bool LogThreadWriteStdout(LOG *log_object, BUF *buffer, IO *io);
+static IO *GetIO4Stdout();
 
 // Send with syslog
 void SendSysLog(SLOG *g, wchar_t *str)
@@ -285,23 +183,6 @@ void FreeEraseFileList(LIST *o)
 	}
 
 	ReleaseList(o);
-}
-
-// Show the deleting file list
-void PrintEraseFileList(LIST *o)
-{
-	UINT i;
-	// Validate arguments
-	if (o == NULL)
-	{
-		return;
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		ERASE_FILE *f = LIST_DATA(o, i);
-		Print("%I64u - %s\n", f->UpdateTime, f->FullPath);
-	}
 }
 
 // Generate a deleting file list of the specified directory
@@ -538,7 +419,7 @@ ERASER *NewEraser(LOG *log, UINT64 min_size)
 
 	e = ZeroMalloc(sizeof(ERASER));
 
-	GetExeDir(dir, sizeof(dir));
+	GetLogDir(dir, sizeof(dir));
 
 	e->Log = log;
 	e->MinFreeSpace = min_size;
@@ -614,23 +495,6 @@ void ELog(ERASER *e, char *name, ...)
 	va_end(args);
 }
 
-// Take the log of the server
-void ServerLog(CEDAR *c, wchar_t *fmt, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	UniFormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteServerLog(c, buf);
-	va_end(args);
-}
 void SLog(CEDAR *c, char *name, ...)
 {
 	wchar_t buf[MAX_SIZE * 2];
@@ -671,23 +535,6 @@ void CLog(CLIENT *c, char *name, ...)
 	va_end(args);
 }
 
-// Take the security log of the HUB
-void HubLog(HUB *h, wchar_t *fmt, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	UniFormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteHubLog(h, buf);
-	va_end(args);
-}
 void ALog(ADMIN *a, HUB *h, char *name, ...)
 {
 	wchar_t buf[MAX_SIZE * 2];
@@ -880,34 +727,6 @@ void PPPLog(PPP_SESSION *p, char *name, ...)
 	WriteServerLog(p->Cedar, buf);
 }
 
-// Write an IPC log
-void IPCLog(IPC *ipc, char *name, ...)
-{
-	wchar_t buf[MAX_SIZE * 2];
-	va_list args;
-	HUB *h;
-	// Validate arguments
-	if (name == NULL)
-	{
-		return;
-	}
-
-	h = GetHub(ipc->Cedar, ipc->HubName);
-
-	if (h == NULL)
-	{
-		return;
-	}
-
-	va_start(args, name);
-	UniFormatArgs(buf, sizeof(buf), _UU(name), args);
-
-	WriteHubLog(h, buf);
-	va_end(args);
-
-	ReleaseHub(h);
-}
-
 // Save the security log of the HUB
 void WriteHubLog(HUB *h, wchar_t *str)
 {
@@ -987,69 +806,6 @@ void WriteServerLog(CEDAR *c, wchar_t *str)
 	{
 		InsertUnicodeRecord(s->Logger, str);
 	}
-}
-
-// Write a multi-line log
-void WriteMultiLineLog(LOG *g, BUF *b)
-{
-	// Validate arguments
-	if (g == NULL || b == NULL)
-	{
-		return;
-	}
-
-	SeekBuf(b, 0, 0);
-
-	while (true)
-	{
-		char *s = CfgReadNextLine(b);
-		if (s == NULL)
-		{
-			break;
-		}
-
-		if (IsEmptyStr(s) == false)
-		{
-			InsertStringRecord(g, s);
-		}
-
-		Free(s);
-	}
-}
-
-// Take the security log (variable-length argument) *abolished
-void SecLog(HUB *h, char *fmt, ...)
-{
-	char buf[MAX_SIZE * 2];
-	va_list args;
-	// Validate arguments
-	if (fmt == NULL)
-	{
-		return;
-	}
-
-	if (h->LogSetting.SaveSecurityLog == false)
-	{
-		return;
-	}
-
-	va_start(args, fmt);
-	FormatArgs(buf, sizeof(buf), fmt, args);
-
-	WriteSecurityLog(h, buf);
-	va_end(args);
-}
-
-// Take a security log
-void WriteSecurityLog(HUB *h, char *str)
-{
-	// Validate arguments
-	if (h == NULL || str == NULL)
-	{
-		return;
-	}
-
-	InsertStringRecord(h->SecurityLogger, str);
 }
 
 // Take a packet log
@@ -1141,14 +897,7 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	pl->Cedar = hub->Cedar;
 	pl->Packet = p;
 	pl->NoLog = no_log;
-	if (src_session != NULL)
-	{
-		pl->SrcSessionName = CopyStr(src_session->Name);
-	}
-	else
-	{
-		pl->SrcSessionName = CopyStr("");
-	}
+	pl->SrcSessionName = CopyStr(src_session->Name);
 	if (dest_session != NULL)
 	{
 		pl->DestSessionName = CopyStr(dest_session->Name);
@@ -1160,7 +909,7 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 
 	if (opt == NULL || opt->NoPhysicalIPOnPacketLog == false)
 	{
-		if (src_session != NULL && src_session->NormalClient)
+		if (src_session->NormalClient)
 		{
 			StrCpy(pl->SrcPhysicalIP, sizeof(pl->SrcPhysicalIP), src_session->ClientIP);
 		}
@@ -1494,10 +1243,17 @@ void AddLogBufToStr(BUF *b, char *name, char *value)
 void MakeSafeLogStr(char *str)
 {
 	UINT i, len;
+	bool is_http = false;
 	// Validate arguments
 	if (str == NULL)
 	{
 		return;
+	}
+
+	if (str[0] == 'h' && str[1] == 't' && str[2] == 't' && str[3] == 'p' &&
+		((str[4] == 's' && str[5] == ':') || (str[4] == ':')))
+	{
+		is_http = true;
 	}
 
 	EnPrintableAsciiStr(str, '?');
@@ -1511,7 +1267,10 @@ void MakeSafeLogStr(char *str)
 		}
 		else if (str[i] == ' ')
 		{
-			str[i] = '_';
+			if (is_http == false)
+			{
+				str[i] = '_';
+			}
 		}
 	}
 }
@@ -1750,7 +1509,7 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{
@@ -2022,7 +1781,7 @@ char *PacketLogParseProc(RECORD *rec)
 						}
 						else if (p->L7.IkeHeader->ExchangeType == IKE_EXCHANGE_TYPE_AGGRESSIVE)
 						{
-							t->Token[7] = CopyStr("AgressiveMode");
+							t->Token[7] = CopyStr("AggressiveMode");
 						}
 
 						{
@@ -2258,8 +2017,6 @@ void ReplaceForCsv(char *str)
 		return;
 	}
 
-	// If there are blanks, trim it
-	Trim(str);
 	len = StrLen(str);
 
 	for (i = 0;i < len;i++)
@@ -2270,46 +2027,6 @@ void ReplaceForCsv(char *str)
 			str[i] = '_';
 		}
 	}
-}
-
-// Set the directory name of the log
-void SetLogDirName(LOG *g, char *dir)
-{
-	// Validate arguments
-	if (g == NULL || dir == NULL)
-	{
-		return;
-	}
-
-	LockLog(g);
-	{
-		if (g->DirName != NULL)
-		{
-			Free(g->DirName);
-		}
-		g->DirName = CopyStr(dir);
-	}
-	UnlockLog(g);
-}
-
-// Set the name of the log
-void SetLogPrefix(LOG *g, char *prefix)
-{
-	// Validate arguments
-	if (g == NULL || prefix == NULL)
-	{
-		return;
-	}
-
-	LockLog(g);
-	{
-		if (g->DirName != NULL)
-		{
-			Free(g->Prefix);
-		}
-		g->DirName = CopyStr(prefix);
-	}
-	UnlockLog(g);
 }
 
 // Set the switch type of log
@@ -2472,7 +2189,7 @@ void MakeLogFileNameStringFromTick(LOG *g, char *str, UINT size, UINT64 tick, UI
 		break;
 
 	default:				// Without switching
-		snprintf(str, size, "");
+		StrCpy(str, size, "");
 		break;
 	}
 
@@ -2550,7 +2267,7 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 	if (strcmp(old_datestr, tmp) != 0)
 	{
 		ret = true;
-		strcpy(old_datestr, tmp);
+		StrCpy(old_datestr, MAX_SIZE, tmp);
 	}
 
 	snprintf(name, size, "%s%s%s%s%s.log", dir,
@@ -2621,7 +2338,6 @@ void LogThread(THREAD *thread, void *param)
 	bool flag = false;
 	char current_file_name[MAX_SIZE];
 	char current_logfile_datename[MAX_SIZE];
-	bool last_priority_flag = false;
 	bool log_date_changed = false;
 	// Validate arguments
 	if (thread == NULL || param == NULL)
@@ -2634,7 +2350,7 @@ void LogThread(THREAD *thread, void *param)
 
 	g = (LOG *)param;
 
-	io = NULL;
+	io = g_foreground ? GetIO4Stdout() : NULL;
 	b = NewBuf();
 
 #ifdef	OS_WIN32
@@ -2648,253 +2364,23 @@ void LogThread(THREAD *thread, void *param)
 
 	while (true)
 	{
-		RECORD *rec;
 		UINT64 s = Tick64();
 
 		while (true)
 		{
-			char file_name[MAX_SIZE];
-			UINT num;
-
-			// Retrieve a record from the head of the queue
-			LockQueue(g->RecordQueue);
+			if (g_foreground)
 			{
-				rec = GetNext(g->RecordQueue);
-				num = g->RecordQueue->num_item;
-			}
-			UnlockQueue(g->RecordQueue);
-
-#ifdef	OS_WIN32
-			if (num >= LOG_ENGINE_SAVE_START_CACHE_COUNT)
-			{
-				// Raise the priority
-				if (last_priority_flag == false)
+				if (! LogThreadWriteStdout(g, b, io))
 				{
-					Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
-					MsSetThreadPriorityRealtime();
-					last_priority_flag = true;
-				}
-			}
-
-			if (num < (LOG_ENGINE_SAVE_START_CACHE_COUNT / 2))
-			{
-				// Restore the priority
-				if (last_priority_flag)
-				{
-					Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
-					MsSetThreadPriorityIdle();
-					last_priority_flag = false;
-				}
-			}
-#endif	// OS_WIN32
-
-			if (b->Size > GetMaxLogSize())
-			{
-				// Erase if the size of the buffer is larger than the maximum log file size
-				ClearBuf(b);
-			}
-
-			if (b->Size >= LOG_ENGINE_BUFFER_CACHE_SIZE_MAX)
-			{
-				// Write the contents of the buffer to the file
-				if (io != NULL)
-				{
-					if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
-					{
-						if (g->log_number_incremented == false)
-						{
-							g->CurrentLogNumber++;
-							g->log_number_incremented = true;
-						}
-					}
-					else
-					{
-						if (FileWrite(io, b->Buf, b->Size) == false)
-						{
-							FileCloseEx(io, true);
-							// If it fails to write to the file,
-							// erase the buffer and give up
-							ClearBuf(b);
-							io = NULL;
-						}
-						else
-						{
-							g->CurrentFilePointer += (UINT64)b->Size;
-							ClearBuf(b);
-						}
-					}
-				}
-			}
-
-			if (rec == NULL)
-			{
-				if (b->Size != 0)
-				{
-					// Write the contents of the buffer to the file
-					if (io != NULL)
-					{
-						if ((g->CurrentFilePointer + (UINT64)b->Size) > GetMaxLogSize())
-						{
-							if (g->log_number_incremented == false)
-							{
-								g->CurrentLogNumber++;
-								g->log_number_incremented = true;
-							}
-						}
-						else
-						{
-							if (FileWrite(io, b->Buf, b->Size) == false)
-							{
-								FileCloseEx(io, true);
-								// If it fails to write to the file,
-								// erase the buffer and give up
-								ClearBuf(b);
-								io = NULL;
-							}
-							else
-							{
-								g->CurrentFilePointer += (UINT64)b->Size;
-								ClearBuf(b);
-							}
-						}
-					}
-				}
-
-				Set(g->FlushEvent);
-				break;
-			}
-
-			// Generate a log file name
-			LockLog(g);
-			{
-				log_date_changed = MakeLogFileName(g, file_name, sizeof(file_name),
-					g->DirName, g->Prefix, rec->Tick, g->SwitchType, g->CurrentLogNumber, current_logfile_datename);
-
-				if (log_date_changed)
-				{
-					UINT i;
-
-					g->CurrentLogNumber = 0;
-					MakeLogFileName(g, file_name, sizeof(file_name),
-						g->DirName, g->Prefix, rec->Tick, g->SwitchType, 0, current_logfile_datename);
-					for (i = 0;;i++)
-					{
-						char tmp[MAX_SIZE];
-						MakeLogFileName(g, tmp, sizeof(tmp),
-							g->DirName, g->Prefix, rec->Tick, g->SwitchType, i, current_logfile_datename);
-
-						if (IsFileExists(tmp) == false)
-						{
-							break;
-						}
-						StrCpy(file_name, sizeof(file_name), tmp);
-						g->CurrentLogNumber = i;
-					}
-				}
-			}
-			UnlockLog(g);
-
-			if (io != NULL)
-			{
-				if (StrCmp(current_file_name, file_name) != 0)
-				{
-					// If a log file is currently opened and writing to another log
-					// file is needed for this time, write the contents of the 
-					//buffer and close the log file. Write the contents of the buffer
-					if (io != NULL)
-					{
-						if (log_date_changed)
-						{
-							if ((g->CurrentFilePointer + (UINT64)b->Size) <= GetMaxLogSize())
-							{
-								if (FileWrite(io, b->Buf, b->Size) == false)
-								{
-									FileCloseEx(io, true);
-									ClearBuf(b);
-									io = NULL;
-								}
-								else
-								{
-									g->CurrentFilePointer += (UINT64)b->Size;
-									ClearBuf(b);
-								}
-							}
-						}
-						// Close the file
-						FileCloseEx(io, true);
-					}
-
-					g->log_number_incremented = false;
-
-					// Open or create a new log file
-					StrCpy(current_file_name, sizeof(current_file_name), file_name);
-					io = FileOpen(file_name, true);
-					if (io == NULL)
-					{
-						// Create a log file
-						LockLog(g);
-						{
-							MakeDir(g->DirName);
-
-#ifdef	OS_WIN32
-							Win32SetFolderCompress(g->DirName, true);
-#endif	// OS_WIN32
-						}
-						UnlockLog(g);
-						io = FileCreate(file_name);
-						g->CurrentFilePointer = 0;
-					}
-					else
-					{
-						// Seek to the end of the log file
-						g->CurrentFilePointer = FileSize64(io);
-						FileSeek(io, SEEK_END, 0);
-					}
+					break;
 				}
 			}
 			else
 			{
-				// Open or create a new log file
-				StrCpy(current_file_name, sizeof(current_file_name), file_name);
-				io = FileOpen(file_name, true);
-				if (io == NULL)
+				if (! LogThreadWriteGeneral(g, b, &io, &log_date_changed, current_logfile_datename, current_file_name))
 				{
-					// Create a log file
-					LockLog(g);
-					{
-						MakeDir(g->DirName);
-#ifdef	OS_WIN32
-						Win32SetFolderCompress(g->DirName, true);
-#endif	// OS_WIN32
-					}
-					UnlockLog(g);
-					io = FileCreate(file_name);
-					g->CurrentFilePointer = 0;
-					if (io == NULL)
-					{
-						//Debug("Logging.c: SleepThread(30);\n");
-						SleepThread(30);
-					}
+					break;
 				}
-				else
-				{
-					// Seek to the end of the log file
-					g->CurrentFilePointer = FileSize64(io);
-					FileSeek(io, SEEK_END, 0);
-				}
-
-				g->log_number_incremented = false;
-			}
-
-			// Write the contents of the log to the buffer
-			WriteRecordToBuffer(b, rec);
-
-			// Release the memory of record
-			Free(rec);
-
-			if (io == NULL)
-			{
-				break;
 			}
 		}
 
@@ -2929,12 +2415,303 @@ void LogThread(THREAD *thread, void *param)
 		}
 	}
 
-	if (io != NULL)
+	if (io != NULL && !g_foreground)
 	{
 		FileCloseEx(io, true);
 	}
 
 	FreeBuf(b);
+}
+
+static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *log_date_changed, char *current_logfile_datename, char *current_file_name)
+{
+	RECORD *rec;
+	char file_name[MAX_SIZE];
+	UINT num;
+
+	// Retrieve a record from the head of the queue
+	LockQueue(log_object->RecordQueue);
+	{
+		rec = GetNext(log_object->RecordQueue);
+		num = log_object->RecordQueue->num_item;
+	}
+	UnlockQueue(log_object->RecordQueue);
+
+#ifdef	OS_WIN32
+	if (num >= LOG_ENGINE_SAVE_START_CACHE_COUNT)
+	{
+		// Raise the priority
+		Debug("LOG_THREAD: MsSetThreadPriorityRealtime\n");
+		MsSetThreadPriorityRealtime();
+	}
+
+	if (num < (LOG_ENGINE_SAVE_START_CACHE_COUNT / 2))
+	{
+		// Restore the priority
+		Debug("LOG_THREAD: MsSetThreadPriorityIdle\n");
+		MsSetThreadPriorityIdle();
+	}
+#endif	// OS_WIN32
+
+	if (buffer->Size > GetMaxLogSize())
+	{
+		// Erase if the size of the buffer is larger than the maximum log file size
+		ClearBuf(buffer);
+	}
+
+	if (buffer->Size >= LOG_ENGINE_BUFFER_CACHE_SIZE_MAX)
+	{
+		// Write the contents of the buffer to the file
+		if (*io != NULL)
+		{
+			if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) > GetMaxLogSize())
+			{
+				if (log_object->log_number_incremented == false)
+				{
+					log_object->CurrentLogNumber++;
+					log_object->log_number_incremented = true;
+				}
+			}
+			else
+			{
+				if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+				{
+					FileCloseEx(*io, true);
+					// If it fails to write to the file,
+					// erase the buffer and give up
+					ClearBuf(buffer);
+					*io = NULL;
+				}
+				else
+				{
+					log_object->CurrentFilePointer += (UINT64)buffer->Size;
+					ClearBuf(buffer);
+				}
+			}
+		}
+	}
+
+	if (rec == NULL)
+	{
+		if (buffer->Size != 0)
+		{
+			// Write the contents of the buffer to the file
+			if (*io != NULL)
+			{
+				if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) > GetMaxLogSize())
+				{
+					if (log_object->log_number_incremented == false)
+					{
+						log_object->CurrentLogNumber++;
+						log_object->log_number_incremented = true;
+					}
+				}
+				else
+				{
+					if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+					{
+						FileCloseEx(*io, true);
+						// If it fails to write to the file,
+						// erase the buffer and give up
+						ClearBuf(buffer);
+						*io = NULL;
+					}
+					else
+					{
+						log_object->CurrentFilePointer += (UINT64)buffer->Size;
+						ClearBuf(buffer);
+					}
+				}
+			}
+		}
+
+		Set(log_object->FlushEvent);
+		return false;
+	}
+
+	// Generate a log file name
+	LockLog(log_object);
+	{
+		*log_date_changed = MakeLogFileName(log_object, file_name, sizeof(file_name),
+			log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, log_object->CurrentLogNumber, current_logfile_datename);
+
+		if (*log_date_changed)
+		{
+			UINT i;
+
+			log_object->CurrentLogNumber = 0;
+			MakeLogFileName(log_object, file_name, sizeof(file_name),
+				log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, 0, current_logfile_datename);
+			for (i = 0;;i++)
+			{
+				char tmp[MAX_SIZE];
+				MakeLogFileName(log_object, tmp, sizeof(tmp),
+					log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, i, current_logfile_datename);
+
+				if (IsFileExists(tmp) == false)
+				{
+					break;
+				}
+				StrCpy(file_name, sizeof(file_name), tmp);
+				log_object->CurrentLogNumber = i;
+			}
+		}
+	}
+	UnlockLog(log_object);
+
+	if (*io != NULL)
+	{
+		if (StrCmp(current_file_name, file_name) != 0)
+		{
+			// If a log file is currently opened and writing to another log
+			// file is needed for this time, write the contents of the 
+			//buffer and close the log file. Write the contents of the buffer
+			if (*io != NULL)
+			{
+				if (*log_date_changed)
+				{
+					if ((log_object->CurrentFilePointer + (UINT64)buffer->Size) <= GetMaxLogSize())
+					{
+						if (FileWrite(*io, buffer->Buf, buffer->Size) == false)
+						{
+							FileCloseEx(*io, true);
+							ClearBuf(buffer);
+							*io = NULL;
+						}
+						else
+						{
+							log_object->CurrentFilePointer += (UINT64)buffer->Size;
+							ClearBuf(buffer);
+						}
+					}
+				}
+				// Close the file
+				FileCloseEx(*io, true);
+			}
+
+			log_object->log_number_incremented = false;
+
+			// Open or create a new log file
+			StrCpy(current_file_name, sizeof(current_file_name), file_name);
+			*io = FileOpen(file_name, true);
+			if (*io == NULL)
+			{
+				// Create a log file
+				LockLog(log_object);
+				{
+					MakeDir(log_object->DirName);
+
+#ifdef	OS_WIN32
+					Win32SetFolderCompress(log_object->DirName, true);
+#endif	// OS_WIN32
+				}
+				UnlockLog(log_object);
+				*io = FileCreate(file_name);
+				log_object->CurrentFilePointer = 0;
+			}
+			else
+			{
+				// Seek to the end of the log file
+				log_object->CurrentFilePointer = FileSize64(*io);
+				FileSeek(*io, SEEK_END, 0);
+			}
+		}
+	}
+	else
+	{
+		// Open or create a new log file
+		StrCpy(current_file_name, sizeof(current_file_name), file_name);
+		*io = FileOpen(file_name, true);
+		if (*io == NULL)
+		{
+			// Create a log file
+			LockLog(log_object);
+			{
+				MakeDir(log_object->DirName);
+#ifdef	OS_WIN32
+				Win32SetFolderCompress(log_object->DirName, true);
+#endif	// OS_WIN32
+			}
+			UnlockLog(log_object);
+			*io = FileCreate(file_name);
+			log_object->CurrentFilePointer = 0;
+			if (*io == NULL)
+			{
+				//Debug("Logging.c: SleepThread(30);\n");
+				SleepThread(30);
+			}
+		}
+		else
+		{
+			// Seek to the end of the log file
+			log_object->CurrentFilePointer = FileSize64(*io);
+			FileSeek(*io, SEEK_END, 0);
+		}
+
+		log_object->log_number_incremented = false;
+	}
+
+	// Write the contents of the log to the buffer
+	WriteRecordToBuffer(buffer, rec);
+
+	// Release the memory of record
+	Free(rec);
+
+	return (*io != NULL);
+}
+
+static bool LogThreadWriteStdout(LOG *log_object, BUF *buffer, IO *io)
+{
+	RECORD *rec;
+
+	// Retrieve a record from the head of the queue
+	LockQueue(log_object->RecordQueue);
+	{
+		rec = GetNext(log_object->RecordQueue);
+	}
+	UnlockQueue(log_object->RecordQueue);
+
+	if (rec == NULL)
+	{
+		Set(log_object->FlushEvent);
+		return false;
+	}
+
+	ClearBuf(buffer);
+	WriteRecordToBuffer(buffer, rec);
+	if (!FileWrite(io, buffer->Buf, buffer->Size))
+	{
+		ClearBuf(buffer);
+	}
+	Free(rec);
+
+	return true;
+}
+
+static IO *GetIO4Stdout()
+{
+#ifndef UNIX
+	return NULL;
+#else // UNIX
+	static IO IO4Stdout =
+	{
+		.Name = {0},
+		.NameW = {0},
+		.pData = NULL,
+		.WriteMode = true,
+		.HamMode = false,
+		.HamBuf = NULL,
+	};
+
+	if (!g_foreground)
+	{
+		return NULL;
+	}
+
+	IO4Stdout.pData = GetUnixio4Stdout();
+
+	return &IO4Stdout;
+#endif // UNIX
 }
 
 // Write the contents of the log to the buffer

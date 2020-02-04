@@ -1,111 +1,5 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under GPLv2.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// Author: Daiyuu Nobori, Ph.D.
-// Comments: Tetsuo Sugiyama, Ph.D.
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 2 as published by the Free Software Foundation.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License version 2
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-// THE LICENSE AGREEMENT IS ATTACHED ON THE SOURCE-CODE PACKAGE
-// AS "LICENSE.TXT" FILE. READ THE TEXT FILE IN ADVANCE TO USE THE SOFTWARE.
-// 
-// 
-// THIS SOFTWARE IS DEVELOPED IN JAPAN, AND DISTRIBUTED FROM JAPAN,
-// UNDER JAPANESE LAWS. YOU MUST AGREE IN ADVANCE TO USE, COPY, MODIFY,
-// MERGE, PUBLISH, DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THIS
-// SOFTWARE, THAT ANY JURIDICAL DISPUTES WHICH ARE CONCERNED TO THIS
-// SOFTWARE OR ITS CONTENTS, AGAINST US (SOFTETHER PROJECT, SOFTETHER
-// CORPORATION, DAIYUU NOBORI OR OTHER SUPPLIERS), OR ANY JURIDICAL
-// DISPUTES AGAINST US WHICH ARE CAUSED BY ANY KIND OF USING, COPYING,
-// MODIFYING, MERGING, PUBLISHING, DISTRIBUTING, SUBLICENSING, AND/OR
-// SELLING COPIES OF THIS SOFTWARE SHALL BE REGARDED AS BE CONSTRUED AND
-// CONTROLLED BY JAPANESE LAWS, AND YOU MUST FURTHER CONSENT TO
-// EXCLUSIVE JURISDICTION AND VENUE IN THE COURTS SITTING IN TOKYO,
-// JAPAN. YOU MUST WAIVE ALL DEFENSES OF LACK OF PERSONAL JURISDICTION
-// AND FORUM NON CONVENIENS. PROCESS MAY BE SERVED ON EITHER PARTY IN
-// THE MANNER AUTHORIZED BY APPLICABLE LAW OR COURT RULE.
-// 
-// USE ONLY IN JAPAN. DO NOT USE THIS SOFTWARE IN ANOTHER COUNTRY UNLESS
-// YOU HAVE A CONFIRMATION THAT THIS SOFTWARE DOES NOT VIOLATE ANY
-// CRIMINAL LAWS OR CIVIL RIGHTS IN THAT PARTICULAR COUNTRY. USING THIS
-// SOFTWARE IN OTHER COUNTRIES IS COMPLETELY AT YOUR OWN RISK. THE
-// SOFTETHER VPN PROJECT HAS DEVELOPED AND DISTRIBUTED THIS SOFTWARE TO
-// COMPLY ONLY WITH THE JAPANESE LAWS AND EXISTING CIVIL RIGHTS INCLUDING
-// PATENTS WHICH ARE SUBJECTS APPLY IN JAPAN. OTHER COUNTRIES' LAWS OR
-// CIVIL RIGHTS ARE NONE OF OUR CONCERNS NOR RESPONSIBILITIES. WE HAVE
-// NEVER INVESTIGATED ANY CRIMINAL REGULATIONS, CIVIL LAWS OR
-// INTELLECTUAL PROPERTY RIGHTS INCLUDING PATENTS IN ANY OF OTHER 200+
-// COUNTRIES AND TERRITORIES. BY NATURE, THERE ARE 200+ REGIONS IN THE
-// WORLD, WITH DIFFERENT LAWS. IT IS IMPOSSIBLE TO VERIFY EVERY
-// COUNTRIES' LAWS, REGULATIONS AND CIVIL RIGHTS TO MAKE THE SOFTWARE
-// COMPLY WITH ALL COUNTRIES' LAWS BY THE PROJECT. EVEN IF YOU WILL BE
-// SUED BY A PRIVATE ENTITY OR BE DAMAGED BY A PUBLIC SERVANT IN YOUR
-// COUNTRY, THE DEVELOPERS OF THIS SOFTWARE WILL NEVER BE LIABLE TO
-// RECOVER OR COMPENSATE SUCH DAMAGES, CRIMINAL OR CIVIL
-// RESPONSIBILITIES. NOTE THAT THIS LINE IS NOT LICENSE RESTRICTION BUT
-// JUST A STATEMENT FOR WARNING AND DISCLAIMER.
-// 
-// 
-// SOURCE CODE CONTRIBUTION
-// ------------------------
-// 
-// Your contribution to SoftEther VPN Project is much appreciated.
-// Please send patches to us through GitHub.
-// Read the SoftEther VPN Patch Acceptance Policy in advance:
-// http://www.softether.org/5-download/src/9.patch
-// 
-// 
-// DEAR SECURITY EXPERTS
-// ---------------------
-// 
-// If you find a bug or a security vulnerability please kindly inform us
-// about the problem immediately so that we can fix the security problem
-// to protect a lot of users around the world as soon as possible.
-// 
-// Our e-mail address for security reports is:
-// softether-vpn-security [at] softether.org
-// 
-// Please note that the above e-mail address is not a technical support
-// inquiry address. If you need technical assistance, please visit
-// http://www.softether.org/ and ask your question on the users forum.
-// 
-// Thank you for your cooperation.
-// 
-// 
-// NO MEMORY OR RESOURCE LEAKS
-// ---------------------------
-// 
-// The memory-leaks and resource-leaks verification under the stress
-// test has been passed before release this source code.
 
 
 // SM.c
@@ -160,6 +54,7 @@ void SmProxyDlgInit(HWND hWnd, INTERNET_SETTING *t)
 	Check(hWnd, R_DIRECT_TCP, t->ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS, t->ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS, t->ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5, t->ProxyType == PROXY_SOCKS5);
 
 	SmProxyDlgUpdate(hWnd, t);
 }
@@ -226,6 +121,10 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 			{
 				t->ProxyType = PROXY_SOCKS;
 			}
+			else if (IsChecked(hWnd, R_SOCKS5))
+			{
+				t->ProxyType = PROXY_SOCKS5;
+			}
 			else
 			{
 				t->ProxyType = PROXY_DIRECT;
@@ -242,6 +141,7 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 			a.ProxyPort = t->ProxyPort;
 			StrCpy(a.ProxyUsername, sizeof(a.ProxyUsername), t->ProxyUsername);
 			StrCpy(a.ProxyPassword, sizeof(a.ProxyPassword), t->ProxyPassword);
+			StrCpy(a.CustomHttpHeader, sizeof(a.CustomHttpHeader), t->CustomHttpHeader);
 
 			if (CmProxyDlg(hWnd, &a))
 			{
@@ -250,6 +150,7 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 				t->ProxyPort = a.ProxyPort;
 				StrCpy(t->ProxyUsername, sizeof(t->ProxyUsername), a.ProxyUsername);
 				StrCpy(t->ProxyPassword, sizeof(t->ProxyPassword), a.ProxyPassword);
+				StrCpy(t->CustomHttpHeader, sizeof(t->CustomHttpHeader), a.CustomHttpHeader);
 			}
 
 			SmProxyDlgUpdate(hWnd, t);
@@ -3152,7 +3053,7 @@ bool SmSetupInit(HWND hWnd, SM_SETUP *s)
 		char *password = "";
 
 		Zero(&t, sizeof(t));
-		Hash(t.HashedPassword, password, StrLen(password), true);
+		Sha0(t.HashedPassword, password, StrLen(password));
 		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password);
 		StrCpy(t.HubName, sizeof(t.HubName), s->HubName);
 		t.HubType = HUB_TYPE_STANDALONE;
@@ -3470,7 +3371,7 @@ void SmSetupDlgOnOk(HWND hWnd, SM_SETUP *s)
 			s->s->IPsecMessageDisplayed = true;
 		}
 
-		// Confgure the VPN Azure if VPN Azure feature is available
+		// Configure the VPN Azure if VPN Azure feature is available
 		if (GetCapsBool(s->s->CapsList, "b_support_azure"))
 		{
 			SmAzure(hWnd, s->s, true);
@@ -9465,7 +9366,7 @@ void SmSessionDlgUpdate(HWND hWnd, SM_HUB *s)
 
 	if (s->p->ServerInfo.ServerBuildInt < 2844)
 	{
-		// Old version doen't support for remote management of the sessions
+		// Old version doesn't support for remote management of the sessions
 		ok2 = ok;
 	}
 
@@ -13776,7 +13677,7 @@ void SmEditUserDlgOk(HWND hWnd, SM_EDIT_USER *s)
 		}
 		FreeRpcSetUser(&t);
 
-		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREEATE_OK"), u->Name);
+		MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("SM_USER_CREATE_OK"), u->Name);
 	}
 	else
 	{
@@ -15243,7 +15144,7 @@ UINT SmChangeServerPasswordDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 			}
 			Zero(&t, sizeof(t));
-			Hash(t.HashedPassword, tmp1, StrLen(tmp1), true);
+			Sha0(t.HashedPassword, tmp1, StrLen(tmp1));
 			Copy(hash, t.HashedPassword, sizeof(hash));
 			if (CALL(hWnd, ScSetServerPassword(p->Rpc, &t)) == false)
 			{
@@ -15905,7 +15806,7 @@ void SmFarmDlgOnOk(HWND hWnd, SM_SERVER *p)
 			GetTxtA(hWnd, E_PASSWORD, pass, sizeof(pass));
 			if (StrCmp(pass, HIDDEN_PASSWORD) != 0)
 			{
-				Hash(t.MemberPassword, pass, StrLen(pass), true);
+				Sha0(t.MemberPassword, pass, StrLen(pass));
 			}
 		}
 
@@ -16120,7 +16021,7 @@ void SmConnectionDlgRefresh(HWND hWnd, SM_SERVER *p)
 
 	LvInsertEnd(b, hWnd, L_LIST);
 
-	FreeRpcEnumConnetion(&t);
+	FreeRpcEnumConnection(&t);
 }
 
 // Update the control
@@ -17011,23 +16912,34 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 		return;
 	}
 
-	// Set the encryption algorithm list
-	cipher_list = GetCipherList();
-	SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
-	CbSetHeight(hWnd, C_CIPHER, 18);
-	for (i = 0;i < cipher_list->NumTokens;i++)
-	{
-		wchar_t tmp[MAX_SIZE];
-		char *name = cipher_list->Token[i];
-		StrToUni(tmp, sizeof(tmp), name);
-		CbAddStr(hWnd, C_CIPHER, tmp, 0);
-	}
-
 	if (s->p != NULL)
 	{
-		// Get the encryption algorithm name from the server
 		RPC_STR t;
 		Zero(&t, sizeof(t));
+
+		SetFont(hWnd, C_CIPHER, GetFont("Tahoma", 8, false, false, false, false));
+		CbSetHeight(hWnd, C_CIPHER, 18);
+
+		// Get the list of available encryption algorithms from the server
+		if (ScGetServerCipherList(s->p->Rpc, &t) == ERR_NO_ERROR)
+		{
+			cipher_list = ParseToken(t.String, ";");
+
+			FreeRpcStr(&t);
+			Zero(&t, sizeof(t));
+
+			for (i = 0; i < cipher_list->NumTokens; i++)
+			{
+				wchar_t tmp[MAX_SIZE];
+				char *name = cipher_list->Token[i];
+				StrToUni(tmp, sizeof(tmp), name);
+				CbAddStr(hWnd, C_CIPHER, tmp, 0);
+			}
+
+			FreeToken(cipher_list);
+		}
+
+		// Get the current encryption algorithm's name from the server
 		if (CALL(hWnd, ScGetServerCipher(s->p->Rpc, &t)))
 		{
 			wchar_t tmp[MAX_SIZE];
@@ -17545,7 +17457,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 
 	if (s->EditMode == false || StrCmp(pass1, HIDDEN_PASSWORD) != 0)
 	{
-		Hash(t.HashedPassword, pass1, StrLen(pass1), true);
+		Sha0(t.HashedPassword, pass1, StrLen(pass1));
 		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1);
 	}
 
@@ -17571,7 +17483,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	{
 		if (CALL(hWnd, ScCreateHub(s->p->Rpc, &t)))
 		{
-			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATER"), hubname);
+			MsgBoxEx(hWnd, MB_ICONINFORMATION, _UU("CM_EDIT_HUB_CREATED"), hubname);
 			EndDialog(hWnd, true);
 		}
 	}
@@ -18365,6 +18277,7 @@ void SmServerDlgInit(HWND hWnd, SM_SERVER *p)
 void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 {
 	RPC_ENUM_HUB t;
+	RPC_LISTENER_LIST t2;
 	DDNS_CLIENT_STATUS st;
 	RPC_AZURE_STATUS sta;
 	UINT i;
@@ -18452,38 +18365,34 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 	}
 
 	// Listener list update
-	if (p != NULL)
+	Zero(&t2, sizeof(RPC_LISTENER_LIST));
+	if (CALL(hWnd, ScEnumListener(p->Rpc, &t2)))
 	{
-		RPC_LISTENER_LIST t;
-		Zero(&t, sizeof(RPC_LISTENER_LIST));
-		if (CALL(hWnd, ScEnumListener(p->Rpc, &t)))
+		LVB *b = LvInsertStart();
+		for (i = 0;i < t2.NumPort;i++)
 		{
-			LVB *b = LvInsertStart();
-			for (i = 0;i < t.NumPort;i++)
+			wchar_t tmp[MAX_SIZE];
+			wchar_t *status;
+			UINT icon;
+			UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t2.Ports[i]);
+
+			status = _UU("CM_LISTENER_ONLINE");
+			icon = ICO_PROTOCOL;
+			if (t2.Errors[i])
 			{
-				wchar_t tmp[MAX_SIZE];
-				wchar_t *status;
-				UINT icon;
-				UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t.Ports[i]);
-
-				status = _UU("CM_LISTENER_ONLINE");
-				icon = ICO_PROTOCOL;
-				if (t.Errors[i])
-				{
-					status = _UU("CM_LISTENER_ERROR");
-					icon = ICO_PROTOCOL_X;
-				}
-				else if (t.Enables[i] == false)
-				{
-					status = _UU("CM_LISTENER_OFFLINE");
-					icon = ICO_PROTOCOL_OFFLINE;
-				}
-
-				LvInsertAdd(b, icon, (void *)t.Ports[i], 2, tmp, status);
+				status = _UU("CM_LISTENER_ERROR");
+				icon = ICO_PROTOCOL_X;
 			}
-			LvInsertEnd(b, hWnd, L_LISTENER);
-			FreeRpcListenerList(&t);
+			else if (t2.Enables[i] == false)
+			{
+				status = _UU("CM_LISTENER_OFFLINE");
+				icon = ICO_PROTOCOL_OFFLINE;
+			}
+
+			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2, tmp, status);
 		}
+		LvInsertEnd(b, hWnd, L_LISTENER);
+		FreeRpcListenerList(&t2);
 	}
 
 	// Get the DDNS client state
@@ -19131,7 +19040,7 @@ ENTER_PASSWORD:
 		pass = SmPassword(hWnd, s->ClientOption.Hostname);
 		if (pass != NULL)
 		{
-			Hash(s->HashedPassword, pass, StrLen(pass), true);
+			Sha0(s->HashedPassword, pass, StrLen(pass));
 			Free(pass);
 			ok = true;
 		}
@@ -19176,7 +19085,7 @@ ENTER_PASSWORD:
 			RPC_TEST flag;
 			bool cancel = false;
 
-			Hash(test, "", 0, true);
+			Sha0(test, "", 0);
 
 			if (Cmp(test, s->HashedPassword, SHA1_SIZE) == 0 || Cmp(test, rpc->VpnServerHashedPassword, SHA1_SIZE) == 0)
 			{
@@ -19437,6 +19346,7 @@ void SmEditSettingDlgInit(HWND hWnd, SM_EDIT_SETTING *p)
 	Check(hWnd, R_DIRECT_TCP, s->ClientOption.ProxyType == PROXY_DIRECT);
 	Check(hWnd, R_HTTPS, s->ClientOption.ProxyType == PROXY_HTTP);
 	Check(hWnd, R_SOCKS, s->ClientOption.ProxyType == PROXY_SOCKS);
+	Check(hWnd, R_SOCKS5, s->ClientOption.ProxyType == PROXY_SOCKS5);
 
 	// Management mode setting
 	Check(hWnd, R_SERVER_ADMIN, s->ServerAdminMode);
@@ -19453,7 +19363,7 @@ void SmEditSettingDlgInit(HWND hWnd, SM_EDIT_SETTING *p)
 	{
 		UCHAR test[SHA1_SIZE];
 
-		Hash(test, "", 0, true);
+		Sha0(test, "", 0);
 		if (Cmp(test, s->HashedPassword, SHA1_SIZE) != 0)
 		{
 			SetTextA(hWnd, E_PASSWORD, HIDDEN_PASSWORD);
@@ -19588,7 +19498,7 @@ void SmEditSettingDlgUpdate(HWND hWnd, SM_EDIT_SETTING *p)
 		GetTxtA(hWnd, E_PASSWORD, tmp, sizeof(tmp));
 		if (StrCmp(tmp, HIDDEN_PASSWORD) != 0)
 		{
-			Hash(s->HashedPassword, tmp, StrLen(tmp), true);
+			Sha0(s->HashedPassword, tmp, StrLen(tmp));
 		}
 	}
 
@@ -19790,7 +19700,7 @@ bool SmAddSettingDlg(HWND hWnd, wchar_t *new_name, UINT new_name_size)
 		if (SmGetSetting(tmp) == NULL)
 		{
 			UniStrCpy(s.Title, sizeof(s.Title), tmp);
-			Hash(s.HashedPassword, "", 0, true);
+			Sha0(s.HashedPassword, "", 0);
 			s.ServerAdminMode = true;
 			break;
 		}
@@ -20114,7 +20024,7 @@ void SmInitDefaultSettingList()
 
 			UniStrCpy(s->Title, sizeof(s->Title), _UU("SM_LOCALHOST"));
 			s->ServerAdminMode = true;
-			Hash(s->HashedPassword, "", 0, true);
+			Sha0(s->HashedPassword, "", 0);
 			UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s->Title);
 			StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), "localhost");
 			s->ClientOption.Port = GC_DEFAULT_PORT;
@@ -20273,7 +20183,7 @@ UINT SmMainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 
 		// Updater start
 		sm->Update = InitUpdateUi(_UU("PRODUCT_NAME_VPN_SMGR"), NAME_OF_VPN_SERVER_MANAGER, NULL, GetCurrentBuildDate(),
-			CEDAR_BUILD, CEDAR_VER, NULL, false);
+			CEDAR_VERSION_BUILD, GetCedarVersionNumber(), NULL, false);
 		break;
 
 	case WM_TIMER:
@@ -20613,7 +20523,7 @@ void SmParseCommandLine()
 					b = StrToBin(password);
 					if (b == NULL || b->Size != SHA1_SIZE)
 					{
-						Hash(s->HashedPassword, password, StrLen(password), true);
+						Sha0(s->HashedPassword, password, StrLen(password));
 					}
 					else
 					{
