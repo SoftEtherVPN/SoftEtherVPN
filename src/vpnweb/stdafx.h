@@ -30,7 +30,6 @@
 #include "resource.h"
 #include <atlbase.h>
 #include <atlcom.h>
-#pragma comment(lib, "atlthunk.lib")
 
 using namespace ATL;
 
