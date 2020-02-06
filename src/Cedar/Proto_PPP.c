@@ -662,7 +662,7 @@ bool PPPSendEchoRequest(PPP_SESSION *p)
 }
 
 // Processes response packets
-bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req)
+bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
 	if (req == NULL)
 	{
@@ -701,7 +701,7 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req)
 	return false;
 }
 
-bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req)
+bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
 	UINT i;
 	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
@@ -863,7 +863,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req
 }
 
 // Process CHAP responses
-bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req)
+bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
 	PPP_LCP* lcp;
 	if (pp->Lcp->Code == PPP_CHAP_CODE_RESPONSE)
@@ -979,7 +979,7 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* re
 }
 
 // Process IPCP responses
-bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req)
+bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
 	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
 
@@ -1079,7 +1079,7 @@ bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	return false;
 }
 
-bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
+bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 {
 	bool result = true;
 	UINT i = 0;
@@ -3319,7 +3319,6 @@ char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list)
 
 	return NULL;
 }
-
 
 
 

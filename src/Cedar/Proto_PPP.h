@@ -167,7 +167,7 @@ struct PPP_OPTION
 // PPP request resend
 struct PPP_REQUEST_RESEND
 {
-	PPP_PACKET* Packet;
+	PPP_PACKET *Packet;
 	UCHAR Id;
 	UINT64 ResendTime;
 	UINT64 TimeoutTime;
@@ -176,7 +176,7 @@ struct PPP_REQUEST_RESEND
 // PPP next packet struct
 struct PPP_DELAYED_PACKET
 {
-	PPP_PACKET* Packet;
+	PPP_PACKET *Packet;
 	UINT DelayTicks;
 };
 
@@ -236,7 +236,7 @@ struct PPP_SESSION
 
 	LIST *SentReqPacketList;			// Sent requests list
 	
-	PPP_PACKET* CurrentPacket;
+	PPP_PACKET *CurrentPacket;
 	LIST *DelayedPackets;
 };
 
@@ -251,32 +251,33 @@ void PPPThread(THREAD *thread, void *param);
 THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
 
 // PPP processing functions
-bool PPPRejectUnsupportedPacket(PPP_SESSION *p, PPP_PACKET* pp);
-bool PPPRejectUnsupportedPacketEx(PPP_SESSION *p, PPP_PACKET* pp, bool force);
+bool PPPRejectUnsupportedPacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPRejectUnsupportedPacketEx(PPP_SESSION *p, PPP_PACKET *pp, bool force);
 bool PPPProcessRetransmissions(PPP_SESSION *p);
 bool PPPSendEchoRequest(PPP_SESSION *p);
 // Response packets
-bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req);
-bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req);
-bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req);
-bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET* pp, PPP_PACKET* req);
+bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 // Request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
-bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp);
-bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp);
-bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp);
+bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 
 // LCP option based packets utility
-bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET* pp);
-bool PPPRejectLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate);
-bool PPPNackLCPOptions(PPP_SESSION *p, PPP_PACKET* pp);
+bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPRejectLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
+bool PPPNackLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPNackLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate);
-bool PPPAckLCPOptions(PPP_SESSION *p, PPP_PACKET* pp);
-bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate);
+bool PPPAckLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
+
 
 // PPP networking functions
 // Send packets
-bool PPPSendAndRetransmitRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP* c);
+bool PPPSendAndRetransmitRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c);
 bool PPPSendPacketAndFree(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPSendPacketEx(PPP_SESSION *p, PPP_PACKET *pp, bool no_flush);
 // Receive packets
@@ -284,8 +285,8 @@ PPP_PACKET *PPPRecvPacket(PPP_SESSION *p, bool async);
 // Helpers for delaying packets
 PPP_PACKET *PPPGetNextPacket(PPP_SESSION *p);
 void PPPAddNextPacket(PPP_SESSION *p, PPP_PACKET *pp, UINT delay);
-int PPPDelayedPacketsComparator(const void* a, const void* b);
-char PPPRelatedPacketComparator(PPP_PACKET* a, PPP_PACKET* b);
+int PPPDelayedPacketsComparator(const void *a, const void *b);
+char PPPRelatedPacketComparator(PPP_PACKET *a, PPP_PACKET *b);
 
 // PPP utility functions
 // Packet structures creation utilities
@@ -294,11 +295,11 @@ PPP_OPTION *NewPPPOption(UCHAR type, void *data, UINT size);
 // Packet parse utilities
 PPP_PACKET *ParsePPPPacket(void *data, UINT size);
 PPP_LCP *PPPParseLCP(USHORT protocol, void *data, UINT size);
-bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION* p, PPP_PACKET* req);
+bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *req);
 // Packet building utilities
 BUF *BuildPPPPacketData(PPP_PACKET *pp);
 BUF *BuildLCPData(PPP_LCP *c);
-PPP_LCP *BuildMSCHAP2ChallengePacket(PPP_SESSION* p);
+PPP_LCP *BuildMSCHAP2ChallengePacket(PPP_SESSION *p);
 // IPCP packet utilities
 bool PPPGetIPOptionFromLCP(PPP_IPOPTION *o, PPP_LCP *c);
 bool PPPSetIPOptionToLCP(PPP_IPOPTION *o, PPP_LCP *c, bool only_modify);
