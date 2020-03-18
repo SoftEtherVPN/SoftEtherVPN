@@ -65,7 +65,7 @@ if(UNIX)
 
   target_link_libraries(mayaqua PRIVATE OpenSSL::SSL OpenSSL::Crypto Threads::Threads ZLIB::ZLIB)
 
-  if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7l|aarch64|s390x)$" OR NOT HAVE_SYS_AUXV)
+  if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7l|aarch64|s390x)$" OR NOT HAVE_SYS_AUXV OR SKIP_CPU_FEATURES)
     add_definitions(-DSKIP_CPU_FEATURES)
   else()
     add_subdirectory(3rdparty/cpu_features)
