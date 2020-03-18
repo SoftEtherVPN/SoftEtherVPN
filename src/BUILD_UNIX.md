@@ -18,18 +18,15 @@ This document describes how to build SoftEtherVPN for UNIX based Operating syste
 
 You need to install the following software to build SoftEther VPN for UNIX.
 
-- Linux, FreeBSD, Solaris or Mac OS X.
-- GNU Compiler Collection (gcc) and binary utilities. ***
-- GNU Make (gmake).
-- GNU C Library (glibc).
-- POSIX Threads (pthread).
-- OpenSSL (crypto, ssl).
-- libiconv.
-- readline.
-- ncurses.
-
-*It has been noted that clang is also supported as an alternative to gcc.*
-
+- [CMake](https://cmake.org)
+- C compiler (GCC, Clang, etc)
+- C Library (BSD libc, GNU libc, musl libc, etc)
+- POSIX threads library (pthread)
+- OpenSSL or LibreSSL (crypto, ssl)
+- make (GNU make, BSD make, etc)
+- libiconv
+- readline
+- ncurses
 
 ## Install requirements on Centos/RedHat
 
