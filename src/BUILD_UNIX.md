@@ -5,6 +5,7 @@ This document describes how to build SoftEtherVPN for UNIX based Operating syste
   * [Install Requirements on Debian/Ubuntu](#install-requirements-on-debianubuntu)
   * [Install Requirements on macOS](#install-requirements-on-macos)
 - [Build from source code and install](#build-from-source-code-and-install)
+- [Additional Build Options](#additional-build-options)
 - [How to Run SoftEther](#how-to-run-softether)
   * [Start/Stop SoftEther VPN Server](#startstop-softether-vpn-server)
   * [Start/Stop SoftEther VPN Bridge](#startstop-softether-vpn-bridge)
@@ -63,7 +64,7 @@ This will compile and install SoftEther VPN Server, Bridge and Client binaries u
 
 If any error occurs, please check the above requirements.
 
-# Build on musl-based linux 
+# Build on musl-based linux
 
 To build the programs from the source code when using musl as libc, run the following commands:
 
@@ -78,6 +79,38 @@ make -C tmp install
 ```
 
 Building without USE_MUSL environment variable set compiles, but produced executables exhibit bad run-time behaviour.
+
+# Additional Build Options
+
+There are some additional build options useful if you're a distro package maintainer and creating a package of SoftEther VPN. It is recommended that you only specify these options when you understand what happens.
+
+## Specify log, config, PID directories
+
+By default, SoftEther VPN writes out all files such as logs, config files, PID files under the same directory as `vpnserver`, `vpnbridge`, `vpnclient` executables. This behaviour is suitable when [using SoftEther without installation](#using-softether-without-installation) however not appropriate using with installation.
+Usually PID files are to put in `/var/run` or `/run`. Logs are `/var/log`. Other variable state information files including config files are `/var/lib` or `/var/db`.
+
+These directories can be changed at compile-time by specifying via CMake variables.
+* `SE_PIDDIR` - PID directory
+* `SE_LOGDIR` - root log directory
+* `SE_DBDIR`  - config files and variable state directory
+
+To specify directories, perform `./configure` like below.
+
+```bash
+CMAKE_FLAGS="-DSE_PIDDIR=/run/softether -DSE_LOGDIR=/var/log/softether -DSE_DBDIR=/var/lib/softether" ./configure
+```
+
+Please note that these directories are not created automatically after installation. Make sure to create these directories before starting SoftEther VPN Server, Bridge or Client.
+
+## Build without [cpu_features](https://github.com/google/cpu_features)
+
+SoftEther VPN uses cpu_features library to retrieve CPU features such as available processor instructions. However, cpu_features is not available on some architectures. Whether to build with cpu_features is auto detected but autodetection is not so smart.
+
+If you want to build without cpu_features explicitly, perform `./configure` like below.
+
+```bash
+CMAKE_FLAGS="-DSKIP_CPU_FEATURES" ./configure
+```
 
 # How to Run SoftEther
 
