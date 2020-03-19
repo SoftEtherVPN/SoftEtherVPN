@@ -2464,8 +2464,8 @@ B_AUTHORS				Список авторов
 
 PREFIX					D_REMOTE
 STATIC1					&Укажите имя компьютера или IP-адрес:
-R_LOCAL					Подключиться к локальному компьютеру (компьютеру, отображающему это окно)
-S_HOSTNAME				&Имя компьютера: 
+R_LOCAL					Подключиться локально (к компьютеру, отображающему это окно)
+S_HOSTNAME				&Имя: 
 IDOK					&OK
 IDCANCEL				Отмена
 
@@ -3728,21 +3728,21 @@ IDCANCEL				&OK
 
 
 PREFIX					D_CM_SETTING
-CAPTION					Switch SoftEther VPN Client Operating Mode
-STATIC1					You can use SoftEther VPN Client in either Normal Mode or Easy Mode. To switch to the other mode, check the respective checkbox below.
-R_NORMAL				&Normal Mode
-R_EASY					&Easy Mode
-STATIC2					When using Normal Mode, you can perform all the operations that the SoftEther VPN Client software provides. We recommend that general users and system administrators use this mode.
-STATIC3					Easy Mode only allows the most frequently used operations such as connecting to the VPN Server. We recommend this mode to beginner users.
-STATIC4					By using the Setting Locker, you can connect to a VPN Server by using a Connection Setting registered in SoftEther VPN Client, but by doing so, you are prevented from changing the parameters of Connection Settings, creating a new Connection Setting or deleting a Connection Setting.
-R_LOCK					Enable Setting &Locker
-S_PASSWORD1				You can specify a password. The input of that password will be required next time to disable the Setting Locker.
-S_PASSWORD2				&Password:
-S_PASSWORD3				&Confirm:
+CAPTION					Переключить режим работы SoftEther VPN-клиента
+STATIC1					Вы можете использовать SoftEther VPN-клиент в Обычном или Упрощенном режиме. Чтобы переключиться в другой режим, выберите соответствующий пункт ниже.
+R_NORMAL				&Обычный режим
+R_EASY					&Упрощенный режим
+STATIC2					При использовании Обычного режима вы можете выполнять все операции, которые предоставляет SoftEther VPN-клиент. Данный режим рекомендуется обычным пользователям и системным администраторам.
+STATIC3					Упрощенный режим позволяет выполнять только наиболее часто используемые операции, такие как подключение к VPN-серверу. Данный режим рекомендуется начинающим пользователям.
+STATIC4					Используя блокировку настроек, вы сможете подключаться к VPN-серверам, но при этом вам не удастся менять параметры подключений, а также создавать или удалять подключения.
+R_LOCK					Включить блокировку настроек
+S_PASSWORD1				Вы можете указать пароль. Ввод этого пароля потребуется в следующий раз, чтобы отключить блокировку настроек.
+S_PASSWORD2				&Пароль:
+S_PASSWORD3				&Повторить:
 IDOK					&OK
-IDCANCEL				Cancel
-S_VGS2					You can configure the VPN Gate Academic Service settings.
-B_VGS					VPN &Gate Service Settings...
+IDCANCEL				Отмена
+S_VGS2					Вы можете настроить параметры сервиса VPN Gate.
+B_VGS					Настройки сервиса VPN Gate...
 
 
 
@@ -3943,7 +3943,7 @@ S_11					The advanced redirection function can provide the VPN Session informati
 PREFIX					D_SW_WELCOME
 CAPTION					D_SW_WELCOME
 S_WELCOME				SoftEther VPN - бесплатная программа, разработанная в Университете Цукуба, Япония. Высокопроизводительный VPN с максимальной совместимостью со многими устройствами. Поддерживаются Windows, Mac, смартфоны, планшеты (iPhone, iPad, Android, Windows RT), Cisco и другие VPN маршрутизаторы. SoftEther VPN также совместим с VPN клиентами OpenVPN и MS-SSTP.
-S_TITLE				Чрезвычайно мощное программное обеспечение VPN с открытым исходным кодом.
+S_TITLE				Чрезвычайно мощное VPN-решение с открытым исходным кодом.
 
 PREFIX					D_SW_MODE
 CAPTION					D_SW_MODE
@@ -3982,14 +3982,14 @@ R_CUSTOM				&Укажите каталог
 S_DEST					&Каталог:
 B_BROWSE				&Обзор...
 R_SHOWCUSTOM			&Дополнительные параметры установки для экспертов
-R_FOR_SYSTEM			Установить на этот компьютер полностью
+R_FOR_SYSTEM			Установить для всех пользователей
 R_FOR_USER				Установить только для пользователя "%s"
 S_WARNING				Внимание: не рекомендуется. После того, как пользователь "%s" выйдет из Windows, %s остановится. Функции Локальный мост и L2TP/IPsec (поддержка Mac и смартфонов) будут недоступны.
 
 
 PREFIX					D_SW_READY
 CAPTION					D_SW_READY
-S_INFO					Установка %s готова.
+S_INFO					%s готов к установке.
 S_INFO7					Нажмите Далее, чтобы выполнить установку.
 
 
@@ -7121,20 +7121,20 @@ SW_EXIT_CONFIRM								Процесс установки SoftEther VPN еще н
 SW_UNINSTALL_CONFIRM						Запуск процесса удаления %s.\r\n\r\nВы хотите продолжить?
 
 
-SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN-сервер
+SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN-сервере
 SW_COMPONENT_VPNSERVER_DESCRIPTION			Установите его на серверный компьютер на центральном VPN узле. Инструменты управления также будут установлены.
 
-SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN-клиент
-SW_COMPONENT_VPNCLIENT_DESCRIPTION			Установите его на клиентских VPN компьютерах. Клиентский VPNкомпьютер сможет подключаться к центральному VPN серверу. Инструменты управления также будут установлены.
+SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN-клиенте
+SW_COMPONENT_VPNCLIENT_DESCRIPTION			Установите его на клиентских VPN компьютерах. Клиентский VPN компьютер сможет подключаться к центральному VPN серверу. Инструменты управления также будут установлены.
 
 SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN-мост
 SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Установить его на компьютеры на каждом узле. Каждый VPN-мост будет устанавливать VPN-подключение к центральному VPN серверу. Средства управления также будут установлены.
 
-SW_COMPONENT_VPNSMGR_TITLE					SoftEther VPN Server Manager (Admin Tools Only)
-SW_COMPONENT_VPNSMGR_DESCRIPTION			Only the VPN Server Manager will be installed. The VPN Server service program will not be installed. You can use the VPN Server Manager to connect and manage remote VPN Servers and VPN Bridges on other computers which can be run on Windows, Linux, Mac OS X, Solaris and FreeBSD.
+SW_COMPONENT_VPNSMGR_TITLE					Диспетчер SoftEther VPN-серверов (Инструментарий админа)
+SW_COMPONENT_VPNSMGR_DESCRIPTION			Будет установлен только диспетчер VPN-серверов. Служба VPN-сервера не будет установлена. Вы можете использовать диспетчер VPN-серверов для управления удаленными VPN-серверами и VPN-мостами на других компьютерах с Windows, Linux, Mac OS X, Solaris или FreeBSD.
 
-SW_COMPONENT_VPNCMGR_TITLE					SoftEther VPN Client Manager (Admin Tools Only)
-SW_COMPONENT_VPNCMGR_DESCRIPTION			Only the VPN Client Manager will be installed. The VPN Client service program will not be installed. You can use the VPN Client Manager to connect and manage remote VPN Clients on other computers which can be run on Windows and Linux.
+SW_COMPONENT_VPNCMGR_TITLE					Диспетчер SoftEther VPN-клиентов (Инструментарий админа)
+SW_COMPONENT_VPNCMGR_DESCRIPTION			Будет установлен только диспетчер VPN-клиентов. Служба VPN-клиента не будет установлена. Вы можете использовать диспетчер VPN-клиентов для подключения и управления удаленными VPN-клиентами на других компьютерах с Windows или Linux.
 
 SW_WELCOME_TITLE							Добро пожаловать в мастер установки SoftEther VPN Developer Edition
 SW_MODE_TITLE								Выберите режим установки
