@@ -1151,7 +1151,7 @@ SM_EDIT_CAPTION_1		Новое подключение
 SM_EDIT_CAPTION_2		Изменить %s
 SM_SETTING_EXISTS		Подключение с именем "%s" уже существует. Укажите другое имя.
 SM_SETTING_DELETE_MSG	Это действие приведет к удалению подключения "%s". Вы действительно хотите это сделать?
-SM_PASSWORD_TYPE_STR	Password for Administration Connection
+SM_PASSWORD_TYPE_STR	Пароль админ. сервера
 SM_HUB_COLUMN_1			Virtual Hub Name
 SM_HUB_COLUMN_2			Status
 SM_HUB_COLUMN_3			Type
@@ -3054,7 +3054,7 @@ IDCANCEL				E&xit
 
 PREFIX					D_SM_CREATE_CERT
 CAPTION					Создать новый сертификат
-STATIC1					Вы можете легко создать сертификаты, которые подписаны самостоятельно или другими сертификатами.
+STATIC1					Вы можете легко создать сертификат, который подписан самостоятельно или другим сертификатом.
 STATIC2					Тип сертификата:
 R_ROOT_CERT				&Корневой сертификат (самоподписанный сертификат)
 R_SIGNED_CERT			Сертификат, подписанный другим сертификатом
@@ -3755,14 +3755,14 @@ B_VGC					Проект VPN Gate
 
 
 PREFIX					D_SM_SETUP
-CAPTION					SoftEther VPN Server / Bridge Easy Setup (Developer Edition)
-S_TITLE					SoftEther VPN Server / Bridge Easy Setup (Developer Edition)
-IDC_STATIC_1			By using this setup you can easily setup a SoftEther VPN Server or VPN Bridge for the following use and purpose. After exiting the setup, you can use the VPN Server Manager to freely configure more advanced settings.
-S_BOLD					Select the type of VPN server you want to build. Multiple types can be selected together.
-C_REMOTE				&Remote Access VPN Server
-S_REMOTE_1				The Remote Access VPN Server allows VPN Client computers in remote locations to access to the existing Ethernet segments, for example company LAN.\r\nAny VPN Clients who is connecting to the VPN Server will be able to access to the network as if they are connected directly and physically to the network.
-C_SITE					&Site-to-site VPN Server or VPN Bridge
-S_SITE_1				Site-to-site VPN is a VPN configuration to connect between two or more remote Ethernet segments.\r\nEach of the sites are connected together, and become the same segment at Layer-2 level. It enables any computers of each sites to communicate to each other as if there is a single network.
+CAPTION					Простая настройка SoftEther VPN Сервера/Моста (Developer Edition)
+S_TITLE					Простая настройка SoftEther VPN Сервера/Моста (Developer Edition)
+IDC_STATIC_1			С помощью этой установки вы можете легко настроить SoftEther VPN Сервер или Мост для дальнейшего использования. После завершения установки, вы можете настроить дополнительные параметры.
+S_BOLD					Выберите тип VPN-сервера, который вы хотите настроить. Несколько типов могут быть выбраны вместе.
+C_REMOTE				&VPN-сервер удаленного доступа
+S_REMOTE_1				VPN-сервер удаленного доступа позволяет удаленным компьютерам с установленным VPN-клиентом получать доступ к существующим сегментам Ethernet, например, локальной сети компании.\r\nЛюбые VPN-клиенты, подключающиеся к VPN-серверу, смогут получить доступ к сети, как если бы они были подключены напрямую и физически к сети.
+C_SITE					&Site-to-site VPN-сервер или VPN-мост
+S_SITE_1				VPN типа "Site-to-site" - это конфигурация VPN для соединения между двумя или более удаленными сегментами Ethernet.\r\nКаждая из сторон соединена вместе и становится одним и тем же сегментом на уровне Layer-2. Это позволяет любым компьютерам каждой из сторон общаться друг с другом, как будто они находятся в одной локальной сети.
 S_SITE_2				Select the role of this VPN Server:
 C_CENTER				VPN Server that Accepts Connection from Other Sites (&Center)
 C_EDGE					VPN Server or VPN Bridge at Each Site (&Edge)
