@@ -1136,21 +1136,21 @@ SVC_ELOGSVC_DESCRIPT	SoftEther EtherLogger это служба, которая �
 
 
 # Concerning SoftEther VPN Server Manager
-SM_TITLE				SoftEther VPN Server Manager Developer Edition
-SM_LOCALHOST			localhost (This server)
-SM_SERVER_BRIDGE_TITLE	Manage VPN Bridge "%S"
+SM_TITLE				Диспетчер SoftEther VPN-серверов Developer Edition
+SM_LOCALHOST			localhost (Этот сервер)
+SM_SERVER_BRIDGE_TITLE	Управление VPN-мостом "%S"
 SM_S_VHUB_BRIDGE		When using VPN Bridge, you manage Virtual Hub "BRIDGE" to operate management of VPN Bridge.
 SM_DISCONNECTED			The management connection has been disconnected.
-SM_MIKAN				Under Construction.
-SM_MAIN_COLUMN_1		Setting Name
-SM_MAIN_COLUMN_2		VPN Server Hostname
-SM_MAIN_COLUMN_3		Operation Mode
-SM_MODE_SERVER			Entire VPN Server
-SM_MODE_HUB				Hub '%S' Only
-SM_EDIT_CAPTION_1		New Connection Setting
-SM_EDIT_CAPTION_2		Edit %s
-SM_SETTING_EXISTS		A Connection Setting with the same name as Connection Setting "%s" is already registered. Specify a different name.
-SM_SETTING_DELETE_MSG	This will delete the Connection Setting "%s". Do you really want to do this?
+SM_MIKAN				В работе.
+SM_MAIN_COLUMN_1		Название сервера
+SM_MAIN_COLUMN_2		Имя хоста VPN-сервера
+SM_MAIN_COLUMN_3		Режим работы
+SM_MODE_SERVER			Весь VPN-сервер
+SM_MODE_HUB				Только Hub '%S'
+SM_EDIT_CAPTION_1		Новое подключение
+SM_EDIT_CAPTION_2		Изменить %s
+SM_SETTING_EXISTS		Подключение с именем "%s" уже существует. Укажите другое имя.
+SM_SETTING_DELETE_MSG	Это действие приведет к удалению подключения "%s". Вы действительно хотите это сделать?
 SM_PASSWORD_TYPE_STR	Password for Administration Connection
 SM_HUB_COLUMN_1			Virtual Hub Name
 SM_HUB_COLUMN_2			Status
@@ -2511,7 +2511,7 @@ B_CERT_TOOL				Создать сертификат
 
 PREFIX					D_SM_EDIT_SETTING
 STATIC1					Пожалуйста, настройте параметры подключения для VPN-сервера или VPN-моста.
-STATIC2					Название настройки:
+STATIC2					Название:
 STATIC3					VPN-сервер назначения:
 STATIC4					Укажите имя хоста или IP-адрес, а также Virtual Hub и номер порта VPN-сервера.
 STATIC5					&Имя хоста:
@@ -2528,8 +2528,8 @@ R_SOCKS5				Подключиться через SOCKS5 прокси-сервер
 B_PROXY_CONFIG			Настройки прокси-сервера
 STATIC11				Выберите режим администрирования и введите пароль
 STATIC12				Вы можете подключиться к VPN-серверу, используя либо режим администратора сервера, либо режим Virtual Hub администратора. \r\n\r\nРежим администратора сервера позволяет вам управлять VPN-сервером и всеми Virtual Hub. \r\n\r\nРежим Virtual Hub администратора позволяет вам управлять только одним Virtual Hub, на который у вас есть права.
-R_SERVER_ADMIN			&Режим администратора сервера
-R_HUB_ADMIN				Режим Virtual Hub администратора
+R_SERVER_ADMIN			&Режим админ. сервера
+R_HUB_ADMIN				Режим админ. Virtual Hub
 S_HUBNAME				&Имя Virtual Hub:
 STATIC13				Пожалуйста, введите пароль для режима администратора.
 S_PASSWORD				&Пароль: 
