@@ -3053,14 +3053,14 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_SM_CREATE_CERT
-CAPTION					Create New Certificate
-STATIC1					You can easily create certificates which is signed by self or other certificates.
-STATIC2					Certificate &Type:
-R_ROOT_CERT				&Root Certificate (Self-Signed Certificate)
-R_SIGNED_CERT			Certificate &Signed by Other Certificate
-S_LOAD_1				&Certificate and Private Key for Signing:
-B_LOAD					&Load Certificate and Private Key
-S_LOAD_2				Click 'Load Certificate and Private Key' to specify the X509 Certificate and RSA Private Key that will user a new certificate signature.
+CAPTION					Создать новый сертификат
+STATIC1					Вы можете легко создать сертификаты, которые подписаны самостоятельно или другими сертификатами.
+STATIC2					Тип сертификата:
+R_ROOT_CERT				&Корневой сертификат (Самоподписанный сертификат)
+R_SIGNED_CERT			Сертификат подписан другим сертификатом
+S_LOAD_1				&Сертификат и приватный ключ для подписи:
+B_LOAD					&Загрузить сертификат и приватный ключ
+S_LOAD_2				Нажмите 'Загрузить сертификат и приватный ключ', чтобы указать сертификат X509 и приватный ключ RSA, которые будут использоваться для подписи.
 S_LOAD_3				Common Name (CN):
 S_LOAD_4				Organization (O):
 S_LOAD_5				Organization Unit (OU):
@@ -3068,12 +3068,12 @@ S_LOAD_6				Country (C):
 S_LOAD_7				State (ST):
 S_LOAD_8				Locale (L):
 S_LOAD_11				&Serial Number:\r\n(Hexadecimal) 
-S_LOAD_9				&Expires in:
-S_LOAD_10				Days
-STATIC3					To manage certificates and certificate authorities on a large scale, you should use either free software such as OpenSSL, or commercial CA (certificate authority) software.
+S_LOAD_9				&Истекает:
+S_LOAD_10				Дней
+STATIC3					Для управления сертификатами и центрами сертификации в больших масштабах вам следует использовать бесплатное (OpenSSL) или коммерческое программное обеспечение.
 IDOK					&OK
-IDCANCEL				Cancel
-S_LOAD_12				Strength&ness:
+IDCANCEL				Отмена
+S_LOAD_12				Криптостойкость:
 
 
 PREFIX					D_NM_LOGIN
