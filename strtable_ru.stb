@@ -7122,13 +7122,13 @@ SW_UNINSTALL_CONFIRM						Запуск процесса удаления %s.\r\n
 
 
 SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN-сервер
-SW_COMPONENT_VPNSERVER_DESCRIPTION			Установите его на серверный компьютер на центральном VPN узле. Инструменты управления также будут установлены.
+SW_COMPONENT_VPNSERVER_DESCRIPTION			Установите его на серверный компьютер, который станет центральным VPN узлом. Инструменты управления также будут установлены.
 
 SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN-клиент
 SW_COMPONENT_VPNCLIENT_DESCRIPTION			Установите его на клиентских VPN компьютерах. Клиентский VPN компьютер сможет подключаться к центральному VPN серверу. Инструменты управления также будут установлены.
 
 SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN-мост
-SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Установить его на компьютеры на каждом узле. Каждый VPN-мост будет устанавливать VPN-подключение к центральному VPN серверу. Средства управления также будут установлены.
+SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Установить его на компьютеры, которые станут дополнительными узлами. Каждый VPN-мост будет устанавливать VPN-подключение к центральному VPN серверу. Средства управления также будут установлены.
 
 SW_COMPONENT_VPNSMGR_TITLE					Диспетчер SoftEther VPN-серверов (Инструментарий админа)
 SW_COMPONENT_VPNSMGR_DESCRIPTION			Будет установлен только диспетчер VPN-серверов. Служба VPN-сервера не будет установлена. Вы можете использовать диспетчер VPN-серверов для управления удаленными VPN-серверами и VPN-мостами на других компьютерах с Windows, Linux, Mac OS X, Solaris или FreeBSD.
