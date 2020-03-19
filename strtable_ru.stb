@@ -2427,7 +2427,7 @@ PREFIX					D_CM_CONFIG
 CAPTION					Дополнительные настройки
 STATIC1					Вы можете изменить настройки VPN-клиента.
 STATIC2					Удаленное управление:
-STATIC3					Вы можете удаленно управлять Диспетчером VPN подключений с другого компьютера, используя удаленный режим Диспетчера VPN-подключений.
+STATIC3					Вы можете удаленно управлять Диспетчером VPN подключений с другого компьютера, используя Диспетчер SoftEther VPN-клиентов.
 R_ALLOW_REMOTE_CONFIG	Разрешить удаленное управление VPN-клиентом
 S_WARNING				При включении удаленного управления рекомендуется установить пароль. В главном меню выберите Инструменты - Установить пароль.
 STATIC4					В тех местах где интернет соединение автоматически отключается во время простоя, вы можете поддерживать его, отправляя фиктивные пакеты на любой хост в интернете.
@@ -4278,8 +4278,8 @@ CMD_VOIDE_NONE			Voice Guide Off
 CMD_VOICE_NORMAL		Normal Voice Guide
 CMD_VOICE_ODD			Extended V&oice Guide
 # [Help] menu
-CMD_TOP_HELP			&Help
-CMD_ABOUT				&About...
+CMD_TOP_HELP			&Помощь
+CMD_ABOUT				&О программе...
 
 
 
@@ -7286,7 +7286,7 @@ SW_LINK_NAME_VPNCMGRTOOLS_SHORT				Удаленное управление SoftE
 SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			Удаленное управление SE VPN-клиентом (Dev User)
 SW_LINK_NAME_VPNCMGRTOOLS_FULL				Удаленное управление SoftEther VPN-клиентом Developer Edition
 
-SW_LINK_NAME_VPNCMGR2_FULL					Управление SoftEther VPN-клиентом на удаленном компьютере
+SW_LINK_NAME_VPNCMGR2_FULL					Диспетчер SoftEther VPN-клиентов на удаленных компьютерах
 SW_LINK_NAME_VPNCMGR2_COMMENT				Вы можете установить удаленное соединение с SoftEther VPN-клиентом и управлять им на удаленном компьютере.
 
 SW_LINK_NAME_VPNCMGRTRAY_FULL				Запуск диспетчера SoftEther VPN-подключений Developer Edition
