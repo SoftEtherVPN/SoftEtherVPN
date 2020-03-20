@@ -21,8 +21,12 @@ if [ ! -d "tmp" ]; then
   mkdir tmp
 fi
 
+if [ ! -z ${CMAKE_FLAGS+x} ]; then
+	CMAKE_FLAGS="${CMAKE_FLAGS}"
+fi
+
 if [ ! -z ${CMAKE_INSTALL_PREFIX+x} ]; then
-	CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+	CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} ${CMAKE_FLAGS}"
 fi
 
 if [ -z ${OPENSSL_ROOT_DIR} ]; then

@@ -1,5 +1,5 @@
 SoftEther VPN is developed by SoftEther VPN Project at University of Tsukuba.
-http://www.softether.org/
+https://www.softether.org/
 
 AUTHORS OF SOFTETHER VPN
 ------------------------
@@ -89,6 +89,7 @@ CONTRIBUTORS:
   - Johan de Vries <devries@wivion.nl>
   - Josh Soref <https://github.com/jsoref>
   - Joshua Perry <josh@6bit.com>
+  - Koichiro Iwao <meta@FreeBSD.org>
   - Luiz Eduardo Gava <luiz.gava@procempa.com.br>
   - macvk <tutumbul@gmail.com>
   - Maks Naumov <maksqwe1@ukr.net>
@@ -134,5 +135,5 @@ JOIN THE SOFTETHER VPN DEVELOPMENT
 Want to become a contributor? Please send us a patch.
 
 See also: SoftEther VPN Patch Acceptance Policy
-http://www.softether.org/5-download/src/9.patch
+https://www.softether.org/5-download/src/9.patch
 

@@ -74,4 +74,4 @@ Download Links:
 ************************************
 Thank You Using SoftEther VPN !
 By SoftEther VPN Open-Source Project
-http://www.softether.org/
+https://www.softether.org/
