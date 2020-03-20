@@ -12,8 +12,6 @@ FreeBSD_task:
   matrix:
     freebsd_instance:
       image_family: freebsd-12-1
-    freebsd_instance:
-      image_family: freebsd-11-3-snap
   prepare_script:
     - pkg install -y cmake git $SSL
     - git submodule update --init --recursive
