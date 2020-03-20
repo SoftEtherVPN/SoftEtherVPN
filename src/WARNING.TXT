@@ -332,7 +332,7 @@ VPN Gate Academic Experiment Project is an online service operated for just
 the academic research purpose at the graduate school of University of Tsukuba,
 Japan. The purpose of this research is to expend our knowledge about the
 "Global Distributed Public VPN Relay Server" (GDPVRS) technology. For details,
-please visit http://www.vpngate.net/.
+please visit https://www.vpngate.net/.
 
 5.2. About VPN Gate Service
 SoftEther VPN Server and SoftEther VPN Client may contain "VPN Gate Service"
@@ -468,7 +468,7 @@ Gate Service's user illegally abused your VPN Gate Service and you have to
 decode the packet logs in order to comply the laws), contact the administrator
 of the VPN Gate Academic Experiment Service at Graduate School of University
 of Tsukuba, Japan. You can find the contact address at
-http://www.vpngate.net/. The administrator of VPN Gate Service will respond to
+https://www.vpngate.net/. The administrator of VPN Gate Service will respond to
 decode the packet logs if there is an appropriate and legal request from court
 or other judicial authorities, according to laws.
 

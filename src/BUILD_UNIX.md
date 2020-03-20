@@ -137,9 +137,7 @@ vpncmd
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
 connect to the VPN Server remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
-
-
+from https://www.softether-download.com/.
 
 
 ## Start/Stop SoftEther VPN Bridge
@@ -165,7 +163,7 @@ vpncmd
 
 Or you can also use VPN Server Manager GUI Tool on other Windows PC to
 connect to the VPN Bridge remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
+from https://www.softether-download.com/.
 
 
 ## Start/Stop SoftEther VPN Client
@@ -191,7 +189,7 @@ vpncmd
 
 Or you can also use VPN Client Manager GUI Tool on other Windows PC to
 connect to the VPN Client remotely. You can download the GUI Tool
-from http://www.softether-download.com/.
+from https://www.softether-download.com/.
 
 
 # About HTML5-based Modern Admin Console and JSON-RPC API Suite
@@ -235,4 +233,4 @@ In this case please do not run the `make install` command after compiling the so
 ************************************
 Thank You Using SoftEther VPN !
 By SoftEther VPN Open-Source Project
-http://www.softether.org/
+https://www.softether.org/
