@@ -89,6 +89,7 @@ CONTRIBUTORS:
   - Johan de Vries <devries@wivion.nl>
   - Josh Soref <https://github.com/jsoref>
   - Joshua Perry <josh@6bit.com>
+  - Koichiro Iwao <meta@FreeBSD.org>
   - Luiz Eduardo Gava <luiz.gava@procempa.com.br>
   - macvk <tutumbul@gmail.com>
   - Maks Naumov <maksqwe1@ukr.net>
