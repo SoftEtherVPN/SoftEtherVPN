@@ -128,9 +128,11 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #ifdef	OS_UNIX
 #ifndef	UNIX_SOLARIS
 #ifndef	CPU_SH4
+#if	!defined(__UCLIBC__) || defined(__UCLIBC_SUPPORT_AI_ADDRCONFIG__)
 // Getifaddrs system call is supported on UNIX other than Solaris.
 // However, it is not supported also by the Linux on SH4 CPU
 #define	MAYAQUA_SUPPORTS_GETIFADDRS
+#endif	// !UCLIBC || UCLIBC_SUPPORT_AI_ADDRCONFIG
 #endif	// CPU_SH4
 #endif	// UNIX_SOLARIS
 #endif	// OS_UNIX
