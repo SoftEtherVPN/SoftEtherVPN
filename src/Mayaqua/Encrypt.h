@@ -141,6 +141,8 @@ void RAND_Free_For_SoftEther();
 #define AEAD_CHACHA20_POLY1305_NONCE_SIZE	12	// Nonce size
 #define AEAD_CHACHA20_POLY1305_KEY_SIZE		32	// Key size
 
+// OpenSSL default cipher algorithms
+#define	OPENSSL_DEFAULT_CIPHER_LIST "ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2"
 
 // IANA definitions taken from IKEv1 Phase 1
 #define SHA1_160						2

@@ -642,6 +642,7 @@ struct HTTPLOG
 	char Protocol[64];						// Protocol
 	char UserAgent[MAX_SIZE];				// User Agent value
 	char Referer[MAX_SIZE];					// Referer
+	char AcceptLanguage[MAX_SIZE];			// Accept Language value
 	bool IsSsl;								// Is SSL
 };
 

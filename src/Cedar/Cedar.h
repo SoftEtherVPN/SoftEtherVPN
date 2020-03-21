@@ -126,10 +126,10 @@
 
 
 // Version number
-#define	CEDAR_VER					432
+#define	CEDAR_VER					434
 
 // Build Number
-#define	CEDAR_BUILD					9731
+#define	CEDAR_BUILD					9744
 
 // Beta number
 //#define	BETA_NUMBER					3
@@ -149,11 +149,11 @@
 
 // Specifies the build date
 #define	BUILD_DATE_Y		2020
-#define	BUILD_DATE_M		1
-#define	BUILD_DATE_D		1
-#define	BUILD_DATE_HO		17
-#define	BUILD_DATE_MI		54
-#define	BUILD_DATE_SE		10
+#define	BUILD_DATE_M		3
+#define	BUILD_DATE_D		20
+#define	BUILD_DATE_HO		19
+#define	BUILD_DATE_MI		2
+#define	BUILD_DATE_SE		37
 
 // Tolerable time difference
 #define	ALLOW_TIMESTAMP_DIFF		(UINT64)(3 * 24 * 60 * 60 * 1000)
@@ -934,6 +934,7 @@
 #define	ERR_VPNGATE_INCLIENT_CANT_STOP	146	// Can not be stopped if operating within VPN Client mode
 #define	ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE	147	// It is a feature that is not supported in the open source version
 #define	ERR_SUSPENDING					148	// System is suspending
+#define ERR_DHCP_SERVER_NOT_RUNNING		149	// DHCP server is not running
 
 
 ////////////////////////////

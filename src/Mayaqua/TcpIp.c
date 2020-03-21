@@ -2156,6 +2156,10 @@ HTTPLOG *ParseHttpAccessLog(PKT *pkt)
 						{
 							StrCpy(h.UserAgent, sizeof(h.UserAgent), value);
 						}
+						else if (StrCmpi(name, "accept-language") == 0)
+						{
+							StrCpy(h.AcceptLanguage, sizeof(h.AcceptLanguage), value);
+						}
 					}
 
 					Free(line);

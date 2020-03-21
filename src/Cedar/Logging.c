@@ -1430,6 +1430,7 @@ char *BuildHttpLogStr(HTTPLOG *h)
 	AddLogBufToStr(b, "HttpProtocol", h->Protocol);
 	AddLogBufToStr(b, "HttpReferer", h->Referer);
 	AddLogBufToStr(b, "HttpUserAgent", h->UserAgent);
+	AddLogBufToStr(b, "HttpAcceptLanguage", h->AcceptLanguage);
 
 	WriteBuf(b, &nullchar, 1);
 

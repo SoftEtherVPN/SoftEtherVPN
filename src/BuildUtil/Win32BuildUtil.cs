@@ -166,7 +166,7 @@ namespace BuildUtil
 				m.ReleaseMutex();
 			}
 
-			CodeSign.SignFile(cabFileName, cabFileName, "VPN Software", false);
+			CodeSign.SignFile(cabFileName, cabFileName, "VPN Software", false, false);
 
 			File.Copy(cabFileName, dstFileName, true);
 		}
@@ -1040,8 +1040,8 @@ namespace BuildUtil
 			ExecCommand(makecat1, string.Format("\"{0}\"", cdfFileName2));
 
 			// sign catalog file
-			CodeSign.SignFile(catFileName, catFileName, "Catalog File", false);
-			CodeSign.SignFile(catFileName2, catFileName2, "Catalog File", false);
+			CodeSign.SignFile(catFileName, catFileName, "Catalog File", false, false);
+			CodeSign.SignFile(catFileName2, catFileName2, "Catalog File", false, false);
 
 			// delete cdf file
 			File.Delete(cdfFileName);
@@ -1138,7 +1138,7 @@ namespace BuildUtil
 
 			if (no_sign == false)
 			{
-				CodeSign.SignFile(catname, catname, "Catalog File", false);
+				CodeSign.SignFile(catname, catname, "Catalog File", false, false);
 			}
 
 			File.Delete(cdf_file_name);
@@ -1397,7 +1397,7 @@ namespace BuildUtil
 					{
 						Con.WriteLine("Signing...");
 
-						CodeSign.SignFile(file, file, "VPN Software", isDriver);
+						CodeSign.SignFile(file, file, "VPN Software", isDriver, false);
 					}
 				}
 			}
@@ -1445,7 +1445,7 @@ namespace BuildUtil
 
 			Con.WriteLine("Signing...");
 
-			CodeSign.SignFile(filename, filename, "VPN Software", isDriver);
+			CodeSign.SignFile(filename, filename, "VPN Software", isDriver, false);
 		}
 	}
 }

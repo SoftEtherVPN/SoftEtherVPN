@@ -170,7 +170,7 @@ namespace BuildUtil
 			Win32BuildUtil.ExecCommand(vpnsetup_exe, string.Format("/SFXMODE:{1} /SFXOUT:\"{0}\"",
 				outFileName, Software.ToString()));
 
-			CodeSign.SignFile(outFileName, outFileName, "VPN Software", false);
+			CodeSign.SignFile(outFileName, outFileName, "VPN Software Installer", false, true);
 		}
 	}
 }

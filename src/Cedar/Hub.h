@@ -637,6 +637,7 @@ void VgsSetUserAgentValue(char *str);
 void VgsSetEmbTag(bool b);
 EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str);
 
+
 #endif	// HUB_H
 
 

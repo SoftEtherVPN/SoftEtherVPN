@@ -1330,7 +1330,7 @@ namespace BuildUtil
 			int certid = vl["CERTID"].IntValue;
 			int shamode = vl["SHAMODE"].IntValue;
 
-			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, certid, shamode);
+			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, false);
 
 			return 0;
 		}

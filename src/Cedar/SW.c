@@ -954,6 +954,7 @@ UINT SwEasy2(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, 
 	case WM_COMMAND:
 		switch (wParam)
 		{
+		case B_EASYMODE:
 		case B_DELETE_SENSITIVE:
 			sw->Easy_EraseSensitive = IsChecked(hWnd, B_DELETE_SENSITIVE);
 			sw->Easy_EasyMode = IsChecked(hWnd, B_EASYMODE);
@@ -1051,6 +1052,7 @@ UINT SwWeb2(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, W
 	case WM_COMMAND:
 		switch (wParam)
 		{
+		case B_EASYMODE:
 		case B_DELETE_SENSITIVE:
 			sw->Web_EraseSensitive = IsChecked(hWnd, B_DELETE_SENSITIVE);
 			sw->Web_EasyMode = IsChecked(hWnd, B_EASYMODE);

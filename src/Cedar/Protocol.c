@@ -9392,6 +9392,10 @@ char *WsErrorCodeToString(UINT err)
 	case ERR_MSCHAP2_PASSWORD_NEED_RESET:
 		ret = "e_user_password_must_reset";
 		break;
+
+	case ERR_DHCP_SERVER_NOT_RUNNING:
+		ret = "e_dhcp_server_not_running";
+		break;
 	}
 	return ret;
 }
@@ -9419,6 +9423,18 @@ UINT MvpnDoAccept(CONNECTION *c, WS *w)
 	UINT client_udp_acceleration_port = 0;
 	UCHAR client_udp_acceleration_key[UDP_ACCELERATION_COMMON_KEY_SIZE_V2] = {0};
 	UDP_ACCEL *udp_accel = NULL;
+	bool l3_ipv4_enable = false;
+	bool l3_ipv4_dynamic = false;
+	IP l3_ipv4_ip = {0};
+	IP l3_ipv4_mask = {0};
+	IP l3_ipv4_gw = {0};
+	IP l3_ipv4_dns1 = {0};
+	IP l3_ipv4_dns2 = {0};
+	IP l3_ipv4_wins1 = {0};
+	IP l3_ipv4_wins2 = {0};
+	IP l3_ipv4_dhcp_server = {0};
+	char l3_ipv4_classless_routes[4096] = {0};
+	bool l3_ipv4_dhcp_allocated = false;
 
 	if (c == NULL || w == NULL)
 	{
@@ -9477,6 +9493,40 @@ UINT MvpnDoAccept(CONNECTION *c, WS *w)
 
 	Zero(client_hub_name, sizeof(client_hub_name));
 	PackGetStr(client_hello, "NetworkName", client_hub_name, sizeof(client_hub_name));
+
+	l3_ipv4_enable = PackGetBool(client_hello, "L3HelperIPv4Enable");
+	if (l3_ipv4_enable)
+	{
+		char tmp[256];
+		bool ok = false;
+
+		PackGetStr(client_hello, "L3HelperIPv4AddressType", tmp, sizeof(tmp));
+
+		if (StrCmpi(tmp, MVPN_ADDRESS_TYPE_STATIC) == 0)
+		{
+			// Static IP address
+			l3_ipv4_dynamic = false;
+
+			if (PackGetIp(client_hello, "L3HelperIPv4Address", &l3_ipv4_ip) &&
+				PackGetIp(client_hello, "L3HelperIPv4SubnetMask", &l3_ipv4_mask) &&
+				PackGetIp(client_hello, "L3HelperIPv4Gateway", &l3_ipv4_gw))
+			{
+				ok = true;
+			}
+		}
+		else if (StrCmpi(tmp, MVPN_ADDRESS_TYPE_DYNAMIC) == 0)
+		{
+			// Dynamic IP address
+			l3_ipv4_dynamic = true;
+			ok = true;
+		}
+
+		if (ok == false)
+		{
+			ret = ERR_PROTOCOL_ERROR;
+			goto LABEL_CLEANUP;
+		}
+	}
 
 	// Phase 2: Send a Server Hello packet
 	server_hello = WsNewErrorPack(ERR_NO_ERROR);
@@ -9613,6 +9663,49 @@ LABEL_EXIT_AUTH_RETRY:
 			"Transport", "TCP_WebSocket");
 	}
 
+	if (ipc != NULL && l3_ipv4_enable)
+	{
+		// L3 IPv4 helper is enabled
+		if (l3_ipv4_dynamic == false)
+		{
+			// Static IP
+			IPCSetIPv4Parameters(ipc, &l3_ipv4_ip, &l3_ipv4_mask,
+				&l3_ipv4_gw, NULL);
+		}
+		else
+		{
+			// Dynamic IP
+			DHCP_OPTION_LIST cao;
+
+			Zero(&cao, sizeof(cao));
+
+			if (IPCDhcpAllocateIP(ipc, &cao, NULL) == false)
+			{
+				// DHCP alloc failed
+				ret = ERR_DHCP_SERVER_NOT_RUNNING;
+				goto LABEL_CLEANUP;
+			}
+
+			l3_ipv4_dhcp_allocated = true;
+
+			UINTToIP(&l3_ipv4_dhcp_server, cao.ServerAddress);
+
+			UINTToIP(&l3_ipv4_ip, cao.ClientAddress);
+			UINTToIP(&l3_ipv4_mask, cao.SubnetMask);
+			UINTToIP(&l3_ipv4_gw, cao.Gateway);
+			UINTToIP(&l3_ipv4_dns1, cao.DnsServer);
+			UINTToIP(&l3_ipv4_dns2, cao.DnsServer2);
+			UINTToIP(&l3_ipv4_wins1, cao.WinsServer);
+			UINTToIP(&l3_ipv4_wins2, cao.WinsServer2);
+
+			BuildClasslessRouteTableStr(l3_ipv4_classless_routes, sizeof(l3_ipv4_classless_routes),
+				&cao.ClasslessRoute);
+
+			IPCSetIPv4Parameters(ipc, &l3_ipv4_ip, &l3_ipv4_mask,
+				&l3_ipv4_gw, &cao.ClasslessRoute);
+		}
+	}
+
 	if (ipc != NULL && use_udp_acceleration)
 	{
 		udp_accel = NewUdpAccel(c->Cedar, (c->FirstSock->IsRUDPSocket ? NULL : &c->FirstSock->LocalIP),
@@ -9638,6 +9731,7 @@ LABEL_EXIT_AUTH_RETRY:
 		PackAddInt(ok_pack, "HeartBeatInterval", heartbeat_interval);
 		PackAddInt(ok_pack, "DisconnectTimeout", disconnect_timeout);
 		PackAddStr(ok_pack, "NetworkName", ipc->HubName);
+
 		if (udp_accel != NULL)
 		{
 			PackAddBool(ok_pack, "UseUdpAcceleration", true);
@@ -9651,6 +9745,23 @@ LABEL_EXIT_AUTH_RETRY:
 		{
 			PackAddBool(ok_pack, "UseUdpAcceleration", false);
 		}
+
+		PackAddBool(ok_pack, "L3HelperIPv4Enable", l3_ipv4_enable);
+
+		if (l3_ipv4_enable)
+		{
+			PackAddStr(ok_pack, "L3HelperIPv4AddressType",
+				l3_ipv4_dynamic ? MVPN_ADDRESS_TYPE_DYNAMIC : MVPN_ADDRESS_TYPE_STATIC);
+			PackAddIp(ok_pack, "L3HelperIPv4Address", &l3_ipv4_ip);
+			PackAddIp(ok_pack, "L3HelperIPv4SubnetMask", &l3_ipv4_mask);
+			PackAddIp(ok_pack, "L3HelperIPv4Gateway", &l3_ipv4_gw);
+			PackAddIp(ok_pack, "L3HelperIPv4DnsServer1", &l3_ipv4_dns1);
+			PackAddIp(ok_pack, "L3HelperIPv4DnsServer2", &l3_ipv4_dns2);
+			PackAddIp(ok_pack, "L3HelperIPv4WinsServer1", &l3_ipv4_wins1);
+			PackAddIp(ok_pack, "L3HelperIPv4WinsServer2", &l3_ipv4_wins2);
+			PackAddStr(ok_pack, "L3HelperIPv4PushedStaticRoutes", l3_ipv4_classless_routes);
+		}
+
 		WsSendPack(w, ok_pack);
 		FreePack(ok_pack);
 
@@ -9711,36 +9822,85 @@ LABEL_EXIT_AUTH_RETRY:
 				}
 
 				// IPC --> send_fifo or UDP accelerator
-				while (true)
+				if (l3_ipv4_enable == false)
 				{
-					BLOCK *l2_packet = IPCRecvL2(ipc);
-					UCHAR packet_type;
-					USHORT packet_size;
-					if (l2_packet == NULL)
+					// Ethernet
+					while (true)
 					{
-						break;
-					}
-					if (UdpAccelIsSendReady(udp_accel, true))
-					{
-						// Send via UDP accelerator
-						UdpAccelSend(udp_accel, l2_packet->Buf, l2_packet->Size,
-							MVPN_PACKET_TYPE_ETHERNET, udp_accel->MaxUdpPacketSize,
-							false);
-					}
-					else
-					{
-						// Send via WebSocket
-						if (FifoSize(send_fifo) <= MAX_BUFFERING_PACKET_SIZE)
+						BLOCK *l2_packet = IPCRecvL2(ipc);
+						UCHAR packet_type;
+						USHORT packet_size;
+						if (l2_packet == NULL)
 						{
-							packet_size = Endian16(l2_packet->Size);
-							packet_type = MVPN_PACKET_TYPE_ETHERNET;
-							WriteFifo(send_fifo, &magic_number, 4);
-							WriteFifo(send_fifo, &packet_type, 1);
-							WriteFifo(send_fifo, &packet_size, 2);
-							WriteFifo(send_fifo, l2_packet->Buf, (USHORT)l2_packet->Size);
+							break;
 						}
+						if (UdpAccelIsSendReady(udp_accel, true))
+						{
+							// Send via UDP accelerator
+							UdpAccelSend(udp_accel, l2_packet->Buf, l2_packet->Size,
+								MVPN_PACKET_TYPE_ETHERNET, udp_accel->MaxUdpPacketSize,
+								false);
+						}
+						else
+						{
+							// Send via WebSocket
+							if (FifoSize(send_fifo) <= MAX_BUFFERING_PACKET_SIZE)
+							{
+								packet_size = Endian16(l2_packet->Size);
+								packet_type = MVPN_PACKET_TYPE_ETHERNET;
+								WriteFifo(send_fifo, &magic_number, 4);
+								WriteFifo(send_fifo, &packet_type, 1);
+								WriteFifo(send_fifo, &packet_size, 2);
+								WriteFifo(send_fifo, l2_packet->Buf, (USHORT)l2_packet->Size);
+							}
+						}
+						FreeBlock(l2_packet);
 					}
-					FreeBlock(l2_packet);
+				}
+				else
+				{
+					UINT num = 0;
+
+L_V4_RETRY:
+					// IPv4
+					IPCProcessL3Events(ipc);
+
+					while (true)
+					{
+						BLOCK *l3_packet = IPCRecvIPv4(ipc);
+						UCHAR packet_type;
+						USHORT packet_size;
+						if (l3_packet == NULL)
+						{
+							num++;
+							if (num <= 1)
+							{
+								goto L_V4_RETRY;
+							}
+							break;
+						}
+						if (UdpAccelIsSendReady(udp_accel, true))
+						{
+							// Send via UDP accelerator
+							UdpAccelSend(udp_accel, l3_packet->Buf, l3_packet->Size,
+								MVPN_PACKET_TYPE_IPV4, udp_accel->MaxUdpPacketSize,
+								false);
+						}
+						else
+						{
+							// Send via WebSocket
+							if (FifoSize(send_fifo) <= MAX_BUFFERING_PACKET_SIZE)
+							{
+								packet_size = Endian16(l3_packet->Size);
+								packet_type = MVPN_PACKET_TYPE_IPV4;
+								WriteFifo(send_fifo, &magic_number, 4);
+								WriteFifo(send_fifo, &packet_type, 1);
+								WriteFifo(send_fifo, &packet_size, 2);
+								WriteFifo(send_fifo, l3_packet->Buf, (USHORT)l3_packet->Size);
+							}
+						}
+						FreeBlock(l3_packet);
+					}
 				}
 
 				// send_fifo --> MVPN Client
@@ -9819,7 +9979,17 @@ LABEL_EXIT_AUTH_RETRY:
 
 					if (packet_type == MVPN_PACKET_TYPE_ETHERNET)
 					{
-						IPCSendL2(ipc, packet_data, packet_size);
+						if (l3_ipv4_enable == false)
+						{
+							IPCSendL2(ipc, packet_data, packet_size);
+						}
+					}
+					else if (packet_type == MVPN_PACKET_TYPE_IPV4)
+					{
+						if (l3_ipv4_enable)
+						{
+							IPCSendIPv4(ipc, packet_data, packet_size);
+						}
 					}
 
 					Free(packet_data);
@@ -9847,7 +10017,17 @@ LABEL_EXIT_AUTH_RETRY:
 
 						if (packet_type == MVPN_PACKET_TYPE_ETHERNET)
 						{
-							IPCSendL2(ipc, packet_data, packet_size);
+							if (l3_ipv4_enable == false)
+							{
+								IPCSendL2(ipc, packet_data, packet_size);
+							}
+						}
+						else if (packet_type == MVPN_PACKET_TYPE_IPV4)
+						{
+							if (l3_ipv4_enable)
+							{
+								IPCSendIPv4(ipc, packet_data, packet_size);
+							}
 						}
 
 						FreeBlock(b);
@@ -9883,6 +10063,12 @@ LABEL_EXIT_AUTH_RETRY:
 			ReleaseFifo(recv_fifo);
 			Free(tmp_buf);
 		}
+	}
+
+	if (l3_ipv4_dhcp_allocated)
+	{
+		IPCDhcpFreeIP(ipc, &l3_ipv4_dhcp_server);
+		IPCProcessL3Events(ipc);
 	}
 
 LABEL_CLEANUP:

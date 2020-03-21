@@ -3908,6 +3908,7 @@ LABEL_TRY_AGAIN:
 	return true;
 }
 
+
 // VGS: Setting for embedding UA tag
 void VgsSetEmbTag(bool b)
 {

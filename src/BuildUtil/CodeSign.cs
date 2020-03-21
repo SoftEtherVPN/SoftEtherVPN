@@ -126,6 +126,52 @@ using BuildUtil.HvSignService;
 
 namespace BuildUtil
 {
+	public static class SignClient
+	{
+		const string SeInternalPasswordFilePath = @"\\192.168.3.2\share\tmp\signserver\password.txt";
+
+		const string Url = "https://codesignserver:7006/sign";
+
+		public static byte[] Sign(byte[] srcData, string certName, string flags, string comment)
+		{
+			string password = File.ReadAllText(SeInternalPasswordFilePath);
+
+			string url = Url + "?password=" + password + "&cert=" + certName + "&flags=" + flags + "&comment=" + comment;
+
+			ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+			WebRequest req = HttpWebRequest.Create(url);
+
+			req.Timeout = 60 * 1000;
+			req.Method = "POST";
+
+			using (Stream reqs = req.GetRequestStream())
+			{
+				reqs.Write(srcData, 0, srcData.Length);
+
+				reqs.Close();
+
+				WebResponse res = req.GetResponse();
+
+				using (Stream ress = res.GetResponseStream())
+				{
+					byte[] tmp = new byte[4 * 1024 * 1024];
+
+					MemoryStream ms = new MemoryStream();
+
+					while (true)
+					{
+						int r = ress.Read(tmp, 0, tmp.Length);
+						if (r <= 0) break;
+
+						ms.Write(tmp, 0, r);
+					}
+
+					return ms.ToArray();
+				}
+			}
+		}
+	}
+
 	public static class CodeSign
 	{
 		public const int NumRetries = 1;
@@ -146,9 +192,13 @@ namespace BuildUtil
 		static object lockObj = new object();
 		
 		// Digital-sign the data on the memory
-		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, int cert_id, int sha_mode)
+		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, bool evCert)
 		{
 #if	!BU_OSS
+			// 2020/01/19 switch to the new system
+			return SignClient.Sign(srcData, evCert ? "SoftEtherEv" : "SoftEtherFile", kernelModeDriver ? "Driver" : "", comment);
+
+			/*
 			int i;
 			string out_filename = null;
 			byte[] ret = null;
@@ -240,37 +290,21 @@ namespace BuildUtil
 				File.Delete(tmpFileName);
 			}
 
-			return ret;
+			return ret;*/
 #else	// BU_OSS
 			return srcData;
 #endif	// BU_OSS
 		}
 
 		// Digital-sign the data on the file
-		public static void SignFile(string destFileName, string srcFileName, string comment, bool kernelModeDriver)
-		{
-			int cert_id = UsingCertId;
-
-			SignFile(destFileName, srcFileName, comment, kernelModeDriver, cert_id, 0);
-		}
-		public static void SignFile(string destFileName, string srcFileName, string comment, bool kernelModeDriver, int cert_id, int sha_mode)
+		public static void SignFile(string destFileName, string srcFileName, string comment, bool kernelModeDriver, bool evCert)
 		{
 #if	!BU_OSS
-			if (cert_id == 0)
-			{
-				cert_id = UsingCertId;
-			}
 
 			Con.WriteLine("Signing for '{0}'...", Path.GetFileName(destFileName));
 			byte[] srcData = File.ReadAllBytes(srcFileName);
 
-			if (srcFileName.EndsWith(".msi", StringComparison.InvariantCultureIgnoreCase))
-			{
-				sha_mode = 1;
-				// todo: Set 2 in future !!!
-			}
-
-			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, cert_id, sha_mode);
+			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, evCert);
 
 			try
 			{

@@ -3130,15 +3130,6 @@ UINT StEnumLogFile(ADMIN *a, RPC_ENUM_LOG_FILE *t)
 
 		ReleaseHub(h);
 	}
-	else
-	{
-		if (s->ServerType == SERVER_TYPE_FARM_CONTROLLER)
-		{
-			// Since Management session will become unstable if log files are
-			// enumerated on a cluster controller, it forbids. 
-			return ERR_NOT_SUPPORTED;
-		}
-	}
 
 	if (no_access)
 	{

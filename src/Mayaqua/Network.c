@@ -6038,6 +6038,9 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 
 		ssl = SSL_new(ssl_ctx);
 
+		// Set the OpenSSL default cipher algorithms
+		SSL_set_cipher_list(ssl, OPENSSL_DEFAULT_CIPHER_LIST);
+
 		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
 	Unlock(openssl_lock);
@@ -13246,6 +13249,13 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 #endif	// SSL_OP_NO_TLSv1_2
 			}
 
+			if (sock->SslAcceptSettings.Tls_Disable1_3)
+			{
+#ifdef	SSL_OP_NO_TLSv1_3
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
+#endif	// SSL_OP_NO_TLSv1_3
+			}
+
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
@@ -13254,14 +13264,20 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		{
 			if (client_tls == false)
 			{
+				// Use SSL v3
+#ifndef SSL_OP_NO_SSL_MASK
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
 #else
 				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
 #endif
+#else	// SSL_OP_NO_SSL_MASK
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSL_MASK & ~SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSL_MASK
 			}
 			else
 			{
+				// Use TLS 1.0 or later
 				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 			}
 		}
@@ -13306,6 +13322,15 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		Lock(openssl_lock);
 		{
 			SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher);
+		}
+		Unlock(openssl_lock);
+	}
+	else
+	{
+		// Set the OpenSSL default cipher algorithms
+		Lock(openssl_lock);
+		{
+			SSL_set_cipher_list(sock->ssl, OPENSSL_DEFAULT_CIPHER_LIST);
 		}
 		Unlock(openssl_lock);
 	}
@@ -18146,6 +18171,11 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 #ifdef	SSL_CTX_set_ecdh_auto
 	SSL_CTX_set_ecdh_auto(ctx, 1);
 #endif	// SSL_CTX_set_ecdh_auto
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+	// For compatibility with VPN 3.0 or older
+	SSL_CTX_set_security_level(ctx, 0);
+#endif
 
 	return ctx;
 }

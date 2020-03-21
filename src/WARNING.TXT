@@ -375,11 +375,11 @@ Experiment Service Directory Server. The information includes the operator's
 information which described in section 5.5, logging settings, uptime,
 operating system version, type of protocol, port numbers, quality information,
 statistical information, VPN Gate clients' log history data (includes dates,
-IP addresses, version numbers and IDs), log records of destination IP
-addresses and port numbers of VPN Gate communications, and the version of the
-software. These information may be exposed on the directory. VPN Gate Service
-also receives a key for encoding which is described on the chapter 5.9 from
-the directory server.
+IP addresses, version numbers and IDs), log records of destination HTTP/HTTPS
+hostnames or IP addresses and port numbers of VPN Gate communications, and the
+version of the software. These information may be exposed on the directory.
+VPN Gate Service also receives a key for encoding which is described on the
+chapter 5.9 from the directory server.
 
 5.3. Details of VPN Gate Service's Behavior
 If you enable VPN Gate Service manually, which is disabled by default, the
