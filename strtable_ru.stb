@@ -3773,11 +3773,11 @@ IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_SETUP_HUB
-CAPTION					Easy Setup - Decide the Virtual Hub Name
-IDC_STATIC_1			You have to create one Virtual Hub on the VPN Server at least. Name the new Virtual Hub as you prefer.
-IDC_STATIC_2			Virtual Hub &Name:
+CAPTION					Простая настройка - укажите имя Virtual Hub
+IDC_STATIC_1			Вы должны создать хотя бы один Virtual Hub на VPN-сервере. Назовите новый Virtual Hub, как вам нравится.
+IDC_STATIC_2			Имя Virtual Hub:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SETUP_STEP
@@ -3884,28 +3884,28 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_SM_DDNS
-CAPTION					Dynamic DNS Function
-S_TITLE					Dynamic DNS Function
-S_BOLD					This VPN Server has a Built-in Dynamic DNS Function.
-S_1						The Dynamic DNS assigns a unique and permanent DNS hostname for this VPN Server. You can use that hostname to specify this VPN Server on the settings for VPN Client and VPN Bridge. You need not to register and keep a domain name.
-S_22					Also, if your ISP assigns you a dynamic (not-fixed) IP address, the corresponding IP address of your Dynamic DNS hostname will be automatically changed. It enables you to keep running the VPN Server by using only a dynamic IP address.\r\nTherefore, you need not any longer to keep static global IP addresses with expenses monthly costs. 
-S_3						Moreover, this VPN Server version supports 'NAT-Traversal' function. If the VPN Server is inside the NAT and is assigned only a private IP address, you can connect to that VPN Server from the Internet side without any special settings on the NAT beforehand.
-S_4						Current &Status:
-S_STATUS3				Assigned Dynamic DNS &Hostname:
-B_HINT					Hint
-S_STATUS4				Global IPv&4 Address:
-S_STATUS5				Global IPv&6 Address:
-S_5						Modify the Settings:
-S_STATUS6				&Change the Dynamic DNS Hostname:
-S_STATUS7				Hostname is with only alphabets numeric, and dashes '-'. Three letters at least.\r\nYou can change it any time later.
-IDOK					Set to &Above Hostname
-B_RESTORE				&Restore
-S_2						If you are not connected to IPv6 Internet, "Global IPv6 Address" should show an error.\r\nA few countries or territories might prohibit Dynamic DNS Service.
-IDCANCEL				E&xit
-B_DISABLE				&Disable Dynamic DNS Function
-B_PROXY					Connect via &Proxy Server...
-S_STATUS8				DNS Key:
-B_HINT2					Hint
+CAPTION					Функция динамического DNS
+S_TITLE					Функция динамического DNS
+S_BOLD					Этот VPN-сервер имеет встроенную функцию динамического DNS.
+S_1						Динамический DNS назначает уникальное и постоянное имя хоста для этого VPN-сервера. Вы можете использовать это имя хоста в настройках VPN-клиента и VPN-моста. Вам не нужно регистрировать отдельное доменное имя.
+S_22					Кроме того, если ваш интернет-провайдер назначит вам динамический (не фиксированный) IP-адрес, соответствующий IP-адрес вашего динамического DNS будет автоматически изменен. Это позволяет вам продолжать работу VPN-сервера, даже используя динамический IP-адрес.\r\nСледовательно, вам больше не нужно оплачивать статические глобальные IP-адреса.
+S_3						Кроме того, эта версия VPN-сервера поддерживает функцию NAT-Traversal. Если VPN-сервер находится за NAT и ему назначен только локальный IP-адрес, вы можете подключиться к этому VPN-серверу со стороны Интернета без каких-либо дополнительных специальных настроек для NAT.
+S_4						Текущее состояние:
+S_STATUS3				Назначенное динамическое DNS имя хоста:
+B_HINT					Совет
+S_STATUS4				Глобальный IPv4-адрес:
+S_STATUS5				Глобальный IPv6-адрес:
+S_5						Изменяемые настройки:
+S_STATUS6				Измените имя хоста динамического DNS:
+S_STATUS7				Имя хоста может состоять только из букв, цифр и тире '-'. Минимум 3 буквы.\r\nВы можете позже изменить его в любое время.
+IDOK					Установить имя хоста
+B_RESTORE				Восстановить
+S_2						Если вы не подключены к IPv6 Интернету, "Глобальный IPv6-адрес" должен показать ошибку.\r\nВ некоторых странах или территориях может быть запрещен сервис динамического DNS.
+IDCANCEL				Выход
+B_DISABLE				Отключить функцию динамического DNS
+B_PROXY					Подключиться через прокси-сервер...
+S_STATUS8				DNS ключ:
+B_HINT2					Совет
 
 PREFIX					D_SM_SPECIALLISTENER
 CAPTION					VPN over ICMP / DNS Function Settings
