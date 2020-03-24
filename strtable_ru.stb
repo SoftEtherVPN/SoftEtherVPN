@@ -4092,32 +4092,32 @@ IDCANCEL				&OK
 
 
 PREFIX					D_SM_AZURE
-CAPTION					VPN Azure Service Settings
-S_TITLE					VPN Azure Cloud VPN Service (Free)
-S_1						VPN Azure makes it easier to establish a VPN Session from your home PC to your office PC. While a VPN connection is established, you can access to any other servers on the private network of your company.
-S_2						You don't need a global IP address on the office PC (VPN Server). It can work behind firewalls or NATs. No network administrator's configuration required. You can use the built-in SSTP-VPN Client of Windows in your home PC.
-S_3						VPN Azure is a cloud VPN service operated by SoftEther VPN Project. VPN Azure is free of charge and available to anyone. Press the right button to see details and how-to-use instructions.
-B_BOLD					VPN Azure Setting
-R_ENABLE				&Enable VPN Azure
-R_DISABLE				&Disable VPN Azure
-S_HOSTNAME_BORDER		Current VPN Azure Hostname
-S_HOSTNAME_INFO			The VPN Azure hostname is same to the Dynamic DNS hostname, but altering the domain suffix to "vpnazure.net".
-B_CHANGE				Change &Hostname
-B_WEB					How to Use VPN Azure\r\n(Visit the Web)
+CAPTION					Настройки сервиса VPN Azure
+S_TITLE					Облачный VPN-сервис VPN Azure (бесплатно)
+S_1						VPN Azure упрощает подключение с домашнего компьютера на офисный компьютер. Пока установлено VPN-подключение, вы можете получить доступ к любым другим серверам в локальной сети вашей компании.
+S_2						Вам не нужен глобальный IP-адрес на офисном ПК (VPN-сервере). Он может работать за брандмауэрами или NAT. Не требуется настройка сетевого администратора. Вы можете использовать встроенный SSTP-VPN клиент Windows на вашем домашнем ПК.
+S_3						VPN Azure - это облачный VPN-сервис, управляемый SoftEther VPN Project. VPN Azure бесплатен и доступен каждому. Нажмите на кнопку справа, чтобы увидеть подробности и инструкцию по использованию.
+B_BOLD					Настройка VPN Azure
+R_ENABLE				Включить VPN Azure
+R_DISABLE				Отключить VPN Azure
+S_HOSTNAME_BORDER		Текущее имя хоста VPN Azure
+S_HOSTNAME_INFO			Имя хоста VPN Azure совпадает с именем динамического DNS, но суффикс домена изменяется на "vpnazure.net".
+B_CHANGE				Изменить имя хоста
+B_WEB					Как использовать VPN Azure\r\n(Посетить сайт)
 IDCANCEL				&OK
 
 
 PREFIX					D_SM_PROXY
-CAPTION					Connect via Proxy Server
-STATIC9					You can connect via a proxy server.
-STATIC10				Proxy &Type:
-R_DIRECT_TCP			&Direct TCP/IP Connection (No Proxy)
-R_HTTPS					Connect via H&TTP Proxy Server
-R_SOCKS					Connect via S&OCKS Proxy Server
-R_SOCKS5				Connect via S&OCKS5 Proxy Server
-B_PROXY_CONFIG			P&roxy Server Setting
+CAPTION					Подключение через прокси-сервер
+STATIC9					Вы можете подключиться через прокси-сервер.
+STATIC10				Тип прокси:
+R_DIRECT_TCP			&Прямое TCP/IP подключение (без прокси)
+R_HTTPS					HTTP прокси-сервер
+R_SOCKS					SOCKS прокси-сервер
+R_SOCKS5				SOCKS5 прокси-сервер
+B_PROXY_CONFIG			Настройка прокси-сервера
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_VGC_LIST
