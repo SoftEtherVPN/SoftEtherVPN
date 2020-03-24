@@ -1602,12 +1602,12 @@ SM_SYSLOG_0				Disable Syslog Send Function
 SM_SYSLOG_1				Send Server Logs by Syslog
 SM_SYSLOG_2				Send Server and Virtual Hub Security Logs by Syslog
 SM_SYSLOG_3				Send Server, Virtual Hub Security, and Packet Logs by Syslog
-SM_SETUP_INFO_1			Click Next to start Setup. Click Close if you want to exit the setup and manually configure all settings.
-SM_SETUP_INFO_2			Click Close to configuring the settings of a VPN server manually by yourself.
-SM_SETUP_BRIDGE_ONLY	You are currently connected to VPN Bridge. You can only create VPN Bridge at Each Site for Multi-site VPN.
-SM_SETUP_BRIDGE_EDGE	VPN Bridge at &Each Site
-SM_SETUP_WARNING		The current settings of this VPN Server or VPN Bridge will be initialized. \r\nDo you really want to do this?
-SM_SETUP_SELECT			Select the Ethernet device to establish the bridge connection.
+SM_SETUP_INFO_1			Нажмите "Далее", чтобы начать установку. Нажмите "Закрыть", если вы хотите выйти и вручную настроить все параметры.
+SM_SETUP_INFO_2			Нажмите "Закрыть", чтобы самостоятельно настроить параметры VPN-сервера.
+SM_SETUP_BRIDGE_ONLY	В данный момент вы подключены к VPN-мосту. Вы можете создавать VPN-мосты только в сегментах (краях) вашей VPN сети.
+SM_SETUP_BRIDGE_EDGE	VPN-мост сегмента сети
+SM_SETUP_WARNING		Текущие настройки этого VPN-сервера или VPN-моста будут инициализированы. \r\nВы действительно хотите продолжить?
+SM_SETUP_SELECT			Выберите Ethernet устройство для подключения моста.
 SM_SETUP_NO_LICENSE_KEY	Currently there is no licenses registered for this SoftEther VPN Server. \r\n\r\nFor SoftEther VPN Server to operate as a VPN server, you must enter a license key. \r\nDo you want to display the License Manager?\r\n\r\n(To use the VPN Server as a Trial Version, you have to obtain a trial key from the SoftEther VPN Project web site.\r\nClick Yes and click Obtain or Extend of License button to obtain a trial key.
 SM_HUBEXT_OPTION_TITLE	Virtual Hub Extended Options
 SM_HUBEXT_OPTION_STATIC1	Virtual Hub Extended Options allows you to configure more detailed parameters of this Virtual Hub.
@@ -3760,15 +3760,15 @@ S_TITLE					Простая настройка SoftEther VPN Сервера/Мо�
 IDC_STATIC_1			С помощью этой установки вы можете легко настроить SoftEther VPN Сервер или Мост для дальнейшего использования. После завершения установки, вы можете настроить дополнительные параметры.
 S_BOLD					Выберите тип VPN-сервера, который вы хотите настроить. Несколько типов могут быть выбраны вместе.
 C_REMOTE				&VPN-сервер удаленного доступа
-S_REMOTE_1				VPN-сервер удаленного доступа позволяет удаленным компьютерам с установленным VPN-клиентом получать доступ к существующим сегментам Ethernet, например, локальной сети компании.\r\nЛюбые VPN-клиенты, подключающиеся к VPN-серверу, смогут получить доступ к сети, как если бы они были подключены напрямую и физически к сети.
+S_REMOTE_1				VPN-сервер удаленного доступа позволяет удаленным компьютерам с установленным VPN-клиентом получать доступ к существующим сегментам Ethernet, например, локальной сети компании.\r\nЛюбые VPN-клиенты, подключающиеся к VPN-серверу, смогут получить доступ к сети, как если бы они были подключены физически к локальной сети.
 C_SITE					&Site-to-site VPN-сервер или VPN-мост
-S_SITE_1				VPN типа "Site-to-site" - это конфигурация VPN для соединения между двумя или более удаленными сегментами Ethernet.\r\nКаждая из сторон соединена вместе и становится одним и тем же сегментом на уровне Layer-2. Это позволяет любым компьютерам каждой из сторон общаться друг с другом, как будто они находятся в одной локальной сети.
-S_SITE_2				Select the role of this VPN Server:
-C_CENTER				VPN Server that Accepts Connection from Other Sites (&Center)
-C_EDGE					VPN Server or VPN Bridge at Each Site (&Edge)
-C_OTHER					&Other Advanced Configuration of VPN
-S_OTHER					Select this if you are planning to build a VPN system that provides advanced functions such as a clustering function and a Virtual Layer 3 Switch function.
-IDOK					&Next >
+S_SITE_1				VPN типа "Site-to-site" - это конфигурация VPN для соединения между двумя или более удаленными сегментами Ethernet.\r\nКаждая из сторон соединена вместе и становится одним и тем же сегментом на уровне Layer-2. Это позволяет любым компьютерам каждой из сторон общаться друг с другом, как будто бы они находятся в одной локальной сети.
+S_SITE_2				Выберите роль этого VPN-сервера:
+C_CENTER				VPN-сервер, принимающий соединения от других сегментов (Центр) VPN Server that Accepts Connection from Other Sites (Center)
+C_EDGE					VPN-сервер или VPN-мост одного из сегментов (Край)
+C_OTHER					Другие расширенные настройки VPN
+S_OTHER					Выберите этот параметр, если вы планируете создать VPN систему, которая предоставляет расширенные функции, такие как функция кластеризации и функция виртуального коммутатора 3-го уровня.
+IDOK					&Далее >
 IDCANCEL				&Закрыть
 
 
