@@ -1632,14 +1632,14 @@ SM_IPSEC_SETUP_QUESTION	This VPN Server has a function to accept IPsec / L2TP / 
 SM_OPENVPN_CONFIG_SAVE_OK	The ZIP file '%s' which contains the setting files for OpenVPN.\r\n\r\nOpen this ZIP file to extract sample configuration files for OpenVPN which can be used immediately and easily.\r\nYou might be required to revise the configuration file a little.\r\n\r\nFor details please read the 'readme.txt' file in the ZIP file.\r\n\r\nDo you want to open this ZIP file now?
 SM_OPENVPN_CONFIG_SAVE_NG	Failed to save the ZIP file '%s'.
 SM_OPENVPN_CONFIG_OPEN_NG	Failed to open the ZIP file '%s'. Please open this file manually.
-SM_DDNS_IPV4_ERROR		Невозможно связаться с IPv4 DDNS сервером.
-SM_DDNS_IPV6_ERROR		Невозможно связаться с IPv6 DDNS сервером.
+SM_DDNS_IPV4_ERROR		Нет связи с IPv4 DDNS сервером.
+SM_DDNS_IPV6_ERROR		Нет связи с IPv6 DDNS сервером.
 SM_DDNS_FQDN_EMPTY		(Нет)
 SM_DDNS_OK_MSG			Динамическое DNS имя хоста: %S%S\r\n\r\nВы можете получить доступ к указанному ниже IP-адресу, указав DNS имя хоста.\r\n\r\nАдрес IPv4: %s\r\nАдрес IPv6: %s\r\n\r\nВы также можете использовать следующие специальные имена, чтобы явно указать тип адреса IPv4 или IPv6.\r\n\r\nИмя хоста для IPv4: %S.v4%S\r\nИмя хоста для IPv6: %S.v6%S\r\n
 SM_DDNS_OK_TITLE		Функция динамического DNS
 SM_DDNS_OK_MSG2			Динамическое DNS имя хоста было изменено на '%S'.\r\n\r\nНажмите "Совет", чтобы прочитать дополнительную информацию.
 SM_DDNS_KEY_TITLE		Ключ динамического DNS
-SM_DDNS_KEY_MSG			Ваш приватный ключ динамического DNS: %s\r\n\r\nЭто приватный ключ, связанный с вашим текущим DDNS именем. Если ваш компьютер с VPN-сервером поврежден и утерян ключ, текущее имя DDNS будет занято навсегда и другой VPN-сервер не сможет использовать это имя.\r\nЕсли вы хотите продолжить в дальнейшем использовать это же имя, сохраните ключ в надежном месте, например, в интернет-хранилище, на другом компьютере или блокноте.\r\nДля использования ключа в новом VPN-сервере, отредактируйте файл конфигурации VPN-сервера, и замените ключ в строке "byte Key" в директиве "Declare DDnsClient".\r\nНе используйте один и тот же ключ одновременно на двух или более VPN-серверах.
+SM_DDNS_KEY_MSG			Ваш приватный ключ динамического DNS:\r\n%s\r\n\r\nЭто приватный ключ, связанный с вашим текущим DDNS именем. Если ваш компьютер с VPN-сервером поврежден и утерян ключ, текущее имя DDNS будет занято навсегда и другой VPN-сервер не сможет использовать это имя.\r\nЕсли вы хотите продолжить в дальнейшем использовать это же имя, сохраните ключ в надежном месте, например, в интернет-хранилище, на другом компьютере или блокноте.\r\nДля использования ключа в новом VPN-сервере, отредактируйте файл конфигурации VPN-сервера, и замените ключ в строке "byte Key" в директиве "Declare DDnsClient".\r\nНе используйте один и тот же ключ одновременно на двух или более VPN-серверах.
 SM_DDNS_KEY_ERR			Не удалось прочитать DNS ключ.
 SM_IPSEC_PSK_TOO_LONG	The pre-shared key (PSK) has 10 or more letters.\r\n\r\nIt is reported that several versions of Google Android has a serious bug with 10 or more letters pre-shared key.\r\nTherefore 9 or less letters are recommended for pre-shared key.\r\n\r\nDo you want to try another pre-shared key?
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	How to Use Advanced HTTP Redirection Function
