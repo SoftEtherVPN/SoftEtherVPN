@@ -1,13 +1,13 @@
 # SoftEther VPN Client Web Installer Configuration File
 # (The sample file for VPN Client Web Installer)
-# 
+#
 # Copyright (c) SoftEther Project at University of Tsukuba, Japan.
 # All Rights Reserved.
-# 
+#
 # Modify the contents of this file to deploy a Web Installer.
-# 
+#
 # Note: Encoding format must be UTF-8.
-# 
+#
 # Lines start with "#" are comments.
 
 
