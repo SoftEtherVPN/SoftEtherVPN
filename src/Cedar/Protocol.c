@@ -4621,7 +4621,7 @@ REDIRECTED:
 		UINT use_port = 0;
 		UINT current_port = c->ServerPort;
 		UCHAR ticket[SHA1_SIZE];
-		X *server_cert;
+		X *server_cert = NULL;
 		BUF *b;
 
 		// Redirect mode
