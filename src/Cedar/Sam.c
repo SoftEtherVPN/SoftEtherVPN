@@ -114,7 +114,10 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 	char  buffer[255];
 	char  ntlm_timeout[32];
 	char* proc_parameter[6];
-	
+
+    // DNS Name 255 chars + OU names are limited to 64 characters +  cmdline 32 + 1
+    char  requiremember[352];
+
 	if (name == NULL || password == NULL || domainname == NULL || groupname == NULL)
 	{
 		Debug("Sam.c - SmbAuthenticate - wrong password parameter\n");
@@ -156,14 +159,11 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 
 	if (strlen(groupname) > 1)
 	{
-		// DNS Name 255 chars + OU names are limited to 64 characters +  cmdline 32 + 1
-		char  requiremember[352];
-
 		// Truncate string if unsafe char
 		EnSafeStr(groupname, '\0');
 
 		snprintf(requiremember, sizeof(requiremember), "--require-membership-of=%s\\%s", domainname, groupname);
-		
+
 		proc_parameter[4] = requiremember;
 		proc_parameter[5] = 0;
 	}
