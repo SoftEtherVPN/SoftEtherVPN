@@ -661,7 +661,7 @@ CT_b_support_special_listener	VPN через ICMP и VPN через DNS подд
 CT_b_support_redirect_url_acl	Перенаправление HTTP URL-адресов в списке доступа поддерживается
 CT_b_is_in_vm			Запущен на ВМ (Виртуальной Машине)
 CT_b_support_azure		VPN Azure поддерживается
-CT_b_support_aes_ni	Ускорение CPU AES ускорение (AES-NI) активно
+CT_b_support_aes_ni	CPU AES ускорение (AES-NI) активно
 CT_b_using_selow_driver	SoftEther Lightweight Kernel-mode сетевой драйвер активен
 CT_b_support_vgs		Сервис "VPN Gate" поддерживается
 CT_b_support_vgs_in_client	Сервис "VPN Gate" интегрирован в VPN-клиент
@@ -770,18 +770,18 @@ REMOTE_DEF_TITLE		Укажите компьютер, к которому вы х
 
 
 # Concerning client notification service
-CN_TITLE				SoftEther VPN Client Developer Edition
+CN_TITLE				SoftEther VPN-клиент Developer Edition
 
 
 # Concerning Connection Manager
-CM_TITLE				SoftEther VPN Client Developer Edition Manager
+CM_TITLE				SoftEther VPN-клиент Developer Edition Manager
 CM_PW_LOCALMACHINE		Локальный компьютер
 CM_NO_REMOTE			Служба VPN-клиента, работающая на %s, запрещает удаленные подключения.
 CM_CONNECT_FAILED		Не удается подключиться к службе VPN-клиентов, работающей на %s. \r\nУбедитесь, что служба VPN-клиента запущена и работает нормально.
 CM_BAD_PASSWORD			Пароль неверен. Повторно введите пароль. Пароль чувствителен к регистру, поэтому обязательно различайте буквы верхнего и нижнего регистра.
 CM_NUM_CONN_COUNT		VPN-сессий: %u 
 CM_CONN_NO				Не подключено
-CM_PRODUCT_NAME			SoftEther VPN Client Build %u
+CM_PRODUCT_NAME			SoftEther VPN-клиент Build %u
 CM_ACCOUNT_COLUMN_1		Название VPN подключения
 CM_ACCOUNT_COLUMN_2		Статус
 CM_ACCOUNT_COLUMN_3		Имя хоста VPN-сервера
@@ -900,13 +900,13 @@ CM_RETRY_INTERVAL_ERROR	Установите интервал переподкл
 CM_DELETE_CLIENT_CERT	Это действие удалит установленный сертификат клиента. Вы действительно хотите это сделать?
 CM_DELETE_SERVER_CERT	Это действие удалит установленный индивидуальный сертификат сервера. Вы действительно хотите это сделать?
 CM_SET_STARTUP			VPN подключение "%s" добавлено в автозапуск.\r\n\r\nЭто подключение будет автоматически запущено после перезагрузки компьютера.\r\n(Если вы используете Windows, автоматическое подключение будет запущено в фоновом режиме, еще до того как пользователь войдет в систему.)
-CM_REMOVE_STARTUP		Do you wish to delete the startup connection property of VPN Connection Setting "%s"?
-CM_NO_DISCONNECT_SPAN	Please set the life of the TCP connection.
-CM_HALF_MSG				When using half-duplex mode, set at least 2 for the number of TCP connections.
-CM_TOO_SMALL_INTERVAL	Set at least 1 second for the interval to establish a TCP connection.
-CM_DELETE_VLAN			This will delete the Virtual Network Adapter "%s". Do you really want to do this?
-CM_COPY_NAME_1			Copy of %s
-CM_COPY_NAME_2			Copy (%u) of %s
+CM_REMOVE_STARTUP		Вы хотите удалить VPN подключение "%s" из автозапуска?
+CM_NO_DISCONNECT_SPAN	Пожалуйста, установите время жизни TCP-соединения.
+CM_HALF_MSG				При использовании полудуплексного режима установите как минимум 2 TCP-соединения.
+CM_TOO_SMALL_INTERVAL	Интервал TCP-соединения должен быть не менее 1 секунды.
+CM_DELETE_VLAN			Это действие удалит Виртуальный Сетевой Адаптер "%s". Вы действительно хотите это сделать?
+CM_COPY_NAME_1			Копия %s
+CM_COPY_NAME_2			Копия (%u) %s
 CM_IMPORT_NAME_1		%s
 CM_IMPORT_NAME_2		%s (%u)
 CM_CERT_COLUMN_1		Кому выдан
@@ -933,7 +933,7 @@ CM_DESKTOP_MSG_LOCAL_31	It is recommended that when this computer's Console Sess
 CM_DESKTOP_MSG_LOCAL_32	It is recommended that you first log off and then after logging in locally, start the VPN Client Manager in that session and start the connection to VPN Connection Setting "%s". Although you will be able to start a connection process by doing what you are doing now, this will be at the risk of being unable to check the progress status and error messages that may be displayed during the process.
 CM_DESKTOP_MSG_REMOTE_1	Поскольку вы выполняете подключение VPN-клиента на удаленном компьютере %S, то вы не сможете увидеть сообщения о состоянии или об ошибках во время процесса VPN-подключения.
 CM_DESKTOP_MSG_REMOTE_2	Чтобы проверить состояние подключения, сообщения об ошибках и другие сообщения, которые отображает VPN-клиент, необходимо локально войти на компьютер %S.
-CM_DESKTOP_MSG_REMOTE_3	Рекомендуется сначала локально войти на компьютер %S, а затем запустить А VPN-клиентов и VPN-подключение "%s". It is recommended that you first log in directly and locally to computer %S, and then start the VPN Client Manager in that session and start the connection to VPN Connection Setting "%s". Although you will be able to start a connection process by doing what you are doing now, this will be at the risk of being unable to check the progress status and error messages that may be displayed during the process.
+CM_DESKTOP_MSG_REMOTE_3	Рекомендуется сначала локально войти на компьютер %S, а затем запустить VPN-клиент и его VPN-подключение "%s". Вы сможете сейчас начать процесс подключения, но вы рискуете оказаться неспособным проверить состояние подключение и сообщения об ошибках, которые могут отображаться во время этого процесса.
 CM_STOP_INST_VLAN_1		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter, VPN Client Manager must be started in the Console Session (session ID: %u, user %s is logged on). \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_STOP_INST_VLAN_2		To install a Virtual Network Adapter on this computer you must start the VPN Client Manager within a "Console Session". \r\n\r\nCurrently, %s is installed on this computer and the current user is not logged into the Console Session but rather is logged in as the remote session (session ID: %u).\r\nTo install a Virtual Network Adapter you must start the VPN Client Manager within a "Console Session". \r\n(Currently the user is not logged on to the Console Session (Session ID: 0).) \r\n\r\nFirst log on to the computer locally by using the user switching function, or the /console switch function that is on the remote desktop, or alternatively the computer's local console device and then start the VPN Client Manager and install the Virtual Network Adapter.
 CM_SHORTCUT_DESKTOP_MSG	To start a connection using the shortcut to the VPN Connection Setting, you must launch the shortcut file within the "Console Session". \r\n\r\nCurrently the user is logged on as the remote session (session ID: %u) and not as the Console Session.
