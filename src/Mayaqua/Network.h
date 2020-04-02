@@ -78,7 +78,7 @@ struct DYN_VALUE
 // IP address
 struct IP
 {
-	UCHAR addr[4];					// IPv4 address, (meaning that 223.255.255.254 = IPv6)
+	UCHAR addr[4];					// IPv4 address, (meaning that 192.0.2.254 = IPv6)
 	UCHAR ipv6_addr[16];			// IPv6 address
 	UINT ipv6_scope_id;				// IPv6 scope ID
 };

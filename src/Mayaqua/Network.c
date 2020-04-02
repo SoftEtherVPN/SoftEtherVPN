@@ -7315,9 +7315,9 @@ void SetIP6(IP *ip, UCHAR *value)
 
 	Zero(ip, sizeof(IP));
 
-	ip->addr[0] = 223;
-	ip->addr[1] = 255;
-	ip->addr[2] = 255;
+	ip->addr[0] = 192;
+	ip->addr[1] = 0;
+	ip->addr[2] = 2;
 	ip->addr[3] = 254;
 
 	if (value != NULL)
@@ -7340,7 +7340,7 @@ bool IsIP6(IP *ip)
 		return false;
 	}
 
-	if (ip->addr[0] == 223 && ip->addr[1] == 255 && ip->addr[2] == 255 && ip->addr[3] == 254)
+	if (ip->addr[0] == 192 && ip->addr[1] == 0 && ip->addr[2] == 2 && ip->addr[3] == 254)
 	{
 		return true;
 	}
