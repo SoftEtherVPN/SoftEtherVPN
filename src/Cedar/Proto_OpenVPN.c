@@ -2460,6 +2460,17 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list)
 									}
 								}
 
+								// From https://community.openvpn.net/openvpn/wiki/Openvpn23ManPage:
+								//
+								// --block-outside-dns
+								// Block DNS servers on other network adapters to prevent DNS leaks.
+								// This option prevents any application from accessing TCP or UDP port 53 except one inside the tunnel.
+								// It uses Windows Filtering Platform (WFP) and works on Windows Vista or later.
+								// This option is considered unknown on non-Windows platforms and unsupported on Windows XP, resulting in fatal error.
+								// You may want to use --setenv opt or --ignore-unknown-option (not suitable for Windows XP) to ignore said error.
+								// Note that pushing unknown options from server does not trigger fatal errors.
+								StrCat(option_str, sizeof(option_str), ",block-outside-dns");
+
 								WriteFifo(c->SslPipe->SslInOut->SendFifo, option_str, StrSize(option_str));
 
 								Debug("Push Str: %s\n", option_str);
