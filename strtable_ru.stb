@@ -3804,61 +3804,61 @@ IDOK					&OK
 
 
 PREFIX					D_ONCEMSG
-CAPTION					TITLE
-C_DONTSHOWAGAIN			&Do not show this message again
+CAPTION					Заголовок
+C_DONTSHOWAGAIN			&Не показывать это сообщение снова
 IDCANCEL				&OK
 
 
 PREFIX					D_CONNECT
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_IPSEC
-CAPTION					IPsec / L2TP / EtherIP / L2TPv3 Settings
-S_TITLE					IPsec / L2TP / EtherIP / L2TPv3 Server Settings
-S_3						Virtual Hubs on the VPN Server can accept Remote-Access VPN connections from L2TP-compatible PCs, Mac OS X and Smartphones, and also can accept EtherIP / L2TPv3 Site-to-Site VPN Connection.
-S01						L2TP Server (Remote-Access VPN Server Function)
-S02						VPN Connections from Smartphones suchlike iPhone, iPad and Android, and also from built-in VPN Clients on Mac OS X and Windows can be accepted.
-R_L2TP_OVER_IPSEC		Enable L2TP Server Function (L2TP over IP&sec)
-S03						Make VPN Connections from iPhone, iPad, Android, Windows, and Mac OS X acceptable.
-R_L2TP_RAW				Enable L2TP Server Function (Raw &L2TP with No Encryptions)
-S04						It supports special VPN Clients which uses L2TP with no IPsec encryption.
-S_1						Default Virtual &Hub in a case of omitting a name of Hub on the Username:
-S_2						Users should specify their username such as "Username@Target Virtual Hub Name" to connect this L2TP Server.\r\nIf designation of a Virtual Hub is omitted, the below Hub will be used as the target.
-S05						EtherIP Server Function (Site-to-Site VPN Connection)
-S06						Router products which are compatible with EtherIP / L2TPv3 over IPsec can connect to Virtual Hub on the VPN Server and establish Layer-2 (Ethernet) Bridging.
-R_ETHERIP				Enable &EtherIP / L2TPv3 over IPsec Server Function
-B_DETAIL				EtherIP / L2TPv3 &Detail Settings
-S07						IPsec &Common Settings
-S_PSK					IPsec &Pre-Shared Key:
-S_PSK2					IPsec Pre-Shared Key is also called "PSKs" or "Secrets". Specify it with around eight ASCII characters, and let all VPN users know.
+CAPTION					IPsec / L2TP / EtherIP / L2TPv3 настройки
+S_TITLE					IPsec / L2TP / EtherIP / L2TPv3 настройки сервера
+S_3						Virtual Hubs на VPN-сервере могут принимать удаленные VPN-подключения с L2TP-совместимых ПК, Mac OS X и смартфонов, а также могут принимать Site-to-Site EtherIP / L2TPv3 VPN-подключения.
+S01						L2TP сервер (Функция удаленного доступа к VPN-серверу)
+S02						VPN-подключения могут быть приняты с устройств на IOS и Android, а также с Mac OS Х и Windows.
+R_L2TP_OVER_IPSEC		Включить L2TP сервер (L2TP через IPsec)
+S03						Позволяет VPN-подключения с iPhone, iPad, Android, Windows и Mac OS X.
+R_L2TP_RAW				Включить L2TP сервер (L2TP без шифрования)
+S04						Поддержка особых VPN-клиентов, которые используют L2TP без шифрования IPsec.
+S_1						Virtual Hub по умолчанию в случае пропуска его названия в имени пользователя:
+S_2						Для подключения к этому L2TP-серверу имя пользователя нужно указывать с названием Virtual Hub, например "Пользователь@Название Virtual Hub".\r\nЕсли Virtual Hub не указан, в качестве назначения будет использоваться указанный ниже Virtual Hub.
+S05						EtherIP сервер (Site-to-Site VPN-подключение)
+S06						Маршрутизаторы, совместимые с EtherIP / L2TPv3 через IPsec, могут подключаться к Virtual Hub на VPN-сервере и устанавливать мост уровня 2 (Ethernet).
+R_ETHERIP				Включить EtherIP / L2TPv3 сервер
+B_DETAIL				Настройки EtherIP / L2TPv3
+S07						Общие настройки IPsec
+S_PSK					Общий ключ IPsec:
+S_PSK2					Общий ключ IPsec также называемый "PSK" или "Secrets". Используйте примерно восемь ASCII символов и сообщите их всем VPN пользователям.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_ETHERIP
-CAPTION					EtherIP / L2TPv3 Server Detail Settings
-S_TITLE					EtherIP / L2TPv3 Server Detail Settings
-S01						EtherIP / L2TPv3 over IPsec compatible routers can connect to Virtual Hubs on VPN Server and establish Layer-2 (Ethernet) Bridge. For instance, Cisco routers, NEC IX series and IIJ SEIL routers are recommended as compatible VPN routers.
-S02						In order to accept EtherIP / L2TPv3 protocol, define appropriate EtherIP / L2TPv3 Client Settings to identify the client site of the router beforehand. A EtherIP / L2TPv3 Client Setting must have a corresponding IPsec Phase 1 ID.
-S_BOLD					&Table of IPsec Phase 1 ID and the Virtual Hub
-B_ADD					&Add
-IDOK					&Edit
-B_DELETE				&Delete
-IDCANCEL				E&xit
+CAPTION					Настройки EtherIP / L2TPv3 сервера
+S_TITLE					Настройки EtherIP / L2TPv3 сервера
+S01						EtherIP / L2TPv3 совместимые маршрутизаторы могут подключаться к Virtual Hubs на VPN-сервере и устанавливать мост уровня 2 (Ethernet). Например, маршрутизаторы Cisco, серии NEC IX и IIJ SEIL рекомендуются в качестве совместимых VPN-маршрутизаторов.
+ S02						Чтобы принимать EtherIP / L2TPv3, установите соответствующие EtherIP / L2TPv3 настройки клиента, чтобы заранее идентифицировать клиентский маршрутизатор. Настройки EtherIP / L2TPv3 клиента должна иметь соответствующий IPsec Phase 1 ID.
+S_BOLD					Таблица IPsec Phase 1 ID и Virtual Hub
+B_ADD					&Добавить
+IDOK					&Выход
+B_DELETE				&Удалить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_ETHERIP_ID
-CAPTION					EtherIP / L2TPv3 over IPsec Client Setting
-S01						The following Virtual Hub connection settings will be applied only when an EtherIP / L2TPv3 over IPsec Client is attempting to connect this VPN Server with an ISAKMP (IKE) Phase ID which is exactly equal to the value specified below.
+CAPTION					Настройки EtherIP / L2TPv3 клиента
+S01						Следующие параметры подключения к Virtual Hub будут применяться только в том случае, если EtherIP / L2TPv3 клиент пытается подключиться к этому VPN-серверу с ISAKMP (IKE) Phase ID, который точно равен значению, указанному ниже.
 S02						ISAKMP Phase 1 &ID:
 S03						Virtual &Hub:
-S04						&Username:
-S05						&Password:
-S06						Note that the username and the password must be same as a registered on the Virtual Hub. An EtherIP / L2TPv3 Client will be regarded as it connected the Virtual Hub with the identification of the above user information.
+S04						&Пользователь:
+S05						&Пароль:
+S06						Обратите внимание, что имя пользователя и пароль должны быть такими же, как и зарегистрированные в Virtual Hub. EtherIP / L2TPv3 клиент будет считаться подключенным к Virtual Hub под вышеуказанной учетной записью.
 IDOK					&OK
-IDCANCEL				Cancel
-S07						The ID must be exact same as an ID in the configuration of the EtherIP / L2TPv3 Client. You can specify IP address as well as characters as ID, if the EtherIP / L2TPv3 Client uses IP address as Phase 1 ID. You can specify '*' (asterisk) as a wildcard to match any other clients which don't match other explicit rules.
+IDCANCEL				Отмена
+S07						ID должен совпадать с ID в конфигурации EtherIP / L2TPv3 клиента. Вы можете указать IP-адрес в качестве ID, если EtherIP / L2TPv3 клиент использует IP-адрес в качестве Phase 1 ID. Вы можете указать '*' (звездочку) в качестве подстановочного знака, чтобы принимать любых других клиентов, которые не соответствуют заданным правилам.
 
 
 PREFIX					D_SM_OPENVPN
