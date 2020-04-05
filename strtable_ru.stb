@@ -1608,30 +1608,30 @@ SM_SETUP_BRIDGE_ONLY	В данный момент вы подключены к V
 SM_SETUP_BRIDGE_EDGE	VPN-мост сегмента сети
 SM_SETUP_WARNING		Текущие настройки этого VPN-сервера или VPN-моста будут инициализированы. \r\nВы действительно хотите продолжить?
 SM_SETUP_SELECT			Выберите Ethernet устройство для подключения моста.
-SM_SETUP_NO_LICENSE_KEY	Currently there is no licenses registered for this SoftEther VPN Server. \r\n\r\nFor SoftEther VPN Server to operate as a VPN server, you must enter a license key. \r\nDo you want to display the License Manager?\r\n\r\n(To use the VPN Server as a Trial Version, you have to obtain a trial key from the SoftEther VPN Project web site.\r\nClick Yes and click Obtain or Extend of License button to obtain a trial key.
-SM_HUBEXT_OPTION_TITLE	Virtual Hub Extended Options
-SM_HUBEXT_OPTION_STATIC1	Virtual Hub Extended Options allows you to configure more detailed parameters of this Virtual Hub.
-SM_HUBEXT_OPTION_STATIC2	By default, both VPN Server's global administrators and individual Virtual Hub's administrators can modify the Virtual Hub Extended Options.\nHowever, if the deny_hub_admin_change_ext_option is set to 1 on the Virtual Hub Admin Options, the individual Virtual Hub's administrators cannot modify the Virtual Hub Extended Options. (View only.)
-SM_VLAN_COLUMN_0		Network Adapter Name
-SM_VLAN_COLUMN_1		Driver Type
-SM_VLAN_COLUMN_2		Driver File Name
+SM_SETUP_NO_LICENSE_KEY	В настоящее время нет лицензий, зарегистрированных для этого SoftEther VPN-сервера. \r\n\r\nЧтобы SoftEther VPN-сервер работал как VPN-сервер, необходимо ввести лицензионный ключ.\r\nВы хотите запустить менеджер лицензий?\r\n\r\nЧтобы использовать пробную версию VPN-сервера, вам необходимо получить пробный ключ с веб-сайта проекта SoftEther VPN.\r\nНажмите "Да" и "Получить или продлить лицензию", чтобы получить пробный ключ.
+SM_HUBEXT_OPTION_TITLE	Расширенные параметры Virtual Hub
+SM_HUBEXT_OPTION_STATIC1	Расширенные параметры Virtual Hub позволяют произвести более детальные настройки этого Virtual Hub.
+SM_HUBEXT_OPTION_STATIC2	По умолчанию как глобальные администраторы VPN-сервера, так и отдельные Virtual Hub администраторы могут изменять расширенные параметры Virtual Hub.\nОднако, если в "Параметрах Virtual Hub" для "deny_hub_admin_change_ext_option" задано значение 1, отдельные Virtual Hub администраторы не смогут изменять расширенные параметры Virtual Hub. (Только просмотр.)
+SM_VLAN_COLUMN_0		Имя сетевого адаптера
+SM_VLAN_COLUMN_1		Тип драйвера
+SM_VLAN_COLUMN_2		Файл драйвера
 SM_VLAN_COLUMN_3		VLAN Transparency Setting
 SM_VLAN_COLUMN_4		GUID
-SM_VLAN_COLUMN_5		Device Instance ID
-SM_VLAN_YES				Enabled
-SM_VLAN_NO				Not Enabled
+SM_VLAN_COLUMN_5		ID устройства
+SM_VLAN_YES				Включен
+SM_VLAN_NO				Не включен
 SM_VLAN_MSG_1			The Windows Registry has been configured to allow the network adapter "%S" to transmit / receive tagged-VLAN packets.\r\n\r\nHowever, there are some network adapters which requires additional settings on the property of the Device Manager on the local computer's Windows to set the parameters to enable Jumbo Frames. (Ethernet frames which are larger than 1,512 bytes.) Unless you enable Jumbo Frames, some large VLAN packets will be dropped. In the case if large VLAN packets always disappeared, please enable Jumbo Frames. (For example, set the maximum size to 4,088 bytes.) The Device Manager in Windows will help you to configure.\r\n\r\nThis VLAN Transparency Setting has been written to the Windows Registry, however it is not guaranteed that VLAN packets can be transmitted effectively.\r\nIf transmitting VLAN tagged packets will fail after this configuration, refer the manual of the network adapter "%S" to configure manually and adequately. Moreover, "%S" might not support the VLAN transparency setting. In that case, such a network adapter cannot be used to transmit VLAN frames. Use other products.\r\n\r\nTo apply this setting, Windows which runs VPN Server must be rebooted. Do not forget to reboot it.
 SM_VLAN_MSG_2			The Windows Registry parameters which was enabling the VLAN transparency features on the network adapter "%S" are deleted from the Registry.\r\n\r\nIf you did a Jumbo Frame enable settings last time, undo such changes manually.\r\n\r\nTo apply this setting, Windows which runs VPN Server must be rebooted. Do not forget to reboot it.
 SM_VLAN_NOTHING			There are no network adapters which VLAN Transparency Setting Tool supports on the computer "%S".\r\n\r\nHowever, some network adapters are capable to transmit VLAN tagged packets by default, or can be configured to perform VLAN tagged packets by specific configuration utility provided by the vendor.\r\nBy using such network adapters, you have to configure such settings by yourself manually.
-SM_SERVER_ADMIN_MSG		VPN Server / Bridge "%S"
+SM_SERVER_ADMIN_MSG		VPN Сервер/Мост "%S"
 SM_ETHERIP_COLUMN_0		ISAKMP Phase 1 ID
 SM_ETHERIP_COLUMN_1		Название Virtual Hub
 SM_ETHERIP_COLUMN_2		Пользователь
 SM_ETHERIP_ADD_OK		Новый EtherIP / L2TPv3 клиент был зарегистрирован.
-SM_IPSEC_SETUP_QUESTION	This VPN Server has a function to accept IPsec / L2TP / EtherIP / L2TPv3 compatible VPN clients or VPN router products.\r\n\r\nYou can allow the VPN Server to accept connections from smartphones such as iPhone, iPad, Android, or standard VPN client functions on Mac OS X or Windows.\r\n\r\nDo you want to set up the IPsec?\r\n(IPsec settings can be configured by clicking "IPsec / L2TP Settings" button any time later.)
-SM_OPENVPN_CONFIG_SAVE_OK	The ZIP file '%s' which contains the setting files for OpenVPN.\r\n\r\nOpen this ZIP file to extract sample configuration files for OpenVPN which can be used immediately and easily.\r\nYou might be required to revise the configuration file a little.\r\n\r\nFor details please read the 'readme.txt' file in the ZIP file.\r\n\r\nDo you want to open this ZIP file now?
-SM_OPENVPN_CONFIG_SAVE_NG	Failed to save the ZIP file '%s'.
-SM_OPENVPN_CONFIG_OPEN_NG	Failed to open the ZIP file '%s'. Please open this file manually.
+SM_IPSEC_SETUP_QUESTION	Этот VPN-сервер может принимать подключения от IPsec / L2TP / EtherIP / L2TPv3-совместимых VPN-клиентов или VPN-маршрутизаторов.\r\n\r\nВы можете разрешить VPN-серверу принимать подключения с IOS и Android устройств или с VPN-клиентов в Mac OS X и Windows.\r\n\r\nВы хотите настроить IPsec?\r\n(IPsec можно настроить, нажав кнопку "Настройки IPsec / L2TP" в любое время.)
+SM_OPENVPN_CONFIG_SAVE_OK	ZIP-файл '%s', который содержит файлы настроек OpenVPN.\r\n\r\nОткройте этот ZIP-файл, чтобы извлечь примеры файлов конфигурации для OpenVPN, которые можно сразу же использовать.\r\nВозможно, вам придется немного подправить файл конфигурации.\r\n\r\nДля получения подробной информации, пожалуйста, прочитайте файл readme.txt в ZIP-файле.\r\n\r\nХотите открыть этот ZIP-файл сейчас?
+SM_OPENVPN_CONFIG_SAVE_NG	Не удалось сохранить ZIP-файл '%s'.
+SM_OPENVPN_CONFIG_OPEN_NG	Не удалось открыть ZIP-файл '%s'. Пожалуйста, откройте этот файл вручную.
 SM_DDNS_IPV4_ERROR		Нет связи с IPv4 DDNS сервером.
 SM_DDNS_IPV6_ERROR		Нет связи с IPv6 DDNS сервером.
 SM_DDNS_FQDN_EMPTY		(Нет)
@@ -2603,9 +2603,9 @@ STATIC9					Set Clustering:
 S_FARM_INFO				Select the Virtual Hub type in the cluster.
 R_STATIC				St&atic Virtual Hub
 R_DYNAMIC				&Dynamic Virtual Hub
-S_AO_1					Virtual Hub Admin Option:
-S_AO_3					Display and edit the Virtual Hub administration options.
-B_ADMINOPTION			Virtual Hub Admin Option
+S_AO_1					Параметры Virtual Hub:
+S_AO_3					Параметры администрирования Virtual Hub.
+B_ADMINOPTION			Параметры Virtual Hub
 S_ACL_3					Sou&rce IP Address Limit List
 S_ACL					Allow or deny VPN connections to this Virtual Hub according to the client computer's IP address.
 B_ACL					IP Access Con&trol List 
@@ -3823,8 +3823,8 @@ R_L2TP_OVER_IPSEC		Включить L2TP сервер (L2TP через IPsec)
 S03						Поддержка VPN-подключений с iPhone, iPad, Android, Windows и Mac OS X.
 R_L2TP_RAW				Включить L2TP сервер (L2TP без шифрования)
 S04						Поддержка особых VPN-клиентов, которые используют L2TP без шифрования IPsec.
-S_1						Virtual Hub по умолчанию в случае пропуска его названия в имени пользователя:
-S_2						Для подключения к этому L2TP-серверу имя пользователя нужно указывать с названием Virtual Hub, например "Пользователь@Название Virtual Hub".\r\nЕсли Virtual Hub не указан, в качестве назначения будет использоваться указанный ниже Virtual Hub.
+S_1						Virtual Hub по умолчанию, в случае пропуска его названия в имени пользователя:
+S_2						Для подключения к этому L2TP-серверу имя пользователя нужно указывать с названием Virtual Hub, например "Пользователь@Название Virtual Hub". Если Virtual Hub не указан, в качестве назначения будет использоваться указанный ниже Virtual Hub.
 S05						EtherIP сервер (Site-to-Site VPN-подключение)
 S06						Маршрутизаторы, совместимые с EtherIP / L2TPv3 через IPsec, могут подключаться к Virtual Hub на VPN-сервере и устанавливать мост уровня 2 (Ethernet).
 R_ETHERIP				Включить EtherIP / L2TPv3 сервер
@@ -3870,14 +3870,14 @@ S_UDP					UDP порты для прослушивания OpenVPN:
 B_DEFAULT				Сброс настроек
 S_UDP2					Может быть указано несколько UDP портов, разделенных пробелом или запятой.\r\nOpenVPN сервер также использует и TCP порты. Все TCP порты, которые прослушиваются Softether VPN-сервером, так же принимают и OpenVPN подключения.
 S_TOOL					Инструмент создания файла конфигурации для OpenVPN клиентов
-S_TOOL2					Создание файла конфигурации OpenVPN клиента - очень сложная работа. Вы можете использовать этот инструмент для создания файла конфигурации OpenVPN клиента. Сгенерированный файл конфигурации можно сразу же использовать.
+S_TOOL2					Вы можете использовать этот инструмент для создания файла конфигурации OpenVPN клиента. Сгенерированный файл конфигурации можно сразу же использовать.
 B_CONFIG				Создать файл конфигурации для OpenVPN клиентов
 S_2						Функция Microsoft SSTP VPN-сервера
 S_3						Этот VPN-сервер поддерживает функционал MS-SSTP VPN-сервера, используемый в Windows Server 2008/2012 корпорацией Microsoft. MS-SSTP VPN клиенты, встроенные в Windows Vista / 7 / 8 / RT / 10, могут подключаться к этому VPN-серверу.
 R_SSTP					Включить поддержку MS-SSTP VPN-сервера
-S_SSTP					Значение CN (Common Name) в SSL-сертификате VPN-сервера должно совпадать с именем хоста на клиенте, и этот сертификат должен быть в списке доверенных на клиенте. За подробностями обращайтесь к документации Microsoft.
+S_SSTP					Значение CN (Common Name) SSL-сертификата VPN-сервера должно совпадать с именем хоста на клиенте, и сертификат должен быть в списке доверенных на клиенте. За подробностями обращайтесь к документации Microsoft.
 S_4						Имя пользователя для подключения к Virtual Hub и выбор Virtual Hub по умолчанию аналогичны тем, что указаны в настройках IPsec / L2TP сервера.
-B_IPSEC					Настройка IPsec/L2TP сервера
+B_IPSEC					Настройка IPsec / L2TP
 S_13					Функция OpenVPN сервера
 IDOK					&OK
 IDCANCEL				Отмена
