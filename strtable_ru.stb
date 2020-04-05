@@ -1152,7 +1152,7 @@ SM_EDIT_CAPTION_2		Изменить %s
 SM_SETTING_EXISTS		Подключение с именем "%s" уже существует. Укажите другое имя.
 SM_SETTING_DELETE_MSG	Это действие приведет к удалению подключения "%s". Вы действительно хотите это сделать?
 SM_PASSWORD_TYPE_STR	Пароль админ. сервера
-SM_HUB_COLUMN_1			Virtual Hub Name
+SM_HUB_COLUMN_1			Название Virtual Hub
 SM_HUB_COLUMN_2			Status
 SM_HUB_COLUMN_3			Type
 SM_HUB_COLUMN_4			Users
@@ -1173,7 +1173,7 @@ SM_FARM_CONTROLLER		Cluster Controller
 SM_FARM_MEMBER			Cluster Member Server
 SM_INFORMATION			Latest Information
 SM_HUB_STATUS_CAPTION	Status of Virtual Hub "%s"
-SM_HUB_STATUS_HUBNAME	Virtual Hub Name
+SM_HUB_STATUS_HUBNAME	Название Virtual Hub
 SM_HUB_STATUS_ONLINE	Status
 SM_HUB_TYPE				Type
 SM_HUB_NUM_SESSIONS		Sessions
@@ -1506,7 +1506,7 @@ SM_BRIDGE_WPCAP_REBOOT1	After WinPcap installation has completed, you must resta
 SM_BRIDGE_WPCAP_REBOOT2	After WinPcap installation has completed, you must restart the SoftEther VPN Server service before you use the Local Bridge function again. \r\n\r\nIt only takes a short time to restart the SoftEther VPN Server service, however all sessions that are currently connected to the VPN Server will be disconnected. \r\nThis management session will also be disconnected, so you will need to reconnect to continue. \r\n\r\nDo you want to restart the SoftEther VPN Server service?
 SM_BRIDGE_RESOURCE		Unable to load the WinPcap driver.
 SM_BRIDGE_COLUMN_1		Number
-SM_BRIDGE_COLUMN_2		Virtual Hub Name
+SM_BRIDGE_COLUMN_2		Название Virtual Hub
 SM_BRIDGE_COLUMN_3		Network Adapter or Tap Device Name
 SM_BRIDGE_COLUMN_4		Status
 SM_BRIDGE_OFFLINE		Offline
@@ -1540,7 +1540,7 @@ SM_L3_SW_ST_T_T			Start (Running)
 SM_L3_SW_DEL_MSG		This will delete the Virtual Layer 3 Switch "%S". \r\nDo you really want to do this?
 SM_L3_SW_IF_COLUMN1		IP Address
 SM_L3_SW_IF_COLUMN2		Subnet Mask
-SM_L3_SW_IF_COLUMN3		Virtual Hub Name
+SM_L3_SW_IF_COLUMN3		Название Virtual Hub
 SM_L3_SW_TABLE_COLUMN1	Network Address
 SM_L3_SW_TABLE_COLUMN2	Subnet Mask
 SM_L3_SW_TABLE_COLUMN3	Gateway Address
@@ -1625,9 +1625,9 @@ SM_VLAN_MSG_2			The Windows Registry parameters which was enabling the VLAN tran
 SM_VLAN_NOTHING			There are no network adapters which VLAN Transparency Setting Tool supports on the computer "%S".\r\n\r\nHowever, some network adapters are capable to transmit VLAN tagged packets by default, or can be configured to perform VLAN tagged packets by specific configuration utility provided by the vendor.\r\nBy using such network adapters, you have to configure such settings by yourself manually.
 SM_SERVER_ADMIN_MSG		VPN Server / Bridge "%S"
 SM_ETHERIP_COLUMN_0		ISAKMP Phase 1 ID
-SM_ETHERIP_COLUMN_1		Virtual Hub Name
-SM_ETHERIP_COLUMN_2		User Name
-SM_ETHERIP_ADD_OK		A new EtherIP / L2TPv3 client setting has been registered.
+SM_ETHERIP_COLUMN_1		Название Virtual Hub
+SM_ETHERIP_COLUMN_2		Пользователь
+SM_ETHERIP_ADD_OK		Новый EtherIP / L2TPv3 клиент был зарегистрирован.
 SM_IPSEC_SETUP_QUESTION	This VPN Server has a function to accept IPsec / L2TP / EtherIP / L2TPv3 compatible VPN clients or VPN router products.\r\n\r\nYou can allow the VPN Server to accept connections from smartphones such as iPhone, iPad, Android, or standard VPN client functions on Mac OS X or Windows.\r\n\r\nDo you want to set up the IPsec?\r\n(IPsec settings can be configured by clicking "IPsec / L2TP Settings" button any time later.)
 SM_OPENVPN_CONFIG_SAVE_OK	The ZIP file '%s' which contains the setting files for OpenVPN.\r\n\r\nOpen this ZIP file to extract sample configuration files for OpenVPN which can be used immediately and easily.\r\nYou might be required to revise the configuration file a little.\r\n\r\nFor details please read the 'readme.txt' file in the ZIP file.\r\n\r\nDo you want to open this ZIP file now?
 SM_OPENVPN_CONFIG_SAVE_NG	Failed to save the ZIP file '%s'.
@@ -2584,7 +2584,7 @@ IDCANCEL				Выход
 
 
 PREFIX					D_SM_EDIT_HUB
-STATIC1					Virtual Hub Name:
+STATIC1					Название Virtual Hub:
 STATIC2					Security &Settings:
 S_BOLD					Administration password for this Virtual Hub.
 STATIC3					&Password:
@@ -3820,7 +3820,7 @@ S_3						Virtual Hubs на VPN-сервере могут принимать уд
 S01						L2TP сервер (Функция удаленного доступа к VPN-серверу)
 S02						VPN-подключения могут быть приняты с устройств на IOS и Android, а также с Mac OS Х и Windows.
 R_L2TP_OVER_IPSEC		Включить L2TP сервер (L2TP через IPsec)
-S03						Позволяет VPN-подключения с iPhone, iPad, Android, Windows и Mac OS X.
+S03						Поддержка VPN-подключений с iPhone, iPad, Android, Windows и Mac OS X.
 R_L2TP_RAW				Включить L2TP сервер (L2TP без шифрования)
 S04						Поддержка особых VPN-клиентов, которые используют L2TP без шифрования IPsec.
 S_1						Virtual Hub по умолчанию в случае пропуска его названия в имени пользователя:
@@ -3831,7 +3831,7 @@ R_ETHERIP				Включить EtherIP / L2TPv3 сервер
 B_DETAIL				Настройки EtherIP / L2TPv3
 S07						Общие настройки IPsec
 S_PSK					Общий ключ IPsec:
-S_PSK2					Общий ключ IPsec также называемый "PSK" или "Secrets". Используйте примерно восемь ASCII символов и сообщите их всем VPN пользователям.
+S_PSK2					Общий ключ IPsec, также называемый "PSK" или "Secrets". Используйте примерно восемь ASCII символов и сообщите их всем VPN пользователям.
 IDOK					&OK
 IDCANCEL				Отмена
 
@@ -3840,10 +3840,10 @@ PREFIX					D_SM_ETHERIP
 CAPTION					Настройки EtherIP / L2TPv3 сервера
 S_TITLE					Настройки EtherIP / L2TPv3 сервера
 S01						EtherIP / L2TPv3 совместимые маршрутизаторы могут подключаться к Virtual Hubs на VPN-сервере и устанавливать мост уровня 2 (Ethernet). Например, маршрутизаторы Cisco, серии NEC IX и IIJ SEIL рекомендуются в качестве совместимых VPN-маршрутизаторов.
- S02						Чтобы принимать EtherIP / L2TPv3, установите соответствующие EtherIP / L2TPv3 настройки клиента, чтобы заранее идентифицировать клиентский маршрутизатор. Настройки EtherIP / L2TPv3 клиента должна иметь соответствующий IPsec Phase 1 ID.
+ S02						Установите соответствующие EtherIP / L2TPv3 настройки клиента, чтобы заранее идентифицировать клиентский маршрутизатор. Настройки клиента должны иметь соответствующий IPsec Phase 1 ID.
 S_BOLD					Таблица IPsec Phase 1 ID и Virtual Hub
 B_ADD					&Добавить
-IDOK					&Выход
+IDOK					&Изменить
 B_DELETE				&Удалить
 IDCANCEL				Выход
 
@@ -3858,29 +3858,29 @@ S05						&Пароль:
 S06						Обратите внимание, что имя пользователя и пароль должны быть такими же, как и зарегистрированные в Virtual Hub. EtherIP / L2TPv3 клиент будет считаться подключенным к Virtual Hub под вышеуказанной учетной записью.
 IDOK					&OK
 IDCANCEL				Отмена
-S07						ID должен совпадать с ID в конфигурации EtherIP / L2TPv3 клиента. Вы можете указать IP-адрес в качестве ID, если EtherIP / L2TPv3 клиент использует IP-адрес в качестве Phase 1 ID. Вы можете указать '*' (звездочку) в качестве подстановочного знака, чтобы принимать любых других клиентов, которые не соответствуют заданным правилам.
+S07						ID должен совпадать с ID в конфигурации EtherIP/L2TPv3 клиента. Можно указать IP-адрес в качестве ID, если клиент использует IP-адрес в качестве Phase 1 ID. Можно указать '*' (звездочку) в качестве подстановочного знака, чтобы принимать любых других клиентов, не соответствующих заданным правилам.
 
 
 PREFIX					D_SM_OPENVPN
-CAPTION					OpenVPN / MS-SSTP Settings
-S_TITLE					OpenVPN / MS-SSTP VPN Clone Server Function Settings
-S_1						This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc.\r\n\r\nAny OpenVPN Clients can connect to this VPN Server.
-R_OPENVPN				Enable &OpenVPN Clone Server Function
-S_UDP					UDP Ports to Listen for OpenVPN:
-B_DEFAULT				Restore &Default
-S_UDP2					Multiple UDP ports can be specified with splitting by space or comma letters.\r\nOpenVPN Server Function also runs on TCP ports. Any TCP ports which are defined as listeners on the VPN Server accepts OpenVPN Protocol respectively and equally.
-S_TOOL					Sample File Generating Tool for OpenVPN Clients
-S_TOOL2					Making a OpenVPN Client configuration file is a very difficult job. You can use this tool to generate an appropriate OpenVPN Client configuration file. The generated configuration sample can be used immediately.
-B_CONFIG				Generate a Sample &Configuration File for OpenVPN Clients
-S_2						Microsoft SSTP VPN Clone Server Function
-S_3						This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation.\r\nBuilt-in MS-SSTP Clients on Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.
-R_SSTP					Enable &MS-SSTP VPN Clone Server Function
-S_SSTP					The value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the client. For details refer the Microsoft's documents.
-S_4						The manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using these clone server functions are same to the IPsec Server functions.
-B_IPSEC					I&Psec Server Configuration
-S_13					OpenVPN Clone Server Function
+CAPTION					OpenVPN / MS-SSTP настройки
+S_TITLE					OpenVPN / MS-SSTP настройки VPN-сервера
+S_1						Этот VPN-сервер поддерживает функционал программного продукта OpenVPN от OpenVPN Technologies.\r\n\r\nЛюбые OpenVPN клиенты могут подключаться к этому VPN-серверу.
+R_OPENVPN				Включить поддержку OpenVPN сервера
+S_UDP					UDP порты для прослушивания OpenVPN:
+B_DEFAULT				Сброс настроек
+S_UDP2					Может быть указано несколько UDP портов, разделенных пробелом или запятой.\r\nOpenVPN сервер также использует и TCP порты. Все TCP порты, которые прослушиваются Softether VPN-сервером, так же принимают и OpenVPN подключения.
+S_TOOL					Инструмент создания файла конфигурации для OpenVPN клиентов
+S_TOOL2					Создание файла конфигурации OpenVPN клиента - очень сложная работа. Вы можете использовать этот инструмент для создания файла конфигурации OpenVPN клиента. Сгенерированный файл конфигурации можно сразу же использовать.
+B_CONFIG				Создать файл конфигурации для OpenVPN клиентов
+S_2						Функция Microsoft SSTP VPN-сервера
+S_3						Этот VPN-сервер поддерживает функционал MS-SSTP VPN-сервера, используемый в Windows Server 2008/2012 корпорацией Microsoft. MS-SSTP VPN клиенты, встроенные в Windows Vista / 7 / 8 / RT / 10, могут подключаться к этому VPN-серверу.
+R_SSTP					Включить поддержку MS-SSTP VPN-сервера
+S_SSTP					Значение CN (Common Name) в SSL-сертификате VPN-сервера должно совпадать с именем хоста на клиенте, и этот сертификат должен быть в списке доверенных на клиенте. За подробностями обращайтесь к документации Microsoft.
+S_4						Имя пользователя для подключения к Virtual Hub и выбор Virtual Hub по умолчанию аналогичны тем, что указаны в настройках IPsec / L2TP сервера.
+B_IPSEC					Настройка IPsec/L2TP сервера
+S_13					Функция OpenVPN сервера
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_DDNS
@@ -3908,16 +3908,16 @@ S_STATUS8				DNS ключ:
 B_HINT2					Совет
 
 PREFIX					D_SM_SPECIALLISTENER
-CAPTION					VPN over ICMP / DNS Function Settings
-S_TITLE					VPN over ICMP / DNS Function
-S_1						VPN over ICMP / DNS Function
-S_2						You can establish a VPN only with ICMP or DNS packets even if there is a firewall or routers which blocks TCP/IP communications. You need to enable the following functions beforehand.
-R_OVER_ICMP				Enable VPN over &ICMP Server Function
-R_OVER_DNS				Enable VPN over &DNS Server Function (Uses UDP Port 53)
+CAPTION					Настройки VPN через ICMP / DNS
+S_TITLE					VPN через ICMP / DNS
+S_1						VPN через ICMP / DNS
+S_2						Вы можете установливать VPN соединение используя только ICMP или DNS пакеты, даже если есть межсетевой экран или маршрутизатор, блокирующий TCP/IP соединения. Вам необходимо предварительно включить следующие функции.
+R_OVER_ICMP				Включить функцию VPN через ICMP
+R_OVER_DNS				Включить функцию VPN через DNS (используется 53 UDP порт)
 IDOK					&OK
-IDCANCEL				Cancel
-S_3						Requires VPN Client / VPN Bridge internal version 4.0 or greater.
-S_4						Warning: Use this function for emergency only. It is helpful when a firewall or router is misconfigured to blocks TCP/IP, but either ICMP or DNS is not blocked. It is not for long-term stable using.
+IDCANCEL				Отмена
+S_3						Требуется VPN-клиент/VPN-мост версии 4.0 или выше.
+S_4						Предупреждение: используйте эту функцию только для экстренных случаев. Это полезно, когда брандмауэр или маршрутизатор  настроены на блокировку TCP/IP, но ICMP или DNS не заблокированы. Не для длительного стабильного использования.
 
 
 PREFIX					D_SM_REDIRECT
@@ -6262,7 +6262,7 @@ CMD_EtherIpClientAdd_HUB	Specify the name of the Virtual Hub to connect.
 CMD_EtherIpClientAdd_USERNAME	Specify the username to login to the destination Virtual Hub.
 CMD_EtherIpClientAdd_PASSWORD	Specify the password to login to the destination Virtual Hub.
 CMD_EtherIpClientAdd_Prompt_ID	ISAKMP Phase 1 ID ('*' is a wildcard): 
-CMD_EtherIpClientAdd_Prompt_HUB	Virtual Hub Name: 
+CMD_EtherIpClientAdd_Prompt_HUB	Название Virtual Hub: 
 CMD_EtherIpClientAdd_Prompt_USERNAME	Username to Login Virtual Hub: 
 CMD_EtherIpClientAdd_Prompt_PASSWORD	Password to Login Virtual Hub: 
 
