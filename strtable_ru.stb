@@ -3642,10 +3642,10 @@ IDOK3					< &Назад
 
 
 PREFIX					D_CM_PKCSEULA
-CAPTION					Notice to Use Smart Card's Drivers
-S_INFO_1				You are attempting to access the smart card with software "%S".
-S_INFO_2				When using software "%S", if there are conditions of use for this software and the smart card that is to be used, you must agree to these conditions of use before using them. \r\n\r\nFor details please contact the vendor of software "%S" and of the smart card.
-S_INFO_3				Do you agree to the above and want to use the software "%S" and access the specified smart card?
+CAPTION					Уведомление об использовании драйверов смарт-карт
+S_INFO_1				Вы пытаетесь получить доступ к смарт-карте с помощью ПО "%S".
+S_INFO_2				Перед использованием ПО "%S", вы должны согласиться с его пользовательским соглашением. \r\n\r\nЗа подробностями обращайтесь к поставщику ПО "%S" и смарт-карт.
+S_INFO_3				Вы согласны и хотите использовать ПО "%S" и получить доступ к указанной смарт-карте?
 IDOK					&Да
 IDCANCEL				&Нет
 
@@ -3693,17 +3693,17 @@ IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_LICENSE
-CAPTION					Add or Remove License
-STATIC1					To use SoftEther VPN Server you must acquire a valid license and register the license key. You can register a new license key, delete a registered license key and display the current license list and the license mode of the VPN Server here.
-S_BOLD					Currently Registered &License Keys:
-B_OBTAIN				&Obtain or Extend a License
-STATIC2					Click Obtain or Extend License to visit the website that will provide instructions on how to obtain a license.
-B_ADD					&Add a License Key
-B_DEL					&Delete
-IDOK					&Information About License
-STATIC3					Select a license and click Information About License to connect to SoftEther VPN Project's website (softether.com) and view the registered information relating to the selected license.
-S_BOLD2					Current License &Mode of SoftEther VPN Server: 
-IDCANCEL				E&xit
+CAPTION					Добавить или удалить лицензию
+STATIC1					Чтобы использовать SoftEther VPN-сервер, вы должны приобрести лицензию и зарегистрировать лицензионный ключ. Здесь вы можете зарегистрировать новый лицензионный ключ, удалить зарегистрированный лицензионный ключ и отобразить текущий список лицензий и режим лицензии VPN-сервера.
+S_BOLD					Зарегистрированные лицензионные ключи:
+B_OBTAIN				&Получить или продлить лицензию
+STATIC2					Нажмите "Получить или продлить лицензию", чтобы посетить веб-сайт, который предоставит инструкции о том, как получить лицензию.
+B_ADD					&Добавить лицензионный ключ
+B_DEL					&Удалить
+IDOK					&Информация о лицензии
+STATIC3					Выберите лицензию и нажмите "Информация о лицензии", чтобы подключиться к веб-сайту Проекта SoftEther VPN (softether.com) и просмотреть информацию, относящуюся к выбранной лицензии.
+S_BOLD2					Текущий режим лицензирования SoftEther VPN-сервера: 
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_LICENSE_ADD
