@@ -1207,7 +1207,7 @@ SM_ST_RECV_BCAST_SIZE	Incoming Broadcast Total Size
 SM_ST_NUM_PACKET_STR	%S пакетов
 SM_ST_SIZE_BYTE_STR		%S байт
 
-CM_EDIT_HUB_1			New Virtual Hub
+CM_EDIT_HUB_1			Новый Virtual Hub
 CM_EDIT_HUB_2			Параметры %S
 
 CM_EDIT_HUB_STANDALONE	Currently the server is operating in Standalone Mode. This Virtual Hub is operating as a Standalone Hub.
@@ -1215,12 +1215,12 @@ CM_EDIT_HUB_TYPE_FIXED	Currently the server is operating in Cluster Mode. This V
 CM_EDIT_HUB_CREATED		A new Virtual Hub '%S' has been created.
 CM_OFFLINE_MSG			Do you want to switch %s to offline?\r\n\r\nIf you switch the Virtual Hub to offline all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect.
 CM_DELETE_HUB_MSG		Do you want to delete %S?\r\n\r\nIf you delete the Virtual Hub, all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect. \r\nThis will also delete all the Hub settings, user objects, group objects, certificates and Cascade Connections. \r\n\r\nOnce you delete the Virtual Hub, it cannot be recovered. \r\nAre you sure you want to delete it?
-CM_HUB_DELETED_MSG		Virtual Hub %S has been deleted.
+CM_HUB_DELETED_MSG		Virtual Hub %S удален.
 CM_LISTENER_COLUMN_1	Порт
 CM_LISTENER_COLUMN_2	Статус
 CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		Listening
-CM_LISTENER_OFFLINE		Stopped
+CM_LISTENER_OFFLINE		Остановлен
 CM_LISTENER_ERROR		Ошибка
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
 CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
