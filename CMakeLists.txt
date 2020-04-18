@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 project("SoftEther VPN"
-  VERSION 5.01.9672
+  VERSION 5.01.9673
   LANGUAGES C
 )
 
