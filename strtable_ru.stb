@@ -3781,25 +3781,25 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SETUP_STEP
-CAPTION					VPN Easy Setup Tasks
-IDC_STATIC_1			To complete the setup of this VPN Server / VPN Bridge, you must complete the following tasks.
-S_1_1					Step 1. Create a User to Accept VPN Connection
-S_1_2					When this VPN Server accepts a remote access VPN, or becomes the central site-to-site VPN server that accepts connections from other sites, create users to accept the VPN connection.
-B_USER					Create &Users
-S_2_1					Step 2. Define a Connection to Destination VPN Server
-S_2_2					When this VPN Server is installed on a particular site (edge) of a site-to-site VPN, you have to specify the address of the center VPN Server that accepts the connections, and establish a connection to that central VPN Server.
-B_CASCADE				&Configure Connection Setting
-S_3_1					Step 3. Set Local Bridge
-S_3_2					For an site-to-site VPN, use the Local Bridge Function to connect a bridge between the virtual Ethernet segment on the VPN side and the physical Ethernet segment on the local side. Select an existing Ethernet device (Network Adapter) that will be provide the bridge connection to the VPN.
+CAPTION					Простая настройка VPN
+IDC_STATIC_1			Чтобы завершить настройку этого VPN Сервера / Моста, необходимо выполнить следующие шаги.
+S_1_1					Шаг 1. Создать пользователя
+S_1_2					Создайте VPN пользователя, для того чтобы этот VPN-сервер мог принимать удаленные VPN-подключения или стал центральным site-to-site VPN-сервером, принимающим подключения от других сегментов сети.
+B_USER					Создать пользователя
+S_2_1					Шаг 2. Определить подключение к VPN-серверу
+S_2_2					Когда этот site-to-site VPN-сервер установлен в определенном сегменте сети (на краю), необходимо указать адрес центрального VPN-сервера и установить подключение с ним.
+B_CASCADE				&Настроить параметры подключения
+S_3_1					Шаг 3. Настроить локальный Мост
+S_3_2					Для site-to-site VPN используйте функцию локального Моста для подключения сетевого моста между виртуальным сегментом Ethernet на стороне VPN и физическим сегментом Ethernet на локальной стороне. Выберите существующее Ethernet устройство (сетевой адаптер), которое будет обеспечивать мостовое соединение с VPN.
 IDCANCEL				&Закрыть
-IDC_STATIC_8			Once the required settings are configured, click Close. An advanced management tool for VPN Server / VPN Bridge will be appeared. You can then configure any advanced settings as you wish.
-B_SECURENAT				Configure SecureN&AT
+IDC_STATIC_8			После того, как необходимые параметры будут настроены, нажмите "Закрыть". Появится расширенный инструментарий управления VPN Сервером / Мостом. Затем вы сможете настроить любые дополнительные параметры по своему усмотрению.
+B_SECURENAT				Настроить SecureNAT
 
 
 PREFIX					D_CPU64_WARNING
-CAPTION					Information on SoftEther VPN 64-bit Edition
-S_BOLD					The SoftEther VPN software currently installed is the 32-bit edition, but the Windows operating system that is currently running is a 64-bit edition. 
-S_INFO					You can run the 32-bit edition of SoftEther VPN software on a 64-bit edition of Windows, but it will run on Window's 32-bit emulator, and this results in reduced performance. \r\nThere is also a possibility that some functions are not supported. \r\n\r\nWe strongly recommend you to install and use the 64-bit edition of SoftEther VPN software when running it on 64-bit Windows. \r\nYou can download the 64-bit edition of the SoftEther VPN software from http://selinks.org/. \r\n\r\nThis dialog box will close automatically in 30 seconds.
+CAPTION					Информация о 64-битной версии SoftEther VPN
+S_BOLD					В данный момент установлена 32-битная версия SoftEther VPN, но работает она на 64-битноя версии операционной системы Windows.  
+S_INFO					Вы можете запустить 32-битную версию SoftEther VPN на 64-битной версии Windows, но она будет работать в 32-битном эмуляторе Windows, что приведет к снижению производительности. \r\nТакже существует вероятность того, что некоторые функции не будут поддерживаться. \r\n\r\nМы настоятельно рекомендуем вам установить и использовать 64-битную версию SoftEther VPN при работе в 64-битной версии Windows. \r\nВы можете скачать 64-битную версию SoftEther VPN с https://www.softether.org/. \r\n\r\nЭто диалоговое окно закроется автоматически через 30 секунд.
 IDOK					&OK
 
 
@@ -4026,16 +4026,16 @@ S_WELCOME3				Созданный Easy Installer может быть распро
 
 PREFIX					D_SW_EASY2
 CAPTION					D_SW_EASY2
-S_BOLD1					Specify a VPN connection setting file (.vpn file) to embed
-S_1						Please specify a VPN connection setting file (a file which extension is .vpn) to embed on the Easy Installer. You can export a setting file by clicking Export VPN Connection Setting on the right-click menu of the target connection setting on the VPN Client Manager.
-S_18					Connection &Setting:
-B_BROWSE_SETTING		&Browse...
-B_DELETE_SENSITIVE		&Eliminate Username and Password from Connection Setting File
-S_BOLD2					Specify an EXE filename to be generated
-S_3						This tool will output an EXE file (executable file) which implements an Easy Installer. Please specify the output filename to be generated.
-S_19					Save &as:
-B_BROWSE_OUT			B&rowse...
-B_EASYMODE				Set the VPN Client Manager to &Easy Mode when Installation
+S_BOLD1					Укажите какой файл настроек VPN-подключения (файл .vpn) использовать
+S_1						Пожалуйста, укажите файл настроек VPN-подключения (файл с расширением .vpn) для использования в Easy Installer. Вы можете экспортировать файл настроек, щелкнув правой кнопки мыши на подключении VPN-клиента и выбрав "Экспорт настроек VPN-подключения".
+S_18					Настройка подключения:
+B_BROWSE_SETTING		&Обзор...
+B_DELETE_SENSITIVE		&Удалить имя пользователя и пароль из файла настроек подключения
+S_BOLD2					Укажите имя создаваемого EXE-файла
+S_3						Easy Installer создаст EXE-файл (исполняемый файл). Пожалуйста, укажите выходное имя создаваемого файла. 
+S_19					Сохранить как:
+B_BROWSE_OUT			Обзор...
+B_EASYMODE				После установки включить упрощенный режим VPN-клиента
 
 
 PREFIX					D_SW_WEB1
