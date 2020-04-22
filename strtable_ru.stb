@@ -2539,43 +2539,43 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_SERVER
-CAPTION					%s - SoftEther VPN Server Manager
-S_TITLE					Manage VPN Server "%S"
-S_VHUB_BRIDGE			Virtual Hubs Hosted by this VPN Server:
-IDOK					M&anage Virtual Hub
-B_ONLINE				&Online
-B_OFFLINE				O&ffline
-B_HUB_STATUS			View &Status
-B_CREATE				&Create a Virtual Hub
-B_EDIT					Prop&erties
-B_DELETE				&Delete
-STATIC1					Management of &Listeners:
-STATIC2					L&istener List (TCP/IP port):
-B_CREATE_LISTENER		C&reate
-B_DELETE_LISTENER		Dele&te
-B_START					Start
-B_STOP					Sto&p
-STATIC3					VPN Server and &Network Information and Settings:
-B_SSL					&Encryption and Network
-B_STATUS				&View Server Status
-B_INFO					About this VPN Server
-B_LICENSE				Add / Delete &Licenses
-B_FARM					Clustering Configuration
-B_FARM_STATUS			Clustering Status
-B_CONNECTION			Show List of\r\nTCP/IP Connections
-B_BRIDGE				Local &Bridge Setting
-B_L3					Layer &3 Switch Setting
-B_CONFIG				E&dit Config
-B_REFRESH				Refres&h
-IDCANCEL				E&xit
-S_BETA					Beta Version (Pre-release)
-B_IPSEC					IPsec / L&2TP Setting
-B_DDNS					Dynamic DNS Setting
-S_DDNS					Current DDNS Hostname:
-B_OPENVPN				OpenVPN / MS-SSTP Setting
-B_AZURE					VPN Azure Setting
-S_AZURE					VPN Azure Hostname:
-B_VPNGATE				VPN Gate Setting
+CAPTION					%s - SoftEther VPN-сервер менеджер
+S_TITLE					Управление VPN-сервером "%S"
+S_VHUB_BRIDGE			Virtual Hubs, размещеные на этом VPN-сервере:
+IDOK					Управление Virtual Hub
+B_ONLINE				Включить
+B_OFFLINE				Отключить
+B_HUB_STATUS			Просмотр статуса
+B_CREATE				&Создать Virtual Hub
+B_EDIT					Свойства
+B_DELETE				Удалить
+STATIC1					Управление портами:
+STATIC2					Список портов (TCP/IP):
+B_CREATE_LISTENER		Создать
+B_DELETE_LISTENER		Удалить
+B_START					Открыть
+B_STOP					Закрыть
+STATIC3					VPN-сервер, сетевая информация и настройки:
+B_SSL					&Шифрование и Сеть
+B_STATUS				&Просмотр состояния сервера
+B_INFO					Об этом VPN-сервере
+B_LICENSE				Добавить / Удалить Лицензии
+B_FARM					Конфигурация кластера
+B_FARM_STATUS			Состояние кластера
+B_CONNECTION			Показать список\r\nTCP/IP подключений
+B_BRIDGE				Настройка локального моста
+B_L3					L3-коммутатор
+B_CONFIG				Изменить конфигурацию
+B_REFRESH				Обновить
+IDCANCEL				Выход
+S_BETA					Бета-версия (предварительная версия)
+B_IPSEC					Настройка IPsec / L2TP
+B_DDNS					Настройка динамического DNS
+S_DDNS					Текущее DDNS имя хоста:
+B_OPENVPN				Настройка OpenVPN / MS-SSTP
+B_AZURE					Настройка VPN Azure
+S_AZURE					VPN Azure имя хоста:
+B_VPNGATE				Настройка VPN Gate
 
 
 PREFIX					D_SM_STATUS
