@@ -869,7 +869,7 @@ CM_NEW_ICON				Добавить VPN подключение
 CM_VGC_ICON				VPN Gate Public VPN Relay Servers
 CM_VGC_LINK				VPN Gate Academic Web Site
 CM_ST_TITLE				Статус подключения %s
-CM_ST_COLUMN_1			Item
+CM_ST_COLUMN_1			Наименование
 CM_ST_COLUMN_2			Статус
 CM_NEW_ACCOUNT_NAME_1	Новое VPN подключение
 CM_NEW_ACCOUNT_NAME_2	Новое VPN подключение (%u)
@@ -1153,56 +1153,56 @@ SM_SETTING_EXISTS		Подключение с именем "%s" уже сущес
 SM_SETTING_DELETE_MSG	Это действие приведет к удалению подключения "%s". Вы действительно хотите это сделать?
 SM_PASSWORD_TYPE_STR	Пароль админ. сервера
 SM_HUB_COLUMN_1			Название Virtual Hub
-SM_HUB_COLUMN_2			Status
-SM_HUB_COLUMN_3			Type
-SM_HUB_COLUMN_4			Users
-SM_HUB_COLUMN_5			Groups
-SM_HUB_COLUMN_6			Sessions
-SM_HUB_COLUMN_7			MAC Tables
-SM_HUB_COLUMN_8			IP Tables
-SM_HUB_COLUMN_9			Num Logins
-SM_HUB_COLUMN_10		Last Login
-SM_HUB_COLUMN_11		Last Communication
-SM_HUB_ONLINE			Online
-SM_HUB_OFFLINE			Offline
-SM_HUB_STANDALONE		Standalone
-SM_HUB_STATIC			Static Hub
-SM_HUB_DYNAMIC			Dynamic Hub
-SM_SERVER_STANDALONE	Standalone Server
-SM_FARM_CONTROLLER		Cluster Controller
-SM_FARM_MEMBER			Cluster Member Server
-SM_INFORMATION			Latest Information
-SM_HUB_STATUS_CAPTION	Status of Virtual Hub "%s"
+SM_HUB_COLUMN_2			Состояние
+SM_HUB_COLUMN_3			Тип
+SM_HUB_COLUMN_4			Пользователи
+SM_HUB_COLUMN_5			Группы
+SM_HUB_COLUMN_6			Сессии
+SM_HUB_COLUMN_7			Списки MAC
+SM_HUB_COLUMN_8			Списки IP
+SM_HUB_COLUMN_9			Кол-во входов
+SM_HUB_COLUMN_10		Последний вход
+SM_HUB_COLUMN_11		Последнее подключение
+SM_HUB_ONLINE			Включен
+SM_HUB_OFFLINE			Отключен
+SM_HUB_STANDALONE		Автономный
+SM_HUB_STATIC			Статический Hub
+SM_HUB_DYNAMIC			Динамический Hub
+SM_SERVER_STANDALONE	Автономный сервер
+SM_FARM_CONTROLLER		Контроллер кластера
+SM_FARM_MEMBER			Член кластера
+SM_INFORMATION			Последняя информация
+SM_HUB_STATUS_CAPTION	Состояние Virtual Hub "%s"
 SM_HUB_STATUS_HUBNAME	Название Virtual Hub
-SM_HUB_STATUS_ONLINE	Status
-SM_HUB_TYPE				Type
-SM_HUB_NUM_SESSIONS		Sessions
-SM_HUB_NUM_SESSIONS_CLIENT	Sessions (Client)
-SM_HUB_NUM_SESSIONS_BRIDGE	Sessions (Bridge)
-SM_HUB_NUM_ACCESSES		Access Lists
-SM_HUB_NUM_USERS		Users
-SM_HUB_NUM_GROUPS		Groups
-SM_HUB_NUM_MAC_TABLES	MAC Tables
-SM_HUB_NUM_IP_TABLES	IP Tables
+SM_HUB_STATUS_ONLINE	Состояние
+SM_HUB_TYPE				Тип
+SM_HUB_NUM_SESSIONS		Сессии
+SM_HUB_NUM_SESSIONS_CLIENT	Сессии (Client)
+SM_HUB_NUM_SESSIONS_BRIDGE	Сессии (Bridge)
+SM_HUB_NUM_ACCESSES		Списки доступа
+SM_HUB_NUM_USERS		Пользователи
+SM_HUB_NUM_GROUPS		Группы
+SM_HUB_NUM_MAC_TABLES	Списки MAC
+SM_HUB_NUM_IP_TABLES	Списки IP
 SM_HUB_SECURE_NAT		SecureNAT
-SM_HUB_SECURE_NAT_YES	Enabled
-SM_HUB_SECURE_NAT_NO	Disabled
-SM_HUB_NUM_LOGIN		Num Logins
-SM_HUB_LAST_LOGIN_TIME	Last Login
-SM_HUB_LAST_COMM_TIME	Last Communication
-SM_HUB_CREATED_TIME		Created at
-SM_STATUS_COLUMN_1		Item
-SM_STATUS_COLUMN_2		Value
+SM_HUB_SECURE_NAT_YES	Включен
+SM_HUB_SECURE_NAT_NO	Выключен
+SM_HUB_NUM_LOGIN		Кол-во входов
+SM_HUB_LAST_LOGIN_TIME	Последний вход
+SM_HUB_LAST_COMM_TIME	Последнее подключение
+SM_HUB_CREATED_TIME		Создан
+SM_STATUS_COLUMN_1		Наименование
+SM_STATUS_COLUMN_2		Значение
 
-SM_ST_SEND_UCAST_NUM	Outgoing Unicast Packets
-SM_ST_SEND_UCAST_SIZE	Outgoing Unicast Total Size
-SM_ST_SEND_BCAST_NUM	Outgoing Broadcast Packets
-SM_ST_SEND_BCAST_SIZE	Outgoing Broadcast Total Size
+SM_ST_SEND_UCAST_NUM	Кол-во исходящих пакетов
+SM_ST_SEND_UCAST_SIZE	Размер исходящих пакетов
+SM_ST_SEND_BCAST_NUM	Кол-во исх. широковещательных пакетов
+SM_ST_SEND_BCAST_SIZE	Размер исх. широковещательных пакетов
 
-SM_ST_RECV_UCAST_NUM	Incoming Unicast Packets
-SM_ST_RECV_UCAST_SIZE	Incoming Unicast Total Size
-SM_ST_RECV_BCAST_NUM	Incoming Broadcast Packets
-SM_ST_RECV_BCAST_SIZE	Incoming Broadcast Total Size
+SM_ST_RECV_UCAST_NUM	Кол-во входящих пакетов
+SM_ST_RECV_UCAST_SIZE	Размер входящих пакетов
+SM_ST_RECV_BCAST_NUM	Кол-во вх. широковещательных пакетов
+SM_ST_RECV_BCAST_SIZE	Размер вх. широковещательных пакетов
 
 SM_ST_NUM_PACKET_STR	%S пакетов
 SM_ST_SIZE_BYTE_STR		%S байт
@@ -1210,16 +1210,16 @@ SM_ST_SIZE_BYTE_STR		%S байт
 CM_EDIT_HUB_1			Новый Virtual Hub
 CM_EDIT_HUB_2			Параметры %S
 
-CM_EDIT_HUB_STANDALONE	Currently the server is operating in Standalone Mode. This Virtual Hub is operating as a Standalone Hub.
+CM_EDIT_HUB_STANDALONE	Сейчас сервер работает в автономном режиме. Этот Virtual Hub работает автономно.
 CM_EDIT_HUB_TYPE_FIXED	Currently the server is operating in Cluster Mode. This Virtual Hub is of the following type, which means it is not possible to make dynamic changes.
-CM_EDIT_HUB_CREATED		A new Virtual Hub '%S' has been created.
-CM_OFFLINE_MSG			Do you want to switch %s to offline?\r\n\r\nIf you switch the Virtual Hub to offline all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect.
-CM_DELETE_HUB_MSG		Do you want to delete %S?\r\n\r\nIf you delete the Virtual Hub, all sessions currently connected to the Virtual Hub will be disconnected and new sessions will be unable to connect. \r\nThis will also delete all the Hub settings, user objects, group objects, certificates and Cascade Connections. \r\n\r\nOnce you delete the Virtual Hub, it cannot be recovered. \r\nAre you sure you want to delete it?
+CM_EDIT_HUB_CREATED		Создан новый Virtual Hub '%S'.
+CM_OFFLINE_MSG			Вы хотите отключить %s?\r\n\r\nЕсли вы отключите Virtual Hub, все сессии, подключенные в данный момент, будут разъединенны, а новые подключения будут невозможны.
+CM_DELETE_HUB_MSG		Вы хотите удалить %S?\r\n\r\nЕсли вы удалите Virtual Hub, все сессии, подключенные в данный момент, будут разъединенны, а новые подключения будут невозможны. \r\nЭто также приведет к удалению всех настроек Virtual Hub, пользователей, групп, сертификатов и каскадных подключений. \r\n\r\nПосле удаления Virtual Hub его невозможно восстановить. \r\nВы уверены, что хотите его удалить?
 CM_HUB_DELETED_MSG		Virtual Hub %S удален.
 CM_LISTENER_COLUMN_1	Порт
-CM_LISTENER_COLUMN_2	Статус
+CM_LISTENER_COLUMN_2	Состояние
 CM_LISTENER_TCP_PORT	TCP %u
-CM_LISTENER_ONLINE		Listening
+CM_LISTENER_ONLINE		Прослушивается
 CM_LISTENER_OFFLINE		Остановлен
 CM_LISTENER_ERROR		Ошибка
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
@@ -2545,7 +2545,7 @@ S_VHUB_BRIDGE			Virtual Hubs, размещеные на этом VPN-серве�
 IDOK					Управление Virtual Hub
 B_ONLINE				Включить
 B_OFFLINE				Отключить
-B_HUB_STATUS			Просмотр статуса
+B_HUB_STATUS			Состояние
 B_CREATE				&Создать Virtual Hub
 B_EDIT					Свойства
 B_DELETE				Удалить
@@ -2557,22 +2557,22 @@ B_START					Открыть
 B_STOP					Закрыть
 STATIC3					VPN-сервер, сетевая информация и настройки:
 B_SSL					&Шифрование и Сеть
-B_STATUS				&Просмотр состояния сервера
+B_STATUS				&Состояние сервера
 B_INFO					Об этом VPN-сервере
 B_LICENSE				Добавить / Удалить Лицензии
 B_FARM					Конфигурация кластера
 B_FARM_STATUS			Состояние кластера
 B_CONNECTION			Показать список\r\nTCP/IP подключений
-B_BRIDGE				Настройка локального моста
+B_BRIDGE				Настройка моста
 B_L3					L3-коммутатор
 B_CONFIG				Изменить конфигурацию
 B_REFRESH				Обновить
 IDCANCEL				Выход
 S_BETA					Бета-версия (предварительная версия)
-B_IPSEC					Настройка IPsec / L2TP
-B_DDNS					Настройка динамического DNS
+B_IPSEC					Настройка IPsec/L2TP
+B_DDNS					Настройка DDNS
 S_DDNS					Текущее DDNS имя хоста:
-B_OPENVPN				Настройка OpenVPN / MS-SSTP
+B_OPENVPN				Настройка OpenVPN/MS-SSTP
 B_AZURE					Настройка VPN Azure
 S_AZURE					VPN Azure имя хоста:
 B_VPNGATE				Настройка VPN Gate
@@ -2950,10 +2950,10 @@ IDCANCEL				Cancel
 
 
 PREFIX					D_SM_LINK
-CAPTION					Каскадные соединения на "%S"
-STATIC1					Каскадное соединение может создать Ethernet-соединение 2 уровня между этим Virtual Hub и другим Virtual Hub, который расположен на локальном или удаленном VPN-сервере.
-STATIC2					Перед использованием каскадного соединения
-STATIC3					Каскадное соединение реализует мост 2 уровня между несколькими Virtual Hubs. Но если соединение неправильно настроено, может быть непреднамеренно создан бесконечный цикл. При использовании каскадного соединения, пожалуйста, проектируйте топологию сети с осторожностью.
+CAPTION					Каскадные подключение на "%S"
+STATIC1					Каскадное подключение может создать Ethernet-соединение 2 уровня между этим Virtual Hub и другим Virtual Hub, который расположен на локальном или удаленном VPN-сервере.
+STATIC2					Перед использованием каскадного подключения
+STATIC3					Каскадное подключение реализует мост 2 уровня между несколькими Virtual Hubs. Но если соединение неправильно настроено, может быть непреднамеренно создан бесконечный цикл. При использовании каскадного подключения, пожалуйста, проектируйте топологию сети с осторожностью.
 B_CREATE				&Новое
 B_EDIT					&Редактировать
 B_ONLINE				Онлайн
