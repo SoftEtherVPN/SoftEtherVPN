@@ -1088,8 +1088,13 @@ bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	USHORT NegotiatedMRU = PPP_UNSPECIFIED;
 	// MSCHAPv2 code
 	UCHAR ms_chap_v2_code[3];
+
+	UINT currentMagic = 0;
+
 	WRITE_USHORT(ms_chap_v2_code, PPP_LCP_AUTH_CHAP);
 	ms_chap_v2_code[2] = PPP_CHAP_ALG_MS_CHAP_V2;
+
+	Debug("Got LCP packet request ID=%i OptionsListSize=%i\n", pp->Lcp->Id, LIST_NUM(pp->Lcp->OptionList));
 
 	for (i = 0; i < LIST_NUM(pp->Lcp->OptionList); i++)
 	{
@@ -1792,6 +1797,12 @@ bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate)
 	UINT i = 0;
 	PPP_PACKET* ret;
 	bool toBeACKed = false;
+	if (LIST_NUM(pp->Lcp->OptionList) == 0)
+	{
+		// We acknoweldge an empty option list
+		toBeACKed = true;
+		Debug("ACKing empty LCP options list, id=%i\n", pp->Lcp->Id);
+	}
 	for (i = 0; i < LIST_NUM(pp->Lcp->OptionList); i++)
 	{
 		PPP_OPTION *t = LIST_DATA(pp->Lcp->OptionList, i);
@@ -1826,7 +1837,7 @@ bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate)
 		}
 	}
 
-	if (LIST_NUM(ret->Lcp->OptionList) == 0 || simulate)
+	if (simulate)
 	{
 		FreePPPPacket(ret);
 		return false;

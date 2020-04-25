@@ -82,6 +82,7 @@
 // LCP Option Type
 #define	PPP_LCP_OPTION_MRU				1
 #define	PPP_LCP_OPTION_AUTH				3
+#define PPP_LCP_OPTION_MAGIC			5
 
 // IPCP option type
 #define	PPP_IPCP_OPTION_IP				3
