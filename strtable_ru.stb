@@ -1076,15 +1076,15 @@ SVC_HIDE_TRAY_MSG		Это действие скроет значки на пан
 
 
 # Concerning services (UNIX)
-UNIX_SVC_HELP			%S service program\nCopyright (c) SoftEther VPN Project. All Rights Reserved.\n\n%S command usage:\n %S start  - Start the %S service.\n %S stop   - Stop the %S service if the service has been already started.\n\n
-UNIX_SVC_STARTED		The %S service has been started.\n
-UNIX_SVC_STOPPING		Stopping the %S service ...\n
-UNIX_SVC_STOPPED		%S service has been stopped.\n
-UNIX_SVC_STOP_FAILED	Stopping %S service was failed.\n
-UNIX_SVC_ALREADY_START	%S service has been already started.\nRun the "%S stop" command to stop this service.\n
-UNIX_SVC_NOT_STARTED	%S service has not yet been started.\nRun the "%S start" to start this service.\n
-UNIX_SVC_ERROR_FORK		Failed to create child process for the %S service.\n
-UNIX_SVC_NONROOT		\nWarning: The current user context is non-root. It is recommended to run the VPN service by the root user. Although the VPN service may run under non-root users, some privilege-required functions (e.g. the local bridge function) need the root privilege.\n
+UNIX_SVC_HELP			Служба %S\nАвторское право (c) Проект SoftEther VPN. Все права защищены.\n\n%S используемые команды:\n %S start  - Запуск службы %S.\n %S stop   - Остановка службы %S, если она уже запущена.\n\n
+UNIX_SVC_STARTED		Служба %S запущена.\n
+UNIX_SVC_STOPPING		Остановка службы %S ...\n
+UNIX_SVC_STOPPED		Служба %S была остановлена..\n
+UNIX_SVC_STOP_FAILED	Остановка службы %S не удалась.\n
+UNIX_SVC_ALREADY_START	Служба %S уже запущена.\nВыполните команду "%S stop", чтобы остановить эту службу.\n
+UNIX_SVC_NOT_STARTED	Служба %S еще не запущена.\nВыполните команду "%S start", чтобы запустить эту службу.\n
+UNIX_SVC_ERROR_FORK		Не удалось создать дочерний процесс для службы %S.\n
+UNIX_SVC_NONROOT		\nПредупреждение: текущий пользователь не является root. Рекомендуется запустить VPN службу из под root. Хотя служба VPN может работать от пользователя, не являющегося root пользователем, некоторые функции, требующие привилегий (например, функция локального моста), нуждаются в root правах.\n
 
 
 # Service definition (SoftEther VPN Client)
@@ -1219,97 +1219,97 @@ CM_HUB_DELETED_MSG		Virtual Hub %S удален.
 CM_LISTENER_COLUMN_1	Порт
 CM_LISTENER_COLUMN_2	Состояние
 CM_LISTENER_TCP_PORT	TCP %u
-CM_LISTENER_ONLINE		Прослушивается
-CM_LISTENER_OFFLINE		Остановлен
+CM_LISTENER_ONLINE		Используется
+CM_LISTENER_OFFLINE		Закрыт
 CM_LISTENER_ERROR		Ошибка
-CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
-CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
+CM_DELETE_LISTENER_MSG	Это действие приведет к удалению порта (TCP-порт %u). С этого момента подключение к данному порту будет невозможно. \r\nВы действительно хотите сделать это?
+CM_STOP_LISTENER_MSG	Это действие закроет порт (TCP-порт% u). До тех пор, пока порт не будет открыт, невозможно будет подключиться к нему. \r\n\r\nВы действительно хотите сделать это?
 CM_CLOSE_BUTTON			Закрыть
-CM_CERT_SET_MSG			A new server certificate has been set.\r\n\r\nIf you are using OpenVPN protocols, please mind that you may have to update the inline certificate data in the OpenVPN configuration file.
+CM_CERT_SET_MSG			Был установлен новый сертификат сервера.\r\n\r\nЕсли вы используете OpenVPN, помните, что вам может потребоваться обновить данные сертификата в файле конфигурации OpenVPN.
 
-CM_SHORTCUT_DISCONNECT	There is already an active connection to the specified connection destination. \r\n\r\nDo you want to disconnect?
+CM_SHORTCUT_DISCONNECT	Уже существует активное подключение к указанному месту. \r\n\r\nВы хотите его отключить?
 
 
 SM_SERVER_STATUS		Статус сервера
 SM_ST_SERVER_TYPE		Тип сервера
-SM_ST_NUM_TCP			Number of Active Sockets
-SM_ST_NUM_TCP_LOCAL		Number of Active Sockets (This Server)
-SM_ST_NUM_TCP_REMOTE	Number of Active Sockets (Other Member Servers)
-SM_ST_NUM_HUB_TOTAL		Number of Virtual Hubs
-SM_ST_NUM_HUB_STATIC	Number of Static Virtual Hubs
-SM_ST_NUM_HUB_DYNAMIC	Number of Dynamic Virtual Hubs
-SM_ST_NUM_SESSION_TOTAL	Number of Sessions
-SM_ST_NUM_SESSION_LOCAL	Number of Sessions (This Server)
-SM_ST_NUM_SESSION_REMOTE	Number of Sessions (Other Member Servers)
-SM_ST_NUM_MAC_TABLE		Number of MAC Address Tables
-SM_ST_NUM_IP_TABLE		Number of IP Address Tables
-SM_ST_NUM_USERS			Number of Users
-SM_ST_NUM_GROUPS		Number of Groups
-SM_ST_CLIENT_LICENSE	Using Client Connection Licenses (This Server)
-SM_ST_BRIDGE_LICENSE	Using Bridge Connection Licenses (This Server)
-SM_ST_CLIENT_LICENSE_EX	Using Client Connection Licenses (Entire Cluster)
-SM_ST_BRIDGE_LICENSE_EX	Using Bridge Connection Licenses (Entire Cluster)
-SM_ST_START_TIME		Server Started at
-SM_ST_CURRENT_TIME		Current Time
-SM_ST_CURRENT_TICK		64 bit High-Precision Logical System Clock
-SM_ST_TOTAL_MEMORY		Total Logical Memory Size
-SM_ST_USED_MEMORY		Used Logical Memory Size
-SM_ST_FREE_MEMORY		Free Logical Memory Size
-SM_ST_TOTAL_PHYS		Total Physical Memory Size
-SM_ST_USED_PHYS			Used Physical Memory Size
-SM_ST_FREE_PHYS			Free Physical Memory Size
+SM_ST_NUM_TCP			Количество активных сокетов
+SM_ST_NUM_TCP_LOCAL		Количество активных сокетов (этот сервер)
+SM_ST_NUM_TCP_REMOTE	Количество активных сокетов (другие серверы)
+SM_ST_NUM_HUB_TOTAL		Количество Virtual Hubs
+SM_ST_NUM_HUB_STATIC	Количество статических Virtual Hubs
+SM_ST_NUM_HUB_DYNAMIC	Количество динамических Virtual Hubs
+SM_ST_NUM_SESSION_TOTAL	Количество сессий
+SM_ST_NUM_SESSION_LOCAL	Количество сессий (этот сервер)
+SM_ST_NUM_SESSION_REMOTE	Количество сессий (другие серверы)
+SM_ST_NUM_MAC_TABLE		Количество MAC-адресов
+SM_ST_NUM_IP_TABLE		Количество IP-адресов
+SM_ST_NUM_USERS			Количество пользователей
+SM_ST_NUM_GROUPS		Количество групп
+SM_ST_CLIENT_LICENSE	Исп. клиентских лицензий на подключение (этот сервер)
+SM_ST_BRIDGE_LICENSE	Исп. лицензий на подключение к мосту (этот сервер)
+SM_ST_CLIENT_LICENSE_EX	Исп. клиентских лицензий на подключение (Весь кластер)
+SM_ST_BRIDGE_LICENSE_EX	Исп. лицензий на подключение к мосту (Весь кластер)
+SM_ST_START_TIME		Сервер запущен в
+SM_ST_CURRENT_TIME		Текущее время
+SM_ST_CURRENT_TICK		64-битные высокоточные системные часы
+SM_ST_TOTAL_MEMORY		Общий объем логической памяти
+SM_ST_USED_MEMORY		Используемый объем логической памяти
+SM_ST_FREE_MEMORY		Свободный объем логической памяти
+SM_ST_TOTAL_PHYS		Общий объем физической памяти
+SM_ST_USED_PHYS			Используемый объем физической памяти
+SM_ST_FREE_PHYS			Свободный объем физической памяти
 SM_ST_RAM_SIZE_KB		%S байт
-SM_INFO_TITLE			VPN Server Version Information
+SM_INFO_TITLE			Информация о версии VPN-сервера
 SM_INFO_PRODUCT_NAME	Название продукта
 SM_INFO_VERSION			Версия
 SM_INFO_BUILD			Сборка
-SM_INFO_HOSTNAME		Host Name
-SM_OS_SYSTEM_NAME		Type of Operating System
-SM_OS_PRODUCT_NAME		Product Name of Operating System
-SM_OS_SERVICE_PACK		Service Pack
-SM_OS_SP_TAG			Service Pack %u
-SM_OS_VENDER_NAME		Operating System Vendor
-SM_OS_VERSION			Operating System Version
-SM_OS_KERNEL_NAME		Type of OS Kernel
-SM_OS_KERNEL_VERSION	Version of OS Kernel
-SM_CONNECTION_TYPE_0	Client
-SM_CONNECTION_TYPE_1	Initializing...
-SM_CONNECTION_TYPE_2	Login
-SM_CONNECTION_TYPE_3	Additional Connection
-SM_CONNECTION_TYPE_4	Clustering RPC
-SM_CONNECTION_TYPE_5	Management RPC
-SM_CONNECTION_TYPE_6	Hub Enumeration RPC
-SM_CONNECTION_TYPE_7	Changing Password
-SM_CONNECTION_TYPE_8	MS-SSTP Connection
-SM_CONNECTION_TYPE_9	OpenVPN Connection
-SM_CONN_COLUMN_1		Connection Name
-SM_CONN_COLUMN_2		Connection Source
-SM_CONN_COLUMN_3		Connection Start
-SM_CONN_COLUMN_4		Type
+SM_INFO_HOSTNAME		Имя хоста
+SM_OS_SYSTEM_NAME		Тип операционной системы
+SM_OS_PRODUCT_NAME		Название операционной системы
+SM_OS_SERVICE_PACK		Пакет обновлений
+SM_OS_SP_TAG			Пакет обновлений %u
+SM_OS_VENDER_NAME		Поставщик операционной системы
+SM_OS_VERSION			Версия операционной системы
+SM_OS_KERNEL_NAME		Тип ядра ОС 
+SM_OS_KERNEL_VERSION	Версия ядра ОС
+SM_CONNECTION_TYPE_0	Клиент
+SM_CONNECTION_TYPE_1	Инициализация...
+SM_CONNECTION_TYPE_2	Логин
+SM_CONNECTION_TYPE_3	Дополнительное подключение
+SM_CONNECTION_TYPE_4	Кластер RPC
+SM_CONNECTION_TYPE_5	Управление RPC
+SM_CONNECTION_TYPE_6	Hub список RPC
+SM_CONNECTION_TYPE_7	Смена пароля
+SM_CONNECTION_TYPE_8	MS-SSTP подключение
+SM_CONNECTION_TYPE_9	OpenVPN подключение
+SM_CONN_COLUMN_1		Название подключения
+SM_CONN_COLUMN_2		Источник подключения
+SM_CONN_COLUMN_3		Начало подключения
+SM_CONN_COLUMN_4		Тип
 SM_HOSTNAME_AND_PORT	%S: %u
-SM_CONN_DISCONNECT_MSG	This will disconnect connection %s. \r\nDo you really want to do this?
-SM_CONNINFO_CAPTION		Connection %s Information
-SM_CONNINFO_NAME		Connection Name
-SM_CONNINFO_TYPE		Connection Type
-SM_CONNINFO_HOSTNAME	Source Host Name
-SM_CONNINFO_IP			Client IP Address
-SM_CONNINFO_PORT		Client Port Number (TCP)
-SM_CONNINFO_TIME		Connection Start
-SM_CONNINFO_SERVER_STR	Server Product Name
-SM_CONNINFO_SERVER_VER	Sever Version
-SM_CONNINFO_SERVER_BUILD	Server Build Number
-SM_CONNINFO_CLIENT_STR	Client Product Name
-SM_CONNINFO_CLIENT_VER	Client Version
-SM_CONNINFO_CLIENT_BUILD	Client Build
-SM_FARM_REBOOT_MSG		You are about to change the clustering configuration. \r\n\r\nWhen you change the clustering configuration, all currently connected sessions and connections for management purposes (including this management connection) will be disconnected and the server program will restart. \r\nWhen there are many server users, it could take over a minute to restart. \r\n\r\nClick OK to automatically disconnect the connection with the server. To continue management, you will need to reconnect to the server.
-SM_FM_COLUMN_1			Type
-SM_FM_COLUMN_2			Connection Started at
-SM_FM_COLUMN_3			Host Name
+SM_CONN_DISCONNECT_MSG	Это действие отключит подключение %s. \r\nВы действительно хотите сделать это?
+SM_CONNINFO_CAPTION		Информация о подключении %s
+SM_CONNINFO_NAME		Название подключения
+SM_CONNINFO_TYPE		Тип подключения
+SM_CONNINFO_HOSTNAME	Имя хоста источника
+SM_CONNINFO_IP			IP-адрес клиента
+SM_CONNINFO_PORT		Номер порта клиента (TCP)
+SM_CONNINFO_TIME		Начало подключения
+SM_CONNINFO_SERVER_STR	Название ПО сервера
+SM_CONNINFO_SERVER_VER	Версия сервера
+SM_CONNINFO_SERVER_BUILD	Номер сборки сервера
+SM_CONNINFO_CLIENT_STR	Название ПО клиента
+SM_CONNINFO_CLIENT_VER	Версия клиента
+SM_CONNINFO_CLIENT_BUILD	Номер сборки клиента
+SM_FARM_REBOOT_MSG		Вы собираетесь изменить конфигурацию кластера. \r\n\r\nПри изменении конфигурации кластера все подключенные в настоящее время сессии и подключения, используемые для управления (включая это подключение управления), будут отключены, а служба сервера будет перезапущена. \r\nПри наличии большого количества пользователей перезапуск сервера может занять более минуты. \r\n\r\nНажмите "ОК", чтобы автоматически отключить соединение с сервером. Чтобы продолжить управление, вам нужно будет повторно подключиться к серверу.
+SM_FM_COLUMN_1			Тип
+SM_FM_COLUMN_2			Начало подключения
+SM_FM_COLUMN_3			Имя хоста
 SM_FM_COLUMN_4			Point
-SM_FM_COLUMN_5			Number of Sessions
-SM_FM_COLUMN_6			Number of TCP Connections
-SM_FM_COLUMN_7			Number of Operating Hubs
-SM_FM_COLUMN_8			Using Client Connection Licenses
+SM_FM_COLUMN_5			Количество сессий
+SM_FM_COLUMN_6			Количество TCP подключений
+SM_FM_COLUMN_7			Количество действующих Hubs
+SM_FM_COLUMN_8			Исп. клиентских лицензий на подключение
 SM_FM_COLUMN_9			Using Bridge Connection Licenses
 SM_FM_CONTROLLER		Controller
 SM_FM_MEMBER			Member
