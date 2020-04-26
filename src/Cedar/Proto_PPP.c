@@ -1088,8 +1088,11 @@ bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	USHORT NegotiatedMRU = PPP_UNSPECIFIED;
 	// MSCHAPv2 code
 	UCHAR ms_chap_v2_code[3];
+
 	WRITE_USHORT(ms_chap_v2_code, PPP_LCP_AUTH_CHAP);
 	ms_chap_v2_code[2] = PPP_CHAP_ALG_MS_CHAP_V2;
+
+	Debug("Got LCP packet request ID=%i OptionsListSize=%i\n", pp->Lcp->Id, LIST_NUM(pp->Lcp->OptionList));
 
 	for (i = 0; i < LIST_NUM(pp->Lcp->OptionList); i++)
 	{
@@ -1359,6 +1362,8 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
 {
 	PPP_IPOPTION o;
 	PPP_IPOPTION res;
+	PPP_OPTION *dummyIpOption;
+	UINT dummyIp = 0;
 	DHCP_OPTION_LIST cao;
 	IP client_ip;
 	IP subnet;
@@ -1366,21 +1371,27 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
 	IP gw;
 	bool ok = true;
 	bool processed = false;
+	bool isEmptyIpAddress = false;
+	PPP_LCP* c;
 
 	if (p->IPv4_State == PPP_PROTO_STATUS_REJECTED)
 	{
-		Debug("We got an IPCP packet after we had it rejected");
+		Debug("We got an IPCP packet after we had it rejected\n");
 		return PPPRejectUnsupportedPacketEx(p, pp, true);
 	}
 
 	if (!PPPGetIPOptionFromLCP(&o, pp->Lcp))
 	{
-		Debug("Unsupported IPCP request!");
-		ok = false;
+		Debug("IPCP request without client IP address received! Treating as zeroed out client IP...\n");
+		isEmptyIpAddress = true;
+		dummyIpOption = NewPPPOption(PPP_IPCP_OPTION_IP, &dummyIp, sizeof(UINT));
+		dummyIpOption->IsSupported = true;
+		dummyIpOption->IsAccepted = false;
+		Add(pp->Lcp->OptionList, dummyIpOption);
 	}
 
 	// Process if not configured yet by server
-	if (IsZero(&p->ClientAddressOption, sizeof(DHCP_OPTION_LIST)) && ok)
+	if ((IsZero(&p->ClientAddressOption, sizeof(DHCP_OPTION_LIST)) || isEmptyIpAddress) && ok)
 	{
 		// Decide if we received a static IP from client and it is allowed
 		if (IsZeroIP(&o.IpAddress) == false)
@@ -1618,6 +1629,7 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
 		Zero(&res, sizeof(res));
 		// We will try to reconfigure if we receive another request by wiping all data
 		Zero(&p->ClientAddressOption, sizeof(DHCP_OPTION_LIST));
+		p->UseStaticIPAddress = false;
 
 		PPPSetIPOptionToLCP(&res, pp->Lcp, true);
 	}
@@ -1792,6 +1804,12 @@ bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate)
 	UINT i = 0;
 	PPP_PACKET* ret;
 	bool toBeACKed = false;
+	if (LIST_NUM(pp->Lcp->OptionList) == 0)
+	{
+		// We acknoweldge an empty option list
+		toBeACKed = true;
+		Debug("ACKing empty LCP options list, id=%i\n", pp->Lcp->Id);
+	}
 	for (i = 0; i < LIST_NUM(pp->Lcp->OptionList); i++)
 	{
 		PPP_OPTION *t = LIST_DATA(pp->Lcp->OptionList, i);
@@ -1826,7 +1844,7 @@ bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate)
 		}
 	}
 
-	if (LIST_NUM(ret->Lcp->OptionList) == 0 || simulate)
+	if (simulate)
 	{
 		FreePPPPacket(ret);
 		return false;
