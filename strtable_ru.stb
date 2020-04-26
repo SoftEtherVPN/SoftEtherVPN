@@ -1367,140 +1367,140 @@ SM_EDIT_USER_CERT_INFO	Пользователям, использующим "А�
 SM_EDIT_USER_POL_DLG	Политика безопасности пользователя %S
 SM_POLICY_DEF_CAPTION	Политика безопасности
 SM_LIMIT_STR			Укажите целое число в диапазоне от %u до %u.
-SM_POLICY_INIT_TITLE	Select a policy item from the list on the left.
-SM_USER_CREATE_OK		User %S has been created.
-SM_USERINFO_CAPTION		User "%S" Information
-SM_USERINFO_NAME		User Name
-SM_USERINFO_GROUP		Group Name
-SM_USERINFO_CREATE		Created on
-SM_USERINFO_UPDATE		Updated on
-SM_USERINFO_EXPIRE		Expiration Date
-SM_USERINFO_NUMLOGIN	Number of Logins
-SM_GROUPLIST_NAME		Group Name
-SM_GROUPLIST_REALNAME	Full Name
-SM_GROUPLIST_NOTE		Description
-SM_GROUPLIST_NUMUSERS	Num Users
-SM_EDIT_GROUP_CAPTION_1	Creation of New Group
-SM_EDIT_GROUP_CAPTION_2	Properties of Group %S
-SM_GROUP_CREATED		Group %S has been created.
-SM_GROUP_DELETE_MSG		Group %S has been deleted. Do you really want to do this?
-SM_GROUP_POLICY_CAPTION	Security Policy of Group %S
-SM_GROUP_MEMBER_STR		\ (Display only users belonging to group %S)
-SM_SELECT_GROUP			&Select
-SM_SELECT_NO_GROUP		&None
-SM_SELECT_ALT_GROUP		Select a &Group...
+SM_POLICY_INIT_TITLE	Выберите элемент политики из списка слева.
+SM_USER_CREATE_OK		Был создан пользователь %S.
+SM_USERINFO_CAPTION		Информация о пользователе "%S"
+SM_USERINFO_NAME		Имя пользователя
+SM_USERINFO_GROUP		Название группы
+SM_USERINFO_CREATE		Создан
+SM_USERINFO_UPDATE		Обновлен
+SM_USERINFO_EXPIRE		Дата окончания
+SM_USERINFO_NUMLOGIN	Количество входов
+SM_GROUPLIST_NAME		Название группы
+SM_GROUPLIST_REALNAME	Полное имя
+SM_GROUPLIST_NOTE		Описание
+SM_GROUPLIST_NUMUSERS	Кол-во пользователей
+SM_EDIT_GROUP_CAPTION_1	Создание новой группы
+SM_EDIT_GROUP_CAPTION_2	Свойства группы %S
+SM_GROUP_CREATED		 Была создана группа %S.
+SM_GROUP_DELETE_MSG		Группа %S будет удалена. Вы действительно хотите сделать это?
+SM_GROUP_POLICY_CAPTION	Политика безопасности группы %S
+SM_GROUP_MEMBER_STR		\ (Отображать только пользователей, принадлежащих к группе %S)
+SM_SELECT_GROUP			&Выбрать
+SM_SELECT_NO_GROUP		&Нет
+SM_SELECT_ALT_GROUP		Выберите группу...
 SM_ACCESS_COLUMN_0		ID
-SM_ACCESS_COLUMN_1		Action
-SM_ACCESS_COLUMN_2		Status
-SM_ACCESS_COLUMN_3		Priority
+SM_ACCESS_COLUMN_1		Действие
+SM_ACCESS_COLUMN_2		Состояние
+SM_ACCESS_COLUMN_3		Приоритет
 SM_ACCESS_COLUMN_4		Memo
-SM_ACCESS_COLUMN_5		Contents
-SM_ACCESS_COLUMN_6		Unique ID
+SM_ACCESS_COLUMN_5		Содержание
+SM_ACCESS_COLUMN_6		Уникальный ID
 SM_ACCESS_PASS			Pass
 SM_ACCESS_DISCARD		Discard
 SM_ACCESS_ENABLE		Enable
 SM_ACCESS_DISABLE		Disable
-SM_ACCESS_PROTO_1		All IPv4 / IPv6 Protocols
-SM_ACCESS_PROTO_2		6 (TCP/IP Protocol)
-SM_ACCESS_PROTO_3		17 (UDP/IP Protocol)
-SM_ACCESS_PROTO_4		1 (ICMPv4 Protocol)
-SM_ACCESS_PROTO_5		58 (ICMPv6 Protocol)
-SM_ACCESS_PROTO_6		Specify the IP Protocol Number
-SM_SELECT_USER			&Select
-SM_SELECT_NO			Do&n't Select
-SM_PLEASE_SELECT		Select User.
-SM_LINK_COLUMN_1		Setting Name
-SM_LINK_COLUMN_2		Status
-SM_LINK_COLUMN_3		Established at
-SM_LINK_COLUMN_4		Destination VPN Server
+SM_ACCESS_PROTO_1		Все протоколы IPv4 / IPv6
+SM_ACCESS_PROTO_2		6 (протокол TCP/IP)
+SM_ACCESS_PROTO_3		17 (протокол UDP/IP)
+SM_ACCESS_PROTO_4		1 (протокол ICMPv4)
+SM_ACCESS_PROTO_5		58 (протокол ICMPv6)
+SM_ACCESS_PROTO_6		Укажите номер IP протокола
+SM_SELECT_USER			&Выбрать
+SM_SELECT_NO			Не выбирать
+SM_PLEASE_SELECT		Выберите пользователя.
+SM_LINK_COLUMN_1		Имя параметра
+SM_LINK_COLUMN_2		Состояние
+SM_LINK_COLUMN_3		Установленно
+SM_LINK_COLUMN_4		VPN-сервер назначения
 SM_LINK_COLUMN_5		Virtual Hub
 SM_LINK_STATUS_OFFLINE	Offline (Stopped)
-SM_LINK_STATUS_ERROR	Error %u: %s
+SM_LINK_STATUS_ERROR	Ошибка %u: %s
 SM_LINK_STATUS_ONLINE	Online (Established)
-SM_LINK_POLICY_GROUP	Cascade Connection Setting
-SM_LINK_POLICY_CAPTION	Security policy settings applicable to Cascade sessions
-SM_LINK_CONNECTING		Connecting
-SM_LINK_SAVE_ONLINE		Although the Cascade Connection Setting "%s" has been changed, this Cascade Connection is currently online. The setting will not be applied until next time the connection is established.
-SM_LINK_DELETE_MSG		This will delete the settings for Cascade Connection "%s". Do you really want to do this?
-SM_LINK_OFFLINE_MSG		Currently Cascade Connection "%s" is active. Do you want to disconnect this connection?
-SM_LINK_STATUS_CAPTION	Connection status of Cascade Connection "%s"
+SM_LINK_POLICY_GROUP	Настройка каскадного подключения
+SM_LINK_POLICY_CAPTION	Параметры политики безопасности, применимые к каскадным сессиям
+SM_LINK_CONNECTING		Подключение
+SM_LINK_SAVE_ONLINE		Хотя параметр "%s" каскадного подключения был изменен, это каскадное подключение все еще активно. Настройка будет применена при следующем подключении.
+SM_LINK_DELETE_MSG		Это действие удалит настройки каскадного подключения "%s". Вы действительно хотите сделать это?
+SM_LINK_OFFLINE_MSG		В настоящее время каскадное подключение "%s" активно. Вы хотите отключить его?
+SM_LINK_STATUS_CAPTION	Состояние каскадного подключения "%s"
 SM_LOG_SWITCH_0			No Switching
 SM_LOG_SWITCH_1			Switch in Every Second
 SM_LOG_SWITCH_2			Switch in Every Minute
 SM_LOG_SWITCH_3			Switch in Every Hour
 SM_LOG_SWITCH_4			Switch in Every Day
 SM_LOG_SWITCH_5			Switch in Every Month
-SM_SESS_DISCONNECT_MSG	This will disconnect session "%S". Do you really want to do this?
-SM_SESS_COLUMN_1		Session Name
-SM_SESS_COLUMN_2		Location
-SM_SESS_COLUMN_3		User Name
-SM_SESS_COLUMN_4		Source Host Name
-SM_SESS_COLUMN_5		TCP Connections
-SM_SESS_COLUMN_6		Transfer Bytes
-SM_SESS_COLUMN_7		Transfer Packets
+SM_SESS_DISCONNECT_MSG	Это действие отключит сессию "%S". Вы действительно хотите сделать это?
+SM_SESS_COLUMN_1		Название сессии
+SM_SESS_COLUMN_2		Расположение
+SM_SESS_COLUMN_3		Имя пользователя
+SM_SESS_COLUMN_4		Имя хоста источника
+SM_SESS_COLUMN_5		TCP подключения
+SM_SESS_COLUMN_6		Передано байтов
+SM_SESS_COLUMN_7		Передано пакетов
 SM_SESS_COLUMN_8		VLAN ID
-SM_SESS_NORMAL			Local Session
-SM_SESS_LOCAL			Local Session
+SM_SESS_NORMAL			Локальная сессия
+SM_SESS_LOCAL			Локальная сессия
 SM_SESS_LOCAL_2			On '%S'
 SM_SESS_REMOTE			On '%S'
-SM_SESS_LINK			Cascade Connection
-SM_SESS_LINK_HOSTNAME	Virtual Host
-SM_SESS_LINK_TCP		None
-SM_SESS_SNAT			SecureNAT Session
-SM_SESS_SNAT_HOSTNAME	Virtual Host
-SM_SESS_SNAT_TCP		None
-SM_SESS_BRIDGE			Local Bridge Session
-SM_SESS_BRIDGE_HOSTNAME	Ethernet Bridge
-SM_SESS_LAYER3_HOSTNAME	Virtual Layer 3 Switch
-SM_SESS_BRIDGE_TCP		None
-SM_SESS_STATUS_CAPTION	VPN Session "%S" Status
-SM_SESS_STATUS_USERNAME	User Name (Authentication)
-SM_SESS_STATUS_REALUSER	User Name (Database)
-SM_SESS_STATUS_GROUPNAME	Group Name
-SM_CLIENT_IP			Client IP Address
-SM_CLIENT_HOSTNAME		Client Host Name
-SM_NODE_CLIENT_NAME		Client Product Name (Reported)
-SM_NODE_CLIENT_VER		Client Version (Reported)
-SM_NODE_CLIENT_BUILD	Client Build (Reported)
-SM_NODE_SERVER_NAME		Server Product Name (Reported)
-SM_NODE_SERVER_VER		Server Version (Reported)
-SM_NODE_SERVER_BUILD	Server Build (Reported)
-SM_NODE_CLIENT_OS_NAME	Client OS Name (Reported)
-SM_NODE_CLIENT_OS_VER	Client OS Version (Reported)
-SM_NODE_CLIENT_OS_PID	Client OS Product ID (Reported)
-SM_NODE_CLIENT_HOST		Client Host Name (Reported)
-SM_NODE_CLIENT_IP		Client IP Address  (Reported)
-SM_NODE_CLIENT_PORT		Client Port (Reported)
-SM_NODE_SERVER_HOST		Server Host Name (Reported)
-SM_NODE_SERVER_IP		Server IP Address (Reported)
-SM_NODE_SERVER_PORT		Server Port (Reported)
-SM_NODE_PROXY_HOSTNAME	Proxy Host Name (Reported)
-SM_NODE_PROXY_IP		Proxy IP Address (Reported)
-SM_NODE_PROXY_PORT		Proxy Port (Reported)
-SM_MAC_COLUMN_1			Session Name
-SM_MAC_COLUMN_2			MAC Address
-SM_MAC_COLUMN_3			Created at
-SM_MAC_COLUMN_4			Updated at
-SM_MAC_COLUMN_5			Location
+SM_SESS_LINK			Каскадное подключение
+SM_SESS_LINK_HOSTNAME	Виртуальный хост
+SM_SESS_LINK_TCP		Нет
+SM_SESS_SNAT			SecureNAT сессия
+SM_SESS_SNAT_HOSTNAME	Виртуальный хост
+SM_SESS_SNAT_TCP		Нет
+SM_SESS_BRIDGE			Сессия локального моста
+SM_SESS_BRIDGE_HOSTNAME	Мост Ethernet
+SM_SESS_LAYER3_HOSTNAME	Виртуальный коммутатор 3 уровня
+SM_SESS_BRIDGE_TCP		Нет
+SM_SESS_STATUS_CAPTION	Состояние VPN сессии "%S"
+SM_SESS_STATUS_USERNAME	Имя пользователя (авторизация)
+SM_SESS_STATUS_REALUSER	Имя пользователя (база данных)
+SM_SESS_STATUS_GROUPNAME	Название группы
+SM_CLIENT_IP			IP-адрес клиента
+SM_CLIENT_HOSTNAME		Имя хоста клиента
+SM_NODE_CLIENT_NAME		Название ПО клиента (Отчет)
+SM_NODE_CLIENT_VER		Версия клиента (Отчет)
+SM_NODE_CLIENT_BUILD	Сборка клиента (Отчет)
+SM_NODE_SERVER_NAME		Название ПО сервера (Отчет)
+SM_NODE_SERVER_VER		Версия сервера (Отчет)
+SM_NODE_SERVER_BUILD	Сборка сервера (Отчет)
+SM_NODE_CLIENT_OS_NAME	Название ОС клиента (Отчет)
+SM_NODE_CLIENT_OS_VER	Версия ОС клиента (Отчет)
+SM_NODE_CLIENT_OS_PID	ID ОС клиента (Отчет)
+SM_NODE_CLIENT_HOST		Имя хоста клиента (Отчет)
+SM_NODE_CLIENT_IP		IP-адрес клиента  (Отчет)
+SM_NODE_CLIENT_PORT		Порт клиента (Отчет)
+SM_NODE_SERVER_HOST		Имя хоста сервера (Отчет)
+SM_NODE_SERVER_IP		IP-адрес сервера (Отчет)
+SM_NODE_SERVER_PORT		Порт сервера (Отчет)
+SM_NODE_PROXY_HOSTNAME	Имя хоста прокси (Отчет)
+SM_NODE_PROXY_IP		IP-адрес прокси (Отчет)
+SM_NODE_PROXY_PORT		Порт прокси (Отчет)
+SM_MAC_COLUMN_1			Название сессии
+SM_MAC_COLUMN_2			MAC-адрес
+SM_MAC_COLUMN_3			Создан
+SM_MAC_COLUMN_4			Обновлен
+SM_MAC_COLUMN_5			Расположение
 SM_MAC_COLUMN_1A		VLAN ID
-SM_SESSION_FILTER		\ (Displays only entries of session %S)
-SM_IP_COLUMN_1			Session Name
-SM_IP_COLUMN_2			IP Address
-SM_IP_COLUMN_3			Created at
-SM_IP_COLUMN_4			Updated at
-SM_IP_COLUMN_5			Location
+SM_SESSION_FILTER		\ (Отображать только записи сессии %S)
+SM_IP_COLUMN_1			Название сессии
+SM_IP_COLUMN_2			IP-адрес
+SM_IP_COLUMN_3			Создан
+SM_IP_COLUMN_4			Обновлен
+SM_IP_COLUMN_5			Расположение
 SM_MAC_IP_DHCP			%S (DHCP)
-SM_MACIP_LOCAL			On This Server
-SM_MACIP_SERVER			On '%S'
-SM_SNAT_STATUS			SecureNAT Operating Status
-SM_SNAT_NUM_SESSION		%u Session
-SM_SNAT_NUM_CLIENT		%u Client
-SM_SNAT_IS_KERNEL		Kernel-mode NAT is Active
-SM_SNAT_IS_RAW			Raw IP mode NAT is Active
-SM_BRIDGE_TOO_OLD_VER	The Local Bridge function is not supported by the version of the VPN Server that is currently connected. \r\nTry update to a new version.
-SM_BRIDGE_UNSUPPORTED	Unable to use the Local Bridge function with the operating system that this VPN Server is operating on. For the list of operating system that the Local Bridge function can be used on, refer to the online documentation of the VPN Server.
-SM_BRIDGE_WPCAP_REMOTE	In order to use the Local Bridge function on this VPN Server, you must install the WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nTo continue the installation of the WinPcap software, you must start SoftEther VPN Server Manager on the server computer that is running VPN Server and then while connected to localhost (location of your own computer), have the Local Bridge Function Setting window displayed. \r\nTo continue, first exit this management session, and then, after starting SoftEther VPN Server Manager on the server computer, connect to localhost and continue the setting process. 
-SM_BRIDGE_WPCAP_ROOT	In order to use the Local Bridge function on this VPN Server, you must install the WinPcap software. \r\n\r\nTo continue the installation you must log in to this computer as a user with administrator privileges. \r\nLog on as an administrator and start the SoftEther VPN Server Manager again.
+SM_MACIP_LOCAL			На этом сервере
+SM_MACIP_SERVER			На '%S'
+SM_SNAT_STATUS			Рабочее состояние SecureNAT
+SM_SNAT_NUM_SESSION		Сессий %u
+SM_SNAT_NUM_CLIENT		Клиентов %u
+SM_SNAT_IS_KERNEL		NAT в режиме ядра активен
+SM_SNAT_IS_RAW			Режим Raw IP NAT активен
+SM_BRIDGE_TOO_OLD_VER	Функция локального моста не поддерживается этой версией VPN-сервера \r\nПопробуйте обновить до новой версии.
+SM_BRIDGE_UNSUPPORTED	Невозможно использовать функцию локального моста с этой операционной системой. Список операционных систем, в которых можно использовать функцию локального моста, см. в онлайн документации по VPN-серверу.
+SM_BRIDGE_WPCAP_REMOTE	Чтобы использовать функцию локального моста на этом VPN-сервере, необходимо установить утилиту WinPcap. Программное обеспечение WinPcap в настоящее время не установлено на сервере. \r\n\r\nЧтобы продолжить установку утилиты WinPcap, запустите SoftEther VPN-сервер менеджер на компьютере с VPN-сервером, подключитесь к localhost (местоположение вашего собственного компьютера), и откройте окно "Настройка функций локального моста". \r\nДля продолжения перезапустите SoftEther VPN-сервер менеджер, подключитесь к localhost и продолжите процесс настройки.
+SM_BRIDGE_WPCAP_ROOT	Чтобы использовать функцию локального моста на этом VPN-сервере, необходимо установить утилиту WinPcap. \r\n\r\nДля продолжения установки вы должны войти на этот компьютер с правами администратора. \r\nВойдите как администратор и снова запустите SoftEther VPN-сервер менеджер.
 SM_BRIDGE_WPCAP_INSTALL	In order to use the Local Bridge function on this VPN Server, you must install the WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nWinPcap is an easy-to-install free software that is bundled together with the VPN Server. \r\n\r\nDo you want to begin the installation of WinPcap?
 SM_BRIDGE_WPCAP_REBOOT1	After WinPcap installation has completed, you must restart the computer before you use the Local Bridge function again. \r\n\r\nAfter you restart the computer manually and start VPN Server, configure the settings for the Local Bridge function.
 SM_BRIDGE_WPCAP_REBOOT2	After WinPcap installation has completed, you must restart the SoftEther VPN Server service before you use the Local Bridge function again. \r\n\r\nIt only takes a short time to restart the SoftEther VPN Server service, however all sessions that are currently connected to the VPN Server will be disconnected. \r\nThis management session will also be disconnected, so you will need to reconnect to continue. \r\n\r\nDo you want to restart the SoftEther VPN Server service?
