@@ -1310,63 +1310,63 @@ SM_FM_COLUMN_5			Количество сессий
 SM_FM_COLUMN_6			Количество TCP подключений
 SM_FM_COLUMN_7			Количество действующих Hubs
 SM_FM_COLUMN_8			Исп. клиентских лицензий на подключение
-SM_FM_COLUMN_9			Using Bridge Connection Licenses
-SM_FM_CONTROLLER		Controller
-SM_FM_MEMBER			Member
-SM_FMINFO_TYPE			Server Type
-SM_FMINFO_CONNECT_TIME	Connection Established at
-SM_FMINFO_IP			IP Address
-SM_FMINFO_HOSTNAME		Host Name
+SM_FM_COLUMN_9			Исп. лицензий на подключение к мосту
+SM_FM_CONTROLLER		Контроллер
+SM_FM_MEMBER			Член
+SM_FMINFO_TYPE			Тип сервера
+SM_FMINFO_CONNECT_TIME	Подключение установлено в
+SM_FMINFO_IP			IP-адрес
+SM_FMINFO_HOSTNAME		Имя хоста
 SM_FMINFO_POINT			Point
-SM_FMINFO_WEIGHT		Performance Standard Ratio
-SM_FMINFO_NUM_PORT		Number of Public Ports
-SM_FMINFO_PORT			Public Port #%u (TCP/IP)
-SM_FMINFO_NUM_HUB		Number of Running Virtual Hubs
+SM_FMINFO_WEIGHT		Коэффициент производительности
+SM_FMINFO_NUM_PORT		Количество открытых портов
+SM_FMINFO_PORT			Открытый порт #%u (TCP/IP)
+SM_FMINFO_NUM_HUB		Количество запущенных Virtual Hubs
 SM_FMINFO_HUB			Virtual Hub #%u
-SM_FMINFO_HUB_TAG_1		%S (Dynamic)
-SM_FMINFO_HUB_TAG_2		%S (Static)
-SM_FMINFO_NUM_SESSION	Number of Sessions
-SM_FMINFO_NUN_CONNECTION	Number of TCP Connections
-SM_FMINFO_CAPTION		Cluster Member Server Status
-SM_FC_STATUS_CAPTION	Connection to Cluster Controller Status
-SM_FC_IP				Controller IP Address
-SM_FC_PORT				Controller TCP/IP Port
-SM_FC_STATUS			Connection Status
-SM_FC_ONLINE			Online
-SM_FC_OFFLINE			Offline
-SM_FC_LAST_ERROR		Last Error
-SM_FC_ERROR_TAG			%s (Error Code: %u)
-SM_FC_START_TIME		Connection Started at
-SM_FC_FIRST_TIME		First Connection Established at
-SM_FC_CURRENT_TIME		Current Connection Established at
-SM_FC_NUM_TRY			Number of Connection Attempts
-SM_FC_NUM_CONNECTED		Number of Successful Connections
-SM_FC_NUM_FAILED		Number of Failed Connections
-SM_FC_NOT_CONNECTED		(Not Connected)
-SM_CHANGE_PASSWORD_1	The passwords you entered did not match. Enter the same password in Confirm as you enter in Password.
-SM_CHANGE_PASSWORD_2	You have entered an empty password. Continue anyway?
-SM_CHANGE_PASSWORD_3	The password has been changed.
-SM_USER_COLUMN_1		User Name
-SM_USER_COLUMN_2		Full Name
-SM_USER_COLUMN_3		Group Name
-SM_USER_COLUMN_4		Description
-SM_USER_COLUMN_5		Auth Method
-SM_USER_COLUMN_6		Num Logins
-SM_USER_COLUMN_7		Last Login
-SM_AUTHTYPE_0			Anonymous Authentication
-SM_AUTHTYPE_1			Password Authentication
-SM_AUTHTYPE_2			Individual Certificate Authentication
-SM_AUTHTYPE_3			Signed Certificate Authentication
-SM_AUTHTYPE_4			RADIUS Authentication
-SM_AUTHTYPE_5			NT Domain Authentication
+SM_FMINFO_HUB_TAG_1		%S (динамический)
+SM_FMINFO_HUB_TAG_2		%S (статический)
+SM_FMINFO_NUM_SESSION	Количество сессий
+SM_FMINFO_NUN_CONNECTION	Количество TCP подключений
+SM_FMINFO_CAPTION		Состояние члена кластера
+SM_FC_STATUS_CAPTION	Состояние подключения к контроллеру кластера
+SM_FC_IP				IP-адрес контроллера
+SM_FC_PORT				TCP/IP порт контроллера
+SM_FC_STATUS			Состояние подключения
+SM_FC_ONLINE			Включен
+SM_FC_OFFLINE			Отключен
+SM_FC_LAST_ERROR		Последняя ошибка
+SM_FC_ERROR_TAG			%s (Код ошибки: %u)
+SM_FC_START_TIME		Начало подключения
+SM_FC_FIRST_TIME		Начало первого подключения
+SM_FC_CURRENT_TIME		Начало текущего подключения
+SM_FC_NUM_TRY			Количество попыток подключения
+SM_FC_NUM_CONNECTED		Количество успешных подключений
+SM_FC_NUM_FAILED		Количество неудачных подключений
+SM_FC_NOT_CONNECTED		(Не подключен)
+SM_CHANGE_PASSWORD_1	Введенные вами пароли не совпадают. Введите тот же пароль в поле "Повторить", что и в поле "Пароль".
+SM_CHANGE_PASSWORD_2	Вы ввели пустой пароль. Все равно продолжить?
+SM_CHANGE_PASSWORD_3	Пароль был изменен.
+SM_USER_COLUMN_1		Пользователь
+SM_USER_COLUMN_2		Полное имя
+SM_USER_COLUMN_3		Имя группы
+SM_USER_COLUMN_4		Описание
+SM_USER_COLUMN_5		Метод авторизации
+SM_USER_COLUMN_6		Кол-во входов
+SM_USER_COLUMN_7		Последний вход
+SM_AUTHTYPE_0			Анонимный вход
+SM_AUTHTYPE_1			Авторизация по паролю
+SM_AUTHTYPE_2			Авторизация по личному сертификату
+SM_AUTHTYPE_3			Авторизация по подписанному сертификату
+SM_AUTHTYPE_4			Авторизация на RADIUS сервере
+SM_AUTHTYPE_5			Авторизация в домене
 SM_NO_GROUP				-
-SM_USER_DELETE_MSG		This will delete the user "%s". Do you really want to do this?
-SM_EDIT_USER_CAPTION_1	Create New User
-SM_EDIT_USER_CAPTION_2	Properties of User %S
-SM_EDIT_USER_CERT_INFO	The users using 'Individual Certificate Authentication' will be allowed or denied connection depending on whether the SSL client certificate completely matches the certificate that has been set for the user beforehand.
-SM_EDIT_USER_POL_DLG	Security Policy of User %S
-SM_POLICY_DEF_CAPTION	Security Policy
-SM_LIMIT_STR			Specify an integer that is within the range %u to %u.
+SM_USER_DELETE_MSG		Это действие удалит пользователя "%s". Вы действительно хотите сделать это?
+SM_EDIT_USER_CAPTION_1	Создать нового пользователя
+SM_EDIT_USER_CAPTION_2	Свойства пользователя %S
+SM_EDIT_USER_CERT_INFO	Пользователям, использующим "Авторизацию по личному сертификату", будет разрешено или запрещено подключение в зависимости от того, полностью ли совпадает SSL сертификат клиента с сертификатом, который был предварительно установлен для пользователя.
+SM_EDIT_USER_POL_DLG	Политика безопасности пользователя %S
+SM_POLICY_DEF_CAPTION	Политика безопасности
+SM_LIMIT_STR			Укажите целое число в диапазоне от %u до %u.
 SM_POLICY_INIT_TITLE	Select a policy item from the list on the left.
 SM_USER_CREATE_OK		User %S has been created.
 SM_USERINFO_CAPTION		User "%S" Information
