@@ -1501,32 +1501,32 @@ SM_BRIDGE_TOO_OLD_VER	Функция локального моста не под
 SM_BRIDGE_UNSUPPORTED	Невозможно использовать функцию локального моста с этой операционной системой. Список операционных систем, в которых можно использовать функцию локального моста, см. в онлайн документации по VPN-серверу.
 SM_BRIDGE_WPCAP_REMOTE	Чтобы использовать функцию локального моста на этом VPN-сервере, необходимо установить утилиту WinPcap. Программное обеспечение WinPcap в настоящее время не установлено на сервере. \r\n\r\nЧтобы продолжить установку утилиты WinPcap, запустите SoftEther VPN-сервер менеджер на компьютере с VPN-сервером, подключитесь к localhost (местоположение вашего собственного компьютера), и откройте окно "Настройка функций локального моста". \r\nДля продолжения перезапустите SoftEther VPN-сервер менеджер, подключитесь к localhost и продолжите процесс настройки.
 SM_BRIDGE_WPCAP_ROOT	Чтобы использовать функцию локального моста на этом VPN-сервере, необходимо установить утилиту WinPcap. \r\n\r\nДля продолжения установки вы должны войти на этот компьютер с правами администратора. \r\nВойдите как администратор и снова запустите SoftEther VPN-сервер менеджер.
-SM_BRIDGE_WPCAP_INSTALL	In order to use the Local Bridge function on this VPN Server, you must install the WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nWinPcap is an easy-to-install free software that is bundled together with the VPN Server. \r\n\r\nDo you want to begin the installation of WinPcap?
-SM_BRIDGE_WPCAP_REBOOT1	After WinPcap installation has completed, you must restart the computer before you use the Local Bridge function again. \r\n\r\nAfter you restart the computer manually and start VPN Server, configure the settings for the Local Bridge function.
-SM_BRIDGE_WPCAP_REBOOT2	After WinPcap installation has completed, you must restart the SoftEther VPN Server service before you use the Local Bridge function again. \r\n\r\nIt only takes a short time to restart the SoftEther VPN Server service, however all sessions that are currently connected to the VPN Server will be disconnected. \r\nThis management session will also be disconnected, so you will need to reconnect to continue. \r\n\r\nDo you want to restart the SoftEther VPN Server service?
-SM_BRIDGE_RESOURCE		Unable to load the WinPcap driver.
-SM_BRIDGE_COLUMN_1		Number
+SM_BRIDGE_WPCAP_INSTALL	Чтобы использовать функцию локального моста на этом VPN-сервере, необходимо установить утилиту WinPcap. Утилита WinPcap в настоящее время не установлена на сервере. \r\n\r\nWinPcap - это простая в установке и бесплатная утилита, которая поставляется вместе с VPN-сервером. \r\n\r\nВы хотите начать установку WinPcap?
+SM_BRIDGE_WPCAP_REBOOT1	После завершения установки WinPcap необходимо перезагрузить компьютер, прежде чем снова использовать функцию локального моста. \r\n\r\nПосле того, как вы перезагрузите компьютер и запустите VPN-сервер, настройте параметры локального моста.
+SM_BRIDGE_WPCAP_REBOOT2	После завершения установки WinPcap необходимо перезапустить службу SoftEther VPN-сервера, прежде чем снова использовать функцию локального моста. \r\n\r\nПерезапуск службы SoftEther VPN-сервера занимает короткое время, однако все сеансы, которые в данный момент подключены к VPN-серверу, будут отключены. \r\nЭтот сеанс управления также будет отключен, поэтому вам нужно будет повторно подключиться, чтобы продолжить. \r\n\r\nХотите перезапустить службу SoftEther VPN-сервера?
+SM_BRIDGE_RESOURCE		Невозможно загрузить WinPcap драйвер.
+SM_BRIDGE_COLUMN_1		Номер
 SM_BRIDGE_COLUMN_2		Название Virtual Hub
-SM_BRIDGE_COLUMN_3		Network Adapter or Tap Device Name
-SM_BRIDGE_COLUMN_4		Status
-SM_BRIDGE_OFFLINE		Offline
-SM_BRIDGE_ONLINE		Operating
-SM_BRIDGE_ERROR			Error
-SM_BRIDGE_OK			The Local Bridge connection definition has been added.
-SM_BRIDGE_DELETE		Do you want to delete the Local Bridge from Virtual Hub "%s" to device "%s"?
-SM_BRIDGE_DELETE_OK		The Local Bridge has been deleted.
-SM_BRIDGE_INTEL			While in the condition that occurs immediately after a new bridge connection is made when bridging to a physical network adapter, depending on the type of network adapter, there are cases where it will not be possible to communicate using TCP/IP to the network adapter using a bridge connection from a computer on the virtual network. \r\n(This phenomenon is known to occur for Intel and Broadcom network adapters.) \r\n\r\n\r\nIf this issue arises, remedy the situation by restarting the computer on which VPN Server / Bridge is running. Normal communication will be possible after the computer has restarted. \r\n\r\n\r\nAlso many wireless network adapters will not respond to the sending of packets in promiscuous mode and when this occurs you will be unable to use the Local Bridge. If this issue arises, try using a regular wired network adapter instead of the wireless network adapter.
-SM_BRIDGE_VPN			You are attempting to make a Local Bridge to "%S".\r\n\r\nA Local Bridge is made between a Virtual Hub and a physical network adapter in usual usage. It is unusual to make a Local Bridge to a Virtual Network Adapter.\r\nPlease make sure that it is your intention.\r\n\r\nDo you really want to continue?
-SM_BRIDGE_INFO_1		Select the Ethernet device (network adapter) for the bridge destination.
-SM_BRIDGE_INFO_2		Enter a name of the new tap device to create.
-SM_CONFIG_SAVED			The configuration file has been saved.
-SM_CONFIG_SAVE_FAILED	Failed to save the configuration file.
-SM_CONFIG_OPEN_FAILED	Unable to open the specified file.
-SM_CONFIG_CONFIRM		This will apply the specified configuration file to the VPN Server. The VPN Server will automatically restart and it will start loading the new configuration file. The users who are currently connected to the VPN Server will be disconnected. This management session will also be disconnected, you will be needing to reconnect to the server. \r\n\r\nDo you want to proceed?
-SM_CONFIG_WRITE_OK		The configuration file on the server side has been overwritten.
-SM_AO_COLUMN_1			Item
-SM_AO_COLUMN_2			Value
-SM_TRUE_OR_FALSE		Set either 0 (false) or 1 (true) for this item.
+SM_BRIDGE_COLUMN_3		Имя сетевого адаптера или Tap устройства
+SM_BRIDGE_COLUMN_4		Состояние
+SM_BRIDGE_OFFLINE		Выключен
+SM_BRIDGE_ONLINE		Работает
+SM_BRIDGE_ERROR			Ошибка
+SM_BRIDGE_OK			Локальный мост был добавлен.
+SM_BRIDGE_DELETE		Вы действительно хотите удалить локальный мост Virtual Hub "%s" для устройства "%s"?
+SM_BRIDGE_DELETE_OK		Локальный мост был удален.
+SM_BRIDGE_INTEL			В зависимости от типа сетевого адаптера бывают случаи, когда невозможно установить TCP/IP соединение с сетевым адаптером через мостовое соединение между компьютером и виртуальной сетью. \r\n(Это явление характерно для сетевых адаптеров Intel и Broadcom.) \r\n\r\n\r\nЕсли эта проблема возникает, исправить ее можно с помощью перезагрузки компьютера, на котором работает VPN Сервер/Мост. После перезагрузки компьютера все должно заработать. \r\n\r\n\r\nТакже многие беспроводные сетевые адаптеры не отвечают на отправку пакетов в "неразборчивом" режиме, и в этом случае вы не сможете использовать локальный мост. Если эта проблема возникает, попробуйте использовать обычный проводной сетевой адаптер вместо беспроводного.
+SM_BRIDGE_VPN			Вы пытаетесь создать локальный мост для "%S".\r\n\r\nОбычно локальный мост создается между Virtual Hub и физическим сетевым адаптером. Необычно создавать локальный мост с виртуальным сетевым адаптером.\r\nПожалуйста убедитесь, что именно это вы и задумали.\r\n\r\nВы действительно хотите продолжить?
+SM_BRIDGE_INFO_1		Выберите Ethernet устройство (сетевой адаптер) предназначенное для моста.
+SM_BRIDGE_INFO_2		Введите имя нового Tap устройства, для его создания.
+SM_CONFIG_SAVED			Файл конфигурации был сохранен.
+SM_CONFIG_SAVE_FAILED	Не удалось сохранить файл конфигурации.
+SM_CONFIG_OPEN_FAILED	Невозможно открыть указанный файл.
+SM_CONFIG_CONFIRM		Это действие применит указанный файл конфигурации к VPN-серверу. VPN-сервер автоматически перезапустится и начнет использовать новый файл конфигурации. Пользователи, которые сейчас подключены к VPN-серверу, будут отключены. Этот сеанс управления также будет отключен, вам необходимо будет повторно подключиться к серверу. \r\n\r\nВы хотите продолжить?
+SM_CONFIG_WRITE_OK		Файл конфигурации сервера был перезаписан.
+SM_AO_COLUMN_1			Наименование
+SM_AO_COLUMN_2			Значение
+SM_TRUE_OR_FALSE		Установите 0 (false) или 1 (true) для этого элемента.
 SM_AO_SET_OK			The Virtual Hub Administration Option has been set.
 SM_EXT_OPTION_SET_OK	The Virtual Hub Extended Option has been set.
 SM_PASSWORD_MSG			Currently an administrator password has not been set for this VPN Server. It is recommended that a password is set. \r\n\r\nDo you want to set a server administrator password?
