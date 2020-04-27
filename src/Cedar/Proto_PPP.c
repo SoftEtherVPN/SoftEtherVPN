@@ -744,11 +744,11 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			USHORT* protocol = pp->Lcp->Data;
 			if (*protocol == PPP_PROTOCOL_IPCP || *protocol == PPP_PROTOCOL_IP)
 			{
-				p->IPv4_State == PPP_PROTO_STATUS_REJECTED;
+				p->IPv4_State = PPP_PROTO_STATUS_REJECTED;
 			}
 			if (*protocol == PPP_PROTOCOL_IPV6CP || *protocol == PPP_PROTOCOL_IPV6)
 			{
-				p->IPv6_State == PPP_PROTO_STATUS_REJECTED;
+				p->IPv6_State = PPP_PROTO_STATUS_REJECTED;
 			}
 		}
 	}
@@ -1031,7 +1031,7 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 		return true;
 	}
 
-	p->IPv4_State == PPP_PROTO_STATUS_CONFIG;
+	p->IPv4_State = PPP_PROTO_STATUS_CONFIG;
 
 	PPPGetIPAddressValueFromLCP(req->Lcp, PPP_IPCP_OPTION_IP, &prevAddrStruct);
 	prevAddr = IPToUINT(&prevAddrStruct);
