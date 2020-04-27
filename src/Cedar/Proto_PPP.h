@@ -32,11 +32,11 @@
 //// Constants
 
 // Time-out value
-#define	PPP_PACKET_RECV_TIMEOUT			(30 * 1000)	// Timeout until the next packet is received
-#define	PPP_PACKET_RESEND_INTERVAL		(5 * 1000)	// Retransmission interval of the last packet
+#define	PPP_PACKET_RECV_TIMEOUT			(15 * 1000)	// Timeout until the next packet is received (3/4 of default policy)
+#define	PPP_PACKET_RESEND_INTERVAL		(3 * 1000)	// Retransmission interval of the last packet
 #define	PPP_TERMINATE_TIMEOUT			2000		// Timeout value to complete disconnection after requesting to disconnect in the PPP
 #define	PPP_ECHO_SEND_INTERVAL			4792		// Transmission interval of PPP Echo Request
-#define	PPP_DATA_TIMEOUT				(60 * 1000)	// Communication time-out
+#define	PPP_DATA_TIMEOUT				(20 * 1000)	// Communication time-out (from default policy)
 
 // MRU
 #define	PPP_MRU_DEFAULT					1500		// Default value
@@ -238,6 +238,13 @@ struct PPP_SESSION
 	
 	PPP_PACKET *CurrentPacket;
 	LIST *DelayedPackets;
+
+	UINT64 PacketRecvTimeout;
+	UINT64 DataTimeout;
+	UINT64 UserConnectionTimeout;
+	UINT64 UserConnectionTick;
+
+	THREAD* SessionThread;				// Thread of the PPP session
 };
 
 
@@ -248,7 +255,7 @@ struct PPP_SESSION
 void PPPThread(THREAD *thread, void *param);
 
 // Entry point
-THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
+PPP_SESSION *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
 
 // PPP processing functions
 bool PPPRejectUnsupportedPacket(PPP_SESSION *p, PPP_PACKET *pp);

@@ -1995,6 +1995,7 @@ UINT CalcL2TPMss(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s)
 // Start the L2TP thread
 void StartL2TPThread(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s)
 {
+	PPP_SESSION* underlyingSession;
 	// Validate arguments
 	if (l2tp == NULL || t == NULL || s == NULL)
 	{
@@ -2023,9 +2024,11 @@ void StartL2TPThread(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s)
 		}
 
 		// Create a PPP thread
-		s->Thread = NewPPPSession(l2tp->Cedar, &t->ClientIp, t->ClientPort, &t->ServerIp, t->ServerPort,
+		underlyingSession = NewPPPSession(l2tp->Cedar, &t->ClientIp, t->ClientPort, &t->ServerIp, t->ServerPort,
 			s->TubeSend, s->TubeRecv, L2TP_IPC_POSTFIX, tmp, t->HostName, l2tp->CryptName,
 			CalcL2TPMss(l2tp, t, s));
+		s->Thread = underlyingSession->SessionThread;
+		s->PPPSession = underlyingSession;
 	}
 }
 
@@ -2122,8 +2125,21 @@ void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 	{
 		L2TP_TUNNEL *t = LIST_DATA(l2tp->TunnelList, i);
 		LIST *delete_session_list = NULL;
+		UINT64 l2tpTimeout = L2TP_TUNNEL_TIMEOUT;
 
-		if ((l2tp->Now >= (t->LastRecvTick + (UINT64)L2TP_TUNNEL_TIMEOUT)) && t->Timedout == false)
+		// If we got on ANY session a higher timeout than the default L2TP tunnel timeout, increase it
+		for (i = 0; i < LIST_NUM(t->SessionList); i++)
+		{
+			L2TP_SESSION* s = LIST_DATA(t->SessionList, i);
+
+			if (s->PPPSession != NULL && s->PPPSession->DataTimeout > l2tpTimeout)
+			{
+				l2tpTimeout = s->PPPSession->DataTimeout;
+			}
+		}
+
+
+		if ((l2tp->Now >= (t->LastRecvTick + (UINT64)l2tpTimeout)) && t->Timedout == false)
 		{
 			// Disconnect the tunnel forcibly if data can not be received for a certain period of time
 			t->Timedout = true;

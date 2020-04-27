@@ -386,10 +386,19 @@ void PPPThread(THREAD *thread, void *param)
 		}
 
 		// Time-out inspection
-		if ((p->LastRecvTime + (UINT64)PPP_DATA_TIMEOUT) <= now)
+		if ((p->LastRecvTime + (UINT64)p->DataTimeout) <= now)
 		{
 			// Communication time-out occurs
 			PPPLog(p, "LP_DATA_TIMEOUT");
+			break;
+		}
+
+		// Maximum PPP session time of the user reached inspection
+		if (p->UserConnectionTick != 0 && p->UserConnectionTimeout != 0 &&
+			p->UserConnectionTick + p->UserConnectionTimeout <= now)
+		{
+			// User connection time-out occurs
+			PPPLog(p, "LP_USER_TIMEOUT");
 			break;
 		}
 
@@ -444,7 +453,7 @@ void PPPThread(THREAD *thread, void *param)
 // Entry point
 
 // Create a new PPP session
-THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
+PPP_SESSION *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
 {
 	PPP_SESSION *p;
 	THREAD *t;
@@ -473,6 +482,10 @@ THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_
 	p->AuthProtocol = NULL;
 	p->MsChapV2_ErrorCode = 691;
 	p->EapClient = NULL;
+
+	p->DataTimeout = PPP_DATA_TIMEOUT;
+	p->PacketRecvTimeout = PPP_PACKET_RECV_TIMEOUT;
+	p->UserConnectionTimeout = 0;
 
 	p->Cedar = cedar;
 	AddRef(cedar->ref);
@@ -510,7 +523,9 @@ THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_
 	// Thread creation
 	t = NewThread(PPPThread, p);
 
-	return t;
+	p->SessionThread = t;
+
+	return p;
 }
 
 // PPP processing functions
@@ -1292,6 +1307,13 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
 								if (ipc != NULL)
 								{
 									p->Ipc = ipc;
+
+									// Setting user timeouts
+									p->PacketRecvTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000 * 3 / 4; // setting to 3/4 of the user timeout
+									p->DataTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000;
+									p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
+									p->UserConnectionTick = Tick64();
+
 									p->AuthOk = true;
 								}
 								else
@@ -1889,7 +1911,7 @@ bool PPPSendAndRetransmitRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c)
 	resend->Id = pp->Lcp->Id;
 	resend->Packet = pp;
 	resend->ResendTime = now + PPP_PACKET_RESEND_INTERVAL;
-	resend->TimeoutTime = now + PPP_PACKET_RECV_TIMEOUT;
+	resend->TimeoutTime = now + p->PacketRecvTimeout;
 
 	Add(p->SentReqPacketList, resend);
 
@@ -1946,7 +1968,7 @@ LABEL_LOOP:
 
 	if (async == false)
 	{
-		d = TubeRecvSync(p->TubeRecv, PPP_PACKET_RECV_TIMEOUT);
+		d = TubeRecvSync(p->TubeRecv, p->PacketRecvTimeout);
 	}
 	else
 	{
@@ -2499,9 +2521,17 @@ bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION* p, PPP_PACKET* pp)
 				{
 					p->Ipc = ipc;
 
+					// Setting user timeouts
+					p->PacketRecvTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000 * 3 / 4; // setting to 3/4 of the user timeout
+					p->DataTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000;
+					p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
+					p->UserConnectionTick = Tick64();
+
 					Copy(p->MsChapV2_ServerResponse, ipc->MsChapV2_ServerResponse, 20);
 
 					ok = true;
+
+					p->AuthOk = true;
 				}
 			}
 			else
