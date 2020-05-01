@@ -2,21 +2,16 @@
 
 #include "Proto_OpenVPN.h"
 
-static LIST *protocols = NULL;
-
-int ProtoCompare(void *p1, void *p2)
+int ProtoImplCompare(void *p1, void *p2)
 {
-	PROTO *proto_1, *proto_2;
+	PROTO_IMPL *impl_1 = p1, *impl_2 = p2;
 
-	if (p1 == NULL || p2 == NULL)
+	if (impl_1 == NULL || impl_2 == NULL)
 	{
 		return 0;
 	}
 
-	proto_1 = (PROTO *)p1;
-	proto_2 = (PROTO *)p2;
-
-	if (StrCmp(proto_1->impl->Name(), proto_2->impl->Name()) == 0)
+	if (StrCmp(impl_1->Name(), impl_2->Name()) == 0)
 	{
 		return true;
 	}
@@ -24,70 +19,58 @@ int ProtoCompare(void *p1, void *p2)
 	return false;
 }
 
-void ProtoInit()
-{
-	if (protocols != NULL)
-	{
-		ProtoFree();
-	}
-
-	protocols = NewList(ProtoCompare);
-
-	// OpenVPN
-	ProtoAdd(OvsGetProtoImpl());
-}
-
-void ProtoFree()
-{
-	UINT i;
-	PROTO_IMPL *impl;
-
-	for (i = 0; i < ProtoNum(); ++i)
-	{
-		PROTO *proto = ProtoGet(i);
-		impl = proto->impl;
-		Free(proto);
-	}
-
-	ReleaseList(protocols);
-	protocols = NULL;
-}
-
-bool ProtoAdd(PROTO_IMPL *impl)
+PROTO *ProtoNew(CEDAR *cedar)
 {
 	PROTO *proto;
 
-	if (protocols == NULL || impl == NULL)
+	if (cedar == NULL)
+	{
+		return NULL;
+	}
+
+	proto = Malloc(sizeof(PROTO));
+	proto->Cedar = cedar;
+	proto->Impls = NewList(ProtoImplCompare);
+
+	AddRef(cedar->ref);
+
+	// OpenVPN
+	ProtoImplAdd(proto, OvsGetProtoImpl());
+
+	return proto;
+}
+
+void ProtoDelete(PROTO *proto)
+{
+	if (proto == NULL)
+	{
+		return;
+	}
+
+	ReleaseList(proto->Impls);
+	ReleaseCedar(proto->Cedar);
+	Free(proto);
+}
+
+bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl) {
+	if (proto == NULL || impl == NULL)
 	{
 		return false;
 	}
 
-	proto = Malloc(sizeof(PROTO));
-	proto->impl = impl;
+	Add(proto->Impls, impl);
 
-	Add(protocols, proto);
-
-	Debug("ProtoAdd(): added %s\n", proto->impl->Name());
+	Debug("ProtoImplAdd(): added %s\n", impl->Name());
 
 	return true;
 }
 
-UINT ProtoNum()
-{
-	return LIST_NUM(protocols);
-}
-
-PROTO *ProtoGet(const UINT index)
-{
-	return LIST_DATA(protocols, index);
-}
-
-PROTO *ProtoDetect(SOCK *sock)
+PROTO_IMPL *ProtoImplDetect(PROTO *proto, SOCK *sock)
 {
 	UCHAR buf[PROTO_CHECK_BUFFER_SIZE];
 	UINT i;
 
-	if (sock == NULL)
+	if (proto == NULL || sock == NULL)
 	{
 		return NULL;
 	}
@@ -97,24 +80,23 @@ PROTO *ProtoDetect(SOCK *sock)
 		return false;
 	}
 
-	for (i = 0; i < ProtoNum(); ++i)
+	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
 	{
-		PROTO *p = ProtoGet(i);
-		if (p->impl->IsPacketForMe(buf, sizeof(buf)))
+		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
+		if (impl->IsPacketForMe(buf, sizeof(buf)))
 		{
-			Debug("ProtoDetect(): %s detected\n", p->impl->Name());
-			return p;
+			Debug("ProtoImplDetect(): %s detected\n", impl->Name());
+			return impl;
 		}
 	}
 
 	return NULL;
 }
 
-bool ProtoHandleConnection(CEDAR *cedar, SOCK *sock)
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 {
-	void *impl_data;
+	void *impl_data = NULL;
 	const PROTO_IMPL *impl;
-	const PROTO *proto;
 
 	UCHAR *buf;
 	TCP_RAW_DATA *recv_raw_data;
@@ -124,22 +106,19 @@ bool ProtoHandleConnection(CEDAR *cedar, SOCK *sock)
 
 	const UINT64 giveup = Tick64() + (UINT64)OPENVPN_NEW_SESSION_DEADLINE_TIMEOUT;
 
-	if (cedar == NULL || sock == NULL)
+	if (proto == NULL || sock == NULL)
 	{
 		return false;
 	}
 
-	proto = ProtoDetect(sock);
-
-	if (proto == NULL)
+	impl = ProtoImplDetect(proto, sock);
+	if (impl == NULL)
 	{
 		Debug("ProtoHandleConnection(): unrecognized protocol\n");
 		return false;
 	}
 
-	impl = proto->impl;
-
-	if (StrCmp(impl->Name(), "OpenVPN") == 0 && cedar->Server->DisableOpenVPNServer == true)
+	if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer == true)
 	{
 		Debug("ProtoHandleConnection(): OpenVPN detected, but it's disabled\n");
 		return false;
@@ -153,7 +132,7 @@ bool ProtoHandleConnection(CEDAR *cedar, SOCK *sock)
 	im = NewInterruptManager();
 	se = NewSockEvent();
 
-	if (impl->Init != NULL && impl->Init(&impl_data, cedar, im, se) == false)
+	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se) == false)
 	{
 		Debug("ProtoHandleConnection(): failed to initialize %s\n", impl->Name());
 		FreeInterruptManager(im);

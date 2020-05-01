@@ -1606,9 +1606,6 @@ void InitCedar()
 
 	// Initialize protocol module
 	InitProtocol();
-
-	// Initialize third-party protocol interface
-	ProtoInit();
 }
 
 // Free Cedar communication module
@@ -1618,9 +1615,6 @@ void FreeCedar()
 	{
 		return;
 	}
-
-	// Free third-party protocol interface
-	ProtoFree();
 
 	// Free protocol module
 	FreeProtocol();

@@ -10,6 +10,12 @@
 #define PROTO_MODE_TCP			1
 #define PROTO_MODE_UDP			2
 
+typedef struct PROTO
+{
+	CEDAR *Cedar;
+	LIST *Impls;
+} PROTO;
+
 typedef struct PROTO_IMPL
 {
 	bool (*Init)(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
@@ -23,22 +29,14 @@ typedef struct PROTO_IMPL
 	UINT (*EstablishedSessions)(void *param);
 } PROTO_IMPL;
 
-typedef struct PROTO
-{
-	PROTO_IMPL *impl;
-} PROTO;
+int ProtoImplCompare(void *p1, void *p2);
 
-int ProtoCompare(void *p1, void *p2);
+PROTO *ProtoNew(CEDAR *cedar);
+void ProtoDelete(PROTO *proto);
 
-void ProtoInit();
-void ProtoFree();
+bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl);
+PROTO_IMPL *ProtoImplDetect(PROTO *proto, SOCK *sock);
 
-bool ProtoAdd(PROTO_IMPL *impl);
-
-UINT ProtoNum();
-PROTO *ProtoGet(const UINT index);
-PROTO *ProtoDetect(SOCK *sock);
-
-bool ProtoHandleConnection(CEDAR *cedar, SOCK *sock);
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock);
 
 #endif
