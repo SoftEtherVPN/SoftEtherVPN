@@ -21,11 +21,14 @@
 #define PPP_CHAP_CODE_IS_REQUEST(c)			((c) == PPP_CHAP_CODE_CHALLENGE || (c) == PPP_CHAP_CODE_SUCCESS || (c) == PPP_CHAP_CODE_FAILURE)
 #define PPP_CHAP_CODE_IS_RESPONSE(c)		((c) == PPP_CHAP_CODE_RESPONSE)
 
-#define	PPP_CODE_IS_RESPONSE(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_RESPONSE(c)))
-#define	PPP_CODE_IS_REQUEST(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_REQUEST(c)))
+#define PPP_EAP_CODE_IS_REQUEST(c)			((c) == PPP_EAP_CODE_REQUEST || (c) == PPP_EAP_CODE_SUCCESS || (c) == PPP_EAP_CODE_FAILURE) // We treat SUCCESS and FAILURE as requests because they affect global state of the EAP protocol
+#define PPP_EAP_CODE_IS_RESPONSE(c)			((c) == PPP_EAP_CODE_RESPONSE)
+
+#define	PPP_CODE_IS_RESPONSE(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_RESPONSE(c)))
+#define	PPP_CODE_IS_REQUEST(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_REQUEST(c)))
 #define	PPP_CODE_IS_WITH_OPTION_LIST(protocol, c) ((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_WITH_OPTION_LIST(c)) || false)
 
-#define	PPP_IS_SUPPORTED_PROTOCOL(p)		((p) == PPP_PROTOCOL_LCP || (p) == PPP_PROTOCOL_PAP || (p) == PPP_PROTOCOL_CHAP || (p) == PPP_PROTOCOL_IPCP || (p) == PPP_PROTOCOL_IPV6CP || (p) == PPP_PROTOCOL_IP || (p) == PPP_PROTOCOL_IPV6)
+#define	PPP_IS_SUPPORTED_PROTOCOL(p)		((p) == PPP_PROTOCOL_LCP || (p) == PPP_PROTOCOL_PAP || (p) == PPP_PROTOCOL_CHAP || (p) == PPP_PROTOCOL_IPCP || (p) == PPP_PROTOCOL_IPV6CP || (p) == PPP_PROTOCOL_IP || (p) == PPP_PROTOCOL_IPV6 || (p) == PPP_PROTOCOL_EAP )
 
 #define PPP_STATUS_IS_UNAVAILABLE(c)		((c) == PPP_STATUS_FAIL || (c) == PPP_STATUS_AUTH_FAIL || (c) == PPP_STATUS_CLOSING || (c) == PPP_STATUS_CLOSING_WAIT || (c) == PPP_STATUS_CLOSED)
 
@@ -48,6 +51,7 @@
 #define	PPP_PROTOCOL_PAP				0xc023
 #define	PPP_PROTOCOL_IPCP				0x8021
 #define	PPP_PROTOCOL_CHAP				0xc223
+#define	PPP_PROTOCOL_EAP				0xc227
 #define PPP_PROTOCOL_IPV6CP				0x8057
 
 // PPP protocol (for transfer)
@@ -92,6 +96,18 @@
 
 // IPV6CP option type
 #define PPP_IPV6CP_OPTION_IID			1
+
+// EAP codes
+#define PPP_EAP_CODE_REQUEST			1
+#define PPP_EAP_CODE_RESPONSE			2
+#define PPP_EAP_CODE_SUCCESS			3
+#define PPP_EAP_CODE_FAILURE			4
+
+// EAP types
+#define PPP_EAP_TYPE_IDENTITY			1
+#define PPP_EAP_TYPE_NOTIFICATION		2
+#define PPP_EAP_TYPE_NAK				3
+#define PPP_EAP_TYPE_TLS				13
 
 // Authentication protocol
 #define	PPP_LCP_AUTH_PAP				PPP_PROTOCOL_PAP
@@ -162,6 +178,28 @@ struct PPP_OPTION
 	bool IsAccepted;					// Flag for whether accepted
 	UCHAR AltData[254];					// Alternate data when it isn't accepted
 	UINT AltDataSize;					// Alternate data size
+};
+
+// PPP EAP packet
+// EAP is a subset of LCP, sharing Code and Id. The Data field is then mapped to this structure
+struct PPP_EAP
+{
+	UCHAR Type;
+	union {
+		UCHAR Data[253]; // LCP Data field = 254 minus 1 byte for Type field
+		struct PPP_EAP_TLS
+		{
+			UCHAR Flags;
+			union {
+				UCHAR TlsDataWithoutLength[252]; // EAP-TLS structure size 1 (Flags) + 252 = 253
+				struct
+				{
+					UINT32 Length;
+					UCHAR Data[248]; // EAP-TLS structure size 1 (Flags) + 4 (TlsSize) + 248 = 253
+				} TlsDataWithLength;
+			};
+		} Tls;
+	};
 };
 
 // PPP request resend
@@ -267,11 +305,13 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessEAPResponsePacket(PPP_SESSION* p, PPP_PACKET* pp, PPP_PACKET* req);
 // Request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPProcessEAPRequestPacket(PPP_SESSION* p, PPP_PACKET* pp);
 
 // LCP option based packets utility
 bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
@@ -280,7 +320,6 @@ bool PPPNackLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPNackLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate);
 bool PPPAckLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
-
 
 // PPP networking functions
 // Send packets
@@ -312,6 +351,8 @@ bool PPPGetIPOptionFromLCP(PPP_IPOPTION *o, PPP_LCP *c);
 bool PPPSetIPOptionToLCP(PPP_IPOPTION *o, PPP_LCP *c, bool only_modify);
 bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip);
 bool PPPSetIPAddressValueToLCP(PPP_LCP *c, UINT type, IP *ip, bool only_modify);
+// EAP packet utilities
+bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT32 datasize);
 // Other packet utilities
 PPP_OPTION *PPPGetOptionValue(PPP_LCP *c, UCHAR type);
 bool IsHubExistsWithLock(CEDAR *cedar, char *hubname);

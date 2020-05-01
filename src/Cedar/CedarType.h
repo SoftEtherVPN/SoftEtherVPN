@@ -500,6 +500,7 @@ typedef struct PPP_IPOPTION PPP_IPOPTION;
 typedef struct PPP_IPV6OPTION PPP_IPV6OPTION;
 typedef struct PPP_REQUEST_RESEND PPP_REQUEST_RESEND;
 typedef struct PPP_DELAYED_PACKET PPP_DELAYED_PACKET;
+typedef struct PPP_EAP PPP_EAP;
 
 
 // ==============================================================

@@ -706,6 +706,9 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 	case PPP_PROTOCOL_IPV6CP:
 		Debug("IPv6CP to be implemented\n");
 		break;
+	case PPP_PROTOCOL_EAP:
+		return PPPProcessEAPResponsePacket(p, pp, req);
+		break;
 	default:
 		Debug("We received a response for an unsupported protocol??? Should be filtered out already! protocol = 0x%x, code = 0x%x\n", pp->Protocol, pp->Lcp->Code);
 		PPPSetStatus(p, PPP_STATUS_FAIL);
@@ -1061,6 +1064,31 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 	return false;
 }
 
+// Process EAP responses
+bool PPPProcessEAPResponsePacket(PPP_SESSION* p, PPP_PACKET* pp, PPP_PACKET* req)
+{
+	PPP_EAP* eap_packet = pp->Lcp->Data;
+	switch (eap_packet->Type)
+	{
+	case PPP_EAP_TYPE_IDENTITY:
+		/// TODO: implement identity response processing
+		break;
+	case PPP_EAP_TYPE_NOTIFICATION:
+		// Basically this is just an acknoweldgment that the notification was accepted by the client. Nothing to do here... 
+		break;
+	case PPP_EAP_TYPE_NAK:
+		/// TODO: implement alternative EAP protocol selection based on received NAK
+		break;
+	case PPP_EAP_TYPE_TLS:
+		/// TODO: implement EAP-TLS protocol here
+		break;
+	default:
+		Debug("We got an unexpected EAP response packet! Ignoring...\n");
+		break;
+	}
+	return false;
+}
+
 
 // Processes request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
@@ -1085,6 +1113,9 @@ bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	case PPP_PROTOCOL_IPV6CP:
 		PPPRejectUnsupportedPacketEx(p, pp, true);
 		Debug("IPv6CP to be implemented\n");
+		break;
+	case PPP_PROTOCOL_EAP:
+		return PPPProcessEAPRequestPacket(p, pp);
 		break;
 	default:
 		Debug("Unsupported protocols should be already filtered out! protocol = 0x%x, code = 0x%x\n", pp->Protocol, pp->Lcp->Code);
@@ -1711,6 +1742,13 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET* pp)
 	return ok;
 }
 
+// Process EAP request packets
+bool PPPProcessEAPRequestPacket(PPP_SESSION* p, PPP_PACKET* pp)
+{
+	/// TODO: to implement
+	return false;
+}
+
 // LCP option based packets utility
 bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET* pp)
 {
@@ -2270,7 +2308,7 @@ PPP_PACKET *ParsePPPPacket(void *data, UINT size)
 	size -= 2;
 	buf += 2;
 
-	if (pp->Protocol == PPP_PROTOCOL_LCP || pp->Protocol == PPP_PROTOCOL_PAP || pp->Protocol == PPP_PROTOCOL_CHAP || pp->Protocol == PPP_PROTOCOL_IPCP || pp->Protocol == PPP_PROTOCOL_IPV6CP)
+	if (pp->Protocol == PPP_PROTOCOL_LCP || pp->Protocol == PPP_PROTOCOL_PAP || pp->Protocol == PPP_PROTOCOL_CHAP || pp->Protocol == PPP_PROTOCOL_IPCP || pp->Protocol == PPP_PROTOCOL_IPV6CP || pp->Protocol == PPP_PROTOCOL_EAP)
 	{
 		pp->IsControl = true;
 	}
@@ -2843,6 +2881,13 @@ bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip)
 	return true;
 }
 
+// EAP packet utilities
+bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT32 datasize)
+{
+	/// TODO: to implement
+	return false;
+}
+
 // Other packet utilities
 
 // Get the option value
@@ -3367,3 +3412,5 @@ char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list)
 
 	return NULL;
 }
+
+
