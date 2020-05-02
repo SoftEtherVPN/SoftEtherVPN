@@ -3063,6 +3063,22 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				ETHERIP_ID d;
 				UINT error_code;
 
+				/*if (!p->Eap_TlsCtx.SslPipe->IsDisconnected)
+				{
+					dataSize = FifoSize(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo);
+					lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, 0);
+					eap = lcp->Data;
+					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, &(eap->Tls.TlsDataWithoutLength), dataSize);
+					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+					{
+						PPPSetStatus(p, PPP_STATUS_FAIL);
+						WHERE;
+						return false;
+					}
+					Debug("Sent EAP-TLS size=%i type=%i flag=%i\n", lcp->DataSize, eap->Type, eap->Tls.Flags);
+					return true;
+				}*/
+
 				PPPParseUsername(p->Cedar, p->Eap_Identity, &d);
 
 				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, d.HubName, d.UserName, "",
@@ -3073,6 +3089,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				if (ipc != NULL)
 				{
 					PPP_PACKET* pack;
+					UINT identificator = p->Eap_PacketId - 1; // THIS IS A HACK TO SUPPORT VPN Client Pro on Android!!!
 
 					p->Ipc = ipc;
 					PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
@@ -3081,7 +3098,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 					pack = ZeroMalloc(sizeof(PPP_PACKET));
 					pack->IsControl = true;
 					pack->Protocol = PPP_PROTOCOL_EAP;
-					lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, p->Eap_PacketId++);
+					lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, identificator);
 					pack->Lcp = lcp;
 					Debug("Sent EAP-TLS size=%i SUCCESS\n", lcp->DataSize);
 					if (!PPPSendPacketAndFree(p, pack))
@@ -3095,13 +3112,14 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				else
 				{
 					PPP_PACKET* pack;
+					UINT identificator = p->Eap_PacketId - 1; // THIS IS A HACK TO SUPPORT VPN Client Pro on Android!!!
 
 					PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
 
 					pack = ZeroMalloc(sizeof(PPP_PACKET));
 					pack->IsControl = true;
 					pack->Protocol = PPP_PROTOCOL_EAP;
-					lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId++);
+					lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, identificator);
 					pack->Lcp = lcp;
 					Debug("Sent EAP-TLS size=%i FAILURE\n", lcp->DataSize);
 					if (!PPPSendPacketAndFree(p, pack))
@@ -3115,8 +3133,18 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 			}
 			else
 			{
-				Debug("Weird ACK for no reason at all...\n");
-				return false;
+				// Some clients needs a little help it seems - namely VPN Client Pro on Android
+				flags |= PPP_EAP_TLS_FLAG_SSLSTARTED;
+				lcp = BuildEAPTlsRequest(p->Eap_PacketId++, 0, flags);
+				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
+				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
+				Debug("Sent EAP-TLS size=%i\n", lcp->DataSize);
+				return true;
 			}
 		}
 		return true;
