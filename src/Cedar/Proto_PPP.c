@@ -251,7 +251,7 @@ void PPPThread(THREAD *thread, void *param)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
-					return false;
+					break;
 				}
 				break;
 			case PPP_EAP_TYPE_IDENTITY:
@@ -265,7 +265,7 @@ void PPPThread(THREAD *thread, void *param)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
-					return false;
+					break;
 				}
 				break;
 			}
@@ -407,7 +407,7 @@ void PPPThread(THREAD *thread, void *param)
 		}
 		else
 		{
-			WaitForTubes(tubes, 1, 1000); // Increasing timeout to make the ticks a bit slower
+			WaitForTubes(tubes, 1, 300); // Increasing timeout to make the ticks a bit slower
 		}
 
 		if (IsTubeConnected(p->TubeRecv) == false || IsTubeConnected(p->TubeSend) == false)
@@ -3053,7 +3053,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 
 				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, d.HubName, d.UserName, "",
 					&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-					p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL,
+					p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, p->Eap_TlsCtx.clientCert.X,
 					IPC_LAYER_3);
 
 				if (ipc != NULL)
@@ -3112,7 +3112,6 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 		// First we initialize the SslPipe if it is not already inited
 		if (p->Eap_TlsCtx.SslPipe == NULL)
 		{
-			p->Eap_TlsCtx.clientCert.IgnorePreverifyErr = true;
 			p->Eap_TlsCtx.Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
 			p->Eap_TlsCtx.SslPipe = NewSslPipeEx(true, p->Cedar->ServerX, p->Cedar->ServerK, p->Eap_TlsCtx.Dh, true, &(p->Eap_TlsCtx.clientCert));
 		}

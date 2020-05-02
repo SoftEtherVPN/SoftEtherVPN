@@ -1403,7 +1403,6 @@ void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 #define PREVERIFY_ERR_MESSAGE_SIZE 100
 // Info on client certificate collected during TLS handshake
 struct SslClientCertInfo {
-	bool IgnorePreverifyErr;
 	int PreverifyErr;
 	char PreverifyErrMessage[PREVERIFY_ERR_MESSAGE_SIZE];
 	X *X;

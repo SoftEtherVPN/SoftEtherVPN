@@ -5689,7 +5689,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 	{
 		clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
 		clientcert->PreverifyErrMessage[0] = '\0';
-		if (!preverify_ok && !clientcert->IgnorePreverifyErr)
+		if (!preverify_ok)
 		{
 			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
 			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);
@@ -11785,7 +11785,15 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 
 	if (x_copy != NULL)
 	{
-		SSL_CTX_add_extra_chain_cert(ctx, x_copy->x509);
+		if (x_copy->root_cert)
+		{
+			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
+			X509_STORE_add_cert(store, x->x509);
+		}
+		else
+		{
+			SSL_CTX_add_extra_chain_cert(ctx, x_copy->x509);
+		}
 		x_copy->do_not_free = true;
 
 		ret = true;
