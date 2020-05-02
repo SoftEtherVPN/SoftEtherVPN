@@ -5731,6 +5731,7 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 		{
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3); // For some reason pppd under linux doesn't like it
 
 			AddChainSslCertOnDirectory(ssl_ctx);
 

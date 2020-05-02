@@ -1186,8 +1186,21 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION* p, PPP_PACKET* pp, PPP_PACKET* req
 	}
 	else
 	{
-		// Means we got a Success or Failure packet...
-		Debug("We got a CODE %i from client with zero size EAP structure, that shouldn't be happening!\n", pp->Lcp->Code);
+		PPP_EAP* eap;
+
+		Debug("We got a CODE=%i ID=%i from client with zero size EAP structure, that shouldn't be happening!\n", pp->Lcp->Code, pp->Lcp->Id);
+
+		eap = req->Lcp->Data;
+		if (eap->Type == PPP_EAP_TYPE_TLS)
+		{
+			PPP_LCP* lcp = BuildEAPTlsRequest(p->Eap_PacketId++, 0, PPP_EAP_TLS_FLAG_NONE);
+			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+			{
+				PPPSetStatus(p, PPP_STATUS_FAIL);
+				WHERE;
+				return false;
+			}
+		}
 	}
 	return false;
 }
@@ -2996,6 +3009,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 	UCHAR* dataBuffer;
 	UINT dataSize;
 	UINT tlsLength = 0;
+	UINT i;
 	bool isFragmented = false;
 	PPP_LCP* lcp;
 	PPP_EAP* eap;
@@ -3058,31 +3072,44 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 
 				if (ipc != NULL)
 				{
+					PPP_PACKET* pack;
+
 					p->Ipc = ipc;
 					PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
 
 					// Just send an EAP-Success
+					pack = ZeroMalloc(sizeof(PPP_PACKET));
+					pack->IsControl = true;
+					pack->Protocol = PPP_PROTOCOL_EAP;
 					lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, p->Eap_PacketId++);
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+					pack->Lcp = lcp;
+					Debug("Sent EAP-TLS size=%i SUCCESS\n", lcp->DataSize);
+					if (!PPPSendPacketAndFree(p, pack))
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
 						return false;
 					}
-					Debug("Sent EAP-TLS size=%i SUCCESS\n", lcp->DataSize);
 					return true;
 				}
 				else
 				{
+					PPP_PACKET* pack;
+
 					PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
+
+					pack = ZeroMalloc(sizeof(PPP_PACKET));
+					pack->IsControl = true;
+					pack->Protocol = PPP_PROTOCOL_EAP;
 					lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId++);
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+					pack->Lcp = lcp;
+					Debug("Sent EAP-TLS size=%i FAILURE\n", lcp->DataSize);
+					if (!PPPSendPacketAndFree(p, pack))
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
 						return false;
 					}
-					Debug("Sent EAP-TLS size=%i FAILURE\n", lcp->DataSize);
 					return false;
 				}
 			}
@@ -3102,6 +3129,13 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 		dataSize -= 4;
 		tlsLength = Endian32(eap_packet->Tls.TlsDataWithLength.TlsLength);
 	}
+	/*Debug("=======RECV EAP-TLS PACKET DUMP=======\n");
+	for (i = 0; i < dataSize; i++)
+	{
+		if (i > 0) printf(" ");
+		Debug("%02X", dataBuffer[i]);
+	}
+	Debug("\n=======RECV EAP-TLS PACKET DUMP END=======\n");*/
 	if (eap_packet->Tls.Flags & PPP_EAP_TLS_FLAG_FRAGMENTED)
 	{
 		isFragmented = true;
@@ -3124,19 +3158,17 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				p->Eap_TlsCtx.cachedBufferRecv = ZeroMalloc(MAX(dataSize, tlsLength));
 				p->Eap_TlsCtx.cachedBufferRecvPntr = p->Eap_TlsCtx.cachedBufferRecv;
 			}
-			else
+			else if (p->Eap_TlsCtx.cachedBufferRecv == NULL)
 			{
-				Debug("We didn't get the tlsLength size! We're probably corrupt.\n");
-				PPPSetStatus(p, PPP_STATUS_FAIL);
-				WHERE;
-				return false;
+				p->Eap_TlsCtx.cachedBufferRecv = ZeroMalloc(MAX(dataSize, PPP_MRU_MAX * 10)); // 10 MRUs should be enough
+				p->Eap_TlsCtx.cachedBufferRecvPntr = p->Eap_TlsCtx.cachedBufferRecv;
 			}
 			sizeLeft = GetMemSize(p->Eap_TlsCtx.cachedBufferRecv);
 			sizeLeft -= p->Eap_TlsCtx.cachedBufferRecvPntr - p->Eap_TlsCtx.cachedBufferRecv;
 
-			Copy(p->Eap_TlsCtx.cachedBufferRecvPntr, dataBuffer, MIN(dataSize, sizeLeft));
+			Copy(p->Eap_TlsCtx.cachedBufferRecvPntr, dataBuffer, MIN(sizeLeft, dataSize));
 
-			p->Eap_TlsCtx.cachedBufferRecvPntr += MIN(dataSize, sizeLeft);
+			p->Eap_TlsCtx.cachedBufferRecvPntr += MIN(sizeLeft, dataSize);
 		}
 
 		// If we got a cached buffer, we should feed the FIFOs via it
@@ -3144,6 +3176,10 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 		{
 			dataBuffer = p->Eap_TlsCtx.cachedBufferRecv;
 			dataSize = GetMemSize(p->Eap_TlsCtx.cachedBufferRecv);
+			if (dataSize == MAX_BUFFERING_PACKET_SIZE)
+			{
+				dataSize = p->Eap_TlsCtx.cachedBufferRecvPntr - p->Eap_TlsCtx.cachedBufferRecv;
+			}
 		}
 
 		// Just acknoweldge that we buffered the fragmented data
@@ -3160,6 +3196,13 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 		}
 		else
 		{
+			/*Debug("=======RECV EAP-TLS FIFO DUMP=======\n");
+			for (i = 0; i < dataSize; i++)
+			{
+				if (i > 0) printf(" ");
+				Debug("%02X", dataBuffer[i]);
+			}
+			Debug("\n=======RECV EAP-TLS PACKET FIFO END=======\n");*/
 			WriteFifo(p->Eap_TlsCtx.SslPipe->RawIn->SendFifo, dataBuffer, dataSize);
 			SyncSslPipe(p->Eap_TlsCtx.SslPipe);
 			// Delete the cached buffer after we fed it into the pipe
