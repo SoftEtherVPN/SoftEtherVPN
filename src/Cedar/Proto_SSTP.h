@@ -116,7 +116,7 @@ struct SSTP_SERVER
 	UINT64 LastRecvTick;					// Tick when some data has received at the end
 	bool FlushRecvTube;						// Flag whether to flush the reception tube
 	UINT EstablishedCount;					// Number of session establishment
-	PPP_SESSION* PPPSession;				// Underlying PPP Session
+	PPP_SESSION *PPPSession;				// Underlying PPP Session
 };
 
 

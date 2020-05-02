@@ -18,11 +18,11 @@
 #define	PPP_PAP_CODE_IS_REQUEST(c)			((c) == PPP_PAP_CODE_REQ)
 #define	PPP_PAP_CODE_IS_RESPONSE(c)			((c) == PPP_PAP_CODE_ACK || (c) == PPP_PAP_CODE_NAK)
 
-#define PPP_CHAP_CODE_IS_REQUEST(c)			((c) == PPP_CHAP_CODE_CHALLENGE || (c) == PPP_CHAP_CODE_SUCCESS || (c) == PPP_CHAP_CODE_FAILURE)
-#define PPP_CHAP_CODE_IS_RESPONSE(c)		((c) == PPP_CHAP_CODE_RESPONSE)
+#define	PPP_CHAP_CODE_IS_REQUEST(c)			((c) == PPP_CHAP_CODE_CHALLENGE || (c) == PPP_CHAP_CODE_SUCCESS || (c) == PPP_CHAP_CODE_FAILURE)
+#define	PPP_CHAP_CODE_IS_RESPONSE(c)		((c) == PPP_CHAP_CODE_RESPONSE)
 
-#define PPP_EAP_CODE_IS_REQUEST(c)			((c) == PPP_EAP_CODE_REQUEST)
-#define PPP_EAP_CODE_IS_RESPONSE(c)			((c) == PPP_EAP_CODE_RESPONSE || (c) == PPP_EAP_CODE_SUCCESS || (c) == PPP_EAP_CODE_FAILURE)
+#define	PPP_EAP_CODE_IS_REQUEST(c)			((c) == PPP_EAP_CODE_REQUEST)
+#define	PPP_EAP_CODE_IS_RESPONSE(c)			((c) == PPP_EAP_CODE_RESPONSE || (c) == PPP_EAP_CODE_SUCCESS || (c) == PPP_EAP_CODE_FAILURE)
 
 #define	PPP_CODE_IS_RESPONSE(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_RESPONSE(c)))
 #define	PPP_CODE_IS_REQUEST(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_REQUEST(c)))
@@ -52,7 +52,7 @@
 #define	PPP_PROTOCOL_IPCP				0x8021
 #define	PPP_PROTOCOL_CHAP				0xc223
 #define	PPP_PROTOCOL_EAP				0xc227
-#define PPP_PROTOCOL_IPV6CP				0x8057
+#define	PPP_PROTOCOL_IPV6CP				0x8057
 
 // PPP protocol (for transfer)
 #define	PPP_PROTOCOL_IP					0x0021
@@ -95,54 +95,54 @@
 #define	PPP_IPCP_OPTION_WINS2			132
 
 // IPV6CP option type
-#define PPP_IPV6CP_OPTION_IID			1
+#define	PPP_IPV6CP_OPTION_IID			1
 
 // EAP codes
-#define PPP_EAP_CODE_REQUEST			1
-#define PPP_EAP_CODE_RESPONSE			2
-#define PPP_EAP_CODE_SUCCESS			3
-#define PPP_EAP_CODE_FAILURE			4
+#define	PPP_EAP_CODE_REQUEST			1
+#define	PPP_EAP_CODE_RESPONSE			2
+#define	PPP_EAP_CODE_SUCCESS			3
+#define	PPP_EAP_CODE_FAILURE			4
 
 // EAP types
-#define PPP_EAP_TYPE_IDENTITY			1
-#define PPP_EAP_TYPE_NOTIFICATION		2
-#define PPP_EAP_TYPE_NAK				3
-#define PPP_EAP_TYPE_TLS				13
+#define	PPP_EAP_TYPE_IDENTITY			1
+#define	PPP_EAP_TYPE_NOTIFICATION		2
+#define	PPP_EAP_TYPE_NAK				3
+#define	PPP_EAP_TYPE_TLS				13
 
 // EAP-TLS Flags
-#define PPP_EAP_TLS_FLAG_NONE			0
-#define PPP_EAP_TLS_FLAG_TLS_LENGTH		1 << 7
-#define PPP_EAP_TLS_FLAG_FRAGMENTED		1 << 6
-#define PPP_EAP_TLS_FLAG_SSLSTARTED		1 << 5
+#define	PPP_EAP_TLS_FLAG_NONE			0
+#define	PPP_EAP_TLS_FLAG_TLS_LENGTH		1 << 7
+#define	PPP_EAP_TLS_FLAG_FRAGMENTED		1 << 6
+#define	PPP_EAP_TLS_FLAG_SSLSTARTED		1 << 5
 
 // Authentication protocol
 #define	PPP_LCP_AUTH_PAP				PPP_PROTOCOL_PAP
 #define	PPP_LCP_AUTH_CHAP				PPP_PROTOCOL_CHAP
-#define PPP_LCP_AUTH_EAP				PPP_PROTOCOL_EAP
+#define	PPP_LCP_AUTH_EAP				PPP_PROTOCOL_EAP
 
 // Algorithm of CHAP
 #define	PPP_CHAP_ALG_MS_CHAP_V2			0x81
 
 // Link status
-#define PPP_STATUS_CONNECTED			0x1
-#define PPP_STATUS_BEFORE_AUTH			0x10
-#define PPP_STATUS_AUTHENTICATING		0x11
-#define PPP_STATUS_AUTH_SUCCESS			0x19
-#define PPP_STATUS_NETWORK_LAYER		0x20
-#define PPP_STATUS_CLOSING				0x100
-#define PPP_STATUS_CLOSING_WAIT			0x101
-#define PPP_STATUS_CLOSED				0x110
-#define PPP_STATUS_FAIL					0x1000
-#define PPP_STATUS_AUTH_FAIL			0x1010
+#define	PPP_STATUS_CONNECTED			0x1
+#define	PPP_STATUS_BEFORE_AUTH			0x10
+#define	PPP_STATUS_AUTHENTICATING		0x11
+#define	PPP_STATUS_AUTH_SUCCESS			0x19
+#define	PPP_STATUS_NETWORK_LAYER		0x20
+#define	PPP_STATUS_CLOSING				0x100
+#define	PPP_STATUS_CLOSING_WAIT			0x101
+#define	PPP_STATUS_CLOSED				0x110
+#define	PPP_STATUS_FAIL					0x1000
+#define	PPP_STATUS_AUTH_FAIL			0x1010
 
 // Protocol status
-#define PPP_PROTO_STATUS_CLOSED			0x0
-#define PPP_PROTO_STATUS_CONFIG			0x1
-#define PPP_PROTO_STATUS_CONFIG_WAIT	0x2
-#define PPP_PROTO_STATUS_OPENED			0x10
-#define PPP_PROTO_STATUS_REJECTED		0x100
+#define	PPP_PROTO_STATUS_CLOSED			0x0
+#define	PPP_PROTO_STATUS_CONFIG			0x1
+#define	PPP_PROTO_STATUS_CONFIG_WAIT	0x2
+#define	PPP_PROTO_STATUS_OPENED			0x10
+#define	PPP_PROTO_STATUS_REJECTED		0x100
 
-#define PPP_UNSPECIFIED					0xFFFF
+#define	PPP_UNSPECIFIED					0xFFFF
 
 //// Type
 
@@ -221,13 +221,13 @@ struct PPP_EAP
 
 struct PPP_EAP_TLS_CONTEXT
 {
-	SSL_PIPE* SslPipe;
-	DH_CTX* Dh;
-	struct SslClientCertInfo clientCert;
-	UCHAR* cachedBufferRecv;
-	UCHAR* cachedBufferRecvPntr;
-	UCHAR* cachedBufferSend;
-	UCHAR* cachedBufferSendPntr;
+	SSL_PIPE *SslPipe;
+	DH_CTX *Dh;
+	struct SslClientCertInfo ClientCert;
+	UCHAR *CachedBufferRecv;
+	UCHAR *CachedBufferRecvPntr;
+	UCHAR *CachedBufferSend;
+	UCHAR *CachedBufferSendPntr;
 };
 
 // PPP request resend
@@ -316,7 +316,7 @@ struct PPP_SESSION
 	UINT64 UserConnectionTimeout;
 	UINT64 UserConnectionTick;
 
-	THREAD* SessionThread;				// Thread of the PPP session
+	THREAD *SessionThread;				// Thread of the PPP session
 };
 
 
@@ -339,19 +339,19 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
-bool PPPProcessEAPResponsePacket(PPP_SESSION* p, PPP_PACKET* pp, PPP_PACKET* req);
+bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 // Request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
-bool PPPProcessEAPRequestPacket(PPP_SESSION* p, PPP_PACKET* pp);
+bool PPPProcessEAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 
 // LCP option based packets utility
 bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPRejectLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
 bool PPPNackLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
-bool PPPNackLCPOptionsEx(PPP_SESSION *p, PPP_PACKET* pp, bool simulate);
+bool PPPNackLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
 bool PPPAckLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPAckLCPOptionsEx(PPP_SESSION *p, PPP_PACKET *pp, bool simulate);
 
@@ -386,10 +386,10 @@ bool PPPSetIPOptionToLCP(PPP_IPOPTION *o, PPP_LCP *c, bool only_modify);
 bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip);
 bool PPPSetIPAddressValueToLCP(PPP_LCP *c, UINT type, IP *ip, bool only_modify);
 // EAP packet utilities
-bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSize);
+bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSize);
 PPP_LCP *BuildEAPPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize);
 PPP_LCP *BuildEAPTlsPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize, UCHAR flags);
-PPP_LCP* BuildEAPTlsRequest(UCHAR id, UINT datasize, UCHAR flags);
+PPP_LCP *BuildEAPTlsRequest(UCHAR id, UINT datasize, UCHAR flags);
 // Other packet utilities
 PPP_OPTION *PPPGetOptionValue(PPP_LCP *c, UCHAR type);
 bool IsHubExistsWithLock(CEDAR *cedar, char *hubname);

@@ -97,7 +97,7 @@ void SstpProcessControlPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 // Process the SSTP received data packet
 void SstpProcessDataPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 {
-	PPP_SESSION* underlyingSession;
+	PPP_SESSION *underlyingSession;
 
 	// Validate arguments
 	if (s == NULL || p == NULL || p->IsControl)

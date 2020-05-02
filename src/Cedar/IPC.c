@@ -948,7 +948,7 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 BUF *IPCBuildDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt)
 {
 	IPV4_HEADER ip;
-	UDP_HEADER* udp;
+	UDP_HEADER *udp;
 	DHCPV4_HEADER dhcp;
 	UINT blank_size = 128 + 64;
 	BUF *ret;
