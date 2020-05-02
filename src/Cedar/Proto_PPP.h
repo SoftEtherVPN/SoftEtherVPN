@@ -21,8 +21,8 @@
 #define PPP_CHAP_CODE_IS_REQUEST(c)			((c) == PPP_CHAP_CODE_CHALLENGE || (c) == PPP_CHAP_CODE_SUCCESS || (c) == PPP_CHAP_CODE_FAILURE)
 #define PPP_CHAP_CODE_IS_RESPONSE(c)		((c) == PPP_CHAP_CODE_RESPONSE)
 
-#define PPP_EAP_CODE_IS_REQUEST(c)			((c) == PPP_EAP_CODE_REQUEST || (c) == PPP_EAP_CODE_SUCCESS || (c) == PPP_EAP_CODE_FAILURE) // We treat SUCCESS and FAILURE as requests because they affect global state of the EAP protocol
-#define PPP_EAP_CODE_IS_RESPONSE(c)			((c) == PPP_EAP_CODE_RESPONSE)
+#define PPP_EAP_CODE_IS_REQUEST(c)			((c) == PPP_EAP_CODE_REQUEST)
+#define PPP_EAP_CODE_IS_RESPONSE(c)			((c) == PPP_EAP_CODE_RESPONSE || (c) == PPP_EAP_CODE_SUCCESS || (c) == PPP_EAP_CODE_FAILURE)
 
 #define	PPP_CODE_IS_RESPONSE(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_RESPONSE(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_RESPONSE(c)))
 #define	PPP_CODE_IS_REQUEST(protocol, c)	((((protocol) == PPP_PROTOCOL_LCP || (protocol) == PPP_PROTOCOL_IPCP || (protocol) == PPP_PROTOCOL_IPV6CP) && PPP_LCP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_PAP) && PPP_PAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_CHAP) && PPP_CHAP_CODE_IS_REQUEST(c)) || (((protocol) == PPP_PROTOCOL_EAP) && PPP_EAP_CODE_IS_REQUEST(c)))
@@ -112,6 +112,7 @@
 // Authentication protocol
 #define	PPP_LCP_AUTH_PAP				PPP_PROTOCOL_PAP
 #define	PPP_LCP_AUTH_CHAP				PPP_PROTOCOL_CHAP
+#define PPP_LCP_AUTH_EAP				PPP_PROTOCOL_EAP
 
 // Algorithm of CHAP
 #define	PPP_CHAP_ALG_MS_CHAP_V2			0x81
@@ -182,24 +183,35 @@ struct PPP_OPTION
 
 // PPP EAP packet
 // EAP is a subset of LCP, sharing Code and Id. The Data field is then mapped to this structure
+// We got 8 bytes of size before this structure
 struct PPP_EAP
 {
 	UCHAR Type;
 	union {
-		UCHAR Data[253]; // LCP Data field = 254 minus 1 byte for Type field
+		UCHAR Data[0];
 		struct PPP_EAP_TLS
 		{
 			UCHAR Flags;
 			union {
-				UCHAR TlsDataWithoutLength[252]; // EAP-TLS structure size 1 (Flags) + 252 = 253
+				UCHAR TlsDataWithoutLength[0];
 				struct
 				{
-					UINT32 Length;
-					UCHAR Data[248]; // EAP-TLS structure size 1 (Flags) + 4 (TlsSize) + 248 = 253
+					UINT32 TlsLength;
+					UCHAR Data[0];
 				} TlsDataWithLength;
 			};
 		} Tls;
 	};
+};
+
+struct PPP_EAP_TLS_CONTEXT
+{
+	SSL_PIPE* SslPipe;
+	DH_CTX* Dh;
+	struct SslClientCertInfo clientCert;
+	UCHAR* cachedBuffer;
+	UCHAR* cachedBufferPntr;
+	bool cachedBufferSend;
 };
 
 // PPP request resend
@@ -271,6 +283,12 @@ struct PPP_SESSION
 	UINT PPPStatus;
 	UINT IPv4_State;
 	UINT IPv6_State;
+
+	// EAP contexts
+	UINT Eap_Protocol;					// Current EAP Protocol used
+	UINT Eap_PacketId;					// EAP Packet ID;
+	UCHAR Eap_Identity[MAX_SIZE];		// Received from client identity
+	PPP_EAP_TLS_CONTEXT Eap_TlsCtx;		// Context information for EAP TLS. May be possibly reused for EAP TTLS?
 
 	LIST *SentReqPacketList;			// Sent requests list
 	
@@ -352,7 +370,10 @@ bool PPPSetIPOptionToLCP(PPP_IPOPTION *o, PPP_LCP *c, bool only_modify);
 bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip);
 bool PPPSetIPAddressValueToLCP(PPP_LCP *c, UINT type, IP *ip, bool only_modify);
 // EAP packet utilities
-bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT32 datasize);
+bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSize);
+PPP_LCP *BuildEAPPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize);
+PPP_LCP *BuildEAPTlsPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize, UCHAR flags);
+PPP_LCP* BuildEAPTlsRequest(UCHAR id, UINT datasize, UCHAR flags);
 // Other packet utilities
 PPP_OPTION *PPPGetOptionValue(PPP_LCP *c, UCHAR type);
 bool IsHubExistsWithLock(CEDAR *cedar, char *hubname);
