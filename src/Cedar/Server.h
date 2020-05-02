@@ -242,6 +242,7 @@ struct SERVER
 	volatile bool HaltDeadLockThread;	// Halting flag
 	EVENT *DeadLockWaitEvent;			// Waiting Event
 
+	PROTO *Proto;						// Protocols handler
 	IPSEC_SERVER *IPsecServer;			// IPsec server function
 	OPENVPN_SERVER_UDP *OpenVpnServerUdp;	// OpenVPN server function
 	char OpenVpnServerUdpPorts[MAX_SIZE];	// UDP port list string

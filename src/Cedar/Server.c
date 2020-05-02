@@ -2623,15 +2623,13 @@ void SiInitConfiguration(SERVER *s)
 	s->AutoSaveConfigSpan = SERVER_FILE_SAVE_INTERVAL_DEFAULT;
 	s->BackupConfigOnlyWhenModified = true;
 
-	// IPsec server
 	if (s->Cedar->Bridge == false)
 	{
+		// Protocols handler
+		s->Proto = ProtoNew(s->Cedar);
+		// IPsec server
 		s->IPsecServer = NewIPsecServer(s->Cedar);
-	}
-
-	// OpenVPN server (UDP)
-	if (s->Cedar->Bridge == false)
-	{
+		// OpenVPN server (UDP)
 		s->OpenVpnServerUdp = NewOpenVpnServerUdp(s->Cedar);
 	}
 
@@ -6538,6 +6536,11 @@ void SiFreeConfiguration(SERVER *s)
 	s->SaveHaltEvent = NULL;
 	s->SaveThread = NULL;
 
+	// Stop the protocols handler
+	if (s->Proto != NULL)
+	{
+		ProtoDelete(s->Proto);
+	}
 
 	// Stop the IPsec server
 	if (s->IPsecServer != NULL)
