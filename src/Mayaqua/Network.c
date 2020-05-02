@@ -5689,7 +5689,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 	{
 		clientcert->PreverifyErr = X509_STORE_CTX_get_error(ctx);
 		clientcert->PreverifyErrMessage[0] = '\0';
-		if (!preverify_ok)
+		if (!preverify_ok && !clientcert->IgnorePreverifyErr)
 		{
 			const char *msg = X509_verify_cert_error_string(clientcert->PreverifyErr);
 			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);

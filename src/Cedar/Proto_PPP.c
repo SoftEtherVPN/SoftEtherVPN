@@ -236,7 +236,7 @@ void PPPThread(THREAD *thread, void *param)
 			PPP_LCP* lcpEap;
 			PPP_EAP* eapPacket;
 			UCHAR* welcomeMessage = "Welcome to the SoftEther VPN server!";
-			UCHAR flags = 0;
+			UCHAR flags = PPP_EAP_TLS_FLAG_NONE;
 			// We got to start EAP when we got no LCP packets from the client on previous iteration
 			// which means we parsed all the client requests and responses
 
@@ -244,7 +244,7 @@ void PPPThread(THREAD *thread, void *param)
 			{
 			case PPP_EAP_TYPE_TLS:
 				// Sending TLS Start...
-				flags |= 1 << 2;
+				flags |= PPP_EAP_TLS_FLAG_SSLSTARTED;
 				lcpEap = BuildEAPTlsRequest(p->Eap_PacketId++, 0, flags);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
@@ -290,7 +290,7 @@ void PPPThread(THREAD *thread, void *param)
 		{
 			// EAP code
 			PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
-			USHORT eap_code = PPP_LCP_AUTH_EAP;
+			USHORT eap_code = Endian16(PPP_LCP_AUTH_EAP);
 
 			Debug("Request EAP\n");
 			Add(c->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &eap_code, sizeof(eap_code)));
@@ -304,7 +304,7 @@ void PPPThread(THREAD *thread, void *param)
 
 		if (p->PPPStatus == PPP_STATUS_AUTHENTICATING)
 		{
-			Debug("Tick waiting for auth...\n");
+			//Debug("Tick waiting for auth...\n");
 		}
 
 		if (p->PPPStatus == PPP_STATUS_AUTH_FAIL)
@@ -1252,12 +1252,12 @@ bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		{
 		case PPP_LCP_OPTION_AUTH:
 			t->IsSupported = true;
-			if (t->DataSize == sizeof(USHORT) && *((USHORT*)t->Data) == Endian16(PPP_LCP_AUTH_EAP) && p->AuthProtocol == PPP_UNSPECIFIED)
+			if (t->DataSize == sizeof(USHORT) && *((USHORT*)t->Data) == PPP_LCP_AUTH_EAP && p->AuthProtocol == PPP_UNSPECIFIED)
 			{
 				t->IsAccepted = true;
 				NegotiatedAuthProto = PPP_PROTOCOL_EAP;
 			}
-			else if (t->DataSize == sizeof(USHORT) && *((USHORT*)t->Data) == Endian16(PPP_LCP_AUTH_PAP) && p->AuthProtocol == PPP_UNSPECIFIED)
+			else if (t->DataSize == sizeof(USHORT) && *((USHORT*)t->Data) == PPP_LCP_AUTH_PAP && p->AuthProtocol == PPP_UNSPECIFIED)
 			{
 				t->IsAccepted = true;
 				NegotiatedAuthProto = PPP_PROTOCOL_PAP;
@@ -3001,26 +3001,27 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 	PPP_EAP* eap;
 	UCHAR flags;
 	UINT64 sizeLeft = 0;
-	if (eapTlsSize == 0)
+	Debug("Got EAP-TLS size=%i\n", eapTlsSize);
+	if (eapTlsSize == 1)
 	{
 		// This is an EAP-TLS message ACK
-		if (p->Eap_TlsCtx.cachedBuffer != NULL && p->Eap_TlsCtx.cachedBufferSend == true)
+		if (p->Eap_TlsCtx.cachedBufferSend != NULL)
 		{
 			// We got an ACK to transmit the next fragmented message
 			dataSize = p->Mru1 - 8 - 1 - 1; // Calculating the maximum payload size (without TlsLength)
-			sizeLeft = GetMemSize(p->Eap_TlsCtx.cachedBuffer);
-			sizeLeft -= p->Eap_TlsCtx.cachedBufferPntr - p->Eap_TlsCtx.cachedBuffer;
+			sizeLeft = GetMemSize(p->Eap_TlsCtx.cachedBufferSend);
+			sizeLeft -= p->Eap_TlsCtx.cachedBufferSendPntr - p->Eap_TlsCtx.cachedBufferSend;
 
-			flags = 1 << 1; // M flag
+			flags = PPP_EAP_TLS_FLAG_FRAGMENTED; // M flag
 			if (dataSize > sizeLeft)
 			{
 				dataSize = sizeLeft;
-				flags = 0; // Clearing the M flag because it is the last packet
+				flags = PPP_EAP_TLS_FLAG_NONE; // Clearing the M flag because it is the last packet
 			}
 			lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, flags);
 			eap = lcp->Data;
-			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.cachedBufferPntr, dataSize);
-			p->Eap_TlsCtx.cachedBufferPntr += dataSize;
+			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.cachedBufferSendPntr, dataSize);
+			p->Eap_TlsCtx.cachedBufferSendPntr += dataSize;
 
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 			{
@@ -3028,14 +3029,14 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				WHERE;
 				return false;
 			}
+			Debug("Sent EAP-TLS size=%i type=%i flag=%i\n", lcp->DataSize, eap->Type, eap->Tls.Flags);
 
-			if (flags == 0)
+			if (flags == PPP_EAP_TLS_FLAG_NONE)
 			{
 				// As it is the latest message, we need to cleanup
-				Free(p->Eap_TlsCtx.cachedBuffer);
-				p->Eap_TlsCtx.cachedBuffer = NULL;
-				p->Eap_TlsCtx.cachedBufferPntr = NULL;
-				p->Eap_TlsCtx.cachedBufferSend = false;
+				Free(p->Eap_TlsCtx.cachedBufferSend);
+				p->Eap_TlsCtx.cachedBufferSend = NULL;
+				p->Eap_TlsCtx.cachedBufferSendPntr = NULL;
 			}
 		}
 		else
@@ -3068,6 +3069,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 						WHERE;
 						return false;
 					}
+					Debug("Sent EAP-TLS size=%i SUCCESS\n", lcp->DataSize);
 					return true;
 				}
 				else
@@ -3080,6 +3082,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 						WHERE;
 						return false;
 					}
+					Debug("Sent EAP-TLS size=%i FAILURE\n", lcp->DataSize);
 					return false;
 				}
 			}
@@ -3093,13 +3096,13 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 	}
 	dataBuffer = eap_packet->Tls.TlsDataWithoutLength;
 	dataSize = eapTlsSize - 1;
-	if (eap_packet->Tls.Flags & 1)
+	if (eap_packet->Tls.Flags & PPP_EAP_TLS_FLAG_TLS_LENGTH)
 	{
 		dataBuffer = eap_packet->Tls.TlsDataWithLength.Data;
 		dataSize -= 4;
-		tlsLength = eap_packet->Tls.TlsDataWithLength.TlsLength;
+		tlsLength = Endian32(eap_packet->Tls.TlsDataWithLength.TlsLength);
 	}
-	if (eap_packet->Tls.Flags & 1 << 1)
+	if (eap_packet->Tls.Flags & PPP_EAP_TLS_FLAG_FRAGMENTED)
 	{
 		isFragmented = true;
 	}
@@ -3109,22 +3112,18 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 		// First we initialize the SslPipe if it is not already inited
 		if (p->Eap_TlsCtx.SslPipe == NULL)
 		{
+			p->Eap_TlsCtx.clientCert.IgnorePreverifyErr = true;
 			p->Eap_TlsCtx.Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
 			p->Eap_TlsCtx.SslPipe = NewSslPipeEx(true, p->Cedar->ServerX, p->Cedar->ServerK, p->Eap_TlsCtx.Dh, true, &(p->Eap_TlsCtx.clientCert));
 		}
 
 		// If the current frame is fragmented, or it is a possible last of a fragmented series, bufferize it
-		if (isFragmented || p->Eap_TlsCtx.cachedBuffer != NULL)
+		if (isFragmented || p->Eap_TlsCtx.cachedBufferRecv != NULL)
 		{
-			if (p->Eap_TlsCtx.cachedBufferSend)
+			if (p->Eap_TlsCtx.cachedBufferRecv == NULL && tlsLength > 0)
 			{
-				Debug("We got a weird packet when we have a sending only caching buffer, ignoring...\n");
-				return false;
-			}
-			if (p->Eap_TlsCtx.cachedBuffer == NULL && tlsLength > 0)
-			{
-				p->Eap_TlsCtx.cachedBuffer = ZeroMalloc(MAX(dataSize, tlsLength));
-				p->Eap_TlsCtx.cachedBufferPntr = p->Eap_TlsCtx.cachedBuffer;
+				p->Eap_TlsCtx.cachedBufferRecv = ZeroMalloc(MAX(dataSize, tlsLength));
+				p->Eap_TlsCtx.cachedBufferRecvPntr = p->Eap_TlsCtx.cachedBufferRecv;
 			}
 			else
 			{
@@ -3133,19 +3132,19 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				WHERE;
 				return false;
 			}
-			sizeLeft = GetMemSize(p->Eap_TlsCtx.cachedBuffer);
-			sizeLeft -= p->Eap_TlsCtx.cachedBufferPntr - p->Eap_TlsCtx.cachedBuffer;
+			sizeLeft = GetMemSize(p->Eap_TlsCtx.cachedBufferRecv);
+			sizeLeft -= p->Eap_TlsCtx.cachedBufferRecvPntr - p->Eap_TlsCtx.cachedBufferRecv;
 
-			Copy(p->Eap_TlsCtx.cachedBufferPntr, dataBuffer, MIN(dataSize, sizeLeft));
+			Copy(p->Eap_TlsCtx.cachedBufferRecvPntr, dataBuffer, MIN(dataSize, sizeLeft));
 
-			p->Eap_TlsCtx.cachedBufferPntr += MIN(dataSize, sizeLeft);
+			p->Eap_TlsCtx.cachedBufferRecvPntr += MIN(dataSize, sizeLeft);
 		}
 
 		// If we got a cached buffer, we should feed the FIFOs via it
-		if (p->Eap_TlsCtx.cachedBuffer != NULL)
+		if (p->Eap_TlsCtx.cachedBufferRecv != NULL)
 		{
-			dataBuffer = p->Eap_TlsCtx.cachedBuffer;
-			dataSize = GetMemSize(p->Eap_TlsCtx.cachedBuffer);
+			dataBuffer = p->Eap_TlsCtx.cachedBufferRecv;
+			dataSize = GetMemSize(p->Eap_TlsCtx.cachedBufferRecv);
 		}
 
 		// Just acknoweldge that we buffered the fragmented data
@@ -3158,17 +3157,18 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				WHERE;
 				return false;
 			}
+			Debug("Sent EAP-TLS size=%i\n", lcp->DataSize);
 		}
 		else
 		{
 			WriteFifo(p->Eap_TlsCtx.SslPipe->RawIn->SendFifo, dataBuffer, dataSize);
 			SyncSslPipe(p->Eap_TlsCtx.SslPipe);
 			// Delete the cached buffer after we fed it into the pipe
-			if (p->Eap_TlsCtx.cachedBuffer != NULL)
+			if (p->Eap_TlsCtx.cachedBufferRecv != NULL)
 			{
-				Free(p->Eap_TlsCtx.cachedBuffer);
-				p->Eap_TlsCtx.cachedBuffer = NULL;
-				p->Eap_TlsCtx.cachedBufferPntr = NULL;
+				Free(p->Eap_TlsCtx.cachedBufferRecv);
+				p->Eap_TlsCtx.cachedBufferRecv = NULL;
+				p->Eap_TlsCtx.cachedBufferRecvPntr = NULL;
 			}
 
 			if (p->Eap_TlsCtx.SslPipe->IsDisconnected == false)
@@ -3177,30 +3177,30 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 				// Do we need to send a fragmented packet?
 				if (dataSize > p->Mru1 - 8 - 1 - 1)
 				{
-					if (p->Eap_TlsCtx.cachedBuffer == NULL)
+					if (p->Eap_TlsCtx.cachedBufferSend == NULL)
 					{
-						p->Eap_TlsCtx.cachedBuffer = ZeroMalloc(dataSize);
-						p->Eap_TlsCtx.cachedBufferPntr = p->Eap_TlsCtx.cachedBuffer;
+						p->Eap_TlsCtx.cachedBufferSend = ZeroMalloc(dataSize);
+						p->Eap_TlsCtx.cachedBufferSendPntr = p->Eap_TlsCtx.cachedBufferSend;
 					}
-					p->Eap_TlsCtx.cachedBufferSend = true;
-					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, p->Eap_TlsCtx.cachedBuffer, dataSize);
+					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, p->Eap_TlsCtx.cachedBufferSend, dataSize);
 
 					// Now send data from the cached buffer with set fragmentation flag and also total TLS Size
 					tlsLength = dataSize;
 					dataSize = p->Mru1 - 8 - 1 - 1 - 4; // Calculating the maximum payload size (adjusting for including TlsLength)
-					flags = 1; // L flag
-					flags |= 1 << 1; // M flag
+					flags = PPP_EAP_TLS_FLAG_TLS_LENGTH; // L flag
+					flags |= PPP_EAP_TLS_FLAG_FRAGMENTED; // M flag
 					lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, flags);
 					eap = lcp->Data;
-					eap->Tls.TlsDataWithLength.TlsLength = tlsLength;
-					Copy(eap->Tls.TlsDataWithLength.Data, p->Eap_TlsCtx.cachedBuffer, dataSize);
-					p->Eap_TlsCtx.cachedBufferPntr = p->Eap_TlsCtx.cachedBuffer + dataSize;
+					eap->Tls.TlsDataWithLength.TlsLength = Endian32(tlsLength);
+					Copy(eap->Tls.TlsDataWithLength.Data, p->Eap_TlsCtx.cachedBufferSend, dataSize);
+					p->Eap_TlsCtx.cachedBufferSendPntr += dataSize;
 					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
 						return false;
 					}
+					Debug("Sent EAP-TLS size=%i type=%i flag=%i\n", lcp->DataSize, eap->Type, eap->Tls.Flags);
 				}
 				else
 				{
@@ -3213,6 +3213,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION* p, PPP_EAP* eap_packet, UINT eapTlsSi
 						WHERE;
 						return false;
 					}
+					Debug("Sent EAP-TLS size=%i type=%i flag=%i\n", lcp->DataSize, eap->Type, eap->Tls.Flags);
 				}
 			}
 		}
@@ -3243,7 +3244,7 @@ PPP_LCP *BuildEAPTlsPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize, UC
 	PPP_LCP* lcp_packet;
 	PPP_EAP* eap_packet;
 	UINT tls_datasize = datasize + sizeof(UCHAR);
-	if (flags & 1)
+	if (flags & PPP_EAP_TLS_FLAG_TLS_LENGTH)
 	{
 		tls_datasize += sizeof(UINT32);
 	}
@@ -3370,9 +3371,13 @@ void FreePPPSession(PPP_SESSION *p)
 	}
 
 	// Freeing EAP-TLS context
-	if (p->Eap_TlsCtx.cachedBuffer != NULL)
+	if (p->Eap_TlsCtx.cachedBufferRecv != NULL)
 	{
-		Free(p->Eap_TlsCtx.cachedBuffer);
+		Free(p->Eap_TlsCtx.cachedBufferRecv);
+	}
+	if (p->Eap_TlsCtx.cachedBufferSend != NULL)
+	{
+		Free(p->Eap_TlsCtx.cachedBufferRecv);
 	}
 	if (p->Eap_TlsCtx.SslPipe != NULL)
 	{

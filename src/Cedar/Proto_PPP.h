@@ -109,6 +109,12 @@
 #define PPP_EAP_TYPE_NAK				3
 #define PPP_EAP_TYPE_TLS				13
 
+// EAP-TLS Flags
+#define PPP_EAP_TLS_FLAG_NONE			0
+#define PPP_EAP_TLS_FLAG_TLS_LENGTH		1 << 7
+#define PPP_EAP_TLS_FLAG_FRAGMENTED		1 << 6
+#define PPP_EAP_TLS_FLAG_SSLSTARTED		1 << 5
+
 // Authentication protocol
 #define	PPP_LCP_AUTH_PAP				PPP_PROTOCOL_PAP
 #define	PPP_LCP_AUTH_CHAP				PPP_PROTOCOL_CHAP
@@ -181,6 +187,11 @@ struct PPP_OPTION
 	UINT AltDataSize;					// Alternate data size
 };
 
+#ifdef	OS_WIN32
+#pragma pack(push, 1)
+#endif	// OS_WIN32
+
+
 // PPP EAP packet
 // EAP is a subset of LCP, sharing Code and Id. The Data field is then mapped to this structure
 // We got 8 bytes of size before this structure
@@ -202,16 +213,21 @@ struct PPP_EAP
 			};
 		} Tls;
 	};
-};
+} GCC_PACKED;
+
+#ifdef	OS_WIN32
+#pragma pack(pop)
+#endif	// OS_WIN32
 
 struct PPP_EAP_TLS_CONTEXT
 {
 	SSL_PIPE* SslPipe;
 	DH_CTX* Dh;
 	struct SslClientCertInfo clientCert;
-	UCHAR* cachedBuffer;
-	UCHAR* cachedBufferPntr;
-	bool cachedBufferSend;
+	UCHAR* cachedBufferRecv;
+	UCHAR* cachedBufferRecvPntr;
+	UCHAR* cachedBufferSend;
+	UCHAR* cachedBufferSendPntr;
 };
 
 // PPP request resend
