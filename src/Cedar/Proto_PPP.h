@@ -189,7 +189,9 @@ struct PPP_OPTION
 
 #ifdef	OS_WIN32
 #pragma pack(push, 1)
-#endif	// OS_WIN32
+#else	// OS_WIN32
+#pragma pack(1)
+#endif
 
 
 // PPP EAP packet
@@ -217,7 +219,9 @@ struct PPP_EAP
 
 #ifdef	OS_WIN32
 #pragma pack(pop)
-#endif	// OS_WIN32
+#else	// OS_WIN32
+#pragma pack()
+#endif
 
 struct PPP_EAP_TLS_CONTEXT
 {

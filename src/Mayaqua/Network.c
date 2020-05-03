@@ -5729,7 +5729,7 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 	{
 		if (server_mode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_server_method());
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
 
 #ifdef SSL_OP_NO_TLSv1_3
@@ -11792,7 +11792,8 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 		if (x_copy->root_cert)
 		{
 			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
-			X509_STORE_add_cert(store, x->x509);
+			X509_STORE_add_cert(store, x_copy->x509);
+			X509_free(x_copy->x509);
 		}
 		else
 		{
