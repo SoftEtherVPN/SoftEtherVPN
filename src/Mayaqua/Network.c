@@ -5701,10 +5701,17 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 			if (cert != NULL)
 			{
 				X *tmpX = X509ToX(cert); // this only wraps cert, but we need to make a copy
-				X *copyX = CloneX(tmpX);
+				if (!CompareX(tmpX, clientcert->X))
+				{
+					X* copyX = CloneX(tmpX);
+					if (clientcert->X != NULL)
+					{
+						FreeX(clientcert->X);
+					}
+					clientcert->X = copyX;
+				}
 				tmpX->do_not_free = true; // do not release inner X509 object
 				FreeX(tmpX);
-				clientcert->X = copyX;
 			}
 		}
 	}
