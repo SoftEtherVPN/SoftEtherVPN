@@ -3013,7 +3013,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 	bool isFragmented = false;
 	PPP_LCP *lcp;
 	PPP_EAP *eap;
-	UCHAR flags;
+	UCHAR flags = PPP_EAP_TLS_FLAG_NONE;
 	UINT64 sizeLeft = 0;
 	Debug("Got EAP-TLS size=%i\n", eapTlsSize);
 	if (eapTlsSize == 1)
