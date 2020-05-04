@@ -16,7 +16,7 @@
 #define	SSTP_IPC_POSTFIX				"SSTP"
 #define	SSTP_ECHO_SEND_INTERVAL_MIN		2500					// Transmission interval of Echo Request (minimum)
 #define	SSTP_ECHO_SEND_INTERVAL_MAX		4792					// Transmission interval of Echo Request (maximum)
-#define	SSTP_TIMEOUT					10000					// Communication time-out of SSTP
+#define	SSTP_TIMEOUT					20 * 1000				// Communication time-out of SSTP (from default policy)
 
 // SSTP Message Type
 #define	SSTP_MSG_CALL_CONNECT_REQUEST				0x0001
@@ -116,6 +116,7 @@ struct SSTP_SERVER
 	UINT64 LastRecvTick;					// Tick when some data has received at the end
 	bool FlushRecvTube;						// Flag whether to flush the reception tube
 	UINT EstablishedCount;					// Number of session establishment
+	PPP_SESSION *PPPSession;				// Underlying PPP Session
 };
 
 
