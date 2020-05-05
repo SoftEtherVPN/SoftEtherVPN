@@ -5737,10 +5737,6 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 	{
 		if (server_mode)
 		{
-#ifdef	SSL_OP_NO_SSLv3
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
-
 #ifdef SSL_OP_NO_TLSv1_3
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3); // For some reason pppd under linux doesn't like it
 #endif
@@ -12114,10 +12110,6 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 	{
 		if (sock->ServerMode)
 		{
-#ifdef	SSL_OP_NO_SSLv3
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
-
 #ifdef	SSL_OP_NO_TLSv1
 			if (sock->SslAcceptSettings.Tls_Disable1_0)
 			{
@@ -12149,12 +12141,6 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
-		}
-		else
-		{
-#ifdef	SSL_OP_NO_SSLv3
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
 		}
 
 		sock->ssl = SSL_new(ssl_ctx);
@@ -16835,6 +16821,10 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 		SSL_CTX_set_ssl_version(ctx, SSLv23_client_method());
 	}
 
+#ifdef	SSL_OP_NO_SSLv3
+	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
+
 	return ctx;
 }
 
@@ -16964,10 +16954,6 @@ TOKEN_LIST *GetCipherList()
 	{
 		return ciphers;
 	}
-
-#ifdef	SSL_OP_NO_SSLv3
-	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
-#endif
 
 	ssl = SSL_new(ctx);
 	if (ssl == NULL)
