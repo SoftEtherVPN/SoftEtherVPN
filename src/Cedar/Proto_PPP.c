@@ -257,9 +257,9 @@ void PPPThread(THREAD *thread, void *param)
 			case PPP_EAP_TYPE_IDENTITY:
 			default: // We treat the unspecified protocol as the IDENTITY protocol
 				p->Eap_Protocol = PPP_EAP_TYPE_IDENTITY;
-				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId++, PPP_EAP_TYPE_IDENTITY, sizeof(welcomeMessage));
+				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId++, PPP_EAP_TYPE_IDENTITY, StrLen(welcomeMessage) + 1);
 				eapPacket = lcpEap->Data;
-				Copy(eapPacket->Data, welcomeMessage, sizeof(welcomeMessage));
+				Copy(eapPacket->Data, welcomeMessage, StrLen(welcomeMessage));
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
 				{
@@ -3447,7 +3447,7 @@ void FreePPPSession(PPP_SESSION *p)
 	}
 	if (p->Eap_TlsCtx.CachedBufferSend != NULL)
 	{
-		Free(p->Eap_TlsCtx.CachedBufferRecv);
+		Free(p->Eap_TlsCtx.CachedBufferSend);
 	}
 	if (p->Eap_TlsCtx.SslPipe != NULL)
 	{

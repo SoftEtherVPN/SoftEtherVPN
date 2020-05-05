@@ -1077,8 +1077,14 @@ BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt)
 	// Hostname
 	if (IsEmptyStr(opt->Hostname) == false)
 	{
+		UCHAR client_id[MAX_HOST_NAME_LEN + 32];
+		UCHAR macstr[30];
+		MacToStr(macstr, sizeof(macstr), ipc->MacAddress);
+
+		Format(client_id, sizeof(client_id), "%s/%s", opt->Hostname, macstr);
+
 		Add(o, NewDhcpOption(DHCP_ID_HOST_NAME, opt->Hostname, StrLen(opt->Hostname)));
-		Add(o, NewDhcpOption(DHCP_ID_CLIENT_ID, opt->Hostname, StrLen(opt->Hostname)));
+		Add(o, NewDhcpOption(DHCP_ID_CLIENT_ID, client_id, StrLen(client_id)));
 	}
 	else // Client MAC Address
 	{
