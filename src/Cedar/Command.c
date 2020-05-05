@@ -67,13 +67,26 @@ void CheckNetworkListenThread(THREAD *thread, void *param)
 {
 	CHECK_NETWORK_1 *c = (CHECK_NETWORK_1 *)param;
 	SOCK *s;
-	UINT i;
+	UINT i, rsa_bits = 1024;
 	K *pub, *pri;
 	X *x;
 	LIST *o = NewList(NULL);
 	NAME *name = NewName(L"Test", L"Test", L"Test", L"JP", L"Ibaraki", L"Tsukuba");
 
-	RsaGen(&pri, &pub, 1024);
+	// Set RSA bits considering OpenSSL security Level
+	// Security level 4 needs 7680 bits
+	switch (GetOSSecurityLevel())
+	{
+	case 2:
+		rsa_bits = 2048;
+		break;
+	case 3:
+		rsa_bits = 4096;
+		break;
+	default:
+		break;
+	}
+	RsaGen(&pri, &pub, rsa_bits);
 	x = NewRootX(pub, pri, name, 1000, NULL);
 
 	FreeName(name);
