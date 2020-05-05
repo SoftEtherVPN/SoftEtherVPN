@@ -5737,7 +5737,10 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 		if (server_mode)
 		{
 			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_server_method());
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
+
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
 
 #ifdef SSL_OP_NO_TLSv1_3
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3); // For some reason pppd under linux doesn't like it
