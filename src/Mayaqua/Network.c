@@ -16840,6 +16840,28 @@ void FreeSSLCtx(struct ssl_ctx_st *ctx)
 	SSL_CTX_free(ctx);
 }
 
+// Get OS (maximum) Security Level
+UINT GetOSSecurityLevel()
+{
+	UINT security_level_new = 0, security_level_set_ssl_version = 0;
+	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+	security_level_new = SSL_CTX_get_security_level(ctx);
+#endif
+
+	security_level_set_ssl_version = SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
+
+	FreeSSLCtx(ctx);
+
+	if(security_level_new >= security_level_set_ssl_version)
+	{
+		return security_level_new;
+	}
+
+	return security_level_set_ssl_version;
+}
+
 // The number of get ip threads
 void SetGetIpThreadMaxNum(UINT num)
 {
