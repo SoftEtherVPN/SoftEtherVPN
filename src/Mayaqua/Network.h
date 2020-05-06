@@ -148,6 +148,8 @@ struct SSL_ACCEPT_SETTINGS
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
 	bool Tls_Disable1_3;
+	bool Override_Security_Level;
+	UINT32 Override_Security_Level_Value;
 };
 
 // Socket
