@@ -37,7 +37,7 @@ bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *pa
 		b4 = StrToBin(t->Token[5]);
 
 		if (IsEmptyStr(t->Token[1]) == false && b1->Size == 16 && b2->Size == 16 && b3->Size == 24
-			 && b4->Size == 8)
+		        && b4->Size == 8)
 		{
 			UINT64 eap_client_ptr = 0;
 
@@ -226,20 +226,20 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 	}
 
 	ipc = NewIPC(cedar, param->ClientName, param->Postfix, param->HubName,
-		param->UserName, param->Password, error_code, &param->ClientIp,
-		param->ClientPort, &param->ServerIp, param->ServerPort,
-		param->ClientHostname, param->CryptName,
-		param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->Layer);
+	             param->UserName, param->Password, error_code, &param->ClientIp,
+	             param->ClientPort, &param->ServerIp, param->ServerPort,
+	             param->ClientHostname, param->CryptName,
+	             param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->Layer);
 
 	return ipc;
 }
 
 // Start a new IPC connection
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
-			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
-			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
-			UINT layer)
+            UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
+            char *client_hostname, char *crypt_name,
+            bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
+            UINT layer)
 {
 	IPC *ipc;
 	UINT dummy_int = 0;
@@ -444,7 +444,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	}
 
 	if (ParseWelcomeFromPack(p, ipc->SessionName, sizeof(ipc->SessionName),
-		ipc->ConnectionName, sizeof(ipc->ConnectionName), &ipc->Policy) == false)
+	                         ipc->ConnectionName, sizeof(ipc->ConnectionName), &ipc->Policy) == false)
 	{
 		err = ERR_PROTOCOL_ERROR;
 		FreePack(p);
@@ -591,7 +591,7 @@ void FreeIPC(IPC *ipc)
 
 	FreeInterruptManager(ipc->Interrupt);
 
-	for (i = 0;i < LIST_NUM(ipc->ArpTable);i++)
+	for (i = 0; i < LIST_NUM(ipc->ArpTable); i++)
 	{
 		IPC_ARP *a = LIST_DATA(ipc->ArpTable, i);
 		IPCFreeARP(a);
@@ -937,7 +937,7 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 		}
 
 		if (IsTubeConnected(ipc->Sock->RecvTube) == false || IsTubeConnected(ipc->Sock->SendTube) == false ||
-			(discon_poll_tube != NULL && IsTubeConnected(discon_poll_tube) == false))
+		        (discon_poll_tube != NULL && IsTubeConnected(discon_poll_tube) == false))
 		{
 			// Session is disconnected
 			return NULL;
@@ -1007,7 +1007,7 @@ BUF *IPCBuildDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *
 	Copy(((UCHAR *)(ph)) + sizeof(UDPV4_PSEUDO_HEADER), &dhcp, sizeof(dhcp));
 	Copy(((UCHAR *)(ph)) + sizeof(UDPV4_PSEUDO_HEADER) + sizeof(dhcp) + blank_size, &magic_number, sizeof(UINT));
 	Copy(((UCHAR *)(ph)) + sizeof(UDPV4_PSEUDO_HEADER) + sizeof(dhcp) + blank_size + sizeof(UINT),
-		b->Buf, b->Size);
+	     b->Buf, b->Size);
 
 	// UDP Header
 	udp = (UDP_HEADER *)(((UCHAR *)ph) + 12);
@@ -1223,7 +1223,7 @@ void IPCProcessArp(IPC *ipc, BLOCK *b)
 void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 {
 	IPC_ARP *a;
-	// Validate arguments 
+	// Validate arguments
 	if (ipc == NULL || ip == NULL || IsValidUnicastIPAddress4(ip) == false || IsMacUnicast(mac_address) == false)
 	{
 		return;
@@ -1366,7 +1366,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								ok = true;
 							}
 							else if (ip_dst.addr[0] == 255 && ip_dst.addr[1] == 255 &&
-								ip_dst.addr[2] == 255 && ip_dst.addr[3] == 255)
+							         ip_dst.addr[2] == 255 && ip_dst.addr[3] == 255)
 							{
 								ok = true;
 							}
@@ -1404,13 +1404,13 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 					}
 					else if (protocol == MAC_PROTO_IPV6)
 					{
-						PKT* p = ParsePacketUpToICMPv6(b->Buf, b->Size);
+						PKT *p = ParsePacketUpToICMPv6(b->Buf, b->Size);
 						if (p != NULL)
 						{
 							IP ip_src, ip_dst;
 							bool ndtProcessed = false;
 
-							UCHAR* data = Clone(p->L3.IPv6Header, p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER));
+							UCHAR *data = Clone(p->L3.IPv6Header, p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER));
 
 							IPv6AddrToIP(&ip_src, &p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress);
 							IPv6AddrToIP(&ip_dst, &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress);
@@ -1602,7 +1602,7 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 		UINT i;
 
 		// Destination
-		for (i = 0;i < 6;i++)
+		for (i = 0; i < 6; i++)
 		{
 			dest[i] = 0xff;
 		}
@@ -1668,7 +1668,7 @@ void IPCFlushArpTableEx(IPC *ipc, UINT64 now)
 		now = Tick64();
 	}
 
-	for (i = 0;i < LIST_NUM(ipc->ArpTable);i++)
+	for (i = 0; i < LIST_NUM(ipc->ArpTable); i++)
 	{
 		IPC_ARP *a = LIST_DATA(ipc->ArpTable, i);
 		bool b = false;
@@ -1695,7 +1695,7 @@ void IPCFlushArpTableEx(IPC *ipc, UINT64 now)
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			IPC_ARP *a = LIST_DATA(o, i);
 
@@ -1759,7 +1759,7 @@ void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 		arp.SrcIP = IPToUINT(&ipc->ClientIPAddress);
 		arp.TargetIP = IPToUINT(next_ip);
 
-		for (i = 0;i < 6;i++)
+		for (i = 0; i < 6; i++)
 		{
 			tmp[i] = 0xff;
 		}
@@ -1782,7 +1782,7 @@ void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 }
 
 // Search the ARP table
-IPC_ARP *IPCSearchArpTable(LIST* arpTable, IP *ip)
+IPC_ARP *IPCSearchArpTable(LIST *arpTable, IP *ip)
 {
 	IPC_ARP t;
 	IPC_ARP *a;
@@ -1939,19 +1939,22 @@ BLOCK *IPCRecvL2(IPC *ipc)
 
 // IPv6 stuff
 // Memory management
-void IPCIPv6Init(IPC* ipc)
+void IPCIPv6Init(IPC *ipc)
 {
 	ipc->IPv6ReceivedQueue = NewQueue();
 	// The NDT is basically the same as ARP Table with some slight adjustments
 	ipc->IPv6NeighborTable = NewList(IPCCmpArpTable);
 	ipc->IPv6RouterAdvs = NewList(NULL);
+
+	ipc->IPv6ClientEUI = 0;
+	ipc->IPv6ServerEUI = 0;
 }
-void IPCIPv6Free(IPC* ipc)
+void IPCIPv6Free(IPC *ipc)
 {
 	UINT i;
 	for (i = 0; i < LIST_NUM(ipc->IPv6NeighborTable); i++)
 	{
-		IPC_ARP* a = LIST_DATA(ipc->IPv6NeighborTable, i);
+		IPC_ARP *a = LIST_DATA(ipc->IPv6NeighborTable, i);
 		IPCFreeARP(a);
 	}
 
@@ -1959,7 +1962,7 @@ void IPCIPv6Free(IPC* ipc)
 
 	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
 	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT* ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
 		Free(ra);
 	}
 
@@ -1967,7 +1970,7 @@ void IPCIPv6Free(IPC* ipc)
 
 	while (true)
 	{
-		BLOCK* b = GetNext(ipc->IPv6ReceivedQueue);
+		BLOCK *b = GetNext(ipc->IPv6ReceivedQueue);
 		if (b == NULL)
 		{
 			break;
@@ -1980,17 +1983,17 @@ void IPCIPv6Free(IPC* ipc)
 }
 
 // NDT
-void IPCIPv6AssociateOnNDT(IPC* ipc, IP* ip, UCHAR* mac_address)
+void IPCIPv6AssociateOnNDT(IPC *ipc, IP *ip, UCHAR *mac_address)
 {
 	IPCIPv6AssociateOnNDTEx(ipc, ip, mac_address, false);
 }
-void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighborAdv)
+void IPCIPv6AssociateOnNDTEx(IPC *ipc, IP *ip, UCHAR *mac_address, bool isNeighborAdv)
 {
-	IPC_ARP* a;
+	IPC_ARP *a;
 	UINT addrType = 0;
-	if (ipc == NULL || ip == NULL || 
-		IsValidUnicastIPAddress6(ip) == false ||
-		IsMacUnicast(mac_address) == false)
+	if (ipc == NULL || ip == NULL ||
+	        IsValidUnicastIPAddress6(ip) == false ||
+	        IsMacUnicast(mac_address) == false)
 	{
 		return;
 	}
@@ -1998,7 +2001,7 @@ void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighb
 	addrType = GetIPAddrType6(ip);
 
 	if (addrType != IPV6_ADDR_LOCAL_UNICAST &&
-		addrType != IPV6_ADDR_GLOBAL_UNICAST)
+	        addrType != IPV6_ADDR_GLOBAL_UNICAST)
 	{
 		return;
 	}
@@ -2027,14 +2030,14 @@ void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighb
 	else
 	{
 		Copy(a->MacAddress, mac_address, 6);
-		
+
 		if (a->Resolved == false)
 		{
 			a->Resolved = true;
 			a->GiveupTime = 0;
 			while (true)
 			{
-				BLOCK* b = GetNext(a->PacketQueue);
+				BLOCK *b = GetNext(a->PacketQueue);
 
 				if (b == NULL)
 				{
@@ -2051,14 +2054,14 @@ void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighb
 	}
 }
 
-void IPCIPv6FlushNDT(IPC* ipc)
+void IPCIPv6FlushNDT(IPC *ipc)
 {
 	IPCIPv6FlushNDTEx(ipc, 0);
 }
-void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now)
+void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now)
 {
 	UINT i;
-	LIST* o = NULL;
+	LIST *o = NULL;
 	// Validate arguments
 	if (ipc == NULL)
 	{
@@ -2071,7 +2074,7 @@ void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now)
 
 	for (i = 0; i < LIST_NUM(ipc->IPv6NeighborTable); i++)
 	{
-		IPC_ARP* a = LIST_DATA(ipc->IPv6NeighborTable, i);
+		IPC_ARP *a = LIST_DATA(ipc->IPv6NeighborTable, i);
 		bool b = false;
 
 		if (a->Resolved && a->ExpireTime <= now)
@@ -2099,7 +2102,7 @@ void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now)
 	{
 		for (i = 0; i < LIST_NUM(o); i++)
 		{
-			IPC_ARP* a = LIST_DATA(o, i);
+			IPC_ARP *a = LIST_DATA(o, i);
 
 			IPCFreeARP(a);
 
@@ -2110,14 +2113,24 @@ void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now)
 	}
 }
 
+bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, IP *addr)
+{
+	HUB t, *h;
+	IP_TABLE_ENTRY t, *e;
+	t.Name = ipc->HubName;
+	h = Search(ipc->Cedar->HubList, &t);
+
+	//h->IpTable
+}
+
 // RA
-void IPCIPv6AddRouterPrefix(IPC* ipc, ICMPV6_OPTION_LIST* recvPrefix, UCHAR* macAddress, IP* ip)
+void IPCIPv6AddRouterPrefix(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip)
 {
 	UINT i;
 	bool foundPrefix = false;
 	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
 	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT* existingRA = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		IPC_IPV6_ROUTER_ADVERTISEMENT *existingRA = LIST_DATA(ipc->IPv6RouterAdvs, i);
 		if (Cmp(&recvPrefix->Prefix->Prefix, &existingRA->RoutedPrefix.ipv6_addr, sizeof(IPV6_ADDR)) == 0)
 		{
 			foundPrefix = true;
@@ -2127,7 +2140,7 @@ void IPCIPv6AddRouterPrefix(IPC* ipc, ICMPV6_OPTION_LIST* recvPrefix, UCHAR* mac
 
 	if (!foundPrefix)
 	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT* newRA = Malloc(sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+		IPC_IPV6_ROUTER_ADVERTISEMENT *newRA = Malloc(sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
 		IPv6AddrToIP(&newRA->RoutedPrefix, &recvPrefix->Prefix->Prefix);
 		IntToSubnetMask6(&newRA->RoutedMask, recvPrefix->Prefix->SubnetLength);
 		CopyIP(&newRA->RouterAddress, ip);
@@ -2137,14 +2150,14 @@ void IPCIPv6AddRouterPrefix(IPC* ipc, ICMPV6_OPTION_LIST* recvPrefix, UCHAR* mac
 	}
 }
 
-bool IPCIPv6CheckUnicastFromRouterPrefix(IPC* ipc, IP* ip, IPC_IPV6_ROUTER_ADVERTISEMENT* matchedRA)
+bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA)
 {
 	UINT i;
-	IPC_IPV6_ROUTER_ADVERTISEMENT* matchingRA = NULL;
+	IPC_IPV6_ROUTER_ADVERTISEMENT *matchingRA = NULL;
 	bool isInPrefix = false;
 	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
 	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT* ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
 		isInPrefix = IsInSameNetwork6(ip, &ra->RoutedPrefix, &ra->RoutedMask);
 		if (isInPrefix)
 		{
@@ -2162,7 +2175,7 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC* ipc, IP* ip, IPC_IPV6_ROUTER_ADVER
 }
 
 // Send router solicitation and then eventually populate the info from Router Advertisements
-void IPCIPv6SendRouterSolicitation(IPC* ipc)
+void IPCIPv6SendRouterSolicitation(IPC *ipc)
 {
 	IP senderIP;
 	IP destIP;
@@ -2170,7 +2183,7 @@ void IPCIPv6SendRouterSolicitation(IPC* ipc)
 	IPV6_ADDR linkLocal;
 	BUF *packet;
 	Zero(&linkLocal, sizeof(IPV6_ADDR));
-	
+
 	// Generate link local from client's EUI
 	linkLocal.Value[0] = 0xFE;
 	linkLocal.Value[1] = 0x80;
@@ -2202,12 +2215,19 @@ void IPCIPv6SendRouterSolicitation(IPC* ipc)
 		// The processing should populate the received RAs by itself
 		IPCProcessL3Events(ipc);
 	}
+
+	// Populating the IPv6 Server EUI for IPV6CP
+	if (LIST_NUM(ipc->IPv6RouterAdvs) > 0)
+	{
+		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, 0);
+		ipc->IPv6ServerEUI = READ_UINT64(&ra->RouterAddress.ipv6_addr[8]);
+	}
 }
 
 // Data flow
-BLOCK* IPCIPv6Recv(IPC* ipc)
+BLOCK *IPCIPv6Recv(IPC *ipc)
 {
-	BLOCK* b;
+	BLOCK *b;
 	// Validate arguments
 	if (ipc == NULL)
 	{
@@ -2219,13 +2239,13 @@ BLOCK* IPCIPv6Recv(IPC* ipc)
 	return b;
 }
 
-void IPCIPv6Send(IPC* ipc, void* data, UINT size)
+void IPCIPv6Send(IPC *ipc, void *data, UINT size)
 {
 	IP destAddr;
 	UINT ipv6Type;
 	UCHAR destMac[6];
-	IPV6_HEADER* header = data;
-	
+	IPV6_HEADER *header = data;
+
 	IPv6AddrToIP(&destAddr, &header->DestAddress);
 
 	if (IsValidUnicastIPAddress6(&destAddr))
@@ -2254,7 +2274,7 @@ void IPCIPv6Send(IPC* ipc, void* data, UINT size)
 	}
 }
 
-void IPCIPv6SendWithDestMacAddr(IPC* ipc, void* data, UINT size, UCHAR* dest_mac_addr)
+void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr)
 {
 	UCHAR tmp[1514];
 	// Validate arguments
@@ -2279,12 +2299,12 @@ void IPCIPv6SendWithDestMacAddr(IPC* ipc, void* data, UINT size, UCHAR* dest_mac
 	IPCSendL2(ipc, tmp, size + 14);
 }
 
-void IPCIPv6SendUnicast(IPC* ipc, void* data, UINT size, IP* next_ip)
+void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 {
-	IPC_ARP* ndtMatch;
-	UCHAR* destMac = NULL;
+	IPC_ARP *ndtMatch;
+	UCHAR *destMac = NULL;
 	IPC_IPV6_ROUTER_ADVERTISEMENT ra;
-	IPV6_HEADER* header = data;
+	IPV6_HEADER *header = data;
 	IP srcIp;
 	bool isLocal = false;
 	// First we need to understand if it is a local packet or we should route it through the router
@@ -2346,11 +2366,11 @@ void IPCIPv6SendUnicast(IPC* ipc, void* data, UINT size, IP* next_ip)
 			/// TODO: check if we need to manage NDT manually from here or the client will
 			/// TODO: send Neighbor Solicitations by itself and we just proxy them
 			CHAR tmp[MAX_SIZE];
-			BLOCK* blk = NewBlock(data, size, 0);
+			BLOCK *blk = NewBlock(data, size, 0);
 			InsertQueue(ndtMatch->PacketQueue, blk);
 			IPToStr6(tmp, MAX_SIZE, next_ip);
 			Debug("We can't send the packet because we don't have IP %s in NDT! Need to send Neighbor Solicitation first... Saving for later send.\n", tmp);
-			
+
 			return;
 		}
 		destMac = ndtMatch->MacAddress;

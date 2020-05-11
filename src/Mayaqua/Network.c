@@ -197,7 +197,7 @@ UINT64 GetDynValue(char *name)
 	{
 		UINT i;
 
-		for (i = 0; i < LIST_NUM(g_dyn_value_list);i++)
+		for (i = 0; i < LIST_NUM(g_dyn_value_list); i++)
 		{
 			DYN_VALUE *vv = LIST_DATA(g_dyn_value_list, i);
 
@@ -232,7 +232,7 @@ void SetDynListValue(char *name, UINT64 value)
 		UINT i;
 		DYN_VALUE *v = NULL;
 
-		for (i = 0; i < LIST_NUM(g_dyn_value_list);i++)
+		for (i = 0; i < LIST_NUM(g_dyn_value_list); i++)
 		{
 			DYN_VALUE *vv = LIST_DATA(g_dyn_value_list, i);
 
@@ -301,7 +301,7 @@ void AddDynList(BUF *b)
 	{
 		UINT i;
 
-		for (i = 0;i < t->NumTokens;i++)
+		for (i = 0; i < t->NumTokens; i++)
 		{
 			char *name = t->Token[i];
 			UINT64 v = PackGetInt64(p, name);
@@ -330,7 +330,7 @@ void FreeDynList()
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(g_dyn_value_list);i++)
+	for (i = 0; i < LIST_NUM(g_dyn_value_list); i++)
 	{
 		DYN_VALUE *d = LIST_DATA(g_dyn_value_list, i);
 
@@ -364,7 +364,7 @@ int GetCurrentTimezone()
 		Zero(&tv, sizeof(tv));
 		Zero(&tz, sizeof(tz));
 
-		gettimeofday(&tv, &tz); 
+		gettimeofday(&tv, &tz);
 
 		ret = tz.tz_minuteswest;
 
@@ -515,7 +515,7 @@ bool IsMacAddressLocalInner(LIST *o, void *addr)
 		return false;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		NIC_ENTRY *e = LIST_DATA(o, i);
 
@@ -559,7 +559,7 @@ LIST *Win32GetNicList()
 		return NULL;
 	}
 
-	for (i = 0;i < al->Num;i++)
+	for (i = 0; i < al->Num; i++)
 	{
 		MS_ADAPTER *a = al->Adapters[i];
 
@@ -590,7 +590,7 @@ void FreeNicList(LIST *o)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		NIC_ENTRY *e = LIST_DATA(o, i);
 
@@ -607,39 +607,39 @@ UINT DetectFletsType()
 	//LIST *o = GetHostIPAddressList();
 //	UINT i;
 
-/*
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		IP *ip = LIST_DATA(o, i);
-
-		if (IsIP6(ip))
+	/*
+		for (i = 0;i < LIST_NUM(o);i++)
 		{
-			char ip_str[MAX_SIZE];
+			IP *ip = LIST_DATA(o, i);
 
-			IPToStr(ip_str, sizeof(ip_str), ip);
-
-			if (IsInSameNetwork6ByStr(ip_str, "2001:c90::", "/32"))
+			if (IsIP6(ip))
 			{
-				// NTT East B-FLETs
-				ret |= FLETS_DETECT_TYPE_EAST_BFLETS_PRIVATE;
-			}
+				char ip_str[MAX_SIZE];
 
-			if (IsInSameNetwork6ByStr(ip_str, "2408:200::", "/23"))
-			{
-				// Wrapping in network of NTT East NGN
-				ret |= FLETS_DETECT_TYPE_EAST_NGN_PRIVATE;
-			}
+				IPToStr(ip_str, sizeof(ip_str), ip);
 
-			if (IsInSameNetwork6ByStr(ip_str, "2001:a200::", "/23"))
-			{
-				// Wrapping in network of NTT West NGN
-				ret |= FLETS_DETECT_TYPE_WEST_NGN_PRIVATE;
+				if (IsInSameNetwork6ByStr(ip_str, "2001:c90::", "/32"))
+				{
+					// NTT East B-FLETs
+					ret |= FLETS_DETECT_TYPE_EAST_BFLETS_PRIVATE;
+				}
+
+				if (IsInSameNetwork6ByStr(ip_str, "2408:200::", "/23"))
+				{
+					// Wrapping in network of NTT East NGN
+					ret |= FLETS_DETECT_TYPE_EAST_NGN_PRIVATE;
+				}
+
+				if (IsInSameNetwork6ByStr(ip_str, "2001:a200::", "/23"))
+				{
+					// Wrapping in network of NTT West NGN
+					ret |= FLETS_DETECT_TYPE_WEST_NGN_PRIVATE;
+				}
 			}
 		}
-	}
 
-	FreeHostIPAddressList(o);
-*/
+		FreeHostIPAddressList(o);
+	*/
 	return ret;
 }
 
@@ -732,9 +732,9 @@ bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT t
 		{
 			// Send the HTTP Request
 			Format(request_str, sizeof(request_str),
-				"GET " BFLETS_DNS_PROXY_PATH "?q=%s&ipv6=%u\r\n"
-				"\r\n",
-				hostname, ipv6, connect_hostname2);
+			       "GET " BFLETS_DNS_PROXY_PATH "?q=%s&ipv6=%u\r\n"
+			       "\r\n",
+			       hostname, ipv6, connect_hostname2);
 
 			if (SendAll(s, request_str, StrLen(request_str), true))
 			{
@@ -895,7 +895,7 @@ BUF *QueryFileByUdpForJapanBFlets(UINT timeout, bool *cancel)
 
 	ret = QueryFileByIPv6Udp(ip_list, timeout, cancel);
 
-	for (i = 0;i < LIST_NUM(ip_list);i++)
+	for (i = 0; i < LIST_NUM(ip_list); i++)
 	{
 		IP *ip = LIST_DATA(ip_list, i);
 
@@ -1004,7 +1004,7 @@ BUF *QueryFileByIPv6Udp(LIST *ip_list, UINT timeout, bool *cancel)
 		{
 			// Transmission
 			UINT i;
-			for (i = 0;i < LIST_NUM(ip_list);i++)
+			for (i = 0; i < LIST_NUM(ip_list); i++)
 			{
 				IP *ip = LIST_DATA(ip_list, i);
 				UCHAR c = 'F';
@@ -1248,7 +1248,7 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 							SetCurrentGlobalIP(&ip, false);
 
 							RUDPGetRegisterHostNameByIP(new_hostname,
-								sizeof(new_hostname), &ip);
+							                            sizeof(new_hostname), &ip);
 
 							Lock(r->Lock);
 							{
@@ -1601,7 +1601,7 @@ void RUDPRecvProc(RUDP_STACK *r, UDPPACKET *p)
 		// The target session is a session which matches the client side IP address
 		// and the key and the signature is verified
 		UINT i;
-		for (i = 0; i < LIST_NUM(r->SessionList);i++)
+		for (i = 0; i < LIST_NUM(r->SessionList); i++)
 		{
 			RUDP_SESSION *s = LIST_DATA(r->SessionList, i);
 
@@ -1646,7 +1646,7 @@ void RUDPRecvProc(RUDP_STACK *r, UDPPACKET *p)
 					// Check the number of sessions per IP address
 					UINT num = 0;
 
-					for (i = 0;i < LIST_NUM(r->SessionList);i++)
+					for (i = 0; i < LIST_NUM(r->SessionList); i++)
 					{
 						RUDP_SESSION *se = LIST_DATA(r->SessionList, i);
 
@@ -1780,7 +1780,7 @@ bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip)
 		return true;
 	}
 
-	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	for (i = 0; i < LIST_NUM(r->NatT_SourceIpList); i++)
 	{
 		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
 
@@ -1797,7 +1797,7 @@ bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip)
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(o, i);
 
@@ -1809,7 +1809,7 @@ bool RUDPIsIpInValidateList(RUDP_STACK *r, IP *ip)
 		ReleaseList(o);
 	}
 
-	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	for (i = 0; i < LIST_NUM(r->NatT_SourceIpList); i++)
 	{
 		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
 
@@ -1843,7 +1843,7 @@ void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	for (i = 0; i < LIST_NUM(r->NatT_SourceIpList); i++)
 	{
 		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
 
@@ -1860,7 +1860,7 @@ void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip)
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(o, i);
 
@@ -1874,7 +1874,7 @@ void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip)
 
 	sip = NULL;
 
-	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	for (i = 0; i < LIST_NUM(r->NatT_SourceIpList); i++)
 	{
 		RUDP_SOURCE_IP *s = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
 
@@ -1938,7 +1938,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 				Rand(init_key, SHA1_SIZE);
 
 				se = RUDPNewSession(false, &r->UdpSock->LocalIP, r->UdpSock->LocalPort,
-					&r->TargetIp, r->TargetPort, init_key);
+				                    &r->TargetIp, r->TargetPort, init_key);
 
 				IPToStr(ip_str, sizeof(ip_str), &r->TargetIp);
 				Debug("RUDPNewSession %X %s:%u\n", se, ip_str, r->TargetPort);
@@ -1954,7 +1954,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 	}
 
 	// Process for all the sessions
-	for (i = 0;i < LIST_NUM(r->SessionList);i++)
+	for (i = 0; i < LIST_NUM(r->SessionList); i++)
 	{
 		RUDP_SESSION *se = LIST_DATA(r->SessionList, i);
 
@@ -1995,7 +1995,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 
 				o = NULL;
 				current_seq_no = se->LastRecvCompleteSeqNo;
-				for (j = 0;j < LIST_NUM(se->RecvSegmentList);j++)
+				for (j = 0; j < LIST_NUM(se->RecvSegmentList); j++)
 				{
 					RUDP_SEGMENT *s;
 
@@ -2064,7 +2064,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 				// Delete the segment which has been received completely
 				if (o != NULL)
 				{
-					for (j = 0;j < LIST_NUM(o);j++)
+					for (j = 0; j < LIST_NUM(o); j++)
 					{
 						RUDP_SEGMENT *s = LIST_DATA(o, j);
 
@@ -2213,7 +2213,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 				}
 
 				seq_no_min = RUDPGetCurrentSendingMinSeqNo(se);
-				for (j = 0;j < LIST_NUM(se->SendSegmentList);j++)
+				for (j = 0; j < LIST_NUM(se->SendSegmentList); j++)
 				{
 					RUDP_SEGMENT *s = LIST_DATA(se->SendSegmentList, j);
 
@@ -2364,7 +2364,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 
 	// Release the disconnected sessions
 	o = NULL;
-	for (i = 0;i < LIST_NUM(r->SessionList);i++)
+	for (i = 0; i < LIST_NUM(r->SessionList); i++)
 	{
 		RUDP_SESSION *se = LIST_DATA(r->SessionList, i);
 
@@ -2380,7 +2380,7 @@ void RUDPInterruptProc(RUDP_STACK *r)
 	}
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			RUDP_SESSION *se = LIST_DATA(o, i);
 
@@ -2430,7 +2430,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 		Copy(buf + RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64), data, data_size);
 
 		// Padding
-		for (i = 0;i < padding_size;i++)
+		for (i = 0; i < padding_size; i++)
 		{
 			buf[RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64) + data_size + i] = (UCHAR)padding_size;
 		}
@@ -2468,7 +2468,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 		Copy(buf + SHA1_SIZE + SHA1_SIZE + sizeof(UINT64), data, data_size);
 
 		// Padding
-		for (i = 0;i < padding_size;i++)
+		for (i = 0; i < padding_size; i++)
 		{
 			buf[SHA1_SIZE + SHA1_SIZE + sizeof(UINT64) + data_size + i] = (UCHAR)padding_size;
 		}
@@ -2521,7 +2521,7 @@ SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RU
 	return ListenRUDPEx(svc_name, proc_interrupts, proc_rpc_recv, param, port, no_natt_register, over_dns_mode, NULL, 0, NULL);
 }
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
+                   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip)
 {
 	SOCK *s;
 	RUDP_STACK *r;
@@ -3029,7 +3029,7 @@ bool RUDPProcessRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data, UIN
 		RUDPProcessAck2(r, se, max_ack);
 	}
 
-	for (i = 0;i < num_ack;i++)
+	for (i = 0; i < num_ack; i++)
 	{
 		UINT64 seq = READ_UINT64(p);
 
@@ -3141,7 +3141,7 @@ void RUDPDisconnectSession(RUDP_STACK *r, RUDP_SESSION *se, bool disconnected_by
 		// Send 5 disconnect signals serially if to disconnect from here
 		if (disconnected_by_you == false)
 		{
-			for (i = 0;i < 5;i++)
+			for (i = 0; i < 5; i++)
 			{
 				RUDPSendSegmentNow(r, se, se->Magic_Disconnect, NULL, 0);
 			}
@@ -3343,7 +3343,7 @@ void RUDPProcessAck2(RUDP_STACK *r, RUDP_SESSION *se, UINT64 max_seq)
 
 	o = NULL;
 
-	for (i = 0;i < LIST_NUM(se->SendSegmentList);i++)
+	for (i = 0; i < LIST_NUM(se->SendSegmentList); i++)
 	{
 		RUDP_SEGMENT *s = LIST_DATA(se->SendSegmentList, i);
 
@@ -3360,7 +3360,7 @@ void RUDPProcessAck2(RUDP_STACK *r, RUDP_SESSION *se, UINT64 max_seq)
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			RUDP_SEGMENT *s = LIST_DATA(o, i);
 
@@ -3448,7 +3448,7 @@ void RUDPSendSegmentNow(RUDP_STACK *r, RUDP_SESSION *se, UINT64 seq_no, void *da
 	Copy(iv, se->NextIv, SHA1_SIZE);
 	p += SHA1_SIZE;
 
-	for (i = 0;i < MIN(LIST_NUM(se->ReplyAckList), RUDP_MAX_NUM_ACK);i++)
+	for (i = 0; i < MIN(LIST_NUM(se->ReplyAckList), RUDP_MAX_NUM_ACK); i++)
 	{
 		UINT64 *seq = LIST_DATA(se->ReplyAckList, i);
 
@@ -3480,7 +3480,7 @@ void RUDPSendSegmentNow(RUDP_STACK *r, RUDP_SESSION *se, UINT64 seq_no, void *da
 	if (o != NULL)
 	{
 		// ACK body
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			UINT64 *seq = LIST_DATA(o, i);
 
@@ -3506,7 +3506,7 @@ void RUDPSendSegmentNow(RUDP_STACK *r, RUDP_SESSION *se, UINT64 seq_no, void *da
 	padlen = Rand8();
 	padlen = MAX(padlen, 1);
 
-	for (i = 0;i < padlen;i++)
+	for (i = 0; i < padlen; i++)
 	{
 		*p = padlen;
 		p++;
@@ -3614,7 +3614,7 @@ void RUDPFreeSession(RUDP_SESSION *se)
 
 	Debug("RUDPFreeSession %X\n", se);
 
-	for (i = 0;i < LIST_NUM(se->SendSegmentList);i++)
+	for (i = 0; i < LIST_NUM(se->SendSegmentList); i++)
 	{
 		RUDP_SEGMENT *s = LIST_DATA(se->SendSegmentList, i);
 
@@ -3623,7 +3623,7 @@ void RUDPFreeSession(RUDP_SESSION *se)
 
 	ReleaseList(se->SendSegmentList);
 
-	for (i = 0;i < LIST_NUM(se->RecvSegmentList);i++)
+	for (i = 0; i < LIST_NUM(se->RecvSegmentList); i++)
 	{
 		RUDP_SEGMENT *s = LIST_DATA(se->RecvSegmentList, i);
 
@@ -3782,8 +3782,8 @@ void RUDPSendPacket(RUDP_STACK *r, IP *dest_ip, UINT dest_port, void *data, UINT
 	}
 
 	p = NewUdpPacket(&r->UdpSock->LocalIP, r->UdpSock->LocalPort,
-		dest_ip, dest_port,
-		Clone(data, size), size);
+	                 dest_ip, dest_port,
+	                 Clone(data, size), size);
 
 	if (r->Protocol == RUDP_PROTOCOL_ICMP || r->Protocol == RUDP_PROTOCOL_DNS)
 	{
@@ -3845,8 +3845,8 @@ void RUDPMainThread(THREAD *thread, void *param)
 				// Receive a Packet
 				bool ok = false;
 				UDPPACKET *p = NewUdpPacket(&ip_src, port_src,
-					&r->UdpSock->LocalIP, r->UdpSock->LocalPort,
-					Clone(r->TmpBuf, ret), ret);
+				                            &r->UdpSock->LocalIP, r->UdpSock->LocalPort,
+				                            Clone(r->TmpBuf, ret), ret);
 
 				if (r->Protocol == RUDP_PROTOCOL_ICMP)
 				{
@@ -3861,13 +3861,13 @@ void RUDPMainThread(THREAD *thread, void *param)
 							ICMP_HEADER *icmp_header = (ICMP_HEADER *)(((UCHAR *)p->Data) + ip_header_size);
 							ICMP_ECHO *echo_header = (ICMP_ECHO *)(((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER));
 
-							if (icmp_header->Type == ICMP_TYPE_ECHO_RESPONSE || 
-								icmp_header->Type == (r->ServerMode ? ICMP_TYPE_INFORMATION_REQUEST : ICMP_TYPE_INFORMATION_REPLY))
+							if (icmp_header->Type == ICMP_TYPE_ECHO_RESPONSE ||
+							        icmp_header->Type == (r->ServerMode ? ICMP_TYPE_INFORMATION_REQUEST : ICMP_TYPE_INFORMATION_REPLY))
 							{
 								UCHAR hash[SHA1_SIZE];
 
 								Sha1(hash, ((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE,
-									p->Size - (ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE));
+								     p->Size - (ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE));
 
 								if (Cmp(hash, ((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO), SHA1_SIZE) == 0)
 								{
@@ -3875,7 +3875,7 @@ void RUDPMainThread(THREAD *thread, void *param)
 									UINT new_data_size;
 									if (r->ServerMode)
 									{
-										// On the server side, the ICMP ID and the SEQ NO of received messages are treated as a source port number 
+										// On the server side, the ICMP ID and the SEQ NO of received messages are treated as a source port number
 										Copy(&p->SrcPort, echo_header, sizeof(UINT));
 									}
 
@@ -3968,7 +3968,7 @@ void RUDPMainThread(THREAD *thread, void *param)
 		RUDPInterruptProc(r);
 
 		// Send all packets in the transmission packet list
-		for (i = 0;i < LIST_NUM(r->SendPacketList);i++)
+		for (i = 0; i < LIST_NUM(r->SendPacketList); i++)
 		{
 			UDPPACKET *p = LIST_DATA(r->SendPacketList, i);
 
@@ -3990,7 +3990,7 @@ void RUDPMainThread(THREAD *thread, void *param)
 
 				if (r->ServerMode)
 				{
-					// On the server side, use the port number in the opponent internal data as ICMP ID and SEQ NO 
+					// On the server side, use the port number in the opponent internal data as ICMP ID and SEQ NO
 					Copy(icmp_echo, &p->DestPort, 4);
 				}
 				else
@@ -4022,11 +4022,11 @@ void RUDPMainThread(THREAD *thread, void *param)
 				{
 					// DNS query header
 					USHORT us = Rand16() % 65535 + 1;
-					static UCHAR dns_query_header_1[] = 
+					static UCHAR dns_query_header_1[] =
 					{
 						0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08,
 					};
-					static UCHAR dns_query_header_2[] = 
+					static UCHAR dns_query_header_2[] =
 					{
 						0x00, 0x00, 0x30, 0x00, 0x01, 0x00, 0x00, 0x29, 0x10,
 						0x00, 0x00, 0x00, 0x80, 0x00,
@@ -4192,16 +4192,16 @@ void RUDPGetRegisterHostNameByIP(char *dst, UINT size, IP *ip)
 
 	StrLower(tmp);
 	Format(dst, size,
-		(IsUseAlternativeHostname() ? UDP_NAT_T_SERVER_TAG_ALT : UDP_NAT_T_SERVER_TAG),
-		tmp[2], tmp[3]);
+	       (IsUseAlternativeHostname() ? UDP_NAT_T_SERVER_TAG_ALT : UDP_NAT_T_SERVER_TAG),
+	       tmp[2], tmp[3]);
 
 
 	if (false)
 	{
 		Debug("Hash Src IP: %r\n"
-			  "Hash Dst HN: %s\n",
-			  ip,
-			  dst);
+		      "Hash Dst HN: %s\n",
+		      ip,
+		      dst);
 	}
 }
 
@@ -4584,7 +4584,7 @@ bool IsIPv6LocalNetworkAddress(IP *ip)
 
 	ret = false;
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *p = LIST_DATA(o, i);
 
@@ -4626,7 +4626,7 @@ bool IsIPLocalHostOrMySelf(IP *ip)
 		return false;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *p = LIST_DATA(o, i);
 
@@ -4663,7 +4663,7 @@ UINT GetHostIPAddressHash32()
 	}
 
 	b = NewBuf();
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *ip = LIST_DATA(o, i);
 
@@ -4953,7 +4953,7 @@ LABEL_TIMEOUT:
 											if (IsZeroIp(&result_ip) == false)
 											{
 												if ((sock->IPv6 == false && IsIP4(&result_ip)) ||
-													(sock->IPv6 && IsIP6(&result_ip)))
+												        (sock->IPv6 && IsIP6(&result_ip)))
 												{
 													err = RUDP_ERROR_OK;
 												}
@@ -5063,7 +5063,7 @@ LABEL_TIMEOUT:
 			}
 
 			ret = NewRUDPClientDirect(svc_name, &result_ip, result_port, error_code, remain_timeout, cancel,
-				sock, sock_event, 0, false);
+			                          sock, sock_event, 0, false);
 		}
 
 		if (sock_event != NULL)
@@ -5351,7 +5351,7 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 	}
 
 	if (true
-		)
+	   )
 	{
 		RUDPGetRegisterHostNameByIP(r->CurrentRegisterHostname, sizeof(r->CurrentRegisterHostname), NULL);
 	}
@@ -5363,7 +5363,7 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 	}
 
 	if (r->ServerMode && r->NoNatTRegister == false
-		)
+	   )
 	{
 		r->IpQueryThread = NewThread(RUDPIpQueryThread, r);
 	}
@@ -5446,7 +5446,7 @@ void FreeRUDP(RUDP_STACK *r)
 	WaitThread(r->Thread, INFINITE);
 	ReleaseThread(r->Thread);
 
-	for (i = 0;i < LIST_NUM(r->SessionList);i++)
+	for (i = 0; i < LIST_NUM(r->SessionList); i++)
 	{
 		RUDP_SESSION *se = LIST_DATA(r->SessionList, i);
 
@@ -5455,7 +5455,7 @@ void FreeRUDP(RUDP_STACK *r)
 
 	ReleaseList(r->SessionList);
 
-	for (i = 0;i < LIST_NUM(r->SendPacketList);i++)
+	for (i = 0; i < LIST_NUM(r->SendPacketList); i++)
 	{
 		UDPPACKET *p = LIST_DATA(r->SendPacketList, i);
 
@@ -5474,7 +5474,7 @@ void FreeRUDP(RUDP_STACK *r)
 		ReleaseSock(s);
 	}
 
-	for (i = 0;i < LIST_NUM(r->NatT_SourceIpList);i++)
+	for (i = 0; i < LIST_NUM(r->NatT_SourceIpList); i++)
 	{
 		RUDP_SOURCE_IP *sip = (RUDP_SOURCE_IP *)LIST_DATA(r->NatT_SourceIpList, i);
 
@@ -5569,7 +5569,7 @@ void GetCurrentMachineIpProcessHashInternal(void *hash)
 	if (ip_list != NULL)
 	{
 		UINT i;
-		for (i = 0;i < LIST_NUM(ip_list);i++)
+		for (i = 0; i < LIST_NUM(ip_list); i++)
 		{
 			IP *ip = LIST_DATA(ip_list, i);
 
@@ -5656,7 +5656,7 @@ SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca)
 {
 	UINT i;
 	SOCK *s;
-	for (i = 40000;i < 65536;i++)
+	for (i = 40000; i < 65536; i++)
 	{
 		s = ListenEx(i, local_only);
 		if (s != NULL)
@@ -5703,7 +5703,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 				X *tmpX = X509ToX(cert); // this only wraps cert, but we need to make a copy
 				if (!CompareX(tmpX, clientcert->X))
 				{
-					X* copyX = CloneX(tmpX);
+					X *copyX = CloneX(tmpX);
 					if (clientcert->X != NULL)
 					{
 						FreeX(clientcert->X);
@@ -5824,7 +5824,7 @@ bool SyncSslPipe(SSL_PIPE *s)
 		return false;
 	}
 
-	for (i = 0;i < 2;i++)
+	for (i = 0; i < 2; i++)
 	{
 		if (SslBioSync(s->RawIn, true, false) == false)
 		{
@@ -6147,8 +6147,8 @@ bool IsIcmpApiSupported()
 {
 #ifdef	OS_WIN32
 	if (w32net->IcmpCloseHandle != NULL &&
-		w32net->IcmpCreateFile != NULL &&
-		w32net->IcmpSendEcho != NULL)
+	        w32net->IcmpCreateFile != NULL &&
+	        w32net->IcmpSendEcho != NULL)
 	{
 		return true;
 	}
@@ -6198,7 +6198,7 @@ ROUTE_CHANGE *Win32NewRouteChange()
 	}
 
 	if (w32net->CancelIPChangeNotify == NULL ||
-		w32net->NotifyRouteChange == NULL)
+	        w32net->NotifyRouteChange == NULL)
 	{
 		return NULL;
 	}
@@ -6265,8 +6265,8 @@ typedef struct WIN32_ACCEPT_CHECK_DATA
 } WIN32_ACCEPT_CHECK_DATA;
 
 int CALLBACK Win32AcceptCheckCallback(LPWSABUF lpCallerId, LPWSABUF lpCallerData, LPQOS pQos,
-									  LPQOS lpGQOS, LPWSABUF lpCalleeId, LPWSABUF lpCalleeData,
-									  GROUP FAR * g, DWORD_PTR dwCallbackData)
+                                      LPQOS lpGQOS, LPWSABUF lpCalleeId, LPWSABUF lpCalleeData,
+                                      GROUP FAR *g, DWORD_PTR dwCallbackData)
 {
 	return CF_ACCEPT;
 }
@@ -6417,7 +6417,7 @@ UINT SubnetMaskToInt6(IP *a)
 		return 0;
 	}
 
-	for (i = 0;i <= 128;i++)
+	for (i = 0; i <= 128; i++)
 	{
 		IP tmp;
 
@@ -6440,7 +6440,7 @@ UINT SubnetMaskToInt4(IP *a)
 		return 0;
 	}
 
-	for (i = 0;i <= 32;i++)
+	for (i = 0; i <= 32; i++)
 	{
 		IP tmp;
 
@@ -6476,7 +6476,7 @@ bool IsSubnetMask6(IP *a)
 		return false;
 	}
 
-	for (i = 0;i <= 128;i++)
+	for (i = 0; i <= 128; i++)
 	{
 		IP tmp;
 
@@ -6659,9 +6659,9 @@ UINT GetIPAddrType6(IP *ip)
 		else
 		{
 			if (ip->ipv6_addr[1] == 0x02 && ip->ipv6_addr[2] == 0 && ip->ipv6_addr[3] == 0 &&
-				ip->ipv6_addr[4] == 0 && ip->ipv6_addr[5] == 0 && ip->ipv6_addr[6] == 0 &&
-				ip->ipv6_addr[7] == 0 && ip->ipv6_addr[8] == 0 && ip->ipv6_addr[9] == 0 &&
-				ip->ipv6_addr[10] == 0 && ip->ipv6_addr[11] == 0x01 && ip->ipv6_addr[12] == 0xff)
+			        ip->ipv6_addr[4] == 0 && ip->ipv6_addr[5] == 0 && ip->ipv6_addr[6] == 0 &&
+			        ip->ipv6_addr[7] == 0 && ip->ipv6_addr[8] == 0 && ip->ipv6_addr[9] == 0 &&
+			        ip->ipv6_addr[10] == 0 && ip->ipv6_addr[11] == 0x01 && ip->ipv6_addr[12] == 0xff)
 			{
 				ret |= IPV6_ADDR_SOLICIATION_MULTICAST;
 			}
@@ -6774,7 +6774,7 @@ void IPAnd6(IP *dst, IP *a, IP *b)
 	}
 
 	ZeroIP6(dst);
-	for (i = 0;i < 16;i++)
+	for (i = 0; i < 16; i++)
 	{
 		dst->ipv6_addr[i] = a->ipv6_addr[i] & b->ipv6_addr[i];
 	}
@@ -6790,7 +6790,7 @@ void IntToSubnetMask6(IP *ip, UINT i)
 
 	ZeroIP6(&a);
 
-	for (z = 0;z < 16;z++)
+	for (z = 0; z < 16; z++)
 	{
 		if (z < j)
 		{
@@ -6853,7 +6853,7 @@ void IPToStr6Inner(char *str, IP *ip)
 
 	Copy(&a, ip, sizeof(IP));
 
-	for (i = 0;i < 8;i++)
+	for (i = 0; i < 8; i++)
 	{
 		Copy(&values[i], &a.ipv6_addr[i * 2], sizeof(USHORT));
 		values[i] = Endian16(values[i]);
@@ -6863,7 +6863,7 @@ void IPToStr6Inner(char *str, IP *ip)
 	zero_started_index = INFINITE;
 	max_zero_len = 0;
 	max_zero_start = INFINITE;
-	for (i = 0;i < 9;i++)
+	for (i = 0; i < 9; i++)
 	{
 		USHORT v = (i != 8 ? values[i] : 1);
 
@@ -6897,7 +6897,7 @@ void IPToStr6Inner(char *str, IP *ip)
 
 	// Format a string
 	StrCpy(str, 0, "");
-	for (i = 0;i < 8;i++)
+	for (i = 0; i < 8; i++)
 	{
 		char tmp[16];
 
@@ -6995,7 +6995,7 @@ bool StrToIP6(IP *ip, char *str)
 
 		n = 0;
 
-		for (i = 0;i < t->NumTokens;i++)
+		for (i = 0; i < t->NumTokens; i++)
 		{
 			char *str = t->Token[i];
 
@@ -7153,13 +7153,13 @@ bool CheckIPItemStr6(char *str)
 		return false;
 	}
 
-	for (i = 0;i < len;i++)
+	for (i = 0; i < len; i++)
 	{
 		char c = str[i];
 
 		if ((c >= 'a' && c <= 'f') ||
-			(c >= 'A' && c <= 'F') ||
-			(c >= '0' && c <= '9'))
+		        (c >= 'A' && c <= 'F') ||
+		        (c >= '0' && c <= '9'))
 		{
 		}
 		else
@@ -7307,7 +7307,7 @@ bool IPToIPv6Addr(IPV6_ADDR *addr, IP *ip)
 		return false;
 	}
 
-	for (i = 0;i < 16;i++)
+	for (i = 0; i < 16; i++)
 	{
 		addr->Value[i] = ip->ipv6_addr[i];
 	}
@@ -7335,7 +7335,7 @@ void SetIP6(IP *ip, UCHAR *value)
 	{
 		UINT i;
 
-		for (i = 0;i < 16;i++)
+		for (i = 0; i < 16; i++)
 		{
 			ip->ipv6_addr[i] = value[i];
 		}
@@ -7377,7 +7377,7 @@ void CopyIP(IP *dst, IP *src)
 
 // Utility functions about IP and MAC address types
 // Identify whether the IP address is a normal unicast address
-bool IsValidUnicastIPAddress4(IP* ip)
+bool IsValidUnicastIPAddress4(IP *ip)
 {
 	UINT i;
 	// Validate arguments
@@ -7418,7 +7418,7 @@ bool IsValidUnicastIPAddressUINT4(UINT ip)
 	return IsValidUnicastIPAddress4(&a);
 }
 
-bool IsValidUnicastIPAddress6(IP* ip)
+bool IsValidUnicastIPAddress6(IP *ip)
 {
 	UINT ipv6Type;
 
@@ -7435,7 +7435,7 @@ bool IsValidUnicastIPAddress6(IP* ip)
 	ipv6Type = GetIPAddrType6(ip);
 
 	if (!(ipv6Type & IPV6_ADDR_LOCAL_UNICAST) &&
-		!(ipv6Type & IPV6_ADDR_GLOBAL_UNICAST))
+	        !(ipv6Type & IPV6_ADDR_GLOBAL_UNICAST))
 	{
 		return false;
 	}
@@ -7444,7 +7444,7 @@ bool IsValidUnicastIPAddress6(IP* ip)
 }
 
 // Check whether the MAC address is valid
-bool IsMacInvalid(UCHAR* mac)
+bool IsMacInvalid(UCHAR *mac)
 {
 	UINT i;
 	// Validate arguments
@@ -7464,7 +7464,7 @@ bool IsMacInvalid(UCHAR* mac)
 }
 
 // Check whether the MAC address is a broadcast address
-bool IsMacBroadcast(UCHAR* mac)
+bool IsMacBroadcast(UCHAR *mac)
 {
 	UINT i;
 	// Validate arguments
@@ -7484,7 +7484,7 @@ bool IsMacBroadcast(UCHAR* mac)
 }
 
 // Check wether the MAC address is an IPv4 multicast or an IPv6 multicast
-bool IsMacMulticast(UCHAR* mac)
+bool IsMacMulticast(UCHAR *mac)
 {
 	// Validate arguments
 	if (mac == NULL)
@@ -7493,8 +7493,8 @@ bool IsMacMulticast(UCHAR* mac)
 	}
 
 	if (mac[0] == 0x01 &&
-		mac[1] == 0x00 &&
-		mac[2] == 0x5e)
+	        mac[1] == 0x00 &&
+	        mac[2] == 0x5e)
 	{
 		// Multicast IPv4 and other IANA multicasts
 		return true;
@@ -7508,7 +7508,7 @@ bool IsMacMulticast(UCHAR* mac)
 	}
 
 	if (mac[0] == 0x33 &&
-		mac[1] == 0x33)
+	        mac[1] == 0x33)
 	{
 		// Multicast IPv6
 		return true;
@@ -7518,7 +7518,7 @@ bool IsMacMulticast(UCHAR* mac)
 }
 
 // Check wether the MAC address is a unicast one
-bool IsMacUnicast(UCHAR* mac)
+bool IsMacUnicast(UCHAR *mac)
 {
 	// Validate arguments
 	if (mac == NULL)
@@ -7656,7 +7656,7 @@ void FreeIpClientList()
 {
 	UINT i;
 
-	for (i = 0;i < LIST_NUM(ip_clients);i++)
+	for (i = 0; i < LIST_NUM(ip_clients); i++)
 	{
 		IP_CLIENT *c = LIST_DATA(ip_clients, i);
 
@@ -7818,39 +7818,105 @@ UINT IntToSubnetMask32(UINT i)
 
 	switch (i)
 	{
-	case 0:		ret = 0x00000000;	break;
-	case 1:		ret = 0x80000000;	break;
-	case 2:		ret = 0xC0000000;	break;
-	case 3:		ret = 0xE0000000;	break;
-	case 4:		ret = 0xF0000000;	break;
-	case 5:		ret = 0xF8000000;	break;
-	case 6:		ret = 0xFC000000;	break;
-	case 7:		ret = 0xFE000000;	break;
-	case 8:		ret = 0xFF000000;	break;
-	case 9:		ret = 0xFF800000;	break;
-	case 10:	ret = 0xFFC00000;	break;
-	case 11:	ret = 0xFFE00000;	break;
-	case 12:	ret = 0xFFF00000;	break;
-	case 13:	ret = 0xFFF80000;	break;
-	case 14:	ret = 0xFFFC0000;	break;
-	case 15:	ret = 0xFFFE0000;	break;
-	case 16:	ret = 0xFFFF0000;	break;
-	case 17:	ret = 0xFFFF8000;	break;
-	case 18:	ret = 0xFFFFC000;	break;
-	case 19:	ret = 0xFFFFE000;	break;
-	case 20:	ret = 0xFFFFF000;	break;
-	case 21:	ret = 0xFFFFF800;	break;
-	case 22:	ret = 0xFFFFFC00;	break;
-	case 23:	ret = 0xFFFFFE00;	break;
-	case 24:	ret = 0xFFFFFF00;	break;
-	case 25:	ret = 0xFFFFFF80;	break;
-	case 26:	ret = 0xFFFFFFC0;	break;
-	case 27:	ret = 0xFFFFFFE0;	break;
-	case 28:	ret = 0xFFFFFFF0;	break;
-	case 29:	ret = 0xFFFFFFF8;	break;
-	case 30:	ret = 0xFFFFFFFC;	break;
-	case 31:	ret = 0xFFFFFFFE;	break;
-	case 32:	ret = 0xFFFFFFFF;	break;
+	case 0:
+		ret = 0x00000000;
+		break;
+	case 1:
+		ret = 0x80000000;
+		break;
+	case 2:
+		ret = 0xC0000000;
+		break;
+	case 3:
+		ret = 0xE0000000;
+		break;
+	case 4:
+		ret = 0xF0000000;
+		break;
+	case 5:
+		ret = 0xF8000000;
+		break;
+	case 6:
+		ret = 0xFC000000;
+		break;
+	case 7:
+		ret = 0xFE000000;
+		break;
+	case 8:
+		ret = 0xFF000000;
+		break;
+	case 9:
+		ret = 0xFF800000;
+		break;
+	case 10:
+		ret = 0xFFC00000;
+		break;
+	case 11:
+		ret = 0xFFE00000;
+		break;
+	case 12:
+		ret = 0xFFF00000;
+		break;
+	case 13:
+		ret = 0xFFF80000;
+		break;
+	case 14:
+		ret = 0xFFFC0000;
+		break;
+	case 15:
+		ret = 0xFFFE0000;
+		break;
+	case 16:
+		ret = 0xFFFF0000;
+		break;
+	case 17:
+		ret = 0xFFFF8000;
+		break;
+	case 18:
+		ret = 0xFFFFC000;
+		break;
+	case 19:
+		ret = 0xFFFFE000;
+		break;
+	case 20:
+		ret = 0xFFFFF000;
+		break;
+	case 21:
+		ret = 0xFFFFF800;
+		break;
+	case 22:
+		ret = 0xFFFFFC00;
+		break;
+	case 23:
+		ret = 0xFFFFFE00;
+		break;
+	case 24:
+		ret = 0xFFFFFF00;
+		break;
+	case 25:
+		ret = 0xFFFFFF80;
+		break;
+	case 26:
+		ret = 0xFFFFFFC0;
+		break;
+	case 27:
+		ret = 0xFFFFFFE0;
+		break;
+	case 28:
+		ret = 0xFFFFFFF0;
+		break;
+	case 29:
+		ret = 0xFFFFFFF8;
+		break;
+	case 30:
+		ret = 0xFFFFFFFC;
+		break;
+	case 31:
+		ret = 0xFFFFFFFE;
+		break;
+	case 32:
+		ret = 0xFFFFFFFF;
+		break;
 	}
 
 	if (IsLittleEndian())
@@ -8114,7 +8180,7 @@ void UnixSelect(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2)
 	// Setting the event array
 	if (set != NULL)
 	{
-		for (i = 0;i < set->NumSocket;i++)
+		for (i = 0; i < set->NumSocket; i++)
 		{
 			s = set->Sock[i];
 			if (s != NULL)
@@ -8234,7 +8300,7 @@ void UnixSelect(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2)
 	}
 
 	// Read from the pipe of sockevent
-	for (i = 0;i < num_sock_events;i++)
+	for (i = 0; i < num_sock_events; i++)
 	{
 		SOCK_EVENT *e = sock_events[i];
 
@@ -8351,7 +8417,7 @@ bool UnixWaitSockEvent(SOCK_EVENT *event, UINT timeout)
 		num_write = 0;
 		num_read = 0;
 
-		for (i = 0;i < LIST_NUM(event->SockList);i++)
+		for (i = 0; i < LIST_NUM(event->SockList); i++)
 		{
 			SOCK *s = LIST_DATA(event->SockList, i);
 
@@ -8377,7 +8443,7 @@ bool UnixWaitSockEvent(SOCK_EVENT *event, UINT timeout)
 
 		n = 0;
 
-		for (i = 0;i < (num_read - 1);i++)
+		for (i = 0; i < (num_read - 1); i++)
 		{
 			SOCK *s = LIST_DATA(event->SockList, i);
 			if (s->WriteBlocked)
@@ -8423,11 +8489,11 @@ void UnixSetSockEvent(SOCK_EVENT *event)
 }
 
 // This is a helper function for select()
-int safe_fd_set(int fd, fd_set* fds, int* max_fd) {
+int safe_fd_set(int fd, fd_set *fds, int *max_fd) {
 	FD_SET(fd, fds);
 	if (fd > *max_fd) {
 		*max_fd = fd;
-    }
+	}
 	return 0;
 }
 
@@ -8462,14 +8528,14 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 	}
 
 	num_read_total = num_write_total = 0;
-	for (i = 0;i < num_read;i++)
+	for (i = 0; i < num_read; i++)
 	{
 		if (reads[i] != INVALID_SOCKET)
 		{
 			num_read_total++;
 		}
 	}
-	for (i = 0;i < num_write;i++)
+	for (i = 0; i < num_write; i++)
 	{
 		if (writes[i] != INVALID_SOCKET)
 		{
@@ -8487,7 +8553,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 
 	n = 0;
 
-	for (i = 0;i < num_read;i++)
+	for (i = 0; i < num_read; i++)
 	{
 		if (reads[i] != INVALID_SOCKET)
 		{
@@ -8501,7 +8567,7 @@ void UnixSelectInner(UINT num_read, UINT *reads, UINT num_write, UINT *writes, U
 		}
 	}
 
-	for (i = 0;i < num_write;i++)
+	for (i = 0; i < num_write; i++)
 	{
 		if (writes[i] != INVALID_SOCKET)
 		{
@@ -8545,7 +8611,7 @@ void UnixCleanupSockEvent(SOCK_EVENT *event)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(event->SockList);i++)
+	for (i = 0; i < LIST_NUM(event->SockList); i++)
 	{
 		SOCK *s = LIST_DATA(event->SockList, i);
 
@@ -8981,7 +9047,7 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 
 	o = NewListFast(CompareIpAdapterIndexMap);
 
-	for (i = 0;i < info->NumAdapters;i++)
+	for (i = 0; i < info->NumAdapters; i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
 
@@ -8990,7 +9056,7 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 
 	Sort(o);
 
-	for (i = 0;i < (int)(LIST_NUM(o));i++)
+	for (i = 0; i < (int)(LIST_NUM(o)); i++)
 	{
 		IP_ADAPTER_INDEX_MAP *e = LIST_DATA(o, i);
 
@@ -9045,7 +9111,7 @@ void Win32RenewDhcp9x(UINT if_id)
 
 	o = NewListFast(CompareIpAdapterIndexMap);
 
-	for (i = 0;i < info->NumAdapters;i++)
+	for (i = 0; i < info->NumAdapters; i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
 
@@ -9054,7 +9120,7 @@ void Win32RenewDhcp9x(UINT if_id)
 
 	Sort(o);
 
-	for (i = 0;i < (int)(LIST_NUM(o));i++)
+	for (i = 0; i < (int)(LIST_NUM(o)); i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
 
@@ -9101,7 +9167,7 @@ void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 
 	o = NewListFast(CompareIpAdapterIndexMap);
 
-	for (i = 0;i < info->NumAdapters;i++)
+	for (i = 0; i < info->NumAdapters; i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
 
@@ -9110,7 +9176,7 @@ void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 
 	Sort(o);
 
-	for (i = 0;i < (int)(LIST_NUM(o));i++)
+	for (i = 0; i < (int)(LIST_NUM(o)); i++)
 	{
 		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
 
@@ -9179,7 +9245,7 @@ FAILED:
 	// Search
 	ret = 0;
 	o = NewListFast(CompareStr);
-	for (i = 0;i < p->dwNumEntries;i++)
+	for (i = 0; i < p->dwNumEntries; i++)
 	{
 		MIB_IFROW *r = &p->table[i];
 		if (SearchStrEx(r->bDescr, tag_name, 0, false) != INFINITE)
@@ -9196,7 +9262,7 @@ FAILED:
 
 	// Convert to string
 	ss = ZeroMallocFast(sizeof(char *) * (LIST_NUM(o) + 1));
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		ss[i] = LIST_DATA(o, i);
 	}
@@ -9265,7 +9331,7 @@ FAILED:
 
 	// Search
 	ret = 0;
-	for (i = 0;i < p->dwNumEntries;i++)
+	for (i = 0; i < p->dwNumEntries; i++)
 	{
 		MIB_IFROW *r = &p->table[i];
 		if (instance_name[0] != '@')
@@ -9525,7 +9591,7 @@ FAILED:
 
 	// Add to the list along
 	o = NewListFast(Win32CompareRouteEntryByMetric);
-	for (i = 0;i < p->dwNumEntries;i++)
+	for (i = 0; i < p->dwNumEntries; i++)
 	{
 		e = ZeroMallocFast(sizeof(ROUTE_ENTRY));
 		Win32IpForwardRowToRouteEntry(e, &p->table[i]);
@@ -9693,88 +9759,88 @@ void Win32InitSocketLibrary()
 	if (w32net->hIpHlpApi32 != NULL)
 	{
 		w32net->CreateIpForwardEntry =
-			(DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-			GetProcAddress(w32net->hIpHlpApi32, "CreateIpForwardEntry");
+		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
+		    GetProcAddress(w32net->hIpHlpApi32, "CreateIpForwardEntry");
 
 		w32net->DeleteIpForwardEntry =
-			(DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-			GetProcAddress(w32net->hIpHlpApi32, "DeleteIpForwardEntry");
+		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
+		    GetProcAddress(w32net->hIpHlpApi32, "DeleteIpForwardEntry");
 
 		w32net->GetIfTable =
-			(DWORD (__stdcall *)(PMIB_IFTABLE, PULONG, BOOL))
-			GetProcAddress(w32net->hIpHlpApi32, "GetIfTable");
+		    (DWORD (__stdcall *)(PMIB_IFTABLE, PULONG, BOOL))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable");
 
 		w32net->GetIfTable2 =
-			(DWORD (__stdcall *)(void **))
-			GetProcAddress(w32net->hIpHlpApi32, "GetIfTable2");
+		    (DWORD (__stdcall *)(void **))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable2");
 
 		w32net->FreeMibTable =
-			(void (__stdcall *)(PVOID))
-			GetProcAddress(w32net->hIpHlpApi32, "FreeMibTable");
+		    (void (__stdcall *)(PVOID))
+		    GetProcAddress(w32net->hIpHlpApi32, "FreeMibTable");
 
 		w32net->GetIpForwardTable =
-			(DWORD (__stdcall *)(PMIB_IPFORWARDTABLE, PULONG, BOOL))
-			GetProcAddress(w32net->hIpHlpApi32, "GetIpForwardTable");
+		    (DWORD (__stdcall *)(PMIB_IPFORWARDTABLE, PULONG, BOOL))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetIpForwardTable");
 
 		w32net->GetNetworkParams =
-			(DWORD (__stdcall *)(PFIXED_INFO,PULONG))
-			GetProcAddress(w32net->hIpHlpApi32, "GetNetworkParams");
+		    (DWORD (__stdcall *)(PFIXED_INFO,PULONG))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetNetworkParams");
 
 		w32net->GetAdaptersAddresses =
-			(ULONG (__stdcall *)(ULONG,ULONG,PVOID,PIP_ADAPTER_ADDRESSES,PULONG))
-			GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersAddresses");
+		    (ULONG (__stdcall *)(ULONG,ULONG,PVOID,PIP_ADAPTER_ADDRESSES,PULONG))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersAddresses");
 
 		w32net->IpRenewAddress =
-			(DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-			GetProcAddress(w32net->hIpHlpApi32, "IpRenewAddress");
+		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
+		    GetProcAddress(w32net->hIpHlpApi32, "IpRenewAddress");
 
 		w32net->IpReleaseAddress =
-			(DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-			GetProcAddress(w32net->hIpHlpApi32, "IpReleaseAddress");
+		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
+		    GetProcAddress(w32net->hIpHlpApi32, "IpReleaseAddress");
 
 		w32net->GetInterfaceInfo =
-			(DWORD (__stdcall *)(PIP_INTERFACE_INFO, PULONG))
-			GetProcAddress(w32net->hIpHlpApi32, "GetInterfaceInfo");
+		    (DWORD (__stdcall *)(PIP_INTERFACE_INFO, PULONG))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetInterfaceInfo");
 
 		w32net->GetAdaptersInfo =
-			(DWORD (__stdcall *)(PIP_ADAPTER_INFO, PULONG))
-			GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersInfo");
+		    (DWORD (__stdcall *)(PIP_ADAPTER_INFO, PULONG))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersInfo");
 
 		w32net->GetExtendedTcpTable =
-			(DWORD (__stdcall *)(PVOID,PDWORD,BOOL,ULONG,_TCP_TABLE_CLASS,ULONG))
-			GetProcAddress(w32net->hIpHlpApi32, "GetExtendedTcpTable");
+		    (DWORD (__stdcall *)(PVOID,PDWORD,BOOL,ULONG,_TCP_TABLE_CLASS,ULONG))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetExtendedTcpTable");
 
 		w32net->AllocateAndGetTcpExTableFromStack =
-			(DWORD (__stdcall *)(PVOID *,BOOL,HANDLE,DWORD,DWORD))
-			GetProcAddress(w32net->hIpHlpApi32, "AllocateAndGetTcpExTableFromStack");
+		    (DWORD (__stdcall *)(PVOID *,BOOL,HANDLE,DWORD,DWORD))
+		    GetProcAddress(w32net->hIpHlpApi32, "AllocateAndGetTcpExTableFromStack");
 
 		w32net->GetTcpTable =
-			(DWORD (__stdcall *)(PMIB_TCPTABLE,PDWORD,BOOL))
-			GetProcAddress(w32net->hIpHlpApi32, "GetTcpTable");
+		    (DWORD (__stdcall *)(PMIB_TCPTABLE,PDWORD,BOOL))
+		    GetProcAddress(w32net->hIpHlpApi32, "GetTcpTable");
 
 		w32net->NotifyRouteChange =
-			(DWORD (__stdcall *)(PHANDLE,LPOVERLAPPED))
-			GetProcAddress(w32net->hIpHlpApi32, "NotifyRouteChange");
+		    (DWORD (__stdcall *)(PHANDLE,LPOVERLAPPED))
+		    GetProcAddress(w32net->hIpHlpApi32, "NotifyRouteChange");
 
 		w32net->CancelIPChangeNotify =
-			(BOOL (__stdcall *)(LPOVERLAPPED))
-			GetProcAddress(w32net->hIpHlpApi32, "CancelIPChangeNotify");
+		    (BOOL (__stdcall *)(LPOVERLAPPED))
+		    GetProcAddress(w32net->hIpHlpApi32, "CancelIPChangeNotify");
 
 		w32net->NhpAllocateAndGetInterfaceInfoFromStack =
-			(DWORD (__stdcall *)(IP_INTERFACE_NAME_INFO **,PDWORD,BOOL,HANDLE,DWORD))
-			GetProcAddress(w32net->hIpHlpApi32, "NhpAllocateAndGetInterfaceInfoFromStack");
+		    (DWORD (__stdcall *)(IP_INTERFACE_NAME_INFO **,PDWORD,BOOL,HANDLE,DWORD))
+		    GetProcAddress(w32net->hIpHlpApi32, "NhpAllocateAndGetInterfaceInfoFromStack");
 
 		w32net->IcmpCreateFile =
-			(HANDLE (__stdcall *)())
-			GetProcAddress(w32net->hIpHlpApi32, "IcmpCreateFile");
+		    (HANDLE (__stdcall *)())
+		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCreateFile");
 
 		w32net->IcmpCloseHandle =
-			(BOOL (__stdcall *)(HANDLE))
-			GetProcAddress(w32net->hIpHlpApi32, "IcmpCloseHandle");
+		    (BOOL (__stdcall *)(HANDLE))
+		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCloseHandle");
 
 		w32net->IcmpSendEcho =
-			(DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-			GetProcAddress(w32net->hIpHlpApi32, "IcmpSendEcho");
+		    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
+		    GetProcAddress(w32net->hIpHlpApi32, "IcmpSendEcho");
 	}
 
 	if (w32net->hIcmp != NULL)
@@ -9782,16 +9848,16 @@ void Win32InitSocketLibrary()
 		if (w32net->IcmpCreateFile == NULL || w32net->IcmpCloseHandle == NULL || w32net->IcmpSendEcho == NULL)
 		{
 			w32net->IcmpCreateFile =
-				(HANDLE (__stdcall *)())
-				GetProcAddress(w32net->hIcmp, "IcmpCreateFile");
+			    (HANDLE (__stdcall *)())
+			    GetProcAddress(w32net->hIcmp, "IcmpCreateFile");
 
 			w32net->IcmpCloseHandle =
-				(BOOL (__stdcall *)(HANDLE))
-				GetProcAddress(w32net->hIcmp, "IcmpCloseHandle");
+			    (BOOL (__stdcall *)(HANDLE))
+			    GetProcAddress(w32net->hIcmp, "IcmpCloseHandle");
 
 			w32net->IcmpSendEcho =
-				(DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-				GetProcAddress(w32net->hIcmp, "IcmpSendEcho");
+			    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
+			    GetProcAddress(w32net->hIcmp, "IcmpSendEcho");
 		}
 	}
 
@@ -10031,7 +10097,7 @@ void Win32Select(SOCKSET *set, UINT timeout, CANCEL *c1, CANCEL *c2)
 	// Setting the event array
 	if (set != NULL)
 	{
-		for (i = 0;i < set->NumSocket;i++)
+		for (i = 0; i < set->NumSocket; i++)
 		{
 			s = set->Sock[i];
 			if (s != NULL)
@@ -10179,7 +10245,7 @@ void AddHostCache(IP *ip, char *hostname)
 
 		o = NewListFast(NULL);
 
-		for (i = 0;i < LIST_NUM(HostCacheList);i++)
+		for (i = 0; i < LIST_NUM(HostCacheList); i++)
 		{
 			HOSTCACHE *c = LIST_DATA(HostCacheList, i);
 
@@ -10189,7 +10255,7 @@ void AddHostCache(IP *ip, char *hostname)
 			}
 		}
 
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			HOSTCACHE *c = LIST_DATA(o, i);
 
@@ -10227,7 +10293,7 @@ void FreeHostCache()
 {
 	UINT i;
 
-	for (i = 0;i < LIST_NUM(HostCacheList);i++)
+	for (i = 0; i < LIST_NUM(HostCacheList); i++)
 	{
 		HOSTCACHE *c = LIST_DATA(HostCacheList, i);
 
@@ -10301,7 +10367,7 @@ void FreeWaitThread()
 	}
 	UnlockList(WaitThreadList);
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		THREAD *t = threads[i];
 		WaitThread(t, INFINITE);
@@ -10579,8 +10645,8 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 
 	// Select routing table entry by following rule
 	// 1. Largest subnet mask
-	// 2. Smallest metric value 
-	for (i = 0;i < table->NumEntry;i++)
+	// 2. Smallest metric value
+	for (i = 0; i < table->NumEntry; i++)
 	{
 		ROUTE_ENTRY *e = table->Entry[i];
 		UINT dest, net, mask;
@@ -10616,7 +10682,7 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 	tmp = NULL;
 
 	// Search for the item with maximum score
-	for (i = 0;i < table->NumEntry;i++)
+	for (i = 0; i < table->NumEntry; i++)
 	{
 		ROUTE_ENTRY *e = table->Entry[i];
 
@@ -10773,7 +10839,7 @@ void DebugPrintRouteTable(ROUTE_TABLE *r)
 
 	Debug("---- Routing Table (%u Entries) ----\n", r->NumEntry);
 
-	for (i = 0;i < r->NumEntry;i++)
+	for (i = 0; i < r->NumEntry; i++)
 	{
 		Debug("   ");
 
@@ -10820,9 +10886,9 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e)
 	IPToStr(gateway_ip, sizeof(gateway_ip), &e->GatewayIP);
 
 	Format(str, str_size, "%s/%s %s m=%u oif=%u if=%u lo=%u p=%u",
-		dest_ip, dest_mask, gateway_ip,
-		e->Metric, e->OldIfMetric, e->InterfaceID,
-		e->LocalRouting, e->PPPConnection);
+	       dest_ip, dest_mask, gateway_ip,
+	       e->Metric, e->OldIfMetric, e->InterfaceID,
+	       e->LocalRouting, e->PPPConnection);
 }
 
 // Delete the routing table
@@ -10870,7 +10936,7 @@ ROUTE_TABLE *GetRouteTable()
 
 	WriteBuf(buf, &t->NumEntry, sizeof(t->NumEntry));
 
-	for (i = 0;i < t->NumEntry;i++)
+	for (i = 0; i < t->NumEntry; i++)
 	{
 		ROUTE_ENTRY *e = t->Entry[i];
 
@@ -10896,7 +10962,7 @@ void FreeRouteTable(ROUTE_TABLE *t)
 		return;
 	}
 
-	for (i = 0;i < t->NumEntry;i++)
+	for (i = 0; i < t->NumEntry; i++)
 	{
 		Free(t->Entry[i]);
 	}
@@ -10963,7 +11029,7 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 	{
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
+		        WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreRecvErr = true;
 		}
@@ -11047,7 +11113,7 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 	{
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
+		        WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEADDRNOTAVAIL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreRecvErr = true;
 		}
@@ -11128,10 +11194,10 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 	}
 	IPToInAddr(&addr.sin_addr, dest_addr);
 
-	if ((dest_addr->addr[0] == 255 && dest_addr->addr[1] == 255 && 
-		dest_addr->addr[2] == 255 && dest_addr->addr[3] == 255) ||
-		(dest_addr->addr[0] >= 224 && dest_addr->addr[0] <= 239)
-		|| broadcast)
+	if ((dest_addr->addr[0] == 255 && dest_addr->addr[1] == 255 &&
+	        dest_addr->addr[2] == 255 && dest_addr->addr[3] == 255) ||
+	        (dest_addr->addr[0] >= 224 && dest_addr->addr[0] <= 239)
+	        || broadcast)
 	{
 		if (sock->UdpBroadcast == false)
 		{
@@ -11150,7 +11216,7 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
+		        WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -11249,7 +11315,7 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 
 #ifdef	OS_WIN32
 		if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAENETRESET || WSAGetLastError() == WSAEMSGSIZE || WSAGetLastError() == WSAENETUNREACH ||
-			WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
+		        WSAGetLastError() == WSAENOBUFS || WSAGetLastError() == WSAEHOSTUNREACH || WSAGetLastError() == WSAEUSERS || WSAGetLastError() == WSAEINVAL || WSAGetLastError() == WSAEADDRNOTAVAIL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -11298,7 +11364,7 @@ SOCK *NewUDPEx2Rand(bool ipv6, IP *ip, void *rand_seed, UINT rand_seed_size, UIN
 		num_retry = RAND_UDP_PORT_DEFAULT_NUM_RETRY;
 	}
 
-	for (i = 0; i < (num_retry + 1);i++)
+	for (i = 0; i < (num_retry + 1); i++)
 	{
 		BUF *buf = NewBuf();
 		UCHAR hash[SHA1_SIZE];
@@ -11713,9 +11779,9 @@ bool RecvAllWithDiscard(SOCK *sock, UINT size, bool secure)
 		}
 		if (ret == SOCK_LATER)
 		{
-			// I suppose that this is safe because the RecvAll() function is used only 
+			// I suppose that this is safe because the RecvAll() function is used only
 			// if the sock->AsyncMode == true. And the Recv() function may return
-			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of
 			// Recv() function in the RecvAll() function never returns SOCK_LATER.
 			return false;
 		}
@@ -11757,9 +11823,9 @@ bool RecvAll(SOCK *sock, void *data, UINT size, bool secure)
 		}
 		if (ret == SOCK_LATER)
 		{
-			// I suppose that this is safe because the RecvAll() function is used only 
+			// I suppose that this is safe because the RecvAll() function is used only
 			// if the sock->AsyncMode == true. And the Recv() function may return
-			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of 
+			// SOCK_LATER only if the sock->AsyncMode == false. Therefore the call of
 			// Recv() function in the RecvAll() function never returns SOCK_LATER.
 			return false;
 		}
@@ -11894,7 +11960,7 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 	if (dir != NULL)
 	{
-		for (i = 0;i < dir->NumFiles;i++)
+		for (i = 0; i < dir->NumFiles; i++)
 		{
 			DIRENT *e = dir->File[i];
 
@@ -11915,7 +11981,7 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 					GetXDigest(x, hash, true);
 
-					for (j = 0;j < LIST_NUM(o);j++)
+					for (j = 0; j < LIST_NUM(o); j++)
 					{
 						UCHAR *hash2 = LIST_DATA(o, j);
 
@@ -11940,7 +12006,7 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 		FreeDir(dir);
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		UCHAR *hash = LIST_DATA(o, i);
 
@@ -11967,7 +12033,7 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 	{
 		if (x_copy->root_cert)
 		{
-			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
+			X509_STORE *store = SSL_CTX_get_cert_store(ctx);
 			X509_STORE_add_cert(store, x_copy->x509);
 			X509_free(x_copy->x509);
 		}
@@ -12013,7 +12079,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 		return true;
 	}
 	if (sock->Connected == false || sock->socket == INVALID_SOCKET ||
-		sock->ListenMode != false)
+	        sock->ListenMode != false)
 	{
 		Debug("StartSSL Error: #1\n");
 		return false;
@@ -12316,7 +12382,7 @@ void SockEnableSslLogging(SOCK *s)
 
 	GetDateTimeStrMilli64ForFileName(dtstr, sizeof(dtstr), LocalTime64());
 	Format(tmp, sizeof(tmp), "%s__%r_%u__%r_%u", dtstr,
-		&s->LocalIP, s->LocalPort, &s->RemoteIP, s->RemotePort);
+	       &s->LocalIP, s->LocalPort, &s->RemoteIP, s->RemotePort);
 
 	CombinePath(dirname, sizeof(dirname), SSL_LOGGING_DIRNAME, tmp);
 
@@ -12450,12 +12516,12 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			{
 				if (e == SSL_ERROR_SSL
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-					&&
-					sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
-					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+				        &&
+				        sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
+				        sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
+				        sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-					)
+				   )
 				{
 					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 					Disconnect(sock);
@@ -12540,12 +12606,12 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		{
 			if (e == SSL_ERROR_SSL
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-				&&
-				sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
-				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
-				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
+			        &&
+			        sock->ssl->s3->send_alert[0] == SSL3_AL_FATAL &&
+			        sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
+			        sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-				)
+			   )
 			{
 				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
 				Disconnect(sock);
@@ -12646,7 +12712,7 @@ UINT Peek(SOCK *sock, void *data, UINT size)
 		return 0;
 	}
 	if (sock->Type != SOCK_TCP || sock->Connected == false || sock->ListenMode != false ||
-		sock->socket == INVALID_SOCKET)
+	        sock->socket == INVALID_SOCKET)
 	{
 		return 0;
 	}
@@ -12693,7 +12759,7 @@ UINT Recv(SOCK *sock, void *data, UINT size, bool secure)
 		return RecvInProc(sock, data, size);
 	}
 	if (sock->Type != SOCK_TCP || sock->Connected == false || sock->ListenMode != false ||
-		sock->socket == INVALID_SOCKET)
+	        sock->socket == INVALID_SOCKET)
 	{
 		return 0;
 	}
@@ -12796,7 +12862,7 @@ UINT Send(SOCK *sock, void *data, UINT size, bool secure)
 	}
 	size = MIN(size, MAX_SEND_BUF_MEM_SIZE);
 	if (sock->Type != SOCK_TCP || sock->Connected == false || sock->ListenMode != false ||
-		sock->socket == INVALID_SOCKET)
+	        sock->socket == INVALID_SOCKET)
 	{
 		return 0;
 	}
@@ -12945,7 +13011,7 @@ void AcceptInitEx(SOCK *s, bool no_lookup_hostname)
 	if (disable_gethostname_by_accept == false && no_lookup_hostname == false)
 	{
 		if (GetHostName(tmp, sizeof(tmp), &s->RemoteIP) == false ||
-			IsEmptyStr(tmp))
+		        IsEmptyStr(tmp))
 		{
 			IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
 		}
@@ -13491,11 +13557,11 @@ void Disconnect(SOCK *sock)
 		if (sock->socket != INVALID_SOCKET)
 		{
 			// Forced disconnection flag
-			#ifdef	SO_DONTLINGER
-				(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
-			#else	// SO_DONTLINGER
-				(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
-			#endif	// SO_DONTLINGER
+#ifdef	SO_DONTLINGER
+			(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
+#else	// SO_DONTLINGER
+			(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
+#endif	// SO_DONTLINGER
 //			setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
 		}
 
@@ -13843,7 +13909,7 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	while (true)
 	{
 		int ret;
-		
+
 		ret = connect(s, addr, size);
 
 		if (ret == 0)
@@ -14195,10 +14261,10 @@ void ConnectThreadForOverDnsOrIcmp(THREAD *thread, void *param)
 
 	// Connecting process
 	sock = NewRUDPClientDirect(p->SvcName, &p->Ip,
-		(p->RUdpProtocol == RUDP_PROTOCOL_DNS ? 53 : MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4)),
-		&p->NatT_ErrorCode, p->Timeout, p->CancelFlag, NULL, NULL,
-		(p->RUdpProtocol == RUDP_PROTOCOL_DNS ? 0 : MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4)),
-		(p->RUdpProtocol == RUDP_PROTOCOL_DNS ? true : false));
+	                           (p->RUdpProtocol == RUDP_PROTOCOL_DNS ? 53 : MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4)),
+	                           &p->NatT_ErrorCode, p->Timeout, p->CancelFlag, NULL, NULL,
+	                           (p->RUdpProtocol == RUDP_PROTOCOL_DNS ? 0 : MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4)),
+	                           (p->RUdpProtocol == RUDP_PROTOCOL_DNS ? true : false));
 
 	p->Result_Nat_T_Sock = sock;
 	p->Ok = (p->Result_Nat_T_Sock == NULL ? false : true);
@@ -14323,8 +14389,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			StrCpy(hint_str, sizeof(hint_str), hostname + i + 1);
 
 			if (StrCmpi(hint_str, "tcp") == 0 || StrCmpi(hint_str, "disable") == 0
-				|| StrCmpi(hint_str, "disabled") == 0
-				|| StrCmpi(hint_str, "no") == 0 || StrCmpi(hint_str, "none") == 0)
+			        || StrCmpi(hint_str, "disabled") == 0
+			        || StrCmpi(hint_str, "no") == 0 || StrCmpi(hint_str, "none") == 0)
 			{
 				// Force not to use the NAT-T
 				force_use_natt = false;
@@ -14393,7 +14459,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		{
 			// The connection by forcing the use of NAT-T (not to connection with normal TCP)
 			SOCK *nat_t_sock = NewRUDPClientNatT(nat_t_svc_name, &ip4, nat_t_error_code, timeout, cancel_flag,
-				hint_str, hostname);
+			                                     hint_str, hostname);
 
 			if (nat_t_sock != NULL)
 			{
@@ -14776,10 +14842,10 @@ void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str)
 	t1 = ParseTokenWithoutNullStr(dst, " ");
 	t2 = ParseTokenWithoutNullStr(str, " ");
 
-	for (i = 0;i < t2->NumTokens;i++)
+	for (i = 0; i < t2->NumTokens; i++)
 	{
 		bool exists = false;
-		for (j = 0;j < t1->NumTokens;j++)
+		for (j = 0; j < t1->NumTokens; j++)
 		{
 			if (StrCmpi(t1->Token[j], t2->Token[i]) == 0)
 			{
@@ -14970,7 +15036,7 @@ void QuerySocketInformation(SOCK *sock)
 		// Support of the TTL value
 		size = sizeof(DWORD);
 		if (opt_value == 0 ||
-			getsockopt(sock->socket, (sock->IPv6 ? IPPROTO_IPV6 : IPPROTO_IP), opt_value, (char *)&dw, &size) != 0)
+		        getsockopt(sock->socket, (sock->IPv6 ? IPPROTO_IPV6 : IPPROTO_IP), opt_value, (char *)&dw, &size) != 0)
 		{
 			sock->IsTtlSupported = false;
 		}
@@ -15022,7 +15088,7 @@ bool SetTtl(SOCK *sock, UINT ttl)
 	}
 
 	if (opt_value == 0 ||
-		setsockopt(sock->socket, (sock->IPv6 ? IPPROTO_IPV6 : IPPROTO_IP), opt_value, (char *)&dw, size) == false)
+	        setsockopt(sock->socket, (sock->IPv6 ? IPPROTO_IPV6 : IPPROTO_IP), opt_value, (char *)&dw, size) == false)
 	{
 		return false;
 	}
@@ -15233,7 +15299,7 @@ UINT IPToUINT(IP *ip)
 	}
 
 	b = (UCHAR *)&value;
-	for (i = 0;i < 4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		b[i] = ip->addr[i];
 	}
@@ -15255,7 +15321,7 @@ void UINTToIP(IP *ip, UINT value)
 	ZeroIP4(ip);
 
 	b = (UCHAR *)&value;
-	for (i = 0;i < 4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		ip->addr[i] = b[i];
 	}
@@ -15275,7 +15341,7 @@ void GetMachineHostName(char *name, UINT size)
 	GetMachineName(tmp, sizeof(tmp));
 
 	len = StrLen(tmp);
-	for (i = 0;i < len;i++)
+	for (i = 0; i < len; i++)
 	{
 		if (tmp[i] == '.')
 		{
@@ -15323,7 +15389,7 @@ bool GetMachineNameFromHosts(char *name, UINT size)
 					{
 						UINT i;
 
-						for (i = 1;i < t->NumTokens;i++)
+						for (i = 1; i < t->NumTokens; i++)
 						{
 							if (StartWith(t->Token[i], "localhost") == false)
 							{
@@ -15611,7 +15677,7 @@ bool GetNetBiosName(char *name, UINT size, IP *ip)
 
 	IPToStr(name, size, ip);
 
-	for (i = 0;i < NUM_NBT_QUERYS_SEND;i++)
+	for (i = 0; i < NUM_NBT_QUERYS_SEND; i++)
 	{
 		tran_id[i] = Rand16();
 	}
@@ -15622,7 +15688,7 @@ bool GetNetBiosName(char *name, UINT size, IP *ip)
 		return false;
 	}
 
-	for (j = 0;j < NUM_NBT_QUERYS_SEND;j++)
+	for (j = 0; j < NUM_NBT_QUERYS_SEND; j++)
 	{
 		Zero(&req, sizeof(req));
 		req.TransactionId = Endian16(tran_id[j]);
@@ -15630,7 +15696,7 @@ bool GetNetBiosName(char *name, UINT size, IP *ip)
 		req.Query[0] = 0x20;
 		req.Query[1] = 0x43;
 		req.Query[2] = 0x4b;
-		for (i = 3;i <= 32;i++)
+		for (i = 3; i <= 32; i++)
 		{
 			req.Query[i] = 0x41;
 		}
@@ -15687,7 +15753,7 @@ bool GetNetBiosName(char *name, UINT size, IP *ip)
 				bool b = false;
 				UINT i;
 				USHORT id = Endian16(r->TransactionId);
-				for (i = 0;i < NUM_NBT_QUERYS_SEND;i++)
+				for (i = 0; i < NUM_NBT_QUERYS_SEND; i++)
 				{
 					if (id == tran_id[i])
 					{
@@ -15700,10 +15766,10 @@ bool GetNetBiosName(char *name, UINT size, IP *ip)
 					if (r->Flags != 0 && r->NumQuestions == 0 && r->AnswerRRs >= 1)
 					{
 						if (r->Response[0] == 0x20 && r->Response[1] == 0x43 &&
-							r->Response[2] == 0x4b)
+						        r->Response[2] == 0x4b)
 						{
 							if (r->Response[34] == 0x00 && r->Response[35] == 0x21 &&
-								r->Response[36] == 0x00 && r->Response[37] == 0x01)
+							        r->Response[36] == 0x00 && r->Response[37] == 0x01)
 							{
 								char *a = (char *)(&r->Response[45]);
 								if (StrCheckLen(a, 15))
@@ -16038,7 +16104,7 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 		}
 
 		Debug("GetIP4Ex6Ex2: Worker thread quota exceeded: max=%u current=%u\n",
-			GetGetIpThreadMaxNum(), GetCurrentGetIpThreadNum());
+		      GetGetIpThreadMaxNum(), GetCurrentGetIpThreadNum());
 
 		return ret;
 	}
@@ -16049,7 +16115,7 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 	if (spent_time != 0)
 	{
 		Debug("GetIP4Ex6Ex2: Waited for %u msecs to create a worker thread.\n",
-			spent_time);
+		      spent_time);
 	}
 
 	timeout -= (UINT)spent_time;
@@ -16120,19 +16186,19 @@ bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *can
 				// if I'm in the FLETs of NTT East,
 				// try to get an IP address using the DNS proxy server
 				if ((flets_type & FLETS_DETECT_TYPE_EAST_BFLETS_PRIVATE) &&
-					GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, NULL))
+				        GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, NULL))
 				{
 					// B FLETs
 					ret = true;
 				}
 				else if ((flets_type & FLETS_DETECT_TYPE_EAST_NGN_PRIVATE) &&
-					GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_EAST_DNS_PROXY_HOSTNAME))
+				         GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_EAST_DNS_PROXY_HOSTNAME))
 				{
 					// FLET'S Hikar-Next (NTT East)
 					ret = true;
 				}
 				else if ((flets_type & FLETS_DETECT_TYPE_WEST_NGN_PRIVATE) &&
-					GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_WEST_DNS_PROXY_HOSTNAME))
+				         GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_WEST_DNS_PROXY_HOSTNAME))
 				{
 					// FLET'S Hikar-Next (NTT West)
 					ret = true;
@@ -16220,7 +16286,7 @@ bool GetIP6Inner(IP *ip, char *hostname)
 		info = NULL;
 
 		if (getaddrinfo(hostname, NULL, &hint, &info) != 0 ||
-			info->ai_family != AF_INET6)
+		        info->ai_family != AF_INET6)
 		{
 			if (info)
 			{
@@ -16274,7 +16340,7 @@ bool GetIP4Inner(IP *ip, char *hostname)
 		info = NULL;
 
 		if (getaddrinfo(hostname, NULL, &hint, &info) != 0 ||
-			info->ai_family != AF_INET)
+		        info->ai_family != AF_INET)
 		{
 			if (info)
 			{
@@ -16445,18 +16511,18 @@ bool StrToIP(IP *ip, char *str)
 		FreeToken(token);
 		return false;
 	}
-	for (i = 0;i < 4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		char *s = token->Token[i];
 		if (s[0] < '0' || s[0] > '9' ||
-			(ToInt(s) >= 256))
+		        (ToInt(s) >= 256))
 		{
 			FreeToken(token);
 			return false;
 		}
 	}
 	Zero(ip, sizeof(IP));
-	for (i = 0;i < 4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		ip->addr[i] = (UCHAR)ToInt(token->Token[i]);
 	}
@@ -16507,7 +16573,7 @@ void IPToInAddr(struct in_addr *addr, IP *ip)
 
 	if (IsIP6(ip) == false)
 	{
-		for (i = 0;i < 4;i++)
+		for (i = 0; i < 4; i++)
 		{
 			((UCHAR *)addr)[i] = ip->addr[i];
 		}
@@ -16528,7 +16594,7 @@ void IPToInAddr6(struct in6_addr *addr, IP *ip)
 
 	if (IsIP6(ip))
 	{
-		for (i = 0;i < 16;i++)
+		for (i = 0; i < 16; i++)
 		{
 			((UCHAR *)addr)[i] = ip->ipv6_addr[i];
 		}
@@ -16547,7 +16613,7 @@ void InAddrToIP(IP *ip, struct in_addr *addr)
 
 	Zero(ip, sizeof(IP));
 
-	for (i = 0;i < 4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		ip->addr[i] = ((UCHAR *)addr)[i];
 	}
@@ -16564,7 +16630,7 @@ void InAddrToIP6(IP *ip, struct in6_addr *addr)
 	}
 
 	ZeroIP6(ip);
-	for (i = 0;i < 16;i++)
+	for (i = 0; i < 16; i++)
 	{
 		ip->ipv6_addr[i] = ((UCHAR *)addr)[i];
 	}
@@ -16697,7 +16763,7 @@ void FreeDnsCache()
 	{
 		DNSCACHE *c;
 		UINT i;
-		for (i = 0;i < LIST_NUM(DnsCache);i++)
+		for (i = 0; i < LIST_NUM(DnsCache); i++)
 		{
 			// Release the memory for the entry
 			c = LIST_DATA(DnsCache, i);
@@ -16994,7 +17060,7 @@ bool IsIPMyHost(IP *ip)
 	// Search to check whether it matches to any of the IP of the local host
 	o = GetHostIPAddressList();
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *p = LIST_DATA(o, i);
 
@@ -17130,7 +17196,7 @@ bool IsOnPrivateIPFile(UINT ip)
 		LIST *o = g_private_ip_list;
 		UINT i;
 
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			PRIVATE_IP_SUBNET *p = LIST_DATA(o, i);
 
@@ -17154,7 +17220,7 @@ void FreePrivateIPFile()
 
 		g_private_ip_list = NULL;
 
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			PRIVATE_IP_SUBNET *p = LIST_DATA(o, i);
 
@@ -17183,7 +17249,7 @@ bool IsIPAddressInSameLocalNetwork(IP *a)
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			IP *p = LIST_DATA(o, i);
 
@@ -17224,7 +17290,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 	if (ipv6 == false)
 	{
 		// IPv4
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			IP *p = LIST_DATA(o, i);
 
@@ -17239,7 +17305,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 
 		if (IsZeroIp(ip))
 		{
-			for (i = 0;i < LIST_NUM(o);i++)
+			for (i = 0; i < LIST_NUM(o); i++)
 			{
 				IP *p = LIST_DATA(o, i);
 
@@ -17261,7 +17327,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 	else
 	{
 		// IPv6
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			IP *p = LIST_DATA(o, i);
 
@@ -17337,7 +17403,7 @@ void FreeNetwork()
 	DeleteLock(machine_ip_process_hash_lock);
 	machine_name_lock = NULL;
 	ssl_accept_lock = machine_name_lock = disconnect_function_lock =
-		aho = socket_library_lock = ssl_connect_lock = machine_ip_process_hash_lock = NULL;
+	        aho = socket_library_lock = ssl_connect_lock = machine_ip_process_hash_lock = NULL;
 
 	// Release of the DNS cache
 	FreeDnsCache();
@@ -17408,7 +17474,7 @@ void StopSockList(SOCKLIST *sl)
 	}
 	UnlockList(sl->SockList);
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		SOCK *s = ss[i];
 
@@ -17474,7 +17540,7 @@ SOCKET_TIMEOUT_PARAM *NewSocketTimeout(SOCK *sock)
 	{
 //		Debug("NewSockTimeout(%u)\n",sock->TimeOut);
 
-		ttp = (SOCKET_TIMEOUT_PARAM*)Malloc(sizeof(SOCKET_TIMEOUT_PARAM));
+		ttp = (SOCKET_TIMEOUT_PARAM *)Malloc(sizeof(SOCKET_TIMEOUT_PARAM));
 
 		// Set the parameters of the time-out thread
 		ttp->cancel = NewCancel();
@@ -18306,7 +18372,7 @@ void FreeHostIPAddressList(LIST *o)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *ip = LIST_DATA(o, i);
 
@@ -18330,7 +18396,7 @@ bool IsMyIPAddress(IP *ip)
 
 	o = GetHostIPAddressList();
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *a = LIST_DATA(o, i);
 
@@ -18442,7 +18508,7 @@ UINT64 GetHostIPAddressListHash()
 
 	if (o != NULL)
 	{
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			IP *ip = LIST_DATA(o, i);
 			char tmp[128];
@@ -18483,8 +18549,8 @@ LIST *GetHostIPAddressList()
 		UINT64 now = Tick64();
 
 		if (host_ip_address_list_cache_last == 0 ||
-			((host_ip_address_list_cache_last + (UINT64)HOST_IP_ADDRESS_LIST_CACHE) < now) ||
-			host_ip_address_cache == NULL)
+		        ((host_ip_address_list_cache_last + (UINT64)HOST_IP_ADDRESS_LIST_CACHE) < now) ||
+		        host_ip_address_cache == NULL)
 		{
 			if (host_ip_address_cache != NULL)
 			{
@@ -18521,7 +18587,7 @@ LIST *CloneIPAddressList(LIST *o)
 
 	ret = NewListFast(CmpIpAddressList);
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		IP *ip = LIST_DATA(o, i);
 
@@ -18665,30 +18731,30 @@ LIST *GetHostIPAddressListInternal()
 			{
 				if (a->ifa_addr != NULL)
 				{
-					 struct sockaddr *addr = a->ifa_addr;
+					struct sockaddr *addr = a->ifa_addr;
 
-					 if (addr->sa_family == AF_INET)
-					 {
-						 IP ip;
-						 struct sockaddr_in *d = (struct sockaddr_in *)addr;
-						 struct in_addr *addr = &d->sin_addr;
+					if (addr->sa_family == AF_INET)
+					{
+						IP ip;
+						struct sockaddr_in *d = (struct sockaddr_in *)addr;
+						struct in_addr *addr = &d->sin_addr;
 
-						 InAddrToIP(&ip, addr);
+						InAddrToIP(&ip, addr);
 
-						 AddHostIPAddressToList(o, &ip);
-					 }
-					 else if (addr->sa_family == AF_INET6)
-					 {
-						 IP ip;
-						 struct sockaddr_in6 *d = (struct sockaddr_in6 *)addr;
-						 UINT scope_id = d->sin6_scope_id;
-						 struct in6_addr *addr = &d->sin6_addr;
+						AddHostIPAddressToList(o, &ip);
+					}
+					else if (addr->sa_family == AF_INET6)
+					{
+						IP ip;
+						struct sockaddr_in6 *d = (struct sockaddr_in6 *)addr;
+						UINT scope_id = d->sin6_scope_id;
+						struct in6_addr *addr = &d->sin6_addr;
 
-						 InAddrToIP6(&ip, addr);
-						 ip.ipv6_scope_id = scope_id;
+						InAddrToIP6(&ip, addr);
+						ip.ipv6_scope_id = scope_id;
 
-						 AddHostIPAddressToList(o, &ip);
-					 }
+						AddHostIPAddressToList(o, &ip);
+					}
 				}
 
 				a = a->ifa_next;
@@ -18714,7 +18780,7 @@ bool IsUdpPortOpened(UDPLISTENER *u, IP *server_ip, UINT port)
 
 	if (server_ip != NULL)
 	{
-		for (i = 0;i < LIST_NUM(u->SockList);i++)
+		for (i = 0; i < LIST_NUM(u->SockList); i++)
 		{
 			UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, i);
 
@@ -18731,7 +18797,7 @@ bool IsUdpPortOpened(UDPLISTENER *u, IP *server_ip, UINT port)
 		}
 	}
 
-	for (i = 0;i < LIST_NUM(u->SockList);i++)
+	for (i = 0; i < LIST_NUM(u->SockList); i++)
 	{
 		UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, i);
 
@@ -18914,7 +18980,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 
 			LockList(u->PortList);
 			{
-				for (k = 0;k < LIST_NUM(u->SockList);k++)
+				for (k = 0; k < LIST_NUM(u->SockList); k++)
 				{
 					UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, k);
 
@@ -18922,7 +18988,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 				}
 
 				// If the combination of the IP address and the port number doesn't exist in the list, add it to the list
-				for (i = 0;i < LIST_NUM(iplist);i++)
+				for (i = 0; i < LIST_NUM(iplist); i++)
 				{
 					IP *ip = LIST_DATA(iplist, i);
 
@@ -18933,7 +18999,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 
 					WriteBuf(ip_list_buf_new, ip, sizeof(IP));
 
-					for (j = 0;j < LIST_NUM(u->PortList);j++)
+					for (j = 0; j < LIST_NUM(u->PortList); j++)
 					{
 						UINT k;
 						UINT *port = LIST_DATA(u->PortList, j);
@@ -18945,7 +19011,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 						}
 
 
-						for (k = 0;k < LIST_NUM(u->SockList);k++)
+						for (k = 0; k < LIST_NUM(u->SockList); k++)
 						{
 							UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, k);
 
@@ -18975,7 +19041,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 
 				// If any errors suspected or the combination of IP address and port number
 				// has been regarded to delete already, delete it
-				for (k = 0;k < LIST_NUM(u->SockList);k++)
+				for (k = 0; k < LIST_NUM(u->SockList); k++)
 				{
 					UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, k);
 
@@ -18986,7 +19052,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 					}
 				}
 
-				for (i = 0;i < LIST_NUM(del_us_list);i++)
+				for (i = 0; i < LIST_NUM(del_us_list); i++)
 				{
 					UDPLISTENER_SOCK *us = LIST_DATA(del_us_list, i);
 
@@ -19009,7 +19075,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 			UnlockList(u->PortList);
 
 			// Open the UDP sockets which is not opend yet
-			for (k = 0;k < LIST_NUM(u->SockList);k++)
+			for (k = 0; k < LIST_NUM(u->SockList); k++)
 			{
 				UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, k);
 
@@ -19085,7 +19151,7 @@ LABEL_RESTART:
 		}
 
 		// Receive the data that is arriving at the socket
-		for (k = 0;k < LIST_NUM(u->SockList);k++)
+		for (k = 0; k < LIST_NUM(u->SockList); k++)
 		{
 			UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, k);
 
@@ -19101,7 +19167,7 @@ LABEL_RESTART:
 						us->NextMyIpAndPortPollTick = now + (UINT64)GenRandInterval(UDP_NAT_T_NAT_STATUS_CHECK_INTERVAL_MIN, UDP_NAT_T_NAT_STATUS_CHECK_INTERVAL_MAX);
 
 						if (IsZeroIP(&nat_t_ip) == false
-							)
+						   )
 						{
 							UCHAR c = 'A';
 
@@ -19161,7 +19227,7 @@ LABEL_FATAL_ERROR:
 					{
 						// Receive a regular packet
 						p = NewUdpPacket(&src_addr, src_port, &us->Sock->LocalIP, us->Sock->LocalPort,
-							Clone(buf, size), size);
+						                 Clone(buf, size), size);
 
 						if (p->SrcPort == MAKE_SPECIAL_PORT(52))
 						{
@@ -19181,8 +19247,8 @@ LABEL_FATAL_ERROR:
 		// Pass the received packet to the procedure
 		u->RecvProc(u, recv_list);
 
-		// Release the packet 
-		for (i = 0;i < LIST_NUM(recv_list);i++)
+		// Release the packet
+		for (i = 0; i < LIST_NUM(recv_list); i++)
 		{
 			UDPPACKET *p = LIST_DATA(recv_list, i);
 
@@ -19205,7 +19271,7 @@ LABEL_FATAL_ERROR:
 				Zero(&last_src_ip, sizeof(IP));
 				last_src_port = 0;
 
-				for (i = 0;i < LIST_NUM(u->SendPacketList);i++)
+				for (i = 0; i < LIST_NUM(u->SendPacketList); i++)
 				{
 					UDPPACKET *p = LIST_DATA(u->SendPacketList, i);
 					UDPLISTENER_SOCK *us;
@@ -19293,7 +19359,7 @@ LABEL_FATAL_ERROR:
 	}
 
 	// Release of the socket list
-	for (i = 0;i < LIST_NUM(u->SockList);i++)
+	for (i = 0; i < LIST_NUM(u->SockList); i++)
 	{
 		UDPLISTENER_SOCK *us = (UDPLISTENER_SOCK *)LIST_DATA(u->SockList, i);
 
@@ -19319,7 +19385,7 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 		return NULL;
 	}
 
-	for (i = 0;i < LIST_NUM(u->SockList);i++)
+	for (i = 0; i < LIST_NUM(u->SockList); i++)
 	{
 		UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, i);
 
@@ -19335,7 +19401,7 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 		}
 	}
 
-	for (i = 0;i < LIST_NUM(u->SockList);i++)
+	for (i = 0; i < LIST_NUM(u->SockList); i++)
 	{
 		UDPLISTENER_SOCK *us = LIST_DATA(u->SockList, i);
 
@@ -19346,7 +19412,7 @@ UDPLISTENER_SOCK *DetermineUdpSocketForSending(UDPLISTENER *u, UDPPACKET *p)
 				if (IsZeroIP(&us->IpAddress))
 				{
 					if ((IsIP4(&p->DstIP) && IsIP4(&us->IpAddress)) ||
-						(IsIP6(&p->DstIP) && IsIP6(&us->IpAddress)))
+					        (IsIP6(&p->DstIP) && IsIP6(&us->IpAddress)))
 					{
 						return us;
 					}
@@ -19445,7 +19511,7 @@ void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list)
 
 		num = LIST_NUM(packet_list);
 
-		for (i = 0;i < LIST_NUM(packet_list);i++)
+		for (i = 0; i < LIST_NUM(packet_list); i++)
 		{
 			UDPPACKET *p = LIST_DATA(packet_list, i);
 
@@ -19474,7 +19540,7 @@ UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP 
 	{
 		return NULL;
 	}
-	
+
 	u = ZeroMalloc(sizeof(UDPLISTENER));
 
 	u->Param = param;
@@ -19528,7 +19594,7 @@ void FreeUdpListener(UDPLISTENER *u)
 
 	ReleaseIntList(u->PortList);
 
-	for (i = 0;i < LIST_NUM(u->SendPacketList);i++)
+	for (i = 0; i < LIST_NUM(u->SendPacketList); i++)
 	{
 		UDPPACKET *p = LIST_DATA(u->SendPacketList, i);
 
@@ -19575,12 +19641,12 @@ void DeleteAllPortFromUdpListener(UDPLISTENER *u)
 		UINT *ports = ZeroMalloc(sizeof(UINT) * num_ports);
 		UINT i;
 
-		for (i = 0;i < num_ports;i++)
+		for (i = 0; i < num_ports; i++)
 		{
 			ports[i] = *((UINT *)(LIST_DATA(u->PortList, i)));
 		}
 
-		for (i = 0;i < num_ports;i++)
+		for (i = 0; i < num_ports; i++)
 		{
 			UINT port = ports[i];
 
@@ -19662,7 +19728,7 @@ void FreeInterruptManager(INTERRUPT_MANAGER *m)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(m->TickList);i++)
+	for (i = 0; i < LIST_NUM(m->TickList); i++)
 	{
 		UINT64 *v = LIST_DATA(m->TickList, i);
 
@@ -19709,7 +19775,7 @@ UINT GetNextIntervalForInterrupt(INTERRUPT_MANAGER *m)
 	LockList(m->TickList);
 	{
 		// Remove entries older than now already
-		for (i = 0;i < LIST_NUM(m->TickList);i++)
+		for (i = 0; i < LIST_NUM(m->TickList); i++)
 		{
 			UINT64 *v = LIST_DATA(m->TickList, i);
 
@@ -19730,7 +19796,7 @@ UINT GetNextIntervalForInterrupt(INTERRUPT_MANAGER *m)
 			}
 		}
 
-		for (i = 0;i < LIST_NUM(o);i++)
+		for (i = 0; i < LIST_NUM(o); i++)
 		{
 			UINT64 *v = LIST_DATA(o, i);
 
@@ -20140,7 +20206,7 @@ UINT RecvInProc(SOCK *sock, void *data, UINT size)
 		}
 		else
 		{
-			// If a timeout occurs in asynchronous mode, returns the blocking error 
+			// If a timeout occurs in asynchronous mode, returns the blocking error
 			return SOCK_LATER;
 		}
 	}
@@ -20198,7 +20264,7 @@ void Win32WaitForTubes(TUBE **tubes, UINT num, UINT timeout)
 
 	Zero(array, sizeof(array));
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		TUBE *t = tubes[i];
 
@@ -20224,7 +20290,7 @@ void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout)
 
 	fds = ZeroMalloc(sizeof(int) * num);
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		fds[i] = tubes[i]->SockEvent->pipe_read;
 
@@ -20239,7 +20305,7 @@ void UnixWaitForTubes(TUBE **tubes, UINT num, UINT timeout)
 		UnixSelectInner(num, fds, 0, NULL, timeout);
 	}
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		int fd = fds[i];
 		int readret;
@@ -20277,7 +20343,7 @@ void FreeTubeFlushList(TUBE_FLUSH_LIST *f)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(f->List);i++)
+	for (i = 0; i < LIST_NUM(f->List); i++)
 	{
 		TUBE *t = LIST_DATA(f->List, i);
 
@@ -20323,7 +20389,7 @@ void FlushTubeFlushList(TUBE_FLUSH_LIST *f)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(f->List);i++)
+	for (i = 0; i < LIST_NUM(f->List); i++)
 	{
 		TUBE *t = LIST_DATA(f->List, i);
 
@@ -20585,8 +20651,8 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	}
 
 	if (!(packet_buf[0] == 0x16 && packet_buf[1] >= 0x03 &&
-		packet_buf[5] == 0x01 && packet_buf[6] == 0x00 &&
-		packet_buf[9] >= 0x03))
+	        packet_buf[5] == 0x01 && packet_buf[6] == 0x00 &&
+	        packet_buf[9] >= 0x03))
 	{
 		return false;
 	}
@@ -20594,8 +20660,8 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 	buf = NewBufFromMemory(packet_buf, packet_size);
 
 	if (ReadBuf(buf, &content_type, sizeof(UCHAR)) == sizeof(UCHAR) &&
-		ReadBuf(buf, &version, sizeof(USHORT)) == sizeof(USHORT) &&
-		ReadBuf(buf, &handshake_length, sizeof(USHORT)) == sizeof(USHORT))
+	        ReadBuf(buf, &version, sizeof(USHORT)) == sizeof(USHORT) &&
+	        ReadBuf(buf, &handshake_length, sizeof(USHORT)) == sizeof(USHORT))
 	{
 		version = Endian16(version);
 		handshake_length = Endian16(handshake_length);
@@ -20611,7 +20677,7 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 				USHORT handshake_length_2;
 
 				if (ReadBuf(buf2, &handshake_type, sizeof(USHORT)) == sizeof(USHORT) &&
-					ReadBuf(buf2, &handshake_length_2, sizeof(USHORT)) == sizeof(USHORT))
+				        ReadBuf(buf2, &handshake_length_2, sizeof(USHORT)) == sizeof(USHORT))
 				{
 					handshake_type = Endian16(handshake_type);
 					handshake_length_2 = Endian16(handshake_length_2);
@@ -20777,11 +20843,11 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 }
 
 void SetDhParam(DH_CTX *dh)
- {
+{
 	if (dh_param)
 	{
- 		DhFree(dh_param);
- 	}
+		DhFree(dh_param);
+	}
 
- 	dh_param = dh;
- }
+	dh_param = dh;
+}

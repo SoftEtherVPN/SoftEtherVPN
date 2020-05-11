@@ -311,7 +311,7 @@ struct PPP_SESSION
 	PPP_EAP_TLS_CONTEXT Eap_TlsCtx;		// Context information for EAP TLS. May be possibly reused for EAP TTLS?
 
 	LIST *SentReqPacketList;			// Sent requests list
-	
+
 	PPP_PACKET *CurrentPacket;
 	LIST *DelayedPackets;
 

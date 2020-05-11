@@ -125,9 +125,9 @@ struct IPC
 	UINT Layer;
 
 	// IPv6 stuff
-	QUEUE* IPv6ReceivedQueue;			// IPv6 reception queue
-	LIST* IPv6NeighborTable;			// Neighbor Discovery Table
-	LIST* IPv6RouterAdvs;				// Router offered prefixes
+	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue
+	LIST *IPv6NeighborTable;			// Neighbor Discovery Table
+	LIST *IPv6RouterAdvs;				// Router offered prefixes
 	UINT64 IPv6ClientEUI;				// The EUI of the client (for the SLAAC autoconf)
 	UINT64 IPv6ServerEUI;				// The EUI of the server (from the RA discovery)
 };
@@ -152,10 +152,10 @@ struct IPC_IPV6_ROUTER_ADVERTISEMENT
 };
 
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
-			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
-			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
-			UINT layer);
+            UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
+            char *client_hostname, char *crypt_name,
+            bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
+            UINT layer);
 IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code);
 IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address);
 void FreeIPC(IPC *ipc);
@@ -173,7 +173,7 @@ IPC_ARP *IPCNewARP(IP *ip, UCHAR *mac_address);
 void IPCFreeARP(IPC_ARP *a);
 int IPCCmpArpTable(void *p1, void *p2);
 void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip);
-IPC_ARP *IPCSearchArpTable(LIST* arpTable, IP *ip);
+IPC_ARP *IPCSearchArpTable(LIST *arpTable, IP *ip);
 void IPCSendIPv4WithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr);
 void IPCFlushArpTable(IPC *ipc);
 void IPCFlushArpTableEx(IPC *ipc, UINT64 now);
@@ -195,22 +195,23 @@ void FreeIPCAsync(IPC_ASYNC *a);
 
 // IPv6 stuff
 // Memory management
-void IPCIPv6Init(IPC* ipc);
-void IPCIPv6Free(IPC* ipc);
+void IPCIPv6Init(IPC *ipc);
+void IPCIPv6Free(IPC *ipc);
 // NDT
-void IPCIPv6AssociateOnNDT(IPC* ipc, IP* ip, UCHAR* mac_address);
-void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighborAdv);
-void IPCIPv6FlushNDT(IPC* ipc);
-void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now);
+void IPCIPv6AssociateOnNDT(IPC *ipc, IP *ip, UCHAR *mac_address);
+void IPCIPv6AssociateOnNDTEx(IPC *ipc, IP *ip, UCHAR *mac_address, bool isNeighborAdv);
+void IPCIPv6FlushNDT(IPC *ipc);
+void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now);
+bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, IP *addr);
 // RA
-void IPCIPv6AddRouterPrefix(IPC* ipc, ICMPV6_OPTION_LIST* recvPrefix, UCHAR* macAddress, IP* ip);
-bool IPCIPv6CheckUnicastFromRouterPrefix(IPC* ipc, IP* ip, IPC_IPV6_ROUTER_ADVERTISEMENT* matchedRA);
-void IPCIPv6SendRouterSolicitation(IPC* ipc);
+void IPCIPv6AddRouterPrefix(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
+bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
+void IPCIPv6SendRouterSolicitation(IPC *ipc);
 // Data flow
-BLOCK* IPCIPv6Recv(IPC* ipc);
-void IPCIPv6Send(IPC* ipc, void* data, UINT size);
-void IPCIPv6SendWithDestMacAddr(IPC* ipc, void* data, UINT size, UCHAR* dest_mac_addr);
-void IPCIPv6SendUnicast(IPC* ipc, void* data, UINT size, IP* next_ip);
+BLOCK *IPCIPv6Recv(IPC *ipc);
+void IPCIPv6Send(IPC *ipc, void *data, UINT size);
+void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr);
+void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip);
 
 bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 
