@@ -65,31 +65,34 @@ bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl) {
 	return true;
 }
 
-PROTO_IMPL *ProtoImplDetect(PROTO *proto, SOCK *sock)
+PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size)
 {
-	UCHAR buf[PROTO_CHECK_BUFFER_SIZE];
 	UINT i;
 
-	if (proto == NULL || sock == NULL)
+	if (proto == NULL || data == NULL || size == 0)
 	{
 		return NULL;
-	}
-
-	if (Peek(sock, buf, sizeof(buf)) == 0)
-	{
-		return false;
 	}
 
 	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
 	{
 		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
-		if (impl->IsPacketForMe(buf, sizeof(buf)))
+		if (impl->IsPacketForMe(mode, data, size) == false)
 		{
-			Debug("ProtoImplDetect(): %s detected\n", impl->Name());
-			return impl;
+			continue;
 		}
+
+		if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer)
+		{
+			Debug("ProtoImplDetect(): OpenVPN detected, but it's disabled\n");
+			continue;
+		}
+
+		Debug("ProtoImplDetect(): %s detected\n", impl->Name());
+		return impl;
 	}
 
+	Debug("ProtoImplDetect(): unrecognized protocol\n");
 	return NULL;
 }
 
@@ -104,29 +107,23 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 	INTERRUPT_MANAGER *im;
 	SOCK_EVENT *se;
 
-	const UINT64 giveup = Tick64() + (UINT64)OPENVPN_NEW_SESSION_DEADLINE_TIMEOUT;
-
 	if (proto == NULL || sock == NULL)
 	{
 		return false;
 	}
 
-	impl = ProtoImplDetect(proto, sock);
-	if (impl == NULL)
 	{
-		Debug("ProtoHandleConnection(): unrecognized protocol\n");
-		return false;
-	}
+		UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
+		if (Peek(sock, tmp, sizeof(tmp)) == 0)
+		{
+			return false;
+		}
 
-	if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer == true)
-	{
-		Debug("ProtoHandleConnection(): OpenVPN detected, but it's disabled\n");
-		return false;
-	}
-
-	if ((impl->SupportedModes() & PROTO_MODE_TCP) == false)
-	{
-		return false;
+		impl = ProtoImplDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
+		if (impl == NULL)
+		{
+			return false;
+		}
 	}
 
 	im = NewInterruptManager();
@@ -207,23 +204,6 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		}
 
 		impl->BufferLimit(impl_data, FifoSize(send_fifo) > MAX_BUFFERING_PACKET_SIZE);
-
-		if (impl->IsOk(impl_data) == false)
-		{
-			if (impl->EstablishedSessions(impl_data) == 0)
-			{
-				if (Tick64() >= giveup)
-				{
-					Debug("ProtoHandleConnection(): I waited too much for the session to start, I give up!\n");
-					stop = true;
-				}
-			}
-			else
-			{
-				Debug("ProtoHandleConnection(): implementation not OK, stopping the server\n");
-				stop = true;
-			}
-		}
 
 		if (stop)
 		{

@@ -194,6 +194,7 @@ struct OPENVPN_SERVER
 	LIST *SendPacketList;								// Transmission packet list
 	LIST *SessionList;									// Session list
 	UINT64 Now;											// Current time
+	UINT64 Giveup;										// Session establishment deadline
 	SOCK_EVENT *SockEvent;								// Socket event
 	UCHAR TmpBuf[OPENVPN_TMP_BUFFER_SIZE];				// Temporary buffer
 	UINT DisconnectCount;								// The number of session lost that have occurred so far
@@ -220,8 +221,7 @@ PROTO_IMPL *OvsGetProtoImpl();
 bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
 void OvsFree(void *param);
 char *OvsName();
-UINT OvsSupportedModes();
-bool OvsIsPacketForMe(const UCHAR *buf, const UINT size);
+bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send);
 void OvsBufferLimit(void *param, const bool reached);
 bool OvsIsOk(void *param);

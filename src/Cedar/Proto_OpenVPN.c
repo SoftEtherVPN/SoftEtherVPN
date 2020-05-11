@@ -21,12 +21,9 @@ PROTO_IMPL *OvsGetProtoImpl()
 		OvsInit,
 		OvsFree,
 		OvsName,
-		OvsSupportedModes,
 		OvsIsPacketForMe,
 		OvsProcessData,
 		OvsBufferLimit,
-		OvsIsOk,
-		OvsEstablishedSessions
 	};
 
 	return &impl;
@@ -55,22 +52,30 @@ char *OvsName()
 	return "OpenVPN";
 }
 
-// Return the supported modes (TCP & UDP)
-UINT OvsSupportedModes()
-{
-	return PROTO_MODE_TCP | PROTO_MODE_UDP;
-}
-
 // Check whether it's an OpenVPN packet
-bool OvsIsPacketForMe(const UCHAR *buf, const UINT size)
+bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size)
 {
-	if (buf == NULL || size != 2)
+	if (mode == PROTO_MODE_TCP)
 	{
-		return false;
-	}
+		if (data == NULL || size < 2)
+		{
+			return false;
+		}
 
-	if (buf[0] == 0x00 && buf[1] == 0x0E)
+		if (data[0] == 0x00 && data[1] == 0x0E)
+		{
+			return true;
+		}
+	}
+	else if (mode == PROTO_MODE_UDP)
 	{
+		OPENVPN_PACKET *packet = OvsParsePacket(data, size);
+		if (packet == NULL)
+		{
+			return false;
+		}
+
+		OvsFreePacket(packet);
 		return true;
 	}
 
@@ -81,15 +86,13 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 {
 	bool ret = true;
 	UINT i;
-	OPENVPN_SERVER *server;
+	OPENVPN_SERVER *server = param;
 	UCHAR buf[OPENVPN_TCP_MAX_PACKET_SIZE];
 
-	if (param == NULL || received_data == NULL || data_to_send == NULL)
+	if (server == NULL || received_data == NULL || data_to_send == NULL)
 	{
 		return false;
 	}
-
-	server = param;
 
 	// Separate to a list of datagrams by interpreting the data received from the TCP socket
 	while (true)
@@ -166,6 +169,21 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 
 	DeleteAll(server->SendPacketList);
 
+	if (server->Giveup <= server->Now)
+	{
+		for (UINT i = 0; i < LIST_NUM(server->SessionList); ++i)
+		{
+			OPENVPN_SESSION *se = LIST_DATA(server->SessionList, i);
+
+			if (se->Established)
+			{
+				return ret && server->DisconnectCount < 1;
+			}
+		}
+
+		return false;
+	}
+
 	return ret;
 }
 
@@ -177,46 +195,6 @@ void OvsBufferLimit(void *param, const bool reached)
 	}
 
 	((OPENVPN_SERVER *)param)->SupressSendPacket = reached;
-}
-
-bool OvsIsOk(void *param)
-{
-	OPENVPN_SERVER *s;
-
-	if (param == NULL)
-	{
-		return false;
-	}
-
-	s = param;
-
-	return (s->DisconnectCount < 1) && (s->SessionEstablishedCount > 0);
-}
-
-UINT OvsEstablishedSessions(void *param)
-{
-	LIST *sessions;
-	UINT i;
-	UINT established_sessions = 0;
-
-	if (param == NULL)
-	{
-		return 0;
-	}
-
-	sessions = ((OPENVPN_SERVER *)param)->SessionList;
-
-	for (i = 0;i < LIST_NUM(sessions);i++)
-	{
-		OPENVPN_SESSION *se = LIST_DATA(sessions, i);
-
-		if (se->Established)
-		{
-			++established_sessions;
-		}
-	}
-
-	return established_sessions;
 }
 
 // Write the OpenVPN log
@@ -2924,6 +2902,7 @@ OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOC
 	s->SendPacketList = NewListFast(NULL);
 
 	s->Now = Tick64();
+	s->Giveup = s->Now + OPENVPN_NEW_SESSION_DEADLINE_TIMEOUT;
 
 	s->NextSessionId = 1;
 
