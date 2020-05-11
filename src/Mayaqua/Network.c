@@ -7375,6 +7375,175 @@ void CopyIP(IP *dst, IP *src)
 	Copy(dst, src, sizeof(IP));
 }
 
+// Utility functions about IP and MAC address types
+// Identify whether the IP address is a normal unicast address
+bool IsValidUnicastIPAddress4(IP* ip)
+{
+	UINT i;
+	// Validate arguments
+	if (IsIP4(ip) == false)
+	{
+		return false;
+	}
+
+	if (IsZeroIP(ip))
+	{
+		return false;
+	}
+
+	if (ip->addr[0] >= 224 && ip->addr[0] <= 239)
+	{
+		// IPv4 Multicast
+		return false;
+	}
+
+
+	/// TODO: this is kinda incorrect, but for the correct parsing we need the netmask anyway
+	for (i = 0; i < 4; i++)
+	{
+		if (ip->addr[i] != 255)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+bool IsValidUnicastIPAddressUINT4(UINT ip)
+{
+	IP a;
+
+	UINTToIP(&a, ip);
+
+	return IsValidUnicastIPAddress4(&a);
+}
+
+bool IsValidUnicastIPAddress6(IP* ip)
+{
+	UINT ipv6Type;
+
+	if (!IsIP6(ip))
+	{
+		return false;
+	}
+
+	if (IsZeroIP(ip))
+	{
+		return false;
+	}
+
+	ipv6Type = GetIPAddrType6(ip);
+
+	if (!(ipv6Type & IPV6_ADDR_LOCAL_UNICAST) &&
+		!(ipv6Type & IPV6_ADDR_GLOBAL_UNICAST))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+// Check whether the MAC address is valid
+bool IsMacInvalid(UCHAR* mac)
+{
+	UINT i;
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < 6; i++)
+	{
+		if (mac[i] != 0x00)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+// Check whether the MAC address is a broadcast address
+bool IsMacBroadcast(UCHAR* mac)
+{
+	UINT i;
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return false;
+	}
+
+	for (i = 0; i < 6; i++)
+	{
+		if (mac[i] != 0xff)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+// Check wether the MAC address is an IPv4 multicast or an IPv6 multicast
+bool IsMacMulticast(UCHAR* mac)
+{
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return false;
+	}
+
+	if (mac[0] == 0x01 &&
+		mac[1] == 0x00 &&
+		mac[2] == 0x5e)
+	{
+		// Multicast IPv4 and other IANA multicasts
+		return true;
+	}
+
+	if (mac[0] == 0x01)
+	{
+		// That's not a really reserved for multicast range, but it seems like anything with 0x01 is used as multicast anyway
+		// Remove or specify if it causes problems
+		return true;
+	}
+
+	if (mac[0] == 0x33 &&
+		mac[1] == 0x33)
+	{
+		// Multicast IPv6
+		return true;
+	}
+
+	return false;
+}
+
+// Check wether the MAC address is a unicast one
+bool IsMacUnicast(UCHAR* mac)
+{
+	// Validate arguments
+	if (mac == NULL)
+	{
+		return false;
+	}
+
+	if (IsMacInvalid(mac))
+	{
+		return false;
+	}
+
+	if (IsMacBroadcast(mac))
+	{
+		return false;
+	}
+
+	if (IsMacMulticast(mac))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 // Get the number of clients connected from the specified IP address
 UINT GetNumIpClient(IP *ip)
 {

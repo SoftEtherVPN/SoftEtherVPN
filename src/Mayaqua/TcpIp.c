@@ -889,6 +889,44 @@ BUF *BuildICMPv6NeighborSoliciation(IPV6_ADDR *src_ip, IPV6_ADDR *target_ip, UCH
 	return ret;
 }
 
+BUF *BuildICMPv6RouterSoliciation(IPV6_ADDR* src_ip, IPV6_ADDR* target_ip, UCHAR* my_mac_address, UINT id)
+{
+	ICMPV6_OPTION_LIST opt;
+	ICMPV6_OPTION_LINK_LAYER link;
+	ICMPV6_ROUTER_SOLICIATION_HEADER header;
+	BUF *b;
+	BUF *b2;
+	BUF *ret;
+
+	if (src_ip == NULL || target_ip == NULL || my_mac_address == NULL)
+	{
+		return NULL;
+	}
+
+	Zero(&link, sizeof(link));
+	Copy(link.Address, my_mac_address, 6);
+
+	Zero(&opt, sizeof(opt));
+	opt.SourceLinkLayer = &link;
+
+	b = BuildICMPv6Options(&opt);
+
+	Zero(&header, sizeof(header));
+
+	b2 = NewBuf();
+
+	WriteBuf(b2, &header, sizeof(header));
+	WriteBufBuf(b2, b);
+
+	ret = BuildICMPv6(src_ip, target_ip, 255,
+		ICMPV6_TYPE_ROUTER_SOLICIATION, 0, b2->Buf, b2->Size, id);
+
+	FreeBuf(b);
+	FreeBuf(b2);
+
+	return ret;
+}
+
 // Get the next header number from the queue
 UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q)
 {
@@ -1452,6 +1490,12 @@ PKT *ClonePacket(PKT *p, bool copy_data)
 	return ret;
 }
 
+// Parse the packet but without data layer except for ICMP
+PKT* ParsePacketUpToICMPv6(UCHAR* buf, UINT size)
+{
+	return ParsePacketEx5(buf, size, false, 0, true, true, false, true);
+}
+
 // Parse the contents of the packet
 PKT *ParsePacket(UCHAR *buf, UINT size)
 {
@@ -1469,7 +1513,11 @@ PKT *ParsePacketEx3(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 {
 	return ParsePacketEx4(buf, size, no_l3, vlan_type_id, bridge_id_as_mac_address, false, false);
 }
-PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address, bool no_http, bool correct_checksum)
+PKT* ParsePacketEx4(UCHAR* buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address, bool no_http, bool correct_checksum)
+{
+	return ParsePacketEx5(buf, size, no_l3, vlan_type_id, bridge_id_as_mac_address, no_http, correct_checksum, false);
+}
+PKT* ParsePacketEx5(UCHAR* buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address, bool no_http, bool correct_checksum, bool no_l3_l4_except_icmpv6)
 {
 	PKT *p;
 	USHORT vlan_type_id_16;
@@ -1559,7 +1607,7 @@ PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool b
 	}
 
 	// Do parse
-	if (ParsePacketL2Ex(p, buf, size, no_l3) == false)
+	if (ParsePacketL2Ex(p, buf, size, no_l3, no_l3_l4_except_icmpv6) == false)
 	{
 		// Parsing failure
 		FreePacket(p);
@@ -1929,7 +1977,7 @@ HTTPLOG *ParseHttpAccessLog(PKT *pkt)
 
 
 // Layer-2 parsing
-bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3)
+bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_except_icmpv6)
 {
 	UINT i;
 	bool b1, b2;
@@ -1994,7 +2042,7 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3)
 		switch (type_id_16)
 		{
 		case MAC_PROTO_ARPV4:	// ARPv4
-			if (no_l3)
+			if (no_l3 || no_l3_l4_except_icmpv6)
 			{
 				return true;
 			}
@@ -2002,7 +2050,7 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3)
 			return ParsePacketARPv4(p, buf, size);
 
 		case MAC_PROTO_IPV4:	// IPv4
-			if (no_l3)
+			if (no_l3 || no_l3_l4_except_icmpv6)
 			{
 				return true;
 			}
@@ -2015,7 +2063,7 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3)
 				return true;
 			}
 
-			return ParsePacketIPv6(p, buf, size);
+			return ParsePacketIPv6(p, buf, size, no_l3_l4_except_icmpv6);
 
 		default:				// Unknown
 			if (type_id_16 == p->VlanTypeID)
@@ -2538,7 +2586,7 @@ void CloneICMPv6Options(ICMPV6_OPTION_LIST *dst, ICMPV6_OPTION_LIST *src)
 }
 
 // IPv6 parsing
-bool ParsePacketIPv6(PKT *p, UCHAR *buf, UINT size)
+bool ParsePacketIPv6(PKT *p, UCHAR *buf, UINT size, bool no_l3_l4_except_icmpv6)
 {
 	// Validate arguments
 	if (p == NULL || buf == NULL)
@@ -2585,9 +2633,17 @@ bool ParsePacketIPv6(PKT *p, UCHAR *buf, UINT size)
 		}
 
 	case IP_PROTO_TCP:		// TCP
+		if (no_l3_l4_except_icmpv6)
+		{ 
+			return true;
+		}
 		return ParseTCP(p, buf, size);
 
 	case IP_PROTO_UDP:		// UDP
+		if (no_l3_l4_except_icmpv6)
+		{
+			return true;
+		}
 		return ParseUDP(p, buf, size);
 
 	default:				// Unknown

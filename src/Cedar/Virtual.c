@@ -8220,46 +8220,6 @@ void FreeArpWaitTable(VH *v)
 	ReleaseList(v->ArpWaitTable);
 }
 
-// Check whether the MAC address is valid
-bool IsMacInvalid(UCHAR *mac)
-{
-	UINT i;
-	// Validate arguments
-	if (mac == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < 6;i++)
-	{
-		if (mac[i] != 0x00)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-// Check whether the MAC address is a broadcast address
-bool IsMacBroadcast(UCHAR *mac)
-{
-	UINT i;
-	// Validate arguments
-	if (mac == NULL)
-	{
-		return false;
-	}
-
-	for (i = 0;i < 6;i++)
-	{
-		if (mac[i] != 0xff)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
 // Insert an entry in the ARP table
 void InsertArpTable(VH *v, UCHAR *mac, UINT ip)
 {

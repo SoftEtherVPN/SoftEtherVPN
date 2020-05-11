@@ -489,6 +489,8 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	// Create an IPv4 reception queue
 	ipc->IPv4ReceivedQueue = NewQueue();
 
+	IPCIPv6Init(ipc);
+
 	return ipc;
 
 LABEL_ERROR:
@@ -530,6 +532,8 @@ IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address)
 	ipc->IPv4ReceivedQueue = NewQueue();
 
 	ipc->FlushList = NewTubeFlushList();
+
+	IPCIPv6Init(ipc);
 
 	return ipc;
 }
@@ -609,6 +613,8 @@ void FreeIPC(IPC *ipc)
 	ReleaseQueue(ipc->IPv4ReceivedQueue);
 
 	ReleaseSharedBuffer(ipc->IpcSessionSharedBuffer);
+
+	IPCIPv6Free(ipc);
 
 	Free(ipc);
 }
@@ -1186,7 +1192,7 @@ void IPCProcessArp(IPC *ipc, BLOCK *b)
 		if (CmpIpAddr(&target_ip, &ipc->ClientIPAddress) == 0)
 		{
 			// Create a response since a request for its own IP address have received
-			if (IsValidUnicastMacAddress(sender_mac))
+			if (IsMacUnicast(sender_mac))
 			{
 				UCHAR tmp[14 + sizeof(ARPV4_HEADER)];
 				ARPV4_HEADER *arp = (ARPV4_HEADER *)(tmp + 14);
@@ -1218,7 +1224,7 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 {
 	IPC_ARP *a;
 	// Validate arguments 
-	if (ipc == NULL || ip == NULL || IsValidUnicastIPAddress4(ip) == false || IsValidUnicastMacAddress(mac_address) == false)
+	if (ipc == NULL || ip == NULL || IsValidUnicastIPAddress4(ip) == false || IsMacUnicast(mac_address) == false)
 	{
 		return;
 	}
@@ -1239,7 +1245,7 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 	}
 
 	// Search whether there is ARP table entry already
-	a = IPCSearchArpTable(ipc, ip);
+	a = IPCSearchArpTable(ipc->ArpTable, ip);
 	if (a == NULL)
 	{
 		// Add to the ARP table
@@ -1278,68 +1284,6 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address)
 	}
 }
 
-// Identify whether the MAC address is a normal unicast address
-bool IsValidUnicastMacAddress(UCHAR *mac)
-{
-	// Validate arguments
-	if (mac == NULL)
-	{
-		return false;
-	}
-
-	if (mac[0] & 0x01)
-	{
-		return false;
-	}
-
-	if (IsZero(mac, 6))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-// Identify whether the IP address is a normal unicast address
-bool IsValidUnicastIPAddress4(IP *ip)
-{
-	UINT i;
-	// Validate arguments
-	if (IsIP4(ip) == false)
-	{
-		return false;
-	}
-
-	if (IsZeroIP(ip))
-	{
-		return false;
-	}
-
-	if (ip->addr[0] >= 224 && ip->addr[0] <= 239)
-	{
-		// IPv4 Multicast
-		return false;
-	}
-
-	for (i = 0;i < 4;i++)
-	{
-		if (ip->addr[i] != 255)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-bool IsValidUnicastIPAddressUINT4(UINT ip)
-{
-	IP a;
-
-	UINTToIP(&a, ip);
-
-	return IsValidUnicastIPAddress4(&a);
-}
-
 // Interrupt process (This is called periodically)
 void IPCProcessInterrupts(IPC *ipc)
 {
@@ -1371,6 +1315,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 
 	// Remove old ARP table entries
 	IPCFlushArpTableEx(ipc, now);
+	IPCIPv6FlushNDTEx(ipc, now);
 
 	// Receive all the L2 packet
 	while (true)
@@ -1390,10 +1335,10 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 
 			// Confirm the destination MAC address
 			// (Receive if the destination MAC address is the IPC address or a broadcast address)
-			if (Cmp(dest_mac, ipc->MacAddress, 6) == 0 || dest_mac[0] & 0x01)
+			if (Cmp(dest_mac, ipc->MacAddress, 6) == 0 || IsMacBroadcast(dest_mac) || IsMacMulticast(dest_mac))
 			{
 				// If the source MAC address is itselves or invalid address, ignore the packet
-				if (Cmp(src_mac, ipc->MacAddress, 6) != 0 && IsValidUnicastMacAddress(src_mac))
+				if (Cmp(src_mac, ipc->MacAddress, 6) != 0 && !IsMacUnicast(src_mac))
 				{
 					if (protocol == MAC_PROTO_ARPV4)
 					{
@@ -1455,6 +1400,54 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								// This packet is discarded because it is irrelevant for me
 								Free(data);
 							}
+						}
+					}
+					else if (protocol == MAC_PROTO_IPV6)
+					{
+						PKT* p = ParsePacketUpToICMPv6(b->Buf, b->Size);
+						if (p != NULL)
+						{
+							IP ip_src, ip_dst;
+							bool ndtProcessed = false;
+
+							UCHAR* data = Clone(p->L3.IPv6Header, p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER));
+
+							IPv6AddrToIP(&ip_src, &p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress);
+							IPv6AddrToIP(&ip_dst, &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress);
+
+							if (p->IPv6HeaderPacketInfo.Protocol == IP_PROTO_ICMPV6)
+							{
+								IP icmpHeaderAddr;
+								// We need to parse the Router Advertisement and Neighbor Advertisement messages
+								// to build the Neighbor Discovery Table (aka ARP table for IPv6)
+								switch (p->ICMPv6HeaderPacketInfo.Type)
+								{
+								case ICMPV6_TYPE_ROUTER_ADVERTISEMENT:
+									// We save the router advertisement data for later use
+									IPCIPv6AddRouterPrefix(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
+									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
+									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, &p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer, true);
+									break;
+								case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
+									// We save the neighbor advertisements into NDT
+									IPv6AddrToIP(&icmpHeaderAddr, &p->ICMPv6HeaderPacketInfo.Headers.NeighborAdvertisementHeader->TargetAddress);
+									IPCIPv6AssociateOnNDTEx(ipc, &icmpHeaderAddr, src_mac, true);
+									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
+									ndtProcessed = true;
+									break;
+								}
+							}
+
+							// We update the NDT only if we have an entry in it for the IP+Mac
+							if (!ndtProcessed)
+							{
+								IPCIPv6AssociateOnNDT(ipc, &ip_src, src_mac);
+							}
+
+							/// TODO: should we or not filter Neighbor Advertisements and/or Neighbor Solicitations?
+							InsertQueue(ipc->IPv6ReceivedQueue, data);
+
+							FreePacket(p);
 						}
 					}
 				}
@@ -1725,7 +1718,7 @@ void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 		return;
 	}
 
-	a = IPCSearchArpTable(ipc, next_ip);
+	a = IPCSearchArpTable(ipc->ArpTable, next_ip);
 
 	if (a != NULL)
 	{
@@ -1789,19 +1782,19 @@ void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 }
 
 // Search the ARP table
-IPC_ARP *IPCSearchArpTable(IPC *ipc, IP *ip)
+IPC_ARP *IPCSearchArpTable(LIST* arpTable, IP *ip)
 {
 	IPC_ARP t;
 	IPC_ARP *a;
 	// Validate arguments
-	if (ipc == NULL || ip == NULL)
+	if (arpTable == NULL || ip == NULL)
 	{
 		return NULL;
 	}
 
 	Copy(&t.Ip, ip, sizeof(IP));
 
-	a = Search(ipc->ArpTable, &t);
+	a = Search(arpTable, &t);
 
 	return a;
 }
@@ -1944,5 +1937,434 @@ BLOCK *IPCRecvL2(IPC *ipc)
 	return b;
 }
 
+// IPv6 stuff
+// Memory management
+void IPCIPv6Init(IPC* ipc)
+{
+	ipc->IPv6ReceivedQueue = NewQueue();
+	// The NDT is basically the same as ARP Table with some slight adjustments
+	ipc->IPv6NeighborTable = NewList(IPCCmpArpTable);
+	ipc->IPv6RouterAdvs = NewList(NULL);
+}
+void IPCIPv6Free(IPC* ipc)
+{
+	UINT i;
+	for (i = 0; i < LIST_NUM(ipc->IPv6NeighborTable); i++)
+	{
+		IPC_ARP* a = LIST_DATA(ipc->IPv6NeighborTable, i);
+		IPCFreeARP(a);
+	}
 
+	ReleaseList(ipc->IPv6NeighborTable);
 
+	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
+	{
+		IPC_IPV6_ROUTER_ADVERTISEMENT* ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		Free(ra);
+	}
+
+	ReleaseList(ipc->IPv6RouterAdvs);
+
+	while (true)
+	{
+		BLOCK* b = GetNext(ipc->IPv6ReceivedQueue);
+		if (b == NULL)
+		{
+			break;
+		}
+
+		FreeBlock(b);
+	}
+
+	ReleaseQueue(ipc->IPv6ReceivedQueue);
+}
+
+// NDT
+void IPCIPv6AssociateOnNDT(IPC* ipc, IP* ip, UCHAR* mac_address)
+{
+	IPCIPv6AssociateOnNDTEx(ipc, ip, mac_address, false);
+}
+void IPCIPv6AssociateOnNDTEx(IPC* ipc, IP* ip, UCHAR* mac_address, bool isNeighborAdv)
+{
+	IPC_ARP* a;
+	UINT addrType = 0;
+	if (ipc == NULL || ip == NULL || 
+		IsValidUnicastIPAddress6(ip) == false ||
+		IsMacUnicast(mac_address) == false)
+	{
+		return;
+	}
+
+	addrType = GetIPAddrType6(ip);
+
+	if (addrType != IPV6_ADDR_LOCAL_UNICAST &&
+		addrType != IPV6_ADDR_GLOBAL_UNICAST)
+	{
+		return;
+	}
+
+	if (addrType == IPV6_ADDR_GLOBAL_UNICAST)
+	{
+		if (!IPCIPv6CheckUnicastFromRouterPrefix(ipc, ip, NULL))
+		{
+			return;
+		}
+	}
+
+	a = IPCSearchArpTable(ipc->IPv6NeighborTable, ip);
+
+	// We create a new entry only if we got a neighbor advertisement
+	if (a == NULL && isNeighborAdv)
+	{
+		a = IPCNewARP(ip, mac_address);
+		Insert(ipc->IPv6NeighborTable, a);
+	}
+	else if (a == NULL)
+	{
+		// We skip the NDT association on random packets from unknown locations
+		return;
+	}
+	else
+	{
+		Copy(a->MacAddress, mac_address, 6);
+		
+		if (a->Resolved == false)
+		{
+			a->Resolved = true;
+			a->GiveupTime = 0;
+			while (true)
+			{
+				BLOCK* b = GetNext(a->PacketQueue);
+
+				if (b == NULL)
+				{
+					break;
+				}
+
+				IPCIPv6SendWithDestMacAddr(ipc, b->Buf, b->Size, a->MacAddress);
+
+				FreeBlock(b);
+			}
+		}
+
+		a->ExpireTime = Tick64() + (UINT64)IPC_IPV6_NDT_LIFETIME;
+	}
+}
+
+void IPCIPv6FlushNDT(IPC* ipc)
+{
+	IPCIPv6FlushNDTEx(ipc, 0);
+}
+void IPCIPv6FlushNDTEx(IPC* ipc, UINT64 now)
+{
+	UINT i;
+	LIST* o = NULL;
+	// Validate arguments
+	if (ipc == NULL)
+	{
+		return;
+	}
+	if (now == 0)
+	{
+		now = Tick64();
+	}
+
+	for (i = 0; i < LIST_NUM(ipc->IPv6NeighborTable); i++)
+	{
+		IPC_ARP* a = LIST_DATA(ipc->IPv6NeighborTable, i);
+		bool b = false;
+
+		if (a->Resolved && a->ExpireTime <= now)
+		{
+			b = true;
+		}
+		else if (a->Resolved == false && a->GiveupTime <= now)
+		{
+			b = true;
+		}
+		/// TODO: think about adding retransmission as per RFC4861
+
+		if (b)
+		{
+			if (o == NULL)
+			{
+				o = NewListFast(NULL);
+			}
+
+			Add(o, a);
+		}
+	}
+
+	if (o != NULL)
+	{
+		for (i = 0; i < LIST_NUM(o); i++)
+		{
+			IPC_ARP* a = LIST_DATA(o, i);
+
+			IPCFreeARP(a);
+
+			Delete(ipc->IPv6NeighborTable, a);
+		}
+
+		ReleaseList(o);
+	}
+}
+
+// RA
+void IPCIPv6AddRouterPrefix(IPC* ipc, ICMPV6_OPTION_LIST* recvPrefix, UCHAR* macAddress, IP* ip)
+{
+	UINT i;
+	bool foundPrefix = false;
+	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
+	{
+		IPC_IPV6_ROUTER_ADVERTISEMENT* existingRA = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		if (Cmp(&recvPrefix->Prefix->Prefix, &existingRA->RoutedPrefix.ipv6_addr, sizeof(IPV6_ADDR)) == 0)
+		{
+			foundPrefix = true;
+			break;
+		}
+	}
+
+	if (!foundPrefix)
+	{
+		IPC_IPV6_ROUTER_ADVERTISEMENT* newRA = Malloc(sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+		IPv6AddrToIP(&newRA->RoutedPrefix, &recvPrefix->Prefix->Prefix);
+		IntToSubnetMask6(&newRA->RoutedMask, recvPrefix->Prefix->SubnetLength);
+		CopyIP(&newRA->RouterAddress, ip);
+		Copy(newRA->RouterMacAddress, macAddress, 6);
+		Copy(newRA->RouterLinkLayerAddress, recvPrefix->SourceLinkLayer->Address, 6);
+		Add(ipc->IPv6RouterAdvs, newRA);
+	}
+}
+
+bool IPCIPv6CheckUnicastFromRouterPrefix(IPC* ipc, IP* ip, IPC_IPV6_ROUTER_ADVERTISEMENT* matchedRA)
+{
+	UINT i;
+	IPC_IPV6_ROUTER_ADVERTISEMENT* matchingRA = NULL;
+	bool isInPrefix = false;
+	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
+	{
+		IPC_IPV6_ROUTER_ADVERTISEMENT* ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
+		isInPrefix = IsInSameNetwork6(ip, &ra->RoutedPrefix, &ra->RoutedMask);
+		if (isInPrefix)
+		{
+			matchingRA = ra;
+			break;
+		}
+	}
+
+	if (matchedRA != NULL && matchingRA != NULL)
+	{
+		Copy(matchedRA, matchingRA, sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+	}
+
+	return isInPrefix;
+}
+
+// Send router solicitation and then eventually populate the info from Router Advertisements
+void IPCIPv6SendRouterSolicitation(IPC* ipc)
+{
+	IP senderIP;
+	IP destIP;
+	UCHAR destMacAddress[6];
+	IPV6_ADDR linkLocal;
+	BUF *packet;
+	Zero(&linkLocal, sizeof(IPV6_ADDR));
+	
+	// Generate link local from client's EUI
+	linkLocal.Value[0] = 0xFE;
+	linkLocal.Value[1] = 0x80;
+	WRITE_UINT64(&linkLocal.Value[8], &ipc->IPv6ClientEUI);
+
+	GetAllRouterMulticastAddress6(&destIP);
+
+	// Generate the MAC address from the multicast address
+	destMacAddress[0] = 0x33;
+	destMacAddress[1] = 0x33;
+	WRITE_UINT(&destMacAddress[2], &destIP.ipv6_addr[12]);
+
+	packet = BuildICMPv6RouterSoliciation(senderIP.ipv6_addr, destIP.ipv6_addr, ipc->MacAddress, 0);
+
+	while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
+	{
+		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+		UINT64 timeout_retry = Tick() + (UINT64)IPC_IPV6_RA_INTERVAL;
+		IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
+
+		AddInterrupt(ipc->Interrupt, timeout_retry);
+
+		if (Tick64() >= giveup_time)
+		{
+			// We failed to receive any router advertisements
+			break;
+		}
+
+		// The processing should populate the received RAs by itself
+		IPCProcessL3Events(ipc);
+	}
+}
+
+// Data flow
+BLOCK* IPCIPv6Recv(IPC* ipc)
+{
+	BLOCK* b;
+	// Validate arguments
+	if (ipc == NULL)
+	{
+		return NULL;
+	}
+
+	b = GetNext(ipc->IPv6ReceivedQueue);
+
+	return b;
+}
+
+void IPCIPv6Send(IPC* ipc, void* data, UINT size)
+{
+	IP destAddr;
+	UINT ipv6Type;
+	UCHAR destMac[6];
+	IPV6_HEADER* header = data;
+	
+	IPv6AddrToIP(&destAddr, &header->DestAddress);
+
+	if (IsValidUnicastIPAddress6(&destAddr))
+	{
+		IPCIPv6SendUnicast(ipc, data, size, &destAddr);
+		return;
+	}
+
+	// Here we're probably dealing with a multicast packet. But let's check it anyway
+	ipv6Type = GetIPAddrType6(&destAddr);
+	if (ipv6Type & IPV6_ADDR_MULTICAST)
+	{
+		// Constructing multicast MAC address based on destination IP address, then just fire and forget
+		destMac[0] = 0x33;
+		destMac[1] = 0x33;
+		destMac[2] = destAddr.ipv6_addr[12];
+		destMac[3] = destAddr.ipv6_addr[13];
+		destMac[4] = destAddr.ipv6_addr[14];
+		destMac[5] = destAddr.ipv6_addr[15];
+		IPCIPv6SendWithDestMacAddr(ipc, data, size, destMac);
+		return;
+	}
+	else
+	{
+		Debug("We got a weird packet with a weird type! %i\n", ipv6Type);
+	}
+}
+
+void IPCIPv6SendWithDestMacAddr(IPC* ipc, void* data, UINT size, UCHAR* dest_mac_addr)
+{
+	UCHAR tmp[1514];
+	// Validate arguments
+	if (ipc == NULL || data == NULL || size < 40 || size > 1500 || dest_mac_addr == NULL)
+	{
+		return;
+	}
+
+	// Destination
+	Copy(tmp + 0, dest_mac_addr, 6);
+
+	// Source
+	Copy(tmp + 6, ipc->MacAddress, 6);
+
+	// Protocol number
+	WRITE_USHORT(tmp + 12, MAC_PROTO_IPV6);
+
+	// Data
+	Copy(tmp + 14, data, size);
+
+	// Send
+	IPCSendL2(ipc, tmp, size + 14);
+}
+
+void IPCIPv6SendUnicast(IPC* ipc, void* data, UINT size, IP* next_ip)
+{
+	IPC_ARP* ndtMatch;
+	UCHAR* destMac = NULL;
+	IPC_IPV6_ROUTER_ADVERTISEMENT ra;
+	IPV6_HEADER* header = data;
+	IP srcIp;
+	bool isLocal = false;
+	// First we need to understand if it is a local packet or we should route it through the router
+	UINT addrType = GetIPAddrType6(next_ip);
+
+	Zero(&ra, sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+	IPv6AddrToIP(&srcIp, &header->SrcAddress);
+
+	// Link local is always local =)
+	if (addrType & IPV6_ADDR_LOCAL_UNICAST)
+	{
+		isLocal = true;
+	}
+
+	// If it matches any received prefix from router advertisements, it's also local
+	if (!isLocal && IPCIPv6CheckUnicastFromRouterPrefix(ipc, next_ip, &ra))
+	{
+		isLocal = true;
+	}
+
+	// If it is a global packet, we need to get our source IP prefix to know through which router shall we route
+	if (!isLocal)
+	{
+		if (!IPCIPv6CheckUnicastFromRouterPrefix(ipc, &srcIp, &ra))
+		{
+			// If we didn't find a router for the source IP, let's just try to pick the first router and try to send to it
+			if (LIST_NUM(ipc->IPv6RouterAdvs) > 0)
+			{
+				Copy(&ra, LIST_DATA(ipc->IPv6RouterAdvs, 0), sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+			}
+			else
+			{
+				CHAR tmp[MAX_SIZE];
+				IPToStr6(tmp, MAX_SIZE, &srcIp);
+				Debug("We couldn't find a router for the source address of %s! Trying as local.\n", tmp);
+				isLocal = true;
+			}
+		}
+
+		destMac = ra.RouterMacAddress;
+		if (!IsMacUnicast(destMac) && !IsMacInvalid(ra.RouterMacAddress))
+		{
+			destMac = ra.RouterLinkLayerAddress;
+		}
+	}
+
+	// If it is local it should be routed directly through the NDT
+	if (isLocal)
+	{
+		ndtMatch = IPCSearchArpTable(ipc->IPv6NeighborTable, next_ip);
+		if (ndtMatch == NULL)
+		{
+			// Creating a non-matched NDT entry
+			ndtMatch = IPCNewARP(next_ip, NULL);
+			Add(ipc->IPv6NeighborTable, ndtMatch);
+		}
+		if (ndtMatch->Resolved != true)
+		{
+			/// TODO: check if we need to manage NDT manually from here or the client will
+			/// TODO: send Neighbor Solicitations by itself and we just proxy them
+			CHAR tmp[MAX_SIZE];
+			BLOCK* blk = NewBlock(data, size, 0);
+			InsertQueue(ndtMatch->PacketQueue, blk);
+			IPToStr6(tmp, MAX_SIZE, next_ip);
+			Debug("We can't send the packet because we don't have IP %s in NDT! Need to send Neighbor Solicitation first... Saving for later send.\n", tmp);
+			
+			return;
+		}
+		destMac = ndtMatch->MacAddress;
+	}
+
+	if (destMac != NULL && !IsMacInvalid(destMac))
+	{
+		IPCIPv6SendWithDestMacAddr(ipc, data, size, destMac);
+	}
+	else
+	{
+		CHAR tmp[MAX_SIZE];
+		IPToStr6(tmp, MAX_SIZE, next_ip);
+		Debug("We couldn't deduce the MAC address for unicast address %s, packet dropped.\n", tmp);
+		/// TODO: think about sending to the all routers broadcast MAC as a last resort
+	}
+}

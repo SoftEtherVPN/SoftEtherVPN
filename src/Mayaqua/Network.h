@@ -1302,6 +1302,15 @@ void IPAnd4(IP *dst, IP *a, IP *b);
 bool IsInSameNetwork4(IP *a1, IP *a2, IP *subnet);
 bool IsInSameNetwork4Standard(IP *a1, IP *a2);
 
+// Utility functions about IP and MAC address types
+bool IsValidUnicastIPAddress4(IP* ip);
+bool IsValidUnicastIPAddressUINT4(UINT ip);
+bool IsValidUnicastIPAddress6(IP* ip);
+bool IsMacUnicast(UCHAR* mac);
+bool IsMacBroadcast(UCHAR* mac);
+bool IsMacMulticast(UCHAR* mac);
+bool IsMacInvalid(UCHAR* mac);
+
 bool ParseIpAndSubnetMask4(char *src, UINT *ip, UINT *mask);
 bool ParseIpAndSubnetMask46(char *src, IP *ip, IP *mask);
 bool ParseIpAndMask4(char *src, UINT *ip, UINT *mask);
