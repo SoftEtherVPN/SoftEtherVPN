@@ -33,6 +33,8 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 
 	Lock(s->OpenVpnSstpConfigLock);
 	{
+		LIST *ports;
+
 		// Save the settings
 		if (s->Cedar->Bridge || s->ServerType != SERVER_TYPE_STANDALONE)
 		{
@@ -45,24 +47,14 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 			s->DisableOpenVPNServer = !c->EnableOpenVPN;
 		}
 
-		NormalizeIntListStr(s->OpenVpnServerUdpPorts, sizeof(s->OpenVpnServerUdpPorts),
-			c->OpenVPNPortList, true, ", ");
+		// TODO: Now that we have a unified protocol interface (Proto), the setting's name should be changed.
+		NormalizeIntListStr(s->OpenVpnServerUdpPorts, sizeof(s->OpenVpnServerUdpPorts), c->OpenVPNPortList, true, ", ");
+		ports = StrToIntList(s->OpenVpnServerUdpPorts, true);
+		ProtoSetUdpPorts(s->Proto, ports);
+		ReleaseIntList(ports);
 
 		s->Cedar->OpenVPNObfuscation = c->OpenVPNObfuscation;
 		StrCpy(s->Cedar->OpenVPNObfuscationMask, sizeof(s->Cedar->OpenVPNObfuscationMask), c->OpenVPNObfuscationMask);
-
-		// Apply the OpenVPN configuration
-		if (s->OpenVpnServerUdp != NULL)
-		{
-			if (s->DisableOpenVPNServer)
-			{
-				OvsApplyUdpPortList(s->OpenVpnServerUdp, "", NULL);
-			}
-			else
-			{
-				OvsApplyUdpPortList(s->OpenVpnServerUdp, s->OpenVpnServerUdpPorts, &s->ListenIP);
-			}
-		}
 	}
 	Unlock(s->OpenVpnSstpConfigLock);
 }
@@ -2629,8 +2621,6 @@ void SiInitConfiguration(SERVER *s)
 		s->Proto = ProtoNew(s->Cedar);
 		// IPsec server
 		s->IPsecServer = NewIPsecServer(s->Cedar);
-		// OpenVPN server (UDP)
-		s->OpenVpnServerUdp = NewOpenVpnServerUdp(s->Cedar);
 	}
 
 	SLog(s->Cedar, "LS_LOAD_CONFIG_1");
@@ -5660,7 +5650,9 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	}
 
 	s->DontBackupConfig = CfgGetBool(f, "DontBackupConfig");
+
 	CfgGetIp(f, "ListenIP", &s->ListenIP);
+	ProtoSetListenIP(s->Proto, &s->ListenIP);
 
 	if (CfgIsItem(f, "BackupConfigOnlyWhenModified"))
 	{
@@ -6036,10 +6028,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		}
 
 		SetDhParam(DhNewFromBits(c->DhParamBits));
-		if (s->OpenVpnServerUdp)
-		{
-			OpenVpnServerUdpSetDhParam(s->OpenVpnServerUdp, DhNewFromBits(c->DhParamBits));
-		}
 	}
 	Unlock(c->lock);
 
@@ -6548,14 +6536,6 @@ void SiFreeConfiguration(SERVER *s)
 		FreeIPsecServer(s->IPsecServer);
 		s->IPsecServer = NULL;
 	}
-
-	// Terminate the OpenVPN server
-	if (s->OpenVpnServerUdp != NULL)
-	{
-		FreeOpenVpnServerUdp(s->OpenVpnServerUdp);
-		s->OpenVpnServerUdp = NULL;
-	}
-
 
 	// Terminate the DDNS client
 	if (s->DDnsClient != NULL)
