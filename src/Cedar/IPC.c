@@ -1350,9 +1350,8 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 			if (Cmp(dest_mac, ipc->MacAddress, 6) == 0 || IsMacBroadcast(dest_mac) || IsMacMulticast(dest_mac))
 			{
 				// If the source MAC address is itselves or invalid address, ignore the packet
-				if (Cmp(src_mac, ipc->MacAddress, 6) != 0 && !IsMacUnicast(src_mac))
+				if (Cmp(src_mac, ipc->MacAddress, 6) != 0 && IsMacUnicast(src_mac))
 				{
-					Debug("Received packed for L3 parsing\n");
 					if (protocol == MAC_PROTO_ARPV4)
 					{
 						// ARP receiving process
@@ -1360,7 +1359,6 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 					}
 					else if (protocol == MAC_PROTO_IPV4)
 					{
-						Debug("MAC_PROTO_IPV4\n");
 						// IPv4 receiving process
 						if (b->Size >= (14 + 20))
 						{
@@ -1456,9 +1454,9 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 						{
 							IP ip_src, ip_dst;
 							bool ndtProcessed = false;
-							UINT size = p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER);
+							UINT size = b->Size - 14;
 
-							UCHAR *data = Clone(p->L3.IPv6Header, size);
+							UCHAR *data = Clone(b->Buf + 14, size);
 
 							IPv6AddrToIP(&ip_src, &p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress);
 							IPv6AddrToIP(&ip_dst, &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress);
@@ -2177,7 +2175,7 @@ bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui)
 	ZeroIP6(&i.Ip);
 	i.Ip.ipv6_addr[0] = 0xFE;
 	i.Ip.ipv6_addr[1] = 0x80;
-	WRITE_UINT64(&i.Ip.ipv6_addr[8], &eui);
+	Copy(&i.Ip.ipv6_addr[8], &eui, sizeof(UINT64));
 
 	h = Search(ipc->Cedar->HubList, &t);
 
@@ -2274,24 +2272,25 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		// Generate link local from client's EUI
 		linkLocal.Value[0] = 0xFE;
 		linkLocal.Value[1] = 0x80;
-		WRITE_UINT64(&linkLocal.Value[8], &ipc->IPv6ClientEUI);
+		Copy(&linkLocal.Value[8], &ipc->IPv6ClientEUI, sizeof(UINT64));
 
 		GetAllRouterMulticastAddress6(&destIP);
 
 		// Generate the MAC address from the multicast address
 		destMacAddress[0] = 0x33;
 		destMacAddress[1] = 0x33;
-		WRITE_UINT(&destMacAddress[2], &destIP.ipv6_addr[12]);
+		Copy(&destMacAddress[2], &destIP.ipv6_addr[12], sizeof(UINT));
 
 		IPToIPv6Addr(&senderV6, &senderIP);
 		IPToIPv6Addr(&destV6, &destIP);
 
 		packet = BuildICMPv6RouterSoliciation(&senderV6, &destV6, ipc->MacAddress, 0);
 
+		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+
 		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 		{
-			UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
-			UINT64 timeout_retry = Tick() + (UINT64)IPC_IPV6_RA_INTERVAL;
+			UINT64 timeout_retry = Tick64() + (UINT64)IPC_IPV6_RA_INTERVAL;
 			IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
 
 			AddInterrupt(ipc->Interrupt, timeout_retry);
@@ -2311,7 +2310,17 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 	if (LIST_NUM(ipc->IPv6RouterAdvs) > 0)
 	{
 		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, 0);
-		ipc->IPv6ServerEUI = READ_UINT64(&ra->RouterAddress.ipv6_addr[8]);
+		Copy(&ipc->IPv6ServerEUI, &ra->RouterAddress.ipv6_addr[8], sizeof(UINT64));
+	}
+
+	// If it is still not defined, let's just generate something random
+	while (ipc->IPv6ServerEUI == 0)
+	{
+		ipc->IPv6ServerEUI = Rand64();
+		if (ipc->IPv6ClientEUI == ipc->IPv6ServerEUI)
+		{
+			ipc->IPv6ServerEUI = 0;
+		}
 	}
 
 	return ipc->IPv6ServerEUI;
@@ -2454,15 +2463,39 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 			ndtMatch = IPCNewARP(next_ip, NULL);
 			Add(ipc->IPv6NeighborTable, ndtMatch);
 		}
+
+		if (ndtMatch->Resolved != true && LIST_NUM(ipc->IPv6RouterAdvs) > 0)
+		{
+			// First try to look up in router advertisements
+			UINT i;
+			for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
+			{
+				IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
+				if (CmpIpAddr(next_ip, &ra->RouterAddress) == 0)
+				{
+					Copy(ndtMatch->MacAddress, IsMacUnicast(ra->RouterLinkLayerAddress) ? ra->RouterLinkLayerAddress : ra->RouterMacAddress, 6);
+					ndtMatch->Resolved = true;
+					break;
+				}
+			}
+		}
+
 		if (ndtMatch->Resolved != true)
 		{
-			/// TODO: check if we need to manage NDT manually from here or the client will
-			/// TODO: send Neighbor Solicitations by itself and we just proxy them
+			// We need to send the Neighbor Solicitation and save the packet for sending later
+			// Generate the MAC address from the multicast address
+			UCHAR destMacAddress[6];
+			BUF *neighborSolicit = BuildICMPv6NeighborSoliciation(&header->SrcAddress, &header->DestAddress, ipc->MacAddress, 0);
+			destMacAddress[0] = 0x33;
+			destMacAddress[1] = 0x33;
+			Copy(&destMacAddress[2], &next_ip->ipv6_addr[12], sizeof(UINT));
+			IPCIPv6SendWithDestMacAddr(ipc, neighborSolicit->Buf, neighborSolicit->Size, destMacAddress);
+
 			CHAR tmp[MAX_SIZE];
-			BLOCK *blk = NewBlock(data, size, 0);
+			UCHAR *copy = Clone(data, size);
+			BLOCK *blk = NewBlock(copy, size, 0);
 			InsertQueue(ndtMatch->PacketQueue, blk);
 			IPToStr6(tmp, MAX_SIZE, next_ip);
-			Debug("We can't send the packet because we don't have IP %s in NDT! Need to send Neighbor Solicitation first... Saving for later send.\n", tmp);
 
 			return;
 		}

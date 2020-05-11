@@ -27,8 +27,8 @@
 // IPv6 constants
 #define IPC_IPV6_NDT_LIFETIME			(30 * 1000) // as per REACHABLE_TIME constant of RFC4861
 #define IPC_IPV6_NDT_GIVEUPTIME			(3 * 1000) // as per MAX_MULTICAST_SOLICIT * RETRANS_TIMER constants of RFC4861
-#define IPC_IPV6_RA_INTERVAL			(4 * 1000) // as per RTR_SOLICITATION_INTERVAL constant of RFC4861
-#define IPC_IPV6_RA_MAX_RETRIES			3 // as per MAX_RTR_SOLICITATIONS constant of RFC4861 
+#define IPC_IPV6_RA_INTERVAL			(2 * 1000) // Windows gets stuck if it is bigger
+#define IPC_IPV6_RA_MAX_RETRIES			2 // Windows seems to be stuck when it doesn't receive an answer in due time
 
 // Protocol status
 #define	IPC_PROTO_STATUS_CLOSED			0x0
