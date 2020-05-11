@@ -204,15 +204,6 @@ struct OPENVPN_SERVER
 	UINT SessionEstablishedCount;						// Number of session establishment
 };
 
-// OpenVPN server (UDP mode)
-struct OPENVPN_SERVER_UDP
-{
-	CEDAR *Cedar;
-	UDPLISTENER *UdpListener;							// UDP listener
-	OPENVPN_SERVER *OpenVpnServer;						// OpenVPN server
-	UINT64 VgsNextGetPublicPortsTick;
-};
-
 // OpenVPN Default Client Option String
 #define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
 
@@ -222,20 +213,16 @@ bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
 void OvsFree(void *param);
 char *OvsName();
 bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
-bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send);
+bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
+bool OvsProcessDatagrams(void *param, LIST *in, LIST *out);
 void OvsBufferLimit(void *param, const bool reached);
 bool OvsIsOk(void *param);
 UINT OvsEstablishedSessions(void *param);
 
-OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar);
-void FreeOpenVpnServerUdp(OPENVPN_SERVER_UDP *u);
-void OpenVpnServerUdpListenerProc(UDPLISTENER *u, LIST *packet_list);
-void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip);
-
 OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
 void FreeOpenVpnServer(OPENVPN_SERVER *s);
-void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list);
-void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p);
+void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol);
+void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol);
 int OvsCompareSessionList(void *p1, void *p2);
 OPENVPN_SESSION *OvsSearchSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
 OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
@@ -278,7 +265,5 @@ UINT OvsCalcTcpMss(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c);
 
 CIPHER *OvsGetCipher(char *name);
 MD *OvsGetMd(char *name);
-
-void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh);
 
 #endif	// PROTO_OPENVPN_H
