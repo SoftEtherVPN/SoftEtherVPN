@@ -19329,6 +19329,19 @@ UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP 
 	return u;
 }
 
+// Stop the UDP listener
+void StopUdpListener(UDPLISTENER *u)
+{
+	if (u == NULL)
+	{
+		return;
+	}
+
+	u->Halt = true;
+	SetSockEvent(u->Event);
+	WaitThread(u->Thread, INFINITE);
+}
+
 // Release the UDP listener
 void FreeUdpListener(UDPLISTENER *u)
 {
@@ -19339,10 +19352,8 @@ void FreeUdpListener(UDPLISTENER *u)
 		return;
 	}
 
-	u->Halt = true;
-	SetSockEvent(u->Event);
+	StopUdpListener(u);
 
-	WaitThread(u->Thread, INFINITE);
 	ReleaseThread(u->Thread);
 	ReleaseSockEvent(u->Event);
 

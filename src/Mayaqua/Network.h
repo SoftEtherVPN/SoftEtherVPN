@@ -1357,6 +1357,7 @@ UINT64 GetHostIPAddressListHash();
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
 UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type);
 void UdpListenerThread(THREAD *thread, void *param);
+void StopUdpListener(UDPLISTENER *u);
 void FreeUdpListener(UDPLISTENER *u);
 void AddPortToUdpListener(UDPLISTENER *u, UINT port);
 void DeletePortFromUdpListener(UDPLISTENER *u, UINT port);

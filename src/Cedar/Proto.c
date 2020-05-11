@@ -19,6 +19,102 @@ int ProtoImplCompare(void *p1, void *p2)
 	return false;
 }
 
+int ProtoSessionCompare(void *p1, void *p2)
+{
+	int ret;
+	PROTO_SESSION *session_1, *session_2;
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		return 0;
+	}
+
+	session_1 = *(PROTO_SESSION **)p1;
+	session_2 = *(PROTO_SESSION **)p2;
+
+	// The source port must match
+	ret = COMPARE_RET(session_1->SrcPort, session_2->SrcPort);
+	if (ret != 0)
+	{
+		return ret;
+	}
+
+	// The destination port must match
+	ret = COMPARE_RET(session_1->DstPort, session_2->DstPort);
+	if (ret != 0)
+	{
+		return ret;
+	}
+
+	// The source IP address must match
+	ret = CmpIpAddr(&session_1->SrcIp, &session_2->SrcIp);
+	if (ret != 0)
+	{
+		return ret;
+	}
+
+	// The destination IP address must match
+	return CmpIpAddr(&session_1->DstIp, &session_2->DstIp);
+}
+
+UINT ProtoSessionHash(void *p)
+{
+	IP *ip;
+	UINT ret = 0;
+	PROTO_SESSION *session = p;
+
+	if (session == NULL)
+	{
+		return 0;
+	}
+
+	ip = &session->SrcIp;
+	if (IsIP6(ip))
+	{
+		UINT i;
+		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
+		{
+			ret += ip->ipv6_addr[i];
+		}
+
+		ret += ip->ipv6_scope_id;
+	}
+	else
+	{
+		UINT i;
+		for (i = 0; i < sizeof(ip->addr); ++i)
+		{
+			ret += ip->addr[i];
+		}
+	}
+
+	ret += session->SrcPort;
+
+	ip = &session->DstIp;
+	if (IsIP6(ip))
+	{
+		UINT i;
+		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
+		{
+			ret += ip->ipv6_addr[i];
+		}
+
+		ret += ip->ipv6_scope_id;
+	}
+	else
+	{
+		UINT i;
+		for (i = 0; i < sizeof(ip->addr); ++i)
+		{
+			ret += ip->addr[i];
+		}
+	}
+
+	ret += session->DstPort;
+
+	return ret;
+}
+
 PROTO *ProtoNew(CEDAR *cedar)
 {
 	PROTO *proto;
@@ -31,22 +127,36 @@ PROTO *ProtoNew(CEDAR *cedar)
 	proto = Malloc(sizeof(PROTO));
 	proto->Cedar = cedar;
 	proto->Impls = NewList(ProtoImplCompare);
+	proto->Sessions = NewHashList(ProtoSessionHash, ProtoSessionCompare, 0, true);
 
 	AddRef(cedar->ref);
 
 	// OpenVPN
 	ProtoImplAdd(proto, OvsGetProtoImpl());
 
+	proto->UdpListener = NewUdpListener(ProtoHandleDatagrams, proto, &cedar->Server->ListenIP);
+
 	return proto;
 }
 
 void ProtoDelete(PROTO *proto)
 {
+	UINT i = 0;
+
 	if (proto == NULL)
 	{
 		return;
 	}
 
+	StopUdpListener(proto->UdpListener);
+
+	for (i = 0; i < HASH_LIST_NUM(proto->Sessions); ++i)
+	{
+		ProtoDeleteSession(LIST_DATA(proto->Sessions->AllList, i));
+	}
+
+	FreeUdpListener(proto->UdpListener);
+	ReleaseHashList(proto->Sessions);
 	ReleaseList(proto->Impls);
 	ReleaseCedar(proto->Cedar);
 	Free(proto);
@@ -65,32 +175,138 @@ bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl) {
 	return true;
 }
 
-PROTO_IMPL *ProtoImplDetect(PROTO *proto, SOCK *sock)
+PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size)
 {
-	UCHAR buf[PROTO_CHECK_BUFFER_SIZE];
 	UINT i;
 
-	if (proto == NULL || sock == NULL)
+	if (proto == NULL || data == NULL || size == 0)
 	{
 		return NULL;
-	}
-
-	if (Peek(sock, buf, sizeof(buf)) == 0)
-	{
-		return false;
 	}
 
 	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
 	{
 		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
-		if (impl->IsPacketForMe(buf, sizeof(buf)))
+		if (impl->IsPacketForMe(mode, data, size) == false)
 		{
-			Debug("ProtoImplDetect(): %s detected\n", impl->Name());
-			return impl;
+			continue;
+		}
+
+		if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer)
+		{
+			Debug("ProtoImplDetect(): OpenVPN detected, but it's disabled\n");
+			continue;
+		}
+
+		Debug("ProtoImplDetect(): %s detected\n", impl->Name());
+		return impl;
+	}
+
+	Debug("ProtoImplDetect(): unrecognized protocol\n");
+	return NULL;
+}
+
+PROTO_SESSION *ProtoNewSession(PROTO *proto, PROTO_IMPL *impl, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
+{
+	PROTO_SESSION *session;
+
+	if (impl == NULL || src_ip == NULL || src_port == 0 || dst_ip == NULL || dst_port == 0)
+	{
+		return NULL;
+	}
+
+	session = ZeroMalloc(sizeof(PROTO_SESSION));
+
+	session->SockEvent = NewSockEvent();
+	session->InterruptManager = NewInterruptManager();
+
+	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent) == false)
+	{
+		Debug("ProtoNewSession(): failed to initialize %s\n", impl->Name());
+
+		ReleaseSockEvent(session->SockEvent);
+		FreeInterruptManager(session->InterruptManager);
+		Free(session);
+
+		return NULL;
+	}
+
+	session->Proto = proto;
+	session->Impl = impl;
+
+	CopyIP(&session->SrcIp, src_ip);
+	session->SrcPort = src_port;
+	CopyIP(&session->DstIp, dst_ip);
+	session->DstPort = dst_port;
+
+	session->DatagramsIn = NewListFast(NULL);
+	session->DatagramsOut = NewListFast(NULL);
+
+	session->Lock = NewLock();
+	session->Thread = NewThread(ProtoSessionThread, session);
+
+	return session;
+}
+
+void ProtoDeleteSession(PROTO_SESSION *session)
+{
+	if (session == NULL)
+	{
+		return;
+	}
+
+	session->Halt = true;
+	SetSockEvent(session->SockEvent);
+
+	WaitThread(session->Thread, INFINITE);
+	ReleaseThread(session->Thread);
+
+	session->Impl->Free(session->Param);
+
+	ReleaseSockEvent(session->SockEvent);
+	FreeInterruptManager(session->InterruptManager);
+
+	ReleaseList(session->DatagramsIn);
+	ReleaseList(session->DatagramsOut);
+
+	DeleteLock(session->Lock);
+
+	Free(session);
+}
+
+bool ProtoSetListenIP(PROTO *proto, const IP *ip)
+{
+	if (proto == NULL || ip == NULL)
+	{
+		return false;
+	}
+
+	Copy(&proto->UdpListener->ListenIP, ip, sizeof(proto->UdpListener->ListenIP));
+
+	return true;
+}
+
+bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports)
+{
+	UINT i = 0;
+
+	if (proto == NULL || ports == NULL)
+	{
+		return false;
+	}
+
+	DeleteAllPortFromUdpListener(proto->UdpListener);
+
+	for (i = 0; i < LIST_NUM(ports); ++i)
+	{
+		UINT port = *((UINT *)LIST_DATA(ports, i));
+		if (port >= 1 && port <= 65535)
+		{
+			AddPortToUdpListener(proto->UdpListener, port);
 		}
 	}
 
-	return NULL;
+	return true;
 }
 
 bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
@@ -104,29 +320,23 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 	INTERRUPT_MANAGER *im;
 	SOCK_EVENT *se;
 
-	const UINT64 giveup = Tick64() + (UINT64)OPENVPN_NEW_SESSION_DEADLINE_TIMEOUT;
-
 	if (proto == NULL || sock == NULL)
 	{
 		return false;
 	}
 
-	impl = ProtoImplDetect(proto, sock);
-	if (impl == NULL)
 	{
-		Debug("ProtoHandleConnection(): unrecognized protocol\n");
-		return false;
-	}
+		UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
+		if (Peek(sock, tmp, sizeof(tmp)) == 0)
+		{
+			return false;
+		}
 
-	if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer == true)
-	{
-		Debug("ProtoHandleConnection(): OpenVPN detected, but it's disabled\n");
-		return false;
-	}
-
-	if ((impl->SupportedModes() & PROTO_MODE_TCP) == false)
-	{
-		return false;
+		impl = ProtoImplDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
+		if (impl == NULL)
+		{
+			return false;
+		}
 	}
 
 	im = NewInterruptManager();
@@ -208,23 +418,6 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 
 		impl->BufferLimit(impl_data, FifoSize(send_fifo) > MAX_BUFFERING_PACKET_SIZE);
 
-		if (impl->IsOk(impl_data) == false)
-		{
-			if (impl->EstablishedSessions(impl_data) == 0)
-			{
-				if (Tick64() >= giveup)
-				{
-					Debug("ProtoHandleConnection(): I waited too much for the session to start, I give up!\n");
-					stop = true;
-				}
-			}
-			else
-			{
-				Debug("ProtoHandleConnection(): implementation not OK, stopping the server\n");
-				stop = true;
-			}
-		}
-
 		if (stop)
 		{
 			// Error or disconnection occurs
@@ -247,4 +440,121 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 	Free(buf);
 
 	return true;
+}
+
+void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
+{
+	UINT i;
+	HASH_LIST *sessions;
+	PROTO *proto = listener->Param;
+
+	if (proto == NULL || listener == NULL || datagrams == NULL)
+	{
+		return;
+	}
+
+	sessions = proto->Sessions;
+
+	for (i = 0; i < LIST_NUM(datagrams); ++i)
+	{
+		UDPPACKET *datagram = LIST_DATA(datagrams, i);
+		PROTO_SESSION *session, tmp;
+
+		CopyIP(&tmp.SrcIp, &datagram->SrcIP);
+		tmp.SrcPort = datagram->SrcPort;
+		CopyIP(&tmp.DstIp, &datagram->DstIP);
+		tmp.DstPort = datagram->DestPort;
+
+		session = SearchHash(sessions, &tmp);
+		if (session == NULL)
+		{
+			tmp.Impl = ProtoImplDetect(proto, PROTO_MODE_UDP, datagram->Data, datagram->Size);
+			if (tmp.Impl == NULL)
+			{
+				continue;
+			}
+
+			session = ProtoNewSession(proto, tmp.Impl, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
+			if (session == NULL)
+			{
+				continue;
+			}
+
+			AddHash(proto->Sessions, session);
+		}
+
+		if (session->Halt)
+		{
+			DeleteHash(sessions, session);
+			ProtoDeleteSession(session);
+			continue;
+		}
+
+		Lock(session->Lock);
+		{
+			void *data = Clone(datagram->Data, datagram->Size);
+			UDPPACKET *packet = NewUdpPacket(&datagram->SrcIP, datagram->SrcPort, &datagram->DstIP, datagram->DestPort, data, datagram->Size);
+			Add(session->DatagramsIn, packet);
+		}
+		Unlock(session->Lock);
+	}
+
+	for (i = 0; i < LIST_NUM(sessions->AllList); ++i)
+	{
+		PROTO_SESSION *session = LIST_DATA(sessions->AllList, i);
+		if (LIST_NUM(session->DatagramsIn) > 0)
+		{
+			SetSockEvent(session->SockEvent);
+		}
+	}
+}
+
+void ProtoSessionThread(THREAD *thread, void *param)
+{
+	PROTO_SESSION *session = param;
+
+	if (thread == NULL || session == NULL)
+	{
+		return;
+	}
+
+	while (session->Halt == false)
+	{
+		bool ok;
+		UINT interval;
+		void *param = session->Param;
+		PROTO_IMPL *impl = session->Impl;
+		LIST *received = session->DatagramsIn;
+		LIST *to_send = session->DatagramsOut;
+
+		Lock(session->Lock);
+		{
+			UINT i;
+
+			ok = impl->ProcessDatagrams(param, received, to_send);
+
+			UdpListenerSendPackets(session->Proto->UdpListener, to_send);
+
+			for (i = 0; i < LIST_NUM(received); ++i)
+			{
+				FreeUdpPacket(LIST_DATA(received, i));
+			}
+
+			DeleteAll(received);
+			DeleteAll(to_send);
+		}
+		Unlock(session->Lock);
+
+		if (ok == false)
+		{
+			Debug("ProtoSessionThread(): breaking main loop\n");
+			session->Halt = true;
+			break;
+		}
+
+		// Wait until the next event occurs
+		interval = GetNextIntervalForInterrupt(session->InterruptManager);
+		interval = MIN(interval, UDPLISTENER_WAIT_INTERVAL);
+		WaitSockEvent(session->SockEvent, interval);
+	}
 }

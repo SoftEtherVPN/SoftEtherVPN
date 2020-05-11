@@ -244,7 +244,6 @@ struct SERVER
 
 	PROTO *Proto;						// Protocols handler
 	IPSEC_SERVER *IPsecServer;			// IPsec server function
-	OPENVPN_SERVER_UDP *OpenVpnServerUdp;	// OpenVPN server function
 	char OpenVpnServerUdpPorts[MAX_SIZE];	// UDP port list string
 	DDNS_CLIENT *DDnsClient;			// DDNS client feature
 	LOCK *OpenVpnSstpConfigLock;		// Lock OpenVPN and SSTP configuration

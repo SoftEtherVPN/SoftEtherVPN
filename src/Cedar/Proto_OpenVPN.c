@@ -21,12 +21,10 @@ PROTO_IMPL *OvsGetProtoImpl()
 		OvsInit,
 		OvsFree,
 		OvsName,
-		OvsSupportedModes,
 		OvsIsPacketForMe,
 		OvsProcessData,
+		OvsProcessDatagrams,
 		OvsBufferLimit,
-		OvsIsOk,
-		OvsEstablishedSessions
 	};
 
 	return &impl;
@@ -55,48 +53,54 @@ char *OvsName()
 	return "OpenVPN";
 }
 
-// Return the supported modes (TCP & UDP)
-UINT OvsSupportedModes()
-{
-	return PROTO_MODE_TCP | PROTO_MODE_UDP;
-}
-
 // Check whether it's an OpenVPN packet
-bool OvsIsPacketForMe(const UCHAR *buf, const UINT size)
+bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size)
 {
-	if (buf == NULL || size != 2)
+	if (mode == PROTO_MODE_TCP)
 	{
-		return false;
-	}
+		if (data == NULL || size < 2)
+		{
+			return false;
+		}
 
-	if (buf[0] == 0x00 && buf[1] == 0x0E)
+		if (data[0] == 0x00 && data[1] == 0x0E)
+		{
+			return true;
+		}
+	}
+	else if (mode == PROTO_MODE_UDP)
 	{
+		OPENVPN_PACKET *packet = OvsParsePacket(data, size);
+		if (packet == NULL)
+		{
+			return false;
+		}
+
+		OvsFreePacket(packet);
 		return true;
 	}
 
 	return false;
 }
 
-bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send)
+bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
 {
 	bool ret = true;
 	UINT i;
-	OPENVPN_SERVER *server;
+	OPENVPN_SERVER *server = param;
 	UCHAR buf[OPENVPN_TCP_MAX_PACKET_SIZE];
 
-	if (param == NULL || received_data == NULL || data_to_send == NULL)
+	if (server == NULL || in == NULL || out == NULL)
 	{
 		return false;
 	}
-
-	server = param;
 
 	// Separate to a list of datagrams by interpreting the data received from the TCP socket
 	while (true)
 	{
 		UDPPACKET *packet;
 		USHORT payload_size, packet_size;
-		FIFO *fifo = received_data->Data;
+		FIFO *fifo = in->Data;
 		const UINT fifo_size = FifoSize(fifo);
 
 		if (fifo_size < sizeof(USHORT))
@@ -130,13 +134,12 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 		}
 
 		// Insert packet into the list
-		packet = NewUdpPacket(&received_data->SrcIP, received_data->SrcPort, &received_data->DstIP, received_data->DstPort, Clone(buf + sizeof(USHORT), payload_size), payload_size);
-		packet->Type = OPENVPN_PROTOCOL_TCP;
+		packet = NewUdpPacket(&in->SrcIP, in->SrcPort, &in->DstIP, in->DstPort, Clone(buf + sizeof(USHORT), payload_size), payload_size);
 		Add(server->RecvPacketList, packet);
 	}
 
 	// Process the list of received datagrams
-	OvsRecvPacket(server, server->RecvPacketList);
+	OvsRecvPacket(server, server->RecvPacketList, OPENVPN_PROTOCOL_TCP);
 
 	// Release the received packet list
 	for (i = 0; i < LIST_NUM(server->RecvPacketList); ++i)
@@ -155,10 +158,10 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 		// Store the size in the TCP send queue first
 		USHORT us = Endian16((USHORT)p->Size);
 
-		WriteFifo(data_to_send, &us, sizeof(USHORT));
+		WriteFifo(out, &us, sizeof(USHORT));
 
 		// Write the data body
-		WriteFifo(data_to_send, p->Data, p->Size);
+		WriteFifo(out, p->Data, p->Size);
 
 		// Packet release
 		FreeUdpPacket(p);
@@ -166,7 +169,64 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *received_data, FIFO *data_to_send
 
 	DeleteAll(server->SendPacketList);
 
+	if (server->Giveup <= server->Now)
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(server->SessionList); ++i)
+		{
+			OPENVPN_SESSION *se = LIST_DATA(server->SessionList, i);
+
+			if (se->Established)
+			{
+				return ret && server->DisconnectCount < 1;
+			}
+		}
+
+		return false;
+	}
+
 	return ret;
+}
+
+bool OvsProcessDatagrams(void *param, LIST *in, LIST *out)
+{
+	UINT i;
+	LIST *to_send;
+	OPENVPN_SERVER *server = param;
+
+	if (server == NULL || in == NULL || out == NULL)
+	{
+		return false;
+	}
+
+	OvsRecvPacket(server, in, OPENVPN_PROTOCOL_UDP);
+
+	to_send = server->SendPacketList;
+
+	for (i = 0; i < LIST_NUM(to_send); ++i)
+	{
+		Add(out, LIST_DATA(to_send, i));
+	}
+
+	DeleteAll(server->SendPacketList);
+
+	if (server->Giveup <= server->Now)
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(server->SessionList); ++i)
+		{
+			OPENVPN_SESSION *se = LIST_DATA(server->SessionList, i);
+
+			if (se->Established)
+			{
+				return server->DisconnectCount < 1;
+			}
+		}
+
+		return false;
+	}
+
+	return true;
 }
 
 void OvsBufferLimit(void *param, const bool reached)
@@ -177,46 +237,6 @@ void OvsBufferLimit(void *param, const bool reached)
 	}
 
 	((OPENVPN_SERVER *)param)->SupressSendPacket = reached;
-}
-
-bool OvsIsOk(void *param)
-{
-	OPENVPN_SERVER *s;
-
-	if (param == NULL)
-	{
-		return false;
-	}
-
-	s = param;
-
-	return (s->DisconnectCount < 1) && (s->SessionEstablishedCount > 0);
-}
-
-UINT OvsEstablishedSessions(void *param)
-{
-	LIST *sessions;
-	UINT i;
-	UINT established_sessions = 0;
-
-	if (param == NULL)
-	{
-		return 0;
-	}
-
-	sessions = ((OPENVPN_SERVER *)param)->SessionList;
-
-	for (i = 0;i < LIST_NUM(sessions);i++)
-	{
-		OPENVPN_SESSION *se = LIST_DATA(sessions, i);
-
-		if (se->Established)
-		{
-			++established_sessions;
-		}
-	}
-
-	return established_sessions;
 }
 
 // Write the OpenVPN log
@@ -529,7 +549,7 @@ final:
 }
 
 // Process the received packet
-void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p)
+void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 {
 	OPENVPN_CHANNEL *c;
 	OPENVPN_SESSION *se;
@@ -541,7 +561,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p)
 	}
 
 	// Search for the session
-	se = OvsFindOrCreateSession(s, &p->DstIP, p->DestPort, &p->SrcIP, p->SrcPort, p->Type);
+	se = OvsFindOrCreateSession(s, &p->DstIP, p->DestPort, &p->SrcIP, p->SrcPort, protocol);
 	if (se == NULL)
 	{
 		return;
@@ -771,8 +791,13 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 			// Create an SSL pipe
 			Lock(s->Cedar->lock);
 			{
-				bool cert_verify = true;
-				c->SslPipe = NewSslPipeEx(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh, cert_verify, &c->ClientCert);
+				if (s->Dh->Size != s->Cedar->DhParamBits)
+				{
+					DhFree(s->Dh);
+					s->Dh = DhNewFromBits(s->Cedar->DhParamBits);
+				}
+
+				c->SslPipe = NewSslPipeEx(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh, true, &c->ClientCert);
 			}
 			Unlock(s->Cedar->lock);
 
@@ -2187,7 +2212,7 @@ OPENVPN_SESSION *OvsSearchSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_
 }
 
 // Receive packets in the OpenVPN server
-void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list)
+void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 {
 	UINT i, j;
 	LIST *delete_session_list = NULL;
@@ -2219,7 +2244,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list)
 	{
 		UDPPACKET *p = LIST_DATA(recv_packet_list, i);
 
-		OvsProceccRecvPacket(s, p);
+		OvsProceccRecvPacket(s, p, protocol);
 	}
 
 	// Treat for all sessions and all channels
@@ -2924,12 +2949,13 @@ OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOC
 	s->SendPacketList = NewListFast(NULL);
 
 	s->Now = Tick64();
+	s->Giveup = s->Now + OPENVPN_NEW_SESSION_DEADLINE_TIMEOUT;
 
 	s->NextSessionId = 1;
 
 	OvsLog(s, NULL, NULL, "LO_START");
 
-	s->Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
+	s->Dh = DhNewFromBits(cedar->DhParamBits);
 
 	return s;
 }
@@ -2976,124 +3002,4 @@ void FreeOpenVpnServer(OPENVPN_SERVER *s)
 	DhFree(s->Dh);
 
 	Free(s);
-}
-
-// UDP reception procedure
-void OpenVpnServerUdpListenerProc(UDPLISTENER *u, LIST *packet_list)
-{
-	OPENVPN_SERVER_UDP *us;
-	// Validate arguments
-	if (u == NULL || packet_list == NULL)
-	{
-		return;
-	}
-
-	us = (OPENVPN_SERVER_UDP *)u->Param;
-
-	if (us->OpenVpnServer != NULL)
-	{
-		{
-			u->PollMyIpAndPort = false;
-
-			ClearStr(us->Cedar->OpenVPNPublicPorts, sizeof(us->Cedar->OpenVPNPublicPorts));
-		}
-
-		OvsRecvPacket(us->OpenVpnServer, packet_list);
-
-		UdpListenerSendPackets(u, us->OpenVpnServer->SendPacketList);
-		DeleteAll(us->OpenVpnServer->SendPacketList);
-	}
-}
-
-// Create an OpenVPN server (UDP mode)
-OPENVPN_SERVER_UDP *NewOpenVpnServerUdp(CEDAR *cedar)
-{
-	OPENVPN_SERVER_UDP *u;
-	// Validate arguments
-	if (cedar == NULL)
-	{
-		return NULL;
-	}
-
-	u = ZeroMalloc(sizeof(OPENVPN_SERVER_UDP));
-
-	u->Cedar = cedar;
-
-	AddRef(u->Cedar->ref);
-
-	// Create a UDP listener
-	u->UdpListener = NewUdpListenerEx(OpenVpnServerUdpListenerProc, u, &cedar->Server->ListenIP, OPENVPN_PROTOCOL_UDP);
-
-	// Create an OpenVPN server
-	u->OpenVpnServer = NewOpenVpnServer(cedar, u->UdpListener->Interrupts, u->UdpListener->Event);
-
-	return u;
-}
-
-void OpenVpnServerUdpSetDhParam(OPENVPN_SERVER_UDP *u, DH_CTX *dh)
-{
-	// Validate arguments
-	if (u == NULL) {
-		return;
-	}
-
-	if (u->OpenVpnServer->Dh)
-	{
-		DhFree(u->OpenVpnServer->Dh);
-	}
-
-	u->OpenVpnServer->Dh = dh;
-}
-
-// Apply the port list to the OpenVPN server
-void OvsApplyUdpPortList(OPENVPN_SERVER_UDP *u, char *port_list, IP *listen_ip)
-{
-	LIST *o;
-	UINT i;
-	// Validate arguments
-	if (u == NULL)
-	{
-		return;
-	}
-
-	DeleteAllPortFromUdpListener(u->UdpListener);
-
-	if (u->UdpListener != NULL && listen_ip != NULL)
-	{
-		Copy(&u->UdpListener->ListenIP, listen_ip, sizeof(IP));
-	}
-
-	o = StrToIntList(port_list, true);
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		UINT port = *((UINT *)LIST_DATA(o, i));
-
-		if (port >= 1 && port <= 65535)
-		{
-			AddPortToUdpListener(u->UdpListener, port);
-		}
-	}
-
-	ReleaseIntList(o);
-}
-
-// Release the OpenVPN server (UDP mode)
-void FreeOpenVpnServerUdp(OPENVPN_SERVER_UDP *u)
-{
-	// Validate arguments
-	if (u == NULL)
-	{
-		return;
-	}
-
-	// Stop the UDP listener
-	FreeUdpListener(u->UdpListener);
-
-	// Release the OpenVPN server
-	FreeOpenVpnServer(u->OpenVpnServer);
-
-	ReleaseCedar(u->Cedar);
-
-	Free(u);
 }
