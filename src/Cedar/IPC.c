@@ -147,7 +147,7 @@ void IPCAsyncThreadProc(THREAD *thread, void *param)
 
 				// Save the options list
 				Copy(&a->L3ClientAddressOption, &cao, sizeof(DHCP_OPTION_LIST));
-				a->L3DhcpRenewInterval = t * 1000;
+				a->L3DhcpRenewInterval = (UINT64)t * (UINT64)1000;
 
 				// Set the obtained IP address parameters to the IPC virtual host
 				UINTToIP(&ip, cao.ClientAddress);
@@ -488,6 +488,10 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	// Create an IPv4 reception queue
 	ipc->IPv4ReceivedQueue = NewQueue();
+	ipc->IPv4State = IPC_PROTO_STATUS_CLOSED;
+
+	ipc->DHCPv4Awaiter.IsAwaiting = false;
+	ipc->DHCPv4Awaiter.DhcpData = NULL;
 
 	IPCIPv6Init(ipc);
 
@@ -530,6 +534,10 @@ IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address)
 
 	// Create an IPv4 reception queue
 	ipc->IPv4ReceivedQueue = NewQueue();
+	ipc->IPv4State = IPC_PROTO_STATUS_CLOSED;
+
+	ipc->DHCPv4Awaiter.IsAwaiting = false;
+	ipc->DHCPv4Awaiter.DhcpData = NULL;
 
 	ipc->FlushList = NewTubeFlushList();
 
@@ -613,6 +621,8 @@ void FreeIPC(IPC *ipc)
 	ReleaseQueue(ipc->IPv4ReceivedQueue);
 
 	ReleaseSharedBuffer(ipc->IpcSessionSharedBuffer);
+
+	FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
 
 	IPCIPv6Free(ipc);
 
@@ -871,6 +881,9 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 		// Time-out inspection
 		if ((expecting_code != 0) && (now >= giveup_time))
 		{
+			ipc->DHCPv4Awaiter.IsAwaiting = false;
+			FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+			ipc->DHCPv4Awaiter.DhcpData = NULL;
 			return NULL;
 		}
 
@@ -880,6 +893,9 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 			dhcp_packet = IPCBuildDhcpRequest(ipc, dest_ip, tran_id, opt);
 			if (dhcp_packet == NULL)
 			{
+				ipc->DHCPv4Awaiter.IsAwaiting = false;
+				FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+				ipc->DHCPv4Awaiter.DhcpData = NULL;
 				return NULL;
 			}
 
@@ -889,6 +905,9 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 
 			if (expecting_code == 0)
 			{
+				ipc->DHCPv4Awaiter.IsAwaiting = false;
+				FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+				ipc->DHCPv4Awaiter.DhcpData = NULL;
 				return NULL;
 			}
 
@@ -898,48 +917,28 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 		}
 
 		// Happy processing
+		ipc->DHCPv4Awaiter.IsAwaiting = true;
+		FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+		ipc->DHCPv4Awaiter.DhcpData = NULL;
+		ipc->DHCPv4Awaiter.TransCode = tran_id;
+		ipc->DHCPv4Awaiter.OpCode = expecting_code;
 		IPCProcessL3Events(ipc);
 
-		while (true)
+		if (ipc->DHCPv4Awaiter.DhcpData != NULL)
 		{
-			// Receive a packet
-			BLOCK *b = IPCRecvIPv4(ipc);
-			PKT *pkt;
-			DHCPV4_DATA *dhcp;
-
-			if (b == NULL)
-			{
-				break;
-			}
-
-			// Parse the packet
-			pkt = ParsePacketIPv4WithDummyMacHeader(b->Buf, b->Size);
-
-			dhcp = ParseDHCPv4Data(pkt);
-
-			if (dhcp != NULL)
-			{
-				if (Endian32(dhcp->Header->TransactionId) == tran_id && dhcp->OpCode == expecting_code)
-				{
-					// Expected operation code and transaction ID are returned
-					FreePacketWithData(pkt);
-					FreeBlock(b);
-
-					return dhcp;
-				}
-
-				FreeDHCPv4Data(dhcp);
-			}
-
-			FreePacketWithData(pkt);
-
-			FreeBlock(b);
+			DHCPV4_DATA *dhcp = ipc->DHCPv4Awaiter.DhcpData;
+			ipc->DHCPv4Awaiter.IsAwaiting = false;
+			ipc->DHCPv4Awaiter.DhcpData = NULL;
+			return dhcp;
 		}
 
 		if (IsTubeConnected(ipc->Sock->RecvTube) == false || IsTubeConnected(ipc->Sock->SendTube) == false ||
 		        (discon_poll_tube != NULL && IsTubeConnected(discon_poll_tube) == false))
 		{
 			// Session is disconnected
+			ipc->DHCPv4Awaiter.IsAwaiting = false;
+			FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+			ipc->DHCPv4Awaiter.DhcpData = NULL;
 			return NULL;
 		}
 
@@ -947,6 +946,9 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 		WaitForTubes(tubes, num_tubes, GetNextIntervalForInterrupt(ipc->Interrupt));
 	}
 
+	ipc->DHCPv4Awaiter.IsAwaiting = false;
+	FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+	ipc->DHCPv4Awaiter.DhcpData = NULL;
 	return NULL;
 }
 
@@ -1301,6 +1303,16 @@ void IPCProcessL3Events(IPC *ipc)
 {
 	IPCProcessL3EventsEx(ipc, 0);
 }
+void IPCProcessL3EventsIPv4Only(IPC *ipc)
+{
+	UINT previousStatus4 = IPC_PROTO_GET_STATUS(ipc, IPv4State);
+	UINT previousStatus6 = IPC_PROTO_GET_STATUS(ipc, IPv6State);
+	IPC_PROTO_SET_STATUS(ipc, IPv4State, IPC_PROTO_STATUS_OPENED);
+	IPC_PROTO_SET_STATUS(ipc, IPv6State, IPC_PROTO_STATUS_CLOSED);
+	IPCProcessL3Events(ipc);
+	IPC_PROTO_SET_STATUS(ipc, IPv4State, previousStatus4);
+	IPC_PROTO_SET_STATUS(ipc, IPv6State, previousStatus6);
+}
 void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 {
 	// Validate arguments
@@ -1340,6 +1352,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 				// If the source MAC address is itselves or invalid address, ignore the packet
 				if (Cmp(src_mac, ipc->MacAddress, 6) != 0 && !IsMacUnicast(src_mac))
 				{
+					Debug("Received packed for L3 parsing\n");
 					if (protocol == MAC_PROTO_ARPV4)
 					{
 						// ARP receiving process
@@ -1347,6 +1360,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 					}
 					else if (protocol == MAC_PROTO_IPV4)
 					{
+						Debug("MAC_PROTO_IPV4\n");
 						// IPv4 receiving process
 						if (b->Size >= (14 + 20))
 						{
@@ -1390,10 +1404,43 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 
 							if (ok)
 							{
+								// Parse DHCP packets
+								bool packetConsumed = false;
+								if (ipc->DHCPv4Awaiter.IsAwaiting)
+								{
+									PKT *pkt;
+									DHCPV4_DATA *dhcp;
+
+									Debug("Parsing for DHCP awaiter\n");
+									pkt = ParsePacketIPv4WithDummyMacHeader(data, size);
+									dhcp = ParseDHCPv4Data(pkt);
+
+									if (dhcp != NULL)
+									{
+										if (Endian32(dhcp->Header->TransactionId) == ipc->DHCPv4Awaiter.TransCode &&
+										        dhcp->OpCode == ipc->DHCPv4Awaiter.OpCode)
+										{
+											FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
+											ipc->DHCPv4Awaiter.DhcpData = dhcp;
+											packetConsumed = true;
+										}
+										else
+										{
+											FreeDHCPv4Data(dhcp);
+										}
+									}
+
+									FreePacket(pkt);
+								}
+
 								IPCAssociateOnArpTable(ipc, &ip_src, src_mac);
 
-								// Place in the reception queue
-								InsertQueue(ipc->IPv4ReceivedQueue, NewBlock(data, size, 0));
+								if (ipc->IPv4State == IPC_PROTO_STATUS_OPENED && !packetConsumed)
+								{
+									// Place in the reception queue
+									InsertQueue(ipc->IPv4ReceivedQueue, NewBlock(data, size, 0));
+								}
+
 							}
 							else
 							{
@@ -1409,8 +1456,9 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 						{
 							IP ip_src, ip_dst;
 							bool ndtProcessed = false;
+							UINT size = p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER);
 
-							UCHAR *data = Clone(p->L3.IPv6Header, p->L3.IPv6Header->PayloadLength + sizeof(IPV6_HEADER));
+							UCHAR *data = Clone(p->L3.IPv6Header, size);
 
 							IPv6AddrToIP(&ip_src, &p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress);
 							IPv6AddrToIP(&ip_dst, &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress);
@@ -1426,7 +1474,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 									// We save the router advertisement data for later use
 									IPCIPv6AddRouterPrefix(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
-									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, &p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer, true);
+									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, &p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
 									break;
 								case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
 									// We save the neighbor advertisements into NDT
@@ -1445,7 +1493,10 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 							}
 
 							/// TODO: should we or not filter Neighbor Advertisements and/or Neighbor Solicitations?
-							InsertQueue(ipc->IPv6ReceivedQueue, data);
+							if (ipc->IPv6State == IPC_PROTO_STATUS_OPENED)
+							{
+								InsertQueue(ipc->IPv6ReceivedQueue, NewBlock(data, size, 0));
+							}
 
 							FreePacket(p);
 						}
@@ -1948,6 +1999,8 @@ void IPCIPv6Init(IPC *ipc)
 
 	ipc->IPv6ClientEUI = 0;
 	ipc->IPv6ServerEUI = 0;
+
+	ipc->IPv6State = IPC_PROTO_STATUS_CLOSED;
 }
 void IPCIPv6Free(IPC *ipc)
 {
@@ -2113,14 +2166,31 @@ void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now)
 	}
 }
 
-bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, IP *addr)
+// Scan the hub IP Table to try to find the EUI-based link-local address
+bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui)
 {
 	HUB t, *h;
-	IP_TABLE_ENTRY t, *e;
+	IP_TABLE_ENTRY i, *e;
 	t.Name = ipc->HubName;
+
+	// Construct link local from eui
+	ZeroIP6(&i.Ip);
+	i.Ip.ipv6_addr[0] = 0xFE;
+	i.Ip.ipv6_addr[1] = 0x80;
+	WRITE_UINT64(&i.Ip.ipv6_addr[8], &eui);
+
 	h = Search(ipc->Cedar->HubList, &t);
 
-	//h->IpTable
+	if (h != NULL)
+	{
+		e = Search(h->IpTable, &i);
+		if (e != NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // RA
@@ -2175,45 +2245,66 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVER
 }
 
 // Send router solicitation and then eventually populate the info from Router Advertisements
-void IPCIPv6SendRouterSolicitation(IPC *ipc)
+UINT64 IPCIPv6GetServerEui(IPC *ipc)
 {
-	IP senderIP;
-	IP destIP;
-	UCHAR destMacAddress[6];
-	IPV6_ADDR linkLocal;
-	BUF *packet;
-	Zero(&linkLocal, sizeof(IPV6_ADDR));
-
-	// Generate link local from client's EUI
-	linkLocal.Value[0] = 0xFE;
-	linkLocal.Value[1] = 0x80;
-	WRITE_UINT64(&linkLocal.Value[8], &ipc->IPv6ClientEUI);
-
-	GetAllRouterMulticastAddress6(&destIP);
-
-	// Generate the MAC address from the multicast address
-	destMacAddress[0] = 0x33;
-	destMacAddress[1] = 0x33;
-	WRITE_UINT(&destMacAddress[2], &destIP.ipv6_addr[12]);
-
-	packet = BuildICMPv6RouterSoliciation(senderIP.ipv6_addr, destIP.ipv6_addr, ipc->MacAddress, 0);
-
-	while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
+	// It is already configured, nothing to do here
+	if (ipc->IPv6ServerEUI != 0)
 	{
-		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
-		UINT64 timeout_retry = Tick() + (UINT64)IPC_IPV6_RA_INTERVAL;
-		IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
+		return ipc->IPv6ServerEUI;
+	}
 
-		AddInterrupt(ipc->Interrupt, timeout_retry);
+	// If we don't have a valid client EUI, we can't generate a correct link local
+	if (ipc->IPv6ClientEUI == 0)
+	{
+		return ipc->IPv6ServerEUI;
+	}
 
-		if (Tick64() >= giveup_time)
+	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
+	{
+		IP senderIP;
+		IPV6_ADDR senderV6;
+		IP destIP;
+		IPV6_ADDR destV6;
+		UCHAR destMacAddress[6];
+		IPV6_ADDR linkLocal;
+		BUF *packet;
+
+		Zero(&linkLocal, sizeof(IPV6_ADDR));
+
+		// Generate link local from client's EUI
+		linkLocal.Value[0] = 0xFE;
+		linkLocal.Value[1] = 0x80;
+		WRITE_UINT64(&linkLocal.Value[8], &ipc->IPv6ClientEUI);
+
+		GetAllRouterMulticastAddress6(&destIP);
+
+		// Generate the MAC address from the multicast address
+		destMacAddress[0] = 0x33;
+		destMacAddress[1] = 0x33;
+		WRITE_UINT(&destMacAddress[2], &destIP.ipv6_addr[12]);
+
+		IPToIPv6Addr(&senderV6, &senderIP);
+		IPToIPv6Addr(&destV6, &destIP);
+
+		packet = BuildICMPv6RouterSoliciation(&senderV6, &destV6, ipc->MacAddress, 0);
+
+		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 		{
-			// We failed to receive any router advertisements
-			break;
-		}
+			UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+			UINT64 timeout_retry = Tick() + (UINT64)IPC_IPV6_RA_INTERVAL;
+			IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
 
-		// The processing should populate the received RAs by itself
-		IPCProcessL3Events(ipc);
+			AddInterrupt(ipc->Interrupt, timeout_retry);
+
+			if (Tick64() >= giveup_time)
+			{
+				// We failed to receive any router advertisements
+				break;
+			}
+
+			// The processing should populate the received RAs by itself
+			IPCProcessL3Events(ipc);
+		}
 	}
 
 	// Populating the IPv6 Server EUI for IPV6CP
@@ -2222,6 +2313,8 @@ void IPCIPv6SendRouterSolicitation(IPC *ipc)
 		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, 0);
 		ipc->IPv6ServerEUI = READ_UINT64(&ra->RouterAddress.ipv6_addr[8]);
 	}
+
+	return ipc->IPv6ServerEUI;
 }
 
 // Data flow

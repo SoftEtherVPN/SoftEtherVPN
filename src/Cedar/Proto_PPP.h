@@ -95,7 +95,7 @@
 #define	PPP_IPCP_OPTION_WINS2			132
 
 // IPV6CP option type
-#define	PPP_IPV6CP_OPTION_IID			1
+#define	PPP_IPV6CP_OPTION_EUI			1
 
 // EAP codes
 #define	PPP_EAP_CODE_REQUEST			1
@@ -134,13 +134,6 @@
 #define	PPP_STATUS_CLOSED				0x110
 #define	PPP_STATUS_FAIL					0x1000
 #define	PPP_STATUS_AUTH_FAIL			0x1010
-
-// Protocol status
-#define	PPP_PROTO_STATUS_CLOSED			0x0
-#define	PPP_PROTO_STATUS_CONFIG			0x1
-#define	PPP_PROTO_STATUS_CONFIG_WAIT	0x2
-#define	PPP_PROTO_STATUS_OPENED			0x10
-#define	PPP_PROTO_STATUS_REJECTED		0x100
 
 #define	PPP_UNSPECIFIED					0xFFFF
 
@@ -301,8 +294,6 @@ struct PPP_SESSION
 	UCHAR ClientInterfaceId[8];			// Client IPv6CP Interface Identifier
 
 	UINT PPPStatus;
-	UINT IPv4_State;
-	UINT IPv6_State;
 
 	// EAP contexts
 	UINT Eap_Protocol;					// Current EAP Protocol used
@@ -344,12 +335,14 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessIPv6CPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 // Request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessEAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 
 // LCP option based packets utility
 bool PPPRejectLCPOptions(PPP_SESSION *p, PPP_PACKET *pp);
@@ -369,7 +362,7 @@ PPP_PACKET *PPPRecvPacket(PPP_SESSION *p, bool async);
 // Helpers for delaying packets
 PPP_PACKET *PPPGetNextPacket(PPP_SESSION *p);
 void PPPAddNextPacket(PPP_SESSION *p, PPP_PACKET *pp, UINT delay);
-int PPPDelayedPacketsComparator(const void *a, const void *b);
+int PPPDelayedPacketsComparator(void *a, void *b);
 char PPPRelatedPacketComparator(PPP_PACKET *a, PPP_PACKET *b);
 
 // PPP utility functions

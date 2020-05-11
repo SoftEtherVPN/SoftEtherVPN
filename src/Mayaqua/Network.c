@@ -2398,6 +2398,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 {
 	UCHAR *buf;
 	UINT i, icmp_type, buf_size, padding_size;
+	icmp_type = 0;
 	// Validate arguments
 	if (r == NULL || se == NULL || (data == NULL && data_size != 0))
 	{

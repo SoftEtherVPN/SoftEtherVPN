@@ -12,9 +12,6 @@ void PPPThread(THREAD *thread, void *param)
 {
 	PPP_SESSION *p = (PPP_SESSION *)param;
 	UINT i;
-	PPP_LCP *c;
-	USHORT us;
-	UINT ui;
 	USHORT next_protocol = 0;
 	bool ret = false;
 	char ipstr1[128], ipstr2[128];
@@ -32,8 +29,6 @@ void PPPThread(THREAD *thread, void *param)
 	Debug("PPP Initialize");
 
 	PPPSetStatus(p, PPP_STATUS_CONNECTED);
-	p->IPv4_State = PPP_PROTO_STATUS_CLOSED;
-	p->IPv6_State = PPP_PROTO_STATUS_CLOSED;
 
 	p->Eap_Protocol = PPP_UNSPECIFIED;
 
@@ -181,7 +176,8 @@ void PPPThread(THREAD *thread, void *param)
 				{
 					UINT64 nowL;
 					// Here client to server
-					if (p->CurrentPacket->Protocol == PPP_PROTOCOL_IP && p->IPv4_State == PPP_PROTO_STATUS_OPENED)
+					if (p->CurrentPacket->Protocol == PPP_PROTOCOL_IP &&
+					        IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_OPENED)
 					{
 						receivedPacketProcessed = true;
 						IPCSendIPv4(p->Ipc, p->CurrentPacket->Data, p->CurrentPacket->DataSize);
@@ -190,10 +186,11 @@ void PPPThread(THREAD *thread, void *param)
 					{
 						Debug("Got IPv4 packet before IPv4 ready!\n");
 					}
-					else if (p->CurrentPacket->Protocol == PPP_PROTOCOL_IPV6 && p->IPv6_State == PPP_PROTO_STATUS_OPENED)
+					else if (p->CurrentPacket->Protocol == PPP_PROTOCOL_IPV6 &&
+					         IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_OPENED)
 					{
 						receivedPacketProcessed = true;
-						Debug("IPv6 to be implemented\n");
+						IPCIPv6Send(p->Ipc, p->CurrentPacket->Data, p->CurrentPacket->DataSize);
 					}
 					else if (p->CurrentPacket->Protocol == PPP_PROTOCOL_IPV6)
 					{
@@ -318,18 +315,21 @@ void PPPThread(THREAD *thread, void *param)
 		if (p->PPPStatus == PPP_STATUS_NETWORK_LAYER)
 		{
 			UINT64 timeBeforeLoop;
-			if (p->DhcpAllocated)
+			if (IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_OPENED)
 			{
-				if (now >= p->DhcpNextRenewTime)
+				if (p->DhcpAllocated)
 				{
-					IP ip;
+					if (now >= p->DhcpNextRenewTime)
+					{
+						IP ip;
 
-					// DHCP renewal procedure
-					p->DhcpNextRenewTime = now + p->DhcpRenewInterval;
+						// DHCP renewal procedure
+						p->DhcpNextRenewTime = now + p->DhcpRenewInterval;
 
-					UINTToIP(&ip, p->ClientAddressOption.ServerAddress);
+						UINTToIP(&ip, p->ClientAddressOption.ServerAddress);
 
-					IPCDhcpRenewIP(p->Ipc, &ip);
+						IPCDhcpRenewIP(p->Ipc, &ip);
+					}
 				}
 			}
 
@@ -340,30 +340,73 @@ void PPPThread(THREAD *thread, void *param)
 			while (true)
 			{
 				UINT64 nowL;
-				BLOCK *b = IPCRecvIPv4(p->Ipc);
-				PPP_PACKET *pp;
-				PPP_PACKET tmp;
-				if (b == NULL)
+				bool no4packets = false;
+				bool no6packets = false;
+				if (IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_OPENED)
 				{
-					break;
+					BLOCK *b = IPCRecvIPv4(p->Ipc);
+					if (b == NULL)
+					{
+						no4packets = true;
+					}
+					else
+					{
+						PPP_PACKET *pp;
+						PPP_PACKET tmp;
+
+						// Since receiving the IP packet, send it to the client by PPP
+						pp = &tmp;
+						pp->IsControl = false;
+						pp->Protocol = PPP_PROTOCOL_IP;
+						pp->Lcp = NULL;
+						pp->Data = b->Buf;
+						pp->DataSize = b->Size;
+
+						PPPSendPacketEx(p, pp, true);
+
+						FreePPPPacketEx(pp, true);
+						Free(b);
+					}
+				}
+				else
+				{
+					no4packets = true;
 				}
 
-				// Since receiving the IP packet, send it to the client by PPP
-				pp = &tmp;
-				pp->IsControl = false;
-				pp->Protocol = PPP_PROTOCOL_IP;
-				pp->Lcp = NULL;
-				pp->Data = b->Buf;
-				pp->DataSize = b->Size;
+				if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_OPENED)
+				{
+					BLOCK *b = IPCIPv6Recv(p->Ipc);
+					if (b == NULL)
+					{
+						no6packets = true;
+					}
+					else
+					{
+						PPP_PACKET *pp;
+						PPP_PACKET tmp;
 
-				PPPSendPacketEx(p, pp, true);
+						// Since receiving the IP packet, send it to the client by PPP
+						pp = &tmp;
+						pp->IsControl = false;
+						pp->Protocol = PPP_PROTOCOL_IPV6;
+						pp->Lcp = NULL;
+						pp->Data = b->Buf;
+						pp->DataSize = b->Size;
 
-				FreePPPPacketEx(pp, true);
-				Free(b);
+						PPPSendPacketEx(p, pp, true);
+
+						FreePPPPacketEx(pp, true);
+						Free(b);
+					}
+				}
+				else
+				{
+					no6packets = true;
+				}
 
 				// Let's break out of the loop once in a while so we don't get stuck here endlessly
 				nowL = Tick64();
-				if (nowL > timeBeforeLoop + PPP_PACKET_RESEND_INTERVAL)
+				if (nowL > timeBeforeLoop + PPP_PACKET_RESEND_INTERVAL || (no4packets && no6packets))
 				{
 					break;
 				}
@@ -743,7 +786,7 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 		return PPPProcessIPCPResponsePacket(p, pp, req);
 		break;
 	case PPP_PROTOCOL_IPV6CP:
-		Debug("IPv6CP to be implemented\n");
+		return PPPProcessIPv6CPResponsePacket(p, pp, req);
 		break;
 	case PPP_PROTOCOL_EAP:
 		return PPPProcessEAPResponsePacket(p, pp, req);
@@ -786,11 +829,11 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			USHORT *protocol = pp->Lcp->Data;
 			if (*protocol == PPP_PROTOCOL_IPCP || *protocol == PPP_PROTOCOL_IP)
 			{
-				p->IPv4_State = PPP_PROTO_STATUS_REJECTED;
+				IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_REJECTED);
 			}
 			if (*protocol == PPP_PROTOCOL_IPV6CP || *protocol == PPP_PROTOCOL_IPV6)
 			{
-				p->IPv6_State = PPP_PROTO_STATUS_REJECTED;
+				IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_REJECTED);
 			}
 		}
 	}
@@ -1082,7 +1125,7 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 	if (!PPPGetIPAddressValueFromLCP(pp->Lcp, PPP_IPCP_OPTION_IP, &addrStruct) || pp->Lcp->Code == PPP_LCP_CODE_REJECT || pp->Lcp->Code == PPP_LCP_CODE_CODE_REJECT)
 	{
 		Debug("Unsupported IPCP protocol");
-		p->IPv4_State = PPP_PROTO_STATUS_REJECTED;
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_REJECTED);
 		PPPRejectUnsupportedPacketEx(p, pp, true);
 		return false;
 	}
@@ -1096,14 +1139,14 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 		Debug("Accepted server IP address of %s\n", addrStr);
 
 		// We already configured client address, now server address is also confirmed, ready for IPv4 data flow
-		if (p->IPv4_State == PPP_PROTO_STATUS_CONFIG)
+		if (IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CONFIG)
 		{
-			p->IPv4_State = PPP_PROTO_STATUS_CONFIG_WAIT;
+			IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_CONFIG_WAIT);
 		}
 		return true;
 	}
 
-	p->IPv4_State = PPP_PROTO_STATUS_CONFIG;
+	IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_CONFIG);
 
 	PPPGetIPAddressValueFromLCP(req->Lcp, PPP_IPCP_OPTION_IP, &prevAddrStruct);
 	prevAddr = IPToUINT(&prevAddrStruct);
@@ -1115,7 +1158,7 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 	if (prevAddr == Endian32(0xc0000008))
 	{
 		Debug("We already tried the fallback IP of 192.0.0.8, giving up\n");
-		p->IPv4_State = PPP_PROTO_STATUS_REJECTED;
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_REJECTED);
 		PPPRejectUnsupportedPacketEx(p, pp, true);
 		return false;
 	}
@@ -1205,6 +1248,31 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 	return false;
 }
 
+// Process IPv6CP responses
+bool PPPProcessIPv6CPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
+{
+	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
+
+	// If we got a reject or a NACK, we just reject the whole IPv6 configuration, there is no way we can recover even from a NACK as we can't change the link-local address of an already existing router
+	if (!isAccepted)
+	{
+		Debug("Unsupported IPv6CP protocol");
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_REJECTED);
+		PPPRejectUnsupportedPacketEx(p, pp, true);
+		return false;
+	}
+
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) != IPC_PROTO_STATUS_CONFIG)
+	{
+		Debug("We got an early IPv6CP response, ignoring for now...\n");
+		return false;
+	}
+
+	Debug("Accepted server IPv6CP handshake\n");
+	IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_CONFIG_WAIT);
+	return true;
+}
+
 
 // Processes request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
@@ -1227,8 +1295,7 @@ bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		return PPPProcessIPCPRequestPacket(p, pp);
 		break;
 	case PPP_PROTOCOL_IPV6CP:
-		PPPRejectUnsupportedPacketEx(p, pp, true);
-		Debug("IPv6CP to be implemented\n");
+		return PPPProcessIPv6CPRequestPacket(p, pp);
 		break;
 	case PPP_PROTOCOL_EAP:
 		return PPPProcessEAPRequestPacket(p, pp);
@@ -1547,9 +1614,8 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	bool ok = true;
 	bool processed = false;
 	bool isEmptyIpAddress = false;
-	PPP_LCP *c;
 
-	if (p->IPv4_State == PPP_PROTO_STATUS_REJECTED)
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_REJECTED)
 	{
 		Debug("We got an IPCP packet after we had it rejected\n");
 		return PPPRejectUnsupportedPacketEx(p, pp, true);
@@ -1823,7 +1889,7 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 
 	// We will delay this packet ACK and send the server IP first, then wait for a reparse
 	// it is kind of dirty but fixes issues on some clients (namely VPN Client Pro on Android)
-	if (p->IPv4_State == PPP_PROTO_STATUS_CLOSED && p->ClientAddressOption.ServerAddress != 0 && ok)
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CLOSED && p->ClientAddressOption.ServerAddress != 0 && ok)
 	{
 		PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
 		UINT ui = p->ClientAddressOption.ServerAddress;
@@ -1834,7 +1900,7 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 			WHERE;
 			return false;
 		}
-		p->IPv4_State = PPP_PROTO_STATUS_CONFIG;
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_CONFIG);
 		if (!processed)
 		{
 			PPPAddNextPacket(p, pp, 1);
@@ -1843,7 +1909,8 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	}
 
 	// We still haven't received any answer from client about server IP, keep waiting...
-	if ((p->IPv4_State == PPP_PROTO_STATUS_CONFIG || p->IPv4_State == PPP_PROTO_STATUS_CLOSED) && !processed)
+	if ((IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CONFIG ||
+	        IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CLOSED) && !processed)
 	{
 		PPPAddNextPacket(p, pp, 1);
 		return false;
@@ -1856,9 +1923,9 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	}
 	Debug("ACKed IPCP options ID = 0x%x\n", pp->Lcp->Id);
 
-	if (ok && p->IPv4_State == PPP_PROTO_STATUS_CONFIG_WAIT)
+	if (ok && IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CONFIG_WAIT)
 	{
-		p->IPv4_State = PPP_PROTO_STATUS_OPENED;
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_OPENED);
 		Debug("IPv4 OPENED\n");
 	}
 	return ok;
@@ -1869,6 +1936,116 @@ bool PPPProcessEAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 {
 	Debug("We got an EAP request, which is weird...\n");
 	return false;
+}
+
+// Process IPv6CP request packets
+bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
+{
+	UINT i;
+	bool processed = false;
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_REJECTED)
+	{
+		Debug("We got an IPv6CP packet after we had it rejected\n");
+		return PPPRejectUnsupportedPacketEx(p, pp, true);
+	}
+
+	for (i = 0; i < LIST_NUM(pp->Lcp->OptionList); i++)
+	{
+		PPP_OPTION *t = LIST_DATA(pp->Lcp->OptionList, i);
+
+		switch (t->Type)
+		{
+		case PPP_IPV6CP_OPTION_EUI:
+			t->IsSupported = true;
+			if (t->DataSize == sizeof(UINT64))
+			{
+				UINT64 newValue = 0;
+				UINT64 value = READ_UINT64(t->Data);
+				if (!IPCIPv6CheckExistingLinkLocal(p->Ipc, value))
+				{
+					t->IsAccepted = true;
+					p->Ipc->IPv6ClientEUI = value;
+				}
+				else
+				{
+					t->IsAccepted = false;
+					GenerateEui64Address6((UCHAR *)&newValue, p->Ipc->MacAddress);
+					if (newValue != value && !IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue))
+					{
+						WRITE_UINT64(t->AltData, newValue);
+						t->AltDataSize = sizeof(UINT64);
+					}
+					else
+					{
+						while (true)
+						{
+							newValue = Rand64();
+							if (!IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue))
+							{
+								WRITE_UINT64(t->AltData, newValue);
+								t->AltDataSize = sizeof(UINT64);
+								break;
+							}
+						}
+					}
+				}
+			}
+			break;
+		default:
+			t->IsSupported = false;
+			break;
+		}
+	}
+
+	if (PPPRejectLCPOptionsEx(p, pp, processed))
+	{
+		Debug("Rejected IPv6CP options ID = 0x%x\n", pp->Lcp->Id);
+		processed = true;
+	}
+
+	if (PPPNackLCPOptionsEx(p, pp, processed))
+	{
+		Debug("NACKed IPv6CP options ID = 0x%x\n", pp->Lcp->Id);
+		processed = true;
+	}
+
+	if (p->Ipc->IPv6ClientEUI != 0 && IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CLOSED)
+	{
+		PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
+		UINT64 serverEui = IPCIPv6GetServerEui(p->Ipc);
+		if (serverEui != 0 && serverEui != p->Ipc->IPv6ClientEUI)
+		{
+			Add(c->OptionList, NewPPPOption(PPP_IPV6CP_OPTION_EUI, &serverEui, sizeof(UINT64)));
+		}
+		if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPV6CP, c))
+		{
+			PPPSetStatus(p, PPP_STATUS_FAIL);
+			WHERE;
+			return false;
+		}
+
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_CONFIG);
+	}
+
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CONFIG && !processed)
+	{
+		PPPAddNextPacket(p, pp, 1);
+		return false;
+	}
+
+	if (!PPPAckLCPOptionsEx(p, pp, processed))
+	{
+		return false;
+	}
+	Debug("ACKed IPv6CP options ID = 0x%x\n", pp->Lcp->Id);
+
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CONFIG_WAIT)
+	{
+		IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_OPENED);
+		Debug("IPv6 OPENED\n");
+	}
+
+	return true;
 }
 
 // LCP option based packets utility
@@ -2128,7 +2305,7 @@ LABEL_LOOP:
 
 	if (async == false)
 	{
-		d = TubeRecvSync(p->TubeRecv, p->PacketRecvTimeout);
+		d = TubeRecvSync(p->TubeRecv, (UINT)p->PacketRecvTimeout);
 	}
 	else
 	{
@@ -2241,7 +2418,6 @@ PPP_PACKET *PPPGetNextPacket(PPP_SESSION *p)
 void PPPAddNextPacket(PPP_SESSION *p, PPP_PACKET *pp, UINT delay)
 {
 	PPP_DELAYED_PACKET *t = ZeroMalloc(sizeof(PPP_DELAYED_PACKET));
-	UINT i;
 	if (p->CurrentPacket == pp)
 	{
 		p->CurrentPacket = NULL;
@@ -2262,7 +2438,7 @@ void PPPAddNextPacket(PPP_SESSION *p, PPP_PACKET *pp, UINT delay)
 	Debug("after sorting delayeds end\n");*/
 }
 
-int PPPDelayedPacketsComparator(const void *a, const void *b)
+int PPPDelayedPacketsComparator(void *a, void *b)
 {
 	PPP_DELAYED_PACKET *first = a;
 	PPP_DELAYED_PACKET *second = b;
@@ -3009,12 +3185,11 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 	UCHAR *dataBuffer;
 	UINT dataSize;
 	UINT tlsLength = 0;
-	UINT i;
 	bool isFragmented = false;
 	PPP_LCP *lcp;
 	PPP_EAP *eap;
 	UCHAR flags = PPP_EAP_TLS_FLAG_NONE;
-	UINT64 sizeLeft = 0;
+	UINT sizeLeft = 0;
 	Debug("Got EAP-TLS size=%i\n", eapTlsSize);
 	if (eapTlsSize == 1)
 	{
@@ -3024,7 +3199,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 			// We got an ACK to transmit the next fragmented message
 			dataSize = p->Mru1 - 8 - 1 - 1; // Calculating the maximum payload size (without TlsLength)
 			sizeLeft = GetMemSize(p->Eap_TlsCtx.CachedBufferSend);
-			sizeLeft -= p->Eap_TlsCtx.CachedBufferSendPntr - p->Eap_TlsCtx.CachedBufferSend;
+			sizeLeft -= (UINT)(p->Eap_TlsCtx.CachedBufferSendPntr - p->Eap_TlsCtx.CachedBufferSend);
 
 			flags = PPP_EAP_TLS_FLAG_FRAGMENTED; // M flag
 			if (dataSize > sizeLeft)
@@ -3035,7 +3210,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 			lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, flags);
 			eap = lcp->Data;
 			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.CachedBufferSendPntr, dataSize);
-			p->Eap_TlsCtx.CachedBufferSendPntr += dataSize;
+			p->Eap_TlsCtx.CachedBufferSendPntr += (UINT64)dataSize;
 
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 			{
@@ -3192,7 +3367,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				p->Eap_TlsCtx.CachedBufferRecvPntr = p->Eap_TlsCtx.CachedBufferRecv;
 			}
 			sizeLeft = GetMemSize(p->Eap_TlsCtx.CachedBufferRecv);
-			sizeLeft -= p->Eap_TlsCtx.CachedBufferRecvPntr - p->Eap_TlsCtx.CachedBufferRecv;
+			sizeLeft -= (UINT)(p->Eap_TlsCtx.CachedBufferRecvPntr - p->Eap_TlsCtx.CachedBufferRecv);
 
 			Copy(p->Eap_TlsCtx.CachedBufferRecvPntr, dataBuffer, MIN(sizeLeft, dataSize));
 
@@ -3206,7 +3381,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 			dataSize = GetMemSize(p->Eap_TlsCtx.CachedBufferRecv);
 			if (dataSize == MAX_BUFFERING_PACKET_SIZE)
 			{
-				dataSize = p->Eap_TlsCtx.CachedBufferRecvPntr - p->Eap_TlsCtx.CachedBufferRecv;
+				dataSize = (UINT)(p->Eap_TlsCtx.CachedBufferRecvPntr - p->Eap_TlsCtx.CachedBufferRecv);
 			}
 		}
 

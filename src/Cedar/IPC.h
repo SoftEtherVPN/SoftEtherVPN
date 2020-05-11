@@ -30,6 +30,16 @@
 #define IPC_IPV6_RA_INTERVAL			(4 * 1000) // as per RTR_SOLICITATION_INTERVAL constant of RFC4861
 #define IPC_IPV6_RA_MAX_RETRIES			3 // as per MAX_RTR_SOLICITATIONS constant of RFC4861 
 
+// Protocol status
+#define	IPC_PROTO_STATUS_CLOSED			0x0
+#define	IPC_PROTO_STATUS_CONFIG			0x1
+#define	IPC_PROTO_STATUS_CONFIG_WAIT	0x2
+#define	IPC_PROTO_STATUS_OPENED			0x10
+#define	IPC_PROTO_STATUS_REJECTED		0x100
+
+#define IPC_PROTO_SET_STATUS(ipc, proto, value)	((ipc) != NULL ? ((ipc->proto) = (value)) : 0)
+#define IPC_PROTO_GET_STATUS(ipc, proto)		((ipc) != NULL ? (ipc->proto) : IPC_PROTO_STATUS_REJECTED)
+
 // ARP table entry
 struct IPC_ARP
 {
@@ -78,6 +88,15 @@ struct IPC_PARAM
 	UINT Layer;
 };
 
+// DHCPv4 response awaiter
+struct IPC_DHCPV4_AWAIT
+{
+	bool IsAwaiting;
+	DHCPV4_DATA *DhcpData;
+	UINT TransCode;
+	UINT OpCode;
+};
+
 // IPC_ASYNC object
 struct IPC_ASYNC
 {
@@ -117,6 +136,8 @@ struct IPC
 	UCHAR Padding[2];
 	LIST *ArpTable;						// ARP table
 	QUEUE *IPv4ReceivedQueue;			// IPv4 reception queue
+	UINT IPv4State;
+	IPC_DHCPV4_AWAIT DHCPv4Awaiter;
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
@@ -126,6 +147,7 @@ struct IPC
 
 	// IPv6 stuff
 	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue
+	UINT IPv6State;
 	LIST *IPv6NeighborTable;			// Neighbor Discovery Table
 	LIST *IPv6RouterAdvs;				// Router offered prefixes
 	UINT64 IPv6ClientEUI;				// The EUI of the client (for the SLAAC autoconf)
@@ -166,6 +188,7 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size);
 BLOCK *IPCRecvL2(IPC *ipc);
 BLOCK *IPCRecvIPv4(IPC *ipc);
 void IPCProcessInterrupts(IPC *ipc);
+void IPCProcessL3EventsIPv4Only(IPC *ipc);
 void IPCProcessL3Events(IPC *ipc);
 void IPCProcessL3EventsEx(IPC *ipc, UINT64 now);
 bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw, DHCP_CLASSLESS_ROUTE_TABLE *rt);
@@ -202,11 +225,11 @@ void IPCIPv6AssociateOnNDT(IPC *ipc, IP *ip, UCHAR *mac_address);
 void IPCIPv6AssociateOnNDTEx(IPC *ipc, IP *ip, UCHAR *mac_address, bool isNeighborAdv);
 void IPCIPv6FlushNDT(IPC *ipc);
 void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now);
-bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, IP *addr);
+bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui);
 // RA
 void IPCIPv6AddRouterPrefix(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
 bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
-void IPCIPv6SendRouterSolicitation(IPC *ipc);
+UINT64 IPCIPv6GetServerEui(IPC *ipc);
 // Data flow
 BLOCK *IPCIPv6Recv(IPC *ipc);
 void IPCIPv6Send(IPC *ipc, void *data, UINT size);

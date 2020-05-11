@@ -232,12 +232,12 @@ TOKEN_LIST *GetEthListSolaris()
 			lifc.lifc_family = AF_INET;
 			lifc.lifc_flags = 0;
 			lifc.lifc_len = bufsize;
-			lifc.lifc_buf = (char*) buf;
+			lifc.lifc_buf = (char *) buf;
 			if (ioctl(s, SIOCGLIFCONF, (char *)&lifc) >= 0)
 			{
 				for (i = 0; i<numifs; i++)
 				{
-					if(StartWith(buf[i].lifr_name, "lo") == false){
+					if(StartWith(buf[i].lifr_name, "lo") == false) {
 						Add(o, CopyStr(buf[i].lifr_name));
 					}
 				}
@@ -253,7 +253,7 @@ TOKEN_LIST *GetEthListSolaris()
 	t->NumTokens = LIST_NUM(o);
 	t->Token = ZeroMalloc(sizeof(char *) * t->NumTokens);
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		char *name = LIST_DATA(o, i);
 		t->Token[i] = name;
@@ -287,7 +287,7 @@ TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip)
 	if (s != INVALID_SOCKET)
 	{
 		n = 0;
-		for (i = 0;;i++)
+		for (i = 0;; i++)
 		{
 			Zero(&ifr, sizeof(ifr));
 			ifr.ifr_ifindex = i;
@@ -332,7 +332,7 @@ TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip)
 	t->NumTokens = LIST_NUM(o) + (enum_rawip ? 1 : 0);
 	t->Token = ZeroMalloc(sizeof(char *) * t->NumTokens);
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		char *name = LIST_DATA(o, i);
 		t->Token[i] = name;
@@ -372,9 +372,9 @@ TOKEN_LIST *GetEthListPcap()
 			if(p != NULL)
 			{
 				int datalink = pcap_datalink(p);
-	//			Debug("type:%s\n",pcap_datalink_val_to_name(datalink));
+				//			Debug("type:%s\n",pcap_datalink_val_to_name(datalink));
 				pcap_close(p);
-				if(datalink == DLT_EN10MB){
+				if(datalink == DLT_EN10MB) {
 					// Enumerate only Ethernet type device
 					Add(o, CopyStr(dev->name));
 				}
@@ -388,7 +388,7 @@ TOKEN_LIST *GetEthListPcap()
 	t = ZeroMalloc(sizeof(TOKEN_LIST));
 	t->NumTokens = LIST_NUM(o);
 	t->Token = ZeroMalloc(sizeof(char *) * t->NumTokens);
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		t->Token[i] = LIST_DATA(o, i);
 	}
@@ -415,7 +415,7 @@ TOKEN_LIST *GetEthListBpf()
 		struct ifaddrs *ifadr = ifadrs;
 		while(ifadr)
 		{
-			sockadr = (struct sockaddr_dl*)ifadr->ifa_addr;
+			sockadr = (struct sockaddr_dl *)ifadr->ifa_addr;
 			if(sockadr->sdl_family == AF_LINK && sockadr->sdl_type == IFT_ETHER)
 			{
 				// Is this Ethernet device?
@@ -434,7 +434,7 @@ TOKEN_LIST *GetEthListBpf()
 	t = ZeroMalloc(sizeof(TOKEN_LIST));
 	t->NumTokens = LIST_NUM(o);
 	t->Token = ZeroMalloc(sizeof(char *) * t->NumTokens);
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		t->Token[i] = LIST_DATA(o, i);
 	}
@@ -1070,7 +1070,7 @@ bool ParseUnixEthDeviceName(char *dst_devname, UINT dst_devname_size, char *src_
 
 #if defined(BRIDGE_BPF) || defined(BRIDGE_PCAP)
 // Initialize captured packet data structure
-struct CAPTUREBLOCK *NewCaptureBlock(UCHAR *data, UINT size){
+struct CAPTUREBLOCK *NewCaptureBlock(UCHAR *data, UINT size) {
 	struct CAPTUREBLOCK *block = Malloc(sizeof(struct CAPTUREBLOCK));
 	block->Buf = data;
 	block->Size = size;
@@ -1078,7 +1078,7 @@ struct CAPTUREBLOCK *NewCaptureBlock(UCHAR *data, UINT size){
 }
 
 // Free captured packet data structure
-void FreeCaptureBlock(struct CAPTUREBLOCK *block){
+void FreeCaptureBlock(struct CAPTUREBLOCK *block) {
 	Free(block);
 }
 #endif // BRIDGE_BPF || BRIDGE_PCAP
@@ -1087,7 +1087,7 @@ void FreeCaptureBlock(struct CAPTUREBLOCK *block){
 // Callback function to receive arriving packet (Pcap)
 void PcapHandler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 {
-	ETH *e = (ETH*) user;
+	ETH *e = (ETH *) user;
 	struct CAPTUREBLOCK *block;
 	UCHAR *data;
 
@@ -1096,7 +1096,7 @@ void PcapHandler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 	block = NewCaptureBlock(data, h->caplen);
 	LockQueue(e->Queue);
 	// Discard arriving packet when queue filled
-	if(e->QueueSize < BRIDGE_MAX_QUEUE_SIZE){
+	if(e->QueueSize < BRIDGE_MAX_QUEUE_SIZE) {
 		InsertQueue(e->Queue, block);
 		e->QueueSize += h->caplen;
 	}
@@ -1108,7 +1108,7 @@ void PcapHandler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 // Relay thread for captured packet (Pcap)
 void PcapThread(THREAD *thread, void *param)
 {
-	ETH *e = (ETH*)param;
+	ETH *e = (ETH *)param;
 	pcap_t *p = e->Pcap;
 	int ret;
 
@@ -1116,8 +1116,8 @@ void PcapThread(THREAD *thread, void *param)
 	NoticeThreadInit(thread);
 
 	// Return -1:Error -2:Terminated externally
-	ret = pcap_loop(p, -1, PcapHandler, (u_char*) e);
-	if(ret == -1){
+	ret = pcap_loop(p, -1, PcapHandler, (u_char *) e);
+	if(ret == -1) {
 		e->Socket = INVALID_SOCKET;
 		pcap_perror(p, "capture");
 	}
@@ -1181,7 +1181,7 @@ ETH *OpenEthPcap(char *name, bool local, bool tapmode, char *tapaddr)
 // Relay thread for captured packet (BPF)
 void BpfThread(THREAD *thread, void *param)
 {
-	ETH *e = (ETH*)param;
+	ETH *e = (ETH *)param;
 	int fd = e->Socket;
 	int len;
 	int rest;	// Rest size in buffer
@@ -1196,14 +1196,14 @@ void BpfThread(THREAD *thread, void *param)
 	// Notify initialize completed
 	NoticeThreadInit(thread);
 
-	while(1){
+	while(1) {
 		// Determining to exit loop
-		if(e->Socket == INVALID_SOCKET){
+		if(e->Socket == INVALID_SOCKET) {
 			break;
 		}
 
 		rest = read(fd, buf, e->BufSize);
-		if(rest < 0 && errno != EAGAIN){
+		if(rest < 0 && errno != EAGAIN) {
 			// Error
 			close(fd);
 			e->Socket = INVALID_SOCKET;
@@ -1213,12 +1213,12 @@ void BpfThread(THREAD *thread, void *param)
 		}
 		next = buf;
 		LockQueue(e->Queue);
-		while(rest>0){
+		while(rest>0) {
 			// Cut out a packet
-			hdr = (struct bpf_hdr*)next;
+			hdr = (struct bpf_hdr *)next;
 
 			// Discard arriving packet when queue filled
-			if(e->QueueSize < BRIDGE_MAX_QUEUE_SIZE){
+			if(e->QueueSize < BRIDGE_MAX_QUEUE_SIZE) {
 				data = Malloc(hdr->bh_caplen);
 				Copy(data, next+(hdr->bh_hdrlen), hdr->bh_caplen);
 				block = NewCaptureBlock(data, hdr->bh_caplen);
@@ -1253,31 +1253,31 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 	struct timeval to;
 
 	// Find unused bpf device and open it
-	do{
+	do {
 		Format(devname, sizeof(devname), "/dev/bpf%d", n++);
 		fd = open (devname, O_RDWR);
-		if(fd<0){
+		if(fd<0) {
 			perror("open");
 		}
-	}while(fd < 0 && errno == EBUSY);
+	} while(fd < 0 && errno == EBUSY);
 
 	// No free bpf device was found
-	if(fd < 0){
+	if(fd < 0) {
 		Debug("BPF: No minor number are free.\n");
 		return NULL;
 	}
 
 	// Enlarge buffer size
 	n = 524288; // Somehow(In libpcap, this size is 32768)
-	while(true){
+	while(true) {
 		// Specify buffer size
 		ioctl(fd, BIOCSBLEN, &n);
 
 		// Bind to the network device
 		StrCpy(ifr.ifr_name, IFNAMSIZ, name);
 		ret = ioctl(fd, BIOCSETIF, &ifr);
-		if(ret < 0){
-			if(ret == ENOBUFS && n>1500){
+		if(ret < 0) {
+			if(ret == ENOBUFS && n>1500) {
 				// Inappropriate buffer size
 				// Retry with half buffer size
 				// If buffer size is under 1500 bytes, something goes wrong
@@ -1287,15 +1287,15 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 			Debug("bpf: binding network failed.\n");
 			close(fd);
 			return NULL;
-		}else{
+		} else {
 			break;
 		}
 	}
 	bufsize = n;
 
 	// Set to promiscuous mode
-	if(local == false){
-		if (ioctl(fd, BIOCPROMISC, NULL) < 0){
+	if(local == false) {
+		if (ioctl(fd, BIOCPROMISC, NULL) < 0) {
 			printf("bpf: promisc mode failed.\n");
 			close(fd);
 			return NULL;
@@ -1305,7 +1305,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 
 	// Set to immediate mode (Return immediately when packet arrives)
 	n = 1;
-	if (ioctl(fd, BIOCIMMEDIATE, &n) < 0){
+	if (ioctl(fd, BIOCIMMEDIATE, &n) < 0) {
 		Debug("BPF: non-block mode failed.\n");
 		close(fd);
 		return NULL;
@@ -1313,7 +1313,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 
 	// Set receiving self sending packet
 	n = 1;
-	if (ioctl(fd, BIOCGSEESENT, &n) < 0){
+	if (ioctl(fd, BIOCGSEESENT, &n) < 0) {
 		Debug("BPF: see sent mode failed.\n");
 		close(fd);
 		return NULL;
@@ -1321,7 +1321,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 
 	// Header complete mode (Generate whole header of sending packet)
 	n = 1;
-	if (ioctl(fd, BIOCSHDRCMPLT, &n) < 0){
+	if (ioctl(fd, BIOCSHDRCMPLT, &n) < 0) {
 		Debug("BPF: Header complete mode failed.\n");
 		close(fd);
 		return NULL;
@@ -1330,7 +1330,7 @@ ETH *OpenEthBpf(char *name, bool local, bool tapmode, char *tapaddr)
 	// Set timeout delay to 1 second
 	to.tv_sec = 1;
 	to.tv_usec = 0;
-	if (ioctl(fd, BIOCSRTIMEOUT, &to) < 0){
+	if (ioctl(fd, BIOCSRTIMEOUT, &to) < 0) {
 		Debug("BPF: Read timeout setting failed.\n");
 		close(fd);
 		return NULL;
@@ -1401,16 +1401,16 @@ ETH *OpenEthBSD(char *name, bool local, bool tapmode, char *tapaddr)
 
 		return e;
 #else	// NO_VLAN
-		return NULL:
+return NULL:
 #endif	// NO_VLAN
 	}
 
 #if	defined(BRIDGE_BPF)
-		return OpenEthBpf(name, local, tapmode, tapaddr);
+	return OpenEthBpf(name, local, tapmode, tapaddr);
 #elif	defined(BRIDGE_PCAP)
-		return OpenEthPcap(name, local, tapmode, tapaddr);
+	return OpenEthPcap(name, local, tapmode, tapaddr);
 #else
-		return NULL;
+	return NULL;
 #endif
 }
 #endif // UNIX_BSD
@@ -1471,7 +1471,7 @@ void CloseEth(ETH *e)
 		WaitThread(e->CaptureThread, INFINITE);
 		ReleaseThread(e->CaptureThread);
 		pcap_close(e->Pcap);
-		while (block = GetNext(e->Queue)){
+		while (block = GetNext(e->Queue)) {
 			Free(block->Buf);
 			FreeCaptureBlock(block);
 		}
@@ -1488,7 +1488,7 @@ void CloseEth(ETH *e)
 		WaitThread(e->CaptureThread, INFINITE);
 		ReleaseThread(e->CaptureThread);
 		e->Socket = fd; // restore to close after
-		while (block = GetNext(e->Queue)){
+		while (block = GetNext(e->Queue)) {
 			Free(block->Buf);
 			FreeCaptureBlock(block);
 		}
@@ -1660,8 +1660,8 @@ UINT EthGetPacketLinux(ETH *e, void **data)
 				USHORT vlan_id = 0;
 
 				if (cmsg->cmsg_len < CMSG_LEN(sizeof(struct my_tpacket_auxdata)) ||
-					cmsg->cmsg_level != SOL_PACKET ||
-					cmsg->cmsg_type != MY_PACKET_AUXDATA)
+				        cmsg->cmsg_level != SOL_PACKET ||
+				        cmsg->cmsg_type != MY_PACKET_AUXDATA)
 				{
 					continue;
 				}
@@ -1772,14 +1772,14 @@ UINT EthGetPacketPcap(ETH *e, void **data)
 
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
-	if(block != NULL){
+	if(block != NULL) {
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
 
-	if(block == NULL){
+	if(block == NULL) {
 		*data = NULL;
-		if(e->Socket == INVALID_SOCKET){
+		if(e->Socket == INVALID_SOCKET) {
 			return INFINITE;
 		}
 		return 0;
@@ -1802,14 +1802,14 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 
 	LockQueue(e->Queue);
 	block = GetNext(e->Queue);
-	if(block != NULL){
+	if(block != NULL) {
 		e->QueueSize -= block->Size;
 	}
 	UnlockQueue(e->Queue);
 
-	if(block == NULL){
+	if(block == NULL) {
 		*data = NULL;
-		if(e->Socket == INVALID_SOCKET){
+		if(e->Socket == INVALID_SOCKET) {
 			return INFINITE;
 		}
 		return 0;
@@ -1826,11 +1826,11 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 {
 	struct bpf_hdr *hdr;
 
-	if(e->Rest<=0){
+	if(e->Rest<=0) {
 		e->Rest = read(e->Socket, e->Buffer, e->BufSize);
-		if(e->Rest < 0){
+		if(e->Rest < 0) {
 			*data = NULL;
-			if(errno != EAGAIN){
+			if(errno != EAGAIN) {
 				// Error
 				return INFINITE;
 			}
@@ -1840,7 +1840,7 @@ UINT EthGetPacketBpf(ETH *e, void **data)
 		e->Next = e->Buffer;
 	}
 	// Cut out a packet
-	hdr = (struct bpf_hdr*)e->Next;
+	hdr = (struct bpf_hdr *)e->Next;
 	*data = Malloc(hdr->bh_caplen);
 	Copy(*data, e->Next+(hdr->bh_hdrlen), hdr->bh_caplen);
 
@@ -1864,7 +1864,7 @@ void EthPutPackets(ETH *e, UINT num, void **datas, UINT *sizes)
 		return;
 	}
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		EthPutPacket(e, datas[i], sizes[i]);
 	}
@@ -1910,7 +1910,7 @@ void EthPutPacket(ETH *e, void *data, UINT size)
 	// Send to device
 #ifdef BRIDGE_PCAP
 	ret = pcap_inject(e->Pcap, data, size);
-	if( ret == -1 ){
+	if( ret == -1 ) {
 #ifdef _DEBUG
 		pcap_perror(e->Pcap, "inject");
 #endif // _DEBUG
@@ -2162,7 +2162,7 @@ LABEL_RETRY:
 			UINTToIP(&original_dest_ip, ip->DstIP);
 
 			if (IsZeroIP(&e->MyPhysicalIPForce) == false && CmpIpAddr(&e->MyPhysicalIPForce, &original_dest_ip) == 0 ||
-				(IsIPMyHost(&original_dest_ip) && IsLocalHostIP(&original_dest_ip) == false && IsHostIPAddress4(&original_dest_ip)))
+			        (IsIPMyHost(&original_dest_ip) && IsLocalHostIP(&original_dest_ip) == false && IsHostIPAddress4(&original_dest_ip)))
 			{
 				if (IsZeroIP(&e->MyPhysicalIPForce) && CmpIpAddr(&e->MyPhysicalIP, &original_dest_ip) != 0)
 				{
@@ -2183,14 +2183,14 @@ LABEL_RETRY:
 				if (p->TypeL4 == L4_TCP)
 				{
 					TCP_HEADER *tcp = p->L4.TCPHeader;
-/*
-					if (Endian16(tcp->SrcPort) == 80)
-					{
-						IP a, b;
-						UINTToIP(&a, ip->SrcIP);
-						UINTToIP(&b, ip->DstIP);
-						Debug("%r %r %u %u\n", &a, &b, Endian16(tcp->SrcPort), Endian16(tcp->DstPort));
-					}*/
+					/*
+										if (Endian16(tcp->SrcPort) == 80)
+										{
+											IP a, b;
+											UINTToIP(&a, ip->SrcIP);
+											UINTToIP(&b, ip->DstIP);
+											Debug("%r %r %u %u\n", &a, &b, Endian16(tcp->SrcPort), Endian16(tcp->DstPort));
+										}*/
 
 					ok = true;
 				}
@@ -2226,7 +2226,7 @@ LABEL_RETRY:
 								if (inner_icmp_size >= (sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO)))
 								{
 									ICMP_HEADER *inner_icmp = (ICMP_HEADER *)(((UCHAR *)data) +
-										sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + orig_ipv4_header_size);
+									                          sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + orig_ipv4_header_size);
 
 									if (inner_icmp->Type == ICMP_TYPE_ECHO_REQUEST)
 									{
@@ -2328,8 +2328,8 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 		ARPV4_HEADER *arp = p->L3.ARPv4Header;
 
 		if (Endian16(arp->HardwareType) == ARP_HARDWARE_TYPE_ETHERNET &&
-			Endian16(arp->ProtocolType) == MAC_PROTO_IPV4 &&
-			arp->HardwareSize == 6 && arp->ProtocolType == 4)
+		        Endian16(arp->ProtocolType) == MAC_PROTO_IPV4 &&
+		        arp->HardwareSize == 6 && arp->ProtocolType == 4)
 		{
 			if (IPToUINT(&e->MyIP) == arp->TargetIP)
 			{
@@ -2460,8 +2460,8 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 					UINTToIP(&ips, ip);
 					IPToStr(client_ip, sizeof(client_ip), &ips);
 					Debug("IP_RAW: DHCP %s : %s given %s\n",
-						ret.Opcode == DHCP_OFFER ? "DHCP_OFFER" : "DHCP_ACK",
-						client_mac, client_ip);
+					      ret.Opcode == DHCP_OFFER ? "DHCP_OFFER" : "DHCP_ACK",
+					      client_mac, client_ip);
 				}
 
 				// Build a DHCP option
@@ -2538,7 +2538,7 @@ bool EthProcessIpPacketInnerIpRaw(ETH *e, PKT *p)
 							udp->DstPort = Endian16(NAT_DHCP_CLIENT_PORT);
 							udp->PacketLength = Endian16(sizeof(UDP_HEADER) + dhcp_packet_size);
 							udp->Checksum = CalcChecksumForIPv4(ipv4->SrcIP, ipv4->DstIP, IP_PROTO_UDP,
-								dhcp, dhcp_packet_size, 0);
+							                                    dhcp, dhcp_packet_size, 0);
 							if (udp->Checksum == 0)
 							{
 								udp->Checksum = 0xffff;
@@ -2589,14 +2589,14 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 
 	if (p->BroadcastPacket || Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) == 0)
 	{
-		if (IsValidUnicastMacAddress(p->MacAddressSrc))
+		if (IsMacUnicast(p->MacAddressSrc))
 		{
 			Copy(e->RawIpYourMacAddr, p->MacAddressSrc, 6);
 		}
 	}
 
-	if (IsZero(e->RawIpYourMacAddr, 6) || IsValidUnicastMacAddress(p->MacAddressSrc) == false ||
-		(p->BroadcastPacket == false && Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) != 0))
+	if (IsZero(e->RawIpYourMacAddr, 6) || IsMacUnicast(p->MacAddressSrc) == false ||
+	        (p->BroadcastPacket == false && Cmp(p->MacAddressDest, e->RawIpMyMacAddr, 6) != 0))
 	{
 		Free(data);
 		FreePacket(p);
@@ -2641,7 +2641,7 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 	}
 
 	if (s != NULL && p->L3.IPv4Header->DstIP != 0xffffffff && p->BroadcastPacket == false &&
-		p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
+	        p->L3.IPv4Header->SrcIP == IPToUINT(&e->YourIP))
 	{
 		UCHAR *send_data = p->IPv4PayloadData;
 		UCHAR *head = p->PacketData;
@@ -2661,8 +2661,8 @@ void EthPutPacketLinuxIpRaw(ETH *e, void *data, UINT size)
 			{
 				p->L4.TCPHeader->Checksum = 0;
 				p->L4.TCPHeader->Checksum = CalcChecksumForIPv4(IPToUINT(&e->MyPhysicalIP),
-					p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
-					p->L4.TCPHeader, p->IPv4PayloadSize, 0);
+				                            p->L3.IPv4Header->DstIP, IP_PROTO_TCP,
+				                            p->L4.TCPHeader, p->IPv4PayloadSize, 0);
 			}
 
 			UINTToIP(&dest, p->L3.IPv4Header->DstIP);
