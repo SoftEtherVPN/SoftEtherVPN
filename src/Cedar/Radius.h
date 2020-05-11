@@ -9,8 +9,8 @@
 #define	RADIUS_H
 
 #define	RADIUS_DEFAULT_PORT		1812			// The default port number
-#define	RADIUS_RETRY_INTERVAL	500				// Retransmission interval
-#define	RADIUS_RETRY_TIMEOUT	(10 * 1000)		// Time-out period
+#define	RADIUS_RETRY_INTERVAL	1000				// Retransmission interval
+#define	RADIUS_RETRY_TIMEOUT	(15 * 1000)		// Time-out period, keep it 2FA friendly
 #define	RADIUS_INITIAL_EAP_TIMEOUT	1600		// Initial timeout for EAP
 
 
