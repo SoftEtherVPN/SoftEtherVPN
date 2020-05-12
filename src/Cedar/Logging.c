@@ -175,7 +175,7 @@ void FreeEraseFileList(LIST *o)
 		return;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		ERASE_FILE *f = LIST_DATA(o, i);
 		Free(f->FullPath);
@@ -200,7 +200,7 @@ void EnumEraseFile(LIST *o, char *dirname)
 	// Enumeration
 	dir = EnumDir(dirname);
 
-	for (i = 0;i < dir->NumFiles;i++)
+	for (i = 0; i < dir->NumFiles; i++)
 	{
 		DIRENT *e = dir->File[i];
 		Format(tmp, sizeof(tmp), "%s/%s", dirname, e->FileName);
@@ -245,7 +245,7 @@ LIST *GenerateEraseFileList(ERASER *e)
 	o = NewListFast(CompareEraseFile);
 
 	// Scan for each directory
-	for (i = 0;i < sizeof(delete_targets) / sizeof(delete_targets[0]);i++)
+	for (i = 0; i < sizeof(delete_targets) / sizeof(delete_targets[0]); i++)
 	{
 		char dirname[MAX_PATH];
 		Format(dirname, sizeof(dirname), "%s/%s", e->DirName, delete_targets[i]);
@@ -285,7 +285,7 @@ void EraserMain(ERASER *e)
 	o = GenerateEraseFileList(e);
 
 	// Try to delete one by one in order from oldest file
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		ERASE_FILE *f = LIST_DATA(o, i);
 
@@ -626,7 +626,7 @@ void EtherIPLog(ETHERIP_SERVER *s, char *name, ...)
 	IPToStr(client_ip, sizeof(client_ip), &s->ClientIP);
 
 	UniFormat(prefix, sizeof(prefix), _UU("LE_PREFIX"), s->Id,
-		server_ip, s->ServerPort, client_ip, s->ClientPort);
+	          server_ip, s->ServerPort, client_ip, s->ClientPort);
 
 	va_start(args, name);
 	UniFormatArgs(buf2, sizeof(buf2), _UU(name), args);
@@ -671,17 +671,17 @@ void IPsecLog(IKE_SERVER *ike, IKE_CLIENT *c, IKE_SA *ike_sa, IPSECSA *ipsec_sa,
 		if (ipsec_sa != NULL)
 		{
 			UniFormat(prefix, sizeof(prefix), _UU("LI_PREFIX_IPSEC"),
-				ipsec_sa->Id, c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
+			          ipsec_sa->Id, c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
 		}
 		else if (ike_sa != NULL)
 		{
 			UniFormat(prefix, sizeof(prefix), _UU("LI_PREFIX_IKE"),
-				ike_sa->Id, c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
+			          ike_sa->Id, c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
 		}
 		else
 		{
 			UniFormat(prefix, sizeof(prefix), _UU("LI_PREFIX_CLIENT"),
-				c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
+			          c->Id, client_ip, c->ClientPort, server_ip, c->ServerPort);
 		}
 	}
 
@@ -755,7 +755,7 @@ void WriteHubLog(HUB *h, wchar_t *str)
 	}
 
 	if (syslog_status == SYSLOG_SERVER_AND_HUB_SECURITY_LOG
-		|| syslog_status == SYSLOG_SERVER_AND_HUB_ALL_LOG)
+	        || syslog_status == SYSLOG_SERVER_AND_HUB_ALL_LOG)
 	{
 		SiWriteSysLog(s, "SECURITY_LOG", h->Name, str);
 	}
@@ -833,7 +833,7 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 	}
 
 	if (memcmp(hub->HubMacAddr, packet->MacAddressSrc, 6) == 0 ||
-		memcmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
+	        memcmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
 	{
 		return true;
 	}
@@ -1027,8 +1027,8 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 			ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP]);
 
 			if (packet->L4.TCPHeader->Flag & TCP_SYN ||
-				packet->L4.TCPHeader->Flag & TCP_RST ||
-				packet->L4.TCPHeader->Flag & TCP_FIN)
+			        packet->L4.TCPHeader->Flag & TCP_RST ||
+			        packet->L4.TCPHeader->Flag & TCP_FIN)
 			{
 				// TCP SYN LOG
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
@@ -1057,10 +1057,10 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
 
- 			case L7_DNS:
- 				// DNS request
- 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
- 				break;
+			case L7_DNS:
+				// DNS request
+				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+				break;
 			}
 
 			break;
@@ -1084,8 +1084,8 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 			ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP]);
 
 			if (packet->L4.TCPHeader->Flag & TCP_SYN ||
-				packet->L4.TCPHeader->Flag & TCP_RST ||
-				packet->L4.TCPHeader->Flag & TCP_FIN)
+			        packet->L4.TCPHeader->Flag & TCP_RST ||
+			        packet->L4.TCPHeader->Flag & TCP_FIN)
 			{
 				// TCP SYN LOG
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
@@ -1109,10 +1109,10 @@ UINT CalcPacketLoggingLevelEx(HUB_LOG *g, PKT *packet)
 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
 				break;
 
- 			case L7_DNS:
- 				// DNS request
- 				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
- 				break;
+			case L7_DNS:
+				// DNS request
+				ret = MAX(ret, g->PacketLogConfig[PACKET_LOG_TCP_CONN]);
+				break;
 			}
 
 			break;
@@ -1167,12 +1167,12 @@ char *BuildHttpLogStr(HTTPLOG *h)
 			if (h->Port == 80)
 			{
 				Format(url, sizeof(url), "http://%s%s",
-					h->Hostname, h->Path);
+				       h->Hostname, h->Path);
 			}
 			else
 			{
 				Format(url, sizeof(url), "http://%s:%u%s",
-					h->Hostname, h->Port, h->Path);
+				       h->Hostname, h->Port, h->Path);
 			}
 		}
 		else
@@ -1180,12 +1180,12 @@ char *BuildHttpLogStr(HTTPLOG *h)
 			if (h->Port == 443)
 			{
 				Format(url, sizeof(url), "https://%s/",
-					h->Hostname);
+				       h->Hostname);
 			}
 			else
 			{
 				Format(url, sizeof(url), "https://%s:%u/",
-					h->Hostname, h->Port);
+				       h->Hostname, h->Port);
 			}
 		}
 	}
@@ -1251,7 +1251,7 @@ void MakeSafeLogStr(char *str)
 	}
 
 	if (str[0] == 'h' && str[1] == 't' && str[2] == 't' && str[3] == 'p' &&
-		((str[4] == 's' && str[5] == ':') || (str[4] == ':')))
+	        ((str[4] == 's' && str[5] == ':') || (str[4] == ':')))
 	{
 		is_http = true;
 	}
@@ -1259,7 +1259,7 @@ void MakeSafeLogStr(char *str)
 	EnPrintableAsciiStr(str, '?');
 
 	len = StrLen(str);
-	for (i = 0;i < len;i++)
+	for (i = 0; i < len; i++)
 	{
 		if (str[i] == ',')
 		{
@@ -1284,6 +1284,7 @@ char *PacketLogParseProc(RECORD *rec)
 	TOKEN_LIST *t;
 	char tmp[MAX_SIZE];
 	bool tcp_conn;
+	UINT i;
 	// Validate arguments
 	if (rec == NULL)
 	{
@@ -1340,9 +1341,9 @@ char *PacketLogParseProc(RECORD *rec)
 				// ARP request packet
 				t->Token[7] = CopyStr("Request");
 				if (Endian16(p->L3.ARPv4Header->HardwareType) == ARP_HARDWARE_TYPE_ETHERNET &&
-					p->L3.ARPv4Header->HardwareSize == 6 &&
-					Endian16(p->L3.ARPv4Header->ProtocolType) == MAC_PROTO_IPV4 &&
-					p->L3.ARPv4Header->ProtocolSize == 4)
+				        p->L3.ARPv4Header->HardwareSize == 6 &&
+				        Endian16(p->L3.ARPv4Header->ProtocolType) == MAC_PROTO_IPV4 &&
+				        p->L3.ARPv4Header->ProtocolSize == 4)
 				{
 					char src_mac[16];
 					char src_ip[16];
@@ -1355,7 +1356,7 @@ char *PacketLogParseProc(RECORD *rec)
 					IPToStr(src_ip, sizeof(src_ip), &src_ip_st);
 					IPToStr(dst_ip, sizeof(dst_ip), &dst_ip_st);
 					snprintf(tmp, sizeof(tmp), "Who has %s? Please Tell %s(%s)",
-						dst_ip, src_mac, src_ip);
+					         dst_ip, src_mac, src_ip);
 					t->Token[14] = CopyStr(tmp);
 				}
 				break;
@@ -1364,9 +1365,9 @@ char *PacketLogParseProc(RECORD *rec)
 				// ARP response packet
 				t->Token[7] = CopyStr("Response");
 				if (Endian16(p->L3.ARPv4Header->HardwareType) == ARP_HARDWARE_TYPE_ETHERNET &&
-					p->L3.ARPv4Header->HardwareSize == 6 &&
-					Endian16(p->L3.ARPv4Header->ProtocolType) == MAC_PROTO_IPV4 &&
-					p->L3.ARPv4Header->ProtocolSize == 4)
+				        p->L3.ARPv4Header->HardwareSize == 6 &&
+				        Endian16(p->L3.ARPv4Header->ProtocolType) == MAC_PROTO_IPV4 &&
+				        p->L3.ARPv4Header->ProtocolSize == 4)
 				{
 					char src_mac[16];
 					char src_ip[16];
@@ -1379,7 +1380,7 @@ char *PacketLogParseProc(RECORD *rec)
 					IPToStr(src_ip, sizeof(src_ip), &src_ip_st);
 					IPToStr(dst_ip, sizeof(dst_ip), &dst_ip_st);
 					snprintf(tmp, sizeof(tmp), "%s has %s",
-						src_mac, src_ip);
+					         src_mac, src_ip);
 					t->Token[14] = CopyStr(tmp);
 				}
 				break;
@@ -1483,9 +1484,9 @@ char *PacketLogParseProc(RECORD *rec)
 						IPToStr32(ip4, sizeof(ip4), p->L7.DHCPv4Header->RelayIP);
 
 						snprintf(tmp, sizeof(tmp),
-							"TransactionId=%u ClientIP=%s YourIP=%s ServerIP=%s RelayIP=%s",
-							Endian32(p->L7.DHCPv4Header->TransactionId),
-							ip1, ip2, ip3, ip4);
+						         "TransactionId=%u ClientIP=%s YourIP=%s ServerIP=%s RelayIP=%s",
+						         Endian32(p->L7.DHCPv4Header->TransactionId),
+						         ip1, ip2, ip3, ip4);
 
 						t->Token[14] = CopyStr(tmp);
 					}
@@ -1514,26 +1515,26 @@ char *PacketLogParseProc(RECORD *rec)
 
 						{
 							Format(tmp, sizeof(tmp), "InitiatorCookie=%I64u ResponderCookie=%I64u "
-								"Version=0x%x ExchangeType=0x%x Flag=0x%x MessageId=%u MessageSize=%u",
-								Endian64(p->L7.IkeHeader->InitiatorCookie),
-								Endian64(p->L7.IkeHeader->ResponderCookie),
-								p->L7.IkeHeader->Version,
-								p->L7.IkeHeader->ExchangeType,
-								p->L7.IkeHeader->Flag,
-								Endian32(p->L7.IkeHeader->MessageId),
-								Endian32(p->L7.IkeHeader->MessageSize));
+							       "Version=0x%x ExchangeType=0x%x Flag=0x%x MessageId=%u MessageSize=%u",
+							       Endian64(p->L7.IkeHeader->InitiatorCookie),
+							       Endian64(p->L7.IkeHeader->ResponderCookie),
+							       p->L7.IkeHeader->Version,
+							       p->L7.IkeHeader->ExchangeType,
+							       p->L7.IkeHeader->Flag,
+							       Endian32(p->L7.IkeHeader->MessageId),
+							       Endian32(p->L7.IkeHeader->MessageSize));
 
 							t->Token[14] = CopyStr(tmp);
 						}
 					}
 					break;
-  
- 				case L7_DNS:
- 					// DNS query
- 					t->Token[6] = CopyStr("DNSv4");
- 					t->Token[7] = CopyStr("DNS_Query");
- 					t->Token[14] = CopyStr(p->DnsQueryHost);
- 					break;
+
+				case L7_DNS:
+					// DNS query
+					t->Token[6] = CopyStr("DNSv4");
+					t->Token[7] = CopyStr("DNS_Query");
+					t->Token[14] = CopyStr(p->DnsQueryHost);
+					break;
 
 				default:
 					// Unknown Packet
@@ -1570,144 +1571,151 @@ char *PacketLogParseProc(RECORD *rec)
 			switch (p->TypeL4)
 			{
 			case L4_ICMPV6:
+			{
+				char info[MAX_SIZE];
+				ICMPV6_HEADER_INFO *icmp = &p->ICMPv6HeaderPacketInfo;
+				ICMPV6_OPTION_LIST *ol = &icmp->OptionList;
+
+				Zero(info, sizeof(info));
+
+				// ICMPv6 packet
+				t->Token[6] = CopyStr("ICMPv6");
+
+				switch (icmp->Type)
 				{
-					char info[MAX_SIZE];
-					ICMPV6_HEADER_INFO *icmp = &p->ICMPv6HeaderPacketInfo;
-					ICMPV6_OPTION_LIST *ol = &icmp->OptionList;
+				case ICMPV6_TYPE_ECHO_REQUEST:
+					// Echo request
+					t->Token[7] = CopyStr("Echo Request");
+					snprintf(tmp, sizeof(tmp), "EchoDataSize=%u ", icmp->EchoDataSize);
+					StrCat(info, sizeof(info), tmp);
+					break;
 
-					Zero(info, sizeof(info));
+				case ICMPV6_TYPE_ECHO_RESPONSE:
+					// Echo response
+					t->Token[7] = CopyStr("Echo Reply");
+					snprintf(tmp, sizeof(tmp), "EchoDataSize=%u ", icmp->EchoDataSize);
+					StrCat(info, sizeof(info), tmp);
+					break;
 
-					// ICMPv6 packet
-					t->Token[6] = CopyStr("ICMPv6");
+				case ICMPV6_TYPE_ROUTER_SOLICIATION:
+				{
+					ICMPV6_ROUTER_SOLICIATION_HEADER *h = icmp->Headers.RouterSoliciationHeader;
+					// Router Solicitation
+					t->Token[7] = CopyStr("Router Soliciation");
 
-					switch (icmp->Type)
+					if (h != NULL)
 					{
-					case ICMPV6_TYPE_ECHO_REQUEST:
-						// Echo request
-						t->Token[7] = CopyStr("Echo Request");
-						snprintf(tmp, sizeof(tmp), "EchoDataSize=%u ", icmp->EchoDataSize);
-						StrCat(info, sizeof(info), tmp);
-						break;
-
-					case ICMPV6_TYPE_ECHO_RESPONSE:
-						// Echo response
-						t->Token[7] = CopyStr("Echo Reply");
-						snprintf(tmp, sizeof(tmp), "EchoDataSize=%u ", icmp->EchoDataSize);
-						StrCat(info, sizeof(info), tmp);
-						break;
-
-					case ICMPV6_TYPE_ROUTER_SOLICIATION:
-						{
-							ICMPV6_ROUTER_SOLICIATION_HEADER *h = icmp->Headers.RouterSoliciationHeader;
-							// Router Solicitation
-							t->Token[7] = CopyStr("Router Soliciation");
-
-							if (h != NULL)
-							{
-								// No additional information
-							}
-						}
-						break;
-
-					case ICMPV6_TYPE_ROUTER_ADVERTISEMENT:
-						{
-							ICMPV6_ROUTER_ADVERTISEMENT_HEADER *h = icmp->Headers.RouterAdvertisementHeader;
-							// Router Advertisement
-							t->Token[7] = CopyStr("Router Advertisement");
-
-							if (h != NULL)
-							{
-								snprintf(tmp, sizeof(tmp), "CurHopLimit=%u "
-									"Flags=0x%02X Lifetime=%u ",
-									h->CurHopLimit, h->Flags, Endian16(h->Lifetime));
-								StrCat(info, sizeof(info), tmp);
-							}
-						}
-						break;
-
-					case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
-						{
-							ICMPV6_NEIGHBOR_SOLICIATION_HEADER *h = icmp->Headers.NeighborSoliciationHeader;
-							// Neighbor Solicitation
-							t->Token[7] = CopyStr("Neighbor Soliciation");
-
-							if (h != NULL)
-							{
-								char tmp2[MAX_SIZE];
-
-								IP6AddrToStr(tmp2, sizeof(tmp2), &h->TargetAddress);
-
-								snprintf(tmp, sizeof(tmp), "TargetAddress=%s ",
-									tmp2);
-								StrCat(info, sizeof(info), tmp);
-							}
-						}
-						break;
-
-					case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
-						{
-							ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER *h = icmp->Headers.NeighborAdvertisementHeader;
-							// Neighbor Advertisement
-							t->Token[7] = CopyStr("Neighbor Advertisement");
-
-							if (h != NULL)
-							{
-								char tmp2[MAX_SIZE];
-
-								IP6AddrToStr(tmp2, sizeof(tmp2), &h->TargetAddress);
-
-								snprintf(tmp, sizeof(tmp), "TargetAddress=%s Flags=0x%02X ",
-									tmp2, h->Flags);
-								StrCat(info, sizeof(info), tmp);
-							}
-						}
-						break;
-
-					default:
-						{
-							snprintf(tmp, sizeof(tmp), "Type=%u", icmp->Type);
-							t->Token[7] = CopyStr(tmp);
-						}
-						break;
-					}
-
-					// Option data
-					if (ol->SourceLinkLayer != NULL)
-					{
-						char tmp2[MAX_SIZE];
-						BinToStr(tmp2, sizeof(tmp2), ol->SourceLinkLayer->Address, 6);
-						snprintf(tmp, sizeof(tmp), "SourceLinkLayer=%s ", tmp2);
-						StrCat(info, sizeof(info), tmp);
-					}
-					if (ol->TargetLinkLayer != NULL)
-					{
-						char tmp2[MAX_SIZE];
-						BinToStr(tmp2, sizeof(tmp2), ol->TargetLinkLayer->Address, 6);
-						snprintf(tmp, sizeof(tmp), "TargetLinkLayer=%s ", tmp2);
-						StrCat(info, sizeof(info), tmp);
-					}
-					if (ol->Prefix != NULL)
-					{
-						char tmp2[MAX_SIZE];
-						IP6AddrToStr(tmp2, sizeof(tmp2), &ol->Prefix->Prefix);
-						snprintf(tmp, sizeof(tmp), "Prefix=%s/%u PrefixFlag=0x%02X ", tmp2,
-							ol->Prefix->SubnetLength, ol->Prefix->Flags);
-						StrCat(info, sizeof(info), tmp);
-					}
-					if (ol->Mtu != NULL)
-					{
-						snprintf(tmp, sizeof(tmp), "Mtu=%u ", Endian32(ol->Mtu->Mtu));
-						StrCat(info, sizeof(info), tmp);
-					}
-
-					Trim(info);
-
-					if (IsEmptyStr(info) == false)
-					{
-						t->Token[14] = CopyStr(info);
+						// No additional information
 					}
 				}
 				break;
+
+				case ICMPV6_TYPE_ROUTER_ADVERTISEMENT:
+				{
+					ICMPV6_ROUTER_ADVERTISEMENT_HEADER *h = icmp->Headers.RouterAdvertisementHeader;
+					// Router Advertisement
+					t->Token[7] = CopyStr("Router Advertisement");
+
+					if (h != NULL)
+					{
+						snprintf(tmp, sizeof(tmp), "CurHopLimit=%u "
+						         "Flags=0x%02X Lifetime=%u ",
+						         h->CurHopLimit, h->Flags, Endian16(h->Lifetime));
+						StrCat(info, sizeof(info), tmp);
+					}
+				}
+				break;
+
+				case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
+				{
+					ICMPV6_NEIGHBOR_SOLICIATION_HEADER *h = icmp->Headers.NeighborSoliciationHeader;
+					// Neighbor Solicitation
+					t->Token[7] = CopyStr("Neighbor Soliciation");
+
+					if (h != NULL)
+					{
+						char tmp2[MAX_SIZE];
+
+						IP6AddrToStr(tmp2, sizeof(tmp2), &h->TargetAddress);
+
+						snprintf(tmp, sizeof(tmp), "TargetAddress=%s ",
+						         tmp2);
+						StrCat(info, sizeof(info), tmp);
+					}
+				}
+				break;
+
+				case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
+				{
+					ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER *h = icmp->Headers.NeighborAdvertisementHeader;
+					// Neighbor Advertisement
+					t->Token[7] = CopyStr("Neighbor Advertisement");
+
+					if (h != NULL)
+					{
+						char tmp2[MAX_SIZE];
+
+						IP6AddrToStr(tmp2, sizeof(tmp2), &h->TargetAddress);
+
+						snprintf(tmp, sizeof(tmp), "TargetAddress=%s Flags=0x%02X ",
+						         tmp2, h->Flags);
+						StrCat(info, sizeof(info), tmp);
+					}
+				}
+				break;
+
+				default:
+				{
+					snprintf(tmp, sizeof(tmp), "Type=%u", icmp->Type);
+					t->Token[7] = CopyStr(tmp);
+				}
+				break;
+				}
+
+				// Option data
+				if (ol->SourceLinkLayer != NULL)
+				{
+					char tmp2[MAX_SIZE];
+					BinToStr(tmp2, sizeof(tmp2), ol->SourceLinkLayer->Address, 6);
+					snprintf(tmp, sizeof(tmp), "SourceLinkLayer=%s ", tmp2);
+					StrCat(info, sizeof(info), tmp);
+				}
+				if (ol->TargetLinkLayer != NULL)
+				{
+					char tmp2[MAX_SIZE];
+					BinToStr(tmp2, sizeof(tmp2), ol->TargetLinkLayer->Address, 6);
+					snprintf(tmp, sizeof(tmp), "TargetLinkLayer=%s ", tmp2);
+					StrCat(info, sizeof(info), tmp);
+				}
+				for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
+				{
+					if (ol->Prefix[i] != NULL)
+					{
+						char tmp2[MAX_SIZE];
+						IP6AddrToStr(tmp2, sizeof(tmp2), &ol->Prefix[i]->Prefix);
+						snprintf(tmp, sizeof(tmp), "Prefix=%s/%u PrefixFlag=0x%02X ", tmp2,
+						         ol->Prefix[i]->SubnetLength, ol->Prefix[i]->Flags);
+						StrCat(info, sizeof(info), tmp);
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (ol->Mtu != NULL)
+				{
+					snprintf(tmp, sizeof(tmp), "Mtu=%u ", Endian32(ol->Mtu->Mtu));
+					StrCat(info, sizeof(info), tmp);
+				}
+
+				Trim(info);
+
+				if (IsEmptyStr(info) == false)
+				{
+					t->Token[14] = CopyStr(info);
+				}
+			}
+			break;
 
 			case L4_TCP:
 				// TCP packet
@@ -1786,26 +1794,26 @@ char *PacketLogParseProc(RECORD *rec)
 
 						{
 							Format(tmp, sizeof(tmp), "InitiatorCookie=%I64u ResponderCookie=%I64u "
-								"Version=0x%x ExchangeType=0x%x Flag=0x%x MessageId=%u MessageSize=%u",
-								Endian64(p->L7.IkeHeader->InitiatorCookie),
-								Endian64(p->L7.IkeHeader->ResponderCookie),
-								p->L7.IkeHeader->Version,
-								p->L7.IkeHeader->ExchangeType,
-								p->L7.IkeHeader->Flag,
-								Endian32(p->L7.IkeHeader->MessageId),
-								Endian32(p->L7.IkeHeader->MessageSize));
+							       "Version=0x%x ExchangeType=0x%x Flag=0x%x MessageId=%u MessageSize=%u",
+							       Endian64(p->L7.IkeHeader->InitiatorCookie),
+							       Endian64(p->L7.IkeHeader->ResponderCookie),
+							       p->L7.IkeHeader->Version,
+							       p->L7.IkeHeader->ExchangeType,
+							       p->L7.IkeHeader->Flag,
+							       Endian32(p->L7.IkeHeader->MessageId),
+							       Endian32(p->L7.IkeHeader->MessageSize));
 
 							t->Token[14] = CopyStr(tmp);
 						}
 					}
 					break;
-  
- 				case L7_DNS:
- 					// DNS query
- 					t->Token[6] = CopyStr("DNSv6");
- 					t->Token[7] = CopyStr("DNS_Query");
- 					t->Token[14] = CopyStr(p->DnsQueryHost);
- 					break;
+
+				case L7_DNS:
+					// DNS query
+					t->Token[6] = CopyStr("DNSv6");
+					t->Token[7] = CopyStr("DNS_Query");
+					t->Token[14] = CopyStr(p->DnsQueryHost);
+					break;
 
 				default:
 					t->Token[6] = CopyStr("UDPv6");
@@ -1975,7 +1983,7 @@ char *GenCsvLine(TOKEN_LIST *t)
 	}
 
 	b = NewBuf();
-	for (i = 0;i < t->NumTokens;i++)
+	for (i = 0; i < t->NumTokens; i++)
 	{
 		if (t->Token[i] != NULL)
 		{
@@ -2019,7 +2027,7 @@ void ReplaceForCsv(char *str)
 
 	len = StrLen(str);
 
-	for (i = 0;i < len;i++)
+	for (i = 0; i < len; i++)
 	{
 		// Convert the comma to underscore
 		if (str[i] == ',')
@@ -2154,7 +2162,7 @@ void MakeLogFileNameStringFromTick(LOG *g, char *str, UINT size, UINT64 tick, UI
 	if (g->CacheFlag)
 	{
 		if (g->LastTick == tick &&
-			g->LastSwitchType == switch_type)
+		        g->LastSwitchType == switch_type)
 		{
 			StrCpy(str, size, g->LastStr);
 			return;
@@ -2168,12 +2176,12 @@ void MakeLogFileNameStringFromTick(LOG *g, char *str, UINT size, UINT64 tick, UI
 	{
 	case LOG_SWITCH_SECOND:	// Secondly basis
 		snprintf(str, size, "_%04u%02u%02u_%02u%02u%02u",
-			st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+		         st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 		break;
 
 	case LOG_SWITCH_MINUTE:	// Minutely basis
 		snprintf(str, size, "_%04u%02u%02u_%02u%02u",
-			st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+		         st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
 		break;
 
 	case LOG_SWITCH_HOUR:	// Hourly basis
@@ -2271,9 +2279,9 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 	}
 
 	snprintf(name, size, "%s%s%s%s%s.log", dir,
-		StrLen(dir) == 0 ? "" : "/",
-		prefix, tmp, tmp2
-		);
+	         StrLen(dir) == 0 ? "" : "/",
+	         prefix, tmp, tmp2
+	        );
 
 	return ret;
 }
@@ -2533,7 +2541,7 @@ static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *l
 	LockLog(log_object);
 	{
 		*log_date_changed = MakeLogFileName(log_object, file_name, sizeof(file_name),
-			log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, log_object->CurrentLogNumber, current_logfile_datename);
+		                                    log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, log_object->CurrentLogNumber, current_logfile_datename);
 
 		if (*log_date_changed)
 		{
@@ -2541,12 +2549,12 @@ static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *l
 
 			log_object->CurrentLogNumber = 0;
 			MakeLogFileName(log_object, file_name, sizeof(file_name),
-				log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, 0, current_logfile_datename);
-			for (i = 0;;i++)
+			                log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, 0, current_logfile_datename);
+			for (i = 0;; i++)
 			{
 				char tmp[MAX_SIZE];
 				MakeLogFileName(log_object, tmp, sizeof(tmp),
-					log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, i, current_logfile_datename);
+				                log_object->DirName, log_object->Prefix, rec->Tick, log_object->SwitchType, i, current_logfile_datename);
 
 				if (IsFileExists(tmp) == false)
 				{
@@ -2564,7 +2572,7 @@ static bool LogThreadWriteGeneral(LOG *log_object, BUF *buffer, IO **io, bool *l
 		if (StrCmp(current_file_name, file_name) != 0)
 		{
 			// If a log file is currently opened and writing to another log
-			// file is needed for this time, write the contents of the 
+			// file is needed for this time, write the contents of the
 			//buffer and close the log file. Write the contents of the buffer
 			if (*io != NULL)
 			{

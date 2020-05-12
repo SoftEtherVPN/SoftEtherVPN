@@ -365,7 +365,7 @@ void PPPThread(THREAD *thread, void *param)
 						PPPSendPacketEx(p, pp, true);
 
 						FreePPPPacketEx(pp, true);
-						Free(b);
+						Free(b); // Not FreeBlock because freed in FreePPPPacketEx
 					}
 				}
 				else
@@ -396,7 +396,7 @@ void PPPThread(THREAD *thread, void *param)
 						PPPSendPacketEx(p, pp, true);
 
 						FreePPPPacketEx(pp, true);
-						Free(b);
+						Free(b); // Not FreeBlock because freed in FreePPPPacketEx
 					}
 				}
 				else
@@ -1961,7 +1961,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 			{
 				UINT64 newValue = 0;
 				UINT64 value = READ_UINT64(t->Data);
-				if (!IPCIPv6CheckExistingLinkLocal(p->Ipc, value))
+				if (value != 0 && !IPCIPv6CheckExistingLinkLocal(p->Ipc, value))
 				{
 					t->IsAccepted = true;
 					p->Ipc->IPv6ClientEUI = value;

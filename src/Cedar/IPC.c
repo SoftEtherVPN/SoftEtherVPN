@@ -1428,7 +1428,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 										}
 									}
 
-									FreePacket(pkt);
+									FreePacketWithData(pkt);
 								}
 
 								IPCAssociateOnArpTable(ipc, &ip_src, src_mac);
@@ -1437,6 +1437,10 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								{
 									// Place in the reception queue
 									InsertQueue(ipc->IPv4ReceivedQueue, NewBlock(data, size, 0));
+								}
+								else
+								{
+									Free(data); // We need to free the packet if we don't save it
 								}
 
 							}
@@ -1470,9 +1474,9 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								{
 								case ICMPV6_TYPE_ROUTER_ADVERTISEMENT:
 									// We save the router advertisement data for later use
-									IPCIPv6AddRouterPrefix(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
+									IPCIPv6AddRouterPrefixes(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
-									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, &p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
+									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
 									break;
 								case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
 									// We save the neighbor advertisements into NDT
@@ -1494,6 +1498,10 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 							if (ipc->IPv6State == IPC_PROTO_STATUS_OPENED)
 							{
 								InsertQueue(ipc->IPv6ReceivedQueue, NewBlock(data, size, 0));
+							}
+							else
+							{
+								Free(data); // We need to free the packet if we don't save it
 							}
 
 							FreePacket(p);
@@ -2192,29 +2200,39 @@ bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui)
 }
 
 // RA
-void IPCIPv6AddRouterPrefix(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip)
+void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip)
 {
-	UINT i;
-	bool foundPrefix = false;
-	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
+	UINT i, j;
+	for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
 	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT *existingRA = LIST_DATA(ipc->IPv6RouterAdvs, i);
-		if (Cmp(&recvPrefix->Prefix->Prefix, &existingRA->RoutedPrefix.ipv6_addr, sizeof(IPV6_ADDR)) == 0)
+		if (recvPrefix->Prefix[i] != NULL)
 		{
-			foundPrefix = true;
+			bool foundPrefix = false;
+			for (j = 0; j < LIST_NUM(ipc->IPv6RouterAdvs); j++)
+			{
+				IPC_IPV6_ROUTER_ADVERTISEMENT *existingRA = LIST_DATA(ipc->IPv6RouterAdvs, j);
+				if (Cmp(&recvPrefix->Prefix[i]->Prefix, &existingRA->RoutedPrefix.ipv6_addr, sizeof(IPV6_ADDR)) == 0)
+				{
+					foundPrefix = true;
+					break;
+				}
+			}
+
+			if (!foundPrefix)
+			{
+				IPC_IPV6_ROUTER_ADVERTISEMENT *newRA = Malloc(sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
+				IPv6AddrToIP(&newRA->RoutedPrefix, &recvPrefix->Prefix[i]->Prefix);
+				IntToSubnetMask6(&newRA->RoutedMask, recvPrefix->Prefix[i]->SubnetLength);
+				CopyIP(&newRA->RouterAddress, ip);
+				Copy(newRA->RouterMacAddress, macAddress, 6);
+				Copy(newRA->RouterLinkLayerAddress, recvPrefix->SourceLinkLayer->Address, 6);
+				Add(ipc->IPv6RouterAdvs, newRA);
+			}
+		}
+		else
+		{
 			break;
 		}
-	}
-
-	if (!foundPrefix)
-	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT *newRA = Malloc(sizeof(IPC_IPV6_ROUTER_ADVERTISEMENT));
-		IPv6AddrToIP(&newRA->RoutedPrefix, &recvPrefix->Prefix->Prefix);
-		IntToSubnetMask6(&newRA->RoutedMask, recvPrefix->Prefix->SubnetLength);
-		CopyIP(&newRA->RouterAddress, ip);
-		Copy(newRA->RouterMacAddress, macAddress, 6);
-		Copy(newRA->RouterLinkLayerAddress, recvPrefix->SourceLinkLayer->Address, 6);
-		Add(ipc->IPv6RouterAdvs, newRA);
 	}
 }
 
@@ -2287,11 +2305,16 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		packet = BuildICMPv6RouterSoliciation(&senderV6, &destV6, ipc->MacAddress, 0);
 
 		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+		UINT64 timeout_retry = 0;
 
 		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 		{
-			UINT64 timeout_retry = Tick64() + (UINT64)IPC_IPV6_RA_INTERVAL;
-			IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
+			UINT64 now = Tick64();
+			if (now >= timeout_retry)
+			{
+				timeout_retry = now + (UINT64)IPC_IPV6_RA_INTERVAL;
+				IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
+			}
 
 			AddInterrupt(ipc->Interrupt, timeout_retry);
 
@@ -2304,6 +2327,8 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 			// The processing should populate the received RAs by itself
 			IPCProcessL3Events(ipc);
 		}
+
+		FreeBuf(packet);
 	}
 
 	// Populating the IPv6 Server EUI for IPV6CP
@@ -2379,6 +2404,10 @@ void IPCIPv6Send(IPC *ipc, void *data, UINT size)
 void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr)
 {
 	UCHAR tmp[1514];
+
+	IPV6_HEADER *header = data;
+
+
 	// Validate arguments
 	if (ipc == NULL || data == NULL || size < 40 || size > 1500 || dest_mac_addr == NULL)
 	{
@@ -2396,6 +2425,60 @@ void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac
 
 	// Data
 	Copy(tmp + 14, data, size);
+
+	// Parse the packet for ND ICMPv6 fixup
+	if (header->NextHeader == IP_PROTO_ICMPV6)
+	{
+		PKT *p = ParsePacketUpToICMPv6(tmp, size + 14);
+		if (p != NULL)
+		{
+			ICMPV6_OPTION_LINK_LAYER linkLayer;
+			BUF *buf;
+			BUF *optBuf;
+			BUF *packet;
+			// We need to rebuild the packet to
+			switch (p->ICMPv6HeaderPacketInfo.Type)
+			{
+			case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
+				if (p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer == NULL)
+				{
+					p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer = &linkLayer;
+				}
+				Copy(p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, ipc->MacAddress, 6);
+			case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
+				if (p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer == NULL)
+				{
+					p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer = &linkLayer;
+				}
+				Copy(p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer->Address, ipc->MacAddress, 6);
+			}
+			switch (p->ICMPv6HeaderPacketInfo.Type)
+			{
+			case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
+			case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
+				optBuf = BuildICMPv6Options(&p->ICMPv6HeaderPacketInfo.OptionList);
+				buf = NewBuf();
+				WriteBuf(buf, p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer,
+				         p->ICMPv6HeaderPacketInfo.Type == ICMPV6_TYPE_NEIGHBOR_SOLICIATION ? sizeof(ICMPV6_NEIGHBOR_SOLICIATION_HEADER) : sizeof(ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER));
+				WriteBufBuf(buf, optBuf);
+				packet = BuildICMPv6(&p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress,
+				                     &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress,
+				                     p->IPv6HeaderPacketInfo.IPv6Header->HopLimit,
+				                     p->ICMPv6HeaderPacketInfo.Type,
+				                     p->ICMPv6HeaderPacketInfo.Code,
+				                     buf->Buf,
+				                     buf->Size,
+				                     0);
+				Copy(tmp + 14, packet->Buf, packet->Size);
+				size = packet->Size;
+				FreeBuf(optBuf);
+				FreeBuf(buf);
+				FreeBuf(packet);
+				break;
+			}
+		}
+		FreePacket(p);
+	}
 
 	// Send
 	IPCSendL2(ipc, tmp, size + 14);
@@ -2484,12 +2567,23 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 		{
 			// We need to send the Neighbor Solicitation and save the packet for sending later
 			// Generate the MAC address from the multicast address
+			BUF *neighborSolicit;
 			UCHAR destMacAddress[6];
-			BUF *neighborSolicit = BuildICMPv6NeighborSoliciation(&header->SrcAddress, &header->DestAddress, ipc->MacAddress, 0);
+			IPV6_ADDR solicitAddress;
+			Zero(&solicitAddress, sizeof(IPV6_ADDR));
+			Copy(&solicitAddress.Value[13], &header->DestAddress.Value[13], 3);
+			solicitAddress.Value[0] = 0xFF;
+			solicitAddress.Value[1] = 0x02;
+			solicitAddress.Value[11] = 0x01;
+			solicitAddress.Value[12] = 0xFF;
+
+			neighborSolicit = BuildICMPv6NeighborSoliciation(&header->SrcAddress, &solicitAddress, ipc->MacAddress, 0);
 			destMacAddress[0] = 0x33;
 			destMacAddress[1] = 0x33;
-			Copy(&destMacAddress[2], &next_ip->ipv6_addr[12], sizeof(UINT));
+			Copy(&destMacAddress[2], &solicitAddress.Value[12], sizeof(UINT));
 			IPCIPv6SendWithDestMacAddr(ipc, neighborSolicit->Buf, neighborSolicit->Size, destMacAddress);
+
+			FreeBuf(neighborSolicit);
 
 			CHAR tmp[MAX_SIZE];
 			UCHAR *copy = Clone(data, size);

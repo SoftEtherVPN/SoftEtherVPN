@@ -227,7 +227,7 @@ void IPCIPv6FlushNDT(IPC *ipc);
 void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now);
 bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui);
 // RA
-void IPCIPv6AddRouterPrefix(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
+void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
 bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
 UINT64 IPCIPv6GetServerEui(IPC *ipc);
 // Data flow

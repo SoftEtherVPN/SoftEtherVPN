@@ -399,12 +399,14 @@ struct ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER
 #define ICMPV6_NEIGHBOR_ADVERTISEMENT_FLAG_SOLICITED	0x40	// Solicited flag
 #define ICMPV6_NEIGHBOR_ADVERTISEMENT_FLAG_OVERWRITE	0x20	// Overwrite flag
 
+#define ICMPV6_OPTION_PREFIXES_MAX_COUNT				10
+
 // ICMPv6 option list
 struct ICMPV6_OPTION_LIST
 {
 	ICMPV6_OPTION_LINK_LAYER *SourceLinkLayer;		// Source link-layer address
 	ICMPV6_OPTION_LINK_LAYER *TargetLinkLayer;		// Target link-layer address
-	ICMPV6_OPTION_PREFIX *Prefix;					// Prefix Information
+	ICMPV6_OPTION_PREFIX *Prefix[ICMPV6_OPTION_PREFIXES_MAX_COUNT];	// Prefix Information - may be multiple in one request
 	ICMPV6_OPTION_MTU *Mtu;							// MTU
 } GCC_PACKED;
 

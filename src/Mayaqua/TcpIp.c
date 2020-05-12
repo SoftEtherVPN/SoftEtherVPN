@@ -1140,6 +1140,7 @@ void BuildICMPv6OptionValue(BUF *b, UCHAR type, void *header_pointer, UINT total
 BUF *BuildICMPv6Options(ICMPV6_OPTION_LIST *o)
 {
 	BUF *b;
+	UINT i;
 	// Validate arguments
 	if (o == NULL)
 	{
@@ -1156,9 +1157,16 @@ BUF *BuildICMPv6Options(ICMPV6_OPTION_LIST *o)
 	{
 		BuildICMPv6OptionValue(b, ICMPV6_OPTION_TYPE_TARGET_LINK_LAYER, o->TargetLinkLayer, sizeof(ICMPV6_OPTION_LINK_LAYER));
 	}
-	if (o->Prefix != NULL)
+	for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
 	{
-		BuildICMPv6OptionValue(b, ICMPV6_OPTION_TYPE_PREFIX, o->Prefix, sizeof(ICMPV6_OPTION_PREFIX));
+		if (o->Prefix[i] != NULL)
+		{
+			BuildICMPv6OptionValue(b, ICMPV6_OPTION_TYPE_PREFIX, o->Prefix[i], sizeof(ICMPV6_OPTION_PREFIX));
+		}
+		else
+		{
+			break;
+		}
 	}
 	if (o->Mtu != NULL)
 	{
@@ -2402,7 +2410,15 @@ bool ParseICMPv6Options(ICMPV6_OPTION_LIST *o, UCHAR *buf, UINT size)
 			// Prefix Information
 			if (header_total_size >= sizeof(ICMPV6_OPTION_PREFIX))
 			{
-				o->Prefix = (ICMPV6_OPTION_PREFIX *)header_pointer;
+				UINT i;
+				for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
+				{
+					if (o->Prefix[i] == NULL)
+					{
+						o->Prefix[i] = (ICMPV6_OPTION_PREFIX *)header_pointer;
+						break;
+					}
+				}
 			}
 			else
 			{
@@ -2556,6 +2572,7 @@ bool ParseICMPv6(PKT *p, UCHAR *buf, UINT size)
 // Release of the ICMPv6 options
 void FreeCloneICMPv6Options(ICMPV6_OPTION_LIST *o)
 {
+	UINT i;
 	// Validate arguments
 	if (o == NULL)
 	{
@@ -2564,13 +2581,19 @@ void FreeCloneICMPv6Options(ICMPV6_OPTION_LIST *o)
 
 	Free(o->SourceLinkLayer);
 	Free(o->TargetLinkLayer);
-	Free(o->Prefix);
+
+	for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
+	{
+		Free(o->Prefix[i]);
+		o->Prefix[i] = NULL;
+	}
 	Free(o->Mtu);
 }
 
 // Clone of the ICMPv6 options
 void CloneICMPv6Options(ICMPV6_OPTION_LIST *dst, ICMPV6_OPTION_LIST *src)
 {
+	UINT i;
 	// Validate arguments
 	if (dst == NULL || src == NULL)
 	{
@@ -2581,7 +2604,17 @@ void CloneICMPv6Options(ICMPV6_OPTION_LIST *dst, ICMPV6_OPTION_LIST *src)
 
 	dst->SourceLinkLayer = Clone(src->SourceLinkLayer, sizeof(ICMPV6_OPTION_LINK_LAYER));
 	dst->TargetLinkLayer = Clone(src->TargetLinkLayer, sizeof(ICMPV6_OPTION_LINK_LAYER));
-	dst->Prefix = Clone(src->Prefix, sizeof(ICMPV6_OPTION_PREFIX));
+	for (i = 0; i < ICMPV6_OPTION_PREFIXES_MAX_COUNT; i++)
+	{
+		if (src->Prefix[i] != NULL)
+		{
+			dst->Prefix[i] = Clone(src->Prefix[i], sizeof(ICMPV6_OPTION_PREFIX));
+		}
+		else
+		{
+			break;
+		}
+	}
 	dst->Mtu = Clone(src->Mtu, sizeof(ICMPV6_OPTION_MTU));
 }
 
