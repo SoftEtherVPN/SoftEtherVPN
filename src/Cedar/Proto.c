@@ -445,14 +445,15 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 {
 	UINT i;
+	PROTO *proto;
 	HASH_LIST *sessions;
-	PROTO *proto = listener->Param;
 
-	if (proto == NULL || listener == NULL || datagrams == NULL)
+	if (listener == NULL || datagrams == NULL)
 	{
 		return;
 	}
 
+	proto = listener->Param;
 	sessions = proto->Sessions;
 
 	for (i = 0; i < LIST_NUM(datagrams); ++i)
