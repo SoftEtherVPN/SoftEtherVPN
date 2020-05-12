@@ -1887,7 +1887,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE 연결 "%S"사용자 "%S"의 인증 방�
 LH_AUTH_OK 연결 "%S"사용자 "%S"로 성공적으로 인증되었습니다.
 LH_AUTH_OK_CERT 가상 HUB 보안 계정 관리자는 사용자 "%S"가 로그인 할 때 인증서로 다음 인증서를 VPN Client에서 접수하고 그 내용을 승인했습니다:%s
 LH_AUTH_NG_CERT 가상 HUB 보안 계정 관리자는 사용자 "%S"가 로그인 할 때 인증서로 다음 인증서를 VPN Client에서 접수했지만,이 인증서는 가상 HUB의 잘못된 인증서 목록에 등록 되는 내용과 일치하는 거부했습니다:%s
-LH_AUTH_NG 연결 "%S": 사용자 인증에 실패했습니다. 제시된 사용자 이름은 "%S"였습니다.
+LH_AUTH_NG Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY 연결 "%S"사용자 "%S"암호가 비어을위한 원격에서 로그인이 거부되었습니다.
 LH_POLICY_ACCESS_NG 연결 "%S"사용자 "%S"는 보안 정책에 의해 액세스가 거부되어 있습니다.
 LH_USER_EXPIRES 연결 "%S"사용자 "%S"의 유효 기간이 만료되어 액세스가 거부되었습니다.
