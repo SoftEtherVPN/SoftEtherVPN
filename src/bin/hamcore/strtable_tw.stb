@@ -1926,7 +1926,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的連接方法: 用戶 "%S" 的身
 LH_AUTH_OK				連接 "%S": 成功認證為用戶 "%S"。
 LH_AUTH_OK_CERT			虛擬 HUB 的安全帳戶管理器已經從 VPN Client 接收到如下證書，且接受了其內容作為當使用者 "%S" 登入時的證書: %s
 LH_AUTH_NG_CERT			虛擬 HUB 的安全帳戶管理器已經從 VPN Client 接收到如下證書，但拒絕了其內容作為當使用者 "%S" 登入時的證書，因為此證書的內容匹配虛擬 HUB 中註冊的廢止內容清單: %s
-LH_AUTH_NG				連接 "%S": 用戶認證失敗。提供的用戶名為 "%S"。
+LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY			連接 "%S": 遠端登入拒絕，因為用戶 "%S" 的密碼為空。
 LH_POLICY_ACCESS_NG		連接 "%S": 由於安全性原則，用戶 "%S" 拒絕訪問。
 LH_USER_EXPIRES			連接 "%S": 由於有效期限已過，用戶 "%S" 拒絕訪問。
