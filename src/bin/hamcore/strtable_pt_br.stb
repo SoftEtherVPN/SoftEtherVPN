@@ -1906,7 +1906,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication meth
 LH_AUTH_OK	Connection "%S": Successfully authenticated as user "%S".
 LH_AUTH_OK_CERT	The Virtual Hub's Security Account Manager has received the following certificate from the VPN Client and accepted its contents as the certificate for when user "%S" logs in: %s
 LH_AUTH_NG_CERT	Although the Virtual Hub's Security Account Manager has received the following certificate, has refused its contents as the certificate for when user "%S" logs in because this certificate's contents matches the contents that are registered in the Virtual Hub's certificates revocation list: %s
-LH_AUTH_NG	Connection "%S": User authentication failed. The user name that has been provided was "%S".
+LH_AUTH_NG	Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY	Connection "%S": The remote login has been refused because of the password for user "%S" is blank.
 LH_POLICY_ACCESS_NG	Connection "%S": Access has beens refused to user "%S" based on the security policy.
 LH_USER_EXPIRES	Connection "%S": Access has been refused to user "%S" because of the expiration date has been expired.
