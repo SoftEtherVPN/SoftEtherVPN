@@ -1923,7 +1923,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身
 LH_AUTH_OK					连接 "%S": 成功认证为用户 "%S"。
 LH_AUTH_OK_CERT				虚拟 HUB 的安全账户管理器已经从 VPN Client 接收到如下证书，且接受了其内容作为当用户 "%S" 登录时的证书: %s
 LH_AUTH_NG_CERT				虚拟 HUB 的安全账户管理器已经从 VPN Client 接收到如下证书，但拒绝了其内容作为当用户 "%S" 登录时的证书，因为此证书的内容匹配虚拟 HUB 中注册的废止内容列表: %s
-LH_AUTH_NG					连接 "%S": 用户认证失败。提供的用户名为 "%S"。
+LH_AUTH_NG					Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY				连接 "%S": 远程登录拒绝，因为用户 "%S" 的密码为空。
 LH_POLICY_ACCESS_NG			连接 "%S": 由于安全策略，用户 "%S" 拒绝访问。
 LH_USER_EXPIRES				连接 "%S": 由于有效期限已过，用户 "%S" 拒绝访问。
