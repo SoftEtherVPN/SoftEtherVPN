@@ -2284,6 +2284,8 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		UCHAR destMacAddress[6];
 		IPV6_ADDR linkLocal;
 		BUF *packet;
+		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+		UINT64 timeout_retry = 0;
 
 		Zero(&linkLocal, sizeof(IPV6_ADDR));
 
@@ -2303,9 +2305,6 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		IPToIPv6Addr(&destV6, &destIP);
 
 		packet = BuildICMPv6RouterSoliciation(&senderV6, &destV6, ipc->MacAddress, 0);
-
-		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
-		UINT64 timeout_retry = 0;
 
 		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 		{
@@ -2570,6 +2569,11 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 			BUF *neighborSolicit;
 			UCHAR destMacAddress[6];
 			IPV6_ADDR solicitAddress;
+
+			CHAR tmp[MAX_SIZE];
+			UCHAR *copy;
+			BLOCK *blk;
+
 			Zero(&solicitAddress, sizeof(IPV6_ADDR));
 			Copy(&solicitAddress.Value[13], &header->DestAddress.Value[13], 3);
 			solicitAddress.Value[0] = 0xFF;
@@ -2585,9 +2589,9 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 
 			FreeBuf(neighborSolicit);
 
-			CHAR tmp[MAX_SIZE];
-			UCHAR *copy = Clone(data, size);
-			BLOCK *blk = NewBlock(copy, size, 0);
+
+			copy = Clone(data, size);
+			blk = NewBlock(copy, size, 0);
 			InsertQueue(ndtMatch->PacketQueue, blk);
 			IPToStr6(tmp, MAX_SIZE, next_ip);
 
