@@ -2017,8 +2017,11 @@ bool ServerAccept(CONNECTION *c)
 
 				if (auth_ret == false)
 				{
+					// Get client IP to feed tools such as Fail2Ban
+					char ip[64];
+					IPToStr(ip, sizeof(ip), &c->FirstSock->RemoteIP);
 					// Authentication failure
-					HLog(hub, "LH_AUTH_NG", c->Name, username);
+					HLog(hub, "LH_AUTH_NG", c->Name, username, ip);
 				}
 				else
 				{

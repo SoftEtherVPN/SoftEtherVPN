@@ -1909,7 +1909,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%
 LH_AUTH_OK				コネクション "%S": ユーザー "%S" として正しく認証されました。
 LH_AUTH_OK_CERT			仮想 HUB のセキュリティアカウントマネージャは、ユーザー "%S" がログインする際の証明書として、次の証明書を VPN Client から受理し、その内容を承認しました: %s
 LH_AUTH_NG_CERT			仮想 HUB のセキュリティアカウントマネージャは、ユーザー "%S" がログインする際の証明書として、次の証明書を VPN Client から受理しましたが、この証明書は仮想 HUB の無効な証明書一覧に登録されている内容に一致するため拒否しました: %s
-LH_AUTH_NG				コネクション "%S": ユーザー認証に失敗しました。提示されたユーザー名は "%S" でした。
+LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY			コネクション "%S": ユーザー "%S" のパスワードが空白のため、リモートからのログインは拒否されました。
 LH_POLICY_ACCESS_NG		コネクション "%S": ユーザー "%S" はセキュリティポリシーによってアクセスが拒否されています。
 LH_USER_EXPIRES			コネクション "%S": ユーザー "%S" の有効期限が切れており、アクセスが拒否されました。
