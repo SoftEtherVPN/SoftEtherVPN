@@ -2277,8 +2277,6 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 
 	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 	{
-		IP senderIP;
-		IPV6_ADDR senderV6;
 		IP destIP;
 		IPV6_ADDR destV6;
 		UCHAR destMacAddress[6];
@@ -2301,10 +2299,9 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		destMacAddress[1] = 0x33;
 		Copy(&destMacAddress[2], &destIP.ipv6_addr[12], sizeof(UINT));
 
-		IPToIPv6Addr(&senderV6, &senderIP);
 		IPToIPv6Addr(&destV6, &destIP);
 
-		packet = BuildICMPv6RouterSoliciation(&senderV6, &destV6, ipc->MacAddress, 0);
+		packet = BuildICMPv6RouterSoliciation(&linkLocal, &destV6, ipc->MacAddress, 0);
 
 		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 		{
@@ -2444,12 +2441,14 @@ void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac
 					p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer = &linkLayer;
 				}
 				Copy(p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, ipc->MacAddress, 6);
+				break;
 			case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
 				if (p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer == NULL)
 				{
 					p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer = &linkLayer;
 				}
 				Copy(p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer->Address, ipc->MacAddress, 6);
+				break;
 			}
 			switch (p->ICMPv6HeaderPacketInfo.Type)
 			{
