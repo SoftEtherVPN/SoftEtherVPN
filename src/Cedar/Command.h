@@ -227,7 +227,7 @@ char *CmdPasswordPrompt(CONSOLE *c);
 bool CmdEvalIp(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *PsClusterSettingMemberPromptIp(CONSOLE *c, void *param);
 bool CmdEvalHostAndPort(CONSOLE *c, wchar_t *str, void *param);
-LIST *StrToPortList(char *str);
+LIST *StrToPortList(char *str, bool limit_range);
 bool CmdEvalPortList(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *PsClusterSettingMemberPromptPorts(CONSOLE *c, void *param);
 K *CmdLoadKey(CONSOLE *c, wchar_t *filename);

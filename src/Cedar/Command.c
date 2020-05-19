@@ -7880,7 +7880,7 @@ bool CmdEvalIp(CONSOLE *c, wchar_t *str, void *param)
 }
 
 // Convert a string to port list
-LIST *StrToPortList(char *str)
+LIST *StrToPortList(char *str, bool limit_range)
 {
 	LIST *o;
 	TOKEN_LIST *t;
@@ -7915,7 +7915,7 @@ LIST *StrToPortList(char *str)
 			return NULL;
 		}
 		n = ToInt(s);
-		if (n == 0 || n >= 65536)
+		if (limit_range && (n == 0 || n >= 65536))
 		{
 			ReleaseList(o);
 			FreeToken(t);
@@ -7958,7 +7958,7 @@ UINT PsClusterSettingMember(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 		// "name", prompt_proc, prompt_param, eval_proc, eval_param
 		{"[server:port]", CmdPrompt, _UU("CMD_ClusterSettingMember_Prompt_HOST_1"), CmdEvalHostAndPort, NULL},
 		{"IP", PsClusterSettingMemberPromptIp, NULL, CmdEvalIp, NULL},
-		{"PORTS", PsClusterSettingMemberPromptPorts, NULL, CmdEvalPortList, NULL},
+		{"PORTS", PsClusterSettingMemberPromptPorts, NULL, CmdEvalPortList, (void *)true},
 		{"PASSWORD", CmdPromptChoosePassword, NULL, NULL, NULL},
 		{"WEIGHT", NULL, NULL, NULL, NULL},
 	};
@@ -7997,7 +7997,7 @@ UINT PsClusterSettingMember(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		ports_str = GetParamStr(o, "PORTS");
 
-		ports = StrToPortList(ports_str);
+		ports = StrToPortList(ports_str, true);
 
 		t.NumPort = LIST_NUM(ports);
 		t.Ports = ZeroMalloc(sizeof(UINT) * t.NumPort);
@@ -8044,7 +8044,7 @@ bool CmdEvalPortList(CONSOLE *c, wchar_t *str, void *param)
 
 	s = CopyUniToStr(str);
 
-	o = StrToPortList(s);
+	o = StrToPortList(s, (bool)param);
 
 	if (o != NULL)
 	{
