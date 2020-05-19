@@ -2123,7 +2123,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		return ERR_OPENVPN_IS_NOT_ENABLED;
 	}
 
-	port_list = StrToIntList(config.OpenVPNPortList, true);
+	port_list = s->PortsUDP;
 
 	FreeRpcReadLogFile(t);
 	Zero(t, sizeof(RPC_READ_LOG_FILE));
@@ -2357,8 +2357,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 
 		Free(zero_buffer);
 	}
-
-	FreeStrList(port_list);
 
 	FreeZipPacker(p);
 
@@ -10059,7 +10057,6 @@ void InOpenVpnSstpConfig(OPENVPN_SSTP_CONFIG *t, PACK *p)
 
 	t->EnableOpenVPN = PackGetBool(p, "EnableOpenVPN");
 	t->EnableSSTP = PackGetBool(p, "EnableSSTP");
-	PackGetStr(p, "OpenVPNPortList", t->OpenVPNPortList, sizeof(t->OpenVPNPortList));
 	t->OpenVPNObfuscation= PackGetBool(p, "OpenVPNObfuscation");
 	PackGetStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask, sizeof(t->OpenVPNObfuscationMask));
 }
@@ -10073,7 +10070,6 @@ void OutOpenVpnSstpConfig(PACK *p, OPENVPN_SSTP_CONFIG *t)
 
 	PackAddBool(p, "EnableOpenVPN", t->EnableOpenVPN);
 	PackAddBool(p, "EnableSSTP", t->EnableSSTP);
-	PackAddStr(p, "OpenVPNPortList", t->OpenVPNPortList);
 	PackAddBool(p, "OpenVPNObfuscation", t->OpenVPNObfuscation);
 	PackAddStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask);
 }

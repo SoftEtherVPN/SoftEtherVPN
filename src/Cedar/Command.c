@@ -21631,7 +21631,6 @@ UINT PsOpenVpnEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	{
 		// "name", prompt_proc, prompt_param, eval_proc, eval_param
 		{"[yes|no]", CmdPrompt, _UU("CMD_OpenVpnEnable_Prompt_[yes|no]"), CmdEvalNotEmpty, NULL},
-		{"PORTS", CmdPrompt, _UU("CMD_OpenVpnEnable_Prompt_PORTS"), CmdEvalNotEmpty, NULL},
 	};
 
 	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
@@ -21654,7 +21653,6 @@ UINT PsOpenVpnEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	t.EnableOpenVPN = GetParamYes(o, "[yes|no]");
-	StrCpy(t.OpenVPNPortList, sizeof(t.OpenVPNPortList), GetParamStr(o, "PORTS"));
 
 	// RPC call
 	ret = ScSetOpenVpnSstpConfig(ps->Rpc, &t);
@@ -21700,13 +21698,9 @@ UINT PsOpenVpnGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		wchar_t tmp[MAX_PATH];
 		CT *ct = CtNewStandard();
 
 		CtInsert(ct, _UU("CMD_OpenVpnGet_PRINT_Enabled"), _UU(t.EnableOpenVPN ? "SEC_YES" : "SEC_NO"));
-
-		StrToUni(tmp, sizeof(tmp), t.OpenVPNPortList);
-		CtInsert(ct, _UU("CMD_OpenVpnGet_PRINT_Ports"), tmp);
 
 		CtFree(ct, c);
 	}

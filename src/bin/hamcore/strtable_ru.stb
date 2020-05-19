@@ -6269,11 +6269,9 @@ CMD_EtherIpClientList_Args	EtherIpClientList
 # OpenVpnEnable command
 CMD_OpenVpnEnable		Enable / Disable OpenVPN Clone Server Function
 CMD_OpenVpnEnable_Help	This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc. Any OpenVPN Clients can connect to this VPN Server.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no]
 CMD_OpenVpnEnable_[yes|no]	Specify yes to enable the OpenVPN Clone Server Function. Specify no to disable.
-CMD_OpenVpnEnable_PORTS		Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
 CMD_OpenVpnEnable_Prompt_[yes|no]	Enables OpenVPN Clone Server Function (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		UDP Ports to Listen for OpenVPN (Default: 1194 / Multiple Accepted): 
 
 
 # OpenVpnGet command
@@ -6281,7 +6279,6 @@ CMD_OpenVpnGet			Get the Current Settings of OpenVPN Clone Server Function
 CMD_OpenVpnGet_Help		Get and show the current settings of OpenVPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_OpenVpnGet_Args		OpenVpnGet
 CMD_OpenVpnGet_PRINT_Enabled		OpenVPN Clone Server Enabled
-CMD_OpenVpnGet_PRINT_Ports			UDP Port List
 
 # OpenVpnMakeConfig command
 CMD_OpenVpnMakeConfig	Generate a Sample Setting File for OpenVPN Client

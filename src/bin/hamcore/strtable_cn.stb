@@ -6300,11 +6300,9 @@ CMD_EtherIpClientList_Args		EtherIpClientList
 # OpenVpnEnable 命令
 CMD_OpenVpnEnable					启用/禁用 OpenVPN 克隆服务器功能
 CMD_OpenVpnEnable_Help				本 VPN Server 有 OpenVPN Technologies, Inc. 公司生产的 OpenVPN 软件产品的克隆功能。任何 OpenVPN Client 都可以连接到本 VPN Server。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
-CMD_OpenVpnEnable_Args				OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_Args				OpenVpnEnable [yes|no]
 CMD_OpenVpnEnable_[yes|no]			指定 "yes"，启用 OpenVPN 克隆服务器功能。指定 "no" 禁用该功能。
-CMD_OpenVpnEnable_PORTS				指定UDP端口监听 OpenVPN 。指定多个 UDP 端口可以用空格或者逗号分开来它们，例如： "1194, 2001, 2010, 2012"。OpenVPN 的默认端口是 UDP 1194。您也可以指定任一其他 UDP 端口。
 CMD_OpenVpnEnable_Prompt_[yes|no]	启用 OpenVPN 克隆服务器功能 (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		监听 OpenVPN 的 UDP 端口(默认: 1194 /也可设置多端口): 
 
 
 # OpenVpnGet 命令
@@ -6312,7 +6310,6 @@ CMD_OpenVpnGet						获取 OpenVPN 克隆服务器功能的当前设置
 CMD_OpenVpnGet_Help					获取并显示 OpenVPN 克隆服务器功能的当前设置。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
 CMD_OpenVpnGet_Args					OpenVpnGet
 CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 克隆服务器已启用
-CMD_OpenVpnGet_PRINT_Ports			UDP 端口列表
 
 # OpenVpnMakeConfig 命令
 CMD_OpenVpnMakeConfig					生成 OpenVPN Client 样本设置文件

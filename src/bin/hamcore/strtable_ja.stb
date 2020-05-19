@@ -6291,11 +6291,9 @@ CMD_EtherIpClientList_Args	EtherIpClientList
 # OpenVpnEnable コマンド
 CMD_OpenVpnEnable		OpenVPN 互換サーバー機能を有効化 / 無効化
 CMD_OpenVpnEnable_Help	SoftEther VPN Server には OpenVPN 社の OpenVPN ソフトウェア製品と同等の VPN サーバー機能が搭載されています。OpenVPN サーバー機能を有効にすると、OpenVPN クライアントから OpenVPN サーバーに接続できるようになります。\n\nOpenVPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no]
 CMD_OpenVpnEnable_[yes|no]	OpenVPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
-CMD_OpenVpnEnable_PORTS	OpenVPN サービスを提供する UDP ポートの一覧を指定してください。UDP ポートは複数指定できます。複数指定する場合は 1194, 2001, 2010, 2012 のようにカンマ (,) で区切ってください。OpenVPN は標準では UDP 1194 ポートを使用しますが、その他の任意の UDP ポートを指定できます。
 CMD_OpenVpnEnable_Prompt_[yes|no]	OpenVPN 互換サーバー機能を有効化 (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		UDP ポート番号の一覧 (標準は 1194 / 複数指定可): 
 
 
 # OpenVpnGet コマンド
@@ -6303,7 +6301,6 @@ CMD_OpenVpnGet			OpenVPN 互換サーバー機能の現在の設定を取得
 CMD_OpenVpnGet_Help		現在の OpenVPN 互換サーバー機能の設定を取得して表示します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_OpenVpnGet_Args		OpenVpnGet
 CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 互換サーバー機能が有効
-CMD_OpenVpnGet_PRINT_Ports			UDP ポート番号一覧
 
 # OpenVpnMakeConfig コマンド
 CMD_OpenVpnMakeConfig	OpenVPN 互換サーバー機能に接続可能なサンプルの OpenVPN 設定ファイルの生成
