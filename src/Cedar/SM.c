@@ -15542,12 +15542,6 @@ UINT SmFarmMemberDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 	return 0;
 }
 
-// Convert the string to port list
-LIST *SmStrToPortList(char *str)
-{
-	return StrToPortList(str);
-}
-
 // Initialize the dialog
 void SmFarmDlgInit(HWND hWnd, SM_SERVER *p)
 {
@@ -15680,7 +15674,7 @@ void SmFarmDlgUpdate(HWND hWnd, SM_SERVER *p)
 		}
 
 		s = GetTextA(hWnd, E_PORT);
-		o = SmStrToPortList(s);
+		o = StrToPortList(s, true);
 		if (o == NULL)
 		{
 			ok = false;
@@ -15787,7 +15781,7 @@ void SmFarmDlgOnOk(HWND hWnd, SM_SERVER *p)
 			s = GetTextA(hWnd, E_PORT);
 			if (s != NULL)
 			{
-				LIST *o = SmStrToPortList(s);
+				LIST *o = StrToPortList(s, true);
 				if (o != NULL)
 				{
 					UINT i;
