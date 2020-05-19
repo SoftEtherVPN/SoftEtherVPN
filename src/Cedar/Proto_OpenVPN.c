@@ -259,13 +259,13 @@ void OvsLog(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_CHANNEL *c, char *na
 		if (c == NULL)
 		{
 			UniFormat(prefix, sizeof(prefix), _UU("LO_PREFIX_SESSION"),
-				se->Id, &se->ClientIp, se->ClientPort, &se->ServerIp, se->ServerPort);
+			          se->Id, &se->ClientIp, se->ClientPort, &se->ServerIp, se->ServerPort);
 		}
 		else
 		{
 			UniFormat(prefix, sizeof(prefix), _UU("LO_PREFIX_CHANNEL"),
-				se->Id, &se->ClientIp, se->ClientPort, &se->ServerIp, se->ServerPort,
-				c->KeyId);
+			          se->Id, &se->ClientIp, se->ClientPort, &se->ServerIp, se->ServerPort,
+			          c->KeyId);
 		}
 	}
 	va_start(args, name);
@@ -617,10 +617,10 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 	{
 		// Control packet
 		Debug("OvsProceccRecvPacket(): Received control packet. PacketId: %u, OpCode: %u, KeyId: %u, MySessionId: %I64u\n",
-			  recv_packet->PacketId, recv_packet->OpCode, recv_packet->KeyId, recv_packet->MySessionId);
+		      recv_packet->PacketId, recv_packet->OpCode, recv_packet->KeyId, recv_packet->MySessionId);
 
 		if (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2 ||
-			recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
+		        recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
 		{
 			// Connection request packet
 			if (c != NULL && c->Status == OPENVPN_CHANNEL_STATUS_ESTABLISHED)
@@ -644,19 +644,19 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 				OvsLog(s, se, c, "LO_NEW_CHANNEL");
 			}
 		}
-/*		else if (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
-		{
-			// Response to soft reset request packet
-			OPENVPN_PACKET *p;
+		/*		else if (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
+				{
+					// Response to soft reset request packet
+					OPENVPN_PACKET *p;
 
-			p = OvsNewControlPacket(OPENVPN_P_CONTROL_SOFT_RESET_V1, recv_packet->KeyId, se->ServerSessionId,
-				0, NULL, 0, 0, 0, NULL);
+					p = OvsNewControlPacket(OPENVPN_P_CONTROL_SOFT_RESET_V1, recv_packet->KeyId, se->ServerSessionId,
+						0, NULL, 0, 0, 0, NULL);
 
-			OvsSendPacketNow(s, se, p);
+					OvsSendPacketNow(s, se, p);
 
-			OvsFreePacket(p);
-		}
-*/
+					OvsFreePacket(p);
+				}
+		*/
 		if (c != NULL)
 		{
 			// Delete the send packet list by looking the packet ID in the ACK list of arrived packet
@@ -668,8 +668,8 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 				InsertIntDistinct(c->AckReplyList, recv_packet->PacketId);
 
 				if ((recv_packet->PacketId > c->MaxRecvPacketId)
-					|| (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2)
-					|| (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1))
+				        || (recv_packet->OpCode == OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2)
+				        || (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1))
 				{
 					c->MaxRecvPacketId = recv_packet->PacketId;
 
@@ -743,12 +743,12 @@ void OvsDeleteFromSendingControlPacketList(OPENVPN_CHANNEL *c, UINT num_acks, UI
 	}
 
 	o = NewListFast(NULL);
-	for (i = 0;i < num_acks;i++)
+	for (i = 0; i < num_acks; i++)
 	{
 		UINT ack = acks[i];
 		UINT j;
 
-		for (j = 0;j < LIST_NUM(c->SendControlPacketList);j++)
+		for (j = 0; j < LIST_NUM(c->SendControlPacketList); j++)
 		{
 			OPENVPN_CONTROL_PACKET *p = LIST_DATA(c->SendControlPacketList, j);
 
@@ -759,7 +759,7 @@ void OvsDeleteFromSendingControlPacketList(OPENVPN_CHANNEL *c, UINT num_acks, UI
 		}
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		OPENVPN_CONTROL_PACKET *p = LIST_DATA(o, i);
 
@@ -1119,7 +1119,7 @@ UINT OvsPeekStringFromFifo(FIFO *f, char *str, UINT str_size)
 
 	StrCpy(str, str_size, "");
 
-	for (i = 0;i < MIN(str_size, FifoSize(f));i++)
+	for (i = 0; i < MIN(str_size, FifoSize(f)); i++)
 	{
 		char c = *(((char *)FifoPtr(f)) + i);
 
@@ -1267,8 +1267,8 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	WriteBuf(b, c->ClientKey.Random1, sizeof(c->ClientKey.Random1));
 	WriteBuf(b, c->ServerKey.Random1, sizeof(c->ServerKey.Random1));
 	Enc_tls1_PRF(b->Buf, b->Size,
-		c->ClientKey.PreMasterSecret, sizeof(c->ClientKey.PreMasterSecret),
-		c->MasterSecret, sizeof(c->MasterSecret));
+	             c->ClientKey.PreMasterSecret, sizeof(c->ClientKey.PreMasterSecret),
+	             c->MasterSecret, sizeof(c->MasterSecret));
 	FreeBuf(b);
 
 	// Generate an Expansion Key
@@ -1279,7 +1279,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	WriteBufInt64(b, se->ClientSessionId);
 	WriteBufInt64(b, se->ServerSessionId);
 	Enc_tls1_PRF(b->Buf, b->Size, c->MasterSecret, sizeof(c->MasterSecret),
-		c->ExpansionKey, sizeof(c->ExpansionKey));
+	             c->ExpansionKey, sizeof(c->ExpansionKey));
 	FreeBuf(b);
 
 	// Set up the encryption algorithm
@@ -1314,13 +1314,13 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 
 	// Generate the response option string
 	Format(c->ServerKey.OptionString, sizeof(c->ServerKey.OptionString),
-		"V4,dev-type %s,link-mtu %u,tun-mtu %u,proto %s,"
-		"cipher %s,auth %s,keysize %u,key-method 2,tls-server",
-		(se->Mode == OPENVPN_MODE_L2 ? "tap" : "tun"),
-		se->LinkMtu,
-		se->TunMtu,
-		c->Proto,
-		cipher_name, md_name, c->CipherEncrypt->KeySize * 8);
+	       "V4,dev-type %s,link-mtu %u,tun-mtu %u,proto %s,"
+	       "cipher %s,auth %s,keysize %u,key-method 2,tls-server",
+	       (se->Mode == OPENVPN_MODE_L2 ? "tap" : "tun"),
+	       se->LinkMtu,
+	       se->TunMtu,
+	       c->Proto,
+	       cipher_name, md_name, c->CipherEncrypt->KeySize * 8);
 
 	FreeEntryList(o);
 
@@ -1482,13 +1482,13 @@ UINT OvsParseKeyMethod2(OPENVPN_KEY_METHOD_2 *ret, UCHAR *data, UINT size, bool 
 					{
 						// String
 						if (OvsReadStringFromBuf(b, ret->OptionString, sizeof(ret->OptionString)) &&
-							OvsReadStringFromBuf(b, ret->Username, sizeof(ret->Username)) &&
-							OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)))
+						        OvsReadStringFromBuf(b, ret->Username, sizeof(ret->Username)) &&
+						        OvsReadStringFromBuf(b, ret->Password, sizeof(ret->Password)))
+						{
+							if (!OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
 							{
-								if (!OvsReadStringFromBuf(b, ret->PeerInfo, sizeof(ret->PeerInfo)))
-								{
-									Zero(ret->PeerInfo, sizeof(ret->PeerInfo));
-								}
+								Zero(ret->PeerInfo, sizeof(ret->PeerInfo));
+							}
 							read_size = b->Current;
 						}
 					}
@@ -1637,7 +1637,7 @@ UINT OvsGetAckReplyList(OPENVPN_CHANNEL *c, UINT *ret)
 
 	num = MIN(LIST_NUM(c->AckReplyList), OPENVPN_MAX_NUMACK);
 
-	for (i = 0;i < num;i++)
+	for (i = 0; i < num; i++)
 	{
 		UINT *v = LIST_DATA(c->AckReplyList, i);
 
@@ -1651,7 +1651,7 @@ UINT OvsGetAckReplyList(OPENVPN_CHANNEL *c, UINT *ret)
 		ret[i] = *v;
 	}
 
-	for (i = 0;i < LIST_NUM(o);i++)
+	for (i = 0; i < LIST_NUM(o); i++)
 	{
 		UINT *v = LIST_DATA(o, i);
 
@@ -1682,7 +1682,7 @@ void OvsFreeChannel(OPENVPN_CHANNEL *c)
 
 	ReleaseIntList(c->AckReplyList);
 
-	for (i = 0;i < LIST_NUM(c->SendControlPacketList);i++)
+	for (i = 0; i < LIST_NUM(c->SendControlPacketList); i++)
 	{
 		OPENVPN_CONTROL_PACKET *p = LIST_DATA(c->SendControlPacketList, i);
 
@@ -1758,7 +1758,7 @@ UINT64 OvsNewServerSessionId(OPENVPN_SERVER *s)
 			continue;
 		}
 
-		for (i = 0;i < LIST_NUM(s->SessionList);i++)
+		for (i = 0; i < LIST_NUM(s->SessionList); i++)
 		{
 			OPENVPN_SESSION *se = LIST_DATA(s->SessionList, i);
 			if (se->ServerSessionId == id)
@@ -1882,7 +1882,7 @@ BUF *OvsBuildPacket(OPENVPN_PACKET *p)
 	{
 		UINT i;
 
-		for (i = 0;i < num_ack;i++)
+		for (i = 0; i < num_ack; i++)
 		{
 			WriteBufInt(b, (UCHAR)p->AckPacketId[i]);
 		}
@@ -1970,7 +1970,7 @@ OPENVPN_PACKET *OvsParsePacket(UCHAR *data, UINT size)
 			goto LABEL_ERROR;
 		}
 
-		for (i = 0;i < ret->NumAck;i++)
+		for (i = 0; i < ret->NumAck; i++)
 		{
 			UINT ui;
 
@@ -2066,7 +2066,7 @@ UINT OvsGetNumSessionByClientIp(OPENVPN_SERVER *s, IP *ip)
 		return 0;
 	}
 
-	for (i = 0;i < LIST_NUM(s->SessionList);i++)
+	for (i = 0; i < LIST_NUM(s->SessionList); i++)
 	{
 		OPENVPN_SESSION *se = LIST_DATA(s->SessionList, i);
 
@@ -2130,7 +2130,7 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 	IPToStr(server_ip_str, sizeof(server_ip_str), server_ip);
 	IPToStr(client_ip_str, sizeof(client_ip_str), client_ip);
 	Debug("OpenVPN New Session: %s:%u -> %s:%u Proto=%u\n", server_ip_str, server_port,
-		client_ip_str, client_port, protocol);
+	      client_ip_str, client_port, protocol);
 
 	OvsLog(s, se, NULL, "LO_NEW_SESSION", (protocol == OPENVPN_PROTOCOL_UDP ? "UDP" : "TCP"));
 
@@ -2159,13 +2159,14 @@ void OvsFreeSession(OPENVPN_SESSION *se)
 				UINTToIP(&dhcp_ip, se->IpcAsync->L3ClientAddressOption.ServerAddress);
 
 				IPCDhcpFreeIP(se->Ipc, &dhcp_ip);
-				IPCProcessL3Events(se->Ipc);
+				IPC_PROTO_SET_STATUS(se->Ipc, IPv6State, IPC_PROTO_STATUS_CLOSED);
+				IPCProcessL3EventsIPv4Only(se->Ipc);
 			}
 		}
 	}
 
 	// Release the channel
-	for (i = 0;i < OPENVPN_NUM_CHANNELS;i++)
+	for (i = 0; i < OPENVPN_NUM_CHANNELS; i++)
 	{
 		OPENVPN_CHANNEL *c = se->Channels[i];
 
@@ -2225,7 +2226,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 	s->Now = Tick64();
 
 	// Process for all sessions
-	for (i = 0;i < LIST_NUM(s->SessionList);i++)
+	for (i = 0; i < LIST_NUM(s->SessionList); i++)
 	{
 		OPENVPN_SESSION *se = LIST_DATA(s->SessionList, i);
 
@@ -2240,7 +2241,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 	}
 
 	// Process received packets
-	for (i = 0;i < LIST_NUM(recv_packet_list);i++)
+	for (i = 0; i < LIST_NUM(recv_packet_list); i++)
 	{
 		UDPPACKET *p = LIST_DATA(recv_packet_list, i);
 
@@ -2248,7 +2249,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 	}
 
 	// Treat for all sessions and all channels
-	for (i = 0;i < LIST_NUM(s->SessionList);i++)
+	for (i = 0; i < LIST_NUM(s->SessionList); i++)
 	{
 		OPENVPN_CHANNEL *latest_channel = NULL;
 		UINT64 max_tick = 0;
@@ -2259,11 +2260,11 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 		{
 			if (se->Mode == OPENVPN_MODE_L3)
 			{
-				IPCProcessL3Events(se->Ipc);
+				IPCProcessL3EventsIPv4Only(se->Ipc);
 			}
 		}
 
-		for (j = 0;j < OPENVPN_NUM_CHANNELS;j++)
+		for (j = 0; j < OPENVPN_NUM_CHANNELS; j++)
 		{
 			OPENVPN_CHANNEL *c = se->Channels[j];
 
@@ -2320,9 +2321,9 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 
 								// Return the PUSH_REPLY
 								Format(option_str, sizeof(option_str),
-									"PUSH_REPLY,ping %u,ping-restart %u",
-									(OPENVPN_PING_SEND_INTERVAL / 1000),
-									(OPENVPN_RECV_TIMEOUT / 1000));
+								       "PUSH_REPLY,ping %u,ping-restart %u",
+								       (OPENVPN_PING_SEND_INTERVAL / 1000),
+								       (OPENVPN_RECV_TIMEOUT / 1000));
 
 								if (se->Mode == OPENVPN_MODE_L3)
 								{
@@ -2344,26 +2345,26 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									ClearStr(ip_defgw, sizeof(ip_defgw));
 
 									IPToStr32(ip_client, sizeof(ip_client),
-										cao->ClientAddress);
+									          cao->ClientAddress);
 
 									IPToStr32(ip_subnet_mask, sizeof(ip_subnet_mask),
-										cao->SubnetMask);
+									          cao->SubnetMask);
 
 									Format(l3_options, sizeof(l3_options),
-										",topology subnet");
+									       ",topology subnet");
 									StrCat(option_str, sizeof(option_str), l3_options);
 
 									Format(l3_options, sizeof(l3_options),
-										",ifconfig %s %s",
-										ip_client,
-										ip_subnet_mask);
+									       ",ifconfig %s %s",
+									       ip_client,
+									       ip_subnet_mask);
 									StrCat(option_str, sizeof(option_str), l3_options);
 
 									// Domain name
 									if (IsEmptyStr(cao->DomainName) == false)
 									{
 										Format(l3_options, sizeof(l3_options),
-											",dhcp-option DOMAIN %s", cao->DomainName);
+										       ",dhcp-option DOMAIN %s", cao->DomainName);
 										StrCat(option_str, sizeof(option_str), l3_options);
 									}
 
@@ -2373,7 +2374,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										char ip_str[64];
 										IPToStr32(ip_str, sizeof(ip_str), cao->DnsServer);
 										Format(l3_options, sizeof(l3_options),
-											",dhcp-option DNS %s", ip_str);
+										       ",dhcp-option DNS %s", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										StrCpy(ip_dns1, sizeof(ip_dns1), ip_str);
@@ -2385,7 +2386,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										char ip_str[64];
 										IPToStr32(ip_str, sizeof(ip_str), cao->DnsServer2);
 										Format(l3_options, sizeof(l3_options),
-											",dhcp-option DNS %s", ip_str);
+										       ",dhcp-option DNS %s", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										StrCpy(ip_dns2, sizeof(ip_dns2), ip_str);
@@ -2397,7 +2398,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										char ip_str[64];
 										IPToStr32(ip_str, sizeof(ip_str), cao->WinsServer);
 										Format(l3_options, sizeof(l3_options),
-											",dhcp-option WINS %s", ip_str);
+										       ",dhcp-option WINS %s", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										StrCpy(ip_wins1, sizeof(ip_wins1), ip_str);
@@ -2409,7 +2410,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										char ip_str[64];
 										IPToStr32(ip_str, sizeof(ip_str), cao->WinsServer2);
 										Format(l3_options, sizeof(l3_options),
-											",dhcp-option WINS %s", ip_str);
+										       ",dhcp-option WINS %s", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										StrCpy(ip_wins2, sizeof(ip_wins2), ip_str);
@@ -2421,7 +2422,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										char ip_str[64];
 										IPToStr32(ip_str, sizeof(ip_str), cao->Gateway);
 										Format(l3_options, sizeof(l3_options),
-											",route-gateway %s,redirect-gateway def1", ip_str);
+										       ",route-gateway %s,redirect-gateway def1", ip_str);
 										StrCat(option_str, sizeof(option_str), l3_options);
 
 										StrCpy(ip_defgw, sizeof(ip_defgw), ip_str);
@@ -2442,9 +2443,9 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										IPAnd4(&local_network, &client_ip, &subnet_mask);
 
 										Format(l3_options, sizeof(l3_options),
-											",route %r %r vpn_gateway",
-											&local_network,
-											&cao->SubnetMask);
+										       ",route %r %r vpn_gateway",
+										       &local_network,
+										       &cao->SubnetMask);
 
 										StrCat(option_str, sizeof(option_str), l3_options);
 #endif
@@ -2454,15 +2455,15 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									if (cao->ClasslessRoute.NumExistingRoutes >= 1)
 									{
 										UINT i;
-										for (i = 0;i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES;i++)
+										for (i = 0; i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES; i++)
 										{
 											DHCP_CLASSLESS_ROUTE *r = &cao->ClasslessRoute.Entries[i];
 
 											if (r->Exists)
 											{
 												Format(l3_options, sizeof(l3_options),
-													",route %r %r vpn_gateway",
-													&r->Network, &r->SubnetMask);
+												       ",route %r %r vpn_gateway",
+												       &r->Network, &r->SubnetMask);
 
 												StrCat(option_str, sizeof(option_str), l3_options);
 											}
@@ -2470,7 +2471,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									}
 
 									OvsLog(s, se, c, "LP_SET_IPV4_PARAM",
-										ip_client, ip_subnet_mask, ip_defgw, ip_dns1, ip_dns2, ip_wins1, ip_wins2);
+									       ip_client, ip_subnet_mask, ip_defgw, ip_dns1, ip_dns2, ip_wins1, ip_wins2);
 								}
 								else
 								{
@@ -2579,8 +2580,8 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 						Debug("RawOut Fifo Size (c=%u): %u\n", c->KeyId, FifoSize(c->SslPipe->RawOut->RecvFifo));
 
 						OvsSendControlPacketWithAutoSplit(c, OPENVPN_P_CONTROL_V1,
-							FifoPtr(c->SslPipe->RawOut->RecvFifo),
-							FifoSize(c->SslPipe->RawOut->RecvFifo));
+						                                  FifoPtr(c->SslPipe->RawOut->RecvFifo),
+						                                  FifoSize(c->SslPipe->RawOut->RecvFifo));
 
 						ReadFifo(c->SslPipe->RawOut->RecvFifo, NULL, FifoSize(c->SslPipe->RawOut->RecvFifo));
 					}
@@ -2594,7 +2595,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 				UINT k;
 
 				// Packet transmission
-				for (k = 0;k < LIST_NUM(c->SendControlPacketList);k++)
+				for (k = 0; k < LIST_NUM(c->SendControlPacketList); k++)
 				{
 					OPENVPN_CONTROL_PACKET *cp = LIST_DATA(c->SendControlPacketList, k);
 
@@ -2609,7 +2610,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 							num = OvsGetAckReplyList(c, acks);
 
 							p = OvsNewControlPacket(cp->OpCode, j, se->ServerSessionId, num, acks,
-								se->ClientSessionId, cp->PacketId, cp->DataSize, cp->Data);
+							                        se->ClientSessionId, cp->PacketId, cp->DataSize, cp->Data);
 
 							OvsSendPacketNow(s, se, p);
 
@@ -2628,7 +2629,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 				if (num >= 1)
 				{
 					OPENVPN_PACKET *p = OvsNewControlPacket(OPENVPN_P_ACK_V1, j, se->ServerSessionId,
-						num, acks, se->ClientSessionId, 0, 0, NULL);
+					                                        num, acks, se->ClientSessionId, 0, 0, NULL);
 
 					OvsSendPacketNow(s, se, p);
 
@@ -2656,14 +2657,14 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 					}
 				}
 
-				IPCProcessL3Events(se->Ipc);
+				IPCProcessL3EventsIPv4Only(se->Ipc);
 			}
 
 			IPCProcessInterrupts(se->Ipc);
 		}
 
 		// Choose the latest channel in all established channels
-		for (j = 0;j < OPENVPN_NUM_CHANNELS;j++)
+		for (j = 0; j < OPENVPN_NUM_CHANNELS; j++)
 		{
 			OPENVPN_CHANNEL *c = se->Channels[j];
 
@@ -2733,7 +2734,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 				se->NextPingSendTick = s->Now + (UINT64)(OPENVPN_PING_SEND_INTERVAL);
 
 				OvsSendDataPacket(latest_channel, latest_channel->KeyId, ++latest_channel->LastDataPacketId,
-					ping_signature, sizeof(ping_signature));
+				                  ping_signature, sizeof(ping_signature));
 				//Debug(".");
 
 				AddInterrupt(s->Interrupt, se->NextPingSendTick);
@@ -2765,7 +2766,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 	{
 		UINT i;
 
-		for (i = 0;i < LIST_NUM(delete_session_list);i++)
+		for (i = 0; i < LIST_NUM(delete_session_list); i++)
 		{
 			OPENVPN_SESSION *se = LIST_DATA(delete_session_list, i);
 
@@ -2798,7 +2799,7 @@ void OvsSendPacketNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_PACKET *p)
 	if (p->NumAck >= 1)
 	{
 		Debug("Sending ACK Packet IDs (c=%u): ", p->KeyId);
-		for (i = 0;i < p->NumAck;i++)
+		for (i = 0; i < p->NumAck; i++)
 		{
 			Debug("%u ", p->AckPacketId[i]);
 		}
@@ -2844,14 +2845,14 @@ void OvsSendPacketRawNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, void *data, UIN
 	}
 
 	u = NewUdpPacket(&se->ServerIp, se->ServerPort, &se->ClientIp, se->ClientPort,
-		data, size);
+	                 data, size);
 
 	Add(s->SendPacketList, u);
 }
 // Create a new OpenVPN control packet
 OPENVPN_PACKET *OvsNewControlPacket(UCHAR opcode, UCHAR key_id, UINT64 my_channel_id, UINT num_ack,
-									UINT *ack_packet_ids, UINT64 your_channel_id, UINT packet_id,
-									UINT data_size, UCHAR *data)
+                                    UINT *ack_packet_ids, UINT64 your_channel_id, UINT packet_id,
+                                    UINT data_size, UCHAR *data)
 {
 	OPENVPN_PACKET *p = ZeroMalloc(sizeof(OPENVPN_PACKET));
 	UINT i;
@@ -2861,7 +2862,7 @@ OPENVPN_PACKET *OvsNewControlPacket(UCHAR opcode, UCHAR key_id, UINT64 my_channe
 	p->MySessionId = my_channel_id;
 	p->NumAck = num_ack;
 
-	for (i = 0;i < MIN(num_ack, OPENVPN_MAX_NUMACK);i++)
+	for (i = 0; i < MIN(num_ack, OPENVPN_MAX_NUMACK); i++)
 	{
 		p->AckPacketId[i] = ack_packet_ids[i];
 	}

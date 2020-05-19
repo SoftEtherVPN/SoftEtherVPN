@@ -409,8 +409,6 @@ ARP_ENTRY *SearchArpTable(VH *v, UINT ip);
 void RefreshArpTable(VH *v);
 void PollingArpTable(VH *v);
 void InsertArpTable(VH *v, UCHAR *mac, UINT ip);
-bool IsMacBroadcast(UCHAR *mac);
-bool IsMacInvalid(UCHAR *mac);
 void InitArpWaitTable(VH *v);
 void FreeArpWaitTable(VH *v);
 int CompareArpWaitTable(void *p1, void *p2);

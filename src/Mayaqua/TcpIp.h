@@ -399,12 +399,14 @@ struct ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER
 #define ICMPV6_NEIGHBOR_ADVERTISEMENT_FLAG_SOLICITED	0x40	// Solicited flag
 #define ICMPV6_NEIGHBOR_ADVERTISEMENT_FLAG_OVERWRITE	0x20	// Overwrite flag
 
+#define ICMPV6_OPTION_PREFIXES_MAX_COUNT				10
+
 // ICMPv6 option list
 struct ICMPV6_OPTION_LIST
 {
 	ICMPV6_OPTION_LINK_LAYER *SourceLinkLayer;		// Source link-layer address
 	ICMPV6_OPTION_LINK_LAYER *TargetLinkLayer;		// Target link-layer address
-	ICMPV6_OPTION_PREFIX *Prefix;					// Prefix Information
+	ICMPV6_OPTION_PREFIX *Prefix[ICMPV6_OPTION_PREFIXES_MAX_COUNT];	// Prefix Information - may be multiple in one request
 	ICMPV6_OPTION_MTU *Mtu;							// MTU
 } GCC_PACKED;
 
@@ -745,6 +747,8 @@ PKT *ParsePacketEx(UCHAR *buf, UINT size, bool no_l3);
 PKT *ParsePacketEx2(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id);
 PKT *ParsePacketEx3(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address);
 PKT *ParsePacketEx4(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address, bool no_http, bool correct_checksum);
+PKT *ParsePacketEx5(UCHAR *buf, UINT size, bool no_l3, UINT vlan_type_id, bool bridge_id_as_mac_address, bool no_http, bool correct_checksum, bool no_l3_l4_except_icmpv6);
+PKT *ParsePacketUpToICMPv6(UCHAR *buf, UINT size);
 void FreePacket(PKT *p);
 void FreePacketWithData(PKT *p);
 void FreePacketIPv4(PKT *p);
@@ -754,7 +758,7 @@ void FreePacketUDPv4(PKT *p);
 void FreePacketTCPv4(PKT *p);
 void FreePacketICMPv4(PKT *p);
 void FreePacketDHCPv4(PKT *p);
-bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3);
+bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_except_icmpv6);
 bool ParsePacketARPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketIPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketBPDU(PKT *p, UCHAR *buf, UINT size);
@@ -770,7 +774,7 @@ void FreeClonePacket(PKT *p);
 
 void CorrectChecksum(PKT *p);
 
-bool ParsePacketIPv6(PKT *p, UCHAR *buf, UINT size);
+bool ParsePacketIPv6(PKT *p, UCHAR *buf, UINT size, bool no_l3_l4_except_icmpv6);
 bool ParsePacketIPv6Header(IPV6_HEADER_PACKET_INFO *info, UCHAR *buf, UINT size);
 bool ParseIPv6ExtHeader(IPV6_HEADER_PACKET_INFO *info, UCHAR next_header, UCHAR *buf, UINT size);
 bool ParseICMPv6Options(ICMPV6_OPTION_LIST *o, UCHAR *buf, UINT size);
@@ -781,11 +785,12 @@ USHORT CalcChecksumForIPv6(IPV6_ADDR *src_ip, IPV6_ADDR *dest_ip, UCHAR protocol
 BUF *BuildICMPv6Options(ICMPV6_OPTION_LIST *o);
 void BuildICMPv6OptionValue(BUF *b, UCHAR type, void *header_pointer, UINT total_size);
 BUF *BuildIPv6(IPV6_ADDR *dest_ip, IPV6_ADDR *src_ip, UINT id, UCHAR protocol, UCHAR hop_limit, void *data,
-			   UINT size);
+               UINT size);
 BUF *BuildIPv6PacketHeader(IPV6_HEADER_PACKET_INFO *info, UINT *bytes_before_payload);
 UCHAR IPv6GetNextHeaderFromQueue(QUEUE *q);
 void BuildAndAddIPv6PacketOptionHeader(BUF *b, IPV6_OPTION_HEADER *opt, UCHAR next_header, UINT size);
 BUF *BuildICMPv6NeighborSoliciation(IPV6_ADDR *src_ip, IPV6_ADDR *target_ip, UCHAR *my_mac_address, UINT id);
+BUF *BuildICMPv6RouterSoliciation(IPV6_ADDR *src_ip, IPV6_ADDR *target_ip, UCHAR *my_mac_address, UINT id);
 BUF *BuildICMPv6(IPV6_ADDR *src_ip, IPV6_ADDR *dest_ip, UCHAR hop_limit, UCHAR type, UCHAR code, void *data, UINT size, UINT id);
 
 bool VLanRemoveTag(void **packet_data, UINT *packet_size, UINT vlan_id, UINT vlan_tpid);

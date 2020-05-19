@@ -357,7 +357,7 @@ typedef struct SOCKLIST
 
 
 // Parameters for timeout thread for Solaris
-typedef struct SOCKET_TIMEOUT_PARAM{
+typedef struct SOCKET_TIMEOUT_PARAM {
 	SOCK *sock;
 	CANCEL *cancel;
 	THREAD *thread;
@@ -651,7 +651,7 @@ struct RUDP_SESSION
 	UINT64 Magic_Disconnect;			// Disconnection Signal
 	UINT64 NextSendSeqNo;				// Transmission sequence number to be used next
 	UINT64 LastRecvCompleteSeqNo;		// Sequence number of receiving complete
-										// (This indicates all segments which have sequence number up to this number are received completely)
+	// (This indicates all segments which have sequence number up to this number are received completely)
 	UCHAR NextIv[SHA1_SIZE];			// IV value to be used next
 	UINT NextKeepAliveInterval;			// Interval value of KeepAlive to be used next
 	FIFO *RecvFifo;						// Reception FIFO
@@ -846,7 +846,7 @@ struct CONNECT_TCP_RUDP_PARAM
 
 #define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
 
-// Header for TCP Pair 
+// Header for TCP Pair
 struct TCP_PAIR_HEADER
 {
 	bool EnableHMac;
@@ -949,7 +949,7 @@ UINT64 RUDPGetCurrentSendingMinSeqNo(RUDP_SESSION *se);
 UINT64 RUDPGetCurrentSendingMaxSeqNo(RUDP_SESSION *se);
 SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode);
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
+                   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 SOCK *AcceptRUDP(SOCK *s);
 void *InitWaitUntilHostIPAddressChanged();
 void FreeWaitUntilHostIPAddressChanged(void *p);
@@ -1301,6 +1301,15 @@ bool IsStrIPv6Address(char *str);
 void IPAnd4(IP *dst, IP *a, IP *b);
 bool IsInSameNetwork4(IP *a1, IP *a2, IP *subnet);
 bool IsInSameNetwork4Standard(IP *a1, IP *a2);
+
+// Utility functions about IP and MAC address types
+bool IsValidUnicastIPAddress4(IP *ip);
+bool IsValidUnicastIPAddressUINT4(UINT ip);
+bool IsValidUnicastIPAddress6(IP *ip);
+bool IsMacUnicast(UCHAR *mac);
+bool IsMacBroadcast(UCHAR *mac);
+bool IsMacMulticast(UCHAR *mac);
+bool IsMacInvalid(UCHAR *mac);
 
 bool ParseIpAndSubnetMask4(char *src, UINT *ip, UINT *mask);
 bool ParseIpAndSubnetMask46(char *src, IP *ip, IP *mask);

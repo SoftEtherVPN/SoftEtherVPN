@@ -24,6 +24,22 @@
 #define IPC_LAYER_2						2
 #define IPC_LAYER_3						3
 
+// IPv6 constants
+#define IPC_IPV6_NDT_LIFETIME			(30 * 1000) // as per REACHABLE_TIME constant of RFC4861
+#define IPC_IPV6_NDT_GIVEUPTIME			(3 * 1000) // as per MAX_MULTICAST_SOLICIT * RETRANS_TIMER constants of RFC4861
+#define IPC_IPV6_RA_INTERVAL			(2 * 1000) // Windows gets stuck if it is bigger
+#define IPC_IPV6_RA_MAX_RETRIES			2 // Windows seems to be stuck when it doesn't receive an answer in due time
+
+// Protocol status
+#define	IPC_PROTO_STATUS_CLOSED			0x0
+#define	IPC_PROTO_STATUS_CONFIG			0x1
+#define	IPC_PROTO_STATUS_CONFIG_WAIT	0x2
+#define	IPC_PROTO_STATUS_OPENED			0x10
+#define	IPC_PROTO_STATUS_REJECTED		0x100
+
+#define IPC_PROTO_SET_STATUS(ipc, proto, value)	((ipc) != NULL ? ((ipc->proto) = (value)) : 0)
+#define IPC_PROTO_GET_STATUS(ipc, proto)		((ipc) != NULL ? (ipc->proto) : IPC_PROTO_STATUS_REJECTED)
+
 // ARP table entry
 struct IPC_ARP
 {
@@ -72,6 +88,15 @@ struct IPC_PARAM
 	UINT Layer;
 };
 
+// DHCPv4 response awaiter
+struct IPC_DHCPV4_AWAIT
+{
+	bool IsAwaiting;
+	DHCPV4_DATA *DhcpData;
+	UINT TransCode;
+	UINT OpCode;
+};
+
 // IPC_ASYNC object
 struct IPC_ASYNC
 {
@@ -111,12 +136,22 @@ struct IPC
 	UCHAR Padding[2];
 	LIST *ArpTable;						// ARP table
 	QUEUE *IPv4ReceivedQueue;			// IPv4 reception queue
+	UINT IPv4State;
+	IPC_DHCPV4_AWAIT DHCPv4Awaiter;
 	TUBE_FLUSH_LIST *FlushList;			// Tube Flush List
 	UCHAR MsChapV2_ServerResponse[20];	// Server response
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;	// Classless routing table
 	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
 	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 	UINT Layer;
+
+	// IPv6 stuff
+	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue
+	UINT IPv6State;
+	LIST *IPv6NeighborTable;			// Neighbor Discovery Table
+	LIST *IPv6RouterAdvs;				// Router offered prefixes
+	UINT64 IPv6ClientEUI;				// The EUI of the client (for the SLAAC autoconf)
+	UINT64 IPv6ServerEUI;				// The EUI of the server (from the RA discovery)
 };
 
 // MS-CHAPv2 authentication information
@@ -129,11 +164,20 @@ struct IPC_MSCHAP_V2_AUTHINFO
 	EAP_CLIENT *MsChapV2_EapClient;		// EAP client
 };
 
+struct IPC_IPV6_ROUTER_ADVERTISEMENT
+{
+	IP RoutedPrefix;
+	IP RoutedMask;
+	IP RouterAddress;
+	UCHAR RouterMacAddress[6];
+	UCHAR RouterLinkLayerAddress[6];
+};
+
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
-			UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
-			char *client_hostname, char *crypt_name,
-			bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
-			UINT layer);
+            UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
+            char *client_hostname, char *crypt_name,
+            bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
+            UINT layer);
 IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code);
 IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address);
 void FreeIPC(IPC *ipc);
@@ -144,6 +188,7 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size);
 BLOCK *IPCRecvL2(IPC *ipc);
 BLOCK *IPCRecvIPv4(IPC *ipc);
 void IPCProcessInterrupts(IPC *ipc);
+void IPCProcessL3EventsIPv4Only(IPC *ipc);
 void IPCProcessL3Events(IPC *ipc);
 void IPCProcessL3EventsEx(IPC *ipc, UINT64 now);
 bool IPCSetIPv4Parameters(IPC *ipc, IP *ip, IP *subnet, IP *gw, DHCP_CLASSLESS_ROUTE_TABLE *rt);
@@ -151,15 +196,15 @@ IPC_ARP *IPCNewARP(IP *ip, UCHAR *mac_address);
 void IPCFreeARP(IPC_ARP *a);
 int IPCCmpArpTable(void *p1, void *p2);
 void IPCSendIPv4Unicast(IPC *ipc, void *data, UINT size, IP *next_ip);
-IPC_ARP *IPCSearchArpTable(IPC *ipc, IP *ip);
+IPC_ARP *IPCSearchArpTable(LIST *arpTable, IP *ip);
 void IPCSendIPv4WithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr);
 void IPCFlushArpTable(IPC *ipc);
 void IPCFlushArpTableEx(IPC *ipc, UINT64 now);
 void IPCProcessArp(IPC *ipc, BLOCK *b);
 void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address);
-bool IsValidUnicastMacAddress(UCHAR *mac);
-bool IsValidUnicastIPAddress4(IP *ip);
-bool IsValidUnicastIPAddressUINT4(UINT ip);
+
+
+
 DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt, UINT expecting_code, UINT timeout, TUBE *discon_poll_tube);
 BUF *IPCBuildDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt);
 BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt);
@@ -170,6 +215,26 @@ void IPCDhcpFreeIP(IPC *ipc, IP *dhcp_server);
 IPC_ASYNC *NewIPCAsync(CEDAR *cedar, IPC_PARAM *param, SOCK_EVENT *sock_event);
 void IPCAsyncThreadProc(THREAD *thread, void *param);
 void FreeIPCAsync(IPC_ASYNC *a);
+
+// IPv6 stuff
+// Memory management
+void IPCIPv6Init(IPC *ipc);
+void IPCIPv6Free(IPC *ipc);
+// NDT
+void IPCIPv6AssociateOnNDT(IPC *ipc, IP *ip, UCHAR *mac_address);
+void IPCIPv6AssociateOnNDTEx(IPC *ipc, IP *ip, UCHAR *mac_address, bool isNeighborAdv);
+void IPCIPv6FlushNDT(IPC *ipc);
+void IPCIPv6FlushNDTEx(IPC *ipc, UINT64 now);
+bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui);
+// RA
+void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
+bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
+UINT64 IPCIPv6GetServerEui(IPC *ipc);
+// Data flow
+BLOCK *IPCIPv6Recv(IPC *ipc);
+void IPCIPv6Send(IPC *ipc, void *data, UINT size);
+void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac_addr);
+void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip);
 
 bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password);
 
