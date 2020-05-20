@@ -2006,6 +2006,7 @@ LA_CREATE_LISTENER			已建立新 TCP 监听器 (端口号 %u)。
 LA_DELETE_LISTENER			已删除 TCP 监听器 (端口号 %u)。
 LA_ENABLE_LISTENER			已启用 TCP 监听器 (端口号 %u)。
 LA_DISABLE_LISTENER			已禁用 TCP 监听器 (端口号 %u)。
+LA_SET_PORTS_UDP			UDP ports have been set: %s.
 LA_SET_SERVER_PASSWORD		服务端管理员密码设置完成。
 LA_SET_FARM_SETTING			群集设置变更完成。
 LA_SET_SERVER_CERT			服务端证书设定完成。

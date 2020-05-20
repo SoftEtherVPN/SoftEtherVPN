@@ -288,6 +288,7 @@ typedef struct RPC_SERVER_INFO RPC_SERVER_INFO;
 typedef struct RPC_SERVER_STATUS RPC_SERVER_STATUS;
 typedef struct RPC_LISTENER RPC_LISTENER;
 typedef struct RPC_LISTENER_LIST RPC_LISTENER_LIST;
+typedef struct RPC_PORTS RPC_PORTS;
 typedef struct RPC_STR RPC_STR;
 typedef struct RPC_SET_PASSWORD RPC_SET_PASSWORD;
 typedef struct RPC_FARM RPC_FARM;

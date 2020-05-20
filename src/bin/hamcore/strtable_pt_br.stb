@@ -1989,6 +1989,7 @@ LA_CREATE_LISTENER	A new TCP listener (port number %u) has been created.
 LA_DELETE_LISTENER	TCP listener (port number %u) has been deleted.
 LA_ENABLE_LISTENER	TCP listener (port number %u) has been enabled.
 LA_DISABLE_LISTENER	TCP listener (port number %u) has been disabled.
+LA_SET_PORTS_UDP	UDP ports have been set: %s.
 LA_SET_SERVER_PASSWORD	The server administrator password has been set.
 LA_SET_FARM_SETTING	The clustering setting has been changed.
 LA_SET_SERVER_CERT	The server certificates have been set.
