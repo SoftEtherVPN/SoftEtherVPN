@@ -396,7 +396,6 @@
 #define B_IPSEC                         1096
 #define S_INFO                          1097
 #define B_OPENVPN                       1097
-#define B_DEFAULT                       1097
 #define S_PORT                          1098
 #define B_BRIDGE2                       1098
 #define B_DDNS                          1098
@@ -960,7 +959,7 @@
 #define S_WIN8                          1457
 #define R_OPENVPN                       1458
 #define S_UDP                           1459
-#define S_UDP2                          1460
+#define B_APPLY                         1460
 #define S_TOOL                          1461
 #define S_TOOL2                         1462
 #define R_SSTP                          1463

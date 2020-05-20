@@ -7505,6 +7505,8 @@ void PsMain(PS *ps)
 			{"ListenerList", PsListenerList},
 			{"ListenerEnable", PsListenerEnable},
 			{"ListenerDisable", PsListenerDisable},
+			{"PortsUDPGet", PsPortsUDPGet},
+			{"PortsUDPSet", PsPortsUDPSet},
 			{"ServerPasswordSet", PsServerPasswordSet},
 			{"ClusterSettingGet", PsClusterSettingGet},
 			{"ClusterSettingStandalone", PsClusterSettingStandalone},
@@ -7880,7 +7882,7 @@ bool CmdEvalIp(CONSOLE *c, wchar_t *str, void *param)
 }
 
 // Convert a string to port list
-LIST *StrToPortList(char *str)
+LIST *StrToPortList(char *str, bool limit_range)
 {
 	LIST *o;
 	TOKEN_LIST *t;
@@ -7915,7 +7917,7 @@ LIST *StrToPortList(char *str)
 			return NULL;
 		}
 		n = ToInt(s);
-		if (n == 0 || n >= 65536)
+		if (limit_range && (n == 0 || n >= 65536))
 		{
 			ReleaseList(o);
 			FreeToken(t);
@@ -7958,7 +7960,7 @@ UINT PsClusterSettingMember(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 		// "name", prompt_proc, prompt_param, eval_proc, eval_param
 		{"[server:port]", CmdPrompt, _UU("CMD_ClusterSettingMember_Prompt_HOST_1"), CmdEvalHostAndPort, NULL},
 		{"IP", PsClusterSettingMemberPromptIp, NULL, CmdEvalIp, NULL},
-		{"PORTS", PsClusterSettingMemberPromptPorts, NULL, CmdEvalPortList, NULL},
+		{"PORTS", PsClusterSettingMemberPromptPorts, NULL, CmdEvalPortList, (void *)true},
 		{"PASSWORD", CmdPromptChoosePassword, NULL, NULL, NULL},
 		{"WEIGHT", NULL, NULL, NULL, NULL},
 	};
@@ -7997,7 +7999,7 @@ UINT PsClusterSettingMember(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 		ports_str = GetParamStr(o, "PORTS");
 
-		ports = StrToPortList(ports_str);
+		ports = StrToPortList(ports_str, true);
 
 		t.NumPort = LIST_NUM(ports);
 		t.Ports = ZeroMalloc(sizeof(UINT) * t.NumPort);
@@ -8044,7 +8046,7 @@ bool CmdEvalPortList(CONSOLE *c, wchar_t *str, void *param)
 
 	s = CopyUniToStr(str);
 
-	o = StrToPortList(s);
+	o = StrToPortList(s, (bool)param);
 
 	if (o != NULL)
 	{
@@ -21631,7 +21633,6 @@ UINT PsOpenVpnEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	{
 		// "name", prompt_proc, prompt_param, eval_proc, eval_param
 		{"[yes|no]", CmdPrompt, _UU("CMD_OpenVpnEnable_Prompt_[yes|no]"), CmdEvalNotEmpty, NULL},
-		{"PORTS", CmdPrompt, _UU("CMD_OpenVpnEnable_Prompt_PORTS"), CmdEvalNotEmpty, NULL},
 	};
 
 	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
@@ -21654,7 +21655,6 @@ UINT PsOpenVpnEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	t.EnableOpenVPN = GetParamYes(o, "[yes|no]");
-	StrCpy(t.OpenVPNPortList, sizeof(t.OpenVPNPortList), GetParamStr(o, "PORTS"));
 
 	// RPC call
 	ret = ScSetOpenVpnSstpConfig(ps->Rpc, &t);
@@ -21700,13 +21700,9 @@ UINT PsOpenVpnGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 	else
 	{
-		wchar_t tmp[MAX_PATH];
 		CT *ct = CtNewStandard();
 
 		CtInsert(ct, _UU("CMD_OpenVpnGet_PRINT_Enabled"), _UU(t.EnableOpenVPN ? "SEC_YES" : "SEC_NO"));
-
-		StrToUni(tmp, sizeof(tmp), t.OpenVPNPortList);
-		CtInsert(ct, _UU("CMD_OpenVpnGet_PRINT_Ports"), tmp);
 
 		CtFree(ct, c);
 	}
@@ -22892,6 +22888,111 @@ UINT PsListenerEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	return 0;
+}
+
+// Set UDP ports the server should listen on
+UINT PsPortsUDPSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o, *ports;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PORTS t;
+	PARAM args[] =
+	{
+		{"[ports]", CmdPrompt, _UU("CMD_PortsUDPSet_[ports]"), CmdEvalPortList, (void *)false}
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	ports = StrToPortList(GetParamStr(o, "[ports]"), false);
+
+	FreeParamValueList(o);
+
+	t.Num = LIST_NUM(ports);
+	if (t.Num > 0)
+	{
+		UINT i;
+		t.Ports = Malloc(sizeof(UINT) * t.Num);
+
+		for (i = 0; i < t.Num; ++i)
+		{
+			t.Ports[i] = (UINT)LIST_DATA(ports, i);
+		}
+	}
+	else
+	{
+		t.Ports = NULL;
+	}
+
+	ReleaseList(ports);
+
+	ret = ScSetPortsUDP(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	Free(t.Ports);
+
+	return ret;
+}
+
+// List UDP ports the server is listening on
+UINT PsPortsUDPGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PORTS t;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	FreeParamValueList(o);
+
+	Zero(&t, sizeof(t));
+
+	ret = ScGetPortsUDP(ps->Rpc, &t);
+	if (ret == ERR_NO_ERROR)
+	{
+		wchar_t str[MAX_SIZE];
+		CT *ct = CtNewStandard();
+
+		Zero(str, sizeof(str));
+
+		if (t.Num > 0)
+		{
+			UINT i;
+			wchar_t buf[MAX_SIZE];
+
+			UniFormat(buf, sizeof(buf), L"%u", t.Ports[0]);
+			UniStrCat(str, sizeof(str), buf);
+
+			for (i = 1; i < t.Num; ++i)
+			{
+				UniFormat(buf, sizeof(buf), L", %u", t.Ports[i]);
+				UniStrCat(str, sizeof(str), buf);
+			}
+		}
+
+		CtInsert(ct, _UU("CMD_PortsUDPGet_Ports"), str);
+		CtFree(ct, c);
+	}
+	else
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcPorts(&t);
+
+	return ret;
 }
 
 // Draw a row of console table

@@ -1970,6 +1970,7 @@ LA_CREATE_LISTENER 새로운 TCP 리스너 (포트 번호 %u)를 만들었습니
 LA_DELETE_LISTENER TCP 리스너 (포트 번호 %u)을 삭제했습니다.
 LA_ENABLE_LISTENER TCP 리스너 (포트 번호 %u)를 활성화했습니다.
 LA_DISABLE_LISTENER TCP 리스너 (포트 번호 %u)를 비활성화했습니다.
+LA_SET_PORTS_UDP UDP ports have been set: %s.
 LA_SET_SERVER_PASSWORD 서버 관리자 암호를 설정했습니다.
 LA_SET_FARM_SETTING 클러스터링 설정을 변경했습니다.
 LA_SET_SERVER_CERT 서버 인증서를 설정했습니다.
@@ -2537,6 +2538,8 @@ B_CREATE_LISTENER 새로 만들기 (&R)
 B_DELETE_LISTENER 삭제 (&T)
 B_START 시작 (&G)
 B_STOP 정지 (&P)
+S_UDP Multiple UDP ports can be specified by splitting them with a space or a comma. Leave empty to disable the UDP listener.
+B_APPLY Apply
 STATIC3 서버 정보의 확인 및 설정 (&N)
 B_SSL 암호화 및 통신 관계의 설정 (&W)
 B_STATUS 서버 상태보기 (&V)
@@ -3848,9 +3851,6 @@ CAPTION OpenVPN/MS-SSTP 설정
 S_TITLE OpenVPN/MS-SSTP VPN 서버 기능 설정
 S_1 OpenVPN 사의 OpenVPN 소프트웨어 제품과 동일한 VPN 서버 기능을 탑재하고 있습니다. \r\n\r\nOpenVPN 클라이언트에서이 VPN Server에 연결할 수 있습니다.
 R_OPENVPN & OpenVPN 서버 기능을 활성화하려면
-S_UDP OpenVPN 서비스를 제공 및 UDP 포트:
-B_DEFAULT 기본값 복원 (&D)
-S_UDP2 UDP 포트는 여러 지정할 수 있습니다. 복수 지정하려면 공백 또는 쉼표로 구분하십시오. \r\nOpenVPN 서버 기능은 TCP 포트에서도 사용할 수 있습니다. 이 경우 VPN Server에 현재 생성되어있는 모든 TCP 리스너 포트에서 OpenVPN 프로토콜이 지원됩니다.
 S_TOOL OpenVPN 클라이언트 샘플 설정 파일 자동 생성 도구
 S_TOOL2 원래 OpenVPN 클라이언트를 사용하기 위해서는 설정 파일을 수동으로 작성해야하며 이것은 난이도가 높은 작업입니다. 그러나 다음 버튼을 클릭하면이 VPN Server에 연결할 수있는 기본적인 OpenVPN 클라이언트의 설정 파일을 자동으로 생성 할 수 있습니다.
 B_CONFIG OpenVPN 클라이언트의 샘플 구성 파일을 생성 (&C)
@@ -4527,6 +4527,20 @@ CMD_ListenerDisable_Help 현재 서버에 등록되어있는 TCP 리스너가 �
 CMD_ListenerDisable_Args ListenerDisable [port]
 CMD_ListenerDisable_[port] 중지 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
 CMD_ListenerDisable_PortPrompt 시작하는 TCP/IP 리스너 포트 번호:
+
+
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
 
 
 # ServerPasswordSet 명령
@@ -6267,11 +6281,9 @@ CMD_EtherIpClientList_Args EtherIpClientList
 # OpenVpnEnable 명령
 CMD_OpenVpnEnable OpenVPN 호환 서버 기능을 활성화/비활성화
 CMD_OpenVpnEnable_Help SoftEther VPN Server는 OpenVPN 사의 OpenVPN 소프트웨어 제품과 동일한 VPN 서버 기능이 탑재되어 있습니다. OpenVPN 서버 기능을 활성화하면 OpenVPN 클라이언트에서 OpenVPN 서버에 연결 할 수 있습니다. \n \nOpenVPN 호환 서버 기능으로 가상 HUB에 연결하는 경우 사용자 이름 지정 방법 및 기본 가상 HUB 선택 규칙은 IPsec 서버 기능과 유사합니다. 자세한 내용은 IPsecEnable 명령의 도움말을 참조하십시오. \n \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
-CMD_OpenVpnEnable_Args OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_Args OpenVpnEnable [yes|no]
 CMD_OpenVpnEnable_[yes|no] OpenVPN 호환 서버 기능을 활성화하려면 yes, 무효로하는 경우 no를 지정합니다.
-CMD_OpenVpnEnable_PORTS OpenVPN 서비스를 제공하는 UDP 포트 목록을 지정하십시오. UDP 포트는 여러 지정할 수 있습니다. 복수 지정하는 경우는 1194, 2001, 2010, 2012와 같이 콤마 (,)로 구분하십시오. OpenVPN은 표준에서 UDP 1194 포트를 사용하지만 다른 임의의 UDP 포트를 지정할 수 있습니다.
 CMD_OpenVpnEnable_Prompt_[yes|no] OpenVPN 호환 서버 기능을 활성화 (yes/no):
-CMD_OpenVpnEnable_Prompt_PORTS UDP 포트 번호 목록 (표준 1194/복수 지정 가능):
 
 
 # OpenVpnGet 명령
@@ -6279,7 +6291,6 @@ CMD_OpenVpnGet OpenVPN 호환 서버 기능의 현재 설정을 가져
 CMD_OpenVpnGet_Help 현재 OpenVPN 호환 서버 기능의 설정을 검색하고 표시합니다. \n \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_OpenVpnGet_Args OpenVpnGet
 CMD_OpenVpnGet_PRINT_Enabled OpenVPN 호환 서버 기능이 활성화
-CMD_OpenVpnGet_PRINT_Ports UDP 포트 번호 목록
 
 # OpenVpnMakeConfig 명령
 CMD_OpenVpnMakeConfig OpenVPN 호환 서버 기능에 연결 가능한 샘플의 OpenVPN 설정 파일 생성

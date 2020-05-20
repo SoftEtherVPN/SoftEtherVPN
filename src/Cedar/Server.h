@@ -147,7 +147,6 @@ struct SYSLOG_SETTING
 struct OPENVPN_SSTP_CONFIG
 {
 	bool EnableOpenVPN;						// OpenVPN is enabled
-	char OpenVPNPortList[MAX_SIZE];			// OpenVPN UDP port number list
 	bool OpenVPNObfuscation;				// OpenVPN: Obfuscation mode
 	char OpenVPNObfuscationMask[MAX_SIZE];	// OpenVPN: String (mask) for XOR obfuscation
 	bool EnableSSTP;						// SSTP is enabled
@@ -159,6 +158,7 @@ struct SERVER
 	UINT ServerType;					// Type of server
 	UINT UpdatedServerType;				// Type of updated server
 	LIST *ServerListenerList;			// Server listener list
+	LIST *PortsUDP;						// The ports used by Proto's UDP listener
 	UCHAR HashedPassword[SHA1_SIZE];	// Password
 	char ControllerName[MAX_HOST_NAME_LEN + 1];		// Controller name
 	UINT ControllerPort;				// Controller port
@@ -244,7 +244,6 @@ struct SERVER
 
 	PROTO *Proto;						// Protocols handler
 	IPSEC_SERVER *IPsecServer;			// IPsec server function
-	char OpenVpnServerUdpPorts[MAX_SIZE];	// UDP port list string
 	DDNS_CLIENT *DDnsClient;			// DDNS client feature
 	LOCK *OpenVpnSstpConfigLock;		// Lock OpenVPN and SSTP configuration
 

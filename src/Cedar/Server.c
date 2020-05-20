@@ -33,8 +33,6 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 
 	Lock(s->OpenVpnSstpConfigLock);
 	{
-		LIST *ports;
-
 		// Save the settings
 		if (s->Cedar->Bridge || s->ServerType != SERVER_TYPE_STANDALONE)
 		{
@@ -46,12 +44,6 @@ void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 			s->DisableSSTPServer = !c->EnableSSTP;
 			s->DisableOpenVPNServer = !c->EnableOpenVPN;
 		}
-
-		// TODO: Now that we have a unified protocol interface (Proto), the setting's name should be changed.
-		NormalizeIntListStr(s->OpenVpnServerUdpPorts, sizeof(s->OpenVpnServerUdpPorts), c->OpenVPNPortList, true, ", ");
-		ports = StrToIntList(s->OpenVpnServerUdpPorts, true);
-		ProtoSetUdpPorts(s->Proto, ports);
-		ReleaseIntList(ports);
 
 		s->Cedar->OpenVPNObfuscation = c->OpenVPNObfuscation;
 		StrCpy(s->Cedar->OpenVPNObfuscationMask, sizeof(s->Cedar->OpenVPNObfuscationMask), c->OpenVPNObfuscationMask);
@@ -81,8 +73,6 @@ void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
 		{
 			c->EnableSSTP = true;
 		}
-
-		StrCpy(c->OpenVPNPortList, sizeof(c->OpenVPNPortList), s->OpenVpnServerUdpPorts);
 
 		c->OpenVPNObfuscation = s->Cedar->OpenVPNObfuscation;
 		StrCpy(c->OpenVPNObfuscationMask, sizeof(c->OpenVPNObfuscationMask), s->Cedar->OpenVPNObfuscationMask);
@@ -2494,25 +2484,30 @@ void SiLoadInitialConfiguration(SERVER *s)
 	}
 	else
 	{
-		// Enable the SSTP and OpenVPN for default setting
 		OPENVPN_SSTP_CONFIG c;
-
 		Zero(&c, sizeof(c));
-		c.EnableOpenVPN = true;
-		c.EnableSSTP = true;
 
-		{
-			ToStr(c.OpenVPNPortList, OPENVPN_UDP_PORT);
-		}
+		// Enable SSTP and OpenVPN by default
+		c.EnableSSTP = true;
+		c.EnableOpenVPN = true;
 
 		c.OpenVPNObfuscation = false;
+
+		// Disable VPN-over-ICMP and VPN-over-DNS by default
+		s->EnableVpnOverIcmp = false;
+		s->EnableVpnOverDns = false;
 
 		SiSetOpenVPNAndSSTPConfig(s, &c);
 
 		{
-			// Enable VPN-over-ICMP" and VPN-over-DNS for default setting
-			s->EnableVpnOverIcmp = false;
-			s->EnableVpnOverDns = false;
+			LIST *ports = s->PortsUDP;
+
+			AddInt(ports, SERVER_DEF_PORTS_1);
+			AddInt(ports, SERVER_DEF_PORTS_2);
+			AddInt(ports, SERVER_DEF_PORTS_3);
+			AddInt(ports, SERVER_DEF_PORTS_4);
+
+			ProtoSetUdpPorts(s->Proto, ports);
 		}
 	}
 
@@ -5946,19 +5941,36 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			s->DisableOpenVPNServer = true;
 		}
 
-		// Read the OpenVPN Port List
-		if (CfgGetStr(f, "OpenVPN_UdpPortList", tmp, sizeof(tmp)) == false)
+		if (CfgGetStr(f, "PortsUDP", tmp, sizeof(tmp)))
 		{
+			UINT i;
+			TOKEN_LIST *tokens;
+			LIST *ports = s->PortsUDP;
+
+			for (i = 0; i < LIST_NUM(ports); ++i)
 			{
-				ToStr(tmp, OPENVPN_UDP_PORT);
+				Free(LIST_DATA(ports, i));
 			}
+			DeleteAll(ports);
+
+			NormalizeIntListStr(tmp, sizeof(tmp), tmp, true, ", ");
+
+			tokens = ParseTokenWithoutNullStr(tmp, ", ");
+			for (i = 0; i < tokens->NumTokens; ++i)
+			{
+				char *str = tokens->Token[i];
+				if (IsNum(str))
+				{
+					InsertIntDistinct(ports, ToInt(str));
+				}
+			}
+			FreeToken(tokens);
 		}
 
 		// Apply the configuration of SSTP and OpenVPN
 		Zero(&config, sizeof(config));
 		config.EnableOpenVPN = !s->DisableOpenVPNServer;
 		config.EnableSSTP = !s->DisableSSTPServer;
-		StrCpy(config.OpenVPNPortList, sizeof(config.OpenVPNPortList), tmp);
 
 		config.OpenVPNObfuscation = CfgGetBool(f, "OpenVPNObfuscation");
 
@@ -6132,6 +6144,12 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 	CfgAddIp(f, "ListenIP", &s->ListenIP);
 
+	{
+		char str[MAX_SIZE];
+		IntListToStr(str, sizeof(str), s->PortsUDP, ", ");
+		CfgAddStr(f, "PortsUDP", str);
+	}
+
 	if (s->Logger != NULL)
 	{
 		CfgAddInt(f, "ServerLogSwitchType", s->Logger->SwitchType);
@@ -6243,8 +6261,6 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
 
 			SiGetOpenVPNAndSSTPConfig(s, &config);
-
-			CfgAddStr(f, "OpenVPN_UdpPortList", config.OpenVPNPortList);
 
 			CfgAddBool(f, "OpenVPNObfuscation", config.OpenVPNObfuscation);
 			CfgAddStr(f, "OpenVPNObfuscationMask", config.OpenVPNObfuscationMask);
@@ -6861,6 +6877,8 @@ void SiCleanupServer(SERVER *s)
 
 	// Stop all listeners
 	SiStopAllListener(s);
+
+	ReleaseIntList(s->PortsUDP);
 
 	if (s->ServerType == SERVER_TYPE_FARM_CONTROLLER)
 	{
@@ -10712,6 +10730,7 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 
 	s->Cedar->CheckExpires = true;
 	s->ServerListenerList = NewList(CompareServerListener);
+	s->PortsUDP = NewIntList(true);
 	s->StartTime = SystemTime64();
 	s->TasksFromFarmControllerLock = NewLock();
 

@@ -1989,6 +1989,7 @@ LA_CREATE_LISTENER	A new TCP listener (port number %u) has been created.
 LA_DELETE_LISTENER	TCP listener (port number %u) has been deleted.
 LA_ENABLE_LISTENER	TCP listener (port number %u) has been enabled.
 LA_DISABLE_LISTENER	TCP listener (port number %u) has been disabled.
+LA_SET_PORTS_UDP	UDP ports have been set: %s.
 LA_SET_SERVER_PASSWORD	The server administrator password has been set.
 LA_SET_FARM_SETTING	The clustering setting has been changed.
 LA_SET_SERVER_CERT	The server certificates have been set.
@@ -2503,6 +2504,8 @@ B_CREATE_LISTENER	C&riar
 B_DELETE_LISTENER	Exclui&r
 B_START	Iniciar
 B_STOP	Para&r
+S_UDP	Multiple UDP ports can be specified by splitting them with a space or a comma. Leave empty to disable the UDP listener.
+B_APPLY	Apply
 STATIC3	Informações e configurações do servidor VPN e da rede:
 B_SSL	Criptografia e &rede
 B_STATUS	&Ver status do servidor
@@ -3640,9 +3643,6 @@ CAPTION	OpenVPN / MS-SSTP Settings
 S_TITLE	OpenVPN / MS-SSTP VPN Clone Server Function Settings
 S_1	This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc.\r\n\r\nAny OpenVPN Clients can connect to this VPN Server.
 R_OPENVPN	Ativar função OpenVPN Clone Server
-S_UDP	UDP Ports to Listen for OpenVPN:
-B_DEFAULT	Restore &Default
-S_UDP2	Multiple UDP ports can be specified with splitting by space or comma letters.\r\nOpenVPN Server Function also runs on TCP ports. Any TCP ports which are defined as listeners on the VPN Server accepts OpenVPN Protocol respectively and equally.
 S_TOOL	Sample File Generating Tool for OpenVPN Clients
 S_TOOL2	Making a OpenVPN Client configuration file is a very difficult job. You can use this tool to generate an appropriate OpenVPN Client configuration file. The generated configuration sample can be used immediately.
 B_CONFIG	Generate a Sample &Configuration File for OpenVPN Clients
@@ -4268,6 +4268,20 @@ CMD_ListenerDisable_Help	This stops the operation of operating TCP Listeners reg
 CMD_ListenerDisable_Args	ListenerDisable [port]
 CMD_ListenerDisable_[port]	Using an integer, specify the port number of the TCP/IP listener you want to stop.
 CMD_ListenerDisable_PortPrompt	Port number of TCP/IP Listener to start: 
+
+
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
 
 
 # ServerPasswordSet command
@@ -6015,11 +6029,9 @@ CMD_EtherIpClientList_Args	EtherIpClientList
 # OpenVpnEnable command
 CMD_OpenVpnEnable	Enable / Disable OpenVPN Clone Server Function
 CMD_OpenVpnEnable_Help	This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc. Any OpenVPN Clients can connect to this VPN Server.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no]
 CMD_OpenVpnEnable_[yes|no]	Specify yes to enable the OpenVPN Clone Server Function. Specify no to disable.
-CMD_OpenVpnEnable_PORTS	Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
 CMD_OpenVpnEnable_Prompt_[yes|no]	Enables OpenVPN Clone Server Function (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS	UDP Ports to Listen for OpenVPN (Default: 1194 / Multiple Accepted): 
 
 
 # OpenVpnGet command
@@ -6027,7 +6039,6 @@ CMD_OpenVpnGet	Get the Current Settings of OpenVPN Clone Server Function
 CMD_OpenVpnGet_Help	Get and show the current settings of OpenVPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_OpenVpnGet_Args	OpenVpnGet
 CMD_OpenVpnGet_PRINT_Enabled	OpenVPN Clone Server Enabled
-CMD_OpenVpnGet_PRINT_Ports	Lista de portas UDP
 
 
 # OpenVpnMakeConfig command
