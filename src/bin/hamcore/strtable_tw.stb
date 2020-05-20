@@ -4568,6 +4568,20 @@ CMD_ListenerDisable_[port]	使用一個整數，指定要停止的 TCP/IP 監聽
 CMD_ListenerDisable_PortPrompt	啟動 TCP/IP 監聽器埠號: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
+
+
 # ServerPasswordSet 命令
 CMD_ServerPasswordSet	設置 VPN Server 管理員密碼
 CMD_ServerPasswordSet_Help	這將設置 VPN Server 管理員密碼。您可以指定密碼為一個參數。如果密碼沒有指定，將顯示提示輸入密碼和密碼確認。如果指定密碼為一個參數，這個密碼將在螢幕上顯示瞬間，這構成了風險。我們建議盡可能避免指定這個參數，使用密碼提示輸入密碼。\n為了執行這個命令，您必須有 VPN Server 管理員許可權。

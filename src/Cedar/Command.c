@@ -7505,6 +7505,8 @@ void PsMain(PS *ps)
 			{"ListenerList", PsListenerList},
 			{"ListenerEnable", PsListenerEnable},
 			{"ListenerDisable", PsListenerDisable},
+			{"PortsUDPGet", PsPortsUDPGet},
+			{"PortsUDPSet", PsPortsUDPSet},
 			{"ServerPasswordSet", PsServerPasswordSet},
 			{"ClusterSettingGet", PsClusterSettingGet},
 			{"ClusterSettingStandalone", PsClusterSettingStandalone},
@@ -22886,6 +22888,111 @@ UINT PsListenerEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	return 0;
+}
+
+// Set UDP ports the server should listen on
+UINT PsPortsUDPSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o, *ports;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PORTS t;
+	PARAM args[] =
+	{
+		{"[ports]", CmdPrompt, _UU("CMD_PortsUDPSet_[ports]"), CmdEvalPortList, (void *)false}
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	ports = StrToPortList(GetParamStr(o, "[ports]"), false);
+
+	FreeParamValueList(o);
+
+	t.Num = LIST_NUM(ports);
+	if (t.Num > 0)
+	{
+		UINT i;
+		t.Ports = Malloc(sizeof(UINT) * t.Num);
+
+		for (i = 0; i < t.Num; ++i)
+		{
+			t.Ports[i] = (UINT)LIST_DATA(ports, i);
+		}
+	}
+	else
+	{
+		t.Ports = NULL;
+	}
+
+	ReleaseList(ports);
+
+	ret = ScSetPortsUDP(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	Free(t.Ports);
+
+	return ret;
+}
+
+// List UDP ports the server is listening on
+UINT PsPortsUDPGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PORTS t;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	FreeParamValueList(o);
+
+	Zero(&t, sizeof(t));
+
+	ret = ScGetPortsUDP(ps->Rpc, &t);
+	if (ret == ERR_NO_ERROR)
+	{
+		wchar_t str[MAX_SIZE];
+		CT *ct = CtNewStandard();
+
+		Zero(str, sizeof(str));
+
+		if (t.Num > 0)
+		{
+			UINT i;
+			wchar_t buf[MAX_SIZE];
+
+			UniFormat(buf, sizeof(buf), L"%u", t.Ports[0]);
+			UniStrCat(str, sizeof(str), buf);
+
+			for (i = 1; i < t.Num; ++i)
+			{
+				UniFormat(buf, sizeof(buf), L", %u", t.Ports[i]);
+				UniStrCat(str, sizeof(str), buf);
+			}
+		}
+
+		CtInsert(ct, _UU("CMD_PortsUDPGet_Ports"), str);
+		CtFree(ct, c);
+	}
+	else
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcPorts(&t);
+
+	return ret;
 }
 
 // Draw a row of console table

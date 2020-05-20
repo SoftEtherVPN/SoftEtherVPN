@@ -4552,6 +4552,20 @@ CMD_ListenerDisable_[port]	停止する TCP/IP リスナーのポート番号を
 CMD_ListenerDisable_PortPrompt	開始する TCP/IP リスナーのポート番号: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			サーバーが着信を受付ける UDP ポート番号の一覧を設定します。
+CMD_PortsUDPSet_Help	このコマンドを使用すると、このサーバーが着信を受付ける単一または複数の UDP ポートの一覧を設定することができます。\n他のプロセスによって使用されている UDP ポートを設定することも可能ですが、そのポートが解放されるまでは機能しません。\nポート番号は、1 から 65535 の間で指定します。\n現在設定されているポートの一覧は、PortsUDPGet コマンドを使用して確認することができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	複数のポート番号を指定する場合は、スペース文字またはカンマ文字で区切ってください。例: "443, 992, 1194, 5555". \n"0" を指定すると、UDP リスナーを無効化することができます。\n\nポート一覧: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			サーバーにおける着信 UDP ポートの一覧を表示します。
+CMD_PortsUDPGet_Help	このコマンドを使用すると、サーバーで待受け状態になっている UDP ポートの一覧を表示することができます。\nポートの設定を変更するには、PortsUDPSet コマンドを使用してください。
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ポート一覧
+
+
 # ServerPasswordSet コマンド
 CMD_ServerPasswordSet	VPN Server の管理者パスワードの設定
 CMD_ServerPasswordSet_Help	VPN Server の管理者パスワードを設定します。パラメータとしてパスワードを指定することができます。パラメータを指定しない場合は、パスワードと、その確認入力を行なうためのプロンプトが表示されます。パスワードをパラメータに与えた場合、そのパスワードが一時的に画面に表示されるため危険です。できる限り、パラメータを指定せずに、パスワードプロンプトを用いてパスワードを入力することを推奨します。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。

@@ -4271,6 +4271,20 @@ CMD_ListenerDisable_[port]	Using an integer, specify the port number of the TCP/
 CMD_ListenerDisable_PortPrompt	Port number of TCP/IP Listener to start: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
+
+
 # ServerPasswordSet command
 CMD_ServerPasswordSet	Set VPN Server Administrator Password
 CMD_ServerPasswordSet_Help	This sets the VPN Server administrator password. You can specify the password as a parameter. If the password is not specified, a prompt will be displayed to input the password and password confirmation. If you include the password as a parameter, this password will be displayed momentarily on the screen, which poses a risk. We recommend that whenever possible, avoid specifying this parameter and input the password using the password prompt. \nTo execute this command, you must have VPN Server administrator privileges.
