@@ -16812,6 +16812,20 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
 	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
 
+	// It resets some parameters.
+	if (server_mode)
+	{
+		SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
+	}
+	else
+	{
+		SSL_CTX_set_ssl_version(ctx, SSLv23_client_method());
+	}
+
+#ifdef	SSL_OP_NO_SSLv3
+	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
+
 #ifdef	SSL_OP_NO_TICKET
 	SSL_CTX_set_options(ctx, SSL_OP_NO_TICKET);
 #endif	// SSL_OP_NO_TICKET
@@ -16828,19 +16842,6 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 #ifdef	SSL_CTX_set_ecdh_auto
 	SSL_CTX_set_ecdh_auto(ctx, 1);
 #endif	// SSL_CTX_set_ecdh_auto
-
-	if (server_mode)
-	{
-		SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
-	}
-	else
-	{
-		SSL_CTX_set_ssl_version(ctx, SSLv23_client_method());
-	}
-
-#ifdef	SSL_OP_NO_SSLv3
-	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
 
 	return ctx;
 }
