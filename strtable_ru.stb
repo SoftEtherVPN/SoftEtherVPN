@@ -3195,28 +3195,28 @@ IDCANCEL				E&xit
 
 
 PREFIX					D_SM_BRIDGE
-CAPTION					Local Bridge Settings
-STATIC1					Local Bridge can establish a Layer 2 bridge connection between a Virtual Hub on this VPN server and a physical Ethernet Device (Network Adapter). \r\nIt is also possible to create a tap device (virtual network interface) and establish a bridge connection with a Virtual Hub. (Tap is supported on Linux versions only)
-B_DELETE				&Delete Local Bridge
-STATIC2					New &New Local Bridge Definition:
-STATIC3					Select the Virtual Hub to bridge.
+CAPTION					Настройки локального моста
+STATIC1					Локальный мост может установить мостовое соединение 2-го уровня между Virtual Hub на этом VPN-сервере и физическим Ethernet устройством (сетевым адаптером). \r\nТакже возможно создать Tap устройство (виртуальный сетевой интерфейс) и установить мостовое соединение с Virtual Hub. (Tap поддерживается только в Linux версиях)
+B_DELETE				&Удалить локальный мост
+STATIC2					Новый локальный мост:
+STATIC3					Выберите Virtual Hub для создания моста.
 STATIC4					Virtual &Hub: 
-STATIC5					&Type to Create:
-R_BRIDGE				Bridge with &Physical Existing Network Adapter
-R_TAP					Bridge with New &Tap Device
-S_ETH_1					LAN Adapter:
-S_TAP_1					New Tap &Device Name:
-S_TAP_2					(Maximum 11 Characters)
-STATIC6					Note: Although it is possible to establish a bridge using any operating network adapter, in high load environments, you should prepare a network adapter dedicated for bridging.
-IDOK					Cre&ate Local Bridge
-STATIC7					If a network adapter doesn't appear which is recently added on the system, reboot the computer and re-open this screen.
-IDCANCEL				E&xit
-B_VLAN					VLAN Transparency Setting Tool
+STATIC5					&Тип:
+R_BRIDGE				Мост с физическим сетевым адаптером
+R_TAP					Мост с новым Tap устройством
+S_ETH_1					Сетевой адаптер:
+S_TAP_1					Имя нового Tap устройства:
+S_TAP_2					(Максимум 11 символов)
+STATIC6					Примечание: Хотя можно создать мост с любым работающим сетевым адаптера, в средах с высокой нагрузкой следует подготовить отдельный сетевой адаптер, предназначенный для мостового соединения.
+IDOK					Создать локальный мост
+STATIC7					Если сетевой адаптер, который недавно был добавлен в систему, отсутствует, перезагрузите компьютер и снова откройте этот экран.
+IDCANCEL				Выход
+B_VLAN					Инструмент настройки VLAN Transparency
 
 
 PREFIX					D_WIN9X_REBOOT
-CAPTION					VPN Client - Install Virtual Network Adapter
-STATIC1					The VPN Client Virtual Network Adapter has been installed. \r\nIt is necessary to shutdown Windows now and restart the computer. \r\n\r\nThe computer will restart automatically. If the computer does not restart, please restart the computer manually.
+CAPTION					VPN-клиент - установка виртуального сетевого адаптера
+STATIC1					Виртуальный сетевой адаптер VPN-клиента был установлен. \r\n\r\nКомпьютер перезагрузится автоматически. Если этого не произошло, перезагрузите компьютер вручную.
 
 
 PREFIX					D_EM_MAIN
