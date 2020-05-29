@@ -3355,11 +3355,11 @@ PREFIX					D_SM_VLAN
 CAPTION					Инструмент настройки VLAN прозрачности
 STATIC1					Некоторые сетевые адаптеры не могут по умолчанию передавать пакеты с тегами VLAN (IEEE802.1Q)\r\n\r\nЕсли вы используете такой сетевой адаптер для подключения к Virtual Hub и вам необходимо обмениваться Ethernet пакетами с VLAN тегами, вам необходимо настроить сетевой адаптер, включив обработку пакетов для VLAN прозрачности.
 B_ENABLE				Настроить выбранные сетевые адаптеры для VLAN прозрачности
-B_DISABLE				&Unset the Configuration
-STATIC2					About the VLAN Transparency Setting Tool
-S_WARNING				This tool can enable or disable the transparency for tagged VLAN packets on Intel, Broadcom or Marvell's network adapters. (Only using the vendor provided drivers for Windows.)
-S_WARNING2				The above network adapters in the list means supported by this tool. No other network adapters can be configured by this tool. However, other network adapters which is not on the list might be able to support tagged VLAN packets by default or by using some configuration.\r\n\r\nSuch network adapters must be configured by the system administrator with logged on Windows.
-IDCANCEL				E&xit
+B_DISABLE				&Сбросить настройку
+STATIC2					Об инструменте настройки VLAN прозрачности
+S_WARNING				Этот инструмент может включать или отключать прозрачность для тегированных VLAN пакетов на сетевых адаптерах Intel, Broadcom или Marvell. (Только с использованием предоставленных поставщиком драйверов для Windows.)
+S_WARNING2				Этим инструментом поддерживаются только вышеуказанные сетевые адаптеры. Никакие другие сетевые адаптеры не могут быть настроены этим инструментом. Однако другие сетевые адаптеры, которых нет в списке, могут поддерживать тегированные VLAN пакеты по умолчанию или после применения специальных настроек. \r\n\r\nТакие сетевые адаптеры должны быть настроены системным администратором Windows.
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_SIMULATION
