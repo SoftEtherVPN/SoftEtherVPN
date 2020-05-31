@@ -1530,21 +1530,21 @@ SM_TRUE_OR_FALSE		Установите 0 (false) или 1 (true) для этог
 SM_AO_SET_OK			The Virtual Hub Administration Option has been set.
 SM_EXT_OPTION_SET_OK	The Virtual Hub Extended Option has been set.
 SM_PASSWORD_MSG			Currently an administrator password has not been set for this VPN Server. It is recommended that a password is set. \r\n\r\nDo you want to set a server administrator password?
-SM_L3_SW_COLUMN1		Layer 3 Switch Name
-SM_L3_SW_COLUMN2		Running Status
-SM_L3_SW_COLUMN3		Interfaces
-SM_L3_SW_COLUMN4		Routing Tables
-SM_L3_SW_ST_F_F			Stop
-SM_L3_SW_ST_T_F			Start (Error) 
-SM_L3_SW_ST_T_T			Start (Running)
-SM_L3_SW_DEL_MSG		This will delete the Virtual Layer 3 Switch "%S". \r\nDo you really want to do this?
-SM_L3_SW_IF_COLUMN1		IP Address
-SM_L3_SW_IF_COLUMN2		Subnet Mask
+SM_L3_SW_COLUMN1		Имя L3 коммутатора
+SM_L3_SW_COLUMN2		Статус работы
+SM_L3_SW_COLUMN3		Интерфейс
+SM_L3_SW_COLUMN4		Таблицы маршрутизации
+SM_L3_SW_ST_F_F			Остановлен
+SM_L3_SW_ST_T_F			Запущен (Ошибка)
+SM_L3_SW_ST_T_T			Запущен (Работает)
+SM_L3_SW_DEL_MSG		Это действие удалит виртуальный коммутатор 3-го уровня "%S".\r\nВы действительно хотите сделать это?
+SM_L3_SW_IF_COLUMN1		IP-адрес
+SM_L3_SW_IF_COLUMN2		Маска подсети
 SM_L3_SW_IF_COLUMN3		Название Virtual Hub
-SM_L3_SW_TABLE_COLUMN1	Network Address
-SM_L3_SW_TABLE_COLUMN2	Subnet Mask
-SM_L3_SW_TABLE_COLUMN3	Gateway Address
-SM_L3_SW_TABLE_COLUMN4	Metric
+SM_L3_SW_TABLE_COLUMN1	Сетевой адрес
+SM_L3_SW_TABLE_COLUMN2	Маска подсети
+SM_L3_SW_TABLE_COLUMN3	Адрес шлюза
+SM_L3_SW_TABLE_COLUMN4	Метрика
 SM_SECURE_NAT_MSG		Are you sure you want to enable the SecureNAT?\r\n\r\nIf you enable the SecureNAT, a virtual router with virtual NAT function will be created that has one IP address in the Virtual Hub. This Virtual Router will interact as one computer or router with other computers that are connected to the virtual network. \r\n\r\nThe SecureNAT in the Virtual NAT enables any computers connected to the Virtual Hub to establish communication with an external network via the SecureNAT. \r\nTherefore, when SecureNAT is running on this VPN Server, there is no need to use local VPN Client to connect the self-computer's Virtual Hub.\r\n\r\n\r\nAlso, please take care about that if there is already a DHCP server in a location that can be reached from a Virtual Hub Layer 2 segment, disable the DHCP server function by clicking the SecureNAT Configuration, otherwise there will be a DHCP conflict. \r\n\r\nMoreover, you can disable the NAT function and only use the DHCP server if you wish.
 SM_CRL_COLUMN_1			Certificate Summary
 SM_CRL_DELETE_MSG		This will delete the selected item. Do you really want to do this?
@@ -1622,7 +1622,7 @@ SM_VLAN_YES				Включена
 SM_VLAN_NO				Не включена
 SM_VLAN_MSG_1			Реестр Windows настроен так, чтобы сетевой адаптер "%S" мог передавать/принимать пакеты с VLAN тегами.\r\n\r\nОднако есть некоторые сетевые адаптеры, которым требуется задать параметры для включения Jumbo Frames в дополнительных настройках диспетчера устройств Windows на локальном компьютере. (Кадры Ethernet, размер которых превышает 1512 байт.) Если вы не включите Jumbo Frames, некоторые большие VLAN пакеты будут отброшены. В случае, когда пропадают большие VLAN пакеты, пожалуйста, включите Jumbo Frames. (Например, установите максимальный размер 4088 байт.) Диспетчер устройств Windows поможет вам это настроить.\r\n\r\nЭтот параметр VLAN прозрачности был записан в реестр Windows, однако он не гарантирует эффективной передачи VLAN пакетов.\r\nЕсли после этой конфигурации передача пакетов с VLAN тегами завершится неудачно, обратитесь к руководству сетевого адаптера "%S", чтобы настроить его вручную. Кроме того, "%S" может не поддерживать настройку VLAN прозрачности. В этом случае такой сетевой адаптер не может использоваться для передачи VLAN кадров. Используйте другие устройства.\r\n\r\nЧтобы применить этот параметр, Windows необходимо перезагрузить. Не забудьте сделать это.
 SM_VLAN_MSG_2			Параметры реестра Windows, которые включали функцию VLAN прозрачности на сетевом адаптере "%S", удалены из реестра.\r\n\r\nЕсли вы в прошлый раз включали настройки Jumbo Frame, отключите их вручную.\r\n\r\nЧтобы применить этот параметр, Windows необходимо перезагрузить. Не забудьте сделать это.
-SM_VLAN_NOTHING			There are no network adapters which VLAN Transparency Setting Tool supports on the computer "%S".\r\n\r\nHowever, some network adapters are capable to transmit VLAN tagged packets by default, or can be configured to perform VLAN tagged packets by specific configuration utility provided by the vendor.\r\nBy using such network adapters, you have to configure such settings by yourself manually.
+SM_VLAN_NOTHING			На компьютере "%S" нет сетевых адаптеров, поддерживающих инструмент настройки VLAN прозрачности. \r\n\r\nТем не менее, некоторые сетевые адаптеры способны передавать пакеты с VLAN тегами по умолчанию или могут быть настроены для работы с VLAN тегами с помощью специальной утилиты конфигурации, предоставляемой поставщиком.\r\nИспользуя такие сетевые адаптеры, вы должны сами настроить этот параметр вручную.
 SM_SERVER_ADMIN_MSG		VPN Сервер/Мост "%S"
 SM_ETHERIP_COLUMN_0		ISAKMP Phase 1 ID
 SM_ETHERIP_COLUMN_1		Название Virtual Hub
@@ -3211,7 +3211,7 @@ STATIC6					Примечание: Хотя можно создать мост с
 IDOK					Создать локальный мост
 STATIC7					Если сетевой адаптер, который недавно был добавлен в систему, отсутствует, перезагрузите компьютер и снова откройте этот экран.
 IDCANCEL				Выход
-B_VLAN					Инструмент настройки VLAN прозрачности
+B_VLAN					Настройка VLAN прозрачности
 
 
 PREFIX					D_WIN9X_REBOOT
@@ -3389,68 +3389,68 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_L3
-CAPTION					Virtual Layer 3 Switch Setting
-STATIC1					You can define Virtual Layer 3 Switches between two or more Virtual Hubs operating on this VPN Server to achieve routing between different IP networks.
-STATIC2					The Virtual Layer 3 Switch functions are provided for network administrators or people who know a lot about networking and IP routing. If you are using the regular VPN functions, you do not need to use the Virtual Layer 3 Switch functions.\r\n\r\nIf the Virtual Layer 3 Switch functions are to be used, the person who configures them must have sufficient knowledge of IP routing.
-STATIC3					Cautions about Virtual Layer 3 Switch Function
-S_BOLD					Defined Virtual &Layer 3 &Switches:
-B_ADD					&New
-B_START					&Start
-B_STOP					S&top
-IDOK					&Edit
-B_DELETE				&Delete
+CAPTION					Настройка виртуального коммутатора L3
+STATIC1					На этом VPN-сервере вы можете создать виртуальные коммутаторы 3-го уровня между двумя или более Virtual Hubs, чтобы обеспечить маршрутизацию между различными IP-сетями.
+STATIC2					Функции виртуального L3 коммутатора предназначены для сетевых администраторов или людей, которые много знают о сетях и IP-маршрутизации. Если вы используете обычный VPN функционал, вам не нужно использовать функции виртуального L3 коммутатора.\r\n\r\nЕсли необходимо использовать функции виртуального L3 коммутатора, человек, который их настраивает, должен обладать достаточными знаниями о IP-маршрутизации.
+STATIC3					Предостережения о функциях виртуального L3 коммутатора
+S_BOLD					Созданные виртуальные коммутаторы 3-го уровня:
+B_ADD					Новый
+B_START					Запустить
+B_STOP					Остановить
+IDOK					Изменить
+B_DELETE				Удалить
 IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_L3_ADD
-CAPTION					New Virtual Layer 3 Switch
-STATIC1					To create a new Virtual Layer 3 Switch, enter a name for the switch. \r\n\r\nThe Virtual Layer 3 Switch cannot have the duplicated name as another Virtual Layer 3 Switch on this VPN Server.
-STATIC2					&Name:
+CAPTION					Новый виртуальный коммутатор 3-го уровня
+STATIC1					Введите имя коммутатора, для создания нового виртуального L3 коммутатора. \r\n\r\nНа VPN-сервере не может быть виртуальных L3 коммутаторов с одинаковым именем.
+STATIC2					Имя:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_L3_SW
-CAPTION					Edit Virtual Layer 3 Switch "%S"
-STATIC1					You can define multiple virtual interfaces and routing tables on a Virtual Layer 3 Switch.
-STATIC2					A virtual interface is associated to a Virtual Hub and operates as a single IP host on the Virtual Hub when the Virtual Hub is running. When multiple virtual interfaces that respectively belong to a different IP network of a different Virtual Hub are defined, IP routing will be automatically performed between these interfaces. \r\nIt is possible to manually set the routing table and more detailed settings.
-S_BOLD1					Virtual &Interfaces:
-B_ADD_IF				&New Virtual Interface
-B_DEL_IF				D&elete Virtual Interface
-S_BOLD2					Routing &Table:
-B_ADD_TABLE				A&dd Routing Table Entry
-B_DEL_TABLE				De&lete Routing Table Entry
-B_START					&Start
-B_STOP					S&top
+CAPTION					Изменить виртуальный коммутатор 3-го уровня "%S"
+STATIC1					На виртуальном L3 коммутаторе вы можете создать несколько виртуальных интерфейсов и таблиц маршрутизации.
+STATIC2					Виртуальный интерфейс связан с Virtual Hub и работает как один IP-хост на Virtual Hub, когда Virtual Hub работает. Когда создано несколько виртуальных интерфейсов, принадлежащих разным IP-сетям из других Virtual Hub, между этими интерфейсами в соответствующих IP-сетях будет автоматически выполняться IP-маршрутизация.\r\nМожно вручную настроить таблицу маршрутизации и другие параметры.
+S_BOLD1					Виртуальные интерфейсы:
+B_ADD_IF				&Новый виртуальный интерфейс
+B_DEL_IF				Удалить виртуальный интерфейс
+S_BOLD2					Таблица маршрутизации:
+B_ADD_TABLE				Добавить запись в таблицу
+B_DEL_TABLE				Удалить запись из таблицы
+B_START					&Запустить
+B_STOP					Остановить
 IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_L3_SW_IF
-CAPTION					Add Virtual Interface
-STATIC1					Adds a new virtual interface to the Virtual Layer 3 Switch. \r\n\r\nYou must define the IP network that the virtual interface belongs to and the IP address of the interface itself. \r\nPlease select or enter the name of the virtual Hub that the interface will attach to.
-STATIC2					Virtual Hub to &Attach
-STATIC3					Select or enter the name of the Virtual Hub that this interface will attach to.
-STATIC4					Virtual &Hub:
-STATIC5					IP A&ddress and Subnet Mask of Virtual Interface:
-STATIC6					The virtual interface must have one IP address in the Virtual Hub. You also must specify the subnet mask of an IP network that the IP address belongs to. \r\n\r\nRouting via the Virtual Layer 3 Switches attaching to multiple virtual Hubs operates based on the IP address is specified here.
-S_SRC_IP_1				&IP address:
-S_SRC_IP_2				&Subnet Mask:
+CAPTION					Добавить виртуальный интерфейс
+STATIC1					Добавляет новый виртуальный интерфейс к виртуальному L3 коммутатору. \r\n\r\nВы должны указать IP-сеть, к которой принадлежит виртуальный интерфейс, и IP-адрес самого интерфейса. \r\nПожалуйста, выберите или введите имя Virtual Hub, к которому будет подключен интерфейс.
+STATIC2					Virtual Hub для подключения
+STATIC3					Выберите или введите имя Virtual Hub, к которому будет подключен этот интерфейс.
+STATIC4					Virtual Hub:
+STATIC5					IP-адрес и маска подсети виртуального интерфейса:
+STATIC6					Виртуальный интерфейс должен иметь один IP-адрес в Virtual Hub. Вы также должны указать маску подсети, которой принадлежит IP-адрес. \r\n\r\nМаршрутизация через виртуальные L3 коммутаторы, подключенные к нескольким Virtual Hubs, работает на основе указанного IP-адреса.
+S_SRC_IP_1				&IP-адрес:
+S_SRC_IP_2				&Маска подсети:
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_L3_SW_TABLE
-CAPTION					New Routing Table Entry
-STATIC1					Adds a new routing table entry to the routing table of the Virtual Layer 3 Switch. \r\n\r\nIf the destination IP address of the IP packet does not belong to any IP network that belongs to a virtual interface, the IP routing engine of the Virtual Layer 3 Switch will reference the routing table and execute the routing.
-STATIC2					Definitions of Routing Table &Entry: 
-STATIC3					The virtual interface must have one IP address in the Virtual Hub. You also must specify the subnet mask of an IP network that the IP address belongs to. \r\n\r\nRouting via the Virtual Layer 3 Switches of IP spaces of multiple virtual Hubs operates based on the IP address is specified here.
-S_SRC_IP_1				&Network Address:
-S_SRC_IP_2				&Subnet Mask:
-S_SRC_IP_3				&Gateway Address:
-S_SRC_IP_4				&Metric Value:
-STATIC4					Note: To specify the default gateway, specify '0.0.0.0' for both the network address and the subnet mask.
+CAPTION					Новая запись таблицы маршрутизации
+STATIC1					Добавление новой записи в таблицу маршрутизации виртуального L3 коммутатора. \r\n\r\nЕсли IP-адрес назначения IP-пакета не принадлежит какой-либо IP-сети, принадлежащей виртуальному интерфейсу, механизм IP-маршрутизации виртуального L3 коммутатора будет ссылаться на таблицу маршрутизации и выполнять маршрутизацию.
+STATIC2					Создание записи таблицы маршрутизации:
+STATIC3					Виртуальный интерфейс должен иметь один IP-адрес в Virtual Hub. Вы также должны указать маску подсети, которой принадлежит IP-адрес. \r\n\r\nМаршрутизация через виртуальные L3 коммутаторы IP пространств нескольких Virtual Hub работают на основе указанного здесь IP-адреса.
+S_SRC_IP_1				&Сетевой адрес:
+S_SRC_IP_2				&Маска подсети:
+S_SRC_IP_3				&Адрес шлюза:
+S_SRC_IP_4				&Значение метрики:
+STATIC4					Примечание: Чтобы указать шлюз по умолчанию, укажите "0.0.0.0" для сетевого адреса и маски подсети.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_CM_SELECT_SECURE
