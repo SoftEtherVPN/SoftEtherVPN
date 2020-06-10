@@ -5677,6 +5677,23 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		OPENVPN_SSTP_CONFIG config;
 		FOLDER *syslog_f;
 		{
+			UINT i;
+			LIST *ports;
+
+			// Load and set UDP ports
+			CfgGetStr(f, "PortsUDP", tmp, sizeof(tmp));
+			NormalizeIntListStr(tmp, sizeof(tmp), tmp, true, ", ");
+
+			ports = StrToIntList(tmp, true);
+			for (i = 0; i < LIST_NUM(ports); ++i)
+			{
+				AddInt(s->PortsUDP, *(UINT *)LIST_DATA(ports, i));
+			}
+			ReleaseIntList(ports);
+
+			ProtoSetUdpPorts(s->Proto, ports);
+		}
+		{
 			RPC_KEEP k;
 
 			// Keep-alive related
