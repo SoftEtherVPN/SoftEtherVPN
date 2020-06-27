@@ -7301,16 +7301,6 @@ SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
 SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
 
 CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is invalid
 CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]

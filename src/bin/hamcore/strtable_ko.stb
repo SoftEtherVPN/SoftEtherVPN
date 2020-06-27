@@ -4684,22 +4684,6 @@ CMD_ServerCipherSet_Args ServerCipherSet [name]
 CMD_ServerCipherSet_[name] 설정해야 루루 암호화 및 전자 서명 알고리즘을 지정합니다. 사용 가능한 알고리즘 목록은 ServerCipherGet 명령에서 얻을 수 있습니다.
 CMD_ServerCipherSet_PROMPT_NAME 지정하는 암호화 알고리즘 명:
 
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
-
 # KeepEnable 명령
 CMD_KeepEnable 인터넷 연결 유지 기능 활성화
 CMD_KeepEnable_Help 인터넷 연결 유지 기능을 활성화합니다. 인터넷 연결 유지 기능을 사용하면 일정 기간 비활성 상태가 계속되면 자동으로 연결이 끊길와 같은 네트워크 환경의 경우 인터넷에있는 서버에 일정 간격으로 패킷 를 전송하여 인터넷 연결을 유지할 수 있습니다. \n 연결할 호스트 이름과 같은 내용은 KeepSet 명령으로 설정할 수 있습니다. \nVPN Server 또는 VPN Bridge에서이 명령을 실행하려면 관리자 권한이 필요합니다.

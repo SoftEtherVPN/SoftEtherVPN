@@ -506,7 +506,7 @@ void StartLink(LINK *k)
 	pa->Param = (void *)k;
 	LockLink(k);
 	{
-		k->ClientSession = NewClientSession(k->Cedar, k->Option, k->Auth, pa, NULL);
+		k->ClientSession = NewClientSession(k->Cedar, k->Option, k->Auth, pa);
 	}
 	UnlockLink(k);
 }

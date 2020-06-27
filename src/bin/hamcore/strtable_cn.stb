@@ -4721,22 +4721,6 @@ CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	指定设置加密和数字签名的程序。可以使用的程序一览，可以从 ServerCipherGet 指令中获取。
 CMD_ServerCipherSet_PROMPT_NAME	指定的加密程序的名称: 
 
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
-
 # KeepEnable 命令
 CMD_KeepEnable				启动 Internet 保持连接功能
 CMD_KeepEnable_Help			启动 [互联网保持连接功能]。启动此功能后，如果一段时间没有通信数据，导致连接将被断开时，会自动发送数据包到任何服务器，互联网服务器一定的间隔，从而可以保持连接。\n目标主机名等，可以通过 KeepSet 指令来设置。\nVPN Server 或 VPN Bridge 运行此命令时，您必须具有管理员的权限。

@@ -4706,22 +4706,6 @@ CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	設定するる暗号化および電子署名アルゴリズムを指定します。使用可能なアルゴリズムの一覧は、ServerCipherGet コマンドで取得することができます。
 CMD_ServerCipherSet_PROMPT_NAME	指定する暗号化アルゴリズム名: 
 
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
-
 # KeepEnable コマンド
 CMD_KeepEnable			インターネット接続の維持機能の有効化
 CMD_KeepEnable_Help		[インターネット接続の維持機能] を有効にします。[インターネット接続の維持機能] を使用すると、一定期間無通信状態が続くと、自動的に接続が切断されるようなネットワーク接続環境の場合、インターネット上の任意のサーバーに対して一定間隔ごとにパケットを送信することにより、インターネット接続を維持することができます。\n接続先のホスト名などについては、KeepSet コマンドで設定することができます。\nVPN Server または VPN Bridge で、このコマンドを実行するには、管理者権限が必要です。
