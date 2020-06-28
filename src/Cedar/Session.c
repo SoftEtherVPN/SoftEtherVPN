@@ -1266,14 +1266,9 @@ void CleanupSession(SESSION *s)
 	{
 		FreePacketAdapter(s->PacketAdapter);
 	}
-
 #ifdef OS_UNIX
-	if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
-	{
-		UnixVLanSetState(s->ClientOption->DeviceName, false);
-	}
+	UnixVLanSetState(s->ClientOption->DeviceName, false);
 #endif
-
 	if (s->OldTraffic != NULL)
 	{
 		FreeTraffic(s->OldTraffic);
@@ -1423,14 +1418,9 @@ void ClientThread(THREAD *t, void *param)
 
 		CLog(s->Cedar->Client, "LC_CONNECT_ERROR", s->ClientOption->AccountName,
 			GetUniErrorStr(s->Err), s->Err);
-
 #ifdef OS_UNIX
-		if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
-		{
-			UnixVLanSetState(s->ClientOption->DeviceName, false);
-		}
+		UnixVLanSetState(s->ClientOption->DeviceName, false);
 #endif
-
 		if (s->LinkModeClient && s->Link != NULL)
 		{
 			HLog(s->Link->Hub, "LH_CONNECT_ERROR", s->ClientOption->AccountName,
@@ -1838,7 +1828,7 @@ SESSION *NewRpcSessionEx2(CEDAR *cedar, CLIENT_OPTION *option, UINT *err, char *
 }
 
 // Create a client session
-SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account, bool *NicDownOnDisconnect)
+SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account)
 {
 	SESSION *s;
 	THREAD *t;
@@ -1966,8 +1956,6 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		s->ClientOption->NumRetry = 0;
 	}
 
-	s->NicDownOnDisconnect = NicDownOnDisconnect;
-
 	// Create a client thread
 	t = NewThread(ClientThread, (void *)s);
 	WaitThreadInit(t);
@@ -1975,9 +1963,9 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 
 	return s;
 }
-SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, bool *NicDownOnDisconnect)
+SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa)
 {
-	return NewClientSessionEx(cedar, option, auth, pa, NULL, NicDownOnDisconnect);
+	return NewClientSessionEx(cedar, option, auth, pa, NULL);
 }
 
 // Get the session from the session key
