@@ -37,7 +37,6 @@ endif()
 
 if(UNIX)
   include(GNUInstallDirs)
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
   include(CheckIncludeFile)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
@@ -58,8 +57,6 @@ string(TIMESTAMP TIME_SECOND "%S" UTC)
 
 message(STATUS "Build date: ${DATE_DAY}/${DATE_MONTH}/${DATE_YEAR}")
 message(STATUS "Build time: ${TIME_HOUR}:${TIME_MINUTE}:${TIME_SECOND}")
-
-set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(src)
 
