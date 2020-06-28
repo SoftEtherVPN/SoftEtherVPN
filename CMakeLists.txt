@@ -88,6 +88,7 @@ if(UNIX)
   set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
   set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
   set(CPACK_RPM_PACKAGE_LICENSE "ASL 2.0")
+  set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /lib)
 
   include(CPack)
 endif()
