@@ -5,6 +5,10 @@ project("SoftEther VPN"
   LANGUAGES C
 )
 
+if(UNIX)
+  set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
+
 set(TOP_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(BUILD_DIRECTORY ${TOP_DIRECTORY}/build)
 
