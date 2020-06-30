@@ -39,7 +39,7 @@ if(UNIX)
     PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
   )
 
-  install_wrapper_script("vpnserver" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpnserver/vpnserver")
+  install_wrapper_script("vpnserver")
   if(NOT "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" STREQUAL "")
     configure_file(${TOP_DIRECTORY}/systemd/softether-vpnserver.service ${CMAKE_BINARY_DIR}/systemd/softether-vpnserver.service)
     install(FILES ${CMAKE_BINARY_DIR}/systemd/softether-vpnserver.service
