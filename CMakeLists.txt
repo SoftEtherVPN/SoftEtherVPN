@@ -87,5 +87,14 @@ if(UNIX)
   set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
   set(CPACK_RPM_PACKAGE_LICENSE "ASL 2.0")
 
+  # Exclude system directories
+  if(CPACK_GENERATOR STREQUAL "RPM")
+    execute_process(
+        COMMAND rpm -ql filesystem
+        COMMAND tr \n \;
+        OUTPUT_VARIABLE CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+        ERROR_QUIET)
+  endif()
+
   include(CPack)
 endif()
