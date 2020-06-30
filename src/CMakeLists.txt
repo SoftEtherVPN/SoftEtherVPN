@@ -23,6 +23,24 @@ if(UNIX)
       RENAME ${component}
     )
   endmacro(install_wrapper_script)
+
+  # Same approach for systemd unit files
+  #
+  macro(install_unit_file component)
+    file(GENERATE OUTPUT ${BUILD_DIRECTORY}/softether-${component}.service
+      CONTENT "# placeholder\n"
+    )
+
+    install(CODE "set(DIR \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}\")\nconfigure_file(${TOP_DIRECTORY}/systemd/softether-${component}.service ${BUILD_DIRECTORY}/softether-${component}.service)"
+      COMPONENT ${component}
+    )
+
+    install(FILES ${BUILD_DIRECTORY}/softether-${component}.service
+      COMPONENT ${component}
+      DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNITDIR}
+      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    )
+  endmacro(install_unit_file)
 endif()
 
 if(BUILD_TYPE STREQUAL "Debug")
