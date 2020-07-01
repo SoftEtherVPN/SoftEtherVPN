@@ -1,14 +1,14 @@
 [Unit]
 Description=SoftEther VPN Server
 After=network.target auditd.service
-ConditionPathExists=!${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver/do_not_run
+ConditionPathExists=!@DIR@/softether/vpnserver/do_not_run
 
 [Service]
 Type=forking
 TasksMax=16777216
-EnvironmentFile=-${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver
-ExecStart=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver/vpnserver start
-ExecStop=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver/vpnserver stop
+EnvironmentFile=-@DIR@/softether/vpnserver
+ExecStart=@DIR@/softether/vpnserver/vpnserver start
+ExecStop=@DIR@/softether/vpnserver/vpnserver stop
 KillMode=process
 Restart=on-failure
 
@@ -17,7 +17,7 @@ PrivateTmp=yes
 ProtectHome=yes
 ProtectSystem=full
 ReadOnlyDirectories=/
-ReadWriteDirectories=-${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnserver
+ReadWriteDirectories=-@DIR@/softether/vpnserver
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW CAP_SYS_NICE CAP_SYSLOG CAP_SETUID
 
 [Install]

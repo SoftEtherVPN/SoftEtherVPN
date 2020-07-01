@@ -1,19 +1,46 @@
 if(UNIX)
   # Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
   # This is required because symlinks use the folder they are in as working directory.
-  macro(install_wrapper_script component target)
-    get_filename_component(file_name ${target} NAME)
+  #
+  # The actual wrapper script needs to be generated at install time, not build time, because it depends on the
+  # installation prefix. This is especially important when generating packages (rpm/deb) where the prefix is
+  # changed from /usr to /usr/local for the install step.
+  #
+  # The placeholder is needed to satisfy the "install" dependency scanner which runs early.
+  #
+  macro(install_wrapper_script component)
+    file(GENERATE OUTPUT ${BUILD_DIRECTORY}/${component}.sh
+      CONTENT "# placeholder\n"
+    )
 
-    file(WRITE ${TOP_DIRECTORY}/tmp/script/${file_name} "#!/bin/sh\n")
-    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "${target} \"$@\"\n")
-    file(APPEND ${TOP_DIRECTORY}/tmp/script/${file_name} "exit $?\n")
+    install(CODE "file(WRITE ${BUILD_DIRECTORY}/${component}.sh \"#!/bin/sh\nexec \${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/softether/${component}/${component} \\\"$@\\\"\n\")"
+     COMPONENT ${component}
+    )
 
-    install(FILES ${TOP_DIRECTORY}/tmp/script/${file_name}
+    install(PROGRAMS ${BUILD_DIRECTORY}/${component}.sh
       COMPONENT ${component}
-      DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
-      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+      DESTINATION bin
+      RENAME ${component}
     )
   endmacro(install_wrapper_script)
+
+  # Same approach for systemd unit files
+  #
+  macro(install_unit_file component)
+    file(GENERATE OUTPUT ${BUILD_DIRECTORY}/softether-${component}.service
+      CONTENT "# placeholder\n"
+    )
+
+    install(CODE "set(DIR \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}\")\nconfigure_file(${TOP_DIRECTORY}/systemd/softether-${component}.service ${BUILD_DIRECTORY}/softether-${component}.service)"
+      COMPONENT ${component}
+    )
+
+    install(FILES ${BUILD_DIRECTORY}/softether-${component}.service
+      COMPONENT ${component}
+      DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNITDIR}
+      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    )
+  endmacro(install_unit_file)
 endif()
 
 if(BUILD_TYPE STREQUAL "Debug")

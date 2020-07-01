@@ -37,7 +37,6 @@ endif()
 
 if(UNIX)
   include(GNUInstallDirs)
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
   include(CheckIncludeFile)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
@@ -58,8 +57,6 @@ string(TIMESTAMP TIME_SECOND "%S" UTC)
 
 message(STATUS "Build date: ${DATE_DAY}/${DATE_MONTH}/${DATE_YEAR}")
 message(STATUS "Build time: ${TIME_HOUR}:${TIME_MINUTE}:${TIME_SECOND}")
-
-set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(src)
 
@@ -89,6 +86,15 @@ if(UNIX)
   set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
   set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
   set(CPACK_RPM_PACKAGE_LICENSE "ASL 2.0")
+
+  # Exclude system directories
+  if(CPACK_GENERATOR STREQUAL "RPM")
+    execute_process(
+        COMMAND rpm -ql filesystem
+        COMMAND tr \n \;
+        OUTPUT_VARIABLE CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+        ERROR_QUIET)
+  endif()
 
   include(CPack)
 endif()

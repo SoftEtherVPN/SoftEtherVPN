@@ -1,13 +1,13 @@
 [Unit]
 Description=SoftEther VPN Bridge
 After=network.target auditd.service
-ConditionPathExists=!${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnbridge/do_not_run
+ConditionPathExists=!@DIR@/softether/vpnbridge/do_not_run
 
 [Service]
 Type=forking
-EnvironmentFile=-${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnbridge
-ExecStart=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnbridge/vpnbridge start
-ExecStop=${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnbridge/vpnbridge stop
+EnvironmentFile=-@DIR@/softether/vpnbridge
+ExecStart=@DIR@/softether/vpnbridge/vpnbridge start
+ExecStop=@DIR@/softether/vpnbridge/vpnbridge stop
 KillMode=process
 Restart=on-failure
 
@@ -16,7 +16,7 @@ PrivateTmp=yes
 ProtectHome=yes
 ProtectSystem=full
 ReadOnlyDirectories=/
-ReadWriteDirectories=-${CPACK_PACKAGING_INSTALL_PREFIX}/libexec/softether/vpnbridge
+ReadWriteDirectories=-@DIR@/softether/vpnbridge
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW CAP_SYS_NICE CAP_SYSLOG CAP_SETUID
 
 [Install]
