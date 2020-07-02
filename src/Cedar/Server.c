@@ -5691,7 +5691,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 			ReleaseIntList(ports);
 
-			ProtoSetUdpPorts(s->Proto, ports);
+			ProtoSetUdpPorts(s->Proto, s->PortsUDP);
 		}
 		{
 			RPC_KEEP k;
