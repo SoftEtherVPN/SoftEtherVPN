@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-
+// © 2020 Nokia
 
 // Encrypt.h
 // Header of Encrypt.c
@@ -300,6 +300,7 @@ K *BioToK(BIO *bio, bool private_key, bool text, char *password);
 int PKeyPasswordCallbackFunction(char *buf, int bufsize, int verify, void *param);
 void FreePKey(EVP_PKEY *pkey);
 void FreeK(K *k);
+K *OpensslEngineToK(char *key_file_name, char *engine_name);
 K *BufToK(BUF *b, bool private_key, bool text, char *password);
 bool IsEncryptedK(BUF *b, bool private_key);
 bool IsBase64(BUF *b);

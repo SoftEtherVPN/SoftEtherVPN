@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Command.h
 // Header of Command.c
@@ -368,6 +368,7 @@ UINT PcAccountNicSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountStatusShow(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountStatusHide(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountSecureCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PcAccountOpensslEngineCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountRetrySet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountStartupSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PcAccountStartupRemove(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
