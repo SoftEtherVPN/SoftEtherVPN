@@ -1,24 +1,5 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// Copyright (c) all contributors on SoftEther VPN project in GitHub.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
-// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
-// 
-// License: The Apache License, Version 2.0
-// https://www.apache.org/licenses/LICENSE-2.0
-// 
-// DISCLAIMER
 // ==========
 // 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -97,7 +78,6 @@
 // 
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
-
 
 // Command.c
 // vpncmd Command Line Management Utility
@@ -3114,6 +3094,7 @@ void PcMain(PC *pc)
 			{"AccountStatusShow", PcAccountStatusShow},
 			{"AccountStatusHide", PcAccountStatusHide},
 			{"AccountSecureCertSet", PcAccountSecureCertSet},
+			{"AccountOpensslEngineCertSet", PcAccountOpensslEngineCertSet},
 			{"AccountRetrySet", PcAccountRetrySet},
 			{"AccountStartupSet", PcAccountStartupSet},
 			{"AccountStartupRemove", PcAccountStartupRemove},
@@ -4870,7 +4851,7 @@ UINT PcAccountCertGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	if (ret == ERR_NO_ERROR)
 	{
-		if (t.ClientAuth->AuthType != CLIENT_AUTHTYPE_CERT)
+		if (t.ClientAuth->AuthType != CLIENT_AUTHTYPE_CERT && t.ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
 		{
 			c->Write(c, _UU("CMD_CascadeCertSet_Not_Auth_Cert"));
 			ret = ERR_INTERNAL_ERROR;
@@ -6143,6 +6124,76 @@ UINT PcAccountSecureCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 	return ret;
 }
 
+UINT PcAccountOpensslEngineCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	RPC_CLIENT_GET_ACCOUNT t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		{"[name]", CmdPrompt, _UU("CMD_AccountCreate_Prompt_Name"), CmdEvalNotEmpty, NULL},
+		{"LOADCERT", CmdPrompt, _UU("CMD_LOADCERTPATH"), CmdEvalIsFile, NULL},
+		{"KEYNAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_KEYNAME"), CmdEvalNotEmpty, NULL},
+		{"ENGINENAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_ENGINENAME"), CmdEvalNotEmpty, NULL},
+	};
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	UniStrCpy(t.AccountName, sizeof(t.AccountName), GetParamUniStr(o, "[name]"));
+
+	ret = CcGetAccount(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		RPC_CLIENT_CREATE_ACCOUNT z;
+		t.ClientAuth->AuthType = CLIENT_AUTHTYPE_OPENSSLENGINE;
+    X *x;
+	  x = FileToXW(GetParamUniStr(o, "LOADCERT"));
+    if (x == NULL)
+    {
+			c->Write(c, _UU("CMD_LOADCERT_FAILED"));
+    }
+		StrCpy(t.ClientAuth->OpensslEnginePrivateKeyName, sizeof(t.ClientAuth->OpensslEnginePrivateKeyName),
+					 GetParamStr(o, "KEYNAME"));
+		StrCpy(t.ClientAuth->OpensslEngineName, sizeof(t.ClientAuth->OpensslEngineName),
+					 GetParamStr(o, "ENGINENAME"));
+		t.ClientAuth->ClientX = CloneX(x);
+		Zero(&z, sizeof(z));
+		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
+		z.ClientAuth = t.ClientAuth;
+		z.ClientOption = t.ClientOption;
+		z.ServerCert = t.ServerCert;
+		z.StartupAccount = t.StartupAccount;
+
+		ret = CcSetAccount(pc->RemoteClient, &z);
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	CiFreeClientGetAccount(&t);
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+
 // Set the retry interval and number of retries when disconnect or connection failure of connection settings
 UINT PcAccountRetrySet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
@@ -7082,6 +7133,7 @@ void PsMain(PS *ps)
 			{"ServerCertGet", PsServerCertGet},
 			{"ServerKeyGet", PsServerKeyGet},
 			{"ServerCertSet", PsServerCertSet},
+			{"ServerOpenSslEngineCertSet", PsServerOpensslEngineCertSet},
 			{"ServerCipherGet", PsServerCipherGet},
 			{"ServerCipherSet", PsServerCipherSet},
 			{"KeepEnable", PsKeepEnable},
@@ -8144,6 +8196,21 @@ bool CmdLoadCertAndKey(CONSOLE *c, X **xx, K **kk, wchar_t *cert_filename, wchar
 	return true;
 }
 
+bool CmdLoadOpensslEngineCert(CONSOLE *c, X **xx, wchar_t *cert_filename)
+{
+	X *x;
+
+	x = FileToXW(cert_filename);
+	if (x == NULL)
+	{
+		c->Write(c, _UU("CMD_LOADCERT_FAILED"));
+		return false;
+	}
+	*xx = x;
+	return true;
+}
+
+
 // Read the secret key
 K *CmdLoadKey(CONSOLE *c, wchar_t *filename)
 {
@@ -8246,6 +8313,69 @@ UINT PsServerCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		}
 
 		FreeRpcKeyPair(&t);
+	}
+	else
+	{
+		ret = ERR_INTERNAL_ERROR;
+	}
+
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Set the SSL certificate and the private key of the VPN Server
+UINT PsServerOpensslEngineCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	RPC_OPENSSL_ENGINE_KEY_PAIR t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"LOADCERT", CmdPrompt, _UU("CMD_LOADCERTPATH"), CmdEvalIsFile, NULL},
+		{"KEYNAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_KEYNAME"), CmdEvalNotEmpty, NULL},
+		{"ENGINENAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_ENGINENAME"), CmdEvalNotEmpty, NULL},
+
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	if (CmdLoadOpensslEngineCert(c, &t.Cert,
+		GetParamUniStr(o, "LOADCERT")))
+	{
+		wchar_t * engine_name = GetParamStr(o, "ENGINENAME");
+		StrCpy(t.EngineName, sizeof(t.EngineName), engine_name);
+		wchar_t * key_name = GetParamStr(o, "KEYNAME");
+		StrCpy(t.KeyName, sizeof(t.KeyName), key_name);
+		// RPC call
+		ret = ScSetServerOpensslEngineCert(ps->Rpc, &t);
+
+		if (ret != ERR_NO_ERROR)
+		{
+			// An error has occured
+			CmdPrintError(c, ret);
+			FreeParamValueList(o);
+			return ret;
+		}
+
+		if (t.Flag1 == 0)
+		{
+			// Show the warning message
+			c->Write(c, L"");
+			c->Write(c, _UU("SM_CERT_NEED_ROOT"));
+			c->Write(c, L"");
+		}
+
+		FreeRpcOpensslEngineKeyPair(&t);
 	}
 	else
 	{

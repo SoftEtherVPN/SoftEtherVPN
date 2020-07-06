@@ -98,7 +98,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Link.c
 // Inter-HUB Link
 
@@ -719,7 +718,7 @@ LINK *NewLink(CEDAR *cedar, HUB *hub, CLIENT_OPTION *option, CLIENT_AUTH *auth, 
 
 	// Limitation of authentication method
 	if (auth->AuthType != CLIENT_AUTHTYPE_ANONYMOUS && auth->AuthType != CLIENT_AUTHTYPE_PASSWORD &&
-		auth->AuthType != CLIENT_AUTHTYPE_PLAIN_PASSWORD && auth->AuthType != CLIENT_AUTHTYPE_CERT)
+		auth->AuthType != CLIENT_AUTHTYPE_PLAIN_PASSWORD && auth->AuthType != CLIENT_AUTHTYPE_CERT && auth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
 	{
 		// Authentication method other than anonymous authentication, password authentication, plain password, certificate authentication cannot be used
 		return NULL;

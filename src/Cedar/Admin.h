@@ -307,6 +307,14 @@ struct RPC_KEY_PAIR
 	K *Key;								// Secret key
 	UINT Flag1;							// Flag1
 };
+// Key pair
+struct RPC_OPENSSL_ENGINE_KEY_PAIR
+{
+	X *Cert;							// Certificate
+	char KeyName[MAX_SIZE];				// key
+	char EngineName[MAX_SIZE];			// engine name
+	UINT Flag1;							// Flag1
+};
 
 // HUB option
 struct RPC_HUB_OPTION
@@ -1063,6 +1071,7 @@ UINT StGetFarmInfo(ADMIN *a, RPC_FARM_INFO *t);
 UINT StEnumFarmMember(ADMIN *a, RPC_ENUM_FARM *t);
 UINT StGetFarmConnectionStatus(ADMIN *a, RPC_FARM_CONNECTION_STATUS *t);
 UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t);
+UINT StSetServerOpensslEngineCert(ADMIN *a, RPC_OPENSSL_ENGINE_KEY_PAIR *t);
 UINT StGetServerCert(ADMIN *a, RPC_KEY_PAIR *t);
 UINT StGetServerCipher(ADMIN *a, RPC_STR *t);
 UINT StSetServerCipher(ADMIN *a, RPC_STR *t);
@@ -1206,6 +1215,7 @@ UINT ScGetFarmInfo(RPC *r, RPC_FARM_INFO *t);
 UINT ScEnumFarmMember(RPC *r, RPC_ENUM_FARM *t);
 UINT ScGetFarmConnectionStatus(RPC *r, RPC_FARM_CONNECTION_STATUS *t);
 UINT ScSetServerCert(RPC *r, RPC_KEY_PAIR *t);
+UINT ScSetServerOpensslEngineCert(RPC *r, RPC_OPENSSL_ENGINE_KEY_PAIR *t);
 UINT ScGetServerCert(RPC *r, RPC_KEY_PAIR *t);
 UINT ScGetServerCipher(RPC *r, RPC_STR *t);
 UINT ScSetServerCipher(RPC *r, RPC_STR *t);
@@ -1460,6 +1470,9 @@ void OutRpcMemInfo(PACK *p, MEMINFO *t);
 void InRpcKeyPair(RPC_KEY_PAIR *t, PACK *p);
 void OutRpcKeyPair(PACK *p, RPC_KEY_PAIR *t);
 void FreeRpcKeyPair(RPC_KEY_PAIR *t);
+void InRpcOpensslEngineKeyPair(RPC_OPENSSL_ENGINE_KEY_PAIR *t, PACK *p);
+void OutRpcOpensslEngineKeyPair(PACK *p, RPC_OPENSSL_ENGINE_KEY_PAIR *t);
+void FreeRpcOpensslEngineKeyPair(RPC_OPENSSL_ENGINE_KEY_PAIR *t);
 void InRpcAddAccess(RPC_ADD_ACCESS *t, PACK *p);
 void OutRpcAddAccess(PACK *p, RPC_ADD_ACCESS *t);
 void InRpcDeleteAccess(RPC_DELETE_ACCESS *t, PACK *p);

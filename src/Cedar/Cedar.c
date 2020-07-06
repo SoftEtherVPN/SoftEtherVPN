@@ -1627,6 +1627,37 @@ void SetCedarCert(CEDAR *c, X *server_x, K *server_k)
 	}
 	Unlock(c->lock);
 }
+// Change certificate of Cedar
+void SetCedarEngineCert(CEDAR *c, X *server_x, K *server_k, char *engine_name, char *key_name)
+{
+	// Validate arguments
+	if (server_x == NULL || server_k == NULL)
+	{
+		return;
+	}
+
+	Lock(c->lock);
+	{
+		if (c->ServerX != NULL)
+		{
+			FreeX(c->ServerX);
+		}
+
+		if (c->ServerK != NULL)
+		{
+			FreeK(c->ServerK);
+		}
+
+		c->ServerX = CloneX(server_x);
+		c->ServerK = OpensslEngineToK(key_name, engine_name);
+		c->ServerEngineName = CopyStr(engine_name);
+		c->ServerEngineKey = CopyStr(key_name);
+
+		c->ServerKeyType = CopyStr("engine");
+	}
+	Unlock(c->lock);
+}
+
 
 // Enable debug log
 void EnableDebugLog(CEDAR *c)

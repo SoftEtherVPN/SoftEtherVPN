@@ -98,7 +98,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Client.h
 // Header of Client.c
 

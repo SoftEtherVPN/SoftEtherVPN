@@ -100,7 +100,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Client.c
 // Client Manager
 
@@ -4727,6 +4726,17 @@ void InRpcClientAuth(CLIENT_AUTH *c, PACK *p)
 		PackGetStr(p, "SecurePublicCertName", c->SecurePublicCertName, sizeof(c->SecurePublicCertName));
 		PackGetStr(p, "SecurePrivateKeyName", c->SecurePrivateKeyName, sizeof(c->SecurePrivateKeyName));
 		break;
+
+  case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = PackGetBuf(p, "ClientX");
+		if (b != NULL)
+		{
+			c->ClientX = BufToX(b, false);
+			FreeBuf(b);
+		}
+    PackGetStr(p, "OpensslEnginePrivateKeyName", c->OpensslEnginePrivateKeyName, sizeof(c->OpensslEnginePrivateKeyName));
+    PackGetStr(p, "OpensslEngineName", c->OpensslEngineName, sizeof(c->OpensslEngineName));
+    break;
 	}
 }
 void OutRpcClientAuth(PACK *p, CLIENT_AUTH *c)
@@ -4772,6 +4782,17 @@ void OutRpcClientAuth(PACK *p, CLIENT_AUTH *c)
 	case CLIENT_AUTHTYPE_SECURE:
 		PackAddStr(p, "SecurePublicCertName", c->SecurePublicCertName);
 		PackAddStr(p, "SecurePrivateKeyName", c->SecurePrivateKeyName);
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = XToBuf(c->ClientX, false);
+		if (b != NULL)
+		{
+			PackAddBuf(p, "ClientX", b);
+			FreeBuf(b);
+		}
+		PackAddStr(p, "OpensslEnginePrivateKeyName", c->OpensslEnginePrivateKeyName);
+		PackAddStr(p, "OpensslEngineName", c->OpensslEngineName);
 		break;
 	}
 }
@@ -6768,6 +6789,10 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 					{
 						// Register a procedure for secure device authentication
 						r->ClientAuth->SecureSignProc = CiSecureSignProc;
+					}
+          else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
+					{
+						r->ClientAuth->SecureSignProc = NULL;
 					}
 					else
 					{
@@ -9575,6 +9600,20 @@ CLIENT_AUTH *CiLoadClientAuth(FOLDER *f)
 		CfgGetStr(f, "SecurePublicCertName", a->SecurePublicCertName, sizeof(a->SecurePublicCertName));
 		CfgGetStr(f, "SecurePrivateKeyName", a->SecurePrivateKeyName, sizeof(a->SecurePrivateKeyName));
 		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = CfgGetBuf(f, "ClientCert");
+		if (b != NULL)
+		{
+			a->ClientX = BufToX(b, false);
+		}
+		FreeBuf(b);
+		if (CfgGetStr(f, "OpensslEnginePrivateKeyName", a->OpensslEnginePrivateKeyName, sizeof(a->OpensslEnginePrivateKeyName)))
+    {
+        a->ClientK = OpensslEngineToK(a->OpensslEnginePrivateKeyName, a->OpensslEngineName);
+    }
+    CfgGetStr(f, "OpensslEngineName", a->OpensslEngineName, sizeof(a->OpensslEngineName));
+		break;
 	}
 
 	return a;
@@ -10118,6 +10157,16 @@ void CiWriteClientAuth(FOLDER *f, CLIENT_AUTH *a)
 		CfgAddStr(f, "SecurePublicCertName", a->SecurePublicCertName);
 		CfgAddStr(f, "SecurePrivateKeyName", a->SecurePrivateKeyName);
 		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		if (a->ClientX != NULL) {
+			b = XToBuf(a->ClientX, false);
+			CfgAddByte(f, "ClientCert", b->Buf, b->Size);
+			FreeBuf(b);
+		}
+		CfgAddStr(f, "OpensslEnginePrivateKeyName", a->OpensslEnginePrivateKeyName);
+		CfgAddStr(f, "OpensslEngineName", a->OpensslEngineName);
+	break;
 	}
 }
 

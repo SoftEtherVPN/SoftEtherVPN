@@ -98,7 +98,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Session.c
 // Session Manager
 
@@ -2046,10 +2045,17 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 	{
 		s->ClientAuth->ClientX = CloneX(s->ClientAuth->ClientX);
 	}
-	if (s->ClientAuth->ClientK != NULL)
-	{
-		s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
-	}
+  if (s->ClientAuth->ClientK != NULL)
+  {
+    if (s->ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
+    {
+      s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
+    }
+    else
+    {
+      s->ClientAuth->ClientK = OpensslEngineToK(s->ClientAuth->OpensslEnginePrivateKeyName, s->ClientAuth->OpensslEngineName);
+    }
+  }
 
 	if (StrCmpi(s->ClientOption->DeviceName, LINK_DEVICE_NAME) == 0)
 	{

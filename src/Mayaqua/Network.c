@@ -14039,7 +14039,6 @@ bool StartSSLWithSettings(SOCK* sock, UINT ssl_timeout, char* sni_hostname, SSL_
 	LockOpenSSL();
 	{
 		sock->ssl = SSL_new(ssl_ctx_shared->SslCtx);
-		SSL_set_fd(sock->ssl, (int)sock->socket);
 
 #ifdef	SSL_CTRL_SET_TLSEXT_HOSTNAME
 		if (settings->Settings2.IsClient)

@@ -1,24 +1,5 @@
 // SoftEther VPN Source Code - Stable Edition Repository
 // Cedar Communication Module
-// 
-// SoftEther VPN Server, Client and Bridge are free software under the Apache License, Version 2.0.
-// 
-// Copyright (c) Daiyuu Nobori.
-// Copyright (c) SoftEther VPN Project, University of Tsukuba, Japan.
-// Copyright (c) SoftEther Corporation.
-// Copyright (c) all contributors on SoftEther VPN project in GitHub.
-// 
-// All Rights Reserved.
-// 
-// http://www.softether.org/
-// 
-// This stable branch is officially managed by Daiyuu Nobori, the owner of SoftEther VPN Project.
-// Pull requests should be sent to the Developer Edition Master Repository on https://github.com/SoftEtherVPN/SoftEtherVPN
-// 
-// License: The Apache License, Version 2.0
-// https://www.apache.org/licenses/LICENSE-2.0
-// 
-// DISCLAIMER
 // ==========
 // 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -97,7 +78,6 @@
 // 
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
-
 
 // Protocol.c
 // SoftEther protocol related routines
@@ -6858,6 +6838,20 @@ bool ClientUploadAuth(CONNECTION *c)
 				}
 			}
 			break;
+
+		case CLIENT_AUTHTYPE_OPENSSLENGINE:
+			// Certificate authentication
+			if (a->ClientX != NULL && a->ClientX->is_compatible_bit &&
+				a->ClientX->bits != 0 && (a->ClientX->bits / 8) <= sizeof(sign))
+			{
+				if (RsaSignEx(sign, c->Random, SHA1_SIZE, a->ClientK, a->ClientX->bits))
+				{
+					p = PackLoginWithCert(o->HubName, a->Username, a->ClientX, sign, a->ClientX->bits / 8);
+					c->ClientX = CloneX(a->ClientX);
+				}
+			}
+			break;
+
 
 		case CLIENT_AUTHTYPE_SECURE:
 			// Authentication by secure device

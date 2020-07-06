@@ -444,6 +444,7 @@
 #define	CLIENT_AUTHTYPE_PLAIN_PASSWORD	2			// Plain password authentication
 #define	CLIENT_AUTHTYPE_CERT			3			// Certificate authentication
 #define	CLIENT_AUTHTYPE_SECURE			4			// Secure device authentication
+#define	CLIENT_AUTHTYPE_OPENSSLENGINE			5			// Openssl engine authentication
 
 
 
@@ -992,6 +993,10 @@ typedef struct CEDAR
 	COUNTER *ConnectionIncrement;	// Connection increment counter
 	X *ServerX;						// Server certificate
 	K *ServerK;						// Private key of the server certificate
+	char *ServerKeyType;
+	char *ServerEngineName;
+	char *ServerEngineKey;
+	char UsernameHubSeparator;		// Character which separates the username from the hub name
 	char *CipherList;				// List of encryption algorithms
 	UINT Version;					// Version information
 	UINT Build;						// Build Number
@@ -1189,6 +1194,7 @@ CEDAR *NewCedar(X *server_x, K *server_k);
 void CedarForceLink();
 void SetCedarVpnBridge(CEDAR *c);
 void SetCedarCert(CEDAR *c, X *server_x, K *server_k);
+void SetCedarEngineCert(CEDAR *c, X *server_x, K *server_k, char *engine_name, char *key_name);
 void ReleaseCedar(CEDAR *c);
 void CleanupCedar(CEDAR *c);
 void StopCedar(CEDAR *c);

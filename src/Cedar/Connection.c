@@ -98,7 +98,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Connection.c
 // Connection Manager
 
@@ -635,6 +634,14 @@ CLIENT_AUTH *CopyClientAuth(CLIENT_AUTH *a)
 		// Secure device authentication
 		StrCpy(ret->SecurePublicCertName, sizeof(ret->SecurePublicCertName), a->SecurePublicCertName);
 		StrCpy(ret->SecurePrivateKeyName, sizeof(ret->SecurePrivateKeyName), a->SecurePrivateKeyName);
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		// Secure device authentication
+		ret->ClientX = CloneX(a->ClientX);
+		StrCpy(ret->OpensslEnginePrivateKeyName, sizeof(ret->OpensslEnginePrivateKeyName), a->OpensslEnginePrivateKeyName);
+		StrCpy(ret->OpensslEngineName, sizeof(ret->OpensslEngineName), a->OpensslEngineName);
+    ret->ClientK = OpensslEngineToK(ret->OpensslEnginePrivateKeyName, ret->OpensslEngineName);
 		break;
 	}
 
@@ -3139,9 +3146,13 @@ void ConnectionAccept(CONNECTION *c)
 		{
 			SetWantToUseCipher(s, c->Cedar->CipherList);
 		}
-
 		x = CloneXFast(c->Cedar->ServerX);
+		if (StrCmp(c->Cedar->ServerKeyType, "engine") == 0) {
+			k = OpensslEngineToK(c->Cedar->ServerEngineKey, c->Cedar->ServerEngineName);
+		} else {
 		k = CloneKFast(c->Cedar->ServerK);
+			k = CloneK(c->Cedar->ServerK);
+		}
 	}
 	Unlock(c->Cedar->lock);
 

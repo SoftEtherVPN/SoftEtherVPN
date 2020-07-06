@@ -1587,6 +1587,7 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC_EX("EnumFarmMember", RPC_ENUM_FARM, StEnumFarmMember, InRpcEnumFarm, OutRpcEnumFarm, FreeRpcEnumFarm)
 	DECLARE_RPC("GetFarmConnectionStatus", RPC_FARM_CONNECTION_STATUS, StGetFarmConnectionStatus, InRpcFarmConnectionStatus, OutRpcFarmConnectionStatus)
 	DECLARE_RPC_EX("SetServerCert", RPC_KEY_PAIR, StSetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
+	DECLARE_RPC_EX("SetServerOpensslEngineCert", RPC_OPENSSL_ENGINE_KEY_PAIR, StSetServerOpensslEngineCert, InRpcOpensslEngineKeyPair, OutRpcOpensslEngineKeyPair, FreeRpcOpensslEngineKeyPair)
 	DECLARE_RPC_EX("GetServerCert", RPC_KEY_PAIR, StGetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
 	DECLARE_RPC_EX("GetServerCipher", RPC_STR, StGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("SetServerCipher", RPC_STR, StSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
@@ -1766,6 +1767,7 @@ DECLARE_SC_EX("GetFarmInfo", RPC_FARM_INFO, ScGetFarmInfo, InRpcFarmInfo, OutRpc
 DECLARE_SC_EX("EnumFarmMember", RPC_ENUM_FARM, ScEnumFarmMember, InRpcEnumFarm, OutRpcEnumFarm, FreeRpcEnumFarm)
 DECLARE_SC("GetFarmConnectionStatus", RPC_FARM_CONNECTION_STATUS, ScGetFarmConnectionStatus, InRpcFarmConnectionStatus, OutRpcFarmConnectionStatus)
 DECLARE_SC_EX("SetServerCert", RPC_KEY_PAIR, ScSetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
+DECLARE_SC_EX("SetServerOpensslEngineCert", RPC_OPENSSL_ENGINE_KEY_PAIR, ScSetServerOpensslEngineCert, InRpcOpensslEngineKeyPair, OutRpcOpensslEngineKeyPair, FreeRpcOpensslEngineKeyPair)
 DECLARE_SC_EX("GetServerCert", RPC_KEY_PAIR, ScGetServerCert, InRpcKeyPair, OutRpcKeyPair, FreeRpcKeyPair)
 DECLARE_SC_EX("GetServerCipher", RPC_STR, ScGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("SetServerCipher", RPC_STR, ScSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
@@ -2253,7 +2255,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		{
 			Lock(c->lock);
 			{
-				x = CloneX(c->ServerX);
+				x = CloneK(c->ServerX);
 			}
 			Unlock(c->lock);
 
@@ -9434,7 +9436,11 @@ UINT StGetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 		t->Cert = CloneX(c->ServerX);
 		if (admin && is_vgs_cert == false)
 		{
-			t->Key = CloneK(c->ServerK);
+			if (StrCmp(c->ServerKeyType, "engine") == 0) {
+				t->Key = OpensslEngineToK(c->ServerEngineKey, c->ServerEngineName);
+			} else {
+				t->Key = CloneK(c->ServerK);
+			}
 		}
 	}
 	Unlock(c->lock);
@@ -9475,6 +9481,37 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 	}
 
 	SetCedarCert(c, t->Cert, t->Key);
+
+	ALog(a, NULL, "LA_SET_SERVER_CERT");
+
+	IncrementServerConfigRevision(s);
+
+	return ERR_NO_ERROR;
+}
+// Set the server certification
+UINT StSetServerOpensslEngineCert(ADMIN *a, RPC_OPENSSL_ENGINE_KEY_PAIR *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+
+	SERVER_ADMIN_ONLY;
+
+	if (t->Cert == NULL)
+	{
+		return ERR_PROTOCOL_ERROR;
+	}
+
+	t->Flag1 = 1;
+	if (t->Cert->root_cert == false)
+	{
+		if (DownloadAndSaveIntermediateCertificatesIfNecessary(t->Cert) == false)
+		{
+			t->Flag1 = 0;
+		}
+	}
+	K *k = OpensslEngineToK(t->KeyName, t->EngineName);
+
+	SetCedarEngineCert(c, t->Cert, k, t->EngineName, t->KeyName);
 
 	ALog(a, NULL, "LA_SET_SERVER_CERT");
 
@@ -14057,6 +14094,35 @@ void FreeRpcKeyPair(RPC_KEY_PAIR *t)
 {
 	FreeX(t->Cert);
 	FreeK(t->Key);
+}
+// RPC_KEY_PAIR
+void InRpcOpensslEngineKeyPair(RPC_OPENSSL_ENGINE_KEY_PAIR *t, PACK *p)
+{
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+	t->Cert = PackGetX(p, "Cert");
+	PackGetStr(p, "Key", t->KeyName, sizeof(t->KeyName));
+	PackGetStr(p, "EngineName", t->EngineName, sizeof(t->EngineName));
+	t->Flag1 = PackGetInt(p, "Flag1");
+}
+void OutRpcOpensslEngineKeyPair(PACK *p, RPC_OPENSSL_ENGINE_KEY_PAIR *t)
+{
+	// Validate arguments
+	if (p == NULL || t == NULL)
+	{
+		return;
+	}
+	PackAddX(p, "Cert", t->Cert);
+	PackAddStr(p, "Key", t->KeyName);
+	PackAddStr(p, "EngineName", t->EngineName);
+	PackAddInt(p, "Flag1", t->Flag1);
+}
+void FreeRpcOpensslEngineKeyPair(RPC_OPENSSL_ENGINE_KEY_PAIR *t)
+{
+	FreeX(t->Cert);
 }
 
 // NODE_INFO

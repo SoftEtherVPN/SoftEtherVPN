@@ -98,7 +98,6 @@
 // The memory-leaks and resource-leaks verification under the stress
 // test has been passed before release this source code.
 
-
 // Connection.h
 // Header of Connection.c
 
@@ -196,6 +195,8 @@ struct CLIENT_AUTH
 	K *ClientK;										// Client private key
 	char SecurePublicCertName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device certificate name
 	char SecurePrivateKeyName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
+	char OpensslEnginePrivateKeyName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
+	char OpensslEngineName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
 	CHECK_CERT_PROC *CheckCertProc;					// Server certificate confirmation procedure
 	SECURE_SIGN_PROC *SecureSignProc;				// Security signing procedure
 };
