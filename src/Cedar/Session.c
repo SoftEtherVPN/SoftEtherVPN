@@ -1267,7 +1267,10 @@ void CleanupSession(SESSION *s)
 		FreePacketAdapter(s->PacketAdapter);
 	}
 #ifdef OS_UNIX
-	UnixVLanSetState(s->ClientOption->DeviceName, false);
+	if (s->ClientOption != NULL)
+	{
+		UnixVLanSetState(s->ClientOption->DeviceName, false);
+	}
 #endif
 	if (s->OldTraffic != NULL)
 	{
