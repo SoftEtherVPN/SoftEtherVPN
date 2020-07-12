@@ -383,7 +383,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 
 		while (true)
 		{
-			const UINT ret = Recv(sock, buf, PROTO_TCP_BUFFER_SIZE, false);
+			const UINT ret = Recv(sock, buf, PROTO_TCP_BUFFER_SIZE, sock->SecureMode);
 
 			if (ret == SOCK_LATER)
 			{
@@ -411,7 +411,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 		// Send data to the TCP socket
 		while (FifoSize(send_fifo) >= 1)
 		{
-			const UINT ret = Send(sock, FifoPtr(send_fifo), FifoSize(send_fifo), false);
+			const UINT ret = Send(sock, FifoPtr(send_fifo), FifoSize(send_fifo), sock->SecureMode);
 
 			if (ret == SOCK_LATER)
 			{
