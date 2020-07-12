@@ -30,7 +30,6 @@ typedef struct PROTO_IMPL
 	bool (*IsPacketForMe)(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 	bool (*ProcessData)(void *param, TCP_RAW_DATA *in, FIFO *out);
 	bool (*ProcessDatagrams)(void *param, LIST *in, LIST *out);
-	void (*BufferLimit)(void *param, const bool reached);
 } PROTO_IMPL;
 
 typedef struct PROTO_SESSION

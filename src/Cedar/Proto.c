@@ -431,8 +431,6 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 			}
 		}
 
-		impl->BufferLimit(impl_data, FifoSize(send_fifo) > MAX_BUFFERING_PACKET_SIZE);
-
 		if (stop)
 		{
 			// Error or disconnection occurs

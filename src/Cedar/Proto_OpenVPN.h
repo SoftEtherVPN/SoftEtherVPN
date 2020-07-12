@@ -215,7 +215,6 @@ char *OvsName();
 bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 bool OvsProcessDatagrams(void *param, LIST *in, LIST *out);
-void OvsBufferLimit(void *param, const bool reached);
 bool OvsIsOk(void *param);
 UINT OvsEstablishedSessions(void *param);
 
