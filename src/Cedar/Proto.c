@@ -187,7 +187,7 @@ PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *da
 	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
 	{
 		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
-		if (impl->IsPacketForMe(mode, data, size) == false)
+		if (impl->IsPacketForMe == NULL || impl->IsPacketForMe(mode, data, size) == false)
 		{
 			continue;
 		}
