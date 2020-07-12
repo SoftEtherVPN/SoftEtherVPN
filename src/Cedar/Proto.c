@@ -309,10 +309,10 @@ bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports)
 	return true;
 }
 
-bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 {
+	const PROTO_IMPL *impl = NULL;
 	void *impl_data = NULL;
-	const PROTO_IMPL *impl;
 
 	UCHAR *buf;
 	TCP_RAW_DATA *recv_raw_data;
@@ -325,6 +325,20 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		return false;
 	}
 
+	if (protocol != NULL)
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(proto->Impls); ++i)
+		{
+			const PROTO_IMPL *tmp = LIST_DATA(proto->Impls, i);
+			if (StrCmp(tmp->Name(), protocol) == 0)
+			{
+				impl = tmp;
+				break;
+			}
+		}
+	}
+	else
 	{
 		UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
 		if (Peek(sock, tmp, sizeof(tmp)) == 0)
@@ -333,10 +347,11 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		}
 
 		impl = ProtoImplDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
-		if (impl == NULL)
-		{
-			return false;
-		}
+	}
+
+	if (impl == NULL)
+	{
+		return false;
 	}
 
 	im = NewInterruptManager();

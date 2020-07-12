@@ -68,7 +68,7 @@ void ProtoDeleteSession(PROTO_SESSION *session);
 bool ProtoSetListenIP(PROTO *proto, const IP *ip);
 bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports);
 
-bool ProtoHandleConnection(PROTO *proto, SOCK *sock);
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol);
 void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams);
 void ProtoSessionThread(THREAD *thread, void *param);
 

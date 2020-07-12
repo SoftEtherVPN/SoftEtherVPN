@@ -2936,7 +2936,7 @@ void ConnectionAccept(CONNECTION *c)
 		if (c->Cedar != NULL && c->Cedar->Server != NULL)
 		{
 			PROTO *proto = c->Cedar->Server->Proto;
-			if (proto && ProtoHandleConnection(proto, s) == true)
+			if (proto && ProtoHandleConnection(proto, s, NULL) == true)
 			{
 				c->Type = CONNECTION_TYPE_OTHER;
 				goto FINAL;
