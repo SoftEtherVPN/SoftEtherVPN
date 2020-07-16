@@ -220,7 +220,7 @@ PROTO_SESSION *ProtoNewSession(PROTO *proto, PROTO_IMPL *impl, const IP *src_ip,
 	session->SockEvent = NewSockEvent();
 	session->InterruptManager = NewInterruptManager();
 
-	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent) == false)
+	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent, NULL, NULL) == false)
 	{
 		Debug("ProtoNewSession(): failed to initialize %s\n", impl->Name());
 
@@ -357,7 +357,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	im = NewInterruptManager();
 	se = NewSockEvent();
 
-	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se) == false)
+	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
 	{
 		Debug("ProtoHandleConnection(): failed to initialize %s\n", impl->Name());
 		FreeInterruptManager(im);

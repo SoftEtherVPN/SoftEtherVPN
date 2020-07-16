@@ -24,7 +24,7 @@ typedef struct PROTO
 
 typedef struct PROTO_IMPL
 {
-	bool (*Init)(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
+	bool (*Init)(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 	void (*Free)(void *param);
 	char *(*Name)();
 	bool (*IsPacketForMe)(const PROTO_MODE mode, const UCHAR *data, const UINT size);

@@ -29,12 +29,14 @@ PROTO_IMPL *OvsGetProtoImpl()
 	return &impl;
 }
 
-bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se)
+bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
 {
 	if (param == NULL || cedar == NULL || im == NULL || se == NULL)
 	{
 		return false;
 	}
+
+	Debug("OvsInit(): cipher: %s, hostname: %s\n", cipher, hostname);
 
 	*param = NewOpenVpnServer(cedar, im, se);
 
