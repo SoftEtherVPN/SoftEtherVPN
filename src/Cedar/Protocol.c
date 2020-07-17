@@ -5891,7 +5891,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				// Accept the SSTP connection
 				c->Type = CONNECTION_TYPE_OTHER;
 
-				sstp_ret = AcceptSstp(c);
+				sstp_ret = ProtoHandleConnection(server->Proto, s, "SSTP");
 
 				c->Err = ERR_DISCONNECTED;
 				FreeHttpHeader(h);

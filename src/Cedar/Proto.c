@@ -133,6 +133,8 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	// OpenVPN
 	ProtoImplAdd(proto, OvsGetProtoImpl());
+	// SSTP
+	ProtoImplAdd(proto, SstpGetProtoImpl());
 
 	proto->UdpListener = NewUdpListener(ProtoHandleDatagrams, proto, &cedar->Server->ListenIP);
 
@@ -187,7 +189,7 @@ PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *da
 	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
 	{
 		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
-		if (impl->IsPacketForMe(mode, data, size) == false)
+		if (impl->IsPacketForMe == NULL || impl->IsPacketForMe(mode, data, size) == false)
 		{
 			continue;
 		}
@@ -220,7 +222,7 @@ PROTO_SESSION *ProtoNewSession(PROTO *proto, PROTO_IMPL *impl, const IP *src_ip,
 	session->SockEvent = NewSockEvent();
 	session->InterruptManager = NewInterruptManager();
 
-	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent) == false)
+	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent, NULL, NULL) == false)
 	{
 		Debug("ProtoNewSession(): failed to initialize %s\n", impl->Name());
 
@@ -309,10 +311,10 @@ bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports)
 	return true;
 }
 
-bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 {
+	const PROTO_IMPL *impl = NULL;
 	void *impl_data = NULL;
-	const PROTO_IMPL *impl;
 
 	UCHAR *buf;
 	TCP_RAW_DATA *recv_raw_data;
@@ -325,6 +327,20 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		return false;
 	}
 
+	if (protocol != NULL)
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(proto->Impls); ++i)
+		{
+			const PROTO_IMPL *tmp = LIST_DATA(proto->Impls, i);
+			if (StrCmp(tmp->Name(), protocol) == 0)
+			{
+				impl = tmp;
+				break;
+			}
+		}
+	}
+	else
 	{
 		UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
 		if (Peek(sock, tmp, sizeof(tmp)) == 0)
@@ -333,16 +349,17 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		}
 
 		impl = ProtoImplDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
-		if (impl == NULL)
-		{
-			return false;
-		}
+	}
+
+	if (impl == NULL)
+	{
+		return false;
 	}
 
 	im = NewInterruptManager();
 	se = NewSockEvent();
 
-	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se) == false)
+	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
 	{
 		Debug("ProtoHandleConnection(): failed to initialize %s\n", impl->Name());
 		FreeInterruptManager(im);
@@ -368,7 +385,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 
 		while (true)
 		{
-			const UINT ret = Recv(sock, buf, PROTO_TCP_BUFFER_SIZE, false);
+			const UINT ret = Recv(sock, buf, PROTO_TCP_BUFFER_SIZE, sock->SecureMode);
 
 			if (ret == SOCK_LATER)
 			{
@@ -396,7 +413,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 		// Send data to the TCP socket
 		while (FifoSize(send_fifo) >= 1)
 		{
-			const UINT ret = Send(sock, FifoPtr(send_fifo), FifoSize(send_fifo), false);
+			const UINT ret = Send(sock, FifoPtr(send_fifo), FifoSize(send_fifo), sock->SecureMode);
 
 			if (ret == SOCK_LATER)
 			{
@@ -415,8 +432,6 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock)
 				ReadFifo(send_fifo, NULL, ret);
 			}
 		}
-
-		impl->BufferLimit(impl_data, FifoSize(send_fifo) > MAX_BUFFERING_PACKET_SIZE);
 
 		if (stop)
 		{

@@ -23,19 +23,20 @@ PROTO_IMPL *OvsGetProtoImpl()
 		OvsName,
 		OvsIsPacketForMe,
 		OvsProcessData,
-		OvsProcessDatagrams,
-		OvsBufferLimit,
+		OvsProcessDatagrams
 	};
 
 	return &impl;
 }
 
-bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se)
+bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
 {
 	if (param == NULL || cedar == NULL || im == NULL || se == NULL)
 	{
 		return false;
 	}
+
+	Debug("OvsInit(): cipher: %s, hostname: %s\n", cipher, hostname);
 
 	*param = NewOpenVpnServer(cedar, im, se);
 
@@ -185,6 +186,8 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
 		return false;
 	}
 
+	server->SupressSendPacket = FifoSize(out) > MAX_BUFFERING_PACKET_SIZE;
+
 	return ret;
 }
 
@@ -227,16 +230,6 @@ bool OvsProcessDatagrams(void *param, LIST *in, LIST *out)
 	}
 
 	return true;
-}
-
-void OvsBufferLimit(void *param, const bool reached)
-{
-	if (param == NULL)
-	{
-		return;
-	}
-
-	((OPENVPN_SERVER *)param)->SupressSendPacket = reached;
 }
 
 // Write the OpenVPN log

@@ -24,13 +24,12 @@ typedef struct PROTO
 
 typedef struct PROTO_IMPL
 {
-	bool (*Init)(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se);
+	bool (*Init)(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 	void (*Free)(void *param);
 	char *(*Name)();
 	bool (*IsPacketForMe)(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 	bool (*ProcessData)(void *param, TCP_RAW_DATA *in, FIFO *out);
 	bool (*ProcessDatagrams)(void *param, LIST *in, LIST *out);
-	void (*BufferLimit)(void *param, const bool reached);
 } PROTO_IMPL;
 
 typedef struct PROTO_SESSION
@@ -68,7 +67,7 @@ void ProtoDeleteSession(PROTO_SESSION *session);
 bool ProtoSetListenIP(PROTO *proto, const IP *ip);
 bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports);
 
-bool ProtoHandleConnection(PROTO *proto, SOCK *sock);
+bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol);
 void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams);
 void ProtoSessionThread(THREAD *thread, void *param);
 
