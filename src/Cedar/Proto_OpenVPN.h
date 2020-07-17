@@ -208,10 +208,10 @@ struct OPENVPN_SERVER
 #define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
 
 //// Function prototype
-PROTO_IMPL *OvsGetProtoImpl();
+const PROTO_IMPL *OvsGetProtoImpl();
+const char *OvsName();
 bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void OvsFree(void *param);
-char *OvsName();
 bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 bool OvsProcessDatagrams(void *param, LIST *in, LIST *out);

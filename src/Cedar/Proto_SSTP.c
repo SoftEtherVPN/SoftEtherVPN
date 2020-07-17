@@ -16,19 +16,24 @@ bool GetNoSstp()
 	return g_no_sstp;
 }
 
-PROTO_IMPL *SstpGetProtoImpl()
+const PROTO_IMPL *SstpGetProtoImpl()
 {
-	static PROTO_IMPL impl =
+	static const PROTO_IMPL impl =
 	{
+		SstpName,
 		SstpInit,
 		SstpFree,
-		SstpName,
 		NULL,
 		SstpProcessData,
 		NULL
 	};
 
 	return &impl;
+}
+
+const char *SstpName()
+{
+	return "SSTP";
 }
 
 bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
@@ -48,11 +53,6 @@ bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVE
 void SstpFree(void *param)
 {
 	FreeSstpServer(param);
-}
-
-char *SstpName()
-{
-	return "SSTP";
 }
 
 bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)

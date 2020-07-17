@@ -14,19 +14,24 @@ static UCHAR ping_signature[] =
 	0x07, 0xed, 0x2d, 0x0a, 0x98, 0x1f, 0xc7, 0x48
 };
 
-PROTO_IMPL *OvsGetProtoImpl()
+const PROTO_IMPL *OvsGetProtoImpl()
 {
-	static PROTO_IMPL impl =
+	static const PROTO_IMPL impl =
 	{
+		OvsName,
 		OvsInit,
 		OvsFree,
-		OvsName,
 		OvsIsPacketForMe,
 		OvsProcessData,
 		OvsProcessDatagrams
 	};
 
 	return &impl;
+}
+
+const char *OvsName()
+{
+	return "OpenVPN";
 }
 
 bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
@@ -46,12 +51,6 @@ bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, 
 void OvsFree(void *param)
 {
 	FreeOpenVpnServer(param);
-}
-
-// Return the protocol name
-char *OvsName()
-{
-	return "OpenVPN";
 }
 
 // Check whether it's an OpenVPN packet

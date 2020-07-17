@@ -122,10 +122,10 @@ struct SSTP_SERVER
 
 
 //// Function prototype
-PROTO_IMPL *SstpGetProtoImpl();
+const PROTO_IMPL *SstpGetProtoImpl();
+const char *SstpName();
 bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void SstpFree(void *param);
-char *SstpName();
 bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 
 SSTP_SERVER *NewSstpServer(CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
