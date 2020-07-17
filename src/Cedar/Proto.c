@@ -133,6 +133,8 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	// OpenVPN
 	ProtoImplAdd(proto, OvsGetProtoImpl());
+	// SSTP
+	ProtoImplAdd(proto, SstpGetProtoImpl());
 
 	proto->UdpListener = NewUdpListener(ProtoHandleDatagrams, proto, &cedar->Server->ListenIP);
 
