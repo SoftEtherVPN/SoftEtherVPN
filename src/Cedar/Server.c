@@ -5675,7 +5675,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	Lock(c->lock);
 	{
 		OPENVPN_SSTP_CONFIG config;
-		FOLDER *syslog_f;
+		FOLDER *ff;
 		{
 			UINT i;
 			LIST *ports;
@@ -5738,18 +5738,25 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		}
 
 		// syslog
-		syslog_f = CfgGetFolder(f, "SyslogSettings");
-		if (syslog_f != NULL && GetServerCapsBool(s, "b_support_syslog"))
+		ff = CfgGetFolder(f, "SyslogSettings");
+		if (ff != NULL && GetServerCapsBool(s, "b_support_syslog"))
 		{
 			SYSLOG_SETTING set;
 
 			Zero(&set, sizeof(set));
 
-			set.SaveType = CfgGetInt(syslog_f, "SaveType");
-			CfgGetStr(syslog_f, "HostName", set.Hostname, sizeof(set.Hostname));
-			set.Port = CfgGetInt(syslog_f, "Port");
+			set.SaveType = CfgGetInt(ff, "SaveType");
+			CfgGetStr(ff, "HostName", set.Hostname, sizeof(set.Hostname));
+			set.Port = CfgGetInt(ff, "Port");
 
 			SiSetSysLogSetting(s, &set);
+		}
+
+		// Proto
+		ff = CfgGetFolder(f, "Proto");
+		if (ff != NULL)
+		{
+			SiLoadProtoCfg(s->Proto, ff);
 		}
 
 		// Whether to disable the IPv6 listener
@@ -6185,7 +6192,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 	Lock(c->lock);
 	{
-		FOLDER *syslog_f;
+		FOLDER *ff;
 		Lock(s->Keep->lock);
 		{
 			KEEP *k = s->Keep;
@@ -6198,16 +6205,23 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		Unlock(s->Keep->lock);
 
 		// syslog
-		syslog_f = CfgCreateFolder(f, "SyslogSettings");
-		if (syslog_f != NULL)
+		ff = CfgCreateFolder(f, "SyslogSettings");
+		if (ff != NULL)
 		{
 			SYSLOG_SETTING set;
 
 			SiGetSysLogSetting(s, &set);
 
-			CfgAddInt(syslog_f, "SaveType", set.SaveType);
-			CfgAddStr(syslog_f, "HostName", set.Hostname);
-			CfgAddInt(syslog_f, "Port", set.Port);
+			CfgAddInt(ff, "SaveType", set.SaveType);
+			CfgAddStr(ff, "HostName", set.Hostname);
+			CfgAddInt(ff, "Port", set.Port);
+		}
+
+		// Proto
+		ff = CfgCreateFolder(f, "Proto");
+		if (ff != NULL)
+		{
+			SiWriteProtoCfg(ff, s->Proto);
 		}
 
 		// IPv6 listener disable setting
@@ -6388,6 +6402,98 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		CfgAddBool(f, "DisableJsonRpcWebApi", s->DisableJsonRpcWebApi);
 	}
 	Unlock(c->lock);
+}
+
+void SiLoadProtoCfg(PROTO *p, FOLDER *f)
+{
+	UINT i;
+
+	if (p == NULL || f == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < LIST_NUM(p->Containers); ++i)
+	{
+		UINT j;
+		const PROTO_CONTAINER *container = LIST_DATA(p->Containers, i);
+		LIST *options = container->Options;
+		FOLDER *ff = CfgGetFolder(f, container->Name);
+		if (ff == NULL)
+		{
+			continue;
+		}
+
+		LockList(options);
+
+		for (j = 0; j < LIST_NUM(options); ++j)
+		{
+			PROTO_OPTION *option = LIST_DATA(options, j);
+			switch (option->Type)
+			{
+			case PROTO_OPTION_BOOL:
+				option->Bool = CfgGetBool(ff, option->Name);
+				break;
+			case PROTO_OPTION_STRING:
+			{
+				UINT size;
+				char buf[MAX_SIZE];
+				if (CfgGetStr(ff, option->Name, buf, sizeof(buf)) == false)
+				{
+					continue;
+				}
+
+				size = StrLen(buf) + 1;
+				option->String = ReAlloc(option->String, size);
+				StrCpy(option->String, size, buf);
+
+				break;
+			}
+			default:
+				Debug("SiLoadProtoCfg(): unhandled option type %u!\n", option->Type);
+			}
+		}
+
+		UnlockList(options);
+	}
+}
+
+void SiWriteProtoCfg(FOLDER *f, PROTO *p)
+{
+	UINT i;
+
+	if (f == NULL || p == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < LIST_NUM(p->Containers); ++i)
+	{
+		UINT j;
+		const PROTO_CONTAINER *container = LIST_DATA(p->Containers, i);
+		LIST *options = container->Options;
+		FOLDER *ff = CfgCreateFolder(f, container->Name);
+
+		LockList(options);
+
+		for (j = 0; j < LIST_NUM(options); ++j)
+		{
+			const PROTO_OPTION *option = LIST_DATA(options, j);
+			switch (option->Type)
+			{
+				case PROTO_OPTION_BOOL:
+					CfgAddBool(ff, option->Name, option->Bool);
+					break;
+				case PROTO_OPTION_STRING:
+					CfgAddStr(ff, option->Name, option->String);
+					break;
+				default:
+					Debug("SiWriteProtoCfg(): unhandled option type %u!\n", option->Type);
+			}
+		}
+
+		UnlockList(options);
+	}
 }
 
 // Read the traffic information

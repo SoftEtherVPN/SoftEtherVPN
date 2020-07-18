@@ -418,6 +418,8 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f);
 void SiWriteGlobalParamsCfg(FOLDER *f);
 void SiLoadGlobalParamsCfg(FOLDER *f);
 void SiLoadGlobalParamItem(UINT id, UINT value);
+void SiLoadProtoCfg(PROTO *p, FOLDER *f);
+void SiWriteProtoCfg(FOLDER *f, PROTO *p);
 void SiWriteTraffic(FOLDER *parent, char *name, TRAFFIC *t);
 void SiWriteTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
 void SiLoadTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
