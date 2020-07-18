@@ -17,7 +17,7 @@ typedef enum PROTO_MODE
 typedef struct PROTO
 {
 	CEDAR *Cedar;
-	LIST *Impls;
+	LIST *Containers;
 	HASH_LIST *Sessions;
 	UDPLISTENER *UdpListener;
 } PROTO;
@@ -32,11 +32,17 @@ typedef struct PROTO_IMPL
 	bool (*ProcessDatagrams)(void *param, LIST *in, LIST *out);
 } PROTO_IMPL;
 
+typedef struct PROTO_CONTAINER
+{
+	const char *Name;
+	const PROTO_IMPL *Impl;
+} PROTO_CONTAINER;
+
 typedef struct PROTO_SESSION
 {
 	void *Param;
-	PROTO *Proto;
-	PROTO_IMPL *Impl;
+	const PROTO *Proto;
+	const PROTO_IMPL *Impl;
 	IP SrcIp;
 	USHORT SrcPort;
 	IP DstIp;
@@ -50,7 +56,7 @@ typedef struct PROTO_SESSION
 	volatile bool Halt;
 } PROTO_SESSION;
 
-int ProtoImplCompare(void *p1, void *p2);
+int ProtoContainerCompare(void *p1, void *p2);
 int ProtoSessionCompare(void *p1, void *p2);
 
 UINT ProtoSessionHash(void *p);
@@ -58,10 +64,12 @@ UINT ProtoSessionHash(void *p);
 PROTO *ProtoNew(CEDAR *cedar);
 void ProtoDelete(PROTO *proto);
 
-bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl);
-PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size);
+PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl);
+void ProtoContainerDelete(PROTO_CONTAINER *container);
 
-PROTO_SESSION *ProtoNewSession(PROTO *proto, PROTO_IMPL *impl, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port);
+const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size);
+
+PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port);
 void ProtoDeleteSession(PROTO_SESSION *session);
 
 bool ProtoSetListenIP(PROTO *proto, const IP *ip);

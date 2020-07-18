@@ -2,21 +2,19 @@
 
 #include "Proto_OpenVPN.h"
 
-int ProtoImplCompare(void *p1, void *p2)
+int ProtoContainerCompare(void *p1, void *p2)
 {
-	PROTO_IMPL *impl_1 = p1, *impl_2 = p2;
+	PROTO_CONTAINER *container_1, *container_2;
 
-	if (impl_1 == NULL || impl_2 == NULL)
+	if (p1 == NULL || p2 == NULL)
 	{
-		return 0;
+		return (p1 == NULL && p2 == NULL ? 0 : (p1 == NULL ? -1 : 1));
 	}
 
-	if (StrCmp(impl_1->Name(), impl_2->Name()) == 0)
-	{
-		return true;
-	}
+	container_1 = *(PROTO_CONTAINER **)p1;
+	container_2 = *(PROTO_CONTAINER **)p2;
 
-	return false;
+	return StrCmpi(container_1->Name, container_2->Name);
 }
 
 int ProtoSessionCompare(void *p1, void *p2)
@@ -126,15 +124,15 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	proto = Malloc(sizeof(PROTO));
 	proto->Cedar = cedar;
-	proto->Impls = NewList(ProtoImplCompare);
+	proto->Containers = NewList(ProtoContainerCompare);
 	proto->Sessions = NewHashList(ProtoSessionHash, ProtoSessionCompare, 0, true);
 
 	AddRef(cedar->ref);
 
 	// OpenVPN
-	ProtoImplAdd(proto, OvsGetProtoImpl());
+	Add(proto->Containers, ProtoContainerNew(OvsGetProtoImpl()));
 	// SSTP
-	ProtoImplAdd(proto, SstpGetProtoImpl());
+	Add(proto->Containers, ProtoContainerNew(SstpGetProtoImpl()));
 
 	proto->UdpListener = NewUdpListener(ProtoHandleDatagrams, proto, &cedar->Server->ListenIP);
 
@@ -156,28 +154,49 @@ void ProtoDelete(PROTO *proto)
 	{
 		ProtoDeleteSession(LIST_DATA(proto->Sessions->AllList, i));
 	}
+	ReleaseHashList(proto->Sessions);
+
+	for (i = 0; i < LIST_NUM(proto->Containers); ++i)
+	{
+		ProtoContainerDelete(LIST_DATA(proto->Containers, i));
+	}
+	ReleaseList(proto->Containers);
 
 	FreeUdpListener(proto->UdpListener);
-	ReleaseHashList(proto->Sessions);
-	ReleaseList(proto->Impls);
 	ReleaseCedar(proto->Cedar);
 	Free(proto);
 }
 
-bool ProtoImplAdd(PROTO *proto, PROTO_IMPL *impl) {
-	if (proto == NULL || impl == NULL)
+PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
+{
+	UINT i;
+	PROTO_CONTAINER *container;
+
+	if (impl == NULL)
 	{
 		return false;
 	}
 
-	Add(proto->Impls, impl);
+	container = Malloc(sizeof(PROTO_CONTAINER));
+	container->Name = impl->Name();
+	container->Impl = impl;
 
-	Debug("ProtoImplAdd(): added %s\n", impl->Name());
+	Debug("ProtoContainerNew(): %s\n", container->Name);
 
-	return true;
+	return container;
 }
 
-PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size)
+void ProtoContainerDelete(PROTO_CONTAINER *container)
+{
+	if (container == NULL)
+	{
+		return;
+	}
+
+	Free(container);
+}
+
+const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size)
 {
 	UINT i;
 
@@ -186,45 +205,47 @@ PROTO_IMPL *ProtoImplDetect(PROTO *proto, const PROTO_MODE mode, const UCHAR *da
 		return NULL;
 	}
 
-	for (i = 0; i < LIST_NUM(proto->Impls); ++i)
+	for (i = 0; i < LIST_NUM(proto->Containers); ++i)
 	{
-		PROTO_IMPL *impl = LIST_DATA(proto->Impls, i);
-		if (impl->IsPacketForMe == NULL || impl->IsPacketForMe(mode, data, size) == false)
-		{
-			continue;
-		}
+		const PROTO_CONTAINER *container = LIST_DATA(proto->Containers, i);
+		const PROTO_IMPL *impl = container->Impl;
 
 		if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer)
 		{
-			Debug("ProtoImplDetect(): OpenVPN detected, but it's disabled\n");
+			Debug("ProtoDetect(): OpenVPN detected, but it's disabled\n");
 			continue;
 		}
 
-		Debug("ProtoImplDetect(): %s detected\n", impl->Name());
-		return impl;
+		if (impl->IsPacketForMe != NULL && impl->IsPacketForMe(mode, data, size))
+		{
+			Debug("ProtoDetect(): %s detected\n", container->Name);
+			return container;
+		}
 	}
 
-	Debug("ProtoImplDetect(): unrecognized protocol\n");
+	Debug("ProtoDetect(): unrecognized protocol\n");
 	return NULL;
 }
 
-PROTO_SESSION *ProtoNewSession(PROTO *proto, PROTO_IMPL *impl, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
+PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
 {
 	PROTO_SESSION *session;
+	const PROTO_IMPL *impl;
 
-	if (impl == NULL || src_ip == NULL || src_port == 0 || dst_ip == NULL || dst_port == 0)
+	if (container == NULL || src_ip == NULL || src_port == 0 || dst_ip == NULL || dst_port == 0)
 	{
 		return NULL;
 	}
 
-	session = ZeroMalloc(sizeof(PROTO_SESSION));
+	impl = container->Impl;
 
+	session = ZeroMalloc(sizeof(PROTO_SESSION));
 	session->SockEvent = NewSockEvent();
 	session->InterruptManager = NewInterruptManager();
 
 	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent, NULL, NULL) == false)
 	{
-		Debug("ProtoNewSession(): failed to initialize %s\n", impl->Name());
+		Debug("ProtoNewSession(): failed to initialize %s\n", container->Name);
 
 		ReleaseSockEvent(session->SockEvent);
 		FreeInterruptManager(session->InterruptManager);
@@ -313,7 +334,7 @@ bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports)
 
 bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 {
-	const PROTO_IMPL *impl = NULL;
+	const PROTO_IMPL *impl;
 	void *impl_data = NULL;
 
 	UCHAR *buf;
@@ -327,44 +348,51 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 		return false;
 	}
 
-	if (protocol != NULL)
 	{
-		UINT i;
-		for (i = 0; i < LIST_NUM(proto->Impls); ++i)
+		const PROTO_CONTAINER *container = NULL;
+
+		if (protocol != NULL)
 		{
-			const PROTO_IMPL *tmp = LIST_DATA(proto->Impls, i);
-			if (StrCmp(tmp->Name(), protocol) == 0)
+			UINT i;
+			for (i = 0; i < LIST_NUM(proto->Containers); ++i)
 			{
-				impl = tmp;
-				break;
+				const PROTO_CONTAINER *tmp = LIST_DATA(proto->Containers, i);
+				if (StrCmp(tmp->Name, protocol) == 0)
+				{
+					impl = container->Impl;
+					break;
+				}
 			}
 		}
-	}
-	else
-	{
-		UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
-		if (Peek(sock, tmp, sizeof(tmp)) == 0)
+		else
+		{
+			UCHAR tmp[PROTO_CHECK_BUFFER_SIZE];
+
+			if (Peek(sock, tmp, sizeof(tmp)) == 0)
+			{
+				return false;
+			}
+
+			container = ProtoDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
+		}
+
+		if (container == NULL)
 		{
 			return false;
 		}
 
-		impl = ProtoImplDetect(proto, PROTO_MODE_TCP, tmp, sizeof(tmp));
-	}
+		impl = container->Impl;
 
-	if (impl == NULL)
-	{
-		return false;
-	}
+		im = NewInterruptManager();
+		se = NewSockEvent();
 
-	im = NewInterruptManager();
-	se = NewSockEvent();
-
-	if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
-	{
-		Debug("ProtoHandleConnection(): failed to initialize %s\n", impl->Name());
-		FreeInterruptManager(im);
-		ReleaseSockEvent(se);
-		return false;
+		if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
+		{
+			Debug("ProtoHandleConnection(): failed to initialize %s\n", container->Name);
+			FreeInterruptManager(im);
+			ReleaseSockEvent(se);
+			return false;
+		}
 	}
 
 	SetTimeout(sock, TIMEOUT_INFINITE);
@@ -484,13 +512,13 @@ void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 		session = SearchHash(sessions, &tmp);
 		if (session == NULL)
 		{
-			tmp.Impl = ProtoImplDetect(proto, PROTO_MODE_UDP, datagram->Data, datagram->Size);
-			if (tmp.Impl == NULL)
+			const PROTO_CONTAINER *container = ProtoDetect(proto, PROTO_MODE_UDP, datagram->Data, datagram->Size);
+			if (container == NULL)
 			{
 				continue;
 			}
 
-			session = ProtoNewSession(proto, tmp.Impl, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
+			session = ProtoNewSession(proto, container, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
 			if (session == NULL)
 			{
 				continue;
@@ -539,7 +567,7 @@ void ProtoSessionThread(THREAD *thread, void *param)
 		bool ok;
 		UINT interval;
 		void *param = session->Param;
-		PROTO_IMPL *impl = session->Impl;
+		const PROTO_IMPL *impl = session->Impl;
 		LIST *received = session->DatagramsIn;
 		LIST *to_send = session->DatagramsOut;
 
