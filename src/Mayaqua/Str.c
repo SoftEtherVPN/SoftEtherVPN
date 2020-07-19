@@ -2403,45 +2403,41 @@ TOKEN_LIST *ParseToken(char *src, char *separator)
 	StrCpy(str1, 0, src);
 	StrCpy(str2, 0, src);
 
-	Lock(token_lock);
+#if	(defined _MSC_VER)
+	tmp = strtok_s(str1, separator, &strtok_save);
+#else
+	tmp = strtok_r(str1, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
+	num = 0;
+	while (tmp != NULL)
 	{
+		num++;
 #if	(defined _MSC_VER)
-		tmp = strtok_s(str1, separator, &strtok_save);
+		tmp = strtok_s(NULL, separator, &strtok_save);
 #else
-		tmp = strtok_r(str1, separator, &strtok_save);
+		tmp = strtok_r(NULL, separator, &strtok_save);
 #endif	// (defined _MSC_VER)
-		num = 0;
-		while (tmp != NULL)
-		{
-			num++;
-#if	(defined _MSC_VER)
-			tmp = strtok_s(NULL, separator, &strtok_save);
-#else
-			tmp = strtok_r(NULL, separator, &strtok_save);
-#endif	// (defined _MSC_VER)
-		}
-		ret = Malloc(sizeof(TOKEN_LIST));
-		ret->NumTokens = num;
-		ret->Token = (char **)Malloc(sizeof(char *) * num);
-		num = 0;
-#if	(defined _MSC_VER)
-		tmp = strtok_s(str2, separator, &strtok_save);
-#else
-		tmp = strtok_r(str2, separator, &strtok_save);
-#endif	// (defined _MSC_VER)
-		while (tmp != NULL)
-		{
-			ret->Token[num] = (char *)Malloc(StrLen(tmp) + 1);
-			StrCpy(ret->Token[num], 0, tmp);
-			num++;
-#if	(defined _MSC_VER)
-			tmp = strtok_s(NULL, separator, &strtok_save);
-#else
-			tmp = strtok_r(NULL, separator, &strtok_save);
-#endif	// (defined _MSC_VER)
-		}
 	}
-	Unlock(token_lock);
+	ret = Malloc(sizeof(TOKEN_LIST));
+	ret->NumTokens = num;
+	ret->Token = (char **)Malloc(sizeof(char *) * num);
+	num = 0;
+#if	(defined _MSC_VER)
+	tmp = strtok_s(str2, separator, &strtok_save);
+#else
+	tmp = strtok_r(str2, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
+	while (tmp != NULL)
+	{
+		ret->Token[num] = (char *)Malloc(StrLen(tmp) + 1);
+		StrCpy(ret->Token[num], 0, tmp);
+		num++;
+#if	(defined _MSC_VER)
+		tmp = strtok_s(NULL, separator, &strtok_save);
+#else
+		tmp = strtok_r(NULL, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
+	}
 
 	Free(str1);
 	Free(str2);
