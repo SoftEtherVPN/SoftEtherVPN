@@ -2384,6 +2384,9 @@ TOKEN_LIST *ParseToken(char *src, char *separator)
 	char *str1, *str2;
 	UINT len;
 	UINT num;
+
+	char *strtok_save;
+
 	if (src == NULL)
 	{
 		ret = ZeroMalloc(sizeof(TOKEN_LIST));
@@ -2402,24 +2405,40 @@ TOKEN_LIST *ParseToken(char *src, char *separator)
 
 	Lock(token_lock);
 	{
-		tmp = strtok(str1, separator);
+#if	(defined _MSC_VER)
+		tmp = strtok_s(str1, separator, &strtok_save);
+#else
+		tmp = strtok_r(str1, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
 		num = 0;
 		while (tmp != NULL)
 		{
 			num++;
-			tmp = strtok(NULL, separator);
+#if	(defined _MSC_VER)
+			tmp = strtok_s(NULL, separator, &strtok_save);
+#else
+			tmp = strtok_r(NULL, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
 		}
 		ret = Malloc(sizeof(TOKEN_LIST));
 		ret->NumTokens = num;
 		ret->Token = (char **)Malloc(sizeof(char *) * num);
 		num = 0;
-		tmp = strtok(str2, separator);
+#if	(defined _MSC_VER)
+		tmp = strtok_s(str2, separator, &strtok_save);
+#else
+		tmp = strtok_r(str2, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
 		while (tmp != NULL)
 		{
 			ret->Token[num] = (char *)Malloc(StrLen(tmp) + 1);
 			StrCpy(ret->Token[num], 0, tmp);
 			num++;
-			tmp = strtok(NULL, separator);
+#if	(defined _MSC_VER)
+			tmp = strtok_s(NULL, separator, &strtok_save);
+#else
+			tmp = strtok_r(NULL, separator, &strtok_save);
+#endif	// (defined _MSC_VER)
 		}
 	}
 	Unlock(token_lock);

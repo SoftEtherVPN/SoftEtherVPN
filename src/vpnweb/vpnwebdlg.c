@@ -465,6 +465,7 @@ UINT VwGetBuildFromVpnInstallInf(char *buf)
 	char tmp[MAX_SIZE];
 	UINT wp;
 	char seps[] = " \t";
+	char *strtok_save;
 
 	len = lstrlen(buf);
 
@@ -480,10 +481,18 @@ UINT VwGetBuildFromVpnInstallInf(char *buf)
 
 			if (lstrlen(tmp) >= 1)
 			{
-				char *token = strtok(tmp, seps);
+#if	(defined _MSC_VER)
+				char *token = strtok_s(tmp, seps, &strtok_save);
+#else
+				char *token = strtok_r(tmp, seps, &strtok_save);
+#endif	// (defined _MSC_VER)
 				if (token != NULL && lstrcmpi(token, VPNINSTALL_INF_BUILDTAG) == 0)
 				{
-					token = strtok(NULL, seps);
+#if	(defined _MSC_VER)
+					token = strtok_s(NULL, seps, &strtok_save);
+#else
+					token = strtok_r(NULL, seps, &strtok_save);
+#endif	// (defined _MSC_VER)
 					if (token != NULL)
 					{
 						return (UINT)strtod(token, NULL);
