@@ -202,10 +202,12 @@ struct OPENVPN_SERVER
 	UINT NextSessionId;									// Next session ID
 	DH_CTX *Dh;											// DH key
 	UINT SessionEstablishedCount;						// Number of session establishment
+	// Options
+	char *DefaultClientOption;							// Default option string to push to client
+	bool Obfuscation;									// Obfuscation enabled/disabled
+	char *ObfuscationMask;								// String (mask) for XOR obfuscation
+	bool PushDummyIPv4AddressOnL2Mode;					// Push a dummy IPv4 address in L2 mode
 };
-
-// OpenVPN Default Client Option String
-#define	OVPN_DEF_CLIENT_OPTION_STRING	"dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client"
 
 //// Function prototype
 const PROTO_IMPL *OvsGetProtoImpl();
@@ -219,7 +221,7 @@ bool OvsProcessDatagrams(void *param, LIST *in, LIST *out);
 bool OvsIsOk(void *param);
 UINT OvsEstablishedSessions(void *param);
 
-OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
+OPENVPN_SERVER *NewOpenVpnServer(const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
 void FreeOpenVpnServer(OPENVPN_SERVER *s);
 void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol);
 void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol);

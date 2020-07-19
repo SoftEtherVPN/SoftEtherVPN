@@ -308,9 +308,9 @@ const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, co
 		const PROTO_CONTAINER *container = LIST_DATA(proto->Containers, i);
 		const PROTO_IMPL *impl = container->Impl;
 
-		if (StrCmp(impl->Name(), "OpenVPN") == 0 && proto->Cedar->Server->DisableOpenVPNServer)
+		if (ProtoEnabled(proto, container->Name) == false)
 		{
-			Debug("ProtoDetect(): OpenVPN detected, but it's disabled\n");
+			Debug("ProtoDetect(): skipping %s because it's disabled\n", container->Name);
 			continue;
 		}
 

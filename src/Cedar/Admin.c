@@ -2113,7 +2113,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 	BUF *readme_buf;
 	BUF *readme_pdf_buf;
 	BUF *sample_buf;
-	OPENVPN_SSTP_CONFIG config;
 	LIST *port_list;
 	char my_hostname[MAX_SIZE];
 
@@ -2124,9 +2123,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		return ERR_NOT_SUPPORTED;
 	}
 
-	SiGetOpenVPNAndSSTPConfig(s, &config);
-
-	if (config.EnableOpenVPN == false)
+	if (ProtoEnabled(s->Proto, "OpenVPN") == false)
 	{
 		return ERR_OPENVPN_IS_NOT_ENABLED;
 	}

@@ -58,7 +58,7 @@ bool OvsInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER 
 
 	Debug("OvsInit(): cipher: %s, hostname: %s\n", cipher, hostname);
 
-	*param = NewOpenVpnServer(cedar, im, se);
+	*param = NewOpenVpnServer(options, cedar, im, se);
 
 	return true;
 }
@@ -577,7 +577,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 	// Detect obfuscation mode and save it for the next packets in the same session
 	if (se->ObfuscationMode == INFINITE)
 	{
-		se->ObfuscationMode = OvsDetectObfuscation(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask);
+		se->ObfuscationMode = OvsDetectObfuscation(p->Data, p->Size, s->ObfuscationMask);
 		if (se->ObfuscationMode != INFINITE)
 		{
 			Debug("OvsProceccRecvPacket(): detected packet obfuscation/scrambling mode: %u\n", se->ObfuscationMode);
@@ -595,7 +595,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 	case OPENVPN_SCRAMBLE_MODE_DISABLED:
 		break;
 	case OPENVPN_SCRAMBLE_MODE_XORMASK:
-		OvsDataXorMask(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		OvsDataXorMask(p->Data, p->Size, s->ObfuscationMask, StrLen(s->ObfuscationMask));
 		break;
 	case OPENVPN_SCRAMBLE_MODE_XORPTRPOS:
 		OvsDataXorPtrPos(p->Data, p->Size);
@@ -604,7 +604,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 		OvsDataReverse(p->Data, p->Size);
 		break;
 	case OPENVPN_SCRAMBLE_MODE_OBFUSCATE:
-		OvsDataXorMask(p->Data, p->Size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		OvsDataXorMask(p->Data, p->Size, s->ObfuscationMask, StrLen(s->ObfuscationMask));
 		OvsDataXorPtrPos(p->Data, p->Size);
 		OvsDataReverse(p->Data, p->Size);
 		OvsDataXorPtrPos(p->Data, p->Size);
@@ -1195,7 +1195,7 @@ void OvsSetupSessionParameters(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN_C
 	StrCpy(opt_str, sizeof(opt_str), data->OptionString);
 	if (s->Cedar != NULL && (IsEmptyStr(opt_str) || StartWith(opt_str, "V0 UNDEF") || InStr(opt_str, ",") == false))
 	{
-		StrCpy(opt_str, sizeof(opt_str), s->Cedar->OpenVPNDefaultClientOption);
+		StrCpy(opt_str, sizeof(opt_str), s->DefaultClientOption);
 	}
 
 	o = NewEntryList(opt_str, ",", " \t");
@@ -2121,7 +2121,7 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 	Copy(&se->ServerIp, server_ip, sizeof(IP));
 	se->ServerPort = server_port;
 
-	se->ObfuscationMode = s->Cedar->OpenVPNObfuscation ? INFINITE : OPENVPN_SCRAMBLE_MODE_DISABLED;
+	se->ObfuscationMode = s->Obfuscation ? INFINITE : OPENVPN_SCRAMBLE_MODE_DISABLED;
 
 	se->LastCommTick = s->Now;
 
@@ -2486,8 +2486,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 									// on Linux, the TAP device must be up after the OpenVPN client is connected.
 									// However there is no direct push instruction to do so to OpenVPN client.
 									// Therefore we push the dummy IPv4 address (RFC7600) to the OpenVPN client.
-
-									if (s->Cedar->OpenVPNPushDummyIPv4AddressOnL2Mode)
+									if (s->PushDummyIPv4AddressOnL2Mode)
 									{
 										StrCat(option_str, sizeof(option_str), ",ifconfig 192.0.0.8 255.255.255.240");
 									}
@@ -2836,7 +2835,7 @@ void OvsSendPacketRawNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, void *data, UIN
 	case OPENVPN_SCRAMBLE_MODE_DISABLED:
 		break;
 	case OPENVPN_SCRAMBLE_MODE_XORMASK:
-		OvsDataXorMask(data, size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		OvsDataXorMask(data, size, s->ObfuscationMask, StrLen(s->ObfuscationMask));
 		break;
 	case OPENVPN_SCRAMBLE_MODE_XORPTRPOS:
 		OvsDataXorPtrPos(data, size);
@@ -2848,7 +2847,7 @@ void OvsSendPacketRawNow(OPENVPN_SERVER *s, OPENVPN_SESSION *se, void *data, UIN
 		OvsDataXorPtrPos(data, size);
 		OvsDataReverse(data, size);
 		OvsDataXorPtrPos(data, size);
-		OvsDataXorMask(data, size, s->Cedar->OpenVPNObfuscationMask, StrLen(s->Cedar->OpenVPNObfuscationMask));
+		OvsDataXorMask(data, size, s->ObfuscationMask, StrLen(s->ObfuscationMask));
 	}
 
 	u = NewUdpPacket(&se->ServerIp, se->ServerPort, &se->ClientIp, se->ClientPort,
@@ -2937,16 +2936,38 @@ int OvsCompareSessionList(void *p1, void *p2)
 }
 
 // Create a new OpenVPN server
-OPENVPN_SERVER *NewOpenVpnServer(CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event)
+OPENVPN_SERVER *NewOpenVpnServer(const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event)
 {
+	UINT i;
 	OPENVPN_SERVER *s;
-	// Validate arguments
-	if (cedar == NULL)
+
+	if (options == NULL || cedar == NULL || interrupt == NULL || sock_event == NULL)
 	{
 		return NULL;
 	}
 
 	s = ZeroMalloc(sizeof(OPENVPN_SERVER));
+
+	for (i = 0; i < LIST_NUM(options); ++i)
+	{
+		const PROTO_OPTION *option = LIST_DATA(options, i);
+		if (StrCmp(option->Name, "DefaultClientOption") == 0)
+		{
+			s->DefaultClientOption = CopyStr(option->String);
+		}
+		else if (StrCmp(option->Name, "Obfuscation") == 0)
+		{
+			s->Obfuscation = option->Bool;
+		}
+		else if (StrCmp(option->Name, "ObfuscationMask") == 0)
+		{
+			s->ObfuscationMask = CopyStr(option->String);
+		}
+		else if (StrCmp(option->Name, "PushDummyIPv4AddressOnL2Mode") == 0)
+		{
+			s->PushDummyIPv4AddressOnL2Mode = option->Bool;
+		}
+	}
 
 	s->Cedar = cedar;
 	s->Interrupt = interrupt;
@@ -3008,6 +3029,9 @@ void FreeOpenVpnServer(OPENVPN_SERVER *s)
 	ReleaseList(s->SendPacketList);
 
 	DhFree(s->Dh);
+
+	Free(s->DefaultClientOption);
+	Free(s->ObfuscationMask);
 
 	Free(s);
 }

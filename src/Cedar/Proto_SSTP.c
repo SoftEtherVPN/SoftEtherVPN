@@ -7,15 +7,6 @@
 
 #include "CedarPch.h"
 
-static bool g_no_sstp = false;
-
-// Get the SSTP disabling flag
-bool GetNoSstp()
-{
-
-	return g_no_sstp;
-}
-
 const PROTO_IMPL *SstpGetProtoImpl()
 {
 	static const PROTO_IMPL impl =

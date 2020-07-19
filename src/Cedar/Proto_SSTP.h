@@ -154,6 +154,5 @@ SSTP_PACKET *SstpNewDataPacket(UCHAR *data, UINT size);
 SSTP_PACKET *SstpNewControlPacket(USHORT message_type);
 SSTP_PACKET *SstpNewControlPacketWithAnAttribute(USHORT message_type, SSTP_ATTRIBUTE *a);
 void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p);
-bool GetNoSstp();
 
 #endif	// PROTO_SSTP_H
