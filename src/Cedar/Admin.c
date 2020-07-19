@@ -1989,42 +1989,96 @@ UINT StSetSpecialListener(ADMIN *a, RPC_SPECIAL_LISTENER *t)
 // Set configurations for OpenVPN and SSTP
 UINT StSetOpenVpnSstpConfig(ADMIN *a, OPENVPN_SSTP_CONFIG *t)
 {
-	SERVER *s = a->Server;
-	CEDAR *c = s->Cedar;
+	PROTO *proto = a->Server->Proto;
+	PROTO_CONTAINER *container, tmp_c;
+	PROTO_OPTION *option, tmp_o;
 	UINT ret = ERR_NO_ERROR;
+	bool changed = false;
 
 	SERVER_ADMIN_ONLY;
-	NO_SUPPORT_FOR_BRIDGE;
-	if (s->ServerType != SERVER_TYPE_STANDALONE)
+
+	if (proto == NULL)
 	{
 		return ERR_NOT_SUPPORTED;
 	}
 
-	SiSetOpenVPNAndSSTPConfig(s, t);
+	tmp_o.Name = PROTO_OPTION_TOGGLE_NAME;
+	tmp_c.Name = "OpenVPN";
 
-	ALog(a, NULL, "LA_SET_OVPN_SSTP_CONFIG");
+	container = Search(proto->Containers, &tmp_c);
+	if (container != NULL)
+	{
+		option = Search(container->Options, &tmp_o);
+		if (option != NULL)
+		{
+			if (option->Type == PROTO_OPTION_BOOL)
+			{
+				option->Bool = t->EnableOpenVPN;
+				changed = true;
+			}
+			else
+			{
+				ret = ERR_INVALID_PARAMETER;
+			}
+		}
+		else
+		{
+			ret = ERR_OBJECT_NOT_FOUND;
+		}
+	}
+	else
+	{
+		ret = ERR_OBJECT_NOT_FOUND;
+	}
 
-	IncrementServerConfigRevision(s);
+	tmp_c.Name = "SSTP";
 
-	return ERR_NO_ERROR;
+	container = Search(proto->Containers, &tmp_c);
+	if (container != NULL)
+	{
+		option = Search(container->Options, &tmp_o);
+		if (option != NULL)
+		{
+			if (option->Type == PROTO_OPTION_BOOL)
+			{
+				option->Bool = t->EnableSSTP;
+				changed = true;
+			}
+			else
+			{
+				ret = ERR_INVALID_PARAMETER;
+			}
+		}
+		else
+		{
+			ret = ERR_OBJECT_NOT_FOUND;
+		}
+	}
+	else
+	{
+		ret = ERR_OBJECT_NOT_FOUND;
+	}
+
+	if (changed)
+	{
+		ALog(a, NULL, "LA_SET_OVPN_SSTP_CONFIG");
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	return ret;
 }
 
 // Get configurations for OpenVPN and SSTP
 UINT StGetOpenVpnSstpConfig(ADMIN *a, OPENVPN_SSTP_CONFIG *t)
 {
-	SERVER *s = a->Server;
-	CEDAR *c = s->Cedar;
-	UINT ret = ERR_NO_ERROR;
-
-	SERVER_ADMIN_ONLY;
-	NO_SUPPORT_FOR_BRIDGE;
-	if (s->ServerType != SERVER_TYPE_STANDALONE)
+	PROTO *proto = a->Server->Proto;
+	if (proto == NULL)
 	{
 		return ERR_NOT_SUPPORTED;
 	}
 
-	Zero(t, sizeof(OPENVPN_SSTP_CONFIG));
-	SiGetOpenVPNAndSSTPConfig(s, t);
+	t->EnableOpenVPN = ProtoEnabled(proto, "OpenVPN");
+	t->EnableSSTP = ProtoEnabled(proto, "SSTP");
 
 	return ERR_NO_ERROR;
 }
