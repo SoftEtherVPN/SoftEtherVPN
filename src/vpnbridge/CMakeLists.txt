@@ -19,8 +19,8 @@ if(WIN32)
   get_filename_component(COMPONENT_FILE_NAME vpnbridge NAME)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
-  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpnbridge.rc")
-  target_sources(vpnbridge PRIVATE vpnbridge.rc "${CMAKE_BINARY_DIR}/VerScript/vpnbridge.rc")
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+  target_sources(vpnbridge PRIVATE "vpnbridge.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 endif()
 
 target_link_libraries(vpnbridge cedar mayaqua)

@@ -15,7 +15,7 @@
     - cd "$REPOSITORY" && git submodule update --init --recursive
   script:
     - ./configure
-    - make package -C tmp
+    - make package -C build
     - dpkg -i build/softether-vpn*.deb
     - .ci/memory-leak-test.sh
 
@@ -36,7 +36,7 @@ build_illumos:
   script:
     - git submodule init && git submodule update
     - CMAKE_FLAGS="-DCMAKE_PREFIX_PATH=/opt/local -DCMAKE_CXX_FLAGS=-m64 -DCMAKE_C_FLAGS=-m64" ./configure
-    - gmake -C tmp
+    - gmake -C build
 
 #
 # flawfinder

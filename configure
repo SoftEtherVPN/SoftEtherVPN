@@ -17,8 +17,8 @@ echo
 echo 'Welcome to the corner-cutting configure script !'
 echo
 
-if [ ! -d "tmp" ]; then
-  mkdir tmp
+if [ ! -d "build" ]; then
+  mkdir build
 fi
 
 if [ ! -z ${CMAKE_FLAGS+x} ]; then
@@ -50,9 +50,9 @@ fi
 
 echo ""
 
-(cd tmp && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_FLAGS} .. || exit 1)
+(cd build && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_FLAGS} .. || exit 1)
 
 
 echo ""
 
-echo "The Makefile is generated. Run 'make -C tmp' to build SoftEther VPN."
+echo "The Makefile is generated. Run 'make -C build' to build SoftEther VPN."
