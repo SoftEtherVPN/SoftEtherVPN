@@ -6327,20 +6327,6 @@ CMD_EtherIpClientList_Help		这个命令会获得和显示通过 EtherIP / L2TPv
 CMD_EtherIpClientList_Args		EtherIpClientList
 
 
-# OpenVpnEnable 命令
-CMD_OpenVpnEnable					启用/禁用 OpenVPN 克隆服务器功能
-CMD_OpenVpnEnable_Help				本 VPN Server 有 OpenVPN Technologies, Inc. 公司生产的 OpenVPN 软件产品的克隆功能。任何 OpenVPN Client 都可以连接到本 VPN Server。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
-CMD_OpenVpnEnable_Args				OpenVpnEnable [yes|no]
-CMD_OpenVpnEnable_[yes|no]			指定 "yes"，启用 OpenVPN 克隆服务器功能。指定 "no" 禁用该功能。
-CMD_OpenVpnEnable_Prompt_[yes|no]	启用 OpenVPN 克隆服务器功能 (yes / no): 
-
-
-# OpenVpnGet 命令
-CMD_OpenVpnGet						获取 OpenVPN 克隆服务器功能的当前设置
-CMD_OpenVpnGet_Help					获取并显示 OpenVPN 克隆服务器功能的当前设置。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
-CMD_OpenVpnGet_Args					OpenVpnGet
-CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 克隆服务器已启用
-
 # OpenVpnMakeConfig 命令
 CMD_OpenVpnMakeConfig					生成 OpenVPN Client 样本设置文件
 CMD_OpenVpnMakeConfig_Help				原来，OpenVPN Client 会要求用户手写很难的配置文件。本工具可以帮助您创建一个有用的配置样本。你所需要生成的 OpenVPN Client 配置文件就是运行此命令。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
@@ -6351,42 +6337,9 @@ CMD_OpenVpnMakeConfig_OK				样本设置文件被保存为 "%s"。您可以解�
 CMD_OpenVpnMakeConfig_ERROR				本样本设置文件不能保存为 "%s"。该文件名无效。\n
 
 
-# OpenVpnObfuscationEnable
-CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
-CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
-CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
-CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
-CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
-
-
-# OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
-CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
-
-
-# SstpEnable 命令
-CMD_SstpEnable						启用/禁用 Microsoft SSTP VPN 克隆服务器功能
-CMD_SstpEnable_Help					本 VPN Server 拥有植入在微软 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT / 10 中的标准 MS-SSTP 用户端可以连接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 证书 CN 值必须要和指定给客户端的主机名吻合。并且，该证书必须在 SSTP VPN Client 的信任列表中。详情请参见微软相关文件。\n您可以用用 ServerCertRegenerate 命令来取代当前 VPN Server 的证书，形成一个新的，有 CN 值字段的自我认证证书。这样的话，您需要在 SSTP VPN Client 注册这样一个新的自我认证证书作为一个可信任根证书。如果您的确想做这件复杂的事，请考虑购买一个商业权威机构的 SSL 证书，如 VeriSign 或者 GlobalSign。\n\n指定用户名连接到虚拟 HUB 的的方式，使用本克隆服务器功能来为默认虚拟 HUB 的选择规则都与 IPsec 服务器功能相同。详情，请参见 IPsecEnable 命令的帮助。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
-CMD_SstpEnable_Args					SstpEnable [yes|no]
-CMD_SstpEnable_[yes|no]				指定 "yes"，启用Microsoft SSTP VPN 克隆服务器功能。指定 "no" 禁用该功能。
-CMD_SstpEnable_Prompt_[yes|no]		启用 SSTP VPN 克隆服务器功能(yes/no): 
-CMD_SstpEnable_PRINT_Enabled		SSTP VPN 克隆服务器已禁用
-
-
-# SstpGet 命令
-CMD_SstpGet				获得 Microsoft SSTP VPN 克隆服务器功能的当前设置
-CMD_SstpGet_Help		获得并显示 Microsoft SSTP VPN 克隆服务器功能的当前设置。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
-CMD_SstpGet_Args		SstpGet
-
-
 # ServerCertRegenerate 命令
 CMD_ServerCertRegenerate	生成一个新的带有指定 CN (Common Name) 的自签名证书，并且在 VPN Server 上注册。
-CMD_ServerCertRegenerate_Help	您可以使用此命令，将当前 VPN Server 上的证书替换成一个新的、有 CN (Common Name) 值字段的、自签字证书。n\n此命令在您想使用 Microsoft SSTP VPN 克隆服务器功能时很方便。因为在 VPN Server 上 SSL 证书的 CN 值必须要与 SSTP VPN Client 指定的主机名吻合。\n详情参见 SstpEnable 命令的帮助。\n\n本命令会删除 VPN Server 上现有的 SSL 证书。这要求事先使用 ServerKeyGet 命令备份当前的 SSL 证书和密钥。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
+CMD_ServerCertRegenerate_Help	您可以使用此命令，将当前 VPN Server 上的证书替换成一个新的、有 CN (Common Name) 值字段的、自签字证书。n\n此命令在您想使用 Microsoft SSTP VPN 克隆服务器功能时很方便。因为在 VPN Server 上 SSL 证书的 CN 值必须要与 SSTP VPN Client 指定的主机名吻合。\n\n本命令会删除 VPN Server 上现有的 SSL 证书。这要求事先使用 ServerKeyGet 命令备份当前的 SSL 证书和密钥。\n\n要执行此命令，您必须具有 VPN Server 管理员权限。\n该命令在 VPN Bridge 上不能运行。\n以集群成员运行的 VPN Server 的虚拟 HUB 不能执行此命令。
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	指定一个新证书要使用的 Common Name(CN)
 CMD_ServerCertRegenerate_Prompt_CN	Common Name(CN)值：

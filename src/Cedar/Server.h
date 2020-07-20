@@ -147,8 +147,6 @@ struct SYSLOG_SETTING
 struct OPENVPN_SSTP_CONFIG
 {
 	bool EnableOpenVPN;						// OpenVPN is enabled
-	bool OpenVPNObfuscation;				// OpenVPN: Obfuscation mode
-	char OpenVPNObfuscationMask[MAX_SIZE];	// OpenVPN: String (mask) for XOR obfuscation
 	bool EnableSSTP;						// SSTP is enabled
 };
 
@@ -185,8 +183,6 @@ struct SERVER
 	bool NoLinuxArpFilter;				// Not to set arp_filter in Linux
 	bool NoHighPriorityProcess;			// Not to raise the priority of the process
 	bool NoDebugDump;					// Not to output the debug dump
-	bool DisableSSTPServer;				// Disable the SSTP server function
-	bool DisableOpenVPNServer;			// Disable the OpenVPN server function
 	bool DisableNatTraversal;			// Disable the NAT-traversal feature
 	bool EnableVpnOverIcmp;				// VPN over ICMP is enabled
 	bool EnableVpnOverDns;				// VPN over DNS is enabled
@@ -621,9 +617,6 @@ void SiDelHubCreateHistory(SERVER *s, char *name);
 bool SiIsHubRegistedOnCreateHistory(SERVER *s, char *name);
 
 bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore);
-
-void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c);
-void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c);
 
 bool SiCanOpenVpnOverDnsPort();
 bool SiCanOpenVpnOverIcmpPort();

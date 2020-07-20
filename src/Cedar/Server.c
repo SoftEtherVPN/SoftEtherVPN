@@ -22,64 +22,6 @@ static volatile UINT global_server_flags[NUM_GLOBAL_SERVER_FLAGS] = {0};
 
 UINT vpn_global_parameters[NUM_GLOBAL_PARAMS] = {0};
 
-// Set the OpenVPN and SSTP setting
-void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
-{
-	// Validate arguments
-	if (s == NULL || c == NULL)
-	{
-		return;
-	}
-
-	Lock(s->OpenVpnSstpConfigLock);
-	{
-		// Save the settings
-		if (s->Cedar->Bridge || s->ServerType != SERVER_TYPE_STANDALONE)
-		{
-			s->DisableSSTPServer = true;
-			s->DisableOpenVPNServer = true;
-		}
-		else
-		{
-			s->DisableSSTPServer = !c->EnableSSTP;
-			s->DisableOpenVPNServer = !c->EnableOpenVPN;
-		}
-
-		s->Cedar->OpenVPNObfuscation = c->OpenVPNObfuscation;
-		StrCpy(s->Cedar->OpenVPNObfuscationMask, sizeof(s->Cedar->OpenVPNObfuscationMask), c->OpenVPNObfuscationMask);
-	}
-	Unlock(s->OpenVpnSstpConfigLock);
-}
-
-// Get the OpenVPN and SSTP setting
-void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c)
-{
-	// Validate arguments
-	if (s == NULL || c == NULL)
-	{
-		return;
-	}
-
-	Zero(c, sizeof(OPENVPN_SSTP_CONFIG));
-
-	Lock(s->OpenVpnSstpConfigLock);
-	{
-		if (s->DisableOpenVPNServer == false)
-		{
-			c->EnableOpenVPN = true;
-		}
-
-		if (s->DisableSSTPServer == false)
-		{
-			c->EnableSSTP = true;
-		}
-
-		c->OpenVPNObfuscation = s->Cedar->OpenVPNObfuscation;
-		StrCpy(c->OpenVPNObfuscationMask, sizeof(c->OpenVPNObfuscationMask), s->Cedar->OpenVPNObfuscationMask);
-	}
-	Unlock(s->OpenVpnSstpConfigLock);
-}
-
 // Get whether the number of user objects that are registered in the VPN Server is too many
 bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore)
 {
@@ -2477,27 +2419,14 @@ void SiLoadInitialConfiguration(SERVER *s)
 
 	if (s->Cedar->Bridge)
 	{
-		// SSTP, OpenVPN, and NAT traversal function can not be used in the bridge environment
+		// NAT traversal can not be used in the bridge environment
 		s->DisableNatTraversal = true;
-		s->DisableSSTPServer = true;
-		s->DisableOpenVPNServer = true;
 	}
 	else
 	{
-		OPENVPN_SSTP_CONFIG c;
-		Zero(&c, sizeof(c));
-
-		// Enable SSTP and OpenVPN by default
-		c.EnableSSTP = true;
-		c.EnableOpenVPN = true;
-
-		c.OpenVPNObfuscation = false;
-
 		// Disable VPN-over-ICMP and VPN-over-DNS by default
 		s->EnableVpnOverIcmp = false;
 		s->EnableVpnOverDns = false;
-
-		SiSetOpenVPNAndSSTPConfig(s, &c);
 
 		{
 			LIST *ports = s->PortsUDP;
@@ -5674,7 +5603,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	c = s->Cedar;
 	Lock(c->lock);
 	{
-		OPENVPN_SSTP_CONFIG config;
 		FOLDER *ff;
 		{
 			UINT i;
@@ -5798,33 +5726,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 #ifdef	OS_WIN32
 			MsSetEnableMinidump(false);
 #endif	// OS_WIN32
-		}
-
-		// Disable the SSTP server function
-		s->DisableSSTPServer = CfgGetBool(f, "DisableSSTPServer");
-
-		// Disable the OpenVPN server function
-		s->DisableOpenVPNServer = CfgGetBool(f, "DisableOpenVPNServer");
-
-		// OpenVPN Default Option String
-		if (CfgGetStr(f, "OpenVPNDefaultClientOption", tmp, sizeof(tmp)))
-		{
-			if (IsEmptyStr(tmp) == false)
-			{
-				StrCpy(c->OpenVPNDefaultClientOption,
-					sizeof(c->OpenVPNDefaultClientOption), tmp);
-			}
-		}
-
-		// OpenVPN Push a dummy IPv4 address on L2 mode
-		if (CfgIsItem(f, "OpenVPNPushDummyIPv4AddressOnL2Mode") == false)
-		{
-			// Default enable
-			c->OpenVPNPushDummyIPv4AddressOnL2Mode = true;
-		}
-		else
-		{
-			c->OpenVPNPushDummyIPv4AddressOnL2Mode = CfgGetBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode");
 		}
 
 		// Disable the NAT-traversal feature
@@ -5951,18 +5852,14 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		if (s->ServerType != SERVER_TYPE_STANDALONE)
 		{
-			// SSTP, OpenVPN, and NAT traversal can not be used in a cluster environment
+			// NAT traversal can not be used in a cluster environment
 			s->DisableNatTraversal = true;
-			s->DisableSSTPServer = true;
-			s->DisableOpenVPNServer = true;
 		}
 
 		if (s->Cedar->Bridge)
 		{
-			// SSTP, OpenVPN, and NAT traversal function can not be used in the bridge environment
+			// NAT traversal function can not be used in the bridge environment
 			s->DisableNatTraversal = true;
-			s->DisableSSTPServer = true;
-			s->DisableOpenVPNServer = true;
 		}
 
 		if (CfgGetStr(f, "PortsUDP", tmp, sizeof(tmp)))
@@ -5990,23 +5887,6 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			}
 			FreeToken(tokens);
 		}
-
-		// Apply the configuration of SSTP and OpenVPN
-		Zero(&config, sizeof(config));
-		config.EnableOpenVPN = !s->DisableOpenVPNServer;
-		config.EnableSSTP = !s->DisableSSTPServer;
-
-		config.OpenVPNObfuscation = CfgGetBool(f, "OpenVPNObfuscation");
-
-		if (CfgGetStr(f, "OpenVPNObfuscationMask", tmp, sizeof(tmp)))
-		{
-			if (IsEmptyStr(tmp) == false)
-			{
-				StrCpy(config.OpenVPNObfuscationMask, sizeof(config.OpenVPNObfuscationMask), tmp);
-			}
-		}
-
-		SiSetOpenVPNAndSSTPConfig(s, &config);
 
 		if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
 		{
@@ -6266,35 +6146,18 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 			{
 				// Disable the NAT-traversal feature
 				CfgAddBool(f, "DisableNatTraversal", s->DisableNatTraversal);
-
-				// Disable the SSTP server function
-				CfgAddBool(f, "DisableSSTPServer", s->DisableSSTPServer);
-
-				// Disable the OpenVPN server function
-				CfgAddBool(f, "DisableOpenVPNServer", s->DisableOpenVPNServer);
 			}
 		}
 
 		CfgAddBool(f, "DisableIPsecAggressiveMode", s->DisableIPsecAggressiveMode);
 
-		CfgAddStr(f, "OpenVPNDefaultClientOption", c->OpenVPNDefaultClientOption);
-
-		CfgAddBool(f, "OpenVPNPushDummyIPv4AddressOnL2Mode", c->OpenVPNPushDummyIPv4AddressOnL2Mode);
-
 		if (c->Bridge == false)
 		{
-			OPENVPN_SSTP_CONFIG config;
-
 			// VPN over ICMP
 			CfgAddBool(f, "EnableVpnOverIcmp", s->EnableVpnOverIcmp);
 
 			// VPN over DNS
 			CfgAddBool(f, "EnableVpnOverDns", s->EnableVpnOverDns);
-
-			SiGetOpenVPNAndSSTPConfig(s, &config);
-
-			CfgAddBool(f, "OpenVPNObfuscation", config.OpenVPNObfuscation);
-			CfgAddStr(f, "OpenVPNObfuscationMask", config.OpenVPNObfuscationMask);
 		}
 
 		// WebTimePage

@@ -981,10 +981,6 @@ typedef struct CEDAR
 	UINT FifoBudget;				// Fifo budget
 	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	UINT DhParamBits;  // Bits of Diffie-Hellman parameters
-	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN: Default Client Option String
-	bool OpenVPNObfuscation;					// OpenVPN: Obfuscation mode
-	char OpenVPNObfuscationMask[MAX_SIZE];		// OpenVPN: String (mask) for XOR obfuscation
-	bool OpenVPNPushDummyIPv4AddressOnL2Mode;	// OpenVPN: Push a dummy IPv4 address on L2 mode
 } CEDAR;
 
 // Type of CEDAR
