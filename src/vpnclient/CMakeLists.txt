@@ -19,8 +19,8 @@ if(WIN32)
   get_filename_component(COMPONENT_FILE_NAME vpnclient NAME)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
-  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpnclient.rc")
-  target_sources(vpnclient PRIVATE vpnclient.rc "${CMAKE_BINARY_DIR}/VerScript/vpnclient.rc")
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+  target_sources(vpnclient PRIVATE "vpnclient.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 endif()
 
 target_link_libraries(vpnclient cedar mayaqua)

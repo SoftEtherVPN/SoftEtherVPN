@@ -19,8 +19,8 @@ if(WIN32)
   get_filename_component(COMPONENT_FILE_NAME vpncmd NAME)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
-  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
-  target_sources(vpncmd PRIVATE vpncmd.rc "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+  target_sources(vpncmd PRIVATE "vpncmd.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 endif()
 
 target_link_libraries(vpncmd cedar mayaqua)
