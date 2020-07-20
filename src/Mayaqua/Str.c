@@ -2379,54 +2379,8 @@ void FreeToken(TOKEN_LIST *tokens)
 // Parse the token
 TOKEN_LIST *ParseToken(char *src, char *separator)
 {
-	TOKEN_LIST *ret;
-	char *tmp;
-	char *str1, *str2;
-	UINT len;
-	UINT num;
-	if (src == NULL)
-	{
-		ret = ZeroMalloc(sizeof(TOKEN_LIST));
-		ret->Token = ZeroMalloc(0);
-		return ret;
-	}
-	if (separator == NULL)
-	{
-		separator = " ,\t\r\n";
-	}
-	len = StrLen(src);
-	str1 = Malloc(len + 1);
-	str2 = Malloc(len + 1);
-	StrCpy(str1, 0, src);
-	StrCpy(str2, 0, src);
-
-	Lock(token_lock);
-	{
-		tmp = strtok(str1, separator);
-		num = 0;
-		while (tmp != NULL)
-		{
-			num++;
-			tmp = strtok(NULL, separator);
-		}
-		ret = Malloc(sizeof(TOKEN_LIST));
-		ret->NumTokens = num;
-		ret->Token = (char **)Malloc(sizeof(char *) * num);
-		num = 0;
-		tmp = strtok(str2, separator);
-		while (tmp != NULL)
-		{
-			ret->Token[num] = (char *)Malloc(StrLen(tmp) + 1);
-			StrCpy(ret->Token[num], 0, tmp);
-			num++;
-			tmp = strtok(NULL, separator);
-		}
-	}
-	Unlock(token_lock);
-
-	Free(str1);
-	Free(str2);
-	return ret;
+	// 2020/7/20 remove strtok by dnobori
+	return ParseTokenWithoutNullStr(src, separator);
 }
 
 // Get a line from standard input
@@ -5132,7 +5086,6 @@ void SystemTime64ToJsonStr(char *dst, UINT size, UINT64 t)
 
 	SystemTimeToJsonStr(dst, size, &st);
 }
-
 
 
 
