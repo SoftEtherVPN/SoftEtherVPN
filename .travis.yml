@@ -55,7 +55,7 @@ matrix:
         - true
       script:
         - ./configure
-        - make -C tmp
+        - make -C build
         - otool -L build/vpnserver
         - .ci/memory-leak-test.sh
 
@@ -76,7 +76,7 @@ script:
   - .ci/coverity.sh
   - .ci/sonarcloud.sh
   - ./configure
-  - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
+  - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C build
   - ldd build/vpnserver
-  - if [ "${BUILD_DEB}" = "1" ]; then make package -C tmp; fi
+  - if [ "${BUILD_DEB}" = "1" ]; then make package -C build; fi
   - .ci/memory-leak-test.sh

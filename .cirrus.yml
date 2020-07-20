@@ -18,7 +18,7 @@ FreeBSD_task:
   configure_script:
     - ./configure
   build_script:
-    - make -j $(sysctl -n hw.ncpu || echo 4) -C tmp
+    - make -j $(sysctl -n hw.ncpu || echo 4) -C build
   test_script:
     - ldd build/vpnserver
     - .ci/memory-leak-test.sh

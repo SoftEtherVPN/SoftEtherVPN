@@ -11,7 +11,7 @@ jobs:
   - script: |
       sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
       ./configure
-      make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
+      make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
       .ci/appveyor-deb-install-test.sh
       sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
       sudo .ci/start-se-openvpn.sh
