@@ -21,6 +21,7 @@ const PROTO_IMPL *SstpGetProtoImpl()
 	static const PROTO_IMPL impl =
 	{
 		SstpName,
+		SstpOptions,
 		SstpInit,
 		SstpFree,
 		NULL,
@@ -36,9 +37,19 @@ const char *SstpName()
 	return "SSTP";
 }
 
-bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+const PROTO_OPTION *SstpOptions()
 {
-	if (param == NULL || cedar == NULL || im == NULL || se == NULL)
+	static const PROTO_OPTION options[] =
+	{
+		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
+	};
+
+	return options;
+}
+
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+{
+	if (param == NULL || options == NULL || cedar == NULL || im == NULL || se == NULL)
 	{
 		return false;
 	}

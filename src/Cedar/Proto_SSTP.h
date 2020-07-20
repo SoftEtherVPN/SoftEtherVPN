@@ -123,8 +123,9 @@ struct SSTP_SERVER
 
 //// Function prototype
 const PROTO_IMPL *SstpGetProtoImpl();
+const PROTO_OPTION *SstpOptions();
 const char *SstpName();
-bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void SstpFree(void *param);
 bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 

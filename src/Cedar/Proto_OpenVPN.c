@@ -19,6 +19,7 @@ const PROTO_IMPL *OvsGetProtoImpl()
 	static const PROTO_IMPL impl =
 	{
 		OvsName,
+		OvsOptions,
 		OvsInit,
 		OvsFree,
 		OvsIsPacketForMe,
@@ -34,9 +35,23 @@ const char *OvsName()
 	return "OpenVPN";
 }
 
-bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+const PROTO_OPTION *OvsOptions()
 {
-	if (param == NULL || cedar == NULL || im == NULL || se == NULL)
+	static const PROTO_OPTION options[] =
+	{
+		{ .Name = "DefaultClientOption", .Type = PROTO_OPTION_STRING, .String = "dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client" },
+		{ .Name = "Obfuscation", .Type = PROTO_OPTION_BOOL, .Bool = false },
+		{ .Name = "ObfuscationMask", .Type = PROTO_OPTION_STRING, .String = ""},
+		{ .Name = "PushDummyIPv4AddressOnL2Mode", .Type = PROTO_OPTION_BOOL, .Bool = true },
+		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
+	};
+
+	return options;
+}
+
+bool OvsInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+{
+	if (param == NULL || options == NULL || cedar == NULL || im == NULL || se == NULL)
 	{
 		return false;
 	}

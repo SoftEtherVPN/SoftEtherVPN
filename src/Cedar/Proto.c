@@ -2,6 +2,21 @@
 
 #include "Proto_OpenVPN.h"
 
+int ProtoOptionCompare(void *p1, void *p2)
+{
+	PROTO_OPTION *option_1, *option_2;
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		return (p1 == NULL && p2 == NULL ? 0 : (p1 == NULL ? -1 : 1));
+	}
+
+	option_1 = *(PROTO_OPTION **)p1;
+	option_2 = *(PROTO_OPTION **)p2;
+
+	return StrCmpi(option_1->Name, option_2->Name);
+}
+
 int ProtoContainerCompare(void *p1, void *p2)
 {
 	PROTO_CONTAINER *container_1, *container_2;
@@ -113,6 +128,35 @@ UINT ProtoSessionHash(void *p)
 	return ret;
 }
 
+bool ProtoEnabled(const PROTO *proto, const char *name)
+{
+	PROTO_OPTION *option, tmp_o;
+	PROTO_CONTAINER *container, tmp_c;
+
+	if (proto == NULL || name == NULL)
+	{
+		return false;
+	}
+
+	tmp_c.Name = name;
+
+	container = Search(proto->Containers, &tmp_c);
+	if (container == NULL)
+	{
+		return false;
+	}
+
+	tmp_o.Name = PROTO_OPTION_TOGGLE_NAME;
+
+	option = Search(container->Options, &tmp_o);
+	if (option == NULL || option->Type != PROTO_OPTION_BOOL)
+	{
+		return false;
+	}
+
+	return option->Bool;
+}
+
 PROTO *ProtoNew(CEDAR *cedar)
 {
 	PROTO *proto;
@@ -170,7 +214,9 @@ void ProtoDelete(PROTO *proto)
 PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 {
 	UINT i;
+	PROTO_OPTION *option;
 	PROTO_CONTAINER *container;
+	const PROTO_OPTION *impl_options;
 
 	if (impl == NULL)
 	{
@@ -179,7 +225,42 @@ PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 
 	container = Malloc(sizeof(PROTO_CONTAINER));
 	container->Name = impl->Name();
+	container->Options = NewList(ProtoOptionCompare);
 	container->Impl = impl;
+
+	option = ZeroMalloc(sizeof(PROTO_OPTION));
+	option->Name = PROTO_OPTION_TOGGLE_NAME;
+	option->Type = PROTO_OPTION_BOOL;
+	option->Bool = true;
+
+	Add(container->Options, option);
+
+	impl_options = impl->Options();
+
+	for (i = 0; impl_options[i].Name != NULL; ++i)
+	{
+		const PROTO_OPTION *impl_option = &impl_options[i];
+
+		option = ZeroMalloc(sizeof(PROTO_OPTION));
+		option->Name = impl_option->Name;
+		option->Type = impl_option->Type;
+
+		switch (impl_option->Type)
+		{
+		case PROTO_OPTION_BOOL:
+			option->Bool = impl_option->Bool;
+			break;
+		case PROTO_OPTION_STRING:
+			option->String = CopyStr(impl_option->String);
+			break;
+		default:
+			Debug("ProtoContainerNew(): unhandled option type %u!\n", impl_option->Type);
+			Free(option);
+			continue;
+		}
+
+		Add(container->Options, option);
+	}
 
 	Debug("ProtoContainerNew(): %s\n", container->Name);
 
@@ -188,11 +269,28 @@ PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 
 void ProtoContainerDelete(PROTO_CONTAINER *container)
 {
+	UINT i;
+	LIST *options;
+
 	if (container == NULL)
 	{
 		return;
 	}
 
+	options = container->Options;
+
+	for (i = 0; i < LIST_NUM(options); ++i)
+	{
+		PROTO_OPTION *option = LIST_DATA(options, i);
+		if (option->Type == PROTO_OPTION_STRING)
+		{
+			Free(option->String);
+		}
+
+		Free(option);
+	}
+
+	ReleaseList(options);
 	Free(container);
 }
 
@@ -229,6 +327,7 @@ const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, co
 
 PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
 {
+	LIST *options;
 	PROTO_SESSION *session;
 	const PROTO_IMPL *impl;
 
@@ -237,22 +336,28 @@ PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, c
 		return NULL;
 	}
 
+	options = container->Options;
 	impl = container->Impl;
 
 	session = ZeroMalloc(sizeof(PROTO_SESSION));
 	session->SockEvent = NewSockEvent();
 	session->InterruptManager = NewInterruptManager();
 
-	if (impl->Init != NULL && impl->Init(&session->Param, proto->Cedar, session->InterruptManager, session->SockEvent, NULL, NULL) == false)
+	LockList(options);
+
+	if (impl->Init != NULL && impl->Init(&session->Param, container->Options, proto->Cedar, session->InterruptManager, session->SockEvent, NULL, NULL) == false)
 	{
 		Debug("ProtoNewSession(): failed to initialize %s\n", container->Name);
 
+		UnlockList(options);
 		ReleaseSockEvent(session->SockEvent);
 		FreeInterruptManager(session->InterruptManager);
 		Free(session);
 
 		return NULL;
 	}
+
+	UnlockList(options);
 
 	session->Proto = proto;
 	session->Impl = impl;
@@ -350,6 +455,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 
 	{
 		const PROTO_CONTAINER *container = NULL;
+		LIST *options;
 
 		if (protocol != NULL)
 		{
@@ -381,18 +487,26 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 			return false;
 		}
 
+		options = container->Options;
 		impl = container->Impl;
 
 		im = NewInterruptManager();
 		se = NewSockEvent();
 
-		if (impl->Init != NULL && impl->Init(&impl_data, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
+		LockList(options);
+
+		if (impl->Init != NULL && impl->Init(&impl_data, options, proto->Cedar, im, se, sock->CipherName, sock->RemoteHostname) == false)
 		{
 			Debug("ProtoHandleConnection(): failed to initialize %s\n", container->Name);
+
+			UnlockList(options);
 			FreeInterruptManager(im);
 			ReleaseSockEvent(se);
+
 			return false;
 		}
+
+		UnlockList(options);
 	}
 
 	SetTimeout(sock, TIMEOUT_INFINITE);

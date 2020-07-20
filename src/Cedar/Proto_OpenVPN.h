@@ -210,7 +210,8 @@ struct OPENVPN_SERVER
 //// Function prototype
 const PROTO_IMPL *OvsGetProtoImpl();
 const char *OvsName();
-bool OvsInit(void **param, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
+const PROTO_OPTION *OvsOptions();
+bool OvsInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void OvsFree(void *param);
 bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
 bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
