@@ -2,13 +2,17 @@
 
 set -eux
 
-build/vpnserver start
+BUILD_BINARIESDIRECTORY="${BUILD_BINARIESDIRECTORY:-build}"
 
-build/vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:SecureNatEnable
-build/vpncmd 127.0.0.1:443 /SERVER /CMD:"OpenVpnEnable yes"
-build/vpncmd 127.0.0.1:443 /SERVER /CMD:"PortsUDPSet 1194"
-build/vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:"UserCreate test /GROUP:none /REALNAME:none /NOTE:none"
-build/vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:"UserPasswordSet test /PASSWORD:test"
-build/vpncmd 127.0.0.1:443 /SERVER /CMD:"OpenVpnMakeConfig ~/my_openvpn_config.zip"
+cd $BUILD_BINARIESDIRECTORY
 
-unzip -d /tmp ~/my_openvpn_config.zip
+./vpnserver start
+
+./vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:SecureNatEnable
+./vpncmd 127.0.0.1:443 /SERVER /CMD:"OpenVpnEnable yes"
+./vpncmd 127.0.0.1:443 /SERVER /CMD:"PortsUDPSet 1194"
+./vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:"UserCreate test /GROUP:none /REALNAME:none /NOTE:none"
+./vpncmd 127.0.0.1:443 /SERVER /HUB:DEFAULT /CMD:"UserPasswordSet test /PASSWORD:test"
+./vpncmd 127.0.0.1:443 /SERVER /CMD:"OpenVpnMakeConfig my_openvpn_config.zip"
+
+unzip -d /tmp my_openvpn_config.zip
