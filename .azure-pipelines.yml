@@ -1,6 +1,4 @@
 jobs:
   - template: .ci/azure-pipelines-linux.yml
-
-#  - template: .ci/azure-pipelines-osx.yml
-
   - template: .ci/azure-pipelines-win.yml
+  - template: .ci/azure-pipelines-macos.yml
