@@ -1,6 +1,6 @@
 jobs:
-- job: linux_64
-  displayName: 'Ubuntu 16.04'
+- job: ubuntu_x86_64
+  displayName: 'Ubuntu (x86_64)'
   pool:
     vmImage: ubuntu-16.04
   variables:

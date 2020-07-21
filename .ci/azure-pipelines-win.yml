@@ -1,6 +1,6 @@
 jobs:
-- job: win_64
-  displayName: 'Visual Studio 2017'
+- job: windows_x86_64
+  displayName: 'Windows (x86_64)'
   pool:
     vmImage: vs2017-win2016
   steps:
