@@ -4,22 +4,6 @@ jobs:
   pool:
     vmImage: vs2017-win2016
   steps:
-  - script: |
-      cd /d %BUILD_BINARIESDIRECTORY%
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl "-DCMAKE_CXX_COMPILER=cl" %BUILD_SOURCESDIRECTORY%
-      cmake --build .
-    displayName: 'Build'
-  - powershell: |
-      . .ci\appveyor-vpntest.ps1
-    displayName: 'Test'
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(Build.BinariesDirectory)'
-      contents: '?(*.exe|*.se2|*.pdb)'
-      TargetFolder: '$(Build.StagingDirectory)'
-      flattenFolders: true
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: '$(Build.StagingDirectory)'
-      artifactName: 'Binaries'
+  - template: "azure-pipelines-win-steps.yml"
+    parameters:
+      bits: "64"
