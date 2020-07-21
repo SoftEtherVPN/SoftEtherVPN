@@ -1,28 +1,25 @@
 jobs:
-- job: win_64
-  displayName: 'Visual Studio 2017'
+- job: windows_x86_64
+  displayName: 'Windows (x86_64)'
   pool:
     vmImage: vs2017-win2016
   steps:
-  - checkout: self
-    submodules: recursive
   - script: |
-     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      configure
-  - script: |
-     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      cd build
-      nmake
+      cd /d %BUILD_BINARIESDIRECTORY%
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl "-DCMAKE_CXX_COMPILER=cl" %BUILD_SOURCESDIRECTORY%
+      cmake --build .
+    displayName: 'Build'
   - powershell: |
-     . .ci\appveyor-vpntest.ps1
-  - powershell: |
-     New-Item -Path '$(build.artifactstagingdirectory)/publish' -ItemType Directory
+      . .ci\appveyor-vpntest.ps1
+    displayName: 'Test'
   - task: CopyFiles@2
     inputs:
-      sourceFolder: '$(Build.SourcesDirectory)'
-      contents: 'build/?(*.exe|*.se2|*.pdb)'
-      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      sourceFolder: '$(Build.BinariesDirectory)'
+      contents: '?(*.exe|*.se2|*.pdb)'
+      TargetFolder: '$(Build.StagingDirectory)'
+      flattenFolders: true
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: '$(build.artifactstagingdirectory)/publish'
-      artifactName: vs2017
+      pathtoPublish: '$(Build.StagingDirectory)'
+      artifactName: 'Binaries'
