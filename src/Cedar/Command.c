@@ -7352,6 +7352,8 @@ void PsMain(PS *ps)
 			{"ListenerDisable", PsListenerDisable},
 			{"PortsUDPGet", PsPortsUDPGet},
 			{"PortsUDPSet", PsPortsUDPSet},
+			{"ProtoOptionsGet", PsProtoOptionsGet},
+			{"ProtoOptionsSet", PsProtoOptionsSet},
 			{"ServerPasswordSet", PsServerPasswordSet},
 			{"ClusterSettingGet", PsClusterSettingGet},
 			{"ClusterSettingStandalone", PsClusterSettingStandalone},
@@ -22836,6 +22838,163 @@ UINT PsPortsUDPGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	FreeRpcPorts(&t);
+
+	return ret;
+}
+
+// Configure an option for the specified protocol (TODO: ability to set multiple options in a single call)
+UINT PsProtoOptionsSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PROTO_OPTIONS t;
+	PARAM args[] =
+	{
+		{"[protocol]", CmdPrompt, _UU("CMD_ProtoOptionsSet_Prompt_[protocol]"), CmdEvalNotEmpty, NULL},
+		{"NAME", CmdPrompt, _UU("CMD_ProtoOptionsSet_Prompt_NAME"), CmdEvalNotEmpty, NULL},
+		{"VALUE", CmdPrompt, _UU("CMD_ProtoOptionsSet_Prompt_VALUE"), NULL, NULL}
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.Protocol = CopyStr(GetParamStr(o, "[protocol]"));
+
+	ret = ScGetProtoOptions(ps->Rpc, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		UINT i;
+		bool found = false;
+
+		for (i = 0; i < t.Num; ++i)
+		{
+			PROTO_OPTION *option = &t.Options[i];
+			if (StrCmpi(option->Name, GetParamStr(o, "NAME")) != 0)
+			{
+				continue;
+			}
+
+			found = true;
+
+			switch (option->Type)
+			{
+			case PROTO_OPTION_STRING:
+				Free(option->String);
+				option->String = CopyStr(GetParamStr(o, "VALUE"));
+				break;
+			case PROTO_OPTION_BOOL:
+				option->Bool = GetParamYes(o, "VALUE");
+				break;
+			default:
+				ret = ERR_INTERNAL_ERROR;
+			}
+
+			if (ret == ERR_NO_ERROR)
+			{
+				ret = ScSetProtoOptions(ps->Rpc, &t);
+			}
+
+			break;
+		}
+
+		if (found == false)
+		{
+			ret = ERR_OBJECT_NOT_FOUND;
+		}
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcProtoOptions(&t);
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// List available options for the specified protocol
+UINT PsProtoOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_PROTO_OPTIONS t;
+	PARAM args[] =
+	{
+		{"[protocol]", CmdPrompt, _UU("CMD_ProtoOptionsGet_Prompt_[protocol]"), CmdEvalNotEmpty, NULL}
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.Protocol = CopyStr(GetParamStr(o, "[protocol]"));
+
+	FreeParamValueList(o);
+
+	ret = ScGetProtoOptions(ps->Rpc, &t);
+	if (ret == ERR_NO_ERROR)
+	{
+		UINT i;
+		CT *ct = CtNew();
+		CtInsertColumn(ct, _UU("CMD_ProtoOptionsGet_Column_Name"), false);
+		CtInsertColumn(ct, _UU("CMD_ProtoOptionsGet_Column_Type"), false);
+		CtInsertColumn(ct, _UU("CMD_ProtoOptionsGet_Column_Value"), false);
+		CtInsertColumn(ct, _UU("CMD_ProtoOptionsGet_Column_Description"), false);
+
+		for (i = 0; i < t.Num; ++i)
+		{
+			char description_str_key[MAX_SIZE];
+			const PROTO_OPTION *option = &t.Options[i];
+			wchar_t *value, *type, *name = CopyStrToUni(option->Name);
+
+			switch (option->Type)
+			{
+				case PROTO_OPTION_BOOL:
+					type = L"Boolean";
+					value = option->Bool ? L"True" : L"False";
+					break;
+				case PROTO_OPTION_STRING:
+					type = L"String";
+					value = CopyStrToUni(option->String);
+					break;
+				default:
+					Debug("StGetProtoOptions(): unhandled option type %u!\n", option->Type);
+					Free(name);
+					continue;
+			}
+
+			Format(description_str_key, sizeof(description_str_key), "CMD_ProtoOptions_Description_%s_%s", t.Protocol, option->Name);
+
+			CtInsert(ct, name, type, value, _UU(description_str_key));
+
+			if (option->Type == PROTO_OPTION_STRING)
+			{
+				Free(value);
+			}
+
+			Free(name);
+		}
+
+		CtFree(ct, c);
+	}
+	else
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcProtoOptions(&t);
 
 	return ret;
 }

@@ -395,6 +395,8 @@ UINT PsListenerEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsListenerDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsPortsUDPSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsPortsUDPGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsProtoOptionsSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsProtoOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsServerPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsClusterSettingGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsClusterSettingStandalone(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
