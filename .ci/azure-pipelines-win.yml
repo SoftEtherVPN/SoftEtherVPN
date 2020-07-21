@@ -7,3 +7,11 @@ jobs:
   - template: "azure-pipelines-win-steps.yml"
     parameters:
       bits: "64"
+- job: windows_x86
+  displayName: 'Windows (x86)'
+  pool:
+    vmImage: vs2017-win2016
+  steps:
+  - template: "azure-pipelines-win-steps.yml"
+    parameters:
+      bits: "32"
