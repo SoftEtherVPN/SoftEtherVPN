@@ -1,0 +1,13 @@
+jobs:
+- job: macOS
+  displayName: 'macOS'
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - script: brew install cmake ninja ncurses readline openssl zlib
+    displayName: 'Install packages'
+  - script: |
+      cd $BUILD_BINARIESDIRECTORY
+      cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl $BUILD_SOURCESDIRECTORY
+      cmake --build .
+    displayName: 'Build'
