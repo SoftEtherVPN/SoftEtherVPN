@@ -11,7 +11,7 @@
 # (Excludes dialog box resource strings)                                  #
 #                                                                         #
 ###########################################################################
-
+Virtual Hub - виртуальный узел или виртуальный хаб
 
 
 # Environment parameters
@@ -3461,26 +3461,26 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_CM_SECURE_MANAGER
-CAPTION					Smart Card Manager
-S_INFO					Current Smart Card:\r\n\r\n%S
-B_BOLD					Objects stored on the smart card: 
-B_REFRESH				&Refresh Object List
-B_IMPORT				&Import to Card...
-B_EXPORT				&Export from Card...
-B_DELETE				&Delete from Card
-B_NEW_CERT				&Write New Certificate and Private Key to Card...
-B_PIN					&Change PIN Code...
+CAPTION					Менеджер смарт-карт
+S_INFO					Текущая смарт-карта:\r\n\r\n%S
+B_BOLD					Объекты, хранящиеся на смарт-карте: 
+B_REFRESH				&Обновить список объектов
+B_IMPORT				&Импорт на карту...
+B_EXPORT				&Экспорт с карты...
+B_DELETE				&Удалить с карты
+B_NEW_CERT				&Записать новый сертификат и приватный ключ на карту...
+B_PIN					&Изменить PIN-код...
 IDCANCEL				Закрыть
 
 
 PREFIX					D_CM_SECURE_TYPE
-CAPTION					Select Object Type
-STATIC					Select the type of the object you want to import.
-R_CERT					&Certificate
-R_KEY					Private &Key
-R_DATA					&Data
+CAPTION					Выберите тип объекта
+STATIC					Выберите тип объекта, который вы хотите импортировать.
+R_CERT					&Сертификат
+R_KEY					Приватный ключ
+R_DATA					&Cведения
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_STRING
@@ -3524,12 +3524,12 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_CRL
-CAPTION					Certificates Revocation List
-STATIC1					You can manage the Certificates Revocation List on this Virtual Hub. \r\n\r\nBy adding certificates in Certificates Revocation List, the clients who provide these certificates will be denied to connect to this Virtual Hub using certificate authentication mode.
-B_ADD					&Add
-IDOK					&Edit
+CAPTION					Список отозванных сертификатов
+STATIC1					Вы можете управлять списком отозванных сертификатов в этом Virtual Hub. \r\n\r\nПри добавлении сертификатов в этот список, клиентам с такими  сертификатами будет отказано в подключении к этому Virtual Hub в режиме проверки подлинности сертификатов.
+B_ADD					&Добавить
+IDOK					&Изменить
 IDCANCEL				&Закрыть
-B_DELETE				&Delete
+B_DELETE				&Удалить
 
 
 PREFIX					D_SM_EDIT_CRL
