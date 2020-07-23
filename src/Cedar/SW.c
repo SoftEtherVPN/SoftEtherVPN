@@ -289,8 +289,6 @@ bool SwAddBasicFilesToList(LIST *o, char *component_name)
 		return false;
 	}
 
-	Add(o, SwNewSfxFile("install_src.dat", L"|install_src.dat"));
-
 	return true;
 }
 
@@ -5633,13 +5631,6 @@ UINT SwWelcomeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 		break;
 
 	case WM_WIZ_NEXT:
-		if (IsFileExistsW(L"@install_src.dat") == false)
-		{
-			// Vpnsetup.exe is launched from other than the installation source
-			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("SW_NOT_INSTALL_SRC"));
-			break;
-		}
-
 		if (MsIsKB3033929RequiredAndMissing())
 		{
 			// KB3033929 is missing

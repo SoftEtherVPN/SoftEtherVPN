@@ -7149,7 +7149,6 @@ SW_DIR_DST_IS_SYSTEM_MODE 지정된 디렉토리에 이미 소프트웨어가 �
 SW_DIR_DST_IS_USER_MODE 지정된 디렉토리에 이미 소프트웨어가 사용자 모드로 설치되어 있습니다. \r\n\r\n 다른 디렉토리를 지정하십시오.
 SW_SYSTEM_MODE_ALREADY_INSTALLED 소프트웨어 '%s'는 이미이 컴퓨터 시스템 모드로 설치되어 있습니다. \r\n\r\n 동일한 컴퓨터에 동일한 구성 요소를 시스템 모드와 사용자 모드에서 설치하는 경우 충돌이 발생할 수 있습니다. \r\n\r\n 정말 사용자 모드에서 설치를 실행 하시겠습니까?
 
-SW_NOT_INSTALL_SRC 설치 프로그램이 설치 소스 이외에서 시작되었습니다. \r\n\r\n 설치를 계속할 수 없습니다.
 SW_SETUPLOG_CORRUPTED setuplog.dat 파일이 손상되어 있습니다.
 SW_MSI_UNINSTALL_FAILED %s의 이전 버전 (제품 코드:"%S")을 Windows Installer에서 제거하려고했지만 제거에 실패했습니다. \r\n\r\n이 버전을 수동으로 제거하고 다시 설치 프로그램을 시작하십시오.
 SW_MSI_UNINSTALL_REBOOT_REQUIRED %s의 이전 버전을 Windows Installer에서 제거했습니다. 컴퓨터를 다시 시작해야합니다. \r\n\r\n "완료"를 클릭하여 수동으로 컴퓨터를 다시 시작한 다음 다시 설치 프로그램을 시작하십시오.

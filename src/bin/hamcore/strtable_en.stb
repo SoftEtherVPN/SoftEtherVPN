@@ -7171,7 +7171,6 @@ SW_DIR_DST_IS_SYSTEM_MODE					The same software is already installed on the spec
 SW_DIR_DST_IS_USER_MODE						The same software is already installed on the specified directory as the User Mode.\r\n\r\nPlease specify another directory.
 SW_SYSTEM_MODE_ALREADY_INSTALLED			The software "%s" is already installed on this computer as the System Mode.\r\n\r\nBoth the System Mode and the User Mode installation of the same software on the same computer will conflict.\r\n\r\nDo you really want to continue the installation as the User Mode?
 
-SW_NOT_INSTALL_SRC							The setup program has been executed from outside an install source.\r\n\r\nUnable to continue the installation.
 SW_SETUPLOG_CORRUPTED						The "setuplog.dat" file is broken.
 SW_MSI_UNINSTALL_FAILED						The older version of %s (Product Code: "%S") is installed. Windows Installer failed to uninstall this older version.\r\n\r\nPlease uninstall this older version manually and restart this installer again.
 SW_MSI_UNINSTALL_REBOOT_REQUIRED			Windows Installer has uninstalled the older version of %s. The reboot of computer is required.\r\n\r\nPress Finish button and reboot the computer MANUALLY, and restart this installer after the reboot.
