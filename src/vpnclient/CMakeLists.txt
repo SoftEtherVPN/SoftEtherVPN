@@ -1,16 +1,9 @@
 set(COMPONENT_NAME "Client")
 set(COMPONENT_INTERNAL_NAME "vpnclient")
 
-add_executable(vpnclient vpncsvc.c vpncsvc.h)
-
-set_target_properties(vpnclient
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-)
-
 if(WIN32)
+  add_executable(vpnclient WIN32 vpncsvc.c vpncsvc.h)
+
   set_target_properties(vpnclient
     PROPERTIES
     PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
@@ -21,7 +14,16 @@ if(WIN32)
 
   configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
   target_sources(vpnclient PRIVATE "vpnclient.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+else()
+  add_executable(vpnclient vpncsvc.c vpncsvc.h)
 endif()
+
+set_target_properties(vpnclient
+  PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+)
 
 target_link_libraries(vpnclient cedar mayaqua)
 

@@ -1,16 +1,9 @@
 set(COMPONENT_NAME "Server")
 set(COMPONENT_INTERNAL_NAME "vpnserver")
 
-add_executable(vpnserver vpnserver.c)
-
-set_target_properties(vpnserver
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
-)
-
 if(WIN32)
+  add_executable(vpnserver WIN32 vpnserver.c)
+
   set_target_properties(vpnserver
     PROPERTIES
     PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
@@ -21,7 +14,16 @@ if(WIN32)
 
   configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
   target_sources(vpnserver PRIVATE "vpnserver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+else()
+  add_executable(vpnserver vpnserver.c)
 endif()
+
+set_target_properties(vpnserver
+  PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+  RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
+)
 
 target_link_libraries(vpnserver cedar mayaqua)
 
