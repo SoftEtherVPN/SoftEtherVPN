@@ -141,7 +141,7 @@ bool SwCompileSfx(LIST *o, wchar_t *dst_filename)
 	{
 		// Generate the setup.exe file in the Temp directory
 		ConbinePathW(exe_filename, sizeof(exe_filename), MsGetMyTempDirW(), L"setup.exe");
-		if (FileCopyW(L"|vpnsetup_nosign.exe", exe_filename))
+		if (FileCopyW(L"vpnsetup.exe", exe_filename))
 		{
 			// Resource updating start
 			HANDLE h = _BeginUpdateResourceW(exe_filename, false);
