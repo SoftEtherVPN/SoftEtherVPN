@@ -1,22 +1,35 @@
 parameters:
-- name: bits
+- name: architecture
+  type: string
+- name: vcpkgTriplet
+  type: string
+- name: vcvarsPath
   type: string
 
 steps:
+- task: Cache@2
+  inputs:
+    key: '"vcpkg-installed-windows-${{parameters.architecture}}"'
+    path: 'C:/vcpkg/installed'
+  displayName: 'Environment storage'
 - script: |
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{parameters.bits}}.bat"
-    cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl $(Build.SourcesDirectory)
+    vcpkg install openssl zlib --triplet ${{parameters.vcpkgTriplet}}
+  workingDirectory: C:/vcpkg
+  displayName: 'Prepare environment'
+- script: |
+    call "${{parameters.vcvarsPath}}"
+    cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{parameters.vcpkgTriplet}} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl $(Build.SourcesDirectory)
     cmake --build .
   workingDirectory: $(Build.BinariesDirectory)
   displayName: 'Build'
 - script: |
     mkdir "$(Build.StagingDirectory)/installers"
-    vpnsetup /SFXMODE:vpnclient /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnclient-$(Build.SourceVersion).exe"
-    vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnserver_vpnbridge-$(Build.SourceVersion).exe"
+    vpnsetup /SFXMODE:vpnclient /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnclient-$(Build.SourceVersion)-${{parameters.architecture}}.exe"
+    vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnserver_vpnbridge-$(Build.SourceVersion)-${{parameters.architecture}}.exe"
   workingDirectory: $(Build.BinariesDirectory)
   displayName: 'Build installers'
 - powershell: |
-    . .ci\appveyor-vpntest.ps1
+    . .ci/appveyor-vpntest.ps1
   displayName: 'Test'
 - task: CopyFiles@2
   inputs:
