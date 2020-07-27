@@ -10112,11 +10112,11 @@ void InitWinUi(wchar_t *software_name, char *font, UINT fontsize)
 	{
 		if (Is64())
 		{
-			hDll = MsLoadLibraryAsDataFile(MsGetPenCoreDllFileName());
+			hDll = MsLoadLibraryAsDataFile(PENCORE_DLL_NAME);
 		}
 		else
 		{
-			hDll = MsLoadLibrary(MsGetPenCoreDllFileName());
+			hDll = MsLoadLibrary(PENCORE_DLL_NAME);
 		}
 
 		if (hDll == NULL)
