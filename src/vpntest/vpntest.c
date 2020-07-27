@@ -14,24 +14,6 @@
 #include <Cedar/Cedar.h>
 #include "vpntest.h"
 
-void server_manager_test(UINT num, char **arg)
-{
-#ifdef	OS_WIN32
-	SMExec();
-#else	// OS_WIN32
-	Print("This command is supported only on Win32.");
-#endif	// OS_WIN32
-}
-
-void client_manager_test(UINT num, char **arg)
-{
-#ifdef	OS_WIN32
-	CMExec();
-#else	// OS_WIN32
-	Print("This command is supported only on Win32.");
-#endif	// OS_WIN32
-}
-
 void client_test(UINT num, char **arg)
 {
 	Print("VPN Client Test. Press Enter key to stop the VPN Client .\n");
@@ -70,6 +52,26 @@ void bridge_test(UINT num, char **arg)
 	StFree();
 }
 
+#ifdef OS_WIN32
+void server_manager_test(UINT num, char **arg)
+{
+	SMExec();
+}
+
+void client_manager_test(UINT num, char **arg)
+{
+	CMExec();
+}
+
+void setup_test(UINT num, char **arg)
+{
+	char name[MAX_SIZE];
+	Print("SetupAPI test. Please enter the name of the NIC I should retrieve the status of.\n");
+	GetLine(name, sizeof(name));
+	Print("Status: %s\n", MsIsVLanEnabledWithoutLock(name) ? "enabled" : "disabled");
+}
+#endif
+
 void memory_leak_test(UINT num, char **arg)
 {
 	char *a = Malloc(1);
@@ -77,7 +79,6 @@ void memory_leak_test(UINT num, char **arg)
 	Print("Hello, I am the great dictator of this kingdom!\n");
 	Print("Just now I called Malloc(1) and never free! Ha ha ha !!\n");
 }
-
 
 // The list of test functions
 // Test function definition list
@@ -95,8 +96,11 @@ TEST_LIST test_list[] =
 	{"c", client_test, "VPN Client in Test Mode, enter key to graceful stop."},
 	{"s", server_test, "VPN Server in Test Mode, enter key to graceful stop."},
 	{"b", bridge_test, "VPN Bridge in Test Mode, enter key to graceful stop."},
-	{"sm", server_manager_test, "VPN Server Manager UI in Test Mode (Win32 only)"},
-	{"cm", client_manager_test, "VPN Client Manager UI in Test Mode (Win32 only)"},
+#ifdef OS_WIN32
+	{"sm", server_manager_test, "VPN Server Manager UI in Test Mode."},
+	{"cm", client_manager_test, "VPN Client Manager UI in Test Mode."},
+	{"setupapi", setup_test, "SetupAPI test: tries to retrieve the specified NIC's status."},
+#endif
 	{"memory_leak", memory_leak_test, "Memory leak test: Try to leak one byte by malloc()."},
 };
 
