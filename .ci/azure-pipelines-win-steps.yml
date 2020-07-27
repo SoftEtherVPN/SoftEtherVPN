@@ -5,8 +5,8 @@ parameters:
 steps:
 - script: |
     cd /d $(Build.BinariesDirectory)
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars${{parameters.bits}}.bat"
-    cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl "-DCMAKE_CXX_COMPILER=cl" $(Build.SourcesDirectory)
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{parameters.bits}}.bat"
+    cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl $(Build.SourcesDirectory)
     cmake --build .
   displayName: 'Build'
 - powershell: |
