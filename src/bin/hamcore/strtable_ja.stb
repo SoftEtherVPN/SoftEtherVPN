@@ -1993,6 +1993,7 @@ LA_DELETE_LISTENER		TCP リスナー (ポート番号 %u) を削除しました�
 LA_ENABLE_LISTENER		TCP リスナー (ポート番号 %u) を有効化しました。
 LA_DISABLE_LISTENER		TCP リスナー (ポート番号 %u) を無効化しました。
 LA_SET_PORTS_UDP		UDP ポートの一覧が設定されました: %s.
+LA_SET_PROTO_OPTIONS	オプション %s が設定されました。
 LA_SET_SERVER_PASSWORD	サーバー管理者パスワードを設定しました。
 LA_SET_FARM_SETTING		クラスタリング設定を変更しました。
 LA_SET_SERVER_CERT		サーバー証明書を設定しました。
@@ -4565,6 +4566,37 @@ CMD_PortsUDPGet_Args	PortsUDPGet
 CMD_PortsUDPGet_Ports	UDP ポート一覧
 
 
+# ProtoOptionsSet コマンド
+CMD_ProtoOptionsSet						特定のプロトコル固有のオプション値を設定します。
+CMD_ProtoOptionsSet_Help				このコマンドを使用することにより、特定のプロトコル固有のオプション値を設定することができます。 \nProtoOptionsGet コマンドを使用することにより、オプション値を取得することもできます。 \nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
+CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protocol] [/NAME:option_name] [/VALUE:string/true/false]
+CMD_ProtoOptionsSet_[protocol]			プロトコル名
+CMD_ProtoOptionsSet_NAME				オプション名
+CMD_ProtoOptionsSet_VALUE				オプション値 (対象のプロトコルで対応している値を指定してください)
+CMD_ProtoOptionsSet_Prompt_[protocol]	プロトコル: 
+CMD_ProtoOptionsSet_Prompt_NAME			オプション: 
+CMD_ProtoOptionsSet_Prompt_VALUE		値: 
+
+
+# ProtoOptionsGet コマンド
+CMD_ProtoOptionsGet						指定されたプロトコル固有のオプション値を表示します。
+CMD_ProtoOptionsGet_Help				このコマンドを使用することにより、特定のプロトコル固有のオプション値を取得することができます。 \n詳細な情報 (例: 値の型) が表示されます。オプション値を設定するには、ProtoOptionsSet コマンドを使用してください。
+CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protocol]
+CMD_ProtoOptionsGet_[protocol]			プロトコル名
+CMD_ProtoOptionsGet_Prompt_[protocol]	プロトコル: 
+CMD_ProtoOptionsGet_Column_Name			名前
+CMD_ProtoOptionsGet_Column_Type			型
+CMD_ProtoOptionsGet_Column_Value		値
+CMD_ProtoOptionsGet_Column_Description	説明
+
+
+# ProtoOptions
+CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			OpenVPN の OCC codeRT 版以外の場合は、OpenVPN はサーバーに対してオプション文字列を送信しません。OpenVPN サーバーのオリジナル版は、オプションを固定で指定する仕組みになっているため、その場合でも動作します。一方、SoftEther VPN は、様々なオプションを動的に設定することができる機能を有しております。そこで、このオプションを使用することにより、OCC code なしでビルドされた OpenVPN に対してデフォルトの静的オプション文字列を送付することができるようになります。これにより、OCC code なしでビルドされた OpenVPN からの接続が成功するようになります。
+CMD_ProtoOptions_Description_OpenVPN_Obfuscation					OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードを設定します。クライアント側とサーバー側では、同一の XOR マスクを設定する必要があります。コードが異なると、接続ができません。
+CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				パケットで使用される XOR マスクを指定します。OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードとして使用されます。
+CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	Linux における特定の状況下では manifests に不具合があります。この不具合により、OpenVPN クライアントは TAP デバイスが UP 状態であるにもかかわらず、切断状態となります。このオプションを使用することにより、VPN サーバーは、ダミーの IPv4 アドレス (RFC7600 で規定) をクライアントに対してプッシュ送信することができるようになります。これにより、TAP アダプタが常に UP 状態になります。
+
+
 # ServerPasswordSet コマンド
 CMD_ServerPasswordSet	VPN Server の管理者パスワードの設定
 CMD_ServerPasswordSet_Help	VPN Server の管理者パスワードを設定します。パラメータとしてパスワードを指定することができます。パラメータを指定しない場合は、パスワードと、その確認入力を行なうためのプロンプトが表示されます。パスワードをパラメータに与えた場合、そのパスワードが一時的に画面に表示されるため危険です。できる限り、パラメータを指定せずに、パスワードプロンプトを用いてパスワードを入力することを推奨します。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
@@ -6286,20 +6318,6 @@ CMD_EtherIpClientList_Help	EtherIP / L2TPv3 over IPsec サーバー機能のク�
 CMD_EtherIpClientList_Args	EtherIpClientList
 
 
-# OpenVpnEnable コマンド
-CMD_OpenVpnEnable		OpenVPN 互換サーバー機能を有効化 / 無効化
-CMD_OpenVpnEnable_Help	SoftEther VPN Server には OpenVPN 社の OpenVPN ソフトウェア製品と同等の VPN サーバー機能が搭載されています。OpenVPN サーバー機能を有効にすると、OpenVPN クライアントから OpenVPN サーバーに接続できるようになります。\n\nOpenVPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no]
-CMD_OpenVpnEnable_[yes|no]	OpenVPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
-CMD_OpenVpnEnable_Prompt_[yes|no]	OpenVPN 互換サーバー機能を有効化 (yes / no): 
-
-
-# OpenVpnGet コマンド
-CMD_OpenVpnGet			OpenVPN 互換サーバー機能の現在の設定を取得
-CMD_OpenVpnGet_Help		現在の OpenVPN 互換サーバー機能の設定を取得して表示します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_OpenVpnGet_Args		OpenVpnGet
-CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 互換サーバー機能が有効
-
 # OpenVpnMakeConfig コマンド
 CMD_OpenVpnMakeConfig	OpenVPN 互換サーバー機能に接続可能なサンプルの OpenVPN 設定ファイルの生成
 CMD_OpenVpnMakeConfig_Help	本来、OpenVPN クライアントを使うためには設定ファイルを手動で記述する必要がありますが、これは難易度が高い作業です。しかし、このコマンドを使用すればこの VPN Server に接続することができる基本的な OpenVPN クライアント用の設定ファイルを自動的に生成することができます。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -6310,42 +6328,9 @@ CMD_OpenVpnMakeConfig_OK			サンプル設定ファイルを "%s" ファイル�
 CMD_OpenVpnMakeConfig_ERROR			サンプル設定ファイルを "%s" ファイルに保存できませんでした。ファイル名が正しくない可能性があります。\n
 
 
-# OpenVpnObfuscationEnable
-CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
-CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
-CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
-CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
-CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
-
-
-# OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
-CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
-
-
-# SstpEnable コマンド
-CMD_SstpEnable			Microsoft SSTP VPN 互換サーバー機能を有効化 / 無効化
-CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_SstpEnable_Args		SstpEnable [yes|no]
-CMD_SstpEnable_[yes|no]	Microsoft SSTP VPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
-CMD_SstpEnable_Prompt_[yes|no]	SSTP VPN 互換サーバー機能を有効化 (yes / no): 
-CMD_SstpEnable_PRINT_Enabled		SSTP VPN 互換サーバー機能が有効
-
-
-# SstpGet コマンド
-CMD_SstpGet				Microsoft SSTP VPN 互換サーバー機能の現在の設定を取得
-CMD_SstpGet_Help		現在の Microsoft SSTP VPN 互換サーバー機能の設定を取得して表示します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_SstpGet_Args		SstpGet
-
-
 # ServerCertRegenerate コマンド
 CMD_ServerCertRegenerate	指定された CN (Common Name) を持つ自己署名証明書を新たに作成し VPN Server に登録
-CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT / 10 に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n詳しくは SstpEnable コマンドのヘルプを参照してください。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
+CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT / 10 に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	新たに生成する自己署名証明書の Common Name (CN) の値を指定します。
 CMD_ServerCertRegenerate_Prompt_CN	Common Name (CN) の値: 

@@ -1496,6 +1496,8 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("EnableListener", RPC_LISTENER, StEnableListener, InRpcListener, OutRpcListener)
 	DECLARE_RPC_EX("SetPortsUDP", RPC_PORTS, StSetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 	DECLARE_RPC_EX("GetPortsUDP", RPC_PORTS, StGetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
+	DECLARE_RPC_EX("SetProtoOptions", RPC_PROTO_OPTIONS, StSetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
+	DECLARE_RPC_EX("GetProtoOptions", RPC_PROTO_OPTIONS, StGetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
 	DECLARE_RPC("SetServerPassword", RPC_SET_PASSWORD, StSetServerPassword, InRpcSetPassword, OutRpcSetPassword)
 	DECLARE_RPC_EX("SetFarmSetting", RPC_FARM, StSetFarmSetting, InRpcFarm, OutRpcFarm, FreeRpcFarm)
 	DECLARE_RPC_EX("GetFarmSetting", RPC_FARM, StGetFarmSetting, InRpcFarm, OutRpcFarm, FreeRpcFarm)
@@ -1678,6 +1680,8 @@ DECLARE_SC("DeleteListener", RPC_LISTENER, ScDeleteListener, InRpcListener, OutR
 DECLARE_SC("EnableListener", RPC_LISTENER, ScEnableListener, InRpcListener, OutRpcListener)
 DECLARE_SC_EX("SetPortsUDP", RPC_PORTS, ScSetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 DECLARE_SC_EX("GetPortsUDP", RPC_PORTS, ScGetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
+DECLARE_SC_EX("SetProtoOptions", RPC_PROTO_OPTIONS, ScSetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
+DECLARE_SC_EX("GetProtoOptions", RPC_PROTO_OPTIONS, ScGetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
 DECLARE_SC("SetServerPassword", RPC_SET_PASSWORD, ScSetServerPassword, InRpcSetPassword, OutRpcSetPassword)
 DECLARE_SC_EX("SetFarmSetting", RPC_FARM, ScSetFarmSetting, InRpcFarm, OutRpcFarm, FreeRpcFarm)
 DECLARE_SC_EX("GetFarmSetting", RPC_FARM, ScGetFarmSetting, InRpcFarm, OutRpcFarm, FreeRpcFarm)
@@ -1985,42 +1989,96 @@ UINT StSetSpecialListener(ADMIN *a, RPC_SPECIAL_LISTENER *t)
 // Set configurations for OpenVPN and SSTP
 UINT StSetOpenVpnSstpConfig(ADMIN *a, OPENVPN_SSTP_CONFIG *t)
 {
-	SERVER *s = a->Server;
-	CEDAR *c = s->Cedar;
+	PROTO *proto = a->Server->Proto;
+	PROTO_CONTAINER *container, tmp_c;
+	PROTO_OPTION *option, tmp_o;
 	UINT ret = ERR_NO_ERROR;
+	bool changed = false;
 
 	SERVER_ADMIN_ONLY;
-	NO_SUPPORT_FOR_BRIDGE;
-	if (s->ServerType != SERVER_TYPE_STANDALONE)
+
+	if (proto == NULL)
 	{
 		return ERR_NOT_SUPPORTED;
 	}
 
-	SiSetOpenVPNAndSSTPConfig(s, t);
+	tmp_o.Name = PROTO_OPTION_TOGGLE_NAME;
+	tmp_c.Name = "OpenVPN";
 
-	ALog(a, NULL, "LA_SET_OVPN_SSTP_CONFIG");
+	container = Search(proto->Containers, &tmp_c);
+	if (container != NULL)
+	{
+		option = Search(container->Options, &tmp_o);
+		if (option != NULL)
+		{
+			if (option->Type == PROTO_OPTION_BOOL)
+			{
+				option->Bool = t->EnableOpenVPN;
+				changed = true;
+			}
+			else
+			{
+				ret = ERR_INVALID_PARAMETER;
+			}
+		}
+		else
+		{
+			ret = ERR_OBJECT_NOT_FOUND;
+		}
+	}
+	else
+	{
+		ret = ERR_OBJECT_NOT_FOUND;
+	}
 
-	IncrementServerConfigRevision(s);
+	tmp_c.Name = "SSTP";
 
-	return ERR_NO_ERROR;
+	container = Search(proto->Containers, &tmp_c);
+	if (container != NULL)
+	{
+		option = Search(container->Options, &tmp_o);
+		if (option != NULL)
+		{
+			if (option->Type == PROTO_OPTION_BOOL)
+			{
+				option->Bool = t->EnableSSTP;
+				changed = true;
+			}
+			else
+			{
+				ret = ERR_INVALID_PARAMETER;
+			}
+		}
+		else
+		{
+			ret = ERR_OBJECT_NOT_FOUND;
+		}
+	}
+	else
+	{
+		ret = ERR_OBJECT_NOT_FOUND;
+	}
+
+	if (changed)
+	{
+		ALog(a, NULL, "LA_SET_OVPN_SSTP_CONFIG");
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	return ret;
 }
 
 // Get configurations for OpenVPN and SSTP
 UINT StGetOpenVpnSstpConfig(ADMIN *a, OPENVPN_SSTP_CONFIG *t)
 {
-	SERVER *s = a->Server;
-	CEDAR *c = s->Cedar;
-	UINT ret = ERR_NO_ERROR;
-
-	SERVER_ADMIN_ONLY;
-	NO_SUPPORT_FOR_BRIDGE;
-	if (s->ServerType != SERVER_TYPE_STANDALONE)
+	PROTO *proto = a->Server->Proto;
+	if (proto == NULL)
 	{
 		return ERR_NOT_SUPPORTED;
 	}
 
-	Zero(t, sizeof(OPENVPN_SSTP_CONFIG));
-	SiGetOpenVPNAndSSTPConfig(s, t);
+	t->EnableOpenVPN = ProtoEnabled(proto, "OpenVPN");
+	t->EnableSSTP = ProtoEnabled(proto, "SSTP");
 
 	return ERR_NO_ERROR;
 }
@@ -2109,7 +2167,6 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 	BUF *readme_buf;
 	BUF *readme_pdf_buf;
 	BUF *sample_buf;
-	OPENVPN_SSTP_CONFIG config;
 	LIST *port_list;
 	char my_hostname[MAX_SIZE];
 
@@ -2120,9 +2177,7 @@ UINT StMakeOpenVpnConfigFile(ADMIN *a, RPC_READ_LOG_FILE *t)
 		return ERR_NOT_SUPPORTED;
 	}
 
-	SiGetOpenVPNAndSSTPConfig(s, &config);
-
-	if (config.EnableOpenVPN == false)
+	if (ProtoEnabled(s->Proto, "OpenVPN") == false)
 	{
 		return ERR_OPENVPN_IS_NOT_ENABLED;
 	}
@@ -9959,6 +10014,140 @@ UINT StGetPortsUDP(ADMIN *a, RPC_PORTS *t)
 	return ERR_NO_ERROR;
 }
 
+UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
+{
+	PROTO *proto = a->Server->Proto;
+	PROTO_CONTAINER *container, tmp;
+	UINT ret = ERR_NO_ERROR;
+	LIST *options;
+
+	if (proto == NULL)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	tmp.Name = t->Protocol;
+
+	container = Search(proto->Containers, &tmp);
+	if (container == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	options = container->Options;
+	LockList(options);
+	{
+		UINT i;
+
+		t->Num = LIST_NUM(options);
+		t->Options = Malloc(sizeof(PROTO_OPTION) * t->Num);
+
+		for (i = 0; i < t->Num; ++i)
+		{
+			const PROTO_OPTION *option = LIST_DATA(options, i);
+			PROTO_OPTION *rpc_option = &t->Options[i];
+
+			switch (option->Type)
+			{
+			case PROTO_OPTION_BOOL:
+				rpc_option->Bool = option->Bool;
+				break;
+			case PROTO_OPTION_STRING:
+				rpc_option->String = CopyStr(option->String);
+				break;
+			default:
+				Debug("StGetProtoOptions(): unhandled option type %u!\n", option->Type);
+				ret = ERR_INTERNAL_ERROR;
+			}
+
+			if (ret == ERR_NO_ERROR)
+			{
+				rpc_option->Name = CopyStr(option->Name);
+				rpc_option->Type = option->Type;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	UnlockList(options);
+
+	return ret;
+}
+
+UINT StSetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
+{
+	PROTO *proto = a->Server->Proto;
+	PROTO_CONTAINER *container, tmp;
+	UINT ret = ERR_NO_ERROR;
+	bool changed = false;
+	LIST *options;
+
+	SERVER_ADMIN_ONLY;
+
+	if (proto == NULL)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	tmp.Name = t->Protocol;
+
+	container = Search(proto->Containers, &tmp);
+	if (container == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	options = container->Options;
+	LockList(options);
+	{
+		UINT i;
+		for (i = 0; i < t->Num; ++i)
+		{
+			PROTO_OPTION *rpc_option = &t->Options[i];
+			PROTO_OPTION *option = Search(options, rpc_option);
+			if (option == NULL || rpc_option->Type != option->Type)
+			{
+				ret = ERR_INVALID_PARAMETER;
+				break;
+			}
+
+			switch (option->Type)
+			{
+				case PROTO_OPTION_BOOL:
+					option->Bool = rpc_option->Bool;
+					break;
+				case PROTO_OPTION_STRING:
+					Free(option->String);
+					option->String = CopyStr(rpc_option->String);
+					break;
+				default:
+					Debug("StSetProtoOptions(): unhandled option type %u!\n", option->Type);
+					ret = ERR_INTERNAL_ERROR;
+			}
+
+			if (ret == ERR_NO_ERROR)
+			{
+				changed = true;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	UnlockList(options);
+
+	if (changed)
+	{
+		ALog(a, NULL, "LA_SET_PROTO_OPTIONS", t->Protocol);
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	return ret;
+}
+
 // Get server status
 UINT StGetServerStatus(ADMIN *a, RPC_SERVER_STATUS *t)
 {
@@ -10143,8 +10332,6 @@ void InOpenVpnSstpConfig(OPENVPN_SSTP_CONFIG *t, PACK *p)
 
 	t->EnableOpenVPN = PackGetBool(p, "EnableOpenVPN");
 	t->EnableSSTP = PackGetBool(p, "EnableSSTP");
-	t->OpenVPNObfuscation= PackGetBool(p, "OpenVPNObfuscation");
-	PackGetStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask, sizeof(t->OpenVPNObfuscationMask));
 }
 void OutOpenVpnSstpConfig(PACK *p, OPENVPN_SSTP_CONFIG *t)
 {
@@ -10156,8 +10343,6 @@ void OutOpenVpnSstpConfig(PACK *p, OPENVPN_SSTP_CONFIG *t)
 
 	PackAddBool(p, "EnableOpenVPN", t->EnableOpenVPN);
 	PackAddBool(p, "EnableSSTP", t->EnableSSTP);
-	PackAddBool(p, "OpenVPNObfuscation", t->OpenVPNObfuscation);
-	PackAddStr(p, "OpenVPNObfuscationMask", t->OpenVPNObfuscationMask);
 }
 
 // DDNS_CLIENT_STATUS
@@ -12264,6 +12449,130 @@ void FreeRpcStr(RPC_STR *t)
 	}
 
 	Free(t->String);
+}
+
+// RPC_PROTO_OPTIONS
+void InRpcProtoOptions(RPC_PROTO_OPTIONS *t, PACK *p)
+{
+	UINT i, size;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(RPC_PROTO_OPTIONS));
+
+	size = PackGetStrSize(p, "Protocol");
+	if (size > 0)
+	{
+		t->Protocol = Malloc(size);
+
+		if (PackGetStr(p, "Protocol", t->Protocol, size) == false)
+		{
+			Zero(t->Protocol, size);
+		}
+	}
+
+	t->Num = PackGetIndexCount(p, "Name");
+	if (t->Num == 0)
+	{
+		return;
+	}
+
+	t->Options = ZeroMalloc(sizeof(PROTO_OPTION) * t->Num);
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		PROTO_OPTION *option = &t->Options[i];
+
+		size = PackGetStrSizeEx(p, "Name", i);
+		if (size > 0)
+		{
+			option->Name = Malloc(size);
+			if (PackGetStrEx(p, "Name", option->Name, size, i) == false)
+			{
+				Zero(option->Name, size);
+			}
+		}
+
+		option->Type = PackGetIntEx(p, "Type", i);
+		switch (option->Type)
+		{
+		case PROTO_OPTION_STRING:
+			size = PackGetDataSizeEx(p, "Value", i);
+			if (size > 0)
+			{
+				option->String = Malloc(size);
+				if (PackGetDataEx2(p, "Value", option->String, size, i) == false)
+				{
+					Zero(option->String, size);
+				}
+			}
+			break;
+		case PROTO_OPTION_BOOL:
+			PackGetDataEx2(p, "Value", &option->Bool, sizeof(option->Bool), i);
+			break;
+		default:
+			Debug("InRpcProtoOptions(): unhandled type %u!\n", option->Type);
+		}
+	}
+}
+void OutRpcProtoOptions(PACK *p, RPC_PROTO_OPTIONS *t)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	PackAddStr(p, "Protocol", t->Protocol);
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		PROTO_OPTION *option = &t->Options[i];
+
+		PackAddStrEx(p, "Name", option->Name, i, t->Num);
+		PackAddIntEx(p, "Type", option->Type, i, t->Num);
+
+		switch (option->Type)
+		{
+		case PROTO_OPTION_STRING:
+			PackAddDataEx(p, "Value", option->String, StrLen(option->String) + 1, i, t->Num);
+			break;
+		case PROTO_OPTION_BOOL:
+			PackAddDataEx(p, "Value", &option->Bool, sizeof(option->Bool), i, t->Num);
+			break;
+		default:
+			Debug("OutRpcProtoOptions(): unhandled type %u!\n", option->Type);
+		}
+	}
+}
+void FreeRpcProtoOptions(RPC_PROTO_OPTIONS *t)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL)
+	{
+		return;
+	}
+
+	Free(t->Protocol);
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		PROTO_OPTION *option = &t->Options[i];
+
+		Free(option->Name);
+
+		if (option->Type == PROTO_OPTION_STRING)
+		{
+			Free(option->String);
+		}
+	}
+
+	Free(t->Options);
 }
 
 // RPC_SET_PASSWORD

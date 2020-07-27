@@ -122,10 +122,11 @@ struct SSTP_SERVER
 
 
 //// Function prototype
-PROTO_IMPL *SstpGetProtoImpl();
-bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
+const PROTO_IMPL *SstpGetProtoImpl();
+const PROTO_OPTION *SstpOptions();
+const char *SstpName();
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void SstpFree(void *param);
-char *SstpName();
 bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 
 SSTP_SERVER *NewSstpServer(CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
@@ -153,6 +154,5 @@ SSTP_PACKET *SstpNewDataPacket(UCHAR *data, UINT size);
 SSTP_PACKET *SstpNewControlPacket(USHORT message_type);
 SSTP_PACKET *SstpNewControlPacketWithAnAttribute(USHORT message_type, SSTP_ATTRIBUTE *a);
 void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p);
-bool GetNoSstp();
 
 #endif	// PROTO_SSTP_H

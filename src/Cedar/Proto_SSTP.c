@@ -7,22 +7,14 @@
 
 #include "CedarPch.h"
 
-static bool g_no_sstp = false;
-
-// Get the SSTP disabling flag
-bool GetNoSstp()
+const PROTO_IMPL *SstpGetProtoImpl()
 {
-
-	return g_no_sstp;
-}
-
-PROTO_IMPL *SstpGetProtoImpl()
-{
-	static PROTO_IMPL impl =
+	static const PROTO_IMPL impl =
 	{
+		SstpName,
+		SstpOptions,
 		SstpInit,
 		SstpFree,
-		SstpName,
 		NULL,
 		SstpProcessData,
 		NULL
@@ -31,9 +23,24 @@ PROTO_IMPL *SstpGetProtoImpl()
 	return &impl;
 }
 
-bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+const char *SstpName()
 {
-	if (param == NULL || cedar == NULL || im == NULL || se == NULL)
+	return "SSTP";
+}
+
+const PROTO_OPTION *SstpOptions()
+{
+	static const PROTO_OPTION options[] =
+	{
+		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
+	};
+
+	return options;
+}
+
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+{
+	if (param == NULL || options == NULL || cedar == NULL || im == NULL || se == NULL)
 	{
 		return false;
 	}
@@ -48,11 +55,6 @@ bool SstpInit(void **param, struct CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVE
 void SstpFree(void *param)
 {
 	FreeSstpServer(param);
-}
-
-char *SstpName()
-{
-	return "SSTP";
 }
 
 bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)

@@ -1429,6 +1429,28 @@ bool PackGetStrEx(PACK *p, char *name, char *str, UINT size, UINT index)
 	return true;
 }
 
+// Get the string size from the PACK
+bool PackGetStrSize(PACK *p, char *name)
+{
+	return PackGetStrSizeEx(p, name, 0);
+}
+bool PackGetStrSizeEx(PACK *p, char *name, UINT index)
+{
+	ELEMENT *e;
+	// Validate arguments
+	if (p == NULL || name == NULL)
+	{
+		return 0;
+	}
+
+	e = GetElement(p, name, VALUE_STR);
+	if (e == NULL)
+	{
+		return 0;
+	}
+	return GetDataValueSize(e, index);
+}
+
 // Add the buffer to the PACK (array)
 ELEMENT *PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total)
 {
