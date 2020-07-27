@@ -133,10 +133,8 @@ typedef void *HWND;
 
 
 // Vista driver installer related
-#define	VISTA_DRIVER_INSTALLER_SRC	L"|driver_installer.exe"
-#define	VISTA_DRIVER_INSTALLER_SRC_X64	L"|driver_installer_x64.exe"
-#define	VISTA_DRIVER_INSTALLER_SRC_IA64	L"|driver_installer_ia64.exe"
-#define	VISTA_DRIVER_INSTALLER_DST	L"%s\\driver_installer.exe"
+#define	VISTA_DRIVER_INSTALLER_SRC		L"|vpndrvinst.exe"
+#define	VISTA_DRIVER_INSTALLER_DST		L"%s\\vpndrvinst.exe"
 
 #define	DRIVER_DEVICE_ID_TAG		"NeoAdapter_%s"
 
@@ -741,7 +739,6 @@ void MsServiceMode(SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop);
 void MsUserModeW(wchar_t *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT icon);
 bool MsIsUserMode();
 void MsTestOnly();
-char *MsGetPenCoreDllFileName();
 void MsPlaySound(char *name);
 void MsSetThreadSingleCpu();
 void MsWin9xTest();

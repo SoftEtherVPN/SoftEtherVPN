@@ -1842,25 +1842,12 @@ void RegistWindowsFirewallAll()
 void RegistWindowsFirewallAllEx(char *dir)
 {
 	MsRegistWindowsFirewallEx2(CEDAR_CLIENT_STR, "vpnclient.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_CLIENT_STR, "vpnclient_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_CLIENT_MANAGER_STR, "vpncmgr.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_CLIENT_MANAGER_STR, "vpncmgr_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_MANAGER_STR, "vpnsmgr.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_MANAGER_STR, "vpnsmgr_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_SERVER_STR, "vpnserver.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_SERVER_STR, "vpnserver_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_BRIDGE_STR, "vpnbridge.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_BRIDGE_STR, "vpnbridge_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_CUI_STR, "vpncmd_x64.exe", dir);
-
 	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest.exe", dir);
-	MsRegistWindowsFirewallEx2(CEDAR_PRODUCT_STR, "vpntest_x64.exe", dir);
 }
 
 // Check whether the notification service is already running
@@ -10125,11 +10112,11 @@ void InitWinUi(wchar_t *software_name, char *font, UINT fontsize)
 	{
 		if (Is64())
 		{
-			hDll = MsLoadLibraryAsDataFile(MsGetPenCoreDllFileName());
+			hDll = MsLoadLibraryAsDataFile(PENCORE_DLL_NAME);
 		}
 		else
 		{
-			hDll = MsLoadLibrary(MsGetPenCoreDllFileName());
+			hDll = MsLoadLibrary(PENCORE_DLL_NAME);
 		}
 
 		if (hDll == NULL)

@@ -25,8 +25,6 @@
 #define	VPNCMD_BOOTSTRAP_REG_VALUENAME_VER	"InstalledVersion"
 #define	VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH	"InstalledPath"
 #define	VPNCMD_BOOTSTRAP_FILENAME		"|vpncmdsys.exe"
-#define	VPNCMD_BOOTSTRAP_FILENAME_X64	"|vpncmdsys_x64.exe"
-#define	VPNCMD_BOOTSTRAP_FILENAME_IA64	"|vpncmdsys_ia64.exe"
 
 
 // Traffic test results

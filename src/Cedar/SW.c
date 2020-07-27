@@ -60,29 +60,20 @@ static SW_OLD_MSI old_msi_vpnbridge[] =
 static char *sfx_vpn_server_bridge_files[] =
 {
 	"vpnsetup.exe",
-	"vpnsetup_x64.exe",
 	"vpnserver.exe",
-	"vpnserver_x64.exe",
 	"vpnbridge.exe",
-	"vpnbridge_x64.exe",
 	"vpnsmgr.exe",
-	"vpnsmgr_x64.exe",
 	"vpncmd.exe",
-	"vpncmd_x64.exe",
 	"hamcore.se2",
 };
 static char *sfx_vpn_client_files[] =
 {
 	"vpnsetup.exe",
-	"vpnsetup_x64.exe",
 	"vpnclient.exe",
-	"vpnclient_x64.exe",
 	"vpncmgr.exe",
-	"vpncmgr_x64.exe",
 	"vpncmd.exe",
-	"vpncmd_x64.exe",
-	"vpninstall.exe",
-	"vpnweb.cab",
+	//"vpninstall.exe",
+	//"vpnweb.cab",
 	"hamcore.se2",
 };
 
@@ -141,7 +132,7 @@ bool SwCompileSfx(LIST *o, wchar_t *dst_filename)
 	{
 		// Generate the setup.exe file in the Temp directory
 		ConbinePathW(exe_filename, sizeof(exe_filename), MsGetMyTempDirW(), L"setup.exe");
-		if (FileCopyW(L"|vpnsetup_nosign.exe", exe_filename))
+		if (FileCopyW(L"vpnsetup.exe", exe_filename))
 		{
 			// Resource updating start
 			HANDLE h = _BeginUpdateResourceW(exe_filename, false);
@@ -288,8 +279,6 @@ bool SwAddBasicFilesToList(LIST *o, char *component_name)
 	{
 		return false;
 	}
-
-	Add(o, SwNewSfxFile("install_src.dat", L"|install_src.dat"));
 
 	return true;
 }
@@ -1973,7 +1962,6 @@ void SwDeleteShortcuts(SW_LOGFILE *logfile)
 // Uninstall main
 bool SwUninstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 {
-	bool x64 = MsIs64BitWindows();
 	bool ok;
 	wchar_t tmp[MAX_SIZE];
 	UINT i;
@@ -2349,7 +2337,6 @@ LABEL_CLEANUP:
 void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 {
 	wchar_t tmp[MAX_SIZE];
-	bool x64 = MsIs64BitWindows();
 	wchar_t src_setup_exe_fullpath[MAX_PATH];
 	wchar_t src_setup_exe_dir[MAX_PATH];
 	wchar_t src_setup_exe_filename[MAX_PATH];
@@ -2363,7 +2350,6 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 	wchar_t dir_startup[MAX_PATH];
 	wchar_t tmp1[MAX_SIZE], tmp2[MAX_SIZE];
 	SW_TASK_COPY *setup_exe;
-	SW_TASK_COPY *setup_exe_x64;
 	// Validate arguments
 	if (sw == NULL || t == NULL || c == NULL)
 	{
@@ -2402,10 +2388,6 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 	Add(t->CopyTasks, (setup_exe = SwNewCopyTask(src_setup_exe_filename,
 		L"vpnsetup.exe", src_setup_exe_dir, sw->InstallDir, true, true)));
 
-	// Add vpnsetup_x64.exe to the copy list
-	Add(t->CopyTasks, (setup_exe_x64 = SwNewCopyTask(L"vpnsetup_x64.exe",
-		L"vpnsetup_x64.exe", src_setup_exe_dir, sw->InstallDir, true, true)));
-
 	// Generate the file processing list for each component
 	if (c->Id == SW_CMP_VPN_SERVER)
 	{
@@ -2416,18 +2398,9 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_server.config");
 		Add(t->SetSecurityPaths, CopyUniStr(tmp));
 
-		if (x64 == false)
-		{
-			vpnserver = SwNewCopyTask(L"vpnserver.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
-		else
-		{
-			vpnserver = SwNewCopyTask(L"vpnserver_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
+		vpnserver = SwNewCopyTask(L"vpnserver.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpnserver);
 		Add(t->CopyTasks, vpncmd);
@@ -2496,18 +2469,9 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_bridge.config");
 		Add(t->SetSecurityPaths, CopyUniStr(tmp));
 
-		if (x64 == false)
-		{
-			vpnbridge = SwNewCopyTask(L"vpnbridge.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
-		else
-		{
-			vpnbridge = SwNewCopyTask(L"vpnbridge_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
+		vpnbridge = SwNewCopyTask(L"vpnbridge.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpnbridge);
 		Add(t->CopyTasks, vpncmd);
@@ -2572,33 +2536,17 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		// VPN Client
 		SW_TASK_COPY *ct;
 		SW_TASK_COPY *vpnclient, *vpncmd, *vpncmgr;
-		SW_TASK_COPY *vpnclient_gomi, *vpncmd_gomi, *vpncmgr_gomi;
 		SW_TASK_COPY *sfx_cache = NULL;
-		SW_TASK_COPY *vpnweb;
-		SW_TASK_COPY *vpninstall;
+		//SW_TASK_COPY *vpnweb;
+		//SW_TASK_COPY *vpninstall;
 		wchar_t *src_config_filename;
 
 		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_client.config");
 		Add(t->SetSecurityPaths, CopyUniStr(tmp));
 
-		if (x64 == false)
-		{
-			vpnclient = SwNewCopyTask(L"vpnclient.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr = SwNewCopyTask(L"vpncmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnclient_gomi = SwNewCopyTask(L"vpnclient_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd_gomi = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr_gomi = SwNewCopyTask(L"vpncmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
-		else
-		{
-			vpnclient = SwNewCopyTask(L"vpnclient_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr = SwNewCopyTask(L"vpncmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnclient_gomi = SwNewCopyTask(L"vpnclient.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmd_gomi = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr_gomi = SwNewCopyTask(L"vpncmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
+		vpnclient = SwNewCopyTask(L"vpnclient.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpncmgr = SwNewCopyTask(L"vpncmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		if (vpncmgr != NULL)
 		{
@@ -2621,17 +2569,14 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 			}
 		}
 
-		vpnweb = SwNewCopyTask(L"vpnweb.cab", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		vpninstall = SwNewCopyTask(L"vpninstall.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		//vpnweb = SwNewCopyTask(L"vpnweb.cab", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		//vpninstall = SwNewCopyTask(L"vpninstall.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpnclient);
 		Add(t->CopyTasks, vpncmd);
 		Add(t->CopyTasks, vpncmgr);
-		Add(t->CopyTasks, vpnclient_gomi);
-		Add(t->CopyTasks, vpncmd_gomi);
-		Add(t->CopyTasks, vpncmgr_gomi);
-		Add(t->CopyTasks, vpnweb);
-		Add(t->CopyTasks, vpninstall);
+		//Add(t->CopyTasks, vpnweb);
+		//Add(t->CopyTasks, vpninstall);
 
 
 		if (sfx_cache != NULL)
@@ -2713,16 +2658,8 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		// VPN Server Manager (Tools Only)
 		SW_TASK_COPY *vpncmd, *vpnsmgr;
 
-		if (x64 == false)
-		{
-			vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
-		else
-		{
-			vpncmd = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpnsmgr = SwNewCopyTask(L"vpnsmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
+		vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpnsmgr = SwNewCopyTask(L"vpnsmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpncmd);
 		Add(t->CopyTasks, vpnsmgr);
@@ -2749,16 +2686,8 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		// VPN Client Manager (Tools Only)
 		SW_TASK_COPY *vpncmd, *vpncmgr;
 
-		if (x64 == false)
-		{
-			vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr = SwNewCopyTask(L"vpncmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
-		else
-		{
-			vpncmd = SwNewCopyTask(L"vpncmd_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-			vpncmgr = SwNewCopyTask(L"vpncmgr_x64.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		}
+		vpncmd = SwNewCopyTask(L"vpncmd.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		vpncmgr = SwNewCopyTask(L"vpncmgr.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpncmd);
 		Add(t->CopyTasks, vpncmgr);
@@ -3044,7 +2973,6 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 	UINT i;
 	wchar_t tmp[MAX_SIZE * 2];
 	bool ok;
-	bool x64 = MsIs64BitWindows();
 	// Validate arguments
 	if (sw == NULL || wp == NULL || c == NULL)
 	{
@@ -3100,7 +3028,7 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 						void *proc_handle = NULL;
 						wchar_t exe[MAX_PATH];
 
-						CombinePathW(exe, sizeof(exe), MsGetExeDirNameW(), L"vpnsetup_x64.exe");
+						CombinePathW(exe, sizeof(exe), MsGetExeDirNameW(), L"vpnsetup.exe");
 
 						if (MsExecuteEx2W(exe, L"/SUINSTMODE:yes", &proc_handle, true))
 						{
@@ -3671,7 +3599,7 @@ LABEL_CREATE_SHORTCUT:
 		// Run the vpncmd and exit immediately
 		wchar_t fullpath[MAX_PATH];
 
-		ConbinePathW(fullpath, sizeof(fullpath), sw->InstallDir, (MsIsX64() ? L"vpncmd_x64.exe" : L"vpncmd.exe"));
+		ConbinePathW(fullpath, sizeof(fullpath), sw->InstallDir, (L"vpncmd.exe"));
 
 		RunW(fullpath, L"/?", true, false);
 	}
@@ -5633,13 +5561,6 @@ UINT SwWelcomeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 		break;
 
 	case WM_WIZ_NEXT:
-		if (IsFileExistsW(L"@install_src.dat") == false)
-		{
-			// Vpnsetup.exe is launched from other than the installation source
-			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("SW_NOT_INSTALL_SRC"));
-			break;
-		}
-
 		if (MsIsKB3033929RequiredAndMissing())
 		{
 			// KB3033929 is missing
@@ -6112,49 +6033,34 @@ void SwDefineComponents(SW *sw)
 	char *vpn_server_files[] =
 	{
 		"vpnserver.exe",
-		"vpnserver_x64.exe",
 		"vpnsmgr.exe",
-		"vpnsmgr_x64.exe",
 		"vpncmd.exe",
-		"vpncmd_x64.exe",
 		"hamcore.se2",
 	};
 	char *vpn_client_files[] =
 	{
 		"vpnclient.exe",
-		"vpnclient_x64.exe",
 		"vpncmgr.exe",
-		"vpncmgr_x64.exe",
 		"vpncmd.exe",
-		"vpncmd_x64.exe",
 		"hamcore.se2",
-		"vpninstall.exe",
-		"vpnweb.cab",
 	};
 	char *vpn_bridge_files[] =
 	{
 		"vpnbridge.exe",
-		"vpnbridge_x64.exe",
 		"vpnsmgr.exe",
-		"vpnsmgr_x64.exe",
 		"vpncmd.exe",
-		"vpncmd_x64.exe",
 		"hamcore.se2",
 	};
 	char *vpn_smgr_files[] =
 	{
 		"vpnsmgr.exe",
-		"vpnsmgr_x64.exe",
 		"vpncmd.exe",
-		"vpncmd_x64.exe",
 		"hamcore.se2",
 	};
 	char *vpn_cmgr_files[] =
 	{
 		"vpncmgr.exe",
-		"vpncmgr_x64.exe",
 		"vpncmd.exe",
-		"vpncmd_x64.exe",
 		"hamcore.se2",
 	};
 	// Validate arguments
@@ -6164,16 +6070,16 @@ void SwDefineComponents(SW *sw)
 	}
 
 	// VPN Server
-	c = SwNewComponent(SW_NAME_VPNSERVER, GC_SVC_NAME_VPNSERVER, SW_CMP_VPN_SERVER, ICO_VPNSERVER, 5, (MsIsX64() ? L"vpnserver_x64.exe" : L"vpnserver.exe"),
+	c = SwNewComponent(SW_NAME_VPNSERVER, GC_SVC_NAME_VPNSERVER, SW_CMP_VPN_SERVER, ICO_VPNSERVER, 5, L"vpnserver.exe",
 		SW_LONG_VPNSERVER, false, sizeof(vpn_server_files) / sizeof(char *), vpn_server_files,
-		(MsIsX64() ? L"vpnsmgr_x64.exe" : L"vpnsmgr.exe"), _UU("SW_RUN_TEXT_VPNSMGR"),
+		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		old_msi_vpnserver, sizeof(old_msi_vpnserver) / sizeof(SW_OLD_MSI));
 	Add(sw->ComponentList, c);
 
 	// VPN Client
-	c = SwNewComponent(SW_NAME_VPNCLIENT, GC_SVC_NAME_VPNCLIENT, SW_CMP_VPN_CLIENT, ICO_VPN, 6, (MsIsX64() ? L"vpnclient_x64.exe" : L"vpnclient.exe"),
+	c = SwNewComponent(SW_NAME_VPNCLIENT, GC_SVC_NAME_VPNCLIENT, SW_CMP_VPN_CLIENT, ICO_VPN, 6, L"vpnclient.exe",
 		SW_LONG_VPNCLIENT, true, sizeof(vpn_client_files) / sizeof(char *), vpn_client_files,
-		(MsIsX64() ? L"vpncmgr_x64.exe" : L"vpncmgr.exe"), _UU("SW_RUN_TEXT_VPNCMGR"),
+		L"vpncmgr.exe", _UU("SW_RUN_TEXT_VPNCMGR"),
 		old_msi_vpnclient, sizeof(old_msi_vpnclient) / sizeof(SW_OLD_MSI));
 
 #ifdef	GC_ENABLE_VPNGATE
@@ -6182,23 +6088,23 @@ void SwDefineComponents(SW *sw)
 	Add(sw->ComponentList, c);
 
 	// VPN Bridge
-	c = SwNewComponent(SW_NAME_VPNBRIDGE, GC_SVC_NAME_VPNBRIDGE, SW_CMP_VPN_BRIDGE, ICO_CASCADE, 7, (MsIsX64() ? L"vpnbridge_x64.exe" : L"vpnbridge.exe"),
+	c = SwNewComponent(SW_NAME_VPNBRIDGE, GC_SVC_NAME_VPNBRIDGE, SW_CMP_VPN_BRIDGE, ICO_CASCADE, 7, L"vpnbridge.exe",
 		SW_LONG_VPNBRIDGE, false, sizeof(vpn_bridge_files) / sizeof(char *), vpn_bridge_files,
-		(MsIsX64() ? L"vpnsmgr_x64.exe" : L"vpnsmgr.exe"), _UU("SW_RUN_TEXT_VPNSMGR"),
+		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		old_msi_vpnbridge, sizeof(old_msi_vpnbridge) / sizeof(SW_OLD_MSI));
 	Add(sw->ComponentList, c);
 
 	// VPN Server Manager (Tools Only)
 	c = SwNewComponent(SW_NAME_VPNSMGR, NULL, SW_CMP_VPN_SMGR, ICO_USER_ADMIN, 8, NULL,
 		SW_LONG_VPNSMGR, false, sizeof(vpn_smgr_files) / sizeof(char *), vpn_smgr_files,
-		(MsIsX64() ? L"vpnsmgr_x64.exe" : L"vpnsmgr.exe"), _UU("SW_RUN_TEXT_VPNSMGR"),
+		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		NULL, 0);
 	Add(sw->ComponentList, c);
 
 	// VPN Client Manager (Tools Only)
 	c = SwNewComponent(SW_NAME_VPNCMGR, NULL, SW_CMP_VPN_CMGR, ICO_INTERNET, 9, NULL,
 		SW_LONG_VPNCMGR, false, sizeof(vpn_cmgr_files) / sizeof(char *), vpn_cmgr_files,
-		(MsIsX64() ? L"vpncmgr_x64.exe /remote" : L"vpncmgr.exe /remote"), _UU("SW_RUN_TEXT_VPNCMGR"),
+		L"vpncmgr.exe /remote", _UU("SW_RUN_TEXT_VPNCMGR"),
 		NULL, 0);
 	Add(sw->ComponentList, c);
 }

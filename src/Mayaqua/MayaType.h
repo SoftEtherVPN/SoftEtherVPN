@@ -16,7 +16,7 @@
 #endif	// WINDOWS_H
 
 
-#if	!defined(ENCRYPT_C) && !defined(HAM_C)
+#if	!defined(ENCRYPT_C)
 // Structure which is used by OpenSSL
 typedef struct x509_st X509;
 typedef struct evp_pkey_st EVP_PKEY;

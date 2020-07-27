@@ -2098,7 +2098,6 @@ bool MsExecDriverInstaller(char *arg)
 	HANDLE h;
 	UINT retcode;
 	SHELLEXECUTEINFOW info;
-	wchar_t *src_exe;
 	wchar_t *arg_w;
 	// Validate arguments
 	if (arg == NULL)
@@ -2110,20 +2109,9 @@ bool MsExecDriverInstaller(char *arg)
 	UniFormat(hamcore_src, sizeof(hamcore_src), L"%s\\hamcore.se2", MsGetExeDirNameW());
 
 	// Extract the File
-	src_exe = VISTA_DRIVER_INSTALLER_SRC;
-
-	if (MsIsX64())
-	{
-		src_exe = VISTA_DRIVER_INSTALLER_SRC_X64;
-	}
-	if (MsIsIA64())
-	{
-		src_exe = VISTA_DRIVER_INSTALLER_SRC_IA64;
-	}
-
 	UniFormat(tmp, sizeof(tmp), VISTA_DRIVER_INSTALLER_DST, MsGetMyTempDirW());
 
-	if (FileCopyW(src_exe, tmp) == false)
+	if (FileCopyW(VISTA_DRIVER_INSTALLER_SRC, tmp) == false)
 	{
 		return false;
 	}
@@ -3938,26 +3926,6 @@ LRESULT CALLBACK MsUserModeWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-// Get the name of PenCore.dll
-char *MsGetPenCoreDllFileName()
-{
-	/*if (Is64())
-	{
-		if (IsX64())
-		{
-			return PENCORE_DLL_NAME_X64;
-		}
-		else
-		{
-			return PENCORE_DLL_NAME_IA64;
-		}
-	}
-	else*/
-	{
-		return PENCORE_DLL_NAME;
-	}
-}
-
 // Get whether this instance is in user mode
 bool MsIsUserMode()
 {
@@ -4304,11 +4272,11 @@ void MsUserModeW(wchar_t *title, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop
 
 	if (Is64())
 	{
-		hDll = MsLoadLibraryAsDataFile(MsGetPenCoreDllFileName());
+		hDll = MsLoadLibraryAsDataFile(PENCORE_DLL_NAME);
 	}
 	else
 	{
-		hDll = MsLoadLibrary(MsGetPenCoreDllFileName());
+		hDll = MsLoadLibrary(PENCORE_DLL_NAME);
 	}
 
 	// Read icon
@@ -4877,15 +4845,7 @@ UINT MsService(char *name, SERVICE_FUNCTION *start, SERVICE_FUNCTION *stop, UINT
 						wchar_t filename[MAX_PATH];
 
 						UniFormat(filename, sizeof(filename), L"\"%s\"", arg_w);
-
-						if (Is64() == false)
-						{
-							UniFormat(vpncmgr, sizeof(vpncmgr), L"%s\\vpncmgr.exe", MsGetExeDirNameW());
-						}
-						else
-						{
-							UniFormat(vpncmgr, sizeof(vpncmgr), L"%s\\vpncmgr_x64.exe", MsGetExeDirNameW());
-						}
+						UniFormat(vpncmgr, sizeof(vpncmgr), L"%s\\vpncmgr.exe", MsGetExeDirNameW());
 
 						RunW(vpncmgr, filename, false, false);
 					}

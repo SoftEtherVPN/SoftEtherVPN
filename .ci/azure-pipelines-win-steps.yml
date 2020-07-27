@@ -4,11 +4,17 @@ parameters:
 
 steps:
 - script: |
-    cd /d $(Build.BinariesDirectory)
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{parameters.bits}}.bat"
     cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl $(Build.SourcesDirectory)
     cmake --build .
+  workingDirectory: $(Build.BinariesDirectory)
   displayName: 'Build'
+- script: |
+    mkdir "$(Build.StagingDirectory)/installers"
+    vpnsetup /SFXMODE:vpnclient /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnclient-$(Build.SourceVersion).exe"
+    vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnserver_vpnbridge-$(Build.SourceVersion).exe"
+  workingDirectory: $(Build.BinariesDirectory)
+  displayName: 'Build installers'
 - powershell: |
     . .ci\appveyor-vpntest.ps1
   displayName: 'Test'
@@ -16,9 +22,13 @@ steps:
   inputs:
     sourceFolder: '$(Build.BinariesDirectory)'
     contents: '?(*.exe|*.se2|*.pdb)'
-    TargetFolder: '$(Build.StagingDirectory)'
+    TargetFolder: '$(Build.StagingDirectory)/binaries'
     flattenFolders: true
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: '$(Build.StagingDirectory)'
+    pathtoPublish: '$(Build.StagingDirectory)/binaries'
     artifactName: 'Binaries'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.StagingDirectory)/installers'
+    artifactName: 'Installers'

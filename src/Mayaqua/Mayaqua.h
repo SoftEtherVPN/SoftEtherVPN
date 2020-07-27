@@ -12,11 +12,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-// PenCore.dll related
 #define	PENCORE_DLL_NAME		"|PenCore.dll"
-// #define	PENCORE_DLL_NAME_X64	"|PenCore_x64.dll" // commonized to x86
-// #define	PENCORE_DLL_NAME_IA64	"|PenCore_ia64.dll" // commonized to x86
-
 
 //#define	USE_PROBE						// Use Probe
 

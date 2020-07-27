@@ -7180,7 +7180,6 @@ SW_DIR_DST_IS_SYSTEM_MODE			同樣的軟體已經在指定目錄中以系統模�
 SW_DIR_DST_IS_USER_MODE				同樣的軟體已經在指定目錄中以使用者模式安裝。\r\n\r\n請指定另外一個目錄。
 SW_SYSTEM_MODE_ALREADY_INSTALLED	本軟體 "%s" 以系統模式被安裝在這台電腦上。\r\n\r\n同樣的軟體以使用者模式和系統模式安裝在同一台電腦上會發生衝突。\r\n\r\n您確定要以使用者模式繼續進行安裝？
 
-SW_NOT_INSTALL_SRC					安裝程式已在一個外部的安裝源執行。\r\n\r\n不能再繼續安裝。
 SW_SETUPLOG_CORRUPTED				"setuplog.dat" 檔已被破壞。
 SW_MSI_UNINSTALL_FAILED				之前的版本 %s (產品號: "%S")已安裝。 Windows安裝工具移除舊版本失敗。\r\n\r\n請您手動移除並且重啟本安裝工具。
 SW_MSI_UNINSTALL_REBOOT_REQUIRED	Windows 安裝工具已經移除舊版本 %s。請重啟電腦。\r\n\r\n點擊結束按鈕並且手動重啟電腦，然後在電腦重啟後，重啟本安裝工具。

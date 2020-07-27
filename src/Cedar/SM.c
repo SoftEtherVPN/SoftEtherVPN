@@ -20028,26 +20028,17 @@ void SmInitDefaultSettingList()
 			{
 				MS_PROCESS *p = LIST_DATA(pl, i);
 
-				if (UniInStr(p->ExeFilenameW, L"vpnserver.exe") || UniInStr(p->ExeFilenameW, L"vpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnbridge.exe") || UniInStr(p->ExeFilenameW, L"vpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"vpnserver.exe") || UniInStr(p->ExeFilenameW, L"vpnbridge.exe"))
 				{
 					b = true;
 				}
 
-				if (UniInStr(p->ExeFilenameW, L"sevpnserver.exe") || UniInStr(p->ExeFilenameW, L"sevpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnbridge.exe") || UniInStr(p->ExeFilenameW, L"sevpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"sevpnserver.exe") || UniInStr(p->ExeFilenameW, L"sevpnbridge.exe"))
 				{
 					b = true;
 				}
 
-				if (UniInStr(p->ExeFilenameW, L"utvpnserver.exe") || UniInStr(p->ExeFilenameW, L"utvpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnbridge.exe") || UniInStr(p->ExeFilenameW, L"utvpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"utvpnserver.exe") || UniInStr(p->ExeFilenameW, L"utvpnbridge.exe"))
 				{
 					b = true;
 				}
