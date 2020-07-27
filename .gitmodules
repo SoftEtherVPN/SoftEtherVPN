@@ -1,6 +1,3 @@
 [submodule "src/Mayaqua/3rdparty/cpu_features"]
 	path = src/Mayaqua/3rdparty/cpu_features
 	url = https://github.com/google/cpu_features.git
-[submodule "src/Mayaqua/3rdparty/zlib"]
-	path = src/Mayaqua/3rdparty/zlib
-	url = https://github.com/madler/zlib.git
