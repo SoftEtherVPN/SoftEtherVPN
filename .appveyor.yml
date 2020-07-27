@@ -1,7 +1,6 @@
 version: '{build}'
 
 image:
-  - Visual Studio 2015
   - Visual Studio 2017
   - Ubuntu1604
   - Ubuntu1804
@@ -24,23 +23,6 @@ init:
 install: git submodule update --init --recursive
 
 for:
--
-  matrix:
-    only:
-      - image: Visual Studio 2015
-  build_script:
-    - src\BuildAll.cmd
-    - exit %errorlevel%
-  after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\Win32_Release\*.pdb"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\x64_Release\*.pdb"
-  artifacts:
-    - path: output\pkg\*\*
-      name: Release
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip"
-      name: PDBs (x86)
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip"
-      name: PDBs (x64)
 -
   matrix:
     only:
