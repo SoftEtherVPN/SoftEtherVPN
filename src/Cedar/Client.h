@@ -36,8 +36,6 @@
 #define	CLIENT_NOTIFY_SERVICE_INSTANCENAME	GC_SW_SOFTETHER_PREFIX "vpnclient_uihelper"
 
 #define	CLIENT_WIN32_EXE_FILENAME			"vpnclient.exe"
-#define	CLIENT_WIN32_EXE_FILENAME_X64		"vpnclient_x64.exe"
-#define	CLIENT_WIN32_EXE_FILENAME_IA64		"vpnclient_ia64.exe"
 
 #define CLIENT_CUSTOM_INI_FILENAME			"$custom.ini"
 
@@ -599,7 +597,6 @@ bool CtSetCommonProxySetting(CLIENT *c, INTERNET_SETTING *a);
 // Internal function prototype
 void CiSendGlobalPulse(CLIENT *c);
 void CiPulseRecvThread(THREAD *thread, void *param);
-char *CiGetVpnClientExeFileName();
 void CiServerThread(THREAD *t, void *param);
 void CiInitSaver(CLIENT *c);
 void CiFreeSaver(CLIENT *c);

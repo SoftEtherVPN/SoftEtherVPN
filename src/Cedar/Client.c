@@ -411,27 +411,6 @@ typedef struct CNC_CONNECT_ERROR_DLG_THREAD_PARAM
 	EVENT *Event;
 } CNC_CONNECT_ERROR_DLG_THREAD_PARAM;
 
-
-// Get the file name of vpnclient.exe in Win32
-char *CiGetVpnClientExeFileName()
-{
-	if (Is64() == false)
-	{
-		return CLIENT_WIN32_EXE_FILENAME;
-	}
-	else
-	{
-		if (IsX64())
-		{
-			return CLIENT_WIN32_EXE_FILENAME_X64;
-		}
-		else
-		{
-			return CLIENT_WIN32_EXE_FILENAME_IA64;
-		}
-	}
-}
-
 // Thread to stop forcibly the Certificate check dialog client
 void CncCheckCertHaltThread(THREAD *thread, void *param)
 {

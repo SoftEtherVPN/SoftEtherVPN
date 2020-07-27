@@ -1286,7 +1286,7 @@ void *CmExecUiHelperMain()
 	HANDLE h;
 	wchar_t tmp[MAX_SIZE];
 
-	UniFormat(tmp, sizeof(tmp), L"%s\\%S", MsGetExeDirNameW(), CiGetVpnClientExeFileName());
+	UniFormat(tmp, sizeof(tmp), L"%s\\%S", MsGetExeDirNameW(), CLIENT_WIN32_EXE_FILENAME);
 
 	// Start
 	h = Win32RunExW(tmp, SVC_ARG_UIHELP_W, false);

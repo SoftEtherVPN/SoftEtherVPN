@@ -886,7 +886,7 @@ void VpnCmdInitBootPath()
 	char tmp[MAX_PATH];
 	GetExeName(exe_path, sizeof(exe_path));
 
-	if (SearchStrEx(exe_path, "ham.exe", 0, false) != INFINITE || SearchStrEx(exe_path, "ham_x64.exe", 0, false) != INFINITE || SearchStrEx(exe_path, "ham_ia64.exe", 0, false) != INFINITE)
+	if (SearchStrEx(exe_path, "ham.exe", 0, false) != INFINITE)
 	{
 		return;
 	}
@@ -901,7 +901,6 @@ void VpnCmdInitBootPath()
 		if ((CEDAR_VERSION_BUILD >= current_ver) ||
 			MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
 		{
-			char *src_filename;
 			bool b = false;
 			// Copy the vpncmdsys.exe to system32
 			if (MsIsNt())
@@ -913,49 +912,27 @@ void VpnCmdInitBootPath()
 				Format(tmp, sizeof(tmp), "%s\\vpncmd.exe", MsGetWindowsDir());
 			}
 
-			src_filename = VPNCMD_BOOTSTRAP_FILENAME;
-
-			if (IsX64())
-			{
-				src_filename = VPNCMD_BOOTSTRAP_FILENAME_X64;
-			}
-
-			if (IsIA64())
-			{
-				src_filename = VPNCMD_BOOTSTRAP_FILENAME_IA64;
-			}
-
-			b = true;
-
 			if (MsIs64BitWindows() == false || Is64())
 			{
 				if (IsFile(tmp) == false || (CEDAR_VERSION_BUILD > current_ver) || MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
 				{
-					b = FileCopy(src_filename, tmp);
+					b = FileCopy(VPNCMD_BOOTSTRAP_FILENAME, tmp);
 				}
 			}
 			else
 			{
-				void *wow;
+				void *wow = MsDisableWow64FileSystemRedirection();
 
-				wow = MsDisableWow64FileSystemRedirection();
-
-				if (true)
+				if (IsFile(tmp) == false || (CEDAR_VERSION_BUILD > current_ver) || MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
 				{
-					if (IsFile(tmp) == false || (CEDAR_VERSION_BUILD > current_ver) || MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
-					{
-						b = FileCopy(src_filename, tmp);
-					}
+					b = FileCopy(VPNCMD_BOOTSTRAP_FILENAME, tmp);
 				}
 
 				MsRestoreWow64FileSystemRedirection(wow);
 
-				if (true)
+				if (IsFile(tmp) == false || (CEDAR_VERSION_BUILD > current_ver) || MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
 				{
-					if (IsFile(tmp) == false || (CEDAR_VERSION_BUILD > current_ver) || MsRegIsValue(REG_LOCAL_MACHINE, VPNCMD_BOOTSTRAP_REG_KEYNAME, VPNCMD_BOOTSTRAP_REG_VALUENAME_PATH) == false)
-					{
-						b = FileCopy(src_filename, tmp);
-					}
+					b = FileCopy(VPNCMD_BOOTSTRAP_FILENAME, tmp);
 				}
 			}
 
