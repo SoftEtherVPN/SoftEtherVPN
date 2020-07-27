@@ -133,8 +133,8 @@ typedef void *HWND;
 
 
 // Vista driver installer related
-#define	VISTA_DRIVER_INSTALLER_SRC		L"|driver_installer.exe"
-#define	VISTA_DRIVER_INSTALLER_DST		L"%s\\driver_installer.exe"
+#define	VISTA_DRIVER_INSTALLER_SRC		L"|vpndrvinst.exe"
+#define	VISTA_DRIVER_INSTALLER_DST		L"%s\\vpndrvinst.exe"
 
 #define	DRIVER_DEVICE_ID_TAG		"NeoAdapter_%s"
 
