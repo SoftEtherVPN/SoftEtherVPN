@@ -72,8 +72,8 @@ static char *sfx_vpn_client_files[] =
 	"vpnclient.exe",
 	"vpncmgr.exe",
 	"vpncmd.exe",
-	"vpninstall.exe",
-	"vpnweb.cab",
+	//"vpninstall.exe",
+	//"vpnweb.cab",
 	"hamcore.se2",
 };
 
@@ -2537,8 +2537,8 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		SW_TASK_COPY *ct;
 		SW_TASK_COPY *vpnclient, *vpncmd, *vpncmgr;
 		SW_TASK_COPY *sfx_cache = NULL;
-		SW_TASK_COPY *vpnweb;
-		SW_TASK_COPY *vpninstall;
+		//SW_TASK_COPY *vpnweb;
+		//SW_TASK_COPY *vpninstall;
 		wchar_t *src_config_filename;
 
 		CombinePathW(tmp, sizeof(tmp), sw->InstallDir, L"backup.vpn_client.config");
@@ -2569,14 +2569,14 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 			}
 		}
 
-		vpnweb = SwNewCopyTask(L"vpnweb.cab", NULL, sw->InstallSrc, sw->InstallDir, true, false);
-		vpninstall = SwNewCopyTask(L"vpninstall.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		//vpnweb = SwNewCopyTask(L"vpnweb.cab", NULL, sw->InstallSrc, sw->InstallDir, true, false);
+		//vpninstall = SwNewCopyTask(L"vpninstall.exe", NULL, sw->InstallSrc, sw->InstallDir, true, false);
 
 		Add(t->CopyTasks, vpnclient);
 		Add(t->CopyTasks, vpncmd);
 		Add(t->CopyTasks, vpncmgr);
-		Add(t->CopyTasks, vpnweb);
-		Add(t->CopyTasks, vpninstall);
+		//Add(t->CopyTasks, vpnweb);
+		//Add(t->CopyTasks, vpninstall);
 
 
 		if (sfx_cache != NULL)
