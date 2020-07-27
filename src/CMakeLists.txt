@@ -155,6 +155,10 @@ if(WIN32)
   add_subdirectory(PenCore)
   add_dependencies(hamcore-archive-build PenCore)
 
+  # vpndrvinst
+  add_subdirectory(vpndrvinst)
+  add_dependencies(hamcore-archive-build vpndrvinst)
+
   # vpnsmgr
   add_subdirectory(vpnsmgr)
 
