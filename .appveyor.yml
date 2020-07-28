@@ -1,7 +1,6 @@
 version: '{build}'
 
 image:
-  - Visual Studio 2017
   - Ubuntu1604
   - Ubuntu1804
 
@@ -23,28 +22,6 @@ init:
 install: git submodule update --init --recursive
 
 for:
--
-  matrix:
-    only:
-      - image: Visual Studio 2017
-  init:
-    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  before_build:
-    - configure
-  build_script:
-    - nmake
-  test_script:
-    - ps: cd $env:APPVEYOR_BUILD_FOLDER
-    - ps: .\.ci\appveyor-vpntest.ps1
-  after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.pdb"
-  artifacts:
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip"
-      name: Release
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip"
-      name: PDBs
 -
   matrix:
     only:

@@ -6,7 +6,9 @@ jobs:
   steps:
   - template: "azure-pipelines-win-steps.yml"
     parameters:
-      bits: "64"
+      architecture: "x86_64"
+      vcpkgTriplet: "x64-windows-static-md"
+      vcvarsPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
 - job: windows_x86
   displayName: 'Windows (x86)'
   pool:
@@ -14,4 +16,6 @@ jobs:
   steps:
   - template: "azure-pipelines-win-steps.yml"
     parameters:
-      bits: "32"
+      architecture: "x86"
+      vcpkgTriplet: "x86-windows-static-md"
+      vcvarsPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvarsamd64_x86.bat"
