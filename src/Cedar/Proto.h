@@ -48,7 +48,7 @@ typedef struct PROTO_IMPL
 	const PROTO_OPTION *(*Options)();
 	bool (*Init)(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 	void (*Free)(void *param);
-	bool (*IsPacketForMe)(const PROTO_MODE mode, const UCHAR *data, const UINT size);
+	bool (*IsPacketForMe)(const PROTO_MODE mode, const void *data, const UINT size);
 	bool (*ProcessData)(void *param, TCP_RAW_DATA *in, FIFO *out);
 	bool (*ProcessDatagrams)(void *param, LIST *in, LIST *out);
 } PROTO_IMPL;

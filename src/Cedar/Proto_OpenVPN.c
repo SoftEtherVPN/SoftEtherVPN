@@ -69,16 +69,17 @@ void OvsFree(void *param)
 }
 
 // Check whether it's an OpenVPN packet
-bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size)
+bool OvsIsPacketForMe(const PROTO_MODE mode, const void *data, const UINT size)
 {
+	if (data == NULL || size < 2)
+	{
+		return false;
+	}
+
 	if (mode == PROTO_MODE_TCP)
 	{
-		if (data == NULL || size < 2)
-		{
-			return false;
-		}
-
-		if (data[0] == 0x00 && data[1] == 0x0E)
+		const UCHAR *raw = data;
+		if (raw[0] == 0x00 && raw[1] == 0x0E)
 		{
 			return true;
 		}
