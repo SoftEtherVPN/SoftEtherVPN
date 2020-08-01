@@ -1355,10 +1355,10 @@ SM_USER_COLUMN_6		Кол-во входов
 SM_USER_COLUMN_7		Последний вход
 SM_AUTHTYPE_0			Анонимный вход
 SM_AUTHTYPE_1			Авторизация по паролю
-SM_AUTHTYPE_2			Авторизация по личному сертификату
-SM_AUTHTYPE_3			Авторизация по подписанному сертификату
+SM_AUTHTYPE_2			Авт. по личному сертификату
+SM_AUTHTYPE_3			Авт. по подписанному сертификату
 SM_AUTHTYPE_4			Авторизация на RADIUS сервере
-SM_AUTHTYPE_5			Авторизация в домене
+SM_AUTHTYPE_5			Авторизация в домене Windows
 SM_NO_GROUP				-
 SM_USER_DELETE_MSG		Это действие удалит пользователя "%s". Вы действительно хотите сделать это?
 SM_EDIT_USER_CAPTION_1	Создать нового пользователя
@@ -1628,7 +1628,7 @@ SM_ETHERIP_COLUMN_0		ISAKMP Phase 1 ID
 SM_ETHERIP_COLUMN_1		Название Virtual Hub
 SM_ETHERIP_COLUMN_2		Пользователь
 SM_ETHERIP_ADD_OK		Новый EtherIP / L2TPv3 клиент был зарегистрирован.
-SM_IPSEC_SETUP_QUESTION	Этот VPN-сервер может принимать подключения от IPsec / L2TP / EtherIP / L2TPv3-совместимых VPN-клиентов или VPN-маршрутизаторов.\r\n\r\nВы можете разрешить VPN-серверу принимать подключения с IOS и Android устройств или с VPN-клиентов в Mac OS X и Windows.\r\n\r\nВы хотите настроить IPsec?\r\n(IPsec можно настроить, нажав кнопку "Настройки IPsec / L2TP" в любое время.)
+SM_IPSEC_SETUP_QUESTION	Этот VPN-сервер может принимать подключения от IPsec / L2TP / EtherIP / L2TPv3-совместимых VPN-клиентов или VPN-маршрутизаторов.\r\n\r\nВы можете разрешить VPN-серверу принимать подключения с IOS и Android устройств или с VPN-клиентов в Mac OS X и Windows.\r\n\r\nВы хотите настроить IPsec?\r\n(IPsec можно настроить, нажав в любое время кнопку "Настройка IPsec/L2TP".)
 SM_OPENVPN_CONFIG_SAVE_OK	ZIP-файл '%s', который содержит файлы настроек OpenVPN.\r\n\r\nОткройте этот ZIP-файл, чтобы извлечь примеры файлов конфигурации для OpenVPN, которые можно сразу же использовать.\r\nВозможно, вам придется немного подправить файл конфигурации.\r\n\r\nДля получения подробной информации, пожалуйста, прочитайте файл readme.txt в ZIP-файле.\r\n\r\nХотите открыть этот ZIP-файл сейчас?
 SM_OPENVPN_CONFIG_SAVE_NG	Не удалось сохранить ZIP-файл '%s'.
 SM_OPENVPN_CONFIG_OPEN_NG	Не удалось открыть ZIP-файл '%s'. Пожалуйста, откройте этот файл вручную.
@@ -2743,79 +2743,79 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_HUB
-CAPTION					Management of Virtual Hub - '%S'
+CAPTION					Управление Virtual Hub - '%S'
 S_TITLE					Virtual Hub '%S'
-STATIC1					Management of Security &Database:
-B_USER					Manage &Users
-S_USER					Add, delete or edit user accounts.
-B_GROUP					Manage &Groups
-S_GROUP					Add, delete or edit groups.
-B_ACCESS				Manage &Access Lists
-S_ACCESS				Add or delete access lists (Packet filtering rules).
-STATIC2					Virtual Hub Settings:
-B_PROPERTY				Virtual Hub &Properties
-S_PROPERTY				Configure this Hub.
-B_RADIUS				Auth&entication Server Setting
-S_RADIUS				Use external RADIUS authentication server for user authentication.
-B_LINK					Manage &Cascade Connections
-S_LINK					Establish Cascade Connection to Hubs on local or remote VPN Servers.
-STATIC3					Cu&rrent Status of this Virtual Hub:
-B_REFRESH				Refres&h
-STATIC4					&Other Settings:
-B_LOG					&Log Save Setting
-B_LOG_FILE				Log File List
-S_LOG					Configure settings of log saving function.
-B_CA					&Trusted CA Certificates
-B_CRL					Revo&ked Certs
-S_CA					Manage trusted CA certificates.
-B_SNAT					&Virtual NAT and Virtual DHCP Server (SecureNAT)
-S_SNAT					Secure NAT is available on this Virtual Hub. You can run Virtual NAT and Virtual DHCP.
-STATIC5					VPN Sess&ions Management:
-B_SESSION				Manage &Sessions
-IDCANCEL				E&xit
+STATIC1					Управление базой данных безопасности:
+B_USER					Управление пользователями
+S_USER					Добавить, удалить или изменить учетные записи пользователей.
+B_GROUP					Управление группами
+S_GROUP					Добавить, удалить или изменить группы.
+B_ACCESS				Управление списками доступа
+S_ACCESS				Добавить или удалить списки доступа (правила фильтрации пакетов).
+STATIC2					Настройки Virtual Hub:
+B_PROPERTY				Свойства Virtual Hub
+S_PROPERTY				Настроить этот Hub.
+B_RADIUS				Настройка сервера авторизации
+S_RADIUS				Используйте внешний RADIUS сервер для авторизации пользователей.
+B_LINK					Управление каскадными подключениями
+S_LINK					Установите каскадное подключение с Hubs на локальных или удаленных VPN-серверах.
+STATIC3					Текущий статус этого Virtual Hub:
+B_REFRESH				Обновить
+STATIC4					&Другие настройки:
+B_LOG					&Настройка сохранений журнала
+B_LOG_FILE				Список файлов журнала
+S_LOG					Настройте параметры сохранений журнала.
+B_CA					&Доверенные корневые сертификаты
+B_CRL					Отозванные сертификаты
+S_CA					Управляйте доверенными корневыми сертификатами.
+B_SNAT					&Виртуальный NAT и виртуальный DHCP-сервер (SecureNAT)
+S_SNAT					Безопасный NAT доступен на этом Virtual Hub. Вы можете запустить виртуальный NAT и виртуальный DHCP.
+STATIC5					Управление VPN-сессиями:
+B_SESSION				Управление сессиями
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_USER
-CAPTION					Manage Users
-S_TITLE					Virtual Hub "%S" has the following users.
-IDOK					&Edit
-B_CREATE				&New
-B_DELETE				&Remove
-B_REFRESH				&Refresh
-IDCANCEL				E&xit
-B_STATUS				&View User Info
+CAPTION					Управление пользователями
+S_TITLE					Virtual Hub "%S" имеет следующих пользователей.
+IDOK					&Изменить
+B_CREATE				&Новый
+B_DELETE				&удалить
+B_REFRESH				&Обновить
+IDCANCEL				Выход
+B_STATUS				&Просмотр информации
 
 
 PREFIX					D_SM_EDIT_USER
-IDC_STATIC1				&User Name:
-IDC_STATIC3				&Full Name:
-IDC_STATIC4				&Note:
-IDC_STATIC5				Group Name\r\n(Optional):
-B_GROUP					Browse Groups...
-R_EXPIRES				&Set the Expiration Date for This Account
-IDC_STATIC6				&Auth Type:
-S_RADIUS_3				RADIUS or NT Domain Authentication Settings:
-S_RADIUS_1				Login attempts by password will be verified by the external RADIUS server, Windows NT domain controller, or Active Directory controller.
-R_SET_RADIUS_USERNAME	Specify User Name on Authentication Server
-S_RADIUS_2				User Name on Authentication Server:
-S_POLICY_1				Security Policy
-R_POLICY				Set Securit&y Policy
-B_POLICY				Security Policy
-S_PASSWORD_1			Password Authentication Settings:
-S_PASSWORD_2			&Password:
-S_PASSWORD_3			&Confirm Password:
-S_USER_CERT_1			Individual Certificate Authentication Settings:
-B_LOAD_CERT				Sp&ecify Certificate
-B_VIEW_CERT				&View Certificate
-B_CREATE				Create Certificate
-S_ROOT_CERT_1			Signed Certificate Authentication Settings:
-S_ROOT_CERT_2			Verification of whether the client certificate is signed is based on a certificate of a CA trusted by this Virtual Hub.
-R_CN					Limit Common Name (CN) Value
-R_SERIAL				&Limit Values of the Certificate Serial Number
-S_ROOT_CERT_3			Note: Enter hexadecimal values. (Example: 0155ABCDEF)
-S_HINT					Hint: Define a user object with username '*' (asterisk) in order to accept a login attempt of a user which does not match any of registered explicit user objects. Such a special user will use the external user-authentication server to verify the login.
+IDC_STATIC1				&Имя пользователя:
+IDC_STATIC3				&ФИО:
+IDC_STATIC4				&Примечание:
+IDC_STATIC5				Название группы\r\n(Дополнительно):
+B_GROUP					Просмотр групп...
+R_EXPIRES				&Установите срок действия для этой учетной записи
+IDC_STATIC6				&Тип авторизации:
+S_RADIUS_3				Настройки RADIUS или авторизации в домене:
+S_RADIUS_1				Попытки входа в систему с помощью пароля будут проверяться внешним RADIUS сервером, контроллером домена Windows или Active Directory контроллером.
+R_SET_RADIUS_USERNAME	Specify Укажите имя пользователя на сервере авторизации
+S_RADIUS_2				Имя пользователя на сервере авторизации:
+S_POLICY_1				Политика безопасности
+R_POLICY				Установить политику безопасности
+B_POLICY				Политика безопасности
+S_PASSWORD_1			Настройки авторизации по паролю:
+S_PASSWORD_2			&Пароль:
+S_PASSWORD_3			&Повторить пароль:
+S_USER_CERT_1			Настройки авторизации по личному сертификату:
+B_LOAD_CERT				Указать сертификат
+B_VIEW_CERT				&Просмотреть сертификат
+B_CREATE				Создать сертификат
+S_ROOT_CERT_1			Настройки авторизации по подписанному сертификату:
+S_ROOT_CERT_2			Проверка того, подписан ли сертификат клиента корневым сертификатом, которому доверяет этот Virtual Hub.
+R_CN					Ограничить значение Common Name (CN)
+R_SERIAL				&Ограничить значение серийного номера сертификата
+S_ROOT_CERT_3			Примечание: Введите шестнадцатеричные значения. (Пример: 0155ABCDEF)
+S_HINT					Подсказка: Задайте имя пользователя '*' (звездочка), чтобы для проверки входа в систему использовать внешний сервер авторизации. Например для авторизации в домене Windows или на RADIUS-сервере.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_POLICY
