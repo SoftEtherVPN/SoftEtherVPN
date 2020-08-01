@@ -119,8 +119,6 @@ struct IPC
 {
 	CEDAR *Cedar;
 	char HubName[MAX_HUBNAME_LEN + 1];
-	char UserName[MAX_USERNAME_LEN + 1];
-	char Password[MAX_PASSWORD_LEN + 1];
 	char ClientHostname[MAX_SIZE];
 	UCHAR random[SHA1_SIZE];
 	char SessionName[MAX_SESSION_NAME_LEN + 1];

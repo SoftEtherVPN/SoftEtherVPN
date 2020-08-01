@@ -298,9 +298,6 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	ipc->FlushList = NewTubeFlushList();
 
 	StrCpy(ipc->ClientHostname, sizeof(ipc->ClientHostname), client_hostname);
-	StrCpy(ipc->HubName, sizeof(ipc->HubName), hubname);
-	StrCpy(ipc->UserName, sizeof(ipc->UserName), username);
-	StrCpy(ipc->Password, sizeof(ipc->Password), password);
 
 	// Connect the in-process socket
 	s = ConnectInProc(a, client_ip, client_port, server_ip, server_port);
