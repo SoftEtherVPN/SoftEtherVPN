@@ -641,18 +641,14 @@ void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 			AddHash(proto->Sessions, session);
 		}
 
-		if (session->Halt)
-		{
-			DeleteHash(sessions, session);
-			ProtoDeleteSession(session);
-			continue;
-		}
-
 		Lock(session->Lock);
 		{
-			void *data = Clone(datagram->Data, datagram->Size);
-			UDPPACKET *packet = NewUdpPacket(&datagram->SrcIP, datagram->SrcPort, &datagram->DstIP, datagram->DestPort, data, datagram->Size);
-			Add(session->DatagramsIn, packet);
+			if (session->Halt == false)
+			{
+				void *data = Clone(datagram->Data, datagram->Size);
+				UDPPACKET *packet = NewUdpPacket(&datagram->SrcIP, datagram->SrcPort, &datagram->DstIP, datagram->DestPort, data, datagram->Size);
+				Add(session->DatagramsIn, packet);
+			}
 		}
 		Unlock(session->Lock);
 	}
@@ -660,6 +656,13 @@ void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 	for (i = 0; i < LIST_NUM(sessions->AllList); ++i)
 	{
 		PROTO_SESSION *session = LIST_DATA(sessions->AllList, i);
+		if (session->Halt)
+		{
+			DeleteHash(sessions, session);
+			ProtoDeleteSession(session);
+			continue;
+		}
+
 		if (LIST_NUM(session->DatagramsIn) > 0)
 		{
 			SetSockEvent(session->SockEvent);
@@ -678,7 +681,6 @@ void ProtoSessionThread(THREAD *thread, void *param)
 
 	while (session->Halt == false)
 	{
-		bool ok;
 		UINT interval;
 		void *param = session->Param;
 		const PROTO_IMPL *impl = session->Impl;
@@ -689,7 +691,7 @@ void ProtoSessionThread(THREAD *thread, void *param)
 		{
 			UINT i;
 
-			ok = impl->ProcessDatagrams(param, received, to_send);
+			session->Halt = impl->ProcessDatagrams(param, received, to_send) == false;
 
 			UdpListenerSendPackets(session->Proto->UdpListener, to_send);
 
@@ -703,10 +705,9 @@ void ProtoSessionThread(THREAD *thread, void *param)
 		}
 		Unlock(session->Lock);
 
-		if (ok == false)
+		if (session->Halt)
 		{
 			Debug("ProtoSessionThread(): breaking main loop\n");
-			session->Halt = true;
 			break;
 		}
 
