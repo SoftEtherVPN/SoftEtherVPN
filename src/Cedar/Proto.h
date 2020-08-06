@@ -94,8 +94,8 @@ void ProtoContainerDelete(PROTO_CONTAINER *container);
 
 const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, const UCHAR *data, const UINT size);
 
-PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port);
-void ProtoDeleteSession(PROTO_SESSION *session);
+PROTO_SESSION *ProtoSessionNew(const PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port);
+void ProtoSessionDelete(PROTO_SESSION *session);
 
 bool ProtoSetListenIP(PROTO *proto, const IP *ip);
 bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports);

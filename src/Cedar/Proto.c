@@ -196,7 +196,7 @@ void ProtoDelete(PROTO *proto)
 
 	for (i = 0; i < HASH_LIST_NUM(proto->Sessions); ++i)
 	{
-		ProtoDeleteSession(LIST_DATA(proto->Sessions->AllList, i));
+		ProtoSessionDelete(LIST_DATA(proto->Sessions->AllList, i));
 	}
 	ReleaseHashList(proto->Sessions);
 
@@ -325,7 +325,7 @@ const PROTO_CONTAINER *ProtoDetect(const PROTO *proto, const PROTO_MODE mode, co
 	return NULL;
 }
 
-PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
+PROTO_SESSION *ProtoSessionNew(const PROTO *proto, const PROTO_CONTAINER *container, const IP *src_ip, const USHORT src_port, const IP *dst_ip, const USHORT dst_port)
 {
 	LIST *options;
 	PROTO_SESSION *session;
@@ -376,7 +376,7 @@ PROTO_SESSION *ProtoNewSession(PROTO *proto, const PROTO_CONTAINER *container, c
 	return session;
 }
 
-void ProtoDeleteSession(PROTO_SESSION *session)
+void ProtoSessionDelete(PROTO_SESSION *session)
 {
 	if (session == NULL)
 	{
@@ -632,7 +632,7 @@ void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 				continue;
 			}
 
-			session = ProtoNewSession(proto, container, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
+			session = ProtoSessionNew(proto, container, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
 			if (session == NULL)
 			{
 				continue;
@@ -659,7 +659,7 @@ void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
 		if (session->Halt)
 		{
 			DeleteHash(sessions, session);
-			ProtoDeleteSession(session);
+			ProtoSessionDelete(session);
 			continue;
 		}
 
