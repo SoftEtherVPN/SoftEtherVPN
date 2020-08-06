@@ -1796,6 +1796,11 @@ LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S
 LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
 
+# (Proto ログ)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
 # (OpenVPN ログ)
 LO_PREFIX_RAW			OpenVPN モジュール: 
 LO_PREFIX_SESSION		OpenVPN セッション %u (%r:%u -> %r:%u): 

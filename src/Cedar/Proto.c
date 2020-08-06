@@ -2,6 +2,46 @@
 
 #include "Proto_OpenVPN.h"
 
+void ProtoLog(const PROTO *proto, const PROTO_SESSION *session, const char *name, ...)
+{
+	wchar_t message[MAX_SIZE * 2];
+
+	if (proto == NULL)
+	{
+		return;
+	}
+
+	if (session != NULL)
+	{
+		wchar_t *proto_name;
+		UINT current_len;
+		va_list args;
+
+		proto_name = CopyStrToUni(session->Impl->Name());
+		UniFormat(message, sizeof(message), _UU("LP_PREFIX_SESSION"), proto_name, &session->SrcIp, session->SrcPort, &session->DstIp, session->DstPort, L"UDP");
+		Free(proto_name);
+
+		current_len = UniStrLen(message);
+
+		va_start(args, name);
+		UniFormatArgs(message + current_len, sizeof(message) - current_len, _UU(name), args);
+		va_end(args);
+	}
+	else
+	{
+		va_list args;
+
+		UniStrCpy(message, sizeof(message), _UU("LP_PREFIX_SESSION"));
+		UniStrCat(message, sizeof(message), _UU(name));
+
+		va_start(args, name);
+		UniFormatArgs(message, sizeof(message), message, args);
+		va_end(args);
+	}
+
+	WriteServerLog(proto->Cedar, message);
+}
+
 int ProtoOptionCompare(void *p1, void *p2)
 {
 	PROTO_OPTION *option_1, *option_2;
@@ -373,6 +413,8 @@ PROTO_SESSION *ProtoSessionNew(const PROTO *proto, const PROTO_CONTAINER *contai
 	session->Lock = NewLock();
 	session->Thread = NewThread(ProtoSessionThread, session);
 
+	ProtoLog(proto, session, "LP_SESSION_CREATED");
+
 	return session;
 }
 
@@ -398,6 +440,8 @@ void ProtoSessionDelete(PROTO_SESSION *session)
 	ReleaseList(session->DatagramsOut);
 
 	DeleteLock(session->Lock);
+
+	ProtoLog(session->Proto, session, "LP_SESSION_DELETED");
 
 	Free(session);
 }
@@ -455,6 +499,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 
 	{
 		const PROTO_CONTAINER *container = NULL;
+		wchar_t *proto_name;
 		LIST *options;
 
 		if (protocol != NULL)
@@ -507,6 +552,10 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 		}
 
 		UnlockList(options);
+
+		proto_name = CopyStrToUni(container->Name);
+		ProtoLog(proto, NULL, "LP_SESSION_CREATED", proto_name, &sock->RemoteIP, sock->RemotePort, &sock->LocalIP, sock->LocalPort, L"TCP");
+		Free(proto_name);
 	}
 
 	SetTimeout(sock, TIMEOUT_INFINITE);
@@ -595,6 +644,12 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	FreeTcpRawData(recv_raw_data);
 	ReleaseFifo(send_fifo);
 	Free(buf);
+
+	{
+		wchar_t *proto_name = CopyStrToUni(impl->Name());
+		ProtoLog(proto, NULL, "LP_SESSION_DELETED", proto_name, &sock->RemoteIP, sock->RemotePort, &sock->LocalIP, sock->LocalPort, L"TCP");
+		Free(proto_name);
+	}
 
 	return true;
 }

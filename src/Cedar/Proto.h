@@ -78,6 +78,8 @@ typedef struct PROTO_SESSION
 	volatile bool Halt;
 } PROTO_SESSION;
 
+void ProtoLog(const PROTO *proto, const PROTO_SESSION *session, const char *name, ...);
+
 int ProtoOptionCompare(void *p1, void *p2);
 int ProtoContainerCompare(void *p1, void *p2);
 int ProtoSessionCompare(void *p1, void *p2);

@@ -1792,6 +1792,13 @@ LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The e
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
+
+# (Proto log)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
+
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN Module: 
 LO_PREFIX_SESSION		OpenVPN Session %u (%r:%u -> %r:%u): 
