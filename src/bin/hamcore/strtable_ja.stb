@@ -1812,15 +1812,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		送信するオプション文字列: "%S"
-LO_NEW_SESSION			新しいセッションを作成しました。プロトコル: %S
 LO_INITIATE_REKEY		このチャネルのリキーを開始します。
 LO_CHANNEL_ESTABLISHED	チャネルが確立状態になりました。
 LO_PUSH_REPLY			応答オプション文字列の全文: "%S"
 LO_CHANNEL_FAILED		チャネルの接続処理に失敗しました。
 LO_CHANNEL_DISCONNECTED_BY_HUB	仮想 HUB の管理者によって VPN セッションが切断されたため、この OpenVPN チャネルを切断します。
-LO_DELETE_SESSION		セッションを削除します。
-LO_START				OpenVPN サーバーモジュールを起動しました。
-LO_STOP					OpenVPN サーバーモジュールを停止しました。
 
 
 # (IPsec ログ)

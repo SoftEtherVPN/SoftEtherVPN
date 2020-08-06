@@ -1810,15 +1810,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		Option Strings to Send: "%S"
-LO_NEW_SESSION			A new session is created. Protocol: %S
 LO_INITIATE_REKEY		The re-keying process is started.
 LO_CHANNEL_ESTABLISHED	The channel becomes the established state.
 LO_PUSH_REPLY			The full strings replied: "%S"
 LO_CHANNEL_FAILED		Failed to connect a channel.
 LO_CHANNEL_DISCONNECTED_BY_HUB	This OpenVPN channel is being terminated because the administrator of the Virtual Hub has disconnected this the VPN Session.
-LO_DELETE_SESSION		Deleting the session.
-LO_START				The OpenVPN Server Module is starting.
-LO_STOP					The OpenVPN Server Module is stopped.
 
 
 # (IPsec Logs)

@@ -1827,15 +1827,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		发送选项字符串："%S"
-LO_NEW_SESSION			已创建新的会话。协议：%S
 LO_INITIATE_REKEY			re-keying 进程已开始。
 LO_CHANNEL_ESTABLISHED		该通道成为已建立的状态。
 LO_PUSH_REPLY			完整字符串回答："%S"
 LO_CHANNEL_FAILED		无法连接通道。
 LO_CHANNEL_DISCONNECTED_BY_HUB	此 OpenVPN 的通道被终止，因为虚拟 HUB 管理员断开了此 VPN 会话。
-LO_DELETE_SESSION		删除会话中。
-LO_START				OpenVPN Server 模块正在启动。
-LO_STOP					OpenVPN Server 模块已停止。
 
 
 # (IPsec 日志)
