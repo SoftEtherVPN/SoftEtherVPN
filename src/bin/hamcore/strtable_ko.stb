@@ -1778,6 +1778,12 @@ LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server 
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
+# (Proto 로그)
+LP_PREFIX_SESSION [%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED Session created.
+LP_SESSION_DELETED Session deleted.
+
+
 # (OpenVPN 로그)
 LO_PREFIX_RAW OpenVPN 모듈:
 LO_PREFIX_SESSION OpenVPN 세션 %u (%r:%u -> %r:%u):
@@ -1786,15 +1792,11 @@ LO_NEW_CHANNEL 새로운 채널을 만들었습니다.
 LO_CHANNEL_ESTABLISHED_NEWKEY 채널이 설정 상태가되었습니다 (원인:리키 완료).
 LO_OPTION_STR_RECV 받은 옵션 문자열:"%S"
 LO_OPTION_STR_SEND 보내는 옵션 문자열:"%S"
-LO_NEW_SESSION 새 세션을 만들었습니다. 프로토콜:%S
 LO_INITIATE_REKEY 이 채널의 리키를 시작합니다.
 LO_CHANNEL_ESTABLISHED 채널이 설정 상태가되었습니다 .
 LO_PUSH_REPLY 응답 옵션 문자열 전체:"%S"
 LO_CHANNEL_FAILED 채널의 접속 처리에 실패했습니다.
 LO_CHANNEL_DISCONNECTED_BY_HUB 가상 HUB 관리자가 VPN 세션이 끊어 졌기 때문에이 OpenVPN 채널을 끊습니다.
-LO_DELETE_SESSION 세션을 삭제합니다.
-LO_START OpenVPN 서버 모듈을 시작했습니다.
-LO_STOP OpenVPN 서버 모듈을 중지했습니다.
 
 
 # IPsec (로그)

@@ -2139,8 +2139,6 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 	Debug("OpenVPN New Session: %s:%u -> %s:%u Proto=%u\n", server_ip_str, server_port,
 	      client_ip_str, client_port, protocol);
 
-	OvsLog(s, se, NULL, "LO_NEW_SESSION", (protocol == OPENVPN_PROTOCOL_UDP ? "UDP" : "TCP"));
-
 	return se;
 }
 
@@ -2777,7 +2775,6 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 			OPENVPN_SESSION *se = LIST_DATA(delete_session_list, i);
 
 			Debug("Deleting Session %p\n", se);
-			OvsLog(s, se, NULL, "LO_DELETE_SESSION");
 
 			OvsFreeSession(se);
 
@@ -2982,8 +2979,6 @@ OPENVPN_SERVER *NewOpenVpnServer(const LIST *options, CEDAR *cedar, INTERRUPT_MA
 
 	s->NextSessionId = 1;
 
-	OvsLog(s, NULL, NULL, "LO_START");
-
 	s->Dh = DhNewFromBits(cedar->DhParamBits);
 
 	return s;
@@ -2998,8 +2993,6 @@ void FreeOpenVpnServer(OPENVPN_SERVER *s)
 	{
 		return;
 	}
-
-	OvsLog(s, NULL, NULL, "LO_STOP");
 
 	// Release the sessions list
 	for (i = 0; i < LIST_NUM(s->SessionList); ++i)

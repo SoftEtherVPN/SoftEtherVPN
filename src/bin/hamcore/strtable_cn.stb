@@ -1810,6 +1810,12 @@ LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server 
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
+# (Proto log)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
+
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN 模块:
 LO_PREFIX_SESSION		OpenVPN 会话%u (%r:%u -> %r:%u):
@@ -1821,15 +1827,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		发送选项字符串："%S"
-LO_NEW_SESSION			已创建新的会话。协议：%S
 LO_INITIATE_REKEY			re-keying 进程已开始。
 LO_CHANNEL_ESTABLISHED		该通道成为已建立的状态。
 LO_PUSH_REPLY			完整字符串回答："%S"
 LO_CHANNEL_FAILED		无法连接通道。
 LO_CHANNEL_DISCONNECTED_BY_HUB	此 OpenVPN 的通道被终止，因为虚拟 HUB 管理员断开了此 VPN 会话。
-LO_DELETE_SESSION		删除会话中。
-LO_START				OpenVPN Server 模块正在启动。
-LO_STOP					OpenVPN Server 模块已停止。
 
 
 # (IPsec 日志)
