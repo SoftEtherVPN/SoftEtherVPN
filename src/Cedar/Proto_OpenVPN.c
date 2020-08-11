@@ -20,6 +20,7 @@ const PROTO_IMPL *OvsGetProtoImpl()
 	{
 		OvsName,
 		OvsOptions,
+		NULL,
 		OvsInit,
 		OvsFree,
 		OvsIsPacketForMe,
