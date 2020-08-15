@@ -1903,7 +1903,7 @@ void UINT64ToSystem(SYSTEMTIME *st, UINT64 sec64)
 	sec = (UINT)tmp64;
 	time = (time_64t)sec;
 	TimeToSystem(st, time);
-	st->wMilliseconds = (WORD)millisec;
+	st->wMilliseconds = (USHORT)millisec;
 }
 
 // Convert the SYSTEMTIME to UINT64

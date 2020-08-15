@@ -185,7 +185,6 @@ typedef	signed int			INT;
 #endif
 
 // 16bit integer type
-typedef	unsigned short		WORD;
 typedef	unsigned short		USHORT;
 
 // 8bit integer type
@@ -287,14 +286,14 @@ typedef struct OS_INFO
 #ifndef	WINDOWS_H
 typedef struct SYSTEMTIME
 {
-	WORD wYear;
-	WORD wMonth;
-	WORD wDayOfWeek;
-	WORD wDay;
-	WORD wHour;
-	WORD wMinute;
-	WORD wSecond;
-	WORD wMilliseconds;
+	USHORT wYear;
+	USHORT wMonth;
+	USHORT wDayOfWeek;
+	USHORT wDay;
+	USHORT wHour;
+	USHORT wMinute;
+	USHORT wSecond;
+	USHORT wMilliseconds;
 } SYSTEMTIME;
 #endif	// WINDOWS_H
 
