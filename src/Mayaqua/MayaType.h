@@ -191,7 +191,6 @@ typedef	unsigned int		UINT;
 typedef	unsigned int		UINT32;
 typedef	unsigned int		DWORD;
 typedef	signed int			INT;
-typedef	signed int			INT32;
 
 typedef	int					UINT_PTR;
 typedef	long				LONG_PTR;
@@ -201,7 +200,6 @@ typedef	long				LONG_PTR;
 // 16bit integer type
 typedef	unsigned short		WORD;
 typedef	unsigned short		USHORT;
-typedef	signed short		SHORT;
 
 // 8bit integer type
 typedef	unsigned char		BYTE;
