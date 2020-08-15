@@ -191,10 +191,6 @@ typedef	unsigned int		UINT;
 typedef	unsigned int		UINT32;
 typedef	unsigned int		DWORD;
 typedef	signed int			INT;
-
-typedef	int					UINT_PTR;
-typedef	long				LONG_PTR;
-
 #endif
 
 // 16bit integer type
@@ -224,7 +220,11 @@ typedef signed long long	time_64t;
 typedef	int SOCKET;
 #else	// OS_UNIX
 #ifndef	_WINSOCK2API_
-typedef UINT_PTR SOCKET;
+#ifdef	CPU_64
+typedef unsigned __int64 SOCKET;
+#else
+typedef unsigned int SOCKET;
+#endif	// CPU_64
 #endif	// _WINSOCK2API_
 #endif	// OS_UNIX
 
