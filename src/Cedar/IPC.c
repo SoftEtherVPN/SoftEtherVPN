@@ -2520,7 +2520,7 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 			}
 			else
 			{
-				CHAR tmp[MAX_SIZE];
+				char tmp[MAX_SIZE];
 				IPToStr6(tmp, MAX_SIZE, &srcIp);
 				Debug("We couldn't find a router for the source address of %s! Trying as local.\n", tmp);
 				isLocal = true;
@@ -2569,7 +2569,7 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 			UCHAR destMacAddress[6];
 			IPV6_ADDR solicitAddress;
 
-			CHAR tmp[MAX_SIZE];
+			char tmp[MAX_SIZE];
 			UCHAR *copy;
 			BLOCK *blk;
 
@@ -2605,7 +2605,7 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 	}
 	else
 	{
-		CHAR tmp[MAX_SIZE];
+		char tmp[MAX_SIZE];
 		IPToStr6(tmp, MAX_SIZE, next_ip);
 		Debug("We couldn't deduce the MAC address for unicast address %s, packet dropped.\n", tmp);
 		/// TODO: think about sending to the all routers broadcast MAC as a last resort

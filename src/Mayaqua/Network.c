@@ -14948,7 +14948,7 @@ void QuerySocketInformation(SOCK *sock)
 		struct sockaddr_in6 sockaddr6;
 		struct in6_addr *addr6;
 		int size;
-		DWORD dw;
+		UINT dw;
 		UINT opt_value = 0;
 
 		if (sock->Type == SOCK_TCP)
@@ -15038,7 +15038,7 @@ void QuerySocketInformation(SOCK *sock)
 		}
 
 		// Support of the TTL value
-		size = sizeof(DWORD);
+		size = sizeof(UINT);
 		if (opt_value == 0 ||
 		        getsockopt(sock->socket, (sock->IPv6 ? IPPROTO_IPV6 : IPPROTO_IP), opt_value, (char *)&dw, &size) != 0)
 		{
@@ -15056,7 +15056,7 @@ void QuerySocketInformation(SOCK *sock)
 // Setting the TTL value
 bool SetTtl(SOCK *sock, UINT ttl)
 {
-	DWORD dw;
+	UINT dw;
 	int size;
 	UINT opt_value = 0;
 	// Validate arguments
@@ -15076,7 +15076,7 @@ bool SetTtl(SOCK *sock, UINT ttl)
 	}
 
 	dw = ttl;
-	size = sizeof(DWORD);
+	size = sizeof(UINT);
 
 	if (sock->IPv6)
 	{

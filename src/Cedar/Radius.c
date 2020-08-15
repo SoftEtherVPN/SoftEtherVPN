@@ -1972,10 +1972,10 @@ RECV_RETRY:
 				if (recv_size == 0)
 				{
 					Debug("Radius recv_size 0\n");
-					finish[pos] = TRUE;
-					for(i = 0; i < LIST_NUM(ip_list); i++)
+					finish[pos] = true;
+					for (i = 0; i < LIST_NUM(ip_list); ++i)
 					{
-						if(finish[i] == FALSE)
+						if (finish[i] == false)
 						{
 							// Switch the host to refer
 							pos++;

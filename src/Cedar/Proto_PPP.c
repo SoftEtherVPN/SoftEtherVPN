@@ -3491,7 +3491,7 @@ PPP_LCP *BuildEAPTlsPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize, UC
 	UINT tls_datasize = datasize + sizeof(UCHAR);
 	if (flags & PPP_EAP_TLS_FLAG_TLS_LENGTH)
 	{
-		tls_datasize += sizeof(UINT32);
+		tls_datasize += sizeof(UINT);
 	}
 	lcp_packet = BuildEAPPacketEx(code, id, type, tls_datasize);
 	eap_packet = lcp_packet->Data;

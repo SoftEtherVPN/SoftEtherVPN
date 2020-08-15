@@ -17,7 +17,7 @@
 struct LOCK
 {
 	void *pData;
-	BOOL Ready;
+	bool Ready;
 #ifdef	OS_UNIX
 	UINT thread_id;
 	UINT locked_count;
