@@ -13,8 +13,10 @@ set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 target_sources(vpndrvinst PRIVATE "vpndrvinst.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 
-# Fixes manifest authoring error c1010001
-set_target_properties(vpndrvinst PROPERTIES LINK_FLAGS "/MANIFESTUAC:level='requireAdministrator'")
+if(MSVC)
+  # Fixes manifest authoring error c1010001
+  set_target_properties(vpndrvinst PROPERTIES LINK_FLAGS "/manifestuac:level='requireAdministrator'")
+endif()
 
 if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
   target_sources(vpndrvinst PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_admin.manifest")
