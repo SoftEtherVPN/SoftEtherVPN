@@ -8,13 +8,14 @@
 #ifndef	MAYATYPE_H
 #define	MAYATYPE_H
 
+#include <stdint.h>
+
 // Check whether the windows.h header is included
 #ifndef	WINDOWS_H
 #ifdef	_WINDOWS_
 #define	WINDOWS_H
 #endif	// _WINDOWS_
 #endif	// WINDOWS_H
-
 
 #if	!defined(ENCRYPT_C)
 // Structure which is used by OpenSSL
@@ -171,32 +172,28 @@ typedef int PID;
 typedef unsigned long PID;
 #endif // WINDOWS_H
 
-// bool type
+// TODO: include <stdbool.h> instead of manually defining type
 #ifndef	WIN32COM_CPP
 typedef	unsigned int		bool;
 #define	true				1
 #define	false				0
 #endif	// WIN32COM_CPP
 
-// 32bit integer type
-#ifndef	WINDOWS_H
-typedef	unsigned int		UINT;
-typedef	signed int			INT;
+typedef int64_t  time_64t;
+
+#ifndef _BASETSD_H_
+typedef int32_t  INT;
+typedef int64_t  INT64;
+
+typedef uint32_t UINT;
+typedef uint64_t UINT64;
 #endif
 
-// 16bit integer type
-typedef	unsigned short		USHORT;
-
-// 8bit integer type
-typedef	unsigned char		BYTE;
-typedef	unsigned char		UCHAR;
-
-
-// 64-bit integer type
-typedef	unsigned long long	UINT64;
-typedef signed long long	INT64;
-
-typedef signed long long	time_64t;
+#ifndef BASETYPES
+typedef uint8_t  BYTE;
+typedef uint8_t  UCHAR;
+typedef uint16_t USHORT;
+#endif
 
 #ifdef	OS_UNIX
 // Avoiding compile error
