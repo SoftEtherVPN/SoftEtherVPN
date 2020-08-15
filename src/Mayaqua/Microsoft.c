@@ -4427,7 +4427,7 @@ bool MsServiceStopProc()
 }
 
 // Service handler
-void CALLBACK MsServiceHandler(DWORD opcode)
+void CALLBACK MsServiceHandler(UINT opcode)
 {
 	switch (opcode)
 	{
@@ -4451,7 +4451,7 @@ void CALLBACK MsServiceHandler(DWORD opcode)
 }
 
 // Dispatch function of the service
-void CALLBACK MsServiceDispatcher(DWORD argc, LPTSTR *argv)
+void CALLBACK MsServiceDispatcher(UINT argc, LPTSTR *argv)
 {
 	// Creating a stopping event
 	service_stop_event = CreateEventA(NULL, true, false, NULL);
@@ -10513,7 +10513,7 @@ bool MsIsAeroEnabled()
 }
 
 // Generate an access mask to force accessing to the 32 bit registry key for 64 bit application
-DWORD MsRegAccessMaskFor64BitEx(bool force32bit, bool force64bit)
+UINT MsRegAccessMaskFor64BitEx(bool force32bit, bool force64bit)
 {
 	if (MsIs64BitWindows() == false)
 	{

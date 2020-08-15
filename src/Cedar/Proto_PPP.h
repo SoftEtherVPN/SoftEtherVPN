@@ -202,7 +202,7 @@ struct PPP_EAP
 				UCHAR TlsDataWithoutLength[0];
 				struct
 				{
-					UINT32 TlsLength;
+					UINT TlsLength;
 					UCHAR Data[0];
 				} TlsDataWithLength;
 			};

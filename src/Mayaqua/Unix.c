@@ -1938,7 +1938,7 @@ void UnixGetSystemTime(SYSTEMTIME *system_time)
 
 	if (sizeof(time_t) == 4)
 	{
-		now2 = (time_64t)((UINT64)((UINT32)now));
+		now2 = (time_64t)((UINT64)((UINT)now));
 	}
 	else
 	{
@@ -1976,7 +1976,7 @@ UINT64 UnixGetTick64()
 	clock_gettime(CLOCK_REALTIME, &t);
 #endif
 
-	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+	ret = ((UINT64)((UINT)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 
 	if (ret == 0)
 	{

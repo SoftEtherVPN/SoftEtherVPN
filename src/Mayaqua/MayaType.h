@@ -181,8 +181,6 @@ typedef	unsigned int		bool;
 // 32bit integer type
 #ifndef	WINDOWS_H
 typedef	unsigned int		UINT;
-typedef	unsigned int		UINT32;
-typedef	unsigned int		DWORD;
 typedef	signed int			INT;
 #endif
 

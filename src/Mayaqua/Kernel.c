@@ -220,7 +220,7 @@ UINT64 TickGetRealtimeTickValue64()
 	}
 	else
 	{
-		ret = (UINT64)((UINT64)((UINT32)tv.tv_sec)) * 1000ULL + (UINT64)tv.tv_usec / 1000ULL;
+		ret = (UINT64)((UINT64)((UINT)tv.tv_sec)) * 1000ULL + (UINT64)tv.tv_usec / 1000ULL;
 	}
 
 	return ret;
