@@ -2478,7 +2478,6 @@ void TrimRight(char *str)
 {
 	char *buf, *tmp;
 	UINT len, i, wp, wp2;
-	BOOL flag;
 	// Validate arguments
 	if (str == NULL)
 	{
@@ -2496,10 +2495,9 @@ void TrimRight(char *str)
 
 	buf = Malloc(len + 1);
 	tmp = Malloc(len + 1);
-	flag = FALSE;
 	wp = 0;
 	wp2 = 0;
-	for (i = 0;i < len;i++)
+	for (i = 0; i < len; ++i)
 	{
 		if (str[i] != ' ' && str[i] != '\t')
 		{
@@ -2524,7 +2522,7 @@ void TrimLeft(char *str)
 {
 	char *buf;
 	UINT len, i, wp;
-	BOOL flag;
+	bool flag;
 	// Validate arguments
 	if (str == NULL)
 	{
@@ -2541,13 +2539,13 @@ void TrimLeft(char *str)
 	}
 
 	buf = Malloc(len + 1);
-	flag = FALSE;
+	flag = false;
 	wp = 0;
 	for (i = 0;i < len;i++)
 	{
 		if (str[i] != ' ' && str[i] != '\t')
 		{
-			flag = TRUE;
+			flag = true;
 		}
 		if (flag)
 		{

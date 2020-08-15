@@ -172,13 +172,6 @@ typedef unsigned long PID;
 #endif // WINDOWS_H
 
 // bool type
-#ifndef	WINDOWS_H
-typedef	unsigned int		BOOL;
-#define	TRUE				1
-#define	FALSE				0
-#endif	// WINDOWS_H
-
-// bool type
 #ifndef	WIN32COM_CPP
 typedef	unsigned int		bool;
 #define	true				1

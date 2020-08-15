@@ -2693,7 +2693,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 	if (compress == 0)
 	{
 		// Uncompressed
-		b->Compressed = FALSE;
+		b->Compressed = false;
 		b->Buf = data;
 		b->Size = size;
 		b->SizeofData = size;
@@ -2703,7 +2703,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 		UINT max_size;
 
 		// Compressed
-		b->Compressed = TRUE;
+		b->Compressed = true;
 		max_size = CalcCompress(size);
 		b->Buf = MallocFast(max_size);
 		b->Size = Compress(b->Buf, max_size, data, size);
@@ -2717,7 +2717,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 		// Expand
 		UINT max_size;
 
-		b->Compressed = FALSE;
+		b->Compressed = false;
 		max_size = MAX_PACKET_SIZE;
 		b->Buf = MallocFast(max_size);
 		b->Size = Uncompress(b->Buf, max_size, data, size);

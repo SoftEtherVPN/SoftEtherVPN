@@ -302,7 +302,7 @@ extern bool g_foreground;
 extern UINT64 kernel_status[NUM_KERNEL_STATUS];
 extern UINT64 kernel_status_max[NUM_KERNEL_STATUS];
 extern LOCK *kernel_status_lock[NUM_KERNEL_STATUS];
-extern BOOL kernel_status_inited;
+extern bool kernel_status_inited;
 
 // Kernel state operation macro
 #define	KS_LOCK(id)		LockKernelStatus(id)

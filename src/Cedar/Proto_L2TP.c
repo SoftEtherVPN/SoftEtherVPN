@@ -1780,7 +1780,7 @@ void ProcL2TPPacketRecv(L2TP_SERVER *l2tp, UDPPACKET *p)
 							Insert(t->RecvQueue, q);
 
 							// Read to the end of completed part from the head of the queue
-							while (TRUE)
+							while (true)
 							{
 								L2TP_QUEUE *q;
 								if (LIST_NUM(t->RecvQueue) == 0)

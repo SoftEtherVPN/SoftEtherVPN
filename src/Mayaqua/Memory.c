@@ -3438,7 +3438,7 @@ int B64_Encode(char *set, char *source, int len)
 	{
 		return 0;
 	}
-	while (TRUE)
+	while (true)
 	{
 		if (i >= len)
 		{
@@ -3491,7 +3491,7 @@ int B64_Decode(char *set, char *source, int len)
 	src = source;
 	i = 0;
 	j = 0;
-	while (TRUE)
+	while (true)
 	{
 		f1 = f2 = f3 = f4 = 0;
 		if (i >= len)
