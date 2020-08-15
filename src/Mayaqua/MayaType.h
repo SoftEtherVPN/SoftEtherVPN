@@ -194,10 +194,6 @@ typedef	unsigned short		USHORT;
 typedef	unsigned char		BYTE;
 typedef	unsigned char		UCHAR;
 
-#ifndef	WIN32COM_CPP
-typedef signed char			CHAR;
-#endif	// WIN32COM_CPP
-
 
 // 64-bit integer type
 typedef	unsigned long long	UINT64;
