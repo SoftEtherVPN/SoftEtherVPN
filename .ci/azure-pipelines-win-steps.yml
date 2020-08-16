@@ -1,6 +1,8 @@
 parameters:
 - name: architecture
   type: string
+- name: compilerPath
+  type: string
 - name: vcpkgTriplet
   type: string
 - name: vcvarsPath
@@ -18,7 +20,7 @@ steps:
   displayName: 'Prepare environment'
 - script: |
     call "${{parameters.vcvarsPath}}"
-    cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{parameters.vcpkgTriplet}} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl $(Build.SourcesDirectory)
+    cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{parameters.vcpkgTriplet}} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="${{parameters.compilerPath}}" -DCMAKE_CXX_COMPILER="${{parameters.compilerPath}}" $(Build.SourcesDirectory)
     cmake --build .
   workingDirectory: $(Build.BinariesDirectory)
   displayName: 'Build'
