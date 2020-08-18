@@ -705,7 +705,7 @@ POL_EX_8				Отправка или получение в виртуальной
 POL_9					Режим конфиденциальности
 POL_EX_9				Обмен данными между сессиями с этой политикой будет невозможен.
 POL_10					Запретить TCP/IP соединения (IPv4)
-POL_EX_10				Компьютеры в сессиях с этой политикой не смогут слушать и принимать IPv4 TCP/IP-соединения.
+POL_EX_10				Компьютеры в сессиях с этой политикой не смогут прослушивать и принимать IPv4 TCP/IP-соединения.
 POL_11					Неограниченная широковещательная рассылка 
 POL_EX_11				Для компьютера в сессии с этой политикой не будет автоматически ограничиваться ненужное количество широковещательных пакетов, отправленных в виртуальную сеть.  
 POL_12					Разрешить режим Мониторинга
@@ -743,7 +743,7 @@ POL_EX_26				IPv6 маршрутизация будет запрещена дл�
 POL_27					Запретить дублирование IP-адресов (IPv6)
 POL_EX_27				Компьютеры из разных сессий с этой политикой не смогут использовать одинаковые IPv6-адреса.
 POL_28					Запретить TCP/IP соединения (IPv6)
-POL_EX_28				Компьютеры в сессиях с этой политикой не смогут слушать и принимать IPv6 TCP/IP-соединения.
+POL_EX_28				Компьютеры в сессиях с этой политикой не смогут прослушивать и принимать IPv6 TCP/IP-соединения.
 POL_29					Максимальное количество IP-адресов (IPv6)
 POL_EX_29				Ограничивает количество IPv6-адресов для каждой сессии с этой политикой.
 POL_30					Запретить сохранение пароля в VPN клиенте
@@ -1393,13 +1393,13 @@ SM_ACCESS_COLUMN_0		ID
 SM_ACCESS_COLUMN_1		Действие
 SM_ACCESS_COLUMN_2		Состояние
 SM_ACCESS_COLUMN_3		Приоритет
-SM_ACCESS_COLUMN_4		Memo
-SM_ACCESS_COLUMN_5		Содержание
+SM_ACCESS_COLUMN_4		Описание
+SM_ACCESS_COLUMN_5		Правило
 SM_ACCESS_COLUMN_6		Уникальный ID
-SM_ACCESS_PASS			Pass
-SM_ACCESS_DISCARD		Discard
-SM_ACCESS_ENABLE		Enable
-SM_ACCESS_DISABLE		Disable
+SM_ACCESS_PASS			Пропустить
+SM_ACCESS_DISCARD		Отбросить
+SM_ACCESS_ENABLE		Включить
+SM_ACCESS_DISABLE		Отключить
 SM_ACCESS_PROTO_1		Все протоколы IPv4 / IPv6
 SM_ACCESS_PROTO_2		6 (протокол TCP/IP)
 SM_ACCESS_PROTO_3		17 (протокол UDP/IP)
@@ -1411,12 +1411,12 @@ SM_SELECT_NO			Не выбирать
 SM_PLEASE_SELECT		Выберите пользователя.
 SM_LINK_COLUMN_1		Имя параметра
 SM_LINK_COLUMN_2		Состояние
-SM_LINK_COLUMN_3		Установленно
+SM_LINK_COLUMN_3		Подключено
 SM_LINK_COLUMN_4		VPN-сервер назначения
 SM_LINK_COLUMN_5		Virtual Hub
-SM_LINK_STATUS_OFFLINE	Offline (Stopped)
+SM_LINK_STATUS_OFFLINE	Офлайн (остановлен)
 SM_LINK_STATUS_ERROR	Ошибка %u: %s
-SM_LINK_STATUS_ONLINE	Online (Established)
+SM_LINK_STATUS_ONLINE	Онлайн (подключен)
 SM_LINK_POLICY_GROUP	Настройка каскадного подключения
 SM_LINK_POLICY_CAPTION	Параметры политики безопасности, применимые к каскадным сессиям
 SM_LINK_CONNECTING		Подключение
@@ -2757,7 +2757,7 @@ B_PROPERTY				Свойства Virtual Hub
 S_PROPERTY				Настроить этот Hub.
 B_RADIUS				Настройка сервера авторизации
 S_RADIUS				Используйте внешний RADIUS сервер для авторизации пользователей.
-B_LINK					Настройка каскадных подключений
+B_LINK					Каскадные подключения
 S_LINK					Установите каскадное подключение с Hubs на локальных или удаленных VPN-серверах.
 STATIC3					Текущий статус этого Virtual Hub:
 B_REFRESH				Обновить
@@ -2830,22 +2830,22 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_GROUP
-CAPTION					Manage Groups
-S_TITLE					Virtual Hub "%S" has the following groups.
-B_CREATE				&New
-IDOK					&Edit
-B_DELETE				&Remove
-B_REFRESH				&Refresh
-B_USER					&Member List
-IDCANCEL				E&xit
+CAPTION					Управление группами
+S_TITLE					Virtual Hub "%S" состоит из следующих групп.
+B_CREATE				&Новая
+IDOK					&Изменить
+B_DELETE				&Удалить
+B_REFRESH				&Обновить
+B_USER					&Список членов
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_EDIT_GROUP
-IDC_STATIC1				&Название группы:
-IDC_STATIC3				&Полное имя:
+IDC_STATIC1				&Название:
+IDC_STATIC3				&Описание:
 IDC_STATIC4				&Заметка:
 S_POLICY_1				Политика безопасности:
-R_POLICY				Set this group's Security Policy
+R_POLICY				Установить политику безопасности этой группы
 B_POLICY				Политика безопасности
 S_POLICY_2				Статистическая информация группы:
 IDOK					&OK
@@ -2853,80 +2853,80 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_SM_ACCESS_LIST
-CAPTION					Access Lists
-S_TITLE					The Virtual Hub "%S" has the following access lists (packet filtering rules).
-B_ADD					&New (IPv&4)
-B_ADD_V6				&New (IPv&6)
-IDOK					&Edit
-B_DELETE				&Delete
-B_SAVE					&Save
-IDCANCEL				&Cancel
-STATIC1					Items with higher priority appear higher in the list.
-STATIC2					Note: IP packets that did not match any access list items can pass.
-B_CLONE					Cl&one
-B_ENABLE				E&nable
-B_DISABLE				D&isable
+CAPTION					Списки доступа
+S_TITLE					Virtual Hub "%S" имеет следующие списки доступа (правила фильтрации пакетов).
+B_ADD					&Новый (IPv&4)
+B_ADD_V6				&Новый (IPv&6)
+IDOK					&Изменить
+B_DELETE				&Удалить
+B_SAVE					&Сохранить
+IDCANCEL				&Отмена
+STATIC1					Чем выше приоритет, тем выше отображаются записи в списке.
+STATIC2					Заметка: IP-пакеты, которые не соответствуют ни одной записи списка доступа, могут быть переданы.
+B_CLONE					Дублировать
+B_ENABLE				Включить
+B_DISABLE				Отключить
 
 
 PREFIX					D_SM_EDIT_ACCESS
-CAPTION					Edit Access List Item
-STATIC1					Configure the access list settings. The access list that is defined here will be applied to all IP packets passing through the Virtual Hub.
-STATIC2					Basic Settings
-STATIC3					&Memo:
-STATIC4					&Action:
-R_PASS					&Pass
-R_DISCARD				&Discard
-STATIC5					P&riority:
-STATIC6					(Smaller number has higher priority.)
-STATIC7					Filtering Options for IP Headers
-S_ACCESS_SRC_ALL		Source IP Address:
-R_SRC_ALL				Applies to All Source Addresses
-S_SRC_IP_1				IPv4 Address:
-S_SRC_IP_2				Subnet Mask:
-S_SRC_IP_3				(255.255.255.255 means a single host)
-S_SRC_IP_1_V6			IPv6 Address:
-S_SRC_IP_3_V6			(For example: "ffff:ff00::" or "/24". "/128" means a single host.)
-S_ACCESS_DST_ALL		Destination IP Address:
-R_DST_ALL				Applies to All Destination Addresses
-S_IP_DST_1				IPv4 Address:
-S_IP_DST_2				Subnet Mask:
-S_IP_DST_3				(255.255.255.255 means Specified host only)
-S_IP_DST_1_V6			IPv6 Address:
-S_IP_DST_3_V6			(For example: "ffff:ff00::" or "/24". "/128" means a single host.)
-STATIC9					Protocol Type:
-STATIC10				Filtering Options for TCP Headers and UDP Headers
-S_TCP_1					Minimum
-S_TCP_2					Maximum
-S_TCP_3					Source Port:
-S_TCP_5					Destination Port:
-S_TCP_7					The blank port number field matches any ports.\r\nIt will apply to packets that match only the minimum value when the minimum value is specified but the maximum value is not.
-STATIC11				Filtering Options for Users or Groups
-STATIC11_OLD			Filtering Options for Users
-STATIC12				This access list will be applied only to the packets that for specific users, groups send or receive.
-STATIC12_OLD			This access list will be applied only to packets that for specific users send or receive.
-STATIC13				Source Name:
-B_USER1					Browse...
-STATIC14				Destination Name:
-B_USER2					Browse...
-STATIC15				Leave these fields blank if you don't specify user name nor group name.
-STATIC15_OLD			Leave these fields blank if you don't specify user name.
+CAPTION					Изменить запись списка доступа
+STATIC1					Настройте параметры списка доступа. Заданные здесь параметры будут применяться ко всем IP-пакетам, проходящим через Virtual Hub.
+STATIC2					Основные настройки
+STATIC3					&Описание:
+STATIC4					&Действие:
+R_PASS					&Пропустить
+R_DISCARD				&Отбросить
+STATIC5					Приоритет:
+STATIC6					(Чем меньше число, тем выше приоритет.)             
+STATIC7					Параметры фильтрации IP заголовков
+S_ACCESS_SRC_ALL		IP-адрес отправителя:
+R_SRC_ALL				Применить ко всем адресам
+S_SRC_IP_1				IPv4-адрес:
+S_SRC_IP_2				Маска подсети:
+S_SRC_IP_3				(255.255.255.255 означает один хост)
+S_SRC_IP_1_V6			IPv6-адрес:
+S_SRC_IP_3_V6			(Например: "ffff:ff00::" или "/24". "/128" означает один хост.)
+S_ACCESS_DST_ALL		IP-адрес получателя:
+R_DST_ALL				Применить ко всем адресам
+S_IP_DST_1				IPv4-адрес:
+S_IP_DST_2				Маска подсети:
+S_IP_DST_3				(255.255.255.255 означает только указанный хост)
+S_IP_DST_1_V6			IPv6-адрес:
+S_IP_DST_3_V6			(Например: "ffff:ff00::" или "/24". "/128" означает один хост.)
+STATIC9					Тип протокола:
+STATIC10				Параметры фильтрации TCP и UDP заголовков
+S_TCP_1					Минимум
+S_TCP_2					Максимум
+S_TCP_3					Порт отправителя:
+S_TCP_5					Порт получателя:
+S_TCP_7					Пустое поле номера порта соответствует любым портам.\r\nЕсли минимальное значение указано, а максимальное значение - нет, то параметр будет применяться к пакетам, которые соответствуют только минимальному значению.
+STATIC11				Параметры фильтрации пользователей или групп
+STATIC11_OLD			Параметры фильтрации пользователей
+STATIC12				Этот список доступа будет применяться только к пакетам, которые отправляют или получают определенные пользователи или группы.
+STATIC12_OLD			Этот список доступа будет применяться только к пакетам, которые отправляют или получают определенные пользователи.
+STATIC13				Отправитель:
+B_USER1					Выбрать...
+STATIC14				Получатель:
+B_USER2					Выбрать...
+STATIC15				Если вам не надо указывать пользователя или группу, оставьте эти поля пустыми.
+STATIC15_OLD			Если вам не надо указывать пользователя, оставьте эти поля пустыми.
 IDOK					&OK
-IDCANCEL				Cancel
-S_PROTOID				Specify IP Protocol:
-STATIC16				Filtering Options for MAC Headers
-S_CHECK_SRC_MAC			Source MAC Address:
-R_CHECK_SRC_MAC			Applies to any Source Addresses
-S_SRC_MAC				MAC Address:
-S_SRC_MAC_MASK			Mask:
-S_CHECK_DST_MAC			Destination MAC Address:
-R_CHECK_DST_MAC			Applies to any Destination Addresses
-B_SIMULATION			De&lay and Packet Loss...
-S_DST_MAC				MAC Address:
-S_DST_MAC_MASK			Mask:
-S_MAC_NOTE				You can use hexadecimal number with two separators, "-" or ":", and without the separators.\r\n(FF-FF-FF-FF-FF-FF means a specified host) 
-R_CHECK_TCP_STATE		Verify TCP Connection State (Only TCP Packets)
-R_ESTABLISHED			Established Packet
-R_UNESTABLISHED			Unestablished Packet
+IDCANCEL				Отмена
+S_PROTOID				Укажите IP-протокол:
+STATIC16				Параметры фильтрации MAC заголовков
+S_CHECK_SRC_MAC			MAC-адрес отправителя:
+R_CHECK_SRC_MAC			Применить ко всем MAC-адресам
+S_SRC_MAC				MAC-адрес:
+S_SRC_MAC_MASK			Маска:
+S_CHECK_DST_MAC			MAC-адрес получателя:
+R_CHECK_DST_MAC			Применить ко всем MAC-адресам
+B_SIMULATION			Задержка и потеря пакетов...
+S_DST_MAC				MAC-адрес:
+S_DST_MAC_MASK			Маска:
+S_MAC_NOTE				Вы можете использовать шестнадцатеричное число с «-», «:» или без разделителей.\r\n(FF-FF-FF-FF-FF-FF означает указанный хост) 
+R_CHECK_TCP_STATE		Проверять состояние TCP-соединения (только TCP-пакеты)
+R_ESTABLISHED			Установленный пакет
+R_UNESTABLISHED			Неустановленный пакет
 R_REDIRECT				Redirect HTTP Request to Specific URL
 B_REDIRECT				Set URL Redirect to...
 
