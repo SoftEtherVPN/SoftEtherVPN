@@ -2015,6 +2015,8 @@ LA_SET_FARM_SETTING		クラスタリング設定を変更しました。
 LA_SET_SERVER_CERT		サーバー証明書を設定しました。
 LA_REGENERATE_SERVER_CERT	サーバー証明書を再生成しました。新しい CN: "%S"
 LA_SET_SERVER_CIPHER	サーバーの新しい暗号化アルゴリズム名を設定しました。新しい暗号化アルゴリズム名は "%S" です。
+LA_ADD_WGK				Added %u WireGuard key(s).
+LA_DELETE_WGK			Deleted %u WireGuard key(s).
 LA_CREATE_HUB			新しい仮想 HUB "%S" を作成しました。
 LA_SET_HUB				仮想 HUB の設定を変更しました。
 LA_DELETE_HUB			仮想 HUB "%S" を削除しました。

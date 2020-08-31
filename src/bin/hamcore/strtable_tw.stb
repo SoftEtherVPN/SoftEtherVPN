@@ -2031,6 +2031,8 @@ LA_SET_FARM_SETTING		群集設置變更完成。
 LA_SET_SERVER_CERT		服務端證書設定完成。
 LA_REGENERATE_SERVER_CERT	伺服器憑證再次生成。新 CN："%S"
 LA_SET_SERVER_CIPHER	服務端的新加密演算法名設定完成。新加密演算法為 "%S"。
+LA_ADD_WGK				Added %u WireGuard key(s).
+LA_DELETE_WGK			Deleted %u WireGuard key(s).
 LA_CREATE_HUB			已創建新虛擬 HUB "%S"。
 LA_SET_HUB				已變更虛擬 HUB 設置。
 LA_DELETE_HUB			已刪除虛擬 HUB "%S"。

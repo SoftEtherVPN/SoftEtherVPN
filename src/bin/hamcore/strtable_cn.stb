@@ -2028,6 +2028,8 @@ LA_SET_FARM_SETTING			群集设置变更完成。
 LA_SET_SERVER_CERT			服务端证书设定完成。
 LA_REGENERATE_SERVER_CERT	服务器证书再次生成。新 CN："%S"
 LA_SET_SERVER_CIPHER		服务端的新加密算法名设定完成。新加密算法为 "%S"。
+LA_ADD_WGK					Added %u WireGuard key(s).
+LA_DELETE_WGK				Deleted %u WireGuard key(s).
 LA_CREATE_HUB				已创建新虚拟 HUB "%S"。
 LA_SET_HUB					已变更虚拟 HUB 设置。
 LA_DELETE_HUB				已删除虚拟 HUB "%S"。

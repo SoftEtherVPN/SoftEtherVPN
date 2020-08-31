@@ -1509,6 +1509,9 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC_EX("GetServerCipherList", RPC_STR, StGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("GetServerCipher", RPC_STR, StGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("SetServerCipher", RPC_STR, StSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
+	DECLARE_RPC_EX("AddWgk", RPC_WGK, StAddWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+	DECLARE_RPC_EX("DeleteWgk", RPC_WGK, StDeleteWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+	DECLARE_RPC_EX("EnumWgk", RPC_WGK, StEnumWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
 	DECLARE_RPC("CreateHub", RPC_CREATE_HUB, StCreateHub, InRpcCreateHub, OutRpcCreateHub)
 	DECLARE_RPC("SetHub", RPC_CREATE_HUB, StSetHub, InRpcCreateHub, OutRpcCreateHub)
 	DECLARE_RPC("GetHub", RPC_CREATE_HUB, StGetHub, InRpcCreateHub, OutRpcCreateHub)
@@ -1693,6 +1696,9 @@ DECLARE_SC_EX("GetServerCert", RPC_KEY_PAIR, ScGetServerCert, InRpcKeyPair, OutR
 DECLARE_SC_EX("GetServerCipherList", RPC_STR, ScGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("GetServerCipher", RPC_STR, ScGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("SetServerCipher", RPC_STR, ScSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
+DECLARE_SC_EX("AddWgk", RPC_WGK, ScAddWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+DECLARE_SC_EX("DeleteWgk", RPC_WGK, ScDeleteWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+DECLARE_SC_EX("EnumWgk", RPC_WGK, ScEnumWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
 DECLARE_SC("CreateHub", RPC_CREATE_HUB, ScCreateHub, InRpcCreateHub, OutRpcCreateHub)
 DECLARE_SC("SetHub", RPC_CREATE_HUB, ScSetHub, InRpcCreateHub, OutRpcCreateHub)
 DECLARE_SC("GetHub", RPC_CREATE_HUB, ScGetHub, InRpcCreateHub, OutRpcCreateHub)
@@ -9503,6 +9509,144 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 	return ERR_NO_ERROR;
 }
 
+// Add a WireGuard key to the allowed key list
+UINT StAddWgk(ADMIN *a, RPC_WGK *t)
+{
+	UINT ret = ERR_NO_ERROR;
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	LIST *to_add;
+
+	SERVER_ADMIN_ONLY;
+
+	to_add = NewListFast(NULL);
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *rpc_wgk = &t->Wgks[i];
+			WGK *wgk;
+
+			if (IsEmptyStr(rpc_wgk->Key))
+			{
+				ret = ERR_INVALID_PARAMETER;
+				break;
+			}
+
+			if (Search(c->WgkList, rpc_wgk) != NULL)
+			{
+				ret = ERR_OBJECT_EXISTS;
+				break;
+			}
+
+			wgk = Malloc(sizeof(WGK));
+			StrCpy(wgk->Key, sizeof(wgk->Key), rpc_wgk->Key);
+			StrCpy(wgk->Hub, sizeof(wgk->Hub), rpc_wgk->Hub);
+			StrCpy(wgk->User, sizeof(wgk->User), rpc_wgk->User);
+
+			Add(to_add, wgk);
+		}
+
+		for (i = 0; i < LIST_NUM(to_add); ++i)
+		{
+			WGK *wgk = LIST_DATA(to_add, i);
+			ret == ERR_NO_ERROR ? Add(c->WgkList, wgk) : Free(wgk);
+		}
+	}
+	UnlockList(c->WgkList);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		ALog(a, NULL, "LA_ADD_WGK", LIST_NUM(to_add));
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	ReleaseList(to_add);
+
+	return ret;
+}
+
+// Delete a WireGuard key from the allowed key list
+UINT StDeleteWgk(ADMIN *a, RPC_WGK *t)
+{
+	UINT ret = ERR_NO_ERROR;
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	LIST *to_delete;
+
+	SERVER_ADMIN_ONLY;
+
+	to_delete = NewListFast(NULL);
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *wgk = Search(c->WgkList, &t->Wgks[i]);
+			if (wgk == NULL)
+			{
+				ret = ERR_OBJECT_NOT_FOUND;
+				break;
+			}
+
+			Add(to_delete, wgk);
+		}
+
+		if (ret == ERR_NO_ERROR)
+		{
+			for (i = 0; i < LIST_NUM(to_delete); ++i)
+			{
+				WGK *wgk = LIST_DATA(to_delete, i);
+				Delete(c->WgkList, wgk);
+				Free(wgk);
+			}
+		}
+	}
+	UnlockList(c->WgkList);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		ALog(a, NULL, "LA_DELETE_WGK", LIST_NUM(to_delete));
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	ReleaseList(to_delete);
+
+	return ret;
+}
+
+// List the allowed WireGuard keys
+UINT StEnumWgk(ADMIN *a, RPC_WGK *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+
+	SERVER_ADMIN_ONLY;
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		t->Num = LIST_NUM(c->WgkList);
+		t->Wgks = Malloc(sizeof(WGK) * t->Num);
+
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *wgk = LIST_DATA(c->WgkList, i);
+			WGK *rpc_wgk = &t->Wgks[i];
+
+			StrCpy(rpc_wgk->Key, sizeof(rpc_wgk->Key), wgk->Key);
+			StrCpy(rpc_wgk->Hub, sizeof(rpc_wgk->Hub), wgk->Hub);
+			StrCpy(rpc_wgk->User, sizeof(rpc_wgk->User), wgk->User);
+		}
+	}
+	UnlockList(c->WgkList);
+
+	return ERR_NO_ERROR;
+}
+
 // Get status of connection to cluster controller
 UINT StGetFarmConnectionStatus(ADMIN *a, RPC_FARM_CONNECTION_STATUS *t)
 {
@@ -14463,6 +14607,64 @@ void FreeRpcKeyPair(RPC_KEY_PAIR *t)
 {
 	FreeX(t->Cert);
 	FreeK(t->Key);
+}
+
+// RPC_WGK
+void InRpcWgk(RPC_WGK *t, PACK *p)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(RPC_WGK));
+
+	t->Num = PackGetIndexCount(p, "Key");
+	if (t->Num == 0)
+	{
+		return;
+	}
+
+	t->Wgks = ZeroMalloc(sizeof(WGK) * t->Num);
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		WGK *wgk = &t->Wgks[i];
+
+		PackGetStrEx(p, "Key", wgk->Key, sizeof(wgk->Key), i);
+		PackGetStrEx(p, "Hub", wgk->Hub, sizeof(wgk->Hub), i);
+		PackGetStrEx(p, "User", wgk->User, sizeof(wgk->User), i);
+	}
+}
+void OutRpcWgk(PACK *p, RPC_WGK *t)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		WGK *wgk = &t->Wgks[i];
+
+		PackAddStrEx(p, "Key", wgk->Key, i, t->Num);
+		PackAddStrEx(p, "Hub", wgk->Hub, i, t->Num);
+		PackAddStrEx(p, "User", wgk->User, i, t->Num);
+	}
+}
+void FreeRpcWgk(RPC_WGK *t)
+{
+	// Validate arguments
+	if (t == NULL)
+	{
+		return;
+	}
+
+	Free(t->Wgks);
 }
 
 // NODE_INFO

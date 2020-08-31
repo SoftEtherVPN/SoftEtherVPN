@@ -1993,6 +1993,8 @@ LA_SET_FARM_SETTING 클러스터링 설정을 변경했습니다.
 LA_SET_SERVER_CERT 서버 인증서를 설정했습니다.
 LA_REGENERATE_SERVER_CERT 서버 인증서를 다시 생성했습니다. 새로운 CN:"%S"
 LA_SET_SERVER_CIPHER 서버의 새로운 암호화 알고리즘 명을 설정했습니다. 새로운 암호화 알고리즘 명은 "%S"입니다.
+LA_ADD_WGK Added %u WireGuard key(s).
+LA_DELETE_WGK Deleted %u WireGuard key(s).
 LA_CREATE_HUB 새로운 가상 HUB "%S"를 만들었습니다.
 LA_SET_HUB 가상 HUB의 설정을 변경했습니다.
 LA_DELETE_HUB 가상 HUB "%S"를 삭제했습니다.

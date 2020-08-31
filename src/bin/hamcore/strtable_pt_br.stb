@@ -2011,6 +2011,8 @@ LA_SET_FARM_SETTING	The clustering setting has been changed.
 LA_SET_SERVER_CERT	The server certificates have been set.
 LA_REGENERATE_SERVER_CERT	The server certificate has been re-generated. The new CN: "%S"
 LA_SET_SERVER_CIPHER	A new encryption algorithm name for the server has been set. The new encryption algorithm name is "%S".
+LA_ADD_WGK		Added %u WireGuard key(s).
+LA_DELETE_WGK	Deleted %u WireGuard key(s).
 LA_CREATE_HUB	A new Virtual Hub "%S" has been created.
 LA_SET_HUB	The Virtual Hub setting has been changed.
 LA_DELETE_HUB	The Virtual Hub "%S" has been deleted.

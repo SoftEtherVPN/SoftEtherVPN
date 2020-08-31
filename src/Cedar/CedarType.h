@@ -300,6 +300,7 @@ typedef struct RPC_ENUM_FARM_ITEM RPC_ENUM_FARM_ITEM;
 typedef struct RPC_ENUM_FARM RPC_ENUM_FARM;
 typedef struct RPC_FARM_CONNECTION_STATUS RPC_FARM_CONNECTION_STATUS;
 typedef struct RPC_KEY_PAIR RPC_KEY_PAIR;
+typedef struct RPC_WGK RPC_WGK;
 typedef struct RPC_HUB_OPTION RPC_HUB_OPTION;
 typedef struct RPC_RADIUS RPC_RADIUS;
 typedef struct RPC_HUB RPC_HUB;
