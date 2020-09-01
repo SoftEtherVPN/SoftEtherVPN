@@ -5023,6 +5023,35 @@ CMD_LogFileGet_SAVE_FAILED	指定されたファイルに書き込めません�
 CMD_LogFileGet_FILESIZE	ログファイルのファイルサイズ: %u
 
 
+# WgkAdd コマンド
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete コマンド
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum コマンド
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate コマンド
 CMD_HubCreate			新しい仮想 HUB の作成
 CMD_HubCreate_Help		VPN Server 上に新しい仮想 HUB を作成します。\n作成した仮想 HUB は、直ちに動作を開始します。\nVPN Server がクラスタ内で動作している場合は、このコマンドはクラスタコントローラに対してのみ有効です。また、新しい仮想 HUB は、ダイナミック仮想 HUB として動作します。HubSetStatic コマンドで、スタティック仮想 HUB に変更することもできます。すでに VPN Server 上に存在する仮想 HUB の一覧を取得するには、HubList コマンドを使用します。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nまた、このコマンドは VPN Bridge およびクラスタメンバサーバーとして動作している VPN Server では動作しません。\nなお、クラスタ上でクラスタコントローラに対して仮想 HUB の作成コマンドを発行する場合は、HubCreateStatic コマンドまたは HubCreateDynamic コマンドを使用してください (クラスタコントローラに対して HubCreate コマンドを使用すると HubCreateDynamic コマンドと同等に動作します)。

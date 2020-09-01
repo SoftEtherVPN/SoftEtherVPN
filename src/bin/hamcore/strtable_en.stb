@@ -5019,6 +5019,35 @@ CMD_LogFileGet_SAVE_FAILED	Unable to write to the specified file.
 CMD_LogFileGet_FILESIZE	File size of log file: %u
 
 
+# WgkAdd command
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete command
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum command
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate command
 CMD_HubCreate			Create New Virtual Hub
 CMD_HubCreate_Help		Use this to create a new Virtual Hub on the VPN Server. \nThe created Virtual Hub will begin operation immediately. \nWhen the VPN Server is operating on a cluster, this command is only valid for the cluster controller. Also, the new Virtual Hub will operate as a dynamic Virtual Hub. You can change it to a static Virtual Hub by using the HubSetStatic command. To get a list of Virtual Hubs that are already on the VPN Server, use the HubList command. \nTo execute this command, you must have VPN Server administrator privileges. \nAlso, this command does not operate on VPN Servers that are operating as a VPN Bridge or cluster member. \nWhen issuing the command to a cluster controller on a cluster to create a Virtual Hub, use either the HubCreateStatic command or the HubCreateDynamic command (issuing the HubCreate command to a cluster controller has the same operational effect as issuing the HubCreateDynamic command).

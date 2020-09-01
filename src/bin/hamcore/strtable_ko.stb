@@ -5000,6 +5000,35 @@ CMD_LogFileGet_SAVE_FAILED 지정된 파일에 쓸 수 없습니다.
 CMD_LogFileGet_FILESIZE 로그 파일의 파일 크기:%u
 
 
+# WgkAdd 명령
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete 명령
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum 명령
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate 명령
 CMD_HubCreate 새로운 가상 HUB 만들기
 CMD_HubCreate_Help VPN Server에 새로운 가상 HUB를 만듭니다. \n 만든 가상 HUB는 즉시 작동을 시작합니다. \nVPN Server가 클러스터에서 실행중인 경우이 명령은 클러스터 컨트롤러에만 적용됩니다. 또한 새로운 가상 HUB는 동적 가상 HUB 역할을합니다. HubSetStatic 명령에서 정적 가상 HUB 변경 될 수 있습니다. 이미 VPN Server에 존재하는 가상 HUB 목록을 검색하려면 HubList 명령을 사용합니다. \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n 또한이 명령은 VPN Bridge 및 클러스터 구성원 서버로 작동하는 VPN Server에서 작동하지 않습니다. \n 또한 클러스터에서 클러스터 컨트롤러에 가상 HUB 작성 명령을 실행하려면 HubCreateStatic 명령 또는 HubCreateDynamic 명령을 사용하십시오 (클러스터 컨트롤러에 HubCreate 명령을 사용하면 HubCreateDynamic 명령과 동등하게 동작 합니다).

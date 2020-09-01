@@ -5037,6 +5037,35 @@ CMD_LogFileGet_SAVE_FAILED	无法写入指定的文件。
 CMD_LogFileGet_FILESIZE		日志文件的大小: %u
 
 
+# WgkAdd 命令
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete 命令
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum 命令
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate 命令
 CMD_HubCreate				创建新的虚拟 HUB
 CMD_HubCreate_Help			在 VPN Server 上创建一个新的虚拟 HUB。\n创建的虚拟 HUB 将立即开始工作。\n当 VPN Server，在一个群集中运行，此命令仅对群集控制器有效。新的虚拟 HUB，将作为一个动态的虚拟 HUB。应用 HubSetStatic 命令也可将虚拟 HUB 改为静态的。要想获取已经存储在 VPN Server 上的 HUB，可以运行 HubList 命令获得列表。\n要运行此命令，需要 VPN Server 管理员权限。\n此外，此命令在 VPN Bridge 和群集管理服务器中不起作用。\n在群集上创建虚拟群集控制器 HUB 时，请运行 HubCreateStatic 或者 HubCreateDynamic 命令。(对群集控制器操作时，HubCreate 和 HubCreateDynamic就有相同的功能)。
