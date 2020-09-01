@@ -6798,8 +6798,8 @@ CMD_AccountDetailSet_Prompt_HALF	半二重モードを有効にする (yes/no):
 CMD_AccountDetailSet_Prompt_BRIDGE	ブリッジ/ルータモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_MONITOR	モニタリングモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	ルーティングテーブル調整処理を無効化する (yes/no): 
-CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no):
-CMD_AccountDetailSet_Prompt_DISABLEUDP	UDP 高速化機能を無効化する (yes/no):
+CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no): 
+CMD_AccountDetailSet_Prompt_DISABLEUDP	UDP 高速化機能を無効化する (yes/no): 
 
 
 # AccountRename コマンド
