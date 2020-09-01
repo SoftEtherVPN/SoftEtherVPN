@@ -213,6 +213,8 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	AddRef(cedar->ref);
 
+	// WireGuard
+	Add(proto->Containers, ProtoContainerNew(WgsGetProtoImpl()));
 	// OpenVPN
 	Add(proto->Containers, ProtoContainerNew(OvsGetProtoImpl()));
 	// SSTP

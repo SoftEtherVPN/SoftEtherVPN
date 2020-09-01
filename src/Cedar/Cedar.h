@@ -367,6 +367,7 @@
 #define	AUTHTYPE_ROOTCERT				3			// Root certificate which is issued by trusted Certificate Authority
 #define	AUTHTYPE_RADIUS					4			// Radius authentication
 #define	AUTHTYPE_NT						5			// Windows NT authentication
+#define	AUTHTYPE_WIREGUARD_KEY			97			// WireGuard public key authentication
 #define	AUTHTYPE_OPENVPN_CERT    		98			// TLS client certificate authentication
 #define	AUTHTYPE_TICKET					99			// Ticket authentication
 
@@ -923,6 +924,7 @@ typedef struct CEDAR
 	UINT Type;						// Type
 	LIST *ListenerList;				// Listener list
 	LIST *HubList;					// HUB list
+	LIST *WgkList;					// WireGuard key list
 	LIST *ConnectionList;			// Negotiating connection list
 	LIST *CaList;					// List of CA
 	volatile bool Halt;				// Halt flag
@@ -1032,8 +1034,6 @@ typedef struct CEDAR
 #include <Cedar/Command.h>
 // RPC over HTTP
 #include <Cedar/Wpc.h>
-// Layer-2/Layer-3 converter
-#include <Cedar/IPC.h>
 // Third party protocols
 #include <Cedar/Proto.h>
 #include <Cedar/Proto_IPsec.h>
@@ -1045,6 +1045,9 @@ typedef struct CEDAR
 #include <Cedar/Proto_PPP.h>
 #include <Cedar/Proto_SSTP.h>
 #include <Cedar/Proto_Win7.h>
+#include <Cedar/Proto_WireGuard.h>
+// Layer-2/Layer-3 converter
+#include <Cedar/IPC.h>
 // UDP Acceleration
 #include <Cedar/UdpAccel.h>
 // DDNS Client

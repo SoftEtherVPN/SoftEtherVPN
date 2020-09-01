@@ -1519,7 +1519,7 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 								// Attempt to connect with IPC
 								UINT error_code;
 
-								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
+								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,
 								             &error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
 								             p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL,
 								             IPC_LAYER_3);
@@ -2844,7 +2844,7 @@ bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp)
 			else if (p->Ipc == NULL)
 			{
 				Debug("MSCHAPv2 creating IPC\n");
-				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password,
+				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,
 				             &error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
 				             p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL,
 				             +					IPC_LAYER_3);
@@ -3252,7 +3252,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 
 				PPPParseUsername(p->Cedar, p->Eap_Identity, &d);
 
-				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, d.HubName, d.UserName, "",
+				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, d.HubName, d.UserName, "", NULL,
 				             &error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
 				             p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, p->Eap_TlsCtx.ClientCert.X,
 				             IPC_LAYER_3);

@@ -1754,6 +1754,7 @@ LS_SSL_START 연결 "%S"에 대한 SSL 통신이 시작되었습니다. 암호�
 LS_CONNECTION_ERROR 연결 "%S"는 이유로 "%s"(코드 %u)로 종료되었습니다.
 LS_FARMMEMBER_NOT_ADMIN 연결 "%S": 서버는 클러스터 멤버이지만, 클라이언트는 가상 HUB "%S"관리자 사용자 "%S"이외로 직접 연결하려고 시도했습니다. 클라이언트가 제공 한 사용자 이름은 "%S"입니다. 액세스는 허용되지 않습니다.
 LS_HUB_NOT_FOUND 연결 "%S": 클라이언트가 연결을 시도하는 가상 HUB "%S"는 서버에 존재하지 않습니다.
+LS_WG_KEY_NOT_FOUND Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED 연결 "%S": 클라이언트의 접근 IP 주소 "%S"는 가상 HUB에 정의 된 접근 IP 제한 목록에 의해 거부되었습니다.
 LS_LICENSE_ERROR 연결 "%S": 라이센스에 오류가 발생했기 때문에 클라이언트는 서버에 연결할 수 없습니다.
 LS_BETA_EXPIRES 라이센스 오류가 발생했습니다. 베타 사용 기간이 종료하고 있습니다. 새로운 베타 버전 또는 완성판을 http://selinks.org/에서 다운로드하십시오.
@@ -1783,6 +1784,16 @@ LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. M
 LP_PREFIX_SESSION [%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED Session created.
 LP_SESSION_DELETED Session deleted.
+
+
+# (WireGuard 로그)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
 
 
 # (OpenVPN 로그)
@@ -1884,6 +1895,8 @@ LH_AUTH_PASSWORD 암호 인증
 LH_AUTH_PLAIN_PASSWORD 외부 서버 인증
 LH_AUTH_CERT 인증서 인증
 LH_AUTH_TICKET 티켓 인증
+LH_AUTH_WIREGUARD_KEY WireGuard public key authentication
+LH_AUTH_OPENVPN_CERT OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT 연결 "%S"사용자 "%S"의 인증 방법으로 RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)이 지정 되었으나, 현재 VPN Server 버전은 "%S"이기 때문에 RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)을 사용할 수 없습니다. 연결이 거부됩니다.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE 연결 "%S"사용자 "%S"의 인증 방법으로 RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)이 지정되었습니다 만, RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)을 사용할 수 수 없습니다. 이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다. 연결이 거부됩니다.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE 연결 "%S"사용자 "%S"의 인증 방법으로 인증서 인증을 지정했지만 인증서 인증을 사용 할 수 없습니다. 이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다. 연결이 거부됩니다.
@@ -7308,7 +7321,6 @@ SM_SNAT_IS_RAW		Raw IP mode NAT is Active
 LO_CLIENT_CERT		Client certificate received (subject: CN="%s"), will use certificate authentication.
 LO_CLIENT_UNVERIFIED_CERT	Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT	Client certificate is not provided, will use password authentication.
-LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 CMD_AccessAddEx_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_AccessAddEx6_REDIRECTURL	The specified URL will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub. To use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
 CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.

@@ -150,6 +150,14 @@ struct OPENVPN_SSTP_CONFIG
 	bool EnableSSTP;						// SSTP is enabled
 };
 
+// WireGuard key structure
+struct WGK
+{
+	char Key[WG_KEY_BASE64_SIZE];
+	char Hub[MAX_HUBNAME_LEN + 1];
+	char User[MAX_USERNAME_LEN + 1];
+};
+
 // Server object
 struct SERVER
 {
@@ -630,6 +638,8 @@ void SiSetAzureEnable(SERVER *s, bool enabled);
 void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update);
 void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size);
 bool SiIsEnterpriseFunctionsRestrictedOnOpenSource(CEDAR *c);
+
+int CompareWgk(void *p1, void *p2);
 
 #endif	// SERVER_H
 

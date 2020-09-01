@@ -1786,6 +1786,7 @@ LS_SSL_START				连接 "%S" 的 SSL 通信已启动。加密算法名为 "%S"。
 LS_CONNECTION_ERROR			连接 "%S"因原因 "%s" (代码 %u)已终止。
 LS_FARMMEMBER_NOT_ADMIN		连接 "%S": 服务端是群集成员，但客户端在非管理员 (%S) 用户情况下，尝试直接与虚拟 HUB "%S" 连接。客户端用户名为 "%S"。访问被拒绝。
 LS_HUB_NOT_FOUND			连接 "%S": 客户端正在尝试连接的虚拟 HUB "%S" 在服务端上不存在。
+LS_WG_KEY_NOT_FOUND			Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED				连接 "%S": 基于虚拟 HUB 上定义的源 IP 访问限制列表，客户端的源 IP 地址 "%S" 被拒绝。
 LS_LICENSE_ERROR			连接 "%S": 因为发生许可证相关错误，客户端无法连接到服务端。
 LS_BETA_EXPIRES				SoftEther VPN Server 测试版已过期。测试版使用期限已到。请从 http://selinks.org/ 下载新的测试版或完整版。
@@ -1815,6 +1816,16 @@ LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. M
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard log)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
 
 
 # (OpenVPN Logs)
@@ -1919,7 +1930,8 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_WIREGUARD_KEY		WireGuard public key authentication
+LH_AUTH_OPENVPN_CERT		OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为 RADIUS 身份验证或 Active Directory 身份验证 (NT 域验证)。然而，这样一个外部用户身份验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为证书认证。然而，证书验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。

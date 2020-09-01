@@ -226,8 +226,8 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 	}
 
 	ipc = NewIPC(cedar, param->ClientName, param->Postfix, param->HubName,
-	             param->UserName, param->Password, error_code, &param->ClientIp,
-	             param->ClientPort, &param->ServerIp, param->ServerPort,
+	             param->UserName, param->Password, param->WgKey, error_code,
+	             &param->ClientIp, param->ClientPort, &param->ServerIp, param->ServerPort,
 	             param->ClientHostname, param->CryptName,
 	             param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->Layer);
 
@@ -235,7 +235,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 }
 
 // Start a new IPC connection
-IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
+IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password, char *wg_key,
             UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
             char *client_hostname, char *crypt_name,
             bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
@@ -337,7 +337,11 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	FreePack(p);
 
 	// Upload the authentication data
-	if (client_certificate != NULL)
+	if (IsEmptyStr(wg_key) == false)
+	{
+		p = PackLoginWithWireGuardKey(wg_key);
+	}
+	else if (client_certificate != NULL)
 	{
 		p = PackLoginWithOpenVPNCertificate(hubname, username, client_certificate);
 	}

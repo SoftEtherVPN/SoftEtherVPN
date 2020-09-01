@@ -1773,6 +1773,7 @@ LS_SSL_START			コネクション "%S" に対する SSL 通信が開始されま
 LS_CONNECTION_ERROR		コネクション "%S" は理由 "%s" (コード %u) で終了しました。
 LS_FARMMEMBER_NOT_ADMIN	コネクション "%S": サーバーはクラスタメンバですが、クライアントは仮想 HUB "%S" に管理者ユーザー "%S" 以外で直接接続しようと試みました。クライアントが提示したユーザー名は "%S" です。アクセスは許可されません。
 LS_HUB_NOT_FOUND		コネクション "%S": クライアントが接続しようとした仮想 HUB "%S" はサーバー上に存在しません。
+LS_WG_KEY_NOT_FOUND		Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED			コネクション "%S": クライアントの接続元 IP アドレス "%S" は、仮想 HUB に定義されている 接続元 IP 制限リストによって拒否されました。
 LS_LICENSE_ERROR		コネクション "%S": ライセンス上のエラーが発生したため、クライアントはサーバーに接続できませんでした。
 LS_BETA_EXPIRES			ライセンスエラーが発生しました。ベータ版の使用期限が終了しています。新しいベータ版または完成版を http://selinks.org/ からダウンロードしてください。
@@ -1797,10 +1798,22 @@ LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S
 LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
 
+
 # (Proto ログ)
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard ログ)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
+
 
 # (OpenVPN ログ)
 LO_PREFIX_RAW			OpenVPN モジュール: 
@@ -1904,6 +1917,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
+LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。

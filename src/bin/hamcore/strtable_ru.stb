@@ -1769,6 +1769,7 @@ LS_SSL_START			SSL communication for connection "%S" has been started. The encry
 LS_CONNECTION_ERROR		Connection "%S" terminated by the cause "%s" (code %u).
 LS_FARMMEMBER_NOT_ADMIN	Connection "%S": Although the server is a cluster member, the client attempted that to directly connect to the Virtual Hub "%S" while not being administrator user "%S". The user name provided by the client is "%S". Access is refused.
 LS_HUB_NOT_FOUND		Connection "%S": Virtual Hub "%S" that the client is trying to connect to does not exist on the server.
+LS_WG_KEY_NOT_FOUND		Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED			Connection "%S": The source IP address "%S" of the client has refused based on the Source IP Address Limit List defined for the Virtual Hub.
 LS_LICENSE_ERROR		Connection "%S": Because a license-related error has been occurred, the client is unable to connect to the server.
 LS_BETA_EXPIRES			This beta version of SoftEther VPN Server is expired. The beta version period of use has expired. Download a new beta version or full version from http://selinks.org/.
@@ -1798,6 +1799,16 @@ LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. M
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard log)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
 
 
 # (OpenVPN Logs)
@@ -1902,7 +1913,8 @@ LH_AUTH_PASSWORD		Password authentication
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT			Certificate authentication
 LH_AUTH_TICKET			Ticket authentication
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
+LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.

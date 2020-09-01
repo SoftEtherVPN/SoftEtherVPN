@@ -402,6 +402,11 @@ void SiCheckDeadLockMain(SERVER *s, UINT timeout)
 			CheckDeadLock(cedar->CaList->lock, timeout, "cedar->CaList->lock");
 		}
 
+		if (cedar->WgkList != NULL)
+		{
+			CheckDeadLock(cedar->WgkList->lock, timeout, "cedar->WgkList->lock");
+		}
+
 		if (cedar->TrafficLock != NULL)
 		{
 			CheckDeadLock(cedar->TrafficLock, timeout, "cedar->TrafficLock");
@@ -2677,15 +2682,12 @@ bool SiIsAzureSupported(SERVER *s)
 // Read the server settings from the CFG
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 {
-	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f;
+	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9;
 	// Validate arguments
 	if (s == NULL || root == NULL)
 	{
 		return false;
 	}
-
-	f = NULL;
-
 
 	f1 = CfgGetFolder(root, "ServerConfiguration");
 	f2 = CfgGetFolder(root, "VirtualHUB");
@@ -2695,6 +2697,7 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 	f6 = CfgGetFolder(root, "LicenseManager");
 	f7 = CfgGetFolder(root, "IPsec");
 	f8 = CfgGetFolder(root, "DDnsClient");
+	f9 = CfgGetFolder(root, "WireGuardKeyList");
 
 	if (f1 == NULL)
 	{
@@ -2736,6 +2739,30 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 
 	if (s->ServerType != SERVER_TYPE_FARM_MEMBER)
 	{
+		TOKEN_LIST *t = CfgEnumFolderToTokenList(f9);
+		if (t != NULL)
+		{
+			LockList(s->Cedar->WgkList);
+			{
+				UINT i;
+				for (i = 0; i < t->NumTokens; ++i)
+				{
+					const char *name = t->Token[i];
+					FOLDER *f = CfgGetFolder(f9, name);
+					if (f != NULL)
+					{
+						WGK *wgk = Malloc(sizeof(WGK));
+						StrCpy(wgk->Key, sizeof(wgk->Key), name);
+						CfgGetStr(f, "Hub", wgk->Hub, sizeof(wgk->Hub));
+						CfgGetStr(f, "User", wgk->User, sizeof(wgk->User));
+						Add(s->Cedar->WgkList, wgk);
+					}
+				}
+			}
+			UnlockList(s->Cedar->WgkList);
+			FreeToken(t);
+		}
+
 		SiLoadHubs(s, f2);
 	}
 
@@ -3102,9 +3129,28 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 
 	SiWriteServerCfg(CfgCreateFolder(root, "ServerConfiguration"), s);
 
-
 	if (s->UpdatedServerType != SERVER_TYPE_FARM_MEMBER)
 	{
+		FOLDER *f = CfgCreateFolder(root, "WireGuardKeyList");
+		if (f != NULL)
+		{
+			LockList(s->Cedar->WgkList);
+			{
+				UINT i;
+				for (i = 0; i < LIST_NUM(s->Cedar->WgkList); ++i)
+				{
+					WGK *wgk = LIST_DATA(s->Cedar->WgkList, i);
+					FOLDER *ff = CfgCreateFolder(f, wgk->Key);
+					if (ff != NULL)
+					{
+						CfgAddStr(ff, "Hub", wgk->Hub);
+						CfgAddStr(ff, "User", wgk->User);
+					}
+				}
+			}
+			UnlockList(s->Cedar->WgkList);
+		}
+
 		SiWriteHubs(CfgCreateFolder(root, "VirtualHUB"), s);
 	}
 
@@ -10299,6 +10345,27 @@ int CompareHubList(void *p1, void *p2)
 		return 0;
 	}
 	return StrCmpi(h1->Name, h2->Name);
+}
+
+// Search in WireGuard key list
+int CompareWgk(void *p1, void *p2)
+{
+	WGK *wgk_1, *wgk_2;
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		return (p1 == NULL && p2 == NULL ? 0 : (p1 == NULL ? -1 : 1));
+	}
+
+	wgk_1 = *(WGK **)p1;
+	wgk_2 = *(WGK **)p2;
+
+	if (wgk_1 == NULL || wgk_2 == NULL)
+	{
+		return (wgk_1 == NULL && wgk_2 == NULL ? 0 : (wgk_1 == NULL ? -1 : 1));
+	}
+
+	return StrCmp(wgk_1->Key, wgk_2->Key);
 }
 
 // Connection thread to the controller

@@ -277,6 +277,7 @@ typedef struct HUB_SNAPSHOT HUB_SNAPSHOT;
 typedef struct SERVER_SNAPSHOT SERVER_SNAPSHOT;
 typedef struct SERVER_HUB_CREATE_HISTORY SERVER_HUB_CREATE_HISTORY;
 typedef struct OPENVPN_SSTP_CONFIG OPENVPN_SSTP_CONFIG;
+typedef struct WGK WGK;
 
 // ==============================================================
 //   Server Admin Tool
