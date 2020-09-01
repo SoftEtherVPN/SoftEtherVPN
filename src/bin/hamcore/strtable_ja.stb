@@ -6788,6 +6788,7 @@ CMD_AccountDetailSet_BRIDGE	VPN Server に「ブリッジ / ルータモード�
 CMD_AccountDetailSet_MONITOR	VPN Server に「モニタリングモード」で接続する場合は "yes" を指定します。モニタリングモードを使用して接続した場合、仮想 HUB 内を流れるすべてのパケットを受信することができます。ただし、接続に使用するユーザーのセキュリティポリシーで、モニタリングモードが許可されていない場合は、接続に失敗します。
 CMD_AccountDetailSet_NOTRACK	ルーティングテーブルの調整処理を行わない場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_NOQOS	VoIP / QoS 対応機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
+CMD_AccountDetailSet_DISABLEUDP	UDP 高速化機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_Eval_MaxTcp	TCP コネクション数は 1 から 32 の間で指定してください。
 CMD_AccountDetailSet_Eval_Interval	TCP コネクションの確立間隔は 1 秒以上を指定してください。
 CMD_AccountDetailSet_Prompt_MaxTcp	VPN 通信に使用する TCP コネクション数: 
@@ -6798,6 +6799,7 @@ CMD_AccountDetailSet_Prompt_BRIDGE	ブリッジ/ルータモードを有効に�
 CMD_AccountDetailSet_Prompt_MONITOR	モニタリングモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	ルーティングテーブル調整処理を無効化する (yes/no): 
 CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no):
+CMD_AccountDetailSet_Prompt_DISABLEUDP	UDP 高速化機能を無効化する (yes/no):
 
 
 # AccountRename コマンド
@@ -7296,6 +7298,3 @@ SW_LINK_NAME_LANGUAGE_COMMENT				%s の表示言語を変更します。
 
 SW_LINK_NAME_DEBUG							デバッグ情報収集ツール
 SW_LINK_NAME_DEBUG_COMMENT					SoftEther VPN のデバッグ情報を収集します。サポート担当者から依頼があった場合のみ使用してください。
-
-CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
-CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no):
