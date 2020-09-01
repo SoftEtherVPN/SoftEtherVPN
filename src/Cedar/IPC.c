@@ -242,6 +242,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
             UINT layer)
 {
 	IPC *ipc;
+	HUB *hub;
 	UINT dummy_int = 0;
 	SOCK *a;
 	SOCK *s;
@@ -465,6 +466,13 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	PackGetStr(p, "IpcHubName", ipc->HubName, sizeof(ipc->HubName));
 	Debug("IPC Hub Name: %s\n", ipc->HubName);
+
+	hub = GetHub(cedar, ipc->HubName);
+	if (hub != NULL)
+	{
+		UINTToIP(&ipc->DefaultGateway, hub->Option->DefaultGateway);
+		UINTToIP(&ipc->SubnetMask, hub->Option->DefaultSubnet);
+	}
 
 	MacToStr(macstr, sizeof(macstr), ipc->MacAddress);
 

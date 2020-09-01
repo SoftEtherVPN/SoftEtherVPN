@@ -7493,6 +7493,7 @@ void PsMain(PS *ps)
 			{"Hub", PsHub},
 			{"Online", PsOnline},
 			{"Offline", PsOffline},
+			{"SetStaticNetwork", PsSetStaticNetwork},
 			{"SetMaxSession", PsSetMaxSession},
 			{"SetHubPassword", PsSetHubPassword},
 			{"SetEnumAllow", PsSetEnumAllow},
@@ -11143,6 +11144,53 @@ UINT PsOffline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	return 0;
 }
 
+// Set the static IPv4 network parameters for the Virtual HUB
+UINT PsSetStaticNetwork(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	RPC_CREATE_HUB t;
+	PARAM args[] =
+	{
+		{"GATEWAY", CmdPrompt, _UU("CMD_SetStaticNetwork_Prompt_GATEWAY"), CmdEvalIp, NULL},
+		{"SUBNET", CmdPrompt, _UU("CMD_SetStaticNetwork_Prompt_SUBNET"), CmdEvalIp, NULL}
+	};
+
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+	ret = ScGetHub(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		goto FINAL;
+	}
+
+	t.HubOption.DefaultGateway = StrToIP32(GetParamStr(o, "GATEWAY"));
+	t.HubOption.DefaultSubnet = StrToIP32(GetParamStr(o, "SUBNET"));
+
+	ret = ScSetHub(ps->Rpc, &t);
+FINAL:
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeParamValueList(o);
+	return ret;
+}
+
 // Set the maximum number of concurrent connecting sessions of the Virtual HUB
 UINT PsSetMaxSession(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
@@ -11419,6 +11467,12 @@ UINT PsOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_OptionsGet_STATUS"), t.Online ? _UU("SM_HUB_ONLINE") : _UU("SM_HUB_OFFLINE"));
 
 		CtInsert(ct, _UU("CMD_OptionsGet_TYPE"), GetHubTypeStr(t.HubType));
+
+		IPToUniStr32(tmp, sizeof(tmp), t.HubOption.DefaultGateway);
+		CtInsert(ct, _UU("CMD_OptionsGet_GATEWAY"), tmp);
+
+		IPToUniStr32(tmp, sizeof(tmp), t.HubOption.DefaultSubnet);
+		CtInsert(ct, _UU("CMD_OptionsGet_SUBNET"), tmp);
 
 		CtFree(ct, c);
 	}

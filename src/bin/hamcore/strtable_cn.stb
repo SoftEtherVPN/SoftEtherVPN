@@ -5100,6 +5100,16 @@ CMD_Offline_Help			如果您正在管理的虚拟 HUB 在线，设置成脱机�
 CMD_Offline_Args			Offline
 
 
+# SetStaticNetwork 命令
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession 命令
 CMD_SetMaxSession			设定虚拟 HUB 的最大同时在线用户数量
 CMD_SetMaxSession_Help		设定现在正在管理的虚拟 HUB 的最大同时在线客户数量。当超过这个数量时，如果从 VPN Client 和 VPN Bridge 连接的时候，超过了最大并发会话数，更多的客户将无法连接。最大同时在线客户数的限制不包括本地的网桥，虚拟的 NAT，级联连接等生成连接不包括在内。\n设置同时在线最大数目，可以通过运行 OptionsGet 命令获得。\n此命令，在 VPN Bridge 中不会运行。\n此命令在集群虚拟 HUB 中不能运行。
@@ -5136,7 +5146,8 @@ CMD_OptionsGet_ENUM			对于匿名用户的虚拟 HUB 的显示
 CMD_OptionsGet_MAXSESSIONS	最大同时在线客户数
 CMD_OptionsGet_STATUS		状态
 CMD_OptionsGet_TYPE			虚拟 HUB 的类型
-
+CMD_OptionsGet_GATEWAY		Default gateway
+CMD_OptionsGet_SUBNET		Default subnet
 
 
 # RadiusServerSet 命令

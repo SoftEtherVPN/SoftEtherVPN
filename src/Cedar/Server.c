@@ -2279,6 +2279,8 @@ void SiSetDefaultHubOption(HUB_OPTION *o)
 		return;
 	}
 
+	o->DefaultGateway = SetIP32(192, 168, 30, 1);
+	o->DefaultSubnet = SetIP32(255, 255, 255, 0);
 	o->MaxSession = 0;
 	o->VlanTypeId = MAC_PROTO_TAGVLAN;
 	o->NoIPv6DefaultRouterInRAWhenIPv6 = true;
@@ -3757,6 +3759,8 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 		return;
 	}
 
+	o->DefaultGateway = CfgGetIp32(f, "DefaultGateway");
+	o->DefaultSubnet = CfgGetIp32(f, "DefaultSubnet");
 	o->MaxSession = CfgGetInt(f, "MaxSession");
 	o->NoArpPolling = CfgGetBool(f, "NoArpPolling");
 	o->NoIPv6AddrPolling = CfgGetBool(f, "NoIPv6AddrPolling");
@@ -3904,6 +3908,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 		return;
 	}
 
+	CfgAddIp32(f, "DefaultGateway", o->DefaultGateway);
+	CfgAddIp32(f, "DefaultSubnet", o->DefaultSubnet);
 	CfgAddInt(f, "MaxSession", o->MaxSession);
 	CfgAddBool(f, "NoArpPolling", o->NoArpPolling);
 	CfgAddBool(f, "NoIPv6AddrPolling", o->NoIPv6AddrPolling);

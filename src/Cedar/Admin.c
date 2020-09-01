@@ -9061,9 +9061,12 @@ UINT StGetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	{
 		StrCpy(t->HubName, sizeof(t->HubName), h->Name);
 		t->Online = h->Offline ? false : true;
+		t->HubType = h->Type;
+
+		t->HubOption.DefaultGateway = h->Option->DefaultGateway;
+		t->HubOption.DefaultSubnet = h->Option->DefaultSubnet;
 		t->HubOption.MaxSession = h->Option->MaxSession;
 		t->HubOption.NoEnum = h->Option->NoEnum;
-		t->HubType = h->Type;
 	}
 	Unlock(h->lock);
 
@@ -9089,7 +9092,6 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	{
 		return ERR_INVALID_PARAMETER;
 	}
-
 
 	CHECK_RIGHT;
 	NO_SUPPORT_FOR_BRIDGE;
@@ -9175,8 +9177,12 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 		else
 		{
 			h->Type = t->HubType;
+
+			h->Option->DefaultGateway = t->HubOption.DefaultGateway;
+			h->Option->DefaultSubnet = t->HubOption.DefaultSubnet;
 			h->Option->MaxSession = t->HubOption.MaxSession;
 			h->Option->NoEnum = t->HubOption.NoEnum;
+
 			if (IsZero(t->HashedPassword, sizeof(t->HashedPassword)) == false &&
 				IsZero(t->SecurePassword, sizeof(t->SecurePassword)) == false)
 			{
@@ -9234,8 +9240,6 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 		return ERR_NOT_FARM_CONTROLLER;
 	}
 
-
-
 	if (IsEmptyStr(t->HubName) || IsSafeStr(t->HubName) == false)
 	{
 		return ERR_INVALID_PARAMETER;
@@ -9279,6 +9283,8 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 
 	// Create a hub object
 	Zero(&o, sizeof(o));
+	o.DefaultGateway = t->HubOption.DefaultGateway;
+	o.DefaultSubnet = t->HubOption.DefaultSubnet;
 	o.MaxSession = t->HubOption.MaxSession;
 	o.NoEnum = t->HubOption.NoEnum;
 
@@ -12885,6 +12891,8 @@ void InRpcHubOption(RPC_HUB_OPTION *t, PACK *p)
 	}
 
 	Zero(t, sizeof(RPC_HUB_OPTION));
+	t->DefaultGateway = PackGetInt(p, "DefaultGateway");
+	t->DefaultSubnet = PackGetInt(p, "DefaultSubnet");
 	t->MaxSession = PackGetInt(p, "MaxSession");
 	t->NoEnum = PackGetBool(p, "NoEnum");
 }
@@ -12896,6 +12904,8 @@ void OutRpcHubOption(PACK *p, RPC_HUB_OPTION *t)
 		return;
 	}
 
+	PackAddInt(p, "DefaultGateway", t->DefaultGateway);
+	PackAddInt(p, "DefaultSubnet", t->DefaultSubnet);
 	PackAddInt(p, "MaxSession", t->MaxSession);
 	PackAddBool(p, "NoEnum", t->NoEnum);
 }

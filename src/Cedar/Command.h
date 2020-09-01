@@ -456,6 +456,7 @@ UINT PsHubList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsHub(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOnline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOffline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsSetStaticNetwork(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetMaxSession(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetHubPassword(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetEnumAllow(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

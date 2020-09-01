@@ -5082,6 +5082,16 @@ CMD_Offline_Help		Use this when the Virtual Hub currently being managed is onlin
 CMD_Offline_Args		Offline
 
 
+# SetStaticNetwork command
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession command
 CMD_SetMaxSession		Set the Max Number of Concurrently Connected Sessions for Virtual Hub
 CMD_SetMaxSession_Help	Use this to set the maximum number of sessions that can be concurrently connected to the Virtual Hub that is currently being managed. When there are more sessions than the maximum number of concurrently connected sessions that are being connected from the VPN Client or VPN Bridge, when the maximum number of sessions is reached, clients will no longer be able to connect. This limit on the maximum number of concurrently connected sessions does not include sessions generated in the Virtual Hub by Local Bridges, Virtual NAT, and Cascade Connections. \nYou can get the current setting for the max number of concurrently connected sessions by using the OptionsGet command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -5118,7 +5128,8 @@ CMD_OptionsGet_ENUM		Enumeration of Virtual Hub for Anonymous User
 CMD_OptionsGet_MAXSESSIONS	Max Number of Sessions
 CMD_OptionsGet_STATUS	Status
 CMD_OptionsGet_TYPE		Virtual Hub Type
-
+CMD_OptionsGet_GATEWAY	Default gateway
+CMD_OptionsGet_SUBNET	Default subnet
 
 
 # RadiusServerSet command

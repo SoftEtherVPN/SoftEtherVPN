@@ -5084,6 +5084,16 @@ CMD_Offline_Help		現在管理している仮想 HUB がオンラインになっ
 CMD_Offline_Args		Offline
 
 
+# SetStaticNetwork command
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession コマンド
 CMD_SetMaxSession		仮想 HUB の最大同時接続セッション数を設定する
 CMD_SetMaxSession_Help	現在管理している仮想 HUB の、最大同時接続セッション数を設定します。最大同時接続セッション数を越えたセッションが、VPN Client や VPN Bridge から接続された場合、最大同時接続セッション数を上回った時点で、それ以上クライアントは接続できなくなります。この最大同時接続セッション数の制限には、ローカルブリッジ、仮想 NAT、カスケード接続などによって仮想 HUB 内に生成されるセッションは含まれません。\n現在の最大同時接続セッション数の設定は、OptionsGet コマンドによって取得することができます。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -5120,7 +5130,8 @@ CMD_OptionsGet_ENUM		匿名ユーザーに対する仮想 HUB の列挙
 CMD_OptionsGet_MAXSESSIONS	最大同時接続セッション数
 CMD_OptionsGet_STATUS	状態
 CMD_OptionsGet_TYPE		仮想 HUB の種類
-
+CMD_OptionsGet_GATEWAY	Default gateway
+CMD_OptionsGet_SUBNET	Default subnet
 
 
 # RadiusServerSet コマンド

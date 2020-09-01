@@ -229,6 +229,8 @@ struct RPC_KEY_PAIR
 // HUB option
 struct RPC_HUB_OPTION
 {
+	UINT DefaultGateway;				// Default gateway address
+	UINT DefaultSubnet;					// Default subnet mask
 	UINT MaxSession;					// Maximum number of sessions
 	bool NoEnum;						// Not listed
 };
