@@ -6657,33 +6657,33 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountHttpHeader* commands
-CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+# AccountHttpHeader* コマンド
+CMD_AccountHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_AccountHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
 
-# AccountHttpHeaderAdd command
-CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderAdd コマンド
+CMD_AccountHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_AccountHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_AccountHttpHeaderAdd_[name] 設定を変更する接続設定の名前を指定します。
+CMD_AccountHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_AccountHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# AccountHttpHeaderDelete command
-CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderDelete コマンド
+CMD_AccountHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_AccountHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
-CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderDelete_[name]	設定を変更する接続設定の名前を指定します。
+CMD_AccountHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# AccountHttpHeaderGet command
-CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderGet コマンド
+CMD_AccountHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_AccountHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
-CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+CMD_AccountHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # AccountProxyNone コマンド
