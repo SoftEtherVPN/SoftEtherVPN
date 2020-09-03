@@ -5359,33 +5359,32 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	設定を変更するカスケード接続の名前を指定します。
 
 
-# CascadeHttpHeader* commands
-CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+# CascadeHttpHeader* コマンド
+CMD_CascadeHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_CascadeHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
-
-# CascadeHttpHeaderAdd command
-CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderAdd コマンド
+CMD_CascadeHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_CascadeHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_CascadeHttpHeaderAdd_[name]	設定を変更する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_CascadeHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# CascadeHttpHeaderDelete command
-CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderDelete コマンド
+CMD_CascadeHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_CascadeHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
-CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# CascadeHttpHeaderGet command
-CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderGet コマンド
+CMD_CascadeHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_CascadeHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
-CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+CMD_CascadeHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # CascadeProxyNone コマンド
