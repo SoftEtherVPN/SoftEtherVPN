@@ -4382,7 +4382,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		プロキシサーバーのポート番号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	プロキシサーバーのユーザー名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	サーバー証明書の検証
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	登録されているサーバー固有証明書
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	サーバー証明書が信頼できない場合に接続を再試行する
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		接続に使用するデバイス名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		認証の種類
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	ユーザー名
@@ -6737,18 +6737,19 @@ CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertEnable command
-CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
-CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+# AccountRetryOnServerCertEnable コマンド
+CMD_AccountRetryOnServerCertEnable	接続設定のサーバー証明書が信頼できない場合の接続再試行を有効化
+CMD_AccountRetryOnServerCertEnable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返します。AccountRetryOnServerCertDisableコマンドを使用することにより再試行を行わないように設定することができますが、このコマンドを使用することにより、デフォルトの接続再試行を行う状態に戻すことができます。
+
 CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
-CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertEnable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertDisable command
-CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certificate is invalid
-CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+# AccountRetryOnServerCertDisable コマンド
+CMD_AccountRetryOnServerCertDisable	接続設定のサーバー証明書が信頼できない場合の接続再試行を無効化
+CMD_AccountRetryOnServerCertDisable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返しますが、このコマンドを使用することにより再試行を行わないように設定することができます。
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
-CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
 # AccountServerCertSet コマンド
