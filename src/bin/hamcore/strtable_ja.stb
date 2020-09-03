@@ -6674,7 +6674,7 @@ CMD_AccountHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (
 CMD_AccountHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
 CMD_AccountHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
-CMD_AccountHttpHeaderDelete_[name]	設定を変更する接続設定の名前を指定します。
+CMD_AccountHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
 CMD_AccountHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
