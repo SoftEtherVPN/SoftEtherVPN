@@ -1808,9 +1808,9 @@ LO_PREFIX_CHANNEL		OpenVPN セッション %u (%r:%u -> %r:%u) チャネル %u:
 LO_NEW_CHANNEL			新しいチャネルを作成しました。
 LO_CHANNEL_ESTABLISHED_NEWKEY	チャネルが確立状態になりました (原因: リキーの完了)。
 LO_OPTION_STR_RECV		受信したオプション文字列: "%S"
-LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
-LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
-LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
+LO_CLIENT_CERT			クライアント証明書 (subject: CN="%s") を受信しました。証明書認証を使用します。
+LO_CLIENT_UNVERIFIED_CERT		提示されたクライアント証明書の検証に失敗しました。パスワード認証を使用します。(エラー: "%S")
+LO_CLIENT_NO_CERT		クライアント証明書が提示されませんでした。パスワード認証を使用します。
 LO_OPTION_STR_SEND		送信するオプション文字列: "%S"
 LO_INITIATE_REKEY		このチャネルのリキーを開始します。
 LO_CHANNEL_ESTABLISHED	チャネルが確立状態になりました。
@@ -1903,7 +1903,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として証明書認証が指定されましたが、証明書認証を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
@@ -4382,7 +4382,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		プロキシサーバーのポート番号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	プロキシサーバーのユーザー名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	サーバー証明書の検証
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	登録されているサーバー固有証明書
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	サーバー証明書が信頼できない場合に接続を再試行する
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		接続に使用するデバイス名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		認証の種類
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	ユーザー名
@@ -4397,7 +4397,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	ブリッジ / ルータモードで接続
 CMD_ACCOUNT_COLUMN_MONITOR			モニタリングモードで接続
 CMD_ACCOUNT_COLUMN_NO_TRACKING		ルーティングテーブルを調整しない
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	QoS 制御機能を使用しない
-CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
+CMD_ACCOUNT_COLUMN_DISABLEUDP		 UDP 高速化機能を無効化する
 
 
 # デバッグ情報書き出しコマンド
@@ -5359,33 +5359,32 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	設定を変更するカスケード接続の名前を指定します。
 
 
-# CascadeHttpHeader* commands
-CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+# CascadeHttpHeader* コマンド
+CMD_CascadeHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_CascadeHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
-
-# CascadeHttpHeaderAdd command
-CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderAdd コマンド
+CMD_CascadeHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_CascadeHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_CascadeHttpHeaderAdd_[name]	設定を変更する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_CascadeHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# CascadeHttpHeaderDelete command
-CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderDelete コマンド
+CMD_CascadeHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_CascadeHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
-CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# CascadeHttpHeaderGet command
-CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderGet コマンド
+CMD_CascadeHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_CascadeHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
-CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+CMD_CascadeHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # CascadeProxyNone コマンド
@@ -6657,33 +6656,33 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountHttpHeader* commands
-CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+# AccountHttpHeader* コマンド
+CMD_AccountHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_AccountHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
 
-# AccountHttpHeaderAdd command
-CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderAdd コマンド
+CMD_AccountHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_AccountHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_AccountHttpHeaderAdd_[name] 設定を変更する接続設定の名前を指定します。
+CMD_AccountHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_AccountHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# AccountHttpHeaderDelete command
-CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderDelete コマンド
+CMD_AccountHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_AccountHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
-CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
+CMD_AccountHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# AccountHttpHeaderGet command
-CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderGet コマンド
+CMD_AccountHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_AccountHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
-CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+CMD_AccountHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # AccountProxyNone コマンド
@@ -6738,18 +6737,19 @@ CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertEnable command
-CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
-CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+# AccountRetryOnServerCertEnable コマンド
+CMD_AccountRetryOnServerCertEnable	接続設定のサーバー証明書が信頼できない場合の接続再試行を有効化
+CMD_AccountRetryOnServerCertEnable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返します。AccountRetryOnServerCertDisableコマンドを使用することにより再試行を行わないように設定することができますが、このコマンドを使用することにより、デフォルトの接続再試行を行う状態に戻すことができます。
+
 CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
-CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertEnable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertDisable command
-CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certificate is invalid
-CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+# AccountRetryOnServerCertDisable コマンド
+CMD_AccountRetryOnServerCertDisable	接続設定のサーバー証明書が信頼できない場合の接続再試行を無効化
+CMD_AccountRetryOnServerCertDisable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返しますが、このコマンドを使用することにより再試行を行わないように設定することができます。
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
-CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
 # AccountServerCertSet コマンド
@@ -6788,6 +6788,7 @@ CMD_AccountDetailSet_BRIDGE	VPN Server に「ブリッジ / ルータモード�
 CMD_AccountDetailSet_MONITOR	VPN Server に「モニタリングモード」で接続する場合は "yes" を指定します。モニタリングモードを使用して接続した場合、仮想 HUB 内を流れるすべてのパケットを受信することができます。ただし、接続に使用するユーザーのセキュリティポリシーで、モニタリングモードが許可されていない場合は、接続に失敗します。
 CMD_AccountDetailSet_NOTRACK	ルーティングテーブルの調整処理を行わない場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_NOQOS	VoIP / QoS 対応機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
+CMD_AccountDetailSet_DISABLEUDP	UDP 高速化機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_Eval_MaxTcp	TCP コネクション数は 1 から 32 の間で指定してください。
 CMD_AccountDetailSet_Eval_Interval	TCP コネクションの確立間隔は 1 秒以上を指定してください。
 CMD_AccountDetailSet_Prompt_MaxTcp	VPN 通信に使用する TCP コネクション数: 
@@ -6797,7 +6798,8 @@ CMD_AccountDetailSet_Prompt_HALF	半二重モードを有効にする (yes/no):
 CMD_AccountDetailSet_Prompt_BRIDGE	ブリッジ/ルータモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_MONITOR	モニタリングモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	ルーティングテーブル調整処理を無効化する (yes/no): 
-CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no):
+CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no): 
+CMD_AccountDetailSet_Prompt_DISABLEUDP	UDP 高速化機能を無効化する (yes/no): 
 
 
 # AccountRename コマンド
@@ -7296,6 +7298,3 @@ SW_LINK_NAME_LANGUAGE_COMMENT				%s の表示言語を変更します。
 
 SW_LINK_NAME_DEBUG							デバッグ情報収集ツール
 SW_LINK_NAME_DEBUG_COMMENT					SoftEther VPN のデバッグ情報を収集します。サポート担当者から依頼があった場合のみ使用してください。
-
-CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
-CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no):
