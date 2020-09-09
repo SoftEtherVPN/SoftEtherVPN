@@ -1388,7 +1388,7 @@ SM_GROUP_POLICY_CAPTION	Политика безопасности группы %
 SM_GROUP_MEMBER_STR		\ (Отображать только пользователей, принадлежащих к группе %S)
 SM_SELECT_GROUP			&Выбрать
 SM_SELECT_NO_GROUP		&Нет
-SM_SELECT_ALT_GROUP		Выберите группу...
+SM_SELECT_ALT_GROUP		Выбрать группу...
 SM_ACCESS_COLUMN_0		ID
 SM_ACCESS_COLUMN_1		Действие
 SM_ACCESS_COLUMN_2		Состояние
@@ -1571,13 +1571,13 @@ SM_LICENSE_COLUMN_1		Number
 SM_LICENSE_COLUMN_2		License Key
 SM_LICENSE_COLUMN_3		License Type Name
 SM_LICENSE_COLUMN_4		Status
-SM_LICENSE_COLUMN_5		Expiration Date
+SM_LICENSE_COLUMN_5		Дата окончания
 SM_LICENSE_COLUMN_6		License ID
 SM_LICENSE_COLUMN_7		License Type ID
 SM_LICENSE_COLUMN_8		Server ID
 SM_LICENSE_COLUMN_9		Serial ID
 SM_LICENSE_INFINITE		Infinite
-SM_LICENSE_NO_EXPIRES	No Expiration
+SM_LICENSE_NO_EXPIRES	Без окончания
 SM_LICENSE_STATUS_EDITION	Product Edition
 SM_LICENSE_STATUS_RELEASE	Release Date of VPN Server
 SM_LICENSE_STATUS_SYSTEM_ID	Current Server ID
@@ -2780,7 +2780,7 @@ CAPTION					Управление пользователями
 S_TITLE					Virtual Hub "%S" имеет следующих пользователей.
 IDOK					&Изменить
 B_CREATE				&Новый
-B_DELETE				&удалить
+B_DELETE				&Удалить
 B_REFRESH				&Обновить
 IDCANCEL				Выход
 B_STATUS				&Информация
@@ -2861,7 +2861,7 @@ IDOK					&Изменить
 B_DELETE				&Удалить
 B_SAVE					&Сохранить
 IDCANCEL				&Отмена
-STATIC1					Чем выше приоритет, тем выше отображаются записи в списке.
+STATIC1					Чем выше приоритет, тем выше записи в списке.
 STATIC2					Заметка: IP-пакеты, которые не соответствуют ни одной записи списка доступа, могут быть переданы.
 B_CLONE					Дублировать
 B_ENABLE				Включить
@@ -2890,7 +2890,7 @@ S_ACCESS_DST_ALL		IP-адрес получателя:
 R_DST_ALL				Применить ко всем адресам
 S_IP_DST_1				IPv4-адрес:
 S_IP_DST_2				Маска подсети:
-S_IP_DST_3				(255.255.255.255 означает только указанный хост)
+S_IP_DST_3				(255.255.255.255 означает указанный хост)
 S_IP_DST_1_V6			IPv6-адрес:
 S_IP_DST_3_V6			(Например: "ffff:ff00::" или "/24". "/128" означает один хост.)
 STATIC9					Тип протокола:
@@ -2899,7 +2899,7 @@ S_TCP_1					Минимум
 S_TCP_2					Максимум
 S_TCP_3					Порт отправителя:
 S_TCP_5					Порт получателя:
-S_TCP_7					Пустое поле номера порта соответствует любым портам.\r\nЕсли минимальное значение указано, а максимальное значение - нет, то параметр будет применяться к пакетам, которые соответствуют только минимальному значению.
+S_TCP_7					Пустое поле номера порта соответствует любым портам. Если минимальное значение указано, а максимальное - нет, то параметр будет применяться к пакетам, соответствующим только минимальному значению.
 STATIC11				Параметры фильтрации пользователей или групп
 STATIC11_OLD			Параметры фильтрации пользователей
 STATIC12				Этот список доступа будет применяться только к пакетам, которые отправляют или получают определенные пользователи или группы.
@@ -2914,39 +2914,39 @@ IDOK					&OK
 IDCANCEL				Отмена
 S_PROTOID				Укажите IP-протокол:
 STATIC16				Параметры фильтрации MAC заголовков
-S_CHECK_SRC_MAC			MAC-адрес отправителя:
+S_CHECK_SRC_MAC			MAC отправителя:
 R_CHECK_SRC_MAC			Применить ко всем MAC-адресам
 S_SRC_MAC				MAC-адрес:
 S_SRC_MAC_MASK			Маска:
-S_CHECK_DST_MAC			MAC-адрес получателя:
+S_CHECK_DST_MAC			MAC получателя:
 R_CHECK_DST_MAC			Применить ко всем MAC-адресам
 B_SIMULATION			Задержка и потеря пакетов...
 S_DST_MAC				MAC-адрес:
 S_DST_MAC_MASK			Маска:
 S_MAC_NOTE				Вы можете использовать шестнадцатеричное число с «-», «:» или без разделителей.\r\n(FF-FF-FF-FF-FF-FF означает указанный хост) 
-R_CHECK_TCP_STATE		Проверять состояние TCP-соединения (только TCP-пакеты)
+R_CHECK_TCP_STATE		Проверять TCP-соединения (только TCP-пакеты)
 R_ESTABLISHED			Установленный пакет
 R_UNESTABLISHED			Неустановленный пакет
-R_REDIRECT				Redirect HTTP Request to Specific URL
-B_REDIRECT				Set URL Redirect to...
+R_REDIRECT				Перенаправить HTTP-запрос на определенный URL
+B_REDIRECT				Установить URL...
 
 PREFIX					D_SM_RADIUS
-CAPTION					Authentication Server Settings
-S_TITLE					To use an external RADIUS server to verify login attempts to the Virtual Hub "%S", specify an external RADIUS server that verifies the user name and password.
-STATIC1					RADIUS Server Settings:
-R_USE_RADIUS			&Use RADIUS Authentication
-S_RADIUS_1				RADIUS &Server Host Name or IP:
-S_RADIUS_2				&Port:
-S_RADIUS3				(UDP Port)
-S_RADIUS_4				Shared S&ecret:
-S_RADIUS_5				&Confirm Shared Secret:
-S_RADIUS_6				The RADIUS server must accept requests from IP addresses of this VPN Server. Also, authentication by Password Authentication Protocol (PAP) must be enabled.
-S_RADIUS_7				milliseconds (above %u, below %u)
-S_RADIUS_8				&Retry Interval
-S_RADIUS_9				(use ',' or ';' to split multiple hostnames.)
-STATIC2					When using Windows NT Domain Controller or Windows Server Active Directory Controller as an external authentication server, you must setup the VPN Server computer to join the domain. To use NT Domain Authentication, there are no items to configure here.
+CAPTION					Настройки сервера аутентификации
+S_TITLE					Чтобы использовать внешний RADIUS сервер для авторизации в Virtual Hub "%S", укажите внешний RADIUS сервер, который проверит имя пользователя и пароль.
+STATIC1					Настройки RADIUS сервера:
+R_USE_RADIUS			&Использовать RADIUS авторизацию
+S_RADIUS_1				Имя хоста или IP RADIUS сервера:
+S_RADIUS_2				&Порт:
+S_RADIUS3				(UDP порт)
+S_RADIUS_4				Общий пароль:
+S_RADIUS_5				&Подтвердить общий пароль:
+S_RADIUS_6				RADIUS сервер должен принимать запросы от IP-адресов этого VPN-сервера. Также должна быть включена авторизация по Password Authentication Protocol (PAP).
+S_RADIUS_7				миллисекунд (от %u, до %u)
+S_RADIUS_8				&Интервал повтора
+S_RADIUS_9				(используйте ',' или ';' для разделения нескольких хостов.)
+STATIC2					Здесь нет никаких настроек, если используется авторизация в NT домене. При использовании контроллера домена Windows NT или контроллера Active Directory Windows Server в качестве внешнего сервера проверки подлинности необходимо присоединить компьютер с VPN-сервером к этому домену.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_SM_LINK
@@ -3921,11 +3921,11 @@ S_4						Предупреждение: используйте эту функц�
 
 
 PREFIX					D_SM_REDIRECT
-CAPTION					HTTP URL Redirection Settings
-S_1						The specified URL below will be mandatory replied to the client as a response for TCP connecting request packets which matches the conditions of this access list entry via this Virtual Hub.\r\n\r\nTo use this setting, you can enforce the web browser of the VPN Client computer to show the specified web site when that web browser tries to access the specific IP address.
-S_2						Specify a URL which redirects to.
-S_BOLD2					The &URL Redirect To:
-S_3						Example:
+CAPTION					Настройки перенаправления HTTP URL-адресов
+S_1						Указанный ниже URL-адрес будет в обязательном порядке отправлен клиенту в качестве ответа на пакеты запроса TCP соединения, которые соответствуют условиям этой записи списка доступа через этот Virtual Hub. \r\n\r\nИспользуя этот параметр, вы можете заставить веб-браузер компьютера VPN-клиента отображать указанный веб-сайт, когда веб-браузер попытается получить доступ к определенному IP-адресу.
+S_2						Укажите URL-адрес, на который выполнится перенаправление.
+S_BOLD2					Перенаправить на:
+S_3						Пример:
 S_4						Simple URL Redirection:
 S_5						Advanced URL Redirection:
 B_HINT					&Usage of Advanced URL Redirection Function...
