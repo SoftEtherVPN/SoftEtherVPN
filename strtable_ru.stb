@@ -1643,7 +1643,7 @@ SM_DDNS_KEY_MSG			Ваш приватный ключ динамического 
 SM_DDNS_KEY_ERR			Не удалось прочитать DNS ключ.
 SM_IPSEC_PSK_TOO_LONG	Общий ключ (PSK) имеет 10 или более символов.\r\n\r\nВ нескольких версиях Google Android есть серьезная ошибка с 10 или более символами общего ключа.\r\nПоэтому для общего ключа рекомендуется использовать не более 9 символов.\r\n\r\nХотите использовать другой общий ключ?
 SM_ADVANCED_REDIRECT_URL_HINT_TITLE	Как использовать функцию перенаправления HTTP
-SM_ADVANCED_REDIRECT_URL_HINT	Перенаправление HTTP (для экспертов)\r\n\r\nНеобходимо заполнить строку "<INFO>". Она будет внедренна в URL переадресации.\r\n\r\nEmbedded URL Example:\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\nWhen the client is being redirected, the actual destination URL of redirection will be replaced as follows.\r\n\r\nUsername|Session ID|IP Address|Date and Time|Hash Value\r\n\r\\nAfter Replacement Example: zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\nThe details of each fields are described as following.\r\n\r\nUsername: The username using for the current VPN Session will be placed.\r\n\r\nSession ID: The Session ID of the VPN Session will be placed.\r\n\r\nDate and Time: 14-digits will be placed as 'YYYYMMDDHHMMSS' format (Time zone is UTC).\r\n\r\nHash Value: A 40-characters hexadecimal strings which represent 20 bytes binary data. The binary data is the result of SHA-1 hash function to the temporary string. The temporary string is the combination of the bit-array of the above fields plus the secret string after the '|' symbol in the redirection URL. (In the above example, "secret" is the secret string.) If there are no '|' symbols in the URL, no hash value will be appended.\r\n\r\nThe Purpose of Hash Value: The secret string is effective as the secret key. Thanks to the secret key, the CGI program which receives the query strings on the redirected URL can verify the integrity of the parameters included in the URL.\r\n
+SM_ADVANCED_REDIRECT_URL_HINT	Перенаправление HTTP (для экспертов)\r\n\r\nНеобходимо заполнить строку "<INFO>". Она будет внедренна в URL переадресации.\r\n\r\nПример встроенного URL:\r\nhttp://www.google.com/search?q=<INFO>|secret\r\n\r\nКогда клиент перенаправляется, фактический целевой URL-адрес перенаправления будет заменен следующим образом.\r\n\r\nПользователь|ID сессии|IP-адрес|Дата и время|Хеш-значение\r\n\r\nПример замены: zurukko|SID-ZURUKKO-123|219.117.219.154|20131117100354|99707160AFE7A454042B2C47B064112D652452D7\r\n\r\nПодробности каждого поля описаны ниже.\r\n\r\nПользователь: Будет размещено имя пользователя, используемое для текущей VPN-сессии.\r\n\r\nID сессии: Будет размещен идентификатор VPN-сессии.\r\n\r\nДата и время: будут размещены 14 цифр в формате 'ГГГГММДДЧЧММСС' (часовой пояс - UTC).\r\n\r\nХеш-значение: Шестнадцатеричная строка из 40 символов, представляющая двоичные данные размером 20 байтов. Двоичные данные являются результатом хеш-функции SHA-1 для временной строки. Временная строка представляет собой комбинацию битового массива указанных выше полей и секретной строки после символа '|' в URL-адресе перенаправления. (В приведенном выше примере 'секрет' - это секретная строка.) Если нет символов '|' в URL-адресе, хеш-значение добавляться не будет.\r\n\r\nСуть хеш-значения: секретная строка эффективна как секретный ключ. Благодаря секретному ключу CGI программа, которая получает строки запроса по перенаправленному URL-адресу, может проверить целостность параметров, включенных в URL-адрес.\r\n
 SM_ADVANCED_REDIRECT_URL_MSG	URL должен начинаться с "http://" или "https://"
 SM_DISABLE_DDNS_HINT_CAPTION	Отключить функцию динамического DNS
 SM_DISABLE_DDNS_HINT		Чтобы отключить функцию динамического DNS, измените файл конфигурации VPN-сервера\r\n\r\nДиректива "declare root" имеет директиву "declare DDnsClient". В этой директиве вы можете переключить "bool Disable" с false на true и перезагрузить VPN-сервер, тогда функция динамического DNS будет отключена.\r\n
@@ -3926,18 +3926,18 @@ S_1						Указанный ниже URL-адрес будет в обязате
 S_2						Укажите URL-адрес, на который выполнится перенаправление.
 S_BOLD2					Перенаправить на:
 S_3						Пример:
-S_4						Simple URL Redirection:
-S_5						Advanced URL Redirection:
-B_HINT					&Usage of Advanced URL Redirection Function...
-S_6						Caption
-S_BOLD					This function is for TCP/IP expert administrator. Read the following instructions and be careful to set up.
-S_7						This redirection rule is not effective in the case that the destination session of a packet matches the destination username or groupname of an access list entries.
-S_8						This redirection rule is ignored for non-TCP packets if it matches the condition.
-S_9						This redirection rule always replies HTTP redirect messages. (Not limited for port 80.) If you want to apply to only port 80, set the destination port to 80 on the condition of the access list entry.
-S_10					If as the result of redirection by this rule the client attempts to access the redirected URL and such a new request matches this rule again, the redirection results will be replied for such new requests. It will cause an infinite redirection loop.
+S_4						Простое URL перенаправление:
+S_5						Расширенное URL перенаправление:
+B_HINT					&Использование расширенной функции URL перенаправления...
+S_6						Внимание
+S_BOLD					Эта функция предназначена для опытных сетевых администраторов. Прочтите следующую инструкцию и будьте осторожны при настройке.
+S_7						Это правило перенаправления не эффективно в случае, если сеанс получателя пакета соответствует имени или группе получателя списка доступа.
+S_8						Это правило перенаправления игнорируется для пакетов, отличных от TCP, даже если оно соответствует условию.
+S_9						Это правило перенаправления всегда отвечает на "HTTP redirect" сообщения . (Не ограничивается 80 портом.) Если вы хотите применить правило только к 80 порту, установите порт получателя на 80 в параметрах записи списка доступа.
+S_10					Если в результате перенаправления по этому правилу клиент пытается получить доступ к перенаправленному URL-адресу и такой же новый запрос снова соответствует этому правилу, для таких новых запросов также будет дан ответ о перенаправлении. Это вызовет бесконечный цикл перенаправления.
 IDOK					&OK
-IDCANCEL				Cancel
-S_11					The advanced redirection function can provide the VPN Session information to the CGI which is redirected to.
+IDCANCEL				Отмена
+S_11					Расширенная функция перенаправления может передавать информацию о VPN сессии в CGI, на который перенаправляется.
 
 
 PREFIX					D_SW_WELCOME
