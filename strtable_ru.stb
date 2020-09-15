@@ -1598,10 +1598,10 @@ SM_LICENSE_NUM_BRIDGE	Allowed Concurrent Bridges
 SM_NO_LICENSE_COLUMN	Caution: 
 SM_NO_LICENSE			Because there are no product licenses registered, this VPN Server's communication function doesn't operate.
 SM_LICENSE_DELETE_MSG	Are you sure you want to delete the selected license from the VPN Server?
-SM_SYSLOG_0				Disable Syslog Send Function
-SM_SYSLOG_1				Send Server Logs by Syslog
-SM_SYSLOG_2				Send Server and Virtual Hub Security Logs by Syslog
-SM_SYSLOG_3				Send Server, Virtual Hub Security, and Packet Logs by Syslog
+SM_SYSLOG_0				Отключить отправку журналов
+SM_SYSLOG_1				Отправлять журналы сервера
+SM_SYSLOG_2				Отправка журналы сервера и безопасности
+SM_SYSLOG_3				Отправка журналы сервера, безопасности и пакетов
 SM_SETUP_INFO_1			Нажмите "Далее", чтобы начать установку. Нажмите "Закрыть", если вы хотите выйти и вручную настроить все параметры.
 SM_SETUP_INFO_2			Нажмите "Закрыть", чтобы самостоятельно настроить параметры VPN-сервера.
 SM_SETUP_BRIDGE_ONLY	В данный момент вы подключены к VPN-мосту. Вы можете создавать VPN-мосты только в сегментах (краях) вашей VPN сети.
@@ -2719,7 +2719,7 @@ S_PASSWORD				Пароль администратора:
 STATIC5					При изменении конфигурации кластера служба VPN-сервера перезапускается автоматически. Когда это произойдет, все текущие подключенные сессии и связанные с администрированием подключения будут отключены.
 IDOK					&OK
 IDCANCEL				Отмена
-S_1						Стандартное соотношение в кластере:
+S_1						Соотношение в кластере:
 S_2						(Стандарт: 100)
 R_CONTROLLER_ONLY		Только функции контроллера (Нет VPN сессии на самого себя)
 
