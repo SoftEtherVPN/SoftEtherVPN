@@ -1545,7 +1545,7 @@ SM_L3_SW_TABLE_COLUMN1	Адрес сети
 SM_L3_SW_TABLE_COLUMN2	Маска подсети
 SM_L3_SW_TABLE_COLUMN3	Адрес шлюза
 SM_L3_SW_TABLE_COLUMN4	Метрика
-SM_SECURE_NAT_MSG		Вы уверены, что хотите включить SecureNAT?\r\n\r\nЕсли вы включите SecureNAT, то будет создан виртуальный маршрутизатор с функцией виртуального NAT, который имеет свой IP-адрес в Virtual Hub. Этот виртуальный маршрутизатор будет взаимодействовать с другими компьютерами, подключенными к этой виртуальной сети. \r\n\r\nSecureNAT позволяет любым компьютерам, подключенным к Virtual Hub, устанавливать связь с внешней сетью через SecureNAT. \r\nПоэтому, когда SecureNAT работает на этом VPN-сервере, нет необходимости использовать локальный VPN-клиент для подключения к Virtual Hub этого же компьютера.\r\n\r\n\r\nТакже, пожалуйста, отключите функцию DHCP-сервера в Конфигурации SecureNAT, если уже есть другой DHCP-сервер в сети, доступ к которой можно получить из Virtual Hub сегмента, иначе возникнет DHCP конфликт. \r\n\r\nБолее того, вы можете отключить функцию NAT и использовать только DHCP-сервер, если хотите.
+SM_SECURE_NAT_MSG		Вы уверены, что хотите включить SecureNAT?\r\n\r\nЕсли вы включите SecureNAT, то будет создан виртуальный маршрутизатор с функцией виртуального NAT, который имеет свой IP-адрес в Virtual Hub. Этот виртуальный маршрутизатор будет взаимодействовать с другими компьютерами, подключенными к этой виртуальной сети. \r\n\r\nSecureNAT позволяет любым компьютерам, подключенным к Virtual Hub, устанавливать связь с внешней сетью через SecureNAT. \r\nПоэтому, когда SecureNAT работает на этом VPN-сервере, нет необходимости использовать локальный VPN-клиент для подключения к Virtual Hub этого же компьютера.\r\n\r\n\r\nТакже, если в сети уже есть другой DHCP-сервер, доступ к которому можно получить из Virtual Hub сегмента, пожалуйста, отключите функцию DHCP-сервера в Конфигурации SecureNAT, иначе возникнет DHCP конфликт. \r\n\r\nБолее того, если хотите, вы можете отключить функцию NAT и использовать только DHCP-сервер.
 SM_CRL_COLUMN_1			Сводка по сертификатам
 SM_CRL_DELETE_MSG		Это действие удалит выбранный элемент. Вы действительно хотите это сделать?
 SM_CRL_EMPTY_MSG		Не было выбрано ни одного элемента. \r\nЕсли вы добавите эту запись отзыванного сертификата, все сертификаты будут признаны недействительными, и все клиентские подключения, выполненные в режиме проверки подлинности сертификатов, будут отклонены. \r\n\r\nВы действительно хотите это сделать?
@@ -1679,7 +1679,7 @@ NM_STATUS_TCP			NAT TCP/IP сессии
 NM_STATUS_UDP			NAT UDP/IP сессии
 NM_STATUS_ICMP			NAT ICMP сессии
 NM_STATUS_DNS			NAT DNS сессии
-NM_STATUS_DHCP			Allocated DHCP Clients
+NM_STATUS_DHCP			Кол-во DHCP клиентов
 NM_INFO					Информация о маршрутизаторе в пользовательском режиме
 NM_INFO_PRODUCT_NAME	Название ПО
 NM_INFO_VERSION_STR		Информация о версии
@@ -2629,64 +2629,64 @@ STATIC4					(TCP/IP порт)
 
 
 PREFIX					D_SM_SSL
-CAPTION					Encryption and Network Settings
-STATIC1					You can view or change settings related to encryption, communication and security for this VPN Server.
-STATIC2					Encryption &Algorithm Settings:
-STATIC3					Specify the encryption algorithm for SSL applied to the connection between this VPN Server and VPN Clients. The encryption algorithm must be compatible with SSL Version 3.
-STATIC4					En&cryption Algorithm Name:
-STATIC6					Server &Certificate Settings:
-STATIC7					Specify the X509 certificate and private key to be presented to clients by this server.
-B_IMPORT				&Import
-B_EXPORT				E&xport
-B_VIEW					&View
-B_REGENERATE			New
-STATIC8					&Keep Alive Internet Connection:
-STATIC9					For environments where Internet connections will automatically be disconnected when idle, you can keep alive the Internet connection by sending dummy packets to any host on the Internet.
-STATIC10				Server Certificate:
-R_USE_KEEP_CONNECT		Use &Keep Alive Internet Connection
-S_HOSTNAME				&Host Name:
-S_PORT					&Port:
-S_INTERVAL				Send &Interval:
-S_INTERVAL2				seconds
-S_PROTOCOL				Pr&otocol:
-R_TCP					&TCP/IP Protocol
-R_UDP					&UDP/IP Protocol
-S_INFO					Packets sent to keep alive the Internet connection have random bits. No personal information is sent.
-STATIC11				Administrator Pass&word: 
-S_INFO4					You can modify an administrator password of the administrator for all Virtual Hubs and this entire VPN Server.
-B_PASSWORD				Change Admin &Password
+CAPTION					Настройки шифрования и сети
+STATIC1					Вы можете просматривать или изменять настройки, связанные с шифрованием, обменом данными и безопасностью для этого VPN-сервера.
+STATIC2					Настройки алгоритма шифрования:
+STATIC3					Укажите алгоритм шифрования для SSL, применяемый к подключению между этим VPN-сервером и VPN-клиентами. Алгоритм шифрования должен быть совместим с SSL версии 3. 
+STATIC4					Название алгоритма шифрования:
+STATIC6					Настройки сертификата сервера:
+STATIC7					Укажите сертификат X509 и приватный ключ, которые будут предоставлены клиентам с помощью этого сервера.
+B_IMPORT				&Импорт
+B_EXPORT				Экспорт
+B_VIEW					&Просмотр
+B_REGENERATE			Новый
+STATIC8					Поддерживайте подключение к Интернету:
+STATIC9					В средах, в которых Интернет-соединения автоматически отключаются при бездействии, вы можете поддерживать подключение к Интернету, отправляя фиктивные пакеты на любой хост в Интернете.
+STATIC10				Сертификат сервера:
+R_USE_KEEP_CONNECT		Поддерживать подключение к Интернету
+S_HOSTNAME				&Имя хоста:
+S_PORT					&Порт:
+S_INTERVAL				Интервал отправки:
+S_INTERVAL2				сек
+S_PROTOCOL				Протокол:
+R_TCP					&TCP/IP протокол
+R_UDP					&UDP/IP протокол
+S_INFO					Пакеты, отправленные для поддержания подключения с Интернетом, имеют случайные биты. Никакая личная информация не отправляется.
+STATIC11				Пароль администратора:
+S_INFO4					Вы можете изменить пароль администратора для всего этого VPN-сервера и всех Virtual Hubs.
+B_PASSWORD				Изменить пароль админа
 IDOK					&OK
-IDCANCEL				Cancel
-IDCANCEL2				Cancel
-STATIC12				Syslog Send Function:
-STATIC13				You can transfer the entire VPN Server / Bridge Logs, Virtual Hub Administration Logs, or Virtual Hub Packet Logs by using syslog protocol instead of writing to a local disk. 
-STATIC14				Syslog &Server Host Name:
-STATIC15				P&ort:
-S_OVER_FUNCS			VPN over ICMP / DNS Server Function
-S_INFO5					You can establish a VPN only with ICMP or DNS packets even if there is a firewall or routers which blocks TCP/IP communications.
-B_SPECIALLISTENER		VPN over ICMP / DNS Settings
-B_UPDATE_CONFIG			&Update Notify Setting...
+IDCANCEL				Отмена
+IDCANCEL2				Отмена
+STATIC12				Функция отправки системного журнала:
+STATIC13				Вы можете передать все журналы VPN-сервера / моста, журналы администрирования Virtual Hub или журналы пакетов Virtual Hub, используя протокол syslog вместо записи на локальный диск.
+STATIC14				Имя хоста Syslog сервера
+STATIC15				Порт:
+S_OVER_FUNCS			VPN через ICMP / DNS функция сервера 
+S_INFO5					Даже если есть брандмауэр или маршрутизаторы, которые блокируют TCP / IP-соединения, вы можете установить VPN, используя только ICMP или DNS пакеты.
+B_SPECIALLISTENER		Настройки VPN через ICMP / DNS
+B_UPDATE_CONFIG			&Обновить настройки уведомлений...
 
 
 PREFIX					D_SM_SAVE_KEY_PAIR
-CAPTION					Save Certificate and Private Key
-STATIC1					Select the method to save the certificate and private key.
-STATIC2					Sa&ve Method:
-R_X509_AND_KEY			Save as &X509 Certificate (.CER) and Private Key File (.KEY)
-R_PKCS12				Save as &PKCA#12 File (.P12)
-R_SECURE				Write to &Smart Card
-STATIC3					Saving by splitting into two files: a standard Base 64-encoded certificate file and a private key file.
-STATIC4					Saving as a PKCS#12 (Public Key Cryptography Standard #12) file. \r\nYou can store both certificate and private key in a single PKCS#12 file.
-STATIC5					When a smart card is connected to this computer, you can write the certificate and private key to a smart card.
-B_SELECT				&Select Which Smart Card to Use...
-S_PASS3					Private Key P&rotection:
-S_PASS4					When saving the private key, you can set a passphrase to encrypt. You will be required to enter the passphrase when loading it.
-R_USE_PASS				Set P&assphrase
-S_PASS1					Pa&ssphrase:
-S_PASS2					Con&firm:
+CAPTION					Сохранить сертификат и приватный ключ
+STATIC1					Выберите метод сохранения сертификата и приватного ключа.
+STATIC2					Метод сохранения:
+R_X509_AND_KEY			Сохранить как сертификат X509 (.CER) и файл приватного ключа (.KEY)
+R_PKCS12				Сохранить как файл PKCA#12 (.P12)
+R_SECURE				Записать на смарт-карту
+STATIC3					Сохранение путем разделения на два файла: стандартный файл сертификата в кодировке Base 64 и файл приватного ключа.
+STATIC4					Сохранение в виде файла PKCS#12 (Public Key Cryptography Standard #12).\r\nВы можете хранить как сертификат, так и приватный ключ в одном файле PKCS#12.
+STATIC5					Когда смарт-карта подключена к этому компьютеру, вы можете записать сертификат и приватный ключ на смарт-карту.
+B_SELECT				&Выберите, какую смарт-карту использовать...
+S_PASS3					Защита приватного ключа:
+S_PASS4					При сохранении приватного ключа вы можете установить кодовую фразу для шифрования. При использовании ключа вам потребуется ввести эту кодовую фразу.
+R_USE_PASS				Установить кодовую фразу
+S_PASS1					Кодовая фраза:
+S_PASS2					Подтвердить:
 IDOK					&OK
-IDCANCEL				Cancel
-B_SECURE_MANAGER		Smart Card &Manager...
+IDCANCEL				Отмена
+B_SECURE_MANAGER		Управление смарт-картами...
 
 
 PREFIX					D_SM_CONNECTION
@@ -3021,35 +3021,35 @@ B_DELETE				&Удалить
 
 
 PREFIX					D_SM_SESSION
-CAPTION					Manage Sessions - %S
-S_TITLE					Virtual Hub "%S" has the following VPN sessions currently.
-STATIC1					Operations for Sessions
-IDOK					Session &Information
-B_DISCONNECT			&Disconnect
-B_REFRESH				Refres&h
-B_SESSION_MAC_TABLE		&MAC Table of Selected Session
-B_SESSION_IP_TABLE		I&P Table of Selected Session
-STATIC2					&Other Administration Tasks
-B_MAC_TABLE				MAC &Address Table List
-B_IP_TABLE				IP Address Ta&ble List
-IDCANCEL				E&xit
-S_FARM_INFO_2			The sessions displayed here are all sessions on the current cluster. To manage sessions on other cluster member servers you must connect as an administrator to those servers.
+CAPTION					Управление сессиями - %S
+S_TITLE					Virtual Hub "%S" в настоящее время имеет следующие VPN сессии.
+STATIC1					Действия над сессиями
+IDOK					Информация о сессий
+B_DISCONNECT			&Отключить
+B_REFRESH				Обновить
+B_SESSION_MAC_TABLE		&MAC таблица сессии
+B_SESSION_IP_TABLE		I&P таблица сессии
+STATIC2					&Другие административные задачи
+B_MAC_TABLE				Список MAC-адресов
+B_IP_TABLE				Список IP-адресов
+IDCANCEL				Выход
+S_FARM_INFO_2			Здесь показаны все сессии в текущем кластере. Для управления сессиями на других узлах кластера вы должны подключиться к этим серверам как администратор.
 
 
 PREFIX					D_SM_MAC
-CAPTION					MAC Address Table
-S_TITLE					The MAC address table database on the Virtual Hub "%S" has the following entries.
-B_DELETE				&Delete Selected Entry
-B_REFRESH				Refres&h
-IDCANCEL				E&xit
+CAPTION					Таблица MAC-адресов
+S_TITLE					База данных таблицы MAC-адресов на Virtual Hub "%S" содержит следующие записи.
+B_DELETE				&Удалить выбранную запись
+B_REFRESH				Обновить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_IP
-CAPTION					IP Address Table
-S_TITLE					The IP address table database on the Virtual Hub "%S" has the following entries.
-B_DELETE				&Delete Selected Entry
-B_REFRESH				Refres&h
-IDCANCEL				E&xit
+CAPTION					Таблица IP-адресов
+S_TITLE					База данных таблицы IP-адресов на Virtual Hub "%S" содержит следующие записи.
+B_DELETE				&Удалить выбранную запись
+B_REFRESH				Обновить
+IDCANCEL				Выход
 
 
 PREFIX					D_SM_CREATE_CERT
@@ -3129,7 +3129,7 @@ STATIC8					Тайм-аут TCP сессии:
 STATIC9					секунды
 STATIC10				Тайм-аут UDP сессии:
 STATIC11				секунды
-R_SAVE_LOG				Сохранять операции NAT или DHCP-сервера в файле журнала
+R_SAVE_LOG				Сохранять в журнале операции NAT или DHCP-сервера
 STATIC12				Настройки виртуального DHCP-сервера:
 R_USE_DHCP				Использовать виртуальный DHCP-сервер
 STATIC13				&Диапазон IP-адресов:
@@ -3145,9 +3145,9 @@ STATIC22				Доменное имя:
 STATIC23				Адрес DNS-сервера 2:
 IDOK					&OK
 IDCANCEL				Отмена
-S_1						Функция добавления статической таблицы маршрутизации (для разделения маршрутов)
+S_1						Добавление таблицы маршрутизации (для разделения маршрутов)
 S_2						Добавлять статическую таблицу маршрутизации VPN-клиентам.
-B_PUSH					Редактировать таблицу статической маршрутизации
+B_PUSH					Редактировать таблицу маршрутизации
 
 
 PREFIX					D_NM_NAT
@@ -3184,12 +3184,12 @@ STATIC3					Вы можете включить, отключить или изм
 B_ENABLE				&Включить SecureNAT
 B_DISABLE				&Отключить SecureNAT
 B_CONFIG				Конфигурация SecureNAT
-STATIC4					Примечание. Когда работающий SecureNAT отключен, все активные TCP и UDP сессии, подключенные через SecureNAT, будут завершены.
+STATIC4					Примечание: Когда работающий SecureNAT отключен, все активные TCP и UDP сессии, подключенные через SecureNAT, будут завершены.
 STATIC5					Просмотр текущего состояния SecureNAT
 STATIC6					Вы можете посмотреть текущее рабочее состояние SecureNAT.
-B_NAT					Состояние виртуального NAT-маршрутизатора
-B_DHCP					Состояние виртуального DHCP-сервера
-B_STATUS				Просмотр рабочего состояния SecureNAT
+B_NAT					Состояние виртуального NAT
+B_DHCP					Состояние виртуального DHCP
+B_STATUS				Рабочее состояние SecureNAT
 S_TSUKUBA2				SecureNAT использует технологию, которую Дайю Нобори разработал в 2004 году на «Специальном семинаре по информации I» в колледже информационных наук третьего кластера колледжей Университета Цукуба.
 IDCANCEL				Выход
 
@@ -3911,13 +3911,13 @@ PREFIX					D_SM_SPECIALLISTENER
 CAPTION					Настройки VPN через ICMP / DNS
 S_TITLE					VPN через ICMP / DNS
 S_1						VPN через ICMP / DNS
-S_2						Вы можете установливать VPN соединение используя только ICMP или DNS пакеты, даже если есть межсетевой экран или маршрутизатор, блокирующий TCP/IP соединения. Вам необходимо предварительно включить следующие функции.
+S_2						Вы можете устанавливать VPN подключения используя только ICMP или DNS пакеты, даже если есть межсетевой экран или маршрутизатор, блокирующий TCP/IP соединения. Вам необходимо предварительно включить следующие функции.
 R_OVER_ICMP				Включить функцию VPN через ICMP
 R_OVER_DNS				Включить функцию VPN через DNS (используется 53 UDP порт)
 IDOK					&OK
 IDCANCEL				Отмена
 S_3						Требуется VPN-клиент/VPN-мост версии 4.0 или выше.
-S_4						Предупреждение: используйте эту функцию только для экстренных случаев. Это полезно, когда брандмауэр или маршрутизатор  настроены на блокировку TCP/IP, но ICMP или DNS не заблокированы. Не для длительного стабильного использования.
+S_4						Предупреждение: используйте эту функцию только для экстренных случаев. Это полезно, когда межсетевой экран или маршрутизатор настроены на блокировку TCP/IP, но ICMP или DNS не заблокированы. Не для длительного стабильного использования.
 
 
 PREFIX					D_SM_REDIRECT
@@ -4075,11 +4075,11 @@ S_LATEST_STR			Версия %S%s
 
 PREFIX					D_UPDATE_CONFIG
 CAPTION					Настройка уведомлений об обновлении
-S_INFO					Периодически проверяет новые версииChecks the new versions of %s periodically and popup a notification when a new version will be released.\r\n\r\nHTTPS packets will be used between this computer and the SoftEther Update server located in Tsukuba-city, Ibaraki-prefecture, Japan in order to check updates. No personal information will be sent.
-S_TITLE					%s Update and Notify Settings
-S_ENABLE				&Enable Update Checks
-S_DISABLE				&Disable Update Checks
-IDCANCEL				&Close
+S_INFO					Периодически проверять новые версии %s и показывать уведомление, когда будет выпущена новая версия.\r\n\r\nДля проверки обновлений будут использоваться HTTPS пакеты  между этим компьютером и сервером обновлений SoftEther, расположенным в городе Цукуба, префектура Ибараки, Япония. Никакая личная информация отправляться не будет.
+S_TITLE					%s настройки уведомлений об обновлении
+S_ENABLE				&Включить проверку обновлений
+S_DISABLE				&Отключить проверку обновлений
+IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_VMBRIDGE
@@ -4194,16 +4194,16 @@ S_BOLD					Caution! Do Not Use the VPN Gate Services in Countries where VPN Comm
 
 
 PREFIX					D_NM_PUSH
-CAPTION					Edit the static routing table to push
-S1						This Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.
-S2						Whether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software.
-S3						You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.
-S4						You can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this screen.
-S5						Edit the static routing table to push
-S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format.
-S7						See the RFC 3442 to understand the classless routes.
+CAPTION					Редактирование статической таблицы маршрутизации
+S1						Этот виртуальный DHCP-сервер может добавлять бесклассовые статические маршруты (RFC 3442) с ответными DHCP сообщениями VPN клиентам.
+S2						Сможет ли VPN клиент распознавать бесклассовые статические маршруты (RFC 3442), зависит от его программного обеспечения. SoftEther VPN клиент и OpenVPN клиент поддерживают бесклассовые статические маршруты. В протоколах L2TP/IPsec и MS-SSTP совместимость зависит от реализации клиентского программного обеспечения.
+S3						Вы можете реализовать разделение маршрутов, если очистите поле "шлюза по умолчанию" в настройках виртуального DHCP-сервера. На стороне клиента L2TP/IPsec и MS-SSTP должны быть настроены так, чтобы они не устанавливали шлюз по умолчанию.
+S4						Вы также можете добавить бесклассовые статические маршруты (RFC 3442) с помощью существующего внешнего DHCP-сервера. В этом случае отключите виртуальный DHCP-сервер в SecureNAT и не настраивайте бесклассовые маршруты на этом экране.
+S5						Редактирование статической таблицы маршрутизации
+S6						Пример: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nРазделяйте несколько записей (максимум: 64) запятыми или пробелами.\r\nКаждая запись должна быть указана в формате "IP-адрес сети/маска подсети/IP-адрес шлюза".
+S7						См. RFC 3442, чтобы понять бесклассовые маршруты.
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 
