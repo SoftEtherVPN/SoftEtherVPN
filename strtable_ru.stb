@@ -1177,8 +1177,8 @@ SM_HUB_STATUS_HUBNAME	Название Virtual Hub
 SM_HUB_STATUS_ONLINE	Состояние
 SM_HUB_TYPE				Тип
 SM_HUB_NUM_SESSIONS		Сессии
-SM_HUB_NUM_SESSIONS_CLIENT	Сессии (Client)
-SM_HUB_NUM_SESSIONS_BRIDGE	Сессии (Bridge)
+SM_HUB_NUM_SESSIONS_CLIENT	Сессии (Клиент)
+SM_HUB_NUM_SESSIONS_BRIDGE	Сессии (Мост)
 SM_HUB_NUM_ACCESSES		Списки доступа
 SM_HUB_NUM_USERS		Пользователи
 SM_HUB_NUM_GROUPS		Группы
@@ -1527,8 +1527,8 @@ SM_CONFIG_WRITE_OK		Файл конфигурации сервера был пе
 SM_AO_COLUMN_1			Наименование
 SM_AO_COLUMN_2			Значение
 SM_TRUE_OR_FALSE		Установите 0 (false) или 1 (true) для этого элемента.
-SM_AO_SET_OK			The Virtual Hub Administration Option has been set.
-SM_EXT_OPTION_SET_OK	The Virtual Hub Extended Option has been set.
+SM_AO_SET_OK			Установлен параметр администрирования Virtual Hub.
+SM_EXT_OPTION_SET_OK	Установлен расширенный параметр Virtual Hub.
 SM_PASSWORD_MSG			Для этого VPN-сервера не был установлен пароль администратора. Рекомендуется установить пароль. \r\n\r\nХотите установить пароль администратора сервера?
 SM_L3_SW_COLUMN1		Имя L3 коммутатора
 SM_L3_SW_COLUMN2		Статус работы
@@ -1562,33 +1562,33 @@ SM_LOG_FILE_COLUMN_4	Расположение
 SM_READ_LOG_FILE_INFO_1	Подождите, пока обработка не будет завершена...
 SM_READ_LOG_FILE_INFO_2	%S в процессе, %S завершен...
 SM_READ_LOG_FILE_ERROR	Не удалось скачать файл
-SM_READ_SAVE_DLG_TITLE	Specify a File Name for the Log File's Save Destination
+SM_READ_SAVE_DLG_TITLE	Укажите имя файла для сохранения журнала
 SM_READ_SAVE_DLG_FILTER	Файлы журнала (*.LOG)|*.log|Все файлы (*.*)|*.*
 SM_READ_SAVE_FAILED		Не удалось сохранить файл журнала.
 SM_READ_SAVE_TMP_FAILED	Невозможно записать во временный файл "%S".
 SM_READ_SAVE_OPEN_ERROR	Невозможно открыть временный файл "%S". \r\n\r\nВозможно, для открытия файлов с расширением .LOG не назначена ни одна программа в Windows.
-SM_LICENSE_COLUMN_1		Number
-SM_LICENSE_COLUMN_2		License Key
-SM_LICENSE_COLUMN_3		License Type Name
-SM_LICENSE_COLUMN_4		Status
+SM_LICENSE_COLUMN_1		Номер
+SM_LICENSE_COLUMN_2		Лицензионный ключ
+SM_LICENSE_COLUMN_3		Тип лицензии
+SM_LICENSE_COLUMN_4		Состояние
 SM_LICENSE_COLUMN_5		Дата окончания
-SM_LICENSE_COLUMN_6		License ID
-SM_LICENSE_COLUMN_7		License Type ID
-SM_LICENSE_COLUMN_8		Server ID
-SM_LICENSE_COLUMN_9		Serial ID
-SM_LICENSE_INFINITE		Infinite
+SM_LICENSE_COLUMN_6		ID лицензии
+SM_LICENSE_COLUMN_7		ID типа лицензии
+SM_LICENSE_COLUMN_8		ID сервера
+SM_LICENSE_COLUMN_9		Серийный номер
+SM_LICENSE_INFINITE		Бессрочная
 SM_LICENSE_NO_EXPIRES	Без окончания
-SM_LICENSE_STATUS_EDITION	Product Edition
-SM_LICENSE_STATUS_RELEASE	Release Date of VPN Server
-SM_LICENSE_STATUS_SYSTEM_ID	Current Server ID
-SM_LICENSE_STATUS_EXPIRES	Expiration of Current Product License
-SM_LICENSE_STATUS_SUBSCRIPTION	Status of Subscription Contract
-SM_LICENSE_STATUS_SUBSCRIPTION_NONEED	No Need (This Edition requires no subscription keys)
-SM_LICENSE_STATUS_SUBSCRIPTION_NONE		No Keys (Adding a subscription key is required)
-SM_LICENSE_STATUS_SUBSCRIPTION_VALID	Subscription is Active [Until %s]
-SM_LICENSE_STATUS_SUBSCRIPTION_EXPIRED	Subscription is Expired [at %s]
-SM_LICENSE_STATUS_SUBSCRIPTION_BUILD	Version Allowed by Current Contract
-SM_LICENSE_STATUS_SUBSCRIPTION_BUILD_STR	Free Upgrade to Any Future Versions Released Until %s is Allowed
+SM_LICENSE_STATUS_EDITION	Версия продукта
+SM_LICENSE_STATUS_RELEASE	Дата выпуска VPN-сервера
+SM_LICENSE_STATUS_SYSTEM_ID	Текущий ID сервера
+SM_LICENSE_STATUS_EXPIRES	Истечение срока текущей лицензии
+SM_LICENSE_STATUS_SUBSCRIPTION	Состояние подписного контракта
+SM_LICENSE_STATUS_SUBSCRIPTION_NONEED	Нет необходимости (это издание не требует ключей подписки)
+SM_LICENSE_STATUS_SUBSCRIPTION_NONE		Нет ключей (требуется добавить ключ подписки)
+SM_LICENSE_STATUS_SUBSCRIPTION_VALID	Подписка активна [до %s]
+SM_LICENSE_STATUS_SUBSCRIPTION_EXPIRED	Подписка истекла [%s]
+SM_LICENSE_STATUS_SUBSCRIPTION_BUILD	Версия, разрешенная текущим контрактом
+SM_LICENSE_STATUS_SUBSCRIPTION_BUILD_STR	Бесплатное обновление до любых будущих версий, выпущенных до %s, разрешен
 SM_LICENSE_STATUS_ENTERPRISE			Enterprise Functions Availability
 SM_LICENSE_STATUS_ENTERPRISE_YES		Yes (Available)
 SM_LICENSE_STATUS_ENTERPRISE_NO			No (Unavailable)
