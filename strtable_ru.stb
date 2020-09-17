@@ -1793,25 +1793,25 @@ LS_API_AUTH_ERROR		HTTPS API клиент "%r:%u" (%S): Встроенный HTT
 LS_API_RPC_CALL			HTTPS API клиент "%r:%u" (%S): Клиент вызвал JSON-API. Метод: "%S", Возвращенный код ошибки: %u (0 = успех), Возвращенное сообщение об ошибке: "%s"
 
 # (OpenVPN Logs)
-LO_PREFIX_RAW			OpenVPN Module: 
-LO_PREFIX_SESSION		OpenVPN Session %u (%r:%u -> %r:%u): 
-LO_PREFIX_CHANNEL		OpenVPN Session %u (%r:%u -> %r:%u) Channel %u: 
-LO_NEW_CHANNEL			A new channel is created.
-LO_CHANNEL_ESTABLISHED_NEWKEY	The channel is established. (Trigger: Re-key completion.)
-LO_OPTION_STR_RECV		Option Strings Received: "%S"
-LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
-LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
-LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
-LO_OPTION_STR_SEND		Option Strings to Send: "%S"
-LO_NEW_SESSION			A new session is created. Protocol: %S
-LO_INITIATE_REKEY		The re-keying process is started.
-LO_CHANNEL_ESTABLISHED	The channel becomes the established state.
-LO_PUSH_REPLY			The full strings replied: "%S"
-LO_CHANNEL_FAILED		Failed to connect a channel.
-LO_CHANNEL_DISCONNECTED_BY_HUB	This OpenVPN channel is being terminated because the administrator of the Virtual Hub has disconnected this the VPN Session.
-LO_DELETE_SESSION		Deleting the session.
-LO_START				The OpenVPN Server Module is starting.
-LO_STOP					The OpenVPN Server Module is stopped.
+LO_PREFIX_RAW			OpenVPN модуль: 
+LO_PREFIX_SESSION		OpenVPN сессия %u (%r:%u -> %r:%u): 
+LO_PREFIX_CHANNEL		OpenVPN сессия %u (%r:%u -> %r:%u) Канал %u: 
+LO_NEW_CHANNEL			Создан новый канал.
+LO_CHANNEL_ESTABLISHED_NEWKEY	Канал установлен. (Триггер: повторное нажатие клавиши.)
+LO_OPTION_STR_RECV		Полученные строки параметров: "%S"
+LO_CLIENT_CERT			Сертификат клиента получен (subject: CN="%s"), будет использоваться авторизация по сертификату.
+LO_CLIENT_UNVERIFIED_CERT		Был предоставлен сертификат клиента, но он не прошел проверку (ошибка="%S"), будет использоваться авторизация по паролю.
+LO_CLIENT_NO_CERT		Не предоставлен сертификат клиента, будет использоваться авторизация по паролю.
+LO_OPTION_STR_SEND		Строки параметров для отправки: "%S"
+LO_NEW_SESSION			Создается новая сессия. Протокол: %S
+LO_INITIATE_REKEY		Начинается процесс смены ключей.
+LO_CHANNEL_ESTABLISHED	Канал переходит в состояние "установлен"
+LO_PUSH_REPLY			Полные строки ответа: "%S"
+LO_CHANNEL_FAILED		Не удалось подключить канал.
+LO_CHANNEL_DISCONNECTED_BY_HUB	Этот OpenVPN канал прерывается, потому что Virtual Hub администратор отключил эту VPN сессию.
+LO_DELETE_SESSION		Удаление сессии.
+LO_START				Запускается модуль OpenVPN сервера.
+LO_STOP					Остановлен модуль OpenVPN сервера.
 
 
 # (IPsec Logs)
