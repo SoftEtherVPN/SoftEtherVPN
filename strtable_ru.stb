@@ -1589,15 +1589,15 @@ SM_LICENSE_STATUS_SUBSCRIPTION_VALID	Подписка активна [до %s]
 SM_LICENSE_STATUS_SUBSCRIPTION_EXPIRED	Подписка истекла [%s]
 SM_LICENSE_STATUS_SUBSCRIPTION_BUILD	Версия, разрешенная текущим контрактом
 SM_LICENSE_STATUS_SUBSCRIPTION_BUILD_STR	Бесплатное обновление до любых будущих версий, выпущенных до %s, разрешен
-SM_LICENSE_STATUS_ENTERPRISE			Enterprise Functions Availability
-SM_LICENSE_STATUS_ENTERPRISE_YES		Yes (Available)
-SM_LICENSE_STATUS_ENTERPRISE_NO			No (Unavailable)
-SM_LICENSE_NUM_USER		Allowed User Objects to Create
-SM_LICENSE_NUM_CLIENT	Allowed Concurrent Clients
-SM_LICENSE_NUM_BRIDGE	Allowed Concurrent Bridges
-SM_NO_LICENSE_COLUMN	Caution: 
-SM_NO_LICENSE			Because there are no product licenses registered, this VPN Server's communication function doesn't operate.
-SM_LICENSE_DELETE_MSG	Are you sure you want to delete the selected license from the VPN Server?
+SM_LICENSE_STATUS_ENTERPRISE			Доступность корпоративных функций
+SM_LICENSE_STATUS_ENTERPRISE_YES		Да (доступны)
+SM_LICENSE_STATUS_ENTERPRISE_NO			Нет (недоступны)
+SM_LICENSE_NUM_USER		Разрешенные для создания польз. объекты
+SM_LICENSE_NUM_CLIENT	Разрешенные одновременные клиенты
+SM_LICENSE_NUM_BRIDGE	Разрешенные одновременные мосты
+SM_NO_LICENSE_COLUMN	Внимание: 
+SM_NO_LICENSE			Поскольку нет лицензии, функция связи с этим VPN-сервером недоступна.
+SM_LICENSE_DELETE_MSG	Вы действительно хотите удалить выбранную лицензию с VPN-сервера?
 SM_SYSLOG_0				Отключить отправку журналов
 SM_SYSLOG_1				Отправлять журналы сервера
 SM_SYSLOG_2				Отправлять журналы сервера и безопасности
@@ -1732,65 +1732,65 @@ LS_START_2				%S %S
 LS_START_3				%S
 LS_END_1				Служба SoftEther VPN-сервера успешно завершена.
 LS_END_2				Начался процесс завершения работы Сервера.
-LS_STOP_ALL_LISTENER	All TCP listeners will be stopped.
-LS_STOP_ALL_LISTENER_2	All TCP listeners have been stopped.
-LS_STOP_ALL_HUB			Stopping all Virtual Hubs.
-LS_STOP_ALL_HUB_2		All Virtual Hubs have been stopped.
-LS_STOP_CEDAR			Shutting down the Cedar communication module.
-LS_STOP_CEDAR_2			The Cedar communication module has been shut down.
-LS_STOP_FARM_MEMBER		Disconnecting connection to the cluster controller.
-LS_STOP_FARM_MEMBER_2	Connection with the cluster controller has been disconnected.
-LS_STOP_FARM_CONTROL	Cluster controller is stopping.
-LS_STOP_FARM_CONTROL_2	Cluster controller has stopped.
-LS_ENUM_ETHERNET_1		Ethernet device has been enumerated.
-LS_ENUM_ETHERNET_2		Device %u: "%S"
-LS_LOAD_CONFIG_1		Loading the configuration file.
-LS_LOAD_CONFIG_2		The configuration file has been loaded.
-LS_LOAD_CONFIG_3		Configuration file does not exist. Attempting to start using initial settings.
-LS_INIT_SAVE_THREAD		Starting the automatically saving background task. The interval between auto-saves is %u seconds. You can change the interval by changing the parameter AutoSaveConfigSpan in the configuration file.
-LS_BAD_CONFIG			The contents of the configuration file is invalid. The loading process has been terminated.
-LS_LISTENER_START_1		TCP Listener (port %u) is starting.
-LS_LISTENER_START_2		TCP Listener (port %u) has started. Now listening for connection from client.
-LS_LISTENER_START_3		Unable to set port to Listen status for TCP Listener (port %u). Attempting at fixed intervals until successful.
-LS_LISTENER_ACCEPT		On the TCP Listener (Port %u), a Client (IP address %S, Host name "%S", Port number %u) has connected.
-LS_LISTENER_DISCONNECT	The connection with the client (IP address %S, Port number %u) has been disconnected.
-LS_LISTENER_DOS			A DoS attack on the TCP Listener (port %u) has been detected. The connecting source IP address is %S, port number is %u. This connection will be forcefully disconnected now.
-LS_LISTENER_MAXUEC		The TCP listener is temporary suspending to accept new inward connections because of the number of pending TCP connections exceeded %u. (Current value = %u)
-LS_LISTENER_STOP_1		TCP Listener (port %u) is stopping.
-LS_LISTENER_STOP_2		TCP Listener (port %u) has stopped.
-LS_HUB_START			Virtual Hub "%S" has been started.
-LS_HUB_STOP				Virtual Hub "%S" has been stopped.
-LS_HUB_MAC				The MAC address of Virtual Hub "%S" is "%S".
-LS_NODE_INFO_TAG		Client product name: "%S", Client version: %u, Client build number: %u, Server product name: "%S", Server version: %u, Server build number: %u, Client OS name: "%S", Client OS version: "%S", Client product ID: "%S", Client host name: "%S", Client IP address: "%S", Client port number: %u, Server host name: "%S", Server IP address: "%S", Server port number: %u, Proxy host name: "%S", Proxy IP address: "%S", Proxy port number: %u, Virtual Hub name: "%S", Client unique ID: "%S"
-LS_CONNECTION_START_1	For the client (IP address: %S, host name: "%S", port number: %u), connection "%S" has been created.
-LS_CONNECTION_END_1		Connection "%S" has been terminated.
-LS_SSL_START			SSL communication for connection "%S" has been started. The encryption algorithm name is "%S".
-LS_CONNECTION_ERROR		Connection "%S" terminated by the cause "%s" (code %u).
-LS_FARMMEMBER_NOT_ADMIN	Connection "%S": Although the server is a cluster member, the client attempted that to directly connect to the Virtual Hub "%S" while not being administrator user "%S". The user name provided by the client is "%S". Access is refused.
-LS_HUB_NOT_FOUND		Connection "%S": Virtual Hub "%S" that the client is trying to connect to does not exist on the server.
-LS_IP_DENIED			Connection "%S": The source IP address "%S" of the client has refused based on the Source IP Address Limit List defined for the Virtual Hub.
-LS_LICENSE_ERROR		Connection "%S": Because a license-related error has been occurred, the client is unable to connect to the server.
-LS_BETA_EXPIRES			This beta version of SoftEther VPN Server is expired. The beta version period of use has expired. Download a new beta version or full version from http://selinks.org/.
-LS_TICKET_1				A new client authentication ticket has been issued for cluster member "%S". Virtual Hub "%S", User name "%S" ("%S"), Session name "%S", Ticket "%S"
-LS_TICKET_2				A new client authentication ticket has been received from the cluster controller. Virtual Hub "%S", User name "%S" ("%S"), Session name "%S", Ticket "%S", Expiration %u seconds
-LS_ENUM_HUB				Connection "%S": %u Virtual Hub servers have been enumerated on this server.
-LS_FARM_ACCEPT_1		Connection "%S": Although this server received a cluster control connection request, this server is not a cluster controller.
-LS_FARM_ACCEPT_2		Connection "%S":Although this server received a cluster control connection request, the authentication password is incorrect and connection has been refused.
-LS_FARM_ACCEPT_3		Connection "%S": This server received a cluster control connection request. Authentication has been successful.
-LS_FARM_SERV_START		Connection with a cluster member has been established. IP address: %S, Host name: "%S"
-LS_FARM_SERV_END		Connection with cluster member "%S" has been deleted.
-LS_FARM_CONNECT_1		Connection to cluster controller "%S" has started.
-LS_FARM_CONNECT_2		Connection to cluster controller "%S" has been refused. Error: %s (code %u)
-LS_FARM_CONNECT_3		TCP connection to cluster controller "%S" failed. Continuing to attempt connection in intervals of %u seconds until connection is successful.
-LS_FARM_DISCONNECT		Connection to the cluster controller has stopped.
-LS_FARM_START			Connected to cluster controller. Operation as cluster member is starting.
-LS_LICENSE_NOT_VPNSERVER	Connection "%S": License error occurred. The VPN Client attempted to connect while the VPN Server product license is not yet registered.
-LS_LICENSE_NOT_VPNCLUSTER	Connection "%S": License error occurred. The license registered on this VPN Server is of a type that prevents the use of the current clustering function and a VPN Client has attempted connection while operating in Cluster mode. You must restart the VPN Server.
-LS_LICENSE_VIOLATION		Connection "%S": A license violation has occurred on the VPN Server and connections are not being received.
-LS_LICENSE_VIOLATION_DETECTED	A license violation has been detected. A different VPN Server is operating with the same server ID "%I64u" as this VPN Server. It is possible that there are two or more VPN Servers in the cluster that are using the same license. Check the license information of each VPN Server.
-LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
-LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
-LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_STOP_ALL_LISTENER	Все TCP порты будут остановлены.
+LS_STOP_ALL_LISTENER_2	Все TCP порты остановлены.
+LS_STOP_ALL_HUB			Остановка всех Virtual Hubs.
+LS_STOP_ALL_HUB_2		Все Virtual Hubs остановлены.
+LS_STOP_CEDAR			Выключение коммуникационного модуля Cedar.
+LS_STOP_CEDAR_2			Коммуникационный модуль Cedar выключен
+LS_STOP_FARM_MEMBER		Отключение подключения к контроллеру кластера.
+LS_STOP_FARM_MEMBER_2	Соединение с контроллером кластера прервано.
+LS_STOP_FARM_CONTROL	Контроллер кластера останавливается.
+LS_STOP_FARM_CONTROL_2	Контроллер кластера остановлен.
+LS_ENUM_ETHERNET_1		Ethernet устройство было пронумеровано.
+LS_ENUM_ETHERNET_2		Устройство %u: "%S"
+LS_LOAD_CONFIG_1		Загрузка файла конфигурации.
+LS_LOAD_CONFIG_2		Файл конфигурации загружен.
+LS_LOAD_CONFIG_3		Файл конфигурации не существует. Попытка начать использовать изначальные настройки.
+LS_INIT_SAVE_THREAD		Запуск автоматически сохраняющейся фоновой задачи. Интервал между автосохранением составляет %u секунд. Вы можете изменить интервал, изменив параметр AutoSaveConfigSpan в файле конфигурации.
+LS_BAD_CONFIG			Неверное содержимое файла конфигурации. Процесс загрузки был прекращен.
+LS_LISTENER_START_1		TCP порт (%u) запускается.
+LS_LISTENER_START_2		TCP порт (%u) запущен. Теперь слушаем подключение от клиента.
+LS_LISTENER_START_3		Невозможно начать прослушивать TCP порт (%u). Продолжаются попытки начать прослушивание, пока успех не будет достигнут.
+LS_LISTENER_ACCEPT		К TCP порту (%u) подключился клиент (IP адрес %S, Имя хоста "%S", Номер порта %u).
+LS_LISTENER_DISCONNECT	Соединение с клиентом (IP-адрес %S, номер порта %u) было прервано.
+LS_LISTENER_DOS			Обнаружена DoS-атака на TCP порт (%u). IP-адрес источника подключения: %S, номер порта: %u. Теперь это соединение будет принудительно отключено.
+LS_LISTENER_MAXUEC		TCP порт временно приостанавливает прием новых входящих подключений из-за превышения количества ожидающих %u TCP соединений. (Текущее значение = %u)
+LS_LISTENER_STOP_1		TCP порт (%u) останавливается
+LS_LISTENER_STOP_2		TCP порт (%u) остановлен.
+LS_HUB_START			Virtual Hub "%S" запущен.
+LS_HUB_STOP				Virtual Hub "%S" остановлен.
+LS_HUB_MAC				MAC-адрес Virtual Hub "%S" - "%S".
+LS_NODE_INFO_TAG		Название ПО клиента: "%S", Версия клиента: %u, Номер сборки клиента: %u, Название ПО сервера: "%S", Версия сервера: %u, Номер сборки сервера: %u, Название ОС клиента: "%S", Версия ОС клиента: "%S", ID ПО клиента: "%S", Имя хоста клиента: "%S", IP-адрес клиента: "%S", Номер порта клиента: %u, Имя хоста сервера: "%S", IP-адрес сервера: "%S", Номер порта сервера: %u, Имя хоста прокси: "%S", IP-адрес прокси: "%S", Номер порта прокси: %u, Название Virtual Hub: "%S", Уникальный ID клиента: "%S"
+LS_CONNECTION_START_1	Для клиента (IP-адрес: %S, имя хоста: "%S", номер порта: %u) было создано подключение "%S".
+LS_CONNECTION_END_1		Подключение "%S" было прервано.
+LS_SSL_START			SSL связь для подключения "%S" запущена. Алгоритма шифрования - "%S".
+LS_CONNECTION_ERROR		Подключение "%S" прервано по причине "%s" (код %u).
+LS_FARMMEMBER_NOT_ADMIN	Подключение "%S": хотя сервер является членом кластера, клиент попытался напрямую подключиться к Virtual Hub "%S", не являясь пользователем-администратором "%S". Имя пользователя, предоставленное клиентом, - "%S". В доступе отказано.
+LS_HUB_NOT_FOUND		Подключение "%S": Virtual Hub "%S" к которому пытается подключиться клиент, не существует на сервере.
+LS_IP_DENIED			Подключение "%S": IP-адрес "%S" клиента отклонен на основании списка ограничений IP-адресов, настроенного для Virtual Hub.
+LS_LICENSE_ERROR		Подключение "%S": Поскольку произошла ошибка, связанная с лицензией, клиент не может подключиться к серверу.
+LS_BETA_EXPIRES			Срок действия этой бета-версии SoftEther VPN-сервера истек. Срок использования бета-версии истек. Загрузите новую бета-версию или полную версию с http://selinks.org/.
+LS_TICKET_1				Для члена кластера "%S" выдан новый билет проверки подлинности клиента. Virtual Hub "%S", Имя пользователя "%S" ("%S"), Название сессии "%S", Билет "%S"
+LS_TICKET_2				Новый билет проверки подлинности клиента получен от контроллера кластера. Virtual Hub "%S", Имя пользователя "%S" ("%S"), Название сессии "%S", Билет "%S", Срок действия %u секунд
+LS_ENUM_HUB				Подключение "%S": %u Virtual Hub было перечислено на этом сервере.
+LS_FARM_ACCEPT_1		Подключение "%S": Хотя этот сервер получил запрос на управление кластером, этот сервер не является контроллером кластера.
+LS_FARM_ACCEPT_2		Подключение "%S": Хотя этот сервер получил запрос на управление кластером, пароль авторизации неверен, и в подключении отказано.
+LS_FARM_ACCEPT_3		Подключение "%S": Этот сервер получил запрос на управление кластером. Авторизация прошла успешно.
+LS_FARM_SERV_START		Установлено подключение с членом кластера. IP-адрес: %S, Имя хоста: "%S"
+LS_FARM_SERV_END		Соединение с членом кластера "%S" было удалено.
+LS_FARM_CONNECT_1		Подключение к контроллеру кластера "%S" начато.
+LS_FARM_CONNECT_2		В подключении к контроллеру кластера "%S" отказано. Ошибка: %s (код %u)
+LS_FARM_CONNECT_3		Не удалось установить TCP-соединение с контроллером кластера "%S". Продолжение попыток подключения с интервалом в %u секунд до успешного подключения.
+LS_FARM_DISCONNECT		Подключение к контроллеру кластера остановлено.
+LS_FARM_START			Подключен к контроллеру кластера. Начинается работа в качестве члена кластера.
+LS_LICENSE_NOT_VPNSERVER	Подключение "%S": Произошла ошибка лицензии. VPN-клиент попытался подключиться, но лицензия VPN-сервера еще не зарегистрирована.
+LS_LICENSE_NOT_VPNCLUSTER	Подключение "%S": Произошла ошибка лицензии. Лицензия, зарегистрированная на этом VPN-сервере, относится к типу, не дающему использовать функции кластера, а VPN-клиент пытался подключиться в кластерном режиме. Вы должны перезапустить VPN-сервер.
+LS_LICENSE_VIOLATION		Подключение "%S": На VPN-сервере произошло нарушение лицензии, и подключения не принимаются.
+LS_LICENSE_VIOLATION_DETECTED	Обнаружено нарушение лицензии. Другой VPN сервер работает с тем же ID "%I64u", что и этот VPN сервер. Возможно, что в кластере два или более VPN-серверов используют одну и ту же лицензию. Проверьте информацию о лицензии каждого VPN-сервера.
+LS_API_AUTH_OK			HTTPS API клиент "%r:%u" (%S): Режим администрирования: "%S": Встроенный HTTPS веб-сервер принял успешный вход в систему. Имя пользователя: "%S", Метод: "%S", Путь: "%S"
+LS_API_AUTH_ERROR		HTTPS API клиент "%r:%u" (%S): Встроенный HTTPS веб-сервер отклонил попытку входа в систему. Имя пользователя: "%S", Метод: "%S", Путь: "%S"
+LS_API_RPC_CALL			HTTPS API клиент "%r:%u" (%S): Клиент вызвал JSON-API. Метод: "%S", Возвращенный код ошибки: %u (0 = успех), Возвращенное сообщение об ошибке: "%s"
 
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN Module: 
@@ -2706,7 +2706,7 @@ STATIC2					Текущий режим:
 STATIC3					Настройки кластера:
 R_STANDALONE			&Автономный сервер (без кластера)
 R_CONTROLLER			&Контроллер кластера
-R_MEMBER				Узел кластера
+R_MEMBER				Член кластера
 STATIC4					Настраиваемые параметры узла кластера:
 S_IP_1					Внешний IP-адрес:
 S_IP_2					(Если внешний IP-адрес не указан, будет взят IP-адрес сетевого интерфейса, используемого при подключении к контроллеру кластера.)           
