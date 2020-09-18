@@ -269,14 +269,17 @@ namespace BuildUtil
 			}
 
 			// Get the VC++ directory
+			// Get Microsoft SDK 6.0a directory
 			// Visual Studio 2008
 			if (IntPtr.Size == 4)
 			{
 				Paths.VisualStudioVCDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Microsoft\VisualStudio\9.0\Setup\VC", "ProductDir"));
+				Paths.MicrosoftSDKDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v6.0A", "InstallationFolder"));
 			}
 			else
 			{
 				Paths.VisualStudioVCDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\9.0\Setup\VC", "ProductDir"));
+				Paths.MicrosoftSDKDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v6.0A", "InstallationFolder"));
 			}
 			if (Str.IsEmptyStr(Paths.VisualStudioVCDir))
 			{
@@ -295,16 +298,6 @@ namespace BuildUtil
 			}
 
 			bool x86_dir = false;
-
-			// Get Microsoft SDK 6.0a directory
-			if (IntPtr.Size == 4)
-			{
-				Paths.MicrosoftSDKDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v6.0A", "InstallationFolder"));
-			}
-			else
-			{
-				Paths.MicrosoftSDKDir = IO.RemoteLastEnMark(Reg.ReadStr(RegRoot.LocalMachine, @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v6.0A", "InstallationFolder"));
-			}
 
 			// Get makecat.exe file name
 			Paths.MakeCatFilename = Path.Combine(Paths.MicrosoftSDKDir, @"bin\" + (x86_dir ? @"x86\" : "") + "makecat.exe");
