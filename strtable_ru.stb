@@ -1815,48 +1815,48 @@ LO_STOP					Остановлен модуль OpenVPN сервера.
 
 
 # (IPsec Logs)
-LI_PREFIX_RAW			IPsec Module: 
-LI_PREFIX_CLIENT		IPsec Client %u (%S:%u -> %S:%u): 
-LI_PREFIX_IKE			IPsec IKE Session (IKE SA) %u (Client: %u) (%S:%u -> %S:%u): 
-LI_PREFIX_IPSEC			IPsec ESP Session (IPsec SA) %u (Client: %u) (%S:%u -> %S:%u): 
-LI_START				The IPsec ver 2.0 (ISAKMP/IKEv1) processing module is started.
-LI_STOPPING				The IPsec ver 2.0 (ISAKMP/IKEv1) processing module is now terminating...
-LI_STOP					The IPsec ver 2.0 (ISAKMP/IKEv1) processing module is terminated.
-LI_NUM_IPSEC_SA			The number of still-alive IPsec SAs was %u.
-LI_NUM_IKE_SA			The number of still-alive IKE SAs was %u.
-LI_NUM_IKE_CLIENTS		The number of still-alive IPsec Clients was %u.
-LI_L2TP_SERVER_STARTED	The L2TP Server Module is started.
-LI_ETHERIP_SERVER_STARTED	The EtherIP Server Module is started. The Session ID of the EtherIP Session: %u
-LI_DELETE_IKE_CLIENT	This IPsec Client is deleted.
-LI_DELETE_IKE_SA		This IKE SA is deleted.
-LI_DELETE_IPSEC_SA		This IPsec SA is deleted.
-LI_START_QM_FROM_SERVER	The server initiates a QuickMode negotiation.
-LI_START_QM_FROM_CLIENT	The client initiates a QuickMode negotiation.
-LI_QM_DH_ERROR			Failed to calculate a Diffie-Hellman algorithm.
-LI_NEW_IKE_CLIENT		A new IPsec client is created.
-LI_NEW_IKE_SA			A new IKE SA (%s) is created. Initiator Cookie: 0x%I64X, Responder Cookie: 0x%I64X, DH Group: %S, Hash Algorithm: %S, Cipher Algorithm: %S, Cipher Key Size: %u bits, Lifetime: %u Kbytes or %u seconds
-LI_TAG_MAINMODE			Main Mode
-LI_TAG_AGGRESSIVE		Aggressive Mode
-LI_NEW_IPSEC_SA			A new IPsec SA (Direction: %s) is created. SPI: 0x%X, DH Group: %S, Hash Algorithm: %S, Cipher Algorithm: %S, Cipher Key Size: %u bits, Lifetime: %u Kbytes or %u seconds
-LI_TAG_SERVER_TO_CLIENT	Server -> Client
-LI_TAG_CLIENT_TO_SERVER	Client -> Server
-LI_IPSEC_SA_SPI_SET		The SPI which has been pending is now set. New SPI: 0x%X
-LI_IPSEC_SA_ESTABLISHED	This IPsec SA is established between the server and the client.
-LI_IKE_SA_ESTABLISHED	This IKE SA is established between the server and the client.
-LI_IPSEC_NO_TRANSFORM	There are no acceptable transform proposals from the client for establishing an IPsec SA.
-LI_IKE_NO_TRANSFORM		There are no acceptable transform proposals from the client for establishing an IKE SA.
-LI_IKE_NO_NAT_T			The connection cannot be accepted because this VPN client is not compatible with IPsec NAT Traversal (RFC 3947 Negotiation of NAT-Traversal in the IKE or draft-ietf-ipsec-nat-t-ike).
-LI_SET_CLIENT_ID		The client ID which this client presented in the establishing phase is "%S".
-LI_CLIENT_MERGE			This client (Client %u) and the other client (Client %u) is the same client. So they are merged to the client %u.
-LI_CLIENT_UPDATE		The port number information of this client is updated.
+LI_PREFIX_RAW			Модуль IPsec: 
+LI_PREFIX_CLIENT		Клиент IPsec %u (%S:%u -> %S:%u): 
+LI_PREFIX_IKE			IPsec IKE сессия (IKE SA) %u (Клиент: %u) (%S:%u -> %S:%u): 
+LI_PREFIX_IPSEC			IPsec ESP сессия (IPsec SA) %u (Клиент: %u) (%S:%u -> %S:%u): 
+LI_START				Модуль обработки IPsec версии 2.0 (ISAKMP/IKEv1) запущен.
+LI_STOPPING				Модуль обработки IPsec версии 2.0 (ISAKMP/IKEv1) завершает работу...
+LI_STOP					Модуль обработки IPsec версии 2.0 (ISAKMP/IKEv1) завершен.
+LI_NUM_IPSEC_SA			Число все еще работающих IPsec SA было %u.
+LI_NUM_IKE_SA			Число все еще работающих IKE SA было %u.
+LI_NUM_IKE_CLIENTS		Число все еще работающих IPsec клиентов было %u.
+LI_L2TP_SERVER_STARTED	Модуль L2TP-сервера запущен.
+LI_ETHERIP_SERVER_STARTED	Модуль EtherIP сервера запущен. SID сессии EtherIP: %u
+LI_DELETE_IKE_CLIENT	Этот IPsec клиент удален.
+LI_DELETE_IKE_SA		Этот IKE SA удален.
+LI_DELETE_IPSEC_SA		Этот IPsec SA удален.
+LI_START_QM_FROM_SERVER	Сервер инициирует согласование в быстром режиме.
+LI_START_QM_FROM_CLIENT	Клиент инициирует согласование в быстром режиме.
+LI_QM_DH_ERROR			Не удалось вычислить алгоритм Диффи-Хеллмана.
+LI_NEW_IKE_CLIENT		Создан новый IPsec клиент.
+LI_NEW_IKE_SA			Создается новая IKE SA (%s). Cookie инициатора: 0x%I64X, Cookie ответчика: 0x%I64X, DH Группа: %S, Алгоритм хеширования: %S, Алгоритм шифрования: %S, Размер ключа шифрования: %u бит, Время жизни: %u Кбайт или %u секунд
+LI_TAG_MAINMODE			Основной режим
+LI_TAG_AGGRESSIVE		Агрессивный режим
+LI_NEW_IPSEC_SA			Создается новая IPsec SA (Направление: %s). SPI: 0x%X, DH группа: %S, Алгоритм хеширования: %S, Алгоритм шифрования: %S, Размер ключа шифрования: %u бит, Время жизни: %u Кбайт или %u секунд
+LI_TAG_SERVER_TO_CLIENT	Сервер -> Клиент
+LI_TAG_CLIENT_TO_SERVER	Клиент -> Сервер
+LI_IPSEC_SA_SPI_SET		SPI, который был на рассмотрении, теперь установлен. Новый SPI: 0x%X
+LI_IPSEC_SA_ESTABLISHED	Этот IPsec SA установлен  между сервером и клиентом.
+LI_IKE_SA_ESTABLISHED	Этот IKE SA установлен между сервером и клиентом.
+LI_IPSEC_NO_TRANSFORM	От клиента нет приемлемых предложений для создания IPsec SA.
+LI_IKE_NO_TRANSFORM		От клиента нет приемлемых предложений для создания IKE SA.
+LI_IKE_NO_NAT_T			Подключение не может быть принято, потому что этот VPN-клиент несовместим с IPsec NAT Traversal (RFC 3947 Согласование NAT-Traversal в IKE или draft-ietf-ipsec-nat-t-ike).
+LI_SET_CLIENT_ID		ID клиента, предоставленный на этапе подключения - "%S".
+LI_CLIENT_MERGE			Этот клиент (Клиент %u) и другой клиент (Клиент %u) являются одним и тем же клиентом. Поэтому они объединены в клиент %u.
+LI_CLIENT_UPDATE		Обновлена информация о номере порта этого клиента.
 
 
 # (EtherIP Log)
-LE_PREFIX				EtherIP / L2TPv3 Session %u (%S:%u -> %S:%u): 
-LE_START_MODULE			The EtherIP / L2TPv3 Module is started.
-LE_STOP					The EtherIP / L2TPv3 Module is stopped.
-LE_NO_SETTING			Error: No EtherIP / L2TPv3 setting entries for the Client ID "%S" is registered on the VPN Server. Please register an entry of a EtherIP / L2TPv3 setting on the VPN Server beforehand.
-LE_START_IPC			The internal pipe was created between the EtherIP / L2TPv3 module to the Virtual Hub "%S". The using username is "%S". The IPv4 TCP MSS (Max Segment Size) to be set is %u bytes.
+LE_PREFIX				EtherIP / L2TPv3 сессия %u (%S:%u -> %S:%u): 
+LE_START_MODULE			Модуль EtherIP / L2TPv3 запущен.
+LE_STOP					Модуль EtherIP / L2TPv3 Module остановлен.
+LE_NO_SETTING			Ошибка: на VPN-сервере не зарегистрированы EtherIP / L2TPv3 настройки для клиента с ID "%S". Пожалуйста, заранее создавайте записи настроек EtherIP / L2TPv3 на VPN-сервере.
+LE_START_IPC			Был создан внутренний канал между EtherIP / L2TPv3 модулем и Virtual Hub "%S". Используемое имя пользователя - "%S". Для IPv4 TCP MSS (максимальный размер сегмента) будет установлен размер %u байт.
 LE_IPC_CONNECT_ERROR	The connection from the EtherIP / L2TPv3 module to the Virtual Hub "%S" failed. Error: %u : %s
 LE_IPC_CONNECT_OK		The connection from the EtherIP / L2TPv3 module to the Virtual Hub "%S" succeeded.
 LE_RECONNECT			Settings of EtherIP / L2TPv3 has been changed. Internal pipes is now being deleted and auto-reconnecting.
