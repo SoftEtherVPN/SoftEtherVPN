@@ -400,6 +400,7 @@ PW_TYPE_1					标准密码验证
 PW_TYPE_2					RADIUS 或 NT 域验证
 PW_TYPE_3					客户端证书认证
 PW_TYPE_4					智能卡身份验证
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY				代理服务器 %S 用户身份验证失败。请重新输入正确的用户名和密码。
 PW_TYPE_PROXY				代理服务器认证

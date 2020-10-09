@@ -404,6 +404,7 @@ PW_TYPE_1 표준 암호 인증
 PW_TYPE_2 RADIUS 또는 NT 도메인 인증
 PW_TYPE_3 클라이언트 인증서 인증
 PW_TYPE_4 스마트 카드 인증
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY 프록시 서버 %S에서의 사용자 인증에 실패했습니다. 올바른 사용자 이름과 암호를 다시 입력하십시오.
 PW_TYPE_PROXY 프록시 서버 인증
