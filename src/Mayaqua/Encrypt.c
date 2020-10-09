@@ -3114,11 +3114,11 @@ bool IsEncryptedK(BUF *b, bool private_key)
 
 K *OpensslEngineToK(char *key_file_name, char *engine_name)
 {
-#ifdef UNIX_LINUX
-#if OPENSSL_API_COMPAT < 0x10100000L
     K *k;
+#if OPENSSL_API_COMPAT < 0x10100000L
     ENGINE_load_dynamic();
-    ENGINE *engine = ENGINE_by_id("tpm2tss");
+#endif	// OPENSSL_API_COMPAT >= 0x10100000L
+    ENGINE *engine = ENGINE_by_id(engine_name);
     ENGINE_init(engine);
     EVP_PKEY *pkey;
     pkey = ENGINE_load_private_key(engine, key_file_name, NULL, NULL);
@@ -3126,10 +3126,6 @@ K *OpensslEngineToK(char *key_file_name, char *engine_name)
     k->pkey = pkey;
     k->private_key = true;
     return k;
-#endif	// OPENSSL_API_COMPAT >= 0x10100000L
-#else
-		return NULL;
-#endif	// UNIX_LINUX
 }
 
 // Convert the BUF to a K
