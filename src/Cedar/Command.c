@@ -6432,8 +6432,8 @@ UINT PcAccountOpensslEngineCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, voi
 	{
 		{"[name]", CmdPrompt, _UU("CMD_AccountCreate_Prompt_Name"), CmdEvalNotEmpty, NULL},
 		{"LOADCERT", CmdPrompt, _UU("CMD_LOADCERTPATH"), CmdEvalIsFile, NULL},
-		{"KEYNAME", CmdPrompt, _UU("CMD_AccountSecureCertSet_PROMPT_KEYNAME"), CmdEvalNotEmpty, NULL},
-		{"ENGINENAME", CmdPrompt, _UU("Openssl engine name."), CmdEvalNotEmpty, NULL},
+		{"KEYNAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_KEYNAME"), CmdEvalNotEmpty, NULL},
+		{"ENGINENAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_ENGINENAME"), CmdEvalNotEmpty, NULL},
 	};
 
 	// Get the parameter list
