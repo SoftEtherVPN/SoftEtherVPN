@@ -6875,6 +6875,11 @@ CMD_AccountSecureCertSet_PROMPT_CERTNAME	智能卡证书对象名:
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	智能卡私匙对象名: 
 
 
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
+
+
 # AccountRetrySet 命令
 CMD_AccountRetrySet			设置连接设置的连接失败或断开时建立重新连接的次数和间隔
 CMD_AccountRetrySet_Help	指定注册到 VPN Client 的连接设置，且其连接设置试图连接到 VPN Server 时，还有连接中的与 VPN Server 的通信被断开或连接失败时，指定连接的重试次数和连接重试的间隔。\n而且，如果用户认证类型为 [智能卡认证] 时，不管连接重试次数如何设置，都将不进行连接重试。

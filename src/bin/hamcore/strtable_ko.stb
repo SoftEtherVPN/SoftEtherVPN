@@ -6839,6 +6839,11 @@ CMD_AccountSecureCertSet_[name] 설정을 변경하려면 연결 설정의 이�
 CMD_AccountSecureCertSet_CERTNAME 스마트 카드에 저장되어있는 인증서 개체의 이름을 지정합니다.
 CMD_AccountSecureCertSet_KEYNAME 스마트 카드에 저장되어있는 비밀 열쇠 오브젝트의 이름을 지정합니다./CERTNAME에 지정된 인증서에 대응하고있을 필요가 있습니다.
 CMD_AccountSecureCertSet_PROMPT_CERTNAME 스마트 카드에서 인증서 개체의 이름:
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME 스마트 카드의 비밀 열쇠 오브젝트의 이름:
 
 

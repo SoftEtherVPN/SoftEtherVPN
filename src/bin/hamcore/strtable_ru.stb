@@ -6847,6 +6847,11 @@ CMD_AccountSecureCertSet_PROMPT_CERTNAME	Name of Certificate Object on Smart Car
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	Name of Private Key Object on Smart Card: 
 
 
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
+
+
 # AccountRetrySet コマンド
 CMD_AccountRetrySet		Set Interval between Connection Retries for Connection Failures or Disconnections of VPN Connection Setting
 CMD_AccountRetrySet_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting attempts to connect to a VPN Server, use this to specify the interval to wait between connection attempts and the limit of how many times to retry connecting when communication with the VPN Server has been disconnected or when the connection process failed. \nIf the user authentication type is Smart Card Authentication, no connection retry will be performed regardless of the Number of Connection Attempts setting.
