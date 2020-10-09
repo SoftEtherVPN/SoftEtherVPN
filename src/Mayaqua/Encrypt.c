@@ -3115,6 +3115,7 @@ bool IsEncryptedK(BUF *b, bool private_key)
 K *OpensslEngineToK(char *key_file_name, char *engine_name)
 {
 #ifdef UNIX_LINUX
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     K *k;
     ENGINE_load_dynamic();
     ENGINE *engine = ENGINE_by_id("tpm2tss");
@@ -3125,6 +3126,7 @@ K *OpensslEngineToK(char *key_file_name, char *engine_name)
     k->pkey = pkey;
     k->private_key = true;
     return k;
+#endif	// OPENSSL VERSION
 #else
 		return NULL;
 #endif	// UNIX_LINUX
