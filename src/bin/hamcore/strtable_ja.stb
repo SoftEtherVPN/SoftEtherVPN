@@ -400,6 +400,7 @@ PW_TYPE_1				標準パスワード認証
 PW_TYPE_2				RADIUS または NT ドメイン認証
 PW_TYPE_3				クライアント証明書認証
 PW_TYPE_4				スマートカード認証
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY			プロキシサーバー %S でのユーザー認証に失敗しました。正しいユーザー名とパスワードを再入力してください。
 PW_TYPE_PROXY			プロキシサーバー認証
@@ -6864,6 +6865,11 @@ CMD_AccountSecureCertSet_CERTNAME	スマートカード内に格納されてい�
 CMD_AccountSecureCertSet_KEYNAME	スマートカード内に格納されている秘密鍵オブジェクトの名前を指定します。/CERTNAME で指定した証明書に対応している必要があります。
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	スマートカード内証明書オブジェクトの名前: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	スマートカード内秘密鍵オブジェクトの名前: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet コマンド

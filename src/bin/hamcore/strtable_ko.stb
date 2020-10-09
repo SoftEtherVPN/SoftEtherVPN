@@ -404,6 +404,7 @@ PW_TYPE_1 표준 암호 인증
 PW_TYPE_2 RADIUS 또는 NT 도메인 인증
 PW_TYPE_3 클라이언트 인증서 인증
 PW_TYPE_4 스마트 카드 인증
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY 프록시 서버 %S에서의 사용자 인증에 실패했습니다. 올바른 사용자 이름과 암호를 다시 입력하십시오.
 PW_TYPE_PROXY 프록시 서버 인증
@@ -6839,6 +6840,11 @@ CMD_AccountSecureCertSet_[name] 설정을 변경하려면 연결 설정의 이�
 CMD_AccountSecureCertSet_CERTNAME 스마트 카드에 저장되어있는 인증서 개체의 이름을 지정합니다.
 CMD_AccountSecureCertSet_KEYNAME 스마트 카드에 저장되어있는 비밀 열쇠 오브젝트의 이름을 지정합니다./CERTNAME에 지정된 인증서에 대응하고있을 필요가 있습니다.
 CMD_AccountSecureCertSet_PROMPT_CERTNAME 스마트 카드에서 인증서 개체의 이름:
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME 스마트 카드의 비밀 열쇠 오브젝트의 이름:
 
 

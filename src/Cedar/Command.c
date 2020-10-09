@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Command.c
 // vpncmd Command Line Management Utility
@@ -2948,6 +2948,7 @@ void PcMain(PC *pc)
 			{"AccountStatusShow", PcAccountStatusShow},
 			{"AccountStatusHide", PcAccountStatusHide},
 			{"AccountSecureCertSet", PcAccountSecureCertSet},
+			{"AccountOpensslEngineCertSet", PcAccountOpensslEngineCertSet},
 			{"AccountRetrySet", PcAccountRetrySet},
 			{"AccountStartupSet", PcAccountStartupSet},
 			{"AccountStartupRemove", PcAccountStartupRemove},
@@ -4721,7 +4722,7 @@ UINT PcAccountCertGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	if (ret == ERR_NO_ERROR)
 	{
-		if (t.ClientAuth->AuthType != CLIENT_AUTHTYPE_CERT)
+		if (t.ClientAuth->AuthType != CLIENT_AUTHTYPE_CERT && t.ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
 		{
 			c->Write(c, _UU("CMD_CascadeCertSet_Not_Auth_Cert"));
 			ret = ERR_INTERNAL_ERROR;
@@ -6419,6 +6420,76 @@ UINT PcAccountSecureCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *para
 
 	return ret;
 }
+
+UINT PcAccountOpensslEngineCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PC *pc = (PC *)param;
+	UINT ret = ERR_NO_ERROR;
+	RPC_CLIENT_GET_ACCOUNT t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		{"[name]", CmdPrompt, _UU("CMD_AccountCreate_Prompt_Name"), CmdEvalNotEmpty, NULL},
+		{"LOADCERT", CmdPrompt, _UU("CMD_LOADCERTPATH"), CmdEvalIsFile, NULL},
+		{"KEYNAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_KEYNAME"), CmdEvalNotEmpty, NULL},
+		{"ENGINENAME", CmdPrompt, _UU("CMD_AccountOpensslCertSet_PROMPT_ENGINENAME"), CmdEvalNotEmpty, NULL},
+	};
+
+	// Get the parameter list
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// RPC call
+	Zero(&t, sizeof(t));
+
+	UniStrCpy(t.AccountName, sizeof(t.AccountName), GetParamUniStr(o, "[name]"));
+
+	ret = CcGetAccount(pc->RemoteClient, &t);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		RPC_CLIENT_CREATE_ACCOUNT z;
+		t.ClientAuth->AuthType = CLIENT_AUTHTYPE_OPENSSLENGINE;
+    X *x;
+	  x = FileToXW(GetParamUniStr(o, "LOADCERT"));
+    if (x == NULL)
+    {
+			c->Write(c, _UU("CMD_LOADCERT_FAILED"));
+    }
+		StrCpy(t.ClientAuth->OpensslEnginePrivateKeyName, sizeof(t.ClientAuth->OpensslEnginePrivateKeyName),
+					 GetParamStr(o, "KEYNAME"));
+		StrCpy(t.ClientAuth->OpensslEngineName, sizeof(t.ClientAuth->OpensslEngineName),
+					 GetParamStr(o, "ENGINENAME"));
+		t.ClientAuth->ClientX = CloneX(x);
+		Zero(&z, sizeof(z));
+		z.CheckServerCert = t.CheckServerCert;
+		z.RetryOnServerCert = t.RetryOnServerCert;
+		z.ClientAuth = t.ClientAuth;
+		z.ClientOption = t.ClientOption;
+		z.ServerCert = t.ServerCert;
+		z.StartupAccount = t.StartupAccount;
+
+		ret = CcSetAccount(pc->RemoteClient, &z);
+	}
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// Error has occurred
+		CmdPrintError(c, ret);
+	}
+
+	CiFreeClientGetAccount(&t);
+
+	// Release of the parameter list
+	FreeParamValueList(o);
+
+	return ret;
+}
+
 
 // Set the retry interval and number of retries when disconnect or connection failure of connection settings
 UINT PcAccountRetrySet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)

@@ -404,6 +404,7 @@ PW_TYPE_1				標準密碼驗證
 PW_TYPE_2				RADIUS 或 NT 域驗證
 PW_TYPE_3				用戶端證書認證
 PW_TYPE_4				智慧卡身份驗證
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY			代理伺服器 %S 使用者身份驗證失敗。請重新輸入正確的用戶名和密碼。
 PW_TYPE_PROXY			代理伺服器認證
@@ -6875,6 +6876,11 @@ CMD_AccountSecureCertSet_CERTNAME	指定儲存在智慧卡中的證書物件名�
 CMD_AccountSecureCertSet_KEYNAME	指定儲存在智慧卡中的金鑰物件名。
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	智慧卡證書對象名: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	智慧卡私匙對象名: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet 命令

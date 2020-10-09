@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Client.h
 // Header of Client.c

@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Connection.c
 // Connection Manager
@@ -538,6 +538,14 @@ CLIENT_AUTH *CopyClientAuth(CLIENT_AUTH *a)
 		// Secure device authentication
 		StrCpy(ret->SecurePublicCertName, sizeof(ret->SecurePublicCertName), a->SecurePublicCertName);
 		StrCpy(ret->SecurePrivateKeyName, sizeof(ret->SecurePrivateKeyName), a->SecurePrivateKeyName);
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		// Secure device authentication
+		ret->ClientX = CloneX(a->ClientX);
+		StrCpy(ret->OpensslEnginePrivateKeyName, sizeof(ret->OpensslEnginePrivateKeyName), a->OpensslEnginePrivateKeyName);
+		StrCpy(ret->OpensslEngineName, sizeof(ret->OpensslEngineName), a->OpensslEngineName);
+    ret->ClientK = OpensslEngineToK(ret->OpensslEnginePrivateKeyName, ret->OpensslEngineName);
 		break;
 	}
 

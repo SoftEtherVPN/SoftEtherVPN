@@ -415,6 +415,7 @@ PW_TYPE_1	Autenticação de senha padrão
 PW_TYPE_2	Autenticação de Domínio RADIUS ou NT
 PW_TYPE_3	Certificado do cliente
 PW_TYPE_4	Autenticação Smart Card
+PW_TYPE_5				Openssl Engine Authentication
 PW_MSG_PROXY	User authentication failed on the proxy server %S. Re-enter the correct user name and password.
 PW_TYPE_PROXY	Proxy Server Authentication
 
@@ -6592,6 +6593,11 @@ CMD_AccountSecureCertSet_CERTNAME	Specify the name of the certificate object sto
 CMD_AccountSecureCertSet_KEYNAME	Specify the name of the private key object stored on the smart card. The private key must be compatible with the certificate specified by /CERTNAME.
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	Name of Certificate Object on Smart Card: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	Name of Private Key Object on Smart Card: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet ã‚³ãƒžãƒ³ãƒ‰
