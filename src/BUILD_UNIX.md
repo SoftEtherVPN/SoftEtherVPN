@@ -56,8 +56,8 @@ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
 git submodule init && git submodule update
 ./configure
-make -C tmp
-make -C tmp install
+make -C build
+make -C build install
 ```
 
 This will compile and install SoftEther VPN Server, Bridge and Client binaries under your executable path.
@@ -74,8 +74,8 @@ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
 git submodule init && git submodule update
 ./configure
-make -C tmp
-make -C tmp install
+make -C build
+make -C build install
 ```
 
 Building without USE_MUSL environment variable set compiles, but produced executables exhibit bad run-time behaviour.
