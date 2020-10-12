@@ -112,6 +112,7 @@ CONTRIBUTORS:
   - NV <nvsofts@gmail.com>
   - Olimjon <olim98@bk.ru>
   - parly <https://github.com/parly>
+  - PeTeeR <tom2pet@gmail.com>
   - Quantum <quantum2048@gmail.com>
   - Quintin <quintin@last.za.net>
   - Raymond Tau <raymondtau@gmail.com>

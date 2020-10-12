@@ -9199,6 +9199,11 @@ PENDING_LIST_CLEANUP:
 // Correspond to the DHCP REQUEST
 UINT ServeDhcpRequest(VH *v, UCHAR *mac, UINT request_ip)
 {
+	return ServeDhcpRequestEx(v, mac, request_ip, false);
+}
+
+UINT ServeDhcpRequestEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip)
+{
 	UINT ret;
 	// Validate arguments
 	if (v == NULL || mac == NULL)
@@ -9206,7 +9211,7 @@ UINT ServeDhcpRequest(VH *v, UCHAR *mac, UINT request_ip)
 		return 0;
 	}
 
-	ret = ServeDhcpDiscover(v, mac, request_ip);
+	ret = ServeDhcpDiscoverEx(v, mac, request_ip, is_static_ip);
 	if (ret != request_ip)
 	{
 		if (request_ip != 0)
@@ -9307,6 +9312,34 @@ UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip)
 	}
 
 	return ret;
+}
+
+UINT ServeDhcpDiscoverEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip)
+{
+	if (is_static_ip == false)
+	{
+		return ServeDhcpDiscover(v, mac, request_ip );
+	}
+
+	if (v == NULL || mac == NULL || request_ip == 0)
+	{
+		return 0;
+	}
+
+	DHCP_LEASE *d = SearchDhcpLeaseByIp(v, request_ip);
+	if (d != NULL)
+	{
+		// The requested IP address is used already
+		return 0;
+	}
+
+	// For static IP, the requested IP address must NOT be within the range of the DHCP pool
+	if (Endian32(request_ip) < Endian32(v->DhcpIpStart) || Endian32(request_ip) > Endian32(v->DhcpIpEnd))
+	{
+		return request_ip;
+	}
+
+	return 0;
 }
 
 // Take an appropriate IP addresses that can be assigned newly
@@ -9469,21 +9502,30 @@ void VirtualDhcpServer(VH *v, PKT *p)
 	if (dhcp->OpCode == 1 && (opt->Opcode == DHCP_DISCOVER || opt->Opcode == DHCP_REQUEST || opt->Opcode == DHCP_INFORM))
 	{
 		// Operate as the server
-		UINT ip = 0;
+		UINT ip = 0, ip_static = dhcp->ServerIP;
+		dhcp->ServerIP = 0;
 
 		if (opt->RequestedIp == 0)
 		{
-			opt->RequestedIp = p->L3.IPv4Header->SrcIP;
+			opt->RequestedIp = (ip_static ? ip_static : p->L3.IPv4Header->SrcIP);
 		}
 		if (opt->Opcode == DHCP_DISCOVER)
 		{
 			// Return an IP address that can be used
-			ip = ServeDhcpDiscover(v, p->MacAddressSrc, opt->RequestedIp);
+			ip = ServeDhcpDiscoverEx(v, p->MacAddressSrc, opt->RequestedIp, ip_static);
 		}
 		else if (opt->Opcode == DHCP_REQUEST)
 		{
 			// Determine the IP address
-			ip = ServeDhcpRequest(v, p->MacAddressSrc, opt->RequestedIp);
+			if (ip_static && opt->RequestedIp != ip_static)
+			{
+				// Don't allow opt->RequestedIp other than the IP written in user's note
+				ip = 0;
+			}
+			else
+			{
+				ip = ServeDhcpRequestEx(v, p->MacAddressSrc, opt->RequestedIp, ip_static);
+			}
 		}
 
 		if (ip != 0 || opt->Opcode == DHCP_INFORM)
