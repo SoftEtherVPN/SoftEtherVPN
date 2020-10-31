@@ -148,6 +148,8 @@ struct SSL_ACCEPT_SETTINGS
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
 	bool Tls_Disable1_3;
+	bool Override_Security_Level;
+	UINT Override_Security_Level_Value;
 };
 
 // Socket
@@ -1448,6 +1450,7 @@ void RefreshLocalMacAddressList();
 
 struct ssl_ctx_st *NewSSLCtx(bool server_mode);
 void FreeSSLCtx(struct ssl_ctx_st *ctx);
+UINT GetOSSecurityLevel();
 
 void SetCurrentDDnsFqdn(char *name);
 void GetCurrentDDnsFqdn(char *name, UINT size);
