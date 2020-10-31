@@ -5747,6 +5747,16 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 			{
 				SSL_CTX_set_tmp_dh(ssl_ctx, dh->dh);
 			}
+
+#if 0
+			// Cannot get config
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+			if (sock->SslAcceptSettings.Override_Security_Level)
+			{
+				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
+			}
+#endif
+#endif
 		}
 
 		if (verify_peer)
@@ -12137,6 +12147,13 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
 			}
 #endif	// SSL_OP_NO_TLSv1_3
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+			if (sock->SslAcceptSettings.Override_Security_Level)
+			{
+				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
+			}
+#endif
 
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
