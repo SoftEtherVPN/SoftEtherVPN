@@ -12147,6 +12147,13 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 			}
 #endif	// SSL_OP_NO_TLSv1_2
 
+#ifdef	SSL_OP_NO_TLSv1_3
+			if (sock->SslAcceptSettings.Tls_Disable1_3)
+			{
+				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
+			}
+#endif	// SSL_OP_NO_TLSv1_3
+
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);

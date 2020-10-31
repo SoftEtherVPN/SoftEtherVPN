@@ -147,6 +147,7 @@ struct SSL_ACCEPT_SETTINGS
 	bool Tls_Disable1_0;
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
+	bool Tls_Disable1_3;
 };
 
 // Socket
