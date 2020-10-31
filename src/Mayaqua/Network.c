@@ -5737,6 +5737,12 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 	{
 		if (server_mode)
 		{
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_server_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
+
 #ifdef SSL_OP_NO_TLSv1_3
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3); // For some reason pppd under linux doesn't like it
 #endif
@@ -5747,16 +5753,10 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 			{
 				SSL_CTX_set_tmp_dh(ssl_ctx, dh->dh);
 			}
-
-#if 0
-			// Cannot get config
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
-			if (sock->SslAcceptSettings.Override_Security_Level)
-			{
-				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
-			}
-#endif
-#endif
+		}
+		else
+		{
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
 		}
 
 		if (verify_peer)
@@ -12120,6 +12120,12 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 	{
 		if (sock->ServerMode)
 		{
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_server_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
+
 #ifdef	SSL_OP_NO_TLSv1
 			if (sock->SslAcceptSettings.Tls_Disable1_0)
 			{
@@ -12148,16 +12154,17 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 			}
 #endif	// SSL_OP_NO_TLSv1_3
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
-			if (sock->SslAcceptSettings.Override_Security_Level)
-			{
-				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
-			}
-#endif
-
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
+		}
+		else
+		{
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
 		}
 
 		sock->ssl = SSL_new(ssl_ctx);
@@ -16812,20 +16819,6 @@ struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
 	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
 
-	// It resets some parameters.
-	if (server_mode)
-	{
-		SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
-	}
-	else
-	{
-		SSL_CTX_set_ssl_version(ctx, SSLv23_client_method());
-	}
-
-#ifdef	SSL_OP_NO_SSLv3
-	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
-
 #ifdef	SSL_OP_NO_TICKET
 	SSL_CTX_set_options(ctx, SSL_OP_NO_TICKET);
 #endif	// SSL_OP_NO_TICKET
@@ -16856,28 +16849,6 @@ void FreeSSLCtx(struct ssl_ctx_st *ctx)
 	}
 
 	SSL_CTX_free(ctx);
-}
-
-// Get OS (maximum) Security Level
-UINT GetOSSecurityLevel()
-{
-	UINT security_level_new = 0, security_level_set_ssl_version = 0;
-	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
-
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
-	security_level_new = SSL_CTX_get_security_level(ctx);
-#endif
-
-	security_level_set_ssl_version = SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
-
-	FreeSSLCtx(ctx);
-
-	if(security_level_new >= security_level_set_ssl_version)
-	{
-		return security_level_new;
-	}
-
-	return security_level_set_ssl_version;
 }
 
 // The number of get ip threads
@@ -16994,6 +16965,12 @@ TOKEN_LIST *GetCipherList()
 	{
 		return ciphers;
 	}
+
+	SSL_CTX_set_ssl_version(ctx, SSLv23_server_method());
+
+#ifdef	SSL_OP_NO_SSLv3
+	SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3);
+#endif
 
 	ssl = SSL_new(ctx);
 	if (ssl == NULL)
