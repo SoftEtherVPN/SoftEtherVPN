@@ -1857,16 +1857,16 @@ LE_START_MODULE			Модуль EtherIP / L2TPv3 запущен.
 LE_STOP					Модуль EtherIP / L2TPv3 Module остановлен.
 LE_NO_SETTING			Ошибка: на VPN-сервере не зарегистрированы EtherIP / L2TPv3 настройки для клиента с ID "%S". Пожалуйста, заранее создавайте записи настроек EtherIP / L2TPv3 на VPN-сервере.
 LE_START_IPC			Был создан внутренний канал между EtherIP / L2TPv3 модулем и Virtual Hub "%S". Используемое имя пользователя - "%S". Для IPv4 TCP MSS (максимальный размер сегмента) будет установлен размер %u байт.
-LE_IPC_CONNECT_ERROR	The connection from the EtherIP / L2TPv3 module to the Virtual Hub "%S" failed. Error: %u : %s
-LE_IPC_CONNECT_OK		The connection from the EtherIP / L2TPv3 module to the Virtual Hub "%S" succeeded.
-LE_RECONNECT			Settings of EtherIP / L2TPv3 has been changed. Internal pipes is now being deleted and auto-reconnecting.
+LE_IPC_CONNECT_ERROR	Сбой подключения модуля EtherIP / L2TPv3 к Virtual Hub "%S". Ошибка: %u : %s
+LE_IPC_CONNECT_OK		Подключение модуля EtherIP / L2TPv3 к Virtual Hub "%S" успешно выполнено.
+LE_RECONNECT			Изменены настройки EtherIP / L2TPv3. Внутренние туннели удаляются и автоматически переподключаются.
 
 
 # (PPP Log)
-LP_PREFIX				%S%SPPP Session [%S:%u]: 
-LP_CONNECTED			A new PPP session (Upper protocol: %S) is started. IP Address of PPP Client: %S (Hostname: "%S"), Port Number of PPP Client: %u, IP Address of PPP Server: %S, Port Number of PPP Server: %u, Client Software Name: "%S", IPv4 TCP MSS (Max Segment Size): %u bytes
-LP_DISCONNECTED			The PPP session is disconnected.
-LP_PAP_REJECTED			The client denied to accept the authentication protocol "PAP" (Password Authentication Protocol, a clear-text password authentication protocol). Enable PAP on the client-side and retry.
+LP_PREFIX				%S%SPPP сессия [%S:%u]: 
+LP_CONNECTED			Запущена новая PPP сессия (Протокол: %S). IP-адрес PPP клиента: %S (Имя хоста: "%S"), Номер порта PPP клиента: %u, IP-адрес PPP сервера: %S, Номер порта PPP сервера: %u, ПО: "%S", IPv4 TCP MSS (максимальный размер сегмента): %u байт
+LP_DISCONNECTED			PPP сессия отключена.
+LP_PAP_REJECTED			Клиент отказался принять протокол аутентификации "PAP" (Password Authentication Protocol, протокол аутентификации с открытым текстом пароля). Включите PAP на стороне клиента и повторите попытку.
 LP_PAP_MSCHAPV2_REJECTED	The client denied to accept both the "PAP" (Password Authentication Protocol, a clear-text password authentication protocol) and MS-CHAP v2 Protocol. Enable either PAP or MS-CHAP v2 on the client-side and retry.
 LP_DISCONNECTED_ABNORMAL	A PPP protocol error occurred, or the PPP session has been disconnected.
 LP_NEXT_PROTOCOL_IS_NOT_PAP	An invalid protocol (Protocol Number: 0x%x) with non-PAP (Password Authentication Protocol) control packet.
