@@ -1893,8 +1893,8 @@ LP_SET_IPV4_PARAM		IP-адрес и другие сетевые параметр
 
 
 # (Virtual Hub log)
-LH_ONLINE				The Virtual Hub is now online.
-LH_OFFLINE				The Virtual Hub is now offline.
+LH_ONLINE				Virtual Hub включен.
+LH_OFFLINE				Virtual Hub отключен.
 LH_CONNECT_CLIENT		The connection "%S" (IP address: %S, Host name: %S, Port number: %u, Client name: "%S", Version: %S, Build: %u) is attempting to connect to the Virtual Hub. The auth type provided is "%s" and the user name is "%S".
 LH_AUTH_UNKNOWN			Unknown auth type.
 LH_AUTH_ANONYMOUS		Anonymous authentication
