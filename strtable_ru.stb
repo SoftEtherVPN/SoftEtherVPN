@@ -398,6 +398,7 @@ PW_TYPE_1				Авторизация по логину и паролю
 PW_TYPE_2				RADIUS или авторизация в домене 
 PW_TYPE_3				Авторизация по сертификату
 PW_TYPE_4				Авторизация по смарт-карте
+PW_TYPE_5				Openssl авторизация
 
 PW_MSG_PROXY			Ошибка авторизации пользователя на прокси-сервере %S. Введите правильное имя пользователя и пароль.
 PW_TYPE_PROXY			Авторизация на прокси-сервере
@@ -1792,6 +1793,13 @@ LS_API_AUTH_OK			HTTPS API клиент "%r:%u" (%S): Режим админис�
 LS_API_AUTH_ERROR		HTTPS API клиент "%r:%u" (%S): Встроенный HTTPS веб-сервер отклонил попытку входа в систему. Имя пользователя: "%S", Метод: "%S", Путь: "%S"
 LS_API_RPC_CALL			HTTPS API клиент "%r:%u" (%S): Клиент вызвал JSON-API. Метод: "%S", Возвращенный код ошибки: %u (0 = успех), Возвращенное сообщение об ошибке: "%s"
 
+
+# (Proto log)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Сессия создана.
+LP_SESSION_DELETED		Сессия удалена.
+
+
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN модуль: 
 LO_PREFIX_SESSION		OpenVPN сессия %u (%r:%u -> %r:%u): 
@@ -1803,15 +1811,11 @@ LO_CLIENT_CERT			Сертификат клиента получен (subject: CN
 LO_CLIENT_UNVERIFIED_CERT		Был предоставлен сертификат клиента, но он не прошел проверку (ошибка="%S"), будет использоваться авторизация по паролю.
 LO_CLIENT_NO_CERT		Не предоставлен сертификат клиента, будет использоваться авторизация по паролю.
 LO_OPTION_STR_SEND		Строки параметров для отправки: "%S"
-LO_NEW_SESSION			Создается новая сессия. Протокол: %S
 LO_INITIATE_REKEY		Начинается процесс смены ключей.
 LO_CHANNEL_ESTABLISHED	Канал переходит в состояние "установлен"
 LO_PUSH_REPLY			Полные строки ответа: "%S"
 LO_CHANNEL_FAILED		Не удалось подключить канал.
 LO_CHANNEL_DISCONNECTED_BY_HUB	Этот OpenVPN канал прерывается, потому что Virtual Hub администратор отключил эту VPN сессию.
-LO_DELETE_SESSION		Удаление сессии.
-LO_START				Запускается модуль OpenVPN сервера.
-LO_STOP					Остановлен модуль OpenVPN сервера.
 
 
 # (IPsec Logs)
@@ -1867,25 +1871,25 @@ LP_PREFIX				%S%SPPP сессия [%S:%u]:
 LP_CONNECTED			Запущена новая PPP сессия (Протокол: %S). IP-адрес PPP клиента: %S (Имя хоста: "%S"), Номер порта PPP клиента: %u, IP-адрес PPP сервера: %S, Номер порта PPP сервера: %u, ПО: "%S", IPv4 TCP MSS (максимальный размер сегмента): %u байт
 LP_DISCONNECTED			PPP сессия отключена.
 LP_PAP_REJECTED			Клиент отказался принять протокол аутентификации "PAP" (Password Authentication Protocol, протокол аутентификации с открытым текстом пароля). Включите PAP на стороне клиента и повторите попытку.
-LP_PAP_MSCHAPV2_REJECTED	The client denied to accept both the "PAP" (Password Authentication Protocol, a clear-text password authentication protocol) and MS-CHAP v2 Protocol. Enable either PAP or MS-CHAP v2 on the client-side and retry.
-LP_DISCONNECTED_ABNORMAL	A PPP protocol error occurred, or the PPP session has been disconnected.
-LP_NEXT_PROTOCOL_IS_NOT_PAP	An invalid protocol (Protocol Number: 0x%x) with non-PAP (Password Authentication Protocol) control packet.
-LP_PAP_FAILED			"PAP" (Password Authentication Protocol, a clear-text password authentication protocol) user authentication failed.
-LP_MSCHAPV2_FAILED		"MS-CHAP v2" (Microsoft Challenge and Response Protocol Version 2.0) user authentication failed.
-LP_NEXT_PROTOCOL_IS_NOT_IPCP	An invalid protocol (Protocol Number: 0x%x) with non-IPCP (IP Configuration Protocol) control packet.
-LP_DATA_TIMEOUT			A timeout on the PPP data transmitting occurred. The PPP client might be disconnected from the network.
-LP_CONTROL_TIMEOUT		A timeout on the PPP control transmitting occurred. No responses from the PPP client.
-LP_VPN_SESSION_TERMINATED	The PPP session is disconnected because the VPN Session has been disconnected by the administrator.
-LP_UPPER_PROTOCOL_DISCONNECTED	The PPP session is disconnected because the upper-layer protocol "%S" has been disconnected.
-LP_NORMAL_TERMINATE		The PPP session is disconnected by the VPN Client's disconnecting request.
-LP_IP_ADDRESS_NOT_DETERMIND	The VPN Client sent a packet though an IP address of the VPN Client hasn't been determined.
-LP_DHCP_REQUEST_TRYING	Trying to request an IP address from the DHCP server.
-LP_DHCP_REQUEST_OK		An IP address is assigned. IP Address of Client: %S, Subnet Mask: %S, Default Gateway: %S, Domain Name: "%S", DNS Server 1: %S, DNS Server 2: %S, WINS Server 1: %S, WINS Server 2: %S, IP Address of DHCP Server: %S, Lease Lifetime: %u seconds
-LP_DHCP_REQUEST_NG		Acquiring an IP address from the DHCP server failed. To accept a PPP session, you need to have a DHCP server. Make sure that a DHCP server is working normally in the Ethernet segment which the Virtual Hub belongs to. If you do not have a DHCP server, you can use the Virtual DHCP function of the SecureNAT on the Virtual Hub instead.
-LP_DHCP_INFORM_TRYING	Acquiring the IP networking information such as subnet mask and the default gateway information from the DHCP server.
-LP_DHCP_INFORM_OK		The networking information has been acquired. Subnet Mask: %S, Default Gateway: %S, Domain Name: "%S", DNS Server 1: %S, DNS Server 2: %S, WINS Server 1: %S, WINS Server 2: %S, IP Address of DHCP Server: %S
-LP_DHCP_INFORM_NG		Acquiring the networking information from the DHCP server failed. To accept a PPP session, you need to have a DHCP server. Make sure that a DHCP server is working normally in the Ethernet segment which the Virtual Hub belongs to. If you do not have a DHCP server, you can use the Virtual DHCP function of the SecureNAT on the Virtual Hub instead.
-LP_SET_IPV4_PARAM		The IP address and other network information parameters are set successfully. IP Address of Client: %S, Subnet Mask: %S, Default Gateway: %S, DNS Server 1: %S, DNS Server 2: %S, WINS Server 1: %S, WINS Server 2: %S
+LP_PAP_MSCHAPV2_REJECTED	Клиент отказался принять оба протокола аутентификации "PAP" (Password Authentication Protocol, протокол аутентификации с открытым текстом пароля) и MS-CHAP v2. Включите PAP или MS-CHAP v2 на стороне клиента и повторите попытку. 
+LP_DISCONNECTED_ABNORMAL	Произошла ошибка протокола PPP или PPP сессия был отключена.
+LP_NEXT_PROTOCOL_IS_NOT_PAP	Неверный протокол (Номер протокола: 0x%x) с контрольным пакетом, отличным от PAP (Password Authentication Protocol).
+LP_PAP_FAILED			Ошибка аутентификации пользователя "PAP" (Password Authentication Protocol, протокол аутентификации с открытым текстом пароля).
+LP_MSCHAPV2_FAILED	Ошибка аутентификации пользователя "MS-CHAP v2" (Microsoft Challenge and Response Protocol Version 2.0).
+LP_NEXT_PROTOCOL_IS_NOT_IPCP	Неверный протокол (Номер протокола: 0x%x) с контрольным пакетом, отличным от IPCP (IP Configuration Protocol).
+LP_DATA_TIMEOUT			Истекло время ожидания передачи PPP данных. PPP клиент может быть отключен от сети.
+LP_CONTROL_TIMEOUT		Истекло время ожидания контрольной передачи PPP данных. Нет ответов от PPP клиента.
+LP_VPN_SESSION_TERMINATED	PPP сессия отключена, потому что VPN сессия была отключена администратором.
+LP_UPPER_PROTOCOL_DISCONNECTED	PPP сессия отключена из-за отключения протокола верхнего уровня "%S".
+LP_NORMAL_TERMINATE		PPP сессия прервана из-за запроса на отключение от VPN-клиента.
+LP_IP_ADDRESS_NOT_DETERMIND	VPN-клиент отправил пакет, хотя IP-адрес VPN-клиента не был определен.
+LP_DHCP_REQUEST_TRYING	Попытка запросить IP-адрес у DHCP-сервера.
+LP_DHCP_REQUEST_OK	Назначен IP-адрес. IP-адрес клиента: %S, Маска подсети: %S, Шлюз по умолчанию: %S, Домен: "%S", DNS-сервер 1: %S, DNS-сервер 2: %S, WINS-сервер 1: %S, WINS Сервер 2: %S, IP-адрес DHCP-сервера: %S, Срок аренды: %u секунд
+LP_DHCP_REQUEST_NG		Не удалось получить IP-адрес от DHCP-сервера. Чтобы принять PPP сессию, вам необходим DHCP-сервер. Убедитесь, что DHCP-сервер нормально работает в Ethernet сегменте, которому принадлежит Virtual Hub. Если у вас нет DHCP-сервера, вы можете использовать вместо этого функцию SecureNAT виртуального DHCP на Virtual Hub.
+LP_DHCP_INFORM_TRYING	Получение сетевой информации от DHCP-сервера, такой как шлюз по умолчанию и маска подсети.
+LP_DHCP_INFORM_OK		Сетевая информация получена. Маска подсети: %S, Шлюз по умолчанию: %S, Домен: "%S", DNS-сервер 1: %S, DNS-сервер 2: %S, WINS-сервер 1: %S, WINS-сервер 2: %S, IP-адрес DHCP-сервера: %S
+LP_DHCP_INFORM_NG		Не удалось получить сетевую информацию от DHCP-сервера. Чтобы принять PPP сессию, вам необходим DHCP-сервер. Убедитесь, что DHCP-сервер нормально работает в Ethernet сегменте, которому принадлежит Virtual Hub. Если у вас нет DHCP-сервера, вы можете использовать вместо этого функцию SecureNAT виртуального DHCP на Virtual Hub.
+LP_SET_IPV4_PARAM		IP-адрес и другие сетевые параметры успешно получены. IP-адрес клиента: %S, Маска подсети: %S, Шлюз по умолчанию: %S, DNS-сервер 1: %S, DNS-сервер 2: %S, WINS-сервер 1: %S, WINS-сервер 2: %S
 
 
 # (Virtual Hub log)
