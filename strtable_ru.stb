@@ -1906,15 +1906,15 @@ LH_AUTH_OPENVPN_CERT    Авторизация по OpenVPN сертификат
 LH_AUTH_RADIUS_NOT_SUPPORT	Подключение "%S": Метод авторизации пользователя "%S" был указан как RADIUS или авторизация в домене Active Directory. Однако версия VPN-сервера - "%S". Эта версия не поддерживает RADIUS или авторизацию в домене Active Directory. В подключении будет отказано.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Подключение "%S": Метод авторизации пользователя "%S" был указан как RADIUS или авторизация в домене Active Directory. Однако такая функция внешней авторизации пользователя еще не реализована в этой версии SoftEther VPN. В подключении будет отказано.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Подключение "%S": Метод авторизации пользователя "%S" был указан как Авторизация по сертификату. Однако функция Авторизации по сертификату еще не реализована в этой версии SoftEther VPN. В подключении будет отказано.
-LH_AUTH_OK				Подключение "%S": Успешная авторизация как пользователь "%S".
+LH_AUTH_OK				Подключение "%S": Успешная авторизация пользователя "%S".
 LH_AUTH_OK_CERT			Менеджер учетных записей Virtual Hub получил от VPN-клиента следующий сертификат и принял его содержимое в качестве сертификата пользователя "%S" для входа в: %s.
-LH_AUTH_NG_CERT			Although the Virtual Hub's Security Account Manager has received the following certificate, has refused its contents as the certificate for when user "%S" logs in because this certificate's contents matches the contents that are registered in the Virtual Hub's certificates revocation list: %s
-LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S".
-LH_LOCAL_ONLY			Connection "%S": The remote login has been refused because of the password for user "%S" is blank.
-LH_POLICY_ACCESS_NG		Connection "%S": Access has beens refused to user "%S" based on the security policy.
-LH_USER_EXPIRES			Connection "%S": Access has been refused to user "%S" because of the expiration date has been expired.
-LH_CLIENT_VERSION_OLD	Connection "%S": The build number of the VPN Client is %u. Only the build %u or latest version of VPN Client is granted to access the VPN Server.
-LH_CLIENT_ID_REQUIRED	Connection "%S": The Client ID which has been specified by the VPN Client is %u. However, this Virtual Hub has the RequiredClientId value set to %u.
+LH_AUTH_NG_CERT			Хотя менеджер учетных записей Virtual Hub получил следующий сертификат, он отклонил содержимое этого сертификата для пользователя "%S", поскольку этот сертификат находится в списке отозванных сертификатов Virtual Hub: %s
+LH_AUTH_NG				Подключение "%S": Ошибка авторизации пользователя. Было предоставлено имя пользователя "%S".
+LH_LOCAL_ONLY			Подключение "%S": В удаленном входе в систему отказано, поскольку пароль для пользователя "%S" пуст.
+LH_POLICY_ACCESS_NG		Подключение "%S": Пользователю "%S" отказано в доступе на основании политики безопасности.
+LH_USER_EXPIRES			Подключение "%S": Пользователю "%S" отказано в доступе, т.к. истек срок действия его учетной записи.
+LH_CLIENT_VERSION_OLD	Подключение "%S": Номер сборки VPN-клиента: %u. Только сборка %u или последняя версия VPN-клиента могут подключаться к VPN-серверу.
+LH_CLIENT_ID_REQUIRED	Подключение "%S": ID клиента - %u. Однако этот Virtual Hub имеет значение RequiredClientId, равное %u.
 LH_FARM_SELECT_1		Connection "%S": The cluster controller is deciding the destination cluster member of this client.
 LH_FARM_SELECT_2		Connection "%S": Failed to decide the destination cluster member server.
 LH_FARM_SELECT_3		Connection "%S": This current VPN Server has been decided as the destination cluster member server. Proceeding to receive connection.
@@ -2087,9 +2087,9 @@ LE_DELETE				The free disk space is now less then %S so the old file "%S" has be
 LE_NOT_ENOUGH_FREE		<<WARNING>> If the free disk space becomes lower than %S, it will no longer be possible to automatically delete the old backup files of log files and configurations. We recommend that you immediately manually delete the unnecessary files on this computer and recover the necessary free disk space. When there is a very small amount of free disk space, computer operation can become unstable. 
 
 # (Layer 3 Switch log)
-L3_SWITCH_START			The Virtual Layer 3 Switch "%S" started. It will wait until the Virtual Hubs of all interfaces registered on this switch become online and then it will start operation.
-L3_SWITCH_ONLINE		The Virtual Hubs of all interfaces of the Virtual Layer 3 Switch "%S" are online and the Virtual Layer 3 Switch has commenced Virtual Layer 3 Switch operation.
-L3_SWITCH_OFFLINE		At least one Virtual Hub of an interface registered on Virtual Layer 3 Switch "%S" stopped, and Virtual Layer 3 Switch operation has been stopped.
+L3_SWITCH_START			Виртуальный коммутатор 3-го уровня "%S" запущен. Он будет ждать, пока все Virtual Hub на всех интерфейсах, зарегистрированных на этом коммутаторе, не будут включены, а затем начнет работу.
+L3_SWITCH_ONLINE		Все Virtual Hub всех интерфейсов виртуального коммутатора 3-го уровня "%S" включены, и виртуальный коммутатор 3-го уровня начал работу.
+L3_SWITCH_OFFLINE		По крайней мере на одном из интерфейсов виртуального коммутатора 3-го уровня "%S" выключен Virtual Hub, и работа виртуального коммутатора 3-го уровня остановлена.
 L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
 
 
