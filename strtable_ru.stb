@@ -1895,18 +1895,18 @@ LP_SET_IPV4_PARAM		IP-адрес и другие сетевые параметр
 # (Virtual Hub log)
 LH_ONLINE				Virtual Hub включен.
 LH_OFFLINE				Virtual Hub отключен.
-LH_CONNECT_CLIENT		The connection "%S" (IP address: %S, Host name: %S, Port number: %u, Client name: "%S", Version: %S, Build: %u) is attempting to connect to the Virtual Hub. The auth type provided is "%s" and the user name is "%S".
-LH_AUTH_UNKNOWN			Unknown auth type.
-LH_AUTH_ANONYMOUS		Anonymous authentication
-LH_AUTH_PASSWORD		Password authentication
-LH_AUTH_PLAIN_PASSWORD	External server authentication
-LH_AUTH_CERT			Certificate authentication
-LH_AUTH_TICKET			Ticket authentication
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
-LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
-LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
-LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
-LH_AUTH_OK				Connection "%S": Successfully authenticated as user "%S".
+LH_CONNECT_CLIENT		Подключение "%S" (IP-адрес: %S, мя хоста: %S, Номер порта: %u, Клиент: "%S", Версия: %S, Сборка: %u) пытается соединиться с Virtual Hub. Тип авторизации "%s", а имя пользователя "%S".
+LH_AUTH_UNKNOWN			Неизвестный тип авторизации.
+LH_AUTH_ANONYMOUS		Анонимный вход
+LH_AUTH_PASSWORD		Авторизация по паролю
+LH_AUTH_PLAIN_PASSWORD	Авторизация на внешнем сервере
+LH_AUTH_CERT			Авторизация по сертификату
+LH_AUTH_TICKET			Авторизация в домене
+LH_AUTH_OPENVPN_CERT    Авторизация по OpenVPN сертификату
+LH_AUTH_RADIUS_NOT_SUPPORT	Подключение "%S": Метод авторизации пользователя "%S" был указан как RADIUS или авторизация в домене Active Directory. Однако версия VPN-сервера - "%S". Эта версия не поддерживает RADIUS или авторизацию в домене Active Directory. В подключении будет отказано.
+LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Подключение "%S": Метод авторизации пользователя "%S" был указан как RADIUS или авторизация в домене Active Directory. Однако такая функция внешней авторизации пользователя еще не реализована в этой версии SoftEther VPN. В подключении будет отказано.
+LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Подключение "%S": Метод авторизации пользователя "%S" был указан как Авторизация по сертификату. Однако функция Авторизации по сертификату еще не реализована в этой версии SoftEther VPN. В подключении будет отказано.
+LH_AUTH_OK				Подключение "%S": Успешная авторизация как пользователь "%S".
 LH_AUTH_OK_CERT			The Virtual Hub's Security Account Manager has received the following certificate from the VPN Client and accepted its contents as the certificate for when user "%S" logs in: %s
 LH_AUTH_NG_CERT			Although the Virtual Hub's Security Account Manager has received the following certificate, has refused its contents as the certificate for when user "%S" logs in because this certificate's contents matches the contents that are registered in the Virtual Hub's certificates revocation list: %s
 LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S".
