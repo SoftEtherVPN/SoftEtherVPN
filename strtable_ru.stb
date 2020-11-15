@@ -3013,7 +3013,7 @@ B_PACKET_7_1			Заголовки
 B_PACKET_7_2			Заголовки и данные
 IDOK					&OK
 IDCANCEL				Отмена
-STATIC3					Сохранение большого количества журналов пакетов может создать большую нагрузку на ЦП и жесткий диск и может снизить производительность Virtual Hub и всего VPN-сервера. Включите регистрацию только в том журнале пакетов, который необходимо сохранить.
+STATIC3					Сохранение большого количества пакетов может создать сильную нагрузку на ЦП и жесткий диск и может снизить производительность Virtual Hub и всего VPN-сервера. Включите регистрацию только в тех журналах, которые необходимо сохранить.
 
 
 PREFIX					D_SM_CA
@@ -3101,22 +3101,22 @@ PREFIX					D_NM_MAIN
 CAPTION					deleted
 STATIC1					deleted
 STATIC2					deleted
-B_SETTING				Connection Setting for VPN Server
-B_CONNECT				&Connect
-B_DISCONNECT			&Disconnect
-STATIC3					Operation Settings of User-mode Router
-STATIC4					You can set the operations in a virtual network of a SoftEther VPN User-mode Router.
-B_OPTION				&Operation Settings of User-mode Router
-STATIC5					Operating Status of User-mode Router
-STATIC6					Displays the current operating status of the SoftEther VPN User-mode Router.
-B_NAT					Virtual &NAT Status
-B_DHCP					Virtual D&HCP Server Status
-B_STATUS				User-mode &Router Status
-B_INFO					User-mode Router &Information
-B_PASSWORD				Administration &Password Setting
-B_REFRESH				Refr&esh
-B_ABOUT					&About...
-IDCANCEL				E&xit
+B_SETTING				Настройка подключения для VPN-сервера
+B_CONNECT				&Подключить
+B_DISCONNECT			&Отключить
+STATIC3					Рабочие настройки в режиме роутера
+STATIC4					Вы можете настроить операции в виртуальной сети SoftEther VPN в режиме роутера.
+B_OPTION				&Рабочие настройки в режиме роутера
+STATIC5					Рабочее состояние в режиме роутера
+STATIC6					Отображает текущее рабочее состояние SoftEther VPN в режиме роутера.
+B_NAT					Cостояние виртуального NAT
+B_DHCP					Состояние виртуального DHCP-сервера
+B_STATUS				Состояние роутера
+B_INFO					Информация о роутере
+B_PASSWORD				Установка пароля администратора
+B_REFRESH				Обновить
+B_ABOUT					О режиме роутера...
+IDCANCEL				Выход
 
 
 PREFIX					D_NM_OPTION
@@ -3225,56 +3225,56 @@ STATIC1					Виртуальный сетевой адаптер VPN-клиен�
 
 
 PREFIX					D_EM_MAIN
-CAPTION					SoftEther EtherLogger Manager
-STATIC1					SoftEther EtherLogger is a service that captures data flowing through LAN cards connected to the computer and keeps a log of the headers of the packet types specified by the administrator and all data in text file format. \r\n\r\nCurrently, the following capture devices are performing capture logging.
-B_PASSWORD				Administration &Password
-B_LICENSE				&License
-B_ADD					&Add
-IDOK					&Edit
-B_DELETE				&Delete
-IDCANCEL				E&xit
+CAPTION					SoftEther EtherLogger Менеджер
+STATIC1					SoftEther EtherLogger - это служба, которая фиксирует данные, проходящие через сетевые карты, подключенные к компьютеру, и ведет журнал заголовков типов пакетов и всех данных, указанных администратором, в формате текстового файла.\r\n\r\nВ настоящее время следующие устройства захвата ведут журнала.
+B_PASSWORD				Пароль администратора
+B_LICENSE				&Лицензия
+B_ADD					&Добавить
+IDOK					&Изменить
+B_DELETE				&Удалить
+IDCANCEL				Выход
 
 
 PREFIX					D_EM_ADD
-STATIC1					Name of Network Adapter Used for Capture:
-R_PROMISCUOUS				Do&n't Use Promiscuous Mode During Capture
-STATIC2					&Packet Log: 
-S_PACKET				Log File S&witch Cycle: 
-S_PACKET_0				TCP Connection Log: 
-B_PACKET_0_0			Save Nothing
-B_PACKET_0_1			Header Information Only
+STATIC1					Сетевой адаптер, используемый для захвата:
+R_PROMISCUOUS				Не использовать беспорядочный режим во время захвата
+STATIC2					&Журнал пакетов: 
+S_PACKET				Ротация файла журнала: 
+S_PACKET_0				TCP соединения: 
+B_PACKET_0_0			Не сохр.
+B_PACKET_0_1			Заголовки
 B_PACKET_0_2			Whole Packet Contents
-S_PACKET_1				TCP Packet Log: 
-B_PACKET_1_0			Save Nothing
-B_PACKET_1_1			Header Information Only
-B_PACKET_1_2			Whole Packet Contents
-S_PACKET_2				DHCP Packet Log: 
-B_PACKET_2_0			Save Nothing
-B_PACKET_2_1			Header Information Only
-B_PACKET_2_2			Whole Packet Contents
-S_PACKET_3				UDP Packet Log: 
-B_PACKET_3_0			Save Nothing
-B_PACKET_3_1			Header Information Only
-B_PACKET_3_2			Whole Packet Contents
-S_PACKET_4				ICMP Packet Log: 
-B_PACKET_4_0			Save Nothing
-B_PACKET_4_1			Header Information Only
-B_PACKET_4_2			Whole Packet Contents
-S_PACKET_5				IP Packet Log: 
-B_PACKET_5_0			Save Nothing
-B_PACKET_5_1			Header Information Only
-B_PACKET_5_2			Whole Packet Contents
-S_PACKET_6				ARP Packet Log: 
-B_PACKET_6_0			Save Nothing
-B_PACKET_6_1			Header Information Only
-B_PACKET_6_2			Whole Packet Contents
-S_PACKET_7				Ethernet\r\nPacket Log: 
-B_PACKET_7_0			Save Nothing
-B_PACKET_7_1			Header Information Only
-B_PACKET_7_2			Whole Packet Contents
+S_PACKET_1				TCP пакеты: 
+B_PACKET_1_0			Не сохр.
+B_PACKET_1_1			Заголовки
+B_PACKET_1_2			Все данные
+S_PACKET_2				DHCP пакеты: 
+B_PACKET_2_0			Не сохр.
+B_PACKET_2_1			Заголовки
+B_PACKET_2_2			Все данные
+S_PACKET_3				UDP пакеты: 
+B_PACKET_3_0			Не сохр.
+B_PACKET_3_1			Заголовки
+B_PACKET_3_2			Все данные
+S_PACKET_4				ICMP пакеты: 
+B_PACKET_4_0			Не сохр.
+B_PACKET_4_1			Заголовки
+B_PACKET_4_2			Все данные
+S_PACKET_5				IP пакеты: 
+B_PACKET_5_0			Не сохр.
+B_PACKET_5_1			Заголовки
+B_PACKET_5_2			Все данные
+S_PACKET_6				ARP пакеты: 
+B_PACKET_6_0			Не сохр.
+B_PACKET_6_1			Заголовки
+B_PACKET_6_2			Все данные
+S_PACKET_7				Ethernet\r\nпакеты: 
+B_PACKET_7_0			Не сохр.
+B_PACKET_7_1			Заголовки
+B_PACKET_7_2			Все данные
 IDOK					&OK
-IDCANCEL				Cancel
-STATIC3					Saving large volume packet logs can place a large burden on the CPU and the hard disk and it can cause lower performance of the entire system. Please configure settings so that only the necessary packet log information is saved.
+IDCANCEL				Отмена
+STATIC3					Сохранение большого количества пакетов может создать большую нагрузку на ЦП и жесткий диск и может снизить производительность всей системы. Настройте параметры так, чтобы сохранялась только необходимая информация.
 
 
 PREFIX					D_EM_PASSWORD
@@ -3712,9 +3712,9 @@ IDCANCEL				Выход
 
 
 PREFIX					D_SM_LICENSE_ADD
-CAPTION					Add License Keys
-S_INFO					You can register a SoftEther VPN Server product license or a connection license.
-STATIC1					The license keys are 36 alphanumeric characters in length plus dashes. They are key codes that certify the ownership of a license. \r\n\r\nWhen a license certificate is received together with this software, the license key is printed on this license certificate. If the license for this software has been purchased online, the license key is provided by email and on the website window at the time the license is purchased. The license key may also be written down by some other method. If you don't know where the license key is written down, ask the vendor who sold you the license.
+CAPTION					Добавить лицензионные ключи
+S_INFO					Вы можете зарегистрировать лицензию на SoftEther VPN Server или лицензию на подключение.
+STATIC1					Лицензионные ключи состоят из 36 символов. Это код, подтверждающий право собственности на лицензию. \r\n\r\nWhen a license certificate is received together with this software, the license key is printed on this license certificate. If the license for this software has been purchased online, the license key is provided by email and on the website window at the time the license is purchased. The license key may also be written down by some other method. If you don't know where the license key is written down, ask the vendor who sold you the license.
 STATIC2					&Input the License Key Accurately:
 STATIC3					Enter the license key by separating the input into 6-digit groups. You don't need to input the dashes. It is also possible to copy && paste the license key.
 B_INFO2					This software is protected by world-wide copyright laws. Customers can only make copies and use this software in accordance with the license conditions. Warning: Use of illegitimately obtained license keys, use of a single license on multiple servers, or unauthorized distribution of licenses is a breach of the license agreement and such action may result in civil or legal proceedings.
