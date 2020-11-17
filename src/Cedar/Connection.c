@@ -337,7 +337,7 @@ WAIT_FOR_ENABLE:
 				{
 					if (StrCmpi(k->ServerName, server_name) != 0 ||
 						k->ServerPort != server_port || k->Enable == false ||
-						k->UdpMode)
+						k->UdpMode == false)
 					{
 						changed = true;
 					}
