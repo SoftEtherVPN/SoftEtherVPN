@@ -43,7 +43,7 @@ sudo apt -y install cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev mak
 
 ## Install requirements on macOS
 ```bash
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 brew install cmake openssl readline
 ```
 
