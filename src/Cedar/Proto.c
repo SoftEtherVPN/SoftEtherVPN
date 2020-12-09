@@ -510,7 +510,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 				const PROTO_CONTAINER *tmp = LIST_DATA(proto->Containers, i);
 				if (StrCmp(tmp->Name, protocol) == 0)
 				{
-					impl = container->Impl;
+					container = tmp;
 					break;
 				}
 			}
