@@ -1919,32 +1919,32 @@ LH_FARM_SELECT_1		Подключение "%S": Контроллер класте
 LH_FARM_SELECT_2		Подключение "%S": Не удалось определить членство в кластере.
 LH_FARM_SELECT_3		Подключение "%S": Этот VPN-сервер был выбран в качестве члена кластера. Продолжаем получать соединение.
 LH_FARM_SELECT_4		Подключение "%S": Сервер "%S" был выбран в качестве члена кластера. Указание клиентам перенаправить подключения к этому серверу.
-LH_MAX_SESSION			Connection "%S": The maximum number of sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
-LH_MAX_SESSION_CLIENT	Connection "%S": The maximum number of client sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
-LH_MAX_SESSION_BRIDGE	Connection "%S": The maximum number of bridge sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
-LH_MAX_SESSION_2		Connection "%S": The maximum number of sessions (%u) that can be managed by a VPN Server has been reached. Unable to create a new session.
-LH_NEW_SESSION			Connection "%S": The new session "%S" has been created. (IP address: %S, Port number: %u, Physical underlying protocol: "%S")
-LH_SET_SESSION			Session "%S": The parameter has been set. Max number of TCP connections: %u, Use of encryption: %s, Use of compression: %s, Use of Half duplex communication: %s, Timeout: %u seconds.
-LH_NODE_INFO			Session "%S": VPN Client details: (%s)
-LH_VLAN_ID				Session "%S": Assigned VLAN ID: %u
-LH_INVALID_SIGNATURE	Session "%S": The connected client sent invalid protocol data. Unable to establish normal communication with client. First check for problems with the connections and cabling of the network connecting the client and the server and then check there is not a special transparent packet re-writing device installed.
-LH_END_SESSION			Session "%S": The session has been terminated. The statistical information is as follows: Total outgoing data size: %I64u bytes, Total incoming data size: %I64u bytes.
-LH_BCAST_STORM			Session "%S": A large volume of broadcast packets has been detected. There are cases where packets are discarded based on the policy. The source MAC address is %S, the source IP address is %S, the destination IP address is %S. The number of broadcast packets is equal to or larger than %u items per 1 second (note this information is the result of mechanical analysis of part of the packets and could be incorrect).
-LH_DHCP_FORCE			Session "%S": The packet was discarded because it has been attempting to use the IP address %S, which is not a DHCP server allocated IP address.
-LH_MAC_LIMIT			Session "%S": Although the virtual hub has attempt to assign a new MAC address "%S" was made, %u MAC addresses have already been assigned for this service. According to the security policy, this session is allowed to have a maximum of %u MAC addresses. The packet has been discarded.
-LH_BRIDGE_LIMIT			Session "%S": Although the virtual hub has attempt to assign a new MAC address "%S" was made, %u MAC addresses have already been assigned for this service. According to the security policy, this session is denied bridges and is therefore allowed to hold no more than %u MAC addresses. The packet has been discarded.
-LH_MAC_REGIST			Session "%S": A new MAC address "%S" has been assigned.
-LH_MAC_REGIST_VLAN		Session "%S": A new MAC address "%S" (VLAN ID: %u) has been assigned.
-LH_IP_LIMIT				Session "%S": Although the virtual hub has attempt to assign a new IP address %S was made, %u IP addresses have already been assigned for this service. According to the security policy, this session is allowed to have a maximum of %u IP addresses. The packet has been discarded.
-LH_ROUTING_LIMIT		Session "%S": Although the virtual hub has attempt to assign a new IP address %S was made, %u IP addresses have already been assigned for this service. According to the security policy, this session is denied routing and is therefore allowed to hold no more than %u IP addresses. The packet has been discarded.
-LH_IP_CONFLICT			Session "%S": Although the virtual hub has attempt to use the IP address %S was made, this IP address is already being used by another session "%S" (MAC Address: "%S"). The security policy for this session denies duplication of IP addresses that are used by other sessions. The packet has been discarded. Detailed Information: CreatedTime=%I64u, UpdatedTime=%I64u, DhcpAllocated=%u, Now=%I64u
-LH_NO_SERVER			Session "%S": Although TCP/IP connection request (from %S:%u to %S:%u) was made to this session, because of the security policy denies operation as a server, the packet has been discarded.
-LH_NO_DHCP				Session "%S": Although host %S on this session sent a packet that allocates an IP address as a DHCP server for host %S on another session, this session's security policy denies operation as a DHCP server. The packet has been discarded.
-LH_REGIST_DHCP			Session "%S": The DHCP server of host "%S" (%S) on this session allocated, for host "%S" on another session "%S", the new IP address %S.
-LH_BRIDGE_1				Session "%S": A Local Bridge connection to physical Ethernet interface "%S" was started.
-LH_BRIDGE_2				Session "%S": Because communication has failed to be established with physical Ethernet interface "%S", the Local Bridge has stopped.
-LH_SET_MTU				Session "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. The MTU is now changed to %u.
-LH_SET_MTU_ERROR		Session "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. However, changing the MTU to %u failed. This physical Ethernet interface or device driver might be unable to process an Ethernet packet which has more 1,514 bytes (payload size: 1,500 bytes). In such case, the larger tagged-VLAN packets than 1,514 bytes cannot be transmitted. You should replace the current physical Ethernet adapter to another which supports Jumbo Frames. You can also try to update the device driver. Another possible method is to enable Jumbo Frames on the operating system or device driver settings.
+LH_MAX_SESSION			Подключение "%S": Достигнуто максимальное количество сессий (%u), которое может быть установлено с Virtual Hub. Невозможно создать новую сессию.
+LH_MAX_SESSION_CLIENT	Подключение "%S": Достигнуто максимальное количество клиентских сессий (%u), которое может быть установлено с Virtual Hub. Невозможно создать новую сессию.
+LH_MAX_SESSION_BRIDGE	Подключение "%S": Достигнуто максимальное количество сессий типа мост (%u), которое может быть установлено с Virtual Hub. Невозможно создать новую сессию.
+LH_MAX_SESSION_2		Подключение "%S": Достигнуто максимальное количество сессий (%u), которыми может управлять VPN-сервер. Невозможно создать новую сессию.
+LH_NEW_SESSION			Подключение "%S": Создана новая сессия "%S". (IP-адрес: %S, Номер порта: %u, Физический базовый протокол: "%S")
+LH_SET_SESSION			Сессия "%S": Параметр установлен. Максимальное количество TCP-соединений: %u, Использование шифрования: %s, Использование сжатия: %s, Использование полудуплексной связи: %s, Тайм-аут: %u секунд.
+LH_NODE_INFO			Сессия "%S": Детали VPN-клиента: (%s)
+LH_VLAN_ID				Сессия "%S": Назначенный VLAN ID: %u
+LH_INVALID_SIGNATURE	Сессия "%S": Подключенный клиент отправил неверные данные протокола. Невозможно установить нормальную связь с клиентом. Сначала проверьте наличие проблем с  подключением между клиентом и сервером, а затем проверьте, не установлено ли специальное устройство перезаписи пакетов.
+LH_END_SESSION			Сессия "%S": Сессия завершена. Статистика выглядит следующим образом: Общий размер исходящих данных: %I64u байт, Общий размер входящих данных: %I64u байт. 
+LH_BCAST_STORM			Сессия "%S": Обнаружен большой объем широковещательных пакетов. Бывают случаи, когда пакеты отбрасываются в соответствии с политикой. MAC-адрес источника - %S, IP-адрес источника - %S, IP-адрес назначения - %S. Количество широковещательных пакетов равно или превышает %u в секунду (обратите внимание, что эта информация является результатом механического анализа части пакетов и может быть неверной).
+LH_DHCP_FORCE			Сессия "%S": Пакет был отброшен, так как он пытался использовать IP-адрес %S, который не является IP-адресом, выделенным DHCP-сервером.
+LH_MAC_LIMIT			Сессия "%S": Хотя Virtual Hub пытался назначить новый MAC-адрес "%S", до этого уже было назначено %u MAC-адресов. Согласно политике безопасности этой сессии разрешено иметь максимум %u MAC-адресов. Пакет был отброшен. 
+LH_BRIDGE_LIMIT			Сессия "%S": Хотя Virtual Hub пытался назначить новый MAC-адрес "%S", до этого уже было назначено %u MAC-адресов. Согласно политике безопасности этой сессии запрещены мосты, и поэтому ей разрешено иметь максимум %u MAC-адресов. Пакет был отброшен.
+LH_MAC_REGIST			Сессия "%S": Назначен новый MAC-адрес "%S".
+LH_MAC_REGIST_VLAN		Сессия "%S": Назначен новый MAC-адрес "%S" (VLAN ID: %u).
+LH_IP_LIMIT				Сессия "%S": Хотя Virtual Hub пытался назначить новый IP-адрес %S, до этого уже было назначено %u IP-адресов. Согласно политике безопасности этой сессии разрешено иметь максимум %u IP-адресов. Пакет был отброшен.
+LH_ROUTING_LIMIT		Сессия "%S": Хотя Virtual Hub пытался назначить новый IP-адрес %S, до этого уже было назначено %u IP-адресов. Согласно политике безопасности этой сессии запрещена маршрутизация, поэтому ей разрешено иметь максимум %u IP-адресов. Пакет был отброшен.
+LH_IP_CONFLICT			Сессия "%S": Хотя Virtual Hub пытается использовать IP-адрес %S, этот IP-адрес уже используется другой сессией "%S" (MAC-адрес: "%S"). Политика безопасности для этой сессии запрещает дублирование IP-адресов, используемых другими сессиями. Пакет был отброшен. Подробная информация: CreatedTime=%I64u, UpdatedTime=%I64u, DhcpAllocated=%u, Now=%I64u
+LH_NO_SERVER			Сессия "%S": Хотя запрос TCP/IP соединения (от %S:%u до %S:%u) был сделан для этой сессии, пакет был отброшен из-за того, что политика безопасности запрещает работу в качестве сервера.
+LH_NO_DHCP				Сессия "%S": Хотя хост %S в этой сессии отправил пакет от DHCP-сервера, который выделяет IP-адрес для хоста %S в другой сессии, политика безопасности этой сессии запрещает работу в качестве DHCP-сервера. Пакет был отброшен.
+LH_REGIST_DHCP			Сессия "%S": DHCP-сервер хоста "%S" (%S) в этой сессии выделил хосту "%S" в другой сессии "%S" новый IP-адрес %S.
+LH_BRIDGE_1				Сессия "%S": Было запущено подключение типа Локальный мост к физическому Ethernet интерфейсу "%S".
+LH_BRIDGE_2				Сессия "%S": Поскольку не удалось установить связь с физическим Ethernet интерфейсом "%S", Локальный мост остановлен.
+LH_SET_MTU				Сессия "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. The MTU is now changed to %u.
+LH_SET_MTU_ERROR		Сессия "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. However, changing the MTU to %u failed. This physical Ethernet interface or device driver might be unable to process an Ethernet packet which has more 1,514 bytes (payload size: 1,500 bytes). In such case, the larger tagged-VLAN packets than 1,514 bytes cannot be transmitted. You should replace the current physical Ethernet adapter to another which supports Jumbo Frames. You can also try to update the device driver. Another possible method is to enable Jumbo Frames on the operating system or device driver settings.
 LH_START_BRIDGE			The Local Bridge connection "%S" has started. The bridge session "%S" was created.
 LH_STOP_BRIDGE			The Local Bridge connection "%S" has stopped.
 LH_LINK_START			The Cascade Connection "%s" has been established. The Cascade session "%S" was created.
@@ -2717,7 +2717,8 @@ S_IP_1					Внешний IP-адрес:
 S_IP_2					(Если внешний IP-адрес не указан, будет взят IP-адрес сетевого интерфейса, используемого при подключении к контроллеру кластера.)           
 S_PORT_1				&Внешние порты:
 S_PORT_2				(Разделяйте несколько портов пробелом или запятой.)
-S_CONTROLLER			Имя хоста или\r\n IP адрес контроллера:               
+S_CONTROLLER			Имя хоста или IP адрес контроллера:   
+               Controller &Host Name or IP Address:
 S_CONTROLLER_PORT		Номер порта\r\nконтроллера:
 S_PORT_3				(TCP порт)
 S_PASSWORD				Пароль администратора: 
