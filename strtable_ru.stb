@@ -4088,11 +4088,11 @@ IDCANCEL				&Закрыть
 
 
 PREFIX					D_SM_VMBRIDGE
-CAPTION					Instructions for Local Bridge on VM
-S_TITLE					Using Local Bridge Function on VM
-S_1						It has been detected that the VPN Server might be running on a VM (Virtual Machine) suchlike VMware or Hyper-V. Read the following instructions carefully. If you are not using a VM, please ignore this message.
-S_2						Some VMs prohibit the "Promiscuous Mode" (MAC Address Spoofing) on the network adapters by default.\r\n\r\nIf the Promiscuous Mode (MAC Address Spoofing) is administratively disabled, the Local Bridge function between a Virtual Hub on the VPN Server and a physical network adapter on the physical computer does not work well. You should allow the Promiscuous Mode (MAC Address Spoofing) by using the configuration tool of the VM.\r\n\r\nFor details please refer the documents of your VM. If it is a shared-VM and administrated by other person, please request the administrator to permit the use of the Promiscuous (MAC Address Spoofing) Mode to your VM.
-S_BOLD					Instructions
+CAPTION					Инструкция для локального моста на ВМ
+S_TITLE					Использование функции локального моста на ВМ
+S_1						Было обнаружено, что VPN-сервер возможно работает на ВМ (виртуальной машине), такой как VMware или Hyper-V. Внимательно прочтите следующую инструкцию. Если вы не используете виртуальную машину, не обращайте внимания на это сообщение.
+S_2						Некоторые виртуальные машины по умолчанию запрещают "Promiscuous Mode" (подмена MAC-адреса) на сетевых адаптерах.\r\n\r\nЕсли Promiscuous Mode (подмена MAC-адреса) отключен, функция локального моста между Virtual Hub на VPN-сервере и физическим сетевым адаптером на компьютере не заработает. Вы должны разрешить Promiscuous Mode (подмена MAC-адреса) с помощью инструмента настройки виртуальной машины.\r\n\r\nДля получения подробной информации обратитесь к документации вашей виртуальной машины. Если это общая виртуальная машина, которую администрирует другой человек, попросите администратора разрешить использование Promiscuous Mode (подмена MAC-адреса) для вашей виртуальной машины. 
+S_BOLD					Инструкция
 IDCANCEL				&OK
 
 
