@@ -1915,10 +1915,10 @@ LH_POLICY_ACCESS_NG		Подключение "%S": Пользователю "%S" 
 LH_USER_EXPIRES			Подключение "%S": Пользователю "%S" отказано в доступе, т.к. истек срок действия его учетной записи.
 LH_CLIENT_VERSION_OLD	Подключение "%S": Номер сборки VPN-клиента: %u. Только сборка %u или последняя версия VPN-клиента могут подключаться к VPN-серверу.
 LH_CLIENT_ID_REQUIRED	Подключение "%S": ID клиента - %u. Однако этот Virtual Hub имеет значение RequiredClientId, равное %u.
-LH_FARM_SELECT_1		Connection "%S": The cluster controller is deciding the destination cluster member of this client.
-LH_FARM_SELECT_2		Connection "%S": Failed to decide the destination cluster member server.
-LH_FARM_SELECT_3		Connection "%S": This current VPN Server has been decided as the destination cluster member server. Proceeding to receive connection.
-LH_FARM_SELECT_4		Connection "%S": The server "%S" has been decided as a destination cluster member server. Instructing clients to redirect connection to this server.
+LH_FARM_SELECT_1		Подключение "%S": Контроллер кластера определяет, является ли этот клиент членом кластера.
+LH_FARM_SELECT_2		Подключение "%S": Не удалось определить членство в кластере.
+LH_FARM_SELECT_3		Подключение "%S": Этот VPN-сервер был выбран в качестве члена кластера. Продолжаем получать соединение.
+LH_FARM_SELECT_4		Подключение "%S": Сервер "%S" был выбран в качестве члена кластера. Указание клиентам перенаправить подключения к этому серверу.
 LH_MAX_SESSION			Connection "%S": The maximum number of sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
 LH_MAX_SESSION_CLIENT	Connection "%S": The maximum number of client sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
 LH_MAX_SESSION_BRIDGE	Connection "%S": The maximum number of bridge sessions (%u) that can be set by the Virtual Hub has been reached. Unable to create a new session.
@@ -2712,12 +2712,12 @@ STATIC3					Настройки кластера:
 R_STANDALONE			&Автономный сервер (без кластера)
 R_CONTROLLER			&Контроллер кластера
 R_MEMBER				Член кластера
-STATIC4					Настраиваемые параметры узла кластера:
+STATIC4					Настраиваемые параметры члена кластера:
 S_IP_1					Внешний IP-адрес:
 S_IP_2					(Если внешний IP-адрес не указан, будет взят IP-адрес сетевого интерфейса, используемого при подключении к контроллеру кластера.)           
 S_PORT_1				&Внешние порты:
 S_PORT_2				(Разделяйте несколько портов пробелом или запятой.)
-S_CONTROLLER			Имя хоста или IP адрес контроллера:               
+S_CONTROLLER			Имя хоста или\r\n IP адрес контроллера:               
 S_CONTROLLER_PORT		Номер порта\r\nконтроллера:
 S_PORT_3				(TCP порт)
 S_PASSWORD				Пароль администратора: 
