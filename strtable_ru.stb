@@ -1943,14 +1943,14 @@ LH_NO_DHCP				Сессия "%S": Хотя хост %S в этой сессии �
 LH_REGIST_DHCP			Сессия "%S": DHCP-сервер хоста "%S" (%S) в этой сессии выделил хосту "%S" в другой сессии "%S" новый IP-адрес %S.
 LH_BRIDGE_1				Сессия "%S": Было запущено подключение типа Локальный мост к физическому Ethernet интерфейсу "%S".
 LH_BRIDGE_2				Сессия "%S": Поскольку не удалось установить связь с физическим Ethernet интерфейсом "%S", Локальный мост остановлен.
-LH_SET_MTU				Сессия "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. The MTU is now changed to %u.
-LH_SET_MTU_ERROR		Сессия "%S": The physical Ethernet interface "%S" has an MTU value set to %u. It is necessary to send and receive an Ethernet packet which has %u bytes. However, changing the MTU to %u failed. This physical Ethernet interface or device driver might be unable to process an Ethernet packet which has more 1,514 bytes (payload size: 1,500 bytes). In such case, the larger tagged-VLAN packets than 1,514 bytes cannot be transmitted. You should replace the current physical Ethernet adapter to another which supports Jumbo Frames. You can also try to update the device driver. Another possible method is to enable Jumbo Frames on the operating system or device driver settings.
-LH_START_BRIDGE			The Local Bridge connection "%S" has started. The bridge session "%S" was created.
-LH_STOP_BRIDGE			The Local Bridge connection "%S" has stopped.
-LH_LINK_START			The Cascade Connection "%s" has been established. The Cascade session "%S" was created.
-LH_LINK_STOP			The Cascade Connection "%s" has stopped.
-LH_NAT_START			SecureNAT has started. The SecureNAT session "%S" was created.
-LH_NAT_STOP				SecureNAT stopped.
+LH_SET_MTU				Сессия "%S": Для физического Ethernet интерфейса "%S" установлено значение MTU %u. Необходимо отправить и получить Ethernet пакет, содержащий %u байт. MTU теперь изменен на %u.
+LH_SET_MTU_ERROR		Сессия "%S": Для физического Ethernet интерфейса "%S" установлено значение MTU %u. Необходимо отправить и получить Ethernet пакет, содержащий %u байт. Однако изменить MTU на %u не удалось. Этот физический Ethernet интерфейс или драйвер устройства могут быть не в состоянии обработать Ethernet пакет, размер которого превышает 1514 байт (размер полезной нагрузки: 1500 байт). В таком случае VLAN пакеты с тегами большего размера, чем 1514 байт, не могут быть переданы. Вам следует заменить текущий физический Ethernet адаптер на тот, который поддерживает Jumbo Frames. Также можно попробовать обновить драйвер устройства. Другой возможный метод - включить Jumbo Frames в настройках операционной системы или драйвера устройства.
+LH_START_BRIDGE			Подключение типа Локальный мост "%S" запущено. Создана сессия "%S".
+LH_STOP_BRIDGE			Подключение типа Локальный мост "%S" остановлено.
+LH_LINK_START			 Установлено Каскадное подключение "%s". Создана Каскадная сессия "%S".
+LH_LINK_STOP			Каскадное подключение "%s" остановлено.
+LH_NAT_START			SecureNAT запущен. Создан SecureNAT сессия "%S".
+LH_NAT_STOP				SecureNAT остановлен.
 LH_NAT_TCP_SUCCEED		The connection to TCP session %u: Host "%S (%S)", Port %u was successful.
 LH_NAT_TCP_FAILED		The connection to TCP session %u: Host "%S", Port %u failed.
 LH_NAT_TCP_DELETED		The TCP session %u has been deleted.
