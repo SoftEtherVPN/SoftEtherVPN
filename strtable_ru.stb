@@ -1951,23 +1951,23 @@ LH_LINK_START			 Установлено Каскадное подключени�
 LH_LINK_STOP			Каскадное подключение "%s" остановлено.
 LH_NAT_START			SecureNAT запущен. Создан SecureNAT сессия "%S".
 LH_NAT_STOP				SecureNAT остановлен.
-LH_NAT_TCP_SUCCEED		The connection to TCP session %u: Host "%S (%S)", Port %u was successful.
-LH_NAT_TCP_FAILED		The connection to TCP session %u: Host "%S", Port %u failed.
-LH_NAT_TCP_DELETED		The TCP session %u has been deleted.
-LH_NAT_TCP_CREATED		The TCP session %u has been created. Connection source %S:%u, Connection destination %S:%u
-LH_NAT_UDP_DELETED		The UDP session %u has been deleted.
-LH_NAT_UDP_CREATED		The UDP session %u has been created. Connection source %S:%u, Connection destination %S:%u
-LH_NAT_DHCP_CREATED		The DHCP entry %u has been created. MAC address: %S, IP address: %S, host name: %S, expiration span: %u seconds
-LH_CHANGE_PASSWORD_1	The connection "%S" (IP address %S) connected to Virtual Hub in change password mode.
-LH_CHANGE_PASSWORD_2	Connection "%S": Changing of password failed. The specified user "%S" does not exist.
-LH_CHANGE_PASSWORD_3	Connection "%S": Changing of password failed. The auth type of user "%S" is not password authentication.
-LH_CHANGE_PASSWORD_4	Connection "%S": Changing of password failed. The old password of user "%S" is incorrect.
-LH_CHANGE_PASSWORD_5	Connection "%S": The password of user "%S" has been changed.
-LH_CONNECT_1			Starting Cascade Connection "%s": connection number %u.
-LH_CONNECT_2			The Cascade Connection "%s" is connected. Session name: "%S"
-LH_CONNECT_ERROR		The connection for Cascade Connection "%s" has been either disconnected or it failed. Cause: %s (code %u)
-LH_POLICY_MONITOR_MODE	Connection "%S": Because of a user whose security policy denies permission for Monitoring Mode requested that Monitoring Mode be enabled and attempted to connect to a Virtual Hub, the connection has been denied.
-LH_POLICY_BRIDGE_MODE	Connection "%S": Because of a user whose security policy denies both bridge connections and routing operations requested that bridge connections or routing operations be enabled and attempted to connect to the Virtual Hub, the connection has been denied.
+LH_NAT_TCP_SUCCEED		Успешное подключение к TCP сессии %u: Хост "%S (%S)", Порт %u.
+LH_NAT_TCP_FAILED		Подключение к TCP сессии %u не удалось: Хост "%S", Порт %u.
+LH_NAT_TCP_DELETED		TCP сессия %u удалена.
+LH_NAT_TCP_CREATED		TCP сессия %u создана. Источник подключения %S:%u, Назначение подключения %S:%u
+LH_NAT_UDP_DELETED		UDP сессия %u удалена.
+LH_NAT_UDP_CREATED		UDP сессия %u создана. Источник подключения %S:%u, Назначение подключения %S:%u
+LH_NAT_DHCP_CREATED		DHCP запись %u создана. MAC-адрес: %S, IP-адрес: %S, Имя хоста: %S, Срок аренды: %u секунд
+LH_CHANGE_PASSWORD_1	Соединение "%S" (IP-адрес %S) подключено к Virtual Hub в режиме изменения пароля.
+LH_CHANGE_PASSWORD_2	Соединение "%S": Замена пароля не удалась. Указанного пользователя "%S" не существует.
+LH_CHANGE_PASSWORD_3	Соединение "%S": Не удалось изменить пароль. Тип авторизации пользователя "%S" не является "Авторизация по паролю".
+LH_CHANGE_PASSWORD_4	Соединение "%S": Не удалось изменить пароль. Введен неверный старый пароль пользователя "%S".
+LH_CHANGE_PASSWORD_5	Соединение "%S": Пароль пользователя "%S" изменен.
+LH_CONNECT_1			Запуск каскадного подключения "%s": номер подключения %u.
+LH_CONNECT_2			Каскадное подключение "%s" подключено. Название сессии: "%S"
+LH_CONNECT_ERROR		Соединение каскадного подключения "%s" было либо отключено, либо не удалось. Причина: %s (код %u)
+LH_POLICY_MONITOR_MODE	Подключение "%S": Соединение было отклонено из-за того, что пользователь попытался подключиться к Virtual Hub в Режиме мониторинга, хотя политика безопасности запрещает подлючение в данном режиме.
+LH_POLICY_BRIDGE_MODE	Подключение "%S": Соединение было отклонено из-за того, что пользователь попытался подключиться к Virtual Hub в Режиме Мост / Роутер, хотя политика безопасности запрещает подлючение в данном режиме.
 LH_NOT_ENOUGH_CLIENT_LICENSE	Connection "%S": Although this connection attempted to connect to the VPN Server using "client connection mode", because this would have made the number of client connections on the entire server exceed the number of registered Client Connection Licenses, it is not possible to receive the connection for this connection. When the number of licenses for concurrent connections is insufficient, you must either disconnect another existing client connection or increase the number of licenses. There are currently %u registered Client Connection Licenses and the number of connections to servers was %u. 
 LH_NOT_ENOUGH_BRIDGE_LICENSE	Connection "%S": Although this connection attempted to connect to the VPN Server using "bridge connection mode", because this would have made the number of bridge connections on the entire server exceed the number of registered Bridge Connection Licenses, it is not possible to receive the connection for this connection. When the number of licenses for concurrent connections is insufficient, you must either disconnect another existing client connection or increase the number of licenses. There are currently %u registered Bridge Connection Licenses and the number of connections to servers was %u. 
 LH_TOO_MANY_MULTILOGINS	Connection "%S": Although the user "%S" made a login attempt, the security policy that applies to this user limits the maximum number of multiple logins to %u sessions. Currently the number of logins by this user is %u sessions and therefore the user has denied permission for a new VPN connection.
