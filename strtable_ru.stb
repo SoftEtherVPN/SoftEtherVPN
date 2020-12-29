@@ -4126,76 +4126,76 @@ IDCANCEL				Отмена
 
 
 PREFIX					D_VGC_LIST
-CAPTION					VPN Gate Academic Experimental Project Plugin for SoftEther VPN Client
-S_TITLE					VPN Gate Public VPN Relay Servers
-S_INFO1					Gain freedom access to Internet by using VPN connection via Public VPN Servers provided by volunteers abound the world. Bypass your local malfunctioning firewall's packet blocking, and hide your IP address safely.
-IDOK					&Connect to the VPN Server
-B_PROXY					&Proxy Settings
-S_VLAN					Virtual Network Adapter:
-B_WEB					VPN Gate Academic\r\nWeb Site
-B_REFRESH				&Refresh List
-S_REFRESH				Refreshing the List...
-S_RESEARCH				Academic project at University of Tsukuba, Japan.
-S_INFO9					A VPN Server with higher Line Speed (measured by Mbps) and smaller Ping result are usually more comfortable to use. You might be able to browse websites which are normally unreachable from your area if you use VPN servers that are not in your area.
+CAPTION					VPN Gate Академический экспериментальный плагин для SoftEther VPN-клиента
+S_TITLE					VPN Gate - публичные VPN-серверы
+S_INFO1					Получите свободный доступ к Интернету, используя VPN-соединение через публичные VPN-серверы, предоставляемые добровольцами по всему миру. Обойдите блокировку пакетов локальным брандмауэром и надежно скройте свой IP-адрес.
+IDOK					&Подключиться к VPN-серверу
+B_PROXY					&Настройки прокси
+S_VLAN					Виртуальный сетевой адаптер:
+B_WEB					Академический сайт\r\nVPN Gate
+B_REFRESH				&Обновить список
+S_REFRESH				Обновление списка...
+S_RESEARCH				Академический проект Университета Цукуба, Япония.
+S_INFO9					VPN-сервер с более высокой скоростью (измеряется в Мбит/с) и меньшим результатом Ping обычно более удобен в использовании. Чтобы просматривать веб-сайты, которые обычно недоступны из вашего региона, лучше всего использовать VPN-серверы, которые находятся за пределами вашего региона.
 
 
 PREFIX					D_VGC_PROTOCOL
-CAPTION					Select VPN Protocol to Connect
-S_TITLE					The Public VPN Relay Server "%S" (%S) supports both TCP and UDP as VPN protocol.
-S_INFO					Select preferred VPN Protocol to use in order to connect the VPN Server "%S" (%S). In general, the TCP protocol is easy to pass through the firewall. Try the UDP protocol only if the TCP has been failed.
-R_TCP					Use &TCP Protocol (Ethernet over HTTPS VPN) (Recommended)
-R_UDP					Use &UDP Protocol (Ethernet over UDP VPN)
+CAPTION					Выберите протокол VPN для подключения
+S_TITLE					Публичный VPN-сервер "%S" (%S) поддерживает как TCP, так и UDP протоколы.
+S_INFO					Выберите предпочтительный протокол для подключения к VPN-серверу "%S" (%S). Обычно TCP протокол легко проходит через брандмауэр. В случае сбоя TCP, попробуйте использовать UDP протокол.
+R_TCP					Использовать TCP протокол (Ethernet через HTTPS VPN) (рекомендуется)
+R_UDP					Использовать UDP протокол (Ethernet через UDP VPN)
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_VGS_CONFIG
-CAPTION					VPN Gate Service Control Panel
-R_ENABLE				&Enable the VPN Gate Relay Service and Join the VPN Gate Research as a Volunteer.
-S_TITLE					Join the VPN Gate Academic Research Project?
-S_INFO1					VPN Gate is an academic experiment for the research on the 'Distributed Public VPN Relay Server' technology, operated at the Graduate School on University of Tsukuba, Japan. VPN Gate Client users can connect to VPN Gate Services running on Public VPN Relay Servers, and enjoy unrestricted Internet access via the VPN Relay Server.
-S_INFO9					When a VPN Gate Client user accesses to a server on Internet, the source IP address will be replaced to the IP address of the relaying Public VPN Server. Consequently, the VPN Gate Client user will be able to browse overseas web sites smoothly even if the user's local firewall is out of order by an unknown reason and unable to pass such an access.
-S_WARNING				If you check the above checkbox and press OK, the VPN Gate Relay Service will be activated on this computer. As the result, any VPN Gate Client will be able to communicate towards the Internet via the VPN Gate Relay Service. It is secure even if your computer is on the private network (e.g. corporate network) because any accesses to private IP addresses will not be permitted to pass via the VPN Gate Relay Service.
-B_OPTION				VPN Gate Service &Option Settings...
+CAPTION					Панель управления службы VPN Gate
+R_ENABLE				&Включите службу VPN Gate и присоединяйтесь к исследованию VPN Gate в качестве волонтера.
+S_TITLE					Присоединиться к проекту академических исследований VPN Gate?
+S_INFO1					VPN Gate - это академический эксперимент по исследованию технологии 'Распределенный публичный VPN-сервер', проводимый в Высшей школе Университета Цукуба, Япония. Пользователи VPN Gate клиента могут подключаться к VPN Gate службам, работающим на публичных VPN серверах, и пользоваться неограниченным доступом в Интернет через них.
+S_INFO9					Когда пользователь VPN Gate клиента обращается к серверу в Интернете, исходный IP-адрес будет заменен на IP-адрес публичного VPN-сервера. Следовательно, пользователь VPN Gate клиента сможет беспрепятственно просматривать зарубежные веб-сайты, даже если локальный брандмауэр пользователя не работает или блокирует такой доступ.
+S_WARNING				Если вы поставите галочку и нажмите OK, служба VPN Gate будет активирована на этом компьютере. В результате любой клиент VPN Gate сможет общаться в Интернете через службу VPN Gate. Это безопасно, даже если ваш компьютер находится в локальной сети (например, корпоративная сеть), то любой доступ к другим локальным IP-адресам сети через службу VPN Gate будет запрещен.
+B_OPTION				Настройки параметров службы VPN Gate...
 IDOK					&OK
-IDCANCEL				Cancel
-B_WEB					&Browse http://www.vpngate.net/ ...
+IDCANCEL				Отмена
+B_WEB					&Открыть http://www.vpngate.net/ ...
 
 
 PREFIX					D_VGS_OPTION
-CAPTION					VPN Gate Service Options
-S_TITLE					VPN Gate Service Options
-S_1						This computer will be a Public VPN Server. Please fill the operator's information of the server. The information will be published on the list at www.vpngate.net and other related services. The contact address will be also used to contact from VPN Gate Academic Project operators.
-S_2						Operator:
-S_3						&Operator of Server:
-S_19					(Up to 64 letters)
-S_20					&Abuse Report Address\r\n(e-mail addresses etc.):
-S_21					(Up to 64 letters)
-S_22					The &Message to Users:\r\n(Up to 128 letters)
-S_23					The message will be shown on the list of VPN Gate Servers. Enter an enjoyable message to let users feel pleasure.
-S_24					VPN Settings:
-R_LOG					&Save VPN Packet Logs (Recommended)
-R_2WEEKS				Auto Delete or Archive with Encoding for Packet Logs After &Two Weeks (Recommended)
-R_PERMANENT				Make Packet Logs Occupy Free Disk Space &Permanently
-R_L2TP					Enable &L2TP/IPsec VPN Server Function (Recommended)
-S_25					Allows Mac OS X, iPhone, iPad and Android clients to make a VPN connection.
-B_MESSAGE				Pop-up Your Advertisement Message on the VPN Client &Screen ...
+CAPTION					Параметры службы VPN Gate
+S_TITLE					Параметры службы VPN Gate
+S_1						Этот компьютер будет публичным VPN сервером. Заполните, пожалуйста, информацию о сервере. Информация будет опубликована в списке на www.vpngate.net и других связанных сервисах. Контактный адрес также будет использоваться для связи с операторами VPN Gate.
+S_2						Оператор:
+S_3						Оператор сервера:
+S_19					(До 64 символов)
+S_20					&Адрес для сообщения о нарушении\r\n(email адрес и т.д.):
+S_21					(До 64 символов)
+S_22					Сообщение для пользователей:\r\n(До 128 символов)
+S_23					Сообщение будет показано в списке серверов VPN Gate. Введите приятное сообщение, порадуйте пользователей.
+S_24					Настройки VPN:
+R_LOG					&Сохранять VPN журналы (рекомендуется)
+R_2WEEKS				Автоматическое удаление или архивирование журналов старше двух недель (рекомендуется)
+R_PERMANENT				Позволить журналам занимать все свободное место на диске
+R_L2TP					Включить L2TP/IPsec функцию VPN-сервера (рекомендуется)
+S_25					Позволяет Mac OS X, iPhone, iPad и Android клиентам устанавливать VPN-подключение.
+B_MESSAGE				Всплывающее рекламное сообщение в интерфейсе VPN-клиента ...
 IDOK					&OK
-IDCANCEL				Cancel
+IDCANCEL				Отмена
 
 
 PREFIX					D_VGS_WARNING
-CAPTION					Caution before Joining VPN Gate Academic Experiment
-S1						The VPN Gate Academic Experiment Service is operated as a research project at the graduate school on University of Tsukuba, Japan. The service is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities.
-S2						By nature, there are almost 200 countries in the World, with different laws. It is impossible to verify every countries' laws and regulations and make the software comply with all countries' laws in advance to release the software. If a user uses VPN Gate service in a specific country, and damaged by public servants of the authority, the developer of either the service or software will never be liable to recover or compensate such damages or criminal responsibilities.
-S3						By using this software and service, the user must observe all concerned laws and rules with user's own responsibility. The user will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.
-S4						If you don't agree nor understand the above warnings, do not use any of VPN Gate Academic Experiment Service functions.
-S5						Note: VPN Gate is a research project for just academic purpose only. VPN Gate was developed as a plug-in for SoftEther VPN and UT-VPN. However, all parts of VPN Gate were developed on this research project at University of Tsukuba. Any parts of VPN Gate are not developed by SoftEther VPN Project. The VPN Gate Research Project is not a subject to be led, operated, promoted nor guaranteed by SoftEther VPN Project.
-R_NEVER					Do Not &Show This Message Again
-B_WEB					Visit VPN Gate &Web Site...
-IDOK					&Agree
-IDCANCEL				&Disagree
-S_BOLD					Caution! Do Not Use the VPN Gate Services in Countries where VPN Communications are Prohibited.
+CAPTION					Предупреждение перед присоединением к академическому эксперименту VPN Gate
+S1						Академический эксперимент службы VPN Gate работает как исследовательский проект в аспирантуре Университета Цукуба, Япония. Услуга регулируется японскими законами. Законы других стран не являются нашей заботой или проблемой.
+S2						В мире существует почти 200 стран с различными законами. Невозможно проверить законы каждой страны и заставить программное обеспечение выполнять их. Если пользователь будет использовать службу VPN Gate в определенной стране, и нарушать ее законы, разработчик сервиса и ПО никогда не будет нести ответсвенность за этого пользователя.
+S3						Используя это ПО и сервисы, пользователь должен соблюдать все соответствующие законы и правила. Пользователь будет нести полную ответственность за любой ущерб, возникший в результате использования этого ПО и сервисов, независимо от того, находится ли он на территории Японии или за ее пределами.
+S4						Если вы не согласны с приведенным выше предупреждением, не используйте какие-либо функции службы VPN Gate.
+S5						Примечание: VPN Gate - это исследовательский проект, предназначенный исключительно для академических целей. VPN Gate был разработан как плагин для SoftEther VPN и UT-VPN. Хотя все части VPN Gate были разработаны в рамках исследовательского проекта в Университете Цукуба, но VPN Gate не разрабатывается проектом SoftEther VPN. Исследовательский проект VPN Gate не управляется проектом SoftEther VPN и не несет за него гарантии.
+R_NEVER					Не показывать это сообщение снова
+B_WEB					Посетите веб-сайт VPN Gate...
+IDOK					&Согласен
+IDCANCEL				&Не согласен
+S_BOLD					Внимание! Не используйте службы VPN Gate в странах, где VPN-соединение запрещено.
 
 
 PREFIX					D_NM_PUSH
