@@ -1398,7 +1398,7 @@ SM_ACCESS_COLUMN_4		Описание
 SM_ACCESS_COLUMN_5		Правило
 SM_ACCESS_COLUMN_6		Уникальный ID
 SM_ACCESS_PASS			Пропустить
-SM_ACCESS_DISCARD		Отбросить
+SM_ACCESS_DISCARD		Запретить
 SM_ACCESS_ENABLE		Включить
 SM_ACCESS_DISABLE		Отключить
 SM_ACCESS_PROTO_1		Все протоколы IPv4 / IPv6
