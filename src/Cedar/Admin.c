@@ -10171,6 +10171,8 @@ UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
 	UINT ret = ERR_NO_ERROR;
 	LIST *options;
 
+	SERVER_ADMIN_ONLY;
+
 	if (proto == NULL)
 	{
 		return ERR_NOT_SUPPORTED;
