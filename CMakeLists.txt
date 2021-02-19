@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.7)
 
+set(BUILD_NUMBER CACHE STRING "The number of the current build.")
+
+if ("${BUILD_NUMBER}" STREQUAL "")
+	set(BUILD_NUMBER "0")
+endif()
+
 project("SoftEther VPN"
-  VERSION 5.01.9674
+  VERSION "5.01.${BUILD_NUMBER}"
   LANGUAGES C
 )
 
