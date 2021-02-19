@@ -4,12 +4,11 @@ jobs:
   pool:
     vmImage: ubuntu-16.04
   steps:
-  - script: |
-      cd $BUILD_BINARIESDIRECTORY
-      sudo apt -y install cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
-      cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo $BUILD_SOURCESDIRECTORY
-      cmake --build .
-      cpack -C Release -G DEB
+  - script: sudo apt-get -y install cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+    displayName: 'Prepare environment'
+  - script: "$(Build.SourcesDirectory)/.ci/azure-pipelines/linux_build.sh"
+    env:
+      SE_BUILD_NUMBER_TOKEN: $(BUILD_NUMBER_TOKEN)
     displayName: 'Build'
   - script: |
       .ci/appveyor-deb-install-test.sh

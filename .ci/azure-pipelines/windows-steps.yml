@@ -18,18 +18,14 @@ steps:
     vcpkg install openssl zlib --triplet ${{parameters.vcpkgTriplet}}
   workingDirectory: C:/vcpkg
   displayName: 'Prepare environment'
-- script: |
-    call "${{parameters.vcvarsPath}}"
-    cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{parameters.vcpkgTriplet}} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="${{parameters.compilerPath}}" -DCMAKE_CXX_COMPILER="${{parameters.compilerPath}}" $(Build.SourcesDirectory)
-    cmake --build .
-  workingDirectory: $(Build.BinariesDirectory)
+- script: '$(Build.SourcesDirectory)/.ci/azure-pipelines/windows_build.bat'
+  env:
+    ARCHITECTURE: ${{parameters.architecture}}
+    COMPILER_PATH: ${{parameters.compilerPath}}
+    VCPKG_TRIPLET: ${{parameters.vcpkgTriplet}}
+    VCVARS_PATH: ${{parameters.vcvarsPath}}
+    SE_BUILD_NUMBER_TOKEN: $(BUILD_NUMBER_TOKEN)
   displayName: 'Build'
-- script: |
-    mkdir "$(Build.StagingDirectory)/installers"
-    vpnsetup /SFXMODE:vpnclient /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnclient-$(Build.SourceVersion)-${{parameters.architecture}}.exe"
-    vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"$(Build.StagingDirectory)/installers/softether-vpnserver_vpnbridge-$(Build.SourceVersion)-${{parameters.architecture}}.exe"
-  workingDirectory: $(Build.BinariesDirectory)
-  displayName: 'Build installers'
 - powershell: |
     . .ci/appveyor-vpntest.ps1
   displayName: 'Test'
