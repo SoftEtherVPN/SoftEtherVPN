@@ -2022,76 +2022,75 @@ LA_ADD_ACCESS			Добавлен список доступа.
 LA_DELETE_ACCESS		Список доступа удален.
 LA_SET_ACCESS_LIST		Список доступа обновлен. Кол-во записей в списке доступа - %u.
 LA_SET_AC_LIST			Список ограничения по IP адресам обновлен. Кол-во правил в списке - %u.
-LA_CREATE_USER			User "%S" has been created.
-LA_SET_USER				The setting of user "%S" has been updated.
-LA_DELETE_USER			User "%S" has been deleted.
-LA_CREATE_GROUP			Group "%S" has been created.
-LA_SET_GROUP			The setting of group "%S" has been updated.
-LA_DELETE_GROUP			Group "%S" has been deleted.
-LA_DELETE_SESSION		This session "%S" has been forcefully disconnected.
-LA_SET_KEEP				The server's Internet keep-alive setting has been updated.
-LA_SET_SYSLOG			The server's syslog send function setting has been updated.
-LA_DELETE_BRIDGE		The Local Bridge connection definition "%S" --> "%S" has been deleted.
-LA_ADD_BRIDGE			The Local Bridge connection definition "%S" --> "%S" has been added.
-LA_REBOOT_SERVER		There has been a request to restart VPN Server.
-LA_GET_CONFIG			The config file has been read.
-LA_SET_CONFIG			The config file has been written. Restarting VPN Server.
-LA_SET_HUB_ADMIN_OPTION	The administration option has been set for Virtual Hub "%S".
-LA_SET_HUB_EXT_OPTION	The Virtual Hub Extended Option has been set for Virtual Hub "%S".
-LA_ADD_L3_SW			The Virtual Layer 3 Switch "%S" has been created on the server.
-LA_DEL_L3_SW			The Virtual Layer 3 Switch "%S" has been deleted from the server.
-LA_START_L3_SW			The Virtual Layer 3 Switch "%S" has been started.
-LA_STOP_L3_SW			The Virtual Layer 3 Switch "%S" has been stopped.
-LA_ADD_L3_IF			The virtual interface for Virtual Hub "%S" has been added to Virtual Layer 3 Switch "%S".
-LA_DEL_L3_IF			The virtual interface for Virtual Hub "%S" has been deleted from Virtual Layer 3 Switch "%S".
-LA_ADD_L3_TABLE			The routing table for network "%S" has been added to Virtual Layer 3 Switch "%S".
-LA_DEL_L3_TABLE			The routing table for network "%S" has been deleted from Virtual Layer 3 Switch "%S".
-LA_ADD_CRL				A certificate has been added to Certificate Revocation List.
-LA_DEL_CRL				A certificate has been edited in Certificate Revocation List.
-LA_SET_CRL				A registered item in a registration of a list of invalid certificates has been edited.
-LA_READ_LOG_FILE		The log file on the server "%S" (log file "%S") has been downloaded.
-LA_ADD_LICENSE_KEY		A new license key "%S" has been registered.
-LA_DEL_LICENSE_KEY		An existing license (No. %u) has been deleted.
-LA_SET_IPSEC_CONFIG		The IPsec server setting has been updated.
-LA_ADD_ETHERIP_ID		A new EtherIP / L2TPv3 server setting (ID="%S") has been added.
-LA_DEL_ETHERIP_ID		The new EtherIP / L2TPv3 server setting (ID="%S") has been deleted.
-LA_SET_OVPN_SSTP_CONFIG	The OpenVPN and MS-SSTP VPN Server setting has been updated.
-LA_DDNS_HOSTNAME_CHANGED	The hostname of Dynamic DNS Function has been changed to "%S".
-LA_SET_SPECIAL_LISTENER	Special Listener enable / disable status has been changed.
+LA_CREATE_USER			Создан пользователь "%S".
+LA_SET_USER				 Обновлены настройки пользователя "%S".
+LA_DELETE_USER			Удален пользователь "%S".
+LA_CREATE_GROUP			Создана группа "%S".
+LA_SET_GROUP			Обновлены настройки группы "%S".
+LA_DELETE_GROUP			Удалена группа "%S".
+LA_DELETE_SESSION		Сессия "%S" была принудительно отключена.
+LA_SET_KEEP				Обновлена функция поддержания интернет соединения.
+LA_SET_SYSLOG			Обновлена настройка функции отправки системного журнала сервера.
+LA_DELETE_BRIDGE		Удален локальный мост "%S" --> "%S".
+LA_ADD_BRIDGE			Добавлен локальный мост "%S" --> "%S".
+LA_REBOOT_SERVER		Был запрос на перезапуск VPN-сервера.
+LA_GET_CONFIG			Файл конфигурации прочитан.
+LA_SET_CONFIG			Изменен файл конфигурации. Перезапуск VPN-сервера.
+LA_SET_HUB_ADMIN_OPTION	Установлен параметр администрирования Virtual Hub "%S".
+LA_SET_HUB_EXT_OPTION		Установлен расширенный параметр Virtual Hub "%S".
+LA_ADD_L3_SW			Виртуальный коммутатор 3-го уровня "%S" был создан на сервере.
+LA_DEL_L3_SW			Виртуальный коммутатор 3-го уровня "%S" был удален с сервера.
+LA_START_L3_SW			Виртуальный коммутатор 3-го уровня "%S" запущен.
+LA_STOP_L3_SW			Виртуальный коммутатор 3-го уровня "%S" остановлен.
+LA_ADD_L3_IF			Виртуальный интерфейс для Virtual Hub "%S" был добавлен к виртуальному коммутатору 3-го уровня "%S".
+LA_DEL_L3_IF			Виртуальный интерфейс для Virtual Hub "%S" был удален из виртуального коммутатора 3-го уровня "%S".
+LA_ADD_L3_TABLE			Таблица маршрутизации для сети "%S" была добавлена в виртуальный коммутатор 3-го уровня "%S".
+LA_DEL_L3_TABLE			Таблица маршрутизации для сети "%S" была удалена из виртуального коммутатора 3-го уровня "%S".
+LA_ADD_CRL				Сертификат добавлен в список отозванных сертификатов.
+LA_DEL_CRL				Сертификат удален из списка отозванных сертификатов.
+LA_SET_CRL				Сертификат изменен в списке отозванных сертификатов.
+LA_READ_LOG_FILE	 Скачан	файл журнала на сервере "%S" (файл журнала "%S").
+LA_ADD_LICENSE_KEY		Зарегистрирован новый лицензионный ключ "%S".
+LA_DEL_LICENSE_KEY		Существующая лицензия (№ %u) удалена.
+LA_SET_IPSEC_CONFIG		IPsec настройки сервера обновлены.
+LA_ADD_ETHERIP_ID		Добавлена новая настройка EtherIP / L2TPv3 (ID="%S").
+LA_DEL_ETHERIP_ID		Удалена настройка EtherIP / L2TPv3 (ID="%S").
+LA_SET_OVPN_SSTP_CONFIG	Обновлены OpenVPN / MS-SSTP настройки VPN-сервера.
+LA_DDNS_HOSTNAME_CHANGED	Имя хоста динамического DNS изменено на "%S".
+LA_SET_SPECIAL_LISTENER	Состояние порта было изменено.
 
 # (Client log)
-LC_START_1				The SoftEther VPN Client Engine has been started.
+LC_START_1				Движок SoftEther VPN-клиента запущен.
 LC_START_2				%S %S
 LC_START_3				%S
-LC_END					The SoftEther VPN Client Engine has been shut down.
-LC_LOAD_CONFIG_1		Loading configuration file...
-LC_LOAD_CONFIG_2		The configuration file has been loaded.
-LC_LOAD_CONFIG_3		Configuration file does not exist. Applying the initial settings.
-LC_NEW_ACCOUNT			A new VPN Connection Setting "%s" has been created.
-LC_DELETE_ACCOUNT		The VPN Connection Setting "%s" has been deleted.
-LC_RENAME_ACCOUNT		The name of VPN Connection Setting "%s" has been changed to "%s".
-LC_CONNECT				Connection processing for VPN Connection Setting "%s" has started.
-LC_CONNECT_1			VPN Connection Setting "%s": Connection operation starting (this is now %u times).
-LC_CONNECT_2			VPN Connection Setting "%s": Now connected. Session name: "%S"
-LC_CONNECT_ERROR		VPN Connection Setting "%s": The connection has been either disconnected or it failed. Cause: %s (code %u)
-LC_DISCONNECT			Disconnecting the VPN Connection Setting "%s".
-LC_CREATE_VLAN			A Virtual Network Adapter "%S" has been created.
-LC_UPDATE_VLAN			The Virtual Network Adapter "%S" driver has been reinstalled.
-LC_DELETE_VLAN			The Virtual Network Adapter "%S" has been deleted.
-LC_SET_PASSWORD			The password setting for connection to a client service has been changed.
-LC_TAP_NOT_FOUND		Cannot find the tun/tap driver for Mac OS X. Please install the tun/tap driver.
+LC_END					Движок SoftEther VPN-клиента завершил работу.
+LC_LOAD_CONFIG_1		Загрузка файла конфигурации...
+LC_LOAD_CONFIG_2		Файл конфигурации загружен.
+LC_LOAD_CONFIG_3		Файл конфигурации отсутствует. Применение начальных настроек.
+LC_NEW_ACCOUNT			Создано новое VPN подключение "%s".
+LC_DELETE_ACCOUNT		Удалено VPN подключение "%s".
+LC_RENAME_ACCOUNT		Название VPN подключения "%s" было изменено на "%s".
+LC_CONNECT				Запуск VPN подключения "%s".
+LC_CONNECT_1			VPN подключение "%s": Начинается операция подключения (кол-во раз: % u).
+LC_CONNECT_2			VPN подключение "%s": Подключено. Название сессии: "%S".
+LC_CONNECT_ERROR		VPN подключение "%s": Соединение было либо разорвано, либо не удалось. Причина: %s (код %u)
+LC_DISCONNECT			Отключение VPN подключения "%s".
+LC_CREATE_VLAN			Создан виртуальный сетевой адаптер "%S".
+LC_UPDATE_VLAN			Драйвер виртуального сетевого адаптера "%S" был переустановлен.
+LC_DELETE_VLAN			Удален виртуальный сетевой адаптер "%S".
+LC_SET_PASSWORD			Изменен пароль для подключения к клиентской службе.
+LC_TAP_NOT_FOUND		Не удается найти tun/tap драйвер для Mac OS X. Установите tun/tap драйвер.
 
 # (Eraser log)
-LE_START				Monitoring the directory "%S". If the amount of available free disk space becomes less than %S, the backup files for log files and configurations that are saved on the sub-directories of this directory will be automatically deleted in the order of oldest first. The amount of free disk space that determines when to start deletion can be modified by changing the "AutoDeleteCheckDiskFreeSpaceMin" item in the configuration file.
-LE_DELETE				The free disk space is now less then %S so the old file "%S" has been automatically deleted. The amount of free disk space that determines when to start deletion can be modified by changing the "AutoDeleteCheckDiskFreeSpaceMin" item in the configuration file.
-LE_NOT_ENOUGH_FREE		<<WARNING>> If the free disk space becomes lower than %S, it will no longer be possible to automatically delete the old backup files of log files and configurations. We recommend that you immediately manually delete the unnecessary files on this computer and recover the necessary free disk space. When there is a very small amount of free disk space, computer operation can become unstable. 
+LE_START				Мониторинг каталога "%S". Если объем доступного свободного дискового пространства становится меньше %S, файлы резервных копий для файлов журналов и конфигураций, которые сохраняются в подкаталогах этого каталога, будут автоматически удалены, начиная с самых старых файлов. Объем свободного дискового пространства, определяющий, когда начинать удаление, можно изменить, поменяв параметр "AutoDeleteCheckDiskFreeSpaceMin" в файле конфигурации.
+LE_DELETE				Свободное место на диске теперь меньше %S, поэтому старый файл "%S" был автоматически удален. Объем свободного дискового пространства, определяющий, когда начинать удаление, можно изменить, поменяв параметр "AutoDeleteCheckDiskFreeSpaceMin" в файле конфигурации.
+LE_NOT_ENOUGH_FREE		<<ВНИМАНИЕ!>> Если свободное место на диске станет меньше %S, больше невозможно будет автоматически удалить старые файлы резервных копий файлов журналов и конфигураций. Мы рекомендуем вам немедленно вручную удалить ненужные файлы на этом компьютере и восстановить необходимое свободное место на диске. Когда на диске очень мало свободного места, работа компьютера может стать нестабильной. 
 
 # (Layer 3 Switch log)
 L3_SWITCH_START			Виртуальный коммутатор 3-го уровня "%S" запущен. Он будет ждать, пока все Virtual Hub на всех интерфейсах, зарегистрированных на этом коммутаторе, не будут включены, а затем начнет работу.
 L3_SWITCH_ONLINE		Все Virtual Hub всех интерфейсов виртуального коммутатора 3-го уровня "%S" включены, и виртуальный коммутатор 3-го уровня начал работу.
 L3_SWITCH_OFFLINE		По крайней мере на одном из интерфейсов виртуального коммутатора 3-го уровня "%S" выключен Virtual Hub, и работа виртуального коммутатора 3-го уровня остановлена.
-L3_SWITCH_STOP			The Virtual Layer 3 Switch "%S" terminated.
-
+L3_SWITCH_STOP			Виртуальный коммутатор 3-го уровня "%S" остановлен.
 
 # Concerning Microsoft.c
 MS_VIRTUAL				Собственный виртуальный/внутренний интерфейс
