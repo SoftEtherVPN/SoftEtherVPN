@@ -5,7 +5,10 @@ def main():
 	parser.add_argument('-n', '--newline', action = 'store_true', help = 'Break line after printing version')
 	args = parser.parse_args()
 
-	end = None if args.newline else ''
+	if args.newline:
+		end = None
+	else:
+		end = ''
 
 	version = None
 	with open('CMakeLists.txt', 'r') as file:
