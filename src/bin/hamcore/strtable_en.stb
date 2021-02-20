@@ -2047,7 +2047,7 @@ LA_DEL_L3_IF			The virtual interface for Virtual Hub "%S" has been deleted from 
 LA_ADD_L3_TABLE			The routing table for network "%S" has been added to Virtual Layer 3 Switch "%S".
 LA_DEL_L3_TABLE			The routing table for network "%S" has been deleted from Virtual Layer 3 Switch "%S".
 LA_ADD_CRL				A certificate has been added to Certificate Revocation List.
-LA_DEL_CRL				A certificate has been edited in Certificate Revocation List.
+LA_DEL_CRL				A certificate has been deleted from Certificate Revocation List.
 LA_SET_CRL				A registered item in a registration of a list of invalid certificates has been edited.
 LA_READ_LOG_FILE		The log file on the server "%S" (log file "%S") has been downloaded.
 LA_ADD_LICENSE_KEY		A new license key "%S" has been registered.
