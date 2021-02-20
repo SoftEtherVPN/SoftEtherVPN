@@ -1410,7 +1410,7 @@ SM_ACCESS_PROTO_6		Укажите номер IP протокола
 SM_SELECT_USER			&Выбрать
 SM_SELECT_NO			Не выбирать
 SM_PLEASE_SELECT		Выберите пользователя.
-SM_LINK_COLUMN_1		Имя параметра
+SM_LINK_COLUMN_1		Название
 SM_LINK_COLUMN_2		Состояние
 SM_LINK_COLUMN_3		Подключено
 SM_LINK_COLUMN_4		VPN-сервер назначения
@@ -1970,58 +1970,58 @@ LH_POLICY_MONITOR_MODE	Подключение "%S": Соединение был�
 LH_POLICY_BRIDGE_MODE	Подключение "%S": Соединение было отклонено из-за того, что пользователь попытался подключиться к Virtual Hub в Режиме Мост / Роутер, хотя политика безопасности запрещает подлючение в данном режиме.
 LH_NOT_ENOUGH_CLIENT_LICENSE	Подключение "%S": Невозможно установить подключение, поскольку количество клиентских подключений на всем сервере превысило количество зарегистрированных лицензий. Если количество лицензий для одновременных подключений недостаточно, необходимо либо отключить существующее клиентское подключение, либо увеличить количество лицензий. В настоящее время зарегистрировано  %u клиентских лицензий, а количество подключений к серверу равно %u.
 LH_NOT_ENOUGH_BRIDGE_LICENSE	Подключение "%S": Невозможно установить подключение в режиме моста, поскольку количество подключений на всем сервере превысило количество зарегистрированных лицензий. Если количество лицензий для одновременных подключений недостаточно, необходимо либо отключить существующее подключение, либо увеличить количество лицензий. В настоящее время зарегистрировано %u лицензий на подключение типа мост, а количество подключений к серверу равно %u.
-LH_TOO_MANY_MULTILOGINS	Connection "%S": Although the user "%S" made a login attempt, the security policy that applies to this user limits the maximum number of multiple logins to %u sessions. Currently the number of logins by this user is %u sessions and therefore the user has denied permission for a new VPN connection.
-LH_TOO_MANY_MULTILOGINS2	Connection "%S": Although the user "%S" made a login attempt, this edition of the VPN Server permits the maximum number of multiple concurrent VPN sessions to %u sessions per user. Current number of the multiple concurrent VPN sessions of this users is %u, so no more concurrent VPN sessions cannot be permitted. If you want to support more number of multiple concurrent VPN sessions per user, please consider upgrading to Professional Edition or greater of the VPN Server.
-LH_PACKET_LOG_NO_LOG		The edition of this VPN Server doesn't supports the packet logging function. No IP address nor TCP/UDP header data will be recorded. After you upgrade the edition of the VPN Server to Professional Edition or greater, all kinds of packet logs will be recorded in this file.
-LH_PACKET_LOG_NO_LOG_OSS	The VPN Server is either Open-Source or Free version. It hasn't implemented the IP Address or TCP/UDP header data logging function. No IP address nor TCP/UDP header data are not be recorded here.
-LH_NO_RADIUS_SETTING		The user "%S" is configured to use RADIUS authentication. However, there is no RADIUS authentication settings. The user cannot be authenticated.
-LH_KERNEL_MODE_START		It has been detected that the Kernel-mode NAT for SecureNAT can be run on the interface "%S". The Kernel-mode NAT is starting. The TCP, UDP and ICMP NAT processings will be performed with high-performance via Kernel-Mode hereafter. The parameters of Kernel-mode NAT: IP Address = "%r", Subnet Mask = "%r", Default Gateway = "%r", Broadcast Address = "%r", Virtual MAC Address: "%S", DHCP Server Address: "%r", DNS Server Address: "%r"
-LH_KERNEL_MODE_STOP			The Kernel-mode NAT on the interface "%S" for SecureNAT has been stopped.
+LH_TOO_MANY_MULTILOGINS	Подключение "%S": Пользователь "%S" предпринял попытку входа в систему, но политика безопасности, применяемая к этому пользователю, ограничивает максимальное количество одновременных сессий для этого пользователя до %u. В настоящее время количество сессий этого пользователя равно %u, поэтому пользователю отказано в новом VPN-подключении. 
+LH_TOO_MANY_MULTILOGINS2	Подключение "%S": Пользователь "%S" предпринял попытку входа в систему, но этот выпуск VPN-сервера ограничивает максимальное количество одновременных VPN сессий на пользователя до %u. Текущее количество нескольких одновременных VPN сессий для этого пользователя равно %u, поэтому новые одновременные VPN сессий не могут быть разрешены. Если вы хотите поддерживать большее количество одновременных VPN сессий на пользователя, рассмотрите возможность обновления до Professional Edition или до более поздней версии VPN сервера.
+LH_PACKET_LOG_NO_LOG		Версия этого VPN-сервера не поддерживает функцию регистрации пакетов. Ни IP-адрес, ни данные TCP/UDP заголовка не будут записаны. После обновления версии VPN-сервера до Professional Edition или выше в этот файл будут записываться все виды журналов.
+LH_PACKET_LOG_NO_LOG_OSS	VPN-сервер имеет либо версию с открытым исходным кодом, либо бесплатную версию. В ней не реализована функция регистрации пакетов. Ни IP-адрес, ни данные TCP/UDP заголовка не будут записаны.
+LH_NO_RADIUS_SETTING		Пользователь "%S" настроен на использование авторизации на RADIUS сервере. Однако настройки RADIUS авторизации отсутствуют. Пользователь не может быть авторизован.
+LH_KERNEL_MODE_START		Было обнаружено, что NAT в режиме ядра для SecureNAT может выполняться на интерфейсе "%S". NAT в режиме ядра запускается. В дальнейшем обработка TCP, UDP и ICMP NAT будет выполняться с высокой производительностью в режиме ядра. Параметры NAT в режиме ядра: IP-адрес = "%r", Маска подсети = "%r", Шлюз по умолчанию = "%r", Широковещательный адрес = "%r", Виртуальный MAC-адрес: "%r", Адрес DHCP-сервера: "%r", Адрес DNS-сервера: "%r"
+LH_KERNEL_MODE_STOP			NAT в режиме ядра на интерфейсе "%S" для SecureNAT остановлен.
 
 
 # (Administration log)
-LA_CONNECTED_1			Connection "%S" connected using server admin mode.
-LA_CONNECTED_2			Connection "%S" connected using Virtual Hub Admin Mode. The name of the Virtual Hub is "%S".
-LA_IP_DENIED			Connection "%S" attempted to connect using administration mode from an IP address whose permission is denied by adminip.txt. Disconnecting.
-LA_ERROR				Connection "%S" was unable to log in using administration mode. %s (Error code %u)
-LA_OK					Connection "%S" successfully logged in using administration mode.
-LA_RPC_START			Connection "%S" created a new remote procedure call session "%S" for the purpose of administration mode.
-LA_TAG_1				Administration mode [%S]: 
-LA_TAG_2				Administration mode [%S] (Virtual Hub "%S"): 
-LA_CREATE_LISTENER		A new TCP listener (port number %u) has been created.
-LA_DELETE_LISTENER		TCP listener (port number %u) has been deleted.
-LA_ENABLE_LISTENER		TCP listener (port number %u) has been enabled.
-LA_DISABLE_LISTENER		TCP listener (port number %u) has been disabled.
-LA_SET_PORTS_UDP		UDP ports have been set: %s.
-LA_SET_PROTO_OPTIONS	%s options have been set.
-LA_SET_SERVER_PASSWORD	The server administrator password has been set.
-LA_SET_FARM_SETTING		The clustering setting has been changed.
-LA_SET_SERVER_CERT		The server certificates have been set.
-LA_REGENERATE_SERVER_CERT	The server certificate has been re-generated. The new CN: "%S"
-LA_SET_SERVER_CIPHER	A new encryption algorithm name for the server has been set. The new encryption algorithm name is "%S".
-LA_CREATE_HUB			A new Virtual Hub "%S" has been created.
-LA_SET_HUB				The Virtual Hub setting has been changed.
-LA_DELETE_HUB			The Virtual Hub "%S" has been deleted.
-LA_SET_HUB_RADIUS		The Virtual Hub's external RADIUS authentication server setting has been changed.
-LA_DISCONNECT_CONN		The client connection "%S" connected to the server has been forcefully disconnected.
-LA_SET_HUB_ONLINE		The Virtual Hub is now online.
-LA_SET_HUB_OFFLINE		The Virtual Hub is now offline.
-LA_SET_SNAT_OPTION		The SecureNAT option has been set.
-LA_ENABLE_SNAT			The SecureNAT function has been enabled.
-LA_DISABLE_SNAT			The SecureNAT function has been disabled.
-LA_SET_HUB_LOG			The log save setting has been changed.
-LA_ADD_CA				A registration of trusted root certificate has been added.
-LA_DELETE_CA			A registration of trusted root certificate has been deleted.
-LA_CREATE_LINK			The Cascade Connection "%s" has been added.
-LA_SET_LINK				The setting for Cascade Connection "%s" has been changed.
-LA_SET_LINK_ONLINE		The Cascade Connection "%s" is now online.
-LA_SET_LINK_OFFLINE		The Cascade Connection "%s" is now offline.
-LA_DELETE_LINK			The Cascade Connection "%s" has been deleted.
-LA_RENAME_LINK			The name of Cascade Connection "%s" has been changed to "%s".
-LA_ADD_ACCESS			An access list has been added.
-LA_DELETE_ACCESS		The access list has been deleted.
-LA_SET_ACCESS_LIST		The access list has been updated. An access list of %u items are set.
-LA_SET_AC_LIST			The Source IP Address Limit List has been updated. Rule items for %u items are set.
+LA_CONNECTED_1			Подключение "%S" работает в режиме администратора сервера.
+LA_CONNECTED_2			Подключение "%S" работает в режиме Virtual Hub администратора. Название Virtual Hub - "%S".
+LA_IP_DENIED			Подключение "%S" попыталось соединиться в режиме администратора, но доступ с этого IP-адреса запрещен файлов adminip.txt. Отключение.
+LA_ERROR				Подключению "%S" не удалось войти в систему в режиме администратора. %s (Код ошибки %u)
+LA_OK					Подключение "%S" успешно выполнено в режиме администратора.
+LA_RPC_START			Подключение "%S" создало новую удаленную процедуру вызова сессии '%S' для режима администрирования.
+LA_TAG_1				Режиме администратора [%S]: 
+LA_TAG_2				Режиме администратора [%S] (Virtual Hub "%S"): 
+LA_CREATE_LISTENER		Создан новый TCP порт (номер порта %u).
+LA_DELETE_LISTENER		TCP порт удален (номер порта %u).
+LA_ENABLE_LISTENER		TCP порт открыт (номер порта %u).
+LA_DISABLE_LISTENER		TCP порт закрыт (номер порта %u).
+LA_SET_PORTS_UDP		Установлены UDP-порты: %s.
+LA_SET_PROTO_OPTIONS	Установлены параметры %s.
+LA_SET_SERVER_PASSWORD	Установлен пароль администратора сервера.
+LA_SET_FARM_SETTING		Параметры кластера были изменены.
+LA_SET_SERVER_CERT		Установлены сертификаты сервера.
+LA_REGENERATE_SERVER_CERT	Сертификат сервера был создан заново. Новый CN: "%S"
+LA_SET_SERVER_CIPHER	Установлено новое название для алгоритма шифрования сервера. Название нового алгоритма шифрования - "%S".
+LA_CREATE_HUB			Создан новый Virtual Hub "%S".
+LA_SET_HUB				Параметр Virtual Hub был изменен.
+LA_DELETE_HUB			Virtual Hub "%S" был удален.
+LA_SET_HUB_RADIUS		Настройки RADIUS сервера Virtual Hub были изменены.
+LA_DISCONNECT_CONN		Клиентское подключение "%S" на этом сервере было принудительно отключено.
+LA_SET_HUB_ONLINE		Virtual Hub включен.
+LA_SET_HUB_OFFLINE		Virtual Hub отключен.
+LA_SET_SNAT_OPTION		Установлен параметр SecureNAT.
+LA_ENABLE_SNAT			Функция SecureNAT включена.
+LA_DISABLE_SNAT			Функция SecureNAT отключена.
+LA_SET_HUB_LOG			Настройка сохранения журнала изменена.
+LA_ADD_CA				Добавлен доверенный корневой сертификат.
+LA_DELETE_CA			Удален доверенный корневой сертификат.
+LA_CREATE_LINK			Добавлено каскадное подключение "%s".
+LA_SET_LINK				Настройка каскадного подключения "%s" изменена.
+LA_SET_LINK_ONLINE		Каскадное подключение "%s" в режиме онлайн.
+LA_SET_LINK_OFFLINE		Каскадное подключение "%s" в режиме офлайн.
+LA_DELETE_LINK			Каскадное подключение "%s" удалено.
+LA_RENAME_LINK			Название каскадного подключения "%s" было изменено на "%s".
+LA_ADD_ACCESS			Добавлен список доступа.
+LA_DELETE_ACCESS		Список доступа удален.
+LA_SET_ACCESS_LIST		Список доступа обновлен. Кол-во записей в списке доступа - %u.
+LA_SET_AC_LIST			Список ограничения по IP адресам обновлен. Кол-во правил в списке - %u.
 LA_CREATE_USER			User "%S" has been created.
 LA_SET_USER				The setting of user "%S" has been updated.
 LA_DELETE_USER			User "%S" has been deleted.
