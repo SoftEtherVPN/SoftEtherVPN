@@ -2090,7 +2090,7 @@ LE_NOT_ENOUGH_FREE		<<ВНИМАНИЕ!>> Если свободное место
 L3_SWITCH_START			Виртуальный коммутатор 3-го уровня "%S" запущен. Он будет ждать, пока все Virtual Hub на всех интерфейсах, зарегистрированных на этом коммутаторе, не будут включены, а затем начнет работу.
 L3_SWITCH_ONLINE		Все Virtual Hub всех интерфейсов виртуального коммутатора 3-го уровня "%S" включены, и виртуальный коммутатор 3-го уровня начал работу.
 L3_SWITCH_OFFLINE		По крайней мере на одном из интерфейсов виртуального коммутатора 3-го уровня "%S" выключен Virtual Hub, и работа виртуального коммутатора 3-го уровня остановлена.
-L3_SWITCH_STOP			Виртуальный коммутатор 3-го уровня "%S" остановлен.
+L3_SWITCH_STOP			Виртуальный коммутатор 3-го уровня "%S" отключен.
 
 # Concerning Microsoft.c
 MS_VIRTUAL				Собственный виртуальный/внутренний интерфейс
@@ -3713,21 +3713,21 @@ IDCANCEL				Выход
 PREFIX					D_SM_LICENSE_ADD
 CAPTION					Добавить лицензионные ключи
 S_INFO					Вы можете зарегистрировать лицензию на SoftEther VPN Server или лицензию на подключение.
-STATIC1					Лицензионные ключи состоят из 36 символов. Это код, подтверждающий право собственности на лицензию. \r\n\r\nWhen a license certificate is received together with this software, the license key is printed on this license certificate. If the license for this software has been purchased online, the license key is provided by email and on the website window at the time the license is purchased. The license key may also be written down by some other method. If you don't know where the license key is written down, ask the vendor who sold you the license.
-STATIC2					&Input the License Key Accurately:
-STATIC3					Enter the license key by separating the input into 6-digit groups. You don't need to input the dashes. It is also possible to copy && paste the license key.
-B_INFO2					This software is protected by world-wide copyright laws. Customers can only make copies and use this software in accordance with the license conditions. Warning: Use of illegitimately obtained license keys, use of a single license on multiple servers, or unauthorized distribution of licenses is a breach of the license agreement and such action may result in civil or legal proceedings.
-IDOK					&Register
-IDCANCEL				Cancel
+STATIC1					Лицензионные ключи состоят из 36 символов. Это код, подтверждающий право собственности на лицензию. \r\n\r\nКогда лицензионный сертификат получен вместе с этим программным обеспечением, лицензионный ключ печатается на этом лицензионном сертификате. Если лицензия на это программное обеспечение была приобретена через Интернет, лицензионный ключ предоставляется по электронной почте и в окне веб-сайта во время покупки лицензии. Лицензионный ключ также может быть записан другим способом. Если вы не знаете, где записан лицензионный ключ, спросите продавца, который продал вам лицензию.
+STATIC2					&Введите лицензионный ключ:
+STATIC3					Введите лицензионный ключ, разделив ввод на группы из 6 цифр. Дефисы вводить не нужно. Также можно скопировать и вставить лицензионный ключ.
+B_INFO2					Это программное обеспечение защищено всемирными законами об авторских правах. Клиенты могут делать копии и использовать это программное обеспечение только в соответствии с условиями лицензии. Предупреждение: Использование незаконно полученных лицензионных ключей, использование одной лицензии на нескольких серверах или несанкционированное распространение лицензий является нарушением лицензионного соглашения, и такие действия могут привести к гражданскому или судебному разбирательству.
+IDOK					&Зарегистрировать
+IDCANCEL				Отмена
 
 
 PREFIX					D_FREEINFO
-CAPTION					About SoftEther VPN Server Free Edition
-S_INFO_1				Thank you for trying out the SoftEther VPN Server Free Edition.
-S_INFO_2				The SoftEther VPN Server operating on destination server "%S" is the Free Edition intended for personal use. \r\nWhen using the Free Edition, you can use all the SoftEther VPN Server functions but the User Agreement prohibits the following usage.
-S_INFO_3				Use where communication for commercial purposes travels via the VPN Server. 
-S_INFO_4				Note that if the software is used based on the above mentioned prohibited usage, it is a breach of the SoftEther VPN Server user agreement. The above restriction is lifted once you obtain a regular product license for SoftEther VPN Server. For details on the regular product version, please visit www.softether.com. \r\n\r\nIf this server is being used under the usage described above, please contact us via our website at www.softether.com. \r\n\r\nNote: This window will appear when connected to a Free Edition of VPN Server. This window does not appear when Editions other than the Free Editions of the software product are used. \r\nNote: Apart from this notification window, there are absolutely no differences between the Free Edition software and the product version.
-B_HIDE					&Hide this window next time.
+CAPTION					О бесплатном версии SoftEther VPN-сервера 
+S_INFO_1				Спасибо, что попробовали бесплатную версию SoftEther VPN-сервера.
+S_INFO_2				SoftEther VPN-сервер, работающий на сервере "%S", представляет собой бесплатную версию, предназначенную для личного использования. \r\nПри использовании бесплатной версии вы можете использовать все функции SoftEther VPN-сервера, но пользовательское соглашение запрещает следующее использование.
+S_INFO_3				Использование VPN-сервера в коммерческих целях. 
+S_INFO_4				Обратите внимание: Если программное обеспечение используется на основании вышеупомянутого запрещенного использования, это является нарушением пользовательского соглашения SoftEther VPN-сервера. Вышеуказанное ограничение снимается после получения обычной лицензии на SoftEther VPN-сервер. Подробные сведения о стандартной версии продукта см. На сайте www.softether.com. \r\n\r\n Примечание: Это окно появится при подключении к бесплатной версии VPN-сервера. Это окно не появляется, если используются версии программного продукта, отличные от бесплатных. \r\n Примечание: За исключением этого окна уведомления, нет абсолютно никаких различий между бесплатной и платной версией продукта.
+B_HIDE					&Скрыть это окно в следующий раз.
 IDCANCEL				&OK
 
 
