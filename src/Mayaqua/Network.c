@@ -5750,7 +5750,7 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 
 #if 0
 			// Cannot get config
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#ifdef SSL_SECOP_VERSION
 			if (sock->SslAcceptSettings.Override_Security_Level)
 			{
 				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
