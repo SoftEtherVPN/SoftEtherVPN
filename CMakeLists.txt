@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.7)
 
+set(BUILD_NUMBER CACHE STRING "The number of the current build.")
+
+if ("${BUILD_NUMBER}" STREQUAL "")
+	set(BUILD_NUMBER "0")
+endif()
+
 project("SoftEther VPN"
-  VERSION 5.01.9674
+  VERSION "5.01.${BUILD_NUMBER}"
   LANGUAGES C
 )
 
@@ -19,20 +25,6 @@ endif()
 # Check that submodules are present only if source was downloaded with git
 if(EXISTS "${TOP_DIRECTORY}/.git" AND NOT EXISTS "${TOP_DIRECTORY}/src/Mayaqua/3rdparty/cpu_features/CMakeLists.txt")
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
-endif()
-
-# Compare ${PROJECT_VERSION} and src/CurrentBuild.txt
-file(READ ${TOP_DIRECTORY}/src/CurrentBuild.txt CurrentBuild)
-
-string(REGEX MATCH "VERSION_MAJOR ([0-9]+)" temp ${CurrentBuild})
-string(REGEX REPLACE "VERSION_MAJOR ([0-9]+)" "\\1" CurrentBuild_MAJOR ${temp})
-string(REGEX MATCH "VERSION_MINOR ([0-9]+)" temp ${CurrentBuild})
-string(REGEX REPLACE "VERSION_MINOR ([0-9]+)" "\\1" CurrentBuild_MINOR ${temp})
-string(REGEX MATCH "VERSION_BUILD ([0-9]+)" temp ${CurrentBuild})
-string(REGEX REPLACE "VERSION_BUILD ([0-9]+)" "\\1" CurrentBuild_BUILD ${temp})
-
-if(NOT ${PROJECT_VERSION} VERSION_EQUAL "${CurrentBuild_MAJOR}.${CurrentBuild_MINOR}.${CurrentBuild_BUILD}")
-  message (FATAL_ERROR "PROJECT_VERSION does not match to src/CurrentBuild.txt")
 endif()
 
 if(UNIX)

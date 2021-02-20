@@ -4,7 +4,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: "azure-pipelines-win-steps.yml"
+  - template: "windows-steps.yml"
     parameters:
       architecture: "x86_64"
       compilerPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/Llvm/x64/bin/clang-cl.exe"
@@ -15,7 +15,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: "azure-pipelines-win-steps.yml"
+  - template: "windows-steps.yml"
     parameters:
       architecture: "x86"
       compilerPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/Llvm/bin/clang-cl.exe"
