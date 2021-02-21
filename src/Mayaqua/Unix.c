@@ -1840,6 +1840,10 @@ LOCK *UnixNewLock()
 
 	// Create a mutex
 	mutex = UnixMemoryAlloc(sizeof(pthread_mutex_t));
+	if (mutex == NULL)
+	{
+		return NULL;
+	}
 
 	// Initialization of the mutex
 	pthread_mutex_init(mutex, NULL);
