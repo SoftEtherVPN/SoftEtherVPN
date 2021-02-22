@@ -52,13 +52,6 @@ You can build this file from the 'vpn16' directory. However, you need
 Visual C++ 16-bit edition and Windows 98 DDK to rebuild this 'vpn16.exe'.
 
 
-
-How to rebuild the 'vpnweb.cab' and 'vpnweb.ocx' files?
--------------------------------------------------------
-These files are ActiveX controls.
-The source code is in the 'vpnweb' directory.
-
-
 'winpcap_installer.exe' and 'winpcap_installer_win9x.exe'
 ---------------------------------------------------------
 They are WinPcap binaries from http://www.winpcap.org/.
