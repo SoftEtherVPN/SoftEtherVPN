@@ -721,6 +721,12 @@ bool PPPProcessRetransmissions(PPP_SESSION *p)
 // Send the PPP Echo Request
 bool PPPSendEchoRequest(PPP_SESSION *p)
 {
+	// Validate arguments
+	if (p == NULL)
+	{
+		return false;
+	}
+
 	UINT64 now = Tick64();
 	if (p->NextEchoSendTime == 0 || now >= p->NextEchoSendTime)
 	{
@@ -731,12 +737,6 @@ bool PPPSendEchoRequest(PPP_SESSION *p)
 		if (IsIPCConnected(p->Ipc))
 		{
 			AddInterrupt(p->Ipc->Interrupt, p->NextEchoSendTime);
-		}
-
-		// Validate arguments
-		if (p == NULL)
-		{
-			return false;
 		}
 
 		pp = ZeroMalloc(sizeof(PPP_PACKET));
