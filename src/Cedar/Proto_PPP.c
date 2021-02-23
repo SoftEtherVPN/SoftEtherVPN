@@ -721,6 +721,12 @@ bool PPPProcessRetransmissions(PPP_SESSION *p)
 // Send the PPP Echo Request
 bool PPPSendEchoRequest(PPP_SESSION *p)
 {
+	// Validate arguments
+	if (p == NULL)
+	{
+		return false;
+	}
+
 	UINT64 now = Tick64();
 	if (p->NextEchoSendTime == 0 || now >= p->NextEchoSendTime)
 	{
@@ -731,12 +737,6 @@ bool PPPSendEchoRequest(PPP_SESSION *p)
 		if (IsIPCConnected(p->Ipc))
 		{
 			AddInterrupt(p->Ipc->Interrupt, p->NextEchoSendTime);
-		}
-
-		// Validate arguments
-		if (p == NULL)
-		{
-			return false;
 		}
 
 		pp = ZeroMalloc(sizeof(PPP_PACKET));
@@ -2573,10 +2573,6 @@ PPP_PACKET *ParsePPPPacket(void *data, UINT size)
 	buf = (UCHAR *)data;
 
 	// Address
-	if (size < 1)
-	{
-		goto LABEL_ERROR;
-	}
 	if (buf[0] != 0xff)
 	{
 		goto LABEL_ERROR;
@@ -3745,7 +3741,7 @@ bool PPPParseUsername(CEDAR *cedar, char *src_username, ETHERIP_ID *dst)
 	char src[MAX_SIZE];
 	// Validate arguments
 	Zero(dst, sizeof(ETHERIP_ID));
-	if (cedar == NULL || src == NULL || dst == NULL)
+	if (cedar == NULL || dst == NULL)
 	{
 		return false;
 	}
