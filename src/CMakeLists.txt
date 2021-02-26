@@ -144,7 +144,7 @@ add_subdirectory(vpntest)
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build
   ALL
-  COMMAND hamcorebuilder "${TOP_DIRECTORY}/src/bin/hamcore/" "${BUILD_DIRECTORY}/hamcore.se2"
+  COMMAND hamcorebuilder "${BUILD_DIRECTORY}/hamcore.se2" "${TOP_DIRECTORY}/src/bin/hamcore"
   DEPENDS hamcorebuilder
   COMMENT "Building hamcore.se2 archive file..."
   VERBATIM
