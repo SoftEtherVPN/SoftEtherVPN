@@ -1,0 +1,30 @@
+
+name: Coverity
+
+on:
+  schedule:
+  - cron: "0 0 * * *"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'SoftEtherVPN' }}
+    env:
+      COVERITY_SCAN_PROJECT_NAME: 'SoftEtherVPN/SoftEtherVPN'
+      COVERITY_SCAN_BRANCH_PATTERN: '*'
+      COVERITY_SCAN_NOTIFICATION_EMAIL: 'chipitsine@gmail.com'
+      COVERITY_SCAN_BUILD_COMMAND_PREPEND: "./configure"
+      COVERITY_SCAN_BUILD_COMMAND: "make -C build"
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install apt dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev
+    - name: Run Coverity Scan
+      env:
+        COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      run: |
+        curl -fsSL "https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh" | bash || true
