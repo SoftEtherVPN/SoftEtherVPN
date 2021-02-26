@@ -1,4 +1,4 @@
-﻿// Test sample code for SoftEther VPN Server JSON-RPC Stub
+// Test sample code for SoftEther VPN Server JSON-RPC Stub
 // Runs on both web browsers and Node.js
 // 
 // sample.ts

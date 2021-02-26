@@ -1,4 +1,4 @@
-﻿// SoftEther VPN Server JSON-RPC Stub code for C#
+// SoftEther VPN Server JSON-RPC Stub code for C#
 // 
 // VPNServerRpcTypes.cs - Data Type Definition for SoftEther VPN Server JSON-RPC Stubs
 //

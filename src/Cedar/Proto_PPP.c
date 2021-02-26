@@ -4047,5 +4047,3 @@ char *MsChapV2DoBruteForce(IPC_MSCHAP_V2_AUTHINFO *d, LIST *password_list)
 
 	return NULL;
 }
-
-

@@ -1,4 +1,4 @@
-﻿// SoftEther VPN Server JSON-RPC Stub code for C#
+// SoftEther VPN Server JSON-RPC Stub code for C#
 // 
 // VpnServerRpcTest.cs - Test sample code for SoftEther VPN Server JSON-RPC Stub
 //
