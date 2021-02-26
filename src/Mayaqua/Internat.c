@@ -22,12 +22,6 @@ static LOCK *iconv_lock = NULL;
 void *iconv_cache_wide_to_str = 0;
 void *iconv_cache_str_to_wide = 0;
 
-// Initialize the string
-void ClearUniStr(wchar_t *str, UINT str_size)
-{
-	UniStrCpy(str, str_size, L"");
-}
-
 // Examine whether the string contains the specified character
 bool UniInChar(wchar_t *string, wchar_t c)
 {
