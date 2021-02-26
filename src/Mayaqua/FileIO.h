@@ -13,8 +13,6 @@
 #define	HAMCORE_FILE_NAME			"hamcore.se2"
 #define	HAMCORE_FILE_NAME_2			"_hamcore.se2"
 #define	HAMCORE_TEXT_NAME			"hamcore.txt"
-#define	HAMCORE_HEADER_DATA			"HamCore"
-#define	HAMCORE_HEADER_SIZE			7
 #define	HAMCORE_CACHE_EXPIRES		(5 * 60 * 1000)
 
 // IO structure
