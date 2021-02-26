@@ -1,4 +1,4 @@
-﻿# SoftEther VPN Server JSON-RPC API Suite Document
+# SoftEther VPN Server JSON-RPC API Suite Document
 This reference describes all JSON-RPC functions available on SoftEther VPN Server.
 
 

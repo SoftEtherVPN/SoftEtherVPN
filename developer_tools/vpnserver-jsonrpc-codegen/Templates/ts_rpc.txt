@@ -1,4 +1,4 @@
-﻿// SoftEther VPN Server JSON-RPC Stub code for TypeScript
+// SoftEther VPN Server JSON-RPC Stub code for TypeScript
 // 
 // vpnrpc.ts
 // Automatically generated at __TIMESTAMP__ by vpnserver-jsonrpc-codegen
