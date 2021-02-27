@@ -80,14 +80,15 @@ bool BuildHamcore(const char *dst, const char *src)
 		}
 
 		uint8_t *content = malloc(file->OriginalSize);
-		if (!FileRead(handle, content, file->OriginalSize))
+		int ret = FileRead(handle, content, file->OriginalSize);
+		FileClose(handle);
+
+		if (!ret)
 		{
 			printf("FileRead() failed for \"%s\", skipping...\n", path);
 			free(content);
 			continue;
 		}
-
-		FileClose(handle);
 
 		const size_t wanted_size = CompressionBufferSize(file->OriginalSize);
 		if (buffer_size < wanted_size)
@@ -99,7 +100,7 @@ bool BuildHamcore(const char *dst, const char *src)
 		}
 
 		file->Size = buffer_size;
-		const int ret = compress(buffer, (uLongf *)&file->Size, content, (uLong)file->OriginalSize);
+		ret = compress(buffer, (uLongf *)&file->Size, content, (uLong)file->OriginalSize);
 		free(content);
 
 		if (ret != Z_OK)
