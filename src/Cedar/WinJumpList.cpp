@@ -80,9 +80,6 @@ extern "C"
 	//#include <propvarutil.h>
 	//#include <knownfolders.h>
 	//#include <shlobj.h>
-	//
-	//#pragma comment(lib, "propsys.lib")
-	//#pragma comment(lib, "shlwapi.lib")
 
 	#define CREATE_PROPERTYKEY(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8, pid) { { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }, pid }
 

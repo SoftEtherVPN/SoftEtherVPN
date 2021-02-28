@@ -27,6 +27,8 @@ if(WIN32)
     COMPILE_PDB_NAME "mayaqua"
     COMPILE_PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
   )
+
+  target_link_libraries(mayaqua PRIVATE setupapi.lib winmm.lib)
 endif()
 
 if(UNIX)
