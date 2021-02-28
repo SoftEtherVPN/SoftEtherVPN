@@ -398,7 +398,6 @@ PW_TYPE_1				Авторизация по логину и паролю
 PW_TYPE_2				RADIUS или авторизация в домене 
 PW_TYPE_3				Авторизация по сертификату
 PW_TYPE_4				Авторизация по смарт-карте
-PW_TYPE_5				Openssl авторизация
 
 PW_MSG_PROXY			Ошибка авторизации пользователя на прокси-сервере %S. Введите правильное имя пользователя и пароль.
 PW_TYPE_PROXY			Авторизация на прокси-сервере
@@ -797,7 +796,7 @@ CM_ACCOUNT_ONLINE		Подключено
 CM_ACCOUNT_CONNECTING	Подключение
 CM_VLAN_ENABLED			Включено
 CM_VLAN_DISABLED		Выключено
-CM_DELETE_ACCOUNT_MSG	Это удалит настройки VPN-подключения «%s». Вы действительно хотите это сделать?
+CM_DELETE_ACCOUNT_MSG	Это удалит настройки VPN-подключения "%s". Вы действительно хотите это сделать?
 CM_ST_ACCOUNT_NAME		Название VPN подключения
 CM_ST_CONNECTED			Статус сессии
 CM_ST_CONNECTED_TRUE	Соединение установлено
@@ -2138,25 +2137,25 @@ UT_SM_ST_WINS_2			WINS-сервер 2
 
 
 # Concerning EtherLogger Manager
-EM_TITLE				SoftEther EtherLogger Manager
-EM_REMOTE_TITLE			You can connect to and manage the SoftEther EtherLogger service. \r\nEnter the host name and IP address of the computer on which the EtherLogger service to be managed is operating. You can also concatenate the port number by using the ":" (colon).
-EM_MAIN_COLUMN_1		Network adapter name
-EM_MAIN_COLUMN_2		Status
-EM_MAIN_OK				Operating
-EM_MAIN_ERROR			Error
-EM_ADD_NEW				Add new capture device
-EM_ADD_EDIT				Edit capture settings
-EM_DELETE_CONFIRM		Are you sure you want to delete capture setting "%S"?
-EM_NO_LICENSE_COLUMN	Note: 
-EM_NO_LICENSE			Because not even one product license is registered, this SoftEther EtherLogger will not operate.
+EM_TITLE				Диспетчер SoftEther EtherLogger
+EM_REMOTE_TITLE			Вы можете подключиться к сервису SoftEther EtherLogger и управлять им. \r\nВведите имя хоста и IP-адрес компьютера, на котором работает служба EtherLogger. Вы также можете объединить номер порта, используя ':' (двоеточие).
+EM_MAIN_COLUMN_1		Имя сетевого адаптера
+EM_MAIN_COLUMN_2		Состояние
+EM_MAIN_OK				Управляется
+EM_MAIN_ERROR			Ошибка
+EM_ADD_NEW				Добавить новое устройство захвата
+EM_ADD_EDIT				Изменить настройки захвата
+EM_DELETE_CONFIRM		Вы действительно хотите удалить настройку захвата "%S"?
+EM_NO_LICENSE_COLUMN	Примечание: 
+EM_NO_LICENSE			Поскольку не зарегистрирована ни одна лицензия на продукт, этот SoftEther EtherLogger работать не будет.
 
-EM_UNSUPPORTED	Unable to use SoftEther EtherLogger on the operating system that this SoftEther EtherLogger is operating on. For the list of operating system that the SoftEther EtherLogger can be used on, please refer to the online documentation of the SoftEther EtherLogger.
-EM_WPCAP_REMOTE	In order to use this SoftEther EtherLogger, you need to install WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nTo continue the installation of the WinPcap software, you must start SoftEther EtherLogger Manager on the server computer that is running VPN Server and then while connected to localhost (location of your own computer), have the Local Bridge Function Setting window displayed. \r\nTo continue, first exit this management session, and then, after starting SoftEther EtherLogger Manager on the server computer, connect to localhost and continue the setting process. 
-EM_WPCAP_ROOT	In order to use this SoftEther EtherLogger, you need to install WinPcap software. \r\n\r\nTo continue the installation you must log in to this computer as a user with administrator privileges. \r\nLog on as an administrator and start the SoftEther VPN Server Manager again.
-EM_WPCAP_INSTALL	In order to use this SoftEther EtherLogger, you need to install WinPcap software. The software WinPcap is currently not installed on the server computer. \r\n\r\nWinPcap is an easy-to-install free software that is bundled together with the VPN Server. \r\n\r\nDo you want to begin the installation of WinPcap?
-EM_WPCAP_REBOOT1	After WinPcap installation has completed, you must restart the computer before you use the SoftEther EtherLogger. \r\n\r\nAfter you restart the computer manually and start SoftEther EtherLogger, configure the settings again.
-EM_WPCAP_REBOOT2	After WinPcap is installed, you must restart the SoftEther EtherLogger service. \r\n\r\nIt only takes a short time to restart the SoftEther EtherLogger service, however all management sessions that are currently connected to the SoftEther EtherLogger will be disconnected. \r\nThis management session will also be disconnected, so you will need to reconnect to continue. \r\n\r\nDo you want to restart the SoftEther Ether Logger service?
-EM_RESOURCE		Unable to read the WinPcap driver.
+EM_UNSUPPORTED	Невозможно использовать SoftEther EtherLogger в операционной системе, в которой работает этот SoftEther EtherLogger. Список операционных систем, в которых можно использовать SoftEther EtherLogger, см. в онлайн-документации SoftEther EtherLogger. 
+EM_WPCAP_REMOTE	Чтобы использовать этот SoftEther EtherLogger, вам необходимо установить программное обеспечение WinPcap. ПО WinPcap в настоящее время не установлено на сервере. \r\n\r\nЧтобы продолжить установку программного обеспечения WinPcap, вы должны запустить SoftEther EtherLogger Manager на сервере, на котором запущен VPN-сервер, а затем при подключении к localhost (местоположение вашего собственного компьютера) отобразить окно настройки функции локального моста. \r\nЧтобы продолжить, сначала выйдите из этого сеанса управления, а затем, после запуска Диспетчера SoftEther EtherLogger на сервере, подключитесь к localhost и продолжите процесс настройки. 
+EM_WPCAP_ROOT	Чтобы использовать этот SoftEther EtherLogger, вам необходимо установить программное обеспечение WinPcap. \r\n\r\nЧтобы продолжить установку, вы должны войти на этот компьютер как пользователь с правами администратора. \r\nВойдите в систему как администратор и снова запустите Диспетчер SoftEther VPN-серверов.
+EM_WPCAP_INSTALL	Чтобы использовать этот SoftEther EtherLogger, вам необходимо установить программное обеспечение WinPcap. Программное обеспечение WinPcap в настоящее время не установлено на сервере. \r\n\r\nWinPcap - это простое в установке бесплатное программное обеспечение, которое поставляется вместе с VPN-сервером. \r\n\r\nХотите начать установку WinPcap?
+EM_WPCAP_REBOOT1	После завершения установки WinPcap необходимо перезагрузить компьютер перед использованием SoftEther EtherLogger. \r\n\r\nПосле перезагрузки компьютера и запуска SoftEther EtherLogger снова запустите настройку.
+EM_WPCAP_REBOOT2	После установки WinPcap необходимо перезапустить службу SoftEther EtherLogger. \r\n\r\nЧтобы перезапустить службу SoftEther EtherLogger, потребуется немного времени, однако все сеансы управления, которые в настоящее время подключены к SoftEther EtherLogger, будут отключены. \r\nЭтот сеанс управления также будет отключен, поэтому вам нужно будет повторно подключиться, чтобы продолжить. \r\n\r\nВы хотите перезапустить службу SoftEther EtherLogger?
+EM_RESOURCE		Невозможно прочитать драйвер WinPcap.
 
 
 ###########################################################################
