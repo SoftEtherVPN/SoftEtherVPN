@@ -379,7 +379,7 @@ void CmPolicyDlg(HWND hWnd, CM_STATUS *st);
 UINT CmPolicyDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void CmPolicyDlgPrint(HWND hWnd, CM_POLICY *p);
 void CmPolicyDlgPrintEx(HWND hWnd, CM_POLICY *p, bool cascade_mode);
-void CmPolicyDlgPrintEx2(HWND hWnd, CM_POLICY *p, bool cascade_mode, bool ver);
+void CmPolicyDlgPrintEx2(HWND hWnd, CM_POLICY *p, bool cascade_mode, UINT ver);
 void CmNewAccount(HWND hWnd);
 void CmEditAccount(HWND hWnd, wchar_t *account_name);
 void CmGenerateNewAccountName(HWND hWnd, wchar_t *name, UINT size);
