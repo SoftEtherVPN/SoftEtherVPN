@@ -1430,11 +1430,11 @@ bool PackGetStrEx(PACK *p, char *name, char *str, UINT size, UINT index)
 }
 
 // Get the string size from the PACK
-bool PackGetStrSize(PACK *p, char *name)
+UINT PackGetStrSize(PACK *p, char *name)
 {
 	return PackGetStrSizeEx(p, name, 0);
 }
-bool PackGetStrSizeEx(PACK *p, char *name, UINT index)
+UINT PackGetStrSizeEx(PACK *p, char *name, UINT index)
 {
 	ELEMENT *e;
 	// Validate arguments
