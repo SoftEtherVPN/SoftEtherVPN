@@ -11,7 +11,7 @@
 # (Excludes dialog box resource strings)                                  #
 #                                                                         #
 ###########################################################################
-
+Virtual Hub - виртуальный узел или виртуальный хаб
 
 
 # Environment parameters
@@ -5871,7 +5871,259 @@ CMD_GroupUnjoin_Prompt_name	Name of User to Delete from Group:
 
 # GroupPolicyRemove command
 CMD_GroupPolicyRemove	Delete Group Security Policy
-CMD_GroupPolicyRemove_Help	Use this to delete the security policy setting that is set for a group that is registered on the security account database of the currently managed Virtual Hub. Users who do not have a security policy set for the user themselves or for the group they are assigned to, will have thed.
+CMD_GroupPolicyRemove_Help	Use this to delete the security policy setting that is set for a group that is registered on the security account database of the currently managed Virtual Hub. Users who do not have a security policy set for the user themselves or for the group they are assigned to, will have the default values (Allow Access: Enabled, Maximum Number of TCP Connections: 32, Time-out Period: 20 seconds) applied to them. \nTo get the list of currently registered groups, use the GroupList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
+CMD_GroupPolicyRemove_Args	GroupPolicyRemove [name]
+CMD_GroupPolicyRemove_[name]	Specify the group name of the group whose setting you want to change.
+
+
+# GroupPolicySet command
+CMD_GroupPolicySet		Set Group Security Policy
+CMD_GroupPolicySet_Help	Use this to set the security policy contents that are set for a group that is registered on the security account database of the currently managed Virtual Hub. \nWhen a group has not been set a security policy, use this to change the specified values after a new default security policy has been set. \nTo get the list of currently registered groups, use the GroupList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
+CMD_GroupPolicySet_Args	GroupPolicySet [name] [/NAME:policy_name] [/VALUE:num|yes|no]
+CMD_GroupPolicySet_[name]	Specify the group name of the group whose setting you want to change.
+CMD_GroupPolicySet_NAME	Specify the name of policy whose values you want to change. You can use the PolicyList command to display a list of policy names and values that can be set.
+CMD_GroupPolicySet_VALUE	Specify a new policy value. If the policy is an integer value, specify an integer. Specify yes or no for Boolean types. You can view the type and value that can be set by using the PolicyList command.
+
+
+# SessionList command
+CMD_SessionList			Get List of Connected Sessions
+CMD_SessionList_Help	Use this to get a list of the sessions connected to the Virtual Hub currently being managed. In the list of sessions, the following information will be displayed for each connection: Session Name, Session Site, User Name, Source Host Name, TCP Connection, Transfer Bytes and Transfer Packets. \nIf the currently connected VPN Server is a cluster controller and the currently managed Virtual Hub is a static Virtual Hub, you can get an all-linked-together list of all sessions connected to that Virtual Hub on all cluster members. \nIn all other cases, only the list of sessions that are actually connected to the currently managed VPN Server will be obtained.
+CMD_SessionList_Args	SessionList
+
+
+# SessionGet command
+CMD_SessionGet			Get Session Information
+CMD_SessionGet_Help		Use this to specify a session currently connected to the currently managed Virtual Hub and get the session information. The session information includes the following: source host name and user name, version information, time information, number of TCP connections, communication parameters, session key, statistical information on data transferred, and other client and server information. \nTo get the list of currently connected sessions, use the SessionList command.
+CMD_SessionGet_Args		SessionGet [name]
+CMD_SessionGet_[name]	Specify the session name of the session whose information you want to get.
+CMD_SessionGet_Prompt_NAME	Session name: 
+
+
+# SessionDisconnect command
+CMD_SessionDisconnect	Disconnect Session
+CMD_SessionDisconnect_Help	Use this to specify a session currently connected to the currently managed Virtual Hub and forcefully disconnect that session using manager privileges. \nNote that when communication is disconnected by settings on the source client side and the automatically reconnect option is enabled, it is possible that the client will reconnect. \nTo get the list of currently connected sessions, use the SessionList command.
+CMD_SessionDisconnect_Args	SessionDisconnect [name]
+CMD_SessionDisconnect_[name]	Specify the session name of the session to disconnect.
+
+
+# MacTable command
+CMD_MacTable			Get the MAC Address Table Database
+CMD_MacTable_Help		Use this to get the MAC address table database that is held by the currently managed Virtual Hub. \nThe MAC address table database is a table that the Virtual Hub requires to perform the action of switching Ethernet frames and the Virtual Hub decides the sorting destination session of each Ethernet frame based on the MAC address table database. The MAC address database is built by the Virtual Hub automatically analyzing the contents of the communication throughput. \nBy specifying the session name you can get the MAC address table entry that has been associated with that session.
+CMD_MacTable_Args		MacTable [session_name]
+CMD_MacTable_[session_name]	By specifying the session name as a parameter, you can display only the MAC address table entry that is associated with that session. When this is left unspecified, all the entries will be displayed.
+
+
+# MacDelete command
+CMD_MacDelete			Delete MAC Address Table Entry
+CMD_MacDelete_Help		Use this command to operate the MAC address table database held by the currently managed Virtual Hub and delete a specified MAC address table entry from the database. \nTo get the contents of the current MAC address table database use the MacTable command.
+CMD_MacDelete_Args		MacDelete [id]
+CMD_MacDelete_[id]		Specify the ID of the MAC address table entry to delete.
+CMD_MacDelete_Prompt	ID to Delete: 
+
+
+# IpTable command
+CMD_IpTable				Get the IP Address Table Database
+CMD_IpTable_Help		Use this to get the IP address table database that is held by the currently managed Virtual Hub. \nThe IP address table database is a table that is automatically generated by analyzing the contents of communication so that the Virtual Hub can always know which session is using which IP address and it is frequently used by the engine that applies the Virtual Hub security policy. \nBy specifying the session name you can get the IP address table entry that has been associated with that session.
+CMD_IpTable_Args		IpTable [session_name]
+CMD_IpTable_[session_name]	By specifying the session name as a parameter, you can display only the IP address table entry that is associated with that session. When this is left unspecified, all the entries will be displayed.
+
+
+# IpDelete command
+CMD_IpDelete			Delete IP Address Table Entry
+CMD_IpDelete_Help		Use this command to operate the IP address table database held by the currently managed Virtual Hub and delete a specified IP address table entry from the database. \nTo get the contents of the current IP address table database use the IpTable command.
+CMD_IpDelete_Args		IpDelete [id]
+CMD_IpDelete_[id]		Specify the ID of the IP address table entry to delete.
+
+
+# SecureNatEnable command
+CMD_SecureNatEnable		Enable the Virtual NAT and DHCP Server Function (SecureNat Function)
+CMD_SecureNatEnable_Help	Use this to enable the Virtual NAT and DHCP Server function (SecureNat Function) on the currently managed Virtual Hub and begin its operation. Before executing this command, you must first check the setting contents of the current Virtual NAT function and DHCP Server function using the SecureNatHostGet command, NatGet command and DhcpGet command. \nBy enabling the SecureNAT function, you can virtually operate a NAT router (IP masquerade) and the DHCP Server function on a virtual network on the Virtual Hub. \n\n[Warning about SecureNAT Function]\nThe SecureNAT function is recommended only for system administrators and people with a detailed knowledge of networks. \nIf you use the SecureNAT function correctly, it is possible to achieve a safe form of remote access via a VPN. However when used in the wrong way, it can put the entire network in danger. Anyone who does not have a thorough knowledge of networks and anyone who does not have the network administrator's permission must not enable the SecureNAT function. For a detailed explanation of the SecureNAT function, please refer to the VPN Server's manual and online documentation. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SecureNatEnable_Args	SecureNatEnable
+
+
+# SecureNatDisable command
+CMD_SecureNatDisable	Disable the Virtual NAT and DHCP Server Function (SecureNat Function)
+CMD_SecureNatDisable_Help	Use this to disable the Virtual NAT and DHCP Server function (SecureNat Function) on the currently managed Virtual Hub. By executing this command the Virtual NAT function immediately stops operating and the Virtual DHCP Server function deletes the DHCP lease database and stops the service. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SecureNatDisable_Args	SecureNatDisable
+
+
+# SecureNatStatusGet command
+CMD_SecureNatStatusGet	Get the Operating Status of the Virtual NAT and DHCP Server Function (SecureNat Function)
+CMD_SecureNatStatusGet_Help	Use this to get the operating status of the Virtual NAT and DHCP Server function (SecureNat Function) when it is operating on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SecureNatStatusGet_Args	SecureNatStatusGet
+
+
+# SecureNatHostGet command
+CMD_SecureNatHostGet	Get Network Interface Setting of Virtual Host of SecureNAT Function
+CMD_SecureNatHostGet_Help	Use this to get the virtual host network interface setting from the setting items of the Virtual NAT and DHCP Server function (SecureNAT function) on the currently managed Virtual Hub. \nThe SecureNAT function holds one virtual network adapter on the L2 segment inside the Virtual Hub and it has been assigned a MAC address and an IP address. By doing this, another host connected to the same L2 segment is able to communicate with the SecureNAT virtual host as if it is an actual IP host existing on the network. \n\n[Warning about SecureNAT Function]\nThe SecureNAT function is recommended only for system administrators and people with a detailed knowledge of networks. \nIf you use the SecureNAT function correctly, it is possible to achieve a safe form of remote access via a VPN. However when used in the wrong way, it can put the entire network in danger. Anyone who does not have a thorough knowledge of networks and anyone who does not have the network administrators permission must not enable the SecureNAT function. For a detailed explanation of the SecureNAT function, please refer to the VPN Server's manual and online documentation. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SecureNatHostGet_Args	SecureNatHostGet
+CMD_SecureNatHostGet_Column_MAC	MAC Address
+CMD_SecureNatHostGet_Column_IP	IP Address
+CMD_SecureNatHostGet_Column_MASK	Subnet Mask
+CMD_SecureNatHostGet_Column_LOG	Save NAT and DHCP Operation Log
+
+
+# SecureNatHostSet command
+CMD_SecureNatHostSet	Change Network Interface Setting of Virtual Host of SecureNAT Function
+CMD_SecureNatHostSet_Help	Use this to change and save the virtual host network interface setting in the setting items of the Virtual NAT and DHCP Server function (SecureNAT function) on the currently managed Virtual Hub. \nThe SecureNAT function holds one virtual network adapter on the L2 segment inside the Virtual Hub and it has been assigned a MAC address and an IP address. By doing this, another host connected to the same L2 segment is able to communicate with the SecureNAT virtual host as if it is an actual IP host existing on the network. \n\n[Warning about SecureNAT Function]\nThe SecureNAT function is recommended only for system administrators and people with a detailed knowledge of networks. \nIf you use the SecureNAT function correctly, it is possible to achieve a safe form of remote access via a VPN. However when used in the wrong way, it can put the entire network in danger. Anyone who does not have a thorough knowledge of networks and anyone who does not have the network administrators permission must not enable the SecureNAT function. For a detailed explanation of the SecureNAT function, please refer to the VPN Server's manual and online documentation. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SecureNatHostSet_Args	SecureNatHostSet [/MAC:mac] [/IP:ip] [/MASK:mask]
+CMD_SecureNatHostSet_MAC	Specify the MAC address to assign for the virtual interface. Specify a MAC address using a string like "00-AC-01-23-45-67". When /MAC:none is specified, no changes will be made to the current setting.
+CMD_SecureNatHostSet_IP		Specify the IP address to assign for the virtual interface. When /IP:none is specified, no changes will be made to the current setting.
+CMD_SecureNatHostSet_MASK	Specify the subnet mask to assign for the virtual interface. When /MASK:none is specified, no changes will be made to the current setting.
+CMD_SecureNatHostSet_Prompt_MAC	MAC Address: 
+CMD_SecureNatHostSet_Prompt_IP	IP Address: 
+CMD_SecureNatHostSet_Prompt_MASK	Subnet Mask: 
+
+
+# NatGet command
+CMD_NatGet				Get Virtual NAT Function Setting of SecureNAT Function
+CMD_NatGet_Help			Use this to get the virtual NAT setting from the setting items of the Virtual NAT and DHCP Server function (SecureNAT function) on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_NatGet_Args			NatGet
+CMD_NatGet_Column_USE	Use Virtual NAT Function
+CMD_NetGet_Column_MTU	MTU Value
+CMD_NatGet_Column_TCP	TCP Session Timeout (Seconds) 
+CMD_NatGet_Column_UDP	UDP Session Timeout (Seconds) 
+
+
+# NatEnable command
+CMD_NatEnable			Enable Virtual NAT Function of SecureNAT Function
+CMD_NatEnable_Help		Use this to enable the Virtual NAT function on the currently managed Virtual Hub. \nIf the SecureNAT function is still not operating even after this command has been used to enable the Virtual NAT function, Virtual NAT is not operating. To start the operation of the SecureNAT Function, use the SecureNatEnable command. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_NatEnable_Args		NatEnable
+
+
+# NatDisable command
+CMD_NatDisable			Disable Virtual NAT Function of SecureNAT Function
+CMD_NatDisable_Help		Use this to disable the Virtual NAT function on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_NatDisable_Args		NatDisable
+
+
+# NatSet command
+CMD_NatSet				Change Virtual NAT Function Setting of SecureNAT Function
+CMD_NatSet_Help			Use this to change the Virtual NAT setting of the currently managed Virtual Hub. The contents of the Virtual NAT setting includes: MTU value, TCP session timeout and UDP session timeout \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_NatSet_Args			NatSet [/MTU:mtu] [/TCPTIMEOUT:tcp_timeout] [/UDPTIMEOUT:udp_timeout] [/LOG:yes|no]
+CMD_NatSet_MTU			Set the MTU (Maximum transferable unit size) using an integer to specify the byte length unit. This value is the maximum payload length excluding the MAC header of the Ethernet frame that the Virtual NAT sends and the default is 1500 bytes.
+CMD_NatSet_TCPTIMEOUT	This sets how many seconds a condition of non-communication continues in a TCP session that the Virtual NAT is relaying before a timeout occurs and the session is discarded.
+CMD_NatSet_UDPTIMEOUT	This sets how many seconds a condition of non-communication continues in a UDP session that the Virtual NAT is relaying before a timeout occurs and the session is discarded.
+CMD_NatSet_LOG			Specify whether or not to save the Virtual NAT operation in the Virtual Hub security log. Specify "yes" to save it, and "no" to not save it.
+CMD_NatSet_Prompt_MTU	MTU Value: 
+CMD_NatSet_Prompt_TCPTIMEOUT	TCP Session Timeout (Seconds): 
+CMD_NatSet_Prompt_UDPTIMEOUT	UDP Session Timeout (Seconds): 
+CMD_NatSet_Prompt_LOG	Save Log (yes / no): 
+CMD_NatSet_Eval_MTU		Specify a value in the range %d to %d for the MTU value.
+CMD_NatSet_Eval_TCP		Specify the number of seconds in the range %d to %d for the TCP session timeout.
+CMD_NatSet_Eval_UDP		Specify the number of seconds in the range %d to %d for the UDP session timeout.
+
+
+# NatTable command
+CMD_NatTable			Get Virtual NAT Function Session Table of SecureNAT Function
+CMD_NatTable_Help		Use this to get the table of TCP and UDP sessions currently communicating via the Virtual NAT (NAT table) in cases when the Virtual NAT function is operating on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_NatTable_Args		NatTable
+
+
+# DhcpGet command
+CMD_DhcpGet				Get Virtual DHCP Server Function Setting of SecureNAT Function
+CMD_DhcpGet_Help		Use this to get the virtual DHCP Server setting from the setting items of the Virtual NAT and DHCP Server function (SecureNAT function) on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_DhcpGet_Args		DhcpGet
+CMD_DhcpGet_Column_Log	Record Log of NAT and DHCP Operation
+CMD_DhcpGet_Column_USE	Use Virtual DHCP Function
+CMD_DhcpGet_Column_IP1	Start Distribution Address Band
+CMD_DhcpGet_Column_IP2	End Distribution Address Band
+CMD_DhcpGet_Column_MASK	Subnet Mask
+CMD_DhcpGet_Column_LEASE	Lease Limit (Seconds) 
+CMD_DhcpGet_Column_GW	Default Gateway Address
+CMD_DhcpGet_Column_DNS	DNS Server Address 1
+CMD_DhcpGet_Column_DNS2	DNS Server Address 2
+CMD_DhcpGet_Column_DOMAIN	Domain Name
+CMD_DhcpGet_Column_PUSHROUTE	Static Routing Table to Push
+
+
+# DhcpEnable command
+CMD_DhcpEnable			Enable Virtual DHCP Server Function of SecureNAT Function
+CMD_DhcpEnable_Help		Use this to enable the Virtual DHCP Server function on the currently managed Virtual Hub. \nIf the SecureNAT function is still not operating even after this command has been used to enable the Virtual DHCP function, Virtual DHCP Server is not operating. To start the operation of the SecureNAT Function, use the SecureNatEnable command. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_DhcpEnable_Args		DhcpEnable
+
+
+# DhcpDisable command
+CMD_DhcpDisable			Disable Virtual DHCP Server Function of SecureNAT Function
+CMD_DhcpDisable_Help	Use this to disable the Virtual DHCP Server function on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_DhcpDisable_Args	DhcpDisable
+
+
+# DhcpSet command
+CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function
+CMD_DhcpSet_Help		Use this to change the Virtual DHCP Server setting of the currently managed Virtual Hub. The Virtual DHCP Server settings include the following items: distribution address band, subnet mask, lease limit, and option values assigned to clients. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+CMD_DhcpSet_START		Specify the start point of the address band to be distributed to the client. (Example: 192.168.30.10)
+CMD_DhcpSet_END			Specify the end point of the address band to be distributed to the client. (Example: 192.168.30.200)
+CMD_DhcpSet_MASK		Specify the subnet mask to be specified for the client. (Example: 255.255.255.0)
+CMD_DhcpSet_EXPIRE		Specify the expiration date in second units for leasing an IP address to a client.
+CMD_DhcpSet_GW			Specify the IP address of the default gateway to be notified to the client. You can specify a SecureNAT Virtual Host IP address for this when the SecureNAT Function's Virtual NAT Function has been enabled and is being used also. If you specify 0 or none, then the client will not be notified of the default gateway.
+CMD_DhcpSet_DNS			Specify the IP address of the primary DNS Server to be notified to the client. You can specify a SecureNAT Virtual Host IP address for this when the SecureNAT Function's Virtual NAT Function has been enabled and is being used also. If you specify 0 or none, then the client will not be notified of the DNS Server address.
+CMD_DhcpSet_DNS2		Specify the IP address of the secondary DNS Server to be notified to the client. You can specify a SecureNAT Virtual Host IP address for this when the SecureNAT Function's Virtual NAT Function has been enabled and is being used also. If you specify 0 or none, then the client will not be notified of the DNS Server address.
+CMD_DhcpSet_DOMAIN		Specify the domain name to be notified to the client. If you specify none, then the client will not be notified of the domain name.
+CMD_DhcpSet_LOG			Specify whether or not to save the Virtual DHCP Server operation in the Virtual Hub security log. Specify "yes" to save it. This value is interlinked with the Virtual NAT Function log save setting.
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format.\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_Prompt_START	Start Point for Distributed Address Band: 
+CMD_DhcpSet_Prompt_END		End Point for Distributed Address Band: 
+CMD_DhcpSet_Prompt_MASK		Subnet Mask: 
+CMD_DhcpSet_Prompt_EXPIRE	Lease Limit (Seconds): 
+CMD_DhcpSet_Prompt_GW		Default Gateway ('none' to not set this): 
+CMD_DhcpSet_Prompt_DNS		DNS Server 1 ('none' to not set this): 
+CMD_DhcpSet_Prompt_DNS2		DNS Server 2 ('none' to not set this): 
+CMD_DhcpSet_Prompt_DOMAIN	Domain Name: 
+
+
+# DhcpTable command
+CMD_DhcpTable			Get Virtual DHCP Server Function Lease Table of SecureNAT Function
+CMD_DhcpTable_Help		Use this to get the lease table of IP addresses, held by the Virtual DHCP Server, that are assigned to clients in cases when the Virtual NAT function is operating on the currently managed Virtual Hub. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_DhcpTable_Args		DhcpTable
+
+
+# AdminOptionList command
+CMD_AdminOptionList		Get List of Virtual Hub Administration Options
+CMD_AdminOptionList_Help	Use this to get a list of Virtual Hub administration options that are set on the currently managed Virtual Hub. \nThe purpose of the Virtual Hub administration options is for the VPN Server Administrator to set limits for the setting ranges when the administration of the Virtual Hub is to be trusted to each Virtual Hub administrator. \nOnly an administrator with administration privileges for this entire VPN Server is able to add, edit and delete the Virtual Hub administration options. The Virtual Hub administrators are unable to make changes to the administration options, however they are able to view them. \nThere is an exception however. If allow_hub_admin_change_option is set to "1", even Virtual Hub administrators are able to edit the administration options. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_AdminOptionList_Args	AdminOptionList
+
+
+# AdminOptionSet command
+CMD_AdminOptionSet		Set Values of Virtual Hub Administration Options
+CMD_AdminOptionSet_Help	Use this to change the values of Virtual Hub administration options that are set on the currently managed Virtual Hub. \nThe purpose of the Virtual Hub administration options is for the VPN Server Administrator to set limits for the setting ranges when the administration of the Virtual Hub is to be trusted to each Virtual Hub administrator. \nOnly an administrator with administration privileges for this entire VPN Server is able to add, edit and delete the Virtual Hub administration options. The Virtual Hub administrators are unable to make changes to the administration options, however they are able to view them. \nThere is an exception however. If allow_hub_admin_change_option is set to "1", even Virtual Hub administrators are able to edit the administration options. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_AdminOptionSet_Args	AdminOptionSet [name] [/VALUE:value]
+CMD_AdminOptionSet_[name]	Specify the name of the administration option whose value you want to change. You can get a list of names by using the AdminOptionList command.
+CMD_AdminOptionSet_VALUE	Specify an integer for the setting value.
+CMD_AdminOptionSet_Prompt_name	Name of Administration Option to Change Value: 
+CMD_AdminOptionSet_Prompt_VALUE	Setting Value (Integer): 
+
+
+# ExtOptionList command
+CMD_ExtOptionList		Get List of Virtual Hub Extended Options
+CMD_ExtOptionList_Help	Use this to get a Virtual Hub Extended Options List that is set on the currently managed Virtual Hub.\nVirtual Hub Extended Option enables you to configure more detail settings of the Virtual Hub.\nBy default, both VPN Server's global administrators and individual Virtual Hub's administrators can modify the Virtual Hub Extended Options.\nHowever, if the deny_hub_admin_change_ext_option is set to 1 on the Virtual Hub Admin Options, the individual Virtual Hub's administrators cannot modify the Virtual Hub Extended Options.\nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_ExtOptionList_Args	ExtOptionList
+
+
+# ExtOptionSet command
+CMD_ExtOptionSet		Set a Value of Virtual Hub Extended Options
+CMD_ExtOptionSet_Help	Use this to set a value in the Virtual Hub Extended Options List that is set on the currently managed Virtual Hub.\nVirtual Hub Extended Option enables you to configure more detail settings of the Virtual Hub.\nBy default, both VPN Server's global administrators and individual Virtual Hub's administrators can modify the Virtual Hub Extended Options.\nHowever, if the deny_hub_admin_change_ext_option is set to 1 on the Virtual Hub Admin Options, the individual Virtual Hub's administrators cannot modify the Virtual Hub Extended Options.\nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_ExtOptionSet_Args	ExtOptionSet [name] [/VALUE:value]
+CMD_ExtOptionSet_[name]	Specify the name of the Virtual Hub Extended Options whose value you want to change. You can get a list of names by using the ExtOptionList command.
+CMD_ExtOptionSet_VALUE	Specify an integer for the setting value.
+CMD_ExtOptionSet_Prompt_name	Name of Extended Option to Change Value: 
+CMD_ExtOptionSet_Prompt_VALUE	Setting Value (Integer): 
+
+
+# CrlList command
+CMD_CrlList				Get List of Certificates Revocation List
+CMD_CrlList_Help		Use this to get a Certificates Revocation List that is set on the currently managed Virtual Hub. \nBy registering certificates in the Certificates Revocation List, the clients who provide these certificates will be unable to connect to this Virtual Hub using certificate authentication mode. \nNormally with this function, in cases where the security of a private key has been compromised or where a person holding a certificate has been stripped of their privileges, by registering that certificate as invalid on the Virtual Hub, it is possible to deny user authentication when that certificate is used by a client to connect to the Virtual Hub. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CrlList_Args		CrlList
+
+
+# CrlAdd command
+CMD_CrlAdd				Add a Revoked Certificate
+CMD_CrlAdd_Help			Use this to add a new revoked certificate definition in the Certificate Revocation List that is set on the currently managed Virtual Hub. \nSpecify the contents to be registered in the Certificate Revocation List by using the parameters of this command. When a user connects to a Virtual Hub in certificate authentication mode and that certificate matches 1 or more of the contents registered in the certificates revocation list, the user is denied connection. \nA certificate that matches all the conditions that are defined by the parameters specified by this command will be judged as invalid. \nThe items that can be set are as follows: Name (CN), Organization (O), Organization Unit (OU), Country (C), State (ST), Locale (L), Serial Number (hexadecimal), MD5 Digest Value (hexadecimal, 128 bit), and SHA-1 Digest Value (hexadecimal, 160 bit). For the specification of a digest value (hash value) a certificate is optionally specified depending on the circumstances. Normally when a MD5 or SHA-1 digest value is input, it is not necessary to input the other items. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_CrlAdd_Args			CrlAdd [/SERIAL:serial] [/MD5:md5] [/SHA1:sha1] [/CN:cn] [/O:o] [/OU:ou] [/C:c] [/ST:st] [/L:l]
+CMD_CrlAdd_SERIAL		Use this parameter to specify the value for the certificate serial number (hexadecimal) when it is set as a condition.
+CMD_CrlAdd_MD5			Use this parameter to specify the value for the certificate MD5 digest value (hexadecimal, 128 bits) when it is set as a condition. If this parameter specification is other than a hexadecimal value of 32 characters (16 bytes), it will be ignored.
+CMD_CrlAdd_SHA1			Use this parameter to specify the value for the certificate SHA1 digest value (hexadecimal, 160 bits) when it is set as a condition. If this parameter specification is other than a hexadecimal value of 40 characters (16 bytes), it will be ignored.
 CMD_CrlAdd_CN			Use this parameter to specify the name (CN) of the certificate when it is set as a condition. 
 CMD_CrlAdd_O			Use this parameter to specify the organization (O) of the certificate when it is set as a condition. 
 CMD_CrlAdd_OU			Use this parameter to specify the organization unit (OU) of the certificate when it is set as a condition. 
@@ -6010,7 +6262,7 @@ CMD_EtherIpClientAdd_HUB	Specify the name of the Virtual Hub to connect.
 CMD_EtherIpClientAdd_USERNAME	Specify the username to login to the destination Virtual Hub.
 CMD_EtherIpClientAdd_PASSWORD	Specify the password to login to the destination Virtual Hub.
 CMD_EtherIpClientAdd_Prompt_ID	ISAKMP Phase 1 ID ('*' is a wildcard): 
-CMD_EtherIpClientAdd_Prompt_HUB	Virtual Hub Name: 
+CMD_EtherIpClientAdd_Prompt_HUB	Название Virtual Hub: 
 CMD_EtherIpClientAdd_Prompt_USERNAME	Username to Login Virtual Hub: 
 CMD_EtherIpClientAdd_Prompt_PASSWORD	Password to Login Virtual Hub: 
 
@@ -6029,6 +6281,23 @@ CMD_EtherIpClientList_Help	This command gets and shows the list of entries to ac
 CMD_EtherIpClientList_Args	EtherIpClientList
 
 
+# OpenVpnEnable command
+CMD_OpenVpnEnable		Enable / Disable OpenVPN Clone Server Function
+CMD_OpenVpnEnable_Help	This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc. Any OpenVPN Clients can connect to this VPN Server.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
+CMD_OpenVpnEnable_[yes|no]	Specify yes to enable the OpenVPN Clone Server Function. Specify no to disable.
+CMD_OpenVpnEnable_PORTS		Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
+CMD_OpenVpnEnable_Prompt_[yes|no]	Enables OpenVPN Clone Server Function (yes / no): 
+CMD_OpenVpnEnable_Prompt_PORTS		UDP Ports to Listen for OpenVPN (Default: 1194 / Multiple Accepted): 
+
+
+# OpenVpnGet command
+CMD_OpenVpnGet			Get the Current Settings of OpenVPN Clone Server Function
+CMD_OpenVpnGet_Help		Get and show the current settings of OpenVPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnGet_Args		OpenVpnGet
+CMD_OpenVpnGet_PRINT_Enabled		OpenVPN Clone Server Enabled
+CMD_OpenVpnGet_PRINT_Ports			UDP Port List
+
 # OpenVpnMakeConfig command
 CMD_OpenVpnMakeConfig	Generate a Sample Setting File for OpenVPN Client
 CMD_OpenVpnMakeConfig_Help	Originally, the OpenVPN Client requires a user to write a very difficult configuration file manually. This tool helps you to make a useful configuration sample. What you need to generate the configuration file for the OpenVPN Client is to run this command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -6039,9 +6308,42 @@ CMD_OpenVpnMakeConfig_OK			The sample setting file was saved as "%s". You can un
 CMD_OpenVpnMakeConfig_ERROR			The sample setting files were unable to be saved as "%s". The filename might be invalid.\n
 
 
+# OpenVpnObfuscationEnable
+CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
+CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
+CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
+CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
+
+
+# OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
+CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
+CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
+CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
+
+
+# SstpEnable command
+CMD_SstpEnable			Enable / Disable Microsoft SSTP VPN Clone Server Function
+CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SstpEnable_Args		SstpEnable [yes|no]
+CMD_SstpEnable_[yes|no]	Specify yes to enable the Microsoft SSTP VPN Clone Server Function. Specify no to disable.
+CMD_SstpEnable_Prompt_[yes|no]	Enables SSTP VPN Clone Server Function (yes / no): 
+CMD_SstpEnable_PRINT_Enabled		SSTP VPN Clone Server Enabled
+
+
+# SstpGet command
+CMD_SstpGet				Get the Current Settings of Microsoft SSTP VPN Clone Server Function
+CMD_SstpGet_Help		Get and show the current settings of Microsoft SSTP VPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_SstpGet_Args		SstpGet
+
+
 # ServerCertRegenerate command
 CMD_ServerCertRegenerate	Generate New Self-Signed Certificate with Specified CN (Common Name) and Register on VPN Server
-CMD_ServerCertRegenerate_Help	You can use this command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields.\n\nThis command is convenient if you are planning to use Microsoft SSTP VPN Clone Server Function. Because of the value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the SSTP VPN client.\n\nThis command will delete the existing SSL certificate of the VPN Server. It is recommended to backup the current SSL certificate and private key by using the ServerKeyGet command beforehand.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_ServerCertRegenerate_Help	You can use this command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields.\n\nThis command is convenient if you are planning to use Microsoft SSTP VPN Clone Server Function. Because of the value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the SSTP VPN client.\nFor details please see the help of SstpEnable command.\n\nThis command will delete the existing SSL certificate of the VPN Server. It is recommended to backup the current SSL certificate and private key by using the ServerKeyGet command beforehand.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	Specify a Common Name (CN) which the new certificate will have.
 CMD_ServerCertRegenerate_Prompt_CN	Value of Common Name (CN): 
@@ -6188,18 +6490,18 @@ CMD_SecureGet_NoPrint	Currently, a smart card is not selected.
 
 
 # NicCreate command
-CMD_NicCreate			Create New Virtual Network Adapter
-CMD_NicCreate_Help		Use this to add a new Virtual Network Adapter to the system. You can give the virtual network adapter a name of your choice. \nYou can set a name that consists of alphanumeric characters for the virtual network adapter. For Windows 2000 or newer systems, this name can be up to 31 characters, but for Windows 98, 98SE and ME it can be up to 4 characters. \nIf the NicCreate command was called, a new virtual network adapter device driver will be installed on the operating system that the VPN Client is operating on. \nIn this case, depending on the operating system, a dialog box may appear to confirm if it is OK to install the device driver.
+CMD_NicCreate			Создать новый виртуальный сетевой адаптер
+CMD_NicCreate_Help		Используется для создания нового виртуального сетевого адаптера в систему. Вы можете дать виртуальному сетевому адаптеру название по вашему выбору.\nВ названии виртуального сетевого адаптера вы можете использовать буквы, цифры и знаки препинания. Для Windows 2000 или более новых систем это название может содержать до 31 символа, а для Windows 98, 98SE и ME - до 4 символов.\nПри вызове команды NicCreate в операционной системе, на которой работает VPN клиент, будет установлен новый виртуальный сетевой адаптер. \nВ зависимости от операционной системы, может появиться диалоговое окно для подтверждения правильности установки драйвера устройства.
 CMD_NicCreate_Args		NicCreate [name]
-CMD_NicCreate_[name]	Specify the name of the virtual network adapter.
-CMD_NicCreate_PROMPT_NAME	Virtual Network Adapter Name: 
+CMD_NicCreate_[name]	Укажите название виртуального сетевого адаптера.
+CMD_NicCreate_PROMPT_NAME	Название виртуального сетевого адаптера: 
 
 
 # NicDelete command
-CMD_NicDelete			Delete Virtual Network Adapter
-CMD_NicDelete_Help		Use this to delete an existing virtual network adapter from the system. \nWhen you delete a virtual network adapter from the system, all the connections which are using that virtual network adapter will be disconnected. \nAlso, the Connection Settings that are set to use a virtual network adapter that has been deleted will have their settings automatically changed to use another virtual network adapter. \nThis command can be used when VPN Client is operating on Windows 2000 or newer operating systems.
+CMD_NicDelete			Удалить виртуальный сетевой адаптер
+CMD_NicDelete_Help		Используется для удаления существующего виртуального сетевого адаптера из системы. \nПри удалении виртуального сетевого адаптера из системы все подключения, использующие этот виртуальный сетевой адаптер, будут отключены. \nКроме того, в настройках подключений, у которых установлено использование удаленного виртуального сетевого адаптера, параметры будут автоматически изменены на использование другого виртуального сетевого адаптера. \nЭта команда может использоваться, когда VPN клиент работает в Windows 2000 или более поздней операционной системе.
 CMD_NicDelete_Args		NicDelete [name]
-CMD_NicDelete_[name]	Specify the name of the virtual network adapter.
+CMD_NicDelete_[name]	Укажите имя виртуального сетевого адаптера.
 
 
 # NicUpgrade command
@@ -6449,6 +6751,20 @@ CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
+# AccountRetryOnServerCertEnable command
+CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountRetryOnServerCertDisable command
+CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
 # AccountServerCertSet command
 CMD_AccountServerCertSet	Set Server Individual Certificate for VPN Connection Setting
 CMD_AccountServerCertSet_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to register the same certificate as the SSL certificate provided by the destination VPN Server. \nIf the option to verify server certificates for VPN Connection Settings is enabled, you must either use this command to save the connection destination server SSL certificate beforehand in the VPN Connection Setting settings beforehand, or use the CAAdd command etc. to register a root certificate containing the signed server SSL certificate in the list of Virtual Hub trusted CA certificates. \nIf the certificate of the connected VPN Server cannot be trusted under the condition where the option to verify server certificates has been enabled for the VPN Connection Setting, the connection will be promptly cancelled and continual reattempts at connection will be made.
@@ -6561,11 +6877,6 @@ CMD_AccountSecureCertSet_CERTNAME	Specify the name of the certificate object sto
 CMD_AccountSecureCertSet_KEYNAME	Specify the name of the private key object stored on the smart card. The private key must be compatible with the certificate specified by /CERTNAME.
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	Name of Certificate Object on Smart Card: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	Name of Private Key Object on Smart Card: 
-
-
-# PcAccountOpensslEngineCertSet
-CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
-CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet コマンド
@@ -6703,93 +7014,94 @@ CMD_TrafficClient_ERROR_HOSTPORT	The host name or port number is incorrectly spe
 
 
 # TrafficServer command
-CMD_TrafficServer		Run Network Traffic Speed Test Tool in Server Mode
-CMD_TrafficServer_Help	Use this to execute the communication throughput measurement tool's server program. \nTwo commands, TrafficClient and TrafficServer, are used for the communication throughput measurement tool to enable the measurement of communication throughput that can be transferred between two computers connected by IP network. \nTo set the TCP port of this computer to the Listen status to listen for the connection from the TrafficClient of another computer, specify the port number and start the server program using the TrafficServer command. \nYou can display more detailed information on the communication throughput measurement tool by inputting "TrafficClient ?". \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually conducts communication and measures the throughput is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
-CMD_TrafficServer_Args	TrafficServer [port] [/NOHUP:yes|no]
-CMD_TrafficServer_[port]	Specify, using an integer, the port number at which to listen for the connection. If the specified port has been already being used by another program, or if the port cannot be opened, an error will occur.
-CMD_TrafficServer_NOHUP		When "yes" is specified, the server process never stops without regard to any input from the console. It is convenient when you want to run the TrafficServer endlessly.
+CMD_TrafficServer		Запустить средство тестирования скорости сетевого трафика в режиме сервера
+CMD_TrafficServer_Help	Используется для запуска инструмента измерения пропускной способности в режиме сервера. \n 
+Две команды, TrafficClient и TrafficServer, используются для измерения пропускной способности между двумя компьютерами, соединенными сетью IP. \nУкажите номер порта и запустите серверную часть с помощью команды TrafficServer, чтобы прослушивать подключение от TrafficClient другого компьютера. \nВы можете отобразить более подробную информацию об инструменте измерения пропускной способности, введя "TrafficClient ?". \n\nПримечание. Эту команду можно вызвать из утилиты управления командной строкой SoftEther VPN. Вы также можете выполнить эту команду при подключении к текущему VPN-серверу или VPN клиенту в режиме администрирования, но фактически осуществляет связь и измеряет пропускную способность тот компьютер, на котором выполняется команда, а не компьютер с которого выполнено подключение в режиме администрирования.
+CMD_TrafficServer_Args	TrafficServer [порт] [/NOHUP:да|нет]
+CMD_TrafficServer_[port]	Укажите номер порта для прослушивания соединения. Если указанный порт уже используется другой программой или порт не может быть открыт, произойдет ошибка
+CMD_TrafficServer_NOHUP	Если указано «да», серверная часть игнорирует любой ввод с консоли и никогда не останавливается. Это удобно, если вы хотите запустить TrafficServer в бесконечном режиме.
 
 
 
 # Internal message strings concerning TrafficClient / TrafficServer
-TT_LISTEN_FAILED		Unable to set TCP port %u to Listen status. The port may be being used by another application or this application did not have the authority to open the port.
-TTS_LISTEN_STOP			The port for listening has been closed.
-TTS_ENTER_TO_EXIT		\n----------------------------------------\nThe Network Traffic Speed Test Tool in Server Mode started. \n\nPress the Enter key to stop the server program. \n----------------------------------------\n\n
-TTS_INIT				Starting the server program...
-TTS_LISTEN_STARTED		The server program has been started. Now the IPv4 TCP port %u is set to Listen status and listening for connection from the client.
-TTS_LISTEN_STARTED_V6	The IPv6 TCP Port %u is listening to accept clients.
-TTS_LISTEN_FAILED_V6	Failed to open the IPv6 TCP Port %u. Another application might be using the same IPv6 TCP Port, or the IPv6 stack is not installed on the operating system.
-TTS_STOP_INIT			Stopping the server program...
-TTS_STOP_FINISHED		The stopping of the server program is complete.
-TTS_ACCEPTED			Connection %u: Connected from Client %S Port %u.
-TTS_DISCONNECTED		Connection %u (%S) has been disconnected.
-TTS_DISCONNECT			Connection %u (%S) has been disconnected.
-TTC_INIT				Starting the client program...
-TTC_FREE				The client program has beens terminated.
-TTC_CONNECT_START		The connection to server %S (port %u) will start. %u TCP connections will be connected.
-TTC_CONNECT_FAILED		The connection of TCP connection number %u failed.
-TTC_CONNECT_NOT_SERVER	Because a program other than TrafficServer is operating on the destination TCP port, traffic cannot be measured.
-TTC_CONNECT_OK			TCP connection number %u has been connected.
-TTC_CONNECT_OK_2		\        Data transfer direction: %s
-TTC_ERROR_ABORTED		The TCP connection initialization with the server failed. Measurement will stop.
+TT_LISTEN_FAILED		Не удалось открыть TCP порта %u. Порт может быть использован другим приложением или это приложение не имеет полномочий для открытия порта.
+TTS_LISTEN_STOP			Прослушиваемый порт закрыт.
+TTS_ENTER_TO_EXIT		\n----------------------------------------\nИнструмент тестирования скорости сетевого трафика запущен в режиме сервера.\n\nНажмите клавишу Enter, чтобы остановить сервер. \n----------------------------------------\n\n
+TTS_INIT				Запуск сервера...
+TTS_LISTEN_STARTED		Сервер был запущен. Теперь IPv4 TCP порт %u открыт и ждет соединения от клиентов.
+TTS_LISTEN_STARTED_V6	IPv6 TCP порт %u ждет соединения от клиентов.
+TTS_LISTEN_FAILED_V6	Не удалось открыть IPv6 TCP порт %u. Другое приложение может использовать тот же IPv6 TCP порт, либо в операционной системе не установлен стек IPv6.
+TTS_STOP_INIT			Остановка сервера...
+TTS_STOP_FINISHED		      Остановка сервера завершена.
+TTS_ACCEPTED			Соединение %u: подключение от клиента %S порт %u.
+TTS_DISCONNECTED		Соединение %u (%S) было отключено.
+TTS_DISCONNECT			Соединение %u (%S) было отключено.
+TTC_INIT				Запуск клиента...
+TTC_FREE				Работа клиента была прекращена.
+TTC_CONNECT_START		Будет установлено соединение с сервером %S (порт %u). %u TCP соединений будет подключено.
+TTC_CONNECT_FAILED		TCP-соединение с номером %u не удалось.
+TTC_CONNECT_NOT_SERVER	Поскольку на TCP порту работает программа, отличная от TrafficServer, трафик не может быть измерен.
+TTC_CONNECT_OK			TCP-соединение с номером %u было подключено.
+TTC_CONNECT_OK_2		\        Направление передачи данных: %s
+TTC_ERROR_ABORTED		Не удалось инициализировать TCP-соединение с сервером. Измерение будет остановлено.
 TTC_SUMMARY_BAR			-------------------------------------------------------
-TTC_SUMMARY_TITLE		Network Traffic Speed Test Tool Client Setting Parameters
-TTC_SUMMARY_HOST		Destination Host Name
-TTC_SUMMARY_PORT		Destination TCP Port Number
-TTC_SUMMARY_NUMTCP		Number of TCP Connections to Establish
-TTC_SUMMARY_TYPE		Data Transfer Direction
-TTC_SUMMARY_SPAN		Data Transmission Time
-TTC_SUMMARY_ETHER		Data Correction for Ethernet Frames
-TTC_SUMMARY_DOUBLE		Measurement of Total Speed of Relay Device Input Output
-TTC_TYPE_DOWNLOAD		Download (Server to Client)
-TTC_TYPE_UPLOAD			Upload (Client to Server)
-TTC_TYPE_FULL			Full (Server < -- > Client)
-TTC_SPAN_STR			%.1f seconds
-TTC_COMM_START			\nAll connections were established and so data transfer started. \nMeasurement Start Time: %s\nScheduled Finish Time: %s\n\nMeasuring in progress. Please wait... \n(Do not use any other applications while measuring is in progress.)\n\n
-TTC_COMM_END			Because %.1f seconds or more have passed, the data communication will end. \n\n
-TTC_COMM_USER_CANCEL	Because of cancellation by user, the data communication will end. \n\n
-TTC_COMM_DISCONNECTED	The TCP connection %u has been disconnected.
-TTC_STOPPING			Stopping the operation of the communication throughput measurement tool client...
-TTC_ENTER_TO_EXIT		\n----------------------------------------\nThe Network Traffic Speed Test Tool in Client Mode started. \n\nPress the Enter key to stop the client program. \n----------------------------------------\n\n
-TTC_RES_TITLE			\n\nNetwork Traffic Speed Test Tool\n\n
-TTC_RES_COLUMN_1		Item Name
-TTC_RES_COLUMN_2		Normal View
-TTC_RES_COLUMN_3		Simplified View
-TTC_RES_SPAN			Time Span for Measurement
-TTC_RES_ETHER			Data Correction for Ethernet Frames
-TTC_RES_BYTES_DOWNLOAD	Communication Data Volume in Download Direction
-TTC_RES_BYTES_UPLOAD	Communication Data Volume in Upload Direction
-TTC_RES_BYTES_TOTAL		Total Communication Data Volume
-TTC_RES_DOUBLE			Relay Device Input Output Total Throughput Computation
-TTC_RES_BPS_DOWNLOAD	Average Throughput in Download Direction
-TTC_RES_BPS_UPLOAD		Average Throughput in Upload Direction
-TTC_RES_BPS_TOTAL		Total Average Throughput
+TTC_SUMMARY_TITLE		Параметры инструмента тестирования скорости сетевого трафика
+TTC_SUMMARY_HOST		Имя хоста:
+TTC_SUMMARY_PORT		Номер TCP порта:
+TTC_SUMMARY_NUMTCP		Количество устанавливаемых TCP-соединений:
+TTC_SUMMARY_TYPE		Направление передачи данных:
+TTC_SUMMARY_SPAN		Время передачи данных:
+TTC_SUMMARY_ETHER		Коррекция данных Ethernet фреймов:
+TTC_SUMMARY_DOUBLE		Измерение общей скорости устройства ретрансляции:
+TTC_TYPE_DOWNLOAD		Скачивание (с сервера на клиент)
+TTC_TYPE_UPLOAD			Загрузка (с клиента на сервер)
+TTC_TYPE_FULL			В обе стороны (Сервер < -- > Клиент)
+TTC_SPAN_STR			%.1f сек
+TTC_COMM_START			\nВсе соединения были установлены и началась передача данных. \nВремя начала измерения: %s\nЗапланированное время окончания: %s\n\nИзмерение в процессе. Пожалуйста, подождите... \n(Во время измерения не используйте никакие другие приложения.)\n\n
+TTC_COMM_END			Поскольку прошло %.1f секунд или более, передача данных будет закончена. \n\n
+TTC_COMM_USER_CANCEL	Передача данных будет прервана из-за отмены пользователем. \n\n
+TTC_COMM_DISCONNECTED	TCP-соединение %u было отключено.
+TTC_STOPPING			Остановка работы инструмента измерения пропускной способности клиента...
+TTC_ENTER_TO_EXIT		\n----------------------------------------\nЗапущен инструмент тестирования скорости сетевого трафика в режиме клиента. \n\nНажмите клавишу Enter, чтобы остановить клиента. \n----------------------------------------\n\n
+TTC_RES_TITLE			\n\nТест скорости сетевого трафика\n\n
+TTC_RES_COLUMN_1		Название
+TTC_RES_COLUMN_2		Нормальный вид
+TTC_RES_COLUMN_3		Упрощенный вид
+TTC_RES_SPAN			Интервал времени измерения
+TTC_RES_ETHER			Коррекция данных Ethernet фреймов
+TTC_RES_BYTES_DOWNLOAD	Объем скачанных с сервера данных
+TTC_RES_BYTES_UPLOAD	Объем загруженных на сервер данных
+TTC_RES_BYTES_TOTAL		Общий объем данных
+TTC_RES_DOUBLE			Расчет общей скорости устройства ретрансляции
+TTC_RES_BPS_DOWNLOAD	Средняя скорость скачивания с сервера
+TTC_RES_BPS_UPLOAD		Средняя скорость загрузки на сервер
+TTC_RES_BPS_TOTAL		Общая средняя скорость
 
 
 # Check command
-CMD_Check				Check whether SoftEther VPN Operation is Possible
-CMD_Check_Help			Use this to check if the current computer that is running vpncmd is a suitable operation platform for SoftEther VPN Server / Bridge. \nIf this check passes on a system, it is most likely that SoftEther VPN software will operate correctly on that system. \nAlso, if this check does not pass on a system, then this indicates that some type of trouble may arise if SoftEther VPN software is used on that system.
-CMD_Check_Args			Check
+CMD_Check				Проверка возможности работы SoftEther VPN
+CMD_Check_Help			Используется, чтобы проверить, является ли текущий компьютер, на котором работает vpncmd, подходящей рабочей платформой для SoftEther VPN Сервера / Моста.\nЕсли эта проверка пройдена, наиболее вероятно, что программное обеспечение SoftEther VPN будет правильно работать в этой системе. \nЕсли эта проверка не пройдена, это означает, что при использовании программного обеспечения SoftEther VPN в этой системе могут возникнуть проблемы.
+CMD_Check_Args			Проверить
 
 
 # Concerning System Checker
 # (This contains some strange character strings which are used to check character code conversion.)
-CHECK_TITLE				---------------------------------------------------\nSoftEther VPN Operation Environment Check Tool\nDeveloper Edition\n\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll Rights Reserved.\n\n
-CHECK_NOTE				If this operation environment check tool is run on a system and that system passes, it is most likely that SoftEther VPN software can operate on that system. This check may take a while. Please wait...\n\n
-CHECK_EXEC_TAG			Checking '%s'... \n
-CHECK_PASS				Pass
-CHECK_FAIL				Fail
-CHECK_RESULT_1			All checks passed. It is most likely that SoftEther VPN Server / Bridge can operate normally on this system.
-CHECK_RESULT_2			Some checks failed. Please check the operation environment of this system. If SoftEther VPN Server / Bridge were to be executed on this system, troubles may occur.
+CHECK_TITLE				---------------------------------------------------\nСредство проверки рабочей среды SoftEther VPN\nDeveloper Edition\n\nАвторские права (c) Проект SoftEther VPN.\nВсе права защищены.\n\n
+CHECK_NOTE				Если этот инструмент проверки рабочей среды запущен в системе и эта система прошла проверку, наиболее вероятно, что программное обеспечение SoftEther VPN может работать в этой системе. Эта проверка может занять некоторое время. Пожалуйста, подождите...\n\n
+CHECK_EXEC_TAG			Проверка '%s'... \n
+CHECK_PASS				Пройдена
+CHECK_FAIL				Не пройдена
+CHECK_RESULT_1			Все проверки пройдены. Скорее всего, SoftEther VPN Сервер / Мост может нормально работать в этой системе.
+CHECK_RESULT_2			Некоторые проверки не пройдены. Пожалуйста, проверьте рабочую среду этой системы. Если SoftEther VPN Сервер / Мост должен быть запущен в этой системе, могут возникнуть проблемы.
 CHECK_TEST_123456789	123456789
 
 
-CHECK_PROC_KERNEL		Kernel System
-CHECK_PROC_MEMORY		Memory Operation System
-CHECK_PROC_STRINGS		ANSI / Unicode string processing system
-CHECK_PROC_FILESYSTEM	File system
-CHECK_PROC_THREAD		Thread processing system
-CHECK_PROC_NETWORK		Network system
+CHECK_PROC_KERNEL		Ядро системы
+CHECK_PROC_MEMORY		Память операционной системы
+CHECK_PROC_STRINGS		Система обработки строк ANSI / Unicode
+CHECK_PROC_FILESYSTEM	Файловая система
+CHECK_PROC_THREAD		Система обработки потоков
+CHECK_PROC_NETWORK		Сетевая система
 
 
 
@@ -6804,145 +7116,146 @@ CHECK_PROC_NETWORK		Network system
 #                                                    #
 ######################################################
 
-SW_TITLE									SoftEther VPN Developer Edition Setup Wizard (Version %S)
-SW_EXIT_CONFIRM								The setup process of SoftEther VPN hasn't been finished yet.\r\n\r\nDo you want to exit the setup?
-SW_UNINSTALL_CONFIRM						Starting the uninstall process of %s.\r\n\r\nDo you want to continue?
+SW_TITLE									Мастер установки SoftEther VPN Developer Edition (версия %S)
+SW_EXIT_CONFIRM								Процесс установки SoftEther VPN еще не завершен.\r\n\r\nВы хотите прервать установку?
+SW_UNINSTALL_CONFIRM						Запуск процесса удаления %s.\r\n\r\nВы хотите продолжить?
 
 
-SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN Server
-SW_COMPONENT_VPNSERVER_DESCRIPTION			Install it on a server computer at the central site of VPN. The management tools will be also installed.
+SW_COMPONENT_VPNSERVER_TITLE				SoftEther VPN-сервер
+SW_COMPONENT_VPNSERVER_DESCRIPTION			Установите его на серверный компьютер, который станет центральным VPN узлом. Инструменты управления также будут установлены.
 
-SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN Client
-SW_COMPONENT_VPNCLIENT_DESCRIPTION			Install it on VPN client computers. A VPN client computer will be able to connect to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNCLIENT_TITLE				SoftEther VPN клиент
+SW_COMPONENT_VPNCLIENT_DESCRIPTION			Установите его на клиентских VPN компьютерах. Клиентский VPN компьютер сможет подключаться к центральному VPN серверу. Инструменты управления также будут установлены.
 
-SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN Bridge
-SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Install it on computers at each site. Each VPN Bridge will establish a VPN connection to the central VPN Server. The management tools will be also installed.
+SW_COMPONENT_VPNBRIDGE_TITLE				SoftEther VPN-мост
+SW_COMPONENT_VPNBRIDGE_DESCRIPTION			Установить его на компьютеры, которые станут дополнительными узлами. Каждый VPN-мост будет устанавливать VPN-подключение к центральному VPN серверу. Средства управления также будут установлены.
 
-SW_COMPONENT_VPNSMGR_TITLE					SoftEther VPN Server Manager (Admin Tools Only)
-SW_COMPONENT_VPNSMGR_DESCRIPTION			Only the VPN Server Manager will be installed. The VPN Server service program will not be installed. You can use the VPN Server Manager to connect and manage remote VPN Servers and VPN Bridges on other computers which can be run on Windows, Linux, Mac OS X, Solaris and FreeBSD.
+SW_COMPONENT_VPNSMGR_TITLE					SoftEther VPN-сервер менеджер (Инструментарий админа)
+SW_COMPONENT_VPNSMGR_DESCRIPTION			Будет установлен только менеджер VPN-серверов. Служба VPN-сервера не будет установлена. Вы можете использовать менеджер VPN-серверов для управления удаленными VPN-серверами и VPN-мостами на других компьютерах с Windows, Linux, Mac OS X, Solaris или FreeBSD.
 
-SW_COMPONENT_VPNCMGR_TITLE					SoftEther VPN Client Manager (Admin Tools Only)
-SW_COMPONENT_VPNCMGR_DESCRIPTION			Only the VPN Client Manager will be installed. The VPN Client service program will not be installed. You can use the VPN Client Manager to connect and manage remote VPN Clients on other computers which can be run on Windows and Linux.
+SW_COMPONENT_VPNCMGR_TITLE					Управление SoftEther VPN клиентом (Инструментарий админа)
+SW_COMPONENT_VPNCMGR_DESCRIPTION			Будет установлено только "Управление VPN клиентом на удаленных компьютерах". Служба VPN клиента не будет установлена. Вы можете использовать Управление VPN клиентом для подключения и управления удаленными VPN клиентами на других компьютерах с Windows или Linux.
 
-SW_WELCOME_TITLE							Welcome to the SoftEther VPN Developer Edition Setup Wizard
-SW_MODE_TITLE								Select a Setup Mode
-SW_NOT_ADMIN_TITLE							Not Enough Privileges
-SW_COMPONENTS_TITLE							Select Software Components to Install
-SW_EULA_TITLE								End User License Agreement
-SW_WARNING_TITLE							Important Notices
-SW_DIR_TITLE								Directory to Install on
-SW_READY_TITLE								Ready to Install
-SW_PERFORM_TITLE							Setup is in Progress
-SW_ERROR_TITLE								Results of Setup
-SW_FINISH_TITLE								Setup Finished
-SW_UNINST1_TITLE							Uninstaller
-SW_LANG1_TITLE								SoftEther VPN: Configure the Display Language
-SW_EASY1_TITLE								Welcome to SoftEther VPN Client Easy Installer Creator
-SW_EASY2_TITLE								Specify Files
-SW_WEB1_TITLE								Welcome to SoftEther VPN Client Web Installer Creator
-SW_WEB2_TITLE								Specify Files
+SW_WELCOME_TITLE							Добро пожаловать в мастер установки SoftEther VPN Developer Edition
+SW_MODE_TITLE								Выберите режим установки
+SW_NOT_ADMIN_TITLE							Недостаточно прав
+SW_COMPONENTS_TITLE							Выберите компоненты для установки
+SW_EULA_TITLE								Лицензионное соглашение конечного пользователя
+SW_WARNING_TITLE							Важные замечания
+SW_DIR_TITLE								Каталог установки
+SW_READY_TITLE								Готов к установке
+SW_PERFORM_TITLE							Установка в процессе
+SW_ERROR_TITLE								Результаты установки
+SW_FINISH_TITLE								Установка завершена
+SW_UNINST1_TITLE							Деинсталлятор
+SW_LANG1_TITLE								SoftEther VPN: настройка языка
+SW_EASY1_TITLE								Добро пожаловать в программу SoftEther VPN клиент Easy Installer Creator
+SW_EASY2_TITLE								Укажите файлы
+SW_WEB1_TITLE								Добро пожаловать в SoftEther VPN клиент Web Installer Creator
+SW_WEB2_TITLE								Укажите файлы
 
 SW_UNINSTALLINFO_URL						http://selinks.org/
-SW_UNINSTALLINFO_PUBLISHER					SoftEther VPN Project
+SW_UNINSTALLINFO_PUBLISHER					Проект SoftEther VPN
 
-SW_KB3033929_REQUIRED						In Windows 7 and Windows Server 2008 R2, some SoftEther VPN functions require the Microsoft's Windows Update module KB3033929 installed.\r\n\r\nIf KB3033929 is not installed in your Windows, please install it from Windows Update or Microsoft website before installing SoftEther VPN.
-
-
-SW_COMPONENTS_ABOUT_TAG						About %s
-SW_COMPONENTS_REQUIRE_ADMIN					Installation Requires Administrators Privileges
-SW_COMPONENTS_REQUIRE_ADMIN_TEXT			You have to restart the setup wizard by a user who has Administrators privileges to install %s in the System Mode. To install in the System Mode, click Back.
-SW_DIR_SELECT								Please Specify the Directory to Install
-SW_DIR_MORE_THAN_110						The directory name is too long.\r\nSpecify 110 letters at most.
-SW_DIR_WRITE_ERROR							Unable to create the specified directory "%s" or failed to write a file on the directory.\r\n\r\nSpecify another directory.
-SW_DIR_DST_IS_SAME_TO_SRC					The specified directory "%s" is same as the source directory.
-SW_DIR_IS_NOT_HDD							The specified directory "%s" is not a local hard disk drive.\r\n\r\nTo install %s in the System Mode, you have to specify a directory on a local hard disk drive.
-SW_DIR_IS_NOT_FULLPATH						The directory "%s" is not a format of full path.\r\n\r\nPlease specify the full path of the directory.
-SW_DIR_DST_IS_OTHER_PRODUCT					The specified directory has another component already installed.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_NEWER							Newer version of the software has been installed on the specified directory.\r\n\r\nYou need not to install this version.
-SW_DIR_DST_IS_NEWER_2						Newer version of the software has been installed on the specified directory.\r\n\r\nThis installer will import and apply the VPN Connection Settings which is built-in on the Easy Installer. No program files will be overwritten.
-SW_DIR_DST_IS_BROKEN						Unable to read a file "%s" which is on the specified directory.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_SYSTEM_MODE					The same software is already installed on the specified directory as the System Mode.\r\n\r\nPlease specify another directory.
-SW_DIR_DST_IS_USER_MODE						The same software is already installed on the specified directory as the User Mode.\r\n\r\nPlease specify another directory.
-SW_SYSTEM_MODE_ALREADY_INSTALLED			The software "%s" is already installed on this computer as the System Mode.\r\n\r\nBoth the System Mode and the User Mode installation of the same software on the same computer will conflict.\r\n\r\nDo you really want to continue the installation as the User Mode?
-
-SW_SETUPLOG_CORRUPTED						The "setuplog.dat" file is broken.
-SW_MSI_UNINSTALL_FAILED						The older version of %s (Product Code: "%S") is installed. Windows Installer failed to uninstall this older version.\r\n\r\nPlease uninstall this older version manually and restart this installer again.
-SW_MSI_UNINSTALL_REBOOT_REQUIRED			Windows Installer has uninstalled the older version of %s. The reboot of computer is required.\r\n\r\nPress Finish button and reboot the computer MANUALLY, and restart this installer after the reboot.
-SW_NOTICE_VPNSERVER_IS_INSTALLED			SoftEther VPN Bridge is selected as a component to install. However, this computer has already had SoftEther VPN Server installed.\r\n\r\nUsually, you don't need to install both SoftEther VPN Server and SoftEther VPN Bridge on the same computer.\r\nIf you install both software, conflicts such as port number duplication will occur.\r\nIf you want to replace the SoftEther VPN Server to SoftEther VPN Bridge, you should exit this installer, uninstall SoftEther VPN Server and restart this installer after that.\r\n\r\nDo you really want to continue the SoftEther VPN Bridge installation?
-SW_NOTICE_VPNBRIDGE_IS_INSTALLED			SoftEther VPN Server is selected as a component to install. However, this computer has already had SoftEther VPN Bridge installed.\r\n\r\nUsually, you don't need to install both SoftEther VPN Bridge and SoftEther VPN Server on the same computer.\r\nIf you install both software, conflicts such as port number duplication will occur.\r\nIf you want to replace the SoftEther VPN Server to SoftEther VPN Server, you should exit this installer, uninstall SoftEther VPN Bridge and restart this installer after that.\r\n\r\nDo you really want to continue the SoftEther VPN Server installation?
-SW_OS_FAILED								This operating system doesn't support %s.
-SW_LANG_NOT_CHANGED							The language settings of %s were not changed.
-SW_LANG_LIST_LOAD_FAILED					Loading the available language list failed.
-SW_LANG_OK									The display language of %s has been changed successfully.\r\nIf %s programs are currently running, exit a program and restart it to apply the new display language. If the display language still doesn't effect, reboot Windows.\r\n
-SW_LANG_OK_SERVICE							\r\nThe language of log files which the service program records will be changed to the new language after a reboot.
-SW_LANG_OK_VPNCMGR							\r\nThe display setting of VPN Client Manager will be changed after exit and reboot VPN Client Manager. (Including complete termination from the task tray.)
-SW_CHILD_PROCESS_ERROR						Failed to execute a child process.
-SW_EXE_FILTER								Windows Executable Files (*.EXE)|*.exe|All Files (*.*)|*.*
-SW_PERFORM_MSG_EASY_INFO					Compiling the VPN Client Easy Installer...
-SW_EASY_FINISHED_MSG						The VPN Client Easy Installer is created successfully.\r\nThe installer is saved as the following filename.\r\n\r\n%s\r\n\r\nYou can distribute the above file in the enterprise.
-SW_EASY_ERROR_MSG							Failed to create a VPN Client Easy Installer.
-SW_OTHER_INSTANCE_EXISTS					Another SoftEther VPN Setup Wizard is running.\r\n\r\nYou can continue this wizard after another wizard exits.
-SW_PERFORM_MSG_WEB_INFO						Compiling the VPN Client Web Installer...
-SW_WEB_ERROR_MSG							Failed to create a VPN Client Web Installer.
-SW_INSTALLER_CACHE_IS_NOT_SIGNED			The currently installed SoftEther VPN Client of this computer has not been installed from the digital-signed package signed by an Authenticode digital certificate of SoftEther VPN Project.\r\nIt might be installed from a customized installer (for example, an installer created by Easy Installer Creator.)\r\n\r\nIf you continue to create a Web Installer, a warning message will be appeared on the user's screen when its loading.\r\nTo avoid showing the warning message, you should cancel this creating wizard, download the latest version of SoftEther VPN Client from the SoftEther VPN Project's web site, re-install it and restart the Web Installer Creator wizard.\r\n\r\nDo you really to continue to create a Web Installer?
-SW_FILE_NOT_FOUNT							The file "%s" not found.
-SW_WEB_FINISHED								The Web Installer is created and saved as "%s".\r\n\r\nPlease extract inner files from the ZIP file, upload them into the Web server, and edit a HTML file and an inf file to replace URLs appropriately.\r\n\r\nThe explanation to deploy the Web Installer is described on the ZIP file.
-
-SW_VG_CONFIRM_MSG							Do you really want to install and activate the VPN Gate P2P Relay Function plug-in module with SoftEther VPN Client?\r\n\r\nThis plug-in will realize the stability of communication to bypass the government censorship firewall. However, the communication of VPN Gate usually consumes some network bandwidth. VPN Gate is not recommended to be used in the mobile connections. \r\n\r\nPlease note that there are some countries and regions which have the regulation to forbid the encrypted communications to bypass government censorship firewalls. In such a case, you must not use the VPN Gate functions on your computer. VPN Gate is intended to be used mainly in Japan. VPN Gate is a research project for just academic purpose only. VPN Gate is governed under the Japanese laws. Other countries' laws are none of our concerns nor responsibilities. By using this software and service, you must observe all concerned laws and rules with your own responsibility. You will be completely liable to any damages and responsibilities which are results of using this software and service, regardless of either inside or outside of Japan's territory.
+SW_KB3033929_REQUIRED						В Windows 7 и Windows Server 2008 R2 для некоторых функций SoftEther VPN требуется установленное обновление Microsoft Windows Update KB3033929.\r\n\r\nЕсли KB3033929 не установлен в системе, пожалуйста, перед использованием SoftEther VPN установите его из Windows Update или с веб-сайта Microsoft.
 
 
+SW_COMPONENTS_ABOUT_TAG						О %s
+SW_COMPONENTS_REQUIRE_ADMIN					Установка требует прав администратора
+SW_COMPONENTS_REQUIRE_ADMIN_TEXT			Для установки %s в системном режиме, вы должны перезапустить мастер настройки с правами администратора. Для установки в системном режиме, нажмите "Назад".
+SW_DIR_SELECT								Пожалуйста, укажите каталог установки
+SW_DIR_MORE_THAN_110						Имя каталога слишком длинное.\r\nУкажите не более 110 символов.
+SW_DIR_WRITE_ERROR							Не удалось создать указанный каталог "%s" или не удалось записать файл в каталог.\r\n\r\nУкажите другой каталог.
+SW_DIR_DST_IS_SAME_TO_SRC					Указанный каталог "%s" совпадает с исходным каталогом.
+SW_DIR_IS_NOT_HDD							Указанный каталог "%s" не является локальным жестким диском.\r\n\r\nЧтобы установить %s в системном режиме, вы должны указать каталог на локальном жестком диске.
+SW_DIR_IS_NOT_FULLPATH						Путь к каталогу "%s" не является полным путем.\r\n\r\nПожалуйста, укажите полный путь к каталогу.
+SW_DIR_DST_IS_OTHER_PRODUCT					В указанном каталоге уже установлен другой компонент.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_NEWER							Более новая версия программного обеспечения была установлена в указанный каталог.\r\n\r\nВам не нужно устанавливать эту версию.
+SW_DIR_DST_IS_NEWER_2						Более новая версия программного обеспечения была установлена в указанный каталог.\r\n\r\nЭтот установщик импортирует и применит параметры VPN-подключения, встроенные в Easy Installer. Никакие файлы программы не будут перезаписаны.
+SW_DIR_DST_IS_BROKEN						Невозможно прочитать файл "%s", который находится в указанном каталоге. \r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_SYSTEM_MODE					В указанном каталоге уже установлено то же программное обеспечение в системном режиме.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_DIR_DST_IS_USER_MODE						В указанном каталоге уже установлено то же программное обеспечение в режиме пользователя.\r\n\r\nПожалуйста, укажите другой каталог.
+SW_SYSTEM_MODE_ALREADY_INSTALLED			Программное обеспечение "%s" уже установлено на этом компьютерев системном режиме.\r\n\r\nУстановка программного обеспечения одновременно в ситемном режиме и режиме пользователя на одном компьютере приведет к конфликту.\r\n\r\nВы действительно хотите продолжить установку в режиме пользователя?
+
+SW_NOT_INSTALL_SRC							Программа установки была выполнена из-за пределов источника установки.\r\n\r\nНе удается продолжить установку.
+SW_SETUPLOG_CORRUPTED						Файл "setuplog.dat" поврежден.
+SW_MSI_UNINSTALL_FAILED						Старая версия %s (код продукта: "%S") установлена. Установщику Windows не удалось удалить старую версию.\r\n\r\nПожалуйста, удалите старую версию вручную и перезапустите этот установщик снова.
+SW_MSI_UNINSTALL_REBOOT_REQUIRED			Установщик Windows удалил старую версию %s. Требуется перезагрузка компьютера.\r\n\r\nНажмите "Готово", перезагрузите компьютер ВРУЧНУЮ и перезапустите этот установщик после перезагрузки.
+SW_NOTICE_VPNSERVER_IS_INSTALLED			SoftEther VPN-мост выбран в качестве компонента для установки. Однако на этом компьютере уже установлен SoftEther VPN-сервер.\r\n\r\nОбычно вам не нужно устанавливать SoftEther VPN-сервер и SoftEther VPN-мост на одном компьютере.\r\nЕсли вы установите оба варианта, могут возникнуть конфликты, такие как дублирование номера порта.\r\nЕсли вы хотите заменить SoftEther VPN-сервер на SoftEther VPN-мост, вы должны удалить SoftEther VPN-сервер и после этого запустить заново этот установщик.\r\n\r\nВы действительно хотите продолжить установку SoftEther VPN-моста?
+SW_NOTICE_VPNBRIDGE_IS_INSTALLED			SoftEther VPN-сервер выбран в качестве компонента для установки. Однако на этом компьютере уже установлен SoftEther VPN-мост.\r\n\r\nОбычно вам не нужно устанавливать SoftEther VPN-мост и SoftEther VPN-сервер на одном компьютере.\r\nЕсли вы установите оба варианта, могут возникнуть конфликты, такие как дублирование номера порта.\r\nЕсли вы хотите заменить SoftEther VPN-мост на SoftEther VPN-сервер, вы должны удалить SoftEther VPN-мост и после этого запустить заново этот установщик.\r\n\r\nВы действительно хотите продолжить установку SoftEther VPN-сервера?
+SW_OS_FAILED								Эта операционная система не поддерживает %s.
+SW_LANG_NOT_CHANGED							Языковые настройки %s не были изменены.
+SW_LANG_LIST_LOAD_FAILED					Не удалось загрузить список доступных языков.
+SW_LANG_OK									Язык программы %s был успешно изменен.\r\nВыйдите из программы и перезапустите ее, чтобы применить новый язык. Если язык по-прежнему не изменился, перезагрузите Windows.\r\n
+SW_LANG_OK_SERVICE							\r\nЯзык файлов журнала, которые записывает программа, будет изменен на новый язык после перезагрузки.
+SW_LANG_OK_VPNCMGR							\r\nЯзыковые настройки VPN клиента будут изменены после его перезагрузки. (Включая полную выгрузку программы через панель задач.)
+SW_CHILD_PROCESS_ERROR						Не удалось выполнить дочерний процесс.
+SW_EXE_FILTER								Исполняемые файлы Windows (*.EXE)|*.exe|Все файлы (*.*)|*.*
+SW_PERFORM_MSG_EASY_INFO					Компиляция VPN клиент Easy Installer...
+SW_EASY_FINISHED_MSG						VPN клиент Easy Installer успешно создан.\r\nУстановщик сохранен под следующим именем.\r\n\r\n%s\r\n\r\nВы можете распространять вышеуказанный файл на предприятии.
+SW_EASY_ERROR_MSG							Не удалось создать VPN клиент Easy Installer.
+SW_OTHER_INSTANCE_EXISTS					Запущен еще один мастер установки SoftEther VPN.\r\n\r\nВы можете продолжить работу этого мастера после выхода из другого запущенного мастера установки.
+SW_PERFORM_MSG_WEB_INFO						Компиляция VPN клиент Web Installer...
+SW_WEB_ERROR_MSG							Не удалось создать VPN клиент Web Installer.
+SW_INSTALLER_CACHE_IS_NOT_SIGNED			Установленный на этот компьютер SoftEther VPN клиент не был установлен из пакета с цифровой подписью проекта SoftEther VPN, подписанного цифровым сертификатом по технологии Authenticode.\r\nОн мог быть установлен из модифицированного установщика (например, установщика, созданного Easy Installer Creator.)\r\n\r\nЕсли вы продолжите создание Web Installer, предупреждающее сообщение будет появляться на экране пользователя при его загрузке.\r\nЧтобы избежать появления предупреждающего сообщения, следует отменить этот мастер создания, загрузить последнюю версию SoftEther VPN клиента с веб-сайта проекта SoftEther VPN, переустановить его и перезапустить мастер Web Installer Creator.\r\n\r\nВы действительно хотите продолжить создавать Web Installer?
+SW_FILE_NOT_FOUNT							Файл "%s" не найден.
+SW_WEB_FINISHED								Web Installer создан и сохранен как "%s".\r\n\r\nИзвлеките внутренние файлы из ZIP-файла, загрузите их на веб-сервер и отредактируйте HTML-файл и inf-файл, чтобы соответствующим образом заменить URL-адреса.\r\n\r\nОписание развертывания веб-установщика приведено в ZIP файле.
+
+SW_VG_CONFIRM_MSG							Вы действительно хотите установить и активировать модуль плагина VPN Gate P2P Relay Function с SoftEther VPN клиентом?\r\n\r\nЭтот плагин обеспечит стабильность связи в обход брандмауэра государственной цензуры. Однако для связи VPN Gate обычно потребляет некоторую пропускная способность сети. VPN Gate не рекомендуется использовать с мобильным интернетом.\r\n\r\nОбратите внимание, что в некоторых странах и регионах действуют правила, запрещающие шифрованние трафика для обхода брандмауэра государственной цензуры. В таком случае вы не должны использовать функции VPN Gate на вашем компьютере. VPN Gate предназначен для использования в основном в Японии. VPN Gate - это исследовательский проект только для академических целей. VPN Gate регулируется японским законодательством. Законы других стран не являются ни нашей заботой, ни ответственностью. Используя это программное обеспечение и услуги, вы должны соблюдать все соответствующие законы и правила. Вы будете нести полную ответственность за любой ущерб, который будет нанесен в результате использования этого программного обеспечения и услуг, независимо от того, происходило это внутри или за пределами территории Японии.
 
 
-SW_PERFORM_MSG_INIT_TASKS					Preparing the tasks...
-SW_PERFORM_MSG_COPY_PREPARE					Preparing the copying of files...
-SW_PERFORM_MSG_WRITE_ERROR					Failed to write the destination file "%s".\r\n\r\nThere might be another person who has been keeping this file open.\r\nIf programs or services of %s are running, please terminate them and click Retry.
-SW_PERFORM_MSG_COPY_FILE					Copying "%s" ...
-SW_PERFORM_MSG_SET_SECURITY					Setting a security on "%s" ...
-SW_PERFORM_MSG_PLUGIN						Installing the plugins...
-SW_PERFORM_MSG_STOP_SVC						Stopping the "%s" service ...
-SW_PERFORM_MSG_WAIT_FOR_FILE_UNLOCK			The file "%s" is locked by a running program. Waiting to unlock...
-SW_PERFORM_MSG_INSTALL_SVC					Installing the %s service...
-SW_PERFORM_MSG_START_SVC					Starting the %s service...
-SW_PERFORM_MSG_CREATE_LINKS					Creating shortcut files...
-SW_PERFORM_MSG_DELETE_LINKS					Deleting shortcut files...
-SW_PERFORM_MSG_DELETE_OLD_LINKS				Deleting old shortcut files...
-SW_PERFORM_MSG_REGISTER_UNINSTALL			Registering uninstall information on the Control Panel...
-SW_PERFORM_MSG_IMPORTING_ACCOUNT			Importing the Built-in VPN Connection Setting in the Easy Installer...
-SW_PERFORM_MSG_DELETE_SETUP_INFO			Deleting the install information and logs...
-SW_PERFORM_MSG_WRITE_LOG					Writing a setup log...
-SW_PERFORM_MSG_COPY_ERROR					Copying to the file "%s" failed.
-SW_PERFORM_MSG_CREATE_LINK_ERROR			Creating the shortcut file "%s" failed.\r\n\r\nDo you want to retry?
-SW_PERFORM_MSG_WRITE_LOG_ERROR				Creating the setup log file "%s".\r\n\r\nDo you want to retry?
-SW_PERFORM_MSG_STOP_SVC_ERROR				Stopping the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_START_SVC_ERROR				Starting the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			Uninstall of the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_INSTALL_FAILED			Install of the "%s" service (internal name: "%S") failed.
-SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		Starting the user-mode service "%s" failed.
-SW_PERFORM_MSG_UPDATING						Updating system settings...
-SW_PERFORM_MSG_DELETE_NIC					Removing the Virtual Network Adapters...
-SW_PERFORM_MSG_FINISHED						Setup progress finished.
-SW_PERFORM_MSG_UNINSTALL_MSI				Windows Installer is uninstalling the older version of %s...
-SW_PERFORM_MSG_UPDATE_LANG_CONFIG			Changing the language settings...
 
-SW_PERFORM_MSG_INIT_UNINST					Preparing uninstall...
-SW_PERFORM_MSG_DELETE_PREPARE				Preparing to delete files...
-SW_PERFORM_MSG_DELETE_ERROR					Unable to delete the file "%s".\r\n\r\nThere might be another program who is keeping this file open.\r\nIf programs or services of %s are running, please terminate them and click Retry.
-SW_PERFORM_MSG_UNINSTALL_SVC				Uninstalling the "%s" service ...
-SW_PERFORM_MSG_DELETE						Deleting the "%s" service ...
-SW_PERFORM_MSG_EASY_INIT					Building the Easy Installer...
-SW_PERFORM_MSG_WEB_INIT						Building the Web Installer...
-SW_PERFORM_MSG_INSTALL_SELOW				Creating a restore point of the system and installing essential components. It may take a while...
+
+SW_PERFORM_MSG_INIT_TASKS					Подготовка заданий...
+SW_PERFORM_MSG_COPY_PREPARE					Подготовка к копированию файлов...
+SW_PERFORM_MSG_WRITE_ERROR					Не удалось записать файл "%s".\r\n\r\nВозможно этот файл открыт в другой программе.\r\nЕсли программы или службы %s запущены, завершите их и нажмите «Повторить».
+SW_PERFORM_MSG_COPY_FILE					Копирование "%s"...
+SW_PERFORM_MSG_SET_SECURITY					Настройка безопасности на "%s"...
+SW_PERFORM_MSG_PLUGIN						Установка плагинов...
+SW_PERFORM_MSG_STOP_SVC						Остановка службы "%s"...
+SW_PERFORM_MSG_WAIT_FOR_FILE_UNLOCK			Файл "%s" заблокирован запущенной программой. Ожидание разблокировки...
+SW_PERFORM_MSG_INSTALL_SVC					Установка службы %s...
+SW_PERFORM_MSG_START_SVC					Запуск службы %s...
+SW_PERFORM_MSG_CREATE_LINKS					Создание ярлыков...
+SW_PERFORM_MSG_DELETE_LINKS					Удаление ярлыков ...
+SW_PERFORM_MSG_DELETE_OLD_LINKS				Удаление старых ярлыков ...
+SW_PERFORM_MSG_REGISTER_UNINSTALL			Регистрация деинсталятора в панели управления...
+SW_PERFORM_MSG_IMPORTING_ACCOUNT			Импорт настроек встроенного VPN-подключения в Easy Installer...
+SW_PERFORM_MSG_DELETE_SETUP_INFO			Удаление журналов и информации об установке...
+SW_PERFORM_MSG_WRITE_LOG					Запись в журнал установки...
+SW_PERFORM_MSG_COPY_ERROR					Копирование в файл "%s" не удалось.
+SW_PERFORM_MSG_CREATE_LINK_ERROR			Создание ярлыка "%s" не удалось.\r\n\r\nВы хотите повторить попытку?
+SW_PERFORM_MSG_WRITE_LOG_ERROR				Создание журнала установки "%s" не удалось.\r\n\r\nВы хотите повторить попытку?
+SW_PERFORM_MSG_STOP_SVC_ERROR				Не удалось остановить службу "%s" (внутреннее имя: "%S").
+SW_PERFORM_MSG_START_SVC_ERROR				Запуск службы "%s" (внутреннее имя: "%S") завершился неудачно.
+SW_PERFORM_MSG_SVC_UNINSTALL_FAILED			Не удалось удалить службу "%s" (внутреннее имя: "%S").
+SW_PERFORM_MSG_SVC_INSTALL_FAILED			Установка службы "%s" (внутреннее имя: "%S") завершилась неудачно.
+SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED		Не удалось запустить режим пользователя "%s".
+SW_PERFORM_MSG_UPDATING						Обновление настроек системы...
+SW_PERFORM_MSG_DELETE_NIC					Удаление виртуальных сетевых адаптеров...
+SW_PERFORM_MSG_FINISHED						Процесс установки завершен.
+SW_PERFORM_MSG_UNINSTALL_MSI				 Установщик Windows удаляет старую версию %s...
+SW_PERFORM_MSG_UPDATE_LANG_CONFIG			Изменение настроек языка...
+
+SW_PERFORM_MSG_INIT_UNINST					Подготовка к удалению...
+SW_PERFORM_MSG_DELETE_PREPARE				Подготовка к удалению файлов...
+SW_PERFORM_MSG_DELETE_ERROR					Невозможно удалить файл "%s".\r\n\r\nВозможно этот файл открыт в другой программе.\r\nЕсли программы или службы %s запущены, завершите их и нажмите «Повторить».
+SW_PERFORM_MSG_UNINSTALL_SVC				Удаление службы "%s"...
+SW_PERFORM_MSG_DELETE						Удаление службы "%s"...
+SW_PERFORM_MSG_EASY_INIT					Сборка Easy Installer...
+SW_PERFORM_MSG_WEB_INIT						Сборка Web Installer...
+SW_PERFORM_MSG_INSTALL_SELOW				Создание точки восстановления системы и установка необходимых компонентов. Это может занять некоторое время...
 
 
 SW_TAG_USERNAME								\ (User-mode)
-SW_DIRNAME_CONFIG_TOOLS						Configuration Tools
-SW_DIRNAME_ADMIN_TOOLS						Administrative Tools
-SW_DIRNAME_LANGUAGE_TOOLS					Language Settings
+SW_DIRNAME_CONFIG_TOOLS						Инструменты настройки
+SW_DIRNAME_ADMIN_TOOLS						Инструменты управления
+SW_DIRNAME_LANGUAGE_TOOLS					Настройки языка
 
-SW_RUN_TEXT_VPNSMGR							Start the SoftEther VPN Server Manager.
-SW_RUN_TEXT_VPNCMGR							Start the SoftEther VPN Client Manager.
+SW_RUN_TEXT_VPNSMGR							Запустить SoftEther VPN-сервер менеджер.
+SW_RUN_TEXT_VPNCMGR							Запустить SoftEther VPN клиент.
 
-SW_NIC_UNINSTALL							Virtual Network Adapters of SoftEther VPN Client have been created on the system.\r\nDo you want to delete these Virtual Network Adapters?
+SW_NIC_UNINSTALL							Виртуальные сетевые адаптеры SoftEther VPN клиента были созданы в системе.\r\nВы хотите удалить эти виртуальные сетевые адаптеры?
 
 # Do not translate this section !!!
 SW_TAG_USERNAME_ENGLISH						\ (User-Mode)
@@ -6958,60 +7271,50 @@ SW_LANG_SET_FAILED							Failed to write the new language setting on lang.config
 
 
 # Shortcuts Filenames
-SW_LINK_NAME_VPNSMGR_SHORT					SoftEther VPN Server Manager (Dev)
-SW_LINK_NAME_VPNSMGR_SHORT_UM				SE-VPN Server Manager (Dev User)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE-VPN Server Manager (Dev Tools)
-SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE-VPN Server Manager (Dev Tools User)
-SW_LINK_NAME_VPNSMGR_FULL					SoftEther VPN Server Manager Developer Edition
-SW_LINK_NAME_VPNSMGR_COMMENT				You can manage SoftEther VPN Server or SoftEther VPN Bridge on a remote computer.
+SW_LINK_NAME_VPNSMGR_SHORT					SoftEther VPN-сервер менеджер (Dev)
+SW_LINK_NAME_VPNSMGR_SHORT_UM				SE VPN-сервер менеджер (Dev User)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY		SE VPN-сервер менеджер (Dev Tools)
+SW_LINK_NAME_VPNSMGR_SHORT_TOOLSONLY_UM	SE VPN-сервер менеджер (Dev Tools User)
+SW_LINK_NAME_VPNSMGR_FULL					SoftEther VPN-сервер менеджер Developer Edition
+SW_LINK_NAME_VPNSMGR_COMMENT				Вы можете управлять SoftEther VPN-сервером или SoftEther VPN-мостом на удаленном компьютере.
 
-SW_LINK_NAME_VPNCMGR_SHORT					SoftEther VPN Client Manager (Dev)
-SW_LINK_NAME_VPNCMGR_FULL					SoftEther VPN Client Manager Developer Edition
-SW_LINK_NAME_VPNCMGR_COMMENT				You can connect to a VPN Server by using SoftEther VPN Client.
+SW_LINK_NAME_VPNCMGR_SHORT					SoftEther VPN клиент (Dev)
+SW_LINK_NAME_VPNCMGR_FULL					SoftEther VPN клиент Developer Edition
+SW_LINK_NAME_VPNCMGR_COMMENT				Вы можете подключиться к VPN-серверу с помощью SoftEther VPN клиента.
 
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT				SoftEther VPN Client Remote Manager (Dev)
-SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			SE-VPN Client Remote Manager (Dev User)
-SW_LINK_NAME_VPNCMGRTOOLS_FULL				SoftEther VPN Client Remote Manager Developer Edition
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT				Удаленное управление SoftEther VPN клиентом (Dev)
+SW_LINK_NAME_VPNCMGRTOOLS_SHORT_UM			Удаленное управление SE VPN клиентом (Dev User)
+SW_LINK_NAME_VPNCMGRTOOLS_FULL				Удаленное управление SoftEther VPN клиентом Developer Edition
 
-SW_LINK_NAME_VPNCMGR2_FULL					Manage Remote Computer's SoftEther VPN Client
-SW_LINK_NAME_VPNCMGR2_COMMENT				You can establish a remote connection to and manage a SoftEther VPN Client on a remote computer.
+SW_LINK_NAME_VPNCMGR2_FULL					Управление SoftEther VPN клиентом на удаленных компьютерах
+SW_LINK_NAME_VPNCMGR2_COMMENT				Вы можете установить удаленное соединение с SoftEther VPN клиентом и управлять им на удаленном компьютере.
 
-SW_LINK_NAME_VPNCMGRTRAY_FULL				SoftEther VPN Client Manager Developer Edition Startup
-SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Registers an icon of SoftEther VPN Client Developer Edition on the taskbar's notification area.
+SW_LINK_NAME_VPNCMGRTRAY_FULL				Запуск SoftEther VPN клиента Developer Edition
+SW_LINK_NAME_VPNCMGRTRAY_COMMENT			Регистрирует значок SoftEther VPN клиента Developer Edition в области уведомлений панели задач.
 
 SW_LINK_NAME_EASYINSTALLER					Easy Installer Creator
-SW_LINK_NAME_EASYINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Easy Installer which has a function to kick-start a VPN connection to the specific destination automatically.
+SW_LINK_NAME_EASYINSTALLER_COMMENT			Инструмент для системных администраторов предприятия для создания SoftEther VPN Client Easy Installer, который имеет функцию автоматического запуска VPN-подключения к определенному серверу.
 
 SW_LINK_NAME_WEBINSTALLER					Web Installer Creator
-SW_LINK_NAME_WEBINSTALLER_COMMENT			A tool for enterprise system administrators to create a SoftEther VPN Client Web Installer (ActiveX Installer) which has a function to kick-start a VPN connection to the specific destination automatically.
+SW_LINK_NAME_WEBINSTALLER_COMMENT			Инструмент для системных администраторов предприятия для создания SoftEther VPN Client Web Installer (установщик ActiveX), который имеет функцию автоматического запуска VPN-подключения к определенному серверу.
 
 
-SW_LINK_NAME_VPNCMD							SoftEther VPN Command Line Utility (vpncmd)
-SW_LINK_NAME_VPNCMD_COMMENT					Manage SoftEther VPN Server, SoftEther VPN Bridge and SoftEther VPN Client on the command-line interface in vpncmd.
-SW_LINK_NAME_TRAFFIC						Network Traffic Speed Test Tool
-SW_LINK_NAME_TRAFFIC_COMMENT				Performs transmitting packets between two computers connected with TCP/IP, with large amount of throughput as possible, in order to measure the actual network traffic speed available.
-SW_LINK_NAME_TCP							TCP Optimization Utility
-SW_LINK_NAME_TCP_COMMENT					TCP Optimization Utility can adjust the parameters of TCP/IP of Windows in order to increase the network communication throughput of this computer.
-SW_LINK_NAME_SERVICES						Services Running on this Computer
-SW_LINK_NAME_SERVICES_COMMENT				Starts, stops, and configures Windows services. You can start and stop SoftEther VPN services.
-SW_LINK_NAME_VPNSERVER_SVC_COMMENT			Starts SoftEther VPN Server Service in the User Mode.
-SW_LINK_NAME_VPNBRIDGE_SVC_COMMENT			Starts SoftEther VPN Bridge Service in the User Mode.
+SW_LINK_NAME_VPNCMD							Командная строка SoftEther VPN (vpncmd)
+SW_LINK_NAME_VPNCMD_COMMENT					Управляйте SoftEther VPN-сервером, VPN-мостом и VPN клиентом с помощью интерфейса командной строки в vpncmd.
+SW_LINK_NAME_TRAFFIC						Тест скорости сетевого трафика
+SW_LINK_NAME_TRAFFIC_COMMENT				Выполняет передачу пакетов между двумя компьютерами, подключенными по TCP/IP, с максимально возможной пропускной способностью, чтобы измерить фактическую доступную скорость сетевого трафика.
+SW_LINK_NAME_TCP							Утилита оптимизации TCP
+SW_LINK_NAME_TCP_COMMENT					Утилита оптимизации TCP может регулировать параметры TCP/IP Windows, чтобы увеличить пропускную способность сетевого соединения этого компьютера.
+SW_LINK_NAME_SERVICES						Службы, работающие на этом компьютере
+SW_LINK_NAME_SERVICES_COMMENT				Запускает, останавливает и настраивает службы Windows. Вы можете запускать и останавливать SoftEther VPN службы.
+SW_LINK_NAME_VPNSERVER_SVC_COMMENT			Запускает службу SoftEther VPN-сервер в режиме пользователя.
+SW_LINK_NAME_VPNBRIDGE_SVC_COMMENT			Запускает службу SoftEther VPN-мост в режиме пользователя.
 
-SW_LINK_NAME_UNINSTALL						Uninstall %s
-SW_LINK_NAME_UNINSTALL_COMMENT				Uninstall %s on this computer.
+SW_LINK_NAME_UNINSTALL						Удалить %s
+SW_LINK_NAME_UNINSTALL_COMMENT				Удалить %s на этом компьютере.
 
-SW_LINK_NAME_LANGUAGE						Configure Display Language
-SW_LINK_NAME_LANGUAGE_COMMENT				Change the display language setting of %s.
+SW_LINK_NAME_LANGUAGE						Настроить язык
+SW_LINK_NAME_LANGUAGE_COMMENT				Изменить настройки языка %s.
 
-SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
-SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
-
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
-CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is invalid
-CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
-CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
-CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certificate is invalid
-CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
-CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
-CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+SW_LINK_NAME_DEBUG							Инструмент сбора отладочной информации
+SW_LINK_NAME_DEBUG_COMMENT					Собирает отладочную информацию SoftEther VPN. Используйте этот инструмент, только если ваши сотрудники поддержки просит вас сделать это.
