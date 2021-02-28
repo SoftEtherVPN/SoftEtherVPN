@@ -27,6 +27,7 @@ if(WIN32)
   )
 
   target_include_directories(cedar PRIVATE winpcap)
+  target_link_libraries(cedar PRIVATE comctl32.lib urlmon.lib)
 endif()
 
 if(UNIX)

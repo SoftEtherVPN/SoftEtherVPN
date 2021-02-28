@@ -484,26 +484,6 @@ void WriteProbe(char *filename, UINT line, char *str);
 void WriteProbeData(char *filename, UINT line, char *str, void *data, UINT size);
 USHORT CalcChecksum16(void *buf, UINT size);
 
-
-#ifdef	OS_WIN32
-// Import library (for Win32)
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "kernel32.lib")
-#pragma comment(lib, "user32.lib")
-#pragma comment(lib, "gdi32.lib")
-#pragma comment(lib, "shell32.lib")
-#pragma comment(lib, "comctl32.lib")
-#pragma comment(lib, "dbghelp.lib")
-#pragma comment(lib, "Iphlpapi.lib")
-#pragma comment(lib, "setupapi.lib")
-#pragma comment(lib, "version.lib")
-#pragma comment(lib, "Netapi32.lib")
-#pragma comment(lib, "shlwapi.lib")
-#pragma comment(lib, "crypt32.lib")
-#pragma warning( disable : 4099 )
-#endif	// OS_WIN32
-
 // For Debugging
 #ifndef	ENCRYPT_C
 //#define	Disconnect(s)		{Debug("Disconnect() Called: %s %u\n", __FILE__, __LINE__);Disconnect(s);}
@@ -511,5 +491,3 @@ USHORT CalcChecksum16(void *buf, UINT size);
 
 
 #endif	// MAYAQUA_H
-
-

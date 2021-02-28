@@ -26,8 +26,6 @@
 #include "vpninstall.h"
 #include "resource.h"
 
-#pragma comment(lib, "wininet.lib")
-
 static bool is_debug = true;
 static LIST *string_table = NULL;
 static VI_SETTING setting;

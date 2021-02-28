@@ -33,8 +33,6 @@
 #include "vpnwebdlg_inner.h"
 #include "resource.h"
 
-#pragma comment(lib, "wininet.lib")
-
 static VPNWEBDLG_INIT data;
 static bool inited = false;
 static VW_TASK task;
