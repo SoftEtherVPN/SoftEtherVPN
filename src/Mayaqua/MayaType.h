@@ -8,6 +8,8 @@
 #ifndef	MAYATYPE_H
 #define	MAYATYPE_H
 
+#include <stdint.h>
+
 // Check whether the windows.h header is included
 #ifndef	WINDOWS_H
 #ifdef	_WINDOWS_
@@ -15,8 +17,7 @@
 #endif	// _WINDOWS_
 #endif	// WINDOWS_H
 
-
-#if	!defined(ENCRYPT_C) && !defined(HAM_C)
+#if	!defined(ENCRYPT_C)
 // Structure which is used by OpenSSL
 typedef struct x509_st X509;
 typedef struct evp_pkey_st EVP_PKEY;
@@ -39,7 +40,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	BUF_SIZE			512
 
 // Support Windows OS list
-#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016"
+#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016 / Server 2019"
 
 // Infinite
 #ifndef	WINDOWS_H
@@ -171,52 +172,28 @@ typedef int PID;
 typedef unsigned long PID;
 #endif // WINDOWS_H
 
-// bool type
-#ifndef	WINDOWS_H
-typedef	unsigned int		BOOL;
-#define	TRUE				1
-#define	FALSE				0
-#endif	// WINDOWS_H
-
-// bool type
+// TODO: include <stdbool.h> instead of manually defining type
 #ifndef	WIN32COM_CPP
 typedef	unsigned int		bool;
 #define	true				1
 #define	false				0
 #endif	// WIN32COM_CPP
 
-// 32bit integer type
-#ifndef	WINDOWS_H
-typedef	unsigned int		UINT;
-typedef	unsigned int		UINT32;
-typedef	unsigned int		DWORD;
-typedef	signed int			INT;
-typedef	signed int			INT32;
+typedef int64_t  time_64t;
 
-typedef	int					UINT_PTR;
-typedef	long				LONG_PTR;
+#ifndef _BASETSD_H_
+typedef int32_t  INT;
+typedef int64_t  INT64;
 
+typedef uint32_t UINT;
+typedef uint64_t UINT64;
 #endif
 
-// 16bit integer type
-typedef	unsigned short		WORD;
-typedef	unsigned short		USHORT;
-typedef	signed short		SHORT;
-
-// 8bit integer type
-typedef	unsigned char		BYTE;
-typedef	unsigned char		UCHAR;
-
-#ifndef	WIN32COM_CPP
-typedef signed char			CHAR;
-#endif	// WIN32COM_CPP
-
-
-// 64-bit integer type
-typedef	unsigned long long	UINT64;
-typedef signed long long	INT64;
-
-typedef signed long long	time_64t;
+#ifndef BASETYPES
+typedef uint8_t  BYTE;
+typedef uint8_t  UCHAR;
+typedef uint16_t USHORT;
+#endif
 
 #ifdef	OS_UNIX
 // Avoiding compile error
@@ -226,7 +203,11 @@ typedef signed long long	time_64t;
 typedef	int SOCKET;
 #else	// OS_UNIX
 #ifndef	_WINSOCK2API_
-typedef UINT_PTR SOCKET;
+#ifdef	CPU_64
+typedef unsigned __int64 SOCKET;
+#else
+typedef unsigned int SOCKET;
+#endif	// CPU_64
 #endif	// _WINSOCK2API_
 #endif	// OS_UNIX
 
@@ -302,14 +283,14 @@ typedef struct OS_INFO
 #ifndef	WINDOWS_H
 typedef struct SYSTEMTIME
 {
-	WORD wYear;
-	WORD wMonth;
-	WORD wDayOfWeek;
-	WORD wDay;
-	WORD wHour;
-	WORD wMinute;
-	WORD wSecond;
-	WORD wMilliseconds;
+	USHORT wYear;
+	USHORT wMonth;
+	USHORT wDayOfWeek;
+	USHORT wDay;
+	USHORT wHour;
+	USHORT wMinute;
+	USHORT wSecond;
+	USHORT wMilliseconds;
 } SYSTEMTIME;
 #endif	// WINDOWS_H
 
@@ -463,7 +444,6 @@ typedef struct ZIP_DIR_HEADER ZIP_DIR_HEADER;
 typedef struct ZIP_END_HEADER ZIP_END_HEADER;
 typedef struct ZIP_FILE ZIP_FILE;
 typedef struct ZIP_PACKER ZIP_PACKER;
-typedef struct ENUM_DIR_WITH_SUB_DATA ENUM_DIR_WITH_SUB_DATA;
 
 // TcpIp.h
 typedef struct MAC_HEADER MAC_HEADER;
@@ -510,5 +490,8 @@ typedef struct IKE_HEADER IKE_HEADER;
 // HTTP.h
 typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 
-#endif	// MAYATYPE_H
+// Proxy.h
+typedef struct PROXY_PARAM_IN PROXY_PARAM_IN;
+typedef struct PROXY_PARAM_OUT PROXY_PARAM_OUT;
 
+#endif	// MAYATYPE_H

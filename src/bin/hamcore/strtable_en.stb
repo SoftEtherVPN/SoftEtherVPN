@@ -398,6 +398,7 @@ PW_TYPE_1				Standard Password Authentication
 PW_TYPE_2				RADIUS or NT Domain Authentication
 PW_TYPE_3				Client Certificate Authentication
 PW_TYPE_4				Smart Card Authentication
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY			User authentication failed on the proxy server %S. Re-enter the correct user name and password.
 PW_TYPE_PROXY			Proxy Server Authentication
@@ -1792,6 +1793,13 @@ LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The e
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
+
+# (Proto log)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
+
 # (OpenVPN Logs)
 LO_PREFIX_RAW			OpenVPN Module: 
 LO_PREFIX_SESSION		OpenVPN Session %u (%r:%u -> %r:%u): 
@@ -1803,15 +1811,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		Option Strings to Send: "%S"
-LO_NEW_SESSION			A new session is created. Protocol: %S
 LO_INITIATE_REKEY		The re-keying process is started.
 LO_CHANNEL_ESTABLISHED	The channel becomes the established state.
 LO_PUSH_REPLY			The full strings replied: "%S"
 LO_CHANNEL_FAILED		Failed to connect a channel.
 LO_CHANNEL_DISCONNECTED_BY_HUB	This OpenVPN channel is being terminated because the administrator of the Virtual Hub has disconnected this the VPN Session.
-LO_DELETE_SESSION		Deleting the session.
-LO_START				The OpenVPN Server Module is starting.
-LO_STOP					The OpenVPN Server Module is stopped.
 
 
 # (IPsec Logs)
@@ -1905,7 +1909,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication meth
 LH_AUTH_OK				Connection "%S": Successfully authenticated as user "%S".
 LH_AUTH_OK_CERT			The Virtual Hub's Security Account Manager has received the following certificate from the VPN Client and accepted its contents as the certificate for when user "%S" logs in: %s
 LH_AUTH_NG_CERT			Although the Virtual Hub's Security Account Manager has received the following certificate, has refused its contents as the certificate for when user "%S" logs in because this certificate's contents matches the contents that are registered in the Virtual Hub's certificates revocation list: %s
-LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S".
+LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY			Connection "%S": The remote login has been refused because of the password for user "%S" is blank.
 LH_POLICY_ACCESS_NG		Connection "%S": Access has beens refused to user "%S" based on the security policy.
 LH_USER_EXPIRES			Connection "%S": Access has been refused to user "%S" because of the expiration date has been expired.
@@ -1988,6 +1992,8 @@ LA_CREATE_LISTENER		A new TCP listener (port number %u) has been created.
 LA_DELETE_LISTENER		TCP listener (port number %u) has been deleted.
 LA_ENABLE_LISTENER		TCP listener (port number %u) has been enabled.
 LA_DISABLE_LISTENER		TCP listener (port number %u) has been disabled.
+LA_SET_PORTS_UDP		UDP ports have been set: %s.
+LA_SET_PROTO_OPTIONS	%s options have been set.
 LA_SET_SERVER_PASSWORD	The server administrator password has been set.
 LA_SET_FARM_SETTING		The clustering setting has been changed.
 LA_SET_SERVER_CERT		The server certificates have been set.
@@ -2041,7 +2047,7 @@ LA_DEL_L3_IF			The virtual interface for Virtual Hub "%S" has been deleted from 
 LA_ADD_L3_TABLE			The routing table for network "%S" has been added to Virtual Layer 3 Switch "%S".
 LA_DEL_L3_TABLE			The routing table for network "%S" has been deleted from Virtual Layer 3 Switch "%S".
 LA_ADD_CRL				A certificate has been added to Certificate Revocation List.
-LA_DEL_CRL				A certificate has been edited in Certificate Revocation List.
+LA_DEL_CRL				A certificate has been deleted from Certificate Revocation List.
 LA_SET_CRL				A registered item in a registration of a list of invalid certificates has been edited.
 LA_READ_LOG_FILE		The log file on the server "%S" (log file "%S") has been downloaded.
 LA_ADD_LICENSE_KEY		A new license key "%S" has been registered.
@@ -2554,6 +2560,8 @@ B_CREATE_LISTENER		C&reate
 B_DELETE_LISTENER		Dele&te
 B_START					Start
 B_STOP					Sto&p
+S_UDP					Multiple UDP ports can be specified by splitting them with a space or a comma. Leave empty to disable the UDP listener.
+B_APPLY					Apply
 STATIC3					VPN Server and &Network Information and Settings:
 B_SSL					&Encryption and Network
 B_STATUS				&View Server Status
@@ -3865,9 +3873,6 @@ CAPTION					OpenVPN / MS-SSTP Settings
 S_TITLE					OpenVPN / MS-SSTP VPN Clone Server Function Settings
 S_1						This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc.\r\n\r\nAny OpenVPN Clients can connect to this VPN Server.
 R_OPENVPN				Enable &OpenVPN Clone Server Function
-S_UDP					UDP Ports to Listen for OpenVPN:
-B_DEFAULT				Restore &Default
-S_UDP2					Multiple UDP ports can be specified with splitting by space or comma letters.\r\nOpenVPN Server Function also runs on TCP ports. Any TCP ports which are defined as listeners on the VPN Server accepts OpenVPN Protocol respectively and equally.
 S_TOOL					Sample File Generating Tool for OpenVPN Clients
 S_TOOL2					Making a OpenVPN Client configuration file is a very difficult job. You can use this tool to generate an appropriate OpenVPN Client configuration file. The generated configuration sample can be used immediately.
 B_CONFIG				Generate a Sample &Configuration File for OpenVPN Clients
@@ -4548,6 +4553,49 @@ CMD_ListenerDisable_[port]	Using an integer, specify the port number of the TCP/
 CMD_ListenerDisable_PortPrompt	Port number of TCP/IP Listener to start: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
+
+
+# ProtoOptionsSet command
+CMD_ProtoOptionsSet						Sets an option's value for the specified protocol
+CMD_ProtoOptionsSet_Help				This command can be used to change an option's value for a specific protocol. \nYou can retrieve the options using the ProtoOptionsGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protocol] [/NAME:option_name] [/VALUE:string/true/false]
+CMD_ProtoOptionsSet_[protocol]			Protocol name.
+CMD_ProtoOptionsSet_NAME				Option name.
+CMD_ProtoOptionsSet_VALUE				Option value. Make sure to write a value that is accepted by the specified protocol!
+CMD_ProtoOptionsSet_Prompt_[protocol]	Protocol: 
+CMD_ProtoOptionsSet_Prompt_NAME			Option: 
+CMD_ProtoOptionsSet_Prompt_VALUE		Value: 
+
+
+# ProtoOptionsGet command
+CMD_ProtoOptionsGet						Lists the options for the specified protocol
+CMD_ProtoOptionsGet_Help				This command can be used to retrieve the options for a specific protocol. \nDetailed info (e.g. value type) will be shown. \nYou can change an option's value with the ProtoOptionsSet command.
+CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protocol]
+CMD_ProtoOptionsGet_[protocol]			Protocol name.
+CMD_ProtoOptionsGet_Prompt_[protocol]	Protocol: 
+CMD_ProtoOptionsGet_Column_Name			Name
+CMD_ProtoOptionsGet_Column_Type			Type
+CMD_ProtoOptionsGet_Column_Value		Value
+CMD_ProtoOptionsGet_Column_Description	Description
+
+# ProtoOptions
+CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			When OpenVPN is compiled without OCC code, it doesn't send the options string to the server. The original OpenVPN server still works, because the configuration is static. SoftEther VPN is heuristic and wants to support as many different configurations as possible. This option allows to define the string that is sent to clients built without OCC code, so that they can successfully connect.
+CMD_ProtoOptions_Description_OpenVPN_Obfuscation					This may help an OpenVPN client bypass firewalls that are aware of the protocol and block it. The same XOR mask has to be applied client-side, otherwise it will not be able to connect with certain obfuscation methods!
+CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	There's a bug that manifests under certain circumstances on Linux. It causes the OpenVPN client to disconnect unless the TAP device is UP. This option tells the server to push a dummy IPv4 address (RFC7600) to the client, so that the TAP adapter is forced to be UP.
+
 # ServerPasswordSet command
 CMD_ServerPasswordSet	Set VPN Server Administrator Password
 CMD_ServerPasswordSet_Help	This sets the VPN Server administrator password. You can specify the password as a parameter. If the password is not specified, a prompt will be displayed to input the password and password confirmation. If you include the password as a parameter, this password will be displayed momentarily on the screen, which poses a risk. We recommend that whenever possible, avoid specifying this parameter and input the password using the password prompt. \nTo execute this command, you must have VPN Server administrator privileges.
@@ -4689,22 +4737,6 @@ CMD_ServerCipherSet_Help	Use this to set the algorithm used for the electronic s
 CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	This specifies the encrypted and electronic signature algorithm to set. You can obtain the list of usable algorithms by using the ServerCipherGet command.
 CMD_ServerCipherSet_PROMPT_NAME	Encrypted Algorithm Name to Specify: 
-
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 
 # KeepEnable command
 CMD_KeepEnable			Enable the Keep Alive Internet Connection Function
@@ -6281,23 +6313,6 @@ CMD_EtherIpClientList_Help	This command gets and shows the list of entries to ac
 CMD_EtherIpClientList_Args	EtherIpClientList
 
 
-# OpenVpnEnable command
-CMD_OpenVpnEnable		Enable / Disable OpenVPN Clone Server Function
-CMD_OpenVpnEnable_Help	This VPN Server has the clone functions of OpenVPN software products by OpenVPN Technologies, Inc. Any OpenVPN Clients can connect to this VPN Server.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
-CMD_OpenVpnEnable_[yes|no]	Specify yes to enable the OpenVPN Clone Server Function. Specify no to disable.
-CMD_OpenVpnEnable_PORTS		Specify UDP ports to listen for OpenVPN. Multiple UDP ports can be specified with splitting by space or comma letters, for example: "1194, 2001, 2010, 2012". The default port for OpenVPN is UDP 1194. You can specify any other UDP ports.
-CMD_OpenVpnEnable_Prompt_[yes|no]	Enables OpenVPN Clone Server Function (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		UDP Ports to Listen for OpenVPN (Default: 1194 / Multiple Accepted): 
-
-
-# OpenVpnGet command
-CMD_OpenVpnGet			Get the Current Settings of OpenVPN Clone Server Function
-CMD_OpenVpnGet_Help		Get and show the current settings of OpenVPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnGet_Args		OpenVpnGet
-CMD_OpenVpnGet_PRINT_Enabled		OpenVPN Clone Server Enabled
-CMD_OpenVpnGet_PRINT_Ports			UDP Port List
-
 # OpenVpnMakeConfig command
 CMD_OpenVpnMakeConfig	Generate a Sample Setting File for OpenVPN Client
 CMD_OpenVpnMakeConfig_Help	Originally, the OpenVPN Client requires a user to write a very difficult configuration file manually. This tool helps you to make a useful configuration sample. What you need to generate the configuration file for the OpenVPN Client is to run this command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -6308,42 +6323,9 @@ CMD_OpenVpnMakeConfig_OK			The sample setting file was saved as "%s". You can un
 CMD_OpenVpnMakeConfig_ERROR			The sample setting files were unable to be saved as "%s". The filename might be invalid.\n
 
 
-# OpenVpnObfuscationEnable
-CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
-CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
-CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
-CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
-CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
-
-
-# OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
-CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
-
-
-# SstpEnable command
-CMD_SstpEnable			Enable / Disable Microsoft SSTP VPN Clone Server Function
-CMD_SstpEnable_Help		This VPN Server has the clone functions of MS-SSTP VPN Server which is on Windows Server 2008 / 2012 by Microsoft Corporation. Standard MS-SSTP Clients in Windows Vista / 7 / 8 / RT / 10 can connect to this VPN Server.\n\n[Caution]\nThe value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the client, and that certificate must be in the trusted list on the SSTP VPN client. For details refer the Microsoft's documents.\nYou can use the ServerCertRegenerate command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields. In that case, you have to register such a new self-signed certificate on the SSTP VPN Client as a trusted root certificate. If you do not want to do such a bother tasks, please consider to purchase a SSL certificate provided by commercial authority such as VeriSign or GlobalSign.\n\nThe manner to specify a username to connect to the Virtual Hub, and the selection rule of default Hub by using this clone server functions are same to the IPsec Server functions. For details, please see the help of the IPsecEnable command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_SstpEnable_Args		SstpEnable [yes|no]
-CMD_SstpEnable_[yes|no]	Specify yes to enable the Microsoft SSTP VPN Clone Server Function. Specify no to disable.
-CMD_SstpEnable_Prompt_[yes|no]	Enables SSTP VPN Clone Server Function (yes / no): 
-CMD_SstpEnable_PRINT_Enabled		SSTP VPN Clone Server Enabled
-
-
-# SstpGet command
-CMD_SstpGet				Get the Current Settings of Microsoft SSTP VPN Clone Server Function
-CMD_SstpGet_Help		Get and show the current settings of Microsoft SSTP VPN Clone Server Function.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_SstpGet_Args		SstpGet
-
-
 # ServerCertRegenerate command
 CMD_ServerCertRegenerate	Generate New Self-Signed Certificate with Specified CN (Common Name) and Register on VPN Server
-CMD_ServerCertRegenerate_Help	You can use this command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields.\n\nThis command is convenient if you are planning to use Microsoft SSTP VPN Clone Server Function. Because of the value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the SSTP VPN client.\nFor details please see the help of SstpEnable command.\n\nThis command will delete the existing SSL certificate of the VPN Server. It is recommended to backup the current SSL certificate and private key by using the ServerKeyGet command beforehand.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_ServerCertRegenerate_Help	You can use this command to replace the current certificate on the VPN Server to a new self-signed certificate which has the CN (Common Name) value in the fields.\n\nThis command is convenient if you are planning to use Microsoft SSTP VPN Clone Server Function. Because of the value of CN (Common Name) on the SSL certificate of VPN Server must match to the hostname specified on the SSTP VPN client.\n\nThis command will delete the existing SSL certificate of the VPN Server. It is recommended to backup the current SSL certificate and private key by using the ServerKeyGet command beforehand.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	Specify a Common Name (CN) which the new certificate will have.
 CMD_ServerCertRegenerate_Prompt_CN	Value of Common Name (CN): 
@@ -6759,9 +6741,9 @@ CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection
 
 
 # AccountRetryOnServerCertDisable command
-CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certificate is invalid
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
-CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
@@ -6877,6 +6859,11 @@ CMD_AccountSecureCertSet_CERTNAME	Specify the name of the certificate object sto
 CMD_AccountSecureCertSet_KEYNAME	Specify the name of the private key object stored on the smart card. The private key must be compatible with the certificate specified by /CERTNAME.
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	Name of Certificate Object on Smart Card: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	Name of Private Key Object on Smart Card: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet コマンド
@@ -7176,7 +7163,6 @@ SW_DIR_DST_IS_SYSTEM_MODE					The same software is already installed on the spec
 SW_DIR_DST_IS_USER_MODE						The same software is already installed on the specified directory as the User Mode.\r\n\r\nPlease specify another directory.
 SW_SYSTEM_MODE_ALREADY_INSTALLED			The software "%s" is already installed on this computer as the System Mode.\r\n\r\nBoth the System Mode and the User Mode installation of the same software on the same computer will conflict.\r\n\r\nDo you really want to continue the installation as the User Mode?
 
-SW_NOT_INSTALL_SRC							The setup program has been executed from outside an install source.\r\n\r\nUnable to continue the installation.
 SW_SETUPLOG_CORRUPTED						The "setuplog.dat" file is broken.
 SW_MSI_UNINSTALL_FAILED						The older version of %s (Product Code: "%S") is installed. Windows Installer failed to uninstall this older version.\r\n\r\nPlease uninstall this older version manually and restart this installer again.
 SW_MSI_UNINSTALL_REBOOT_REQUIRED			Windows Installer has uninstalled the older version of %s. The reboot of computer is required.\r\n\r\nPress Finish button and reboot the computer MANUALLY, and restart this installer after the reboot.

@@ -16,7 +16,7 @@
 #define	SSTP_IPC_POSTFIX				"SSTP"
 #define	SSTP_ECHO_SEND_INTERVAL_MIN		2500					// Transmission interval of Echo Request (minimum)
 #define	SSTP_ECHO_SEND_INTERVAL_MAX		4792					// Transmission interval of Echo Request (maximum)
-#define	SSTP_TIMEOUT					10000					// Communication time-out of SSTP
+#define	SSTP_TIMEOUT					20 * 1000				// Communication time-out of SSTP (from default policy)
 
 // SSTP Message Type
 #define	SSTP_MSG_CALL_CONNECT_REQUEST				0x0001
@@ -61,6 +61,7 @@
 #define	SSTP_SERVER_STATUS_REQUEST_PENGING			0	// Connection incomplete
 #define	SSTP_SERVER_STATUS_CONNECTED_PENDING		1	// Connection completed. Authentication incomplete
 #define	SSTP_SERVER_STATUS_ESTABLISHED				2	// Connection completed. Communication available
+#define	SSTP_SERVER_STATUS_NOT_INITIALIZED	INFINITE	// Connection not accepted yet.
 
 // Length of Nonce
 #define	SSTP_NONCE_SIZE								32	// 256 bits
@@ -116,16 +117,19 @@ struct SSTP_SERVER
 	UINT64 LastRecvTick;					// Tick when some data has received at the end
 	bool FlushRecvTube;						// Flag whether to flush the reception tube
 	UINT EstablishedCount;					// Number of session establishment
+	PPP_SESSION *PPPSession;				// Underlying PPP Session
 };
 
 
 //// Function prototype
-bool AcceptSstp(CONNECTION *c);
-bool ProcessSstpHttps(CEDAR *cedar, SOCK *s, SOCK_EVENT *se);
+const PROTO_IMPL *SstpGetProtoImpl();
+const PROTO_OPTION *SstpOptions();
+const char *SstpName();
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
+void SstpFree(void *param);
+bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 
-SSTP_SERVER *NewSstpServer(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip,
-						   UINT server_port, SOCK_EVENT *se,
-						   char *client_host_name, char *crypt_name);
+SSTP_SERVER *NewSstpServer(CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void FreeSstpServer(SSTP_SERVER *s);
 void SstpProcessInterrupt(SSTP_SERVER *s);
 SSTP_PACKET *SstpParsePacket(UCHAR *data, UINT size);
@@ -150,6 +154,5 @@ SSTP_PACKET *SstpNewDataPacket(UCHAR *data, UINT size);
 SSTP_PACKET *SstpNewControlPacket(USHORT message_type);
 SSTP_PACKET *SstpNewControlPacketWithAnAttribute(USHORT message_type, SSTP_ATTRIBUTE *a);
 void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p);
-bool GetNoSstp();
 
 #endif	// PROTO_SSTP_H

@@ -19,8 +19,8 @@ if(WIN32)
   get_filename_component(COMPONENT_FILE_NAME vpntest NAME)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
-  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpntest.rc")
-  target_sources(vpntest PRIVATE vpntest.rc "${CMAKE_BINARY_DIR}/VerScript/vpntest.rc")
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+  target_sources(vpntest PRIVATE "vpntest.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 
   if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
     target_sources(vpntest PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")

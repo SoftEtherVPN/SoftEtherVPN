@@ -54,7 +54,7 @@ struct DYN_VALUE
 #define	SSL_LOGGING_DIRNAME			"@ssl_log"
 
 // Private IP list file
-#define	PRIVATE_IP_TXT_FILENAME		"@private_ip.txt"
+#define	PRIVATE_IP_TXT_FILENAME		"$private_ip.txt"
 
 // Start range of the random UDP port
 #define	RAND_UDP_PORT_START			5000
@@ -78,7 +78,7 @@ struct DYN_VALUE
 // IP address
 struct IP
 {
-	UCHAR addr[4];					// IPv4 address, (meaning that 223.255.255.254 = IPv6)
+	UCHAR addr[4];					// IPv4 address, (meaning that 192.0.2.254 = IPv6)
 	UCHAR ipv6_addr[16];			// IPv6 address
 	UINT ipv6_scope_id;				// IPv6 scope ID
 };
@@ -147,6 +147,9 @@ struct SSL_ACCEPT_SETTINGS
 	bool Tls_Disable1_0;
 	bool Tls_Disable1_1;
 	bool Tls_Disable1_2;
+	bool Tls_Disable1_3;
+	bool Override_Security_Level;
+	UINT Override_Security_Level_Value;
 };
 
 // Socket
@@ -209,6 +212,7 @@ struct SOCK
 	UINT CurrentTtl;			// Current TTL value
 	RUDP_STACK *R_UDP_Stack;	// R-UDP stack
 	char UnderlayProtocol[64];	// Underlying protocol
+	char ProtocolDetails[256];	// Protocol details
 	QUEUE *ReverseAcceptQueue;	// Accept queue for the reverse socket
 	EVENT *ReverseAcceptEvent;	// Accept event for the reverse socket
 	bool IsReverseAcceptedSocket;	// Whether it is a reverse socket
@@ -356,7 +360,7 @@ typedef struct SOCKLIST
 
 
 // Parameters for timeout thread for Solaris
-typedef struct SOCKET_TIMEOUT_PARAM{
+typedef struct SOCKET_TIMEOUT_PARAM {
 	SOCK *sock;
 	CANCEL *cancel;
 	THREAD *thread;
@@ -575,6 +579,12 @@ struct IPBLOCK
 #define	RUDP_TIMEOUT					12000		// Time-out of R-UDP communication
 #define	RUDP_DIRECT_CONNECT_TIMEOUT		5000		// R-UDP direct connection time-out
 #define	RUDP_MAX_SEGMENT_SIZE			512			// Maximum segment size
+#define	RUDP_BULK_KEY_SIZE_MAX			128			// Bulk key size Max
+
+#define	RUDP_BULK_KEY_SIZE_V2			32			// V2: Bulk key size
+#define	RUDP_BULK_IV_SIZE_V2			12			// V2: Bulk IV size
+#define	RUDP_BULK_MAC_SIZE_V2			16			// V2: Bulk MAC size
+
 // Maximum R-UDP packet size
 #define	RUDP_MAX_PACKET_SIZE			(RUDP_MAX_SEGMENT_SIZE + sizeof(UINT64) * RUDP_MAX_NUM_ACK + SHA1_SIZE * 2 + sizeof(UINT64) * 4 + sizeof(UINT) + 255)
 #define	RUDP_MAX_NUM_ACK				64			// Maximum number of ACKs
@@ -644,7 +654,7 @@ struct RUDP_SESSION
 	UINT64 Magic_Disconnect;			// Disconnection Signal
 	UINT64 NextSendSeqNo;				// Transmission sequence number to be used next
 	UINT64 LastRecvCompleteSeqNo;		// Sequence number of receiving complete
-										// (This indicates all segments which have sequence number up to this number are received completely)
+	// (This indicates all segments which have sequence number up to this number are received completely)
 	UCHAR NextIv[SHA1_SIZE];			// IV value to be used next
 	UINT NextKeepAliveInterval;			// Interval value of KeepAlive to be used next
 	FIFO *RecvFifo;						// Reception FIFO
@@ -663,6 +673,7 @@ struct RUDP_SESSION
 	UINT64 BulkNextSeqNo;				// Next SEQ NO to the bulk send
 	bool FlushBulkSendTube;				// Flag to be Flush the bulk send Tube
 	UINT64 BulkRecvSeqNoMax;			// Highest sequence number received
+	UCHAR BulkNextIv_V2[RUDP_BULK_IV_SIZE_V2];	// Next IV to the bulk send (version 2)
 };
 
 // NAT Traversal Server Information
@@ -838,7 +849,7 @@ struct CONNECT_TCP_RUDP_PARAM
 
 #define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
 
-// Header for TCP Pair 
+// Header for TCP Pair
 struct TCP_PAIR_HEADER
 {
 	bool EnableHMac;
@@ -941,7 +952,7 @@ UINT64 RUDPGetCurrentSendingMinSeqNo(RUDP_SESSION *se);
 UINT64 RUDPGetCurrentSendingMaxSeqNo(RUDP_SESSION *se);
 SOCK *ListenRUDP(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode);
 SOCK *ListenRUDPEx(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode,
-				   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
+                   volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 SOCK *AcceptRUDP(SOCK *s);
 void *InitWaitUntilHostIPAddressChanged();
 void FreeWaitUntilHostIPAddressChanged(void *p);
@@ -1238,6 +1249,9 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e);
 void DebugPrintRoute(ROUTE_ENTRY *e);
 void DebugPrintRouteTable(ROUTE_TABLE *r);
 bool IsIPv6LocalNetworkAddress(IP *ip);
+void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str);
+void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value);
+void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value);
 
 #ifdef	ENABLE_SSL_LOGGING
 void SockEnableSslLogging(SOCK *s);
@@ -1290,6 +1304,15 @@ bool IsStrIPv6Address(char *str);
 void IPAnd4(IP *dst, IP *a, IP *b);
 bool IsInSameNetwork4(IP *a1, IP *a2, IP *subnet);
 bool IsInSameNetwork4Standard(IP *a1, IP *a2);
+
+// Utility functions about IP and MAC address types
+bool IsValidUnicastIPAddress4(IP *ip);
+bool IsValidUnicastIPAddressUINT4(UINT ip);
+bool IsValidUnicastIPAddress6(IP *ip);
+bool IsMacUnicast(UCHAR *mac);
+bool IsMacBroadcast(UCHAR *mac);
+bool IsMacMulticast(UCHAR *mac);
+bool IsMacInvalid(UCHAR *mac);
 
 bool ParseIpAndSubnetMask4(char *src, UINT *ip, UINT *mask);
 bool ParseIpAndSubnetMask46(char *src, IP *ip, IP *mask);
@@ -1346,6 +1369,7 @@ UINT64 GetHostIPAddressListHash();
 UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
 UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type);
 void UdpListenerThread(THREAD *thread, void *param);
+void StopUdpListener(UDPLISTENER *u);
 void FreeUdpListener(UDPLISTENER *u);
 void AddPortToUdpListener(UDPLISTENER *u, UINT port);
 void DeletePortFromUdpListener(UDPLISTENER *u, UINT port);
@@ -1426,6 +1450,7 @@ void RefreshLocalMacAddressList();
 
 struct ssl_ctx_st *NewSSLCtx(bool server_mode);
 void FreeSSLCtx(struct ssl_ctx_st *ctx);
+UINT GetOSSecurityLevel();
 
 void SetCurrentDDnsFqdn(char *name);
 void GetCurrentDDnsFqdn(char *name, UINT size);

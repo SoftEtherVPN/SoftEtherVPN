@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Cedar.h
 // Header of Cedar.c
@@ -116,8 +116,6 @@
 #define	MAX_ACCOUNT_NAME_LEN		255		// Maximum account name length
 #define	MAX_USERNAME_LEN			255		// User name maximum length
 #define	MAX_PASSWORD_LEN			255		// Password name maximum length
-#define	MAX_PROXY_USERNAME_LEN		255		// Proxy user name maximum length
-#define	MAX_PROXY_PASSWORD_LEN		255		// Proxy Password maximum length
 #define	MAX_SERVER_STR_LEN			255		// Maximum length of server string
 #define	MAX_CLIENT_STR_LEN			255		// Maximum length of client string
 #define	MAX_HUBNAME_LEN				255		// Maximum length of HUB name
@@ -190,7 +188,6 @@
 #define	TIMEOUT_MAX					(60 * 1000)	// Maximum timeout in seconds
 #define	TIMEOUT_DEFAULT				(30 * 1000) // Default number of seconds to timeout
 #define	CONNECTING_TIMEOUT			(15 * 1000)	// Timeout in seconds of being connected
-#define	CONNECTING_TIMEOUT_PROXY	(4 * 1000)	// Timeout in seconds of being connected (Proxy)
 #define	CONNECTING_POOLING_SPAN		(3 * 1000) // Polling interval of connected
 #define	MIN_RETRY_INTERVAL			(5 * 1000)		// Minimum retry interval
 #define	MAX_RETRY_INTERVAL			(300 * 1000)	// Maximum retry interval
@@ -379,6 +376,7 @@
 #define	CLIENT_AUTHTYPE_PLAIN_PASSWORD	2			// Plain password authentication
 #define	CLIENT_AUTHTYPE_CERT			3			// Certificate authentication
 #define	CLIENT_AUTHTYPE_SECURE			4			// Secure device authentication
+#define	CLIENT_AUTHTYPE_OPENSSLENGINE			5			// Openssl engine authentication
 
 
 
@@ -434,6 +432,12 @@
 #define	LOG_ENGINE_BUFFER_CACHE_SIZE_MAX	(10 * 1024 * 1024)	// Write cache size
 
 // Constant such as a file name
+//
+// These placeholders will be replaced in InnerFilePathW().
+//
+// @ - placeholder for LogDir
+// $ - placeholder for DbDir (config directory)
+//
 #define	SERVER_LOG_DIR				"server_log"
 #define	SERVER_LOG_DIR_NAME			"@"SERVER_LOG_DIR
 #define	BRIDGE_LOG_DIR_NAME			SERVER_LOG_DIR_NAME
@@ -519,7 +523,7 @@
 // Expiration date of random size cache
 #define	RAND_SIZE_CACHE_EXPIRE		(24 * 60 * 60 * 1000)
 // Management allowed IP address list file name
-#define	ADMINIP_TXT					"@adminip.txt"
+#define	ADMINIP_TXT					"$adminip.txt"
 
 #define NON_SSL_MIN_COUNT			60
 #define NON_SSL_ENTRY_EXPIRES		(10 * 60 * 1000)
@@ -570,7 +574,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #define	EL_ADMIN_PORT			22888
-#define	EL_CONFIG_FILENAME		"@etherlogger.config"
+#define	EL_CONFIG_FILENAME		"$etherlogger.config"
 #define	EL_PACKET_LOG_DIR	"etherlogger_log"
 #define	EL_PACKET_LOG_DIR_NAME	"@"EL_PACKET_LOG_DIR
 #define	EL_PACKET_LOG_FILE_NAME	EL_PACKET_LOG_DIR_NAME"/%s"
@@ -978,10 +982,6 @@ typedef struct CEDAR
 	UINT FifoBudget;				// Fifo budget
 	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	UINT DhParamBits;  // Bits of Diffie-Hellman parameters
-	char OpenVPNDefaultClientOption[MAX_SIZE];	// OpenVPN: Default Client Option String
-	bool OpenVPNObfuscation;					// OpenVPN: Obfuscation mode
-	char OpenVPNObfuscationMask[MAX_SIZE];		// OpenVPN: String (mask) for XOR obfuscation
-	bool OpenVPNPushDummyIPv4AddressOnL2Mode;	// OpenVPN: Push a dummy IPv4 address on L2 mode
 } CEDAR;
 
 // Type of CEDAR

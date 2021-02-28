@@ -1563,12 +1563,14 @@ void HubWatchDogThread(THREAD *t, void *param)
 		o2 = NewListFast(NULL);
 
 		// Send an ARP packet
-		LockList(hub->IpTable);
+		LockHashList(hub->MacHashTable);
 		{
 			num = LIST_NUM(hub->IpTable);
 			for (i = 0;i < LIST_NUM(hub->IpTable);i++)
 			{
 				IP_TABLE_ENTRY *e = LIST_DATA(hub->IpTable, i);
+
+				if (e == NULL) continue;
 
 				if ((e->UpdatedTime + (UINT64)(IP_TABLE_EXPIRE_TIME)) > Tick64())
 				{
@@ -1645,7 +1647,7 @@ void HubWatchDogThread(THREAD *t, void *param)
 				}
 			}
 		}
-		UnlockList(hub->IpTable);
+		UnlockHashList(hub->MacHashTable);
 
 		if ((LIST_NUM(o) + LIST_NUM(o2)) != 0)
 		{
@@ -5913,7 +5915,7 @@ void IntoTrafficLimiter(TRAFFIC_LIMITER *tr, PKT *p)
 	}
 
 	// Value increase
-	tr->Value += p->PacketSize * (UINT64)8;
+	tr->Value += (UINT64)p->PacketSize * (UINT64)8;
 }
 
 // The bandwidth reduction by traffic limiter

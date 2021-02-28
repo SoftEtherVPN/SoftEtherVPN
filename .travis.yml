@@ -28,9 +28,6 @@ matrix:
         - ./bootstrap > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
         - sudo make install > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
         - cd ..
-    - env: OPENSSL_VERSION="1.0.2s" RUN_COVERITY="1"
-      os: linux
-      compiler: clang
     - env: OPENSSL_VERSION="1.1.1c"
       os: linux
       compiler: clang
@@ -55,7 +52,7 @@ matrix:
         - true
       script:
         - ./configure
-        - make -C tmp
+        - make -C build
         - otool -L build/vpnserver
         - .ci/memory-leak-test.sh
 
@@ -69,14 +66,11 @@ before_install:
 
 script:
   - export OPENSSL_ROOT_DIR=${OPENSSL_INSTALL_DIR}
-  - export LD_LIBRARY_PATH="${HOME}/opt/lib:${LD_LIBRARY_PATH:-}"
   - export CFLAGS="-I${HOME}/opt/include"
-  - export LDFLAGS="-L${HOME}/opt/lib"
-  - echo "check_certificate = off" > ~/.wgetrc
-  - .ci/coverity.sh
+  - export LDFLAGS="-L${HOME}/opt/lib -Wl,-rpath,${HOME}/opt/lib"
   - .ci/sonarcloud.sh
   - ./configure
-  - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
+  - make -j $(nproc || sysctl -n hw.ncpu || echo 4) -C build
   - ldd build/vpnserver
-  - if [ "${BUILD_DEB}" = "1" ]; then make package -C tmp; fi
+  - if [ "${BUILD_DEB}" = "1" ]; then make package -C build; fi
   - .ci/memory-leak-test.sh

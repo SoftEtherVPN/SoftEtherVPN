@@ -19,8 +19,14 @@ if(WIN32)
   get_filename_component(COMPONENT_FILE_NAME vpncmd NAME)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
-  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
-  target_sources(vpncmd PRIVATE vpncmd.rc "${CMAKE_BINARY_DIR}/VerScript/vpncmd.rc")
+  configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+  target_sources(vpncmd PRIVATE "vpncmd.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
+
+  if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
+    target_sources(vpncmd PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
+  else()
+    target_sources(vpncmd PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
+  endif()
 endif()
 
 target_link_libraries(vpncmd cedar mayaqua)
@@ -39,5 +45,5 @@ if(UNIX)
     PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
   )
 
-  install_wrapper_script("vpncmd" "${CMAKE_INSTALL_FULL_LIBEXECDIR}/softether/vpncmd/vpncmd")
+  install_wrapper_script("vpncmd")
 endif()

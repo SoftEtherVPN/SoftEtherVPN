@@ -13,8 +13,6 @@
 #define	HAMCORE_FILE_NAME			"hamcore.se2"
 #define	HAMCORE_FILE_NAME_2			"_hamcore.se2"
 #define	HAMCORE_TEXT_NAME			"hamcore.txt"
-#define	HAMCORE_HEADER_DATA			"HamCore"
-#define	HAMCORE_HEADER_SIZE			7
 #define	HAMCORE_CACHE_EXPIRES		(5 * 60 * 1000)
 
 // IO structure
@@ -148,11 +146,6 @@ struct ZIP_PACKER
 	ZIP_FILE *CurrentFile;
 };
 
-struct ENUM_DIR_WITH_SUB_DATA
-{
-	LIST *FileList;
-};
-
 void InitCrc32();
 UINT Crc32(void *buf, UINT pos, UINT len);
 UINT Crc32First(void *buf, UINT pos, UINT len);
@@ -204,8 +197,6 @@ bool FileRenameInnerW(wchar_t *old_name, wchar_t *new_name);
 bool FileRenameW(wchar_t *old_name, wchar_t *new_name);
 void NormalizePath(char *dst, UINT size, char *src);
 void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src);
-bool GetRelativePathW(wchar_t *dst, UINT size, wchar_t *fullpath, wchar_t *basepath);
-bool GetRelativePath(char *dst, UINT size, char *fullpath, char *basepath);
 UNI_TOKEN_LIST *ParseSplitedPathW(wchar_t *path);
 char *GetCurrentPathEnvStr();
 bool IsFileExistsInnerW(wchar_t *name);
@@ -228,7 +219,12 @@ void GetExeName(char *name, UINT size);
 void GetExeNameW(wchar_t *name, UINT size);
 void GetExeDir(char *name, UINT size);
 void GetExeDirW(wchar_t *name, UINT size);
-void BuildHamcore(char *dst_filename, char *src_dir, bool unix_only);
+void GetLogDir(char *name, UINT size);
+void GetLogDirW(wchar_t *name, UINT size);
+void GetDbDir(char *name, UINT size);
+void GetDbDirW(wchar_t *name, UINT size);
+void GetPidDir(char *name, UINT size);
+void GetPidDirW(wchar_t *name, UINT size);
 int CompareHamcore(void *p1, void *p2);
 void InitHamcore();
 void FreeHamcore();
@@ -240,9 +236,6 @@ DIRLIST *EnumDir(char *dirname);
 DIRLIST *EnumDirW(wchar_t *dirname);
 DIRLIST *EnumDirEx(char *dirname, COMPARE *compare);
 DIRLIST *EnumDirExW(wchar_t *dirname, COMPARE *compare);
-UNI_TOKEN_LIST *EnumDirWithSubDirsW(wchar_t *dirname);
-TOKEN_LIST *EnumDirWithSubDirs(char *dirname);
-void EnumDirWithSubDirsMain(ENUM_DIR_WITH_SUB_DATA *d, wchar_t *dirname);
 void FreeDir(DIRLIST *d);
 int CompareDirListByName(void *p1, void *p2);
 bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size);
@@ -257,6 +250,3 @@ bool IsInLines(BUF *buf, char *str, bool instr);
 bool IsInLinesFile(wchar_t *filename, char *str, bool instr);
 
 #endif	// FILEIO_H
-
-
-

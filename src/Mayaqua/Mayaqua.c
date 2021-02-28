@@ -23,7 +23,7 @@ bool g_debug;									// Debug mode
 UINT64 kernel_status[NUM_KERNEL_STATUS];		// Kernel state
 UINT64 kernel_status_max[NUM_KERNEL_STATUS];	// Kernel state (maximum value)
 LOCK *kernel_status_lock[NUM_KERNEL_STATUS];	// Kernel state lock
-BOOL kernel_status_inited = false;				// Kernel state initialization flag
+bool kernel_status_inited = false;				// Kernel state initialization flag
 bool g_little_endian = true;
 char *cmdline = NULL;							// Command line
 wchar_t *uni_cmdline = NULL;					// Unicode command line

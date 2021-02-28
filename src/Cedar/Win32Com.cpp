@@ -56,7 +56,7 @@ bool Win32UPnPAddPort(UINT outside_port, UINT inside_port, bool udp, char *local
 	IUPnPNAT *nat = NULL;
 	wchar_t ip_str[MAX_SIZE];
 	BSTR bstr_ip, bstr_description, bstr_protocol;
-	wchar_t *protocol_str = (udp ? L"UDP" : L"TCP");
+	const wchar_t *protocol_str = (udp ? L"UDP" : L"TCP");
 	// Validate arguments
 	if (outside_port == 0 || outside_port >= 65536 || inside_port == 0 || inside_port >= 65536 ||
 		IsEmptyStr(local_ip) || UniIsEmptyStr(description))

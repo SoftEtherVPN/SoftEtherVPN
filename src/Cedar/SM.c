@@ -113,6 +113,7 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 		case R_DIRECT_TCP:
 		case R_HTTPS:
 		case R_SOCKS:
+		case R_SOCKS5:
 			if (IsChecked(hWnd, R_HTTPS))
 			{
 				t->ProxyType = PROXY_HTTP;
@@ -1072,7 +1073,6 @@ UINT SmOpenVpnDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 		switch (LOWORD(wParam))
 		{
 		case R_OPENVPN:
-		case E_UDP:
 		case R_SSTP:
 			SmOpenVpnDlgUpdate(hWnd, s);
 			break;
@@ -1082,12 +1082,6 @@ UINT SmOpenVpnDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 		{
 		case IDOK:
 			SmOpenVpnDlgOnOk(hWnd, s, false);
-			break;
-
-		case B_DEFAULT:
-			ToStr(tmp, OPENVPN_UDP_PORT);
-			SetTextA(hWnd, E_UDP, tmp);
-			FocusEx(hWnd, E_UDP);
 			break;
 
 		case B_CONFIG:
@@ -1198,13 +1192,11 @@ void SmOpenVpnDlgInit(HWND hWnd, SM_SERVER *s)
 	}
 
 	Check(hWnd, R_OPENVPN, t.EnableOpenVPN);
-	SetTextA(hWnd, E_UDP, t.OpenVPNPortList);
 	Check(hWnd, R_SSTP, t.EnableSSTP);
 
 	SetIcon(hWnd, 0, ICO_OPENVPN);
 
 	DlgFont(hWnd, S_TITLE, 14, true);
-	SetFont(hWnd, E_UDP, GetFont("Verdana", 10, false, false, false, false));
 
 	DlgFont(hWnd, R_OPENVPN, 0, true);
 	DlgFont(hWnd, S_TOOL, 11, true);
@@ -1224,10 +1216,6 @@ void SmOpenVpnDlgUpdate(HWND hWnd, SM_SERVER *s)
 	b1 = IsChecked(hWnd, R_OPENVPN);
 	b2 = IsChecked(hWnd, R_SSTP);
 
-	SetEnable(hWnd, S_UDP, b1);
-	SetEnable(hWnd, E_UDP, b1);
-	SetEnable(hWnd, B_DEFAULT, b1);
-	SetEnable(hWnd, S_UDP2, b1);
 	SetEnable(hWnd, S_TOOL, b1);
 	SetEnable(hWnd, S_TOOL2, b1);
 	SetEnable(hWnd, B_CONFIG, b1);
@@ -1246,7 +1234,6 @@ void SmOpenVpnDlgOnOk(HWND hWnd, SM_SERVER *s, bool no_close)
 	Zero(&t, sizeof(t));
 
 	t.EnableOpenVPN = IsChecked(hWnd, R_OPENVPN);
-	GetTxtA(hWnd, E_UDP, t.OpenVPNPortList, sizeof(t.OpenVPNPortList));
 	t.EnableSSTP = IsChecked(hWnd, R_SSTP);
 
 	if (CALL(hWnd, ScSetOpenVpnSstpConfig(s->Rpc, &t)) == false)
@@ -15542,12 +15529,6 @@ UINT SmFarmMemberDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 	return 0;
 }
 
-// Convert the string to port list
-LIST *SmStrToPortList(char *str)
-{
-	return StrToPortList(str);
-}
-
 // Initialize the dialog
 void SmFarmDlgInit(HWND hWnd, SM_SERVER *p)
 {
@@ -15680,7 +15661,7 @@ void SmFarmDlgUpdate(HWND hWnd, SM_SERVER *p)
 		}
 
 		s = GetTextA(hWnd, E_PORT);
-		o = SmStrToPortList(s);
+		o = StrToPortList(s, true);
 		if (o == NULL)
 		{
 			ok = false;
@@ -15787,7 +15768,7 @@ void SmFarmDlgOnOk(HWND hWnd, SM_SERVER *p)
 			s = GetTextA(hWnd, E_PORT);
 			if (s != NULL)
 			{
-				LIST *o = SmStrToPortList(s);
+				LIST *o = StrToPortList(s, true);
 				if (o != NULL)
 				{
 					UINT i;
@@ -18278,6 +18259,7 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 {
 	RPC_ENUM_HUB t;
 	RPC_LISTENER_LIST t2;
+	RPC_PORTS t3;
 	DDNS_CLIENT_STATUS st;
 	RPC_AZURE_STATUS sta;
 	UINT i;
@@ -18393,6 +18375,32 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 		}
 		LvInsertEnd(b, hWnd, L_LISTENER);
 		FreeRpcListenerList(&t2);
+	}
+
+	// Get the UDP ports
+	Zero(&t3, sizeof(RPC_PORTS));
+	if (CALL(hWnd, ScGetPortsUDP(p->Rpc, &t3)))
+	{
+		char str[MAX_SIZE];
+
+		Zero(str, sizeof(str));
+
+		if (t3.Num > 0)
+		{
+			UINT i;
+
+			Format(str, sizeof(str), "%u", t3.Ports[0]);
+
+			for (i = 1; i < t3.Num; ++i)
+			{
+				char tmp[MAX_SIZE];
+				Format(tmp, sizeof(tmp), ", %u", t3.Ports[i]);
+				StrCat(str, sizeof(str), tmp);
+			}
+		}
+
+		SetTextA(hWnd, E_UDP, str);
+		FreeRpcPorts(&t3);
 	}
 
 	// Get the DDNS client state
@@ -18669,6 +18677,45 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 				}
 			}
 			break;
+
+		case B_APPLY:
+		{
+			// Apply UDP ports
+			bool ret;
+			LIST* ports;
+			RPC_PORTS t;
+			char tmp[MAX_SIZE];
+
+			GetTxtA(hWnd, E_UDP, tmp, sizeof(tmp));
+			ports = StrToPortList(tmp, false);
+
+			t.Num = LIST_NUM(ports);
+			if (t.Num > 0)
+			{
+				UINT i;
+				t.Ports = Malloc(sizeof(UINT) * t.Num);
+
+				for (i = 0; i < t.Num; ++i)
+				{
+					t.Ports[i] = (UINT)LIST_DATA(ports, i);
+				}
+			}
+			else
+			{
+				t.Ports = NULL;
+			}
+
+			ReleaseList(ports);
+
+			if (CALL(hWnd, ScSetPortsUDP(p->Rpc, &t)))
+			{
+				SmServerDlgRefresh(hWnd, p);
+			}
+
+			Free(t.Ports);
+
+			break;
+		}
 
 		case B_SSL:
 			// SSL related
@@ -19578,6 +19625,7 @@ UINT SmEditSettingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 		case R_DIRECT_TCP:
 		case R_HTTPS:
 		case R_SOCKS:
+		case R_SOCKS5:
 		case R_SERVER_ADMIN:
 		case R_HUB_ADMIN:
 		case C_HUBNAME:
@@ -19609,6 +19657,7 @@ UINT SmEditSettingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 		case R_DIRECT_TCP:
 		case R_HTTPS:
 		case R_SOCKS:
+		case R_SOCKS5:
 			if (HIWORD(wParam) == BN_CLICKED)
 			{
 				CmEnumHubStart(hWnd, &p->Setting->ClientOption);
@@ -19982,26 +20031,17 @@ void SmInitDefaultSettingList()
 			{
 				MS_PROCESS *p = LIST_DATA(pl, i);
 
-				if (UniInStr(p->ExeFilenameW, L"vpnserver.exe") || UniInStr(p->ExeFilenameW, L"vpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnbridge.exe") || UniInStr(p->ExeFilenameW, L"vpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"vpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"vpnserver.exe") || UniInStr(p->ExeFilenameW, L"vpnbridge.exe"))
 				{
 					b = true;
 				}
 
-				if (UniInStr(p->ExeFilenameW, L"sevpnserver.exe") || UniInStr(p->ExeFilenameW, L"sevpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnbridge.exe") || UniInStr(p->ExeFilenameW, L"sevpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"sevpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"sevpnserver.exe") || UniInStr(p->ExeFilenameW, L"sevpnbridge.exe"))
 				{
 					b = true;
 				}
 
-				if (UniInStr(p->ExeFilenameW, L"utvpnserver.exe") || UniInStr(p->ExeFilenameW, L"utvpnserver_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnserver_ia64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnbridge.exe") || UniInStr(p->ExeFilenameW, L"utvpnbridge_x64.exe") ||
-					UniInStr(p->ExeFilenameW, L"utvpnbridge_ia64.exe"))
+				if (UniInStr(p->ExeFilenameW, L"utvpnserver.exe") || UniInStr(p->ExeFilenameW, L"utvpnbridge.exe"))
 				{
 					b = true;
 				}

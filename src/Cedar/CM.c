@@ -1286,7 +1286,7 @@ void *CmExecUiHelperMain()
 	HANDLE h;
 	wchar_t tmp[MAX_SIZE];
 
-	UniFormat(tmp, sizeof(tmp), L"%s\\%S", MsGetExeDirNameW(), CiGetVpnClientExeFileName());
+	UniFormat(tmp, sizeof(tmp), L"%s\\%S", MsGetExeDirNameW(), CLIENT_WIN32_EXE_FILENAME);
 
 	// Start
 	h = Win32RunExW(tmp, SVC_ARG_UIHELP_W, false);
@@ -9653,6 +9653,12 @@ void CmPrintStatusToListViewEx(LVB *b, RPC_CLIENT_GET_CONNECTION_STATUS *s, bool
 		{
 			StrToUni(tmp, sizeof(tmp), s->UnderlayProtocol);
 			LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_UNDERLAY_PROTOCOL"), tmp);
+		}
+
+		if (IsEmptyStr(s->ProtocolDetails) == false)
+		{
+			StrToUni(tmp, sizeof(tmp), s->ProtocolDetails);
+			LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_PROTOCOL_DETAILS"), tmp);
 		}
 
 		LvInsertAdd(b, 0, NULL, 2, _UU("CM_ST_UDP_ACCEL_ENABLED"), (s->IsUdpAccelerationEnabled ? _UU("CM_ST_YES") : _UU("CM_ST_NO")));

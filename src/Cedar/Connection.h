@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Connection.h
 // Header of Connection.c
@@ -64,8 +64,8 @@ struct CLIENT_OPTION
 	UINT ProxyType;											// Type of proxy
 	char ProxyName[MAX_HOST_NAME_LEN + 1];					// Proxy server name
 	UINT ProxyPort;											// Port number of the proxy server
-	char ProxyUsername[MAX_PROXY_USERNAME_LEN + 1];			// Maximum user name length
-	char ProxyPassword[MAX_PROXY_PASSWORD_LEN + 1];			// Maximum password length
+	char ProxyUsername[PROXY_MAX_USERNAME_LEN + 1];			// Maximum user name length
+	char ProxyPassword[PROXY_MAX_PASSWORD_LEN + 1];			// Maximum password length
 	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP proxy header
 	UINT NumRetry;											// Automatic retries
 	UINT RetryInterval;										// Retry interval
@@ -99,6 +99,8 @@ struct CLIENT_AUTH
 	K *ClientK;										// Client private key
 	char SecurePublicCertName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device certificate name
 	char SecurePrivateKeyName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
+	char OpensslEnginePrivateKeyName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
+	char OpensslEngineName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
 	CHECK_CERT_PROC *CheckCertProc;					// Server certificate confirmation procedure
 	SECURE_SIGN_PROC *SecureSignProc;				// Security signing procedure
 };
@@ -155,6 +157,7 @@ struct BLOCK
 	UINT Ttl;						// TTL value (Used only in ICMP NAT of Virtual.c)
 	UINT Param1;					// Parameter 1
 	bool IsFlooding;				// Is flooding packet
+	UCHAR RawFlagRetUdpAccel;		// Raw flag returned by UDP accel
 };
 
 // Connection structure

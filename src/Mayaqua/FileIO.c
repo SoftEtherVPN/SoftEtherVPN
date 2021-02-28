@@ -610,110 +610,6 @@ bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total
 	return ret;
 }
 
-// Enumeration of direction with all sub directories
-TOKEN_LIST *EnumDirWithSubDirs(char *dirname)
-{
-	TOKEN_LIST *ret;
-	UNI_TOKEN_LIST *ret2;
-	wchar_t tmp[MAX_SIZE];
-	// Validate arguments
-	if (dirname == NULL)
-	{
-		dirname = "./";
-	}
-
-	StrToUni(tmp, sizeof(tmp), dirname);
-
-	ret2 = EnumDirWithSubDirsW(tmp);
-
-	ret = UniTokenListToTokenList(ret2);
-
-	UniFreeToken(ret2);
-
-	return ret;
-}
-UNI_TOKEN_LIST *EnumDirWithSubDirsW(wchar_t *dirname)
-{
-	ENUM_DIR_WITH_SUB_DATA d;
-	UNI_TOKEN_LIST *ret;
-	UINT i;
-	// Validate arguments
-	if (dirname == NULL)
-	{
-		dirname = L"./";
-	}
-
-	Zero(&d, sizeof(d));
-
-	d.FileList = NewListFast(NULL);
-
-	EnumDirWithSubDirsMain(&d, dirname);
-
-	ret = ZeroMalloc(sizeof(UNI_TOKEN_LIST));
-
-	ret->NumTokens = LIST_NUM(d.FileList);
-	ret->Token = ZeroMalloc(sizeof(wchar_t *) * ret->NumTokens);
-
-	for (i = 0;i < ret->NumTokens;i++)
-	{
-		wchar_t *s = LIST_DATA(d.FileList, i);
-
-		ret->Token[i] = UniCopyStr(s);
-	}
-
-	FreeStrList(d.FileList);
-
-	return ret;
-}
-void EnumDirWithSubDirsMain(ENUM_DIR_WITH_SUB_DATA *d, wchar_t *dirname)
-{
-	DIRLIST *dir;
-	UINT i;
-	// Validate arguments
-	if (d == NULL || dirname == NULL)
-	{
-		return;
-	}
-
-	dir = EnumDirExW(dirname, NULL);
-	if (dir == NULL)
-	{
-		return;
-	}
-
-	// Files
-	for (i = 0;i < dir->NumFiles;i++)
-	{
-		DIRENT *e = dir->File[i];
-
-		if (e->Folder == false)
-		{
-			wchar_t tmp[MAX_SIZE];
-
-			ConbinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
-
-			Add(d->FileList, CopyUniStr(tmp));
-		}
-	}
-
-	// Sub directories
-	for (i = 0;i < dir->NumFiles;i++)
-	{
-		DIRENT *e = dir->File[i];
-
-		if (e->Folder)
-		{
-			wchar_t tmp[MAX_SIZE];
-
-			ConbinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
-
-			EnumDirWithSubDirsMain(d, tmp);
-		}
-	}
-
-	FreeDir(dir);
-}
-
 // Enumeration of directory
 DIRLIST *EnumDirEx(char *dirname, COMPARE *compare)
 {
@@ -1079,161 +975,6 @@ void FreeHamcore()
 	hamcore = NULL;
 }
 
-// Build a Hamcore file
-void BuildHamcore(char *dst_filename, char *src_dir, bool unix_only)
-{
-	char exe_dir[MAX_SIZE];
-	bool ok = true;
-	LIST *o;
-	UINT i;
-	TOKEN_LIST *src_file_list;
-
-	GetExeDir(exe_dir, sizeof(exe_dir));
-
-	src_file_list = EnumDirWithSubDirs(src_dir);
-
-	o = NewListFast(CompareHamcore);
-
-	for (i = 0;i < src_file_list->NumTokens;i++)
-	{
-		char rpath[MAX_SIZE];
-		BUF *b;
-		char s[MAX_SIZE];
-
-		StrCpy(s, sizeof(s), src_file_list->Token[i]);
-		Trim(s);
-
-		if (GetRelativePath(rpath, sizeof(rpath), s, src_dir) == false)
-		{
-			// Unknown error !
-		}
-		else
-		{
-			bool ok = true;
-
-			ReplaceStr(rpath, sizeof(rpath), rpath, "/", "\\");
-
-			if (unix_only)
-			{
-				// Exclude non-UNIX files
-				if (EndWith(s, ".exe") ||
-					EndWith(s, ".dll") ||
-					EndWith(s, ".sys") ||
-					EndWith(s, ".inf") ||
-					EndWith(s, ".cat") ||
-					EndWith(s, ".wav"))
-				{
-					ok = false;
-				}
-			}
-
-			if (InStr(rpath, "\\node_modules\\"))
-			{
-				// Exclude node_modules in the hamcore\webroot
-				ok = false;
-			}
-
-			if (ok)
-			{
-				b = ReadDump(s);
-				if (b == NULL)
-				{
-					Print("Failed to open '%s'.\n", s);
-					ok = false;
-				}
-				else
-				{
-					HC *c = ZeroMalloc(sizeof(HC));
-					UINT tmp_size;
-					void *tmp;
-					c->FileName = CopyStr(rpath);
-					c->Size = b->Size;
-					tmp_size = CalcCompress(c->Size);
-					tmp = Malloc(tmp_size);
-					c->SizeCompressed = Compress(tmp, tmp_size, b->Buf, b->Size);
-					c->Buffer = tmp;
-					Insert(o, c);
-					Print("%s: %u -> %u\n", s, c->Size, c->SizeCompressed);
-					FreeBuf(b);
-				}
-			}
-		}
-	}
-
-	if (ok)
-	{
-		// Calculate the offset of the buffer for each file
-		UINT i, z;
-		char tmp[MAX_SIZE];
-		BUF *b;
-		z = 0;
-		z += HAMCORE_HEADER_SIZE;
-		// The number of files
-		z += sizeof(UINT);
-		// For file table first
-		for (i = 0;i < LIST_NUM(o);i++)
-		{
-			HC *c = LIST_DATA(o, i);
-			// File name
-			z += StrLen(c->FileName) + sizeof(UINT);
-			// File size
-			z += sizeof(UINT);
-			z += sizeof(UINT);
-			// Offset data
-			z += sizeof(UINT);
-		}
-		// File body
-		for (i = 0;i < LIST_NUM(o);i++)
-		{
-			HC *c = LIST_DATA(o, i);
-			// Buffer body
-			c->Offset = z;
-			printf("%s: offset: %u\n", c->FileName, c->Offset);
-			z += c->SizeCompressed;
-		}
-		// Writing
-		b = NewBuf();
-		// Header
-		WriteBuf(b, HAMCORE_HEADER_DATA, HAMCORE_HEADER_SIZE);
-		WriteBufInt(b, LIST_NUM(o));
-		for (i = 0;i < LIST_NUM(o);i++)
-		{
-			HC *c = LIST_DATA(o, i);
-			// File name
-			WriteBufStr(b, c->FileName);
-			// File size
-			WriteBufInt(b, c->Size);
-			WriteBufInt(b, c->SizeCompressed);
-			// Offset
-			WriteBufInt(b, c->Offset);
-		}
-		// Body
-		for (i = 0;i < LIST_NUM(o);i++)
-		{
-			HC *c = LIST_DATA(o, i);
-			WriteBuf(b, c->Buffer, c->SizeCompressed);
-		}
-		// Writing
-		StrCpy(tmp, sizeof(tmp), dst_filename);
-		Print("Writing %s...\n", tmp);
-		FileDelete(tmp);
-		DumpBuf(b, tmp);
-		FreeBuf(b);
-	}
-
-	for (i = 0;i < LIST_NUM(o);i++)
-	{
-		HC *c = LIST_DATA(o, i);
-		Free(c->Buffer);
-		Free(c->FileName);
-		Free(c);
-	}
-
-	ReleaseList(o);
-
-	FreeToken(src_file_list);
-}
-
 // Comparison of the HCs
 int CompareHamcore(void *p1, void *p2)
 {
@@ -1293,6 +1034,60 @@ void GetExeNameW(wchar_t *name, UINT size)
 	}
 
 	UniStrCpy(name, size, exe_file_name_w);
+}
+
+void GetLogDir(char *name, UINT size)
+{
+#ifdef SE_LOGDIR
+	Format(name, size, SE_LOGDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetLogDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_LOGDIR
+	UniFormat(name, size, L""SE_LOGDIR);
+#else
+	GetExeDirW(name, size);
+#endif
+}
+
+void GetDbDir(char *name, UINT size)
+{
+#ifdef SE_DBDIR
+	Format(name, size, SE_DBDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetDbDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_DBDIR
+	UniFormat(name, size, L""SE_DBDIR);
+#else
+	GetExeDirW(name, size);
+#endif
+}
+
+void GetPidDir(char *name, UINT size)
+{
+#ifdef SE_PIDDIR
+	Format(name, size, SE_PIDDIR);
+#else
+	GetExeDir(name, size);
+#endif
+}
+
+void GetPidDirW(wchar_t *name, UINT size)
+{
+#ifdef SE_PIDDIR
+	UniFormat(name, size, L""SE_PIDDIR);
+#else
+	GetExeDirW(name, size);
+#endif
 }
 
 // Initialization of the acquisition of the EXE file name
@@ -1744,67 +1539,6 @@ UNI_TOKEN_LIST *ParseSplitedPathW(wchar_t *path)
 	return ret;
 }
 
-// Get the relative path
-bool GetRelativePathW(wchar_t *dst, UINT size, wchar_t *fullpath, wchar_t *basepath)
-{
-	wchar_t fullpath2[MAX_SIZE];
-	wchar_t basepath2[MAX_SIZE];
-	// Validate arguments
-	if (dst == NULL || fullpath == NULL || basepath == NULL)
-	{
-		return false;
-	}
-	ClearUniStr(dst, size);
-
-	NormalizePathW(fullpath2, sizeof(fullpath2), fullpath);
-	NormalizePathW(basepath2, sizeof(basepath2), basepath);
-
-#ifdef	OS_WIN32
-	UniStrCat(basepath2, sizeof(basepath2), L"\\");
-#else	// OS_WIN32
-	UniStrCat(basepath2, sizeof(basepath2), L"/");
-#endif	// OS_WIN32
-
-	if (UniStrLen(fullpath2) <= UniStrLen(basepath2))
-	{
-		return false;
-	}
-
-	if (UniStartWith(fullpath2, basepath2) == false)
-	{
-		return false;
-	}
-
-	UniStrCpy(dst, size, fullpath2 + UniStrLen(basepath2));
-
-	return true;
-}
-bool GetRelativePath(char *dst, UINT size, char *fullpath, char *basepath)
-{
-	wchar_t dst_w[MAX_SIZE];
-	wchar_t fullpath_w[MAX_SIZE];
-	wchar_t basepath_w[MAX_SIZE];
-	bool ret;
-	// Validate arguments
-	if (dst == NULL || fullpath == NULL || basepath == NULL)
-	{
-		return false;
-	}
-
-	StrToUni(fullpath_w, sizeof(fullpath_w), fullpath);
-	StrToUni(basepath_w, sizeof(basepath_w), basepath);
-
-	ret = GetRelativePathW(dst_w, sizeof(dst_w), fullpath_w, basepath_w);
-	if (ret == false)
-	{
-		return false;
-	}
-
-	UniToStr(dst, size, dst_w);
-
-	return true;
-}
-
 // Normalize the file path
 void NormalizePathW(wchar_t *dst, UINT size, wchar_t *src)
 {
@@ -2068,15 +1802,21 @@ void InnerFilePathW(wchar_t *dst, UINT size, wchar_t *src)
 		return;
 	}
 
-	if (src[0] != L'@')
+	if (src[0] == L'@')
 	{
-		NormalizePathW(dst, size, src);
+		wchar_t dir[MAX_SIZE];
+		GetLogDirW(dir, sizeof(dir));
+		ConbinePathW(dst, size, dir, &src[1]);
+	}
+	else if (src[0] == L'$')
+	{
+		wchar_t dir[MAX_SIZE];
+		GetDbDirW(dir, sizeof(dir));
+		ConbinePathW(dst, size, dir, &src[1]);
 	}
 	else
 	{
-		wchar_t dir[MAX_SIZE];
-		GetExeDirW(dir, sizeof(dir));
-		ConbinePathW(dst, size, dir, &src[1]);
+		NormalizePathW(dst, size, src);
 	}
 }
 void InnerFilePath(char *dst, UINT size, char *src)

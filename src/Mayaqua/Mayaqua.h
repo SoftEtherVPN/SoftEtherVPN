@@ -12,11 +12,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-// PenCore.dll related
 #define	PENCORE_DLL_NAME		"|PenCore.dll"
-// #define	PENCORE_DLL_NAME_X64	"|PenCore_x64.dll" // commonized to x86
-// #define	PENCORE_DLL_NAME_IA64	"|PenCore_ia64.dll" // commonized to x86
-
 
 //#define	USE_PROBE						// Use Probe
 
@@ -128,9 +124,11 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #ifdef	OS_UNIX
 #ifndef	UNIX_SOLARIS
 #ifndef	CPU_SH4
+#if	!defined(__UCLIBC__) || defined(__UCLIBC_SUPPORT_AI_ADDRCONFIG__)
 // Getifaddrs system call is supported on UNIX other than Solaris.
 // However, it is not supported also by the Linux on SH4 CPU
 #define	MAYAQUA_SUPPORTS_GETIFADDRS
+#endif	// !UCLIBC || UCLIBC_SUPPORT_AI_ADDRCONFIG
 #endif	// CPU_SH4
 #endif	// UNIX_SOLARIS
 #endif	// OS_UNIX
@@ -277,6 +275,9 @@ int iconv_close (iconv_t __cd);
 // HTTP
 #include <Mayaqua/HTTP.h>
 
+// Proxy
+#include <Mayaqua/Proxy.h>
+
 // 64 bit real-time clock
 #include <Mayaqua/Tick64.h>
 
@@ -301,7 +302,7 @@ extern bool g_foreground;
 extern UINT64 kernel_status[NUM_KERNEL_STATUS];
 extern UINT64 kernel_status_max[NUM_KERNEL_STATUS];
 extern LOCK *kernel_status_lock[NUM_KERNEL_STATUS];
-extern BOOL kernel_status_inited;
+extern bool kernel_status_inited;
 
 // Kernel state operation macro
 #define	KS_LOCK(id)		LockKernelStatus(id)
@@ -483,26 +484,6 @@ void WriteProbe(char *filename, UINT line, char *str);
 void WriteProbeData(char *filename, UINT line, char *str, void *data, UINT size);
 USHORT CalcChecksum16(void *buf, UINT size);
 
-
-#ifdef	OS_WIN32
-// Import library (for Win32)
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "kernel32.lib")
-#pragma comment(lib, "user32.lib")
-#pragma comment(lib, "gdi32.lib")
-#pragma comment(lib, "shell32.lib")
-#pragma comment(lib, "comctl32.lib")
-#pragma comment(lib, "dbghelp.lib")
-#pragma comment(lib, "Iphlpapi.lib")
-#pragma comment(lib, "setupapi.lib")
-#pragma comment(lib, "version.lib")
-#pragma comment(lib, "Netapi32.lib")
-#pragma comment(lib, "shlwapi.lib")
-#pragma comment(lib, "crypt32.lib")
-#pragma warning( disable : 4099 )
-#endif	// OS_WIN32
-
 // For Debugging
 #ifndef	ENCRYPT_C
 //#define	Disconnect(s)		{Debug("Disconnect() Called: %s %u\n", __FILE__, __LINE__);Disconnect(s);}
@@ -510,5 +491,3 @@ USHORT CalcChecksum16(void *buf, UINT size);
 
 
 #endif	// MAYAQUA_H
-
-

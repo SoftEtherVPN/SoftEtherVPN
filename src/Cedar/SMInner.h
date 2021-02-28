@@ -440,7 +440,6 @@ UINT SmFarmDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 void SmFarmDlgInit(HWND hWnd, SM_SERVER *p);
 void SmFarmDlgUpdate(HWND hWnd, SM_SERVER *p);
 void SmFarmDlgOnOk(HWND hWnd, SM_SERVER *p);
-LIST *SmStrToPortList(char *str);
 UINT SmFarmMemberDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmFarmMemberDlgInit(HWND hWnd, SM_SERVER *p);
 void SmFarmMemberDlgUpdate(HWND hWnd, SM_SERVER *p);

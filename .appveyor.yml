@@ -1,8 +1,6 @@
 version: '{build}'
 
 image:
-  - Visual Studio 2015
-  - Visual Studio 2017
   - Ubuntu1604
   - Ubuntu1804
 
@@ -27,50 +25,11 @@ for:
 -
   matrix:
     only:
-      - image: Visual Studio 2015
-  build_script:
-    - src\BuildAll.cmd
-    - exit %errorlevel%
-  after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\Win32_Release\*.pdb"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip" "%APPVEYOR_BUILD_FOLDER%\src\DebugFiles\pdb\x64_Release\*.pdb"
-  artifacts:
-    - path: output\pkg\*\*
-      name: Release
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x86_%CONFIGURATION%_PDBs-vs2015.zip"
-      name: PDBs (x86)
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2015.zip"
-      name: PDBs (x64)
--
-  matrix:
-    only:
-      - image: Visual Studio 2017
-  init:
-    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  before_build:
-    - configure
-  build_script:
-    - nmake
-  test_script:
-    - ps: cd $env:APPVEYOR_BUILD_FOLDER
-    - ps: .\.ci\appveyor-vpntest.ps1
-  after_build:
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.exe"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\hamcore.se2"
-    - 7z a "%APPVEYOR_BUILD_FOLDER%\%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip" "%APPVEYOR_BUILD_FOLDER%\build\*.pdb"
-  artifacts:
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%-vs2017.zip"
-      name: Release
-    - path: "%APPVEYOR_PROJECT_NAME%_%APPVEYOR_BUILD_VERSION%_Windows_x64_%CONFIGURATION%_PDBs-vs2017.zip"
-      name: PDBs
--
-  matrix:
-    only:
       - image: Ubuntu1604
   before_build:
     - ./configure
   build_script:
-    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
+    - make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
   test_script:
     - .ci/appveyor-deb-install-test.sh
     - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
@@ -85,7 +44,7 @@ for:
     - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
     - ./configure
   build_script:
-    - make package -C tmp -j $(nproc || sysctl -n hw.ncpu || echo 4)
+    - make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
     - .ci/memory-leak-test.sh
   test_script:
     - .ci/appveyor-deb-install-test.sh

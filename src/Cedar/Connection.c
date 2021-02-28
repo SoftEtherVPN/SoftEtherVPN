@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Connection.c
 // Connection Manager
@@ -337,7 +337,7 @@ WAIT_FOR_ENABLE:
 				{
 					if (StrCmpi(k->ServerName, server_name) != 0 ||
 						k->ServerPort != server_port || k->Enable == false ||
-						k->UdpMode)
+						k->UdpMode == false)
 					{
 						changed = true;
 					}
@@ -538,6 +538,14 @@ CLIENT_AUTH *CopyClientAuth(CLIENT_AUTH *a)
 		// Secure device authentication
 		StrCpy(ret->SecurePublicCertName, sizeof(ret->SecurePublicCertName), a->SecurePublicCertName);
 		StrCpy(ret->SecurePrivateKeyName, sizeof(ret->SecurePrivateKeyName), a->SecurePrivateKeyName);
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		// Secure device authentication
+		ret->ClientX = CloneX(a->ClientX);
+		StrCpy(ret->OpensslEnginePrivateKeyName, sizeof(ret->OpensslEnginePrivateKeyName), a->OpensslEnginePrivateKeyName);
+		StrCpy(ret->OpensslEngineName, sizeof(ret->OpensslEngineName), a->OpensslEngineName);
+    ret->ClientK = OpensslEngineToK(ret->OpensslEnginePrivateKeyName, ret->OpensslEngineName);
 		break;
 	}
 
@@ -1160,6 +1168,8 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 										s->TotalSendSizeReal += b->Size;
 
 										c->CurrentSendQueueSize -= b->Size;
+
+										Free(new_buf);
 									}
 
 									FreeBlock(b);
@@ -2682,6 +2692,8 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 
 	b = MallocFast(sizeof(BLOCK));
 
+	b->RawFlagRetUdpAccel = 0;
+
 	b->IsFlooding = false;
 
 	b->PriorityQoS = b->Ttl = b->Param1 = 0;
@@ -2689,7 +2701,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 	if (compress == 0)
 	{
 		// Uncompressed
-		b->Compressed = FALSE;
+		b->Compressed = false;
 		b->Buf = data;
 		b->Size = size;
 		b->SizeofData = size;
@@ -2699,7 +2711,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 		UINT max_size;
 
 		// Compressed
-		b->Compressed = TRUE;
+		b->Compressed = true;
 		max_size = CalcCompress(size);
 		b->Buf = MallocFast(max_size);
 		b->Size = Compress(b->Buf, max_size, data, size);
@@ -2713,7 +2725,7 @@ BLOCK *NewBlock(void *data, UINT size, int compress)
 		// Expand
 		UINT max_size;
 
-		b->Compressed = FALSE;
+		b->Compressed = false;
 		max_size = MAX_PACKET_SIZE;
 		b->Buf = MallocFast(max_size);
 		b->Size = Uncompress(b->Buf, max_size, data, size);
@@ -2931,10 +2943,10 @@ void ConnectionAccept(CONNECTION *c)
 	{
 		if (c->Cedar != NULL && c->Cedar->Server != NULL)
 		{
-			c->Type = CONNECTION_TYPE_OTHER;
-
-			if (ProtoHandleConnection(c->Cedar, s) == true)
+			PROTO *proto = c->Cedar->Server->Proto;
+			if (proto && ProtoHandleConnection(proto, s, NULL) == true)
 			{
+				c->Type = CONNECTION_TYPE_OTHER;
 				goto FINAL;
 			}
 		}

@@ -19,15 +19,19 @@
 
 // Make available the types for Windows even if windows.h is not included
 #ifndef	_WINDEF_
-
 typedef void *HWND;
 typedef void *HFONT;
 typedef void *HICON;
 typedef void *HMENU;
-typedef UINT_PTR WPARAM;
-typedef LONG_PTR LPARAM;
 typedef void *HINSTANCE;
 
+#ifdef	CPU_64
+typedef unsigned __int64 *WPARAM;
+typedef __int64 *LPARAM;
+#else
+typedef unsigned int *WPARAM;
+typedef long *LPARAM;
+#endif	// CPU_64
 #endif	// _WINDEF_
 
 

@@ -14,11 +14,6 @@
 
 #endif	// WIN32COM_CPP
 
-// For external function
-
-#pragma comment(lib,"htmlhelp.lib")
-#pragma comment(lib,"Urlmon.lib")
-
 #if	defined(__cplusplus)
 extern "C"
 {

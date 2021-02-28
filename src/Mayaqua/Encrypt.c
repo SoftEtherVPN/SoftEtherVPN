@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Mayaqua Kernel
-
+// © 2020 Nokia
 
 // Encrypt.c
 // Encryption and digital certification routine
@@ -45,6 +45,7 @@
 #ifdef _MSC_VER
 	#include <intrin.h> // For __cpuid()
 #else // _MSC_VER
+
 
 #ifndef SKIP_CPU_FEATURES
 	#include "cpu_features_macros.h"
@@ -3109,6 +3110,22 @@ bool IsEncryptedK(BUF *b, bool private_key)
 	}
 
 	return true;
+}
+
+K *OpensslEngineToK(char *key_file_name, char *engine_name)
+{
+    K *k;
+#if OPENSSL_API_COMPAT < 0x10100000L
+    ENGINE_load_dynamic();
+#endif	// OPENSSL_API_COMPAT < 0x10100000L
+    ENGINE *engine = ENGINE_by_id(engine_name);
+    ENGINE_init(engine);
+    EVP_PKEY *pkey;
+    pkey = ENGINE_load_private_key(engine, key_file_name, NULL, NULL);
+   	k = ZeroMalloc(sizeof(K));
+    k->pkey = pkey;
+    k->private_key = true;
+    return k;
 }
 
 // Convert the BUF to a K

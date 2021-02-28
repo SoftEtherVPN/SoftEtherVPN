@@ -409,8 +409,6 @@ ARP_ENTRY *SearchArpTable(VH *v, UINT ip);
 void RefreshArpTable(VH *v);
 void PollingArpTable(VH *v);
 void InsertArpTable(VH *v, UCHAR *mac, UINT ip);
-bool IsMacBroadcast(UCHAR *mac);
-bool IsMacInvalid(UCHAR *mac);
 void InitArpWaitTable(VH *v);
 void FreeArpWaitTable(VH *v);
 int CompareArpWaitTable(void *p1, void *p2);
@@ -516,9 +514,11 @@ DHCP_LEASE *SearchDhcpPendingLeaseByMac(VH *v, UCHAR *mac);
 DHCP_LEASE *SearchDhcpLeaseByIp(VH *v, UINT ip);
 DHCP_LEASE *SearchDhcpPendingLeaseByIp(VH *v, UINT ip);
 UINT ServeDhcpDiscover(VH *v, UCHAR *mac, UINT request_ip);
+UINT ServeDhcpDiscoverEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip);
 UINT GetFreeDhcpIpAddress(VH *v);
 UINT GetFreeDhcpIpAddressByRandom(VH *v, UCHAR *mac);
 UINT ServeDhcpRequest(VH *v, UCHAR *mac, UINT request_ip);
+UINT ServeDhcpRequestEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip);
 void VirtualDhcpSend(VH *v, UINT tran_id, UINT dest_ip, UINT dest_port,
 					 UINT new_ip, UCHAR *client_mac, BUF *b, UINT hw_type, UINT hw_addr_size);
 void VLog(VH *v, char *str);
@@ -589,7 +589,4 @@ void NnDeleteOldestNatSessionIfNecessary(NATIVE_NAT *t, UINT ip, UINT protocol);
 
 void NnSetSecureNatTargetHostname(char *name);
 
-
 #endif	// VIRTUAL_H
-
-

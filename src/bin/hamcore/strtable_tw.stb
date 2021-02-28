@@ -1,7 +1,7 @@
 ﻿# SoftEther VPN String Table
 # Copyright (c) all contributors on SoftEther VPN project in GitHub.
 # Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
-# 
+#
 # https://www.softether.org/
 #
 # Contributors:
@@ -404,6 +404,7 @@ PW_TYPE_1				標準密碼驗證
 PW_TYPE_2				RADIUS 或 NT 域驗證
 PW_TYPE_3				用戶端證書認證
 PW_TYPE_4				智慧卡身份驗證
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY			代理伺服器 %S 使用者身份驗證失敗。請重新輸入正確的用戶名和密碼。
 PW_TYPE_PROXY			代理伺服器認證
@@ -1813,7 +1814,13 @@ LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server 
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
 
 
-# (OpenVPN Logs)
+# (Proto 日誌)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
+
+# (OpenVPN 日誌)
 LO_PREFIX_RAW			OpenVPN 模組:
 LO_PREFIX_SESSION		OpenVPN 會話%u (%r:%u -> %r:%u):
 LO_PREFIX_CHANNEL		OpenVPN 會話%u (%r:%u -> %r:%u) 通道 %u:
@@ -1824,15 +1831,11 @@ LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certif
 LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
 LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
 LO_OPTION_STR_SEND		發送選項字串："%S"
-LO_NEW_SESSION			已創建新的會話。協議：%S
 LO_INITIATE_REKEY			re-keying 進程已開始。
 LO_CHANNEL_ESTABLISHED		該通道成為已建立的狀態。
 LO_PUSH_REPLY			完整字串回答："%S"
 LO_CHANNEL_FAILED		無法連接通道。
 LO_CHANNEL_DISCONNECTED_BY_HUB	此 OpenVPN 的通道被終止，因為虛擬 HUB 管理員斷開了此 VPN 會話。
-LO_DELETE_SESSION		刪除會話中。
-LO_START				OpenVPN Server 模組正在啟動。
-LO_STOP					OpenVPN Server 模組已停止。
 
 
 # (IPsec 日誌)
@@ -1926,7 +1929,7 @@ LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的連接方法: 用戶 "%S" 的身
 LH_AUTH_OK				連接 "%S": 成功認證為用戶 "%S"。
 LH_AUTH_OK_CERT			虛擬 HUB 的安全帳戶管理器已經從 VPN Client 接收到如下證書，且接受了其內容作為當使用者 "%S" 登入時的證書: %s
 LH_AUTH_NG_CERT			虛擬 HUB 的安全帳戶管理器已經從 VPN Client 接收到如下證書，但拒絕了其內容作為當使用者 "%S" 登入時的證書，因為此證書的內容匹配虛擬 HUB 中註冊的廢止內容清單: %s
-LH_AUTH_NG				連接 "%S": 用戶認證失敗。提供的用戶名為 "%S"。
+LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY			連接 "%S": 遠端登入拒絕，因為用戶 "%S" 的密碼為空。
 LH_POLICY_ACCESS_NG		連接 "%S": 由於安全性原則，用戶 "%S" 拒絕訪問。
 LH_USER_EXPIRES			連接 "%S": 由於有效期限已過，用戶 "%S" 拒絕訪問。
@@ -2009,6 +2012,8 @@ LA_CREATE_LISTENER		已建立新 TCP 監聽器 (埠號 %u)。
 LA_DELETE_LISTENER		已刪除 TCP 監聽器 (埠號 %u)。
 LA_ENABLE_LISTENER		已啟用 TCP 監聽器 (埠號 %u)。
 LA_DISABLE_LISTENER		已禁用 TCP 監聽器 (埠號 %u)。
+LA_SET_PORTS_UDP		UDP ports have been set: %s.
+LA_SET_PROTO_OPTIONS	%s options have been set.
 LA_SET_SERVER_PASSWORD	服務端管理員密碼設置完成。
 LA_SET_FARM_SETTING		群集設置變更完成。
 LA_SET_SERVER_CERT		服務端證書設定完成。
@@ -2577,6 +2582,8 @@ B_CREATE_LISTENER		創建(&R)
 B_DELETE_LISTENER		刪除(&T)
 B_START					開始(&G)
 B_STOP					停止(&P)
+S_UDP					Multiple UDP ports can be specified by splitting them with a space or a comma. Leave empty to disable the UDP listener.
+B_APPLY					Apply
 STATIC3					VPN Server 和網路資訊和設置(&N)
 B_SSL					加密與網路(&E)
 B_STATUS				查看伺服器狀態(&V)
@@ -3883,9 +3890,6 @@ CAPTION					OpenVPN / MS-SSTP 設置
 S_TITLE					OpenVPN / MS-SSTP VPN 克隆 Server 功能設置
 S_1						本 VPN Server 具有 OpenVPN 技術責任有限公司的 OpenVPN 軟體產品的克隆功能。\r\n\r\n任何 OpenVPN Client 都可以連接到此 VPN Server。
 R_OPENVPN				啟用 OpenVPN 克隆 Server 功能(&O)
-S_UDP					監聽 OpenVPN 的 UDP 埠:
-B_DEFAULT				恢復預設值(&D)
-S_UDP2					多重 UDP 埠可以用空格或者逗號隔開的字母來指定。 \r\nOpenVPN Server 功能也可以在 TCP 埠上運行。任何在 VPN Server 上被定義為監聽端的 TCP 埠都可以平等的、分別的接受 OpenVPN 協議。
 S_TOOL					OpenVPN Client 的示例文件生成工具
 S_TOOL2					創建一個 OpenVPN Client 配置是一項艱難的工作。您可以使用此工具來生成一個合適的 OpenVPN Client 設定檔。生成的配置示例檔可馬上應用。本來，OpenVPN Client 會要求客戶手寫一個很難的設定檔。這個工具就可以説明您創建一個有用的配置樣本。您所需要為 OpenVPN Client 生成的設定檔就是點擊以下按鈕。
 B_CONFIG				為 OpenVPN Client 生成配置樣本檔(&C)
@@ -4567,6 +4571,50 @@ CMD_ListenerDisable_[port]	使用一個整數，指定要停止的 TCP/IP 監聽
 CMD_ListenerDisable_PortPrompt	啟動 TCP/IP 監聽器埠號: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			Sets the UDP ports that the server should listen on
+CMD_PortsUDPSet_Help	This command can be used to specify a single or multiple UDP ports the server should listen on. \nYou can specify a port that is used by another process, however the server will not be able to use it until the port becomes free. \nSpecify a port number that is within the range of 1 to 65535. \nYou can list the ports that are currently set with the PortsUDPGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Multiple UDP ports can be specified by splitting them with a space or a comma, for example: "443, 992, 1194, 5555". \nSpecify "0" to disable the UDP listener. \n\nPorts: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			Lists the UDP ports that the server is listening on
+CMD_PortsUDPGet_Help	This command can be used to retrieve the UDP ports the server is listening on. \nYou can set the ports with the PortsUDPSet command.
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ports
+
+
+# ProtoOptionsSet 命令
+CMD_ProtoOptionsSet						Sets an option's value for the specified protocol
+CMD_ProtoOptionsSet_Help				This command can be used to change an option's value for a specific protocol. \nYou can retrieve the options using the ProtoOptionsGet command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protocol] [/NAME:option_name] [/VALUE:string/true/false]
+CMD_ProtoOptionsSet_[protocol]			Protocol name.
+CMD_ProtoOptionsSet_NAME				Option name.
+CMD_ProtoOptionsSet_VALUE				Option value. Make sure to write a value that is accepted by the specified protocol!
+CMD_ProtoOptionsSet_Prompt_[protocol]	Protocol: 
+CMD_ProtoOptionsSet_Prompt_NAME			Option: 
+CMD_ProtoOptionsSet_Prompt_VALUE		Value: 
+
+
+# ProtoOptionsGet 命令
+CMD_ProtoOptionsGet						Lists the options for the specified protocol
+CMD_ProtoOptionsGet_Help				This command can be used to retrieve the options for a specific protocol. \nDetailed info (e.g. value type) will be shown. \nYou can change an option's value with the ProtoOptionsSet command.
+CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protocol]
+CMD_ProtoOptionsGet_[protocol]			Protocol name.
+CMD_ProtoOptionsGet_Prompt_[protocol]	Protocol: 
+CMD_ProtoOptionsGet_Column_Name			Name
+CMD_ProtoOptionsGet_Column_Type			Type
+CMD_ProtoOptionsGet_Column_Value		Value
+CMD_ProtoOptionsGet_Column_Description	Description
+
+# ProtoOptions
+CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			When OpenVPN is compiled without OCC code, it doesn't send the options string to the server. The original OpenVPN server still works, because the configuration is static. SoftEther VPN is heuristic and wants to support as many different configurations as possible. This option allows to define the string that is sent to clients built without OCC code, so that they can successfully connect.
+CMD_ProtoOptions_Description_OpenVPN_Obfuscation					This may help an OpenVPN client bypass firewalls that are aware of the protocol and block it. The same XOR mask has to be applied client-side, otherwise it will not be able to connect with certain obfuscation methods!
+CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	There's a bug that manifests under certain circumstances on Linux. It causes the OpenVPN client to disconnect unless the TAP device is UP. This option tells the server to push a dummy IPv4 address (RFC7600) to the client, so that the TAP adapter is forced to be UP.
+
+
 # ServerPasswordSet 命令
 CMD_ServerPasswordSet	設置 VPN Server 管理員密碼
 CMD_ServerPasswordSet_Help	這將設置 VPN Server 管理員密碼。您可以指定密碼為一個參數。如果密碼沒有指定，將顯示提示輸入密碼和密碼確認。如果指定密碼為一個參數，這個密碼將在螢幕上顯示瞬間，這構成了風險。我們建議盡可能避免指定這個參數，使用密碼提示輸入密碼。\n為了執行這個命令，您必須有 VPN Server 管理員許可權。
@@ -4708,21 +4756,6 @@ CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	指定設置加密和數位簽章的程式。可以使用的程式一覽，可以從 ServerCipherGet 指令中獲取。
 CMD_ServerCipherSet_PROMPT_NAME	指定的加密程式的名稱: 
 
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 
 # KeepEnable 命令
 CMD_KeepEnable				啟動 Internet 保持連接功能
@@ -6299,23 +6332,6 @@ CMD_EtherIpClientList_Help		這個命令會獲得和顯示通過 EtherIP / L2TPv
 CMD_EtherIpClientList_Args		EtherIpClientList
 
 
-# OpenVpnEnable 命令
-CMD_OpenVpnEnable					啟用/禁用 OpenVPN 克隆伺服器功能
-CMD_OpenVpnEnable_Help				本 VPN Server 有 OpenVPN Technologies, Inc. 公司生產的 OpenVPN 軟體產品的克隆功能。任何 OpenVPN Client 都可以連接到本 VPN Server。\n\n指定用戶名連接到虛擬 HUB 的的方式，使用本克隆伺服器功能來為預設虛擬 HUB 的選擇規則都與 IPsec 伺服器功能相同。詳情，請參見 IPsecEnable 命令的幫助。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
-CMD_OpenVpnEnable_Args				OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
-CMD_OpenVpnEnable_[yes|no]			指定 "yes"，啟用 OpenVPN 克隆伺服器功能。指定 "no" 禁用該功能。
-CMD_OpenVpnEnable_PORTS				指定UDP埠監聽 OpenVPN 。指定多個 UDP 埠可以用空格或者逗號分開來它們，例如： "1194, 2001, 2010, 2012"。OpenVPN 的默認埠是 UDP 1194。您也可以指定任一其他 UDP 埠。
-CMD_OpenVpnEnable_Prompt_[yes|no]	啟用 OpenVPN 克隆伺服器功能 (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		監聽 OpenVPN 的 UDP 埠(默認: 1194 /也可設置多埠): 
-
-
-# OpenVpnGet 命令
-CMD_OpenVpnGet						獲取 OpenVPN 克隆伺服器功能的當前設置
-CMD_OpenVpnGet_Help					獲取並顯示 OpenVPN 克隆伺服器功能的當前設置。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
-CMD_OpenVpnGet_Args					OpenVpnGet
-CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 克隆伺服器已啟用
-CMD_OpenVpnGet_PRINT_Ports			UDP 埠列表
-
 # OpenVpnMakeConfig 命令
 CMD_OpenVpnMakeConfig					生成 OpenVPN Client 樣本設置檔案
 CMD_OpenVpnMakeConfig_Help				原來，OpenVPN Client 會要求用戶手寫很難的設定檔案。本工具可以説明您創建一個有用的配置樣本。你所需要生成的 OpenVPN Client 設定檔案就是運行此命令。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
@@ -6326,42 +6342,9 @@ CMD_OpenVpnMakeConfig_OK				樣本設置檔案被保存為 "%s"。您可以解�
 CMD_OpenVpnMakeConfig_ERROR				本樣本設置檔案不能保存為 "%s"。該檔案名無效。\n
 
 
-# OpenVpnObfuscationEnable
-CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
-CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
-CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
-CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
-CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
-
-
-# OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
-CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
-
-
-# SstpEnable 命令
-CMD_SstpEnable						啟用/禁用 Microsoft SSTP VPN 克隆伺服器功能
-CMD_SstpEnable_Help					本 VPN Server 擁有植入在微軟 Windows Server 2008 / 2012 中的 MS-SSTP VPN Server 的克隆功能。Windows Vista / 7 / 8 / RT / 10 中的標準 MS-SSTP 用戶端可以連接本 VPN Server。\n\n[注意]\n在 VPN Server 上的 SSL 證書 CN 值必須要和指定給用戶端的主機名稱吻合。並且，該證書必須在 SSTP VPN Client 的信任清單中。詳情請參見微軟相關檔。\n您可以用用 ServerCertRegenerate 命令來取代當前 VPN Server 的證書，形成一個新的，有 CN 值欄位的自我認證證書。這樣的話，您需要在 SSTP VPN Client 註冊這樣一個新的自我認證證書作為一個可信任根證書。如果您的確想做這件複雜的事，請考慮購買一個商業權威機構的 SSL 證書，如 VeriSign 或者 GlobalSign。\n\n指定用戶名連接到虛擬 HUB 的的方式，使用本克隆伺服器功能來為預設虛擬 HUB 的選擇規則都與 IPsec 伺服器功能相同。詳情，請參見 IPsecEnable 命令的幫助。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
-CMD_SstpEnable_Args					SstpEnable [yes|no]
-CMD_SstpEnable_[yes|no]				指定 "yes"，啟用Microsoft SSTP VPN 克隆伺服器功能。指定 "no" 禁用該功能。
-CMD_SstpEnable_Prompt_[yes|no]		啟用 SSTP VPN 克隆伺服器功能(yes/no): 
-CMD_SstpEnable_PRINT_Enabled		SSTP VPN 克隆伺服器已禁用
-
-
-# SstpGet 命令
-CMD_SstpGet				獲得 Microsoft SSTP VPN 克隆伺服器功能的當前設置
-CMD_SstpGet_Help		獲得並顯示 Microsoft SSTP VPN 克隆伺服器功能的當前設置。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
-CMD_SstpGet_Args		SstpGet
-
-
 # ServerCertRegenerate 命令
 CMD_ServerCertRegenerate	生成一個新的帶有指定 CN (Common Name) 的自簽章憑證，並且在 VPN Server 上註冊。
-CMD_ServerCertRegenerate_Help	您可以使用此命令，將當前 VPN Server 上的證書替換成一個新的、有 CN (Common Name) 值欄位的、自簽字證書。n\n此命令在您想使用 Microsoft SSTP VPN 克隆伺服器功能時很方便。因為在 VPN Server 上 SSL 證書的 CN 值必須要與 SSTP VPN Client 指定的主機名稱吻合。\n詳情參見 SstpEnable 命令的幫助。\n\n本命令會刪除 VPN Server 上現有的 SSL 證書。這要求事先使用 ServerKeyGet 命令備份當前的 SSL 證書和金鑰。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
+CMD_ServerCertRegenerate_Help	您可以使用此命令，將當前 VPN Server 上的證書替換成一個新的、有 CN (Common Name) 值欄位的、自簽字證書。n\n此命令在您想使用 Microsoft SSTP VPN 克隆伺服器功能時很方便。因為在 VPN Server 上 SSL 證書的 CN 值必須要與 SSTP VPN Client 指定的主機名稱吻合。\n\n本命令會刪除 VPN Server 上現有的 SSL 證書。這要求事先使用 ServerKeyGet 命令備份當前的 SSL 證書和金鑰。\n\n要執行此命令，您必須具有 VPN Server 管理員許可權。\n該命令在 VPN Bridge 上不能運行。\n以集群成員運行的 VPN Server 的虛擬 HUB 不能執行此命令。
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	指定一個新證書要使用的 Common Name(CN)
 CMD_ServerCertRegenerate_Prompt_CN	Common Name(CN)值：
@@ -6775,9 +6758,9 @@ CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection
 
 
 # AccountRetryOnServerCertDisable command
-CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
+CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certificate is invalid
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
-CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
@@ -6893,6 +6876,11 @@ CMD_AccountSecureCertSet_CERTNAME	指定儲存在智慧卡中的證書物件名�
 CMD_AccountSecureCertSet_KEYNAME	指定儲存在智慧卡中的金鑰物件名。
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	智慧卡證書對象名: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	智慧卡私匙對象名: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet 命令
@@ -7184,7 +7172,6 @@ SW_DIR_DST_IS_SYSTEM_MODE			同樣的軟體已經在指定目錄中以系統模�
 SW_DIR_DST_IS_USER_MODE				同樣的軟體已經在指定目錄中以使用者模式安裝。\r\n\r\n請指定另外一個目錄。
 SW_SYSTEM_MODE_ALREADY_INSTALLED	本軟體 "%s" 以系統模式被安裝在這台電腦上。\r\n\r\n同樣的軟體以使用者模式和系統模式安裝在同一台電腦上會發生衝突。\r\n\r\n您確定要以使用者模式繼續進行安裝？
 
-SW_NOT_INSTALL_SRC					安裝程式已在一個外部的安裝源執行。\r\n\r\n不能再繼續安裝。
 SW_SETUPLOG_CORRUPTED				"setuplog.dat" 檔已被破壞。
 SW_MSI_UNINSTALL_FAILED				之前的版本 %s (產品號: "%S")已安裝。 Windows安裝工具移除舊版本失敗。\r\n\r\n請您手動移除並且重啟本安裝工具。
 SW_MSI_UNINSTALL_REBOOT_REQUIRED	Windows 安裝工具已經移除舊版本 %s。請重啟電腦。\r\n\r\n點擊結束按鈕並且手動重啟電腦，然後在電腦重啟後，重啟本安裝工具。

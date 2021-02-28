@@ -1439,10 +1439,6 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->CurrentRegionLock = NewLock();
 
-	StrCpy(c->OpenVPNDefaultClientOption, sizeof(c->OpenVPNDefaultClientOption), OVPN_DEF_CLIENT_OPTION_STRING);
-
-	c->OpenVPNPushDummyIPv4AddressOnL2Mode = true; // Default true. Override by the config file.
-
 #ifdef	BETA_NUMBER
 	c->Beta = BETA_NUMBER;
 #endif	// BETA_NUMBER
@@ -1606,9 +1602,6 @@ void InitCedar()
 
 	// Initialize protocol module
 	InitProtocol();
-
-	// Initialize third-party protocol interface
-	ProtoInit();
 }
 
 // Free Cedar communication module
@@ -1618,9 +1611,6 @@ void FreeCedar()
 	{
 		return;
 	}
-
-	// Free third-party protocol interface
-	ProtoFree();
 
 	// Free protocol module
 	FreeProtocol();

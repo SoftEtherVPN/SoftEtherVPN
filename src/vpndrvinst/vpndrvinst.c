@@ -4,8 +4,6 @@
 
 #include <GlobalConst.h>
 
-#define	HAM_C
-
 #ifdef	WIN32
 #define	HAM_WIN32
 #define	_WIN32_WINNT		0x0502
@@ -27,17 +25,6 @@
 #include <time.h>
 #include <errno.h>
 #include <math.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/engine.h>
-#include <openssl/bio.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs7.h>
-#include <openssl/pkcs12.h>
-#include <openssl/rc4.h>
-#include <openssl/md5.h>
-#include <openssl/sha.h>
 #include <Mayaqua/Mayaqua.h>
 #include <Cedar/Cedar.h>
 #include "vpndrvinst.h"

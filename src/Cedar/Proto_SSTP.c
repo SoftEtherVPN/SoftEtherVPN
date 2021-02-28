@@ -7,13 +7,180 @@
 
 #include "CedarPch.h"
 
-static bool g_no_sstp = false;
-
-// Get the SSTP disabling flag
-bool GetNoSstp()
+const PROTO_IMPL *SstpGetProtoImpl()
 {
+	static const PROTO_IMPL impl =
+	{
+		SstpName,
+		SstpOptions,
+		SstpInit,
+		SstpFree,
+		NULL,
+		SstpProcessData,
+		NULL
+	};
 
-	return g_no_sstp;
+	return &impl;
+}
+
+const char *SstpName()
+{
+	return "SSTP";
+}
+
+const PROTO_OPTION *SstpOptions()
+{
+	static const PROTO_OPTION options[] =
+	{
+		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
+	};
+
+	return options;
+}
+
+bool SstpInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
+{
+	if (param == NULL || options == NULL || cedar == NULL || im == NULL || se == NULL)
+	{
+		return false;
+	}
+
+	Debug("SstpInit(): cipher: %s, hostname: %s\n", cipher, hostname);
+
+	*param = NewSstpServer(cedar, im, se, cipher, hostname);
+
+	return true;
+}
+
+void SstpFree(void *param)
+{
+	FreeSstpServer(param);
+}
+
+bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
+{
+	FIFO *recv_fifo;
+	bool disconnected = false;
+	SSTP_SERVER *server = param;
+
+	if (server == NULL || in == NULL || out == NULL)
+	{
+		return false;
+	}
+
+	if (server->Status == SSTP_SERVER_STATUS_NOT_INITIALIZED)
+	{
+		HTTP_HEADER *header;
+		char *header_str, date_str[MAX_SIZE];
+
+		GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
+
+		header = NewHttpHeader("HTTP/1.1", "200", "OK");
+		AddHttpValue(header, NewHttpValue("Content-Length", "18446744073709551615"));
+		AddHttpValue(header, NewHttpValue("Server", "Microsoft-HTTPAPI/2.0"));
+		AddHttpValue(header, NewHttpValue("Date", date_str));
+
+		header_str = HttpHeaderToStr(header);
+
+		FreeHttpHeader(header);
+
+		if (header_str == NULL)
+		{
+			return false;
+		}
+
+		WriteFifo(out, header_str, StrLen(header_str));
+
+		Free(header_str);
+
+		Copy(&server->ClientIp, &in->SrcIP, sizeof(server->ClientIp));
+		server->ClientPort = in->SrcPort;
+		Copy(&server->ServerIp, &in->DstIP, sizeof(server->ServerIp));
+		server->ServerPort = in->DstPort;
+
+		server->Status = SSTP_SERVER_STATUS_REQUEST_PENGING;
+
+		return true;
+	}
+
+	recv_fifo = in->Data;
+
+	while (recv_fifo->size >= 4)
+	{
+		UCHAR *first4;
+		bool ok = false;
+		UINT read_size = 0;
+
+		// Read 4 bytes from the beginning of the received queue.
+		first4 = ((UCHAR *)recv_fifo->p) + recv_fifo->pos;
+		if (first4[0] == SSTP_VERSION_1)
+		{
+			const USHORT len = READ_USHORT(first4 + 2) & 0xFFF;
+			if (len >= 4)
+			{
+				ok = true;
+
+				if (recv_fifo->size >= len)
+				{
+					UCHAR *data;
+					BLOCK *b;
+
+					read_size = len;
+					data = Malloc(read_size);
+
+					ReadFifo(recv_fifo, data, read_size);
+
+					b = NewBlock(data, read_size, 0);
+
+					InsertQueue(server->RecvQueue, b);
+				}
+			}
+		}
+
+		if (read_size == 0)
+		{
+			break;
+		}
+
+		if (ok == false)
+		{
+			// Bad packet received, trigger disconnection.
+			disconnected = true;
+			break;
+		}
+	}
+
+	// Process the timer interrupt
+	SstpProcessInterrupt(server);
+
+	if (server->Disconnected)
+	{
+		disconnected = true;
+	}
+
+	while (true)
+	{
+		BLOCK *b = GetNext(server->SendQueue);
+		if (b == NULL)
+		{
+			break;
+		}
+
+		// Discard the data block if the transmission queue's size is greater than ~2.5 MB.
+		if (b->PriorityQoS || (FifoSize(out) <= MAX_BUFFERING_PACKET_SIZE))
+		{
+			WriteFifo(out, b->Buf, b->Size);
+		}
+
+		FreeBlock(b);
+	}
+
+	if (disconnected)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 // Process the SSTP control packet reception
@@ -97,6 +264,8 @@ void SstpProcessControlPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 // Process the SSTP received data packet
 void SstpProcessDataPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 {
+	PPP_SESSION *underlyingSession;
+
 	// Validate arguments
 	if (s == NULL || p == NULL || p->IsControl)
 	{
@@ -108,9 +277,11 @@ void SstpProcessDataPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 	if (s->PPPThread == NULL)
 	{
 		// Create a thread to initialize the new PPP module
-		s->PPPThread = NewPPPSession(s->Cedar, &s->ClientIp, s->ClientPort, &s->ServerIp, s->ServerPort,
+		underlyingSession = NewPPPSession(s->Cedar, &s->ClientIp, s->ClientPort, &s->ServerIp, s->ServerPort,
 			s->TubeSend, s->TubeRecv, SSTP_IPC_POSTFIX, SSTP_IPC_CLIENT_NAME,
 			s->ClientHostName, s->ClientCipherName, 0);
+		s->PPPSession = underlyingSession;
+		s->PPPThread = underlyingSession->SessionThread;
 	}
 
 	// Pass the received data to the PPP module
@@ -177,6 +348,7 @@ void SstpSendPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 // Process the timer interrupt
 void SstpProcessInterrupt(SSTP_SERVER *s)
 {
+	UINT64 sstpTimeout = SSTP_TIMEOUT;
 	// Validate arguments
 	if (s == NULL)
 	{
@@ -261,7 +433,12 @@ void SstpProcessInterrupt(SSTP_SERVER *s)
 		}
 	}
 
-	if ((s->LastRecvTick + (UINT64)SSTP_TIMEOUT) <= s->Now)
+	if (s->PPPSession != NULL && s->PPPSession->DataTimeout > sstpTimeout)
+	{
+		sstpTimeout = s->PPPSession->DataTimeout;
+	}
+
+	if ((s->LastRecvTick + sstpTimeout) <= s->Now)
 	{
 		// Disconnect the SSTP because a timeout occurred
 		SstpAbort(s);
@@ -819,38 +996,27 @@ void SstpFreePacket(SSTP_PACKET *p)
 }
 
 // Create a SSTP server
-SSTP_SERVER *NewSstpServer(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip,
-						   UINT server_port, SOCK_EVENT *se,
-						   char *client_host_name, char *crypt_name)
+SSTP_SERVER *NewSstpServer(CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname)
 {
 	SSTP_SERVER *s = ZeroMalloc(sizeof(SSTP_SERVER));
 
-	s->LastRecvTick = Tick64();
+	s->Status = SSTP_SERVER_STATUS_NOT_INITIALIZED;
 
-	StrCpy(s->ClientHostName, sizeof(s->ClientHostName), client_host_name);
-	StrCpy(s->ClientCipherName, sizeof(s->ClientCipherName), crypt_name);
+	s->Now = Tick64();
+	s->LastRecvTick = s->Now;
 
 	s->Cedar = cedar;
-	AddRef(s->Cedar->ref);
+	s->Interrupt = im;
+	s->SockEvent = se;
+
+	StrCpy(s->ClientHostName, sizeof(s->ClientHostName), hostname);
+	StrCpy(s->ClientCipherName, sizeof(s->ClientCipherName), cipher);
 
 	NewTubePair(&s->TubeSend, &s->TubeRecv, 0);
 	SetTubeSockEvent(s->TubeSend, se);
 
-	s->Now = Tick64();
-
-	Copy(&s->ClientIp, client_ip, sizeof(IP));
-	s->ClientPort = client_port;
-	Copy(&s->ServerIp, server_ip, sizeof(IP));
-	s->ServerPort = server_port;
-
-	s->SockEvent = se;
-
-	AddRef(s->SockEvent->ref);
-
 	s->RecvQueue = NewQueueFast();
 	s->SendQueue = NewQueueFast();
-
-	s->Interrupt = NewInterruptManager();
 
 	return s;
 }
@@ -897,242 +1063,8 @@ void FreeSstpServer(SSTP_SERVER *s)
 	ReleaseQueue(s->RecvQueue);
 	ReleaseQueue(s->SendQueue);
 
-	ReleaseSockEvent(s->SockEvent);
-
-	FreeInterruptManager(s->Interrupt);
-
-	ReleaseCedar(s->Cedar);
-
 	ReleaseTube(s->TubeSend);
 	ReleaseTube(s->TubeRecv);
 
 	Free(s);
 }
-
-// Handle the communication of SSTP protocol
-bool ProcessSstpHttps(CEDAR *cedar, SOCK *s, SOCK_EVENT *se)
-{
-	UINT tmp_size = 65536;
-	UCHAR *tmp_buf;
-	FIFO *recv_fifo;
-	FIFO *send_fifo;
-	SSTP_SERVER *sstp;
-	bool ret = false;
-	// Validate arguments
-	if (cedar == NULL || s == NULL || se == NULL)
-	{
-		return false;
-	}
-
-	tmp_buf = Malloc(tmp_size);
-	recv_fifo = NewFifo();
-	send_fifo = NewFifo();
-
-	sstp = NewSstpServer(cedar, &s->RemoteIP, s->RemotePort, &s->LocalIP, s->LocalPort, se,
-		s->RemoteHostname, s->CipherName);
-
-	while (true)
-	{
-		UINT r;
-		bool is_disconnected = false;
-		bool state_changed = false;
-
-		// Receive data over SSL
-		while (true)
-		{
-			r = Recv(s, tmp_buf, tmp_size, true);
-			if (r == 0)
-			{
-				// SSL is disconnected
-				is_disconnected = true;
-				break;
-			}
-			else if (r == SOCK_LATER)
-			{
-				// Data is not received any more
-				break;
-			}
-			else
-			{
-				// Queue the received data
-				WriteFifo(recv_fifo, tmp_buf, r);
-				state_changed = true;
-			}
-		}
-
-		while (recv_fifo->size >= 4)
-		{
-			UCHAR *first4;
-			UINT read_size = 0;
-			bool ok = false;
-			// Read 4 bytes from the beginning of the receive queue
-			first4 = ((UCHAR *)recv_fifo->p) + recv_fifo->pos;
-			if (first4[0] == SSTP_VERSION_1)
-			{
-				USHORT len = READ_USHORT(first4 + 2) & 0xFFF;
-				if (len >= 4)
-				{
-					ok = true;
-
-					if (recv_fifo->size >= len)
-					{
-						UCHAR *data;
-						BLOCK *b;
-
-						read_size = len;
-						data = Malloc(read_size);
-
-						ReadFifo(recv_fifo, data, read_size);
-
-						b = NewBlock(data, read_size, 0);
-
-						InsertQueue(sstp->RecvQueue, b);
-					}
-				}
-			}
-
-			if (read_size == 0)
-			{
-				break;
-			}
-
-			if (ok == false)
-			{
-				// Disconnect the connection since a bad packet received
-				is_disconnected = true;
-				break;
-			}
-		}
-
-		// Process the timer interrupt
-		SstpProcessInterrupt(sstp);
-
-		if (sstp->Disconnected)
-		{
-			is_disconnected = true;
-		}
-
-		// Put the transmission data that SSTP module has generated into the transmission queue
-		while (true)
-		{
-			BLOCK *b = GetNext(sstp->SendQueue);
-
-			if (b == NULL)
-			{
-				break;
-			}
-
-			// When transmit a data packet, If there are packets of more than about
-			// 2.5 MB in the transmission queue of the TCP, discard without transmission
-			if (b->PriorityQoS || (send_fifo->size <= MAX_BUFFERING_PACKET_SIZE))
-			{
-				WriteFifo(send_fifo, b->Buf, b->Size);
-			}
-
-			FreeBlock(b);
-		}
-
-		// Data is transmitted over SSL
-		while (send_fifo->size != 0)
-		{
-			r = Send(s, ((UCHAR *)send_fifo->p) + send_fifo->pos, send_fifo->size, true);
-			if (r == 0)
-			{
-				// SSL is disconnected
-				is_disconnected = true;
-				break;
-			}
-			else if (r == SOCK_LATER)
-			{
-				// Can not send any more
-				break;
-			}
-			else
-			{
-				// Advance the transmission queue by the amount of the transmitted
-				ReadFifo(send_fifo, NULL, r);
-				state_changed = true;
-			}
-		}
-
-		if (is_disconnected)
-		{
-			// Disconnected
-			break;
-		}
-
-		// Wait for the next state change
-		if (state_changed == false)
-		{
-			UINT select_time = SELECT_TIME;
-			UINT r = GetNextIntervalForInterrupt(sstp->Interrupt);
-			WaitSockEvent(se, MIN(r, select_time));
-		}
-	}
-
-	if (sstp != NULL && sstp->EstablishedCount >= 1)
-	{
-		ret = true;
-	}
-
-	FreeSstpServer(sstp);
-
-	ReleaseFifo(recv_fifo);
-	ReleaseFifo(send_fifo);
-	Free(tmp_buf);
-
-	YieldCpu();
-	Disconnect(s);
-
-	return ret;
-}
-
-// Accept the SSTP connection
-bool AcceptSstp(CONNECTION *c)
-{
-	SOCK *s;
-	HTTP_HEADER *h;
-	char date_str[MAX_SIZE];
-	bool ret;
-	bool ret2 = false;
-	SOCK_EVENT *se;
-	// Validate arguments
-	if (c == NULL)
-	{
-		return false;
-	}
-
-	s = c->FirstSock;
-
-	GetHttpDateStr(date_str, sizeof(date_str), SystemTime64());
-
-	// Return a response
-	h = NewHttpHeader("HTTP/1.1", "200", "OK");
-	AddHttpValue(h, NewHttpValue("Content-Length", "18446744073709551615"));
-	AddHttpValue(h, NewHttpValue("Server", "Microsoft-HTTPAPI/2.0"));
-	AddHttpValue(h, NewHttpValue("Date", date_str));
-
-	ret = PostHttp(s, h, NULL, 0);
-
-	FreeHttpHeader(h);
-
-	if (ret)
-	{
-		SetTimeout(s, INFINITE);
-
-		se = NewSockEvent();
-
-		JoinSockToSockEvent(s, se);
-
-		Debug("ProcessSstpHttps Start.\n");
-		ret2 = ProcessSstpHttps(c->Cedar, s, se);
-		Debug("ProcessSstpHttps End.\n");
-
-		ReleaseSockEvent(se);
-	}
-
-	Disconnect(s);
-
-	return ret2;
-}
-

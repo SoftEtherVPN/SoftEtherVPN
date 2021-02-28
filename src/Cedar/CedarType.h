@@ -288,7 +288,9 @@ typedef struct RPC_SERVER_INFO RPC_SERVER_INFO;
 typedef struct RPC_SERVER_STATUS RPC_SERVER_STATUS;
 typedef struct RPC_LISTENER RPC_LISTENER;
 typedef struct RPC_LISTENER_LIST RPC_LISTENER_LIST;
+typedef struct RPC_PORTS RPC_PORTS;
 typedef struct RPC_STR RPC_STR;
+typedef struct RPC_PROTO_OPTIONS RPC_PROTO_OPTIONS;
 typedef struct RPC_SET_PASSWORD RPC_SET_PASSWORD;
 typedef struct RPC_FARM RPC_FARM;
 typedef struct RPC_FARM_HUB RPC_FARM_HUB;
@@ -497,6 +499,11 @@ typedef struct PPP_OPTION PPP_OPTION;
 typedef struct PPP_LCP PPP_LCP;
 typedef struct PPP_PACKET PPP_PACKET;
 typedef struct PPP_IPOPTION PPP_IPOPTION;
+typedef struct PPP_IPV6OPTION PPP_IPV6OPTION;
+typedef struct PPP_REQUEST_RESEND PPP_REQUEST_RESEND;
+typedef struct PPP_DELAYED_PACKET PPP_DELAYED_PACKET;
+typedef struct PPP_EAP PPP_EAP;
+typedef struct PPP_EAP_TLS_CONTEXT PPP_EAP_TLS_CONTEXT;
 
 
 // ==============================================================
@@ -576,6 +583,9 @@ typedef struct IPC_ASYNC IPC_ASYNC;
 typedef struct IPC_PARAM IPC_PARAM;
 typedef struct IPC_DHCP_RELEASE_QUEUE IPC_DHCP_RELEASE_QUEUE;
 typedef struct IPC_MSCHAP_V2_AUTHINFO IPC_MSCHAP_V2_AUTHINFO;
+typedef struct IPC_SESSION_SHARED_BUFFER_DATA IPC_SESSION_SHARED_BUFFER_DATA;
+typedef struct IPC_IPV6_ROUTER_ADVERTISEMENT IPC_IPV6_ROUTER_ADVERTISEMENT;
+typedef struct IPC_DHCPV4_AWAIT IPC_DHCPV4_AWAIT;
 
 
 // ==============================================================

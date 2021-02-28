@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Session.c
 // Session Manager
@@ -33,6 +33,8 @@ void SessionMain(SESSION *s)
 	SOCK *nicinfo_sock = NULL;
 	bool is_server_session = false;
 	bool lock_receive_blocks_queue = false;
+	UINT static_ip = 0;
+
 	// Validate arguments
 	if (s == NULL)
 	{
@@ -103,7 +105,7 @@ void SessionMain(SESSION *s)
 	s->LastCommTime = Tick64();
 	if (s->ServerMode == false)
 	{
-		s->NextConnectionTime = Tick64() + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000;
+		s->NextConnectionTime = Tick64() + (UINT64)((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 	}
 
 	s->NumConnectionsEstablished++;
@@ -300,6 +302,13 @@ void SessionMain(SESSION *s)
 
 				if (b->Size >= 14)
 				{
+					UINT ip;
+					if( (ip = PrepareDHCPRequestForStaticIPv4( s, b )) != 0 )
+					{
+						// Remember the static IP address to remove it from the leased IP address list later
+						static_ip = ip;
+					}
+
 					if (b->Buf[0] & 0x01)
 					{
 						if (is_server_session == false)
@@ -603,6 +612,9 @@ CLEANUP:
 		// Update the user information
 		IncrementUserTraffic(s->Hub, s->UserNameReal, s);
 
+		// Clear the DHCP lease record if assigned as a static client IP address
+		ClearDHCPLeaseRecordForIPv4(s, static_ip);
+
 		DelSession(s->Hub, s);
 	}
 
@@ -900,7 +912,7 @@ void ClientAdditionalConnectChance(SESSION *s)
 				(s->NextConnectionTime <= now))
 			{
 				// Start the work to put an additional connection
-				s->NextConnectionTime = now + s->ClientOption->AdditionalConnectionInterval * (UINT64)1000U;
+				s->NextConnectionTime = now + ((UINT64)s->ClientOption->AdditionalConnectionInterval * (UINT64)1000);
 				SessionAdditionalConnect(s);
 			}
 			else
@@ -1211,6 +1223,9 @@ void CleanupSession(SESSION *s)
 	// Release the client connection options
 	if (s->ClientOption != NULL)
 	{
+#ifdef OS_UNIX
+		UnixVLanSetState(s->ClientOption->DeviceName, false);
+#endif
 		Free(s->ClientOption);
 	}
 
@@ -1267,13 +1282,6 @@ void CleanupSession(SESSION *s)
 		FreePacketAdapter(s->PacketAdapter);
 	}
 
-#ifdef OS_UNIX
-	if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
-	{
-		UnixVLanSetState(s->ClientOption->DeviceName, false);
-	}
-#endif
-
 	if (s->OldTraffic != NULL)
 	{
 		FreeTraffic(s->OldTraffic);
@@ -1292,6 +1300,8 @@ void CleanupSession(SESSION *s)
 	}
 
 	DeleteCounter(s->LoggingRecordCount);
+
+	ReleaseSharedBuffer(s->IpcSessionSharedBuffer);
 
 	Free(s);
 }
@@ -1421,14 +1431,9 @@ void ClientThread(THREAD *t, void *param)
 
 		CLog(s->Cedar->Client, "LC_CONNECT_ERROR", s->ClientOption->AccountName,
 			GetUniErrorStr(s->Err), s->Err);
-
 #ifdef OS_UNIX
-		if (s->NicDownOnDisconnect != NULL && *s->NicDownOnDisconnect)
-		{
-			UnixVLanSetState(s->ClientOption->DeviceName, false);
-		}
+		UnixVLanSetState(s->ClientOption->DeviceName, false);
 #endif
-
 		if (s->LinkModeClient && s->Link != NULL)
 		{
 			HLog(s->Link->Hub, "LH_CONNECT_ERROR", s->ClientOption->AccountName,
@@ -1836,7 +1841,7 @@ SESSION *NewRpcSessionEx2(CEDAR *cedar, CLIENT_OPTION *option, UINT *err, char *
 }
 
 // Create a client session
-SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account, bool *NicDownOnDisconnect)
+SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, ACCOUNT *account)
 {
 	SESSION *s;
 	THREAD *t;
@@ -1923,10 +1928,17 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 	{
 		s->ClientAuth->ClientX = CloneX(s->ClientAuth->ClientX);
 	}
-	if (s->ClientAuth->ClientK != NULL)
-	{
-		s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
-	}
+  if (s->ClientAuth->ClientK != NULL)
+  {
+    if (s->ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
+    {
+      s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
+    }
+    else
+    {
+      s->ClientAuth->ClientK = OpensslEngineToK(s->ClientAuth->OpensslEnginePrivateKeyName, s->ClientAuth->OpensslEngineName);
+    }
+  }
 
 	if (StrCmpi(s->ClientOption->DeviceName, LINK_DEVICE_NAME) == 0)
 	{
@@ -1964,8 +1976,6 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		s->ClientOption->NumRetry = 0;
 	}
 
-	s->NicDownOnDisconnect = NicDownOnDisconnect;
-
 	// Create a client thread
 	t = NewThread(ClientThread, (void *)s);
 	WaitThreadInit(t);
@@ -1973,9 +1983,9 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 
 	return s;
 }
-SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa, bool *NicDownOnDisconnect)
+SESSION *NewClientSession(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, PACKET_ADAPTER *pa)
 {
-	return NewClientSessionEx(cedar, option, auth, pa, NULL, NicDownOnDisconnect);
+	return NewClientSessionEx(cedar, option, auth, pa, NULL);
 }
 
 // Get the session from the session key
@@ -2316,3 +2326,140 @@ void Notify(SESSION *s, UINT code)
 }
 
 
+UINT PrepareDHCPRequestForStaticIPv4(SESSION *s, BLOCK *b)
+{
+	PKT *pkt = NULL;
+	DHCPV4_HEADER *dhcp = NULL;
+	UCHAR *data = NULL;
+	UINT size = 0;
+	UINT dhcp_header_size = 0;
+	UINT dhcp_data_offset = 0;
+	UINT magic_cookie = Endian32(DHCP_MAGIC_COOKIE);
+	DHCP_OPTION_LIST *opt = NULL;
+	USER *user = NULL;
+	UINT ret_ip = 0;
+
+	if ((s->Username == NULL) || (StrLen(s->Username) == 0) || (StrCmpi(s->Username, SNAT_USER_NAME_PRINT) == 0) ||
+		(StrCmpi( s->Username, BRIDGE_USER_NAME_PRINT) == 0) || (StrCmpi(s->Username, LINK_USER_NAME_PRINT) == 0))
+	{
+		return ret_ip;
+	}
+
+	pkt = ParsePacket(b->Buf, b->Size);
+	if (pkt == NULL)
+	{
+		return ret_ip;
+	}
+
+	if (pkt->TypeL3 == L3_IPV4 && pkt->TypeL4 == L4_UDP && pkt->TypeL7 == L7_DHCPV4)
+	{
+		if (pkt->L7.DHCPv4Header->OpCode != 1)
+		{
+			goto CLEANUP_TP;
+		}
+
+		dhcp = pkt->L7.DHCPv4Header;
+		dhcp_header_size = sizeof(DHCPV4_HEADER);
+		dhcp_data_offset = (UINT)(((UCHAR *)pkt->L7.DHCPv4Header) - ((UCHAR *)pkt->MacHeader) + dhcp_header_size);
+		data = ((UCHAR *)dhcp) + dhcp_header_size;
+		size = pkt->PacketSize - dhcp_data_offset;
+
+		if (dhcp_header_size < 5)
+		{
+			goto CLEANUP_TP;
+		}
+
+		// Search for Magic Cookie
+		while (size >= 5)
+		{
+			if (Cmp(data, &magic_cookie, sizeof(magic_cookie)) == 0)
+			{
+				// Found
+				data += 4;
+				size -= 4;
+				opt = ParseDhcpOptionList(data, size);
+				break;
+			}
+
+			++data;
+			--size;
+		}
+
+		if (opt == NULL)
+		{
+			goto CLEANUP_TP;
+		}
+
+		if (opt->Opcode == DHCP_DISCOVER || opt->Opcode == DHCP_REQUEST)
+		{
+			if (s->Hub != NULL)
+			{
+				user = AcGetUser( s->Hub, s->Username );
+				if (user != NULL)
+				{
+					dhcp->ServerIP = GetUserIPv4AddressFromUserNote32(user->Note);
+					ReleaseUser(user);
+					if (s->Hub->SecureNAT != NULL && s->Hub->SecureNAT->Nat != NULL)
+					{
+						VH *v = s->Hub->SecureNAT->Nat->Virtual;
+						if (v != NULL && v->UseDhcp == true && v->DhcpLeaseList != NULL)
+						{
+							DHCP_LEASE *d = SearchDhcpLeaseByIp(v, dhcp->ServerIP);
+
+							// The given static IP address is not used - it's OK
+							if (d == NULL)
+							{
+								ret_ip = dhcp->ServerIP;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+CLEANUP_TP:
+	if (opt != NULL)
+	{
+		Free(opt);
+	}
+
+	if (pkt != NULL)
+	{
+		FreePacket(pkt);
+	}
+
+	return ret_ip;
+}
+
+void ClearDHCPLeaseRecordForIPv4(SESSION *s, UINT static_ip)
+{
+	if (s == NULL || static_ip == 0)
+	{
+		return;
+	}
+
+	if (s->Hub == NULL || s->Hub->SecureNAT == NULL || s->Hub->SecureNAT->Nat == NULL)
+	{
+		return;
+	}
+
+	VH *v = s->Hub->SecureNAT->Nat->Virtual;
+	if (v == NULL || v->DhcpLeaseList == NULL)
+	{
+		return;
+	}
+
+	DHCP_LEASE *d = SearchDhcpLeaseByIp(v, static_ip);
+	if (d == NULL)
+	{
+		return;
+	}
+
+	LockList(v->DhcpLeaseList);
+	{
+		FreeDhcpLease(d);
+		Delete(v->DhcpLeaseList, d);
+	}
+	UnlockList( v->DhcpLeaseList);
+}

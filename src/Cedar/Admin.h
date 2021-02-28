@@ -105,6 +105,13 @@ struct RPC_LISTENER_LIST
 	bool *Errors;						// An error occurred
 };
 
+// List of ports
+struct RPC_PORTS
+{
+	UINT Num;							// Number of ports
+	UINT *Ports;						// Ports
+};
+
 // String *
 struct RPC_STR
 {
@@ -115,6 +122,14 @@ struct RPC_STR
 struct RPC_INT
 {
 	UINT IntValue;						// Integer
+};
+
+// Proto options
+struct RPC_PROTO_OPTIONS
+{
+	char *Protocol;						// Protocol name
+	UINT Num;							// Number of options
+	PROTO_OPTION *Options;				// Options
 };
 
 // Set Password
@@ -957,6 +972,10 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t);
 UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t);
 UINT StDeleteListener(ADMIN *a, RPC_LISTENER *t);
 UINT StEnableListener(ADMIN *a, RPC_LISTENER *t);
+UINT StSetPortsUDP(ADMIN *a, RPC_PORTS *t);
+UINT StGetPortsUDP(ADMIN *a, RPC_PORTS *t);
+UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t);
+UINT StSetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t);
 UINT StSetServerPassword(ADMIN *a, RPC_SET_PASSWORD *t);
 UINT StSetFarmSetting(ADMIN *a, RPC_FARM *t);
 UINT StGetFarmSetting(ADMIN *a, RPC_FARM *t);
@@ -1101,6 +1120,10 @@ UINT ScCreateListener(RPC *r, RPC_LISTENER *t);
 UINT ScEnumListener(RPC *r, RPC_LISTENER_LIST *t);
 UINT ScDeleteListener(RPC *r, RPC_LISTENER *t);
 UINT ScEnableListener(RPC *r, RPC_LISTENER *t);
+UINT ScSetPortsUDP(RPC *r, RPC_PORTS *t);
+UINT ScGetPortsUDP(RPC *r, RPC_PORTS *t);
+UINT ScSetProtoOptions(RPC *r, RPC_PROTO_OPTIONS *t);
+UINT ScGetProtoOptions(RPC *r, RPC_PROTO_OPTIONS *t);
 UINT ScSetServerPassword(RPC *r, RPC_SET_PASSWORD *t);
 UINT ScSetFarmSetting(RPC *r, RPC_FARM *t);
 UINT ScGetFarmSetting(RPC *r, RPC_FARM *t);
@@ -1251,9 +1274,15 @@ void OutRpcListener(PACK *p, RPC_LISTENER *t);
 void InRpcListenerList(RPC_LISTENER_LIST *t, PACK *p);
 void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t);
 void FreeRpcListenerList(RPC_LISTENER_LIST *t);
+void InRpcPorts(RPC_PORTS *t, PACK *p);
+void OutRpcPorts(PACK *p, RPC_PORTS *t);
+void FreeRpcPorts(RPC_PORTS *t);
 void InRpcStr(RPC_STR *t, PACK *p);
 void OutRpcStr(PACK *p, RPC_STR *t);
 void FreeRpcStr(RPC_STR *t);
+void InRpcProtoOptions(RPC_PROTO_OPTIONS *t, PACK *p);
+void OutRpcProtoOptions(PACK *p, RPC_PROTO_OPTIONS *t);
+void FreeRpcProtoOptions(RPC_PROTO_OPTIONS *t);
 void InRpcSetPassword(RPC_SET_PASSWORD *t, PACK *p);
 void OutRpcSetPassword(PACK *p, RPC_SET_PASSWORD *t);
 void InRpcFarm(RPC_FARM *t, PACK *p);

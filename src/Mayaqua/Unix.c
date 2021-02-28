@@ -771,7 +771,7 @@ void *UnixNewSingleInstance(char *instance_name)
 		StrCpy(tmp, sizeof(tmp), instance_name);
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	// File name generation
 	Format(name, sizeof(name), "%s/.%s", dir, tmp);
@@ -799,7 +799,6 @@ void *UnixNewSingleInstance(char *instance_name)
 	if (fcntl(fd, F_SETLK, &lock) == -1)
 	{
 		close(fd);
-		(void)remove(name);
 		return NULL;
 	}
 	else
@@ -1841,6 +1840,10 @@ LOCK *UnixNewLock()
 
 	// Create a mutex
 	mutex = UnixMemoryAlloc(sizeof(pthread_mutex_t));
+	if (mutex == NULL)
+	{
+		return NULL;
+	}
 
 	// Initialization of the mutex
 	pthread_mutex_init(mutex, NULL);
@@ -1938,7 +1941,7 @@ void UnixGetSystemTime(SYSTEMTIME *system_time)
 
 	if (sizeof(time_t) == 4)
 	{
-		now2 = (time_64t)((UINT64)((UINT32)now));
+		now2 = (time_64t)((UINT64)((UINT)now));
 	}
 	else
 	{
@@ -1976,7 +1979,7 @@ UINT64 UnixGetTick64()
 	clock_gettime(CLOCK_REALTIME, &t);
 #endif
 
-	ret = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+	ret = ((UINT64)((UINT)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
 
 	if (ret == 0)
 	{
@@ -2185,7 +2188,7 @@ void UnixGenPidFileName(char *name, UINT size)
 		return;
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	GetExeName(exe_name, sizeof(exe_name));
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");
@@ -2230,7 +2233,7 @@ void UnixGenCtlFileName(char *name, UINT size)
 		return;
 	}
 
-	GetExeDir(dir, sizeof(dir));
+	GetPidDir(dir, sizeof(dir));
 
 	GetExeName(exe_name, sizeof(exe_name));
 	StrCat(exe_name, sizeof(exe_name), ":pid_hash");

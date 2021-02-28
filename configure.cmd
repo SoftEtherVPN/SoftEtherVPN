@@ -13,11 +13,11 @@ echo.
 echo Welcome to the corner-cutting configure script !
 echo.
 
-if not exist "tmp" (
-	mkdir tmp
+if not exist "build" (
+	mkdir build
 )
 
-cd tmp
+cd build
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "NMake Makefiles" ..
 

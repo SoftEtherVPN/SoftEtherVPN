@@ -1,17 +1,21 @@
-add_executable(hamcorebuilder hamcorebuilder.c)
+include(TestBigEndian)
 
-set_target_properties(hamcorebuilder
-  PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${TOP_DIRECTORY}/tmp"
-  LIBRARY_OUTPUT_DIRECTORY "${TOP_DIRECTORY}/tmp"
-  RUNTIME_OUTPUT_DIRECTORY "${TOP_DIRECTORY}/tmp"
+add_executable(hamcorebuilder
+  main.c
+  FileSystem.c
+  FileSystem.h
 )
 
 if(WIN32)
-  set_target_properties(hamcorebuilder
-    PROPERTIES
-    PDB_OUTPUT_DIRECTORY "${TOP_DIRECTORY}/tmp"
-  )
+  target_compile_definitions(hamcorebuilder PRIVATE "OS_WINDOWS")
 endif()
 
-target_link_libraries(hamcorebuilder cedar mayaqua)
+test_big_endian(BIG_ENDIAN)
+if(BIG_ENDIAN)
+  target_compile_definitions(hamcorebuilder PRIVATE "BYTE_ORDER_BIG_ENDIAN")
+endif()
+
+target_include_directories(hamcorebuilder PRIVATE "${TOP_DIRECTORY}/3rdparty/tinydir")
+
+find_package(ZLIB REQUIRED)
+target_link_libraries(hamcorebuilder PRIVATE ZLIB::ZLIB)

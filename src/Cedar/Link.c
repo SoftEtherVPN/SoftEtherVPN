@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Link.c
 // Inter-HUB Link
@@ -506,7 +506,7 @@ void StartLink(LINK *k)
 	pa->Param = (void *)k;
 	LockLink(k);
 	{
-		k->ClientSession = NewClientSession(k->Cedar, k->Option, k->Auth, pa, NULL);
+		k->ClientSession = NewClientSession(k->Cedar, k->Option, k->Auth, pa);
 	}
 	UnlockLink(k);
 }
@@ -622,7 +622,7 @@ LINK *NewLink(CEDAR *cedar, HUB *hub, CLIENT_OPTION *option, CLIENT_AUTH *auth, 
 
 	// Limitation of authentication method
 	if (auth->AuthType != CLIENT_AUTHTYPE_ANONYMOUS && auth->AuthType != CLIENT_AUTHTYPE_PASSWORD &&
-		auth->AuthType != CLIENT_AUTHTYPE_PLAIN_PASSWORD && auth->AuthType != CLIENT_AUTHTYPE_CERT)
+		auth->AuthType != CLIENT_AUTHTYPE_PLAIN_PASSWORD && auth->AuthType != CLIENT_AUTHTYPE_CERT && auth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
 	{
 		// Authentication method other than anonymous authentication, password authentication, plain password, certificate authentication cannot be used
 		return NULL;

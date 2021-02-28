@@ -1,12 +1,25 @@
 FreeBSD_task:
-  freebsd_instance:
-    image: freebsd-12-0-release-amd64
-  env:
-    ASSUME_ALWAYS_YES: TRUE # required for unattanded "pkg" invocation
-  install_script:
-    - pkg install cmake gmake openssl111 git
+  matrix:
+    env:
+      SSL: openssl
+    env:
+      SSL: libressl
+    env:
+      SSL: libressl-devel
+    env:
+      # base openssl
+      SSL:
+  matrix:
+    freebsd_instance:
+      image_family: freebsd-12-1
+  prepare_script:
+    - pkg install -y cmake git $SSL
     - git submodule update --init --recursive
-  script:
+  configure_script:
     - ./configure
-    - gmake -j $(nproc || sysctl -n hw.ncpu || echo 4) -C tmp
+  build_script:
+    - make -j $(sysctl -n hw.ncpu || echo 4) -C build
+  test_script:
     - ldd build/vpnserver
+    - .ci/memory-leak-test.sh
+    - .ci/vpntools-check.sh

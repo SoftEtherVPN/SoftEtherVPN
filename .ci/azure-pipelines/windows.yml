@@ -1,0 +1,23 @@
+jobs:
+- job: windows_x86_64
+  displayName: 'Windows (x86_64)'
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: "windows-steps.yml"
+    parameters:
+      architecture: "x86_64"
+      compilerPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/Llvm/x64/bin/clang-cl.exe"
+      vcpkgTriplet: "x64-windows-static-md"
+      vcvarsPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+- job: windows_x86
+  displayName: 'Windows (x86)'
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: "windows-steps.yml"
+    parameters:
+      architecture: "x86"
+      compilerPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/Llvm/bin/clang-cl.exe"
+      vcpkgTriplet: "x86-windows-static-md"
+      vcvarsPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvarsamd64_x86.bat"

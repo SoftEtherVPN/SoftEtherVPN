@@ -48,7 +48,7 @@ extern char *SERVER_CONFIG_FILE_NAME;
 
 #define	MAX_PUBLIC_PORT_NUM				128
 
-#define	MEMBER_SELECTOR_TXT_FILENAME	"@member_selector.config"
+#define	MEMBER_SELECTOR_TXT_FILENAME	"$member_selector.config"
 #define	MEMBER_SELECTOR_CONNECT_TIMEOUT	2000
 #define	MEMBER_SELECTOR_DATA_TIMEOUT	5000
 
@@ -147,9 +147,6 @@ struct SYSLOG_SETTING
 struct OPENVPN_SSTP_CONFIG
 {
 	bool EnableOpenVPN;						// OpenVPN is enabled
-	char OpenVPNPortList[MAX_SIZE];			// OpenVPN UDP port number list
-	bool OpenVPNObfuscation;				// OpenVPN: Obfuscation mode
-	char OpenVPNObfuscationMask[MAX_SIZE];	// OpenVPN: String (mask) for XOR obfuscation
 	bool EnableSSTP;						// SSTP is enabled
 };
 
@@ -159,6 +156,7 @@ struct SERVER
 	UINT ServerType;					// Type of server
 	UINT UpdatedServerType;				// Type of updated server
 	LIST *ServerListenerList;			// Server listener list
+	LIST *PortsUDP;						// The ports used by Proto's UDP listener
 	UCHAR HashedPassword[SHA1_SIZE];	// Password
 	char ControllerName[MAX_HOST_NAME_LEN + 1];		// Controller name
 	UINT ControllerPort;				// Controller port
@@ -185,14 +183,13 @@ struct SERVER
 	bool NoLinuxArpFilter;				// Not to set arp_filter in Linux
 	bool NoHighPriorityProcess;			// Not to raise the priority of the process
 	bool NoDebugDump;					// Not to output the debug dump
-	bool DisableSSTPServer;				// Disable the SSTP server function
-	bool DisableOpenVPNServer;			// Disable the OpenVPN server function
 	bool DisableNatTraversal;			// Disable the NAT-traversal feature
 	bool EnableVpnOverIcmp;				// VPN over ICMP is enabled
 	bool EnableVpnOverDns;				// VPN over DNS is enabled
 	bool NoMoreSave;					// Do not save any more
 	bool EnableConditionalAccept;		// Apply the Conditional Accept the Listener
 	bool EnableLegacySSL;				// Enable Legacy SSL
+	bool DisableIPsecAggressiveMode;	// Disable IPsec's aggressive mode
 
 	volatile bool Halt;					// Halting flag
 	LOCK *lock;							// Lock
@@ -241,9 +238,8 @@ struct SERVER
 	volatile bool HaltDeadLockThread;	// Halting flag
 	EVENT *DeadLockWaitEvent;			// Waiting Event
 
+	PROTO *Proto;						// Protocols handler
 	IPSEC_SERVER *IPsecServer;			// IPsec server function
-	OPENVPN_SERVER_UDP *OpenVpnServerUdp;	// OpenVPN server function
-	char OpenVpnServerUdpPorts[MAX_SIZE];	// UDP port list string
 	DDNS_CLIENT *DDnsClient;			// DDNS client feature
 	LOCK *OpenVpnSstpConfigLock;		// Lock OpenVPN and SSTP configuration
 
@@ -418,6 +414,8 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f);
 void SiWriteGlobalParamsCfg(FOLDER *f);
 void SiLoadGlobalParamsCfg(FOLDER *f);
 void SiLoadGlobalParamItem(UINT id, UINT value);
+void SiLoadProtoCfg(PROTO *p, FOLDER *f);
+void SiWriteProtoCfg(FOLDER *f, PROTO *p);
 void SiWriteTraffic(FOLDER *parent, char *name, TRAFFIC *t);
 void SiWriteTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
 void SiLoadTrafficInner(FOLDER *parent, char *name, TRAFFIC_ENTRY *e);
@@ -619,9 +617,6 @@ void SiDelHubCreateHistory(SERVER *s, char *name);
 bool SiIsHubRegistedOnCreateHistory(SERVER *s, char *name);
 
 bool SiTooManyUserObjectsInServer(SERVER *s, bool oneMore);
-
-void SiGetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c);
-void SiSetOpenVPNAndSSTPConfig(SERVER *s, OPENVPN_SSTP_CONFIG *c);
 
 bool SiCanOpenVpnOverDnsPort();
 bool SiCanOpenVpnOverIcmpPort();

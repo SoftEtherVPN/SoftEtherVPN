@@ -400,6 +400,7 @@ PW_TYPE_1				標準パスワード認証
 PW_TYPE_2				RADIUS または NT ドメイン認証
 PW_TYPE_3				クライアント証明書認証
 PW_TYPE_4				スマートカード認証
+PW_TYPE_5				Openssl Engine Authentication
 
 PW_MSG_PROXY			プロキシサーバー %S でのユーザー認証に失敗しました。正しいユーザー名とパスワードを再入力してください。
 PW_TYPE_PROXY			プロキシサーバー認証
@@ -1796,6 +1797,11 @@ LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S
 LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
 
+# (Proto ログ)
+LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
+LP_SESSION_CREATED		Session created.
+LP_SESSION_DELETED		Session deleted.
+
 # (OpenVPN ログ)
 LO_PREFIX_RAW			OpenVPN モジュール: 
 LO_PREFIX_SESSION		OpenVPN セッション %u (%r:%u -> %r:%u): 
@@ -1803,19 +1809,15 @@ LO_PREFIX_CHANNEL		OpenVPN セッション %u (%r:%u -> %r:%u) チャネル %u:
 LO_NEW_CHANNEL			新しいチャネルを作成しました。
 LO_CHANNEL_ESTABLISHED_NEWKEY	チャネルが確立状態になりました (原因: リキーの完了)。
 LO_OPTION_STR_RECV		受信したオプション文字列: "%S"
-LO_CLIENT_CERT			Client certificate received (subject: CN="%s"), will use certificate authentication.
-LO_CLIENT_UNVERIFIED_CERT		Client certificate was provided but did not pass verification (error="%S"), will use password authentication.
-LO_CLIENT_NO_CERT		Client certificate is not provided, will use password authentication.
+LO_CLIENT_CERT			クライアント証明書 (subject: CN="%s") を受信しました。証明書認証を使用します。
+LO_CLIENT_UNVERIFIED_CERT		提示されたクライアント証明書の検証に失敗しました。パスワード認証を使用します。(エラー: "%S")
+LO_CLIENT_NO_CERT		クライアント証明書が提示されませんでした。パスワード認証を使用します。
 LO_OPTION_STR_SEND		送信するオプション文字列: "%S"
-LO_NEW_SESSION			新しいセッションを作成しました。プロトコル: %S
 LO_INITIATE_REKEY		このチャネルのリキーを開始します。
 LO_CHANNEL_ESTABLISHED	チャネルが確立状態になりました。
 LO_PUSH_REPLY			応答オプション文字列の全文: "%S"
 LO_CHANNEL_FAILED		チャネルの接続処理に失敗しました。
 LO_CHANNEL_DISCONNECTED_BY_HUB	仮想 HUB の管理者によって VPN セッションが切断されたため、この OpenVPN チャネルを切断します。
-LO_DELETE_SESSION		セッションを削除します。
-LO_START				OpenVPN サーバーモジュールを起動しました。
-LO_STOP					OpenVPN サーバーモジュールを停止しました。
 
 
 # (IPsec ログ)
@@ -1902,14 +1904,14 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として証明書認証が指定されましたが、証明書認証を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
 LH_AUTH_OK				コネクション "%S": ユーザー "%S" として正しく認証されました。
 LH_AUTH_OK_CERT			仮想 HUB のセキュリティアカウントマネージャは、ユーザー "%S" がログインする際の証明書として、次の証明書を VPN Client から受理し、その内容を承認しました: %s
 LH_AUTH_NG_CERT			仮想 HUB のセキュリティアカウントマネージャは、ユーザー "%S" がログインする際の証明書として、次の証明書を VPN Client から受理しましたが、この証明書は仮想 HUB の無効な証明書一覧に登録されている内容に一致するため拒否しました: %s
-LH_AUTH_NG				コネクション "%S": ユーザー認証に失敗しました。提示されたユーザー名は "%S" でした。
+LH_AUTH_NG				コネクション "%S": ユーザー認証に失敗しました。提示されたユーザー名は "%S" 、接続元は "%S" でした。
 LH_LOCAL_ONLY			コネクション "%S": ユーザー "%S" のパスワードが空白のため、リモートからのログインは拒否されました。
 LH_POLICY_ACCESS_NG		コネクション "%S": ユーザー "%S" はセキュリティポリシーによってアクセスが拒否されています。
 LH_USER_EXPIRES			コネクション "%S": ユーザー "%S" の有効期限が切れており、アクセスが拒否されました。
@@ -1992,6 +1994,8 @@ LA_CREATE_LISTENER		新しい TCP リスナー (ポート番号 %u) を作成し
 LA_DELETE_LISTENER		TCP リスナー (ポート番号 %u) を削除しました。
 LA_ENABLE_LISTENER		TCP リスナー (ポート番号 %u) を有効化しました。
 LA_DISABLE_LISTENER		TCP リスナー (ポート番号 %u) を無効化しました。
+LA_SET_PORTS_UDP		UDP ポートの一覧が設定されました: %s.
+LA_SET_PROTO_OPTIONS	オプション %s が設定されました。
 LA_SET_SERVER_PASSWORD	サーバー管理者パスワードを設定しました。
 LA_SET_FARM_SETTING		クラスタリング設定を変更しました。
 LA_SET_SERVER_CERT		サーバー証明書を設定しました。
@@ -2559,6 +2563,8 @@ B_CREATE_LISTENER		新規作成(&R)
 B_DELETE_LISTENER		削除(&T)
 B_START					開始(&G)
 B_STOP					停止(&P)
+S_UDP					複数の UDP ポートを指定するには、スペースかカンマで区切ってください。空欄にすると UDP リスナーを停止します。
+B_APPLY					適用
 STATIC3					サーバー情報の参照および設定(&N)
 B_SSL					暗号化と通信関係の設定(&W)
 B_STATUS				サーバー状態の表示(&V)
@@ -3870,9 +3876,6 @@ CAPTION					OpenVPN / MS-SSTP 設定
 S_TITLE					OpenVPN / MS-SSTP VPN サーバー機能設定
 S_1						OpenVPN 社の OpenVPN ソフトウェア製品と同等の VPN サーバー機能を搭載しています。\r\n\r\nOpenVPN クライアントからこの VPN Server に接続できます。
 R_OPENVPN				&OpenVPN サーバー機能を有効にする
-S_UDP					OpenVPN サービスを提供する &UDP ポート:
-B_DEFAULT				標準に戻す(&D)
-S_UDP2					UDP ポートは複数指定できます。複数指定する場合はスペースまたはカンマで区切ってください。\r\nOpenVPN サーバー機能は TCP ポートでも有効になります。この場合、この VPN Server に現在作成されているすべての TCP リスナポートで OpenVPN プロトコルがサポートされます。
 S_TOOL					OpenVPN クライアント用サンプル設定ファイル自動作成ツール
 S_TOOL2					本来、OpenVPN クライアントを使うためには設定ファイルを手動で記述する必要があり、これは難易度が高い作業です。しかし、以下のボタンをクリックするだけでこの VPN Server に接続することができる基本的な OpenVPN クライアント用の設定ファイルを自動的に生成することができます。
 B_CONFIG				OpenVPN クライアント用のサンプル設定ファイルを生成(&C)
@@ -4380,7 +4383,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		プロキシサーバーのポート番号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	プロキシサーバーのユーザー名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	サーバー証明書の検証
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	登録されているサーバー固有証明書
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	サーバー証明書が信頼できない場合に接続を再試行する
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		接続に使用するデバイス名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		認証の種類
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	ユーザー名
@@ -4395,7 +4398,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	ブリッジ / ルータモードで接続
 CMD_ACCOUNT_COLUMN_MONITOR			モニタリングモードで接続
 CMD_ACCOUNT_COLUMN_NO_TRACKING		ルーティングテーブルを調整しない
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	QoS 制御機能を使用しない
-CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
+CMD_ACCOUNT_COLUMN_DISABLEUDP		 UDP 高速化機能を無効化する
 
 
 # デバッグ情報書き出しコマンド
@@ -4551,6 +4554,51 @@ CMD_ListenerDisable_[port]	停止する TCP/IP リスナーのポート番号を
 CMD_ListenerDisable_PortPrompt	開始する TCP/IP リスナーのポート番号: 
 
 
+# PortsUDPSet command
+CMD_PortsUDPSet			サーバーが着信を受付ける UDP ポート番号の一覧を設定します。
+CMD_PortsUDPSet_Help	このコマンドを使用すると、このサーバーが着信を受付ける単一または複数の UDP ポートの一覧を設定することができます。\n他のプロセスによって使用されている UDP ポートを設定することも可能ですが、そのポートが解放されるまでは機能しません。\nポート番号は、1 から 65535 の間で指定します。\n現在設定されているポートの一覧は、PortsUDPGet コマンドを使用して確認することができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	複数のポート番号を指定する場合は、スペース文字またはカンマ文字で区切ってください。例: "443, 992, 1194, 5555". \n"0" を指定すると、UDP リスナーを無効化することができます。\n\nポート一覧: 
+
+
+# PortsUDPGet command
+CMD_PortsUDPGet			サーバーにおける着信 UDP ポートの一覧を表示します。
+CMD_PortsUDPGet_Help	このコマンドを使用すると、サーバーで待受け状態になっている UDP ポートの一覧を表示することができます。\nポートの設定を変更するには、PortsUDPSet コマンドを使用してください。
+CMD_PortsUDPGet_Args	PortsUDPGet
+CMD_PortsUDPGet_Ports	UDP ポート一覧
+
+
+# ProtoOptionsSet コマンド
+CMD_ProtoOptionsSet						特定のプロトコル固有のオプション値を設定します。
+CMD_ProtoOptionsSet_Help				このコマンドを使用することにより、特定のプロトコル固有のオプション値を設定することができます。 \nProtoOptionsGet コマンドを使用することにより、オプション値を取得することもできます。 \nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
+CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protocol] [/NAME:option_name] [/VALUE:string/true/false]
+CMD_ProtoOptionsSet_[protocol]			プロトコル名
+CMD_ProtoOptionsSet_NAME				オプション名
+CMD_ProtoOptionsSet_VALUE				オプション値 (対象のプロトコルで対応している値を指定してください)
+CMD_ProtoOptionsSet_Prompt_[protocol]	プロトコル: 
+CMD_ProtoOptionsSet_Prompt_NAME			オプション: 
+CMD_ProtoOptionsSet_Prompt_VALUE		値: 
+
+
+# ProtoOptionsGet コマンド
+CMD_ProtoOptionsGet						指定されたプロトコル固有のオプション値を表示します。
+CMD_ProtoOptionsGet_Help				このコマンドを使用することにより、特定のプロトコル固有のオプション値を取得することができます。 \n詳細な情報 (例: 値の型) が表示されます。オプション値を設定するには、ProtoOptionsSet コマンドを使用してください。
+CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protocol]
+CMD_ProtoOptionsGet_[protocol]			プロトコル名
+CMD_ProtoOptionsGet_Prompt_[protocol]	プロトコル: 
+CMD_ProtoOptionsGet_Column_Name			名前
+CMD_ProtoOptionsGet_Column_Type			型
+CMD_ProtoOptionsGet_Column_Value		値
+CMD_ProtoOptionsGet_Column_Description	説明
+
+
+# ProtoOptions
+CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			OpenVPN の OCC codeRT 版以外の場合は、OpenVPN はサーバーに対してオプション文字列を送信しません。OpenVPN サーバーのオリジナル版は、オプションを固定で指定する仕組みになっているため、その場合でも動作します。一方、SoftEther VPN は、様々なオプションを動的に設定することができる機能を有しております。そこで、このオプションを使用することにより、OCC code なしでビルドされた OpenVPN に対してデフォルトの静的オプション文字列を送付することができるようになります。これにより、OCC code なしでビルドされた OpenVPN からの接続が成功するようになります。
+CMD_ProtoOptions_Description_OpenVPN_Obfuscation					OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードを設定します。クライアント側とサーバー側では、同一の XOR マスクを設定する必要があります。コードが異なると、接続ができません。
+CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				パケットで使用される XOR マスクを指定します。OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードとして使用されます。
+CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	Linux における特定の状況下では manifests に不具合があります。この不具合により、OpenVPN クライアントは TAP デバイスが UP 状態であるにもかかわらず、切断状態となります。このオプションを使用することにより、VPN サーバーは、ダミーの IPv4 アドレス (RFC7600 で規定) をクライアントに対してプッシュ送信することができるようになります。これにより、TAP アダプタが常に UP 状態になります。
+
+
 # ServerPasswordSet コマンド
 CMD_ServerPasswordSet	VPN Server の管理者パスワードの設定
 CMD_ServerPasswordSet_Help	VPN Server の管理者パスワードを設定します。パラメータとしてパスワードを指定することができます。パラメータを指定しない場合は、パスワードと、その確認入力を行なうためのプロンプトが表示されます。パスワードをパラメータに与えた場合、そのパスワードが一時的に画面に表示されるため危険です。できる限り、パラメータを指定せずに、パスワードプロンプトを用いてパスワードを入力することを推奨します。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
@@ -4691,22 +4739,6 @@ CMD_ServerCipherSet_Help	VPN Server と、接続したクライアントとの�
 CMD_ServerCipherSet_Args	ServerCipherSet [name]
 CMD_ServerCipherSet_[name]	設定するる暗号化および電子署名アルゴリズムを指定します。使用可能なアルゴリズムの一覧は、ServerCipherGet コマンドで取得することができます。
 CMD_ServerCipherSet_PROMPT_NAME	指定する暗号化アルゴリズム名: 
-
-# TUNDownOnDisconnectEnable command
-CMD_TUNDownOnDisconnectEnable	Enable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Help	This allows you to enable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectEnable_Args	TUNDownOnDisconnectEnable
-
-# TUNDownOnDisconnectDisable command
-CMD_TUNDownOnDisconnectDisable	Disable the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Help	This allows you to disable Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectDisable_Args	TUNDownOnDisconnectDisable
-
-# TUNDownOnDisconnectGet command
-CMD_TUNDownOnDisconnectGet		Get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Help	This allows you to get status of the Turn TUN Interface Down on Client Disconnect Function.
-CMD_TUNDownOnDisconnectGet_Args	TUNDownOnDisconnectGet
-CMD_TUNDownOnDisconnectGet_COLUMN1	Put TUN down on disconnect
 
 # KeepEnable コマンド
 CMD_KeepEnable			インターネット接続の維持機能の有効化
@@ -5328,33 +5360,32 @@ CMD_CascadeCompressDisable_Args	CascadeCompressDisable [name]
 CMD_CascadeCompressDisable_[name]	設定を変更するカスケード接続の名前を指定します。
 
 
-# CascadeHttpHeader* commands
-CMD_CascadeHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_CascadeHttpHeader_Prompt_Data	Value data (part after the colon): 
+# CascadeHttpHeader* コマンド
+CMD_CascadeHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_CascadeHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
-
-# CascadeHttpHeaderAdd command
-CMD_CascadeHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderAdd コマンド
+CMD_CascadeHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_CascadeHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderAdd_Args	CascadeHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_CascadeHttpHeaderAdd_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_CascadeHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_CascadeHttpHeaderAdd_[name]	設定を変更する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_CascadeHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# CascadeHttpHeaderDelete command
-CMD_CascadeHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderDelete コマンド
+CMD_CascadeHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_CascadeHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderDelete_Args	CascadeHttpHeaderDelete [name] [/NAME:name]
-CMD_CascadeHttpHeaderDelete_[name]	Specify the name of the Cascade Connection whose setting you want to change.
-CMD_CascadeHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_CascadeHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
+CMD_CascadeHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# CascadeHttpHeaderGet command
-CMD_CascadeHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_CascadeHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# CascadeHttpHeaderGet コマンド
+CMD_CascadeHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_CascadeHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_CascadeHttpHeaderGet_Args	CascadeHttpHeaderGet [name]
-CMD_CascadeHttpHeaderGet_[name]	Specify the name of the Cascade Connection whose setting you want to get.
+CMD_CascadeHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # CascadeProxyNone コマンド
@@ -6288,23 +6319,6 @@ CMD_EtherIpClientList_Help	EtherIP / L2TPv3 over IPsec サーバー機能のク�
 CMD_EtherIpClientList_Args	EtherIpClientList
 
 
-# OpenVpnEnable コマンド
-CMD_OpenVpnEnable		OpenVPN 互換サーバー機能を有効化 / 無効化
-CMD_OpenVpnEnable_Help	SoftEther VPN Server には OpenVPN 社の OpenVPN ソフトウェア製品と同等の VPN サーバー機能が搭載されています。OpenVPN サーバー機能を有効にすると、OpenVPN クライアントから OpenVPN サーバーに接続できるようになります。\n\nOpenVPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_OpenVpnEnable_Args	OpenVpnEnable [yes|no] [/PORTS:udp_port_list]
-CMD_OpenVpnEnable_[yes|no]	OpenVPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
-CMD_OpenVpnEnable_PORTS	OpenVPN サービスを提供する UDP ポートの一覧を指定してください。UDP ポートは複数指定できます。複数指定する場合は 1194, 2001, 2010, 2012 のようにカンマ (,) で区切ってください。OpenVPN は標準では UDP 1194 ポートを使用しますが、その他の任意の UDP ポートを指定できます。
-CMD_OpenVpnEnable_Prompt_[yes|no]	OpenVPN 互換サーバー機能を有効化 (yes / no): 
-CMD_OpenVpnEnable_Prompt_PORTS		UDP ポート番号の一覧 (標準は 1194 / 複数指定可): 
-
-
-# OpenVpnGet コマンド
-CMD_OpenVpnGet			OpenVPN 互換サーバー機能の現在の設定を取得
-CMD_OpenVpnGet_Help		現在の OpenVPN 互換サーバー機能の設定を取得して表示します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_OpenVpnGet_Args		OpenVpnGet
-CMD_OpenVpnGet_PRINT_Enabled		OpenVPN 互換サーバー機能が有効
-CMD_OpenVpnGet_PRINT_Ports			UDP ポート番号一覧
-
 # OpenVpnMakeConfig コマンド
 CMD_OpenVpnMakeConfig	OpenVPN 互換サーバー機能に接続可能なサンプルの OpenVPN 設定ファイルの生成
 CMD_OpenVpnMakeConfig_Help	本来、OpenVPN クライアントを使うためには設定ファイルを手動で記述する必要がありますが、これは難易度が高い作業です。しかし、このコマンドを使用すればこの VPN Server に接続することができる基本的な OpenVPN クライアント用の設定ファイルを自動的に生成することができます。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -6315,42 +6329,9 @@ CMD_OpenVpnMakeConfig_OK			サンプル設定ファイルを "%s" ファイル�
 CMD_OpenVpnMakeConfig_ERROR			サンプル設定ファイルを "%s" ファイルに保存できませんでした。ファイル名が正しくない可能性があります。\n
 
 
-# OpenVpnObfuscationEnable
-CMD_OpenVpnObfuscationEnable					Enable / Disable the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationEnable_Help				This allows an OpenVPN client to bypass a firewall which is aware of the protocol and is able to block it.\nThe same XOR mask have to be applied to the client, otherwise it will not be able to connect with certain obfuscation methods!\nBeware that you need a special OpenVPN client with the "XOR patch" applied in order to use this function, because it has never been merged in the official OpenVPN repository.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_OpenVpnObfuscationEnable_Args				OpenVpnObfuscationEnable [yes|no] [/MASK:mask]
-CMD_OpenVpnObfuscationEnable_[yes|no]			Specify "yes" to enable the OpenVPN obfuscation function. Specify "no" to disable it.
-CMD_OpenVpnObfuscationEnable_MASK				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
-CMD_OpenVpnObfuscationEnable_Prompt_[yes|no]	Enable OpenVPN packet obfuscation (yes / no): 
-CMD_OpenVpnObfuscationEnable_Prompt_MASK		XOR mask: 
-
-
-# OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet				Get the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Help			Get and show the current settings of the OpenVPN clone server function's obfuscation mode
-CMD_OpenVpnObfuscationGet_Args			OpenVpnObfuscationGet
-CMD_OpenVpnObfuscationGet_PRINT_Enabled	OpenVPN obfuscation enabled
-CMD_OpenVpnObfuscationGet_PRINT_Mask	XOR mask
-
-
-# SstpEnable コマンド
-CMD_SstpEnable			Microsoft SSTP VPN 互換サーバー機能を有効化 / 無効化
-CMD_SstpEnable_Help		SoftEther VPN Server には Microsoft 社の Windows Server 2008 / 2012 製品に搭載されている MS-SSTP VPN サーバー機能と互換性がある機能が搭載されています。Microsoft SSTP VPN 互換サーバー機能を有効にすると、Windows Vista / 7 / 8 / RT / 10 に標準搭載の MS-SSTP クライアントからこの VPN Server に接続できるようになります。\n\n[ご注意]\nVPN Server の SSL 証明書の CN の値がクライアント側で指定するホスト名と一致し、かつその証明書が信頼されている必要があります。詳しくは Microsoft 社のドキュメントを参照してください。\n指定された CN の値を持つ新しい SSL 証明書 (自己署名証明書) を生成して VPN Server の現在の証明書と置換するためには、ServerCertRegenerate コマンドを使用してください。この場合は、当該証明書を SSTP VPN クライアントのコンピュータの信頼されるルート証明書として登録する必要があります。このような手間をかけたくない場合は、代わりに VeriSign や GlobalSign 社などの市販の証明書業者の SSL 証明書の取得を検討してください。\n\nMicrosoft SSTP VPN 互換サーバー機能で仮想 HUB に接続する場合のユーザー名の指定方法、およびデフォルト仮想 HUB の選択規則は、IPsec サーバー機能と同様です。詳しくは IPsecEnable コマンドのヘルプを参照してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_SstpEnable_Args		SstpEnable [yes|no]
-CMD_SstpEnable_[yes|no]	Microsoft SSTP VPN 互換サーバー機能を有効にする場合は yes、無効にする場合は no を指定します。
-CMD_SstpEnable_Prompt_[yes|no]	SSTP VPN 互換サーバー機能を有効化 (yes / no): 
-CMD_SstpEnable_PRINT_Enabled		SSTP VPN 互換サーバー機能が有効
-
-
-# SstpGet コマンド
-CMD_SstpGet				Microsoft SSTP VPN 互換サーバー機能の現在の設定を取得
-CMD_SstpGet_Help		現在の Microsoft SSTP VPN 互換サーバー機能の設定を取得して表示します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_SstpGet_Args		SstpGet
-
-
 # ServerCertRegenerate コマンド
 CMD_ServerCertRegenerate	指定された CN (Common Name) を持つ自己署名証明書を新たに作成し VPN Server に登録
-CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT / 10 に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n詳しくは SstpEnable コマンドのヘルプを参照してください。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
+CMD_ServerCertRegenerate_Help	SoftEther VPN Server の SSL-VPN 機能で提示されるサーバー証明書を、新たに作成する証明書に置き換えます。新たな証明書は自己署名証明書として生成され、CN (Common Name) の値を任意の文字列に設定することができます。\n\nこのコマンドは、Microsoft SSTP VPN 互換サーバー機能を使用しようとする場合に便利です。なぜならば、SSTP VPN クライアント (Windows Vista / 7 / 8 / RT / 10 に標準搭載) は接続先の VPN Server の提示する SSL 証明書の CN (Common Name) の値が接続先として指定されているホスト名文字列と完全に一致するかどうかを検証し、もし一致しない場合は接続をキャンセルするためです。\n\nこのコマンドは、既存の VPN Server の SSL 証明書を削除します。ServerCertGet コマンドおよび ServerKeyGet コマンドを用いて、現在の証明書と秘密鍵をバックアップしておくことを推奨します。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。
 CMD_ServerCertRegenerate_Args	ServerCertRegenerate [CN]
 CMD_ServerCertRegenerate_[CN]	新たに生成する自己署名証明書の Common Name (CN) の値を指定します。
 CMD_ServerCertRegenerate_Prompt_CN	Common Name (CN) の値: 
@@ -6676,33 +6657,33 @@ CMD_AccountCompressDisable_Args	AccountCompressDisable [name]
 CMD_AccountCompressDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountHttpHeader* commands
-CMD_AccountHttpHeader_Prompt_Name	Value name (part before the colon): 
-CMD_AccountHttpHeader_Prompt_Data	Value data (part after the colon): 
+# AccountHttpHeader* コマンド
+CMD_AccountHttpHeader_Prompt_Name	ヘッダー名 (コロンより前の部分): 
+CMD_AccountHttpHeader_Prompt_Data	ヘッダー値 (コロンより後の部分): 
 
 
-# AccountHttpHeaderAdd command
-CMD_AccountHttpHeaderAdd	Add a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderAdd_Help	Use this to add a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderAdd コマンド
+CMD_AccountHttpHeaderAdd	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを追加
+CMD_AccountHttpHeaderAdd_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを追加します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderAdd_Args	AccountHttpHeaderAdd [name] [/NAME:name] [/DATA:data]
-CMD_AccountHttpHeaderAdd_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderAdd_NAME	Specify the name of the custom value (the part before the colon character).
-CMD_AccountHttpHeaderAdd_DATA	Specify the data of the custom value (the part after the colon character).
+CMD_AccountHttpHeaderAdd_[name] 設定を変更する接続設定の名前を指定します。
+CMD_AccountHttpHeaderAdd_NAME	追加するヘッダーの名前を指定します (コロンより前の部分)。
+CMD_AccountHttpHeaderAdd_DATA	追加するヘッダーの値を指定します (コロンより後の部分)。
 
 
-# AccountHttpHeaderDelete command
-CMD_AccountHttpHeaderDelete	Delete a custom value in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderDelete_Help	Use this to delete a custom value in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderDelete コマンド
+CMD_AccountHttpHeaderDelete	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダーを削除
+CMD_AccountHttpHeaderDelete_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーを削除します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderDelete_Args	AccountHttpHeaderDelete [name] [/NAME:name]
-CMD_AccountHttpHeaderDelete_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
-CMD_AccountHttpHeaderDelete_NAME	Specify the name of the custom value (the part before the colon character).
+CMD_AccountHttpHeaderDelete_[name]	設定を削除する接続設定の名前を指定します。
+CMD_AccountHttpHeaderDelete_NAME	削除するヘッダーの名前を指定します (コロンより前の部分)。
 
 
-# AccountHttpHeaderGet command
-CMD_AccountHttpHeaderGet	Get the list of custom values in the HTTP header sent to the proxy server
-CMD_AccountHttpHeaderGet_Help	Use this to get the list of custom values in the HTTP header sent to the proxy server. A custom HTTP header can be used to bypass certain restrictions imposed on the network or to avoid speed limitations applied by the QoS.
+# AccountHttpHeaderGet コマンド
+CMD_AccountHttpHeaderGet	プロキシサーバー経由で接続する際のカスタム HTTP ヘッダー一覧を取得
+CMD_AccountHttpHeaderGet_Help	VPN Client に登録されている接続設定を指定し、経由する HTTP プロキシサーバーに送信されるカスタム HTTP ヘッダーの一覧を表示します。カスタム HTTP ヘッダーを使用することによりネットワークに課された特定の制限を回避したり、QoS により適当される速度制限を回避できる場合があります。
 CMD_AccountHttpHeaderGet_Args	AccountHttpHeaderGet [name]
-CMD_AccountHttpHeaderGet_[name]	Specify the name of the VPN Connection Setting whose setting you want to get.
+CMD_AccountHttpHeaderGet_[name]	設定を取得する接続設定の名前を指定します。
 
 
 # AccountProxyNone コマンド
@@ -6757,18 +6738,19 @@ CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertEnable command
-CMD_AccountRetryOnServerCertEnable	Enable VPN connection retry if server certificate is untrusted
-CMD_AccountRetryOnServerCertEnable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to enable the option to retry connection if Server certificate cannot be trusted.
+# AccountRetryOnServerCertEnable コマンド
+CMD_AccountRetryOnServerCertEnable	接続設定のサーバー証明書が信頼できない場合の接続再試行を有効化
+CMD_AccountRetryOnServerCertEnable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返します。AccountRetryOnServerCertDisableコマンドを使用することにより再試行を行わないように設定することができますが、このコマンドを使用することにより、デフォルトの接続再試行を行う状態に戻すことができます。
+
 CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
-CMD_AccountRetryOnServerCertEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+CMD_AccountRetryOnServerCertEnable_[name]	設定を変更する接続設定の名前を指定します。
 
 
-# AccountRetryOnServerCertDisable command
-CMD_AccountRetryOnServerCertDisable	Enable VPN connection retry if server certificate is invalid
-CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
-CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertEnable [name]
-CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+# AccountRetryOnServerCertDisable コマンド
+CMD_AccountRetryOnServerCertDisable	接続設定のサーバー証明書が信頼できない場合の接続再試行を無効化
+CMD_AccountRetryOnServerCertDisable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返しますが、このコマンドを使用することにより再試行を行わないように設定することができます。
+CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
+CMD_AccountRetryOnServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
 # AccountServerCertSet コマンド
@@ -6807,6 +6789,7 @@ CMD_AccountDetailSet_BRIDGE	VPN Server に「ブリッジ / ルータモード�
 CMD_AccountDetailSet_MONITOR	VPN Server に「モニタリングモード」で接続する場合は "yes" を指定します。モニタリングモードを使用して接続した場合、仮想 HUB 内を流れるすべてのパケットを受信することができます。ただし、接続に使用するユーザーのセキュリティポリシーで、モニタリングモードが許可されていない場合は、接続に失敗します。
 CMD_AccountDetailSet_NOTRACK	ルーティングテーブルの調整処理を行わない場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_NOQOS	VoIP / QoS 対応機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
+CMD_AccountDetailSet_DISABLEUDP	UDP 高速化機能を無効にする場合は "yes" を指定します。通常は "no" を指定します。
 CMD_AccountDetailSet_Eval_MaxTcp	TCP コネクション数は 1 から 32 の間で指定してください。
 CMD_AccountDetailSet_Eval_Interval	TCP コネクションの確立間隔は 1 秒以上を指定してください。
 CMD_AccountDetailSet_Prompt_MaxTcp	VPN 通信に使用する TCP コネクション数: 
@@ -6816,7 +6799,8 @@ CMD_AccountDetailSet_Prompt_HALF	半二重モードを有効にする (yes/no):
 CMD_AccountDetailSet_Prompt_BRIDGE	ブリッジ/ルータモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_MONITOR	モニタリングモードを有効にする (yes/no): 
 CMD_AccountDetailSet_Prompt_NOTRACK	ルーティングテーブル調整処理を無効化する (yes/no): 
-CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no):
+CMD_AccountDetailSet_Prompt_NOQOS QoS 制御機能を無効化する (yes/no): 
+CMD_AccountDetailSet_Prompt_DISABLEUDP	UDP 高速化機能を無効化する (yes/no): 
 
 
 # AccountRename コマンド
@@ -6881,6 +6865,11 @@ CMD_AccountSecureCertSet_CERTNAME	スマートカード内に格納されてい�
 CMD_AccountSecureCertSet_KEYNAME	スマートカード内に格納されている秘密鍵オブジェクトの名前を指定します。/CERTNAME で指定した証明書に対応している必要があります。
 CMD_AccountSecureCertSet_PROMPT_CERTNAME	スマートカード内証明書オブジェクトの名前: 
 CMD_AccountSecureCertSet_PROMPT_KEYNAME	スマートカード内秘密鍵オブジェクトの名前: 
+
+
+# PcAccountOpensslEngineCertSet
+CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key name: 
+CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
 # AccountRetrySet コマンド
@@ -7178,7 +7167,6 @@ SW_DIR_DST_IS_SYSTEM_MODE					指定されたディレクトリにはすでに�
 SW_DIR_DST_IS_USER_MODE						指定されたディレクトリにはすでに本ソフトウェアがユーザーモードでインストールされています。\r\n\r\n別のディレクトリを指定してください。
 SW_SYSTEM_MODE_ALREADY_INSTALLED			ソフトウェア 「%s」 はすでにこのコンピュータにシステムモードでインストールされています。\r\n\r\n同一コンピュータに同一コンポーネントをシステムモードとユーザーモードの両方でインストールする場合は競合が発生する場合があります。\r\n\r\n本当にユーザーモードでインストールを実行しますか?
 
-SW_NOT_INSTALL_SRC							セットアッププログラムがインストールソース以外から起動されました。\r\n\r\nインストールを続行できません。
 SW_SETUPLOG_CORRUPTED						setuplog.dat ファイルが破損しています。
 SW_MSI_UNINSTALL_FAILED						%s の古いバージョン (製品コード: "%S") を Windows Installer でアンインストールしようとしましたが、アンインストールに失敗しました。\r\n\r\nこのバージョンを手動でアンインストールしてから、再度このインストーラを起動してください。
 SW_MSI_UNINSTALL_REBOOT_REQUIRED			%s の古いバージョンを Windows Installer でアンインストールしました。コンピュータの再起動が必要です。\r\n\r\n「完了」をクリックしてから手動でコンピュータを再起動し、その後もう一度このインストーラを起動してください。
@@ -7316,6 +7304,3 @@ SW_LINK_NAME_LANGUAGE_COMMENT				%s の表示言語を変更します。
 
 SW_LINK_NAME_DEBUG							デバッグ情報収集ツール
 SW_LINK_NAME_DEBUG_COMMENT					SoftEther VPN のデバッグ情報を収集します。サポート担当者から依頼があった場合のみ使用してください。
-
-CMD_AccountDetailSet_DISABLEUDP	Specify "yes" when disabling UDP acceleration function. Normally "no" is specified.
-CMD_AccountDetailSet_Prompt_DISABLEUDP	 Disable UDP Acceleration Function (yes/no):

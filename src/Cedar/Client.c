@@ -1,6 +1,6 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
+// © 2020 Nokia
 
 // Client.c
 // Client Manager
@@ -410,27 +410,6 @@ typedef struct CNC_CONNECT_ERROR_DLG_THREAD_PARAM
 	bool HaltThread;
 	EVENT *Event;
 } CNC_CONNECT_ERROR_DLG_THREAD_PARAM;
-
-
-// Get the file name of vpnclient.exe in Win32
-char *CiGetVpnClientExeFileName()
-{
-	if (Is64() == false)
-	{
-		return CLIENT_WIN32_EXE_FILENAME;
-	}
-	else
-	{
-		if (IsX64())
-		{
-			return CLIENT_WIN32_EXE_FILENAME_X64;
-		}
-		else
-		{
-			return CLIENT_WIN32_EXE_FILENAME_IA64;
-		}
-	}
-}
 
 // Thread to stop forcibly the Certificate check dialog client
 void CncCheckCertHaltThread(THREAD *thread, void *param)
@@ -3660,7 +3639,6 @@ void InRpcClientConfig(CLIENT_CONFIG *c, PACK *p)
 	c->KeepConnectProtocol = PackGetInt(p, "KeepConnectProtocol");
 	c->KeepConnectInterval = PackGetInt(p, "KeepConnectInterval");
 	c->AllowRemoteConfig = PackGetInt(p, "AllowRemoteConfig") == 0 ? false : true;
-	c->NicDownOnDisconnect = PackGetBool(p, "NicDownOnDisconnect");
 	PackGetStr(p, "KeepConnectHost", c->KeepConnectHost, sizeof(c->KeepConnectHost));
 }
 void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
@@ -3676,7 +3654,6 @@ void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
 	PackAddInt(p, "KeepConnectProtocol", c->KeepConnectProtocol);
 	PackAddInt(p, "KeepConnectInterval", c->KeepConnectInterval);
 	PackAddInt(p, "AllowRemoteConfig", c->AllowRemoteConfig);
-	PackAddBool(p, "NicDownOnDisconnect", c->NicDownOnDisconnect);
 	PackAddStr(p, "KeepConnectHost", c->KeepConnectHost);
 }
 
@@ -4425,6 +4402,17 @@ void InRpcClientAuth(CLIENT_AUTH *c, PACK *p)
 		PackGetStr(p, "SecurePublicCertName", c->SecurePublicCertName, sizeof(c->SecurePublicCertName));
 		PackGetStr(p, "SecurePrivateKeyName", c->SecurePrivateKeyName, sizeof(c->SecurePrivateKeyName));
 		break;
+
+  case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = PackGetBuf(p, "ClientX");
+		if (b != NULL)
+		{
+			c->ClientX = BufToX(b, false);
+			FreeBuf(b);
+		}
+    PackGetStr(p, "OpensslEnginePrivateKeyName", c->OpensslEnginePrivateKeyName, sizeof(c->OpensslEnginePrivateKeyName));
+    PackGetStr(p, "OpensslEngineName", c->OpensslEngineName, sizeof(c->OpensslEngineName));
+    break;
 	}
 }
 void OutRpcClientAuth(PACK *p, CLIENT_AUTH *c)
@@ -4470,6 +4458,17 @@ void OutRpcClientAuth(PACK *p, CLIENT_AUTH *c)
 	case CLIENT_AUTHTYPE_SECURE:
 		PackAddStr(p, "SecurePublicCertName", c->SecurePublicCertName);
 		PackAddStr(p, "SecurePrivateKeyName", c->SecurePrivateKeyName);
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = XToBuf(c->ClientX, false);
+		if (b != NULL)
+		{
+			PackAddBuf(p, "ClientX", b);
+			FreeBuf(b);
+		}
+		PackAddStr(p, "OpensslEnginePrivateKeyName", c->OpensslEnginePrivateKeyName);
+		PackAddStr(p, "OpensslEngineName", c->OpensslEngineName);
 		break;
 	}
 }
@@ -5818,9 +5817,26 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				st->IsRUDPSession = s->IsRUDPSession;
 				// Physical communication protocol
 				StrCpy(st->UnderlayProtocol, sizeof(st->UnderlayProtocol), s->UnderlayProtocol);
+				// Protocol details
+				StrCpy(st->ProtocolDetails, sizeof(st->ProtocolDetails), s->ProtocolDetails);
+				Trim(st->ProtocolDetails);
 				// UDP acceleration function
-				st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
-				st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;
+				if (s->IpcSessionShared != NULL && IsEmptyStr(s->IpcSessionShared->ProtocolDetails) == false)
+				{
+					char tmp[sizeof(s->IpcSessionShared->ProtocolDetails)];
+					StrCpy(tmp, sizeof(tmp), s->IpcSessionShared->ProtocolDetails);
+					Trim(tmp);
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), " ");
+					StrCat(st->ProtocolDetails, sizeof(st->ProtocolDetails), tmp);
+
+					st->IsUdpAccelerationEnabled = s->IpcSessionShared->EnableUdpAccel;
+					st->IsUsingUdpAcceleration = s->IpcSessionShared->UsingUdpAccel;
+				}
+				else
+				{
+					st->IsUdpAccelerationEnabled = s->UseUdpAcceleration;
+					st->IsUsingUdpAcceleration = s->IsUsingUdpAcceleration;
+				}
 				// Session key
 				Copy(st->SessionKey, s->SessionKey, SHA1_SIZE);
 				// Policy
@@ -6408,6 +6424,11 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 						// Register a procedure for secure device authentication
 						r->ClientAuth->SecureSignProc = CiSecureSignProc;
 					}
+          else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
+					{
+              /* r->ClientAuth->ClientK = OpensslEngineToK("asdf"); */
+						r->ClientAuth->SecureSignProc = NULL;
+					}
 					else
 					{
 						r->ClientAuth->SecureSignProc = NULL;
@@ -6428,7 +6449,7 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 
 					CLog(c, "LC_CONNECT", connect->AccountName);
 
-					r->ClientSession = NewClientSessionEx(c->Cedar, r->ClientOption, r->ClientAuth, pa, r, &c->Config.NicDownOnDisconnect);
+					r->ClientSession = NewClientSessionEx(c->Cedar, r->ClientOption, r->ClientAuth, pa, r);
 					Notify(r->ClientSession, CLIENT_NOTIFY_ACCOUNT_CHANGED);
 
 					ret = true;
@@ -6745,14 +6766,9 @@ bool CtSetClientConfig(CLIENT *c, CLIENT_CONFIG *o)
 	// Apply TAP state
 	LockList(c->AccountList);
 	LockList(c->UnixVLanList);
-	if (o->NicDownOnDisconnect)
-	{
-		CtVLansDown(c);
-	}
-	else
-	{
-		CtVLansUp(c);
-	}
+
+	CtVLansDown(c);
+
 	UnlockList(c->UnixVLanList);
 	UnlockList(c->AccountList);
 
@@ -8166,7 +8182,7 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		StrCpy(r->Name, sizeof(r->Name), create->DeviceName);
 
 		// Create a TUN
-		if (UnixVLanCreate(r->Name, r->MacAddress, !c->Config.NicDownOnDisconnect) == false)
+		if (UnixVLanCreate(r->Name, r->MacAddress, false) == false)
 		{
 			// Failure
 			Free(r);
@@ -9219,7 +9235,6 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
 	c->AllowRemoteConfig = CfgGetBool(f, "AllowRemoteConfig");
 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
-	c->NicDownOnDisconnect = CfgGetBool(f, "NicDownOnDisconnect");
 }
 
 // Read the client authentication data
@@ -9277,6 +9292,20 @@ CLIENT_AUTH *CiLoadClientAuth(FOLDER *f)
 	case CLIENT_AUTHTYPE_SECURE:
 		CfgGetStr(f, "SecurePublicCertName", a->SecurePublicCertName, sizeof(a->SecurePublicCertName));
 		CfgGetStr(f, "SecurePrivateKeyName", a->SecurePrivateKeyName, sizeof(a->SecurePrivateKeyName));
+		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		b = CfgGetBuf(f, "ClientCert");
+		if (b != NULL)
+		{
+			a->ClientX = BufToX(b, false);
+		}
+		FreeBuf(b);
+		if (CfgGetStr(f, "OpensslEnginePrivateKeyName", a->OpensslEnginePrivateKeyName, sizeof(a->OpensslEnginePrivateKeyName)))
+    {
+        a->ClientK = OpensslEngineToK(a->OpensslEnginePrivateKeyName, a->OpensslEngineName);
+    }
+    CfgGetStr(f, "OpensslEngineName", a->OpensslEngineName, sizeof(a->OpensslEngineName));
 		break;
 	}
 
@@ -9549,7 +9578,7 @@ void CiLoadVLan(CLIENT *c, FOLDER *f)
 	Add(c->UnixVLanList, v);
 
 #ifdef	OS_UNIX
-	UnixVLanCreate(v->Name, v->MacAddress, !c->Config.NicDownOnDisconnect);
+	UnixVLanCreate(v->Name, v->MacAddress, false);
 #endif	// OS_UNIX
 }
 
@@ -9665,7 +9694,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		UNIX_VLAN *uv;
 
 		// Create a Tap for MacOS X
-		if (UnixVLanCreate(CLIENT_MACOS_TAP_NAME, NULL, !c->Config.NicDownOnDisconnect) == false)
+		if (UnixVLanCreate(CLIENT_MACOS_TAP_NAME, NULL, false) == false)
 		{
 			// Fail (abort)
 			CLog(c, "LC_TAP_NOT_FOUND");
@@ -9775,7 +9804,6 @@ void CiWriteClientConfig(FOLDER *cc, CLIENT_CONFIG *config)
 	CfgAddBool(cc, "AllowRemoteConfig", config->AllowRemoteConfig);
 	CfgAddInt(cc, "KeepConnectInterval", config->KeepConnectInterval);
 	CfgAddBool(cc, "NoChangeWcmNetworkSettingOnWindows8", config->NoChangeWcmNetworkSettingOnWindows8);
-	CfgAddBool(cc, "NicDownOnDisconnect", config->NicDownOnDisconnect);
 }
 
 // Write the client authentication data
@@ -9823,6 +9851,16 @@ void CiWriteClientAuth(FOLDER *f, CLIENT_AUTH *a)
 		CfgAddStr(f, "SecurePublicCertName", a->SecurePublicCertName);
 		CfgAddStr(f, "SecurePrivateKeyName", a->SecurePrivateKeyName);
 		break;
+
+	case CLIENT_AUTHTYPE_OPENSSLENGINE:
+		if (a->ClientX != NULL) {
+			b = XToBuf(a->ClientX, false);
+			CfgAddByte(f, "ClientCert", b->Buf, b->Size);
+			FreeBuf(b);
+		}
+		CfgAddStr(f, "OpensslEnginePrivateKeyName", a->OpensslEnginePrivateKeyName);
+		CfgAddStr(f, "OpensslEngineName", a->OpensslEngineName);
+	break;
 	}
 }
 

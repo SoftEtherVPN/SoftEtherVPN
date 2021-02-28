@@ -2,7 +2,10 @@
 
 set -eux
 
-cd
+BUILD_BINARIESDIRECTORY="${BUILD_BINARIESDIRECTORY:-build}"
+
+cd $BUILD_BINARIESDIRECTORY
+
 git clone https://github.com/openvpn/openvpn
 cd openvpn
 autoreconf -iv

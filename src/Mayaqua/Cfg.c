@@ -33,12 +33,12 @@ void BackupCfgWEx(CFG_RW *rw, FOLDER *f, wchar_t *original, UINT revision_number
 	}
 
 	// Determine the directory name
-	UniFormat(dirname, sizeof(dirname), L"@backup.%s", original[0] == L'@' ? original + 1 : original);
+	UniFormat(dirname, sizeof(dirname), L"$backup.%s", original[0] == L'$' ? original + 1 : original);
 
 	// Determine the file name
 	LocalTime(&st);
 	UniFormat(datestr, sizeof(datestr), L"%04u%02u%02u%02u_%s",
-		st.wYear, st.wMonth, st.wDay, st.wHour, original[0] == L'@' ? original + 1 : original);
+		st.wYear, st.wMonth, st.wDay, st.wHour, original[0] == L'$' ? original + 1 : original);
 
 	if (revision_number == INFINITE)
 	{
@@ -47,7 +47,7 @@ void BackupCfgWEx(CFG_RW *rw, FOLDER *f, wchar_t *original, UINT revision_number
 	else
 	{
 		UniFormat(filename, sizeof(filename), L"%08u_%s",
-			revision_number, original[0] == L'@' ? original + 1 : original);
+			revision_number, original[0] == L'$' ? original + 1 : original);
 	}
 
 	// Don't save if the date and time has not been changed

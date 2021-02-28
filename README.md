@@ -1,12 +1,19 @@
 # SoftEther VPN
 
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/softethervpn/softethervpn?branch=master&svg=true)](https://ci.appveyor.com/project/softethervpn/softethervpn) [![Travis CI build status](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN.svg?branch=master)](https://travis-ci.org/SoftEtherVPN/SoftEtherVPN) [![gitlab-ci build status](https://gitlab.com/SoftEther/SoftEtherVPN/badges/master/build.svg)](https://gitlab.com/SoftEther/SoftEtherVPN/pipelines) [![Coverity Scan Build Status](https://scan.coverity.com/projects/16304/badge.svg)](https://scan.coverity.com/projects/softethervpn-softethervpn)
+||Badges|
+|---|---|
+|AppVeyor|[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/softethervpn/softethervpn?branch=master&svg=true)](https://ci.appveyor.com/project/softethervpn/softethervpn) |
+|GitLab CI|[![GitLab CI build status](https://gitlab.com/SoftEther/SoftEtherVPN/badges/master/pipeline.svg)](https://gitlab.com/SoftEther/SoftEtherVPN/pipelines)|
+|Coverity Scan|[![Coverity Scan build status](https://scan.coverity.com/projects/16304/badge.svg)](https://scan.coverity.com/projects/softethervpn-softethervpn)|
+|Azure Pipelines|[![Azure Pipelines build status for Nightly](https://dev.azure.com/SoftEther-VPN/SoftEther%20VPN/_apis/build/status/6?api-version=6.0-preview.1)](https://dev.azure.com/SoftEther-VPN/SoftEther%20VPN/_build?definitionId=6)|
+|Cirrus CI|[![Cirrus CI build status](https://api.cirrus-ci.com/github/SoftEtherVPN/SoftEtherVPN.svg)](https://cirrus-ci.com/github/SoftEtherVPN/SoftEtherVPN)|
 
 - [SoftEther VPN](#softether-vpn)
 - [BOARD MEMBERS OF THIS REPOSITORY](#board-members-of-this-repository)
 - [SOFTETHER VPN ADVANTAGES](#softether-vpn-advantages)
 - [Installation](#installation)
   * [For Ubuntu](#for-ubuntu)
+  * [For FreeBSD](#for-freebsd)
   * [From binary installers:](#from-binary-installers)
   * [Build from Source code](#build-from-source-code)
 - [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
@@ -18,7 +25,7 @@
 
 SoftEther VPN (Developer Edition Master Repository)
 - An Open-Source Cross-platform Multi-protocol VPN Program
-http://www.softether.org/
+https://www.softether.org/
 
 
 This repository has experimental codes. Pull requests are welcome.
@@ -28,7 +35,7 @@ https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 which the non-developer user can stable use.
 
 Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
-http://www.softether-download.com/
+https://www.softether-download.com/
 
 Copyright (c) all contributors on SoftEther VPN project in GitHub.
 Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.
@@ -68,7 +75,7 @@ SoftEther VPN supports most of widely-used VPN protocols
 including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
-More details on http://www.softether.org/.
+More details on https://www.softether.org/.
 
 
 # BOARD MEMBERS OF THIS REPOSITORY
@@ -130,7 +137,7 @@ https://github.com/chipitsine
 - No memory leaks. High quality stable codes, intended for long-term runs.
   We always verify that there are no memory or resource leaks before
   releasing the build.
-- More details at http://www.softether.org/.
+- More details at https://www.softether.org/.
 
 
 # Installation
@@ -143,9 +150,37 @@ Launchpad PPA maintained by [Dmitry Verkhoturov](https://github.com/paskal):
 
 [Nightly builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn-nightly)
 
+## For FreeBSD
+
+SoftEther VPN in FreeBSD Ports Collection is maintained by
+[Koichiro Iwao](https://people.FreeBSD.org/~meta/) ([@metalefty](https://github.com/metalefty)).
+
+Binary package can be installed by pkg:
+```
+pkg install softether5
+```
+
+Alternatively, it can be built & installed by ports:
+```
+make install -C /usr/ports/security/softether5
+```
+
+To run SoftEther VPN Server:
+```
+service softether_server start
+```
+
+To configure SoftEther VPN Server startup on boot:
+```
+sysrc softether_server_enable=yes
+```
+
+Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softether-devel/) and
+[RTM version](https://www.freshports.org/security/softether/) are available on FreeBSD.
+
 ## From binary installers:
 
-Those can be found under http://www.softether-download.com/
+Those can be found under https://www.softether-download.com/
 There you can also find SoftEtherVPN source code in zip and tar formats.
 
 ## Build from Source code
@@ -234,4 +269,4 @@ Our e-mail address for security reports is:
 
 Please note that the above e-mail address is not a technical support
 inquiry address. If you need technical assistance, please visit
-http://www.softether.org/ and ask your question on the users forum.
+https://www.softether.org/ and ask your question on the users forum.
