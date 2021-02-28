@@ -282,11 +282,11 @@ bool InstallNdisProtocolDriver(wchar_t *inf_path, wchar_t *id, UINT lock_timeout
 	}
 
 	_SetupCopyOEMInfW =
-		(UINT (__stdcall *)(PCWSTR,PCWSTR,DWORD,DWORD,PWSTR,DWORD,PDWORD,PWSTR *))
+		(BOOL (__stdcall *)(PCWSTR,PCWSTR,DWORD,DWORD,PWSTR,DWORD,PDWORD,PWSTR *))
 		GetProcAddress(hSetupApiDll, "SetupCopyOEMInfW");
 
 	_SetupUninstallOEMInfW =
-		(UINT (__stdcall *)(PCWSTR,DWORD,PVOID))
+		(BOOL (__stdcall *)(PCWSTR,DWORD,PVOID))
 		GetProcAddress(hSetupApiDll, "SetupUninstallOEMInfW");
 
 	if (_SetupCopyOEMInfW == NULL || _SetupUninstallOEMInfW == NULL)
