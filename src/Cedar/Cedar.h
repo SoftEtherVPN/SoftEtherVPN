@@ -24,10 +24,6 @@
 
 #endif	// VPN_SPEED
 
-#define	bool	UINT
-#define	BOOL	UINT
-
-
 // Version number
 #ifndef	CEDAR_VERSION_MAJOR
 #define	CEDAR_VERSION_MAJOR		0

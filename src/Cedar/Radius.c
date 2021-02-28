@@ -1785,7 +1785,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			SOCK *sock;
 			USHORT sz = 0;
 			UINT pos = 0;
-			BOOL *finish = ZeroMallocEx(sizeof(BOOL) * LIST_NUM(ip_list), true);
+			bool *finish = ZeroMallocEx(sizeof(bool) * LIST_NUM(ip_list), true);
 
 			Zero(tmp, sizeof(tmp));
 

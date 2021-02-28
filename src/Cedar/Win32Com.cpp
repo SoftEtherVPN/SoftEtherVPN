@@ -9,8 +9,6 @@
 
 #ifdef	WIN32
 
-#define	WIN32COM_CPP
-
 #define _WIN32_DCOM
 
 //#define	_WIN32_WINNT		0x0502

@@ -51,7 +51,7 @@ struct RPC_ENUM_DEVICE
 // License status of the service
 struct RPC_EL_LICENSE_STATUS
 {
-	BOOL Valid;								// Enable flag
+	bool Valid;								// Enable flag
 	UINT64 SystemId;						// System ID
 	UINT64 SystemExpires;					// System expiration date
 };
@@ -74,7 +74,7 @@ struct EL_DEVICE
 // License status
 struct EL_LICENSE_STATUS
 {
-	BOOL Valid;				// Enable flag
+	bool Valid;				// Enable flag
 	UINT64 SystemId;		// System ID
 	UINT64 Expires;			// Expiration date
 };

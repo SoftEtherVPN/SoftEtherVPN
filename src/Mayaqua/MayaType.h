@@ -8,6 +8,7 @@
 #ifndef	MAYATYPE_H
 #define	MAYATYPE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // Check whether the windows.h header is included
@@ -171,13 +172,6 @@ typedef int PID;
 #ifdef OS_WIN32
 typedef unsigned long PID;
 #endif // WINDOWS_H
-
-// TODO: include <stdbool.h> instead of manually defining type
-#ifndef	WIN32COM_CPP
-typedef	unsigned int		bool;
-#define	true				1
-#define	false				0
-#endif	// WIN32COM_CPP
 
 typedef int64_t  time_64t;
 
