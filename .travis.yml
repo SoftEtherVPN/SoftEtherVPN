@@ -1,5 +1,5 @@
 sudo: required
-dist: xenial
+dist: bionic
 
 language: c
 
@@ -20,7 +20,8 @@ matrix:
       os: linux
       compiler: gcc
     - env: OPENSSL_VERSION="1.1.1c" LABEL="linux-ppc64le" CMAKE_VERSION="3.9.6"
-      os: linux-ppc64le
+      arch: ppc64le
+      os: linux
       compiler: gcc
       install:
         - wget https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}.tar.gz && tar -xzf cmake-${CMAKE_VERSION}.tar.gz
@@ -35,6 +36,7 @@ matrix:
       os: linux
       compiler: gcc
       before_install:
+        - sudo apt-get -y install libsodium-dev
         - bash .ci/build-libressl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
     - env: LABEL="check stb files"
       os: linux
@@ -49,7 +51,7 @@ matrix:
     - os: osx
       compiler: clang
       before_install:
-        - true
+        - brew install libsodium
       script:
         - ./configure
         - make -C build
@@ -62,6 +64,7 @@ cache:
   - ${HOME}/opt
 
 before_install:
+  - sudo apt-get -y install libsodium-dev
   - bash .ci/build-openssl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
 
 script:

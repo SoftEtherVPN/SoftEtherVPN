@@ -226,8 +226,8 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 	}
 
 	ipc = NewIPC(cedar, param->ClientName, param->Postfix, param->HubName,
-	             param->UserName, param->Password, error_code, &param->ClientIp,
-	             param->ClientPort, &param->ServerIp, param->ServerPort,
+	             param->UserName, param->Password, param->WgKey, error_code,
+	             &param->ClientIp, param->ClientPort, &param->ServerIp, param->ServerPort,
 	             param->ClientHostname, param->CryptName,
 	             param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->Layer);
 
@@ -235,13 +235,14 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 }
 
 // Start a new IPC connection
-IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password,
+IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password, char *wg_key,
             UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
             char *client_hostname, char *crypt_name,
             bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate,
             UINT layer)
 {
 	IPC *ipc;
+	HUB *hub;
 	UINT dummy_int = 0;
 	SOCK *a;
 	SOCK *s;
@@ -297,9 +298,6 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	ipc->FlushList = NewTubeFlushList();
 
 	StrCpy(ipc->ClientHostname, sizeof(ipc->ClientHostname), client_hostname);
-	StrCpy(ipc->HubName, sizeof(ipc->HubName), hubname);
-	StrCpy(ipc->UserName, sizeof(ipc->UserName), username);
-	StrCpy(ipc->Password, sizeof(ipc->Password), password);
 
 	// Connect the in-process socket
 	s = ConnectInProc(a, client_ip, client_port, server_ip, server_port);
@@ -339,7 +337,11 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	FreePack(p);
 
 	// Upload the authentication data
-	if (client_certificate != NULL)
+	if (IsEmptyStr(wg_key) == false)
+	{
+		p = PackLoginWithWireGuardKey(wg_key);
+	}
+	else if (client_certificate != NULL)
 	{
 		p = PackLoginWithOpenVPNCertificate(hubname, username, client_certificate);
 	}
@@ -465,6 +467,13 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	PackGetStr(p, "IpcHubName", ipc->HubName, sizeof(ipc->HubName));
 	Debug("IPC Hub Name: %s\n", ipc->HubName);
+
+	hub = GetHub(cedar, ipc->HubName);
+	if (hub != NULL)
+	{
+		UINTToIP(&ipc->DefaultGateway, hub->Option->DefaultGateway);
+		UINTToIP(&ipc->SubnetMask, hub->Option->DefaultSubnet);
+	}
 
 	MacToStr(macstr, sizeof(macstr), ipc->MacAddress);
 

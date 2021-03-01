@@ -213,6 +213,8 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	AddRef(cedar->ref);
 
+	// WireGuard
+	Add(proto->Containers, ProtoContainerNew(WgsGetProtoImpl()));
 	// OpenVPN
 	Add(proto->Containers, ProtoContainerNew(OvsGetProtoImpl()));
 	// SSTP
@@ -291,7 +293,7 @@ PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 			option->Bool = impl_option->Bool;
 			break;
 		case PROTO_OPTION_STRING:
-			option->String = CopyStr(impl_option->String);
+			option->String = impl_option->String != NULL ? CopyStr(impl_option->String) : impl->OptionStringValue(option->Name);
 			break;
 		default:
 			Debug("ProtoContainerNew(): unhandled option type %u!\n", impl_option->Type);

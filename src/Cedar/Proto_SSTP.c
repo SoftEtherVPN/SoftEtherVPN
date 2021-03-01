@@ -13,6 +13,7 @@ const PROTO_IMPL *SstpGetProtoImpl()
 	{
 		SstpName,
 		SstpOptions,
+		NULL,
 		SstpInit,
 		SstpFree,
 		NULL,

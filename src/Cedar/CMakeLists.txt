@@ -19,6 +19,28 @@ set_target_properties(cedar
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
+cmake_host_system_information(RESULT HAS_SSE2 QUERY HAS_SSE2)
+
+set(BLAKE2_SRC_PATH $<IF:$<BOOL:HAS_SSE2>,${TOP_DIRECTORY}/3rdparty/BLAKE2/sse,${TOP_DIRECTORY}/3rdparty/BLAKE2/ref>)
+
+target_include_directories(cedar PUBLIC ${BLAKE2_SRC_PATH})
+target_sources(cedar PRIVATE "${BLAKE2_SRC_PATH}/blake2s.c")
+
+if(VCPKG_TARGET_TRIPLET)
+  find_package(unofficial-sodium CONFIG REQUIRED)
+  target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
+else()
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(SODIUM libsodium REQUIRED)
+  target_include_directories(cedar PUBLIC ${SODIUM_INCLUDE_DIRS})
+  if(NOT ("$ENV{TRAVIS_CPU_ARCH}" STREQUAL ppc64le))
+    target_link_libraries(cedar PUBLIC $<IF:$<BOOL:SODIUM_LINK_LIBRARIES>,${SODIUM_LINK_LIBRARIES},${SODIUM_LIBRARIES}>)
+  else()
+    # TODO: investigate why on ppc64le the use of SODIUM_LINK_LIBRARIES causes undefined references to libsodium functions.
+    target_link_libraries(cedar PUBLIC ${SODIUM_LIBRARIES})
+  endif()
+endif()
+
 if(WIN32)
   set_target_properties(cedar
     PROPERTIES
@@ -31,10 +53,10 @@ if(WIN32)
 endif()
 
 if(UNIX)
-  find_library(LIB_READLINE readline)
   find_package(Curses REQUIRED)
+  find_library(LIB_READLINE readline)
 
-  target_link_libraries(cedar PRIVATE ${LIB_READLINE} ${CURSES_LIBRARIES})
+  target_link_libraries(cedar PRIVATE ${CURSES_LIBRARIES} ${LIB_READLINE})
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     target_link_libraries(cedar PRIVATE mayaqua pcap)

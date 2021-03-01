@@ -116,6 +116,8 @@ struct HUB_PA
 struct HUB_OPTION
 {
 	// Standard options
+	UINT DefaultGateway;				// Used in IPC when DHCP cannot be used (e.g. WireGuard sessions)
+	UINT DefaultSubnet;					// Used in IPC when DHCP cannot be used (e.g. WireGuard sessions)
 	UINT MaxSession;					// Maximum number of simultaneous connections
 	bool NoEnum;						// Excluded from the enumeration
 	// Advanced options

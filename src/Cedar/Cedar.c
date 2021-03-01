@@ -1094,12 +1094,13 @@ void CleanupCedar(CEDAR *c)
 	WuFreeWebUI(c->WebUI);
 	FreeCedarLayer3(c);
 
-/*
-	for (i = 0;i < LIST_NUM(c->HubList);i++)
+	for (i = 0; i < LIST_NUM(c->WgkList); ++i)
 	{
-		HUB *h = LIST_DATA(c->HubList, i);
+		WGK *wgk = LIST_DATA(c->WgkList, i);
+		Free(wgk);
 	}
-*/
+	ReleaseList(c->WgkList);
+
 	for (i = 0;i < LIST_NUM(c->CaList);i++)
 	{
 		X *x = LIST_DATA(c->CaList, i);
@@ -1491,6 +1492,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 	c->Traffic = NewTraffic();
 	c->TrafficLock = NewLock();
 	c->CaList = NewList(CompareCert);
+	c->WgkList = NewList(CompareWgk);
 
 	c->TrafficDiffList = NewList(NULL);
 
@@ -1597,6 +1599,12 @@ void InitCedar()
 {
 	if ((init_cedar_counter++) > 0)
 	{
+		return;
+	}
+
+	if (sodium_init() == -1)
+	{
+		Debug("InitCedar(): sodium_init() failed!\n");
 		return;
 	}
 

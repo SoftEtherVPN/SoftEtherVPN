@@ -1773,6 +1773,7 @@ LS_SSL_START			コネクション "%S" に対する SSL 通信が開始されま
 LS_CONNECTION_ERROR		コネクション "%S" は理由 "%s" (コード %u) で終了しました。
 LS_FARMMEMBER_NOT_ADMIN	コネクション "%S": サーバーはクラスタメンバですが、クライアントは仮想 HUB "%S" に管理者ユーザー "%S" 以外で直接接続しようと試みました。クライアントが提示したユーザー名は "%S" です。アクセスは許可されません。
 LS_HUB_NOT_FOUND		コネクション "%S": クライアントが接続しようとした仮想 HUB "%S" はサーバー上に存在しません。
+LS_WG_KEY_NOT_FOUND		Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED			コネクション "%S": クライアントの接続元 IP アドレス "%S" は、仮想 HUB に定義されている 接続元 IP 制限リストによって拒否されました。
 LS_LICENSE_ERROR		コネクション "%S": ライセンス上のエラーが発生したため、クライアントはサーバーに接続できませんでした。
 LS_BETA_EXPIRES			ライセンスエラーが発生しました。ベータ版の使用期限が終了しています。新しいベータ版または完成版を http://selinks.org/ からダウンロードしてください。
@@ -1797,10 +1798,22 @@ LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S
 LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
 
+
 # (Proto ログ)
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard ログ)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
+
 
 # (OpenVPN ログ)
 LO_PREFIX_RAW			OpenVPN モジュール: 
@@ -1904,6 +1917,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
+LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
@@ -2001,6 +2015,8 @@ LA_SET_FARM_SETTING		クラスタリング設定を変更しました。
 LA_SET_SERVER_CERT		サーバー証明書を設定しました。
 LA_REGENERATE_SERVER_CERT	サーバー証明書を再生成しました。新しい CN: "%S"
 LA_SET_SERVER_CIPHER	サーバーの新しい暗号化アルゴリズム名を設定しました。新しい暗号化アルゴリズム名は "%S" です。
+LA_ADD_WGK				Added %u WireGuard key(s).
+LA_DELETE_WGK			Deleted %u WireGuard key(s).
 LA_CREATE_HUB			新しい仮想 HUB "%S" を作成しました。
 LA_SET_HUB				仮想 HUB の設定を変更しました。
 LA_DELETE_HUB			仮想 HUB "%S" を削除しました。
@@ -5007,6 +5023,35 @@ CMD_LogFileGet_SAVE_FAILED	指定されたファイルに書き込めません�
 CMD_LogFileGet_FILESIZE	ログファイルのファイルサイズ: %u
 
 
+# WgkAdd コマンド
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete コマンド
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum コマンド
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate コマンド
 CMD_HubCreate			新しい仮想 HUB の作成
 CMD_HubCreate_Help		VPN Server 上に新しい仮想 HUB を作成します。\n作成した仮想 HUB は、直ちに動作を開始します。\nVPN Server がクラスタ内で動作している場合は、このコマンドはクラスタコントローラに対してのみ有効です。また、新しい仮想 HUB は、ダイナミック仮想 HUB として動作します。HubSetStatic コマンドで、スタティック仮想 HUB に変更することもできます。すでに VPN Server 上に存在する仮想 HUB の一覧を取得するには、HubList コマンドを使用します。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nまた、このコマンドは VPN Bridge およびクラスタメンバサーバーとして動作している VPN Server では動作しません。\nなお、クラスタ上でクラスタコントローラに対して仮想 HUB の作成コマンドを発行する場合は、HubCreateStatic コマンドまたは HubCreateDynamic コマンドを使用してください (クラスタコントローラに対して HubCreate コマンドを使用すると HubCreateDynamic コマンドと同等に動作します)。
@@ -5084,6 +5129,16 @@ CMD_Offline_Help		現在管理している仮想 HUB がオンラインになっ
 CMD_Offline_Args		Offline
 
 
+# SetStaticNetwork command
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession コマンド
 CMD_SetMaxSession		仮想 HUB の最大同時接続セッション数を設定する
 CMD_SetMaxSession_Help	現在管理している仮想 HUB の、最大同時接続セッション数を設定します。最大同時接続セッション数を越えたセッションが、VPN Client や VPN Bridge から接続された場合、最大同時接続セッション数を上回った時点で、それ以上クライアントは接続できなくなります。この最大同時接続セッション数の制限には、ローカルブリッジ、仮想 NAT、カスケード接続などによって仮想 HUB 内に生成されるセッションは含まれません。\n現在の最大同時接続セッション数の設定は、OptionsGet コマンドによって取得することができます。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
@@ -5120,7 +5175,8 @@ CMD_OptionsGet_ENUM		匿名ユーザーに対する仮想 HUB の列挙
 CMD_OptionsGet_MAXSESSIONS	最大同時接続セッション数
 CMD_OptionsGet_STATUS	状態
 CMD_OptionsGet_TYPE		仮想 HUB の種類
-
+CMD_OptionsGet_GATEWAY	Default gateway
+CMD_OptionsGet_SUBNET	Default subnet
 
 
 # RadiusServerSet コマンド

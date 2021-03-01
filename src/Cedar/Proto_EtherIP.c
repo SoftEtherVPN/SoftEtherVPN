@@ -59,7 +59,7 @@ void EtherIPIpcConnectThread(THREAD *t, void *p)
 		EtherIPLog(s, "LE_START_IPC", id.HubName, id.UserName, mss);
 		ipc = NewIPC(s->Cedar, client_name,
 			(s->L2TPv3 ? ETHERIP_L2TPV3_POSTFIX : ETHERIP_POSTFIX),
-			id.HubName, id.UserName, id.Password,
+			id.HubName, id.UserName, id.Password, NULL,
 			&error_code,
 			&s->ClientIP, s->ClientPort,
 			&s->ServerIP, s->ServerPort,

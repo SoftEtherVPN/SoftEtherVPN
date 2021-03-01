@@ -1769,6 +1769,7 @@ LS_SSL_START			SSL communication for connection "%S" has been started. The encry
 LS_CONNECTION_ERROR		Connection "%S" terminated by the cause "%s" (code %u).
 LS_FARMMEMBER_NOT_ADMIN	Connection "%S": Although the server is a cluster member, the client attempted that to directly connect to the Virtual Hub "%S" while not being administrator user "%S". The user name provided by the client is "%S". Access is refused.
 LS_HUB_NOT_FOUND		Connection "%S": Virtual Hub "%S" that the client is trying to connect to does not exist on the server.
+LS_WG_KEY_NOT_FOUND		Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED			Connection "%S": The source IP address "%S" of the client has refused based on the Source IP Address Limit List defined for the Virtual Hub.
 LS_LICENSE_ERROR		Connection "%S": Because a license-related error has been occurred, the client is unable to connect to the server.
 LS_BETA_EXPIRES			This beta version of SoftEther VPN Server is expired. The beta version period of use has expired. Download a new beta version or full version from http://selinks.org/.
@@ -1798,6 +1799,16 @@ LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. M
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard log)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
 
 
 # (OpenVPN Logs)
@@ -1902,7 +1913,8 @@ LH_AUTH_PASSWORD		Password authentication
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT			Certificate authentication
 LH_AUTH_TICKET			Ticket authentication
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
+LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, such an external user-authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	Connection "%S": The authentication method of the user "%S" has been specified as Certificate Authentication. However, the Certificate Authentication function hasn't been implemented on the Open-Source version of SoftEther VPN yet. The connection will be denied.
@@ -1999,6 +2011,8 @@ LA_SET_FARM_SETTING		The clustering setting has been changed.
 LA_SET_SERVER_CERT		The server certificates have been set.
 LA_REGENERATE_SERVER_CERT	The server certificate has been re-generated. The new CN: "%S"
 LA_SET_SERVER_CIPHER	A new encryption algorithm name for the server has been set. The new encryption algorithm name is "%S".
+LA_ADD_WGK				Added %u WireGuard key(s).
+LA_DELETE_WGK			Deleted %u WireGuard key(s).
 LA_CREATE_HUB			A new Virtual Hub "%S" has been created.
 LA_SET_HUB				The Virtual Hub setting has been changed.
 LA_DELETE_HUB			The Virtual Hub "%S" has been deleted.
@@ -5005,6 +5019,35 @@ CMD_LogFileGet_SAVE_FAILED	Unable to write to the specified file.
 CMD_LogFileGet_FILESIZE	File size of log file: %u
 
 
+# WgkAdd command
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete command
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum command
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate command
 CMD_HubCreate			Create New Virtual Hub
 CMD_HubCreate_Help		Use this to create a new Virtual Hub on the VPN Server. \nThe created Virtual Hub will begin operation immediately. \nWhen the VPN Server is operating on a cluster, this command is only valid for the cluster controller. Also, the new Virtual Hub will operate as a dynamic Virtual Hub. You can change it to a static Virtual Hub by using the HubSetStatic command. To get a list of Virtual Hubs that are already on the VPN Server, use the HubList command. \nTo execute this command, you must have VPN Server administrator privileges. \nAlso, this command does not operate on VPN Servers that are operating as a VPN Bridge or cluster member. \nWhen issuing the command to a cluster controller on a cluster to create a Virtual Hub, use either the HubCreateStatic command or the HubCreateDynamic command (issuing the HubCreate command to a cluster controller has the same operational effect as issuing the HubCreateDynamic command).
@@ -5082,6 +5125,16 @@ CMD_Offline_Help		Use this when the Virtual Hub currently being managed is onlin
 CMD_Offline_Args		Offline
 
 
+# SetStaticNetwork command
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession command
 CMD_SetMaxSession		Set the Max Number of Concurrently Connected Sessions for Virtual Hub
 CMD_SetMaxSession_Help	Use this to set the maximum number of sessions that can be concurrently connected to the Virtual Hub that is currently being managed. When there are more sessions than the maximum number of concurrently connected sessions that are being connected from the VPN Client or VPN Bridge, when the maximum number of sessions is reached, clients will no longer be able to connect. This limit on the maximum number of concurrently connected sessions does not include sessions generated in the Virtual Hub by Local Bridges, Virtual NAT, and Cascade Connections. \nYou can get the current setting for the max number of concurrently connected sessions by using the OptionsGet command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
@@ -5118,7 +5171,8 @@ CMD_OptionsGet_ENUM		Enumeration of Virtual Hub for Anonymous User
 CMD_OptionsGet_MAXSESSIONS	Max Number of Sessions
 CMD_OptionsGet_STATUS	Status
 CMD_OptionsGet_TYPE		Virtual Hub Type
-
+CMD_OptionsGet_GATEWAY	Default gateway
+CMD_OptionsGet_SUBNET	Default subnet
 
 
 # RadiusServerSet command

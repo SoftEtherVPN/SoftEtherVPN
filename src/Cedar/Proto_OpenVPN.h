@@ -215,11 +215,9 @@ const char *OvsName();
 const PROTO_OPTION *OvsOptions();
 bool OvsInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void OvsFree(void *param);
-bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size);
+bool OvsIsPacketForMe(const PROTO_MODE mode, const void *data, const UINT size);
 bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out);
 bool OvsProcessDatagrams(void *param, LIST *in, LIST *out);
-bool OvsIsOk(void *param);
-UINT OvsEstablishedSessions(void *param);
 
 OPENVPN_SERVER *NewOpenVpnServer(const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *interrupt, SOCK_EVENT *sock_event);
 void FreeOpenVpnServer(OPENVPN_SERVER *s);
