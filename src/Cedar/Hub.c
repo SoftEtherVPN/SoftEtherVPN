@@ -7,6 +7,13 @@
 
 #include "CedarPch.h"
 
+#define GetHubAdminOptionDataAndSet(ao, name, dest) \
+	value = GetHubAdminOptionData(ao, name);        \
+	if (value != INFINITE)                          \
+	{                                               \
+		dest = value;                               \
+	}
+
 static UCHAR broadcast[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static char vgs_ua_str[9] = {0};
 static bool g_vgs_emb_tag = false;
@@ -516,23 +523,6 @@ UINT GetHubAdminOptionData(RPC_ADMIN_OPTION *ao, char *name)
 
 	return INFINITE;
 }
-void GetHubAdminOptionDataAndSet(RPC_ADMIN_OPTION *ao, char *name, UINT *dest)
-{
-	UINT value;
-	// Validate arguments
-	if (ao == NULL || name == NULL || dest == NULL)
-	{
-		return;
-	}
-
-	value = GetHubAdminOptionData(ao, name);
-	if (value == INFINITE)
-	{
-		return;
-	}
-
-	*dest = value;
-}
 
 // Set the contents of the HUB_OPTION based on the data
 void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
@@ -543,64 +533,66 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 		return;
 	}
 
-	GetHubAdminOptionDataAndSet(ao, "NoAddressPollingIPv4", &o->NoArpPolling);
-	GetHubAdminOptionDataAndSet(ao, "NoAddressPollingIPv6", &o->NoIPv6AddrPolling);
-	GetHubAdminOptionDataAndSet(ao, "NoIpTable", &o->NoIpTable);
-	GetHubAdminOptionDataAndSet(ao, "NoMacAddressLog", &o->NoMacAddressLog);
-	GetHubAdminOptionDataAndSet(ao, "ManageOnlyPrivateIP", &o->ManageOnlyPrivateIP);
-	GetHubAdminOptionDataAndSet(ao, "ManageOnlyLocalUnicastIPv6", &o->ManageOnlyLocalUnicastIPv6);
-	GetHubAdminOptionDataAndSet(ao, "DisableIPParsing", &o->DisableIPParsing);
-	GetHubAdminOptionDataAndSet(ao, "YieldAfterStorePacket", &o->YieldAfterStorePacket);
-	GetHubAdminOptionDataAndSet(ao, "NoSpinLockForPacketDelay", &o->NoSpinLockForPacketDelay);
-	GetHubAdminOptionDataAndSet(ao, "BroadcastStormDetectionThreshold", &o->BroadcastStormDetectionThreshold);
-	GetHubAdminOptionDataAndSet(ao, "ClientMinimumRequiredBuild", &o->ClientMinimumRequiredBuild);
-	GetHubAdminOptionDataAndSet(ao, "FilterPPPoE", &o->FilterPPPoE);
-	GetHubAdminOptionDataAndSet(ao, "FilterOSPF", &o->FilterOSPF);
-	GetHubAdminOptionDataAndSet(ao, "FilterIPv4", &o->FilterIPv4);
-	GetHubAdminOptionDataAndSet(ao, "FilterIPv6", &o->FilterIPv6);
-	GetHubAdminOptionDataAndSet(ao, "FilterNonIP", &o->FilterNonIP);
-	GetHubAdminOptionDataAndSet(ao, "NoIPv4PacketLog", &o->NoIPv4PacketLog);
-	GetHubAdminOptionDataAndSet(ao, "NoIPv6PacketLog", &o->NoIPv6PacketLog);
-	GetHubAdminOptionDataAndSet(ao, "FilterBPDU", &o->FilterBPDU);
-	GetHubAdminOptionDataAndSet(ao, "NoIPv6DefaultRouterInRAWhenIPv6", &o->NoIPv6DefaultRouterInRAWhenIPv6);
-	GetHubAdminOptionDataAndSet(ao, "NoLookBPDUBridgeId", &o->NoLookBPDUBridgeId);
-	GetHubAdminOptionDataAndSet(ao, "NoManageVlanId", &o->NoManageVlanId);
-	GetHubAdminOptionDataAndSet(ao, "VlanTypeId", &o->VlanTypeId);
-	GetHubAdminOptionDataAndSet(ao, "FixForDLinkBPDU", &o->FixForDLinkBPDU);
-	GetHubAdminOptionDataAndSet(ao, "RequiredClientId", &o->RequiredClientId);
-	GetHubAdminOptionDataAndSet(ao, "AdjustTcpMssValue", &o->AdjustTcpMssValue);
-	GetHubAdminOptionDataAndSet(ao, "DisableAdjustTcpMss", &o->DisableAdjustTcpMss);
-	GetHubAdminOptionDataAndSet(ao, "NoDhcpPacketLogOutsideHub", &o->NoDhcpPacketLogOutsideHub);
-	GetHubAdminOptionDataAndSet(ao, "DisableHttpParsing", &o->DisableHttpParsing);
-	GetHubAdminOptionDataAndSet(ao, "DisableUdpAcceleration", &o->DisableUdpAcceleration);
-	GetHubAdminOptionDataAndSet(ao, "DisableUdpFilterForLocalBridgeNic", &o->DisableUdpFilterForLocalBridgeNic);
-	GetHubAdminOptionDataAndSet(ao, "ApplyIPv4AccessListOnArpPacket", &o->ApplyIPv4AccessListOnArpPacket);
-	GetHubAdminOptionDataAndSet(ao, "RemoveDefGwOnDhcpForLocalhost", &o->RemoveDefGwOnDhcpForLocalhost);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxTcpSessionsPerIp", &o->SecureNAT_MaxTcpSessionsPerIp);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxTcpSynSentPerIp", &o->SecureNAT_MaxTcpSynSentPerIp);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxUdpSessionsPerIp", &o->SecureNAT_MaxUdpSessionsPerIp);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxDnsSessionsPerIp", &o->SecureNAT_MaxDnsSessionsPerIp);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxIcmpSessionsPerIp", &o->SecureNAT_MaxIcmpSessionsPerIp);
-	GetHubAdminOptionDataAndSet(ao, "AccessListIncludeFileCacheLifetime", &o->AccessListIncludeFileCacheLifetime);
-	GetHubAdminOptionDataAndSet(ao, "DisableKernelModeSecureNAT", &o->DisableKernelModeSecureNAT);
-	GetHubAdminOptionDataAndSet(ao, "DisableIpRawModeSecureNAT", &o->DisableIpRawModeSecureNAT);
-	GetHubAdminOptionDataAndSet(ao, "DisableUserModeSecureNAT", &o->DisableUserModeSecureNAT);
-	GetHubAdminOptionDataAndSet(ao, "DisableCheckMacOnLocalBridge", &o->DisableCheckMacOnLocalBridge);
-	GetHubAdminOptionDataAndSet(ao, "DisableCorrectIpOffloadChecksum", &o->DisableCorrectIpOffloadChecksum);
-	GetHubAdminOptionDataAndSet(ao, "BroadcastLimiterStrictMode", &o->BroadcastLimiterStrictMode);
-	GetHubAdminOptionDataAndSet(ao, "MaxLoggedPacketsPerMinute", &o->MaxLoggedPacketsPerMinute);
-	GetHubAdminOptionDataAndSet(ao, "DoNotSaveHeavySecurityLogs", &o->DoNotSaveHeavySecurityLogs);
-	GetHubAdminOptionDataAndSet(ao, "DropBroadcastsInPrivacyFilterMode", &o->DropBroadcastsInPrivacyFilterMode);
-	GetHubAdminOptionDataAndSet(ao, "DropArpInPrivacyFilterMode", &o->DropArpInPrivacyFilterMode);
-	GetHubAdminOptionDataAndSet(ao, "SuppressClientUpdateNotification", &o->SuppressClientUpdateNotification);
-	GetHubAdminOptionDataAndSet(ao, "FloodingSendQueueBufferQuota", &o->FloodingSendQueueBufferQuota);
-	GetHubAdminOptionDataAndSet(ao, "AssignVLanIdByRadiusAttribute", &o->AssignVLanIdByRadiusAttribute);
-	GetHubAdminOptionDataAndSet(ao, "DenyAllRadiusLoginWithNoVlanAssign", &o->DenyAllRadiusLoginWithNoVlanAssign);
-	GetHubAdminOptionDataAndSet(ao, "SecureNAT_RandomizeAssignIp", &o->SecureNAT_RandomizeAssignIp);
-	GetHubAdminOptionDataAndSet(ao, "DetectDormantSessionInterval", &o->DetectDormantSessionInterval);
-	GetHubAdminOptionDataAndSet(ao, "NoPhysicalIPOnPacketLog", &o->NoPhysicalIPOnPacketLog);
-	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsDhcpUserClassOption", &o->UseHubNameAsDhcpUserClassOption);
-	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsRadiusNasId", &o->UseHubNameAsRadiusNasId);
+	UINT value;
+
+	GetHubAdminOptionDataAndSet(ao, "NoAddressPollingIPv4", o->NoArpPolling);
+	GetHubAdminOptionDataAndSet(ao, "NoAddressPollingIPv6", o->NoIPv6AddrPolling);
+	GetHubAdminOptionDataAndSet(ao, "NoIpTable", o->NoIpTable);
+	GetHubAdminOptionDataAndSet(ao, "NoMacAddressLog", o->NoMacAddressLog);
+	GetHubAdminOptionDataAndSet(ao, "ManageOnlyPrivateIP", o->ManageOnlyPrivateIP);
+	GetHubAdminOptionDataAndSet(ao, "ManageOnlyLocalUnicastIPv6", o->ManageOnlyLocalUnicastIPv6);
+	GetHubAdminOptionDataAndSet(ao, "DisableIPParsing", o->DisableIPParsing);
+	GetHubAdminOptionDataAndSet(ao, "YieldAfterStorePacket", o->YieldAfterStorePacket);
+	GetHubAdminOptionDataAndSet(ao, "NoSpinLockForPacketDelay", o->NoSpinLockForPacketDelay);
+	GetHubAdminOptionDataAndSet(ao, "BroadcastStormDetectionThreshold", o->BroadcastStormDetectionThreshold);
+	GetHubAdminOptionDataAndSet(ao, "ClientMinimumRequiredBuild", o->ClientMinimumRequiredBuild);
+	GetHubAdminOptionDataAndSet(ao, "FilterPPPoE", o->FilterPPPoE);
+	GetHubAdminOptionDataAndSet(ao, "FilterOSPF", o->FilterOSPF);
+	GetHubAdminOptionDataAndSet(ao, "FilterIPv4", o->FilterIPv4);
+	GetHubAdminOptionDataAndSet(ao, "FilterIPv6", o->FilterIPv6);
+	GetHubAdminOptionDataAndSet(ao, "FilterNonIP", o->FilterNonIP);
+	GetHubAdminOptionDataAndSet(ao, "NoIPv4PacketLog", o->NoIPv4PacketLog);
+	GetHubAdminOptionDataAndSet(ao, "NoIPv6PacketLog", o->NoIPv6PacketLog);
+	GetHubAdminOptionDataAndSet(ao, "FilterBPDU", o->FilterBPDU);
+	GetHubAdminOptionDataAndSet(ao, "NoIPv6DefaultRouterInRAWhenIPv6", o->NoIPv6DefaultRouterInRAWhenIPv6);
+	GetHubAdminOptionDataAndSet(ao, "NoLookBPDUBridgeId", o->NoLookBPDUBridgeId);
+	GetHubAdminOptionDataAndSet(ao, "NoManageVlanId", o->NoManageVlanId);
+	GetHubAdminOptionDataAndSet(ao, "VlanTypeId", o->VlanTypeId);
+	GetHubAdminOptionDataAndSet(ao, "FixForDLinkBPDU", o->FixForDLinkBPDU);
+	GetHubAdminOptionDataAndSet(ao, "RequiredClientId", o->RequiredClientId);
+	GetHubAdminOptionDataAndSet(ao, "AdjustTcpMssValue", o->AdjustTcpMssValue);
+	GetHubAdminOptionDataAndSet(ao, "DisableAdjustTcpMss", o->DisableAdjustTcpMss);
+	GetHubAdminOptionDataAndSet(ao, "NoDhcpPacketLogOutsideHub", o->NoDhcpPacketLogOutsideHub);
+	GetHubAdminOptionDataAndSet(ao, "DisableHttpParsing", o->DisableHttpParsing);
+	GetHubAdminOptionDataAndSet(ao, "DisableUdpAcceleration", o->DisableUdpAcceleration);
+	GetHubAdminOptionDataAndSet(ao, "DisableUdpFilterForLocalBridgeNic", o->DisableUdpFilterForLocalBridgeNic);
+	GetHubAdminOptionDataAndSet(ao, "ApplyIPv4AccessListOnArpPacket", o->ApplyIPv4AccessListOnArpPacket);
+	GetHubAdminOptionDataAndSet(ao, "RemoveDefGwOnDhcpForLocalhost", o->RemoveDefGwOnDhcpForLocalhost);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxTcpSessionsPerIp", o->SecureNAT_MaxTcpSessionsPerIp);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxTcpSynSentPerIp", o->SecureNAT_MaxTcpSynSentPerIp);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxUdpSessionsPerIp", o->SecureNAT_MaxUdpSessionsPerIp);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxDnsSessionsPerIp", o->SecureNAT_MaxDnsSessionsPerIp);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_MaxIcmpSessionsPerIp", o->SecureNAT_MaxIcmpSessionsPerIp);
+	GetHubAdminOptionDataAndSet(ao, "AccessListIncludeFileCacheLifetime", o->AccessListIncludeFileCacheLifetime);
+	GetHubAdminOptionDataAndSet(ao, "DisableKernelModeSecureNAT", o->DisableKernelModeSecureNAT);
+	GetHubAdminOptionDataAndSet(ao, "DisableIpRawModeSecureNAT", o->DisableIpRawModeSecureNAT);
+	GetHubAdminOptionDataAndSet(ao, "DisableUserModeSecureNAT", o->DisableUserModeSecureNAT);
+	GetHubAdminOptionDataAndSet(ao, "DisableCheckMacOnLocalBridge", o->DisableCheckMacOnLocalBridge);
+	GetHubAdminOptionDataAndSet(ao, "DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum);
+	GetHubAdminOptionDataAndSet(ao, "BroadcastLimiterStrictMode", o->BroadcastLimiterStrictMode);
+	GetHubAdminOptionDataAndSet(ao, "MaxLoggedPacketsPerMinute", o->MaxLoggedPacketsPerMinute);
+	GetHubAdminOptionDataAndSet(ao, "DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs);
+	GetHubAdminOptionDataAndSet(ao, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
+	GetHubAdminOptionDataAndSet(ao, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
+	GetHubAdminOptionDataAndSet(ao, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
+	GetHubAdminOptionDataAndSet(ao, "FloodingSendQueueBufferQuota", o->FloodingSendQueueBufferQuota);
+	GetHubAdminOptionDataAndSet(ao, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
+	GetHubAdminOptionDataAndSet(ao, "DenyAllRadiusLoginWithNoVlanAssign", o->DenyAllRadiusLoginWithNoVlanAssign);
+	GetHubAdminOptionDataAndSet(ao, "SecureNAT_RandomizeAssignIp", o->SecureNAT_RandomizeAssignIp);
+	GetHubAdminOptionDataAndSet(ao, "DetectDormantSessionInterval", o->DetectDormantSessionInterval);
+	GetHubAdminOptionDataAndSet(ao, "NoPhysicalIPOnPacketLog", o->NoPhysicalIPOnPacketLog);
+	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption);
+	GetHubAdminOptionDataAndSet(ao, "UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId);
 }
 
 // Convert the contents of the HUB_OPTION to data

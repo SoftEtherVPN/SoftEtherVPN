@@ -8,12 +8,6 @@
 #ifndef	WIN32COM_H
 #define	WIN32COM_H
 
-#ifdef	WIN32COM_CPP
-
-// Internal function
-
-#endif	// WIN32COM_CPP
-
 #if	defined(__cplusplus)
 extern "C"
 {

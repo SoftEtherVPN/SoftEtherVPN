@@ -519,7 +519,6 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name);
 ADMIN_OPTION *NewAdminOption(char *name, UINT value);
 void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao);
 UINT GetHubAdminOptionData(RPC_ADMIN_OPTION *ao, char *name);
-void GetHubAdminOptionDataAndSet(RPC_ADMIN_OPTION *ao, char *name, UINT *dest);
 bool IsURLMsg(wchar_t *str, char *url, UINT url_size);
 LIST *NewUserList();
 void DeleteAllUserListCache(LIST *o);

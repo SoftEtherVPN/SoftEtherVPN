@@ -149,7 +149,7 @@ struct UDP
 // Data block
 struct BLOCK
 {
-	BOOL Compressed;				// Compression flag
+	bool Compressed;				// Compression flag
 	UINT Size;						// Block size
 	UINT SizeofData;				// Data size
 	UCHAR *Buf;						// Buffer

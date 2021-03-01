@@ -23025,7 +23025,7 @@ void CtEscapeCsv(wchar_t *dst, UINT size, wchar_t *src){
 	UINT i;
 	UINT len = UniStrLen(src);
 	UINT idx;
-	BOOL need_to_escape = false;
+	bool need_to_escape = false;
 	wchar_t tmp[2]=L"*";
 
 	// Check the input value
