@@ -2302,19 +2302,7 @@ void ShowTcpIpConfigUtil(HWND hWnd, bool util_mode)
 
 		GetExeDirW(exedir, sizeof(exedir));
 
-		if (IsX64())
-		{
-			UniFormat(tmp, sizeof(tmp), L"%s\\vpncmd_x64.exe", exedir);
-		}
-		else if (IsIA64())
-		{
-			UniFormat(tmp, sizeof(tmp), L"%s\\vpncmd_ia64.exe", exedir);
-		}
-		else
-		{
-			UniFormat(tmp, sizeof(tmp), L"%s\\vpncmd.exe", exedir);
-		}
-
+		UniFormat(tmp, sizeof(tmp), L"%s\\vpncmd.exe", exedir);
 		if (IsFileW(tmp))
 		{
 			RunW(tmp, L"/tool /cmd:exit", true, false);
