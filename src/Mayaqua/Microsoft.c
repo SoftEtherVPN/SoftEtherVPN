@@ -98,12 +98,10 @@ static SERVICE_FUNCTION *g_start, *g_stop;
 static bool exiting = false;
 static bool wnd_end;
 static bool is_usermode = false;
-static bool wts_is_locked_flag = false;
 static HICON tray_icon;
 static NOTIFYICONDATA nid;
 static NOTIFYICONDATAW nid_nt;
 static bool service_for_9x_mode = false;
-static THREAD *service_stopper_thread = NULL;
 static bool tray_inited = false;
 static HWND hWndUsermode = NULL;
 static HANDLE hLsa = NULL;
@@ -535,7 +533,7 @@ void *MsGetCurrentModuleHandle()
 }
 
 // Resource enumeration procedure
-bool CALLBACK MsEnumResourcesInternalProc(HMODULE hModule, const char *type, char *name, LONG_PTR lParam)
+BOOL CALLBACK MsEnumResourcesInternalProc(HMODULE hModule, const char *type, char *name, LONG_PTR lParam)
 {
 	LIST *o = (LIST *)lParam;
 	// Validate arguments
@@ -716,7 +714,7 @@ bool MsPerformMsChapV2AuthByLsa(char *username, UCHAR *challenge8, UCHAR *client
 	DWORD sz;
 	void *profile_buffer = NULL;
 	LUID logon_id;
-	UINT profile_buffer_size = 0;
+	ULONG profile_buffer_size = 0;
 	UINT i;
 	HANDLE hLogon = NULL;
 	QUOTA_LIMITS q;
@@ -1226,7 +1224,7 @@ void MsUpdateSystem()
 UINT MsWaitProcessExit(void *process_handle)
 {
 	HANDLE h = (HANDLE)process_handle;
-	UINT ret = 1;
+	DWORD ret = 1;
 
 	if (h == NULL)
 	{
@@ -1463,7 +1461,7 @@ static wchar_t ms_computer_name_full_cache[MAX_SIZE] = {0};
 // Get the full name of the computer
 void MsGetComputerNameFullEx(wchar_t *name, UINT size, bool with_cache)
 {
-	UINT size2 = size;
+	DWORD size2 = size;
 	// Validate arguments
 	UniStrCpy(name, size, L"");
 	if (name == NULL || size == 0)
@@ -1615,9 +1613,9 @@ void *MsRunAsUserExInnerW(wchar_t *filename, wchar_t *arg, bool hide)
 SID *MsGetSidFromAccountName(char *name)
 {
 	SID *sid;
-	UINT sid_size = 4096;
+	DWORD sid_size = 4096;
 	char *domain_name;
-	UINT domain_name_size = 4096;
+	DWORD domain_name_size = 4096;
 	SID_NAME_USE use = SidTypeUser;
 	// Validate arguments
 	if (name == NULL)
@@ -1660,9 +1658,8 @@ void MsFreeSid(SID *sid)
 // Create a token of standard user
 HANDLE MsCreateUserToken()
 {
-	char *medium_sid = "S-1-16-8192";
-	char *administrators_sid = "S-1-5-32-544";
-	SID *sid = NULL;
+	const char *medium_sid = "S-1-16-8192";
+	PSID sid = NULL;
 	TOKEN_MANDATORY_LABEL til;
 	HANDLE hCurrentToken, hNewToken;
 	if (MsIsNt() == false)
@@ -1969,7 +1966,7 @@ bool MsIs64BitWindows()
 			}
 			else
 			{
-				bool b = false;
+				BOOL b = false;
 				if (ms->nt->IsWow64Process(GetCurrentProcess(), &b) == false)
 				{
 					return false;
@@ -2096,7 +2093,7 @@ bool MsExecDriverInstaller(char *arg)
 	wchar_t lang_config_src[MAX_PATH];
 	wchar_t lang_config_dst[MAX_PATH];
 	HANDLE h;
-	UINT retcode;
+	DWORD retcode;
 	SHELLEXECUTEINFOW info;
 	wchar_t *arg_w;
 	// Validate arguments
@@ -2477,8 +2474,8 @@ MS_ADAPTER *MsGetAdapter(char *title)
 void MsGetAdapterTcpIpInformation(MS_ADAPTER *a)
 {
 	IP_ADAPTER_INFO *info, *info_top;
-	UINT info_size;
-	UINT ret;
+	ULONG info_size;
+	ULONG ret;
 	// Validate arguments
 	if (a == NULL)
 	{
@@ -2720,7 +2717,7 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerEx(bool no_info)
 	UINT i;
 	UINT retcode;
 	MIB_IFTABLE *table;
-	UINT table_size = sizeof(MIB_IFTABLE);
+	ULONG table_size = sizeof(MIB_IFTABLE);
 	MS_ADAPTER_LIST *ret;
 
 	if (w32net->GetIfTable2 != NULL && w32net->FreeMibTable != NULL)
@@ -2759,7 +2756,6 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerEx(bool no_info)
 	{
 		MIB_IFROW *r = &table->table[i];
 		char title[MAX_PATH];
-		UINT num = 0;
 		MS_ADAPTER *a;
 		UINT j;
 
@@ -2850,8 +2846,7 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerExVista(bool no_info)
 	LIST *o;
 	UINT i;
 	UINT retcode;
-	MIB_IF_TABLE2 *table;
-	UINT table_size = sizeof(MIB_IFTABLE);
+	PMIB_IF_TABLE2 table;
 	MS_ADAPTER_LIST *ret;
 
 	if (w32net->GetIfTable2 == NULL || w32net->FreeMibTable == NULL)
@@ -2859,7 +2854,7 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerExVista(bool no_info)
 		return ZeroMalloc(sizeof(MS_ADAPTER_LIST));
 	}
 
-	retcode = w32net->GetIfTable2(&table);
+	retcode = w32net->GetIfTable2((void **)&table);
 	if (retcode != NO_ERROR || table == NULL)
 	{
 		return ZeroMalloc(sizeof(MS_ADAPTER_LIST));
@@ -2871,7 +2866,6 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerExVista(bool no_info)
 	{
 		MIB_IF_ROW2 *r = &table->Table[i];
 		wchar_t title[MAX_PATH];
-		UINT num = 0;
 		MS_ADAPTER *a;
 		UINT j;
 
@@ -3349,7 +3343,8 @@ LIST *MsGetProcessListNt()
 	LIST *o;
 	UINT max = 16384;
 	DWORD *processes;
-	UINT needed, num;
+	DWORD needed;
+	UINT num;
 	UINT i;
 
 	o = NewListFast(MsCompareProcessList);
@@ -4427,7 +4422,7 @@ bool MsServiceStopProc()
 }
 
 // Service handler
-void CALLBACK MsServiceHandler(UINT opcode)
+void CALLBACK MsServiceHandler(DWORD opcode)
 {
 	switch (opcode)
 	{
@@ -4451,7 +4446,7 @@ void CALLBACK MsServiceHandler(UINT opcode)
 }
 
 // Dispatch function of the service
-void CALLBACK MsServiceDispatcher(UINT argc, LPTSTR *argv)
+void CALLBACK MsServiceDispatcher(DWORD argc, LPTSTR *argv)
 {
 	// Creating a stopping event
 	service_stop_event = CreateEventA(NULL, true, false, NULL);
@@ -5281,7 +5276,7 @@ wchar_t *MsGetSessionUserName(UINT session_id)
 	{
 		wchar_t *ret;
 		wchar_t *name;
-		UINT size = 0;
+		DWORD size = 0;
 		if (ms->nt->WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE, session_id,
 			WTSUserName, (wchar_t *)&name, &size) == false)
 		{
@@ -5316,7 +5311,7 @@ bool MsIsTerminalSessionActive(UINT session_id)
 	if (MsIsTerminalServiceInstalled() || MsIsUserSwitchingInstalled())
 	{
 		UINT *status = NULL;
-		UINT size = sizeof(status);
+		DWORD size = sizeof(status);
 		bool active = true;
 
 		if (ms->nt->WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE, session_id,
@@ -5351,7 +5346,7 @@ UINT MsGetCurrentTerminalSessionId()
 	{
 		UINT ret;
 		UINT *session_id = NULL;
-		UINT size = sizeof(session_id);
+		DWORD size = sizeof(session_id);
 		if (ms->nt->WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE, WTS_CURRENT_SESSION,
 			WTSSessionId, (wchar_t *)&session_id, &size) == false)
 		{
@@ -6512,7 +6507,7 @@ bool MsInstallVLan9x(char *instance_name, MS_DRIVER_VER *ver)
 }
 
 // Child window enumeration procedure
-bool CALLBACK MsEnumChildWindowProc(HWND hWnd, LPARAM lParam)
+BOOL CALLBACK MsEnumChildWindowProc(HWND hWnd, LPARAM lParam)
 {
 	LIST *o = (LIST *)lParam;
 
@@ -6561,7 +6556,7 @@ void MsAddWindowToList(LIST *o, HWND hWnd)
 }
 
 // Enumeration of the window that the thread owns
-bool CALLBACK MsEnumThreadWindowProc(HWND hWnd, LPARAM lParam)
+BOOL CALLBACK MsEnumThreadWindowProc(HWND hWnd, LPARAM lParam)
 {
 	LIST *o = (LIST *)lParam;
 
@@ -6986,8 +6981,6 @@ bool MsCloseWarningWindow(NO_WARNING *nw, UINT thread_id)
 
 		if (hWnd != NULL)
 		{
-			OS_INFO *info = GetOsInfo();
-
 			if (MsIsNt())
 			{
 				// Get whether this window is a warning screen of driver
@@ -7592,7 +7585,7 @@ void MsTest()
 // Install a virtual LAN card (by calling Win32 API)
 bool MsInstallVLanInternal(wchar_t *infpath, wchar_t *hwid_w, char *hwid)
 {
-	bool need_reboot;
+	BOOL need_reboot;
 	bool ret = false;
 	wchar_t inf_class_name[MAX_PATH];
 	GUID inf_class_guid;
@@ -7776,7 +7769,7 @@ HDEVINFO MsGetDevInfoFromDeviceId(SP_DEVINFO_DATA *dev_info_data, char *device_i
 bool MsIsDeviceRunning(HDEVINFO info, SP_DEVINFO_DATA *dev_info_data)
 {
 	SP_DEVINFO_LIST_DETAIL_DATA detail;
-	UINT status = 0, problem = 0;
+	DWORD status = 0, problem = 0;
 	// Validate arguments
 	if (info == NULL || dev_info_data == NULL)
 	{
@@ -8886,9 +8879,7 @@ void MsNormalizeInterfaceDefaultGatewaySettings(char *tag_name, char *instance_n
 				{
 					char *s = LIST_DATA(o, i);
 					char tmp[MAX_SIZE];
-
-					char *cm = NULL;
-					UINT current_metric;
+					UINT current_metric = 0;
 
 					if (o2 != NULL)
 					{
@@ -10158,7 +10149,7 @@ NT_API *MsLoadNtApiFunctions()
 		GetProcAddress(nt->hAdvapi32, "LookupAccountNameA");
 
 	nt->SetNamedSecurityInfoW =
-		(DWORD (__stdcall *)(LPWSTR,UINT,SECURITY_INFORMATION,PSID,PSID,PACL,PACL))
+		(DWORD (__stdcall *)(LPWSTR,DWORD,SECURITY_INFORMATION,PSID,PSID,PACL,PACL))
 		GetProcAddress(nt->hAdvapi32, "SetNamedSecurityInfoW");
 
 	nt->AddAccessAllowedAceEx =
@@ -10184,15 +10175,15 @@ NT_API *MsLoadNtApiFunctions()
 	if (info.dwMajorVersion >= 5)
 	{
 		nt->UpdateDriverForPlugAndPlayDevicesW =
-			(BOOL (__stdcall *)(HWND,wchar_t *,wchar_t *,UINT,BOOL *))
+			(BOOL (__stdcall *)(HWND,LPCWSTR,LPCWSTR,DWORD,PBOOL))
 			GetProcAddress(nt->hNewDev, "UpdateDriverForPlugAndPlayDevicesW");
 
 		nt->CM_Get_Device_ID_ExA =
-			(UINT (__stdcall *)(DWORD,char *,UINT,UINT,HANDLE))
+			(DWORD (__stdcall *)(DWORD,LPSTR,ULONG,ULONG,HANDLE))
 			GetProcAddress(nt->hSetupApi, "CM_Get_Device_ID_ExA");
 
 		nt->CM_Get_DevNode_Status_Ex =
-			(UINT (__stdcall *)(UINT *,UINT *,DWORD,UINT,HANDLE))
+			(DWORD (__stdcall *)(PULONG,PULONG,DWORD,ULONG,HANDLE))
 			GetProcAddress(nt->hSetupApi, "CM_Get_DevNode_Status_Ex");
 	}
 
@@ -10201,7 +10192,7 @@ NT_API *MsLoadNtApiFunctions()
 	{
 		// Terminal Services related API
 		nt->WTSQuerySessionInformation =
-			(UINT (__stdcall *)(HANDLE,DWORD,WTS_INFO_CLASS,wchar_t *,DWORD *))
+			(BOOL (__stdcall *)(HANDLE,DWORD,WTS_INFO_CLASS,wchar_t *,DWORD *))
 			GetProcAddress(nt->hWtsApi32, "WTSQuerySessionInformationW");
 		nt->WTSFreeMemory =
 			(void (__stdcall *)(void *))
@@ -10491,7 +10482,7 @@ bool MsIsAeroColor()
 // Get whether Aero is enabled
 bool MsIsAeroEnabled()
 {
-	bool ret;
+	BOOL ret;
 	if (MsIsNt() == false)
 	{
 		return false;
@@ -10691,7 +10682,7 @@ TOKEN_LIST *MsRegEnumValueEx2(UINT root, char *keyname, bool force32bit, bool fo
 	{
 		char tmp[MAX_SIZE];
 		UINT ret;
-		UINT size = sizeof(tmp);
+		DWORD size = sizeof(tmp);
 
 		Zero(tmp, sizeof(tmp));
 		ret = RegEnumValue(h, i, tmp, &size, NULL, NULL, NULL, NULL);
@@ -10761,7 +10752,7 @@ TOKEN_LIST *MsRegEnumKeyEx2(UINT root, char *keyname, bool force32bit, bool forc
 	{
 		char tmp[MAX_SIZE];
 		UINT ret;
-		UINT size = sizeof(tmp);
+		DWORD size = sizeof(tmp);
 		FILETIME ft;
 
 		Zero(tmp, sizeof(tmp));
@@ -11022,7 +11013,7 @@ BUF *MsRegReadBinEx(UINT root, char *keyname, char *valuename, bool force32bit)
 BUF *MsRegReadBinEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit)
 {
 	char *ret;
-	UINT type, size;
+	DWORD type, size;
 	BUF *b;
 	// Validate arguments
 	if (keyname == NULL || valuename == NULL)
@@ -11031,7 +11022,7 @@ BUF *MsRegReadBinEx2(UINT root, char *keyname, char *valuename, bool force32bit,
 	}
 
 	// Read the value
-	if (MsRegReadValueEx2(root, keyname, valuename, &ret, &type, &size, force32bit, force64bit) == false)
+	if (MsRegReadValueEx2(root, keyname, valuename, (void **)&ret, &type, &size, force32bit, force64bit) == false)
 	{
 		return 0;
 	}
@@ -11058,7 +11049,7 @@ UINT MsRegReadIntEx(UINT root, char *keyname, char *valuename, bool force32bit)
 UINT MsRegReadIntEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit)
 {
 	char *ret;
-	UINT type, size;
+	DWORD type, size;
 	UINT value;
 	// Validate arguments
 	if (keyname == NULL || valuename == NULL)
@@ -11067,7 +11058,7 @@ UINT MsRegReadIntEx2(UINT root, char *keyname, char *valuename, bool force32bit,
 	}
 
 	// Read the value
-	if (MsRegReadValueEx2(root, keyname, valuename, &ret, &type, &size, force32bit, force64bit) == false)
+	if (MsRegReadValueEx2(root, keyname, valuename, (void **)&ret, &type, &size, force32bit, force64bit) == false)
 	{
 		return 0;
 	}
@@ -11127,7 +11118,7 @@ LIST *MsRegReadStrListEx2(UINT root, char *keyname, char *valuename, bool force3
 {
 	LIST *o;
 	char *ret;
-	UINT type, size;
+	DWORD type, size;
 	// Validate arguments
 	if (keyname == NULL || valuename == NULL)
 	{
@@ -11135,7 +11126,7 @@ LIST *MsRegReadStrListEx2(UINT root, char *keyname, char *valuename, bool force3
 	}
 
 	// Read the value
-	if (MsRegReadValueEx2(root, keyname, valuename, &ret, &type, &size, force32bit, force64bit) == false)
+	if (MsRegReadValueEx2(root, keyname, valuename, (void **)&ret, &type, &size, force32bit, force64bit) == false)
 	{
 		return NULL;
 	}
@@ -11182,7 +11173,7 @@ char *MsRegReadStrEx(UINT root, char *keyname, char *valuename, bool force32bit)
 char *MsRegReadStrEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit)
 {
 	char *ret;
-	UINT type, size;
+	DWORD type, size;
 	// Validate arguments
 	if (keyname == NULL || valuename == NULL)
 	{
@@ -11190,7 +11181,7 @@ char *MsRegReadStrEx2(UINT root, char *keyname, char *valuename, bool force32bit
 	}
 
 	// Read the value
-	if (MsRegReadValueEx2(root, keyname, valuename, &ret, &type, &size, force32bit, force64bit) == false)
+	if (MsRegReadValueEx2(root, keyname, valuename, (void **)&ret, &type, &size, force32bit, force64bit) == false)
 	{
 		return NULL;
 	}
@@ -11246,7 +11237,7 @@ wchar_t *MsRegReadStrExW(UINT root, char *keyname, char *valuename, bool force32
 wchar_t *MsRegReadStrEx2W(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit)
 {
 	wchar_t *ret;
-	UINT type, size;
+	DWORD type, size;
 	// Validate arguments
 	if (keyname == NULL || valuename == NULL)
 	{
@@ -11254,7 +11245,7 @@ wchar_t *MsRegReadStrEx2W(UINT root, char *keyname, char *valuename, bool force3
 	}
 
 	// Read the value
-	if (MsRegReadValueEx2W(root, keyname, valuename, &ret, &type, &size, force32bit, force64bit) == false)
+	if (MsRegReadValueEx2W(root, keyname, valuename, (void **)&ret, &type, &size, force32bit, force64bit) == false)
 	{
 		return NULL;
 	}
@@ -11279,7 +11270,7 @@ wchar_t *MsRegReadStrEx2W(UINT root, char *keyname, char *valuename, bool force3
 }
 
 // Read the value
-bool MsRegReadValueEx2(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit, bool force64bit)
+bool MsRegReadValueEx2(UINT root, char *keyname, char *valuename, void **data, DWORD *type, DWORD *size, bool force32bit, bool force64bit)
 {
 	HKEY h;
 	UINT ret;
@@ -11332,7 +11323,7 @@ bool MsRegReadValueEx2(UINT root, char *keyname, char *valuename, void **data, U
 
 	return true;
 }
-bool MsRegReadValueEx2W(UINT root, char *keyname, char *valuename, void **data, UINT *type, UINT *size, bool force32bit, bool force64bit)
+bool MsRegReadValueEx2W(UINT root, char *keyname, char *valuename, void **data, DWORD *type, DWORD *size, bool force32bit, bool force64bit)
 {
 	HKEY h;
 	UINT ret;
@@ -11349,7 +11340,7 @@ bool MsRegReadValueEx2W(UINT root, char *keyname, char *valuename, void **data, 
 	{
 		bool ret;
 		void *data_a = NULL;
-		UINT type_a = 0, size_a = 0;
+		DWORD type_a = 0, size_a = 0;
 
 		ret = MsRegReadValueEx2(root, keyname, valuename, &data_a, &type_a, &size_a, force32bit, force64bit);
 
@@ -11435,7 +11426,7 @@ bool MsRegIsValueEx(UINT root, char *keyname, char *valuename, bool force32bit)
 bool MsRegIsValueEx2(UINT root, char *keyname, char *valuename, bool force32bit, bool force64bit)
 {
 	HKEY h;
-	UINT type, size;
+	DWORD type, size;
 	UINT ret;
 	// Validate arguments
 	if (keyname == NULL)
@@ -11969,7 +11960,7 @@ void MsInit()
 	wchar_t *str_unicode;
 	OSVERSIONINFO os;
 	char tmp[MAX_SIZE];
-	UINT size;
+	DWORD size;
 	if (ms != NULL)
 	{
 		// Already initialized
@@ -12269,7 +12260,7 @@ bool MsGetMsiInstalledDir(char *component_code, wchar_t *dir, UINT dir_size)
 	wchar_t *component_code_w;
 	bool ret = false;
 	wchar_t tmp[MAX_SIZE];
-	UINT sz = sizeof(tmp) / sizeof(wchar_t);
+	DWORD sz = sizeof(tmp) / sizeof(wchar_t);
 	// Validate arguments
 	if (component_code == NULL || dir == NULL)
 	{

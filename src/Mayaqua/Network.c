@@ -98,7 +98,6 @@ static IP unix_dns_server;
 static LIST *HostCacheList = NULL;
 static LIST *WaitThreadList = NULL;
 static bool disable_cache = false;
-static bool NetworkReleaseMode = false;			// Network release mode
 static UCHAR machine_ip_process_hash[SHA1_SIZE];
 static LOCK *machine_ip_process_hash_lock = NULL;
 static LOCK *current_global_ip_lock = NULL;
@@ -3858,7 +3857,6 @@ void RUDPMainThread(THREAD *thread, void *param)
 					{
 						if (p->Size >= (ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE))
 						{
-							IPV4_HEADER *ip_header = (IPV4_HEADER *)(((UCHAR *)p->Data) + 0);
 							ICMP_HEADER *icmp_header = (ICMP_HEADER *)(((UCHAR *)p->Data) + ip_header_size);
 							ICMP_ECHO *echo_header = (ICMP_ECHO *)(((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER));
 
@@ -6194,7 +6192,7 @@ bool IsRouteChanged(ROUTE_CHANGE *r)
 ROUTE_CHANGE *Win32NewRouteChange()
 {
 	ROUTE_CHANGE *r;
-	bool ret;
+	BOOL ret;
 
 	if (MsIsNt() == false)
 	{
@@ -6285,7 +6283,7 @@ SOCKET Win32Accept(SOCK *sock, SOCKET s, struct sockaddr *addr, int *addrlen, bo
 	UINT num_error = 0;
 	UINT zero = 0;
 	UINT tmp = 0;
-	UINT ret_size = 0;
+	DWORD ret_size = 0;
 	// Validate arguments
 	if (sock == NULL || s == INVALID_SOCKET)
 	{
@@ -9017,7 +9015,7 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 {
 	bool ret = false;
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	wchar_t tmp[MAX_SIZE];
@@ -9089,7 +9087,7 @@ void Win32FlushDnsCache()
 void Win32RenewDhcp9x(UINT if_id)
 {
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	// Validate arguments
@@ -9145,7 +9143,7 @@ void Win32RenewDhcp9x(UINT if_id)
 void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 {
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	// Validate arguments
@@ -9202,7 +9200,7 @@ char **Win32EnumVLan(char *tag_name)
 {
 	MIB_IFTABLE *p;
 	UINT ret;
-	UINT size_needed;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	UINT i;
 	LIST *o;
@@ -9281,8 +9279,8 @@ FAILED:
 UINT Win32GetVLanInterfaceID(char *instance_name)
 {
 	MIB_IFTABLE *p;
-	UINT ret;
-	UINT size_needed;
+	BOOL ret;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	UINT i;
 	char ps_miniport_str[MAX_SIZE];
@@ -9373,7 +9371,7 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 {
 	IP_ADAPTER_ADDRESSES_XP *info;
 	IP_ADAPTER_ADDRESSES_XP *cur;
-	UINT info_size;
+	ULONG info_size;
 	bool ret = false;
 	// Validate arguments
 	ClearStr(domain, size);
@@ -9422,7 +9420,7 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 {
 	FIXED_INFO *info;
-	UINT info_size;
+	ULONG info_size;
 	char *dns_name;
 	// Validate arguments
 	ClearStr(domain, size);
@@ -9443,12 +9441,6 @@ bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 		info = ZeroMallocFast(info_size);
 	}
 	if (w32net->GetNetworkParams(info, &info_size) != NO_ERROR)
-	{
-		Free(info);
-		return false;
-	}
-
-	if (info->DnsServerList.IpAddress.String == NULL)
 	{
 		Free(info);
 		return false;
@@ -9553,7 +9545,7 @@ ROUTE_TABLE *Win32GetRouteTable()
 	ROUTE_TABLE *t = ZeroMallocFast(sizeof(ROUTE_TABLE));
 	MIB_IPFORWARDTABLE *p;
 	UINT ret;
-	UINT size_needed;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	LIST *o;
 	UINT i;
@@ -11326,10 +11318,6 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 		else if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINPROGRESS)
 		{
 			return SOCK_LATER;
-		}
-		else
-		{
-			UINT e = WSAGetLastError();
 		}
 #else	// OS_WIN32
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
@@ -13165,7 +13153,6 @@ SOCK *Accept6(SOCK *sock)
 	SOCKET s, new_socket;
 	int size;
 	struct sockaddr_in6 addr;
-	bool true_flag = true;
 	// Validate arguments
 	if (sock == NULL)
 	{
@@ -13240,6 +13227,7 @@ SOCK *Accept6(SOCK *sock)
 	ret->SecureMode = false;
 
 	// Configuring the TCP options
+	bool true_flag = true;
 	(void)setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
 
 	// Initialize the time-out value
@@ -13281,7 +13269,6 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	SOCK *sock;
 	struct sockaddr_in6 addr;
 	struct in6_addr in;
-	bool true_flag = true;
 	IP localhost;
 	UINT backlog = SOMAXCONN;
 	// Validate arguments
@@ -13320,12 +13307,10 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 		return NULL;
 	}
 
+	bool true_flag = true;
 #ifdef	OS_UNIX
 	// It is necessary to set the IPv6 Only flag on a UNIX system
 	(void)setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
-#endif	// OS_UNIX
-
-#ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
 	(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
@@ -13389,7 +13374,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 	SOCK *sock;
 	struct sockaddr_in addr;
 	struct in_addr in;
-	bool true_flag = true;
 	IP localhost;
 	UINT backlog = SOMAXCONN;
 	// Validate arguments
@@ -13436,6 +13420,7 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 		return NULL;
 	}
 
+	bool true_flag = true;
 #ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
@@ -13488,8 +13473,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 void Disconnect(SOCK *sock)
 {
 	SOCKET s;
-	bool true_flag = true;
-	bool false_flag = false;
 	// Validate arguments
 	if (sock == NULL)
 	{
@@ -13562,8 +13545,10 @@ void Disconnect(SOCK *sock)
 		{
 			// Forced disconnection flag
 #ifdef	SO_DONTLINGER
+			bool true_flag = true;
 			(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 #else	// SO_DONTLINGER
+			bool false_flag = false;
 			(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 #endif	// SO_DONTLINGER
 //			setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
@@ -13888,7 +13873,7 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	WSAEVENT hEvent;
 	UINT zero = 0;
 	UINT tmp = 0;
-	UINT ret_size = 0;
+	DWORD ret_size = 0;
 	bool is_nt = false;
 	// Validate arguments
 	if (s == INVALID_SOCKET || addr == NULL)
@@ -14329,8 +14314,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	struct linger ling;
 	IP ip4;
 	IP ip6;
-	bool true_flag = true;
-	bool false_flag = false;
 	char tmp[MAX_SIZE];
 	IP current_ip;
 	bool is_ipv6 = false;
@@ -14798,10 +14781,13 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 //	Debug("new socket: %u\n", s);
 
 	Zero(&ling, sizeof(ling));
+
+	bool true_flag = true;
 	// Forced disconnection flag
 #ifdef	SO_DONTLINGER
 	(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 #else	// SO_DONTLINGER
+	bool false_flag = false;
 	(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 #endif	// SO_DONTLINGER
 //	setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
