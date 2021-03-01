@@ -1,17 +1,15 @@
 jobs:
-- job: windows_x86_64
-  displayName: 'Windows (x86_64)'
+- job: Windows_x64
   pool:
     vmImage: windows-latest
   steps:
   - template: "windows-steps.yml"
     parameters:
-      architecture: "x86_64"
+      architecture: "x64"
       compilerPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/Llvm/x64/bin/clang-cl.exe"
       vcpkgTriplet: "x64-windows-static-md"
       vcvarsPath: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-- job: windows_x86
-  displayName: 'Windows (x86)'
+- job: Windows_x86
   pool:
     vmImage: windows-latest
   steps:

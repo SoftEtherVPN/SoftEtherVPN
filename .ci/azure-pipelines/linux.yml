@@ -1,6 +1,5 @@
 jobs:
-- job: ubuntu_x86_64
-  displayName: 'Ubuntu (x86_64)'
+- job: Ubuntu_x64
   pool:
     vmImage: ubuntu-18.04
   steps:
