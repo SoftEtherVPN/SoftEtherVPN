@@ -4,3 +4,6 @@
 [submodule "3rdparty/tinydir"]
 	path = 3rdparty/tinydir
 	url = https://github.com/cxong/tinydir.git
+[submodule "3rdparty/BLAKE2"]
+	path = 3rdparty/BLAKE2
+	url = https://github.com/BLAKE2/BLAKE2.git

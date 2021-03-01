@@ -19,6 +19,13 @@ set_target_properties(cedar
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
+cmake_host_system_information(RESULT HAS_SSE2 QUERY HAS_SSE2)
+
+set(BLAKE2_SRC_PATH $<IF:$<BOOL:HAS_SSE2>,${TOP_DIRECTORY}/3rdparty/BLAKE2/sse,${TOP_DIRECTORY}/3rdparty/BLAKE2/ref>)
+
+target_include_directories(cedar PUBLIC ${BLAKE2_SRC_PATH})
+target_sources(cedar PRIVATE "${BLAKE2_SRC_PATH}/blake2s.c")
+
 if(WIN32)
   set_target_properties(cedar
     PROPERTIES

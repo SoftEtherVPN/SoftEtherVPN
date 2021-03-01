@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10)
 
 set(BUILD_NUMBER CACHE STRING "The number of the current build.")
 
