@@ -123,9 +123,6 @@ add_subdirectory(Cedar)
 # Mayaqua kernel
 add_subdirectory(Mayaqua)
 
-# hamcorebuilder utility
-add_subdirectory(hamcorebuilder)
-
 # vpnserver
 add_subdirectory(vpnserver)
 
@@ -140,6 +137,12 @@ add_subdirectory(vpncmd)
 
 # vpntest
 add_subdirectory(vpntest)
+
+# libhamcore
+add_subdirectory(libhamcore)
+
+# hamcorebuilder utility
+add_subdirectory(hamcorebuilder)
 
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build

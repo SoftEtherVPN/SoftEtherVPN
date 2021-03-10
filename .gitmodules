@@ -7,3 +7,6 @@
 [submodule "3rdparty/BLAKE2"]
 	path = 3rdparty/BLAKE2
 	url = https://github.com/BLAKE2/BLAKE2.git
+[submodule "src/libhamcore"]
+	path = src/libhamcore
+	url = https://github.com/SoftEtherVPN/libhamcore.git
