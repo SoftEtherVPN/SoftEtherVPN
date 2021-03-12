@@ -2129,6 +2129,7 @@ bool MsExecDriverInstaller(char *arg)
 	info.cbSize = sizeof(info);
 	info.lpVerb = L"open";
 	info.lpFile = tmp;
+	info.lpDirectory = MsGetMyTempDirW();
 	info.fMask = SEE_MASK_NOCLOSEPROCESS;
 	info.lpParameters = arg_w;
 	info.nShow = SW_SHOWNORMAL;
