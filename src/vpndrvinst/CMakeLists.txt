@@ -5,7 +5,17 @@ endif()
 set(COMPONENT_NAME "Driver Installer")
 set(COMPONENT_INTERNAL_NAME "vpndrvinst")
 
-add_executable(vpndrvinst WIN32 vpndrvinst.c vpndrvinst.h)
+add_executable(vpndrvinst
+  main.c
+  Device.c
+  Device.h
+  Dialog.c
+  Dialog.h
+  Driver.c
+  Driver.h
+  Str.c
+  Str.h
+)
 
 get_filename_component(COMPONENT_FILE_NAME vpndrvinst NAME)
 set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
@@ -17,6 +27,9 @@ if(MSVC)
   # Fixes manifest authoring error c1010001
   set_target_properties(vpndrvinst PROPERTIES LINK_FLAGS "/manifestuac:level='requireAdministrator'")
 endif()
+
+# Hide console while keeping main() as entry point
+target_link_options(vpndrvinst PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
 
 if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
   target_sources(vpndrvinst PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_admin.manifest")
@@ -32,4 +45,9 @@ set_target_properties(vpndrvinst
   PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-target_link_libraries(vpndrvinst cedar mayaqua)
+target_link_libraries(vpndrvinst
+  PRIVATE
+    libhamcore
+    newdev.lib
+    SetupAPI.Lib
+)
