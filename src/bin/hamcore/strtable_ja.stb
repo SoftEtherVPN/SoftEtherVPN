@@ -1917,7 +1917,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
-LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
+LH_AUTH_WIREGUARD_KEY	WireGuard 公開鍵認証
 LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
@@ -5026,32 +5026,32 @@ CMD_LogFileGet_FILESIZE	ログファイルのファイルサイズ: %u
 
 
 # WgkAdd コマンド
-CMD_WgkAdd				Add a WireGuard key
-CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd				WireGuard 公開鍵の追加
+CMD_WgkAdd_Help			新しい WireGuard 公開鍵をサーバーに追加します。\n公開鍵を追加すると、関連付けたユーザーとして仮想 HUB に WireGuard クライアントが接続できるようになります。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
-CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
-CMD_WgkAdd_HUB			Hub the key will be associated to.
-CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
-CMD_WgkAdd_Prompt_[key]	Key: 
-CMD_WgkAdd_Prompt_HUB	Hub: 
-CMD_WgkAdd_Prompt_USER	User: 
+CMD_WgkAdd_[key]		新しく追加する WireGuard 公開鍵を指定します。追加しようとしている鍵が公開鍵であることを確認してください。
+CMD_WgkAdd_HUB			公開鍵に関連付ける仮想ハブを指定します。
+CMD_WgkAdd_USER			指定された仮想 HUB 内で公開鍵に関連付けるユーザー名を指定します。
+CMD_WgkAdd_Prompt_[key]	公開鍵: 
+CMD_WgkAdd_Prompt_HUB	関連付ける仮想 HUB の名前: 
+CMD_WgkAdd_Prompt_USER	ユーザー名: 
 
 
 # WgkDelete コマンド
-CMD_WgkDelete				Delete a WireGuard key
-CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete				WireGuard 公開鍵の削除
+CMD_WgkDelete_Help			サーバーに登録された WireGuard 公開鍵を削除します。\n公開鍵を削除すると WireGuard クライアントは仮想 HUB に接続できなくなります。 \nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkDelete_Args			WgkDelete [key]
-CMD_WgkDelete_[key]			WireGuard key.
-CMD_WgkDelete_Prompt_[key]	Key: 
+CMD_WgkDelete_[key]			削除する WireGuard 公開鍵を指定します。
+CMD_WgkDelete_Prompt_[key]	公開鍵: 
 
 
 # WgkEnum コマンド
-CMD_WgkEnum				List the WireGuard keys
-CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum				Wireguard 公開鍵一覧の取得
+CMD_WgkEnum_Help		現在サーバーに登録されている WireGuard 公開鍵の一覧を取得します。\nWgkAdd コマンドで公開鍵の追加を、WgkDelete コマンドで公開鍵の削除を行うことができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkEnum_Args		WgkEnum
-CMD_WgkEnum_Column_Key	Key
-CMD_WgkEnum_Column_Hub	Hub
-CMD_WgkEnum_Column_User	User
+CMD_WgkEnum_Column_Key	公開鍵
+CMD_WgkEnum_Column_Hub	仮想 HUB 名
+CMD_WgkEnum_Column_User	ユーザー名
 
 
 # HubCreate コマンド
