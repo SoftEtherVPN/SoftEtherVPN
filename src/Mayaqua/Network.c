@@ -11226,7 +11226,7 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 			Debug("SendTo Error; %u\n", e);
 		}
 #else	// OS_WIN32
-		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
+		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR || errno == EINVAL)
 		{
 			sock->IgnoreSendErr = true;
 		}
