@@ -2,7 +2,11 @@ set(COMPONENT_NAME "Bridge")
 set(COMPONENT_INTERNAL_NAME "vpnbridge")
 
 if(WIN32)
-  add_executable(vpnbridge WIN32 vpnbridge.c)
+  add_executable(vpnbridge WIN32
+    "vpnbridge.c"
+
+    "${TOP_DIRECTORY}/src/BuildFiles/Manifests/common.manifest"
+  )
 
   set_target_properties(vpnbridge
     PROPERTIES
@@ -14,12 +18,6 @@ if(WIN32)
 
   configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
   target_sources(vpnbridge PRIVATE "vpnbridge.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
-
-  if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-    target_sources(vpnbridge PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
-  else()
-    target_sources(vpnbridge PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
-  endif()
 else()
   add_executable(vpnbridge vpnbridge.c)
 endif()

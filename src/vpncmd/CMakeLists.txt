@@ -20,13 +20,13 @@ if(WIN32)
   set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
   configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
-  target_sources(vpncmd PRIVATE "vpncmd.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 
-  if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-    target_sources(vpncmd PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
-  else()
-    target_sources(vpncmd PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
-  endif()
+  target_sources(vpncmd PRIVATE
+    "vpncmd.rc"
+    "ver.rc"
+
+    "${TOP_DIRECTORY}/src/BuildFiles/Manifests/common.manifest"
+  )
 endif()
 
 target_link_libraries(vpncmd cedar mayaqua)
