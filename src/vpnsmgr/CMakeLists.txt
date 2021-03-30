@@ -5,19 +5,18 @@ endif()
 set(COMPONENT_NAME "Server Manager")
 set(COMPONENT_INTERNAL_NAME "vpnsmgr")
 
-add_executable(vpnsmgr WIN32 vpnsmgr.c vpnsmgr.rc)
+add_executable(vpnsmgr WIN32
+  "vpnsmgr.c"
+  "vpnsmgr.rc"
+
+  "${TOP_DIRECTORY}/src/BuildFiles/Manifests/common.manifest"
+)
 
 get_filename_component(COMPONENT_FILE_NAME vpnsmgr NAME)
 set(COMPONENT_FILE_NAME "${COMPONENT_FILE_NAME}.exe")
 
 configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
 target_sources(vpnsmgr PRIVATE "vpnsmgr.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
-
-if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-  target_sources(vpnsmgr PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
-else()
-  target_sources(vpnsmgr PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
-endif()
 
 set_target_properties(vpnsmgr
   PROPERTIES

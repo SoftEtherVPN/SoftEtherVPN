@@ -15,6 +15,8 @@ add_executable(vpndrvinst
   Driver.h
   Str.c
   Str.h
+
+  "${TOP_DIRECTORY}/src/BuildFiles/Manifests/common.manifest"
 )
 
 get_filename_component(COMPONENT_FILE_NAME vpndrvinst NAME)
@@ -28,14 +30,9 @@ if(MSVC)
   set_target_properties(vpndrvinst PROPERTIES LINK_FLAGS "/manifestuac:level='requireAdministrator'")
 endif()
 
+target_link_options(vpndrvinst PRIVATE "/MANIFESTUAC:level='requireAdministrator'")
 # Hide console while keeping main() as entry point
 target_link_options(vpndrvinst PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
-
-if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-  target_sources(vpndrvinst PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_admin.manifest")
-else()
-  target_sources(vpndrvinst PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_admin.manifest")
-endif()
 
 set_target_properties(vpndrvinst
   PROPERTIES

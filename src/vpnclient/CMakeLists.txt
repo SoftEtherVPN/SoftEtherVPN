@@ -2,7 +2,12 @@ set(COMPONENT_NAME "Client")
 set(COMPONENT_INTERNAL_NAME "vpnclient")
 
 if(WIN32)
-  add_executable(vpnclient WIN32 vpncsvc.c vpncsvc.h)
+  add_executable(vpnclient WIN32
+    "vpncsvc.c"
+    "vpncsvc.h"
+
+    "${TOP_DIRECTORY}/src/BuildFiles/Manifests/common.manifest"
+  )
 
   set_target_properties(vpnclient
     PROPERTIES
@@ -14,12 +19,6 @@ if(WIN32)
 
   configure_file("${TOP_DIRECTORY}/src/BuildFiles/VerScript/ver.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
   target_sources(vpnclient PRIVATE "vpnclient.rc" "${CMAKE_CURRENT_BINARY_DIR}/ver.rc")
-
-  if(${COMPILER_ARCHITECTURE} STREQUAL "x64")
-    target_sources(vpnclient PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x64_user.manifest")
-  else()
-    target_sources(vpnclient PRIVATE "${TOP_DIRECTORY}/src/BuildFiles/Manifests/x86_user.manifest")
-  endif()
 else()
   add_executable(vpnclient vpncsvc.c vpncsvc.h)
 endif()
