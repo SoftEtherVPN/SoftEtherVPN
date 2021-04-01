@@ -8029,38 +8029,17 @@ bool IsSubnetMask32(UINT ip)
 // Turn on and off the non-blocking mode of the socket
 void UnixSetSocketNonBlockingMode(int fd, bool nonblock)
 {
-	UINT flag = 0;
 	// Validate arguments
 	if (fd == INVALID_SOCKET)
 	{
 		return;
 	}
 
-	if (nonblock)
+	const int flags = fcntl(fd, F_GETFL, 0);
+	if (flags != -1)
 	{
-		flag = 1;
+		fcntl(fd, F_SETFL, nonblock ? flags | O_NONBLOCK : flags & ~O_NONBLOCK);
 	}
-
-#ifdef	FIONBIO
-	ioctl(fd, FIONBIO, &flag);
-#else	// FIONBIO
-	{
-		int flag = fcntl(fd, F_GETFL, 0);
-		if (flag != -1)
-		{
-			if (nonblock)
-			{
-				flag |= O_NONBLOCK;
-			}
-			else
-			{
-				flag = flag & ~O_NONBLOCK;
-
-				fcntl(fd, F_SETFL, flag);
-			}
-		}
-	}
-#endif	// FIONBIO
 }
 
 // Do Nothing
