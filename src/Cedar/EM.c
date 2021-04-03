@@ -14,8 +14,8 @@
 #define	NM_C
 #define	EM_C
 
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
+#define	_WIN32_WINNT		0x0600
+#define	WINVER				0x0600
 #include <winsock2.h>
 #include <windows.h>
 #include <wincrypt.h>
@@ -1120,32 +1120,23 @@ RES_ERROR:
 		return;
 	}
 
-	// Message after the end
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType) == false)
+	// Need to restart the service
+	if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("EM_WPCAP_REBOOT2")) == IDNO)
 	{
-		// Need to restart the computer
-		MsgBox(hWnd, MB_ICONINFORMATION, _UU("EM_WPCAP_REBOOT1"));
+		// Not restart
 	}
 	else
 	{
-		// Need to restart the service
-		if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("EM_WPCAP_REBOOT2")) == IDNO)
-		{
-			// Not restart
-		}
-		else
-		{
-			// Restart
-			RPC_TEST t;
-			RPC_BRIDGE_SUPPORT t2;
-			Zero(&t, sizeof(t));
-			EcRebootServer(r, &t);
+		// Restart
+		RPC_TEST t;
+		RPC_BRIDGE_SUPPORT t2;
+		Zero(&t, sizeof(t));
+		EcRebootServer(r, &t);
 
-			SleepThread(500);
+		SleepThread(500);
 
-			Zero(&t2, sizeof(t2));
-			CALL(hWnd, EcGetBridgeSupport(r, &t2));
-		}
+		Zero(&t2, sizeof(t2));
+		CALL(hWnd, EcGetBridgeSupport(r, &t2));
 	}
 }
 

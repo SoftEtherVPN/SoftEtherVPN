@@ -630,22 +630,6 @@ char *GetTableStr(char *name)
 		return "";
 	}
 
-#ifdef	OS_WIN32
-	if (StrCmpi(name, "DEFAULT_FONT") == 0)
-	{
-		if (_II("LANG") == 2)
-		{
-			UINT os_type = GetOsType();
-			if (OS_IS_WINDOWS_9X(os_type) ||
-				GET_KETA(os_type, 100) <= 4)
-			{
-				// Use the SimSun font in Windows 9x, Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003
-				return "SimSun";
-			}
-		}
-	}
-#endif	// OS_WIN32
-
 	// Search
 	t = FindTable(name);
 	if (t == NULL)

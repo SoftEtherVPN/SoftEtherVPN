@@ -287,8 +287,6 @@ void SwFreeLogFile(SW_LOGFILE *logfile);
 void SwInstallShortcuts(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c, SW_TASK *t);
 void SwDeleteShortcuts(SW_LOGFILE *logfile);
 
-bool SwCheckOs(SW *sw, SW_COMPONENT *c);
-
 bool SwEnterSingle(SW *sw);
 void SwLeaveSingle(SW *sw);
 

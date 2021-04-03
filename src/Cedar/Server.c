@@ -1578,7 +1578,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	AddCapsBool(t, "b_support_ipv6_ac", true);
 
 	// Support for VLAN tagged packet transmission configuration tool
-	AddCapsBool(t, "b_support_eth_vlan", (OS_IS_WINDOWS_NT(GetOsType()) && GET_KETA(GetOsType(), 100) >= 2));
+	AddCapsBool(t, "b_support_eth_vlan", true);
 
 	// Support for the message display function when the VPN connect to the Virtual HUB
 	AddCapsBool(t, "b_support_msg", true);

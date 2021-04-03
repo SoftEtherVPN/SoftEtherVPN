@@ -11,8 +11,8 @@
 
 #define _WIN32_DCOM
 
-//#define	_WIN32_WINNT		0x0502
-//#define	WINVER				0x0502
+#define	_WIN32_WINNT		0x0600
+#define	WINVER				0x0600
 #include <winsock2.h>
 #include <windows.h>
 #include <wincrypt.h>
@@ -856,31 +856,8 @@ bool CreateLinkInner(wchar_t *filename, wchar_t *target, wchar_t *workdir, wchar
 				     wchar_t *comment, wchar_t *icon, UINT icon_index)
 {
 	HRESULT r;
-	bool ret;
 	IShellLinkW* pShellLink;
 	IPersistFile* pPersistFile;
-
-	if (OS_IS_WINDOWS_9X(GetOsInfo()->OsType))
-	{
-		char *a1, *a2, *a3, *a4, *a5, *a6;
-		a1 = CopyUniToStr(filename);
-		a2 = CopyUniToStr(target);
-		a3 = CopyUniToStr(workdir);
-		a4 = CopyUniToStr(args);
-		a5 = CopyUniToStr(icon);
-		a6 = CopyUniToStr(comment);
-
-		ret = CreateLinkInnerA(a1, a2, a3, a4, a6, a5, icon_index);
-
-		Free(a1);
-		Free(a2);
-		Free(a3);
-		Free(a4);
-		Free(a5);
-		Free(a6);
-
-		return ret;
-	}
 
 	r = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void **)&pShellLink);
 	if (FAILED(r))
@@ -966,31 +943,11 @@ extern "C"
 // Show the folder selection dialog
 wchar_t *FolderDlgW(HWND hWnd, wchar_t *title, wchar_t *default_dir)
 {
-	wchar_t *ret;
-
-	if (MsIsNt() == false)
-	{
-		char *default_dir_a = CopyUniToStr(default_dir);
-		char *ret_a = FolderDlgA(hWnd, title, default_dir_a);
-
-		ret = CopyStrToUni(ret_a);
-		Free(ret_a);
-		Free(default_dir_a);
-
-		return ret;
-	}
-
-	ret = FolderDlgInnerW(hWnd, title, default_dir);
-
-	return ret;
+	return FolderDlgInnerW(hWnd, title, default_dir);
 }
 char *FolderDlgA(HWND hWnd, wchar_t *title, char *default_dir)
 {
-	char *ret;
-
-	ret = FolderDlgInnerA(hWnd, title, default_dir);
-
-	return ret;
+	return FolderDlgInnerA(hWnd, title, default_dir);
 }
 
 // Create a shortcut

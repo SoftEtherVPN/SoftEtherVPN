@@ -44,7 +44,6 @@ struct ROUTE_TRACKING
 struct VLAN
 {
 	volatile bool Halt;			// Halting flag
-	bool Win9xMode;				// Windows 9x
 	char *InstanceName;			// Instance name
 	char *DeviceNameWin32;		// Win32 device name
 	char *EventNameWin32;		// Win32 event name
@@ -87,7 +86,6 @@ UINT GetInstanceId(char *name);
 void RouteTrackingStart(SESSION *s);
 void RouteTrackingStop(SESSION *s, ROUTE_TRACKING *t);
 void RouteTrackingMain(SESSION *s);
-void Win32ReleaseAllDhcp9x(bool wait);
 
 void Win32GetWinVer(RPC_WINVER *v);
 

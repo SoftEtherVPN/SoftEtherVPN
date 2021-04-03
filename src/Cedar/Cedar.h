@@ -118,7 +118,6 @@
 #define	MAX_SESSION_NAME_LEN		255		// Session name maximum length
 #define	MAX_CONNECTION_NAME_LEN		255		// Maximum length of connection name
 #define	MAX_DEVICE_NAME_LEN			31		// Device name maximum length
-#define	MAX_DEVICE_NAME_LEN_9X		4		// Maximum length of Virtual LAN card name in Win9x
 #define	MAX_ACCESSLIST_NOTE_LEN		255		// Maximum length of the note of access list entry
 #define	MAX_SECURE_DEVICE_FILE_LEN	255		// Secure device file name maximum length
 #define	MAX_ADMIN_OPTION_NAME_LEN	63		// Management option name

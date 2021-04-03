@@ -14,8 +14,8 @@
 
 #ifdef	WIN32
 // Include windows.h for Socket API
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
+#define	_WIN32_WINNT		0x0600
+#define	WINVER				0x0600
 #include <Ws2tcpip.h>
 #include <Wspiapi.h>
 #include <winsock2.h>
@@ -48,15 +48,14 @@
 #include <sys/event.h>
 #endif	// UNIX_MACOS
 
-#ifdef	OS_WIN32
-NETWORK_WIN32_FUNCTIONS *w32net;
+#ifdef OS_WIN32
 struct ROUTE_CHANGE_DATA
 {
 	OVERLAPPED Overlapped;
 	HANDLE Handle;
 	UINT NumCalled;
 };
-#endif	// OS_WIN32
+#endif
 
 // Whether the blocking occurs in SSL
 #if	defined(UNIX_BSD) || defined(UNIX_MACOS)
@@ -6031,7 +6030,7 @@ void IcmpApiFreeResult(ICMP_RESULT *ret)
 // Send an ICMP Echo using ICMP API
 ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout)
 {
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 	// Validate arguments
 	if (dest_ip == NULL || IsIP4(dest_ip) == false || (size != 0 && data == NULL))
 	{
@@ -6042,7 +6041,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		ttl = 127;
 	}
 
-	if (IsIcmpApiSupported())
+	if (true)
 	{
 		HANDLE h;
 		DWORD dw;
@@ -6052,7 +6051,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		ICMP_RESULT *ret = NULL;
 		IP_OPTION_INFORMATION opt;
 
-		h = w32net->IcmpCreateFile();
+		h = IcmpCreateFile();
 
 		if (h == INVALID_HANDLE_VALUE)
 		{
@@ -6067,7 +6066,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		reply_size = sizeof(*reply) + size + 64;
 		reply = ZeroMalloc(reply_size);
 
-		dw = w32net->IcmpSendEcho(h, dest_addr, data, size, &opt, reply, reply_size, timeout);
+		dw = IcmpSendEcho(h, dest_addr, data, size, &opt, reply, reply_size, timeout);
 
 		ret = ZeroMalloc(sizeof(ICMP_RESULT));
 
@@ -6130,7 +6129,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 
 		Free(reply);
 
-		w32net->IcmpCloseHandle(h);
+		IcmpCloseHandle(h);
 
 		return ret;
 	}
@@ -6142,21 +6141,6 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 #else	// OS_WIN32
 	return NULL;
 #endif	// OS_WIN32
-}
-
-// Detect whether the ICMP API is supported
-bool IsIcmpApiSupported()
-{
-#ifdef	OS_WIN32
-	if (w32net->IcmpCloseHandle != NULL &&
-	        w32net->IcmpCreateFile != NULL &&
-	        w32net->IcmpSendEcho != NULL)
-	{
-		return true;
-	}
-#endif	// OS_WIN32
-
-	return false;
 }
 
 // Initialize the routing table change detector
@@ -6194,24 +6178,13 @@ ROUTE_CHANGE *Win32NewRouteChange()
 	ROUTE_CHANGE *r;
 	BOOL ret;
 
-	if (MsIsNt() == false)
-	{
-		return NULL;
-	}
-
-	if (w32net->CancelIPChangeNotify == NULL ||
-	        w32net->NotifyRouteChange == NULL)
-	{
-		return NULL;
-	}
-
 	r = ZeroMalloc(sizeof(ROUTE_CHANGE));
 
 	r->Data = ZeroMalloc(sizeof(ROUTE_CHANGE_DATA));
 
 	r->Data->Overlapped.hEvent = CreateEventA(NULL, false, true, NULL);
 
-	ret = w32net->NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
+	ret = NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
 	if (!(ret == NO_ERROR || ret == WSA_IO_PENDING || WSAGetLastError() == WSA_IO_PENDING))
 	{
 		Free(r->Data);
@@ -6231,7 +6204,7 @@ void Win32FreeRouteChange(ROUTE_CHANGE *r)
 		return;
 	}
 
-	w32net->CancelIPChangeNotify(&r->Data->Overlapped);
+	CancelIPChangeNotify(&r->Data->Overlapped);
 	CloseHandle(r->Data->Overlapped.hEvent);
 
 	Free(r->Data);
@@ -6253,7 +6226,7 @@ bool Win32IsRouteChanged(ROUTE_CHANGE *r)
 
 	if (WaitForSingleObject(r->Data->Overlapped.hEvent, 0) == WAIT_OBJECT_0)
 	{
-		w32net->NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
+		NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
 		return true;
 	}
 
@@ -8758,9 +8731,7 @@ void UnixFreeSocketLibrary()
 
 #endif	// OS_UNIX
 
-#ifdef	OS_WIN32		// Code for Windows
-
-NETWORK_WIN32_FUNCTIONS *w32net;
+#ifdef OS_WIN32		// Code for Windows
 
 // Comparison of IP_ADAPTER_INDEX_MAP
 int CompareIpAdapterIndexMap(void *p1, void *p2)
@@ -8817,12 +8788,8 @@ bool Win32RenewAddress(void *a)
 	{
 		return false;
 	}
-	if (w32net->IpRenewAddress == NULL)
-	{
-		return false;
-	}
 
-	ret = w32net->IpRenewAddress(a);
+	ret = IpRenewAddress(a);
 
 	if (ret == NO_ERROR)
 	{
@@ -8844,12 +8811,12 @@ bool Win32ReleaseAddress(void *a)
 	{
 		return false;
 	}
-	if (w32net->IpReleaseAddress == NULL)
+	if (IpReleaseAddress == NULL)
 	{
 		return false;
 	}
 
-	ret = w32net->IpReleaseAddress(a);
+	ret = IpReleaseAddress(a);
 
 	if (ret == NO_ERROR)
 	{
@@ -9004,23 +8971,19 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 	{
 		return false;
 	}
-	if (w32net->GetInterfaceInfo == NULL)
-	{
-		return false;
-	}
 
 	UniFormat(tmp, sizeof(tmp), L"\\DEVICE\\TCPIP_%S", guid);
 
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9078,13 +9041,13 @@ void Win32RenewDhcp9x(UINT if_id)
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return;
@@ -9134,13 +9097,13 @@ void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return;
@@ -9195,7 +9158,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIfTable(p, &size_needed, 0);
+	ret = GetIfTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9211,7 +9174,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIfTable(p, &size_needed, FALSE);
+	ret = GetIfTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9276,7 +9239,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIfTable(p, &size_needed, 0);
+	ret = GetIfTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9293,7 +9256,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIfTable(p, &size_needed, FALSE);
+	ret = GetIfTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9358,19 +9321,15 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 	{
 		return false;
 	}
-	if (w32net->GetAdaptersAddresses == NULL)
-	{
-		return false;
-	}
 
 	info_size = 0;
 	info = ZeroMalloc(sizeof(IP_ADAPTER_ADDRESSES_XP));
-	if (w32net->GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) == ERROR_BUFFER_OVERFLOW)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) == ERROR_BUFFER_OVERFLOW)
 	{
 		Free(info);
 		info = ZeroMalloc(info_size);
 	}
-	if (w32net->GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) != NO_ERROR)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9408,18 +9367,15 @@ bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 		return false;
 	}
 	Zero(ip, sizeof(IP));
-	if (w32net->GetNetworkParams == NULL)
-	{
-		return false;
-	}
+
 	info_size = 0;
 	info = ZeroMallocFast(sizeof(FIXED_INFO));
-	if (w32net->GetNetworkParams(info, &info_size) == ERROR_BUFFER_OVERFLOW)
+	if (GetNetworkParams(info, &info_size) == ERROR_BUFFER_OVERFLOW)
 	{
 		Free(info);
 		info = ZeroMallocFast(info_size);
 	}
-	if (w32net->GetNetworkParams(info, &info_size) != NO_ERROR)
+	if (GetNetworkParams(info, &info_size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9464,9 +9420,7 @@ void Win32DeleteRouteEntry(ROUTE_ENTRY *e)
 	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
 	Win32RouteEntryToIpForwardRow(p, e);
 
-	// Delete
-	w32net->DeleteIpForwardEntry(p);
-
+	DeleteIpForwardEntry(p);
 	Free(p);
 }
 
@@ -9492,8 +9446,7 @@ bool Win32AddRouteEntry(ROUTE_ENTRY *e, bool *already_exists)
 	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
 	Win32RouteEntryToIpForwardRow(p, e);
 
-	// Adding
-	err = w32net->CreateIpForwardEntry(p);
+	err = CreateIpForwardEntry(p);
 	if (err != 0)
 	{
 		if (err == ERROR_OBJECT_ALREADY_EXISTS)
@@ -9535,7 +9488,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIpForwardTable(p, &size_needed, 0);
+	ret = GetIpForwardTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9552,7 +9505,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIpForwardTable(p, &size_needed, FALSE);
+	ret = GetIpForwardTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9655,16 +9608,8 @@ void Win32RouteEntryToIpForwardRow(void *ip_forward_row, ROUTE_ENTRY *entry)
 	}
 	// Metric
 	r->dwForwardMetric1 = entry->Metric;
-
-	if (MsIsVista() == false)
-	{
-		r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = INFINITE;
-	}
-	else
-	{
-		r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = 0;
-		r->dwForwardAge = 163240;
-	}
+	r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = 0;
+	r->dwForwardAge = 163240;
 
 	// Interface ID
 	r->dwForwardIfIndex = entry->InterfaceID;
@@ -9725,144 +9670,11 @@ void Win32InitSocketLibrary()
 	WSADATA data;
 	Zero(&data, sizeof(data));
 	WSAStartup(MAKEWORD(2, 2), &data);
-
-	// Load the DLL functions
-	w32net = ZeroMalloc(sizeof(NETWORK_WIN32_FUNCTIONS));
-	w32net->hIpHlpApi32 = LoadLibrary("iphlpapi.dll");
-	w32net->hIcmp = LoadLibrary("icmp.dll");
-
-	if (w32net->hIpHlpApi32 != NULL)
-	{
-		w32net->CreateIpForwardEntry =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-		    GetProcAddress(w32net->hIpHlpApi32, "CreateIpForwardEntry");
-
-		w32net->DeleteIpForwardEntry =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-		    GetProcAddress(w32net->hIpHlpApi32, "DeleteIpForwardEntry");
-
-		w32net->GetIfTable =
-		    (DWORD (__stdcall *)(PMIB_IFTABLE, PULONG, BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable");
-
-		w32net->GetIfTable2 =
-		    (DWORD (__stdcall *)(void **))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable2");
-
-		w32net->FreeMibTable =
-		    (void (__stdcall *)(PVOID))
-		    GetProcAddress(w32net->hIpHlpApi32, "FreeMibTable");
-
-		w32net->GetIpForwardTable =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDTABLE, PULONG, BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIpForwardTable");
-
-		w32net->GetNetworkParams =
-		    (DWORD (__stdcall *)(PFIXED_INFO,PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetNetworkParams");
-
-		w32net->GetAdaptersAddresses =
-		    (ULONG (__stdcall *)(ULONG,ULONG,PVOID,PIP_ADAPTER_ADDRESSES,PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersAddresses");
-
-		w32net->IpRenewAddress =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-		    GetProcAddress(w32net->hIpHlpApi32, "IpRenewAddress");
-
-		w32net->IpReleaseAddress =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-		    GetProcAddress(w32net->hIpHlpApi32, "IpReleaseAddress");
-
-		w32net->GetInterfaceInfo =
-		    (DWORD (__stdcall *)(PIP_INTERFACE_INFO, PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetInterfaceInfo");
-
-		w32net->GetAdaptersInfo =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INFO, PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersInfo");
-
-		w32net->GetExtendedTcpTable =
-		    (DWORD (__stdcall *)(PVOID,PDWORD,BOOL,ULONG,_TCP_TABLE_CLASS,ULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetExtendedTcpTable");
-
-		w32net->AllocateAndGetTcpExTableFromStack =
-		    (DWORD (__stdcall *)(PVOID *,BOOL,HANDLE,DWORD,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "AllocateAndGetTcpExTableFromStack");
-
-		w32net->GetTcpTable =
-		    (DWORD (__stdcall *)(PMIB_TCPTABLE,PDWORD,BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetTcpTable");
-
-		w32net->NotifyRouteChange =
-		    (DWORD (__stdcall *)(PHANDLE,LPOVERLAPPED))
-		    GetProcAddress(w32net->hIpHlpApi32, "NotifyRouteChange");
-
-		w32net->CancelIPChangeNotify =
-		    (BOOL (__stdcall *)(LPOVERLAPPED))
-		    GetProcAddress(w32net->hIpHlpApi32, "CancelIPChangeNotify");
-
-		w32net->NhpAllocateAndGetInterfaceInfoFromStack =
-		    (DWORD (__stdcall *)(IP_INTERFACE_NAME_INFO **,PDWORD,BOOL,HANDLE,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "NhpAllocateAndGetInterfaceInfoFromStack");
-
-		w32net->IcmpCreateFile =
-		    (HANDLE (__stdcall *)())
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCreateFile");
-
-		w32net->IcmpCloseHandle =
-		    (BOOL (__stdcall *)(HANDLE))
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCloseHandle");
-
-		w32net->IcmpSendEcho =
-		    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpSendEcho");
-	}
-
-	if (w32net->hIcmp != NULL)
-	{
-		if (w32net->IcmpCreateFile == NULL || w32net->IcmpCloseHandle == NULL || w32net->IcmpSendEcho == NULL)
-		{
-			w32net->IcmpCreateFile =
-			    (HANDLE (__stdcall *)())
-			    GetProcAddress(w32net->hIcmp, "IcmpCreateFile");
-
-			w32net->IcmpCloseHandle =
-			    (BOOL (__stdcall *)(HANDLE))
-			    GetProcAddress(w32net->hIcmp, "IcmpCloseHandle");
-
-			w32net->IcmpSendEcho =
-			    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-			    GetProcAddress(w32net->hIcmp, "IcmpSendEcho");
-		}
-	}
-
-	if (w32net->IcmpCreateFile == NULL || w32net->IcmpCloseHandle == NULL || w32net->IcmpSendEcho == NULL)
-	{
-		w32net->IcmpCreateFile = NULL;
-		w32net->IcmpCloseHandle = NULL;
-		w32net->IcmpSendEcho = NULL;
-	}
 }
 
 // Release of the socket library
 void Win32FreeSocketLibrary()
 {
-	if (w32net != NULL)
-	{
-		if (w32net->hIpHlpApi32 != NULL)
-		{
-			FreeLibrary(w32net->hIpHlpApi32);
-		}
-
-		if (w32net->hIcmp != NULL)
-		{
-			FreeLibrary(w32net->hIcmp);
-		}
-
-		Free(w32net);
-		w32net = NULL;
-	}
-
 	WSACleanup();
 }
 
@@ -10694,16 +10506,6 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 		dest = IPToUINT(&tmp->DestIP);
 		gateway = IPToUINT(&tmp->GatewayIP);
 		mask = IPToUINT(&tmp->DestMask);
-		if ((dest & mask) == (gateway & mask))
-		{
-#ifdef	OS_WIN32
-			if (MsIsVista() == false)
-			{
-				// Adjust for Windows
-				ret->PPPConnection = true;
-			}
-#endif	// OS_WIN32
-		}
 	}
 
 	return ret;
@@ -13256,14 +13058,6 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 		return NULL;
 	}
 
-#ifdef	OS_WIN32
-	if (MsIsVista() == false)
-	{
-		// Disable the Conditional Accept due to a bug in Windows
-		enable_ca = false;
-	}
-#endif	// OS_WIN32
-
 	// Initialization
 	Zero(&addr, sizeof(addr));
 	Zero(&in, sizeof(in));
@@ -13302,17 +13096,13 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 		return NULL;
 	}
 
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 	if (enable_ca)
 	{
-		if (MsIsWinXPOrGreater())
-		{
-			setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
-
-			backlog = 1;
-		}
+		setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
+		backlog = 1;
 	}
-#endif	// OS_WIN32
+#endif
 
 	if (listen(s, backlog))
 	{
@@ -13361,14 +13151,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 		return NULL;
 	}
 
-#ifdef	OS_WIN32
-	if (MsIsVista() == false)
-	{
-		// Disable the Conditional Accept due to a bug in Windows
-		enable_ca = false;
-	}
-#endif	// OS_WIN32
-
 	// Initialization
 	Zero(&addr, sizeof(addr));
 	Zero(&in, sizeof(in));
@@ -13416,12 +13198,8 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 #ifdef	OS_WIN32
 	if (enable_ca)
 	{
-		if (MsIsWinXPOrGreater())
-		{
-			setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
-
-			backlog = 1;
-		}
+		setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
+		backlog = 1;
 	}
 #endif	// OS_WIN32
 
@@ -13853,7 +13631,6 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	UINT zero = 0;
 	UINT tmp = 0;
 	DWORD ret_size = 0;
-	bool is_nt = false;
 	// Validate arguments
 	if (s == INVALID_SOCKET || addr == NULL)
 	{
@@ -13863,8 +13640,6 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	{
 		timeout = TIMEOUT_TCP_PORT_CHECK;
 	}
-
-	is_nt = OS_IS_WINDOWS_NT(GetOsInfo()->OsType);
 
 	// Create an event
 	hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -13890,7 +13665,7 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 			int err = WSAGetLastError();
 			//Debug("err=%u\n", err);
 			//Debug("cancel_flag=%u\n", *cancel_flag);
-			if (timeouted && ((err == WSAEALREADY) || (err == WSAEWOULDBLOCK && !is_nt)))
+			if (timeouted && err == WSAEALREADY)
 			{
 				// Time-out
 				ok = false;
@@ -13902,12 +13677,12 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 				ok = false;
 				break;
 			}
-			if (err == WSAEISCONN || (err == WSAEINVAL && is_nt))
+			if (err == WSAEISCONN || err == WSAEINVAL)
 			{
 				ok = true;
 				break;
 			}
-			if (((start_time + (UINT64)timeout) <= Tick64()) || (err != WSAEWOULDBLOCK && err != WSAEALREADY && (is_nt || err != WSAEINVAL)))
+			if (((start_time + (UINT64)timeout) <= Tick64()) || (err != WSAEWOULDBLOCK && err != WSAEALREADY))
 			{
 				// Failure (timeout)
 				break;

@@ -47,9 +47,6 @@ typedef unsigned long DWORD;
 #define	SVC_ARG_SERVICE				"/service"
 #define	SVC_ARG_SETUP_INSTALL		"/setup_install"
 #define	SVC_ARG_SETUP_UNINSTALL		"/setup_uninstall"
-#define	SVC_ARG_WIN9X_SERVICE		"/win9x_service"
-#define	SVC_ARG_WIN9X_INSTALL		"/win9x_install"
-#define	SVC_ARG_WIN9X_UNINSTALL		"/win9x_uninstall"
 #define	SVC_ARG_TCP					"/tcp"
 #define	SVC_ARG_TCP_UAC				"/tcp_uac"
 #define	SVC_ARG_TCP_UAC_W			L"/tcp_uac"
@@ -92,18 +89,11 @@ typedef unsigned long DWORD;
 #define	SVC_MODE_SERVICE			7
 #define	SVC_MODE_SETUP_INSTALL		8
 #define	SVC_MODE_SETUP_UNINSTALL	9
-#define	SVC_MODE_WIN9X_SERVICE		10
-#define	SVC_MODE_WIN9X_INSTALL		11
-#define	SVC_MODE_WIN9X_UNINSTALL	12
 #define	SVC_MODE_TCP				13
 #define	SVC_MODE_TCPSETUP			14
 #define	SVC_MODE_TRAFFIC			15
 #define	SVC_MODE_UIHELP				16
 #define	SVC_MODE_TCP_UAC			17
-
-
-#define	WIN9X_SVC_REGKEY_1			"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices"
-#define	WIN9X_SVC_REGKEY_2			"Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 
 #define	VISTA_MMCSS_KEYNAME			"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks"
 #define	VISTA_MMCSS_FILENAME		"mmcss_backup.dat"
@@ -138,69 +128,23 @@ typedef unsigned long DWORD;
 
 #define	DRIVER_DEVICE_ID_TAG		"NeoAdapter_%s"
 
-
-#if		(defined(MICROSOFT_C) || defined(NETWORK_C)) && (defined(OS_WIN32))
-
-typedef enum __TCP_TABLE_CLASS {
-	_TCP_TABLE_BASIC_LISTENER,
-	_TCP_TABLE_BASIC_CONNECTIONS,
-	_TCP_TABLE_BASIC_ALL,
-	_TCP_TABLE_OWNER_PID_LISTENER,
-	_TCP_TABLE_OWNER_PID_CONNECTIONS,
-	_TCP_TABLE_OWNER_PID_ALL,
-	_TCP_TABLE_OWNER_MODULE_LISTENER,
-	_TCP_TABLE_OWNER_MODULE_CONNECTIONS,
-	_TCP_TABLE_OWNER_MODULE_ALL
-} _TCP_TABLE_CLASS, *_PTCP_TABLE_CLASS;
-
-// A pointer to the network related Win32 API function
-typedef struct NETWORK_WIN32_FUNCTIONS
-{
-	HINSTANCE hIpHlpApi32;
-	HINSTANCE hIcmp;
-	DWORD (WINAPI *DeleteIpForwardEntry)(PMIB_IPFORWARDROW);
-	DWORD (WINAPI *CreateIpForwardEntry)(PMIB_IPFORWARDROW);
-	DWORD (WINAPI *GetIpForwardTable)(PMIB_IPFORWARDTABLE, PULONG, BOOL);
-	DWORD (WINAPI *GetNetworkParams)(PFIXED_INFO, PULONG);
-	ULONG (WINAPI *GetAdaptersAddresses)(ULONG, ULONG, PVOID, PIP_ADAPTER_ADDRESSES, PULONG);
-	DWORD (WINAPI *GetIfTable)(PMIB_IFTABLE, PULONG, BOOL);
-	DWORD (WINAPI *GetIfTable2)(void **);
-	void (WINAPI *FreeMibTable)(PVOID);
-	DWORD (WINAPI *IpRenewAddress)(PIP_ADAPTER_INDEX_MAP);
-	DWORD (WINAPI *IpReleaseAddress)(PIP_ADAPTER_INDEX_MAP);
-	DWORD (WINAPI *GetInterfaceInfo)(PIP_INTERFACE_INFO, PULONG);
-	DWORD (WINAPI *GetAdaptersInfo)(PIP_ADAPTER_INFO, PULONG);
-	DWORD (WINAPI *GetExtendedTcpTable)(PVOID, PDWORD, BOOL, ULONG, _TCP_TABLE_CLASS, ULONG);
-	DWORD (WINAPI *AllocateAndGetTcpExTableFromStack)(PVOID *, BOOL, HANDLE, DWORD, DWORD);
-	DWORD (WINAPI *GetTcpTable)(PMIB_TCPTABLE, PULONG, BOOL);
-	DWORD (WINAPI *NotifyRouteChange)(PHANDLE, LPOVERLAPPED);
-	BOOL (WINAPI *CancelIPChangeNotify)(LPOVERLAPPED);
-	DWORD (WINAPI *NhpAllocateAndGetInterfaceInfoFromStack)(IP_INTERFACE_NAME_INFO **,
-		PDWORD, BOOL, HANDLE, DWORD);
-	HANDLE (WINAPI *IcmpCreateFile)();
-	BOOL (WINAPI *IcmpCloseHandle)(HANDLE);
-	DWORD (WINAPI *IcmpSendEcho)(HANDLE, IPAddr, LPVOID, WORD, PIP_OPTION_INFORMATION,
-		LPVOID, DWORD, DWORD);
-} NETWORK_WIN32_FUNCTIONS;
-#endif
-
-#ifdef	MICROSOFT_C
+#ifdef MICROSOFT_C
 // WCM related code on Windows 8
 typedef enum _MS_WCM_PROPERTY
 {
 	ms_wcm_global_property_domain_policy,
 	ms_wcm_global_property_minimize_policy,
-	ms_wcm_global_property_roaming_policy,  
+	ms_wcm_global_property_roaming_policy,
 	ms_wcm_global_property_powermanagement_policy,
 	ms_wcm_intf_property_connection_cost,   //used to set/get cost level and flags for the connection
 	ms_wcm_intf_property_dataplan_status,   //used by MNO to indicate plan data associated with new cost
 	ms_wcm_intf_property_hotspot_profile,   //used to store hotspot profile (WISPr credentials)
-} MS_WCM_PROPERTY, *MS_PWCM_PROPERTY;
+} MS_WCM_PROPERTY, * MS_PWCM_PROPERTY;
 
 typedef struct _MS_WCM_POLICY_VALUE {
 	BOOL fValue;
 	BOOL fIsGroupPolicy;
-} MS_WCM_POLICY_VALUE, *MS_PWCM_POLICY_VALUE;
+} MS_WCM_POLICY_VALUE, * MS_PWCM_POLICY_VALUE;
 
 #define MS_WCM_MAX_PROFILE_NAME            256
 
@@ -212,21 +156,20 @@ typedef enum _MS_WCM_MEDIA_TYPE
 	ms_wcm_media_mbn,
 	ms_wcm_media_invalid,
 	ms_wcm_media_max
-} MS_WCM_MEDIA_TYPE, *MS_PWCM_MEDIA_TYPE;
+} MS_WCM_MEDIA_TYPE, * MS_PWCM_MEDIA_TYPE;
 
 typedef struct _MS_WCM_PROFILE_INFO {
 	WCHAR strProfileName[MS_WCM_MAX_PROFILE_NAME];
 	GUID AdapterGUID;
 	MS_WCM_MEDIA_TYPE Media;
-} MS_WCM_PROFILE_INFO, *MS_PWCM_PROFILE_INFO;
+} MS_WCM_PROFILE_INFO, * MS_PWCM_PROFILE_INFO;
 
 typedef struct _MS_WCM_PROFILE_INFO_LIST {
 	UINT            dwNumberOfItems;
 
 	MS_WCM_PROFILE_INFO ProfileInfo[1];
 
-} MS_WCM_PROFILE_INFO_LIST, *MS_PWCM_PROFILE_INFO_LIST;
-
+} MS_WCM_PROFILE_INFO_LIST, * MS_PWCM_PROFILE_INFO_LIST;
 
 // Internal structure
 typedef struct MS
@@ -235,7 +178,6 @@ typedef struct MS
 	HINSTANCE hKernel32;
 	bool IsNt;
 	bool IsAdmin;
-	struct NT_API *nt;
 	HANDLE hCurrentProcess;
 	UINT CurrentProcessId;
 	bool MiniDumpEnabled;
@@ -294,111 +236,10 @@ typedef struct MS
 	bool IsWine;
 } MS;
 
-// For Windows NT API
-typedef struct NT_API
-{
-	HINSTANCE hAdvapi32;
-	HINSTANCE hShell32;
-	HINSTANCE hNewDev;
-	HINSTANCE hSetupApi;
-	HINSTANCE hWtsApi32;
-	HINSTANCE hPsApi;
-	HINSTANCE hKernel32;
-	HINSTANCE hSecur32;
-	HINSTANCE hUser32;
-	HINSTANCE hDbgHelp;
-	HINSTANCE hWcmapi;
-	HINSTANCE hDwmapi;
-	BOOL (WINAPI *OpenProcessToken)(HANDLE, DWORD, PHANDLE);
-	BOOL (WINAPI *LookupPrivilegeValue)(char *, char *, PLUID);
-	BOOL (WINAPI *AdjustTokenPrivileges)(HANDLE, BOOL, PTOKEN_PRIVILEGES, DWORD, PTOKEN_PRIVILEGES, PDWORD);
-	BOOL (WINAPI *InitiateSystemShutdown)(LPTSTR, LPTSTR, DWORD, BOOL, BOOL);
-	BOOL (WINAPI *LogonUserW)(wchar_t *, wchar_t *, wchar_t *, DWORD, DWORD, HANDLE *);
-	BOOL (WINAPI *LogonUserA)(char *, char *, char *, DWORD, DWORD, HANDLE *);
-	BOOL (WINAPI *UpdateDriverForPlugAndPlayDevicesW)(HWND hWnd, LPCWSTR hardware_id, LPCWSTR inf_path, DWORD flag, PBOOL need_reboot);
-	DWORD (WINAPI *CM_Get_DevNode_Status_Ex)(PULONG, PULONG, DWORD, ULONG, HANDLE);
-	DWORD (WINAPI *CM_Get_Device_ID_ExA)(DWORD, LPSTR, ULONG, ULONG, HANDLE);
-	BOOL (WINAPI *WTSQuerySessionInformation)(HANDLE, DWORD, WTS_INFO_CLASS, wchar_t *, DWORD *);
-	void (WINAPI *WTSFreeMemory)(void *);
-	BOOL (WINAPI *WTSDisconnectSession)(HANDLE, DWORD, BOOL);
-	BOOL (WINAPI *WTSEnumerateSessions)(HANDLE, DWORD, DWORD, PWTS_SESSION_INFO *, DWORD *);
-	BOOL (WINAPI *WTSRegisterSessionNotification)(HWND, DWORD);
-	BOOL (WINAPI *WTSUnRegisterSessionNotification)(HWND);
-	SC_HANDLE (WINAPI *OpenSCManager)(LPCTSTR, LPCTSTR, DWORD);
-	SC_HANDLE (WINAPI *CreateServiceA)(SC_HANDLE, LPCTSTR, LPCTSTR, DWORD, DWORD, DWORD, DWORD, LPCTSTR, LPCTSTR, LPDWORD, LPCTSTR, LPCTSTR, LPCTSTR);
-	SC_HANDLE (WINAPI *CreateServiceW)(SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR, LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
-	BOOL (WINAPI *ChangeServiceConfig2)(SC_HANDLE, DWORD, LPVOID);
-	BOOL (WINAPI *CloseServiceHandle)(SC_HANDLE);
-	SC_HANDLE (WINAPI *OpenService)(SC_HANDLE, LPCTSTR, DWORD);
-	BOOL (WINAPI *QueryServiceStatus)(SC_HANDLE, LPSERVICE_STATUS);
-	BOOL (WINAPI *StartService)(SC_HANDLE, DWORD, LPCTSTR);
-	BOOL (WINAPI *ControlService)(SC_HANDLE, DWORD, LPSERVICE_STATUS);
-	BOOL (WINAPI *SetServiceStatus)(SERVICE_STATUS_HANDLE, LPSERVICE_STATUS);
-	SERVICE_STATUS_HANDLE (WINAPI *RegisterServiceCtrlHandler)(LPCTSTR, LPHANDLER_FUNCTION);
-	BOOL (WINAPI *StartServiceCtrlDispatcher)(CONST LPSERVICE_TABLE_ENTRY);
-	BOOL (WINAPI *DeleteService)(SC_HANDLE);
-	BOOL (WINAPI *EnumProcesses)(DWORD *, DWORD, DWORD *);
-	BOOL (WINAPI *EnumProcessModules)(HANDLE, HMODULE *, DWORD, DWORD *);
-	DWORD (WINAPI *GetModuleFileNameExA)(HANDLE, HMODULE, LPSTR, DWORD);
-	DWORD (WINAPI *GetModuleFileNameExW)(HANDLE, HMODULE, LPWSTR, DWORD);
-	DWORD (WINAPI *GetProcessImageFileNameA)(HANDLE, LPSTR, DWORD);
-	DWORD (WINAPI *GetProcessImageFileNameW)(HANDLE, LPWSTR, DWORD);
-	BOOL (WINAPI *QueryFullProcessImageNameA)(HANDLE, DWORD, LPSTR, PDWORD);
-	BOOL (WINAPI *QueryFullProcessImageNameW)(HANDLE, DWORD, LPWSTR, PDWORD);
-	LONG (WINAPI *RegDeleteKeyExA)(HKEY, LPCTSTR, REGSAM, DWORD);
-	BOOL (WINAPI *IsWow64Process)(HANDLE, BOOL *);
-	void (WINAPI *GetNativeSystemInfo)(SYSTEM_INFO *);
-	BOOL (WINAPI *DuplicateTokenEx)(HANDLE, DWORD, SECURITY_ATTRIBUTES *, SECURITY_IMPERSONATION_LEVEL, TOKEN_TYPE, HANDLE *);
-	BOOL (WINAPI *ConvertStringSidToSidA)(LPCSTR, PSID *);
-	BOOL (WINAPI *SetTokenInformation)(HANDLE, TOKEN_INFORMATION_CLASS, void *, DWORD);
-	BOOL (WINAPI *GetTokenInformation)(HANDLE, TOKEN_INFORMATION_CLASS, void *, DWORD, PDWORD);
-	BOOL (WINAPI *CreateProcessAsUserA)(HANDLE, LPCSTR, LPSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, void *, LPCSTR, LPSTARTUPINFOA, LPPROCESS_INFORMATION);
-	BOOL (WINAPI *CreateProcessAsUserW)(HANDLE, LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, void *, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION);
-	BOOL (WINAPI *LookupAccountSidA)(LPCSTR,PSID,LPSTR,LPDWORD,LPSTR,LPDWORD,PSID_NAME_USE);
-	BOOL (WINAPI *LookupAccountNameA)(LPCSTR,LPCSTR,PSID,LPDWORD,LPSTR,LPDWORD,PSID_NAME_USE);
-	BOOL (WINAPI *GetUserNameExA)(EXTENDED_NAME_FORMAT, LPSTR, PULONG);
-	BOOL (WINAPI *GetUserNameExW)(EXTENDED_NAME_FORMAT, LPWSTR, PULONG);
-	BOOL (WINAPI *SwitchDesktop)(HDESK);
-	HDESK (WINAPI *OpenDesktopA)(LPTSTR, DWORD, BOOL, ACCESS_MASK);
-	BOOL (WINAPI *CloseDesktop)(HDESK);
-	BOOL (WINAPI *SetProcessShutdownParameters)(DWORD, DWORD);
-	HANDLE (WINAPI *RegisterEventSourceW)(LPCWSTR, LPCWSTR);
-	BOOL (WINAPI *ReportEventW)(HANDLE, WORD, WORD, DWORD, PSID, WORD, DWORD, LPCWSTR *, LPVOID);
-	BOOL (WINAPI *DeregisterEventSource)(HANDLE);
-	BOOL (WINAPI *Wow64DisableWow64FsRedirection)(void **);
-	BOOLEAN (WINAPI *Wow64EnableWow64FsRedirection)(BOOLEAN);
-	BOOL (WINAPI *Wow64RevertWow64FsRedirection)(void *);
-	BOOL (WINAPI *GetFileInformationByHandle)(HANDLE, LPBY_HANDLE_FILE_INFORMATION);
-	HANDLE (WINAPI *GetProcessHeap)();
-	BOOL (WINAPI *MiniDumpWriteDump)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
-		PMINIDUMP_EXCEPTION_INFORMATION, PMINIDUMP_USER_STREAM_INFORMATION,
-		PMINIDUMP_CALLBACK_INFORMATION);
-	BOOL (WINAPI *AllocateLocallyUniqueId)(PLUID);
-	NTSTATUS (NTAPI *LsaConnectUntrusted)(PHANDLE);
-	NTSTATUS (NTAPI *LsaLookupAuthenticationPackage)(HANDLE, PLSA_STRING, PULONG);
-	NTSTATUS (NTAPI *LsaLogonUser)(HANDLE, PLSA_STRING, SECURITY_LOGON_TYPE, ULONG,
-		PVOID, ULONG, PTOKEN_GROUPS, PTOKEN_SOURCE, PVOID, PULONG, PLUID, PHANDLE,
-		PQUOTA_LIMITS, PNTSTATUS);
-	NTSTATUS (NTAPI *LsaDeregisterLogonProcess)(HANDLE);
-	NTSTATUS (NTAPI *LsaFreeReturnBuffer)(PVOID);
-	DWORD (WINAPI *WcmQueryProperty)(const GUID *, LPCWSTR, MS_WCM_PROPERTY, PVOID, PDWORD, PBYTE *);
-	DWORD (WINAPI *WcmSetProperty)(const GUID *, LPCWSTR, MS_WCM_PROPERTY, PVOID, DWORD, const BYTE *);
-	void (WINAPI *WcmFreeMemory)(PVOID);
-	DWORD (WINAPI *WcmGetProfileList)(PVOID, MS_WCM_PROFILE_INFO_LIST **ppProfileList);
-	DWORD (WINAPI *SetNamedSecurityInfoW)(LPWSTR, DWORD, SECURITY_INFORMATION, PSID, PSID, PACL, PACL);
-	BOOL (WINAPI *AddAccessAllowedAceEx)(PACL, DWORD, DWORD, DWORD, PSID);
-	HRESULT (WINAPI *DwmIsCompositionEnabled)(BOOL *);
-	BOOL (WINAPI *GetComputerNameExW)(COMPUTER_NAME_FORMAT, LPWSTR, LPDWORD);
-	LONG (WINAPI *RegLoadKeyW)(HKEY, LPCWSTR, LPCWSTR);
-	LONG (WINAPI *RegUnLoadKeyW)(HKEY, LPCWSTR);
-} NT_API;
-
 typedef struct MS_EVENTLOG
 {
 	HANDLE hEventLog;
 } MS_EVENTLOG;
-
-extern NETWORK_WIN32_FUNCTIONS *w32net;
 
 typedef struct MS_USERMODE_SVC_PULSE_THREAD_PARAM
 {
@@ -613,7 +454,6 @@ bool MsRegDeleteValueEx2(UINT root, char *keyname, char *valuename, bool force32
 bool MsRegLoadHive(UINT root, wchar_t *keyname, wchar_t *filename);
 bool MsRegUnloadHive(UINT root, wchar_t *keyname);
 
-bool MsIsNt();
 bool MsIsAdmin();
 bool MsIsWine();
 bool MsEnablePrivilege(char *name, bool enable);
@@ -740,10 +580,7 @@ bool MsIsUserMode();
 void MsTestOnly();
 void MsPlaySound(char *name);
 void MsSetThreadSingleCpu();
-void MsWin9xTest();
 bool MsCheckVLanDeviceIdFromRootEnum(char *name);
-bool MsInstallVLan9x(char *instance_name, MS_DRIVER_VER *ver);
-void MsUpdateCompatibleIDs(char *instance_name);
 LIST *MsGetProcessList();
 LIST *MsGetProcessList9x();
 LIST *MsGetProcessListNt();
@@ -825,9 +662,6 @@ LIST *EnumAllChildWindowEx(HWND hWnd, bool no_recursion, bool include_ipcontrol,
 LIST *EnumAllTopWindow();
 
 bool MsExecDriverInstaller(char *arg);
-bool MsIsVista();
-bool MsIsWin2000OrGreater();
-bool MsIsWinXPOrGreater();
 void MsRegistWindowsFirewallEx(char *title, char *exe);
 void MsRegistWindowsFirewallEx2(char *title, char *exe, char *dir);
 bool MsIs64BitWindows();
@@ -937,8 +771,6 @@ UINT64 MsGetSuspendModeBeginTick();
 
 LONG CALLBACK MsExceptionHandler(struct _EXCEPTION_POINTERS *ExceptionInfo);
 HKEY MsGetRootKeyFromInt(UINT root);
-NT_API *MsLoadNtApiFunctions();
-void MsFreeNtApiFunctions(NT_API *nt);
 void MsDestroyDevInfo(HDEVINFO info);
 HDEVINFO MsGetDevInfoFromDeviceId(SP_DEVINFO_DATA *dev_info_data, char *device_id);
 bool MsStartDevice(HDEVINFO info, SP_DEVINFO_DATA *dev_info_data);
