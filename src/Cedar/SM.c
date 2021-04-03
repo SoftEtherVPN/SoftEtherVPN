@@ -13,8 +13,8 @@
 #define	CM_C
 #define	NM_C
 
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
+#define	_WIN32_WINNT		0x0600
+#define	WINVER				0x0600
 #include <winsock2.h>
 #include <windows.h>
 #include <wincrypt.h>
@@ -834,10 +834,10 @@ void SmDDnsDlgInit(HWND hWnd, SM_DDNS *d)
 	SetFont(hWnd, S_SUFFIX, GetFont("Verdana", 10, false, false, false, false));
 	SetFont(hWnd, E_NEWHOST, GetFont("Verdana", 10, false, false, false, false));
 
-	SetFont(hWnd, E_HOST, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
-	SetFont(hWnd, E_IPV4, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
-	SetFont(hWnd, E_IPV6, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 10, false, false, false, false));
-	SetFont(hWnd, E_KEY, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 8, false, false, false, false));
+	SetFont(hWnd, E_HOST, GetFont("Verdana", 10, false, false, false, false));
+	SetFont(hWnd, E_IPV4, GetFont("Verdana", 10, false, false, false, false));
+	SetFont(hWnd, E_IPV6, GetFont("Verdana", 10, false, false, false, false));
+	SetFont(hWnd, E_KEY, GetFont("Verdana", 8, false, false, false, false));
 
 	DlgFont(hWnd, IDOK, 0, true);
 
@@ -1056,7 +1056,6 @@ void SmOpenVpn(HWND hWnd, SM_SERVER *s)
 UINT SmOpenVpnDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 {
 	SM_SERVER *s = (SM_SERVER *)param;
-	char tmp[MAX_SIZE];
 	// Validate arguments
 	if (hWnd == NULL)
 	{
@@ -1993,14 +1992,7 @@ void SmHubMsgDlgInit(HWND hWnd, SM_EDIT_HUB *s)
 		return;
 	}
 
-	if (MsIsVista())
-	{
-		SetFont(hWnd, E_TEXT, GetMeiryoFont());
-	}
-	else
-	{
-		DlgFont(hWnd, E_TEXT, 11, false);
-	}
+	SetFont(hWnd, E_TEXT, GetMeiryoFont());
 
 	FormatText(hWnd, S_MSG_2, s->HubName);
 
@@ -8195,7 +8187,7 @@ void SmInstallWinPcap(HWND hWnd, SM_SERVER *s)
 	UniFormat(temp_name, sizeof(temp_name), L"%s\\winpcap_installer.exe", MsGetTempDirW());
 
 	// Read from hamcore
-	buf = ReadDump(MsIsNt() ? "|winpcap_installer.exe" : "|winpcap_installer_win9x.exe");
+	buf = ReadDump("|winpcap_installer.exe");
 	if (buf == NULL)
 	{
 RES_ERROR:
@@ -8231,31 +8223,22 @@ RES_ERROR:
 		return;
 	}
 
-	// Message after completed
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType) == false)
+	// Need to restart the service
+	if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("SM_BRIDGE_WPCAP_REBOOT2")) == IDNO)
 	{
-		// Need to restart the computer
-		MsgBox(hWnd, MB_ICONINFORMATION, _UU("SM_BRIDGE_WPCAP_REBOOT1"));
+		// Not restart
 	}
 	else
 	{
-		// Need to restart the service
-		if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("SM_BRIDGE_WPCAP_REBOOT2")) == IDNO)
-		{
-			// Not restart
-		}
-		else
-		{
-			// Restart
-			RPC_TEST t;
-			Zero(&t, sizeof(t));
-			ScRebootServer(s->Rpc, &t);
+		// Restart
+		RPC_TEST t;
+		Zero(&t, sizeof(t));
+		ScRebootServer(s->Rpc, &t);
 
-			SleepThread(500);
+		SleepThread(500);
 
-			Zero(&t, sizeof(t));
-			CALL(hWnd, ScTest(s->Rpc, &t));
-		}
+		Zero(&t, sizeof(t));
+		CALL(hWnd, ScTest(s->Rpc, &t));
 	}
 }
 
@@ -8517,14 +8500,14 @@ void SmCreateCertDlgInit(HWND hWnd, SM_CERT *s)
 	}
 
 	// Font
-	SetFont(hWnd, E_CN, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_O, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_OU, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_C, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_ST, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_L, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_SERIAL, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
-	SetFont(hWnd, E_EXPIRE, GetFont((MsIsWinXPOrGreater() ? "Verdana" : NULL), 0, false, false, false, false));
+	SetFont(hWnd, E_CN, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_O, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_OU, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_C, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_ST, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_L, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_SERIAL, GetFont("Verdana", 0, false, false, false, false));
+	SetFont(hWnd, E_EXPIRE, GetFont("Verdana", 0, false, false, false, false));
 	SetFont(hWnd, C_BITS, GetFont("Verdana", 0, false, false, false, false));
 
 	FocusEx(hWnd, E_CN);
@@ -18681,7 +18664,6 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 		case B_APPLY:
 		{
 			// Apply UDP ports
-			bool ret;
 			LIST* ports;
 			RPC_PORTS t;
 			char tmp[MAX_SIZE];

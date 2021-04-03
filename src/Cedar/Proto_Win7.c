@@ -49,11 +49,6 @@ IPSEC_WIN7 *IPsecWin7Init()
 
 	Debug("IPsecWin7Init()\n");
 
-	if (MsIsVista() == false)
-	{
-		return NULL;
-	}
-
 	if (MsIsAdmin() == false)
 	{
 		return NULL;

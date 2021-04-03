@@ -287,12 +287,6 @@ typedef struct WINUI_ABOUT
 UINT AboutDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a);
 
-typedef struct WIN9X_REBOOT_DLG
-{
-	UINT64 StartTime;
-	UINT TotalTime;
-} WIN9X_REBOOT_DLG;
-
 #define	LED_WIDTH	96
 #define	LED_HEIGHT	16
 #define	LED_FORCE_UPDATE	60000
@@ -353,15 +347,6 @@ typedef struct WINCONNECT_DLG_DATA
 HBITMAP ResizeBitmap(HBITMAP hSrc, UINT src_x, UINT src_y, UINT dst_x, UINT dst_y);
 
 #endif	// WINUI_C
-
-// Kakushi
-typedef struct KAKUSHI
-{
-	HWND hWnd;
-	THREAD *Thread;
-	volatile bool Halt;
-	UINT64 StartTick, Span;
-} KAKUSHI;
 
 // The information screen about the free version
 typedef struct FREEINFO
@@ -695,9 +680,6 @@ bool IpIsFilled(HWND hWnd, UINT id);
 UINT IpGetFilledNum(HWND hWnd, UINT id);
 void About(HWND hWnd, CEDAR *cedar, wchar_t *product_name);
 void AboutEx(HWND hWnd, CEDAR *cedar, wchar_t *product_name, WINUI_UPDATE *u);
-void Win9xReboot(HWND hWnd);
-void Win9xRebootThread(THREAD *t, void *p);
-UINT Win9xRebootDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 wchar_t *StringDlg(HWND hWnd, wchar_t *title, wchar_t *info, wchar_t *def, UINT icon, bool allow_empty, bool allow_unsafe);
 char *StringDlgA(HWND hWnd, wchar_t *title, wchar_t *info, char *def, UINT icon, bool allow_empty, bool allow_unsafe);
 UINT StringDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
@@ -715,10 +697,6 @@ UINT TcpIpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 void TcpIpDlgInit(HWND hWnd);
 void TcpIpDlgUpdate(HWND hWnd);
 UINT TcpMsgDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
-UINT KakushiDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
-void KakushiThread(THREAD *thread, void *param);
-KAKUSHI *InitKakushi();
-void FreeKakushi(KAKUSHI *k);
 void ShowEasterEgg(HWND hWnd);
 bool Win32CnCheckAlreadyExists(bool lock);
 void RegistWindowsFirewallAll();

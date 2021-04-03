@@ -1913,12 +1913,6 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		s->VirtualHost = true;
 	}
 
-	if (OS_IS_WINDOWS_9X(GetOsInfo()->OsType))
-	{
-		// Prohibit the half-duplex mode in the case of Win9x
-		s->ClientOption->HalfConnection = false;
-	}
-
 	// Copy the client authentication data
 	s->ClientAuth = Malloc(sizeof(CLIENT_AUTH));
 	Copy(s->ClientAuth, auth, sizeof(CLIENT_AUTH));

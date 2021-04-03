@@ -10310,10 +10310,7 @@ VH *NewVirtualHostEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, VH_
 
 	if (v->IcmpRawSocketOk == false)
 	{
-		if (IsIcmpApiSupported())
-		{
-			v->IcmpApiOk = true;
-		}
+		v->IcmpApiOk = true;
 	}
 
 	// Set the options

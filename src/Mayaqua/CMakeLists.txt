@@ -28,7 +28,18 @@ if(WIN32)
     COMPILE_PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
   )
 
-  target_link_libraries(mayaqua PRIVATE setupapi.lib winmm.lib)
+  target_link_libraries(mayaqua
+    PRIVATE
+      "DbgHelp.Lib"
+      "dwmapi.lib"
+      "iphlpapi.lib"
+      "newdev.lib"
+      "Psapi.Lib"
+      "Secur32.Lib"
+      "setupapi.lib"
+      "winmm.lib"
+      "WtsApi32.Lib"
+    )
 endif()
 
 if(UNIX)

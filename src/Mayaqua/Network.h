@@ -976,7 +976,7 @@ void RUDPAddIpToValidateList(RUDP_STACK *r, IP *ip);
 bool GetBestLocalIpForTarget(IP *local_ip, IP *target_ip);
 SOCK *NewUDP4ForSpecificIp(IP *target_ip, UINT port);
 
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 
 // Function prototype for Win32
 void Win32InitSocketLibrary();
@@ -1004,7 +1004,6 @@ void Win32CleanupSockEvent(SOCK_EVENT *event);
 bool Win32WaitSockEvent(SOCK_EVENT *event, UINT timeout);
 bool Win32GetDefaultDns(IP *ip, char *domain, UINT size);
 bool Win32GetDnsSuffix(char *domain, UINT size);
-void Win32RenewDhcp9x(UINT if_id);
 void Win32ReleaseDhcp9x(UINT if_id, bool wait);
 void Win32FlushDnsCache();
 int CompareIpAdapterIndexMap(void *p1, void *p2);
@@ -1403,7 +1402,6 @@ void InjectNewReverseSocketToAccept(SOCK *listen_sock, SOCK *s, IP *client_ip, U
 bool NewTcpPair(SOCK **s1, SOCK **s2);
 SOCK *ListenAnyPortEx2(bool local_only, bool disable_ca);
 
-bool IsIcmpApiSupported();
 ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
 void IcmpApiFreeResult(ICMP_RESULT *ret);
 

@@ -9,8 +9,8 @@
 
 #ifdef	WIN32
 
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
+#define	_WIN32_WINNT		0x0600
+#define	WINVER				0x0600
 #include <winsock2.h>
 #include <windows.h>
 #include <Dbghelp.h>
@@ -501,7 +501,7 @@ DIRLIST *Win32EnumDirExW(wchar_t *dirname, COMPARE *compare)
 				CombinePathW(fullpath, sizeof(fullpath), dirname2, f->FileNameW);
 
 				// Attempt to get the file information
-				if (MsIsNt())
+				if (true)
 				{
 					HANDLE h = CreateFileW(fullpath, 0,
 						FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -913,7 +913,7 @@ void Win32GetOsInfo(OS_INFO *info)
 
 	info->OsType = Win32GetOsType();
 	info->OsServicePack = os.wServicePackMajor;
-	if (OS_IS_WINDOWS_NT(info->OsType))
+	if (true)
 	{
 		char *s;
 		char *keyname = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
@@ -949,19 +949,6 @@ void Win32GetOsInfo(OS_INFO *info)
 			StrCat(tmp, sizeof(tmp), str);
 			Free(s);
 		}
-		info->KernelVersion = CopyStr(tmp);
-	}
-	else
-	{
-		OSVERSIONINFO os;
-		Zero(&os, sizeof(os));
-		os.dwOSVersionInfoSize = sizeof(os);
-		GetVersionEx(&os);
-		Format(tmp, sizeof(tmp), "Build %u %s", LOWORD(os.dwBuildNumber), os.szCSDVersion);
-		Trim(tmp);
-		info->OsVersion = CopyStr(tmp);
-		info->OsSystemName = CopyStr("Windows");
-		info->KernelName = CopyStr("Windows 9x Kernel");
 		info->KernelVersion = CopyStr(tmp);
 	}
 

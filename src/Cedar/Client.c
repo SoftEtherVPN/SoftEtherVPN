@@ -1108,11 +1108,7 @@ void Win32CnNicInfoThreadProc(THREAD *thread, void *param)
 		return;
 	}
 
-	if (MsIsNt())
-	{
-		// Do not show a dialog on Windows 9x system
-		NicInfo(info);
-	}
+	NicInfo(info);
 
 	Disconnect(info->Sock);
 }
@@ -1370,10 +1366,7 @@ void Win32CnExecDriverInstaller(SOCK *s, PACK *p)
 		return;
 	}
 
-	if (MsIsVista())
-	{
-		helper = CmStartUacHelper();
-	}
+	helper = CmStartUacHelper();
 
 	ret = MsExecDriverInstaller(arg);
 
@@ -5725,7 +5718,6 @@ L_TRY:
 		CcGetClientVersion(ret, &t);
 		ret->OsType = t.OsType;
 		ret->Unix = OS_IS_UNIX(ret->OsType);
-		ret->Win9x = OS_IS_WINDOWS_9X(ret->OsType);
 		ret->IsVgcSupported = t.IsVgcSupported;
 		ret->ShowVgcLink = t.ShowVgcLink;
 		StrCpy(ret->ClientId, sizeof(ret->ClientId), t.ClientId);
@@ -6282,17 +6274,12 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 		{
 			if (t.NumItem == 0)
 			{
-				// There are no virtual LAN cards in the system
-				if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType) || OS_IS_UNIX(GetOsInfo()->OsType))
-				{
-					// Only in Linux system or Windows NT system,
-					// create a new virtual LAN card which named as "VPN" automatically
+					// Create a new virtual LAN card named "VPN" automatically
 					RPC_CLIENT_CREATE_VLAN t;
 
 					Zero(&t, sizeof(t));
 					StrCpy(t.DeviceName, sizeof(t.DeviceName), "VPN");
 					CtCreateVLan(c,  &t);
-				}
 			}
 
 			CiFreeClientEnumVLan(&t);
@@ -7641,13 +7628,6 @@ bool CtDeleteVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *d)
 
 #else	// OS_WIN32
 
-	if (MsIsNt() == false)
-	{
-		// Not available in Win9x
-		CiSetError(c, ERR_NOT_SUPPORTED);
-		return false;
-	}
-
 	// Check whether the virtual LAN card are present
 	if (MsIsVLanExists(VLAN_ADAPTER_NAME_TAG, d->DeviceName) == false &&
 		MsIsVLanExists(VLAN_ADAPTER_NAME_TAG_OLD, d->DeviceName) == false)
@@ -8021,8 +8001,7 @@ bool CtUpgradeVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 {
 	bool use_old_name = false;
 
-#ifdef	OS_WIN32
-	KAKUSHI *k = NULL;
+#ifdef OS_WIN32
 	MS_DRIVER_VER ver;
 #endif	// OS_WIN32
 
@@ -8042,13 +8021,6 @@ bool CtUpgradeVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 
 	CiInitDriverVerStruct(&ver);
 
-	if (MsIsNt() == false)
-	{
-		// Not available in Win9x
-		CiSetError(c, ERR_NOT_SUPPORTED);
-		return false;
-	}
-
 	// Check whether the LAN card with the specified name already exists
 	if (MsIsVLanExists(VLAN_ADAPTER_NAME_TAG, create->DeviceName) == false &&
 		MsIsVLanExists(VLAN_ADAPTER_NAME_TAG_OLD, create->DeviceName) == false)
@@ -8065,46 +8037,18 @@ bool CtUpgradeVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		use_old_name = true;
 	}
 
-	if (MsIsVista() == false)
+	// Perform the installation
+	char tmp[MAX_SIZE];
+	Format(tmp, sizeof(tmp), "upgradevlan %s", create->DeviceName);
+
+	if (CncExecDriverInstaller(tmp) == false)
 	{
-		k = InitKakushi();	
+		// Installation Failed
+		CiSetError(c, ERR_VLAN_INSTALL_ERROR);
+		CiNotify(c);
+		CiSendGlobalPulse(c);
+		return false;
 	}
-
-
-	if (MsIsVista() == false)
-	{
-		// Perform the installation (other than Windows Vista)
-		if (MsUpgradeVLan(use_old_name ? VLAN_ADAPTER_NAME_TAG_OLD : VLAN_ADAPTER_NAME_TAG,
-			use_old_name ? VLAN_CONNECTION_NAME_OLD : VLAN_CONNECTION_NAME,
-			create->DeviceName, &ver) == false)
-		{
-			// Installation Failed
-			FreeKakushi(k);
-			CiSetError(c, ERR_VLAN_INSTALL_ERROR);
-			CiNotify(c);
-			CiSendGlobalPulse(c);
-			return false;
-		}
-	}
-	else
-	{
-		// Perform the installation (Windows Vista)
-		char tmp[MAX_SIZE];
-
-		Format(tmp, sizeof(tmp), "upgradevlan %s", create->DeviceName);
-
-		if (CncExecDriverInstaller(tmp) == false)
-		{
-			// Installation Failed
-			FreeKakushi(k);
-			CiSetError(c, ERR_VLAN_INSTALL_ERROR);
-			CiNotify(c);
-			CiSendGlobalPulse(c);
-			return false;
-		}
-	}
-
-	FreeKakushi(k);
 
 	CLog(c, "LC_UPDATE_VLAN", create->DeviceName);
 
@@ -8121,10 +8065,6 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 {
 	TOKEN_LIST *t;
 	UINT max_len;
-
-#ifdef	OS_WIN32
-	KAKUSHI *k = NULL;
-#endif	// OS_WIN32
 
 	// Validate arguments
 	if (c == NULL || create == NULL)
@@ -8206,25 +8146,6 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 	return true;
 
 #else	// OS_WIN32
-
-	if (OS_IS_WINDOWS_9X(GetOsInfo()->OsType))
-	{
-		// Only one LAN card is available in the Win9x
-		TOKEN_LIST *t;
-
-		t = MsEnumNetworkAdapters(VLAN_ADAPTER_NAME, VLAN_ADAPTER_NAME_OLD);
-		if (t != NULL)
-		{
-			if (t->NumTokens >= 1)
-			{
-				FreeToken(t);
-				CiSetError(c, ERR_NOT_SUPPORTED);
-				return false;
-			}
-			FreeToken(t);
-		}
-	}
-
 	// Check whether the specified name is valid or not
 	if (IsSafeStr(create->DeviceName) == false)
 	{
@@ -8233,7 +8154,7 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		return false;
 	}
 
-	max_len = MsIsNt() ? MAX_DEVICE_NAME_LEN : MAX_DEVICE_NAME_LEN_9X;
+	max_len = MAX_DEVICE_NAME_LEN;
 	if (StrLen(create->DeviceName) > max_len)
 	{
 		// Name is too long
@@ -8261,50 +8182,17 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 		return false;
 	}
 
-	if (MsIsNt())
+	// Perform the installation (Windows Vista)
+	char tmp[MAX_SIZE];
+	Format(tmp, sizeof(tmp), "instvlan %s", create->DeviceName);
+
+	if (CncExecDriverInstaller(tmp) == false)
 	{
-		if (MsIsVista() == false)
-		{
-			k = InitKakushi();
-		}
+		CiSetError(c, ERR_VLAN_INSTALL_ERROR);
+		CiNotify(c);
+		CiSendGlobalPulse(c);
+		return false;
 	}
-
-	if (MsIsVista() == false)
-	{
-		MS_DRIVER_VER ver;
-
-		CiInitDriverVerStruct(&ver);
-
-		// Perform the installation (other than Windows Vista)
-		if (MsInstallVLan(VLAN_ADAPTER_NAME_TAG, VLAN_CONNECTION_NAME, create->DeviceName, &ver) == false)
-		{
-			// Installation Failed
-			FreeKakushi(k);
-			CiSetError(c, ERR_VLAN_INSTALL_ERROR);
-			CiNotify(c);
-			CiSendGlobalPulse(c);
-			return false;
-		}
-	}
-	else
-	{
-		// Perform the installation (Windows Vista)
-		char tmp[MAX_SIZE];
-
-		Format(tmp, sizeof(tmp), "instvlan %s", create->DeviceName);
-
-		if (CncExecDriverInstaller(tmp) == false)
-		{
-			// Installation Failed
-			FreeKakushi(k);
-			CiSetError(c, ERR_VLAN_INSTALL_ERROR);
-			CiNotify(c);
-			CiSendGlobalPulse(c);
-			return false;
-		}
-	}
-
-	FreeKakushi(k);
 
 	t = MsEnumNetworkAdapters(VLAN_ADAPTER_NAME, VLAN_ADAPTER_NAME_OLD);
 	if (t->NumTokens == 1)
@@ -8339,17 +8227,6 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
 	CiSendGlobalPulse(c);
 
 	CiSaveConfigurationFile(c);
-
-	if (MsIsNt() == false)
-	{
-		if (GetOsInfo()->OsType == OSTYPE_WINDOWS_ME)
-		{
-			// Show the warning in the case of Windows Me
-			MsgBox(NULL, 0x00000040L, _UU("CM_9X_VLAN_ME_MESSAGE"));
-		}
-
-		ReleaseThread(NewThread(Win9xRebootThread, NULL));
-	}
 
 	return true;
 
@@ -9741,12 +9618,7 @@ bool CiReadSettingFromCfg(CLIENT *c, FOLDER *root)
 		UINT ostype = GetOsInfo()->OsType;
 		// CM_SETTING
 		CM_SETTING *s = c->CmSetting;
-
-		if (OS_IS_UNIX(ostype) || OS_IS_WINDOWS_NT(ostype))
-		{
-			s->EasyMode = CfgGetBool(cmsetting, "EasyMode");
-		}
-
+		s->EasyMode = CfgGetBool(cmsetting, "EasyMode");
 		s->LockMode = CfgGetBool(cmsetting, "LockMode");
 		CfgGetByte(cmsetting, "HashedPassword", s->HashedPassword, sizeof(s->HashedPassword));
 	}
@@ -10432,16 +10304,6 @@ CLIENT *CiNewClient()
 	// Raise the priority
 	OSSetHighPriority();
 
-
-
-#ifdef	OS_WIN32
-	// For Win9x, release the DHCP address of all the virtual LAN card
-	if (MsIsNt() == false)
-	{
-		Win32ReleaseAllDhcp9x(true);
-	}
-#endif	// OS_WIN32
-
 	CiChangeAllVLanMacAddressIfMachineChanged(c);
 
 	CiChangeAllVLanMacAddressIfCleared(c);
@@ -10564,14 +10426,6 @@ void CiCleanupClient(CLIENT *c)
 
 	Free(c);
 
-#ifdef	OS_WIN32
-	// For Win9x, release the DHCP address of all the virtual LAN card
-	if (MsIsNt() == false)
-	{
-		Win32ReleaseAllDhcp9x(true);
-	}
-#endif	// OS_WIN32
-
 	StopCedarLog();
 
 	if (ci_active_sessions_lock != NULL)
@@ -10631,9 +10485,6 @@ void CtStartClient()
 		// It is already in running
 		return;
 	}
-
-	// OS check
-	CiCheckOs();
 
 #ifdef	OS_WIN32
 	RegistWindowsFirewallAll();
@@ -10752,27 +10603,6 @@ void CtStopClient()
 	// Release the client
 	CtReleaseClient(client);
 	client = NULL;
-}
-
-// OS check
-void CiCheckOs()
-{
-	// Get the OS type
-	OS_INFO *info = GetOsInfo();
-
-	if (OS_IS_WINDOWS(info->OsType))
-	{
-		bool ok = IS_CLIENT_SUPPORTED_OS(info->OsType);
-
-		if (ok == false)
-		{
-			Alert(
-				CEDAR_PRODUCT_STR " VPN Client doesn't support this Windows Operating System.\n"
-				CEDAR_PRODUCT_STR " VPN Client requires Windows 98, Windows Me, Windows 2000, Windows XP, Windows Server 2003 or Greater.\n\n"
-				"Please contact your system administrator.", CEDAR_PRODUCT_STR " VPN Client");
-			exit(0);
-		}
-	}
 }
 
 // Client status indicator

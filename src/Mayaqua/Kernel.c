@@ -612,15 +612,8 @@ void HashInstanceName(char *name, UINT size, char *instance_name)
 
 	Format(name, size, "VPN-%s", key);
 
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType))
-	{
-		if (GET_KETA(GetOsInfo()->OsType, 100) >= 2 ||
-			GetOsInfo()->OsType == OSTYPE_WINDOWS_NT_4_TERMINAL_SERVER)
-		{
-			StrCpy(tmp, sizeof(tmp), name);
-			Format(name, size, "Global\\%s", tmp);
-		}
-	}
+	StrCpy(tmp, sizeof(tmp), name);
+	Format(name, size, "Global\\%s", tmp);
 }
 void HashInstanceNameLocal(char *name, UINT size, char *instance_name)
 {
@@ -643,15 +636,8 @@ void HashInstanceNameLocal(char *name, UINT size, char *instance_name)
 
 	Format(name, size, "VPN-%s", key);
 
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType))
-	{
-		if (GET_KETA(GetOsInfo()->OsType, 100) >= 2 ||
-			GetOsInfo()->OsType == OSTYPE_WINDOWS_NT_4_TERMINAL_SERVER)
-		{
-			StrCpy(tmp, sizeof(tmp), name);
-			Format(name, size, "Local\\%s", tmp);
-		}
-	}
+	StrCpy(tmp, sizeof(tmp), name);
+	Format(name, size, "Local\\%s", tmp);
 }
 
 // Run the process
