@@ -1,18 +1,19 @@
 // vpntest.c
 // VPN Server / VPN Client / VPN Bridge test program
 
-#include <GlobalConst.h>
-#define	VPN_EXE
+#define VPN_EXE
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "vpntest.h"
+#include "Cedar/Client.h"
+#include "Cedar/CM.h"
+#include "Cedar/Command.h"
+#include "Cedar/Server.h"
+#include "Cedar/SM.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
 
 void client_test(UINT num, char **arg)
 {

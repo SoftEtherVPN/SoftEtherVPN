@@ -5,7 +5,7 @@
 // WaterMark.c
 // SoftEther protocol digital watermark data
 
-#include "CedarPch.h"
+#include "WaterMark.h"
 
 // Digital watermark image data (JPEG)
 BYTE WaterMark[] =

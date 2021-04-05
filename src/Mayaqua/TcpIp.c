@@ -5,16 +5,11 @@
 // TcpIp.c
 // Utility module for TCP/IP packet processing
 
-#include <GlobalConst.h>
+#include "TcpIp.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Cfg.h"
+#include "Memory.h"
+#include "Str.h"
 
 // Release the memory for the ICMP response
 void IcmpFreeResult(ICMP_RESULT *r)
@@ -2027,7 +2022,7 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_ex
 			b2 = false;
 		}
 	}
-	if (b1 || b2 || (memcmp(p->MacHeader->SrcAddress, p->MacHeader->DestAddress, 6) == 0))
+	if (b1 || b2 || (Cmp(p->MacHeader->SrcAddress, p->MacHeader->DestAddress, 6) == 0))
 	{
 		p->InvalidSourcePacket = true;
 	}

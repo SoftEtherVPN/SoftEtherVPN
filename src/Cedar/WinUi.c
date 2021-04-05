@@ -5,32 +5,44 @@
 // WinUi.c
 // User interface code for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define WINUI_C
 
-#define	WINUI_C
+#include "WinUi.h"
 
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <Iphlpapi.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Client.h"
+#include "CM.h"
+#include "Protocol.h"
+#include "Session.h"
+#include "Win32Com.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
 #include "../PenCore/resource.h"
+
+#include <commdlg.h>
+#include <shellapi.h>
+#include <shlobj.h>
+
+// Process name list of incompatible anti-virus software
+static BAD_PROCESS bad_processes[] =
+{
+	{"nod32krn.exe", "NOD32 Antivirus"},
+	{"avp.exe", "Kaspersky"}
+};
+
+static const UINT num_bad_processes = sizeof(bad_processes) / sizeof(bad_processes[0]);
 
 char cached_pin_code[MAX_SIZE] = {0};
 UINT64 cached_pin_code_expires = 0;

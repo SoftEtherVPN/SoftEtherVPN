@@ -5,46 +5,25 @@
 // Win32Com.c
 // Win32 COM module call
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#include "Win32Com.h"
 
-#define _WIN32_DCOM
-
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <Wbemidl.h>
-#include <comdef.h>
-#include <Mshtmhst.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <iphlpapi.h>
-#include <Natupnp.h>
-#include <devguid.h>
-#include <regstr.h>
-#include <cfgmgr32.h>
-#include <tchar.h>
-#include <objbase.h>
-#include <Setupapi.h>
-#include "netcfgn.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
 extern "C"
 {
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
 }
-#include "../PenCore/resource.h"
+
+#include <devguid.h>
+#include <MsHtmHst.h>
+#include <natupnp.h>
+#include <netcfgn.h>
+#include <SetupAPI.h>
+#include <ShlObj.h>
 
 // Add a UPnP port
 bool Win32UPnPAddPort(UINT outside_port, UINT inside_port, bool udp, char *local_ip, wchar_t *description, bool remove_before_add)
@@ -744,7 +723,7 @@ HRESULT ShowHTMLDialogFromURL(HWND hwndParent,wchar_t *szURL,VARIANT* pvarArgIn,
    
     try
     {
-        IMonikerPtr spMoniker;
+        IMoniker *spMoniker;
         hr = ::CreateURLMoniker(NULL, szURL, &spMoniker);
         if (FAILED(hr))
         {

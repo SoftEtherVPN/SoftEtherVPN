@@ -8,6 +8,10 @@
 #ifndef	RADIUS_H
 #define	RADIUS_H
 
+#include "Cedar.h"
+
+#include "Mayaqua/Mayaqua.h"
+
 #define	RADIUS_DEFAULT_PORT		1812			// The default port number
 #define	RADIUS_RETRY_INTERVAL	1000				// Retransmission interval
 #define	RADIUS_RETRY_TIMEOUT	(15 * 1000)		// Time-out period, keep it 2FA friendly

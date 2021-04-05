@@ -8,6 +8,11 @@
 #ifndef	NAT_H
 #define	NAT_H
 
+#include "Cedar.h"
+#include "Virtual.h"
+
+#include "Mayaqua/Kernel.h"
+
 // Constants
 #define	NAT_CONFIG_FILE_NAME			"$vpn_router.config"	// NAT configuration file
 #define	DEFAULT_NAT_ADMIN_PORT			2828		// Default port number for management

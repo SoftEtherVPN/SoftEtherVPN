@@ -8,6 +8,11 @@
 #ifndef	DDNS_H
 #define	DDNS_H
 
+#include "CedarType.h"
+#include "Wpc.h"
+
+#include <stddef.h>
+
 // Certificate hash
 #define	DDNS_CERT_HASH		"78BF0499A99396907C9F49DD13571C81FE26E6F5" \
 							"439BAFA75A6EE5671FC9F9A02D34FF29881761A0" \

@@ -5,10 +5,17 @@
 // Radius.c
 // Radius authentication module
 
-#include "CedarPch.h"
+#include "Radius.h"
 
-////////// Modern implementation
+#include "Connection.h"
+#include "IPC.h"
+#include "Server.h"
 
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 // send PEAP-MSCHAPv2 auth client response
 bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge)

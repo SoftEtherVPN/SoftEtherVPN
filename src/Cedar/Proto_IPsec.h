@@ -8,6 +8,8 @@
 #ifndef	PROTO_IPSEC_H
 #define	PROTO_IPSEC_H
 
+#include "Cedar.h"
+
 //// Constants
 
 // UDP port number

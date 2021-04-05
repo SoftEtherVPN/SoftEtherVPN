@@ -1,6 +1,18 @@
-#include "CedarPch.h"
+#include "Proto.h"
 
+#include "Cedar.h"
+#include "Logging.h"
 #include "Proto_OpenVPN.h"
+#include "Proto_SSTP.h"
+#include "Proto_WireGuard.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
 
 void ProtoLog(const PROTO *proto, const PROTO_SESSION *session, const char *name, ...)
 {

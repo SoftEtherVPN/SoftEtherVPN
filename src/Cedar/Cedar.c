@@ -5,8 +5,35 @@
 // Cedar.c
 // Cedar Communication Module
 
+#include "Cedar.h"
 
-#include "CedarPch.h"
+#include "Admin.h"
+#include "Bridge.h"
+#include "Connection.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Protocol.h"
+#include "Sam.h"
+#include "Server.h"
+#include "Session.h"
+#include "VLanWin32.h"
+#include "WebUI.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/HTTP.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
+#include <sodium.h>
 
 static UINT init_cedar_counter = 0;
 static REF *cedar_log_ref = NULL;

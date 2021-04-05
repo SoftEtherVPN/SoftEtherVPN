@@ -8,6 +8,8 @@
 #ifndef	CFG_H
 #define	CFG_H
 
+#include "Encrypt.h"
+
 // Macro
 //#define	CHECK_CFG_NAME_EXISTS			// Check duplication of the existing name
 

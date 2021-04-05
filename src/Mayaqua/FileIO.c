@@ -5,16 +5,18 @@
 // FileIO.c
 // File Input / Output code
 
-#include <GlobalConst.h>
+#include "FileIO.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Cfg.h"
+#include "GlobalConst.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Str.h"
+#include "Tick64.h"
+#include "Tracking.h"
+#include "Unix.h"
+#include "Win32.h"
 
 static char exe_file_name[MAX_SIZE] = "/tmp/a.out";
 static wchar_t exe_file_name_w[MAX_SIZE] = L"/tmp/a.out";

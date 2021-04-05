@@ -5,8 +5,14 @@
 // BridgeUnix.h
 // Header of BridgeUnix.c
 
+#ifdef OS_UNIX
+
 #ifndef	BRIDGEUNIX_H
 #define	BRIDGEUNIX_H
+
+#include "Bridge.h"
+
+#include "Mayaqua/Network.h"
 
 // Macro
 #ifndef SOL_PACKET
@@ -128,6 +134,6 @@ bool DlipBindRequest(int fd);
 
 int UnixEthOpenRawSocket();
 
-#endif	// BRIDGEUNIX_H
+#endif // BRIDGEUNIX_H
 
-
+#endif // OS_UNIX

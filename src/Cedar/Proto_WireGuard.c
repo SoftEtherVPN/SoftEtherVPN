@@ -1,4 +1,14 @@
-#include "CedarPch.h"
+#include "Proto_WireGuard.h"
+
+#include "Connection.h"
+#include "IPC.h"
+#include "Logging.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 #include <blake2.h>
 

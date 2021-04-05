@@ -5,7 +5,21 @@
 // Virtual.c
 // User-mode virtual host program
 
-#include "CedarPch.h"
+#include "Virtual.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Connection.h"
+#include "Hub.h"
+#include "IPC.h"
+#include "NativeStack.h"
+#include "Server.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 static UCHAR broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static char v_vgs_hostname[256] = {0};

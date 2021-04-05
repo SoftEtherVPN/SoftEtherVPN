@@ -8,6 +8,10 @@
 #ifndef	STR_H
 #define	STR_H
 
+#include "MayaType.h"
+
+#include <stdarg.h>
+
 // String token
 struct TOKEN_LIST
 {
@@ -201,7 +205,6 @@ enum JSON_TYPES {
 	JSON_TYPE_ARRAY = 5,
 	JSON_TYPE_BOOL = 6
 };
-typedef unsigned int UINT;
 
 enum JSON_RETS {
 	JSON_RET_OK = 0,

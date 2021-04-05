@@ -5,7 +5,22 @@
 // Proto_IKE.c
 // IKE (ISAKMP) and ESP protocol stack
 
-#include "CedarPch.h"
+#include "Proto_IKE.h"
+
+#include "Cedar.h"
+#include "Connection.h"
+#include "Logging.h"
+#include "Proto_EtherIP.h"
+#include "Proto_IPsec.h"
+#include "Proto_L2TP.h"
+#include "Server.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
 
 //#define	RAW_DEBUG
 

@@ -8,6 +8,10 @@
 #ifndef	NATIVESTACK_H
 #define	NATIVESTACK_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/TcpIp.h"
+
 //// Constants
 #define	NS_MAC_ADDRESS_BYTE_1		0xDA		// First byte of the MAC address
 

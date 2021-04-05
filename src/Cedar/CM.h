@@ -5,8 +5,14 @@
 // CM.h
 // Header of CM.c
 
-#ifndef	CM_H
-#define	CM_H
+#ifdef OS_WIN32
+
+#ifndef CM_H
+#define CM_H
+
+#include "GlobalConst.h"
+
+#include "Mayaqua/MayaType.h"
 
 // Constants
 #define	CM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\" CEDAR_PRODUCT_STR " VPN\\Client Manager"
@@ -47,6 +53,6 @@ void CmStopUacHelper(void *p);
 void *CmExecUiHelperMain();
 UINT CmGetSecureBitmapId(char *dest_hostname);
 
-#endif	// CM_H
+#endif // CM_H
 
-
+#endif // OS_WIN32

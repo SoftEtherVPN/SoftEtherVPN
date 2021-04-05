@@ -1,6 +1,9 @@
 #ifndef PROXY_H
 #define PROXY_H
 
+#include "HTTP.h"
+#include "Network.h"
+
 #define PROXY_CONNECTION_TIMEOUT	(4 * 1000)
 
 #define PROXY_MAX_USERNAME_LEN		255

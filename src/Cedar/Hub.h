@@ -8,6 +8,8 @@
 #ifndef	HUB_H
 #define	HUB_H
 
+#include "Account.h"
+#include "Logging.h"
 
 // Prefix in the access list for investigating whether the user name which is contained in a particular file 
 #define	ACCESS_LIST_INCLUDED_PREFIX		"include:"		// Included

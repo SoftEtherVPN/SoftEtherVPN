@@ -5,25 +5,14 @@
 // vpncmd.c
 // VPN Command Line Management Utility
 
-#include <GlobalConst.h>
+#include "Cedar/Cedar.h"
 
-#ifdef	WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#endif	// WIN32
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Cedar/Command.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
 
 // main function
 int main(int argc, char *argv[])
@@ -36,7 +25,7 @@ int main(int argc, char *argv[])
 #ifdef	OS_WIN32
 	SetConsoleTitleA(CEDAR_PRODUCT_STR " VPN Command Line Utility");
 #else
-	// For *nix, disable output buffering to allow for interactive use 
+	// For *nix, disable output buffering to allow for interactive use
 	setbuf(stdout,NULL);
 #endif	// OS_WIN32
 

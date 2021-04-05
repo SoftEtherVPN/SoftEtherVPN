@@ -8,6 +8,11 @@
 #ifndef	PROTO_IKEPACKET_H
 #define	PROTO_IKEPACKET_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Network.h"
+
 // Constants
 #ifdef	OS_WIN32
 #pragma pack(push, 1)

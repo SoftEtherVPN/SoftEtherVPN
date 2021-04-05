@@ -8,6 +8,14 @@
 #ifndef	ADMIN_H
 #define	ADMIN_H
 
+#include "Account.h"
+#include "Cedar.h"
+#include "Client.h"
+#include "Hub.h"
+#include "Logging.h"
+
+#include "Mayaqua/Kernel.h"
+
 // Windows version
 struct RPC_WINVER
 {

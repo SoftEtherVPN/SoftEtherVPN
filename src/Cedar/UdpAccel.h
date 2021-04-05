@@ -8,6 +8,10 @@
 #ifndef	UDPACCEL_H
 #define	UDPACCEL_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Network.h"
+
 // Constants
 #define	UDP_ACCELERATION_COMMON_KEY_SIZE_V1	20			// V1: Common key size
 #define	UDP_ACCELERATION_PACKET_KEY_SIZE_V1	20			// V1: Key size for the packet

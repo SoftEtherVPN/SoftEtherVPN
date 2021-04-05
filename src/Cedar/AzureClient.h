@@ -8,6 +8,11 @@
 #ifndef	AZURE_CLIENT_H
 #define	AZURE_CLIENT_H
 
+#include "Cedar.h"
+#include "DDNS.h"
+
+#include "Mayaqua/MayaType.h"
+
 // Constants
 #define	AZURE_SERVER_PORT					443
 #define AZURE_PROTOCOL_CONTROL_SIGNATURE	"ACTL"

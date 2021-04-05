@@ -5,32 +5,39 @@
 // VLanUnix.c
 // Virtual device driver library for UNIX
 
-#include <GlobalConst.h>
+#ifdef UNIX
 
-#ifdef	VLAN_C
+#include "VLanUnix.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
+#include "Connection.h"
+#include "Session.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TunTap.h"
+
+#ifdef UNIX_BSD
+// For "sockaddr" in <net/if_arp.h>
+#include <sys/socket.h>
+#endif
+
 #include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#ifdef	UNIX_BSD
-#ifdef	UNIX_OPENBSD
-#include <netinet/if_ether.h>
-#else	// UNIX_OPENBSD
-#include <net/ethernet.h>
-#endif	// UNIX_OPENBSD
-#endif	// UNIX_BSD
+#include <fcntl.h> 
+#include <net/if_arp.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 
-#ifdef	OS_UNIX
+#ifdef UNIX_OPENBSD
+#include <netinet/if_ether.h>
+#else
+#include <net/ethernet.h>
+#endif
 
 static LIST *unix_vlan = NULL;
 
-#ifndef	NO_VLAN
+#ifndef NO_VLAN
 
 // Get the PACKET_ADAPTER
 PACKET_ADAPTER *VLanGetPacketAdapter()
@@ -815,7 +822,4 @@ void UnixVLanFree()
 	unix_vlan = NULL;
 }
 
-#endif	// OS_UNIX
-
-#endif	// VLAN_C
-
+#endif

@@ -5,16 +5,19 @@
 // Table.c
 // Read and management routines for string table
 
-#include <GlobalConst.h>
+#include "Table.h"
 
-#include <stdio.h>
+#include "Cfg.h"
+#include "FileIO.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Network.h"
+#include "Str.h"
+#include "Tick64.h"
+
 #include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
 
 // List of TABLE
 static LIST *TableList = NULL;

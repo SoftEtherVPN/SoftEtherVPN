@@ -5,7 +5,22 @@
 // IPC.c
 // In-process VPN client module
 
-#include "CedarPch.h"
+#include "IPC.h"
+
+#include "Admin.h"
+#include "Cedar.h"
+#include "Client.h"
+#include "Connection.h"
+#include "Hub.h"
+#include "Protocol.h"
+#include "Radius.h"
+#include "Virtual.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 // Extract the MS-CHAP v2 authentication information by parsing the password string
 bool ParseAndExtractMsChapV2InfoFromPassword(IPC_MSCHAP_V2_AUTHINFO *d, char *password)

@@ -8,6 +8,9 @@
 #ifndef	CEDARTYPE_H
 #define	CEDARTYPE_H
 
+typedef struct CEDAR CEDAR;
+typedef struct TRAFFIC TRAFFIC;
+
 
 // ==============================================================
 //   Remote Procedure Call
@@ -469,6 +472,13 @@ typedef struct LICENSE_STATUS LICENSE_STATUS;
 typedef struct SECURE_PACK_FOLDER SECURE_PACK_FOLDER;
 typedef struct WIDE_MACHINE_ID WIDE_MACHINE_ID;
 typedef struct TRIAL_INFO TRIAL_INFO;
+
+
+// ==============================================================
+//  Proto
+// ==============================================================
+
+typedef struct PROTO_OPTION PROTO_OPTION;
 
 
 // ==============================================================

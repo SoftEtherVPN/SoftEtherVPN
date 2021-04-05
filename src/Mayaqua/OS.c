@@ -5,19 +5,9 @@
 // OS.c
 // Operating system dependent code
 
-#include <GlobalConst.h>
+#include "OS.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-
-#undef	Lock
-#undef	Unlock
+#undef Yield
 
 // Dispatch table
 static OS_DISPATCH_TABLE *os = NULL;

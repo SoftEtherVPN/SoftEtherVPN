@@ -5,16 +5,14 @@
 // Pack.c
 // Data package code
 
-#include <GlobalConst.h>
+#include "Pack.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Encrypt.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Network.h"
+#include "Str.h"
 
 // Get a list of the element names in the PACK
 TOKEN_LIST *GetPackElementNames(PACK *p)

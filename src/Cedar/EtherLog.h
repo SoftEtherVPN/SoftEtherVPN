@@ -8,6 +8,8 @@
 #ifndef	ETHERLOG_H
 #define	ETHERLOG_H
 
+#include "Hub.h"
+
 // Whether this is a beta version
 #define	ELOG_IS_BETA						true
 

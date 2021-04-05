@@ -5,7 +5,21 @@
 // DDNS.c
 // Dynamic DNS Client
 
-#include "CedarPch.h"
+#include "DDNS.h"
+
+#include "AzureClient.h"
+#include "Server.h"
+#include "Virtual.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Get the current status of the DDNS client
 void DCGetStatus(DDNS_CLIENT *c, DDNS_CLIENT_STATUS *st)

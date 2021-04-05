@@ -5,39 +5,31 @@
 // EM.c
 // EtherLogger Manager for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define WINUI_C
 
-#define	SM_C
-#define	CM_C
-#define	NM_C
-#define	EM_C
-
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "CMInner.h"
-#include "SMInner.h"
-#include "NMInner.h"
+#include "EM.h"
 #include "EMInner.h"
+
+#include "CMInner.h"
+#include "Database.h"
+#include "EtherLog.h"
+#include "Remote.h"
+#include "SMInner.h"
+#include "WinUi.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+
 #include "../PenCore/resource.h"
 
+#include <shellapi.h>
+#include <ShlObj.h>
 
 // License registration process
 void EmLicenseAddDlgOnOk(HWND hWnd, RPC *s)

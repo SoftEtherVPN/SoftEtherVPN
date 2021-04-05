@@ -5,8 +5,21 @@
 // Proto_IPsec.c
 // IPsec module
 
-#include "CedarPch.h"
+#include "Proto_IPsec.h"
 
+#include "Hub.h"
+#include "Proto_IKE.h"
+#include "Proto_L2TP.h"
+#include "Proto_Win7.h"
+#include "Server.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Unix.h"
 
 static bool ipsec_disable = false;
 

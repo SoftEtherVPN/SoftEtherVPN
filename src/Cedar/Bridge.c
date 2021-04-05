@@ -5,25 +5,19 @@
 // Bridge.c
 // Ethernet Bridge Program (Local Bridge)
 
-#include <GlobalConst.h>
+#include "Bridge.h"
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
 
-#define	BRIDGE_C
+#include "Connection.h"
+#include "Hub.h"
+#include "Session.h"
+#include "Virtual.h"
 
-#ifdef	WIN32
-#define	OS_WIN32
-#endif
-
-#ifdef	OS_WIN32
-
-// Win32
-#include "BridgeWin32.c"
-
-#else
-
-// Unix
-#include "BridgeUnix.c"
-
-#endif	// OS_WIN32
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
 
 // Hash the list of current Ethernet devices
 UINT GetEthDeviceHash()

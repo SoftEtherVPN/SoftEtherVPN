@@ -5,7 +5,11 @@
 // Proto_IkePacket.c
 // IKE (ISAKMP) packet processing
 
-#include "CedarPch.h"
+#include "Proto_IkePacket.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
 
 // Convert the string to a password
 BUF *IkeStrToPassword(char *str)

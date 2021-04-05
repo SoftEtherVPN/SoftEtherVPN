@@ -5,7 +5,18 @@
 // Account.c
 // Account Manager
 
-#include "CedarPch.h"
+#include "Account.h"
+
+#include "Hub.h"
+#include "Layer3.h"
+#include "Proto_PPP.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
 
 // Policy items
 POLICY_ITEM policy_item[] =

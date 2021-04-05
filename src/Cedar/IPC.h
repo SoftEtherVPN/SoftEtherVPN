@@ -8,6 +8,11 @@
 #ifndef	IPC_H
 #define	IPC_H
 
+#include "Cedar.h"
+#include "Proto_WireGuard.h"
+
+#include "Mayaqua/TcpIp.h"
+
 // Constants
 #define	IPC_ARP_LIFETIME				(3 * 60 * 1000)
 #define	IPC_ARP_GIVEUPTIME				(1 * 1000)

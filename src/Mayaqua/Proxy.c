@@ -1,6 +1,10 @@
-#include <GlobalConst.h>
+#include "Proxy.h"
 
-#include <Mayaqua/Mayaqua.h>
+// TODO: Mayaqua should not depend on Cedar.
+#include "Cedar/WinUi.h"
+
+#include "Memory.h"
+#include "Str.h"
 
 SOCK *Internal_ProxyTcpConnect(PROXY_PARAM_IN *param, volatile bool *cancel_flag, IP *resolved_ip)
 {

@@ -8,6 +8,10 @@
 #ifndef	INTERNAT_H
 #define	INTERNAT_H
 
+#include "MayaType.h"
+
+#include <stdarg.h>
+
 // String token
 struct UNI_TOKEN_LIST
 {

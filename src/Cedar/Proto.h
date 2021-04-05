@@ -1,6 +1,11 @@
 #ifndef PROTO_H
 #define PROTO_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
+#include "Mayaqua/Network.h"
+
 #define PROTO_OPTION_TOGGLE_NAME "Enabled"
 
 // OpenVPN sends 2 bytes, thus this is the buffer size.
@@ -31,7 +36,7 @@ typedef struct PROTO
 	UDPLISTENER *UdpListener;
 } PROTO;
 
-typedef struct PROTO_OPTION
+struct PROTO_OPTION
 {
 	char *Name;
 	PROTO_OPTION_VALUE Type;
@@ -40,7 +45,7 @@ typedef struct PROTO_OPTION
 		bool Bool;
 		char *String;
 	};
-} PROTO_OPTION;
+};
 
 typedef struct PROTO_IMPL
 {

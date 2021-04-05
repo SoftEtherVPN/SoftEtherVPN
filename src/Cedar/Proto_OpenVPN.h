@@ -8,6 +8,7 @@
 #ifndef	PROTO_OPENVPN_H
 #define	PROTO_OPENVPN_H
 
+#include "Proto.h"
 
 //// Constants
 #define	OPENVPN_UDP_PORT						1194	// OpenVPN default UDP port number

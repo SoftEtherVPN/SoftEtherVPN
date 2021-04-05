@@ -8,6 +8,9 @@
 #ifndef	PROTO_WIN7_H
 #define	PROTO_WIN7_H
 
+#include "Proto_IPsec.h"
+#include "Proto_Win7Inner.h"
+
 // Constants
 #define	IPSEC_WIN7_SRC_SYS_X86	"|pxwfp_x86.sys"
 #define	IPSEC_WIN7_SRC_SYS_X64	"|pxwfp_x64.sys"

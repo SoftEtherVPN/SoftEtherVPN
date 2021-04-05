@@ -8,7 +8,7 @@
 #ifndef	PROTO_IKE_H
 #define	PROTO_IKE_H
 
-//// Macro
+#include "Proto_IkePacket.h"
 
 //// Constants
 

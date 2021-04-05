@@ -5,9 +5,20 @@
 // CMInner.h
 // Internal header for the CM.c
 
+#include "Client.h"
+#include "CM.h"
+#include "Command.h"
+#include "WinUi.h"
+
+#include "Mayaqua/Table.h"
+
+#include <stdlib.h>
+
 #define STARTUP_MUTEX_NAME	GC_SW_SOFTETHER_PREFIX "vpncmgr_startup_mutex"
 
 #define	NAME_OF_VPN_CLIENT_MANAGER	"vpncmgr"
+
+typedef struct LVB LVB;
 
 void CmVoice(char *name);
 

@@ -5,7 +5,21 @@
 // Layer3.c
 // Layer-3 switch module
 
-#include "CedarPch.h"
+#include "Layer3.h"
+
+#include "Connection.h"
+#include "Hub.h"
+#include "Server.h"
+#include "Session.h"
+#include "Virtual.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
 
 static UCHAR broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 

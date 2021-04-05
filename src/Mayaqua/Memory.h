@@ -8,6 +8,8 @@
 #ifndef	MEMORY_H
 #define	MEMORY_H
 
+#include "MayaType.h"
+
 // MallocFast (not implemented)
 #define	MallocFast		Malloc
 #define	ZeroMallocFast	ZeroMalloc

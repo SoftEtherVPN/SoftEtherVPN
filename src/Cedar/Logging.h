@@ -8,6 +8,9 @@
 #ifndef	LOGGING_H
 #define	LOGGING_H
 
+#include "Cedar.h"
+
+#include "Mayaqua/Network.h"
 
 // Port number for HTTP monitoring
 #define	LOG_HTTP_PORT						80

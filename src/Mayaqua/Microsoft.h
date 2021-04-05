@@ -5,18 +5,12 @@
 // Microsoft.h
 // Header of Microsoft.c
 
-#ifdef	OS_WIN32
-
-// Make available the types for Windows even if windows.h is not included
-#ifndef	_WINDEF_
-
-typedef void *HWND;
-typedef unsigned long DWORD;
-
-#endif	// _WINDEF_
+#ifdef OS_WIN32
 
 #ifndef	MICROSOFT_H
 #define	MICROSOFT_H
+
+#include "Network.h"
 
 // Constant for Event log
 #define	MS_EVENTLOG_TYPE_INFORMATION		0
@@ -128,7 +122,7 @@ typedef unsigned long DWORD;
 
 #define	DRIVER_DEVICE_ID_TAG		"NeoAdapter_%s"
 
-#ifdef MICROSOFT_C
+#ifdef	MICROSOFT_C
 // WCM related code on Windows 8
 typedef enum _MS_WCM_PROPERTY
 {
@@ -767,7 +761,8 @@ void MsProcLeaveSuspend();
 UINT64 MsGetSuspendModeBeginTick();
 
 // Inner functions
-#ifdef	MICROSOFT_C
+#ifdef MICROSOFT_C
+#include <SetupAPI.h>
 
 LONG CALLBACK MsExceptionHandler(struct _EXCEPTION_POINTERS *ExceptionInfo);
 HKEY MsGetRootKeyFromInt(UINT root);
@@ -800,12 +795,8 @@ void MsFreeSid(SID *sid);
 BOOL CALLBACK MsEnumResourcesInternalProc(HMODULE hModule, const char *type, char *name, LONG_PTR lParam);
 LRESULT CALLBACK MsSuspendHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void MsSuspendHandlerThreadProc(THREAD *thread, void *param);
+#endif // MICROSOFT_C
 
+#endif // MICROSOFT_H
 
-
-#endif	// MICROSOFT_C
-
-#endif	// MICROSOFT_H
-
-#endif	// OS_WIN32
-
+#endif // OS_WIN32
