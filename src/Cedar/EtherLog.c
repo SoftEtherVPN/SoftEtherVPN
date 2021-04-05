@@ -5,7 +5,24 @@
 // EtherLog.c
 // EtherLogger program
 
-#include "CedarPch.h"
+#include "EtherLog.h"
+
+#include "Admin.h"
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Listener.h"
+#include "Remote.h"
+#include "Sam.h"
+#include "Server.h"
+#include "WinUi.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/OS.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
 
 static LOCK *el_lock = NULL;
 static EL *el = NULL;

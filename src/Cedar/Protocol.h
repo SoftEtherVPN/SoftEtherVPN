@@ -8,6 +8,8 @@
 #ifndef	PROTOCOL_H
 #define	PROTOCOL_H
 
+#include "Connection.h"
+
 // The parameters that will be passed to the certificate confirmation thread
 struct CHECK_CERT_THREAD_PROC
 {

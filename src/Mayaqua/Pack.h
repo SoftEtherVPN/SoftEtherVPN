@@ -8,6 +8,8 @@
 #ifndef	PACK_H
 #define	PACK_H
 
+#include "MayaType.h"
+
 // Constant
 #ifdef CPU_64
 

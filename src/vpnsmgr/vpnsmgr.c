@@ -5,23 +5,8 @@
 // vpncmgr.c
 // VPN Client connection manager program
 
-#include <GlobalConst.h>
-
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Cedar/Cedar.h"
+#include "Cedar/SM.h"
 
 // WinMain function
 int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)

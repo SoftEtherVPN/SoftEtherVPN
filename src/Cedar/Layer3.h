@@ -8,6 +8,8 @@
 #ifndef	LAYER3_H
 #define	LAYER3_H
 
+#include "Cedar.h"
+
 // Constants
 #define	L3_USERNAME					"L3SW_"
 

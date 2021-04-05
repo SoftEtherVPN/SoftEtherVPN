@@ -5,6 +5,12 @@
 // SeLowCommon.h
 // Common Header for Kernel Mode / User Mode
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include "Windows.h"
+
 //// Version number
 // Change this number every time functions are added or modified on the driver.
 // As long as this number does not change, installation of SeLow during the update

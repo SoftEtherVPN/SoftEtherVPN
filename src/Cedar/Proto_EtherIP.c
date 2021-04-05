@@ -5,7 +5,18 @@
 // Proto_EtherIP.c
 // EtherIP protocol stack
 
-#include "CedarPch.h"
+#include "Proto_EtherIP.h"
+
+#include "Connection.h"
+#include "IPC.h"
+#include "Logging.h"
+#include "Proto_IKE.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // IPC connection processing thread
 void EtherIPIpcConnectThread(THREAD *t, void *p)

@@ -8,6 +8,13 @@
 #ifndef	NETWORK_H
 #define	NETWORK_H
 
+#include "Encrypt.h"
+#include "Mayaqua.h"
+
+#ifdef OS_UNIX
+#include <netinet/in.h>
+#endif
+
 // Dynamic Value
 struct DYN_VALUE
 {

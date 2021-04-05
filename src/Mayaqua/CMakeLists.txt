@@ -19,6 +19,9 @@ set_target_properties(mayaqua
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
 
+# Required because we include <openssl/opensslv.h> in Encrypt.h.
+target_include_directories(mayaqua PUBLIC ${OPENSSL_INCLUDE_DIR})
+
 target_link_libraries(mayaqua PRIVATE OpenSSL::SSL OpenSSL::Crypto ZLIB::ZLIB)
 
 if(WIN32)

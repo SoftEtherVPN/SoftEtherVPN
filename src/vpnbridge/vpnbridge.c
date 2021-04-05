@@ -5,28 +5,14 @@
 // vpnbridge.c
 // VPN Bridge Service Program
 
-#include <GlobalConst.h>
-
 #define	VPN_EXE
 
-#ifdef	WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include "../PenCore/resource.h"
-#endif	// WIN32
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Cedar/Server.h"
+
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Unix.h"
+#include "Mayaqua/Win32.h"
 
 // Process start function
 void StartProcess()
@@ -50,8 +36,6 @@ void StopProcess()
 int main(int argc, char *argv[])
 {
 	InitProcessCallOnce();
-
-	VgUseStaticLink();
 
 #ifdef	OS_WIN32
 	return MsService(GC_SVC_NAME_VPNBRIDGE, StartProcess, StopProcess, ICO_BRIDGE, argv[0]);

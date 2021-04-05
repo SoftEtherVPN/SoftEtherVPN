@@ -8,6 +8,10 @@
 #ifndef	CEDAR_H
 #define	CEDAR_H
 
+#include "CedarType.h"
+#include "GlobalConst.h"
+
+#include "Mayaqua/Network.h"
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -888,11 +892,11 @@ typedef struct TRAFFIC_ENTRY
 } TRAFFIC_ENTRY;
 
 // Traffic data
-typedef struct TRAFFIC
+struct TRAFFIC
 {
 	TRAFFIC_ENTRY Send;				// Transmitted data
 	TRAFFIC_ENTRY Recv;				// Received data
-} TRAFFIC;
+};
 
 // Non-SSL connection source
 typedef struct NON_SSL
@@ -911,7 +915,7 @@ typedef struct TINY_LOG
 } TINY_LOG;
 
 // CEDAR structure
-typedef struct CEDAR
+struct CEDAR
 {
 	LOCK *lock;						// Lock
 	REF *ref;						// Reference counter
@@ -979,139 +983,13 @@ typedef struct CEDAR
 	UINT FifoBudget;				// Fifo budget
 	SSL_ACCEPT_SETTINGS SslAcceptSettings;	// SSL Accept Settings
 	UINT DhParamBits;  // Bits of Diffie-Hellman parameters
-} CEDAR;
+};
 
 // Type of CEDAR
 #define	CEDAR_CLIENT				0	// Client
 #define	CEDAR_STANDALONE_SERVER		1	// Stand-alone server
 #define	CEDAR_FARM_CONTROLLER		2	// Server farm controller
 #define	CEDAR_FARM_MEMBER			3	// Server farm member
-
-
-////////////////////////////
-// Read the header file
-
-// Type
-#include <Cedar/CedarType.h>
-// Account Manager
-#include <Cedar/Account.h>
-// Listener module
-#include <Cedar/Listener.h>
-// Log storage module
-#include <Cedar/Logging.h>
-// Connection management
-#include <Cedar/Connection.h>
-// Session Management
-#include <Cedar/Session.h>
-// RPC
-#include <Cedar/Remote.h>
-// HUB management
-#include <Cedar/Hub.h>
-// Security Accounts Manager
-#include <Cedar/Sam.h>
-// Radius authentication module
-#include <Cedar/Radius.h>
-// Native protocol
-#include <Cedar/Protocol.h>
-// Inter-HUB link
-#include <Cedar/Link.h>
-// User-mode virtual host
-#include <Cedar/Virtual.h>
-// SecureNAT
-#include <Cedar/SecureNAT.h>
-// Digital watermark
-#include <Cedar/WaterMark.h>
-// Secure data
-#include <Cedar/SecureInfo.h>
-// Console service
-#include <Cedar/Console.h>
-// Vpncmd utility
-#include <Cedar/Command.h>
-// RPC over HTTP
-#include <Cedar/Wpc.h>
-// Third party protocols
-#include <Cedar/Proto.h>
-#include <Cedar/Proto_IPsec.h>
-#include <Cedar/Proto_EtherIP.h>
-#include <Cedar/Proto_IkePacket.h>
-#include <Cedar/Proto_IKE.h>
-#include <Cedar/Proto_L2TP.h>
-#include <Cedar/Proto_OpenVPN.h>
-#include <Cedar/Proto_PPP.h>
-#include <Cedar/Proto_SSTP.h>
-#include <Cedar/Proto_Win7.h>
-#include <Cedar/Proto_WireGuard.h>
-// Layer-2/Layer-3 converter
-#include <Cedar/IPC.h>
-// UDP Acceleration
-#include <Cedar/UdpAccel.h>
-// DDNS Client
-#include <Cedar/DDNS.h>
-// VPN Azure Client
-#include <Cedar/AzureClient.h>
-// VPN Azure Server
-#include <Cedar/AzureServer.h>
-// Native IP Stack
-#include <Cedar/NativeStack.h>
-
-#ifdef	OS_WIN32
-// Neo device driver
-#include <Neo/Neo.h>
-// SeLow User-mode
-#include <Cedar/SeLowUser.h>
-#endif	// OS_WIN32
-
-// Neo device driver manipulation library
-#include <Cedar/VLan.h>
-// Bridge
-#include <Cedar/Bridge.h>
-// Layer-3 switch
-#include <Cedar/Layer3.h>
-// Virtual LAN card for test
-#include <Cedar/NullLan.h>
-// Client
-#include <Cedar/Client.h>
-// Server
-#include <Cedar/Server.h>
-// License database
-#include <Cedar/Database.h>
-// EtherLogger
-#include <Cedar/EtherLog.h>
-// Management RPC
-#include <Cedar/Admin.h>
-// User-mode Router
-#include <Cedar/Nat.h>
-
-// Web UI
-#include <Cedar/WebUI.h>
-
-// VPN Gate Main Implementation
-#include <Cedar/VG.h>
-
-
-#ifdef	OS_WIN32
-
-// Win32 user interface
-#include <Cedar/WinUi.h>
-// Win32 Client Connection Manager
-#include <Cedar/CM.h>
-// Win32 Server Manager
-#include <Cedar/SM.h>
-// Win32 User-mode Router Manager
-#include <Cedar/NM.h>
-// Win32 EtherLogger Manager
-#include <Cedar/EM.h>
-// Win32 Network Utility
-#include <Cedar/UT.h>
-// Win32 Setup Wizard
-#include <Cedar/SW.h>
-// Win32 COM calling module
-#include <Cedar/Win32Com.h>
-
-#endif
-
-
-
 
 ////////////////////////////
 // Function prototype

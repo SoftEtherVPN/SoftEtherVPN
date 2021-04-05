@@ -8,20 +8,10 @@
 #ifndef	BRIDGE_H
 #define	BRIDGE_H
 
-#ifdef	OS_WIN32
-
-// For Win32
-#include <Cedar/BridgeWin32.h>
-
-#else
-
-// For Unix
-#include <Cedar/BridgeUnix.h>
-
-#endif	// OS_WIN32
+#include "Cedar.h"
 
 // Constants
-#define	BRIDGE_SPECIAL_IPRAW_NAME		"ipv4_rawsocket_virtual_router"
+#define	BRIDGE_SPECIAL_IPRAW_NAME "ipv4_rawsocket_virtual_router"
 
 // Bridge
 struct BRIDGE

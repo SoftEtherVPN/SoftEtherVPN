@@ -5,17 +5,25 @@
 // Mayaqua.c
 // Mayaqua Kernel program
 
-#include <GlobalConst.h>
+#include "Mayaqua.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
+#include "Encrypt.h"
+#include "FileIO.h"
+#include "GlobalConst.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Network.h"
+#include "Object.h"
+#include "OS.h"
+#include "Secure.h"
+#include "Str.h"
+#include "Table.h"
+#include "Tick64.h"
+#include "Tracking.h"
+
 #include <locale.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include <stdlib.h>
 
 // Global variable
 bool g_memcheck;								// Enable memory check

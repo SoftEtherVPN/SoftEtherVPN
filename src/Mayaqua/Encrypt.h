@@ -8,11 +8,9 @@
 #ifndef	ENCRYPT_H
 #define	ENCRYPT_H
 
-// Function of OpenSSL
-void RAND_Init_For_SoftEther();
-void RAND_Free_For_SoftEther();
+#include "MayaType.h"
 
-
+#include <openssl/opensslv.h>
 
 // Constant
 #define	MIN_SIGN_HASH_SIZE		(15 + SHA1_SIZE)
@@ -131,27 +129,31 @@ void RAND_Free_For_SoftEther();
 // Macro
 #define	HASHED_DATA(p)			(((UCHAR *)p) + 15)
 
-// OpenSSL <1.1 Shims
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-#	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
-#	define EVP_PKEY_base_id(pkey) ((pkey)->type)
-#	define X509_get0_notBefore(x509) ((x509)->cert_info->validity->notBefore)
-#	define X509_get0_notAfter(x509) ((x509)->cert_info->validity->notAfter)
-#	define X509_get_serialNumber(x509) ((x509)->cert_info->serialNumber)
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+typedef struct PKCS12_st PKCS12;
+typedef struct evp_md_st EVP_MD;
+#else
+#include <openssl/pkcs12.h>
+typedef struct env_md_st EVP_MD;
 #endif
 
-#ifndef EVP_CTRL_AEAD_GET_TAG
-#	define EVP_CTRL_AEAD_GET_TAG EVP_CTRL_GCM_GET_TAG
-#endif
-
-#ifndef EVP_CTRL_AEAD_SET_TAG
-#	define EVP_CTRL_AEAD_SET_TAG EVP_CTRL_GCM_SET_TAG
-#endif
+typedef struct aes_key_st AES_KEY;
+typedef struct bignum_st BIGNUM;
+typedef struct bio_st BIO;
+typedef struct DES_ks DES_key_schedule;
+typedef struct dh_st DH;
+typedef struct evp_cipher_st EVP_CIPHER;
+typedef struct evp_cipher_ctx_st EVP_CIPHER_CTX;
+typedef struct evp_pkey_st EVP_PKEY;
+typedef struct rc4_key_st RC4_KEY;
+typedef struct ssl_st SSL;
+typedef struct x509_st X509;
+typedef struct X509_crl_st X509_CRL;
 
 // Crypt context
 struct CRYPT
 {
-	struct rc4_key_st *Rc4Key;
+	RC4_KEY *Rc4Key;
 };
 
 // Name in the certificate
@@ -218,7 +220,7 @@ struct X_CRL
 // Key element of DES
 struct DES_KEY_VALUE
 {
-	struct DES_ks *KeySchedule;
+	DES_key_schedule *KeySchedule;
 	UCHAR KeyValue[DES_KEY_SIZE];
 };
 
@@ -231,8 +233,8 @@ struct DES_KEY
 // AES key
 struct AES_KEY_VALUE
 {
-	struct aes_key_st *EncryptKey;
-	struct aes_key_st *DecryptKey;
+	AES_KEY *EncryptKey;
+	AES_KEY *DecryptKey;
 	UCHAR KeyValue[AES_MAX_KEY_SIZE];
 	UINT KeySize;
 };
@@ -240,7 +242,7 @@ struct AES_KEY_VALUE
 // DH
 struct DH_CTX
 {
-	struct dh_st *dh;
+	DH *dh;
 	BUF *MyPublicKey;
 	BUF *MyPrivateKey;
 	UINT Size;
@@ -251,8 +253,8 @@ struct CIPHER
 {
 	char Name[MAX_PATH];
 	bool IsNullCipher, IsAeadCipher;
-	const struct evp_cipher_st *Cipher;
-	struct evp_cipher_ctx_st *Ctx;
+	const EVP_CIPHER *Cipher;
+	EVP_CIPHER_CTX *Ctx;
 	bool Encrypt;
 	UINT BlockSize, IvSize, KeySize;
 };
@@ -263,7 +265,7 @@ struct MD
 	char Name[MAX_PATH];
 	bool IsNullMd;
 	bool IsHMac;
-	const struct evp_md_st *Md;
+	const EVP_MD *Md;
 	void *Ctx;
 	UINT Size;
 };
@@ -448,11 +450,4 @@ void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec,
 
 int GetSslClientCertIndex();
 
-#ifdef	ENCRYPT_C
-// Inner function
-
-
-#endif	// ENCRYPT_C
-
 #endif	// ENCRYPT_H
-

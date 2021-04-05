@@ -8,6 +8,10 @@
 #ifndef	SELOWUSER_H
 #define	SELOWUSER_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Mayaqua.h"
+
 #include <SeLow/SeLowCommon.h>
 
 //// Macro

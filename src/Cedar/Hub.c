@@ -5,7 +5,28 @@
 // Hub.c
 // Virtual HUB module
 
-#include "CedarPch.h"
+#include "Hub.h"
+
+#include "Admin.h"
+#include "Bridge.h"
+#include "Connection.h"
+#include "Link.h"
+#include "Nat.h"
+#include "NativeStack.h"
+#include "Protocol.h"
+#include "Radius.h"
+#include "SecureNAT.h"
+#include "Server.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
 
 #define GetHubAdminOptionDataAndSet(ao, name, dest) \
 	value = GetHubAdminOptionData(ao, name);        \
@@ -4000,7 +4021,7 @@ DISCARD_PACKET:
 
 			if (forward_now)
 			{
-				if (memcmp(packet->MacAddressSrc, hub->HubMacAddr, 6) == 0)
+				if (Cmp(packet->MacAddressSrc, hub->HubMacAddr, 6) == 0)
 				{
 					if (s != NULL)
 					{
@@ -4008,7 +4029,7 @@ DISCARD_PACKET:
 						goto DISCARD_PACKET;
 					}
 				}
-				if (s != NULL && (memcmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0))
+				if (s != NULL && (Cmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0))
 				{
 					// Check whether the source MAC address is registered in the table
 					Copy(t.MacAddress, packet->MacAddressSrc, 6);
@@ -4167,7 +4188,7 @@ DISCARD_PACKET:
 							}
 
 							// It's already registered and it's in another session
-							if (check_mac && (memcmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0) &&
+							if (check_mac && (Cmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0) &&
 								((entry->UpdatedTime + MAC_TABLE_EXCLUSIVE_TIME) >= now))
 							{
 								UCHAR *mac = packet->MacAddressSrc;
@@ -4184,7 +4205,7 @@ DISCARD_PACKET:
 
 									if ((s->LastDLinkSTPPacketSendTick != 0) &&
 										(tick_diff < 750ULL) &&
-										(memcmp(hash, s->LastDLinkSTPPacketDataHash, MD5_SIZE) == 0))
+										(Cmp(hash, s->LastDLinkSTPPacketDataHash, MD5_SIZE) == 0))
 									{
 										// Discard if the same packet sent before 750ms ago
 										Debug("D-Link Discard %u\n", (UINT)tick_diff);
@@ -4824,8 +4845,8 @@ UPDATE_FDB:
 
 						if (s != NULL)
 						{
-							if (memcmp(packet->MacAddressSrc, s->Hub->HubMacAddr, 6) == 0 ||
-								memcmp(packet->MacAddressDest, s->Hub->HubMacAddr, 6) == 0)
+							if (Cmp(packet->MacAddressSrc, s->Hub->HubMacAddr, 6) == 0 ||
+								Cmp(packet->MacAddressDest, s->Hub->HubMacAddr, 6) == 0)
 							{
 								goto DISCARD_UNICAST_PACKET;
 							}
@@ -5041,8 +5062,8 @@ DISCARD_UNICAST_PACKET:
 
 								if (s != NULL)
 								{
-									if (memcmp(packet->MacAddressSrc, s->Hub->HubMacAddr, 6) == 0 ||
-										memcmp(packet->MacAddressDest, s->Hub->HubMacAddr, 6) == 0)
+									if (Cmp(packet->MacAddressSrc, s->Hub->HubMacAddr, 6) == 0 ||
+										Cmp(packet->MacAddressDest, s->Hub->HubMacAddr, 6) == 0)
 									{
 										discard = true;
 									}
@@ -6664,7 +6685,7 @@ int CompareMacTable(void *p1, void *p2)
 	{
 		return 0;
 	}
-	r = memcmp(e1->MacAddress, e2->MacAddress, 6);
+	r = Cmp(e1->MacAddress, e2->MacAddress, 6);
 	if (r != 0)
 	{
 		return r;

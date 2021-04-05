@@ -8,6 +8,9 @@
 #ifndef	VIRTUAL_H
 #define	VIRTUAL_H
 
+#include "Cedar.h"
+
+#include "Mayaqua/TcpIp.h"
 
 #define	NN_RAW_IP_PORT_START			61001
 #define	NN_RAW_IP_PORT_END				65535

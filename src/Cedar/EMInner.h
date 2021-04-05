@@ -5,6 +5,10 @@
 // EMInner.h
 // Inner header of EM.c
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
+
 // Constants
 #define	EM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\EtherLogger\\Manager"
 

@@ -5,17 +5,22 @@
 // Memory.c
 // Memory management program
 
-#include <GlobalConst.h>
+#include "Memory.h"
 
-#include <stdio.h>
+#include "Encrypt.h"
+#include "FileIO.h"
+#include "Internat.h"
+#include "Kernel.h"
+#include "Mayaqua.h"
+#include "Object.h"
+#include "OS.h"
+#include "Str.h"
+#include "Tracking.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
+
 #include <zlib.h>
-#include <Mayaqua/Mayaqua.h>
 
 #define	MEMORY_SLEEP_TIME		150
 #define	MEMORY_MAX_RETRY		30

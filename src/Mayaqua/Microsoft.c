@@ -6,79 +6,67 @@
 // For Microsoft Windows code
 // (not compiled on non-Windows environments)
 
-#include <GlobalConst.h>
-
-#ifdef	WIN32
+#ifdef OS_WIN32
 
 #define	MICROSOFT_C
 
-typedef enum    _PNP_VETO_TYPE {
-    PNP_VetoTypeUnknown,            // Name is unspecified
-    PNP_VetoLegacyDevice,           // Name is an Instance Path
-    PNP_VetoPendingClose,           // Name is an Instance Path
-    PNP_VetoWindowsApp,             // Name is a Module
-    PNP_VetoWindowsService,         // Name is a Service
-    PNP_VetoOutstandingOpen,        // Name is an Instance Path
-    PNP_VetoDevice,                 // Name is an Instance Path
-    PNP_VetoDriver,                 // Name is a Driver Service Name
-    PNP_VetoIllegalDeviceRequest,   // Name is an Instance Path
-    PNP_VetoInsufficientPower,      // Name is unspecified
-    PNP_VetoNonDisableable,         // Name is an Instance Path
-    PNP_VetoLegacyDriver,           // Name is a Service
-    PNP_VetoInsufficientRights      // Name is unspecified
-}   PNP_VETO_TYPE, *PPNP_VETO_TYPE;
+#include "Microsoft.h"
 
-#define	_WIN32_IE			0x0600
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#define   SECURITY_WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <Wintrust.h>
-#include <Softpub.h>
-#include <ws2ipdef.h>
-#include <Iphlpapi.h>
-#include <tlhelp32.h>
-#include <wincon.h>
-#include <Nb30.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <setupapi.h>
-#include <regstr.h>
-#include <process.h>
-#include <psapi.h>
-#include <wtsapi32.h>
-#include <Ntsecapi.h>
-#include <security.h>
-#include <Msi.h>
-#include <Msiquery.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "FileIO.h"
+#include "GlobalConst.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Object.h"
+#include "Str.h"
+#include "Table.h"
+#include "Tick64.h"
+#include "Win32.h"
+
+// TODO: Mayaqua should not depend on Cedar.
+#include <Cedar/Cedar.h>
+#include <Cedar/Client.h>
+#include <Cedar/CM.h>
+#include <Cedar/WinUi.h>
+
+#define SECURITY_WIN32
+
+// The struct is defined in Microsoft's <cfg.h>, but Mayaqua's one gets included instead.
+typedef enum _PNP_VETO_TYPE {
+	PNP_VetoTypeUnknown,            // Name is unspecified
+	PNP_VetoLegacyDevice,           // Name is an Instance Path
+	PNP_VetoPendingClose,           // Name is an Instance Path
+	PNP_VetoWindowsApp,             // Name is a Module
+	PNP_VetoWindowsService,         // Name is a Service
+	PNP_VetoOutstandingOpen,        // Name is an Instance Path
+	PNP_VetoDevice,                 // Name is an Instance Path
+	PNP_VetoDriver,                 // Name is a Driver Service Name
+	PNP_VetoIllegalDeviceRequest,   // Name is an Instance Path
+	PNP_VetoInsufficientPower,      // Name is unspecified
+	PNP_VetoNonDisableable,         // Name is an Instance Path
+	PNP_VetoLegacyDriver,           // Name is a Service
+	PNP_VetoInsufficientRights,     // Name is unspecified
+	PNP_VetoAlreadyRemoved,         // Name is unspecified
+} PNP_VETO_TYPE, *PPNP_VETO_TYPE;
+
+#include <AclAPI.h>
 #include <cfgmgr32.h>
-#include <sddl.h>
-#include <Aclapi.h>
+#include <DbgHelp.h>
 #include <dwmapi.h>
+#include <iphlpapi.h>
+#include <mmsystem.h>
+#include <Msi.h>
+#include <nb30.h>
 #include <newdev.h>
+#include <NTSecAPI.h>
+#include <Psapi.h>
+#include <sddl.h>
+#include <security.h>
+#include <shellapi.h>
+#include <ShlObj.h>
+#include <SoftPub.h>
+#include <WtsApi32.h>
 
 static MS *ms = NULL;
-
-// Function prototype
-UINT MsgBox(HWND hWnd, UINT flag, wchar_t *msg);
-UINT MsgBoxEx(HWND hWnd, UINT flag, wchar_t *msg, ...);
-void ShowTcpIpConfigUtil(HWND hWnd, bool util_mode);
-void CmTraffic(HWND hWnd);
-void CnStart();
-void InitCedar();
-void FreeCedar();
-void InitWinUi(wchar_t *software_name, char *font, UINT fontsize);
-void FreeWinUi();
 
 // Global variable
 UINT64 ms_uint64_1 = 0;
@@ -119,41 +107,6 @@ static UINT (WINAPI *_MsiGetProductInfoW)(LPCWSTR, LPCWSTR, LPWSTR, LPDWORD) = N
 static UINT (WINAPI *_MsiConfigureProductW)(LPCWSTR, int, INSTALLSTATE) = NULL;
 static INSTALLUILEVEL (WINAPI *_MsiSetInternalUI)(INSTALLUILEVEL, HWND *) = NULL;
 static INSTALLSTATE (WINAPI *_MsiLocateComponentW)(LPCWSTR, LPWSTR, LPDWORD) = NULL;
-
-#define SE_GROUP_INTEGRITY                 (0x00000020L)
-
-typedef enum _TOKEN_INFORMATION_CLASS_VISTA
-{
-	VistaTokenUser = 1,
-	VistaTokenGroups,
-	VistaTokenPrivileges,
-	VistaTokenOwner,
-	VistaTokenPrimaryGroup,
-	VistaTokenDefaultDacl,
-	VistaTokenSource,
-	VistaTokenType,
-	VistaTokenImpersonationLevel,
-	VistaTokenStatistics,
-	VistaTokenRestrictedSids,
-	VistaTokenSessionId,
-	VistaTokenGroupsAndPrivileges,
-	VistaTokenSessionReference,
-	VistaTokenSandBoxInert,
-	VistaTokenAuditPolicy,
-	VistaTokenOrigin,
-	VistaTokenElevationType,
-	VistaTokenLinkedToken,
-	VistaTokenElevation,
-	VistaTokenHasRestrictions,
-	VistaTokenAccessInformation,
-	VistaTokenVirtualizationAllowed,
-	VistaTokenVirtualizationEnabled,
-	VistaTokenIntegrityLevel,
-	VistaTokenUIAccess,
-	VistaTokenMandatoryPolicy,
-	VistaTokenLogonSid,
-	VistaMaxTokenInfoClass
-} TOKEN_INFORMATION_CLASS_VISTA, *PTOKEN_INFORMATION_CLASS_VISTA;
 
 typedef struct MS_MSCHAPV2_PARAMS
 {
@@ -1585,7 +1538,7 @@ HANDLE MsCreateUserToken()
 		return NULL;
 	}
 
-	if (SetTokenInformation(hNewToken, VistaTokenIntegrityLevel, &til,
+	if (SetTokenInformation(hNewToken, TokenIntegrityLevel, &til,
 		sizeof(TOKEN_MANDATORY_LABEL) + GetLengthSid(sid)) == false)
 	{
 		CloseHandle(hNewToken);

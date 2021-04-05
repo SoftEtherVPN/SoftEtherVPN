@@ -5,7 +5,22 @@
 // Proto_OpenVPN.c
 // OpenVPN protocol stack
 
-#include "CedarPch.h"
+#include "Proto_OpenVPN.h"
+
+#include "Cedar.h"
+#include "Connection.h"
+#include "IPC.h"
+#include "Logging.h"
+#include "Proto_EtherIP.h"
+#include "Proto_PPP.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Ping signature of the OpenVPN protocol
 static UCHAR ping_signature[] =

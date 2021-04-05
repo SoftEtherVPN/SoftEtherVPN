@@ -5,8 +5,12 @@
 // Win32Com.h
 // Header of Win32Com.c
 
-#ifndef	WIN32COM_H
-#define	WIN32COM_H
+#ifdef OS_WIN32
+
+#ifndef WIN32COM_H
+#define WIN32COM_H
+
+#include "Mayaqua/MayaType.h"
 
 #if	defined(__cplusplus)
 extern "C"
@@ -206,106 +210,10 @@ typedef struct CT_RectF_c
 void CT_DrawImage(UCHAR* dest, CT_RectF_c destRect, int destWidth, int destHeight,
 				  UCHAR* src, CT_RectF_c srcRect, int srcWidth, int srcHeight);
 
-
-
 #if	defined(__cplusplus)
 }
 #endif
 
+#endif // WIN32COM_H
 
-//EXTERN_C const IID IID_IObjectCollection;
-//EXTERN_C const IID IID_ICustomDestinationList;
-
-#if defined(__cplusplus)
-
-
-#ifndef	__IObjectArray_INTERFACE_DEFINED__
-#define	__IObjectArray_INTERFACE_DEFINED__
-
-MIDL_INTERFACE("92CA9DCD-5622-4bba-A805-5E9F541BD8C9")
-IObjectArray : public IUnknown
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE GetCount( 
-		/* [out] */ __RPC__out UINT *pcObjects) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE GetAt( 
-		/* [in] */ UINT uiIndex,
-		/* [in] */ __RPC__in REFIID riid,
-		/* [iid_is][out] */ __RPC__deref_out_opt void **ppv) = 0;
-
-};
-
-MIDL_INTERFACE("5632b1a4-e38a-400a-928a-d4cd63230295")
-IObjectCollection : public IObjectArray
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE AddObject( 
-		/* [in] */ __RPC__in_opt IUnknown *punk) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AddFromArray( 
-		/* [in] */ __RPC__in_opt IObjectArray *poaSource) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE RemoveObjectAt( 
-		/* [in] */ UINT uiIndex) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE Clear( void) = 0;
-
-};
-
-#endif	// __IObjectArray_INTERFACE_DEFINED__
-
-#ifndef	__ICustomDestinationList_INTERFACE_DEFINED__
-#define	__ICustomDestinationList_INTERFACE_DEFINED__
-
-typedef /* [v1_enum] */ 
-enum KNOWNDESTCATEGORY
-{	
-	KDC_FREQUENT	= 1,
-	KDC_RECENT	= ( KDC_FREQUENT + 1 ) 
-} 	KNOWNDESTCATEGORY;
-
-MIDL_INTERFACE("6332debf-87b5-4670-90c0-5e57b408a49e")
-ICustomDestinationList : public IUnknown
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE SetAppID( 
-		/* [string][in] */ __RPC__in_string LPCWSTR pszAppID) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE BeginList( 
-		/* [out] */ __RPC__out UINT *pcMinSlots,
-		/* [in] */ __RPC__in REFIID riid,
-		/* [iid_is][out] */ __RPC__deref_out_opt void **ppv) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AppendCategory( 
-		/* [string][in] */ __RPC__in_string LPCWSTR pszCategory,
-		/* [in] */ __RPC__in_opt IObjectArray *poa) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AppendKnownCategory( 
-		/* [in] */ KNOWNDESTCATEGORY category) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AddUserTasks( 
-		/* [in] */ __RPC__in_opt IObjectArray *poa) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE CommitList( void) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE GetRemovedDestinations( 
-		/* [in] */ __RPC__in REFIID riid,
-		/* [iid_is][out] */ __RPC__deref_out_opt void **ppv) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE DeleteList( 
-		/* [string][unique][in] */ __RPC__in_opt_string LPCWSTR pszAppID) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AbortList( void) = 0;
-
-};
-
-
-#endif	// __ICustomDestinationList_INTERFACE_DEFINED__
-
-
-#endif //defined(__cplusplus)
-
-
-
-#endif	// WIN32COM_H
+#endif // OS_WIN32

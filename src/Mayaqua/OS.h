@@ -8,6 +8,8 @@
 #ifndef	OS_H
 #define	OS_H
 
+#include "MayaType.h"
+
 // Function prototype
 char *OsTypeToStr(UINT type);
 

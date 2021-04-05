@@ -8,6 +8,10 @@
 #ifndef	CLIENT_H
 #define	CLIENT_H
 
+#include "Account.h"
+#include "Session.h"
+#include "Wpc.h"
+
 #define	CLIENT_CONFIG_PORT					GC_CLIENT_CONFIG_PORT		// Client port number
 #define	CLIENT_NOTIFY_PORT					GC_CLIENT_NOTIFY_PORT		// Client notification port number
 #define CLIENT_WAIT_CN_READY_TIMEOUT		(10 * 1000)	// Standby time to start the client notification service
@@ -742,11 +746,9 @@ void OutRpcTrafficEx(TRAFFIC *t, PACK *p, UINT i, UINT num);
 void OutRpcCmSetting(PACK *p, CM_SETTING *c);
 void InRpcCmSetting(CM_SETTING *c, PACK *p);
 
-
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
+typedef struct MS_DRIVER_VER MS_DRIVER_VER;
 void CiInitDriverVerStruct(MS_DRIVER_VER *ver);
 #endif	// OS_EIN32
 
 #endif	// CLIENT_H
-
-

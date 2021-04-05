@@ -5,38 +5,25 @@
 // Proto_Win7.c
 // Initialize the helper module for Windows 7 / Windows 8 / Windows Vista / Windows Server 2008 / Windows Server 2008 R2 / Windows Server 2012 / Windows 10
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#include "Proto_Win7.h"
 
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#define	INITGUID
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <Fwpmu.h>
-#include <Fwpmtypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "Proto_Win7Inner.h"
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+
 #include <Wfp/Wfp.h>
+
+#include <stdlib.h>
+
+#include <fwpmu.h>
 
 static IPSEC_WIN7_FUNCTIONS *api = NULL;
 static HINSTANCE hDll = NULL;
-
 
 // Initialize the IPsec helper module for Windows 7
 IPSEC_WIN7 *IPsecWin7Init()

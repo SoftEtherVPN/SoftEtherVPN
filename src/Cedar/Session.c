@@ -5,7 +5,34 @@
 // Session.c
 // Session Manager
 
-#include "CedarPch.h"
+#include "Session.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Client.h"
+#include "Connection.h"
+#include "Hub.h"
+#include "Link.h"
+#include "Nat.h"
+#include "Protocol.h"
+#include "SecureNAT.h"
+#include "Server.h"
+#include "UdpAccel.h"
+#include "VLanUnix.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
+
+// TODO: Mayaqua should not depend on Cedar.
+#include "Cedar/WinUi.h"
 
 // Main routine of the session
 void SessionMain(SESSION *s)

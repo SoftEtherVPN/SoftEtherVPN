@@ -5,9 +5,42 @@
 // Protocol.c
 // SoftEther protocol related routines
 
-#include "CedarPch.h"
+#include "Protocol.h"
 
-static UCHAR ssl_packet_start[3] = {0x17, 0x03, 0x00};
+#include "Admin.h"
+#include "Client.h"
+#include "CM.h"
+#include "DDNS.h"
+#include "Hub.h"
+#include "IPC.h"
+#include "Link.h"
+#include "Logging.h"
+#include "Proto_IPsec.h"
+#include "Proto_OpenVPN.h"
+#include "Proto_PPP.h"
+#include "Proto_SSTP.h"
+#include "Radius.h"
+#include "Sam.h"
+#include "Server.h"
+#include "UdpAccel.h"
+#include "VLanUnix.h"
+#include "WaterMark.h"
+#include "WebUI.h"
+#include "WinUi.h"
+#include "Wpc.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/OS.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Download and save intermediate certificates if necessary
 bool DownloadAndSaveIntermediateCertificatesIfNecessary(X *x)
@@ -3156,7 +3189,7 @@ bool ServerAccept(CONNECTION *c)
 			if (IsURLMsg(msg, NULL, 0) == false)
 			{
 
-				if (s != NULL && s->IsRUDPSession && c != NULL && StrCmpi(hub->Name, VG_HUBNAME) != 0)
+				if (s != NULL && s->IsRUDPSession && c != NULL)
 				{
 					// Show the warning message if the connection is made by NAT-T
 					wchar_t *tmp2;

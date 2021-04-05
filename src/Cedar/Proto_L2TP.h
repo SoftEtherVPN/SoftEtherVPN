@@ -8,7 +8,9 @@
 #ifndef	PROTO_L2TP_H
 #define	PROTO_L2TP_H
 
-//// Macro
+#include "CedarType.h"
+
+#include "Mayaqua/Network.h"
 
 // Check the sequence number
 #define	L2TP_SEQ_LT(a, b)			(((USHORT)(((USHORT)(a)) - ((USHORT)(b)))) & 0x8000)

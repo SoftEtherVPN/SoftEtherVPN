@@ -5,7 +5,31 @@
 // Connection.c
 // Connection Manager
 
-#include "CedarPch.h"
+#include "Connection.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Hub.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Nat.h"
+#include "Protocol.h"
+#include "Server.h"
+#include "SecureNAT.h"
+#include "Session.h"
+#include "UdpAccel.h"
+#include "Virtual.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+
+#include <stdlib.h>
 
 // Determine whether the socket is to use to send
 #define	IS_SEND_TCP_SOCK(ts)		\

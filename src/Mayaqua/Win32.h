@@ -5,10 +5,12 @@
 // Win32.h
 // Header of Win32.c
 
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 
 #ifndef	WIN32_H
 #define	WIN32_H
+
+#include "OS.h"
 
 // Function prototype
 OS_DISPATCH_TABLE *Win32GetDispatchTable();

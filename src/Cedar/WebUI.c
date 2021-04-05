@@ -5,7 +5,24 @@
 // WebUI.c
 // Web User Interface module
 
-#include "CedarPch.h"
+#include "WebUI.h"
+
+#include "Admin.h"
+#include "Command.h"
+#include "Database.h"
+#include "Nat.h"
+#include "Remote.h"
+#include "Sam.h"
+#include "Server.h"
+
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 static WU_CONTEXT *WuNewContext(WEBUI *wu, char *hubname);
 static void WuFreeContext(WU_CONTEXT *context);
@@ -617,7 +634,7 @@ static wchar_t *WpNewHub(WEBUI *wu, LIST *params)
 		char *passwd = (char*)StrMapSearch(params, "PASSWD");
 		char *passwd2 = (char*)StrMapSearch(params, "PASSWD2");
 
-		if(strcmp(passwd,passwd2) != 0)
+		if(StrCmp(passwd,passwd2) != 0)
 		{
 			return WuErrorPage(ERR_INVALID_PARAMETER);
 		}

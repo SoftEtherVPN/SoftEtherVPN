@@ -5,7 +5,43 @@
 // Client.c
 // Client Manager
 
-#include "CedarPch.h"
+#include "Client.h"
+
+#include "Account.h"
+#include "Admin.h"
+#include "Cedar.h"
+#include "CM.h"
+#include "Connection.h"
+#include "IPC.h"
+#include "Listener.h"
+#include "Logging.h"
+#include "Protocol.h"
+#include "Remote.h"
+#include "Virtual.h"
+#include "VLanUnix.h"
+#include "VLanWin32.h"
+#include "Win32Com.h"
+#include "WinUi.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/MayaType.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Network.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/OS.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
+#include <stdlib.h>
 
 static CLIENT *client = NULL;
 static LISTENER *cn_listener = NULL;

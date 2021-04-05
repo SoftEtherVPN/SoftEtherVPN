@@ -8,8 +8,8 @@
 #ifndef	MAYAQUA_H
 #define	MAYAQUA_H
 
-#include <stdarg.h>
-#include <stddef.h>
+#include "Kernel.h"
+
 #include <stdio.h>
 
 #define	PENCORE_DLL_NAME		"|PenCore.dll"
@@ -27,10 +27,9 @@
 
 void InitProcessCallOnce();
 
-#ifdef	VPN_EXE
+#ifdef VPN_EXE
 // To build the executable file
-#ifdef	WIN32
-#include <windows.h>
+#ifdef OS_WIN32
 #include "../PenCore/resource.h"
 int main(int argc, char *argv[]);
 int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
@@ -47,13 +46,6 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 //#define	DEFAULT_TABLE_FILE_NAME		"@hamcore_zh/strtable.stb"		// Test for Chinese
 
 #define	STRTABLE_ID					"SE_VPN_20121007"	// String table identifier
-
-// Determining the OS
-#ifdef	WIN32
-#define	OS_WIN32		// Microsoft Windows
-#else
-#define	OS_UNIX			// UNIX
-#endif	// WIN32
 
 // Directory separator
 #ifdef	OS_WIN32
@@ -121,172 +113,9 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 #define	WHEN
 #endif	// WIN32
 
-#ifdef	OS_UNIX
-#ifndef	UNIX_SOLARIS
-#ifndef	CPU_SH4
-#if	!defined(__UCLIBC__) || defined(__UCLIBC_SUPPORT_AI_ADDRCONFIG__)
-// Getifaddrs system call is supported on UNIX other than Solaris.
-// However, it is not supported also by the Linux on SH4 CPU
-#define	MAYAQUA_SUPPORTS_GETIFADDRS
-#endif	// !UCLIBC || UCLIBC_SUPPORT_AI_ADDRCONFIG
-#endif	// CPU_SH4
-#endif	// UNIX_SOLARIS
-#endif	// OS_UNIX
-
-#ifdef	OS_UNIX
-// Header only needed in UNIX OS
-#include <sys/types.h>
-#include <unistd.h>
-#include <termios.h>
-#include <dirent.h>
-#ifdef	UNIX_LINUX
-#include <sys/vfs.h>
-#elif	UNIX_BSD
-#include <sys/param.h>
-#include <sys/mount.h>
+#ifdef OS_UNIX
+#define closesocket(s) close(s)
 #endif
-#ifdef	UNIX_SOLARIS
-#include <sys/statvfs.h>
-#define	USE_STATVFS
-#endif	// UNIX_SOLARIS
-#include <sys/stat.h>
-#include <sys/file.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#ifdef	UNIX_SOLARIS
-#include <sys/filio.h>
-#endif	// UNIX_SOLARIS
-#include <sys/resource.h>
-#include <poll.h>
-#include <pthread.h>
-#ifdef	UNIX_LINUX
-#include <sys/prctl.h>
-#endif	// UNIX_LINUX
-#include <signal.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-//#include <netinet/ip.h>
-#include <netdb.h>
-#include <net/if.h>
-#include <net/if_arp.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-//#include <curses.h>
-#ifdef	MAYAQUA_SUPPORTS_GETIFADDRS
-#include <ifaddrs.h>
-#endif	// MAYAQUA_SUPPORTS_GETIFADDRS
-
-#ifdef	UNIX_LINUX
-typedef void *iconv_t;
-iconv_t iconv_open (__const char *__tocode, __const char *__fromcode);
-size_t iconv (iconv_t __cd, char **__restrict __inbuf,
-                     size_t *__restrict __inbytesleft,
-                     char **__restrict __outbuf,
-                     size_t *__restrict __outbytesleft);
-int iconv_close (iconv_t __cd);
-#else	// UNIX_LINUX
-#include <iconv.h>
-#endif	// UNIX_LINUX
-
-
-
-#ifdef	UNIX_LINUX
-#include <netinet/if_ether.h>
-#include <net/ethernet.h>
-#include <netpacket/packet.h>
-#endif	// UNIX_LINUX
-
-#ifdef	UNIX_SOLARIS
-#include <sys/dlpi.h>
-#include <sys/stropts.h>
-#include <sys/stream.h>
-#endif	// UNIX_SOLARIS
-
-#ifndef	NO_VLAN
-
-#include <Mayaqua/TunTap.h>
-
-#endif	// NO_VLAN
-
-#define	closesocket(s)		close(s)
-
-#else	// Win32 only
-
-#include <conio.h>
-
-#endif	// OS_UNIX
-
-// IPv6 support flag
-#ifndef	WIN32
-#ifndef	AF_INET6
-#define	NO_IPV6
-#endif	// AF_INET6
-#endif	// WIN32
-
-// Basic type declaration
-#include <Mayaqua/MayaType.h>
-
-// Object management
-#include <Mayaqua/Object.h>
-
-// Object tracking
-#include <Mayaqua/Tracking.h>
-
-// File I/O
-#include <Mayaqua/FileIO.h>
-
-// Memory management
-#include <Mayaqua/Memory.h>
-
-// String processing
-#include <Mayaqua/Str.h>
-
-// Internationalized string processing
-#include <Mayaqua/Internat.h>
-
-// Encryption processing
-#include <Mayaqua/Encrypt.h>
-
-// Secure token
-#include <Mayaqua/Secure.h>
-
-// Kernel
-#include <Mayaqua/Kernel.h>
-
-// Package
-#include <Mayaqua/Pack.h>
-
-// Configuration file
-#include <Mayaqua/Cfg.h>
-
-// String table
-#include <Mayaqua/Table.h>
-
-// Network communication
-#include <Mayaqua/Network.h>
-
-// TCP/IP
-#include <Mayaqua/TcpIp.h>
-
-// HTTP
-#include <Mayaqua/HTTP.h>
-
-// Proxy
-#include <Mayaqua/Proxy.h>
-
-// 64 bit real-time clock
-#include <Mayaqua/Tick64.h>
-
-// OS-dependent code
-#include <Mayaqua/OS.h>
-
-// Code for Microsoft Windows
-#include <Mayaqua/Microsoft.h>
-
 
 // Global variables
 extern bool g_memcheck;

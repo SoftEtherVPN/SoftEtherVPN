@@ -8,6 +8,10 @@
 #ifndef	CONSOLE_H
 #define	CONSOLE_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
+
 // Constant
 #define	MAX_PROMPT_STRSIZE			65536
 #define	WIN32_DEFAULT_CONSOLE_WIDTH	100

@@ -5,7 +5,17 @@
 // Proto_SSTP.c
 // SSTP (Microsoft Secure Socket Tunneling Protocol) protocol stack
 
-#include "CedarPch.h"
+#include "Proto_SSTP.h"
+
+#include "Connection.h"
+#include "Proto_PPP.h"
+#include "Server.h"
+
+#include "Mayaqua/HTTP.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 const PROTO_IMPL *SstpGetProtoImpl()
 {

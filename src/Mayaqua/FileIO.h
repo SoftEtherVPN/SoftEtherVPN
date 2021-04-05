@@ -8,6 +8,8 @@
 #ifndef	FILEIO_H
 #define	FILEIO_H
 
+#include "Mayaqua.h"
+
 // Constant
 #define	HAMCORE_DIR_NAME			"hamcore"
 #define	HAMCORE_FILE_NAME			"hamcore.se2"

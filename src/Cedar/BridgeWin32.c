@@ -5,24 +5,27 @@
 // BridgeWin32.c
 // Ethernet Bridge Program (Win32)
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	BRIDGE_C
+#define BRIDGE_C
 
-#include <winsock2.h>
+#include "BridgeWin32.h"
+
+#include "Admin.h"
+#include "Connection.h"
+#include "SeLowUser.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Str.h"
+
 #include <Ws2tcpip.h>
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Packet32.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-
 
 static WP *wp = NULL;
 static LIST *eth_list = NULL;
@@ -2091,6 +2094,4 @@ void GetEthNetworkConnectionName(wchar_t *dst, UINT size, char *device_name)
 	Free(ncname);
 }
 
-#endif	// BRIDGE_C
-
-
+#endif

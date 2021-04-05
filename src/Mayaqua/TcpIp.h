@@ -8,6 +8,9 @@
 #ifndef	TCPIP_H
 #define	TCPIP_H
 
+#include "Mayaqua.h"
+#include "Network.h"
+
 #ifdef	OS_WIN32
 #pragma pack(push, 1)
 #endif	// OS_WIN32

@@ -5,8 +5,14 @@
 // BridgeWin32.h
 // Header of BridgeWin32.c
 
+#ifdef OS_WIN32
+
 #ifndef	BRIDGEWIN32_H
 #define	BRIDGEWIN32_H
+
+#include "Bridge.h"
+
+#include <Packet32.h>
 
 #define	BRIDGE_WIN32_PACKET_DLL		"Packet.dll"
 #define	BRIDGE_WIN32_PCD_DLL		"|see.dll"
@@ -18,10 +24,7 @@
 
 #define	BRIDGE_WIN32_ETH_BUFFER		(1048576)
 
-
-typedef void *HANDLE;
-
-#ifdef	BRIDGE_C
+#ifdef BRIDGE_C
 
 // Header for Internal function (for BridgeWin32.c)
 typedef struct WP
@@ -157,6 +160,6 @@ bool Win32IsUsingSeLow();
 void Win32SetEnableSeLow(bool b);
 bool Win32GetEnableSeLow();
 
-#endif	// BRIDGEWIN32_H
+#endif // BRIDGEWIN32_H
 
-
+#endif // OS_WIN32

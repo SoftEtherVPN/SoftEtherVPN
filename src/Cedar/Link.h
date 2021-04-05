@@ -8,6 +8,10 @@
 #ifndef	LINK_H
 #define	LINK_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
+
 struct LINK
 {
 	bool Started;					// Running flag

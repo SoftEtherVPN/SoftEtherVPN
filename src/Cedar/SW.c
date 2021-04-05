@@ -5,39 +5,28 @@
 // SW.c
 // Setup Wizard for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
-
-#define	SM_C
-#define	CM_C
-#define	NM_C
-#define	SW_C
-
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "CMInner.h"
-#include "SMInner.h"
-#include "NMInner.h"
-#include "EMInner.h"
+#include "SW.h"
 #include "SWInner.h"
+
+#include "CMInner.h"
+#include "Console.h"
+#include "SeLowUser.h"
+#include "Win32Com.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
 #include "../PenCore/resource.h"
+
+#include <ShlObj.h>
 
 //// Old MSI product information
 // VPN Server

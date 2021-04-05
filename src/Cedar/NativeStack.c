@@ -5,7 +5,21 @@
 // NativeStack.c
 // Native IP stack
 
-#include "CedarPch.h"
+#include "NativeStack.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "IPC.h"
+#include "Virtual.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+
+#ifdef OS_UNIX
+#include "Mayaqua/Unix.h"
+#endif
 
 // Stack main thread
 void NsMainThread(THREAD *thread, void *param)

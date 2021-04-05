@@ -5,7 +5,18 @@
 // UdpAccel.c
 // UDP acceleration function
 
-#include "CedarPch.h"
+#include "UdpAccel.h"
+
+#include "Connection.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
+
+#include <stdlib.h>
 
 // Polling process
 void UdpAccelPoll(UDP_ACCEL *a)

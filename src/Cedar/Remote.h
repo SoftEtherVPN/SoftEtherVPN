@@ -8,6 +8,8 @@
 #ifndef	REMOTE_H
 #define	REMOTE_H
 
+#include "Connection.h"
+
 // RPC execution function
 typedef PACK *(RPC_DISPATCHER)(RPC *r, char *function_name, PACK *p);
 

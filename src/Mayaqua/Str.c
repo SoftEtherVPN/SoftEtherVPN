@@ -5,17 +5,19 @@
 // Str.c
 // String processing routine
 
-#include <GlobalConst.h>
+#include "Str.h"
 
+#include "Cfg.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Object.h"
+#include "Tracking.h"
+
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
 
 // Locking for call the token handling function
 LOCK *token_lock = NULL;

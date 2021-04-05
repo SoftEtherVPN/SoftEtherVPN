@@ -5,8 +5,16 @@
 // VLanWin32.h
 // Header of VLanWin32.c
 
+#ifdef OS_WIN32
+
 #ifndef	VLANWIN32_H
 #define	VLANWIN32_H
+
+#include "CedarType.h"
+
+#include "VLan.h"
+
+#include "Mayaqua/Network.h"
 
 // Routing table tracking timer
 #define	TRACKING_INTERVAL_INITIAL		444		// Initial
@@ -89,4 +97,6 @@ void RouteTrackingMain(SESSION *s);
 
 void Win32GetWinVer(RPC_WINVER *v);
 
-#endif	// VLANWIN32_H
+#endif // VLANWIN32_H
+
+#endif // OS_WIN32

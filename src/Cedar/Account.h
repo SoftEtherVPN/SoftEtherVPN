@@ -8,6 +8,10 @@
 #ifndef	ACCOUNT_H
 #define	ACCOUNT_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Encrypt.h"
+
 #define	USER_MAC_STR_PREFIX		L"MAC:"
 #define	USER_IPV4_STR_PREFIX		L"IPv4:"
 

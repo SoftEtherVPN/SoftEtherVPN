@@ -8,6 +8,8 @@
 #ifndef	VLAN_H
 #define	VLAN_H
 
+#include "Mayaqua/MayaType.h"
+
 // Parameters related to VLAN
 struct VLAN_PARAM
 {
@@ -15,18 +17,4 @@ struct VLAN_PARAM
 	UCHAR Padding[2];
 };
 
-#ifdef	OS_WIN32
-
-// For Win32
-#include <Cedar/VLanWin32.h>
-
-#else	// OS_WIN32
-
-// For UNIX
-#include <Cedar/VLanUnix.h>
-
-#endif	// OS_WIN32
-
-#endif	// VLAN_H
-
-
+#endif

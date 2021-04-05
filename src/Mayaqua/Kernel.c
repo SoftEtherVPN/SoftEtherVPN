@@ -5,16 +5,27 @@
 // Kernel.c
 // System service processing routine
 
-#include <GlobalConst.h>
+#include "Kernel.h"
 
-#include <stdio.h>
+#include "Encrypt.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Str.h"
+#include "Table.h"
+#include "Tracking.h"
+#include "Unix.h"
+#include "Win32.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
 #include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+
+#ifdef OS_UNIX
+#include <sys/time.h>
+#endif
 
 #ifndef TM_YEAR_MAX
 #define TM_YEAR_MAX         2106

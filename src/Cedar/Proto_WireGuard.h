@@ -1,6 +1,8 @@
 #ifndef PROTO_WIREGUARD_H
 #define PROTO_WIREGUARD_H
 
+#include "Proto.h"
+
 #include <sodium.h>
 
 #define WG_IPC_POSTFIX "WIREGUARD"

@@ -5,7 +5,42 @@
 // Admin.c
 // RPC Module for Management
 
-#include "CedarPch.h"
+#include "Admin.h"
+
+#include "Account.h"
+#include "AzureClient.h"
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Connection.h"
+#include "DDNS.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Nat.h"
+#include "Remote.h"
+#include "Proto.h"
+#include "Proto_IPsec.h"
+#include "Proto_OpenVPN.h"
+#include "Proto_PPP.h"
+#include "Protocol.h"
+#include "Sam.h"
+#include "SecureNAT.h"
+#include "Server.h"
+#include "Session.h"
+#include "Virtual.h"
+#include "Wpc.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/HTTP.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Macro for RPC function declaration
 #define	DECLARE_RPC_EX(rpc_name, data_type, function, in_rpc, out_rpc, free_rpc)		\

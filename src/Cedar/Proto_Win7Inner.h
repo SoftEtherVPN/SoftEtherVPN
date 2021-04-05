@@ -5,8 +5,15 @@
 // Proto_Win7Inner.h
 // Internal header of Proto_Win7.c
 
-#ifndef	PROTO_WIN7_INNER_H
-#define	PROTO_WIN7_INNER_H
+#ifdef OS_WIN32
+
+#ifndef PROTO_WIN7_INNER_H
+#define PROTO_WIN7_INNER_H
+
+#include "Mayaqua/MayaType.h"
+
+#include <rpc.h>
+#include <fwpmtypes.h>
 
 // API function
 typedef struct IPSEC_WIN7_FUNCTIONS
@@ -74,4 +81,6 @@ struct IPSEC_WIN7
 };
 
 
-#endif	// PROTO_WIN7_INNER_H
+#endif // PROTO_WIN7_INNER_H
+
+#endif // OS_WIN32

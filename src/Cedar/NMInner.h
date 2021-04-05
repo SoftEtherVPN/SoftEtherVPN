@@ -5,6 +5,9 @@
 // NMInner.h
 // The internal header of NM.c
 
+#include "SMInner.h"
+
+#include "Mayaqua/Encrypt.h"
 
 // Constants
 #define	NM_REG_KEY			"Software\\" GC_REG_COMPANY_NAME "\\PacketiX VPN\\User-mode Router Manager"

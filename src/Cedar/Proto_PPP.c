@@ -5,7 +5,22 @@
 // Proto_PPP.c
 // PPP protocol stack
 
-#include "CedarPch.h"
+#include "Proto_PPP.h"
+
+#include "Account.h"
+#include "Cedar.h"
+#include "Connection.h"
+#include "Hub.h"
+#include "IPC.h"
+#include "Logging.h"
+#include "Proto_IPsec.h"
+#include "Radius.h"
+#include "Server.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 // PPP main thread
 void PPPThread(THREAD *thread, void *param)

@@ -5,46 +5,33 @@
 // CM.c
 // VPN Client Connection Manager for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define WINUI_C
+#define MICROSOFT_C
 
-#define	CM_C
-#define	SM_C
-#define	MICROSOFT_C
-
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#define	SECURITY_WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <Iphlpapi.h>
-#include <tlhelp32.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <setupapi.h>
-#include <regstr.h>
-#include <process.h>
-#include <psapi.h>
-#include <wtsapi32.h>
-#include <Ntsecapi.h>
-#include <security.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
 #include "CMInner.h"
+
+#include "Nat.h"
+#include "Protocol.h"
+#include "Remote.h"
 #include "SMInner.h"
-#include "NMInner.h"
-#include "EMInner.h"
+#include "UT.h"
+#include "Win32Com.h"
+#include "WinUi.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Win32.h"
+
 #include "../PenCore/resource.h"
 
+#include <shellapi.h>
 
 // Get the proxy server settings from the registry string of IE
 bool CmGetProxyServerNameAndPortFromIeProxyRegStr(char *name, UINT name_size, UINT *port, char *str, char *server_type)

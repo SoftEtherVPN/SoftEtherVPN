@@ -8,6 +8,8 @@
 #ifndef	SW_INNER_H
 #define	SW_INNER_H
 
+#include "WinUi.h"
+
 // Component string
 #define	SW_NAME_VPNSERVER			"vpnserver"
 #define	SW_LONG_VPNSERVER			_UU("SW_LONG_VPNSERVER")

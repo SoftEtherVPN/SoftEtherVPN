@@ -5,22 +5,22 @@
 // VLanWin32.c
 // Virtual device driver library for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	VLAN_C
+#include "VLanWin32.h"
 
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Admin.h"
+#include "Connection.h"
+#include "UdpAccel.h"
 
-#ifdef	OS_WIN32
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
+#include "Neo/Neo.h"
 
 typedef DWORD(CALLBACK* OPENVXDHANDLE)(HANDLE);
 
@@ -1374,7 +1374,4 @@ CLEANUP:
 	return NULL;
 }
 
-#endif	// OS_WIN32
-
-#endif	//VLAN_C
-
+#endif

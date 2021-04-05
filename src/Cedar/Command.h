@@ -8,6 +8,12 @@
 #ifndef	COMMAND_H
 #define	COMMAND_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Network.h"
+
+#include <stddef.h>
+
 // Constants
 #define	TRAFFIC_DEFAULT_PORT		9821
 #define	TRAFFIC_NUMTCP_MAX			32

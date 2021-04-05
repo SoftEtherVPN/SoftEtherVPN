@@ -5,50 +5,57 @@
 // Network.c
 // Network communication module
 
-#include <GlobalConst.h>
+#include "Network.h"
 
-#define	ENCRYPT_C
-#define	NETWORK_C
+#include "Cfg.h"
+#include "FileIO.h"
+#include "HTTP.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Pack.h"
+#include "Str.h"
+#include "TcpIp.h"
+#include "Tick64.h"
+#include "Unix.h"
 
-#define	__WINCRYPT_H__
-
-#ifdef	WIN32
-// Include windows.h for Socket API
-#define	_WIN32_WINNT		0x0600
-#define	WINVER				0x0600
-#include <Ws2tcpip.h>
-#include <Wspiapi.h>
-#include <winsock2.h>
-#include <windows.h>
-#include <Iphlpapi.h>
-#include <ws2ipdef.h>
-#include <netioapi.h>
-#include <Icmpapi.h>
-#endif	// WIN32
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <openssl/ssl.h>
+
 #include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/engine.h>
-#include <openssl/bio.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs7.h>
-#include <openssl/pkcs12.h>
-#include <openssl/rc4.h>
-#include <openssl/md5.h>
-#include <openssl/sha.h>
-#include <Mayaqua/Mayaqua.h>
-#ifdef	UNIX_MACOS
+#include <openssl/ssl.h>
+
+#ifdef OS_UNIX
+#include <fcntl.h>
+#include <netdb.h>
+#include <poll.h>
+#include <signal.h>
+
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#endif
+
+#ifdef UNIX_MACOS
 #include <sys/event.h>
-#endif	// UNIX_MACOS
+#endif
+
+#ifdef UNIX
+#ifdef UNIX_SOLARIS
+#define USE_STATVFS
+#include <sys/statvfs.h>'
+#else
+#define MAYAQUA_SUPPORTS_GETIFADDRS
+#include <ifaddrs.h>
+#endif
+#endif
 
 #ifdef OS_WIN32
+#include <iphlpapi.h>
+#include <WS2tcpip.h>
+
+#include <IcmpAPI.h>
+
 struct ROUTE_CHANGE_DATA
 {
 	OVERLAPPED Overlapped;

@@ -8,6 +8,9 @@
 #ifndef	SERVER_H
 #define	SERVER_H
 
+#include "Client.h"
+#include "Proto_WireGuard.h"
+
 // Default ports
 #define	SERVER_DEF_PORTS_1				443
 #define	SERVER_DEF_PORTS_2				992

@@ -8,6 +8,10 @@
 #ifndef	WFP_H
 #define	WFP_H
 
+#include "Mayaqua/MayaType.h"
+
+#include <initguid.h>
+
 // Identify string
 #define	WFP_DEVICE_NAME				L"\\Device\\PXWFP_DEVICE"
 #define	WFP_DEVICE_NAME_WIN32		L"\\DosDevices\\PXWFP_DEVICE"

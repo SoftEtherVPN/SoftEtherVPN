@@ -5,9 +5,16 @@
 // Wpc.c
 // RPC over HTTP
 
-#include <GlobalConst.h>
+#include "Wpc.h"
 
-#include "CedarPch.h"
+#include "Command.h"
+#include "Protocol.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Proxy.h"
+#include "Mayaqua/Str.h"
 
 // Get whether the proxy server is specified by a private IP
 bool IsProxyPrivateIp(INTERNET_SETTING *s)
