@@ -1183,7 +1183,6 @@ void PackAddIpEx(PACK *p, char *name, IP *ip, UINT index, UINT total)
 void PackAddIpEx2(PACK *p, char *name, IP *ip, UINT index, UINT total, bool is_single)
 {
 	UINT i;
-	bool b = false;
 	char tmp[MAX_PATH];
 	ELEMENT *e;
 	// Validate arguments
@@ -1196,44 +1195,20 @@ void PackAddIpEx2(PACK *p, char *name, IP *ip, UINT index, UINT total, bool is_s
 		is_single = false;
 	}
 
-	b = IsIP6(ip);
-
 	Format(tmp, sizeof(tmp), "%s@ipv6_bool", name);
-	e = PackAddBoolEx(p, tmp, b, index, total);
+	e = PackAddBoolEx(p, tmp, IsIP6(ip), index, total);
 	if (e != NULL && is_single) e->JsonHint_IsArray = false;
 	if (e != NULL) e->JsonHint_IsIP = true;
 
 	Format(tmp, sizeof(tmp), "%s@ipv6_array", name);
-	if (b)
-	{
-		e = PackAddDataEx(p, tmp, ip->ipv6_addr, sizeof(ip->ipv6_addr), index, total);
-		if (e != NULL && is_single) e->JsonHint_IsArray = false;
-		if (e != NULL) e->JsonHint_IsIP = true;
-	}
-	else
-	{
-		UCHAR dummy[16];
-
-		Zero(dummy, sizeof(dummy));
-
-		e = PackAddDataEx(p, tmp, dummy, sizeof(dummy), index, total);
-		if (e != NULL && is_single) e->JsonHint_IsArray = false;
-		if (e != NULL) e->JsonHint_IsIP = true;
-	}
+	e = PackAddDataEx(p, tmp, ip->address, sizeof(ip->address), index, total);
+	if (e != NULL && is_single) e->JsonHint_IsArray = false;
+	if (e != NULL) e->JsonHint_IsIP = true;
 
 	Format(tmp, sizeof(tmp), "%s@ipv6_scope_id", name);
-	if (b)
-	{
-		e = PackAddIntEx(p, tmp, ip->ipv6_scope_id, index, total);
-		if (e != NULL && is_single) e->JsonHint_IsArray = false;
-		if (e != NULL) e->JsonHint_IsIP = true;
-	}
-	else
-	{
-		e = PackAddIntEx(p, tmp, 0, index, total);
-		if (e != NULL && is_single) e->JsonHint_IsArray = false;
-		if (e != NULL) e->JsonHint_IsIP = true;
-	}
+	e = PackAddIntEx(p, tmp, ip->ipv6_scope_id, index, total);
+	if (e != NULL && is_single) e->JsonHint_IsArray = false;
+	if (e != NULL) e->JsonHint_IsIP = true;
 
 	i = IPToUINT(ip);
 

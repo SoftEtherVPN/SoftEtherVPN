@@ -10041,7 +10041,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 	case CMD_SHORTCUT:
 		// Create a shortcut
-		if (cm->Client->Rpc->Sock->RemoteIP.addr[0] != 127)
+		if (IsLocalHostIP(&cm->Client->Rpc->Sock->RemoteIP) == false)
 		{
 			return false;
 		}

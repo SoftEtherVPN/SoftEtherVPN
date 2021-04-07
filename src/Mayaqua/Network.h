@@ -85,16 +85,18 @@ struct DYN_VALUE
 // IP address
 struct IP
 {
-	UCHAR addr[4];					// IPv4 address, (meaning that 192.0.2.254 = IPv6)
-	UCHAR ipv6_addr[16];			// IPv6 address
-	UINT ipv6_scope_id;				// IPv6 scope ID
+	BYTE address[16];   // IP address (RFC 3493 format used for IPv4)
+	UINT ipv6_scope_id; // IPv6 scope ID
 };
 
-// Size when comparing the IP structures only in the address part
-#define	SIZE_OF_IP_FOR_ADDR			(sizeof(UCHAR) * 20)
+// Pointer to the beginning of the IPv4 address
+#define	IPV4(address)				(&address[12])
+#define	IPV4_SIZE					(4)
 
-// Compare the IP address part
-#define	CmpIpAddr(ip1, ip2)			(Cmp((ip1), (ip2), SIZE_OF_IP_FOR_ADDR))
+#define	CmpIpAddr(ip1, ip2)			(Cmp((ip1)->address, (ip2)->address, sizeof((ip1)->address)))
+
+#define	IsIP6(ip)					(IsIP4(ip) == false)
+#define	IsZeroIp(ip)				(IsZeroIP(ip))
 
 // IPv6 address (different format)
 struct IPV6_ADDR
@@ -1084,7 +1086,6 @@ bool StrToIP(IP *ip, char *str);
 UINT StrToIP32(char *str);
 UINT UniStrToIP32(wchar_t *str);
 void IPToStr(char *str, UINT size, IP *ip);
-void IPToStr4(char *str, UINT size, IP *ip);
 void IPToStr32(char *str, UINT size, UINT ip);
 void IPToStr4or6(char *str, UINT size, UINT ip_4_uint, UCHAR *ip_6_bytes);
 void IPToUniStr(wchar_t *str, UINT size, IP *ip);
@@ -1223,7 +1224,6 @@ bool IsNetworkAddress4(IP *ip, IP *mask);
 bool IsNetworkAddress32(UINT ip, UINT mask);
 bool IsHostIPAddress4(IP *ip);
 bool IsHostIPAddress32(UINT ip);
-bool IsZeroIp(IP *ip);
 bool IsZeroIP(IP *ip);
 bool IsZeroIP6Addr(IPV6_ADDR *addr);
 UINT IntToSubnetMask32(UINT i);
@@ -1270,7 +1270,6 @@ SOCKET_TIMEOUT_PARAM *NewSocketTimeout(SOCK *sock);
 void FreeSocketTimeout(SOCKET_TIMEOUT_PARAM *ttp);
 
 void CopyIP(IP *dst, IP *src);
-bool IsIP6(IP *ip);
 bool IsIP4(IP *ip);
 void IPv6AddrToIP(IP *ip, IPV6_ADDR *addr);
 bool IPToIPv6Addr(IPV6_ADDR *addr, IP *ip);
@@ -1280,7 +1279,6 @@ void GetLocalHostIP4(IP *ip);
 bool IsLocalHostIP6(IP *ip);
 bool IsLocalHostIP4(IP *ip);
 bool IsLocalHostIP(IP *ip);
-void ZeroIP6(IP *ip);
 void ZeroIP4(IP *ip);
 bool CheckIPItemStr6(char *str);
 void IPItemStrToChars6(UCHAR *chars, char *str);

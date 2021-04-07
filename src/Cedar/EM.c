@@ -1156,7 +1156,7 @@ void EMMain(RPC *r)
 
 		if (t.IsWinPcapNeeded)
 		{
-			if (r->Sock->RemoteIP.addr[0] != 127)
+			if (IsLocalHostIP(&r->Sock->RemoteIP) == false)
 			{
 				// WinPcap is required, but can not do anything because it is in remote management mode
 				MsgBox(NULL, MB_ICONINFORMATION, _UU("EM_WPCAP_REMOTE"));

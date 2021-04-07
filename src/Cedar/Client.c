@@ -1535,7 +1535,7 @@ void CnListenerProc(THREAD *thread, void *param)
 	AddRef(s->ref);
 	NoticeThreadInit(thread);
 
-	if (s->LocalIP.addr[0] == 127)
+	if (IsLocalHostIP(&s->LocalIP))
 	{
 		p = RecvPack(s);
 
@@ -5110,7 +5110,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 		retcode = 1;
 	}
 
-	if (c->PasswordRemoteOnly && s->RemoteIP.addr[0] == 127)
+	if (c->PasswordRemoteOnly && IsLocalHostIP(&s->RemoteIP))
 	{
 		// If in a mode that requires a password only remote,
 		// the password sent from localhost is considered to be always correct
@@ -5123,7 +5123,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 		{
 			// If the remote control is prohibited,
 			// identify whether this connection is from remote
-			if (s->RemoteIP.addr[0] != 127)
+			if (IsLocalHostIP(&s->RemoteIP) == false)
 			{
 				retcode = 2;
 			}

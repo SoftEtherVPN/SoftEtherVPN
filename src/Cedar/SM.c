@@ -8267,7 +8267,7 @@ void SmBridgeDlg(HWND hWnd, SM_SERVER *s)
 
 	if (t.IsWinPcapNeeded)
 	{
-		if (s->Rpc->Sock->RemoteIP.addr[0] != 127)
+		if (IsLocalHostIP(&s->Rpc->Sock->RemoteIP) == false)
 		{
 			// WinPcap is required, but can not do anything because it is in remote control mode
 			MsgBox(hWnd, MB_ICONINFORMATION, _UU("SM_BRIDGE_WPCAP_REMOTE"));

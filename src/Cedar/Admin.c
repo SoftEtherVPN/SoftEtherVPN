@@ -5431,7 +5431,7 @@ UINT StGetSessionStatus(ADMIN *a, RPC_SESSION_STATUS *t)
 				t->ClientIp = IPToUINT(&s->Connection->ClientIp);
 				if (IsIP6(&s->Connection->ClientIp))
 				{
-					Copy(&t->ClientIp6, &s->Connection->ClientIp.ipv6_addr, sizeof(t->ClientIp6));
+					Copy(&t->ClientIp6, &s->Connection->ClientIp.address, sizeof(t->ClientIp6));
 				}
 
 				CopyIP(&t->ClientIpAddress, &s->Connection->ClientIp);
@@ -9200,7 +9200,7 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 
 		if (Cmp(t->HashedPassword, hash2, SHA1_SIZE) == 0 || Cmp(t->SecurePassword, hash1, SHA1_SIZE) == 0)
 		{
-			if (a->ServerAdmin == false && a->Rpc->Sock->RemoteIP.addr[0] != 127)
+			if (a->ServerAdmin == false && IsLocalHostIP(&a->Rpc->Sock->RemoteIP) == false)
 			{
 				// Refuse to set a blank password to hub admin from remote host
 				ReleaseHub(h);
@@ -15370,7 +15370,7 @@ UINT AdminAccept(CONNECTION *c, PACK *p)
 
 	if (Cmp(secure_null_password, secure_password, SHA1_SIZE) == 0)
 	{
-		if (sock->RemoteIP.addr[0] != 127)
+		if (IsLocalHostIP(&sock->RemoteIP) == false)
 		{
 			// The client tried to use blank password for hub admin mode from remote
 			if (StrLen(hubname) != 0)

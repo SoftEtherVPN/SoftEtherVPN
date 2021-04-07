@@ -1207,7 +1207,7 @@ void NicInfoRefresh(HWND hWnd, UI_NICINFO *info)
 		{
 			Copy(&ip, &a->IpAddresses[i], sizeof(IP));
 
-			if (!(ip.addr[0] == 169 && ip.addr[1] == 254))
+			if (!(IPV4(ip.address)[0] == 169 && IPV4(ip.address)[1] == 254))
 			{
 				has_ip = true;
 			}
