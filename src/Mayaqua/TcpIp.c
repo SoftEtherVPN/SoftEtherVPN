@@ -3861,7 +3861,7 @@ void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT
 		UCHAR c;
 		UINT subnet_mask_len;
 		UINT data_len;
-		UCHAR tmp[4];
+		BYTE tmp[IPV4_SIZE];
 		IP ip;
 		IP mask;
 		IP gateway;
@@ -3889,8 +3889,8 @@ void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT
 		}
 
 		// IP address body
-		Zero(&ip, sizeof(IP));
-		Copy(ip.addr, tmp, data_len);
+		ZeroIP4(&ip);
+		Copy(IPV4(ip.address), tmp, sizeof(tmp));
 
 		Zero(&mask, sizeof(mask));
 		IntToSubnetMask4(&mask, subnet_mask_len);

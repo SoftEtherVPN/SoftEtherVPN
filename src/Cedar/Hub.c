@@ -6752,11 +6752,13 @@ bool IsHubIpAddress(IP *ip)
 		return false;
 	}
 
-	if (ip->addr[0] == 172 && ip->addr[1] == 31)
+	const BYTE *ipv4 = IPV4(ip->address);
+
+	if (ipv4[0] == 172 && ipv4[1] == 31)
 	{
-		if (ip->addr[2] >= 1 && ip->addr[2] <= 254)
+		if (ipv4[2] >= 1 && ipv4[2] <= 254)
 		{
-			if (ip->addr[3] >= 1 && ip->addr[3] <= 254)
+			if (ipv4[3] >= 1 && ipv4[3] <= 254)
 			{
 				return true;
 			}
@@ -6810,11 +6812,7 @@ void GenHubIpAddress(IP *ip, char *name)
 
 	Sha0(hash, tmp2, StrLen(tmp2));
 
-	Zero(ip, sizeof(IP));
-	ip->addr[0] = 172;
-	ip->addr[1] = 31;
-	ip->addr[2] = hash[0] % 254 + 1;
-	ip->addr[3] = hash[1] % 254 + 1;
+	SetIP(ip, 172, 31, hash[0] % 254 + 1, hash[0] % 254 + 1);
 }
 
 // Generate a MAC address for the Virtual HUB

@@ -2916,7 +2916,7 @@ int OvsCompareSessionList(void *p1, void *p2)
 		return 0;
 	}
 
-	i = CmpIpAddr(&s1->Protocol, &s2->Protocol);
+	i = Cmp(&s1->Protocol, &s2->Protocol, sizeof(s1->Protocol));
 	if (i != 0)
 	{
 		return i;

@@ -155,12 +155,12 @@ void IPsecWin7UpdateHostIPAddressList(IPSEC_WIN7 *w)
 			if (IsIP4(ip))
 			{
 				a.IpVersion = 4;
-				Copy(a.IpAddress.IPv4Address, ip->addr, 4);
+				Copy(a.IpAddress.IPv4Address, IPV4(ip->address), sizeof(a.IpAddress.IPv4Address));
 			}
 			else
 			{
 				a.IpVersion = 6;
-				Copy(a.IpAddress.IPv6Address, ip->ipv6_addr, 16);
+				Copy(a.IpAddress.IPv6Address, ip->address, sizeof(a.IpAddress.IPv6Address));
 			}
 
 			WriteBuf(buf, &a, sizeof(WFP_LOCAL_IP));

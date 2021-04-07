@@ -134,47 +134,21 @@ UINT ProtoSessionHash(void *p)
 	}
 
 	ip = &session->SrcIp;
-	if (IsIP6(ip))
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
-		{
-			ret += ip->ipv6_addr[i];
-		}
-
-		ret += ip->ipv6_scope_id;
-	}
-	else
-	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->addr); ++i)
-		{
-			ret += ip->addr[i];
-		}
+		ret += ip->address[i];
 	}
 
+	ret += ip->ipv6_scope_id;
 	ret += session->SrcPort;
 
 	ip = &session->DstIp;
-	if (IsIP6(ip))
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
-		{
-			ret += ip->ipv6_addr[i];
-		}
-
-		ret += ip->ipv6_scope_id;
-	}
-	else
-	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->addr); ++i)
-		{
-			ret += ip->addr[i];
-		}
+		ret += ip->address[i];
 	}
 
+	ret += ip->ipv6_scope_id;
 	ret += session->DstPort;
 
 	return ret;
