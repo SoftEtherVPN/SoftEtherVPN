@@ -3001,7 +3001,7 @@ bool ServerAccept(CONNECTION *c)
 
 					if (UdpAccelInitServer(s->UdpAccel,
 						s->UdpAccel->Version == 2 ? udp_acceleration_client_key_v2 : udp_acceleration_client_key,
-						&udp_acceleration_client_ip, udp_acceleration_client_port, &c->FirstSock->RemoteIP) == false)
+						&c->FirstSock->RemoteIP, &udp_acceleration_client_ip, udp_acceleration_client_port) == false)
 					{
 						Debug("UdpAccelInitServer Failed.\n");
 						s->UseUdpAcceleration = false;
@@ -4987,8 +4987,8 @@ REDIRECTED:
 
 							if (UdpAccelInitClient(sess->UdpAccel,
 								sess->UdpAccel->Version == 2 ? udp_acceleration_server_key_v2 : udp_acceleration_server_key,
-								&udp_acceleration_server_ip, udp_acceleration_server_port,
-								server_cookie, client_cookie, &remote_ip) == false)
+								&remote_ip, &udp_acceleration_server_ip, udp_acceleration_server_port,
+								server_cookie, client_cookie) == false)
 							{
 								Debug("UdpAccelInitClient failed.\n");
 							}
