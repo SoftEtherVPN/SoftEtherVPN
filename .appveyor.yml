@@ -28,7 +28,7 @@ build_script:
   - .ci/memory-leak-test.sh
 test_script:
   - .ci/appveyor-deb-install-test.sh
-  - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
+  - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip liblz4-dev # openvpn build deps
   - sudo .ci/start-se-openvpn.sh
   - sudo .ci/run-openvpn-tests.sh
 
