@@ -5,39 +5,28 @@
 // SW.c
 // Setup Wizard for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
-
-#define	SM_C
-#define	CM_C
-#define	NM_C
-#define	SW_C
-
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "CMInner.h"
-#include "SMInner.h"
-#include "NMInner.h"
-#include "EMInner.h"
+#include "SW.h"
 #include "SWInner.h"
+
+#include "CMInner.h"
+#include "Console.h"
+#include "SeLowUser.h"
+#include "Win32Com.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
 #include "../PenCore/resource.h"
+
+#include <ShlObj.h>
 
 //// Old MSI product information
 // VPN Server
@@ -1188,15 +1177,7 @@ void SwLang1Init(HWND hWnd, SW *sw)
 		UniFormat(tmp, sizeof(tmp), L"%s (%s)", t.TitleEnglish, t.TitleLocal);
 
 		SetText(hWnd, E_CURRENT, tmp);
-
-		if (MsIsVista())
-		{
-			SetFont(hWnd, E_CURRENT, GetMeiryoFontEx(11));
-		}
-		else
-		{
-			DlgFont(hWnd, E_CURRENT, 11, false);
-		}
+		SetFont(hWnd, E_CURRENT, GetMeiryoFontEx(11));
 	}
 }
 
@@ -1239,14 +1220,7 @@ UINT SwLang1(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, 
 	case WM_INITDIALOG:
 		LvInitEx2(hWnd, L_LIST, false, true);
 
-		if (MsIsVista())
-		{
-			SetFont(hWnd, L_LIST, GetMeiryoFontEx(12));
-		}
-		else
-		{
-			DlgFont(hWnd, L_LIST, 12, false);
-		}
+		SetFont(hWnd, L_LIST, GetMeiryoFontEx(12));
 
 		LvInsertColumn(hWnd, L_LIST, 0, L"English Name", 250);
 		LvInsertColumn(hWnd, L_LIST, 1, L"Local Name", 250);
@@ -1273,14 +1247,6 @@ UINT SwLang1(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard, 
 		{
 			// Multiple-starts prevention
 			MsgBox(hWnd, MB_ICONINFORMATION, _UU("SW_OTHER_INSTANCE_EXISTS"));
-			break;
-		}
-
-		if (MsIsNt() == false)
-		{
-			// Win9x
-			MsgBox(hWnd, MB_ICONSTOP,
-				L"Windows 9x / Me doesn't support multi-language switcing.\r\n\r\nIf you want to switch to another language, please use Windows NT 4.0, 2000 or greater.");
 			break;
 		}
 
@@ -1375,35 +1341,27 @@ LABEL_RUN_CHILD_PROCESS:
 				// In the case of system mode
 				if (MsIsAdmin() == false)
 				{
-					if (MsIsVista())
+					if (sw->IsReExecForUac == false)
 					{
-						if (sw->IsReExecForUac == false)
-						{
-							// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
-							UniStrCat(add_param, sizeof(add_param), L" /SETLANGANDREBOOT:true");
+						// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
+						UniStrCat(add_param, sizeof(add_param), L" /SETLANGANDREBOOT:true");
 
-							if (SwReExecMyself(sw, add_param, true))
-							{
-								// Terminate itself if it succeeds to start the child process
-								CloseWizard(wizard_page);
-								break;
-							}
-							else
-							{
-								// Do nothing if it fails to start in the UAC
-								sw->DoubleClickBlocker = false;
-								break;
-							}
+						if (SwReExecMyself(sw, add_param, true))
+						{
+							// Terminate itself if it succeeds to start the child process
+							CloseWizard(wizard_page);
+							break;
 						}
 						else
 						{
-							// If no Admin privileges after being started by the UAC, jump to the guidance screen indicating it is not Admin
-							return D_SW_NOT_ADMIN;
+							// Do nothing if it fails to start in the UAC
+							sw->DoubleClickBlocker = false;
+							break;
 						}
 					}
 					else
 					{
-						// Jump to guide screen indicating that it is not the Admin in the case of XP or earlier
+						// If no Admin privileges after being started by the UAC, jump to the guidance screen indicating it is not Admin
 						return D_SW_NOT_ADMIN;
 					}
 				}
@@ -1507,32 +1465,24 @@ UINT SwUninst1(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard
 		// In the case of system mode
 		if (MsIsAdmin() == false)
 		{
-			if (MsIsVista())
+			if (sw->IsReExecForUac == false)
 			{
-				if (sw->IsReExecForUac == false)
+				// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
+				if (SwReExecMyself(sw, NULL, true))
 				{
-					// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
-					if (SwReExecMyself(sw, NULL, true))
-					{
-						// Terminate itself if it succeeds to start the child process
-						CloseWizard(wizard_page);
-						break;
-					}
-					else
-					{
-						// If fail to run in UAC, jump to guide screen indicating that it is not Admin
-						return D_SW_NOT_ADMIN;
-					}
+					// Terminate itself if it succeeds to start the child process
+					CloseWizard(wizard_page);
+					break;
 				}
 				else
 				{
-					// If no Admin privileges after being started by the UAC, jump to the guidance screen indicating it is not Admin
+					// If fail to run in UAC, jump to guide screen indicating that it is not Admin
 					return D_SW_NOT_ADMIN;
 				}
 			}
 			else
 			{
-				// Jump to guide screen indicating that it is not the Admin in the case of XP or earlier
+				// If no Admin privileges after being started by the UAC, jump to the guidance screen indicating it is not Admin
 				return D_SW_NOT_ADMIN;
 			}
 		}
@@ -1987,7 +1937,7 @@ bool SwUninstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 
 		if (UniIsEmptyStr(svc_title) == false)
 		{
-			if (sw->IsSystemMode && MsIsNt())
+			if (sw->IsSystemMode)
 			{
 				// WinNT and system mode
 				if (MsIsServiceRunning(c->SvcName))
@@ -2157,17 +2107,7 @@ LABEL_RETRY_1:
 
 		if (UniIsEmptyStr(svc_title) == false)
 		{
-			if (sw->IsSystemMode == false || MsIsNt() == false)
-			{
-				// Win9x or user mode
-				if (MsIsNt() == false)
-				{
-					// Remove the Run key from the registry for Win9x
-					MsRegDeleteValue(REG_LOCAL_MACHINE, WIN9X_SVC_REGKEY_1, c->SvcName);
-					MsRegDeleteValue(REG_LOCAL_MACHINE, WIN9X_SVC_REGKEY_2, c->SvcName);
-				}
-			}
-			else
+			if (sw->IsSystemMode)
 			{
 				// System mode
 				UniFormat(tmp, sizeof(tmp), _UU("SW_PERFORM_MSG_UNINSTALL_SVC"), svc_title);
@@ -2437,19 +2377,17 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 			_UU("SW_LINK_NAME_TCP"),
 			_UU("SW_LINK_NAME_TCP_COMMENT"), false));
 
-		if (MsIsWin2000OrGreater())
-		{
-			Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
-				_UU("SW_LINK_NAME_SERVICES"),
-				_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
 
-			if (sw->IsSystemMode)
-			{
-				// Debugging information collecting tool
-				Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
-					_UU("SW_LINK_NAME_DEBUG"),
-					_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
-			}
+		Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
+			_UU("SW_LINK_NAME_SERVICES"),
+			_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
+
+		if (sw->IsSystemMode)
+		{
+			// Debugging information collecting tool
+			Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
+				_UU("SW_LINK_NAME_DEBUG"),
+				_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
 		}
 
 		if (sw->IsSystemMode == false)
@@ -2508,19 +2446,16 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 			_UU("SW_LINK_NAME_TCP"),
 			_UU("SW_LINK_NAME_TCP_COMMENT"), false));
 
-		if (MsIsWin2000OrGreater())
-		{
-			Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
-				_UU("SW_LINK_NAME_SERVICES"),
-				_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
+		Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
+			_UU("SW_LINK_NAME_SERVICES"),
+			_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
 
-			if (sw->IsSystemMode)
-			{
-				// Debugging information collecting tool
-				Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
-					_UU("SW_LINK_NAME_DEBUG"),
-					_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
-			}
+		if (sw->IsSystemMode)
+		{
+			// Debugging information collecting tool
+			Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
+				_UU("SW_LINK_NAME_DEBUG"),
+				_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
 		}
 
 		if (sw->IsSystemMode == false)
@@ -2621,32 +2556,26 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 			_UU("SW_LINK_NAME_TCP"),
 			_UU("SW_LINK_NAME_TCP_COMMENT"), false));
 
-		if (MsIsWin2000OrGreater())
-		{
-			Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
-				_UU("SW_LINK_NAME_SERVICES"),
-				_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
+		Add(t->LinkTasks, SwNewLinkTask(MsGetSystem32DirW(), L"services.msc", NULL, L"filemgmt.dll", 0, dir_config_program,
+			_UU("SW_LINK_NAME_SERVICES"),
+			_UU("SW_LINK_NAME_SERVICES_COMMENT"), false));
 
-			if (sw->IsSystemMode)
-			{
-				// Debugging information collecting tool
-				Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
-					_UU("SW_LINK_NAME_DEBUG"),
-					_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
-			}
+		if (sw->IsSystemMode)
+		{
+			// Debugging information collecting tool
+			Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmd->DstFileName, L"/debug", L"vpnsetup.exe", 4, dir_admin_tools,
+				_UU("SW_LINK_NAME_DEBUG"),
+				_UU("SW_LINK_NAME_DEBUG_COMMENT"), false));
 		}
 
 		// Programs\PacketiX VPN Client\System administrators tool
-		if (MsIsNt())
-		{
-			Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, L"vpnsetup.exe", L"/easy:true", L"vpnsetup.exe", 12, dir_admin_tools,
-				_UU("SW_LINK_NAME_EASYINSTALLER"),
-				_UU("SW_LINK_NAME_EASYINSTALLER_COMMENT"), false));
+		Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, L"vpnsetup.exe", L"/easy:true", L"vpnsetup.exe", 12, dir_admin_tools,
+			_UU("SW_LINK_NAME_EASYINSTALLER"),
+			_UU("SW_LINK_NAME_EASYINSTALLER_COMMENT"), false));
 
-			Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, L"vpnsetup.exe", L"/web:true", L"vpnsetup.exe", 1, dir_admin_tools,
-				_UU("SW_LINK_NAME_WEBINSTALLER"),
-				_UU("SW_LINK_NAME_WEBINSTALLER_COMMENT"), false));
-		}
+		Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, L"vpnsetup.exe", L"/web:true", L"vpnsetup.exe", 1, dir_admin_tools,
+			_UU("SW_LINK_NAME_WEBINSTALLER"),
+			_UU("SW_LINK_NAME_WEBINSTALLER_COMMENT"), false));
 
 		// Startup
 		Add(t->LinkTasks, SwNewLinkTask(sw->InstallDir, vpncmgr->DstFileName, L"/startup", NULL, 0, dir_startup,
@@ -2717,16 +2646,13 @@ void SwDefineTasks(SW *sw, SW_TASK *t, SW_COMPONENT *c)
 		tmp1,
 		tmp2, false));
 
-	// Language settings (except for Win9x)
-	if (MsIsNt())
-	{
-		UniFormat(tmp1, sizeof(tmp1), _UU("SW_LINK_NAME_LANGUAGE"), c->Title);
-		UniFormat(tmp2, sizeof(tmp2), _UU("SW_LINK_NAME_LANGUAGE_COMMENT"), c->Title);
-		Add(t->LinkTasks, SwNewLinkTask(setup_exe->DstDir, setup_exe->DstFileName, L"/language:yes",
-			L"vpnsetup.exe", 10, dir_config_language,
-			tmp1,
-			tmp2, false));
-	}
+	// Language settings
+	UniFormat(tmp1, sizeof(tmp1), _UU("SW_LINK_NAME_LANGUAGE"), c->Title);
+	UniFormat(tmp2, sizeof(tmp2), _UU("SW_LINK_NAME_LANGUAGE_COMMENT"), c->Title);
+	Add(t->LinkTasks, SwNewLinkTask(setup_exe->DstDir, setup_exe->DstFileName, L"/language:yes",
+		L"vpnsetup.exe", 10, dir_config_language,
+		tmp1,
+		tmp2, false));
 
 	// Hamcore!
 	Add(t->CopyTasks, SwNewCopyTask(L"hamcore.se2", NULL, sw->InstallSrc, sw->InstallDir, true, true));
@@ -3082,7 +3008,7 @@ bool SwInstallMain(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c)
 
 		if (UniIsEmptyStr(svc_title) == false)
 		{
-			if (sw->IsSystemMode && MsIsNt())
+			if (sw->IsSystemMode)
 			{
 				// WinNT and system mode
 				if (MsIsServiceRunning(c->SvcName))
@@ -3337,7 +3263,7 @@ LABEL_RETRY_2:
 	}
 
 
-	if (sw->IsSystemMode && MsIsNt())
+	if (sw->IsSystemMode)
 	{
 		// ACL settings only in the system mode
 		for (i = 0;i < LIST_NUM(t->SetSecurityPaths);i++)
@@ -3398,7 +3324,7 @@ LABEL_RETRY_2:
 
 		if (UniIsEmptyStr(svc_title) == false)
 		{
-			if (sw->IsSystemMode == false || MsIsNt() == false)
+			if (sw->IsSystemMode == false)
 			{
 				// Just simply start in user mode or Win9x mode
 				wchar_t fullpath[MAX_SIZE];
@@ -3407,7 +3333,7 @@ LABEL_RETRY_USERMODE_EXEC:
 
 				CombinePathW(fullpath, sizeof(fullpath), sw->InstallDir, c->SvcFileName);
 
-				if (MsExecuteW(fullpath, (MsIsNt() ? L"/usermode" : L"/win9x_service")) == false)
+				if (MsExecuteW(fullpath, L"/usermode") == false)
 				{
 					UniFormat(tmp, sizeof(tmp), _UU("SW_PERFORM_MSG_SVC_USERMODE_EXEC_FAILED"), fullpath);
 
@@ -3420,19 +3346,6 @@ LABEL_RETRY_USERMODE_EXEC:
 					{
 						// Retry
 						goto LABEL_RETRY_USERMODE_EXEC;
-					}
-				}
-				else
-				{
-					if (MsIsNt() == false)
-					{
-						// Register into the registry as a background service in the case of Win9x
-						wchar_t fullpath2[MAX_SIZE];
-
-						UniFormat(fullpath2, sizeof(fullpath2), L"\"%s\" /win9x_service", fullpath);
-
-						MsRegWriteStrW(REG_LOCAL_MACHINE, WIN9X_SVC_REGKEY_1, c->SvcName, fullpath2);
-						MsRegWriteStrW(REG_LOCAL_MACHINE, WIN9X_SVC_REGKEY_2, c->SvcName, fullpath2);
 					}
 				}
 			}
@@ -3565,7 +3478,7 @@ LABEL_CREATE_SHORTCUT:
 
 			if (UniIsEmptyStr(svc_description) == false)
 			{
-				if (sw->IsSystemMode && MsIsNt())
+				if (sw->IsSystemMode)
 				{
 					MsSetServiceDescription(c->SvcName, svc_description);
 				}
@@ -4306,17 +4219,9 @@ void SwPerformInit(HWND hWnd, SW *sw, WIZARD_PAGE *wp)
 
 	SetTextA(hWnd, S_STATUS, "");
 
-	if (MsIsWinXPOrWinVista())
-	{
-		// Display the progress bar for Windows XP or later
-		SendMsg(hWnd, IDC_PROGRESS1, PBM_SETMARQUEE, TRUE, 100);
-		SetStyle(hWnd, IDC_PROGRESS1, PBS_MARQUEE);
-	}
-	else
-	{
-		// Hide the progress bar in the case of Windows 2000 or earlier
-		Hide(hWnd, IDC_PROGRESS1);
-	}
+	// Display the progress bar
+	SendMsg(hWnd, IDC_PROGRESS1, PBM_SETMARQUEE, TRUE, 100);
+	SetStyle(hWnd, IDC_PROGRESS1, PBS_MARQUEE);
 }
 
 // Do the set-up process
@@ -4572,21 +4477,10 @@ void SwInitDefaultInstallDir(SW *sw)
 		UniStrCpy(sw->DefaultInstallDir_User, sizeof(sw->DefaultInstallDir_User), reg_dir_user);
 	}
 
-	if (MsIsNt() == false)
-	{
-		// Set to system mode for Win9x
-		sw->IsSystemMode = true;
-	}
-
 	if (MsIsAdmin() == false)
 	{
 		sw->IsAvailableSystemMode = false;
 		sw->IsAvailableUserMode = true;
-	}
-	else if (MsIsNt() == false)
-	{
-		sw->IsAvailableSystemMode = true;
-		sw->IsAvailableUserMode = false;
 	}
 	else
 	{
@@ -5272,16 +5166,8 @@ UINT SwComponents(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 	case WM_INITDIALOG:
 		LvInitEx2(hWnd, L_LIST, false, true);
 
-		if (MsIsVista())
-		{
-			SetFont(hWnd, L_LIST, GetMeiryoFontEx(12));
-			SetFont(hWnd, S_TITLE, GetMeiryoFontEx(11));
-		}
-		else
-		{
-			DlgFont(hWnd, L_LIST, 12, false);
-			DlgFont(hWnd, S_TITLE, 11, false);
-		}
+		SetFont(hWnd, L_LIST, GetMeiryoFontEx(12));
+		SetFont(hWnd, S_TITLE, GetMeiryoFontEx(11));
 
 		LvInsertColumn(hWnd, L_LIST, 0, L"Component", 515);
 		break;
@@ -5306,13 +5192,6 @@ UINT SwComponents(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 
 		if (c != NULL)
 		{
-			if (SwCheckOs(sw, c) == false)
-			{
-				// OS Check Failed
-				MsgBoxEx(hWnd, MB_ICONEXCLAMATION, _UU("SW_OS_FAILED"), c->Title);
-				break;
-			}
-
 			sw->CurrentComponent = c;
 
 			if (sw->CurrentComponent->SystemModeOnly == false || MsIsAdmin())
@@ -5480,7 +5359,7 @@ UINT SwModeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard
 
 		if (sw->IsSystemMode)
 		{
-			if (MsIsVista() && MsIsAdmin() == false && sw->IsReExecForUac == false)
+			if (MsIsAdmin() == false && sw->IsReExecForUac == false)
 			{
 				// If UAC is available and this isn't invoked via UAC,
 				// give the user a chance to get administrator privileges on UAC start again
@@ -5579,33 +5458,25 @@ UINT SwWelcomeDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wiz
 
 		if (MsIsAdmin() == false)
 		{
-			if (MsIsVista())
+			if (sw->IsReExecForUac == false)
 			{
-				if (sw->IsReExecForUac == false)
+				// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
+				if (SwReExecMyself(sw, NULL, true))
 				{
-					// If there is no Admin privileges in Vista or later, attempt to acquire Admin rights by UAC first during the first run
-					if (SwReExecMyself(sw, NULL, true))
-					{
-						// Terminate itself if it succeeds to start the child process
-						CloseWizard(wizard_page);
-						break;
-					}
-					else
-					{
-						// Jump to mode selection screen if it fails to start the
-						// child process (including user presses the cancel of UAC)
-						return D_SW_MODE;
-					}
+					// Terminate itself if it succeeds to start the child process
+					CloseWizard(wizard_page);
+					break;
 				}
 				else
 				{
-					// Jump to mode selection screen when the user don't have Admin rights after being activated by UAC
+					// Jump to mode selection screen if it fails to start the
+					// child process (including user presses the cancel of UAC)
 					return D_SW_MODE;
 				}
 			}
 			else
 			{
-				// Jump to the mode selection screen in the case of older than Vista
+				// Jump to mode selection screen when the user don't have Admin rights after being activated by UAC
 				return D_SW_MODE;
 			}
 		}
@@ -5710,10 +5581,7 @@ void SwUiMain(SW *sw)
 	AddWizardPage(w, NewWizardPage(D_SW_WEB1, SwWeb1, _UU("SW_WEB1_TITLE")));
 	AddWizardPage(w, NewWizardPage(D_SW_WEB2, SwWeb2, _UU("SW_WEB2_TITLE")));
 
-	if (MsIsVista())
-	{
-		w->IsAreoStyle = true;
-	}
+	w->IsAreoStyle = true;
 
 	if (sw->UninstallMode)
 	{
@@ -5982,48 +5850,6 @@ SW_COMPONENT *SwNewComponent(char *name, char *svc_name, UINT id, UINT icon, UIN
 	c->NumOldMsi = num_old_msis;
 
 	return c;
-}
-
-// Examine the OS requirements
-bool SwCheckOs(SW *sw, SW_COMPONENT *c)
-{
-	// Validate arguments
-	if (sw == NULL || c == NULL)
-	{
-		return false;
-	}
-
-	if (c->Id == SW_CMP_VPN_CLIENT)
-	{
-		OS_INFO *info = GetOsInfo();
-
-		if (OS_IS_WINDOWS_NT(info->OsType))
-		{
-			if (MsIsWin2000OrGreater() == false)
-			{
-				// It doesn't work with WinNT 4.0
-				return false;
-			}
-		}
-		else
-		{
-			if (GET_KETA(info->OsType, 100) <= 1)
-			{
-				// It doesn't work with Win95
-				return false;
-			}
-			else if (info->OsType == OSTYPE_WINDOWS_98)
-			{
-				if (EndWith(info->OsVersion, "A") == false)
-				{
-					// It doesn't work in Win98 First Edition
-					return false;
-				}
-			}
-		}
-	}
-
-	return true;
 }
 
 // Define the component

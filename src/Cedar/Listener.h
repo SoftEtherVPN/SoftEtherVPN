@@ -8,6 +8,9 @@
 #ifndef	LISTENER_H
 #define	LISTENER_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Kernel.h"
 
 // Function to call when receiving a new connection
 typedef void (NEW_CONNECTION_PROC)(CONNECTION *c);

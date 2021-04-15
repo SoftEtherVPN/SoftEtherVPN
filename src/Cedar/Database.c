@@ -5,7 +5,13 @@
 // Database.c
 // License database
 
-#include "CedarPch.h"
+#include "Database.h"
+
+#include "Cedar.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Str.h"
 
 // Get the License status string
 wchar_t *LiGetLicenseStatusStr(UINT i)

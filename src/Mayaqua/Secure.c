@@ -5,45 +5,65 @@
 // Secure.c
 // Security token management module
 
-#include <GlobalConst.h>
+#include "Secure.h"
 
-#define	SECURE_C
-#define	ENCRYPT_C
+#include "Encrypt.h"
+#include "GlobalConst.h"
+#include "Internat.h"
+#include "Kernel.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Str.h"
 
-#ifdef	WIN32
-#include <windows.h>
-#endif	// WIN32
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/engine.h>
-#include <openssl/bio.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs7.h>
-#include <openssl/pkcs12.h>
-#include <openssl/rc4.h>
-#include <openssl/md5.h>
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 #include <openssl/rsa.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Mayaqua/cryptoki.h>
 
+#include <cryptoki.h>
 
 #define	MAX_OBJ				1024		// Maximum number of objects in the hardware (assumed)
 
 #define	A_SIZE(a, i)		(a[(i)].ulValueLen)
 #define	A_SET(a, i, value, size)	(a[i].pValue = value;a[i].ulValueLen = size;)
 
+// Internal data structure
+// The list of supported secure devices
+static LIST *SecureDeviceList = NULL;
+
+// Supported hardware list
+const SECURE_DEVICE SupportedList[] =
+{
+	{1,		SECURE_IC_CARD,		"Standard-9 IC Card",	"Dai Nippon Printing",	"DNPS9P11.DLL"},
+	{2,		SECURE_USB_TOKEN,	"ePass 1000",			"Feitian Technologies",	"EP1PK111.DLL"},
+	{3,		SECURE_IC_CARD,		"DNP Felica",			"Dai Nippon Printing",	"DNPFP11.DLL"},
+	{4,		SECURE_USB_TOKEN,	"eToken",				"Aladdin",				"ETPKCS11.DLL"},
+	{5,		SECURE_IC_CARD,		"Standard-9 IC Card",	"Fujitsu",				"F3EZSCL2.DLL"},
+	{6,		SECURE_IC_CARD,		"ASECard",				"Athena",				"ASEPKCS.DLL"},
+	{7,		SECURE_IC_CARD,		"Gemplus IC Card",		"Gemplus",				"PK2PRIV.DLL"},
+	{8,		SECURE_IC_CARD,		"1-Wire & iButton",		"DALLAS SEMICONDUCTOR",	"DSPKCS.DLL"},
+	{9,		SECURE_IC_CARD,		"JPKI IC Card",			"Japanese Government",	"JPKIPKCS11.DLL"},
+	{10,	SECURE_IC_CARD,		"LGWAN IC Card",		"Japanese Government",	"P11STD9.DLL"},
+	{11,	SECURE_IC_CARD,		"LGWAN IC Card",		"Japanese Government",	"P11STD9A.DLL"},
+	{12,	SECURE_USB_TOKEN,	"iKey 1000",			"Rainbow Technologies",	"K1PK112.DLL"},
+	{13,	SECURE_IC_CARD,		"JPKI IC Card #2",		"Japanese Government",	"libmusclepkcs11.dll"},
+	{14,	SECURE_USB_TOKEN,	"SafeSign",				"A.E.T.",				"aetpkss1.dll"},
+	{15,	SECURE_USB_TOKEN,	"LOCK STAR-PKI",		"Logicaltech Co.,LTD",	"LTPKCS11.dll"},
+	{16,	SECURE_USB_TOKEN,	"ePass 2000",			"Feitian Technologies",	"ep2pk11.dll"},
+	{17,	SECURE_IC_CARD,		"myuToken",				"iCanal Inc.",			"icardmodpk.dll"},
+	{18,	SECURE_IC_CARD,		"Gemalto .NET",			"Gemalto",				"gtop11dotnet.dll"},
+	{19,	SECURE_IC_CARD,		"Gemalto .NET 64bit",	"Gemalto",				"gtop11dotnet64.dll"},
+	{20,	SECURE_USB_TOKEN,	"ePass 2003",			"Feitian Technologies",	"eps2003csp11.dll"},
+	{21,	SECURE_USB_TOKEN,	"ePass 1000ND/2000/3000",			"Feitian Technologies",	"ngp11v211.dll"},
+	{22,	SECURE_USB_TOKEN,	"CryptoID",				"Longmai Technology",	"cryptoide_pkcs11.dll"},
+	{23,	SECURE_USB_TOKEN,	"RuToken",				"Aktiv Co.",			"rtPKCS11.dll"},
+};
+
 #ifdef	OS_WIN32
-// Code for Win32
+// Win32 internal data
+typedef struct SEC_DATA_WIN32
+{
+	HINSTANCE hInst;
+} SEC_DATA_WIN32;
 
 // DLL reading for Win32
 HINSTANCE Win32SecureLoadLibraryEx(char *dllname, DWORD flags)

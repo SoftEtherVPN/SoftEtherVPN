@@ -5,7 +5,11 @@
 // Proto_IkePacket.c
 // IKE (ISAKMP) packet processing
 
-#include "CedarPch.h"
+#include "Proto_IkePacket.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
 
 // Convert the string to a password
 BUF *IkeStrToPassword(char *str)
@@ -378,11 +382,11 @@ BUF *IkeBuildNatOaPayload(IKE_PACKET_NAT_OA_PAYLOAD *t)
 
 	if (IsIP6(&t->IpAddress))
 	{
-		WriteBuf(ret, t->IpAddress.ipv6_addr, 16);
+		WriteBuf(ret, t->IpAddress.address, sizeof(t->IpAddress.address));
 	}
 	else
 	{
-		WriteBuf(ret, t->IpAddress.addr, 4);
+		WriteBuf(ret, IPV4(t->IpAddress.address), IPV4_SIZE);
 	}
 
 	return ret;
@@ -1229,8 +1233,8 @@ bool IkeParseIdPayload(IKE_PACKET_ID_PAYLOAD *t, BUF *b)
 		return false;
 	}
 
-	Zero(&ip, sizeof(ip));
-	Zero(&subnet, sizeof(subnet));
+	ZeroIP4(&ip);
+	ZeroIP4(&subnet);
 
 	// Convert to string
 	Zero(t->StrData, sizeof(t->StrData));
@@ -1243,9 +1247,9 @@ bool IkeParseIdPayload(IKE_PACKET_ID_PAYLOAD *t, BUF *b)
 		break;
 
 	case IKE_ID_IPV4_ADDR:
-		if (t->IdData->Size == 4)
+		if (t->IdData->Size == IPV4_SIZE)
 		{
-			Copy(ip.addr, t->IdData->Buf, 4);
+			Copy(IPV4(ip.address), t->IdData->Buf, IPV4_SIZE);
 
 			IPToStr(t->StrData, sizeof(t->StrData), &ip);
 		}
@@ -1261,12 +1265,12 @@ bool IkeParseIdPayload(IKE_PACKET_ID_PAYLOAD *t, BUF *b)
 		break;
 
 	case IKE_ID_IPV4_ADDR_SUBNET:
-		if (t->IdData->Size == 8)
+		if (t->IdData->Size == IPV4_SIZE * 2)
 		{
 			char ipstr[MAX_SIZE];
 			char subnetstr[MAX_SIZE];
-			Copy(ip.addr, t->IdData->Buf, 4);
-			Copy(subnet.addr, ((UCHAR *)t->IdData->Buf) + 4, 4);
+			Copy(IPV4(ip.address), t->IdData->Buf, IPV4_SIZE);
+			Copy(IPV4(subnet.address), ((BYTE *)t->IdData->Buf) + IPV4_SIZE, IPV4_SIZE);
 
 			IPToStr(ipstr, sizeof(ipstr), &ip);
 			MaskToStr(subnetstr, sizeof(subnetstr), &subnet);

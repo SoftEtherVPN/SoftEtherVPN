@@ -5,21 +5,15 @@
 // Tick64.c
 // 64-bit real-time clock program
 
-#include <GlobalConst.h>
+#include "Tick64.h"
 
-#ifdef	WIN32
-#include <windows.h>
-#endif	// WIN32
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <locale.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Kernel.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Str.h"
+#include "Unix.h"
+#include "Win32.h"
 
 static TICK64 *tk64 = NULL;
 static EVENT *halt_tick_event = NULL;

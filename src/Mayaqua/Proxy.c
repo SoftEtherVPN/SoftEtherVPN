@@ -1,6 +1,10 @@
-#include <GlobalConst.h>
+#include "Proxy.h"
 
-#include <Mayaqua/Mayaqua.h>
+// TODO: Mayaqua should not depend on Cedar.
+#include "Cedar/WinUi.h"
+
+#include "Memory.h"
+#include "Str.h"
 
 SOCK *Internal_ProxyTcpConnect(PROXY_PARAM_IN *param, volatile bool *cancel_flag, IP *resolved_ip)
 {
@@ -380,27 +384,27 @@ UINT ProxySocks5Connect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool 
 	StrToIP(&target_ip, in->TargetHostname);
 
 	// If the IP structure doesn't contain an IP address, the string should be an hostname
-	if (IsZeroIp(&target_ip))
+	if (IsZeroIP(&target_ip))
 	{
 		UCHAR dest_length = StrLen(in->TargetHostname);
 		tmp = 3;
-		WriteBuf(b, &tmp, sizeof(tmp));										// Destination type (hostname)
-		WriteBuf(b, &dest_length, sizeof(dest_length));						// Destination hostname length
-		WriteBuf(b, in->TargetHostname, dest_length);						// Destination hostname
+		WriteBuf(b, &tmp, sizeof(tmp));									// Destination type (hostname)
+		WriteBuf(b, &dest_length, sizeof(dest_length));					// Destination hostname length
+		WriteBuf(b, in->TargetHostname, dest_length);					// Destination hostname
 	}
 	else
 	{
 		if (IsIP6(&target_ip))
 		{
 			tmp = 4;
-			WriteBuf(b, &tmp, sizeof(tmp));									// Destination type (IPv6)
-			WriteBuf(b, target_ip.ipv6_addr, sizeof(target_ip.ipv6_addr));	// Destination IPv6 address
+			WriteBuf(b, &tmp, sizeof(tmp));								// Destination type (IPv6)
+			WriteBuf(b, target_ip.address, sizeof(target_ip.address));	// Destination IPv6 address
 		}
 		else
 		{
 			tmp = 1;
-			WriteBuf(b, &tmp, sizeof(tmp));									// Destination type (IPv4)
-			WriteBuf(b, target_ip.addr, sizeof(target_ip.addr));			// Destination IPv4 address
+			WriteBuf(b, &tmp, sizeof(tmp));								// Destination type (IPv4)
+			WriteBuf(b, IPV4(target_ip.address), IPV4_SIZE);			// Destination IPv4 address
 		}
 	}
 
@@ -569,7 +573,7 @@ UINT ProxySocks4Connect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool 
 	WriteBuf(b, &tmp, sizeof(tmp));
 	target_port = Endian16(in->TargetPort);
 	WriteBuf(b, &target_port, sizeof(target_port));
-	WriteBuf(b, target_ip.addr, sizeof(target_ip.addr));
+	WriteBuf(b, IPV4(target_ip.address), IPV4_SIZE);
 	WriteBuf(b, in->Username, StrLen(in->Username) + 1);
 
 	ret = SendAll(s, b->Buf, b->Size, false);

@@ -6,7 +6,12 @@
 // WinUi.h
 // User interface code for Win32
 
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
+
+#ifndef WINUI_H
+#define WINUI_H
+
+#include "Cedar.h"
 
 #define	WINUI_DEBUG_TEXT							"@winui_debug.txt"
 
@@ -16,24 +21,6 @@
 
 #define WINUI_DEFAULT_DIALOG_UNIT_X					7
 #define WINUI_DEFAULT_DIALOG_UNIT_Y					14
-
-// Make available the types for Windows even if windows.h is not included
-#ifndef	_WINDEF_
-typedef void *HWND;
-typedef void *HFONT;
-typedef void *HICON;
-typedef void *HMENU;
-typedef void *HINSTANCE;
-
-#ifdef	CPU_64
-typedef unsigned __int64 *WPARAM;
-typedef __int64 *LPARAM;
-#else
-typedef unsigned int *WPARAM;
-typedef long *LPARAM;
-#endif	// CPU_64
-#endif	// _WINDEF_
-
 
 // Constants
 #define	FREE_REGKEY				"Software\\" GC_REG_COMPANY_NAME "\\" CEDAR_PRODUCT_STR " VPN Client\\Free Edition Info"
@@ -130,7 +117,7 @@ typedef struct LVB
 } LVB;
 
 
-#ifdef	CreateWindow
+#ifdef WINUI_C
 
 // Internal code
 
@@ -241,6 +228,8 @@ typedef struct WINUI_REMOTE
 	LIST *CandidateList;				// Candidate list
 } WINUI_REMOTE;
 
+#define CALLBACK __stdcall
+
 void InitImageList();
 void FreeImageList();
 IMAGELIST_ICON *LoadIconForImageList(UINT id);
@@ -286,12 +275,6 @@ typedef struct WINUI_ABOUT
 
 UINT AboutDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a);
-
-typedef struct WIN9X_REBOOT_DLG
-{
-	UINT64 StartTime;
-	UINT TotalTime;
-} WIN9X_REBOOT_DLG;
 
 #define	LED_WIDTH	96
 #define	LED_HEIGHT	16
@@ -351,17 +334,9 @@ typedef struct WINCONNECT_DLG_DATA
 } WINCONNECT_DLG_DATA;
 
 HBITMAP ResizeBitmap(HBITMAP hSrc, UINT src_x, UINT src_y, UINT dst_x, UINT dst_y);
-
+#else
+typedef struct FONT FONT;
 #endif	// WINUI_C
-
-// Kakushi
-typedef struct KAKUSHI
-{
-	HWND hWnd;
-	THREAD *Thread;
-	volatile bool Halt;
-	UINT64 StartTick, Span;
-} KAKUSHI;
 
 // The information screen about the free version
 typedef struct FREEINFO
@@ -390,19 +365,6 @@ typedef struct BAD_PROCESS
 	char *ExeName;
 	char *Title;
 } BAD_PROCESS;
-
-#ifdef	WINUI_C
-
-// Process name list of incompatible anti-virus software
-static BAD_PROCESS bad_processes[] =
-{
-	{"nod32krn.exe", "NOD32 Antivirus",},
-	{"avp.exe", "Kaspersky",},
-};
-
-static UINT num_bad_processes = sizeof(bad_processes) / sizeof(bad_processes[0]);
-
-#endif	// WINUI_C
 
 // Page in the wizard
 struct WIZARD_PAGE
@@ -695,9 +657,6 @@ bool IpIsFilled(HWND hWnd, UINT id);
 UINT IpGetFilledNum(HWND hWnd, UINT id);
 void About(HWND hWnd, CEDAR *cedar, wchar_t *product_name);
 void AboutEx(HWND hWnd, CEDAR *cedar, wchar_t *product_name, WINUI_UPDATE *u);
-void Win9xReboot(HWND hWnd);
-void Win9xRebootThread(THREAD *t, void *p);
-UINT Win9xRebootDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 wchar_t *StringDlg(HWND hWnd, wchar_t *title, wchar_t *info, wchar_t *def, UINT icon, bool allow_empty, bool allow_unsafe);
 char *StringDlgA(HWND hWnd, wchar_t *title, wchar_t *info, char *def, UINT icon, bool allow_empty, bool allow_unsafe);
 UINT StringDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
@@ -715,10 +674,6 @@ UINT TcpIpDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 void TcpIpDlgInit(HWND hWnd);
 void TcpIpDlgUpdate(HWND hWnd);
 UINT TcpMsgDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
-UINT KakushiDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
-void KakushiThread(THREAD *thread, void *param);
-KAKUSHI *InitKakushi();
-void FreeKakushi(KAKUSHI *k);
 void ShowEasterEgg(HWND hWnd);
 bool Win32CnCheckAlreadyExists(bool lock);
 void RegistWindowsFirewallAll();
@@ -768,12 +723,12 @@ void FreeBitmapList(LIST *o);
 
 bool GetBitmapSize(void *bmp, UINT *x, UINT *y);
 
-bool GetFontParam(HFONT hFont, struct FONT *f);
+bool GetFontParam(HFONT hFont, FONT *f);
 void AdjustFontSize(HWND hWnd, UINT id);
 bool IsFontFitInRect(struct FONT *f, UINT width, UINT height, wchar_t *text, UINT format, bool *aborted);
 
 void ShowTextFile(HWND hWnd, char *filename, wchar_t *caption, UINT icon);
 
-#endif	// OS_WIN32
+#endif // WINUI_H
 
-
+#endif // OS_WIN32

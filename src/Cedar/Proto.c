@@ -1,6 +1,18 @@
-#include "CedarPch.h"
+#include "Proto.h"
 
+#include "Cedar.h"
+#include "Logging.h"
 #include "Proto_OpenVPN.h"
+#include "Proto_SSTP.h"
+#include "Proto_WireGuard.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
 
 void ProtoLog(const PROTO *proto, const PROTO_SESSION *session, const char *name, ...)
 {
@@ -122,47 +134,21 @@ UINT ProtoSessionHash(void *p)
 	}
 
 	ip = &session->SrcIp;
-	if (IsIP6(ip))
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
-		{
-			ret += ip->ipv6_addr[i];
-		}
-
-		ret += ip->ipv6_scope_id;
-	}
-	else
-	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->addr); ++i)
-		{
-			ret += ip->addr[i];
-		}
+		ret += ip->address[i];
 	}
 
+	ret += ip->ipv6_scope_id;
 	ret += session->SrcPort;
 
 	ip = &session->DstIp;
-	if (IsIP6(ip))
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->ipv6_addr); ++i)
-		{
-			ret += ip->ipv6_addr[i];
-		}
-
-		ret += ip->ipv6_scope_id;
-	}
-	else
-	{
-		UINT i;
-		for (i = 0; i < sizeof(ip->addr); ++i)
-		{
-			ret += ip->addr[i];
-		}
+		ret += ip->address[i];
 	}
 
+	ret += ip->ipv6_scope_id;
 	ret += session->DstPort;
 
 	return ret;
@@ -213,6 +199,8 @@ PROTO *ProtoNew(CEDAR *cedar)
 
 	AddRef(cedar->ref);
 
+	// WireGuard
+	Add(proto->Containers, ProtoContainerNew(WgsGetProtoImpl()));
 	// OpenVPN
 	Add(proto->Containers, ProtoContainerNew(OvsGetProtoImpl()));
 	// SSTP
@@ -291,7 +279,7 @@ PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 			option->Bool = impl_option->Bool;
 			break;
 		case PROTO_OPTION_STRING:
-			option->String = CopyStr(impl_option->String);
+			option->String = impl_option->String != NULL ? CopyStr(impl_option->String) : impl->OptionStringValue(option->Name);
 			break;
 		default:
 			Debug("ProtoContainerNew(): unhandled option type %u!\n", impl_option->Type);

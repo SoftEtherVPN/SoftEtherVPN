@@ -8,6 +8,9 @@
 #ifndef	SAM_H
 #define	SAM_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
 
 // Function prototype
 bool SamIsUser(HUB *h, char *username);

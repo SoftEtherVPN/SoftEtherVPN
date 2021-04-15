@@ -8,6 +8,8 @@
 #ifndef	TABLE_H
 #define	TABLE_H
 
+#include "Encrypt.h"
+
 #define	UNICODE_CACHE_FILE		L".unicode_cache_%s.dat"
 
 #define	LANGLIST_FILENAME		"|languages.txt"

@@ -8,6 +8,10 @@
 #ifndef	SECURENAT_H
 #define	SECURENAT_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
+
 struct SNAT
 {
 	LOCK *lock;						// Lock

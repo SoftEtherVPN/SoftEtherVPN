@@ -5,58 +5,64 @@
 // Network.c
 // Network communication module
 
-#include <GlobalConst.h>
+#include "Network.h"
 
-#define	ENCRYPT_C
-#define	NETWORK_C
+#include "Cfg.h"
+#include "FileIO.h"
+#include "HTTP.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Pack.h"
+#include "Str.h"
+#include "TcpIp.h"
+#include "Tick64.h"
+#include "Unix.h"
 
-#define	__WINCRYPT_H__
-
-#ifdef	WIN32
-// Include windows.h for Socket API
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#include <Ws2tcpip.h>
-#include <Wspiapi.h>
-#include <winsock2.h>
-#include <windows.h>
-#include <Iphlpapi.h>
-#include <ws2ipdef.h>
-#include <netioapi.h>
-#include <Icmpapi.h>
-#endif	// WIN32
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/engine.h>
-#include <openssl/bio.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs7.h>
-#include <openssl/pkcs12.h>
-#include <openssl/rc4.h>
-#include <openssl/md5.h>
-#include <openssl/sha.h>
-#include <Mayaqua/Mayaqua.h>
-#ifdef	UNIX_MACOS
-#include <sys/event.h>
-#endif	// UNIX_MACOS
 
-#ifdef	OS_WIN32
-NETWORK_WIN32_FUNCTIONS *w32net;
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+
+#ifdef OS_UNIX
+#include <fcntl.h>
+#include <netdb.h>
+#include <poll.h>
+#include <signal.h>
+
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#endif
+
+#ifdef UNIX_MACOS
+#include <sys/event.h>
+#endif
+
+#ifdef UNIX
+#ifdef UNIX_SOLARIS
+#define USE_STATVFS
+#include <sys/statvfs.h>'
+#else
+#define MAYAQUA_SUPPORTS_GETIFADDRS
+#include <ifaddrs.h>
+#endif
+#endif
+
+#ifdef OS_WIN32
+#include <iphlpapi.h>
+#include <WS2tcpip.h>
+
+#include <IcmpAPI.h>
+
 struct ROUTE_CHANGE_DATA
 {
 	OVERLAPPED Overlapped;
 	HANDLE Handle;
 	UINT NumCalled;
 };
-#endif	// OS_WIN32
+#endif
 
 // Whether the blocking occurs in SSL
 #if	defined(UNIX_BSD) || defined(UNIX_MACOS)
@@ -98,7 +104,6 @@ static IP unix_dns_server;
 static LIST *HostCacheList = NULL;
 static LIST *WaitThreadList = NULL;
 static bool disable_cache = false;
-static bool NetworkReleaseMode = false;			// Network release mode
 static UCHAR machine_ip_process_hash[SHA1_SIZE];
 static LOCK *machine_ip_process_hash_lock = NULL;
 static LOCK *current_global_ip_lock = NULL;
@@ -3858,7 +3863,6 @@ void RUDPMainThread(THREAD *thread, void *param)
 					{
 						if (p->Size >= (ip_header_size + sizeof(ICMP_HEADER) + sizeof(ICMP_ECHO) + SHA1_SIZE))
 						{
-							IPV4_HEADER *ip_header = (IPV4_HEADER *)(((UCHAR *)p->Data) + 0);
 							ICMP_HEADER *icmp_header = (ICMP_HEADER *)(((UCHAR *)p->Data) + ip_header_size);
 							ICMP_ECHO *echo_header = (ICMP_ECHO *)(((UCHAR *)p->Data) + ip_header_size + sizeof(ICMP_HEADER));
 
@@ -4181,7 +4185,7 @@ void RUDPGetRegisterHostNameByIP(char *dst, UINT size, IP *ip)
 	{
 		UCHAR hash[SHA1_SIZE];
 
-		Sha1(hash, ip->addr, 4);
+		Sha1(hash, IPV4(ip->address), IPV4_SIZE);
 		BinToStr(tmp, sizeof(tmp), hash, 2);
 	}
 	else
@@ -6033,7 +6037,7 @@ void IcmpApiFreeResult(ICMP_RESULT *ret)
 // Send an ICMP Echo using ICMP API
 ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout)
 {
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 	// Validate arguments
 	if (dest_ip == NULL || IsIP4(dest_ip) == false || (size != 0 && data == NULL))
 	{
@@ -6044,7 +6048,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		ttl = 127;
 	}
 
-	if (IsIcmpApiSupported())
+	if (true)
 	{
 		HANDLE h;
 		DWORD dw;
@@ -6054,7 +6058,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		ICMP_RESULT *ret = NULL;
 		IP_OPTION_INFORMATION opt;
 
-		h = w32net->IcmpCreateFile();
+		h = IcmpCreateFile();
 
 		if (h == INVALID_HANDLE_VALUE)
 		{
@@ -6069,7 +6073,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 		reply_size = sizeof(*reply) + size + 64;
 		reply = ZeroMalloc(reply_size);
 
-		dw = w32net->IcmpSendEcho(h, dest_addr, data, size, &opt, reply, reply_size, timeout);
+		dw = IcmpSendEcho(h, dest_addr, data, size, &opt, reply, reply_size, timeout);
 
 		ret = ZeroMalloc(sizeof(ICMP_RESULT));
 
@@ -6132,7 +6136,7 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 
 		Free(reply);
 
-		w32net->IcmpCloseHandle(h);
+		IcmpCloseHandle(h);
 
 		return ret;
 	}
@@ -6144,21 +6148,6 @@ ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UIN
 #else	// OS_WIN32
 	return NULL;
 #endif	// OS_WIN32
-}
-
-// Detect whether the ICMP API is supported
-bool IsIcmpApiSupported()
-{
-#ifdef	OS_WIN32
-	if (w32net->IcmpCloseHandle != NULL &&
-	        w32net->IcmpCreateFile != NULL &&
-	        w32net->IcmpSendEcho != NULL)
-	{
-		return true;
-	}
-#endif	// OS_WIN32
-
-	return false;
 }
 
 // Initialize the routing table change detector
@@ -6194,18 +6183,7 @@ bool IsRouteChanged(ROUTE_CHANGE *r)
 ROUTE_CHANGE *Win32NewRouteChange()
 {
 	ROUTE_CHANGE *r;
-	bool ret;
-
-	if (MsIsNt() == false)
-	{
-		return NULL;
-	}
-
-	if (w32net->CancelIPChangeNotify == NULL ||
-	        w32net->NotifyRouteChange == NULL)
-	{
-		return NULL;
-	}
+	BOOL ret;
 
 	r = ZeroMalloc(sizeof(ROUTE_CHANGE));
 
@@ -6213,7 +6191,7 @@ ROUTE_CHANGE *Win32NewRouteChange()
 
 	r->Data->Overlapped.hEvent = CreateEventA(NULL, false, true, NULL);
 
-	ret = w32net->NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
+	ret = NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
 	if (!(ret == NO_ERROR || ret == WSA_IO_PENDING || WSAGetLastError() == WSA_IO_PENDING))
 	{
 		Free(r->Data);
@@ -6233,7 +6211,7 @@ void Win32FreeRouteChange(ROUTE_CHANGE *r)
 		return;
 	}
 
-	w32net->CancelIPChangeNotify(&r->Data->Overlapped);
+	CancelIPChangeNotify(&r->Data->Overlapped);
 	CloseHandle(r->Data->Overlapped.hEvent);
 
 	Free(r->Data);
@@ -6255,7 +6233,7 @@ bool Win32IsRouteChanged(ROUTE_CHANGE *r)
 
 	if (WaitForSingleObject(r->Data->Overlapped.hEvent, 0) == WAIT_OBJECT_0)
 	{
-		w32net->NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
+		NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
 		return true;
 	}
 
@@ -6285,7 +6263,7 @@ SOCKET Win32Accept(SOCK *sock, SOCKET s, struct sockaddr *addr, int *addrlen, bo
 	UINT num_error = 0;
 	UINT zero = 0;
 	UINT tmp = 0;
-	UINT ret_size = 0;
+	DWORD ret_size = 0;
 	// Validate arguments
 	if (sock == NULL || s == INVALID_SOCKET)
 	{
@@ -6498,20 +6476,21 @@ bool IsSubnetMask6(IP *a)
 // Generate a local address from the MAC address
 void GenerateEui64LocalAddress(IP *a, UCHAR *mac)
 {
-	UCHAR tmp[8];
 	// Validate arguments
 	if (a == NULL || mac == NULL)
 	{
 		return;
 	}
 
+	Zero(a, sizeof(IP));
+
+	UCHAR tmp[8];
 	GenerateEui64Address6(tmp, mac);
 
-	ZeroIP6(a);
-	a->ipv6_addr[0] = 0xfe;
-	a->ipv6_addr[1] = 0x80;
+	a->address[0] = 0xfe;
+	a->address[1] = 0x80;
 
-	Copy(&a->ipv6_addr[8], tmp, 8);
+	Copy(&a->address[8], tmp, sizeof(tmp));
 }
 
 // Generate the EUI-64 address from the MAC address
@@ -6642,7 +6621,7 @@ UINT GetIPAddrType6(IP *ip)
 		return 0;
 	}
 
-	if (ip->ipv6_addr[0] == 0xff)
+	if (ip->address[0] == 0xff)
 	{
 		IP all_node, all_router;
 
@@ -6652,20 +6631,20 @@ UINT GetIPAddrType6(IP *ip)
 
 		ret |= IPV6_ADDR_MULTICAST;
 
-		if (Cmp(ip->ipv6_addr, all_node.ipv6_addr, 16) == 0)
+		if (CmpIpAddr(ip, &all_node) == 0)
 		{
 			ret |= IPV6_ADDR_ALL_NODE_MULTICAST;
 		}
-		else if (Cmp(ip->ipv6_addr, all_router.ipv6_addr, 16) == 0)
+		else if (CmpIpAddr(ip, &all_router) == 0)
 		{
 			ret |= IPV6_ADDR_ALL_ROUTER_MULTICAST;
 		}
 		else
 		{
-			if (ip->ipv6_addr[1] == 0x02 && ip->ipv6_addr[2] == 0 && ip->ipv6_addr[3] == 0 &&
-			        ip->ipv6_addr[4] == 0 && ip->ipv6_addr[5] == 0 && ip->ipv6_addr[6] == 0 &&
-			        ip->ipv6_addr[7] == 0 && ip->ipv6_addr[8] == 0 && ip->ipv6_addr[9] == 0 &&
-			        ip->ipv6_addr[10] == 0 && ip->ipv6_addr[11] == 0x01 && ip->ipv6_addr[12] == 0xff)
+			if (ip->address[1] == 0x02 && ip->address[2] == 0 && ip->address[3] == 0 &&
+			        ip->address[4] == 0 && ip->address[5] == 0 && ip->address[6] == 0 &&
+			        ip->address[7] == 0 && ip->address[8] == 0 && ip->address[9] == 0 &&
+			        ip->address[10] == 0 && ip->address[11] == 0x01 && ip->address[12] == 0xff)
 			{
 				ret |= IPV6_ADDR_SOLICIATION_MULTICAST;
 			}
@@ -6675,7 +6654,7 @@ UINT GetIPAddrType6(IP *ip)
 	{
 		ret |= IPV6_ADDR_UNICAST;
 
-		if (ip->ipv6_addr[0] == 0xfe && (ip->ipv6_addr[1] & 0xc0) == 0x80)
+		if (ip->address[0] == 0xfe && (ip->address[1] & 0xc0) == 0x80)
 		{
 			ret |= IPV6_ADDR_LOCAL_UNICAST;
 		}
@@ -6683,7 +6662,7 @@ UINT GetIPAddrType6(IP *ip)
 		{
 			ret |= IPV6_ADDR_GLOBAL_UNICAST;
 
-			if (IsZero(&ip->ipv6_addr, 16))
+			if (IsZero(&ip->address, sizeof(ip->address)))
 			{
 				ret |= IPV6_ADDR_ZERO;
 			}
@@ -6693,7 +6672,7 @@ UINT GetIPAddrType6(IP *ip)
 
 				GetLoopbackAddress6(&loopback);
 
-				if (Cmp(ip->ipv6_addr, loopback.ipv6_addr, 16) == 0)
+				if (Cmp(ip->address, loopback.address, sizeof(ip->address)) == 0)
 				{
 					ret |= IPV6_ADDR_LOOPBACK;
 				}
@@ -6713,9 +6692,9 @@ void GetLoopbackAddress6(IP *ip)
 		return;
 	}
 
-	ZeroIP6(ip);
+	Zero(ip, sizeof(IP));
 
-	ip->ipv6_addr[15] = 0x01;
+	ip->address[15] = 0x01;
 }
 
 // All-nodes multicast address
@@ -6727,11 +6706,11 @@ void GetAllNodeMulticaseAddress6(IP *ip)
 		return;
 	}
 
-	ZeroIP6(ip);
+	Zero(ip, sizeof(IP));
 
-	ip->ipv6_addr[0] = 0xff;
-	ip->ipv6_addr[1] = 0x02;
-	ip->ipv6_addr[15] = 0x01;
+	ip->address[0] = 0xff;
+	ip->address[1] = 0x02;
+	ip->address[15] = 0x01;
 }
 
 // All-routers multicast address
@@ -6743,44 +6722,40 @@ void GetAllRouterMulticastAddress6(IP *ip)
 		return;
 	}
 
-	ZeroIP6(ip);
+	Zero(ip, sizeof(IP));
 
-	ip->ipv6_addr[0] = 0xff;
-	ip->ipv6_addr[1] = 0x02;
-	ip->ipv6_addr[15] = 0x02;
+	ip->address[0] = 0xff;
+	ip->address[1] = 0x02;
+	ip->address[15] = 0x02;
 }
 
 // Logical operation of the IPv4 address
 void IPAnd4(IP *dst, IP *a, IP *b)
 {
-	UINT i;
 	// Validate arguments
 	if (dst == NULL || a == NULL || b == NULL || IsIP4(a) == false || IsIP4(b) == false)
 	{
-		Zero(dst, sizeof(IP));
+		ZeroIP4(dst);
 		return;
 	}
 
-	i = IPToUINT(a) & IPToUINT(b);
-
-	UINTToIP(dst, i);
+	UINTToIP(dst, IPToUINT(a) & IPToUINT(b));
 }
 
 // Logical operation of the IPv6 address
 void IPAnd6(IP *dst, IP *a, IP *b)
 {
-	UINT i;
+	Zero(dst, sizeof(IP));
+
 	// Validate arguments
 	if (dst == NULL || IsIP6(a) == false || IsIP6(b) == false)
 	{
-		ZeroIP6(dst);
 		return;
 	}
 
-	ZeroIP6(dst);
-	for (i = 0; i < 16; i++)
+	for (BYTE i = 0; i < sizeof(dst->address); ++i)
 	{
-		dst->ipv6_addr[i] = a->ipv6_addr[i] & b->ipv6_addr[i];
+		dst->address[i] = a->address[i] & b->address[i];
 	}
 }
 
@@ -6792,17 +6767,17 @@ void IntToSubnetMask6(IP *ip, UINT i)
 	UINT z;
 	IP a;
 
-	ZeroIP6(&a);
+	Zero(&a, sizeof(IP));
 
-	for (z = 0; z < 16; z++)
+	for (z = 0; z < sizeof(a.address); ++z)
 	{
 		if (z < j)
 		{
-			a.ipv6_addr[z] = 0xff;
+			a.address[z] = 0xff;
 		}
 		else if (z == j)
 		{
-			a.ipv6_addr[z] = ~(0xff >> k);
+			a.address[z] = ~(0xff >> k);
 		}
 	}
 
@@ -6859,7 +6834,7 @@ void IPToStr6Inner(char *str, IP *ip)
 
 	for (i = 0; i < 8; i++)
 	{
-		Copy(&values[i], &a.ipv6_addr[i * 2], sizeof(USHORT));
+		Copy(&values[i], &a.address[i * 2], sizeof(USHORT));
 		values[i] = Endian16(values[i]);
 	}
 
@@ -6956,7 +6931,7 @@ bool StrToIP6(IP *ip, char *str)
 		return false;
 	}
 
-	ZeroIP6(&a);
+	Zero(&a, sizeof(a));
 
 	StrCpy(tmp, sizeof(tmp), str);
 	Trim(tmp);
@@ -7028,8 +7003,8 @@ bool StrToIP6(IP *ip, char *str)
 
 				IPItemStrToChars6(chars, str);
 
-				a.ipv6_addr[k++] = chars[0];
-				a.ipv6_addr[k++] = chars[1];
+				a.address[k++] = chars[0];
+				a.address[k++] = chars[1];
 			}
 		}
 
@@ -7185,18 +7160,9 @@ void ZeroIP4(IP *ip)
 	}
 
 	Zero(ip, sizeof(IP));
-}
 
-// Create an IPv6 address of all zero
-void ZeroIP6(IP *ip)
-{
-	// Validate arguments
-	if (ip == NULL)
-	{
-		return;
-	}
-
-	SetIP6(ip, NULL);
+	ip->address[10] = 0xff;
+	ip->address[11] = 0xff;
 }
 
 // Get the IP address of the localhost
@@ -7207,9 +7173,10 @@ void GetLocalHostIP6(IP *ip)
 	{
 		return;
 	}
-	ZeroIP6(ip);
 
-	ip->ipv6_addr[15] = 1;
+	Zero(ip, sizeof(IP));
+
+	ip->address[15] = 1;
 }
 void GetLocalHostIP4(IP *ip)
 {
@@ -7257,7 +7224,7 @@ bool IsLocalHostIP4(IP *ip)
 		return false;
 	}
 
-	if (ip->addr[0] == 127)
+	if (IPV4(ip->address)[0] == 127)
 	{
 		return true;
 	}
@@ -7311,9 +7278,9 @@ bool IPToIPv6Addr(IPV6_ADDR *addr, IP *ip)
 		return false;
 	}
 
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < sizeof(addr->Value); ++i)
 	{
-		addr->Value[i] = ip->ipv6_addr[i];
+		addr->Value[i] = ip->address[i];
 	}
 
 	return true;
@@ -7323,45 +7290,20 @@ bool IPToIPv6Addr(IPV6_ADDR *addr, IP *ip)
 void SetIP6(IP *ip, UCHAR *value)
 {
 	// Validate arguments
-	if (ip == NULL)
+	if (ip == NULL || value == NULL)
 	{
 		return;
 	}
 
 	Zero(ip, sizeof(IP));
 
-	ip->addr[0] = 192;
-	ip->addr[1] = 0;
-	ip->addr[2] = 2;
-	ip->addr[3] = 254;
-
-	if (value != NULL)
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		UINT i;
-
-		for (i = 0; i < 16; i++)
-		{
-			ip->ipv6_addr[i] = value[i];
-		}
+		ip->address[i] = value[i];
 	}
 }
 
-// Check whether the specified address is a IPv6 address
-bool IsIP6(IP *ip)
-{
-	// Validate arguments
-	if (ip == NULL)
-	{
-		return false;
-	}
-
-	if (ip->addr[0] == 192 && ip->addr[1] == 0 && ip->addr[2] == 2 && ip->addr[3] == 254)
-	{
-		return true;
-	}
-
-	return false;
-}
+// Check whether the specified address is IPv4
 bool IsIP4(IP *ip)
 {
 	// Validate arguments
@@ -7370,7 +7312,17 @@ bool IsIP4(IP *ip)
 		return false;
 	}
 
-	return (IsIP6(ip) ? false : true);
+	if (IsZero(ip->address, 10) == false)
+	{
+		return false;
+	}
+
+	if (ip->address[10] != 0xff || ip->address[11] != 0xff)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 // Copy the IP address
@@ -7383,7 +7335,6 @@ void CopyIP(IP *dst, IP *src)
 // Identify whether the IP address is a normal unicast address
 bool IsValidUnicastIPAddress4(IP *ip)
 {
-	UINT i;
 	// Validate arguments
 	if (IsIP4(ip) == false)
 	{
@@ -7395,17 +7346,18 @@ bool IsValidUnicastIPAddress4(IP *ip)
 		return false;
 	}
 
-	if (ip->addr[0] >= 224 && ip->addr[0] <= 239)
+	const BYTE *ipv4 = IPV4(ip->address);
+
+	if (ipv4[0] >= 224 && ipv4[0] <= 239)
 	{
 		// IPv4 Multicast
 		return false;
 	}
 
-
 	/// TODO: this is kinda incorrect, but for the correct parsing we need the netmask anyway
-	for (i = 0; i < 4; i++)
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
 	{
-		if (ip->addr[i] != 255)
+		if (ipv4[i] != 255)
 		{
 			return true;
 		}
@@ -7717,24 +7669,23 @@ bool NormalizeMacAddress(char *dst, UINT size, char *src)
 // Identify whether the IP address is empty
 bool IsZeroIP(IP *ip)
 {
-	return IsZeroIp(ip);
-}
-bool IsZeroIp(IP *ip)
-{
 	// Validate arguments
 	if (ip == NULL)
 	{
 		return true;
 	}
 
-	if (IsIP6(ip) == false)
+	if (IsZero(ip->address, sizeof(ip->address)))
 	{
-		return IsZero(ip->addr, sizeof(ip->addr));
+		return true;
 	}
-	else
+
+	if (IsIP4(ip))
 	{
-		return IsZero(ip->ipv6_addr, sizeof(ip->ipv6_addr));
+		return IsZero(IPV4(ip->address), IPV4_SIZE);
 	}
+
+	return false;
 }
 bool IsZeroIP6Addr(IPV6_ADDR *addr)
 {
@@ -8031,38 +7982,17 @@ bool IsSubnetMask32(UINT ip)
 // Turn on and off the non-blocking mode of the socket
 void UnixSetSocketNonBlockingMode(int fd, bool nonblock)
 {
-	UINT flag = 0;
 	// Validate arguments
 	if (fd == INVALID_SOCKET)
 	{
 		return;
 	}
 
-	if (nonblock)
+	const int flags = fcntl(fd, F_GETFL, 0);
+	if (flags != -1)
 	{
-		flag = 1;
+		fcntl(fd, F_SETFL, nonblock ? flags | O_NONBLOCK : flags & ~O_NONBLOCK);
 	}
-
-#ifdef	FIONBIO
-	ioctl(fd, FIONBIO, &flag);
-#else	// FIONBIO
-	{
-		int flag = fcntl(fd, F_GETFL, 0);
-		if (flag != -1)
-		{
-			if (nonblock)
-			{
-				flag |= O_NONBLOCK;
-			}
-			else
-			{
-				flag = flag & ~O_NONBLOCK;
-
-				fcntl(fd, F_SETFL, flag);
-			}
-		}
-	}
-#endif	// FIONBIO
 }
 
 // Do Nothing
@@ -8122,10 +8052,7 @@ bool UnixGetDefaultDns(IP *ip)
 			return true;
 		}
 
-		ip->addr[0] = 127;
-		ip->addr[1] = 0;
-		ip->addr[2] = 0;
-		ip->addr[3] = 1;
+		GetLocalHostIP4(ip);
 
 		b = ReadDump("/etc/resolv.conf");
 		if (b != NULL)
@@ -8781,9 +8708,7 @@ void UnixFreeSocketLibrary()
 
 #endif	// OS_UNIX
 
-#ifdef	OS_WIN32		// Code for Windows
-
-NETWORK_WIN32_FUNCTIONS *w32net;
+#ifdef OS_WIN32		// Code for Windows
 
 // Comparison of IP_ADAPTER_INDEX_MAP
 int CompareIpAdapterIndexMap(void *p1, void *p2)
@@ -8840,12 +8765,8 @@ bool Win32RenewAddress(void *a)
 	{
 		return false;
 	}
-	if (w32net->IpRenewAddress == NULL)
-	{
-		return false;
-	}
 
-	ret = w32net->IpRenewAddress(a);
+	ret = IpRenewAddress(a);
 
 	if (ret == NO_ERROR)
 	{
@@ -8867,12 +8788,12 @@ bool Win32ReleaseAddress(void *a)
 	{
 		return false;
 	}
-	if (w32net->IpReleaseAddress == NULL)
+	if (IpReleaseAddress == NULL)
 	{
 		return false;
 	}
 
-	ret = w32net->IpReleaseAddress(a);
+	ret = IpReleaseAddress(a);
 
 	if (ret == NO_ERROR)
 	{
@@ -9017,7 +8938,7 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 {
 	bool ret = false;
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	wchar_t tmp[MAX_SIZE];
@@ -9027,23 +8948,19 @@ bool Win32GetAdapterFromGuid(void *a, char *guid)
 	{
 		return false;
 	}
-	if (w32net->GetInterfaceInfo == NULL)
-	{
-		return false;
-	}
 
 	UniFormat(tmp, sizeof(tmp), L"\\DEVICE\\TCPIP_%S", guid);
 
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9089,7 +9006,7 @@ void Win32FlushDnsCache()
 void Win32RenewDhcp9x(UINT if_id)
 {
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	// Validate arguments
@@ -9101,13 +9018,13 @@ void Win32RenewDhcp9x(UINT if_id)
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return;
@@ -9145,7 +9062,7 @@ void Win32RenewDhcp9x(UINT if_id)
 void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 {
 	IP_INTERFACE_INFO *info;
-	UINT size;
+	ULONG size;
 	int i;
 	LIST *o;
 	// Validate arguments
@@ -9157,13 +9074,13 @@ void Win32ReleaseDhcp9x(UINT if_id, bool wait)
 	size = sizeof(IP_INTERFACE_INFO);
 	info = ZeroMallocFast(size);
 
-	if (w32net->GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
 	{
 		Free(info);
 		info = ZeroMallocFast(size);
 	}
 
-	if (w32net->GetInterfaceInfo(info, &size) != NO_ERROR)
+	if (GetInterfaceInfo(info, &size) != NO_ERROR)
 	{
 		Free(info);
 		return;
@@ -9202,7 +9119,7 @@ char **Win32EnumVLan(char *tag_name)
 {
 	MIB_IFTABLE *p;
 	UINT ret;
-	UINT size_needed;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	UINT i;
 	LIST *o;
@@ -9218,7 +9135,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIfTable(p, &size_needed, 0);
+	ret = GetIfTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9234,7 +9151,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIfTable(p, &size_needed, FALSE);
+	ret = GetIfTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9281,8 +9198,8 @@ FAILED:
 UINT Win32GetVLanInterfaceID(char *instance_name)
 {
 	MIB_IFTABLE *p;
-	UINT ret;
-	UINT size_needed;
+	BOOL ret;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	UINT i;
 	char ps_miniport_str[MAX_SIZE];
@@ -9299,7 +9216,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIfTable(p, &size_needed, 0);
+	ret = GetIfTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9316,7 +9233,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIfTable(p, &size_needed, FALSE);
+	ret = GetIfTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9373,7 +9290,7 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 {
 	IP_ADAPTER_ADDRESSES_XP *info;
 	IP_ADAPTER_ADDRESSES_XP *cur;
-	UINT info_size;
+	ULONG info_size;
 	bool ret = false;
 	// Validate arguments
 	ClearStr(domain, size);
@@ -9381,19 +9298,15 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 	{
 		return false;
 	}
-	if (w32net->GetAdaptersAddresses == NULL)
-	{
-		return false;
-	}
 
 	info_size = 0;
 	info = ZeroMalloc(sizeof(IP_ADAPTER_ADDRESSES_XP));
-	if (w32net->GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) == ERROR_BUFFER_OVERFLOW)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) == ERROR_BUFFER_OVERFLOW)
 	{
 		Free(info);
 		info = ZeroMalloc(info_size);
 	}
-	if (w32net->GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) != NO_ERROR)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9422,7 +9335,7 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 {
 	FIXED_INFO *info;
-	UINT info_size;
+	ULONG info_size;
 	char *dns_name;
 	// Validate arguments
 	ClearStr(domain, size);
@@ -9431,24 +9344,15 @@ bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 		return false;
 	}
 	Zero(ip, sizeof(IP));
-	if (w32net->GetNetworkParams == NULL)
-	{
-		return false;
-	}
+
 	info_size = 0;
 	info = ZeroMallocFast(sizeof(FIXED_INFO));
-	if (w32net->GetNetworkParams(info, &info_size) == ERROR_BUFFER_OVERFLOW)
+	if (GetNetworkParams(info, &info_size) == ERROR_BUFFER_OVERFLOW)
 	{
 		Free(info);
 		info = ZeroMallocFast(info_size);
 	}
-	if (w32net->GetNetworkParams(info, &info_size) != NO_ERROR)
-	{
-		Free(info);
-		return false;
-	}
-
-	if (info->DnsServerList.IpAddress.String == NULL)
+	if (GetNetworkParams(info, &info_size) != NO_ERROR)
 	{
 		Free(info);
 		return false;
@@ -9493,9 +9397,7 @@ void Win32DeleteRouteEntry(ROUTE_ENTRY *e)
 	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
 	Win32RouteEntryToIpForwardRow(p, e);
 
-	// Delete
-	w32net->DeleteIpForwardEntry(p);
-
+	DeleteIpForwardEntry(p);
 	Free(p);
 }
 
@@ -9521,8 +9423,7 @@ bool Win32AddRouteEntry(ROUTE_ENTRY *e, bool *already_exists)
 	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
 	Win32RouteEntryToIpForwardRow(p, e);
 
-	// Adding
-	err = w32net->CreateIpForwardEntry(p);
+	err = CreateIpForwardEntry(p);
 	if (err != 0)
 	{
 		if (err == ERROR_OBJECT_ALREADY_EXISTS)
@@ -9553,7 +9454,7 @@ ROUTE_TABLE *Win32GetRouteTable()
 	ROUTE_TABLE *t = ZeroMallocFast(sizeof(ROUTE_TABLE));
 	MIB_IPFORWARDTABLE *p;
 	UINT ret;
-	UINT size_needed;
+	ULONG size_needed;
 	UINT num_retry = 0;
 	LIST *o;
 	UINT i;
@@ -9564,7 +9465,7 @@ RETRY:
 	size_needed = 0;
 
 	// Examine the needed size
-	ret = w32net->GetIpForwardTable(p, &size_needed, 0);
+	ret = GetIpForwardTable(p, &size_needed, 0);
 	if (ret == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// Re-allocate the memory block of the needed size
@@ -9581,7 +9482,7 @@ FAILED:
 	}
 
 	// Actually get
-	ret = w32net->GetIpForwardTable(p, &size_needed, FALSE);
+	ret = GetIpForwardTable(p, &size_needed, FALSE);
 	if (ret != NO_ERROR)
 	{
 		// Acquisition failure
@@ -9684,16 +9585,8 @@ void Win32RouteEntryToIpForwardRow(void *ip_forward_row, ROUTE_ENTRY *entry)
 	}
 	// Metric
 	r->dwForwardMetric1 = entry->Metric;
-
-	if (MsIsVista() == false)
-	{
-		r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = INFINITE;
-	}
-	else
-	{
-		r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = 0;
-		r->dwForwardAge = 163240;
-	}
+	r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = 0;
+	r->dwForwardAge = 163240;
 
 	// Interface ID
 	r->dwForwardIfIndex = entry->InterfaceID;
@@ -9754,144 +9647,11 @@ void Win32InitSocketLibrary()
 	WSADATA data;
 	Zero(&data, sizeof(data));
 	WSAStartup(MAKEWORD(2, 2), &data);
-
-	// Load the DLL functions
-	w32net = ZeroMalloc(sizeof(NETWORK_WIN32_FUNCTIONS));
-	w32net->hIpHlpApi32 = LoadLibrary("iphlpapi.dll");
-	w32net->hIcmp = LoadLibrary("icmp.dll");
-
-	if (w32net->hIpHlpApi32 != NULL)
-	{
-		w32net->CreateIpForwardEntry =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-		    GetProcAddress(w32net->hIpHlpApi32, "CreateIpForwardEntry");
-
-		w32net->DeleteIpForwardEntry =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDROW))
-		    GetProcAddress(w32net->hIpHlpApi32, "DeleteIpForwardEntry");
-
-		w32net->GetIfTable =
-		    (DWORD (__stdcall *)(PMIB_IFTABLE, PULONG, BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable");
-
-		w32net->GetIfTable2 =
-		    (DWORD (__stdcall *)(void **))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIfTable2");
-
-		w32net->FreeMibTable =
-		    (void (__stdcall *)(PVOID))
-		    GetProcAddress(w32net->hIpHlpApi32, "FreeMibTable");
-
-		w32net->GetIpForwardTable =
-		    (DWORD (__stdcall *)(PMIB_IPFORWARDTABLE, PULONG, BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetIpForwardTable");
-
-		w32net->GetNetworkParams =
-		    (DWORD (__stdcall *)(PFIXED_INFO,PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetNetworkParams");
-
-		w32net->GetAdaptersAddresses =
-		    (ULONG (__stdcall *)(ULONG,ULONG,PVOID,PIP_ADAPTER_ADDRESSES,PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersAddresses");
-
-		w32net->IpRenewAddress =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-		    GetProcAddress(w32net->hIpHlpApi32, "IpRenewAddress");
-
-		w32net->IpReleaseAddress =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INDEX_MAP))
-		    GetProcAddress(w32net->hIpHlpApi32, "IpReleaseAddress");
-
-		w32net->GetInterfaceInfo =
-		    (DWORD (__stdcall *)(PIP_INTERFACE_INFO, PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetInterfaceInfo");
-
-		w32net->GetAdaptersInfo =
-		    (DWORD (__stdcall *)(PIP_ADAPTER_INFO, PULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetAdaptersInfo");
-
-		w32net->GetExtendedTcpTable =
-		    (DWORD (__stdcall *)(PVOID,PDWORD,BOOL,ULONG,_TCP_TABLE_CLASS,ULONG))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetExtendedTcpTable");
-
-		w32net->AllocateAndGetTcpExTableFromStack =
-		    (DWORD (__stdcall *)(PVOID *,BOOL,HANDLE,DWORD,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "AllocateAndGetTcpExTableFromStack");
-
-		w32net->GetTcpTable =
-		    (DWORD (__stdcall *)(PMIB_TCPTABLE,PDWORD,BOOL))
-		    GetProcAddress(w32net->hIpHlpApi32, "GetTcpTable");
-
-		w32net->NotifyRouteChange =
-		    (DWORD (__stdcall *)(PHANDLE,LPOVERLAPPED))
-		    GetProcAddress(w32net->hIpHlpApi32, "NotifyRouteChange");
-
-		w32net->CancelIPChangeNotify =
-		    (BOOL (__stdcall *)(LPOVERLAPPED))
-		    GetProcAddress(w32net->hIpHlpApi32, "CancelIPChangeNotify");
-
-		w32net->NhpAllocateAndGetInterfaceInfoFromStack =
-		    (DWORD (__stdcall *)(IP_INTERFACE_NAME_INFO **,PDWORD,BOOL,HANDLE,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "NhpAllocateAndGetInterfaceInfoFromStack");
-
-		w32net->IcmpCreateFile =
-		    (HANDLE (__stdcall *)())
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCreateFile");
-
-		w32net->IcmpCloseHandle =
-		    (BOOL (__stdcall *)(HANDLE))
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpCloseHandle");
-
-		w32net->IcmpSendEcho =
-		    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-		    GetProcAddress(w32net->hIpHlpApi32, "IcmpSendEcho");
-	}
-
-	if (w32net->hIcmp != NULL)
-	{
-		if (w32net->IcmpCreateFile == NULL || w32net->IcmpCloseHandle == NULL || w32net->IcmpSendEcho == NULL)
-		{
-			w32net->IcmpCreateFile =
-			    (HANDLE (__stdcall *)())
-			    GetProcAddress(w32net->hIcmp, "IcmpCreateFile");
-
-			w32net->IcmpCloseHandle =
-			    (BOOL (__stdcall *)(HANDLE))
-			    GetProcAddress(w32net->hIcmp, "IcmpCloseHandle");
-
-			w32net->IcmpSendEcho =
-			    (DWORD (__stdcall *)(HANDLE,IPAddr,LPVOID,WORD,PIP_OPTION_INFORMATION,LPVOID,DWORD,DWORD))
-			    GetProcAddress(w32net->hIcmp, "IcmpSendEcho");
-		}
-	}
-
-	if (w32net->IcmpCreateFile == NULL || w32net->IcmpCloseHandle == NULL || w32net->IcmpSendEcho == NULL)
-	{
-		w32net->IcmpCreateFile = NULL;
-		w32net->IcmpCloseHandle = NULL;
-		w32net->IcmpSendEcho = NULL;
-	}
 }
 
 // Release of the socket library
 void Win32FreeSocketLibrary()
 {
-	if (w32net != NULL)
-	{
-		if (w32net->hIpHlpApi32 != NULL)
-		{
-			FreeLibrary(w32net->hIpHlpApi32);
-		}
-
-		if (w32net->hIcmp != NULL)
-		{
-			FreeLibrary(w32net->hIcmp);
-		}
-
-		Free(w32net);
-		w32net = NULL;
-	}
-
 	WSACleanup();
 }
 
@@ -10708,10 +10468,7 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 		ret = ZeroMallocFast(sizeof(ROUTE_ENTRY));
 
 		Copy(&ret->DestIP, ip, sizeof(IP));
-		ret->DestMask.addr[0] = 255;
-		ret->DestMask.addr[1] = 255;
-		ret->DestMask.addr[2] = 255;
-		ret->DestMask.addr[3] = 255;
+		SetIP(&ret->DestMask, 255, 255, 255, 255);
 		Copy(&ret->GatewayIP, &tmp->GatewayIP, sizeof(IP));
 		ret->InterfaceID = tmp->InterfaceID;
 		ret->LocalRouting = tmp->LocalRouting;
@@ -10723,16 +10480,6 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 		dest = IPToUINT(&tmp->DestIP);
 		gateway = IPToUINT(&tmp->GatewayIP);
 		mask = IPToUINT(&tmp->DestMask);
-		if ((dest & mask) == (gateway & mask))
-		{
-#ifdef	OS_WIN32
-			if (MsIsVista() == false)
-			{
-				// Adjust for Windows
-				ret->PPPConnection = true;
-			}
-#endif	// OS_WIN32
-		}
 	}
 
 	return ret;
@@ -11198,10 +10945,10 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 	}
 	IPToInAddr(&addr.sin_addr, dest_addr);
 
-	if ((dest_addr->addr[0] == 255 && dest_addr->addr[1] == 255 &&
-	        dest_addr->addr[2] == 255 && dest_addr->addr[3] == 255) ||
-	        (dest_addr->addr[0] >= 224 && dest_addr->addr[0] <= 239)
-	        || broadcast)
+	const BYTE *ipv4 = IPV4(dest_addr->address);
+	if ((ipv4[0] == 255 && ipv4[1] == 255 && ipv4[2] == 255 && ipv4[3] == 255) ||
+		(ipv4[0] >= 224 && ipv4[0] <= 239) ||
+		broadcast)
 	{
 		if (sock->UdpBroadcast == false)
 		{
@@ -11234,7 +10981,7 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 			Debug("SendTo Error; %u\n", e);
 		}
 #else	// OS_WIN32
-		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
+		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR || errno == EINVAL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -11326,10 +11073,6 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 		else if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINPROGRESS)
 		{
 			return SOCK_LATER;
-		}
-		else
-		{
-			UINT e = WSAGetLastError();
 		}
 #else	// OS_WIN32
 		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
@@ -13165,7 +12908,6 @@ SOCK *Accept6(SOCK *sock)
 	SOCKET s, new_socket;
 	int size;
 	struct sockaddr_in6 addr;
-	bool true_flag = true;
 	// Validate arguments
 	if (sock == NULL)
 	{
@@ -13240,6 +12982,7 @@ SOCK *Accept6(SOCK *sock)
 	ret->SecureMode = false;
 
 	// Configuring the TCP options
+	bool true_flag = true;
 	(void)setsockopt(ret->socket, IPPROTO_TCP, TCP_NODELAY, (char *)&true_flag, sizeof(bool));
 
 	// Initialize the time-out value
@@ -13281,7 +13024,6 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	SOCK *sock;
 	struct sockaddr_in6 addr;
 	struct in6_addr in;
-	bool true_flag = true;
 	IP localhost;
 	UINT backlog = SOMAXCONN;
 	// Validate arguments
@@ -13289,14 +13031,6 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	{
 		return NULL;
 	}
-
-#ifdef	OS_WIN32
-	if (MsIsVista() == false)
-	{
-		// Disable the Conditional Accept due to a bug in Windows
-		enable_ca = false;
-	}
-#endif	// OS_WIN32
 
 	// Initialization
 	Zero(&addr, sizeof(addr));
@@ -13320,12 +13054,10 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 		return NULL;
 	}
 
+	bool true_flag = true;
 #ifdef	OS_UNIX
 	// It is necessary to set the IPv6 Only flag on a UNIX system
 	(void)setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
-#endif	// OS_UNIX
-
-#ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
 	(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
@@ -13338,17 +13070,13 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 		return NULL;
 	}
 
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
 	if (enable_ca)
 	{
-		if (MsIsWinXPOrGreater())
-		{
-			setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
-
-			backlog = 1;
-		}
+		setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
+		backlog = 1;
 	}
-#endif	// OS_WIN32
+#endif
 
 	if (listen(s, backlog))
 	{
@@ -13389,7 +13117,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 	SOCK *sock;
 	struct sockaddr_in addr;
 	struct in_addr in;
-	bool true_flag = true;
 	IP localhost;
 	UINT backlog = SOMAXCONN;
 	// Validate arguments
@@ -13397,14 +13124,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 	{
 		return NULL;
 	}
-
-#ifdef	OS_WIN32
-	if (MsIsVista() == false)
-	{
-		// Disable the Conditional Accept due to a bug in Windows
-		enable_ca = false;
-	}
-#endif	// OS_WIN32
 
 	// Initialization
 	Zero(&addr, sizeof(addr));
@@ -13436,6 +13155,7 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 		return NULL;
 	}
 
+	bool true_flag = true;
 #ifdef	OS_UNIX
 	// This only have enabled for UNIX system since there is a bug
 	// in the implementation of REUSEADDR in Windows OS
@@ -13452,12 +13172,8 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 #ifdef	OS_WIN32
 	if (enable_ca)
 	{
-		if (MsIsWinXPOrGreater())
-		{
-			setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
-
-			backlog = 1;
-		}
+		setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(bool));
+		backlog = 1;
 	}
 #endif	// OS_WIN32
 
@@ -13488,8 +13204,6 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 void Disconnect(SOCK *sock)
 {
 	SOCKET s;
-	bool true_flag = true;
-	bool false_flag = false;
 	// Validate arguments
 	if (sock == NULL)
 	{
@@ -13562,8 +13276,10 @@ void Disconnect(SOCK *sock)
 		{
 			// Forced disconnection flag
 #ifdef	SO_DONTLINGER
+			bool true_flag = true;
 			(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 #else	// SO_DONTLINGER
+			bool false_flag = false;
 			(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 #endif	// SO_DONTLINGER
 //			setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
@@ -13888,8 +13604,7 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	WSAEVENT hEvent;
 	UINT zero = 0;
 	UINT tmp = 0;
-	UINT ret_size = 0;
-	bool is_nt = false;
+	DWORD ret_size = 0;
 	// Validate arguments
 	if (s == INVALID_SOCKET || addr == NULL)
 	{
@@ -13899,8 +13614,6 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	{
 		timeout = TIMEOUT_TCP_PORT_CHECK;
 	}
-
-	is_nt = OS_IS_WINDOWS_NT(GetOsInfo()->OsType);
 
 	// Create an event
 	hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -13926,7 +13639,7 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 			int err = WSAGetLastError();
 			//Debug("err=%u\n", err);
 			//Debug("cancel_flag=%u\n", *cancel_flag);
-			if (timeouted && ((err == WSAEALREADY) || (err == WSAEWOULDBLOCK && !is_nt)))
+			if (timeouted && err == WSAEALREADY)
 			{
 				// Time-out
 				ok = false;
@@ -13938,12 +13651,12 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 				ok = false;
 				break;
 			}
-			if (err == WSAEISCONN || (err == WSAEINVAL && is_nt))
+			if (err == WSAEISCONN || err == WSAEINVAL)
 			{
 				ok = true;
 				break;
 			}
-			if (((start_time + (UINT64)timeout) <= Tick64()) || (err != WSAEWOULDBLOCK && err != WSAEALREADY && (is_nt || err != WSAEINVAL)))
+			if (((start_time + (UINT64)timeout) <= Tick64()) || (err != WSAEWOULDBLOCK && err != WSAEALREADY))
 			{
 				// Failure (timeout)
 				break;
@@ -14329,8 +14042,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	struct linger ling;
 	IP ip4;
 	IP ip6;
-	bool true_flag = true;
-	bool false_flag = false;
 	char tmp[MAX_SIZE];
 	IP current_ip;
 	bool is_ipv6 = false;
@@ -14798,10 +14509,13 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 //	Debug("new socket: %u\n", s);
 
 	Zero(&ling, sizeof(ling));
+
+	bool true_flag = true;
 	// Forced disconnection flag
 #ifdef	SO_DONTLINGER
 	(void)setsockopt(sock->socket, SOL_SOCKET, SO_DONTLINGER, (char *)&true_flag, sizeof(bool));
 #else	// SO_DONTLINGER
+	bool false_flag = false;
 	(void)setsockopt(sock->socket, SOL_SOCKET, SO_LINGER, (char *)&false_flag, sizeof(bool));
 #endif	// SO_DONTLINGER
 //	setsockopt(sock->socket, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(bool));
@@ -15294,18 +15008,17 @@ SOCK *NewSock()
 // Convert the IP to UINT
 UINT IPToUINT(IP *ip)
 {
-	UCHAR *b;
-	UINT i, value = 0;
 	// Validate arguments
 	if (ip == NULL)
 	{
 		return 0;
 	}
 
-	b = (UCHAR *)&value;
-	for (i = 0; i < 4; i++)
+	UINT value;
+
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
 	{
-		b[i] = ip->addr[i];
+		((BYTE *)&value)[i] = IPV4(ip->address)[i];
 	}
 
 	return value;
@@ -15314,8 +15027,6 @@ UINT IPToUINT(IP *ip)
 // Convert UINT to IP
 void UINTToIP(IP *ip, UINT value)
 {
-	UCHAR *b;
-	UINT i;
 	// Validate arguments
 	if (ip == NULL)
 	{
@@ -15324,10 +15035,9 @@ void UINTToIP(IP *ip, UINT value)
 
 	ZeroIP4(ip);
 
-	b = (UCHAR *)&value;
-	for (i = 0; i < 4; i++)
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
 	{
-		ip->addr[i] = b[i];
+		IPV4(ip->address)[i] = ((BYTE *)&value)[i];
 	}
 }
 
@@ -15811,11 +15521,12 @@ void SetIP(IP *ip, UCHAR a1, UCHAR a2, UCHAR a3, UCHAR a4)
 		return;
 	}
 
-	Zero(ip, sizeof(IP));
-	ip->addr[0] = a1;
-	ip->addr[1] = a2;
-	ip->addr[2] = a3;
-	ip->addr[3] = a4;
+	ZeroIP4(ip);
+
+	ip->address[12] = a1;
+	ip->address[13] = a2;
+	ip->address[14] = a3;
+	ip->address[15] = a4;
 }
 UINT SetIP32(UCHAR a1, UCHAR a2, UCHAR a3, UCHAR a4)
 {
@@ -15839,7 +15550,7 @@ bool GetIP46Ex(IP *ip4, IP *ip6, char *hostname, UINT timeout, bool *cancel)
 	}
 
 	ZeroIP4(ip4);
-	ZeroIP6(ip6);
+	Zero(ip6, sizeof(IP));
 
 	ok_a = ok_b = false;
 
@@ -16469,21 +16180,9 @@ void IPToStr(char *str, UINT size, IP *ip)
 	}
 	else
 	{
-		IPToStr4(str, size, ip);
+		const BYTE *ipv4 = IPV4(ip->address);
+		Format(str, size, "%hhu.%hhu.%hhu.%hhu", ipv4[0], ipv4[1], ipv4[2], ipv4[3]);
 	}
-}
-
-// Convert the IPv4 to a string
-void IPToStr4(char *str, UINT size, IP *ip)
-{
-	// Validate arguments
-	if (str == NULL || ip == NULL)
-	{
-		return;
-	}
-
-	// Conversion
-	snprintf(str, size != 0 ? size : 64, "%u.%u.%u.%u", ip->addr[0], ip->addr[1], ip->addr[2], ip->addr[3]);
 }
 
 // Convert the string to an IP
@@ -16491,7 +16190,6 @@ bool StrToIP(IP *ip, char *str)
 {
 	TOKEN_LIST *token;
 	char *tmp;
-	UINT i;
 	// Validate arguments
 	if (ip == NULL || str == NULL)
 	{
@@ -16503,7 +16201,7 @@ bool StrToIP(IP *ip, char *str)
 		return true;
 	}
 
-	Zero(ip, sizeof(IP));
+	ZeroIP4(ip);
 
 	tmp = CopyStr(str);
 	Trim(tmp);
@@ -16515,7 +16213,7 @@ bool StrToIP(IP *ip, char *str)
 		FreeToken(token);
 		return false;
 	}
-	for (i = 0; i < 4; i++)
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
 	{
 		char *s = token->Token[i];
 		if (s[0] < '0' || s[0] > '9' ||
@@ -16525,10 +16223,10 @@ bool StrToIP(IP *ip, char *str)
 			return false;
 		}
 	}
-	Zero(ip, sizeof(IP));
-	for (i = 0; i < 4; i++)
+
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
 	{
-		ip->addr[i] = (UCHAR)ToInt(token->Token[i]);
+		IPV4(ip->address)[i] = (BYTE)ToInt(token->Token[i]);
 	}
 
 	FreeToken(token);
@@ -16568,26 +16266,23 @@ void IPToInAddr(struct in_addr *addr, IP *ip)
 {
 	UINT i;
 	// Validate arguments
-	if (addr == NULL || ip == NULL)
+	if (addr == NULL || IsIP4(ip) == false)
 	{
 		return;
 	}
 
 	Zero(addr, sizeof(struct in_addr));
 
-	if (IsIP6(ip) == false)
+	const BYTE *ipv4 = IPV4(ip->address);
+	for (i = 0; i < IPV4_SIZE; ++i)
 	{
-		for (i = 0; i < 4; i++)
-		{
-			((UCHAR *)addr)[i] = ip->addr[i];
-		}
+		((BYTE *)addr)[i] = ipv4[i];
 	}
 }
 
 // Convert the IP to the in6_addr
 void IPToInAddr6(struct in6_addr *addr, IP *ip)
 {
-	UINT i;
 	// Validate arguments
 	if (addr == NULL || ip == NULL)
 	{
@@ -16596,19 +16291,33 @@ void IPToInAddr6(struct in6_addr *addr, IP *ip)
 
 	Zero(addr, sizeof(struct in6_addr));
 
-	if (IsIP6(ip))
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		for (i = 0; i < 16; i++)
-		{
-			((UCHAR *)addr)[i] = ip->ipv6_addr[i];
-		}
+		((BYTE *)addr)[i] = ip->address[i];
 	}
 }
 
 // Convert the in_addr to the IP
 void InAddrToIP(IP *ip, struct in_addr *addr)
 {
-	UINT i;
+	if (ip == NULL || addr == NULL)
+	{
+		return;
+	}
+
+	ZeroIP4(ip);
+
+	BYTE *ipv4 = IPV4(ip->address);
+
+	for (BYTE i = 0; i < IPV4_SIZE; ++i)
+	{
+		ipv4[i] = ((UCHAR *)addr)[i];
+	}
+}
+
+// Convert the in6_addr to the IP
+void InAddrToIP6(IP *ip, struct in6_addr *addr)
+{
 	// Validate arguments
 	if (ip == NULL || addr == NULL)
 	{
@@ -16617,26 +16326,9 @@ void InAddrToIP(IP *ip, struct in_addr *addr)
 
 	Zero(ip, sizeof(IP));
 
-	for (i = 0; i < 4; i++)
+	for (BYTE i = 0; i < sizeof(ip->address); ++i)
 	{
-		ip->addr[i] = ((UCHAR *)addr)[i];
-	}
-}
-
-// Convert the in6_addr to the IP
-void InAddrToIP6(IP *ip, struct in6_addr *addr)
-{
-	UINT i;
-	// Validate arguments
-	if (ip == NULL || addr == NULL)
-	{
-		return;
-	}
-
-	ZeroIP6(ip);
-	for (i = 0; i < 16; i++)
-	{
-		ip->ipv6_addr[i] = ((UCHAR *)addr)[i];
+		ip->address[i] = ((UCHAR *)addr)[i];
 	}
 }
 
@@ -17124,37 +16816,44 @@ bool IsIPMyHost(IP *ip)
 bool IsIPPrivate(IP *ip)
 {
 	// Validate arguments
-	if (ip == NULL)
+	if (IsIP4(ip) == false)
 	{
 		return false;
 	}
 
-	if (ip->addr[0] == 10)
+	const BYTE *ipv4 = IPV4(ip->address);
+
+	// RFC 1918 defines 10.0.0.0/8
+	if (ipv4[0] == 10)
 	{
 		return true;
 	}
 
-	if (ip->addr[0] == 172)
+	// RFC 1918 defines 172.16.0.0/12
+	if (ipv4[0] == 172)
 	{
-		if (ip->addr[1] >= 16 && ip->addr[1] <= 31)
+		if (ipv4[1] >= 16 && ipv4[1] <= 31)
 		{
 			return true;
 		}
 	}
 
-	if (ip->addr[0] == 192 && ip->addr[1] == 168)
+	// RFC 1918 defines 192.168.0.0/16
+	if (ipv4[0] == 192 && ipv4[1] == 168)
 	{
 		return true;
 	}
 
-	if (ip->addr[0] == 169 && ip->addr[1] == 254)
+	// RFC 3927 defines 169.254.0.0/16
+	if (ipv4[0] == 169 && ipv4[1] == 254)
 	{
 		return true;
 	}
 
-	if (ip->addr[0] == 100)
+	// RFC 6598 defines 100.64.0.0/10
+	if (ipv4[0] == 100)
 	{
-		if (ip->addr[1] >= 64 && ip->addr[1] <= 127)
+		if (ipv4[1] >= 64 && ipv4[1] <= 127)
 		{
 			return true;
 		}
@@ -17162,12 +16861,7 @@ bool IsIPPrivate(IP *ip)
 
 	if (g_private_ip_list != NULL)
 	{
-		if (IsIP4(ip))
-		{
-			UINT ip4 = IPToUINT(ip);
-
-			return IsOnPrivateIPFile(ip4);
-		}
+		return IsOnPrivateIPFile(IPToUINT(ip));
 	}
 
 	return false;
@@ -17289,7 +16983,7 @@ bool IsIPAddressInSameLocalNetwork(IP *a)
 
 			if (IsIP4(p))
 			{
-				if (IsZeroIp(p) == false && p->addr[0] != 127)
+				if (IsZeroIp(p) == false && IsLocalHostIP4(a) == false)
 				{
 					if (IsInSameNetwork4Standard(p, a))
 					{
@@ -17330,7 +17024,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 
 			if (IsIP4(p))
 			{
-				if (IsZeroIp(p) == false && IsIPPrivate(p) == false && p->addr[0] != 127)
+				if (IsZeroIp(p) == false && IsIPPrivate(p) == false && IsLocalHostIP4(p) == false)
 				{
 					Copy(ip, p, sizeof(IP));
 				}
@@ -17345,7 +17039,7 @@ void GetCurrentGlobalIPGuess(IP *ip, bool ipv6)
 
 				if (IsIP4(p))
 				{
-					if (IsZeroIp(p) == false && IsIPPrivate(p) && p->addr[0] != 127)
+					if (IsZeroIp(p) == false && IsIPPrivate(p) && IsLocalHostIP4(p) == false)
 					{
 						Copy(ip, p, sizeof(IP));
 					}
@@ -18649,7 +18343,7 @@ LIST *GetHostIPAddressListInternal()
 	GetLocalHostIP6(&local6);
 
 	ZeroIP4(&any4);
-	ZeroIP6(&any6);
+	Zero(&any6, sizeof(any6));
 
 	Zero(hostname, sizeof(hostname));
 

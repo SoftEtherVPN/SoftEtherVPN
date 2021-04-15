@@ -5,16 +5,12 @@
 // Tracking.c
 // Object tracking module
 
-#include <GlobalConst.h>
+#include "Tracking.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "OS.h"
+#include "Str.h"
 
 // Global variables
 static LOCK *obj_lock;

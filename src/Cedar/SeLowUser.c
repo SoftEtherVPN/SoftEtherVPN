@@ -5,20 +5,22 @@
 // SeLowUser.c
 // SoftEther Lightweight Network Protocol User-mode Library
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#include "SeLowUser.h"
 
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "BridgeWin32.h"
+#include "Win32Com.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+
+#include "See/Devioctl.h"
 
 // Load the drivers hive
 bool SuLoadDriversHive()

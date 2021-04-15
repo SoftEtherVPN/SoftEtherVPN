@@ -5,25 +5,25 @@
 // Win32.c
 // Microsoft Windows dependent code
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#include "Win32.h"
 
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <Dbghelp.h>
-#include <commctrl.h>
-#include <process.h>
-#include <stdio.h>
+#include "FileIO.h"
+#include "GlobalConst.h"
+#include "Internat.h"
+#include "Microsoft.h"
+#include "Memory.h"
+#include "Object.h"
+#include "Str.h"
+
 #include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+
+#include <CommCtrl.h>
+#include <objbase.h>
+#include <process.h>
+#include <timeapi.h>
+#include <winioctl.h>
 
 static HANDLE heap_handle = NULL;
 static HANDLE hstdout = INVALID_HANDLE_VALUE;
@@ -501,7 +501,7 @@ DIRLIST *Win32EnumDirExW(wchar_t *dirname, COMPARE *compare)
 				CombinePathW(fullpath, sizeof(fullpath), dirname2, f->FileNameW);
 
 				// Attempt to get the file information
-				if (MsIsNt())
+				if (true)
 				{
 					HANDLE h = CreateFileW(fullpath, 0,
 						FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -913,7 +913,7 @@ void Win32GetOsInfo(OS_INFO *info)
 
 	info->OsType = Win32GetOsType();
 	info->OsServicePack = os.wServicePackMajor;
-	if (OS_IS_WINDOWS_NT(info->OsType))
+	if (true)
 	{
 		char *s;
 		char *keyname = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
@@ -949,19 +949,6 @@ void Win32GetOsInfo(OS_INFO *info)
 			StrCat(tmp, sizeof(tmp), str);
 			Free(s);
 		}
-		info->KernelVersion = CopyStr(tmp);
-	}
-	else
-	{
-		OSVERSIONINFO os;
-		Zero(&os, sizeof(os));
-		os.dwOSVersionInfoSize = sizeof(os);
-		GetVersionEx(&os);
-		Format(tmp, sizeof(tmp), "Build %u %s", LOWORD(os.dwBuildNumber), os.szCSDVersion);
-		Trim(tmp);
-		info->OsVersion = CopyStr(tmp);
-		info->OsSystemName = CopyStr("Windows");
-		info->KernelName = CopyStr("Windows 9x Kernel");
 		info->KernelVersion = CopyStr(tmp);
 	}
 

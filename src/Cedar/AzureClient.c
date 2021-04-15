@@ -5,7 +5,23 @@
 // AzureClient.c
 // VPN Azure Client
 
-#include "CedarPch.h"
+#include "AzureClient.h"
+
+#include "Cedar.h"
+#include "Command.h"
+#include "Wpc.h"
+
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/MayaType.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Network.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+
+#include <stdlib.h>
 
 // Wait for connection request
 void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)

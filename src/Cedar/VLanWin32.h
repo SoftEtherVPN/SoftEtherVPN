@@ -5,8 +5,16 @@
 // VLanWin32.h
 // Header of VLanWin32.c
 
+#ifdef OS_WIN32
+
 #ifndef	VLANWIN32_H
 #define	VLANWIN32_H
+
+#include "CedarType.h"
+
+#include "VLan.h"
+
+#include "Mayaqua/Network.h"
 
 // Routing table tracking timer
 #define	TRACKING_INTERVAL_INITIAL		444		// Initial
@@ -44,7 +52,6 @@ struct ROUTE_TRACKING
 struct VLAN
 {
 	volatile bool Halt;			// Halting flag
-	bool Win9xMode;				// Windows 9x
 	char *InstanceName;			// Instance name
 	char *DeviceNameWin32;		// Win32 device name
 	char *EventNameWin32;		// Win32 event name
@@ -87,8 +94,9 @@ UINT GetInstanceId(char *name);
 void RouteTrackingStart(SESSION *s);
 void RouteTrackingStop(SESSION *s, ROUTE_TRACKING *t);
 void RouteTrackingMain(SESSION *s);
-void Win32ReleaseAllDhcp9x(bool wait);
 
 void Win32GetWinVer(RPC_WINVER *v);
 
-#endif	// VLANWIN32_H
+#endif // VLANWIN32_H
+
+#endif // OS_WIN32

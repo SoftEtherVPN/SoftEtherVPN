@@ -8,6 +8,8 @@
 #ifndef	UT_H
 #define	UT_H
 
+#include "Mayaqua/MayaType.h"
+
 // Constant
 #define	SPEED_METER_REFRESH_INTERVAL			500
 

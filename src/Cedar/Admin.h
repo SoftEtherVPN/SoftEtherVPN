@@ -8,6 +8,14 @@
 #ifndef	ADMIN_H
 #define	ADMIN_H
 
+#include "Account.h"
+#include "Cedar.h"
+#include "Client.h"
+#include "Hub.h"
+#include "Logging.h"
+
+#include "Mayaqua/Kernel.h"
+
 // Windows version
 struct RPC_WINVER
 {
@@ -226,9 +234,18 @@ struct RPC_KEY_PAIR
 	UINT Flag1;							// Flag1
 };
 
+// WireGuard keys
+struct RPC_WGK
+{
+	UINT Num;							// Number of keys
+	WGK *Wgks;							// Keys
+};
+
 // HUB option
 struct RPC_HUB_OPTION
 {
+	UINT DefaultGateway;				// Default gateway address
+	UINT DefaultSubnet;					// Default subnet mask
 	UINT MaxSession;					// Maximum number of sessions
 	bool NoEnum;						// Not listed
 };
@@ -987,6 +1004,9 @@ UINT StGetServerCert(ADMIN *a, RPC_KEY_PAIR *t);
 UINT StGetServerCipherList(ADMIN *a, RPC_STR *t);
 UINT StGetServerCipher(ADMIN *a, RPC_STR *t);
 UINT StSetServerCipher(ADMIN *a, RPC_STR *t);
+UINT StAddWgk(ADMIN *a, RPC_WGK *t);
+UINT StDeleteWgk(ADMIN *a, RPC_WGK *t);
+UINT StEnumWgk(ADMIN *a, RPC_WGK *t);
 UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t);
 UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t);
 UINT StGetHub(ADMIN *a, RPC_CREATE_HUB *t);
@@ -1135,6 +1155,9 @@ UINT ScGetServerCert(RPC *r, RPC_KEY_PAIR *t);
 UINT ScGetServerCipherList(RPC *r, RPC_STR *t);
 UINT ScGetServerCipher(RPC *r, RPC_STR *t);
 UINT ScSetServerCipher(RPC *r, RPC_STR *t);
+UINT ScAddWgk(RPC *r, RPC_WGK *t);
+UINT ScDeleteWgk(RPC *r, RPC_WGK *t);
+UINT ScEnumWgk(RPC *r, RPC_WGK *t);
 UINT ScCreateHub(RPC *r, RPC_CREATE_HUB *t);
 UINT ScSetHub(RPC *r, RPC_CREATE_HUB *t);
 UINT ScGetHub(RPC *r, RPC_CREATE_HUB *t);
@@ -1392,6 +1415,9 @@ void OutRpcMemInfo(PACK *p, MEMINFO *t);
 void InRpcKeyPair(RPC_KEY_PAIR *t, PACK *p);
 void OutRpcKeyPair(PACK *p, RPC_KEY_PAIR *t);
 void FreeRpcKeyPair(RPC_KEY_PAIR *t);
+void InRpcWgk(RPC_WGK *t, PACK *p);
+void OutRpcWgk(PACK *p, RPC_WGK *t);
+void FreeRpcWgk(RPC_WGK *t);
 void InRpcAddAccess(RPC_ADD_ACCESS *t, PACK *p);
 void OutRpcAddAccess(PACK *p, RPC_ADD_ACCESS *t);
 void InRpcDeleteAccess(RPC_DELETE_ACCESS *t, PACK *p);

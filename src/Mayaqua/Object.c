@@ -5,16 +5,15 @@
 // Object.c
 // Object management code
 
-#include <GlobalConst.h>
+#include "Object.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Kernel.h"
+#include "OS.h"
+#include "Str.h"
+#include "Tick64.h"
+#include "Tracking.h"
 
 // Thread to try to lock
 void CheckDeadLockThread(THREAD *t, void *param)

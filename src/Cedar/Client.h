@@ -8,15 +8,13 @@
 #ifndef	CLIENT_H
 #define	CLIENT_H
 
+#include "Account.h"
+#include "Session.h"
+#include "Wpc.h"
+
 #define	CLIENT_CONFIG_PORT					GC_CLIENT_CONFIG_PORT		// Client port number
 #define	CLIENT_NOTIFY_PORT					GC_CLIENT_NOTIFY_PORT		// Client notification port number
 #define CLIENT_WAIT_CN_READY_TIMEOUT		(10 * 1000)	// Standby time to start the client notification service
-
-
-// Check whether the client can run on the specified OS_TYPE
-#define	IS_CLIENT_SUPPORTED_OS(t)			\
-	((OS_IS_WINDOWS_NT(t) && GET_KETA(t, 100) >= 2) || (OS_IS_WINDOWS_9X(t)))
-
 
 // Constants
 #define	CLIENT_CONFIG_FILE_NAME				"$vpn_client.config"
@@ -420,7 +418,6 @@ struct REMOTE_CLIENT
 	RPC *Rpc;
 	UINT OsType;
 	bool Unix;
-	bool Win9x;
 	UINT ProcessId;
 	UINT ClientBuildInt;
 	bool IsVgcSupported;
@@ -643,7 +640,6 @@ void CiFreeGetCa(RPC_GET_CA *a);
 void CiFreeGetIssuer(RPC_GET_ISSUER *a);
 void CiFreeClientEnumAccount(RPC_CLIENT_ENUM_ACCOUNT *a);
 void CiSetError(CLIENT *c, UINT err);
-void CiCheckOs();
 CLIENT *CiNewClient();
 void CiCleanupClient(CLIENT *c);
 bool CiLoadConfigurationFile(CLIENT *c);
@@ -750,11 +746,9 @@ void OutRpcTrafficEx(TRAFFIC *t, PACK *p, UINT i, UINT num);
 void OutRpcCmSetting(PACK *p, CM_SETTING *c);
 void InRpcCmSetting(CM_SETTING *c, PACK *p);
 
-
-#ifdef	OS_WIN32
+#ifdef OS_WIN32
+typedef struct MS_DRIVER_VER MS_DRIVER_VER;
 void CiInitDriverVerStruct(MS_DRIVER_VER *ver);
 #endif	// OS_EIN32
 
 #endif	// CLIENT_H
-
-

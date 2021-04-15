@@ -8,6 +8,10 @@
 #ifndef	UDPACCEL_H
 #define	UDPACCEL_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Network.h"
+
 // Constants
 #define	UDP_ACCELERATION_COMMON_KEY_SIZE_V1	20			// V1: Common key size
 #define	UDP_ACCELERATION_PACKET_KEY_SIZE_V1	20			// V1: Key size for the packet
@@ -39,7 +43,8 @@
 #define	UDP_SERVER_PORT_LOWER				40000		// Minimum port
 #define	UDP_SERVER_PORT_HIGHER				44999		// Maximum port
 
-// NAT-T port signature to be embedded in the Keep Alive of the session
+// NAT-T signatures to be embedded in the Keep Alive of the session
+#define	UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE			"NATT_MY_IP"
 #define	UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE			"NATT_MY_PORT"
 
 // UDP Acceleration Mode
@@ -55,11 +60,18 @@ struct UDP_ACCEL
 	UCHAR MyKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];	// Send-direction common key
 	UCHAR YourKey[UDP_ACCELERATION_COMMON_KEY_SIZE_V1];	// Receive-direction common key
 	SOCK *UdpSock;										// UDP socket
-	UINT MyPort;										// My port number
-	UINT YourPort;										// Port number of the other party
 	IP MyIp;											// My IP address
-	IP YourIp;											// IP address of the other party
-	IP YourIp2;											// IP address of the other party (second)
+	IP MyIpNatT;										// My IP address, found via the NAT-T server
+	USHORT MyPort;										// My port number
+	USHORT MyPortNatT;									// My port number, found via the NAT-T server
+	bool MyIpOrPortNatTChanged;							// NAT-T server reported a new IP or port for me
+	IP YourIp;											// IP address of the peer (current)
+	IP YourIpReported;									// IP address of the peer (reported)
+	IP YourIpNatT;										// IP address of the peer, found via the NAT-T server
+	USHORT YourPort;									// Port number of the peer (current)
+	USHORT YourPortReported;							// Port number of the peer (reported)
+	USHORT YourPortNatT;								// Port number of the peer, found via the NAT-T server
+	bool YourIpOrPortNatTChanged;						// NAT-T server reported a new IP or port for the peer
 	bool IsIPv6;										// Whether it's an IPv6
 	UCHAR TmpBuf[UDP_ACCELERATION_TMP_BUF_SIZE];		// Temporary buffer
 	UINT64 LastRecvYourTick;							// Opponent's tick value of the last reception
@@ -83,10 +95,6 @@ struct UDP_ACCEL
 	EVENT *NatT_HaltEvent;								// Halting event of IP address acquisition thread of NAT-T server
 	UINT64 NextPerformNatTTick;							// Time to communicate with NAT-T server next time
 	UINT CommToNatT_NumFail;							// Number of failures to communicate with NAT-T server
-	UINT MyPortByNatTServer;							// Self port number which is received from the NAT-T server
-	bool MyPortByNatTServerChanged;						// The self port number which is received from the NAT-T server changes
-	UINT YourPortByNatTServer;							// Port number of the opponent that was found via the NAT-T server
-	bool YourPortByNatTServerChanged;					// Port number of the opponent that was found via the NAT-T server has been changed
 	bool FatalError;									// A fatal error occurred
 	bool NatT_IP_Changed;								// IP address of the NAT-T server has changed
 	UINT64 NatT_TranId;									// Transaction ID to be exchanged with the NAT-T server
@@ -110,8 +118,8 @@ struct UDP_ACCEL
 // Function prototype
 UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port, bool no_nat_t);
 void FreeUdpAccel(UDP_ACCEL *a);
-bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *server_key, IP *server_ip, UINT server_port, UINT server_cookie, UINT client_cookie, IP *server_ip_2);
-bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT client_port, IP *client_ip_2);
+bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_ip, USHORT port, UINT cookie, UINT my_cookie);
+bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_ip, USHORT port);
 void UdpAccelPoll(UDP_ACCEL *a);
 void UdpAccelSetTick(UDP_ACCEL *a, UINT64 tick64);
 BLOCK *UdpAccelProcessRecvPacket(UDP_ACCEL *a, UCHAR *buf, UINT size, IP *src_ip, UINT src_port);
@@ -123,5 +131,3 @@ UINT UdpAccelCalcMss(UDP_ACCEL *a);
 void NatT_GetIpThread(THREAD *thread, void *param);
 
 #endif	// UDPACCEL_H
-
-

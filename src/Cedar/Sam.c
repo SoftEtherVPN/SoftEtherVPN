@@ -5,8 +5,31 @@
 // Sam.c
 // Security Accounts Manager
 
-#include "CedarPch.h"
+#include "Sam.h"
 
+#include "Account.h"
+#include "Cedar.h"
+#include "Hub.h"
+#include "IPC.h"
+#include "Proto_PPP.h"
+#include "Radius.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+
+#include <string.h>
+
+#ifdef OS_UNIX
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <signal.h>
+#include <unistd.h>
+#endif
 
 int base64_enc_len(unsigned int plainLen) {
 	unsigned int n = plainLen;

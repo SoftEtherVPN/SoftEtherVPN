@@ -5,7 +5,21 @@
 // NativeStack.c
 // Native IP stack
 
-#include "CedarPch.h"
+#include "NativeStack.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "IPC.h"
+#include "Virtual.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+
+#ifdef OS_UNIX
+#include "Mayaqua/Unix.h"
+#endif
 
 // Stack main thread
 void NsMainThread(THREAD *thread, void *param)
@@ -669,30 +683,26 @@ UINT GenerateDummyMark(PRAND *p)
 // Generate a dummy IP
 void GenerateDummyIp(PRAND *p, IP *ip)
 {
-	UINT i;
 	if (p == NULL || ip == NULL)
 	{
 		return;
 	}
 
-	Zero(ip, sizeof(IP));
+	ZeroIP4(ip);
+	BYTE *ipv4 = IPV4(ip->address);
 
-	for (i = 1;i < 4;i++)
+	for (BYTE i = 1; i < IPV4_SIZE; ++i)
 	{
-		UINT v = 0;
-		while (true)
+		BYTE v = 0;
+		while (v == 0 || v > 254)
 		{
 			v = PRandInt(p) % 256;
-			if (v >= 1 && v <= 254)
-			{
-				break;
-			}
 		}
 
-		ip->addr[i] = (UCHAR)v;
+		IPV4(ip->address)[i] = v;
 	}
 
-	ip->addr[0] = 127;
+	IPV4(ip->address)[0] = 127;
 }
 
 // Search an entry

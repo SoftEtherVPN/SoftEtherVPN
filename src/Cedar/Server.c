@@ -5,7 +5,38 @@
 // Server.c
 // VPN Server module
 
-#include "CedarPch.h"
+#include "Server.h"
+
+#include "Admin.h"
+#include "AzureClient.h"
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Connection.h"
+#include "DDNS.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Nat.h"
+#include "Proto_IPsec.h"
+#include "Protocol.h"
+#include "Radius.h"
+#include "Sam.h"
+#include "SecureNAT.h"
+#include "WinUi.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/OS.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
 
 static SERVER *server = NULL;
 static LOCK *server_lock = NULL;
@@ -400,6 +431,11 @@ void SiCheckDeadLockMain(SERVER *s, UINT timeout)
 		if (cedar->CaList != NULL)
 		{
 			CheckDeadLock(cedar->CaList->lock, timeout, "cedar->CaList->lock");
+		}
+
+		if (cedar->WgkList != NULL)
+		{
+			CheckDeadLock(cedar->WgkList->lock, timeout, "cedar->WgkList->lock");
 		}
 
 		if (cedar->TrafficLock != NULL)
@@ -1573,7 +1609,7 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 	AddCapsBool(t, "b_support_ipv6_ac", true);
 
 	// Support for VLAN tagged packet transmission configuration tool
-	AddCapsBool(t, "b_support_eth_vlan", (OS_IS_WINDOWS_NT(GetOsType()) && GET_KETA(GetOsType(), 100) >= 2));
+	AddCapsBool(t, "b_support_eth_vlan", true);
 
 	// Support for the message display function when the VPN connect to the Virtual HUB
 	AddCapsBool(t, "b_support_msg", true);
@@ -2279,6 +2315,8 @@ void SiSetDefaultHubOption(HUB_OPTION *o)
 		return;
 	}
 
+	o->DefaultGateway = SetIP32(192, 168, 30, 1);
+	o->DefaultSubnet = SetIP32(255, 255, 255, 0);
 	o->MaxSession = 0;
 	o->VlanTypeId = MAC_PROTO_TAGVLAN;
 	o->NoIPv6DefaultRouterInRAWhenIPv6 = true;
@@ -2675,15 +2713,12 @@ bool SiIsAzureSupported(SERVER *s)
 // Read the server settings from the CFG
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 {
-	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f;
+	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9;
 	// Validate arguments
 	if (s == NULL || root == NULL)
 	{
 		return false;
 	}
-
-	f = NULL;
-
 
 	f1 = CfgGetFolder(root, "ServerConfiguration");
 	f2 = CfgGetFolder(root, "VirtualHUB");
@@ -2693,6 +2728,7 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 	f6 = CfgGetFolder(root, "LicenseManager");
 	f7 = CfgGetFolder(root, "IPsec");
 	f8 = CfgGetFolder(root, "DDnsClient");
+	f9 = CfgGetFolder(root, "WireGuardKeyList");
 
 	if (f1 == NULL)
 	{
@@ -2734,6 +2770,30 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 
 	if (s->ServerType != SERVER_TYPE_FARM_MEMBER)
 	{
+		TOKEN_LIST *t = CfgEnumFolderToTokenList(f9);
+		if (t != NULL)
+		{
+			LockList(s->Cedar->WgkList);
+			{
+				UINT i;
+				for (i = 0; i < t->NumTokens; ++i)
+				{
+					const char *name = t->Token[i];
+					FOLDER *f = CfgGetFolder(f9, name);
+					if (f != NULL)
+					{
+						WGK *wgk = Malloc(sizeof(WGK));
+						StrCpy(wgk->Key, sizeof(wgk->Key), name);
+						CfgGetStr(f, "Hub", wgk->Hub, sizeof(wgk->Hub));
+						CfgGetStr(f, "User", wgk->User, sizeof(wgk->User));
+						Add(s->Cedar->WgkList, wgk);
+					}
+				}
+			}
+			UnlockList(s->Cedar->WgkList);
+			FreeToken(t);
+		}
+
 		SiLoadHubs(s, f2);
 	}
 
@@ -2812,27 +2872,7 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 		}
 	}
 
-
-	{
-		HUB *h = NULL;
-
-		// Remove the virtual HUB "VPNGATE" when VGS disabled
-		LockHubList(s->Cedar);
-		{
-			h = GetHub(s->Cedar, VG_HUBNAME);
-		}
-		UnlockHubList(s->Cedar);
-
-		if (h != NULL)
-		{
-			StopHub(h);
-			DelHub(s->Cedar, h);
-			ReleaseHub(h);
-		}
-	}
-
 	s->IPsecMessageDisplayed = CfgGetBool(root, "IPsecMessageDisplayed");
-
 
 	return true;
 }
@@ -3100,9 +3140,28 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 
 	SiWriteServerCfg(CfgCreateFolder(root, "ServerConfiguration"), s);
 
-
 	if (s->UpdatedServerType != SERVER_TYPE_FARM_MEMBER)
 	{
+		FOLDER *f = CfgCreateFolder(root, "WireGuardKeyList");
+		if (f != NULL)
+		{
+			LockList(s->Cedar->WgkList);
+			{
+				UINT i;
+				for (i = 0; i < LIST_NUM(s->Cedar->WgkList); ++i)
+				{
+					WGK *wgk = LIST_DATA(s->Cedar->WgkList, i);
+					FOLDER *ff = CfgCreateFolder(f, wgk->Key);
+					if (ff != NULL)
+					{
+						CfgAddStr(ff, "Hub", wgk->Hub);
+						CfgAddStr(ff, "User", wgk->User);
+					}
+				}
+			}
+			UnlockList(s->Cedar->WgkList);
+		}
+
 		SiWriteHubs(CfgCreateFolder(root, "VirtualHUB"), s);
 	}
 
@@ -3757,6 +3816,8 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 		return;
 	}
 
+	o->DefaultGateway = CfgGetIp32(f, "DefaultGateway");
+	o->DefaultSubnet = CfgGetIp32(f, "DefaultSubnet");
 	o->MaxSession = CfgGetInt(f, "MaxSession");
 	o->NoArpPolling = CfgGetBool(f, "NoArpPolling");
 	o->NoIPv6AddrPolling = CfgGetBool(f, "NoIPv6AddrPolling");
@@ -3904,6 +3965,8 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 		return;
 	}
 
+	CfgAddIp32(f, "DefaultGateway", o->DefaultGateway);
+	CfgAddIp32(f, "DefaultSubnet", o->DefaultSubnet);
 	CfgAddInt(f, "MaxSession", o->MaxSession);
 	CfgAddBool(f, "NoArpPolling", o->NoArpPolling);
 	CfgAddBool(f, "NoIPv6AddrPolling", o->NoIPv6AddrPolling);
@@ -10293,6 +10356,27 @@ int CompareHubList(void *p1, void *p2)
 		return 0;
 	}
 	return StrCmpi(h1->Name, h2->Name);
+}
+
+// Search in WireGuard key list
+int CompareWgk(void *p1, void *p2)
+{
+	WGK *wgk_1, *wgk_2;
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		return (p1 == NULL && p2 == NULL ? 0 : (p1 == NULL ? -1 : 1));
+	}
+
+	wgk_1 = *(WGK **)p1;
+	wgk_2 = *(WGK **)p2;
+
+	if (wgk_1 == NULL || wgk_2 == NULL)
+	{
+		return (wgk_1 == NULL && wgk_2 == NULL ? 0 : (wgk_1 == NULL ? -1 : 1));
+	}
+
+	return StrCmp(wgk_1->Key, wgk_2->Key);
 }
 
 // Connection thread to the controller

@@ -5,7 +5,18 @@
 // UdpAccel.c
 // UDP acceleration function
 
-#include "CedarPch.h"
+#include "UdpAccel.h"
+
+#include "Connection.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
+
+#include <stdlib.h>
 
 // Polling process
 void UdpAccelPoll(UDP_ACCEL *a)
@@ -52,33 +63,30 @@ void UdpAccelPoll(UDP_ACCEL *a)
 			if (a->UseUdpIpQuery && a->UdpIpQueryPacketSize >= 8 && CmpIpAddr(&a->UdpIpQueryHost, &src_ip) == 0 &&
 				src_port == a->UdpIpQueryPort)
 			{
+				/*
 				// Receive a response of the query for IP and port number
 				IP my_ip = {0};
 				UINT myport = 0;
 				BUF *b = MemToBuf(a->UdpIpQueryPacketData, a->UdpIpQueryPacketSize);
-
-
 				FreeBuf(b);
+				*/
 			}
 			else if (IsZeroIp(&nat_t_ip) == false && CmpIpAddr(&nat_t_ip, &src_ip) == 0 &&
 				src_port == UDP_NAT_T_PORT)
 			{
 				// Receive a response from the NAT-T server
-				IP my_ip;
-				UINT myport;
-
-				if (RUDPParseIPAndPortStr(tmp, ret, &my_ip, &myport))
+				IP ip;
+				UINT port;
+				if (RUDPParseIPAndPortStr(tmp, ret, &ip, &port))
 				{
-					if (myport >= 1 && myport <= 65535)
+					if (a->MyPortNatT != port && port >= 1 && port <= 65535)
 					{
-						if (a->MyPortByNatTServer != myport)
-						{
-							a->MyPortByNatTServer = myport;
-							a->MyPortByNatTServerChanged = true;
-							a->CommToNatT_NumFail = 0;
+						Debug("NAT-T: MyIP = %r, MyPort = %hu\n", &ip, port);
 
-							Debug("NAT-T: MyPort = %u\n", myport);
-						}
+						a->CommToNatT_NumFail = 0;
+						Copy(&a->MyIpNatT, &ip, sizeof(a->MyIpNatT));
+						a->MyPortNatT = port;
+						a->MyIpOrPortNatTChanged = true;
 					}
 				}
 /*
@@ -164,9 +172,9 @@ void UdpAccelPoll(UDP_ACCEL *a)
 	}
 
 	// Send a Keep-Alive packet
-	if (a->NextSendKeepAlive == 0 || (a->NextSendKeepAlive <= a->Now) || a->YourPortByNatTServerChanged)
+	if (a->NextSendKeepAlive == 0 || (a->NextSendKeepAlive <= a->Now) || a->YourIpOrPortNatTChanged)
 	{
-		a->YourPortByNatTServerChanged = false;
+		a->YourIpOrPortNatTChanged = false;
 
 		if (UdpAccelIsSendReady(a, false))
 		{
@@ -208,7 +216,7 @@ void UdpAccelPoll(UDP_ACCEL *a)
 					//PACK *p = NewPack();
 					//BUF *b;
 
-					if (a->MyPortByNatTServer != 0)
+					if (a->MyPortNatT != 0)
 					{
 						rand_interval = GenRandInterval(UDP_NAT_T_INTERVAL_MIN, UDP_NAT_T_INTERVAL_MAX);
 					}
@@ -448,12 +456,14 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT ma
 
 	SetSockHighPriority(a->UdpSock, high_priority);
 
-	ret = SendTo(a->UdpSock, &a->YourIp, a->YourPort, buffer, size);
-	if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+	if (SendTo(a->UdpSock, &a->YourIp, a->YourPort, buffer, size) == 0)
 	{
-		a->FatalError = true;
 		Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp, a->YourPort, size);
-		return;
+		if (a->UdpSock->IgnoreSendErr == false)
+		{
+			a->FatalError = true;
+			return;
+		}
 	}
 
 	if (data_size > 0 || UdpAccelIsSendReady(a, true))
@@ -461,42 +471,50 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT ma
 		return;
 	}
 
-	if (a->YourPortByNatTServer != 0 && a->YourPortByNatTServer != a->YourPort)
-	{
-		ret = SendTo(a->UdpSock, &a->YourIp, a->YourPortByNatTServer, buffer, size);
-		if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
-		{
-			a->FatalError = true;
-			Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp, a->YourPortByNatTServer, size);
-			return;
-		}
-	}
+	Debug("UdpAccelSend(): Peer has not replied in a while, sending keep-alive packet to alt destinations...\n");
 
-	if (UdpAccelIsSendReady(a, true))
-	{
-		return;
-	}
+	IP *ips[3];
+	ips[0] = &a->YourIp;
+	ips[1] = CmpIpAddr(&a->YourIpReported, &a->YourIp) == 0 ? NULL : &a->YourIpReported;
+	ips[2] = CmpIpAddr(&a->YourIpNatT, &a->YourIp) == 0 || CmpIpAddr(&a->YourIpNatT, &a->YourIpReported) == 0 ? NULL : &a->YourIpNatT;
 
-	if (IsZeroIP(&a->YourIp2) == false && CmpIpAddr(&a->YourIp, &a->YourIp2) != 0)
+	USHORT ports[3];
+	ports[0] = a->YourPort;
+	ports[1] = a->YourPortReported == a->YourPort ? 0 : a->YourPortReported;
+	ports[2] = a->YourPortNatT == a->YourPort || a->YourPortNatT == a->YourPortReported ? 0 : a->YourPortNatT;
+
+	for (BYTE i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i)
 	{
-		// We sent the packet, but the remote host didn't reply.
-		// It may be behind a NAT, let's try to send the packet to the alternative IP address.
-		ret = SendTo(a->UdpSock, &a->YourIp2, a->YourPort, buffer, size);
-		if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+		if (IsZeroIP(ips[i]))
 		{
-			a->FatalError = true;
-			Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp2, a->YourPort, size);
-			return;
+			continue;
 		}
 
-		if (a->YourPortByNatTServer != 0 && a->YourPortByNatTServer != a->YourPort)
+		for (BYTE j = 0; j < sizeof(ports) / sizeof(ports[0]); ++j)
 		{
-			ret = SendTo(a->UdpSock, &a->YourIp2, a->YourPortByNatTServer, buffer, size);
-			if (ret == 0 && a->UdpSock->IgnoreSendErr == false)
+			if (ports[j] == 0)
 			{
-				a->FatalError = true;
-				Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", &a->YourIp2, a->YourPortByNatTServer, size);
-				return;
+				continue;
+			}
+
+			if (CmpIpAddr(ips[i], &a->YourIp) == 0 && ports[j] == a->YourPort)
+			{
+				continue;
+			}
+
+			if (SendTo(a->UdpSock, ips[i], ports[j], buffer, size) == 0)
+			{
+				Debug("UdpAccelSend(): SendTo() failed! IP: %r, port: %u, size: %u\n", ips[i], ports[j], size);
+				if (a->UdpSock->IgnoreSendErr == false)
+				{
+					a->FatalError = true;
+					return;
+				}
+			}
+
+			if (UdpAccelIsSendReady(a, true))
+			{
+				break;
 			}
 		}
 	}
@@ -799,19 +817,18 @@ void UdpAccelSetTick(UDP_ACCEL *a, UINT64 tick64)
 }
 
 // Initialize the server-side
-bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT client_port, IP *client_ip_2)
+bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_ip, USHORT port)
 {
-	char tmp[MAX_SIZE];
 	// Validate arguments
-	if (a == NULL || client_key == NULL)
+	if (a == NULL || key == NULL || detected_ip == NULL || port == 0)
 	{
 		return false;
 	}
 
-	IPToStr(tmp, sizeof(tmp), client_ip);
-	Debug("UdpAccelInitServer(): version: %u, client IP: %s, client port: %u, server cookie: %u, client cookie: %u\n", a->Version, tmp, client_port, a->MyCookie, a->YourCookie);
+	Debug("UdpAccelInitServer(): Version: %u, detected_ip: %r, reported_ip: %r, port: %hu, YourCookie: %u, MyCookie: %u\n",
+		  a->Version, detected_ip, reported_ip, port, a->YourCookie, a->MyCookie);
 
-	if (IsIP6(client_ip) != a->IsIPv6)
+	if (IsIP6(detected_ip) != a->IsIPv6)
 	{
 		return false;
 	}
@@ -822,16 +839,17 @@ bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT cli
 		a->CipherDecrypt = NewCipher("ChaCha20-Poly1305");
 
 		SetCipherKey(a->CipherEncrypt, a->MyKey_V2, true);
-		SetCipherKey(a->CipherDecrypt, client_key, false);
+		SetCipherKey(a->CipherDecrypt, key, false);
 	}
 	else
 	{
-		Copy(a->YourKey, client_key, sizeof(a->YourKey));
+		Copy(a->YourKey, key, sizeof(a->YourKey));
 	}
 
-	Copy(&a->YourIp, client_ip, sizeof(IP));
-	Copy(&a->YourIp2, client_ip_2, sizeof(IP));
-	a->YourPort = client_port;
+	Copy(&a->YourIp, detected_ip, sizeof(a->YourIp));
+	Copy(&a->YourIpReported, reported_ip, sizeof(a->YourIpReported));
+
+	a->YourPort = a->YourPortReported = port;
 
 	a->Now = Tick64();
 
@@ -841,19 +859,18 @@ bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *client_key, IP *client_ip, UINT cli
 }
 
 // Initialize the client-side
-bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *server_key, IP *server_ip, UINT server_port, UINT server_cookie, UINT client_cookie, IP *server_ip_2)
+bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_ip, USHORT port, UINT cookie, UINT my_cookie)
 {
-	char tmp[MAX_SIZE];
 	// Validate arguments
-	if (a == NULL || server_key == NULL || server_ip == NULL || server_port == 0)
+	if (a == NULL || key == NULL || detected_ip == NULL || port == 0)
 	{
 		return false;
 	}
 
-	IPToStr(tmp, sizeof(tmp), server_ip);
-	Debug("UdpAccelInitClient(): version: %u, client IP: %s, client port: %u, server cookie: %u, client cookie: %u\n", a->Version, tmp, server_port, server_cookie, client_cookie);
+	Debug("UdpAccelInitClient(): Version: %u, detected_ip: %s, reported_ip: %s, port: %hu, cookie: %u, my_cookie: %u\n",
+		  a->Version, detected_ip, reported_ip, port, cookie, my_cookie);
 
-	if (IsIP6(server_ip) != a->IsIPv6)
+	if (IsIP6(detected_ip) != a->IsIPv6)
 	{
 		return false;
 	}
@@ -864,21 +881,22 @@ bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *server_key, IP *server_ip, UINT ser
 		a->CipherDecrypt = NewCipher("ChaCha20-Poly1305");
 
 		SetCipherKey(a->CipherEncrypt, a->MyKey_V2, true);
-		SetCipherKey(a->CipherDecrypt, server_key, false);
+		SetCipherKey(a->CipherDecrypt, key, false);
 	}
 	else
 	{
-		Copy(a->YourKey, server_key, sizeof(a->YourKey));
+		Copy(a->YourKey, key, sizeof(a->YourKey));
 	}
 
-	Copy(&a->YourIp, server_ip, sizeof(IP));
-	Copy(&a->YourIp2, server_ip_2, sizeof(IP));
-	a->YourPort = server_port;
+	Copy(&a->YourIp, detected_ip, sizeof(a->YourIp));
+	Copy(&a->YourIpReported, reported_ip, sizeof(a->YourIpReported));
+
+	a->YourPort = a->YourPortReported = port;
 
 	a->Now = Tick64();
 
-	a->MyCookie = client_cookie;
-	a->YourCookie = server_cookie;
+	a->MyCookie = my_cookie;
+	a->YourCookie = cookie;
 
 	a->Inited = true;
 
@@ -967,7 +985,7 @@ UDP_ACCEL *NewUdpAccel(CEDAR *cedar, IP *ip, bool client_mode, bool random_port,
 	Rand(a->MyKey, sizeof(a->MyKey));
 	Rand(a->MyKey_V2, sizeof(a->MyKey_V2));
 
-	Copy(&a->MyIp, ip, sizeof(IP));
+	Copy(&a->MyIp, ip, sizeof(a->MyIp));
 	a->MyPort = s->LocalPort;
 
 	a->IsIPv6 = IsIP6(ip);

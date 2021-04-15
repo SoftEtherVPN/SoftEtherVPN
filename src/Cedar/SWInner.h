@@ -8,6 +8,8 @@
 #ifndef	SW_INNER_H
 #define	SW_INNER_H
 
+#include "WinUi.h"
+
 // Component string
 #define	SW_NAME_VPNSERVER			"vpnserver"
 #define	SW_LONG_VPNSERVER			_UU("SW_LONG_VPNSERVER")
@@ -286,8 +288,6 @@ void SwFreeLogFile(SW_LOGFILE *logfile);
 
 void SwInstallShortcuts(SW *sw, WIZARD_PAGE *wp, SW_COMPONENT *c, SW_TASK *t);
 void SwDeleteShortcuts(SW_LOGFILE *logfile);
-
-bool SwCheckOs(SW *sw, SW_COMPONENT *c);
 
 bool SwEnterSingle(SW *sw);
 void SwLeaveSingle(SW *sw);

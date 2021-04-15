@@ -1786,6 +1786,7 @@ LS_SSL_START				连接 "%S" 的 SSL 通信已启动。加密算法名为 "%S"。
 LS_CONNECTION_ERROR			连接 "%S"因原因 "%s" (代码 %u)已终止。
 LS_FARMMEMBER_NOT_ADMIN		连接 "%S": 服务端是群集成员，但客户端在非管理员 (%S) 用户情况下，尝试直接与虚拟 HUB "%S" 连接。客户端用户名为 "%S"。访问被拒绝。
 LS_HUB_NOT_FOUND			连接 "%S": 客户端正在尝试连接的虚拟 HUB "%S" 在服务端上不存在。
+LS_WG_KEY_NOT_FOUND			Connection "%S": The WireGuard key is not associated with a user on the server.
 LS_IP_DENIED				连接 "%S": 基于虚拟 HUB 上定义的源 IP 访问限制列表，客户端的源 IP 地址 "%S" 被拒绝。
 LS_LICENSE_ERROR			连接 "%S": 因为发生许可证相关错误，客户端无法连接到服务端。
 LS_BETA_EXPIRES				SoftEther VPN Server 测试版已过期。测试版使用期限已到。请从 http://selinks.org/ 下载新的测试版或完整版。
@@ -1815,6 +1816,16 @@ LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. M
 LP_PREFIX_SESSION		[%s] %r:%u -> %r:%u (%s): 
 LP_SESSION_CREATED		Session created.
 LP_SESSION_DELETED		Session deleted.
+
+
+# (WireGuard log)
+LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
+LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
+LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
+LW_DECRYPT_FAIL		Decryption failure!
+LW_REPLAY_ATTACK	Replay attack detected!
+LW_FLOOD_ATTACK		Flood attack detected!
+LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
 
 
 # (OpenVPN Logs)
@@ -1919,7 +1930,8 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
-LH_AUTH_OPENVPN_CERT    OpenVPN certificate authentication
+LH_AUTH_WIREGUARD_KEY		WireGuard public key authentication
+LH_AUTH_OPENVPN_CERT		OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为 RADIUS 身份验证或 Active Directory 身份验证 (NT 域验证)。然而，这样一个外部用户身份验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
 LH_AUTH_CERT_NOT_SUPPORT_ON_OPEN_SOURCE	"%S" 的连接方法: 用户 "%S" 的身份验证方法被指定为证书认证。然而，证书验证功能尚未在 SoftEther VPN 的开源版本上实施。该连接将被拒绝。
@@ -2016,6 +2028,8 @@ LA_SET_FARM_SETTING			群集设置变更完成。
 LA_SET_SERVER_CERT			服务端证书设定完成。
 LA_REGENERATE_SERVER_CERT	服务器证书再次生成。新 CN："%S"
 LA_SET_SERVER_CIPHER		服务端的新加密算法名设定完成。新加密算法为 "%S"。
+LA_ADD_WGK					Added %u WireGuard key(s).
+LA_DELETE_WGK				Deleted %u WireGuard key(s).
 LA_CREATE_HUB				已创建新虚拟 HUB "%S"。
 LA_SET_HUB					已变更虚拟 HUB 设置。
 LA_DELETE_HUB				已删除虚拟 HUB "%S"。
@@ -5023,6 +5037,35 @@ CMD_LogFileGet_SAVE_FAILED	无法写入指定的文件。
 CMD_LogFileGet_FILESIZE		日志文件的大小: %u
 
 
+# WgkAdd 命令
+CMD_WgkAdd				Add a WireGuard key
+CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
+CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
+CMD_WgkAdd_HUB			Hub the key will be associated to.
+CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
+CMD_WgkAdd_Prompt_[key]	Key: 
+CMD_WgkAdd_Prompt_HUB	Hub: 
+CMD_WgkAdd_Prompt_USER	User: 
+
+
+# WgkDelete 命令
+CMD_WgkDelete				Delete a WireGuard key
+CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete_Args			WgkDelete [key]
+CMD_WgkDelete_[key]			WireGuard key.
+CMD_WgkDelete_Prompt_[key]	Key: 
+
+
+# WgkEnum 命令
+CMD_WgkEnum				List the WireGuard keys
+CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum_Args		WgkEnum
+CMD_WgkEnum_Column_Key	Key
+CMD_WgkEnum_Column_Hub	Hub
+CMD_WgkEnum_Column_User	User
+
+
 # HubCreate 命令
 CMD_HubCreate				创建新的虚拟 HUB
 CMD_HubCreate_Help			在 VPN Server 上创建一个新的虚拟 HUB。\n创建的虚拟 HUB 将立即开始工作。\n当 VPN Server，在一个群集中运行，此命令仅对群集控制器有效。新的虚拟 HUB，将作为一个动态的虚拟 HUB。应用 HubSetStatic 命令也可将虚拟 HUB 改为静态的。要想获取已经存储在 VPN Server 上的 HUB，可以运行 HubList 命令获得列表。\n要运行此命令，需要 VPN Server 管理员权限。\n此外，此命令在 VPN Bridge 和群集管理服务器中不起作用。\n在群集上创建虚拟群集控制器 HUB 时，请运行 HubCreateStatic 或者 HubCreateDynamic 命令。(对群集控制器操作时，HubCreate 和 HubCreateDynamic就有相同的功能)。
@@ -5100,6 +5143,16 @@ CMD_Offline_Help			如果您正在管理的虚拟 HUB 在线，设置成脱机�
 CMD_Offline_Args			Offline
 
 
+# SetStaticNetwork 命令
+CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
+CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
+CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
+CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
+CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
+CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+
+
 # SetMaxSession 命令
 CMD_SetMaxSession			设定虚拟 HUB 的最大同时在线用户数量
 CMD_SetMaxSession_Help		设定现在正在管理的虚拟 HUB 的最大同时在线客户数量。当超过这个数量时，如果从 VPN Client 和 VPN Bridge 连接的时候，超过了最大并发会话数，更多的客户将无法连接。最大同时在线客户数的限制不包括本地的网桥，虚拟的 NAT，级联连接等生成连接不包括在内。\n设置同时在线最大数目，可以通过运行 OptionsGet 命令获得。\n此命令，在 VPN Bridge 中不会运行。\n此命令在集群虚拟 HUB 中不能运行。
@@ -5136,7 +5189,8 @@ CMD_OptionsGet_ENUM			对于匿名用户的虚拟 HUB 的显示
 CMD_OptionsGet_MAXSESSIONS	最大同时在线客户数
 CMD_OptionsGet_STATUS		状态
 CMD_OptionsGet_TYPE			虚拟 HUB 的类型
-
+CMD_OptionsGet_GATEWAY		Default gateway
+CMD_OptionsGet_SUBNET		Default subnet
 
 
 # RadiusServerSet 命令

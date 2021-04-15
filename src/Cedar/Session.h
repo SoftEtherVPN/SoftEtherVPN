@@ -8,6 +8,7 @@
 #ifndef	SESSION_H
 #define	SESSION_H
 
+#include "Cedar.h"
 
 // Interval to increment the number of logins after the connection
 #define	NUM_LOGIN_INCREMENT_INTERVAL		(30 * 1000)

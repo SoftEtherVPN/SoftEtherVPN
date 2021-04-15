@@ -8,6 +8,8 @@
 #ifndef	SW_H
 #define	SW_H
 
+#include "Mayaqua/MayaType.h"
+
 #define	SW_REG_KEY					"Software\\" GC_REG_COMPANY_NAME "\\Setup Wizard Settings"
 
 

@@ -5,7 +5,14 @@
 // Remote.c
 // Remote Procedure Call
 
-#include "CedarPch.h"
+#include "Remote.h"
+
+#include "Admin.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
 
 // End of RPC
 void EndRpc(RPC *rpc)

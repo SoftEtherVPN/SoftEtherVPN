@@ -5,7 +5,22 @@
 // Proto_IKE.c
 // IKE (ISAKMP) and ESP protocol stack
 
-#include "CedarPch.h"
+#include "Proto_IKE.h"
+
+#include "Cedar.h"
+#include "Connection.h"
+#include "Logging.h"
+#include "Proto_EtherIP.h"
+#include "Proto_IPsec.h"
+#include "Proto_L2TP.h"
+#include "Server.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/TcpIp.h"
+#include "Mayaqua/Tick64.h"
 
 //#define	RAW_DEBUG
 
@@ -128,8 +143,8 @@ void IPsecSendPacketByIPsecSa(IKE_SERVER *ike, IPSECSA *sa, UCHAR *data, UINT da
 				h.PayloadLength = Endian16(data_size);
 				h.NextHeader = protocol_id;
 				h.HopLimit = 64;
-				Copy(h.SrcAddress.Value, c->TunnelModeServerIP.ipv6_addr, 16);
-				Copy(h.DestAddress.Value, c->TunnelModeClientIP.ipv6_addr, 16);
+				Copy(h.SrcAddress.Value, c->TunnelModeServerIP.address, sizeof(h.SrcAddress.Value));
+				Copy(h.DestAddress.Value, c->TunnelModeClientIP.address, sizeof(h.DestAddress.Value));
 
 				WriteBuf(b, &h, sizeof(IPV6_HEADER));
 
@@ -344,16 +359,16 @@ void IPsecSendUdpPacket(IKE_SERVER *ike, IKE_CLIENT *c, UINT src_port, UINT dst_
 	{
 		if (IsIPsecSaTunnelMode(c->CurrentIpSecSaSend) == false)
 		{
-			u->Checksum = CalcChecksumForIPv6((IPV6_ADDR *)c->TransportModeServerIP.ipv6_addr,
-				(IPV6_ADDR *)c->TransportModeClientIP.ipv6_addr,
+			u->Checksum = CalcChecksumForIPv6((IPV6_ADDR *)c->TransportModeServerIP.address,
+				(IPV6_ADDR *)c->TransportModeClientIP.address,
 				IP_PROTO_UDP,
 				u,
 				udp_size, 0);
 		}
 		else
 		{
-			u->Checksum = CalcChecksumForIPv6((IPV6_ADDR *)c->TunnelModeServerIP.ipv6_addr,
-				(IPV6_ADDR *)c->TunnelModeClientIP.ipv6_addr,
+			u->Checksum = CalcChecksumForIPv6((IPV6_ADDR *)c->TunnelModeServerIP.address,
+				(IPV6_ADDR *)c->TunnelModeClientIP.address,
 				IP_PROTO_UDP,
 				u,
 				udp_size, 0);
@@ -2892,12 +2907,12 @@ void ProcIkeAggressiveModePacketRecv(IKE_SERVER *ike, UDPPACKET *p, IKE_PACKET *
 								if (IsIP6(&sa->IkeClient->ServerIP))
 								{
 									// IPv6 address
-									my_id_payload = IkeNewIdPayload(IKE_ID_IPV6_ADDR, 0, 0, sa->IkeClient->ServerIP.ipv6_addr, 16);
+									my_id_payload = IkeNewIdPayload(IKE_ID_IPV6_ADDR, 0, 0, sa->IkeClient->ServerIP.address, 16);
 								}
 								else
 								{
 									// IPv4 address
-									my_id_payload = IkeNewIdPayload(IKE_ID_IPV4_ADDR, 0, 0, sa->IkeClient->ServerIP.addr, 4);
+									my_id_payload = IkeNewIdPayload(IKE_ID_IPV4_ADDR, 0, 0, IPV4(sa->IkeClient->ServerIP.address), IPV4_SIZE);
 								}
 
 								// Build the ID payload tentatively
@@ -3396,12 +3411,12 @@ void ProcIkeMainModePacketRecv(IKE_SERVER *ike, UDPPACKET *p, IKE_PACKET *header
 							if (IsIP6(&sa->IkeClient->ServerIP))
 							{
 								// IPv6 address
-								my_id_payload = IkeNewIdPayload(IKE_ID_IPV6_ADDR, 0, 0, sa->IkeClient->ServerIP.ipv6_addr, 16);
+								my_id_payload = IkeNewIdPayload(IKE_ID_IPV6_ADDR, 0, 0, sa->IkeClient->ServerIP.address, 16);
 							}
 							else
 							{
 								// IPv4 address
-								my_id_payload = IkeNewIdPayload(IKE_ID_IPV4_ADDR, 0, 0, sa->IkeClient->ServerIP.addr, 4);
+								my_id_payload = IkeNewIdPayload(IKE_ID_IPV4_ADDR, 0, 0, IPV4(sa->IkeClient->ServerIP.address), IPV4_SIZE);
 							}
 
 							// Build the ID payload tentatively
@@ -3672,11 +3687,11 @@ BUF *IkeCalcNatDetectHash(IKE_SERVER *ike, IKE_HASH *hash, UINT64 initiator_cook
 
 	if (IsIP6(ip))
 	{
-		WriteBuf(b, ip->ipv6_addr, sizeof(ip->ipv6_addr));
+		WriteBuf(b, ip->address, sizeof(ip->address));
 	}
 	else
 	{
-		WriteBuf(b, ip->addr, sizeof(ip->addr));
+		WriteBuf(b, IPV4(ip->address), IPV4_SIZE);
 	}
 
 	us = Endian16((USHORT)port);

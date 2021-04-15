@@ -5,7 +5,21 @@
 // Virtual.c
 // User-mode virtual host program
 
-#include "CedarPch.h"
+#include "Virtual.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Connection.h"
+#include "Hub.h"
+#include "IPC.h"
+#include "NativeStack.h"
+#include "Server.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 static UCHAR broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static char v_vgs_hostname[256] = {0};
@@ -2241,15 +2255,14 @@ bool NnParseDnsResponsePacket(UCHAR *data, UINT size, IP *ret_ip)
 
 			if (r != NULL)
 			{
-				if (tp == 0x0001 && cl == 0x0001 && r->Size == 4)
+				if (tp == 0x0001 && cl == 0x0001 && r->Size == IPV4_SIZE)
 				{
 					ret = true;
 
 					if (ret_ip != NULL)
 					{
-						Zero(ret_ip, sizeof(IP));
-
-						Copy(ret_ip->addr, r->Buf, 4);
+						ZeroIP4(ret_ip);
+						Copy(IPV4(ret_ip->address), r->Buf, IPV4_SIZE);
 					}
 				}
 
@@ -3694,10 +3707,10 @@ bool ArpaToIP(IP *ip, char *str)
 	{
 		// Convert the token [0, 1, 2, 3] to IP
 		UINT i;
-		Zero(ip, sizeof(IP));
-		for (i = 0; i < 4; i++)
+		ZeroIP4(ip);
+		for (i = 0; i < IPV4_SIZE; ++i)
 		{
-			ip->addr[i] = (UCHAR)ToInt(token->Token[3 - i]);
+			IPV4(ip->address)[i] = (UCHAR)ToInt(token->Token[3 - i]);
 		}
 		ret = true;
 	}
@@ -5522,7 +5535,7 @@ void VirtualTcpReceived(VH *v, UINT src_ip, UINT dest_ip, void *data, UINT size,
 	}
 	UINTToIP(&ip1, src_ip);
 	UINTToIP(&ip2, dest_ip);
-	if (ip1.addr[0] == 127 || ip2.addr[0] == 127)
+	if (IsLocalHostIP4(&ip1) || IsLocalHostIP4(&ip2))
 	{
 		// Loopback IP address can not be specified
 		return;
@@ -10310,10 +10323,7 @@ VH *NewVirtualHostEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, VH_
 
 	if (v->IcmpRawSocketOk == false)
 	{
-		if (IsIcmpApiSupported())
-		{
-			v->IcmpApiOk = true;
-		}
+		v->IcmpApiOk = true;
 	}
 
 	// Set the options

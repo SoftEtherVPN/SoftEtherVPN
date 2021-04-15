@@ -8,6 +8,8 @@
 #ifndef	TICK64_H
 #define	TICK64_H
 
+#include "MayaType.h"
+
 // Maximum number of correction list entries
 #define	MAX_ADJUST_TIME				1024
 

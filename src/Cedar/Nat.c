@@ -5,7 +5,18 @@
 // Nat.c
 // User-mode Router
 
-#include "CedarPch.h"
+#include "Nat.h"
+
+#include "Admin.h"
+#include "Remote.h"
+#include "Sam.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 static LOCK *nat_lock = NULL;
 static NAT *nat = NULL;

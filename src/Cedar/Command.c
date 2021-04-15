@@ -5,7 +5,45 @@
 // Command.c
 // vpncmd Command Line Management Utility
 
-#include "CedarPch.h"
+#include "Command.h"
+
+#include "Admin.h"
+#include "AzureClient.h"
+#include "Connection.h"
+#include "Console.h"
+#include "Database.h"
+#include "DDNS.h"
+#include "Layer3.h"
+#include "Nat.h"
+#include "Proto_IPsec.h"
+#include "Proto_WireGuard.h"
+#include "Radius.h"
+#include "Server.h"
+#include "Virtual.h"
+#include "WinUi.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Network.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/OS.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Unix.h"
+
+#include <stdlib.h>
+
+#ifdef OS_UNIX
+#include <signal.h>
+#include <sys/wait.h>
+#endif
 
 // System checker definition
 typedef bool (CHECKER_PROC_DEF)();
@@ -916,14 +954,7 @@ void VpnCmdInitBootPath()
 		{
 			bool b = false;
 			// Copy the vpncmdsys.exe to system32
-			if (MsIsNt())
-			{
-				Format(tmp, sizeof(tmp), "%s\\vpncmd.exe", MsGetSystem32Dir());
-			}
-			else
-			{
-				Format(tmp, sizeof(tmp), "%s\\vpncmd.exe", MsGetWindowsDir());
-			}
+			Format(tmp, sizeof(tmp), "%s\\vpncmd.exe", MsGetSystem32Dir());
 
 			if (MsIs64BitWindows() == false || Is64())
 			{
@@ -7483,6 +7514,9 @@ void PsMain(PS *ps)
 			{"RouterTableDel", PsRouterTableDel},
 			{"LogFileList", PsLogFileList},
 			{"LogFileGet", PsLogFileGet},
+			{"WgkAdd", PsWgkAdd},
+			{"WgkDelete", PsWgkDelete},
+			{"WgkEnum", PsWgkEnum},
 			{"HubCreate", PsHubCreate},
 			{"HubCreateDynamic", PsHubCreateDynamic},
 			{"HubCreateStatic", PsHubCreateStatic},
@@ -7493,6 +7527,7 @@ void PsMain(PS *ps)
 			{"Hub", PsHub},
 			{"Online", PsOnline},
 			{"Offline", PsOffline},
+			{"SetStaticNetwork", PsSetStaticNetwork},
 			{"SetMaxSession", PsSetMaxSession},
 			{"SetHubPassword", PsSetHubPassword},
 			{"SetEnumAllow", PsSetEnumAllow},
@@ -10561,6 +10596,137 @@ UINT PsLogFileGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	return ret;
 }
 
+// Add a WireGuard key (TODO: ability add multiple keys in a single call)
+UINT PsWgkAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	PS *ps = (PS *)param;
+	RPC_WGK t;
+	UINT ret;
+	LIST *o;
+	PARAM args[] =
+	{
+		{"[key]", CmdPrompt, _UU("CMD_WgkAdd_Prompt_[key]"), CmdEvalNotEmpty, NULL},
+		{"HUB", CmdPrompt, _UU("CMD_WgkAdd_Prompt_HUB"), NULL, NULL},
+		{"USER", CmdPrompt, _UU("CMD_WgkAdd_Prompt_USER"), NULL, NULL}
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.Num = 1;
+	t.Wgks = ZeroMalloc(sizeof(WGK));
+
+	StrCpy(t.Wgks[0].Key, sizeof(t.Wgks[0].Key), GetParamStr(o, "[key]"));
+	StrCpy(t.Wgks[0].Hub, sizeof(t.Wgks[0].Hub), GetParamStr(o, "HUB"));
+	StrCpy(t.Wgks[0].User, sizeof(t.Wgks[0].User), GetParamStr(o, "USER"));
+
+	FreeParamValueList(o);
+
+	ret = ScAddWgk(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcWgk(&t);
+
+	return ret;
+}
+
+// Delete a WireGuard key (TODO: ability to delete multiple keys in a single call)
+UINT PsWgkDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	PS *ps = (PS *)param;
+	RPC_WGK t;
+	UINT ret;
+	LIST *o;
+	PARAM args[] =
+	{
+		{"[key]", CmdPrompt, _UU("CMD_WgkDelete_Prompt_[key]"), CmdEvalNotEmpty, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.Num = 1;
+	t.Wgks = ZeroMalloc(sizeof(WGK));
+
+	StrCpy(t.Wgks[0].Key, sizeof(t.Wgks[0].Key), GetParamStr(o, "[key]"));
+
+	FreeParamValueList(o);
+
+	ret = ScDeleteWgk(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcWgk(&t);
+
+	return ret;
+}
+
+// List the WireGuard keys
+UINT PsWgkEnum(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	UINT ret = ERR_NO_ERROR;
+	PS *ps = (PS *)param;
+	RPC_WGK t;
+	LIST *o;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	ret = ScEnumWgk(ps->Rpc, &t);
+	if (ret == ERR_NO_ERROR)
+	{
+		UINT i;
+		CT *ct = CtNew();
+		CtInsertColumn(ct, _UU("CMD_WgkEnum_Column_Key"), false);
+		CtInsertColumn(ct, _UU("CMD_WgkEnum_Column_Hub"), false);
+		CtInsertColumn(ct, _UU("CMD_WgkEnum_Column_User"), false);
+
+		for (i = 0; i < t.Num; ++i)
+		{
+			const WGK *wgk = &t.Wgks[i];
+			wchar_t *key, *hub, *user;
+
+			key = CopyStrToUni(wgk->Key);
+			hub = CopyStrToUni(wgk->Hub);
+			user = CopyStrToUni(wgk->User);
+
+			CtInsert(ct, key, hub, user);
+
+			Free(key);
+			Free(hub);
+			Free(user);
+		}
+
+		CtFree(ct, c);
+	}
+	else
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeRpcWgk(&t);
+
+	return ret;
+}
+
 // Create a New Virtual HUB
 UINT PsHubCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
@@ -11143,6 +11309,53 @@ UINT PsOffline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	return 0;
 }
 
+// Set the static IPv4 network parameters for the Virtual HUB
+UINT PsSetStaticNetwork(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	RPC_CREATE_HUB t;
+	PARAM args[] =
+	{
+		{"GATEWAY", CmdPrompt, _UU("CMD_SetStaticNetwork_Prompt_GATEWAY"), CmdEvalIp, NULL},
+		{"SUBNET", CmdPrompt, _UU("CMD_SetStaticNetwork_Prompt_SUBNET"), CmdEvalIp, NULL}
+	};
+
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+	ret = ScGetHub(ps->Rpc, &t);
+	if (ret != ERR_NO_ERROR)
+	{
+		goto FINAL;
+	}
+
+	t.HubOption.DefaultGateway = StrToIP32(GetParamStr(o, "GATEWAY"));
+	t.HubOption.DefaultSubnet = StrToIP32(GetParamStr(o, "SUBNET"));
+
+	ret = ScSetHub(ps->Rpc, &t);
+FINAL:
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	FreeParamValueList(o);
+	return ret;
+}
+
 // Set the maximum number of concurrent connecting sessions of the Virtual HUB
 UINT PsSetMaxSession(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 {
@@ -11419,6 +11632,12 @@ UINT PsOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_OptionsGet_STATUS"), t.Online ? _UU("SM_HUB_ONLINE") : _UU("SM_HUB_OFFLINE"));
 
 		CtInsert(ct, _UU("CMD_OptionsGet_TYPE"), GetHubTypeStr(t.HubType));
+
+		IPToUniStr32(tmp, sizeof(tmp), t.HubOption.DefaultGateway);
+		CtInsert(ct, _UU("CMD_OptionsGet_GATEWAY"), tmp);
+
+		IPToUniStr32(tmp, sizeof(tmp), t.HubOption.DefaultSubnet);
+		CtInsert(ct, _UU("CMD_OptionsGet_SUBNET"), tmp);
 
 		CtFree(ct, c);
 	}
@@ -23025,7 +23244,7 @@ void CtEscapeCsv(wchar_t *dst, UINT size, wchar_t *src){
 	UINT i;
 	UINT len = UniStrLen(src);
 	UINT idx;
-	BOOL need_to_escape = false;
+	bool need_to_escape = false;
 	wchar_t tmp[2]=L"*";
 
 	// Check the input value
@@ -24512,19 +24731,13 @@ void Win32CmdDebug(bool is_uac)
 
 	UniPrint(_UU("CMD_DEBUG_PRINT"));
 
-	if (MsIsWin2000OrGreater() == false)
-	{
-		MsgBox(NULL, 0x00000040L, _UU("CMD_DEBUG_NOT_2000"));
-		goto LABEL_CLEANUP;
-	}
-
-	if ((MsIsVista() == false || is_uac) && MsIsAdmin() == false)
+	if (is_uac && MsIsAdmin() == false)
 	{
 		MsgBox(NULL, 0x00000040L, _UU("CMD_DEBUG_NOT_ADMIN"));
 		goto LABEL_CLEANUP;
 	}
 
-	if (MsIsVista() && MsIsAdmin() == false)
+	if (MsIsAdmin() == false)
 	{
 		void *process_handle = NULL;
 

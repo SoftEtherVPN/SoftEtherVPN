@@ -1,8 +1,6 @@
 version: '{build}'
 
-image:
-  - Ubuntu1604
-  - Ubuntu1804
+image: Ubuntu1804
 
 configuration: Release
 
@@ -19,38 +17,20 @@ skip_commits:
 init:
   - ps: Update-AppveyorBuild -Version "build-$env:APPVEYOR_BUILD_NUMBER-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
 
-install: git submodule update --init --recursive
-
-for:
--
-  matrix:
-    only:
-      - image: Ubuntu1604
-  before_build:
-    - ./configure
-  build_script:
-    - make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
-  test_script:
-    - .ci/appveyor-deb-install-test.sh
-    - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
-    - sudo .ci/start-se-openvpn.sh
-    - sudo .ci/run-openvpn-tests.sh
-
--
-  matrix:
-    only:
-      - image: Ubuntu1804
-  before_build:
-    - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
-    - ./configure
-  build_script:
-    - make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
-    - .ci/memory-leak-test.sh
-  test_script:
-    - .ci/appveyor-deb-install-test.sh
-    - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # openvpn build deps
-    - sudo .ci/start-se-openvpn.sh
-    - sudo .ci/run-openvpn-tests.sh
+install:
+  - sudo apt-get -y install libsodium-dev
+before_build:
+  - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
+  - git submodule update --init --recursive
+  - ./configure
+build_script:
+  - make package -C build -j $(nproc || sysctl -n hw.ncpu || echo 4)
+  - .ci/memory-leak-test.sh
+test_script:
+  - .ci/appveyor-deb-install-test.sh
+  - sudo apt-get update && sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip liblz4-dev # openvpn build deps
+  - sudo .ci/start-se-openvpn.sh
+  - sudo .ci/run-openvpn-tests.sh
 
 deploy:
   description: 'automatic release'

@@ -5,7 +5,31 @@
 // Connection.c
 // Connection Manager
 
-#include "CedarPch.h"
+#include "Connection.h"
+
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Hub.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Nat.h"
+#include "Protocol.h"
+#include "Server.h"
+#include "SecureNAT.h"
+#include "Session.h"
+#include "UdpAccel.h"
+#include "Virtual.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+
+#include <stdlib.h>
 
 // Determine whether the socket is to use to send
 #define	IS_SEND_TCP_SOCK(ts)		\
@@ -862,8 +886,9 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts)
 	UINT size, i, num;
 	UINT size_be;
 	SESSION *s;
+	UDP_ACCEL *udp_accel;
 	UCHAR *buf;
-	bool insert_natt_port = false;
+	bool insert_natt_port = false, insert_natt_ip = false;
 	// Validate arguments
 	if (c == NULL || ts == NULL)
 	{
@@ -871,33 +896,61 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts)
 	}
 
 	s = c->Session;
+	if (s == NULL)
+	{
+		return;
+	}
+
+	udp_accel = s->UdpAccel;
 
 	size = rand() % MAX_KEEPALIVE_SIZE;
 	num = KEEP_ALIVE_MAGIC;
 
-	if (s != NULL && s->UseUdpAcceleration && s->UdpAccel != NULL)
+	if (s->UseUdpAcceleration && udp_accel != NULL)
 	{
-		if (s->UdpAccel->MyPortByNatTServer != 0)
+		if (udp_accel->MyPortNatT != 0)
 		{
 			size = MAX(size, (StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE) + sizeof(USHORT)));
 
 			insert_natt_port = true;
 		}
+
+		if (IsZeroIP(&udp_accel->MyIpNatT) == false)
+		{
+			size = MAX(size, (StrLen(UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE) + sizeof(udp_accel->MyIpNatT.address)));
+
+			insert_natt_ip = true;
+		}
+
 	}
 
 	buf = MallocFast(size);
 
-	for (i = 0;i < size;i++)
+	for (i = 0; i < size; ++i)
 	{
 		buf[i] = rand();
 	}
 
+	UCHAR *seek = buf;
+
 	if (insert_natt_port)
 	{
-		USHORT myport = Endian16((USHORT)s->UdpAccel->MyPortByNatTServer);
+		const UINT nat_t_port_sig_size = StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE);
+		const USHORT port = Endian16(udp_accel->MyPortNatT);
 
-		Copy(buf, UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE, StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE));
-		Copy(buf + StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE), &myport, sizeof(USHORT));
+		Copy(buf, UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE, nat_t_port_sig_size);
+		seek += nat_t_port_sig_size;
+		Copy(seek, &port, sizeof(port));
+		seek += sizeof(port);
+	}
+
+	if (insert_natt_ip)
+	{
+		const UINT nat_t_ip_sig_size = StrLen(UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE);
+
+		Copy(seek, UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE, nat_t_ip_sig_size);
+		seek += nat_t_ip_sig_size;
+		Copy(seek, udp_accel->MyIpNatT.address, sizeof(udp_accel->MyIpNatT.address));
 	}
 
 	num = Endian32(num);
@@ -979,7 +1032,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 				{
 					// Processing of KeepAlive
 					if (now >= tcpsock->NextKeepAliveTime || tcpsock->NextKeepAliveTime == 0 ||
-						(s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyPortByNatTServerChanged))
+						(s->UseUdpAcceleration && s->UdpAccel != NULL && s->UdpAccel->MyIpOrPortNatTChanged))
 					{
 						// Send the KeepAlive
 						SendKeepAlive(c, tcpsock);
@@ -987,7 +1040,7 @@ void ConnectionSend(CONNECTION *c, UINT64 now)
 
 						if (s->UseUdpAcceleration && s->UdpAccel != NULL)
 						{
-							s->UdpAccel->MyPortByNatTServerChanged = false;
+							s->UdpAccel->MyIpOrPortNatTChanged = false;
 						}
 					}
 
@@ -2161,28 +2214,48 @@ DISCONNECT_THIS_TCP:
 						ts->Mode = 0;
 						sz = ts->NextBlockSize;
 
-						if (sz >= (StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE) + sizeof(USHORT)))
+						if (s->UseUdpAcceleration && s->UdpAccel != NULL)
 						{
-							UCHAR *keep_alive_buffer = FifoPtr(ts->RecvFifo);
+							const UCHAR *keep_alive_buffer = FifoPtr(ts->RecvFifo);
+							const UINT nat_t_ip_sig_size = StrLen(UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE);
+							const UINT nat_t_port_sig_size = StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE);
+							UINT cur_size = sz;
 
-							if (Cmp(keep_alive_buffer, UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE, StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE)) == 0)
+							if (cur_size >= nat_t_port_sig_size + sizeof(USHORT))
 							{
-								USHORT us = READ_USHORT(keep_alive_buffer + StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE));
-
-								if (us != 0)
+								if (Cmp(keep_alive_buffer, UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE, nat_t_port_sig_size) == 0)
 								{
-									if (s->UseUdpAcceleration && s->UdpAccel != NULL)
+									cur_size -= nat_t_port_sig_size;
+									keep_alive_buffer += nat_t_port_sig_size;
+
+									const USHORT port = READ_USHORT(keep_alive_buffer);
+									cur_size -= sizeof(USHORT);
+									keep_alive_buffer += sizeof(USHORT);
+
+									if (port && s->UdpAccel->YourPortNatT != port)
 									{
-										UINT port = (UINT)us;
+										s->UdpAccel->YourPortNatT = port;
+										s->UdpAccel->YourIpOrPortNatTChanged = true;
 
-										if (s->UdpAccel->YourPortByNatTServer != port)
-										{
-											s->UdpAccel->YourPortByNatTServer = port;
-											s->UdpAccel->YourPortByNatTServerChanged = true;
+										Debug("ConnectionReceive(): New peer NAT-T port: %u\n", port);
+									}
+								}
+							}
 
-											Debug("s->UdpAccel->YourPortByNatTServer: %u\n",
-												s->UdpAccel->YourPortByNatTServer);
-										}
+							if (cur_size >= nat_t_ip_sig_size + sizeof(s->UdpAccel->YourIpNatT.address))
+							{
+								if (Cmp(keep_alive_buffer, UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE, nat_t_ip_sig_size) == 0)
+								{
+									keep_alive_buffer += nat_t_ip_sig_size;
+
+									IP ip;
+									SetIP6(&ip, keep_alive_buffer);
+									if (IsZeroIP(&ip) == false && CmpIpAddr(&s->UdpAccel->YourIpNatT, &ip) != 0)
+									{
+										Copy(&s->UdpAccel->YourIpNatT, &ip, sizeof(s->UdpAccel->YourIpNatT));
+										s->UdpAccel->YourIpOrPortNatTChanged = true;
+
+										Debug("ConnectionReceive(): New peer NAT-T IP: %r\n", &ip);
 									}
 								}
 							}

@@ -5,7 +5,22 @@
 // Proto_OpenVPN.c
 // OpenVPN protocol stack
 
-#include "CedarPch.h"
+#include "Proto_OpenVPN.h"
+
+#include "Cedar.h"
+#include "Connection.h"
+#include "IPC.h"
+#include "Logging.h"
+#include "Proto_EtherIP.h"
+#include "Proto_PPP.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Ping signature of the OpenVPN protocol
 static UCHAR ping_signature[] =
@@ -20,6 +35,7 @@ const PROTO_IMPL *OvsGetProtoImpl()
 	{
 		OvsName,
 		OvsOptions,
+		NULL,
 		OvsInit,
 		OvsFree,
 		OvsIsPacketForMe,
@@ -69,16 +85,17 @@ void OvsFree(void *param)
 }
 
 // Check whether it's an OpenVPN packet
-bool OvsIsPacketForMe(const PROTO_MODE mode, const UCHAR *data, const UINT size)
+bool OvsIsPacketForMe(const PROTO_MODE mode, const void *data, const UINT size)
 {
+	if (data == NULL || size < 2)
+	{
+		return false;
+	}
+
 	if (mode == PROTO_MODE_TCP)
 	{
-		if (data == NULL || size < 2)
-		{
-			return false;
-		}
-
-		if (data[0] == 0x00 && data[1] == 0x0E)
+		const UCHAR *raw = data;
+		if (raw[0] == 0x00 && raw[1] == 0x0E)
 		{
 			return true;
 		}
@@ -2899,7 +2916,7 @@ int OvsCompareSessionList(void *p1, void *p2)
 		return 0;
 	}
 
-	i = CmpIpAddr(&s1->Protocol, &s2->Protocol);
+	i = Cmp(&s1->Protocol, &s2->Protocol, sizeof(s1->Protocol));
 	if (i != 0)
 	{
 		return i;

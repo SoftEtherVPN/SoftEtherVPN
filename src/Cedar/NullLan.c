@@ -5,7 +5,17 @@
 // NullLan.c
 // Virtual LAN card device driver for testing
 
-#include "CedarPch.h"
+#include "NullLan.h"
+
+#include "Connection.h"
+#include "Session.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 static UCHAR null_lan_broadcast_address[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 

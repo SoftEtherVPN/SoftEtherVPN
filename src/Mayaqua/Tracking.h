@@ -8,6 +8,8 @@
 #ifndef	TRACKING_H
 #define	TRACKING_H
 
+#include "MayaType.h"
+
 // The number of array
 #define	TRACKING_NUM_ARRAY	1048576
 

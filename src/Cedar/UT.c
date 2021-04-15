@@ -5,30 +5,20 @@
 // UT.c
 // SoftEther Network Utility For Win32
 
-#include <GlobalConst.h>
-
-#ifdef	WIN32
+#ifdef OS_WIN32
 
 #define	UT_C
 
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "UT.h"
+
+#include "WinUi.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+
 #include "../PenCore/resource.h"
 
 static char *selected_adapter = NULL;

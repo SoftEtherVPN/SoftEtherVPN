@@ -8,27 +8,28 @@
 #ifndef	MAYATYPE_H
 #define	MAYATYPE_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
-// Check whether the windows.h header is included
-#ifndef	WINDOWS_H
-#ifdef	_WINDOWS_
-#define	WINDOWS_H
-#endif	// _WINDOWS_
-#endif	// WINDOWS_H
+#ifdef OS_WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 
-#if	!defined(ENCRYPT_C)
-// Structure which is used by OpenSSL
-typedef struct x509_st X509;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct bio_st BIO;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct X509_req_st X509_REQ;
-typedef struct PKCS12 PKCS12;
-typedef struct bignum_st BIGNUM;
-typedef struct x509_crl_st X509_CRL;
-#endif	// ENCRYPT_C
+#ifndef NTDDI_VERSION
+#define	NTDDI_VERSION NTDDI_VISTA
+#endif
+
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_VISTA
+#endif
+
+#include <WinSock2.h>
+#include <ws2ipdef.h>
+#else
+#include <unistd.h>
+#endif
 
 // 
 // Constant
@@ -43,7 +44,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016 / Server 2019"
 
 // Infinite
-#ifndef	WINDOWS_H
+#ifndef	INFINITE
 #define	INFINITE			(0xFFFFFFFF)
 #endif
 
@@ -52,7 +53,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	SRC_LINE			__LINE__	// Line number in the source code
 
 // Maximum path size
-#ifndef	WINDOWS_H
+#ifndef	MAX_PATH
 #define	MAX_PATH			260
 #endif	// WINDOWS_H
 
@@ -158,58 +159,30 @@ typedef int (COMPARE)(void *p1, void *p2);
 #define	WRITE_UINT(buf, i)		(((UCHAR *)(buf))[0]) = ((((UINT)(i)) >> 24) & 0xFF); (((UCHAR *)(buf))[1]) = ((((UINT)(i)) >> 16) & 0xFF); (((UCHAR *)(buf))[2]) = ((((UINT)(i)) >> 8) & 0xFF); (((UCHAR *)(buf))[3]) = ((((UINT)(i))) & 0xFF)
 #define	WRITE_UINT64(buf, i)	(((UCHAR *)(buf))[0]) = ((((UINT64)(i)) >> 56) & 0xFF); (((UCHAR *)(buf))[1]) = ((((UINT64)(i)) >> 48) & 0xFF); (((UCHAR *)(buf))[2]) = ((((UINT64)(i)) >> 40) & 0xFF); (((UCHAR *)(buf))[3]) = ((((UINT64)(i)) >> 32) & 0xFF); (((UCHAR *)(buf))[4]) = ((((UINT64)(i)) >> 24) & 0xFF); (((UCHAR *)(buf))[5]) = ((((UINT64)(i)) >> 16) & 0xFF); (((UCHAR *)(buf))[6]) = ((((UINT64)(i)) >> 8) & 0xFF); (((UCHAR *)(buf))[7]) = ((((UINT64)(i))) & 0xFF)
 
-
-
 // 
 // Type declaration
 // 
+typedef int64_t time_64t;
 
-// PID type
-#ifdef OS_UNIX
-typedef int PID;
-#endif // OS_UNIX
 #ifdef OS_WIN32
-typedef unsigned long PID;
-#endif // WINDOWS_H
-
-// TODO: include <stdbool.h> instead of manually defining type
-#ifndef	WIN32COM_CPP
-typedef	unsigned int		bool;
-#define	true				1
-#define	false				0
-#endif	// WIN32COM_CPP
-
-typedef int64_t  time_64t;
-
-#ifndef _BASETSD_H_
+typedef uint32_t PID;
+#else
 typedef int32_t  INT;
 typedef int64_t  INT64;
 
 typedef uint32_t UINT;
 typedef uint64_t UINT64;
-#endif
 
-#ifndef BASETYPES
 typedef uint8_t  BYTE;
 typedef uint8_t  UCHAR;
 typedef uint16_t USHORT;
-#endif
 
-#ifdef	OS_UNIX
-// Avoiding compile error
+typedef int SOCKET;
+typedef pid_t PID;
+
 #define	__cdecl
 #define	__declspec(x)
-// socket type
-typedef	int SOCKET;
-#else	// OS_UNIX
-#ifndef	_WINSOCK2API_
-#ifdef	CPU_64
-typedef unsigned __int64 SOCKET;
-#else
-typedef unsigned int SOCKET;
-#endif	// CPU_64
-#endif	// _WINSOCK2API_
-#endif	// OS_UNIX
+#endif
 
 // OS type
 #define	OSTYPE_WINDOWS_95						1100	// Windows 95
@@ -258,11 +231,9 @@ typedef unsigned int SOCKET;
 
 // OS discrimination macro
 #define	GET_KETA(t, i)			(((t) % (i * 10)) / i)
-#define	OS_IS_WINDOWS_9X(t)		(GET_KETA(t, 1000) == 1)
-#define	OS_IS_WINDOWS_NT(t)		(GET_KETA(t, 1000) == 2)
-#define	OS_IS_WINDOWS(t)		(OS_IS_WINDOWS_9X(t) || OS_IS_WINDOWS_NT(t))
-#define	OS_IS_SERVER(t)			(OS_IS_WINDOWS_NT(t) && GET_KETA(t, 10))
-#define	OS_IS_WORKSTATION(t)	((OS_IS_WINDOWS_NT(t) && (!(GET_KETA(t, 10)))) || OS_IS_WINDOWS_9X(t))
+#define	OS_IS_WINDOWS(t)		((GET_KETA(t, 1000) == 1) || (GET_KETA(t, 1000) == 2))
+#define	OS_IS_SERVER(t)			(OS_IS_WINDOWS(t) && GET_KETA(t, 10))
+#define	OS_IS_WORKSTATION(t)	(OS_IS_WINDOWS(t) && !(GET_KETA(t, 10))
 #define	OS_IS_UNIX(t)			(GET_KETA(t, 1000) == 3)
 
 
@@ -280,7 +251,7 @@ typedef struct OS_INFO
 } OS_INFO;
 
 // Time type
-#ifndef	WINDOWS_H
+#ifndef	OS_WIN32
 typedef struct SYSTEMTIME
 {
 	USHORT wYear;
@@ -293,7 +264,6 @@ typedef struct SYSTEMTIME
 	USHORT wMilliseconds;
 } SYSTEMTIME;
 #endif	// WINDOWS_H
-
 
 // Object.h
 typedef struct LOCK LOCK;

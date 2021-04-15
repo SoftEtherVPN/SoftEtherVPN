@@ -8,6 +8,8 @@
 #ifndef	PACK_H
 #define	PACK_H
 
+#include "MayaType.h"
+
 // Constant
 #ifdef CPU_64
 
@@ -143,8 +145,8 @@ ELEMENT *PackAddData(PACK *p, char *name, void *data, UINT size);
 ELEMENT *PackAddDataEx(PACK *p, char *name, void *data, UINT size, UINT index, UINT total);
 ELEMENT *PackAddBuf(PACK *p, char *name, BUF *b);
 ELEMENT *PackAddBufEx(PACK *p, char *name, BUF *b, UINT index, UINT total);
-bool PackGetStrSize(PACK *p, char *name);
-bool PackGetStrSizeEx(PACK *p, char *name, UINT index);
+UINT PackGetStrSize(PACK *p, char *name);
+UINT PackGetStrSizeEx(PACK *p, char *name, UINT index);
 bool PackGetStr(PACK *p, char *name, char *str, UINT size);
 bool PackGetStrEx(PACK *p, char *name, char *str, UINT size, UINT index);
 bool PackGetUniStr(PACK *p, char *name, wchar_t *unistr, UINT size);

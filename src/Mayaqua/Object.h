@@ -8,6 +8,7 @@
 #ifndef	OBJECT_H
 #define	OBJECT_H
 
+#include "MayaType.h"
 
 // Constants
 #define	OBJECT_ALLOC_FAIL_SLEEP_TIME		150

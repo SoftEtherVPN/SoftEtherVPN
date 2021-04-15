@@ -5,18 +5,14 @@
 // vpncsvc.c
 // VPN Client Service Program
 
-#include <GlobalConst.h>
-
 #define	VPN_EXE
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Cedar/Client.h"
+
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Unix.h"
+#include "Mayaqua/Win32.h"
 
 // Process start function
 void StartProcess()

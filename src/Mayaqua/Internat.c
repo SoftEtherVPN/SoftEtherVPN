@@ -5,16 +5,22 @@
 // Internat.c
 // String conversion library for internationalization
 
-#include <GlobalConst.h>
+#include "Internat.h"
 
-#include <stdio.h>
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Network.h"
+#include "Object.h"
+#include "Str.h"
+#include "Tracking.h"
+#include "Win32.h"
+
 #include <stdlib.h>
-#include <string.h>
 #include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+
+#ifdef OS_UNIX
+#include <iconv.h>
+#endif
 
 extern LOCK *token_lock;
 static char charset[MAX_SIZE] = "EUCJP";

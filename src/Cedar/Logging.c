@@ -5,7 +5,28 @@
 // Logging.c
 // Log storaging module
 
-#include "CedarPch.h"
+#include "Logging.h"
+
+#include "Admin.h"
+#include "Client.h"
+#include "Nat.h"
+#include "Proto_EtherIP.h"
+#include "Proto_IKE.h"
+#include "Proto_PPP.h"
+#include "Remote.h"
+#include "SecureNAT.h"
+#include "Server.h"
+
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Unix.h"
+#include "Mayaqua/Win32.h"
 
 static char *delete_targets[] =
 {
@@ -832,8 +853,8 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 		return true;
 	}
 
-	if (memcmp(hub->HubMacAddr, packet->MacAddressSrc, 6) == 0 ||
-	        memcmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
+	if (Cmp(hub->HubMacAddr, packet->MacAddressSrc, 6) == 0 ||
+		Cmp(hub->HubMacAddr, packet->MacAddressDest, 6) == 0)
 	{
 		return true;
 	}
@@ -2272,7 +2293,7 @@ bool MakeLogFileName(LOG *g, char *name, UINT size, char *dir, char *prefix, UIN
 		}
 	}
 
-	if (strcmp(old_datestr, tmp) != 0)
+	if (StrCmp(old_datestr, tmp) != 0)
 	{
 		ret = true;
 		StrCpy(old_datestr, MAX_SIZE, tmp);

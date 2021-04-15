@@ -8,6 +8,8 @@
 #ifndef	PROTO_SSTP_H
 #define	PROTO_SSTP_H
 
+#include "Proto.h"
+
 //// Constants
 #define	SSTP_URI				"/sra_{BA195980-CD49-458b-9E23-C84EE0ADCD75}/"		// SSTP HTTPS URI
 #define	SSTP_VERSION_1			0x10							// SSTP Version 1.0

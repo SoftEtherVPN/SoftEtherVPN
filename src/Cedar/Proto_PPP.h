@@ -8,6 +8,9 @@
 #ifndef	PROTO_PPP_H
 #define	PROTO_PPP_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/TcpIp.h"
 
 //// Macro
 #define	PPP_LCP_CODE_IS_NEGATIVE(c)			((c) == PPP_LCP_CODE_NAK || (c) == PPP_LCP_CODE_REJECT || (c) == PPP_LCP_CODE_CODE_REJECT || (c) == PPP_LCP_CODE_PROTOCOL_REJECT)

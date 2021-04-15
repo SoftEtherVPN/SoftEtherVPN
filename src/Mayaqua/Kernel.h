@@ -5,6 +5,8 @@
 #ifndef	KERNEL_H
 #define	KERNEL_H
 
+#include "MayaType.h"
+
 // Memory usage information
 struct MEMINFO
 {

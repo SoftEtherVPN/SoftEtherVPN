@@ -5,46 +5,33 @@
 // CM.c
 // VPN Client Connection Manager for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define WINUI_C
+#define MICROSOFT_C
 
-#define	CM_C
-#define	SM_C
-#define	MICROSOFT_C
-
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#define	SECURITY_WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <Iphlpapi.h>
-#include <tlhelp32.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <setupapi.h>
-#include <regstr.h>
-#include <process.h>
-#include <psapi.h>
-#include <wtsapi32.h>
-#include <Ntsecapi.h>
-#include <security.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
 #include "CMInner.h"
+
+#include "Nat.h"
+#include "Protocol.h"
+#include "Remote.h"
 #include "SMInner.h"
-#include "NMInner.h"
-#include "EMInner.h"
+#include "UT.h"
+#include "Win32Com.h"
+#include "WinUi.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Secure.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Win32.h"
+
 #include "../PenCore/resource.h"
 
+#include <shellapi.h>
 
 // Get the proxy server settings from the registry string of IE
 bool CmGetProxyServerNameAndPortFromIeProxyRegStr(char *name, UINT name_size, UINT *port, char *str, char *server_type)
@@ -232,14 +219,7 @@ UINT CmGetSecureBitmapId(char *dest_hostname)
 // Activate the window of UAC
 void CmSetUacWindowActive()
 {
-	HWND hWnd;
-
-	if (MsIsVista() == false)
-	{
-		return;
-	}
-	
-	hWnd = FindWindowA("$$$Secure UAP Dummy Window Class For Interim Dialog", NULL);
+	HWND hWnd = FindWindowA("$$$Secure UAP Dummy Window Class For Interim Dialog", NULL);
 	if (hWnd == NULL)
 	{
 		return;
@@ -1485,22 +1465,8 @@ void CmTrafficRunDlgAddStr(HWND hWnd, wchar_t *str)
 	UniReplaceStrEx(tmp, tmp_size, tmp, L"\r\n", L"\n", false);
 	UniReplaceStrEx(tmp, tmp_size, tmp, L"\n", L"\r\n", false);
 
-	if (MsIsNt())
-	{
-		SendMsg(hWnd, E_EDIT, EM_SETSEL, 0x7fffffff, 0x7fffffff);
-		SendMsg(hWnd, E_EDIT, EM_REPLACESEL, false, (LPARAM)tmp);
-	}
-	else
-	{
-		char *s = CopyUniToStr(tmp);
-		UINT len;
-
-		len = GetWindowTextLength(DlgItem(hWnd, E_EDIT));
-		SendMsg(hWnd, E_EDIT, EM_SETSEL, 0x7fffffff, 0x7fffffff);
-		SendMsg(hWnd, E_EDIT, EM_SETSEL, len, len);
-		SendMsg(hWnd, E_EDIT, EM_REPLACESEL, false, (LPARAM)s);
-		Free(s);
-	}
+	SendMsg(hWnd, E_EDIT, EM_SETSEL, 0x7fffffff, 0x7fffffff);
+	SendMsg(hWnd, E_EDIT, EM_REPLACESEL, false, (LPARAM)tmp);
 
 	Free(tmp);
 }
@@ -3568,11 +3534,6 @@ bool CmStopInstallVLan(HWND hWnd)
 		// There is no need to be prohibited if the client is an UNIX
 		return true;
 	}
-	if (cm->Client->Win9x)
-	{
-		// There is no need to prohibit if the client is a Win9x
-		return true;
-	}
 
 	return true;
 
@@ -5474,27 +5435,12 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 		name = CmNewVLanDlg(hWnd);
 		if (name != NULL)
 		{
-			wchar_t tmp[MAX_SIZE];
 			void *helper = NULL;
 			RPC_CLIENT_CREATE_VLAN c;
 			Zero(&c, sizeof(c));
 			StrCpy(c.DeviceName, sizeof(c.DeviceName), name);
-			if (MsIsNt() == false)
-			{
-				// Change the title of the window
-				GetTxt(hWnd, 0, tmp, sizeof(tmp));
-				SetText(hWnd, 0, _UU("CM_VLAN_INSTALLING"));
-			}
-			// Minimize
-			if (MsIsVista() == false)
-			{
-				ShowWindow(hWnd, SW_SHOWMINIMIZED);
-			}
 
-			if (MsIsVista())
-			{
-				helper = CmStartUacHelper();
-			}
+			helper = CmStartUacHelper();
 
 			if (CALL(hWnd, CcCreateVLan(cm->Client, &c)))
 			{
@@ -5503,17 +5449,9 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 
 			CmStopUacHelper(helper);
 
-			if (MsIsNt() == false)
-			{
-				// Restore the title of the window
-				SetText(hWnd, 0, tmp);
-			}
-			// Restore
-			if (MsIsVista() == false)
-			{
-				ShowWindow(hWnd, SW_SHOWNORMAL);
-			}
 			Free(name);
+
+			CmRefresh(hWnd);
 		}
 		break;
 	case CMD_DELETE_VLAN:
@@ -5521,39 +5459,29 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 		index = LvGetSelected(hWnd, L_VLAN);
 		if (index != INFINITE)
 		{
-			if (cm->Client->Win9x == false)
+			// Windows 2000 or later
+			wchar_t *s = LvGetStr(hWnd, L_VLAN, index, 0);
+			if (s != NULL)
 			{
-				// Windows 2000 or later
-				wchar_t *s = LvGetStr(hWnd, L_VLAN, index, 0);
-				if (s != NULL)
+				RPC_CLIENT_CREATE_VLAN c;
+				char str[MAX_SIZE];
+				CmVoice("delete_vlan_1");
+				if (MsgBoxEx(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2, _UU("CM_DELETE_VLAN"), s) == IDYES)
 				{
-					RPC_CLIENT_CREATE_VLAN c;
-					char str[MAX_SIZE];
-					CmVoice("delete_vlan_1");
-					if (MsgBoxEx(hWnd, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2, _UU("CM_DELETE_VLAN"), s) == IDYES)
+					Zero(&c, sizeof(c));
+					UniToStr(str, sizeof(str), s);
+					if (CmPrintNameToVLanName(c.DeviceName, sizeof(c.DeviceName), str))
 					{
-						Zero(&c, sizeof(c));
-						UniToStr(str, sizeof(str), s);
-						if (CmPrintNameToVLanName(c.DeviceName, sizeof(c.DeviceName), str))
+						if (CALL(hWnd, CcDeleteVLan(cm->Client, &c)))
 						{
-							if (CALL(hWnd, CcDeleteVLan(cm->Client, &c)))
-							{
-								CmVoice("delete_vlan_2");
-							}
+							CmVoice("delete_vlan_2");
 						}
 					}
-					Free(s);
 				}
+				Free(s);
 			}
-			else
-			{
-				// Windows 9x
-				if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("CM_9X_VLAN_UNINSTALL")) == IDYES)
-				{
-					Run("rundll32.exe", "shell32.dll,Control_RunDLL NETCPL.CPL",
-						false, false);
-				}
-			}
+
+			CmRefresh(hWnd);
 		}
 		break;
 	case CMD_ENABLE_VLAN:
@@ -5573,6 +5501,8 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 					CALL(hWnd, CcEnableVLan(cm->Client, &c));
 				}
 				Free(s);
+
+				CmRefresh(hWnd);
 			}
 		}
 		break;
@@ -5593,6 +5523,8 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 					CALL(hWnd, CcDisableVLan(cm->Client, &c));
 				}
 				Free(s);
+
+				CmRefresh(hWnd);
 			}
 		}
 		break;
@@ -5621,28 +5553,15 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 				UniToStr(str, sizeof(str), s);
 				if (CmPrintNameToVLanName(c.DeviceName, sizeof(c.DeviceName), str))
 				{
-					void *helper = NULL;
-
-					if (MsIsVista() == false)
-					{
-						ShowWindow(hWnd, SW_SHOWMINIMIZED);
-					}
-
-					if (MsIsVista())
-					{
-						helper = CmStartUacHelper();
-					}
+					void *helper = CmStartUacHelper();
 
 					CALL(hWnd, CcUpgradeVLan(cm->Client, &c));
 
 					CmStopUacHelper(helper);
-
-					if (MsIsVista() == false)
-					{
-						ShowWindow(hWnd, SW_SHOWNORMAL);
-					}
 				}
 				Free(s);
+
+				CmRefresh(hWnd);
 			}
 		}
 		break;
@@ -5710,11 +5629,7 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 		break;
 	case CMD_MMCSS:
 		// Optimization utility for Windows Vista
-		if (MsIsVista() == false)
-		{
-			MsgBox(hWnd, MB_ICONINFORMATION, _UU("VISTA_MMCSS_MSG_4"));
-		}
-		else
+		if (true)
 		{
 			if (MsIsAdmin() == false)
 			{
@@ -5782,7 +5697,6 @@ void CmConfigDlgInit(HWND hWnd)
 {
 	bool use_alpha;
 	UINT alpha_value;
-	UINT os;
 	CLIENT_CONFIG c;
 	// Validate arguments
 	if (hWnd == NULL)
@@ -5817,15 +5731,7 @@ void CmConfigDlgInit(HWND hWnd)
 	SetInt(hWnd, E_ALPHA_VALUE, alpha_value == 0 ? 50 : alpha_value);
 	Check(hWnd, R_ALPHA, use_alpha);
 
-	os = GetOsInfo()->OsType;
-	if (OS_IS_WINDOWS_NT(os) && GET_KETA(os, 100) >= 2)
-	{
-		Enable(hWnd, R_ALPHA);
-	}
-	else
-	{
-		Disable(hWnd, R_ALPHA);
-	}
+	Enable(hWnd, R_ALPHA);
 
 	CmConfigDlgRefresh(hWnd);
 }
@@ -6427,8 +6333,8 @@ UINT CmNewVLanDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *p
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		LimitText(hWnd, E_NAME, cm->Client->Win9x ? MAX_DEVICE_NAME_LEN_9X : MAX_DEVICE_NAME_LEN);
-		FormatText(hWnd, S_INFO, cm->Client->Win9x ? MAX_DEVICE_NAME_LEN_9X : MAX_DEVICE_NAME_LEN);
+		LimitText(hWnd, E_NAME, MAX_DEVICE_NAME_LEN);
+		FormatText(hWnd, S_INFO, MAX_DEVICE_NAME_LEN);
 
 		Zero(&ver, sizeof(ver));
 
@@ -6453,15 +6359,7 @@ UINT CmNewVLanDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *p
 		switch (wParam)
 		{
 		case IDOK:
-			if (cm->Client->Win9x)
-			{
-				// For Windows 9x, show a confirmation message
-				if (MsgBox(hWnd, MB_ICONQUESTION | MB_OKCANCEL, _UU("CM_9X_VLAN_INSTALL")) == IDCANCEL)
-				{
-					break;
-				}
-			}
-			GetTxtA(hWnd, E_NAME, tmp, (cm->Client->Win9x ? MAX_DEVICE_NAME_LEN_9X : MAX_DEVICE_NAME_LEN) + 1);
+			GetTxtA(hWnd, E_NAME, tmp, MAX_DEVICE_NAME_LEN + 1);
 			Trim(tmp);
 
 			if (CcGetClientVersion(cm->Client, &ver) == ERR_NO_ERROR)
@@ -9923,30 +9821,6 @@ void CmConnect(HWND hWnd, wchar_t *account_name)
 		return;
 	}
 
-	if (hWnd == cm->hMainWnd)
-	{
-		if (LvNum(hWnd, L_VLAN) == 0 && cm->Client->Win9x)
-		{
-			if (MsgBox(hWnd, MB_ICONINFORMATION | MB_YESNO, _UU("CM_NO_VLAN_2")) == IDNO)
-			{
-				return;
-			}
-			else
-			{
-				if (cm->server_name == NULL || cm->Client->Unix)
-				{
-					Command(hWnd, CMD_NEW_VLAN);
-					return;
-				}
-				else
-				{
-					MsgBox(hWnd, MB_ICONINFORMATION, _UU("CM_VLAN_REMOTE_ERROR"));
-				}
-				return;
-			}
-		}
-	}
-
 	// (If necessary) display a warning
 	if (CmWarningDesktop(hWnd, account_name) == false)
 	{
@@ -10085,7 +9959,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 	switch (id)
 	{
 	case CMD_LANGUAGE:
-		return MsIsNt();
+		return true;
 	case CMD_SHOWPORT:
 	case CMD_GRID:
 		if (cm->IconView)
@@ -10094,7 +9968,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 		return true;
 	case CMD_MMCSS:
-		if (MsIsVista() == false || IsEmptyStr(cm->server_name) == false)
+		if (IsEmptyStr(cm->server_name) == false)
 		{
 			return false;
 		}
@@ -10105,12 +9979,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		return true;
 	case CMD_TRAYICON:
 	case CMD_TRAFFIC:
-		return (cm->server_name == NULL);
 	case CMD_NETIF:
-		if (MsIsNt() == false)
-		{
-			return false;
-		}
 		return (cm->server_name == NULL);
 	case CMD_CM_SETTING:
 		return cm->CmSettingSupported;
@@ -10172,7 +10041,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 	case CMD_SHORTCUT:
 		// Create a shortcut
-		if (cm->Client->Rpc->Sock->RemoteIP.addr[0] != 127)
+		if (IsLocalHostIP(&cm->Client->Rpc->Sock->RemoteIP) == false)
 		{
 			return false;
 		}
@@ -10247,21 +10116,11 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 		break;
 	case CMD_NEW_VLAN:
-		if (cm->Client->Unix == false && cm->Client->Win9x == false)
+		if (cm->Client->Unix == false && cm->server_name != NULL)
 		{
-			if (cm->server_name != NULL)
-			{
-				return false;
-			}
+			return false;
 		}
-		if (cm->Client->Win9x)
-		{
-			if (LvNum(hWnd, L_VLAN) >= 1)
-			{
-				// You can not install two or more virtual LAN cards in Win9x
-				return false;
-			}
-		}
+
 		break;
 	case CMD_PROPERTY:
 		name = LvGetSelectedStr(hWnd, L_ACCOUNT, 0);
@@ -10286,10 +10145,6 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 		return LvIsSelected(hWnd, L_VLAN);
 	case CMD_ENABLE_VLAN:
-		if (cm->Client->Win9x)
-		{
-			return false;
-		}
 		if (LvIsMultiMasked(hWnd, L_VLAN))
 		{
 			return false;
@@ -10315,10 +10170,6 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 		break;
 	case CMD_DISABLE_VLAN:
-		if (cm->Client->Win9x)
-		{
-			return false;
-		}
 		if (LvIsMultiMasked(hWnd, L_VLAN))
 		{
 			return false;
@@ -10348,7 +10199,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		{
 			return false;
 		}
-		if (cm->Client->Win9x || cm->Client->Unix)
+		if (cm->Client->Unix)
 		{
 			// Upgrading the virtual LAN card on a UNIX system or Win9x is unavailable
 			return false;
@@ -10359,24 +10210,7 @@ bool CmIsEnabled(HWND hWnd, UINT id)
 		}
 		return LvIsSelected(hWnd, L_VLAN);
 	case CMD_WINNET:
-		{
-			UINT os_type = GetOsInfo()->OsType;
-
-			if (OS_IS_WINDOWS_NT(os_type) && GET_KETA(os_type, 100) >= 2)
-			{
-				if (cm->server_name != NULL)
-				{
-					return false;
-				}
-
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		break;
+		return (cm->server_name == NULL);
 	case CMD_EXIT:
 		return cm->TrayInited;
 	}
@@ -11264,7 +11098,7 @@ void CmMainWindowOnInit(HWND hWnd)
 	}
 	else
 	{
-		cm->VistaStyle = MsIsVista();
+		cm->VistaStyle = true;
 	}
 
 	if (MsRegIsValue(REG_CURRENT_USER, CM_REG_KEY, "ShowPort"))
@@ -12068,10 +11902,6 @@ RETRY:
 	{
 		cm->CmSettingSupported = true;
 		cm->CmEasyModeSupported = true;
-		if (OS_IS_WINDOWS_9X(a.OsType))
-		{
-			cm->CmEasyModeSupported = false;
-		}
 	}
 
 	return true;

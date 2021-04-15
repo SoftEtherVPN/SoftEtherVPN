@@ -10,6 +10,8 @@
 #ifndef	UNIX_H
 #define	UNIX_H
 
+#include "OS.h"
+
 // Constants
 #define	UNIX_THREAD_STACK_SIZE			(200 * 1000)	// Stack size
 #define	UNIX_MAX_CHILD_PROCESSES		2000000			// Maximum number of child processes

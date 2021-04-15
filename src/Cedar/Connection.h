@@ -8,6 +8,11 @@
 #ifndef	CONNECTION_H
 #define	CONNECTION_H
 
+#include "Cedar.h"
+
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/Proxy.h"
+
 // Magic number indicating that the packet is compressed
 #define	CONNECTION_BULK_COMPRESS_SIGNATURE	0xDEADBEEFCAFEFACEULL
 
@@ -149,7 +154,7 @@ struct UDP
 // Data block
 struct BLOCK
 {
-	BOOL Compressed;				// Compression flag
+	bool Compressed;				// Compression flag
 	UINT Size;						// Block size
 	UINT SizeofData;				// Data size
 	UCHAR *Buf;						// Buffer

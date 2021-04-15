@@ -5,8 +5,35 @@
 // Cedar.c
 // Cedar Communication Module
 
+#include "Cedar.h"
 
-#include "CedarPch.h"
+#include "Admin.h"
+#include "Bridge.h"
+#include "Connection.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Protocol.h"
+#include "Sam.h"
+#include "Server.h"
+#include "Session.h"
+#include "VLanWin32.h"
+#include "WebUI.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/HTTP.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Win32.h"
+
+#include <sodium.h>
 
 static UINT init_cedar_counter = 0;
 static REF *cedar_log_ref = NULL;
@@ -1094,12 +1121,13 @@ void CleanupCedar(CEDAR *c)
 	WuFreeWebUI(c->WebUI);
 	FreeCedarLayer3(c);
 
-/*
-	for (i = 0;i < LIST_NUM(c->HubList);i++)
+	for (i = 0; i < LIST_NUM(c->WgkList); ++i)
 	{
-		HUB *h = LIST_DATA(c->HubList, i);
+		WGK *wgk = LIST_DATA(c->WgkList, i);
+		Free(wgk);
 	}
-*/
+	ReleaseList(c->WgkList);
+
 	for (i = 0;i < LIST_NUM(c->CaList);i++)
 	{
 		X *x = LIST_DATA(c->CaList, i);
@@ -1491,6 +1519,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 	c->Traffic = NewTraffic();
 	c->TrafficLock = NewLock();
 	c->CaList = NewList(CompareCert);
+	c->WgkList = NewList(CompareWgk);
 
 	c->TrafficDiffList = NewList(NULL);
 
@@ -1597,6 +1626,12 @@ void InitCedar()
 {
 	if ((init_cedar_counter++) > 0)
 	{
+		return;
+	}
+
+	if (sodium_init() == -1)
+	{
+		Debug("InitCedar(): sodium_init() failed!\n");
 		return;
 	}
 

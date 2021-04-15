@@ -8,6 +8,11 @@
 #ifndef	WPC_H
 #define	WPC_H
 
+#include "Cedar.h"
+
+#include "Mayaqua/Encrypt.h"
+#include "Mayaqua/HTTP.h"
+
 // Constant
 #define WPC_HTTP_POST_NAME			"POST"		// POST
 #define WPC_HTTP_GET_NAME			"GET"		// GET

@@ -5,16 +5,11 @@
 // TcpIp.c
 // Utility module for TCP/IP packet processing
 
-#include <GlobalConst.h>
+#include "TcpIp.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "Cfg.h"
+#include "Memory.h"
+#include "Str.h"
 
 // Release the memory for the ICMP response
 void IcmpFreeResult(ICMP_RESULT *r)
@@ -2027,7 +2022,7 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_ex
 			b2 = false;
 		}
 	}
-	if (b1 || b2 || (memcmp(p->MacHeader->SrcAddress, p->MacHeader->DestAddress, 6) == 0))
+	if (b1 || b2 || (Cmp(p->MacHeader->SrcAddress, p->MacHeader->DestAddress, 6) == 0))
 	{
 		p->InvalidSourcePacket = true;
 	}
@@ -3866,7 +3861,7 @@ void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT
 		UCHAR c;
 		UINT subnet_mask_len;
 		UINT data_len;
-		UCHAR tmp[4];
+		BYTE tmp[IPV4_SIZE];
 		IP ip;
 		IP mask;
 		IP gateway;
@@ -3894,8 +3889,8 @@ void DhcpParseClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t, void *data, UINT
 		}
 
 		// IP address body
-		Zero(&ip, sizeof(IP));
-		Copy(ip.addr, tmp, data_len);
+		ZeroIP4(&ip);
+		Copy(IPV4(ip.address), tmp, sizeof(tmp));
 
 		Zero(&mask, sizeof(mask));
 		IntToSubnetMask4(&mask, subnet_mask_len);

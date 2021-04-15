@@ -50,10 +50,7 @@ else()
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(COMPILER_ARCHITECTURE "x64")
   add_definitions(-DCPU_64)
-else()
-  set(COMPILER_ARCHITECTURE "x86")
 endif()
 
 add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_SAFE -DTHREADSAFE -D_FILE_OFFSET_BITS=64)
@@ -62,7 +59,7 @@ add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_S
 include_directories(.)
 
 if(WIN32)
-  add_definitions(-DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS)
+  add_definitions(-DWIN32 -D_WINDOWS -DOS_WIN32 -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(UNIX)
@@ -70,7 +67,7 @@ if(UNIX)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
-  add_definitions(-DUNIX)
+  add_definitions(-DUNIX -DOS_UNIX)
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_definitions(-DUNIX_LINUX)
@@ -123,9 +120,6 @@ add_subdirectory(Cedar)
 # Mayaqua kernel
 add_subdirectory(Mayaqua)
 
-# hamcorebuilder utility
-add_subdirectory(hamcorebuilder)
-
 # vpnserver
 add_subdirectory(vpnserver)
 
@@ -140,6 +134,12 @@ add_subdirectory(vpncmd)
 
 # vpntest
 add_subdirectory(vpntest)
+
+# libhamcore
+add_subdirectory(libhamcore)
+
+# hamcorebuilder utility
+add_subdirectory(hamcorebuilder)
 
 # hamcore.se2 archive file
 add_custom_target(hamcore-archive-build

@@ -8,6 +8,8 @@
 #ifndef	PROTOCOL_H
 #define	PROTOCOL_H
 
+#include "Connection.h"
+
 // The parameters that will be passed to the certificate confirmation thread
 struct CHECK_CERT_THREAD_PROC
 {
@@ -134,6 +136,7 @@ PACK *PackLoginWithAnonymous(char *hubname, char *username);
 PACK *PackLoginWithPassword(char *hubname, char *username, void *secure_password);
 PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_password);
 PACK *PackLoginWithCert(char *hubname, char *username, X *x, void *sign, UINT sign_size);
+PACK *PackLoginWithWireGuardKey(char *key);
 PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x);
 bool GetMethodFromPack(PACK *p, char *method, UINT size);
 bool GetHubnameAndUsernameFromPack(PACK *p, char *username, UINT username_size,

@@ -8,6 +8,9 @@
 #ifndef	CEDARTYPE_H
 #define	CEDARTYPE_H
 
+typedef struct CEDAR CEDAR;
+typedef struct TRAFFIC TRAFFIC;
+
 
 // ==============================================================
 //   Remote Procedure Call
@@ -277,6 +280,7 @@ typedef struct HUB_SNAPSHOT HUB_SNAPSHOT;
 typedef struct SERVER_SNAPSHOT SERVER_SNAPSHOT;
 typedef struct SERVER_HUB_CREATE_HISTORY SERVER_HUB_CREATE_HISTORY;
 typedef struct OPENVPN_SSTP_CONFIG OPENVPN_SSTP_CONFIG;
+typedef struct WGK WGK;
 
 // ==============================================================
 //   Server Admin Tool
@@ -299,6 +303,7 @@ typedef struct RPC_ENUM_FARM_ITEM RPC_ENUM_FARM_ITEM;
 typedef struct RPC_ENUM_FARM RPC_ENUM_FARM;
 typedef struct RPC_FARM_CONNECTION_STATUS RPC_FARM_CONNECTION_STATUS;
 typedef struct RPC_KEY_PAIR RPC_KEY_PAIR;
+typedef struct RPC_WGK RPC_WGK;
 typedef struct RPC_HUB_OPTION RPC_HUB_OPTION;
 typedef struct RPC_RADIUS RPC_RADIUS;
 typedef struct RPC_HUB RPC_HUB;
@@ -467,6 +472,13 @@ typedef struct LICENSE_STATUS LICENSE_STATUS;
 typedef struct SECURE_PACK_FOLDER SECURE_PACK_FOLDER;
 typedef struct WIDE_MACHINE_ID WIDE_MACHINE_ID;
 typedef struct TRIAL_INFO TRIAL_INFO;
+
+
+// ==============================================================
+//  Proto
+// ==============================================================
+
+typedef struct PROTO_OPTION PROTO_OPTION;
 
 
 // ==============================================================

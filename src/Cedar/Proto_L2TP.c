@@ -5,7 +5,20 @@
 // Proto_L2TP.c
 // L2TP protocol stack
 
-#include "CedarPch.h"
+#include "Proto_L2TP.h"
+
+#include "Connection.h"
+#include "Logging.h"
+#include "Proto_EtherIP.h"
+#include "Proto_IKE.h"
+#include "Proto_IPsec.h"
+#include "Proto_PPP.h"
+
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Network.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/TcpIp.h"
 
 // Release the L2TP AVP value
 void FreeL2TPAVP(L2TP_AVP *a)

@@ -3,7 +3,7 @@ jobs:
   pool:
     vmImage: macOS-latest
   steps:
-  - script: brew install cmake ninja ncurses readline openssl zlib
+  - script: brew install pkg-config cmake ninja ncurses readline libsodium openssl zlib
     displayName: 'Prepare environment'
   - script: '$(Build.SourcesDirectory)/.ci/azure-pipelines/macos_build.sh'
     env:

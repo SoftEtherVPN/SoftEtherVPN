@@ -8,6 +8,9 @@
 #ifndef	NULLLAN_H
 #define	NULLLAN_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/MayaType.h"
 
 #define	NULL_PACKET_GENERATE_INTERVAL		100000000		// Packet generation interval
 

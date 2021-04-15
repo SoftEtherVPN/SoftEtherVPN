@@ -5,39 +5,31 @@
 // EM.c
 // EtherLogger Manager for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define WINUI_C
 
-#define	SM_C
-#define	CM_C
-#define	NM_C
-#define	EM_C
-
-#define	_WIN32_WINNT		0x0502
-#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-#include "CMInner.h"
-#include "SMInner.h"
-#include "NMInner.h"
+#include "EM.h"
 #include "EMInner.h"
+
+#include "CMInner.h"
+#include "Database.h"
+#include "EtherLog.h"
+#include "Remote.h"
+#include "SMInner.h"
+#include "WinUi.h"
+
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+
 #include "../PenCore/resource.h"
 
+#include <shellapi.h>
+#include <ShlObj.h>
 
 // License registration process
 void EmLicenseAddDlgOnOk(HWND hWnd, RPC *s)
@@ -1120,32 +1112,23 @@ RES_ERROR:
 		return;
 	}
 
-	// Message after the end
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType) == false)
+	// Need to restart the service
+	if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("EM_WPCAP_REBOOT2")) == IDNO)
 	{
-		// Need to restart the computer
-		MsgBox(hWnd, MB_ICONINFORMATION, _UU("EM_WPCAP_REBOOT1"));
+		// Not restart
 	}
 	else
 	{
-		// Need to restart the service
-		if (MsgBox(hWnd, MB_ICONQUESTION | MB_YESNO, _UU("EM_WPCAP_REBOOT2")) == IDNO)
-		{
-			// Not restart
-		}
-		else
-		{
-			// Restart
-			RPC_TEST t;
-			RPC_BRIDGE_SUPPORT t2;
-			Zero(&t, sizeof(t));
-			EcRebootServer(r, &t);
+		// Restart
+		RPC_TEST t;
+		RPC_BRIDGE_SUPPORT t2;
+		Zero(&t, sizeof(t));
+		EcRebootServer(r, &t);
 
-			SleepThread(500);
+		SleepThread(500);
 
-			Zero(&t2, sizeof(t2));
-			CALL(hWnd, EcGetBridgeSupport(r, &t2));
-		}
+		Zero(&t2, sizeof(t2));
+		CALL(hWnd, EcGetBridgeSupport(r, &t2));
 	}
 }
 
@@ -1173,7 +1156,7 @@ void EMMain(RPC *r)
 
 		if (t.IsWinPcapNeeded)
 		{
-			if (r->Sock->RemoteIP.addr[0] != 127)
+			if (IsLocalHostIP(&r->Sock->RemoteIP) == false)
 			{
 				// WinPcap is required, but can not do anything because it is in remote management mode
 				MsgBox(NULL, MB_ICONINFORMATION, _UU("EM_WPCAP_REMOTE"));

@@ -15,7 +15,7 @@ steps:
     path: 'C:/vcpkg/installed'
   displayName: 'Environment storage'
 - script: |
-    vcpkg install openssl zlib --triplet ${{parameters.vcpkgTriplet}}
+    vcpkg install libsodium openssl zlib --triplet ${{parameters.vcpkgTriplet}}
   workingDirectory: C:/vcpkg
   displayName: 'Prepare environment'
 - script: '$(Build.SourcesDirectory)/.ci/azure-pipelines/windows_build.bat'

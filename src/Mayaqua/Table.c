@@ -5,16 +5,19 @@
 // Table.c
 // Read and management routines for string table
 
-#include <GlobalConst.h>
+#include "Table.h"
 
-#include <stdio.h>
+#include "Cfg.h"
+#include "FileIO.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Network.h"
+#include "Str.h"
+#include "Tick64.h"
+
 #include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
 
 // List of TABLE
 static LIST *TableList = NULL;
@@ -629,22 +632,6 @@ char *GetTableStr(char *name)
 	{
 		return "";
 	}
-
-#ifdef	OS_WIN32
-	if (StrCmpi(name, "DEFAULT_FONT") == 0)
-	{
-		if (_II("LANG") == 2)
-		{
-			UINT os_type = GetOsType();
-			if (OS_IS_WINDOWS_9X(os_type) ||
-				GET_KETA(os_type, 100) <= 4)
-			{
-				// Use the SimSun font in Windows 9x, Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003
-				return "SimSun";
-			}
-		}
-	}
-#endif	// OS_WIN32
 
 	// Search
 	t = FindTable(name);

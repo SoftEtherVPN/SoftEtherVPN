@@ -5,7 +5,18 @@
 // SecureNAT.c
 // SecureNAT code
 
-#include "CedarPch.h"
+#include "SecureNAT.h"
+
+#include "Connection.h"
+#include "Hub.h"
+#include "Logging.h"
+#include "Nat.h"
+#include "Session.h"
+
+#include "Mayaqua/Kernel.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
 
 // SecureNAT server-side thread
 void SnSecureNATThread(THREAD *t, void *param)

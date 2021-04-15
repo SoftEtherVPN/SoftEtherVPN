@@ -5,7 +5,18 @@
 // Listener.c
 // Listener module
 
-#include "CedarPch.h"
+#include "Listener.h"
+
+#include "Cedar.h"
+#include "Connection.h"
+#include "Logging.h"
+#include "Server.h"
+#include "Session.h"
+
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
 
 static bool disable_dos = false;
 static UINT max_connections_per_ip = DEFAULT_MAX_CONNECTIONS_PER_IP;

@@ -8,8 +8,7 @@
 #ifndef	PROTO_ETHERIP_H
 #define	PROTO_ETHERIP_H
 
-//// Macro
-
+#include "Proto_IPsec.h"
 
 //// Constants
 #define	ETHERIP_VPN_CONNECT_RETRY_INTERVAL		(15 * 1000)	// VPN connection retry interval

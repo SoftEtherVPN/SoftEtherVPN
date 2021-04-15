@@ -8,6 +8,12 @@
 #ifndef	COMMAND_H
 #define	COMMAND_H
 
+#include "CedarType.h"
+
+#include "Mayaqua/Network.h"
+
+#include <stddef.h>
+
 // Constants
 #define	TRAFFIC_DEFAULT_PORT		9821
 #define	TRAFFIC_NUMTCP_MAX			32
@@ -446,6 +452,9 @@ UINT PsRouterTableAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsRouterTableDel(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsLogFileList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsLogFileGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsWgkAdd(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsWgkDelete(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsWgkEnum(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsHubCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsHubCreateDynamic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsHubCreateStatic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
@@ -456,6 +465,7 @@ UINT PsHubList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsHub(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOnline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsOffline(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsSetStaticNetwork(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetMaxSession(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetHubPassword(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsSetEnumAllow(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

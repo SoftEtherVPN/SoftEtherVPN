@@ -9,7 +9,7 @@
       - .cirrus.yml
   before_script:
     - REPOSITORY="$PWD" && cd ..
-    - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev git file
+    - apt-get update && apt-get install -y dpkg-dev wget g++ gcc libncurses5-dev libreadline-dev libsodium-dev libssl-dev make zlib1g-dev git file
     - wget https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}.tar.gz && tar -xzf cmake-${CMAKE_VERSION}.tar.gz
     - cd cmake-${CMAKE_VERSION} && ./bootstrap && make install
     - cd "$REPOSITORY" && git submodule update --init --recursive

@@ -5,6 +5,17 @@
 // SMInner.h
 // The internal header of SM.c
 
+#ifndef SMINNER_H
+#define SMINNER_H
+
+#include "Admin.h"
+#include "Connection.h"
+#include "DDNS.h"
+#include "Proto_EtherIP.h"
+#include "WinUi.h"
+
+#include "Mayaqua/TcpIp.h"
+
 // Constants
 #define	SM_REG_KEY			"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager"
 #define	SM_CERT_REG_KEY		"Software\\SoftEther VPN Developer Edition\\SoftEther VPN\\Server Manager\\Cert Tool"
@@ -720,4 +731,4 @@ UINT SmProxyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmProxyDlgInit(HWND hWnd, INTERNET_SETTING *t);
 void SmProxyDlgUpdate(HWND hWnd, INTERNET_SETTING *t);
 
-
+#endif

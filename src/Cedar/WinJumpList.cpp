@@ -5,82 +5,25 @@
 // WinJumpList.cpp
 // HTML display module source code for Win32
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#define NTDDI_VERSION NTDDI_WIN7
+#define _WIN32_WINNT _WIN32_WINNT_WIN7
 
-//#define NTDDI_WIN7                          0x06010000
-//#define	_WIN32_WINNT	_WIN32_WINNT_VISTA
-//#define NTDDI_VERSION NTDDI_VISTA  // Specifies that the minimum required platform is Windows 7.
-#define WIN32_LEAN_AND_MEAN       // Exclude rarely-used stuff from Windows headers
-#define STRICT_TYPED_ITEMIDS      // Utilize strictly typed IDLists
-
-//#include <objectarray.h>
-#include <shobjidl.h>
-#include <propkey.h>
-#include <propvarutil.h>
-//#include <knownfolders.h>
-//#include <shlobj.h>
-
-
-#ifdef StrCpy
-#undef StrCpy
-#endif
-
-#ifdef StrCat
-#undef StrCat
-#endif
-
-#ifdef StrCmp
-#undef StrCmp
-#endif
-
-
-#define	WIN32COM_CPP
-
-//#define	_WIN32_WINNT		0x0502
-//#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <comdef.h>
-#include <Mshtmhst.h>
-//#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
+#include "Win32Com.h"
 
 extern "C"
 {
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Mayaqua/Str.h"
 }
-#include "../PenCore/resource.h"
+
+#define STRICT_TYPED_ITEMIDS // Utilize strictly typed IDLists
+
+#include <ShObjIdl.h>
+#include <propvarutil.h>
 
 extern "C"
 {
-
-	//////////////////////////////////////////////////////////////////////////
-	//JumpList
-	//#define NTDDI_WIN7                          0x06010000
-	//#define NTDDI_VERSION NTDDI_WIN7  // Specifies that the minimum required platform is Windows 7.
-	//#define WIN32_LEAN_AND_MEAN       // Exclude rarely-used stuff from Windows headers
-	//#define STRICT_TYPED_ITEMIDS      // Utilize strictly typed IDLists
-	//
-	//
-	//#include <shobjidl.h>
-	//#include <propkey.h>
-	//#include <propvarutil.h>
-	//#include <knownfolders.h>
-	//#include <shlobj.h>
-
 	#define CREATE_PROPERTYKEY(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8, pid) { { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }, pid }
 
 
@@ -109,29 +52,7 @@ extern "C"
 	JL_HRESULT JL_CreateCustomDestinationList(JL_PCustomDestinationList* poc, wchar_t* appID)
 	{
 		ICustomDestinationList *pcdl;
-
-		//CLSID_DestinationList = 6332DEBF-87B5-4670-90C0-5E57-B408-A49E
-
-		GUID destList;
-
-		destList.Data1 = 2012286192;
-		destList.Data2 = 15797;
-		destList.Data3 = 18790;
-
-		destList.Data4[0] = 181;
-		destList.Data4[1] = 32;
-		destList.Data4[2] = 183;
-		destList.Data4[3] = 197;
-		destList.Data4[4] = 79;
-		destList.Data4[5] = 211;
-		destList.Data4[6] = 94;
-		destList.Data4[7] = 214;
-
-		//destList = CLSID_DestinationList;
-
-		//HRESULT hr = CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pcdl));
-		HRESULT hr = CoCreateInstance(destList, 
-			NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pcdl));
+		HRESULT hr = CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pcdl));
 
 		if (SUCCEEDED(hr))
 		{

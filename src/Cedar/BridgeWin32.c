@@ -5,24 +5,27 @@
 // BridgeWin32.c
 // Ethernet Bridge Program (Win32)
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	BRIDGE_C
+#define BRIDGE_C
 
-#include <winsock2.h>
+#include "BridgeWin32.h"
+
+#include "Admin.h"
+#include "Connection.h"
+#include "SeLowUser.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
+#include "Mayaqua/Str.h"
+
 #include <Ws2tcpip.h>
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Packet32.h>
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
-
 
 static WP *wp = NULL;
 static LIST *eth_list = NULL;
@@ -465,11 +468,6 @@ bool EnumEthVLanWin32(RPC_ENUM_ETH_VLAN *t)
 	}
 
 	Zero(t, sizeof(RPC_ENUM_ETH_VLAN));
-
-	if (MsIsWin2000OrGreater() == false)
-	{
-		return false;
-	}
 
 	if (IsEthSupported() == false)
 	{
@@ -1488,7 +1486,7 @@ LIST *GetEthAdapterListInternal()
 
 		i = 0;
 
-		if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType))
+		if (true)
 		{
 			// Windows NT
 			if (size >= 2 && buf[0] != 0 && buf[1] != 0)
@@ -1526,7 +1524,6 @@ LIST *GetEthAdapterListInternal()
 		}
 		else
 		{
-			// Windows 9x
 ANSI_STR:
 			while (true)
 			{
@@ -1563,18 +1560,6 @@ ANSI_STR:
 
 			StrCpy(a->Title, sizeof(a->Title), &buf[i]);
 			i += StrSize(a->Title);
-
-			// If device description is "Unknown" in Win9x, skip 1 byte
-			if (OS_IS_WINDOWS_9X(GetOsInfo()->OsType))
-			{
-				if (StrCmp(a->Title, "Unknown") == 0)
-				{
-					if (buf[i] == 0)
-					{
-						i+=sizeof(char);
-					}
-				}
-			}
 
 			TrimCrlf(a->Title);
 			Trim(a->Title);
@@ -1790,31 +1775,7 @@ bool IsEthSupportedInner()
 // Is the PCD driver supported in current OS
 bool IsPcdSupported()
 {
-	UINT type;
-	OS_INFO *info = GetOsInfo();
-
-	if (MsIsWindows10())
-	{
-		// Windows 10 or later never supports PCD driver.
-		return false;
-	}
-
-	type = info->OsType;
-
-	if (OS_IS_WINDOWS_NT(type) == false)
-	{
-		// Only on Windows NT series
-		return false;
-	}
-
-	if (GET_KETA(type, 100) >= 2)
-	{
-		// Good for Windows 2000 or later
-		return true;
-	}
-
-	// Not good for Windows NT 4.0 or Longhorn
-	return false;
+	return !MsIsWindows10();
 }
 
 // Save build number of PCD driver
@@ -2085,8 +2046,7 @@ void GetEthNetworkConnectionName(wchar_t *dst, UINT size, char *device_name)
 	UniStrCpy(dst, size, L"");
 
 	// Validate arguments
-	if (device_name == NULL || IsEthSupported() == false || 
-		IsNt() == false || MsIsWin2000OrGreater() == false)
+	if (device_name == NULL || IsEthSupported() == false)
 	{
 		return;
 	}
@@ -2134,6 +2094,4 @@ void GetEthNetworkConnectionName(wchar_t *dst, UINT size, char *device_name)
 	Free(ncname);
 }
 
-#endif	// BRIDGE_C
-
-
+#endif

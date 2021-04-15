@@ -5,8 +5,32 @@
 // Console.c
 // Console Service
 
-#include "CedarPch.h"
+#include "Console.h"
 
+#include "Cedar.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef OS_WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#include <sys/ioctl.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 // Display the help for the command
 void PrintCmdHelp(CONSOLE *c, char *cmd_name, TOKEN_LIST *param_list)
@@ -1911,7 +1935,7 @@ bool PasswordPrompt(char *password, UINT size)
 		int c;
 
 #ifdef	OS_WIN32
-		c = getch();
+		c = _getch();
 #else	// OS_WIN32
 		c = getc(stdin);
 #endif	// OS_WIN32
@@ -1943,7 +1967,7 @@ bool PasswordPrompt(char *password, UINT size)
 		{
 			// Read one more character
 #ifdef	OS_WIN32
-			c = getch();
+			c = _getch();
 #else	// OS_WIN32
 			c = getc(stdin);
 #endif	// OS_WIN32

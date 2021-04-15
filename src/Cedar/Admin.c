@@ -5,7 +5,42 @@
 // Admin.c
 // RPC Module for Management
 
-#include "CedarPch.h"
+#include "Admin.h"
+
+#include "Account.h"
+#include "AzureClient.h"
+#include "BridgeUnix.h"
+#include "BridgeWin32.h"
+#include "Connection.h"
+#include "DDNS.h"
+#include "Layer3.h"
+#include "Link.h"
+#include "Listener.h"
+#include "Nat.h"
+#include "Remote.h"
+#include "Proto.h"
+#include "Proto_IPsec.h"
+#include "Proto_OpenVPN.h"
+#include "Proto_PPP.h"
+#include "Protocol.h"
+#include "Sam.h"
+#include "SecureNAT.h"
+#include "Server.h"
+#include "Session.h"
+#include "Virtual.h"
+#include "Wpc.h"
+
+#include "Mayaqua/Cfg.h"
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/HTTP.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Object.h"
+#include "Mayaqua/Pack.h"
+#include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
+#include "Mayaqua/Tick64.h"
 
 // Macro for RPC function declaration
 #define	DECLARE_RPC_EX(rpc_name, data_type, function, in_rpc, out_rpc, free_rpc)		\
@@ -1509,6 +1544,9 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC_EX("GetServerCipherList", RPC_STR, StGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("GetServerCipher", RPC_STR, StGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 	DECLARE_RPC_EX("SetServerCipher", RPC_STR, StSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
+	DECLARE_RPC_EX("AddWgk", RPC_WGK, StAddWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+	DECLARE_RPC_EX("DeleteWgk", RPC_WGK, StDeleteWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+	DECLARE_RPC_EX("EnumWgk", RPC_WGK, StEnumWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
 	DECLARE_RPC("CreateHub", RPC_CREATE_HUB, StCreateHub, InRpcCreateHub, OutRpcCreateHub)
 	DECLARE_RPC("SetHub", RPC_CREATE_HUB, StSetHub, InRpcCreateHub, OutRpcCreateHub)
 	DECLARE_RPC("GetHub", RPC_CREATE_HUB, StGetHub, InRpcCreateHub, OutRpcCreateHub)
@@ -1693,6 +1731,9 @@ DECLARE_SC_EX("GetServerCert", RPC_KEY_PAIR, ScGetServerCert, InRpcKeyPair, OutR
 DECLARE_SC_EX("GetServerCipherList", RPC_STR, ScGetServerCipherList, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("GetServerCipher", RPC_STR, ScGetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
 DECLARE_SC_EX("SetServerCipher", RPC_STR, ScSetServerCipher, InRpcStr, OutRpcStr, FreeRpcStr)
+DECLARE_SC_EX("AddWgk", RPC_WGK, ScAddWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+DECLARE_SC_EX("DeleteWgk", RPC_WGK, ScDeleteWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
+DECLARE_SC_EX("EnumWgk", RPC_WGK, ScEnumWgk, InRpcWgk, OutRpcWgk, FreeRpcWgk)
 DECLARE_SC("CreateHub", RPC_CREATE_HUB, ScCreateHub, InRpcCreateHub, OutRpcCreateHub)
 DECLARE_SC("SetHub", RPC_CREATE_HUB, ScSetHub, InRpcCreateHub, OutRpcCreateHub)
 DECLARE_SC("GetHub", RPC_CREATE_HUB, ScGetHub, InRpcCreateHub, OutRpcCreateHub)
@@ -5390,7 +5431,7 @@ UINT StGetSessionStatus(ADMIN *a, RPC_SESSION_STATUS *t)
 				t->ClientIp = IPToUINT(&s->Connection->ClientIp);
 				if (IsIP6(&s->Connection->ClientIp))
 				{
-					Copy(&t->ClientIp6, &s->Connection->ClientIp.ipv6_addr, sizeof(t->ClientIp6));
+					Copy(&t->ClientIp6, &s->Connection->ClientIp.address, sizeof(t->ClientIp6));
 				}
 
 				CopyIP(&t->ClientIpAddress, &s->Connection->ClientIp);
@@ -9061,9 +9102,12 @@ UINT StGetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	{
 		StrCpy(t->HubName, sizeof(t->HubName), h->Name);
 		t->Online = h->Offline ? false : true;
+		t->HubType = h->Type;
+
+		t->HubOption.DefaultGateway = h->Option->DefaultGateway;
+		t->HubOption.DefaultSubnet = h->Option->DefaultSubnet;
 		t->HubOption.MaxSession = h->Option->MaxSession;
 		t->HubOption.NoEnum = h->Option->NoEnum;
-		t->HubType = h->Type;
 	}
 	Unlock(h->lock);
 
@@ -9089,7 +9133,6 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	{
 		return ERR_INVALID_PARAMETER;
 	}
-
 
 	CHECK_RIGHT;
 	NO_SUPPORT_FOR_BRIDGE;
@@ -9157,7 +9200,7 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 
 		if (Cmp(t->HashedPassword, hash2, SHA1_SIZE) == 0 || Cmp(t->SecurePassword, hash1, SHA1_SIZE) == 0)
 		{
-			if (a->ServerAdmin == false && a->Rpc->Sock->RemoteIP.addr[0] != 127)
+			if (a->ServerAdmin == false && IsLocalHostIP(&a->Rpc->Sock->RemoteIP) == false)
 			{
 				// Refuse to set a blank password to hub admin from remote host
 				ReleaseHub(h);
@@ -9175,8 +9218,12 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 		else
 		{
 			h->Type = t->HubType;
+
+			h->Option->DefaultGateway = t->HubOption.DefaultGateway;
+			h->Option->DefaultSubnet = t->HubOption.DefaultSubnet;
 			h->Option->MaxSession = t->HubOption.MaxSession;
 			h->Option->NoEnum = t->HubOption.NoEnum;
+
 			if (IsZero(t->HashedPassword, sizeof(t->HashedPassword)) == false &&
 				IsZero(t->SecurePassword, sizeof(t->SecurePassword)) == false)
 			{
@@ -9234,8 +9281,6 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 		return ERR_NOT_FARM_CONTROLLER;
 	}
 
-
-
 	if (IsEmptyStr(t->HubName) || IsSafeStr(t->HubName) == false)
 	{
 		return ERR_INVALID_PARAMETER;
@@ -9279,6 +9324,8 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 
 	// Create a hub object
 	Zero(&o, sizeof(o));
+	o.DefaultGateway = t->HubOption.DefaultGateway;
+	o.DefaultSubnet = t->HubOption.DefaultSubnet;
 	o.MaxSession = t->HubOption.MaxSession;
 	o.NoEnum = t->HubOption.NoEnum;
 
@@ -9493,6 +9540,144 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 	ALog(a, NULL, "LA_SET_SERVER_CERT");
 
 	IncrementServerConfigRevision(s);
+
+	return ERR_NO_ERROR;
+}
+
+// Add a WireGuard key to the allowed key list
+UINT StAddWgk(ADMIN *a, RPC_WGK *t)
+{
+	UINT ret = ERR_NO_ERROR;
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	LIST *to_add;
+
+	SERVER_ADMIN_ONLY;
+
+	to_add = NewListFast(NULL);
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *rpc_wgk = &t->Wgks[i];
+			WGK *wgk;
+
+			if (IsEmptyStr(rpc_wgk->Key))
+			{
+				ret = ERR_INVALID_PARAMETER;
+				break;
+			}
+
+			if (Search(c->WgkList, rpc_wgk) != NULL)
+			{
+				ret = ERR_OBJECT_EXISTS;
+				break;
+			}
+
+			wgk = Malloc(sizeof(WGK));
+			StrCpy(wgk->Key, sizeof(wgk->Key), rpc_wgk->Key);
+			StrCpy(wgk->Hub, sizeof(wgk->Hub), rpc_wgk->Hub);
+			StrCpy(wgk->User, sizeof(wgk->User), rpc_wgk->User);
+
+			Add(to_add, wgk);
+		}
+
+		for (i = 0; i < LIST_NUM(to_add); ++i)
+		{
+			WGK *wgk = LIST_DATA(to_add, i);
+			ret == ERR_NO_ERROR ? Add(c->WgkList, wgk) : Free(wgk);
+		}
+	}
+	UnlockList(c->WgkList);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		ALog(a, NULL, "LA_ADD_WGK", LIST_NUM(to_add));
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	ReleaseList(to_add);
+
+	return ret;
+}
+
+// Delete a WireGuard key from the allowed key list
+UINT StDeleteWgk(ADMIN *a, RPC_WGK *t)
+{
+	UINT ret = ERR_NO_ERROR;
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	LIST *to_delete;
+
+	SERVER_ADMIN_ONLY;
+
+	to_delete = NewListFast(NULL);
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *wgk = Search(c->WgkList, &t->Wgks[i]);
+			if (wgk == NULL)
+			{
+				ret = ERR_OBJECT_NOT_FOUND;
+				break;
+			}
+
+			Add(to_delete, wgk);
+		}
+
+		if (ret == ERR_NO_ERROR)
+		{
+			for (i = 0; i < LIST_NUM(to_delete); ++i)
+			{
+				WGK *wgk = LIST_DATA(to_delete, i);
+				Delete(c->WgkList, wgk);
+				Free(wgk);
+			}
+		}
+	}
+	UnlockList(c->WgkList);
+
+	if (ret == ERR_NO_ERROR)
+	{
+		ALog(a, NULL, "LA_DELETE_WGK", LIST_NUM(to_delete));
+		IncrementServerConfigRevision(a->Server);
+	}
+
+	ReleaseList(to_delete);
+
+	return ret;
+}
+
+// List the allowed WireGuard keys
+UINT StEnumWgk(ADMIN *a, RPC_WGK *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+
+	SERVER_ADMIN_ONLY;
+
+	LockList(c->WgkList);
+	{
+		UINT i;
+		t->Num = LIST_NUM(c->WgkList);
+		t->Wgks = Malloc(sizeof(WGK) * t->Num);
+
+		for (i = 0; i < t->Num; ++i)
+		{
+			WGK *wgk = LIST_DATA(c->WgkList, i);
+			WGK *rpc_wgk = &t->Wgks[i];
+
+			StrCpy(rpc_wgk->Key, sizeof(rpc_wgk->Key), wgk->Key);
+			StrCpy(rpc_wgk->Hub, sizeof(rpc_wgk->Hub), wgk->Hub);
+			StrCpy(rpc_wgk->User, sizeof(rpc_wgk->User), wgk->User);
+		}
+	}
+	UnlockList(c->WgkList);
 
 	return ERR_NO_ERROR;
 }
@@ -10020,6 +10205,8 @@ UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
 	PROTO_CONTAINER *container, tmp;
 	UINT ret = ERR_NO_ERROR;
 	LIST *options;
+
+	SERVER_ADMIN_ONLY;
 
 	if (proto == NULL)
 	{
@@ -12885,6 +13072,8 @@ void InRpcHubOption(RPC_HUB_OPTION *t, PACK *p)
 	}
 
 	Zero(t, sizeof(RPC_HUB_OPTION));
+	t->DefaultGateway = PackGetInt(p, "DefaultGateway");
+	t->DefaultSubnet = PackGetInt(p, "DefaultSubnet");
 	t->MaxSession = PackGetInt(p, "MaxSession");
 	t->NoEnum = PackGetBool(p, "NoEnum");
 }
@@ -12896,6 +13085,8 @@ void OutRpcHubOption(PACK *p, RPC_HUB_OPTION *t)
 		return;
 	}
 
+	PackAddInt(p, "DefaultGateway", t->DefaultGateway);
+	PackAddInt(p, "DefaultSubnet", t->DefaultSubnet);
 	PackAddInt(p, "MaxSession", t->MaxSession);
 	PackAddBool(p, "NoEnum", t->NoEnum);
 }
@@ -14455,6 +14646,64 @@ void FreeRpcKeyPair(RPC_KEY_PAIR *t)
 	FreeK(t->Key);
 }
 
+// RPC_WGK
+void InRpcWgk(RPC_WGK *t, PACK *p)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(RPC_WGK));
+
+	t->Num = PackGetIndexCount(p, "Key");
+	if (t->Num == 0)
+	{
+		return;
+	}
+
+	t->Wgks = ZeroMalloc(sizeof(WGK) * t->Num);
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		WGK *wgk = &t->Wgks[i];
+
+		PackGetStrEx(p, "Key", wgk->Key, sizeof(wgk->Key), i);
+		PackGetStrEx(p, "Hub", wgk->Hub, sizeof(wgk->Hub), i);
+		PackGetStrEx(p, "User", wgk->User, sizeof(wgk->User), i);
+	}
+}
+void OutRpcWgk(PACK *p, RPC_WGK *t)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < t->Num; ++i)
+	{
+		WGK *wgk = &t->Wgks[i];
+
+		PackAddStrEx(p, "Key", wgk->Key, i, t->Num);
+		PackAddStrEx(p, "Hub", wgk->Hub, i, t->Num);
+		PackAddStrEx(p, "User", wgk->User, i, t->Num);
+	}
+}
+void FreeRpcWgk(RPC_WGK *t)
+{
+	// Validate arguments
+	if (t == NULL)
+	{
+		return;
+	}
+
+	Free(t->Wgks);
+}
+
 // NODE_INFO
 void InRpcNodeInfo(NODE_INFO *t, PACK *p)
 {
@@ -15121,7 +15370,7 @@ UINT AdminAccept(CONNECTION *c, PACK *p)
 
 	if (Cmp(secure_null_password, secure_password, SHA1_SIZE) == 0)
 	{
-		if (sock->RemoteIP.addr[0] != 127)
+		if (IsLocalHostIP(&sock->RemoteIP) == false)
 		{
 			// The client tried to use blank password for hub admin mode from remote
 			if (StrLen(hubname) != 0)

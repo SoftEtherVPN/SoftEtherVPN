@@ -5,8 +5,16 @@
 // VLanUnix.h
 // Header of VLanUnix.c
 
+#ifdef OS_UNIX
+
 #ifndef	VLANUNIX_H
 #define	VLANUNIX_H
+
+#include "CedarType.h"
+
+#include "VLan.h"
+
+#include "Mayaqua/MayaType.h"
 
 // Constant
 #define	TAP_READ_BUF_SIZE			1600
@@ -62,5 +70,6 @@ bool UnixVLanSetState(char* name, bool state_up);
 int UnixVLanGet(char *name);
 int UnixCompareVLan(void *p1, void *p2);
 
-#endif	// VLANUNIX_H
+#endif // VLANUNIX_H
 
+#endif // OS_UNIX

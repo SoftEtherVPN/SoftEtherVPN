@@ -8,16 +8,10 @@
 #ifndef	SECURE_H
 #define	SECURE_H
 
+#include "MayaType.h"
+
 // Constant
 #define	MAX_SEC_DATA_SIZE		4096
-
-// Type declaration related to PKCS#11
-#ifndef	SECURE_C
-typedef struct CK_FUNCTION_LIST *CK_FUNCTION_LIST_PTR;
-typedef struct SEC_DATA_WIN32	SEC_DATA_WIN32;
-typedef struct CK_TOKEN_INFO	CK_TOKEN_INFO;
-typedef struct CK_DATE			CK_DATE;
-#endif	// SECURE_C
 
 // Secure device
 struct SECURE_DEVICE
@@ -170,51 +164,5 @@ bool Win32LoadSecModule(SECURE *sec);
 void Win32FreeSecModule(SECURE *sec);
 
 #endif	// OS_WIN32
-
-
-#ifdef	SECURE_C
-// Internal data structure
-// The list of supported secure devices
-static LIST *SecureDeviceList = NULL;
-
-// Supported hardware list
-SECURE_DEVICE SupportedList[] =
-{
-	{1,		SECURE_IC_CARD,		"Standard-9 IC Card",	"Dai Nippon Printing",	"DNPS9P11.DLL"},
-	{2,		SECURE_USB_TOKEN,	"ePass 1000",			"Feitian Technologies",	"EP1PK111.DLL"},
-	{3,		SECURE_IC_CARD,		"DNP Felica",			"Dai Nippon Printing",	"DNPFP11.DLL"},
-	{4,		SECURE_USB_TOKEN,	"eToken",				"Aladdin",				"ETPKCS11.DLL"},
-	{5,		SECURE_IC_CARD,		"Standard-9 IC Card",	"Fujitsu",				"F3EZSCL2.DLL"},
-	{6,		SECURE_IC_CARD,		"ASECard",				"Athena",				"ASEPKCS.DLL"},
-	{7,		SECURE_IC_CARD,		"Gemplus IC Card",		"Gemplus",				"PK2PRIV.DLL"},
-	{8,		SECURE_IC_CARD,		"1-Wire & iButton",		"DALLAS SEMICONDUCTOR",	"DSPKCS.DLL"},
-	{9,		SECURE_IC_CARD,		"JPKI IC Card",			"Japanese Government",	"JPKIPKCS11.DLL"},
-	{10,	SECURE_IC_CARD,		"LGWAN IC Card",		"Japanese Government",	"P11STD9.DLL"},
-	{11,	SECURE_IC_CARD,		"LGWAN IC Card",		"Japanese Government",	"P11STD9A.DLL"},
-	{12,	SECURE_USB_TOKEN,	"iKey 1000",			"Rainbow Technologies",	"K1PK112.DLL"},
-	{13,	SECURE_IC_CARD,		"JPKI IC Card #2",		"Japanese Government",	"libmusclepkcs11.dll"},
-	{14,	SECURE_USB_TOKEN,	"SafeSign",				"A.E.T.",				"aetpkss1.dll"},
-	{15,	SECURE_USB_TOKEN,	"LOCK STAR-PKI",		"Logicaltech Co.,LTD",	"LTPKCS11.dll"},
-	{16,	SECURE_USB_TOKEN,	"ePass 2000",			"Feitian Technologies",	"ep2pk11.dll"},
-	{17,	SECURE_IC_CARD,		"myuToken",				"iCanal Inc.",			"icardmodpk.dll"},
-	{18,	SECURE_IC_CARD,		"Gemalto .NET",			"Gemalto",				"gtop11dotnet.dll"},
-	{19,	SECURE_IC_CARD,		"Gemalto .NET 64bit",	"Gemalto",				"gtop11dotnet64.dll"},
-	{20,	SECURE_USB_TOKEN,	"ePass 2003",			"Feitian Technologies",	"eps2003csp11.dll"},
-	{21,	SECURE_USB_TOKEN,	"ePass 1000ND/2000/3000",			"Feitian Technologies",	"ngp11v211.dll"},
-	{22,	SECURE_USB_TOKEN,	"CryptoID",				"Longmai Technology",	"cryptoide_pkcs11.dll"},
-	{23,	SECURE_USB_TOKEN,	"RuToken",				"Aktiv Co.",			"rtPKCS11.dll"},
-};
-
-#ifdef	OS_WIN32
-
-// Win32 internal data
-typedef struct SEC_DATA_WIN32
-{
-	HINSTANCE hInst;
-} SEC_DATA_WIN32;
-
-#endif	// OS_WIN32
-
-#endif	// SECURE_C
 
 #endif	// SECURE_H

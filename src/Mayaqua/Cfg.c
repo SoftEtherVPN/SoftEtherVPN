@@ -5,18 +5,14 @@
 // Cfg.c
 // Configuration information manipulation module
 
-#include <GlobalConst.h>
+#include "Cfg.h"
 
-#define	CFG_C
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+#include "FileIO.h"
+#include "Internat.h"
+#include "Memory.h"
+#include "Network.h"
+#include "Object.h"
+#include "Str.h"
 
 // Create a backup of the configuration file
 void BackupCfgWEx(CFG_RW *rw, FOLDER *f, wchar_t *original, UINT revision_number)

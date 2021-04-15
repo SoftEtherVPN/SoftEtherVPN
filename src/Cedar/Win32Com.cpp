@@ -5,48 +5,25 @@
 // Win32Com.c
 // Win32 COM module call
 
-#include <GlobalConst.h>
+#ifdef OS_WIN32
 
-#ifdef	WIN32
+#include "Win32Com.h"
 
-#define	WIN32COM_CPP
-
-#define _WIN32_DCOM
-
-//#define	_WIN32_WINNT		0x0502
-//#define	WINVER				0x0502
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
-#include <wininet.h>
-#include <Wbemidl.h>
-#include <comdef.h>
-#include <Mshtmhst.h>
-#include <shlobj.h>
-#include <commctrl.h>
-#include <Dbghelp.h>
-#include <iphlpapi.h>
-#include <Natupnp.h>
-#include <devguid.h>
-#include <regstr.h>
-#include <cfgmgr32.h>
-#include <tchar.h>
-#include <objbase.h>
-#include <Setupapi.h>
-#include "netcfgn.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
 extern "C"
 {
-#include <Mayaqua/Mayaqua.h>
-#include <Cedar/Cedar.h>
+#include "Mayaqua/FileIO.h"
+#include "Mayaqua/Internat.h"
+#include "Mayaqua/Mayaqua.h"
+#include "Mayaqua/Memory.h"
+#include "Mayaqua/Str.h"
 }
-#include "../PenCore/resource.h"
+
+#include <devguid.h>
+#include <MsHtmHst.h>
+#include <natupnp.h>
+#include <netcfgn.h>
+#include <SetupAPI.h>
+#include <ShlObj.h>
 
 // Add a UPnP port
 bool Win32UPnPAddPort(UINT outside_port, UINT inside_port, bool udp, char *local_ip, wchar_t *description, bool remove_before_add)
@@ -284,11 +261,11 @@ bool InstallNdisProtocolDriver(wchar_t *inf_path, wchar_t *id, UINT lock_timeout
 	}
 
 	_SetupCopyOEMInfW =
-		(UINT (__stdcall *)(PCWSTR,PCWSTR,DWORD,DWORD,PWSTR,DWORD,PDWORD,PWSTR *))
+		(BOOL (__stdcall *)(PCWSTR,PCWSTR,DWORD,DWORD,PWSTR,DWORD,PDWORD,PWSTR *))
 		GetProcAddress(hSetupApiDll, "SetupCopyOEMInfW");
 
 	_SetupUninstallOEMInfW =
-		(UINT (__stdcall *)(PCWSTR,DWORD,PVOID))
+		(BOOL (__stdcall *)(PCWSTR,DWORD,PVOID))
 		GetProcAddress(hSetupApiDll, "SetupUninstallOEMInfW");
 
 	if (_SetupCopyOEMInfW == NULL || _SetupUninstallOEMInfW == NULL)
@@ -746,7 +723,7 @@ HRESULT ShowHTMLDialogFromURL(HWND hwndParent,wchar_t *szURL,VARIANT* pvarArgIn,
    
     try
     {
-        IMonikerPtr spMoniker;
+        IMoniker *spMoniker;
         hr = ::CreateURLMoniker(NULL, szURL, &spMoniker);
         if (FAILED(hr))
         {
@@ -858,31 +835,8 @@ bool CreateLinkInner(wchar_t *filename, wchar_t *target, wchar_t *workdir, wchar
 				     wchar_t *comment, wchar_t *icon, UINT icon_index)
 {
 	HRESULT r;
-	bool ret;
 	IShellLinkW* pShellLink;
 	IPersistFile* pPersistFile;
-
-	if (OS_IS_WINDOWS_9X(GetOsInfo()->OsType))
-	{
-		char *a1, *a2, *a3, *a4, *a5, *a6;
-		a1 = CopyUniToStr(filename);
-		a2 = CopyUniToStr(target);
-		a3 = CopyUniToStr(workdir);
-		a4 = CopyUniToStr(args);
-		a5 = CopyUniToStr(icon);
-		a6 = CopyUniToStr(comment);
-
-		ret = CreateLinkInnerA(a1, a2, a3, a4, a6, a5, icon_index);
-
-		Free(a1);
-		Free(a2);
-		Free(a3);
-		Free(a4);
-		Free(a5);
-		Free(a6);
-
-		return ret;
-	}
 
 	r = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void **)&pShellLink);
 	if (FAILED(r))
@@ -968,31 +922,11 @@ extern "C"
 // Show the folder selection dialog
 wchar_t *FolderDlgW(HWND hWnd, wchar_t *title, wchar_t *default_dir)
 {
-	wchar_t *ret;
-
-	if (MsIsNt() == false)
-	{
-		char *default_dir_a = CopyUniToStr(default_dir);
-		char *ret_a = FolderDlgA(hWnd, title, default_dir_a);
-
-		ret = CopyStrToUni(ret_a);
-		Free(ret_a);
-		Free(default_dir_a);
-
-		return ret;
-	}
-
-	ret = FolderDlgInnerW(hWnd, title, default_dir);
-
-	return ret;
+	return FolderDlgInnerW(hWnd, title, default_dir);
 }
 char *FolderDlgA(HWND hWnd, wchar_t *title, char *default_dir)
 {
-	char *ret;
-
-	ret = FolderDlgInnerA(hWnd, title, default_dir);
-
-	return ret;
+	return FolderDlgInnerA(hWnd, title, default_dir);
 }
 
 // Create a shortcut

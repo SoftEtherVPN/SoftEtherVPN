@@ -5,16 +5,27 @@
 // Kernel.c
 // System service processing routine
 
-#include <GlobalConst.h>
+#include "Kernel.h"
 
-#include <stdio.h>
+#include "Encrypt.h"
+#include "Internat.h"
+#include "Mayaqua.h"
+#include "Memory.h"
+#include "Microsoft.h"
+#include "Object.h"
+#include "Str.h"
+#include "Table.h"
+#include "Tracking.h"
+#include "Unix.h"
+#include "Win32.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <stdarg.h>
 #include <time.h>
-#include <errno.h>
-#include <Mayaqua/Mayaqua.h>
+
+#ifdef OS_UNIX
+#include <sys/time.h>
+#endif
 
 #ifndef TM_YEAR_MAX
 #define TM_YEAR_MAX         2106
@@ -612,15 +623,8 @@ void HashInstanceName(char *name, UINT size, char *instance_name)
 
 	Format(name, size, "VPN-%s", key);
 
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType))
-	{
-		if (GET_KETA(GetOsInfo()->OsType, 100) >= 2 ||
-			GetOsInfo()->OsType == OSTYPE_WINDOWS_NT_4_TERMINAL_SERVER)
-		{
-			StrCpy(tmp, sizeof(tmp), name);
-			Format(name, size, "Global\\%s", tmp);
-		}
-	}
+	StrCpy(tmp, sizeof(tmp), name);
+	Format(name, size, "Global\\%s", tmp);
 }
 void HashInstanceNameLocal(char *name, UINT size, char *instance_name)
 {
@@ -643,15 +647,8 @@ void HashInstanceNameLocal(char *name, UINT size, char *instance_name)
 
 	Format(name, size, "VPN-%s", key);
 
-	if (OS_IS_WINDOWS_NT(GetOsInfo()->OsType))
-	{
-		if (GET_KETA(GetOsInfo()->OsType, 100) >= 2 ||
-			GetOsInfo()->OsType == OSTYPE_WINDOWS_NT_4_TERMINAL_SERVER)
-		{
-			StrCpy(tmp, sizeof(tmp), name);
-			Format(name, size, "Local\\%s", tmp);
-		}
-	}
+	StrCpy(tmp, sizeof(tmp), name);
+	Format(name, size, "Local\\%s", tmp);
 }
 
 // Run the process
