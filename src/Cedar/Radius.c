@@ -11,6 +11,7 @@
 #include "IPC.h"
 #include "Server.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"
@@ -1717,7 +1718,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 		{
 			Add(ip_list, tmp_ip);
 		}
-		else if (GetIPEx(tmp_ip, token->Token[i], true))
+		else if (GetIP(tmp_ip, token->Token[i]))
 		{
 			Add(ip_list, tmp_ip);
 		}

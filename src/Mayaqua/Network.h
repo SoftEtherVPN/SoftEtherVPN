@@ -27,19 +27,13 @@ struct DYN_VALUE
 
 #define	MAX_HOST_NAME_LEN			255		// Maximum length of the host name
 
-#define	TIMEOUT_GETIP				2300
-
 #define	TIMEOUT_INFINITE			(0x7fffffff)
 #define	TIMEOUT_TCP_PORT_CHECK		(10 * 1000)
 #define	TIMEOUT_SSL_CONNECT			(15 * 1000)
 
-#define	TIMEOUT_HOSTNAME			(500)
 #define	TIMEOUT_NETBIOS_HOSTNAME	(100)
-#define	EXPIRES_HOSTNAME			(10 * 60 * 1000)
 
 #define	SOCKET_BUFFER_SIZE			0x10000000
-
-#define	IPV6_DUMMY_FOR_IPV4			0xFEFFFFDF
 
 #define	UDPLISTENER_CHECK_INTERVAL	1000ULL
 #define	UDPLISTENER_WAIT_INTERVAL	1234
@@ -47,12 +41,6 @@ struct DYN_VALUE
 #define	UDP_MAX_MSG_SIZE_DEFAULT	65507
 
 #define	MAX_NUM_IGNORE_ERRORS		1024
-
-#ifndef	USE_STRATEGY_LOW_MEMORY
-#define	DEFAULT_GETIP_THREAD_MAX_NUM		512
-#else	// USE_STRATEGY_LOW_MEMORY
-#define	DEFAULT_GETIP_THREAD_MAX_NUM		64
-#endif	// USE_STRATEGY_LOW_MEMORY
 
 #define	DEFAULT_CIPHER_LIST			"ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:ECDHE+AES256:DHE+AES256:RSA+AES"
 
@@ -114,14 +102,6 @@ struct IPV6_ADDR
 #define IPV6_ADDR_SOLICIATION_MULTICAST			64	// Solicited-node multicast
 #define	IPV6_ADDR_ZERO							128	// All zeros
 #define	IPV6_ADDR_LOOPBACK						256	// Loop-back
-
-
-// DNS cache list
-struct DNSCACHE
-{
-	char *HostName;
-	IP IpAddress;
-};
 
 // Client list
 struct IP_CLIENT
@@ -328,15 +308,6 @@ struct ICMP_RESULT
 	IP IpAddress;									// IP address
 };
 
-
-// Host name cache list
-typedef struct HOSTCACHE
-{
-	UINT64 Expires;							// Expiration
-	IP IpAddress;							// IP address
-	char HostName[256];						// Host name
-} HOSTCACHE;
-
 // NETBIOS name requests
 typedef struct NBTREQUEST
 {
@@ -375,17 +346,6 @@ typedef struct SOCKET_TIMEOUT_PARAM {
 	THREAD *thread;
 	bool unblocked;
 } SOCKET_TIMEOUT_PARAM;
-
-// Parameters for GetIP thread
-struct GETIP_THREAD_PARAM
-{
-	REF *Ref;
-	char HostName[MAX_PATH];
-	bool IPv6;
-	UINT Timeout;
-	IP Ip;
-	bool Ok;
-};
 
 // Parameters for the IP address release thread
 struct WIN32_RELEASEADDRESS_THREAD_PARAM
@@ -900,7 +860,6 @@ bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UIN
 
 void SetDhParam(DH_CTX *dh);
 
-bool IsUseDnsProxy();
 bool IsUseAlternativeHostname();
 
 #ifdef	OS_WIN32
@@ -1066,18 +1025,7 @@ void UnixSetSocketNonBlockingMode(int fd, bool nonblock);
 // Function prototype
 void InitNetwork();
 void FreeNetwork();
-void InitDnsCache();
-void FreeDnsCache();
-void LockDnsCache();
-void UnlockDnsCache();
-int CompareDnsCache(void *p1, void *p2);
-void GenDnsCacheKeyName(char *dst, UINT size, char *src, bool ipv6);
-void NewDnsCacheEx(char *hostname, IP *ip, bool ipv6);
-DNSCACHE *FindDnsCacheEx(char *hostname, bool ipv6);
-bool QueryDnsCacheEx(IP *ip, char *hostname, bool ipv6);
-void NewDnsCache(char *hostname, IP *ip);
-DNSCACHE *FindDnsCache(char *hostname);
-bool QueryDnsCache(IP *ip, char *hostname);
+
 void InAddrToIP(IP *ip, struct in_addr *addr);
 void InAddrToIP6(IP *ip, struct in6_addr *addr);
 void IPToInAddr(struct in_addr *addr, IP *ip);
@@ -1090,24 +1038,7 @@ void IPToStr32(char *str, UINT size, UINT ip);
 void IPToStr4or6(char *str, UINT size, UINT ip_4_uint, UCHAR *ip_6_bytes);
 void IPToUniStr(wchar_t *str, UINT size, IP *ip);
 void IPToUniStr32(wchar_t *str, UINT size, UINT ip);
-bool GetIPEx(IP *ip, char *hostname, bool ipv6);
-bool GetIP46Ex(IP *ip4, IP *ip6, char *hostname, UINT timeout, bool *cancel);
-bool GetIP(IP *ip, char *hostname);
-bool GetIP4(IP *ip, char *hostname);
-bool GetIP6(IP *ip, char *hostname);
-bool GetIP4Ex(IP *ip, char *hostname, UINT timeout, bool *cancel);
-bool GetIP6Ex(IP *ip, char *hostname, UINT timeout, bool *cancel);
-bool GetIP4Ex6Ex(IP *ip, char *hostname, UINT timeout, bool ipv6, bool *cancel);
-bool GetIP4Ex6Ex2(IP *ip, char *hostname, UINT timeout, bool ipv6, bool *cancel, bool only_direct_dns);
-void GetIP4Ex6ExThread(THREAD *t, void *param);
-void ReleaseGetIPThreadParam(GETIP_THREAD_PARAM *p);
-void CleanupGetIPThreadParam(GETIP_THREAD_PARAM *p);
-bool GetIP4Inner(IP *ip, char *hostname);
-bool GetIP6Inner(IP *ip, char *hostname);
-bool GetHostNameInner(char *hostname, UINT size, IP *ip);
-bool GetHostNameInner6(char *hostname, UINT size, IP *ip);
 bool GetHostName(char *hostname, UINT size, IP *ip);
-void GetHostNameThread(THREAD *t, void *p);
 void GetMachineName(char *name, UINT size);
 void GetMachineNameEx(char *name, UINT size, bool no_load_hosts);
 bool GetMachineNameFromHosts(char *name, UINT size);
@@ -1212,11 +1143,6 @@ void InitWaitThread();
 void FreeWaitThread();
 void AddWaitThread(THREAD *t);
 void DelWaitThread(THREAD *t);
-void InitHostCache();
-void FreeHostCache();
-int CompareHostCache(void *p1, void *p2);
-void AddHostCache(IP *ip, char *hostname);
-bool GetHostCache(char *hostname, UINT size, IP *ip);
 bool IsSubnetMask(IP *ip);
 bool IsSubnetMask4(IP *ip);
 bool IsSubnetMask32(UINT ip);
@@ -1245,9 +1171,6 @@ IP_CLIENT *SearchIpClient(IP *ip);
 UINT GetNumIpClient(IP *ip);
 void SetLinuxArpFilter();
 int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool *cancel_flag);
-void EnableNetworkNameCache();
-void DisableNetworkNameCache();
-bool IsNetworkNameCacheEnabled();
 ROUTE_CHANGE *NewRouteChange();
 void FreeRouteChange(ROUTE_CHANGE *r);
 bool IsRouteChanged(ROUTE_CHANGE *r);
@@ -1465,10 +1388,6 @@ void QueryIpThreadMain(THREAD *thread, void *param);
 QUERYIPTHREAD *NewQueryIpThread(char *hostname, UINT interval_last_ok, UINT interval_last_ng);
 bool GetQueryIpThreadResult(QUERYIPTHREAD *t, IP *ip);
 void FreeQueryIpThread(QUERYIPTHREAD *t);
-
-void SetGetIpThreadMaxNum(UINT num);
-UINT GetGetIpThreadMaxNum();
-UINT GetCurrentGetIpThreadNum();
 
 #ifdef	OS_WIN32
 LIST *Win32GetNicList();

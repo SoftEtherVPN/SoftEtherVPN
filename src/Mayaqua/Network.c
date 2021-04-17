@@ -8,6 +8,7 @@
 #include "Network.h"
 
 #include "Cfg.h"
+#include "DNS.h"
 #include "FileIO.h"
 #include "HTTP.h"
 #include "Internat.h"
@@ -69,41 +70,18 @@ struct ROUTE_CHANGE_DATA
 #define	FIX_SSL_BLOCKING
 #endif
 
-// IPV6_V6ONLY constant
-#ifdef	UNIX_LINUX
-#ifndef	IPV6_V6ONLY
-#define	IPV6_V6ONLY	26
-#endif	// IPV6_V6ONLY
-#endif	// UNIX_LINUX
-
-#ifdef	UNIX_SOLARIS
-#ifndef	IPV6_V6ONLY
-#define	IPV6_V6ONLY	0x27
-#endif	// IPV6_V6ONLY
-#endif	// UNIX_SOLARIS
-
 // HTTP constant
 static char http_detect_server_startwith[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n<HTML><HEAD>\r\n<TITLE>403 Forbidden</TITLE>\r\n</HEAD><BODY>\r\n<H1>Forbidden</H1>\r\nYou don't have permission to access ";
 static char http_detect_server_tag_future[] = "9C37197CA7C2428388C2E6E59B829B30";
 
-// DNS cache list
-static LIST *DnsCache;
-
 // Lock related
 static LOCK *machine_name_lock = NULL;
 static LOCK *disconnect_function_lock = NULL;
-static LOCK *aho = NULL;
-static LOCK *socket_library_lock = NULL;
 extern LOCK *openssl_lock;
-static LOCK *ssl_accept_lock = NULL;
-static LOCK *ssl_connect_lock = NULL;
 static COUNTER *num_tcp_connections = NULL;
-static LOCK *dns_lock = NULL;
 static LOCK *unix_dns_server_addr_lock = NULL;
 static IP unix_dns_server;
-static LIST *HostCacheList = NULL;
 static LIST *WaitThreadList = NULL;
-static bool disable_cache = false;
 static UCHAR machine_ip_process_hash[SHA1_SIZE];
 static LOCK *machine_ip_process_hash_lock = NULL;
 static LOCK *current_global_ip_lock = NULL;
@@ -119,8 +97,6 @@ static LOCK *host_ip_address_list_cache_lock = NULL;
 static UINT64 host_ip_address_list_cache_last = 0;
 static LIST *host_ip_address_cache = NULL;
 static bool disable_gethostname_by_accept = false;
-static COUNTER *getip_thread_counter = NULL;
-static UINT max_getip_thread = 0;
 
 
 static LIST *ip_clients = NULL;
@@ -382,12 +358,6 @@ int GetCurrentTimezone()
 #endif	// OS_WIN32
 
 	return ret;
-}
-
-// Flag of whether to use the DNS proxy
-bool IsUseDnsProxy()
-{
-	return false;
 }
 
 // Flag of whether to use an alternate host name
@@ -684,7 +654,7 @@ bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT t
 	else
 	{
 		// FLET'S NEXT
-		if (GetIP4Ex6Ex2(&dns_proxy_ip, dns_proxy_hostname, FLETS_NGN_DNS_QUERY_TIMEOUT, true, cancel, true) == false)
+		if (GetIP6Ex(&dns_proxy_ip, dns_proxy_hostname, FLETS_NGN_DNS_QUERY_TIMEOUT, cancel) == false)
 		{
 			return false;
 		}
@@ -780,7 +750,7 @@ bool GetIPViaDnsProxyForJapanFlets(IP *ip_ret, char *hostname, bool ipv6, UINT t
 
 	if (ret)
 	{
-		NewDnsCache(hostname, ip_ret);
+		DnsCacheUpdate(hostname, ipv6 ? ip_ret : NULL, ipv6 ? NULL : ip_ret);
 	}
 
 	return ret;
@@ -9936,144 +9906,6 @@ bool IsIPv6Supported()
 #endif	// NO_IPV6
 }
 
-// Get the host name from the host cache
-bool GetHostCache(char *hostname, UINT size, IP *ip)
-{
-	bool ret;
-	// Validate arguments
-	if (hostname == NULL || ip == NULL)
-	{
-		return false;
-	}
-
-	ret = false;
-
-	LockList(HostCacheList);
-	{
-		HOSTCACHE t, *c;
-		Zero(&t, sizeof(t));
-		Copy(&t.IpAddress, ip, sizeof(IP));
-
-		c = Search(HostCacheList, &t);
-		if (c != NULL)
-		{
-			if (IsEmptyStr(c->HostName) == false)
-			{
-				ret = true;
-				StrCpy(hostname, size, c->HostName);
-			}
-			else
-			{
-				ret = true;
-				StrCpy(hostname, size, "");
-			}
-		}
-	}
-	UnlockList(HostCacheList);
-
-	return ret;
-}
-
-// Add to the host name cache
-void AddHostCache(IP *ip, char *hostname)
-{
-	// Validate arguments
-	if (ip == NULL || hostname == NULL)
-	{
-		return;
-	}
-	if (IsNetworkNameCacheEnabled() == false)
-	{
-		return;
-	}
-
-	LockList(HostCacheList);
-	{
-		HOSTCACHE t, *c;
-		UINT i;
-		LIST *o;
-
-		Zero(&t, sizeof(t));
-		Copy(&t.IpAddress, ip, sizeof(IP));
-
-		c = Search(HostCacheList, &t);
-		if (c == NULL)
-		{
-			c = ZeroMalloc(sizeof(HOSTCACHE));
-			Copy(&c->IpAddress, ip, sizeof(IP));
-			Add(HostCacheList, c);
-		}
-
-		StrCpy(c->HostName, sizeof(c->HostName), hostname);
-		c->Expires = Tick64() + (UINT64)EXPIRES_HOSTNAME;
-
-		o = NewListFast(NULL);
-
-		for (i = 0; i < LIST_NUM(HostCacheList); i++)
-		{
-			HOSTCACHE *c = LIST_DATA(HostCacheList, i);
-
-			if (c->Expires <= Tick64())
-			{
-				Add(o, c);
-			}
-		}
-
-		for (i = 0; i < LIST_NUM(o); i++)
-		{
-			HOSTCACHE *c = LIST_DATA(o, i);
-
-			if (Delete(HostCacheList, c))
-			{
-				Free(c);
-			}
-		}
-
-		ReleaseList(o);
-	}
-	UnlockList(HostCacheList);
-}
-
-// Comparison of host name cache entries
-int CompareHostCache(void *p1, void *p2)
-{
-	HOSTCACHE *c1, *c2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	c1 = *(HOSTCACHE **)p1;
-	c2 = *(HOSTCACHE **)p2;
-	if (c1 == NULL || c2 == NULL)
-	{
-		return 0;
-	}
-
-	return CmpIpAddr(&c1->IpAddress, &c2->IpAddress);
-}
-
-// Release of the host name cache
-void FreeHostCache()
-{
-	UINT i;
-
-	for (i = 0; i < LIST_NUM(HostCacheList); i++)
-	{
-		HOSTCACHE *c = LIST_DATA(HostCacheList, i);
-
-		Free(c);
-	}
-
-	ReleaseList(HostCacheList);
-	HostCacheList = NULL;
-}
-
-// Initialization of the host name cache
-void InitHostCache()
-{
-	HostCacheList = NewList(CompareHostCache);
-}
-
 // Add the thread to the thread waiting list
 void AddWaitThread(THREAD *t)
 {
@@ -12008,11 +11840,9 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 	{
 		prev_timeout = GetTimeout(sock);
 		SetTimeout(sock, ssl_timeout);
-		Lock(ssl_connect_lock);
 		// Client mode
 		if (SSL_connect(sock->ssl) <= 0)
 		{
-			Unlock(ssl_connect_lock);
 			// SSL-connect failure
 			Lock(openssl_lock);
 			{
@@ -12027,7 +11857,6 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 			FreeSSLCtx(ssl_ctx);
 			return false;
 		}
-		Unlock(ssl_connect_lock);
 		SetTimeout(sock, prev_timeout);
 	}
 
@@ -14140,7 +13969,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	else
 	{
 		// Forward resolution
-		if (GetIP46Ex(&ip4, &ip6, hostname_original, 0, cancel_flag) == false)
+		if (DnsResolve(&ip6, &ip4, hostname_original, 0, cancel_flag) == false)
 		{
 			return NULL;
 		}
@@ -15183,191 +15012,26 @@ void GetMachineNameEx(char *name, UINT size, bool no_load_hosts)
 	Unlock(machine_name_lock);
 }
 
-// Host name acquisition thread
-void GetHostNameThread(THREAD *t, void *p)
-{
-	IP *ip;
-	char hostname[256];
-	// Validate arguments
-	if (t == NULL || p == NULL)
-	{
-		return;
-	}
-
-	ip = (IP *)p;
-
-	AddWaitThread(t);
-
-	NoticeThreadInit(t);
-
-	if (GetHostNameInner(hostname, sizeof(hostname), ip))
-	{
-		AddHostCache(ip, hostname);
-	}
-
-	Free(ip);
-
-	DelWaitThread(t);
-}
-
 // Get the host name
 bool GetHostName(char *hostname, UINT size, IP *ip)
 {
-	THREAD *t;
-	IP *p_ip;
-	bool ret;
-	// Validate arguments
-	if (hostname == NULL || ip == NULL)
+	if (hostname == NULL || size == 0 || ip == NULL)
 	{
 		return false;
 	}
 
-	if (GetHostCache(hostname, size, ip))
+	if (DnsResolveReverse(hostname, size, ip, 0, NULL))
 	{
-		if (IsEmptyStr(hostname) == false)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
 
-	p_ip = ZeroMalloc(sizeof(IP));
-	Copy(p_ip, ip, sizeof(IP));
-
-	t = NewThread(GetHostNameThread, p_ip);
-
-	WaitThreadInit(t);
-
-	WaitThread(t, TIMEOUT_HOSTNAME);
-
-	ReleaseThread(t);
-
-	ret = GetHostCache(hostname, size, ip);
-	if (ret == false)
+	if (IsIP4(ip) && GetNetBiosName(hostname, size, ip))
 	{
-		if (IsIP4(ip))
-		{
-			ret = GetNetBiosName(hostname, size, ip);
-			if (ret)
-			{
-				AddHostCache(ip, hostname);
-			}
-		}
-	}
-	else
-	{
-		if (IsEmptyStr(hostname))
-		{
-			ret = false;
-		}
-	}
-	if (ret == false)
-	{
-		AddHostCache(ip, "");
-		StrCpy(hostname, size, "");
+		DnsCacheReverseUpdate(ip, hostname);
+		return true;
 	}
 
-	return ret;
-}
-
-// Perform a DNS reverse query
-bool GetHostNameInner(char *hostname, UINT size, IP *ip)
-{
-	struct in_addr addr;
-	struct sockaddr_in sa;
-	char tmp[MAX_SIZE];
-	char ip_str[64];
-	// Validate arguments
-	if (hostname == NULL || ip == NULL)
-	{
-		return false;
-	}
-
-	if (IsIP6(ip))
-	{
-		return GetHostNameInner6(hostname, size, ip);
-	}
-
-	// Reverse resolution
-	IPToInAddr(&addr, ip);
-	Zero(&sa, sizeof(sa));
-	sa.sin_family = AF_INET;
-
-#if	defined(UNIX_BSD) || defined(UNIX_MACOS)
-	sa.sin_len = INET_ADDRSTRLEN;
-#endif	// UNIX_BSD || UNIX_MACOS
-
-	Copy(&sa.sin_addr, &addr, sizeof(struct in_addr));
-	sa.sin_port = 0;
-
-	if (getnameinfo((struct sockaddr *)&sa, sizeof(sa), tmp, sizeof(tmp), NULL, 0, 0) != 0)
-	{
-		return false;
-	}
-
-	IPToStr(ip_str, sizeof(ip_str), ip);
-
-	if (StrCmpi(tmp, ip_str) == 0)
-	{
-		return false;
-	}
-
-	if (IsEmptyStr(tmp))
-	{
-		return false;
-	}
-
-	StrCpy(hostname, size, tmp);
-
-	return true;
-}
-bool GetHostNameInner6(char *hostname, UINT size, IP *ip)
-{
-	struct in6_addr addr;
-	struct sockaddr_in6 sa;
-	char tmp[MAX_SIZE];
-	char ip_str[256];
-	// Validate arguments
-	if (hostname == NULL || ip == NULL)
-	{
-		return false;
-	}
-
-	// Reverse resolution
-	IPToInAddr6(&addr, ip);
-	Zero(&sa, sizeof(sa));
-	sa.sin6_family = AF_INET6;
-
-#if	defined(UNIX_BSD) || defined(UNIX_MACOS)
-	sa.sin6_len = INET6_ADDRSTRLEN;
-#endif	// UNIX_BSD || UNIX_MACOS
-
-	Copy(&sa.sin6_addr, &addr, sizeof(struct in6_addr));
-	sa.sin6_port = 0;
-
-	if (getnameinfo((struct sockaddr *)&sa, sizeof(sa), tmp, sizeof(tmp), NULL, 0, 0) != 0)
-	{
-		return false;
-	}
-
-	IPToStr(ip_str, sizeof(ip_str), ip);
-
-	if (StrCmpi(tmp, ip_str) == 0)
-	{
-		return false;
-	}
-
-	if (IsEmptyStr(tmp))
-	{
-		return false;
-	}
-
-	StrCpy(hostname, size, tmp);
-
-	return true;
+	return false;
 }
 
 #define	NUM_NBT_QUERYS_SEND			3
@@ -15536,572 +15200,6 @@ UINT SetIP32(UCHAR a1, UCHAR a2, UCHAR a3, UCHAR a4)
 	SetIP(&ip, a1, a2, a3, a4);
 
 	return IPToUINT(&ip);
-}
-
-// Obtain in both v4 and v6 results with a DNS forward lookup
-bool GetIP46Ex(IP *ip4, IP *ip6, char *hostname, UINT timeout, bool *cancel)
-{
-	IP a, b;
-	bool ok_a, ok_b;
-	// Validate arguments
-	if (ip4 == NULL || ip6 == NULL || hostname == NULL)
-	{
-		return false;
-	}
-
-	ZeroIP4(ip4);
-	Zero(ip6, sizeof(IP));
-
-	ok_a = ok_b = false;
-
-	if (GetIP6Ex(&a, hostname, timeout, cancel))
-	{
-		ok_a = true;
-	}
-
-	if (GetIP4Ex(&b, hostname, timeout, cancel))
-	{
-		ok_b = true;
-	}
-
-	if (ok_a)
-	{
-		if (IsIP4(&a))
-		{
-			Copy(ip4, &a, sizeof(IP));
-		}
-	}
-	if (ok_b)
-	{
-		if (IsIP4(&b))
-		{
-			Copy(ip4, &b, sizeof(IP));
-		}
-
-		if (IsIP6(&b))
-		{
-			Copy(ip6, &b, sizeof(IP));
-		}
-	}
-	if (ok_a)
-	{
-		if (IsIP6(&a))
-		{
-			Copy(ip6, &a, sizeof(IP));
-		}
-	}
-
-	if (IsZeroIp(ip4) && IsZeroIp(ip6))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-// Clean-up of the parameters for GetIP thread
-void CleanupGetIPThreadParam(GETIP_THREAD_PARAM *p)
-{
-	// Validate arguments
-	if (p == NULL)
-	{
-		return;
-	}
-
-	Free(p);
-}
-
-// Release of the parameters of the GetIP for thread
-void ReleaseGetIPThreadParam(GETIP_THREAD_PARAM *p)
-{
-	// Validate arguments
-	if (p == NULL)
-	{
-		return;
-	}
-
-	if (Release(p->Ref) == 0)
-	{
-		CleanupGetIPThreadParam(p);
-	}
-}
-
-// Thread to perform to query the DNS forward lookup (with timeout)
-void GetIP4Ex6ExThread(THREAD *t, void *param)
-{
-	GETIP_THREAD_PARAM *p;
-	// Validate arguments
-	if (t == NULL || param == NULL)
-	{
-		return;
-	}
-
-	p = (GETIP_THREAD_PARAM *)param;
-
-	AddRef(p->Ref);
-
-	NoticeThreadInit(t);
-
-	AddWaitThread(t);
-
-	// Execution of resolution
-	if (p->IPv6 == false)
-	{
-		// IPv4
-		p->Ok = GetIP4Inner(&p->Ip, p->HostName);
-	}
-	else
-	{
-		// IPv6
-		p->Ok = GetIP6Inner(&p->Ip, p->HostName);
-	}
-
-	ReleaseGetIPThreadParam(p);
-
-	DelWaitThread(t);
-
-	Dec(getip_thread_counter);
-}
-
-// Perform a forward DNS query (with timeout)
-bool GetIP4Ex6Ex(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *cancel)
-{
-	return GetIP4Ex6Ex2(ip, hostname_arg, timeout, ipv6, cancel, false);
-}
-bool GetIP4Ex6Ex2(IP *ip, char *hostname_arg, UINT timeout, bool ipv6, bool *cancel, bool only_direct_dns)
-{
-	GETIP_THREAD_PARAM *p;
-	THREAD *t;
-	bool ret = false;
-	UINT64 start_tick = 0;
-	UINT64 end_tick = 0;
-	UINT64 spent_time = 0;
-	UINT64 now;
-	UINT n;
-	bool use_dns_proxy = false;
-	char hostname[260];
-	UINT i;
-	bool timed_out;
-	// Validate arguments
-	if (ip == NULL || hostname_arg == NULL)
-	{
-		return false;
-	}
-	if (timeout == 0)
-	{
-		timeout = TIMEOUT_GETIP;
-	}
-
-	Zero(hostname, sizeof(hostname));
-	StrCpy(hostname, sizeof(hostname), hostname_arg);
-
-	i = SearchStrEx(hostname, "/", 0, true);
-	if (i != INFINITE)
-	{
-		hostname[i] = 0;
-	}
-
-	if (ipv6 == false)
-	{
-		IP ip2;
-
-		if (StrToIP(&ip2, hostname) && IsZeroIp(&ip2) == false)
-		{
-			if (IsIP4(&ip2))
-			{
-				// IPv4 address direct specification
-				Copy(ip, &ip2, sizeof(IP));
-				return true;
-			}
-			else
-			{
-				// IPv6 address direct specification
-				return false;
-			}
-		}
-	}
-	else
-	{
-		IP ip2;
-
-		if (StrToIP(&ip2, hostname) && IsZeroIp(&ip2) == false)
-		{
-			if (IsIP6(&ip2))
-			{
-				// IPv6 address direct specification
-				Copy(ip, &ip2, sizeof(IP));
-				return true;
-			}
-			else
-			{
-				// IPv4 address direct specification
-				return false;
-			}
-		}
-	}
-
-	if (only_direct_dns == false)
-	{
-		if (ipv6 == false)
-		{
-			if (IsUseDnsProxy())
-			{
-				use_dns_proxy = true;
-			}
-		}
-	}
-
-
-	// check the quota
-	start_tick = Tick64();
-	end_tick = start_tick + (UINT64)timeout;
-
-	n = 0;
-
-	timed_out = false;
-
-	while (true)
-	{
-		UINT64 now = Tick64();
-		UINT64 remain;
-		UINT remain32;
-
-		if (GetGetIpThreadMaxNum() > GetCurrentGetIpThreadNum())
-		{
-			// below the quota
-			break;
-		}
-
-		if (now >= end_tick)
-		{
-			// timeouted
-			timed_out = true;
-			break;
-		}
-
-		if (cancel != NULL && (*cancel))
-		{
-			// cancelled
-			timed_out = true;
-			break;
-		}
-
-		remain = end_tick - now;
-		remain32 = MIN((UINT)remain, 100);
-
-		SleepThread(remain32);
-		n++;
-	}
-
-	now = Tick64();
-	spent_time = now - start_tick;
-
-	if (n == 0)
-	{
-		spent_time = 0;
-	}
-
-	if ((UINT)spent_time >= timeout)
-	{
-		timed_out = true;
-	}
-
-	if (timed_out)
-	{
-		IP ip2;
-
-		// timed out, cancelled
-		if (QueryDnsCache(&ip2, hostname))
-		{
-			ret = true;
-
-			Copy(ip, &ip2, sizeof(IP));
-		}
-
-		Debug("GetIP4Ex6Ex2: Worker thread quota exceeded: max=%u current=%u\n",
-		      GetGetIpThreadMaxNum(), GetCurrentGetIpThreadNum());
-
-		return ret;
-	}
-
-	// Increment the counter
-	Inc(getip_thread_counter);
-
-	if (spent_time != 0)
-	{
-		Debug("GetIP4Ex6Ex2: Waited for %u msecs to create a worker thread.\n",
-		      spent_time);
-	}
-
-	timeout -= (UINT)spent_time;
-
-	p = ZeroMalloc(sizeof(GETIP_THREAD_PARAM));
-	p->Ref = NewRef();
-	StrCpy(p->HostName, sizeof(p->HostName), hostname);
-	p->IPv6 = ipv6;
-	p->Timeout = timeout;
-	p->Ok = false;
-
-	t = NewThread(GetIP4Ex6ExThread, p);
-	WaitThreadInit(t);
-
-	if (cancel == NULL)
-	{
-		WaitThread(t, timeout);
-	}
-	else
-	{
-		start_tick = Tick64();
-		end_tick = start_tick + (UINT64)timeout;
-
-		while (true)
-		{
-			UINT64 now = Tick64();
-			UINT64 remain;
-			UINT remain32;
-
-			if (*cancel)
-			{
-				break;
-			}
-
-			if (now >= end_tick)
-			{
-				break;
-			}
-
-			remain = end_tick - now;
-			remain32 = MIN((UINT)remain, 100);
-
-			if (WaitThread(t, remain32))
-			{
-				break;
-			}
-		}
-	}
-
-	ReleaseThread(t);
-
-	if (p->Ok)
-	{
-		ret = true;
-		Copy(ip, &p->Ip, sizeof(IP));
-	}
-	else
-	{
-		IP ip2;
-
-#if	0
-		if (only_direct_dns == false)
-		{
-			if (ipv6)
-			{
-				UINT flets_type = DetectFletsType();
-
-				// if I'm in the FLETs of NTT East,
-				// try to get an IP address using the DNS proxy server
-				if ((flets_type & FLETS_DETECT_TYPE_EAST_BFLETS_PRIVATE) &&
-				        GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, NULL))
-				{
-					// B FLETs
-					ret = true;
-				}
-				else if ((flets_type & FLETS_DETECT_TYPE_EAST_NGN_PRIVATE) &&
-				         GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_EAST_DNS_PROXY_HOSTNAME))
-				{
-					// FLET'S Hikar-Next (NTT East)
-					ret = true;
-				}
-				else if ((flets_type & FLETS_DETECT_TYPE_WEST_NGN_PRIVATE) &&
-				         GetIPViaDnsProxyForJapanFlets(ip, hostname, true, 0, cancel, FLETS_NGN_WEST_DNS_PROXY_HOSTNAME))
-				{
-					// FLET'S Hikar-Next (NTT West)
-					ret = true;
-				}
-			}
-		}
-#endif
-
-		if (QueryDnsCache(&ip2, hostname))
-		{
-			ret = true;
-
-			Copy(ip, &ip2, sizeof(IP));
-		}
-	}
-
-
-	ReleaseGetIPThreadParam(p);
-
-	return ret;
-}
-bool GetIP4Ex(IP *ip, char *hostname, UINT timeout, bool *cancel)
-{
-	return GetIP4Ex6Ex(ip, hostname, timeout, false, cancel);
-}
-bool GetIP6Ex(IP *ip, char *hostname, UINT timeout, bool *cancel)
-{
-	return GetIP4Ex6Ex(ip, hostname, timeout, true, cancel);
-}
-bool GetIP4(IP *ip, char *hostname)
-{
-	return GetIP4Ex(ip, hostname, 0, NULL);
-}
-bool GetIP6(IP *ip, char *hostname)
-{
-	return GetIP6Ex(ip, hostname, 0, NULL);
-}
-
-// Perform a DNS forward lookup query
-bool GetIP(IP *ip, char *hostname)
-{
-	return GetIPEx(ip, hostname, false);
-}
-bool GetIPEx(IP *ip, char *hostname, bool ipv6)
-{
-	if (ipv6 == false)
-	{
-		return GetIP4(ip, hostname);
-	}
-	else
-	{
-		return GetIP6(ip, hostname);
-	}
-}
-bool GetIP6Inner(IP *ip, char *hostname)
-{
-	struct sockaddr_in6 in;
-	struct in6_addr addr;
-	struct addrinfo hint;
-	struct addrinfo *info;
-	// Validate arguments
-	if (ip == NULL || hostname == NULL)
-	{
-		return false;
-	}
-
-	if (IsEmptyStr(hostname))
-	{
-		return false;
-	}
-
-	if (StrCmpi(hostname, "localhost") == 0)
-	{
-		GetLocalHostIP6(ip);
-		return true;
-	}
-
-	if (StrToIP6(ip, hostname) == false && StrToIP(ip, hostname) == false)
-	{
-		// Forward resolution
-		Zero(&hint, sizeof(hint));
-		hint.ai_family = AF_INET6;
-		hint.ai_socktype = SOCK_STREAM;
-		hint.ai_protocol = IPPROTO_TCP;
-		info = NULL;
-
-		if (getaddrinfo(hostname, NULL, &hint, &info) != 0 ||
-		        info->ai_family != AF_INET6)
-		{
-			if (info)
-			{
-				freeaddrinfo(info);
-			}
-			return QueryDnsCacheEx(ip, hostname, true);
-		}
-		// Forward resolution success
-		Copy(&in, info->ai_addr, sizeof(struct sockaddr_in6));
-		freeaddrinfo(info);
-
-		Copy(&addr, &in.sin6_addr, sizeof(addr));
-		InAddrToIP6(ip, &addr);
-	}
-
-	// Save Cache
-	NewDnsCache(hostname, ip);
-
-	return true;
-}
-bool GetIP4Inner(IP *ip, char *hostname)
-{
-	struct sockaddr_in in;
-	struct in_addr addr;
-	struct addrinfo hint;
-	struct addrinfo *info;
-	// Validate arguments
-	if (ip == NULL || hostname == NULL)
-	{
-		return false;
-	}
-
-	if (IsEmptyStr(hostname))
-	{
-		return false;
-	}
-
-	if (StrCmpi(hostname, "localhost") == 0)
-	{
-		SetIP(ip, 127, 0, 0, 1);
-		return true;
-	}
-
-	if (StrToIP6(ip, hostname) == false && StrToIP(ip, hostname) == false)
-	{
-		// Forward resolution
-		Zero(&hint, sizeof(hint));
-		hint.ai_family = AF_INET;
-		hint.ai_socktype = SOCK_STREAM;
-		hint.ai_protocol = IPPROTO_TCP;
-		info = NULL;
-
-		if (getaddrinfo(hostname, NULL, &hint, &info) != 0 ||
-		        info->ai_family != AF_INET)
-		{
-			if (info)
-			{
-				freeaddrinfo(info);
-			}
-			return QueryDnsCache(ip, hostname);
-		}
-		// Forward resolution success
-		Copy(&in, info->ai_addr, sizeof(struct sockaddr_in));
-		freeaddrinfo(info);
-		Copy(&addr, &in.sin_addr, sizeof(addr));
-		InAddrToIP(ip, &addr);
-	}
-
-	// Save Cache
-	NewDnsCache(hostname, ip);
-
-	return true;
-}
-
-// Search in the DNS cache
-bool QueryDnsCache(IP *ip, char *hostname)
-{
-	return QueryDnsCacheEx(ip, hostname, false);
-}
-bool QueryDnsCacheEx(IP *ip, char *hostname, bool ipv6)
-{
-	DNSCACHE *c;
-	char tmp[MAX_SIZE];
-	// Validate arguments
-	if (ip == NULL || hostname == NULL)
-	{
-		return false;
-	}
-
-	GenDnsCacheKeyName(tmp, sizeof(tmp), hostname, ipv6);
-
-	c = FindDnsCache(tmp);
-	if (c == NULL)
-	{
-		return false;
-	}
-
-	Copy(ip, &c->IpAddress, sizeof(IP));
-
-	return true;
 }
 
 // Convert the IP to a string
@@ -16332,160 +15430,6 @@ void InAddrToIP6(IP *ip, struct in6_addr *addr)
 	}
 }
 
-// Search in the DNS cache
-DNSCACHE *FindDnsCache(char *hostname)
-{
-	return FindDnsCacheEx(hostname, false);
-}
-DNSCACHE *FindDnsCacheEx(char *hostname, bool ipv6)
-{
-	DNSCACHE *c;
-	char tmp[MAX_SIZE];
-	if (hostname == NULL)
-	{
-		return NULL;
-	}
-
-	GenDnsCacheKeyName(tmp, sizeof(tmp), hostname, ipv6);
-
-	LockDnsCache();
-	{
-		DNSCACHE t;
-		t.HostName = tmp;
-		c = Search(DnsCache, &t);
-	}
-	UnlockDnsCache();
-
-	return c;
-}
-
-// Generate the IPv4 / IPv6 key name for the DNS cache
-void GenDnsCacheKeyName(char *dst, UINT size, char *src, bool ipv6)
-{
-	// Validate arguments
-	if (dst == NULL || src == NULL)
-	{
-		return;
-	}
-
-	if (ipv6 == false)
-	{
-		StrCpy(dst, size, src);
-	}
-	else
-	{
-		Format(dst, size, "%s@ipv6", src);
-	}
-}
-
-// Registration of the new DNS cache
-void NewDnsCache(char *hostname, IP *ip)
-{
-	NewDnsCacheEx(hostname, ip, IsIP6(ip));
-}
-void NewDnsCacheEx(char *hostname, IP *ip, bool ipv6)
-{
-	DNSCACHE *c;
-	char tmp[MAX_PATH];
-	// Validate arguments
-	if (hostname == NULL || ip == NULL)
-	{
-		return;
-	}
-
-	if (IsNetworkNameCacheEnabled() == false)
-	{
-		return;
-	}
-
-	GenDnsCacheKeyName(tmp, sizeof(tmp), hostname, ipv6);
-
-	LockDnsCache();
-	{
-		DNSCACHE t;
-
-		// Search for anything matches to the hostname first
-		t.HostName = tmp;
-		c = Search(DnsCache, &t);
-
-		if (c == NULL)
-		{
-			// Newly register
-			c = ZeroMalloc(sizeof(DNSCACHE));
-			c->HostName = CopyStr(tmp);
-
-			Copy(&c->IpAddress, ip, sizeof(IP));
-
-			Add(DnsCache, c);
-		}
-		else
-		{
-			// Update
-			Copy(&c->IpAddress, ip, sizeof(IP));
-		}
-	}
-	UnlockDnsCache();
-}
-
-// Name comparison of the DNS cache entries
-int CompareDnsCache(void *p1, void *p2)
-{
-	DNSCACHE *c1, *c2;
-	if (p1 == NULL || p2 == NULL)
-	{
-		return 0;
-	}
-	c1 = *(DNSCACHE **)p1;
-	c2 = *(DNSCACHE **)p2;
-	if (c1 == NULL || c2 == NULL)
-	{
-		return 0;
-	}
-
-	return StrCmpi(c1->HostName, c2->HostName);
-}
-
-// Initialization of the DNS cache
-void InitDnsCache()
-{
-	// Creating a List
-	DnsCache = NewList(CompareDnsCache);
-}
-
-// Release of the DNS cache
-void FreeDnsCache()
-{
-	LockDnsCache();
-	{
-		DNSCACHE *c;
-		UINT i;
-		for (i = 0; i < LIST_NUM(DnsCache); i++)
-		{
-			// Release the memory for the entry
-			c = LIST_DATA(DnsCache, i);
-			Free(c->HostName);
-			Free(c);
-		}
-	}
-	UnlockDnsCache();
-
-	// Release the list
-	ReleaseList(DnsCache);
-	DnsCache = NULL;
-}
-
-// Lock the DNS cache
-void LockDnsCache()
-{
-	LockList(DnsCache);
-}
-
-// Unlock the DNS cache
-void UnlockDnsCache()
-{
-	UnlockList(DnsCache);
-}
-
 // DH temp key callback
 DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 {
@@ -16572,27 +15516,6 @@ UINT GetOSSecurityLevel()
 	return security_level_set_ssl_version;
 }
 
-// The number of get ip threads
-void SetGetIpThreadMaxNum(UINT num)
-{
-	max_getip_thread = num;
-}
-UINT GetGetIpThreadMaxNum()
-{
-	UINT ret = max_getip_thread;
-
-	if (ret == 0)
-	{
-		ret = 0x7FFFFFFF;
-	}
-
-	return ret;
-}
-UINT GetCurrentGetIpThreadNum()
-{
-	return Count(getip_thread_counter);
-}
-
 // Initialize the network communication module
 void InitNetwork()
 {
@@ -16607,16 +15530,11 @@ void InitNetwork()
 
 	num_tcp_connections = NewCounter();
 
-	getip_thread_counter = NewCounter();
-
 	// Initialization of client list
 	InitIpClientList();
 
 	// Thread related initialization
 	InitWaitThread();
-
-	// Initialization of the host name cache
-	InitHostCache();
 
 #ifdef	OS_WIN32
 	// Initializing the socket library
@@ -16625,18 +15543,12 @@ void InitNetwork()
 	UnixInitSocketLibrary();
 #endif	// OS_WIN32
 
-	// Initialization of the DNS cache
-	InitDnsCache();
+	DnsInit();
 
 	// Locking initialization
 	machine_name_lock = NewLock();
 	disconnect_function_lock = NewLock();
-	aho = NewLock();
 	machine_ip_process_hash_lock = NewLock();
-	socket_library_lock = NewLock();
-	//ssl_connect_lock = NewLock();  //2012.9.28 Not required for recent OpenSSL
-//	ssl_accept_lock = NewLock();
-	dns_lock = NewLock();
 	unix_dns_server_addr_lock = NewLock();
 	Zero(&unix_dns_server, sizeof(unix_dns_server));
 	local_mac_list_lock = NewLock();
@@ -16645,29 +15557,7 @@ void InitNetwork()
 	current_fqdn_lock = NewLock();
 	current_global_ip_set = false;
 
-	disable_cache = false;
-
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
-
-	SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
-}
-
-// Enable the network name cache
-void EnableNetworkNameCache()
-{
-	disable_cache = false;
-}
-
-// Disable the network name cache
-void DisableNetworkNameCache()
-{
-	disable_cache = true;
-}
-
-// Get whether the network name cache is enabled
-bool IsNetworkNameCacheEnabled()
-{
-	return !disable_cache;
 }
 
 // Get the cipher algorithm list
@@ -17121,23 +16011,12 @@ void FreeNetwork()
 
 	// Release the locks
 	DeleteLock(unix_dns_server_addr_lock);
-	DeleteLock(dns_lock);
-	DeleteLock(ssl_accept_lock);
 	DeleteLock(machine_name_lock);
 	DeleteLock(disconnect_function_lock);
-	DeleteLock(aho);
-	DeleteLock(socket_library_lock);
-	DeleteLock(ssl_connect_lock);
 	DeleteLock(machine_ip_process_hash_lock);
-	machine_name_lock = NULL;
-	ssl_accept_lock = machine_name_lock = disconnect_function_lock =
-	        aho = socket_library_lock = ssl_connect_lock = machine_ip_process_hash_lock = NULL;
+	machine_name_lock = disconnect_function_lock = machine_ip_process_hash_lock = NULL;
 
-	// Release of the DNS cache
-	FreeDnsCache();
-
-	// Release of the host name cache
-	FreeHostCache();
+	DnsFree();
 
 #ifdef	OS_WIN32
 	// Release of the socket library
@@ -17174,12 +16053,7 @@ void FreeNetwork()
 	FreeHostIPAddressList(host_ip_address_cache);
 	host_ip_address_cache = NULL;
 
-
 	FreeDynList();
-
-	DeleteCounter(getip_thread_counter);
-	getip_thread_counter = NULL;
-
 }
 
 // Stop all the sockets in the list and delete it

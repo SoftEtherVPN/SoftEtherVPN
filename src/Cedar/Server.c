@@ -25,6 +25,7 @@
 #include "WinUi.h"
 
 #include "Mayaqua/Cfg.h"
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/FileIO.h"
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"
@@ -312,8 +313,8 @@ UINT SiDebugProcGetCurrentGetIPThreadCount(SERVER *s, char *in_str, char *ret_st
 		return ERR_INVALID_PARAMETER;
 	}
 
-	ToStr3(tmp1, 0, GetCurrentGetIpThreadNum());
-	ToStr3(tmp2, 0, GetGetIpThreadMaxNum());
+	ToStr3(tmp1, 0, DnsThreadNum());
+	ToStr3(tmp2, 0, DnsThreadNumMax());
 
 	Format(ret_str, 0, 
 		"Current threads = %s\n"
@@ -5629,11 +5630,11 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	i = CfgGetInt(f, "MaxConcurrentDnsClientThreads");
 	if (i != 0)
 	{
-		SetGetIpThreadMaxNum(i);
+		DnsThreadNumMaxSet(i);
 	}
 	else
 	{
-		SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
+		DnsThreadNumMaxSet(DNS_THREAD_DEFAULT_NUM_MAX);
 	}
 
 	s->DontBackupConfig = CfgGetBool(f, "DontBackupConfig");
@@ -6103,7 +6104,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		return;
 	}
 
-	CfgAddInt(f, "MaxConcurrentDnsClientThreads", GetGetIpThreadMaxNum());
+	CfgAddInt(f, "MaxConcurrentDnsClientThreads", DnsThreadNumMax());
 
 	CfgAddInt(f, "CurrentBuild", s->Cedar->Build);
 
@@ -10766,7 +10767,7 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	LISTENER *azure;
 	LISTENER *rudp;
 
-	SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
+	DnsThreadNumMaxSet(DNS_THREAD_DEFAULT_NUM_MAX);
 
 	s = ZeroMalloc(sizeof(SERVER));
 

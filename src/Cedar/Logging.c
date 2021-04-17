@@ -17,6 +17,7 @@
 #include "SecureNAT.h"
 #include "Server.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/FileIO.h"
 #include "Mayaqua/Memory.h"

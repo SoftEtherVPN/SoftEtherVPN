@@ -8,6 +8,7 @@
 #include "Table.h"
 
 #include "Cfg.h"
+#include "DNS.h"
 #include "FileIO.h"
 #include "Internat.h"
 #include "Mayaqua.h"
@@ -1206,9 +1207,9 @@ bool LoadUnicodeCache(wchar_t *strfilename, UINT strfilesize, UCHAR *hash)
 	Zero(&c, sizeof(c));
 	UniToStr(c.StrFileName, sizeof(c.StrFileName), strfilename);
 	c.StrFileSize = strfilesize;
-	DisableNetworkNameCache();
+	DnsCacheToggle(false);
 	GetMachineName(c.MachineName, sizeof(c.MachineName));
-	EnableNetworkNameCache();
+	DnsCacheToggle(true);
 	c.OsType = GetOsInfo()->OsType;
 	Copy(c.hash, hash, MD5_SIZE);
 

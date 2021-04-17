@@ -10,6 +10,7 @@
 #include "Command.h"
 #include "Protocol.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
 #include "Mayaqua/Pack.h"

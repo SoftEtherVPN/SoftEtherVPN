@@ -352,7 +352,6 @@ typedef struct LANGLIST LANGLIST;
 
 // Network.h
 typedef struct IP IP;
-typedef struct DNSCACHE DNSCACHE;
 typedef struct SOCK_EVENT SOCK_EVENT;
 typedef struct SOCK SOCK;
 typedef struct SOCKSET SOCKSET;
@@ -362,7 +361,6 @@ typedef struct ROUTE_TABLE ROUTE_TABLE;
 typedef struct IP_CLIENT IP_CLIENT;
 typedef struct ROUTE_CHANGE ROUTE_CHANGE;
 typedef struct ROUTE_CHANGE_DATA ROUTE_CHANGE_DATA;
-typedef struct GETIP_THREAD_PARAM GETIP_THREAD_PARAM;
 typedef struct WIN32_RELEASEADDRESS_THREAD_PARAM WIN32_RELEASEADDRESS_THREAD_PARAM;
 typedef struct IPV6_ADDR IPV6_ADDR;
 typedef struct TUBE TUBE;
@@ -387,8 +385,6 @@ typedef struct TCP_PAIR_HEADER TCP_PAIR_HEADER;
 typedef struct NIC_ENTRY NIC_ENTRY;
 typedef struct HTTP_VALUE HTTP_VALUE;
 typedef struct HTTP_HEADER HTTP_HEADER;
-typedef struct DNSPROXY_CLIENT DNSPROXY_CLIENT;
-typedef struct DNSPROXY_CACHE DNSPROXY_CACHE;
 typedef struct QUERYIPTHREAD QUERYIPTHREAD;
 typedef struct IPBLOCK IPBLOCK;
 typedef struct SAFE_REQUEST SAFE_REQUEST;
@@ -463,5 +459,11 @@ typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 // Proxy.h
 typedef struct PROXY_PARAM_IN PROXY_PARAM_IN;
 typedef struct PROXY_PARAM_OUT PROXY_PARAM_OUT;
+
+// DNS.h
+typedef struct DNS_CACHE DNS_CACHE;
+typedef struct DNS_CACHE_REVERSE DNS_CACHE_REVERSE;
+typedef struct DNS_RESOLVER DNS_RESOLVER;
+typedef struct DNS_RESOLVER_REVERSE DNS_RESOLVER_REVERSE;
 
 #endif	// MAYATYPE_H

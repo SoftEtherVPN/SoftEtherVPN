@@ -3,6 +3,7 @@
 // TODO: Mayaqua should not depend on Cedar.
 #include "Cedar/WinUi.h"
 
+#include "DNS.h"
 #include "Memory.h"
 #include "Str.h"
 
@@ -550,8 +551,8 @@ UINT ProxySocks4Connect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool 
 
 	Zero(out, sizeof(PROXY_PARAM_OUT));
 
-	// Get the IP address of the destination server
-	if (GetIP(&target_ip, in->TargetHostname) == false)
+	// Get the IPv4 address of the destination server (SOCKS4 does not support IPv6).
+	if (GetIP4(&target_ip, in->TargetHostname) == false)
 	{
 		return PROXY_ERROR_CONNECTION;
 	}
