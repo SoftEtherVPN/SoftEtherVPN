@@ -19,6 +19,7 @@
 #include "Server.h"
 
 #include "Mayaqua/Cfg.h"
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/FileIO.h"
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"

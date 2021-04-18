@@ -9,6 +9,7 @@
 
 #include "Connection.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/Kernel.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"

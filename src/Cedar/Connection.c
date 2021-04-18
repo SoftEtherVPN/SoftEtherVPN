@@ -21,6 +21,7 @@
 #include "UdpAccel.h"
 #include "Virtual.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/Kernel.h"
 #include "Mayaqua/Mayaqua.h"
 #include "Mayaqua/Memory.h"

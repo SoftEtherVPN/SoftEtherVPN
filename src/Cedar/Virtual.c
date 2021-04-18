@@ -15,6 +15,7 @@
 #include "NativeStack.h"
 #include "Server.h"
 
+#include "Mayaqua/DNS.h"
 #include "Mayaqua/FileIO.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"
