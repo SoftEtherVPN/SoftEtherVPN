@@ -232,29 +232,23 @@ some censorship governments want to block your access to the source code
 of SoftEther VPN, by abusing their censorship firewalls.
 
 To circumvent your censor's unjust restriction,
-SoftEther VPN Project distributes the up-to-date source-code
+SoftEther VPN Project distributes the up-to-date source code
 on all the following open-source repositories:
 
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-```
-$ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-```
+        $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 
   - GitLab (mirrored from GitHub)
     https://gitlab.com/SoftEther/SoftEtherVPN/
 
-```
-$ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
-```
+        $ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
 
   - Codeberg (mirrored from GitHub)
     https://codeberg.org/softether/vpn
 
-```
-$ git clone https://codeberg.org/softether/vpn.git
-```
+        $ git clone https://codeberg.org/softether/vpn.git
 
 We hope that you can reach one of the above URLs at least!
 
