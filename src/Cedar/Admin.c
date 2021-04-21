@@ -10239,6 +10239,9 @@ UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
 			case PROTO_OPTION_BOOL:
 				rpc_option->Bool = option->Bool;
 				break;
+			case PROTO_OPTION_UINT32:
+				rpc_option->UInt32 = option->UInt32;
+				break;
 			case PROTO_OPTION_STRING:
 				rpc_option->String = CopyStr(option->String);
 				break;
@@ -10304,6 +10307,9 @@ UINT StSetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t)
 			{
 				case PROTO_OPTION_BOOL:
 					option->Bool = rpc_option->Bool;
+					break;
+				case PROTO_OPTION_UINT32:
+					option->UInt32 = rpc_option->UInt32;
 					break;
 				case PROTO_OPTION_STRING:
 					Free(option->String);
@@ -12700,6 +12706,9 @@ void InRpcProtoOptions(RPC_PROTO_OPTIONS *t, PACK *p)
 		case PROTO_OPTION_BOOL:
 			PackGetDataEx2(p, "Value", &option->Bool, sizeof(option->Bool), i);
 			break;
+		case PROTO_OPTION_UINT32:
+			PackGetDataEx2(p, "Value", &option->UInt32, sizeof(option->UInt32), i);
+			break;
 		default:
 			Debug("InRpcProtoOptions(): unhandled type %u!\n", option->Type);
 		}
@@ -12730,6 +12739,9 @@ void OutRpcProtoOptions(PACK *p, RPC_PROTO_OPTIONS *t)
 			break;
 		case PROTO_OPTION_BOOL:
 			PackAddDataEx(p, "Value", &option->Bool, sizeof(option->Bool), i, t->Num);
+			break;
+		case PROTO_OPTION_UINT32:
+			PackAddDataEx(p, "Value", &option->UInt32, sizeof(option->UInt32), i, t->Num);
 			break;
 		default:
 			Debug("OutRpcProtoOptions(): unhandled type %u!\n", option->Type);

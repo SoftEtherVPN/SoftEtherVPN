@@ -4612,7 +4612,9 @@ CMD_ProtoOptionsGet_Column_Description	説明
 CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			OpenVPN の OCC codeRT 版以外の場合は、OpenVPN はサーバーに対してオプション文字列を送信しません。OpenVPN サーバーのオリジナル版は、オプションを固定で指定する仕組みになっているため、その場合でも動作します。一方、SoftEther VPN は、様々なオプションを動的に設定することができる機能を有しております。そこで、このオプションを使用することにより、OCC code なしでビルドされた OpenVPN に対してデフォルトの静的オプション文字列を送付することができるようになります。これにより、OCC code なしでビルドされた OpenVPN からの接続が成功するようになります。
 CMD_ProtoOptions_Description_OpenVPN_Obfuscation					OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードを設定します。クライアント側とサーバー側では、同一の XOR マスクを設定する必要があります。コードが異なると、接続ができません。
 CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				パケットで使用される XOR マスクを指定します。OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードとして使用されます。
+CMD_ProtoOptions_Description_OpenVPN_PingSendInterval				Interval in milliseconds between each ping packet transmission.
 CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	Linux における特定の状況下では manifests に不具合があります。この不具合により、OpenVPN クライアントは TAP デバイスが UP 状態であるにもかかわらず、切断状態となります。このオプションを使用することにより、VPN サーバーは、ダミーの IPv4 アドレス (RFC7600 で規定) をクライアントに対してプッシュ送信することができるようになります。これにより、TAP アダプタが常に UP 状態になります。
+CMD_ProtoOptions_Description_OpenVPN_Timeout						Time in milliseconds after which the session is forcifully interrupted if no packets are received from the client in the meantime.
 
 
 # ServerPasswordSet コマンド

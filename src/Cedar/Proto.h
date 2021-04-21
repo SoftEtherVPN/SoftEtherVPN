@@ -25,7 +25,8 @@ typedef enum PROTO_OPTION_VALUE
 {
 	PROTO_OPTION_UNKNOWN,
 	PROTO_OPTION_STRING,
-	PROTO_OPTION_BOOL
+	PROTO_OPTION_BOOL,
+	PROTO_OPTION_UINT32
 } PROTO_OPTION_VALUE;
 
 typedef struct PROTO
@@ -44,6 +45,7 @@ struct PROTO_OPTION
 	{
 		bool Bool;
 		char *String;
+		UINT UInt32;
 	};
 };
 

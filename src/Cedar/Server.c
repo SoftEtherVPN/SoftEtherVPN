@@ -6362,10 +6362,18 @@ void SiLoadProtoCfg(PROTO *p, FOLDER *f)
 		for (j = 0; j < LIST_NUM(options); ++j)
 		{
 			PROTO_OPTION *option = LIST_DATA(options, j);
+			if (CfgIsItem(ff, option->Name) == false)
+			{
+				continue;
+			}
+
 			switch (option->Type)
 			{
 			case PROTO_OPTION_BOOL:
 				option->Bool = CfgGetBool(ff, option->Name);
+				break;
+			case PROTO_OPTION_UINT32:
+				option->UInt32 = CfgGetInt(ff, option->Name);
 				break;
 			case PROTO_OPTION_STRING:
 			{
@@ -6414,11 +6422,14 @@ void SiWriteProtoCfg(FOLDER *f, PROTO *p)
 			const PROTO_OPTION *option = LIST_DATA(options, j);
 			switch (option->Type)
 			{
+				case PROTO_OPTION_STRING:
+					CfgAddStr(ff, option->Name, option->String);
+					break;
 				case PROTO_OPTION_BOOL:
 					CfgAddBool(ff, option->Name, option->Bool);
 					break;
-				case PROTO_OPTION_STRING:
-					CfgAddStr(ff, option->Name, option->String);
+				case PROTO_OPTION_UINT32:
+					CfgAddInt(ff, option->Name, option->UInt32);
 					break;
 				default:
 					Debug("SiWriteProtoCfg(): unhandled option type %u!\n", option->Type);

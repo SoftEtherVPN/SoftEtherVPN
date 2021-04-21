@@ -4329,7 +4329,9 @@ CMD_ProtoOptionsGet_Column_Description	Description
 CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			When OpenVPN is compiled without OCC code, it doesn't send the options string to the server. The original OpenVPN server still works, because the configuration is static. SoftEther VPN is heuristic and wants to support as many different configurations as possible. This option allows to define the string that is sent to clients built without OCC code, so that they can successfully connect.
 CMD_ProtoOptions_Description_OpenVPN_Obfuscation					This may help an OpenVPN client bypass firewalls that are aware of the protocol and block it. The same XOR mask has to be applied client-side, otherwise it will not be able to connect with certain obfuscation methods!
 CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				Mask used to XOR the bytes in the packet (used for certain obfuscation modes).
+CMD_ProtoOptions_Description_OpenVPN_PingSendInterval				Interval in milliseconds between each ping packet transmission.
 CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	There's a bug that manifests under certain circumstances on Linux. It causes the OpenVPN client to disconnect unless the TAP device is UP. This option tells the server to push a dummy IPv4 address (RFC7600) to the client, so that the TAP adapter is forced to be UP.
+CMD_ProtoOptions_Description_OpenVPN_Timeout						Time in milliseconds after which the session is forcifully interrupted if no packets are received from the client in the meantime.
 
 
 # ServerPasswordSet command

@@ -278,6 +278,9 @@ PROTO_CONTAINER *ProtoContainerNew(const PROTO_IMPL *impl)
 		case PROTO_OPTION_BOOL:
 			option->Bool = impl_option->Bool;
 			break;
+		case PROTO_OPTION_UINT32:
+			option->UInt32 = impl_option->UInt32;
+			break;
 		case PROTO_OPTION_STRING:
 			option->String = impl_option->String != NULL ? CopyStr(impl_option->String) : impl->OptionStringValue(option->Name);
 			break;
