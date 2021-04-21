@@ -22909,6 +22909,9 @@ UINT PsProtoOptionsSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			case PROTO_OPTION_BOOL:
 				option->Bool = GetParamYes(o, "VALUE");
 				break;
+			case PROTO_OPTION_UINT32:
+				option->UInt32 = GetParamInt(o, "VALUE");
+				break;
 			default:
 				ret = ERR_INTERNAL_ERROR;
 			}
@@ -22979,13 +22982,19 @@ UINT PsProtoOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 			switch (option->Type)
 			{
+				case PROTO_OPTION_STRING:
+					type = L"String";
+					value = CopyStrToUni(option->String);
+					break;
 				case PROTO_OPTION_BOOL:
 					type = L"Boolean";
 					value = option->Bool ? L"True" : L"False";
 					break;
-				case PROTO_OPTION_STRING:
-					type = L"String";
-					value = CopyStrToUni(option->String);
+				case PROTO_OPTION_UINT32:
+					type = L"32 bit unsigned integer";
+					char tmp[MAX_SIZE];
+					Format(tmp, sizeof(tmp), "%u", option->UInt32);
+					value = CopyStrToUni(tmp);
 					break;
 				default:
 					Debug("StGetProtoOptions(): unhandled option type %u!\n", option->Type);
@@ -22997,7 +23006,7 @@ UINT PsProtoOptionsGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 			CtInsert(ct, name, type, value, _UU(description_str_key));
 
-			if (option->Type == PROTO_OPTION_STRING)
+			if (option->Type != PROTO_OPTION_BOOL)
 			{
 				Free(value);
 			}
