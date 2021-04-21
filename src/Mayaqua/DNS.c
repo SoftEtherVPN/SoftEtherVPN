@@ -79,7 +79,7 @@ void DnsFree()
 	{
 		for (UINT i = 0; i < LIST_NUM(cache_reverse); ++i)
 		{
-			DNS_CACHE_REVERSE *entry = LIST_DATA(cache, i);
+			DNS_CACHE_REVERSE *entry = LIST_DATA(cache_reverse, i);
 			Free(entry->Hostname);
 			Free(entry);
 		}
@@ -234,7 +234,7 @@ DNS_CACHE_REVERSE *DnsCacheReverseUpdate(const IP *ip, const char *hostname)
 		{
 			if (entry != NULL)
 			{
-				Delete(cache, entry);
+				Delete(cache_reverse, entry);
 				Free(entry);
 				entry = NULL;
 			}
@@ -246,7 +246,7 @@ DNS_CACHE_REVERSE *DnsCacheReverseUpdate(const IP *ip, const char *hostname)
 				entry = ZeroMalloc(sizeof(DNS_CACHE_REVERSE));
 				Copy(&entry->IP, ip, sizeof(entry->IP));
 
-				Add(cache, entry);
+				Add(cache_reverse, entry);
 			}
 
 			entry->Expiration = Tick64();
@@ -400,13 +400,13 @@ void DnsResolver(THREAD *t, void *param)
 	hints.ai_family = AF_INET6;
 	hints.ai_flags = AI_ALL | AI_ADDRCONFIG | AI_V4MAPPED;
 
-	struct addrinfo *result;
-	const int ret = getaddrinfo(resolver->Hostname, NULL, &hints, &result);
+	struct addrinfo *results;
+	const int ret = getaddrinfo(resolver->Hostname, NULL, &hints, &results);
 	if (ret == 0)
 	{
 		bool ipv6_ok = false;
 		bool ipv4_ok = false;
-		do
+		for (struct addrinfo *result = results; result != NULL; result = result->ai_next)
 		{
 			IP ip;
 			const struct sockaddr_in6 *in = (struct sockaddr_in6 *)result->ai_addr;
@@ -422,11 +422,11 @@ void DnsResolver(THREAD *t, void *param)
 				Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
 				ipv4_ok = true;
 			}
-
-			result = result->ai_next;
-		} while (result != NULL && (ipv6_ok == false || ipv4_ok == false));
+		}
 
 		resolver->OK = true;
+
+		freeaddrinfo(results);
 	}
 	else if (ret != EAI_NONAME)
 	{
