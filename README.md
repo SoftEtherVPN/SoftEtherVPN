@@ -249,6 +249,13 @@ $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 $ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
 ```
 
+  - Codeberg (mirrored from GitHub)
+    https://codeberg.org/softether/vpn
+
+```
+$ git clone https://codeberg.org/softether/vpn.git
+```
+
 We hope that you can reach one of the above URLs at least!
 
 
