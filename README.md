@@ -232,7 +232,7 @@ some censorship governments want to block your access to the source code
 of SoftEther VPN, by abusing their censorship firewalls.
 
 To circumvent your censor's unjust restriction,
-SoftEther VPN Project distributes the up-to-date source-code
+SoftEther VPN Project distributes the up-to-date source code
 on all the following open-source repositories:
 
   - GitHub
