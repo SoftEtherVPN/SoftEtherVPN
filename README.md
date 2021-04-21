@@ -238,23 +238,23 @@ on all the following open-source repositories:
   - GitHub
     https://github.com/SoftEtherVPN/SoftEtherVPN/
 
-```
-$ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-```
+    ```
+    $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+    ```
 
   - GitLab (mirrored from GitHub)
     https://gitlab.com/SoftEther/SoftEtherVPN/
 
-```
-$ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
-```
+    ```
+    $ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
+    ```
 
   - Codeberg (mirrored from GitHub)
     https://codeberg.org/softether/vpn
 
-```
-$ git clone https://codeberg.org/softether/vpn.git
-```
+    ```
+    $ git clone https://codeberg.org/softether/vpn.git
+    ```
 
 We hope that you can reach one of the above URLs at least!
 
