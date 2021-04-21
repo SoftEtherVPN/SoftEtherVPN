@@ -57,8 +57,10 @@ const PROTO_OPTION *OvsOptions()
 	{
 		{ .Name = "DefaultClientOption", .Type = PROTO_OPTION_STRING, .String = "dev-type tun,link-mtu 1500,tun-mtu 1500,cipher AES-128-CBC,auth SHA1,keysize 128,key-method 2,tls-client" },
 		{ .Name = "Obfuscation", .Type = PROTO_OPTION_BOOL, .Bool = false },
-		{ .Name = "ObfuscationMask", .Type = PROTO_OPTION_STRING, .String = ""},
+		{ .Name = "ObfuscationMask", .Type = PROTO_OPTION_STRING, .String = "" },
+		{ .Name = "PingSendInterval", .Type = PROTO_OPTION_UINT32, .UInt32 = 3000 },
 		{ .Name = "PushDummyIPv4AddressOnL2Mode", .Type = PROTO_OPTION_BOOL, .Bool = true },
+		{ .Name = "Timeout", .Type = PROTO_OPTION_UINT32, .UInt32 = 30000 },
 		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
 	};
 
@@ -2344,8 +2346,8 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 								// Return the PUSH_REPLY
 								Format(option_str, sizeof(option_str),
 								       "PUSH_REPLY,ping %u,ping-restart %u",
-								       (OPENVPN_PING_SEND_INTERVAL / 1000),
-								       (OPENVPN_RECV_TIMEOUT / 1000));
+								       s->PingSendInterval / 1000,
+								       s->Timeout / 1000);
 
 								if (se->Mode == OPENVPN_MODE_L3)
 								{
@@ -2752,11 +2754,10 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 		{
 			if ((se->NextPingSendTick == 0) || (se->NextPingSendTick <= s->Now))
 			{
-				se->NextPingSendTick = s->Now + (UINT64)(OPENVPN_PING_SEND_INTERVAL);
+				se->NextPingSendTick = s->Now + s->PingSendInterval;
 
 				OvsSendDataPacket(latest_channel, latest_channel->KeyId, ++latest_channel->LastDataPacketId,
 				                  ping_signature, sizeof(ping_signature));
-				//Debug(".");
 
 				AddInterrupt(s->Interrupt, se->NextPingSendTick);
 			}
@@ -2767,7 +2768,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 			is_disconnected = true;
 		}
 
-		if (se->Established && (s->Now >= (se->LastCommTick + (UINT64)OPENVPN_RECV_TIMEOUT)))
+		if (se->Established && (s->Now >= (se->LastCommTick + s->Timeout)))
 		{
 			is_disconnected = true;
 		}
@@ -2977,9 +2978,17 @@ OPENVPN_SERVER *NewOpenVpnServer(const LIST *options, CEDAR *cedar, INTERRUPT_MA
 		{
 			s->ObfuscationMask = CopyStr(option->String);
 		}
+		else if (StrCmp(option->Name, "PingSendInterval") == 0)
+		{
+			s->PingSendInterval = option->UInt32;
+		}
 		else if (StrCmp(option->Name, "PushDummyIPv4AddressOnL2Mode") == 0)
 		{
 			s->PushDummyIPv4AddressOnL2Mode = option->Bool;
+		}
+		else if (StrCmp(option->Name, "Timeout") == 0)
+		{
+			s->Timeout = option->UInt32;
 		}
 	}
 
