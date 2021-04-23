@@ -1808,7 +1808,7 @@ void CorrectChecksum(PKT *p)
 						USHORT udp_offloading_checksum1 = CalcChecksumForIPv6(&v6->SrcAddress, &v6->DestAddress, IP_PROTO_UDP, NULL, 0, udp_len);
 						USHORT udp_offloading_checksum2 = ~udp_offloading_checksum1;
 
-						if (udp->Checksum == 0 || udp->Checksum == udp_offloading_checksum1 || udp->Checksum == udp_offloading_checksum2)
+						if (udp->Checksum == udp_offloading_checksum1 || udp->Checksum == udp_offloading_checksum2)
 						{
 							udp->Checksum = 0;
 
