@@ -4233,15 +4233,16 @@ BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size)
 			}
 		}
 
-		if (ok && o2 == NULL)
+		if (ok)
 		{
 			o2 = NewDhcpOption(o->Id, o->Data, o->Size);
+			if (o2 != NULL)
+			{
+				Add(opt_list2, o2);
+			}
+
 		}
 
-		if (o2 != NULL)
-		{
-			Add(opt_list2, o2);
-		}
 	}
 
 	opt_buf = BuildDhcpOptionsBuf(opt_list2);
