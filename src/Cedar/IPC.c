@@ -1684,7 +1684,21 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 		else if (ipv4[0] >= 224 && ipv4[0] <= 239)
 		{
 			// IPv4 Multicast
-			is_broadcast = true;
+			UCHAR dest[6];
+
+			// Per RFC 1112, multicast MAC address has the form 01-00-5E-00-00-00,
+			// where the lowest 23 bits are copied from the destination IP address.
+			dest[0] = 0x01;
+			dest[1] = 0x00;
+			dest[2] = 0x5e;
+			dest[3] = 0x7f & ipv4[1];
+			dest[4] = ipv4[2];
+			dest[5] = ipv4[3];
+
+			// Send
+			IPCSendIPv4WithDestMacAddr(ipc, data, size, dest);
+
+			return;
 		}
 	}
 
