@@ -8037,7 +8037,7 @@ bool UnixGetDefaultDns(IP *ip)
 					if (StrCmpi(t->Token[0], "nameserver") == 0)
 					{
 						StrToIP(ip, t->Token[1]);
-						f = true;
+						f = IsIP4(ip);
 					}
 				}
 				FreeToken(t);
