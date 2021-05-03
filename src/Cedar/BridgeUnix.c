@@ -25,10 +25,13 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include <net/ethernet.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+
+#ifndef UNIX_OPENBSD
+#include <net/ethernet.h>
+#endif
 
 #ifdef UNIX_SOLARIS
 #include <sys/sockio.h>
