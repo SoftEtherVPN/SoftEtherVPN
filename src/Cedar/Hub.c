@@ -1633,7 +1633,7 @@ void HubWatchDogThread(THREAD *t, void *param)
 								{
 									buf = BuildICMPv6NeighborSoliciation(&hub->HubIpV6,
 										&ip6addr,
-										hub->HubMacAddr, ++hub->HubIP6Id);
+										hub->HubMacAddr, ++hub->HubIP6Id, false);
 
 									if (buf != NULL)
 									{
