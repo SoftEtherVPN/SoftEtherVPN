@@ -2109,13 +2109,12 @@ void IPCIPv6AssociateOnNDTEx(IPC *ipc, IP *ip, UCHAR *mac_address, bool isNeighb
 
 	addrType = GetIPAddrType6(ip);
 
-	if (addrType != IPV6_ADDR_LOCAL_UNICAST &&
-	        addrType != IPV6_ADDR_GLOBAL_UNICAST)
+	if (!(addrType & IPV6_ADDR_UNICAST))
 	{
 		return;
 	}
 
-	if (addrType == IPV6_ADDR_GLOBAL_UNICAST)
+	if (addrType & IPV6_ADDR_GLOBAL_UNICAST)
 	{
 		if (!IPCIPv6CheckUnicastFromRouterPrefix(ipc, ip, NULL))
 		{
@@ -2617,23 +2616,16 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 			// Generate the MAC address from the multicast address
 			BUF *neighborSolicit;
 			UCHAR destMacAddress[6];
-			IPV6_ADDR solicitAddress;
 
 			char tmp[MAX_SIZE];
 			UCHAR *copy;
 			BLOCK *blk;
 
-			Zero(&solicitAddress, sizeof(IPV6_ADDR));
-			Copy(&solicitAddress.Value[13], &header->DestAddress.Value[13], 3);
-			solicitAddress.Value[0] = 0xFF;
-			solicitAddress.Value[1] = 0x02;
-			solicitAddress.Value[11] = 0x01;
-			solicitAddress.Value[12] = 0xFF;
-
-			neighborSolicit = BuildICMPv6NeighborSoliciation(&header->SrcAddress, &solicitAddress, ipc->MacAddress, 0);
+			neighborSolicit = BuildICMPv6NeighborSoliciation(&header->SrcAddress, &header->DestAddress, ipc->MacAddress, 0, true);
 			destMacAddress[0] = 0x33;
 			destMacAddress[1] = 0x33;
-			Copy(&destMacAddress[2], &solicitAddress.Value[12], sizeof(UINT));
+			destMacAddress[2] = 0xFF;
+			Copy(&destMacAddress[3], &header->DestAddress.Value[13], 3);
 			IPCIPv6SendWithDestMacAddr(ipc, neighborSolicit->Buf, neighborSolicit->Size, destMacAddress);
 
 			FreeBuf(neighborSolicit);
