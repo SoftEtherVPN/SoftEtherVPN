@@ -7,7 +7,7 @@ if ("${BUILD_NUMBER}" STREQUAL "")
 endif()
 
 project("SoftEther VPN"
-  VERSION "5.01.${BUILD_NUMBER}"
+  VERSION "5.02.${BUILD_NUMBER}"
   LANGUAGES C
 )
 
