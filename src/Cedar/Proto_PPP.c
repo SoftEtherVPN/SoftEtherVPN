@@ -257,7 +257,8 @@ void PPPThread(THREAD *thread, void *param)
 			case PPP_EAP_TYPE_TLS:
 				// Sending TLS Start...
 				flags |= PPP_EAP_TLS_FLAG_SSLSTARTED;
-				lcpEap = BuildEAPTlsRequest(p->Eap_PacketId++, 0, flags);
+				p->Eap_PacketId = p->NextId++;
+				lcpEap = BuildEAPTlsRequest(p->Eap_PacketId, 0, flags);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
 				{
@@ -269,7 +270,8 @@ void PPPThread(THREAD *thread, void *param)
 			case PPP_EAP_TYPE_IDENTITY:
 			default: // We treat the unspecified protocol as the IDENTITY protocol
 				p->Eap_Protocol = PPP_EAP_TYPE_IDENTITY;
-				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId++, PPP_EAP_TYPE_IDENTITY, StrLen(welcomeMessage) + 1);
+				p->Eap_PacketId = p->NextId++;
+				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_IDENTITY, StrLen(welcomeMessage) + 1);
 				eapPacket = lcpEap->Data;
 				Copy(eapPacket->Data, welcomeMessage, StrLen(welcomeMessage));
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
@@ -1251,7 +1253,8 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		eap = req->Lcp->Data;
 		if (eap->Type == PPP_EAP_TYPE_TLS)
 		{
-			PPP_LCP *lcp = BuildEAPTlsRequest(p->Eap_PacketId++, 0, PPP_EAP_TLS_FLAG_NONE);
+			p->Eap_PacketId = p->NextId++;
+			PPP_LCP *lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, PPP_EAP_TLS_FLAG_NONE);
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
@@ -3218,7 +3221,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				dataSize = sizeLeft;
 				flags = PPP_EAP_TLS_FLAG_NONE; // Clearing the M flag because it is the last packet
 			}
-			lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, flags);
+			p->Eap_PacketId = p->NextId++;
+			lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, flags);
 			eap = lcp->Data;
 			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.CachedBufferSendPntr, dataSize);
 			p->Eap_TlsCtx.CachedBufferSendPntr += (UINT64)dataSize;
@@ -3252,7 +3256,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				/*if (!p->Eap_TlsCtx.SslPipe->IsDisconnected)
 				{
 					dataSize = FifoSize(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo);
-					lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, 0);
+					p->Eap_PacketId = p->NextId++;
+					lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, 0);
 					eap = lcp->Data;
 					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, &(eap->Tls.TlsDataWithoutLength), dataSize);
 					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
@@ -3275,7 +3280,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				if (ipc != NULL)
 				{
 					PPP_PACKET *pack;
-					UINT identificator = p->Eap_PacketId - 1; // THIS IS A HACK TO SUPPORT VPN Client Pro on Android!!!
+					UINT identificator = p->Eap_PacketId;
 
 					p->Ipc = ipc;
 					PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
@@ -3298,7 +3303,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				else
 				{
 					PPP_PACKET *pack;
-					UINT identificator = p->Eap_PacketId - 1; // THIS IS A HACK TO SUPPORT VPN Client Pro on Android!!!
+					UINT identificator = p->Eap_PacketId;
 
 					PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
 
@@ -3321,7 +3326,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 			{
 				// Some clients needs a little help it seems - namely VPN Client Pro on Android
 				flags |= PPP_EAP_TLS_FLAG_SSLSTARTED;
-				lcp = BuildEAPTlsRequest(p->Eap_PacketId++, 0, flags);
+				p->Eap_PacketId = p->NextId++;
+				lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, flags);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 				{
@@ -3399,7 +3405,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 		// Just acknoweldge that we buffered the fragmented data
 		if (isFragmented)
 		{
-			PPP_LCP *lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId++, PPP_EAP_TYPE_TLS, 0);
+			p->Eap_PacketId = p->NextId++;
+			PPP_LCP *lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_TLS, 0);
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
@@ -3445,7 +3452,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 					dataSize = p->Mru1 - 8 - 1 - 1 - 4; // Calculating the maximum payload size (adjusting for including TlsLength)
 					flags = PPP_EAP_TLS_FLAG_TLS_LENGTH; // L flag
 					flags |= PPP_EAP_TLS_FLAG_FRAGMENTED; // M flag
-					lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, flags);
+					p->Eap_PacketId = p->NextId++;
+					lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, flags);
 					eap = lcp->Data;
 					eap->Tls.TlsDataWithLength.TlsLength = Endian32(tlsLength);
 					Copy(eap->Tls.TlsDataWithLength.Data, p->Eap_TlsCtx.CachedBufferSend, dataSize);
@@ -3460,7 +3468,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				}
 				else
 				{
-					lcp = BuildEAPTlsRequest(p->Eap_PacketId++, dataSize, 0);
+					p->Eap_PacketId = p->NextId++;
+					lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, 0);
 					eap = lcp->Data;
 					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, &(eap->Tls.TlsDataWithoutLength), dataSize);
 					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
