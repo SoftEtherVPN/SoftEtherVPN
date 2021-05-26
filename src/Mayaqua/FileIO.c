@@ -18,10 +18,12 @@
 #include "Unix.h"
 #include "Win32.h"
 
+#include <Hamcore.h>
+
 static char exe_file_name[MAX_SIZE] = "/tmp/a.out";
 static wchar_t exe_file_name_w[MAX_SIZE] = L"/tmp/a.out";
 static LIST *hamcore = NULL;
-static IO *hamcore_io = NULL;
+static HAMCORE *hamcore_io = NULL;
 
 #define	NUM_CRC32_TABLE	256
 static UINT crc32_table[NUM_CRC32_TABLE];
@@ -554,25 +556,6 @@ bool IsFileW(wchar_t *name)
 	return true;
 }
 
-// Rename to replace the file
-bool FileReplaceRenameW(wchar_t *old_name, wchar_t *new_name)
-{
-	// Validate arguments
-	if (old_name == NULL || new_name == NULL)
-	{
-		return false;
-	}
-
-	if (FileCopyW(old_name, new_name) == false)
-	{
-		return false;
-	}
-
-	FileDeleteW(old_name);
-
-	return true;
-}
-
 // Make the file name safe
 void ConvertSafeFileName(char *dst, UINT size, char *src)
 {
@@ -735,244 +718,135 @@ BUF *ReadHamcoreW(wchar_t *filename)
 }
 BUF *ReadHamcore(char *name)
 {
-	wchar_t tmp[MAX_SIZE];
-	wchar_t exe_dir[MAX_SIZE];
-	BUF *b;
-	char filename[MAX_PATH];
-	// Validate arguments
-	if (name == NULL)
+	if (name == NULL || MayaquaIsMinimalMode())
 	{
 		return NULL;
 	}
 
-	if (name[0] == '|')
+	if (name[0] == '/')
 	{
-		name++;
+		++name;
 	}
 
-	if (name[0] == '/' || name[0] == '\\')
+	char path[MAX_PATH];
+	GetExeDir(path, sizeof(path));
+	Format(path, sizeof(path), "%s/%s/%s", path, HAMCORE_DIR_NAME, name);
+
+	BUF *buf = ReadDump(path);
+	if (buf != NULL)
 	{
-		name++;
+		return buf;
 	}
 
-	StrCpy(filename, sizeof(filename), name);
-
-	ReplaceStrEx(filename, sizeof(filename), filename, "/", "\\", true);
-
-	if (MayaquaIsMinimalMode())
-	{
-		return NULL;
-	}
-
-	// If the file exist in hamcore/ directory on the local disk, read it
-	GetExeDirW(exe_dir, sizeof(exe_dir));
-
-	UniFormat(tmp, sizeof(tmp), L"%s/%S/%S", exe_dir, HAMCORE_DIR_NAME, filename);
-
-	b = ReadDumpW(tmp);
-	if (b != NULL)
-	{
-		return b;
-	}
-
-	// Search from HamCore file system if it isn't found
 	LockList(hamcore);
 	{
-		HC t, *c;
-		UINT i;
-
-		Zero(&t, sizeof(t));
-		t.FileName = filename;
-		c = Search(hamcore, &t);
-
+		HC t = {0};
+		t.Path = name;
+		HC *c = Search(hamcore, &t);
 		if (c == NULL)
 		{
-			// File does not exist
-			b = NULL;
-		}
-		else
-		{
-			// File exists
-			if (c->Buffer != NULL)
+			const HAMCORE_FILE *file = HamcoreFind(hamcore_io, name);
+			if (file)
 			{
-				// It is already loaded
-				b = NewBuf();
-				WriteBuf(b, c->Buffer, c->Size);
-				SeekBuf(b, 0, 0);
-				c->LastAccess = Tick64();
-			}
-			else
-			{
-				// Read from a file is if it is not read
-				if (FileSeek(hamcore_io, 0, c->Offset) == false)
+				c = Malloc(sizeof(HC));
+				c->Size = file->OriginalSize;
+				c->Path = CopyStr(name);
+				c->Buffer = Malloc(c->Size);
+
+				if (HamcoreRead(hamcore_io, c->Buffer, file))
 				{
-					// Failed to seek
-					b = NULL;
+					Add(hamcore, c);
 				}
 				else
 				{
-					// Read the compressed data
-					void *data = Malloc(c->SizeCompressed);
-					if (FileRead(hamcore_io, data, c->SizeCompressed) == false)
-					{
-						// Failed to read
-						Free(data);
-						b = NULL;
-					}
-					else
-					{
-						// Expand
-						c->Buffer = ZeroMalloc(c->Size);
-						if (Uncompress(c->Buffer, c->Size, data, c->SizeCompressed) != c->Size)
-						{
-							// Failed to expand
-							Free(data);
-							Free(c->Buffer);
-							b = NULL;
-						}
-						else
-						{
-							// Successful
-							Free(data);
-							b = NewBuf();
-							WriteBuf(b, c->Buffer, c->Size);
-							SeekBuf(b, 0, 0);
-							c->LastAccess = Tick64();
-						}
-					}
+					Free(c->Buffer);
+					Free(c->Path);
+					Free(c);
+
+					c = NULL;
 				}
 			}
 		}
 
-		// Delete the expired cache
-		for (i = 0;i < LIST_NUM(hamcore);i++)
+		if (c != NULL)
+		{
+			buf = NewBuf();
+			WriteBuf(buf, c->Buffer, c->Size);
+			SeekBuf(buf, 0, 0);
+			c->LastAccess = Tick64();
+		}
+
+		LIST *to_delete = NewListFast(NULL);
+
+		for (UINT i = 0; i < LIST_NUM(hamcore); ++i)
+		{
+			HC *c = LIST_DATA(hamcore, i);
+			if (c->LastAccess + HAMCORE_CACHE_EXPIRES <= Tick64())
+			{
+				Add(to_delete, c);
+			}
+		}
+
+		for (UINT i = 0; i < LIST_NUM(to_delete); ++i)
 		{
 			HC *c = LIST_DATA(hamcore, i);
 
-			if (c->Buffer != NULL)
-			{
-				if (((c->LastAccess + HAMCORE_CACHE_EXPIRES) <= Tick64()) ||
-					(StartWith(c->FileName, "Li")))
-				{
-					Free(c->Buffer);
-					c->Buffer = NULL;
-				}
-			}
+			Delete(hamcore, c);
+
+			Free(c->Buffer);
+			Free(c->Path);
+			Free(c);
 		}
+
+		ReleaseList(to_delete);
 	}
 	UnlockList(hamcore);
 
-	return b;
+	return buf;
 }
 
 // Initialization of HamCore file system
 void InitHamcore()
 {
-	wchar_t tmp[MAX_PATH];
-	wchar_t tmp2[MAX_PATH];
-	wchar_t exe_dir[MAX_PATH];
-	UINT i, num;
-	char header[HAMCORE_HEADER_SIZE];
-
-	hamcore = NewList(CompareHamcore);
-
 	if (MayaquaIsMinimalMode())
 	{
 		return;
 	}
 
-	GetExeDirW(exe_dir, sizeof(exe_dir));
-	UniFormat(tmp, sizeof(tmp), L"%s/%S", exe_dir, HAMCORE_FILE_NAME);
-
-	UniFormat(tmp2, sizeof(tmp2), L"%s/%S", exe_dir, HAMCORE_FILE_NAME_2);
-
-	// If there is _hamcore.se2, overwrite it yo the hamcore.se2 
-	FileReplaceRenameW(tmp2, tmp);
-
-	// Read if there is a file hamcore.se2
-	hamcore_io = FileOpenW(tmp, false);
-	if (hamcore_io == NULL)
+	hamcore = NewList(CompareHamcore);
+#ifdef HAMCORE_FILE_PATH
+	hamcore_io = HamcoreOpen(HAMCORE_FILE_PATH);
+	if (hamcore_io != NULL)
 	{
-		// Look in other locations if it isn't found
-#ifdef	OS_WIN32
-		UniFormat(tmp, sizeof(tmp), L"%S/%S", MsGetSystem32Dir(), HAMCORE_FILE_NAME);
-#else	// OS_WIN32
-		UniFormat(tmp, sizeof(tmp), L"/bin/%S", HAMCORE_FILE_NAME);
-#endif	// OS_WIN32
-
-		hamcore_io = FileOpenW(tmp, false);
-		if (hamcore_io == NULL)
-		{
-			return;
-		}
-	}
-
-	// Read the file header
-	Zero(header, sizeof(header));
-	FileRead(hamcore_io, header, HAMCORE_HEADER_SIZE);
-
-	if (Cmp(header, HAMCORE_HEADER_DATA, HAMCORE_HEADER_SIZE) != 0)
-	{
-		// Invalid header
-		FileClose(hamcore_io);
-		hamcore_io = NULL;
+		Debug("InitHamcore(): Loaded from \"%s\".\n", HAMCORE_FILE_PATH);
 		return;
 	}
+#endif
+	char path[MAX_PATH];
+	GetExeDir(path, sizeof(path));
+	Format(path, sizeof(path), "%s/%s", path, HAMCORE_FILE_NAME);
 
-	// The number of the File
-	num = 0;
-	FileRead(hamcore_io, &num, sizeof(num));
-	num = Endian32(num);
-	for (i = 0;i < num;i++)
+	hamcore_io = HamcoreOpen(path);
+	if (hamcore_io != NULL)
 	{
-		// File name
-		char tmp[MAX_SIZE];
-		UINT str_size = 0;
-		HC *c;
-
-		FileRead(hamcore_io, &str_size, sizeof(str_size));
-		str_size = Endian32(str_size);
-		if (str_size >= 1)
-		{
-			str_size--;
-		}
-
-		Zero(tmp, sizeof(tmp));
-		FileRead(hamcore_io, tmp, str_size);
-
-		c = ZeroMalloc(sizeof(HC));
-		c->FileName = CopyStr(tmp);
-
-		FileRead(hamcore_io, &c->Size, sizeof(UINT));
-		c->Size = Endian32(c->Size);
-
-		FileRead(hamcore_io, &c->SizeCompressed, sizeof(UINT));
-		c->SizeCompressed = Endian32(c->SizeCompressed);
-
-		FileRead(hamcore_io, &c->Offset, sizeof(UINT));
-		c->Offset = Endian32(c->Offset);
-
-		Insert(hamcore, c);
+		Debug("InitHamcore(): Loaded from \"%s\".\n", path);
 	}
 }
 
 // Release of HamCore file system
 void FreeHamcore()
 {
-	UINT i;
-	for (i = 0;i < LIST_NUM(hamcore);i++)
+	for (UINT i = 0; i < LIST_NUM(hamcore); ++i)
 	{
 		HC *c = LIST_DATA(hamcore, i);
-		Free(c->FileName);
-		if (c->Buffer != NULL)
-		{
-			Free(c->Buffer);
-		}
+
+		Free(c->Buffer);
+		Free(c->Path);
 		Free(c);
 	}
 	ReleaseList(hamcore);
 
-	FileClose(hamcore_io);
+	HamcoreClose(hamcore_io);
 	hamcore_io = NULL;
 	hamcore = NULL;
 }
@@ -991,7 +865,7 @@ int CompareHamcore(void *p1, void *p2)
 	{
 		return 0;
 	}
-	return StrCmpi(c1->FileName, c2->FileName);
+	return StrCmpi(c1->Path, c2->Path);
 }
 
 // Getting the name of the directory where the EXE file is in

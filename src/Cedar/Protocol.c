@@ -6011,7 +6011,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 
 					if (server->DisableJsonRpcWebApi == false)
 					{
-						b = ReadDump("|wwwroot\\index.html");
+						b = ReadDump("|wwwroot/index.html");
 					}
 
 					if (b != NULL)

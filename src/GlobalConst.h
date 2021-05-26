@@ -64,9 +64,4 @@
 
 #define	GC_UI_APPID_CM				L"SoftEther.SoftEther VPN Client Developer Edition"
 
-//// Hamcore
-
-#define HAMCORE_HEADER_DATA			"HamCore"
-#define HAMCORE_HEADER_SIZE			7
-
 #endif	// GLOBAL_CONST_H
