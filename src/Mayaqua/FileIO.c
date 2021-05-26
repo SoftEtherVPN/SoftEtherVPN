@@ -789,7 +789,7 @@ BUF *ReadHamcore(char *name)
 
 		for (UINT i = 0; i < LIST_NUM(to_delete); ++i)
 		{
-			HC *c = LIST_DATA(hamcore, i);
+			HC *c = LIST_DATA(to_delete, i);
 
 			Delete(hamcore, c);
 
