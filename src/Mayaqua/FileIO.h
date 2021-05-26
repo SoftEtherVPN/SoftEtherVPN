@@ -10,11 +10,8 @@
 
 #include "Mayaqua.h"
 
-// Constant
 #define	HAMCORE_DIR_NAME			"hamcore"
 #define	HAMCORE_FILE_NAME			"hamcore.se2"
-#define	HAMCORE_FILE_NAME_2			"_hamcore.se2"
-#define	HAMCORE_TEXT_NAME			"hamcore.txt"
 #define	HAMCORE_CACHE_EXPIRES		(5 * 60 * 1000)
 
 // IO structure
@@ -33,12 +30,10 @@ struct IO
 // HC structure
 typedef struct HC
 {
-	char *FileName;				// File name
-	UINT Size;					// File size
-	UINT SizeCompressed;		// Compressed file size
-	UINT Offset;				// Offset
-	void *Buffer;				// Buffer
-	UINT64 LastAccess;			// Access Date
+	char *Path;
+	void *Buffer;
+	size_t Size;
+	UINT64 LastAccess;
 } HC;
 
 // DIRENT structure
@@ -242,7 +237,6 @@ void FreeDir(DIRLIST *d);
 int CompareDirListByName(void *p1, void *p2);
 bool GetDiskFree(char *path, UINT64 *free_size, UINT64 *used_size, UINT64 *total_size);
 void ConvertSafeFileName(char *dst, UINT size, char *src);
-bool FileReplaceRenameW(wchar_t *old_name, wchar_t *new_name);
 bool IsFile(char *name);
 bool IsFileW(wchar_t *name);
 bool SaveFileW(wchar_t *name, void *data, UINT size);
