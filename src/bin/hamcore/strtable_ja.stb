@@ -5131,14 +5131,15 @@ CMD_Offline_Help		現在管理している仮想 HUB がオンラインになっ
 CMD_Offline_Args		Offline
 
 
-# SetStaticNetwork command
-CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
-CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+# SetStaticNetwork コマンド
+CMD_SetStaticNetwork				仮想 HUB のスタティック IPv4 ネットワークパラメータを設定する
+
+CMD_SetStaticNetwork_Help			現在管理している仮想 HUB の、スタティック IPv4 パラメータを設定します。これらの設定は DHCP が利用できない場合に使用されます(例: WireGuard セッション)。\n 現在の設定は OptionsGet コマンドで取得することができます。
 CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
-CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
-CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
-CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
-CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+CMD_SetStaticNetwork_GATEWAY		ゲートウェイの IP アドレスを設定します。
+CMD_SetStaticNetwork_SUBNET			ローカル VPN ネットワークの大きさを決定するために必要なサブネットマスクを指定します。
+CMD_SetStaticNetwork_Prompt_GATEWAY	ゲートウェイ 
+CMD_SetStaticNetwork_Prompt_SUBNET	サブネットマスク: 
 
 
 # SetMaxSession コマンド
@@ -5177,8 +5178,8 @@ CMD_OptionsGet_ENUM		匿名ユーザーに対する仮想 HUB の列挙
 CMD_OptionsGet_MAXSESSIONS	最大同時接続セッション数
 CMD_OptionsGet_STATUS	状態
 CMD_OptionsGet_TYPE		仮想 HUB の種類
-CMD_OptionsGet_GATEWAY	Default gateway
-CMD_OptionsGet_SUBNET	Default subnet
+CMD_OptionsGet_GATEWAY	デフォルトゲートウェイ
+CMD_OptionsGet_SUBNET	サブネットマスク
 
 
 # RadiusServerSet コマンド
