@@ -1807,12 +1807,12 @@ LP_SESSION_DELETED		Session deleted.
 
 # (WireGuard ログ)
 LW_PREFIX_SESSION	[WireGuard] %r:%u -> %r:%u: 
-LW_KEYPAIR_EXPIRED	Current keypair (%x -> %x) is expired!
-LW_KEYPAIR_UNKNOWN	The packet was encrypted with an unknown keypair!
-LW_DECRYPT_FAIL		Decryption failure!
-LW_REPLAY_ATTACK	Replay attack detected!
-LW_FLOOD_ATTACK		Flood attack detected!
-LW_HUB_DISCONNECT	The administrator of the Virtual Hub has disconnected this session.
+LW_KEYPAIR_EXPIRED	現在の鍵ペア (%x -> %x) の有効期限が切れています。
+LW_KEYPAIR_UNKNOWN	パケットが未知の鍵ペアによって暗号化されていました。
+LW_DECRYPT_FAIL		復号に失敗しました。
+LW_REPLAY_ATTACK	リプレイ攻撃を検出しました。
+LW_FLOOD_ATTACK		フラッド攻撃を検出しました。
+LW_HUB_DISCONNECT	仮想 HUB の管理者によって VPN セッションが切断されました。
 
 
 # (OpenVPN ログ)
@@ -1917,7 +1917,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
-LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
+LH_AUTH_WIREGUARD_KEY	WireGuard 公開鍵認証
 LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。
 LH_AUTH_RADIUS_NOT_SUPPORT_ON_OPEN_SOURCE	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。接続は拒否されます。
@@ -4612,9 +4612,9 @@ CMD_ProtoOptionsGet_Column_Description	説明
 CMD_ProtoOptions_Description_OpenVPN_DefaultClientOption			OpenVPN の OCC codeRT 版以外の場合は、OpenVPN はサーバーに対してオプション文字列を送信しません。OpenVPN サーバーのオリジナル版は、オプションを固定で指定する仕組みになっているため、その場合でも動作します。一方、SoftEther VPN は、様々なオプションを動的に設定することができる機能を有しております。そこで、このオプションを使用することにより、OCC code なしでビルドされた OpenVPN に対してデフォルトの静的オプション文字列を送付することができるようになります。これにより、OCC code なしでビルドされた OpenVPN からの接続が成功するようになります。
 CMD_ProtoOptions_Description_OpenVPN_Obfuscation					OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードを設定します。クライアント側とサーバー側では、同一の XOR マスクを設定する必要があります。コードが異なると、接続ができません。
 CMD_ProtoOptions_Description_OpenVPN_ObfuscationMask				パケットで使用される XOR マスクを指定します。OpenVPN クライアントが検閲用ファイアウォールを回避するための難読化コードとして使用されます。
-CMD_ProtoOptions_Description_OpenVPN_PingSendInterval				Interval in milliseconds between each ping packet transmission.
+CMD_ProtoOptions_Description_OpenVPN_PingSendInterval				ping パケットを送信する間隔をミリ秒単位で指定します。
 CMD_ProtoOptions_Description_OpenVPN_PushDummyIPv4AddressOnL2Mode	Linux における特定の状況下では manifests に不具合があります。この不具合により、OpenVPN クライアントは TAP デバイスが UP 状態であるにもかかわらず、切断状態となります。このオプションを使用することにより、VPN サーバーは、ダミーの IPv4 アドレス (RFC7600 で規定) をクライアントに対してプッシュ送信することができるようになります。これにより、TAP アダプタが常に UP 状態になります。
-CMD_ProtoOptions_Description_OpenVPN_Timeout						Time in milliseconds after which the session is forcifully interrupted if no packets are received from the client in the meantime.
+CMD_ProtoOptions_Description_OpenVPN_Timeout						クライアントからパケットを受信しなかった場合に強制的にセッションを切断するまでの時間をミリ秒単位で指定します。
 
 
 # ServerPasswordSet コマンド
@@ -5026,32 +5026,32 @@ CMD_LogFileGet_FILESIZE	ログファイルのファイルサイズ: %u
 
 
 # WgkAdd コマンド
-CMD_WgkAdd				Add a WireGuard key
-CMD_WgkAdd_Help			This command can be used to add a WireGuard key to the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkAdd				WireGuard 公開鍵の追加
+CMD_WgkAdd_Help			新しい WireGuard 公開鍵をサーバーに追加します。\n公開鍵を追加すると、関連付けたユーザーとして仮想 HUB に WireGuard クライアントが接続できるようになります。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkAdd_Args			WgkAdd [key] [/HUB:hub] [/USER:user]
-CMD_WgkAdd_[key]		WireGuard key. Make sure it is the public one!
-CMD_WgkAdd_HUB			Hub the key will be associated to.
-CMD_WgkAdd_USER			User the key will be associated to, in the specified hub.
-CMD_WgkAdd_Prompt_[key]	Key: 
-CMD_WgkAdd_Prompt_HUB	Hub: 
-CMD_WgkAdd_Prompt_USER	User: 
+CMD_WgkAdd_[key]		新しく追加する WireGuard 公開鍵を指定します。追加しようとしている鍵が公開鍵であることを確認してください。
+CMD_WgkAdd_HUB			公開鍵に関連付ける仮想ハブを指定します。
+CMD_WgkAdd_USER			指定された仮想 HUB 内で公開鍵に関連付けるユーザー名を指定します。
+CMD_WgkAdd_Prompt_[key]	公開鍵: 
+CMD_WgkAdd_Prompt_HUB	関連付ける仮想 HUB の名前: 
+CMD_WgkAdd_Prompt_USER	ユーザー名: 
 
 
 # WgkDelete コマンド
-CMD_WgkDelete				Delete a WireGuard key
-CMD_WgkDelete_Help			This command can be used to delete a WireGuard key from the allowed key list. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkDelete				WireGuard 公開鍵の削除
+CMD_WgkDelete_Help			サーバーに登録された WireGuard 公開鍵を削除します。\n公開鍵を削除すると WireGuard クライアントは仮想 HUB に接続できなくなります。 \nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkDelete_Args			WgkDelete [key]
-CMD_WgkDelete_[key]			WireGuard key.
-CMD_WgkDelete_Prompt_[key]	Key: 
+CMD_WgkDelete_[key]			削除する WireGuard 公開鍵を指定します。
+CMD_WgkDelete_Prompt_[key]	公開鍵: 
 
 
 # WgkEnum コマンド
-CMD_WgkEnum				List the WireGuard keys
-CMD_WgkEnum_Help		This command retrieves the WireGuard keys that are allowed to connect to the server, along with the associated Virtual Hub and user. \nYou can add a key with the WgkAdd command. \nYou can delete a key with the WgkDelete command. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_WgkEnum				Wireguard 公開鍵一覧の取得
+CMD_WgkEnum_Help		現在サーバーに登録されている WireGuard 公開鍵の一覧を取得します。\nWgkAdd コマンドで公開鍵の追加を、WgkDelete コマンドで公開鍵の削除を行うことができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkEnum_Args		WgkEnum
-CMD_WgkEnum_Column_Key	Key
-CMD_WgkEnum_Column_Hub	Hub
-CMD_WgkEnum_Column_User	User
+CMD_WgkEnum_Column_Key	公開鍵
+CMD_WgkEnum_Column_Hub	仮想 HUB 名
+CMD_WgkEnum_Column_User	ユーザー名
 
 
 # HubCreate コマンド
@@ -5131,14 +5131,15 @@ CMD_Offline_Help		現在管理している仮想 HUB がオンラインになっ
 CMD_Offline_Args		Offline
 
 
-# SetStaticNetwork command
-CMD_SetStaticNetwork				Set Virtual Hub static IPv4 network parameters
-CMD_SetStaticNetwork_Help			Set the static IPv4 network parameters for the Virtual Hub. They are used when DHCP is not available (e.g. WireGuard sessions). \nYou can get the current settings by using the OptionsGet command.
+# SetStaticNetwork コマンド
+CMD_SetStaticNetwork				仮想 HUB のスタティック IPv4 ネットワークパラメータを設定する
+
+CMD_SetStaticNetwork_Help			現在管理している仮想 HUB の、スタティック IPv4 パラメータを設定します。これらの設定は DHCP が利用できない場合に使用されます(例: WireGuard セッション)。\n 現在の設定は OptionsGet コマンドで取得することができます。
 CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
-CMD_SetStaticNetwork_GATEWAY		Specify the IP address of the gateway that will be used for internet communication.
-CMD_SetStaticNetwork_SUBNET			Specify the subnet mask, required to determine the size of the local VPN network.
-CMD_SetStaticNetwork_Prompt_GATEWAY	Gateway: 
-CMD_SetStaticNetwork_Prompt_SUBNET	Subnet mask: 
+CMD_SetStaticNetwork_GATEWAY		ゲートウェイの IP アドレスを設定します
+CMD_SetStaticNetwork_SUBNET			ローカル VPN ネットワークの大きさを決定するために必要なサブネットマスクを指定します。
+CMD_SetStaticNetwork_Prompt_GATEWAY	ゲートウェイ 
+CMD_SetStaticNetwork_Prompt_SUBNET	サブネットマスク: 
 
 
 # SetMaxSession コマンド
@@ -5177,8 +5178,8 @@ CMD_OptionsGet_ENUM		匿名ユーザーに対する仮想 HUB の列挙
 CMD_OptionsGet_MAXSESSIONS	最大同時接続セッション数
 CMD_OptionsGet_STATUS	状態
 CMD_OptionsGet_TYPE		仮想 HUB の種類
-CMD_OptionsGet_GATEWAY	Default gateway
-CMD_OptionsGet_SUBNET	Default subnet
+CMD_OptionsGet_GATEWAY	デフォルトゲートウェイ
+CMD_OptionsGet_SUBNET	サブネットマスク
 
 
 # RadiusServerSet コマンド
