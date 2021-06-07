@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0500 */
-/* at Sun Apr 05 23:21:10 2020
+/* at Mon Jun 07 21:30:12 2021
  */
 /* Compiler settings for .\vpnweb.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)

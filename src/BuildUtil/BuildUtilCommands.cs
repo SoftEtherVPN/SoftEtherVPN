@@ -1330,7 +1330,45 @@ namespace BuildUtil
 			int certid = vl["CERTID"].IntValue;
 			int shamode = vl["SHAMODE"].IntValue;
 
-			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, false);
+			CodeSign.SignFile(destFileName, srcFileName, comment, kernel, false, false);
+
+			return 0;
+		}
+
+		// Sign the file
+		[ConsoleCommandMethod(
+			"Sign files using Authenticode certificates.",
+			"SignCode2 [filename] [/DEST:destfilename] [/COMMENT:comment] [/KERNEL:yes|no] [/CERT:certname]",
+			"Sign files using Authenticode certificates.",
+			"[filename]:Specify the target filename.",
+			"DEST:Specify the destination filename. If this parameter is not specified, the target file will be overwritten.",
+			"COMMENT:Provide a description of the signed content.",
+			"KERNEL:Specify \"yes\" if Windows Vista / 7 Kernel Mode Driver Signing is needed."
+			)]
+		static int SignCode2(ConsoleService c, string cmdName, string str)
+		{
+			ConsoleParam[] args =
+			{
+				new ConsoleParam("[filename]", ConsoleService.Prompt, "Filename: ", ConsoleService.EvalNotEmpty, null),
+				new ConsoleParam("DEST"),
+				new ConsoleParam("COMMENT", ConsoleService.Prompt, "Comment: ", ConsoleService.EvalNotEmpty, null),
+				new ConsoleParam("KERNEL"),
+				new ConsoleParam("CERT"),
+			};
+			ConsoleParamValueList vl = c.ParseCommandList(cmdName, str, args);
+
+			string destFileName = vl["DEST"].StrValue;
+			string srcFileName = vl.DefaultParam.StrValue;
+			if (Str.IsEmptyStr(destFileName))
+			{
+				destFileName = srcFileName;
+			}
+			string comment = vl["COMMENT"].StrValue;
+			bool kernel = vl["KERNEL"].BoolValue;
+
+			string cert = vl["CERT"].StrValue;
+
+			CodeSign.SignFile2(destFileName, srcFileName, comment, kernel, cert);
 
 			return 0;
 		}

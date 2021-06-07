@@ -151,12 +151,16 @@ static bool probe_enabled = false;
 static bool init_proc_once_flag = false;
 void InitProcessCallOnce()
 {
+	InitProcessCallOnceEx(false);
+}
+void InitProcessCallOnceEx(int restricted_mode)
+{
 	if (init_proc_once_flag == false)
 	{
 		init_proc_once_flag = true;
 
 #ifdef	OS_WIN32
-		MsInitProcessCallOnce();
+		MsInitProcessCallOnce(restricted_mode);
 #endif	// OS_WIN32
 	}
 }

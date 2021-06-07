@@ -283,6 +283,7 @@ bool Win32LoadSecModule(SECURE *sec)
 
 	if (get_function_list == NULL)
 	{
+		Debug("err:%x\n",GetLastError());
 		// Failure
 		FreeLibrary(hInst);
 		return false;
@@ -331,7 +332,7 @@ void Win32FreeSecModule(SECURE *sec)
 // Whether the specified device is a JPKI
 bool IsJPKI(bool id)
 {
-	if (id == 9 || id == 13)
+	if (id == 9 || id == 13 || id == 24)
 	{
 		return true;
 	}
@@ -1861,10 +1862,13 @@ bool LoadSecModule(SECURE *sec)
 
 #ifdef	OS_WIN32
 	ret = Win32LoadSecModule(sec);
+	if(!ret){
+		return false;
+	}
 #endif	// OS_WIN32
 
 	// Initialization
-	if (sec->Api->C_Initialize(NULL) != CKR_OK)
+	if (sec->Api == NULL || sec->Api->C_Initialize(NULL) != CKR_OK)
 	{
 		// Initialization Failed
 		FreeSecModule(sec);

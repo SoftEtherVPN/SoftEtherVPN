@@ -192,11 +192,11 @@ namespace BuildUtil
 		static object lockObj = new object();
 		
 		// Digital-sign the data on the memory
-		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, bool evCert)
+		public static byte[] SignMemory(byte[] srcData, string comment, bool kernelModeDriver, bool evCert, bool skipVerify)
 		{
 #if	!BU_OSS
 			// 2020/01/19 switch to the new system
-			return SignClient.Sign(srcData, evCert ? "SoftEtherEv" : "SoftEtherFile", kernelModeDriver ? "Driver" : "", comment);
+			return SignClient.Sign(srcData, evCert ? "SoftEtherEv" : "SoftEtherFile", (kernelModeDriver ? "Driver" : "") + "," + (skipVerify ? "SkipVerify" : ""), comment);
 
 			/*
 			int i;
@@ -297,14 +297,40 @@ namespace BuildUtil
 		}
 
 		// Digital-sign the data on the file
-		public static void SignFile(string destFileName, string srcFileName, string comment, bool kernelModeDriver, bool evCert)
+		public static void SignFile2(string destFileName, string srcFileName, string comment, bool kernelModeDriver, string certName)
 		{
 #if	!BU_OSS
 
 			Con.WriteLine("Signing for '{0}'...", Path.GetFileName(destFileName));
 			byte[] srcData = File.ReadAllBytes(srcFileName);
 
-			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, evCert);
+			byte[] destData = SignClient.Sign(srcData, certName, kernelModeDriver ? "Driver" : "", comment);
+
+			try
+			{
+				File.Delete(destFileName);
+			}
+			catch
+			{
+			}
+
+			File.WriteAllBytes(destFileName, destData);
+
+			Con.WriteLine("Done.");
+#else	// BU_OSS
+			Con.WriteLine("Skipping the code signing for '{0}' in the build process. You can insert your own authenticode sign process here.", srcFileName);
+#endif	// BU_OSS
+		}
+
+		// Digital-sign the data on the file
+		public static void SignFile(string destFileName, string srcFileName, string comment, bool kernelModeDriver, bool evCert, bool skipVerify)
+		{
+#if	!BU_OSS
+
+			Con.WriteLine("Signing for '{0}'...", Path.GetFileName(destFileName));
+			byte[] srcData = File.ReadAllBytes(srcFileName);
+
+			byte[] destData = SignMemory(srcData, comment, kernelModeDriver, evCert, skipVerify);
 
 			try
 			{

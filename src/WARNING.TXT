@@ -398,10 +398,13 @@ identify that the source of the communication has initiated from the VPN Gate
 Service's hosting computer's IP address. However, for safety, any packets
 which destinations are within 192.168.0.0/255.255.0.0, 172.16.0.0/255.240.0.0
 or 10.0.0.0/255.0.0.0 will be blocked by the "VPNGATE" Virtual Hub in order to
-protect your local network. Therefore, if you run VPN Gate Service on your
-corporate network or private network, it is safe because anonymous VPN Client
-users will not be permitted to access such private networks. VPN Gate Service
-also serves as relay for accessing to the VPN Gate Directory Server.
+protect your local network. Any packets which destinations are within
+169.254.0.0/16, 224.0.0.0/4 or 100.64.0.0/10 will also be blocked for just in
+case. These packet filters except DNS, ICMP and ARP packets. Therefore, if you
+run VPN Gate Service on your corporate network or private network, it is safe
+because anonymous VPN Client users will not be permitted to access such
+private networks. VPN Gate Service also serves as relay for accessing to the
+VPN Gate Directory Server.
 In order to make VPN Gate Service familiar with firewalls and NATs, it opens
 an UDP port by using the NAT Traversal function which is described on the
 section 1.2. It also opens and listens on some TCP ports, and some TCP and UDP

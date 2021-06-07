@@ -165,6 +165,10 @@ namespace BuildUtil
 			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.armeabi, OSList.Linux,
 				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
+		public static readonly BuildSoftware vpnserver_linux_arm64_ja =
+			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.arm64, OSList.Linux,
+				"linux-arm64-64bit", false, "linux-arm64-64bit-4.8.4", false,
+				null);
 		public static readonly BuildSoftware vpnserver_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.mipsel, OSList.Linux,
 				"linux-mipsel-32bit", false, "linux-mipsel-32bit-3.4.6", false,
@@ -172,10 +176,6 @@ namespace BuildUtil
 		public static readonly BuildSoftware vpnserver_linux_ppc_ja =
 			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.ppc32, OSList.Linux,
 				"linux-ppc-32bit", false, "linux-ppc-32bit-3.4.6", false,
-				null);
-		public static readonly BuildSoftware vpnserver_linux_sh4_ja =
-			new BuildSoftwareUnix(Software.vpnserver, 0, 0, "", CpuList.sh4, OSList.Linux,
-				"linux-sh4-32bit", false, "linux-sh4-32bit-3.4.6", false,
 				null);
 
 		// Client
@@ -195,6 +195,10 @@ namespace BuildUtil
 			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.armeabi, OSList.Linux,
 				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
+		public static readonly BuildSoftware vpnclient_linux_arm64_ja =
+			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.arm64, OSList.Linux,
+				"linux-arm64-64bit", false, "linux-arm64-64bit-4.8.4", false,
+				null);
 		public static readonly BuildSoftware vpnclient_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.mipsel, OSList.Linux,
 				"linux-mipsel-32bit", false, "linux-mipsel-32bit-3.4.6", false,
@@ -202,10 +206,6 @@ namespace BuildUtil
 		public static readonly BuildSoftware vpnclient_linux_ppc_ja =
 			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.ppc32, OSList.Linux,
 				"linux-ppc-32bit", false, "linux-ppc-32bit-3.4.6", false,
-				null);
-		public static readonly BuildSoftware vpnclient_linux_sh4_ja =
-			new BuildSoftwareUnix(Software.vpnclient, 0, 0, "", CpuList.sh4, OSList.Linux,
-				"linux-sh4-32bit", false, "linux-sh4-32bit-3.4.6", false,
 				null);
 
 		// Bridge
@@ -225,6 +225,10 @@ namespace BuildUtil
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.armeabi, OSList.Linux,
 				"linux-armeabi-32bit", false, "linux-armeabi-32bit-4.3.2", false,
 				null);
+		public static readonly BuildSoftware vpnbridge_linux_arm64_ja =
+			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.arm64, OSList.Linux,
+				"linux-arm64-64bit", false, "linux-arm64-64bit-4.8.4", false,
+				null);
 		public static readonly BuildSoftware vpnbridge_linux_mipsel_ja =
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.mipsel, OSList.Linux,
 				"linux-mipsel-32bit", false, "linux-mipsel-32bit-3.4.6", false,
@@ -232,10 +236,6 @@ namespace BuildUtil
 		public static readonly BuildSoftware vpnbridge_linux_ppc_ja =
 			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.ppc32, OSList.Linux,
 				"linux-ppc-32bit", false, "linux-ppc-32bit-3.4.6", false,
-				null);
-		public static readonly BuildSoftware vpnbridge_linux_sh4_ja =
-			new BuildSoftwareUnix(Software.vpnbridge, 0, 0, "", CpuList.sh4, OSList.Linux,
-				"linux-sh4-32bit", false, "linux-sh4-32bit-3.4.6", false,
 				null);
 
 
@@ -437,9 +437,9 @@ namespace BuildUtil
 				CpuList.mipsel,
 				CpuList.ppc32,
 				CpuList.ppc64,
-				CpuList.sh4,
 				CpuList.arm,
 				CpuList.armeabi,
+				CpuList.arm64,
 			});
 
 		// FreeBSD
@@ -521,10 +521,10 @@ namespace BuildUtil
 		public static readonly Cpu intel = new Cpu("x86_x64", "Intel", CPUBits.Both);
 		public static readonly Cpu arm = new Cpu("arm", "ARM legacy ABI", CPUBits.Bits32);
 		public static readonly Cpu armeabi = new Cpu("arm_eabi", "ARM EABI", CPUBits.Bits32);
+		public static readonly Cpu arm64 = new Cpu("arm64", "ARM 64bit", CPUBits.Bits64);
 		public static readonly Cpu mipsel = new Cpu("mips_el", "MIPS Little-Endian", CPUBits.Bits32);
 		public static readonly Cpu ppc32 = new Cpu("powerpc", "PowerPC", CPUBits.Bits32);
 		public static readonly Cpu ppc64 = new Cpu("powerpc64", "PowerPC G5", CPUBits.Bits64);
-		public static readonly Cpu sh4 = new Cpu("sh4", "SH-4", CPUBits.Bits32);
 		public static readonly Cpu sparc32 = new Cpu("sparc", "SPARC", CPUBits.Bits32);
 		public static readonly Cpu sparc64 = new Cpu("sparc64", "SPARC", CPUBits.Bits64);
 

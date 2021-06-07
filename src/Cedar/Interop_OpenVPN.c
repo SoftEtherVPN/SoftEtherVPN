@@ -234,7 +234,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 				}
 				se->Channels[recv_packet->KeyId] = c;
 				Debug("OpenVPN New Channel :%u\n", recv_packet->KeyId);
-				OvsLog(s, se, c, "LO_NEW_CHANNEL");
+				//OvsLog(s, se, c, "LO_NEW_CHANNEL");
 			}
 /*			else if (recv_packet->OpCode == OPENVPN_P_CONTROL_SOFT_RESET_V1)
 			{
@@ -1810,7 +1810,7 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 	Debug("OpenVPN New Session: %s:%u -> %s:%u Proto=%u\n", server_ip_str, server_port,
 		client_ip_str, client_port, protocol);
 
-	OvsLog(s, se, NULL, "LO_NEW_SESSION", (protocol == OPENVPN_PROTOCOL_UDP ? "UDP" : "TCP"));
+	//OvsLog(s, se, NULL, "LO_NEW_SESSION", (protocol == OPENVPN_PROTOCOL_UDP ? "UDP" : "TCP"));
 
 	return se;
 }
@@ -2434,7 +2434,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 			OPENVPN_SESSION *se = LIST_DATA(delete_session_list, i);
 
 			Debug("Deleting Session %p\n", se);
-			OvsLog(s, se, NULL, "LO_DELETE_SESSION");
+			//OvsLog(s, se, NULL, "LO_DELETE_SESSION");
 
 			OvsFreeSession(se);
 

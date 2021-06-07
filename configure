@@ -74,6 +74,13 @@ OpenBSD)
 	;;
 esac
 
+NOBITS=""
+case "`uname -m`" in
+aarch*|arm*|arm*)
+	NOBITS="_nobits"
+	;;
+esac
+
 CPU=""
 case "`uname -m`" in
 x86_64|amd64|aarch64|arm64|armv8*|mips64|ppc64|sparc64|alpha|ia64)
@@ -107,6 +114,6 @@ i?86|x86pc|i86pc|armv4*|armv5*|armv6*|armv7*)
 	;;
 esac
 
-cp src/makefiles/${OS}_${CPU}.mak Makefile
+cp src/makefiles/${OS}_${CPU}${NOBITS}.mak Makefile
 
 echo "The Makefile is generated. Run 'make' to build SoftEther VPN."

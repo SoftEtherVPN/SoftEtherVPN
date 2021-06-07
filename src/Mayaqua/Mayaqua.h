@@ -124,6 +124,7 @@
 
 #endif	// VPN_SPEED
 
+void InitProcessCallOnceEx(int restricted_mode);
 void InitProcessCallOnce();
 
 #ifdef	VPN_EXE
