@@ -5138,7 +5138,7 @@ CMD_SetStaticNetwork_Help			現在管理している仮想 HUB の、スタテ�
 CMD_SetStaticNetwork_Args			SetStaticNetwork [/GATEWAY:gateway] [/SUBNET:subnet]
 CMD_SetStaticNetwork_GATEWAY		ゲートウェイの IP アドレスを設定します
 CMD_SetStaticNetwork_SUBNET			ローカル VPN ネットワークの大きさを決定するために必要なサブネットマスクを指定します。
-CMD_SetStaticNetwork_Prompt_GATEWAY	ゲートウェイ 
+CMD_SetStaticNetwork_Prompt_GATEWAY	ゲートウェイ: 
 CMD_SetStaticNetwork_Prompt_SUBNET	サブネットマスク: 
 
 
