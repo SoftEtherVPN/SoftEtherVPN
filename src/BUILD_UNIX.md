@@ -33,7 +33,8 @@ You need to install the following software to build SoftEther VPN for UNIX.
 
 ```bash
 sudo yum -y groupinstall "Development Tools"
-sudo yum -y install epel-release cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel
+sudo yum -y install epel-release
+sudo yum -y install cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel
 ```
 
 ## Install requirements on Debian/Ubuntu
