@@ -3406,7 +3406,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 		if (isFragmented)
 		{
 			p->Eap_PacketId = p->NextId++;
-			PPP_LCP *lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_TLS, 0);
+			PPP_LCP *lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, PPP_EAP_TLS_FLAG_NONE);
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
