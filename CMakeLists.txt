@@ -3,7 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 set(BUILD_NUMBER CACHE STRING "The number of the current build.")
 
 if ("${BUILD_NUMBER}" STREQUAL "")
-	set(BUILD_NUMBER "0")
+	set(BUILD_NUMBER "5180")
+endif()
+
+if (BUILD_NUMBER LESS 5180)
+	message(WARNING
+		"Setting BUILD_NUMBER to a value less than 5180 will break compatibility with client binaries distributed by SoftEther Corporation. "
+		"Set to a value greater than or equal to 5180 if you want such clients to work properly.\n"
+		"For detailed info: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1392#issuecomment-867348281")
 endif()
 
 project("SoftEther VPN"
