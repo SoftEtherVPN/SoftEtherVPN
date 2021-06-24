@@ -6,6 +6,14 @@ if ("${BUILD_NUMBER}" STREQUAL "")
 	set(BUILD_NUMBER "0")
 endif()
 
+if (BUILD_NUMBER LESS 5180)
+	message(WARNING
+		"Setting BUILD_NUMBER to the value less than 5180 will lose compatibility with "
+		"SoftEtherVPN Stable Edition 4.x. Set to a value greater than or equal to 5180 "
+		"if you are likely to connect from 4.x clients."
+		"\nSee also: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1392#issuecomment-867348281")
+endif()
+
 project("SoftEther VPN"
   VERSION "5.02.${BUILD_NUMBER}"
   LANGUAGES C
