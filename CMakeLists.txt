@@ -8,9 +8,9 @@ endif()
 
 if (BUILD_NUMBER LESS 5180)
 	message(WARNING
-		"Setting BUILD_NUMBER to a value less than 5180 will break compatibility with client binaries distributed by SoftEther Corporation.\n"
+		"Setting BUILD_NUMBER to a value less than 5180 will break compatibility with client binaries distributed by SoftEther Corporation. "
 		"Set to a value greater than or equal to 5180 if you want such clients to work properly.\n"
-		"For detailed info: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1392#issuecomment-867348281"
+		"For detailed info: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1392#issuecomment-867348281")
 endif()
 
 project("SoftEther VPN"
