@@ -2021,8 +2021,8 @@ LA_CREATE_LISTENER		已建立新 TCP 監聽器 (埠號 %u)。
 LA_DELETE_LISTENER		已刪除 TCP 監聽器 (埠號 %u)。
 LA_ENABLE_LISTENER		已啟用 TCP 監聽器 (埠號 %u)。
 LA_DISABLE_LISTENER		已禁用 TCP 監聽器 (埠號 %u)。
-LA_SET_PORTS_UDP		UDP ports have been set: %s.
-LA_SET_PROTO_OPTIONS	%s options have been set.
+LA_SET_PORTS_UDP		UDP ports have been set: %S.
+LA_SET_PROTO_OPTIONS	%S options have been set.
 LA_SET_SERVER_PASSWORD	服務端管理員密碼設置完成。
 LA_SET_FARM_SETTING		群集設置變更完成。
 LA_SET_SERVER_CERT		服務端證書設定完成。
