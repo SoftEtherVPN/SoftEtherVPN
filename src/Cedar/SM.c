@@ -9331,12 +9331,6 @@ void SmSessionDlgUpdate(HWND hWnd, SM_HUB *s)
 		}
 	}
 
-	if (s->p->ServerInfo.ServerBuildInt < 2844)
-	{
-		// Old version doesn't support for remote management of the sessions
-		ok2 = ok;
-	}
-
 	SetEnable(hWnd, IDOK, ok2);
 	SetEnable(hWnd, B_DISCONNECT, ok2);
 	SetEnable(hWnd, B_SESSION_IP_TABLE, ok);
