@@ -10077,8 +10077,7 @@ UINT StSetPortsUDP(ADMIN *a, RPC_PORTS *t)
 
 	LockList(server_ports);
 	{
-		char tmp[MAX_SIZE];
-		wchar_t str[MAX_SIZE];
+		char str[MAX_SIZE];
 
 		for (i = 0; i < LIST_NUM(server_ports); ++i)
 		{
@@ -10094,8 +10093,7 @@ UINT StSetPortsUDP(ADMIN *a, RPC_PORTS *t)
 
 		ProtoSetUdpPorts(a->Server->Proto, server_ports);
 
-		IntListToStr(tmp, sizeof(tmp), server_ports, ", ");
-		StrToUni(str, sizeof(str), tmp);
+		IntListToStr(str, sizeof(str), server_ports, ", ");
 		ALog(a, NULL, "LA_SET_PORTS_UDP", str);
 	}
 	UnlockList(server_ports);

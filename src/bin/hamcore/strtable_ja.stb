@@ -2007,8 +2007,8 @@ LA_CREATE_LISTENER		新しい TCP リスナー (ポート番号 %u) を作成し
 LA_DELETE_LISTENER		TCP リスナー (ポート番号 %u) を削除しました。
 LA_ENABLE_LISTENER		TCP リスナー (ポート番号 %u) を有効化しました。
 LA_DISABLE_LISTENER		TCP リスナー (ポート番号 %u) を無効化しました。
-LA_SET_PORTS_UDP		UDP ポートの一覧が設定されました: %s.
-LA_SET_PROTO_OPTIONS	オプション %s が設定されました。
+LA_SET_PORTS_UDP		UDP ポートの一覧が設定されました: %S.
+LA_SET_PROTO_OPTIONS	オプション %S が設定されました。
 LA_SET_SERVER_PASSWORD	サーバー管理者パスワードを設定しました。
 LA_SET_FARM_SETTING		クラスタリング設定を変更しました。
 LA_SET_SERVER_CERT		サーバー証明書を設定しました。

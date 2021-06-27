@@ -1985,8 +1985,8 @@ LA_CREATE_LISTENER 새로운 TCP 리스너 (포트 번호 %u)를 만들었습니
 LA_DELETE_LISTENER TCP 리스너 (포트 번호 %u)을 삭제했습니다.
 LA_ENABLE_LISTENER TCP 리스너 (포트 번호 %u)를 활성화했습니다.
 LA_DISABLE_LISTENER TCP 리스너 (포트 번호 %u)를 비활성화했습니다.
-LA_SET_PORTS_UDP UDP ports have been set: %s.
-LA_SET_PROTO_OPTIONS %s options have been set.
+LA_SET_PORTS_UDP UDP ports have been set: %S.
+LA_SET_PROTO_OPTIONS %S options have been set.
 LA_SET_SERVER_PASSWORD 서버 관리자 암호를 설정했습니다.
 LA_SET_FARM_SETTING 클러스터링 설정을 변경했습니다.
 LA_SET_SERVER_CERT 서버 인증서를 설정했습니다.
