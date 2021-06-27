@@ -11844,7 +11844,6 @@ bool LoginCM()
 	// Try to login with an empty password first
 	bool bad_pass, no_remote;
 	wchar_t server_name[MAX_SIZE];
-	RPC_CLIENT_VERSION a;
 
 RETRY:
 	if (cm->server_name != NULL)
@@ -11896,13 +11895,8 @@ RETRY:
 		}
 	}
 
-	Zero(&a, sizeof(a));
-	CcGetClientVersion(cm->Client, &a);
-	if (a.ClientBuildInt >= 5192)
-	{
-		cm->CmSettingSupported = true;
-		cm->CmEasyModeSupported = true;
-	}
+	cm->CmSettingSupported = true;
+	cm->CmEasyModeSupported = true;
 
 	return true;
 }
