@@ -15,6 +15,7 @@
 #include "Radius.h"
 #include "Server.h"
 
+#include "Mayaqua/Encoding.h"
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
@@ -30,11 +31,6 @@
 #include <signal.h>
 #include <unistd.h>
 #endif
-
-int base64_enc_len(unsigned int plainLen) {
-	unsigned int n = plainLen;
-	return (n + 2 - ((n + 2) % 3)) / 3 * 4;
-}
 
 PID OpenChildProcess(const char* path, char* const parameter[], int fd[] )
 {
@@ -134,7 +130,6 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 	int   fds[2];
 	FILE* out, *in;
 	PID   pid;
-	char  buffer[255];
 	char  ntlm_timeout[32];
 	char* proc_parameter[6];
 
@@ -152,8 +147,6 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		Debug("Sam.c - SmbAuthenticate - wrong MsCHAPv2 parameter\n");
 		return false;
 	}
-
-	Zero(buffer, sizeof(buffer));
 
 	// Truncate string if unsafe char
 	EnSafeStr(domainname, '\0');
@@ -218,64 +211,48 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		return false;
 	}
 
-	if (base64_enc_len((unsigned int)strlen(name)) < sizeof(buffer)-1 &&
-		base64_enc_len((unsigned int)strlen(password)) < sizeof(buffer)-1 &&
-		base64_enc_len((unsigned int)strlen(domainname)) < sizeof(buffer)-1)
 	{
-		char  answer[300];
-
-		unsigned int end = B64_Encode(buffer, name, (int)strlen(name));
-		buffer[end] = '\0';
+		char *base64 = Base64FromBin(NULL, name, StrLen(name));
 		fputs("Username:: ", out);
-		fputs(buffer, out);
+		fputs(base64, out);
 		fputs("\n", out);
-		Debug("Username: %s\n", buffer);
-		buffer[0] = 0;
+		Free(base64);
 
-		end = B64_Encode(buffer, domainname, (int)strlen(domainname));
-		buffer[end] = '\0';
+		base64 = Base64FromBin(NULL, domainname, StrLen(domainname));
 		fputs("NT-Domain:: ", out);
-		fputs(buffer, out);
+		fputs(base64, out);
 		fputs("\n", out);
-		Debug("NT-Domain: %s\n", buffer);
-		buffer[0] = 0;
+		Free(base64);
 
-		if (password[0] != '\0')
+		if (IsEmptyStr(password) == false)
 		{
-			Debug("Password authentication\n");
-			end = B64_Encode(buffer, password, (int)strlen(password));
-			buffer[end] = '\0';
+			Debug("SmbAuthenticate(): Using password authentication...\n");
+
+			base64 = Base64FromBin(NULL, password, StrLen(password));
 			fputs("Password:: ", out);
-			fputs(buffer, out);
+			fputs(base64, out);
 			fputs("\n", out);
-			Debug("Password: %s\n", buffer);
-			buffer[0] = 0;
+			Free(base64);
 		}
 		else
 		{
-			char* mschapv2_client_response;
-			char* base64_challenge8;
+			Debug("SmbAuthenticate(): Using MsChapV2 authentication...\n");
 
-			Debug("MsChapV2 authentication\n");
-			mschapv2_client_response = CopyBinToStr(MsChapV2_ClientResponse, 24);
-			end = B64_Encode(buffer, mschapv2_client_response, 48);
-			buffer[end] = '\0';
-			fputs("NT-Response:: ", out);
-			fputs(buffer, out);
-			fputs("\n", out);
-			Debug("NT-Response:: %s\n", buffer);
-			buffer[0] = 0;
+			char *mschapv2_client_response = CopyBinToStr(MsChapV2_ClientResponse, 24);
+			base64 = Base64FromBin(NULL, mschapv2_client_response, 48);
 			Free(mschapv2_client_response);
-
-			base64_challenge8 = CopyBinToStr(challenge8, 8);
-			end = B64_Encode(buffer, base64_challenge8 , 16);
-			buffer[end] = '\0';
-			fputs("LANMAN-Challenge:: ", out);
-			fputs(buffer, out);
+			fputs("NT-Response:: ", out);
+			fputs(base64, out);
 			fputs("\n", out);
-			Debug("LANMAN-Challenge:: %s\n", buffer);
-			buffer[0] = 0;
+			Free(base64);
+
+			char *base64_challenge8 = CopyBinToStr(challenge8, 8);
+			base64 = Base64FromBin(NULL, base64_challenge8, 16);
 			Free(base64_challenge8);
+			fputs("LANMAN-Challenge:: ", out);
+			fputs(base64, out);
+			fputs("\n", out);
+			Free(base64);
 
 			fputs("Request-User-Session-Key: Yes\n", out);
  		}
@@ -285,6 +262,7 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 		fflush (out);
 		// Request send!
 
+		char answer[300];
 		Zero(answer, sizeof(answer));
 
 		while (fgets(answer, sizeof(answer)-1, in))
@@ -323,7 +301,7 @@ bool SmbAuthenticate(char* name, char* password, char* domainname, char* groupna
 				response_parameter[0] ='\0';
 				response_parameter++;
 
-				end = Decode64(response_parameter, response_parameter);
+				const UINT end = Base64Decode(response_parameter, response_parameter, StrLen(response_parameter));
 				response_parameter[end] = '\0';
 			}
 

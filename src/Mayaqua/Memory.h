@@ -190,12 +190,8 @@ void Zero(void *addr, UINT size);
 void *Clone(void *addr, UINT size);
 void *AddHead(void *src, UINT src_size, void *head, UINT head_size);
 
-char B64_CodeToChar(BYTE c);
-char B64_CharToCode(char c);
-int B64_Encode(char *set, char *source, int len);
-int B64_Decode(char *set, char *source, int len);
-UINT Encode64(char *dst, char *src);
-UINT Decode64(char *dst, char *src);
+void *Base64FromBin(UINT *out_size, const void *src, const UINT size);
+void *Base64ToBin(UINT *out_size, const void *src, const UINT size);
 
 USHORT Swap16(USHORT value);
 UINT Swap32(UINT value);

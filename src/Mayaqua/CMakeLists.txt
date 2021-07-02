@@ -57,9 +57,16 @@ if(UNIX)
   # In some cases libiconv is not included in libc
   find_library(LIB_ICONV iconv)
 
+  find_library(LIB_M m)
   find_library(LIB_RT rt)
 
-  target_link_libraries(mayaqua PRIVATE Threads::Threads)
+  target_link_libraries(mayaqua
+    PRIVATE
+      Threads::Threads
+      $<$<BOOL:${LIB_ICONV}>:${LIB_ICONV}>
+      $<$<BOOL:${LIB_M}>:${LIB_M}>
+      $<$<BOOL:${LIB_RT}>:${LIB_RT}>
+  )
 
   if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7l|aarch64|s390x)$" OR NOT HAVE_SYS_AUXV OR SKIP_CPU_FEATURES)
     add_definitions(-DSKIP_CPU_FEATURES)
@@ -67,14 +74,6 @@ if(UNIX)
     add_subdirectory(3rdparty/cpu_features)
     set_property(TARGET cpu_features PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(mayaqua PRIVATE cpu_features)
-  endif()
-
-  if(LIB_RT)
-    target_link_libraries(mayaqua PRIVATE rt)
-  endif()
-
-  if(LIB_ICONV)
-    target_link_libraries(mayaqua PRIVATE ${LIB_ICONV})
   endif()
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
