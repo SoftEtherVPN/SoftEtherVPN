@@ -2239,10 +2239,9 @@ bool JsonTryParseValueAddToPack(PACK *p, JSON_VALUE *v, char *v_name, UINT index
 	{
 		if (v->type == JSON_TYPE_STRING)
 		{
-			UINT len = StrLen(v->value.string);
-			UCHAR *data = ZeroMalloc(len * 4 + 64);
-			UINT size = B64_Decode(data, v->value.string, len);
-			ElementNullSafe(PackAddDataEx(p, name, data, size, index, total))->JsonHint_IsArray = !is_single;
+			UINT data_size;
+			void *data = Base64ToBin(&data_size, v->value.string, StrLen(v->value.string));
+			ElementNullSafe(PackAddDataEx(p, name, data, data_size, index, total))->JsonHint_IsArray = !is_single;
 			Free(data);
 			ok = true;
 		}

@@ -939,30 +939,26 @@ bool HttpParseBasicAuthHeader(HTTP_HEADER *h, char *username, UINT username_size
 		{
 			if (StrCmpi(key, "Basic") == 0 && IsEmptyStr(value) == false)
 			{
-				UINT b64_dest_size = StrSize(value) * 2 + 256;
-				char *b64_dest = ZeroMalloc(b64_dest_size);
-
-				Decode64(b64_dest, value);
-
-				if (IsEmptyStr(b64_dest) == false)
+				char *str = Base64ToBin(NULL, value, StrLen(value));
+				if (str != NULL)
 				{
-					if (b64_dest[0] == ':')
+					if (str[0] == ':')
 					{
 						// Empty username
 						StrCpy(username, username_size, "");
-						StrCpy(password, password_size, b64_dest + 1);
+						StrCpy(password, password_size, str + 1);
 						ret = true;
 					}
 					else
 					{
-						if (GetKeyAndValue(b64_dest, username, username_size, password, password_size, ":"))
+						if (GetKeyAndValue(str, username, username_size, password, password_size, ":"))
 						{
 							ret = true;
 						}
 					}
-				}
 
-				Free(b64_dest);
+					Free(str);
+				}
 			}
 		}
 	}

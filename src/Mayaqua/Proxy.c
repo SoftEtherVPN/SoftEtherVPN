@@ -129,17 +129,12 @@ UINT ProxyHttpConnect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool *c
 
 	if (use_auth && GetHttpValue(h, "Proxy-Authorization") == NULL)
 	{
-		char auth_str[MAX_SIZE * 2], auth_b64_str[MAX_SIZE * 2];
-
-		// Generate the authentication string
+		char auth_str[MAX_SIZE * 2];
 		Format(auth_str, sizeof(auth_str), "%s:%s", in->Username, in->Password);
 
-		// Base64 encode
-		Zero(auth_b64_str, sizeof(auth_b64_str));
-		Encode64(auth_b64_str, auth_str);
-
-		// Generate final string
-		Format(auth_str, sizeof(auth_str), "Basic %s", auth_b64_str);
+		char *base64 = Base64FromBin(NULL, auth_str, StrLen(auth_str));
+		Format(auth_str, sizeof(auth_str), "Basic %s", base64);
+		Free(base64);
 
 		AddHttpValue(h, NewHttpValue("Proxy-Authorization", auth_str));
 	}

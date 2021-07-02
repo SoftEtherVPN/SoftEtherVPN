@@ -11,6 +11,7 @@
 #include "Protocol.h"
 
 #include "Mayaqua/DNS.h"
+#include "Mayaqua/Encoding.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
 #include "Mayaqua/Pack.h"
@@ -807,19 +808,14 @@ BUF *HttpRequestEx3(URL_DATA *data, INTERNET_SETTING *setting,
 
 		if (IsEmptyStr(setting->ProxyUsername) == false || IsEmptyStr(setting->ProxyPassword) == false)
 		{
-			char auth_tmp_str[MAX_SIZE], auth_b64_str[MAX_SIZE * 2];
-			char basic_str[MAX_SIZE * 2];
+			char auth_str[MAX_SIZE * 2];
+			Format(auth_str, sizeof(auth_str), "%s:%s", setting->ProxyUsername, setting->ProxyPassword);
 
-			// Generate the authentication string
-			Format(auth_tmp_str, sizeof(auth_tmp_str), "%s:%s",
-				setting->ProxyUsername, setting->ProxyPassword);
+			char *base64 = Base64FromBin(NULL, auth_str, StrLen(auth_str));
+			Format(auth_str, sizeof(auth_str), "Basic %s", base64);
+			Free(base64);
 
-			// Base64 encode
-			Zero(auth_b64_str, sizeof(auth_b64_str));
-			Encode64(auth_b64_str, auth_tmp_str);
-			Format(basic_str, sizeof(basic_str), "Basic %s", auth_b64_str);
-
-			AddHttpValue(h, NewHttpValue("Proxy-Authorization", basic_str));
+			AddHttpValue(h, NewHttpValue("Proxy-Authorization", auth_str));
 		}
 	}
 
@@ -1229,18 +1225,14 @@ bool ParseUrl(URL_DATA *data, char *str, bool is_post, char *referrer)
 }
 
 // String replacement
-void Base64ToSafe64(char *str)
+void Base64ToSafe64(char *str, const UINT size)
 {
-	UINT i, len;
-	// Validate arguments
-	if (str == NULL)
+	if (str == NULL || size == 0)
 	{
 		return;
 	}
 
-	len = StrLen(str);
-
-	for (i = 0;i < len;i++)
+	for (UINT i = 0; i < size; ++i)
 	{
 		switch (str[i])
 		{
@@ -1258,18 +1250,14 @@ void Base64ToSafe64(char *str)
 		}
 	}
 }
-void Safe64ToBase64(char *str)
+void Safe64ToBase64(char *str, const UINT size)
 {
-	UINT i, len;
-	// Validate arguments
-	if (str == NULL)
+	if (str == NULL || size == 0)
 	{
 		return;
 	}
 
-	len = StrLen(str);
-
-	for (i = 0;i < len;i++)
+	for (UINT i = 0; i < size; ++i)
 	{
 		switch (str[i])
 		{
@@ -1288,44 +1276,39 @@ void Safe64ToBase64(char *str)
 	}
 }
 
-// Decode from Safe64
-UINT DecodeSafe64(void *dst, char *src, UINT src_strlen)
+// Decode from escaped Base64
+UINT DecodeSafe64(void *dst, const char *src, UINT size)
 {
-	char *tmp;
-	UINT ret;
 	if (dst == NULL || src == NULL)
 	{
 		return 0;
 	}
 
-	if (src_strlen == 0)
+	if (size == 0)
 	{
-		src_strlen = StrLen(src);
+		size = StrLen(src);
 	}
 
-	tmp = Malloc(src_strlen + 1);
-	Copy(tmp, src, src_strlen);
-	tmp[src_strlen] = 0;
-	Safe64ToBase64(tmp);
+	char *tmp = Malloc(size + 1);
+	Copy(tmp, src, size);
+	tmp[size] = '\0';
 
-	ret = B64_Decode(dst, tmp, src_strlen);
+	Safe64ToBase64(tmp, size);
+	const UINT ret = Base64Decode(dst, tmp, size);
 	Free(tmp);
 
 	return ret;
 }
 
-// Encode to Safe64
-void EncodeSafe64(char *dst, void *src, UINT src_size)
+// Encode to escaped Base64
+void EncodeSafe64(char *dst, const void *src, const UINT size)
 {
-	UINT size;
 	if (dst == NULL || src == NULL)
 	{
 		return;
 	}
 
-	size = B64_Encode(dst, src, src_size);
-	dst[size] = 0;
+	const UINT ret = Base64Encode(dst, src, size);
 
-	Base64ToSafe64(dst);
+	Base64ToSafe64(dst, ret);
 }
-

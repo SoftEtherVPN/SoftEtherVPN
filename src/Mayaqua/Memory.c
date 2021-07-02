@@ -7,6 +7,7 @@
 
 #include "Memory.h"
 
+#include "Encoding.h"
 #include "Encrypt.h"
 #include "FileIO.h"
 #include "Internat.h"
@@ -3407,232 +3408,62 @@ UINT64 Swap64(UINT64 value)
 	return r;
 }
 
-// Base64 encode
-UINT Encode64(char *dst, char *src)
+void *Base64ToBin(UINT *out_size, const void *src, const UINT size)
 {
-	// Validate arguments
-	if (dst == NULL || src == NULL)
+	if (src == NULL || size == 0)
 	{
-		return 0;
+		return NULL;
 	}
 
-	return B64_Encode(dst, src, StrLen(src));
+	UINT bin_size = Base64Decode(NULL, src, size);
+	if (bin_size == 0)
+	{
+		return NULL;
+	}
+
+	void *bin = Malloc(bin_size);
+	bin_size = Base64Decode(bin, src, size);
+	if (bin_size == 0)
+	{
+		Free(bin);
+		return NULL;
+	}
+
+	if (out_size != NULL)
+	{
+		*out_size = bin_size;
+	}
+
+	return bin;
 }
 
-// Base64 decoding
-UINT Decode64(char *dst, char *src)
+void *Base64FromBin(UINT *out_size, const void *src, const UINT size)
 {
-	// Validate arguments
-	if (dst == NULL || src == NULL)
+	if (src == NULL || size == 0)
 	{
-		return 0;
+		return NULL;
 	}
 
-	return B64_Decode(dst, src, StrLen(src));
-}
+	UINT base64_size = Base64Encode(NULL, src, size);
+	if (base64_size == 0)
+	{
+		return NULL;
+	}
 
-// Base64 encode
-int B64_Encode(char *set, char *source, int len)
-{
-	BYTE *src;
-	int i,j;
-	src = (BYTE *)source;
-	j = 0;
-	i = 0;
-	if (!len)
+	void *base64 = Malloc(base64_size);
+	base64_size = Base64Encode(base64, src, size);
+	if (base64_size == 0)
 	{
-		return 0;
+		Free(base64);
+		return NULL;
 	}
-	while (true)
-	{
-		if (i >= len)
-		{
-			return j;
-		}
-		if (set)
-		{
-			set[j] = B64_CodeToChar((src[i]) >> 2);
-		}
-		if (i + 1 >= len)
-		{
-			if (set)
-			{
-				set[j + 1] = B64_CodeToChar((src[i] & 0x03) << 4);
-				set[j + 2] = '=';
-				set[j + 3] = '=';
-			}
-			return j + 4;
-		}
-		if (set)
-		{
-			set[j + 1] = B64_CodeToChar(((src[i] & 0x03) << 4) + ((src[i + 1] >> 4)));
-		}
-		if (i + 2 >= len)
-		{
-			if (set)
-			{
-				set[j + 2] = B64_CodeToChar((src[i + 1] & 0x0f) << 2);
-				set[j + 3] = '=';
-			}
-			return j + 4;
-		}
-		if (set)
-		{
-			set[j + 2] = B64_CodeToChar(((src[i + 1] & 0x0f) << 2) + ((src[i + 2] >> 6)));
-			set[j + 3] = B64_CodeToChar(src[i + 2] & 0x3f);
-		}
-		i += 3;
-		j += 4;
-	}
-}
 
-// Base64 decode
-int B64_Decode(char *set, char *source, int len)
-{
-	int i,j;
-	char a1,a2,a3,a4;
-	char *src;
-	int f1,f2,f3,f4;
-	src = source;
-	i = 0;
-	j = 0;
-	while (true)
+	if (out_size != NULL)
 	{
-		f1 = f2 = f3 = f4 = 0;
-		if (i >= len)
-		{
-			break;
-		}
-		f1 = 1;
-		a1 = B64_CharToCode(src[i]);
-		if (a1 == -1)
-		{
-			f1 = 0;
-		}
-		if (i >= len + 1)
-		{
-			a2 = 0;
-		}
-		else
-		{
-			a2 = B64_CharToCode(src[i + 1]);
-			f2 = 1;
-			if (a2 == -1)
-			{
-				f2 = 0;
-			}
-		}
-		if (i >= len + 2)
-		{
-			a3 = 0;
-		}
-		else
-		{
-			a3 = B64_CharToCode(src[i + 2]);
-			f3 = 1;
-			if (a3 == -1)
-			{
-				f3 = 0;
-			}
-		}
-		if (i >= len + 3)
-		{
-			a4 = 0;
-		}
-		else
-		{
-			a4 = B64_CharToCode(src[i + 3]);
-			f4 = 1;
-			if (a4 == -1)
-			{
-				f4 = 0;
-			}
-		}
-		if (f1 && f2)
-		{
-			if (set)
-			{
-				set[j] = (a1 << 2) + (a2 >> 4);
-			}
-			j++;
-		}
-		if (f2 && f3)
-		{
-			if (set)
-			{
-				set[j] = (a2 << 4) + (a3 >> 2);
-			}
-			j++;
-		}
-		if (f3 && f4)
-		{
-			if (set)
-			{
-				set[j] = (a3 << 6) + a4;
-			}
-			j++;
-		}
-		i += 4;
+		*out_size = base64_size;
 	}
-	return j;
-}
 
-// Base64 : Convert a code to a character
-char B64_CodeToChar(BYTE c)
-{
-	BYTE r;
-	r = '=';
-	if (c <= 0x19)
-	{
-		r = c + 'A';
-	}
-	if (c >= 0x1a && c <= 0x33)
-	{
-		r = c - 0x1a + 'a';
-	}
-	if (c >= 0x34 && c <= 0x3d)
-	{
-		r = c - 0x34 + '0';
-	}
-	if (c == 0x3e)
-	{
-		r = '+';
-	}
-	if (c == 0x3f)
-	{
-		r = '/';
-	}
-	return r;
-}
-
-// Base64 : Convert a character to a code
-char B64_CharToCode(char c)
-{
-	if (c >= 'A' && c <= 'Z')
-	{
-		return c - 'A';
-	}
-	if (c >= 'a' && c <= 'z')
-	{
-		return c - 'a' + 0x1a;
-	}
-	if (c >= '0' && c <= '9')
-	{
-		return c - '0' + 0x34;
-	}
-	if (c == '+')
-	{
-		return 0x3e;
-	}
-	if (c == '/')
-	{
-		return 0x3f;
-	}
-	if (c == '=')
-	{
-		return -1;
-	}
-	return 0;
+	return base64;
 }
 
 // Malloc

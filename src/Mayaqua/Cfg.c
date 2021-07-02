@@ -7,6 +7,7 @@
 
 #include "Cfg.h"
 
+#include "Encoding.h"
 #include "FileIO.h"
 #include "Internat.h"
 #include "Memory.h"
@@ -746,12 +747,18 @@ bool CfgReadNextTextBUF(BUF *b, FOLDER *current)
 			if (!StrCmpi(token->Token[0], TAG_BYTE))
 			{
 				// byte
-				char *unescaped_b64 = CfgUnescape(data);
-				void *tmp = Malloc(StrLen(unescaped_b64) * 4 + 64);
-				int size = B64_Decode(tmp, unescaped_b64, StrLen(unescaped_b64));
-				CfgAddByte(current, name, tmp, size);
-				Free(tmp);
-				Free(unescaped_b64);
+				char *base64 = CfgUnescape(data);
+				const UINT base64_size = StrLen(base64);
+
+				UINT bin_size;
+				void *bin = Base64ToBin(&bin_size, base64, base64_size);
+				if (bin != NULL)
+				{
+					CfgAddByte(current, name, bin, bin_size);
+					Free(bin);
+				}
+
+				Free(base64);
 			}
 
 			Free(name);
@@ -1162,9 +1169,7 @@ void CfgAddItemText(BUF *b, ITEM *t, UINT depth)
 		break;
 
 	case ITEM_TYPE_BYTE:
-		data = ZeroMalloc(t->size * 4 + 32);
-		len = B64_Encode(data, t->Buf, t->size);
-		data[len] = 0;
+		data = Base64FromBin(NULL, t->Buf, t->size);
 		break;
 
 	case ITEM_TYPE_STRING:
