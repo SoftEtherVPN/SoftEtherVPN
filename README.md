@@ -72,7 +72,7 @@ world's most powerful and easy-to-use multi-protocol VPN software.
 SoftEther VPN runs on Windows, Linux, Mac, FreeBSD and Solaris.
 
 SoftEther VPN supports most of widely-used VPN protocols
-including SSL-VPN, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
+including SSL-VPN, WireGuard, OpenVPN, IPsec, L2TP, MS-SSTP, L2TPv3 and EtherIP
 by the single SoftEther VPN Server program.
 
 More details on https://www.softether.org/.
@@ -105,6 +105,7 @@ https://github.com/chipitsine
 
 - Supporting all popular VPN protocols by the single VPN server:
   SSL-VPN (HTTPS)
+  WireGuard
   OpenVPN
   IPsec
   L2TP
