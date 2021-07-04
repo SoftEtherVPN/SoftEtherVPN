@@ -909,19 +909,23 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts)
 
 	if (s->UseUdpAcceleration && udp_accel != NULL)
 	{
+		UINT required_size = 0;
+
 		if (udp_accel->MyPortNatT != 0)
 		{
-			size = MAX(size, (StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE) + sizeof(USHORT)));
+			required_size += StrLen(UDP_NAT_T_PORT_SIGNATURE_IN_KEEP_ALIVE) + sizeof(USHORT);
 
 			insert_natt_port = true;
 		}
 
 		if (IsZeroIP(&udp_accel->MyIpNatT) == false)
 		{
-			size = MAX(size, (StrLen(UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE) + sizeof(udp_accel->MyIpNatT.address)));
+			required_size += StrLen(UDP_NAT_T_IP_SIGNATURE_IN_KEEP_ALIVE) + sizeof(udp_accel->MyIpNatT.address);
 
 			insert_natt_ip = true;
 		}
+
+		size = MAX(size, required_size);
 
 	}
 
