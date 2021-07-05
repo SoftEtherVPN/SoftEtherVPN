@@ -132,6 +132,7 @@ struct FARM_CONTROLLER
 // Server listener
 struct SERVER_LISTENER
 {
+	IP Address;							// IP address
 	UINT Port;							// Port number
 	bool Enabled;						// Active flag
 	LISTENER *Listener;					// Listener object
@@ -268,11 +269,8 @@ struct SERVER
 
 	bool IsInVm;						// Whether I'm within the VM
 
-
-
 	volatile UINT NatTGlobalUdpPort;	// NAT-T global UDP port
 
-	IP ListenIP;						// Listen IP
 	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
 	bool DisableJsonRpcWebApi;					// Disable JSON-RPC Web API
 };
@@ -399,11 +397,11 @@ void SiGenerateDefaultCertEx(X **server_x, K **server_k, char *common_name);
 void SiInitListenerList(SERVER *s);
 void SiLockListenerList(SERVER *s);
 void SiUnlockListenerList(SERVER *s);
-bool SiAddListener(SERVER *s, UINT port, bool enabled);
-bool SiEnableListener(SERVER *s, UINT port);
-bool SiDisableListener(SERVER *s, UINT port);
-bool SiDeleteListener(SERVER *s, UINT port);
-SERVER_LISTENER *SiGetListener(SERVER *s, UINT port);
+bool SiAddListener(SERVER *s, const IP *address, const UINT port, const bool enabled);
+bool SiEnableListener(SERVER *s, const IP *address, const UINT port);
+bool SiDisableListener(SERVER *s, const IP *address, const UINT port);
+bool SiDeleteListener(SERVER *s, const IP *address, const UINT port);
+SERVER_LISTENER *SiGetListener(SERVER *s, const IP *address, const UINT port);
 int CompareServerListener(void *p1, void *p2);
 void SiStopAllListener(SERVER *s);
 void SiInitDefaultHubList(SERVER *s);
