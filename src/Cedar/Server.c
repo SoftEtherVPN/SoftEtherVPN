@@ -2216,8 +2216,6 @@ bool SiEnableListener(SERVER *s, UINT port)
 		return false;
 	}
 
-	e->Listener->DisableDos = e->DisableDos;
-
 	e->Enabled = true;
 
 	return true;
@@ -2248,10 +2246,6 @@ SERVER_LISTENER *SiGetListener(SERVER *s, UINT port)
 // Add a listener
 bool SiAddListener(SERVER *s, UINT port, bool enabled)
 {
-	return SiAddListenerEx(s, port, enabled, false);
-}
-bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
-{
 	SERVER_LISTENER *e;
 	UINT i;
 	// Validate arguments
@@ -2275,16 +2269,11 @@ bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
 	e = ZeroMalloc(sizeof(SERVER_LISTENER));
 	e->Enabled = enabled;
 	e->Port = port;
-	e->DisableDos = disable_dos;
 
 	if (e->Enabled)
 	{
 		// Create a listener
 		e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
-		if (e->Listener != NULL)
-		{
-			e->Listener->DisableDos = e->DisableDos;
-		}
 	}
 
 	Insert(s->ServerListenerList, e);
@@ -2899,7 +2888,6 @@ void SiWriteListenerCfg(FOLDER *f, SERVER_LISTENER *r)
 
 	CfgAddBool(f, "Enabled", r->Enabled);
 	CfgAddInt(f, "Port", r->Port);
-	CfgAddBool(f, "DisableDos", r->DisableDos);
 }
 
 // Read the listener configuration
@@ -2907,7 +2895,6 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 {
 	bool enable;
 	UINT port;
-	bool disable_dos;
 	// Validate arguments
 	if (s == NULL || f == NULL)
 	{
@@ -2916,14 +2903,13 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 
 	enable = CfgGetBool(f, "Enabled");
 	port = CfgGetInt(f, "Port");
-	disable_dos = CfgGetBool(f, "DisableDos");
 
 	if (port == 0)
 	{
 		return;
 	}
 
-	SiAddListenerEx(s, port, enable, disable_dos);
+	SiAddListener(s, port, enable);
 }
 
 // Read the listener list

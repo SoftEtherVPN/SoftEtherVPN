@@ -135,7 +135,6 @@ struct SERVER_LISTENER
 	UINT Port;							// Port number
 	bool Enabled;						// Active flag
 	LISTENER *Listener;					// Listener object
-	bool DisableDos;					// Disable the DoS detection
 };
 
 // Syslog configuration
@@ -401,7 +400,6 @@ void SiInitListenerList(SERVER *s);
 void SiLockListenerList(SERVER *s);
 void SiUnlockListenerList(SERVER *s);
 bool SiAddListener(SERVER *s, UINT port, bool enabled);
-bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos);
 bool SiEnableListener(SERVER *s, UINT port);
 bool SiDisableListener(SERVER *s, UINT port);
 bool SiDeleteListener(SERVER *s, UINT port);
