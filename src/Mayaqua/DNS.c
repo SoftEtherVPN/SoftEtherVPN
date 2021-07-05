@@ -425,7 +425,7 @@ void DnsResolver(THREAD *t, void *param)
 				resolver->IPv6.ipv6_scope_id = in->sin6_scope_id;
 				ipv6_ok = true;
 			}
-			else if (ipv4_ok == false)
+			else if (IsIP4(&ip) && ipv4_ok == false)
 			{
 				Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
 				ipv4_ok = true;
