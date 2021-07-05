@@ -3826,7 +3826,18 @@ void CreateNodeInfo(NODE_INFO *info, CONNECTION *c)
 	// Server host name
 	StrCpy(info->ServerHostname, sizeof(info->ServerHostname), c->ServerName);
 	// Server IP address
-	if (GetIP(&ip, info->ServerHostname))
+	if (s->ClientOption->ProxyType == PROXY_DIRECT)
+	{
+		if (IsIP6(&c->FirstSock->RemoteIP) == false)
+		{
+			info->ServerIpAddress = IPToUINT(&c->FirstSock->RemoteIP);
+		}
+		else
+		{
+			Copy(info->ServerIpAddress6, c->FirstSock->RemoteIP.address, sizeof(info->ServerIpAddress6));
+		}
+	}
+	else if (GetIP(&ip, info->ServerHostname))
 	{
 		if (IsIP6(&ip) == false)
 		{
