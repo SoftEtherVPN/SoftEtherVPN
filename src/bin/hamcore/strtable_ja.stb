@@ -6999,6 +6999,23 @@ CMD_RemoteDisable_Args	RemoteDisable
 ###################################################
 
 
+# GenX25519 コマンド
+CMD_GenX25519				Create new X25519 keypair
+CMD_GenX25519_Help			Use this to create a new X25519 keypair, which can be used for WireGuard. \nBoth the private and public key will be shown. \nThe public key can be shared and is used to identify a peer. \nAlso, it can always be retrieved from the private key using the GetPublicX25519 command. \nThe private key should be kept in a secure place and never be shared. \nIt cannot be recovered once lost.
+CMD_GenX25519_ARGS			GenX25519
+CMD_GenX25519_PRIVATE_KEY	Private key: 
+CMD_GenX25519_PUBLIC_KEY	Public key: 
+
+
+# GetPublicX25519 コマンド
+CMD_GetPublicX25519				Retrieve public X25519 key from a private one
+CMD_GetPublicX25519_Help		Use this if you have a private X25519 key and want to get its corresponding public key.
+CMD_GetPublicX25519_ARGS    	GetPublicX25519 [private]
+CMD_GetPublicX25519_[private]	The private X25519 key you want to get the corresponding public key of.
+CMD_GetPublicX25519_PRIVATE_KEY	Private key: 
+CMD_GetPublicX25519_PUBLIC_KEY	Public key: 
+
+
 # MakeCert コマンド
 CMD_MakeCert			新しい X.509 証明書と秘密鍵の作成 (1024 bit)
 CMD_MakeCert_Help		新しい X.509 証明書と秘密鍵を作成し、ファイルとして保存します。\n証明書の公開鍵と秘密鍵の生成アルゴリズムには、RSA 1024 bit が使用されます。\n証明書の種類として、ルート証明書 (自己署名証明書) と他の証明書によって署名された証明書のどちらでも作成することができます。他の証明書によって署名された証明書を作成するためには、署名に使用する証明書 (X.509 形式のファイル) と対応する秘密鍵ファイル (Base 64 エンコード) が必要です。\n\n作成する証明書には、名前 (CN)、所属機関 (O)、組織単位 (OU)、国 (C)、都道府県 (ST)、ローカル (L)、シリアル番号、有効期限を指定することができます。\n作成された証明書は X.509 形式のファイルとして、秘密鍵ファイルは RSA 1024 bit 形式の Base 64 エンコードされたファイルとしてそれぞれ保存されます。\n\nMakeCert コマンドは、証明書を作成するための必要最低限の機能を用意したツールです。本格的な証明書を作成したい場合は、OpenSSL などのフリーソフトや、市販の CA (証明機関) ソフトウェアを使用することを推奨します。\n\n※注意: このコマンドは SoftEther VPN コマンドライン管理ユーティリティから呼び出すことが可能です。現在 VPN Server や VPN Client に管理モードで接続している場合も実行できますが、実際に RSA 演算を行い、証明書データを生成しファイルに保存するのはこのコマンドを実行しているコンピュータであり、管理モードで接続先のコンピュータとは一切関係ないコンテキストで実行されます。

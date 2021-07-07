@@ -7005,6 +7005,23 @@ CMD_RemoteDisable_Args		RemoteDisable
 ###################################################
 
 
+# GenX25519 命令
+CMD_GenX25519				Create new X25519 keypair
+CMD_GenX25519_Help			Use this to create a new X25519 keypair, which can be used for WireGuard. \nBoth the private and public key will be shown. \nThe public key can be shared and is used to identify a peer. \nAlso, it can always be retrieved from the private key using the GetPublicX25519 command. \nThe private key should be kept in a secure place and never be shared. \nIt cannot be recovered once lost.
+CMD_GenX25519_ARGS			GenX25519
+CMD_GenX25519_PRIVATE_KEY	Private key: 
+CMD_GenX25519_PUBLIC_KEY	Public key: 
+
+
+# GetPublicX25519 命令
+CMD_GetPublicX25519				Retrieve public X25519 key from a private one
+CMD_GetPublicX25519_Help		Use this if you have a private X25519 key and want to get its corresponding public key.
+CMD_GetPublicX25519_ARGS    	GetPublicX25519 [private]
+CMD_GetPublicX25519_[private]	The private X25519 key you want to get the corresponding public key of.
+CMD_GetPublicX25519_PRIVATE_KEY	Private key: 
+CMD_GetPublicX25519_PUBLIC_KEY	Public key: 
+
+
 # MakeCert 命令
 CMD_MakeCert				創建新的 X.509 證書和金鑰 (1024 位)
 CMD_MakeCert_Help			創建新的 X.509 證書和金鑰，將其保存為一個檔。\n證書公共金鑰和秘密金鑰的生成演算法使用 RSA 1024 位元。\n作為證書類型，可以創建由根證書 (自簽章憑證) 和其他證書簽名的某個證書。要創建由其他證書簽名的證書，需要與用於簽名的證書 (X.509格式檔) 相對應的金鑰檔 (Base 64 編碼)。\n\n創建的證書可以指定名稱 (CN)，所屬機構 (O)，組織單位 (OU)，國家 (C)，州 (ST)，當地 (L)，序號，有效期限。\n創建的證書以 X.509 格式的檔，金鑰檔以 RSA 1024 位元的 Base 64 編碼檔，被分別保存。\n\nMakeCert 指令是一個工具，它提供創建證書所需的最低功能。如果想創建一個真正的證書，建議使用 OpenSSL 等免費軟體和出售的 CA (認證機構) 軟體。\n\n※注意: 此指令可以從 SoftEther VPN 命令列管理工具調用。雖然目前以管理模式連接到 VPN Server 和 VPN Client 時可以運行，但要實際運行 RSA 演算，生成證書資料的，是運行此指令的電腦，和以管理模式連接的連結目的電腦沒有任何關係。

@@ -38,6 +38,8 @@
 #include "Mayaqua/Tick64.h"
 #include "Mayaqua/Unix.h"
 
+#include "Mayaqua/Crypto/Key.h"
+
 #include <stdlib.h>
 
 #ifdef OS_UNIX
@@ -843,6 +845,8 @@ void PtMain(PT *pt)
 		CMD cmd[] =
 		{
 			{"About", PsAbout},
+			{"GenX25519", PtGenX25519},
+			{"GetPublicX25519", PtGetPublicX25519},
 			{"MakeCert", PtMakeCert},
 			{"MakeCert2048", PtMakeCert2048},
 			{"TrafficClient", PtTrafficClient},
@@ -2657,6 +2661,131 @@ UINT PtTrafficClient(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	FreeParamValueList(o);
 
 	Free(host);
+
+	return ret;
+}
+
+UINT PtGenX25519(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	UINT ret = ERR_INTERNAL_ERROR;
+
+	LIST *o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ret;
+	}
+
+	EVP_PKEY *opaque = CryptoKeyOpaqueNew(KEY_X25519);
+
+	CRYPTO_KEY_RAW *private = NULL, *public = NULL;
+	const bool ok = CryptoKeyOpaqueToRaw(opaque, &private, &public);
+	CryptoKeyOpaqueFree(opaque);
+
+	if (ok == false)
+	{
+		goto FINAL;
+	}
+
+	char *base64 = Base64FromBin(NULL, private->Data, private->Size);
+	if (base64 == NULL)
+	{
+		goto FINAL;
+	}
+
+	wchar_t buf[MAX_SIZE];
+	UniFormat(buf, sizeof(buf), L"\n%s%S", _UU("CMD_GenX25519_PRIVATE_KEY"), base64);
+	Free(base64);
+
+	c->Write(c, buf);
+
+	base64 = Base64FromBin(NULL, public->Data, public->Size);
+	if (base64 == NULL)
+	{
+		goto FINAL;
+	}
+
+	UniFormat(buf, sizeof(buf), L"%s%S\n\n", _UU("CMD_GenX25519_PUBLIC_KEY"), base64);
+	Free(base64);
+
+	c->Write(c, buf);
+
+	ret = ERR_NO_ERROR;
+FINAL:
+	CryptoKeyRawFree(private);
+	CryptoKeyRawFree(public);
+	FreeParamValueList(o);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
+
+	return ret;
+}
+
+UINT PtGetPublicX25519(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	const PARAM args[] =
+	{
+		{"[private]", CmdPrompt, _UU("CMD_GetPublicX25519_PRIVATE_KEY"), CmdEvalNotEmpty, NULL}
+	};
+
+	LIST *o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	UINT ret = ERR_INVALID_PARAMETER;
+
+	UINT size;
+	char *base64 = GetParamStr(o, "[private]");
+	void *bin = Base64ToBin(&size, base64, StrLen(base64));
+	if (bin == NULL)
+	{
+		goto FINAL;
+	}
+
+	CRYPTO_KEY_RAW *private = CryptoKeyRawNew(bin, size, KEY_X25519);
+	Free(bin);
+
+	if (private == NULL)
+	{
+		goto FINAL;
+	}
+
+	ret = ERR_INTERNAL_ERROR;
+
+	CRYPTO_KEY_RAW *public = CryptoKeyRawPublic(private);
+	CryptoKeyRawFree(private);
+
+	if (public == NULL)
+	{
+		goto FINAL;
+	}
+
+	base64 = Base64FromBin(NULL, public->Data, public->Size);
+	CryptoKeyRawFree(public);
+
+	if (base64 == NULL)
+	{
+		goto FINAL;
+	}
+
+	wchar_t buf[MAX_SIZE];
+	UniFormat(buf, sizeof(buf), L"\n%s%S\n\n", _UU("CMD_GetPublicX25519_PUBLIC_KEY"), base64);
+	Free(base64);
+
+	c->Write(c, buf);
+
+	ret = ERR_NO_ERROR;
+FINAL:
+	FreeParamValueList(o);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+	}
 
 	return ret;
 }

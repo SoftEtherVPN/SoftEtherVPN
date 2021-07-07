@@ -6973,6 +6973,23 @@ CMD_RemoteDisable_Args RemoteDisable
 ################################################## #
 
 
+# GenX25519 명령
+CMD_GenX25519				Create new X25519 keypair
+CMD_GenX25519_Help			Use this to create a new X25519 keypair, which can be used for WireGuard. \nBoth the private and public key will be shown. \nThe public key can be shared and is used to identify a peer. \nAlso, it can always be retrieved from the private key using the GetPublicX25519 command. \nThe private key should be kept in a secure place and never be shared. \nIt cannot be recovered once lost.
+CMD_GenX25519_ARGS			GenX25519
+CMD_GenX25519_PRIVATE_KEY	Private key: 
+CMD_GenX25519_PUBLIC_KEY	Public key: 
+
+
+# GetPublicX25519 명령
+CMD_GetPublicX25519				Retrieve public X25519 key from a private one
+CMD_GetPublicX25519_Help		Use this if you have a private X25519 key and want to get its corresponding public key.
+CMD_GetPublicX25519_ARGS    	GetPublicX25519 [private]
+CMD_GetPublicX25519_[private]	The private X25519 key you want to get the corresponding public key of.
+CMD_GetPublicX25519_PRIVATE_KEY	Private key: 
+CMD_GetPublicX25519_PUBLIC_KEY	Public key: 
+
+
 # MakeCert 명령
 CMD_MakeCert 새로운 X.509 인증서와 개인 키를 생성 (1024 bit)
 CMD_MakeCert_Help 새로운 X.509 인증서와 개인 키를 생성하고 파일로 저장합니다. \n 인증서의 공개 키와 비밀 키 생성 알고리즘은 RSA 1024 bit가 사용됩니다. \n 인증서 유형으로 루트 인증서 (자기 서명 증명서) 및 기타 인증서로 서명 된 인증서의 어디라도 만들 수 있습니다. 다른 인증서로 서명 된 인증서를 생성하기 위해서는 서명에 사용할 인증서 (X.509 형식의 파일)과 해당 개인 키 파일 (Base 64 인코딩)가 필요합니다. \n \n 만든 인증서에는 이름 (CN), 소속 기관 (O) 조직 단위 (OU) 국가 (C),도 (ST) 로컬 (L), 일련 번호, 유효 기간을 지정할 수 있습니다. \n 생성 된 인증서는 X.509 형식의 파일로 개인 키 파일은 RSA 1024 bit 형식의 Base 64로 인코딩 된 파일로 각각 저장됩니다. \n \nMakeCert 명령은 인증서를 만들기위한 최소한의 기능을 제공하는 도구입니다. 본격적인 인증서를 작성하려면 OpenSSL 등의 무료 소프트웨어와 상용 CA (인증 기관) 소프트웨어를 사용하는 것을 권장합니다. \n \n ※주의:이 명령은 SoftEther VPN 명령 줄 관리 유틸리티에서 호출 할 수 있습니다. 현재 VPN Server와 VPN Client에서 관리 모드로 접속하는 경우도 실행할 수 있지만 실제로 RSA 연산을 수행하고 인증서 데이터를 생성하고 파일에 저장하는 것은이 명령을 실행하는 컴퓨터입니다 관리 모드에 연결된 컴퓨터와도 관계없는 컨텍스트에서 실행됩니다.
