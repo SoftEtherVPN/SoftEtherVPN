@@ -26,4 +26,4 @@ set_target_properties(vpnsmgr
   PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-target_link_libraries(vpnsmgr cedar mayaqua)
+target_link_libraries(vpnsmgr cedar)

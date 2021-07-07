@@ -26,4 +26,4 @@ set_target_properties(vpnsetup
   PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-target_link_libraries(vpnsetup cedar mayaqua)
+target_link_libraries(vpnsetup cedar)

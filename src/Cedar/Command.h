@@ -307,6 +307,8 @@ UINT PtConnect(CONSOLE *c, wchar_t *cmdline);
 PT *NewPt(CONSOLE *c, wchar_t *cmdline);
 void FreePt(PT *pt);
 void PtMain(PT *pt);
+UINT PtGenX25519(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PtGetPublicX25519(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtMakeCert(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtMakeCert2048(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PtTrafficClient(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

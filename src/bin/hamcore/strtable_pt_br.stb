@@ -6728,6 +6728,23 @@ CMD_RemoteDisable_Args	RemoteDisable
 ###################################################
 
 
+# GenX25519 command
+CMD_GenX25519				Create new X25519 keypair
+CMD_GenX25519_Help			Use this to create a new X25519 keypair, which can be used for WireGuard. \nBoth the private and public key will be shown. \nThe public key can be shared and is used to identify a peer. \nAlso, it can always be retrieved from the private key using the GetPublicX25519 command. \nThe private key should be kept in a secure place and never be shared. \nIt cannot be recovered once lost.
+CMD_GenX25519_ARGS			GenX25519
+CMD_GenX25519_PRIVATE_KEY	Private key: 
+CMD_GenX25519_PUBLIC_KEY	Public key: 
+
+
+# GetPublicX25519 command
+CMD_GetPublicX25519				Retrieve public X25519 key from a private one
+CMD_GetPublicX25519_Help		Use this if you have a private X25519 key and want to get its corresponding public key.
+CMD_GetPublicX25519_ARGS    	GetPublicX25519 [private]
+CMD_GetPublicX25519_[private]	The private X25519 key you want to get the corresponding public key of.
+CMD_GetPublicX25519_PRIVATE_KEY	Private key: 
+CMD_GetPublicX25519_PUBLIC_KEY	Public key: 
+
+
 # MakeCert command
 CMD_MakeCert	Create New X.509 Certificate and Private Key (1024 bit)
 CMD_MakeCert_Help	Use this to create a new X.509 certificate and private key and save it as a file. \nThe algorithm used to create the public key and private key of the certificate is RSA 1024 bit. \nYou can choose to create a root certificate (self-signed certificate) or a certificate signed by another certificate. To create a certificate that is signed by another certificate, you require a private key file (base 64 encoded) that is compatible with the certificate that uses the signature (X.509 format file). \n\nWhen creating a certificate, you can specify the following: Name (CN), Organization (O), Organization Unit (OU), Country (C), State (ST), Locale (L), Serial Number, and Expiration Date. \nThe created certificate will be saved as an X.509 format file and the private key file will be saved in a Base 64 encoded RSA 1024 bit format file. \n\nThe MakeCert command is a tool that provides the most rudimentary function for creating certificates. If you want to create a more substantial certificate, we recommend that you use either free software such as OpenSSL, or commercial CA (certificate authority) software. \n\nNote: This command can be called from the SoftEther VPN Command Line Management Utility. You can also execute this command while connected to the current VPN Server or VPN Client in Administration Mode but, what actually performs the RSA computation, generates the certificate data and saves it to file is the computer on which the command is running, and all this is executed in a context that has absolutely no relationship to the computer that is the destination of the Administration Mode connection.
