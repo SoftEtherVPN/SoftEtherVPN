@@ -17632,10 +17632,10 @@ void UdpListenerThread(THREAD *thread, void *param)
 						UINT *port = LIST_DATA(u->PortList, j);
 						bool existing = false;
 
-						if (IsZeroIP(ip) && (IS_SPECIAL_PORT(*port)))
+						/*if (IsZeroIP(ip) && (IS_SPECIAL_PORT(*port)))
 						{
 							continue;
-						}
+						}*/
 
 
 						for (k = 0; k < LIST_NUM(u->SockList); k++)
