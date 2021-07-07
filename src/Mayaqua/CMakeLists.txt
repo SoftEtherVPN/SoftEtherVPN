@@ -1,5 +1,5 @@
-file(GLOB SOURCES_MAYAQUA "*.c")
-file(GLOB HEADERS_MAYAQUA "*.h")
+file(GLOB SOURCES_MAYAQUA "*.c" "Crypto/*.c")
+file(GLOB HEADERS_MAYAQUA "*.h" "Crypto/*.h")
 
 if(WIN32)
   add_library(mayaqua STATIC ${SOURCES_MAYAQUA} ${HEADERS_MAYAQUA})

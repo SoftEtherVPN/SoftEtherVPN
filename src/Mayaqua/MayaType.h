@@ -466,4 +466,6 @@ typedef struct DNS_CACHE_REVERSE DNS_CACHE_REVERSE;
 typedef struct DNS_RESOLVER DNS_RESOLVER;
 typedef struct DNS_RESOLVER_REVERSE DNS_RESOLVER_REVERSE;
 
+#include "Crypto/Types.h"
+
 #endif	// MAYATYPE_H
