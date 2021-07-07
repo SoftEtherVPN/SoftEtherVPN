@@ -386,7 +386,14 @@ void ListenerTCPMainLoop(LISTENER *r)
 				}
 				else
 				{
-					s = ListenEx6(r->Port, r->LocalOnly);
+					if (r->Cedar->Server == NULL)
+					{
+						s = ListenEx6(r->Port, r->LocalOnly);
+					}
+					else
+					{
+						s = ListenEx63(r->Port, r->LocalOnly, false, &r->Cedar->Server->ListenIP);
+					}
 				}
 			}
 			else if (r->Protocol == LISTENER_INPROC)
