@@ -29,7 +29,7 @@ set_target_properties(vpnclient
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-target_link_libraries(vpnclient cedar mayaqua)
+target_link_libraries(vpnclient cedar)
 
 if(UNIX)
   # Copy binary and "hamcore.se2" to /usr/lib(exec)/softether/, install launch script and systemd service

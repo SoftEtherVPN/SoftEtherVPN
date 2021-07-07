@@ -12,4 +12,4 @@ set_target_properties(PenCore
   PDB_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-target_link_libraries(PenCore cedar mayaqua)
+target_link_libraries(PenCore)
