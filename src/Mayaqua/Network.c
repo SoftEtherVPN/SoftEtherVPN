@@ -11224,16 +11224,21 @@ SOCK *NewUDP6(UINT port, IP *ip)
 		addr.sin6_scope_id = ip->ipv6_scope_id;
 	}
 
+	UINT true_flag = 1;
+	UINT false_flag = 0;
+#ifdef	OS_UNIX
+	// It is necessary to set the IPv6 Only flag on a UNIX system
+	(void)setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
+#endif	// OS_UNIX
+
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 	{
 		// Failure
 		if (port != 0)
 		{
-			UINT true_flag = 1;
 			(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&true_flag, sizeof(true_flag));
 			if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
 			{
-				UINT false_flag = 0;
 				(void)setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&false_flag, sizeof(false_flag));
 #ifdef	SO_EXCLUSIVEADDRUSE
 				(void)setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&true_flag, sizeof(true_flag));
@@ -12849,6 +12854,10 @@ SOCK *ListenEx6(UINT port, bool local_only)
 }
 SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 {
+	return ListenEx63(port, local_only, enable_ca, NULL);
+}
+SOCK *ListenEx63(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
+{
 	SOCKET s;
 	SOCK *sock;
 	struct sockaddr_in6 addr;
@@ -12867,6 +12876,18 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
 	GetLocalHostIP6(&localhost);
 
 	addr.sin6_port = htons((UINT)port);
+	if (listen_ip == NULL || IsZeroIP(listen_ip))
+	{
+		addr.sin6_addr = in6addr_any;
+	}
+	else if (IsIP6(listen_ip))
+	{
+		IPToInAddr6(&addr.sin6_addr, listen_ip);
+	}
+	else
+	{
+		return NULL;
+	}
 	addr.sin6_family = AF_INET6;
 
 	if (local_only)
@@ -12960,13 +12981,17 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 	SetIP(&localhost, 127, 0, 0, 1);
 
 	addr.sin_port = htons((UINT)port);
-	if (listen_ip == NULL)
+	if (listen_ip == NULL || IsZeroIP(listen_ip))
 	{
 		*((UINT *)&addr.sin_addr) = htonl(INADDR_ANY);
 	}
-	else
+	else if (IsIP4(listen_ip))
 	{
 		IPToInAddr(&addr.sin_addr, listen_ip);
+	}
+	else
+	{
+		return NULL;
 	}
 	addr.sin_family = AF_INET;
 
@@ -17594,7 +17619,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 				{
 					IP *ip = LIST_DATA(iplist, i);
 
-					if (CmpIpAddr(ip, &u->ListenIP) != 0)
+					if (CmpIpAddr(ip, &u->ListenIP) != 0 && (!IsZeroIP(ip) || !IsZeroIP(&u->ListenIP)))
 					{
 						continue;
 					}
