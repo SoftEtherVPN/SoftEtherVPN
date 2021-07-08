@@ -267,6 +267,22 @@ void PPPThread(THREAD *thread, void *param)
 					break;
 				}
 				break;
+			case PPP_EAP_TYPE_MSCHAPV2:
+				// Sending challenge
+				p->Eap_PacketId = p->NextId;
+				lcp = BuildMSCHAP2ChallengePacket(p);
+				BUF *b = BuildLCPData(lcp);
+				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
+				eapPacket = lcpEap->Data;
+				Copy(eapPacket->Data, b->Buf, b->Size);
+				Free(b);
+				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
+				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+				}
+				break;
 			case PPP_EAP_TYPE_IDENTITY:
 			default: // We treat the unspecified protocol as the IDENTITY protocol
 				p->Eap_Protocol = PPP_EAP_TYPE_IDENTITY;
@@ -1012,8 +1028,12 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 // Process CHAP responses
 bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
+	return PPPProcessCHAPResponsePacketEx(p, pp, req, pp->Lcp, false);
+}
+bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req, PPP_LCP *chap, bool eap)
+{
 	PPP_LCP *lcp;
-	if (pp->Lcp->Code == PPP_CHAP_CODE_RESPONSE)
+	if (chap->Code == PPP_CHAP_CODE_RESPONSE)
 	{
 		bool ok = false;
 		if (p->PPPStatus != PPP_STATUS_AUTHENTICATING && !p->AuthOk)
@@ -1023,7 +1043,7 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 			WHERE;
 			return false;
 		}
-		if (p->AuthProtocol != PPP_PROTOCOL_CHAP)
+		if (p->AuthProtocol != PPP_PROTOCOL_CHAP && !eap)
 		{
 			Debug("Receiving CHAP packet when auth protocol set to 0x%x\n", p->AuthProtocol);
 			PPPLog(p, "LP_NEXT_PROTOCOL_IS_NOT_PAP", pp->Protocol);
@@ -1031,10 +1051,10 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 			return false;
 		}
 
-		ok = PPPParseMSCHAP2ResponsePacket(p, pp);
+		ok = PPPParseMSCHAP2ResponsePacketEx(p, chap);
 
 		// If we got only first packet of double CHAP then send second challenge
-		if (ok && p->MsChapV2_UseDoubleMsChapV2 && p->EapClient != NULL && p->Ipc == NULL)
+		if (ok && p->MsChapV2_UseDoubleMsChapV2 && p->EapClient != NULL && p->Ipc == NULL && !eap)
 		{
 			lcp = BuildMSCHAP2ChallengePacket(p);
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp))
@@ -1050,7 +1070,6 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 			char hex[MAX_SIZE];
 			char ret_str[MAX_SIZE];
 			BUF *lcp_ret_data = NewBuf();
-			PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
 			BinToStr(hex, sizeof(hex), p->MsChapV2_ServerResponse, 20);
 
 			Format(ret_str, sizeof(ret_str),
@@ -1067,19 +1086,39 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 				FreeBuf(lcp_ret_data);
 			}
 
-			res->Lcp = lcp;
-			res->IsControl = true;
-			res->Protocol = PPP_PROTOCOL_CHAP;
-
-			if (!PPPSendPacketAndFree(p, res))
+			if (!eap)
 			{
-				PPPSetStatus(p, PPP_STATUS_FAIL);
-				WHERE;
-				return false;
+				PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
+				res->Lcp = lcp;
+				res->IsControl = true;
+				res->Protocol = PPP_PROTOCOL_CHAP;
+
+				if (!PPPSendPacketAndFree(p, res))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
+				PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
+			}
+			else
+			{
+				BUF *b = BuildLCPData(lcp);
+				p->Eap_PacketId = p->NextId++;
+				lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
+				PPP_EAP *eapPacket = lcp->Data;
+				Copy(eapPacket->Data, b->Buf, b->Size);
+				Free(b);
+
+				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
 			}
 
 			p->AuthOk = true;
-			PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
 		}
 		// We failed MSCHAPv2 auth
 		else
@@ -1087,7 +1126,6 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 			char hex[MAX_SIZE];
 			char ret_str[MAX_SIZE];
 			BUF *lcp_ret_data = NewBuf();
-			PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
 
 			BinToStr(hex, sizeof(hex), p->MsChapV2_ServerChallenge, 16);
 
@@ -1105,19 +1143,39 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 				FreeBuf(lcp_ret_data);
 			}
 
-			res->Lcp = lcp;
-			res->IsControl = true;
-			res->Protocol = PPP_PROTOCOL_CHAP;
-
-			if (!PPPSendPacketAndFree(p, res))
+			if (!eap)
 			{
-				PPPSetStatus(p, PPP_STATUS_FAIL);
-				WHERE;
-				return false;
+				PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
+				res->Lcp = lcp;
+				res->IsControl = true;
+				res->Protocol = PPP_PROTOCOL_CHAP;
+
+				if (!PPPSendPacketAndFree(p, res))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
+				PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
+			}
+			else
+			{
+				BUF *b = BuildLCPData(lcp);
+				p->Eap_PacketId = p->NextId++;
+				lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
+				PPP_EAP *eapPacket = lcp->Data;
+				Copy(eapPacket->Data, b->Buf, b->Size);
+				Free(b);
+
+				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
 			}
 
 			PPPLog(p, "LP_CHAP_FAILED");
-			PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
 		}
 
 		return ok;
@@ -1219,8 +1277,14 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			// Basically this is just an acknoweldgment that the notification was accepted by the client. Nothing to do here...
 			break;
 		case PPP_EAP_TYPE_NAK:
-			/// TODO: implement alternative EAP protocol selection based on received NAK
-			// For now just fallback to auth protocol selection to try to select MSCHAP or PAP
+			if (p->Eap_Protocol == PPP_EAP_TYPE_TLS)
+			{
+				// Propose EAP-MSCHAPv2
+				p->Eap_Protocol = PPP_EAP_TYPE_MSCHAPV2;
+				PPPSetStatus(p, PPP_STATUS_BEFORE_AUTH);
+				break;
+			}
+			// Fallback to auth protocol selection to try to select MSCHAP or PAP
 			Debug("Got a EAP_NAK, abandoning EAP protocol\n");
 			PPPRejectUnsupportedPacketEx(p, pp, true);
 			PPPSetStatus(p, PPP_STATUS_CONNECTED);
@@ -1238,6 +1302,51 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			break;
 		case PPP_EAP_TYPE_TLS:
 			PPPProcessEAPTlsResponse(p, eap_packet, eap_datasize);
+			break;
+		case PPP_EAP_TYPE_MSCHAPV2:
+			if (p->PPPStatus != PPP_STATUS_AUTHENTICATING)
+			{
+				Debug("Received EAP-MSCHAPv2 response not during authentication\n");
+				break;
+			}
+			if (eap_datasize == 1)
+			{
+				// Success or failure response
+				PPP_PACKET *pack = ZeroMalloc(sizeof(PPP_PACKET));
+				pack->IsControl = true;
+				pack->Protocol = PPP_PROTOCOL_EAP;
+
+				if (p->AuthOk)
+				{
+					PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
+					pack->Lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, p->Eap_PacketId);
+				}
+				else
+				{
+					PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
+					pack->Lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId);
+				}
+
+				if (!PPPSendPacketAndFree(p, pack))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+				}
+			}
+			else
+			{
+				// CHAP response
+				PPP_LCP *chap = PPPParseLCP(PPP_PROTOCOL_CHAP, eap_packet->Data, eap_datasize);
+				if (chap == NULL)
+				{
+					Debug("Received an invalid EAP-MSCHAPv2 packet\n");
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					break;
+				}
+				PPPProcessCHAPResponsePacketEx(p, pp, req, chap, true);
+				FreePPPLCP(chap);
+			}
 			break;
 		default:
 			Debug("We got an unexpected EAP response packet! Ignoring...\n");
@@ -2686,6 +2795,15 @@ PPP_LCP *PPPParseLCP(USHORT protocol, void *data, UINT size)
 		goto LABEL_ERROR;
 	}
 	len = READ_USHORT(buf);
+	// Fix bad endianness
+	if (len > size)
+	{
+		USHORT len1 = Swap16(len);
+		if (len1 <= size)
+		{
+			len = len1;
+		}
+	}
 	if (len < 4)
 	{
 		goto LABEL_ERROR;
@@ -2762,6 +2880,10 @@ LABEL_ERROR:
 // Analyse MS CHAP v2 Response packet
 bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp)
 {
+	return PPPParseMSCHAP2ResponsePacketEx(p, pp->Lcp);
+}
+bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp)
+{
 	bool ok = false;
 
 	char client_ip_tmp[256];
@@ -2783,18 +2905,18 @@ bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp)
 	UINT error_code;
 	UINT64 eap_client_ptr = (UINT64)p->EapClient;
 
-	if (pp->Lcp != NULL && pp->Lcp->DataSize >= 51)
+	if (lcp != NULL && lcp->DataSize >= 51)
 	{
 		BUF *b;
-		if (pp->Lcp->Id != p->MsChapV2_PacketId)
+		if (lcp->Id != p->MsChapV2_PacketId)
 		{
-			Debug("Got incorrect LCP PacketId! Should be 0x%x, got 0x%x\n", p->MsChapV2_PacketId, pp->Lcp->Id);
-			p->MsChapV2_PacketId = pp->Lcp->Id;
+			Debug("Got incorrect LCP PacketId! Should be 0x%x, got 0x%x\n", p->MsChapV2_PacketId, lcp->Id);
+			p->MsChapV2_PacketId = lcp->Id;
 		}
 
 		b = NewBuf();
 
-		WriteBuf(b, pp->Lcp->Data, pp->Lcp->DataSize);
+		WriteBuf(b, lcp->Data, lcp->DataSize);
 		SeekBuf(b, 0, 0);
 
 		if (ReadBufChar(b) == 49)
