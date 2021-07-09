@@ -269,7 +269,7 @@ void PPPThread(THREAD *thread, void *param)
 				break;
 			case PPP_EAP_TYPE_MSCHAPV2:
 				// Sending challenge
-				p->Eap_PacketId = p->NextId;
+				p->Eap_PacketId = p->NextId; // Do not increase NextId so that MSCHAPv2 could use the same id
 				lcp = BuildMSCHAP2ChallengePacket(p);
 				BUF *b = BuildLCPData(lcp);
 				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
@@ -281,6 +281,7 @@ void PPPThread(THREAD *thread, void *param)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
+					break;
 				}
 				break;
 			case PPP_EAP_TYPE_IDENTITY:
@@ -1030,7 +1031,7 @@ bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 {
 	return PPPProcessCHAPResponsePacketEx(p, pp, req, pp->Lcp, false);
 }
-bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req, PPP_LCP *chap, bool eap)
+bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req, PPP_LCP *chap, bool use_eap)
 {
 	PPP_LCP *lcp;
 	if (chap->Code == PPP_CHAP_CODE_RESPONSE)
@@ -1043,7 +1044,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 			WHERE;
 			return false;
 		}
-		if (p->AuthProtocol != PPP_PROTOCOL_CHAP && !eap)
+		if (p->AuthProtocol != PPP_PROTOCOL_CHAP && use_eap == false)
 		{
 			Debug("Receiving CHAP packet when auth protocol set to 0x%x\n", p->AuthProtocol);
 			PPPLog(p, "LP_NEXT_PROTOCOL_IS_NOT_PAP", pp->Protocol);
@@ -1051,10 +1052,10 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 			return false;
 		}
 
-		ok = PPPParseMSCHAP2ResponsePacketEx(p, chap);
+		ok = PPPParseMSCHAP2ResponsePacketEx(p, chap, use_eap);
 
 		// If we got only first packet of double CHAP then send second challenge
-		if (ok && p->MsChapV2_UseDoubleMsChapV2 && p->EapClient != NULL && p->Ipc == NULL && !eap)
+		if (ok && p->MsChapV2_UseDoubleMsChapV2 && p->EapClient != NULL && p->Ipc == NULL)
 		{
 			lcp = BuildMSCHAP2ChallengePacket(p);
 			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp))
@@ -1086,7 +1087,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				FreeBuf(lcp_ret_data);
 			}
 
-			if (!eap)
+			if (use_eap == false)
 			{
 				PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
 				res->Lcp = lcp;
@@ -1143,7 +1144,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				FreeBuf(lcp_ret_data);
 			}
 
-			if (!eap)
+			if (use_eap == false)
 			{
 				PPP_PACKET *res = ZeroMalloc(sizeof(PPP_PACKET));
 				res->Lcp = lcp;
@@ -1261,6 +1262,12 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		UINT64 offer = 0;
 		PPP_LCP *c;
 		UCHAR ms_chap_v2_code[3];
+		ETHERIP_ID d;
+		char username[MAX_SIZE];
+		char hubname[MAX_SIZE];
+		HUB *hub;
+		bool found = false;
+		UINT authtype;
 
 		WRITE_USHORT(ms_chap_v2_code, PPP_LCP_AUTH_CHAP);
 		ms_chap_v2_code[2] = PPP_CHAP_ALG_MS_CHAP_V2;
@@ -1268,10 +1275,100 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		switch (eap_packet->Type)
 		{
 		case PPP_EAP_TYPE_IDENTITY:
+			// Parse username
 			Copy(p->Eap_Identity, eap_packet->Data, MIN(MAX_SIZE, eap_datasize));
-			// As we received the identity packet, we switch back to BEFORE_AUTH and switch to the EAP_TLS proto to send the TlsStart packet on the next tick
-			p->Eap_Protocol = PPP_EAP_TYPE_TLS;
-			PPPSetStatus(p, PPP_STATUS_BEFORE_AUTH);
+			Zero(&d, sizeof(d));
+			PPPParseUsername(p->Cedar, p->Eap_Identity, &d);
+			StrCpy(username, sizeof(username), d.UserName);
+			StrCpy(hubname, sizeof(hubname), d.HubName);
+			Debug("EAP: username=%s, hubname=%s\n", username, hubname);
+
+			// Locate user
+			LockHubList(p->Cedar);
+			{
+				hub = GetHub(p->Cedar, hubname);
+			}
+			UnlockHubList(p->Cedar);
+			if (hub != NULL)
+			{
+				AcLock(hub);
+				{
+					USER *user = AcGetUser(hub, username);
+					if (user == NULL)
+					{
+						user = AcGetUser(hub, "*");
+					}
+					if (user != NULL)
+					{
+						found = true;
+						authtype = user->AuthType;
+						ReleaseUser(user);
+					}
+				}
+				AcUnlock(hub);
+				ReleaseHub(hub);
+			}
+
+			if (!found)
+			{
+				// User not found, fail immediately
+				PPP_PACKET *pack = ZeroMalloc(sizeof(PPP_PACKET));
+				pack->IsControl = true;
+				pack->Protocol = PPP_PROTOCOL_EAP;
+				PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
+				pack->Lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId);
+
+				if (!PPPSendPacketAndFree(p, pack))
+				{
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					WHERE;
+					return false;
+				}
+				break;
+			}
+
+			// Select EAP method based on auth type
+			switch (authtype)
+			{
+			case AUTHTYPE_RADIUS:
+				// Create EAP client if needed
+				if (p->MsChapV2_UseDoubleMsChapV2 && p->EapClient == NULL)
+				{
+					char client_ip_tmp[256];
+					IPToStr(client_ip_tmp, sizeof(client_ip_tmp), &p->ClientIP);
+					Debug("EAP-MSCHAPv2 creating EAP RADIUS client\n");
+					p->EapClient = HubNewEapClient(p->Cedar, hubname, client_ip_tmp, username, "L3:PPP");
+
+					if (p->EapClient == NULL)
+					{
+						PPP_PACKET *pack = ZeroMalloc(sizeof(PPP_PACKET));
+						pack->IsControl = true;
+						pack->Protocol = PPP_PROTOCOL_EAP;
+						PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
+						pack->Lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId);
+
+						if (PPPSendPacketAndFree(p, pack) == false)
+						{
+							PPPSetStatus(p, PPP_STATUS_FAIL);
+							WHERE;
+							return false;
+						}
+						break;
+					}
+				}
+			case AUTHTYPE_ANONYMOUS:
+			case AUTHTYPE_PASSWORD:
+			case AUTHTYPE_NT:
+				// Propose EAP-MSCHAPv2 directly
+				p->Eap_Protocol = PPP_EAP_TYPE_MSCHAPV2;
+				PPPSetStatus(p, PPP_STATUS_BEFORE_AUTH);
+				break;
+			default:
+				// Propose EAP-TLS first
+				p->Eap_Protocol = PPP_EAP_TYPE_TLS;
+				PPPSetStatus(p, PPP_STATUS_BEFORE_AUTH);
+				break;
+			}
 			break;
 		case PPP_EAP_TYPE_NOTIFICATION:
 			// Basically this is just an acknoweldgment that the notification was accepted by the client. Nothing to do here...
@@ -1331,6 +1428,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
+					return false;
 				}
 			}
 			else
@@ -1342,7 +1440,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					Debug("Received an invalid EAP-MSCHAPv2 packet\n");
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
-					break;
+					return false;
 				}
 				PPPProcessCHAPResponsePacketEx(p, pp, req, chap, true);
 				FreePPPLCP(chap);
@@ -2880,9 +2978,9 @@ LABEL_ERROR:
 // Analyse MS CHAP v2 Response packet
 bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp)
 {
-	return PPPParseMSCHAP2ResponsePacketEx(p, pp->Lcp);
+	return PPPParseMSCHAP2ResponsePacketEx(p, pp->Lcp, false);
 }
-bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp)
+bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp, bool use_eap)
 {
 	bool ok = false;
 
@@ -2964,24 +3062,23 @@ bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp)
 			       client_response_hex,
 			       eap_client_hex);
 
-			if (p->MsChapV2_UseDoubleMsChapV2 && p->EapClient == NULL)
+			// Normal MSCHAPv2 only
+			// For EAP-MSCHAPv2, EAP client is created before sending the challenge
+			if (p->MsChapV2_UseDoubleMsChapV2 && p->EapClient == NULL && use_eap == false)
 			{
 				Debug("Double MSCHAPv2 creating EAP client\n");
 				eap = HubNewEapClient(p->Cedar, hub, client_ip_tmp, id, "L3:PPP");
 
+				// We do not know the user's auth type, so do not fail PPP if eap is null
 				if (eap)
 				{
 					ok = true;
 					p->EapClient = eap;
-				}
-				else
-				{
-					PPPSetStatus(p, PPP_STATUS_FAIL);
-					WHERE;
-					return false;
+					FreeBuf(b);
+					return ok;
 				}
 			}
-			else if (p->Ipc == NULL)
+			if (p->Ipc == NULL)
 			{
 				Debug("MSCHAPv2 creating IPC\n");
 				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,

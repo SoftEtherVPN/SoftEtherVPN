@@ -337,7 +337,7 @@ bool PPPSendEchoRequest(PPP_SESSION *p);
 bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessCHAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
-bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req, PPP_LCP *chap, bool eap);
+bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req, PPP_LCP *chap, bool use_eap);
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessIPv6CPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
@@ -377,8 +377,8 @@ PPP_OPTION *NewPPPOption(UCHAR type, void *data, UINT size);
 // Packet parse utilities
 PPP_PACKET *ParsePPPPacket(void *data, UINT size);
 PPP_LCP *PPPParseLCP(USHORT protocol, void *data, UINT size);
-bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *req);
-bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp);
+bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp);
+bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp, bool use_eap);
 // Packet building utilities
 BUF *BuildPPPPacketData(PPP_PACKET *pp);
 BUF *BuildLCPData(PPP_LCP *c);
