@@ -86,9 +86,9 @@ void PPPThread(THREAD *thread, void *param)
 			receivedPacketProcessed = PPPRejectUnsupportedPacket(p, p->CurrentPacket);
 
 			// Now do some basic processing
-			if (!receivedPacketProcessed && p->CurrentPacket->IsControl && p->CurrentPacket->Protocol == PPP_PROTOCOL_LCP)
+			if (receivedPacketProcessed == false && p->CurrentPacket->IsControl && p->CurrentPacket->Protocol == PPP_PROTOCOL_LCP)
 			{
-				if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_ECHO_REQUEST && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+				if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_ECHO_REQUEST && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 				{
 					// Immediately return the echo response to the echo request
 					PPP_PACKET *pp2 = ZeroMalloc(sizeof(PPP_PACKET));
@@ -107,17 +107,17 @@ void PPPThread(THREAD *thread, void *param)
 
 					receivedPacketProcessed = true;
 				}
-				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_ECHO_RESPONSE && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_ECHO_RESPONSE && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 				{
 					receivedPacketProcessed = true;
 					// Ignore the Echo response packet
 				}
-				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_DROP && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_DROP && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 				{
 					receivedPacketProcessed = true;
 					// Ignore the Drop packet
 				}
-				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_IDENTIFICATION && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+				else if (p->CurrentPacket->Lcp->Code == PPP_LCP_CODE_IDENTIFICATION && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 				{
 					receivedPacketProcessed = true;
 					// Ignore the Identification packet
@@ -155,7 +155,7 @@ void PPPThread(THREAD *thread, void *param)
 			}
 
 			// Process responses
-			if (!receivedPacketProcessed && p->CurrentPacket != NULL && p->CurrentPacket->IsControl && PPP_CODE_IS_RESPONSE(p->CurrentPacket->Protocol, p->CurrentPacket->Lcp->Code) && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+			if (receivedPacketProcessed == false && p->CurrentPacket != NULL && p->CurrentPacket->IsControl && PPP_CODE_IS_RESPONSE(p->CurrentPacket->Protocol, p->CurrentPacket->Lcp->Code) && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 			{
 				PPP_PACKET *request = NULL;
 				// Removing from resend list
@@ -177,14 +177,14 @@ void PPPThread(THREAD *thread, void *param)
 			}
 
 			// Process requests
-			if (!receivedPacketProcessed && p->CurrentPacket != NULL && p->CurrentPacket->IsControl && PPP_CODE_IS_REQUEST(p->CurrentPacket->Protocol, p->CurrentPacket->Lcp->Code) && !PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus))
+			if (receivedPacketProcessed == false && p->CurrentPacket != NULL && p->CurrentPacket->IsControl && PPP_CODE_IS_REQUEST(p->CurrentPacket->Protocol, p->CurrentPacket->Lcp->Code) && PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false)
 			{
 				PPPProcessRequestPacket(p, p->CurrentPacket);
 				receivedPacketProcessed = true;
 			}
 
 			// Process data packets, discarded before we got any links up
-			if (!receivedPacketProcessed && p->CurrentPacket != NULL && !p->CurrentPacket->IsControl && p->PPPStatus == PPP_STATUS_NETWORK_LAYER && p->Ipc != NULL)
+			if (receivedPacketProcessed == false && p->CurrentPacket != NULL && p->CurrentPacket->IsControl == false && p->PPPStatus == PPP_STATUS_NETWORK_LAYER && p->Ipc != NULL)
 			{
 				UINT64 timeBeforeLoop = Tick64();
 				while (true)
@@ -238,7 +238,7 @@ void PPPThread(THREAD *thread, void *param)
 				}
 			}
 
-			if (!receivedPacketProcessed && p->CurrentPacket != NULL)
+			if (receivedPacketProcessed == false && p->CurrentPacket != NULL)
 			{
 				Debug("Unprocessed and unrejected packet, protocol = 0x%x\n", p->CurrentPacket->Protocol);
 			}
@@ -260,7 +260,7 @@ void PPPThread(THREAD *thread, void *param)
 				p->Eap_PacketId = p->NextId++;
 				lcpEap = BuildEAPTlsRequest(p->Eap_PacketId, 0, flags);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -277,7 +277,7 @@ void PPPThread(THREAD *thread, void *param)
 				Copy(eapPacket->Data, b->Buf, b->Size);
 				Free(b);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -292,7 +292,7 @@ void PPPThread(THREAD *thread, void *param)
 				eapPacket = lcpEap->Data;
 				Copy(eapPacket->Data, welcomeMessage, StrLen(welcomeMessage));
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -308,7 +308,7 @@ void PPPThread(THREAD *thread, void *param)
 			Debug("Starting PPP Authentication phase MS-CHAP v2\n");
 
 			lcp = BuildMSCHAP2ChallengePacket(p);
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -317,7 +317,7 @@ void PPPThread(THREAD *thread, void *param)
 			PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 		}
 
-		if (p->PPPStatus == PPP_STATUS_CONNECTED && !authReqSent)
+		if (p->PPPStatus == PPP_STATUS_CONNECTED && authReqSent == false)
 		{
 			// EAP code
 			PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
@@ -325,7 +325,7 @@ void PPPThread(THREAD *thread, void *param)
 
 			Debug("Request EAP\n");
 			Add(c->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &eap_code, sizeof(eap_code)));
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -461,14 +461,14 @@ void PPPThread(THREAD *thread, void *param)
 			Debug("Trying to cleanly close the connection, status = 0x%x\n", p->PPPStatus);
 			PPPSetStatus(p, PPP_STATUS_CLOSING_WAIT);
 			lcp = NewPPPLCP(PPP_LCP_CODE_TERMINATE_REQ, 0);
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
 			}
 		}
 
-		if (!PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) || p->PPPStatus == PPP_STATUS_CLOSING_WAIT)
+		if (PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false || p->PPPStatus == PPP_STATUS_CLOSING_WAIT)
 		{
 			PPPProcessRetransmissions(p);
 			PPPSendEchoRequest(p);
@@ -700,7 +700,7 @@ bool PPPRejectUnsupportedPacketEx(PPP_SESSION *p, PPP_PACKET *pp, bool force)
 
 		FreeBuf(buf);
 
-		if (!PPPSendPacketAndFree(p, pp2))
+		if (PPPSendPacketAndFree(p, pp2) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -740,7 +740,7 @@ bool PPPProcessRetransmissions(PPP_SESSION *p)
 		else if (t->ResendTime <= now)
 		{
 			Debug("Resending control packet protocol = 0x%x\n", t->Packet->Protocol);
-			if (!PPPSendPacketEx(p, t->Packet, false))
+			if (PPPSendPacketEx(p, t->Packet, false) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -781,7 +781,7 @@ bool PPPSendEchoRequest(PPP_SESSION *p)
 		pp->Lcp->Data = Clone(echo_data, sizeof(echo_data));
 		pp->Lcp->DataSize = sizeof(echo_data);
 
-		if (!PPPSendPacketAndFree(p, pp))
+		if (PPPSendPacketAndFree(p, pp) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -838,7 +838,7 @@ bool PPPProcessResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
 	UINT i;
-	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
+	bool isAccepted = PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code) == false;
 	bool result = true;
 	// MSCHAPv2 code
 	UCHAR ms_chap_v2_code[3];
@@ -846,7 +846,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 	ms_chap_v2_code[2] = PPP_CHAP_ALG_MS_CHAP_V2;
 
 	// We got one of rejects here, not NACKs
-	if (!isAccepted && pp->Lcp->Code == PPP_LCP_CODE_PROTOCOL_REJECT)
+	if (isAccepted == false && pp->Lcp->Code == PPP_LCP_CODE_PROTOCOL_REJECT)
 	{
 		// If we receive a protocol reject before we finished authenticating
 		// probably means the PPP client is not compatible anyway so we fail the connection
@@ -872,7 +872,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		}
 	}
 
-	if (!isAccepted && pp->Lcp->Code == PPP_LCP_CODE_CODE_REJECT)
+	if (isAccepted == false && pp->Lcp->Code == PPP_LCP_CODE_CODE_REJECT)
 	{
 		PPPSetStatus(p, PPP_STATUS_FAIL);
 		WHERE;
@@ -891,7 +891,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			if (t->DataSize == sizeof(USHORT))
 			{
 				USHORT value = READ_USHORT(t->Data);
-				if (!isAccepted)
+				if (isAccepted == false)
 				{
 					if (pp->Lcp->Code != PPP_LCP_CODE_NAK)
 					{
@@ -909,7 +909,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					{
 						PPP_LCP *lcp = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
 						Add(lcp->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &value, sizeof(USHORT)));
-						if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, lcp))
+						if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, lcp) == false)
 						{
 							PPPSetStatus(p, PPP_STATUS_FAIL);
 							WHERE;
@@ -944,7 +944,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			if (opt->DataSize == sizeof(USHORT) && *((USHORT *)(opt->Data)) == Endian16(PPP_LCP_AUTH_EAP))
 			{
 				// Try to request MS-CHAPv2 then
-				if (!isAccepted)
+				if (isAccepted == false)
 				{
 					UINT64 offer = 0;
 					PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
@@ -957,7 +957,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					Debug("NACK proto with code = 0x%x, cypher = 0x%x, offered cypher = 0x%x\n", pp->Lcp->Code, *((USHORT *)(opt->Data)), offer);
 					Debug("Request MSCHAPv2\n");
 					Add(c->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &ms_chap_v2_code, sizeof(ms_chap_v2_code)));
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c))
+					if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -974,7 +974,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			else if (opt->DataSize == sizeof(ms_chap_v2_code) && Cmp(opt->Data, ms_chap_v2_code, opt->DataSize) == 0)
 			{
 				// Try to request PAP then
-				if (!isAccepted || !p->EnableMSCHAPv2)
+				if (isAccepted == false || p->EnableMSCHAPv2 == false)
 				{
 					UINT64 offer = 0;
 					PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
@@ -983,7 +983,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					Debug("NACK proto with code = 0x%x, cypher = 0x%x, offered cypher = 0x%x\n", pp->Lcp->Code, *((USHORT *)(opt->Data)), offer);
 					Debug("Request PAP\n");
 					Add(c->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &proto, sizeof(USHORT)));
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c))
+					if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -1001,7 +1001,7 @@ bool PPPProcessLCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			else if (opt->DataSize == sizeof(USHORT) && *((USHORT *)(opt->Data)) == Endian16(PPP_LCP_AUTH_PAP))
 			{
 				// We couldn't agree on auth proto, failing connection
-				if (!isAccepted)
+				if (isAccepted == false)
 				{
 					UINT64 offer = 0;
 					Copy(&offer, t->Data, t->DataSize > sizeof(UINT64) ? sizeof(UINT64) : t->DataSize);
@@ -1037,7 +1037,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 	if (chap->Code == PPP_CHAP_CODE_RESPONSE)
 	{
 		bool ok = false;
-		if (p->PPPStatus != PPP_STATUS_AUTHENTICATING && !p->AuthOk)
+		if (p->PPPStatus != PPP_STATUS_AUTHENTICATING && p->AuthOk == false)
 		{
 			Debug("Receiving CHAP response packets outside of auth status, some errors probably!");
 			PPPSetStatus(p, PPP_STATUS_FAIL);
@@ -1058,7 +1058,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 		if (ok && p->MsChapV2_UseDoubleMsChapV2 && p->EapClient != NULL && p->Ipc == NULL)
 		{
 			lcp = BuildMSCHAP2ChallengePacket(p);
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_CHAP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -1094,7 +1094,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				res->IsControl = true;
 				res->Protocol = PPP_PROTOCOL_CHAP;
 
-				if (!PPPSendPacketAndFree(p, res))
+				if (PPPSendPacketAndFree(p, res) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1111,7 +1111,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				Copy(eapPacket->Data, b->Buf, b->Size);
 				Free(b);
 
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1151,7 +1151,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				res->IsControl = true;
 				res->Protocol = PPP_PROTOCOL_CHAP;
 
-				if (!PPPSendPacketAndFree(p, res))
+				if (PPPSendPacketAndFree(p, res) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1168,7 +1168,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 				Copy(eapPacket->Data, b->Buf, b->Size);
 				Free(b);
 
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1187,7 +1187,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 // Process IPCP responses
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
-	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
+	bool isAccepted = PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code) == false;
 
 	IP addrStruct;
 	char addrStr[MAX_SIZE];
@@ -1198,7 +1198,7 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 	PPP_LCP *c;
 	UINT ui;
 
-	if (!PPPGetIPAddressValueFromLCP(pp->Lcp, PPP_IPCP_OPTION_IP, &addrStruct) || pp->Lcp->Code == PPP_LCP_CODE_REJECT || pp->Lcp->Code == PPP_LCP_CODE_CODE_REJECT)
+	if (PPPGetIPAddressValueFromLCP(pp->Lcp, PPP_IPCP_OPTION_IP, &addrStruct) == false || pp->Lcp->Code == PPP_LCP_CODE_REJECT || pp->Lcp->Code == PPP_LCP_CODE_CODE_REJECT)
 	{
 		Debug("Unsupported IPCP protocol");
 		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_REJECTED);
@@ -1242,7 +1242,7 @@ bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *re
 	c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
 	ui = Endian32(0xc0000008);	// We always push 192.0.0.8, which is defined in RFC7600 as dummy IPv4 address.
 	Add(c->OptionList, NewPPPOption(PPP_IPCP_OPTION_IP, &ui, sizeof(UINT)));
-	if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPCP, c))
+	if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPCP, c) == false)
 	{
 		PPPSetStatus(p, PPP_STATUS_FAIL);
 		WHERE;
@@ -1309,7 +1309,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 				ReleaseHub(hub);
 			}
 
-			if (!found)
+			if (found == false)
 			{
 				// User not found, fail immediately
 				PPP_PACKET *pack = ZeroMalloc(sizeof(PPP_PACKET));
@@ -1318,7 +1318,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 				PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
 				pack->Lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId);
 
-				if (!PPPSendPacketAndFree(p, pack))
+				if (PPPSendPacketAndFree(p, pack) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1390,7 +1390,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 			Copy(&offer, ms_chap_v2_code, sizeof(ms_chap_v2_code));
 			Debug("Request MSCHAPv2 from EAP NAK\n");
 			Add(c->OptionList, NewPPPOption(PPP_LCP_OPTION_AUTH, &ms_chap_v2_code, sizeof(ms_chap_v2_code)));
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_LCP, c) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -1424,7 +1424,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					pack->Lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, p->Eap_PacketId);
 				}
 
-				if (!PPPSendPacketAndFree(p, pack))
+				if (PPPSendPacketAndFree(p, pack) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -1462,7 +1462,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		{
 			p->Eap_PacketId = p->NextId++;
 			PPP_LCP *lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, PPP_EAP_TLS_FLAG_NONE);
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -1476,10 +1476,10 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 // Process IPv6CP responses
 bool PPPProcessIPv6CPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req)
 {
-	bool isAccepted = !PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code);
+	bool isAccepted = PPP_LCP_CODE_IS_NEGATIVE(pp->Lcp->Code) == false;
 
 	// If we got a reject or a NACK, we just reject the whole IPv6 configuration, there is no way we can recover even from a NACK as we can't change the link-local address of an already existing router
-	if (!isAccepted)
+	if (isAccepted == false)
 	{
 		Debug("Unsupported IPv6CP protocol");
 		IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_REJECTED);
@@ -1626,7 +1626,7 @@ bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		return false;
 	}
 
-	if (!PPPAckLCPOptions(p, pp))
+	if (PPPAckLCPOptions(p, pp) == false)
 	{
 		return false;
 	}
@@ -1650,7 +1650,7 @@ bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 
 bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 {
-	if (p->PPPStatus != PPP_STATUS_BEFORE_AUTH && !p->AuthOk)
+	if (p->PPPStatus != PPP_STATUS_BEFORE_AUTH && p->AuthOk == false)
 	{
 		PPP_LCP *lcp = NewPPPLCP(PPP_PAP_CODE_NAK, pp->Lcp->Id);
 		PPP_PACKET *ret = ZeroMalloc(sizeof(PPP_PACKET));
@@ -1660,7 +1660,7 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		ret->IsControl = true;
 		ret->Protocol = PPP_PROTOCOL_PAP;
 		ret->Lcp = lcp;
-		if (!PPPSendPacketAndFree(p, ret))
+		if (PPPSendPacketAndFree(p, ret) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -1679,7 +1679,7 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 
 		return false;
 	}
-	if (!p->AuthOk)
+	if (p->AuthOk == false)
 	{
 		UCHAR *data;
 		UINT size;
@@ -1786,7 +1786,7 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		ret->IsControl = true;
 		ret->Protocol = PPP_PROTOCOL_PAP;
 		ret->Lcp = lcp;
-		if (!PPPSendPacketAndFree(p, ret))
+		if (PPPSendPacketAndFree(p, ret) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -1799,14 +1799,14 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		}
 		return true;
 	}
-	if (!p->AuthOk)
+	if (p->AuthOk == false)
 	{
 		PPP_LCP *lcp = NewPPPLCP(PPP_PAP_CODE_NAK, pp->Lcp->Id);
 		PPP_PACKET *ret = ZeroMalloc(sizeof(PPP_PACKET));
 		ret->IsControl = true;
 		ret->Protocol = PPP_PROTOCOL_PAP;
 		ret->Lcp = lcp;
-		if (!PPPSendPacketAndFree(p, ret))
+		if (PPPSendPacketAndFree(p, ret) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -1846,7 +1846,7 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		return PPPRejectUnsupportedPacketEx(p, pp, true);
 	}
 
-	if (!PPPGetIPOptionFromLCP(&o, pp->Lcp))
+	if (PPPGetIPOptionFromLCP(&o, pp->Lcp) == false)
 	{
 		Debug("IPCP request without client IP address received! Treating as zeroed out client IP...\n");
 		isEmptyIpAddress = true;
@@ -2119,14 +2119,14 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
 		UINT ui = p->ClientAddressOption.ServerAddress;
 		Add(c->OptionList, NewPPPOption(PPP_IPCP_OPTION_IP, &ui, sizeof(UINT)));
-		if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPCP, c))
+		if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPCP, c) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
 			return false;
 		}
 		IPC_PROTO_SET_STATUS(p->Ipc, IPv4State, IPC_PROTO_STATUS_CONFIG);
-		if (!processed)
+		if (processed == false)
 		{
 			PPPAddNextPacket(p, pp, 1);
 		}
@@ -2135,14 +2135,14 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 
 	// We still haven't received any answer from client about server IP, keep waiting...
 	if ((IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CONFIG ||
-	        IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CLOSED) && !processed)
+	        IPC_PROTO_GET_STATUS(p->Ipc, IPv4State) == IPC_PROTO_STATUS_CLOSED) && processed == false)
 	{
 		PPPAddNextPacket(p, pp, 1);
 		return false;
 	}
 
 	//Debug("PPPAckLCPOptionsEx ok=%x, processed=%x", ok, processed);
-	if (!ok || !PPPAckLCPOptionsEx(p, pp, processed))
+	if (ok == false || PPPAckLCPOptionsEx(p, pp, processed) == false)
 	{
 		return false;
 	}
@@ -2186,7 +2186,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 			{
 				UINT64 newValue = 0;
 				UINT64 value = READ_UINT64(t->Data);
-				if (value != 0 && !IPCIPv6CheckExistingLinkLocal(p->Ipc, value))
+				if (value != 0 && IPCIPv6CheckExistingLinkLocal(p->Ipc, value) == false)
 				{
 					t->IsAccepted = true;
 					p->Ipc->IPv6ClientEUI = value;
@@ -2195,7 +2195,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 				{
 					t->IsAccepted = false;
 					GenerateEui64Address6((UCHAR *)&newValue, p->Ipc->MacAddress);
-					if (newValue != value && !IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue))
+					if (newValue != value && IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue) == false)
 					{
 						WRITE_UINT64(t->AltData, newValue);
 						t->AltDataSize = sizeof(UINT64);
@@ -2205,7 +2205,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 						while (true)
 						{
 							newValue = Rand64();
-							if (!IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue))
+							if (IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue) == false)
 							{
 								WRITE_UINT64(t->AltData, newValue);
 								t->AltDataSize = sizeof(UINT64);
@@ -2242,7 +2242,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		{
 			Add(c->OptionList, NewPPPOption(PPP_IPV6CP_OPTION_EUI, &serverEui, sizeof(UINT64)));
 		}
-		if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPV6CP, c))
+		if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPV6CP, c) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);
 			WHERE;
@@ -2252,13 +2252,13 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 		IPC_PROTO_SET_STATUS(p->Ipc, IPv6State, IPC_PROTO_STATUS_CONFIG);
 	}
 
-	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CONFIG && !processed)
+	if (IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CONFIG && processed == false)
 	{
 		PPPAddNextPacket(p, pp, 1);
 		return false;
 	}
 
-	if (!PPPAckLCPOptionsEx(p, pp, processed))
+	if (PPPAckLCPOptionsEx(p, pp, processed) == false)
 	{
 		return false;
 	}
@@ -2462,7 +2462,7 @@ bool PPPSendAndRetransmitRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c)
 	}
 
 	// Send the PPP packet
-	if (!PPPSendPacketEx(p, pp, false))
+	if (PPPSendPacketEx(p, pp, false) == false)
 	{
 		PPPSetStatus(p, PPP_STATUS_FAIL);
 		WHERE;
@@ -3446,7 +3446,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.CachedBufferSendPntr, dataSize);
 			p->Eap_TlsCtx.CachedBufferSendPntr += (UINT64)dataSize;
 
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -3511,7 +3511,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 					lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, identificator);
 					pack->Lcp = lcp;
 					Debug("Sent EAP-TLS size=%i SUCCESS\n", lcp->DataSize);
-					if (!PPPSendPacketAndFree(p, pack))
+					if (PPPSendPacketAndFree(p, pack) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -3532,7 +3532,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 					lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, identificator);
 					pack->Lcp = lcp;
 					Debug("Sent EAP-TLS size=%i FAILURE\n", lcp->DataSize);
-					if (!PPPSendPacketAndFree(p, pack))
+					if (PPPSendPacketAndFree(p, pack) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -3548,7 +3548,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 				p->Eap_PacketId = p->NextId++;
 				lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, flags);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
-				if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 				{
 					PPPSetStatus(p, PPP_STATUS_FAIL);
 					WHERE;
@@ -3626,7 +3626,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 		{
 			p->Eap_PacketId = p->NextId++;
 			PPP_LCP *lcp = BuildEAPTlsRequest(p->Eap_PacketId, 0, PPP_EAP_TLS_FLAG_NONE);
-			if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 			{
 				PPPSetStatus(p, PPP_STATUS_FAIL);
 				WHERE;
@@ -3677,7 +3677,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 					eap->Tls.TlsDataWithLength.TlsLength = Endian32(tlsLength);
 					Copy(eap->Tls.TlsDataWithLength.Data, p->Eap_TlsCtx.CachedBufferSend, dataSize);
 					p->Eap_TlsCtx.CachedBufferSendPntr += dataSize;
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+					if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -3691,7 +3691,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 					lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, 0);
 					eap = lcp->Data;
 					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, &(eap->Tls.TlsDataWithoutLength), dataSize);
-					if (!PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp))
+					if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
 						WHERE;
@@ -3794,7 +3794,7 @@ void PPPSetStatus(PPP_SESSION *p, UINT status)
 	{
 		Debug("SETTING PPP_STATUS_FAIL!!!\n");
 	}
-	if (!PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) || PPP_STATUS_IS_UNAVAILABLE(status))
+	if (PPP_STATUS_IS_UNAVAILABLE(p->PPPStatus) == false || PPP_STATUS_IS_UNAVAILABLE(status))
 	{
 		p->PPPStatus = status;
 	}
