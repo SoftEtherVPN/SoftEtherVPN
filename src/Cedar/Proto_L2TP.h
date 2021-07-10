@@ -171,7 +171,6 @@ struct L2TP_SESSION
 	UINT64 DisconnectTimeout;					// Disconnection completion time-out
 	bool HasThread;								// Whether have a thread
 	THREAD *Thread;								// Thread
-	PPP_SESSION* PPPSession;						// Underlying PPP session
 	TUBE *TubeSend;								// Tube of PPP to L2TP direction
 	TUBE *TubeRecv;								// Tube of L2TP to PPP direction
 	UINT PseudowireType;						// Type of L2TPv3 virtual line

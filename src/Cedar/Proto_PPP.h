@@ -313,8 +313,6 @@ struct PPP_SESSION
 	UINT64 DataTimeout;
 	UINT64 UserConnectionTimeout;
 	UINT64 UserConnectionTick;
-
-	THREAD *SessionThread;				// Thread of the PPP session
 };
 
 
@@ -325,7 +323,7 @@ struct PPP_SESSION
 void PPPThread(THREAD *thread, void *param);
 
 // Entry point
-PPP_SESSION *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
+THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
 
 // PPP processing functions
 bool PPPRejectUnsupportedPacket(PPP_SESSION *p, PPP_PACKET *pp);

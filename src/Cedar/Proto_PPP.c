@@ -552,7 +552,7 @@ void PPPThread(THREAD *thread, void *param)
 // Entry point
 
 // Create a new PPP session
-PPP_SESSION *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
+THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
 {
 	PPP_SESSION *p;
 	THREAD *t;
@@ -622,9 +622,7 @@ PPP_SESSION *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *se
 	// Thread creation
 	t = NewThread(PPPThread, p);
 
-	p->SessionThread = t;
-
-	return p;
+	return t;
 }
 
 // PPP processing functions
@@ -1549,6 +1547,10 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 									// Setting user timeouts
 									p->PacketRecvTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000 * 3 / 4; // setting to 3/4 of the user timeout
 									p->DataTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000;
+									if (p->TubeRecv != NULL)
+									{
+										p->TubeRecv->DataTimeout = p->DataTimeout;
+									}
 									p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
 									p->UserConnectionTick = Tick64();
 
@@ -2874,6 +2876,10 @@ bool PPPParseMSCHAP2ResponsePacket(PPP_SESSION *p, PPP_PACKET *pp)
 					// Setting user timeouts
 					p->PacketRecvTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000 * 3 / 4; // setting to 3/4 of the user timeout
 					p->DataTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000;
+					if (p->TubeRecv != NULL)
+					{
+						p->TubeRecv->DataTimeout = p->DataTimeout;
+					}
 					p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
 					p->UserConnectionTick = Tick64();
 
@@ -3284,6 +3290,16 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 
 					p->Ipc = ipc;
 					PPPSetStatus(p, PPP_STATUS_AUTH_SUCCESS);
+
+					// Setting user timeouts
+					p->PacketRecvTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000 * 3 / 4; // setting to 3/4 of the user timeout
+					p->DataTimeout = (UINT64)p->Ipc->Policy->TimeOut * 1000;
+					if (p->TubeRecv != NULL)
+					{
+						p->TubeRecv->DataTimeout = p->DataTimeout;
+					}
+					p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
+					p->UserConnectionTick = Tick64();
 
 					// Just send an EAP-Success
 					pack = ZeroMalloc(sizeof(PPP_PACKET));
