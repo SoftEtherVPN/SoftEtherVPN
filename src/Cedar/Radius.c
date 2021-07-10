@@ -1069,7 +1069,8 @@ RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r)
 															is_finish = true;
 
 															Free(rp->Parse_EapMessage);
-															rp->Parse_EapMessage = Clone(e->PEAP_CurrentReceivingMsg->Buf, e->PEAP_CurrentReceivingMsg->Size);
+															rp->Parse_EapMessage = ZeroMalloc(sizeof(EAP_MESSAGE));
+															Copy(rp->Parse_EapMessage, e->PEAP_CurrentReceivingMsg->Buf, e->PEAP_CurrentReceivingMsg->Size);
 															rp->Parse_EapMessage_DataSize = e->PEAP_CurrentReceivingMsg->Size;
 														}
 													}
@@ -1508,7 +1509,8 @@ RADIUS_PACKET *ParseRadiusPacket(void *data, UINT size)
 				{
 					if (p->Parse_EapMessage == NULL)
 					{
-						EAP_MESSAGE *eap = Clone(a.Data, a.DataSize);
+						EAP_MESSAGE *eap = ZeroMalloc(sizeof(EAP_MESSAGE));
+						Copy(eap, a.Data, a.DataSize);
 
 						p->Parse_EapMessage_DataSize = sz_tmp;
 
@@ -1603,7 +1605,8 @@ RADIUS_PACKET *ParseRadiusPacket(void *data, UINT size)
 
 				p->Parse_EapMessage_DataSize = b->Size;
 				p->Parse_EapMessage_DataSize = MIN(p->Parse_EapMessage_DataSize, 1500);
-				p->Parse_EapMessage = Clone(b->Buf, p->Parse_EapMessage_DataSize);
+				p->Parse_EapMessage = ZeroMalloc(sizeof(EAP_MESSAGE));
+				Copy(p->Parse_EapMessage, b->Buf, p->Parse_EapMessage_DataSize);
 			}
 
 			FreeBuf(b);
