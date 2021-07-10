@@ -16899,6 +16899,7 @@ TUBE *NewTube(UINT size_of_header)
 	t->SockEvent = NewSockEvent();
 
 	t->SizeOfHeader = size_of_header;
+	t->DataTimeout = 0;
 
 	return t;
 }

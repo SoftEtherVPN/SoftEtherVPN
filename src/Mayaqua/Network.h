@@ -412,6 +412,7 @@ struct TUBE
 	bool IsInFlushList;					// Whether it is registered in the Tube Flush List
 	void *Param1, *Param2, *Param3;
 	UINT IntParam1, IntParam2, IntParam3;
+	UINT64 DataTimeout;
 };
 
 // Data that is to send and to receive in the tube
