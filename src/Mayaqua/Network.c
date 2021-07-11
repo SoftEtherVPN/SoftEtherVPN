@@ -17620,7 +17620,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 				{
 					IP *ip = LIST_DATA(iplist, i);
 
-					if (CmpIpAddr(ip, &u->ListenIP) != 0 && (!IsZeroIP(ip) || !IsZeroIP(&u->ListenIP)))
+					if (CmpIpAddr(ip, &u->ListenIP) != 0 && IsZeroIP(&u->ListenIP) == false)
 					{
 						continue;
 					}
@@ -17633,10 +17633,10 @@ void UdpListenerThread(THREAD *thread, void *param)
 						UINT *port = LIST_DATA(u->PortList, j);
 						bool existing = false;
 
-						/*if (IsZeroIP(ip) && (IS_SPECIAL_PORT(*port)))
+						if (IsZeroIP(ip) && (IS_SPECIAL_PORT(*port)))
 						{
 							continue;
-						}*/
+						}
 
 
 						for (k = 0; k < LIST_NUM(u->SockList); k++)
