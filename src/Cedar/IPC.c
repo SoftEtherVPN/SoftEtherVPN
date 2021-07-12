@@ -497,6 +497,8 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 		ZeroIP4(&ipc->BroadcastAddress);
 	}
 
+	ReleaseHub(hub);
+
 	ZeroIP4(&ipc->ClientIPAddress);
 
 	MacToStr(macstr, sizeof(macstr), ipc->MacAddress);
