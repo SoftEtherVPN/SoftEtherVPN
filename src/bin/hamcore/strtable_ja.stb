@@ -400,7 +400,7 @@ PW_TYPE_1				標準パスワード認証
 PW_TYPE_2				RADIUS または NT ドメイン認証
 PW_TYPE_3				クライアント証明書認証
 PW_TYPE_4				スマートカード認証
-PW_TYPE_5				Openssl Engine Authentication
+PW_TYPE_5				OpenSSL Engine Authentication
 
 PW_MSG_PROXY			プロキシサーバー %S でのユーザー認証に失敗しました。正しいユーザー名とパスワードを再入力してください。
 PW_TYPE_PROXY			プロキシサーバー認証

@@ -415,7 +415,7 @@ PW_TYPE_1	Autenticação de senha padrão
 PW_TYPE_2	Autenticação de Domínio RADIUS ou NT
 PW_TYPE_3	Certificado do cliente
 PW_TYPE_4	Autenticação Smart Card
-PW_TYPE_5				Openssl Engine Authentication
+PW_TYPE_5				OpenSSL Engine Authentication
 PW_MSG_PROXY	User authentication failed on the proxy server %S. Re-enter the correct user name and password.
 PW_TYPE_PROXY	Proxy Server Authentication
 
