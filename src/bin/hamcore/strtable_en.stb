@@ -170,7 +170,7 @@ ERR_103					Not enough Client Connection Licenses on the destination VPN Server.
 ERR_104					Not enough Bridge Connection Licenses on the destination VPN Server. Contact the server administrator.
 ERR_105					Due to current technical difficulties, the destination VPN Server is not receiving the connection. Either wait a while, or contact the VPN Server administrator requesting that the server log file be checked.
 ERR_106					The destination VPN Server's certificate has expired. Contact the VPN Server's administrator.
-ERR_107					A connection has beens requested in Monitoring Mode. But the security policy for the connecting user does not permit Monitoring Mode.
+ERR_107					A connection has been requested in Monitoring Mode. But the security policy for the connecting user does not permit Monitoring Mode.
 ERR_108					A connection has been requested in Bridge / Router Mode. But the security policy for the connecting user forbids both bridge mode and router mode.
 ERR_109					A connection from a client IP address has been denied by the Source IP Restriction List of the Virtual Hub.
 ERR_110					There are too many items.
@@ -398,7 +398,7 @@ PW_TYPE_1				Standard Password Authentication
 PW_TYPE_2				RADIUS or NT Domain Authentication
 PW_TYPE_3				Client Certificate Authentication
 PW_TYPE_4				Smart Card Authentication
-PW_TYPE_5				Openssl Engine Authentication
+PW_TYPE_5				OpenSSL Engine Authentication
 
 PW_MSG_PROXY			User authentication failed on the proxy server %S. Re-enter the correct user name and password.
 PW_TYPE_PROXY			Proxy Server Authentication
@@ -1921,7 +1921,7 @@ LH_AUTH_OK_CERT			The Virtual Hub's Security Account Manager has received the fo
 LH_AUTH_NG_CERT			Although the Virtual Hub's Security Account Manager has received the following certificate, has refused its contents as the certificate for when user "%S" logs in because this certificate's contents matches the contents that are registered in the Virtual Hub's certificates revocation list: %s
 LH_AUTH_NG				Connection "%S": User authentication failed. The user name that has been provided was "%S", from %S.
 LH_LOCAL_ONLY			Connection "%S": The remote login has been refused because of the password for user "%S" is blank.
-LH_POLICY_ACCESS_NG		Connection "%S": Access has beens refused to user "%S" based on the security policy.
+LH_POLICY_ACCESS_NG		Connection "%S": Access has been refused to user "%S" based on the security policy.
 LH_USER_EXPIRES			Connection "%S": Access has been refused to user "%S" because of the expiration date has been expired.
 LH_CLIENT_VERSION_OLD	Connection "%S": The build number of the VPN Client is %u. Only the build %u or latest version of VPN Client is granted to access the VPN Server.
 LH_CLIENT_ID_REQUIRED	Connection "%S": The Client ID which has been specified by the VPN Client is %u. However, this Virtual Hub has the RequiredClientId value set to %u.
@@ -7094,7 +7094,7 @@ TTS_ACCEPTED			Connection %u: Connected from Client %S Port %u.
 TTS_DISCONNECTED		Connection %u (%S) has been disconnected.
 TTS_DISCONNECT			Connection %u (%S) has been disconnected.
 TTC_INIT				Starting the client program...
-TTC_FREE				The client program has beens terminated.
+TTC_FREE				The client program has been terminated.
 TTC_CONNECT_START		The connection to server %S (port %u) will start. %u TCP connections will be connected.
 TTC_CONNECT_FAILED		The connection of TCP connection number %u failed.
 TTC_CONNECT_NOT_SERVER	Because a program other than TrafficServer is operating on the destination TCP port, traffic cannot be measured.
