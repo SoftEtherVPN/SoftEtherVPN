@@ -3846,7 +3846,7 @@ BUF *DhcpBuildClasslessRouteData(DHCP_CLASSLESS_ROUTE_TABLE *t)
 			// Number of significant octets
 			data_len = (r->SubnetMaskLen + 7) / 8;
 			Zero(tmp, sizeof(tmp));
-			Copy(tmp, &r->Network, data_len);
+			Copy(tmp, IPV4(r->Network.address), data_len);
 			WriteBuf(b, tmp, data_len);
 
 			// Gateway
