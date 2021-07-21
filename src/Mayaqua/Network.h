@@ -1081,6 +1081,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size);
 UINT SecureRecv(SOCK *sock, void *data, UINT size);
 bool StartSSL(SOCK *sock, X *x, K *priv);
 bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname);
+bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname);
 bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x);
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx);
 bool SendAll(SOCK *sock, void *data, UINT size, bool secure);
@@ -1355,6 +1356,7 @@ struct SslClientCertInfo {
 
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh);
 SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
+SSL_PIPE *NewSslPipeEx2(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
 void FreeSslPipe(SSL_PIPE *s);
 bool SyncSslPipe(SSL_PIPE *s);
 

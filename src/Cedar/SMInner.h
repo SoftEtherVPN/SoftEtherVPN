@@ -112,6 +112,7 @@ typedef struct SM_SSL
 	SM_SERVER *p;				// P
 	X *Cert;					// Certificate
 	K *Key;						// Secret key
+	LIST *Chain;				// Trust chain
 	bool SetCertAndKey;			// Set the key
 } SM_SSL;
 

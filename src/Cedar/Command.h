@@ -236,6 +236,7 @@ bool CmdEvalPortList(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *PsClusterSettingMemberPromptPorts(CONSOLE *c, void *param);
 K *CmdLoadKey(CONSOLE *c, wchar_t *filename);
 bool CmdLoadCertAndKey(CONSOLE *c, X **xx, K **kk, wchar_t *cert_filename, wchar_t *key_filename);
+bool CmdLoadCertChainAndKey(CONSOLE *c, X **xx, K **kk, LIST **cc, wchar_t *cert_filename, wchar_t *key_filename);
 bool CmdEvalTcpOrUdp(CONSOLE *c, wchar_t *str, void *param);
 wchar_t *GetConnectionTypeStr(UINT type);
 bool CmdEvalHostAndSubnetMask4(CONSOLE *c, wchar_t *str, void *param);

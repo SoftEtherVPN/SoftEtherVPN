@@ -5703,6 +5703,10 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 // Create a new SSL pipe with extended options
 SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert)
 {
+	return NewSslPipeEx2(server_mode, x, k, NULL, dh, verify_peer, clientcert);
+}
+SSL_PIPE *NewSslPipeEx2(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert)
+{
 	SSL_PIPE *s;
 	SSL *ssl;
 	SSL_CTX *ssl_ctx = NewSSLCtx(server_mode);
@@ -5715,7 +5719,24 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3); // For some reason pppd under linux doesn't like it
 #endif
 
-			AddChainSslCertOnDirectory(ssl_ctx);
+			if (chain == NULL)
+			{
+				AddChainSslCertOnDirectory(ssl_ctx);
+			}
+			else
+			{
+				UINT i;
+				X *x;
+				LockList(chain);
+				{
+					for (i = 0;i < LIST_NUM(chain);i++)
+					{
+						x = LIST_DATA(chain, i);
+						AddChainSslCert(ssl_ctx, x);
+					}
+				}
+				UnlockList(chain);
+			}
 
 			if (dh != NULL)
 			{
@@ -11642,6 +11663,10 @@ bool StartSSL(SOCK *sock, X *x, K *priv)
 }
 bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 {
+	return StartSSLEx2(sock, x, priv, NULL, ssl_timeout, sni_hostname);
+}
+bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname)
+{
 	X509 *x509;
 	EVP_PKEY *key;
 	UINT prev_timeout = 1024;
@@ -11736,7 +11761,24 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 #endif
 
 			Unlock(openssl_lock);
-			AddChainSslCertOnDirectory(ssl_ctx);
+			if (chain == NULL)
+			{
+				AddChainSslCertOnDirectory(ssl_ctx);
+			}
+			else
+			{
+				UINT i;
+				X *x;
+				LockList(chain);
+				{
+					for (i = 0;i < LIST_NUM(chain);i++)
+					{
+						x = LIST_DATA(chain, i);
+						AddChainSslCert(ssl_ctx, x);
+					}
+				}
+				UnlockList(chain);
+			}
 			Lock(openssl_lock);
 		}
 

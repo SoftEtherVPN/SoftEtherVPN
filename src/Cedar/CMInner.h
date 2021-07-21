@@ -409,6 +409,7 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a);
 void CmEditAccountDlgOnOk(HWND hWnd, CM_ACCOUNT *a);
 void CmEditAccountDlgStartEnumHub(HWND hWnd, CM_ACCOUNT *a);
 bool CmLoadXAndK(HWND hWnd, X **x, K **k);
+bool CmLoadXListAndK(HWND hWnd, X **x, K **k, LIST **cc);
 bool CmLoadKEx(HWND hWnd, K **k, char *filename, UINT size);
 bool CmLoadKExW(HWND hWnd, K **k, wchar_t *filename, UINT size);
 bool CmLoadXFromFileOrSecureCard(HWND hWnd, X **x);

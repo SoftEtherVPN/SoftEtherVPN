@@ -5608,6 +5608,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 	char tmp[MAX_SIZE];
 	X *x = NULL;
 	K *k = NULL;
+	LIST *chain = NewList(NULL);
 	FOLDER *params_folder;
 	UINT i;
 	// Validate arguments
@@ -5847,10 +5848,14 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 			FreeBuf(b);
 		}
 
+		// Server trust chain
+		SiLoadCertList(chain, CfgGetFolder(f, "ServerChain"));
+
 		if (x == NULL || k == NULL || CheckXandK(x, k) == false)
 		{
 			FreeX(x);
 			FreeK(k);
+			FreeXList(chain);
 			SiGenerateDefaultCert(&x, &k);
 
 			SetCedarCert(c, x, k);
@@ -5860,10 +5865,18 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		}
 		else
 		{
-			SetCedarCert(c, x, k);
+			if (LIST_NUM(chain) == 0)
+			{
+				SetCedarCert(c, x, k);
+			}
+			else
+			{
+				SetCedarCertAndChain(c, x, k, chain);
+			}
 
 			FreeX(x);
 			FreeK(k);
+			FreeXList(chain);
 		}
 
 		// Character which separates the username from the hub name
@@ -6245,6 +6258,9 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		b = KToBuf(c->ServerK, false, NULL);
 		CfgAddBuf(f, "ServerKey", b);
 		FreeBuf(b);
+
+		// Server trust chain
+		SiWriteCertList(CfgCreateFolder(f, "ServerChain"), c->ServerChain);
 
 		{
 			// Character which separates the username from the hub name
