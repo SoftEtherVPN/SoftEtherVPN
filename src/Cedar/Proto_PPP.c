@@ -272,10 +272,11 @@ void PPPThread(THREAD *thread, void *param)
 				p->Eap_PacketId = p->NextId; // Do not increase NextId so that MSCHAPv2 could use the same id
 				lcp = BuildMSCHAP2ChallengePacket(p);
 				BUF *b = BuildLCPData(lcp);
+				FreePPPLCP(lcp);
 				lcpEap = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
 				eapPacket = lcpEap->Data;
 				Copy(eapPacket->Data, b->Buf, b->Size);
-				Free(b);
+				FreeBuf(b);
 				PPPSetStatus(p, PPP_STATUS_AUTHENTICATING);
 				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcpEap) == false)
 				{
@@ -1103,11 +1104,12 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 			else
 			{
 				BUF *b = BuildLCPData(lcp);
+				FreePPPLCP(lcp);
 				p->Eap_PacketId = p->NextId++;
 				lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
 				PPP_EAP *eapPacket = lcp->Data;
 				Copy(eapPacket->Data, b->Buf, b->Size);
-				Free(b);
+				FreeBuf(b);
 
 				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 				{
@@ -1160,11 +1162,12 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 			else
 			{
 				BUF *b = BuildLCPData(lcp);
+				FreePPPLCP(lcp);
 				p->Eap_PacketId = p->NextId++;
 				lcp = BuildEAPPacketEx(PPP_EAP_CODE_REQUEST, p->Eap_PacketId, PPP_EAP_TYPE_MSCHAPV2, b->Size);
 				PPP_EAP *eapPacket = lcp->Data;
 				Copy(eapPacket->Data, b->Buf, b->Size);
-				Free(b);
+				FreeBuf(b);
 
 				if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 				{
