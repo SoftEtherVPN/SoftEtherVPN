@@ -33,7 +33,7 @@ struct DYN_VALUE
 
 #define	TIMEOUT_INFINITE			(0x7fffffff)
 #define	TIMEOUT_TCP_PORT_CHECK		(10 * 1000)
-#define	TIMEOUT_SSL_CONNECT			(15 * 1000)
+#define	TIMEOUT_SSL_CONNECT			(120 * 1000) //make it 2FA friendly
 
 #define	TIMEOUT_NETBIOS_HOSTNAME	(100)
 
@@ -821,7 +821,7 @@ struct CONNECT_TCP_RUDP_PARAM
 	bool Tcp_InNegotiation;
 };
 
-#define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
+#define	SSL_DEFAULT_CONNECT_TIMEOUT		(120 * 1000)		// SSL default timeout, make it 2FA friendly
 
 // Header for TCP Pair
 struct TCP_PAIR_HEADER
