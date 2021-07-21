@@ -2990,6 +2990,7 @@ void ConnectionAccept(CONNECTION *c)
 	SOCK *s;
 	X *x;
 	K *k;
+	LIST *chain;
 	char tmp[128];
 	UINT initial_timeout = CONNECTING_TIMEOUT;
 	UCHAR ctoken_hash[SHA1_SIZE];
@@ -3040,24 +3041,27 @@ void ConnectionAccept(CONNECTION *c)
 
 		x = CloneX(c->Cedar->ServerX);
 		k = CloneK(c->Cedar->ServerK);
+		chain = CloneXList(c->Cedar->ServerChain);
 	}
 	Unlock(c->Cedar->lock);
 
 	// Start the SSL communication
 	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
-	if (StartSSL(s, x, k) == false)
+	if (StartSSLEx2(s, x, k, chain, 0, NULL) == false)
 	{
 		// Failed
 		AddNoSsl(c->Cedar, &s->RemoteIP);
 		Debug("ConnectionAccept(): StartSSL() failed\n");
 		FreeX(x);
 		FreeK(k);
+		FreeXList(chain);
 
 		goto FINAL;
 	}
 
 	FreeX(x);
 	FreeK(k);
+	FreeXList(chain);
 
 	SLog(c->Cedar, "LS_SSL_START", c->Name, s->CipherName);
 

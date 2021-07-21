@@ -930,6 +930,7 @@ struct CEDAR
 	COUNTER *ConnectionIncrement;	// Connection increment counter
 	X *ServerX;						// Server certificate
 	K *ServerK;						// Private key of the server certificate
+	LIST *ServerChain;				// Server trust chain
 	char UsernameHubSeparator;		// Character which separates the username from the hub name
 	char *CipherList;				// List of encryption algorithms
 	UINT Version;					// Version information
@@ -1000,6 +1001,7 @@ CEDAR *NewCedar(X *server_x, K *server_k);
 void CedarForceLink();
 void SetCedarVpnBridge(CEDAR *c);
 void SetCedarCert(CEDAR *c, X *server_x, K *server_k);
+void SetCedarCertAndChain(CEDAR *c, X *server_x, K *server_k, LIST *server_chain);
 void ReleaseCedar(CEDAR *c);
 void CleanupCedar(CEDAR *c);
 void StopCedar(CEDAR *c);

@@ -870,6 +870,50 @@ X *PackGetX(PACK *p, char *name)
 	return x;
 }
 
+// Get the X chain from the PACK
+LIST *PackGetXList(PACK *p, char *name)
+{
+	X *x;
+	BUF *b;
+	LIST *chain;
+	UINT i;
+	// Validate arguments
+	if (p == NULL || name == NULL)
+	{
+		return NULL;
+	}
+
+	ELEMENT *e = GetElement(p, name, VALUE_DATA);
+	if (e == NULL)
+	{
+		return NULL;
+	}
+
+	chain = NewList(NULL);
+	for (i = 0;i < e->num_value;i++)
+	{
+		b = PackGetBufEx(p, name, i);
+		if (b == NULL)
+		{
+			FreeXList(chain);
+			return NULL;
+		}
+
+		x = BufToX(b, false);
+
+		if (x == NULL)
+		{
+			x = BufToX(b, true);
+		}
+
+		FreeBuf(b);
+
+		Add(chain, x);
+	}
+
+	return chain;
+}
+
 // Add the K to the PACK
 ELEMENT *PackAddK(PACK *p, char *name, K *k)
 {
@@ -912,6 +956,36 @@ ELEMENT *PackAddX(PACK *p, char *name, X *x)
 
 	e = PackAddBuf(p, name, b);
 	FreeBuf(b);
+
+	return e;
+}
+
+// Add an X chain into the PACK
+ELEMENT *PackAddXList(PACK *p, char *name, LIST *chain)
+{
+	BUF *b;
+	X *x;
+	ELEMENT *e = NULL;
+	// Validate arguments
+	if (p == NULL || name == NULL || chain == NULL)
+	{
+		return NULL;
+	}
+
+	UINT i;
+	for (i = 0;i < LIST_NUM(chain);i++)
+	{
+		x = LIST_DATA(chain, i);
+		b = XToBuf(x, false);
+
+		if (b == NULL)
+		{
+			return NULL;
+		}
+
+		e = PackAddBufEx(p, name, b, i, LIST_NUM(chain));
+		FreeBuf(b);
+	}
 
 	return e;
 }

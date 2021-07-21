@@ -16809,6 +16809,7 @@ void SmSslDlgOnOk(HWND hWnd, SM_SSL *s)
 
 		t.Cert = CloneX(s->Cert);
 		t.Key = CloneK(s->Key);
+		t.Chain = CloneXList(s->Chain);
 
 		if (CALL(hWnd, ScSetServerCert(s->p->Rpc, &t)) == false)
 		{
@@ -16923,6 +16924,7 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 			// Copy the certificate and key
 			s->Cert = CloneX(t.Cert);
 			s->Key = CloneK(t.Key);
+			s->Chain = CloneXList(t.Chain);
 
 			if (t.Key != NULL)
 			{
@@ -17174,6 +17176,7 @@ UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 	SM_SSL *s = (SM_SSL *)param;
 	X *x;
 	K *k;
+	LIST *chain;
 	// Validate arguments
 	if (hWnd == NULL)
 	{
@@ -17222,16 +17225,18 @@ UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 
 		case B_IMPORT:
 			// Import
-			if (CmLoadXAndK(hWnd, &x, &k))
+			if (CmLoadXListAndK(hWnd, &x, &k, &chain))
 			{
 				wchar_t tmp[MAX_SIZE];
 
 LABEL_APPLY_NEW_CERT:
 				FreeX(s->Cert);
 				FreeK(s->Key);
+				FreeXList(s->Chain);
 				s->Cert = x;
 				s->Key = k;
 				s->SetCertAndKey = true;
+				s->Chain = chain;
 				// Show the Certificate Information
 				SmGetCertInfoStr(tmp, sizeof(tmp), s->Cert);
 				SetText(hWnd, S_CERT_INFO, tmp);
@@ -17310,6 +17315,7 @@ void SmSslDlg(HWND hWnd, SM_SERVER *p)
 	// Cleanup
 	FreeX(s.Cert);
 	FreeK(s.Key);
+	FreeXList(s.Chain);
 }
 
 // Listener creation dialog procedure

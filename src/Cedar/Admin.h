@@ -230,6 +230,7 @@ struct RPC_FARM_CONNECTION_STATUS
 struct RPC_KEY_PAIR
 {
 	X *Cert;							// Certificate
+	LIST *Chain;						// Trust chain
 	K *Key;								// Secret key
 	UINT Flag1;							// Flag1
 };

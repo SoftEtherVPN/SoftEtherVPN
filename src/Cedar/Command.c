@@ -8638,18 +8638,51 @@ UINT PsServerKeyGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 // Read the certificate and the private key
 bool CmdLoadCertAndKey(CONSOLE *c, X **xx, K **kk, wchar_t *cert_filename, wchar_t *key_filename)
 {
-	X *x;
+	return CmdLoadCertChainAndKey(c, xx, kk, NULL, cert_filename, key_filename);
+}
+bool CmdLoadCertChainAndKey(CONSOLE *c, X **xx, K **kk, LIST **cc, wchar_t *cert_filename, wchar_t *key_filename)
+{
+	X *x = NULL;
 	K *k;
+	LIST *chain = NULL;
 	// Validate arguments
 	if (c == NULL || cert_filename == NULL || key_filename == NULL || xx == NULL || kk == NULL)
 	{
 		return false;
 	}
 
-	x = FileToXW(cert_filename);
+	BUF *b = ReadDumpW(cert_filename);
+	if (b == NULL)
+	{
+		c->Write(c, _UU("CMD_LOADCERT_FAILED"));
+		return false;
+	}
+
+	// DER-encoded X509 files can't hold multiple certificates
+	if (cc == NULL || IsBase64(b) == false)
+	{
+		x = BufToX(b, IsBase64(b));
+	}
+	else
+	{
+		chain = BufToXList(b, true);
+		if (LIST_NUM(chain) > 0)
+		{
+			x = LIST_DATA(chain, 0);
+			Delete(chain, x);
+
+			if (LIST_NUM(chain) == 0)
+			{
+				ReleaseList(chain);
+				chain = NULL;
+			}
+		}
+	}
+	FreeBuf(b);
 	if (x == NULL)
 	{
 		c->Write(c, _UU("CMD_LOADCERT_FAILED"));
+		FreeXList(chain);
 		return false;
 	}
 
@@ -8658,6 +8691,7 @@ bool CmdLoadCertAndKey(CONSOLE *c, X **xx, K **kk, wchar_t *cert_filename, wchar
 	{
 		c->Write(c, _UU("CMD_LOADKEY_FAILED"));
 		FreeX(x);
+		FreeXList(chain);
 		return false;
 	}
 
@@ -8666,12 +8700,17 @@ bool CmdLoadCertAndKey(CONSOLE *c, X **xx, K **kk, wchar_t *cert_filename, wchar
 		c->Write(c, _UU("CMD_KEYPAIR_FAILED"));
 		FreeX(x);
 		FreeK(k);
+		FreeXList(chain);
 
 		return false;
 	}
 
 	*xx = x;
 	*kk = k;
+	if (cc != NULL)
+	{
+		*cc = chain;
+	}
 
 	return true;
 }
@@ -8754,7 +8793,7 @@ UINT PsServerCertSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	Zero(&t, sizeof(t));
 
-	if (CmdLoadCertAndKey(c, &t.Cert, &t.Key,
+	if (CmdLoadCertChainAndKey(c, &t.Cert, &t.Key, &t.Chain,
 		GetParamUniStr(o, "LOADCERT"),
 		GetParamUniStr(o, "LOADKEY")))
 	{

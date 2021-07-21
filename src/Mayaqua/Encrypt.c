@@ -1079,6 +1079,41 @@ X *CloneX(X *x)
 	return ret;
 }
 
+// Clone of certificate chain
+LIST *CloneXList(LIST *chain)
+{
+	BUF *b;
+	X *x;
+	LIST *ret;
+	// Validate arguments
+	if (chain == NULL)
+	{
+		return NULL;
+	}
+
+	ret = NewList(NULL);
+	LockList(chain);
+	{
+		UINT i;
+		for (i = 0;i < LIST_NUM(chain);i++)
+		{
+			x = LIST_DATA(chain, i);
+			b = XToBuf(x, false);
+			if (b == NULL)
+			{
+				continue;
+			}
+
+			x = BufToX(b, false);
+			Add(ret, x);
+			FreeBuf(b);
+		}
+	}
+	UnlockList(chain);
+
+	return ret;
+}
+
 // Generate a P12
 P12 *NewP12(X *x, K *k, char *password)
 {
@@ -1134,8 +1169,14 @@ bool IsEncryptedP12(P12 *p12)
 // Extract the X and the K from the P12
 bool ParseP12(P12 *p12, X **x, K **k, char *password)
 {
+	return ParseP12Ex(p12, x, k, NULL, password);
+}
+// Extract the X, the K and the chain from the P12
+bool ParseP12Ex(P12 *p12, X **x, K **k, LIST **cc, char *password)
+{
 	EVP_PKEY *pkey;
 	X509 *x509;
+	STACK_OF(X509) *sk = NULL;
 	// Validate arguments
 	if (p12 == NULL || x == NULL || k == NULL)
 	{
@@ -1165,9 +1206,9 @@ bool ParseP12(P12 *p12, X **x, K **k, char *password)
 	// Extraction
 	Lock(openssl_lock);
 	{
-		if (PKCS12_parse(p12->pkcs12, password, &pkey, &x509, NULL) == false)
+		if (PKCS12_parse(p12->pkcs12, password, &pkey, &x509, &sk) == false)
 		{
-			if (PKCS12_parse(p12->pkcs12, NULL, &pkey, &x509, NULL) == false)
+			if (PKCS12_parse(p12->pkcs12, NULL, &pkey, &x509, &sk) == false)
 			{
 				Unlock(openssl_lock);
 				return false;
@@ -1182,12 +1223,44 @@ bool ParseP12(P12 *p12, X **x, K **k, char *password)
 	if (*x == NULL)
 	{
 		FreePKey(pkey);
+		sk_X509_free(sk);
 		return false;
 	}
 
 	*k = ZeroMalloc(sizeof(K));
 	(*k)->private_key = true;
 	(*k)->pkey = pkey;
+
+	if (sk == NULL || cc == NULL)
+	{
+		if (cc != NULL)
+		{
+			*cc = NULL;
+		}
+		if (sk != NULL)
+		{
+			sk_X509_free(sk);
+		}
+		return true;
+	}
+
+	LIST *chain = NewList(NULL);
+	X *x1;
+	while (sk_X509_num(sk)) {
+		x509 = sk_X509_shift(sk);
+		x1 = X509ToX(x509);
+		if (x1 != NULL)
+		{
+			Add(chain, x1);
+		}
+		else
+		{
+			X509_free(x509);
+		}
+	}
+	sk_X509_free(sk);
+
+	*cc = chain;
 
 	return true;
 }
@@ -3365,6 +3438,29 @@ void FreeX(X *x)
 	Free(x);
 }
 
+// Release of an X chain
+void FreeXList(LIST *chain)
+{
+	// Validate arguments
+	if (chain == NULL)
+	{
+		return;
+	}
+
+	LockList(chain);
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(chain); i++)
+		{
+			X *x = LIST_DATA(chain, i);
+			FreeX(x);
+		}
+	}
+	UnlockList(chain);
+
+	ReleaseList(chain);
+}
+
 // Release of the X509
 void FreeX509(X509 *x509)
 {
@@ -3404,6 +3500,31 @@ X *BufToX(BUF *b, bool text)
 	FreeBio(bio);
 
 	return x;
+}
+
+// Convert the BUF to X chain
+LIST *BufToXList(BUF *b, bool text)
+{
+	LIST *chain;
+	BIO *bio;
+	// Validate arguments
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	bio = BufToBio(b);
+	if (bio == NULL)
+	{
+		FreeBuf(b);
+		return NULL;
+	}
+
+	chain = BioToXList(bio, text);
+
+	FreeBio(bio);
+
+	return chain;
 }
 
 // Get a digest of the X
@@ -3467,6 +3588,49 @@ X *BioToX(BIO *bio, bool text)
 	}
 
 	return x;
+}
+
+// Convert BIO to X chain
+LIST *BioToXList(BIO *bio, bool text)
+{
+	X *x;
+	STACK_OF(X509_INFO) *sk = NULL;
+	X509_INFO *xi;
+	LIST *chain;
+
+	// Validate arguments
+	if (bio == NULL || text == false)
+	{
+		return NULL;
+	}
+
+	Lock(openssl_lock);
+	{
+		sk = PEM_X509_INFO_read_bio(bio, NULL, NULL, NULL);
+		if (sk == NULL)
+		{
+			return NULL;
+		}
+
+		chain = NewList(NULL);
+
+		while (sk_X509_INFO_num(sk))
+		{
+			xi = sk_X509_INFO_shift(sk);
+			x = X509ToX(xi->x509);
+			if (x != NULL)
+			{
+				Add(chain, x);
+				xi->x509 = NULL;
+			}
+			X509_INFO_free(xi);
+		}
+
+		sk_X509_INFO_free(sk);
+	}
+	Unlock(openssl_lock);
+
+	return chain;
 }
 
 // Convert the X509 to X
