@@ -16,8 +16,11 @@ Restart=on-failure
 PrivateTmp=yes
 ProtectHome=yes
 ProtectSystem=full
-ReadOnlyDirectories=/
-ReadWriteDirectories=-@DIR@/softether/vpnserver
+ReadOnlyPaths=/
+ReadWritePaths=-@DIR@/softether/vpnserver
+ReadWritePaths=@CPACK_PACKAGING_INSTALL_PREFIX@/run/softether
+ReadWritePaths=@CPACK_PACKAGING_INSTALL_PREFIX@/var/log/softether
+ReadWritePaths=@CPACK_PACKAGING_INSTALL_PREFIX@/var/lib/softether
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW CAP_SYS_NICE CAP_SYSLOG CAP_SETUID
 
 [Install]

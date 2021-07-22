@@ -87,6 +87,7 @@ if(UNIX)
   set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
   set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
   set(CPACK_RPM_PACKAGE_LICENSE "ASL 2.0")
+  set(CPACK_RPM_COMMON_PACKAGE_PROVIDES "libcedar.so()(64bit)")
 
   # Exclude system directories
   if(CPACK_GENERATOR STREQUAL "RPM")
@@ -95,6 +96,9 @@ if(UNIX)
         COMMAND tr \n \;
         OUTPUT_VARIABLE CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
         ERROR_QUIET)
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/lib")
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/lib/systemd")
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/lib/systemd/system")
   endif()
 
   include(CPack)
