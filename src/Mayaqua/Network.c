@@ -16732,8 +16732,12 @@ bool TubeSendEx2(TUBE *t, void *data, UINT size, void *header, bool no_flush, UI
 
 	if (no_flush == false)
 	{
-		Set(t->Event);
-		SetSockEvent(t->SockEvent);
+		Lock(t->Lock);
+		{
+			Set(t->Event);
+			SetSockEvent(t->SockEvent);
+		}
+		Unlock(t->Lock);
 	}
 
 	return true;
@@ -16765,8 +16769,12 @@ void TubeFlushEx(TUBE *t, bool force)
 		}
 	}
 
-	Set(t->Event);
-	SetSockEvent(t->SockEvent);
+	Lock(t->Lock);
+	{
+		Set(t->Event);
+		SetSockEvent(t->SockEvent);
+	}
+	Unlock(t->Lock);
 }
 
 // Receive the data from the tube (asynchronous)
