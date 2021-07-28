@@ -59,7 +59,6 @@
 
 struct ROUTE_CHANGE_DATA
 {
-	OVERLAPPED Overlapped;
 	HANDLE Handle;
 	UINT NumCalled;
 	bool Changed;
@@ -6149,31 +6148,7 @@ bool IsRouteChanged(ROUTE_CHANGE *r)
 #endif	// OS_WIN32
 }
 
-// Routing table change detector function (Win32)
 #ifdef	OS_WIN32
-ROUTE_CHANGE *Win32NewRouteChange()
-{
-	ROUTE_CHANGE *r;
-	BOOL ret;
-
-	r = ZeroMalloc(sizeof(ROUTE_CHANGE));
-
-	r->Data = ZeroMalloc(sizeof(ROUTE_CHANGE_DATA));
-
-	r->Data->Overlapped.hEvent = CreateEventA(NULL, false, true, NULL);
-
-	ret = NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
-	if (!(ret == NO_ERROR || ret == WSA_IO_PENDING || WSAGetLastError() == WSA_IO_PENDING))
-	{
-		Free(r->Data);
-		Free(r);
-
-		return NULL;
-	}
-
-	return r;
-}
-
 void Win32RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE nt)
 {
 	ROUTE_CHANGE_DATA *data = context;
@@ -6225,21 +6200,6 @@ ROUTE_CHANGE *Win32NewRouteChange2(bool ipv4, bool ipv6, void *callback)
 	return r;
 }
 
-void Win32FreeRouteChange(ROUTE_CHANGE *r)
-{
-	// Validate arguments
-	if (r == NULL)
-	{
-		return;
-	}
-
-	CancelIPChangeNotify(&r->Data->Overlapped);
-	CloseHandle(r->Data->Overlapped.hEvent);
-
-	Free(r->Data);
-	Free(r);
-}
-
 void Win32FreeRouteChange2(ROUTE_CHANGE *r)
 {
 	// Validate arguments
@@ -6252,28 +6212,6 @@ void Win32FreeRouteChange2(ROUTE_CHANGE *r)
 
 	Free(r->Data);
 	Free(r);
-}
-
-bool Win32IsRouteChanged(ROUTE_CHANGE *r)
-{
-	// Validate arguments
-	if (r == NULL)
-	{
-		return false;
-	}
-
-	if ((r->Data->NumCalled++) == 0)
-	{
-		return true;
-	}
-
-	if (WaitForSingleObject(r->Data->Overlapped.hEvent, 0) == WAIT_OBJECT_0)
-	{
-		NotifyRouteChange(&r->Data->Handle, &r->Data->Overlapped);
-		return true;
-	}
-
-	return false;
 }
 
 bool Win32IsRouteChanged2(ROUTE_CHANGE *r)
@@ -9071,118 +9009,6 @@ void Win32FlushDnsCache()
 	Run("ipconfig.exe", "/flushdns", true, false);
 }
 
-// Update the DHCP address of the specified LAN card
-void Win32RenewDhcp9x(UINT if_id)
-{
-	IP_INTERFACE_INFO *info;
-	ULONG size;
-	int i;
-	LIST *o;
-	// Validate arguments
-	if (if_id == 0)
-	{
-		return;
-	}
-
-	size = sizeof(IP_INTERFACE_INFO);
-	info = ZeroMallocFast(size);
-
-	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
-	{
-		Free(info);
-		info = ZeroMallocFast(size);
-	}
-
-	if (GetInterfaceInfo(info, &size) != NO_ERROR)
-	{
-		Free(info);
-		return;
-	}
-
-	o = NewListFast(CompareIpAdapterIndexMap);
-
-	for (i = 0; i < info->NumAdapters; i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
-
-		Add(o, a);
-	}
-
-	Sort(o);
-
-	for (i = 0; i < (int)(LIST_NUM(o)); i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
-
-		if (a->Index == if_id)
-		{
-			char arg[MAX_PATH];
-			Format(arg, sizeof(arg), "/renew %u", i);
-			Run("ipconfig.exe", arg, true, false);
-		}
-	}
-
-	ReleaseList(o);
-
-	Free(info);
-}
-
-// Release the DHCP address of the specified LAN card
-void Win32ReleaseDhcp9x(UINT if_id, bool wait)
-{
-	IP_INTERFACE_INFO *info;
-	ULONG size;
-	int i;
-	LIST *o;
-	// Validate arguments
-	if (if_id == 0)
-	{
-		return;
-	}
-
-	size = sizeof(IP_INTERFACE_INFO);
-	info = ZeroMallocFast(size);
-
-	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER)
-	{
-		Free(info);
-		info = ZeroMallocFast(size);
-	}
-
-	if (GetInterfaceInfo(info, &size) != NO_ERROR)
-	{
-		Free(info);
-		return;
-	}
-
-	o = NewListFast(CompareIpAdapterIndexMap);
-
-	for (i = 0; i < info->NumAdapters; i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = &info->Adapter[i];
-
-		Add(o, a);
-	}
-
-	Sort(o);
-
-	for (i = 0; i < (int)(LIST_NUM(o)); i++)
-	{
-		IP_ADAPTER_INDEX_MAP *a = LIST_DATA(o, i);
-
-		if (a->Index == if_id)
-		{
-			char arg[MAX_PATH];
-			Format(arg, sizeof(arg), "/release %u", i);
-			Run("ipconfig.exe", arg, true, wait);
-		}
-	}
-
-	ReleaseList(o);
-
-	Free(info);
-}
-
 // Enumerate a list of virtual LAN cards that contains the specified string
 char **Win32EnumVLan(char *tag_name)
 {
@@ -9441,35 +9267,6 @@ bool Win32GetDefaultDns(IP *ip, char *domain, UINT size)
 	return true;
 }
 
-// IP conversion function for Win32
-void Win32UINTToIP(IP *ip, UINT i)
-{
-	UINTToIP(ip, i);
-}
-
-// IP conversion function for Win32
-UINT Win32IPToUINT(IP *ip)
-{
-	return IPToUINT(ip);
-}
-
-// Remove a routing entry from the routing table
-void Win32DeleteRouteEntry(ROUTE_ENTRY *e)
-{
-	MIB_IPFORWARDROW *p;
-	// Validate arguments
-	if (e == NULL)
-	{
-		return;
-	}
-
-	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
-	Win32RouteEntryToIpForwardRow(p, e);
-
-	DeleteIpForwardEntry(p);
-	Free(p);
-}
-
 // Remove a routing entry from the routing table (For Vista and later)
 void Win32DeleteRouteEntry2(ROUTE_ENTRY *e)
 {
@@ -9485,53 +9282,6 @@ void Win32DeleteRouteEntry2(ROUTE_ENTRY *e)
 
 	DeleteIpForwardEntry2(p);
 	Free(p);
-}
-
-// Add a routing entry to the routing table
-bool Win32AddRouteEntry(ROUTE_ENTRY *e, bool *already_exists)
-{
-	bool ret = false;
-	bool dummy = false;
-	MIB_IPFORWARDROW *p;
-	UINT err = 0;
-	// Validate arguments
-	if (e == NULL)
-	{
-		return false;
-	}
-	if (already_exists == NULL)
-	{
-		already_exists = &dummy;
-	}
-
-	*already_exists = false;
-
-	p = ZeroMallocFast(sizeof(MIB_IPFORWARDROW));
-	Win32RouteEntryToIpForwardRow(p, e);
-
-	err = CreateIpForwardEntry(p);
-	if (err != 0)
-	{
-		if (err == ERROR_OBJECT_ALREADY_EXISTS)
-		{
-			Debug("CreateIpForwardEntry: Already Exists\n");
-			*already_exists = true;
-			ret = true;
-		}
-		else
-		{
-			Debug("CreateIpForwardEntry Error: %u\n", err);
-			ret = false;
-		}
-	}
-	else
-	{
-		ret = true;
-	}
-
-	Free(p);
-
-	return ret;
 }
 
 // Add a routing entry to the routing table (For Vista and later)
@@ -9579,73 +9329,6 @@ bool Win32AddRouteEntry2(ROUTE_ENTRY *e, bool *already_exists)
 	Free(p);
 
 	return ret;
-}
-
-// Get the routing table
-ROUTE_TABLE *Win32GetRouteTable()
-{
-	ROUTE_TABLE *t = ZeroMallocFast(sizeof(ROUTE_TABLE));
-	MIB_IPFORWARDTABLE *p;
-	UINT ret;
-	ULONG size_needed;
-	UINT num_retry = 0;
-	LIST *o;
-	UINT i;
-	ROUTE_ENTRY *e;
-
-RETRY:
-	p = ZeroMallocFast(sizeof(MIB_IFTABLE));
-	size_needed = 0;
-
-	// Examine the needed size
-	ret = GetIpForwardTable(p, &size_needed, 0);
-	if (ret == ERROR_INSUFFICIENT_BUFFER)
-	{
-		// Re-allocate the memory block of the needed size
-		Free(p);
-		p = ZeroMallocFast(size_needed);
-	}
-	else if (ret != NO_ERROR)
-	{
-		// Acquisition failure
-FAILED:
-		Free(p);
-		t->Entry = MallocFast(0);
-		return t;
-	}
-
-	// Actually get
-	ret = GetIpForwardTable(p, &size_needed, FALSE);
-	if (ret != NO_ERROR)
-	{
-		// Acquisition failure
-		if ((++num_retry) >= 5)
-		{
-			goto FAILED;
-		}
-		Free(p);
-		goto RETRY;
-	}
-
-	// Add to the list along
-	o = NewListFast(Win32CompareRouteEntryByMetric);
-	for (i = 0; i < p->dwNumEntries; i++)
-	{
-		e = ZeroMallocFast(sizeof(ROUTE_ENTRY));
-		Win32IpForwardRowToRouteEntry(e, &p->table[i]);
-		Add(o, e);
-	}
-	Free(p);
-
-	// Sort by metric
-	Sort(o);
-
-	// Combine the results
-	t->NumEntry = LIST_NUM(o);
-	t->Entry = ToArrayEx(o, true);
-	ReleaseList(o);
-
-	return t;
 }
 
 // Get the routing table (For Vista and later)
@@ -9741,62 +9424,6 @@ int Win32CompareRouteEntryByMetric(void *p1, void *p2)
 	}
 }
 
-// Convert the ROUTE_ENTRY to a MIB_IPFORWARDROW
-void Win32RouteEntryToIpForwardRow(void *ip_forward_row, ROUTE_ENTRY *entry)
-{
-	MIB_IPFORWARDROW *r;
-	// Validate arguments
-	if (entry == NULL || ip_forward_row == NULL)
-	{
-		return;
-	}
-
-	r = (MIB_IPFORWARDROW *)ip_forward_row;
-	Zero(r, sizeof(MIB_IPFORWARDROW));
-
-	// IP address
-	r->dwForwardDest = Win32IPToUINT(&entry->DestIP);
-	// Subnet mask
-	r->dwForwardMask = Win32IPToUINT(&entry->DestMask);
-	// Gateway IP address
-	r->dwForwardNextHop = Win32IPToUINT(&entry->GatewayIP);
-	// Local routing flag
-	if (entry->LocalRouting)
-	{
-		// Local
-		r->dwForwardType = 3;
-	}
-	else
-	{
-		// Remote router
-		r->dwForwardType = 4;
-	}
-	// Protocol
-	r->dwForwardProto = r->dwForwardType - 1;	// Subtract by 1 in most cases
-	if (entry->PPPConnection)
-	{
-		// Isn't this a PPP? Danger!
-		r->dwForwardProto++;
-	}
-	// Metric
-	r->dwForwardMetric1 = entry->Metric;
-	r->dwForwardMetric2 = r->dwForwardMetric3 = r->dwForwardMetric4 = r->dwForwardMetric5 = 0;
-	r->dwForwardAge = 163240;
-
-	// Interface ID
-	r->dwForwardIfIndex = entry->InterfaceID;
-
-	Debug("Win32RouteEntryToIpForwardRow()\n");
-	Debug(" r->dwForwardDest=%X\n", r->dwForwardDest);
-	Debug(" r->dwForwardMask=%X\n", r->dwForwardMask);
-	Debug(" r->dwForwardNextHop=%X\n", r->dwForwardNextHop);
-	Debug(" r->dwForwardType=%u\n", r->dwForwardType);
-	Debug(" r->dwForwardProto=%u\n", r->dwForwardProto);
-	Debug(" r->dwForwardMetric1=%u\n", r->dwForwardMetric1);
-	Debug(" r->dwForwardMetric2=%u\n", r->dwForwardMetric2);
-	Debug(" r->dwForwardIfIndex=%u\n", r->dwForwardIfIndex);
-}
-
 // Convert the ROUTE_ENTRY to a MIB_IPFORWARD_ROW2 (For Vista and later)
 void Win32RouteEntryToIpForwardRow2(void *ip_forward_row, ROUTE_ENTRY *entry)
 {
@@ -9856,45 +9483,6 @@ void Win32RouteEntryToIpForwardRow2(void *ip_forward_row, ROUTE_ENTRY *entry)
 	r->InterfaceIndex = entry->InterfaceID;
 
 	Debug("Win32RouteEntryToIpForwardRow2()\n");
-}
-
-// Convert the MIB_IPFORWARDROW to a ROUTE_ENTRY
-void Win32IpForwardRowToRouteEntry(ROUTE_ENTRY *entry, void *ip_forward_row)
-{
-	MIB_IPFORWARDROW *r;
-	// Validate arguments
-	if (entry == NULL || ip_forward_row == NULL)
-	{
-		return;
-	}
-
-	r = (MIB_IPFORWARDROW *)ip_forward_row;
-
-	Zero(entry, sizeof(ROUTE_ENTRY));
-	// IP address
-	Win32UINTToIP(&entry->DestIP, r->dwForwardDest);
-	// Subnet mask
-	Win32UINTToIP(&entry->DestMask, r->dwForwardMask);
-	// Gateway IP address
-	Win32UINTToIP(&entry->GatewayIP, r->dwForwardNextHop);
-	// Local routing flag
-	if (r->dwForwardType == 3)
-	{
-		entry->LocalRouting = true;
-	}
-	else
-	{
-		entry->LocalRouting = false;
-	}
-	if (entry->LocalRouting && r->dwForwardProto == 3)
-	{
-		// PPP. Danger!
-		entry->PPPConnection = true;
-	}
-	// Metric
-	entry->Metric = r->dwForwardMetric1;
-	// Interface ID
-	entry->InterfaceID = r->dwForwardIfIndex;
 }
 
 // Convert the MIB_IPFORWARD_ROW2 to a ROUTE_ENTRY (For Vista and later)
