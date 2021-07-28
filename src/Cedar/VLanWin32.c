@@ -190,9 +190,12 @@ void RouteTrackingMain(SESSION *s)
 	{
 		UINT i;
 		bool route_to_server_erased = true;
-		bool is_vlan_want_to_be_default_gateway = false;
-		UINT vlan_default_gateway_metric = 0;
-		UINT other_if_default_gateway_metric_min = INFINITE;
+		bool is_vlan_want_to_be_default_gateway_v4 = false;
+		bool is_vlan_want_to_be_default_gateway_v6 = false;
+		UINT vlan_default_gateway_metric_v4 = 0;
+		UINT vlan_default_gateway_metric_v6 = 0;
+		UINT other_if_default_gateway_metric_min_v4 = INFINITE;
+		UINT other_if_default_gateway_metric_min_v6 = INFINITE;
 
 		// Get whether the routing table have been changed
 		if (t->LastRoutingTableHash != table->HashedValue)
@@ -231,15 +234,15 @@ void RouteTrackingMain(SESSION *s)
 
 				if (e->InterfaceID == t->VLanInterfaceId)
 				{
-					// The virtual LAN card think that he want to be a default gateway
-					is_vlan_want_to_be_default_gateway = true;
-					vlan_default_gateway_metric = e->Metric;
-
-					// PPP route fix (IPv4 only)
 					if (IsIP4(&e->DestIP))
 					{
-						if (vlan_default_gateway_metric >= 2 &&
-						t->OldDefaultGatewayMetric == (vlan_default_gateway_metric - 1))
+						// The virtual LAN card think that he want to be a default gateway
+						is_vlan_want_to_be_default_gateway_v4 = true;
+						vlan_default_gateway_metric_v4 = e->Metric;
+
+						// PPP route fix
+						if (vlan_default_gateway_metric_v4 >= 2 &&
+							t->OldDefaultGatewayMetric == (vlan_default_gateway_metric_v4 - 1))
 						{
 							// Restore because the PPP server rewrites
 							// the routing table selfishly
@@ -261,25 +264,40 @@ void RouteTrackingMain(SESSION *s)
 						t->DefaultGatewayByVLan = ZeroMalloc(sizeof(ROUTE_ENTRY));
 						Copy(t->DefaultGatewayByVLan, e, sizeof(ROUTE_ENTRY));
 
-						t->OldDefaultGatewayMetric = vlan_default_gateway_metric;
+						t->OldDefaultGatewayMetric = vlan_default_gateway_metric_v4;
+					}
+					else
+					{
+						is_vlan_want_to_be_default_gateway_v6 = true;
+						vlan_default_gateway_metric_v6 = e->Metric;
 					}
 				}
 				else
 				{
-					// There are default gateway other than the virtual LAN card
-					// Save the metric value of the default gateway
-					if (other_if_default_gateway_metric_min > e->Metric)
+					if (IsIP4(&e->DestIP))
 					{
-						// Ignore the metric value of all PPP connection in the case of Windows Vista
-						if (e->PPPConnection == false)
+						// There are default gateway other than the virtual LAN card
+						// Save the metric value of the default gateway
+						if (other_if_default_gateway_metric_min_v4 > e->Metric)
 						{
-							other_if_default_gateway_metric_min = e->Metric;
+							// Ignore the metric value of all PPP connection in the case of Windows Vista
+							if (e->PPPConnection == false)
+							{
+								other_if_default_gateway_metric_min_v4 = e->Metric;
+							}
+							else
+							{
+								// a PPP is used to Connect to the network
+								// in using Windows Vista
+								t->VistaAndUsingPPP = true;
+							}
 						}
-						else
+					}
+					else
+					{
+						if (other_if_default_gateway_metric_min_v6 > e->Metric)
 						{
-							// a PPP is used to Connect to the network
-							// in using Windows Vista
-							t->VistaAndUsingPPP = true;
+							other_if_default_gateway_metric_min_v6 = e->Metric;
 						}
 					}
 				}
@@ -290,7 +308,7 @@ void RouteTrackingMain(SESSION *s)
 		{
 			if (t->DefaultGatewayByVLan != NULL)
 			{
-				if (is_vlan_want_to_be_default_gateway)
+				if (is_vlan_want_to_be_default_gateway_v4)
 				{
 					if (t->VistaOldDefaultGatewayByVLan == NULL || Cmp(t->VistaOldDefaultGatewayByVLan, t->DefaultGatewayByVLan, sizeof(ROUTE_ENTRY)) != 0)
 					{
@@ -365,8 +383,9 @@ void RouteTrackingMain(SESSION *s)
 		// to elect the virtual LAN card as the default gateway
 //		Debug("is_vlan_want_to_be_default_gateway = %u, rs = %u, route_to_server_erased = %u, other_if_default_gateway_metric_min = %u, vlan_default_gateway_metric = %u\n",
 //			is_vlan_want_to_be_default_gateway, rs, route_to_server_erased, other_if_default_gateway_metric_min, vlan_default_gateway_metric);
-		if (is_vlan_want_to_be_default_gateway && (rs != NULL && route_to_server_erased == false) &&
-			other_if_default_gateway_metric_min >= vlan_default_gateway_metric)
+		if ((is_vlan_want_to_be_default_gateway_v4 && other_if_default_gateway_metric_min_v4 >= vlan_default_gateway_metric_v4 ||
+			is_vlan_want_to_be_default_gateway_v6 && other_if_default_gateway_metric_min_v6 >= vlan_default_gateway_metric_v6)
+			&& rs != NULL && route_to_server_erased == false)
 		{
 			// Scan the routing table again
 			for (i = 0;i < table->NumEntry;i++)
