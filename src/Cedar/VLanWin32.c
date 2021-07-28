@@ -224,8 +224,7 @@ void RouteTrackingMain(SESSION *s)
 			}
 
 			// Search for the default gateway
-			if (IPToUINT(&e->DestIP) == 0 &&
-				IPToUINT(&e->DestMask) == 0)
+			if (IsZeroIP(&e->DestIP) && IsZeroIP(&e->DestMask))
 			{
 				Debug("e->InterfaceID = %u, t->VLanInterfaceId = %u\n",
 					e->InterfaceID, t->VLanInterfaceId);
@@ -236,30 +235,34 @@ void RouteTrackingMain(SESSION *s)
 					is_vlan_want_to_be_default_gateway = true;
 					vlan_default_gateway_metric = e->Metric;
 
-					if (vlan_default_gateway_metric >= 2 &&
+					// PPP route fix (IPv4 only)
+					if (IsIP4(&e->DestIP))
+					{
+						if (vlan_default_gateway_metric >= 2 &&
 						t->OldDefaultGatewayMetric == (vlan_default_gateway_metric - 1))
-					{
-						// Restore because the PPP server rewrites
-						// the routing table selfishly
-						DeleteRouteEntry(e);
-						e->Metric--;
-						AddRouteEntry(e);
-						Debug("** Restore metric destroyed by PPP.\n");
+						{
+							// Restore because the PPP server rewrites
+							// the routing table selfishly
+							DeleteRouteEntry(e);
+							e->Metric--;
+							AddRouteEntry(e);
+							Debug("** Restore metric destroyed by PPP.\n");
 
-						any_modified = true;
+							any_modified = true;
+						}
+
+						// Keep this entry
+						if (t->DefaultGatewayByVLan != NULL)
+						{
+							// Delete if there is one added last time
+							FreeRouteEntry(t->DefaultGatewayByVLan);
+						}
+
+						t->DefaultGatewayByVLan = ZeroMalloc(sizeof(ROUTE_ENTRY));
+						Copy(t->DefaultGatewayByVLan, e, sizeof(ROUTE_ENTRY));
+
+						t->OldDefaultGatewayMetric = vlan_default_gateway_metric;
 					}
-
-					// Keep this entry
-					if (t->DefaultGatewayByVLan != NULL)
-					{
-						// Delete if there is one added last time
-						FreeRouteEntry(t->DefaultGatewayByVLan);
-					}
-
-					t->DefaultGatewayByVLan = ZeroMalloc(sizeof(ROUTE_ENTRY));
-					Copy(t->DefaultGatewayByVLan, e, sizeof(ROUTE_ENTRY));
-
-					t->OldDefaultGatewayMetric = vlan_default_gateway_metric;
 				}
 				else
 				{
@@ -372,8 +375,7 @@ void RouteTrackingMain(SESSION *s)
 
 				if (e->InterfaceID != t->VLanInterfaceId)
 				{
-					if (IPToUINT(&e->DestIP) == 0 &&
-					IPToUINT(&e->DestMask) == 0)
+					if (IsZeroIP(&e->DestIP) && IsZeroIP(&e->DestMask))
 					{
 						char str[64];
 						// Default gateway is found
@@ -633,11 +635,6 @@ void RouteTrackingStart(SESSION *s)
 			MsFreeAdapter(a);
 		}
 	}
-	else
-	{
-		// For Win9x
-		Win32RenewDhcp9x(if_id);
-	}
 
 	// Clear the DNS cache
 	Win32FlushDnsCache();
@@ -782,12 +779,12 @@ void RouteTrackingStop(SESSION *s, ROUTE_TRACKING *t)
 		// If the restoring routing entry is a default gateway and
 		// the existing routing table contains another default gateway
 		// on the interface, give up restoring the entry
-		if (IPToUINT(&e->DestIP) == 0 && IPToUINT(&e->DestMask) == 0)
+		if (IsZeroIP(&e->DestIP) && IsZeroIP(&e->DestMask))
 		{
 			for (i = 0;i < table->NumEntry;i++)
 			{
 				ROUTE_ENTRY *r = table->Entry[i];
-				if (IPToUINT(&r->DestIP) == 0 && IPToUINT(&r->DestMask) == 0)
+				if (IsZeroIP(&r->DestIP) && IsZeroIP(&r->DestMask))
 				{
 					if (r->InterfaceID == e->InterfaceID)
 					{
