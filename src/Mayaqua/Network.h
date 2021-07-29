@@ -285,7 +285,7 @@ struct ROUTE_ENTRY
 	bool LocalRouting;
 	bool PPPConnection;
 	UINT Metric;
-	UINT OldIfMetric;
+	UINT IfMetric;
 	UINT InterfaceID;
 	UINT64 InnerScore;
 };

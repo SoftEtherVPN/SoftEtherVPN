@@ -9437,9 +9437,6 @@ void Win32RouteEntryToIpForwardRow2(void *ip_forward_row, ROUTE_ENTRY *entry)
 	r = (MIB_IPFORWARD_ROW2 *)ip_forward_row;
 	InitializeIpForwardEntry(r);
 
-	MIB_IPINTERFACE_ROW *p;
-	p = ZeroMallocFast(sizeof(MIB_IPINTERFACE_ROW));
-
 	if (IsIP4(&entry->DestIP))
 	{
 		// IP address
@@ -9450,8 +9447,6 @@ void Win32RouteEntryToIpForwardRow2(void *ip_forward_row, ROUTE_ENTRY *entry)
 		// Gateway IP address
 		r->NextHop.Ipv4.sin_family = AF_INET;
 		IPToInAddr(&r->NextHop.Ipv4.sin_addr, &entry->GatewayIP);
-		// Interface
-		p->Family = AF_INET;
 	}
 	else
 	{
@@ -9463,21 +9458,17 @@ void Win32RouteEntryToIpForwardRow2(void *ip_forward_row, ROUTE_ENTRY *entry)
 		// Gateway IP address
 		r->NextHop.Ipv6.sin6_family = AF_INET6;
 		IPToInAddr6(&r->NextHop.Ipv6.sin6_addr, &entry->GatewayIP);
-		// Interface
-		p->Family = AF_INET6;
 	}
 
-	// Metric
-	p->InterfaceIndex = entry->InterfaceID;
-	if (GetIpInterfaceEntry(p) == NO_ERROR && entry->Metric >= p->Metric)
+	// Metric offset
+	if (entry->Metric >= entry->IfMetric)
 	{
-		r->Metric = entry->Metric - p->Metric;
+		r->Metric = entry->Metric - entry->IfMetric;
 	}
 	else
 	{
-		r->Metric = entry->Metric;
+		r->Metric = 0;
 	}
-	Free(p);
 
 	// Interface ID
 	r->InterfaceIndex = entry->InterfaceID;
@@ -9544,6 +9535,7 @@ void Win32IpForwardRow2ToRouteEntry(ROUTE_ENTRY *entry, void *ip_forward_row)
 	p->InterfaceIndex = r->InterfaceIndex;
 	if (GetIpInterfaceEntry(p) == NO_ERROR)
 	{
+		entry->IfMetric = p->Metric;
 		entry->Metric = r->Metric + p->Metric;
 	}
 	else
@@ -10243,8 +10235,8 @@ ROUTE_ENTRY *GetBestRouteEntryFromRouteTableEx(ROUTE_TABLE *table, IP *ip, UINT 
 		Copy(&ret->GatewayIP, &tmp->GatewayIP, sizeof(IP));
 		ret->InterfaceID = tmp->InterfaceID;
 		ret->LocalRouting = tmp->LocalRouting;
-		ret->OldIfMetric = tmp->Metric;
-		ret->Metric = 1;
+		ret->Metric = tmp->Metric;
+		ret->IfMetric = tmp->IfMetric;
 		ret->PPPConnection = tmp->PPPConnection;
 	}
 
@@ -10402,9 +10394,9 @@ void RouteToStr(char *str, UINT str_size, ROUTE_ENTRY *e)
 	IPToStr(dest_mask, sizeof(dest_mask), &e->DestMask);
 	IPToStr(gateway_ip, sizeof(gateway_ip), &e->GatewayIP);
 
-	Format(str, str_size, "%s/%s %s m=%u oif=%u if=%u lo=%u p=%u",
+	Format(str, str_size, "%s/%s %s m=%u ifm=%u if=%u lo=%u p=%u",
 	       dest_ip, dest_mask, gateway_ip,
-	       e->Metric, e->OldIfMetric, e->InterfaceID,
+	       e->Metric, e->IfMetric, e->InterfaceID,
 	       e->LocalRouting, e->PPPConnection);
 }
 

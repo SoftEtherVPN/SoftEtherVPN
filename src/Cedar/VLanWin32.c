@@ -162,7 +162,6 @@ void RouteTrackingMain(SESSION *s)
 					char ip_str2[64];
 
 					Copy(&e->DestIP, &nat_t_ip, sizeof(IP));
-					e->Metric = e->OldIfMetric;
 
 					IPToStr(ip_str, sizeof(ip_str), &e->DestIP);
 					IPToStr(ip_str2, sizeof(ip_str2), &e->GatewayIP);
@@ -507,8 +506,6 @@ void RouteTrackingStart(SESSION *s)
 	Debug("GetBestRouteEntry() Succeed. [Gateway: %s]\n", tmp);
 
 	// Add a route
-	e->Metric = e->OldIfMetric;
-
 	if (AddRouteEntryEx(e, &already_exists) == false)
 	{
 		FreeRouteEntry(e);
@@ -570,8 +567,6 @@ void RouteTrackingStart(SESSION *s)
 			else
 			{
 				// Add a route
-				dns->Metric = dns->OldIfMetric;
-
 				if (AddRouteEntry(dns) == false)
 				{
 					FreeRouteEntry(dns);
@@ -590,8 +585,6 @@ void RouteTrackingStart(SESSION *s)
 
 			if (route_to_real_server_global != NULL)
 			{
-				route_to_real_server_global->Metric = route_to_real_server_global->OldIfMetric;
-
 				if (AddRouteEntry(route_to_real_server_global) == false)
 				{
 					FreeRouteEntry(route_to_real_server_global);
