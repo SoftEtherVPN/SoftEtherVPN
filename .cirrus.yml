@@ -3,10 +3,6 @@ FreeBSD_task:
     env:
       SSL: openssl
     env:
-      SSL: libressl
-    env:
-      SSL: libressl-devel
-    env:
       # base openssl
       SSL:
   matrix:
