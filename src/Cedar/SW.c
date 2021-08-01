@@ -4005,11 +4005,6 @@ SW_LOGFILE *SwLoadLogFile(SW *sw, wchar_t *filename)
 	CfgGetStr(info, "ComponentName", component_name, sizeof(component_name));
 	build = CfgGetInt(info, "Build");
 
-	if (build == 0)
-	{
-		goto LABEL_CLEANUP;
-	}
-
 	c = SwFindComponent(sw, component_name);
 	if (c == NULL)
 	{
