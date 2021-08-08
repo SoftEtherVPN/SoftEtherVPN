@@ -43,7 +43,7 @@ unset(CMAKE_REQUIRED_INCLUDES)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
 if(NOT HAVE_OPENSSL_EVP_PKEY)
-        message(FATAL_ERROR "required EVP_PKEY_get_raw_public_key() is not found in OpenSSL library")
+    message(FATAL_ERROR "Required EVP_PKEY_get_raw_public_key() is not found in OpenSSL library")
 endif()
 
 endif()
