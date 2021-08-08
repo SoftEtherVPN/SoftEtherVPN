@@ -32,6 +32,8 @@ target_link_libraries(mayaqua
     ZLIB::ZLIB
 )
 
+if(NOT WIN32)
+
 set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_CRYPTO_LIBRARY})
 
@@ -42,6 +44,8 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 
 if(NOT HAVE_OPENSSL_EVP_PKEY)
         message(FATAL_ERROR "required EVP_PKEY_get_raw_public_key() is not found in OpenSSL library")
+endif()
+
 endif()
 
 if(WIN32)
