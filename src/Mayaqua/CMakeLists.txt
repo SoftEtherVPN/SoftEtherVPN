@@ -17,6 +17,21 @@ set_target_properties(mayaqua
 )
 
 find_package(OpenSSL REQUIRED)
+
+include(CheckSymbolExists)
+
+set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
+set(CMAKE_REQUIRED_LIBRARIES OpenSSL::Crypto)
+
+check_symbol_exists(EVP_PKEY_get_raw_public_key "openssl/evp.h" HAVE_EVP_PKEY_GET_RAW_PUBLIC_KEY)
+
+unset(CMAKE_REQUIRED_INCLUDES)
+unset(CMAKE_REQUIRED_LIBRARIES)
+
+if(NOT HAVE_EVP_PKEY_GET_RAW_PUBLIC_KEY)
+  message(FATAL_ERROR "Required EVP_PKEY_get_raw_public_key() not found in OpenSSL library!")
+endif()
+
 find_package(ZLIB REQUIRED)
 
 # Required because we include <openssl/opensslv.h> in Encrypt.h.
