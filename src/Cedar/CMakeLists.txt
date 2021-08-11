@@ -29,6 +29,12 @@ set(BLAKE2_SRC $<IF:$<BOOL:${HAS_SSE2}>,${BLAKE2_SRC_PATH}/blake2s.c,${BLAKE2_SR
 target_include_directories(cedar PUBLIC ${BLAKE2_SRC_PATH})
 target_sources(cedar PRIVATE ${BLAKE2_SRC})
 
+if(HAS_SSE2)
+  # If SSE2 is enabled, a build failure occurs with MSVC because it doesn't define "__SSE2__".
+  # The fix consists in defining "HAVE_SSE2" manually, effectively overriding the check.
+  set_property(SOURCE ${BLAKE2_SRC} PROPERTY COMPILE_DEFINITIONS "HAVE_SSE2")
+endif()
+
 if(VCPKG_TARGET_TRIPLET)
   find_package(unofficial-sodium CONFIG REQUIRED)
   target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
