@@ -616,6 +616,7 @@ typedef struct IKE_SA_TRANSFORM_SETTING IKE_SA_TRANSFORM_SETTING;
 typedef struct IKE_CLIENT IKE_CLIENT;
 typedef struct IPSECSA IPSECSA;
 typedef struct IKE_CAPS IKE_CAPS;
+typedef struct IKE_INFOMSG_QUOTA_ENTRY IKE_INFOMSG_QUOTA_ENTRY;
 
 // ==============================================================
 //  IPSec Packet

@@ -148,6 +148,9 @@
 #define	IKE_QUOTA_MAX_NUM_CLIENTS			30000			// Limit number of IKE_CLIENT
 #define	IKE_QUOTA_MAX_SA_PER_CLIENT			100				// The limit number of SA for each IKE_CLIENT
 
+#define IKE_QUOTA_MAX_INFOMSG_SEND_PER_IP_PER_SEC	20
+#define IKE_QUOTA_MAX_INFOMSG_ENTRY_COUNT	100
+
 // Time-out
 #define	IKE_TIMEOUT_FOR_IKE_CLIENT			150000			// IKE_CLIENT non-communication disconnect time
 #define	IKE_TIMEOUT_FOR_IKE_CLIENT_FOR_NOT_ESTABLISHED		10000 // IKE_CLIENT non-communication disconnect time (connection incomplete)
@@ -346,6 +349,12 @@ struct IPSECSA
 	IKE_HASH *SKEYID_Hash;
 };
 
+struct IKE_INFOMSG_QUOTA_ENTRY
+{
+	IP ClientIp;
+	UINT Count;
+};
+
 // IKE server
 struct IKE_SERVER
 {
@@ -360,6 +369,8 @@ struct IKE_SERVER
 	LIST *IkeSaList;							// SA list
 	LIST *IPsecSaList;							// IPsec SA list
 	LIST *ThreadList;							// L2TP thread list
+	LIST *InfoMsgQuotaList;						// Information Message Quota List
+	UINT64 NextInfoMsgQuotaClearTick;
 	bool StateHasChanged;						// Flag whether the state has changed
 	UINT CurrentIkeSaId, CurrentIPsecSaId, CurrentIkeClientId, CurrentEtherId;	// Serial number ID
 
@@ -462,6 +473,9 @@ bool IsIPsecSaTunnelMode(IPSECSA *sa);
 void ProcL2TPv3PacketRecv(IKE_SERVER *ike, IKE_CLIENT *c, UCHAR *data, UINT data_size, bool is_tunnel_mode);
 
 IKE_SA *SearchIkeSaByCookie(IKE_SERVER *ike, UINT64 init_cookie, UINT64 resp_cookie);
+
+IKE_INFOMSG_QUOTA_ENTRY *IkeInfoMsgQuotaGetEntry(IKE_SERVER *ike, IP *client_ip);
+void IkeInfoMsgQuotaDeleteAll(IKE_SERVER *ike);
 
 #endif	// IPSEC_IKE_H
 

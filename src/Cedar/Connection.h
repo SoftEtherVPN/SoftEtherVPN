@@ -300,6 +300,7 @@ struct CONNECTION
 	char *CipherName;				// Encryption algorithm name
 	UINT64 ConnectedTick;			// Time it is connected
 	IP ClientIp;					// Client IP address
+	UINT ClientPort;				// Client Port number
 	char ClientHostname[MAX_HOST_NAME_LEN + 1];	// Client host name
 	UINT Type;						// Type
 	bool DontUseTls1;				// Do not use TLS 1.0

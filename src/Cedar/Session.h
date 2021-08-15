@@ -185,6 +185,7 @@ struct SESSION
 	THREAD *Thread;					// Management thread
 	CONNECTION *Connection;			// Connection
 	char ClientIP[64];				// Client IP
+	UINT ClientPort;				// Client Port
 	CLIENT_OPTION *ClientOption;	// Client connection options
 	CLIENT_AUTH *ClientAuth;		// Client authentication data
 	volatile bool Halt;				// Halting flag

@@ -566,7 +566,7 @@ void GetHomeDir(char *path, UINT size)
 		if (GetEnv("HOMEDRIVE", drive, sizeof(drive)) &&
 			GetEnv("HOMEPATH", hpath, sizeof(hpath)))
 		{
-			Format(path, sizeof(path), "%s%s", drive, hpath);
+			Format(path, size, "%s%s", drive, hpath);
 		}
 		else
 		{

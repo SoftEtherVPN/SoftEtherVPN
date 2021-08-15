@@ -1147,11 +1147,23 @@ bool PacketLog(HUB *hub, SESSION *src_session, SESSION *dest_session, PKT *packe
 		if (src_session != NULL && src_session->NormalClient)
 		{
 			StrCpy(pl->SrcPhysicalIP, sizeof(pl->SrcPhysicalIP), src_session->ClientIP);
+			if (src_session->ClientPort != 0)
+			{
+				char tmp[32] = {0};
+				Format(tmp, sizeof(tmp), "(port=%u)", src_session->ClientPort);
+				StrCat(pl->SrcPhysicalIP, sizeof(pl->SrcPhysicalIP), tmp);
+			}
 		}
 
 		if (dest_session != NULL && dest_session->NormalClient)
 		{
 			StrCpy(pl->DestPhysicalIP, sizeof(pl->DestPhysicalIP), dest_session->ClientIP);
+			if (dest_session->ClientPort != 0)
+			{
+				char tmp[32] = {0};
+				Format(tmp, sizeof(tmp), "(port=%u)", dest_session->ClientPort);
+				StrCat(pl->DestPhysicalIP, sizeof(pl->DestPhysicalIP), tmp);
+			}
 		}
 
 		pl->WritePhysicalIP = true;

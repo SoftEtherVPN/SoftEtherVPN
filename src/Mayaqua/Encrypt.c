@@ -2642,6 +2642,7 @@ bool RsaPrivateDecrypt(void *dst, void *src, UINT size, K *k)
 	Unlock(openssl_lock);
 	if (ret <= 0)
 	{
+		Free(tmp);
 		return false;
 	}
 

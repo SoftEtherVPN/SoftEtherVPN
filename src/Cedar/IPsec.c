@@ -381,6 +381,13 @@ void IPsecServerUdpPacketRecvProc(UDPLISTENER *u, LIST *packet_list)
 
 	ike->Now = now;
 
+	if (now >= ike->NextInfoMsgQuotaClearTick)
+	{
+		ike->NextInfoMsgQuotaClearTick = now + 1000ULL;
+
+		IkeInfoMsgQuotaDeleteAll(ike);
+	}
+
 	if (ipsec_disable == false)
 	{
 		{

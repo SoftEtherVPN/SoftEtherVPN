@@ -632,7 +632,7 @@ namespace BuildUtil
 			sr.WriteLine("# You have to read and agree the license agreement at the same directory");
 			sr.WriteLine("#  before using this software.");
 			sr.WriteLine();
-			sr.WriteLine("i_read_and_agree_the_license_agreement:");
+			sr.WriteLine("main:");
 
 			sr.WriteLine("\t@echo \"Preparing {0}...\"", BuildHelper.GetSoftwareTitle(this.Software));
 

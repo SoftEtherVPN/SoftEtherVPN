@@ -3571,6 +3571,7 @@ CONNECTION *NewServerConnection(CEDAR *cedar, SOCK *s, THREAD *t)
 	{
 		AddRef(c->FirstSock->ref);
 		Copy(&c->ClientIp, &s->RemoteIP, sizeof(IP));
+		c->ClientPort = s->RemotePort;
 		StrCpy(c->ClientHostname, sizeof(c->ClientHostname), s->RemoteHostname);
 	}
 	c->Tcp = ZeroMalloc(sizeof(TCP));
