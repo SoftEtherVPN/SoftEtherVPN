@@ -1484,13 +1484,13 @@ void SendInformationalExchangePacketEx(IKE_SERVER *ike, IKE_CLIENT *c, IKE_PACKE
 
 	IkeSendUdpPacket(ike, IKE_UDP_TYPE_ISAKMP, &c->ServerIP, c->ServerPort,
 		&c->ClientIP, c->ClientPort,
-		ps_buf->Buf, ps_buf->Size);
+		Clone(ps_buf->Buf, ps_buf->Size), ps_buf->Size);
 
 #ifdef	RAW_DEBUG
 	IkeDebugUdpSendRawPacket(ps);
 #endif	// RAW_DEBUG
 
-	Free(ps_buf);
+	FreeBuf(ps_buf);
 
 	IkeFree(ps);
 }
@@ -4122,9 +4122,9 @@ void IPsecSaSendPacket(IKE_SERVER *ike, IPSECSA *sa, IKE_PACKET *p)
 
 	IkeSendUdpPacket(ike, IKE_UDP_TYPE_ISAKMP, &sa->IkeClient->ServerIP, sa->IkeClient->ServerPort,
 		&sa->IkeClient->ClientIP, sa->IkeClient->ClientPort,
-		buf->Buf, buf->Size);
+		Clone(buf->Buf, buf->Size), buf->Size);
 
-	Free(buf);
+	FreeBuf(buf);
 }
 
 // Send a packet using the IKE SA
@@ -4182,9 +4182,9 @@ void IkeSaSendPacket(IKE_SERVER *ike, IKE_SA *sa, IKE_PACKET *p)
 
 	IkeSendUdpPacket(ike, IKE_UDP_TYPE_ISAKMP, &sa->IkeClient->ServerIP, sa->IkeClient->ServerPort,
 		&sa->IkeClient->ClientIP, sa->IkeClient->ClientPort,
-		buf->Buf, buf->Size);
+		Clone(buf->Buf, buf->Size), buf->Size);
 
-	Free(buf);
+	FreeBuf(buf);
 }
 
 // Send an UDP packet

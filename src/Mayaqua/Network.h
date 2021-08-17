@@ -601,6 +601,7 @@ struct UDPLISTENER
 	bool IsEspRawPortOpened;			// Whether the raw port opens
 	bool PollMyIpAndPort;				// Examine whether the global IP and the port number of its own
 	QUERYIPTHREAD *GetNatTIpThread;		// NAT-T IP address acquisition thread
+	UINT RecvBufSize;					// Receive buffer size
 };
 
 #define	QUERYIPTHREAD_INTERVAL_LAST_OK	(3 * 60 * 60 * 1000)

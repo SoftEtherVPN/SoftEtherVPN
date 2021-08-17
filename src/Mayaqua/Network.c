@@ -20448,6 +20448,7 @@ void UdpListenerThread(THREAD *thread, void *param)
 	while (u->Halt == false)
 	{
 		LIST *recv_list;
+		UINT recv_list_total_size = 0;
 		UINT64 now = Tick64();
 		UINT interval;
 		bool stage_changed = false;
@@ -20621,6 +20622,7 @@ LABEL_RESTART:
 		stage_changed = false;
 
 		recv_list = NewListFast(NULL);
+		recv_list_total_size = 0;
 
 		if (u->PollMyIpAndPort)
 		{
@@ -20670,8 +20672,15 @@ LABEL_RESTART:
 					IP src_addr;
 					UINT src_port;
 					UDPPACKET *p;
+					UINT size;
 
-					UINT size = RecvFrom(us->Sock, &src_addr, &src_port, buf, buf_size);
+					if (u->RecvBufSize != 0 && recv_list_total_size >= u->RecvBufSize)
+					{
+						// No more receive packet since the buffer is full
+						break;
+					}
+
+					size = RecvFrom(us->Sock, &src_addr, &src_port, buf, buf_size);
 					if (size == 0)
 					{
 						// Socket failure
@@ -20724,6 +20733,8 @@ LABEL_FATAL_ERROR:
 						}
 
 						Add(recv_list, p);
+
+						recv_list_total_size += size;
 					}
 
 					stage_changed = true;
@@ -20732,6 +20743,7 @@ LABEL_FATAL_ERROR:
 		}
 
 		// Pass the received packet to the procedure
+		// Print("recv_list_total_size = %u\n", recv_list_total_size);
 		u->RecvProc(u, recv_list);
 
 		// Release the packet 
@@ -20757,6 +20769,8 @@ LABEL_FATAL_ERROR:
 
 				Zero(&last_src_ip, sizeof(IP));
 				last_src_port = 0;
+
+				// Print("LIST_NUM(u->SendPacketList) = %u\n", LIST_NUM(u->SendPacketList));
 
 				for (i = 0;i < LIST_NUM(u->SendPacketList);i++)
 				{
@@ -21006,6 +21020,8 @@ UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
 	}
 	
 	u = ZeroMalloc(sizeof(UDPLISTENER));
+
+	u->RecvBufSize = UDP_MAX_BUFFER_SIZE;
 
 	u->Param = param;
 
