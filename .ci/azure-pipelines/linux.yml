@@ -3,6 +3,9 @@ jobs:
   pool:
     vmImage: ubuntu-18.04
   steps:
+  - checkout: self
+    submodules: true
+    persistCredentials: true
   - script: sudo apt update && sudo apt-get -y install cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libsodium-dev libssl-dev make zlib1g-dev liblz4-dev
     displayName: 'Prepare environment'
   - script: "$(Build.SourcesDirectory)/.ci/azure-pipelines/linux_build.sh"
