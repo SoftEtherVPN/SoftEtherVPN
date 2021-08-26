@@ -3,6 +3,9 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
+  - checkout: self
+    submodules: true
+    persistCredentials: true
   - template: "windows-steps.yml"
     parameters:
       architecture: "x64"
@@ -13,6 +16,9 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
+  - checkout: self
+    submodules: true
+    persistCredentials: true
   - template: "windows-steps.yml"
     parameters:
       architecture: "x86"

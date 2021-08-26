@@ -3,6 +3,9 @@ jobs:
   pool:
     vmImage: macOS-latest
   steps:
+  - checkout: self
+    submodules: true
+    persistCredentials: true
   - script: brew install pkg-config cmake ninja ncurses readline libsodium openssl zlib
     displayName: 'Prepare environment'
   - script: '$(Build.SourcesDirectory)/.ci/azure-pipelines/macos_build.sh'
