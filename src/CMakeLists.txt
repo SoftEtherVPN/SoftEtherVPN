@@ -67,10 +67,13 @@ if(WIN32)
 
   message("Setting CONTROL FLOW GUARD") 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /guard:cf")
-  set(CMAKE_EXE_LINKER_FLAGS  "/guard:cf /DYNAMICBASE")
+  set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /guard:cf /DYNAMICBASE")
 
   message("Setting QSPECTRE")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qspectre")
+
+  message("Setting CETCOMPAT")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /CETCOMPAT")
 
 endif()
 
