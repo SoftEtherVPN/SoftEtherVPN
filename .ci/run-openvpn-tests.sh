@@ -21,7 +21,7 @@ cat << EOF > tests/t_client.rc
 CA_CERT=fake
 TEST_RUN_LIST="1 2"
 
-OPENVPN_BASE="--remote 127.0.0.1 --config $CONFIG --auth-user-pass /tmp/auth.txt"
+OPENVPN_BASE="--config $CONFIG --auth-user-pass /tmp/auth.txt"
 
 RUN_TITLE_1="testing udp/ipv4"
 OPENVPN_CONF_1="--dev null --proto udp --port 1194 \$OPENVPN_BASE"
@@ -29,5 +29,7 @@ OPENVPN_CONF_1="--dev null --proto udp --port 1194 \$OPENVPN_BASE"
 RUN_TITLE_2="testing tcp/ipv4"
 OPENVPN_CONF_2="--dev null --proto tcp --port 1194 \$OPENVPN_BASE"
 EOF
+
+sed -i 's/^remote.*$/remote 127.0.0.1 1194/g' /tmp/*l3*ovpn
 
 make test_scripts=t_client.sh check
