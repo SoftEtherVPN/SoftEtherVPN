@@ -39,6 +39,12 @@ endif()
 if(UNIX)
   include(GNUInstallDirs)
 
+  #
+  # use rpath for locating installed libraries
+  #
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
   include(CheckIncludeFile)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
   if(EXISTS "/lib/systemd/system")
