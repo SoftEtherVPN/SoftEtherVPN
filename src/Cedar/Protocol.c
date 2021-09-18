@@ -6276,7 +6276,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		c->ServerPort = o->Port;
 	}
 
-	if (IsZeroIP(&sess->ServerIP_CacheForNextConnect) == false)
+	if (additional_connect && IsZeroIP(&sess->ServerIP_CacheForNextConnect) == false)
 	{
 		IPToStr(hostname, sizeof(hostname), &sess->ServerIP_CacheForNextConnect);
 		Debug("ClientConnectGetSocket(): Using cached IP address %s\n", hostname);
