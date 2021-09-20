@@ -7109,14 +7109,6 @@ bool CtSetAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 			}
 		}
 
-		if (a->ServerCert != NULL && a->ServerCert->is_compatible_bit == false)
-		{
-			// Server certificate is invalid
-			UnlockList(c->AccountList);
-			CiSetError(c, ERR_NOT_RSA_1024);
-			return false;
-		}
-
 		Lock(ret->lock);
 		{
 
@@ -7234,14 +7226,6 @@ bool CtCreateAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 				CiSetError(c, ERR_NOT_RSA_1024);
 				return false;
 			}
-		}
-
-		if (a->ServerCert != NULL && a->ServerCert->is_compatible_bit == false)
-		{
-			// The server certificate is invalid
-			UnlockList(c->AccountList);
-			CiSetError(c, ERR_NOT_RSA_1024);
-			return false;
 		}
 
 		// Add a new account
@@ -8533,12 +8517,6 @@ bool CtAddCa(CLIENT *c, RPC_CERT *cert)
 	// Validate arguments
 	if (c == NULL || cert == NULL)
 	{
-		return false;
-	}
-
-	if (cert->x->is_compatible_bit == false)
-	{
-		CiSetError(c, ERR_NOT_RSA_1024);
 		return false;
 	}
 
