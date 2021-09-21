@@ -940,6 +940,7 @@ UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 								{
 									Copy(pw->HashedKey, new_password, SHA1_SIZE);
 									Copy(pw->NtLmSecureHash, new_password_ntlm, MD5_SIZE);
+									IncrementServerConfigRevision(cedar->Server);
 								}
 								HLog(hub, "LH_CHANGE_PASSWORD_5", c->Name, username);
 							}
