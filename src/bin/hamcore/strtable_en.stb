@@ -432,6 +432,8 @@ CERT_DIGEST_MD5			Digest (MD5)
 CERT_DIGEST_SHA1		Digest (SHA-1)
 CERT_NO_SERIAL			There is no serial number
 CERT_BITS_FORMAT		%u bits
+CERT_KEY_ALGORITHM		Public Key Algorithm
+CERT_KEY_PARAMETER		Parameters
 
 
 # Concerning certificate confirmation dialogs

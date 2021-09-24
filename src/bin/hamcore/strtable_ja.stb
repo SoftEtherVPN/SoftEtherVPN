@@ -434,6 +434,8 @@ CERT_DIGEST_MD5			ダイジェスト (MD5)
 CERT_DIGEST_SHA1		ダイジェスト (SHA-1)
 CERT_NO_SERIAL			シリアル番号はありません
 CERT_BITS_FORMAT		%u bits
+CERT_KEY_ALGORITHM		公開鍵アルゴリズム
+CERT_KEY_PARAMETER		パラメータ
 
 
 # 証明書確認ダイアログ関係
