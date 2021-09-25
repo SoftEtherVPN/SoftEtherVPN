@@ -7777,11 +7777,6 @@ UINT StAddCa(ADMIN *a, RPC_HUB_ADD_CA *t)
 		return ERR_INVALID_PARAMETER;
 	}
 
-	if (t->Cert->is_compatible_bit == false)
-	{
-		return ERR_NOT_RSA_1024;
-	}
-
 	CHECK_RIGHT;
 
 	LockHubList(c);
@@ -9444,11 +9439,6 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 	if (t->Cert == NULL || t->Key == NULL)
 	{
 		return ERR_PROTOCOL_ERROR;
-	}
-
-	if (t->Cert->is_compatible_bit == false)
-	{
-		return ERR_NOT_RSA_1024;
 	}
 
 	if (CheckXandK(t->Cert, t->Key) == false)

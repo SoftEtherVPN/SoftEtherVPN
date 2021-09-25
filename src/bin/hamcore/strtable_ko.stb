@@ -438,6 +438,8 @@ CERT_DIGEST_MD5 다이제스트 (MD5)
 CERT_DIGEST_SHA1 다이제스트 (SHA-1)
 CERT_NO_SERIAL 일련 번호가 없습니다
 CERT_BITS_FORMAT %u bits
+CERT_KEY_ALGORITHM		공개 키 알고리즘
+CERT_KEY_PARAMETER		매개변수
 
 
 # 인증서 확인 대화 관계
