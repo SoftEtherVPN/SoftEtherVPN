@@ -5410,7 +5410,7 @@ NOTIFY_CLIENT *CcConnectNotify(REMOTE_CLIENT *rc)
 	NOTIFY_CLIENT *n;
 	SOCK *s;
 	char tmp[MAX_SIZE];
-	bool rpc_mode = false;
+	UINT rpc_mode = 0;
 	UINT port;
 	// Validate arguments
 	if (rc == NULL || rc->Rpc == NULL || rc->Rpc->Sock == NULL)

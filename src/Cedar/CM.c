@@ -5450,8 +5450,6 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 			CmStopUacHelper(helper);
 
 			Free(name);
-
-			CmRefresh(hWnd);
 		}
 		break;
 	case CMD_DELETE_VLAN:
@@ -5480,8 +5478,6 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 				}
 				Free(s);
 			}
-
-			CmRefresh(hWnd);
 		}
 		break;
 	case CMD_ENABLE_VLAN:
@@ -5501,8 +5497,6 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 					CALL(hWnd, CcEnableVLan(cm->Client, &c));
 				}
 				Free(s);
-
-				CmRefresh(hWnd);
 			}
 		}
 		break;
@@ -5523,8 +5517,6 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 					CALL(hWnd, CcDisableVLan(cm->Client, &c));
 				}
 				Free(s);
-
-				CmRefresh(hWnd);
 			}
 		}
 		break;
@@ -5560,8 +5552,6 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 					CmStopUacHelper(helper);
 				}
 				Free(s);
-
-				CmRefresh(hWnd);
 			}
 		}
 		break;
