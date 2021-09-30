@@ -25,6 +25,7 @@ struct POLICY_ITEM
 	UINT MaxValue;
 	UINT DefaultValue;
 	char *FormatStr;
+	UINT Offset;
 };
 
 // Policy
@@ -144,17 +145,17 @@ struct AUTHNT
 
 // Macro
 #define	POLICY_CURRENT_VERSION		3
-#define	NUM_POLICY_ITEM		((sizeof(POLICY) / sizeof(UINT)) - 1)
 #define	NUM_POLICY_ITEM_FOR_VER2	22
 #define	NUM_POLICY_ITEM_FOR_VER3	38
+#define	NUM_POLICY_ITEM				NUM_POLICY_ITEM_FOR_VER3
 
 #define	IS_POLICY_FOR_VER2(index)	(((index) >= 0) && ((index) < NUM_POLICY_ITEM_FOR_VER2))
 #define	IS_POLICY_FOR_VER3(index)	(((index) >= 0) && ((index) < NUM_POLICY_ITEM_FOR_VER3))
 
 #define	IS_POLICY_FOR_CURRENT_VER(index, ver)	((ver) >= 3 ? IS_POLICY_FOR_VER3(index) : IS_POLICY_FOR_VER2(index))
 
-#define	POLICY_BOOL(p, i)	(((bool *)(p))[(i)])
-#define	POLICY_INT(p, i)	(((UINT *)(p))[(i)])
+#define	POLICY_BOOL(p, i)	(*(bool *)((char *)p + policy_item[i].Offset))
+#define	POLICY_INT(p, i)	(*(UINT *)((char *)p + policy_item[i].Offset))
 
 extern POLICY_ITEM policy_item[];
 
