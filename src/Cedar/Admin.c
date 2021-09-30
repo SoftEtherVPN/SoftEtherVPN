@@ -7454,7 +7454,7 @@ UINT StSetLink(ADMIN *a, RPC_CREATE_LINK *t)
 
 		if (t->Policy.Ver3 == false)
 		{
-			Copy(k->Policy, &t->Policy, sizeof(UINT) * NUM_POLICY_ITEM_FOR_VER2);
+			Copy(k->Policy, &t->Policy, policy_item[NUM_POLICY_ITEM_FOR_VER2].Offset);
 		}
 		else
 		{

@@ -390,7 +390,7 @@ void OverwritePolicy(POLICY **target, POLICY *p)
 			}
 			else
 			{
-				Copy(*target, p, NUM_POLICY_ITEM_FOR_VER2 * sizeof(UINT));
+				Copy(*target, p, policy_item[NUM_POLICY_ITEM_FOR_VER2].Offset);
 			}
 		}
 	}
