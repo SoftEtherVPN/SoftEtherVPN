@@ -21,47 +21,47 @@
 // Policy items
 POLICY_ITEM policy_item[] =
 {
-//  ID,     Value,  Omittable, Min, Max, Default, Unit name
+//  ID,     Value,  Omittable, Min, Max, Default, Unit name, Offset
 // Ver 2.0
-	{0,		false,	false,	0,	0,	0,		NULL},			// Access
-	{1,		false,	false,	0,	0,	0,		NULL},			// DHCPFilter
-	{2,		false,	false,	0,	0,	0,		NULL},			// DHCPNoServer
-	{3,		false,	false,	0,	0,	0,		NULL},			// DHCPForce
-	{4,		false,	false,	0,	0,	0,		NULL},			// NoBridge
-	{5,		false,	false,	0,	0,	0,		NULL},			// NoRouting
-	{6,		false,	false,	0,	0,	0,		NULL},			// CheckMac
-	{7,		false,	false,	0,	0,	0,		NULL},			// CheckIP
-	{8,		false,	false,	0,	0,	0,		NULL},			// ArpDhcpOnly
-	{9,		false,	false,	0,	0,	0,		NULL},			// PrivacyFilter
-	{10,	false,	false,	0,	0,	0,		NULL},			// NoServer
-	{11,	false,	false,	0,	0,	0,		NULL},			// NoBroadcastLimiter
-	{12,	false,	false,	0,	0,	0,		NULL},			// MonitorPort
-	{13,	true,	false,	1,	32,	32,		"POL_INT_COUNT"},	// MaxConnection
-	{14,	true,	false,	5,	60,	20,		"POL_INT_SEC"},	// TimeOut
-	{15,	true,	true,	1,	65535,	0,	"POL_INT_COUNT"},	// MaxMac
-	{16,	true,	true,	1,	65535,	0,	"POL_INT_COUNT"},	// MaxIP
-	{17,	true,	true,	1,	4294967295UL,	0,	"POL_INT_BPS"},	// MaxUpload
-	{18,	true,	true,	1,	4294967295UL,	0,	"POL_INT_BPS"},	// MaxDownload
-	{19,	false,	false,	0,	0,	0,		NULL},			// FixPassword
-	{20,	true,	true,	1,	65535,	0,	"POL_INT_COUNT"},	// MultiLogins
-	{21,	false,	false,	0,	0,	0,		NULL},			// NoQoS
+	{0,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, Access)},								// Access
+	{1,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPFilter)},							// DHCPFilter
+	{2,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPNoServer)},						// DHCPNoServer
+	{3,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPForce)},							// DHCPForce
+	{4,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoBridge)},							// NoBridge
+	{5,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoRouting)},							// NoRouting
+	{6,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, CheckMac)},							// CheckMac
+	{7,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, CheckIP)},								// CheckIP
+	{8,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, ArpDhcpOnly)},							// ArpDhcpOnly
+	{9,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, PrivacyFilter)},						// PrivacyFilter
+	{10,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoServer)},							// NoServer
+	{11,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoBroadcastLimiter)},					// NoBroadcastLimiter
+	{12,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, MonitorPort)},							// MonitorPort
+	{13,	true,	false,	1,	32,	32,		"POL_INT_COUNT",		offsetof(POLICY, MaxConnection)},			// MaxConnection
+	{14,	true,	false,	5,	60,	20,		"POL_INT_SEC",			offsetof(POLICY, TimeOut)},					// TimeOut
+	{15,	true,	true,	1,	65535,	0,	"POL_INT_COUNT",		offsetof(POLICY, MaxMac)},					// MaxMac
+	{16,	true,	true,	1,	65535,	0,	"POL_INT_COUNT",		offsetof(POLICY, MaxIP)},					// MaxIP
+	{17,	true,	true,	1,	4294967295UL,	0,	"POL_INT_BPS",	offsetof(POLICY, MaxUpload)},				// MaxUpload
+	{18,	true,	true,	1,	4294967295UL,	0,	"POL_INT_BPS",	offsetof(POLICY, MaxDownload)},				// MaxDownload
+	{19,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, FixPassword)},							// FixPassword
+	{20,	true,	true,	1,	65535,	0,	"POL_INT_COUNT",		offsetof(POLICY, MultiLogins)},				// MultiLogins
+	{21,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoQoS)},								// NoQoS
 // Ver 3.0
-	{22,	false,	false,	0,	0,	0,		NULL},			// RSandRAFilter
-	{23,	false,	false,	0,	0,	0,		NULL},			// RAFilter
-	{24,	false,	false,	0,	0,	0,		NULL},			// DHCPv6Filter
-	{25,	false,	false,	0,	0,	0,		NULL},			// DHCPv6NoServer
-	{26,	false,	false,	0,	0,	0,		NULL},			// NoRoutingV6
-	{27,	false,	false,	0,	0,	0,		NULL},			// CheckIPv6
-	{28,	false,	false,	0,	0,	0,		NULL},			// NoServerV6
-	{29,	true,	true,	1,	65535,	0,	"POL_INT_COUNT"},	// MaxIPv6
-	{30,	false,	false,	0,	0,	0,		NULL},			// NoSavePassword
-	{31,	true,	true,	1,	4294967295UL,	0,	"POL_INT_SEC"},	// AutoDisconnect
-	{32,	false,	false,	0,	0,	0,		NULL},			// FilterIPv4
-	{33,	false,	false,	0,	0,	0,		NULL},			// FilterIPv6
-	{34,	false,	false,	0,	0,	0,		NULL},			// FilterNonIP
-	{35,	false,	false,	0,	0,	0,		NULL},			// NoIPv6DefaultRouterInRA
-	{36,	false,	false,	0,	0,	0,		NULL},			// NoIPv6DefaultRouterInRAWhenIPv6
-	{37,	true,	true,	1,	4095,	0,	"POL_INT_VLAN"},	// VLanId
+	{22,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, RSandRAFilter)},						// RSandRAFilter
+	{23,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, RAFilter)},							// RAFilter
+	{24,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPv6Filter)},						// DHCPv6Filter
+	{25,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPv6NoServer)},						// DHCPv6NoServer
+	{26,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoRoutingV6)},							// NoRoutingV6
+	{27,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, CheckIPv6)},							// CheckIPv6
+	{28,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoServerV6)},							// NoServerV6
+	{29,	true,	true,	1,	65535,	0,	"POL_INT_COUNT",		offsetof(POLICY, MaxIPv6)},					// MaxIPv6
+	{30,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoSavePassword)},						// NoSavePassword
+	{31,	true,	true,	1,	4294967295UL,	0,	"POL_INT_SEC",	offsetof(POLICY, AutoDisconnect)},			// AutoDisconnect
+	{32,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, FilterIPv4)},							// FilterIPv4
+	{33,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, FilterIPv6)},							// FilterIPv6
+	{34,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, FilterNonIP)},							// FilterNonIP
+	{35,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoIPv6DefaultRouterInRA)},				// NoIPv6DefaultRouterInRA
+	{36,	false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoIPv6DefaultRouterInRAWhenIPv6)},		// NoIPv6DefaultRouterInRAWhenIPv6
+	{37,	true,	true,	1,	4095,	0,	"POL_INT_VLAN",			offsetof(POLICY, VLanId)},					// VLanId
 };
 
 // Format policy value
@@ -390,7 +390,7 @@ void OverwritePolicy(POLICY **target, POLICY *p)
 			}
 			else
 			{
-				Copy(*target, p, NUM_POLICY_ITEM_FOR_VER2 * sizeof(UINT));
+				Copy(*target, p, policy_item[NUM_POLICY_ITEM_FOR_VER2].Offset);
 			}
 		}
 	}
