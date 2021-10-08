@@ -11427,12 +11427,12 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 		return;
 	}
 
-	if (sock->WaitToUseCipher)
+	if (sock->WantToUseCipher)
 	{
-		Free(sock->WaitToUseCipher);
+		Free(sock->WantToUseCipher);
 	}
 
-	sock->WaitToUseCipher = CopyStr(name);
+	sock->WantToUseCipher = CopyStr(name);
 }
 
 // Add all the chain certificates in the chain_certs directory
@@ -11701,12 +11701,12 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 		}
 	}
 
-	if (sock->WaitToUseCipher != NULL)
+	if (sock->WantToUseCipher != NULL)
 	{
 		// Set the cipher algorithm name to want to use
 		Lock(openssl_lock);
 		{
-			if (SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher) == 0)
+			if (SSL_set_cipher_list(sock->ssl, sock->WantToUseCipher) == 0)
 				SSL_set_cipher_list(sock->ssl, DEFAULT_CIPHER_LIST);
 		}
 		Unlock(openssl_lock);
@@ -14758,7 +14758,7 @@ void CleanupSock(SOCK *s)
 		s->CipherName = NULL;
 	}
 
-	Free(s->WaitToUseCipher);
+	Free(s->WantToUseCipher);
 	DeleteLock(s->lock);
 	DeleteLock(s->ssl_lock);
 	DeleteLock(s->disconnect_lock);

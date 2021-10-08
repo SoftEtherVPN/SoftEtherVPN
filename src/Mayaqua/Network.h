@@ -178,7 +178,7 @@ struct SOCK
 	X *RemoteX;					// Certificate of the remote host
 	X *LocalX;					// Certificate of the local host
 	char *CipherName;			// Cipher algorithm name
-	char *WaitToUseCipher;		// Set the algorithm name to want to use
+	char *WantToUseCipher;		// Set the algorithm name to want to use
 	bool IgnoreRecvErr;			// Whether the RecvFrom error is ignorable
 	bool IgnoreSendErr;			// Whether the SendTo error is ignorable
 	UINT TimeOut;				// Time-out value
