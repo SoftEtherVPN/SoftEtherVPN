@@ -31,7 +31,6 @@ void PPPThread(THREAD *thread, void *param)
 	bool ret = false;
 	char ipstr1[128], ipstr2[128];
 	bool authReqSent = false;
-	UINT64 now = Tick64();
 
 	// Validate arguments
 	if (thread == NULL || param == NULL)
@@ -77,6 +76,7 @@ void PPPThread(THREAD *thread, void *param)
 		bool receivedPacketProcessed = false;
 		TUBE *tubes[2];
 		UINT r;
+		UINT64 now = Tick64();
 
 		PPPGetNextPacket(p);
 
