@@ -2320,7 +2320,7 @@ void SiSetDefaultHubOption(HUB_OPTION *o)
 	o->DefaultSubnet = SetIP32(255, 255, 255, 0);
 	o->MaxSession = 0;
 	o->VlanTypeId = MAC_PROTO_TAGVLAN;
-	o->NoIPv6DefaultRouterInRAWhenIPv6 = true;
+	o->NoIPv6DefaultRouterInRAWhenIPv6 = false;
 	o->ManageOnlyPrivateIP = true;
 	o->ManageOnlyLocalUnicastIPv6 = true;
 	o->NoMacAddressLog = true;
