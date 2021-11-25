@@ -5670,7 +5670,7 @@ int SslCertVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 			StrCpy(clientcert->PreverifyErrMessage, PREVERIFY_ERR_MESSAGE_SIZE, (char *)msg);
 			Debug("SslCertVerifyCallback preverify error: '%s'\n", msg);
 		}
-		else
+		else if (X509_STORE_CTX_get_error_depth(ctx) == 0)
 		{
 			cert = X509_STORE_CTX_get0_cert(ctx);
 			if (cert != NULL)
@@ -5736,6 +5736,13 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 		if (verify_peer)
 		{
 			SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, SslCertVerifyCallback);
+
+			if (server_mode)
+			{
+				// Allow incomplete client trust chain
+				X509_VERIFY_PARAM *vpm = SSL_CTX_get0_param(ssl_ctx);
+				X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_PARTIAL_CHAIN);
+			}
 		}
 
 		if (dh != NULL)
@@ -11541,16 +11548,7 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 
 	if (x_copy != NULL)
 	{
-		if (x_copy->root_cert)
-		{
-			X509_STORE *store = SSL_CTX_get_cert_store(ctx);
-			X509_STORE_add_cert(store, x_copy->x509);
-			X509_free(x_copy->x509);
-		}
-		else
-		{
-			SSL_CTX_add_extra_chain_cert(ctx, x_copy->x509);
-		}
+		SSL_CTX_add_extra_chain_cert(ctx, x_copy->x509);
 		x_copy->do_not_free = true;
 
 		ret = true;
