@@ -9455,7 +9455,7 @@ UINT StSetServerCert(ADMIN *a, RPC_KEY_PAIR *t)
 		}
 	}
 
-	SetCedarCert(c, t->Cert, t->Key);
+	SetCedarCertAndChain(c, t->Cert, t->Key, t->Chain);
 
 	ALog(a, NULL, "LA_SET_SERVER_CERT");
 
@@ -14555,6 +14555,7 @@ void InRpcKeyPair(RPC_KEY_PAIR *t, PACK *p)
 	}
 
 	t->Cert = PackGetX(p, "Cert");
+	t->Chain = PackGetXList(p, "Chain");
 	t->Key = PackGetK(p, "Key");
 	t->Flag1 = PackGetInt(p, "Flag1");
 }
@@ -14567,12 +14568,14 @@ void OutRpcKeyPair(PACK *p, RPC_KEY_PAIR *t)
 	}
 
 	PackAddX(p, "Cert", t->Cert);
+	PackAddXList(p, "Chain", t->Chain);
 	PackAddK(p, "Key", t->Key);
 	PackAddInt(p, "Flag1", t->Flag1);
 }
 void FreeRpcKeyPair(RPC_KEY_PAIR *t)
 {
 	FreeX(t->Cert);
+	FreeXList(t->Chain);
 	FreeK(t->Key);
 }
 

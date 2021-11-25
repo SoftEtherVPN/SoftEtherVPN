@@ -8454,6 +8454,11 @@ bool CmLoadKExW(HWND hWnd, K **k, wchar_t *filename, UINT size)
 // Read a set of certificate and private key
 bool CmLoadXAndK(HWND hWnd, X **x, K **k)
 {
+	return CmLoadXListAndK(hWnd, x, k, NULL);
+}
+// Read a set of certificate and private key and trust chain
+bool CmLoadXListAndK(HWND hWnd, X **x, K **k, LIST **cc)
+{
 	wchar_t *s;
 	bool is_p12;
 	wchar_t tmp[MAX_SIZE];
@@ -8500,7 +8505,7 @@ START_FIRST:
 		}
 		if (IsEncryptedP12(p12) == false)
 		{
-			if (ParseP12(p12, x, k, NULL) == false)
+			if (ParseP12Ex(p12, x, k, cc, NULL) == false)
 			{
 				MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_BAD_P12_W"), tmp);
 				FreeP12(p12);
@@ -8519,7 +8524,7 @@ START_FIRST:
 			}
 			else
 			{
-				if (ParseP12(p12, x, k, password) == false)
+				if (ParseP12Ex(p12, x, k, cc, password) == false)
 				{
 					MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_BAD_P12_W"), tmp);
 					FreeP12(p12);
@@ -8532,6 +8537,10 @@ START_FIRST:
 		{
 			FreeX(*x);
 			FreeK(*k);
+			if (cc != NULL)
+			{
+				FreeXList(*cc);
+			}
 			FreeP12(p12);
 			FreeBuf(b);
 			if (MsgBox(hWnd, MB_ICONEXCLAMATION | MB_RETRYCANCEL, _UU("DLG_BAD_SIGNATURE")) == IDRETRY)
@@ -8539,6 +8548,11 @@ START_FIRST:
 				goto START_FIRST;
 			}
 			return false;
+		}
+		if (cc != NULL && LIST_NUM(*cc) == 0)
+		{
+			ReleaseList(*cc);
+			*cc = NULL;
 		}
 		FreeP12(p12);
 		FreeBuf(b);
@@ -8548,19 +8562,40 @@ START_FIRST:
 	{
 		// Processing of X509
 		BUF *b = ReadDumpW(tmp);
-		X *x509;
+		X *x509 = NULL;
 		K *key;
+		LIST *chain = NULL;
 		if (b == NULL)
 		{
 			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_OPEN_FILE_ERROR_W"), tmp);
 			return false;
 		}
 
-		x509 = BufToX(b, IsBase64(b));
+		// DER-encoded X509 files can't hold multiple certificates
+		if (cc == NULL || IsBase64(b) == false)
+		{
+			x509 = BufToX(b, IsBase64(b));
+		}
+		else
+		{
+			chain = BufToXList(b, true);
+			if (LIST_NUM(chain) > 0)
+			{
+				x509 = LIST_DATA(chain, 0);
+				Delete(chain, x509);
+
+				if (LIST_NUM(chain) == 0)
+				{
+					ReleaseList(chain);
+					chain = NULL;
+				}
+			}
+		}
 		FreeBuf(b);
 		if (x509 == NULL)
 		{
 			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_BAD_X509_W"), tmp);
+			FreeXList(chain);
 			return false;
 		}
 
@@ -8569,6 +8604,7 @@ START_FIRST:
 		if (s == NULL)
 		{
 			FreeX(x509);
+			FreeXList(chain);
 			return false;
 		}
 		UniStrCpy(tmp, sizeof(tmp), s);
@@ -8579,6 +8615,7 @@ START_FIRST:
 		{
 			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_OPEN_FILE_ERROR_W"), tmp);
 			FreeX(x509);
+			FreeXList(chain);
 			return false;
 		}
 
@@ -8593,6 +8630,7 @@ START_FIRST:
 			{
 				FreeBuf(b);
 				FreeX(x509);
+				FreeXList(chain);
 				return false;
 			}
 			key = BufToK(b, true, IsBase64(b), pass);
@@ -8602,6 +8640,7 @@ START_FIRST:
 		{
 			FreeBuf(b);
 			FreeX(x509);
+			FreeXList(chain);
 			MsgBoxEx(hWnd, MB_ICONSTOP, _UU("DLG_BAD_KEY_W"), tmp);
 			return false;
 		}
@@ -8611,6 +8650,7 @@ START_FIRST:
 			FreeBuf(b);
 			FreeX(x509);
 			FreeK(key);
+			FreeXList(chain);
 			if (MsgBox(hWnd, MB_ICONEXCLAMATION | MB_RETRYCANCEL, _UU("DLG_BAD_SIGNATURE")) == IDRETRY)
 			{
 				goto START_FIRST;
@@ -8621,6 +8661,10 @@ START_FIRST:
 		FreeBuf(b);
 		*x = x509;
 		*k = key;
+		if (cc != NULL)
+		{
+			*cc = chain;
+		}
 		return true;
 	}
 }

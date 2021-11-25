@@ -3605,7 +3605,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSi
 		if (p->Eap_TlsCtx.SslPipe == NULL)
 		{
 			p->Eap_TlsCtx.Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
-			p->Eap_TlsCtx.SslPipe = NewSslPipeEx(true, p->Cedar->ServerX, p->Cedar->ServerK, p->Eap_TlsCtx.Dh, true, &(p->Eap_TlsCtx.ClientCert));
+			p->Eap_TlsCtx.SslPipe = NewSslPipeEx2(true, p->Cedar->ServerX, p->Cedar->ServerK, p->Cedar->ServerChain, p->Eap_TlsCtx.Dh, true, &(p->Eap_TlsCtx.ClientCert));
 		}
 
 		// If the current frame is fragmented, or it is a possible last of a fragmented series, bufferize it

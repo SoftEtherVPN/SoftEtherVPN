@@ -1157,6 +1157,10 @@ void CleanupCedar(CEDAR *c)
 	{
 		FreeK(c->ServerK);
 	}
+	if (c->ServerChain)
+	{
+		FreeXList(c->ServerChain);
+	}
 
 	if (c->CipherList)
 	{
@@ -1387,6 +1391,10 @@ void FreeNetSvcList(CEDAR *cedar)
 // Change certificate of Cedar
 void SetCedarCert(CEDAR *c, X *server_x, K *server_k)
 {
+	SetCedarCertAndChain(c, server_x, server_k, NULL);
+}
+void SetCedarCertAndChain(CEDAR *c, X *server_x, K *server_k, LIST *server_chain)
+{
 	// Validate arguments
 	if (server_x == NULL || server_k == NULL)
 	{
@@ -1405,8 +1413,14 @@ void SetCedarCert(CEDAR *c, X *server_x, K *server_k)
 			FreeK(c->ServerK);
 		}
 
+		if (c->ServerChain != NULL)
+		{
+			FreeXList(c->ServerChain);
+		}
+
 		c->ServerX = CloneX(server_x);
 		c->ServerK = CloneK(server_k);
+		c->ServerChain = CloneXList(server_chain);
 	}
 	Unlock(c->lock);
 }
