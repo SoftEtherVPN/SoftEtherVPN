@@ -1164,6 +1164,7 @@ SOCKLIST *NewSockList();
 void StopSockList(SOCKLIST *sl);
 void FreeSockList(SOCKLIST *sl);
 bool IsIPv6Supported();
+bool HasIPv6Address();
 void SetSockTos(SOCK *s, int tos);
 void SetSockHighPriority(SOCK *s, bool flag);
 void InitIpClientList();
