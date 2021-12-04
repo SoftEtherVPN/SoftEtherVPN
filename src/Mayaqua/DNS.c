@@ -405,8 +405,15 @@ void DnsResolver(THREAD *t, void *param)
 	struct addrinfo hints;
 	Zero(&hints, sizeof(hints));
 
-	hints.ai_family = AF_INET6;
-	hints.ai_flags = AI_ALL | AI_ADDRCONFIG | AI_V4MAPPED;
+	if (HasIPv6Address())
+	{
+		hints.ai_family = AF_INET6;
+		hints.ai_flags = AI_ALL | AI_ADDRCONFIG | AI_V4MAPPED;
+	}
+	else
+	{
+		hints.ai_family = AF_INET;
+	}
 
 	struct addrinfo *results;
 	const int ret = getaddrinfo(resolver->Hostname, NULL, &hints, &results);
@@ -417,18 +424,40 @@ void DnsResolver(THREAD *t, void *param)
 		for (struct addrinfo *result = results; result != NULL; result = result->ai_next)
 		{
 			IP ip;
-			const struct sockaddr_in6 *in = (struct sockaddr_in6 *)result->ai_addr;
-			InAddrToIP6(&ip, &in->sin6_addr);
-			if (IsIP6(&ip) && ipv6_ok == false)
+			if (hints.ai_family == AF_INET6)
 			{
-				Copy(&resolver->IPv6, &ip, sizeof(resolver->IPv6));
-				resolver->IPv6.ipv6_scope_id = in->sin6_scope_id;
-				ipv6_ok = true;
+				const struct sockaddr_in6 *in = (struct sockaddr_in6 *)result->ai_addr;
+				InAddrToIP6(&ip, &in->sin6_addr);
+				if (IsIP6(&ip) && ipv6_ok == false)
+				{
+					Copy(&resolver->IPv6, &ip, sizeof(resolver->IPv6));
+					resolver->IPv6.ipv6_scope_id = in->sin6_scope_id;
+					ipv6_ok = true;
+					if (ipv4_ok)
+					{
+						break;
+					}
+				}
+				else if (IsIP4(&ip) && ipv4_ok == false)
+				{
+					Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
+					ipv4_ok = true;
+					if (ipv6_ok)
+					{
+						break;
+					}
+				}
 			}
-			else if (IsIP4(&ip) && ipv4_ok == false)
+			else
 			{
-				Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
-				ipv4_ok = true;
+				const struct sockaddr_in *in = (struct sockaddr_in *)result->ai_addr;
+				InAddrToIP(&ip, &in->sin_addr);
+				if (IsIP4(&ip))
+				{
+					Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
+					ipv4_ok = true;
+					break;
+				}
 			}
 		}
 

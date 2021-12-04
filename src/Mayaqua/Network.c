@@ -9871,6 +9871,38 @@ bool IsIPv6Supported()
 #endif	// NO_IPV6
 }
 
+// Check whether an IPv6 address is configured on any interface
+bool HasIPv6Address()
+{
+	LIST *o;
+	UINT i;
+	bool ret = false;
+
+	o = GetHostIPAddressList();
+
+	ret = false;
+
+	for (i = 0; i < LIST_NUM(o); i++)
+	{
+		IP *p = LIST_DATA(o, i);
+
+		if (IsIP6(p))
+		{
+			UINT type = GetIPAddrType6(p);
+			if ((type & IPV6_ADDR_GLOBAL_UNICAST) && ((type & IPV6_ADDR_ZERO) == 0) && ((type & IPV6_ADDR_LOOPBACK) == 0))
+			{
+				ret = true;
+				break;
+			}
+
+		}
+	}
+
+	FreeHostIPAddressList(o);
+
+	return ret;
+}
+
 // Add the thread to the thread waiting list
 void AddWaitThread(THREAD *t)
 {
