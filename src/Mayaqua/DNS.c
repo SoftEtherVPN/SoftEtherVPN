@@ -413,7 +413,6 @@ void DnsResolver(THREAD *t, void *param)
 	else
 	{
 		hints.ai_family = AF_INET;
-		hints.ai_flags = AI_ADDRCONFIG;
 	}
 
 	struct addrinfo *results;
@@ -434,21 +433,30 @@ void DnsResolver(THREAD *t, void *param)
 					Copy(&resolver->IPv6, &ip, sizeof(resolver->IPv6));
 					resolver->IPv6.ipv6_scope_id = in->sin6_scope_id;
 					ipv6_ok = true;
+					if (ipv4_ok)
+					{
+						break;
+					}
 				}
 				else if (IsIP4(&ip) && ipv4_ok == false)
 				{
 					Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
 					ipv4_ok = true;
+					if (ipv6_ok)
+					{
+						break;
+					}
 				}
 			}
 			else
 			{
 				const struct sockaddr_in *in = (struct sockaddr_in *)result->ai_addr;
 				InAddrToIP(&ip, &in->sin_addr);
-				if (IsIP4(&ip) && ipv4_ok == false)
+				if (IsIP4(&ip))
 				{
 					Copy(&resolver->IPv4, &ip, sizeof(resolver->IPv4));
 					ipv4_ok = true;
+					break;
 				}
 			}
 		}

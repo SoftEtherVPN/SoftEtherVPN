@@ -9892,7 +9892,9 @@ bool HasIPv6Address()
 			if ((type & IPV6_ADDR_GLOBAL_UNICAST) && ((type & IPV6_ADDR_ZERO) == 0) && ((type & IPV6_ADDR_LOOPBACK) == 0))
 			{
 				ret = true;
+				break;
 			}
+
 		}
 	}
 
