@@ -17049,14 +17049,32 @@ bool IsMyIPAddress(IP *ip)
 // Add the IP address to the list
 void AddHostIPAddressToList(LIST *o, IP *ip)
 {
-	IP *r;
+	IP *r = NULL;
 	// Validate arguments
 	if (o == NULL || ip == NULL)
 	{
 		return;
 	}
 
-	r = Search(o, ip);
+	if (o->cmp != NULL)
+	{
+		r = Search(o, ip);
+	}
+	else
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(o); i++)
+		{
+			IP *a = LIST_DATA(o, i);
+
+			if (CmpIpAddr(ip, a) == 0)
+			{
+				r = ip;
+				break;
+			}
+		}
+	}
+
 	if (r != NULL)
 	{
 		return;
@@ -17219,7 +17237,7 @@ LIST *CloneIPAddressList(LIST *o)
 		return NULL;
 	}
 
-	ret = NewListFast(CmpIpAddressList);
+	ret = NewListFast(o->cmp);
 
 	for (i = 0; i < LIST_NUM(o); i++)
 	{
