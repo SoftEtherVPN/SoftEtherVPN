@@ -795,6 +795,33 @@ struct RUDP_STACK
 	USHORT Client_IcmpId, Client_IcmpSeqNo;	// Sequence number and ICMP ID that is randomly generated on the client side
 };
 
+// Data for the thread for serial connection attempts to a list of addresses
+struct CONNECT_SERIAL_PARAM
+{
+	LIST *IpList;
+	UINT Port;
+	UINT Timeout;
+	char Hostname[MAX_SIZE];
+	char Hostname_Original[MAX_SIZE];
+	char HintStr[MAX_SIZE];
+	bool No_Get_Hostname;
+	bool *CancelFlag;
+	bool *NoDelayFlag;
+	UINT *NatT_ErrorCode;
+	char NatT_SvcName[MAX_SIZE];
+	SOCK *Sock;
+	bool Finished;
+	bool Ok;
+	UINT64 FinishedTick;
+	EVENT *FinishEvent;
+	UINT Delay;
+	UINT RetryDelay;
+	bool Tcp_TryStartSsl;
+	bool Use_NatT;
+	bool Force_NatT;
+	IP *Ret_Ip;
+};
+
 // Data for the thread for concurrent connection attempts for the R-UDP and TCP
 struct CONNECT_TCP_RUDP_PARAM
 {
@@ -895,6 +922,9 @@ bool DetectIsServerSoftEtherVPN(SOCK *s);
 void ConnectThreadForTcp(THREAD *thread, void *param);
 void ConnectThreadForRUDP(THREAD *thread, void *param);
 void ConnectThreadForOverDnsOrIcmp(THREAD *thread, void *param);
+void ConnectThreadForIPv4(THREAD *thread, void *param);
+void ConnectThreadForIPv6(THREAD *thread, void *param);
+SOCK *CreateTCPSock(SOCKET s, bool is_ipv6, IP *current_ip, bool no_get_hostname, char *hostname_original);
 SOCK *NewRUDPClientNatT(char *svc_name, IP *ip, UINT *error_code, UINT timeout, bool *cancel, char *hint_str, char *target_hostname);
 RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
 SOCK *NewRUDPClientDirect(char *svc_name, IP *ip, UINT port, UINT *error_code, UINT timeout, bool *cancel, SOCK *sock, SOCK_EVENT *sock_event, UINT local_port, bool over_dns_mode);
