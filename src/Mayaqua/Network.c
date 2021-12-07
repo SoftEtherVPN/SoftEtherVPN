@@ -5212,13 +5212,23 @@ RUDP_STACK *NewRUDP(bool server_mode, char *svc_name, RUDP_STACK_INTERRUPTS_PROC
 		}
 		else
 		{
-			if (rand_port_id == 0)
+			IP ip;
+			if (IsZeroIP(listen_ip) && IsIP6(listen_ip))
 			{
-				sock = NewUDPEx2(port, false, listen_ip);
+				ZeroIP4(&ip);
 			}
 			else
 			{
-				sock = NewUDPEx2RandMachineAndExePath(false, listen_ip, 0, rand_port_id);
+				CopyIP(&ip, listen_ip);
+			}
+
+			if (rand_port_id == 0)
+			{
+				sock = NewUDPEx2(port, false, &ip);
+			}
+			else
+			{
+				sock = NewUDPEx2RandMachineAndExePath(false, &ip, 0, rand_port_id);
 			}
 		}
 
