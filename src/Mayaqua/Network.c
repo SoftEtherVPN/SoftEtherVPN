@@ -14861,7 +14861,7 @@ SOCK *NewSock()
 UINT IPToUINT(IP *ip)
 {
 	// Validate arguments
-	if (ip == NULL)
+	if (ip == NULL || IsIP6(ip))
 	{
 		return 0;
 	}

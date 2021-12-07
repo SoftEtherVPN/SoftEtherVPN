@@ -18969,7 +18969,7 @@ UINT PsSessionGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		char str[MAX_SIZE];
 		CT *ct = CtNewStandard();
 
-		if (t.ClientIp != 0)
+		if (t.ClientIp != 0 || IsZero(t.ClientIp6, sizeof(t.ClientIp6)) == false)
 		{
 			IPToStr4or6(str, sizeof(str), t.ClientIp, t.ClientIp6);
 			StrToUni(tmp, sizeof(tmp), str);
