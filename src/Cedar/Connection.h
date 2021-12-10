@@ -64,6 +64,7 @@ struct CLIENT_OPTION
 {
 	wchar_t AccountName[MAX_ACCOUNT_NAME_LEN + 1];			// Connection setting name
 	char Hostname[MAX_HOST_NAME_LEN + 1];					// Host name
+	char HintStr[MAX_HOST_NAME_LEN + 1];					// Hint string for NAT-T
 	UINT Port;												// Port number
 	UINT PortUDP;											// UDP port number (0: Use only TCP)
 	UINT ProxyType;											// Type of proxy

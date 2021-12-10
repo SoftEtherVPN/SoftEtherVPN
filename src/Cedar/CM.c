@@ -6649,6 +6649,7 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	// Host name
 	GetTxtA(hWnd, E_HOSTNAME, a->ClientOption->Hostname, sizeof(a->ClientOption->Hostname));
 	Trim(a->ClientOption->Hostname);
+	a->ClientOption->HintStr[0] = 0;
 
 	if (InStr(a->ClientOption->Hostname, "/tcp"))
 	{
@@ -7091,10 +7092,17 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 	SetText(hWnd, E_ACCOUNT_NAME, a->ClientOption->AccountName);
 
 	// Host name
-	SetTextA(hWnd, E_HOSTNAME, a->ClientOption->Hostname);
-	StrCpy(a->old_server_name, sizeof(a->old_server_name), a->ClientOption->Hostname);
+	char hostname[MAX_SIZE];
+	StrCpy(hostname, sizeof(hostname), a->ClientOption->Hostname);
+	if (IsEmptyStr(a->ClientOption->HintStr) == false)
+	{
+		StrCat(hostname, sizeof(hostname), "/");
+		StrCat(hostname, sizeof(hostname), a->ClientOption->HintStr);
+	}
+	SetTextA(hWnd, E_HOSTNAME, hostname);
+	StrCpy(a->old_server_name, sizeof(a->old_server_name), hostname);
 
-	if (InStr(a->ClientOption->Hostname, "/tcp"))
+	if (InStr(hostname, "/tcp"))
 	{
 		Check(hWnd, R_DISABLE_NATT, true);
 	}

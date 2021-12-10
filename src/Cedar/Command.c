@@ -2071,7 +2071,7 @@ void TtcThread(THREAD *thread, void *param)
 			IPToStr(target_host, sizeof(target_host), &ip_ret);
 		}
 
-		s = ConnectEx4(target_host, ttc->Port, 0, ttc->Cancel, NULL, NULL, false, true, &ip_ret);
+		s = ConnectEx4(target_host, ttc->Port, 0, ttc->Cancel, NULL, NULL, false, true, NULL, &ip_ret);
 
 		if (s == NULL)
 		{
@@ -4333,6 +4333,7 @@ UINT PcAccountSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		// Success
 		t.ClientOption->Port = port;
 		StrCpy(t.ClientOption->Hostname, sizeof(t.ClientOption->Hostname), host);
+		t.ClientOption->HintStr[0] = 0;
 		StrCpy(t.ClientOption->HubName, sizeof(t.ClientOption->HubName), GetParamStr(o, "HUB"));
 
 		Zero(&c, sizeof(c));
@@ -4400,7 +4401,18 @@ UINT PcAccountGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_NAME"), t.ClientOption->AccountName);
 
 		// Host name of the destination VPN Server
-		StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		if (IsEmptyStr(t.ClientOption->HintStr))
+		{
+			StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		}
+		else
+		{
+			char hostname[MAX_SIZE];
+			StrCpy(hostname, sizeof(hostname), t.ClientOption->Hostname);
+			StrCat(hostname, sizeof(hostname), "/");
+			StrCat(hostname, sizeof(hostname), t.ClientOption->HintStr);
+			StrToUni(tmp, sizeof(tmp), hostname);
+		}
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_HOSTNAME"), tmp);
 
 		// The port number to connect to VPN Server
@@ -13117,6 +13129,7 @@ UINT PsCascadeSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	t.ClientOption->Port = port;
 	StrCpy(t.ClientOption->Hostname, sizeof(t.ClientOption->Hostname), host);
+	t.ClientOption->HintStr[0] = 0;
 	StrCpy(t.ClientOption->HubName, sizeof(t.ClientOption->HubName), GetParamStr(o, "HUB"));
 
 	Free(host);
@@ -13223,7 +13236,18 @@ UINT PsCascadeGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_NAME"), t.ClientOption->AccountName);
 
 		// Host name of the destination VPN Server
-		StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		if (IsEmptyStr(t.ClientOption->HintStr))
+		{
+			StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		}
+		else
+		{
+			char hostname[MAX_SIZE];
+			StrCpy(hostname, sizeof(hostname), t.ClientOption->Hostname);
+			StrCat(hostname, sizeof(hostname), "/");
+			StrCat(hostname, sizeof(hostname), t.ClientOption->HintStr);
+			StrToUni(tmp, sizeof(tmp), hostname);
+		}
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_HOSTNAME"), tmp);
 
 		// The port number to connect to VPN Server

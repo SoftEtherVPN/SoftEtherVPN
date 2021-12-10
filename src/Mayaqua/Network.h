@@ -802,7 +802,6 @@ struct CONNECT_SERIAL_PARAM
 	UINT Port;
 	UINT Timeout;
 	char Hostname[MAX_SIZE];
-	char Hostname_Original[MAX_SIZE];
 	char HintStr[MAX_SIZE];
 	bool No_Get_Hostname;
 	bool *CancelFlag;
@@ -1084,7 +1083,7 @@ SOCK *Connect(char *hostname, UINT port);
 SOCK *ConnectEx(char *hostname, UINT port, UINT timeout);
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag);
 SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname);
-SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, char *hint_str, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size);
 UINT SetSocketBufferSizeWithBestEffort(SOCKET s, bool send, UINT size);

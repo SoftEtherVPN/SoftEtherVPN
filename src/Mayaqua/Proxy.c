@@ -12,11 +12,11 @@ SOCK *Internal_ProxyTcpConnect(PROXY_PARAM_IN *param, volatile bool *cancel_flag
 #ifdef OS_WIN32
 	if (param->Hwnd != NULL)
 	{
-		return WinConnectEx3((HWND)param->Hwnd, param->Hostname, param->Port, param->Timeout, 0, NULL, NULL, NULL, NULL, false);
+		return WinConnectEx3((HWND)param->Hwnd, param->Hostname, param->Port, param->Timeout, 0, NULL, NULL, NULL, NULL, false, NULL);
 	}
 #endif
 
-	return ConnectEx4(param->Hostname, param->Port, param->Timeout, (bool *)cancel_flag, NULL, NULL, false, true, resolved_ip);
+	return ConnectEx4(param->Hostname, param->Port, param->Timeout, (bool *)cancel_flag, NULL, NULL, false, true, NULL, resolved_ip);
 }
 
 // Connect to an HTTP proxy
