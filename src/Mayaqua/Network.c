@@ -44,7 +44,7 @@
 #ifdef UNIX
 #ifdef UNIX_SOLARIS
 #define USE_STATVFS
-#include <sys/statvfs.h>'
+#include <sys/statvfs.h>
 #else
 #define MAYAQUA_SUPPORTS_GETIFADDRS
 #include <ifaddrs.h>
@@ -13880,163 +13880,73 @@ void ConnectThreadForRUDP(THREAD *thread, void *param)
 	Set(p->FinishEvent);
 }
 
-// TCP connection
-SOCK *Connect(char *hostname, UINT port)
+// IPv4 connection thread (multiple protocols, multiple addresses)
+void ConnectThreadForIPv4(THREAD *thread, void *param)
 {
-	return ConnectEx(hostname, port, 0);
-}
-SOCK *ConnectEx(char *hostname, UINT port, UINT timeout)
-{
-	return ConnectEx2(hostname, port, timeout, NULL);
-}
-SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag)
-{
-	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, true);
-}
-SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname)
-{
-	return ConnectEx4(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL);
-}
-SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
-{
-	SOCK *sock;
-	SOCKET s;
-	struct linger ling;
-	IP ip4;
-	IP ip6;
-	char tmp[MAX_SIZE];
+	SOCKET s = INVALID_SOCKET;
 	IP current_ip;
-	bool is_ipv6 = false;
-	bool dummy = false;
-	bool use_natt = false;
-	char hostname_original[MAX_SIZE];
-	char hint_str[MAX_SIZE];
-	bool force_use_natt = false;
-	UINT dummy_int = 0;
-	IP dummy_ret_ip;
-	// Validate arguments
-	if (hostname == NULL || port == 0 || port >= 65536 || IsEmptyStr(hostname))
+	UINT i;
+	CONNECT_SERIAL_PARAM *p = (CONNECT_SERIAL_PARAM *)param;
+	if (thread == NULL || p == NULL)
 	{
-		return NULL;
-	}
-	if (timeout == 0)
-	{
-		timeout = TIMEOUT_TCP_PORT_CHECK;
-	}
-	if (cancel_flag == NULL)
-	{
-		cancel_flag = &dummy;
-	}
-	if (nat_t_error_code == NULL)
-	{
-		nat_t_error_code = &dummy_int;
+		return;
 	}
 
-	Zero(&dummy_ret_ip, sizeof(IP));
-	if (ret_ip == NULL)
+	// Delay before start
+	if (p->Delay >= 1)
 	{
-		ret_ip = &dummy_ret_ip;
-	}
-
-	Zero(hint_str, sizeof(hint_str));
-	StrCpy(hostname_original, sizeof(hostname_original), hostname);
-
-	use_natt = (IsEmptyStr(nat_t_svc_name) ? false : true);
-
-	if (use_natt)
-	{
-		// In case of using NAT-T, split host name if the '/' is included in the host name
-		UINT i = SearchStrEx(hostname, "/", 0, false);
-
-		if (i == INFINITE)
-		{
-			// Not included
-			StrCpy(hostname_original, sizeof(hostname_original), hostname);
-		}
-		else
-		{
-			// Included
-			StrCpy(hostname_original, sizeof(hostname_original), hostname);
-			hostname_original[i] = 0;
-
-			// Force to use the NAT-T
-			force_use_natt = true;
-
-			// Copy the hint string
-			StrCpy(hint_str, sizeof(hint_str), hostname + i + 1);
-
-			if (StrCmpi(hint_str, "tcp") == 0 || StrCmpi(hint_str, "disable") == 0
-			        || StrCmpi(hint_str, "disabled") == 0
-			        || StrCmpi(hint_str, "no") == 0 || StrCmpi(hint_str, "none") == 0)
-			{
-				// Force not to use the NAT-T
-				force_use_natt = false;
-				use_natt = false;
-			}
-		}
-	}
-	else
-	{
-		StrCpy(hostname_original, sizeof(hostname_original), hostname);
+		WaitEx(NULL, p->Delay, p->NoDelayFlag);
 	}
 
 	Zero(&current_ip, sizeof(current_ip));
 
-	Zero(&ip4, sizeof(ip4));
-	Zero(&ip6, sizeof(ip6));
-
-	if (IsZeroIp(ret_ip) == false)
+	for (i = 0; i < LIST_NUM(p->IpList); ++i)
 	{
-		// Skip name resolution
-		if (IsIP6(ret_ip))
+		IP *ip = LIST_DATA(p->IpList, i);
+
+		if (IsZeroIp(ip))
 		{
-			Copy(&ip6, ret_ip, sizeof(IP));
-		}
-		else
-		{
-			Copy(&ip4, ret_ip, sizeof(IP));
+			continue;
 		}
 
-		//Debug("Using cached IP address: %s = %r\n", hostname_original, ret_ip);
-	}
-	else
-	{
-		// Forward resolution
-		if (DnsResolve(&ip6, &ip4, hostname_original, 0, cancel_flag) == false)
+		// Delay before retry
+		if (i > 0 && p->RetryDelay >= 1)
 		{
-			return NULL;
+			WaitEx(NULL, p->RetryDelay, p->CancelFlag);
 		}
-	}
 
-	if (IsZeroIp(&ip4) == false && IsIPLocalHostOrMySelf(&ip4))
-	{
-		// NAT-T isn't used in the case of connection to localhost
-		force_use_natt = false;
-		use_natt = false;
-	}
+		if (*p->CancelFlag)
+		{
+			// Cancel by the user
+			break;
+		}
 
-	s = INVALID_SOCKET;
+		bool use_natt = p->Use_NatT;
+		bool force_use_natt = p->Force_NatT;
 
-	// Attempt to connect with IPv4
-	if (IsZeroIp(&ip4) == false)
-	{
+		if (IsIPLocalHostOrMySelf(ip))
+		{
+			// NAT-T isn't used in the case of connection to localhost
+			force_use_natt = false;
+			use_natt = false;
+		}
+
 		if (use_natt == false)
 		{
 			// Normal connection without using NAT-T
-			s = ConnectTimeoutIPv4(&ip4, port, timeout, cancel_flag);
+			s = ConnectTimeoutIPv4(ip, p->Port, p->Timeout, p->CancelFlag);
 
 			if (s != INVALID_SOCKET)
 			{
-				Copy(&current_ip, &ip4, sizeof(IP));
+				Copy(&current_ip, ip, sizeof(IP));
 
-				Copy(ret_ip, &ip4, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 			}
 		}
 		else if (force_use_natt)
 		{
 			// The connection by forcing the use of NAT-T (not to connection with normal TCP)
-			SOCK *nat_t_sock = NewRUDPClientNatT(nat_t_svc_name, &ip4, nat_t_error_code, timeout, cancel_flag,
-			                                     hint_str, hostname);
+			SOCK *nat_t_sock = NewRUDPClientNatT(p->NatT_SvcName, ip, p->NatT_ErrorCode, p->Timeout, p->CancelFlag,	p->HintStr, p->Hostname);
 
 			if (nat_t_sock != NULL)
 			{
@@ -14044,9 +13954,10 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				AddProtocolDetailsStr(nat_t_sock->ProtocolDetails, sizeof(nat_t_sock->ProtocolDetails), "RUDP");
 			}
 
-			Copy(ret_ip, &ip4, sizeof(IP));
+			Copy(p->Ret_Ip, ip, sizeof(IP));
 
-			return nat_t_sock;
+			p->Sock = nat_t_sock;
+			break;
 		}
 		else
 		{
@@ -14068,47 +13979,47 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			Zero(&p4, sizeof(p4));
 
 			// p1: TCP
-			StrCpy(p1.Hostname, sizeof(p1.Hostname), hostname_original);
-			Copy(&p1.Ip, &ip4, sizeof(IP));
-			p1.Port = port;
-			p1.Timeout = timeout;
+			StrCpy(p1.Hostname, sizeof(p1.Hostname), p->Hostname_Original);
+			Copy(&p1.Ip, ip, sizeof(IP));
+			p1.Port = p->Port;
+			p1.Timeout = p->Timeout;
 			p1.CancelFlag = &cancel_flag2;
 			p1.FinishEvent = finish_event;
-			p1.Tcp_TryStartSsl = try_start_ssl;
+			p1.Tcp_TryStartSsl = p->Tcp_TryStartSsl;
 			p1.CancelLock = NewLock();
 
 			// p2: NAT-T
-			StrCpy(p2.Hostname, sizeof(p2.Hostname), hostname_original);
-			Copy(&p2.Ip, &ip4, sizeof(IP));
-			p2.Port = port;
-			p2.Timeout = timeout;
+			StrCpy(p2.Hostname, sizeof(p2.Hostname), p->Hostname_Original);
+			Copy(&p2.Ip, ip, sizeof(IP));
+			p2.Port = p->Port;
+			p2.Timeout = p->Timeout;
 			p2.CancelFlag = &cancel_flag2;
 			p2.FinishEvent = finish_event;
 
-			StrCpy(p2.HintStr, sizeof(p2.HintStr), hint_str);
-			StrCpy(p2.TargetHostname, sizeof(p2.TargetHostname), hostname);
-			StrCpy(p2.SvcName, sizeof(p2.SvcName), nat_t_svc_name);
+			StrCpy(p2.HintStr, sizeof(p2.HintStr), p->HintStr);
+			StrCpy(p2.TargetHostname, sizeof(p2.TargetHostname), p->Hostname);
+			StrCpy(p2.SvcName, sizeof(p2.SvcName), p->NatT_SvcName);
 			p2.Delay = 30;		// Delay by 30ms
 
 			// p3: over ICMP
-			StrCpy(p3.Hostname, sizeof(p3.Hostname), hostname_original);
-			Copy(&p3.Ip, &ip4, sizeof(IP));
-			p3.Port = port;
-			p3.Timeout = timeout;
+			StrCpy(p3.Hostname, sizeof(p3.Hostname), p->Hostname_Original);
+			Copy(&p3.Ip, ip, sizeof(IP));
+			p3.Port = p->Port;
+			p3.Timeout = p->Timeout;
 			p3.CancelFlag = &cancel_flag2;
 			p3.FinishEvent = finish_event;
-			StrCpy(p3.SvcName, sizeof(p3.SvcName), nat_t_svc_name);
+			StrCpy(p3.SvcName, sizeof(p3.SvcName), p->NatT_SvcName);
 			p3.RUdpProtocol = RUDP_PROTOCOL_ICMP;
 			p3.Delay = 200;		// Delay by 200ms
 
 			// p4: over DNS
-			StrCpy(p4.Hostname, sizeof(p4.Hostname), hostname_original);
-			Copy(&p4.Ip, &ip4, sizeof(IP));
-			p4.Port = port;
-			p4.Timeout = timeout;
+			StrCpy(p4.Hostname, sizeof(p4.Hostname), p->Hostname_Original);
+			Copy(&p4.Ip, ip, sizeof(IP));
+			p4.Port = p->Port;
+			p4.Timeout = p->Timeout;
 			p4.CancelFlag = &cancel_flag2;
 			p4.FinishEvent = finish_event;
-			StrCpy(p4.SvcName, sizeof(p4.SvcName), nat_t_svc_name);
+			StrCpy(p4.SvcName, sizeof(p4.SvcName), p->NatT_SvcName);
 			p4.RUdpProtocol = RUDP_PROTOCOL_DNS;
 			p4.Delay = 100;		// Delay by 100ms
 
@@ -14121,7 +14032,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			{
 				UINT64 now = Tick64();
 
-				if (*cancel_flag)
+				if (*p->CancelFlag)
 				{
 					// Cancel by the user
 					break;
@@ -14219,7 +14130,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 
 			DeleteLock(p1.CancelLock);
 
-			if (*cancel_flag)
+			if (*p->CancelFlag)
 			{
 				// Abandon all the results because the user canceled
 				Disconnect(p1.Result_Nat_T_Sock);
@@ -14231,7 +14142,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p4.Result_Nat_T_Sock);
 				ReleaseSock(p4.Result_Nat_T_Sock);
 
-				return NULL;
+				break;
 			}
 
 			if (p1.Ok)
@@ -14247,15 +14158,16 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				Disconnect(p4.Result_Nat_T_Sock);
 				ReleaseSock(p4.Result_Nat_T_Sock);
 
-				if (GetHostName(hostname, sizeof(hostname), &ip4))
+				if (GetHostName(hostname, sizeof(hostname), ip))
 				{
 					Free(p1.Result_Tcp_Sock->RemoteHostname);
 					p1.Result_Tcp_Sock->RemoteHostname = CopyStr(hostname);
 				}
 
-				Copy(ret_ip, &ip4, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 
-				return p1.Result_Tcp_Sock;
+				p->Sock = p1.Result_Tcp_Sock;
+				break;
 			}
 			else if (p2.Ok)
 			{
@@ -14269,9 +14181,10 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				StrCpy(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
 				AddProtocolDetailsStr(p2.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p2.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/UDP");
 
-				Copy(ret_ip, &ip4, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 
-				return p2.Result_Nat_T_Sock;
+				p->Sock = p2.Result_Nat_T_Sock;
+				break;
 			}
 			else if (p4.Ok)
 			{
@@ -14283,9 +14196,10 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				StrCpy(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_DNS);
 				AddProtocolDetailsStr(p4.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p4.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/DNS");
 
-				Copy(ret_ip, &ip4, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 
-				return p4.Result_Nat_T_Sock;
+				p->Sock = p4.Result_Nat_T_Sock;
+				break;
 			}
 			else if (p3.Ok)
 			{
@@ -14293,21 +14207,73 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				StrCpy(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), SOCK_UNDERLAY_ICMP);
 				AddProtocolDetailsStr(p3.Result_Nat_T_Sock->UnderlayProtocol, sizeof(p3.Result_Nat_T_Sock->UnderlayProtocol), "RUDP/ICMP");
 
-				Copy(ret_ip, &ip4, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 
-				return p3.Result_Nat_T_Sock;
+				p->Sock = p3.Result_Nat_T_Sock;
+				break;
 			}
 			else
 			{
 				// Continue the process if all trials failed
-				*nat_t_error_code = p2.NatT_ErrorCode;
+				*p->NatT_ErrorCode = p2.NatT_ErrorCode;
 			}
+		}
+
+		if (s != INVALID_SOCKET)
+		{
+			p->Sock = CreateTCPSock(s, false, &current_ip, p->No_Get_Hostname, p->Hostname_Original);
+			break;
 		}
 	}
 
-	// Attempt to connect with IPv6
-	if (s == INVALID_SOCKET && IsZeroIp(&ip6) == false)
+	p->Ok = (p->Sock == NULL ? false : true);
+	p->FinishedTick = Tick64();
+	p->Finished = true;
+
+	Set(p->FinishEvent);
+}
+
+// IPv6 connection thread (multiple addresses)
+void ConnectThreadForIPv6(THREAD *thread, void *param)
+{
+	SOCKET s = INVALID_SOCKET;
+	IP current_ip;
+	UINT i;
+	CONNECT_SERIAL_PARAM *p = (CONNECT_SERIAL_PARAM *)param;
+	if (thread == NULL || p == NULL)
 	{
+		return;
+	}
+
+	// Delay before start
+	if (p->Delay >= 1)
+	{
+		WaitEx(NULL, p->Delay, p->NoDelayFlag);
+	}
+
+	Zero(&current_ip, sizeof(current_ip));
+
+	for (i = 0; i < LIST_NUM(p->IpList); ++i)
+	{
+		IP *ip = LIST_DATA(p->IpList, i);
+
+		if (IsZeroIp(ip))
+		{
+			continue;
+		}
+
+		// Delay before retry
+		if (i > 0 && p->RetryDelay >= 1)
+		{
+			WaitEx(NULL, p->RetryDelay, p->CancelFlag);
+		}
+
+		if (*p->CancelFlag)
+		{
+			// Cancel by the user
+			break;
+		}
+
 		struct sockaddr_in6 sockaddr6;
 		struct in6_addr addr6;
 
@@ -14315,10 +14281,10 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		Zero(&addr6, sizeof(addr6));
 
 		// Generation of the sockaddr_in6
-		IPToInAddr6(&addr6, &ip6);
-		sockaddr6.sin6_port = htons((USHORT)port);
+		IPToInAddr6(&addr6, ip);
+		sockaddr6.sin6_port = htons((USHORT)p->Port);
 		sockaddr6.sin6_family = AF_INET6;
-		sockaddr6.sin6_scope_id = ip6.ipv6_scope_id;
+		sockaddr6.sin6_scope_id = ip->ipv6_scope_id;
 		Copy(&sockaddr6.sin6_addr, &addr6, sizeof(addr6));
 
 		// Socket creation
@@ -14326,7 +14292,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		if (s != INVALID_SOCKET)
 		{
 			// Connection
-			if (connect_timeout(s, (struct sockaddr *)&sockaddr6, sizeof(struct sockaddr_in6), timeout, cancel_flag) != 0)
+			if (connect_timeout(s, (struct sockaddr *)&sockaddr6, sizeof(struct sockaddr_in6), p->Timeout, p->CancelFlag) != 0)
 			{
 				// Connection failure
 				closesocket(s);
@@ -14334,18 +14300,35 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 			}
 			else
 			{
-				Copy(&current_ip, &ip6, sizeof(IP));
+				Copy(&current_ip, ip, sizeof(IP));
 
-				is_ipv6 = true;
-
-				Copy(ret_ip, &ip6, sizeof(IP));
+				Copy(p->Ret_Ip, ip, sizeof(IP));
 			}
+		}
+
+		if (s != INVALID_SOCKET)
+		{
+			p->Sock = CreateTCPSock(s, true, &current_ip, p->No_Get_Hostname, p->Hostname_Original);
+			break;
 		}
 	}
 
+	p->Ok = (p->Sock == NULL ? false : true);
+	p->FinishedTick = Tick64();
+	p->Finished = true;
+
+	Set(p->FinishEvent);
+}
+
+// Creating a TCP SOCK from a SOCKET
+SOCK *CreateTCPSock(SOCKET s, bool is_ipv6, IP *current_ip, bool no_get_hostname, char *hostname_original)
+{
+	struct linger ling;
+	char tmp[MAX_SIZE];
+	SOCK *sock;
+
 	if (s == INVALID_SOCKET)
 	{
-		// Connection fails on both of IPv4, IPv6
 		return NULL;
 	}
 
@@ -14359,7 +14342,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	AddProtocolDetailsStr(sock->ProtocolDetails, sizeof(sock->ProtocolDetails), is_ipv6 ? "IPv6" : "IPv4");
 
 	// Host name resolution
-	if (no_get_hostname || (GetHostName(tmp, sizeof(tmp), &current_ip) == false))
+	if (no_get_hostname || (GetHostName(tmp, sizeof(tmp), current_ip) == false))
 	{
 		StrCpy(tmp, sizeof(tmp), hostname_original);
 	}
@@ -14407,6 +14390,255 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	sock->IPv6 = is_ipv6;
 
 	return sock;
+}
+
+// TCP connection
+SOCK *Connect(char *hostname, UINT port)
+{
+	return ConnectEx(hostname, port, 0);
+}
+SOCK *ConnectEx(char *hostname, UINT port, UINT timeout)
+{
+	return ConnectEx2(hostname, port, timeout, NULL);
+}
+SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag)
+{
+	return ConnectEx3(hostname, port, timeout, cancel_flag, NULL, NULL, false, true);
+}
+SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname)
+{
+	return ConnectEx4(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL);
+}
+SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
+{
+	bool dummy = false;
+	bool use_natt = false;
+	char hostname_original[MAX_SIZE];
+	char hint_str[MAX_SIZE];
+	bool force_use_natt = false;
+	UINT dummy_int = 0;
+	IP dummy_ret_ip;
+	// Validate arguments
+	if (hostname == NULL || port == 0 || port >= 65536 || IsEmptyStr(hostname))
+	{
+		return NULL;
+	}
+	if (timeout == 0)
+	{
+		timeout = TIMEOUT_TCP_PORT_CHECK;
+	}
+	if (cancel_flag == NULL)
+	{
+		cancel_flag = &dummy;
+	}
+	if (nat_t_error_code == NULL)
+	{
+		nat_t_error_code = &dummy_int;
+	}
+
+	Zero(&dummy_ret_ip, sizeof(IP));
+	if (ret_ip == NULL)
+	{
+		ret_ip = &dummy_ret_ip;
+	}
+
+	Zero(hint_str, sizeof(hint_str));
+	StrCpy(hostname_original, sizeof(hostname_original), hostname);
+
+	use_natt = (IsEmptyStr(nat_t_svc_name) ? false : true);
+
+	if (use_natt)
+	{
+		// In case of using NAT-T, split host name if the '/' is included in the host name
+		UINT i = SearchStrEx(hostname, "/", 0, false);
+
+		if (i == INFINITE)
+		{
+			// Not included
+			StrCpy(hostname_original, sizeof(hostname_original), hostname);
+		}
+		else
+		{
+			// Included
+			StrCpy(hostname_original, sizeof(hostname_original), hostname);
+			hostname_original[i] = 0;
+
+			// Force to use the NAT-T
+			force_use_natt = true;
+
+			// Copy the hint string
+			StrCpy(hint_str, sizeof(hint_str), hostname + i + 1);
+
+			if (StrCmpi(hint_str, "tcp") == 0 || StrCmpi(hint_str, "disable") == 0
+			        || StrCmpi(hint_str, "disabled") == 0
+			        || StrCmpi(hint_str, "no") == 0 || StrCmpi(hint_str, "none") == 0)
+			{
+				// Force not to use the NAT-T
+				force_use_natt = false;
+				use_natt = false;
+			}
+		}
+	}
+	else
+	{
+		StrCpy(hostname_original, sizeof(hostname_original), hostname);
+	}
+
+	LIST *iplist_v6 = NewListFast(NULL);
+	LIST *iplist_v4 = NewListFast(NULL);
+
+	if (IsZeroIp(ret_ip) == false)
+	{
+		// Skip name resolution
+		if (IsIP6(ret_ip))
+		{
+			AddHostIPAddressToList(iplist_v6, ret_ip);
+		}
+		else
+		{
+			AddHostIPAddressToList(iplist_v4, ret_ip);
+		}
+
+		//Debug("Using cached IP address: %s = %r\n", hostname_original, ret_ip);
+	}
+	else
+	{
+		// Forward resolution
+		if (DnsResolveEx(iplist_v6, iplist_v4, hostname_original, 0, cancel_flag) == false)
+		{
+			FreeHostIPAddressList(iplist_v6);
+			FreeHostIPAddressList(iplist_v4);
+			return NULL;
+		}
+	}
+
+	CONNECT_SERIAL_PARAM p4, p6;
+	EVENT *finish_event;
+	THREAD *t4 = NULL;
+	THREAD *t6 = NULL;
+	UINT64 start_tick = Tick64();
+	bool cancel_flag2 = false;
+	bool no_delay_flag = false;
+
+	finish_event = NewEvent();
+
+	Zero(&p4, sizeof(p4));
+	Zero(&p6, sizeof(p6));
+
+	// IPv6 connection thread
+	if (LIST_NUM(iplist_v6) > 0)
+	{
+		p6.IpList = iplist_v6;
+		p6.Port = port;
+		p6.Timeout = timeout;
+		StrCpy(p6.Hostname, sizeof(p6.Hostname), hostname);
+		StrCpy(p6.Hostname_Original, sizeof(p6.Hostname_Original), hostname_original);
+		p6.No_Get_Hostname = no_get_hostname;
+		p6.CancelFlag = &cancel_flag2;
+		p6.NoDelayFlag = &no_delay_flag;
+		p6.FinishEvent = finish_event;
+		p6.Tcp_TryStartSsl = try_start_ssl;
+		p6.Ret_Ip = ret_ip;
+		p6.RetryDelay = 250;
+		p6.Delay = 0;
+		t6 = NewThread(ConnectThreadForIPv6, &p6);
+	}
+
+	// IPv4 connection thread
+	if (LIST_NUM(iplist_v4) > 0)
+	{
+		p4.IpList = iplist_v4;
+		p4.Port = port;
+		p4.Timeout = timeout;
+		StrCpy(p4.Hostname, sizeof(p4.Hostname), hostname);
+		StrCpy(p4.Hostname_Original, sizeof(p4.Hostname_Original), hostname_original);
+		StrCpy(p4.HintStr, sizeof(p4.HintStr), hint_str);
+		p4.No_Get_Hostname = no_get_hostname;
+		p4.CancelFlag = &cancel_flag2;
+		p4.NoDelayFlag = &no_delay_flag;
+		p4.NatT_ErrorCode = nat_t_error_code;
+		StrCpy(p4.NatT_SvcName, sizeof(p4.NatT_SvcName), nat_t_svc_name);
+		p4.FinishEvent = finish_event;
+		p4.Tcp_TryStartSsl = try_start_ssl;
+		p4.Use_NatT = use_natt;
+		p4.Force_NatT = force_use_natt;
+		p4.Ret_Ip = ret_ip;
+		p4.RetryDelay = 250;
+		p4.Delay = 250;		// Delay by 250ms to prioritize IPv6 (RFC 6555 recommends 150-250ms, Chrome uses 300ms)
+		t4 = NewThread(ConnectThreadForIPv4, &p4);
+	}
+
+	if (t6 == NULL || t4 == NULL)
+	{
+		// No need to delay if there is only one thread
+		no_delay_flag = true;
+	}
+
+	while (true)
+	{
+		if (*cancel_flag)
+		{
+			break;
+		}
+
+		if ((t6 == NULL || p6.Finished) && (t4 == NULL || p4.Finished))
+		{
+			break;
+		}
+
+		if ((p6.Finished && p6.Ok) || (p4.Finished && p4.Ok))
+		{
+			break;
+		}
+
+		// This check must be placed last to avoid race condition with cancel flag
+		if (no_delay_flag == false && (p6.Finished || p4.Finished))
+		{
+			no_delay_flag = true;
+		}
+
+		Wait(finish_event, 25);
+	}
+
+	cancel_flag2 = true;
+	no_delay_flag = true;
+
+	WaitThread(t6, INFINITE);
+	WaitThread(t4, INFINITE);
+	ReleaseThread(t6);
+	ReleaseThread(t4);
+	ReleaseEvent(finish_event);
+	FreeHostIPAddressList(iplist_v6);
+	FreeHostIPAddressList(iplist_v4);
+
+	if (*cancel_flag)
+	{
+		// Abandon all the results because the user canceled
+		Disconnect(p6.Sock);
+		ReleaseSock(p6.Sock);
+		Disconnect(p4.Sock);
+		ReleaseSock(p4.Sock);
+
+		return NULL;
+	}
+
+	if (p6.Ok)
+	{
+		Disconnect(p4.Sock);
+		ReleaseSock(p4.Sock);
+
+		return p6.Sock;
+	}
+
+	if (p4.Ok)
+	{
+		Disconnect(p6.Sock);
+		ReleaseSock(p6.Sock);
+
+		return p4.Sock;
+	}
+
+	return NULL;
 }
 
 // Add a protocol details strings
@@ -17059,14 +17291,32 @@ bool IsMyIPAddress(IP *ip)
 // Add the IP address to the list
 void AddHostIPAddressToList(LIST *o, IP *ip)
 {
-	IP *r;
+	IP *r = NULL;
 	// Validate arguments
 	if (o == NULL || ip == NULL)
 	{
 		return;
 	}
 
-	r = Search(o, ip);
+	if (o->cmp != NULL)
+	{
+		r = Search(o, ip);
+	}
+	else
+	{
+		UINT i;
+		for (i = 0; i < LIST_NUM(o); i++)
+		{
+			IP *a = LIST_DATA(o, i);
+
+			if (CmpIpAddr(ip, a) == 0)
+			{
+				r = ip;
+				break;
+			}
+		}
+	}
+
 	if (r != NULL)
 	{
 		return;
@@ -17229,7 +17479,7 @@ LIST *CloneIPAddressList(LIST *o)
 		return NULL;
 	}
 
-	ret = NewListFast(CmpIpAddressList);
+	ret = NewListFast(o->cmp);
 
 	for (i = 0; i < LIST_NUM(o); i++)
 	{
