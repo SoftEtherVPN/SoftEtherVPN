@@ -14484,18 +14484,20 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		StrCpy(hostname_original, sizeof(hostname_original), hostname);
 	}
 
-	LIST *iplist_v6 = NewListFast(NULL);
-	LIST *iplist_v4 = NewListFast(NULL);
+	LIST *iplist_v6 = NULL;
+	LIST *iplist_v4 = NULL;
 
 	if (IsZeroIp(ret_ip) == false)
 	{
 		// Skip name resolution
 		if (IsIP6(ret_ip))
 		{
+			iplist_v6 = NewListFast(NULL);
 			AddHostIPAddressToList(iplist_v6, ret_ip);
 		}
 		else
 		{
+			iplist_v4 = NewListFast(NULL);
 			AddHostIPAddressToList(iplist_v4, ret_ip);
 		}
 
@@ -14504,10 +14506,8 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	else
 	{
 		// Forward resolution
-		if (DnsResolveEx(iplist_v6, iplist_v4, hostname_original, 0, cancel_flag) == false)
+		if (DnsResolveEx(&iplist_v6, &iplist_v4, hostname_original, 0, cancel_flag) == false)
 		{
-			FreeHostIPAddressList(iplist_v6);
-			FreeHostIPAddressList(iplist_v4);
 			return NULL;
 		}
 	}
