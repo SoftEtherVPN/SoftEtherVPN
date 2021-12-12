@@ -330,7 +330,7 @@ bool DnsResolve(IP *ipv6, IP *ipv4, const char *hostname, UINT timeout, volatile
 	}
 	else
 	{
-		Zero(ipv6, sizeof(ipv6));
+		Zero(ipv6, sizeof(IP));
 	}
 
 	if (ipv4 != NULL && LIST_NUM(iplist_v4) > 0)
