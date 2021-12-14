@@ -6306,9 +6306,9 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		{
 			// If additional_connect == false, enable trying to NAT-T connection
 			// If additional_connect == true, follow the IsRUDPSession setting in this session
-			sock = TcpIpConnectEx(hostname, c->ServerPort,
+			sock = TcpIpConnectEx2(hostname, c->ServerPort,
 				(bool *)cancel_flag, c->hWndForUI, &nat_t_err, (additional_connect ? (!sess->IsRUDPSession) : false),
-				true, &resolved_ip);
+				true, o->HintStr, &resolved_ip);
 		}
 		else
 		{
@@ -6445,22 +6445,30 @@ UINT ProxyCodeToCedar(UINT code)
 // TCP connection function
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
 {
+	return TcpConnectEx4(hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, NULL, ret_ip);
+}
+SOCK *TcpConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, char *hint_str, IP *ret_ip)
+{
 #ifdef	OS_WIN32
 	if (hWnd == NULL)
 	{
 #endif	// OS_WIN32
-		return ConnectEx4(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, ret_ip);
+		return ConnectEx5(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, hint_str, ret_ip);
 #ifdef	OS_WIN32
 	}
 	else
 	{
-		return WinConnectEx3((HWND)hWnd, hostname, port, timeout, 0, NULL, NULL, nat_t_error_code, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), try_start_ssl);
+		return WinConnectEx4((HWND)hWnd, hostname, port, timeout, 0, NULL, NULL, nat_t_error_code, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), try_start_ssl, hint_str);
 	}
 #endif	// OS_WIN32
 }
 
 // Connect with TCP/IP
 SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
+{
+	return TcpIpConnectEx2(hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, NULL, ret_ip);
+}
+SOCK *TcpIpConnectEx2(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, char *hint_str, IP *ret_ip)
 {
 	SOCK *s = NULL;
 	UINT dummy_int = 0;
@@ -6475,7 +6483,7 @@ SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, U
 		return NULL;
 	}
 
-	s = TcpConnectEx3(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ret_ip);
+	s = TcpConnectEx4(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, hint_str, ret_ip);
 	if (s == NULL)
 	{
 		return NULL;

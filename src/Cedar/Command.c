@@ -4333,6 +4333,7 @@ UINT PcAccountSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		// Success
 		t.ClientOption->Port = port;
 		StrCpy(t.ClientOption->Hostname, sizeof(t.ClientOption->Hostname), host);
+		t.ClientOption->HintStr[0] = 0;
 		StrCpy(t.ClientOption->HubName, sizeof(t.ClientOption->HubName), GetParamStr(o, "HUB"));
 
 		Zero(&c, sizeof(c));
@@ -4400,7 +4401,18 @@ UINT PcAccountGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_NAME"), t.ClientOption->AccountName);
 
 		// Host name of the destination VPN Server
-		StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		if (IsEmptyStr(t.ClientOption->HintStr))
+		{
+			StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		}
+		else
+		{
+			char hostname[MAX_SIZE];
+			StrCpy(hostname, sizeof(hostname), t.ClientOption->Hostname);
+			StrCat(hostname, sizeof(hostname), "/");
+			StrCat(hostname, sizeof(hostname), t.ClientOption->HintStr);
+			StrToUni(tmp, sizeof(tmp), hostname);
+		}
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_HOSTNAME"), tmp);
 
 		// The port number to connect to VPN Server
@@ -13117,6 +13129,7 @@ UINT PsCascadeSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	t.ClientOption->Port = port;
 	StrCpy(t.ClientOption->Hostname, sizeof(t.ClientOption->Hostname), host);
+	t.ClientOption->HintStr[0] = 0;
 	StrCpy(t.ClientOption->HubName, sizeof(t.ClientOption->HubName), GetParamStr(o, "HUB"));
 
 	Free(host);
@@ -13223,7 +13236,18 @@ UINT PsCascadeGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_NAME"), t.ClientOption->AccountName);
 
 		// Host name of the destination VPN Server
-		StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		if (IsEmptyStr(t.ClientOption->HintStr))
+		{
+			StrToUni(tmp, sizeof(tmp), t.ClientOption->Hostname);
+		}
+		else
+		{
+			char hostname[MAX_SIZE];
+			StrCpy(hostname, sizeof(hostname), t.ClientOption->Hostname);
+			StrCat(hostname, sizeof(hostname), "/");
+			StrCat(hostname, sizeof(hostname), t.ClientOption->HintStr);
+			StrToUni(tmp, sizeof(tmp), hostname);
+		}
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_HOSTNAME"), tmp);
 
 		// The port number to connect to VPN Server
@@ -24273,6 +24297,12 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 	Zero(&o, sizeof(o));
 	UniStrCpy(o.AccountName, sizeof(o.AccountName), L"VPNCMD");
 	StrCpy(o.Hostname, sizeof(o.Hostname), host);
+	UINT i = SearchStrEx(o.Hostname, "/", 0, false);
+	if (i != INFINITE)
+	{
+		StrCpy(o.HintStr, sizeof(o.HintStr), o.Hostname + i + 1);
+		o.Hostname[i] = 0;
+	}
 	o.Port = port;
 	o.ProxyType = PROXY_DIRECT;
 
@@ -24331,7 +24361,7 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 			PS *ps;
 
 			// Success
-			ps = NewPs(c, rpc, host, port, hub, adminhub, cmdline);
+			ps = NewPs(c, rpc, o.Hostname, port, hub, adminhub, cmdline);
 			PsMain(ps);
 			retcode = ps->LastError;
 			FreePs(ps);

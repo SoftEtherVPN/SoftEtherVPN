@@ -105,6 +105,7 @@ struct CLIENT_OPTION
 	char pad12[3];
 	UCHAR HostUniqueKey[SHA1_SIZE];							// Host unique key
 	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];		// Custom HTTP proxy header
+	char HintStr[MAX_HOST_NAME_LEN + 1];					// Hint string for NAT-T
 };
 
 // Client authentication data

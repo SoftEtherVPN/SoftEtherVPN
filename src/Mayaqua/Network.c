@@ -13979,7 +13979,7 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 			Zero(&p4, sizeof(p4));
 
 			// p1: TCP
-			StrCpy(p1.Hostname, sizeof(p1.Hostname), p->Hostname_Original);
+			StrCpy(p1.Hostname, sizeof(p1.Hostname), p->Hostname);
 			Copy(&p1.Ip, ip, sizeof(IP));
 			p1.Port = p->Port;
 			p1.Timeout = p->Timeout;
@@ -13989,7 +13989,7 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 			p1.CancelLock = NewLock();
 
 			// p2: NAT-T
-			StrCpy(p2.Hostname, sizeof(p2.Hostname), p->Hostname_Original);
+			StrCpy(p2.Hostname, sizeof(p2.Hostname), p->Hostname);
 			Copy(&p2.Ip, ip, sizeof(IP));
 			p2.Port = p->Port;
 			p2.Timeout = p->Timeout;
@@ -14002,7 +14002,7 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 			p2.Delay = 30;		// Delay by 30ms
 
 			// p3: over ICMP
-			StrCpy(p3.Hostname, sizeof(p3.Hostname), p->Hostname_Original);
+			StrCpy(p3.Hostname, sizeof(p3.Hostname), p->Hostname);
 			Copy(&p3.Ip, ip, sizeof(IP));
 			p3.Port = p->Port;
 			p3.Timeout = p->Timeout;
@@ -14013,7 +14013,7 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 			p3.Delay = 200;		// Delay by 200ms
 
 			// p4: over DNS
-			StrCpy(p4.Hostname, sizeof(p4.Hostname), p->Hostname_Original);
+			StrCpy(p4.Hostname, sizeof(p4.Hostname), p->Hostname);
 			Copy(&p4.Ip, ip, sizeof(IP));
 			p4.Port = p->Port;
 			p4.Timeout = p->Timeout;
@@ -14221,7 +14221,7 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 
 		if (s != INVALID_SOCKET)
 		{
-			p->Sock = CreateTCPSock(s, false, &current_ip, p->No_Get_Hostname, p->Hostname_Original);
+			p->Sock = CreateTCPSock(s, false, &current_ip, p->No_Get_Hostname, p->Hostname);
 			break;
 		}
 	}
@@ -14308,7 +14308,7 @@ void ConnectThreadForIPv6(THREAD *thread, void *param)
 
 		if (s != INVALID_SOCKET)
 		{
-			p->Sock = CreateTCPSock(s, true, &current_ip, p->No_Get_Hostname, p->Hostname_Original);
+			p->Sock = CreateTCPSock(s, true, &current_ip, p->No_Get_Hostname, p->Hostname);
 			break;
 		}
 	}
@@ -14411,10 +14411,12 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 }
 SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
 {
+	return ConnectEx5(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL, ret_ip);
+}
+SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, char *hint_str, IP *ret_ip)
+{
 	bool dummy = false;
 	bool use_natt = false;
-	char hostname_original[MAX_SIZE];
-	char hint_str[MAX_SIZE];
 	bool force_use_natt = false;
 	UINT dummy_int = 0;
 	IP dummy_ret_ip;
@@ -14442,32 +14444,14 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		ret_ip = &dummy_ret_ip;
 	}
 
-	Zero(hint_str, sizeof(hint_str));
-	StrCpy(hostname_original, sizeof(hostname_original), hostname);
-
 	use_natt = (IsEmptyStr(nat_t_svc_name) ? false : true);
 
 	if (use_natt)
 	{
-		// In case of using NAT-T, split host name if the '/' is included in the host name
-		UINT i = SearchStrEx(hostname, "/", 0, false);
-
-		if (i == INFINITE)
+		if (IsEmptyStr(hint_str) == false)
 		{
-			// Not included
-			StrCpy(hostname_original, sizeof(hostname_original), hostname);
-		}
-		else
-		{
-			// Included
-			StrCpy(hostname_original, sizeof(hostname_original), hostname);
-			hostname_original[i] = 0;
-
 			// Force to use the NAT-T
 			force_use_natt = true;
-
-			// Copy the hint string
-			StrCpy(hint_str, sizeof(hint_str), hostname + i + 1);
 
 			if (StrCmpi(hint_str, "tcp") == 0 || StrCmpi(hint_str, "disable") == 0
 			        || StrCmpi(hint_str, "disabled") == 0
@@ -14478,10 +14462,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 				use_natt = false;
 			}
 		}
-	}
-	else
-	{
-		StrCpy(hostname_original, sizeof(hostname_original), hostname);
 	}
 
 	LIST *iplist_v6 = NULL;
@@ -14506,7 +14486,7 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	else
 	{
 		// Forward resolution
-		if (DnsResolveEx(&iplist_v6, &iplist_v4, hostname_original, 0, cancel_flag) == false)
+		if (DnsResolveEx(&iplist_v6, &iplist_v4, hostname, 0, cancel_flag) == false)
 		{
 			return NULL;
 		}
@@ -14532,7 +14512,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		p6.Port = port;
 		p6.Timeout = timeout;
 		StrCpy(p6.Hostname, sizeof(p6.Hostname), hostname);
-		StrCpy(p6.Hostname_Original, sizeof(p6.Hostname_Original), hostname_original);
 		p6.No_Get_Hostname = no_get_hostname;
 		p6.CancelFlag = &cancel_flag2;
 		p6.NoDelayFlag = &no_delay_flag;
@@ -14551,7 +14530,6 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		p4.Port = port;
 		p4.Timeout = timeout;
 		StrCpy(p4.Hostname, sizeof(p4.Hostname), hostname);
-		StrCpy(p4.Hostname_Original, sizeof(p4.Hostname_Original), hostname_original);
 		StrCpy(p4.HintStr, sizeof(p4.HintStr), hint_str);
 		p4.No_Get_Hostname = no_get_hostname;
 		p4.CancelFlag = &cancel_flag2;
