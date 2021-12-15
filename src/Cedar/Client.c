@@ -6597,6 +6597,9 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 
 		Lock(r->lock);
 		{
+			// Copy account name (restore the correct case)
+			UniStrCpy(a->AccountName, sizeof(a->AccountName), r->ClientOption->AccountName);
+
 			// Copy the client option
 			if (a->ClientOption != NULL)
 			{
