@@ -3457,16 +3457,8 @@ void SiLoadHubLinkCfg(FOLDER *f, HUB *h)
 			FreeBuf(b);
 		}
 
-		if (online)
-		{
-			k->Offline = true;
-			SetLinkOnline(k);
-		}
-		else
-		{
-			k->Offline = false;
-			SetLinkOffline(k);
-		}
+		k->Offline = !online;
+
 		ReleaseLink(k);
 	}
 
