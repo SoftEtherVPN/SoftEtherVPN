@@ -13702,12 +13702,14 @@ void InRpcEnumLink(RPC_ENUM_LINK *t, PACK *p)
 
 		PackGetUniStrEx(p, "AccountName", e->AccountName, sizeof(e->AccountName), i);
 		PackGetStrEx(p, "Hostname", e->Hostname, sizeof(e->Hostname), i);
-		PackGetStrEx(p, "ConnectedHubName", e->HubName, sizeof(e->HubName), i);
+		if (PackGetStrEx(p, "ConnectedHubName", e->HubName, sizeof(e->HubName), i) == false)
+		{
+			PackGetStrEx(p, "TargetHubName", e->HubName, sizeof(e->HubName), i);
+		}
 		e->Online = PackGetBoolEx(p, "Online", i);
 		e->ConnectedTime = PackGetInt64Ex(p, "ConnectedTime", i);
 		e->Connected = PackGetBoolEx(p, "Connected", i);
 		e->LastError = PackGetIntEx(p, "LastError", i);
-		PackGetStrEx(p, "LinkHubName", e->HubName, sizeof(e->HubName), i);
 	}
 }
 void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)
