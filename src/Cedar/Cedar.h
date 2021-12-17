@@ -869,6 +869,7 @@
 #define	ERR_VPNGATE_INCLIENT_CANT_STOP	146	// Can not be stopped if operating within VPN Client mode
 #define	ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE	147	// It is a feature that is not supported in the open source version
 #define	ERR_SUSPENDING					148	// System is suspending
+#define ERR_HOSTNAME_MISMATCH			149	// SSL hostname mismatch
 
 
 ////////////////////////////

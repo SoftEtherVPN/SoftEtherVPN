@@ -214,7 +214,7 @@ ERR_145					この操作は実行できません。VPN Gate 公開 VPN 中継サ
 ERR_146					VPN Gate サービスが VPN Client 内で動作している場合は、この設定画面から VPN Gate サービスを停止することはできません。VPN Gate サービスを停止するには、VPN Client 接続マネージャの設定ツールを使用してください。
 ERR_147					この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。
 ERR_148					Windows システムがサスペンド状態に移行中のため、VPN 通信が切断されました。
-
+ERR_149					接続先サーバーの提示した証明書が指定したホスト名と一致しません。
 
 
 # ライセンス関係
@@ -2328,6 +2328,7 @@ R_SOCKS5				SOCKS5 プロキシサーバー経由接続(&S)
 B_PROXY_CONFIG			プロキシサーバーの接続設定(&2)
 STATIC11				サーバー証明書の検証オプション(&F):
 R_CHECK_CERT			サーバー証明書を必ず検証する(&3)
+R_TRUST_DEFAULT			システム証明書ストアを信頼する
 B_TRUST					信頼する証明機関の証明書の管理(&4)
 B_SERVER_CERT			固有証明書の登録(&R)
 B_VIEW_SERVER_CERT		固有証明書の表示(&5)
@@ -4401,6 +4402,7 @@ CMD_ACCOUNT_COLUMN_PROXY_USERNAME	プロキシサーバーのユーザー名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	サーバー証明書の検証
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	登録されているサーバー固有証明書
 CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	サーバー証明書が信頼できない場合に接続を再試行する
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   システム証明書ストアを信頼する
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		接続に使用するデバイス名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		認証の種類
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	ユーザー名
@@ -5498,6 +5500,20 @@ CMD_CascadeServerCertDisable	カスケード接続のサーバー証明書の検
 CMD_CascadeServerCertDisable_Help	現在管理している仮想 HUB に登録されているカスケード接続を指定し、そのカスケード接続が VPN Server に対して接続する際に、接続先の VPN Server の提示する SSL 証明書が、信頼できるかどうか検査するオプションを無効にします。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	設定を変更するカスケード接続の名前を指定します。
+
+
+# CascadeDefaultCAEnable コマンド
+CMD_CascadeDefaultCAEnable	        システム証明書ストアからの証明書の信頼を有効化
+CMD_CascadeDefaultCAEnable_Help	    サーバー証明書の検証が有効になっている場合、システム証明書ストアからの証明書の信頼を有効にします。\nサーバー証明書の検証が無効になっている場合、このオプションは何もしません。
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	設定を変更するカスケード接続の名前を指定します。
+
+
+# CascadeDefaultCADisable コマンド
+CMD_CascadeDefaultCADisable         システム証明書ストアからの証明書の信頼を無効化
+CMD_CascadeDefaultCADisable_Help    サーバー証明書の検証が有効になっている場合、システム証明書ストアからの証明書の信頼を無効にします。\nサーバー証明書の検証が無効になっている場合、このオプションは何もしません。
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	設定を変更するカスケード接続の名前を指定します。
 
 
 # CascadeServerCertSet コマンド
@@ -6801,7 +6817,6 @@ CMD_AccountServerCertDisable_[name]	設定を変更する接続設定の名前�
 # AccountRetryOnServerCertEnable コマンド
 CMD_AccountRetryOnServerCertEnable	接続設定のサーバー証明書が信頼できない場合の接続再試行を有効化
 CMD_AccountRetryOnServerCertEnable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返します。AccountRetryOnServerCertDisableコマンドを使用することにより再試行を行わないように設定することができますが、このコマンドを使用することにより、デフォルトの接続再試行を行う状態に戻すことができます。
-
 CMD_AccountRetryOnServerCertEnable_Args	AccountRetryOnServerCertEnable [name]
 CMD_AccountRetryOnServerCertEnable_[name]	設定を変更する接続設定の名前を指定します。
 
@@ -6811,6 +6826,20 @@ CMD_AccountRetryOnServerCertDisable	接続設定のサーバー証明書が信�
 CMD_AccountRetryOnServerCertDisable_Help	接続設定のサーバー証明書の検証プションが有効になっている状態で、 VPN Server の証明書が信頼できない場合、直ちに接続を解除して再試行を繰り返しますが、このコマンドを使用することにより再試行を行わないように設定することができます。
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	設定を変更する接続設定の名前を指定します。
+
+
+# AccountDefaultCAEnable コマンド
+CMD_AccountDefaultCAEnable	        システム証明書ストアからの証明書の信頼を有効化
+CMD_AccountDefaultCAEnable_Help	    サーバー証明書の検証が有効になっている場合、システム証明書ストアからの証明書の信頼を有効にします。\nサーバー証明書の検証が無効になっている場合、このオプションは何もしません。
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	設定を変更する接続設定の名前を指定します。
+
+
+# AccountDefaultCADisable コマンド
+CMD_AccountDefaultCADisable         システム証明書ストアからの証明書の信頼を無効化
+CMD_AccountDefaultCADisable_Help    サーバー証明書の検証が有効になっている場合、システム証明書ストアからの証明書の信頼を無効にします。\nサーバー証明書の検証が無効になっている場合、このオプションは何もしません。
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	設定を変更する接続設定の名前を指定します。
 
 
 # AccountServerCertSet コマンド

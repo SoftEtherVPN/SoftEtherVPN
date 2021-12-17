@@ -54,7 +54,7 @@
 #ifdef OS_WIN32
 #include <iphlpapi.h>
 #include <WS2tcpip.h>
-
+#include <wincrypt.h>
 #include <IcmpAPI.h>
 
 struct ROUTE_CHANGE_DATA
@@ -11633,10 +11633,16 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname)
 }
 bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname)
 {
+	return StartSSLEx3(sock, x, priv, chain, ssl_timeout, sni_hostname, NULL, NULL);
+}
+bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err)
+{
 	X509 *x509;
 	EVP_PKEY *key;
 	UINT prev_timeout = 1024;
 	SSL_CTX *ssl_ctx;
+	UINT dummy_err = 0;
+	long ssl_verify_err;
 
 #ifdef UNIX_SOLARIS
 	SOCKET_TIMEOUT_PARAM *ttparam;
@@ -11647,6 +11653,10 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	{
 		Debug("StartSSL Error: #0\n");
 		return false;
+	}
+	if (ssl_err == NULL)
+	{
+		ssl_err = &dummy_err;
 	}
 	if (sock->Connected && sock->Type == SOCK_INPROC && sock->ListenMode == false)
 	{
@@ -11739,6 +11749,55 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 				UnlockList(chain);
 			}
 			Lock(openssl_lock);
+		}
+		else
+		{
+			// Client mode
+			if (ssl_option != NULL && ssl_option->VerifyPeer)
+			{
+				// Add default trust store
+				X509_STORE* store = SSL_CTX_get_cert_store(ssl_ctx);
+				if (ssl_option->AddDefaultCA)
+				{
+#ifdef	OS_WIN32
+					HCERTSTORE hStore = CertOpenSystemStore(0, "ROOT");
+					if (hStore != NULL)
+					{
+						PCCERT_CONTEXT pContext = NULL;
+						while ((pContext = CertEnumCertificatesInStore(hStore, pContext)))
+						{
+							X509 *x509 = d2i_X509(NULL, (const unsigned char**)&pContext->pbCertEncoded, pContext->cbCertEncoded);
+							if (x509 != NULL)
+							{
+								X509_STORE_add_cert(store, x509);
+								X509_free(x509);
+							}
+						}
+						CertCloseStore(hStore, 0);
+					}
+#else
+					SSL_CTX_set_default_verify_paths(ssl_ctx);
+#endif
+				}
+
+				// Add trust CA specified by user
+				UINT i;
+				for (i = 0; i < LIST_NUM(ssl_option->CaList); ++i)
+				{
+					X *ca = LIST_DATA(ssl_option->CaList, i);
+					X509_STORE_add_cert(store, ca->x509);
+				}
+
+				// Allow intermediate CA to be trusted
+				X509_VERIFY_PARAM *vpm = SSL_CTX_get0_param(ssl_ctx);
+				X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_PARTIAL_CHAIN);
+
+				// Enable hostname verification (by default CN is only checked if SAN is not available)
+				if (ssl_option->VerifyHostname && IsEmptyStr(sni_hostname) == false)
+				{
+					X509_VERIFY_PARAM_set1_host(vpm, sni_hostname, StrLen(sni_hostname));
+				}
+			}
 		}
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
@@ -11880,7 +11939,7 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	Lock(openssl_lock);
 	{
 		x509 = SSL_get_peer_certificate(sock->ssl);
-
+		ssl_verify_err = SSL_get_verify_result(sock->ssl);
 		sock->SslVersion = SSL_get_version(sock->ssl);
 	}
 	Unlock(openssl_lock);
@@ -11894,6 +11953,49 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	{
 		// Got a certificate
 		sock->RemoteX = X509ToX(x509);
+	}
+
+	// Check verification error
+	if (ssl_option != NULL && ssl_option->VerifyPeer)
+	{
+		if (ssl_verify_err != X509_V_OK)
+		{
+			// Clear any error if matching saved certificate and not expired
+			if (ssl_option->SavedCert != NULL && sock->RemoteX != NULL && CheckXDateNow(sock->RemoteX) && CompareX(ssl_option->SavedCert, sock->RemoteX))
+			{
+				ssl_verify_err = X509_V_OK;
+			}
+			else
+			{
+				Debug("StartSSL: SSL verification error %d\n", ssl_verify_err);
+				switch (ssl_verify_err)
+				{
+				case X509_V_ERR_CERT_HAS_EXPIRED:
+					*ssl_err = 106;	// ERR_SERVER_CERT_EXPIRES
+					break;
+				case X509_V_ERR_HOSTNAME_MISMATCH:
+					*ssl_err = 149;	// ERR_HOSTNAME_MISMATCH
+					break;
+				default:
+					*ssl_err = 85;	// ERR_CERT_NOT_TRUSTED
+				}
+
+				if (ssl_option->PromptOnVerifyFail == false)
+				{
+					// SSL verify failure
+					Lock(openssl_lock);
+					{
+						SSL_free(sock->ssl);
+						sock->ssl = NULL;
+					}
+					Unlock(openssl_lock);
+
+					Unlock(sock->ssl_lock);
+					FreeSSLCtx(ssl_ctx);
+					return false;
+				}
+			}
+		}
 	}
 
 	// Get the certificate of local host
@@ -13778,20 +13880,7 @@ void ConnectThreadForTcp(THREAD *thread, void *param)
 		Unlock(p->CancelLock);
 
 		// Start the SSL communication
-		ssl_ret = StartSSLEx(sock, NULL, NULL, 0, p->Hostname);
-
-		if (ssl_ret)
-		{
-			// Identify whether the HTTPS server to be connected is a SoftEther VPN
-			SetTimeout(sock, (10 * 1000));
-			ssl_ret = DetectIsServerSoftEtherVPN(sock);
-			SetTimeout(sock, INFINITE);
-
-			if (ssl_ret == false)
-			{
-				Debug("DetectIsServerSoftEtherVPN Error.\n");
-			}
-		}
+		ssl_ret = StartSSLEx3(sock, NULL, NULL, NULL, 0, p->Hostname, p->SslOption, p->SslErr);
 
 		Lock(p->CancelLock);
 		{
@@ -13986,6 +14075,8 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 			p1.CancelFlag = &cancel_flag2;
 			p1.FinishEvent = finish_event;
 			p1.Tcp_TryStartSsl = p->Tcp_TryStartSsl;
+			p1.SslOption = p->SslOption;
+			p1.SslErr = p->SslErr;
 			p1.CancelLock = NewLock();
 
 			// p2: NAT-T
@@ -14411,9 +14502,9 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 }
 SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
 {
-	return ConnectEx5(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL, ret_ip);
+	return ConnectEx5(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL, NULL, NULL, ret_ip);
 }
-SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, char *hint_str, IP *ret_ip)
+SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
 {
 	bool dummy = false;
 	bool use_natt = false;
@@ -14496,9 +14587,9 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	EVENT *finish_event;
 	THREAD *t4 = NULL;
 	THREAD *t6 = NULL;
-	UINT64 start_tick = Tick64();
 	bool cancel_flag2 = false;
 	bool no_delay_flag = false;
+	IP ret_ip4, ret_ip6;
 
 	finish_event = NewEvent();
 
@@ -14517,7 +14608,9 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		p6.NoDelayFlag = &no_delay_flag;
 		p6.FinishEvent = finish_event;
 		p6.Tcp_TryStartSsl = try_start_ssl;
-		p6.Ret_Ip = ret_ip;
+		p6.SslOption = ssl_option;
+		p6.SslErr = ssl_err;
+		p6.Ret_Ip = &ret_ip6;
 		p6.RetryDelay = 250;
 		p6.Delay = 0;
 		t6 = NewThread(ConnectThreadForIPv6, &p6);
@@ -14538,9 +14631,11 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		StrCpy(p4.NatT_SvcName, sizeof(p4.NatT_SvcName), nat_t_svc_name);
 		p4.FinishEvent = finish_event;
 		p4.Tcp_TryStartSsl = try_start_ssl;
+		p4.SslOption = ssl_option;
+		p4.SslErr = ssl_err;
 		p4.Use_NatT = use_natt;
 		p4.Force_NatT = force_use_natt;
-		p4.Ret_Ip = ret_ip;
+		p4.Ret_Ip = &ret_ip4;
 		p4.RetryDelay = 250;
 		p4.Delay = 250;		// Delay by 250ms to prioritize IPv6 (RFC 6555 recommends 150-250ms, Chrome uses 300ms)
 		t4 = NewThread(ConnectThreadForIPv4, &p4);
@@ -14604,7 +14699,7 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	{
 		Disconnect(p4.Sock);
 		ReleaseSock(p4.Sock);
-
+		Copy(ret_ip, &ret_ip6, sizeof(IP));
 		return p6.Sock;
 	}
 
@@ -14612,7 +14707,7 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	{
 		Disconnect(p6.Sock);
 		ReleaseSock(p6.Sock);
-
+		Copy(ret_ip, &ret_ip4, sizeof(IP));
 		return p4.Sock;
 	}
 

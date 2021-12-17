@@ -91,6 +91,7 @@ struct SESSION
 	char ClientIP[64];				// Client IP
 	CLIENT_OPTION *ClientOption;	// Client connection options
 	CLIENT_AUTH *ClientAuth;		// Client authentication data
+	SSL_VERIFY_OPTION *SslOption;	// SSL verification option
 	volatile bool Halt;				// Halting flag
 	volatile bool CancelConnect;	// Cancel the connection
 	EVENT *HaltEvent;				// Halting event

@@ -218,6 +218,7 @@ ERR_145					不可接受的操作。使用 VPN Gate 實用工具修改 VPN Gate 
 ERR_146					VPN Gate 服務運行在 VPN 用戶端程式內。在此螢幕上，你不能停止 VPN Gate 服務。使用 VPN 用戶端管理器來啟用或禁用 VPN Gate 服務。
 ERR_147					不支援此功能。它尚未在 SoftEther VPN 的開源版本上實施。
 ERR_148					VPN 連接被中斷，因為該系統被暫停。
+ERR_149					目標 VPN Server 的證書與指定的主機名稱不匹配。
 
 
 #關於許可證
@@ -2342,6 +2343,7 @@ R_SOCKS5				通過 SOCKS5 代理伺服器連接(&S)
 B_PROXY_CONFIG			代理伺服器設置(&R)
 STATIC11				服務端證書驗證選項(&F):
 R_CHECK_CERT			總是驗證服務端證書(&C)
+R_TRUST_DEFAULT			信任系統憑證存放區
 B_TRUST					管理可信發證機關證書列表(&C)
 B_SERVER_CERT			指定特定證書(&S)
 B_VIEW_SERVER_CERT		查看特定證書(&V)
@@ -4411,7 +4413,8 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT	代理伺服器的埠號
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	代理伺服器的用戶名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	驗證伺服器憑證
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	註冊的伺服器個人證書
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	遇到不信任的證書時重試
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   信任系統憑證存放區
 CMD_ACCOUNT_COLUMN_DEVICE_NAME	用於連接的設備名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE	驗證類型
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	用戶名
@@ -4426,7 +4429,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	通過橋接器 / 路由模式連接
 CMD_ACCOUNT_COLUMN_MONITOR	通過監測模式連接
 CMD_ACCOUNT_COLUMN_NO_TRACKING	不要調整路由表
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	不要使用 QoS 控制功能
-CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
+CMD_ACCOUNT_COLUMN_DISABLEUDP		禁用 UDP 加速功能
 
 
 # Debugging Information Collecting Tool
@@ -5512,6 +5515,20 @@ CMD_CascadeServerCertDisable	禁用級聯伺服器憑證驗證選項
 CMD_CascadeServerCertDisable_Help	指定已經在當前虛擬 HUB 註冊的級聯連接，當此連接和 VPN Server 之間通信時，對於連接方提供的 SSL 證書，不需要檢查是否可以信任。\n此命令在集群虛擬 HUB 中不能運行。
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	指定級聯名稱來改變設置。
+
+
+# CascadeDefaultCAEnable 命令
+CMD_CascadeDefaultCAEnable	        啟用信任系統憑證存放區選項
+CMD_CascadeDefaultCAEnable_Help	    當啟用服務器憑證驗證時，使用此選項來啟用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	指定級聯名稱來改變設置。
+
+
+# CascadeDefaultCADisable 命令
+CMD_CascadeDefaultCADisable         禁用信任系統憑證存放區選項
+CMD_CascadeDefaultCADisable_Help    當啟用服務器憑證驗證時，使用此選項來禁用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	指定級聯名稱來改變設置。
 
 
 # CascadeServerCertSet 命令
@@ -6817,6 +6834,20 @@ CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certi
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable 命令
+CMD_AccountDefaultCAEnable	        啟用信任系統憑證存放區選項
+CMD_AccountDefaultCAEnable_Help	    當啟用服務器憑證驗證時，使用此選項來啟用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	指定要更改設置的連接設置名。
+
+
+# AccountDefaultCADisable 命令
+CMD_AccountDefaultCADisable         禁用信任系統憑證存放區選項
+CMD_AccountDefaultCADisable_Help    當啟用服務器憑證驗證時，使用此選項來禁用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	指定要更改設置的連接設置名。
 
 
 # AccountServerCertSet 命令

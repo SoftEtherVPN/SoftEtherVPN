@@ -214,6 +214,7 @@ ERR_145						不可接受的操作。使用 VPN Gate 实用工具修改 VPN Gate
 ERR_146						VPN Gate 服务运行在 VPN 客户端程序内。在此屏幕上，你不能停止 VPN Gate 服务。使用 VPN 客户端管理器来启用或禁用 VPN Gate 服务。
 ERR_147						不支持此功能。它尚未在 SoftEther VPN 的开源版本上实施。
 ERR_148						VPN 连接被中断，因为该系统被暂停。
+ERR_149						目标 VPN Server 的证书与指定的主机名不匹配。
 
 
 #关于许可证
@@ -2340,6 +2341,7 @@ R_SOCKS5					通过 SOCKS5 代理服务器连接(&S)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					服务端证书验证选项(&F):
 R_CHECK_CERT				总是验证服务端证书(&C)
+R_TRUST_DEFAULT				信任系统证书存储
 B_TRUST						管理可信发证机关证书列表(&C)
 B_SERVER_CERT				指定特定证书(&S)
 B_VIEW_SERVER_CERT			查看特定证书(&V)
@@ -4410,7 +4412,8 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT	代理服务器的端口号
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	代理服务器的用户名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	验证服务器证书
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	注册的服务器个人证书
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	遇到不信任的证书时重试
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   信任系统证书存储
 CMD_ACCOUNT_COLUMN_DEVICE_NAME	用于连接的设备名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE	验证类型
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	用户名
@@ -4425,7 +4428,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	通过网桥 / 路由模式连接
 CMD_ACCOUNT_COLUMN_MONITOR	通过监测模式连接
 CMD_ACCOUNT_COLUMN_NO_TRACKING	不要调整路由表
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	不要使用 QoS 控制功能
-CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
+CMD_ACCOUNT_COLUMN_DISABLEUDP		禁用 UDP 加速功能
 
 
 # Debugging Information Collecting Tool
@@ -5511,6 +5514,20 @@ CMD_CascadeServerCertDisable	禁用级联服务器证书验证选项
 CMD_CascadeServerCertDisable_Help	指定已经在当前虚拟 HUB 注册的级联连接，当此连接和 VPN Server 之间通信时，对于连接方提供的 SSL 证书，不需要检查是否可以信任。\n此命令在集群虚拟 HUB 中不能运行。
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	指定级联名称来改变设置。
+
+
+# CascadeDefaultCAEnable 命令
+CMD_CascadeDefaultCAEnable	        启用信任系统证书存储选项
+CMD_CascadeDefaultCAEnable_Help	    当启用服务器证书验证时，使用此选项来启用信任系统证书存储的证书。\n如果禁用服务器证书验证，则此选项不执行任何操作。
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	指定级联名称来改变设置。
+
+
+# CascadeDefaultCADisable 命令
+CMD_CascadeDefaultCADisable         禁用信任系统证书存储选项
+CMD_CascadeDefaultCADisable_Help    当启用服务器证书验证时，使用此选项来禁用信任系统证书存储的证书。\n如果禁用服务器证书验证，则此选项不执行任何操作。
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	指定级联名称来改变设置。
 
 
 # CascadeServerCertSet 命令
@@ -6815,6 +6832,20 @@ CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certi
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable 命令
+CMD_AccountDefaultCAEnable	        启用信任系统证书存储选项
+CMD_AccountDefaultCAEnable_Help	    当启用服务器证书验证时，使用此选项来启用信任系统证书存储的证书。\n如果禁用服务器证书验证，则此选项不执行任何操作。
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	指定要更改设置的连接设置名。
+
+
+# AccountDefaultCADisable 命令
+CMD_AccountDefaultCADisable         禁用信任系统证书存储选项
+CMD_AccountDefaultCADisable_Help    当启用服务器证书验证时，使用此选项来禁用信任系统证书存储的证书。\n如果禁用服务器证书验证，则此选项不执行任何操作。
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	指定要更改设置的连接设置名。
 
 
 # AccountServerCertSet 命令

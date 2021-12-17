@@ -31,6 +31,7 @@ struct LINK
 	UINT CurrentSendPacketQueueSize;	// Current send packet queue size
 	UINT LastError;					// Last error
 	bool CheckServerCert;			// To check the server certificate
+	bool AddDefaultCA;				// Use default trust store
 	X *ServerCert;					// Server certificate
 	bool LockFlag;					// Lock flag
 	bool *StopAllLinkFlag;			// Stop all link flag

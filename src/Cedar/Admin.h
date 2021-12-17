@@ -436,6 +436,7 @@ struct RPC_CREATE_LINK
 	CLIENT_AUTH *ClientAuth;			// Client authentication data
 	POLICY Policy;						// Policy
 	bool CheckServerCert;				// Validate the server certificate
+	bool AddDefaultCA;					// Use default trust store
 	X *ServerCert;						// Server certificate
 };
 

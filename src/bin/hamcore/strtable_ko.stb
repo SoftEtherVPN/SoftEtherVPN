@@ -218,7 +218,7 @@ ERR_145 이 작업을 수행 할 수 없습니다. VPN Gate 공개 VPN 중계 �
 ERR_146 VPN Gate 서비스가 VPN Client에서 실행중인 경우이 설정 화면에서 VPN Gate 서비스를 중지 할 수 없습니다. VPN Gate 서비스를 중지하려면 VPN Client 연결 관리자 설정 도구를 사용하십시오.
 ERR_147 이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다.
 ERR_148 Windows 시스템이 대기 상태로 전환 중이기 때문에 VPN 통신이 끊어졌습니다.
-
+ERR_149 대상 VPN 서버의 인증서가 지정된 호스트 이름과 일치하지 않습니다.
 
 
 # 라이센스 관계
@@ -2306,6 +2306,7 @@ R_SOCKS5 SOCKS5 프록시 서버를 통해 연결 (&S)
 B_PROXY_CONFIG 프록시 서버 연결 설정 (&2)
 STATIC11 서버 인증서 검증 옵션 (&F):
 R_CHECK_CERT 서버 인증서를 반드시 확인한다 (&3)
+R_TRUST_DEFAULT 시스템 인증서 저장소 신뢰
 B_TRUST 신뢰하는 인증 기관의 인증서 관리 (&4)
 B_SERVER_CERT 고유 인증서 등록 (&R)
 B_VIEW_SERVER_CERT 고유 인증서보기 (&5)
@@ -4379,6 +4380,7 @@ CMD_ACCOUNT_COLUMN_PROXY_USERNAME 프록시 서버의 사용자 이름
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE 서버 인증서 확인
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME 등록 된 서버 별 인증서
 CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA 시스템 인증서 저장소 신뢰
 CMD_ACCOUNT_COLUMN_DEVICE_NAME 연결에 사용할 장치 이름
 CMD_ACCOUNT_COLUMN_AUTH_TYPE 인증의 종류
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME 사용자 이름
@@ -5475,6 +5477,20 @@ CMD_CascadeServerCertDisable 계단식 서버 인증서 검증 옵션 비활성�
 CMD_CascadeServerCertDisable_Help 현재 관리하고있는 가상 HUB에 등록되어있는 계단식 지정하고 계단식가 VPN Server에 연결할 때 연결하려는 VPN Server가 제시하는 SSL 인증서가 신뢰할 수 있는지 여부 검사 옵션을 해제합니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_CascadeServerCertDisable_Args CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name] 설정을 변경 계단식의 이름을 지정합니다.
+
+
+# CascadeDefaultCAEnable command
+CMD_CascadeDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_CascadeDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+
+
+# CascadeDefaultCADisable command
+CMD_CascadeDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_CascadeDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
 
 
 # CascadeServerCertSet 명령
@@ -6785,6 +6801,20 @@ CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certi
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable command
+CMD_AccountDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_AccountDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCADisable command
+CMD_AccountDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_AccountDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet 명령

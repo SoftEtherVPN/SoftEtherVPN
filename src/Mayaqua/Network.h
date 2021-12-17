@@ -816,6 +816,8 @@ struct CONNECT_SERIAL_PARAM
 	UINT Delay;
 	UINT RetryDelay;
 	bool Tcp_TryStartSsl;
+	SSL_VERIFY_OPTION *SslOption;
+	UINT *SslErr;
 	bool Use_NatT;
 	bool Force_NatT;
 	IP *Ret_Ip;
@@ -842,9 +844,21 @@ struct CONNECT_TCP_RUDP_PARAM
 	UINT RUdpProtocol;
 	UINT Delay;
 	bool Tcp_TryStartSsl;
+	SSL_VERIFY_OPTION *SslOption;
+	UINT *SslErr;
 	LOCK *CancelLock;
 	SOCK *CancelDisconnectSock;
 	bool Tcp_InNegotiation;
+};
+
+struct SSL_VERIFY_OPTION
+{
+	bool VerifyPeer;				// Whether to verify SSL peer
+	bool PromptOnVerifyFail;		// Prompt on verification failure (Windows)
+	bool AddDefaultCA;				// Use default trust store
+	bool VerifyHostname;			// Verify server hostname
+	LIST *CaList;					// Trusted CA list
+	X *SavedCert;					// Saved server certificate
 };
 
 #define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
@@ -1084,7 +1098,7 @@ SOCK *ConnectEx(char *hostname, UINT port, UINT timeout);
 SOCK *ConnectEx2(char *hostname, UINT port, UINT timeout, bool *cancel_flag);
 SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname);
 SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
-SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, char *hint_str, IP *ret_ip);
+SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size);
 UINT SetSocketBufferSizeWithBestEffort(SOCKET s, bool send, UINT size);
@@ -1109,6 +1123,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size);
 bool StartSSL(SOCK *sock, X *x, K *priv);
 bool StartSSLEx(SOCK *sock, X *x, K *priv, UINT ssl_timeout, char *sni_hostname);
 bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname);
+bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char *sni_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err);
 bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x);
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx);
 bool SendAll(SOCK *sock, void *data, UINT size, bool secure);

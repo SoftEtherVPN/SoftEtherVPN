@@ -10286,6 +10286,7 @@ bool SmLinkEdit(HWND hWnd, SM_HUB *s, wchar_t *name)
 	a.ClientAuth = CopyClientAuth(t.ClientAuth);
 	Copy(&a.Policy, &t.Policy, sizeof(POLICY));
 	a.CheckServerCert = t.CheckServerCert;
+	a.AddDefaultCA = t.AddDefaultCA;
 	a.ServerCert = CloneX(t.ServerCert);
 	a.HideTrustCert = GetCapsBool(s->p->CapsList, "b_support_config_hub");
 	FreeRpcCreateLink(&t);

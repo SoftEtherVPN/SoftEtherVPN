@@ -7350,6 +7350,7 @@ UINT StGetLink(ADMIN *a, RPC_CREATE_LINK *t)
 		Copy(&t->Policy, k->Policy, sizeof(POLICY));
 
 		t->CheckServerCert = k->CheckServerCert;
+		t->AddDefaultCA = k->AddDefaultCA;
 		t->ServerCert = CloneX(k->ServerCert);
 	}
 	Unlock(k->lock);
@@ -7465,6 +7466,7 @@ UINT StSetLink(ADMIN *a, RPC_CREATE_LINK *t)
 		k->Option->RequireMonitorMode = false;	// Disable monitor mode
 
 		k->CheckServerCert = t->CheckServerCert;
+		k->AddDefaultCA = t->AddDefaultCA;
 		k->ServerCert = CloneX(t->ServerCert);
 	}
 	Unlock(k->lock);
@@ -7561,6 +7563,7 @@ UINT StCreateLink(ADMIN *a, RPC_CREATE_LINK *t)
 		// setting of verifying server certification
 		// 
 		k->CheckServerCert = t->CheckServerCert;
+		k->AddDefaultCA = t->AddDefaultCA;
 		k->ServerCert = CloneX(t->ServerCert);
 
 		// stay this off-line
@@ -13635,6 +13638,7 @@ void InRpcCreateLink(RPC_CREATE_LINK *t, PACK *p)
 	InRpcPolicy(&t->Policy, p);
 
 	t->CheckServerCert = PackGetBool(p, "CheckServerCert");
+	t->AddDefaultCA = PackGetBool(p, "AddDefaultCA");
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -13657,6 +13661,7 @@ void OutRpcCreateLink(PACK *p, RPC_CREATE_LINK *t)
 	OutRpcPolicy(p, &t->Policy);
 
 	PackAddBool(p, "CheckServerCert", t->CheckServerCert);
+	PackAddBool(p, "AddDefaultCA", t->AddDefaultCA);
 	if (t->ServerCert != NULL)
 	{
 		BUF *b;

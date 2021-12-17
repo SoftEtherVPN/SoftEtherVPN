@@ -1957,6 +1957,7 @@ RPC_CLIENT_CREATE_ACCOUNT *CiCfgToAccount(BUF *b)
 	t->StartupAccount = a->StartupAccount;
 	t->CheckServerCert = a->CheckServerCert;
 	t->RetryOnServerCert = a->RetryOnServerCert;
+	t->AddDefaultCA = a->AddDefaultCA;
 	t->ServerCert = a->ServerCert;
 	Free(a);
 
@@ -1981,6 +1982,7 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 	a.ClientAuth = t->ClientAuth;
 	a.CheckServerCert = t->CheckServerCert;
 	a.RetryOnServerCert = t->RetryOnServerCert;
+	a.AddDefaultCA = t->AddDefaultCA;
 	a.ServerCert = t->ServerCert;
 	a.StartupAccount = t->StartupAccount;
 
@@ -4542,6 +4544,7 @@ void InRpcClientCreateAccount(RPC_CLIENT_CREATE_ACCOUNT *c, PACK *p)
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
 	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
+	c->AddDefaultCA = PackGetInt(p, "AddDefaultCA") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4565,6 +4568,7 @@ void OutRpcClientCreateAccount(PACK *p, RPC_CLIENT_CREATE_ACCOUNT *c)
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
 	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
+	PackAddInt(p, "AddDefaultCA", c->AddDefaultCA);
 	if (c->ServerCert != NULL)
 	{
 		b = XToBuf(c->ServerCert, false);
@@ -4715,6 +4719,7 @@ void InRpcClientGetAccount(RPC_CLIENT_GET_ACCOUNT *c, PACK *p)
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
 	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
+	c->AddDefaultCA = PackGetInt(p, "AddDefaultCA") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4744,6 +4749,7 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
 	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
+	PackAddInt(p, "AddDefaultCA", c->AddDefaultCA);
 
 	if (c->ServerCert != NULL)
 	{
@@ -6467,9 +6473,9 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 						// Register a procedure for secure device authentication
 						r->ClientAuth->SecureSignProc = CiSecureSignProc;
 					}
-          else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
+					else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
 					{
-              /* r->ClientAuth->ClientK = OpensslEngineToK("asdf"); */
+						/* r->ClientAuth->ClientK = OpensslEngineToK("asdf"); */
 						r->ClientAuth->SecureSignProc = NULL;
 					}
 					else
@@ -6639,6 +6645,7 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 
 			a->CheckServerCert = r->CheckServerCert;
 			a->RetryOnServerCert = r->RetryOnServerCert;
+			a->AddDefaultCA = r->AddDefaultCA;
 			a->ServerCert = NULL;
 			if (r->ServerCert != NULL)
 			{
@@ -7173,6 +7180,7 @@ bool CtSetAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 
 			ret->CheckServerCert = a->CheckServerCert;
 			ret->RetryOnServerCert = a->RetryOnServerCert;
+			ret->AddDefaultCA = a->AddDefaultCA;
 
 			if (a->ServerCert != NULL)
 			{
@@ -7272,6 +7280,7 @@ bool CtCreateAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 
 		new_account->CheckServerCert = a->CheckServerCert;
 		new_account->RetryOnServerCert = a->RetryOnServerCert;
+		new_account->AddDefaultCA = a->AddDefaultCA;
 		if (a->ServerCert != NULL)
 		{
 			new_account->ServerCert = CloneX(a->ServerCert);
@@ -9336,6 +9345,7 @@ ACCOUNT *CiLoadClientAccount(FOLDER *f)
 	a->StartupAccount = CfgGetBool(f, "StartupAccount");
 	a->CheckServerCert = CfgGetBool(f, "CheckServerCert");
 	a->RetryOnServerCert = CfgGetBool(f, "RetryOnServerCert");
+	a->AddDefaultCA = CfgGetBool(f, "AddDefaultCA");
 	a->CreateDateTime = CfgGetInt64(f, "CreateDateTime");
 	a->UpdateDateTime = CfgGetInt64(f, "UpdateDateTime");
 	a->LastConnectDateTime = CfgGetInt64(f, "LastConnectDateTime");
@@ -9973,6 +9983,9 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
 
 	// Retry on invalid server certificate flag
 	CfgAddBool(f, "RetryOnServerCert", a->RetryOnServerCert);
+
+	// Add default SSL trust store
+	CfgAddBool(f, "AddDefaultCA", a->AddDefaultCA);
 
 	// Date and time
 	CfgAddInt64(f, "CreateDateTime", a->CreateDateTime);

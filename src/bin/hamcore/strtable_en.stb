@@ -212,6 +212,8 @@ ERR_145					Unacceptable operation. Use the VPN Gate Utility to modify the conne
 ERR_146					The VPN Gate Service is running inside the VPN Client program. You cannot stop the VPN Gate Service on this screen. Use the VPN Client Manager to enable or disable the VPN Gate Service.
 ERR_147					This feature is not supported. It hasn't been implemented yet on the open-source version of SoftEther VPN.
 ERR_148					The VPN connection was disconnected because the system is being suspended.
+ERR_149					The destination VPN Server's certificate does not match the specified hostname.
+
 
 # Concerning licenses
 LICENSE_INFO_URL		https://selinks.org/?new_license
@@ -2322,6 +2324,7 @@ R_SOCKS5				Connect via &SOCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Server Certificate Veri&fication Option:
 R_CHECK_CERT			Always Verify Server &Certificate
+R_TRUST_DEFAULT			Trust System Certificate Store
 B_TRUST					Manage Trusted CA &Certificate List
 B_SERVER_CERT			&Specify Individual Cert
 B_VIEW_SERVER_CERT		Show Indi&vidual Cert
@@ -4396,6 +4399,7 @@ CMD_ACCOUNT_COLUMN_PROXY_USERNAME	Proxy Server User Name
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	Verify Server Certificate
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	Registered Server Individual Certificate
 CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   Trust System Certificate Store
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		Device Name Used for Connection
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		Authentication Type
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	User Name
@@ -5494,6 +5498,20 @@ CMD_CascadeServerCertDisable	Disable Cascade Connection Server Certificate Verif
 CMD_CascadeServerCertDisable_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to disable the option to check whether the SSL certificate provided by the destination VPN Server can be trusted. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+
+
+# CascadeDefaultCAEnable command
+CMD_CascadeDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_CascadeDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+
+
+# CascadeDefaultCADisable command
+CMD_CascadeDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_CascadeDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
 
 
 # CascadeServerCertSet command
@@ -6801,6 +6819,20 @@ CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certi
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable command
+CMD_AccountDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_AccountDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCADisable command
+CMD_AccountDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_AccountDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet command
