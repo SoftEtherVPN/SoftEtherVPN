@@ -11719,13 +11719,6 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 			}
 #endif	// SSL_OP_NO_TLSv1_3
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
-			if (sock->SslAcceptSettings.Override_Security_Level)
-			{
-				SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
-			}
-#endif
-
 			Unlock(openssl_lock);
 			if (chain == NULL)
 			{
@@ -11747,6 +11740,13 @@ bool StartSSLEx2(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 			}
 			Lock(openssl_lock);
 		}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+		if (sock->SslAcceptSettings.Override_Security_Level)
+		{
+			SSL_CTX_set_security_level(ssl_ctx, sock->SslAcceptSettings.Override_Security_Level_Value);
+		}
+#endif
 
 		sock->ssl = SSL_new(ssl_ctx);
 		SSL_set_fd(sock->ssl, (int)sock->socket);

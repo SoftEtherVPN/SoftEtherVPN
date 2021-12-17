@@ -103,6 +103,8 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 
 								SetTimeout(ns, param->DataTimeout);
 
+								Copy(&ns->SslAcceptSettings, &ac->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
+
 								if (StartSSLEx(ns, NULL, NULL, 0, NULL))
 								{
 									// Check certification
