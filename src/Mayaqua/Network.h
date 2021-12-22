@@ -87,7 +87,7 @@ struct IP
 
 #define	CmpIpAddr(ip1, ip2)			(Cmp((ip1)->address, (ip2)->address, sizeof((ip1)->address)))
 
-#define	IsIP6(ip)					(IsIP4(ip) == false)
+#define	IsIP6(ip)					(ip && IsIP4(ip) == false)
 #define	IsZeroIp(ip)				(IsZeroIP(ip))
 
 // IPv6 address (different format)
