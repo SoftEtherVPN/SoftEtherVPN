@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#include <netpacket/packet.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>

@@ -13,6 +13,7 @@
 
 #ifdef OS_UNIX
 #include <netinet/in.h>
+#include <pthread.h>
 
 #ifdef UNIX_OPENBSD
 #include <pthread.h>
