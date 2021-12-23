@@ -182,7 +182,12 @@ sysrc softether_server_enable=yes
 Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softether-devel/) and
 [RTM version](https://www.freshports.org/security/softether/) are available on FreeBSD.
 
-## From binary installers:
+## For Windows & macOS
+
+[Nightly builds](https://dev.azure.com/SoftEther-VPN/SoftEther%20VPN/_build?definitionId=6)
+(choose appropriate platform, then find binaries or installers as artifacts)
+
+## Stable channel binaries & installers:
 
 Those can be found under https://www.softether-download.com/
 There you can also find SoftEtherVPN source code in zip and tar formats.
