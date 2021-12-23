@@ -4023,8 +4023,14 @@ void ShowDlgDiffWarning(HWND hWnd, UI_CHECKCERT *p)
 	char sha1_new_str[MAX_SIZE], sha1_old_str[MAX_SIZE];
 	char md5_new_str[MAX_SIZE], md5_old_str[MAX_SIZE];
 	// Validate arguments
-	if (hWnd == NULL || p == NULL || p->x == NULL || p->old_x == NULL)
+	if (hWnd == NULL || p == NULL || p->x == NULL || (p->old_x == NULL && p->AdminSession == false))
 	{
+		return;
+	}
+
+	if (p->AdminSession)
+	{
+		MsgBoxEx(hWnd, MB_ICONEXCLAMATION, _UU("CC_DANGEROUS_MSG2"));
 		return;
 	}
 
@@ -4054,6 +4060,13 @@ void CheckCertDialogOnOk(HWND hWnd, UI_CHECKCERT *p)
 	// Validate arguments
 	if (hWnd == NULL || p == NULL)
 	{
+		return;
+	}
+
+	if (p->AdminSession)
+	{
+		p->Ok = true;
+		EndDialog(hWnd, true);
 		return;
 	}
 

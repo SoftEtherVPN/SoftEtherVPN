@@ -19029,6 +19029,87 @@ void SmShowIPSecMessageIfNecessary(HWND hWnd, SM_SERVER *p)
 	}
 }
 
+void Win32ConnectPromptUserThreadProc(THREAD *thread, void *param)
+{
+	UI_CHECKCERT *dlg;
+	// Validate arguments
+	if (thread == NULL || param == NULL)
+	{
+		return;
+	}
+
+	dlg = (UI_CHECKCERT *)param;
+
+	Dialog(NULL, D_CHECKCERT, CheckCertDlgProc, dlg);
+}
+
+bool Win32ConnectPromptUserProc(RPC_CONNECT_CONFIRM *confirm, CONNECTION *connection)
+{
+	if (confirm == NULL || connection == NULL)
+	{
+		return false;
+	}
+
+	X *x = connection->FirstSock->RemoteX;
+
+	if (x != NULL)
+	{
+		K *k = GetKFromX(x);
+		if (k != NULL)
+		{
+			BUF *b = KToBuf(k, false, NULL);
+			char *new_key = Base64FromBin(NULL, b->Buf, b->Size);
+			FreeBuf(b);
+			FreeK(k);
+
+			if (IsEmptyStr(new_key))
+			{
+				Free(new_key);
+				return false;
+			}
+
+			char *saved_key = ReadPublicKeyFromFile(confirm->HostFile, confirm->Hostname, confirm->Port);
+
+			// Server matches saved public key
+			if (StrCmpi(new_key, saved_key) == 0)
+			{
+				Free(new_key);
+				Free(saved_key);
+				return true;
+			}
+
+			// Pop up dialog for user authorization
+			UI_CHECKCERT dlg;
+			Zero(&dlg, sizeof(dlg));
+			dlg.AdminSession = true;
+			dlg.x = x;
+			dlg.DiffWarning = (saved_key != NULL);
+			UniStrCpy(dlg.AccountName, sizeof(dlg.AccountName), confirm->AccountName);
+			StrCpy(dlg.ServerName, sizeof(dlg.ServerName), confirm->Hostname);
+
+			THREAD *t = NewThread(Win32ConnectPromptUserThreadProc, &dlg);
+			WaitThread(t, INFINITE);
+			ReleaseThread(t);
+
+			if (dlg.Ok)
+			{
+				// Save new key
+				SavePublicKeyToFile(confirm->HostFile, confirm->Hostname, confirm->Port, new_key);
+				confirm->UserAuthorized = true;
+				Free(new_key);
+				Free(saved_key);
+				return true;
+			}
+
+			Free(new_key);
+			Free(saved_key);
+			return false;
+		}
+	}
+
+	return false;
+}
+
 // Connection
 void SmConnect(HWND hWnd, SETTING *s)
 {
@@ -19081,13 +19162,28 @@ ENTER_PASSWORD:
 	if (ok)
 	{
 		UINT err = ERR_INTERNAL_ERROR;
+		IP ip;
+		RPC_CONNECT_CONFIRM confirm;
+		Zero(&confirm, sizeof(RPC_CONNECT_CONFIRM));
+		confirm.AccountName = s->Title;
+		confirm.Hostname = s->ClientOption.Hostname;
+		confirm.Port = s->ClientOption.Port;
+		confirm.PromptUser = Win32ConnectPromptUserProc;
+		StrCpy(confirm.HostFile, sizeof(confirm.HostFile), "~/se_known_hosts");
+RECONNECT:
 		// Connection
-		rpc = AdminConnectEx2(sm->Cedar, &s->ClientOption, s->ServerAdminMode ? "" : s->HubName, s->HashedPassword, &err, NULL,
-			hWnd);
+		if (StrCmpi(s->ClientOption.Hostname, "localhost") == 0 || (StrToIP(&ip, s->ClientOption.Hostname) && IsLocalHostIP(&ip)))
+		{
+			rpc = AdminConnectEx2(sm->Cedar, &s->ClientOption, s->ServerAdminMode ? "" : s->HubName, s->HashedPassword, &err, NULL,	hWnd, NULL);
+		}
+		else
+		{
+			rpc = AdminConnectEx2(sm->Cedar, &s->ClientOption, s->ServerAdminMode ? "" : s->HubName, s->HashedPassword, &err, NULL,	hWnd, &confirm);
+		}
 		if (rpc == NULL)
 		{
 			// An error has occured
-			if (err != ERR_ACCESS_DENIED || first_bad_password)
+			if (err != ERR_USER_CANCEL && (err != ERR_ACCESS_DENIED || first_bad_password))
 			{
 				MsgBox(hWnd, MB_ICONSTOP, _E(err));
 			}
@@ -19096,6 +19192,12 @@ ENTER_PASSWORD:
 				// Password incorrect
 				first_bad_password = true;
 				goto ENTER_PASSWORD;
+			}
+			else if (err == ERR_DISCONNECTED && confirm.UserAuthorized)
+			{
+				// Reconnect only once if disconnected during awaiting user authorization
+				confirm.UserAuthorized = false;
+				goto RECONNECT;
 			}
 			else
 			{

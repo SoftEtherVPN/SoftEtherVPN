@@ -15480,6 +15480,10 @@ void AdminDisconnect(RPC *rpc)
 // Admin connection main routine
 SESSION *AdminConnectMain(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, bool *empty_password)
 {
+	return AdminConnectMainEx(cedar, o, hubname, hashed_password, err, client_name, hWnd, empty_password, NULL);
+}
+SESSION *AdminConnectMainEx(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, bool *empty_password, RPC_CONNECT_CONFIRM *confirm)
+{
 	UCHAR secure_password[SHA1_SIZE];
 	SESSION *s;
 	SOCK *sock;
@@ -15494,6 +15498,14 @@ SESSION *AdminConnectMain(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *h
 
 	// Get socket
 	sock = s->Connection->FirstSock;
+
+	// Print server info and ask user whether to continue
+	if (confirm != NULL && confirm->PromptUser(confirm, s->Connection) == false)
+	{
+		ReleaseSession(s);
+		*err = ERR_USER_CANCEL;
+		return NULL;
+	}
 
 	// Generate connect method
 	p = NewPack();
@@ -15560,9 +15572,9 @@ SESSION *AdminConnectMain(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *h
 // Admin connection
 RPC *AdminConnectEx(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name)
 {
-	return AdminConnectEx2(cedar, o, hubname, hashed_password, err, client_name, NULL);
+	return AdminConnectEx2(cedar, o, hubname, hashed_password, err, client_name, NULL, NULL);
 }
-RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd)
+RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, RPC_CONNECT_CONFIRM *confirm)
 {
 	SESSION *s;
 	SOCK *sock;
@@ -15582,7 +15594,7 @@ RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed
 
 	Copy(hashed_password_2, hashed_password, SHA1_SIZE);
 
-	s = AdminConnectMain(cedar, o, hubname, hashed_password_2, err, client_name, hWnd, &empty_password);
+	s = AdminConnectMainEx(cedar, o, hubname, hashed_password_2, err, client_name, hWnd, &empty_password, confirm);
 
 	if (s == NULL)
 	{
@@ -15593,7 +15605,7 @@ RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed
 
 	// RPC start
 	rpc = StartRpcClient(sock, s);
-
+	rpc->Confirm = confirm;
 	rpc->IsVpnServer = true;
 	Copy(&rpc->VpnServerClientOption, o, sizeof(CLIENT_OPTION));
 	StrCpy(rpc->VpnServerHubName, sizeof(rpc->VpnServerHubName), hubname);
@@ -15640,11 +15652,11 @@ UINT AdminReconnect(RPC *rpc)
 
 	rpc->Sock = NULL;
 
-	s = AdminConnectMain(cedar, &rpc->VpnServerClientOption,
+	s = AdminConnectMainEx(cedar, &rpc->VpnServerClientOption,
 		rpc->VpnServerHubName,
 		rpc->VpnServerHashedPassword,
 		&err,
-		rpc->VpnServerClientName, NULL, &empty_password);
+		rpc->VpnServerClientName, NULL, &empty_password, rpc->Confirm);
 
 	ReleaseCedar(cedar);
 

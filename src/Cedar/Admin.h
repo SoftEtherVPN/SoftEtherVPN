@@ -934,6 +934,18 @@ struct RPC_AZURE_STATUS
 	bool IsConnected;						// Whether it's connected
 };
 
+// Ask user whether to continue RPC connect
+struct RPC_CONNECT_CONFIRM
+{
+	wchar_t *AccountName;
+	char *Hostname;
+	UINT Port;
+	bool (*PromptUser)(RPC_CONNECT_CONFIRM *confirm, CONNECTION *connection);
+	CONSOLE *C;
+	char HostFile[MAX_SIZE];
+	bool UserAuthorized;
+};
+
 // Constants
 #define ADMIN_RPC_MAX_POST_SIZE_BY_SERVER_ADMIN		MAX_PACK_SIZE
 #define ADMIN_RPC_MAX_POST_SIZE_BY_HUB_ADMIN		(8 * 1024 * 1024)
@@ -943,8 +955,9 @@ struct RPC_AZURE_STATUS
 UINT AdminAccept(CONNECTION *c, PACK *p);
 void HashAdminPassword(void *hash, char *password);
 SESSION *AdminConnectMain(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, bool *empty_password);
+SESSION *AdminConnectMainEx(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, bool *empty_password, RPC_CONNECT_CONFIRM *confirm);
 RPC *AdminConnectEx(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name);
-RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd);
+RPC *AdminConnectEx2(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, void *hashed_password, UINT *err, char *client_name, void *hWnd, RPC_CONNECT_CONFIRM *confirm);
 void AdminDisconnect(RPC *rpc);
 UINT AdminReconnect(RPC *rpc);
 UINT AdminCheckPassword(CEDAR *c, void *random, void *secure_password, char *hubname, bool accept_empty_password, bool *is_password_empty);

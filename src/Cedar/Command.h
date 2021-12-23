@@ -393,6 +393,8 @@ UINT PcKeepGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 
 PS *NewPs(CONSOLE *c, RPC *rpc, char *servername, UINT serverport, char *hubname, char *adminhub, wchar_t *cmdline);
 void FreePs(PS *ps);
+char *ReadPublicKeyFromFile(char *filename, char *host, UINT port);
+bool SavePublicKeyToFile(char *filename, char *host, UINT port, char *key);
 UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wchar_t *cmdline, char *password);
 void PsMain(PS *ps);
 UINT PsAbout(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);

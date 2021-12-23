@@ -445,6 +445,7 @@ CERT_KEY_PARAMETER		參數
 #關於證書認證對話方塊
 CC_DANGEROUS_MSG		之前保存的與此伺服器(%S)建立 VPN 連接的伺服器憑證，與伺服器提供的當前伺服器憑證不匹配。\r\n以前的摘要值(MD5): %S\r\n以前的摘要值(SHA1): %S\r\ni當前的摘要值(MD5): %S\r\n當前摘要值(SHA-1): %S\r\n\r\n可能是伺服器管理員在 VPN Server 端更改了證書。然而，也有可能是中間人攻擊，如發生欺騙攻擊。\r\n強烈建議您向您向您想連接的 VPN Server 管理員進行詳細資訊諮詢。
 CC_WARNING_MSG			您是否想讓您當前連接使用的證書，在下次連接到 %s 自動信任嗎?\r\n\r\n摘要值(SHA-1): %S\r\n摘要值(MD5): %S\r\n\r\n如對此伺服器憑證的真實性有疑問，請通過一穩妥而安全的管道，與伺服器所有者進行聯繫，並列舉上述摘要值以進行確認。\r\n\r\n按一下“是”，則下次連接時，若伺服器提供相同證書則自動信任。\r\n按一下“否”，則下次連接到此伺服器時，再次顯示此警告。\r\n按一下“取消”，返回安全警告窗口。\r\n\r\n注意: 此設置可按逐個帳戶情況進行修改。您可以使用 VPN Client 用戶端管理器內的帳戶屬性進行設置。
+CC_DANGEROUS_MSG2		該主機的公鑰與之前保存的記錄不匹配。\r\n\r\n如果不是您更改了伺服器憑證，您可能遭遇了中間人攻擊。如果您不確定，請不要繼續操作。
 
 
 # 關於 Windows 版本的錯誤
@@ -2277,7 +2278,7 @@ PREFIX					D_CHECKCERT
 CAPTION					安全警告 - %s
 S_TITLE					你正在連接到的目標 VPN Server “%S”的連接是加密的，但由伺服器提供的伺服器憑證的可信度是未知的。
 STATIC1					關於伺服器憑證
-STATIC2					正在 VPN Server 和 VPN Client 之間建立加密通道(SSL 會話)。檢查伺服器憑證可以驗證伺服器的可靠性。
+STATIC2					正在與 VPN Server 建立加密通道(SSL 會話)。檢查伺服器憑證可以驗證伺服器的可靠性。
 S_MSG1					目標 VPN Server "%S" 提供的服務端證書如下。
 STATIC3					發給:
 STATIC4					發行人:
@@ -4514,6 +4515,24 @@ CMD_VPNCMD_PWPROMPT_2		確認輸入:
 CMD_VPNCMD_PWPROMPT_3		密碼和確認密碼不匹配。請再輸入密碼和確認密碼。
 CMD_VPNCMD_CLIENT_CONNECTED	連接到 VPN Client "%S"。
 CMD_VPNCMD_TOOLS_CONNECTED	VPN 工具已推出。通過輸入 "HELP"，您可以查看可使用的命令列表。
+CMD_VPNCMD_CONNECT_CONFIRM_1	這是您第一次連接到該主機。請確認其身份。
+CMD_VPNCMD_CONNECT_CONFIRM_2	*** 警告!! *** 該主機的公鑰與之前保存的記錄不匹配。\n\n如果不是您更改了伺服器憑證，您可能遭遇了中間人攻擊。如果您不確定，請不要繼續操作。
+CMD_VPNCMD_CONNECT_CONFIRM_3	您是否確認了伺服器的身份並想繼續登入？（輸入 'yes' 繼續） 
+CMD_VPNCMD_CONNECT_CONFIRM_4	無效的憑證或公鑰。
+CMD_VPNCMD_CONNECT_CONFIRM_5	已將公鑰保存到已知主機列表中。
+CMD_VPNCMD_CONNECT_CONFIRM_6	公鑰保存失敗。
+CMD_VPNCMD_CONNECT_CONFIRM_7	您真的確定您了解警告的內容並想繼續嗎？（輸入 'yes' 繼續） 
+CMD_VPNCMD_CONNECT_HOST_INFO_1	主機名稱
+CMD_VPNCMD_CONNECT_HOST_INFO_2	埠號
+CMD_VPNCMD_CONNECT_HOST_INFO_3	產品名稱
+CMD_VPNCMD_CONNECT_HOST_INFO_4	版本
+CMD_VPNCMD_CONNECT_HOST_INFO_5	內部標記
+CMD_VPNCMD_CONNECT_HOST_INFO_6	主題
+CMD_VPNCMD_CONNECT_HOST_INFO_7	發行者
+CMD_VPNCMD_CONNECT_HOST_INFO_8	有效期自
+CMD_VPNCMD_CONNECT_HOST_INFO_9	有效期至
+CMD_VPNCMD_CONNECT_HOST_INFO_10	摘要 (MD5)
+CMD_VPNCMD_CONNECT_HOST_INFO_11	摘要 (SHA-1)
 
 
 

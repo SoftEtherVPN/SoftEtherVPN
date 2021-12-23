@@ -445,6 +445,7 @@ CERT_KEY_PARAMETER		매개변수
 # 인증서 확인 대화 관계
 CC_DANGEROUS_MSG 이전이 서버 (%S)에 VPN 연결했을 때 저장된 서버 인증서와 이번 연결할 때 서버가 제시하는 서버 인증서가 일치하지 않습니다. \r\n \r\n 마지막 다이제스트 값 (MD5):%S \r\n 마지막 다이제스트 값 (SHA1):%S \r\n\r\n 이번 다이제스트 값 (MD5):%S \r\n 이번 다이제스트 값 (SHA1):%S \r\n\r\nVPN Server 측 인증서가 서버 관리자에 의해 변경된 가능성이 있지만, 경우에 따라서는 스푸핑 등의 중간 공격 을 받고있을 가능성도 있습니다. \r\n 연결을 시도하고있는 VPN Server 관리자에게 자세한 내용을 문의하는 것이 좋습니다 있습니다.
 CC_WARNING_MSG 현재 연결하려고하는 VPN Server의 서버 인증서를 다음 %s에 연결하면 자동으로 신뢰 하시겠습니까? \r\n\r\n 다이제스트 값 (SHA1):%S \r\n 다이제스트 값 (MD5):%S \r\n\r\n이 서버 인증서가 올바른 것으로인지 불안한 경우는 위의 다이제스트 값을 서버 설치에 대하여 안전한 방법으로 확인하십시오 . \r\n\r\n 예를 클릭하면 다음부터는이 서버에 연결할 때 서버 인증서가 제공되는 경우는 자동으로 신뢰합니다. \r\n 아니오를 클릭하면 이번 연결 만 신뢰하고 다음 연결시에는 다시 경고 메시지를 표시합니다. \r\n [취소]를 클릭하면 보안 경고 화면으로 돌아갑니다. \r\n\r\n ※이 설정은 계정마다 변경할 수 있습니다. VPN 클라이언트 연결 관리자의 계정 속성에서 설정할 수 있습니다.
+CC_DANGEROUS_MSG2 호스트의 공개 키가 이전 키와 일치하지 않습니다. \r\n\r\n서버 인증서를 변경하지 않았다면 메시지 가로채기(man-in-the-middle) 공격이 진행 중일 수 있습니다. 확실하지 않으면 계속하지 마십시오.
 
 
 # 연결 실패 대화 관계
@@ -2241,7 +2242,7 @@ PREFIX D_CHECKCERT
 CAPTION 보안 경고 - %s
 S_TITLE 현재 연결을 시도하고있다 연결된 VPN Server "%S"사이의 통신은 암호화되어 있지만 서버가 제시 한 서버 인증서가 신뢰할 수 있는지 여부는 알 수 없습니다.
 STATIC1 서버 인증서에 대해
-STATIC2 VPN 통신은 서버와 클라이언트 사이에서 암호화 통신 (SSL 세션)을 설정합니다. 그 때 서버 인증서를 확인하여 연결하려고하는 서버가 정품 여부를 확인할 수 있습니다.
+STATIC2 VPN 통신은 서버와 암호화된 통신(SSL 세션)을 설정합니다. 그 때 서버 인증서를 확인하여 연결하려고하는 서버가 정품 여부를 확인할 수 있습니다.
 S_MSG1 연결된 VPN Server "%S"가 제시 한 서버 인증서는 다음과 같습니다.
 STATIC3 발급 대상:
 STATIC4 게시자:
@@ -4481,6 +4482,24 @@ CMD_VPNCMD_PWPROMPT_2 확인:
 CMD_VPNCMD_PWPROMPT_3 입력 된 비밀번호와 확인 입력이 다릅니다. 다시 입력하십시오.
 CMD_VPNCMD_CLIENT_CONNECTED VPN Client "%S"로 연결했습니다.
 CMD_VPNCMD_TOOLS_CONNECTED VPN Tools를 시작했습니다. HELP를 입력하면 사용할 수있는 명령 목록을 볼 수 있습니다.
+CMD_VPNCMD_CONNECT_CONFIRM_1	This is the first time you connect to the host. Please confirm its identity.
+CMD_VPNCMD_CONNECT_CONFIRM_2	*** WARNING!! *** The public key of the host does not match the previous record. \n\nIf it wasn't changed by you, there might be an ongoing man-in-the-middle attack. Do not proceed if you are not sure.
+CMD_VPNCMD_CONNECT_CONFIRM_3	Do you confirm the identity of the server and want to continue to login? (Enter 'yes' to continue) 
+CMD_VPNCMD_CONNECT_CONFIRM_4	Invalid certificate or public key.
+CMD_VPNCMD_CONNECT_CONFIRM_5	Saved the public key to the list of known hosts.
+CMD_VPNCMD_CONNECT_CONFIRM_6	Failed to save the public key.
+CMD_VPNCMD_CONNECT_CONFIRM_7	Are you REALLY SURE you understand the warning and want to continue? (Enter 'yes' to continue) 
+CMD_VPNCMD_CONNECT_HOST_INFO_1	Hostname
+CMD_VPNCMD_CONNECT_HOST_INFO_2	Port
+CMD_VPNCMD_CONNECT_HOST_INFO_3	Product
+CMD_VPNCMD_CONNECT_HOST_INFO_4	Version
+CMD_VPNCMD_CONNECT_HOST_INFO_5	Build
+CMD_VPNCMD_CONNECT_HOST_INFO_6	Subject name
+CMD_VPNCMD_CONNECT_HOST_INFO_7	Issuer
+CMD_VPNCMD_CONNECT_HOST_INFO_8	Issued on
+CMD_VPNCMD_CONNECT_HOST_INFO_9	Expiration
+CMD_VPNCMD_CONNECT_HOST_INFO_10	Digest (MD5)
+CMD_VPNCMD_CONNECT_HOST_INFO_11	Digest (SHA-1)
 
 
 ################################################## ####

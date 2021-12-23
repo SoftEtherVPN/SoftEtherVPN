@@ -380,6 +380,7 @@ typedef struct RPC_WINVER RPC_WINVER;
 typedef struct RPC_ENUM_ETHERIP_ID RPC_ENUM_ETHERIP_ID;
 typedef struct RPC_SPECIAL_LISTENER RPC_SPECIAL_LISTENER;
 typedef struct RPC_AZURE_STATUS RPC_AZURE_STATUS;
+typedef struct RPC_CONNECT_CONFIRM RPC_CONNECT_CONFIRM;
 
 
 // ==============================================================

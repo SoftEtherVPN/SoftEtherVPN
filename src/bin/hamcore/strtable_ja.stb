@@ -441,6 +441,7 @@ CERT_KEY_PARAMETER		パラメータ
 # 証明書確認ダイアログ関係
 CC_DANGEROUS_MSG		前回、このサーバー (%S) に VPN 接続した際に保存されたサーバー証明書と、今回の接続の際にサーバーが提示しているサーバー証明書が一致しません。\r\n\r\n前回のダイジェスト値 (MD5) : %S\r\n前回のダイジェスト値 (SHA1): %S\r\n\r\n今回のダイジェスト値 (MD5) : %S\r\n今回のダイジェスト値 (SHA1): %S\r\n\r\nVPN Server 側の証明書がサーバー管理者によって変更された可能性がありますが、場合によっては、成り済ましなどの中間攻撃を受けている可能性もあります。\r\n接続しようとしている VPN Server の管理者に詳細を問い合わせることを強くお勧めします。
 CC_WARNING_MSG			現在接続しようとしている VPN Server のサーバー証明書を次回 %s に接続する際に自動的に信頼しますか?\r\n\r\nダイジェスト値 (SHA1): %S\r\nダイジェスト値 (MD5) : %S\r\n\r\nこのサーバー証明書が正しいものであるかどうか不安な場合は、上記のダイジェスト値をサーバー設置者に対して安全な方法で確認してください。\r\n\r\n[はい] をクリックすると、次回からこのサーバーに接続する際にこのサーバー証明書が提示された場合は、自動的に信頼します。\r\n[いいえ] をクリックすると、今回の接続のみ信頼し、次回の接続の際には再度警告のメッセージを表示します。\r\n[キャンセル] をクリックすると、セキュリティの警告画面に戻ります。\r\n\r\n※ この設定はアカウントごとに変更することができます。VPN クライアント接続マネージャのアカウントのプロパティで設定できます。
+CC_DANGEROUS_MSG		ホストの公開鍵が前回と一致しません。\r\n\r\nサーバー証明書を変更しなかった場合は、中間者攻撃が進行している可能性があります。心当たりがない限り、続行しないでください。
 
 
 # 接続失敗ダイアログ関係
@@ -2263,7 +2264,7 @@ PREFIX					D_CHECKCERT
 CAPTION					セキュリティの警告 - %s
 S_TITLE					現在接続しようとしている接続先 VPN Server "%S" との間の通信は暗号化されていますが、サーバーが提示したサーバー証明書が信頼できるかどうかはわかりません。
 STATIC1					サーバー証明書について
-STATIC2					VPN 通信では、サーバーとクライアントの間で暗号化通信 (SSL セッション) を確立します。その際にサーバーの証明書を確認することによって、接続しようとしているサーバーが本物かどうかを検証することができます。
+STATIC2					VPN 通信では、サーバーとの間で暗号化通信 (SSL セッション) を確立します。その際にサーバーの証明書を確認することによって、接続しようとしているサーバーが本物かどうかを検証することができます。
 S_MSG1					接続先の VPN Server "%S" が提示したサーバー証明書は以下のとおりです。
 STATIC3					発行先:
 STATIC4					発行者:
@@ -4503,6 +4504,24 @@ CMD_VPNCMD_PWPROMPT_2	確認入力  :
 CMD_VPNCMD_PWPROMPT_3	入力されたパスワードと確認入力が異なります。もう一度入力してください。
 CMD_VPNCMD_CLIENT_CONNECTED	VPN Client "%S" に接続しました。
 CMD_VPNCMD_TOOLS_CONNECTED	VPN Tools を起動しました。HELP と入力すると、使用できるコマンド一覧が表示できます。
+CMD_VPNCMD_CONNECT_CONFIRM_1	このホストとの接続は初めてです。以下の情報を確認してください。
+CMD_VPNCMD_CONNECT_CONFIRM_2	*** 警告!! *** ホストの公開鍵が前回と一致しません。\n\nサーバー証明書を変更しなかった場合は、中間者攻撃が進行している可能性があります。心当たりがない限り、続行しないでください。
+CMD_VPNCMD_CONNECT_CONFIRM_3	サーバーの情報を確認し、ログインを続行しますか？（続行するには 'yes' と入力してください） 
+CMD_VPNCMD_CONNECT_CONFIRM_4	無効な証明書または公開鍵。
+CMD_VPNCMD_CONNECT_CONFIRM_5	公開鍵を既知のホストファイルに保存しました。
+CMD_VPNCMD_CONNECT_CONFIRM_6	公開鍵を保存できませんでした。
+CMD_VPNCMD_CONNECT_CONFIRM_7	警告を理解した上、それでも続行したいのですか？（続行するには 'yes' と入力してください） 
+CMD_VPNCMD_CONNECT_HOST_INFO_1	ホスト名
+CMD_VPNCMD_CONNECT_HOST_INFO_2	ポート
+CMD_VPNCMD_CONNECT_HOST_INFO_3	製品名
+CMD_VPNCMD_CONNECT_HOST_INFO_4	バージョン
+CMD_VPNCMD_CONNECT_HOST_INFO_5	ビルド番号
+CMD_VPNCMD_CONNECT_HOST_INFO_6	サブジェクト
+CMD_VPNCMD_CONNECT_HOST_INFO_7	発行者
+CMD_VPNCMD_CONNECT_HOST_INFO_8	有効期限の開始
+CMD_VPNCMD_CONNECT_HOST_INFO_9	有効期限の終了
+CMD_VPNCMD_CONNECT_HOST_INFO_10	ダイジェスト (MD5)
+CMD_VPNCMD_CONNECT_HOST_INFO_11	ダイジェスト (SHA-1)
 
 
 ######################################################
