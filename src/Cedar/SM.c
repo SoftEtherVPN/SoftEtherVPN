@@ -17176,7 +17176,7 @@ UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 	SM_SSL *s = (SM_SSL *)param;
 	X *x;
 	K *k;
-	LIST *chain;
+	LIST *chain = NULL;
 	// Validate arguments
 	if (hWnd == NULL)
 	{
