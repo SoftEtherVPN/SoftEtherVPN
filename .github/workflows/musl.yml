@@ -1,0 +1,24 @@
+name: alpine/musl
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  musl:
+      name: gcc
+      runs-on: ubuntu-latest
+      container:
+        image: alpine:latest
+      steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: apk add binutils --no-cache build-base readline-dev openssl-dev ncurses-dev git cmake zlib-dev libsodium-dev gnu-libiconv 
+      - name: Configure
+        run: make -j$(nproc) CC=cc V=1 TARGET=linux-musl USE_LUA=1 LUA_INC=/usr/include/lua5.3 LUA_LIB=/usr/lib/lua5.3 USE_OPENSSL=1 USE_PCRE2=1 USE_PCRE2_JIT=1 USE_PROMEX=1
+      - name: make 
+        run: make -C build
