@@ -50,6 +50,7 @@
 #endif
 
 #ifdef UNIX_LINUX
+#include <netpacket/packet.h>
 
 struct my_tpacket_auxdata
 {
