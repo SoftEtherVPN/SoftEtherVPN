@@ -19957,6 +19957,215 @@ void SmWriteSettingList()
 	}
 }
 
+SETTING *LoadSetting9658(BUF *b)
+{
+	typedef struct OLD_CLIENT_OPTION
+	{
+		wchar_t AccountName[256];								// Connection setting name
+		char Hostname[256];										// Host name
+		UINT Port;												// Port number
+		UINT PortUDP;											// UDP port number (0: Use only TCP)
+		UINT ProxyType;											// Type of proxy
+		char ProxyName[256];									// Proxy server name
+		UINT ProxyPort;											// Port number of the proxy server
+		char ProxyUsername[256];								// Maximum user name length
+		char ProxyPassword[256];								// Maximum password length
+		UINT NumRetry;											// Automatic retries
+		UINT RetryInterval;										// Retry interval
+		char HubName[256];										// HUB name
+		UINT MaxConnection;										// Maximum number of concurrent TCP connections
+		UINT UseEncrypt;										// Use encrypted communication
+		UINT UseCompress;										// Use data compression
+		UINT HalfConnection;									// Use half connection in TCP
+		UINT NoRoutingTracking;									// Disable the routing tracking
+		char DeviceName[32];									// VLAN device name
+		UINT AdditionalConnectionInterval;						// Connection attempt interval when additional connection establish
+		UINT ConnectionDisconnectSpan;							// Disconnection interval
+		UINT HideStatusWindow;									// Hide the status window
+		UINT HideNicInfoWindow;									// Hide the NIC status window
+		UINT RequireMonitorMode;								// Monitor port mode
+		UINT RequireBridgeRoutingMode;							// Bridge or routing mode
+		UINT DisableQoS;										// Disable the VoIP / QoS function
+		UINT FromAdminPack;										// For Administration Pack
+		UINT NoUdpAcceleration;									// Do not use UDP acceleration mode
+		UCHAR HostUniqueKey[20];								// Host unique key
+	} OLD_CLIENT_OPTION;
+
+	typedef struct OLD_SETTING
+	{
+		wchar_t Title[512];				// Setting Name
+		UINT ServerAdminMode;			// Server management mode
+		char HubName[256];				// HUB name
+		UCHAR HashedPassword[20];		// Password
+		OLD_CLIENT_OPTION ClientOption;		// Client Option
+		UCHAR Reserved[10188];			// Reserved area
+	} OLD_SETTING;
+
+	if (b->Size != sizeof(OLD_SETTING))	// 13416
+	{
+		return NULL;
+	}
+
+	OLD_SETTING s0;
+	Copy(&s0, b->Buf, sizeof(OLD_SETTING));
+
+	SETTING *s = ZeroMalloc(sizeof(SETTING));
+	UniStrCpy(s->Title, sizeof(s->Title), s0.Title);
+	s->ServerAdminMode = s0.ServerAdminMode;
+	StrCpy(s->HubName, sizeof(s->HubName), s0.HubName);
+	Copy(s->HashedPassword, s0.HashedPassword, sizeof(s->HashedPassword));
+	UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s0.ClientOption.AccountName);
+	StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), s0.ClientOption.Hostname);
+	s->ClientOption.Port = s0.ClientOption.Port;
+	s->ClientOption.ProxyType = s0.ClientOption.ProxyType;
+	StrCpy(s->ClientOption.ProxyName, sizeof(s->ClientOption.ProxyName), s0.ClientOption.ProxyName);
+	s->ClientOption.ProxyPort = s0.ClientOption.ProxyPort;
+	StrCpy(s->ClientOption.ProxyUsername, sizeof(s->ClientOption.ProxyUsername), s0.ClientOption.ProxyUsername);
+	StrCpy(s->ClientOption.ProxyPassword, sizeof(s->ClientOption.ProxyPassword), s0.ClientOption.ProxyPassword);
+
+	return s;
+}
+
+SETTING *LoadSetting9666(BUF *b)
+{
+	typedef struct OLD_CLIENT_OPTION
+	{
+		wchar_t AccountName[256];								// Connection setting name
+		char Hostname[256];										// Host name
+		UINT Port;												// Port number
+		UINT PortUDP;											// UDP port number (0: Use only TCP)
+		UINT ProxyType;											// Type of proxy
+		char ProxyName[256];									// Proxy server name
+		UINT ProxyPort;											// Port number of the proxy server
+		char ProxyUsername[256];								// Maximum user name length
+		char ProxyPassword[256];								// Maximum password length
+		char CustomHttpHeader[1025];							// Custom HTTP proxy header
+		UINT NumRetry;											// Automatic retries
+		UINT RetryInterval;										// Retry interval
+		char HubName[256];										// HUB name
+		UINT MaxConnection;										// Maximum number of concurrent TCP connections
+		UINT UseEncrypt;										// Use encrypted communication
+		UINT UseCompress;										// Use data compression
+		UINT HalfConnection;									// Use half connection in TCP
+		UINT NoRoutingTracking;									// Disable the routing tracking
+		char DeviceName[32];									// VLAN device name
+		UINT AdditionalConnectionInterval;						// Connection attempt interval when additional connection establish
+		UINT ConnectionDisconnectSpan;							// Disconnection interval
+		UINT HideStatusWindow;									// Hide the status window
+		UINT HideNicInfoWindow;									// Hide the NIC status window
+		UINT RequireMonitorMode;								// Monitor port mode
+		UINT RequireBridgeRoutingMode;							// Bridge or routing mode
+		UINT DisableQoS;										// Disable the VoIP / QoS function
+		UINT FromAdminPack;										// For Administration Pack
+		UINT NoUdpAcceleration;									// Do not use UDP acceleration mode
+		UCHAR HostUniqueKey[20];								// Host unique key
+	} OLD_CLIENT_OPTION;
+
+	typedef struct OLD_SETTING
+	{
+		wchar_t Title[512];				// Setting Name
+		UINT ServerAdminMode;			// Server management mode
+		char HubName[256];				// HUB name
+		UCHAR HashedPassword[20];		// Password
+		OLD_CLIENT_OPTION ClientOption;		// Client Option
+		UCHAR Reserved[10188];			// Reserved area
+	} OLD_SETTING;
+
+	if (b->Size != sizeof(OLD_SETTING))	// 14444
+	{
+		return NULL;
+	}
+
+	OLD_SETTING s0;
+	Copy(&s0, b->Buf, sizeof(OLD_SETTING));
+
+	SETTING *s = ZeroMalloc(sizeof(SETTING));
+	UniStrCpy(s->Title, sizeof(s->Title), s0.Title);
+	s->ServerAdminMode = s0.ServerAdminMode;
+	StrCpy(s->HubName, sizeof(s->HubName), s0.HubName);
+	Copy(s->HashedPassword, s0.HashedPassword, sizeof(s->HashedPassword));
+	UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s0.ClientOption.AccountName);
+	StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), s0.ClientOption.Hostname);
+	s->ClientOption.Port = s0.ClientOption.Port;
+	s->ClientOption.ProxyType = s0.ClientOption.ProxyType;
+	StrCpy(s->ClientOption.ProxyName, sizeof(s->ClientOption.ProxyName), s0.ClientOption.ProxyName);
+	s->ClientOption.ProxyPort = s0.ClientOption.ProxyPort;
+	StrCpy(s->ClientOption.ProxyUsername, sizeof(s->ClientOption.ProxyUsername), s0.ClientOption.ProxyUsername);
+	StrCpy(s->ClientOption.ProxyPassword, sizeof(s->ClientOption.ProxyPassword), s0.ClientOption.ProxyPassword);
+
+	return s;
+}
+
+SETTING *LoadSetting502(BUF *b)
+{
+	typedef struct OLD_CLIENT_OPTION
+	{
+		wchar_t AccountName[256];								// Connection setting name
+		char Hostname[256];										// Host name
+		UINT Port;												// Port number
+		UINT PortUDP;											// UDP port number (0: Use only TCP)
+		UINT ProxyType;											// Type of proxy
+		char ProxyName[256];									// Proxy server name
+		UINT ProxyPort;											// Port number of the proxy server
+		char ProxyUsername[256];								// Maximum user name length
+		char ProxyPassword[256];								// Maximum password length
+		char CustomHttpHeader[1025];							// Custom HTTP proxy header
+		UINT NumRetry;											// Automatic retries
+		UINT RetryInterval;										// Retry interval
+		char HubName[256];										// HUB name
+		UINT MaxConnection;										// Maximum number of concurrent TCP connections
+		bool UseEncrypt;										// Use encrypted communication
+		bool UseCompress;										// Use data compression
+		bool HalfConnection;									// Use half connection in TCP
+		bool NoRoutingTracking;									// Disable the routing tracking
+		char DeviceName[32];									// VLAN device name
+		UINT AdditionalConnectionInterval;						// Connection attempt interval when additional connection establish
+		UINT ConnectionDisconnectSpan;							// Disconnection interval
+		bool HideStatusWindow;									// Hide the status window
+		bool HideNicInfoWindow;									// Hide the NIC status window
+		bool RequireMonitorMode;								// Monitor port mode
+		bool RequireBridgeRoutingMode;							// Bridge or routing mode
+		bool DisableQoS;										// Disable the VoIP / QoS function
+		bool FromAdminPack;										// For Administration Pack
+		bool NoUdpAcceleration;									// Do not use UDP acceleration mode
+		UCHAR HostUniqueKey[20];								// Host unique key
+	} OLD_CLIENT_OPTION;
+
+	typedef struct OLD_SETTING
+	{
+		wchar_t Title[512];				// Setting Name
+		bool ServerAdminMode;			// Server management mode
+		char HubName[256];				// HUB name
+		UCHAR HashedPassword[20];		// Password
+		OLD_CLIENT_OPTION ClientOption;		// Client Option
+		UCHAR Reserved[10212];			// Reserved area
+	} OLD_SETTING;
+
+	if (b->Size != sizeof(OLD_SETTING))	// 14436
+	{
+		return NULL;
+	}
+
+	OLD_SETTING s0;
+	Copy(&s0, b->Buf, sizeof(OLD_SETTING));
+
+	SETTING *s = ZeroMalloc(sizeof(SETTING));
+	UniStrCpy(s->Title, sizeof(s->Title), s0.Title);
+	s->ServerAdminMode = s0.ServerAdminMode;
+	StrCpy(s->HubName, sizeof(s->HubName), s0.HubName);
+	Copy(s->HashedPassword, s0.HashedPassword, sizeof(s->HashedPassword));
+	UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s0.ClientOption.AccountName);
+	StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), s0.ClientOption.Hostname);
+	s->ClientOption.Port = s0.ClientOption.Port;
+	s->ClientOption.ProxyType = s0.ClientOption.ProxyType;
+	StrCpy(s->ClientOption.ProxyName, sizeof(s->ClientOption.ProxyName), s0.ClientOption.ProxyName);
+	s->ClientOption.ProxyPort = s0.ClientOption.ProxyPort;
+	StrCpy(s->ClientOption.ProxyUsername, sizeof(s->ClientOption.ProxyUsername), s0.ClientOption.ProxyUsername);
+	StrCpy(s->ClientOption.ProxyPassword, sizeof(s->ClientOption.ProxyPassword), s0.ClientOption.ProxyPassword);
+
+	return s;
+}
+
 // Load the connection list
 void SmLoadSettingList()
 {
@@ -19981,11 +20190,27 @@ void SmLoadSettingList()
 		BUF *b = MsRegReadBin(REG_CURRENT_USER, key_name, name);
 		if (b != NULL)
 		{
-			if (b->Size == sizeof(SETTING))
+			SETTING *s = NULL;
+			if (b->Size == 13416)	// 5.01 Build 9658 - 9665
 			{
-				SETTING *s = ZeroMalloc(sizeof(SETTING));
+				s = LoadSetting9658(b);
+			}
+			else if (b->Size == 14444)	// 5.01 Build 9666 - 9674
+			{
+				s = LoadSetting9666(b);
+			}
+			else if (b->Size == 14436)	// 5.02
+			{
+				s = LoadSetting502(b);
+			}
+			else if (b->Size == sizeof(SETTING))	// Must be 13420 (the size used since version 4.x)
+			{
+				s = ZeroMalloc(sizeof(SETTING));
 				Copy(s, b->Buf, sizeof(SETTING));
+			}
 
+			if (s != NULL)
+			{
 				Add(sm->SettingList, s);
 			}
 			FreeBuf(b);
