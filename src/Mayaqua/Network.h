@@ -16,12 +16,13 @@
 
 #ifdef UNIX_LINUX
 #include <pthread.h>
+#endif
 
 #ifdef UNIX_OPENBSD
 #include <pthread.h>
 #endif
 #endif
-#endif
+
 
 // Dynamic Value
 struct DYN_VALUE
