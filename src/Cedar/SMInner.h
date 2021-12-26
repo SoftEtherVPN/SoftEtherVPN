@@ -31,14 +31,17 @@
 #define	SM_SETTING_REG_KEY_OLD	"Software\\SoftEther Corporation\\PacketiX VPN\\Server Manager\\Settings"
 
 // Connection setting
+// Do not change item size or order
+// Size must be kept at 13420 (use Reserved to adjust for new items)
 typedef struct SETTING
 {
 	wchar_t Title[MAX_SIZE];	// Setting Name
 	bool ServerAdminMode;		// Server management mode
+	char pad1[3];
 	char HubName[MAX_HUBNAME_LEN + 1];	// HUB name
 	UCHAR HashedPassword[SHA1_SIZE];	// Password
 	CLIENT_OPTION ClientOption;	// Client Option
-	UCHAR Reserved[10240 - sizeof(bool) * 8 - SHA1_SIZE];	// Reserved area
+	UCHAR Reserved[10240 - sizeof(UINT) * 8 - SHA1_SIZE - HTTP_CUSTOM_HEADER_MAX_SIZE];	// Reserved area
 } SETTING;
 
 // Structure declaration

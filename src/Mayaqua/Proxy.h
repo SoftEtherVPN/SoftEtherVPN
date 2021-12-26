@@ -28,7 +28,7 @@ struct PROXY_PARAM_IN
 	char Username[PROXY_MAX_USERNAME_LEN + 1];
 	char Password[PROXY_MAX_PASSWORD_LEN + 1];
 	UINT Timeout;
-	char HttpCustomHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];
+	char HttpCustomHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];
 	char HttpUserAgent[HTTP_HEADER_USER_AGENT_MAX_SIZE + 1];
 #ifdef OS_WIN32
 	void *Hwnd;

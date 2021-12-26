@@ -32,7 +32,7 @@ struct WPC_CONNECT
 	UINT ProxyPort;											// Proxy server port number
 	char ProxyUsername[MAX_USERNAME_LEN + 1];				// Proxy server user name
 	char ProxyPassword[MAX_USERNAME_LEN + 1];				// Proxy server password
-	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP header
+	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];		// Custom HTTP header
 	bool UseCompress;										// Use of compression
 	bool DontCheckCert;										// Do not check the certificate
 };
@@ -45,7 +45,7 @@ struct INTERNET_SETTING
 	UINT ProxyPort;											// Proxy server port number
 	char ProxyUsername[MAX_USERNAME_LEN + 1];				// Proxy server user name
 	char ProxyPassword[MAX_USERNAME_LEN + 1];				// Proxy server password
-	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE + 1];	// Custom HTTP header
+	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];		// Custom HTTP header
 };
 
 // URL
