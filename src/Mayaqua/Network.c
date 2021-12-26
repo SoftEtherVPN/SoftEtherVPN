@@ -11875,6 +11875,27 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 			// SSL-Accept failure
 			Lock(openssl_lock);
 			{
+				unsigned long err;
+				while (err = ERR_get_error())
+				{
+					Debug("SSL_accept error %X: %s\n", err, ERR_reason_error_string(err));
+					if (ERR_GET_LIB(err) == ERR_LIB_SSL)
+					{
+						switch (ERR_GET_REASON(err))
+						{
+						case SSL_R_UNSUPPORTED_PROTOCOL:
+						case SSL_R_VERSION_TOO_LOW:
+						case SSL_R_VERSION_TOO_HIGH:
+							*ssl_err = 150;	// ERR_SSL_PROTOCOL_VERSION
+							break;
+						case SSL_R_NO_SHARED_CIPHER:
+							*ssl_err = 151; // ERR_SSL_SHARED_CIPHER
+							break;
+						default:
+							*ssl_err = 152; // ERR_SSL_HANDSHAKE
+						}
+					}
+				}
 				SSL_free(sock->ssl);
 				sock->ssl = NULL;
 			}
@@ -11918,6 +11939,25 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 			// SSL-connect failure
 			Lock(openssl_lock);
 			{
+				unsigned long err;
+				while (err = ERR_get_error())
+				{
+					Debug("SSL_connect error %X: %s\n", err, ERR_reason_error_string(err));
+					if (ERR_GET_LIB(err) == ERR_LIB_SSL)
+					{
+						switch (ERR_GET_REASON(err))
+						{
+						case SSL_R_UNSUPPORTED_PROTOCOL:
+						case SSL_R_VERSION_TOO_LOW:
+						case SSL_R_VERSION_TOO_HIGH:
+						case SSL_R_TLSV1_ALERT_PROTOCOL_VERSION:
+							*ssl_err = 150;	// ERR_SSL_PROTOCOL_VERSION
+							break;
+						default:
+							*ssl_err = 152; // ERR_SSL_HANDSHAKE
+						}
+					}
+				}
 				SSL_free(sock->ssl);
 				sock->ssl = NULL;
 			}

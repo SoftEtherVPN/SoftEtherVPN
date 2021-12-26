@@ -219,6 +219,9 @@ ERR_146 VPN Gate 서비스가 VPN Client에서 실행중인 경우이 설정 화
 ERR_147 이 기능은 오픈 소스 버전 SoftEther VPN은 아직 구현되어 있지 않습니다.
 ERR_148 Windows 시스템이 대기 상태로 전환 중이기 때문에 VPN 통신이 끊어졌습니다.
 ERR_149 대상 VPN 서버의 인증서가 지정된 호스트 이름과 일치하지 않습니다.
+ERR_150	양쪽에서 지원되는 TLS 버전을 찾을 수 없습니다. 한 쪽은 다른 쪽에서 비활성화된 이전 TLS 버전을 사용하고 있을 수 있습니다.
+ERR_151	양쪽에서 지원하는 사용 가능한 암호 알고리즘을 찾지 못했거나 지정된 알고리즘이 서버 인증서와 호환되지 않습니다.
+ERR_152	TLS 핸드셰이크가 실패했습니다.
 
 
 # 라이센스 관계
@@ -840,6 +843,7 @@ CM_ST_NO_VLAN -
 CM_ST_USE_ENCRYPT 암호화 사용
 CM_ST_USE_ENCRYPT_TRUE 예 (암호화 알고리즘:%S)
 CM_ST_USE_ENCRYPT_TRUE2 잔
+CM_ST_USE_ENCRYPT_TRUE3 예 (%S 암호화 알고리즘:%S)
 CM_ST_USE_ENCRYPT_FALSE 아니오 (암호화 없음)
 CM_ST_USE_COMPRESS 압축 사용
 CM_ST_UDP_ACCEL_ENABLED UDP 가속화 기능을 지원
@@ -1750,8 +1754,9 @@ LS_HUB_STOP 가상 HUB "%S"를 중지했습니다.
 LS_HUB_MAC 가상 HUB "%S"의 MAC 주소는 "%S"입니다.
 LS_NODE_INFO_TAG 클라이언트 제품 이름 "%S"클라이언트 버전 %u 클라이언트 빌드 번호 %u 서버 제품 이름 "%S"서버 버전 %u 서버 빌드 번호 %u 클라이언트 OS 이름 "%S"클라이언트 OS 버전 "%S"클라이언트 제품 ID "%S"클라이언트 호스트 이름 "%S"클라이언트 IP 주소 "%S"클라이언트 포트 번호 %u 서버 호스트 이름 "%S"서버 IP 주소 "%S" 서버 포트 번호 %u 프록시 호스트 이름 "%S"프록시 IP 주소 "%S"프록시 포트 번호 %u 가상 HUB 이름 "%S"클라이언트 고유 ID "%S"
 LS_CONNECTION_START_1 클라이언트 (IP 주소 %S 호스트 이름 "%S"포트 번호 %u)에 대응하는 연결 "%S"가 작성되었습니다.
+LS_SSL_START_ERROR	연결 "%S"에 대한 SSL 통신을 시작하지 못했습니다. 오류:%s (코드 %u)
 LS_CONNECTION_END_1 연결 "%S"가 종료되었습니다.
-LS_SSL_START 연결 "%S"에 대한 SSL 통신이 시작되었습니다. 암호화 알고리즘 명은 "%S"입니다.
+LS_SSL_START 연결 "%S"에 대한 SSL 통신이 시작되었습니다. 프로토콜 버전은 %S입니다. 암호화 알고리즘 명은 "%S"입니다.
 LS_CONNECTION_ERROR 연결 "%S"는 이유로 "%s"(코드 %u)로 종료되었습니다.
 LS_FARMMEMBER_NOT_ADMIN 연결 "%S": 서버는 클러스터 멤버이지만, 클라이언트는 가상 HUB "%S"관리자 사용자 "%S"이외로 직접 연결하려고 시도했습니다. 클라이언트가 제공 한 사용자 이름은 "%S"입니다. 액세스는 허용되지 않습니다.
 LS_HUB_NOT_FOUND 연결 "%S": 클라이언트가 연결을 시도하는 가상 HUB "%S"는 서버에 존재하지 않습니다.
@@ -1779,6 +1784,8 @@ LS_LICENSE_VIOLATION_DETECTED 라이센스 위반을 감지했습니다. 다른 
 LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_AZURE_START			클라이언트 (IP 주소 %S 포트 번호 %u)에서 VPN Azure 연결 요청을 받았습니다.
+LS_AZURE_SSL_ERROR		VPN Azure 릴레이 서버와 SSL 통신을 시작하지 못했습니다. 오류:%s (코드 %u)
 
 
 # (Proto 로그)
@@ -2069,6 +2076,7 @@ LC_DELETE_ACCOUNT 연결 설정 "%s"를 삭제했습니다.
 LC_RENAME_ACCOUNT 연결 설정 "%s"의 이름을 "%s"로 변경했습니다.
 LC_CONNECT 연결 설정 "%s"연결 처리를 시작했습니다.
 LC_CONNECT_1 연결 설정 "%s": %u 번째 연결 동작을 시작합니다.
+LC_SSL_CONNECTED 연결 설정 "%s": SSL 통신이 시작되었습니다. 프로토콜 버전은 %S입니다. 암호화 알고리즘 명은 "%S"입니다.
 LC_CONNECT_2 연결 설정 "%s": 연결이 완료되었습니다. 세션 이름:"%S"
 LC_CONNECT_ERROR 연결 설정 "%s": 연결이 끊어 졌는지 연결에 실패했습니다. 이유:%s (코드 %u)
 LC_DISCONNECT 연결 설정 "%s"를 끊습니다.

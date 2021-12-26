@@ -232,6 +232,9 @@ ERR_146	The VPN Gate Service is running inside the VPN Client program. You canno
 ERR_147	This feature is not supported. It hasn't been implemented yet on the open-source version of SoftEther VPN.
 ERR_148	The VPN connection was disconnected because the system is being suspended.
 ERR_149	The destination VPN Server's certificate does not match the specified hostname.
+ERR_150	Failed to find the TLS version that is supported by both sides. This usually means that one side may be using an obsolete TLS version which is diabled by the other side.
+ERR_151	Failed to find an available cipher that is supported by both sides, or the cipher specified is not compatible with the server certificate.
+ERR_152	TLS handshake has failed.
 
 
 # Concerning licenses
@@ -857,6 +860,7 @@ CM_ST_NO_VLAN	-
 CM_ST_USE_ENCRYPT	Criptografia
 CM_ST_USE_ENCRYPT_TRUE	Enabled (Algorithm: %S)
 CM_ST_USE_ENCRYPT_TRUE2	Ativado
+CM_ST_USE_ENCRYPT_TRUE3 Enabled (%S Algorithm: %S)
 CM_ST_USE_ENCRYPT_FALSE	Disabled (No Encryption)
 CM_ST_USE_COMPRESS	Use of Compression
 CM_ST_UDP_ACCEL_ENABLED	UDP Acceleration is Supported
@@ -1766,8 +1770,9 @@ LS_HUB_STOP	Virtual Hub "%S" has been stopped.
 LS_HUB_MAC	The MAC address of Virtual Hub "%S" is "%S".
 LS_NODE_INFO_TAG	Client product name: "%S", Client version: %u, Client build number: %u, Server product name: "%S", Server version: %u, Server build number: %u, Client OS name: "%S", Client OS version: "%S", Client product ID: "%S", Client host name: "%S", Client IP address: "%S", Client port number: %u, Server host name: "%S", Server IP address: "%S", Server port number: %u, Proxy host name: "%S", Proxy IP address: "%S", Proxy port number: %u, Virtual Hub name: "%S", Client unique ID: "%S"
 LS_CONNECTION_START_1	For the client (IP address: %S, host name: "%S", port number: %u), connection "%S" has been created.
+LS_SSL_START_ERROR	Failed to start SSL communication for connection "%S". Error: %s (code %u)
 LS_CONNECTION_END_1	Connection "%S" has been terminated.
-LS_SSL_START	SSL communication for connection "%S" has been started. The encryption algorithm name is "%S".
+LS_SSL_START	SSL communication for connection "%S" has been started. The protocol version is %S. The encryption algorithm name is "%S".
 LS_CONNECTION_ERROR	Connection "%S" terminated by the cause "%s" (code %u).
 LS_FARMMEMBER_NOT_ADMIN	Connection "%S": Although the server is a cluster member, the client attempted that to directly connect to the Virtual Hub "%S" while not being administrator user "%S". The user name provided by the client is "%S". Access is refused.
 LS_HUB_NOT_FOUND	Connection "%S": Virtual Hub "%S" that the client is trying to connect to does not exist on the server.
@@ -1795,6 +1800,8 @@ LS_LICENSE_VIOLATION_DETECTED	A license violation has been detected. A different
 LS_API_AUTH_OK	HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
 LS_API_AUTH_ERROR	HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL	HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_AZURE_START			Received VPN Azure connection request from the client (IP address: %S, port number: %u).
+LS_AZURE_SSL_ERROR		Failed to start SSL communication with VPN Azure relay server. Error: %s (code %u)
 
 
 # (Proto log)
@@ -2089,6 +2096,7 @@ LC_DELETE_ACCOUNT	The VPN Connection Setting "%s" has been deleted.
 LC_RENAME_ACCOUNT	The name of VPN Connection Setting "%s" has been changed to "%s".
 LC_CONNECT	Connection processing for VPN Connection Setting "%s" has started.
 LC_CONNECT_1	VPN Connection Setting "%s": Connection operation starting (this is now %u times).
+LC_SSL_CONNECTED	VPN Connection Setting "%s": SSL communication has been started. The protocol version is %S. The encryption algorithm name is "%S".
 LC_CONNECT_2	VPN Connection Setting "%s": Now connected. Session name: "%S"
 LC_CONNECT_ERROR	VPN Connection Setting "%s": The connection has been either disconnected or it failed. Cause: %s (code %u)
 LC_DISCONNECT	Disconnecting the VPN Connection Setting "%s".

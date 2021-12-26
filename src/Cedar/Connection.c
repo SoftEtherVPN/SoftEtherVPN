@@ -28,6 +28,7 @@
 #include "Mayaqua/Object.h"
 #include "Mayaqua/Pack.h"
 #include "Mayaqua/Str.h"
+#include "Mayaqua/Table.h"
 #include "Mayaqua/Tick64.h"
 
 #include <stdlib.h>
@@ -3047,11 +3048,16 @@ void ConnectionAccept(CONNECTION *c)
 
 	// Start the SSL communication
 	Copy(&s->SslAcceptSettings, &c->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
-	if (StartSSLEx2(s, x, k, chain, 0, NULL) == false)
+	UINT ssl_err = 0;
+	if (StartSSLEx3(s, x, k, chain, 0, NULL, NULL, &ssl_err) == false)
 	{
 		// Failed
 		AddNoSsl(c->Cedar, &s->RemoteIP);
 		Debug("ConnectionAccept(): StartSSL() failed\n");
+		if (ssl_err != 0)
+		{
+			SLog(c->Cedar, "LS_SSL_START_ERROR", c->Name, GetUniErrorStr(ssl_err), ssl_err);
+		}
 		FreeX(x);
 		FreeK(k);
 		FreeXList(chain);
@@ -3063,7 +3069,7 @@ void ConnectionAccept(CONNECTION *c)
 	FreeK(k);
 	FreeXList(chain);
 
-	SLog(c->Cedar, "LS_SSL_START", c->Name, s->CipherName);
+	SLog(c->Cedar, "LS_SSL_START", c->Name, s->SslVersion, s->CipherName);
 
 	Copy(c->CToken_Hash, ctoken_hash, SHA1_SIZE);
 
@@ -3397,6 +3403,11 @@ void CleanupConnection(CONNECTION *c)
 	if (c->CipherName != NULL)
 	{
 		Free(c->CipherName);
+	}
+
+	if (c->SslVersion != NULL)
+	{
+		Free(c->SslVersion);
 	}
 
 	Free(c);

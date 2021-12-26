@@ -4836,6 +4836,7 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 
 	PackGetStr(p, "ServerName", s->ServerName, sizeof(s->ServerName));
 	PackGetStr(p, "ServerProductName", s->ServerProductName, sizeof(s->ServerProductName));
+	PackGetStr(p, "ProtocolVersion", s->ProtocolName, sizeof(s->ProtocolName));
 	PackGetStr(p, "CipherName", s->CipherName, sizeof(s->CipherName));
 	PackGetStr(p, "SessionName", s->SessionName, sizeof(s->SessionName));
 	PackGetStr(p, "ConnectionName", s->ConnectionName, sizeof(s->ConnectionName));
@@ -4911,6 +4912,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 
 	PackAddStr(p, "ServerName", c->ServerName);
 	PackAddStr(p, "ServerProductName", c->ServerProductName);
+	PackAddStr(p, "ProtocolVersion", c->ProtocolName);
 	PackAddStr(p, "CipherName", c->CipherName);
 	PackAddStr(p, "SessionName", c->SessionName);
 	PackAddStr(p, "ConnectionName", c->ConnectionName);
@@ -5864,6 +5866,7 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				if (st->UseEncrypt)
 				{
 					StrCpy(st->CipherName, sizeof(st->CipherName), s->Connection->CipherName);
+					StrCpy(st->ProtocolName, sizeof(st->ProtocolName), s->Connection->SslVersion);
 				}
 				// Use of compression
 				st->UseCompress = s->UseCompress;

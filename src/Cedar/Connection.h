@@ -223,6 +223,7 @@ struct CONNECTION
 	X *ServerX;						// Server certificate
 	X *ClientX;						// Client certificate
 	char *CipherName;				// Encryption algorithm name
+	char *SslVersion;				// SSL protocol version
 	UINT64 ConnectedTick;			// Time it is connected
 	IP ClientIp;					// Client IP address
 	char ClientHostname[MAX_HOST_NAME_LEN + 1];	// Client host name

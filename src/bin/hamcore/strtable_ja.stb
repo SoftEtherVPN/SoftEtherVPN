@@ -215,6 +215,9 @@ ERR_146					VPN Gate サービスが VPN Client 内で動作している場合�
 ERR_147					この機能はオープンソース版 SoftEther VPN にはまだ実装されていません。
 ERR_148					Windows システムがサスペンド状態に移行中のため、VPN 通信が切断されました。
 ERR_149					接続先サーバーの提示した証明書が指定したホスト名と一致しません。
+ERR_150					両側でサポートされている TLS バージョンが見つかりませんでした。どちらかが相手側で無効になっている古い TLS バージョンを使用している可能性があります。
+ERR_151					両側でサポートされている暗号化アルゴリズムが見つからなかったか、指定されたアルゴリズムがサーバー証明書と互換性がありません。
+ERR_152					TLS ハンドシェイクが失敗しました。
 
 
 # ライセンス関係
@@ -839,6 +842,7 @@ CM_ST_NO_VLAN			－
 CM_ST_USE_ENCRYPT		暗号化の使用
 CM_ST_USE_ENCRYPT_TRUE	はい (暗号化アルゴリズム: %S)
 CM_ST_USE_ENCRYPT_TRUE2	はい
+CM_ST_USE_ENCRYPT_TRUE3	はい (%S 暗号化アルゴリズム: %S)
 CM_ST_USE_ENCRYPT_FALSE	いいえ (暗号化なし)
 CM_ST_USE_COMPRESS		圧縮の使用
 CM_ST_UDP_ACCEL_ENABLED	UDP 高速化機能をサポート
@@ -1769,8 +1773,9 @@ LS_HUB_STOP				仮想 HUB "%S" を停止しました。
 LS_HUB_MAC				仮想 HUB "%S" の MAC アドレスは "%S" です。
 LS_NODE_INFO_TAG		クライアント製品名 "%S", クライアントバージョン %u, クライアントビルド番号 %u, サーバー製品名 "%S", サーバーバージョン %u, サーバービルド番号 %u, クライアント OS 名 "%S", クライアント OS バージョン "%S", クライアントプロダクト ID "%S", クライアントホスト名 "%S", クライアント IP アドレス "%S", クライアントポート番号 %u, サーバーホスト名 "%S", サーバー IP アドレス "%S", サーバーポート番号 %u, プロキシホスト名 "%S", プロキシ IP アドレス "%S", プロキシポート番号 %u, 仮想 HUB 名 "%S", クライアントユニーク ID "%S"
 LS_CONNECTION_START_1	クライアント (IP アドレス %S, ホスト名 "%S", ポート番号 %u) に対応するコネクション "%S" が作成されました。
+LS_SSL_START_ERROR		コネクション "%S" に対する SSL 通信を開始できませんでした。エラー: %s (コード %u)
 LS_CONNECTION_END_1		コネクション "%S" が終了しました。
-LS_SSL_START			コネクション "%S" に対する SSL 通信が開始されました。暗号化アルゴリズム名は "%S" です。
+LS_SSL_START			コネクション "%S" に対する SSL 通信が開始されました。プロトコルバージョンは %S です。暗号化アルゴリズム名は "%S" です。
 LS_CONNECTION_ERROR		コネクション "%S" は理由 "%s" (コード %u) で終了しました。
 LS_FARMMEMBER_NOT_ADMIN	コネクション "%S": サーバーはクラスタメンバですが、クライアントは仮想 HUB "%S" に管理者ユーザー "%S" 以外で直接接続しようと試みました。クライアントが提示したユーザー名は "%S" です。アクセスは許可されません。
 LS_HUB_NOT_FOUND		コネクション "%S": クライアントが接続しようとした仮想 HUB "%S" はサーバー上に存在しません。
@@ -1798,6 +1803,8 @@ LS_LICENSE_VIOLATION_DETECTED	ライセンス違反を検出しました。別�
 LS_API_AUTH_OK			HTTPS API クライアント "%r:%u" (%S): 管理モード: "%S" で組み込み HTTPS Web サーバーを用いてログインに成功しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_AUTH_ERROR		HTTPS API クライアント "%r:%u" (%S): 組み込み HTTPS Web サーバーを用いてログインに失敗しました。使用されたユーザー名: "%S", メソッド: "%S", パス: "%S"
 LS_API_RPC_CALL			HTTPS API クライアント "%r:%u" (%S): JSON-API を呼び出しました。メソッド名: "%S", 結果エラーコード: %u (0 = 成功), 結果エラーメッセージ: "%s"
+LS_AZURE_START			クライアント (IP アドレス %S, ポート番号 %u) から VPN Azure 接続要求を受信しました。
+LS_AZURE_SSL_ERROR		VPN Azure リレーサーバーとの SSL 通信を開始できませんでした。エラー: %s (コード %u)
 
 
 # (Proto ログ)
@@ -2091,6 +2098,7 @@ LC_DELETE_ACCOUNT		接続設定 "%s" を削除しました。
 LC_RENAME_ACCOUNT		接続設定 "%s" の名前を "%s" に変更しました。
 LC_CONNECT				接続設定 "%s" への接続処理を開始しました。
 LC_CONNECT_1			接続設定 "%s": %u 回目の接続動作を開始します。
+LC_SSL_CONNECTED		接続設定 "%s": SSL 通信が開始されました。プロトコルバージョンは %S です。暗号化アルゴリズム名は "%S" です。
 LC_CONNECT_2			接続設定 "%s": 接続が完了しました。セッション名: "%S"
 LC_CONNECT_ERROR		接続設定 "%s": 接続が切断されたか、接続に失敗しました。理由: %s (コード %u)
 LC_DISCONNECT			接続設定 "%s" を切断します。

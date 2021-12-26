@@ -215,6 +215,9 @@ ERR_146						VPN Gate 服务运行在 VPN 客户端程序内。在此屏幕上�
 ERR_147						不支持此功能。它尚未在 SoftEther VPN 的开源版本上实施。
 ERR_148						VPN 连接被中断，因为该系统被暂停。
 ERR_149						目标 VPN Server 的证书与指定的主机名不匹配。
+ERR_150						找不到连接双方都支持的 TLS 版本。这通常意味着一方可能正在使用已被另一方禁用的过时的 TLS 版本。
+ERR_151						找不到连接双方都支持的加密算法，或者指定的算法与服务器证书不兼容。
+ERR_152						TLS 握手失败。
 
 
 #关于许可证
@@ -843,6 +846,7 @@ CM_ST_NO_VLAN				－
 CM_ST_USE_ENCRYPT			加密
 CM_ST_USE_ENCRYPT_TRUE		已启用 (算法: %S)
 CM_ST_USE_ENCRYPT_TRUE2		已启用
+CM_ST_USE_ENCRYPT_TRUE3		已启用 (%S 算法: %S)
 CM_ST_USE_ENCRYPT_FALSE		已禁用 (不加密)
 CM_ST_USE_COMPRESS			使用压缩
 CM_ST_UDP_ACCEL_ENABLED		支持 UDP 加速
@@ -1781,8 +1785,9 @@ LS_HUB_STOP					虚拟 HUB "%S" 已关闭。
 LS_HUB_MAC					虚拟 HUB "%S" 的 MAC 地址是 "%S"。
 LS_NODE_INFO_TAG			客户端产品名："%S"，客户端版本：%u，客户端构建号：%u，服务端产品名："%S"，服务端版本：%u，服务端构建号：%u，客户端操作系统名："%S"，客户端操作系统版本："%S"，客户端产品 ID："%S"，客户端主机名："%S"，客户端 IP 地址："%S"，客户端端口号：%u，服务端主机名："%S"，服务端 IP 地址："%S"，服务端端口号：%u，代理主机名："%S"，代理 IP 地址："%S"，代理端口号：%u，虚拟 HUB 名："%S"，客户端唯一 ID： "%S"
 LS_CONNECTION_START_1		客户端 (IP 地址：%S，主机名："%S"，端口号：%u) 的连接 "%S" 已建立。
+LS_SSL_START_ERROR			无法启动连接 "%S" 的 SSL 通信。错误: %s (代码 %u)
 LS_CONNECTION_END_1			连接 "%S" 已结束。
-LS_SSL_START				连接 "%S" 的 SSL 通信已启动。加密算法名为 "%S"。
+LS_SSL_START				连接 "%S" 的 SSL 通信已启动。协议版本是 %S。加密算法名为 "%S"。
 LS_CONNECTION_ERROR			连接 "%S"因原因 "%s" (代码 %u)已终止。
 LS_FARMMEMBER_NOT_ADMIN		连接 "%S": 服务端是群集成员，但客户端在非管理员 (%S) 用户情况下，尝试直接与虚拟 HUB "%S" 连接。客户端用户名为 "%S"。访问被拒绝。
 LS_HUB_NOT_FOUND			连接 "%S": 客户端正在尝试连接的虚拟 HUB "%S" 在服务端上不存在。
@@ -1810,6 +1815,8 @@ LS_LICENSE_VIOLATION_DETECTED	发现许可证违反错误，一个不同的 VPN 
 LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_AZURE_START			收到来自客户端 (IP 地址：%S，端口号：%u) 的 VPN Azure 连接请求。
+LS_AZURE_SSL_ERROR		无法启动与 VPN Azure 中继服务器的 SSL 通信。错误: %s (代码 %u)
 
 
 # (Proto log)
@@ -2105,6 +2112,7 @@ LC_DELETE_ACCOUNT			已删除 VPN 连接设置 "%s"。
 LC_RENAME_ACCOUNT			已变更 VPN 连接设置名 "%s" 为 "%s"。
 LC_CONNECT					已开始 VPN 连接设置 "%s" 的连接处理。
 LC_CONNECT_1				VPN 连接设置 "%s": 第 %u 次连接操作开始。
+LC_SSL_CONNECTED			VPN 连接设置 "%s": SSL 通信已启动。协议版本是 %S。加密算法名为 "%S"。
 LC_CONNECT_2				VPN 连接设置 "%s": 连接完成。会话名: "%S"。
 LC_CONNECT_ERROR			VPN 连接设置 "%s": 连接断开或连接失败。原因: %s (代码 %u)
 LC_DISCONNECT				VPN 连接设置 "%s" 断开中。

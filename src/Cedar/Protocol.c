@@ -1573,6 +1573,12 @@ bool ServerAccept(CONNECTION *c)
 
 				c->CipherName = NULL;
 
+				if (c->SslVersion != NULL)
+				{
+					Free(c->SslVersion);
+				}
+				c->SslVersion = NULL;
+
 				if (IsEmptyStr(tmp) == false)
 				{
 					c->CipherName = CopyStr(tmp);
@@ -1592,9 +1598,20 @@ bool ServerAccept(CONNECTION *c)
 				}
 				c->CipherName = NULL;
 
+				if (c->SslVersion != NULL)
+				{
+					Free(c->SslVersion);
+				}
+				c->SslVersion = NULL;
+
 				if (c->FirstSock != NULL && IsEmptyStr(c->FirstSock->CipherName) == false)
 				{
 					c->CipherName = CopyStr(c->FirstSock->CipherName);
+				}
+
+				if (c->FirstSock != NULL && IsEmptyStr(c->FirstSock->SslVersion) == false)
+				{
+					c->SslVersion = CopyStr(c->FirstSock->SslVersion);
 				}
 
 				Format(radius_login_opt.In_VpnProtocolState, sizeof(radius_login_opt.In_VpnProtocolState),
@@ -4975,6 +4992,13 @@ REDIRECTED:
 		}
 
 		c->CipherName = CopyStr(c->FirstSock->CipherName);
+
+		if (c->SslVersion != NULL)
+		{
+			Free(c->SslVersion);
+		}
+
+		c->SslVersion = CopyStr(c->FirstSock->SslVersion);
 	}
 	Unlock(c->lock);
 
@@ -6182,6 +6206,8 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 		c->Err = ERR_SERVER_IS_NOT_VPN;
 		return NULL;
 	}
+
+	CLog(c->Cedar->Client, "LC_SSL_CONNECTED", c->Session->ClientOption->AccountName,	s->SslVersion, s->CipherName);
 
 	return s;
 }

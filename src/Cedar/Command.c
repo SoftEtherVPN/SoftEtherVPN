@@ -15534,7 +15534,11 @@ void CmdPrintStatusToListViewEx(CT *ct, RPC_CLIENT_GET_CONNECTION_STATUS *s, boo
 		}
 		else
 		{
-			if (StrLen(s->CipherName) != 0)
+			if (StrLen(s->CipherName) != 0 && StrLen(s->ProtocolName) != 0)
+			{
+				UniFormat(tmp, sizeof(tmp), _UU("CM_ST_USE_ENCRYPT_TRUE3"), s->ProtocolName, s->CipherName);
+			}
+			else if (StrLen(s->CipherName) != 0)
 			{
 				UniFormat(tmp, sizeof(tmp), _UU("CM_ST_USE_ENCRYPT_TRUE"), s->CipherName);
 			}
