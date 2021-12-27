@@ -1,0 +1,23 @@
+name: alpine/musl
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  musl:
+      name: gcc
+      runs-on: ubuntu-latest
+      container:
+        image: alpine:latest
+      steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: apk add binutils --no-cache build-base readline-dev openssl-dev ncurses-dev git cmake zlib-dev libsodium-dev gnu-libiconv 
+      - name: Configure
+        run: ./configure
+      - name: make 
+        run: make -C build

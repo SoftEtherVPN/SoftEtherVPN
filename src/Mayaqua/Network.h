@@ -14,10 +14,15 @@
 #ifdef OS_UNIX
 #include <netinet/in.h>
 
+#ifdef UNIX_LINUX
+#include <pthread.h>
+#endif
+
 #ifdef UNIX_OPENBSD
 #include <pthread.h>
 #endif
 #endif
+
 
 // Dynamic Value
 struct DYN_VALUE

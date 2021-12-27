@@ -49,7 +49,7 @@
 #endif
 
 #ifdef UNIX_LINUX
-#include <linux/if_packet.h>
+#include <netpacket/packet.h>
 
 struct my_tpacket_auxdata
 {
