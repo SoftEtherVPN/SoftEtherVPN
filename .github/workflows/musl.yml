@@ -1,7 +1,6 @@
 name: alpine/musl
 
-on:
-  push:
+on: [push, pull_request]
 
 permissions:
   contents: read
