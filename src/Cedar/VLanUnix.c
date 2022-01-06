@@ -29,7 +29,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-#ifdef UNIX_OPENBSD
+#if defined(UNIX_OPENBSD) || defined(UNIX_SOLARIS)
 #include <netinet/if_ether.h>
 #else
 #include <net/ethernet.h>
