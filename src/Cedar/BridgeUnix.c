@@ -29,11 +29,13 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
-#ifndef UNIX_OPENBSD
+#if !defined(UNIX_OPENBSD) && !defined(UNIX_SOLARIS)
 #include <net/ethernet.h>
 #endif
 
 #ifdef UNIX_SOLARIS
+#include <stropts.h>
+#include <sys/dlpi.h>
 #include <sys/sockio.h>
 #endif
 

@@ -46,6 +46,11 @@
 #include <sys/statfs.h>
 #endif
 
+#ifdef UNIX_SOLARIS
+#define USE_STATVFS
+#include <sys/statvfs.h>'
+#endif
+
 #ifdef	UNIX_MACOS
 #ifdef	NO_VLAN
 // Struct statfs for MacOS X
