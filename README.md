@@ -12,9 +12,9 @@
 - [BOARD MEMBERS OF THIS REPOSITORY](#board-members-of-this-repository)
 - [SOFTETHER VPN ADVANTAGES](#softether-vpn-advantages)
 - [Installation](#installation)
-  * [For Ubuntu](#for-ubuntu)
   * [For FreeBSD](#for-freebsd)
-  * [From binary installers:](#from-binary-installers)
+  * [For Windows](#for-windows)
+  * [From binary installers (stable channel)](#from-binary-installers-stable-channel)
   * [Build from Source code](#build-from-source-code)
 - [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
   * [Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console](#built-in-softether-vpn-server-html5-ajax-based-web-administration-console)
@@ -146,14 +146,6 @@ https://github.com/domosekai
 
 # Installation
 
-## For Ubuntu
-
-Launchpad PPA maintained by [Dmitry Verkhoturov](https://github.com/paskal):
-
-[Daily builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn) (latest released tag)
-
-[Nightly builds](https://code.launchpad.net/~paskal-07/+archive/ubuntu/softethervpn-nightly)
-
 ## For FreeBSD
 
 SoftEther VPN in FreeBSD Ports Collection is maintained by
@@ -182,12 +174,12 @@ sysrc softether_server_enable=yes
 Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softether-devel/) and
 [RTM version](https://www.freshports.org/security/softether/) are available on FreeBSD.
 
-## For Windows & macOS
+## For Windows
 
 [Nightly builds](https://dev.azure.com/SoftEther-VPN/SoftEther%20VPN/_build?definitionId=6)
 (choose appropriate platform, then find binaries or installers as artifacts)
 
-## Stable channel binaries & installers:
+## From binary installers (stable channel)
 
 Those can be found under https://www.softether-download.com/
 There you can also find SoftEtherVPN source code in zip and tar formats.
