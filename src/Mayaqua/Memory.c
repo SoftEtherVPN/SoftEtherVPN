@@ -3373,6 +3373,48 @@ UINT64 Endian64(UINT64 src)
 	}
 }
 
+// Endian conversion 16bit
+USHORT LittleEndian16(USHORT src)
+{
+	int x = 0x01000000;
+	if (*((char *)&x))
+	{
+		return Swap16(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
+// Endian conversion 32bit
+UINT LittleEndian32(UINT src)
+{
+	int x = 0x01000000;
+	if (*((char *)&x))
+	{
+		return Swap32(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
+// Endian conversion 64bit
+UINT64 LittleEndian64(UINT64 src)
+{
+	int x = 0x01000000;
+	if (*((char *)&x))
+	{
+		return Swap64(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
 // 16bit swap
 USHORT Swap16(USHORT value)
 {

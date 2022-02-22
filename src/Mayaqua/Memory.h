@@ -199,6 +199,9 @@ UINT64 Swap64(UINT64 value);
 USHORT Endian16(USHORT src);
 UINT Endian32(UINT src);
 UINT64 Endian64(UINT64 src);
+USHORT LittleEndian16(USHORT src);
+UINT LittleEndian32(UINT src);
+UINT64 LittleEndian64(UINT64 src);
 void EndianUnicode(wchar_t *str);
 
 BUF *NewBuf();
