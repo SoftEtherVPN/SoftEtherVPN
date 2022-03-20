@@ -4846,6 +4846,7 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 	s->UseCompress = PackGetInt(p, "UseCompress") ? true : false;
 	s->IsRUDPSession = PackGetInt(p, "IsRUDPSession") ? true : false;
 	PackGetStr(p, "UnderlayProtocol", s->UnderlayProtocol, sizeof(s->UnderlayProtocol));
+	PackGetStr(p, "ProtocolDetails", s->ProtocolDetails, sizeof(s->ProtocolDetails));
 	s->IsUdpAccelerationEnabled = PackGetInt(p, "IsUdpAccelerationEnabled") ? true : false;
 	s->IsUsingUdpAcceleration = PackGetInt(p, "IsUsingUdpAcceleration") ? true : false;
 
@@ -4908,6 +4909,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 	PackAddBool(p, "UseCompress", c->UseCompress);
 	PackAddBool(p, "IsRUDPSession", c->IsRUDPSession);
 	PackAddStr(p, "UnderlayProtocol", c->UnderlayProtocol);
+	PackAddStr(p, "ProtocolDetails", c->ProtocolDetails);
 	PackAddBool(p, "IsUdpAccelerationEnabled", c->IsUdpAccelerationEnabled);
 	PackAddBool(p, "IsUsingUdpAcceleration", c->IsUsingUdpAcceleration);
 

@@ -2388,8 +2388,6 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 
 		padding_size = Rand32() % 31 + 1;
 
-		size = sizeof(UINT64) + data_size + padding_size;
-
 		// Packet: IV + Encrypted(SEQ_NO + Data + padding) + MAC
 		buf_size = RUDP_BULK_IV_SIZE_V2 + sizeof(UINT64) + data_size + padding_size + RUDP_BULK_MAC_SIZE_V2;
 		buf = Malloc(buf_size);
@@ -2417,7 +2415,7 @@ void RUDPBulkSend(RUDP_STACK *r, RUDP_SESSION *se, void *data, UINT data_size)
 		// Encryption
 		c = NewCipher("ChaCha20-Poly1305");
 		SetCipherKey(c, se->BulkSendKey->Data, true);
-		CipherProcessAead(c, iv, tmp + size, RUDP_BULK_MAC_SIZE_V2, tmp, tmp, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		CipherProcessAead(c, iv, tmp + size, RUDP_BULK_MAC_SIZE_V2, tmp, tmp, size, NULL, 0);
 		FreeCipher(c);
 
 		// Next IV
@@ -2635,7 +2633,7 @@ bool RUDPCheckSignOfRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 
 		c = NewCipher("ChaCha20-Poly1305");
 		SetCipherKey(c, se->BulkRecvKey->Data, false);
-		size = CipherProcessAead(c, iv, p + size, RUDP_BULK_MAC_SIZE_V2, r->TmpBuf, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		size = CipherProcessAead(c, iv, p + size - RUDP_BULK_MAC_SIZE_V2, RUDP_BULK_MAC_SIZE_V2, r->TmpBuf, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
 		FreeCipher(c);
 
 		if (size == 0)
@@ -2719,7 +2717,7 @@ bool RUDPProcessBulkRecvPacket(RUDP_STACK *r, RUDP_SESSION *se, void *recv_data,
 
 		c = NewCipher("ChaCha20-Poly1305");
 		SetCipherKey(c, se->BulkRecvKey->Data, false);
-		ret = CipherProcessAead(c, iv, p + size, RUDP_BULK_MAC_SIZE_V2, p, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
+		ret = CipherProcessAead(c, iv, p + size - RUDP_BULK_MAC_SIZE_V2, RUDP_BULK_MAC_SIZE_V2, p, p, size - RUDP_BULK_MAC_SIZE_V2, NULL, 0);
 		FreeCipher(c);
 
 		if (ret == 0)
