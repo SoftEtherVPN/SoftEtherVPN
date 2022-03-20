@@ -1,0 +1,42 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-windows-static-md",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "variables": [
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x86-windows-static-md",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x86" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "variables": [
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x86-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}
