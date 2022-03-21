@@ -2940,6 +2940,8 @@ bool ServerAccept(CONNECTION *c)
 				rudp_bulk_version = 2;
 			}
 
+			s->BulkOnRUDPVersion = rudp_bulk_version;
+
 			if (s->EnableBulkOnRUDP)
 			{
 				AddProtocolDetailsKeyValueInt(s->ProtocolDetails, sizeof(s->ProtocolDetails), "RUDP_Bulk_Ver", s->BulkOnRUDPVersion);
