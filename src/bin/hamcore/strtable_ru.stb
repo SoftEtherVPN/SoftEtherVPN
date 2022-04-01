@@ -841,6 +841,7 @@ CM_ST_UDP_ACCEL_ENABLED	UDP Acceleration is Supported
 CM_ST_UDP_ACCEL_USING	UDP Acceleration is Active
 CM_ST_RUDP				TCP over UDP (NAT Traversal)
 CM_ST_UNDERLAY_PROTOCOL	Physical Underlay Protocol
+CM_ST_PROTOCOL_DETAILS	Protocol Details
 CM_ST_COMPRESS_TRUE		Yes (%u %%)
 CM_ST_COMPRESS_FALSE	No (No Compression)
 CM_ST_SESSION_NAME		Session Name
