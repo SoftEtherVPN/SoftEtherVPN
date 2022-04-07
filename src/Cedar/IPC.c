@@ -1503,6 +1503,7 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 							if (p->IPv6HeaderPacketInfo.Protocol == IP_PROTO_ICMPV6)
 							{
 								IP icmpHeaderAddr;
+								UINT header_size = 0;
 								// We need to parse the Router Advertisement and Neighbor Advertisement messages
 								// to build the Neighbor Discovery Table (aka ARP table for IPv6)
 								switch (p->ICMPv6HeaderPacketInfo.Type)
@@ -1512,6 +1513,8 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 									IPCIPv6AddRouterPrefixes(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
+									ndtProcessed = true;
+									header_size = sizeof(ICMPV6_ROUTER_ADVERTISEMENT_HEADER);
 									break;
 								case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
 									// We save the neighbor advertisements into NDT
@@ -1519,7 +1522,76 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 									IPCIPv6AssociateOnNDTEx(ipc, &icmpHeaderAddr, src_mac, true);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
 									ndtProcessed = true;
+									header_size = sizeof(ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER);
 									break;
+								case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
+									header_size = sizeof(ICMPV6_NEIGHBOR_SOLICIATION_HEADER);
+									break;
+								}
+
+								// Remove link-layer address options for Windows clients (required on Windows 11)
+								if (header_size > 0)
+								{
+									UCHAR *src = p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer + header_size;
+									UINT opt_size = p->ICMPv6HeaderPacketInfo.DataSize - header_size;
+									UCHAR *dst = src;
+									UINT removed = 0;
+
+									while (opt_size > sizeof(ICMPV6_OPTION))
+									{
+										ICMPV6_OPTION *option_header;
+										UINT header_total_size;
+
+										option_header = (ICMPV6_OPTION *)src;
+										// Calculate the entire header size
+										header_total_size = option_header->Length * 8;
+										if (header_total_size == 0)
+										{
+											// The size is zero
+											break;
+										}
+										if (opt_size < header_total_size)
+										{
+											// Size shortage
+											break;
+										}
+
+										switch (option_header->Type)
+										{
+										case ICMPV6_OPTION_TYPE_SOURCE_LINK_LAYER:
+										case ICMPV6_OPTION_TYPE_TARGET_LINK_LAYER:
+											// Skip source or target link-layer option
+											removed += header_total_size;
+											break;
+										default:
+											// Copy options other than source link-layer
+											if (src != dst)
+											{
+												UCHAR *tmp = Clone(src, header_total_size);
+												Copy(dst, tmp, header_total_size);
+												Free(tmp);
+											}
+											dst += header_total_size;
+										}
+
+										src += header_total_size;
+										opt_size -= header_total_size;
+
+									}
+
+									// Recalculate length and checksum if modified
+									if (removed > 0)
+									{
+										size -= removed;
+										p->L3.IPv6Header->PayloadLength = Endian16(size - sizeof(IPV6_HEADER));
+										p->L4.ICMPHeader->Checksum = 0;
+										p->L4.ICMPHeader->Checksum =
+											CalcChecksumForIPv6(&p->L3.IPv6Header->SrcAddress,
+												&p->L3.IPv6Header->DestAddress, IP_PROTO_ICMPV6,
+												p->L4.ICMPHeader, size - sizeof(IPV6_HEADER), 0);
+										Copy(data, b->Buf + 14, size);
+									}
+
 								}
 							}
 
@@ -2483,10 +2555,20 @@ void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac
 			BUF *buf;
 			BUF *optBuf;
 			BUF *packet;
+			UINT header_size = 0;
 			// We need to rebuild the packet to
 			switch (p->ICMPv6HeaderPacketInfo.Type)
 			{
+			case ICMPV6_TYPE_ROUTER_SOLICIATION:
+				header_size = sizeof(ICMPV6_ROUTER_SOLICIATION_HEADER);
+				if (p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer == NULL)
+				{
+					p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer = &linkLayer;
+				}
+				Copy(p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, ipc->MacAddress, 6);
+				break;
 			case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
+				header_size = sizeof(ICMPV6_NEIGHBOR_SOLICIATION_HEADER);
 				if (p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer == NULL)
 				{
 					p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer = &linkLayer;
@@ -2494,6 +2576,7 @@ void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac
 				Copy(p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, ipc->MacAddress, 6);
 				break;
 			case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
+				header_size = sizeof(ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER);
 				if (p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer == NULL)
 				{
 					p->ICMPv6HeaderPacketInfo.OptionList.TargetLinkLayer = &linkLayer;
@@ -2503,12 +2586,12 @@ void IPCIPv6SendWithDestMacAddr(IPC *ipc, void *data, UINT size, UCHAR *dest_mac
 			}
 			switch (p->ICMPv6HeaderPacketInfo.Type)
 			{
+			case ICMPV6_TYPE_ROUTER_SOLICIATION:
 			case ICMPV6_TYPE_NEIGHBOR_SOLICIATION:
 			case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT:
 				optBuf = BuildICMPv6Options(&p->ICMPv6HeaderPacketInfo.OptionList);
 				buf = NewBuf();
-				WriteBuf(buf, p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer,
-				         p->ICMPv6HeaderPacketInfo.Type == ICMPV6_TYPE_NEIGHBOR_SOLICIATION ? sizeof(ICMPV6_NEIGHBOR_SOLICIATION_HEADER) : sizeof(ICMPV6_NEIGHBOR_ADVERTISEMENT_HEADER));
+				WriteBuf(buf, p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer, header_size);
 				WriteBufBuf(buf, optBuf);
 				packet = BuildICMPv6(&p->IPv6HeaderPacketInfo.IPv6Header->SrcAddress,
 				                     &p->IPv6HeaderPacketInfo.IPv6Header->DestAddress,
