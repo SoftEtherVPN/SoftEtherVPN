@@ -2618,35 +2618,6 @@ THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_
 	return t;
 }
 
-// Generate the NT hash of the password
-void GenerateNtPasswordHash(UCHAR *dst, char *password)
-{
-	UCHAR *tmp;
-	UINT tmp_size;
-	UINT i, len;
-	// Validate arguments
-	if (dst == NULL || password == NULL)
-	{
-		return;
-	}
-
-	// Generate a Unicode password
-	len = StrLen(password);
-	tmp_size = len * 2;
-
-	tmp = ZeroMalloc(tmp_size);
-
-	for (i = 0;i < len;i++)
-	{
-		tmp[i * 2] = password[i];
-	}
-
-	// Hashing
-	HashMd4(dst, tmp, tmp_size);
-
-	Free(tmp);
-}
-
 // Generate the MS-CHAPv2 server-side challenge
 void MsChapV2Server_GenerateChallenge(UCHAR *dst)
 {

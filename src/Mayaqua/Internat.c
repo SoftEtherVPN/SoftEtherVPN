@@ -1230,6 +1230,14 @@ bool IsEmptyUniStr(wchar_t *str)
 
 	return ret;
 }
+bool UniIsFilledStr(wchar_t* str)
+{
+	return !UniIsEmptyStr(str);
+}
+bool UniIsFilledUniStr(wchar_t* str)
+{
+	return !UniIsEmptyStr(str);
+}
 
 // Check whether the specified string is a number
 bool UniIsNum(wchar_t *str)
@@ -2058,6 +2066,7 @@ UINT Utf8ToUni(wchar_t *s, UINT size, BYTE *u, UINT u_size)
 
 		if (IsBigEndian())
 		{
+#ifndef OS_WIN32
 			if (sizeof(wchar_t) == 2)
 			{
 				((BYTE *)&c)[0] = c1;
@@ -2068,6 +2077,11 @@ UINT Utf8ToUni(wchar_t *s, UINT size, BYTE *u, UINT u_size)
 				((BYTE *)&c)[2] = c1;
 				((BYTE *)&c)[3] = c2;
 			}
+#else // OS_WIN32
+			// VC++ (supposed never come here)
+			((BYTE*)&c)[0] = c1;
+			((BYTE*)&c)[1] = c2;
+#endif // OS_WIN32
 		}
 		else
 		{
@@ -2586,82 +2600,172 @@ UNI_TOKEN_LIST *UnixUniParseToken(wchar_t *src, wchar_t *separator)
 	return ret;
 }
 
-// Parse the token
-UNI_TOKEN_LIST *UniParseToken(wchar_t *src, wchar_t *separator)
+
+// Get a standard token delimiter
+wchar_t* UniDefaultTokenSplitChars()
 {
-#ifdef	OS_WIN32
-	UNI_TOKEN_LIST *ret;
-	wchar_t *tmp;
-	wchar_t *str1, *str2;
-	UINT len, num;
+	return L" ,\t\r\n";
+}
 
-#ifdef	OS_UNIX
-	wchar_t *state = NULL;
-#endif	// OS_UNIX
-
+// Check whether the specified character is in the string
+bool UniIsCharInStr(wchar_t* str, wchar_t c)
+{
+	UINT i, len;
 	// Validate arguments
-	if (src == NULL)
+	if (str == NULL)
 	{
-		ret = ZeroMalloc(sizeof(UNI_TOKEN_LIST));
-		ret->Token = ZeroMalloc(0);
-		return ret;
+		return false;
 	}
-	if (separator == NULL)
-	{
-		separator = L" .\t\r\n";
-	}
-	len = UniStrLen(src);
-	str1 = Malloc((len + 1) * sizeof(wchar_t));
-	str2 = Malloc((len + 1) * sizeof(wchar_t));
-	UniStrCpy(str1, 0, src);
-	UniStrCpy(str2, 0, src);
 
-	Lock(token_lock);
+	len = UniStrLen(str);
+	for (i = 0;i < len;i++)
 	{
-		tmp = wcstok(str1, separator
-#ifdef	OS_UNIX
-			, &state
-#endif	// OS_UNIX
-			);
-		num = 0;
-		while (tmp != NULL)
+		if (str[i] == c)
 		{
-			num++;
-			tmp = wcstok(NULL, separator
-#ifdef	OS_UNIX
-				, &state
-#endif	// OS_UNIX
-				);
-		}
-		ret = Malloc(sizeof(UNI_TOKEN_LIST));
-		ret->NumTokens = num;
-		ret->Token = (wchar_t **)Malloc(sizeof(wchar_t *) * num);
-		num = 0;
-		tmp = wcstok(str2, separator
-#ifdef	OS_UNIX
-			, &state
-#endif	// OS_UNIX
-			);
-		while (tmp != NULL)
-		{
-			ret->Token[num] = (wchar_t *)Malloc((UniStrLen(tmp) + 1) * sizeof(wchar_t));
-			UniStrCpy(ret->Token[num], 0, tmp);
-			num++;
-			tmp = wcstok(NULL, separator
-#ifdef	OS_UNIX
-				, &state
-#endif	// OS_UNIX
-				);
+			return true;
 		}
 	}
-	Unlock(token_lock);
 
-	Free(str1);
-	Free(str2);
-	return ret;
-#else	// OS_WIN32
-	return UnixUniParseToken(src, separator);
-#endif	// OS_WIN32
+	return false;
+}
+
+// Cut out the token from the string (not ignore the blanks between delimiters)
+UNI_TOKEN_LIST* UniParseTokenWithNullStr(wchar_t* str, wchar_t* split_chars)
+{
+	LIST* o;
+	UINT i, len;
+	BUF* b;
+	wchar_t zero = 0;
+	UNI_TOKEN_LIST* t;
+	// Validate arguments
+	if (str == NULL)
+	{
+		return UniNullToken();
+	}
+	if (split_chars == NULL)
+	{
+		split_chars = UniDefaultTokenSplitChars();
+	}
+
+	b = NewBuf();
+	o = NewListFast(NULL);
+
+	len = UniStrLen(str);
+
+	for (i = 0;i < (len + 1);i++)
+	{
+		wchar_t c = str[i];
+		bool flag = UniIsCharInStr(split_chars, c);
+
+		if (c == L'\0')
+		{
+			flag = true;
+		}
+
+		if (flag == false)
+		{
+			WriteBuf(b, &c, sizeof(wchar_t));
+		}
+		else
+		{
+			WriteBuf(b, &zero, sizeof(wchar_t));
+
+			Insert(o, UniCopyStr((wchar_t*)b->Buf));
+			ClearBuf(b);
+		}
+	}
+
+	t = ZeroMalloc(sizeof(UNI_TOKEN_LIST));
+	t->NumTokens = LIST_NUM(o);
+	t->Token = ZeroMalloc(sizeof(wchar_t*) * t->NumTokens);
+
+	for (i = 0;i < t->NumTokens;i++)
+	{
+		t->Token[i] = LIST_DATA(o, i);
+	}
+
+	ReleaseList(o);
+	FreeBuf(b);
+
+	return t;
+	}
+
+// Cut out the token from string (Ignore blanks between delimiters)
+UNI_TOKEN_LIST* UniParseTokenWithoutNullStr(wchar_t* str, wchar_t* split_chars)
+{
+	LIST* o;
+	UINT i, len;
+	bool last_flag;
+	BUF* b;
+	wchar_t zero = 0;
+	UNI_TOKEN_LIST* t;
+	// Validate arguments
+	if (str == NULL)
+	{
+		return UniNullToken();
+	}
+	if (split_chars == NULL)
+	{
+		split_chars = UniDefaultTokenSplitChars();
+	}
+
+	b = NewBuf();
+	o = NewListFast(NULL);
+
+	len = UniStrLen(str);
+	last_flag = false;
+
+	for (i = 0;i < (len + 1);i++)
+	{
+		wchar_t c = str[i];
+		bool flag = UniIsCharInStr(split_chars, c);
+
+		if (c == L'\0')
+		{
+			flag = true;
+		}
+
+		if (flag == false)
+		{
+			WriteBuf(b, &c, sizeof(wchar_t));
+		}
+		else
+		{
+			if (last_flag == false)
+			{
+				WriteBuf(b, &zero, sizeof(wchar_t));
+
+				if ((UniStrLen((wchar_t*)b->Buf)) != 0)
+				{
+					Insert(o, UniCopyStr((wchar_t*)b->Buf));
+				}
+				ClearBuf(b);
+			}
+		}
+
+		last_flag = flag;
+	}
+
+	t = ZeroMalloc(sizeof(UNI_TOKEN_LIST));
+	t->NumTokens = LIST_NUM(o);
+	t->Token = ZeroMalloc(sizeof(wchar_t*) * t->NumTokens);
+
+	for (i = 0;i < t->NumTokens;i++)
+	{
+		t->Token[i] = LIST_DATA(o, i);
+	}
+
+	ReleaseList(o);
+	FreeBuf(b);
+
+	return t;
+}
+
+// Parse the token
+UNI_TOKEN_LIST* UniParseToken(wchar_t* src, wchar_t* separator)
+{
+	// 2020/7/20 remove strtok by dnobori
+	return UniParseTokenWithoutNullStr(src, separator);
 }
 
 // Get a line from standard input

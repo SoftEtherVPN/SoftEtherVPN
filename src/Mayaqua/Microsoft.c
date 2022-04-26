@@ -15710,6 +15710,20 @@ wchar_t *MsGetWinTempDirW()
 	return ms->WinTempDirW;
 }
 
+UINT64 MsGetCurrentFileTime()
+{
+	SYSTEMTIME t;
+	UINT64 r = 0;
+
+	Zero(&t, sizeof(t));
+
+	GetSystemTime(&t);
+
+	SystemTimeToFileTime(&t, (FILETIME *)&r);
+
+	return r;
+}
+
 
 #endif	// WIN32
 

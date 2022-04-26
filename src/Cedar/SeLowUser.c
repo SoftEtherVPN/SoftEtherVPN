@@ -845,11 +845,45 @@ LIST *SuGetAdapterList(SU *u)
 	for (i = 0;i < u->AdapterInfoList.NumAdapters;i++)
 	{
 		SL_ADAPTER_INFO *info = &u->AdapterInfoList.Adapters[i];
-		SU_ADAPTER_LIST *a = SuAdapterInfoToAdapterList(info);
 
-		if (a != NULL)
+		if (IsEmptyStr(info->FriendlyName))
 		{
-			Add(ret, a);
+			// Some NetAdapterCx drivers doesn't report the FriendlyName in the kernel mode.
+			// So we attempt to obtain the DriverDesc string from NetCfg registry key alternatively.
+			char regkey[MAX_PATH] = {0};
+			char tmp[MAX_PATH] = {0};
+			char adapter_guid[MAX_PATH] = {0};
+
+			UniToStr(adapter_guid, sizeof(adapter_guid), info->AdapterId + StrLen(SL_ADAPTER_ID_PREFIX));
+
+			if (GetClassRegKeyWin32(regkey, sizeof(regkey), tmp, sizeof(tmp), adapter_guid))
+			{
+				char *driver_desc = MsRegReadStrEx2(REG_LOCAL_MACHINE, regkey, "DriverDesc", false, true);
+
+				if (driver_desc != NULL)
+				{
+					StrCpy(info->FriendlyName, sizeof(info->FriendlyName), driver_desc);
+					Free(driver_desc);
+				}
+			}
+		}
+
+		{
+			SU_ADAPTER_LIST *a = SuAdapterInfoToAdapterList(info);
+
+			char macstr[128] = {0};
+			BinToStr(macstr, sizeof(macstr), info->MacAddress, sizeof(info->MacAddress));
+
+			if (a != NULL)
+			{
+				// Debug("SU: Adapter %u (OK): ID=%S, MAC=%s, FriendlyName=%s\n", i, info->AdapterId, macstr, info->FriendlyName);
+
+				Add(ret, a);
+			}
+			else
+			{
+				// Debug("SU: Adapter %u (NG): ID=%S, MAC=%s, FriendlyName=%s\n", i, info->AdapterId, macstr, info->FriendlyName);
+			}
 		}
 	}
 
@@ -919,6 +953,7 @@ SU_ADAPTER_LIST *SuAdapterInfoToAdapterList(SL_ADAPTER_INFO *info)
 	Copy(&t.Info, info, sizeof(SL_ADAPTER_INFO));
 
 	UniToStr(tmp, sizeof(tmp), info->AdapterId);
+
 	if (IsEmptyStr(tmp) || IsEmptyStr(info->FriendlyName) || StartWith(tmp, SL_ADAPTER_ID_PREFIX) == false)
 	{
 		// Name is invalid

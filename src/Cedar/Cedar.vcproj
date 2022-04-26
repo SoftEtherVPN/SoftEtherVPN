@@ -70,6 +70,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalOptions="/IGNORE:4006,4221"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -140,6 +141,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalOptions="/IGNORE:4006,4221"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -213,6 +215,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalOptions="/IGNORE:4006,4221"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool
@@ -287,6 +290,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalOptions="/IGNORE:4006,4221"
 				AdditionalLibraryDirectories="$(SolutionDir)BuildFiles\Library\$(PlatformName)_$(ConfigurationName)"
 			/>
 			<Tool

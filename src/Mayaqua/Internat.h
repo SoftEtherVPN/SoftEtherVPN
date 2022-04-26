@@ -198,6 +198,8 @@ UNI_TOKEN_LIST *NullUniToken();
 bool UniIsNum(wchar_t *str);
 bool IsEmptyUniStr(wchar_t *str);
 bool UniIsEmptyStr(wchar_t *str);
+bool UniIsFilledStr(wchar_t* str);
+bool UniIsFilledUniStr(wchar_t* str);
 void InitInternational();
 void FreeInternational();
 USHORT *WideToUtf16(wchar_t *str);
@@ -224,6 +226,10 @@ bool UniInStrEx(wchar_t *str, wchar_t *keyword, bool case_sensitive);
 void ClearUniStr(wchar_t *str, UINT str_size);
 bool UniInChar(wchar_t *string, wchar_t c);
 UNI_TOKEN_LIST *UniGetLines(wchar_t *str);
+wchar_t* UniDefaultTokenSplitChars();
+bool UniIsCharInStr(wchar_t* str, wchar_t c);
+UNI_TOKEN_LIST* UniParseTokenWithNullStr(wchar_t* str, wchar_t* split_chars);
+UNI_TOKEN_LIST* UniParseTokenWithoutNullStr(wchar_t* str, wchar_t* split_chars);
 
 #ifdef	OS_UNIX
 void GetCurrentCharSet(char *name, UINT size);

@@ -125,6 +125,329 @@
 
 static UINT fifo_current_realloc_mem_size = FIFO_REALLOC_MEM_SIZE;
 
+static ACTIVE_PATCH_ENTRY ActivePatchList[MAX_ACTIVE_PATCH] = CLEAN;
+
+// Add active patch
+bool Vars_ActivePatch_AddStr(char* name, char* str_value)
+{
+	return Vars_ActivePatch_AddData(name, str_value, StrSize(str_value));
+}
+
+bool Vars_ActivePatch_AddInt(char* name, UINT int_value)
+{
+	return Vars_ActivePatch_AddData(name, &int_value, sizeof(UINT));
+}
+
+bool Vars_ActivePatch_AddInt64(char* name, UINT64 int64_value)
+{
+	return Vars_ActivePatch_AddData(name, &int64_value, sizeof(UINT64));
+}
+
+bool Vars_ActivePatch_AddBool(char* name, bool bool_value)
+{
+	return Vars_ActivePatch_AddInt(name, BOOL_TO_INT(bool_value));
+}
+
+bool Vars_ActivePatch_AddData(char* name, void* data, UINT data_size)
+{
+	UINT name_size;
+	UINT i;
+	ACTIVE_PATCH_ENTRY* target = NULL;
+
+	if (StrLen(name) == 0) return false;
+
+	for (i = 0;i < MAX_ACTIVE_PATCH;i++)
+	{
+		ACTIVE_PATCH_ENTRY* e = &ActivePatchList[i];
+
+		if (e->Name != NULL && StrCmpi(e->Name, name) == 0)
+		{
+			target = e;
+			break;
+		}
+
+		if (e->Name == NULL)
+		{
+			target = e;
+			break;
+		}
+	}
+
+	if (target == NULL)
+	{
+		return false;
+	}
+
+	name_size = StrSize(name) + 4;
+	target->Name = malloc(name_size);
+	memset(target->Name, 0, name_size);
+	StrCpy(target->Name, name_size, name);
+
+	target->Data = malloc(data_size + 4);
+	memset(target->Data, 0, data_size + 4);
+	Copy(target->Data, data, data_size);
+	
+	target->DataSize = data_size;
+
+	return true;
+}
+
+// Get active patch
+bool Vars_ActivePatch_GetData(char* name, void** data_ptr, UINT* data_size)
+{
+	UINT i;
+	if (data_ptr != NULL) *data_ptr = NULL;
+	if (data_size != NULL) *data_size = 0;
+	if (StrLen(name) == 0) return false;
+
+	for (i = 0;i < MAX_ACTIVE_PATCH;i++)
+	{
+		ACTIVE_PATCH_ENTRY* e = &ActivePatchList[i];
+
+		if (e->Name != NULL && StrCmpi(e->Name, name) == 0)
+		{
+			if (data_ptr != NULL) *data_ptr = e->Data;
+			if (data_size != NULL) *data_size = e->DataSize;
+			return true;
+		}
+
+		if (e->Name == NULL)
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+void* Vars_ActivePatch_GetData2(char* name, UINT* data_size)
+{
+	void* data_ptr;
+	if (Vars_ActivePatch_GetData(name, &data_ptr, data_size))
+	{
+		return data_ptr;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+UINT Vars_ActivePatch_GetInt(char* name)
+{
+	UINT sz;
+	UINT* p = Vars_ActivePatch_GetData2(name, &sz);
+	if (p == NULL) return 0;
+	if (sz != sizeof(UINT)) return 0;
+
+	return *p;
+}
+UINT64 Vars_ActivePatch_GetInt64(char* name)
+{
+	UINT sz;
+	UINT64* p = Vars_ActivePatch_GetData2(name, &sz);
+	if (p == NULL) return 0;
+	if (sz != sizeof(UINT64)) return 0;
+
+	return *p;
+}
+bool Vars_ActivePatch_GetBool(char* name)
+{
+	return INT_TO_BOOL(Vars_ActivePatch_GetInt(name));
+}
+char* Vars_ActivePatch_GetStr(char* name)
+{
+	return Vars_ActivePatch_GetStrEx(name, NULL);
+}
+char* Vars_ActivePatch_GetStrEx(char* name, char* default_str)
+{
+	UINT sz;
+	char* p = Vars_ActivePatch_GetData2(name, &sz);
+	if (p == NULL)
+	{
+		if (default_str == NULL)
+		{
+			return "";
+		}
+		return default_str;
+	}
+
+	return p;
+}
+bool Vars_ActivePatch_Exists(char* name)
+{
+	void* data_ptr = NULL;
+	UINT data_size = 0;
+	if (Vars_ActivePatch_GetData(name, &data_ptr, &data_size))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// Lockout GC
+void LockoutGcNoLock(LOCKOUT* o, UINT64 expires_span)
+{
+	UINT i;
+	UINT64 now = Tick64();
+	LIST* delete_list;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	delete_list = NewList(NULL);
+
+	for (i = 0;i < LIST_NUM(o->EntryList);i++)
+	{
+		LOCKOUT_ENTRY* e = LIST_DATA(o->EntryList, i);
+
+		if (now > (e->LastTick64 + expires_span))
+		{
+			Add(delete_list, e);
+		}
+	}
+
+	for (i = 0;i < LIST_NUM(delete_list);i++)
+	{
+		LOCKOUT_ENTRY* e = LIST_DATA(delete_list, i);
+
+		Delete(o->EntryList, e);
+
+		Free(e);
+	}
+
+	ReleaseList(delete_list);
+}
+
+// Lockout Get
+UINT GetLockout(LOCKOUT* o, char* key, UINT64 expires_span)
+{
+	UINT i;
+	UINT ret = 0;
+	if (o == NULL || key == NULL || expires_span == 0)
+	{
+		return 0;
+	}
+
+	LockList(o->EntryList);
+	{
+		LockoutGcNoLock(o, expires_span);
+
+		for (i = 0;i < LIST_NUM(o->EntryList);i++)
+		{
+			LOCKOUT_ENTRY* e = LIST_DATA(o->EntryList, i);
+
+			if (StrCmpi(e->Key, key) == 0)
+			{
+				ret = e->Count;
+				break;
+			}
+		}
+	}
+	UnlockList(o->EntryList);
+
+	return ret;
+}
+
+// Lockout clear
+void ClearLockout(LOCKOUT* o, char* key)
+{
+	UINT i;
+
+	if (o == NULL || key == NULL)
+	{
+		return;
+	}
+
+	LockList(o->EntryList);
+	{
+		for (i = 0;i < LIST_NUM(o->EntryList);i++)
+		{
+			LOCKOUT_ENTRY* e = LIST_DATA(o->EntryList, i);
+
+			if (StrCmpi(e->Key, key) == 0)
+			{
+				Delete(o->EntryList, e);
+				Free(e);
+
+				break;
+			}
+		}
+	}
+	UnlockList(o->EntryList);
+}
+
+// Lockout Add
+void AddLockout(LOCKOUT* o, char* key, UINT64 expires_span)
+{
+	UINT64 tick = Tick64();
+	UINT i;
+	if (o == NULL || key == NULL || expires_span == 0)
+	{
+		return;
+	}
+
+	LockList(o->EntryList);
+	{
+		LOCKOUT_ENTRY* e;
+		LockoutGcNoLock(o, expires_span);
+
+		for (i = 0;i < LIST_NUM(o->EntryList);i++)
+		{
+			LOCKOUT_ENTRY* e = LIST_DATA(o->EntryList, i);
+
+			if (StrCmpi(e->Key, key) == 0)
+			{
+				e->Count++;
+				e->LastTick64 = tick;
+
+				UnlockList(o->EntryList);
+				return;
+			}
+		}
+
+		e = ZeroMalloc(sizeof(LOCKOUT_ENTRY));
+
+		e->Count = 1;
+		e->LastTick64 = tick;
+		StrCpy(e->Key, sizeof(e->Key), key);
+
+		Add(o->EntryList, e);
+	}
+	UnlockList(o->EntryList);
+}
+
+// Free lockout
+void FreeLockout(LOCKOUT* o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o->EntryList);i++)
+	{
+		LOCKOUT_ENTRY* e = LIST_DATA(o->EntryList, i);
+
+		Free(e);
+	}
+
+	ReleaseList(o->EntryList);
+
+	Free(o);
+}
+
+// Create lockout
+LOCKOUT* NewLockout()
+{
+	LOCKOUT* o = ZeroMalloc(sizeof(LOCKOUT));
+
+	o->EntryList = NewList(NULL);
+
+	return o;
+}
+
 // New PRand
 PRAND *NewPRand(void *key, UINT key_size)
 {
@@ -623,6 +946,28 @@ UINT SearchBin(void *data, UINT data_start, UINT data_size, void *key, UINT key_
 
 	return INFINITE;
 }
+UINT SearchBinChar(void* data, UINT data_start, UINT data_size, UCHAR key_char)
+{
+	UINT i;
+	// Validate arguments
+	if (data == NULL || data_size == 0 ||
+		(data_start >= data_size) || (data_start + 1 > data_size))
+	{
+		return INFINITE;
+	}
+
+	for (i = data_start;i < data_size;i++)
+	{
+		UCHAR* p = ((UCHAR*)data) + i;
+
+		if (*p == key_char)
+		{
+			return i;
+		}
+	}
+
+	return INFINITE;
+}
 
 // Crash immediately
 void CrashNow()
@@ -630,7 +975,7 @@ void CrashNow()
 	while (true)
 	{
 		UINT r = Rand32();
-		UCHAR *c = (UCHAR *)r;
+		UCHAR *c = (UCHAR *)UINT32_TO_POINTER(r);
 
 		*c = Rand8();
 	}
@@ -1670,6 +2015,34 @@ void ReleaseStrList(LIST *o)
 	ReleaseList(o);
 }
 
+// Add a string to the string list
+void AddStrToStrList(LIST* o, char* str)
+{
+	if (o == NULL)
+	{
+		return;
+	}
+	if (str == NULL)
+	{
+		str = "";
+	}
+
+	Add(o, CopyStr(str));
+}
+void AddUniStrToUniStrList(LIST* o, wchar_t* str)
+{
+	if (o == NULL)
+	{
+		return;
+	}
+	if (str == NULL)
+	{
+		str = L"";
+	}
+
+	Add(o, UniCopyStr(str));
+}
+
 // Add a string distinct to the string list
 bool AddStrToStrListDistinct(LIST *o, char *str)
 {
@@ -2363,6 +2736,24 @@ int CompareStr(void *p1, void *p2)
 	s2 = *(char **)p2;
 
 	return StrCmpi(s1, s2);
+}
+
+void FreeBufList(LIST* o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		BUF* buf = LIST_DATA(o, i);
+
+		FreeBuf(buf);
+	}
+
+	ReleaseList(o);
 }
 
 // Create a list with an item
@@ -3138,6 +3529,10 @@ BUF *NewBuf()
 // Clearing the buffer
 void ClearBuf(BUF *b)
 {
+	ClearBufEx(b, false);
+}
+void ClearBufEx(BUF* b, bool init_buffer) 
+{
 	// Validate arguments
 	if (b == NULL)
 	{
@@ -3146,6 +3541,13 @@ void ClearBuf(BUF *b)
 
 	b->Size = 0;
 	b->Current = 0;
+
+	if (init_buffer && b->SizeReserved != INIT_BUF_SIZE)
+	{
+		Free(b->Buf);
+		b->Buf = Malloc(INIT_BUF_SIZE);
+		b->SizeReserved = INIT_BUF_SIZE;
+	}
 }
 
 // Write to the buffer
@@ -3593,6 +3995,27 @@ void SeekBuf(BUF *b, UINT offset, int mode)
 	KS_INC(KS_SEEK_BUF_COUNT);
 }
 
+// Free the buffer without data buffer
+void FreeBufWithoutData(BUF* b)
+{
+	// Validate arguments
+	if (b == NULL)
+	{
+		return;
+	}
+
+	// Memory release
+	Free(b);
+
+	// KS
+	KS_INC(KS_FREEBUF_COUNT);
+	KS_DEC(KS_CURRENT_BUF_COUNT);
+
+#ifndef	DONT_USE_KERNEL_STATUS
+	//	TrackDeleteObj(POINTER_TO_UINT64(b));
+#endif	// DONT_USE_KERNEL_STATUS
+}
+
 // Free the buffer
 void FreeBuf(BUF *b)
 {
@@ -3710,6 +4133,21 @@ UINT ReadBufRemainSize(BUF *b)
 	return b->Size - b->Current;
 }
 
+UINT SizeOfBuf(BUF* b)
+{
+	// Validate arguments
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	return b->Size;
+}
+UINT GetBufSize(BUF* b)
+{
+	return SizeOfBuf(b);
+}
+
 // Clone the buffer
 BUF *CloneBuf(BUF *b)
 {
@@ -3774,6 +4212,48 @@ UINT Endian32(UINT src)
 UINT64 Endian64(UINT64 src)
 {
 	int x = 1;
+	if (*((char *)&x))
+	{
+		return Swap64(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
+// Endian conversion 16bit
+USHORT LittleEndian16(USHORT src)
+{
+	int x = 0x01000000;
+	if (*((char *)&x))
+	{
+		return Swap16(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
+// Endian conversion 32bit
+UINT LittleEndian32(UINT src)
+{
+	int x = 0x01000000;
+	if (*((char *)&x))
+	{
+		return Swap32(src);
+	}
+	else
+	{
+		return src;
+	}
+}
+
+// Endian conversion 64bit
+UINT64 LittleEndian64(UINT64 src)
+{
+	int x = 0x01000000;
 	if (*((char *)&x))
 	{
 		return Swap64(src);
@@ -4512,3 +4992,57 @@ void XorData(void *dst, void *src1, void *src2, UINT size)
 		c2++;
 	}
 }
+
+// Shuffle list
+UINT* GenerateShuffleList(UINT num)
+{
+	UINT* ret = ZeroMalloc(sizeof(UINT) * num);
+	UINT i;
+	for (i = 0;i < num;i++)
+	{
+		ret[i] = i;
+	}
+	Shuffle(ret, num);
+
+	return ret;
+}
+UINT* GenerateShuffleListWithSeed(UINT num, void* seed, UINT seed_size)
+{
+	UINT* ret = ZeroMalloc(sizeof(UINT) * num);
+	UINT i;
+	for (i = 0;i < num;i++)
+	{
+		ret[i] = i;
+	}
+	ShuffleWithSeed(ret, num, seed, seed_size);
+
+	return ret;
+}
+
+// Shuffle
+void Shuffle(UINT* array, UINT size)
+{
+	UINT i;
+	for (i = 0;i < size;i++)
+	{
+		UINT j = Rand32() % size;
+		UINT t = array[i];
+		array[i] = array[j];
+		array[j] = t;
+	}
+}
+void ShuffleWithSeed(UINT* array, UINT size, void* seed, UINT seed_size)
+{
+	UINT i;
+	SEEDRAND *rand = NewSeedRand(seed, seed_size);
+	for (i = 0;i < size;i++)
+	{
+		UINT j = SeedRand32(rand) % size;
+		UINT t = array[i];
+		array[i] = array[j];
+		array[j] = t;
+	}
+	FreeSeedRand(rand);
+}
+
+

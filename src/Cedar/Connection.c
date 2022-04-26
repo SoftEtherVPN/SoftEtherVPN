@@ -3140,8 +3140,8 @@ void ConnectionAccept(CONNECTION *c)
 			SetWantToUseCipher(s, c->Cedar->CipherList);
 		}
 
-		x = CloneX(c->Cedar->ServerX);
-		k = CloneK(c->Cedar->ServerK);
+		x = CloneXFast(c->Cedar->ServerX);
+		k = CloneKFast(c->Cedar->ServerK);
 	}
 	Unlock(c->Cedar->lock);
 
@@ -3591,7 +3591,7 @@ CONNECTION *NewServerConnection(CEDAR *cedar, SOCK *s, THREAD *t)
 
 	if (s != NULL && s->RemoteX != NULL)
 	{
-		c->ServerX = CloneX(s->RemoteX);
+		c->ServerX = CloneXFast(s->RemoteX);
 	}
 
 	if (s != NULL && s->Type == SOCK_INPROC)

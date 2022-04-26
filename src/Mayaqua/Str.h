@@ -138,6 +138,7 @@ int StrCmpi(char *str1, char *str2);
 void FormatArgs(char *buf, UINT size, char *fmt, va_list args);
 void Format(char *buf, UINT size, char *fmt, ...);
 char *CopyFormat(char *fmt, ...);
+void MakeFormatSafeString(char* str);
 void Print(char *fmt, ...);
 void PrintArgs(char *fmt, va_list args);
 void PrintStr(char *str);
@@ -197,6 +198,7 @@ void FreeStrList(LIST *o);
 TOKEN_LIST *ListToTokenList(LIST *o);
 LIST *TokenListToList(TOKEN_LIST *t);
 bool IsEmptyStr(char *str);
+bool IsFilledStr(char* str);
 void BinToStrEx(char *str, UINT str_size, void *data, UINT data_size);
 void BinToStrEx2(char *str, UINT str_size, void *data, UINT data_size, char padding_char);
 char *CopyBinToStrEx(void *data, UINT data_size);
@@ -244,6 +246,19 @@ void NormalizeIntListStr(char *dst, UINT dst_size, char *src, bool sorted, char 
 void ClearStr(char *str, UINT str_size);
 void SetStrCaseAccordingToBits(char *str, UINT bits);
 char *UrlDecode(char *url_str);
+void GetDomainSuffixFromFqdn(char *dst, UINT size, char *fqdn);
+bool NormalizeMacAddressListStr(char *dst, UINT size, char *src);
+LIST *GetStrListFromLines(char *str);
+bool CheckStrListIncludedInOther(LIST *o1, LIST *o2);
+bool CheckStrListIncludedInOtherStr(char *str1, char *str2);
+bool CheckStrListIncludedInOtherStrMac(char *str1, char *str2);
+
+bool CheckPasswordComplexity(char *str);
+
+TOKEN_LIST* StrToLinesList(char* str);
+char* GetFirstFilledStrFromStr(char* str);
+char* GetFirstFilledStrFromBuf(BUF* buf);
+void RemoveBomFromStr(char* str);
 
 
 // *** JSON strings support

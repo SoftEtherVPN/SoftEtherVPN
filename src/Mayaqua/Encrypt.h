@@ -144,6 +144,11 @@ void RAND_Free_For_SoftEther();
 // OpenSSL default cipher algorithms
 #define	OPENSSL_DEFAULT_CIPHER_LIST "ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2"
 
+// OpenSSL 3.x has a bug. https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
+// At 2021-09-08 this bug is reported as fixed on Github, but actually still exists on RC4-MD5.
+// So, with OpenSSL 3.0 we manually disable RC4-MD5 by default on both SSL server and SSL client.
+#define	OPENSSL_DEFAULT_CIPHER_LIST_NO_RC4_MD5  (OPENSSL_DEFAULT_CIPHER_LIST ":!RC4-MD5")
+
 // IANA definitions taken from IKEv1 Phase 1
 #define SHA1_160						2
 #define SHA2_256						4
@@ -367,6 +372,24 @@ struct MD
 	UINT Size;
 };
 
+// Seed based rand
+struct SEEDRAND
+{
+	UCHAR InitialSeed[SHA1_SIZE];
+	UINT64 CurrentCounter;
+};
+
+// X.509 cert list and key
+struct CERTS_AND_KEY
+{
+	REF* Ref;
+	LIST* CertList;
+	K* Key;
+	UINT64 HashCache;
+	bool HasValidPrivateKey;
+
+	bool (*DetermineUseCallback)(char*, void*);
+};
 
 // Lock of the OpenSSL
 extern LOCK **ssl_lock_obj;
@@ -390,6 +413,35 @@ USHORT Rand16();
 UCHAR Rand8();
 bool Rand1();
 UINT HashPtrToUINT(void *p);
+
+SEEDRAND *NewSeedRand(void *seed, UINT seed_size);
+void FreeSeedRand(SEEDRAND *r);
+UCHAR SeedRand8(SEEDRAND *r);
+void SeedRand(SEEDRAND *r, void *buf, UINT size);
+USHORT SeedRand16(SEEDRAND *r);
+UINT SeedRand32(SEEDRAND *r);
+UINT64 SeedRand64(SEEDRAND* r);
+
+
+CERTS_AND_KEY* NewCertsAndKeyFromMemory(LIST* cert_buf_list, BUF* key_buf);
+CERTS_AND_KEY* NewCertsAndKeyFromObjects(LIST* cert_list, K* key, bool fast);
+CERTS_AND_KEY* NewCertsAndKeyFromObjectSingle(X *cert, K* key, bool fast);
+CERTS_AND_KEY* NewCertsAndKeyFromDir(wchar_t* dir_name);
+bool SaveCertsAndKeyToDir(CERTS_AND_KEY *c, wchar_t* dir);
+void ReleaseCertsAndKey(CERTS_AND_KEY* c);
+void CleanupCertsAndKey(CERTS_AND_KEY* c);
+CERTS_AND_KEY* CloneCertsAndKey(CERTS_AND_KEY* c);
+void FreeCertsAndKeyList(LIST* o);
+LIST* CloneCertsAndKeyList(LIST* o);
+void UpdateCertsAndKeyHashCacheAndCheckedState(CERTS_AND_KEY* c);
+UINT64 CalcCertsAndKeyHashCache(CERTS_AND_KEY* c);
+UINT64 GetCertsAndKeyHash(CERTS_AND_KEY* c);
+UINT64 GetCertsAndKeyListHash(LIST* o);
+bool CheckCertsAndKey(CERTS_AND_KEY* c);
+bool CertsAndKeyAlwaysUseCallback(char* sni_name, void* param);
+
+LIST* BufToXList(BUF* b);
+void FreeXList(LIST* o);
 
 void CertTest();
 BIO *BufToBio(BUF *b);
@@ -450,7 +502,9 @@ bool AddX509Name(void *xn, int nid, wchar_t *str);
 X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial);
 X *NewRootX(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial);
 X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial);
+X509 *NewX509Ex(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial, NAME *name_issuer);
 X *NewX(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial);
+X *NewXEx(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial, NAME *name_issuer);
 UINT GetDaysUntil2038();
 UINT GetDaysUntil2038Ex();
 X_SERIAL *NewXSerial(void *data, UINT size);
@@ -472,6 +526,8 @@ bool IsEncryptedP12(P12 *p12);
 P12 *NewP12(X *x, K *k, char *password);
 X *CloneX(X *x);
 K *CloneK(K *k);
+X* CloneXFast(X* x);
+K* CloneKFast(K* k);
 void FreeCryptLibrary();
 void GetPrintNameFromX(wchar_t *str, UINT size, X *x);
 void GetPrintNameFromXA(char *str, UINT size, X *x);
@@ -508,6 +564,13 @@ UINT RsaPublicSize(K *k);
 void RsaPublicToBin(K *k, void *data);
 BUF *RsaPublicToBuf(K *k);
 K *RsaBinToPublic(void *data, UINT size);
+
+X_CRL *FileToXCrl(char *filename);
+X_CRL *FileToXCrlW(wchar_t *filename);
+X_CRL *BufToXCrl(BUF *b);
+void FreeXCrl(X_CRL *r);
+bool IsXRevokedByXCrl(X *x, X_CRL *r);
+bool IsXRevoked(X *x);
 
 DES_KEY_VALUE *DesNewKeyValue(void *value);
 DES_KEY_VALUE *DesRandKeyValue();
@@ -600,6 +663,9 @@ bool Aead_ChaCha20Poly1305_Ietf_Decrypt(void *dst, void *src, UINT src_size, voi
 bool Aead_ChaCha20Poly1305_Ietf_IsOpenSSL();
 
 void Aead_ChaCha20Poly1305_Ietf_Test();
+
+
+
 
 
 #ifdef	ENCRYPT_C

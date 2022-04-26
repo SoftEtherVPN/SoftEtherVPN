@@ -123,6 +123,9 @@
 // Fixed size of a block of memory pool
 #define	MEMPOOL_MAX_SIZE					3000
 
+// Active patch
+#define MAX_ACTIVE_PATCH					1024
+
 
 // Memory tag
 struct MEMTAG
@@ -235,6 +238,28 @@ struct PRAND
 	CRYPT *Rc4;
 };
 
+// ACTIVE_PATCH_ENTRY
+struct ACTIVE_PATCH_ENTRY
+{
+	char* Name;
+	void* Data;
+	UINT DataSize;
+};
+
+// Lockout Entry
+struct LOCKOUT_ENTRY
+{
+	char Key[MAX_SIZE];
+	UINT Count;
+	UINT64 LastTick64;
+};
+
+// Lockout
+struct LOCKOUT
+{
+	LIST* EntryList;
+};
+
 // Function prototype
 HASH_LIST *NewHashList(GET_HASH *get_hash_proc, COMPARE *compare_proc, UINT bits, bool make_list);
 void ReleaseHashList(HASH_LIST *h);
@@ -248,6 +273,13 @@ void LockHashList(HASH_LIST *h);
 void UnlockHashList(HASH_LIST *h);
 bool IsInHashListKey(HASH_LIST *h, UINT key);
 void *HashListKeyToPointer(HASH_LIST *h, UINT key);
+
+void LockoutGcNoLock(LOCKOUT* o, UINT64 expires_span);
+UINT GetLockout(LOCKOUT* o, char* key, UINT64 expires_span);
+void AddLockout(LOCKOUT* o, char* key, UINT64 expires_span);
+void ClearLockout(LOCKOUT* o, char* key);
+void FreeLockout(LOCKOUT* o);
+LOCKOUT* NewLockout();
 
 PRAND *NewPRand(void *key, UINT key_size);
 void FreePRand(PRAND *r);
@@ -298,11 +330,15 @@ UINT64 Swap64(UINT64 value);
 USHORT Endian16(USHORT src);
 UINT Endian32(UINT src);
 UINT64 Endian64(UINT64 src);
+USHORT LittleEndian16(USHORT src);
+UINT LittleEndian32(UINT src);
+UINT64 LittleEndian64(UINT64 src);
 void EndianUnicode(wchar_t *str);
 
 BUF *NewBuf();
 BUF *NewBufFromMemory(void *buf, UINT size);
 void ClearBuf(BUF *b);
+void ClearBufEx(BUF* b, bool init_buffer);
 void WriteBuf(BUF *b, void *buf, UINT size);
 void WriteBufBuf(BUF *b, BUF *bb);
 void WriteBufBufWithOffset(BUF *b, BUF *bb);
@@ -314,6 +350,7 @@ void SeekBuf(BUF *b, UINT offset, int mode);
 void SeekBufToEnd(BUF *b);
 void SeekBufToBegin(BUF *b);
 void FreeBuf(BUF *b);
+void FreeBufWithoutData(BUF* b);
 bool BufToFile(IO *o, BUF *b);
 BUF *FileToBuf(IO *o);
 UINT ReadBufInt(BUF *b);
@@ -343,6 +380,8 @@ BUF *RandBuf(UINT size);
 BUF *ReadRemainBuf(BUF *b);
 UINT ReadBufRemainSize(BUF *b);
 bool CompareBuf(BUF *b1, BUF *b2);
+UINT SizeOfBuf(BUF* b);
+UINT GetBufSize(BUF* b);
 
 UINT PeekFifo(FIFO *f, void *p, UINT size);
 UINT ReadFifo(FIFO *f, void *p, UINT size);
@@ -421,6 +460,7 @@ void InsertInt64(LIST *o, UINT64 i);
 void InsertIntDistinct(LIST *o, UINT i);
 void InsertInt64Distinct(LIST *o, UINT64 i);
 void RandomizeList(LIST *o);
+void FreeBufList(LIST* o);
 
 void *GetNext(QUEUE *q);
 void *GetNextWithLock(QUEUE *q);
@@ -459,6 +499,8 @@ LIST *NewStrMap();
 void *StrMapSearch(LIST *map, char *key);
 
 UINT SearchBin(void *data, UINT data_start, UINT data_size, void *key, UINT key_size);
+UINT SearchBinChar(void* data, UINT data_start, UINT data_size, UCHAR key_char);
+
 void CrashNow();
 UINT Power(UINT a, UINT b);
 
@@ -474,6 +516,29 @@ void AppendBufStr(BUF *b, char *str);
 LIST *NewStrList();
 void ReleaseStrList(LIST *o);
 bool AddStrToStrListDistinct(LIST *o, char *str);
+
+void AddStrToStrList(LIST* o, char* str);
+void AddUniStrToUniStrList(LIST* o, wchar_t* str);
+
+bool Vars_ActivePatch_AddStr(char* name, char* str_value);
+bool Vars_ActivePatch_AddInt(char* name, UINT int_value);
+bool Vars_ActivePatch_AddBool(char* name, bool bool_value);
+bool Vars_ActivePatch_AddInt64(char* name, UINT64 int64_value);
+bool Vars_ActivePatch_AddData(char* name, void* data, UINT data_size);
+
+bool Vars_ActivePatch_GetData(char* name, void** data_ptr, UINT* data_size);
+void* Vars_ActivePatch_GetData2(char* name, UINT* data_size);
+UINT Vars_ActivePatch_GetInt(char* name);
+bool Vars_ActivePatch_GetBool(char* name);
+UINT64 Vars_ActivePatch_GetInt64(char* name);
+char* Vars_ActivePatch_GetStr(char* name);
+char* Vars_ActivePatch_GetStrEx(char* name, char *default_str);
+bool Vars_ActivePatch_Exists(char* name);
+
+UINT* GenerateShuffleList(UINT num);
+UINT* GenerateShuffleListWithSeed(UINT num, void* seed, UINT seed_size);
+void Shuffle(UINT* array, UINT size);
+void ShuffleWithSeed(UINT* array, UINT size, void* seed, UINT seed_size);
 
 #endif	// MEMORY_H
 

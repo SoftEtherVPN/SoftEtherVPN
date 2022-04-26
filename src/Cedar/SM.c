@@ -8662,7 +8662,7 @@ void SmCreateCertDlgUpdate(HWND hWnd, SM_CERT *s)
 	}
 
 	i = GetInt(hWnd, E_EXPIRE);
-	if (i == 0 || i >= (365 * 30))
+	if (i == 0 || i >= 2920000)
 	{
 		ok = false;
 	}

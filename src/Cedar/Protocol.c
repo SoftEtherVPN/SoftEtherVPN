@@ -1716,7 +1716,6 @@ UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 	UCHAR check_secure_old_password[SHA1_SIZE];
 	UINT ret = ERR_NO_ERROR;
 	HUB *hub;
-	bool save = false;
 	// Validate arguments
 	if (c == NULL || p == NULL)
 	{
@@ -1816,9 +1815,9 @@ UINT ChangePasswordAccept(CONNECTION *c, PACK *p)
 								{
 									Copy(pw->HashedKey, new_password, SHA1_SIZE);
 									Copy(pw->NtLmSecureHash, new_password_ntlm, MD5_SIZE);
+									IncrementServerConfigRevision(cedar->Server);
 								}
 								HLog(hub, "LH_CHANGE_PASSWORD_5", c->Name, username);
-								save = true;
 							}
 						}
 						else
@@ -2850,7 +2849,7 @@ bool ServerAccept(CONNECTION *c)
 												if (auth_ret)
 												{
 													// Copy the certificate
-													c->ClientX = CloneX(x);
+													c->ClientX = CloneXFast(x);
 												}
 											}
 											else
@@ -2903,7 +2902,7 @@ bool ServerAccept(CONNECTION *c)
 									if (auth_ret)
 									{
 										// Copy the certificate
-										c->ClientX = CloneX(x);
+										c->ClientX = CloneXFast(x);
 									}
 								}
 								FreeX(x);

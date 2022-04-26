@@ -1,18 +1,26 @@
 /*
- * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2021 The OpenSSL Project Authors. All Rights Reserved.
  *
- * Licensed under the OpenSSL license (the "License").  You may not use
+ * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
 
+
+
 /*
  * Header for dynamic hash table routines Author - Eric Young
  */
 
-#ifndef HEADER_LHASH_H
-# define HEADER_LHASH_H
+#ifndef OPENSSL_LHASH_H
+# define OPENSSL_LHASH_H
+# pragma once
+
+# include <openssl/macros.h>
+# ifndef OPENSSL_NO_DEPRECATED_3_0
+#  define HEADER_LHASH_H
+# endif
 
 # include <openssl/e_os2.h>
 # include <openssl/bio.h>
@@ -72,6 +80,7 @@ typedef struct lhash_st OPENSSL_LHASH;
 int OPENSSL_LH_error(OPENSSL_LHASH *lh);
 OPENSSL_LHASH *OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c);
 void OPENSSL_LH_free(OPENSSL_LHASH *lh);
+void OPENSSL_LH_flush(OPENSSL_LHASH *lh);
 void *OPENSSL_LH_insert(OPENSSL_LHASH *lh, void *data);
 void *OPENSSL_LH_delete(OPENSSL_LHASH *lh, const void *data);
 void *OPENSSL_LH_retrieve(OPENSSL_LHASH *lh, const void *data);
@@ -91,7 +100,7 @@ void OPENSSL_LH_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+# ifndef OPENSSL_NO_DEPRECATED_1_1_0
 #  define _LHASH OPENSSL_LHASH
 #  define LHASH_NODE OPENSSL_LH_NODE
 #  define lh_error OPENSSL_LH_error
@@ -118,6 +127,42 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 
 # define LHASH_OF(type) struct lhash_st_##type
 
+/* Helper macro for internal use */
+# define DEFINE_LHASH_OF_INTERNAL(type) \
+    LHASH_OF(type) { union lh_##type##_dummy { void* d1; unsigned long d2; int d3; } dummy; }; \
+    typedef int (*lh_##type##_compfunc)(const type *a, const type *b); \
+    typedef unsigned long (*lh_##type##_hashfunc)(const type *a); \
+    typedef void (*lh_##type##_doallfunc)(type *a); \
+    static ossl_unused ossl_inline type *ossl_check_##type##_lh_plain_type(type *ptr) \
+    { \
+        return ptr; \
+    } \
+    static ossl_unused ossl_inline const type *ossl_check_const_##type##_lh_plain_type(const type *ptr) \
+    { \
+        return ptr; \
+    } \
+    static ossl_unused ossl_inline const OPENSSL_LHASH *ossl_check_const_##type##_lh_type(const LHASH_OF(type) *lh) \
+    { \
+        return (const OPENSSL_LHASH *)lh; \
+    } \
+    static ossl_unused ossl_inline OPENSSL_LHASH *ossl_check_##type##_lh_type(LHASH_OF(type) *lh) \
+    { \
+        return (OPENSSL_LHASH *)lh; \
+    } \
+    static ossl_unused ossl_inline OPENSSL_LH_COMPFUNC ossl_check_##type##_lh_compfunc_type(lh_##type##_compfunc cmp) \
+    { \
+        return (OPENSSL_LH_COMPFUNC)cmp; \
+    } \
+    static ossl_unused ossl_inline OPENSSL_LH_HASHFUNC ossl_check_##type##_lh_hashfunc_type(lh_##type##_hashfunc hfn) \
+    { \
+        return (OPENSSL_LH_HASHFUNC)hfn; \
+    } \
+    static ossl_unused ossl_inline OPENSSL_LH_DOALL_FUNC ossl_check_##type##_lh_doallfunc_type(lh_##type##_doallfunc dfn) \
+    { \
+        return (OPENSSL_LH_DOALL_FUNC)dfn; \
+    } \
+    LHASH_OF(type)
+
 # define DEFINE_LHASH_OF(type) \
     LHASH_OF(type) { union lh_##type##_dummy { void* d1; unsigned long d2; int d3; } dummy; }; \
     static ossl_unused ossl_inline LHASH_OF(type) *lh_##type##_new(unsigned long (*hfn)(const type *), \
@@ -129,6 +174,10 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     static ossl_unused ossl_inline void lh_##type##_free(LHASH_OF(type) *lh) \
     { \
         OPENSSL_LH_free((OPENSSL_LHASH *)lh); \
+    } \
+    static ossl_unused ossl_inline void lh_##type##_flush(LHASH_OF(type) *lh) \
+    { \
+        OPENSSL_LH_flush((OPENSSL_LHASH *)lh); \
     } \
     static ossl_unused ossl_inline type *lh_##type##_insert(LHASH_OF(type) *lh, type *d) \
     { \
@@ -175,6 +224,13 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     { \
         OPENSSL_LH_doall((OPENSSL_LHASH *)lh, (OPENSSL_LH_DOALL_FUNC)doall); \
     } \
+    static ossl_unused ossl_inline void lh_##type##_doall_arg(LHASH_OF(type) *lh, \
+                                                              void (*doallarg)(type *, void *), \
+                                                              void *arg) \
+    { \
+        OPENSSL_LH_doall_arg((OPENSSL_LHASH *)lh, \
+                             (OPENSSL_LH_DOALL_FUNCARG)doallarg, arg); \
+    } \
     LHASH_OF(type)
 
 #define IMPLEMENT_LHASH_DOALL_ARG_CONST(type, argtype) \
@@ -193,46 +249,37 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     } \
     LHASH_OF(type)
 
-DEFINE_LHASH_OF(OPENSSL_STRING);
-# ifdef _MSC_VER
-/*
- * push and pop this warning:
- *   warning C4090: 'function': different 'const' qualifiers
- */
-#  pragma warning (push)
-#  pragma warning (disable: 4090)
-# endif
+DEFINE_LHASH_OF_INTERNAL(OPENSSL_STRING);
+#define lh_OPENSSL_STRING_new(hfn, cmp) ((LHASH_OF(OPENSSL_STRING) *)OPENSSL_LH_new(ossl_check_OPENSSL_STRING_lh_hashfunc_type(hfn), ossl_check_OPENSSL_STRING_lh_compfunc_type(cmp)))
+#define lh_OPENSSL_STRING_free(lh) OPENSSL_LH_free(ossl_check_OPENSSL_STRING_lh_type(lh))
+#define lh_OPENSSL_STRING_flush(lh) OPENSSL_LH_flush(ossl_check_OPENSSL_STRING_lh_type(lh))
+#define lh_OPENSSL_STRING_insert(lh, ptr) ((OPENSSL_STRING *)OPENSSL_LH_insert(ossl_check_OPENSSL_STRING_lh_type(lh), ossl_check_OPENSSL_STRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_STRING_delete(lh, ptr) ((OPENSSL_STRING *)OPENSSL_LH_delete(ossl_check_OPENSSL_STRING_lh_type(lh), ossl_check_const_OPENSSL_STRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_STRING_retrieve(lh, ptr) ((OPENSSL_STRING *)OPENSSL_LH_retrieve(ossl_check_OPENSSL_STRING_lh_type(lh), ossl_check_const_OPENSSL_STRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_STRING_error(lh) OPENSSL_LH_error(ossl_check_OPENSSL_STRING_lh_type(lh))
+#define lh_OPENSSL_STRING_num_items(lh) OPENSSL_LH_num_items(ossl_check_OPENSSL_STRING_lh_type(lh))
+#define lh_OPENSSL_STRING_node_stats_bio(lh, out) OPENSSL_LH_node_stats_bio(ossl_check_const_OPENSSL_STRING_lh_type(lh), out)
+#define lh_OPENSSL_STRING_node_usage_stats_bio(lh, out) OPENSSL_LH_node_usage_stats_bio(ossl_check_const_OPENSSL_STRING_lh_type(lh), out)
+#define lh_OPENSSL_STRING_stats_bio(lh, out) OPENSSL_LH_stats_bio(ossl_check_const_OPENSSL_STRING_lh_type(lh), out)
+#define lh_OPENSSL_STRING_get_down_load(lh) OPENSSL_LH_get_down_load(ossl_check_OPENSSL_STRING_lh_type(lh))
+#define lh_OPENSSL_STRING_set_down_load(lh, dl) OPENSSL_LH_set_down_load(ossl_check_OPENSSL_STRING_lh_type(lh), dl)
+#define lh_OPENSSL_STRING_doall(lh, dfn) OPENSSL_LH_doall(ossl_check_OPENSSL_STRING_lh_type(lh), ossl_check_OPENSSL_STRING_lh_doallfunc_type(dfn))
+DEFINE_LHASH_OF_INTERNAL(OPENSSL_CSTRING);
+#define lh_OPENSSL_CSTRING_new(hfn, cmp) ((LHASH_OF(OPENSSL_CSTRING) *)OPENSSL_LH_new(ossl_check_OPENSSL_CSTRING_lh_hashfunc_type(hfn), ossl_check_OPENSSL_CSTRING_lh_compfunc_type(cmp)))
+#define lh_OPENSSL_CSTRING_free(lh) OPENSSL_LH_free(ossl_check_OPENSSL_CSTRING_lh_type(lh))
+#define lh_OPENSSL_CSTRING_flush(lh) OPENSSL_LH_flush(ossl_check_OPENSSL_CSTRING_lh_type(lh))
+#define lh_OPENSSL_CSTRING_insert(lh, ptr) ((OPENSSL_CSTRING *)OPENSSL_LH_insert(ossl_check_OPENSSL_CSTRING_lh_type(lh), ossl_check_OPENSSL_CSTRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_CSTRING_delete(lh, ptr) ((OPENSSL_CSTRING *)OPENSSL_LH_delete(ossl_check_OPENSSL_CSTRING_lh_type(lh), ossl_check_const_OPENSSL_CSTRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_CSTRING_retrieve(lh, ptr) ((OPENSSL_CSTRING *)OPENSSL_LH_retrieve(ossl_check_OPENSSL_CSTRING_lh_type(lh), ossl_check_const_OPENSSL_CSTRING_lh_plain_type(ptr)))
+#define lh_OPENSSL_CSTRING_error(lh) OPENSSL_LH_error(ossl_check_OPENSSL_CSTRING_lh_type(lh))
+#define lh_OPENSSL_CSTRING_num_items(lh) OPENSSL_LH_num_items(ossl_check_OPENSSL_CSTRING_lh_type(lh))
+#define lh_OPENSSL_CSTRING_node_stats_bio(lh, out) OPENSSL_LH_node_stats_bio(ossl_check_const_OPENSSL_CSTRING_lh_type(lh), out)
+#define lh_OPENSSL_CSTRING_node_usage_stats_bio(lh, out) OPENSSL_LH_node_usage_stats_bio(ossl_check_const_OPENSSL_CSTRING_lh_type(lh), out)
+#define lh_OPENSSL_CSTRING_stats_bio(lh, out) OPENSSL_LH_stats_bio(ossl_check_const_OPENSSL_CSTRING_lh_type(lh), out)
+#define lh_OPENSSL_CSTRING_get_down_load(lh) OPENSSL_LH_get_down_load(ossl_check_OPENSSL_CSTRING_lh_type(lh))
+#define lh_OPENSSL_CSTRING_set_down_load(lh, dl) OPENSSL_LH_set_down_load(ossl_check_OPENSSL_CSTRING_lh_type(lh), dl)
+#define lh_OPENSSL_CSTRING_doall(lh, dfn) OPENSSL_LH_doall(ossl_check_OPENSSL_CSTRING_lh_type(lh), ossl_check_OPENSSL_CSTRING_lh_doallfunc_type(dfn))
 
-DEFINE_LHASH_OF(OPENSSL_CSTRING);
-
-# ifdef _MSC_VER
-#  pragma warning (pop)
-# endif
-
-/*
- * If called without higher optimization (min. -xO3) the Oracle Developer
- * Studio compiler generates code for the defined (static inline) functions
- * above.
- * This would later lead to the linker complaining about missing symbols when
- * this header file is included but the resulting object is not linked against
- * the Crypto library (openssl#6912).
- */
-# ifdef __SUNPRO_C
-#  pragma weak OPENSSL_LH_new
-#  pragma weak OPENSSL_LH_free
-#  pragma weak OPENSSL_LH_insert
-#  pragma weak OPENSSL_LH_delete
-#  pragma weak OPENSSL_LH_retrieve
-#  pragma weak OPENSSL_LH_error
-#  pragma weak OPENSSL_LH_num_items
-#  pragma weak OPENSSL_LH_node_stats_bio
-#  pragma weak OPENSSL_LH_node_usage_stats_bio
-#  pragma weak OPENSSL_LH_stats_bio
-#  pragma weak OPENSSL_LH_get_down_load
-#  pragma weak OPENSSL_LH_set_down_load
-#  pragma weak OPENSSL_LH_doall
-#  pragma weak OPENSSL_LH_doall_arg
-# endif /* __SUNPRO_C */
 
 #ifdef  __cplusplus
 }

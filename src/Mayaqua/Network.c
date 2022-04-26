@@ -223,6 +223,8 @@ static bool disable_gethostname_by_accept = false;
 static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
+static LIST* ssl_ctx_shared_list = NULL;
+
 
 static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES256-GCM-SHA384 AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384"
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
@@ -252,6 +254,21 @@ static LIST *g_private_ip_list = NULL;
 
 
 static LIST *g_dyn_value_list = NULL;
+
+
+// DH temp key callback
+DH* TmpDhCallback(SSL* ssl, int is_export, int keylength)
+{
+	DH* ret = NULL;
+
+	if (dh_2048 != NULL)
+	{
+		ret = dh_2048->dh;
+	}
+
+	return ret;
+}
+
 
 
 
@@ -6002,7 +6019,7 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 	SSL *ssl;
 	SSL_CTX *ssl_ctx = NewSSLCtx(server_mode);
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		if (server_mode)
 		{
@@ -6043,7 +6060,7 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 
 		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	s = ZeroMalloc(sizeof(SSL_PIPE));
 
@@ -6057,12 +6074,12 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 
 	if (x != NULL && k != NULL)
 	{
-		Lock(openssl_lock);
+		LockOpenSSL();
 		{
 			SSL_use_certificate(s->ssl, x->x509);
 			SSL_use_PrivateKey(s->ssl, k->pkey);
 		}
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 	}
 
 	if (s->ServerMode == false)
@@ -9225,7 +9242,7 @@ CANCEL *UnixNewCancel()
 void UnixJoinSockToSockEvent(SOCK *sock, SOCK_EVENT *event)
 {
 	// Validate arguments
-	if (sock == NULL || event == NULL || sock->AsyncMode)
+	if (sock == NULL || event == NULL || sock->AsyncMode || sock->Disconnecting)
 	{
 		return;
 	}
@@ -12129,13 +12146,17 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 // Lock the OpenSSL
 void LockOpenSSL()
 {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
 	Lock(openssl_lock);
+#endif
 }
 
 // Unlock the OpenSSL
 void UnlockOpenSSL()
 {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
 	Unlock(openssl_lock);
+#endif
 }
 
 // UDP transmission
@@ -13030,26 +13051,33 @@ void SetWantToUseCipher(SOCK *sock, char *name)
 	StrCat(tmp, sizeof(tmp), " ");
 	StrCat(tmp, sizeof(tmp), cipher_list);
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	// OpenSSL 3.x has a bug. https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
+	// At 2021-09-08 this bug is reported as fixed on Github, but actually still exists on RC4-MD5.
+	// So, with OpenSSL 3.0 we manually disable RC4-MD5 by default on both SSL server and SSL client.
+
+	// If the user specify "RC4-MD5", then "RC4-SHA" will be used manually.
+
+	// Note: We can remove this code after OpenSSL 3.x will be fixed on this bug.
+	ReplaceStrEx(tmp, sizeof(tmp), tmp, "RC4-MD5", "RC4-SHA", true);
+#endif
+
 	sock->WaitToUseCipher = CopyStr(tmp);
 }
 
-// Add all the chain certificates in the chain_certs directory
-void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
+LIST* GetChainSslCertListOnDirectory()
 {
 	wchar_t dirname[MAX_SIZE];
 	wchar_t exedir[MAX_SIZE];
 	wchar_t txtname[MAX_SIZE];
-	DIRLIST *dir;
-	LIST *o;
+	DIRLIST* dir;
+	LIST* o;
 	UINT i;
-
-	// Validate arguments
-	if (ctx == NULL)
-	{
-		return;
-	}
+	LIST* ret;
 
 	o = NewListFast(NULL);
+
+	ret = NewListFast(NULL);
 
 	GetExeDirW(exedir, sizeof(exedir));
 
@@ -13070,12 +13098,12 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 	{
 		for (i = 0;i < dir->NumFiles;i++)
 		{
-			DIRENT *e = dir->File[i];
+			DIRENT* e = dir->File[i];
 
 			if (e->Folder == false)
 			{
 				wchar_t tmp[MAX_SIZE];
-				X *x;
+				X* x;
 
 				CombinePathW(tmp, sizeof(tmp), dirname, e->FileNameW);
 
@@ -13091,7 +13119,7 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 					for (j = 0;j < LIST_NUM(o);j++)
 					{
-						UCHAR *hash2 = LIST_DATA(o, j);
+						UCHAR* hash2 = LIST_DATA(o, j);
 
 						if (Cmp(hash, hash2, SHA1_SIZE) == 0)
 						{
@@ -13101,12 +13129,14 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 					if (exists == false)
 					{
-						AddChainSslCert(ctx, x);
+						Add(ret, x);
 
 						Add(o, Clone(hash, SHA1_SIZE));
 					}
-
-					FreeX(x);
+					else
+					{
+						FreeX(x);
+					}
 				}
 			}
 		}
@@ -13116,19 +13146,59 @@ void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
 
 	for (i = 0;i < LIST_NUM(o);i++)
 	{
-		UCHAR *hash = LIST_DATA(o, i);
+		UCHAR* hash = LIST_DATA(o, i);
 
 		Free(hash);
 	}
 
 	ReleaseList(o);
+
+	return ret;
+}
+
+// Add all the chain certificates in the chain_certs directory
+void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx)
+{
+	LIST* cert_list = NULL;
+	UINT i;
+
+	// Validate arguments
+	if (ctx == NULL)
+	{
+		return;
+	}
+
+	cert_list = GetChainSslCertListOnDirectory();
+
+	for (i = 0;i < LIST_NUM(cert_list);i++)
+	{
+		X* x = LIST_DATA(cert_list, i);
+
+		AddChainSslCtxCert(ctx, x);
+	}
+
+	FreeXList(cert_list);
 }
 
 // Add the chain certificate
-bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
+bool AddChainSslCert(struct ssl_st *ssl, X *x)
+{
+	// Validate arguments
+	if (ssl == NULL || x == NULL)
+	{
+		return false;
+	}
+
+	SSL_add1_chain_cert(ssl, x->x509);
+
+	return true;
+}
+
+// Add the chain certificate
+bool AddChainSslCtxCert(struct ssl_ctx_st* ctx, X* x)
 {
 	bool ret = false;
-	X *x_copy;
+	X* x_copy;
 	// Validate arguments
 	if (ctx == NULL || x == NULL)
 	{
@@ -13150,17 +13220,569 @@ bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x)
 	return ret;
 }
 
+
+
+typedef struct START_SSL_EX2_CLIENT_HELLO_CB_DATA
+{
+	SOCK* Sock;
+	SSL_CTX* SslCtx;
+	X* DefaultX;
+	K* DefaultK;
+	CERTS_AND_KEY** certs_and_key_lists;
+	UINT num_certs_and_key_lists;
+	void* CertAndKeyCbParam;
+} START_SSL_EX2_CLIENT_HELLO_CB_DATA;
+
+
+int Sni_Callback_ForTlsServerCertSelection(SSL* ssl, int* al, void* arg)
+{
+	SSL_CTX_SHARED_SETTINGS* settings = NULL;
+	SSL_CTX_SHARED* ssl_ctx_shared = (SSL_CTX_SHARED*)arg;
+	char *sni_recv_hostname = NULL;
+
+	CERTS_AND_KEY* use_me = NULL;
+	CERTS_AND_KEY* use_me_default = NULL;
+
+	UINT i;
+
+	X* x = NULL;
+	K* k = NULL;
+
+	if (ssl == NULL || ssl_ctx_shared == NULL)
+	{
+		return SSL_CLIENT_HELLO_ERROR;
+	}
+
+	settings = ssl_ctx_shared->Settings;
+
+	sni_recv_hostname = (char* )SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+	if (sni_recv_hostname == NULL) sni_recv_hostname = "";
+	//Debug("*** SNI: %s\n", sni_recv_hostname);
+
+	for (i = 0;i < LIST_NUM(settings->CertsAndKeyList);i++)
+	{
+		CERTS_AND_KEY* c = LIST_DATA(settings->CertsAndKeyList, i);
+
+		if (c != NULL && c->HasValidPrivateKey && c->DetermineUseCallback != NULL)
+		{
+			if (use_me_default == NULL)
+			{
+				use_me_default = c;
+			}
+
+			if (c->DetermineUseCallback(sni_recv_hostname, settings->CertsAndKeyCbParam))
+			{
+				use_me = c;
+				break;
+			}
+		}
+	}
+
+	if (use_me == NULL)
+	{
+		use_me = use_me_default;
+	}
+
+	SSL_clear_chain_certs(ssl);
+
+	if (use_me != NULL && LIST_NUM(use_me->CertList) >= 1)
+	{
+		UINT i;
+		for (i = 1;i < LIST_NUM(use_me->CertList);i++)
+		{
+			X* additional_x = LIST_DATA(use_me->CertList, i);
+			if (additional_x != NULL)
+			{
+				AddChainSslCert(ssl, additional_x);
+			}
+		}
+
+		x = LIST_DATA(use_me->CertList, 0);
+		k = use_me->Key;
+	}
+
+	if (ssl_ctx_shared->AdditionalCertificateList != NULL)
+	{
+		UINT i;
+		for (i = 0;i < LIST_NUM(ssl_ctx_shared->AdditionalCertificateList);i++)
+		{
+			X* additional_x = LIST_DATA(ssl_ctx_shared->AdditionalCertificateList, i);
+			if (ssl_ctx_shared != NULL)
+			{
+				AddChainSslCert(ssl, additional_x);
+			}
+		}
+	}
+
+	if (x != NULL && k != NULL)
+	{
+		LockOpenSSL();
+		{
+			SSL_use_certificate(ssl, x->x509);
+			SSL_use_PrivateKey(ssl, k->pkey);
+		}
+		UnlockOpenSSL();
+	}
+
+	return SSL_CLIENT_HELLO_SUCCESS;
+}
+int Sni_Callback_ForTlsServerCertSelection_ServerNameCallback(SSL* ssl, int* al, void* arg)
+{
+	int ret = Sni_Callback_ForTlsServerCertSelection(ssl, al, arg);
+
+	if (ret == SSL_CLIENT_HELLO_ERROR)
+	{
+		return SSL_TLSEXT_ERR_ALERT_FATAL;
+	}
+	else
+	{
+		return SSL_TLSEXT_ERR_OK;
+	}
+}
+
+SSL_CTX_SHARED* NewSslCtxSharedInternal(SSL_CTX_SHARED_SETTINGS* settings)
+{
+	SSL_CTX_SHARED* ret = NULL;
+	SSL_CTX* ssl_ctx = NULL;
+	UINT lifetime = 0;
+
+	if (settings == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(SSL_CTX_SHARED));
+
+	ssl_ctx = SSL_CTX_new(SSLv23_method());
+	if (ssl_ctx == NULL)
+	{
+		Free(ret);
+		return NULL;
+	}
+
+#ifdef	SSL_OP_NO_TICKET
+	SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TICKET);
+#endif	// SSL_OP_NO_TICKET
+
+#ifdef	SSL_OP_CIPHER_SERVER_PREFERENCE
+	if (settings->Settings2.IsClient == false)
+	{
+		SSL_CTX_set_options(ssl_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+	}
+#endif	// SSL_OP_CIPHER_SERVER_PREFERENCE
+
+#ifdef SSL_OP_NO_RENEGOTIATION
+	SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_RENEGOTIATION);
+#endif // SSL_OP_NO_RENEGOTIATION
+
+	SSL_CTX_set_tmp_dh_callback(ssl_ctx, TmpDhCallback);
+
+#ifdef	SSL_CTX_set_ecdh_auto
+	SSL_CTX_set_ecdh_auto(ssl_ctx, 1);
+#endif	// SSL_CTX_set_ecdh_auto
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+	// For compatibility with VPN 3.0 or older
+	SSL_CTX_set_security_level(ssl_ctx, 0);
+#endif
+
+	if (settings->Settings2.IsClient == false)
+	{
+		SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+
+#ifdef	SSL_OP_NO_SSLv2
+		SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
+#endif	// SSL_OP_NO_SSLv2
+
+		if (settings->Settings2.Server_NoSSLv3)
+		{
+#ifdef	SSL_OP_NO_SSLv3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSLv3
+		}
+
+		if (settings->Settings2.Server_NoTLSv1_0)
+		{
+#ifdef	SSL_OP_NO_TLSv1
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1);
+#endif	// SSL_OP_NO_TLSv1
+		}
+
+		if (settings->Settings2.Server_NoTLSv1_1)
+		{
+#ifdef	SSL_OP_NO_TLSv1_1
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_1);
+#endif	// SSL_OP_NO_TLSv1_1
+		}
+
+		if (settings->Settings2.Server_NoTLSv1_2)
+		{
+#ifdef	SSL_OP_NO_TLSv1_2
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_2);
+#endif	// SSL_OP_NO_TLSv1_2
+		}
+
+		if (settings->Settings2.Server_NoTLSv1_3)
+		{
+#ifdef	SSL_OP_NO_TLSv1_3
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
+#endif	// SSL_OP_NO_TLSv1_3
+		}
+
+		SSL_CTX_set_client_hello_cb(ssl_ctx, Sni_Callback_ForTlsServerCertSelection, ret);
+		SSL_CTX_set_tlsext_servername_callback(ssl_ctx, Sni_Callback_ForTlsServerCertSelection_ServerNameCallback);
+		SSL_CTX_set_tlsext_servername_arg(ssl_ctx, ret);
+	}
+	else
+	{
+		if (settings->Settings2.Client_NoSSLv3 == false)
+		{
+			// Use SSL v3
+#ifndef SSL_OP_NO_SSL_MASK
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
+#else
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+#endif
+#else	// SSL_OP_NO_SSL_MASK
+			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSL_MASK & ~SSL_OP_NO_SSLv3);
+#endif	// SSL_OP_NO_SSL_MASK
+		}
+		else
+		{
+			// Use TLS 1.0 or later
+			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
+		}
+	}
+
+	ret->Ref = NewRef();
+	ret->Settings = CloneSslCtxSharedSettings(settings);
+	ret->SettingsHash = CalcSslCtlSharedSettingsHash(ret->Settings);
+	ret->SslCtx = ssl_ctx;
+
+	if (ret->Settings->Settings2.AddChainSslCertOnDirectory)
+	{
+		ret->AdditionalCertificateList = GetChainSslCertListOnDirectory();
+	}
+
+	lifetime = ret->Settings->Settings2.LifeTime;
+
+	if (lifetime == 0)
+	{
+		lifetime = SSL_CTX_SHARED_LIFETIME_DEFAULT_MSECS;
+	}
+
+	if (lifetime != INFINITE)
+	{
+		ret->Expires = Tick64() + lifetime;
+	}
+
+	Debug("SSL_CTX New: %p\n", ret);
+
+	return ret;
+}
+
+SSL_CTX_SHARED* GetOrCreateSslCtxSharedGlobal(SSL_CTX_SHARED_SETTINGS* settings)
+{
+	return GetOrCreateSslCtxShared(ssl_ctx_shared_list, settings);
+}
+
+SSL_CTX_SHARED* GetOrCreateSslCtxShared(LIST* o, SSL_CTX_SHARED_SETTINGS* settings)
+{
+	SSL_CTX_SHARED* ret = NULL;
+	UINT64 settings_hash = 0;
+	UINT64 now = Tick64();
+
+	if (o == NULL || settings == NULL)
+	{
+		return NULL;
+	}
+
+	settings_hash = CalcSslCtlSharedSettingsHash(settings);
+
+	LockList(o);
+	{
+		UINT i;
+
+		LIST* delete_list = NULL;
+
+		for (i = 0; i < LIST_NUM(o);i++)
+		{
+			SSL_CTX_SHARED* s = LIST_DATA(o, i);
+
+			if (s->Expires != 0 && now > s->Expires)
+			{
+				if (delete_list == NULL)
+				{
+					delete_list = NewListFast(NULL);
+				}
+
+				Add(delete_list, s);
+			}
+		}
+
+		if (delete_list != NULL)
+		{
+			for (i = 0;i < LIST_NUM(delete_list);i++)
+			{
+				SSL_CTX_SHARED* s = LIST_DATA(delete_list, i);
+
+				ReleaseSslCtxShared(s);
+
+				Delete(o, s);
+			}
+
+			ReleaseList(delete_list);
+		}
+
+		for (i = 0; i < LIST_NUM(o);i++)
+		{
+			SSL_CTX_SHARED* s = LIST_DATA(o, i);
+
+			if (s->SettingsHash == settings_hash)
+			{
+				ret = s;
+				break;
+			}
+		}
+
+		if (ret == NULL)
+		{
+			ret = NewSslCtxSharedInternal(settings);
+
+			if (ret != NULL)
+			{
+				Add(o, ret);
+			}
+		}
+
+		if (ret != NULL)
+		{
+			AddRef(ret->Ref);
+		}
+	}
+	UnlockList(o);
+
+	return ret;
+}
+
+LIST* NewSslCtxSharedList()
+{
+	LIST* ret = NewList(NULL);
+
+	return ret;
+}
+
+void FreeSslCtxSharedList(LIST* o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		SSL_CTX_SHARED* s = LIST_DATA(o, i);
+
+		ReleaseSslCtxShared(s);
+	}
+
+	ReleaseList(o);
+}
+
+void ReleaseSslCtxShared(SSL_CTX_SHARED* s)
+{
+	if (s == NULL)
+	{
+		return;
+	}
+
+	if (Release(s->Ref) == 0)
+	{
+		CleanupSslCtxShared(s);
+	}
+}
+
+void CleanupSslCtxShared(SSL_CTX_SHARED* s)
+{
+	if (s == NULL)
+	{
+		return;
+	}
+
+	Debug("SSL_CTX Free: %p\n", s);
+
+	FreeSSLCtx(s->SslCtx);
+
+	FreeSslCtxSharedSettings(s->Settings);
+
+	FreeXList(s->AdditionalCertificateList);
+
+	Free(s);
+}
+
+SSL_CTX_SHARED_SETTINGS* NewSslCtxSharedSettings(LIST* certs_and_key_list, void* certs_and_key_list_cb_param, SSL_CTX_SHARED_SETTINGS2* settings2)
+{
+	SSL_CTX_SHARED_SETTINGS* settings = ZeroMalloc(sizeof(SSL_CTX_SHARED_SETTINGS));
+
+	settings->CertsAndKeyList = CloneCertsAndKeyList(certs_and_key_list);
+	settings->CertsAndKeyCbParam = certs_and_key_list_cb_param;
+	Copy(&settings->Settings2, settings2, sizeof(SSL_CTX_SHARED_SETTINGS2));
+
+	return settings;
+}
+
+SSL_CTX_SHARED_SETTINGS* CloneSslCtxSharedSettings(SSL_CTX_SHARED_SETTINGS* s)
+{
+	if (s == NULL)
+	{
+		return NULL;
+	}
+
+	return NewSslCtxSharedSettings(s->CertsAndKeyList, s->CertsAndKeyCbParam, &s->Settings2);
+}
+
+void FreeSslCtxSharedSettings(SSL_CTX_SHARED_SETTINGS* settings)
+{
+	if (settings == NULL)
+	{
+		return;
+	}
+
+	FreeCertsAndKeyList(settings->CertsAndKeyList);
+
+	Free(settings);
+}
+
+UINT64 CalcSslCtlSharedSettingsHash(SSL_CTX_SHARED_SETTINGS* s)
+{
+	UINT64 a;
+	UINT64 b;
+	UCHAR tmp[8 + 8 + sizeof(SSL_CTX_SHARED_SETTINGS2)] = CLEAN;
+	UCHAR sha1[SHA1_SIZE] = CLEAN;
+	UINT64 ret;
+	if (s == NULL)
+	{
+		return 0;
+	}
+
+	a = GetCertsAndKeyListHash(s->CertsAndKeyList);
+	b = (UINT64)s->CertsAndKeyCbParam;
+
+	WRITE_UINT64(tmp + 0, a);
+	WRITE_UINT64(tmp + 8, b);
+	Copy(tmp + 16, &s->Settings2, sizeof(SSL_CTX_SHARED_SETTINGS2));
+
+	HashSha1(sha1, tmp, sizeof(tmp));
+
+	ret = READ_UINT64(sha1);
+
+	if (ret == 0) ret = 1;
+
+	return ret;
+}
+
 // Start a TCP-SSL communication
 bool StartSSL(SOCK *sock, X *x, K *priv)
 {
 	return StartSSLEx(sock, x, priv, true, 0, NULL);
 }
-bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname)
+bool StartSSLEx(SOCK* sock, X* x, K* priv, bool client_tls, UINT ssl_timeout, char* sni_hostname)
+{
+	return StartSSLEx2(sock, x, priv, client_tls, ssl_timeout, sni_hostname, NULL, 0, NULL, false);
+}
+bool StartSSLEx2(SOCK* sock, X* x, K* priv, bool client_tls, UINT ssl_timeout, char* sni_hostname,
+				 CERTS_AND_KEY** certs_and_key_lists, UINT num_certs_and_key_lists, void* certs_and_key_cb_param,
+				 bool save_local_x)
+{
+	bool use_sni_based_cert_selection = false;
+	SSL_CTX_SHARED_SETTINGS* settings = NULL;
+	SSL_CTX_SHARED_SETTINGS2 settings2 = CLEAN;
+	LIST* o;
+	bool ret;
+
+	if (sock == NULL)
+	{
+		return false;
+	}
+
+	settings2.IsClient = !sock->ServerMode;
+
+	if (settings2.IsClient)
+	{
+		settings2.Client_NoSSLv3 = client_tls;
+	}
+	else
+	{
+		if (sock->SslAcceptSettings.AcceptOnlyTls)
+		{
+			settings2.Server_NoSSLv3 = true;
+		}
+		if (sock->SslAcceptSettings.Tls_Disable1_0)
+		{
+			settings2.Server_NoTLSv1_0 = true;
+		}
+		if (sock->SslAcceptSettings.Tls_Disable1_1)
+		{
+			settings2.Server_NoTLSv1_1 = true;
+		}
+		if (sock->SslAcceptSettings.Tls_Disable1_2)
+		{
+			settings2.Server_NoTLSv1_2 = true;
+		}
+		if (sock->SslAcceptSettings.Tls_Disable1_3)
+		{
+			settings2.Server_NoTLSv1_3 = true;
+		}
+
+		settings2.AddChainSslCertOnDirectory = true;
+	}
+
+	settings2.SaveLocalX = save_local_x;
+
+	o = NewList(NULL);
+
+	if (settings2.IsClient == false && certs_and_key_lists != NULL && num_certs_and_key_lists >= 1)
+	{
+		UINT i;
+		for (i = 0;i < num_certs_and_key_lists;i++)
+		{
+			CERTS_AND_KEY* ck = certs_and_key_lists[i];
+			if (ck != NULL)
+			{
+				AddRef(ck->Ref);
+				Add(o, ck);
+			}
+		}
+	}
+
+	if (settings2.IsClient == false)
+	{
+		if (x != NULL && priv != NULL)
+		{
+			CERTS_AND_KEY* ck = NewCertsAndKeyFromObjectSingle(x, priv, true);
+			ck->DetermineUseCallback = CertsAndKeyAlwaysUseCallback;
+			Add(o, ck);
+		}
+	}
+
+	settings = NewSslCtxSharedSettings(o, certs_and_key_cb_param, &settings2);
+
+	FreeCertsAndKeyList(o);
+
+	ret = StartSSLWithSettings(sock, ssl_timeout, sni_hostname, settings);
+
+	FreeSslCtxSharedSettings(settings);
+
+	return ret;
+}
+bool StartSSLWithSettings(SOCK* sock, UINT ssl_timeout, char* sni_hostname, SSL_CTX_SHARED_SETTINGS* settings)
 {
 	X509 *x509;
-	EVP_PKEY *key;
 	UINT prev_timeout = 1024;
-	SSL_CTX *ssl_ctx;
+	SSL_CTX_SHARED* ssl_ctx_shared = NULL;
+	bool ret = false;
 
 #ifdef UNIX_SOLARIS
 	SOCKET_TIMEOUT_PARAM *ttparam;
@@ -13172,6 +13794,11 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		Debug("StartSSL Error: #0\n");
 		return false;
 	}
+	if (settings == NULL)
+	{
+		Debug("StartSSL Error: #2\n");
+		return false;
+	}
 	if (sock->Connected && sock->Type == SOCK_INPROC && sock->ListenMode == false)
 	{
 		sock->SecureMode = true;
@@ -13181,11 +13808,6 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		sock->ListenMode != false)
 	{
 		Debug("StartSSL Error: #1\n");
-		return false;
-	}
-	if (x != NULL && priv == NULL)
-	{
-		Debug("StartSSL Error: #2\n");
 		return false;
 	}
 	if (ssl_timeout == 0)
@@ -13209,83 +13831,21 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		return true;
 	}
 
-	ssl_ctx = NewSSLCtx(sock->ServerMode);
-
-	Lock(openssl_lock);
+	ssl_ctx_shared = GetOrCreateSslCtxSharedGlobal(settings);
+	if (ssl_ctx_shared == NULL)
 	{
-		if (sock->ServerMode)
-		{
-			SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
+		Unlock(sock->ssl_lock);
+		Debug("StartSSL Error: GetOrCreateSslCtxSharedGlobal() failed.\n");
+		return false;
+	}
 
-#ifdef	SSL_OP_NO_SSLv2
-			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2);
-#endif	// SSL_OP_NO_SSLv2
-
-			if (sock->SslAcceptSettings.AcceptOnlyTls)
-			{
-#ifdef	SSL_OP_NO_SSLv3
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSLv3
-			}
-
-			if (sock->SslAcceptSettings.Tls_Disable1_0)
-			{
-#ifdef	SSL_OP_NO_TLSv1
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1);
-#endif	// SSL_OP_NO_TLSv1
-			}
-
-			if (sock->SslAcceptSettings.Tls_Disable1_1)
-			{
-#ifdef	SSL_OP_NO_TLSv1_1
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_1);
-#endif	// SSL_OP_NO_TLSv1_1
-			}
-
-			if (sock->SslAcceptSettings.Tls_Disable1_2)
-			{
-#ifdef	SSL_OP_NO_TLSv1_2
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_2);
-#endif	// SSL_OP_NO_TLSv1_2
-			}
-
-			if (sock->SslAcceptSettings.Tls_Disable1_3)
-			{
-#ifdef	SSL_OP_NO_TLSv1_3
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
-#endif	// SSL_OP_NO_TLSv1_3
-			}
-
-			Unlock(openssl_lock);
-			AddChainSslCertOnDirectory(ssl_ctx);
-			Lock(openssl_lock);
-		}
-		else
-		{
-			if (client_tls == false)
-			{
-				// Use SSL v3
-#ifndef SSL_OP_NO_SSL_MASK
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
-#else
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
-#endif
-#else	// SSL_OP_NO_SSL_MASK
-				SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSL_MASK & ~SSL_OP_NO_SSLv3);
-#endif	// SSL_OP_NO_SSL_MASK
-			}
-			else
-			{
-				// Use TLS 1.0 or later
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_client_method());
-			}
-		}
-		sock->ssl = SSL_new(ssl_ctx);
+	LockOpenSSL();
+	{
+		sock->ssl = SSL_new(ssl_ctx_shared->SslCtx);
 		SSL_set_fd(sock->ssl, (int)sock->socket);
 
 #ifdef	SSL_CTRL_SET_TLSEXT_HOSTNAME
-		if (sock->ServerMode == false && client_tls)
+		if (settings->Settings2.IsClient)
 		{
 			if (IsEmptyStr(sni_hostname) == false)
 			{
@@ -13296,50 +13856,44 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 #endif	// SSL_CTRL_SET_TLSEXT_HOSTNAME
 
 	}
-	Unlock(openssl_lock);
-
-	if (x != NULL)
-	{
-		// Check the certificate and the private key
-		if (CheckXandK(x, priv))
-		{
-			// Use the certificate
-			x509 = x->x509;
-			key = priv->pkey;
-
-			Lock(openssl_lock);
-			{
-				SSL_use_certificate(sock->ssl, x509);
-				SSL_use_PrivateKey(sock->ssl, key);
-			}
-			Unlock(openssl_lock);
-		}
-	}
+	UnlockOpenSSL();
 
 	if (sock->WaitToUseCipher != NULL)
 	{
 		// Set the cipher algorithm name to want to use
-		Lock(openssl_lock);
+		LockOpenSSL();
 		{
 			SSL_set_cipher_list(sock->ssl, sock->WaitToUseCipher);
 		}
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 	}
 	else
 	{
 		// Set the OpenSSL default cipher algorithms
-		Lock(openssl_lock);
+		LockOpenSSL();
 		{
-			SSL_set_cipher_list(sock->ssl, OPENSSL_DEFAULT_CIPHER_LIST);
+			char* set_value = OPENSSL_DEFAULT_CIPHER_LIST;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+			// OpenSSL 3.x has a bug. https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
+			// At 2021-09-08 this bug is reported as fixed on Github, but actually still exists on RC4-MD5.
+			// So, with OpenSSL 3.0 we manually disable RC4-MD5 by default on both SSL server and SSL client.
+
+			// Note: We can remove this code after OpenSSL 3.x will be fixed on this bug.
+			set_value = OPENSSL_DEFAULT_CIPHER_LIST_NO_RC4_MD5;
+#endif
+
+			SSL_set_cipher_list(sock->ssl, set_value);
 		}
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 	}
 
 	if (sock->ServerMode)
 	{
-//		Lock(ssl_connect_lock);
 
-// Run the time-out thread for SOLARIS
+		//		Lock(ssl_connect_lock);
+
+		// Run the time-out thread for SOLARIS
 #ifdef UNIX_SOLARIS
 		ttparam = NewSocketTimeout(sock);
 #endif // UNIX_SOLARIS
@@ -13348,24 +13902,25 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		if (SSL_accept(sock->ssl) <= 0)
 		{
 
-// Stop the timeout thread
+			// Stop the timeout thread
 #ifdef UNIX_SOLARIS
 			FreeSocketTimeout(ttparam);
 #endif // UNIX_SOLARIS
 
 			//			Unlock(ssl_connect_lock);
 			// SSL-Accept failure
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				SSL_free(sock->ssl);
 				sock->ssl = NULL;
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 
 			Unlock(sock->ssl_lock);
 			Debug("StartSSL Error: #5\n");
-			FreeSSLCtx(ssl_ctx);
-			return false;
+			ReleaseSslCtxShared(ssl_ctx_shared);
+			ssl_ctx_shared = NULL;
+			goto L_CLEANUP;
 		}
 
 #ifdef	SSL_CTRL_SET_TLSEXT_HOSTNAME
@@ -13383,7 +13938,7 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 #endif	// TLSEXT_NAMETYPE_host_name
 #endif	// SSL_CTRL_SET_TLSEXT_HOSTNAME
 
-// Stop the timeout thread
+		// Stop the timeout thread
 #ifdef UNIX_SOLARIS
 		FreeSocketTimeout(ttparam);
 #endif // UNIX_SOLARIS
@@ -13400,18 +13955,19 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 		{
 			Unlock(ssl_connect_lock);
 			// SSL-connect failure
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				SSL_free(sock->ssl);
 				sock->ssl = NULL;
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 
 			Unlock(sock->ssl_lock);
 			Debug("StartSSL Error: #5\n");
 			SetTimeout(sock, prev_timeout);
-			FreeSSLCtx(ssl_ctx);
-			return false;
+			ReleaseSslCtxShared(ssl_ctx_shared);
+			ssl_ctx_shared = NULL;
+			goto L_CLEANUP;
 		}
 		Unlock(ssl_connect_lock);
 		SetTimeout(sock, prev_timeout);
@@ -13421,13 +13977,13 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	sock->SecureMode = true;
 
 	// Get the certificate of the remote host
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		x509 = SSL_get_peer_certificate(sock->ssl);
 
 		sock->SslVersion = SSL_get_version(sock->ssl);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	if (x509 == NULL)
 	{
@@ -13441,13 +13997,13 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	}
 
 	// Get the certificate of local host
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		x509 = SSL_get_certificate(sock->ssl);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
-	if (x509 == NULL)
+	if (x509 == NULL || settings->Settings2.SaveLocalX == false)
 	{
 		// The certificate does not exist on the remote host
 		sock->LocalX = NULL;
@@ -13468,15 +14024,16 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	// Strange flag
 	SSL_set_mode(sock->ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
-	sock->ssl_ctx = ssl_ctx;
+	sock->ssl_ctx_shared = ssl_ctx_shared;
 
 	// Get the algorithm name used to encrypt
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		sock->CipherName = CopyStr((char *)SSL_get_cipher(sock->ssl));
 	}
-	Unlock(openssl_lock);
-	Debug("SSL connected with %s\n", SSL_get_version(sock->ssl));
+	UnlockOpenSSL();
+	StrCpy(sock->TlsVersion, sizeof(sock->TlsVersion), (char *)SSL_get_version(sock->ssl));
+	Debug("SSL connected with %s\n", sock->TlsVersion);
 
 	Unlock(sock->ssl_lock);
 
@@ -13487,7 +14044,11 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	}
 #endif	// ENABLE_SSL_LOGGING
 
-	return true;
+	ret = true;
+
+L_CLEANUP:
+
+	return ret;
 }
 
 
@@ -13637,6 +14198,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			ret = SSL_peek(ssl, &c, sizeof(c));
 		}
 		Unlock(sock->ssl_lock);
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+		// 2021/09/10: After OpenSSL 3.x.x, both 0 and negative values might mean retryable.
+		// See: https://github.com/openssl/openssl/blob/435981cbadad2c58c35bacd30ca5d8b4c9bea72f/doc/man3/SSL_read.pod
+		// > Old documentation indicated a difference between 0 and -1, and that -1 was retryable.
+		// > You should instead call SSL_get_error() to find out if it's retryable.
 		if (ret == 0)
 		{
 			// The communication have been disconnected
@@ -13644,7 +14210,8 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
 			return 0;
 		}
-		if (ret < 0)
+#endif
+		if (ret <= 0)
 		{
 			// An error has occurred
 			e = SSL_get_error(ssl, ret);
@@ -13657,9 +14224,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
 					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-					)
+				)
 				{
-					Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
+					UINT ssl_err_no = ERR_get_error();
+
+					Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
 					Disconnect(sock);
 					return 0;
 				}
@@ -13686,14 +14255,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		}
 #endif	// OS_UNIX
 
-// Run the time-out thread for SOLARIS
+		// Run the time-out thread for SOLARIS
 #ifdef UNIX_SOLARIS
 		ttparam = NewSocketTimeout(sock);
 #endif // UNIX_SOLARIS
 
 		ret = SSL_read(ssl, data, size);
 
-// Stop the timeout thread
+		// Stop the timeout thread
 #ifdef UNIX_SOLARIS
 		FreeSocketTimeout(ttparam);
 #endif // UNIX_SOLARIS
@@ -13706,7 +14275,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		}
 #endif	// OS_UNIX
 
-		if (ret < 0)
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+		if (ret < 0) // OpenSSL version < 3.0.0
+#else
+		if (ret <= 0) // OpenSSL version >= 3.0.0
+#endif
 		{
 			e = SSL_get_error(ssl, ret);
 		}
@@ -13729,6 +14302,12 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 
 		return (UINT)ret;
 	}
+
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+	// 2021/09/10: After OpenSSL 3.x.x, both 0 and negative values might mean retryable.
+	// See: https://github.com/openssl/openssl/blob/435981cbadad2c58c35bacd30ca5d8b4c9bea72f/doc/man3/SSL_read.pod
+	// > Old documentation indicated a difference between 0 and -1, and that -1 was retryable.
+	// > You should instead call SSL_get_error() to find out if it's retryable.
 	if (ret == 0)
 	{
 		// Disconnect the communication
@@ -13736,6 +14315,8 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		//Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
 		return 0;
 	}
+#endif
+
 	if (sock->AsyncMode)
 	{
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
@@ -13747,9 +14328,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
 				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-				)
+			)
 			{
-				Debug("%s %u SSL Fatal Error on ASYNC socket !!!\n", __FILE__, __LINE__);
+				UINT ssl_err_no = ERR_get_error();
+
+				Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
 				Disconnect(sock);
 				return 0;
 			}
@@ -13789,7 +14372,11 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		}
 
 		ret = SSL_write(ssl, data, size);
-		if (ret < 0)
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+		if (ret < 0) // OpenSSL version < 3.0.0
+#else
+		if (ret <= 0) // OpenSSL version >= 3.0.0
+#endif
 		{
 			e = SSL_get_error(ssl, ret);
 		}
@@ -13811,6 +14398,8 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		sock->WriteBlocked = false;
 		return (UINT)ret;
 	}
+
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
 	if (ret == 0)
 	{
 		// Disconnect
@@ -13818,6 +14407,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		Disconnect(sock);
 		return 0;
 	}
+#endif
 
 	if (sock->AsyncMode)
 	{
@@ -14757,14 +15347,14 @@ void Disconnect(SOCK *sock)
 				{
 					if (sock->ssl != NULL)
 					{
-						Lock(openssl_lock);
+						LockOpenSSL();
 						{
 							SSL_free(sock->ssl);
-							FreeSSLCtx(sock->ssl_ctx);
+							ReleaseSslCtxShared(sock->ssl_ctx_shared);
 						}
-						Unlock(openssl_lock);
+						UnlockOpenSSL();
 						sock->ssl = NULL;
-						sock->ssl_ctx = NULL;
+						sock->ssl_ctx_shared = NULL;
 					}
 					sock->Connected = false;
 					sock->SecureMode = false;
@@ -18137,19 +18727,6 @@ void UnlockDnsCache()
 	UnlockList(DnsCache);
 }
 
-// DH temp key callback
-DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
-{
-	DH *ret = NULL;
-
-	if (dh_2048 != NULL)
-	{
-		ret = dh_2048->dh;
-	}
-
-	return ret;
-}
-
 // Create the SSL_CTX
 struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
@@ -18275,6 +18852,8 @@ void InitNetwork()
 	Zero(rand_port_numbers, sizeof(rand_port_numbers));
 
 	SetGetIpThreadMaxNum(DEFAULT_GETIP_THREAD_MAX_NUM);
+
+	ssl_ctx_shared_list = NewSslCtxSharedList();
 }
 
 // Enable the network name cache
@@ -18779,6 +19358,9 @@ void FreeNetwork()
 	DeleteCounter(getip_thread_counter);
 	getip_thread_counter = NULL;
 
+
+	FreeSslCtxSharedList(ssl_ctx_shared_list);
+	ssl_ctx_shared_list = NULL;
 }
 
 // Add a socket to socket list
@@ -22287,6 +22869,7 @@ bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version)
 	ReplaceStri(str, str_size, str, "$PORT$", port_str);
 
 	// METHOD
+	ReplaceUnsafeCharInTarget(method);
 	ReplaceStri(str, str_size, str, "$METHOD$", method);
 
 	// VERSION

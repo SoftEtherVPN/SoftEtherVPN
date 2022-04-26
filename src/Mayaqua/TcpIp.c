@@ -4484,3 +4484,251 @@ LABEL_CLEANUP:
 		return NULL;
 	}
 }
+
+BUF *GenerateUnicodeFromAnsi(char *ansi)
+{
+	UCHAR *tmp;
+	UINT tmp_size;
+	UINT i, len;
+	BUF *ret = NULL;
+
+	// Generate a Unicode password
+	len = StrLen(ansi);
+	tmp_size = len * 2;
+
+	tmp = ZeroMalloc(tmp_size);
+
+	for (i = 0;i < len;i++)
+	{
+		tmp[i * 2] = ansi[i];
+	}
+
+	ret = NewBufFromMemory(tmp, tmp_size);
+
+	Free(tmp);
+
+	return ret;
+}
+
+// Generate the NT hash of the password
+void GenerateNtPasswordHash(UCHAR *dst, char *password)
+{
+	UCHAR *tmp;
+	UINT tmp_size;
+	UINT i, len;
+	// Validate arguments
+	if (dst == NULL || password == NULL)
+	{
+		return;
+	}
+
+	// Generate a Unicode password
+	len = StrLen(password);
+	tmp_size = len * 2;
+
+	tmp = ZeroMalloc(tmp_size);
+
+	for (i = 0;i < len;i++)
+	{
+		tmp[i * 2] = password[i];
+	}
+
+	// Hashing
+	HashMd4(dst, tmp, tmp_size);
+
+	Free(tmp);
+}
+
+void NTOWFv2(UCHAR *dst_md5, char *username, char *password, char *domain)
+{
+	UCHAR key[MD5_SIZE];
+	char user_and_domain[MAX_PATH];
+	BUF *value;
+
+	GenerateNtPasswordHash(key, password);
+
+	StrCpy(user_and_domain, sizeof(user_and_domain), username);
+	StrUpper(user_and_domain);
+	StrCat(user_and_domain, sizeof(user_and_domain), domain);
+
+	value = GenerateUnicodeFromAnsi(user_and_domain);
+
+	HMacMd5(dst_md5, key, MD5_SIZE, value->Buf, value->Size);
+
+	FreeBuf(value);
+}
+
+BUF *NtlmGenerateNegotiate()
+{
+	NTLM_NEGOTIATE d;
+
+	Zero(&d, sizeof(d));
+
+	Copy(d.Signature, "NTLMSSP", 8);
+	d.MessageType = LittleEndian32(NTLM_MESSAGE_TYPE_NEGOTIATE);
+	d.NegotiateFlags = LittleEndian32(0xA2088207);
+	d.ProductMajorVersion = 10;
+	d.ProductMinorVersion = 0;
+	d.ProductBuild = 18362;
+	d.NTLMRevisionCurrent = 15;
+
+	return NewBufFromMemory(&d, sizeof(d));
+}
+
+BUF *NtlmGenerateAuthenticate(BUF *svr_challenge_data, char *username, char *password, char *hostname)
+{
+	NTLM_CHALLENGE c;
+	NTLM_AUTH a;
+	UCHAR zero24[24];
+	NTLM_CLIENT_CHALLENGE ntc;
+	BUF *ret = NULL;
+	BUF *target_info = NULL;
+	char auth_username[MAX_PATH];
+	char auth_password[MAX_PATH];
+	char auth_domain[MAX_PATH];
+	BUF *nt_challenge_response = NULL;
+	BUF *unicode_domain = NULL;
+	BUF *unicode_username = NULL;
+	BUF *unicode_hostname = NULL;
+	UINT pos;
+	if (svr_challenge_data == NULL)
+	{
+		return NULL;
+	}
+
+	ParseNtUsername(username, auth_username, sizeof(auth_username), auth_domain, sizeof(auth_domain), false);
+
+	StrCpy(auth_password, sizeof(auth_password), password);
+
+	unicode_domain = GenerateUnicodeFromAnsi(auth_domain);
+	unicode_username = GenerateUnicodeFromAnsi(auth_username);
+	unicode_hostname = GenerateUnicodeFromAnsi(hostname);
+
+	Zero(&c, sizeof(c));
+	Zero(&a, sizeof(a));
+
+	SeekBufToBegin(svr_challenge_data);
+	if (ReadBuf(svr_challenge_data, &c, sizeof(NTLM_CHALLENGE)) != sizeof(NTLM_CHALLENGE))
+	{
+		return NULL;
+	}
+
+	if (Cmp(c.Signature, "NTLMSSP", 8) != 0)
+	{
+		return NULL;
+	}
+
+	if (c.MessageType != LittleEndian32(NTLM_MESSAGE_TYPE_CHALLENGE))
+	{
+		return NULL;
+	}
+
+	SeekBuf(svr_challenge_data, c.TargetInfoBufferOffset, 0);
+	target_info = ReadBufFromBuf(svr_challenge_data, c.TargetInfoLen);
+	if (target_info == NULL)
+	{
+		goto L_CLEANUP;
+	}
+
+	// Generate auth
+	Copy(a.Signature, "NTLMSSP", 8);
+	a.MessageType = LittleEndian32(NTLM_MESSAGE_TYPE_AUTH);
+	a.NegotiateFlags = LittleEndian32(0xa2888205);
+	a.ProductMajorVersion = 10;
+	a.ProductMinorVersion = 0;
+	a.ProductBuild = 18362;
+	a.NTLMRevisionCurrent = 15;
+
+	// Header
+	ret = NewBuf();
+	WriteBuf(ret, &a, sizeof(a));
+
+	// LM response (zero)
+	Zero(zero24, sizeof(zero24));
+	pos = ret->Size;
+	WriteBuf(ret, zero24, sizeof(zero24));
+	((NTLM_AUTH *)(ret->Buf))->LmChallengeResponseLen = sizeof(zero24);
+	((NTLM_AUTH *)(ret->Buf))->LmChallengeResponseMaxLen = sizeof(zero24);
+	((NTLM_AUTH *)(ret->Buf))->LmChallengeResponseBufferOffset = pos;
+
+	// NTLM response
+	Zero(&ntc, sizeof(ntc));
+	ntc.RespType = 1;
+	ntc.HiRespType = 1;
+#ifdef	OS_WIN32
+	ntc.TimeStamp = LittleEndian64(MsGetCurrentFileTime());
+#endif	// OS_WIN32
+	Rand(ntc.ChallengeFromClient, sizeof(ntc.ChallengeFromClient));
+
+	// ComputeResponse
+	// https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/5e550938-91d4-459f-b67d-75d70009e3f3
+	if (true)
+	{
+		UCHAR nt_proof_str[MD5_SIZE];
+		UCHAR ResponseKeyNT[MD5_SIZE];
+		BUF *temp = NewBuf();
+		BUF *concat_of_challenge_and_temp = NewBuf();
+
+		// Set temp to ConcatenationOf(Responserversion, HiResponserversion,
+		//	Z(6), Time, ClientChallenge, Z(4),
+		WriteBuf(temp, &ntc, sizeof(ntc));
+
+		// ServerName, Z(4))
+		WriteBuf(temp, target_info->Buf, target_info->Size);
+		WriteBufInt(temp, 0);
+
+		NTOWFv2(ResponseKeyNT, auth_username, auth_password, auth_domain);
+		WriteBuf(concat_of_challenge_and_temp, c.ServerChallenge, 8);
+		WriteBuf(concat_of_challenge_and_temp, temp->Buf, temp->Size);
+		HMacMd5(nt_proof_str, ResponseKeyNT, MD5_SIZE, concat_of_challenge_and_temp->Buf, concat_of_challenge_and_temp->Size);
+
+		nt_challenge_response = NewBuf();
+		WriteBuf(nt_challenge_response, nt_proof_str, MD5_SIZE);
+		WriteBuf(nt_challenge_response, temp->Buf, temp->Size);
+
+		FreeBuf(temp);
+		FreeBuf(concat_of_challenge_and_temp);
+
+		// NtChallengeResponse
+		pos = ret->Size;
+		WriteBufBuf(ret, nt_challenge_response);
+		((NTLM_AUTH *)(ret->Buf))->NtChallengeResponseLen = nt_challenge_response->Size;
+		((NTLM_AUTH *)(ret->Buf))->NtChallengeResponseMaxLen = nt_challenge_response->Size;
+		((NTLM_AUTH *)(ret->Buf))->NtChallengeResponseBufferOffset = pos;
+
+		// DomainName
+		pos = ret->Size;
+		WriteBufBuf(ret, unicode_domain);
+		((NTLM_AUTH *)(ret->Buf))->DomainNameLen = unicode_domain->Size;
+		((NTLM_AUTH *)(ret->Buf))->DomainNameMaxLen = unicode_domain->Size;
+		((NTLM_AUTH *)(ret->Buf))->DomainNameBufferOffset = pos;
+
+		// UserName
+		pos = ret->Size;
+		WriteBufBuf(ret, unicode_username);
+		((NTLM_AUTH *)(ret->Buf))->UserNameLen = unicode_username->Size;
+		((NTLM_AUTH *)(ret->Buf))->UserNameMaxLen = unicode_username->Size;
+		((NTLM_AUTH *)(ret->Buf))->UserNameBufferOffset = pos;
+
+		// Workstation
+		pos = ret->Size;
+		WriteBufBuf(ret, unicode_hostname);
+		((NTLM_AUTH *)(ret->Buf))->WorkstationLen = unicode_hostname->Size;
+		((NTLM_AUTH *)(ret->Buf))->WorkstationMaxLen = unicode_hostname->Size;
+		((NTLM_AUTH *)(ret->Buf))->WorkstationBufferOffset = pos;
+
+		// EncryptedRandomSessionKey
+		pos = ret->Size;
+		((NTLM_AUTH *)(ret->Buf))->EncryptedRandomSessionKeyLen = 0;
+		((NTLM_AUTH *)(ret->Buf))->EncryptedRandomSessionKeyMaxLen = 0;
+		((NTLM_AUTH *)(ret->Buf))->EncryptedRandomSessionKeyBufferOffset = pos;
+	}
+
+L_CLEANUP:
+	FreeBuf(target_info);
+	FreeBuf(nt_challenge_response);
+	FreeBuf(unicode_domain);
+	FreeBuf(unicode_username);
+	FreeBuf(unicode_hostname);
+	return ret;
+}

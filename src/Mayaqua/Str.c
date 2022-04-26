@@ -134,6 +134,369 @@ static BYTESTR bytestr[] =
 	{0, "Bytes"},
 };
 
+void RemoveBomFromStr(char* str)
+{
+	UINT len;
+	if (str == NULL)
+	{
+		return;
+	}
+
+	len = StrLen(str);
+	if (len >= 3)
+	{
+		if ((UCHAR)str[0] == 0xEF && (UCHAR)str[1] == 0xBB && (UCHAR)str[2] == 0xBF)
+		{
+			memmove(str, str + 3, len - 3 + 1);
+		}
+	}
+}
+
+char* GetFirstFilledStrFromBuf(BUF* buf)
+{
+	UINT size;
+	char* tmp;
+	char* ret;
+	if (buf == NULL)
+	{
+		return CopyStr("");
+	}
+
+	size = buf->Size + 8;
+	tmp = ZeroMalloc(size);
+	Copy(tmp, buf->Buf, buf->Size);
+
+	ret = GetFirstFilledStrFromStr(tmp);
+
+	Free(tmp);
+
+	return ret;
+}
+
+char* GetFirstFilledStrFromStr(char* str)
+{
+	UINT i;
+	char* ret = NULL;
+	TOKEN_LIST* t = StrToLinesList(str);
+	if (t == NULL)
+	{
+		return CopyStr("");
+	}
+
+	for (i = 0;i < t->NumTokens;i++)
+	{
+		char* line = t->Token[i];
+
+		if (IsFilledStr(line))
+		{
+			ret = CopyStr(line);
+			break;
+		}
+	}
+
+	FreeToken(t);
+
+	if (ret == NULL)
+	{
+		ret = CopyStr("");
+	}
+
+	return ret;
+}
+
+TOKEN_LIST* StrToLinesList(char* str)
+{
+	BUF* buf;
+	LIST* o;
+	UINT i;
+	TOKEN_LIST* ret;
+
+	if (str == NULL) str = "";
+
+	buf = NewBuf();
+	WriteBuf(buf, str, StrLen(str));
+
+	o = NewList(NULL);
+
+	SeekBufToBegin(buf);
+
+	while (true)
+	{
+		char* line = CfgReadNextLine(buf);
+		if (line == NULL)
+		{
+			break;
+		}
+
+		Add(o, line);
+	}
+
+	ret = ZeroMalloc(sizeof(TOKEN_LIST));
+	ret->NumTokens = LIST_NUM(o);
+	ret->Token = ZeroMalloc(sizeof(char*) * ret->NumTokens);
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		char* line = LIST_DATA(o, i);
+		ret->Token[i] = line;
+	}
+
+	FreeBuf(buf);
+	ReleaseList(o);
+
+	return ret;
+}
+
+bool CheckStrListIncludedInOtherStrMac(char *str1, char *str2)
+{
+	bool ret = false;
+	UINT tmp1_size = StrSize(str1) * 2 + 4096;
+	UINT tmp2_size = StrSize(str2) * 2 + 4096;
+	char *tmp1 = ZeroMalloc(tmp1_size);
+	char *tmp2 = ZeroMalloc(tmp2_size);
+
+	NormalizeMacAddressListStr(tmp1, tmp1_size, str1);
+	NormalizeMacAddressListStr(tmp2, tmp2_size, str2);
+
+	ret = CheckStrListIncludedInOtherStr(tmp1, tmp2);
+
+	Free(tmp1);
+	Free(tmp2);
+	return ret;
+}
+
+bool CheckStrListIncludedInOtherStr(char *str1, char *str2)
+{
+	bool ret = false;
+
+	LIST *o1 = GetStrListFromLines(str1);
+	LIST *o2 = GetStrListFromLines(str2);
+
+	ret = CheckStrListIncludedInOther(o1, o2);
+
+	FreeStrList(o1);
+	FreeStrList(o2);
+
+	return ret;
+}
+bool CheckStrListIncludedInOther(LIST *o1, LIST *o2)
+{
+	bool ret = false;
+
+	if (o1 != NULL && o2 != NULL)
+	{
+		UINT i, j;
+
+		for (i = 0;i < LIST_NUM(o1);i++)
+		{
+			for (j = 0;j < LIST_NUM(o2);j++)
+			{
+				char *s1 = LIST_DATA(o1, i);
+				char *s2 = LIST_DATA(o2, j);
+
+				if (IsEmptyStr(s1) == false && IsEmptyStr(s2) == false)
+				{
+					if (StrCmpi(s1, s2) == 0)
+					{
+						ret = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+LIST *GetStrListFromLines(char *str)
+{
+	LIST *o = NewStrList();
+	BUF *buf;
+
+	buf = NewBuf();
+	WriteBuf(buf, str, StrLen(str));
+	WriteBuf(buf, "\r\n", 2);
+	SeekBufToBegin(buf);
+
+	while (true)
+	{
+		char *line = CfgReadNextLine(buf);
+
+		if (line == NULL)
+		{
+			break;
+		}
+
+		if (IsEmptyStr(line) == false)
+		{
+			UINT comment_index = SearchStrEx(line, "#", 0, false);
+			if (comment_index != INFINITE)
+			{
+				line[comment_index] = 0;
+			}
+			comment_index = SearchStrEx(line, "//", 0, false);
+			if (comment_index != INFINITE)
+			{
+				line[comment_index] = 0;
+			}
+
+			Trim(line);
+
+			AddStrToStrListDistinct(o, line);
+		}
+
+		Free(line);
+	}
+
+	FreeBuf(buf);
+
+	return o;
+}
+
+bool NormalizeMacAddressListStr(char *dst, UINT size, char *src)
+{
+	BUF *buf;
+	bool ret = false;
+	LIST *o = NULL;
+	UINT i;
+	char* tmp = NULL;
+	UINT tmp_size = 0;
+
+	if (dst == NULL || src == NULL)
+	{
+		ClearStr(dst, size);
+		return false;
+	}
+
+	o = NewStrList();
+
+	buf = NewBuf();
+	WriteBuf(buf, src, StrLen(src));
+	WriteBuf(buf, "\r\n", 2);
+	SeekBufToBegin(buf);
+
+	while (true)
+	{
+		char *line = CfgReadNextLine(buf);
+		UCHAR address[6];
+		UINT comment_index;
+
+		if (line == NULL)
+		{
+			break;
+		}
+
+		comment_index = SearchStrEx(line, "#", 0, false);
+		if (comment_index != INFINITE)
+		{
+			line[comment_index] = 0;
+		}
+		comment_index = SearchStrEx(line, "//", 0, false);
+		if (comment_index != INFINITE)
+		{
+			line[comment_index] = 0;
+		}
+
+		Trim(line);
+
+		if (StrToMac(address, line))
+		{
+			char tmp[64];
+
+			MacToStr(tmp, sizeof(tmp), address);
+
+			AddStrToStrListDistinct(o, tmp);
+		}
+
+		Free(line);
+	}
+
+	FreeBuf(buf);
+
+	tmp_size = StrSize(src) * 2 + 4096;
+
+	tmp = ZeroMalloc(tmp_size);
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		char *mac = LIST_DATA(o, i);
+
+		StrCat(tmp, size, mac);
+		StrCat(tmp, size, "\r\n");
+
+		ret = true;
+	}
+
+	ReleaseStrList(o);
+
+	StrCpy(dst, size, tmp);
+
+	Free(tmp);
+
+	return ret;
+}
+
+bool CheckPasswordComplexity(char *str)
+{
+	UINT len;
+	UINT i;
+	UINT type0 = 0;
+	UINT type1 = 0;
+	UINT type2 = 0;
+	UINT type3 = 0;
+	if (str == NULL)
+	{
+		return false;
+	}
+
+	len = StrLen(str);
+
+	if (len < 8)
+	{
+		return false;
+	}
+
+	if (len >= 24)
+	{
+		return true;
+	}
+
+	for (i = 0;i < len;i++)
+	{
+		char c = str[i];
+
+		if (c >= 'a' && c <= 'z')
+		{
+			type0 = 1;
+		}
+		else if (c >= 'A' && c <= 'Z')
+		{
+			type1 = 1;
+		}
+		else if (c >= '0' && c <= '9')
+		{
+			type2 = 1;
+		}
+		else
+		{
+			type3 = 1;
+		}
+	}
+
+	if ((type0 + type1 + type2 + type3) >= 3)
+	{
+		return true;
+	}
+	else if (((type0 + type1 + type2 + type3) >= 2) && (len >= 16))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 // Decode URL string
 char *UrlDecode(char *url_str)
 {
@@ -826,6 +1189,35 @@ wchar_t *IniUniStrValue(LIST *o, char *key)
 	return e->UnicodeValue;
 }
 
+void GetDomainSuffixFromFqdn(char *dst, UINT size, char *fqdn)
+{
+	TOKEN_LIST *t;
+	UINT i;
+
+	ClearStr(dst, size);
+	if (dst == NULL || fqdn == NULL)
+	{
+		return;
+	}
+
+	t = ParseTokenWithoutNullStr(fqdn, ".");
+
+	for (i = 0;i < t->NumTokens;i++)
+	{
+		if (i >= 1)
+		{
+			StrCat(dst, size, t->Token[i]);
+
+			if (i < (t->NumTokens - 1))
+			{
+				StrCat(dst, size, ".");
+			}
+		}
+	}
+
+	FreeToken(t);
+}
+
 // Check whether the specified value is in the INI
 bool IniHasValue(LIST *o, char *key)
 {
@@ -1404,6 +1796,10 @@ bool IsEmptyStr(char *str)
 		Free(s);
 		return false;
 	}
+}
+bool IsFilledStr(char* str)
+{
+	return !IsEmptyStr(str);
 }
 
 // Convert the token list to a string list
@@ -2755,54 +3151,8 @@ void FreeToken(TOKEN_LIST *tokens)
 // Parse the token
 TOKEN_LIST *ParseToken(char *src, char *separator)
 {
-	TOKEN_LIST *ret;
-	char *tmp;
-	char *str1, *str2;
-	UINT len;
-	UINT num;
-	if (src == NULL)
-	{
-		ret = ZeroMalloc(sizeof(TOKEN_LIST));
-		ret->Token = ZeroMalloc(0);
-		return ret;
-	}
-	if (separator == NULL)
-	{
-		separator = " ,\t\r\n";
-	}
-	len = StrLen(src);
-	str1 = Malloc(len + 1);
-	str2 = Malloc(len + 1);
-	StrCpy(str1, 0, src);
-	StrCpy(str2, 0, src);
-
-	Lock(token_lock);
-	{
-		tmp = strtok(str1, separator);
-		num = 0;
-		while (tmp != NULL)
-		{
-			num++;
-			tmp = strtok(NULL, separator);
-		}
-		ret = Malloc(sizeof(TOKEN_LIST));
-		ret->NumTokens = num;
-		ret->Token = (char **)Malloc(sizeof(char *) * num);
-		num = 0;
-		tmp = strtok(str2, separator);
-		while (tmp != NULL)
-		{
-			ret->Token[num] = (char *)Malloc(StrLen(tmp) + 1);
-			StrCpy(ret->Token[num], 0, tmp);
-			num++;
-			tmp = strtok(NULL, separator);
-		}
-	}
-	Unlock(token_lock);
-
-	Free(str1);
-	Free(str2);
-	return ret;
+	// 2020/7/20 remove strtok by dnobori
+	return ParseTokenWithoutNullStr(src, separator);
 }
 
 // Get a line from standard input
@@ -3208,6 +3558,22 @@ char *CopyFormat(char *fmt, ...)
 	return ret;
 }
 
+// Make format safe string
+void MakeFormatSafeString(char* str)
+{
+	UINT i, len;
+	if (str == NULL) return;
+
+	len = StrLen(str);
+	for (i = 0;i < len;i++)
+	{
+		if (str[i] == '%')
+		{
+			str[i] = '_';
+		}
+	}
+}
+
 // Format the string
 void Format(char *buf, UINT size, char *fmt, ...)
 {
@@ -3443,7 +3809,7 @@ UINT StrCpy(char *dst, UINT size, char *src)
 
 	// Check the length
 	len = StrLen(src);
-	if (len <= (size - 1))
+	if ((len <= (size - 1)) || (size == 0x7fffffff))
 	{
 		Copy(dst, src, len + 1);
 	}

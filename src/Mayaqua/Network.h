@@ -256,7 +256,7 @@ struct SOCK
 	LOCK *disconnect_lock;		// Disconnection lock
 	SOCKET socket;				// Socket number
 	SSL *ssl;					// SSL object
-	struct ssl_ctx_st *ssl_ctx;	// SSL_CTX
+	SSL_CTX_SHARED* ssl_ctx_shared;	// SSL context shared object
 	char SniHostname[256];		// SNI host name
 	UINT Type;					// Type of socket
 	bool Connected;				// Connecting flag
@@ -281,6 +281,7 @@ struct SOCK
 	X *LocalX;					// Certificate of the local host
 	char *CipherName;			// Cipher algorithm name
 	char *WaitToUseCipher;		// Set the algorithm name to want to use
+	char TlsVersion[16];		// TLS version
 	bool IgnoreRecvErr;			// Whether the RecvFrom error is ignorable
 	bool IgnoreSendErr;			// Whether the SendTo error is ignorable
 	UINT TimeOut;				// Time-out value
@@ -1015,6 +1016,57 @@ struct HTTP_HEADER
 
 
 
+
+
+#define SSL_CTX_SHARED_LIFETIME_DEFAULT_MSECS	(5 * 1000)
+
+struct SSL_CTX_SHARED
+{
+	REF* Ref;
+	SSL_CTX* SslCtx;
+	SSL_CTX_SHARED_SETTINGS* Settings;
+	LIST* AdditionalCertificateList;
+	UINT64 Expires;
+	UINT64 SettingsHash;
+};
+
+struct SSL_CTX_SHARED_SETTINGS2
+{
+	bool IsClient;
+	bool Server_NoSSLv3;
+	bool Server_NoTLSv1_0;
+	bool Server_NoTLSv1_1;
+	bool Server_NoTLSv1_2;
+	bool Server_NoTLSv1_3;
+	bool Client_NoSSLv3;
+	bool AddChainSslCertOnDirectory;
+	UINT LifeTime;
+	bool SaveLocalX;
+};
+
+struct SSL_CTX_SHARED_SETTINGS
+{
+	LIST* CertsAndKeyList;
+	void* CertsAndKeyCbParam;
+	SSL_CTX_SHARED_SETTINGS2 Settings2;
+};
+
+
+UINT64 CalcSslCtlSharedSettingsHash(SSL_CTX_SHARED_SETTINGS* s);
+LIST* NewSslCtxSharedList();
+void FreeSslCtxSharedList(LIST *o);
+void ReleaseSslCtxShared(SSL_CTX_SHARED* s);
+void CleanupSslCtxShared(SSL_CTX_SHARED* s);
+SSL_CTX_SHARED* GetOrCreateSslCtxShared(LIST *o, SSL_CTX_SHARED_SETTINGS* settings);
+SSL_CTX_SHARED* NewSslCtxSharedInternal(SSL_CTX_SHARED_SETTINGS* settings);
+SSL_CTX_SHARED* GetOrCreateSslCtxSharedGlobal(SSL_CTX_SHARED_SETTINGS* settings);
+
+SSL_CTX_SHARED_SETTINGS* NewSslCtxSharedSettings(LIST* certs_and_key_list, void* certs_and_key_list_cb_param, SSL_CTX_SHARED_SETTINGS2* settings2);
+SSL_CTX_SHARED_SETTINGS* CloneSslCtxSharedSettings(SSL_CTX_SHARED_SETTINGS* s);
+void FreeSslCtxSharedSettings(SSL_CTX_SHARED_SETTINGS* settings);
+
+
+
 int GetCurrentTimezone();
 
 bool GetSniNameFromSslPacket(UCHAR *packet_buf, UINT packet_size, char *sni, UINT sni_size);
@@ -1313,8 +1365,14 @@ UINT SecureSend(SOCK *sock, void *data, UINT size);
 UINT SecureRecv(SOCK *sock, void *data, UINT size);
 bool StartSSL(SOCK *sock, X *x, K *priv);
 bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, char *sni_hostname);
-bool AddChainSslCert(struct ssl_ctx_st *ctx, X *x);
+bool StartSSLEx2(SOCK* sock, X* x, K* priv, bool client_tls, UINT ssl_timeout, char* sni_hostname,
+				 CERTS_AND_KEY** certs_and_key_lists, UINT num_certs_and_key_lists, void* certs_and_key_cb_param,
+				 bool save_local_x);
+bool StartSSLWithSettings(SOCK* sock, UINT ssl_timeout, char* sni_hostname, SSL_CTX_SHARED_SETTINGS* settings);
+bool AddChainSslCert(struct ssl_st *ssl, X *x);
+bool AddChainSslCtxCert(struct ssl_ctx_st* ctx, X* x);
 void AddChainSslCertOnDirectory(struct ssl_ctx_st *ctx);
+LIST* GetChainSslCertListOnDirectory();
 bool SendAll(SOCK *sock, void *data, UINT size, bool secure);
 void SendAdd(SOCK *sock, void *data, UINT size);
 bool SendNow(SOCK *sock, int secure);
@@ -1449,6 +1507,9 @@ void AddProtocolDetailsStr(char *dst, UINT dst_size, char *str);
 void AddProtocolDetailsKeyValueStr(char *dst, UINT dst_size, char *key, char *value);
 void AddProtocolDetailsKeyValueInt(char *dst, UINT dst_size, char *key, UINT value);
 void TryGetCurrentAcceptingIPv4Address(IP *ip);
+
+void LockOpenSSL();
+void UnlockOpenSSL();
 
 #ifdef	ENABLE_SSL_LOGGING
 void SockEnableSslLogging(SOCK *s);

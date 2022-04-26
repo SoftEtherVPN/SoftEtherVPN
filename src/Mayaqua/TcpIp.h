@@ -836,6 +836,113 @@ struct DHCP_MODIFY_OPTION
 #define	SPECIAL_UDP_PORT_WSD				3702	// WS-Discovery
 #define	SPECIAL_UDP_PORT_SSDP				1900	// SSDP
 
+#define NTLM_MESSAGE_TYPE_NEGOTIATE			1
+#define NTLM_MESSAGE_TYPE_CHALLENGE			2
+#define NTLM_MESSAGE_TYPE_AUTH				3
+
+// NTLM Negotiate
+struct NTLM_NEGOTIATE
+{
+	UCHAR Signature[8];
+	UINT MessageType;
+	UINT NegotiateFlags;
+	USHORT DomainNameLen;
+	USHORT DomainNameMaxLen;
+	UINT DomainNameBufferOffset;
+	USHORT WorkstationLen;
+	USHORT WorkstationMaxLen;
+	UINT WorkstationBufferOffset;
+
+	UCHAR ProductMajorVersion;
+	UCHAR ProductMinorVersion;
+	USHORT ProductBuild;
+	UCHAR Reserved[3];
+	UCHAR NTLMRevisionCurrent;
+} GCC_PACKED;
+
+struct NTLM_CHALLENGE
+{
+	UCHAR Signature[8];
+	UINT MessageType;
+
+	USHORT TargetNameLen;
+	USHORT TargetNameMaxLen;
+	UINT TargetNameBufferOffset;
+
+	UINT NegotiateFlags;
+
+	UCHAR ServerChallenge[8];
+
+	UCHAR Reserved[8];
+
+	USHORT TargetInfoLen;
+	USHORT TargetInfoMaxLen;
+	UINT TargetInfoBufferOffset;
+
+	UCHAR ProductMajorVersion;
+	UCHAR ProductMinorVersion;
+	USHORT ProductBuild;
+	UCHAR Reserved2[3];
+	UCHAR NTLMRevisionCurrent;
+} GCC_PACKED;
+
+struct NTLM_AUTH
+{
+	UCHAR Signature[8];
+	UINT MessageType;
+
+	USHORT LmChallengeResponseLen;
+	USHORT LmChallengeResponseMaxLen;
+	UINT LmChallengeResponseBufferOffset;
+
+	USHORT NtChallengeResponseLen;
+	USHORT NtChallengeResponseMaxLen;
+	UINT NtChallengeResponseBufferOffset;
+
+	USHORT DomainNameLen;
+	USHORT DomainNameMaxLen;
+	UINT DomainNameBufferOffset;
+
+	USHORT UserNameLen;
+	USHORT UserNameMaxLen;
+	UINT UserNameBufferOffset;
+
+	USHORT WorkstationLen;
+	USHORT WorkstationMaxLen;
+	UINT WorkstationBufferOffset;
+
+	USHORT EncryptedRandomSessionKeyLen;
+	USHORT EncryptedRandomSessionKeyMaxLen;
+	UINT EncryptedRandomSessionKeyBufferOffset;
+
+	UINT NegotiateFlags;
+
+	UCHAR ProductMajorVersion;
+	UCHAR ProductMinorVersion;
+	USHORT ProductBuild;
+	UCHAR Reserved[3];
+	UCHAR NTLMRevisionCurrent;
+
+	//UCHAR Mic[16];
+} GCC_PACKED;
+
+struct NTLM_CLIENT_CHALLENGE
+{
+	UCHAR RespType;
+	UCHAR HiRespType;
+	USHORT Reserved1;
+	UINT Reserved2;
+	UINT64 TimeStamp;
+	UCHAR ChallengeFromClient[8];
+	UINT Reserved3;
+} GCC_PACKED;
+
+
+void NTOWFv2(UCHAR *dst_md5, char *username, char *password, char *domain);
+BUF *NtlmGenerateNegotiate();
+BUF *NtlmGenerateAuthenticate(BUF *svr_challenge_data, char *username, char *password, char *hostname);
+void GenerateNtPasswordHash(UCHAR *dst, char *password);
+BUF *GenerateUnicodeFromAnsi(char *ansi);
 
 PKT *ParsePacketIPv4WithDummyMacHeader(UCHAR *buf, UINT size);
 PKT *ParsePacket(UCHAR *buf, UINT size);

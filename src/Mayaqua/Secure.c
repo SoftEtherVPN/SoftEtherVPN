@@ -529,7 +529,7 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 	}
 
 	// Numeric data generation
-	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	rsa = (RSA *)EVP_PKEY_get0_RSA(k->pkey);
 	if (rsa == NULL)
 	{
 		sec->Error = SEC_ERROR_BAD_PARAMETER;

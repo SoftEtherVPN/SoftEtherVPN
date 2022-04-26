@@ -225,6 +225,8 @@ typedef int (COMPARE)(void *p1, void *p2);
 #define	POINTER_TO_UINT64(p)	(((sizeof(void *) == sizeof(UINT64)) ? (UINT64)(p) : (UINT64)((UINT)(p))))
 // Convert a UINT64 to pointer
 #define	UINT64_TO_POINTER(i)	((sizeof(void *) == sizeof(UINT64)) ? (void *)(i) : (void *)((UINT)(i)))
+// Convert a UINT32 to pointer
+#define	UINT32_TO_POINTER(i)	((void *)((UINT64)i))
 
 // Add the value
 #define	UINT_ADD(i, j)		((i == INFINITE || i == 0x7fffffff) ? (i) : (i += j))
@@ -239,7 +241,10 @@ typedef int (COMPARE)(void *p1, void *p2);
 #define	WRITE_UINT(buf, i)		(((UCHAR *)(buf))[0]) = ((((UINT)(i)) >> 24) & 0xFF); (((UCHAR *)(buf))[1]) = ((((UINT)(i)) >> 16) & 0xFF); (((UCHAR *)(buf))[2]) = ((((UINT)(i)) >> 8) & 0xFF); (((UCHAR *)(buf))[3]) = ((((UINT)(i))) & 0xFF)
 #define	WRITE_UINT64(buf, i)	(((UCHAR *)(buf))[0]) = ((((UINT64)(i)) >> 56) & 0xFF); (((UCHAR *)(buf))[1]) = ((((UINT64)(i)) >> 48) & 0xFF); (((UCHAR *)(buf))[2]) = ((((UINT64)(i)) >> 40) & 0xFF); (((UCHAR *)(buf))[3]) = ((((UINT64)(i)) >> 32) & 0xFF); (((UCHAR *)(buf))[4]) = ((((UINT64)(i)) >> 24) & 0xFF); (((UCHAR *)(buf))[5]) = ((((UINT64)(i)) >> 16) & 0xFF); (((UCHAR *)(buf))[6]) = ((((UINT64)(i)) >> 8) & 0xFF); (((UCHAR *)(buf))[7]) = ((((UINT64)(i))) & 0xFF)
 
+// Zero clear
+#define CLEAN		{ 0 }
 
+#define GOLDEN_PRIME_NUMBER		(0x61C8864680B583EBULL) // From https://github.com/torvalds/linux/blob/88c5083442454e5e8a505b11fa16f32d2879651e/include/linux/hash.h
 
 // 
 // Type declaration
@@ -417,6 +422,9 @@ typedef struct SHARED_BUFFER SHARED_BUFFER;
 typedef struct HASH_LIST HASH_LIST;
 typedef struct HASH_ENTRY HASH_ENTRY;
 typedef struct PRAND PRAND;
+typedef struct ACTIVE_PATCH_ENTRY ACTIVE_PATCH_ENTRY;
+typedef struct LOCKOUT LOCKOUT;
+typedef struct LOCKOUT_ENTRY LOCKOUT_ENTRY;
 
 // Str.h
 typedef struct TOKEN_LIST TOKEN_LIST;
@@ -442,6 +450,8 @@ typedef struct DH_CTX DH_CTX;
 typedef struct AES_KEY_VALUE AES_KEY_VALUE;
 typedef struct CIPHER CIPHER;
 typedef struct MD MD;
+typedef struct SEEDRAND SEEDRAND;
+typedef struct CERTS_AND_KEY CERTS_AND_KEY;
 
 // Secure.h
 typedef struct SECURE_DEVICE SECURE_DEVICE;
@@ -471,6 +481,7 @@ typedef struct CFG_ENUM_PARAM CFG_ENUM_PARAM;
 
 // Table.h
 typedef struct TABLE TABLE;
+typedef struct TABLE_REPLACE_STR TABLE_REPLACE_STR;
 typedef struct LANGLIST LANGLIST;
 
 // Network.h
@@ -522,6 +533,10 @@ typedef struct SAFE_REQUEST_LOG SAFE_REQUEST_LOG;
 typedef struct DYN_VALUE DYN_VALUE;
 typedef struct RELAY_PARAMETER RELAY_PARAMETER;
 typedef struct SSL_ACCEPT_SETTINGS SSL_ACCEPT_SETTINGS;
+typedef struct PROXY_PROTOCOL PROXY_PROTOCOL;
+typedef struct SSL_CTX_SHARED SSL_CTX_SHARED;
+typedef struct SSL_CTX_SHARED_SETTINGS2 SSL_CTX_SHARED_SETTINGS2;
+typedef struct SSL_CTX_SHARED_SETTINGS SSL_CTX_SHARED_SETTINGS;
 
 // Tick64.h
 typedef struct ADJUST_TIME ADJUST_TIME;
@@ -579,7 +594,10 @@ typedef struct HTTPLOG HTTPLOG;
 typedef struct DHCP_MODIFY_OPTION DHCP_MODIFY_OPTION;
 typedef struct NBTDG_HEADER NBTDG_HEADER;
 typedef struct IKE_HEADER IKE_HEADER;
-
+typedef struct NTLM_NEGOTIATE NTLM_NEGOTIATE;
+typedef struct NTLM_CHALLENGE NTLM_CHALLENGE;
+typedef struct NTLM_AUTH NTLM_AUTH;
+typedef struct NTLM_CLIENT_CHALLENGE NTLM_CLIENT_CHALLENGE;
 
 
 #endif	// MAYATYPE_H

@@ -317,7 +317,6 @@ void PPPSendEchoRequest(PPP_SESSION *p);
 bool PPPParseUsername(CEDAR *cedar, char *src, ETHERIP_ID *dst);
 bool IsHubExistsWithLock(CEDAR *cedar, char *hubname);
 
-void GenerateNtPasswordHash(UCHAR *dst, char *password);
 void GenerateNtPasswordHashHash(UCHAR *dst_hash, UCHAR *src_hash);
 void MsChapV2Server_GenerateChallenge(UCHAR *dst);
 void MsChapV2Client_GenerateChallenge(UCHAR *dst);

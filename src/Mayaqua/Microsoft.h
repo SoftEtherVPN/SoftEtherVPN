@@ -929,6 +929,8 @@ bool MsStopIPsecService();
 char *MsGetIPsecServiceName();
 bool MsStartIPsecService();
 
+UINT64 MsGetCurrentFileTime();
+
 void MsGenerateUserModeSvcGlobalPulseName(char *name, UINT size, char *svc_name);
 void *MsCreateUserModeSvcGlocalPulse(char *svc_name);
 void MsStopUserModeSvc(char *svc_name);

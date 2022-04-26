@@ -134,6 +134,12 @@
 #include <openssl/pem.h>
 #include <openssl/conf.h>
 #include <openssl/x509v3.h>
+#include <openssl/ocsp.h>
+#include <openssl/ocsperr.h>
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif // OPENSSL_VERSION_NUMBER
+
 #include <Mayaqua/Mayaqua.h>
 
 #ifdef	USE_INTEL_AESNI_LIBRARY
@@ -149,6 +155,11 @@ UINT ssl_lock_num;
 static bool openssl_inited = false;
 static bool is_intel_aes_supported = false;
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+static OSSL_PROVIDER* ossl_provider_legacy = NULL;
+static OSSL_PROVIDER* ossl_provider_default = NULL;
+#endif
+
 static unsigned char *Internal_SHA0(const unsigned char *d, size_t n, unsigned char *md);
 
 // For the callback function
@@ -156,6 +167,731 @@ typedef struct CB_PARAM
 {
 	char *password;
 } CB_PARAM;
+
+
+LIST* BufToXList(BUF* b)
+{
+	LIST* ret;
+	UINT mode = 0;
+	BUF* current_buf;
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	SeekBufToBegin(b);
+
+	ret = NewList(NULL);
+
+	current_buf = NewBuf();
+
+	while (true)
+	{
+		char* line = CfgReadNextLine(b);
+
+		if (line == NULL)
+		{
+			break;
+		}
+
+		if (mode == 0 && StrCmpi(line, "-----BEGIN CERTIFICATE-----") == 0)
+		{
+			mode = 1;
+			WriteBuf(current_buf, line, StrLen(line));
+			WriteBuf(current_buf, "\n", 1);
+		}
+		else if (mode == 1)
+		{
+			if (StrCmpi(line, "-----END CERTIFICATE-----") == 0)
+			{
+				mode = 0;
+			}
+			WriteBuf(current_buf, line, StrLen(line));
+			WriteBuf(current_buf, "\n", 1);
+
+			if (mode == 0)
+			{
+				X* x = BufToX(current_buf, true);
+				if (x != NULL)
+				{
+					Add(ret, x);
+				}
+
+				FreeBuf(current_buf);
+				current_buf = NewBuf();
+			}
+		}
+
+		Free(line);
+	}
+
+	FreeBuf(current_buf);
+
+	if (LIST_NUM(ret) == 0)
+	{
+		ReleaseList(ret);
+		return NULL;
+	}
+
+	return ret;
+}
+
+void FreeXList(LIST* o)
+{
+	UINT i;
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		X* x = LIST_DATA(o, i);
+
+		FreeX(x);
+	}
+
+	ReleaseList(o);
+}
+
+bool CheckCertsAndKey(CERTS_AND_KEY* c)
+{
+	X* x;
+	K* k;
+	if (c == NULL)
+	{
+		return false;
+	}
+	if (LIST_NUM(c->CertList) == 0)
+	{
+		return false;
+	}
+
+	x = LIST_DATA(c->CertList, 0);
+	k = c->Key;
+
+	return CheckXandK(x, k);
+}
+
+bool CertsAndKeyAlwaysUseCallback(char* sni_name, void* param)
+{
+	return true;
+}
+
+CERTS_AND_KEY* CloneCertsAndKey(CERTS_AND_KEY* c)
+{
+	CERTS_AND_KEY* ret;
+	if (c == NULL)
+	{
+		return NULL;
+	}
+
+	ret = NewCertsAndKeyFromObjects(c->CertList, c->Key, false);
+
+	return ret;
+}
+
+UINT64 GetCertsAndKeyListHash(LIST* o)
+{
+	UINT i;
+	UINT64 ret = 0;
+	if (o == NULL)
+	{
+		return 0;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		CERTS_AND_KEY* c = LIST_DATA(o, i);
+
+		UINT64 hash = GetCertsAndKeyHash(c);
+
+		ret += hash;
+
+		ret *= GOLDEN_PRIME_NUMBER;
+	}
+
+	if (ret == 0) ret = 1;
+
+	return ret;
+}
+
+void FreeCertsAndKeyList(LIST* o)
+{
+	UINT i;
+
+	if (o == NULL)
+	{
+		return;
+	}
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		CERTS_AND_KEY* s = LIST_DATA(o, i);
+
+		ReleaseCertsAndKey(s);
+	}
+
+	ReleaseList(o);
+}
+
+LIST* CloneCertsAndKeyList(LIST* o)
+{
+	LIST* ret;
+	UINT i;
+
+	if (o == NULL)
+	{
+		return NULL;
+	}
+
+	ret = NewList(NULL);
+
+	for (i = 0;i < LIST_NUM(o);i++)
+	{
+		CERTS_AND_KEY* s = LIST_DATA(o, i);
+
+		if (s != NULL)
+		{
+			CERTS_AND_KEY* d = s;
+
+			AddRef(d->Ref);
+
+			Add(ret, d);
+		}
+	}
+
+	return ret;
+}
+
+UINT64 GetCertsAndKeyHash(CERTS_AND_KEY* c)
+{
+	UINT64 ret;
+
+	if (c == NULL)
+	{
+		return 0;
+	}
+
+	ret = c->HashCache;
+
+	ret += (UINT64)c->DetermineUseCallback;
+
+	if (ret == 0) ret = 1;
+
+	return ret;
+}
+
+UINT64 CalcCertsAndKeyHashCache(CERTS_AND_KEY* c)
+{
+	BUF* buf;
+	UINT i;
+	BUF *key_buf;
+	UCHAR hash[SHA1_SIZE] = CLEAN;
+	UINT64 ret;
+
+	if (c == NULL)
+	{
+		return 0;
+	}
+
+	buf = NewBuf();
+
+	for (i = 0;i < LIST_NUM(c->CertList);i++)
+	{
+		X* x = LIST_DATA(c->CertList, i);
+		UCHAR sha1[SHA1_SIZE] = CLEAN;
+
+		GetXDigest(x, sha1, true);
+
+		WriteBuf(buf, sha1, SHA1_SIZE);
+	}
+
+	key_buf = KToBuf(c->Key, true, NULL);
+
+	WriteBufBuf(buf, key_buf);
+
+	FreeBuf(key_buf);
+
+	HashSha1(hash, buf->Buf, buf->Size);
+
+	FreeBuf(buf);
+
+	ret = READ_UINT64(hash);
+
+	if (ret == 0) ret = 1;
+
+	return ret;
+}
+
+void UpdateCertsAndKeyHashCacheAndCheckedState(CERTS_AND_KEY* c)
+{
+	if (c == NULL)
+	{
+		return;
+	}
+
+	c->HashCache = CalcCertsAndKeyHashCache(c);
+	c->HasValidPrivateKey = CheckCertsAndKey(c);
+}
+
+CERTS_AND_KEY* NewCertsAndKeyFromDir(wchar_t* dir_name)
+{
+	CERTS_AND_KEY* ret = NULL;
+	BUF* key_buf = NULL;
+	wchar_t key_fn[MAX_PATH] = CLEAN;
+	UINT i;
+
+	if (dir_name == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(CERTS_AND_KEY));
+
+	ret->Ref = NewRef();
+
+	ret->CertList = NewListFast(NULL);
+
+	CombinePathW(key_fn, sizeof(key_fn), dir_name, L"cert.key");
+	key_buf = ReadDumpW(key_fn);
+
+	ret->Key = BufToK(key_buf, true, true, NULL);
+	if (ret->Key == NULL)
+	{
+		goto L_ERROR;
+	}
+
+	for (i = 0;;i++)
+	{
+		wchar_t cert_fn[MAX_PATH] = CLEAN;
+		wchar_t tmp[MAX_PATH] = CLEAN;
+		BUF* cert_buf;
+		X* x;
+
+		UniFormat(tmp, sizeof(tmp), L"cert_%04u.cer", i);
+		CombinePathW(cert_fn, sizeof(cert_fn), dir_name, tmp);
+
+		cert_buf = ReadDumpW(cert_fn);
+		if (cert_buf == NULL)
+		{
+			break;
+		}
+
+		x = BufToX(cert_buf, true);
+
+		if (x != NULL)
+		{
+			Add(ret->CertList, x);
+		}
+
+		FreeBuf(cert_buf);
+	}
+
+	if (LIST_NUM(ret->CertList) == 0)
+	{
+		goto L_ERROR;
+	}
+
+	FreeBuf(key_buf);
+
+	UpdateCertsAndKeyHashCacheAndCheckedState(ret);
+
+	return ret;
+
+L_ERROR:
+	ReleaseCertsAndKey(ret);
+	FreeBuf(key_buf);
+	return NULL;
+}
+
+bool SaveCertsAndKeyToDir(CERTS_AND_KEY* c, wchar_t* dir)
+{
+	wchar_t tmp[MAX_PATH] = CLEAN;
+	wchar_t tmp2[MAX_PATH] = CLEAN;
+	bool ret = true;
+	LIST* filename_list;
+	UINT count;
+
+	if (c == NULL || dir == NULL)
+	{
+		return false;
+	}
+
+	filename_list = NewList(NULL);
+
+	MakeDirExW(dir);
+
+	// サーバーから受信した証明書情報の websocket_certs_cache ディレクトリへの書き込み
+	count = LIST_NUM(c->CertList);
+
+	if (count >= 1)
+	{
+		BUF* key_buf = KToBuf(c->Key, true, NULL);
+		if (key_buf != NULL && key_buf->Size >= 1)
+		{
+			UINT i;
+			for (i = 0;i < count;i++)
+			{
+				X* x = LIST_DATA(c->CertList, i);
+				if (x != NULL)
+				{
+					BUF* cert_buf = XToBuf(x, true);
+					if (cert_buf != NULL)
+					{
+						UniFormat(tmp2, sizeof(tmp2), L"cert_%04u.cer", i);
+						CombinePathW(tmp, sizeof(tmp), dir, tmp2);
+
+						if (DumpBufWIfNecessary(cert_buf, tmp) == false)
+						{
+							ret = false;
+						}
+
+						AddUniStrToUniStrList(filename_list, tmp2);
+					}
+					FreeBuf(cert_buf);
+				}
+			}
+
+			CombinePathW(tmp, sizeof(tmp), dir, L"cert.key");
+			if (DumpBufWIfNecessary(key_buf, tmp) == false)
+			{
+				ret = false;
+			}
+		}
+		FreeBuf(key_buf);
+	}
+	else
+	{
+		ret = false;
+	}
+
+	// websocket_certs_cache ディレクトリにある不要ファイルの削除
+	if (LIST_NUM(filename_list) >= 1)
+	{
+		DIRLIST* dirlist = EnumDirW(dir);
+
+		if (dirlist != NULL)
+		{
+			UINT i;
+			for (i = 0;i < dirlist->NumFiles;i++)
+			{
+				DIRENT* f = dirlist->File[i];
+
+				if (UniStartWith(f->FileNameW, L"cert_") && UniEndWith(f->FileNameW, L".cer"))
+				{
+					if (IsInListUniStr(filename_list, f->FileNameW) == false)
+					{
+						CombinePathW(tmp, sizeof(tmp), dir, f->FileNameW);
+						FileDeleteW(tmp);
+					}
+				}
+			}
+		}
+
+		FreeDir(dirlist);
+	}
+
+	FreeStrList(filename_list);
+
+	return ret;
+}
+
+CERTS_AND_KEY* NewCertsAndKeyFromObjectSingle(X* cert, K* key, bool fast)
+{
+	LIST* cert_list;
+	CERTS_AND_KEY* ret;
+	if (cert == NULL || key == NULL)
+	{
+		return NULL;
+	}
+
+	cert_list = NewList(NULL);
+	Add(cert_list, cert);
+
+	ret = NewCertsAndKeyFromObjects(cert_list, key, fast);
+
+	ReleaseList(cert_list);
+
+	return ret;
+}
+
+CERTS_AND_KEY* NewCertsAndKeyFromObjects(LIST* cert_list, K* key, bool fast)
+{
+	UINT i;
+	UINT64 fast_hash = 1;
+	CERTS_AND_KEY* ret = NULL;
+	if (cert_list == NULL || LIST_NUM(cert_list) == 0 || key == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(CERTS_AND_KEY));
+
+	ret->Ref = NewRef();
+
+	ret->CertList = NewListFast(NULL);
+
+	if (fast == false)
+	{
+		ret->Key = CloneK(key);
+	}
+	else
+	{
+		ret->Key = CloneKFast(key);
+
+		fast_hash += (UINT64)(key->pkey);
+		fast_hash *= GOLDEN_PRIME_NUMBER;
+	}
+
+	if (ret->Key == NULL) goto L_ERROR;
+
+	for (i = 0;i < LIST_NUM(cert_list);i++)
+	{
+		X* clone_x;
+		X* x = LIST_DATA(cert_list, i);
+		if (x == NULL) goto L_ERROR;
+
+		if (fast == false)
+		{
+			clone_x = CloneX(x);
+		}
+		else
+		{
+			clone_x = CloneXFast(x);
+			fast_hash += (UINT64)(x->x509);
+			fast_hash *= GOLDEN_PRIME_NUMBER;
+		}
+
+		Add(ret->CertList, clone_x);
+	}
+
+	if (fast == false)
+	{
+		UpdateCertsAndKeyHashCacheAndCheckedState(ret);
+	}
+	else
+	{
+		ret->HashCache = fast_hash;
+		ret->HasValidPrivateKey = true;
+	}
+
+	return ret;
+
+L_ERROR:
+	ReleaseCertsAndKey(ret);
+	return NULL;
+}
+
+CERTS_AND_KEY* NewCertsAndKeyFromMemory(LIST* cert_buf_list, BUF* key_buf)
+{
+	UINT i;
+	CERTS_AND_KEY* ret = NULL;
+	if (cert_buf_list == NULL || LIST_NUM(cert_buf_list) == 0 || key_buf == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(CERTS_AND_KEY));
+
+	ret->Ref = NewRef();
+
+	ret->CertList = NewListFast(NULL);
+
+	ret->Key = BufToK(key_buf, true, true, NULL);
+	if (ret->Key == NULL) goto L_ERROR;
+
+	for (i = 0;i < LIST_NUM(cert_buf_list);i++)
+	{
+		BUF* b = LIST_DATA(cert_buf_list, i);
+
+		X* x = BufToX(b, true);
+		if (x == NULL) goto L_ERROR;
+
+		Add(ret->CertList, x);
+	}
+
+	UpdateCertsAndKeyHashCacheAndCheckedState(ret);
+
+	return ret;
+
+L_ERROR:
+	ReleaseCertsAndKey(ret);
+	return NULL;
+}
+
+void ReleaseCertsAndKey(CERTS_AND_KEY* c)
+{
+	if (c == NULL)
+	{
+		return;
+	}
+
+	if (Release(c->Ref) == 0)
+	{
+		CleanupCertsAndKey(c);
+	}
+}
+
+void CleanupCertsAndKey(CERTS_AND_KEY* c)
+{
+	UINT i;
+	if (c == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < LIST_NUM(c->CertList);i++)
+	{
+		X* x = LIST_DATA(c->CertList, i);
+
+		FreeX(x);
+	}
+
+	FreeK(c->Key);
+
+	ReleaseList(c->CertList);
+
+	Free(c);
+}
+
+// 証明書が特定のディレクトリの CRL によって無効化されているかどうか確認する
+bool IsXRevoked(X *x)
+{
+	char dirname[MAX_PATH];
+	UINT i;
+	bool ret = false;
+	DIRLIST *t;
+	// 引数チェック
+	if (x == NULL)
+	{
+		return false;
+	}
+
+	GetExeDir(dirname, sizeof(dirname));
+
+	// CRL ファイルの検索
+	t = EnumDir(dirname);
+
+	for (i = 0;i < t->NumFiles;i++)
+	{
+		char *name = t->File[i]->FileName;
+		if (t->File[i]->Folder == false)
+		{
+			if (EndWith(name, ".crl"))
+			{
+				char filename[MAX_PATH];
+				X_CRL *r;
+
+				ConbinePath(filename, sizeof(filename), dirname, name);
+
+				r = FileToXCrl(filename);
+
+				if (r != NULL)
+				{
+					if (IsXRevokedByXCrl(x, r))
+					{
+						ret = true;
+					}
+
+					FreeXCrl(r);
+				}
+			}
+		}
+	}
+
+	FreeDir(t);
+
+	return ret;
+}
+
+// 証明書が CRL によって無効化されているかどうか確認する
+bool IsXRevokedByXCrl(X *x, X_CRL *r)
+{
+	// 手抜きさん
+	return false;
+}
+
+// CRL の解放
+void FreeXCrl(X_CRL *r)
+{
+	// 引数チェック
+	if (r == NULL)
+	{
+		return;
+	}
+
+	X509_CRL_free(r->Crl);
+
+	Free(r);
+}
+
+// ファイルを CRL に変換
+X_CRL *FileToXCrl(char *filename)
+{
+	wchar_t *filename_w = CopyStrToUni(filename);
+	X_CRL *ret = FileToXCrlW(filename_w);
+
+	Free(filename_w);
+
+	return ret;
+}
+X_CRL *FileToXCrlW(wchar_t *filename)
+{
+	BUF *b;
+	X_CRL *r;
+	// 引数チェック
+	if (filename == NULL)
+	{
+		return NULL;
+	}
+
+	b = ReadDumpW(filename);
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	r = BufToXCrl(b);
+
+	FreeBuf(b);
+
+	return r;
+}
+
+// バッファを CRL に変換
+X_CRL *BufToXCrl(BUF *b)
+{
+	X_CRL *r;
+	X509_CRL *x509crl;
+	BIO *bio;
+	// 引数チェック
+	if (b == NULL)
+	{
+		return NULL;
+	}
+
+	bio = BufToBio(b);
+	if (bio == NULL)
+	{
+		return NULL;
+	}
+
+	x509crl	= NULL;
+
+	if (d2i_X509_CRL_bio(bio, &x509crl) == NULL || x509crl == NULL)
+	{
+		FreeBio(bio);
+		return NULL;
+	}
+
+	r = ZeroMalloc(sizeof(X_CRL));
+	r->Crl = x509crl;
+
+	FreeBio(bio);
+
+	return r;
+}
 
 // Copied from t1_enc.c of OpenSSL
 void Enc_tls1_P_hash(const EVP_MD *md, const unsigned char *sec, int sec_len,
@@ -699,11 +1435,11 @@ K *RsaBinToPublic(void *data, UINT size)
 #endif
 
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_RSA_PUBKEY_bio(bio, rsa);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	BIO_seek(bio, 0);
 	k = BioToK(bio, false, false, NULL);
 	FreeBio(bio);
@@ -728,7 +1464,7 @@ BUF *RsaPublicToBuf(K *k)
 	}
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	rsa = (RSA*)EVP_PKEY_get0_RSA(k->pkey);
 	if (rsa == NULL)
 	{
 		return NULL;
@@ -1205,6 +1941,28 @@ void GetAllNameFromNameEx(wchar_t *str, UINT size, NAME *name)
 	}
 }
 
+K* CloneKFast(K* k)
+{
+	K* ret;
+	// Validate arguments
+	if (k == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(K));
+
+	ret->private_key = k->private_key;
+	ret->pkey = k->pkey;
+
+	if (ret->pkey != NULL)
+	{
+		EVP_PKEY_up_ref(ret->pkey);
+	}
+
+	return ret;
+}
+
 // Clone of the key
 K *CloneK(K *k)
 {
@@ -1224,6 +1982,39 @@ K *CloneK(K *k)
 
 	ret = BufToK(b, k->private_key, false, NULL);
 	FreeBuf(b);
+
+	return ret;
+}
+
+X* CloneXFast(X* x)
+{
+	X* ret;
+	// Validate arguments
+	if (x == NULL)
+	{
+		return NULL;
+	}
+
+	ret = ZeroMalloc(sizeof(X));
+
+	ret->issuer_name = CopyName(x->issuer_name);
+	ret->subject_name = CopyName(x->subject_name);
+	ret->root_cert = x->root_cert;
+	ret->notBefore = x->notBefore;
+	ret->notAfter = x->notAfter;
+	ret->serial = CloneXSerial(x->serial);
+	ret->do_not_free = false;
+	ret->is_compatible_bit = x->is_compatible_bit;
+	ret->bits = x->bits;
+	ret->has_basic_constraints = x->has_basic_constraints;
+	StrCpy(ret->issuer_url, sizeof(ret->issuer_url), x->issuer_url);
+
+	ret->x509 = x->x509;
+
+	if (ret->x509 != NULL)
+	{
+		X509_up_ref(ret->x509);
+	}
 
 	return ret;
 }
@@ -1266,16 +2057,16 @@ P12 *NewP12(X *x, K *k, char *password)
 		password = NULL;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		pkcs12 = PKCS12_create(password, NULL, k->pkey, x->x509, NULL, 0, 0, 0, 0, 0);
 		if (pkcs12 == NULL)
 		{
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			return NULL;
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	p12 = PKCS12ToP12(pkcs12);
 
@@ -1323,30 +2114,30 @@ bool ParseP12(P12 *p12, X **x, K **k, char *password)
 	}
 
 	// Password confirmation
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		if (PKCS12_verify_mac(p12->pkcs12, password, -1) == false &&
 			PKCS12_verify_mac(p12->pkcs12, NULL, -1) == false)
 		{
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			return false;
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	// Extraction
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		if (PKCS12_parse(p12->pkcs12, password, &pkey, &x509, NULL) == false)
 		{
 			if (PKCS12_parse(p12->pkcs12, NULL, &pkey, &x509, NULL) == false)
 			{
-				Unlock(openssl_lock);
+				UnlockOpenSSL();
 				return false;
 			}
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	// Conversion
 	*x = X509ToX(x509);
@@ -1491,11 +2282,11 @@ BIO *P12ToBio(P12 *p12)
 	}
 
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_PKCS12_bio(bio, p12->pkcs12);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	return bio;
 }
@@ -1534,11 +2325,11 @@ P12 *BioToP12(BIO *bio)
 	}
 
 	// Conversion
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		pkcs12 = d2i_PKCS12_bio(bio, NULL);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (pkcs12 == NULL)
 	{
 		// Failure
@@ -1738,6 +2529,10 @@ UINT GetDaysUntil2038Ex()
 // Issue an X509 certificate
 X *NewX(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 {
+	return NewXEx(pub, priv, ca, name, days, serial, NULL);
+}
+X *NewXEx(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial, NAME *name_issuer)
+{
 	X509 *x509;
 	X *x;
 	// Validate arguments
@@ -1746,7 +2541,7 @@ X *NewX(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		return NULL;
 	}
 
-	x509 = NewX509(pub, priv, ca, name, days, serial);
+	x509 = NewX509Ex(pub, priv, ca, name, days, serial, name_issuer);
 	if (x509 == NULL)
 	{
 		return NULL;
@@ -1865,6 +2660,10 @@ X509_EXTENSION *NewBasicKeyUsageForX509()
 // Issue an X509 certificate
 X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 {
+	return NewX509Ex(pub, priv, ca, name, days, serial, NULL);
+}
+X509 *NewX509Ex(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial, NAME *name_issuer)
+{
 	X509 *x509;
 	UINT64 notBefore, notAfter;
 	ASN1_TIME *t1, *t2;
@@ -1921,7 +2720,15 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		FreeX509(x509);
 		return NULL;
 	}
-	issuer_name = X509_get_subject_name(ca->x509);
+	if (name_issuer == NULL)
+	{
+		issuer_name = X509_get_subject_name(ca->x509);
+	}
+	else
+	{
+		issuer_name = NameToX509Name(name_issuer);
+	}
+
 	if (issuer_name == NULL)
 	{
 		FreeX509Name(subject_name);
@@ -1933,6 +2740,11 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 	X509_set_subject_name(x509, subject_name);
 
 	FreeX509Name(subject_name);
+
+	if (name_issuer != NULL)
+	{
+		FreeX509Name(issuer_name);
+	}
 
 	// Set the Serial Number
 	s = X509_get_serialNumber(x509);
@@ -1986,7 +2798,7 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		X509_EXTENSION_free(ex);
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		// Set the public key
 		X509_set_pubkey(x509, pub->pkey);
@@ -1995,7 +2807,7 @@ X509 *NewX509(K *pub, K *priv, X *ca, NAME *name, UINT days, X_SERIAL *serial)
 		// 2014.3.19 set the initial digest algorithm to SHA-256
 		X509_sign(x509, priv->pkey, EVP_sha256());
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	return x509;
 }
@@ -2115,7 +2927,7 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 		X509_EXTENSION_free(eku);
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		// Set the public key
 		X509_set_pubkey(x509, pub->pkey);
@@ -2124,7 +2936,7 @@ X509 *NewRootX509(K *pub, K *priv, NAME *name, UINT days, X_SERIAL *serial)
 		// 2014.3.19 set the initial digest algorithm to SHA-256
 		X509_sign(x509, priv->pkey, EVP_sha256());
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	return x509;
 }
@@ -2186,11 +2998,11 @@ bool AddX509Name(void *xn, int nid, wchar_t *str)
 
 	// Adding
 	x509_name = (X509_NAME *)xn;
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		X509_NAME_add_entry_by_NID(x509_name, nid, encoding_type, utf8, utf8_size, -1, 0);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	Free(utf8);
 
 	return true;
@@ -2326,8 +3138,17 @@ bool SystemToAsn1Time(void *asn1_time, SYSTEMTIME *s)
 	}
 	StrCpy((char *)t->data, t->length, tmp);
 	t->length = StrLen(tmp);
-	t->type = V_ASN1_UTCTIME;
 
+	if (t->length == 15)
+	{
+		// YYYYMMDDHHMMSSZ
+		t->type = V_ASN1_GENERALIZEDTIME;
+	}
+	else
+	{
+		// YYMMDDHHMMSSZ
+		t->type = V_ASN1_UTCTIME;
+	}
 	return true;
 }
 
@@ -2340,9 +3161,20 @@ bool SystemToStr(char *str, UINT size, SYSTEMTIME *s)
 		return false;
 	}
 
-	Format(str, size, "%02u%02u%02u%02u%02u%02uZ",
-		s->wYear % 100, s->wMonth, s->wDay,
-		s->wHour, s->wMinute, s->wSecond);
+	if (s->wYear <= 2049)
+	{
+		// 2000 to 2049: Use YYMMDDHHMMSSZ
+		Format(str, size, "%02u%02u%02u%02u%02u%02uZ",
+			s->wYear % 100, s->wMonth, s->wDay,
+			s->wHour, s->wMinute, s->wSecond);
+	}
+	else
+	{
+		// 2050 to 9999: Use YYYYMMDDHHMMSSZ
+		Format(str, size, "%04u%02u%02u%02u%02u%02uZ",
+			s->wYear, s->wMonth, s->wDay,
+			s->wHour, s->wMinute, s->wSecond);
+	}
 
 	return true;
 }
@@ -2378,11 +3210,6 @@ bool Asn1TimeToSystem(SYSTEMTIME *s, void *asn1_time)
 	if (StrToSystem(s, (char *)t->data) == false)
 	{
 		return false;
-	}
-
-	if (t->type == V_ASN1_GENERALIZEDTIME)
-	{
-		LocalToSystem(s, s);
 	}
 
 	return true;
@@ -2468,7 +3295,7 @@ bool RsaVerifyEx(void *data, UINT data_size, void *sign, K *k, UINT bits)
 		bits = 1024;
 	}
 
-	rsa = EVP_PKEY_get0_RSA(k->pkey);
+	rsa = (RSA*)EVP_PKEY_get0_RSA(k->pkey);
 	if (rsa == NULL)
 	{
 		return false;
@@ -2529,7 +3356,7 @@ bool RsaSignEx(void *dst, void *src, UINT size, K *k, UINT bits)
 	}
 
 	// Signature
-	if (RSA_private_encrypt(sizeof(hash), hash, dst, EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
+	if (RSA_private_encrypt(sizeof(hash), hash, dst, (RSA*)EVP_PKEY_get0_RSA(k->pkey), RSA_PKCS1_PADDING) <= 0)
 	{
 		return false;
 	}
@@ -2573,11 +3400,11 @@ bool RsaPublicDecrypt(void *dst, void *src, UINT size, K *k)
 	}
 
 	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
-		ret = RSA_public_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
+		ret = RSA_public_decrypt(size, src, tmp, (RSA *)EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (ret <= 0)
 	{
 /*		Debug("RSA Error: 0x%x\n",
@@ -2604,11 +3431,11 @@ bool RsaPrivateEncrypt(void *dst, void *src, UINT size, K *k)
 	}
 
 	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
-		ret = RSA_private_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
+		ret = RSA_private_encrypt(size, src, tmp, (RSA *)EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (ret <= 0)
 	{
 		Debug("RSA Error: %u\n",
@@ -2635,11 +3462,11 @@ bool RsaPrivateDecrypt(void *dst, void *src, UINT size, K *k)
 	}
 
 	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
-		ret = RSA_private_decrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
+		ret = RSA_private_decrypt(size, src, tmp, (RSA *)EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (ret <= 0)
 	{
 		Free(tmp);
@@ -2664,11 +3491,11 @@ bool RsaPublicEncrypt(void *dst, void *src, UINT size, K *k)
 	}
 
 	tmp = ZeroMalloc(size);
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
-		ret = RSA_public_encrypt(size, src, tmp, EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
+		ret = RSA_public_encrypt(size, src, tmp, (RSA*)EVP_PKEY_get0_RSA(k->pkey), RSA_NO_PADDING);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (ret <= 0)
 	{
 		return false;
@@ -2709,11 +3536,11 @@ bool RsaCheck()
 	// Validate arguments
 
 	// Key generation
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		rsa = RSA_generate_key(bit, RSA_F4, NULL, NULL);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (rsa == NULL)
 	{
 		Debug("RSA_generate_key: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
@@ -2722,22 +3549,22 @@ bool RsaCheck()
 
 	// Secret key
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_RSAPrivateKey_bio(bio, rsa);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	BIO_seek(bio, 0);
 	priv_key = BioToK(bio, true, false, NULL);
 	FreeBio(bio);
 
 	// Public key
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_RSA_PUBKEY_bio(bio, rsa);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	BIO_seek(bio, 0);
 	pub_key = BioToK(bio, false, false, NULL);
 	FreeBio(bio);
@@ -2779,11 +3606,11 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 	}
 
 	// Key generation
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		rsa = RSA_generate_key(bit, RSA_F4, NULL, NULL);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (rsa == NULL)
 	{
 		Debug("RSA_generate_key: err=%s\n", ERR_error_string(ERR_get_error(), errbuf));
@@ -2792,22 +3619,22 @@ bool RsaGen(K **priv, K **pub, UINT bit)
 
 	// Secret key
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_RSAPrivateKey_bio(bio, rsa);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	BIO_seek(bio, 0);
 	priv_key = BioToK(bio, true, false, NULL);
 	FreeBio(bio);
 
 	// Public key
 	bio = NewBio();
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		i2d_RSA_PUBKEY_bio(bio, rsa);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	BIO_seek(bio, 0);
 	pub_key = BioToK(bio, false, false, NULL);
 	FreeBio(bio);
@@ -2886,15 +3713,15 @@ bool CheckSignature(X *x, K *k)
 		return false;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		if (X509_verify(x->x509, k->pkey) == 0)
 		{
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			return false;
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	return true;
 }
 
@@ -2909,11 +3736,11 @@ K *GetKFromX(X *x)
 		return NULL;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		pkey = X509_get_pubkey(x->x509);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 	if (pkey == NULL)
 	{
 		return NULL;
@@ -3115,15 +3942,15 @@ bool CompareX(X *x1, X *x2)
 		return false;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	if (X509_cmp(x1->x509, x2->x509) == 0)
 	{
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 		return true;
 	}
 	else
 	{
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 		return false;
 	}
 }
@@ -3137,15 +3964,15 @@ bool CheckXandK(X *x, K *k)
 		return false;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	if (X509_check_private_key(x->x509, k->pkey) != 0)
 	{
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 		return true;
 	}
 	else
 	{
-		Unlock(openssl_lock);
+		UnlockOpenSSL();
 		return false;
 	}
 }
@@ -3335,11 +4162,11 @@ BIO *KToBio(K *k, bool text, char *password)
 		if (text == false)
 		{
 			// Binary format
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				i2d_PrivateKey_bio(bio, k->pkey);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 		}
 		else
 		{
@@ -3347,23 +4174,23 @@ BIO *KToBio(K *k, bool text, char *password)
 			if (password == 0 || StrLen(password) == 0)
 			{
 				// No encryption
-				Lock(openssl_lock);
+				LockOpenSSL();
 				{
 					PEM_write_bio_PrivateKey(bio, k->pkey, NULL, NULL, 0, NULL, NULL);
 				}
-				Unlock(openssl_lock);
+				UnlockOpenSSL();
 			}
 			else
 			{
 				// Encrypt
 				CB_PARAM cb;
 				cb.password = password;
-				Lock(openssl_lock);
+				LockOpenSSL();
 				{
 					PEM_write_bio_PrivateKey(bio, k->pkey, EVP_des_ede3_cbc(),
 						NULL, 0, (pem_password_cb *)PKeyPasswordCallbackFunction, &cb);
 				}
-				Unlock(openssl_lock);
+				UnlockOpenSSL();
 			}
 		}
 	}
@@ -3373,20 +4200,20 @@ BIO *KToBio(K *k, bool text, char *password)
 		if (text == false)
 		{
 			// Binary format
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				i2d_PUBKEY_bio(bio, k->pkey);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 		}
 		else
 		{
 			// Text format
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				PEM_write_bio_PUBKEY(bio, k->pkey);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 		}
 	}
 
@@ -3552,11 +4379,11 @@ K *BioToK(BIO *bio, bool private_key, bool text, char *password)
 			// Text format
 			CB_PARAM cb;
 			cb.password = password;
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				pkey = PEM_read_bio_PUBKEY(bio, NULL, (pem_password_cb *)PKeyPasswordCallbackFunction, &cb);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			if (pkey == NULL)
 			{
 				return NULL;
@@ -3568,11 +4395,11 @@ K *BioToK(BIO *bio, bool private_key, bool text, char *password)
 		if (text == false)
 		{
 			// Binary format
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				pkey = d2i_PrivateKey_bio(bio, NULL);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			if (pkey == NULL)
 			{
 				return NULL;
@@ -3583,11 +4410,11 @@ K *BioToK(BIO *bio, bool private_key, bool text, char *password)
 			// Text format
 			CB_PARAM cb;
 			cb.password = password;
-			Lock(openssl_lock);
+			LockOpenSSL();
 			{
 				pkey = PEM_read_bio_PrivateKey(bio, NULL, (pem_password_cb *)PKeyPasswordCallbackFunction, &cb);
 			}
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			if (pkey == NULL)
 			{
 				return NULL;
@@ -3658,7 +4485,7 @@ BIO *XToBio(X *x, bool text)
 
 	bio = NewBio();
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		if (text == false)
 		{
@@ -3671,7 +4498,7 @@ BIO *XToBio(X *x, bool text)
 			PEM_write_bio_X509(bio, x->x509);
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	return bio;
 }
@@ -3708,11 +4535,11 @@ void FreeX509(X509 *x509)
 		return;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		X509_free(x509);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 }
 
 // Convert the BUF to a X
@@ -3805,7 +4632,7 @@ X *BioToX(BIO *bio, bool text)
 		return NULL;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		// Reading x509
 		if (text == false)
@@ -3819,7 +4646,7 @@ X *BioToX(BIO *bio, bool text)
 			x509 = PEM_read_bio_X509(bio, NULL, NULL, NULL);
 		}
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	if (x509 == NULL)
 	{
@@ -4035,20 +4862,98 @@ BIO *BufToBio(BUF *b)
 		return NULL;
 	}
 
-	Lock(openssl_lock);
+	LockOpenSSL();
 	{
 		bio = BIO_new(BIO_s_mem());
 		if (bio == NULL)
 		{
-			Unlock(openssl_lock);
+			UnlockOpenSSL();
 			return NULL;
 		}
 		BIO_write(bio, b->Buf, b->Size);
 		BIO_seek(bio, 0);
 	}
-	Unlock(openssl_lock);
+	UnlockOpenSSL();
 
 	return bio;
+}
+
+// New seed rand
+SEEDRAND *NewSeedRand(void *seed, UINT seed_size)
+{
+	SEEDRAND *r = ZeroMalloc(sizeof(SEEDRAND));
+
+	if (seed == NULL || seed_size == 0)
+	{
+		HashSha1(r->InitialSeed, NULL, 0);
+	}
+	else
+	{
+		HashSha1(r->InitialSeed, seed, seed_size);
+	}
+
+	return r;
+}
+
+// Free seed rand
+void FreeSeedRand(SEEDRAND *r)
+{
+	if (r == NULL)
+	{
+		return;
+	}
+
+	Free(r);
+}
+
+// Get seed rand next byte
+UCHAR SeedRand8(SEEDRAND *r)
+{
+	UCHAR tmp[SHA1_SIZE + sizeof(UINT64)];
+	UCHAR hash[SHA1_SIZE];
+	if (r == NULL)
+	{
+		return 0;
+	}
+
+	Copy(tmp, r->InitialSeed, SHA1_SIZE);
+	WRITE_UINT64(tmp + SHA1_SIZE, r->CurrentCounter);
+
+	HashSha1(hash, tmp, sizeof(tmp));
+
+	r->CurrentCounter++;
+
+	return hash[0];
+}
+void SeedRand(SEEDRAND *r, void *buf, UINT size)
+{
+	UINT i;
+	if (buf == NULL || size == 0)
+	{
+		return;
+	}
+	for (i = 0;i < size;i++)
+	{
+		((UCHAR *)buf)[i] = SeedRand8(r);
+	}
+}
+USHORT SeedRand16(SEEDRAND *r)
+{
+	USHORT i;
+	SeedRand(r, &i, sizeof(i));
+	return i;
+}
+UINT SeedRand32(SEEDRAND *r)
+{
+	UINT i;
+	SeedRand(r, &i, sizeof(i));
+	return i;
+}
+UINT64 SeedRand64(SEEDRAND *r)
+{
+	UINT64 i;
+	SeedRand(r, &i, sizeof(i));
+	return i;
 }
 
 // 128-bit random number generation
@@ -4117,6 +5022,20 @@ void FreeCryptLibrary()
 {
 	openssl_inited = false;
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	if (ossl_provider_default != NULL)
+	{
+		OSSL_PROVIDER_unload(ossl_provider_default);
+		ossl_provider_default = NULL;
+	}
+
+	if (ossl_provider_legacy != NULL)
+	{
+		OSSL_PROVIDER_unload(ossl_provider_legacy);
+		ossl_provider_legacy = NULL;
+	}
+#endif
+
 	DeleteLock(openssl_lock);
 	openssl_lock = NULL;
 //	RAND_Free_For_SoftEther();
@@ -4131,10 +5050,22 @@ void InitCryptLibrary()
 	CheckIfIntelAesNiSupportedInit();
 //	RAND_Init_For_SoftEther()
 	openssl_lock = NewLock();
+
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	OPENSSL_init_ssl(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS | OPENSSL_INIT_NO_LOAD_CONFIG, NULL);
+#else
 	SSL_library_init();
+#endif
 	//OpenSSL_add_all_algorithms();
 	OpenSSL_add_all_ciphers();
 	OpenSSL_add_all_digests();
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	ossl_provider_legacy = OSSL_PROVIDER_load(NULL, "legacy");
+	ossl_provider_default = OSSL_PROVIDER_load(NULL, "default");
+#endif
+
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
 
@@ -6226,4 +7157,3 @@ void Aead_ChaCha20Poly1305_Ietf_Test()
 	Free(encrypted);
 	Free(decrypted);
 }
-
