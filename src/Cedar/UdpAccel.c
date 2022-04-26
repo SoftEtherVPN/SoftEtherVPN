@@ -338,6 +338,8 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT ma
 	UINT size = 0;
 	UINT64 tmp;
 	UINT ret;
+	UINT u32;
+	USHORT u16;
 	// Validate arguments
 	if (a == NULL || (data_size != 0 && data == NULL))
 	{
@@ -367,8 +369,8 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT ma
 	}
 
 	// Cookie
-	tmp = Endian32(a->YourCookie);
-	Copy(buf, &tmp, sizeof(UINT));
+	u32 = Endian32(a->YourCookie);
+	Copy(buf, &u32, sizeof(UINT));
 	buf += sizeof(UINT);
 	size += sizeof(UINT);
 
@@ -385,8 +387,8 @@ void UdpAccelSend(UDP_ACCEL *a, UCHAR *data, UINT data_size, UCHAR flag, UINT ma
 	size += sizeof(UINT64);
 
 	// Size
-	tmp = Endian16(data_size);
-	Copy(buf, &tmp, sizeof(USHORT));
+	u16 = Endian16(data_size);
+	Copy(buf, &u16, sizeof(USHORT));
 	buf += sizeof(USHORT);
 	size += sizeof(USHORT);
 
