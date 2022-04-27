@@ -38,6 +38,9 @@
 #include <openssl/pem.h>
 #include <openssl/conf.h>
 #include <openssl/x509v3.h>
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
 
 #ifdef _MSC_VER
 	#include <intrin.h> // For __cpuid()
@@ -81,6 +84,11 @@
 LOCK *openssl_lock = NULL;
 
 int ssl_clientcert_index = 0;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+static OSSL_PROVIDER *ossl_provider_legacy = NULL;
+static OSSL_PROVIDER *ossl_provider_default = NULL;
+#endif
 
 LOCK **ssl_lock_obj = NULL;
 UINT ssl_lock_num;
@@ -3948,6 +3956,20 @@ void FreeCryptLibrary()
 	SSL_COMP_free_compression_methods();
 #endif
 #endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	if (ossl_provider_default != NULL)
+	{
+		OSSL_PROVIDER_unload(ossl_provider_default);
+		ossl_provider_default = NULL;
+	}
+
+	if (ossl_provider_legacy != NULL)
+	{
+		OSSL_PROVIDER_unload(ossl_provider_legacy);
+		ossl_provider_legacy = NULL;
+	}
+#endif
 }
 
 // Initialize the Crypt library
@@ -3964,6 +3986,11 @@ void InitCryptLibrary()
 	OpenSSL_add_all_digests();
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	ossl_provider_default = OSSL_PROVIDER_load(NULL, "legacy");
+	ossl_provider_legacy = OSSL_PROVIDER_load(NULL, "default");
 #endif
 
 	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);
