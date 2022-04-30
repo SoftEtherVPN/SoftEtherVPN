@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "softether-vpn",
+  "version-string": "5.02",
+  "dependencies": [
+    "libsodium",
+    "openssl",
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "openssl",
+      "version-string": "1.1.1n"
+    }
+  ],
+  "builtin-baseline": "f6af75acc923c833a5620943e3fc7d5e4930f0df"
+}

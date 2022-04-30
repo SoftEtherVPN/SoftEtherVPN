@@ -36,6 +36,10 @@ if(EXISTS "${TOP_DIRECTORY}/.git" AND NOT EXISTS "${TOP_DIRECTORY}/src/libhamcor
     message (FATAL_ERROR "Submodules are not initialized. Run\n\tgit submodule update --init --recursive")
 endif()
 
+if(WIN32 AND VCPKG_TARGET_TRIPLET AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  message (FATAL_ERROR "vcpkg not installed or integrated with Visual Studio. Install it and run\n\tvcpkg integrate install")
+endif()
+
 if(UNIX)
   include(GNUInstallDirs)
 

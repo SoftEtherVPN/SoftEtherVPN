@@ -11,13 +11,9 @@ parameters:
 steps:
 - task: Cache@2
   inputs:
-    key: '"vcpkg-installed-windows-${{parameters.architecture}}"'
-    path: 'C:/vcpkg/installed'
+    key: '"vcpkg-manifest" | "$(Agent.OS)" | "${{parameters.vcpkgTriplet}}" | C:/vcpkg/.git/refs/heads/master'
+    path: '$(Build.BinariesDirectory)/vcpkg_installed'
   displayName: 'Environment storage'
-- script: |
-    vcpkg install libsodium openssl zlib --triplet ${{parameters.vcpkgTriplet}}
-  workingDirectory: C:/vcpkg
-  displayName: 'Prepare environment'
 - script: '$(Build.SourcesDirectory)/.ci/azure-pipelines/windows_build.bat'
   env:
     ARCHITECTURE: ${{parameters.architecture}}

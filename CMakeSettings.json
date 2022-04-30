@@ -1,0 +1,141 @@
+﻿{
+  "environments": [ { "BuildNumber": "5180" } ],
+  "configurations": [
+    {
+      "name": "x64-native",
+      "description": "Target x64 with 64-bit compiler",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "BUILD_NUMBER",
+          "value": "${env.BuildNumber}",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/x64/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/x64/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x86-on-x64",
+      "description": "Target x86 with 64-bit compiler",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x86_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "BUILD_NUMBER",
+          "value": "${env.BuildNumber}",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/x64/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/x64/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x86-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x64-on-x86",
+      "description": "Target x64 with 32-bit compiler",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "BUILD_NUMBER",
+          "value": "${env.BuildNumber}",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x86-native",
+      "description": "Target x86 with 32-bit compiler",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x86" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "BUILD_NUMBER",
+          "value": "${env.BuildNumber}",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x86-windows-static-md",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}
