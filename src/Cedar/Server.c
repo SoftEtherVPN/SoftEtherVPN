@@ -3880,6 +3880,16 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 		o->DropArpInPrivacyFilterMode = true;
 	}
 
+	if (CfgIsItem(f, "AllowSameUserInPrivacyFilterMode"))
+        {
+                o->AllowSameUserInPrivacyFilterMode = CfgGetBool(f, "AllowSameUserInPrivacyFilterMode");
+        }
+        else
+        {
+                o->AllowSameUserInPrivacyFilterMode = false;
+        }
+
+
 	o->NoLookBPDUBridgeId = CfgGetBool(f, "NoLookBPDUBridgeId");
 	o->AdjustTcpMssValue = CfgGetInt(f, "AdjustTcpMssValue");
 	o->DisableAdjustTcpMss = CfgGetBool(f, "DisableAdjustTcpMss");
@@ -4004,6 +4014,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs);
 	CfgAddBool(f, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
 	CfgAddBool(f, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
+	CfgAddBool(f, "AllowSameUserInPrivacyFilterMode", o->AllowSameUserInPrivacyFilterMode);
 	CfgAddBool(f, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	CfgAddBool(f, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
 	CfgAddBool(f, "DenyAllRadiusLoginWithNoVlanAssign", o->DenyAllRadiusLoginWithNoVlanAssign);
@@ -7465,6 +7476,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DoNotSaveHeavySecurityLogs = PackGetBool(p, "DoNotSaveHeavySecurityLogs");
 	o.DropBroadcastsInPrivacyFilterMode = PackGetBool(p, "DropBroadcastsInPrivacyFilterMode");
 	o.DropArpInPrivacyFilterMode = PackGetBool(p, "DropArpInPrivacyFilterMode");
+	o.AllowSameUserInPrivacyFilterMode= PackGetBool(p, "AllowSameUserInPrivacyFilterMode");
 	o.SuppressClientUpdateNotification = PackGetBool(p, "SuppressClientUpdateNotification");
 	o.AssignVLanIdByRadiusAttribute = PackGetBool(p, "AssignVLanIdByRadiusAttribute");
 	o.DenyAllRadiusLoginWithNoVlanAssign = PackGetBool(p, "DenyAllRadiusLoginWithNoVlanAssign");
@@ -9291,6 +9303,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "DoNotSaveHeavySecurityLogs", h->Option->DoNotSaveHeavySecurityLogs);
 	PackAddBool(p, "DropBroadcastsInPrivacyFilterMode", h->Option->DropBroadcastsInPrivacyFilterMode);
 	PackAddBool(p, "DropArpInPrivacyFilterMode", h->Option->DropArpInPrivacyFilterMode);
+	PackAddBool(p, "AllowSameUserInPrivacyFilterMode", h->Option->AllowSameUserInPrivacyFilterMode);
 	PackAddBool(p, "SuppressClientUpdateNotification", h->Option->SuppressClientUpdateNotification);
 	PackAddBool(p, "AssignVLanIdByRadiusAttribute", h->Option->AssignVLanIdByRadiusAttribute);
 	PackAddBool(p, "DenyAllRadiusLoginWithNoVlanAssign", h->Option->DenyAllRadiusLoginWithNoVlanAssign);
