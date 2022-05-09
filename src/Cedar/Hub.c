@@ -606,6 +606,7 @@ void DataToHubOptionStruct(HUB_OPTION *o, RPC_ADMIN_OPTION *ao)
 	GetHubAdminOptionDataAndSet(ao, "DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs);
 	GetHubAdminOptionDataAndSet(ao, "DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode);
 	GetHubAdminOptionDataAndSet(ao, "DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode);
+	GetHubAdminOptionDataAndSet(ao, "AllowSameUserInPrivacyFilterMode", o->AllowSameUserInPrivacyFilterMode);
 	GetHubAdminOptionDataAndSet(ao, "SuppressClientUpdateNotification", o->SuppressClientUpdateNotification);
 	GetHubAdminOptionDataAndSet(ao, "FloodingSendQueueBufferQuota", o->FloodingSendQueueBufferQuota);
 	GetHubAdminOptionDataAndSet(ao, "AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute);
@@ -679,6 +680,7 @@ void HubOptionStructToData(RPC_ADMIN_OPTION *ao, HUB_OPTION *o, char *hub_name)
 	Add(aol, NewAdminOption("DoNotSaveHeavySecurityLogs", o->DoNotSaveHeavySecurityLogs));
 	Add(aol, NewAdminOption("DropBroadcastsInPrivacyFilterMode", o->DropBroadcastsInPrivacyFilterMode));
 	Add(aol, NewAdminOption("DropArpInPrivacyFilterMode", o->DropArpInPrivacyFilterMode));
+	Add(aol, NewAdminOption("AllowSameUserInPrivacyFilterMode", o->AllowSameUserInPrivacyFilterMode));
 	Add(aol, NewAdminOption("SuppressClientUpdateNotification", o->SuppressClientUpdateNotification));
 	Add(aol, NewAdminOption("FloodingSendQueueBufferQuota", o->FloodingSendQueueBufferQuota));
 	Add(aol, NewAdminOption("AssignVLanIdByRadiusAttribute", o->AssignVLanIdByRadiusAttribute));
@@ -3915,6 +3917,7 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 	bool no_heavy = false;
 	bool drop_broadcast_packet_privacy = false;
 	bool drop_arp_packet_privacy = false;
+	bool allow_same_user_packet_privacy = false;
 	UINT tcp_queue_quota = 0;
 	UINT64 dormant_interval = 0;
 	// Validate arguments
@@ -3939,6 +3942,7 @@ void StorePacket(HUB *hub, SESSION *s, PKT *packet)
 		no_heavy = hub->Option->DoNotSaveHeavySecurityLogs;
 		drop_broadcast_packet_privacy = hub->Option->DropBroadcastsInPrivacyFilterMode;
 		drop_arp_packet_privacy = hub->Option->DropArpInPrivacyFilterMode;
+		allow_same_user_packet_privacy = hub->Option->AllowSameUserInPrivacyFilterMode;
 		tcp_queue_quota = hub->Option->FloodingSendQueueBufferQuota;
 		if (hub->Option->DetectDormantSessionInterval != 0)
 		{
@@ -4840,7 +4844,11 @@ UPDATE_FDB:
 							// Privacy filter
 							if (drop_arp_packet_privacy || packet->TypeL3 != L3_ARPV4)
 							{
-								goto DISCARD_UNICAST_PACKET;
+								// Do not block sessions owned by the same user, if the corresponding option is enabled.
+								if (allow_same_user_packet_privacy == false || StrCmp(s->Username, dest_session->Username))
+								{
+									goto DISCARD_UNICAST_PACKET;
+								}
 							}
 						}
 
@@ -5057,7 +5065,11 @@ DISCARD_UNICAST_PACKET:
 									// Privacy filter
 									if (drop_arp_packet_privacy || packet->TypeL3 != L3_ARPV4)
 									{
-										discard = true;
+										// Do not block sessions owned by the same user, if the corresponding option is enabled.
+										if (allow_same_user_packet_privacy == false || StrCmp(s->Username, dest_session->Username))
+										{
+											discard = true;
+										}
 									}
 								}
 
@@ -6955,6 +6967,7 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 
 	h->Option->DropBroadcastsInPrivacyFilterMode = true;
 	h->Option->DropArpInPrivacyFilterMode = true;
+	h->Option->AllowSameUserInPrivacyFilterMode = false;
 
 	Rand(h->HubSignature, sizeof(h->HubSignature));
 

@@ -552,6 +552,7 @@ HUB_AO_MaxLoggedPacketsPerMinute			Maximum number of logging target packets per 
 HUB_AO_DoNotSaveHeavySecurityLogs			Do not take heavy security log.
 HUB_AO_DropBroadcastsInPrivacyFilterMode	Drop broadcasting packets if the both source and destination session is PrivacyFilter mode.
 HUB_AO_DropArpInPrivacyFilterMode			Drop ARP packets if the both source and destination session is PrivacyFilter mode.
+HUB_AO_AllowSameUserInPrivacyFilterMode			Allow packets if both the source and destination session users are the same, even in PrivacyFilter mode.
 HUB_AO_SuppressClientUpdateNotification		Suppress the update notification screen on the VPN Client.
 HUB_AO_FloodingSendQueueBufferQuota			Specify the quota limitation value (in bytes) of the sending queue buffer size which the flooding operation on the Virtual Hub can consume. The quota value is applied on the total length of sending queues of all active VPN sessions. Specify '0' to disable the quota. This option is effective to solve the out-of-memory problem on the network where there are many flooding packets.
 HUB_AO_AssignVLanIdByRadiusAttribute		Enable the VLAN ID dynamic assignment function. Each VPN session will be assigned its own VLAN ID by the RADIUS attribute value when the user is authenticated by the external RADIUS server unless the user object has a VLAN ID security policy. The RADIUS attribute with the name "Tunnel-Pvt-Group-ID" (ID = 81) will be used as the VLAN ID. The data type must be STRING.

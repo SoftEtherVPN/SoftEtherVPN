@@ -575,6 +575,7 @@ HUB_AO_MaxLoggedPacketsPerMinute			1 分間あたりにパケットログに保�
 HUB_AO_DoNotSaveHeavySecurityLogs			保存に負荷がかかるセキュリティログを保存しない設定をします。
 HUB_AO_DropBroadcastsInPrivacyFilterMode	送信元および宛先の両方のセッションがプライバシーフィルタモードの場合、ブロードキャストパケットを破棄します。
 HUB_AO_DropArpInPrivacyFilterMode			送信元および宛先の両方のセッションがプライバシーフィルタモードの場合、ARP パケットを破棄します。
+HUB_AO_AllowSameUserInPrivacyFilterMode			プライバシーフィルターモードであっても、送信元セッションと宛先セッションの両方が同じユーザーである場合は、パケットを許可します。
 HUB_AO_SuppressClientUpdateNotification		VPN Client のアップデート通知画面の表示を抑制します。
 HUB_AO_FloodingSendQueueBufferQuota			パケットの仮想 HUB 内におけるフラッディング動作時において消費することを許容する送信キューのバッファサイズの制限値 (バイト数) を指定します。クオータは、すべての接続中の VPN セッションの送信キューの合計長さに対してグローバルに適用されます。0 を指定すると無制限になります。このオプションは、フラッディングパケットが多発するネットワークにおいてメモリ消費量が増大する問題を解決するために利用できます。
 HUB_AO_AssignVLanIdByRadiusAttribute		VLAN ID の動的割り当て機能を有効にします。VPN 接続するユーザーオブジェクトのセキュリティポリシーに VLAN ID が指定されていない場合は、各 VPN セッションはユーザー認証を行った RADIUS サーバーから返却される RADIUS 属性の値に基づき VLAN が割当てられます。RADIUS 属性のうち、 "Tunnel-Pvt-Group-ID" (ID = 81) の値が使用されます。データ型は文字列である必要があります。

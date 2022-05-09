@@ -172,6 +172,7 @@ struct HUB_OPTION
 	bool DoNotSaveHeavySecurityLogs;	// Do not take heavy security log
 	bool DropBroadcastsInPrivacyFilterMode;	// Drop broadcasting packets if the both source and destination session is PrivacyFilter mode
 	bool DropArpInPrivacyFilterMode;	// Drop ARP packets if the both source and destination session is PrivacyFilter mode
+	bool AllowSameUserInPrivacyFilterMode;	// Allow packets if both the source and destination session user are the same
 	bool SuppressClientUpdateNotification;	// Suppress the update notification function on the VPN Client
 	UINT FloodingSendQueueBufferQuota;	// The global quota of send queues of flooding packets
 	bool AssignVLanIdByRadiusAttribute;	// Assign the VLAN ID for the VPN session, by the attribute value of RADIUS
