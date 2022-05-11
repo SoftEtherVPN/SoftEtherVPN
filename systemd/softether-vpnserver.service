@@ -5,7 +5,7 @@ ConditionPathExists=!@DIR@/softether/vpnserver/do_not_run
 
 [Service]
 Type=forking
-TasksMax=16777216
+TasksMax=infinity
 EnvironmentFile=-@DIR@/softether/vpnserver
 ExecStart=@DIR@/softether/vpnserver/vpnserver start
 ExecStop=@DIR@/softether/vpnserver/vpnserver stop
