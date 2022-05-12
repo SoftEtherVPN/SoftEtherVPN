@@ -331,6 +331,9 @@ typedef struct WINCONNECT_DLG_DATA
 	char nat_t_svc_name[MAX_SIZE];
 	UINT nat_t_error_code;
 	bool try_start_ssl;
+	SSL_VERIFY_OPTION *ssl_option;
+	UINT *ssl_err;
+	char *hint_str;
 } WINCONNECT_DLG_DATA;
 
 HBITMAP ResizeBitmap(HBITMAP hSrc, UINT src_x, UINT src_y, UINT dst_x, UINT dst_y);
@@ -694,6 +697,7 @@ HFONT GetMeiryoFontEx(UINT font_size);
 HFONT GetMeiryoFontEx2(UINT font_size, bool bold);
 bool ShowWindowsNetworkConnectionDialog();
 SOCK *WinConnectEx3(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, UINT *nat_t_error_code, char *nat_t_svc_name, bool try_start_ssl);
+SOCK *WinConnectEx4(HWND hWnd, char *server, UINT port, UINT timeout, UINT icon_id, wchar_t *caption, wchar_t *info, UINT *nat_t_error_code, char *nat_t_svc_name, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str);
 UINT WinConnectDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void WinConnectDlgThread(THREAD *thread, void *param);
 void NicInfo(UI_NICINFO *info);

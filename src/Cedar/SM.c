@@ -10286,6 +10286,7 @@ bool SmLinkEdit(HWND hWnd, SM_HUB *s, wchar_t *name)
 	a.ClientAuth = CopyClientAuth(t.ClientAuth);
 	Copy(&a.Policy, &t.Policy, sizeof(POLICY));
 	a.CheckServerCert = t.CheckServerCert;
+	a.AddDefaultCA = t.AddDefaultCA;
 	a.ServerCert = CloneX(t.ServerCert);
 	a.HideTrustCert = GetCapsBool(s->p->CapsList, "b_support_config_hub");
 	FreeRpcCreateLink(&t);
@@ -19360,7 +19361,14 @@ void SmEditSettingDlgInit(HWND hWnd, SM_EDIT_SETTING *p)
 	SetText(hWnd, E_ACCOUNT_NAME, s->Title);
 
 	// Host name
-	SetTextA(hWnd, E_HOSTNAME, s->ClientOption.Hostname);
+	char hostname[MAX_SIZE];
+	StrCpy(hostname, sizeof(hostname), s->ClientOption.Hostname);
+	if (IsEmptyStr(s->ClientOption.HintStr) == false)
+	{
+		StrCat(hostname, sizeof(hostname), "/");
+		StrCat(hostname, sizeof(hostname), s->ClientOption.HintStr);
+	}
+	SetTextA(hWnd, E_HOSTNAME, hostname);
 
 	// Port number
 	CbSetHeight(hWnd, C_PORT, 18);
@@ -19450,6 +19458,16 @@ void SmEditSettingDlgUpdate(HWND hWnd, SM_EDIT_SETTING *p)
 
 	GetTxtA(hWnd, E_HOSTNAME, tmp, sizeof(tmp));
 	Trim(tmp);
+	UINT i = SearchStrEx(tmp, "/", 0, false);
+	if (i != INFINITE)
+	{
+		StrCpy(s->ClientOption.HintStr, sizeof(s->ClientOption.HintStr), tmp + i + 1);
+		tmp[i] = 0;
+	}
+	else
+	{
+		s->ClientOption.HintStr[0] = 0;
+	}
 
 	if (StrCmpi(tmp, s->ClientOption.Hostname) != 0)
 	{
@@ -20211,6 +20229,13 @@ void SmLoadSettingList()
 
 			if (s != NULL)
 			{
+				// Migrate from old settings that mixed hint string with hostname
+				UINT i = SearchStrEx(s->ClientOption.Hostname, "/", 0, false);
+				if (i != INFINITE)
+				{
+					StrCpy(s->ClientOption.HintStr, sizeof(s->ClientOption.HintStr), s->ClientOption.Hostname + i + 1);
+					s->ClientOption.Hostname[i] = 0;
+				}
 				Add(sm->SettingList, s);
 			}
 			FreeBuf(b);
@@ -20273,6 +20298,7 @@ void SmInitDefaultSettingList()
 			Sha0(s->HashedPassword, "", 0);
 			UniStrCpy(s->ClientOption.AccountName, sizeof(s->ClientOption.AccountName), s->Title);
 			StrCpy(s->ClientOption.Hostname, sizeof(s->ClientOption.Hostname), "localhost");
+			s->ClientOption.HintStr[0] = 0;
 			s->ClientOption.Port = GC_DEFAULT_PORT;
 
 			Add(sm->SettingList, s);
@@ -20362,7 +20388,14 @@ void SmRefreshSettingEx(HWND hWnd, wchar_t *select_name)
 			UniFormat(tmp, sizeof(tmp), _UU("SM_MODE_HUB"), s->HubName);
 		}
 
-		StrToUni(tmp2, sizeof(tmp2), s->ClientOption.Hostname);
+		char hostname[MAX_SIZE];
+		StrCpy(hostname, sizeof(hostname), s->ClientOption.Hostname);
+		if (IsEmptyStr(s->ClientOption.HintStr) == false)
+		{
+			StrCat(hostname, sizeof(hostname), "/");
+			StrCat(hostname, sizeof(hostname), s->ClientOption.HintStr);
+		}
+		StrToUni(tmp2, sizeof(tmp2), hostname);
 
 		LvInsertAdd(b,
 			(s->ServerAdminMode ? ICO_SERVER_ONLINE : ICO_HUB),
@@ -20781,6 +20814,12 @@ void SmParseCommandLine()
 
 					UniStrCpy(o->AccountName, sizeof(o->AccountName), s->Title);
 					StrCpy(o->Hostname, sizeof(o->Hostname), host);
+					UINT i = SearchStrEx(o->Hostname, "/", 0, false);
+					if (i != INFINITE)
+					{
+						StrCpy(o->HintStr, sizeof(o->HintStr), o->Hostname + i + 1);
+						o->Hostname[i] = 0;
+					}
 					o->Port = port;
 					o->ProxyType = PROXY_DIRECT;
 					StrCpy(o->DeviceName, sizeof(o->DeviceName), "DUMMY");

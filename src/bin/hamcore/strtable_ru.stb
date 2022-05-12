@@ -212,6 +212,11 @@ ERR_145					Unacceptable operation. Use the VPN Gate Utility to modify the conne
 ERR_146					The VPN Gate Service is running inside the VPN Client program. You cannot stop the VPN Gate Service on this screen. Use the VPN Client Manager to enable or disable the VPN Gate Service.
 ERR_147					This feature is not supported. It hasn't been implemented yet on the open-source version of SoftEther VPN.
 ERR_148					The VPN connection was disconnected because the system is being suspended.
+ERR_149					The destination VPN Server's certificate does not match the specified hostname.
+ERR_150					Failed to find the TLS version that is supported by both sides. This usually means that one side may be using an obsolete TLS version which is diabled by the other side.
+ERR_151					Failed to find an available cipher that is supported by both sides, or the cipher specified is not compatible with the server certificate.
+ERR_152					TLS handshake has failed.
+
 
 # Concerning licenses
 LICENSE_INFO_URL		https://selinks.org/?new_license
@@ -836,6 +841,7 @@ CM_ST_NO_VLAN			-
 CM_ST_USE_ENCRYPT		Encryption
 CM_ST_USE_ENCRYPT_TRUE	Enabled (Algorithm: %S)
 CM_ST_USE_ENCRYPT_TRUE2	Enabled
+CM_ST_USE_ENCRYPT_TRUE3	Enabled (%S Algorithm: %S)
 CM_ST_USE_ENCRYPT_FALSE	Disabled (No Encryption)
 CM_ST_USE_COMPRESS		Use of Compression
 CM_ST_UDP_ACCEL_ENABLED	UDP Acceleration is Supported
@@ -1766,8 +1772,9 @@ LS_HUB_STOP				Virtual Hub "%S" has been stopped.
 LS_HUB_MAC				The MAC address of Virtual Hub "%S" is "%S".
 LS_NODE_INFO_TAG		Client product name: "%S", Client version: %u, Client build number: %u, Server product name: "%S", Server version: %u, Server build number: %u, Client OS name: "%S", Client OS version: "%S", Client product ID: "%S", Client host name: "%S", Client IP address: "%S", Client port number: %u, Server host name: "%S", Server IP address: "%S", Server port number: %u, Proxy host name: "%S", Proxy IP address: "%S", Proxy port number: %u, Virtual Hub name: "%S", Client unique ID: "%S"
 LS_CONNECTION_START_1	For the client (IP address: %S, host name: "%S", port number: %u), connection "%S" has been created.
+LS_SSL_START_ERROR		Failed to start SSL communication for connection "%S". Error: %s (code %u)
 LS_CONNECTION_END_1		Connection "%S" has been terminated.
-LS_SSL_START			SSL communication for connection "%S" has been started. The encryption algorithm name is "%S".
+LS_SSL_START			SSL communication for connection "%S" has been started. The protocol version is %S. The encryption algorithm name is "%S".
 LS_CONNECTION_ERROR		Connection "%S" terminated by the cause "%s" (code %u).
 LS_FARMMEMBER_NOT_ADMIN	Connection "%S": Although the server is a cluster member, the client attempted that to directly connect to the Virtual Hub "%S" while not being administrator user "%S". The user name provided by the client is "%S". Access is refused.
 LS_HUB_NOT_FOUND		Connection "%S": Virtual Hub "%S" that the client is trying to connect to does not exist on the server.
@@ -1795,6 +1802,8 @@ LS_LICENSE_VIOLATION_DETECTED	A license violation has been detected. A different
 LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_AZURE_START			Received VPN Azure connection request from the client (IP address: %S, port number: %u).
+LS_AZURE_SSL_ERROR		Failed to start SSL communication with VPN Azure relay server. Error: %s (code %u)
 
 
 # (Proto log)
@@ -2088,6 +2097,7 @@ LC_DELETE_ACCOUNT		The VPN Connection Setting "%s" has been deleted.
 LC_RENAME_ACCOUNT		The name of VPN Connection Setting "%s" has been changed to "%s".
 LC_CONNECT				Connection processing for VPN Connection Setting "%s" has started.
 LC_CONNECT_1			VPN Connection Setting "%s": Connection operation starting (this is now %u times).
+LC_SSL_CONNECTED		VPN Connection Setting "%s": SSL communication has been started. The protocol version is %S. The encryption algorithm name is "%S".
 LC_CONNECT_2			VPN Connection Setting "%s": Now connected. Session name: "%S"
 LC_CONNECT_ERROR		VPN Connection Setting "%s": The connection has been either disconnected or it failed. Cause: %s (code %u)
 LC_DISCONNECT			Disconnecting the VPN Connection Setting "%s".
@@ -2324,6 +2334,7 @@ R_SOCKS5				Connect via &SOCKS5 Proxy Server
 B_PROXY_CONFIG			P&roxy Server Setting
 STATIC11				Server Certificate Veri&fication Option:
 R_CHECK_CERT			Always Verify Server &Certificate
+R_TRUST_DEFAULT			Trust System Certificate Store
 B_TRUST					Manage Trusted CA &Certificate List
 B_SERVER_CERT			&Specify Individual Cert
 B_VIEW_SERVER_CERT		Show Indi&vidual Cert
@@ -4397,6 +4408,7 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT		Proxy Server Port Number
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	Proxy Server User Name
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	Verify Server Certificate
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	Registered Server Individual Certificate
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   Trust System Certificate Store
 CMD_ACCOUNT_COLUMN_DEVICE_NAME		Device Name Used for Connection
 CMD_ACCOUNT_COLUMN_AUTH_TYPE		Authentication Type
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	User Name
@@ -5497,6 +5509,20 @@ CMD_CascadeServerCertDisable	Disable Cascade Connection Server Certificate Verif
 CMD_CascadeServerCertDisable_Help	When a Cascade Connection registered on the currently managed Virtual Hub is specified and that Cascade Connection connects to a VPN Server, use this to disable the option to check whether the SSL certificate provided by the destination VPN Server can be trusted. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+
+
+# CascadeDefaultCAEnable command
+CMD_CascadeDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_CascadeDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
+
+
+# CascadeDefaultCADisable command
+CMD_CascadeDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_CascadeDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	Specify the name of the Cascade Connection whose setting you want to change.
 
 
 # CascadeServerCertSet command
@@ -6790,6 +6816,20 @@ CMD_AccountServerCertDisable	Disable VPN Connection Setting Server Certificate V
 CMD_AccountServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to check whether the SSL certificate provided by the destination VPN Server can be trusted.
 CMD_AccountServerCertDisable_Args	AccountServerCertDisable [name]
 CMD_AccountServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable command
+CMD_AccountDefaultCAEnable	        Enable Trust System Certificate Store Option
+CMD_AccountDefaultCAEnable_Help	    When server certificate verification is enabled, use this to enable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCADisable command
+CMD_AccountDefaultCADisable         Disable Trust System Certificate Store Option
+CMD_AccountDefaultCADisable_Help    When server certificate verification is enabled, use this to disable trusting certificates from the system trust store. \nIf server certificate verification is disabled, this option does nothing.
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
 
 
 # AccountServerCertSet command

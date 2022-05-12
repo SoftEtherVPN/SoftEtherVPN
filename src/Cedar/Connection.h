@@ -105,6 +105,7 @@ struct CLIENT_OPTION
 	char pad12[3];
 	UCHAR HostUniqueKey[SHA1_SIZE];							// Host unique key
 	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];		// Custom HTTP proxy header
+	char HintStr[MAX_HOST_NAME_LEN + 1];					// Hint string for NAT-T
 };
 
 // Client authentication data
@@ -222,6 +223,7 @@ struct CONNECTION
 	X *ServerX;						// Server certificate
 	X *ClientX;						// Client certificate
 	char *CipherName;				// Encryption algorithm name
+	char *SslVersion;				// SSL protocol version
 	UINT64 ConnectedTick;			// Time it is connected
 	IP ClientIp;					// Client IP address
 	char ClientHostname[MAX_HOST_NAME_LEN + 1];	// Client host name

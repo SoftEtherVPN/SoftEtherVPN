@@ -140,6 +140,7 @@ typedef struct CM_ACCOUNT
 	bool Startup;						// Startup account
 	bool CheckServerCert;				// Check the server certificate
 	bool RetryOnServerCert;				// Retry on invalid server certificate
+	bool AddDefaultCA;					// Use default trust store
 	X *ServerCert;						// Server certificate
 	char old_server_name[MAX_HOST_NAME_LEN + 1];	// Old server name
 	bool Inited;						// Initialization flag

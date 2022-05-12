@@ -1028,6 +1028,7 @@
 #define L_VALUES_LIST                   1519
 #define B_HTTP_HEADER                   1520
 #define B_NEW                           1521
+#define R_TRUST_DEFAULT                 1521
 #define B_CLEAR                         1522
 #define B_ONLINE                        1655
 #define D_NM_CONNECT                    1998
@@ -1212,7 +1213,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         40111
-#define _APS_NEXT_CONTROL_VALUE         1521
+#define _APS_NEXT_CONTROL_VALUE         1522
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

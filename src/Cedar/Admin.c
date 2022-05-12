@@ -7350,6 +7350,7 @@ UINT StGetLink(ADMIN *a, RPC_CREATE_LINK *t)
 		Copy(&t->Policy, k->Policy, sizeof(POLICY));
 
 		t->CheckServerCert = k->CheckServerCert;
+		t->AddDefaultCA = k->AddDefaultCA;
 		t->ServerCert = CloneX(k->ServerCert);
 	}
 	Unlock(k->lock);
@@ -7465,6 +7466,7 @@ UINT StSetLink(ADMIN *a, RPC_CREATE_LINK *t)
 		k->Option->RequireMonitorMode = false;	// Disable monitor mode
 
 		k->CheckServerCert = t->CheckServerCert;
+		k->AddDefaultCA = t->AddDefaultCA;
 		k->ServerCert = CloneX(t->ServerCert);
 	}
 	Unlock(k->lock);
@@ -7561,6 +7563,7 @@ UINT StCreateLink(ADMIN *a, RPC_CREATE_LINK *t)
 		// setting of verifying server certification
 		// 
 		k->CheckServerCert = t->CheckServerCert;
+		k->AddDefaultCA = t->AddDefaultCA;
 		k->ServerCert = CloneX(t->ServerCert);
 
 		// stay this off-line
@@ -13635,6 +13638,7 @@ void InRpcCreateLink(RPC_CREATE_LINK *t, PACK *p)
 	InRpcPolicy(&t->Policy, p);
 
 	t->CheckServerCert = PackGetBool(p, "CheckServerCert");
+	t->AddDefaultCA = PackGetBool(p, "AddDefaultCA");
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -13657,6 +13661,7 @@ void OutRpcCreateLink(PACK *p, RPC_CREATE_LINK *t)
 	OutRpcPolicy(p, &t->Policy);
 
 	PackAddBool(p, "CheckServerCert", t->CheckServerCert);
+	PackAddBool(p, "AddDefaultCA", t->AddDefaultCA);
 	if (t->ServerCert != NULL)
 	{
 		BUF *b;
@@ -13702,12 +13707,14 @@ void InRpcEnumLink(RPC_ENUM_LINK *t, PACK *p)
 
 		PackGetUniStrEx(p, "AccountName", e->AccountName, sizeof(e->AccountName), i);
 		PackGetStrEx(p, "Hostname", e->Hostname, sizeof(e->Hostname), i);
-		PackGetStrEx(p, "ConnectedHubName", e->HubName, sizeof(e->HubName), i);
+		if (PackGetStrEx(p, "ConnectedHubName", e->HubName, sizeof(e->HubName), i) == false)
+		{
+			PackGetStrEx(p, "TargetHubName", e->HubName, sizeof(e->HubName), i);
+		}
 		e->Online = PackGetBoolEx(p, "Online", i);
 		e->ConnectedTime = PackGetInt64Ex(p, "ConnectedTime", i);
 		e->Connected = PackGetBoolEx(p, "Connected", i);
 		e->LastError = PackGetIntEx(p, "LastError", i);
-		PackGetStrEx(p, "LinkHubName", e->HubName, sizeof(e->HubName), i);
 	}
 }
 void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)

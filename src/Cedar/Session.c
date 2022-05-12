@@ -1270,6 +1270,13 @@ void CleanupSession(SESSION *s)
 		Free(s->ClientAuth);
 	}
 
+	if (s->SslOption != NULL)
+	{
+		FreeXList(s->SslOption->CaList);
+		FreeX(s->SslOption->SavedCert);
+		Free(s->SslOption);
+	}
+
 	FreeTraffic(s->Traffic);
 	Free(s->Name);
 
@@ -1949,23 +1956,55 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 	{
 		s->ClientAuth->ClientX = CloneX(s->ClientAuth->ClientX);
 	}
-  if (s->ClientAuth->ClientK != NULL)
-  {
-    if (s->ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
-    {
-      s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
-    }
-    else
-    {
-      s->ClientAuth->ClientK = OpensslEngineToK(s->ClientAuth->OpensslEnginePrivateKeyName, s->ClientAuth->OpensslEngineName);
-    }
-  }
+	if (s->ClientAuth->ClientK != NULL)
+	{
+		if (s->ClientAuth->AuthType != CLIENT_AUTHTYPE_OPENSSLENGINE)
+		{
+			s->ClientAuth->ClientK = CloneK(s->ClientAuth->ClientK);
+		}
+		else
+		{
+			s->ClientAuth->ClientK = OpensslEngineToK(s->ClientAuth->OpensslEnginePrivateKeyName, s->ClientAuth->OpensslEngineName);
+		}
+	}
 
 	if (StrCmpi(s->ClientOption->DeviceName, LINK_DEVICE_NAME) == 0)
 	{
 		// Link client mode
 		s->LinkModeClient = true;
 		s->Link = (LINK *)s->PacketAdapter->Param;
+		if (s->Link != NULL && s->Link->CheckServerCert && s->Link->Hub->HubDb != NULL)
+		{
+			// Enable SSL peer verification
+			s->SslOption = ZeroMalloc(sizeof(SSL_VERIFY_OPTION));
+			s->SslOption->VerifyPeer = true;
+			s->SslOption->AddDefaultCA = s->Link->AddDefaultCA;
+			s->SslOption->VerifyHostname = true;
+			s->SslOption->SavedCert = CloneX(s->Link->ServerCert);
+
+			// Copy trusted CA
+			LIST *o = s->Link->Hub->HubDb->RootCertList;
+			s->SslOption->CaList = CloneXList(o);
+		}
+	}
+	else
+	{
+		if (account != NULL && account->CheckServerCert)
+		{
+			// Enable SSL peer verification
+			s->SslOption = ZeroMalloc(sizeof(SSL_VERIFY_OPTION));
+			s->SslOption->VerifyPeer = true;
+#ifdef	OS_WIN32
+			s->SslOption->PromptOnVerifyFail = true;
+#endif
+			s->SslOption->AddDefaultCA = account->AddDefaultCA;
+			s->SslOption->VerifyHostname = true;
+			s->SslOption->SavedCert = CloneX(account->ServerCert);
+
+			// Copy trusted CA
+			LIST *o = cedar->CaList;
+			s->SslOption->CaList = CloneXList(o);
+		}
 	}
 
 	if (StrCmpi(s->ClientOption->DeviceName, SNAT_DEVICE_NAME) == 0)

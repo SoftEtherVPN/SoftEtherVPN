@@ -218,6 +218,10 @@ ERR_145					不可接受的操作。使用 VPN Gate 實用工具修改 VPN Gate 
 ERR_146					VPN Gate 服務運行在 VPN 用戶端程式內。在此螢幕上，你不能停止 VPN Gate 服務。使用 VPN 用戶端管理器來啟用或禁用 VPN Gate 服務。
 ERR_147					不支援此功能。它尚未在 SoftEther VPN 的開源版本上實施。
 ERR_148					VPN 連接被中斷，因為該系統被暫停。
+ERR_149					目標 VPN Server 的證書與指定的主機名稱不匹配。
+ERR_150					找不到連接雙方都支持的 TLS 版本。這通常意味著一方可能正在使用已被另一方禁用的過時的 TLS 版本。
+ERR_151					找不到連接雙方都支持的加密演算法，或者指定的演算法與伺服器憑證不相容。
+ERR_152					TLS 握手失敗。
 
 
 #關於許可證
@@ -845,6 +849,7 @@ CM_ST_NO_VLAN			－
 CM_ST_USE_ENCRYPT		加密
 CM_ST_USE_ENCRYPT_TRUE	已啟用 (演算法: %S)
 CM_ST_USE_ENCRYPT_TRUE2	已啟用
+CM_ST_USE_ENCRYPT_TRUE3	已啟用 (%S 演算法: %S)
 CM_ST_USE_ENCRYPT_FALSE	已禁用 (不加密)
 CM_ST_USE_COMPRESS		使用壓縮
 CM_ST_UDP_ACCEL_ENABLED	支援 UDP 加速
@@ -1784,8 +1789,9 @@ LS_HUB_STOP				虛擬 HUB "%S" 已關閉。
 LS_HUB_MAC				虛擬 HUB "%S" 的 MAC 位址是 "%S"。
 LS_NODE_INFO_TAG		用戶端產品名："%S"，用戶端版本：%u，用戶端構建號：%u，服務端產品名："%S"，服務端版本：%u，服務端構建號：%u，用戶端作業系統名："%S"，用戶端作業系統版本："%S"，用戶端產品 ID："%S"，用戶端主機名稱："%S"，用戶端 IP 地址："%S"，用戶端埠號：%u，服務端主機名稱："%S"，服務端 IP 位址："%S"，服務端埠號：%u，代理主機名稱："%S"，代理 IP 位址："%S"，代理埠號：%u，虛擬 HUB 名："%S"，用戶端唯一 ID： "%S"
 LS_CONNECTION_START_1	用戶端 (IP 地址：%S，主機名稱："%S"，埠號：%u) 的連接 "%S" 已建立。
+LS_SSL_START_ERROR		無法啟動連接 "%S" 的 SSL 通信。錯誤: %s (代碼 %u)
 LS_CONNECTION_END_1		連接 "%S" 已結束。
-LS_SSL_START			連接 "%S" 的 SSL 通信已啟動。加密演算法名為 "%S"。
+LS_SSL_START			連接 "%S" 的 SSL 通信已啟動。協議版本是 %S。加密演算法名為 "%S"。
 LS_CONNECTION_ERROR		連接 "%S"因原因 "%s" (代碼 %u)已終止。
 LS_FARMMEMBER_NOT_ADMIN	連接 "%S": 服務端是群集成員，但用戶端在非管理員 (%S) 使用者情況下，嘗試直接與虛擬 HUB "%S" 連接。用戶端用戶名為 "%S"。訪問被拒絕。
 LS_HUB_NOT_FOUND		連接 "%S": 客戶端正在嘗試連接的虛擬 HUB "%S" 在服務端上不存在。
@@ -1813,6 +1819,8 @@ LS_LICENSE_VIOLATION_DETECTED	發現許可證違反錯誤，一個不同的 VPN 
 LS_API_AUTH_OK			HTTPS API client "%r:%u" (%S): Administration mode: "%S": The embedded HTTPS web server accepted the successful login. Username: "%S", Method: "%S", Path: "%S"
 LS_API_AUTH_ERROR		HTTPS API client "%r:%u" (%S): The embedded HTTPS web server refused a login attempt. Username: "%S", Method: "%S", Path: "%S"
 LS_API_RPC_CALL			HTTPS API client "%r:%u" (%S): The client called a JSON-API. Method: "%S", Returned error code: %u (0 = success), Returned error message: "%s"
+LS_AZURE_START			收到來自客戶端 (IP 地址：%S，埠號：%u) 的 VPN Azure 連接請求。
+LS_AZURE_SSL_ERROR		無法啟動與 VPN Azure 中繼伺服器的 SSL 通信。錯誤: %s (代碼 %u)
 
 
 # (Proto 日誌)
@@ -2107,6 +2115,7 @@ LC_DELETE_ACCOUNT		已刪除 VPN 連接設置 "%s"。
 LC_RENAME_ACCOUNT		已變更 VPN 連接設置名 "%s" 為 "%s"。
 LC_CONNECT				已開始 VPN 連接設置 "%s" 的連接處理。
 LC_CONNECT_1			VPN 連接設置 "%s": 第 %u 次連接操作開始。
+LC_SSL_CONNECTED		VPN 連接設置 "%s": SSL 通信已啟動。協議版本是 %S。加密演算法名為 "%S"。
 LC_CONNECT_2			VPN 連接設置 "%s": 連接完成。會話名: "%S"。
 LC_CONNECT_ERROR		VPN 連接設置 "%s": 連接斷開或連接失敗。原因: %s (代碼 %u)
 LC_DISCONNECT			VPN 連接設置 "%s" 斷開中。
@@ -2343,6 +2352,7 @@ R_SOCKS5				通過 SOCKS5 代理伺服器連接(&S)
 B_PROXY_CONFIG			代理伺服器設置(&R)
 STATIC11				服務端證書驗證選項(&F):
 R_CHECK_CERT			總是驗證服務端證書(&C)
+R_TRUST_DEFAULT			信任系統憑證存放區
 B_TRUST					管理可信發證機關證書列表(&C)
 B_SERVER_CERT			指定特定證書(&S)
 B_VIEW_SERVER_CERT		查看特定證書(&V)
@@ -4412,7 +4422,8 @@ CMD_ACCOUNT_COLUMN_PROXY_PORT	代理伺服器的埠號
 CMD_ACCOUNT_COLUMN_PROXY_USERNAME	代理伺服器的用戶名
 CMD_ACCOUNT_COLUMN_SERVER_CERT_USE	驗證伺服器憑證
 CMD_ACCOUNT_COLUMN_SERVER_CERT_NAME	註冊的伺服器個人證書
-CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	Retry on Untrusted Server Certificate
+CMD_ACCOUNT_COLUMN_RETRY_ON_SERVER_CERT	遇到不信任的證書時重試
+CMD_ACCOUNT_COLUMN_ADD_DEFAULT_CA   信任系統憑證存放區
 CMD_ACCOUNT_COLUMN_DEVICE_NAME	用於連接的設備名
 CMD_ACCOUNT_COLUMN_AUTH_TYPE	驗證類型
 CMD_ACCOUNT_COLUMN_AUTH_USERNAME	用戶名
@@ -4427,7 +4438,7 @@ CMD_ACCOUNT_COLUMN_BRIDGE_ROUTER	通過橋接器 / 路由模式連接
 CMD_ACCOUNT_COLUMN_MONITOR	通過監測模式連接
 CMD_ACCOUNT_COLUMN_NO_TRACKING	不要調整路由表
 CMD_ACCOUNT_COLUMN_QOS_DISABLE	不要使用 QoS 控制功能
-CMD_ACCOUNT_COLUMN_DISABLEUDP		Disable UDP Acceleration
+CMD_ACCOUNT_COLUMN_DISABLEUDP		禁用 UDP 加速功能
 
 
 # Debugging Information Collecting Tool
@@ -5513,6 +5524,20 @@ CMD_CascadeServerCertDisable	禁用級聯伺服器憑證驗證選項
 CMD_CascadeServerCertDisable_Help	指定已經在當前虛擬 HUB 註冊的級聯連接，當此連接和 VPN Server 之間通信時，對於連接方提供的 SSL 證書，不需要檢查是否可以信任。\n此命令在集群虛擬 HUB 中不能運行。
 CMD_CascadeServerCertDisable_Args	CascadeServerCertDisable [name]
 CMD_CascadeServerCertDisable_[name]	指定級聯名稱來改變設置。
+
+
+# CascadeDefaultCAEnable 命令
+CMD_CascadeDefaultCAEnable	        啟用信任系統憑證存放區選項
+CMD_CascadeDefaultCAEnable_Help	    當啟用服務器憑證驗證時，使用此選項來啟用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_CascadeDefaultCAEnable_Args	    CascadeDefaultCAEnable [name]
+CMD_CascadeDefaultCAEnable_[name]	指定級聯名稱來改變設置。
+
+
+# CascadeDefaultCADisable 命令
+CMD_CascadeDefaultCADisable         禁用信任系統憑證存放區選項
+CMD_CascadeDefaultCADisable_Help    當啟用服務器憑證驗證時，使用此選項來禁用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_CascadeDefaultCADisable_Args	CascadeDefaultCADisable [name]
+CMD_CascadeDefaultCADisable_[name]	指定級聯名稱來改變設置。
 
 
 # CascadeServerCertSet 命令
@@ -6818,6 +6843,20 @@ CMD_AccountRetryOnServerCertDisable	Disable VPN connection retry if server certi
 CMD_AccountRetryOnServerCertDisable_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting connects to a VPN Server, use this to disable the option to retry connection if Server certificate cannot be trusted.
 CMD_AccountRetryOnServerCertDisable_Args	AccountRetryOnServerCertDisable [name]
 CMD_AccountRetryOnServerCertDisable_[name]	Specify the name of the VPN Connection Setting whose setting you want to change.
+
+
+# AccountDefaultCAEnable 命令
+CMD_AccountDefaultCAEnable	        啟用信任系統憑證存放區選項
+CMD_AccountDefaultCAEnable_Help	    當啟用服務器憑證驗證時，使用此選項來啟用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_AccountDefaultCAEnable_Args	    AccountDefaultCAEnable [name]
+CMD_AccountDefaultCAEnable_[name]	指定要更改設置的連接設置名。
+
+
+# AccountDefaultCADisable 命令
+CMD_AccountDefaultCADisable         禁用信任系統憑證存放區選項
+CMD_AccountDefaultCADisable_Help    當啟用服務器憑證驗證時，使用此選項來禁用信任系統憑證存放區的證書。\n如果禁用服務器憑證驗證，則此選項不執行任何操作。
+CMD_AccountDefaultCADisable_Args	AccountDefaultCADisable [name]
+CMD_AccountDefaultCADisable_[name]	指定要更改設置的連接設置名。
 
 
 # AccountServerCertSet 命令

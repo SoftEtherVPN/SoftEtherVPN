@@ -3400,6 +3400,7 @@ void SiWriteHubLinkCfg(FOLDER *f, LINK *k)
 		}
 
 		CfgAddBool(f, "CheckServerCert", k->CheckServerCert);
+		CfgAddBool(f, "AddDefaultCA", k->AddDefaultCA);
 
 		if (k->ServerCert != NULL)
 		{
@@ -3450,6 +3451,7 @@ void SiLoadHubLinkCfg(FOLDER *f, HUB *h)
 	{
 		BUF *b;
 		k->CheckServerCert = CfgGetBool(f, "CheckServerCert");
+		k->AddDefaultCA = CfgGetBool(f, "AddDefaultCA");
 		b = CfgGetBuf(f, "ServerCert");
 		if (b != NULL)
 		{
@@ -3457,16 +3459,8 @@ void SiLoadHubLinkCfg(FOLDER *f, HUB *h)
 			FreeBuf(b);
 		}
 
-		if (online)
-		{
-			k->Offline = true;
-			SetLinkOnline(k);
-		}
-		else
-		{
-			k->Offline = false;
-			SetLinkOffline(k);
-		}
+		k->Offline = !online;
+
 		ReleaseLink(k);
 	}
 

@@ -6022,6 +6022,7 @@ void CmExportAccount(HWND hWnd, wchar_t *account_name)
 		t.StartupAccount = a->Startup;
 		t.CheckServerCert = a->CheckServerCert;
 		t.RetryOnServerCert = a->RetryOnServerCert;
+		t.AddDefaultCA = a->AddDefaultCA;
 		t.ServerCert = a->ServerCert;
 		t.ClientOption->FromAdminPack = false;
 
@@ -6161,6 +6162,7 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					t->StartupAccount = get.StartupAccount;
 					t->CheckServerCert = get.CheckServerCert;
 					t->RetryOnServerCert = get.RetryOnServerCert;
+					t->AddDefaultCA = get.AddDefaultCA;
 					if (t->ServerCert != NULL)
 					{
 						FreeX(t->ServerCert);
@@ -6270,6 +6272,7 @@ void CmCopyAccount(HWND hWnd, wchar_t *account_name)
 	}
 	c.CheckServerCert = a->CheckServerCert;
 	c.RetryOnServerCert = a->RetryOnServerCert;
+	c.AddDefaultCA = a->AddDefaultCA;
 	c.StartupAccount = false;		// Don't copy the startup attribute
 
 	CALL(hWnd, CcCreateAccount(cm->Client, &c));
@@ -6649,6 +6652,7 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	// Host name
 	GetTxtA(hWnd, E_HOSTNAME, a->ClientOption->Hostname, sizeof(a->ClientOption->Hostname));
 	Trim(a->ClientOption->Hostname);
+	a->ClientOption->HintStr[0] = 0;
 
 	if (InStr(a->ClientOption->Hostname, "/tcp"))
 	{
@@ -6685,9 +6689,13 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 	// To validate the server certificate
 	a->CheckServerCert = IsChecked(hWnd, R_CHECK_CERT);
 
+	// Trust default CA list
+	a->AddDefaultCA = IsChecked(hWnd, R_TRUST_DEFAULT);
+
 	if (a->NatMode)
 	{
 		Disable(hWnd, R_CHECK_CERT);
+		Disable(hWnd, R_TRUST_DEFAULT);
 		Disable(hWnd, B_TRUST);
 	}
 
@@ -7030,6 +7038,7 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 		SetEnable(hWnd, S_STATIC7, false);
 		SetEnable(hWnd, S_STATIC11, false);
 		SetEnable(hWnd, R_CHECK_CERT, false);
+		SetEnable(hWnd, R_TRUST_DEFAULT, false);
 		SetEnable(hWnd, B_TRUST, false);
 		SetEnable(hWnd, B_SERVER_CERT, false);
 		SetEnable(hWnd, B_VIEW_SERVER_CERT, false);
@@ -7091,10 +7100,17 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 	SetText(hWnd, E_ACCOUNT_NAME, a->ClientOption->AccountName);
 
 	// Host name
-	SetTextA(hWnd, E_HOSTNAME, a->ClientOption->Hostname);
-	StrCpy(a->old_server_name, sizeof(a->old_server_name), a->ClientOption->Hostname);
+	char hostname[MAX_SIZE];
+	StrCpy(hostname, sizeof(hostname), a->ClientOption->Hostname);
+	if (IsEmptyStr(a->ClientOption->HintStr) == false)
+	{
+		StrCat(hostname, sizeof(hostname), "/");
+		StrCat(hostname, sizeof(hostname), a->ClientOption->HintStr);
+	}
+	SetTextA(hWnd, E_HOSTNAME, hostname);
+	StrCpy(a->old_server_name, sizeof(a->old_server_name), hostname);
 
-	if (InStr(a->ClientOption->Hostname, "/tcp"))
+	if (InStr(hostname, "/tcp"))
 	{
 		Check(hWnd, R_DISABLE_NATT, true);
 	}
@@ -7123,6 +7139,9 @@ void CmEditAccountDlgInit(HWND hWnd, CM_ACCOUNT *a)
 
 	// Verify the server certificate
 	Check(hWnd, R_CHECK_CERT, a->CheckServerCert);
+
+	// Trust default CA list
+	Check(hWnd, R_TRUST_DEFAULT, a->AddDefaultCA);
 
 	// LAN card list
 	if (a->NatMode == false && a->LinkMode == false)
@@ -7356,6 +7375,7 @@ UINT CmEditAccountDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, voi
 		case R_HTTPS:
 		case R_SOCKS:
 		case R_CHECK_CERT:
+		case R_TRUST_DEFAULT:
 		case C_TYPE:
 		case E_USERNAME:
 		case E_PASSWORD:
@@ -8762,6 +8782,7 @@ void CmEditAccountDlgOnOk(HWND hWnd, CM_ACCOUNT *a)
 		Copy(c.ClientOption, a->ClientOption, sizeof(CLIENT_OPTION));
 		c.ClientAuth = CopyClientAuth(a->ClientAuth);
 		c.CheckServerCert = a->CheckServerCert;
+		c.AddDefaultCA = a->AddDefaultCA;
 		if (a->ServerCert != NULL)
 		{
 			c.ServerCert = CloneX(a->ServerCert);
@@ -8815,6 +8836,7 @@ void CmEditAccountDlgOnOk(HWND hWnd, CM_ACCOUNT *a)
 			Copy(t.ClientOption, a->ClientOption, sizeof(CLIENT_OPTION));
 			t.ClientAuth = CopyClientAuth(a->ClientAuth);
 			t.CheckServerCert = a->CheckServerCert;
+			t.AddDefaultCA = a->AddDefaultCA;
 			t.ServerCert = CloneX(a->ServerCert);
 
 			// Save the settings for cascade connection
@@ -9007,6 +9029,7 @@ CM_ACCOUNT *CmGetExistAccountObject(HWND hWnd, wchar_t *account_name)
 	a->EditMode = true;
 	a->CheckServerCert = c.CheckServerCert;
 	a->RetryOnServerCert = c.RetryOnServerCert;
+	a->AddDefaultCA = c.AddDefaultCA;
 	a->Startup = c.StartupAccount;
 	if (c.ServerCert != NULL)
 	{
@@ -9037,6 +9060,7 @@ CM_ACCOUNT *CmCreateNewAccountObject(HWND hWnd)
 	a->EditMode = false;
 	a->CheckServerCert = false;
 	a->RetryOnServerCert = false;
+	a->AddDefaultCA = false;
 	a->Startup = false;
 	a->ClientOption = ZeroMalloc(sizeof(CLIENT_OPTION));
 
@@ -9552,7 +9576,11 @@ void CmPrintStatusToListViewEx(LVB *b, RPC_CLIENT_GET_CONNECTION_STATUS *s, bool
 		}
 		else
 		{
-			if (StrLen(s->CipherName) != 0)
+			if (StrLen(s->CipherName) != 0 && StrLen(s->ProtocolName) != 0)
+			{
+				UniFormat(tmp, sizeof(tmp), _UU("CM_ST_USE_ENCRYPT_TRUE3"), s->ProtocolName, s->CipherName);
+			}
+			else if (StrLen(s->CipherName) != 0)
 			{
 				UniFormat(tmp, sizeof(tmp), _UU("CM_ST_USE_ENCRYPT_TRUE"), s->CipherName);
 			}

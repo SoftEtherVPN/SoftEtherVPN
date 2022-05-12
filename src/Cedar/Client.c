@@ -1957,6 +1957,7 @@ RPC_CLIENT_CREATE_ACCOUNT *CiCfgToAccount(BUF *b)
 	t->StartupAccount = a->StartupAccount;
 	t->CheckServerCert = a->CheckServerCert;
 	t->RetryOnServerCert = a->RetryOnServerCert;
+	t->AddDefaultCA = a->AddDefaultCA;
 	t->ServerCert = a->ServerCert;
 	Free(a);
 
@@ -1981,6 +1982,7 @@ BUF *CiAccountToCfg(RPC_CLIENT_CREATE_ACCOUNT *t)
 	a.ClientAuth = t->ClientAuth;
 	a.CheckServerCert = t->CheckServerCert;
 	a.RetryOnServerCert = t->RetryOnServerCert;
+	a.AddDefaultCA = t->AddDefaultCA;
 	a.ServerCert = t->ServerCert;
 	a.StartupAccount = t->StartupAccount;
 
@@ -4315,6 +4317,13 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 
 	PackGetUniStr(p, "AccountName", c->AccountName, sizeof(c->AccountName));
 	PackGetStr(p, "Hostname", c->Hostname, sizeof(c->Hostname));
+	// Extract hint string from hostname
+	UINT i = SearchStrEx(c->Hostname, "/", 0, false);
+	if (i != INFINITE)
+	{
+		StrCpy(c->HintStr, sizeof(c->HintStr), c->Hostname + i + 1);
+		c->Hostname[i] = 0;
+	}
 	c->Port = PackGetInt(p, "Port");
 	c->PortUDP = PackGetInt(p, "PortUDP");
 	c->ProxyType = PackGetInt(p, "ProxyType");
@@ -4352,7 +4361,20 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	}
 
 	PackAddUniStr(p, "AccountName", c->AccountName);
-	PackAddStr(p, "Hostname", c->Hostname);
+	// Append hint string to hostname
+	if (IsEmptyStr(c->HintStr))
+	{
+		// No hint
+		PackAddStr(p, "Hostname", c->Hostname);
+	}
+	else
+	{
+		char hostname[MAX_SIZE];
+		StrCpy(hostname, sizeof(hostname), c->Hostname);
+		StrCat(hostname, sizeof(hostname), "/");
+		StrCat(hostname, sizeof(hostname), c->HintStr);
+		PackAddStr(p, "Hostname", hostname);
+	}
 	PackAddStr(p, "ProxyName", c->ProxyName);
 	PackAddStr(p, "ProxyUsername", c->ProxyUsername);
 	PackAddStr(p, "ProxyPassword", c->ProxyPassword);
@@ -4522,6 +4544,7 @@ void InRpcClientCreateAccount(RPC_CLIENT_CREATE_ACCOUNT *c, PACK *p)
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
 	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
+	c->AddDefaultCA = PackGetInt(p, "AddDefaultCA") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4545,6 +4568,7 @@ void OutRpcClientCreateAccount(PACK *p, RPC_CLIENT_CREATE_ACCOUNT *c)
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
 	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
+	PackAddInt(p, "AddDefaultCA", c->AddDefaultCA);
 	if (c->ServerCert != NULL)
 	{
 		b = XToBuf(c->ServerCert, false);
@@ -4695,6 +4719,7 @@ void InRpcClientGetAccount(RPC_CLIENT_GET_ACCOUNT *c, PACK *p)
 	c->StartupAccount = PackGetInt(p, "StartupAccount") ? true : false;
 	c->CheckServerCert = PackGetInt(p, "CheckServerCert") ? true : false;
 	c->RetryOnServerCert = PackGetInt(p, "RetryOnServerCert") ? true : false;
+	c->AddDefaultCA = PackGetInt(p, "AddDefaultCA") ? true : false;
 	b = PackGetBuf(p, "ServerCert");
 	if (b != NULL)
 	{
@@ -4724,6 +4749,7 @@ void OutRpcClientGetAccount(PACK *p, RPC_CLIENT_GET_ACCOUNT *c)
 	PackAddInt(p, "StartupAccount", c->StartupAccount);
 	PackAddInt(p, "CheckServerCert", c->CheckServerCert);
 	PackAddInt(p, "RetryOnServerCert", c->RetryOnServerCert);
+	PackAddInt(p, "AddDefaultCA", c->AddDefaultCA);
 
 	if (c->ServerCert != NULL)
 	{
@@ -4810,6 +4836,7 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
 
 	PackGetStr(p, "ServerName", s->ServerName, sizeof(s->ServerName));
 	PackGetStr(p, "ServerProductName", s->ServerProductName, sizeof(s->ServerProductName));
+	PackGetStr(p, "ProtocolVersion", s->ProtocolName, sizeof(s->ProtocolName));
 	PackGetStr(p, "CipherName", s->CipherName, sizeof(s->CipherName));
 	PackGetStr(p, "SessionName", s->SessionName, sizeof(s->SessionName));
 	PackGetStr(p, "ConnectionName", s->ConnectionName, sizeof(s->ConnectionName));
@@ -4886,6 +4913,7 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
 
 	PackAddStr(p, "ServerName", c->ServerName);
 	PackAddStr(p, "ServerProductName", c->ServerProductName);
+	PackAddStr(p, "ProtocolVersion", c->ProtocolName);
 	PackAddStr(p, "CipherName", c->CipherName);
 	PackAddStr(p, "SessionName", c->SessionName);
 	PackAddStr(p, "ConnectionName", c->ConnectionName);
@@ -5840,6 +5868,7 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
 				if (st->UseEncrypt)
 				{
 					StrCpy(st->CipherName, sizeof(st->CipherName), s->Connection->CipherName);
+					StrCpy(st->ProtocolName, sizeof(st->ProtocolName), s->Connection->SslVersion);
 				}
 				// Use of compression
 				st->UseCompress = s->UseCompress;
@@ -6449,9 +6478,9 @@ bool CtConnect(CLIENT *c, RPC_CLIENT_CONNECT *connect)
 						// Register a procedure for secure device authentication
 						r->ClientAuth->SecureSignProc = CiSecureSignProc;
 					}
-          else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
+					else if (r->ClientAuth->AuthType == CLIENT_AUTHTYPE_OPENSSLENGINE)
 					{
-              /* r->ClientAuth->ClientK = OpensslEngineToK("asdf"); */
+						/* r->ClientAuth->ClientK = OpensslEngineToK("asdf"); */
 						r->ClientAuth->SecureSignProc = NULL;
 					}
 					else
@@ -6599,6 +6628,9 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 
 		Lock(r->lock);
 		{
+			// Copy account name (restore the correct case)
+			UniStrCpy(a->AccountName, sizeof(a->AccountName), r->ClientOption->AccountName);
+
 			// Copy the client option
 			if (a->ClientOption != NULL)
 			{
@@ -6618,6 +6650,7 @@ bool CtGetAccount(CLIENT *c, RPC_CLIENT_GET_ACCOUNT *a)
 
 			a->CheckServerCert = r->CheckServerCert;
 			a->RetryOnServerCert = r->RetryOnServerCert;
+			a->AddDefaultCA = r->AddDefaultCA;
 			a->ServerCert = NULL;
 			if (r->ServerCert != NULL)
 			{
@@ -7029,6 +7062,12 @@ bool CtEnumAccount(CLIENT *c, RPC_CLIENT_ENUM_ACCOUNT *e)
 
 			// Server name
 			StrCpy(item->ServerName, sizeof(item->ServerName), a->ClientOption->Hostname);
+			// Append hint string to hostname
+			if (IsEmptyStr(a->ClientOption->HintStr) == false)
+			{
+				StrCat(item->ServerName, sizeof(item->ServerName), "/");
+				StrCat(item->ServerName, sizeof(item->ServerName), a->ClientOption->HintStr);
+			}
 
 			// Proxy type
 			item->ProxyType = a->ClientOption->ProxyType;
@@ -7146,6 +7185,7 @@ bool CtSetAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 
 			ret->CheckServerCert = a->CheckServerCert;
 			ret->RetryOnServerCert = a->RetryOnServerCert;
+			ret->AddDefaultCA = a->AddDefaultCA;
 
 			if (a->ServerCert != NULL)
 			{
@@ -7245,6 +7285,7 @@ bool CtCreateAccount(CLIENT *c, RPC_CLIENT_CREATE_ACCOUNT *a, bool inner)
 
 		new_account->CheckServerCert = a->CheckServerCert;
 		new_account->RetryOnServerCert = a->RetryOnServerCert;
+		new_account->AddDefaultCA = a->AddDefaultCA;
 		if (a->ServerCert != NULL)
 		{
 			new_account->ServerCert = CloneX(a->ServerCert);
@@ -9221,6 +9262,13 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 
 	CfgGetUniStr(f, "AccountName", o->AccountName, sizeof(o->AccountName));
 	CfgGetStr(f, "Hostname", o->Hostname, sizeof(o->Hostname));
+	// Extract hint string from hostname
+	UINT i = SearchStrEx(o->Hostname, "/", 0, false);
+	if (i != INFINITE)
+	{
+		StrCpy(o->HintStr, sizeof(o->HintStr), o->Hostname + i + 1);
+		o->Hostname[i] = 0;
+	}
 	o->Port = CfgGetInt(f, "Port");
 	o->PortUDP = CfgGetInt(f, "PortUDP");
 	o->ProxyType = CfgGetInt(f, "ProxyType");
@@ -9302,6 +9350,7 @@ ACCOUNT *CiLoadClientAccount(FOLDER *f)
 	a->StartupAccount = CfgGetBool(f, "StartupAccount");
 	a->CheckServerCert = CfgGetBool(f, "CheckServerCert");
 	a->RetryOnServerCert = CfgGetBool(f, "RetryOnServerCert");
+	a->AddDefaultCA = CfgGetBool(f, "AddDefaultCA");
 	a->CreateDateTime = CfgGetInt64(f, "CreateDateTime");
 	a->UpdateDateTime = CfgGetInt64(f, "UpdateDateTime");
 	a->LastConnectDateTime = CfgGetInt64(f, "LastConnectDateTime");
@@ -9763,7 +9812,20 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	}
 
 	CfgAddUniStr(f, "AccountName", o->AccountName);
-	CfgAddStr(f, "Hostname", o->Hostname);
+	// Append hint string to hostname
+	if (IsEmptyStr(o->HintStr))
+	{
+		// No hint
+		CfgAddStr(f, "Hostname", o->Hostname);
+	}
+	else
+	{
+		char hostname[MAX_SIZE];
+		StrCpy(hostname, sizeof(hostname), o->Hostname);
+		StrCat(hostname, sizeof(hostname), "/");
+		StrCat(hostname, sizeof(hostname), o->HintStr);
+		CfgAddStr(f, "Hostname", hostname);
+	}
 	CfgAddInt(f, "Port", o->Port);
 	CfgAddInt(f, "PortUDP", o->PortUDP);
 	CfgAddInt(f, "ProxyType", o->ProxyType);
@@ -9926,6 +9988,9 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
 
 	// Retry on invalid server certificate flag
 	CfgAddBool(f, "RetryOnServerCert", a->RetryOnServerCert);
+
+	// Add default SSL trust store
+	CfgAddBool(f, "AddDefaultCA", a->AddDefaultCA);
 
 	// Date and time
 	CfgAddInt64(f, "CreateDateTime", a->CreateDateTime);
