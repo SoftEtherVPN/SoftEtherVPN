@@ -6185,7 +6185,7 @@ bool IsRouteChanged(ROUTE_CHANGE *r)
 }
 
 #ifdef	OS_WIN32
-void Win32RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE nt)
+void WINAPI Win32RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE nt)
 {
 	ROUTE_CHANGE_DATA *data = context;
 	data->Changed = true;
@@ -6217,12 +6217,12 @@ ROUTE_CHANGE *Win32NewRouteChange2(bool ipv4, bool ipv6, void *callback)
 
 	if (callback != NULL)
 	{
-		ret = NotifyRouteChange2(family, (PIPFORWARD_CHANGE_CALLBACK)callback, r->Data, false, &r->Data->Handle);
+		ret = NotifyRouteChange2(family, (PIPFORWARD_CHANGE_CALLBACK)callback, r->Data, FALSE, &r->Data->Handle);
 	}
 	else
 	{
 		// Use default callback if not provided
-		ret = NotifyRouteChange2(family, (PIPFORWARD_CHANGE_CALLBACK)Win32RouteChangeCallback, r->Data, false, &r->Data->Handle);
+		ret = NotifyRouteChange2(family, (PIPFORWARD_CHANGE_CALLBACK)Win32RouteChangeCallback, r->Data, FALSE, &r->Data->Handle);
 	}
 
 	if (ret != NO_ERROR)
