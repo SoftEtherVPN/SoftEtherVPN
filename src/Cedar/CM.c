@@ -10472,7 +10472,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 	UINT num = 0;
 	RPC_CLIENT_ENUM_ACCOUNT a;
 	UINT num_connecting = 0, num_connected = 0;
-	wchar_t tmp[MAX_SIZE];
+	wchar_t tooltip[MAX_SIZE];
 	wchar_t new_inserted_item[MAX_ACCOUNT_NAME_LEN + 1];
 	bool select_new_inserted_item = true;
 	// Validate arguments
@@ -10525,6 +10525,8 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 	{
 		select_new_inserted_item = false;
 	}
+
+	UniStrCpy(tooltip, sizeof(tooltip), _UU("CM_TRAY_INITING"));
 
 	// Enumerate the account list
 	if (CALL(hWnd, CcEnumAccount(cm->Client, &a)))
@@ -10649,10 +10651,16 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 				if (t->Connected)
 				{
 					num_connected++;
+					UniStrCat(tooltip, sizeof(tooltip), L"\r\n"L"\r\n");
+					UniStrCat(tooltip, sizeof(tooltip), t->AccountName);
+					UniStrCat(tooltip, sizeof(tooltip), _UU("CM_TRAY_CONNECTED"));
 				}
 				else
 				{
 					num_connecting++;
+					UniStrCat(tooltip, sizeof(tooltip), L"\r\n"L"\r\n");
+					UniStrCat(tooltip, sizeof(tooltip), t->AccountName);
+					UniStrCat(tooltip, sizeof(tooltip), _UU("CM_TRAY_CONNECTING"));
 				}
 			}
 		}
@@ -10705,22 +10713,8 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 		if (num_connecting == 0 && num_connected == 0)
 		{
 			// There is no connecting or connected account
-			UniStrCpy(tmp, sizeof(tmp), _UU("CM_TRAY_NOT_CONNECTED"));
-		}
-		else if (num_connected == 0)
-		{
-			// There is only connecting account
-			UniFormat(tmp, sizeof(tmp), _UU("CM_TRAY_CONNECTED_1"), num_connecting);
-		}
-		else if (num_connecting == 0)
-		{
-			// There is only connected account
-			UniFormat(tmp, sizeof(tmp), _UU("CM_TRAY_CONNECTED_2"), num_connected);
-		}
-		else
-		{
-			// There are both
-			UniFormat(tmp, sizeof(tmp), _UU("CM_TRAY_CONNECTED_0"), num_connected, num_connecting);
+			UniStrCat(tooltip, sizeof(tooltip), L"\r\n");
+			UniStrCat(tooltip, sizeof(tooltip), _UU("CM_TRAY_NOT_CONNECTED"));
 		}
 
 		if (num_connecting == 0 && num_connected == 0)
@@ -10742,7 +10736,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 			}
 		}
 
-		CmChangeTrayString(hWnd, tmp);
+		CmChangeTrayString(hWnd, tooltip);
 	}
 
 	Refresh(hWnd);

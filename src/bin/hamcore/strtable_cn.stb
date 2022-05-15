@@ -974,11 +974,10 @@ CM_VPN_FILE_IMPORT_NG		无法导入 VPN 连接设置文件。由于 VPN Client �
 CM_VLAN_INSTALLING			请稍候...
 CM_SECURE_MUST_LOCAL		因为目前您对远程计算机进行连接并管理 VPN Client，因此无法修改智能卡设置。
 CM_DETAIL_MODE_LINK_STR		使用级联，则“通过网桥，路由模式连接”始终启用。
-CM_TRAY_INITING				VPN Client 管理器 (Developer Edition)
-CM_TRAY_NOT_CONNECTED		VPN Client 管理器 (Developer Edition)\r\n未连接
-CM_TRAY_CONNECTED_0			VPN Client 管理器 (Developer Edition)\r\n主动连接到%u个服务器，并尝试连接到 %u 个服务器
-CM_TRAY_CONNECTED_1			VPN Client 管理器 (Developer Edition)\r\n尝试连接到%u个服务器
-CM_TRAY_CONNECTED_2			VPN Client 管理器 (Developer Edition)\r\n的 %u 个服务器中的连接
+CM_TRAY_INITING				SoftEther VPN
+CM_TRAY_NOT_CONNECTED		\r\n未连接
+CM_TRAY_CONNECTING			\r\n正在连接
+CM_TRAY_CONNECTED			\r\n已连接
 CM_TRAY_MENU_1_SHOW			显示 VPN Client 管理器(&S)
 CM_TRAY_MENU_1_HIDE			关闭 VPN Client 管理器(&O)
 CM_TRAY_MENU_2_QUIT			退出 VPN Client 管理器程序(&X)

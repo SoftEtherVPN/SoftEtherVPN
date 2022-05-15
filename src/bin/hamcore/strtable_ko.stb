@@ -971,11 +971,10 @@ CM_VPN_FILE_IMPORT_NG 연결 설정 파일을 가져올 수 없습니다. VPN Cl
 CM_VLAN_INSTALLING 기다려주십시오...
 CM_SECURE_MUST_LOCAL 현재 원격 컴퓨터의 VPN Client 서비스에 연결하여 관리하고 있기 때문에 스마트 카드의 설정을 할 수 없습니다.
 CM_DETAIL_MODE_LINK_STR 캐스케이드는 항상 브리지/라우터 모드에서 연결이 활성화되어 있습니다.
-CM_TRAY_INITING SoftEther VPN 클라이언트 연결 관리자
-CM_TRAY_NOT_CONNECTED SoftEther VPN 클라이언트 연결 관리자 \r\n 연결되어 있지 않습니다
-CM_TRAY_CONNECTED_0 SoftEther VPN 클라이언트 연결 관리자 \r\n %u 개의 서버와의 연결이 완료 %u 개의 서버에 연결을 시도합니다
-CM_TRAY_CONNECTED_1 SoftEther VPN 클라이언트 연결 관리자 \r\n %u 개의 서버에 연결을 시도합니다
-CM_TRAY_CONNECTED_2 SoftEther VPN 클라이언트 연결 관리자 \r\n %u 개의 서버와 연결이 완료하고 있습니다
+CM_TRAY_INITING SoftEther VPN
+CM_TRAY_NOT_CONNECTED \r\n연결되어 있지 않습니다
+CM_TRAY_CONNECTING \r\n연결 중
+CM_TRAY_CONNECTED \r\n연결됨
 CM_TRAY_MENU_1_SHOW 연결 관리자를 표시 (&S)
 CM_TRAY_MENU_1_HIDE 연결 관리자를 닫기 (&O)
 CM_TRAY_MENU_2_QUIT 연결 관리자 프로그램의 종료 (&X)

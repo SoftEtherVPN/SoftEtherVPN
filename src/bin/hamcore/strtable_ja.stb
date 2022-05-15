@@ -970,11 +970,10 @@ CM_VPN_FILE_IMPORT_NG	接続設定ファイルをインポートできません�
 CM_VLAN_INSTALLING		しばらくお待ちください...
 CM_SECURE_MUST_LOCAL	現在リモートコンピュータの VPN Client サービスに接続して管理しているため、スマートカードの設定を行うことはできません。
 CM_DETAIL_MODE_LINK_STR	カスケード接続では、常に [ブリッジ / ルータモードで接続] が有効になっています。
-CM_TRAY_INITING			SoftEther VPN クライアント接続マネージャ (Developer Edition)
-CM_TRAY_NOT_CONNECTED	SoftEther VPN クライアント接続マネージャ (Developer Edition)\r\n接続していません
-CM_TRAY_CONNECTED_0		SoftEther VPN クライアント接続マネージャ (Developer Edition)\r\n%u 個のサーバーとの接続が完了し、%u 個のサーバーに接続を試行しています
-CM_TRAY_CONNECTED_1		SoftEther VPN クライアント接続マネージャ (Developer Edition)\r\n%u 個のサーバーに接続を試行しています
-CM_TRAY_CONNECTED_2		SoftEther VPN クライアント接続マネージャ (Developer Edition)\r\n%u 個のサーバーと接続が完了しています
+CM_TRAY_INITING			SoftEther VPN
+CM_TRAY_NOT_CONNECTED	\r\n接続していません
+CM_TRAY_CONNECTING		\r\n接続処理中
+CM_TRAY_CONNECTED		\r\n接続完了
 CM_TRAY_MENU_1_SHOW		接続マネージャを表示する(&S)
 CM_TRAY_MENU_1_HIDE		接続マネージャを閉じる(&O)
 CM_TRAY_MENU_2_QUIT		接続マネージャプログラムの終了(&X)

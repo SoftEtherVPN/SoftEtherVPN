@@ -968,11 +968,10 @@ CM_VPN_FILE_IMPORT_NG	Unable to import the VPN Connection Setting File. Because 
 CM_VLAN_INSTALLING		Please Wait a While
 CM_SECURE_MUST_LOCAL	It is currently not possible to configure smart card settings because you are connected to and managing a VPN Client on a remote computer.
 CM_DETAIL_MODE_LINK_STR	With a Cascade Connection, Connect by Bridge / Router mode is always enabled.
-CM_TRAY_INITING			SoftEther VPN Client Manager (Developer Edition) ...
-CM_TRAY_NOT_CONNECTED	SoftEther VPN Client Manager (Developer Edition)\r\nNot connected.
-CM_TRAY_CONNECTED_0		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers and is attempting to connect to %u servers
-CM_TRAY_CONNECTED_1		SoftEther VPN Client Manager (Developer Edition)\r\nAttempting to connect to %u servers
-CM_TRAY_CONNECTED_2		SoftEther VPN Client Manager (Developer Edition)\r\nActive connections to %u servers
+CM_TRAY_INITING			SoftEther VPN
+CM_TRAY_NOT_CONNECTED	\r\nNot connected
+CM_TRAY_CONNECTING		\r\nConnecting
+CM_TRAY_CONNECTED		\r\nConnected
 CM_TRAY_MENU_1_SHOW		Открыть VPN Client Manager (&S)
 CM_TRAY_MENU_1_HIDE		Cl&ose VPN Client Manager
 CM_TRAY_MENU_2_QUIT		E&xit VPN Client Manager Program
