@@ -4251,9 +4251,6 @@ UINT CmMainWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *p
 	case WM_TIMER:
 		switch (wParam)
 		{
-		case 1:
-			CmSetForegroundProcessToCnService();
-			break;
 		case 2:
 			CmPollingTray(hWnd);
 			break;
@@ -11263,7 +11260,6 @@ void CmMainWindowOnInit(HWND hWnd)
 	CmInitNotifyClientThread();
 
 	// Timer setting
-	SetTimer(hWnd, 1, 128, NULL);
 	SetTimer(hWnd, 6, 5000, NULL);
 
 	// Initialize the task tray
