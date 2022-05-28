@@ -6,12 +6,5 @@
     "libsodium",
     "openssl",
     "zlib"
-  ],
-  "overrides": [
-    {
-      "name": "openssl",
-      "version-string": "1.1.1n"
-    }
-  ],
-  "builtin-baseline": "f6af75acc923c833a5620943e3fc7d5e4930f0df"
+  ]
 }
