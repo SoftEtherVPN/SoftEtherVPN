@@ -43,6 +43,19 @@ into it. So that is what will be described below.
   C:\vcpkg> vcpkg integrate install
   ```
 
+## Update
+
+- vcpkg
+
+  You are recommended to update vcpkg from time to time, so that the latest libraries are used in the build.
+
+  Go to the installation path, pull the latest repo and the binary:
+
+  ```
+  C:\vcpkg> git pull
+  C:\vcpkg> bootstrap-vcpkg.bat
+  ```
+  
 ## Building
 
 1. Launch Visual Studio
@@ -54,6 +67,8 @@ into it. So that is what will be described below.
    `git submodule update --init --recursive`
 
    **Note**: This step is not necessary if you have chosen **Clone a repository** as Visual Studio automatically takes care of it.
+
+1. Switch to folder view in the solution explorer
 
 1. Select a configuration from the dropdown menu below the search box. The default configurations are:
 
@@ -88,3 +103,25 @@ into it. So that is what will be described below.
    Run `vpnsetup.exe` to install desired components.
 
 1. Congrats, you now have a complete CMake development environment for SoftEtherVPN on Windows, enjoy and happy contributing!
+
+## Notes
+
+1. Build number
+
+   You can change the build number in `CMakeSettings.json`. Use any integer no less than 5180.
+
+   Delete and regenerate CMake cache after the change.
+
+1. 32-bit Windows
+
+   You don't need 32-bit Windows to build 32-bit executables. However, if 32-bit Windows is what you only have, things become a little complicated.
+
+   Visual Studio 2019 is the last version that works on 32-bit Windows. It does the job but its bundled CMake and Ninja are 64-bit versions.
+
+   After the installation of VS 2019, you need to download 32-bit CMake and Ninja and replace those that come with VS in:
+
+   ```
+   C:\Program Files\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake
+   ```
+
+   Currently CMake has an official x86 installer but Ninja does not. You may need to download from a 3rd party or build from source.
