@@ -12249,7 +12249,8 @@ void InitCM(bool set_app_id)
 
 	// Memory allocation
 	cm = ZeroMalloc(sizeof(CM));
-
+	// Use Easy Mode by default if nothing else is specified.
+	cm->CmSettingInitialFlag = CM_SETTING_INIT_EASY;
 	// If the command line argument is set treat it as a server name 
 	ut = GetCommandLineUniToken();
 

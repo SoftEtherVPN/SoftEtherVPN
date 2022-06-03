@@ -9023,6 +9023,8 @@ void CiInitConfiguration(CLIENT *c)
 		c->Config.UseKeepConnect = false;	// Don't use the connection maintenance function by default in the Client
 		// Eraser
 		c->Eraser = NewEraser(c->Logger, 0);
+		// Set EasyMode by default.
+		c->CmSetting->EasyMode = true;
 	}
 	else
 	{
