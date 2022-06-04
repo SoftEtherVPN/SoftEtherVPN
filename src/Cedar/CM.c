@@ -5429,7 +5429,15 @@ void CmMainWindowOnCommandEx(HWND hWnd, WPARAM wParam, LPARAM lParam, bool easy)
 			// Installation is prohibited
 			break;
 		}
-		name = CmNewVLanDlg(hWnd);
+
+		char vlanDeviceName[MAX_DEVICE_NAME_LEN + 1] = {'\0'};
+		if (CiGetNextRecommendedVLanName(cm->Client, vlanDeviceName, MAX_DEVICE_NAME_LEN) == false)
+		{
+			// Could not get a recommended vlan name.
+			break;
+		}
+
+		name = CopyStr(vlanDeviceName);
 		if (name != NULL)
 		{
 			void *helper = NULL;
