@@ -4581,13 +4581,13 @@ void CmShowTrayMenu(HWND hWnd)
 	}
 
 	// Version information
-	MsAppendMenu(h, MF_ENABLED | MF_STRING, CMD_ABOUT, _UU("CM_TRAY_MENU_ABOUT"));
+	//MsAppendMenu(h, MF_ENABLED | MF_STRING, CMD_ABOUT, _UU("CM_TRAY_MENU_ABOUT"));
 
 	// Separator
 	MsAppendMenu(h, MF_SEPARATOR, 10001, NULL);
 
 	// Change the operating mode
-	MsAppendMenu(h, MF_ENABLED | MF_STRING, CMD_CM_SETTING, _UU("CM_TRAY_MENU_SETTING"));
+	//MsAppendMenu(h, MF_ENABLED | MF_STRING, CMD_CM_SETTING, _UU("CM_TRAY_MENU_SETTING"));
 
 	// Separator
 	MsAppendMenu(h, MF_SEPARATOR, 10001, NULL);

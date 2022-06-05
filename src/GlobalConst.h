@@ -13,20 +13,20 @@
 
 //// Basic Variables
 
-#define	CEDAR_PRODUCT_STR			"SoftEther"
-#define	CEDAR_PRODUCT_STR_W			L"SoftEther"
-#define	CEDAR_SERVER_STR			"SoftEther VPN Server Developer Edition"
-#define	CEDAR_BRIDGE_STR			"SoftEther VPN Bridge Developer Edition"
-#define	CEDAR_BETA_SERVER			"SoftEther VPN Server Pre Release Developer Edition"
-#define	CEDAR_MANAGER_STR			"SoftEther VPN Server Manager Developer Edition"
-#define	CEDAR_CUI_STR				"SoftEther VPN Command-Line Admin Tool"
-#define CEDAR_ELOG					"SoftEther EtherLogger Developer Edition"
-#define	CEDAR_CLIENT_STR			"SoftEther VPN Client Developer Edition"
-#define CEDAR_CLIENT_MANAGER_STR	"SoftEther VPN Client Connection Manager Developer Edition"
-#define	CEDAR_ROUTER_STR			"SoftEther VPN User-mode Router Developer Edition"
-#define	CEDAR_SERVER_LINK_STR		"SoftEther VPN Server Developer Edition (Cascade Mode)"
-#define	CEDAR_BRIDGE_LINK_STR		"SoftEther VPN Bridge Developer Edition (Cascade Mode)"
-#define	CEDAR_SERVER_FARM_STR		"SoftEther VPN Server Developer Edition (Cluster RPC Mode)"
+#define	CEDAR_PRODUCT_STR			"Unite Gaming"
+#define	CEDAR_PRODUCT_STR_W			L"Unite Gaming"
+#define	CEDAR_SERVER_STR			"Unite Gaming Game Server"
+#define	CEDAR_BRIDGE_STR			"Unite Gaming Game Bridge"
+#define	CEDAR_BETA_SERVER			"Unite Gaming Game Server"
+#define	CEDAR_MANAGER_STR			"Unite Gaming Game Server Manager"
+#define	CEDAR_CUI_STR				"Unite Gaming Game Command-Line Admin Tool"
+#define CEDAR_ELOG					"Unite Gaming EtherLogger"
+#define	CEDAR_CLIENT_STR			"Unite Gaming Game Client Developer Edition"
+#define CEDAR_CLIENT_MANAGER_STR	"Unite Gaming Game Client Connection Manager Developer Edition"
+#define	CEDAR_ROUTER_STR			"Unite Gaming Game User-mode Router"
+#define	CEDAR_SERVER_LINK_STR		"Unite Gaming Game Server (Cascade Mode)"
+#define	CEDAR_BRIDGE_LINK_STR		"Unite Gaming Game Bridge (Cascade Mode)"
+#define	CEDAR_SERVER_FARM_STR		"Unite Gaming Game Server (Cluster RPC Mode)"
 
 
 
@@ -47,21 +47,21 @@
 
 //// Registry
 
-#define	GC_REG_COMPANY_NAME			"SoftEther VPN Developer Edition"
+#define	GC_REG_COMPANY_NAME			"Unite Gaming Game"
 
 
 
 
 //// Setup Wizard
 
-#define	GC_SW_UIHELPER_REGVALUE		"SoftEther VPN Client UI Helper Developer Edition"
-#define	GC_SW_SOFTETHER_PREFIX		"sedev"
-#define	GC_SW_SOFTETHER_PREFIX_W	L"sedev"
+#define	GC_SW_UIHELPER_REGVALUE		"Unite Gaming Game Client UI Helper Developer Edition"
+#define	GC_SW_SOFTETHER_PREFIX		"ug"
+#define	GC_SW_SOFTETHER_PREFIX_W	L"ug"
 
 
 
 //// VPN UI Components
 
-#define	GC_UI_APPID_CM				L"SoftEther.SoftEther VPN Client Developer Edition"
+#define	GC_UI_APPID_CM				L"UniteGaming.Unite Gaming Game Client"
 
 #endif	// GLOBAL_CONST_H
