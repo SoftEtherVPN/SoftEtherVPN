@@ -571,6 +571,16 @@ void CmEasyDlgInit(HWND hWnd, CM_EASY_DLG *d)
 
 	SetShow(hWnd, B_VGC, cm->Client->IsVgcSupported);
 
+	const HWND accountListView = GetDlgItem(hWnd, L_ACCOUNT);
+	const COLORREF outlineColor = RGB(94, 73, 116);
+	const COLORREF textColor = RGB(255, 255, 255);
+	const COLORREF backgroundColor = RGB(62, 62, 62);
+	const COLORREF textBackColor = RGB(56, 56, 56);
+	ListView_SetBkColor(accountListView, backgroundColor);
+	ListView_SetTextBkColor(accountListView, textBackColor);
+	ListView_SetTextColor(accountListView, textColor);
+	ListView_SetOutlineColor(accountListView, outlineColor);
+
 	CmEasyDlgRefresh(hWnd, d);
 
 	num = LvNum(hWnd, L_ACCOUNT);
@@ -694,12 +704,44 @@ void CmEasyDlgRefresh(HWND hWnd, CM_EASY_DLG *d)
 	CmEasyDlgUpdate(hWnd, d);
 }
 
+static BOOL CmEasyDrawItem(const WORD itemId, DRAWITEMSTRUCT* drawItem)
+{
+	switch(itemId)
+	{
+	case IDCANCEL:
+	case B_STATUS:
+	case B_VGC:
+	case IDOK:
+	{
+		SetBkMode(drawItem->hDC, TRANSPARENT);
+		SetTextColor(drawItem->hDC, RGB(255, 255, 255));
+		const int textLen = GetWindowTextLengthA(drawItem->hwndItem);
+		char* text = (char*)malloc(textLen + 1);
+		GetWindowTextA(drawItem->hwndItem, text, textLen + 1);
+		DrawTextA(drawItem->hDC, text, textLen, &drawItem->rcItem, DT_CENTER | DT_VCENTER | DT_NOCLIP | DT_SINGLELINE | DT_MODIFYSTRING);
+		free(text);
+		break;
+	}
+	default:
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
 // Dialog procedure of the simple connection manager
-UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
+INT_PTR CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 {
 	CM_EASY_DLG *d = (CM_EASY_DLG *)param;
 	NMHDR *n;
 	UINT i;
+
+	static HBRUSH dialogBrush = NULL;
+	static HBRUSH buttonBrush = NULL;
+	static HBRUSH connectButtonBrush = NULL;
+	static HBRUSH listboxBrush = NULL;
+
 	// Validate arguments
 	if (hWnd == NULL)
 	{
@@ -711,6 +753,12 @@ UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 	case WM_INITDIALOG:
 		CmEasyDlgInit(hWnd, d);
 		SetTimer(hWnd, 1, 10, NULL);
+
+		dialogBrush = CreateSolidBrush(RGB(22, 22, 22));
+		buttonBrush = CreateSolidBrush(RGB(50, 50, 50));
+		connectButtonBrush = CreateSolidBrush(RGB(105, 0, 209));
+		listboxBrush = CreateSolidBrush(RGB(58, 58, 58));
+
 		break;
 
 	case WM_TIMER:
@@ -733,7 +781,7 @@ UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 		break;
 
 	case WM_NOTIFY:
-		n = (NMHDR *)lParam;
+		n = (NMHDR*)lParam;
 		CmEasyDlgOnNotify(hWnd, d, n);
 		break;
 
@@ -741,7 +789,7 @@ UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 		i = LvGetSelected(hWnd, L_ACCOUNT);
 		if (i != INFINITE)
 		{
-			wchar_t *s = LvGetStr(hWnd, L_ACCOUNT, i, 0);
+			wchar_t* s = LvGetStr(hWnd, L_ACCOUNT, i, 0);
 			if (s != NULL)
 			{
 				UniStrCpy(cm->EasyLastSelectedAccountName, sizeof(cm->EasyLastSelectedAccountName),
@@ -753,8 +801,52 @@ UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 		{
 			Zero(cm->EasyLastSelectedAccountName, sizeof(cm->EasyLastSelectedAccountName));
 		}
+
+		DeleteObject(dialogBrush);
+		DeleteObject(buttonBrush);
+		DeleteObject(connectButtonBrush);
+		DeleteObject(listboxBrush);
+
+		dialogBrush = NULL;
+		buttonBrush = NULL;
+		connectButtonBrush = NULL;
+		listboxBrush = NULL;
+
 		EndDialog(hWnd, false);
+
 		break;
+	case WM_DRAWITEM:
+	{
+		return (INT_PTR)CmEasyDrawItem((WORD)wParam, (DRAWITEMSTRUCT*)lParam);
+	}
+	case WM_CTLCOLORDLG:
+	{
+		return (INT_PTR)dialogBrush;
+	}
+	case WM_CTLCOLORBTN:
+	{
+		const int id = GetDlgCtrlID((HWND)lParam);
+		if (id == IDOK)
+		{
+			return (INT_PTR)connectButtonBrush;
+		}
+		else
+		{
+			return (INT_PTR)buttonBrush;
+		}
+		
+	}
+	case WM_CTLCOLORSCROLLBAR:
+	{
+		return (INT_PTR)dialogBrush;
+	}
+	case WM_CTLCOLORSTATIC:
+	{
+		HDC hdc = (HDC)wParam;
+		SetTextColor(hdc, RGB(255, 255, 255));
+		SetBkColor(hdc, RGB(22, 22, 22));
+		return (INT_PTR)dialogBrush;
+	}
 	}
 
 	return 0;
@@ -781,7 +873,7 @@ void CmMainWindowOnShowEasy(HWND hWnd)
 		return;
 	}
 
-	Dialog(NULL, D_CM_EASY, CmEasyDlg, &d);
+	DialogEx(NULL, D_CM_EASY, CmEasyDlg, &d, false);
 
 	cm->hEasyWnd = NULL;
 }
@@ -10488,16 +10580,7 @@ void CmRefreshAccountListEx2(HWND hWnd, bool easy, bool style_changed)
 
 	// Switching of icon / detail view
 	LvSetView(hWnd, L_ACCOUNT, cm->IconView == false || easy);
-
-	// Show grid
-	if (cm->ShowGrid || easy)
-	{
-		LvSetStyle(hWnd, L_ACCOUNT, LVS_EX_GRIDLINES);
-	}
-	else
-	{
-		LvRemoveStyle(hWnd, L_ACCOUNT, LVS_EX_GRIDLINES);
-	}
+	LvRemoveStyle(hWnd, L_ACCOUNT, LVS_EX_GRIDLINES);
 
 	if (style_changed)
 	{

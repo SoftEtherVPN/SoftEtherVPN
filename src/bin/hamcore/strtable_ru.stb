@@ -991,11 +991,11 @@ CM_IMPORT_MESSAGE		From file "%S", GAMING LAUNCHER Connection Setting "%s" has b
 CM_VLAN_CREATING		Creating a new Virtual Network Adapter for Windows. \r\n\r\nThis process can take several seconds or over a minute. \r\nPlease wait...\r\n\r\n(Please do not perform other operations while the Virtual Network Adapter is being installed.)
 CM_SETTING_PASSWORD		The setting is locked. To remove the setting-locker, you must enter a password.
 CM_EASY_MODE_NOT_ON_REMOTE	Unable to connect because of the GAMING LAUNCHER Client on the remote computer is running in Easy Mode.
-CM_EASY_CONNECT_BUTTON_1	Start GAMING LAUNCHER &Connection
+CM_EASY_CONNECT_BUTTON_1	Start &Connection
 CM_EASY_CONNECT_BUTTON_2	&Disconnect
 CM_EASY_ACCOUNT_WARNING	You can only modify Proxy Server Setting, User Authentication and Virtual Network Adapter Used because the setting has been locked.
 CM_EASY_INFO_1			Select a GAMING LAUNCHER connection.
-CM_EASY_INFO_2			Click Start GAMING LAUNCHER Connection to start a connection.
+CM_EASY_INFO_2			Click Start Connection to start a connection.
 CM_EASY_INFO_3			GAMING LAUNCHER connection is active. You can disconnect by clicking Disconnect.
 CM_EXT_VOICE_MSG		It is possible that some of the voice message contents of the Extension Voice Guide has not been played normally. \r\nIs the Extension Voice Guide enabled?
 CM_EASY_TITLE			GAMING LAUNCHER Connection Manager

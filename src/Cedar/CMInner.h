@@ -532,7 +532,7 @@ void CmMainWindowOnTrayClicked(HWND hWnd, WPARAM wParam, LPARAM lParam);
 void CmShowEasy();
 void CmCloseEasy();
 void CmMainWindowOnShowEasy(HWND hWnd);
-UINT CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
+INT_PTR CmEasyDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void CmEasyDlgInit(HWND hWnd, CM_EASY_DLG *d);
 void CmEasyDlgUpdate(HWND hWnd, CM_EASY_DLG *d);
 void CmEasyDlgRefresh(HWND hWnd, CM_EASY_DLG *d);
