@@ -5895,7 +5895,7 @@ void SwDefineComponents(SW *sw)
 		SW_LONG_VPNSERVER, false, sizeof(vpn_server_files) / sizeof(char *), vpn_server_files,
 		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		old_msi_vpnserver, sizeof(old_msi_vpnserver) / sizeof(SW_OLD_MSI));
-	Add(sw->ComponentList, c);
+	//Add(sw->ComponentList, c);
 
 	// VPN Client
 	c = SwNewComponent(SW_NAME_VPNCLIENT, GC_SVC_NAME_VPNCLIENT, SW_CMP_VPN_CLIENT, ICO_VPN, 6, L"vpnclient.exe",
@@ -5913,21 +5913,21 @@ void SwDefineComponents(SW *sw)
 		SW_LONG_VPNBRIDGE, false, sizeof(vpn_bridge_files) / sizeof(char *), vpn_bridge_files,
 		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		old_msi_vpnbridge, sizeof(old_msi_vpnbridge) / sizeof(SW_OLD_MSI));
-	Add(sw->ComponentList, c);
+	//Add(sw->ComponentList, c);
 
 	// VPN Server Manager (Tools Only)
 	c = SwNewComponent(SW_NAME_VPNSMGR, NULL, SW_CMP_VPN_SMGR, ICO_USER_ADMIN, 8, NULL,
 		SW_LONG_VPNSMGR, false, sizeof(vpn_smgr_files) / sizeof(char *), vpn_smgr_files,
 		L"vpnsmgr.exe", _UU("SW_RUN_TEXT_VPNSMGR"),
 		NULL, 0);
-	Add(sw->ComponentList, c);
+	//Add(sw->ComponentList, c);
 
 	// VPN Client Manager (Tools Only)
 	c = SwNewComponent(SW_NAME_VPNCMGR, NULL, SW_CMP_VPN_CMGR, ICO_INTERNET, 9, NULL,
 		SW_LONG_VPNCMGR, false, sizeof(vpn_cmgr_files) / sizeof(char *), vpn_cmgr_files,
 		L"vpncmgr.exe /remote", _UU("SW_RUN_TEXT_VPNCMGR"),
 		NULL, 0);
-	Add(sw->ComponentList, c);
+	//Add(sw->ComponentList, c);
 }
 
 // Detect the available components
