@@ -1902,6 +1902,10 @@ BUF *OvsBuildPacket(OPENVPN_PACKET *p)
 
 	// NumAck
 	num_ack = MIN(p->NumAck, OPENVPN_MAX_NUMACK);
+	if (p->OpCode != OPENVPN_P_ACK_V1)
+	{
+		num_ack = MIN(num_ack, OPENVPN_MAX_NUMACK_NONACK);
+	}
 	WriteBufChar(b, (UCHAR)num_ack);
 
 	if (p->NumAck >= 1)
@@ -1982,7 +1986,7 @@ OPENVPN_PACKET *OvsParsePacket(UCHAR *data, UINT size)
 
 	ret->NumAck = uc;
 
-	if (ret->NumAck > 4)
+	if (ret->NumAck > OPENVPN_MAX_NUMACK)
 	{
 		goto LABEL_ERROR;
 	}
