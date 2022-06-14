@@ -3564,7 +3564,7 @@ bool HubPaPutPacket(SESSION *s, void *data, UINT size)
 
 		target_mss = MIN(target_mss, session_mss);
 
-		if (s->IsUsingUdpAcceleration && s->UdpAccelMss != 0)
+		if (s->UseUdpAcceleration && s->UdpAccelMss != 0)
 		{
 			// If the link is established with UDP acceleration function, use optimum value of the UDP acceleration function
 			target_mss = MIN(target_mss, s->UdpAccelMss);
@@ -5362,7 +5362,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 	if (src != NULL && dest->Session != NULL && src->Hub != NULL && src->Hub->Option != NULL)
 	{
 		if (dest->Session->AdjustMss != 0 ||
-			(dest->Session->IsUsingUdpAcceleration && dest->Session->UdpAccelMss != 0) ||
+			(dest->Session->UseUdpAcceleration && dest->Session->UdpAccelMss != 0) ||
 			(dest->Session->IsRUDPSession && dest->Session->RUdpMss != 0))
 		{
 			if (src->Hub->Option->DisableAdjustTcpMss == false)
@@ -5374,7 +5374,7 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 					target_mss = MIN(target_mss, dest->Session->AdjustMss);
 				}
 
-				if (dest->Session->IsUsingUdpAcceleration && dest->Session->UdpAccelMss != 0)
+				if (dest->Session->UseUdpAcceleration && dest->Session->UdpAccelMss != 0)
 				{
 					target_mss = MIN(target_mss, dest->Session->UdpAccelMss);
 				}
