@@ -237,19 +237,19 @@ SoftEther VPN Project distributes the up-to-date source code
 on all the following open-source repositories:
 
   - GitHub
-    https://github.com/SoftEtherVPN/SoftEtherVPN/
+    https://github.com/SoftEtherVPN/SoftEtherVPN
 
         $ git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 
   - GitLab (mirrored from GitHub)
-    https://gitlab.com/SoftEther/SoftEtherVPN/
+    https://gitlab.com/SoftEther/VPN
 
-        $ git clone https://gitlab.com/SoftEther/SoftEtherVPN.git
+        $ git clone https://gitlab.com/SoftEther/VPN.git
 
-  - Codeberg (mirrored from GitHub)
-    https://codeberg.org/softether/vpn
+  - OneDev (mirrored from GitHub)
+    https://code.onedev.io/projects/497
 
-        $ git clone https://codeberg.org/softether/vpn.git
+        $ git clone https://code.onedev.io/SoftEther/VPN.git
 
 We hope that you can reach one of the above URLs at least!
 
