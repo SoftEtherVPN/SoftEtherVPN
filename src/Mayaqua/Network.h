@@ -293,6 +293,7 @@ struct ROUTE_ENTRY
 	UINT IfMetric;
 	UINT InterfaceID;
 	UINT64 InnerScore;
+	bool Active;
 };
 
 // Routing table

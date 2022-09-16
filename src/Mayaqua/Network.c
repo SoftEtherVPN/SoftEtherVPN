@@ -9414,7 +9414,15 @@ RETRY:
 	{
 		e = ZeroMallocFast(sizeof(ROUTE_ENTRY));
 		Win32IpForwardRow2ToRouteEntry(e, &p->Table[i]);
-		Add(o, e);
+
+		if (e->Active)
+		{
+			Add(o, e);
+		}
+		else
+		{
+			FreeRouteEntry(e);
+		}
 	}
 	FreeMibTable(p);
 
@@ -9573,6 +9581,7 @@ void Win32IpForwardRow2ToRouteEntry(ROUTE_ENTRY *entry, void *ip_forward_row)
 	{
 		entry->IfMetric = p->Metric;
 		entry->Metric = r->Metric + p->Metric;
+		entry->Active = p->Connected;
 	}
 	else
 	{
