@@ -2,6 +2,10 @@ Hi, there!
 
 Thank you for using SoftEther.
 
+If you are running SoftEther VPN 4.x (i.e. Stable Edition), please read the comparison with Developer Edition at: 
+
+https://github.com/SoftEtherVPN/SoftEtherVPN#comparison-with-stable-edition
+
 Before you submit an issue, please read the following:
 
 Is this a question?

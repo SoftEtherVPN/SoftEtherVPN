@@ -34,6 +34,8 @@ Stable Edition is available on
 https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 which the non-developer user can stable use.
 
+Please note that [some features](#comparison-with-stable-edition) are not available in Stable Edition.
+
 Source code packages (.zip and .tar.gz) and binary files of Stable Edition are also available:  
 https://www.softether-download.com/
 
@@ -143,6 +145,33 @@ https://github.com/domosekai
   releasing the build.
 - More details at https://www.softether.org/.
 
+# Comparison with Stable Edition
+
+| Protocol | Stable Edition (SE) | Developer Edition (DE) | Comment |
+| --- | --- | --- | --- |
+| SSL-VPN | ✅ | ✅ | |
+| OpenVPN | ✅ | ✅ | AEAD mode is supported in DE only. |
+| IPsec | ✅ | ✅ | |
+| L2TP | ✅ | ✅ | |
+| MS-SSTP | ✅ | ✅ | |
+| L2TPv3 | ✅ | ✅ | |
+| EtherIP | ✅ | ✅ | |
+| WireGuard | ❌ | ✅ | |
+| IKEv2 | ❌ | ❌ | |
+
+| Feature | Stable Edition (SE) | Developer Edition (DE) | Comment |
+| --- | --- | --- | --- |
+| Password Authentication | ✅ | ✅ | |
+| RADIUS / NT Authentication | ✅ | ✅ | |
+| Certificate Authentication | ⚠️ | ✅ | SE supports the feature in SSL-VPN only. |
+| IPv6-capable VPN Tunnel | ⚠️ | ✅ | SE supports IPv6 in L2 VPN tunnels only. |
+| IPv4 Route Management | ✅ | ✅ | Windows clients only |
+| IPv6 Route Management | ❌ | ✅ | Windows clients only |
+| TLS Server Verification | ⚠️ | ✅ | In SE you need to specify the exact certificate or CA to verify. DE can perform standard TLS verification and use the system CA store. |
+| Dual-stack Name Resolution | ⚠️ | ✅ | SE attempts in IPv6 only after IPv4 has failed. |
+| ECDSA Certificates Import | ❌ | ✅ | |
+| Runs on Windows XP and Earlier | ✅ | ❌ | |
+| Compatible with SoftEther VPN 1.0 | ✅ | ❌ | |
 
 # Installation
 
