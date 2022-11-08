@@ -1280,6 +1280,7 @@ SM_INFO_PRODUCT_NAME		产品名称
 SM_INFO_VERSION				版本
 SM_INFO_BUILD				内部标号
 SM_INFO_HOSTNAME			主机名称
+SM_SSL_LIB_VERSION			SSL 库
 SM_OS_SYSTEM_NAME			操作系统类型
 SM_OS_PRODUCT_NAME			操作系统产品名称
 SM_OS_SERVICE_PACK			服务包
@@ -2499,7 +2500,7 @@ STATIC7						保持互联网连接功能(&K)
 
 PREFIX						D_ABOUT
 S_INFO1					SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2				Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S\r\nSSL Library: %S
 S_INFO3					This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4				此 VPN 服务器作为的一个学术研究且由 (http://www.softether.org/) 为公众利益免费发布的。本软件是日本筑波大学 SoftEther 项目下开发的免费软件，无任何担保。开发人员、版权所有者或分销商在任何情况下对于使用本软件的任何索赔、损害赔偿或其他情况不承担责任。\r\n\r\nSoftEther VPN 是日本政府的研究和开发项目的一项工作，由日本的经济、贸易和工业部资助，由信息化推进机构管理。
 IDCANCEL				确定(&O)
@@ -4511,7 +4512,7 @@ CMD_VPNCMD_HOST_2			指定的主机名或正在运行的目标 VPN Client 计算
 CMD_VPNCMD_HOST_3			目标 IP 地址的主机名:
 CMD_VPNCMD_HUB_1			如果通过虚拟 HUB 管理模式连接到服务器，请输入虚拟 HUB 的名称。\n如果通过服务器管理模式连接，无须输入任何内容请按回车键。\n
 CMD_VPNCMD_HUB_2			指定虚拟 HUB 名称:
-CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
+CMD_VPNCMD_ABOUT			SoftEther VPN 命令行管理工具 (vpncmd 命令)\nDeveloper Edition\n%S\n%S\nSSL Library: %S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1		访问被拒绝。可能是密码不正确，或者是您以不正确的管理模式连接。您可以尝试再次输入密码。要取消，请按 Ctrl + D。
 CMD_VPNCMD_PASSWORD_2		密码: 
 CMD_VPNCMD_ERROR			发生错误。(错误代码: %u)\n%s
@@ -6499,6 +6500,7 @@ CMD_VersionGet_2			版本信息
 CMD_VersionGet_3			建设信息
 CMD_VersionGet_4			进程 ID
 CMD_VersionGet_5			操作系统类型
+CMD_VersionGet_6			SSL 库
 
 
 # PasswordSet 命令

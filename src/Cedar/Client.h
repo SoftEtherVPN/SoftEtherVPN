@@ -95,6 +95,7 @@ struct RPC_CLIENT_VERSION
 	char ClientProductName[128];		// Client product name
 	char ClientVersionString[128];		// Client version string
 	char ClientBuildInfoString[128];	// Build client information string
+	char ClientSSLVersion[128];			// Client SSL library version
 	UINT ClientVerInt;					// Client version integer value
 	UINT ClientBuildInt;				// Client build number integer value
 	UINT ProcessId;						// Process ID

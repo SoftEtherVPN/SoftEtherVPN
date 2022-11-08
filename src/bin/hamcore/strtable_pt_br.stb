@@ -1269,6 +1269,7 @@ SM_INFO_PRODUCT_NAME	Nome do produto
 SM_INFO_VERSION	Versão
 SM_INFO_BUILD	Build
 SM_INFO_HOSTNAME	Nome do host
+SM_SSL_LIB_VERSION	SSL Library
 SM_OS_SYSTEM_NAME	Type of Operating System
 SM_OS_PRODUCT_NAME	Product Name of Operating System
 SM_OS_SERVICE_PACK	Service Pack
@@ -2442,7 +2443,7 @@ STATIC6	Note: The transparency setting will be applied after the connection mana
 STATIC7	&Keep Alive Internet Connection Function:
 PREFIX	D_ABOUT
 S_INFO1	SoftEther VPN %u.0 Developer Edition (Ver %u.%02u, Build %u)
-S_INFO2	Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S
+S_INFO2	Licensed under the Apache License, Version 2.0.\r\nCopyright (c) 2012-%u all contributors on SoftEther VPN project in GitHub. All Rights Reserved.\r\nWeb Site: http://www.softether.org/\r\n%S\r\nSSL Library: %S
 S_INFO3	This product includes the following software components:\r\nBitVisor: Copyright (c) 2007, 2008 University of Tsukuba. Copyright (C) 2007, 2008 National Institute of Information and Communications Technology. All rights reserved. / Microsoft(R) C Runtime Library: (c) 2007 Microsoft Corporation. All Rights Reserved. / PKCS #11 Cryptographic Token Interface (Cryptoki): Copyright (c) RSA Security Inc. / WinPcap: Copyright (c) 2001 - 2003 NetGroup, Politecnico di Torino (Italy). All rights reserved. / libedit: Copyright (c) 1992, 1993 The Regents of the University of California. All rights reserved. / libiconv: Copyright (C) 2007 Free Software Foundation, Inc. / ncurses: Copyright (c) 1998-2005, 2006 Free Software Foundation, Inc. / OpenSSL: Copyright (c) 1998-2011 The OpenSSL Project. All rights reserved. This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com). / zlib: (C) 1995-2004 Jean-loup Gailly and Mark Adler. / Special Thanks to: Software Laboratory, Academic Computing Communication Center, Industrial Liaison and Cooperative Research Center and Professor Yasushi Shinjo in University of Tsukuba, Japan.
 S_INFO4	THIS SOFTWARE IS FREEWARE DEVELOPED UNDER THE SOFTETHER VPN PROJECT AT UNIVERSITY OF TSUKUBA, WITHOUT WARRANTY OF ANY KIND. IN NO EVENT SHALL THE DEVELOPERS, COPYRIGHT OWNERS OR DISTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.\r\n\r\nSoftEther VPN is a work of the research and development project of Japanese Government, subsidized by Ministry of Economy, Trade and Industry of Japan, administrated by Information Promotion Agency.
 IDCANCEL	&OK
@@ -4212,7 +4213,7 @@ CMD_VPNCMD_HOST_2	Specify the host name or IP address of the computer that the d
 CMD_VPNCMD_HOST_3	Hostname of IP Address of Destination: 
 CMD_VPNCMD_HUB_1	If connecting to the server by Virtual Hub Admin Mode, please input the Virtual Hub name. \nIf connecting by server admin mode, please press Enter without inputting anything.
 CMD_VPNCMD_HUB_2	Specify Virtual Hub Name: 
-CMD_VPNCMD_ABOUT	SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
+CMD_VPNCMD_ABOUT	SoftEther VPN Command Line Management Utility (vpncmd command)\nDeveloper Edition\n%S\n%S\nSSL Library: %S\nCopyright (c) all contributors on SoftEther VPN project in GitHub.\nCopyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba, and SoftEther Corporation.\nAll rights reserved.\n
 CMD_VPNCMD_PASSWORD_1	Access has been denied. Possibly the password is incorrect, or perhaps you are connecting by an incorrect admin mode. You can try inputting the password again. To cancel, press Ctrl+D.
 CMD_VPNCMD_PASSWORD_2	Senha: 
 CMD_VPNCMD_ERROR	Error occurred. (Error code: %u)\n%s
@@ -6221,6 +6222,7 @@ CMD_VersionGet_2	Version Information
 CMD_VersionGet_3	Build Information
 CMD_VersionGet_4	ID processo
 CMD_VersionGet_5	Tipo de OS
+CMD_VersionGet_6	SSL Library
 
 
 # PasswordSet command

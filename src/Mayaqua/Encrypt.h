@@ -454,5 +454,6 @@ UINT HMacMd5(void *dst, void *key, UINT key_size, void *data, UINT data_size);
 void Enc_tls1_PRF(unsigned char *label, int label_len, const unsigned char *sec, int slen, unsigned char *out1, int olen);
 
 int GetSslClientCertIndex();
+char *GetSSLVersion();
 
 #endif	// ENCRYPT_H

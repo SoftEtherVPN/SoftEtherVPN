@@ -59,6 +59,7 @@ struct RPC_SERVER_INFO
 	char ServerProductName[128];		// Server product name
 	char ServerVersionString[128];		// Server version string
 	char ServerBuildInfoString[128];	// Server build information string
+	char ServerSSLVersion[128];			// Server SSL library version
 	UINT ServerVerInt;					// Server version integer value
 	UINT ServerBuildInt;				// Server build number integer value
 	char ServerHostName[MAX_HOST_NAME_LEN + 1];	// Server host name

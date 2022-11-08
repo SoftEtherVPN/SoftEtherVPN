@@ -1193,6 +1193,7 @@ void CleanupCedar(CEDAR *c)
 
 	Free(c->VerString);
 	Free(c->BuildInfo);
+	Free(c->SSLVersion);
 
 	FreeLocalBridgeList(c);
 
@@ -1590,6 +1591,8 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 		BUILD_DATE_Y, BUILD_DATE_M, BUILD_DATE_D, BUILD_DATE_HO, BUILD_DATE_MI, BUILD_DATE_SE, BUILDER_NAME, BUILD_PLACE);
 
 	c->BuildInfo = CopyStr(tmp);
+
+	c->SSLVersion = GetSSLVersion();
 
 	return c;
 }

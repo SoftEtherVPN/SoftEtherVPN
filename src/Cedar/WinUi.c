@@ -2976,7 +2976,7 @@ void AboutDlgInit(HWND hWnd, WINUI_ABOUT *a)
 	FormatText(hWnd, S_INFO1, CEDAR_VERSION_MAJOR, CEDAR_VERSION_MAJOR, CEDAR_VERSION_MINOR, CEDAR_VERSION_BUILD);
 
 	SetFont(hWnd, S_INFO2, GetFont("Arial", 8, false, false, false, false));
-	FormatText(hWnd, S_INFO2, BUILD_DATE_Y, a->Cedar->BuildInfo);
+	FormatText(hWnd, S_INFO2, BUILD_DATE_Y, a->Cedar->BuildInfo, a->Cedar->SSLVersion);
 
 	SetFont(hWnd, S_INFO3, GetFont("Arial", 7, false, false, false, false));
 

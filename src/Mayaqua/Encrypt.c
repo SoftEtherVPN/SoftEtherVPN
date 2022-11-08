@@ -4813,3 +4813,8 @@ static void Internal_Sha0(unsigned char *dest, const unsigned char *src, const U
 {
 	MY_SHA0_hash(src, (int)size, dest);
 }
+
+char *GetSSLVersion()
+{
+	return CopyStr(OpenSSL_version(OPENSSL_VERSION));
+}
