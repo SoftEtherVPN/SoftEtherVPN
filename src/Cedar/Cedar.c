@@ -1193,6 +1193,7 @@ void CleanupCedar(CEDAR *c)
 
 	Free(c->VerString);
 	Free(c->BuildInfo);
+	Free(c->BuildEnvironment);
 	Free(c->SSLVersion);
 
 	FreeLocalBridgeList(c);
@@ -1592,6 +1593,11 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->BuildInfo = CopyStr(tmp);
 
+	Format(tmp, sizeof(tmp), "%s;%s;%s;%s;%s;%s", 
+		CMAKE_HOST_SYSTEM, CMAKE_VERSION, CMAKE_GENERATOR, CMAKE_C_COMPILER, OPENSSL_VERSION_TEXT, CMAKE_BUILD_TYPE);
+	c->BuildEnvironment = CopyStr(tmp);
+
+	// Runtime SSL
 	c->SSLVersion = GetSSLVersion();
 
 	return c;

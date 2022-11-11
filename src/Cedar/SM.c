@@ -16153,6 +16153,10 @@ bool SmRefreshServerInfo(HWND hWnd, SM_SERVER *p, void *param)
 	StrToUni(tmp, sizeof(tmp), t.ServerBuildInfoString);
 	LvInsertAdd(b, ICO_MACHINE, NULL, 2, _UU("SM_INFO_BUILD"), tmp);
 
+	// Build environment
+	StrToUni(tmp, sizeof(tmp), t.ServerBuildEnvironment);
+	LvInsertAdd(b, ICO_MACHINE, NULL, 2, _UU("SM_INFO_BUILD_ENVIRONMENT"), tmp);
+
 	// SSL library
 	StrToUni(tmp, sizeof(tmp), t.ServerSSLVersion);
 	LvInsertAdd(b, ICO_MACHINE, NULL, 2, _UU("SM_SSL_LIB_VERSION"), tmp);

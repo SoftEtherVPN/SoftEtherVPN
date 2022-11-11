@@ -10389,6 +10389,7 @@ UINT StGetServerInfo(ADMIN *a, RPC_SERVER_INFO *t)
 
 	StrCpy(t->ServerVersionString, sizeof(t->ServerVersionString), c->VerString);
 	StrCpy(t->ServerBuildInfoString, sizeof(t->ServerBuildInfoString), c->BuildInfo);
+	StrCpy(t->ServerBuildEnvironment, sizeof(t->ServerBuildEnvironment), c->BuildEnvironment);
 	StrCpy(t->ServerSSLVersion, sizeof(t->ServerSSLVersion), c->SSLVersion);
 	t->ServerVerInt = c->Version;
 	t->ServerBuildInt = c->Build;
@@ -12291,6 +12292,7 @@ void InRpcServerInfo(RPC_SERVER_INFO *t, PACK *p)
 	PackGetStr(p, "ServerProductName", t->ServerProductName, sizeof(t->ServerProductName));
 	PackGetStr(p, "ServerVersionString", t->ServerVersionString, sizeof(t->ServerVersionString));
 	PackGetStr(p, "ServerBuildInfoString", t->ServerBuildInfoString, sizeof(t->ServerBuildInfoString));
+	PackGetStr(p, "ServerBuildEnvironment", t->ServerBuildEnvironment, sizeof(t->ServerBuildEnvironment));
 	PackGetStr(p, "ServerSSLVersion", t->ServerSSLVersion, sizeof(t->ServerSSLVersion));
 	t->ServerVerInt = PackGetInt(p, "ServerVerInt");
 	t->ServerBuildInt = PackGetInt(p, "ServerBuildInt");
@@ -12311,6 +12313,7 @@ void OutRpcServerInfo(PACK *p, RPC_SERVER_INFO *t)
 	PackAddStr(p, "ServerProductName", t->ServerProductName);
 	PackAddStr(p, "ServerVersionString", t->ServerVersionString);
 	PackAddStr(p, "ServerBuildInfoString", t->ServerBuildInfoString);
+	PackAddStr(p, "ServerBuildEnvironment", t->ServerBuildEnvironment);
 	PackAddStr(p, "ServerSSLVersion", t->ServerSSLVersion);
 	PackAddInt(p, "ServerVerInt", t->ServerVerInt);
 	PackAddInt(p, "ServerBuildInt", t->ServerBuildInt);

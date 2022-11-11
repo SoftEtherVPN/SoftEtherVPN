@@ -953,6 +953,7 @@ struct CEDAR
 	LIST *NetSvcList;				// Network service list
 	char *VerString;				// Version string
 	char *BuildInfo;				// Build Information
+	char *BuildEnvironment;			// Build Environment
 	char *SSLVersion;				// SSL library version
 	struct CLIENT *Client;			// Client
 	struct SERVER *Server;			// Server
