@@ -14,7 +14,7 @@ jobs:
     displayName: 'Build'
   - script: |
       .ci/appveyor-deb-install-test.sh
-      sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip # To build OpenVPN
+      sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip libcap-ng-dev # To build OpenVPN
       sudo BUILD_BINARIESDIRECTORY=$BUILD_BINARIESDIRECTORY .ci/start-se-openvpn.sh
       sudo BUILD_BINARIESDIRECTORY=$BUILD_BINARIESDIRECTORY .ci/run-openvpn-tests.sh
     displayName: 'Test'
