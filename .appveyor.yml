@@ -18,7 +18,7 @@ init:
   - ps: Update-AppveyorBuild -Version "build-$env:APPVEYOR_BUILD_NUMBER-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
 
 install:
-  - sudo apt-get -y install libsodium-dev
+  - sudo apt-get -y install libsodium-dev libcap-ng-dev
 before_build:
   - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
   - git submodule update --init --recursive
