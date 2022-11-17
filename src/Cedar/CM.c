@@ -410,7 +410,7 @@ void CmEasyDlgOnKey(HWND hWnd, CM_EASY_DLG *d, bool ctrl, bool alt, UINT key)
 			break;
 		case 'O':
 			// Option settings
-			Command(hWnd, CMD_TRAFFIC);
+			Command(hWnd, CMD_OPTION);
 			break;
 		case 'R':
 			// Certificate management
@@ -5016,7 +5016,7 @@ void CmOnKey(HWND hWnd, bool ctrl, bool alt, UINT key)
 			break;
 		case 'O':
 			// Option settings
-			Command(hWnd, CMD_TRAFFIC);
+			Command(hWnd, CMD_OPTION);
 			break;
 		case 'R':
 			// Certificate management
