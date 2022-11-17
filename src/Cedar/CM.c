@@ -526,7 +526,7 @@ void CmEasyDlgOnKey(HWND hWnd, CM_EASY_DLG *d, bool ctrl, bool alt, UINT key)
 			break;
 		case 'O':
 			// Option settings
-			Command(hWnd, CMD_TRAFFIC);
+			Command(hWnd, CMD_OPTION);
 			break;
 		case 'R':
 			// Certificate management
@@ -4387,7 +4387,10 @@ UINT CmMainWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *p
 		switch (wParam)
 		{
 		case 1:
-			CmSetForegroundProcessToCnService();
+			if (MsIsWindows11() == false)
+			{
+				CmSetForegroundProcessToCnService();
+			}
 			break;
 		case 2:
 			CmPollingTray(hWnd);
@@ -5164,7 +5167,7 @@ void CmOnKey(HWND hWnd, bool ctrl, bool alt, UINT key)
 			break;
 		case 'O':
 			// Option settings
-			Command(hWnd, CMD_TRAFFIC);
+			Command(hWnd, CMD_OPTION);
 			break;
 		case 'R':
 			// Certificate management
@@ -11184,7 +11187,10 @@ void CmMainWindowOnInit(HWND hWnd)
 	CmInitNotifyClientThread();
 
 	// Timer setting
-	SetTimer(hWnd, 1, 128, NULL);
+	if (MsIsWindows11() == false)
+	{
+		SetTimer(hWnd, 1, 128, NULL);
+	}
 	SetTimer(hWnd, 6, 5000, NULL);
 
 	// Initialize the task tray

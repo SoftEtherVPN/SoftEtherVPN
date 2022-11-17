@@ -136,7 +136,7 @@ typedef struct x509_crl_st X509_CRL;
 #define	BUF_SIZE			512
 
 // Support Windows OS list
-#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016 / Server 2019"
+#define	SUPPORTED_WINDOWS_LIST		"Windows 98 / 98 SE / ME / NT 4.0 SP6a / 2000 SP4 / XP SP2, SP3 / Vista SP1, SP2 / 7 SP1 / 8 / 8.1 / 10 / 11 / Server 2003 SP2 / Server 2008 SP1, SP2 / Hyper-V Server 2008 / Server 2008 R2 SP1 / Hyper-V Server 2008 R2 / Server 2012 / Hyper-V Server 2012 / Server 2012 R2 / Hyper-V Server 2012 R2 / Server 2016 / Server 2019 / Server 2022"
 
 // Infinite
 #ifndef	WINDOWS_H
@@ -343,9 +343,10 @@ typedef UINT_PTR SOCKET;
 #define	OSTYPE_WINDOWS_81						2701	// Windows 8.1
 #define	OSTYPE_WINDOWS_SERVER_81				2711	// Windows Server 2012 R2
 #define	OSTYPE_WINDOWS_10						2702	// Windows 10
-#define	OSTYPE_WINDOWS_SERVER_10				2712	// Windows Server 10
-#define	OSTYPE_WINDOWS_11						2800	// Windows 11 or later
-#define	OSTYPE_WINDOWS_SERVER_11				2810	// Windows Server 11 or later
+#define	OSTYPE_WINDOWS_SERVER_10				2712	// Windows Server 2016 / 2019 / 2022
+#define	OSTYPE_WINDOWS_11						2800	// Windows 11
+#define	OSTYPE_WINDOWS_12						2801	// Windows 12 or later
+#define	OSTYPE_WINDOWS_SERVER_11				2810	// newer than Windows Server 2022
 #define	OSTYPE_UNIX_UNKNOWN						3000	// Unknown UNIX
 #define	OSTYPE_LINUX							3100	// Linux
 #define	OSTYPE_SOLARIS							3200	// Solaris

@@ -22873,6 +22873,7 @@ bool HttpSendNotImplemented(SOCK *s, char *method, char *target, char *version)
 	ReplaceStri(str, str_size, str, "$METHOD$", method);
 
 	// VERSION
+	ReplaceUnsafeCharInTarget(version);
 	ReplaceStri(str, str_size, str, "$VERSION$", version);
 
 	// Transmission

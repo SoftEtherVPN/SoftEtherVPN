@@ -5066,6 +5066,8 @@ void InitCryptLibrary()
 	ossl_provider_default = OSSL_PROVIDER_load(NULL, "default");
 #endif
 
+	GetSslLibVersion(NULL, 0);
+
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
 
@@ -6945,6 +6947,60 @@ crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c,
 		*clen_p = clen;
 	}
 	return ret;
+}
+
+static char ssl_version_cache[MAX_PATH] = CLEAN;
+
+void GetSslLibVersion(char *str, UINT size)
+{
+	if (IsEmptyStr(ssl_version_cache))
+	{
+		GetSslLibVersion_Internal(ssl_version_cache, sizeof(ssl_version_cache));
+	}
+
+	StrCpy(str, size, ssl_version_cache);
+}
+
+void GetSslLibVersion_Internal(char *str, UINT size)
+{
+	char tmp[MAX_PATH] = CLEAN;
+	UINT verint = 0;
+	UINT ver_major = 0;
+	UINT ver_minor = 0;
+	UINT ver_fix = 0;
+	UINT ver_patch = 0;
+	if (str == NULL)
+	{
+		return;
+	}
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	Format(tmp, sizeof(tmp), "OpenSSL <= 1.0.2");
+#else	// OPENSSL_VERSION_NUMBER
+	verint = OpenSSL_version_num();
+
+	ver_major = (verint >> 28) & 0x0F;
+	ver_minor = (verint >> 20) & 0xFF;
+	ver_fix = (verint >> 12) & 0xFF;
+	ver_patch = (verint >> 4) & 0xFF;
+
+	if (ver_major >= 3)
+	{
+		Format(tmp, sizeof(tmp), "OpenSSL %u.%u.%u", ver_major, ver_minor, ver_patch);
+	}
+	else
+	{
+		char c = 0;
+		if (ver_patch >= 1)
+		{
+			c = 'a' + (ver_patch - 1);
+		}
+		Format(tmp, sizeof(tmp), "OpenSSL %u.%u.%u%c", ver_major, ver_minor, ver_fix, c);
+	}
+
+#endif	// OPENSSL_VERSION_NUMBER
+
+	StrCpy(str, size, tmp);
 }
 
 // RFC 8439: ChaCha20-Poly1305-IETF Encryption with AEAD

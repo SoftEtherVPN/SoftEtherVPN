@@ -1442,12 +1442,20 @@ UINT Win32GetOsType()
 				{
 					if (os.wProductType == VER_NT_WORKSTATION)
 					{
-						// Windows 10
-						return OSTYPE_WINDOWS_10;
+						if (os.dwBuildNumber < 21996)
+						{
+							// Windows 10
+							return OSTYPE_WINDOWS_10;
+						}
+						else
+						{
+							// Windows 11
+							return OSTYPE_WINDOWS_11;
+						}
 					}
 					else
 					{
-						// Windows Server 10
+						// Windows Server 2016 / 2019 / 2022
 						return OSTYPE_WINDOWS_SERVER_10;
 					}
 				}
@@ -1455,8 +1463,8 @@ UINT Win32GetOsType()
 				{
 					if (os.wProductType == VER_NT_WORKSTATION)
 					{
-						// Windows 11 or later
-						return OSTYPE_WINDOWS_11;
+						// Windows 12 or later
+						return OSTYPE_WINDOWS_12;
 					}
 					else
 					{

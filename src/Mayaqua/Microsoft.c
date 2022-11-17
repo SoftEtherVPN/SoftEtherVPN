@@ -9184,6 +9184,27 @@ bool MsIsWindows10()
 	return false;
 }
 
+// Determine whether it's Windows 11 or later
+bool MsIsWindows11()
+{
+	OS_INFO *info = GetOsInfo();
+
+	if (info == NULL)
+	{
+		return false;
+	}
+
+	if (OS_IS_WINDOWS_NT(info->OsType))
+	{
+		if (GET_KETA(info->OsType, 100) >= 8)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Determine whether it's Windows 8.1 or later
 bool MsIsWindows81()
 {

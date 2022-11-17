@@ -665,6 +665,9 @@ bool Aead_ChaCha20Poly1305_Ietf_IsOpenSSL();
 void Aead_ChaCha20Poly1305_Ietf_Test();
 
 
+void GetSslLibVersion(char *str, UINT size);
+void GetSslLibVersion_Internal(char *str, UINT size);
+
 
 
 

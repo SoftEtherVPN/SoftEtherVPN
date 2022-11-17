@@ -1680,6 +1680,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 	char tmp[MAX_SIZE];
 	char tmp2[MAX_SIZE];
 	char *beta_str;
+	char ssl_lib_ver[MAX_PATH] = CLEAN;
 
 	CedarForceLink();
 
@@ -1798,8 +1799,10 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->VerString = CopyStr(tmp);
 
-	Format(tmp, sizeof(tmp), "Compiled %04u/%02u/%02u %02u:%02u:%02u by %s at %s",
-		BUILD_DATE_Y, BUILD_DATE_M, BUILD_DATE_D, BUILD_DATE_HO, BUILD_DATE_MI, BUILD_DATE_SE, BUILDER_NAME, BUILD_PLACE);
+	GetSslLibVersion(ssl_lib_ver, sizeof(ssl_lib_ver));
+
+	Format(tmp, sizeof(tmp), "Compiled %04u/%02u/%02u %02u:%02u:%02u by %s at %s with %s",
+		BUILD_DATE_Y, BUILD_DATE_M, BUILD_DATE_D, BUILD_DATE_HO, BUILD_DATE_MI, BUILD_DATE_SE, BUILDER_NAME, BUILD_PLACE, ssl_lib_ver);
 
 	c->BuildInfo = CopyStr(tmp);
 

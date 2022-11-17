@@ -191,11 +191,13 @@ char *OsTypeToStr(UINT type)
 	case OSTYPE_WINDOWS_10:
 		return "Windows 10\0\n";
 	case OSTYPE_WINDOWS_SERVER_10:
-		return "Windows Server 2016\0\n";
+		return "Windows Server 2016 / 2019 / 2022\0\n";
 	case OSTYPE_WINDOWS_11:
-		return "Newer than Windows 10\0\n";
+		return "Windows 11\0\n";
+	case OSTYPE_WINDOWS_12:
+		return "Windows 12 or later\0\n";
 	case OSTYPE_WINDOWS_SERVER_11:
-		return "Newer than Windows Server 2016\0\n";
+		return "Newer than Windows Server 2022\0\n";
 	case OSTYPE_UNIX_UNKNOWN:
 		return "UNIX System\0\n";
 	case OSTYPE_LINUX:

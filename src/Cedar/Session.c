@@ -1730,7 +1730,13 @@ void ClientThread(THREAD *t, void *param)
 				StrCpy(p.ServerName, sizeof(p.ServerName), s->ClientOption->Hostname);
 			}
 
-			p.RetryIntervalSec = s->RetryInterval / 1000;
+			if(s->CurrentRetryCount < s->ClientOption->NumRetry){
+				p.RetryIntervalSec = s->RetryInterval / 1000;
+			}else{
+				// Disable the retry timeout if retries exceeds the limit
+				p.RetryIntervalSec = 0;
+			}
+
 			p.Type = s->ClientAuth->AuthType;
 
 			// Display the password re-entry dialog

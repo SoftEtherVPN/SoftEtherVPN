@@ -302,6 +302,9 @@ SECURE_DEVICE SupportedList[] =
 	{22,	SECURE_USB_TOKEN,	"CryptoID",				"Longmai Technology",	"cryptoide_pkcs11.dll"},
 	{23,	SECURE_USB_TOKEN,	"RuToken",				"Aktiv Co.",			"rtPKCS11.dll"},
 	{24,	SECURE_IC_CARD,		"JPKI IC Card (64-bit)",	"Japanese Government",	"JPKIPKCS1164.DLL"},
+	{25,	SECURE_USB_TOKEN,	"SafeNet",				"SafeNet",				"IDPrimePKCS1164.dll "},
+	{26,	SECURE_USB_TOKEN,	"OpenSC",				"OpenSC",				"opensc-pkcs11.dll"},
+	{27,	SECURE_USB_TOKEN,	"SHALO AUTH",			"AXELL CORPORATION",	"slpkcs11-vc.dll"},
 };
 
 #ifdef	OS_WIN32
