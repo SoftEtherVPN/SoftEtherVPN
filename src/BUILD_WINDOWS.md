@@ -112,6 +112,34 @@ into it. So that is what will be described below.
 
    Delete and regenerate CMake cache after the change.
 
+1. OpenSSL
+
+   The above instruction builds OpenSSL library statically in the SoftEther binaries,
+   so that when you distribute the installer to others they will not need to install OpenSSL separately.
+   However, the downside is that the OpenSSL library cannot be updated without a rebuild and reinstallation of SoftEther.
+   
+   It's also possible to build OpenSSL library dynamically so that you can update OpenSSL without rebuilding SoftEther.
+   To achieve that, you need to remove `openssl` from `vcpkg.json` and install OpenSSL directly.
+   
+   Installing from a package manager such as [Scoop](https://scoop.sh/) would make the subsequent updates easily.
+   However, you should avoid using [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
+   for the time being because due to a bug it cannot detect the correct version of OpenSSL, causing endless updates.
+   
+   If you install from Scoop, make sure to add the OpenSSL folder to the system's `PATH`.
+   As Scoop already adds it to the user's `PATH`, just copy the same location into the system environment variable(s).
+   SoftEther Client Service starts from the System account and will fail to start if OpenSSL is not in the global `PATH`.
+   
+   Building should be straightforward. You can verify that the binaries are now linked against the locally installed OpenSSL
+   with tools like `ldd` (available from Git Bash):
+
+   ```bash
+   $ ldd /c/Program\ Files/SoftEther\ VPN\ Client\ Developer\ Edition/vpnclient.exe
+        ...
+        libcrypto-3-x64.dll => /c/Scoop/apps/openssl/current/bin/libcrypto-3-x64.dll (0x7ff8beb70000)
+        libssl-3-x64.dll => /c/Scoop/apps/openssl/current/bin/libssl-3-x64.dll (0x7ff8beaa0000)
+        ...
+   ```
+
 1. 32-bit Windows
 
    You don't need 32-bit Windows to build 32-bit executables. However, if 32-bit Windows is what you only have, things become a little complicated.
