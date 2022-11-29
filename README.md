@@ -276,7 +276,7 @@ on all the following open-source repositories:
         $ git clone https://gitlab.com/SoftEther/VPN.git
 
   - OneDev (mirrored from GitHub)
-    https://code.onedev.io/projects/497
+    https://code.onedev.io/SoftEther/VPN
 
         $ git clone https://code.onedev.io/SoftEther/VPN.git
 
