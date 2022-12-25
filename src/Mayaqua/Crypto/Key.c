@@ -14,8 +14,10 @@ static int CryptoKeyTypeToID(const CRYPTO_KEY_TYPE type)
 			break;
 		case KEY_X25519:
 			return EVP_PKEY_X25519;
+#if defined(EVP_PKEY_X448)
 		case KEY_X448:
 			return EVP_PKEY_X448;
+#endif
 		default:
 			Debug("CryptoKeyTypeToID(): Unhandled type %u!\n", type);
 	}
@@ -164,9 +166,11 @@ bool CryptoKeyOpaqueToRaw(const void *opaque, CRYPTO_KEY_RAW **private, CRYPTO_K
 	case EVP_PKEY_X25519:
 		type = KEY_X25519;
 		break;
+#if defined(EVP_PKEY_X448)
 	case EVP_PKEY_X448:
 		type = KEY_X448;
 		break;
+#endif
 	default:
 		return false;
 	}

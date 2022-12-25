@@ -11892,7 +11892,9 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 						{
 						case SSL_R_UNSUPPORTED_PROTOCOL:
 						case SSL_R_VERSION_TOO_LOW:
+#if defined(SSL_R_VERSION_TOO_HIGH)
 						case SSL_R_VERSION_TOO_HIGH:
+#endif
 							*ssl_err = 150;	// ERR_SSL_PROTOCOL_VERSION
 							break;
 						case SSL_R_NO_SHARED_CIPHER:
@@ -11956,7 +11958,9 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 						{
 						case SSL_R_UNSUPPORTED_PROTOCOL:
 						case SSL_R_VERSION_TOO_LOW:
+#if defined(SSL_R_VERSION_TOO_HIGH)
 						case SSL_R_VERSION_TOO_HIGH:
+#endif
 						case SSL_R_TLSV1_ALERT_PROTOCOL_VERSION:
 							*ssl_err = 150;	// ERR_SSL_PROTOCOL_VERSION
 							break;
