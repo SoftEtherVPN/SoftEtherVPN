@@ -6921,7 +6921,7 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 
 	h = ZeroMalloc(sizeof(HUB));
 	Sha0(h->HashedPassword, "", 0);
-	HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "");
+	HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "", false);
 	h->lock = NewLock();
 	h->lock_online = NewLock();
 	h->ref = NewRef();

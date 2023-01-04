@@ -990,9 +990,9 @@ UINT ChangePassword(CEDAR *cedar, CLIENT_OPTION *o, char *hubname, char *usernam
 
 		sock = s->Connection->FirstSock;
 
-		HashPassword(old_password, username, old_pass);
+		HashPassword(old_password, username, old_pass, false);
 		SecurePassword(secure_old_password, old_password, s->Connection->Random);
-		HashPassword(new_password, username, new_pass);
+		HashPassword(new_password, username, new_pass, false);
 		GenerateNtPasswordHash(new_password_ntlm, new_pass);
 
 		PackAddClientVersion(p, s->Connection);
@@ -1864,7 +1864,7 @@ bool ServerAccept(CONNECTION *c)
 							// Check whether the password was empty
 							UCHAR hashed_empty_password[SHA1_SIZE];
 							UCHAR secure_empty_password[SHA1_SIZE];
-							HashPassword(hashed_empty_password, username, "");
+							HashPassword(hashed_empty_password, username, "", false);
 							SecurePassword(secure_empty_password, hashed_empty_password, c->Random);
 							if(Cmp(secure_password, secure_empty_password, SHA1_SIZE)==0){
 								is_empty_password = true;
@@ -1893,7 +1893,7 @@ bool ServerAccept(CONNECTION *c)
 							UCHAR hash_password[SHA1_SIZE];
 							bool is_mschap = StartWith(plain_password, IPC_PASSWORD_MSCHAPV2_TAG);
 
-							HashPassword(hash_password, username, plain_password);
+							HashPassword(hash_password, username, plain_password, false);
 							SecurePassword(secure_password, hash_password, c->Random);
 
 							if (is_mschap == false)

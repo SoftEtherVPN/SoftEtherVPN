@@ -3032,7 +3032,7 @@ bool SmSetupInit(HWND hWnd, SM_SETUP *s)
 
 		Zero(&t, sizeof(t));
 		Sha0(t.HashedPassword, password, StrLen(password));
-		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password);
+		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password, false);
 		StrCpy(t.HubName, sizeof(t.HubName), s->HubName);
 		t.HubType = HUB_TYPE_STANDALONE;
 		t.Online = true;
@@ -14036,7 +14036,7 @@ void SmEditUserDlgUpdate(HWND hWnd, SM_EDIT_USER *s)
 		{
 			if (StrCmp(tmp1, HIDDEN_PASSWORD) != 0)
 			{
-				HashPassword(((AUTHPASSWORD *)u->AuthData)->HashedKey, u->Name, tmp1);
+				HashPassword(((AUTHPASSWORD *)u->AuthData)->HashedKey, u->Name, tmp1, false);
 				GenerateNtPasswordHash(((AUTHPASSWORD *)u->AuthData)->NtLmSecureHash, tmp1);
 			}
 		}
@@ -17422,7 +17422,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	if (s->EditMode == false || StrCmp(pass1, HIDDEN_PASSWORD) != 0)
 	{
 		Sha0(t.HashedPassword, pass1, StrLen(pass1));
-		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1);
+		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1, false);
 	}
 
 	if (IsChecked(hWnd, R_LIMIT_MAX_SESSION))

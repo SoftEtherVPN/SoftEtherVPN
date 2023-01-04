@@ -5044,7 +5044,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 		}
 		if (CfgGetByte(f, "SecurePassword", h->SecurePassword, sizeof(h->SecurePassword)) != sizeof(h->SecurePassword))
 		{
-			HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "");
+			HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "", false);
 		}
 
 		// Log Settings

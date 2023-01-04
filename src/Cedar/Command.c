@@ -4757,7 +4757,7 @@ UINT PcAccountPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PASSWORD;
 			HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username,
-				GetParamStr(o, "PASSWORD"));
+				GetParamStr(o, "PASSWORD"), false);
 		}
 		else if (StartWith("radius", typestr) || StartWith("ntdomain", typestr))
 		{
@@ -10895,7 +10895,7 @@ UINT PsHubCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -10947,7 +10947,7 @@ UINT PsHubCreateDynamic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -10999,7 +10999,7 @@ UINT PsHubCreateStatic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -11574,7 +11574,7 @@ UINT PsSetHubPassword(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	// Change the settings
 	pw = GetParamStr(o, "[password]");
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pw);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pw, false);
 	Sha0(t.HashedPassword, pw, StrLen(pw));
 
 	// Write the configuration of Virtual HUB
@@ -13549,7 +13549,7 @@ UINT PsCascadePasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PASSWORD;
 			HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username,
-				GetParamStr(o, "PASSWORD"));
+				GetParamStr(o, "PASSWORD"), false);
 		}
 		else if (StartWith("radius", typestr) || StartWith("ntdomain", typestr))
 		{

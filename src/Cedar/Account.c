@@ -553,7 +553,7 @@ void *NewUserCertAuthData(X *x)
 }
 
 // Hash the password
-void HashPassword(void *dst, char *username, char *password)
+void HashPassword(void *dst, char *username, char *password, bool sha1)
 {
 	BUF *b;
 	char *username_upper;
@@ -568,7 +568,15 @@ void HashPassword(void *dst, char *username, char *password)
 	StrUpper(username_upper);
 	WriteBuf(b, password, StrLen(password));
 	WriteBuf(b, username_upper, StrLen(username_upper));
-	Sha0(dst, b->Buf, b->Size);
+
+	if (sha1)
+	{
+		Sha1(dst, b->Buf, b->Size);
+	}
+	else
+	{
+		Sha0(dst, b->Buf, b->Size);
+	}
 
 	FreeBuf(b);
 	Free(username_upper);
@@ -585,7 +593,7 @@ void *NewPasswordAuthData(char *username, char *password)
 	}
 
 	pw = ZeroMalloc(sizeof(AUTHPASSWORD));
-	HashPassword(pw->HashedKey, username, password);
+	HashPassword(pw->HashedKey, username, password, false);
 	GenerateNtPasswordHash(pw->NtLmSecureHash, password);
 
 	return pw;

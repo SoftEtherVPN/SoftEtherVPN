@@ -9107,7 +9107,7 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	if (StrLen(t->AdminPasswordPlainText) != 0)
 	{
 		Sha0(t->HashedPassword, t->AdminPasswordPlainText, StrLen(t->AdminPasswordPlainText));
-		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText);
+		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText, false);
 	}
 
 	if (IsZero(t->HashedPassword, sizeof(t->HashedPassword)) == false &&
@@ -9123,7 +9123,7 @@ UINT StSetHub(ADMIN *a, RPC_CREATE_HUB *t)
 	// Is the password to be set blank
 	{
 		UCHAR hash1[SHA1_SIZE], hash2[SHA1_SIZE];
-		HashPassword(hash1, ADMINISTRATOR_USERNAME, "");
+		HashPassword(hash1, ADMINISTRATOR_USERNAME, "", false);
 		Sha0(hash2, "", 0);
 
 		if (Cmp(t->HashedPassword, hash2, SHA1_SIZE) == 0 || Cmp(t->SecurePassword, hash1, SHA1_SIZE) == 0)
@@ -9290,7 +9290,7 @@ UINT StCreateHub(ADMIN *a, RPC_CREATE_HUB *t)
 		StrLen(t->AdminPasswordPlainText) != 0)
 	{
 		Sha0(t->HashedPassword, t->AdminPasswordPlainText, StrLen(t->AdminPasswordPlainText));
-		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText);
+		HashPassword(t->SecurePassword, ADMINISTRATOR_USERNAME, t->AdminPasswordPlainText, false);
 	}
 
 	h = NewHub(c, t->HubName, &o);
@@ -14070,7 +14070,7 @@ void *InRpcAuthData(PACK *p, UINT *authtype, char *username)
 		{
 			if (IsZero(pw->HashedKey, sizeof(pw->HashedKey)))
 			{
-				HashPassword(pw->HashedKey, username, plain_pw);
+				HashPassword(pw->HashedKey, username, plain_pw, false);
 				GenerateNtPasswordHash(pw->NtLmSecureHash, plain_pw);
 			}
 		}
