@@ -1644,6 +1644,8 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("GetSpecialListener", RPC_SPECIAL_LISTENER, StGetSpecialListener, InRpcSpecialListener, OutRpcSpecialListener)
 	DECLARE_RPC("GetAzureStatus", RPC_AZURE_STATUS, StGetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 	DECLARE_RPC("SetAzureStatus", RPC_AZURE_STATUS, StSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
+	DECLARE_RPC_EX("SetAzureCustom", RPC_AZURE_CUSTOM, StSetAzureCustom, InRpcAzureCustom, OutRpcAzureCustom, FreeRpcAzureCustom)
+	DECLARE_RPC_EX("GetAzureCustom", RPC_AZURE_CUSTOM, StGetAzureCustom, InRpcAzureCustom, OutRpcAzureCustom, FreeRpcAzureCustom)
 	DECLARE_RPC("GetDDnsInternetSettng", INTERNET_SETTING, StGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 	DECLARE_RPC("SetDDnsInternetSettng", INTERNET_SETTING, StSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 	// RPC function declaration: till here
@@ -1831,6 +1833,8 @@ DECLARE_SC("SetSpecialListener", RPC_SPECIAL_LISTENER, ScSetSpecialListener, InR
 DECLARE_SC("GetSpecialListener", RPC_SPECIAL_LISTENER, ScGetSpecialListener, InRpcSpecialListener, OutRpcSpecialListener)
 DECLARE_SC("GetAzureStatus", RPC_AZURE_STATUS, ScGetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 DECLARE_SC("SetAzureStatus", RPC_AZURE_STATUS, ScSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
+DECLARE_SC_EX("GetAzureCustom", RPC_AZURE_CUSTOM, ScGetAzureCustom, InRpcAzureCustom, OutRpcAzureCustom, FreeRpcAzureCustom)
+DECLARE_SC_EX("SetAzureCustom", RPC_AZURE_CUSTOM, ScSetAzureCustom, InRpcAzureCustom, OutRpcAzureCustom, FreeRpcAzureCustom)
 DECLARE_SC("GetDDnsInternetSettng", INTERNET_SETTING, ScGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 DECLARE_SC("SetDDnsInternetSettng", INTERNET_SETTING, ScSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 // RPC call function declaration: till here
@@ -1919,6 +1923,12 @@ UINT StGetAzureStatus(ADMIN *a, RPC_AZURE_STATUS *t)
 	{
 		t->IsConnected = ac->IsConnected;
 		t->IsEnabled = ac->IsEnabled;
+		t->UseCustom = ac->UseCustom;
+
+		if (ac->UseCustom && ac->CustomConfig != NULL)
+		{
+			StrCpy(t->CurrentHostname, sizeof(t->CurrentHostname), ac->CustomConfig->Hostname);
+		}
 	}
 	Unlock(ac->Lock);
 
@@ -1940,7 +1950,90 @@ UINT StSetAzureStatus(ADMIN *a, RPC_AZURE_STATUS *t)
 		return ERR_NOT_SUPPORTED;
 	}
 
-	SiSetAzureEnable(s, t->IsEnabled);
+	SiSetAzureEnable(s, t->IsEnabled, t->UseCustom);
+
+	IncrementServerConfigRevision(s);
+
+	return ERR_NO_ERROR;
+}
+
+// Get Azure custom config
+UINT StGetAzureCustom(ADMIN *a, RPC_AZURE_CUSTOM *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	UINT ret = ERR_NO_ERROR;
+	AZURE_CLIENT *ac;
+
+	SERVER_ADMIN_ONLY;
+	NO_SUPPORT_FOR_BRIDGE;
+
+	if (SiIsAzureSupported(s) == false)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	ac = s->AzureClient;
+	if (ac == NULL)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	Zero(t, sizeof(RPC_AZURE_CUSTOM));
+
+	Lock(ac->Lock);
+	{
+		if (ac->CustomConfig != NULL)
+		{
+			StrCpy(t->ServerName, sizeof(t->ServerName), ac->CustomConfig->ServerName);
+			t->ServerPort = ac->CustomConfig->ServerPort;
+			StrCpy(t->Hostname, sizeof(t->Hostname), ac->CustomConfig->Hostname);
+			Copy(t->HashedPassword, ac->CustomConfig->HashedPassword, SHA1_SIZE);
+			t->ClientX = CloneX(ac->CustomConfig->ClientX);
+			t->ClientK = CloneK(ac->CustomConfig->ClientK);
+			t->ServerCert = CloneX(ac->CustomConfig->ServerCert);
+			t->VerifyServer = ac->CustomConfig->VerifyServer;
+			t->AddDefaultCA = ac->CustomConfig->AddDefaultCA;
+		}
+	}
+	Unlock(ac->Lock);
+
+	return ERR_NO_ERROR;
+}
+
+// Set Azure custom config
+UINT StSetAzureCustom(ADMIN *a, RPC_AZURE_CUSTOM *t)
+{
+	SERVER *s = a->Server;
+	CEDAR *c = s->Cedar;
+	UINT ret = ERR_NO_ERROR;
+
+	SERVER_ADMIN_ONLY;
+	NO_SUPPORT_FOR_BRIDGE;
+
+	if (SiIsAzureSupported(s) == false)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	AZURE_CUSTOM_CONFIG *config = ZeroMalloc(sizeof(AZURE_CUSTOM_CONFIG));
+
+	if (t->ClientX != NULL && t->ClientK != NULL && CheckXandK(t->ClientX, t->ClientK) == false)
+	{
+		return ERR_PROTOCOL_ERROR;
+	}
+
+	StrCpy(config->ServerName, sizeof(config->ServerName), t->ServerName);
+	config->ServerPort = t->ServerPort;
+	StrCpy(config->Hostname, sizeof(config->Hostname), t->Hostname);
+	Copy(config->HashedPassword, t->HashedPassword, SHA1_SIZE);
+	config->ClientX = CloneX(t->ClientX);
+	config->ClientK = CloneK(t->ClientK);
+	config->ServerCert = CloneX(t->ServerCert);
+	config->VerifyServer = t->VerifyServer;
+	config->AddDefaultCA = t->AddDefaultCA;
+
+	SiApplyAzureConfig(s, NULL, config);
 
 	IncrementServerConfigRevision(s);
 
@@ -10545,6 +10638,8 @@ void InRpcAzureStatus(RPC_AZURE_STATUS *t, PACK *p)
 
 	t->IsConnected = PackGetBool(p, "IsConnected");
 	t->IsEnabled = PackGetBool(p, "IsEnabled");
+	t->UseCustom = PackGetBool(p, "UseCustom");
+	PackGetStr(p, "CurrentHostname", t->CurrentHostname, sizeof(t->CurrentHostname));
 }
 void OutRpcAzureStatus(PACK *p, RPC_AZURE_STATUS *t)
 {
@@ -10556,6 +10651,60 @@ void OutRpcAzureStatus(PACK *p, RPC_AZURE_STATUS *t)
 
 	PackAddBool(p, "IsConnected", t->IsConnected);
 	PackAddBool(p, "IsEnabled", t->IsEnabled);
+	PackAddBool(p, "UseCustom", t->UseCustom);
+	PackAddStr(p, "CurrentHostname", t->CurrentHostname);
+}
+
+// RPC_AZURE_CUSTOM
+void InRpcAzureCustom(RPC_AZURE_CUSTOM *t, PACK *p)
+{
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(RPC_AZURE_CUSTOM));
+
+	PackGetStr(p, "ServerName", t->ServerName, sizeof(t->ServerName));
+	t->ServerPort = PackGetInt(p, "ServerPort");
+	PackGetStr(p, "Hostname", t->Hostname, sizeof(t->Hostname));
+	PackGetData2(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
+	t->ClientX = PackGetX(p, "ClientCert");
+	t->ClientK = PackGetK(p, "ClientKey");
+	t->ServerCert = PackGetX(p, "ServerCert");
+	t->VerifyServer = PackGetBool(p, "VerifyServer");
+	t->AddDefaultCA = PackGetBool(p, "AddDefaultCA");
+}
+void OutRpcAzureCustom(PACK *p, RPC_AZURE_CUSTOM *t)
+{
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	PackAddStr(p, "ServerName", t->ServerName);
+	PackAddInt(p, "ServerPort", t->ServerPort);
+	PackAddStr(p, "Hostname", t->Hostname);
+	PackAddData(p, "HashedPassword", t->HashedPassword, sizeof(t->HashedPassword));
+	PackAddX(p, "ClientCert", t->ClientX);
+	PackAddK(p, "ClientKey", t->ClientK);
+	PackAddX(p, "ServerCert", t->ServerCert);
+	PackAddBool(p, "VerifyServer", t->VerifyServer);
+	PackAddBool(p, "AddDefaultCA", t->AddDefaultCA);
+}
+void FreeRpcAzureCustom(RPC_AZURE_CUSTOM *t)
+{
+	// Validate arguments
+	if (t == NULL)
+	{
+		return;
+	}
+
+	FreeX(t->ServerCert);
+	FreeX(t->ClientX);
+	FreeK(t->ClientK);
 }
 
 // RPC_SPECIAL_LISTENER

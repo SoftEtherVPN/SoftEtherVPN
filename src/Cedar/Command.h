@@ -610,6 +610,8 @@ UINT PsDynamicDnsGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param
 UINT PsDynamicDnsSetHostname(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsVpnAzureSetCustom(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsVpnAzureGetCustom(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 
 
 #endif	// COMMAND_H
