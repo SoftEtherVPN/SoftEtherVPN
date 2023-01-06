@@ -4139,6 +4139,7 @@ R_ENABLE				VPN Azure を有効にする(&E)
 R_DISABLE				VPN Azure を無効にする(&D)
 S_HOSTNAME_BORDER		現在の VPN Azure ホスト名
 S_HOSTNAME_INFO			VPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。
+S_HOSTNAME_CUSTOM		カスタム VPN Azure サービスが有効になっています。VPN Azure ホスト名は、vpncmd コマンドからのみ変更できます。
 B_CHANGE				ホスト名の変更(&H)
 B_WEB					VPN Azure の使い方\r\n(Web サイトを表示)
 IDCANCEL				&OK

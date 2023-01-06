@@ -4146,6 +4146,7 @@ R_ENABLE				启用 VPN Azure(&E)
 R_DISABLE				禁用 VPN Azure(&D)
 S_HOSTNAME_BORDER		当前 VPN Azure 主机名
 S_HOSTNAME_INFO			VPN Azure 主机名与动态 DNS 主机名相同，但改变的域名后缀为“vpnazure.net”。
+S_HOSTNAME_CUSTOM		自定义 VPN Azure 服务已启用。VPN Azure 主机名只能通过 vpncmd 命令更改。
 B_CHANGE				变更主机名(&H)
 B_WEB					如何使用 VPN Azure\r\n(访问网络)
 IDCANCEL				确定(&O)

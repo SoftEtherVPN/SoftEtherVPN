@@ -4117,6 +4117,7 @@ R_ENABLE VPN Azure를 사용 (&E)
 R_DISABLE VPN Azure를 비활성화 (&D)
 S_HOSTNAME_BORDER 현재 VPN Azure 호스트 이름
 S_HOSTNAME_INFO VPN Azure 호스트 이름은 동적 DNS 서비스 호스트 이름의 도메인 부분을 "vpnazure.net"로 변경 한 것이 사용됩니다.
+S_HOSTNAME_CUSTOM		Custom VPN Azure service is enabled. The VPN Azure hostname can only be changed from the vpncmd command.
 B_CHANGE 호스트 이름 변경 (&H)
 B_WEB VPN Azure 사용 \r\n (Web 사이트보기)
 IDCANCEL & OK

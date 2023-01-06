@@ -4146,6 +4146,7 @@ R_ENABLE				啟用 VPN Azure(&E)
 R_DISABLE				禁用 VPN Azure(&D)
 S_HOSTNAME_BORDER		當前 VPN Azure 主機名稱
 S_HOSTNAME_INFO			VPN Azure 主機名稱與動態 DNS 主機名稱相同，但改變的功能變數名稱尾碼為“vpnazure.net”。
+S_HOSTNAME_CUSTOM		自定義 VPN Azure 服務已啟用。VPN Azure 主機名稱只能通過 vpncmd 命令更改。
 B_CHANGE				變更主機名稱(&H)
 B_WEB					如何使用 VPN Azure\r\n(訪問網路)
 IDCANCEL				確定(&O)
