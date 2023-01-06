@@ -4476,7 +4476,7 @@ CMD_SAVEKEYPATH				保存金鑰到檔案名:
 CMD_SAVEKEY_FAILED			無法保存金鑰檔案。
 CMD_SAVEFILE_FAILED			無法保存檔案。
 CMD_LOADFILE_FAILED			無法打開檔案。
-CMD_LOADCERTPATH			從……檔案名讀取 X.509 證書: 
+CMD_LOADCERTPATH			從檔案名……讀取 X.509 證書: 
 CMD_LOADCERT_FAILED			無法讀取證書檔案。
 CMD_LOADKEYPATH				從檔案名……讀取私密金鑰: 
 CMD_LOADKEY_FAILED			無法讀取金鑰文件。
@@ -6471,6 +6471,7 @@ CMD_VpnAzureGetStatus			顯示 VPN Azure 功能的當前狀態
 CMD_VpnAzureGetStatus_Help		獲取和顯示 VPN Azure 功能的當前狀態。\n\nVPN Azure 可以更容易地從你家裡的電腦到你辦公室的電腦建立一個VPN會話。當一個 VPN 連接建立了，您可以訪問您公司私人網路上的任何其他伺服器。在辦公室的電腦（VPN 伺服器）上，你並不需要一個全球 IP 位址。它可以在防火牆或 NAT 後面工作。無需網路系統管理員的配置。您可以在您的家用電腦使用 Windows 內置的 SSTP VPN 用戶端。\nVPN Azure 是一個雲 VPN 服務由 SoftEther 公司經營。VPN Azure 是免費的，可提供給任何人。訪問 http://www.vpnazure.net/ 查看詳細資訊和如何使用的說明。\n\nVPN Azure 主機名稱與動態 DNS 設置的主機名稱相同，但改變的功能變數名稱尾碼為“vpnazure.net”。要改變主機名稱使用 DynamicDnsSetHostname 命令。\n\n要執行此命令，你必須具有VPN 伺服器管理員許可權。\n此命令不能在 VPN 橋接器上運行。\n以集群成員運行的 VPN 伺服器的虛擬 HUB 不能執行此命令。
 CMD_VpnAzureGetStatus_Args		VpnAzureGetStatus
 CMD_VpnAzureGetStatus_PRINT_ENABLED		VPN Azure 功能已啟用
+CMD_VpnAzureGetStatus_PRINT_CUSTOM	使用自定義 VPN Azure 服務
 CMD_VpnAzureGetStatus_PRINT_CONNECTED	至 VPN Azure 雲伺服器的連接建立
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	在 VPN Azure 服務上的本 VPN 伺服器的主機名稱
 
@@ -6478,9 +6479,47 @@ CMD_VpnAzureGetStatus_PRINT_HOSTNAME	在 VPN Azure 服務上的本 VPN 伺服器
 # VpnAzureSetStatus command
 CMD_VpnAzureSetEnable			啟用/禁用 VPN Azure 功能
 CMD_VpnAzureSetEnable_Help		啟用或禁用 VPN Azure 功能。\n\nVPN Azure 可以更容易地從你家裡的電腦到你辦公室的電腦建立一個 VPN 會話。當一個 VPN 連接建立了，您可以訪問您公司私人網路絡上的任何其他伺服器。\n在辦公室的電腦（VPN 伺服器）上，你並不需要一個全球 IP 位址。它可以在防火牆或 NAT 後面工作。無需網路系統管理員的配置。您可以在您的家用電腦使用 Windows 內置的 SSTP VPN 用戶端。\nVPN Azure 是一個雲 VPN 服務由 SoftEther 公司經營。VPN Azure 是免費的，可提供給任何人。訪問 http://www.vpnazure.net/ 查看詳細資訊和如何使用的說明。\n\nVPN Azure 主機名稱與動態 DNS 設置的主機名稱相同，但改變的功能變數名稱尾碼為“vpnazure.net”。要改變主機名稱使用 DynamicDnsSetHostname 命令。\n\n要執行此命令，你必須具有 VPN 伺服器管理員許可權。\n此命令不能在 VPN 橋接器上運行。\n以集群成員運行的 VPN 伺服器的虛擬 HUB 不能執行此命令。
-CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
+CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no] [/CUSTOM:yes|no]
 CMD_VpnAzureSetEnable_[yes|no]	指定“yes”，啟用 VPN Azure。“no”禁用它。
+CMD_VpnAzureSetEnable_CUSTOM	指定“yes”以使用自定義 VPN Azure 服務。 “no”使用默認服務。
 CMD_VpnAzureSetEnable_PROMPT	啟用 VPN Azure (yes/no): 
+CMD_VpnAzureSetEnableCustom_PROMPT	使用自定義 VPN Azure 服務 (yes / no): 
+
+
+# VpnAzureGetCustom command
+CMD_VpnAzureGetCustom			顯示自定義 VPN Azure 服務的當前配置
+CMD_VpnAzureGetCustom_Help		獲取並顯示自定義 VPN Azure 服務的當前配置。\n\n自定義 VPN Azure 不依賴於動態 DNS 服務，並允許您將 VPN Azure 功能與私人託管的中繼服務器一起使用。
+CMD_VpnAzureGetCustom_Args		VpnAzureGetCustom
+CMD_VpnAzureGetCustom_PRINT_SERVERNAME		伺服器地址
+CMD_VpnAzureGetCustom_PRINT_SERVERPORT		埠號
+CMD_VpnAzureGetCustom_PRINT_HOSTNAME		VPN Azure 主機名稱
+CMD_VpnAzureGetCustom_PRINT_CLIENTCERT		已註冊的客戶端證書
+CMD_VpnAzureGetCustom_PRINT_SERVERCERT		已註冊的伺服器證書
+CMD_VpnAzureGetCustom_PRINT_VERIFYSERVER	驗證伺服器證書
+CMD_VpnAzureGetCustom_PRINT_DEFAULTCA		信任系統憑證存放區
+
+
+# VpnAzureSetCustom command
+CMD_VpnAzureSetCustom			設置自定義 VPN Azure 服務的當前配置
+CMD_VpnAzureSetCustom_Help		設置自定義 VPN Azure 服務的當前配置。\n\n自定義 VPN Azure 不依賴於動態 DNS 服務，並允許您將 VPN Azure 功能與私人託管的中繼服務器一起使用。
+CMD_VpnAzureSetCustom_Args		VpnAzureSetCustom [/SERVER:server:port] [/HOSTNAME:hostname] [/PASSWORD:password] [/LOADCERT:path] [/LOADKEY:path] [/VERIFY:yes|no] [/TRUSTCA:yes|no] [/SERVCERT:path]
+CMD_VpnAzureSetCustom_SERVER				指定 VPN Azure 伺服器的主機名稱和端口號。
+CMD_VpnAzureSetCustom_HOSTNAME				指定 VPN Azure 客戶端主機名稱。
+CMD_VpnAzureSetCustom_PASSWORD				指定 VPN Azure 客戶端的密碼。 如果不需要密碼，請留空。
+CMD_VpnAzureSetCustom_LOADCERT				指定用於客戶端證書認證的 X.509 格式證書文件。 如果不需要，請留空。
+CMD_VpnAzureSetCustom_LOADKEY				為證書指定 Base-64 編碼的私鑰文件名。 如果不需要，請留空。
+CMD_VpnAzureSetCustom_VERIFY				指定是否驗證 VPN Azure 伺服器的證書。
+CMD_VpnAzureSetCustom_TRUSTCA				指定在驗證 VPN Azure 伺服器時是否使用系統憑證存放區。
+CMD_VpnAzureSetCustom_SERVCERT				指定用於伺服器證書驗證的 X.509 格式證書文件。 如果不需要，請留空。
+CMD_VpnAzureSetCustom_Prompt_Server			VPN Azure 伺服器地址和端口號： 
+CMD_VpnAzureSetCustom_Prompt_Hostname		VPN Azure 客戶端主機名稱（例如 vpn1234.myazure.net）： 
+CMD_VpnAzureSetCustom_Prompt_ClientX		從檔案名……讀取用於客戶端身份驗證的 X.509 證書:\n如果客戶端不使用證書身份驗證，則留空。\n
+CMD_VpnAzureSetCustom_Prompt_ClientK		從檔案名……讀取用於客戶端身份驗證的私密金鑰:\n如果客戶端不使用證書身份驗證，則留空。\n
+CMD_VpnAzureSetCustom_Prompt_Verify			驗證 VPN Azure 伺服器的證書（是/否）： 
+CMD_VpnAzureSetCustom_Prompt_TrustCA		驗證 VPN Azure 伺服器時使用系統憑證存放區（是/否）： 
+CMD_VpnAzureSetCustom_Prompt_ServerX		從檔案名……讀取用於伺服器身份驗證的 X.509 證書:\n如果不需要，請留空。\n
+CMD_VpnAzureSetCustom_MSG_ClientCertLoaded	成功保存了一對證書和私鑰，用於客戶端身份驗證。
+CMD_VpnAzureSetCustom_MSG_ServerCertLoaded	已成功保存伺服器證書以進行伺服器驗證。
 
 
 
