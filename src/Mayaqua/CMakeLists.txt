@@ -63,6 +63,8 @@ if(WIN32)
       "setupapi.lib"
       "winmm.lib"
       "WtsApi32.Lib"
+      "ws2_32.lib"
+      "crypt32.lib"
     )
 endif()
 
