@@ -54,6 +54,7 @@ if(WIN32)
 
   target_link_libraries(mayaqua
     PRIVATE
+      "crypt32.lib"
       "DbgHelp.Lib"
       "dwmapi.lib"
       "iphlpapi.lib"
@@ -62,6 +63,7 @@ if(WIN32)
       "Secur32.Lib"
       "setupapi.lib"
       "winmm.lib"
+      "ws2_32.lib"
       "WtsApi32.Lib"
     )
 endif()
