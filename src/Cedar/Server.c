@@ -8130,12 +8130,10 @@ PACK *SiCalledCreateTicket(SERVER *s, PACK *p)
 	if (PackGetDataSize(p, "Ticket") == SHA1_SIZE)
 	{
 		PackGetData(p, "Ticket", ticket);
+		BinToStr(ticket_str, sizeof(ticket_str), ticket, SHA1_SIZE);
+		SLog(s->Cedar, "LS_TICKET_2", hubname, username, realusername, sessionname,
+			ticket_str, TICKET_EXPIRES / 1000);
 	}
-
-	BinToStr(ticket_str, sizeof(ticket_str), ticket, SHA1_SIZE);
-
-	SLog(s->Cedar, "LS_TICKET_2", hubname, username, realusername, sessionname,
-		ticket_str, TICKET_EXPIRES / 1000);
 
 	// Get the HUB
 	h = GetHub(s->Cedar, hubname);
