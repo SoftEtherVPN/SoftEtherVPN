@@ -1869,11 +1869,16 @@ LOCK *UnixNewLock()
 	pthread_mutex_t *mutex;
 	// Memory allocation
 	LOCK *lock = UnixMemoryAlloc(sizeof(LOCK));
+	if (lock == NULL)
+	{
+		return NULL;
+	}
 
 	// Create a mutex
 	mutex = UnixMemoryAlloc(sizeof(pthread_mutex_t));
 	if (mutex == NULL)
 	{
+		UnixMemoryFree(lock);
 		return NULL;
 	}
 
