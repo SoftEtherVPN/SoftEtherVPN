@@ -9,6 +9,7 @@
 #define	PROTO_PPP_H
 
 #include "CedarType.h"
+#include "Proto_IPsec.h"
 
 #include "Mayaqua/TcpIp.h"
 
@@ -229,6 +230,8 @@ struct PPP_EAP_TLS_CONTEXT
 	UCHAR *CachedBufferRecvPntr;
 	UCHAR *CachedBufferSend;
 	UCHAR *CachedBufferSendPntr;
+	bool DisableTls13;
+	bool DisableTls13SessionTickets;
 };
 
 // PPP request resend
@@ -302,7 +305,7 @@ struct PPP_SESSION
 	// EAP contexts
 	UINT Eap_Protocol;					// Current EAP Protocol used
 	UINT Eap_PacketId;					// EAP Packet ID;
-	UCHAR Eap_Identity[MAX_SIZE];		// Received from client identity
+	ETHERIP_ID Eap_Identity;			// Received from client identity
 	PPP_EAP_TLS_CONTEXT Eap_TlsCtx;		// Context information for EAP TLS. May be possibly reused for EAP TTLS?
 
 	LIST *SentReqPacketList;			// Sent requests list
@@ -387,7 +390,7 @@ bool PPPSetIPOptionToLCP(PPP_IPOPTION *o, PPP_LCP *c, bool only_modify);
 bool PPPGetIPAddressValueFromLCP(PPP_LCP *c, UINT type, IP *ip);
 bool PPPSetIPAddressValueToLCP(PPP_LCP *c, UINT type, IP *ip, bool only_modify);
 // EAP packet utilities
-bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapTlsSize);
+bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize);
 PPP_LCP *BuildEAPPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize);
 PPP_LCP *BuildEAPTlsPacketEx(UCHAR code, UCHAR id, UCHAR type, UINT datasize, UCHAR flags);
 PPP_LCP *BuildEAPTlsRequest(UCHAR id, UINT datasize, UCHAR flags);
