@@ -473,6 +473,7 @@ NATT_MSG				** 使用 NAT 穿透 (UDP 打洞) - 它可能是不穩定的 **\r\n\
 HUB_AO_CLICK								選擇一個項目，查看這裡的描述。
 HUB_AO_UNKNOWN								該項目的描述沒有被發現。請參閱檔案，或從該專案的名稱推測專案的意思和目的。
 HUB_AO_allow_hub_admin_change_option		這是一個特殊項目。如果你啟用(設置為1)這個選項，那麼不但 VPN Server 的全球管理員，而且虛擬 HUB 的管理員，都將被他自己准予修改虛擬 HUB 管理選項。
+HUB_AO_allow_eap_tls_match_user_by_cert		If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 HUB_AO_deny_hub_admin_change_ext_option		如果你啟用(設置為1)這個選項，虛擬 HUB 的管理員將被禁止修改在虛擬 HUB 擴展選項上的任何值，那麼只有 VPN Server 的全球管理員可以對其進行修改。
 HUB_AO_no_delay_jitter_packet_loss			如果您將此選項設置為非零值，在訪問列表條目中的延遲、抖動和封包丟失的所有參數將被忽略，即使這些參數是在管理員添加新的訪問列表條目時設置的。因此，延遲、抖動和封包丟失的生成函數實際中將被禁用。由於延遲生成函數有時會讓 CPU 和 RAM 產生高負載量，由多個使用者共用的一個虛擬 HUB 上應該啟用此選項。
 HUB_AO_max_users							如果您將此選項設置為非零值，在虛擬 HUB 上使用者物件註冊的最大數量將被限制在這個值，那麼使用者物件的數量如果大於這個值則不能被添加。

@@ -491,6 +491,7 @@ NATT_MSG ** NAT Traversal 연결 - 안정성 저하 가능성이 있습니다 **
 HUB_AO_CLICK 항목 이름을 선택하면 해당 항목 이름에 대한 설명이 표시됩니다.
 HUB_AO_UNKNOWN 이 항목에 대한 설명을 찾을 수 없습니다. 문서 등을 참조하거나 항목 이름을 바탕으로 의미·내용을 추측하여 사용하십시오.
 HUB_AO_allow_hub_admin_change_option 이 항목은 특별하다. 이 항목을 1 (유효)의 경우 VPN Server 전체 관리자뿐만 아니라 가상 HUB 관리자도 스스로 가상 HUB 관리 옵션을 변경 할 수 있습니다.
+HUB_AO_allow_eap_tls_match_user_by_cert	If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 HUB_AO_deny_hub_admin_change_ext_option 이 항목을 1 (유효)의 경우 가상 HUB 관리자는 가상 HUB의 고급 옵션 설정을 변경할 수 없으며 VPN Server 전체 관리자 만 가상 HUB의 고급 옵션 설정을 변경 할 수 있습니다.
 HUB_AO_no_delay_jitter_packet_loss 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB 액세스 목록을 추가 할 때 지연 지터 패킷 손실을 생성시키기위한 매개 변수가 설정되어있는 경우에도 그 값 를 모두 삭제합니다. 이로 인해 지연 패킷 로스 생성 기능이 실질적으로 해제됩니다. 지연 패킷 로스 생성 기능은 VPN Server의 CPU 및 메모리 사용률이 높을 수 있기 때문에 많은 사용자가 공유하는 가상 HUB의 경우 높은 부하를 피하기 위해이 옵션을 사용하십시오.
 HUB_AO_max_users 이 항목이 1 이상으로 설정되어있는 경우 가상 HUB에 등록 할 수있는 최대 사용자 수이 항목의 지정된 수에 제한되며, 그 이상의 사용자 개체를 등록 할 수 없습니다.

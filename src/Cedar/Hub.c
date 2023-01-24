@@ -45,6 +45,7 @@ static bool g_vgs_emb_tag = false;
 ADMIN_OPTION admin_options[] =
 {
 	{"allow_hub_admin_change_option", 0},
+	{"allow_eap_tls_match_user_by_cert", 0},
 	{"max_users", 0},
 	{"max_multilogins_per_user", 0},
 	{"max_groups", 0},

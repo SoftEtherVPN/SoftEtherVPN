@@ -1295,7 +1295,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 				AcLock(hub);
 				{
 					USER *user = AcGetUser(hub, p->Eap_Identity.UserName);
-					if (user == NULL)
+					if (user == NULL && GetHubAdminOption(hub, "allow_eap_tls_match_user_by_cert") == true)
 					{
 						user = AcGetUserByCert(hub, p->Eap_Identity.UserName);
 						if (user != NULL)
