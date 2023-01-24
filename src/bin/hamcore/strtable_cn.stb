@@ -469,7 +469,6 @@ NATT_MSG					** 使用 NAT 穿透 (UDP 打洞) - 它可能是不稳定的 **\r\n
 HUB_AO_CLICK								选择一个项目，查看这里的描述。
 HUB_AO_UNKNOWN								该项目的描述没有被发现。请参阅文件，或从该项目的名称推测项目的意思和目的。
 HUB_AO_allow_hub_admin_change_option		这是一个特殊项目。如果你启用(设置为1)这个选项，那么不但 VPN Server 的全球管理员，而且虚拟 HUB 的管理员，都将被他自己准予修改虚拟 HUB 管理选项。
-HUB_AO_allow_eap_tls_match_user_by_cert		If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 HUB_AO_deny_hub_admin_change_ext_option		如果你启用(设置为1)这个选项，虚拟 HUB 的管理员将被禁止修改在虚拟 HUB 扩展选项上的任何值，那么只有 VPN Server 的全球管理员可以对其进行修改。
 HUB_AO_no_delay_jitter_packet_loss			如果您将此选项设置为非零值，在访问列表条目中的延迟、时基误差和数据包丢失的所有参数将被忽略，即使这些参数是在管理员添加新的访问列表条目时设置的。因此，延迟、时基误差和数据包丢失的生成函数实际中将被禁用。由于延迟生成函数有时会让 CPU 和 RAM 产生高负载量，由多个用户共享的一个虚拟 HUB 上应该启用此选项。
 HUB_AO_max_users							如果您将此选项设置为非零值，在虚拟 HUB 上用户对象注册的最大数量将被限制在这个值，那么用户对象的数量如果大于这个值则不能被添加。
@@ -571,6 +570,7 @@ HUB_AO_DetectDormantSessionInterval			If you set this option to non-zero value, 
 HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then the physical IP addresses of VPN clients of either the source VPN session or the destination VPN session will not be recorded on the packet log file.
 HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub. (For only L2TP/IPsec and OpenVPN sessions.)
 HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identifier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
+HUB_AO_AllowEapMatchUserByCert				If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 
 
 

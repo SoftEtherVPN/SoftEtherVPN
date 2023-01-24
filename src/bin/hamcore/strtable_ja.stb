@@ -487,7 +487,6 @@ NATT_MSG				** NAT Traversal 接続 - 安定性低下の可能性があります
 HUB_AO_CLICK								項目名を 1 つ選択すると、その項目名に関する説明文が表示されます。
 HUB_AO_UNKNOWN								この項目に関する説明文が見つかりませんでした。ドキュメント等を参照するか、項目名をもとに意味・内容を推測して利用してください。
 HUB_AO_allow_hub_admin_change_option		この項目は特殊です。この項目が 1 (有効) の場合は、VPN Server 全体の管理者だけでなく仮想 HUB の管理者も自ら仮想 HUB 管理オプションを変更することができるようになります。
-HUB_AO_allow_eap_tls_match_user_by_cert		If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 HUB_AO_deny_hub_admin_change_ext_option		この項目が 1 (有効) の場合は、仮想 HUB の管理者は仮想 HUB の拡張オプションの設定を変更することができなくなり、VPN Server 全体の管理者のみが仮想 HUB の拡張オプションの設定を変更することができるようになります。
 HUB_AO_no_delay_jitter_packet_loss			この項目が 1 以上に設定されている場合は、仮想 HUB のアクセスリストを追加する際に遅延・ジッタ・パケットロスを生成させるためのパラメータが設定されている場合であっても、それらの値をすべて削除します。これにより、遅延・パケットロス生成機能が実質的に無効になります。遅延・パケットロス生成機能は VPN Server の CPU およびメモリ使用率を高くする可能性があるため、多くのユーザーで共有する仮想 HUB の場合は、高負荷を避けるためにこのオプションを使用してください。
 HUB_AO_max_users							この項目が 1 以上に設定されている場合は、仮想 HUB に登録できるユーザーの最大数がこの項目の指定数に制限され、それ以上のユーザーオブジェクトを登録することはできなくなります。
@@ -589,6 +588,7 @@ HUB_AO_DetectDormantSessionInterval			この項目が 0 以外の場合は、指
 HUB_AO_NoPhysicalIPOnPacketLog				この項目が 1 (有効) の場合は、パケットログに送信元および宛先 VPN セッションの物理的な接続元 VPN クライアントの IP アドレスが記録されないようになります。
 HUB_AO_UseHubNameAsDhcpUserClassOption		この項目が 1 (有効) の場合は、仮想 HUB は DHCP サーバーに対して IP アドレスの取得を要求する際に仮想 HUB 名を DHCP パケットの "User-Class" オプションに埋め込むようになります。この機能は、複数の仮想 HUB がある場合に、DHCP サーバーがそれぞれの仮想 HUB 用に IP プールを確保する場合に便利です。(L2TP/IPsec および OpenVPN セッションのみ対応。)
 HUB_AO_UseHubNameAsRadiusNasId				この項目が 1 (有効) の場合は、NAS-Identifier RADIUS 属性に仮想 HUB 名が埋め込まれます。この機能は、RADIUS サーバにおいて仮想 HUB ごとにアクセスの許可 / 拒否を設定したい場合に便利です。
+HUB_AO_AllowEapMatchUserByCert				If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
 
 
 # Caps 関係

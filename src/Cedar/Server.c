@@ -3932,6 +3932,7 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->NoPhysicalIPOnPacketLog = CfgGetBool(f, "NoPhysicalIPOnPacketLog");
 	o->UseHubNameAsDhcpUserClassOption = CfgGetBool(f, "UseHubNameAsDhcpUserClassOption");
 	o->UseHubNameAsRadiusNasId = CfgGetBool(f, "UseHubNameAsRadiusNasId");
+	o->AllowEapMatchUserByCert = CfgGetBool(f, "AllowEapMatchUserByCert");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4037,6 +4038,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "DisableCorrectIpOffloadChecksum", o->DisableCorrectIpOffloadChecksum);
 	CfgAddBool(f, "UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption);
 	CfgAddBool(f, "UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId);
+	CfgAddBool(f, "AllowEapMatchUserByCert", o->AllowEapMatchUserByCert);
 }
 
 // Write the user
@@ -7521,6 +7523,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.DisableCorrectIpOffloadChecksum = PackGetBool(p, "DisableCorrectIpOffloadChecksum");
 	o.UseHubNameAsDhcpUserClassOption = PackGetBool(p, "UseHubNameAsDhcpUserClassOption");
 	o.UseHubNameAsRadiusNasId = PackGetBool(p, "UseHubNameAsRadiusNasId");
+	o.AllowEapMatchUserByCert = PackGetBool(p, "AllowEapMatchUserByCert");
 
 	save_packet_log = PackGetInt(p, "SavePacketLog");
 	packet_log_switch_type = PackGetInt(p, "PacketLogSwitchType");
@@ -9355,6 +9358,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddData(p, "SecurePassword", h->SecurePassword, SHA1_SIZE);
 	PackAddBool(p, "UseHubNameAsDhcpUserClassOption", h->Option->UseHubNameAsDhcpUserClassOption);
 	PackAddBool(p, "UseHubNameAsRadiusNasId", h->Option->UseHubNameAsRadiusNasId);
+	PackAddBool(p, "AllowEapMatchUserByCert", h->Option->AllowEapMatchUserByCert);
 
 	SiAccessListToPack(p, h->AccessList);
 
