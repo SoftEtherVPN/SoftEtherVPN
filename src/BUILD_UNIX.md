@@ -38,7 +38,7 @@ sudo yum -y install cmake ncurses-devel openssl-devel libsodium-devel readline-d
 
 ## Install requirements on Debian/Ubuntu
 ```bash
-sudo apt -y install cmake gcc g++ make libncurses5-dev libssl-dev libsodium-dev libreadline-dev zlib1g-dev
+sudo apt -y install cmake gcc g++ make pkgconf libncurses5-dev libssl-dev libsodium-dev libreadline-dev zlib1g-dev
 ```
 
 ## Install requirements on macOS
