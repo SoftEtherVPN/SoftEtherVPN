@@ -2191,7 +2191,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 			{
 				UINT64 newValue = 0;
 				UINT64 value = READ_UINT64(t->Data);
-				if (value != 0 && IPCIPv6CheckExistingLinkLocal(p->Ipc, value) == false)
+				if (value != 0 && value != p->Ipc->IPv6ServerEUI && IPCIPv6CheckExistingLinkLocal(p->Ipc, value) == false)
 				{
 					t->IsAccepted = true;
 					p->Ipc->IPv6ClientEUI = value;
@@ -2199,23 +2199,14 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 				else
 				{
 					t->IsAccepted = false;
-					GenerateEui64Address6((UCHAR *)&newValue, p->Ipc->MacAddress);
-					if (newValue != value && IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue) == false)
+					while (true)
 					{
-						WRITE_UINT64(t->AltData, newValue);
-						t->AltDataSize = sizeof(UINT64);
-					}
-					else
-					{
-						while (true)
+						newValue = Rand64();
+						if (newValue != 0 && newValue != p->Ipc->IPv6ServerEUI && IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue) == false)
 						{
-							newValue = Rand64();
-							if (IPCIPv6CheckExistingLinkLocal(p->Ipc, newValue) == false)
-							{
-								WRITE_UINT64(t->AltData, newValue);
-								t->AltDataSize = sizeof(UINT64);
-								break;
-							}
+							WRITE_UINT64(t->AltData, newValue);
+							t->AltDataSize = sizeof(UINT64);
+							break;
 						}
 					}
 				}
@@ -2242,11 +2233,7 @@ bool PPPProcessIPv6CPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	if (p->Ipc->IPv6ClientEUI != 0 && IPC_PROTO_GET_STATUS(p->Ipc, IPv6State) == IPC_PROTO_STATUS_CLOSED)
 	{
 		PPP_LCP *c = NewPPPLCP(PPP_LCP_CODE_REQ, 0);
-		UINT64 serverEui = IPCIPv6GetServerEui(p->Ipc);
-		if (serverEui != 0 && serverEui != p->Ipc->IPv6ClientEUI)
-		{
-			Add(c->OptionList, NewPPPOption(PPP_IPV6CP_OPTION_EUI, &serverEui, sizeof(UINT64)));
-		}
+		Add(c->OptionList, NewPPPOption(PPP_IPV6CP_OPTION_EUI, &p->Ipc->IPv6ServerEUI, sizeof(UINT64)));
 		if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_IPV6CP, c) == false)
 		{
 			PPPSetStatus(p, PPP_STATUS_FAIL);

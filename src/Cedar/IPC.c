@@ -2128,7 +2128,7 @@ void IPCIPv6Init(IPC *ipc)
 	ipc->IPv6RouterAdvs = NewList(NULL);
 
 	ipc->IPv6ClientEUI = 0;
-	ipc->IPv6ServerEUI = 0;
+	GenerateEui64Address6((UCHAR *)&ipc->IPv6ServerEUI, ipc->MacAddress);
 
 	ipc->IPv6State = IPC_PROTO_STATUS_CLOSED;
 }
@@ -2364,6 +2364,12 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVER
 	UINT i;
 	IPC_IPV6_ROUTER_ADVERTISEMENT *matchingRA = NULL;
 	bool isInPrefix = false;
+
+	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0 && IPCSendIPv6RouterSoliciation(ipc) == false)
+	{
+		return false;
+	}
+
 	for (i = 0; i < LIST_NUM(ipc->IPv6RouterAdvs); i++)
 	{
 		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, i);
@@ -2383,19 +2389,13 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVER
 	return isInPrefix;
 }
 
-// Send router solicitation and then eventually populate the info from Router Advertisements
-UINT64 IPCIPv6GetServerEui(IPC *ipc)
+// Send router solicitation to find a router
+bool IPCSendIPv6RouterSoliciation(IPC *ipc)
 {
-	// It is already configured, nothing to do here
-	if (ipc->IPv6ServerEUI != 0)
-	{
-		return ipc->IPv6ServerEUI;
-	}
-
 	// If we don't have a valid client EUI, we can't generate a correct link local
 	if (ipc->IPv6ClientEUI == 0)
 	{
-		return ipc->IPv6ServerEUI;
+		return false;
 	}
 
 	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
@@ -2440,7 +2440,8 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 			if (Tick64() >= giveup_time)
 			{
 				// We failed to receive any router advertisements
-				break;
+				FreeBuf(packet);
+				return false;
 			}
 
 			// The processing should populate the received RAs by itself
@@ -2450,24 +2451,7 @@ UINT64 IPCIPv6GetServerEui(IPC *ipc)
 		FreeBuf(packet);
 	}
 
-	// Populating the IPv6 Server EUI for IPV6CP
-	if (LIST_NUM(ipc->IPv6RouterAdvs) > 0)
-	{
-		IPC_IPV6_ROUTER_ADVERTISEMENT *ra = LIST_DATA(ipc->IPv6RouterAdvs, 0);
-		Copy(&ipc->IPv6ServerEUI, &ra->RouterAddress.address[8], sizeof(ipc->IPv6ServerEUI));
-	}
-
-	// If it is still not defined, let's just generate something random
-	while (ipc->IPv6ServerEUI == 0)
-	{
-		ipc->IPv6ServerEUI = Rand64();
-		if (ipc->IPv6ClientEUI == ipc->IPv6ServerEUI)
-		{
-			ipc->IPv6ServerEUI = 0;
-		}
-	}
-
-	return ipc->IPv6ServerEUI;
+	return true;
 }
 
 // Data flow

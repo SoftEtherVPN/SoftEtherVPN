@@ -155,7 +155,7 @@ struct IPC
 	LIST *IPv6NeighborTable;			// Neighbor Discovery Table
 	LIST *IPv6RouterAdvs;				// Router offered prefixes
 	UINT64 IPv6ClientEUI;				// The EUI of the client (for the SLAAC autoconf)
-	UINT64 IPv6ServerEUI;				// The EUI of the server (from the RA discovery)
+	UINT64 IPv6ServerEUI;				// The EUI of the server (from the IPC Mac address)
 };
 
 // MS-CHAPv2 authentication information
@@ -233,7 +233,7 @@ bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui);
 // RA
 void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
 bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
-UINT64 IPCIPv6GetServerEui(IPC *ipc);
+bool IPCSendIPv6RouterSoliciation(IPC *ipc);
 // Data flow
 BLOCK *IPCIPv6Recv(IPC *ipc);
 void IPCIPv6Send(IPC *ipc, void *data, UINT size);
