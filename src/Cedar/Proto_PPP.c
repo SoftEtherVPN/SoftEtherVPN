@@ -2457,6 +2457,7 @@ bool PPPSendAndRetransmitRequest(PPP_SESSION *p, USHORT protocol, PPP_LCP *c)
 	if (PPPSendPacketEx(p, pp, false) == false)
 	{
 		PPPSetStatus(p, PPP_STATUS_FAIL);
+		FreePPPPacket(pp);
 		WHERE;
 		return false;
 	}
