@@ -897,21 +897,24 @@ USER *AcGetUser(HUB *h, char *name)
 	return u;
 }
 
-USER* AcGetUserByCert(HUB *h, char *common_name)
+USER* AcGetUserByCert(HUB *h, X *cert)
 {
 	int i;
+
+	if (cert == NULL)
+	{
+		return NULL;
+	}
 
 	for (i = 0; i < LIST_NUM(h->HubDb->UserList); i++)
 	{
 		USER* u = LIST_DATA(h->HubDb->UserList, i);
 		if (u->AuthType == AUTHTYPE_USERCERT)
 		{
-			X* cert = ((AUTHUSERCERT*)u->AuthData)->UserX;
-			if (cert != NULL)
+			X* ucert = ((AUTHUSERCERT*)u->AuthData)->UserX;
+			if (ucert != NULL)
 			{
-				char cname[MAX_SIZE];
-				UniToStr(cname, sizeof(cname), cert->subject_name->CommonName);
-				if (StrCmp(common_name, cname) == 0)
+				if (CompareX(cert, ucert))
 				{
 					AddRef(u->ref);
 					return u;

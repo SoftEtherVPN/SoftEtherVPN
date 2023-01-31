@@ -5716,10 +5716,10 @@ SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_pee
 
 SSL_PIPE* NewSslPipeEx2(bool server_mode, X* x, K* k, LIST* chain, DH_CTX* dh, bool verify_peer, struct SslClientCertInfo* clientcert)
 {
-	return NewSslPipeEx3(server_mode, x, k, chain, dh, verify_peer, clientcert, false, false);
+	return NewSslPipeEx3(server_mode, x, k, chain, dh, verify_peer, clientcert, 2, false); // 2 TLS 1.3 tickets is an OpenSSL default hardcoded in the library
 }
 
-SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert, bool disableTls13Tickets, bool disableTls13)
+SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert, int tls13ticketscnt, bool disableTls13)
 {
 	SSL_PIPE *s;
 	SSL *ssl;
@@ -5791,11 +5791,9 @@ SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, b
 		{
 			SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_TLSv1_3);
 		}
-
-		if (disableTls13Tickets)
-		{
-			SSL_CTX_set_num_tickets(ssl_ctx, 0);
-		}
+#endif
+#ifdef HAVE_SSL_CTX_SET_NUM_TICKETS
+		SSL_CTX_set_num_tickets(ssl_ctx, tls13ticketscnt);
 #endif
 
 		ssl = SSL_new(ssl_ctx);
@@ -5846,6 +5844,8 @@ SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, b
 bool SyncSslPipe(SSL_PIPE *s)
 {
 	UINT i;
+	SSL_SESSION* sess;
+
 	// Validate arguments
 	if (s == NULL || s->IsDisconnected)
 	{
@@ -5875,6 +5875,8 @@ bool SyncSslPipe(SSL_PIPE *s)
 			return false;
 		}
 	}
+
+	s->SslVersion = SSL_version(s->ssl);
 
 	return true;
 }

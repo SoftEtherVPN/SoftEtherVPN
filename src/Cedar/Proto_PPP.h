@@ -231,7 +231,7 @@ struct PPP_EAP_TLS_CONTEXT
 	UCHAR *CachedBufferSend;
 	UCHAR *CachedBufferSendPntr;
 	bool DisableTls13;
-	bool DisableTls13SessionTickets;
+	int Tls13SessionTicketsCount;
 };
 
 // PPP request resend
@@ -306,6 +306,7 @@ struct PPP_SESSION
 	UINT Eap_Protocol;					// Current EAP Protocol used
 	UINT Eap_PacketId;					// EAP Packet ID;
 	ETHERIP_ID Eap_Identity;			// Received from client identity
+	bool Eap_MatchUserByCert;			// Attempt to match the user from it's certificate during EAP-TLS, ignoring the EAP-identification
 	PPP_EAP_TLS_CONTEXT Eap_TlsCtx;		// Context information for EAP TLS. May be possibly reused for EAP TTLS?
 
 	LIST *SentReqPacketList;			// Sent requests list
