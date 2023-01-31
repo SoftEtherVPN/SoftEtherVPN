@@ -2365,8 +2365,11 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVER
 	IPC_IPV6_ROUTER_ADVERTISEMENT *matchingRA = NULL;
 	bool isInPrefix = false;
 
-	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0 && IPCSendIPv6RouterSoliciation(ipc) == false)
+	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
 	{
+		// We have a unicast packet but we haven't got any RAs.
+		// The client is probably misconfigured in IPv6. We send non-blocking RS at best effort.
+		IPCSendIPv6RouterSoliciation(ipc, false);
 		return false;
 	}
 
@@ -2390,67 +2393,69 @@ bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVER
 }
 
 // Send router solicitation to find a router
-bool IPCSendIPv6RouterSoliciation(IPC *ipc)
+bool IPCSendIPv6RouterSoliciation(IPC *ipc, bool blocking)
 {
+	IP destIP;
+	IPV6_ADDR destV6;
+	UCHAR destMacAddress[6];
+	IPV6_ADDR linkLocal;
+	BUF *packet;
+	UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
+	UINT64 timeout_retry = 0;
+
 	// If we don't have a valid client EUI, we can't generate a correct link local
 	if (ipc->IPv6ClientEUI == 0)
 	{
 		return false;
 	}
 
-	if (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
-	{
-		IP destIP;
-		IPV6_ADDR destV6;
-		UCHAR destMacAddress[6];
-		IPV6_ADDR linkLocal;
-		BUF *packet;
-		UINT64 giveup_time = Tick64() + (UINT64)(IPC_IPV6_RA_MAX_RETRIES * IPC_IPV6_RA_INTERVAL);
-		UINT64 timeout_retry = 0;
+	Zero(&linkLocal, sizeof(IPV6_ADDR));
 
-		Zero(&linkLocal, sizeof(IPV6_ADDR));
+	// Generate link local from client's EUI
+	linkLocal.Value[0] = 0xFE;
+	linkLocal.Value[1] = 0x80;
+	Copy(&linkLocal.Value[8], &ipc->IPv6ClientEUI, sizeof(UINT64));
 
-		// Generate link local from client's EUI
-		linkLocal.Value[0] = 0xFE;
-		linkLocal.Value[1] = 0x80;
-		Copy(&linkLocal.Value[8], &ipc->IPv6ClientEUI, sizeof(UINT64));
+	GetAllRouterMulticastAddress6(&destIP);
 
-		GetAllRouterMulticastAddress6(&destIP);
+	// Generate the MAC address from the multicast address
+	destMacAddress[0] = 0x33;
+	destMacAddress[1] = 0x33;
+	Copy(&destMacAddress[2], &destIP.address[12], sizeof(UINT));
 
-		// Generate the MAC address from the multicast address
-		destMacAddress[0] = 0x33;
-		destMacAddress[1] = 0x33;
-		Copy(&destMacAddress[2], &destIP.address[12], sizeof(UINT));
+	IPToIPv6Addr(&destV6, &destIP);
 
-		IPToIPv6Addr(&destV6, &destIP);
+	packet = BuildICMPv6RouterSoliciation(&linkLocal, &destV6, ipc->MacAddress, 0);
 
-		packet = BuildICMPv6RouterSoliciation(&linkLocal, &destV6, ipc->MacAddress, 0);
-
-		while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
-		{
-			UINT64 now = Tick64();
-			if (now >= timeout_retry)
-			{
-				timeout_retry = now + (UINT64)IPC_IPV6_RA_INTERVAL;
-				IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
-			}
-
-			AddInterrupt(ipc->Interrupt, timeout_retry);
-
-			if (Tick64() >= giveup_time)
-			{
-				// We failed to receive any router advertisements
-				FreeBuf(packet);
-				return false;
-			}
-
-			// The processing should populate the received RAs by itself
-			IPCProcessL3Events(ipc);
-		}
-
+	if (blocking == false) {
+		IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
 		FreeBuf(packet);
+		return false;
 	}
 
+	while (LIST_NUM(ipc->IPv6RouterAdvs) == 0)
+	{
+		UINT64 now = Tick64();
+		if (now >= timeout_retry)
+		{
+			timeout_retry = now + (UINT64)IPC_IPV6_RA_INTERVAL;
+			IPCIPv6SendWithDestMacAddr(ipc, packet->Buf, packet->Size, destMacAddress);
+		}
+
+		AddInterrupt(ipc->Interrupt, timeout_retry);
+
+		if (Tick64() >= giveup_time)
+		{
+			// We failed to receive any router advertisements
+			FreeBuf(packet);
+			return false;
+		}
+
+		// The processing should populate the received RAs by itself
+		IPCProcessL3Events(ipc);
+	}
+
+	FreeBuf(packet);
 	return true;
 }
 

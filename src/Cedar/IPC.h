@@ -233,7 +233,7 @@ bool IPCIPv6CheckExistingLinkLocal(IPC *ipc, UINT64 eui);
 // RA
 void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *macAddress, IP *ip);
 bool IPCIPv6CheckUnicastFromRouterPrefix(IPC *ipc, IP *ip, IPC_IPV6_ROUTER_ADVERTISEMENT *matchedRA);
-bool IPCSendIPv6RouterSoliciation(IPC *ipc);
+bool IPCSendIPv6RouterSoliciation(IPC *ipc, bool blocking);
 // Data flow
 BLOCK *IPCIPv6Recv(IPC *ipc);
 void IPCIPv6Send(IPC *ipc, void *data, UINT size);
