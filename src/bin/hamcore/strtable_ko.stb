@@ -589,6 +589,7 @@ HUB_AO_AssignVLanIdByRadiusAttribute VLAN ID의 동적 할당 기능을 활성�
 HUB_AO_SecureNAT_RandomizeAssignIp 이 항목을 1 (유효)의 경우 SecureNAT 기능의 가상 DHCP 서버는 DHCP 클라이언트에 할당 된 IP 주소를 지정된 IP 주소 풀에서 사용하지 않는 주소에서 임의로 선택하도록합니다. 또한, 기본 동작은 미사용 주소 중 첫 번째 주소를 할당 할 수 있도록되어 있습니다.
 HUB_AO_DetectDormantSessionInterval 이 항목이 0이 아닌 경우, 지정된 초 비활성이었다 VPN 세션을 드 폰 망토 상태 (최대 절전 모드)로 식별합니다. 드 폰 망토 상태의 VPN 세션에 가상 HUB에서 홍수되어야 패킷이 침수 없습니다.
 HUB_AO_NoPhysicalIPOnPacketLog 이 항목이 0 (사용)의 경우 패킷 로그에 원본 및 대상 VPN 세션의 물리적 연결 원래 VPN 클라이언트의 IP 주소가 기록되지 않도록합니다.
+HUB_AO_AllowEapMatchUserByCert	If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificates during the PPP EAP authentication flow.
 
 
 # Caps 관계

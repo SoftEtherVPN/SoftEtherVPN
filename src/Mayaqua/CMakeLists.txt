@@ -22,8 +22,10 @@ include(CheckSymbolExists)
 
 set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES OpenSSL::Crypto)
+set(CMAKE_REQUIRED_LIBRARIES OpenSSL::SSL)
 
 check_symbol_exists(EVP_PKEY_get_raw_public_key "openssl/evp.h" HAVE_EVP_PKEY_GET_RAW_PUBLIC_KEY)
+check_symbol_exists(SSL_CTX_set_num_tickets "openssl/ssl.h" HAVE_SSL_CTX_SET_NUM_TICKETS)
 
 unset(CMAKE_REQUIRED_INCLUDES)
 unset(CMAKE_REQUIRED_LIBRARIES)
@@ -31,6 +33,12 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 if(NOT HAVE_EVP_PKEY_GET_RAW_PUBLIC_KEY)
   message(FATAL_ERROR "Required EVP_PKEY_get_raw_public_key() not found in OpenSSL library!")
 endif()
+
+if (HAVE_SSL_CTX_SET_NUM_TICKETS)
+  add_compile_definitions(HAVE_SSL_CTX_SET_NUM_TICKETS)
+endif()
+
+
 
 find_package(ZLIB REQUIRED)
 

@@ -11,6 +11,8 @@
 #include "Encrypt.h"
 #include "Mayaqua.h"
 
+#include <openssl/ssl.h> // This is needed only for the SSL/TLS version defines
+
 #ifdef OS_UNIX
 #include <netinet/in.h>
 
@@ -537,6 +539,7 @@ struct SSL_PIPE
 {
 	bool ServerMode;					// Whether it's in the server mode
 	bool IsDisconnected;				// Disconnected
+	int SslVersion;
 	SSL *ssl;							// SSL object
 	struct ssl_ctx_st *ssl_ctx;			// SSL_CTX
 	SSL_BIO *SslInOut;					// I/O BIO for the data in the SSL tunnel
@@ -1407,6 +1410,7 @@ struct SslClientCertInfo {
 SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh);
 SSL_PIPE *NewSslPipeEx(bool server_mode, X *x, K *k, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
 SSL_PIPE *NewSslPipeEx2(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, bool verify_peer, struct SslClientCertInfo *clientcert);
+SSL_PIPE* NewSslPipeEx3(bool server_mode, X* x, K* k, LIST* chain, DH_CTX* dh, bool verify_peer, struct SslClientCertInfo* clientcert, int tls13ticketscnt, bool disableTls13);
 void FreeSslPipe(SSL_PIPE *s);
 bool SyncSslPipe(SSL_PIPE *s);
 

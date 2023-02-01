@@ -177,6 +177,7 @@ void FreeAuthData(UINT authtype, void *authdata);
 bool AcAddUser(HUB *h, USER *u);
 bool AcAddGroup(HUB *h, USERGROUP *g);
 USER *AcGetUser(HUB *h, char *name);
+USER* AcGetUserByCert(HUB* h, X *cert);
 USERGROUP *AcGetGroup(HUB *h, char *name);
 bool AcIsUser(HUB *h, char *name);
 bool AcIsGroup(HUB *h, char *name);

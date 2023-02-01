@@ -182,6 +182,7 @@ struct HUB_OPTION
 	bool NoPhysicalIPOnPacketLog;		// Disable saving physical IP address on the packet log
 	bool UseHubNameAsDhcpUserClassOption;	// Add HubName to DHCP request as User-Class option
 	bool UseHubNameAsRadiusNasId;		// Add HubName to Radius request as NAS-Identifier attrioption
+	bool AllowEapMatchUserByCert;		// Allow matching EAP Identity with user certificate CNs
 };
 
 // MAC table entry
