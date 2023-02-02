@@ -3651,17 +3651,28 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 
 				if (p->Eap_MatchUserByCert)
 				{
-					HUB* hub = GetHub(p->Cedar, p->Eap_Identity.HubName);
+					HUB *hub;
 					bool found = false;
+
+					LockHubList(p->Cedar);
+					{
+						hub = GetHub(p->Cedar, p->Eap_Identity.HubName);
+					}
+					UnlockHubList(p->Cedar);
+
 					if (hub != NULL)
 					{
-						USER* user = AcGetUserByCert(hub, p->Eap_TlsCtx.ClientCert.X);
-						if (user != NULL)
+						AcLock(hub);
 						{
-							StrCpy(p->Eap_Identity.UserName, sizeof(p->Eap_Identity.UserName), user->Name);
-							found = true;
-							ReleaseUser(user);
+							USER* user = AcGetUserByCert(hub, p->Eap_TlsCtx.ClientCert.X);
+							if (user != NULL)
+							{
+								StrCpy(p->Eap_Identity.UserName, sizeof(p->Eap_Identity.UserName), user->Name);
+								found = true;
+								ReleaseUser(user);
+							}
 						}
+						AcUnlock(hub);
 						ReleaseHub(hub);
 					}
 
