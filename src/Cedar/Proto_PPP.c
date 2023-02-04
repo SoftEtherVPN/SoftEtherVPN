@@ -1269,7 +1269,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		char hubname[MAX_SIZE];
 		HUB *hub;
 		bool found = false;
-		UINT authtype;
+		UINT authtype = AUTHTYPE_ANONYMOUS;
 		UCHAR eapidentitypkt[MAX_SIZE] = { 0 };
 
 		WRITE_USHORT(ms_chap_v2_code, PPP_LCP_AUTH_CHAP);
@@ -1278,6 +1278,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		switch (eap_packet->Type)
 		{
 		case PPP_EAP_TYPE_IDENTITY:
+			p->Eap_MatchUserByCert = false;
 			// Parse username
 			Copy(eapidentitypkt, eap_packet->Data, MIN(MAX_SIZE, eap_datasize));
 			
@@ -3428,6 +3429,11 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 	UCHAR flags = PPP_EAP_TLS_FLAG_NONE;
 	UINT sizeLeft = 0;
 	Debug("Got EAP-TLS size=%i\n", eapSize);
+	if (eapSize == 0)
+	{
+		// This is a broken packet without flags, ignore it
+		return false;
+	}
 	if (eapSize == 1 && eap_packet->Tls.Flags == PPP_EAP_TLS_FLAG_NONE)
 	{
 		// This is an EAP-TLS message ACK
@@ -3507,7 +3513,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 	}
 	dataBuffer = eap_packet->Tls.TlsDataWithoutLength;
 	dataSize = eapSize - 1;
-	if (eap_packet->Tls.Flags & PPP_EAP_TLS_FLAG_TLS_LENGTH)
+	if (eap_packet->Tls.Flags & PPP_EAP_TLS_FLAG_TLS_LENGTH && dataSize >= 4)
 	{
 		dataBuffer = eap_packet->Tls.TlsDataWithLength.Data;
 		dataSize -= 4;
