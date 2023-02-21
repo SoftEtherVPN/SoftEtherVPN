@@ -2210,7 +2210,7 @@ Name | Type | Description
 `NoUdpAcceleration_bool` | `boolean` | Client Option Parameters: Do not use UDP acceleration mode if the value is true
 `AuthType_u32` | `number` (enum) | Authentication type<BR>Values:<BR>`0`: Anonymous authentication<BR>`1`: SHA-0 hashed password authentication<BR>`2`: Plain password authentication<BR>`3`: Certificate authentication
 `Username_str` | `string` (ASCII) | User name
-`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(UpperCase(username_ascii_string) + password_ascii_string).
+`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(password_ascii_string + UpperCase(username_ascii_string)).
 `PlainPassword_str` | `string` (ASCII) | Plaintext Password. Valid only if ClientAuth_AuthType_u32 == PlainPassword (2).
 `ClientX_bin` | `string` (Base64 binary) | Client certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
 `ClientK_bin` | `string` (Base64 binary) | Client private key of the certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
@@ -2352,7 +2352,7 @@ Name | Type | Description
 `NoUdpAcceleration_bool` | `boolean` | Client Option Parameters: Do not use UDP acceleration mode if the value is true
 `AuthType_u32` | `number` (enum) | Authentication type<BR>Values:<BR>`0`: Anonymous authentication<BR>`1`: SHA-0 hashed password authentication<BR>`2`: Plain password authentication<BR>`3`: Certificate authentication
 `Username_str` | `string` (ASCII) | User name
-`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(UpperCase(username_ascii_string) + password_ascii_string).
+`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(password_ascii_string + UpperCase(username_ascii_string)).
 `PlainPassword_str` | `string` (ASCII) | Plaintext Password. Valid only if ClientAuth_AuthType_u32 == PlainPassword (2).
 `ClientX_bin` | `string` (Base64 binary) | Client certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
 `ClientK_bin` | `string` (Base64 binary) | Client private key of the certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
@@ -2537,7 +2537,7 @@ Name | Type | Description
 `NoUdpAcceleration_bool` | `boolean` | Client Option Parameters: Do not use UDP acceleration mode if the value is true
 `AuthType_u32` | `number` (enum) | Authentication type<BR>Values:<BR>`0`: Anonymous authentication<BR>`1`: SHA-0 hashed password authentication<BR>`2`: Plain password authentication<BR>`3`: Certificate authentication
 `Username_str` | `string` (ASCII) | User name
-`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(UpperCase(username_ascii_string) + password_ascii_string).
+`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(password_ascii_string + UpperCase(username_ascii_string)).
 `PlainPassword_str` | `string` (ASCII) | Plaintext Password. Valid only if ClientAuth_AuthType_u32 == PlainPassword (2).
 `ClientX_bin` | `string` (Base64 binary) | Client certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
 `ClientK_bin` | `string` (Base64 binary) | Client private key of the certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
