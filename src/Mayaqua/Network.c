@@ -10627,6 +10627,10 @@ UINT RecvFrom(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 
 		return (UINT)ret;
 	}
+	else if (ret == 0)
+	{
+		return SOCK_LATER;
+	}
 	else
 	{
 #ifdef	OS_WIN32
@@ -10710,6 +10714,10 @@ UINT RecvFrom6(SOCK *sock, IP *src_addr, UINT *src_port, void *data, UINT size)
 		Unlock(sock->lock);
 
 		return (UINT)ret;
+	}
+	else if (ret == 0)
+	{
+		return SOCK_LATER;
 	}
 	else
 	{
