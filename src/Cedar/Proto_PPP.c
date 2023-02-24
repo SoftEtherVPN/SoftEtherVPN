@@ -1265,8 +1265,6 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		UINT64 offer = 0;
 		PPP_LCP *c;
 		UCHAR ms_chap_v2_code[3];
-		char username[MAX_SIZE];
-		char hubname[MAX_SIZE];
 		HUB *hub;
 		bool found = false;
 		UINT authtype = AUTHTYPE_ANONYMOUS;
@@ -1346,7 +1344,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 					char client_ip_tmp[256];
 					IPToStr(client_ip_tmp, sizeof(client_ip_tmp), &p->ClientIP);
 					Debug("EAP-MSCHAPv2 creating EAP RADIUS client\n");
-					p->EapClient = HubNewEapClient(p->Cedar, hubname, client_ip_tmp, username, "L3:PPP");
+					p->EapClient = HubNewEapClient(p->Cedar, p->Eap_Identity.HubName, client_ip_tmp, p->Eap_Identity.UserName, "L3:PPP");
 
 					if (p->EapClient == NULL)
 					{
