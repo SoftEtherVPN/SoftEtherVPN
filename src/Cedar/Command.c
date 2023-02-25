@@ -3200,6 +3200,12 @@ UINT PcVersionGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		StrToUni(tmp, sizeof(tmp), t.ClientBuildInfoString);
 		CtInsert(ct, _UU("CMD_VersionGet_3"), tmp);
 
+		StrToUni(tmp, sizeof(tmp), t.ClientBuildEnvironment);
+		CtInsert(ct, _UU("CMD_VersionGet_7"), tmp);
+
+		StrToUni(tmp, sizeof(tmp), t.ClientSSLVersion);
+		CtInsert(ct, _UU("CMD_VersionGet_6"), tmp);
+
 		UniToStru(tmp, t.ProcessId);
 		CtInsert(ct, _UU("CMD_VersionGet_4"), tmp);
 
@@ -24045,6 +24051,14 @@ UINT PsServerInfoGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	StrToUni(tmp, sizeof(tmp), t.ServerBuildInfoString);
 	CtInsert(ct, _UU("SM_INFO_BUILD"), tmp);
 
+	// Build environment
+	StrToUni(tmp, sizeof(tmp), t.ServerBuildEnvironment);
+	CtInsert(ct, _UU("SM_INFO_BUILD_ENVIRONMENT"), tmp);
+
+	// SSL library
+	StrToUni(tmp, sizeof(tmp), t.ServerSSLVersion);
+	CtInsert(ct, _UU("SM_SSL_LIB_VERSION"), tmp);
+
 	// Host name
 	StrToUni(tmp, sizeof(tmp), t.ServerHostName);
 	CtInsert(ct, _UU("SM_INFO_HOSTNAME"), tmp);
@@ -24936,7 +24950,7 @@ void CmdPrintError(CONSOLE *c, UINT err)
 void CmdPrintAbout(CONSOLE *c)
 {
 	CEDAR *cedar;
-	wchar_t tmp[MAX_SIZE];
+	wchar_t tmp[1024];
 	char exe[MAX_PATH];
 	// Validate arguments
 	if (c == NULL)
@@ -24949,7 +24963,7 @@ void CmdPrintAbout(CONSOLE *c)
 	GetExeName(exe, sizeof(exe));
 
 	UniFormat(tmp, sizeof(tmp), _UU("CMD_VPNCMD_ABOUT"),
-		cedar->VerString, cedar->BuildInfo);
+		cedar->VerString, cedar->BuildInfo, cedar->BuildEnvironment, cedar->SSLVersion);
 
 	c->Write(c, tmp);
 

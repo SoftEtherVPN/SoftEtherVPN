@@ -73,6 +73,8 @@ if(WIN32)
       "winmm.lib"
       "ws2_32.lib"
       "WtsApi32.Lib"
+      "ws2_32.lib"
+      "crypt32.lib"
     )
 endif()
 

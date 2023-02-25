@@ -3701,6 +3701,8 @@ void InRpcClientVersion(RPC_CLIENT_VERSION *ver, PACK *p)
 	PackGetStr(p, "ClientProductName", ver->ClientProductName, sizeof(ver->ClientProductName));
 	PackGetStr(p, "ClientVersionString", ver->ClientVersionString, sizeof(ver->ClientVersionString));
 	PackGetStr(p, "ClientBuildInfoString", ver->ClientBuildInfoString, sizeof(ver->ClientBuildInfoString));
+	PackGetStr(p, "ClientBuildEnvironment", ver->ClientBuildEnvironment, sizeof(ver->ClientBuildEnvironment));
+	PackGetStr(p, "ClientSSLVersion", ver->ClientSSLVersion, sizeof(ver->ClientSSLVersion));
 	ver->ClientVerInt = PackGetInt(p, "ClientVerInt");
 	ver->ClientBuildInt = PackGetInt(p, "ClientBuildInt");
 	ver->ProcessId = PackGetInt(p, "ProcessId");
@@ -3721,6 +3723,8 @@ void OutRpcClientVersion(PACK *p, RPC_CLIENT_VERSION *ver)
 	PackAddStr(p, "ClientProductName", ver->ClientProductName);
 	PackAddStr(p, "ClientVersionString", ver->ClientVersionString);
 	PackAddStr(p, "ClientBuildInfoString", ver->ClientBuildInfoString);
+	PackAddStr(p, "ClientBuildEnvironment", ver->ClientBuildEnvironment);
+	PackAddStr(p, "ClientSSLVersion", ver->ClientSSLVersion);
 	PackAddInt(p, "ClientVerInt", ver->ClientVerInt);
 	PackAddInt(p, "ClientBuildInt", ver->ClientBuildInt);
 	PackAddInt(p, "ProcessId", ver->ProcessId);
@@ -10294,6 +10298,8 @@ bool CtGetClientVersion(CLIENT *c, RPC_CLIENT_VERSION *ver)
 	StrCpy(ver->ClientProductName, sizeof(ver->ClientProductName), CEDAR_CLIENT_STR);
 	StrCpy(ver->ClientVersionString, sizeof(ver->ClientVersionString), c->Cedar->VerString);
 	StrCpy(ver->ClientBuildInfoString, sizeof(ver->ClientBuildInfoString), c->Cedar->BuildInfo);
+	StrCpy(ver->ClientBuildEnvironment, sizeof(ver->ClientBuildEnvironment), c->Cedar->BuildEnvironment);
+	StrCpy(ver->ClientSSLVersion, sizeof(ver->ClientSSLVersion), c->Cedar->SSLVersion);
 	ver->ClientVerInt = c->Cedar->Version;
 	ver->ClientBuildInt = c->Cedar->Build;
 
