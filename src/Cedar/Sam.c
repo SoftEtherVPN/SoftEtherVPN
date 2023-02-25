@@ -546,7 +546,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 				if (hub->RadiusConvertAllMsChapv2AuthRequestToEap)
 				{
 					// Do EAP or PEAP
-					eap = HubNewEapClient(hub->Cedar, hub->Name, client_ip_str, utf8, opt->In_VpnProtocolState);
+					eap = HubNewEapClient(hub->Cedar, hub->Name, client_ip_str, utf8, opt->In_VpnProtocolState, false, NULL, 0);
 
 					// Prepare MSCHAP response and replace plain password
 					if (eap != NULL)

@@ -1702,6 +1702,9 @@ bool ServerAccept(CONNECTION *c)
 				case CLIENT_AUTHTYPE_CERT:
 					authtype_str = _UU("LH_AUTH_CERT");
 					break;
+				case AUTHTYPE_EXTERNAL:
+					authtype_str = _UU("LH_AUTH_EXTERNAL");
+					break;
 				case AUTHTYPE_WIREGUARD_KEY:
 					authtype_str = _UU("LH_AUTH_WIREGUARD_KEY");
 					break;
@@ -1827,6 +1830,11 @@ bool ServerAccept(CONNECTION *c)
 				{
 				case CLIENT_AUTHTYPE_ANONYMOUS:
 					// Anonymous authentication (this have been already attempted)
+					break;
+
+				case AUTHTYPE_EXTERNAL:
+					// External authentication already completed
+					auth_ret = true;
 					break;
 
 				case AUTHTYPE_TICKET:
@@ -6707,6 +6715,25 @@ PACK *PackLoginWithAnonymous(char *hubname, char *username)
 	PackAddStr(p, "hubname", hubname);
 	PackAddStr(p, "username", username);
 	PackAddInt(p, "authtype", CLIENT_AUTHTYPE_ANONYMOUS);
+
+	return p;
+}
+
+// Create a packet for external login
+PACK *PackLoginWithExternal(char *hubname, char *username)
+{
+	PACK *p;
+	// Validate arguments
+	if (hubname == NULL || username == NULL)
+	{
+		return NULL;
+	}
+
+	p = NewPack();
+	PackAddStr(p, "method", "login");
+	PackAddStr(p, "hubname", hubname);
+	PackAddStr(p, "username", username);
+	PackAddInt(p, "authtype", AUTHTYPE_EXTERNAL);
 
 	return p;
 }

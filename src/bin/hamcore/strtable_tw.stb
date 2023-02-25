@@ -1941,6 +1941,7 @@ LH_AUTH_PASSWORD		密碼驗證
 LH_AUTH_PLAIN_PASSWORD	外部伺服器身份驗證
 LH_AUTH_CERT			證書驗證
 LH_AUTH_TICKET			票證驗證
+LH_AUTH_EXTERNAL		外部伺服器身份驗證
 LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	連接 "%S": 用戶 "%S" 身份驗證方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因為 RADIUS 或 Active Directory (NT 域)不能使用。連接被拒絕。

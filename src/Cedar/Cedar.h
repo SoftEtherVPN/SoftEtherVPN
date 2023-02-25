@@ -366,6 +366,7 @@
 #define	AUTHTYPE_ROOTCERT				3			// Root certificate which is issued by trusted Certificate Authority
 #define	AUTHTYPE_RADIUS					4			// Radius authentication
 #define	AUTHTYPE_NT						5			// Windows NT authentication
+#define AUTHTYPE_EXTERNAL				96			// External authentication (completed)
 #define	AUTHTYPE_WIREGUARD_KEY			97			// WireGuard public key authentication
 #define	AUTHTYPE_OPENVPN_CERT    		98			// TLS client certificate authentication
 #define	AUTHTYPE_TICKET					99			// Ticket authentication

@@ -1925,6 +1925,7 @@ LH_AUTH_PASSWORD		Password authentication
 LH_AUTH_PLAIN_PASSWORD	External server authentication
 LH_AUTH_CERT			Certificate authentication
 LH_AUTH_TICKET			Ticket authentication
+LH_AUTH_EXTERNAL		External server authentication
 LH_AUTH_WIREGUARD_KEY	WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT	OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	Connection "%S": The authentication method of the user "%S" has been specified as RADIUS Authentication or Active Directory Authentication (NT Domain Authentication). However, the edition of the VPN Server is "%S". This edition does not support RADIUS Authentication nor Active Directory Authentication (NT Domain Authentication). The connection will be denied.
