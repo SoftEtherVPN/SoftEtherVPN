@@ -1713,7 +1713,7 @@ void ClientThread(THREAD *t, void *param)
 						else
 						{
 							// Encrypted password authentication
-							HashPassword(s->ClientAuth->HashedPassword, s->ClientAuth->Username, p.Password);
+							HashPassword(s->ClientAuth->HashedPassword, s->ClientAuth->Username, p.Password, false);
 						}
 					}
 				}

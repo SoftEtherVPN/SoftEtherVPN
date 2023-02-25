@@ -260,6 +260,8 @@ void SmAzureSetStatus(HWND hWnd, SM_AZURE *a)
 
 	st.IsEnabled = IsChecked(hWnd, R_ENABLE);
 
+	st.UseCustom = a->UseCustom;
+
 	if (CALL(hWnd, ScSetAzureStatus(a->s->Rpc, &st)) == false)
 	{
 		EndDialog(hWnd, 0);
@@ -342,7 +344,9 @@ void SmAzureDlgRefresh(HWND hWnd, SM_AZURE *a)
 		return;
 	}
 
-	if (CALL(hWnd, ScGetDDnsClientStatus(a->s->Rpc, &ddns)) == false)
+	a->UseCustom = st.UseCustom;
+
+	if (st.UseCustom == false && CALL(hWnd, ScGetDDnsClientStatus(a->s->Rpc, &ddns)) == false)
 	{
 		EndDialog(hWnd, 0);
 		return;
@@ -360,21 +364,38 @@ void SmAzureDlgRefresh(HWND hWnd, SM_AZURE *a)
 	}
 
 	SetShow(hWnd, S_HOSTNAME_BORDER, st.IsEnabled);
-	SetShow(hWnd, S_HOSTNAME_INFO, st.IsEnabled);
+	SetShow(hWnd, S_HOSTNAME_INFO, st.IsEnabled && st.UseCustom == false);
+	SetShow(hWnd, S_HOSTNAME_CUSTOM, st.IsEnabled && st.UseCustom);
 	SetShow(hWnd, B_CHANGE, st.IsEnabled);
+	SetEnable(hWnd, B_CHANGE, st.IsEnabled && st.UseCustom == false);
 
-	if (st.IsEnabled == false || IsEmptyStr(ddns.CurrentHostName))
+	if (st.IsEnabled)
 	{
-		Hide(hWnd, E_HOST);
+		if (st.UseCustom && IsEmptyStr(st.CurrentHostname) == false)
+		{
+			StrCpy(tmp, sizeof(tmp), st.CurrentHostname);
+
+			SetTextA(hWnd, E_HOST, tmp);
+
+			Show(hWnd, E_HOST);
+		}
+		else if (st.UseCustom == false && IsEmptyStr(ddns.CurrentHostName) == false)
+		{
+			StrCpy(tmp, sizeof(tmp), ddns.CurrentHostName);
+			StrCat(tmp, sizeof(tmp), AZURE_DOMAIN_SUFFIX);
+
+			SetTextA(hWnd, E_HOST, tmp);
+
+			Show(hWnd, E_HOST);
+		}
+		else
+		{
+			Hide(hWnd, E_HOST);
+		}
 	}
 	else
 	{
-		StrCpy(tmp, sizeof(tmp), ddns.CurrentHostName);
-		StrCat(tmp, sizeof(tmp), AZURE_DOMAIN_SUFFIX);
-
-		SetTextA(hWnd, E_HOST, tmp);
-
-		Show(hWnd, E_HOST);
+		Hide(hWnd, E_HOST);
 	}
 }
 
@@ -3032,7 +3053,7 @@ bool SmSetupInit(HWND hWnd, SM_SETUP *s)
 
 		Zero(&t, sizeof(t));
 		Sha0(t.HashedPassword, password, StrLen(password));
-		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password);
+		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, password, false);
 		StrCpy(t.HubName, sizeof(t.HubName), s->HubName);
 		t.HubType = HUB_TYPE_STANDALONE;
 		t.Online = true;
@@ -14036,7 +14057,7 @@ void SmEditUserDlgUpdate(HWND hWnd, SM_EDIT_USER *s)
 		{
 			if (StrCmp(tmp1, HIDDEN_PASSWORD) != 0)
 			{
-				HashPassword(((AUTHPASSWORD *)u->AuthData)->HashedKey, u->Name, tmp1);
+				HashPassword(((AUTHPASSWORD *)u->AuthData)->HashedKey, u->Name, tmp1, false);
 				GenerateNtPasswordHash(((AUTHPASSWORD *)u->AuthData)->NtLmSecureHash, tmp1);
 			}
 		}
@@ -17422,7 +17443,7 @@ void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s)
 	if (s->EditMode == false || StrCmp(pass1, HIDDEN_PASSWORD) != 0)
 	{
 		Sha0(t.HashedPassword, pass1, StrLen(pass1));
-		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1);
+		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass1, false);
 	}
 
 	if (IsChecked(hWnd, R_LIMIT_MAX_SESSION))
@@ -18309,11 +18330,11 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 			{
 				UniToStr3(s9, sizeof(s9),
 					e->Traffic.Recv.BroadcastBytes + e->Traffic.Recv.UnicastBytes +
-					e->Traffic.Send.BroadcastBytes + e->Traffic.Send.UnicastBytes);
+e->Traffic.Send.BroadcastBytes + e->Traffic.Send.UnicastBytes);
 
-				UniToStr3(s10, sizeof(s10),
-					e->Traffic.Recv.BroadcastCount + e->Traffic.Recv.UnicastCount +
-					e->Traffic.Send.BroadcastCount + e->Traffic.Send.UnicastCount);
+UniToStr3(s10, sizeof(s10),
+	e->Traffic.Recv.BroadcastCount + e->Traffic.Recv.UnicastCount +
+	e->Traffic.Send.BroadcastCount + e->Traffic.Send.UnicastCount);
 			}
 
 			LvInsertAdd(b,
@@ -18334,7 +18355,7 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 	if (CALL(hWnd, ScEnumListener(p->Rpc, &t2)))
 	{
 		LVB *b = LvInsertStart();
-		for (i = 0;i < t2.NumPort;i++)
+		for (i = 0; i < t2.NumPort; i++)
 		{
 			wchar_t tmp[MAX_SIZE];
 			wchar_t *status;
@@ -18403,17 +18424,34 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 
 	// VPN Azure client state acquisition
 	Zero(&sta, sizeof(sta));
-	if (ScGetAzureStatus(p->Rpc, &sta) == ERR_NO_ERROR && sta.IsEnabled && IsEmptyStr(st.CurrentFqdn) == false)
+	if (ScGetAzureStatus(p->Rpc, &sta) == ERR_NO_ERROR && sta.IsEnabled)
 	{
 		char tmp[MAX_SIZE];
 
-		StrCpy(tmp, sizeof(tmp), st.CurrentHostName);
-		StrCat(tmp, sizeof(tmp), AZURE_DOMAIN_SUFFIX);
+		if (sta.UseCustom && IsEmptyStr(sta.CurrentHostname) == false)
+		{
+			StrCpy(tmp, sizeof(tmp), sta.CurrentHostname);
 
-		SetTextA(hWnd, E_AZURE_HOST, tmp);
+			SetTextA(hWnd, E_AZURE_HOST, tmp);
 
-		Show(hWnd, S_AZURE);
-		Show(hWnd, E_AZURE_HOST);
+			Show(hWnd, S_AZURE);
+			Show(hWnd, E_AZURE_HOST);
+		}
+		else if (sta.UseCustom == false && IsEmptyStr(st.CurrentFqdn) == false)
+		{
+			StrCpy(tmp, sizeof(tmp), st.CurrentHostName);
+			StrCat(tmp, sizeof(tmp), AZURE_DOMAIN_SUFFIX);
+
+			SetTextA(hWnd, E_AZURE_HOST, tmp);
+
+			Show(hWnd, S_AZURE);
+			Show(hWnd, E_AZURE_HOST);
+		}
+		else
+		{
+			Hide(hWnd, S_AZURE);
+			Hide(hWnd, E_AZURE_HOST);
+		}
 	}
 	else
 	{

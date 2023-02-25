@@ -4757,7 +4757,7 @@ UINT PcAccountPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PASSWORD;
 			HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username,
-				GetParamStr(o, "PASSWORD"));
+				GetParamStr(o, "PASSWORD"), false);
 		}
 		else if (StartWith("radius", typestr) || StartWith("ntdomain", typestr))
 		{
@@ -7749,6 +7749,8 @@ void PsMain(PS *ps)
 			{"DynamicDnsSetHostname", PsDynamicDnsSetHostname},
 			{"VpnAzureGetStatus", PsVpnAzureGetStatus},
 			{"VpnAzureSetEnable", PsVpnAzureSetEnable},
+			{"VpnAzureGetCustom", PsVpnAzureGetCustom},
+			{"VpnAzureSetCustom", PsVpnAzureSetCustom},
 		};
 
 		// Generate a prompt
@@ -10895,7 +10897,7 @@ UINT PsHubCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -10947,7 +10949,7 @@ UINT PsHubCreateDynamic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -10999,7 +11001,7 @@ UINT PsHubCreateStatic(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	}
 
 	Sha0(t.HashedPassword, pass, StrLen(pass));
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pass, false);
 	t.Online = true;
 
 	// RPC call
@@ -11574,7 +11576,7 @@ UINT PsSetHubPassword(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	// Change the settings
 	pw = GetParamStr(o, "[password]");
-	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pw);
+	HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, pw, false);
 	Sha0(t.HashedPassword, pw, StrLen(pw));
 
 	// Write the configuration of Virtual HUB
@@ -13549,7 +13551,7 @@ UINT PsCascadePasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PASSWORD;
 			HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username,
-				GetParamStr(o, "PASSWORD"));
+				GetParamStr(o, "PASSWORD"), false);
 		}
 		else if (StartWith("radius", typestr) || StartWith("ntdomain", typestr))
 		{
@@ -22239,7 +22241,8 @@ UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	PARAM args[] =
 	{
 		// "name", prompt_proc, prompt_param, eval_proc, eval_param
-		{"[yes|no]", CmdPrompt, _UU("VpnAzureSetEnable_PROMPT"), CmdEvalNotEmpty, NULL},
+		{"[yes|no]", CmdPrompt, _UU("CMD_VpnAzureSetEnable_PROMPT"), CmdEvalNotEmpty, NULL},
+		{"CUSTOM", CmdPrompt, _UU("CMD_VpnAzureSetEnableCustom_PROMPT"), CmdEvalNotEmpty, NULL},
 	};
 
 	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
@@ -22250,6 +22253,7 @@ UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	Zero(&t, sizeof(t));
 	t.IsEnabled = GetParamYes(o, "[yes|no]");
+	t.UseCustom = GetParamYes(o, "CUSTOM");
 
 	// RPC call
 	ret = ScSetAzureStatus(ps->Rpc, &t);
@@ -22288,11 +22292,6 @@ UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	// RPC call
 	ret = ScGetAzureStatus(ps->Rpc, &t);
 
-	if (ret == ERR_NO_ERROR)
-	{
-		ret = ScGetDDnsClientStatus(ps->Rpc, &t2);
-	}
-
 	if (ret != ERR_NO_ERROR)
 	{
 		// An error has occured
@@ -22309,14 +22308,169 @@ UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		if (t.IsEnabled)
 		{
 			wchar_t tmp[MAX_SIZE];
+			Zero(tmp, sizeof(tmp));
 
-			UniFormat(tmp, sizeof(tmp), L"%S%S", t2.CurrentHostName, AZURE_DOMAIN_SUFFIX);
+			if (t.UseCustom)
+			{
+				StrToUni(tmp, sizeof(tmp), t.CurrentHostname);
+			}
+			else
+			{
+				ret = ScGetDDnsClientStatus(ps->Rpc, &t2);
 
+				if (ret == ERR_NO_ERROR && IsEmptyStr(t2.CurrentHostName) == false)
+				{
+					UniFormat(tmp, sizeof(tmp), L"%S%S", t2.CurrentHostName, AZURE_DOMAIN_SUFFIX);
+				}
+			} 
+
+			CtInsert(ct, _UU("CMD_VpnAzureGetStatus_PRINT_CUSTOM"), _UU(t.UseCustom ? "SEC_YES" : "SEC_NO"));
 			CtInsert(ct, _UU("CMD_VpnAzureGetStatus_PRINT_CONNECTED"), _UU(t.IsConnected ? "SEC_YES" : "SEC_NO"));
 			CtInsert(ct, _UU("CMD_VpnAzureGetStatus_PRINT_HOSTNAME"), tmp);
 		}
 
 		CtFree(ct, c);
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Set the custom VPN Azure service
+UINT PsVpnAzureSetCustom(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	RPC_AZURE_CUSTOM t;
+	char *server;
+	UINT port;
+	X *x;
+	K *k;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		{"SERVER", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_Server"), CmdEvalHostAndPort, NULL},
+		{"HOSTNAME", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_Hostname"), CmdEvalNotEmpty, NULL},
+		{"PASSWORD", CmdPromptChoosePassword, NULL, NULL, NULL},
+		{"LOADCERT", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_ClientX"), NULL, NULL},
+		{"LOADKEY", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_ClientK"), NULL, NULL},
+		{"VERIFY", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_Verify"), CmdEvalNotEmpty, NULL},
+		{"TRUSTCA", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_TrustCA"), CmdEvalNotEmpty, NULL},
+		{"SERVCERT", CmdPrompt, _UU("CMD_VpnAzureSetCustom_Prompt_ServerX"), NULL, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	ParseHostPort(GetParamStr(o, "SERVER"), &server, &port, 443);
+	StrCpy(t.ServerName, sizeof(t.ServerName), server);
+	t.ServerPort = port;
+	Free(server);
+
+	StrCpy(t.Hostname, sizeof(t.Hostname), GetParamStr(o, "HOSTNAME"));
+
+	HashPassword(t.HashedPassword, t.Hostname, GetParamStr(o, "PASSWORD"), true);
+
+	if (UniIsEmptyStr(GetParamUniStr(o, "LOADCERT")) == false && UniIsEmptyStr(GetParamUniStr(o, "LOADKEY")) == false && 
+		CmdLoadCertAndKey(c, &x, &k, GetParamUniStr(o, "LOADCERT"), GetParamUniStr(o, "LOADKEY")))
+	{
+		c->Write(c, _UU("CMD_VpnAzureSetCustom_MSG_ClientCertLoaded"));
+		t.ClientX = x;
+		t.ClientK = k;
+	}
+
+	x = FileToXW(GetParamUniStr(o, "SERVCERT"));
+	if (x != NULL)
+	{
+		c->Write(c, _UU("CMD_VpnAzureSetCustom_MSG_ServerCertLoaded"));
+		t.ServerCert = x;
+	}
+
+	t.VerifyServer = GetParamYes(o, "VERIFY");
+	t.AddDefaultCA = GetParamYes(o, "TRUSTCA");
+
+	// RPC call
+	ret = ScSetAzureCustom(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeRpcAzureCustom(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Get the current config of the custom VPN Azure function
+UINT PsVpnAzureGetCustom(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret = 0;
+	RPC_AZURE_CUSTOM t;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	// RPC call
+	ret = ScGetAzureCustom(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		CT *ct = CtNewStandard();
+
+		wchar_t tmp[MAX_SIZE];
+
+		StrToUni(tmp, sizeof(tmp), t.ServerName);
+		CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_SERVERNAME"), tmp);
+		UniFormat(tmp, sizeof(tmp), _UU("CM_ST_PORT_TCP"), t.ServerPort);
+		CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_SERVERPORT"), tmp);
+		StrToUni(tmp, sizeof(tmp), t.Hostname);
+		CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_HOSTNAME"), tmp);
+
+		if (t.ClientX != NULL)
+		{
+			GetAllNameFromX(tmp, sizeof(tmp), t.ClientX);
+			CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_CLIENTCERT"), tmp);
+		}
+
+		CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_VERIFYSERVER"), _UU(t.VerifyServer ? "SEC_YES" : "SEC_NO"));
+		CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_DEFAULTCA"), _UU(t.AddDefaultCA ? "SEC_YES" : "SEC_NO"));
+
+		if (t.ServerCert != NULL)
+		{
+			GetAllNameFromX(tmp, sizeof(tmp), t.ServerCert);
+			CtInsert(ct, _UU("CMD_VpnAzureGetCustom_PRINT_SERVERCERT"), tmp);
+		}
+
+		CtFree(ct, c);
+
+		FreeRpcAzureCustom(&t);
 	}
 
 	FreeParamValueList(o);

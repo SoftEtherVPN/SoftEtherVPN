@@ -2450,6 +2450,14 @@ void SiLoadInitialConfiguration(SERVER *s)
 	{
 		// Create a DDNS client
 		s->DDnsClient = NewDDNSClient(s->Cedar, NULL, NULL);
+
+		// Create a default VPN Azure client
+		if (s->ServerType == SERVER_TYPE_STANDALONE)
+		{
+			s->AzureClient = NewAzureClient(s->Cedar, s, NULL);
+
+			AcSetEnable(s->AzureClient, s->EnableVpnAzure, s->UseCustomVpnAzure);
+		}
 	}
 
 
@@ -2626,14 +2634,6 @@ void SiInitConfiguration(SERVER *s)
 
 	s->AutoSaveConfigSpanSaved = s->AutoSaveConfigSpan;
 
-	// Create a VPN Azure client
-	if (s->DDnsClient != NULL && s->Cedar->Bridge == false && s->ServerType == SERVER_TYPE_STANDALONE)
-	{
-		s->AzureClient = NewAzureClient(s->Cedar, s);
-
-		AcSetEnable(s->AzureClient, s->EnableVpnAzure);
-	}
-
 	// Reduce the storage interval in the case of user mode
 #ifdef	OS_WIN32
 	if (MsIsUserMode())
@@ -2649,7 +2649,7 @@ void SiInitConfiguration(SERVER *s)
 }
 
 // Set the state of Enabled / Disabled of Azure Client
-void SiSetAzureEnable(SERVER *s, bool enabled)
+void SiSetAzureEnable(SERVER *s, bool enabled, bool use_custom)
 {
 	// Validate arguments
 	if (s == NULL)
@@ -2659,14 +2659,16 @@ void SiSetAzureEnable(SERVER *s, bool enabled)
 
 	if (s->AzureClient != NULL)
 	{
-		AcSetEnable(s->AzureClient, enabled);
+		AcSetEnable(s->AzureClient, enabled, use_custom);
 	}
 
 	s->EnableVpnAzure = enabled;
+
+	s->UseCustomVpnAzure = use_custom;
 }
 
 // Apply the Config to the Azure Client
-void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status)
+void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status, AZURE_CUSTOM_CONFIG *config)
 {
 	// Validate arguments
 	if (s == NULL)
@@ -2674,7 +2676,7 @@ void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status)
 		return;
 	}
 
-	AcApplyCurrentConfig(s->AzureClient, ddns_status);
+	AcApplyCurrentConfig(s->AzureClient, ddns_status, config, false);
 }
 
 // Get whether the Azure Client is enabled
@@ -2714,7 +2716,7 @@ bool SiIsAzureSupported(SERVER *s)
 // Read the server settings from the CFG
 bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 {
-	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9;
+	FOLDER *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9, *f10;
 	// Validate arguments
 	if (s == NULL || root == NULL)
 	{
@@ -2730,6 +2732,7 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 	f7 = CfgGetFolder(root, "IPsec");
 	f8 = CfgGetFolder(root, "DDnsClient");
 	f9 = CfgGetFolder(root, "WireGuardKeyList");
+	f10 = CfgGetFolder(root, "VPNAzureClient");
 
 	if (f1 == NULL)
 	{
@@ -2869,6 +2872,63 @@ bool SiLoadConfigurationCfg(SERVER *s, FOLDER *root)
 					// Create the DDNS client with stored key
 					s->DDnsClient = NewDDNSClient(s->Cedar, key, &t);
 				}
+			}
+		}
+
+		if (f10 == NULL)
+		{
+			// Create a default VPN Azure client
+			if (s->ServerType == SERVER_TYPE_STANDALONE)
+			{
+				s->AzureClient = NewAzureClient(s->Cedar, s, NULL);
+
+				AcSetEnable(s->AzureClient, s->EnableVpnAzure, s->UseCustomVpnAzure);
+			}
+		}
+		else
+		{
+			if (s->ServerType == SERVER_TYPE_STANDALONE)
+			{
+				// Custom VPN Azure client
+				AZURE_CUSTOM_CONFIG *config = ZeroMalloc(sizeof(AZURE_CUSTOM_CONFIG));
+
+				CfgGetStr(f10, "ServerName", config->ServerName, sizeof(config->ServerName));
+				config->ServerPort = CfgGetInt(f10, "ServerPort");
+				CfgGetStr(f10, "Hostname", config->Hostname, sizeof(config->Hostname));
+				CfgGetByte(f10, "HashedPassword", config->HashedPassword, SHA1_SIZE);
+				config->VerifyServer = CfgGetBool(f10, "VerifyServer");
+				config->AddDefaultCA = CfgGetBool(f10, "AddDefaultCA");
+
+				BUF *b;
+
+				// VPN Azure server certificate
+				b = CfgGetBuf(f10, "ServerCert");
+				if (b != NULL)
+				{
+					config->ServerCert = BufToX(b, false);
+					FreeBuf(b);
+				}
+
+				// VPN Azure client certificate
+				b = CfgGetBuf(f10, "ClientCert");
+				if (b != NULL)
+				{
+					config->ClientX = BufToX(b, false);
+					FreeBuf(b);
+				}
+
+				// VPN Azure client private key
+				b = CfgGetBuf(f10, "ClientKey");
+				if (b != NULL)
+				{
+					config->ClientK = BufToK(b, true, false, NULL);
+					FreeBuf(b);
+				}
+
+				// Create a VPN Azure client
+				s->AzureClient = NewAzureClient(s->Cedar, s, config);
+
+				AcSetEnable(s->AzureClient, s->EnableVpnAzure, s->UseCustomVpnAzure);
 			}
 		}
 	}
@@ -3225,6 +3285,35 @@ FOLDER *SiWriteConfigurationToCfg(SERVER *s)
 			}
 
 			CfgAddStr(ddns_folder, "CustomHttpHeader", t->CustomHttpHeader);
+		}
+
+		FOLDER *azure_folder = CfgCreateFolder(root, "VPNAzureClient");
+
+		if (s->AzureClient != NULL && s->AzureClient->CustomConfig != NULL)
+		{
+			CfgAddStr(azure_folder, "ServerName", s->AzureClient->CustomConfig->ServerName);
+			CfgAddInt(azure_folder, "ServerPort", s->AzureClient->CustomConfig->ServerPort);
+			CfgAddStr(azure_folder, "Hostname", s->AzureClient->CustomConfig->Hostname);
+			CfgAddByte(azure_folder, "HashedPassword", s->AzureClient->CustomConfig->HashedPassword, sizeof(s->AzureClient->CustomConfig->HashedPassword));
+			CfgAddBool(azure_folder, "VerifyServer", s->AzureClient->CustomConfig->VerifyServer);
+			CfgAddBool(azure_folder, "AddDefaultCA", s->AzureClient->CustomConfig->AddDefaultCA);
+
+			BUF *b;
+
+			// VPN Azure server certificate
+			b = XToBuf(s->AzureClient->CustomConfig->ServerCert, false);
+			CfgAddBuf(azure_folder, "ServerCert", b);
+			FreeBuf(b);
+
+			// VPN Azure client certificate
+			b = XToBuf(s->AzureClient->CustomConfig->ClientX, false);
+			CfgAddBuf(azure_folder, "ClientCert", b);
+			FreeBuf(b);
+
+			// VPN Azure client private key
+			b = KToBuf(s->AzureClient->CustomConfig->ClientK, false, NULL);
+			CfgAddBuf(azure_folder, "ClientKey", b);
+			FreeBuf(b);
 		}
 	}
 
@@ -5046,7 +5135,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 		}
 		if (CfgGetByte(f, "SecurePassword", h->SecurePassword, sizeof(h->SecurePassword)) != sizeof(h->SecurePassword))
 		{
-			HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "");
+			HashPassword(h->SecurePassword, ADMINISTRATOR_USERNAME, "", false);
 		}
 
 		// Log Settings
@@ -5996,6 +6085,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// Configuration of VPN Azure Client
 		s->EnableVpnAzure = CfgGetBool(f, "EnableVpnAzure");
+		s->UseCustomVpnAzure = CfgGetBool(f, "UseCustomVpnAzure");
 
 		// Disable GetHostName when accepting TCP
 		s->DisableGetHostNameWhenAcceptTcp = CfgGetBool(f, "DisableGetHostNameWhenAcceptTcp");
@@ -6336,6 +6426,7 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 		if (s->AzureClient != NULL)
 		{
 			CfgAddBool(f, "EnableVpnAzure", s->EnableVpnAzure);
+			CfgAddBool(f, "UseCustomVpnAzure", s->UseCustomVpnAzure);
 		}
 
 		CfgAddBool(f, "DisableGetHostNameWhenAcceptTcp", s->DisableGetHostNameWhenAcceptTcp);

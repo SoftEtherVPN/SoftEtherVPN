@@ -128,7 +128,7 @@ UINT DCChangeHostName(DDNS_CLIENT *c, char *hostname)
 
 		DCGetStatus(c, &st);
 
-		SiApplyAzureConfig(c->Cedar->Server, &st);
+		SiApplyAzureConfig(c->Cedar->Server, &st, NULL);
 	}
 
 	return ret;
@@ -174,7 +174,7 @@ void DCThread(THREAD *thread, void *param)
 		bool vgs_server_triggered = false;
 
 
-		if (c->Cedar->Server != NULL && c->Cedar->Server->AzureClient != NULL)
+		if (c->Cedar->Server != NULL && c->Cedar->Server->AzureClient != NULL && c->Cedar->Server->UseCustomVpnAzure == false)
 		{
 			if (c->Cedar->Server->AzureClient->DDnsTriggerInt != last_azure_ddns_trigger_int)
 			{
@@ -327,7 +327,7 @@ void DCThread(THREAD *thread, void *param)
 
 				DCGetStatus(c, &st);
 
-				SiApplyAzureConfig(c->Cedar->Server, &st);
+				SiApplyAzureConfig(c->Cedar->Server, &st, NULL);
 			}
 
 			AddInterrupt(interrupt, c->NextRegisterTick_IPv4);
@@ -362,7 +362,7 @@ void DCThread(THREAD *thread, void *param)
 
 				DCGetStatus(c, &st);
 
-				SiApplyAzureConfig(c->Cedar->Server, &st);
+				SiApplyAzureConfig(c->Cedar->Server, &st, NULL);
 			}
 
 			AddInterrupt(interrupt, c->NextRegisterTick_IPv6);
@@ -391,7 +391,7 @@ void DCThread(THREAD *thread, void *param)
 
 		if (last_time_ip_changed)
 		{
-			if (c->Cedar->Server != NULL && c->Cedar->Server->AzureClient != NULL)
+			if (c->Cedar->Server != NULL && c->Cedar->Server->AzureClient != NULL && c->Cedar->Server->UseCustomVpnAzure == false)
 			{
 				c->Cedar->Server->AzureClient->IpStatusRevision++;
 			}
@@ -476,7 +476,7 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 	if (ipv6 == false)
 	{
 		// Get the current status of the VPN Azure Client
-		if (c->Cedar->Server != NULL)
+		if (c->Cedar->Server != NULL && c->Cedar->Server->UseCustomVpnAzure == false)
 		{
 			AZURE_CLIENT *ac = c->Cedar->Server->AzureClient;
 

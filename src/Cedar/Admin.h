@@ -933,6 +933,22 @@ struct RPC_AZURE_STATUS
 {
 	bool IsEnabled;							// Whether enabled
 	bool IsConnected;						// Whether it's connected
+	bool UseCustom;							// Whether using custom service
+	char CurrentHostname[MAX_HOST_NAME_LEN + 1];
+};
+
+// Get / Set the custom Azure config
+struct RPC_AZURE_CUSTOM
+{
+	char ServerName[MAX_HOST_NAME_LEN + 1];	// VPN Azure server name
+	UINT ServerPort;						// VPN Azure port number
+	char Hostname[MAX_HOST_NAME_LEN + 1];	// VPN Azure client hostname
+	UCHAR HashedPassword[SHA1_SIZE];		// Hashed passwords
+	X *ClientX;								// VPN Azure client certificate
+	K *ClientK;								// VPN Azure client private key
+	X *ServerCert;							// VPN Azure server certificate
+	bool VerifyServer;						// Verify server certificate
+	bool AddDefaultCA;						// Use default trust store to verify server
 };
 
 // Ask user whether to continue RPC connect
@@ -1143,6 +1159,8 @@ UINT StSetSpecialListener(ADMIN *a, RPC_SPECIAL_LISTENER *t);
 UINT StGetSpecialListener(ADMIN *a, RPC_SPECIAL_LISTENER *t);
 UINT StGetAzureStatus(ADMIN *a, RPC_AZURE_STATUS *t);
 UINT StSetAzureStatus(ADMIN *a, RPC_AZURE_STATUS *t);
+UINT StGetAzureCustom(ADMIN *a, RPC_AZURE_CUSTOM *t);
+UINT StSetAzureCustom(ADMIN *a, RPC_AZURE_CUSTOM *t);
 UINT StGetDDnsInternetSetting(ADMIN *a, INTERNET_SETTING *t);
 UINT StSetDDnsInternetSetting(ADMIN *a, INTERNET_SETTING *t);
 UINT StSetVgsConfig(ADMIN *a, VGS_CONFIG *t);
@@ -1294,6 +1312,8 @@ UINT ScSetSpecialListener(RPC *r, RPC_SPECIAL_LISTENER *t);
 UINT ScGetSpecialListener(RPC *r, RPC_SPECIAL_LISTENER *t);
 UINT ScGetAzureStatus(RPC *r, RPC_AZURE_STATUS *t);
 UINT ScSetAzureStatus(RPC *r, RPC_AZURE_STATUS *t);
+UINT ScGetAzureCustom(RPC *r, RPC_AZURE_CUSTOM *t);
+UINT ScSetAzureCustom(RPC *r, RPC_AZURE_CUSTOM *t);
 UINT ScGetDDnsInternetSetting(RPC *r, INTERNET_SETTING *t);
 UINT ScSetDDnsInternetSetting(RPC *r, INTERNET_SETTING *t);
 UINT ScSetVgsConfig(RPC *r, VGS_CONFIG *t);
@@ -1525,6 +1545,9 @@ void InRpcSpecialListener(RPC_SPECIAL_LISTENER *t, PACK *p);
 void OutRpcSpecialListener(PACK *p, RPC_SPECIAL_LISTENER *t);
 void InRpcAzureStatus(RPC_AZURE_STATUS *t, PACK *p);
 void OutRpcAzureStatus(PACK *p, RPC_AZURE_STATUS *t);
+void InRpcAzureCustom(RPC_AZURE_CUSTOM *t, PACK *p);
+void OutRpcAzureCustom(PACK *p, RPC_AZURE_CUSTOM *t);
+void FreeRpcAzureCustom(RPC_AZURE_CUSTOM *t);
 void InRpcInternetSetting(INTERNET_SETTING *t, PACK *p);
 void OutRpcInternetSetting(PACK *p, INTERNET_SETTING *t);
 

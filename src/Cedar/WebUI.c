@@ -642,7 +642,7 @@ static wchar_t *WpNewHub(WEBUI *wu, LIST *params)
 		Zero(&t, sizeof(t));
 		StrCpy(t.HubName, sizeof(t.HubName), hubname);
 		Sha0(t.HashedPassword, passwd, StrLen(passwd));
-		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, passwd);
+		HashPassword(t.SecurePassword, ADMINISTRATOR_USERNAME, passwd, false);
 		t.Online = true;
 		t.HubType = HUB_TYPE_STANDALONE;
 

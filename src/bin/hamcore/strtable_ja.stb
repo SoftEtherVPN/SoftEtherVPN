@@ -4141,6 +4141,7 @@ R_ENABLE				VPN Azure を有効にする(&E)
 R_DISABLE				VPN Azure を無効にする(&D)
 S_HOSTNAME_BORDER		現在の VPN Azure ホスト名
 S_HOSTNAME_INFO			VPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。
+S_HOSTNAME_CUSTOM		カスタム VPN Azure サービスが有効になっています。VPN Azure ホスト名は、vpncmd コマンドからのみ変更できます。
 B_CHANGE				ホスト名の変更(&H)
 B_WEB					VPN Azure の使い方\r\n(Web サイトを表示)
 IDCANCEL				&OK
@@ -6484,6 +6485,7 @@ CMD_VpnAzureGetStatus			VPN Azure 機能の現在の状態の取得
 CMD_VpnAzureGetStatus_Help		VPN Azure 機能の現在の状態を取得します。\n\nVPN Azure により、会社のパソコンに自宅や外出先のパソコンから非常に簡単に VPN 接続できるようになります。VPN 接続中は会社のパソコンを経由して、社内 LAN の他のサーバーにもアクセスできます。\n会社のパソコン (VPN Server) にはグローバル IP アドレスは不要です。ファイアウォールや NAT の内側であっても動作し、ネットワーク管理者による設定は一切必要ありません。VPN クライアントとなる自宅のパソコンでは、Windows に標準付属の SSTP VPN クライアントを使用できます。\nVPN Azure は、SoftEther VPN Server をお使いの方はどなたでも無料で利用できるクラウド VPN サービスです。ソフトイーサ株式会社によって運営されています。使い方は http://www.vpnazure.net/ に掲載されています。\n\nVPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。ホスト名を変更するには DynamicDnsSetHostname コマンドを使用してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_VpnAzureGetStatus_Args		VpnAzureGetStatus
 CMD_VpnAzureGetStatus_PRINT_ENABLED	VPN Azure 機能が有効
+CMD_VpnAzureGetStatus_PRINT_CUSTOM	カスタム VPN Azure サービスを使用
 CMD_VpnAzureGetStatus_PRINT_CONNECTED	VPN Azure クラウドサーバーへ接続完了
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	VPN Azure サービス上でのホスト名
 
@@ -6491,9 +6493,47 @@ CMD_VpnAzureGetStatus_PRINT_HOSTNAME	VPN Azure サービス上でのホスト名
 # VpnAzureSetStatus コマンド
 CMD_VpnAzureSetEnable			VPN Azure 機能の有効化 / 無効化
 CMD_VpnAzureSetEnable_Help		VPN Azure 機能を有効または無効にします。\n\nVPN Azure により、会社のパソコンに自宅や外出先のパソコンから非常に簡単に VPN 接続できるようになります。VPN 接続中は会社のパソコンを経由して、社内 LAN の他のサーバーにもアクセスできます。\n会社のパソコン (VPN Server) にはグローバル IP アドレスは不要です。ファイアウォールや NAT の内側であっても動作し、ネットワーク管理者による設定は一切必要ありません。VPN クライアントとなる自宅のパソコンでは、Windows に標準付属の SSTP VPN クライアントを使用できます。\nVPN Azure は、SoftEther VPN Server をお使いの方はどなたでも無料で利用できるクラウド VPN サービスです。ソフトイーサ株式会社によって運営されています。使い方は http://www.vpnazure.net/ に掲載されています。\n\nVPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。ホスト名を変更するには DynamicDnsSetHostname コマンドを使用してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
-CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
+CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no] [/CUSTOM:yes|no]
 CMD_VpnAzureSetEnable_[yes|no]	VPN Azure 機能を有効にするには yes、無効にするには no を指定します。
+CMD_VpnAzureSetEnable_CUSTOM	カスタム VPN Azure サービスを使用するには yes 、デフォルトのサービスを使用するには no を指定します。
 CMD_VpnAzureSetEnable_PROMPT	VPN Azure 機能を有効 (yes / no): 
+CMD_VpnAzureSetEnableCustom_PROMPT	カスタム VPN Azure サービスを使用 (yes / no): 
+
+
+# VpnAzureGetCustom command
+CMD_VpnAzureGetCustom			カスタム VPN Azure サービスの構成の表示
+CMD_VpnAzureGetCustom_Help		カスタム VPN Azure サービスの現在の構成を取得して表示します。\n\nカスタム VPN Azure は動的 DNS サービスに依存せず、プライベートにホストされたリレー サーバーで VPN Azure 機能を使用できます。
+CMD_VpnAzureGetCustom_Args		VpnAzureGetCustom
+CMD_VpnAzureGetCustom_PRINT_SERVERNAME		サーバーアドレス
+CMD_VpnAzureGetCustom_PRINT_SERVERPORT		ポート番号
+CMD_VpnAzureGetCustom_PRINT_HOSTNAME		VPN Azure ホスト名
+CMD_VpnAzureGetCustom_PRINT_CLIENTCERT		登録済みクライアント証明書
+CMD_VpnAzureGetCustom_PRINT_SERVERCERT		登録済みサーバー証明書
+CMD_VpnAzureGetCustom_PRINT_VERIFYSERVER	サーバー証明書の検証
+CMD_VpnAzureGetCustom_PRINT_DEFAULTCA		システム証明書ストアを信頼する
+
+
+# VpnAzureSetCustom command
+CMD_VpnAzureSetCustom			カスタム VPN Azure サービスの構成の設定
+CMD_VpnAzureSetCustom_Help		カスタム VPN Azure サービスの現在の構成を設定します。\n\nカスタム VPN Azure は動的 DNS サービスに依存せず、プライベートにホストされたリレー サーバーで VPN Azure 機能を使用できます。
+CMD_VpnAzureSetCustom_Args		VpnAzureSetCustom [/SERVER:server:port] [/HOSTNAME:hostname] [/PASSWORD:password] [/LOADCERT:path] [/LOADKEY:path] [/VERIFY:yes|no] [/TRUSTCA:yes|no] [/SERVCERT:path]
+CMD_VpnAzureSetCustom_SERVER				VPN Azure サーバーのホスト名とポート番号を指定します。
+CMD_VpnAzureSetCustom_HOSTNAME				VPN Azure クライアントのホスト名を指定します。
+CMD_VpnAzureSetCustom_PASSWORD				VPN Azure クライアントのパスワードを指定します。 パスワードが不要な場合は空白のままにします。
+CMD_VpnAzureSetCustom_LOADCERT				クライアント証明書認証用の X.509 形式の証明書ファイルを指定します。 不要な場合は空欄にしてください。
+CMD_VpnAzureSetCustom_LOADKEY				証明書の Base-64 エンコードされた秘密鍵ファイル名を指定します。 不要な場合は空欄にしてください。
+CMD_VpnAzureSetCustom_VERIFY				VPN Azure サーバーの証明書を検証するかどうかを指定します。
+CMD_VpnAzureSetCustom_TRUSTCA				VPN Azure サーバーを検証するときにシステム証明書ストアを使用するかどうかを指定します。
+CMD_VpnAzureSetCustom_SERVCERT				サーバー証明書検証用の X.509 形式の証明書ファイルを指定します。 不要な場合は空欄にしてください。
+CMD_VpnAzureSetCustom_Prompt_Server			VPN Azure サーバーのアドレスとポート番号: 
+CMD_VpnAzureSetCustom_Prompt_Hostname		VPN Azure クライアントのホスト名 (例: vpn1234.myazure.net): 
+CMD_VpnAzureSetCustom_Prompt_ClientX		読み込むクライアント証明書認証用の X.509 証明書のファイル名:\nクライアントが証明書認証を使用しない場合は空白のままにします。\n
+CMD_VpnAzureSetCustom_Prompt_ClientK		読み込むクライアント証明書認証用の秘密鍵のファイル名:\nクライアントが証明書認証を使用しない場合は空白のままにします。\n
+CMD_VpnAzureSetCustom_Prompt_Verify			VPN Azure サーバーの証明書を検証します (yes / no): 
+CMD_VpnAzureSetCustom_Prompt_TrustCA		VPN Azure サーバーを検証するときにシステム証明書ストアを使用します (yes / no): 
+CMD_VpnAzureSetCustom_Prompt_ServerX		読み込むサーバー証明書検証用の X.509 証明書のファイル名:\n不要な場合は空白のままにします。\n
+CMD_VpnAzureSetCustom_MSG_ClientCertLoaded	クライアント認証用の証明書と秘密鍵のペアが正常に保存されました。
+CMD_VpnAzureSetCustom_MSG_ServerCertLoaded	サーバー検証のためにサーバー証明書が正常に保存されました。
 
 
 
