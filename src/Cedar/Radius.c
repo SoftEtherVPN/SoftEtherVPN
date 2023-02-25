@@ -20,7 +20,7 @@
 #include "Mayaqua/Tick64.h"
 
 // send PEAP-MSCHAPv2 auth client response
-bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge)
+bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username)
 {
 	bool ret = false;
 	EAP_MSCHAPV2_RESPONSE msg1;
@@ -38,13 +38,13 @@ bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respo
 	msg1.Type = EAP_TYPE_MS_AUTH;
 	msg1.Chap_Opcode = EAP_MSCHAPV2_OP_RESPONSE;
 	msg1.Chap_Id = e->MsChapV2Challenge.Chap_Id;
-	msg1.Chap_Len = Endian16(54 + StrLen(e->Username));
+	msg1.Chap_Len = Endian16(54 + StrLen(username));
 	msg1.Chap_ValueSize = 49;
 	Copy(msg1.Chap_PeerChallenge, client_challenge, 16);
 	Copy(msg1.Chap_NtResponse, client_response, 24);
-	Copy(msg1.Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
+	Copy(msg1.Chap_Name, username, MIN(StrLen(username), 255));
 
-	if (SendPeapPacket(e, &msg1, 59 + StrLen(e->Username)) &&
+	if (SendPeapPacket(e, &msg1, 59 + StrLen(username)) &&
 		GetRecvPeapMessage(e, &msg2))
 	{
 		if (msg2.Type == EAP_TYPE_MS_AUTH &&
@@ -633,7 +633,7 @@ void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e)
 }
 
 // Send a MSCHAPv2 client auth response1
-bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge)
+bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username)
 {
 	bool ret = false;
 	RADIUS_PACKET *request1 = NULL;
@@ -659,17 +659,17 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 	eap1 = ZeroMalloc(sizeof(EAP_MSCHAPV2_RESPONSE));
 	eap1->Code = EAP_CODE_RESPONSE;
 	eap1->Id = e->LastRecvEapId;
-	eap1->Len = Endian16(59 + StrLen(e->Username));
+	eap1->Len = Endian16(59 + StrLen(username));
 	eap1->Type = EAP_TYPE_MS_AUTH;
 	eap1->Chap_Opcode = EAP_MSCHAPV2_OP_RESPONSE;
 	eap1->Chap_Id = e->MsChapV2Challenge.Chap_Id;
-	eap1->Chap_Len = Endian16(54 + StrLen(e->Username));
+	eap1->Chap_Len = Endian16(54 + StrLen(username));
 	eap1->Chap_ValueSize = 49;
 	Copy(eap1->Chap_PeerChallenge, client_challenge, 16);
 	Copy(eap1->Chap_NtResponse, client_response, 24);
-	Copy(eap1->Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
+	Copy(eap1->Chap_Name, username, MIN(StrLen(username), 255));
 
-	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(e->Username) + 59));
+	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(username) + 59));
 
 	response1 = EapSendPacketAndRecvResponse(e, request1, false);
 
@@ -1814,15 +1814,16 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), opt->In_VpnProtocolState);
 		}
 
+		// Use the username known to the client instead of parsed by us, or response may be invalid
 		if (eap->PeapMode == false)
 		{
 			ret = EapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
-				mschap.MsChapV2_ClientChallenge);
+				mschap.MsChapV2_ClientChallenge, mschap.MsChapV2_PPPUsername);
 		}
 		else
 		{
 			ret = PeapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
-				mschap.MsChapV2_ClientChallenge);
+				mschap.MsChapV2_ClientChallenge, mschap.MsChapV2_PPPUsername);
 		}
 
 		if (ret)
