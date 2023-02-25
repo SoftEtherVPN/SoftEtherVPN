@@ -459,6 +459,7 @@ CERT_KEY_PARAMETER		Parameters
 # Concerning certificate confirmation dialogs
 CC_DANGEROUS_MSG	The server certificate that was saved on the previous VPN connection to this server (%S) does not match the current server certificate provided by the server. \r\n\r\nDigest Value (MD5) of Previous: %S\r\nDigest Value (SHA1) of Previous: %S\r\n\r\nDigest Value (MD5) of Current: %S\r\nDigest Value (SHA1) of Current: %S\r\n\r\nIt is possible the server administrator changed the certificate on the VPN Server side. However, it is also possible a man-in-the-middle attack such as spoofing is occurring. \r\nIt is strongly recommended that you ask for clarification from the administrator of VPN Server you want to connect to.
 CC_WARNING_MSG	Do you want the certificate of the VPN Server you are currently connecting to be automatically trusted next time you connect to %s?\r\n\r\nDigest Value (SHA1): %S\r\nDigest Value (MD5): %S\r\n\r\nIf there is doubt regarding the authenticity of this server's certificate, contact the server's owner, by a sure and safe method, and quote the above digest value to confirm the facts. \r\n\r\nClick Yes to automatically trust this certificate if this server provides the same certificate next time you connect to it. \r\nClick No to trust the certificate for this time only and to display this warning again next time you connect to this server. \r\nClick Cancel to return to the Security Warnings window. \r\n\r\nNote: This setting can be changed on an account-by-account basis. You can make this setting in Account Properties of VPN Client Manager.
+CC_DANGEROUS_MSG2	The public key of the host does not match the previous record. \r\n\r\nIf it wasn't changed by you, there might be an ongoing man-in-the-middle attack. Do not proceed if you are not sure.
 
 
 # Errors about Windows Versions
@@ -2255,7 +2256,7 @@ PREFIX	D_CHECKCERT
 CAPTION	Security Alert - %s
 S_TITLE	Although the connection to the destination VPN Server "%S" that you are currently connecting to is encrypted, the trustworthiness of the server certificate provided by the server is unknown.
 STATIC1	About the Server Certificate
-STATIC2	Establishing encrypted tunnel (SSL session) between VPN Server and VPN Client. Checking the server certificate enables to verify the authenticity of the server.
+STATIC2	Establishing encrypted tunnel (SSL session) with VPN Server. Checking the server certificate enables to verify the authenticity of the server.
 S_MSG1	The server certificate provided by destination VPN Server "%S" is as follows.
 STATIC3	Emitido para: 
 STATIC4	Emissor: 
@@ -4227,6 +4228,24 @@ CMD_VPNCMD_PWPROMPT_2	Confirmar saída:
 CMD_VPNCMD_PWPROMPT_3	The password and the password confirmation do not match. Please input the password and confirmation again.
 CMD_VPNCMD_CLIENT_CONNECTED	Connected to VPN Client "%S".
 CMD_VPNCMD_TOOLS_CONNECTED	VPN Tools has been launched. By inputting HELP, you can view a list of the commands that can be used.
+CMD_VPNCMD_CONNECT_CONFIRM_1	This is the first time you connect to the host. Please confirm its identity.
+CMD_VPNCMD_CONNECT_CONFIRM_2	*** WARNING!! *** The public key of the host does not match the previous record. \n\nIf it wasn't changed by you, there might be an ongoing man-in-the-middle attack. Do not proceed if you are not sure.
+CMD_VPNCMD_CONNECT_CONFIRM_3	Do you confirm the identity of the server and want to continue to login? (Enter 'yes' to continue) 
+CMD_VPNCMD_CONNECT_CONFIRM_4	Invalid certificate or public key.
+CMD_VPNCMD_CONNECT_CONFIRM_5	Saved the public key to the list of known hosts.
+CMD_VPNCMD_CONNECT_CONFIRM_6	Failed to save the public key.
+CMD_VPNCMD_CONNECT_CONFIRM_7	Are you REALLY SURE you understand the warning and want to continue? (Enter 'yes' to continue) 
+CMD_VPNCMD_CONNECT_HOST_INFO_1	Hostname
+CMD_VPNCMD_CONNECT_HOST_INFO_2	Port
+CMD_VPNCMD_CONNECT_HOST_INFO_3	Product
+CMD_VPNCMD_CONNECT_HOST_INFO_4	Version
+CMD_VPNCMD_CONNECT_HOST_INFO_5	Build
+CMD_VPNCMD_CONNECT_HOST_INFO_6	Subject name
+CMD_VPNCMD_CONNECT_HOST_INFO_7	Issuer
+CMD_VPNCMD_CONNECT_HOST_INFO_8	Issued on
+CMD_VPNCMD_CONNECT_HOST_INFO_9	Expiration
+CMD_VPNCMD_CONNECT_HOST_INFO_10	Digest (MD5)
+CMD_VPNCMD_CONNECT_HOST_INFO_11	Digest (SHA-1)
 
 
 #######################################################

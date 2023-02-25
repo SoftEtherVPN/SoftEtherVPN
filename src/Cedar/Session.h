@@ -301,6 +301,7 @@ struct UI_CHECKCERT
 	SESSION *Session;				// Session
 	volatile bool Halt;				// Halting flag
 	SOCK *Sock;						// Socket
+	bool AdminSession;				// Admin session from the server manager
 };
 
 

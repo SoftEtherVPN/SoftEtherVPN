@@ -445,6 +445,7 @@ CERT_KEY_PARAMETER			参数
 #关于证书认证对话框
 CC_DANGEROUS_MSG			之前保存的与此服务器(%S)建立 VPN 连接的服务器证书，与服务器提供的当前服务器证书不匹配。\r\n以前的摘要值(MD5): %S\r\n以前的摘要值(SHA1): %S\r\ni当前的摘要值(MD5): %S\r\n当前摘要值(SHA-1): %S\r\n\r\n可能是服务器管理员在 VPN Server 端更改了证书。然而，也有可能是中间人攻击，如发生欺骗攻击。\r\n强烈建议您向您向您想连接的 VPN Server 管理员进行详细信息咨询。
 CC_WARNING_MSG				您是否想让您当前连接使用的证书，在下次连接到 %s 自动信任吗?\r\n\r\n摘要值(SHA-1): %S\r\n摘要值(MD5): %S\r\n\r\n如对此服务器证书的真实性有疑问，请通过一稳妥而安全的渠道，与服务器所有者进行联系，并列举上述摘要值以进行确认。\r\n\r\n单击“是”，则下次连接时，若服务器提供相同证书则自动信任。\r\n单击“否”，则下次连接到此服务器时，再次显示此警告。\r\n单击“取消”，返回安全警告窗口。\r\n\r\n注意: 此设置可按逐个账户情况进行修改。您可以使用 VPN Client 客户端管理器内的账户属性进行设置。
+CC_DANGEROUS_MSG2			该主机的公钥与之前保存的记录不匹配。\r\n\r\n如果不是您更改了服务器证书，您有可能遭遇了中间人攻击。如果您不确定，请不要继续操作。
 
 
 # 关于 Windows 版本的错误
@@ -2286,7 +2287,7 @@ PREFIX						D_CHECKCERT
 CAPTION						安全警告 - %s
 S_TITLE						你正在连接到的目标 VPN Server “%S”的连接是加密的，但由服务器提供的服务器证书的可信度是未知的。
 STATIC1						关于服务器证书
-STATIC2						正在 VPN Server 和 VPN Client 之间建立加密通道(SSL 会话)。检查服务器证书可以验证服务器的可靠性。
+STATIC2						正在与 VPN Server 建立加密通道(SSL 会话)。检查服务器证书可以验证服务器的可靠性。
 S_MSG1						目标 VPN Server "%S" 提供的服务端证书如下。
 STATIC3						发给:
 STATIC4						发行人:
@@ -4526,6 +4527,24 @@ CMD_VPNCMD_PWPROMPT_2		确认输入:
 CMD_VPNCMD_PWPROMPT_3		密码和确认密码不匹配。请再输入密码和确认密码。
 CMD_VPNCMD_CLIENT_CONNECTED	连接到 VPN Client "%S"。
 CMD_VPNCMD_TOOLS_CONNECTED	VPN 工具已推出。通过输入 "HELP"，您可以查看可使用的命令列表。
+CMD_VPNCMD_CONNECT_CONFIRM_1	这是您第一次连接到该主机。请确认其身份。
+CMD_VPNCMD_CONNECT_CONFIRM_2	*** 警告!! *** 该主机的公钥与之前保存的记录不匹配。\n\n如果不是您更改了服务器证书，您有可能遭遇了中间人攻击。如果您不确定，请不要继续操作。
+CMD_VPNCMD_CONNECT_CONFIRM_3	您是否确认了服务器的身份并想继续登录？（输入 'yes' 继续） 
+CMD_VPNCMD_CONNECT_CONFIRM_4	无效的证书或公钥。
+CMD_VPNCMD_CONNECT_CONFIRM_5	已将公钥保存到已知主机列表中。
+CMD_VPNCMD_CONNECT_CONFIRM_6	公钥保存失败。
+CMD_VPNCMD_CONNECT_CONFIRM_7	您真的确定您了解警告的内容并想继续吗？（输入 'yes' 继续） 
+CMD_VPNCMD_CONNECT_HOST_INFO_1	主机名称
+CMD_VPNCMD_CONNECT_HOST_INFO_2	端口
+CMD_VPNCMD_CONNECT_HOST_INFO_3	产品名
+CMD_VPNCMD_CONNECT_HOST_INFO_4	版本
+CMD_VPNCMD_CONNECT_HOST_INFO_5	内部标号
+CMD_VPNCMD_CONNECT_HOST_INFO_6	主题
+CMD_VPNCMD_CONNECT_HOST_INFO_7	发行者
+CMD_VPNCMD_CONNECT_HOST_INFO_8	有效期自
+CMD_VPNCMD_CONNECT_HOST_INFO_9	有效期至
+CMD_VPNCMD_CONNECT_HOST_INFO_10	摘要 (MD5)
+CMD_VPNCMD_CONNECT_HOST_INFO_11	摘要 (SHA-1)
 
 
 
