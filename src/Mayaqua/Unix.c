@@ -295,16 +295,25 @@ void UnixDisableInterfaceOffload(char *name)
 #endif	// UNIX_LINUX
 }
 
-// Validate whether the UNIX is running in a VM
+// Validate whether the Linux/FreeBSD is running in a VM
+// Not implemented yet on other OS
 bool UnixIsInVmMain()
 {
 	TOKEN_LIST *t = NULL;
 	bool ret = false;
+#if defined(UNIX_LINUX)
 	char *vm_str_list = "Hypervisor detected,VMware Virtual Platform,VMware Virtual USB,qemu,xen,paravirtualized,virtual hd,virtualhd,virtual pc,virtualpc,kvm,oracle vm,oraclevm,parallels,xvm,bochs";
+#elif defined(__FreeBSD__)
+	char *vm_str_list = "generic,xen,hv,vmware,kvm,bhyve";
+#endif
 
-#ifdef	UNIX_LINUX
+#if defined(UNIX_LINUX)
 	t = UnixExec("/bin/dmesg");
+#elif defined(__FreeBSD__)
+	t = UnixExec("/sbin/sysctl -n kern.vm_guest");
+#endif
 
+#if defined(UNIX_LINUX) || defined(__FreeBSD__)
 	if (t != NULL)
 	{
 		BUF *b = NewBuf();
@@ -327,10 +336,11 @@ bool UnixIsInVmMain()
 		FreeBuf(b);
 		FreeToken(t);
 	}
-#endif	// UNIX_LINUX
+#endif // defined(UNIX_LINUX) || defined(__FreeBSD)
 
 	return ret;
 }
+
 bool UnixIsInVm()
 {
 	static bool is_in_vm_flag = false;
