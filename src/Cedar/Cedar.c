@@ -1564,11 +1564,14 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 #endif	// ALPHA_VERSION
 
 	ToStr(tmp2, c->Beta);
+	Format(tmp2, sizeof(tmp2), " %s %s ", beta_str, tmp2);
 
-	Format(tmp, sizeof(tmp), "Version %u.%02u Build %u %s %s (%s)",
+	Format(tmp, sizeof(tmp),
+		"Version %u.%02u Build %u"
+		"%s"    // Alpha, Beta, Release Candidate or nothing
+		"(%s)", // Language
 		CEDAR_VERSION_MAJOR, CEDAR_VERSION_MINOR, CEDAR_VERSION_BUILD,
-		c->Beta == 0 ? "" : beta_str,
-		c->Beta == 0 ? "" : tmp2,
+		c->Beta == 0 ? " " : tmp2,
 		_SS("LANGSTR"));
 	Trim(tmp);
 
