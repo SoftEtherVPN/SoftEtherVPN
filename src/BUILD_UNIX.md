@@ -5,6 +5,7 @@ This document describes how to build SoftEtherVPN for UNIX based Operating syste
   * [Install Requirements on Debian/Ubuntu](#install-requirements-on-debianubuntu)
   * [Install Requirements on macOS](#install-requirements-on-macos)
 - [Build from source code and install](#build-from-source-code-and-install)
+  * [Install to Debian 11](#install-to-debian-11-as-root)
 - [Additional Build Options](#additional-build-options)
 - [How to Run SoftEther](#how-to-run-softether)
   * [Start/Stop SoftEther VPN Server](#startstop-softether-vpn-server)
@@ -63,6 +64,24 @@ make -C build install
 This will compile and install SoftEther VPN Server, Bridge and Client binaries under your executable path.
 
 If any error occurs, please check the above requirements.
+
+## Installing to Debian 11 as root
+(2023-03)
+To install latest, developer [nightly build](https://dev.azure.com/SoftEther-VPN/SoftEther%20VPN/_build?definitionId=6) 5.x version as root: 
+```bash
+apt-get install build-essential cmake gcc g++ make git pkg-config libncurses-dev, libssl-dev libsodium-dev zlib1g-dev
+
+git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+cd SoftEtherVPN
+git submodule init && git submodule update
+./configure
+
+make .
+make
+make install
+```
+For Stable 4.x version, replace : `SoftEtherVPN.git` with `SoftEtherVPN_Stable.git`
+
 
 # Build on musl-based linux
 
