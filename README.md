@@ -172,6 +172,7 @@ https://github.com/domosekai
 | ECDSA Certificates Import | ❌ | ✅ | |
 | Runs on Windows XP and Earlier | ✅ | ❌ | |
 | Compatible with SoftEther VPN 1.0 | ✅ | ❌ | |
+| AES-NI Hardware Acceleration | ⚠️ |  ✅ | SE requires [intel_aes_lib](https://software.intel.com/sites/default/files/article/181731/intel-aesni-sample-library-v1.2.zip) to enable AES-NI, so x86 only. In DE, enabled by default as long as processor supports it (at least x86 and ARM). |
 
 # Installation
 
