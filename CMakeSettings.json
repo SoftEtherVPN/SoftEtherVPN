@@ -30,7 +30,7 @@
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
-          "value": "x64-windows-static-md",
+          "value": "x64-windows-static",
           "type": "STRING"
         }
       ]
@@ -64,7 +64,7 @@
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
-          "value": "x86-windows-static-md",
+          "value": "x86-windows-static",
           "type": "STRING"
         }
       ]
@@ -98,7 +98,7 @@
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
-          "value": "x64-windows-static-md",
+          "value": "x64-windows-static",
           "type": "STRING"
         }
       ]
@@ -132,7 +132,7 @@
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
-          "value": "x86-windows-static-md",
+          "value": "x86-windows-static",
           "type": "STRING"
         }
       ]

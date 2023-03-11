@@ -13,6 +13,13 @@ if (BUILD_NUMBER LESS 5180)
 		"For detailed info: https://github.com/SoftEtherVPN/SoftEtherVPN/issues/1392#issuecomment-867348281")
 endif()
 
+#
+# Link MSVC runtime statically
+# this should be revisited after installer migration to MSI
+#
+cmake_policy(SET CMP0091 NEW)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 project("SoftEther VPN"
   VERSION "5.02.${BUILD_NUMBER}"
   LANGUAGES C
