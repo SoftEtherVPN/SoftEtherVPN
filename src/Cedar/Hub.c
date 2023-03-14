@@ -91,7 +91,8 @@ UINT num_admin_options = sizeof(admin_options) / sizeof(ADMIN_OPTION);
 
 
 // Create an EAP client for the specified Virtual Hub
-EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str)
+EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, char *username, char *vpn_protocol_state_str, bool proxy_only, 
+							PPP_LCP **response, UCHAR last_recv_eapid)
 {
 	HUB *hub = NULL;
 	EAP_CLIENT *ret = NULL;
@@ -137,7 +138,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 						if (GetIP(&ip, radius_servers_list->Token[i]))
 						{
 							eap = NewEapClient(&ip, radius_port, radius_secret, radius_retry_interval,
-								RADIUS_INITIAL_EAP_TIMEOUT, client_ip_str, username, hubname);
+								RADIUS_INITIAL_EAP_TIMEOUT, client_ip_str, username, hubname, last_recv_eapid);
 
 							if (eap != NULL)
 							{
@@ -146,7 +147,19 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 									StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), vpn_protocol_state_str);
 								}
 
-								if (use_peap == false)
+								if (proxy_only && response != NULL)
+								{
+									// EAP proxy for EAP-capable clients
+									PPP_LCP *lcp = EapClientSendEapIdentity(eap);
+									if (lcp != NULL)
+									{
+										*response = lcp;
+										eap->GiveupTimeout = RADIUS_RETRY_TIMEOUT;
+										ret = eap;
+										finish = true;
+									}
+								}
+								else if (use_peap == false)
 								{
 									// EAP
 									if (EapClientSendMsChapv2AuthRequest(eap))

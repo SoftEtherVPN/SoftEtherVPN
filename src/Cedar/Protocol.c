@@ -1702,6 +1702,9 @@ bool ServerAccept(CONNECTION *c)
 				case CLIENT_AUTHTYPE_CERT:
 					authtype_str = _UU("LH_AUTH_CERT");
 					break;
+				case AUTHTYPE_EXTERNAL:
+					authtype_str = _UU("LH_AUTH_EXTERNAL");
+					break;
 				case AUTHTYPE_WIREGUARD_KEY:
 					authtype_str = _UU("LH_AUTH_WIREGUARD_KEY");
 					break;
@@ -1829,6 +1832,11 @@ bool ServerAccept(CONNECTION *c)
 					// Anonymous authentication (this have been already attempted)
 					break;
 
+				case AUTHTYPE_EXTERNAL:
+					// External authentication already completed
+					auth_ret = true;
+					break;
+
 				case AUTHTYPE_TICKET:
 					// Ticket authentication
 					if (PackGetDataSize(p, "ticket") == SHA1_SIZE)
@@ -1914,7 +1922,7 @@ bool ServerAccept(CONNECTION *c)
 
 						if (auth_ret == false)
 						{
-							// Attempt external authentication registered users
+							// Attempt external authentication
 							bool fail_ext_user_auth = false;
 							if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
 							{
@@ -1923,43 +1931,12 @@ bool ServerAccept(CONNECTION *c)
 
 							if (fail_ext_user_auth == false)
 							{
-								auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, false, mschap_v2_server_response_20, &radius_login_opt);
+								auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20, &radius_login_opt);
 							}
 
 							if (auth_ret && pol == NULL)
 							{
 								pol = SamGetUserPolicy(hub, username);
-							}
-						}
-
-						if (auth_ret == false)
-						{
-							// Attempt external authentication asterisk user
-							bool b = false;
-							bool fail_ext_user_auth = false;
-
-							if (GetGlobalServerFlag(GSF_DISABLE_RADIUS_AUTH) != 0)
-							{
-								fail_ext_user_auth = true;
-							}
-
-							if (fail_ext_user_auth == false)
-							{
-								AcLock(hub);
-								{
-									b = AcIsUser(hub, "*");
-								}
-								AcUnlock(hub);
-
-								// If there is asterisk user, log on as the user
-								if (b)
-								{
-									auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20, &radius_login_opt);
-									if (auth_ret && pol == NULL)
-									{
-										pol = SamGetUserPolicy(hub, "*");
-									}
-								}
 							}
 						}
 
@@ -6738,6 +6715,25 @@ PACK *PackLoginWithAnonymous(char *hubname, char *username)
 	PackAddStr(p, "hubname", hubname);
 	PackAddStr(p, "username", username);
 	PackAddInt(p, "authtype", CLIENT_AUTHTYPE_ANONYMOUS);
+
+	return p;
+}
+
+// Create a packet for external login
+PACK *PackLoginWithExternal(char *hubname, char *username)
+{
+	PACK *p;
+	// Validate arguments
+	if (hubname == NULL || username == NULL)
+	{
+		return NULL;
+	}
+
+	p = NewPack();
+	PackAddStr(p, "method", "login");
+	PackAddStr(p, "hubname", hubname);
+	PackAddStr(p, "username", username);
+	PackAddInt(p, "authtype", AUTHTYPE_EXTERNAL);
 
 	return p;
 }

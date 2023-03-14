@@ -294,7 +294,7 @@ struct PPP_SESSION
 	UINT MsChapV2_ErrorCode;			// Authentication failure error code of MS-CHAPv2
 	UINT MsChapV2_PacketId;				// MS-CHAPv2 Packet ID
 
-	bool MsChapV2_UseDoubleMsChapV2;	// Use the double-MSCHAPv2 technique
+	bool UseEapRadius;					// Use EAP for RADIUS authentication
 	EAP_CLIENT *EapClient;				// EAP client
 
 	UCHAR ServerInterfaceId[8];			// Server IPv6CP Interface Identifier
@@ -343,6 +343,7 @@ bool PPPProcessCHAPResponsePacketEx(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *
 bool PPPProcessIPCPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
 bool PPPProcessIPv6CPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req);
+bool PPPProcessEapResponseForRadius(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eap_datasize);
 // Request packets
 bool PPPProcessRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
 bool PPPProcessLCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp);
@@ -413,6 +414,7 @@ bool PPPParseUsername(CEDAR *cedar, char *src, ETHERIP_ID *dst);
 void GenerateNtPasswordHash(UCHAR *dst, char *password);
 void GenerateNtPasswordHashHash(UCHAR *dst_hash, UCHAR *src_hash);
 void MsChapV2Server_GenerateChallenge(UCHAR *dst);
+void MsChapV2Client_GenerateChallenge(UCHAR *dst);
 void MsChapV2_GenerateChallenge8(UCHAR *dst, UCHAR *client_challenge, UCHAR *server_challenge, char *username);
 void MsChapV2Client_GenerateResponse(UCHAR *dst, UCHAR *challenge8, UCHAR *nt_password_hash);
 void MsChapV2Server_GenerateResponse(UCHAR *dst, UCHAR *nt_password_hash_hash, UCHAR *client_response, UCHAR *challenge8);

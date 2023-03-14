@@ -215,7 +215,6 @@ struct EAP_CLIENT
 	UINT ResendTimeout;
 	UINT GiveupTimeout;
 	UCHAR TmpBuffer[4096];
-	UCHAR NextEapId;
 	UCHAR LastRecvEapId;
 
 	bool PeapMode;
@@ -249,17 +248,20 @@ RADIUS_AVP *GetRadiusAvp(RADIUS_PACKET *p, UCHAR type);
 void RadiusTest();
 
 
-EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username, char *hubname);
+EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, 
+						char *username, char *hubname, UCHAR last_recv_eapid);
 void ReleaseEapClient(EAP_CLIENT *e);
 void CleanupEapClient(EAP_CLIENT *e);
 bool EapClientSendMsChapv2AuthRequest(EAP_CLIENT *e);
-bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge);
+bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username);
+PPP_LCP *EapClientSendEapIdentity(EAP_CLIENT *e);
+PPP_LCP *EapClientSendEapRequest(EAP_CLIENT *e, PPP_EAP *eap_request, UINT request_datasize);
 void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e);
 bool EapSendPacket(EAP_CLIENT *e, RADIUS_PACKET *r);
-RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r);
+RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r, bool parse_inner);
 
 bool PeapClientSendMsChapv2AuthRequest(EAP_CLIENT *eap);
-bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge);
+bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username);
 
 bool StartPeapClient(EAP_CLIENT *e);
 bool StartPeapSslClient(EAP_CLIENT *e);
