@@ -1,7 +1,7 @@
 # SoftEther VPN Source Code
 # 
-# Copyright (c) 2012-2022 SoftEther VPN Project at University of Tsukuba, Japan.
-# Copyright (c) 2012-2022 Daiyuu Nobori.
+# Copyright (c) 2012-2023 SoftEther VPN Project at University of Tsukuba, Japan.
+# Copyright (c) 2012-2023 Daiyuu Nobori.
 # All Rights Reserved.
 # 
 # https://www.softether.org/

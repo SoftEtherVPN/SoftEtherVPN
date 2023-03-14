@@ -120,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -225,7 +225,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes&#x0D;&#x0A;&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>

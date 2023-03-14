@@ -184,7 +184,7 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 
 								SetTimeout(ns, param->DataTimeout);
 
-								if (StartSSLEx(ns, NULL, NULL, true, 0, NULL))
+								if (StartSSLEx(ns, NULL, NULL, true, 0, NULL)) // DO NOT SET SNI Hostname !!
 								{
 									// Check certification
 									char server_cert_hash_str[MAX_SIZE];

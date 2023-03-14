@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x86.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:0&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x86_win10.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:2"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x64.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:0&#x0D;&#x0A;$(SolutionDir)bin\BuildUtil.exe /CMD:SignCode &quot;$(TargetPath)&quot; /DEST:&quot;$(TargetDir)SeLow_x64_win10.sys&quot; /COMMENT:&quot;VPN Software&quot; /KERNEL:yes /CERTID:0 /SHAMODE:2"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
