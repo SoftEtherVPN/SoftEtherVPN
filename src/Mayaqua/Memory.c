@@ -3463,7 +3463,7 @@ void *Base64ToBin(UINT *out_size, const void *src, const UINT size)
 		return NULL;
 	}
 
-	void *bin = Malloc(bin_size);
+	void *bin = ZeroMalloc(bin_size + 1);
 	bin_size = Base64Decode(bin, src, size);
 	if (bin_size == 0)
 	{
