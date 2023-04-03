@@ -2,6 +2,7 @@
 .cproject
 .project
 .settings/
+.vs/
 Makefile
 /src/bin/*
 !/src/bin/hamcore/
