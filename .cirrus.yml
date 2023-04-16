@@ -3,14 +3,13 @@ FreeBSD_task:
     env:
       SSL: openssl
     env:
-      # OpenSSL 3.0.x
-      SSL: openssl-devel
+      SSL: openssl31
     env:
       # base openssl
       SSL:
   matrix:
     freebsd_instance:
-      image_family: freebsd-13-1
+      image_family: freebsd-13-2
   prepare_script:
     - pkg install -y pkgconf cmake git libsodium $SSL
     - git submodule update --init --recursive
