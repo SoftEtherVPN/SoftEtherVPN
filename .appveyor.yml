@@ -20,7 +20,6 @@ init:
 install:
   - sudo apt-get -y install libsodium-dev libcap-ng-dev
 before_build:
-  - sh: "if [ ${APPVEYOR_REPO_TAG} == \"true\" ]; then .ci/appveyor-create-release-tarball.sh\nfi"
   - git submodule update --init --recursive
   - ./configure
 build_script:
@@ -32,9 +31,3 @@ test_script:
   - sudo .ci/start-se-openvpn.sh
   - sudo .ci/run-openvpn-tests.sh
 
-deploy:
-  description: 'automatic release'
-  provider: GitHub
-  auth_token: $(github_token)
-  on:
-    APPVEYOR_REPO_TAG: true
