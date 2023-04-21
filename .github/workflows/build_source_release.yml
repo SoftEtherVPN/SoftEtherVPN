@@ -26,7 +26,7 @@ jobs:
         mv /tmp/$PKGNAME .
         TARBALL=$PKGNAME.tar.xz
         tar cJf $TARBALL $PKGNAME
-        echo "::set-output name=tarball::$TARBALL"
+        echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
 
     - name: upload tarball
       uses: actions/upload-release-asset@v1
