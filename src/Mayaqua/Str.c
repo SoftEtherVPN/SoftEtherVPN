@@ -2062,11 +2062,11 @@ void EnSafeHttpHeaderValueStr(char *str, char replace)
 	length = StrLen(str);
 	while (index < length)
 	{
-		if (str[index] == '\r' || str[index] == '\n')
+		if ((str[index] == '\r' || str[index] == '\n') &&  length - index > 1)
 		{
 			if (replace == ' ')
 			{
-				Move(&str[index], &str[index + 1], length - index);
+				Move(&str[index], &str[index + 1], length - index - 1);
 			}
 			else
 			{
@@ -2075,12 +2075,12 @@ void EnSafeHttpHeaderValueStr(char *str, char replace)
 		}
 		else if (str[index] == '\\')
 		{
-			if (str[index + 1] == 'r' || str[index + 1] == 'n')
+			if ((str[index + 1] == 'r' || str[index + 1] == 'n') && length - index > 2)
 			{
 				if (replace == ' ')
 				{
-					Move(&str[index], &str[index + 2], length - index);
-					index--;
+					Move(&str[index], &str[index + 2], length - index - 2);
+					index++;
 				}
 				else
 				{
