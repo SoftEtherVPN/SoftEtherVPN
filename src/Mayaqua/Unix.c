@@ -48,7 +48,7 @@
 
 #ifdef UNIX_SOLARIS
 #define USE_STATVFS
-#include <sys/statvfs.h>'
+#include <sys/statvfs.h>
 #endif
 
 #ifdef	UNIX_MACOS
