@@ -640,22 +640,6 @@ bool WriteSecCert(SECURE *sec, bool private_obj, char *name, X *x)
 	UINT ret;
 	BUF *b;
 	UINT object;
-	CK_ATTRIBUTE a[] =
-	{
-		{CKA_SUBJECT,			subject,		0},			// 0
-		{CKA_ISSUER,			issuer,			0},			// 1
-		{CKA_SERIAL_NUMBER,		serial_number,	0},			// 2
-		{CKA_VALUE,				value,			0},			// 3
-		{CKA_CLASS,				&obj_class,		sizeof(obj_class)},
-		{CKA_TOKEN,				&b_true,		sizeof(b_true)},
-		{CKA_PRIVATE,			&b_private_obj,	sizeof(b_private_obj)},
-		{CKA_LABEL,				name,			StrLen(name)},
-		{CKA_CERTIFICATE_TYPE,	&cert_type,		sizeof(cert_type)},
-#if	0		// Don't use these because some tokens fail
-		{CKA_START_DATE,		&start_date,	sizeof(start_date)},
-		{CKA_END_DATE,			&end_date,		sizeof(end_date)},
-#endif
-	};
 	// Validate arguments
 	if (sec == NULL)
 	{
@@ -676,6 +660,23 @@ bool WriteSecCert(SECURE *sec, bool private_obj, char *name, X *x)
 		sec->Error = SEC_ERROR_NOT_LOGIN;
 		return false;
 	}
+
+	CK_ATTRIBUTE a[] =
+	{
+		{CKA_SUBJECT,			subject,		0},			// 0
+		{CKA_ISSUER,			issuer,			0},			// 1
+		{CKA_SERIAL_NUMBER,		serial_number,	0},			// 2
+		{CKA_VALUE,				value,			0},			// 3
+		{CKA_CLASS,				&obj_class,		sizeof(obj_class)},
+		{CKA_TOKEN,				&b_true,		sizeof(b_true)},
+		{CKA_PRIVATE,			&b_private_obj,	sizeof(b_private_obj)},
+		{CKA_LABEL,				name,			StrLen(name)},
+		{CKA_CERTIFICATE_TYPE,	&cert_type,		sizeof(cert_type)},
+#if	0		// Don't use these because some tokens fail
+		{CKA_START_DATE,		&start_date,	sizeof(start_date)},
+		{CKA_END_DATE,			&end_date,		sizeof(end_date)},
+#endif
+	};
 
 	// Copy the certificate to the buffer
 	b = XToBuf(x, false);
