@@ -404,6 +404,28 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 	UCHAR modules[MAX_SIZE], pub[MAX_SIZE], pri[MAX_SIZE], prime1[MAX_SIZE], prime2[MAX_SIZE];
 	UCHAR exp1[MAX_SIZE], exp2[MAX_SIZE], coeff[MAX_SIZE];
 	const BIGNUM *n, *e, *d, *p, *q, *dmp1, *dmq1, *iqmp;
+
+	// Validate arguments
+	if (sec == NULL)
+	{
+		return false;
+	}
+	if (name == NULL || k == NULL || k->private_key == false)
+	{
+		sec->Error = SEC_ERROR_BAD_PARAMETER;
+		return false;
+	}
+	if (sec->SessionCreated == false)
+	{
+		sec->Error = SEC_ERROR_NO_SESSION;
+		return false;
+	}
+	if (sec->LoginFlag == false && private_obj)
+	{
+		sec->Error = SEC_ERROR_NOT_LOGIN;
+		return false;
+	}
+
 	CK_ATTRIBUTE a[] =
 	{
 		{CKA_MODULUS,			modules,		0},		// 0
@@ -429,27 +451,6 @@ bool WriteSecKey(SECURE *sec, bool private_obj, char *name, K *k)
 		{CKA_EXTRACTABLE,		&b_false,		sizeof(b_false)},
 		{CKA_MODIFIABLE,		&b_false,		sizeof(b_false)},
 	};
-
-	// Validate arguments
-	if (sec == NULL)
-	{
-		return false;
-	}
-	if (name == NULL || k == NULL || k->private_key == false)
-	{
-		sec->Error = SEC_ERROR_BAD_PARAMETER;
-		return false;
-	}
-	if (sec->SessionCreated == false)
-	{
-		sec->Error = SEC_ERROR_NO_SESSION;
-		return false;
-	}
-	if (sec->LoginFlag == false && private_obj)
-	{
-		sec->Error = SEC_ERROR_NOT_LOGIN;
-		return false;
-	}
 
 	// Numeric data generation
 	rsa = EVP_PKEY_get0_RSA(k->pkey);
