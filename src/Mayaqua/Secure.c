@@ -1313,14 +1313,6 @@ bool WriteSecData(SECURE *sec, bool private_obj, char *name, void *data, UINT si
 	UINT object_class = CKO_DATA;
 	CK_BBOOL b_true = true, b_false = false, b_private_obj = private_obj;
 	UINT object;
-	CK_ATTRIBUTE a[] =
-	{
-		{CKA_TOKEN,		&b_true,		sizeof(b_true)},
-		{CKA_CLASS,		&object_class,	sizeof(object_class)},
-		{CKA_PRIVATE,	&b_private_obj,	sizeof(b_private_obj)},
-		{CKA_LABEL,		name,			StrLen(name)},
-		{CKA_VALUE,		data,			size},
-	};
 	// Validate arguments
 	if (sec == NULL)
 	{
@@ -1346,6 +1338,15 @@ bool WriteSecData(SECURE *sec, bool private_obj, char *name, void *data, UINT si
 		sec->Error = SEC_ERROR_DATA_TOO_BIG;
 		return false;
 	}
+
+	CK_ATTRIBUTE a[] =
+	{
+		{CKA_TOKEN,		&b_true,		sizeof(b_true)},
+		{CKA_CLASS,		&object_class,	sizeof(object_class)},
+		{CKA_PRIVATE,	&b_private_obj,	sizeof(b_private_obj)},
+		{CKA_LABEL,		name,			StrLen(name)},
+		{CKA_VALUE,		data,			size},
+	};
 
 	// Delete any objects with the same name
 	if (CheckSecObject(sec, name, SEC_DATA))
