@@ -1092,10 +1092,15 @@ UINT GetServerCapsInt(SERVER *s, char *name)
 		return 0;
 	}
 
-	Zero(&t, sizeof(t));
-	GetServerCaps(s, &t);
 
-	ret = GetCapsInt(&t, name);
+	Lock(s->CapsCacheLock);
+	{
+		Zero(&t, sizeof(t));
+		GetServerCaps(s, &t);
+
+		ret = GetCapsInt(&t, name);
+	}
+	Unlock(s->CapsCacheLock);
 
 	return ret;
 }
@@ -1164,10 +1169,14 @@ void FlushServerCaps(SERVER *s)
 		return;
 	}
 
-	DestroyServerCapsCache(s);
+	Lock(s->CapsCacheLock);
+	{
+		DestroyServerCapsCache(s);
 
-	Zero(&t, sizeof(t));
-	GetServerCaps(s, &t);
+		Zero(&t, sizeof(t));
+		GetServerCaps(s, &t);
+	}
+	Unlock(s->CapsCacheLock);
 }
 
 // Get the Caps list for this server
