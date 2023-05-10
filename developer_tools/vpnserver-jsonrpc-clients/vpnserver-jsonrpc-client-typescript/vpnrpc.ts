@@ -1,10 +1,10 @@
 ﻿// SoftEther VPN Server JSON-RPC Stub code for TypeScript
 // 
 // vpnrpc.ts
-// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen
 //
 // Licensed under the Apache License 2.0
-// Copyright (c) 2014-2019 SoftEther VPN Project
+// Copyright (c) 2014-2023 SoftEther VPN Project
 
 
 // Trivial utility codes
@@ -856,15 +856,15 @@ export class VpnServerRpc
     }
     
     /** Get the Proxy Settings for Connecting to the DDNS server. */
-    public GetDDnsInternetSettng = (): Promise<VpnInternetSetting> =>
+    public GetDDnsInternetSetting = (): Promise<VpnInternetSetting> =>
     {
-        return this.CallAsync<VpnInternetSetting>("GetDDnsInternetSettng", new VpnInternetSetting());
+        return this.CallAsync<VpnInternetSetting>("GetDDnsInternetSetting", new VpnInternetSetting());
     }
     
     /** Set the Proxy Settings for Connecting to the DDNS server. */
-    public SetDDnsInternetSettng = (in_param: VpnInternetSetting): Promise<VpnInternetSetting> =>
+    public SetDDnsInternetSetting = (in_param: VpnInternetSetting): Promise<VpnInternetSetting> =>
     {
-        return this.CallAsync<VpnInternetSetting>("SetDDnsInternetSettng", in_param);
+        return this.CallAsync<VpnInternetSetting>("SetDDnsInternetSetting", in_param);
     }
     
     /** Set the VPN Gate Server Configuration. This API is valid for Win32 binary distribution of the Stable Edition of SoftEther VPN Server. */

@@ -560,10 +560,10 @@ function Test_All() {
                     return [4 /*yield*/, Test_GetDDnsClientStatus()];
                 case 157:
                     _x.sent();
-                    return [4 /*yield*/, Test_SetDDnsInternetSettng()];
+                    return [4 /*yield*/, Test_SetDDnsInternetSetting()];
                 case 158:
                     _x.sent();
-                    return [4 /*yield*/, Test_GetDDnsInternetSettng()];
+                    return [4 /*yield*/, Test_GetDDnsInternetSetting()];
                 case 159:
                     _x.sent();
                     return [4 /*yield*/, Test_ChangeDDnsClientHostname()];
@@ -4047,19 +4047,19 @@ function Test_SetAzureStatus() {
         });
     });
 }
-/** API test for 'GetDDnsInternetSettng', Get DDNS proxy configuration */
-function Test_GetDDnsInternetSettng() {
+/** API test for 'GetDDnsInternetSetting', Get DDNS proxy configuration */
+function Test_GetDDnsInternetSetting() {
     return __awaiter(this, void 0, void 0, function () {
         var out_internet_setting;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log("Begin: Test_GetDDnsInternetSettng");
-                    return [4 /*yield*/, api.GetDDnsInternetSettng()];
+                    console.log("Begin: Test_GetDDnsInternetSetting");
+                    return [4 /*yield*/, api.GetDDnsInternetSetting()];
                 case 1:
                     out_internet_setting = _a.sent();
                     console.log(out_internet_setting);
-                    console.log("End: Test_GetDDnsInternetSettng");
+                    console.log("End: Test_GetDDnsInternetSetting");
                     console.log("-----");
                     console.log();
                     return [2 /*return*/];
@@ -4067,14 +4067,14 @@ function Test_GetDDnsInternetSettng() {
         });
     });
 }
-/** API test for 'SetDDnsInternetSettng', Set DDNS proxy configuration */
-function Test_SetDDnsInternetSettng() {
+/** API test for 'SetDDnsInternetSetting', Set DDNS proxy configuration */
+function Test_SetDDnsInternetSetting() {
     return __awaiter(this, void 0, void 0, function () {
         var in_internet_setting, out_internet_setting;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log("Begin: Test_SetDDnsInternetSettng");
+                    console.log("Begin: Test_SetDDnsInternetSetting");
                     in_internet_setting = new VPN.VpnInternetSetting({
                         ProxyType_u32: VPN.VpnRpcProxyType.Direct,
                         ProxyHostName_str: "1.2.3.4",
@@ -4082,11 +4082,11 @@ function Test_SetDDnsInternetSettng() {
                         ProxyUsername_str: "neko",
                         ProxyPassword_str: "dog"
                     });
-                    return [4 /*yield*/, api.SetDDnsInternetSettng(in_internet_setting)];
+                    return [4 /*yield*/, api.SetDDnsInternetSetting(in_internet_setting)];
                 case 1:
                     out_internet_setting = _a.sent();
                     console.log(out_internet_setting);
-                    console.log("End: Test_SetDDnsInternetSettng");
+                    console.log("End: Test_SetDDnsInternetSetting");
                     console.log("-----");
                     console.log();
                     return [2 /*return*/];

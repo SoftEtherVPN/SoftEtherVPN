@@ -278,9 +278,9 @@ export declare class VpnServerRpc {
     /** Enable / Disable VPN Azure Function. Enable or disable the VPN Azure function. VPN Azure makes it easier to establish a VPN Session from your home PC to your office PC. While a VPN connection is established, you can access to any other servers on the private network of your company. You don't need a global IP address on the office PC (VPN Server). It can work behind firewalls or NATs. No network administrator's configuration required. You can use the built-in SSTP-VPN Client of Windows in your home PC. VPN Azure is a cloud VPN service operated by SoftEther Corporation. VPN Azure is free of charge and available to anyone. Visit http://www.vpnazure.net/ to see details and how-to-use instructions. The VPN Azure hostname is same to the hostname of the Dynamic DNS setting, but altering the domain suffix to "vpnazure.net". To change the hostname use the ChangeDDnsClientHostname API. To call this API, you must have VPN Server administrator privileges. This API cannot be invoked on VPN Bridge. You cannot execute this API for Virtual Hubs of VPN Servers operating as a cluster. */
     SetAzureStatus: (in_param: VpnRpcAzureStatus) => Promise<VpnRpcAzureStatus>;
     /** Get the Proxy Settings for Connecting to the DDNS server. */
-    GetDDnsInternetSettng: () => Promise<VpnInternetSetting>;
+    GetDDnsInternetSetting: () => Promise<VpnInternetSetting>;
     /** Set the Proxy Settings for Connecting to the DDNS server. */
-    SetDDnsInternetSettng: (in_param: VpnInternetSetting) => Promise<VpnInternetSetting>;
+    SetDDnsInternetSetting: (in_param: VpnInternetSetting) => Promise<VpnInternetSetting>;
     /** Set the VPN Gate Server Configuration. This API is valid for Win32 binary distribution of the Stable Edition of SoftEther VPN Server. */
     SetVgsConfig: (in_param: VpnVgsConfig) => Promise<VpnVgsConfig>;
     /** Get the VPN Gate Server Configuration. This API is valid for Win32 binary distribution of the Stable Edition of SoftEther VPN Server. */
