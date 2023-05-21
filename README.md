@@ -292,7 +292,7 @@ Please send patches to us through GitHub.
 
 # DEAR SECURITY EXPERTS
 
-If you find a bug or a security vulnerability please kindly inform us
+If you find a bug or a security vulnerability please [kindly inform](https://github.com/SoftEtherVPN/SoftEtherVPN/security/advisories/new) us
 about the problem immediately so that we can fix the security problem
 to protect a lot of users around the world as soon as possible.
 
