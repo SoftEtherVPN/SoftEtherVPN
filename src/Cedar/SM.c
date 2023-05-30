@@ -7987,7 +7987,8 @@ void SmBridgeDlgOnOk(HWND hWnd, SM_SERVER *s)
 	StrCpy(t.HubName, sizeof(t.HubName), hub);
 	t.TapMode = tapmode;
 
-	if (InStrEx(t.DeviceName, "vpn", false) || InStrEx(t.DeviceName, "tun", false)
+	if (InStrEx(t.DeviceName, UNIX_VLAN_IFACE_PREFIX, false)
+		|| InStrEx(t.DeviceName, "tun", false)
 		|| InStrEx(t.DeviceName, "tap", false))
 	{
 		// Trying to make a local bridge to the VPN device

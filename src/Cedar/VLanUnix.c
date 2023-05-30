@@ -554,7 +554,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 }
 int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixCreateTapDeviceEx(name, "vpn", mac_address, create_up);
+	return UnixCreateTapDeviceEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Close the tap device
@@ -662,7 +662,7 @@ bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address, bool create_
 }
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixVLanCreateEx(name, "vpn", mac_address, create_up);
+	return UnixVLanCreateEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Set a VLAN up/down
@@ -689,7 +689,7 @@ bool UnixVLanSetState(char* name, bool state_up)
 			return false;
 		}
 
-		GenerateTunName(name, "vpn", eth_name, sizeof(eth_name));
+		GenerateTunName(name, UNIX_VLAN_IFACE_PREFIX, eth_name, sizeof(eth_name));
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 
