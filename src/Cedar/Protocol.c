@@ -5763,6 +5763,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	UINT num = 0, max = 19;
 	SERVER *server;
 	char *vpn_http_target = HTTP_VPN_TARGET2;
+	bool disableJsonRpcWebApi;
 	// Validate arguments
 	if (c == NULL)
 	{
@@ -5772,6 +5773,15 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 	server = c->Cedar->Server;
 
 	s = c->FirstSock;
+
+	disableJsonRpcWebApi = server->DisableJsonRpcWebApi;
+	if (!disableJsonRpcWebApi && !IsZeroIP(&server->JsonRpcWebApiAllowedSubnetAddr)
+				&& !IsZeroIP(&server->JsonRpcWebApiAllowedSubnetMask)) {
+		// restrict JSON-RPC Web API to specified subnet only
+		if (!IsInSameNetwork(&s->RemoteIP, &server->JsonRpcWebApiAllowedSubnetAddr, &server->JsonRpcWebApiAllowedSubnetMask)) {
+			disableJsonRpcWebApi = true;
+		}
+	}
 
 	while (true)
 	{
@@ -5805,7 +5815,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 			// Receive the data since it's POST
 			data_size = GetContentLength(h);
 
-			if (server->DisableJsonRpcWebApi == false)
+			if (disableJsonRpcWebApi == false)
 			{
 				if (StrCmpi(h->Target, "/api") == 0 || StrCmpi(h->Target, "/api/") == 0)
 				{
@@ -5891,7 +5901,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 		}
 		else if (StrCmpi(h->Method, "OPTIONS") == 0)
 		{
-			if (server->DisableJsonRpcWebApi == false)
+			if (disableJsonRpcWebApi == false)
 			{
 				if (StrCmpi(h->Target, "/api") == 0 || StrCmpi(h->Target, "/api/") == 0 || StartWith(h->Target, "/admin"))
 				{
@@ -5962,7 +5972,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 					BUF *b = NULL;
 					*error_detail_str = "HTTP_ROOT";
 
-					if (server->DisableJsonRpcWebApi == false)
+					if (disableJsonRpcWebApi == false)
 					{
 						b = ReadDump("|wwwroot/index.html");
 					}
@@ -6042,7 +6052,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 
 					if (b == false)
 					{
-						if (server->DisableJsonRpcWebApi == false)
+						if (disableJsonRpcWebApi == false)
 						{
 							if (StartWith(h->Target, "/api?") || StartWith(h->Target, "/api/") || StrCmpi(h->Target, "/api") == 0)
 							{
