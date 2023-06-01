@@ -60,6 +60,7 @@ struct UNIX_VLAN_LIST
 int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up);
 int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool create_up);
 void UnixCloseTapDevice(int fd);
+void UnixDestroyTapDevice(char *name);
 void UnixVLanInit();
 void UnixVLanFree();
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up);

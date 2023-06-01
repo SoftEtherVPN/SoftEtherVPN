@@ -554,7 +554,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 }
 int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixCreateTapDeviceEx(name, "vpn", mac_address, create_up);
+	return UnixCreateTapDeviceEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Close the tap device
@@ -569,9 +569,37 @@ void UnixCloseTapDevice(int fd)
 	close(fd);
 }
 
+// Destroy the tap device (for FreeBSD)
+// FreeBSD tap device is still plumbed after closing fd so need to destroy after close
+void UnixDestroyTapDevice(char *name)
+{
+#ifdef UNIX_BSD
+	struct ifreq ifr;
+	char eth_name[MAX_SIZE];
+	int s;
+
+	Zero(&ifr, sizeof(ifr));
+	GenerateTunName(name, UNIX_VLAN_IFACE_PREFIX, eth_name, sizeof(eth_name));
+	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
+
+	s = socket(AF_INET, SOCK_DGRAM, 0);
+	if (s == -1)
+	{
+		return;
+	}
+	ioctl(s, SIOCIFDESTROY, &ifr);
+
+	close(s);
+#endif	// UNIX_BSD
+}
+
 #else	// NO_VLAN
 
 void UnixCloseTapDevice(int fd)
+{
+}
+
+void UnixDestroyTapDevice(char *name)
 {
 }
 
@@ -662,13 +690,13 @@ bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address, bool create_
 }
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixVLanCreateEx(name, "vpn", mac_address, create_up);
+	return UnixVLanCreateEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Set a VLAN up/down
 bool UnixVLanSetState(char* name, bool state_up)
 {
-#ifdef UNIX_LINUX
+#if defined(UNIX_LINUX) || defined(UNIX_BSD)
 	UNIX_VLAN_LIST *t, tt;
 	struct ifreq ifr;
 	int s;
@@ -689,7 +717,7 @@ bool UnixVLanSetState(char* name, bool state_up)
 			return false;
 		}
 
-		GenerateTunName(name, "vpn", eth_name, sizeof(eth_name));
+		GenerateTunName(name, UNIX_VLAN_IFACE_PREFIX, eth_name, sizeof(eth_name));
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 
@@ -714,7 +742,7 @@ bool UnixVLanSetState(char* name, bool state_up)
 		close(s);
 	}
 	UnlockList(unix_vlan);
-#endif // UNIX_LINUX
+#endif // UNIX_LINUX || UNIX_BSD
 
 	return true;
 }
@@ -769,6 +797,9 @@ void UnixVLanDelete(char *name)
 		if (t != NULL)
 		{
 			UnixCloseTapDevice(t->fd);
+#ifdef UNIX_BSD
+			UnixDestroyTapDevice(t->Name);
+#endif
 			Delete(unix_vlan, t);
 			Free(t);
 		}
@@ -815,6 +846,9 @@ void UnixVLanFree()
 		UNIX_VLAN_LIST *t = LIST_DATA(unix_vlan, i);
 
 		UnixCloseTapDevice(t->fd);
+#ifdef UNIX_BSD
+		UnixDestroyTapDevice(t->Name);
+#endif
 		Free(t);
 	}
 

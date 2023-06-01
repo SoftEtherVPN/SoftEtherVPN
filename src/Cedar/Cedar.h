@@ -675,6 +675,8 @@
 // 
 //////////////////////////////////////////////////////////////////////
 
+#define	UNIX_VLAN_IFACE_PREFIX			"vpn"			// Prefix of UNIX virual LAN card interface
+
 #ifndef	UNIX_BSD
 #define	TAP_FILENAME_1				"/dev/net/tun"
 #define	TAP_FILENAME_2				"/dev/tun"
