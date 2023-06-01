@@ -846,7 +846,7 @@ void UnixVLanFree()
 		UNIX_VLAN_LIST *t = LIST_DATA(unix_vlan, i);
 
 		UnixCloseTapDevice(t->fd);
-#ifdef	UNIX_BSD
+#ifdef UNIX_BSD
 		UnixDestroyTapDevice(t->Name);
 #endif
 		Free(t);
