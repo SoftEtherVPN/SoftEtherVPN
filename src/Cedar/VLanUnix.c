@@ -470,6 +470,17 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 			ioctl(s, SIOCSIFLLADDR, &ifr);
 		}
 
+		// Set interface description
+#ifdef	SIOCSIFDESCR
+		{
+			char desc[] = CEDAR_PRODUCT_STR " Virtual Network Adapter";
+
+			ifr.ifr_buffer.buffer = desc;
+			ifr.ifr_buffer.length = StrLen(desc) + 1;
+			ioctl(s, SIOCSIFDESCR, &ifr);
+		}
+#endif
+
 		if (create_up)
 		{
 			Zero(&ifr, sizeof(ifr));
