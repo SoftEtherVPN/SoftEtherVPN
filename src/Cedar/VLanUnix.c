@@ -273,7 +273,7 @@ VLAN *NewBridgeTap(char *name, char *mac_address, bool create_up)
 		return NULL;
 	}
 
-	fd = UnixCreateTapDeviceEx(name, UNIX_VLAN_BRDEST_IFACE_PREFIX, mac_address, create_up);
+	fd = UnixCreateTapDeviceEx(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX, mac_address, create_up);
 	if (fd == -1)
 	{
 		return NULL;
@@ -611,7 +611,7 @@ void UnixDestroyTapDeviceEx(char *name, char *prefix)
 void UnixDestroyBridgeTapDevice(char *name)
 {
 #ifdef UNIX_BSD
-	UnixDestroyTapDeviceEx(name, UNIX_VLAN_BRDEST_IFACE_PREFIX);
+	UnixDestroyTapDeviceEx(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX);
 #endif	// UNIX_BSD
 }
 

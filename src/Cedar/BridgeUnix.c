@@ -321,7 +321,7 @@ TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip)
 					{
 						if (IsInListStr(o, name) == false)
 						{
-							if (StartWith(name, UNIX_VLAN_BRDEST_IFACE_PREFIX"_") == false)
+							if (StartWith(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX"_") == false)
 							{
 								Add(o, CopyStr(name));
 							}

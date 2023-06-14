@@ -676,7 +676,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #define	UNIX_VLAN_CLIENT_IFACE_PREFIX		"vpn"			// Prefix of UNIX virtual LAN card interface (used for client)
-#define	UNIX_VLAN_BRDEST_IFACE_PREFIX		"tap"			// Prefix of UNIX virtual LAN card interface (used for bridge destination)
+#define	UNIX_VLAN_BRIDGE_IFACE_PREFIX		"tap"			// Prefix of UNIX virtual LAN card interface (used for bridge destination)
 
 #ifndef	UNIX_BSD
 #define	TAP_FILENAME_1				"/dev/net/tun"
