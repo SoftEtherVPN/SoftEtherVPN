@@ -7988,7 +7988,7 @@ void SmBridgeDlgOnOk(HWND hWnd, SM_SERVER *s)
 	t.TapMode = tapmode;
 
 	if (InStrEx(t.DeviceName, UNIX_VLAN_CLIENT_IFACE_PREFIX, false)
-		|| InStrEx(t.DeviceName, "UNIX_VLAN_BRIDGE_IFACE_PREFIX, false)
+		|| InStrEx(t.DeviceName, UNIX_VLAN_BRIDGE_IFACE_PREFIX, false)
 		|| InStrEx(t.DeviceName, "tun", false)
 		|| InStrEx(t.DeviceName, "tap", false))
 	{
