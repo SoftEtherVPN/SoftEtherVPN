@@ -624,14 +624,15 @@ void UnixDestroyClientTapDevice(char *name)
 
 #else	// NO_VLAN
 
-void UnixCloseBridgeTapDevice(int fd)
+void UnixCloseDevice(int fd)
 {
 }
 
-void UnixCloseClientTapDevice(int fd)
-{
-
 void UnixDestroyTapDevice(char *name)
+{
+}
+
+void UnixDestroyTapDeviceEx(char *name, char *prefix)
 {
 }
 
