@@ -22,6 +22,9 @@
 #include "VLanWin32.h"
 #include "Win32Com.h"
 #include "WinUi.h"
+#ifdef	NO_VLAN
+#include "NullLan.h"
+#endif
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/Encrypt.h"

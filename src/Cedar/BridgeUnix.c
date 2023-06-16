@@ -1416,7 +1416,7 @@ ETH *OpenEthBSD(char *name, bool local, bool tapmode, char *tapaddr)
 
 		return e;
 #else	// NO_VLAN
-return NULL:
+	return NULL;
 #endif	// NO_VLAN
 	}
 
