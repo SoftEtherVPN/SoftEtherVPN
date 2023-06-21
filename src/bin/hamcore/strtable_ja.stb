@@ -5059,7 +5059,7 @@ CMD_WgkDelete_Prompt_[key]	公開鍵:
 
 
 # WgkEnum コマンド
-CMD_WgkEnum				Wireguard 公開鍵一覧の取得
+CMD_WgkEnum				WireGuard 公開鍵一覧の取得
 CMD_WgkEnum_Help		現在サーバーに登録されている WireGuard 公開鍵の一覧を取得します。\nWgkAdd コマンドで公開鍵の追加を、WgkDelete コマンドで公開鍵の削除を行うことができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkEnum_Args		WgkEnum
 CMD_WgkEnum_Column_Key	公開鍵
