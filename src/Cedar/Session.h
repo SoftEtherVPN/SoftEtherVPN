@@ -130,6 +130,7 @@ struct SESSION
 	UCHAR Padding[2];
 
 	IP ServerIP_CacheForNextConnect;	// Server IP, cached for next connect
+	IP LocalIP_CacheForNextConnect;		// Local  IP, cached for next connect (2nd and subsequent), assigned by first outgoing connection
 
 	UINT64 CreatedTime;				// Creation date and time
 	UINT64 LastCommTime;			// Last communication date and time

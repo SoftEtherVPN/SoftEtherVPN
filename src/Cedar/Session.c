@@ -1430,6 +1430,7 @@ void ClientThread(THREAD *t, void *param)
 	while (true)
 	{
 		Zero(&s->ServerIP_CacheForNextConnect, sizeof(IP));
+		Zero(&s->LocalIP_CacheForNextConnect, sizeof(IP));
 		Zero(s->UnderlayProtocol, sizeof(s->UnderlayProtocol));
 		Zero(s->ProtocolDetails, sizeof(s->ProtocolDetails));
 

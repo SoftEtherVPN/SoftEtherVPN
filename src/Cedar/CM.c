@@ -6150,6 +6150,7 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					t->ClientOption->RequireMonitorMode = old_option->RequireMonitorMode;
 					t->ClientOption->RequireBridgeRoutingMode = old_option->RequireBridgeRoutingMode;
 					t->ClientOption->DisableQoS = old_option->DisableQoS;
+					t->ClientOption->BindLocalIP = old_option->BindLocalIP;// Source IP address for outgoing connection
 
 					// Inherit the authentication data
 					CiFreeClientAuth(t->ClientAuth);
@@ -6456,8 +6457,53 @@ void CmDetailDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 		Disable(hWnd, R_BRIDGE);
 		Disable(hWnd, R_MONITOR);
 		Disable(hWnd, R_NO_ROUTING);
+#if TYPE_BINDLOCALIP
+		Disable(hWnd, E_BIND_LOCALIP);// Source IP address for outgoing connection
+#endif
+
 	}
 }
+
+#if TYPE_BINDLOCALIP
+// Set the value of the IP type
+void SetIp(HWND hWnd, UINT id, IP* ip)
+{
+	char tmp[MAX_SIZE];
+	// Validate arguments
+	if (hWnd == NULL || ip == NULL)
+	{
+		return;
+	}
+
+	IPToStr(tmp, sizeof(tmp), ip);
+	SetTextA(hWnd, id, tmp);
+}
+
+// Get an IP address
+bool GetIp(HWND hWnd, UINT id, IP* ip)
+{
+	char tmp[MAX_SIZE];
+	// Validate arguments
+	if (hWnd == NULL || ip == NULL)
+	{
+		return false;
+	}
+
+	Zero(ip, sizeof(IP));
+
+	if (GetTxtA(hWnd, id, tmp, sizeof(tmp)) == false)
+	{
+		return false;
+	}
+
+	if (StrToIP(ip, tmp) == false)
+	{
+		return false;
+	}
+
+	return true;
+}
+#endif
 
 // Advanced Settings dialog procedure
 UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
@@ -6495,6 +6541,9 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 		Check(hWnd, R_NO_ROUTING, a->ClientOption->NoRoutingTracking);
 		Check(hWnd, R_DISABLE_QOS, a->ClientOption->DisableQoS);
 		Check(hWnd, R_DISABLE_UDP, a->ClientOption->NoUdpAcceleration);
+#if TYPE_BINDLOCALIP
+		SetIp(hWnd, E_BIND_LOCALIP, &a->ClientOption->BindLocalIP);// Source IP address for outgoing connection
+#endif
 
 		// Select the Connection Mode
 		if (a->LinkMode == false)
@@ -6542,6 +6591,15 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 				Focus(hWnd, E_INTERVAL);
 				break;
 			}
+#if TYPE_BINDLOCALIP
+			// Source IP address for outgoing connection
+			IP tmpIP;
+			if (GetIp(hWnd, E_BIND_LOCALIP, &tmpIP) == false)		
+			{
+				FocusEx(hWnd, E_BIND_LOCALIP);
+				break;
+			}
+#endif
 
 			a->ClientOption->MaxConnection = num;
 			a->ClientOption->AdditionalConnectionInterval = GetInt(hWnd, E_INTERVAL);
@@ -6559,6 +6617,9 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			a->ClientOption->NoRoutingTracking = IsChecked(hWnd, R_NO_ROUTING);
 			a->ClientOption->DisableQoS = IsChecked(hWnd, R_DISABLE_QOS);
 			a->ClientOption->NoUdpAcceleration = IsChecked(hWnd, R_DISABLE_UDP);
+#if TYPE_BINDLOCALIP
+			a->ClientOption->BindLocalIP = tmpIP;// Source IP address for outgoing connection
+#endif
 
 			if (a->LinkMode)
 			{
