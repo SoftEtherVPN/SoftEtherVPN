@@ -127,6 +127,105 @@ static UINT fifo_current_realloc_mem_size = FIFO_REALLOC_MEM_SIZE;
 
 static ACTIVE_PATCH_ENTRY ActivePatchList[MAX_ACTIVE_PATCH] = CLEAN;
 
+static bool canary_inited = false;
+typedef struct CANARY_RAND_DATA
+{
+	UCHAR Data[CANARY_RAND_SIZE + 4];
+} CANARY_RAND_DATA;
+
+static CANARY_RAND_DATA canary_rand_data[NUM_CANARY_RAND] = CLEAN;
+
+static UINT64 canary_memtag_magic1 = 0;
+static UINT64 canary_memtag_magic2 = 0;
+
+UCHAR *GetCanaryRand(UINT id)
+{
+	if (id >= NUM_CANARY_RAND)
+	{
+		id = NUM_CANARY_RAND - 1;
+	}
+
+	return &((canary_rand_data[id].Data)[0]);
+}
+
+void InitCanaryRand()
+{
+	SYSTEMTIME st = CLEAN;
+	char random_seed[1024] = CLEAN;
+	UINT64 t1 = 0, t2 = 0;
+	if (canary_inited)
+	{
+		return;
+	}
+
+#ifdef OS_WIN32
+	Win32GetSystemTime(&st);
+	memcpy(&t1, ((UCHAR *)&st) + 0, 8);
+	memcpy(&t2, ((UCHAR *)&st) + 8, 8);
+#else	// OS_WIN32
+	struct timeval tv = CLEAN;
+	struct timezone tz = CLEAN;
+	gettimeofday(&tv, &tz);
+	t1 = (UINT64)tv.tv_sec;
+	t2 = (UINT64)tv.tv_usec;
+#endif // OS_WIN32
+
+	{
+		UINT64 dos_rand = (UINT64)rand();
+		UINT64 tick1 = TickHighresNano64(true);
+		UINT64 tick2 = TickHighresNano64(true);
+
+		UINT i;
+
+		void *p1 = malloc(1);
+		void *p2 = malloc(1);
+
+		for (i = 0;i < NUM_CANARY_RAND;i++)
+		{
+			// using sprintf() here is safe.
+			sprintf(random_seed,
+				"%u "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%llu "
+				"%u "
+				,
+				i,
+				(UINT64)InitCanaryRand,
+				(UINT64)&canary_inited,
+				(UINT64)&((canary_rand_data[0].Data)[0]),
+				(UINT64)&random_seed[0],
+				tick1,
+				tick2,
+				dos_rand,
+				(UINT64)p1,
+				(UINT64)p2,
+				t1,
+				t2,
+				~i
+				);
+
+			Hash(canary_rand_data[i].Data, random_seed, (UINT)strlen(random_seed), true);
+		}
+
+		free(p1);
+		free(p2);
+
+		canary_memtag_magic1 = *((UINT64 *)(GetCanaryRand(CANARY_RAND_ID_MEMTAG_MAGIC) + 0));
+		canary_memtag_magic2 = *((UINT64 *)(GetCanaryRand(CANARY_RAND_ID_MEMTAG_MAGIC) + 8));
+
+		canary_inited = true;
+	}
+}
+
 // Add active patch
 bool Vars_ActivePatch_AddStr(char* name, char* str_value)
 {
@@ -3923,6 +4022,10 @@ void AdjustBufSize(BUF *b, UINT new_size)
 
 	while (b->SizeReserved < new_size)
 	{
+		if (b->SizeReserved > 0x7FFFFFFF)
+		{
+			AbortExitEx("AdjustBufSize(): too large buffer size");
+		}
 		b->SizeReserved = b->SizeReserved * 2;
 	}
 	b->Buf = ReAlloc(b->Buf, b->SizeReserved);
@@ -4556,33 +4659,52 @@ void *Malloc(UINT size)
 }
 void *MallocEx(UINT size, bool zero_clear_when_free)
 {
-	MEMTAG *tag;
+	MEMTAG1 *tag1;
+	MEMTAG2 *tag2;
 	UINT real_size;
+
+	if (canary_inited == false)
+	{
+		InitCanaryRand();
+	}
+
+	if (size > MAX_MALLOC_MEM_SIZE)
+	{
+		AbortExitEx("MallocEx() error: too large size");
+	}
 
 	real_size = CALC_MALLOCSIZE(size);
 
-	tag = InternalMalloc(real_size);
+	tag1 = InternalMalloc(real_size);
 
-	Zero(tag, sizeof(MEMTAG));
-	tag->Magic = MEMTAG_MAGIC;
-	tag->Size = size;
-	tag->ZeroFree = zero_clear_when_free;
+	tag1->Magic = canary_memtag_magic1 ^ ((UINT64)tag1 * GOLDEN_RATION_PRIME_U64);
+	tag1->Size = size;
+	tag1->ZeroFree = zero_clear_when_free;
 
-	return MEMTAG_TO_POINTER(tag);
+	tag2 = (MEMTAG2 *)(((UCHAR *)tag1) + CALC_MALLOCSIZE(tag1->Size) - sizeof(MEMTAG2));
+	tag2->Magic = canary_memtag_magic2 ^ ((UINT64)tag2 * GOLDEN_RATION_PRIME_U64);
+
+	return MEMTAG1_TO_POINTER(tag1);
 }
 
 // Get memory size
 UINT GetMemSize(void *addr)
 {
-	MEMTAG *tag;
+	MEMTAG1 *tag;
+
+	if (canary_inited == false)
+	{
+		InitCanaryRand();
+	}
+
 	// Validate arguments
 	if (IS_NULL_POINTER(addr))
 	{
 		return 0;
 	}
 
-	tag = POINTER_TO_MEMTAG(addr);
-	CheckMemTag(tag);
+	tag = POINTER_TO_MEMTAG1(addr);
+	CheckMemTag1(tag);
 
 	return tag->Size;
 }
@@ -4590,20 +4712,35 @@ UINT GetMemSize(void *addr)
 // ReAlloc
 void *ReAlloc(void *addr, UINT size)
 {
-	MEMTAG *tag;
+	MEMTAG1 *tag1;
+	MEMTAG2 *tag2;
 	bool zerofree;
+
+	if (canary_inited == false)
+	{
+		InitCanaryRand();
+	}
+
+	if (size > MAX_MALLOC_MEM_SIZE)
+	{
+		AbortExitEx("ReAlloc() error: too large size");
+	}
+
 	// Validate arguments
 	if (IS_NULL_POINTER(addr))
 	{
 		return NULL;
 	}
 
-	tag = POINTER_TO_MEMTAG(addr);
-	CheckMemTag(tag);
+	tag1 = POINTER_TO_MEMTAG1(addr);
+	CheckMemTag1(tag1);
 
-	zerofree = tag->ZeroFree;
+	tag2 = (MEMTAG2 *)(((UCHAR *)tag1) + CALC_MALLOCSIZE(tag1->Size) - sizeof(MEMTAG2));
+	CheckMemTag2(tag2);
 
-	if (tag->Size == size)
+	zerofree = tag1->ZeroFree;
+
+	if (tag1->Size == size)
 	{
 		// No size change
 		return addr;
@@ -4615,10 +4752,10 @@ void *ReAlloc(void *addr, UINT size)
 			// Size changed (zero clearing required)
 			void *new_p = MallocEx(size, true);
 
-			if (tag->Size <= size)
+			if (tag1->Size <= size)
 			{
 				// Size expansion
-				Copy(new_p, addr, tag->Size);
+				Copy(new_p, addr, tag1->Size);
 			}
 			else
 			{
@@ -4634,13 +4771,22 @@ void *ReAlloc(void *addr, UINT size)
 		else
 		{
 			// Size changed
-			MEMTAG *tag2 = InternalReAlloc(tag, CALC_MALLOCSIZE(size));
+			MEMTAG1 *tag1_new;
+			MEMTAG2 *tag2_new;
 
-			Zero(tag2, sizeof(MEMTAG));
-			tag2->Magic = MEMTAG_MAGIC;
-			tag2->Size = size;
+			tag1->Magic = 0;
+			tag2->Magic = 0;
 
-			return MEMTAG_TO_POINTER(tag2);
+			tag1_new = InternalReAlloc(tag1, CALC_MALLOCSIZE(size));
+
+			tag1_new->Magic = canary_memtag_magic1 ^ ((UINT64)tag1_new * GOLDEN_RATION_PRIME_U64);
+			tag1_new->Size = size;
+			tag1_new->ZeroFree = 0;
+
+			tag2_new = (MEMTAG2 *)(((UCHAR *)tag1_new) + CALC_MALLOCSIZE(size) - sizeof(MEMTAG2));
+			tag2_new->Magic = canary_memtag_magic2 ^ ((UINT64)tag2_new * GOLDEN_RATION_PRIME_U64);
+
+			return MEMTAG1_TO_POINTER(tag1_new);
 		}
 	}
 }
@@ -4648,44 +4794,69 @@ void *ReAlloc(void *addr, UINT size)
 // Free
 void Free(void *addr)
 {
-	MEMTAG *tag;
+	MEMTAG1 *tag1;
+	MEMTAG2 *tag2;
 	// Validate arguments
 	if (IS_NULL_POINTER(addr))
 	{
 		return;
 	}
 
-	tag = POINTER_TO_MEMTAG(addr);
-	CheckMemTag(tag);
+	if (canary_inited == false)
+	{
+		InitCanaryRand();
+	}
 
-	if (tag->ZeroFree)
+	tag1 = POINTER_TO_MEMTAG1(addr);
+	CheckMemTag1(tag1);
+
+	tag2 = (MEMTAG2 *)(((UCHAR *)tag1) + CALC_MALLOCSIZE(tag1->Size) - sizeof(MEMTAG2));
+	CheckMemTag2(tag2);
+
+	if (tag1->ZeroFree)
 	{
 		// Zero clear
-		Zero(addr, tag->Size);
+		Zero(addr, tag1->Size);
 	}
 
 	// Memory release
-	tag->Magic = 0;
-	InternalFree(tag);
+	tag1->Magic = 0;
+	tag2->Magic = 0;
+	InternalFree(tag1);
 }
 
-// Check the memtag
-void CheckMemTag(MEMTAG *tag)
+// Check the memtag1
+void CheckMemTag1(MEMTAG1 *tag)
 {
-#ifndef	DONT_CHECK_HEAP
 	// Validate arguments
 	if (tag == NULL)
 	{
-		AbortExitEx("CheckMemTag: tag == NULL");
+		AbortExitEx("CheckMemTag1: tag1 == NULL");
 		return;
 	}
 
-	if (tag->Magic != MEMTAG_MAGIC)
+	if (tag->Magic != (canary_memtag_magic1 ^ ((UINT64)tag * GOLDEN_RATION_PRIME_U64)))
 	{
-		AbortExitEx("CheckMemTag: tag->Magic != MEMTAG_MAGIC");
+		AbortExitEx("CheckMemTag1: tag1->Magic != canary_memtag_magic1");
 		return;
 	}
-#endif	// DONT_CHECK_HEAP
+}
+
+// Check the memtag2
+void CheckMemTag2(MEMTAG2 *tag)
+{
+	// Validate arguments
+	if (tag == NULL)
+	{
+		AbortExitEx("CheckMemTag2: tag2 == NULL");
+		return;
+	}
+
+	if (tag->Magic != (canary_memtag_magic2 ^ ((UINT64)tag * GOLDEN_RATION_PRIME_U64)))
+	{
+		AbortExitEx("CheckMemTag2: tag2->Magic != canary_memtag_magic2");
+		return;
+	}
 }
 
 // ZeroMalloc

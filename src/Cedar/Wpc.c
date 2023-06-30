@@ -401,8 +401,16 @@ BUF *WpcDataEntryToBuf(WPC_ENTRY *e)
 	}
 
 	data_size = e->Size + 4096;
-	data = Malloc(data_size);
-	size = DecodeSafe64(data, e->Data, e->Size);
+	data = ZeroMalloc(data_size);
+
+	if (e->Size >= 1)
+	{
+		size = DecodeSafe64(data, e->Data, e->Size);
+	}
+	else
+	{
+		size = 0;
+	}
 
 	b = NewBuf();
 	WriteBuf(b, data, size);

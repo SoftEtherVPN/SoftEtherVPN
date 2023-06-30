@@ -5409,6 +5409,22 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 		retcode = 0;
 	}
 
+	if (retcode == 0)
+	{
+		if (s->RemoteIP.addr[0] != 127)
+		{
+			// If the RPC client is from network check whether the password is empty
+			UCHAR empty_password_hash[20];
+			Hash(empty_password_hash, "", 0, true);
+			if (Cmp(empty_password_hash, hashed_password, SHA1_SIZE) == 0 ||
+				IsZero(hashed_password, SHA1_SIZE))
+			{
+				// Regard it as incorrect password
+				retcode = 1;
+			}
+		}
+	}
+
 	Lock(c->lock);
 	{
 		if (c->Config.AllowRemoteConfig == false)
@@ -5512,13 +5528,20 @@ void CiRpcServerThread(THREAD *thread, void *param)
 
 	// Open the port
 	listener = NULL;
-	for (i = CLIENT_CONFIG_PORT;i < (CLIENT_CONFIG_PORT + 5);i++)
+	if (c->Config.DisableRpcDynamicPortListener == false)
 	{
-		listener = Listen(i);
-		if (listener != NULL)
+		for (i = CLIENT_CONFIG_PORT;i < (CLIENT_CONFIG_PORT + 5);i++)
 		{
-			break;
+			listener = ListenEx(i, !c->Config.AllowRemoteConfig);
+			if (listener != NULL)
+			{
+				break;
+			}
 		}
+	}
+	else
+	{
+		listener = ListenEx(CLIENT_CONFIG_PORT, !c->Config.AllowRemoteConfig);
 	}
 
 	if (listener == NULL)
@@ -9325,6 +9348,12 @@ void CiInitConfiguration(CLIENT *c)
 		c->Config.UseKeepConnect = false;	// Don't use the connection maintenance function by default in the Client
 		// Eraser
 		c->Eraser = NewEraser(c->Logger, 0);
+
+#ifdef	OS_WIN32
+		c->Config.DisableRpcDynamicPortListener = false;
+#else	// OS_WIN32
+		c->Config.DisableRpcDynamicPortListener = true;
+#endif	// OS_WIN32
 	}
 	else
 	{
@@ -9471,6 +9500,19 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
 	c->AllowRemoteConfig = CfgGetBool(f, "AllowRemoteConfig");
 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
+
+	if (CfgIsItem(f, "DisableRpcDynamicPortListener"))
+	{
+		c->DisableRpcDynamicPortListener = CfgGetBool(f, "DisableRpcDynamicPortListener");
+	}
+	else
+	{
+#ifdef	OS_WIN32
+		c->DisableRpcDynamicPortListener = false;
+#else	// OS_WIN32
+		c->DisableRpcDynamicPortListener = true;
+#endif	// OS_WIN32
+	}
 }
 
 // Read the client authentication data
@@ -10023,6 +10065,7 @@ void CiWriteClientConfig(FOLDER *cc, CLIENT_CONFIG *config)
 	CfgAddBool(cc, "AllowRemoteConfig", config->AllowRemoteConfig);
 	CfgAddInt(cc, "KeepConnectInterval", config->KeepConnectInterval);
 	CfgAddBool(cc, "NoChangeWcmNetworkSettingOnWindows8", config->NoChangeWcmNetworkSettingOnWindows8);
+	CfgAddBool(cc, "DisableRpcDynamicPortListener", config->DisableRpcDynamicPortListener);
 }
 
 // Write the client authentication data

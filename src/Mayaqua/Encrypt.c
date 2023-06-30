@@ -1552,7 +1552,8 @@ void CertTest_()
 // Hash a pointer to a 32-bit
 UINT HashPtrToUINT(void *p)
 {
-	UCHAR hash_data[MD5_SIZE];
+	UCHAR hash_data[SHA256_SIZE];
+	UCHAR hash_src[CANARY_RAND_SIZE + sizeof(void *)];
 	UINT ret;
 	// Validate arguments
 	if (p == NULL)
@@ -1560,7 +1561,11 @@ UINT HashPtrToUINT(void *p)
 		return 0;
 	}
 
-	Hash(hash_data, &p, sizeof(p), false);
+	Zero(hash_src, sizeof(hash_src));
+	Copy(hash_src + 0, GetCanaryRand(CANARY_RAND_ID_PTR_KEY_HASH), CANARY_RAND_SIZE);
+	Copy(hash_src + CANARY_RAND_SIZE, p, sizeof(void *));
+
+	HashSha256(hash_data, hash_src, sizeof(hash_src));
 
 	Copy(&ret, hash_data, sizeof(ret));
 
@@ -6966,6 +6971,59 @@ crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c,
 	}
 	return ret;
 }
+
+// OpenSSL 3.0.0 to 3.0.2 has a bug with RC4-MD5.
+// See: https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
+
+static bool ssl_is_rc4md5_buggy_version = false;
+static bool ssl_has_cache_is_rc4md5_buggy_version = false;
+
+bool IsSslLibVersionBuggyForRc4Md5()
+{
+	bool ret = false;
+	if (ssl_has_cache_is_rc4md5_buggy_version)
+	{
+		return ssl_is_rc4md5_buggy_version;
+	}
+
+	ret = IsSslLibVersionBuggyForRc4Md5_Internal();
+
+	ssl_is_rc4md5_buggy_version = ret;
+	ssl_has_cache_is_rc4md5_buggy_version = true;
+
+	return ret;
+}
+
+bool IsSslLibVersionBuggyForRc4Md5_Internal()
+{
+	UINT verint = 0;
+	UINT ver_major = 0;
+	UINT ver_minor = 0;
+	UINT ver_fix = 0;
+	UINT ver_patch = 0;
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	DoNothing();
+#else	// OPENSSL_VERSION_NUMBER
+	verint = OpenSSL_version_num();
+
+	ver_major = (verint >> 28) & 0x0F;
+	ver_minor = (verint >> 20) & 0xFF;
+	ver_fix = (verint >> 12) & 0xFF;
+	ver_patch = (verint >> 4) & 0xFF;
+#endif	// OPENSSL_VERSION_NUMBER
+
+	if (ver_major == 3 && ver_minor == 0)
+	{
+		if (ver_patch <= 2)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 static char ssl_version_cache[MAX_PATH] = CLEAN;
 

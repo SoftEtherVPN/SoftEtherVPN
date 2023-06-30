@@ -119,7 +119,6 @@
 #define	DONT_USE_KERNEL_STATUS			// Do not update the kernel status
 #define	WIN32_USE_HEAP_API_FOR_MEMORY	// Use the heap API to allocate memory
 #define	WIN32_NO_DEBUG_HELP_DLL			// Do not call the DLL for debugging
-#define	DONT_CHECK_HEAP					// Do not check the status of the heap
 #define	DONT_ALLOW_RUN_ON_DEBUGGER		// Do not allow running on the debugger
 
 #endif	// VPN_SPEED

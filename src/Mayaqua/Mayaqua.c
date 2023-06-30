@@ -159,6 +159,8 @@ void InitProcessCallOnceEx(int restricted_mode)
 	{
 		init_proc_once_flag = true;
 
+		InitCanaryRand();
+
 #ifdef	OS_WIN32
 		MsInitProcessCallOnce(restricted_mode);
 #endif	// OS_WIN32

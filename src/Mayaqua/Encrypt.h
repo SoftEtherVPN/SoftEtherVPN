@@ -144,9 +144,7 @@ void RAND_Free_For_SoftEther();
 // OpenSSL default cipher algorithms
 #define	OPENSSL_DEFAULT_CIPHER_LIST "ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2"
 
-// OpenSSL 3.x has a bug. https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
-// At 2021-09-08 this bug is reported as fixed on Github, but actually still exists on RC4-MD5.
-// So, with OpenSSL 3.0 we manually disable RC4-MD5 by default on both SSL server and SSL client.
+// OpenSSL 3.0.0 to 3.0.2 has a bug with RC4-MD5. https://github.com/openssl/openssl/issues/13363 https://github.com/openssl/openssl/pull/13378
 #define	OPENSSL_DEFAULT_CIPHER_LIST_NO_RC4_MD5  (OPENSSL_DEFAULT_CIPHER_LIST ":!RC4-MD5")
 
 // IANA definitions taken from IKEv1 Phase 1
@@ -668,6 +666,8 @@ void Aead_ChaCha20Poly1305_Ietf_Test();
 void GetSslLibVersion(char *str, UINT size);
 void GetSslLibVersion_Internal(char *str, UINT size);
 
+bool IsSslLibVersionBuggyForRc4Md5();
+bool IsSslLibVersionBuggyForRc4Md5_Internal();
 
 
 

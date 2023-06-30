@@ -5923,6 +5923,8 @@ REDIRECTED:
 
 		Free(ports);
 
+		Zero(ticket, sizeof(ticket));
+
 		if (PackGetDataSize(p, "Ticket") == SHA1_SIZE)
 		{
 			PackGetData(p, "Ticket", ticket);

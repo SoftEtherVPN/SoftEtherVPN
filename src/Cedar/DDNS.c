@@ -641,6 +641,7 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 	}
 
 
+	use_https = true;
 
 	Format(url2, sizeof(url2), "%s?v=%I64u", url, Rand64());
 	Format(url3, sizeof(url3), url2, key_hash_str[2], key_hash_str[3]);

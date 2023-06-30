@@ -1275,9 +1275,14 @@ UINT GetServerCapsInt(SERVER *s, char *name)
 	}
 
 	Zero(&t, sizeof(t));
-	GetServerCaps(s, &t);
 
-	ret = GetCapsInt(&t, name);
+	Lock(s->CapsCacheLock);
+	{
+		GetServerCaps(s, &t);
+
+		ret = GetCapsInt(&t, name);
+	}
+	Unlock(s->CapsCacheLock);
 
 	return ret;
 }
@@ -1346,10 +1351,14 @@ void FlushServerCaps(SERVER *s)
 		return;
 	}
 
-	DestroyServerCapsCache(s);
+	Lock(s->CapsCacheLock);
+	{
+		DestroyServerCapsCache(s);
 
-	Zero(&t, sizeof(t));
-	GetServerCaps(s, &t);
+		Zero(&t, sizeof(t));
+		GetServerCaps(s, &t);
+	}
+	Unlock(s->CapsCacheLock);
 }
 
 // Get the Caps list for this server
@@ -7831,7 +7840,7 @@ void SiCalledDeleteIpTable(SERVER *s, PACK *p)
 		return;
 	}
 
-	LockList(h->IpTable);
+	LockHashList(h->MacHashTable);
 	{
 		if (IsInList(h->IpTable, (void *)key))
 		{
@@ -7840,7 +7849,7 @@ void SiCalledDeleteIpTable(SERVER *s, PACK *p)
 			Free(e);
 		}
 	}
-	UnlockList(h->IpTable);
+	UnlockHashList(h->MacHashTable);
 
 	ReleaseHub(h);
 }
@@ -8643,14 +8652,9 @@ void SiCallEnumHub(SERVER *s, FARM_MEMBER *f)
 							LockHashList(h->MacHashTable);
 							{
 								hh->NumMacTables = HASH_LIST_NUM(h->MacHashTable);
-							}
-							UnlockHashList(h->MacHashTable);
-
-							LockList(h->IpTable);
-							{
 								hh->NumIpTables = LIST_NUM(h->IpTable);
 							}
-							UnlockList(h->IpTable);
+							UnlockHashList(h->MacHashTable);
 						}
 					}
 				}
