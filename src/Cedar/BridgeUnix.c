@@ -321,7 +321,7 @@ TOKEN_LIST *GetEthListLinux(bool enum_normal, bool enum_rawip)
 					{
 						if (IsInListStr(o, name) == false)
 						{
-							if (StartWith(name, "tap_") == false)
+							if (StartWith(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX"_") == false)
 							{
 								Add(o, CopyStr(name));
 							}
@@ -506,7 +506,7 @@ ETH *OpenEthLinux(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 #ifndef	NO_VLAN
 		// In tap mode
-		VLAN *v = NewTap(name, tapaddr, true);
+		VLAN *v = NewBridgeTap(name, tapaddr, true);
 		if (v == NULL)
 		{
 			return NULL;
@@ -1399,7 +1399,7 @@ ETH *OpenEthBSD(char *name, bool local, bool tapmode, char *tapaddr)
 	{
 #ifndef	NO_VLAN
 		// In tap mode
-		VLAN *v = NewTap(name, tapaddr, true);
+		VLAN *v = NewBridgeTap(name, tapaddr, true);
 		if (v == NULL)
 		{
 			return NULL;
@@ -1475,7 +1475,7 @@ void CloseEth(ETH *e)
 	if (e->Tap != NULL)
 	{
 #ifndef	NO_VLAN
-		FreeTap(e->Tap);
+		FreeBridgeTap(e->Tap);
 #endif	// NO_VLAN
 	}
 

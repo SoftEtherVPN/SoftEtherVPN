@@ -263,7 +263,7 @@ void FreeVLan(VLAN *v)
 }
 
 // Create a tap
-VLAN *NewTap(char *name, char *mac_address, bool create_up)
+VLAN *NewBridgeTap(char *name, char *mac_address, bool create_up)
 {
 	int fd;
 	VLAN *v;
@@ -273,7 +273,7 @@ VLAN *NewTap(char *name, char *mac_address, bool create_up)
 		return NULL;
 	}
 
-	fd = UnixCreateTapDeviceEx(name, "tap", mac_address, create_up);
+	fd = UnixCreateTapDeviceEx(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX, mac_address, create_up);
 	if (fd == -1)
 	{
 		return NULL;
@@ -288,7 +288,7 @@ VLAN *NewTap(char *name, char *mac_address, bool create_up)
 }
 
 // Close the tap
-void FreeTap(VLAN *v)
+void FreeBridgeTap(VLAN *v)
 {
 	// Validate arguments
 	if (v == NULL)
@@ -296,7 +296,11 @@ void FreeTap(VLAN *v)
 		return;
 	}
 
-	close(v->fd);
+	UnixCloseTapDevice(v->fd);
+#ifdef	UNIX_BSD
+	UnixDestroyBridgeTapDevice(v->InstanceName);
+#endif
+
 	FreeVLan(v);
 }
 
@@ -565,7 +569,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 }
 int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixCreateTapDeviceEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
+	return UnixCreateTapDeviceEx(name, UNIX_VLAN_CLIENT_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Close the tap device
@@ -582,7 +586,7 @@ void UnixCloseTapDevice(int fd)
 
 // Destroy the tap device (for FreeBSD)
 // FreeBSD tap device is still plumbed after closing fd so need to destroy after close
-void UnixDestroyTapDevice(char *name)
+void UnixDestroyTapDeviceEx(char *name, char *prefix)
 {
 #ifdef UNIX_BSD
 	struct ifreq ifr;
@@ -590,7 +594,7 @@ void UnixDestroyTapDevice(char *name)
 	int s;
 
 	Zero(&ifr, sizeof(ifr));
-	GenerateTunName(name, UNIX_VLAN_IFACE_PREFIX, eth_name, sizeof(eth_name));
+	GenerateTunName(name, prefix, eth_name, sizeof(eth_name));
 	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 
 	s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -604,13 +608,31 @@ void UnixDestroyTapDevice(char *name)
 #endif	// UNIX_BSD
 }
 
+void UnixDestroyBridgeTapDevice(char *name)
+{
+#ifdef UNIX_BSD
+	UnixDestroyTapDeviceEx(name, UNIX_VLAN_BRIDGE_IFACE_PREFIX);
+#endif	// UNIX_BSD
+}
+
+void UnixDestroyClientTapDevice(char *name)
+{
+#ifdef UNIX_BSD
+	UnixDestroyTapDeviceEx(name, UNIX_VLAN_CLIENT_IFACE_PREFIX);
+#endif	// UNIX_BSD
+}
+
 #else	// NO_VLAN
 
-void UnixCloseTapDevice(int fd)
+void UnixCloseDevice(int fd)
 {
 }
 
 void UnixDestroyTapDevice(char *name)
+{
+}
+
+void UnixDestroyTapDeviceEx(char *name, char *prefix)
 {
 }
 
@@ -701,7 +723,7 @@ bool UnixVLanCreateEx(char *name, char *prefix, UCHAR *mac_address, bool create_
 }
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up)
 {
-	return UnixVLanCreateEx(name, UNIX_VLAN_IFACE_PREFIX, mac_address, create_up);
+	return UnixVLanCreateEx(name, UNIX_VLAN_CLIENT_IFACE_PREFIX, mac_address, create_up);
 }
 
 // Set a VLAN up/down
@@ -728,7 +750,7 @@ bool UnixVLanSetState(char* name, bool state_up)
 			return false;
 		}
 
-		GenerateTunName(name, UNIX_VLAN_IFACE_PREFIX, eth_name, sizeof(eth_name));
+		GenerateTunName(name, UNIX_VLAN_CLIENT_IFACE_PREFIX, eth_name, sizeof(eth_name));
 		Zero(&ifr, sizeof(ifr));
 		StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
 
@@ -809,7 +831,7 @@ void UnixVLanDelete(char *name)
 		{
 			UnixCloseTapDevice(t->fd);
 #ifdef UNIX_BSD
-			UnixDestroyTapDevice(t->Name);
+			UnixDestroyClientTapDevice(t->Name);
 #endif
 			Delete(unix_vlan, t);
 			Free(t);
@@ -858,7 +880,7 @@ void UnixVLanFree()
 
 		UnixCloseTapDevice(t->fd);
 #ifdef UNIX_BSD
-		UnixDestroyTapDevice(t->Name);
+		UnixDestroyClientTapDevice(t->Name);
 #endif
 		Free(t);
 	}

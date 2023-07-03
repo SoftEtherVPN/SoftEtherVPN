@@ -31,9 +31,9 @@ struct VLAN
 
 // Function prototype
 VLAN *NewVLan(char *instance_name, VLAN_PARAM *param);
-VLAN *NewTap(char *name, char *mac_address, bool create_up);
+VLAN *NewBridgeTap(char *name, char *mac_address, bool create_up);
 void FreeVLan(VLAN *v);
-void FreeTap(VLAN *v);
+void FreeBridgeTap(VLAN *v);
 CANCEL *VLanGetCancel(VLAN *v);
 bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size);
 bool VLanPutPacket(VLAN *v, void *buf, UINT size);
@@ -60,7 +60,8 @@ struct UNIX_VLAN_LIST
 int UnixCreateTapDevice(char *name, UCHAR *mac_address, bool create_up);
 int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool create_up);
 void UnixCloseTapDevice(int fd);
-void UnixDestroyTapDevice(char *name);
+void UnixDestroyBridgeTapDevice(char *name);
+void UnixDestroyClientTapDevice(char *name);
 void UnixVLanInit();
 void UnixVLanFree();
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up);
