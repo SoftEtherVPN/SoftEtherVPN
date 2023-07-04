@@ -244,9 +244,11 @@ OS_DISPATCH_TABLE *UnixGetDispatchTable()
 	return &t;
 }
 
-static void *signal_received_for_ignore(int sig, siginfo_t *info, void *ucontext) 
+static void signal_received_for_ignore(int sig, siginfo_t *info, void *ucontext)
 {
-	return NULL;
+	(void)sig;
+	(void)info;
+	(void)ucontext;
 }
 
 // Ignore the signal flew to the thread
@@ -256,7 +258,7 @@ void UnixIgnoreSignalForThread(int sig)
 
 	Zero(&sa, sizeof(sa));
 	sa.sa_handler = NULL;
-	sa.sa_sigaction = signal_received_for_ignore;
+	sa.sa_sigaction = &signal_received_for_ignore;
 	sa.sa_flags = SA_SIGINFO;
 
 	sigemptyset(&sa.sa_mask);
