@@ -5059,7 +5059,7 @@ CMD_WgkDelete_Prompt_[key]	公開鍵:
 
 
 # WgkEnum コマンド
-CMD_WgkEnum				Wireguard 公開鍵一覧の取得
+CMD_WgkEnum				WireGuard 公開鍵一覧の取得
 CMD_WgkEnum_Help		現在サーバーに登録されている WireGuard 公開鍵の一覧を取得します。\nWgkAdd コマンドで公開鍵の追加を、WgkDelete コマンドで公開鍵の削除を行うことができます。\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。
 CMD_WgkEnum_Args		WgkEnum
 CMD_WgkEnum_Column_Key	公開鍵
@@ -7041,20 +7041,20 @@ CMD_RemoteDisable_Args	RemoteDisable
 
 
 # GenX25519 コマンド
-CMD_GenX25519				Create new X25519 keypair
-CMD_GenX25519_Help			Use this to create a new X25519 keypair, which can be used for WireGuard. \nBoth the private and public key will be shown. \nThe public key can be shared and is used to identify a peer. \nAlso, it can always be retrieved from the private key using the GetPublicX25519 command. \nThe private key should be kept in a secure place and never be shared. \nIt cannot be recovered once lost.
+CMD_GenX25519				新しい X25519 の鍵ペアを生成
+CMD_GenX25519_Help			WireGuard で使用する X25519 鍵ペアを生成します。コマンドを実行すると公開鍵と秘密鍵の両方が表示されます。公開鍵は相手側と共有しピアを識別するために使用されますが、秘密鍵は安全な場所に保存し決して他者とは共有しないでください。また、公開鍵はいつでも GetPublicX25519 コマンドを使用して秘密鍵から再取得することができますが、一度紛失した秘密鍵を復元することはできません。
 CMD_GenX25519_ARGS			GenX25519
-CMD_GenX25519_PRIVATE_KEY	Private key: 
-CMD_GenX25519_PUBLIC_KEY	Public key: 
+CMD_GenX25519_PRIVATE_KEY	秘密鍵: 
+CMD_GenX25519_PUBLIC_KEY	公開鍵: 
 
 
 # GetPublicX25519 コマンド
-CMD_GetPublicX25519				Retrieve public X25519 key from a private one
-CMD_GetPublicX25519_Help		Use this if you have a private X25519 key and want to get its corresponding public key.
+CMD_GetPublicX25519				X25519 秘密鍵から公開鍵を取得
+CMD_GetPublicX25519_Help		指定した X25519 秘密鍵に対応する公開鍵を取得します。
 CMD_GetPublicX25519_ARGS    	GetPublicX25519 [private]
-CMD_GetPublicX25519_[private]	The private X25519 key you want to get the corresponding public key of.
-CMD_GetPublicX25519_PRIVATE_KEY	Private key: 
-CMD_GetPublicX25519_PUBLIC_KEY	Public key: 
+CMD_GetPublicX25519_[private]	対応する公開鍵を取得したい X25519 秘密鍵を指定します。
+CMD_GetPublicX25519_PRIVATE_KEY	秘密鍵: 
+CMD_GetPublicX25519_PUBLIC_KEY	公開鍵: 
 
 
 # MakeCert コマンド
