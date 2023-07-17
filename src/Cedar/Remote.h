@@ -29,6 +29,7 @@ struct RPC
 	char VpnServerHubName[MAX_HUBNAME_LEN + 1];
 	UCHAR VpnServerHashedPassword[SHA1_SIZE];
 	char VpnServerClientName[MAX_PATH];
+	RPC_CONNECT_CONFIRM *Confirm;
 };
 
 // Function prototype

@@ -24349,6 +24349,285 @@ void FreePs(PS *ps)
 	Free(ps);
 }
 
+bool ConnectPromptUserProc(RPC_CONNECT_CONFIRM *confirm, CONNECTION *connection)
+{
+	if (confirm == NULL || confirm->C == NULL || connection == NULL)
+	{
+		return false;
+	}
+
+	CONSOLE *c = confirm->C;
+	X *x = connection->FirstSock->RemoteX;
+
+	if (x != NULL)
+	{
+		K *k = GetKFromX(x);
+		if (k != NULL)
+		{
+			BUF *b = KToBuf(k, false, NULL);
+			char *new_key = Base64FromBin(NULL, b->Buf, b->Size);
+			FreeBuf(b);
+			FreeK(k);
+
+			if (IsEmptyStr(new_key))
+			{
+				c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_4"));
+				Free(new_key);
+				return false;
+			}
+
+			char *saved_key = ReadPublicKeyFromFile(confirm->HostFile, confirm->Hostname, confirm->Port);
+
+			// Server matches saved public key
+			if (StrCmpi(new_key, saved_key) == 0)
+			{
+				Free(new_key);
+				Free(saved_key);
+				return true;
+			}
+
+			// Print server and cert info
+			c->Write(c, L"");
+			if (saved_key == NULL)
+			{
+				// New server
+				c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_1"));
+			}
+			else
+			{
+				// Key not matching the record
+				c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_2"));
+			}
+
+			CT *ct = CtNewStandard();
+			wchar_t tmp[MAX_SIZE];
+
+			StrToUni(tmp, sizeof(tmp), connection->ServerStr);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_3"), tmp);
+
+			UniFormat(tmp, sizeof(tmp), L"%u.%02u", connection->ServerVer / 100, connection->ServerVer % 100);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_4"), tmp);
+
+			UniFormat(tmp, sizeof(tmp), L"Build %u", connection->ServerBuild);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_5"), tmp);
+
+			StrToUni(tmp, sizeof(tmp), confirm->Hostname);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_1"), tmp);
+
+			UniFormat(tmp, sizeof(tmp), L"%u", confirm->Port);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_2"), tmp);
+
+			GetAllNameFromNameEx(tmp, sizeof(tmp), x->subject_name);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_6"), tmp);
+
+			GetAllNameFromNameEx(tmp, sizeof(tmp), x->issuer_name);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_7"), tmp);
+
+			GetDateStrEx64(tmp, sizeof(tmp), SystemToLocal64(x->notBefore), NULL);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_8"), tmp);
+
+			GetDateStrEx64(tmp, sizeof(tmp), SystemToLocal64(x->notAfter), NULL);
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_9"), tmp);
+
+			UCHAR md5[MD5_SIZE];
+			GetXDigest(x, md5, false);
+			BinToStrW(tmp, sizeof(tmp), md5, sizeof(md5));
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_10"), tmp);
+
+			UCHAR sha1[SHA1_SIZE];
+			GetXDigest(x, sha1, true);
+			BinToStrW(tmp, sizeof(tmp), sha1, sizeof(sha1));
+			CtInsert(ct, _UU("CMD_VPNCMD_CONNECT_HOST_INFO_11"), tmp);
+
+			c->Write(c, L"");
+			CtFree(ct, c);
+			c->Write(c, L"");
+
+			// Prompt user to continue
+			wchar_t *str = c->ReadLine(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_3"), true);
+			c->Write(c, L"");
+			char *resp = CopyUniToStr(str);
+			Free(str);
+
+			// Ask again to make sure
+			if (saved_key != NULL)
+			{
+				str = c->ReadLine(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_7"), true);
+				c->Write(c, L"");
+				Free(resp);
+				resp = CopyUniToStr(str);
+				Free(str);
+			}
+
+			if (StrCmpi(resp, "yes") == 0 || StrCmpi(resp, "y") == 0)
+			{
+				// Save new key
+				if (SavePublicKeyToFile(confirm->HostFile, confirm->Hostname, confirm->Port, new_key))
+				{
+					c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_5"));
+				}
+				else
+				{
+					c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_6"));
+				}
+				confirm->UserAuthorized = true;
+				Free(new_key);
+				Free(saved_key);
+				Free(resp);
+				return true;
+			}
+
+			Free(new_key);
+			Free(saved_key);
+			Free(resp);
+			return false;
+		}
+	}
+
+	c->Write(c, _UU("CMD_VPNCMD_CONNECT_CONFIRM_4"));
+	return false;
+}
+
+// Read saved public key from a host file
+char *ReadPublicKeyFromFile(char *filename, char *host, UINT port)
+{
+	if (filename == NULL || host == NULL)
+	{
+		return NULL;
+	}
+
+	char *ret = NULL;
+	char dest[MAX_SIZE];
+	char port_str[6];
+	StrCpy(dest, sizeof(dest), host);
+	StrCat(dest, sizeof(dest), ":");
+	ToStr(port_str, port);
+	StrCat(dest, sizeof(dest), port_str);
+
+	BUF *b = ReadDump(filename);
+
+	if (b != NULL)
+	{
+		while (true)
+		{
+			char *line = CfgReadNextLine(b);
+			if (line == NULL)
+			{
+				break;
+			}
+
+			if (IsEmptyStr(line) == false)
+			{
+				TOKEN_LIST *t = ParseToken(line, " ");
+				if (t != NULL)
+				{
+					if (t->NumTokens >= 2)
+					{
+						char *key = t->Token[0];
+						char *value = t->Token[1];
+
+						if (StrCmpi(key, dest) == 0)
+						{
+							ret = CopyStr(value);
+							FreeToken(t);
+							Free(line);
+							break;
+						}
+					}
+
+					FreeToken(t);
+				}
+			}
+
+			Free(line);
+		}
+
+		FreeBuf(b);
+	}
+
+	return ret;
+}
+
+// Save public key to a host file
+bool SavePublicKeyToFile(char *filename, char *host, UINT port, char *key)
+{
+	if (filename == NULL || host == NULL || key == NULL)
+	{
+		return false;
+	}
+
+	char dest[MAX_SIZE];
+	char port_str[6];
+	StrCpy(dest, sizeof(dest), host);
+	StrCat(dest, sizeof(dest), ":");
+	ToStr(port_str, port);
+	StrCat(dest, sizeof(dest), port_str);
+
+	BUF *b = ReadDump(filename);
+	BUF *b1 = NewBuf();
+	bool ret = false;
+	bool ok = false;
+
+	UINT len = StrLen(dest) + StrLen(key) + 2;
+	char *new_line = ZeroMalloc(len);
+	StrCpy(new_line, len, dest);
+	StrCat(new_line, len, " ");
+	StrCat(new_line, len, key);
+
+	if (b != NULL)
+	{
+		// Insert to existing file
+		while (true)
+		{
+			char *line = CfgReadNextLine(b);
+			if (line == NULL)
+			{
+				break;
+			}
+
+			if (IsEmptyStr(line) == false)
+			{
+				TOKEN_LIST *t = ParseToken(line, " ");
+				if (t != NULL)
+				{
+					if (t->NumTokens >= 2)
+					{
+						char *key = t->Token[0];
+
+						if (StrCmpi(key, dest) == 0)
+						{
+							// Replace old key
+							WriteBufLine(b1, new_line);
+							ok = true;
+						}
+						else
+						{
+							WriteBufLine(b1, line);
+						}
+					}
+
+					FreeToken(t);
+				}
+			}
+
+			Free(line);
+		}
+
+		FreeBuf(b);
+	}
+
+	// Add to end of buffer
+	if (ok == false)
+	{
+		WriteBufLine(b1, new_line);
+	}
+	ret = DumpBuf(b1, filename);
+	FreeBuf(b1);
+	Free(new_line);
+
+	return ret;
+}
+
 // Server Administration Tool
 UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wchar_t *cmdline, char *password)
 {
@@ -24393,12 +24672,27 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 		b = true;
 	}
 
+	RPC_CONNECT_CONFIRM confirm;
+	Zero(&confirm, sizeof(RPC_CONNECT_CONFIRM));
+	confirm.Hostname = o.Hostname;
+	confirm.Port = o.Port;
+	confirm.C = c;
+	confirm.PromptUser = ConnectPromptUserProc;
+	StrCpy(confirm.HostFile, sizeof(confirm.HostFile), "~/se_known_hosts");
+
 	// Connect
 	while (true)
 	{
 		UINT err;
-
-		rpc = AdminConnectEx(cedar, &o, hub, hashed_password, &err, CEDAR_CUI_STR);
+		IP ip;
+		if (StrCmpi(o.Hostname, "localhost") == 0 || (StrToIP(&ip, o.Hostname) && IsLocalHostIP(&ip)))
+		{
+			rpc = AdminConnectEx(cedar, &o, hub, hashed_password, &err, CEDAR_CUI_STR);
+		}
+		else
+		{
+			rpc = AdminConnectEx2(cedar, &o, hub, hashed_password, &err, CEDAR_CUI_STR, NULL, &confirm);
+		}
 		if (rpc == NULL)
 		{
 			// Failure
@@ -24428,6 +24722,15 @@ UINT PsConnect(CONSOLE *c, char *host, UINT port, char *hub, char *adminhub, wch
 				{
 					break;
 				}
+			}
+			else if (err == ERR_DISCONNECTED && confirm.UserAuthorized)
+			{
+				// Reconnect only once if disconnected during awaiting user authorization
+				confirm.UserAuthorized = false;
+			}
+			else if (err == ERR_USER_CANCEL)
+			{
+				break;
 			}
 			else
 			{
