@@ -15868,7 +15868,10 @@ void keylog_cb_func(const SSL* ssl, const char* line)
 struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
 	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
-
+	if(ctx == NULL)
+	{
+		return NULL;
+	}
 	// It resets some parameters.
 	if (server_mode)
 	{
