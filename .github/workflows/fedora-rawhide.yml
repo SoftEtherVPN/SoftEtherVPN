@@ -1,0 +1,33 @@
+name: Fedora/Rawhide
+
+on:
+  schedule:
+    - cron: "0 0 25 * *"
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    strategy:
+      matrix:
+        cc: [ gcc, clang ]
+    name: ${{ matrix.cc }}
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:rawhide
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: |
+        dnf -y install git cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel gcc-c++ clang
+    - name: Compile with ${{ matrix.cc }}
+      run: |
+        export CC=${{ matrix.cc }}
+        ./configure
+        make -C build
+
