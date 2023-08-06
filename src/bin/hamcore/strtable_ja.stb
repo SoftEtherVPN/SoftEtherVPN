@@ -1927,6 +1927,7 @@ LH_AUTH_PASSWORD		パスワード認証
 LH_AUTH_PLAIN_PASSWORD	外部サーバー認証
 LH_AUTH_CERT			証明書認証
 LH_AUTH_TICKET			チケット認証
+LH_AUTH_EXTERNAL		外部サーバー認証
 LH_AUTH_WIREGUARD_KEY	WireGuard 公開鍵認証
 LH_AUTH_OPENVPN_CERT    OpenVPN 証明書認証
 LH_AUTH_RADIUS_NOT_SUPPORT	コネクション "%S": ユーザー "%S" の認証方法として RADIUS 認証または Active Directory 認証 (NT ドメイン認証) が指定されましたが、現在の VPN Server のエディションは "%S" であるため、RADIUS 認証または Active Directory 認証 (NT ドメイン認証) を使用することができません。接続は拒否されます。

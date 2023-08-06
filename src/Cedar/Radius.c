@@ -10,6 +10,7 @@
 #include "Connection.h"
 #include "IPC.h"
 #include "Server.h"
+#include "Proto_PPP.h"
 
 #include "Mayaqua/DNS.h"
 #include "Mayaqua/Internat.h"
@@ -19,7 +20,7 @@
 #include "Mayaqua/Tick64.h"
 
 // send PEAP-MSCHAPv2 auth client response
-bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge)
+bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username)
 {
 	bool ret = false;
 	EAP_MSCHAPV2_RESPONSE msg1;
@@ -37,13 +38,13 @@ bool PeapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respo
 	msg1.Type = EAP_TYPE_MS_AUTH;
 	msg1.Chap_Opcode = EAP_MSCHAPV2_OP_RESPONSE;
 	msg1.Chap_Id = e->MsChapV2Challenge.Chap_Id;
-	msg1.Chap_Len = Endian16(54 + StrLen(e->Username));
+	msg1.Chap_Len = Endian16(54 + StrLen(username));
 	msg1.Chap_ValueSize = 49;
 	Copy(msg1.Chap_PeerChallenge, client_challenge, 16);
 	Copy(msg1.Chap_NtResponse, client_response, 24);
-	Copy(msg1.Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
+	Copy(msg1.Chap_Name, username, MIN(StrLen(username), 255));
 
-	if (SendPeapPacket(e, &msg1, 59 + StrLen(e->Username)) &&
+	if (SendPeapPacket(e, &msg1, 59 + StrLen(username)) &&
 		GetRecvPeapMessage(e, &msg2))
 	{
 		if (msg2.Type == EAP_TYPE_MS_AUTH &&
@@ -300,7 +301,7 @@ bool SendPeapRawPacket(EAP_CLIENT *e, UCHAR *peap_data, UINT peap_size)
 
 		Add(send_packet->AvpList, eap_avp);
 
-		response_packet = EapSendPacketAndRecvResponse(e, send_packet);
+		response_packet = EapSendPacketAndRecvResponse(e, send_packet, true);
 
 		if (response_packet != NULL)
 		{
@@ -502,7 +503,7 @@ bool StartPeapClient(EAP_CLIENT *e)
 	Copy(eap1->Data, e->Username, StrLen(e->Username));
 	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(e->Username) + 5));
 
-	response1 = EapSendPacketAndRecvResponse(e, request1);
+	response1 = EapSendPacketAndRecvResponse(e, request1, true);
 
 	if (response1 != NULL)
 	{
@@ -532,7 +533,7 @@ bool StartPeapClient(EAP_CLIENT *e)
 
 					Add(request2->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap2, 6));
 
-					response2 = EapSendPacketAndRecvResponse(e, request2);
+					response2 = EapSendPacketAndRecvResponse(e, request2, true);
 
 					if (response2 != NULL && response2->Parse_EapMessage_DataSize != 0 && response2->Parse_EapMessage != NULL)
 					{
@@ -632,7 +633,7 @@ void EapSetRadiusGeneralAttributes(RADIUS_PACKET *r, EAP_CLIENT *e)
 }
 
 // Send a MSCHAPv2 client auth response1
-bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge)
+bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_response, UCHAR *client_challenge, char *username)
 {
 	bool ret = false;
 	RADIUS_PACKET *request1 = NULL;
@@ -657,20 +658,20 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 
 	eap1 = ZeroMalloc(sizeof(EAP_MSCHAPV2_RESPONSE));
 	eap1->Code = EAP_CODE_RESPONSE;
-	eap1->Id = e->NextEapId++;
-	eap1->Len = Endian16(59 + StrLen(e->Username));
+	eap1->Id = e->LastRecvEapId;
+	eap1->Len = Endian16(59 + StrLen(username));
 	eap1->Type = EAP_TYPE_MS_AUTH;
 	eap1->Chap_Opcode = EAP_MSCHAPV2_OP_RESPONSE;
 	eap1->Chap_Id = e->MsChapV2Challenge.Chap_Id;
-	eap1->Chap_Len = Endian16(54 + StrLen(e->Username));
+	eap1->Chap_Len = Endian16(54 + StrLen(username));
 	eap1->Chap_ValueSize = 49;
 	Copy(eap1->Chap_PeerChallenge, client_challenge, 16);
 	Copy(eap1->Chap_NtResponse, client_response, 24);
-	Copy(eap1->Chap_Name, e->Username, MIN(StrLen(e->Username), 255));
+	Copy(eap1->Chap_Name, username, MIN(StrLen(username), 255));
 
-	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(e->Username) + 59));
+	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(username) + 59));
 
-	response1 = EapSendPacketAndRecvResponse(e, request1);
+	response1 = EapSendPacketAndRecvResponse(e, request1, false);
 
 	if (response1 != NULL)
 	{
@@ -713,14 +714,14 @@ bool EapClientSendMsChapv2AuthClientResponse(EAP_CLIENT *e, UCHAR *client_respon
 
 									eap2 = ZeroMalloc(sizeof(EAP_MSCHAPV2_SUCCESS_CLIENT));
 									eap2->Code = EAP_CODE_RESPONSE;
-									eap2->Id = e->NextEapId++;
+									eap2->Id = e->LastRecvEapId;
 									eap2->Len = Endian16(6);
 									eap2->Type = EAP_TYPE_MS_AUTH;
 									eap2->Chap_Opcode = EAP_MSCHAPV2_OP_SUCCESS;
 
 									Add(request2->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap2, 6));
 
-									response2 = EapSendPacketAndRecvResponse(e, request2);
+									response2 = EapSendPacketAndRecvResponse(e, request2, false);
 
 									if (response2 != NULL)
 									{
@@ -770,13 +771,13 @@ bool EapClientSendMsChapv2AuthRequest(EAP_CLIENT *e)
 
 	eap1 = ZeroMalloc(sizeof(EAP_MESSAGE));
 	eap1->Code = EAP_CODE_RESPONSE;
-	eap1->Id = e->NextEapId++;
+	eap1->Id = e->LastRecvEapId;
 	eap1->Len = Endian16(StrLen(e->Username) + 5);
 	eap1->Type = EAP_TYPE_IDENTITY;
 	Copy(eap1->Data, e->Username, StrLen(e->Username));
 	Add(request1->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(e->Username) + 5));
 
-	response1 = EapSendPacketAndRecvResponse(e, request1);
+	response1 = EapSendPacketAndRecvResponse(e, request1, false);
 
 	if (response1 != NULL)
 	{
@@ -799,14 +800,14 @@ bool EapClientSendMsChapv2AuthRequest(EAP_CLIENT *e)
 
 					eap2 = ZeroMalloc(sizeof(EAP_MESSAGE));
 					eap2->Code = EAP_CODE_RESPONSE;
-					eap2->Id = e->NextEapId++;
+					eap2->Id = e->LastRecvEapId;
 					eap2->Len = Endian16(6);
 					eap2->Type = EAP_TYPE_LEGACY_NAK;
 					eap2->Data[0] = EAP_TYPE_MS_AUTH;
 
 					Add(request2->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap2, 6));
 
-					response2 = EapSendPacketAndRecvResponse(e, request2);
+					response2 = EapSendPacketAndRecvResponse(e, request2, false);
 
 					if (response2 != NULL && response2->Parse_EapMessage_DataSize != 0 && response2->Parse_EapMessage != NULL)
 					{
@@ -849,8 +850,141 @@ LABEL_PARSE_EAP:
 	return ret;
 }
 
+// Send a EAP identity request to Radius
+PPP_LCP *EapClientSendEapIdentity(EAP_CLIENT *e)
+{
+	PPP_LCP *lcp = NULL;
+	RADIUS_PACKET *request = NULL;
+	RADIUS_PACKET *response = NULL;
+	EAP_MESSAGE *eap1 = NULL;
+	if (e == NULL)
+	{
+		return NULL;
+	}
+
+	request = NewRadiusPacket(RADIUS_CODE_ACCESS_REQUEST, e->NextRadiusPacketId++);
+	EapSetRadiusGeneralAttributes(request, e);
+
+	eap1 = ZeroMalloc(sizeof(EAP_MESSAGE));
+	eap1->Code = EAP_CODE_RESPONSE;
+	eap1->Id = e->LastRecvEapId;
+	eap1->Len = Endian16(StrLen(e->Username) + 5);
+	eap1->Type = EAP_TYPE_IDENTITY;
+	Copy(eap1->Data, e->Username, StrLen(e->Username));
+	Add(request->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, eap1, StrLen(e->Username) + 5));
+	Debug("Radius proxy: send access-request %d with EAP code %d id %d type %d datasize %d\n", 
+			request->PacketId, eap1->Code, eap1->Id, eap1->Type, StrLen(e->Username));
+
+	response = EapSendPacketAndRecvResponse(e, request, false);
+
+	if (response != NULL)
+	{
+		if (response->Parse_EapMessage_DataSize >= 5 && response->Parse_EapMessage != NULL)
+		{
+			EAP_MESSAGE *eap2 = response->Parse_EapMessage;
+			UINT datasize = response->Parse_EapMessage_DataSize - 5;
+			lcp = BuildEAPPacketEx(eap2->Code, eap2->Id, eap2->Type, datasize);
+			PPP_EAP *eap_packet = lcp->Data;
+			Copy(eap_packet->Data, eap2->Data, datasize);
+			Debug("Radius proxy: received access-challenge %d with EAP code %d id %d type %d datasize %d\n", 
+					response->PacketId, eap2->Code, eap2->Id, eap2->Type, datasize);
+		}
+	}
+
+	FreeRadiusPacket(request);
+	FreeRadiusPacket(response);
+	Free(eap1);
+
+	return lcp;
+}
+
+// Send generic EAP Radius request (client EAP response) and get reply
+PPP_LCP *EapClientSendEapRequest(EAP_CLIENT *e, PPP_EAP *eap_request, UINT request_datasize)
+{
+	PPP_LCP *lcp = NULL;
+	RADIUS_PACKET *request = NULL;
+	RADIUS_PACKET *response = NULL;
+	EAP_MESSAGE *eap1 = NULL;
+	UCHAR *pos;
+	UINT remaining;
+	if (e == NULL || eap_request == NULL)
+	{
+		return NULL;
+	}
+
+	request = NewRadiusPacket(RADIUS_CODE_ACCESS_REQUEST, e->NextRadiusPacketId++);
+	EapSetRadiusGeneralAttributes(request, e);
+
+	if (e->LastStateSize != 0)
+	{
+		Add(request->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_STATE, 0, 0,
+			e->LastState, e->LastStateSize));
+	}
+
+	eap1 = ZeroMalloc(sizeof(EAP_MESSAGE));
+	eap1->Code = EAP_CODE_RESPONSE;
+	eap1->Id = e->LastRecvEapId;
+	eap1->Len = Endian16(request_datasize + 5);
+	eap1->Type = eap_request->Type;
+	Copy(eap1->Data, eap_request->Data, request_datasize);
+
+	// Fragmentation
+	pos = (UCHAR *)eap1;
+	remaining = request_datasize + 5;
+	while (remaining > 0)
+	{
+		UINT size = MIN(253, remaining);
+		Add(request->AvpList, NewRadiusAvp(RADIUS_ATTRIBUTE_EAP_MESSAGE, 0, 0, pos, size));
+		pos += size;
+		remaining -= size;
+	}
+	Debug("Radius proxy: send access-request %d with EAP code %d id %d type %d datasize %d\n", 
+			request->PacketId, eap1->Code, eap1->Id, eap1->Type, request_datasize);
+
+	response = EapSendPacketAndRecvResponse(e, request, false);
+
+	if (response != NULL)
+	{
+		switch (response->Code)
+		{
+		case RADIUS_CODE_ACCESS_CHALLENGE:
+			if (response->Parse_EapMessage_DataSize >= 5 && response->Parse_EapMessage != NULL)
+			{
+				EAP_MESSAGE *eap2 = response->Parse_EapMessage;
+				UINT datasize = response->Parse_EapMessage_DataSize - 5;
+				lcp = BuildEAPPacketEx(eap2->Code, eap2->Id, eap2->Type, datasize);
+				PPP_EAP *eap_packet = lcp->Data;
+				Copy(eap_packet->Data, eap2->Data, datasize);
+				Debug("Radius proxy: received access-challenge %d with EAP code %d id %d type %d datasize %d\n", 
+						response->PacketId, eap2->Code, eap2->Id, eap2->Type, datasize);
+			}
+			else
+			{
+				Debug("Radius proxy error: received access-challenge %d without EAP\n", response->PacketId);
+				lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, e->LastRecvEapId);				
+			}
+			break;
+		case RADIUS_CODE_ACCESS_ACCEPT:
+			Debug("Radius proxy: received access-accept %d\n", response->PacketId);
+			lcp = NewPPPLCP(PPP_EAP_CODE_SUCCESS, e->LastRecvEapId);
+			break;
+		case RADIUS_CODE_ACCESS_REJECT:
+		default:
+			Debug("Radius proxy: received access-reject %d\n", response->PacketId);
+			lcp = NewPPPLCP(PPP_EAP_CODE_FAILURE, e->LastRecvEapId);
+			break;
+		}
+	}
+
+	FreeRadiusPacket(request);
+	FreeRadiusPacket(response);
+	Free(eap1);
+
+	return lcp;
+}
+
 // Send a packet and recv a response
-RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r)
+RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r, bool parse_inner)
 {
 	SOCKSET set;
 	UINT64 giveup_tick = 0;
@@ -990,7 +1124,7 @@ RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r)
 									{
 										EAP_MESSAGE *eap_msg = (EAP_MESSAGE *)rp->Parse_EapMessage;
 
-										if (eap_msg->Type == EAP_TYPE_PEAP)
+										if (parse_inner && eap_msg->Type == EAP_TYPE_PEAP)
 										{
 											EAP_PEAP *peap_message = (EAP_PEAP *)eap_msg;
 
@@ -1166,7 +1300,8 @@ bool EapSendPacket(EAP_CLIENT *e, RADIUS_PACKET *r)
 }
 
 // New EAP client
-EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, char *username, char *hubname)
+EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, UINT resend_timeout, UINT giveup_timeout, char *client_ip_str, 
+						char *username, char *hubname, UCHAR last_recv_eapid)
 {
 	EAP_CLIENT *e;
 	if (server_ip == NULL)
@@ -1198,7 +1333,7 @@ EAP_CLIENT *NewEapClient(IP *server_ip, UINT server_port, char *shared_secret, U
 	StrCpy(e->CalledStationStr, sizeof(e->CalledStationStr), hubname);
 	StrCpy(e->ClientIpStr, sizeof(e->ClientIpStr), client_ip_str);
 	StrCpy(e->Username, sizeof(e->Username), username);
-	e->LastRecvEapId = 0;
+	e->LastRecvEapId = last_recv_eapid;
 
 	e->PEAP_CurrentReceivingMsg = NewBuf();
 
@@ -1679,15 +1814,16 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			StrCpy(eap->In_VpnProtocolState, sizeof(eap->In_VpnProtocolState), opt->In_VpnProtocolState);
 		}
 
+		// Use the username known to the client instead of parsed by us, or response may be invalid
 		if (eap->PeapMode == false)
 		{
 			ret = EapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
-				mschap.MsChapV2_ClientChallenge);
+				mschap.MsChapV2_ClientChallenge, mschap.MsChapV2_PPPUsername);
 		}
 		else
 		{
 			ret = PeapClientSendMsChapv2AuthClientResponse(eap, mschap.MsChapV2_ClientResponse,
-				mschap.MsChapV2_ClientChallenge);
+				mschap.MsChapV2_ClientChallenge, mschap.MsChapV2_PPPUsername);
 		}
 
 		if (ret)

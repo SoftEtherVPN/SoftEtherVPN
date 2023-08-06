@@ -1939,6 +1939,7 @@ LH_AUTH_PASSWORD			密码验证
 LH_AUTH_PLAIN_PASSWORD		外部服务器身份验证
 LH_AUTH_CERT				证书验证
 LH_AUTH_TICKET				票证验证
+LH_AUTH_EXTERNAL			外部服务器身份验证
 LH_AUTH_WIREGUARD_KEY		WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT		OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT	连接 "%S": 用户 "%S" 身份验证方法 RADIUS 或 Active Directory (NT 域)，但 VPN Server 是 "%S"，因为 RADIUS 或 Active Directory (NT 域)不能使用。连接被拒绝。

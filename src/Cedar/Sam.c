@@ -9,6 +9,7 @@
 
 #include "Account.h"
 #include "Cedar.h"
+#include "Connection.h"
 #include "Hub.h"
 #include "IPC.h"
 #include "Proto_PPP.h"
@@ -420,7 +421,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 	bool auth_by_nt = false;
 	HUB *h;
 	// Validate arguments
-	if (hub == NULL || c == NULL || username == NULL)
+	if (hub == NULL || c == NULL || username == NULL || password == NULL || opt == NULL)
 	{
 		return false;
 	}
@@ -438,7 +439,14 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 	AcLock(hub);
 	{
 		USER *u;
-		u = AcGetUser(hub, ast == false ? username : "*");
+
+		// Find exact user first
+		u = AcGetUser(hub, username);
+		if (u == NULL && ast)
+		{
+			u = AcGetUser(hub, "*");
+		}
+
 		if (u)
 		{
 			Lock(u->lock);
@@ -447,7 +455,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 				{
 					// Radius authentication
 					AUTHRADIUS *auth = (AUTHRADIUS *)u->AuthData;
-					if (ast || auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
+					if (auth->RadiusUsername == NULL || UniStrLen(auth->RadiusUsername) == 0)
 					{
 						if( IsEmptyStr(h->RadiusRealm) == false )
 						{	
@@ -472,7 +480,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 				{
 					// NT authentication
 					AUTHNT *auth = (AUTHNT *)u->AuthData;
-					if (ast || auth->NtUsername == NULL || UniStrLen(auth->NtUsername) == 0)
+					if (auth->NtUsername == NULL || UniStrLen(auth->NtUsername) == 0)
 					{
 						name = CopyStrToUni(username);
 					}
@@ -508,9 +516,74 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 			char suffix_filter[MAX_SIZE];
 			wchar_t suffix_filter_w[MAX_SIZE];
 			UINT interval;
+			EAP_CLIENT *eap = NULL;
+			char password1[MAX_SIZE];
+			UCHAR client_challenge[16];
+			UCHAR server_challenge[16];
+			UCHAR challenge8[8];
+			UCHAR client_response[24];
+			UCHAR ntlm_hash[MD5_SIZE];
 
 			Zero(suffix_filter, sizeof(suffix_filter));
 			Zero(suffix_filter_w, sizeof(suffix_filter_w));
+
+			// MSCHAPv2 / EAP wrapper for SEVPN
+			if (c->IsInProc == false && StartWith(password, IPC_PASSWORD_MSCHAPV2_TAG) == false)
+			{
+				char client_ip_str[MAX_SIZE];
+				char utf8[MAX_SIZE];
+
+				// Convert the user name to a Unicode string
+				UniToStr(utf8, sizeof(utf8), name);
+				utf8[MAX_SIZE-1] = 0;
+
+				Zero(client_ip_str, sizeof(client_ip_str));
+				if (c != NULL && c->FirstSock != NULL)
+				{
+					IPToStr(client_ip_str, sizeof(client_ip_str), &c->FirstSock->RemoteIP);
+				}
+
+				if (hub->RadiusConvertAllMsChapv2AuthRequestToEap)
+				{
+					// Do EAP or PEAP
+					eap = HubNewEapClient(hub->Cedar, hub->Name, client_ip_str, utf8, opt->In_VpnProtocolState, false, NULL, 0);
+
+					// Prepare MSCHAP response and replace plain password
+					if (eap != NULL)
+					{
+						char server_challenge_hex[MAX_SIZE];
+						char client_challenge_hex[MAX_SIZE];
+						char client_response_hex[MAX_SIZE];
+						char eap_client_hex[64];
+
+						MsChapV2Client_GenerateChallenge(client_challenge);
+						GenerateNtPasswordHash(ntlm_hash, password);
+						Copy(server_challenge, eap->MsChapV2Challenge.Chap_ChallengeValue, 16);
+						MsChapV2_GenerateChallenge8(challenge8, client_challenge, server_challenge, utf8);
+						MsChapV2Client_GenerateResponse(client_response, challenge8, ntlm_hash);
+
+						BinToStr(server_challenge_hex, sizeof(server_challenge_hex),
+								server_challenge, sizeof(server_challenge));
+						BinToStr(client_challenge_hex, sizeof(client_challenge_hex),
+								client_challenge, sizeof(client_challenge));
+						BinToStr(client_response_hex, sizeof(client_response_hex),
+								client_response, sizeof(client_response));
+						BinToStr(eap_client_hex, sizeof(eap_client_hex), &eap, 8);
+						Format(password1, sizeof(password1), "%s%s:%s:%s:%s:%s",
+										IPC_PASSWORD_MSCHAPV2_TAG,
+										utf8,
+										server_challenge_hex,
+										client_challenge_hex,
+										client_response_hex,
+										eap_client_hex);
+						password = password1;
+					}
+				}
+				else
+				{
+					// Todo: Do MSCHAPv2
+				}
+			}
 
 			// Get the Radius server information
 			if (GetRadiusServerEx2(hub, radius_server_addr, sizeof(radius_server_addr), &radius_server_port, radius_secret, sizeof(radius_secret), &interval, suffix_filter, sizeof(suffix_filter)))
@@ -528,10 +601,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 
 					if (b)
 					{
-						if (opt != NULL)
-						{
-							opt->Out_IsRadiusLogin = true;
-						}
+						opt->Out_IsRadiusLogin = true;
 					}
 				}
 
@@ -540,6 +610,11 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 			else
 			{
 				HLog(hub, "LH_NO_RADIUS_SETTING", name);
+			}
+
+			if (eap != NULL)
+			{
+				ReleaseEapClient(eap);
 			}
 		}
 		else

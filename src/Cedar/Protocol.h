@@ -134,6 +134,7 @@ void PackAddPolicy(PACK *p, POLICY *y);
 PACK *PackWelcome(SESSION *s);
 PACK *PackHello(void *random, UINT ver, UINT build, char *server_str);
 bool GetHello(PACK *p, void *random, UINT *ver, UINT *build, char *server_str, UINT server_str_size);
+PACK *PackLoginWithExternal(char *hubname, char *username);
 PACK *PackLoginWithAnonymous(char *hubname, char *username);
 PACK *PackLoginWithPassword(char *hubname, char *username, void *secure_password);
 PACK *PackLoginWithPlainPassword(char *hubname, char *username, void *plain_password);

@@ -1905,6 +1905,7 @@ LH_AUTH_PASSWORD 암호 인증
 LH_AUTH_PLAIN_PASSWORD 외부 서버 인증
 LH_AUTH_CERT 인증서 인증
 LH_AUTH_TICKET 티켓 인증
+LH_AUTH_EXTERNAL 외부 서버 인증
 LH_AUTH_WIREGUARD_KEY WireGuard public key authentication
 LH_AUTH_OPENVPN_CERT OpenVPN certificate authentication
 LH_AUTH_RADIUS_NOT_SUPPORT 연결 "%S"사용자 "%S"의 인증 방법으로 RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)이 지정 되었으나, 현재 VPN Server 버전은 "%S"이기 때문에 RADIUS 인증 또는 Active Directory 인증 (NT 도메인 인증)을 사용할 수 없습니다. 연결이 거부됩니다.
