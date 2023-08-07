@@ -485,6 +485,9 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 		}
 #endif
 
+		// Set interface group
+		UnixSetIfGroup(s, tap_name, CEDAR_PRODUCT_STR);
+
 		if (create_up)
 		{
 			Zero(&ifr, sizeof(ifr));
@@ -622,6 +625,24 @@ void UnixDestroyClientTapDevice(char *name)
 #endif	// UNIX_BSD
 }
 
+void UnixSetIfGroup(int fd, const char *name, const char *group_name)
+{
+#ifdef	SIOCAIFGROUP
+	struct ifgroupreq ifgr;
+	char *tmp;
+
+	tmp = CopyStr((char *)group_name);
+	StrLower(tmp);
+	Zero(&ifgr, sizeof(ifgr));
+
+	StrCpy(ifgr.ifgr_name, sizeof(ifgr.ifgr_name), (char *) name);
+	StrCpy(ifgr.ifgr_group, sizeof(ifgr.ifgr_group), tmp);
+	ioctl(fd, SIOCAIFGROUP, &ifgr);
+
+	Free(tmp);
+#endif
+}
+
 #else	// NO_VLAN
 
 void UnixCloseDevice(int fd)
@@ -633,6 +654,10 @@ void UnixDestroyTapDevice(char *name)
 }
 
 void UnixDestroyTapDeviceEx(char *name, char *prefix)
+{
+}
+
+void UnixSetIfGroup()
 {
 }
 

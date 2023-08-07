@@ -62,6 +62,7 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address, bool cre
 void UnixCloseTapDevice(int fd);
 void UnixDestroyBridgeTapDevice(char *name);
 void UnixDestroyClientTapDevice(char *name);
+void UnixSetIfGroup(int fd, const char *name, const char *group_name);
 void UnixVLanInit();
 void UnixVLanFree();
 bool UnixVLanCreate(char *name, UCHAR *mac_address, bool create_up);
