@@ -30,7 +30,7 @@ struct PROXY_PARAM_IN
 	UINT Timeout;
 	char HttpCustomHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];
 	char HttpUserAgent[HTTP_HEADER_USER_AGENT_MAX_SIZE + 1];
-	IP   BindLocalIP;											// Source IP address for outgoing connection
+	IP   *BindLocalIP;											// Source IP address for outgoing connection
 	UINT BindLocalPort;					// UINT used not USHORT	// Source port number for outgoing connection
 #ifdef OS_WIN32
 	void *Hwnd;

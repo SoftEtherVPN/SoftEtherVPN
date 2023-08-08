@@ -6151,6 +6151,7 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					t->ClientOption->RequireBridgeRoutingMode = old_option->RequireBridgeRoutingMode;
 					t->ClientOption->DisableQoS = old_option->DisableQoS;
 					t->ClientOption->BindLocalIP = old_option->BindLocalIP;// Source IP address for outgoing connection
+					t->ClientOption->BindLocalPort = old_option->BindLocalPort;// Source port number for outgoing connection
 
 					// Inherit the authentication data
 					CiFreeClientAuth(t->ClientAuth);
@@ -6459,6 +6460,7 @@ void CmDetailDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 		Disable(hWnd, R_NO_ROUTING);
 #if TYPE_BINDLOCALIP
 		Disable(hWnd, E_BIND_LOCALIP);// Source IP address for outgoing connection
+		Disable(hWnd, E_BIND_LOCALPORT);// Source port number for outgoing connection
 #endif
 
 	}
@@ -6543,6 +6545,8 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 		Check(hWnd, R_DISABLE_UDP, a->ClientOption->NoUdpAcceleration);
 #if TYPE_BINDLOCALIP
 		SetIp(hWnd, E_BIND_LOCALIP, &a->ClientOption->BindLocalIP);// Source IP address for outgoing connection
+		SetIntEx(hWnd, E_BIND_LOCALPORT, a->ClientOption->BindLocalPort);// Source port number for outgoing connection
+		//Disable(hWnd, E_BIND_LOCALPORT);	// You can not edit
 #endif
 
 		// Select the Connection Mode
@@ -6594,9 +6598,14 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 #if TYPE_BINDLOCALIP
 			// Source IP address for outgoing connection
 			IP tmpIP;
-			if (GetIp(hWnd, E_BIND_LOCALIP, &tmpIP) == false)		
+			if (GetIp(hWnd, E_BIND_LOCALIP, &tmpIP) == false)
 			{
 				FocusEx(hWnd, E_BIND_LOCALIP);
+				break;
+			}
+			// Source port number for outgoing connection
+			if ((GetInt(hWnd, E_BIND_LOCALPORT) < 0) || (GetInt(hWnd, E_BIND_LOCALPORT) > 65535)){
+				FocusEx(hWnd, E_BIND_LOCALPORT);
 				break;
 			}
 #endif
@@ -6619,6 +6628,7 @@ UINT CmDetailDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			a->ClientOption->NoUdpAcceleration = IsChecked(hWnd, R_DISABLE_UDP);
 #if TYPE_BINDLOCALIP
 			a->ClientOption->BindLocalIP = tmpIP;// Source IP address for outgoing connection
+			a->ClientOption->BindLocalPort = GetInt(hWnd, E_BIND_LOCALPORT);// Source port number for outgoing connection
 #endif
 
 			if (a->LinkMode)

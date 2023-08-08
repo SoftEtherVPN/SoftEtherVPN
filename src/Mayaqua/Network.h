@@ -809,7 +809,8 @@ struct CONNECT_SERIAL_PARAM
 {
 	LIST *IpList;
 	UINT LocalPort;						// Local port number to bind
-	IP   LocalIP;						// Local IP address to bind
+	IP   *LocalIP;						// Local IP address to bind. NULL address allowed to use.
+	IP   LocalIP_Cache;					// Local IP address to bind
 	UINT Port;
 	UINT Timeout;
 	char Hostname[MAX_SIZE];

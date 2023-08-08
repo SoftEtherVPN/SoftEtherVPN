@@ -17,7 +17,7 @@ SOCK *Internal_ProxyTcpConnect(PROXY_PARAM_IN *param, volatile bool *cancel_flag
 #endif
 
 	//return ConnectEx4(param->Hostname, param->Port, param->Timeout, (bool*)cancel_flag, NULL, NULL, false, true, resolved_ip);
-	return BindConnectEx4(&param->BindLocalIP, param->BindLocalPort, param->Hostname, param->Port, param->Timeout, (bool *)cancel_flag, NULL, NULL, false, true, resolved_ip);
+	return BindConnectEx4(param->BindLocalIP, param->BindLocalPort, param->Hostname, param->Port, param->Timeout, (bool *)cancel_flag, NULL, NULL, false, true, resolved_ip);
 }
 
 // Connect to an HTTP proxy
@@ -28,8 +28,8 @@ UINT ProxyHttpConnect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool *c
 	{
 		return PROXY_ERROR_PARAMETER;
 	}
-	StrToIP(&in->BindLocalIP, "0::0");
-	in->BindLocalPort = 0;
+	in->BindLocalIP = BIND_LOCALIP_NULL;
+	in->BindLocalPort = BIND_LOCALPORT_NULL;
 	return BindProxyHttpConnect(out, in, cancel_flag);
 }
 
@@ -228,8 +228,8 @@ UINT ProxySocks5Connect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool 
 	{
 		return PROXY_ERROR_PARAMETER;
 	}
-	StrToIP(&in->BindLocalIP, "0::0");
-	in->BindLocalPort = 0;
+	in->BindLocalIP = BIND_LOCALIP_NULL;
+	in->BindLocalPort = BIND_LOCALPORT_NULL;
 	return BindProxySocks5Connect(out, in, cancel_flag);
 }
 
@@ -554,6 +554,8 @@ UINT ProxySocks4Connect(PROXY_PARAM_OUT *out, PROXY_PARAM_IN *in, volatile bool 
 	{
 		return PROXY_ERROR_PARAMETER;
 	}
+	in->BindLocalIP = BIND_LOCALIP_NULL;
+	in->BindLocalPort = BIND_LOCALPORT_NULL;
 	return BindProxySocks4Connect(out, in, cancel_flag);
 }
 

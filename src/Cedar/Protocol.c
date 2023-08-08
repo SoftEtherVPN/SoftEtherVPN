@@ -6281,8 +6281,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		if (o->PortUDP == 0)
 		{
 			IP		*localIP;
-			IP		tmpIP;
-			UINT	localport = BIND_LOCALPORT_NULL;
+			UINT	localport;
 
 			// Top of Bind outgoing connection
 			// Decide the binding operation which is explicitly executed on the client-side
@@ -6290,20 +6289,32 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 			// In the case of first TCP/IP connection
 			if (additional_connect == false) {
 				if (sess->ClientOption->NoRoutingTracking == false) {
-					StrToIP(&tmpIP, "0::0");		// Zero address is for dummy not to bind
+					localIP = BIND_LOCALIP_NULL;	// Specify not to bind
 				}
 				else {
-					Debug("ClientConnectGetSocket(): Using client option %r for source IP address\n", sess->ClientOption->BindLocalIP);
+					Debug("ClientConnectGetSocket(): Using client option %r and %d for binding\n"
+						, sess->ClientOption->BindLocalIP, sess->ClientOption->BindLocalPort);
 					// Nonzero address is for source IP address to bind. Zero address is for dummy not to bind.
-					tmpIP = sess->ClientOption->BindLocalIP;
+					if (IsZeroIP(&sess->ClientOption->BindLocalIP) == true) {
+						localIP = BIND_LOCALIP_NULL;
+					}
+					else {
+						localIP = &sess->ClientOption->BindLocalIP;
+					}
 				}
-				localIP = &tmpIP;
 			}
 			// In the case of second and subsequent TCP/IP connections
 			else {
 				// Bind the socket to the actual local IP address of first TCP / IP connection
 				localIP = &sess->LocalIP_CacheForNextConnect;
 				//localIP = BIND_LOCALIP_NULL;	// Specify not to bind for test
+			}
+			if (sess->ClientOption->BindLocalPort == 0) {
+				localport = BIND_LOCALPORT_NULL;
+			}
+			else {
+				localport = sess->ClientOption->BindLocalPort + Count(sess->Connection->CurrentNumConnection) - 1;
+				Debug("ClientConnectGetSocket(): Additional port number %u\n", localport);
 			}
 			// Bottom of Bind outgoing connection
 
@@ -6384,19 +6395,27 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		// In the case of first TCP/IP connection
 		if (additional_connect == false) {
 			if (sess->ClientOption->NoRoutingTracking == false) {
-				IP tmpIP;
-				StrToIP(&tmpIP, "0::0");
-				in.BindLocalIP = tmpIP;
+				in.BindLocalIP = BIND_LOCALIP_NULL;	// Specify not to bind
 			}
 			else {
-				in.BindLocalIP = sess->ClientOption->BindLocalIP;
+				if (IsZeroIP(&sess->ClientOption->BindLocalIP) == true) {
+					in.BindLocalIP = BIND_LOCALIP_NULL;
+				}
+				else {
+					in.BindLocalIP = &sess->ClientOption->BindLocalIP;
+				}
 			}
 		}
 		// In the case of second and subsequent TCP/IP connections
 		else {
-			in.BindLocalIP = sess->LocalIP_CacheForNextConnect;
+			in.BindLocalIP = &sess->LocalIP_CacheForNextConnect;
 		}
-		in.BindLocalPort = BIND_LOCALPORT_NULL;
+		if (sess->ClientOption->BindLocalPort == 0) {
+			in.BindLocalPort = BIND_LOCALPORT_NULL;
+		}
+		else {
+			in.BindLocalPort = sess->ClientOption->BindLocalPort + Count(sess->Connection->CurrentNumConnection) - 1;
+		}
 		// Bottom of Bind outgoing connection
 
 #ifdef OS_WIN32

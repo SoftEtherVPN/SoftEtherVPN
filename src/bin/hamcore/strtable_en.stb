@@ -2420,7 +2420,8 @@ STATIC17				Other Confi&gurations:
 R_NO_ROUTING			No Adjustments of &Routing Table
 STATIC18				Keep the settings default in this dialog unless you are told to do so by a system administrator, or you have expertise for networking and security.
 STATIC19				The VoIP / QoS functions handle high priority packets such as IP telephone packets (VoIP) to be transmitted faster.
-STATIC20				Source IP Address\n(IP Address on NIC):
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS			Disable VoIP / &QoS Functions
 IDOK					&OK
 IDCANCEL				Cancel

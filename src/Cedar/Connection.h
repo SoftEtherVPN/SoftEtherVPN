@@ -58,7 +58,7 @@ struct RC4_KEY_PAIR
 	UCHAR ServerToClientKey[16];
 	UCHAR ClientToServerKey[16];
 };
-#define	TYPE_BINDLOCALIP	1	//  Enable HMI user to edit Source IP address for outgoing connection
+#define	TYPE_BINDLOCALIP	1	//  Enable HMI user to edit Source IP address & Source port number for outgoing connection
 
 // Client Options
 // Do not change item size or order and only add new items at the end!
@@ -108,6 +108,7 @@ struct CLIENT_OPTION
 	char CustomHttpHeader[HTTP_CUSTOM_HEADER_MAX_SIZE];		// Custom HTTP proxy header
 	char HintStr[MAX_HOST_NAME_LEN + 1];					// Hint string for NAT-T
 	IP   BindLocalIP;										// Source IP address for outgoing connection
+	UINT BindLocalPort;										// Source port number for outgoing connection
 };
 
 // Client authentication data
