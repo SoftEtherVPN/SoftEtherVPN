@@ -5,16 +5,13 @@ on:
   schedule:
   - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   scan:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'SoftEtherVPN' }}
-    env:
-      COVERITY_SCAN_PROJECT_NAME: 'SoftEtherVPN/SoftEtherVPN'
-      COVERITY_SCAN_BRANCH_PATTERN: '*'
-      COVERITY_SCAN_NOTIFICATION_EMAIL: 'chipitsine@gmail.com'
-      COVERITY_SCAN_BUILD_COMMAND_PREPEND: "./configure"
-      COVERITY_SCAN_BUILD_COMMAND: "make -C build"
     steps:
     - uses: actions/checkout@v2
       with:
@@ -23,8 +20,24 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake gcc g++ libncurses5-dev libreadline-dev libssl-dev make zlib1g-dev libsodium-dev
-    - name: Run Coverity Scan
-      env:
-        COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+    - name: Download Coverity build tool
       run: |
-        curl -fsSL "https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh" | bash || true
+        wget -c -N https://scan.coverity.com/download/linux64 --post-data "token=${{ secrets.COVERITY_SCAN_TOKEN }}&project=SoftEtherVPN%2FSoftEtherVPN" -O coverity_tool.tar.gz
+        mkdir coverity_tool
+        tar xzf coverity_tool.tar.gz --strip 1 -C coverity_tool
+    - name: Configure
+      run: |
+        ./configure
+    - name: Build with Coverity build tool
+      run: |
+        export PATH=`pwd`/coverity_tool/bin:$PATH
+        cov-build --dir cov-int make -C build
+    - name: Submit build result to Coverity Scan
+      run: |
+        tar czvf cov.tar.gz cov-int
+        curl --form token=${{ secrets.COVERITY_SCAN_TOKEN }} \
+          --form email=chipitsine@gmail.com \
+          --form file=@cov.tar.gz \
+          --form version="Commit $GITHUB_SHA" \
+          --form description="Build submitted via CI" \
+          https://scan.coverity.com/builds?project=SoftEtherVPN%2FSoftEtherVPN
