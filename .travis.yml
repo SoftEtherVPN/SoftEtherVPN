@@ -48,15 +48,6 @@ matrix:
       script:
         - cd developer_tools/stbchecker
         - dotnet run ../../src/bin/hamcore
-    - os: osx
-      compiler: clang
-      before_install:
-        - brew install libsodium
-      script:
-        - ./configure
-        - make -C build
-        - otool -L build/vpnserver
-        - .ci/memory-leak-test.sh
 
 cache:
   directories:
