@@ -23,6 +23,10 @@
 #ifdef UNIX_OPENBSD
 #include <pthread.h>
 #endif
+
+#ifdef UNIX_MACOS
+#include <pthread.h>
+#endif
 #endif
 
 
