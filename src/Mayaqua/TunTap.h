@@ -162,6 +162,13 @@ struct tundladdr {
 #ifndef _NET_IF_TUN_H_
 #define _NET_IF_TUN_H_
 
+#ifdef UNIX_MACOS
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE
+#endif
+#include <sys/types.h>
+#endif
+
 /* Refer to if_tunvar.h for the softc stuff */
 
 /* Maximum transmit packet size (default) */
