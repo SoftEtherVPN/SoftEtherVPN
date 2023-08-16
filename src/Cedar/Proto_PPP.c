@@ -3635,6 +3635,12 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 		{
 			p->Eap_TlsCtx.Dh = DhNewFromBits(DH_PARAM_BITS_DEFAULT);
 			p->Eap_TlsCtx.SslPipe = NewSslPipeEx3(true, p->Cedar->ServerX, p->Cedar->ServerK, p->Cedar->ServerChain, p->Eap_TlsCtx.Dh, true, &(p->Eap_TlsCtx.ClientCert), p->Eap_TlsCtx.Tls13SessionTicketsCount, p->Eap_TlsCtx.DisableTls13);
+			if (p->Eap_TlsCtx.SslPipe == NULL)
+			{
+				Debug("EAP-TLS: NewSslPipeEx3 failed\n");
+				PPPSetStatus(p, PPP_STATUS_FAIL);
+				return false;
+			}
 		}
 
 		// If the current frame is fragmented, or it is a possible last of a fragmented series, bufferize it

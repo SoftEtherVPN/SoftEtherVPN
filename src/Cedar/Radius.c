@@ -417,6 +417,11 @@ bool StartPeapSslClient(EAP_CLIENT *e)
 	}
 
 	e->SslPipe = NewSslPipe(false, NULL, NULL, NULL);
+	if (e->SslPipe == NULL)
+	{
+		return false;
+	}
+
 	send_fifo = e->SslPipe->RawOut->RecvFifo;
 	recv_fifo = e->SslPipe->RawIn->SendFifo;
 

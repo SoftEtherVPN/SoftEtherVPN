@@ -824,6 +824,10 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 				}
 
 				c->SslPipe = NewSslPipeEx(true, s->Cedar->ServerX, s->Cedar->ServerK, s->Dh, true, &c->ClientCert);
+				if (c->SslPipe == NULL)
+				{
+					return;
+				}
 			}
 			Unlock(s->Cedar->lock);
 
