@@ -5724,6 +5724,10 @@ SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, b
 	SSL_PIPE *s;
 	SSL *ssl;
 	SSL_CTX *ssl_ctx = NewSSLCtx(server_mode);
+	if (ssl_ctx == NULL)
+	{
+		return NULL;
+	}
 
 	Lock(openssl_lock);
 	{
@@ -11727,6 +11731,10 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	}
 
 	ssl_ctx = NewSSLCtx(sock->ServerMode);
+	if (ssl_ctx == NULL)
+	{
+		return false;
+	}
 
 	Lock(openssl_lock);
 	{
