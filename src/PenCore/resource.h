@@ -1030,6 +1030,7 @@
 #define B_NEW                           1521
 #define R_TRUST_DEFAULT                 1521
 #define B_CLEAR                         1522
+#define S_HOSTNAME_CUSTOM				1523
 #define B_ONLINE                        1655
 #define D_NM_CONNECT                    1998
 #define D_NM_MAIN                       1999

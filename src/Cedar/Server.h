@@ -256,6 +256,7 @@ struct SERVER
 
 	AZURE_CLIENT *AzureClient;			// VPN Azure client
 	bool EnableVpnAzure;				// Flag whether VPN Azure client is enabled
+	bool UseCustomVpnAzure;				// Use custom VPN Azure service
 
 	bool DisableGetHostNameWhenAcceptTcp;	// Disable GetHostName when accepting TCP
 	bool DisableCoreDumpOnUnix;			// Disable core dump on UNIX
@@ -635,8 +636,8 @@ void SiApplySpecialListenerStatus(SERVER *s);
 
 bool SiIsAzureEnabled(SERVER *s);
 bool SiIsAzureSupported(SERVER *s);
-void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status);
-void SiSetAzureEnable(SERVER *s, bool enabled);
+void SiApplyAzureConfig(SERVER *s, DDNS_CLIENT_STATUS *ddns_status, AZURE_CUSTOM_CONFIG *config);
+void SiSetAzureEnable(SERVER *s, bool enabled, bool use_custom);
 
 void SiUpdateCurrentRegion(CEDAR *c, char *region, bool force_update);
 void SiGetCurrentRegion(CEDAR *c, char *region, UINT region_size);

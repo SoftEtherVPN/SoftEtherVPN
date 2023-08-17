@@ -6726,7 +6726,7 @@ void CmEditAccountDlgUpdate(HWND hWnd, CM_ACCOUNT *a)
 		GetTxtA(hWnd, E_PASSWORD, str, sizeof(str));
 		if (StrCmp(str, HIDDEN_PASSWORD) != 0)
 		{
-			HashPassword(a->ClientAuth->HashedPassword, a->ClientAuth->Username, str);
+			HashPassword(a->ClientAuth->HashedPassword, a->ClientAuth->Username, str, false);
 		}
 		break;
 	case CLIENT_AUTHTYPE_PLAIN_PASSWORD:

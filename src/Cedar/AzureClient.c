@@ -39,7 +39,7 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 		UCHAR uc;
 
 		// Receive 1 byte
-		if (RecvAll(s, &uc, 1, false) == 0)
+		if (RecvAll(s, &uc, 1, param->UseEncryption) == 0)
 		{
 			break;
 		}
@@ -70,6 +70,7 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 					UINT client_port;
 					UINT server_port;
 					UCHAR session_id[SHA1_SIZE];
+					UCHAR relay_cert_hash[SHA1_SIZE];
 
 					if (PackGetIp(p, "client_ip", &client_ip) &&
 						PackGetIp(p, "server_ip", &server_ip) &&
@@ -87,15 +88,58 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 							SLog(ac->Cedar, "LS_AZURE_START", ipstr, client_port);
 
 							// Create new socket and connect VPN Azure Server
-							if (ac->DDnsStatusCopy.InternetSetting.ProxyType == PROXY_DIRECT)
+							if (param->UseCustom)
 							{
-								ns = ConnectEx2(ac->DDnsStatusCopy.CurrentAzureIp, AZURE_SERVER_PORT,
-									0, (bool *)&ac->Halt);
+								// Get relay server info from pack
+								char relay_addr[MAX_HOST_NAME_LEN + 1];
+								UINT relay_port;
+
+								relay_port = PackGetInt(p, "relay_port");
+
+								if (PackGetStr(p, "relay_address", relay_addr, sizeof(relay_addr)) &&
+									PackGetData2(p, "cert_hash", relay_cert_hash, sizeof(relay_cert_hash)) &&
+									relay_port != 0)
+								{
+									ns = ConnectEx2(relay_addr, relay_port, 0, (bool *)&ac->Halt);
+									
+									if (ns != NULL)
+									{
+										UINT ssl_err = 0;
+										Copy(&ns->SslAcceptSettings, &ac->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
+
+										if (StartSSLEx3(ns, NULL, NULL, NULL, 0, relay_addr, NULL, &ssl_err) == false)
+										{
+											if (ssl_err != 0)
+											{
+												SLog(ac->Cedar, "LS_AZURE_SSL_ERROR", GetUniErrorStr(ssl_err), ssl_err);
+											}
+
+											Disconnect(ns);
+											ReleaseSock(ns);
+											ns = NULL;
+										}
+									}
+								}
 							}
 							else
 							{
-								ns = WpcSockConnect2(ac->DDnsStatusCopy.CurrentAzureIp, AZURE_SERVER_PORT,
-									&ac->DDnsStatusCopy.InternetSetting, NULL, AZURE_VIA_PROXY_TIMEOUT);
+								BUF *b = StrToBin(ac->DDnsStatus.AzureCertHash);
+								if (b->Size == SHA1_SIZE)
+								{
+									Copy(relay_cert_hash, b->Buf, SHA1_SIZE);
+								}
+								FreeBuf(b);
+
+								if (ac->DDnsStatusCopy.InternetSetting.ProxyType == PROXY_DIRECT)
+								{
+									ns = ConnectEx2(ac->DDnsStatusCopy.CurrentAzureIp, AZURE_SERVER_PORT,
+										0, (bool *)&ac->Halt);
+								}
+								else
+								{
+									ns = WpcSockConnect2(ac->DDnsStatusCopy.CurrentAzureIp, AZURE_SERVER_PORT,
+										&ac->DDnsStatusCopy.InternetSetting, NULL, AZURE_VIA_PROXY_TIMEOUT);
+								}
 							}
 
 							if (ns == NULL)
@@ -114,17 +158,12 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 								if (StartSSLEx3(ns, NULL, NULL, NULL, 0, NULL, NULL, &ssl_err))
 								{
 									// Check certification
-									char server_cert_hash_str[MAX_SIZE];
 									UCHAR server_cert_hash[SHA1_SIZE];
 
 									Zero(server_cert_hash, sizeof(server_cert_hash));
 									GetXDigest(ns->RemoteX, server_cert_hash, true);
 
-									BinToStr(server_cert_hash_str, sizeof(server_cert_hash_str),
-										server_cert_hash, SHA1_SIZE);
-
-									if (IsEmptyStr(ac->DDnsStatusCopy.AzureCertHash) || StrCmpi(server_cert_hash_str, ac->DDnsStatusCopy.AzureCertHash) == 0
-										 || StrCmpi(server_cert_hash_str, ac->DDnsStatus.AzureCertHash) == 0)
+									if (Cmp(relay_cert_hash, server_cert_hash, SHA1_SIZE) == 0)
 									{
 										if (SendAll(ns, AZURE_PROTOCOL_DATA_SIANGTURE, 24, true))
 										{
@@ -185,7 +224,7 @@ void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param)
 
 		// Send 1 byte
 		uc = 0;
-		if (SendAll(s, &uc, 1, false) == 0)
+		if (SendAll(s, &uc, 1, param->UseEncryption) == 0)
 		{
 			break;
 		}
@@ -219,29 +258,59 @@ void AcMainThread(THREAD *thread, void *param)
 			DDNS_CLIENT_STATUS st;
 			bool connect_now = false;
 			bool azure_ip_changed = false;
+			bool use_custom_azure = false;
+			bool use_encryption = false;
+			char hostname[MAX_HOST_NAME_LEN + 1];
+			UCHAR hashed_password[SHA1_SIZE];
+			char server_address[MAX_HOST_NAME_LEN + 1];
+			UINT server_port = AZURE_SERVER_PORT;
+			bool add_default_ca = false;
+			bool verify_server = false;
+			X *server_cert = NULL;
+			X *client_cert = NULL;
+			K *client_key = NULL;
 
 			Lock(ac->Lock);
 			{
-				Copy(&st, &ac->DDnsStatus, sizeof(DDNS_CLIENT_STATUS));
-
-				if (StrCmpi(st.CurrentAzureIp, ac->DDnsStatusCopy.CurrentAzureIp) != 0)
+				if (ac->UseCustom && ac->CustomConfig != NULL)
 				{
-					if (IsEmptyStr(st.CurrentAzureIp) == false)
+					use_custom_azure = true;
+					use_encryption = true;
+					StrCpy(hostname, sizeof(hostname), ac->CustomConfig->Hostname);
+					Copy(hashed_password, ac->CustomConfig->HashedPassword, SHA1_SIZE);
+					StrCpy(server_address, sizeof(server_address), ac->CustomConfig->ServerName);
+					server_port = ac->CustomConfig->ServerPort;
+					verify_server = ac->CustomConfig->VerifyServer;
+					add_default_ca = ac->CustomConfig->AddDefaultCA;
+					server_cert = CloneX(ac->CustomConfig->ServerCert);
+					client_cert = CloneX(ac->CustomConfig->ClientX);
+					client_key = CloneK(ac->CustomConfig->ClientK);
+				}
+				else
+				{
+					Copy(&st, &ac->DDnsStatus, sizeof(DDNS_CLIENT_STATUS));
+					StrCpy(server_address, sizeof(server_address), st.CurrentAzureIp);
+					StrCpy(hostname, sizeof(hostname), st.CurrentHostName);
+
+					if (StrCmpi(st.CurrentAzureIp, ac->DDnsStatusCopy.CurrentAzureIp) != 0)
 					{
-						// Destination IP address is changed
+						if (IsEmptyStr(st.CurrentAzureIp) == false)
+						{
+							// Destination IP address is changed
+							connect_now = true;
+							num_reconnect_retry = 0;
+						}
+					}
+
+					if (StrCmpi(st.CurrentHostName, ac->DDnsStatusCopy.CurrentHostName) != 0)
+					{
+						// DDNS host name is changed
 						connect_now = true;
 						num_reconnect_retry = 0;
 					}
-				}
 
-				if (StrCmpi(st.CurrentHostName, ac->DDnsStatusCopy.CurrentHostName) != 0)
-				{
-					// DDNS host name is changed
-					connect_now = true;
-					num_reconnect_retry = 0;
+					Copy(&ac->DDnsStatusCopy, &st, sizeof(DDNS_CLIENT_STATUS));
 				}
-
-				Copy(&ac->DDnsStatusCopy, &st, sizeof(DDNS_CLIENT_STATUS));
 			}
 			Unlock(ac->Lock);
 
@@ -272,19 +341,49 @@ void AcMainThread(THREAD *thread, void *param)
 				connect_now = true;
 			}
 
-			if (IsEmptyStr(st.CurrentAzureIp) == false && IsEmptyStr(st.CurrentHostName) == false)
+			if (IsEmptyStr(server_address) == false && IsEmptyStr(hostname) == false)
 			{
 				if (connect_now)
 				{
 					SOCK *s;
 					char *host = NULL;
-					UINT port = AZURE_SERVER_PORT;
+					UINT port;
 
-					Debug("VPN Azure: Connecting to %s...\n", st.CurrentAzureIp);
+					Debug("VPN Azure: Connecting to %s...\n", server_address);
 
-					if (ParseHostPort(st.CurrentAzureIp, &host, &port, AZURE_SERVER_PORT))
+					if (ParseHostPort(server_address, &host, &port, server_port))
 					{
-						if (st.InternetSetting.ProxyType == PROXY_DIRECT)
+						if (use_custom_azure)
+						{
+							s = ConnectEx2(host, port, 0, (bool *)&ac->Halt);
+
+							if (s != NULL && use_encryption)
+							{
+								// Enable SSL peer verification if we have a server cert or trust system CA
+								SSL_VERIFY_OPTION ssl_option;
+								Zero(&ssl_option, sizeof(ssl_option));
+								ssl_option.VerifyPeer = verify_server;
+								ssl_option.AddDefaultCA = add_default_ca;
+								ssl_option.VerifyHostname = verify_server;
+								ssl_option.SavedCert = server_cert;
+
+								UINT ssl_err = 0;
+								Copy(&s->SslAcceptSettings, &ac->Cedar->SslAcceptSettings, sizeof(SSL_ACCEPT_SETTINGS));
+
+								if (StartSSLEx3(s, client_cert, client_key, NULL, 0, server_address, &ssl_option, &ssl_err) == false)
+								{
+									if (ssl_err != 0)
+									{
+										SLog(ac->Cedar, "LS_AZURE_SSL_ERROR", GetUniErrorStr(ssl_err), ssl_err);
+									}
+
+									Disconnect(s);
+									ReleaseSock(s);
+									s = NULL;
+								}
+							}
+						}
+						else if (st.InternetSetting.ProxyType == PROXY_DIRECT)
 						{
 							s = ConnectEx2(host, port, 0, (bool *)&ac->Halt);
 						}
@@ -306,11 +405,11 @@ void AcMainThread(THREAD *thread, void *param)
 							{
 								ac->CurrentSock = s;
 								ac->IsConnected = true;
-								StrCpy(ac->ConnectingAzureIp, sizeof(ac->ConnectingAzureIp), st.CurrentAzureIp);
+								StrCpy(ac->ConnectingAzureIp, sizeof(ac->ConnectingAzureIp), server_address);
 							}
 							Unlock(ac->Lock);
 
-							SendAll(s, AZURE_PROTOCOL_CONTROL_SIGNATURE, StrLen(AZURE_PROTOCOL_CONTROL_SIGNATURE), false);
+							SendAll(s, AZURE_PROTOCOL_CONTROL_SIGNATURE, StrLen(AZURE_PROTOCOL_CONTROL_SIGNATURE), use_encryption);
 
 							// Receive parameter
 							p = RecvPackWithHash(s);
@@ -326,6 +425,11 @@ void AcMainThread(THREAD *thread, void *param)
 								param.ControlTimeout = PackGetInt(p, "ControlTimeout");
 								param.DataTimeout = PackGetInt(p, "DataTimeout");
 								param.SslTimeout = PackGetInt(p, "SslTimeout");
+								param.UseCustom = use_custom_azure;
+								param.UseEncryption = use_encryption;
+
+								UCHAR random[SHA1_SIZE];
+								PackGetData2(p, "Random", random, sizeof(random));
 
 								FreePack(p);
 
@@ -344,14 +448,29 @@ void AcMainThread(THREAD *thread, void *param)
 
 								// Send parameter
 								p = NewPack();
-								PackAddStr(p, "CurrentHostName", st.CurrentHostName);
-								PackAddStr(p, "CurrentAzureIp", st.CurrentAzureIp);
-								PackAddInt64(p, "CurrentAzureTimestamp", st.CurrentAzureTimestamp);
-								PackAddStr(p, "CurrentAzureSignature", st.CurrentAzureSignature);
+								PackAddStr(p, "CurrentHostName", hostname);
+								PackAddStr(p, "CurrentAzureIp", server_address);
+
+								if (use_custom_azure == false)
+								{
+									PackAddInt64(p, "CurrentAzureTimestamp", st.CurrentAzureTimestamp);
+									PackAddStr(p, "CurrentAzureSignature", st.CurrentAzureSignature);
+								}
+								else
+								{
+									BUF *b = NewBuf();
+									UCHAR hash[SHA1_SIZE];
+
+									WriteBuf(b, hashed_password, SHA1_SIZE);
+									WriteBuf(b, random, SHA1_SIZE);
+									Sha1(hash, b->Buf, b->Size);
+									PackAddData(p, "PasswordHash", hash, SHA1_SIZE);
+									FreeBuf(b);
+								}
 
 								Lock(ac->Lock);
 								{
-									if (StrCmpi(st.CurrentHostName, ac->DDnsStatus.CurrentHostName) != 0)
+									if (use_custom_azure == false && StrCmpi(hostname, ac->DDnsStatus.CurrentHostName) != 0)
 									{
 										hostname_changed = true;
 									}
@@ -363,7 +482,7 @@ void AcMainThread(THREAD *thread, void *param)
 									if (SendPackWithHash(s, p))
 									{
 										// Receive result
-										if (RecvAll(s, &c, 1, false))
+										if (RecvAll(s, &c, 1, use_encryption))
 										{
 											if (c && ac->Halt == false)
 											{
@@ -417,6 +536,10 @@ void AcMainThread(THREAD *thread, void *param)
 					}
 				}
 			}
+
+			FreeX(server_cert);
+			FreeX(client_cert);
+			FreeK(client_key);
 		}
 		else
 		{
@@ -448,31 +571,45 @@ void AcMainThread(THREAD *thread, void *param)
 }
 
 // Enable or disable VPN Azure client
-void AcSetEnable(AZURE_CLIENT *ac, bool enabled)
+void AcSetEnable(AZURE_CLIENT *ac, bool enabled, bool use_custom)
 {
-	bool old_status;
+	bool changed = false;
 	// Validate arguments
 	if (ac == NULL)
 	{
 		return;
 	}
 
-	old_status = ac->IsEnabled;
+	if (ac->IsEnabled != enabled)
+	{
+		ac->IsEnabled = enabled;
+		changed = true;
+	}
 
-	ac->IsEnabled = enabled;
+	if (ac->UseCustom != use_custom)
+	{
+		ac->UseCustom = use_custom;
+		changed = true;
+	}
 
-	if (ac->IsEnabled && (ac->IsEnabled != old_status))
+	if (ac->IsEnabled && ac->UseCustom == false && changed)
 	{
 		ac->DDnsTriggerInt++;
 	}
 
-	AcApplyCurrentConfig(ac, NULL);
+	if (ac->IsEnabled == false)
+	{
+		// If VPN Azure client is disabled, disconnect current data connection
+		changed = true;
+	}
+
+	AcApplyCurrentConfig(ac, NULL, NULL, changed);
 }
 
 // Set current configuration to VPN Azure client
-void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status)
+void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status, AZURE_CUSTOM_CONFIG *config, bool disconnect)
 {
-	bool disconnect_now = false;
+	bool disconnect_now = disconnect;
 	SOCK *disconnect_sock = NULL;
 	// Validate arguments
 	if (ac == NULL)
@@ -483,27 +620,46 @@ void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status)
 	// Get current DDNS configuration
 	Lock(ac->Lock);
 	{
-		if (ddns_status != NULL)
+		if (config != NULL)
 		{
-			if (StrCmpi(ac->DDnsStatus.CurrentHostName, ddns_status->CurrentHostName) != 0)
+			if (ac->UseCustom)
 			{
-				// If host name is changed, disconnect current data connection
 				disconnect_now = true;
 			}
 
-			if (Cmp(&ac->DDnsStatus.InternetSetting, &ddns_status->InternetSetting, sizeof(INTERNET_SETTING)) != 0)
+			if (ac->CustomConfig == NULL)
 			{
-				// If proxy setting is changed, disconnect current data connection
-				disconnect_now = true;
+				ac->CustomConfig = config;
+			}
+			else
+			{
+				FreeX(ac->CustomConfig->ServerCert);
+				FreeX(ac->CustomConfig->ClientX);
+				FreeK(ac->CustomConfig->ClientK);
+				Free(ac->CustomConfig);
+
+				ac->CustomConfig = config;
+			}
+		}
+
+		if (ddns_status != NULL)
+		{
+			if (ac->UseCustom == false)
+			{
+				if (StrCmpi(ac->DDnsStatus.CurrentHostName, ddns_status->CurrentHostName) != 0)
+				{
+					// If host name is changed, disconnect current data connection
+					disconnect_now = true;
+				}
+
+				if (Cmp(&ac->DDnsStatus.InternetSetting, &ddns_status->InternetSetting, sizeof(INTERNET_SETTING)) != 0)
+				{
+					// If proxy setting is changed, disconnect current data connection
+					disconnect_now = true;
+				}
 			}
 
 			Copy(&ac->DDnsStatus, ddns_status, sizeof(DDNS_CLIENT_STATUS));
-		}
-
-		if (ac->IsEnabled == false)
-		{
-			// If VPN Azure client is disabled, disconnect current data connection
-			disconnect_now = true;
 		}
 
 		if (disconnect_now)
@@ -555,6 +711,14 @@ void FreeAzureClient(AZURE_CLIENT *ac)
 		ReleaseSock(disconnect_sock);
 	}
 
+	if (ac->CustomConfig != NULL)
+	{
+		FreeX(ac->CustomConfig->ServerCert);
+		FreeX(ac->CustomConfig->ClientX);
+		FreeK(ac->CustomConfig->ClientK);
+		Free(ac->CustomConfig);
+	}
+
 	Set(ac->Event);
 
 	// Stop main thread
@@ -569,7 +733,7 @@ void FreeAzureClient(AZURE_CLIENT *ac)
 }
 
 // Create new VPN Azure client
-AZURE_CLIENT *NewAzureClient(CEDAR *cedar, SERVER *server)
+AZURE_CLIENT *NewAzureClient(CEDAR *cedar, SERVER *server, AZURE_CUSTOM_CONFIG *config)
 {
 	AZURE_CLIENT *ac;
 	// Validate arguments
@@ -584,9 +748,13 @@ AZURE_CLIENT *NewAzureClient(CEDAR *cedar, SERVER *server)
 
 	ac->Server = server;
 
+	ac->CustomConfig = config;
+
 	ac->Lock = NewLock();
 
 	ac->IsEnabled = false;
+
+	ac->UseCustom = false;
 
 	ac->Event = NewEvent();
 

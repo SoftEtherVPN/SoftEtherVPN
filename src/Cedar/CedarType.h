@@ -380,6 +380,7 @@ typedef struct RPC_WINVER RPC_WINVER;
 typedef struct RPC_ENUM_ETHERIP_ID RPC_ENUM_ETHERIP_ID;
 typedef struct RPC_SPECIAL_LISTENER RPC_SPECIAL_LISTENER;
 typedef struct RPC_AZURE_STATUS RPC_AZURE_STATUS;
+typedef struct RPC_AZURE_CUSTOM RPC_AZURE_CUSTOM;
 
 
 // ==============================================================
@@ -643,6 +644,7 @@ typedef struct DDNS_CLIENT_STATUS DDNS_CLIENT_STATUS;
 // ==============================================================
 typedef struct AZURE_CLIENT AZURE_CLIENT;
 typedef struct AZURE_PARAM AZURE_PARAM;
+typedef struct AZURE_CUSTOM_CONFIG AZURE_CUSTOM_CONFIG;
 
 
 // ==============================================================

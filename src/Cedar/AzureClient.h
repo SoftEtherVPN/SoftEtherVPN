@@ -29,6 +29,20 @@
 #define	AZURE_VIA_PROXY_TIMEOUT				5000
 
 
+// Azure custom configuration
+struct AZURE_CUSTOM_CONFIG
+{
+	char ServerName[MAX_HOST_NAME_LEN + 1];	// VPN Azure server name
+	UINT ServerPort;						// VPN Azure port number
+	char Hostname[MAX_HOST_NAME_LEN + 1];	// VPN Azure client hostname
+	UCHAR HashedPassword[SHA1_SIZE];		// Hashed passwords
+	X *ClientX;								// VPN Azure client certificate
+	K *ClientK;								// VPN Azure client private key
+	X *ServerCert;							// VPN Azure server certificate
+	bool VerifyServer;						// Verify server certificate
+	bool AddDefaultCA;						// Use default trust store to verify server
+};
+
 // Communications parameter
 struct AZURE_PARAM
 {
@@ -36,6 +50,8 @@ struct AZURE_PARAM
 	UINT ControlTimeout;
 	UINT DataTimeout;
 	UINT SslTimeout;
+	bool UseCustom;
+	bool UseEncryption;
 };
 
 // VPN Azure Client
@@ -46,6 +62,7 @@ struct AZURE_CLIENT
 	LOCK *Lock;
 	DDNS_CLIENT_STATUS DDnsStatus;
 	volatile bool IsEnabled;
+	volatile bool UseCustom;
 	EVENT *Event;
 	volatile bool Halt;
 	THREAD *MainThread;
@@ -56,15 +73,16 @@ struct AZURE_CLIENT
 	AZURE_PARAM AzureParam;
 	volatile UINT DDnsTriggerInt;
 	volatile bool IsConnected;
+	AZURE_CUSTOM_CONFIG *CustomConfig;
 };
 
 
 // Function prototype
-AZURE_CLIENT *NewAzureClient(CEDAR *cedar, SERVER *server);
+AZURE_CLIENT *NewAzureClient(CEDAR *cedar, SERVER *server, AZURE_CUSTOM_CONFIG *config);
 void FreeAzureClient(AZURE_CLIENT *ac);
-void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status);
+void AcApplyCurrentConfig(AZURE_CLIENT *ac, DDNS_CLIENT_STATUS *ddns_status, AZURE_CUSTOM_CONFIG *config, bool disconnect);
 void AcMainThread(THREAD *thread, void *param);
-void AcSetEnable(AZURE_CLIENT *ac, bool enabled);
+void AcSetEnable(AZURE_CLIENT *ac, bool enabled, bool use_custom);
 void AcWaitForRequest(AZURE_CLIENT *ac, SOCK *s, AZURE_PARAM *param);
 
 
