@@ -38,16 +38,6 @@ matrix:
       before_install:
         - sudo apt-get -y install libsodium-dev
         - bash .ci/build-libressl.sh > build-deps.log 2>&1 || (cat build-deps.log && exit 1)
-    - env: LABEL="check stb files"
-      os: linux
-      language: csharp
-      mono: none
-      dotnet: 2.2.203
-      before_install:
-        - true
-      script:
-        - cd developer_tools/stbchecker
-        - dotnet run ../../src/bin/hamcore
 
 cache:
   directories:

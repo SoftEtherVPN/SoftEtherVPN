@@ -574,6 +574,7 @@ HUB_AO_NoPhysicalIPOnPacketLog				If you set this option to non-zero value, then
 HUB_AO_UseHubNameAsDhcpUserClassOption		If you set this option to non-zero value, then the Virtual Hub Name will be added to a DHCP request to an external DHCP server as the "User-Class" option. This allows to use separate pools of IP addresses for each Virtual Hub. (For only L2TP/IPsec and OpenVPN sessions.)
 HUB_AO_UseHubNameAsRadiusNasId				If you set this option to non-zero value, then the NAS-Identifier RADIUS attribute will be set to a name of the Virtual Hub. This allows to determine on RADIUS server whether access to the Virtual Hub should be granted or denied.
 HUB_AO_AllowEapMatchUserByCert				If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificates during the PPP EAP authentication flow.
+HUB_AO_AllowSameUserInPrivacyFilterMode			Allow packets if both the source and destination session users are the same, even in PrivacyFilter mode.
 
 
 #關於失敗連接對話方塊
