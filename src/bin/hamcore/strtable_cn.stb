@@ -6476,7 +6476,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	至 VPN Azure 云服务器的连接建立
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	在 VPN Azure 服务上的本 VPN 服务器的主机名
 
 
-# VpnAzureSetStatus command
+# VpnAzureSetEnable command
 CMD_VpnAzureSetEnable			启用/禁用 VPN Azure 功能
 CMD_VpnAzureSetEnable_Help		启用或禁用 VPN Azure 功能。\n\nVPN Azure 可以更容易地从你家里的计算机到你办公室的计算机建立一个 VPN 会话。当一个 VPN 连接建立了，您可以访问您公司专用网络上的任何其他服务器。\n在办公室的计算机（VPN 服务器）上，你并不需要一个全球 IP 地址。它可以在防火墙或 NAT 后面工作。无需网络管理员的配置。您可以在您的家用电脑使用 Windows 内置的 SSTP VPN 客户端。\nVPN Azure 是一个云 VPN 服务由 SoftEther 公司经营。VPN Azure 是免费的，可提供给任何人。访问 http://www.vpnazure.net/ 查看详细信息和如何使用的说明。\n\nVPN Azure 主机名与动态 DNS 设置的主机名相同，但改变的域名后缀为“vpnazure.net”。要改变主机名使用 DynamicDnsSetHostname 命令。\n\n要执行此命令，你必须具有 VPN 服务器管理员权限。\n此命令不能在 VPN 网桥上运行。\n以集群成员运行的 VPN 服务器的虚拟 HUB 不能执行此命令。
 CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
