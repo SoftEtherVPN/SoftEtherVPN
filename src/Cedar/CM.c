@@ -5910,6 +5910,7 @@ void CmConfigDlgInit(HWND hWnd)
 	}
 
 	Check(hWnd, R_ALLOW_REMOTE_CONFIG, c.AllowRemoteConfig);
+	Check(hWnd, R_TUNNELCRACK, c.EnableTunnelCrackProtect);
 
 	Check(hWnd, R_USE_KEEP_CONNECT, c.UseKeepConnect);
 	SetTextA(hWnd, E_HOSTNAME, c.KeepConnectHost);
@@ -5934,6 +5935,15 @@ void CmConfigDlgInit(HWND hWnd)
 	else
 	{
 		Disable(hWnd, R_ALPHA);
+	}
+
+	if (OS_IS_WINDOWS_NT(cm->Client->OsType))
+	{
+		Enable(hWnd, R_TUNNELCRACK);
+	}
+	else
+	{
+		Disable(hWnd, R_TUNNELCRACK);
 	}
 
 	CmConfigDlgRefresh(hWnd);
@@ -6015,6 +6025,7 @@ void CmConfigDlgOnOk(HWND hWnd)
 
 	Zero(&c, sizeof(c));
 	c.AllowRemoteConfig = IsChecked(hWnd, R_ALLOW_REMOTE_CONFIG);
+	c.EnableTunnelCrackProtect = IsChecked(hWnd, R_TUNNELCRACK);
 	c.UseKeepConnect = IsChecked(hWnd, R_USE_KEEP_CONNECT);
 	GetTxtA(hWnd, E_HOSTNAME, c.KeepConnectHost, sizeof(c.KeepConnectHost));
 	c.KeepConnectPort = GetInt(hWnd, E_PORT);

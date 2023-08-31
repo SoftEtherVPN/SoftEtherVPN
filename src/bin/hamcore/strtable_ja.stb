@@ -2441,6 +2441,9 @@ STATIC5					その他の設定(&S)
 R_ALPHA					ウインドウを半透明にする(&A)
 STATIC6					※ 半透明の設定は接続マネージャを再起動するまで適用されません。
 STATIC7					インターネット接続の維持機能(&N)
+R_TUNNELCRACK			Tu&nnelCrack 保護を有効化
+STATIC11				VPN 接続中は、物理的なローカルネットワーク通信を禁止します。信用できない可能性のある公衆無線 Wi-Fi を利用する際などに推奨されます。
+STATIC12				高度なセキュリティ
 
 
 PREFIX					D_ABOUT

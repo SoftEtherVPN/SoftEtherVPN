@@ -213,7 +213,6 @@ typedef struct HUB_OPTION HUB_OPTION;
 typedef struct MAC_TABLE_ENTRY MAC_TABLE_ENTRY;
 typedef struct IP_TABLE_ENTRY IP_TABLE_ENTRY;
 typedef struct LOOP_LIST LOOP_LIST;
-typedef struct ACCESS ACCESS;
 typedef struct TICKET TICKET;
 typedef struct TRAFFIC_DIFF TRAFFIC_DIFF;
 typedef struct HUB HUB;

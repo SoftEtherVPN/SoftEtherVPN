@@ -151,6 +151,7 @@ struct VLAN
 	UINT CurrentPacketCount;	// Packet number to be read next
 	void *PutBuffer;			// Buffer for writing received packet
 	ROUTE_TRACKING *RouteState;	// Routing tracking state machine
+	TUNNELCRACK_FW *TunnelCrackFw; // TunnelCrack FW
 };
 
 // Instance list

@@ -2454,6 +2454,9 @@ STATIC5						其它配置(&O)
 R_ALPHA						用户界面透明(&A)
 STATIC6						※注意:透明设置将在连接管理器重启后生效。
 STATIC7						保持互联网连接功能(&K)
+R_TUNNELCRACK				启用 Tu&nnelCrack 保护
+STATIC11					当任何 VPN 连接处于活动状态时，禁止本地物理网络通信。建议在使用不受信任的恶意公共 Wi-Fi 时使用。
+STATIC12					高级安全
 
 
 PREFIX						D_ABOUT

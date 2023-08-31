@@ -1014,6 +1014,65 @@ struct HTTP_HEADER
 
 
 
+#define	MAX_ACCESSLIST_NOTE_LEN		255		// Maximum length of the note of access list entry
+#define	MAX_USERNAME_LEN			255		// User name maximum length
+#define	MAX_REDIRECT_URL_LEN		255		// URL length to redirect
+
+// Access list
+struct ACCESS
+{
+	// IPv4
+	UINT Id;							// ID
+	wchar_t Note[MAX_ACCESSLIST_NOTE_LEN + 1];	// Note
+
+	// --- Please add items to the bottom of here for enhancements ---
+	bool Active;						// Enable flag
+	UINT Priority;						// Priority
+	bool Discard;						// Discard flag
+	UINT SrcIpAddress;					// Source IP address
+	UINT SrcSubnetMask;					// Source subnet mask
+	UINT DestIpAddress;					// Destination IP address
+	UINT DestSubnetMask;				// Destination subnet mask
+	UINT Protocol;						// Protocol
+	UINT SrcPortStart;					// Source port number starting point
+	UINT SrcPortEnd;					// Source port number end point
+	UINT DestPortStart;					// Destination port number starting point
+	UINT DestPortEnd;					// Destination port number end point
+	UINT64 SrcUsernameHash;				// Source user name hash
+	bool IsSrcUsernameIncludeOrExclude;	// The source user name is formed as the "include:" or "exclude:"
+	char SrcUsername[MAX_USERNAME_LEN + 1];
+	bool IsDestUsernameIncludeOrExclude;	// The destination user name is formed as "include:" or "exclude:"
+	UINT64 DestUsernameHash;			// Destination user name hash
+	char DestUsername[MAX_USERNAME_LEN + 1];
+	bool CheckSrcMac;					// Presence of a source MAC address setting
+	UCHAR SrcMacAddress[6];				// Source MAC address
+	UCHAR SrcMacMask[6];				// Source MAC address mask
+	bool CheckDstMac;					// Whether the setting of the destination MAC address exists
+	UCHAR DstMacAddress[6];				// Destination MAC address
+	UCHAR DstMacMask[6];				// Destination MAC address mask
+	bool CheckTcpState;					// The state of the TCP connection
+	bool Established;					// Establieshed(TCP)
+	UINT Delay;							// Delay
+	UINT Jitter;						// Jitter
+	UINT Loss;							// Packet loss
+	char RedirectUrl[MAX_REDIRECT_URL_LEN + 1];	// URL to redirect to
+
+	// IPv6
+	bool IsIPv6;						// Whether it's an IPv6
+	IPV6_ADDR SrcIpAddress6;			// The source IP address (IPv6)
+	IPV6_ADDR SrcSubnetMask6;			// Source subnet mask (IPv6)
+	IPV6_ADDR DestIpAddress6;			// Destination IP address (IPv6)
+	IPV6_ADDR DestSubnetMask6;			// Destination subnet mask (IPv6)
+
+	// --- Please add items to the above of here for enhancements ---
+
+	// For management
+	UINT UniqueId;						// Unique ID
+};
+
+
+
+
 
 
 
@@ -1676,6 +1735,8 @@ bool IsIcmpApiSupported();
 ICMP_RESULT *IcmpApiEchoSend(IP *dest_ip, UCHAR ttl, UCHAR *data, UINT size, UINT timeout);
 void IcmpApiFreeResult(ICMP_RESULT *ret);
 
+UINT StrToProtocol(char *str);
+
 #ifdef	OS_WIN32
 void Win32WaitForTubes(TUBE **tubes, UINT num, UINT timeout);
 #else	// OS_WIN32
@@ -1759,6 +1820,49 @@ void SetDynListValue(char *name, UINT64 value);
 UINT64 GetDynValue(char *name);
 UINT64 GetDynValueOrDefault(char *name, UINT64 default_value, UINT64 min_value, UINT64 max_value);
 UINT64 GetDynValueOrDefaultSafe(char *name, UINT64 default_value);
+
+
+#ifdef WIN32
+#ifdef	NETWORK_C
+
+#define	FW_PARSED_ACCESS_UNIQUE_ID_EXEPATH		10000001
+
+#define	FW_PARSED_ACCESS_JITTER_ALLOW_SERVER	1
+#define	FW_PARSED_ACCESS_JITTER_ALLOW_CLIENT	2
+
+
+bool DuWfpCreateProvider(HANDLE hEngine, GUID *created_guid, char *name);
+bool DuWfpCreateSublayer(HANDLE hEngine, GUID *created_guid, GUID *provider_guid, char *name, USHORT weight);
+void DuFwpAddTrustedExe(HANDLE hEngine, GUID *provider, GUID *sublayer, UINT index, wchar_t *exe, UINT allowed_directions, bool disable_wow);
+void DuFwpAddAccess(HANDLE hEngine, GUID *provider, GUID *sublayer, UINT index, ACCESS *a);
+void DuWfpAddPortAcl(HANDLE hEngine, bool is_in, bool ipv6, UCHAR protocol, UINT port, UINT index, bool permit);
+void DuWfpAddIpAcl(HANDLE hEngine, bool is_in, IP *ip, IP *mask, UINT index, bool permit);
+
+#endif	// NETWORK_C
+
+void InitTunnelCrackFwParamForVpn(TUNNELCRACK_FW_PARAM *param, IP *vpn_server_ip);
+TUNNELCRACK_FW *StartTunnelCrackFw(TUNNELCRACK_FW_PARAM *param);
+void StopTunnelCrackFw(TUNNELCRACK_FW *fw);
+
+bool FwParseRuleStr(ACCESS *a, char *str);
+void FwParsePortRange(UINT *start, UINT *end, char *str);
+void FwParseIpAndMask(IP *ip, IP *mask, char *str);
+
+#endif // OS_WIN32
+
+struct TUNNELCRACK_FW
+{
+	void *Engine;
+};
+
+#define TUNNELCRACK_FW_PARAM_MAX_LOCALIP_LIST	16
+
+struct TUNNELCRACK_FW_PARAM
+{
+	IP TargetVpnServerIP;
+	char LocalNetList[TUNNELCRACK_FW_PARAM_MAX_LOCALIP_LIST][MAX_PATH];
+	char LocalIPList[TUNNELCRACK_FW_PARAM_MAX_LOCALIP_LIST][MAX_PATH];
+};
 
 
 #endif	// NETWORK_H

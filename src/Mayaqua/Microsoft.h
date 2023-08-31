@@ -747,7 +747,7 @@ void MsFreeIsLocked(MS_ISLOCKED *d);
 void MsStartIsLockedThread();
 void MsStopIsLockedThread();
 bool MsDetermineIsLockedByWtsApi();
-
+void MsNewGuid(void *guid);
 
 bool MsShutdown(bool reboot, bool force);
 bool MsShutdownEx(bool reboot, bool force, UINT time_limit, char *message);

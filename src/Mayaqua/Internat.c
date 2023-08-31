@@ -1580,6 +1580,26 @@ UINT UtfToUni(wchar_t *unistr, UINT size, char *utfstr)
 	return UniStrLen(unistr);
 }
 
+void UniTrimDoubleQuotation(wchar_t *str)
+{
+	if (str == NULL || UniStrLen(str) <= 2)
+	{
+		return;
+	}
+
+	if (UniStartWith(str, L"\"") && UniEndWith(str, L"\""))
+	{
+		UINT len;
+
+		UniStrCpy(str, 0, str + 1);
+		len = UniStrLen(str);
+		if (len >= 1)
+		{
+			str[len - 1] = 0;
+		}
+	}
+}
+
 // Copy the UTF-8 string to a Unicode string
 wchar_t *CopyUtfToUni(char *utfstr)
 {

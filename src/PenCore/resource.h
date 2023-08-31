@@ -426,6 +426,8 @@
 #define E_NEW_PASSWORD1                 1107
 #define S_INFO5                         1107
 #define E_NEW_PASSWORD2                 1108
+#define R_ALPHA2                        1108
+#define R_TUNNELCRACK                   1108
 #define L_SETTING                       1109
 #define B_NEW_SETTING                   1110
 #define B_EDIT_SETTING                  1111

@@ -1148,6 +1148,12 @@ void VLanPaFree(SESSION *s)
 	}
 
 	t = v->RouteState;
+
+	if (v->TunnelCrackFw != NULL)
+	{
+		StopTunnelCrackFw(v->TunnelCrackFw);
+	}
+
 	// End the virtual LAN card
 	FreeVLan(v);
 
@@ -1156,6 +1162,7 @@ void VLanPaFree(SESSION *s)
 	{
 		RouteTrackingStop(s, t);
 	}
+
 	s->PacketAdapter->Param = NULL;
 }
 
@@ -1248,6 +1255,18 @@ bool VLanPaInit(SESSION *s)
 	if (s->ClientModeAndUseVLan)
 	{
 		RouteTrackingStart(s);
+	}
+
+	if (s->Cedar->Client != NULL && s->Cedar->Client->Config.EnableTunnelCrackProtect)
+	{
+		if (IsZeroIP(&s->ServerIP) == false)
+		{
+			TUNNELCRACK_FW_PARAM p = CLEAN;
+
+			InitTunnelCrackFwParamForVpn(&p, &s->ServerIP);
+
+			v->TunnelCrackFw = StartTunnelCrackFw(&p);
+		}
 	}
 
 	return true;

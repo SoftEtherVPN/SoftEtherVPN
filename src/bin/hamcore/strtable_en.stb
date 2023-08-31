@@ -2434,6 +2434,9 @@ STATIC5					&Other Configurations:
 R_ALPHA					Transparency of UI:
 STATIC6					Note: The transparency setting will be applied after the connection manager is restarted.
 STATIC7					&Keep Alive Internet Connection Function:
+R_TUNNELCRACK			Enable Tu&nnelCrack protection
+STATIC11				Prohibit local physical network communication while a VPN connection is active. Recommended when using untrusted public Wi-Fi.
+STATIC12				Advanced security
 
 
 PREFIX					D_ABOUT

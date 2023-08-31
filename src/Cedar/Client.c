@@ -3935,6 +3935,7 @@ void InRpcClientConfig(CLIENT_CONFIG *c, PACK *p)
 	c->KeepConnectProtocol = PackGetInt(p, "KeepConnectProtocol");
 	c->KeepConnectInterval = PackGetInt(p, "KeepConnectInterval");
 	c->AllowRemoteConfig = PackGetInt(p, "AllowRemoteConfig") == 0 ? false : true;
+	c->EnableTunnelCrackProtect = PackGetInt(p, "EnableTunnelCrackProtect") == 0 ? false : true;
 	PackGetStr(p, "KeepConnectHost", c->KeepConnectHost, sizeof(c->KeepConnectHost));
 }
 void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
@@ -3950,6 +3951,7 @@ void OutRpcClientConfig(PACK *p, CLIENT_CONFIG *c)
 	PackAddInt(p, "KeepConnectProtocol", c->KeepConnectProtocol);
 	PackAddInt(p, "KeepConnectInterval", c->KeepConnectInterval);
 	PackAddInt(p, "AllowRemoteConfig", c->AllowRemoteConfig);
+	PackAddInt(p, "EnableTunnelCrackProtect", c->EnableTunnelCrackProtect);
 	PackAddStr(p, "KeepConnectHost", c->KeepConnectHost);
 }
 
@@ -9501,6 +9503,8 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
 
+	c->EnableTunnelCrackProtect = CfgGetBool(f, "EnableTunnelCrackProtect");
+
 	if (CfgIsItem(f, "DisableRpcDynamicPortListener"))
 	{
 		c->DisableRpcDynamicPortListener = CfgGetBool(f, "DisableRpcDynamicPortListener");
@@ -10066,6 +10070,7 @@ void CiWriteClientConfig(FOLDER *cc, CLIENT_CONFIG *config)
 	CfgAddInt(cc, "KeepConnectInterval", config->KeepConnectInterval);
 	CfgAddBool(cc, "NoChangeWcmNetworkSettingOnWindows8", config->NoChangeWcmNetworkSettingOnWindows8);
 	CfgAddBool(cc, "DisableRpcDynamicPortListener", config->DisableRpcDynamicPortListener);
+	CfgAddBool(cc, "EnableTunnelCrackProtect", config->EnableTunnelCrackProtect);
 }
 
 // Write the client authentication data

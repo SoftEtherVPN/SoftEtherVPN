@@ -187,6 +187,7 @@ struct CLIENT_CONFIG
 	UINT KeepConnectInterval;				// Interval
 	bool NoChangeWcmNetworkSettingOnWindows8;	// Don't change the WCM network settings on Windows 8
 	bool DisableRpcDynamicPortListener;
+	bool EnableTunnelCrackProtect;
 };
 
 // Version acquisition

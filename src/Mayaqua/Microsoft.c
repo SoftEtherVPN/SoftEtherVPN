@@ -12547,6 +12547,19 @@ bool MsDetermineIsLockedByWtsApi()
 	return wts_is_locked_flag;
 }
 
+// New GUID
+void MsNewGuid(void *guid)
+{
+	if (guid == NULL)
+	{
+		return;
+	}
+
+	Zero(guid, sizeof(GUID));
+
+	CoCreateGuid(guid);
+}
+
 // IsLocked Window Proc
 LRESULT CALLBACK MsIsLockedWindowHandlerWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {

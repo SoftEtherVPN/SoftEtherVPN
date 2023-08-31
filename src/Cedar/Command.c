@@ -14786,55 +14786,6 @@ bool StrToPassOrDiscard(char *str)
 	return false;
 }
 
-// Convert the string to the protocol
-UINT StrToProtocol(char *str)
-{
-	if (IsEmptyStr(str))
-	{
-		return 0;
-	}
-
-	if (StartWith("ip", str))
-	{
-		return 0;
-	}
-	else if (StartWith("tcp", str))
-	{
-		return IP_PROTO_TCP;
-	}
-	else if (StartWith("udp", str))
-	{
-		return IP_PROTO_UDP;
-	}
-	else if (StartWith("icmpv4", str))
-	{
-		return IP_PROTO_ICMPV4;
-	}
-	else if (StartWith("icmpv6", str))
-	{
-		return IP_PROTO_ICMPV6;
-	}
-
-	if (ToInt(str) == 0)
-	{
-		if (StrCmpi(str, "0") == 0)
-		{
-			return 0;
-		}
-		else
-		{
-			return INFINITE;
-		}
-	}
-
-	if (ToInt(str) >= 256)
-	{
-		return INFINITE;
-	}
-
-	return ToInt(str);
-}
-
 // Check the protocol name
 bool CmdEvalProtocol(CONSOLE *c, wchar_t *str, void *param)
 {

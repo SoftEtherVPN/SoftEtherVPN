@@ -356,7 +356,6 @@ void CmdPrintStatusToListViewEx(CT *ct, RPC_CLIENT_GET_CONNECTION_STATUS *s, boo
 bool CmdEvalPassOrDiscard(CONSOLE *c, wchar_t *str, void *param);
 bool StrToPassOrDiscard(char *str);
 bool CmdEvalProtocol(CONSOLE *c, wchar_t *str, void *param);
-UINT StrToProtocol(char *str);
 bool CmdEvalPortRange(CONSOLE *c, wchar_t *str, void *param);
 bool ParsePortRange(char *str, UINT *start, UINT *end);
 wchar_t *GetAuthTypeStr(UINT id);

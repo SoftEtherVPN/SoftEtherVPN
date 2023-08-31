@@ -306,58 +306,6 @@ struct LOOP_LIST
 	SESSION **Session;
 };
 
-// Access list
-struct ACCESS
-{
-	// IPv4
-	UINT Id;							// ID
-	wchar_t Note[MAX_ACCESSLIST_NOTE_LEN + 1];	// Note
-
-	// --- Please add items to the bottom of here for enhancements ---
-	bool Active;						// Enable flag
-	UINT Priority;						// Priority
-	bool Discard;						// Discard flag
-	UINT SrcIpAddress;					// Source IP address
-	UINT SrcSubnetMask;					// Source subnet mask
-	UINT DestIpAddress;					// Destination IP address
-	UINT DestSubnetMask;				// Destination subnet mask
-	UINT Protocol;						// Protocol
-	UINT SrcPortStart;					// Source port number starting point
-	UINT SrcPortEnd;					// Source port number end point
-	UINT DestPortStart;					// Destination port number starting point
-	UINT DestPortEnd;					// Destination port number end point
-	UINT64 SrcUsernameHash;				// Source user name hash
-	bool IsSrcUsernameIncludeOrExclude;	// The source user name is formed as the "include:" or "exclude:"
-	char SrcUsername[MAX_USERNAME_LEN + 1];
-	bool IsDestUsernameIncludeOrExclude;	// The destination user name is formed as "include:" or "exclude:"
-	UINT64 DestUsernameHash;			// Destination user name hash
-	char DestUsername[MAX_USERNAME_LEN + 1];
-	bool CheckSrcMac;					// Presence of a source MAC address setting
-	UCHAR SrcMacAddress[6];				// Source MAC address
-	UCHAR SrcMacMask[6];				// Source MAC address mask
-	bool CheckDstMac;					// Whether the setting of the destination MAC address exists
-	UCHAR DstMacAddress[6];				// Destination MAC address
-	UCHAR DstMacMask[6];				// Destination MAC address mask
-	bool CheckTcpState;					// The state of the TCP connection
-	bool Established;					// Establieshed(TCP)
-	UINT Delay;							// Delay
-	UINT Jitter;						// Jitter
-	UINT Loss;							// Packet loss
-	char RedirectUrl[MAX_REDIRECT_URL_LEN + 1];	// URL to redirect to
-
-	// IPv6
-	bool IsIPv6;						// Whether it's an IPv6
-	IPV6_ADDR SrcIpAddress6;			// The source IP address (IPv6)
-	IPV6_ADDR SrcSubnetMask6;			// Source subnet mask (IPv6)
-	IPV6_ADDR DestIpAddress6;			// Destination IP address (IPv6)
-	IPV6_ADDR DestSubnetMask6;			// Destination subnet mask (IPv6)
-
-	// --- Please add items to the above of here for enhancements ---
-
-	// For management
-	UINT UniqueId;						// Unique ID
-};
-
 // Ticket
 struct TICKET
 {
