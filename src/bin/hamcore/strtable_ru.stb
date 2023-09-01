@@ -6463,7 +6463,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	Connection to VPN Azure Cloud Server is Es
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	Hostname of this VPN Server on VPN Azure Service
 
 
-# VpnAzureSetStatus command
+# VpnAzureSetEnable command
 CMD_VpnAzureSetEnable			Enable / Disable VPN Azure Function
 CMD_VpnAzureSetEnable_Help		Enable or disable the VPN Azure function.\n\nVPN Azure makes it easier to establish a VPN Session from your home PC to your office PC. While a VPN connection is established, you can access to any other servers on the private network of your company.\nYou don't need a global IP address on the office PC (VPN Server). It can work behind firewalls or NATs. No network administrator's configuration required. You can use the built-in SSTP-VPN Client of Windows in your home PC.\nVPN Azure is a cloud VPN service operated by SoftEther VPN Project. VPN Azure is free of charge and available to anyone. Visit http://www.vpnazure.net/ to see details and how-to-use instructions.\n\nThe VPN Azure hostname is same to the hostname of the Dynamic DNS setting, but altering the domain suffix to "vpnazure.net". To change the hostname use the DynamicDnsSetHostname command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]

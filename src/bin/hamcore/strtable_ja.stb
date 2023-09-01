@@ -6470,7 +6470,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	VPN Azure クラウドサーバーへ接�
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	VPN Azure サービス上でのホスト名
 
 
-# VpnAzureSetStatus コマンド
+# VpnAzureSetEnable コマンド
 CMD_VpnAzureSetEnable			VPN Azure 機能の有効化 / 無効化
 CMD_VpnAzureSetEnable_Help		VPN Azure 機能を有効または無効にします。\n\nVPN Azure により、会社のパソコンに自宅や外出先のパソコンから非常に簡単に VPN 接続できるようになります。VPN 接続中は会社のパソコンを経由して、社内 LAN の他のサーバーにもアクセスできます。\n会社のパソコン (VPN Server) にはグローバル IP アドレスは不要です。ファイアウォールや NAT の内側であっても動作し、ネットワーク管理者による設定は一切必要ありません。VPN クライアントとなる自宅のパソコンでは、Windows に標準付属の SSTP VPN クライアントを使用できます。\nVPN Azure は、SoftEther VPN Server をお使いの方はどなたでも無料で利用できるクラウド VPN サービスです。ソフトイーサ株式会社によって運営されています。使い方は http://www.vpnazure.net/ に掲載されています。\n\nVPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。ホスト名を変更するには DynamicDnsSetHostname コマンドを使用してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
