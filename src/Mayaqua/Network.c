@@ -13116,7 +13116,6 @@ SOCK *ListenEx63(UINT port, bool local_only, bool enable_ca, IP *listen_ip)
 #ifdef OS_WIN32
 	if (enable_ca)
 	{
-		setsockopt(s, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&true_flag, sizeof(true_flag));
 		backlog = 1;
 	}
 #endif
@@ -13642,6 +13641,62 @@ int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool
 	}
 }
 #else
+#if 0
+LPSTR PrintError(int ErrorCode)
+{
+	static char Message[1024];
+
+	// If this program was multithreaded, we'd want to use
+	// FORMAT_MESSAGE_ALLOCATE_BUFFER instead of a static buffer here.
+	// (And of course, free the buffer when we were done with it)
+
+	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
+		FORMAT_MESSAGE_MAX_WIDTH_MASK, NULL, ErrorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)Message, 1024, NULL);
+	return Message;
+}
+#else
+char *PrintError(int ErrorCode)
+{
+	char *Message;
+	switch (ErrorCode) {
+	case WSAEFAULT:
+		Message = "Bad address.";
+		break;
+
+	case WSAEWOULDBLOCK:
+		Message = "Resource temporarily unavailable.";
+		break;
+
+	case WSAEINPROGRESS:
+		Message = "Operation now in progress.";
+		break;
+
+	case WSAEALREADY:
+		Message = "Operation already in progress.";
+		break;
+
+	case WSAEAFNOSUPPORT:
+		Message = "Address family not supported by protocol family.";
+		break;
+
+	case WSAEADDRINUSE:
+		Message = "Address already in use.";
+		break;
+
+	case WSAEADDRNOTAVAIL:
+		Message = "Cannot assign requested address.";
+		break;
+
+	default:
+		Message = "";
+		break;
+	}
+	return Message;
+}
+#endif
+
 // Connection with timeout (Win32 version)
 int connect_timeout(SOCKET s, struct sockaddr *addr, int size, int timeout, bool *cancel_flag)
 {
@@ -13773,8 +13828,71 @@ void SetSockHighPriority(SOCK *s, bool flag)
 	SetSockTos(s, (flag ? 16 : 0));
 }
 
+// Bind the socket to IPv4 or IPV6 address
+int bind_sock(SOCKET sock, IP *ip, UINT port)
+{
+	//char tmp[MAX_HOST_NAME_LEN + 1];
+	//memset(tmp, 0, sizeof(tmp));
+	//IPToStr(tmp, sizeof(tmp), ip);
+	//Debug("bind_sock(): Binding... IP address %s:%d\n", tmp, port);
+
+	if (IsIP4(ip))
+	{
+		// Declare variables
+		struct sockaddr_in sockaddr_in;
+
+		Zero(&sockaddr_in, sizeof(sockaddr_in));
+
+		// Set up the sockaddr structure
+		sockaddr_in.sin_family = AF_INET;
+		IPToInAddr(&sockaddr_in.sin_addr, ip);
+		sockaddr_in.sin_port = htons((USHORT)port);
+		//inet_pton(AF_INET, tmp, &addr_in.sin_addr.s_addr);
+
+		UINT true_flag = 1;
+		// This only have enabled for UNIX system since there is a bug
+		// in the implementation of REUSEADDR in Windows OS
+		(void)setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&true_flag, sizeof(true_flag));
+
+		// Bind the socket using the information in the sockaddr structure
+		return (bind(sock, (struct sockaddr *)&sockaddr_in, sizeof(sockaddr_in)));
+	}
+	else
+	{
+		// Declare variables
+		struct sockaddr_in6 sockaddr_in;
+
+		Zero(&sockaddr_in, sizeof(sockaddr_in));
+
+		// Set up the sockaddr structure
+		sockaddr_in.sin6_family = AF_INET6;
+		IPToInAddr6(&sockaddr_in.sin6_addr, ip);
+		sockaddr_in.sin6_scope_id = ip->ipv6_scope_id;
+		sockaddr_in.sin6_port = htons((USHORT)port);
+		//inet_pton(AF_INET6, tmp, &sockaddr_in.sin6_addr.s6_bytes);
+
+		UINT true_flag = 1;
+#ifdef	OS_UNIX
+		// It is necessary to set the IPv6 Only flag on a UNIX system
+		(void)setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &true_flag, sizeof(true_flag));
+#endif	// OS_UNIX
+		// This only have enabled for UNIX system since there is a bug
+		// in the implementation of REUSEADDR in Windows OS
+		(void)setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&true_flag, sizeof(true_flag));
+
+		// Bind the socket using the information in the sockaddr structure
+		return (bind(sock, (struct sockaddr *)&sockaddr_in, sizeof(sockaddr_in)));
+	}
+}
+
 // Connect to the IPv4 host using a socket
-SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag)
+SOCKET ConnectTimeoutIPv4(IP* ip, UINT port, UINT timeout, bool* cancel_flag)
+{
+	return BindConnectTimeoutIPv4(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, ip, port, timeout, cancel_flag);
+}
+
+// Connect to the IPv4 host using a socket
+SOCKET BindConnectTimeoutIPv4(IP* localIP, UINT localport, IP* ip, UINT port, UINT timeout, bool* cancel_flag)
 {
 	SOCKET s;
 	struct sockaddr_in sockaddr4;
@@ -13791,6 +13909,34 @@ SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag)
 
 	// Socket creation
 	s = socket(AF_INET, SOCK_STREAM, 0);
+
+	// Top of Bind outgoing connection
+	if (s != INVALID_SOCKET) {
+		int ier;
+		IP tmpIP;
+
+		if (localIP == BIND_LOCALIP_NULL) {
+			StrToIP(&tmpIP, "0.0.0.0");	// A NULL address for the argument "localIP" is treated as if "0::0" in IPV4 was specified.
+			localIP = &tmpIP;
+		}
+
+		if ((IsZeroIP(localIP) == false) || (localport != 0)) {
+
+			// Bind the socket
+			if (bind_sock(s, localIP, localport) != 0) {
+#ifdef	OS_WIN32
+				ier = WSAGetLastError();
+				Debug("IPv4 bind() failed with error: %d %s\n", ier, PrintError(ier));
+#else
+				Debug("IPv4 bind() failed with error: %d %s\n", errno, strerror(errno));
+#endif
+				closesocket(s);
+				s = INVALID_SOCKET;
+			}
+		}
+	}
+	// Bottom of Bind outgoing connection
+
 	if (s != INVALID_SOCKET)
 	{
 		// Connection
@@ -14053,7 +14199,21 @@ void ConnectThreadForRUDP(THREAD *thread, void *param)
 }
 
 // IPv4 connection thread (multiple protocols, multiple addresses)
-void ConnectThreadForIPv4(THREAD *thread, void *param)
+void ConnectThreadForIPv4(THREAD* thread, void* param)
+{
+	CONNECT_SERIAL_PARAM* p = (CONNECT_SERIAL_PARAM*)param;
+	if (thread == NULL || p == NULL)
+	{
+		return;
+	}
+	p->LocalIP = BIND_LOCALIP_NULL;
+	p->LocalPort = BIND_LOCALPORT_NULL;
+	return  BindConnectThreadForIPv4(thread, param);
+}
+
+// IPv4 connection thread (multiple protocols, multiple addresses)
+//void ConnectThreadForIPv4(THREAD* thread, void* param)
+void BindConnectThreadForIPv4(THREAD *thread, void *param)
 {
 	SOCKET s = INVALID_SOCKET;
 	IP current_ip;
@@ -14106,7 +14266,8 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 		if (use_natt == false)
 		{
 			// Normal connection without using NAT-T
-			s = ConnectTimeoutIPv4(ip, p->Port, p->Timeout, p->CancelFlag);
+//			s = ConnectTimeoutIPv4(ip, p->Port, p->Timeout, p->CancelFlag);
+			s = BindConnectTimeoutIPv4(p->LocalIP, p->LocalPort, ip, p->Port, p->Timeout, p->CancelFlag);
 
 			if (s != INVALID_SOCKET)
 			{
@@ -14408,7 +14569,21 @@ void ConnectThreadForIPv4(THREAD *thread, void *param)
 }
 
 // IPv6 connection thread (multiple addresses)
-void ConnectThreadForIPv6(THREAD *thread, void *param)
+void ConnectThreadForIPv6(THREAD* thread, void* param)
+{
+	CONNECT_SERIAL_PARAM* p = (CONNECT_SERIAL_PARAM*)param;
+	if (thread == NULL || p == NULL)
+	{
+		return;
+	}
+	p->LocalIP = BIND_LOCALIP_NULL;
+	p->LocalPort = BIND_LOCALPORT_NULL;
+	return  BindConnectThreadForIPv6(thread, param);
+}
+
+// IPv6 connection thread (multiple addresses)
+//void ConnectThreadForIPv6(THREAD *thread, void *param)
+void BindConnectThreadForIPv6(THREAD* thread, void* param)
 {
 	SOCKET s = INVALID_SOCKET;
 	IP current_ip;
@@ -14463,6 +14638,34 @@ void ConnectThreadForIPv6(THREAD *thread, void *param)
 
 		// Socket creation
 		s = socket(AF_INET6, SOCK_STREAM, 0);
+
+		// Top of Bind outgoing connection
+		if (s != INVALID_SOCKET){
+			int ier;
+			IP tmpIP;
+
+			if (p->LocalIP == BIND_LOCALIP_NULL) {
+				StrToIP(&tmpIP, "0::0");	// A NULL address for the argument "p->LocalIP" is treated as if "0::0" in IPV6 was specified.
+				p->LocalIP = &tmpIP;
+			}
+
+			if ((IsZeroIP(p->LocalIP) == false) || (p->LocalPort != 0)){
+
+				// Bind the socket
+				if (bind_sock(s, p->LocalIP, p->LocalPort) != 0) {
+#ifdef	OS_WIN32
+					ier = WSAGetLastError();
+					Debug("IPv6 bind() failed with error: %d %s\n", ier, PrintError(ier));
+#else
+					Debug("IPv6 bind() failed with error: %d %s\n", errno, strerror(errno));
+#endif
+					closesocket(s);
+					s = INVALID_SOCKET;
+				}
+			}
+		}
+		// Bottom of Bind outgoing connection
+
 		if (s != INVALID_SOCKET)
 		{
 			// Connection
@@ -14589,6 +14792,18 @@ SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 }
 SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
 {
+	return BindConnectEx5(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, ssl_option, ssl_err, hint_str, ret_ip);
+}
+
+//SOCK* ConnectEx4(char* hostname, UINT port, UINT timeout, bool* cancel_flag, char* nat_t_svc_name, UINT* nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP* ret_ip)
+SOCK *BindConnectEx4(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip)
+{
+//	return ConnectEx5(hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL, NULL, NULL, ret_ip);
+	return BindConnectEx5(localIP, localport, hostname, port, timeout, cancel_flag, nat_t_svc_name, nat_t_error_code, try_start_ssl, no_get_hostname, NULL, NULL, NULL, ret_ip);
+}
+//SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+{
 	bool dummy = false;
 	bool use_natt = false;
 	bool force_use_natt = false;
@@ -14683,6 +14898,16 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 	if (LIST_NUM(iplist_v6) > 0)
 	{
 		p6.IpList = iplist_v6;
+
+		if (localIP == BIND_LOCALIP_NULL) {
+			p6.LocalIP = BIND_LOCALIP_NULL;	// Make the NULL address passing through
+		}
+		else {
+			CopyIP(&p6.LocalIP_Cache, localIP);
+			p6.LocalIP = &p6.LocalIP_Cache;
+		}
+		p6.LocalPort = localport;
+
 		p6.Port = port;
 		p6.Timeout = timeout;
 		StrCpy(p6.Hostname, sizeof(p6.Hostname), hostname);
@@ -14696,13 +14921,24 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		p6.Ret_Ip = &ret_ip6;
 		p6.RetryDelay = 250;
 		p6.Delay = 0;
-		t6 = NewThread(ConnectThreadForIPv6, &p6);
+//		t6 = NewThread(ConnectThreadForIPv6, &p6);
+		t6 = NewThread(BindConnectThreadForIPv6, &p6);	// For binding a socket
 	}
 
 	// IPv4 connection thread
 	if (LIST_NUM(iplist_v4) > 0)
 	{
 		p4.IpList = iplist_v4;
+
+		if (localIP == BIND_LOCALIP_NULL) {
+			p4.LocalIP = BIND_LOCALIP_NULL;	// Make the NULL address passing through
+		}
+		else {
+			CopyIP(&p4.LocalIP_Cache, localIP);
+			p4.LocalIP = &p4.LocalIP_Cache;
+		}
+		p4.LocalPort = localport;
+
 		p4.Port = port;
 		p4.Timeout = timeout;
 		StrCpy(p4.Hostname, sizeof(p4.Hostname), hostname);
@@ -14721,7 +14957,8 @@ SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 		p4.Ret_Ip = &ret_ip4;
 		p4.RetryDelay = 250;
 		p4.Delay = 250;		// Delay by 250ms to prioritize IPv6 (RFC 6555 recommends 150-250ms, Chrome uses 300ms)
-		t4 = NewThread(ConnectThreadForIPv4, &p4);
+//		t4 = NewThread(ConnectThreadForIPv4, &p4);
+		t4 = NewThread(BindConnectThreadForIPv4, &p4);	// For binding a socket
 	}
 
 	if (t6 == NULL || t4 == NULL)

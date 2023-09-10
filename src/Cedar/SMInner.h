@@ -41,7 +41,10 @@ typedef struct SETTING
 	char HubName[MAX_HUBNAME_LEN + 1];	// HUB name
 	UCHAR HashedPassword[SHA1_SIZE];	// Password
 	CLIENT_OPTION ClientOption;	// Client Option
-	UCHAR Reserved[10240 - sizeof(UINT) * 8 - SHA1_SIZE - HTTP_CUSTOM_HEADER_MAX_SIZE - MAX_HOST_NAME_LEN - 1];	// Reserved area
+
+#define	SRC_SIZE		(sizeof(IP)	+ sizeof(UINT))		// Source IP address & port number for outgoing connection
+//	UCHAR Reserved[10240 - sizeof(UINT) * 8 - SHA1_SIZE - HTTP_CUSTOM_HEADER_MAX_SIZE - MAX_HOST_NAME_LEN - 1];	// Reserved area
+	UCHAR Reserved[10240 - sizeof(UINT) * 8 - SHA1_SIZE - HTTP_CUSTOM_HEADER_MAX_SIZE - MAX_HOST_NAME_LEN - 1 - SRC_SIZE];	// Reserved area
 } SETTING;
 
 // Structure declaration

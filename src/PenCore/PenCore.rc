@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// §È§Â resources
+// §È§ÅEresources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 #ifdef _WIN32
@@ -1654,14 +1654,18 @@ BEGIN
     LTEXT           "@S_MODE",S_MODE,254,169,166,17
     CONTROL         "@R_BRIDGE",R_BRIDGE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,254,191,166,9
     CONTROL         "@R_MONITOR",R_MONITOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,254,205,166,9
-    GROUPBOX        "@STATIC17",IDC_STATIC,222,225,205,30
-    CONTROL         "@R_NO_ROUTING",R_NO_ROUTING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,233,238,181,9
-    ICON            ICO_WARNING,S_WARNING_ICON,223,261,18,18
-    LTEXT           "@STATIC18",IDC_STATIC,247,261,180,26
+    GROUPBOX        "@STATIC17", IDC_STATIC, 222, 225, 205, 43
+    CONTROL         "@R_NO_ROUTING",R_NO_ROUTING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,233,234,181,9
+    LTEXT           "@STATIC20", IDC_STATIC, 233, 243, 58, 17
+    EDITTEXT        E_BIND_LOCALIP, 292, 243, 126, 11, ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "@STATIC21", IDC_STATIC, 233, 255, 58, 12
+    EDITTEXT        E_BIND_LOCALPORT, 292, 255, 40, 11, ES_RIGHT | ES_AUTOHSCROLL
+    ICON            ICO_WARNING,S_WARNING_ICON,223,270,18,18
+    LTEXT           "@STATIC18",IDC_STATIC,247,270,180,26
     DEFPUSHBUTTON   "@IDOK",IDOK,294,291,64,15
     PUSHBUTTON      "@IDCANCEL",IDCANCEL,363,291,64,15
     ICON            ICO_SWITCH,IDC_STATIC,230,169,18,18
-END
+    END
 
 D_CM_NEW_VLAN DIALOGEX 0, 0, 251, 98
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -4865,12 +4869,12 @@ END
 //
 
 BIN_WINPCAP             BIN                     "Dummy.bin"
-#endif    // §È§Â resources
+#endif    // §È§ÅEresources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// §§§Â (•x∆W) resources
+// §§§ÅE(•x∆W) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHT)
 #ifdef _WIN32
@@ -4886,12 +4890,12 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 ICO_LANG_TRADITIONAL_CHINESE ICON                    "LANG_TRADITIONAL_CHINESE.ico"
-#endif    // §§§Â (•x∆W) resources
+#endif    // §§§ÅE(•x∆W) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ≠^§Â (¨¸∞Í) resources
+// ≠^§ÅE(¨ÅEÅE resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -4952,7 +4956,7 @@ BMP_ZURUKKO             BITMAP                  "Zurukko.bmp"
 BMP_VPNGATEEN           BITMAP                  "VPNGateEN.bmp"
 BMP_VPNGATEJA           BITMAP                  "VPNGateJA.bmp"
 BMP_UNIVTSUKUBA         BITMAP                  "UnivTsukuba.bmp"
-#endif    // ≠^§Â (¨¸∞Í) resources
+#endif    // ≠^§ÅE(¨ÅEÅE resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -609,6 +609,24 @@ void SessionMain(SESSION *s)
 							WHERE;
 						}
 					}
+
+					// If all the specified number of tcp connections are not alive continuously, then terminate the session.
+					UINT num_tcp_conn = LIST_NUM(s->Connection->Tcp->TcpSockList);
+					UINT max_conn = s->ClientOption->MaxConnection;
+
+					if ((s->CurrentConnectionEstablishTime +
+						(UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000 * 2 + CONNECTING_TIMEOUT * 2))
+						<= Tick64())
+					{
+						if (s->ClientOption->BindLocalPort != 0 || num_tcp_conn == 0)
+						{
+							timeouted = true;
+							WHERE;
+						}
+					}
+					//Debug("SessionMain(): The number of TCP connections short... Num_Tcp_Conn=%d Max_Conn=%d Curr_Conn_Time=%llu Tick64=%llu\n"
+					//	, num_tcp_conn, max_conn, s->CurrentConnectionEstablishTime, Tick64());
+
 				}
 			}
 
@@ -1430,6 +1448,7 @@ void ClientThread(THREAD *t, void *param)
 	while (true)
 	{
 		Zero(&s->ServerIP_CacheForNextConnect, sizeof(IP));
+		Zero(&s->LocalIP_CacheForNextConnect, sizeof(IP));	// Assigned by first outgoing connection
 		Zero(s->UnderlayProtocol, sizeof(s->UnderlayProtocol));
 		Zero(s->ProtocolDetails, sizeof(s->ProtocolDetails));
 

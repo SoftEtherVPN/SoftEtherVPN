@@ -6196,6 +6196,8 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 {
 	volatile bool *cancel_flag = NULL;
 	char hostname[MAX_HOST_NAME_LEN];
+	char localaddr[MAX_HOST_NAME_LEN];
+
 	bool save_resolved_ip = false;
 	CLIENT_OPTION *o;
 	SESSION *sess;
@@ -6255,10 +6257,48 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 
 		if (o->PortUDP == 0)
 		{
+			IP		*localIP;
+			UINT	localport;
+
+			// Top of Bind outgoing connection
+			// Decide the binding operation which is explicitly executed on the client-side
+
+			// In the case of first TCP/IP connection
+			if (additional_connect == false) {
+				if (sess->ClientOption->NoRoutingTracking == false) {
+					localIP = BIND_LOCALIP_NULL;	// Specify not to bind
+				}
+				else {
+					Debug("ClientConnectGetSocket(): Using client option %r and %d for binding\n"
+						, sess->ClientOption->BindLocalIP, sess->ClientOption->BindLocalPort);
+					// Nonzero address is for source IP address to bind. Zero address is for dummy not to bind.
+					if (IsZeroIP(&sess->ClientOption->BindLocalIP) == true) {
+						localIP = BIND_LOCALIP_NULL;
+					}
+					else {
+						localIP = &sess->ClientOption->BindLocalIP;
+					}
+				}
+			}
+			// In the case of second and subsequent TCP/IP connections
+			else {
+				// Bind the socket to the actual local IP address of first TCP / IP connection
+				localIP = &sess->LocalIP_CacheForNextConnect;
+				//localIP = BIND_LOCALIP_NULL;	// Specify not to bind for test
+			}
+			if (sess->ClientOption->BindLocalPort == 0) {
+				localport = BIND_LOCALPORT_NULL;
+			}
+			else {
+				localport = sess->ClientOption->BindLocalPort + Count(sess->Connection->CurrentNumConnection) - 1;
+				Debug("ClientConnectGetSocket(): Additional port number %u\n", localport);
+			}
+			// Bottom of Bind outgoing connection
+
 			// If additional_connect == false, enable trying to NAT-T connection
 			// If additional_connect == true, follow the IsRUDPSession setting in this session
 			// In additional connect or redirect we do not need ssl verification as the certificate is always compared with a saved one
-			sock = TcpIpConnectEx2(hostname, c->ServerPort,
+			sock = BindTcpIpConnectEx2(localIP, localport, hostname, c->ServerPort,
 				(bool *)cancel_flag, c->hWndForUI, &nat_t_err, (additional_connect ? (!sess->IsRUDPSession) : false),
 				true, ((additional_connect || c->UseTicket) ? NULL : sess->SslOption), &ssl_err, o->HintStr, &resolved_ip);
 		}
@@ -6328,6 +6368,33 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		StrCpy(in.HttpCustomHeader, sizeof(in.HttpCustomHeader), o->CustomHttpHeader);
 		StrCpy(in.HttpUserAgent, sizeof(in.HttpUserAgent), c->Cedar->HttpUserAgent);
 
+		// Top of Bind outgoing connection
+		// In the case of first TCP/IP connection
+		if (additional_connect == false) {
+			if (sess->ClientOption->NoRoutingTracking == false) {
+				in.BindLocalIP = BIND_LOCALIP_NULL;	// Specify not to bind
+			}
+			else {
+				if (IsZeroIP(&sess->ClientOption->BindLocalIP) == true) {
+					in.BindLocalIP = BIND_LOCALIP_NULL;
+				}
+				else {
+					in.BindLocalIP = &sess->ClientOption->BindLocalIP;
+				}
+			}
+		}
+		// In the case of second and subsequent TCP/IP connections
+		else {
+			in.BindLocalIP = &sess->LocalIP_CacheForNextConnect;
+		}
+		if (sess->ClientOption->BindLocalPort == 0) {
+			in.BindLocalPort = BIND_LOCALPORT_NULL;
+		}
+		else {
+			in.BindLocalPort = sess->ClientOption->BindLocalPort + Count(sess->Connection->CurrentNumConnection) - 1;
+		}
+		// Bottom of Bind outgoing connection
+
 #ifdef OS_WIN32
 		in.Hwnd = c->hWndForUI;
 #endif
@@ -6338,13 +6405,16 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		switch (o->ProxyType)
 		{
 		case PROXY_HTTP:
-			ret = ProxyHttpConnect(&out, &in, cancel_flag);
+//			ret = ProxyHttpConnect(&out, &in, cancel_flag);
+			ret = BindProxyHttpConnect(&out, &in, cancel_flag);		// Bind outgoing connection
 			break;
 		case PROXY_SOCKS:
-			ret = ProxySocks4Connect(&out, &in, cancel_flag);
+//			ret = ProxySocks4Connect(&out, &in, cancel_flag);
+			ret = BindProxySocks4Connect(&out, &in, cancel_flag);	// Bind outgoing connection
 			break;
 		case PROXY_SOCKS5:
-			ret = ProxySocks5Connect(&out, &in, cancel_flag);
+//			ret = ProxySocks5Connect(&out, &in, cancel_flag);
+			ret = BindProxySocks5Connect(&out, &in, cancel_flag);	// Bind outgoing connection
 			break;
 		default:
 			c->Err = ERR_INTERNAL_ERROR;
@@ -6379,6 +6449,25 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		Debug("ClientConnectGetSocket(): Saved %s IP address %r for future connections.\n", hostname, &resolved_ip);
 	}
 
+	// Top of Bind outgoing connection
+	IPToStr(localaddr, sizeof(localaddr), &sock->LocalIP);
+
+	// In the case of first TCP/IP connection, save the local IP address
+	if (additional_connect == false) {
+		c->Session->LocalIP_CacheForNextConnect = sock->LocalIP;
+		Debug("ClientConnectGetSocket(): Saved local IP address %r for future connections.\n", &sock->LocalIP);
+	}
+	// In the case of second and subsequent TCP/IP connections, check to see whether or not the local IP address is same as the first one
+	else {
+		if (memcmp(sock->LocalIP.address, c->Session->LocalIP_CacheForNextConnect.address, sizeof(sock->LocalIP.address)) == 0) {
+			Debug("ClientConnectGetSocket(): Binded local IP address %s OK\n", localaddr);
+		}
+		else {
+			Debug("ClientConnectGetSocket(): Binded local IP address %s NG\n", localaddr);
+		}
+	}
+	// Bottom of Bind outgoing connection
+
 	return sock;
 }
 
@@ -6409,15 +6498,41 @@ UINT ProxyCodeToCedar(UINT code)
 // TCP connection function
 SOCK *TcpConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
 {
-	return TcpConnectEx4(hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, NULL, NULL, NULL, ret_ip);
+	return BindTcpConnectEx3(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ret_ip);
 }
-SOCK *TcpConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+
+SOCK *TcpConnectEx4(char * hostname, UINT port, UINT timeout, bool * cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+{
+	return BindTcpConnectEx4(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_option, ssl_err, hint_str, ret_ip);
+}
+
+// Connect with TCP/IP
+SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
+{
+	return BindTcpIpConnectEx(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, ret_ip);
+}
+
+SOCK *TcpIpConnectEx2(char * hostname, UINT port, bool * cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+{
+	return BindTcpIpConnectEx2(BIND_LOCALIP_NULL, BIND_LOCALPORT_NULL, hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, ssl_option, ssl_err, hint_str, ret_ip);
+}
+
+// TCP connection function
+//SOCK* TcpConnectEx3(char* hostname, UINT port, UINT timeout, bool* cancel_flag, void* hWnd, bool no_nat_t, UINT* nat_t_error_code, bool try_start_ssl, IP* ret_ip)
+SOCK *BindTcpConnectEx3(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, IP *ret_ip)
+{
+//	return TcpConnectEx4(hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, NULL, NULL, NULL, ret_ip);
+	return BindTcpConnectEx4(localIP, localport, hostname, port, timeout, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, NULL, NULL, NULL, ret_ip);
+}
+//SOCK *TcpConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+SOCK *BindTcpConnectEx4(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, void *hWnd, bool no_nat_t, UINT *nat_t_error_code, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
 {
 #ifdef	OS_WIN32
 	if (hWnd == NULL)
 	{
 #endif	// OS_WIN32
-		return ConnectEx5(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, ssl_option, ssl_err, hint_str, ret_ip);
+//		return ConnectEx5(hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, ssl_option, ssl_err, hint_str, ret_ip);
+		return BindConnectEx5(localIP, localport, hostname, port, timeout, cancel_flag, (no_nat_t ? NULL : VPN_RUDP_SVC_NAME), nat_t_error_code, try_start_ssl, true, ssl_option, ssl_err, hint_str, ret_ip);
 #ifdef	OS_WIN32
 	}
 	else
@@ -6428,11 +6543,14 @@ SOCK *TcpConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, 
 }
 
 // Connect with TCP/IP
-SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
+//SOCK *TcpIpConnectEx(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
+SOCK *BindTcpIpConnectEx(IP *localIP, UINT localport, char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, IP *ret_ip)
 {
-	return TcpIpConnectEx2(hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, NULL, NULL, NULL, ret_ip);
+//	return TcpIpConnectEx2(hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, NULL, NULL, NULL, ret_ip);
+	return BindTcpIpConnectEx2(localIP, localport, hostname, port, cancel_flag, hWnd, nat_t_error_code, no_nat_t, try_start_ssl, NULL, NULL, NULL, ret_ip);
 }
-SOCK *TcpIpConnectEx2(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+//SOCK *TcpIpConnectEx2(char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
+SOCK *BindTcpIpConnectEx2(IP *localIP, UINT localport, char *hostname, UINT port, bool *cancel_flag, void *hWnd, UINT *nat_t_error_code, bool no_nat_t, bool try_start_ssl, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip)
 {
 	SOCK *s = NULL;
 	UINT dummy_int = 0;
@@ -6447,7 +6565,8 @@ SOCK *TcpIpConnectEx2(char *hostname, UINT port, bool *cancel_flag, void *hWnd, 
 		return NULL;
 	}
 
-	s = TcpConnectEx4(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_option, ssl_err, hint_str, ret_ip);
+//	s = TcpConnectEx4(hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_option, ssl_err, hint_str, ret_ip);
+	s = BindTcpConnectEx4(localIP, localport, hostname, port, 0, cancel_flag, hWnd, no_nat_t, nat_t_error_code, try_start_ssl, ssl_option, ssl_err, hint_str, ret_ip);
 	if (s == NULL)
 	{
 		return NULL;
