@@ -13681,6 +13681,14 @@ char *PrintError(int ErrorCode)
 		Message = "Cannot assign requested address.";
 		break;
 
+	case WSAEISCONN:
+		Message = "Socket is already connected.";	// Added on AUG.10, 2023
+		break;
+
+	case WSAEINVAL:
+		Message = "Invalid argument.";	// Added on AUG.10, 2023
+		break;
+
 	default:
 		Message = "";
 		break;
@@ -13906,16 +13914,20 @@ SOCKET BindConnectTimeoutIPv4(IP* localIP, UINT localport, IP* ip, UINT port, UI
 	if (s != INVALID_SOCKET) {
 		int ier;
 		IP tmpIP;
+		IP *tmpIP2;
 
 		if (localIP == BIND_LOCALIP_NULL) {
-			StrToIP(&tmpIP, "0.0.0.0");	// A NULL address for the argument "localIP" is treated as if "0::0" in IPV4 was specified.
-			localIP = &tmpIP;
+			StrToIP(&tmpIP, "0.0.0.0");	// A NULL address for the argument "localIP" is treated as if "0.0.0.0" in IPV4 was specified.
+			tmpIP2 = &tmpIP;
+		}
+		else {
+			tmpIP2 = localIP;
 		}
 
-		if ((IsZeroIP(localIP) == false) || (localport != 0)) {
+		if ((IsZeroIP(tmpIP2) == false) || (localport != 0)) {
 
 			// Bind the socket
-			if (bind_sock(s, localIP, localport) != 0) {
+			if (bind_sock(s, tmpIP2, localport) != 0) {
 #ifdef	OS_WIN32
 				ier = WSAGetLastError();
 				Debug("IPv4 bind() failed with error: %d %s\n", ier, PrintError(ier));
@@ -14635,16 +14647,20 @@ void BindConnectThreadForIPv6(THREAD* thread, void* param)
 		if (s != INVALID_SOCKET){
 			int ier;
 			IP tmpIP;
+			IP *tmpIP2;
 
 			if (p->LocalIP == BIND_LOCALIP_NULL) {
 				StrToIP(&tmpIP, "0::0");	// A NULL address for the argument "p->LocalIP" is treated as if "0::0" in IPV6 was specified.
-				p->LocalIP = &tmpIP;
+				tmpIP2 = &tmpIP;
+			}
+			else {
+				tmpIP2 = p->LocalIP;
 			}
 
-			if ((IsZeroIP(p->LocalIP) == false) || (p->LocalPort != 0)){
+			if ((IsZeroIP(tmpIP2) == false) || (p->LocalPort != 0)){
 
 				// Bind the socket
-				if (bind_sock(s, p->LocalIP, p->LocalPort) != 0) {
+				if (bind_sock(s, tmpIP2, p->LocalPort) != 0) {
 #ifdef	OS_WIN32
 					ier = WSAGetLastError();
 					Debug("IPv6 bind() failed with error: %d %s\n", ier, PrintError(ier));
