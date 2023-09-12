@@ -2437,6 +2437,8 @@ STATIC17					其它配置(&G):
 R_NO_ROUTING				不要调整路由表(&R)
 STATIC18					除非你得到系统管理员的同意或者你有网络和安全方面的专业知识，否则请保持此对话框的默认设置。
 STATIC19					VoIP / QoS 功能可以处理高优先级数据包，如 IP 电话数据包 (VoIP) 可以被更快的传输。
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS				禁用 VoIP / &QoS 功能
 IDOK						确定(&O)
 IDCANCEL					取消

@@ -2390,6 +2390,8 @@ STATIC17	Outras confi&gurações:
 R_NO_ROUTING	Sem ajustes na tabela de &roteamento
 STATIC18	Mantenha as configurações padrão nesta caixa de diálogo, a menos que seja solicitado por um administrador do sistema ou se você possui experiência em redes e segurança.
 STATIC19	As funções VoIP/QoS lidam com pacotes de alta prioridade, para serem transmitidos mais rapidamente.
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS	Desativar função VoIP / &QoS
 IDOK	&OK
 IDCANCEL	Cancelar

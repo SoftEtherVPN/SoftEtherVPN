@@ -2402,6 +2402,8 @@ STATIC17 기타 설정 (&G):
 R_NO_ROUTING 라우팅 테이블의 조정 작업을 수행하지 (&R)
 STATIC18 이 설정 화면의 설정은 시스템 관리자의 지시가있을 경우, 네트워크 및 보안에 대해 상세한 지식을 가지고있는 경우를 제외하고는 변경하지 마십시오.
 STATIC19 VoIP/QoS 지원 기능을 사용하면 IP 전화 패킷 등의 우선 순위가 높은 패킷을 VPN에서 고속으로 전송할 수 있습니다.
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS VoIP/QoS 지원 기능을 비활성화 (&Q)
 IDOK & OK
 IDCANCEL 취소
