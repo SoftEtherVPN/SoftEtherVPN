@@ -4443,7 +4443,7 @@ CMD_Debug_Msg2	The debug command has executed.\nResults: \"%S\"
 # Crash command
 CMD_Crash	Raise a error on the VPN Server / Bridge to terminate the process forcefully.
 CMD_Crash_Help	This command will raise a fatal error (memory access violation) on the VPN Server / Bridge running process in order to crash the process. As the result, VPN Server / Bridge will be terminated and restarted if it is running as a service mode. If the VPN Server is running as a user mode, the process will not automatically restarted.\nThis command is for a situation when the VPN Server / Bridge is under a non-recoverable error or the process is in an infinite loop. This command will disconnect all VPN Sessions on the VPN Server / Bridge. All unsaved settings in the memory of VPN Server / Bridge will be lost.\nBefore run this command, run the Flush command to try to save volatile data to the configuration file.\nTo execute this command, you must have VPN Server / VPN Bridge administrator privileges.
-CMD_Crash_Args	Crash [sim]
+CMD_Crash_Args	Crash [yes]
 CMD_Crash_[yes]	Input "yes" for confirmation.
 CMD_Crash_Msg	Sending the Crush command to the VPN Server. The VPN Server will be let to crash immediately, so you can never get the result value of this command. After this moment, vpncmd will be disconnected from the VPN Server.
 CMD_Crash_Confirm	Do you really want to crash the VPN Server?\nInput "yes" if it is ok: 
