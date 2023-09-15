@@ -93,9 +93,12 @@ void SuDeleteGarbageInfsInner()
 		return;
 	}
 
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	_SetupUninstallOEMInfA =
 		(UINT (__stdcall *)(PCSTR,DWORD,PVOID))
 		GetProcAddress(hSetupApiDll, "SetupUninstallOEMInfA");
+    #pragma clang diagnostic pop
 
 	if (_SetupUninstallOEMInfA != NULL)
 	{

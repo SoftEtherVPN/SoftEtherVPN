@@ -113,9 +113,12 @@ bool SwCompileSfx(LIST *o, wchar_t *dst_filename)
 	}
 
 	// Get the API related to the resource editing 
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	_BeginUpdateResourceW = (HANDLE (__stdcall *)(LPCWSTR,UINT))GetProcAddress(hKernel32, "BeginUpdateResourceW");
 	_UpdateResourceA = (UINT (__stdcall *)(HANDLE,LPCSTR,LPCSTR,WORD,LPVOID,DWORD))GetProcAddress(hKernel32, "UpdateResourceA");
 	_EndUpdateResourceW = (UINT (__stdcall *)(HANDLE,UINT))GetProcAddress(hKernel32, "EndUpdateResourceW");
+    #pragma clang diagnostic pop
 
 	if (_BeginUpdateResourceW != NULL && _UpdateResourceA != NULL && _EndUpdateResourceW != NULL)
 	{
@@ -647,7 +650,10 @@ UINT SWExec()
 	bool is_datafile_exists = false;
 
 	// Examine whether DATAFILE resources are stored in setup.exe that is currently running
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	EnumResourceNamesA(NULL, SW_SFX_RESOURCE_TYPE, SwEnumResourceNamesProc, (LONG_PTR)(&is_datafile_exists));
+    #pragma clang diagnostic pop
 
 	if (is_datafile_exists)
 	{
