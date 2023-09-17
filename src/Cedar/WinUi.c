@@ -903,7 +903,10 @@ void ShowWizard(HWND hWndParent, WIZARD *w, UINT start_id)
 	h.phpage = (HPROPSHEETPAGE *)pages_array;
 	h.pszbmHeader = MAKEINTRESOURCEW(w->Bitmap);
 	h.pszCaption = w->Caption;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	h.pfnCallback = WizardDlgProc;
+    #pragma clang diagnostic pop
 
 	start_page = GetWizardPage(w, start_id);
 	if (start_page != NULL)
@@ -3487,7 +3490,10 @@ HWND SearchWindow(wchar_t *caption)
 	p.caption = caption;
 	p.hWndFound = NULL;
 
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	EnumWindows(SearchWindowEnumProc, (LPARAM)&p);
+    #pragma clang diagnostic pop
 
 	return p.hWndFound;
 }
