@@ -4851,7 +4851,7 @@ CMD_HubList_Args	ListaHub
 # Hub command
 CMD_Hub	Select Virtual Hub to Manage
 CMD_Hub_Help	Use this to select the Virtual Hub to be the target of administration. For an administration utility with the status of being connected to a VPN Server, before executing a command to set or manage a Virtual Hub, you must use the Hub command to select the Virtual Hub to manage. \nWhen in the status of being connected to a VPN Server in Virtual Hub Admin Mode, you can select a single Virtual Hub to be the target of administration but you cannot select other Virtual Hubs. When having the status of being connected to the VPN Server in Server Admin Mode, you can make all Virtual Hubs the target of administration. \nTo get a list of Virtual Hubs that currently exist on the VPN Server, use the HubList command. \nFor the VPN Bridge, you can only select the Virtual Hub that has the name "BRIDGE".
-CMD_Hub_Args	Hub [nome]
+CMD_Hub_Args	Hub [name]
 CMD_Hub_[name]	Specify the name of the Virtual Hub to manage. If this parameter is left unspecified, the Select Virtual Hub to Manage will be cancelled.
 CMD_Hub_Unselected	The Virtual Hub selection has been unselected.
 CMD_Hub_Selected	The Virtual Hub "%S" has been selected.
