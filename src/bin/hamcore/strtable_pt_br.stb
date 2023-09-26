@@ -5619,7 +5619,7 @@ CMD_UserRadiusSet_ALIAS	When this parameter is set, it is possible to make the u
 CMD_UserRadiusSet_Prompt_ALIAS	Alias Name for Authentication (Optional): 
 
 
-# UserNTLMSet ã‚³ãƒžãƒ³ãƒ‰
+# UserNTLMSet command
 CMD_UserNTLMSet	Set NT Domain Authentication for User Auth Type
 CMD_UserNTLMSet_Help	Use this to set NT Domain Authentication as the auth type for a user that is registered on the security account database of the currently managed Virtual Hub. When a user connects to a Virtual Hub using a user name that is set for NT Domain authentication, the user name and the user input password is sent to the Windows NT / 2000 / Server 2003 / Server 2008 / Server 2008 R2 / Server 2012 Domain Controller or Active Directory Server where the server checks the user name and password, then if the verification is successful, that user is allowed VPN connection. \nTo use NT Domain authentication, the VPN Server must be operating on a Windows NT 4.0, Windows 2000, Windows XP, Windows Vista, Windows Server 2008, Windows Server 2008 R2 or Windows Server 2012 operating system that is connected to that domain. For details please contact the VPN Server's administrator. \nTo get the list of currently registered users, use the UserList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
 CMD_UserNTLMSet_Args	UserNTLMSet [name] [/ALIAS:alias_name]
