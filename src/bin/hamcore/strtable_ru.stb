@@ -4833,13 +4833,13 @@ CMD_SyslogGet_COLUMN_2	syslog Server Host Name
 CMD_SyslogGet_COLUMN_3	syslog Server Port Number
 
 
-# ConnectionGet command
+# ConnectionList command
 CMD_ConnectionList		Get List of TCP Connections Connecting to the VPN Server
 CMD_ConnectionList_Help	Use this to get a list of TCP/IP connections that are currently connecting to the VPN Server. It does not display the TCP connections that have been established as VPN sessions. To get the list of TCP/IP connections that have been established as VPN sessions, you can use the SessionList command. \nYou can get the following: Connection Name, Connection Source, Connection Start and Type.\nTo execute this command, you must have VPN Server administrator privileges.
 CMD_ConnectionList_Args	ConnectionList
 
 
-# ConnectionList command
+# ConnectionGet command
 CMD_ConnectionGet		Get Information of TCP Connections Connecting to the VPN Server
 CMD_ConnectionGet_Help	Use this to get detailed information of a specific TCP/IP connection that is connecting to the VPN Server. \nYou can get the following information: Connection Name, Connection Type, Source Hostname, Source IP Address, Source Port Number (TCP), Connection Start, Server Product Name, Server Version, Server Build Number, Client Product Name, Client Version, and Client Build Number. \nTo execute this command, you must have VPN Server administrator privileges.
 CMD_ConnectionGet_Args	ConnectionGet [name]
