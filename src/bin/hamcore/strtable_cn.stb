@@ -2482,7 +2482,7 @@ STATIC1						您可以更改 VPN Client 的设置
 STATIC2						远程管理(&E)
 STATIC3						您可以通过使用 VPN Client 管理器远程模式从另一台计算机上远程管理 VPN Client 服务程序。
 R_ALLOW_REMOTE_CONFIG		允许 VPN Client 服务的远程管理(&R)
-S_WARNING					建议您在允许远程管理时设置密码。在菜单里选择“工具” >“设置密码”来设置密码。
+S_WARNING					如果你允许远程管理，你必须设置一个密码。在菜单里选择“工具” >“设置密码”来设置密码。必须重新启动 VPN Client 服务，以应用远程管理可用性的配置变化。
 STATIC4						在通讯闲置一段时间后自动断开互联网连接的环境下，可以通过向互联网上任意主机发送假数据包的方式来保持互联网连接。
 R_USE_KEEP_CONNECT			使用保持 Internet 连接功能(&K)
 S_HOSTNAME					主机名(&H):
@@ -7028,13 +7028,13 @@ CMD_AccountImport_OK		连接设置 "%s" 已导入。
 
 # RemoteEnable 命令
 CMD_RemoteEnable			允许 VPN 客户服务的远程管理
-CMD_RemoteEnable_Help		对 VPN Client 服务，从本地主机以外的远程计算机上，允许通过命令行管理设施或 VPN Client 管理器员进行连接和管理。
+CMD_RemoteEnable_Help		对 VPN Client 服务，从本地主机以外的远程计算机上，允许通过命令行管理设施或 VPN Client 管理器员进行连接和管理。必须重新启动 VPN Client 服务，以应用远程管理可用性的配置变化。如果你允许远程管理，你必须设置一个密码。
 CMD_RemoteEnable_Args		RemoteEnable
 
 
 # RemoteDisable 命令
 CMD_RemoteDisable			禁止 VPN 客户服务的远程管理
-CMD_RemoteDisable_Help		对 VPN Client 服务，从本地主机以外的远程计算机上，禁止通过命令行管理设施或 VPN Client 管理器员进行连接和管理。
+CMD_RemoteDisable_Help		对 VPN Client 服务，从本地主机以外的远程计算机上，禁止通过命令行管理设施或 VPN Client 管理器员进行连接和管理。必须重新启动 VPN 客户端服务，以应用远程管理可用性的配置变化。
 CMD_RemoteDisable_Args		RemoteDisable
 
 

@@ -2469,7 +2469,7 @@ STATIC1					VPN Client の動作に関する設定を変更できます。
 STATIC2					リモート管理の設定(&E)
 STATIC3					VPN Client サービスプログラムを別のコンピュータ上から VPN クライアント接続マネージャによってリモート管理することが可能です。
 R_ALLOW_REMOTE_CONFIG	VPN Client サービスのリモート管理を許可する(&R)
-S_WARNING				リモート管理を許可する場合、パスワードを設定しておくことを強くお勧めします。パスワードは [ツール] メニューの [パスワードの設定] をクリックして設定することができます。
+S_WARNING				リモート管理を許可する場合、パスワードを設定する必要があります。パスワードは [ツール] メニューの [パスワードの設定] をクリックして設定することができます。リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。
 STATIC4					一定期間無通信状態が続くと接続が自動的に切断されるようなネットワーク接続環境の場合、インターネット上の任意のサーバーに対して一定間隔ごとにパケットを送信することにより、インターネット接続を維持することができます。
 R_USE_KEEP_CONNECT		インターネット接続の維持機能を使用する(&K)
 S_HOSTNAME				ホスト名(&H):
@@ -7022,13 +7022,13 @@ CMD_AccountImport_OK	接続設定 "%s" としてインポートしました。
 
 # RemoteEnable コマンド
 CMD_RemoteEnable		VPN Client サービスのリモート管理の許可
-CMD_RemoteEnable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータから、コマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを許可します。
+CMD_RemoteEnable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータから、コマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを許可します。注意: リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。リモート管理を許可する場合、パスワードを設定する必要があります。
 CMD_RemoteEnable_Args	RemoteEnable
 
 
 # RemoteDisable コマンド
 CMD_RemoteDisable		VPN Client サービスのリモート管理の禁止
-CMD_RemoteDisable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータからコマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを禁止します。
+CMD_RemoteDisable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータからコマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを禁止します。注意: リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。
 CMD_RemoteDisable_Args	RemoteDisable
 
 
