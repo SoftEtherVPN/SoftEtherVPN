@@ -43,7 +43,7 @@
 #define	DDNS_URL2_V4_ALT	"http://get-my-ip.ddns.uxcom.jp/ddns/getmyip.ashx"
 #define	DDNS_URL2_V6_ALT	"http://get-my-ip-v6.ddns.uxcom.jp/ddns/getmyip.ashx"
 
-#define	DDNS_RPC_MAX_RECV_SIZE				DYN32(DDNS_RPC_MAX_RECV_SIZE, (128 * 1024 * 1024))
+#define	DDNS_RPC_MAX_RECV_SIZE				DYN32(DDNS_RPC_MAX_RECV_SIZE, (38 * 1024 * 1024))
 
 // Connection Timeout
 #define	DDNS_CONNECT_TIMEOUT		DYN32(DDNS_CONNECT_TIMEOUT, (15 * 1000))

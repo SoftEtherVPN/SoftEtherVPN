@@ -3114,6 +3114,10 @@ void AdjustBufSize(BUF *b, UINT new_size)
 
 	while (b->SizeReserved < new_size)
 	{
+		if (b->SizeReserved > 0x7FFFFFFF)
+		{
+			AbortExitEx("AdjustBufSize(): too large buffer size");
+		}
 		b->SizeReserved = b->SizeReserved * 2;
 	}
 	b->Buf = ReAlloc(b->Buf, b->SizeReserved);
