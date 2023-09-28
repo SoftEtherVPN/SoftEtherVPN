@@ -378,6 +378,8 @@ bool AddStrToStrListDistinct(LIST *o, char *str);
 #define CANARY_RAND_ID_MEMTAG_MAGIC		0
 #define CANARY_RAND_SIZE				20
 
+#define CANARY_RAND_ID_PTR_KEY_HASH		1
+
 void InitCanaryRand();
 UCHAR *GetCanaryRand(UINT id);
 
