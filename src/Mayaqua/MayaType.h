@@ -282,7 +282,8 @@ typedef struct TRACKING_LIST TRACKING_LIST;
 typedef struct IO IO;
 
 // Memory.h
-typedef struct MEMTAG MEMTAG;
+typedef struct MEMTAG1 MEMTAG1;
+typedef struct MEMTAG2 MEMTAG2;
 typedef struct BUF BUF;
 typedef struct FIFO FIFO;
 typedef struct LIST LIST;

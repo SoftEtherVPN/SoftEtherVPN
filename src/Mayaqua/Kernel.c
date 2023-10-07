@@ -2100,7 +2100,31 @@ void AbortExitEx(char *msg)
 	f = fopen("abort_error_log.txt", "w");
 	if (f != NULL)
 	{
+		SYSTEMTIME time = { 0 };
+		char time_str[128] = { 0 };
+		char *crlf = "\r\n";
+		char *tag = "---------";
+
+		LocalTime(&time);
+
+		sprintf(time_str, "%04u-%02u-%02u %02u:%02u:%02u",
+			time.wYear, time.wMonth, time.wDay,
+			time.wHour, time.wMinute, time.wSecond);
+
+		fwrite(tag, 1, strlen(tag), f);
+
+		fwrite(crlf, 1, strlen(crlf), f);
+
+		fwrite(time_str, 1, strlen(time_str), f);
+
+		fwrite(crlf, 1, strlen(crlf), f);
+
 		fwrite(msg, 1, strlen(msg), f);
+
+		fwrite(crlf, 1, strlen(crlf), f);
+
+		fwrite(crlf, 1, strlen(crlf), f);
+
 		fclose(f);
 	}
 
