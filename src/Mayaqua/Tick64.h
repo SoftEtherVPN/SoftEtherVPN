@@ -49,6 +49,7 @@ UINT64 Diff64(UINT64 a, UINT64 b);
 UINT64 Tick64ToTime64(UINT64 tick);
 UINT64 TickToTime(UINT64 tick);
 UINT64 TickHighres64();
+UINT64 TickHighresNano64(bool raw);
 
 #endif	// TICK64_H
 

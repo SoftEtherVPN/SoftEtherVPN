@@ -14,29 +14,38 @@
 #define	MallocFast		Malloc
 #define	ZeroMallocFast	ZeroMalloc
 
+#define MAX_MALLOC_MEM_SIZE					(0xffffffff - 64)
+
 // Memory size that can be passed to the kernel at a time
 #define	MAX_SEND_BUF_MEM_SIZE				(10 * 1024 * 1024)
 
-// The magic number for memory tag
-#define	MEMTAG_MAGIC						0x49414449
-
-#define	CALC_MALLOCSIZE(size)				((MAX(size, 1)) + sizeof(MEMTAG))
-#define	MEMTAG_TO_POINTER(p)				((void *)(((UCHAR *)(p)) + sizeof(MEMTAG)))
-#define	POINTER_TO_MEMTAG(p)				((MEMTAG *)(((UCHAR *)(p)) - sizeof(MEMTAG)))
-#define	IS_NULL_POINTER(p)					(((p) == NULL) || ((POINTER_TO_UINT64(p) == (UINT64)sizeof(MEMTAG))))
+#define	CALC_MALLOCSIZE(size)				(((MAX(size, 1) + 7) / 8) * 8 + sizeof(MEMTAG1) + sizeof(MEMTAG2))
+#define	MEMTAG1_TO_POINTER(p)				((void *)(((UCHAR *)(p)) + sizeof(MEMTAG1)))
+#define	POINTER_TO_MEMTAG1(p)				((MEMTAG1 *)(((UCHAR *)(p)) - sizeof(MEMTAG1)))
+#define	IS_NULL_POINTER(p)					(((p) == NULL) || ((POINTER_TO_UINT64(p) == (UINT64)sizeof(MEMTAG1))))
 #define	PTR_TO_PTR(p)						((void **)(&p))
+
+// Golden Ratio Prime
+// From https://github.com/torvalds/linux/blob/88c5083442454e5e8a505b11fa16f32d2879651e/include/linux/hash.h
+#define GOLDEN_RATION_PRIME_U32				((UINT32)0x61C88647)
+#define GOLDEN_RATION_PRIME_U64				((UINT64)7046029254386353131ULL) // 0x61C8864680B583EB
 
 // Fixed size of a block of memory pool
 #define	MEMPOOL_MAX_SIZE					3000
 
 
-// Memory tag
-struct MEMTAG
+// Memory tag 1
+struct MEMTAG1
 {
-	UINT Magic;
+	UINT64 Magic;
 	UINT Size;
 	bool ZeroFree;
-	UINT Padding;
+};
+
+// Memory tag 2
+struct MEMTAG2
+{
+	UINT64 Magic;
 };
 
 // Buffer
@@ -174,7 +183,8 @@ void *ZeroMallocEx(UINT size, bool zero_clear_when_free);
 void *ReAlloc(void *addr, UINT size);
 void Free(void *addr);
 void FreeSafe(void **addr);
-void CheckMemTag(MEMTAG *tag);
+void CheckMemTag1(MEMTAG1 *tag);
+void CheckMemTag2(MEMTAG2 *tag);
 UINT GetMemSize(void *addr);
 
 void *InternalMalloc(UINT size);
@@ -363,6 +373,15 @@ void AppendBufStr(BUF *b, char *str);
 LIST *NewStrList();
 void ReleaseStrList(LIST *o);
 bool AddStrToStrListDistinct(LIST *o, char *str);
+
+#define NUM_CANARY_RAND					32
+#define CANARY_RAND_ID_MEMTAG_MAGIC		0
+#define CANARY_RAND_SIZE				20
+
+#define CANARY_RAND_ID_PTR_KEY_HASH		1
+
+void InitCanaryRand();
+UCHAR *GetCanaryRand(UINT id);
 
 #endif	// MEMORY_H
 

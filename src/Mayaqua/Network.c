@@ -1191,7 +1191,9 @@ void RUDPProcess_NatT_Recv(RUDP_STACK *r, UDPPACKET *udp)
 		bool is_ok = PackGetBool(p, "ok");
 		UINT64 tran_id = PackGetInt64(p, "tran_id");
 
-		ExtractAndApplyDynList(p);
+		// This ExtractAndApplyDynList() calling was removed because it is not actually used and could be abused by
+		// illegal UDP packets that spoof the source IP address. 2023-6-14 Daiyuu Nobori
+		// ExtractAndApplyDynList(p);
 
 		if (r->ServerMode)
 		{

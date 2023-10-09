@@ -34,6 +34,23 @@ UINT64 TickHighres64()
 
 }
 
+UINT64 TickHighresNano64(bool raw)
+{
+	UINT64 ret = 0;
+
+#ifdef	OS_WIN32
+
+	ret = (UINT64)(MsGetHiResTimeSpan(MsGetHiResCounter()) * 1000000000.0f);
+
+#else	// OS_WIN32
+
+	ret = UnixGetHighresTickNano64(raw);
+
+#endif	// OS_WIN32
+
+	return ret;
+}
+
 // Convert the Tick value to time
 UINT64 Tick64ToTime64(UINT64 tick)
 {

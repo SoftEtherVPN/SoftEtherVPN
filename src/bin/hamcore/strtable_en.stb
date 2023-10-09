@@ -2466,7 +2466,7 @@ STATIC1					You can modify the settings for VPN Client.
 STATIC2					R&emote Management:
 STATIC3					You can remotely manage the VPN Client Service Program from another computer by using VPN Client Manager Remote Mode.
 R_ALLOW_REMOTE_CONFIG	Allow &Remote Management of VPN Client Service
-S_WARNING				It is recommended to set a password if you allow remote management. From the menu bar, choose Tools -> Set Password to set the password.
+S_WARNING				You must set a password if you allow remote management. From the menu bar, choose Tools -> Set Password to set the password. The VPN Client service must be restarted to apply the change of remote management availability.
 STATIC4					For environments where Internet connections will automatically be disconnected when idle, you can keep alive the Internet connection by sending dummy packets to any host on the Internet.
 R_USE_KEEP_CONNECT		Use &Keep Alive Internet Connection Function
 S_HOSTNAME				&Host Name:
@@ -7016,13 +7016,13 @@ CMD_AccountImport_OK	The VPN Connection Setting "%s" has been imported.
 
 # RemoteEnable command
 CMD_RemoteEnable		Allow Remote Management of VPN Client Service
-CMD_RemoteEnable_Help	Use this to allow management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager.
+CMD_RemoteEnable_Help	Use this to allow management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager. The VPN Client service must be restarted to apply the change of remote management availability. You must set a password if you allow remote management.
 CMD_RemoteEnable_Args	RemoteEnable
 
 
 # RemoteDisable command
 CMD_RemoteDisable		Deny Remote Management of VPN Client Service
-CMD_RemoteDisable_Help	Use this to deny management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager.
+CMD_RemoteDisable_Help	Use this to deny management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager. The VPN Client service must be restarted to apply the change of remote management availability.
 CMD_RemoteDisable_Args	RemoteDisable
 
 

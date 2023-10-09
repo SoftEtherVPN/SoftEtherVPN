@@ -10,12 +10,24 @@
 
 #include "CedarType.h"
 
+#include "Mayaqua/MayaType.h"
 #include "Mayaqua/Kernel.h"
+#include "Mayaqua/Network.h"
 
 // Function to call when receiving a new connection
 typedef void (NEW_CONNECTION_PROC)(CONNECTION *c);
 
 
+// DOS attack list
+struct DOS
+{
+	IP IpAddress;					// IP address
+	UINT64 FirstConnectedTick;		// Time which a client connects at the first time
+	UINT64 LastConnectedTick;		// Time which a client connected at the last time
+	UINT64 CurrentExpireSpan;		// Current time-out period of this record
+	UINT64 DeleteEntryTick;			// Time planned to delete this entry
+	UINT AccessCount;				// The number of accesses
+};
 
 // Listener structure
 struct LISTENER
@@ -31,6 +43,8 @@ struct LISTENER
 	volatile bool Halt;				// Halting flag
 	UINT Status;					// State
 
+	LIST *DosList;					// DOS attack list
+	UINT64 DosListLastRefreshTime;	// Time that the DOS list is refreshed at the last
 
 	THREAD_PROC *ThreadProc;		// Thread procedure
 	void *ThreadParam;				// Thread parameters
@@ -105,6 +119,11 @@ void FreeDynamicListener(DYNAMIC_LISTENER *d);
 bool ListenerRUDPRpcRecvProc(RUDP_STACK *r, UDPPACKET *p);
 void ListenerSetProcRecvRpcEnable(bool b);
 
+int CompareDos(void *p1, void *p2);
+DOS *SearchDosList(LISTENER *r, IP *ip);
+void RefreshDosList(LISTENER *r);
+bool CheckDosAttack(LISTENER *r, SOCK *s);
+bool RemoveDosEntry(LISTENER *r, SOCK *s);
 
 #endif	// LISTENER_H
 

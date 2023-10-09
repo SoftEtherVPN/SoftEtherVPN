@@ -123,11 +123,7 @@ typedef int (COMPARE)(void *p1, void *p2);
 #define	GET_ABS(a)			((a) >= 0 ? (a) : -(a))
 
 // Convert the pointer to UINT
-#ifdef	CPU_64
-#define	POINTER_TO_KEY(p)		HashPtrToUINT(p)
-#else
-#define	POINTER_TO_KEY(p)		(UINT)(p)
-#endif
+#define	POINTER_TO_KEY(p)		(HashPtrToUINT(p))
 
 // Compare the pointer and UINT
 #define	COMPARE_POINTER_AND_KEY(p, i)	(POINTER_TO_KEY(p) == (i))
@@ -282,7 +278,8 @@ typedef struct TRACKING_LIST TRACKING_LIST;
 typedef struct IO IO;
 
 // Memory.h
-typedef struct MEMTAG MEMTAG;
+typedef struct MEMTAG1 MEMTAG1;
+typedef struct MEMTAG2 MEMTAG2;
 typedef struct BUF BUF;
 typedef struct FIFO FIFO;
 typedef struct LIST LIST;
