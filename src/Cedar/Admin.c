@@ -726,9 +726,8 @@ void AdminWebProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_siz
 	if (RecvAll(s, data, post_data_size, s->SecureMode))
 	{
 		c->JsonRpcAuthed = true;
-#ifndef	GC_SOFTETHER_OSS
+
 		RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 		// Divide url_target into URL and query string
 		StrCpy(url, sizeof(url), url_target);
@@ -767,9 +766,8 @@ void AdminWebProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
 	}
 
 	c->JsonRpcAuthed = true;
-#ifndef	GC_SOFTETHER_OSS
+
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	// Divide url_target into URL and query string
 	StrCpy(url, sizeof(url), url_target);
@@ -1199,9 +1197,7 @@ void JsonRpcProcOptions(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target
 
 	c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	AdminWebSendBody(s, 200, "OK", NULL, 0, NULL, NULL, NULL, h);
 }
@@ -1228,9 +1224,7 @@ void JsonRpcProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
 
 	c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	// Divide url_target into URL and query string
 	StrCpy(url, sizeof(url), url_target);
@@ -1357,9 +1351,7 @@ void JsonRpcProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size
 
 		c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 		RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 		if (json_req == NULL || json_req_object == NULL)
 		{
