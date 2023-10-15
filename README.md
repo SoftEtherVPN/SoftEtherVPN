@@ -101,9 +101,6 @@ https://github.com/davidebeatrici
 Ilya Shipitsin (Since Jul 21, 2018)
 https://github.com/chipitsine
 
-Yihong Wu (Since Jul 16, 2021)
-https://github.com/domosekai
-
 
 # SOFTETHER VPN ADVANTAGES
 
