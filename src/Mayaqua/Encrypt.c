@@ -775,6 +775,10 @@ BUF *BigNumToBuf(const BIGNUM *bn)
 
 	size = BN_num_bytes(bn);
 	tmp = ZeroMalloc(size);
+	if (tmp == NULL)
+	{
+		return NULL;
+	}
 	BN_bn2bin(bn, tmp);
 
 	b = NewBuf();
