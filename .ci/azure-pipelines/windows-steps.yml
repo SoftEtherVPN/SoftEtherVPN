@@ -29,12 +29,12 @@ steps:
   inputs:
     sourceFolder: '$(Build.BinariesDirectory)'
     contents: '?(*.exe|*.se2|*.pdb)'
-    TargetFolder: '$(Build.StagingDirectory)/binaries'
+    TargetFolder: '$(Build.StagingDirectory)/binaries/${{parameters.architecture}}'
     flattenFolders: true
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: '$(Build.StagingDirectory)/binaries'
-    artifactName: 'Binaries'
+    pathtoPublish: '$(Build.StagingDirectory)/binaries/${{parameters.architecture}}'
+    artifactName: 'Binaries_${{parameters.architecture}}'
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(Build.StagingDirectory)/installers'
