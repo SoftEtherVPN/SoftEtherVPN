@@ -5785,6 +5785,10 @@ SSL_PIPE *NewSslPipeEx2(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, b
 		}
 
 		ssl = SSL_new(ssl_ctx);
+		if (ssl == NULL)
+		{
+			return NULL;
+		}
 
 		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
