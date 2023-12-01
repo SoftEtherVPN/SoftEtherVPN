@@ -5803,6 +5803,10 @@ SSL_PIPE *NewSslPipeEx3(bool server_mode, X *x, K *k, LIST *chain, DH_CTX *dh, b
 #endif
 
 		ssl = SSL_new(ssl_ctx);
+		if (ssl == NULL)
+		{
+			return NULL;
+		}
 
 		SSL_set_ex_data(ssl, GetSslClientCertIndex(), clientcert);
 	}
