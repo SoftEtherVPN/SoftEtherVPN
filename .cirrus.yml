@@ -2,8 +2,10 @@ FreeBSD_task:
   matrix:
     env:
       SSL: openssl
+      OPENSSL_ROOT_DIR: /usr/local
     env:
-      SSL: openssl31
+      SSL: openssl32
+      OPENSSL_ROOT_DIR: /usr/local
     env:
       # base openssl
       SSL:
