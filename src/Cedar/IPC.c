@@ -1537,7 +1537,8 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 								// Remove link-layer address options for Windows clients (required on Windows 11)
 								if (header_size > 0)
 								{
-									UCHAR *src = p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer + header_size;
+									//UCHAR *src = p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer + header_size;
+									UCHAR* src = (UCHAR *)p->ICMPv6HeaderPacketInfo.Headers.HeaderPointer + header_size;// Cast the pointer to UCHAR *.
 									UINT opt_size = p->ICMPv6HeaderPacketInfo.DataSize - header_size;
 									UCHAR *dst = src;
 									UINT removed = 0;
