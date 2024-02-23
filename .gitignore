@@ -209,4 +209,4 @@ developer_tools/stbchecker/**/ASALocalRun/
 developer_tools/stbchecker/**/*.binlog
 developer_tools/stbchecker/**/*.nvuser
 developer_tools/stbchecker/**/.mfractor/
-
+/vcpkg_installed
