@@ -73,7 +73,7 @@ CK_PKCS11_FUNCTION_INFO(C_GetSlotList)
 (
   CK_BBOOL       tokenPresent,  /* only slots with tokens? */
   CK_SLOT_ID_PTR pSlotList,     /* receives array of slot IDs */
-  CK_ULONG_PTR   pulCount       /* receives number of slots */
+  CK_UINT_PTR   pulCount       /* receives number of slots */
 );
 #endif
 
@@ -351,7 +351,7 @@ CK_PKCS11_FUNCTION_INFO(C_FindObjects)
  CK_SESSION_HANDLE    hSession,          /* session's handle */
  CK_OBJECT_HANDLE_PTR phObject,          /* gets obj. handles */
  CK_ULONG             ulMaxObjectCount,  /* max handles to get */
- CK_ULONG_PTR         pulObjectCount     /* actual # returned */
+ CK_UINT_PTR         pulObjectCount     /* actual # returned */
 );
 #endif
 
@@ -558,7 +558,7 @@ CK_PKCS11_FUNCTION_INFO(C_Sign)
   CK_BYTE_PTR       pData,           /* the data to sign */
   CK_ULONG          ulDataLen,       /* count of bytes to sign */
   CK_BYTE_PTR       pSignature,      /* gets the signature */
-  CK_ULONG_PTR      pulSignatureLen  /* gets signature length */
+  CK_UINT_PTR      pulSignatureLen  /* gets signature length */
 );
 #endif
 
