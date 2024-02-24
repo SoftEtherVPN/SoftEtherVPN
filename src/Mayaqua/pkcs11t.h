@@ -51,6 +51,8 @@ typedef CK_BYTE           CK_BBOOL;
 /* an unsigned value, at least 32 bits long */
 typedef unsigned long int CK_ULONG;
 
+typedef unsigned int CK_UINT;
+
 /* a signed value, the same size as a CK_ULONG */
 /* CK_LONG is new for v2.0 */
 typedef long int          CK_LONG;
@@ -68,6 +70,7 @@ typedef CK_BYTE     CK_PTR   CK_BYTE_PTR;
 typedef CK_CHAR     CK_PTR   CK_CHAR_PTR;
 typedef CK_UTF8CHAR CK_PTR   CK_UTF8CHAR_PTR;
 typedef CK_ULONG    CK_PTR   CK_ULONG_PTR;
+typedef CK_UINT     CK_PTR   CK_UINT_PTR;
 typedef void        CK_PTR   CK_VOID_PTR;
 
 /* Pointer to a CK_VOID_PTR-- i.e., pointer to pointer to void */
@@ -110,7 +113,7 @@ typedef CK_ULONG CK_NOTIFICATION;
 #define CKN_SURRENDER       0
 
 
-typedef CK_ULONG          CK_SLOT_ID;
+typedef CK_UINT          CK_SLOT_ID;
 
 typedef CK_SLOT_ID CK_PTR CK_SLOT_ID_PTR;
 
@@ -262,7 +265,7 @@ typedef CK_TOKEN_INFO CK_PTR CK_TOKEN_INFO_PTR;
 
 /* CK_SESSION_HANDLE is a Cryptoki-assigned value that
  * identifies a session */
-typedef CK_ULONG          CK_SESSION_HANDLE;
+typedef CK_UINT          CK_SESSION_HANDLE;
 
 typedef CK_SESSION_HANDLE CK_PTR CK_SESSION_HANDLE_PTR; 
 
@@ -310,7 +313,7 @@ typedef CK_SESSION_INFO CK_PTR CK_SESSION_INFO_PTR;
 
 /* CK_OBJECT_HANDLE is a token-specific identifier for an
  * object  */
-typedef CK_ULONG          CK_OBJECT_HANDLE;
+typedef CK_UINT          CK_OBJECT_HANDLE;
 
 typedef CK_OBJECT_HANDLE CK_PTR CK_OBJECT_HANDLE_PTR;
 
