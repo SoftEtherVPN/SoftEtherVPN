@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(BUILD_NUMBER CACHE STRING "The number of the current build.")
 
 if ("${BUILD_NUMBER}" STREQUAL "")
-	set(BUILD_NUMBER "5180")
+	set(BUILD_NUMBER "5182")
 endif()
 
 if (BUILD_NUMBER LESS 5180)
