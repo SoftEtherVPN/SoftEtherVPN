@@ -1,5 +1,5 @@
 ﻿{
-  "environments": [ { "BuildNumber": "5180" } ],
+  "environments": [ { "BuildNumber": "5182" } ],
   "configurations": [
     {
       "name": "x64-native",
