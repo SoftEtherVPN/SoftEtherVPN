@@ -827,7 +827,9 @@ SU_ADAPTER_LIST *SuAdapterInfoToAdapterList(SL_ADAPTER_INFO *info)
 	Copy(&t.Info, info, sizeof(SL_ADAPTER_INFO));
 
 	UniToStr(tmp, sizeof(tmp), info->AdapterId);
-	if (IsEmptyStr(tmp) || IsEmptyStr(info->FriendlyName) || StartWith(tmp, SL_ADAPTER_ID_PREFIX) == false)
+	// Make the NIC appear in the "Local Bridge Settings" list regardless of a NULL character consisted in "FriendlyName".
+	//if (IsEmptyStr(tmp) || IsEmptyStr(info->FriendlyName) || StartWith(tmp, SL_ADAPTER_ID_PREFIX) == false)
+	if (IsEmptyStr(tmp) || StartWith(tmp, SL_ADAPTER_ID_PREFIX) == false)
 	{
 		// Name is invalid
 		return NULL;
