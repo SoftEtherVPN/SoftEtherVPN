@@ -1,0 +1,87 @@
+name: Bug Report or Issue Report
+description: File a bug report or an issue report
+labels: "needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!         
+        We provide a template which is specifically made for bug reports, to be sure that the report includes enough details to be helpful.
+  
+  - type: checkboxes
+    attributes:
+      label: Are you using SoftEther VPN 5.x?
+      description: |
+        This issue tracker is for SoftEther VPN Developer Edition versioned 5.x.
+        Please report issues about SoftEther VPN Stable Edition versioned 4.x through the correct path.
+        See also [the top  of the issue tracker](https://github.com/SoftEtherVPN/SoftEtherVPN/issues/new/choose).
+      options:
+        - label: Yes, I'm using SoftEther VPN 5.x, not 4.x.
+          required: true
+
+  - type: input
+    attributes:
+      label: Version
+      description: |
+          The exact version you are using.
+          It would be very nice if you let us know version tag or commit hash.
+      placeholder: "5.02.5180 / 09b7e4f / 5.01.9674+git20200806+8181039+dfsg2-2build1"
+    
+  - type: dropdown
+    attributes:
+      label: Component
+      description: Which component did you encounter an issue with?
+      multiple: true
+      options:
+        - VPN Server
+        - VPN Bridge
+        - VPN Client
+        - VPN Tools
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Operating system & version
+      placeholder: "Windows 11 Pro 23H2 / Ubuntu 22.04 / FreeBSD 14.0 / macOS Sonoma / Independent"
+      description: |
+        Let us know about your operating system and version.
+    validations:
+      required: true
+      
+  - type: input
+    attributes:
+      label: Architecture or Hardware model
+      placeholder: "amd64 / aarch64 / Raspberry Pi 4B+ / Apple M2"
+      description: |
+        Necessary if your issue is architecture-specific.
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      placeholder: Having detailed steps helps us reproduce the bug.
+    validations:
+      required: true
+      
+  - type: textarea
+    attributes:
+      label: ✔️ Expected Behavior
+      placeholder: What do you expect to happen?
+    validations:
+      required: false
+      
+  - type: textarea
+    attributes:
+      label: ❌ Actual Behavior
+      placeholder: What happened actually?
+    validations:
+      required: false
+      
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: |
+        Links? References?  
+        Anything that will give us more context about the issue you are encountering!
+  
