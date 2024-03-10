@@ -1162,7 +1162,6 @@ void Win32EthMakeCombinedName(char *dst, UINT dst_size, char *nicname, char *gui
 	if (IsEmptyStr(guid) == false)
 	{
 		// Allow to combine "FriendlyName" consisting of a NULL character and ID.
-		//Format(dst, dst_size, "%s (ID=%010u)", nicname, Win32EthGenIdFromGuid(guid));
 		Format(dst, dst_size, "%s(ID=%010u)", nicname, Win32EthGenIdFromGuid(guid));
 	}
 	else
@@ -1187,7 +1186,7 @@ UINT Win32EthGetNameAndIdFromCombinedName(char *name, UINT name_size, char *str)
 
 	len = StrLen(str);
 
-	// Allow to combine "FriendlyName" consisting of a NULL character and ID.
+	// Allow to combine "FriendlyName" consisting of a NULL character and ID beginning with "(ID=".
 	if (len >= 15)
 	{
 		StrCpy(id_str, sizeof(id_str), str + len - 15);
@@ -1410,8 +1409,7 @@ LIST *GetEthAdapterListInternal()
 	UINT size;
 	char *buf;
 	UINT i, j;
-	//char *qos_tag = " (Microsoft's Packet Scheduler)";
-	char *qos_tag = "(Microsoft's Packet Scheduler)";	// Allow to combine "FriendlyName" consisting of a NULL character and QOS.
+	char *qos_tag = "(Microsoft's Packet Scheduler)";	// Allow to combine "FriendlyName" consisting of a NULL character and QOS tag.
 	SU *su = NULL;
 	LIST *su_adapter_list = NULL;
 
@@ -1666,8 +1664,7 @@ ANSI_STR:
 				}
 				else
 				{
-					// Allow to combine "FriendlyName" consisting of a NULL character and ID.
-					//Format(tmp, sizeof(tmp), "%s (%u)", a->Title, k + 1);
+					// Allow to combine "FriendlyName" consisting of a NULL character and SEQ number.
 					Format(tmp, sizeof(tmp), "%s(%u)", a->Title, k + 1);
 				}
 
