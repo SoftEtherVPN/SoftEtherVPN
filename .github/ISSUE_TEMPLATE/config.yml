@@ -1,0 +1,8 @@
+contact_links:
+  - name: Are you using SoftEther VPN 4.x?
+    about: This repository is for SoftEther VPN 5.x Developer Edition, developed independently from SoftEther VPN 4.x. Visit vpnusers.com if you would like to report issues or ask questions about version 4.x!
+    url: https://www.vpnusers.com/
+
+  - name: Questions about SoftEtherVPN 5.x
+    about: Visit Discussions to ask community to help.
+    url: https://github.com/SoftEtherVPN/SoftEtherVPN/discussions/new?category=q-a
