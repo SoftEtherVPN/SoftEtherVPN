@@ -2,13 +2,13 @@
 // Runs on both web browsers and Node.js
 // 
 // sample.ts
-// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen
 // 
 // This sample code shows how to call all available RPC functions.
 // You can copy and paste test code to write your own web browser TypeScript / JavaScript codes.
 //
 // Licensed under the Apache License 2.0
-// Copyright (c) 2014-2019 SoftEther VPN Project
+// Copyright (c) 2014-2023 SoftEther VPN Project
 
 // On the web browser uncomment below imports as necessary to support old browsers.
 // import "core-js/es6/promise";
@@ -216,8 +216,8 @@ async function Test_All(): Promise<void>
     await Test_SetOpenVpnSstpConfig();
     await Test_GetOpenVpnSstpConfig();
     await Test_GetDDnsClientStatus();
-    await Test_SetDDnsInternetSettng();
-    await Test_GetDDnsInternetSettng();
+    await Test_SetDDnsInternetSetting();
+    await Test_GetDDnsInternetSetting();
     await Test_ChangeDDnsClientHostname();
     await Test_RegenerateServerCert();
     await Test_MakeOpenVpnConfigFile();
@@ -2624,21 +2624,21 @@ async function Test_SetAzureStatus(): Promise<void>
     console.log();
 }
 
-/** API test for 'GetDDnsInternetSettng', Get DDNS proxy configuration */
-async function Test_GetDDnsInternetSettng(): Promise<void>
+/** API test for 'GetDDnsInternetSetting', Get DDNS proxy configuration */
+async function Test_GetDDnsInternetSetting(): Promise<void>
 {
-    console.log("Begin: Test_GetDDnsInternetSettng");
-    let out_internet_setting: VPN.VpnInternetSetting = await api.GetDDnsInternetSettng();
+    console.log("Begin: Test_GetDDnsInternetSetting");
+    let out_internet_setting: VPN.VpnInternetSetting = await api.GetDDnsInternetSetting();
     console.log(out_internet_setting);
-    console.log("End: Test_GetDDnsInternetSettng");
+    console.log("End: Test_GetDDnsInternetSetting");
     console.log("-----");
     console.log();
 }
 
-/** API test for 'SetDDnsInternetSettng', Set DDNS proxy configuration */
-async function Test_SetDDnsInternetSettng(): Promise<void>
+/** API test for 'SetDDnsInternetSetting', Set DDNS proxy configuration */
+async function Test_SetDDnsInternetSetting(): Promise<void>
 {
-    console.log("Begin: Test_SetDDnsInternetSettng");
+    console.log("Begin: Test_SetDDnsInternetSetting");
     let in_internet_setting: VPN.VpnInternetSetting = new VPN.VpnInternetSetting(
     {
         ProxyType_u32: VPN.VpnRpcProxyType.Direct,
@@ -2647,9 +2647,9 @@ async function Test_SetDDnsInternetSettng(): Promise<void>
         ProxyUsername_str: "neko",
         ProxyPassword_str: "dog",
     });
-    let out_internet_setting: VPN.VpnInternetSetting = await api.SetDDnsInternetSettng(in_internet_setting);
+    let out_internet_setting: VPN.VpnInternetSetting = await api.SetDDnsInternetSetting(in_internet_setting);
     console.log(out_internet_setting);
-    console.log("End: Test_SetDDnsInternetSettng");
+    console.log("End: Test_SetDDnsInternetSetting");
     console.log("-----");
     console.log();
 }

@@ -2,10 +2,10 @@
 // 
 // JsonRpc.cs - JSON-RPC Client Utility Functions
 //
-// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen
 //
 // Licensed under the Apache License 2.0
-// Copyright (c) 2014-2019 SoftEther VPN Project
+// Copyright (c) 2014-2023 SoftEther VPN Project
 
 using System;
 using System.IO;

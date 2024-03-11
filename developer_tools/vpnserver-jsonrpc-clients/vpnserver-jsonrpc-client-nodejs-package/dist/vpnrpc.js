@@ -599,12 +599,12 @@ var VpnServerRpc = /** @class */ (function () {
             return _this.CallAsync("SetAzureStatus", in_param);
         };
         /** Get the Proxy Settings for Connecting to the DDNS server. */
-        this.GetDDnsInternetSettng = function () {
-            return _this.CallAsync("GetDDnsInternetSettng", new VpnInternetSetting());
+        this.GetDDnsInternetSetting = function () {
+            return _this.CallAsync("GetDDnsInternetSetting", new VpnInternetSetting());
         };
         /** Set the Proxy Settings for Connecting to the DDNS server. */
-        this.SetDDnsInternetSettng = function (in_param) {
-            return _this.CallAsync("SetDDnsInternetSettng", in_param);
+        this.SetDDnsInternetSetting = function (in_param) {
+            return _this.CallAsync("SetDDnsInternetSetting", in_param);
         };
         /** Set the VPN Gate Server Configuration. This API is valid for Win32 binary distribution of the Stable Edition of SoftEther VPN Server. */
         this.SetVgsConfig = function (in_param) {

@@ -216,8 +216,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
 <li><a href="#getspeciallistener">GetSpecialListener - Get Current Setting of the VPN over ICMP / VPN over DNS Function</a></li>
 <li><a href="#getazurestatus">GetAzureStatus - Show the current status of VPN Azure function</a></li>
 <li><a href="#setazurestatus">SetAzureStatus - Enable / Disable VPN Azure Function</a></li>
-<li><a href="#getddnsinternetsettng">GetDDnsInternetSettng - Get the Proxy Settings for Connecting to the DDNS server</a></li>
-<li><a href="#setddnsinternetsettng">SetDDnsInternetSettng - Set the Proxy Settings for Connecting to the DDNS server</a></li>
+<li><a href="#getddnsinternetsetting">GetDDnsInternetSetting - Get the Proxy Settings for Connecting to the DDNS server</a></li>
+<li><a href="#setddnsinternetsetting">SetDDnsInternetSetting - Set the Proxy Settings for Connecting to the DDNS server</a></li>
 <li><a href="#setvgsconfig">SetVgsConfig - Set the VPN Gate Server Configuration</a></li>
 <li><a href="#getvgsconfig">GetVgsConfig - Get the VPN Gate Server Configuration</a></li>
 </ul>
@@ -305,7 +305,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;ServerBuildInt_u32&quot;: 0,
     &quot;ServerHostName_str&quot;: &quot;serverhostname&quot;,
     &quot;ServerType_u32&quot;: 0,
-    &quot;ServerBuildDate_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;ServerBuildDate_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;ServerFamilyName_str&quot;: &quot;serverfamilyname&quot;,
     &quot;OsType_u32&quot;: 0,
     &quot;OsServicePack_u32&quot;: 0,
@@ -460,9 +460,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;Send.BroadcastCount_u64&quot;: 0,
     &quot;Send.UnicastBytes_u64&quot;: 0,
     &quot;Send.UnicastCount_u64&quot;: 0,
-    &quot;CurrentTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;CurrentTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;CurrentTick_u64&quot;: 0,
-    &quot;StartTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;StartTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;TotalMemory_u64&quot;: 0,
     &quot;UsedMemory_u64&quot;: 0,
     &quot;FreeMemory_u64&quot;: 0,
@@ -1136,7 +1136,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
   &quot;result&quot;: {
     &quot;Id_u32&quot;: 0,
     &quot;Controller_bool&quot;: false,
-    &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
     &quot;Hostname_str&quot;: &quot;hostname&quot;,
     &quot;Point_u32&quot;: 0,
@@ -1283,7 +1283,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
       {
         &quot;Id_u32&quot;: 0,
         &quot;Controller_bool&quot;: false,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Point_u32&quot;: 0,
@@ -1296,7 +1296,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
       {
         &quot;Id_u32&quot;: 0,
         &quot;Controller_bool&quot;: false,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Point_u32&quot;: 0,
@@ -1309,7 +1309,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
       {
         &quot;Id_u32&quot;: 0,
         &quot;Controller_bool&quot;: false,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Point_u32&quot;: 0,
@@ -1422,9 +1422,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;Port_u32&quot;: 0,
     &quot;Online_bool&quot;: false,
     &quot;LastError_u32&quot;: 0,
-    &quot;StartedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;FirstConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;CurrentConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;StartedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;FirstConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;CurrentConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;NumTry_u32&quot;: 0,
     &quot;NumConnected_u32&quot;: 0,
     &quot;NumFailed_u32&quot;: 0
@@ -1918,9 +1918,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;NumSessions_u32&quot;: 0,
         &quot;NumMacTables_u32&quot;: 0,
         &quot;NumIpTables_u32&quot;: 0,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;NumLogin_u32&quot;: 0,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
@@ -1941,9 +1941,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;NumSessions_u32&quot;: 0,
         &quot;NumMacTables_u32&quot;: 0,
         &quot;NumIpTables_u32&quot;: 0,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;NumLogin_u32&quot;: 0,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
@@ -1964,9 +1964,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;NumSessions_u32&quot;: 0,
         &quot;NumMacTables_u32&quot;: 0,
         &quot;NumIpTables_u32&quot;: 0,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;NumLogin_u32&quot;: 0,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
@@ -2309,7 +2309,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Port_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Type_u32&quot;: 0
       },
       {
@@ -2317,7 +2317,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Port_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Type_u32&quot;: 0
       },
       {
@@ -2325,7 +2325,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Port_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Type_u32&quot;: 0
       }
     ]
@@ -2450,7 +2450,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;Hostname_str&quot;: &quot;hostname&quot;,
     &quot;Ip_ip&quot;: &quot;192.168.0.1&quot;,
     &quot;Port_u32&quot;: 0,
-    &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;ServerStr_str&quot;: &quot;serverstr&quot;,
     &quot;ServerVer_u32&quot;: 0,
     &quot;ServerBuild_u32&quot;: 0,
@@ -2620,9 +2620,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;Send.UnicastBytes_u64&quot;: 0,
     &quot;Send.UnicastCount_u64&quot;: 0,
     &quot;SecureNATEnabled_bool&quot;: false,
-    &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;NumLogin_u32&quot;: 0
   }
 }
@@ -2992,19 +2992,19 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Key_u32&quot;: 0,
         &quot;SubjectName_utf&quot;: &quot;subjectname&quot;,
         &quot;IssuerName_utf&quot;: &quot;issuername&quot;,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;Key_u32&quot;: 0,
         &quot;SubjectName_utf&quot;: &quot;subjectname&quot;,
         &quot;IssuerName_utf&quot;: &quot;issuername&quot;,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;Key_u32&quot;: 0,
         &quot;SubjectName_utf&quot;: &quot;subjectname&quot;,
         &quot;IssuerName_utf&quot;: &quot;issuername&quot;,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       }
     ]
   }
@@ -4348,7 +4348,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Online_bool&quot;: false,
         &quot;Connected_bool&quot;: false,
         &quot;LastError_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;TargetHubName_str&quot;: &quot;targethubname&quot;
       },
@@ -4357,7 +4357,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Online_bool&quot;: false,
         &quot;Connected_bool&quot;: false,
         &quot;LastError_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;TargetHubName_str&quot;: &quot;targethubname&quot;
       },
@@ -4366,7 +4366,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Online_bool&quot;: false,
         &quot;Connected_bool&quot;: false,
         &quot;LastError_u32&quot;: 0,
-        &quot;ConnectedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;ConnectedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Hostname_str&quot;: &quot;hostname&quot;,
         &quot;TargetHubName_str&quot;: &quot;targethubname&quot;
       }
@@ -4668,9 +4668,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;ServerProductBuild_u32&quot;: 0,
     &quot;ServerX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
     &quot;ClientX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-    &quot;StartTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;FirstConnectionEstablisiedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;CurrentConnectionEstablishTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;StartTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;FirstConnectionEstablisiedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;CurrentConnectionEstablishTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;NumConnectionsEatablished_u32&quot;: 0,
     &quot;HalfConnection_bool&quot;: false,
     &quot;QoS_bool&quot;: false,
@@ -5996,7 +5996,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;Name_str&quot;: &quot;name&quot;,
     &quot;Realname_utf&quot;: &quot;realname&quot;,
     &quot;Note_utf&quot;: &quot;note&quot;,
-    &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;AuthType_u32&quot;: 0,
     &quot;Auth_Password_str&quot;: &quot;auth_password&quot;,
     &quot;UserX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
@@ -6057,9 +6057,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;GroupName_str&quot;: &quot;groupname&quot;,
     &quot;Realname_utf&quot;: &quot;realname&quot;,
     &quot;Note_utf&quot;: &quot;note&quot;,
-    &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;AuthType_u32&quot;: 0,
     &quot;Auth_Password_str&quot;: &quot;auth_password&quot;,
     &quot;UserX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
@@ -6467,7 +6467,7 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;GroupName_str&quot;: &quot;groupname&quot;,
     &quot;Realname_utf&quot;: &quot;realname&quot;,
     &quot;Note_utf&quot;: &quot;note&quot;,
-    &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;AuthType_u32&quot;: 0,
     &quot;Auth_Password_str&quot;: &quot;auth_password&quot;,
     &quot;UserX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
@@ -6528,9 +6528,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;GroupName_str&quot;: &quot;groupname&quot;,
     &quot;Realname_utf&quot;: &quot;realname&quot;,
     &quot;Note_utf&quot;: &quot;note&quot;,
-    &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;AuthType_u32&quot;: 0,
     &quot;Auth_Password_str&quot;: &quot;auth_password&quot;,
     &quot;UserX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
@@ -6948,9 +6948,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;GroupName_str&quot;: &quot;groupname&quot;,
     &quot;Realname_utf&quot;: &quot;realname&quot;,
     &quot;Note_utf&quot;: &quot;note&quot;,
-    &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;AuthType_u32&quot;: 0,
     &quot;Auth_Password_str&quot;: &quot;auth_password&quot;,
     &quot;UserX_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
@@ -7419,11 +7419,11 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Note_utf&quot;: &quot;note&quot;,
         &quot;AuthType_u32&quot;: 0,
         &quot;NumLogin_u32&quot;: 0,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;DenyAccess_bool&quot;: false,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;IsExpiresFilled_bool&quot;: false,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
         &quot;Ex.Recv.BroadcastCount_u64&quot;: 0,
         &quot;Ex.Recv.UnicastBytes_u64&quot;: 0,
@@ -7440,11 +7440,11 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Note_utf&quot;: &quot;note&quot;,
         &quot;AuthType_u32&quot;: 0,
         &quot;NumLogin_u32&quot;: 0,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;DenyAccess_bool&quot;: false,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;IsExpiresFilled_bool&quot;: false,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
         &quot;Ex.Recv.BroadcastCount_u64&quot;: 0,
         &quot;Ex.Recv.UnicastBytes_u64&quot;: 0,
@@ -7461,11 +7461,11 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Note_utf&quot;: &quot;note&quot;,
         &quot;AuthType_u32&quot;: 0,
         &quot;NumLogin_u32&quot;: 0,
-        &quot;LastLoginTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LastLoginTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;DenyAccess_bool&quot;: false,
         &quot;IsTrafficFilled_bool&quot;: false,
         &quot;IsExpiresFilled_bool&quot;: false,
-        &quot;Expires_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;Expires_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;Ex.Recv.BroadcastBytes_u64&quot;: 0,
         &quot;Ex.Recv.BroadcastCount_u64&quot;: 0,
         &quot;Ex.Recv.UnicastBytes_u64&quot;: 0,
@@ -8907,8 +8907,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Client_MonitorMode_bool&quot;: false,
         &quot;VLanId_u32&quot;: 0,
         &quot;UniqueId_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;Name_str&quot;: &quot;name&quot;,
@@ -8929,8 +8929,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Client_MonitorMode_bool&quot;: false,
         &quot;VLanId_u32&quot;: 0,
         &quot;UniqueId_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;Name_str&quot;: &quot;name&quot;,
@@ -8951,8 +8951,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Client_MonitorMode_bool&quot;: false,
         &quot;VLanId_u32&quot;: 0,
         &quot;UniqueId_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       }
     ]
   }
@@ -9117,9 +9117,9 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;ServerProductName_str&quot;: &quot;serverproductname&quot;,
     &quot;ServerProductVer_u32&quot;: 0,
     &quot;ServerProductBuild_u32&quot;: 0,
-    &quot;StartTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;FirstConnectionEstablisiedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-    &quot;CurrentConnectionEstablishTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+    &quot;StartTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;FirstConnectionEstablisiedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+    &quot;CurrentConnectionEstablishTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
     &quot;NumConnectionsEatablished_u32&quot;: 0,
     &quot;HalfConnection_bool&quot;: false,
     &quot;QoS_bool&quot;: false,
@@ -9496,8 +9496,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Key_u32&quot;: 0,
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;,
         &quot;VlanId_u32&quot;: 0
@@ -9506,8 +9506,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Key_u32&quot;: 0,
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;,
         &quot;VlanId_u32&quot;: 0
@@ -9516,8 +9516,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;Key_u32&quot;: 0,
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;,
         &quot;VlanId_u32&quot;: 0
@@ -9663,8 +9663,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DhcpAllocated_bool&quot;: false,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;
       },
@@ -9673,8 +9673,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DhcpAllocated_bool&quot;: false,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;
       },
@@ -9683,8 +9683,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;SessionName_str&quot;: &quot;sessionname&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DhcpAllocated_bool&quot;: false,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;RemoteItem_bool&quot;: false,
         &quot;RemoteHostname_str&quot;: &quot;remotehostname&quot;
       }
@@ -10376,8 +10376,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;DestIp_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DestHost_str&quot;: &quot;desthost&quot;,
         &quot;DestPort_u32&quot;: 0,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;SendSize_u64&quot;: 0,
         &quot;RecvSize_u64&quot;: 0,
         &quot;TcpStatus_u32&quot;: 0
@@ -10391,8 +10391,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;DestIp_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DestHost_str&quot;: &quot;desthost&quot;,
         &quot;DestPort_u32&quot;: 0,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;SendSize_u64&quot;: 0,
         &quot;RecvSize_u64&quot;: 0,
         &quot;TcpStatus_u32&quot;: 0
@@ -10406,8 +10406,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;DestIp_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;DestHost_str&quot;: &quot;desthost&quot;,
         &quot;DestPort_u32&quot;: 0,
-        &quot;CreatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;LastCommTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;CreatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;LastCommTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;SendSize_u64&quot;: 0,
         &quot;RecvSize_u64&quot;: 0,
         &quot;TcpStatus_u32&quot;: 0
@@ -10527,8 +10527,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
     &quot;DhcpTable&quot;: [
       {
         &quot;Id_u32&quot;: 0,
-        &quot;LeasedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LeasedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Mask_u32&quot;: 0,
@@ -10536,8 +10536,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
       },
       {
         &quot;Id_u32&quot;: 0,
-        &quot;LeasedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LeasedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Mask_u32&quot;: 0,
@@ -10545,8 +10545,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
       },
       {
         &quot;Id_u32&quot;: 0,
-        &quot;LeasedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
-        &quot;ExpireTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;,
+        &quot;LeasedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
+        &quot;ExpireTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;,
         &quot;MacAddress_bin&quot;: &quot;SGVsbG8gV29ybGQ=&quot;,
         &quot;IpAddress_ip&quot;: &quot;192.168.0.1&quot;,
         &quot;Mask_u32&quot;: 0,
@@ -13090,19 +13090,19 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
         &quot;ServerName_str&quot;: &quot;servername&quot;,
         &quot;FilePath_str&quot;: &quot;filepath&quot;,
         &quot;FileSize_u32&quot;: 0,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;ServerName_str&quot;: &quot;servername&quot;,
         &quot;FilePath_str&quot;: &quot;filepath&quot;,
         &quot;FileSize_u32&quot;: 0,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       },
       {
         &quot;ServerName_str&quot;: &quot;servername&quot;,
         &quot;FilePath_str&quot;: &quot;filepath&quot;,
         &quot;FileSize_u32&quot;: 0,
-        &quot;UpdatedTime_dt&quot;: &quot;2020-08-01T12:24:36.123&quot;
+        &quot;UpdatedTime_dt&quot;: &quot;2024-08-01T12:24:36.123&quot;
       }
     ]
   }
@@ -14508,15 +14508,15 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
 </tbody>
 </table>
 <hr />
-<p><a id="getddnsinternetsettng"></a></p>
-<h2 id="getddnsinternetsettng-rpc-api-get-the-proxy-settings-for-connecting-to-the-ddns-server">&quot;GetDDnsInternetSettng&quot; RPC API - Get the Proxy Settings for Connecting to the DDNS server</h2>
+<p><a id="getddnsinternetsetting"></a></p>
+<h2 id="getddnsinternetsetting-rpc-api-get-the-proxy-settings-for-connecting-to-the-ddns-server">&quot;GetDDnsInternetSetting&quot; RPC API - Get the Proxy Settings for Connecting to the DDNS server</h2>
 <h3 id="description-131">Description</h3>
 <p>Get the Proxy Settings for Connecting to the DDNS server.</p>
 <h3 id="input-json-rpc-format-131">Input JSON-RPC Format</h3>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;id&quot;: &quot;rpc_call_id&quot;,
-  &quot;method&quot;: &quot;GetDDnsInternetSettng&quot;,
+  &quot;method&quot;: &quot;GetDDnsInternetSetting&quot;,
   &quot;params&quot;: {}
 }
 </code></pre>
@@ -14571,15 +14571,15 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
 </tbody>
 </table>
 <hr />
-<p><a id="setddnsinternetsettng"></a></p>
-<h2 id="setddnsinternetsettng-rpc-api-set-the-proxy-settings-for-connecting-to-the-ddns-server">&quot;SetDDnsInternetSettng&quot; RPC API - Set the Proxy Settings for Connecting to the DDNS server</h2>
+<p><a id="setddnsinternetsetting"></a></p>
+<h2 id="setddnsinternetsetting-rpc-api-set-the-proxy-settings-for-connecting-to-the-ddns-server">&quot;SetDDnsInternetSetting&quot; RPC API - Set the Proxy Settings for Connecting to the DDNS server</h2>
 <h3 id="description-132">Description</h3>
 <p>Set the Proxy Settings for Connecting to the DDNS server.</p>
 <h3 id="input-json-rpc-format-132">Input JSON-RPC Format</h3>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;id&quot;: &quot;rpc_call_id&quot;,
-  &quot;method&quot;: &quot;SetDDnsInternetSettng&quot;,
+  &quot;method&quot;: &quot;SetDDnsInternetSetting&quot;,
   &quot;params&quot;: {
     &quot;ProxyType_u32&quot;: 0,
     &quot;ProxyHostName_str&quot;: &quot;proxyhostname&quot;,
@@ -14640,8 +14640,8 @@ All APIs are based on the <a href="https://www.jsonrpc.org/specification">JSON-R
 </tbody>
 </table>
 <hr />
-<p>Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen.<br />
-Copyright (c) 2014-2019 <a href="https://www.softether.org/">SoftEther VPN Project</a> under the Apache License 2.0.</p>
+<p>Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen.<br />
+Copyright (c) 2014-2023 <a href="https://www.softether.org/">SoftEther VPN Project</a> under the Apache License 2.0.</p>
 
 	</article>
 </body>

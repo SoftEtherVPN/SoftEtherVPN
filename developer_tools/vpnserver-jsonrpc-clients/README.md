@@ -208,8 +208,8 @@ Value | Description
 - [GetSpecialListener - Get Current Setting of the VPN over ICMP / VPN over DNS Function](#getspeciallistener)
 - [GetAzureStatus - Show the current status of VPN Azure function](#getazurestatus)
 - [SetAzureStatus - Enable / Disable VPN Azure Function](#setazurestatus)
-- [GetDDnsInternetSettng - Get the Proxy Settings for Connecting to the DDNS server](#getddnsinternetsettng)
-- [SetDDnsInternetSettng - Set the Proxy Settings for Connecting to the DDNS server](#setddnsinternetsettng)
+- [GetDDnsInternetSetting - Get the Proxy Settings for Connecting to the DDNS server](#getddnsinternetsetting)
+- [SetDDnsInternetSetting - Set the Proxy Settings for Connecting to the DDNS server](#setddnsinternetsetting)
 - [SetVgsConfig - Set the VPN Gate Server Configuration](#setvgsconfig)
 - [GetVgsConfig - Get the VPN Gate Server Configuration](#getvgsconfig)
 
@@ -283,7 +283,7 @@ Get server information. This allows you to obtain the server information of the 
     "ServerBuildInt_u32": 0,
     "ServerHostName_str": "serverhostname",
     "ServerType_u32": 0,
-    "ServerBuildDate_dt": "2020-08-01T12:24:36.123",
+    "ServerBuildDate_dt": "2024-08-01T12:24:36.123",
     "ServerFamilyName_str": "serverfamilyname",
     "OsType_u32": 0,
     "OsServicePack_u32": 0,
@@ -368,9 +368,9 @@ Get Current Server Status. This allows you to obtain in real-time the current st
     "Send.BroadcastCount_u64": 0,
     "Send.UnicastBytes_u64": 0,
     "Send.UnicastCount_u64": 0,
-    "CurrentTime_dt": "2020-08-01T12:24:36.123",
+    "CurrentTime_dt": "2024-08-01T12:24:36.123",
     "CurrentTick_u64": 0,
-    "StartTime_dt": "2020-08-01T12:24:36.123",
+    "StartTime_dt": "2024-08-01T12:24:36.123",
     "TotalMemory_u64": 0,
     "UsedMemory_u64": 0,
     "FreeMemory_u64": 0,
@@ -768,7 +768,7 @@ Get Cluster Member Information. When the VPN Server is operating as a cluster co
   "result": {
     "Id_u32": 0,
     "Controller_bool": false,
-    "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+    "ConnectedTime_dt": "2024-08-01T12:24:36.123",
     "Ip_ip": "192.168.0.1",
     "Hostname_str": "hostname",
     "Point_u32": 0,
@@ -849,7 +849,7 @@ Get List of Cluster Members. Use this API when the VPN Server is operating as a 
       {
         "Id_u32": 0,
         "Controller_bool": false,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Ip_ip": "192.168.0.1",
         "Hostname_str": "hostname",
         "Point_u32": 0,
@@ -862,7 +862,7 @@ Get List of Cluster Members. Use this API when the VPN Server is operating as a 
       {
         "Id_u32": 0,
         "Controller_bool": false,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Ip_ip": "192.168.0.1",
         "Hostname_str": "hostname",
         "Point_u32": 0,
@@ -875,7 +875,7 @@ Get List of Cluster Members. Use this API when the VPN Server is operating as a 
       {
         "Id_u32": 0,
         "Controller_bool": false,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Ip_ip": "192.168.0.1",
         "Hostname_str": "hostname",
         "Point_u32": 0,
@@ -934,9 +934,9 @@ Get Connection Status to Cluster Controller. Use this API when the VPN Server is
     "Port_u32": 0,
     "Online_bool": false,
     "LastError_u32": 0,
-    "StartedTime_dt": "2020-08-01T12:24:36.123",
-    "FirstConnectedTime_dt": "2020-08-01T12:24:36.123",
-    "CurrentConnectedTime_dt": "2020-08-01T12:24:36.123",
+    "StartedTime_dt": "2024-08-01T12:24:36.123",
+    "FirstConnectedTime_dt": "2024-08-01T12:24:36.123",
+    "CurrentConnectedTime_dt": "2024-08-01T12:24:36.123",
     "NumTry_u32": 0,
     "NumConnected_u32": 0,
     "NumFailed_u32": 0
@@ -1278,9 +1278,9 @@ Get List of Virtual Hubs. Use this to get a list of existing Virtual Hubs on the
         "NumSessions_u32": 0,
         "NumMacTables_u32": 0,
         "NumIpTables_u32": 0,
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
         "NumLogin_u32": 0,
         "IsTrafficFilled_bool": false,
         "Ex.Recv.BroadcastBytes_u64": 0,
@@ -1301,9 +1301,9 @@ Get List of Virtual Hubs. Use this to get a list of existing Virtual Hubs on the
         "NumSessions_u32": 0,
         "NumMacTables_u32": 0,
         "NumIpTables_u32": 0,
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
         "NumLogin_u32": 0,
         "IsTrafficFilled_bool": false,
         "Ex.Recv.BroadcastBytes_u64": 0,
@@ -1324,9 +1324,9 @@ Get List of Virtual Hubs. Use this to get a list of existing Virtual Hubs on the
         "NumSessions_u32": 0,
         "NumMacTables_u32": 0,
         "NumIpTables_u32": 0,
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
         "NumLogin_u32": 0,
         "IsTrafficFilled_bool": false,
         "Ex.Recv.BroadcastBytes_u64": 0,
@@ -1525,7 +1525,7 @@ Get List of TCP Connections Connecting to the VPN Server. Use this to get a list
         "Hostname_str": "hostname",
         "Ip_ip": "192.168.0.1",
         "Port_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Type_u32": 0
       },
       {
@@ -1533,7 +1533,7 @@ Get List of TCP Connections Connecting to the VPN Server. Use this to get a list
         "Hostname_str": "hostname",
         "Ip_ip": "192.168.0.1",
         "Port_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Type_u32": 0
       },
       {
@@ -1541,7 +1541,7 @@ Get List of TCP Connections Connecting to the VPN Server. Use this to get a list
         "Hostname_str": "hostname",
         "Ip_ip": "192.168.0.1",
         "Port_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Type_u32": 0
       }
     ]
@@ -1626,7 +1626,7 @@ Get Information of TCP Connections Connecting to the VPN Server. Use this to get
     "Hostname_str": "hostname",
     "Ip_ip": "192.168.0.1",
     "Port_u32": 0,
-    "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+    "ConnectedTime_dt": "2024-08-01T12:24:36.123",
     "ServerStr_str": "serverstr",
     "ServerVer_u32": 0,
     "ServerBuild_u32": 0,
@@ -1736,9 +1736,9 @@ Get Current Status of Virtual Hub. Use this to get the current status of the Vir
     "Send.UnicastBytes_u64": 0,
     "Send.UnicastCount_u64": 0,
     "SecureNATEnabled_bool": false,
-    "LastCommTime_dt": "2020-08-01T12:24:36.123",
-    "LastLoginTime_dt": "2020-08-01T12:24:36.123",
-    "CreatedTime_dt": "2020-08-01T12:24:36.123",
+    "LastCommTime_dt": "2024-08-01T12:24:36.123",
+    "LastLoginTime_dt": "2024-08-01T12:24:36.123",
+    "CreatedTime_dt": "2024-08-01T12:24:36.123",
     "NumLogin_u32": 0
   }
 }
@@ -1948,19 +1948,19 @@ Get List of Trusted CA Certificates. Here you can manage the certificate authori
         "Key_u32": 0,
         "SubjectName_utf": "subjectname",
         "IssuerName_utf": "issuername",
-        "Expires_dt": "2020-08-01T12:24:36.123"
+        "Expires_dt": "2024-08-01T12:24:36.123"
       },
       {
         "Key_u32": 0,
         "SubjectName_utf": "subjectname",
         "IssuerName_utf": "issuername",
-        "Expires_dt": "2020-08-01T12:24:36.123"
+        "Expires_dt": "2024-08-01T12:24:36.123"
       },
       {
         "Key_u32": 0,
         "SubjectName_utf": "subjectname",
         "IssuerName_utf": "issuername",
-        "Expires_dt": "2020-08-01T12:24:36.123"
+        "Expires_dt": "2024-08-01T12:24:36.123"
       }
     ]
   }
@@ -2210,7 +2210,7 @@ Name | Type | Description
 `NoUdpAcceleration_bool` | `boolean` | Client Option Parameters: Do not use UDP acceleration mode if the value is true
 `AuthType_u32` | `number` (enum) | Authentication type<BR>Values:<BR>`0`: Anonymous authentication<BR>`1`: SHA-0 hashed password authentication<BR>`2`: Plain password authentication<BR>`3`: Certificate authentication
 `Username_str` | `string` (ASCII) | User name
-`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(password_ascii_string + UpperCase(username_ascii_string)).
+`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(UpperCase(username_ascii_string) + password_ascii_string).
 `PlainPassword_str` | `string` (ASCII) | Plaintext Password. Valid only if ClientAuth_AuthType_u32 == PlainPassword (2).
 `ClientX_bin` | `string` (Base64 binary) | Client certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
 `ClientK_bin` | `string` (Base64 binary) | Client private key of the certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
@@ -2537,7 +2537,7 @@ Name | Type | Description
 `NoUdpAcceleration_bool` | `boolean` | Client Option Parameters: Do not use UDP acceleration mode if the value is true
 `AuthType_u32` | `number` (enum) | Authentication type<BR>Values:<BR>`0`: Anonymous authentication<BR>`1`: SHA-0 hashed password authentication<BR>`2`: Plain password authentication<BR>`3`: Certificate authentication
 `Username_str` | `string` (ASCII) | User name
-`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(password_ascii_string + UpperCase(username_ascii_string)).
+`HashedPassword_bin` | `string` (Base64 binary) | SHA-0 Hashed password. Valid only if ClientAuth_AuthType_u32 == SHA0_Hashed_Password (1). The SHA-0 hashed password must be caluclated by the SHA0(UpperCase(username_ascii_string) + password_ascii_string).
 `PlainPassword_str` | `string` (ASCII) | Plaintext Password. Valid only if ClientAuth_AuthType_u32 == PlainPassword (2).
 `ClientX_bin` | `string` (Base64 binary) | Client certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
 `ClientK_bin` | `string` (Base64 binary) | Client private key of the certificate. Valid only if ClientAuth_AuthType_u32 == Cert (3).
@@ -2600,7 +2600,7 @@ Get List of Cascade Connections. Use this to get a list of Cascade Connections t
         "Online_bool": false,
         "Connected_bool": false,
         "LastError_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Hostname_str": "hostname",
         "TargetHubName_str": "targethubname"
       },
@@ -2609,7 +2609,7 @@ Get List of Cascade Connections. Use this to get a list of Cascade Connections t
         "Online_bool": false,
         "Connected_bool": false,
         "LastError_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Hostname_str": "hostname",
         "TargetHubName_str": "targethubname"
       },
@@ -2618,7 +2618,7 @@ Get List of Cascade Connections. Use this to get a list of Cascade Connections t
         "Online_bool": false,
         "Connected_bool": false,
         "LastError_u32": 0,
-        "ConnectedTime_dt": "2020-08-01T12:24:36.123",
+        "ConnectedTime_dt": "2024-08-01T12:24:36.123",
         "Hostname_str": "hostname",
         "TargetHubName_str": "targethubname"
       }
@@ -2834,9 +2834,9 @@ Get Current Cascade Connection Status. When a Cascade Connection registered on t
     "ServerProductBuild_u32": 0,
     "ServerX_bin": "SGVsbG8gV29ybGQ=",
     "ClientX_bin": "SGVsbG8gV29ybGQ=",
-    "StartTime_dt": "2020-08-01T12:24:36.123",
-    "FirstConnectionEstablisiedTime_dt": "2020-08-01T12:24:36.123",
-    "CurrentConnectionEstablishTime_dt": "2020-08-01T12:24:36.123",
+    "StartTime_dt": "2024-08-01T12:24:36.123",
+    "FirstConnectionEstablisiedTime_dt": "2024-08-01T12:24:36.123",
+    "CurrentConnectionEstablishTime_dt": "2024-08-01T12:24:36.123",
     "NumConnectionsEatablished_u32": 0,
     "HalfConnection_bool": false,
     "QoS_bool": false,
@@ -3566,7 +3566,7 @@ Create a user. Use this to create a new user in the security account database of
     "Name_str": "name",
     "Realname_utf": "realname",
     "Note_utf": "note",
-    "ExpireTime_dt": "2020-08-01T12:24:36.123",
+    "ExpireTime_dt": "2024-08-01T12:24:36.123",
     "AuthType_u32": 0,
     "Auth_Password_str": "auth_password",
     "UserX_bin": "SGVsbG8gV29ybGQ=",
@@ -3629,9 +3629,9 @@ Create a user. Use this to create a new user in the security account database of
     "GroupName_str": "groupname",
     "Realname_utf": "realname",
     "Note_utf": "note",
-    "CreatedTime_dt": "2020-08-01T12:24:36.123",
-    "UpdatedTime_dt": "2020-08-01T12:24:36.123",
-    "ExpireTime_dt": "2020-08-01T12:24:36.123",
+    "CreatedTime_dt": "2024-08-01T12:24:36.123",
+    "UpdatedTime_dt": "2024-08-01T12:24:36.123",
+    "ExpireTime_dt": "2024-08-01T12:24:36.123",
     "AuthType_u32": 0,
     "Auth_Password_str": "auth_password",
     "UserX_bin": "SGVsbG8gV29ybGQ=",
@@ -3779,7 +3779,7 @@ Change User Settings. Use this to change user settings that is registered on the
     "GroupName_str": "groupname",
     "Realname_utf": "realname",
     "Note_utf": "note",
-    "ExpireTime_dt": "2020-08-01T12:24:36.123",
+    "ExpireTime_dt": "2024-08-01T12:24:36.123",
     "AuthType_u32": 0,
     "Auth_Password_str": "auth_password",
     "UserX_bin": "SGVsbG8gV29ybGQ=",
@@ -3842,9 +3842,9 @@ Change User Settings. Use this to change user settings that is registered on the
     "GroupName_str": "groupname",
     "Realname_utf": "realname",
     "Note_utf": "note",
-    "CreatedTime_dt": "2020-08-01T12:24:36.123",
-    "UpdatedTime_dt": "2020-08-01T12:24:36.123",
-    "ExpireTime_dt": "2020-08-01T12:24:36.123",
+    "CreatedTime_dt": "2024-08-01T12:24:36.123",
+    "UpdatedTime_dt": "2024-08-01T12:24:36.123",
+    "ExpireTime_dt": "2024-08-01T12:24:36.123",
     "AuthType_u32": 0,
     "Auth_Password_str": "auth_password",
     "UserX_bin": "SGVsbG8gV29ybGQ=",
@@ -4004,9 +4004,9 @@ Get User Settings. Use this to get user settings information that is registered 
     "GroupName_str": "groupname",
     "Realname_utf": "realname",
     "Note_utf": "note",
-    "CreatedTime_dt": "2020-08-01T12:24:36.123",
-    "UpdatedTime_dt": "2020-08-01T12:24:36.123",
-    "ExpireTime_dt": "2020-08-01T12:24:36.123",
+    "CreatedTime_dt": "2024-08-01T12:24:36.123",
+    "UpdatedTime_dt": "2024-08-01T12:24:36.123",
+    "ExpireTime_dt": "2024-08-01T12:24:36.123",
     "AuthType_u32": 0,
     "Auth_Password_str": "auth_password",
     "UserX_bin": "SGVsbG8gV29ybGQ=",
@@ -4207,11 +4207,11 @@ Get List of Users. Use this to get a list of users that are registered on the se
         "Note_utf": "note",
         "AuthType_u32": 0,
         "NumLogin_u32": 0,
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
         "DenyAccess_bool": false,
         "IsTrafficFilled_bool": false,
         "IsExpiresFilled_bool": false,
-        "Expires_dt": "2020-08-01T12:24:36.123",
+        "Expires_dt": "2024-08-01T12:24:36.123",
         "Ex.Recv.BroadcastBytes_u64": 0,
         "Ex.Recv.BroadcastCount_u64": 0,
         "Ex.Recv.UnicastBytes_u64": 0,
@@ -4228,11 +4228,11 @@ Get List of Users. Use this to get a list of users that are registered on the se
         "Note_utf": "note",
         "AuthType_u32": 0,
         "NumLogin_u32": 0,
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
         "DenyAccess_bool": false,
         "IsTrafficFilled_bool": false,
         "IsExpiresFilled_bool": false,
-        "Expires_dt": "2020-08-01T12:24:36.123",
+        "Expires_dt": "2024-08-01T12:24:36.123",
         "Ex.Recv.BroadcastBytes_u64": 0,
         "Ex.Recv.BroadcastCount_u64": 0,
         "Ex.Recv.UnicastBytes_u64": 0,
@@ -4249,11 +4249,11 @@ Get List of Users. Use this to get a list of users that are registered on the se
         "Note_utf": "note",
         "AuthType_u32": 0,
         "NumLogin_u32": 0,
-        "LastLoginTime_dt": "2020-08-01T12:24:36.123",
+        "LastLoginTime_dt": "2024-08-01T12:24:36.123",
         "DenyAccess_bool": false,
         "IsTrafficFilled_bool": false,
         "IsExpiresFilled_bool": false,
-        "Expires_dt": "2020-08-01T12:24:36.123",
+        "Expires_dt": "2024-08-01T12:24:36.123",
         "Ex.Recv.BroadcastBytes_u64": 0,
         "Ex.Recv.BroadcastCount_u64": 0,
         "Ex.Recv.UnicastBytes_u64": 0,
@@ -4605,14 +4605,14 @@ Name | Type | Description
 `Name_str` | `string` (ASCII) | The group name
 `Realname_utf` | `string` (UTF8) | Optional real name (full name) of the group, allow using any Unicode characters
 `Note_utf` | `string` (UTF8) | Optional, specify a description of the group
-`Recv.BroadcastBytes_u64` | `number` (uint64) | Broadcast bytes (Recv)
-`Recv.BroadcastCount_u64` | `number` (uint64) | Number of broadcast packets (Recv)
-`Recv.UnicastBytes_u64` | `number` (uint64) | Unicast bytes (Recv)
-`Recv.UnicastCount_u64` | `number` (uint64) | Unicast count (Recv)
-`Send.BroadcastBytes_u64` | `number` (uint64) | Broadcast bytes (Send)
-`Send.BroadcastCount_u64` | `number` (uint64) | Number of broadcast packets (Send)
+`Recv.BroadcastBytes_u64` | `number` (uint64) | Number of broadcast packets (Recv)
+`Recv.BroadcastCount_u64` | `number` (uint64) | Broadcast bytes (Recv)
+`Recv.UnicastBytes_u64` | `number` (uint64) | Unicast count (Recv)
+`Recv.UnicastCount_u64` | `number` (uint64) | Unicast bytes (Recv)
+`Send.BroadcastBytes_u64` | `number` (uint64) | Number of broadcast packets (Send)
+`Send.BroadcastCount_u64` | `number` (uint64) | Broadcast bytes (Send)
 `Send.UnicastBytes_u64` | `number` (uint64) | Unicast bytes (Send)
-`Send.UnicastCount_u64` | `number` (uint64) | Unicast count (Send)
+`Send.UnicastCount_u64` | `number` (uint64) | Unicast bytes (Send)
 `UsePolicy_bool` | `boolean` | The flag whether to use security policy
 `policy:Access_bool` | `boolean` | Security policy: Allow Access. The users, which this policy value is true, have permission to make VPN connection to VPN Server.
 `policy:DHCPFilter_bool` | `boolean` | Security policy: Filter DHCP Packets (IPv4). All IPv4 DHCP packets in sessions defined this policy will be filtered.
@@ -4939,8 +4939,8 @@ Get List of Connected VPN Sessions. Use this to get a list of the sessions conne
         "Client_MonitorMode_bool": false,
         "VLanId_u32": 0,
         "UniqueId_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123"
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123"
       },
       {
         "Name_str": "name",
@@ -4961,8 +4961,8 @@ Get List of Connected VPN Sessions. Use this to get a list of the sessions conne
         "Client_MonitorMode_bool": false,
         "VLanId_u32": 0,
         "UniqueId_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123"
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123"
       },
       {
         "Name_str": "name",
@@ -4983,8 +4983,8 @@ Get List of Connected VPN Sessions. Use this to get a list of the sessions conne
         "Client_MonitorMode_bool": false,
         "VLanId_u32": 0,
         "UniqueId_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123"
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123"
       }
     ]
   }
@@ -5059,9 +5059,9 @@ Get Session Status. Use this to specify a session currently connected to the cur
     "ServerProductName_str": "serverproductname",
     "ServerProductVer_u32": 0,
     "ServerProductBuild_u32": 0,
-    "StartTime_dt": "2020-08-01T12:24:36.123",
-    "FirstConnectionEstablisiedTime_dt": "2020-08-01T12:24:36.123",
-    "CurrentConnectionEstablishTime_dt": "2020-08-01T12:24:36.123",
+    "StartTime_dt": "2024-08-01T12:24:36.123",
+    "FirstConnectionEstablisiedTime_dt": "2024-08-01T12:24:36.123",
+    "CurrentConnectionEstablishTime_dt": "2024-08-01T12:24:36.123",
     "NumConnectionsEatablished_u32": 0,
     "HalfConnection_bool": false,
     "QoS_bool": false,
@@ -5222,8 +5222,8 @@ Get the MAC Address Table Database. Use this to get the MAC address table databa
         "Key_u32": 0,
         "SessionName_str": "sessionname",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname",
         "VlanId_u32": 0
@@ -5232,8 +5232,8 @@ Get the MAC Address Table Database. Use this to get the MAC address table databa
         "Key_u32": 0,
         "SessionName_str": "sessionname",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname",
         "VlanId_u32": 0
@@ -5242,8 +5242,8 @@ Get the MAC Address Table Database. Use this to get the MAC address table databa
         "Key_u32": 0,
         "SessionName_str": "sessionname",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname",
         "VlanId_u32": 0
@@ -5337,8 +5337,8 @@ Get the IP Address Table Database. Use this to get the IP address table database
         "SessionName_str": "sessionname",
         "IpAddress_ip": "192.168.0.1",
         "DhcpAllocated_bool": false,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname"
       },
@@ -5347,8 +5347,8 @@ Get the IP Address Table Database. Use this to get the IP address table database
         "SessionName_str": "sessionname",
         "IpAddress_ip": "192.168.0.1",
         "DhcpAllocated_bool": false,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname"
       },
@@ -5357,8 +5357,8 @@ Get the IP Address Table Database. Use this to get the IP address table database
         "SessionName_str": "sessionname",
         "IpAddress_ip": "192.168.0.1",
         "DhcpAllocated_bool": false,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123",
         "RemoteItem_bool": false,
         "RemoteHostname_str": "remotehostname"
       }
@@ -5778,8 +5778,8 @@ Get Virtual NAT Function Session Table of SecureNAT Function. Use this to get th
         "DestIp_ip": "192.168.0.1",
         "DestHost_str": "desthost",
         "DestPort_u32": 0,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
         "SendSize_u64": 0,
         "RecvSize_u64": 0,
         "TcpStatus_u32": 0
@@ -5793,8 +5793,8 @@ Get Virtual NAT Function Session Table of SecureNAT Function. Use this to get th
         "DestIp_ip": "192.168.0.1",
         "DestHost_str": "desthost",
         "DestPort_u32": 0,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
         "SendSize_u64": 0,
         "RecvSize_u64": 0,
         "TcpStatus_u32": 0
@@ -5808,8 +5808,8 @@ Get Virtual NAT Function Session Table of SecureNAT Function. Use this to get th
         "DestIp_ip": "192.168.0.1",
         "DestHost_str": "desthost",
         "DestPort_u32": 0,
-        "CreatedTime_dt": "2020-08-01T12:24:36.123",
-        "LastCommTime_dt": "2020-08-01T12:24:36.123",
+        "CreatedTime_dt": "2024-08-01T12:24:36.123",
+        "LastCommTime_dt": "2024-08-01T12:24:36.123",
         "SendSize_u64": 0,
         "RecvSize_u64": 0,
         "TcpStatus_u32": 0
@@ -5867,8 +5867,8 @@ Get Virtual DHCP Server Function Lease Table of SecureNAT Function. Use this to 
     "DhcpTable": [
       {
         "Id_u32": 0,
-        "LeasedTime_dt": "2020-08-01T12:24:36.123",
-        "ExpireTime_dt": "2020-08-01T12:24:36.123",
+        "LeasedTime_dt": "2024-08-01T12:24:36.123",
+        "ExpireTime_dt": "2024-08-01T12:24:36.123",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
         "IpAddress_ip": "192.168.0.1",
         "Mask_u32": 0,
@@ -5876,8 +5876,8 @@ Get Virtual DHCP Server Function Lease Table of SecureNAT Function. Use this to 
       },
       {
         "Id_u32": 0,
-        "LeasedTime_dt": "2020-08-01T12:24:36.123",
-        "ExpireTime_dt": "2020-08-01T12:24:36.123",
+        "LeasedTime_dt": "2024-08-01T12:24:36.123",
+        "ExpireTime_dt": "2024-08-01T12:24:36.123",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
         "IpAddress_ip": "192.168.0.1",
         "Mask_u32": 0,
@@ -5885,8 +5885,8 @@ Get Virtual DHCP Server Function Lease Table of SecureNAT Function. Use this to 
       },
       {
         "Id_u32": 0,
-        "LeasedTime_dt": "2020-08-01T12:24:36.123",
-        "ExpireTime_dt": "2020-08-01T12:24:36.123",
+        "LeasedTime_dt": "2024-08-01T12:24:36.123",
+        "ExpireTime_dt": "2024-08-01T12:24:36.123",
         "MacAddress_bin": "SGVsbG8gV29ybGQ=",
         "IpAddress_ip": "192.168.0.1",
         "Mask_u32": 0,
@@ -7642,19 +7642,19 @@ Get List of Log Files. Use this to display a list of log files outputted by the 
         "ServerName_str": "servername",
         "FilePath_str": "filepath",
         "FileSize_u32": 0,
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123"
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123"
       },
       {
         "ServerName_str": "servername",
         "FilePath_str": "filepath",
         "FileSize_u32": 0,
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123"
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123"
       },
       {
         "ServerName_str": "servername",
         "FilePath_str": "filepath",
         "FileSize_u32": 0,
-        "UpdatedTime_dt": "2020-08-01T12:24:36.123"
+        "UpdatedTime_dt": "2024-08-01T12:24:36.123"
       }
     ]
   }
@@ -8642,8 +8642,8 @@ Name | Type | Description
 `IsConnected_bool` | `boolean` | Whether connection to VPN Azure Cloud Server is established
 
 ***
-<a id="getddnsinternetsettng"></a>
-## "GetDDnsInternetSettng" RPC API - Get the Proxy Settings for Connecting to the DDNS server
+<a id="getddnsinternetsetting"></a>
+## "GetDDnsInternetSetting" RPC API - Get the Proxy Settings for Connecting to the DDNS server
 ### Description
 Get the Proxy Settings for Connecting to the DDNS server.
 
@@ -8652,7 +8652,7 @@ Get the Proxy Settings for Connecting to the DDNS server.
 {
   "jsonrpc": "2.0",
   "id": "rpc_call_id",
-  "method": "GetDDnsInternetSettng",
+  "method": "GetDDnsInternetSetting",
   "params": {}
 }
 ```
@@ -8683,8 +8683,8 @@ Name | Type | Description
 `ProxyPassword_str` | `string` (ASCII) | Proxy server password
 
 ***
-<a id="setddnsinternetsettng"></a>
-## "SetDDnsInternetSettng" RPC API - Set the Proxy Settings for Connecting to the DDNS server
+<a id="setddnsinternetsetting"></a>
+## "SetDDnsInternetSetting" RPC API - Set the Proxy Settings for Connecting to the DDNS server
 ### Description
 Set the Proxy Settings for Connecting to the DDNS server.
 
@@ -8693,7 +8693,7 @@ Set the Proxy Settings for Connecting to the DDNS server.
 {
   "jsonrpc": "2.0",
   "id": "rpc_call_id",
-  "method": "SetDDnsInternetSettng",
+  "method": "SetDDnsInternetSetting",
   "params": {
     "ProxyType_u32": 0,
     "ProxyHostName_str": "proxyhostname",
@@ -8730,6 +8730,6 @@ Name | Type | Description
 `ProxyPassword_str` | `string` (ASCII) | Proxy server password
 
 ***
-Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen.  
-Copyright (c) 2014-2019 [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  
+Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen.  
+Copyright (c) 2014-2023 [SoftEther VPN Project](https://www.softether.org/) under the Apache License 2.0.  
 
