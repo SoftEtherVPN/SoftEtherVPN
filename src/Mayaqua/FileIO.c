@@ -2124,6 +2124,24 @@ IO *FileOpenEx(char *name, bool write_mode, bool read_lock)
 
 	return ret;
 }
+
+// Replace the specified character in the string with a new character
+wchar_t *UniReplaceCharW(wchar_t *src, UINT size, wchar_t c, wchar_t  newc) {
+	if (src == NULL)
+	{
+		return NULL;
+	}
+	for (; *src; src++, size -= sizeof(wchar_t)) {
+		if (size < sizeof(wchar_t)) {
+			break;
+		}
+		if (*src == c) {
+			*src = newc;
+		}
+	}
+	return (wchar_t *)src;
+}
+
 IO *FileOpenExW(wchar_t *name, bool write_mode, bool read_lock)
 {
 	wchar_t tmp[MAX_SIZE];
@@ -2140,9 +2158,12 @@ IO *FileOpenExW(wchar_t *name, bool write_mode, bool read_lock)
 		IO *o = ZeroMalloc(sizeof(IO));
 		name++;
 		UniStrCpy(o->NameW, sizeof(o->NameW), name);
+#ifdef	OS_WIN32
+		UniReplaceCharW(o->NameW, sizeof(o->NameW), L'\\', L'/');		// Path separator "/" is used.
+#endif	// OS_WIN32
 		UniToStr(o->Name, sizeof(o->Name), o->NameW);
 		o->HamMode = true;
-		o->HamBuf = ReadHamcoreW(name);
+		o->HamBuf = ReadHamcoreW(o->NameW);
 		if (o->HamBuf == NULL)
 		{
 			Free(o);
