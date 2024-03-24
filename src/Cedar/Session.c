@@ -615,7 +615,7 @@ void SessionMain(SESSION *s)
 					UINT max_conn = s->ClientOption->MaxConnection;
 
 					if ((s->CurrentConnectionEstablishTime +
-						(UINT64)(s->ClientOption->AdditionalConnectionInterval * 1000 * 2 + CONNECTING_TIMEOUT * 2))
+						(UINT64)(num_tcp_conn * s->ClientOption->AdditionalConnectionInterval * 1000 * 2 + CONNECTING_TIMEOUT * 2))
 						<= Tick64())
 					{
 						if (s->ClientOption->BindLocalPort != 0 || num_tcp_conn == 0)
