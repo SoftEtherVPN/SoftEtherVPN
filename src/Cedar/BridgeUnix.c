@@ -805,7 +805,12 @@ bool EthIsChangeMtuSupported(ETH *e)
 		return false;
 	}
 
+// FreeBSD seriously dislikes MTU changes; disable if compiled on that platform
+#ifndef	__FreeBSD__
 	return true;
+#else
+	return false;
+#endif
 #else	// defined(UNIX_LINUX) || defined(UNIX_BSD) || defined(UNIX_SOLARIS)
 	return false;
 #endif	// defined(UNIX_LINUX) || defined(UNIX_BSD) || defined(UNIX_SOLARIS)
