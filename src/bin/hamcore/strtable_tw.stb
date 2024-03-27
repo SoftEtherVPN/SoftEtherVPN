@@ -4855,7 +4855,7 @@ CMD_ConnectionList_Help		現在，先獲取與 VPN Server 連接的 TCP/IP 一�
 CMD_ConnectionList_Args		ConnectionList
 
 
-# ConnectionList 命令
+# ConnectionGet 命令
 CMD_ConnectionGet			獲取連接到 VPN Server 的 TCP 資訊一覽表
 CMD_ConnectionGet_Help		獲取與 VPN Server 連接的 TCP/IP 連接的詳細資訊。\n可以獲得 [連接名]，[連接種類]，[連接主機名稱]，[連接主機 IP]，[連線主機埠 TCP]，[連線時間]，[伺服器品牌]，[伺服器版本]，[伺服器銘牌號]，[客戶機品牌]，[客戶機版本]，[客戶機銘牌號] 等資訊。 \n要運行此命令，需要管理員許可權。
 CMD_ConnectionGet_Args		ConnectionGet [name]
@@ -7046,7 +7046,7 @@ CMD_RemoteDisable_Args		RemoteDisable
 
 ###################################################
 #                                                 #
-# 下面這是VPN工具用的指令                         #
+# 下面這是VPN Tools用的指令                         #
 #                                                 #
 ###################################################
 
