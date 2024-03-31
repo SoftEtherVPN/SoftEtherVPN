@@ -540,6 +540,13 @@ LIST *Win32GetNicList()
 
 		if (a->Type == 6 && a->AddressSize == 6)
 		{
+			// If the connection state of the interface is unknown, then exclude it.
+			// Unknown means that the device is not plugged into the local host.
+			if (a->MediaConnectState == MediaConnectStateUnknown)
+			{
+				continue;
+			}
+
 			NIC_ENTRY *e = ZeroMalloc(sizeof(NIC_ENTRY));
 
 			StrCpy(e->IfName, sizeof(e->IfName), a->Title);
