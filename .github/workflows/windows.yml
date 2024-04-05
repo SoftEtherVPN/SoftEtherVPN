@@ -35,6 +35,7 @@ jobs:
         . .ci/appveyor-vpntest.ps1
     - uses: actions/upload-artifact@v4
       with:
+        if-no-files-found: error
         name: Binaries-${{ matrix.platform.ARCHITECTURE }}
         path: |
           build/*.exe
@@ -42,5 +43,6 @@ jobs:
           build/*.se2
     - uses: actions/upload-artifact@v4
       with:
+        if-no-files-found: error
         name: Installers-${{ matrix.platform.ARCHITECTURE }}
         path: build/installers
