@@ -1,0 +1,48 @@
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    strategy:
+      matrix:
+        platform: [
+          { ARCHITECTURE: x86, COMPILER_PATH: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/Llvm/bin/clang-cl.exe",     VCPKG_TRIPLET: "x86-windows-static", VCVARS_PATH: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars32.bat"},
+          { ARCHITECTURE: x64, COMPILER_PATH: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/Llvm/x64/bin/clang-cl.exe", VCPKG_TRIPLET: "x64-windows-static", VCVARS_PATH: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"}
+        ]
+    runs-on: windows-latest
+    name: ${{ matrix.platform.ARCHITECTURE }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Cache vcpkg
+      uses: actions/cache@v4
+      with:
+        path: 'build/vcpkg_installed/'
+        key: vcpkg-${{ matrix.platform.VCPKG_TRIPLET }}
+    - name: Build
+      env:
+        ARCHITECTURE: ${{ matrix.platform.ARCHITECTURE }}
+        COMPILER_PATH: ${{ matrix.platform.COMPILER_PATH }}
+        VCPKG_TRIPLET: ${{ matrix.platform.VCPKG_TRIPLET }}
+        VCVARS_PATH: ${{ matrix.platform.VCVARS_PATH }}
+      run: .ci/azure-pipelines/windows_build.bat
+    - name: Test
+      shell: powershell
+      run: |
+        . .ci/appveyor-vpntest.ps1
+    - uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: Binaries-${{ matrix.platform.ARCHITECTURE }}
+        path: |
+          build/*.exe
+          build/*.pdb
+          build/*.se2
+    - uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: Installers-${{ matrix.platform.ARCHITECTURE }}
+        path: build/installers
