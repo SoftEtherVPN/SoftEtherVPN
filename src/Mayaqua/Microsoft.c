@@ -2568,6 +2568,7 @@ MS_ADAPTER_LIST *MsCreateAdapterListInnerExVista(bool no_info)
 				UniStrCpy(a->TitleW, sizeof(a->TitleW), title);
 				UniToStr(a->Title, sizeof(a->Title), title);
 				a->Index = r->InterfaceIndex;
+				a->MediaConnectState = r->MediaConnectState;
 				a->Type = r->Type;
 				a->Status = ConvertMidStatusVistaToXp(r->OperStatus);
 				a->Mtu = r->Mtu;
