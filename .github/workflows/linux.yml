@@ -1,0 +1,34 @@
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install dependencies
+      run: sudo apt update && sudo apt-get -y install cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libsodium-dev libssl-dev make zlib1g-dev liblz4-dev libnl-genl-3-dev 
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+        cmake --build .
+
+    - name: Build deb packages
+      run: |
+        cd build
+        cpack -C Release -G DEB 
+
+    - name: Test
+      run: |
+       .ci/appveyor-deb-install-test.sh
+       sudo apt-get -y install autoconf libtool liblzo2-dev libpam-dev fping unzip libcap-ng-dev # To build OpenVPN
+       sudo .ci/start-se-openvpn.sh
+       sudo .ci/run-openvpn-tests.sh
