@@ -6773,7 +6773,6 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 
 	p = NewPack();
 	PackAddStr(p, "method", "login");
-	PackAddStr(p, "hubname", hubname);
 
 	if (IsEmptyStr(username))
 	{
@@ -6782,12 +6781,26 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 			FreePack(p);
 			return NULL;
 		}
+
 		UniToStr(cn_username, sizeof(cn_username), x->subject_name->CommonName);
-		PackAddStr(p, "username", cn_username);
+
+		if (strchr(cn_username, '@') != NULL)
+
+		{
+			PackAddStr(p, "username", strtok(cn_username, "@"));
+			PackAddStr(p, "hubname", strtok(NULL, ""));
+		}
+		else
+		{
+			PackAddStr(p, "username", cn_username);
+			PackAddStr(p, "hubname", hubname);
+		}
+
 	}
 	else
 	{
 		PackAddStr(p, "username", username);
+		PackAddStr(p, "hubname", hubname);
 	}
 
 	PackAddInt(p, "authtype", AUTHTYPE_OPENVPN_CERT);
