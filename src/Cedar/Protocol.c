@@ -6784,7 +6784,8 @@ PACK *PackLoginWithOpenVPNCertificate(char *hubname, char *username, X *x)
 
 		UniToStr(cn_username, sizeof(cn_username), x->subject_name->CommonName);
 
-		if(strchr(cn_username, '@') != NULL)
+		if (strchr(cn_username, '@') != NULL)
+
 		{
 			PackAddStr(p, "username", strtok(cn_username, "@"));
 			PackAddStr(p, "hubname", strtok(NULL, ""));
