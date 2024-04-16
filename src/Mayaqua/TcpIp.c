@@ -4168,6 +4168,7 @@ BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size)
 	LIST *opt_list2 = NULL;
 	UINT src_size = size;
 	UINT i;
+	UINT dhcp_min_size;
 	// Validate arguments
 	if (m == NULL || data == NULL || size == 0)
 	{
@@ -4270,11 +4271,13 @@ BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size)
 		// Rewrite if anything changes. Do not rewrite if there is no change
 		ret_ok = true;
 
-		if (ret->Size < DHCP_MIN_SIZE)
+		// If src_size is greater than DHCP_MIN_SIZE, then use the src_size as minimum size of DHCP.
+		dhcp_min_size = MAX(src_size, DHCP_MIN_SIZE);
+		if (ret->Size < dhcp_min_size)
 		{
 			// Padding
 			UCHAR *pad_buf;
-			UINT pad_size = DHCP_MIN_SIZE - ret->Size;
+			UINT pad_size = dhcp_min_size - ret->Size;
 
 			pad_buf = ZeroMalloc(pad_size);
 
