@@ -4272,7 +4272,7 @@ BUF *DhcpModify(DHCP_MODIFY_OPTION *m, void *data, UINT size)
 		ret_ok = true;
 
 		// If src_size is greater than DHCP_MIN_SIZE, then use the src_size as minimum size of DHCP.
-		dhcp_min_size = max(src_size, DHCP_MIN_SIZE);
+		dhcp_min_size = MAX(src_size, DHCP_MIN_SIZE);
 		if (ret->Size < dhcp_min_size)
 		{
 			// Padding
