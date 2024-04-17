@@ -22,13 +22,28 @@ jobs:
       with:
         path: 'build/vcpkg_installed/'
         key: vcpkg-${{ matrix.platform.VCPKG_TRIPLET }}
+    - name: Set version variables
+      run: |
+        $v = python version.py
+        echo "VERSION=$v" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      shell: pwsh
     - name: Build
       env:
         ARCHITECTURE: ${{ matrix.platform.ARCHITECTURE }}
         COMPILER_PATH: ${{ matrix.platform.COMPILER_PATH }}
         VCPKG_TRIPLET: ${{ matrix.platform.VCPKG_TRIPLET }}
         VCVARS_PATH: ${{ matrix.platform.VCVARS_PATH }}
-      run: .ci/azure-pipelines/windows_build.bat
+      run: |
+        set BUILD_NUMBER=0
+        mkdir build
+        cd build
+        call "%VCVARS_PATH%"
+        cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="%COMPILER_PATH%" -DCMAKE_CXX_COMPILER="%COMPILER_PATH%" -DBUILD_NUMBER=%BUILD_NUMBER% ..
+        cmake --build .
+        mkdir installers
+        vpnsetup /SFXMODE:vpnclient /SFXOUT:"installers\softether-vpnclient-%VERSION%.%BUILD_NUMBER%.%ARCHITECTURE%.exe"
+        vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"installers\softether-vpnserver_vpnbridge-%VERSION%.%BUILD_NUMBER%.%ARCHITECTURE%.exe"
+      shell: cmd
     - name: Test
       shell: powershell
       run: |
