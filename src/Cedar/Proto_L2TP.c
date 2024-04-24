@@ -2103,7 +2103,7 @@ void StopL2TPThread(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s)
 // Interrupt processing of L2TP server
 void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 {
-	UINT i, j;
+	UINT i, j, k;
 	LIST *delete_tunnel_list = NULL;
 	// Validate arguments
 	if (l2tp == NULL)
@@ -2138,9 +2138,9 @@ void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 		UINT64 l2tpTimeout = L2TP_TUNNEL_TIMEOUT;
 
 		// If we got on ANY session a higher timeout than the default L2TP tunnel timeout, increase it
-		for (i = 0; i < LIST_NUM(t->SessionList); i++)
+		for (k = 0; k < LIST_NUM(t->SessionList); k++)
 		{
-			L2TP_SESSION* s = LIST_DATA(t->SessionList, i);
+			L2TP_SESSION* s = LIST_DATA(t->SessionList, k);
 
 			if (s->TubeRecv != NULL && s->TubeRecv->DataTimeout > l2tpTimeout)
 			{
