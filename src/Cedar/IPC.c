@@ -2354,7 +2354,14 @@ void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *m
 				IntToSubnetMask6(&newRA->RoutedMask, recvPrefix->Prefix[i]->SubnetLength);
 				CopyIP(&newRA->RouterAddress, ip);
 				Copy(newRA->RouterMacAddress, macAddress, 6);
-				Copy(newRA->RouterLinkLayerAddress, recvPrefix->SourceLinkLayer->Address, 6);
+				if (recvPrefix->SourceLinkLayer != NULL)
+				{
+					Copy(newRA->RouterLinkLayerAddress, recvPrefix->SourceLinkLayer->Address, 6);
+				}
+				else
+				{
+					Zero(newRA->RouterLinkLayerAddress, 6);
+				}
 				Add(ipc->IPv6RouterAdvs, newRA);
 			}
 		}
@@ -2657,7 +2664,7 @@ void IPCIPv6SendUnicast(IPC *ipc, void *data, UINT size, IP *next_ip)
 		}
 
 		destMac = ra.RouterMacAddress;
-		if (!IsMacUnicast(destMac) && !IsMacInvalid(ra.RouterMacAddress))
+		if (!IsMacUnicast(destMac) && !IsMacInvalid(ra.RouterLinkLayerAddress))
 		{
 			destMac = ra.RouterLinkLayerAddress;
 		}
