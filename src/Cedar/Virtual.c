@@ -9710,36 +9710,40 @@ void VirtualDhcpServer(VH *v, PKT *p)
 		}
 		else
 		{
-			// There is no IP address that can be provided
-			DHCP_OPTION_LIST ret;
-			LIST *o;
-			Zero(&ret, sizeof(ret));
-
-			ret.Opcode = DHCP_NACK;
-			ret.ServerAddress = v->HostIP;
-			StrCpy(ret.DomainName, sizeof(ret.DomainName), v->DhcpDomain);
-			ret.SubnetMask = v->DhcpMask;
-
-			// Build the DHCP option
-			o = BuildDhcpOption(&ret);
-			if (o != NULL)
+			// Reply of DHCP_REQUEST must be either DHCP_ACK or DHCP_NAK.
+			if (opt->Opcode == DHCP_REQUEST)
 			{
-				BUF *b = BuildDhcpOptionsBuf(o);
-				if (b != NULL)
-				{
-					UINT dest_ip = p->L3.IPv4Header->SrcIP;
-					if (dest_ip == 0)
-					{
-						dest_ip = 0xffffffff;
-					}
-					// Transmission
-					VirtualDhcpSend(v, tran_id, dest_ip, Endian16(p->L4.UDPHeader->SrcPort),
-					                ip, dhcp->ClientMacAddress, b, dhcp->HardwareType, dhcp->HardwareAddressSize);
+				// There is no IP address that can be provided
+				DHCP_OPTION_LIST ret;
+				LIST *o;
+				Zero(&ret, sizeof(ret));
 
-					// Release the memory
-					FreeBuf(b);
+				ret.Opcode = DHCP_NACK;
+				ret.ServerAddress = v->HostIP;
+				StrCpy(ret.DomainName, sizeof(ret.DomainName), v->DhcpDomain);
+				ret.SubnetMask = v->DhcpMask;
+
+				// Build the DHCP option
+				o = BuildDhcpOption(&ret);
+				if (o != NULL)
+				{
+					BUF *b = BuildDhcpOptionsBuf(o);
+					if (b != NULL)
+					{
+						UINT dest_ip = p->L3.IPv4Header->SrcIP;
+						if (dest_ip == 0)
+						{
+							dest_ip = 0xffffffff;
+						}
+						// Transmission
+						VirtualDhcpSend(v, tran_id, dest_ip, Endian16(p->L4.UDPHeader->SrcPort),
+							ip, dhcp->ClientMacAddress, b, dhcp->HardwareType, dhcp->HardwareAddressSize);
+
+						// Release the memory
+						FreeBuf(b);
+					}
+					FreeDhcpOptions(o);
 				}
-				FreeDhcpOptions(o);
 			}
 		}
 	}
