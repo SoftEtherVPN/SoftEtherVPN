@@ -1517,7 +1517,9 @@ void IPCProcessL3EventsEx(IPC *ipc, UINT64 now)
 									// We save the router advertisement data for later use
 									IPCIPv6AddRouterPrefixes(ipc, &p->ICMPv6HeaderPacketInfo.OptionList, src_mac, &ip_src);
 									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, src_mac, true);
-									IPCIPv6AssociateOnNDTEx(ipc, &ip_src, p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
+									if (p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer != NULL) {
+										IPCIPv6AssociateOnNDTEx(ipc, &ip_src, p->ICMPv6HeaderPacketInfo.OptionList.SourceLinkLayer->Address, true);
+									}
 									ndtProcessed = true;
 									header_size = sizeof(ICMPV6_ROUTER_ADVERTISEMENT_HEADER);
 									break;
