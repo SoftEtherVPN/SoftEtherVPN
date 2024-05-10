@@ -11884,6 +11884,8 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 		Unlock(openssl_lock);
 	}
 
+	ERR_clear_error();
+
 	if (sock->ServerMode)
 	{
 //		Lock(ssl_connect_lock);
@@ -12264,6 +12266,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 				Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
 				return 0;
 			}
+			ERR_clear_error();
 			ret = SSL_peek(ssl, &c, sizeof(c));
 		}
 		Unlock(sock->ssl_lock);
@@ -12321,6 +12324,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		ttparam = NewSocketTimeout(sock);
 #endif // UNIX_SOLARIS
 
+		ERR_clear_error();
 		ret = SSL_read(ssl, data, size);
 
 // Stop the timeout thread
@@ -12416,6 +12420,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 			return 0;
 		}
 
+		ERR_clear_error();
 		ret = SSL_write(ssl, data, size);
 		if (ret < 0)
 		{
