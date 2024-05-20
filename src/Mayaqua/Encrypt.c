@@ -88,6 +88,7 @@ int ssl_clientcert_index = 0;
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 static OSSL_PROVIDER *ossl_provider_legacy = NULL;
 static OSSL_PROVIDER *ossl_provider_default = NULL;
+static OSSL_PROVIDER *ossl_provider_oqsprovider = NULL;
 #endif
 
 LOCK **ssl_lock_obj = NULL;
@@ -3974,6 +3975,12 @@ void FreeCryptLibrary()
 		OSSL_PROVIDER_unload(ossl_provider_legacy);
 		ossl_provider_legacy = NULL;
 	}
+
+	if (ossl_provider_oqsprovider != NULL)
+	{
+		OSSL_PROVIDER_unload(ossl_provider_oqsprovider);
+		ossl_provider_oqsprovider = NULL;
+	}
 #endif
 }
 
@@ -3996,6 +4003,7 @@ void InitCryptLibrary()
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 	ossl_provider_default = OSSL_PROVIDER_load(NULL, "legacy");
 	ossl_provider_legacy = OSSL_PROVIDER_load(NULL, "default");
+	ossl_provider_oqsprovider = OSSL_PROVIDER_load(NULL, "oqsprovider");
 #endif
 
 	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);

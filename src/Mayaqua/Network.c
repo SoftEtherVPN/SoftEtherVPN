@@ -25,6 +25,7 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/provider.h>
 
 #ifdef OS_UNIX
 #include <fcntl.h>
@@ -11905,6 +11906,8 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 		Unlock(openssl_lock);
 	}
 
+	SSL_set1_groups_list(sock->ssl, PQ_GROUP_LIST);
+
 	if (sock->ServerMode)
 	{
 //		Lock(ssl_connect_lock);
@@ -11984,7 +11987,7 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 		//		Unlock(ssl_connect_lock);
 	}
 	else
-	{
+	{	
 		prev_timeout = GetTimeout(sock);
 		SetTimeout(sock, ssl_timeout);
 		// Client mode
