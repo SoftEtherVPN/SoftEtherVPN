@@ -4345,6 +4345,9 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 	PackGetStr(p, "CustomHttpHeader", c->CustomHttpHeader, sizeof(c->CustomHttpHeader));
 	PackGetStr(p, "HubName", c->HubName, sizeof(c->HubName));
 	PackGetStr(p, "DeviceName", c->DeviceName, sizeof(c->DeviceName));
+	PackGetIp(p, "BindLocalIP", &c->BindLocalIP);// Source IP address for outgoing connection
+	c->BindLocalPort = PackGetInt(p, "BindLocalPort");// Source port nubmer for outgoing connection
+
 	c->UseEncrypt = PackGetInt(p, "UseEncrypt") ? true : false;
 	c->UseCompress = PackGetInt(p, "UseCompress") ? true : false;
 	c->HalfConnection = PackGetInt(p, "HalfConnection") ? true : false;
@@ -4405,6 +4408,8 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddBool(p, "FromAdminPack", c->FromAdminPack);
 	PackAddBool(p, "NoUdpAcceleration", c->NoUdpAcceleration);
 	PackAddData(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
+	PackAddIp(p, "BindLocalIP", &c->BindLocalIP);// Source IP address for outgoing connection
+	PackAddInt(p, "BindLocalPort", c->BindLocalPort);// Source port number for outgoing connection
 }
 
 // CLIENT_AUTH
@@ -5150,6 +5155,22 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
 		retcode = 0;
 	}
 
+	if (retcode == 0)
+	{
+		if (IsLocalHostIP(&s->RemoteIP) == false)
+		{
+			// If the RPC client is from network check whether the password is empty
+			UCHAR empty_password_hash[20];
+			Sha0(empty_password_hash, "", 0);
+			if (Cmp(empty_password_hash, hashed_password, SHA1_SIZE) == 0 ||
+				IsZero(hashed_password, SHA1_SIZE))
+			{
+				// Regard it as incorrect password
+				retcode = 1;
+			}
+		}
+	}
+
 	Lock(c->lock);
 	{
 		if (c->Config.AllowRemoteConfig == false)
@@ -5253,13 +5274,20 @@ void CiRpcServerThread(THREAD *thread, void *param)
 
 	// Open the port
 	listener = NULL;
-	for (i = CLIENT_CONFIG_PORT;i < (CLIENT_CONFIG_PORT + 5);i++)
+	if (c->Config.DisableRpcDynamicPortListener == false)
 	{
-		listener = Listen(i);
-		if (listener != NULL)
+		for (i = CLIENT_CONFIG_PORT;i < (CLIENT_CONFIG_PORT + 5);i++)
 		{
-			break;
+			listener = ListenEx(i, !c->Config.AllowRemoteConfig);
+			if (listener != NULL)
+			{
+				break;
+			}
 		}
+	}
+	else
+	{
+		listener = ListenEx(CLIENT_CONFIG_PORT, !c->Config.AllowRemoteConfig);
 	}
 
 	if (listener == NULL)
@@ -9023,6 +9051,12 @@ void CiInitConfiguration(CLIENT *c)
 		c->Config.UseKeepConnect = false;	// Don't use the connection maintenance function by default in the Client
 		// Eraser
 		c->Eraser = NewEraser(c->Logger, 0);
+
+#ifdef	OS_WIN32
+		c->Config.DisableRpcDynamicPortListener = false;
+#else	// OS_WIN32
+		c->Config.DisableRpcDynamicPortListener = true;
+#endif	// OS_WIN32
 	}
 	else
 	{
@@ -9169,6 +9203,19 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
 	c->AllowRemoteConfig = CfgGetBool(f, "AllowRemoteConfig");
 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
+
+	if (CfgIsItem(f, "DisableRpcDynamicPortListener"))
+	{
+		c->DisableRpcDynamicPortListener = CfgGetBool(f, "DisableRpcDynamicPortListener");
+	}
+	else
+	{
+#ifdef	OS_WIN32
+		c->DisableRpcDynamicPortListener = false;
+#else	// OS_WIN32
+		c->DisableRpcDynamicPortListener = true;
+#endif	// OS_WIN32
+	}
 }
 
 // Read the client authentication data
@@ -9299,7 +9346,9 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 	o->DisableQoS = CfgGetBool(f, "DisableQoS");
 	o->FromAdminPack = CfgGetBool(f, "FromAdminPack");
 	o->NoUdpAcceleration = CfgGetBool(f, "NoUdpAcceleration");
-	
+	CfgGetIp(f, "BindLocalIP", &o->BindLocalIP);// Source IP address for outgoing connection
+	o->BindLocalPort = CfgGetInt(f, "BindLocalPort");// Source port number for outgoing connection
+
 	b = CfgGetBuf(f, "HostUniqueKey");
 	if (b != NULL)
 	{
@@ -9741,6 +9790,7 @@ void CiWriteClientConfig(FOLDER *cc, CLIENT_CONFIG *config)
 	CfgAddBool(cc, "AllowRemoteConfig", config->AllowRemoteConfig);
 	CfgAddInt(cc, "KeepConnectInterval", config->KeepConnectInterval);
 	CfgAddBool(cc, "NoChangeWcmNetworkSettingOnWindows8", config->NoChangeWcmNetworkSettingOnWindows8);
+	CfgAddBool(cc, "DisableRpcDynamicPortListener", config->DisableRpcDynamicPortListener);
 }
 
 // Write the client authentication data
@@ -9853,6 +9903,8 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	CfgAddBool(f, "RequireBridgeRoutingMode", o->RequireBridgeRoutingMode);
 	CfgAddBool(f, "DisableQoS", o->DisableQoS);
 	CfgAddBool(f, "NoUdpAcceleration", o->NoUdpAcceleration);
+	CfgAddIp(f, "BindLocalIP", &o->BindLocalIP);// Source IP address for outgoing connection
+	CfgAddInt(f, "BindLocalPort", o->BindLocalPort);// Source port number for outgoing connection
 
 	if (o->FromAdminPack)
 	{

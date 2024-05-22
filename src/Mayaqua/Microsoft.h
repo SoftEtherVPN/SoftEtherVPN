@@ -281,6 +281,7 @@ typedef struct MS_ADAPTER
 	char Title[MAX_PATH];			// Display name
 	wchar_t TitleW[MAX_PATH];		// Display Name (Unicode)
 	UINT Index;						// Index
+	UINT MediaConnectState;			// Media Connect State
 	UINT Type;						// Type
 	UINT Status;					// Status
 	UINT Mtu;						// MTU

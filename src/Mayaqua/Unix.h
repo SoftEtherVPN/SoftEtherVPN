@@ -117,6 +117,7 @@ void UnixSetThreadPriorityRealtime();
 void UnixSetResourceLimit(UINT id, UINT64 value);
 bool UnixIs64BitRlimSupported();
 UINT64 UnixGetTick64();
+UINT64 UnixGetHighresTickNano64(bool raw);
 void UnixSigChldHandler(int sig);
 void UnixCloseIO();
 void UnixGetCurrentDir(char *dir, UINT size);

@@ -1161,7 +1161,8 @@ void Win32EthMakeCombinedName(char *dst, UINT dst_size, char *nicname, char *gui
 
 	if (IsEmptyStr(guid) == false)
 	{
-		Format(dst, dst_size, "%s (ID=%010u)", nicname, Win32EthGenIdFromGuid(guid));
+		// Allow to combine "FriendlyName" consisting of a NULL character and ID.
+		Format(dst, dst_size, "%s(ID=%010u)", nicname, Win32EthGenIdFromGuid(guid));
 	}
 	else
 	{
@@ -1185,18 +1186,19 @@ UINT Win32EthGetNameAndIdFromCombinedName(char *name, UINT name_size, char *str)
 
 	len = StrLen(str);
 
-	if (len >= 16)
+	// Allow to combine "FriendlyName" consisting of a NULL character and ID beginning with "(ID=".
+	if (len >= 15)
 	{
-		StrCpy(id_str, sizeof(id_str), str + len - 16);
+		StrCpy(id_str, sizeof(id_str), str + len - 15);
 
-		if (StartWith(id_str, " (ID="))
+		if (StartWith(id_str, "(ID="))
 		{
 			if (EndWith(id_str, ")"))
 			{
 				char num[MAX_SIZE];
 
 				Zero(num, sizeof(num));
-				StrCpy(num, sizeof(num), id_str + 5);
+				StrCpy(num, sizeof(num), id_str + 4);
 
 				num[StrLen(num) - 1] = 0;
 
@@ -1204,7 +1206,7 @@ UINT Win32EthGetNameAndIdFromCombinedName(char *name, UINT name_size, char *str)
 
 				if (ret != 0)
 				{
-					name[len - 16] = 0;
+					name[len - 15] = 0;
 				}
 			}
 		}
@@ -1346,6 +1348,8 @@ TOKEN_LIST *GetEthListEx(UINT *total_num_including_hidden, bool enum_normal, boo
 
 			Debug("%s - %s\n", a->Guid, a->Title);
 		}
+		// Make sure that "FriendlyName" does not cosist a NULL character.
+		Debug("%s,- s=%d, t=%s, %s,\n", a->Guid, show, tmp, a->Title[0] == 0 ? "check=NG FriendlyName(Title) is NULL !" : "check=OK");
 	}
 
 	*total_num_including_hidden = ret->NumTokens;
@@ -1405,7 +1409,7 @@ LIST *GetEthAdapterListInternal()
 	UINT size;
 	char *buf;
 	UINT i, j;
-	char *qos_tag = " (Microsoft's Packet Scheduler)";
+	char *qos_tag = "(Microsoft's Packet Scheduler)";	// Allow to combine "FriendlyName" consisting of a NULL character and QOS tag.
 	SU *su = NULL;
 	LIST *su_adapter_list = NULL;
 
@@ -1660,7 +1664,8 @@ ANSI_STR:
 				}
 				else
 				{
-					Format(tmp, sizeof(tmp), "%s (%u)", a->Title, k + 1);
+					// Allow to combine "FriendlyName" consisting of a NULL character and SEQ number.
+					Format(tmp, sizeof(tmp), "%s(%u)", a->Title, k + 1);
 				}
 
 				ok = true;

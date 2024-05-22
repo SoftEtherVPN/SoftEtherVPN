@@ -24496,6 +24496,34 @@ void CmdPrintAbout(CONSOLE *c)
 
 	c->Write(c, tmp);
 
+	// Showing an explanation of the purpose of the Developer Edition and the difference from the Stable Editon by Daiyuu Nobori
+	/*
+	* Welcome to the Developer Edition of SoftEther VPN.
+
+	Please note: SoftEther VPN Developer Edition (Version 5.x) has accepted
+	great code contributions on GitHub from many excellent open source
+	developers. This edition contains some very bright experimental code.
+	  The experimental code in this Developer Edition has *NOT* been fully
+	reviewed by Daiyuu Nobori (the first original author of SoftEther VPN)
+	and has not been endorsed by him for stability and quality. It is his
+	policy to encourage many developers to contribute code with their
+	creative minds and ambitions. The succession of low-level system
+	software and network developers is of critical importance worldwide,
+	and SoftEther VPN Developer Edition is very important to increase
+	the number of such great developers.
+	- If you are a programmer of VPN software, or if you want a variety of
+	  experimental code, this edition is very suitable for you.
+	- On the other hand, if you are building VPNs for mission-critical
+	  business systems that require stability and security,
+	  Stable Edition (Version 4.x) is highly recommended.
+	- All code in Stable Edition is reviewed by Daiyuu Nobori. He is also
+	  responsible for porting features from the Developer Edition
+	  to the Stable Edition.
+	- SoftEther VPN Stable Edition can be downloaded at:
+	  https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/
+*/
+	c->Write(c, L"\nWelcome to the Developer Edition of SoftEther VPN.\n\nPlease note: SoftEther VPN Developer Edition (Version 5.x) has accepted\ngreat code contributions on GitHub from many excellent open source\ndevelopers. This edition contains some very bright experimental code.\n  The experimental code in this Developer Edition has *NOT* been fully\nreviewed by Daiyuu Nobori (the first original author of SoftEther VPN)\nand has not been endorsed by him for stability and quality. It is his\npolicy to encourage many developers to contribute code with their\ncreative minds and ambitions. The succession of low-level system\nsoftware and network developers is of critical importance worldwide,\nand SoftEther VPN Developer Edition is very important to increase\nthe number of such great developers.\n- If you are a programmer of VPN software, or if you want a variety of\n  experimental code, this edition is very suitable for you.\n- On the other hand, if you are building VPNs for mission-critical\n  business systems that require stability and security,\n  Stable Edition (Version 4.x) is highly recommended.\n- All code in Stable Edition is reviewed by Daiyuu Nobori. He is also\n  responsible for porting features from the Developer Edition\n  to the Stable Edition.\n- SoftEther VPN Stable Edition can be downloaded at:\n  https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/\n\n");
+
 	ReleaseCedar(cedar);
 }
 

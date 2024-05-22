@@ -2424,6 +2424,8 @@ STATIC17				その他の設定(&G):
 R_NO_ROUTING			ルーティングテーブルの調整処理を行わない(&R)
 STATIC18				この設定画面の設定項目は、システム管理者から指示があった場合や、ネットワークやセキュリティに関して詳しい知識をお持ちの場合以外は変更しないでください。
 STATIC19				VoIP / QoS 対応機能を使用すると、IP 電話パケットなどの優先度の高いパケットを VPN 内で高速に伝送できます。
+STATIC20				送信元IPアドレス:
+STATIC21				送信元ポート番号:
 R_DISABLE_QOS			VoIP / QoS 対応機能を無効にする(&Q)
 IDOK					&OK
 IDCANCEL				キャンセル
@@ -2467,7 +2469,7 @@ STATIC1					VPN Client の動作に関する設定を変更できます。
 STATIC2					リモート管理の設定(&E)
 STATIC3					VPN Client サービスプログラムを別のコンピュータ上から VPN クライアント接続マネージャによってリモート管理することが可能です。
 R_ALLOW_REMOTE_CONFIG	VPN Client サービスのリモート管理を許可する(&R)
-S_WARNING				リモート管理を許可する場合、パスワードを設定しておくことを強くお勧めします。パスワードは [ツール] メニューの [パスワードの設定] をクリックして設定することができます。
+S_WARNING				リモート管理を許可する場合、パスワードを設定する必要があります。パスワードは [ツール] メニューの [パスワードの設定] をクリックして設定することができます。リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。
 STATIC4					一定期間無通信状態が続くと接続が自動的に切断されるようなネットワーク接続環境の場合、インターネット上の任意のサーバーに対して一定間隔ごとにパケットを送信することにより、インターネット接続を維持することができます。
 R_USE_KEEP_CONNECT		インターネット接続の維持機能を使用する(&K)
 S_HOSTNAME				ホスト名(&H):
@@ -6470,7 +6472,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	VPN Azure クラウドサーバーへ接�
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	VPN Azure サービス上でのホスト名
 
 
-# VpnAzureSetStatus コマンド
+# VpnAzureSetEnable コマンド
 CMD_VpnAzureSetEnable			VPN Azure 機能の有効化 / 無効化
 CMD_VpnAzureSetEnable_Help		VPN Azure 機能を有効または無効にします。\n\nVPN Azure により、会社のパソコンに自宅や外出先のパソコンから非常に簡単に VPN 接続できるようになります。VPN 接続中は会社のパソコンを経由して、社内 LAN の他のサーバーにもアクセスできます。\n会社のパソコン (VPN Server) にはグローバル IP アドレスは不要です。ファイアウォールや NAT の内側であっても動作し、ネットワーク管理者による設定は一切必要ありません。VPN クライアントとなる自宅のパソコンでは、Windows に標準付属の SSTP VPN クライアントを使用できます。\nVPN Azure は、SoftEther VPN Server をお使いの方はどなたでも無料で利用できるクラウド VPN サービスです。ソフトイーサ株式会社によって運営されています。使い方は http://www.vpnazure.net/ に掲載されています。\n\nVPN Azure ホスト名はダイナミック DNS サービスのホスト名のドメイン部分を "vpnazure.net" に変更したものが使用されます。ホスト名を変更するには DynamicDnsSetHostname コマンドを使用してください。\n\nこのコマンドを実行するには、VPN Server の管理者権限が必要です。\nこのコマンドは、VPN Bridge では実行できません。\nこのコマンドは、クラスタとして動作している VPN Server の仮想 HUB では実行できません。
 CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
@@ -7020,13 +7022,13 @@ CMD_AccountImport_OK	接続設定 "%s" としてインポートしました。
 
 # RemoteEnable コマンド
 CMD_RemoteEnable		VPN Client サービスのリモート管理の許可
-CMD_RemoteEnable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータから、コマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを許可します。
+CMD_RemoteEnable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータから、コマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを許可します。注意: リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。リモート管理を許可する場合、パスワードを設定する必要があります。
 CMD_RemoteEnable_Args	RemoteEnable
 
 
 # RemoteDisable コマンド
 CMD_RemoteDisable		VPN Client サービスのリモート管理の禁止
-CMD_RemoteDisable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータからコマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを禁止します。
+CMD_RemoteDisable_Help	VPN Client サービスに、localhost 以外のリモートコンピュータからコマンドライン管理ユーティリティまたは VPN クライアント接続マネージャでリモート接続して管理することを禁止します。注意: リモート管理の可否の変更の設定適用には、VPN Client サービスを再起動する必要があります。
 CMD_RemoteDisable_Args	RemoteDisable
 
 

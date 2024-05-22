@@ -726,9 +726,8 @@ void AdminWebProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_siz
 	if (RecvAll(s, data, post_data_size, s->SecureMode))
 	{
 		c->JsonRpcAuthed = true;
-#ifndef	GC_SOFTETHER_OSS
+
 		RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 		// Divide url_target into URL and query string
 		StrCpy(url, sizeof(url), url_target);
@@ -767,9 +766,8 @@ void AdminWebProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
 	}
 
 	c->JsonRpcAuthed = true;
-#ifndef	GC_SOFTETHER_OSS
+
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	// Divide url_target into URL and query string
 	StrCpy(url, sizeof(url), url_target);
@@ -1199,9 +1197,7 @@ void JsonRpcProcOptions(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target
 
 	c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	AdminWebSendBody(s, 200, "OK", NULL, 0, NULL, NULL, NULL, h);
 }
@@ -1228,9 +1224,7 @@ void JsonRpcProcGet(CONNECTION *c, SOCK *s, HTTP_HEADER *h, char *url_target)
 
 	c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 	RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 	// Divide url_target into URL and query string
 	StrCpy(url, sizeof(url), url_target);
@@ -1357,9 +1351,7 @@ void JsonRpcProcPost(CONNECTION *c, SOCK *s, HTTP_HEADER *h, UINT post_data_size
 
 		c->JsonRpcAuthed = true;
 
-#ifndef	GC_SOFTETHER_OSS
 		RemoveDosEntry(c->Listener, s);
-#endif	// GC_SOFTETHER_OSS
 
 		if (json_req == NULL || json_req_object == NULL)
 		{
@@ -1644,8 +1636,8 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("GetSpecialListener", RPC_SPECIAL_LISTENER, StGetSpecialListener, InRpcSpecialListener, OutRpcSpecialListener)
 	DECLARE_RPC("GetAzureStatus", RPC_AZURE_STATUS, StGetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 	DECLARE_RPC("SetAzureStatus", RPC_AZURE_STATUS, StSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
-	DECLARE_RPC("GetDDnsInternetSettng", INTERNET_SETTING, StGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
-	DECLARE_RPC("SetDDnsInternetSettng", INTERNET_SETTING, StSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+	DECLARE_RPC("GetDDnsInternetSetting", INTERNET_SETTING, StGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+	DECLARE_RPC("SetDDnsInternetSetting", INTERNET_SETTING, StSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 	// RPC function declaration: till here
 
 
@@ -1831,8 +1823,8 @@ DECLARE_SC("SetSpecialListener", RPC_SPECIAL_LISTENER, ScSetSpecialListener, InR
 DECLARE_SC("GetSpecialListener", RPC_SPECIAL_LISTENER, ScGetSpecialListener, InRpcSpecialListener, OutRpcSpecialListener)
 DECLARE_SC("GetAzureStatus", RPC_AZURE_STATUS, ScGetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 DECLARE_SC("SetAzureStatus", RPC_AZURE_STATUS, ScSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
-DECLARE_SC("GetDDnsInternetSettng", INTERNET_SETTING, ScGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
-DECLARE_SC("SetDDnsInternetSettng", INTERNET_SETTING, ScSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+DECLARE_SC("GetDDnsInternetSetting", INTERNET_SETTING, ScGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+DECLARE_SC("SetDDnsInternetSetting", INTERNET_SETTING, ScSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 // RPC call function declaration: till here
 
 // Setting VPN Gate Server Configuration

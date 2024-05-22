@@ -65,6 +65,8 @@ void InitProcessCallOnce()
 	{
 		init_proc_once_flag = true;
 
+		InitCanaryRand();
+
 #ifdef	OS_WIN32
 		MsInitProcessCallOnce();
 #endif	// OS_WIN32

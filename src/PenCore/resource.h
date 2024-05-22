@@ -339,6 +339,8 @@
 #define C_NUM_TCP                       1075
 #define B_TRUST                         1076
 #define E_INTERVAL                      1076
+#define E_BIND_LOCALIP                  9076	// Bind source IP address
+#define E_BIND_LOCALPORT                9077	// Bind source port number
 #define B_PROXY_CONFIG                  1077
 #define B_SERVER_CERT                   1078
 #define B_VIEW_SERVER_CERT              1079

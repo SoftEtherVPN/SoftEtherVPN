@@ -2846,7 +2846,10 @@ bool Win32InitThread(THREAD *t)
 
 	// Thread creation
 	t->pData = w;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wincompatible-function-pointer-types"
 	hThread = (HANDLE)_beginthreadex(NULL, 0, Win32DefaultThreadProc, info, 0, &thread_id);
+    #pragma clang diagnostic pop
 	if (hThread == NULL)
 	{
 		// Thread creation failure

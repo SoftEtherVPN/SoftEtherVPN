@@ -2421,6 +2421,8 @@ STATIC17				Other Confi&gurations:
 R_NO_ROUTING			No Adjustments of &Routing Table
 STATIC18				Keep the settings default in this dialog unless you are told to do so by a system administrator, or you have expertise for networking and security.
 STATIC19				The VoIP / QoS functions handle high priority packets such as IP telephone packets (VoIP) to be transmitted faster.
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS			Disable VoIP / &QoS Functions
 IDOK					&OK
 IDCANCEL				Cancel
@@ -2464,7 +2466,7 @@ STATIC1					You can modify the settings for VPN Client.
 STATIC2					R&emote Management:
 STATIC3					You can remotely manage the VPN Client Service Program from another computer by using VPN Client Manager Remote Mode.
 R_ALLOW_REMOTE_CONFIG	Allow &Remote Management of VPN Client Service
-S_WARNING				It is recommended to set a password if you allow remote management. From the menu bar, choose Tools -> Set Password to set the password.
+S_WARNING				You must set a password if you allow remote management. From the menu bar, choose Tools -> Set Password to set the password. The VPN Client service must be restarted to apply the change of remote management availability.
 STATIC4					For environments where Internet connections will automatically be disconnected when idle, you can keep alive the Internet connection by sending dummy packets to any host on the Internet.
 R_USE_KEEP_CONNECT		Use &Keep Alive Internet Connection Function
 S_HOSTNAME				&Host Name:
@@ -6463,7 +6465,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	Connection to VPN Azure Cloud Server is Es
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	Hostname of this VPN Server on VPN Azure Service
 
 
-# VpnAzureSetStatus command
+# VpnAzureSetEnable command
 CMD_VpnAzureSetEnable			Enable / Disable VPN Azure Function
 CMD_VpnAzureSetEnable_Help		Enable or disable the VPN Azure function.\n\nVPN Azure makes it easier to establish a VPN Session from your home PC to your office PC. While a VPN connection is established, you can access to any other servers on the private network of your company.\nYou don't need a global IP address on the office PC (VPN Server). It can work behind firewalls or NATs. No network administrator's configuration required. You can use the built-in SSTP-VPN Client of Windows in your home PC.\nVPN Azure is a cloud VPN service operated by SoftEther VPN Project. VPN Azure is free of charge and available to anyone. Visit http://www.vpnazure.net/ to see details and how-to-use instructions.\n\nThe VPN Azure hostname is same to the hostname of the Dynamic DNS setting, but altering the domain suffix to "vpnazure.net". To change the hostname use the DynamicDnsSetHostname command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_VpnAzureSetEnable_Args		VpnAzureSetEnable [yes|no]
@@ -7014,13 +7016,13 @@ CMD_AccountImport_OK	The VPN Connection Setting "%s" has been imported.
 
 # RemoteEnable command
 CMD_RemoteEnable		Allow Remote Management of VPN Client Service
-CMD_RemoteEnable_Help	Use this to allow management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager.
+CMD_RemoteEnable_Help	Use this to allow management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager. The VPN Client service must be restarted to apply the change of remote management availability. You must set a password if you allow remote management.
 CMD_RemoteEnable_Args	RemoteEnable
 
 
 # RemoteDisable command
 CMD_RemoteDisable		Deny Remote Management of VPN Client Service
-CMD_RemoteDisable_Help	Use this to deny management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager.
+CMD_RemoteDisable_Help	Use this to deny management of a VPN Client service from a remote computer that is not localhost, via a remote connection by Command Line Management Utility or VPN Client Manager. The VPN Client service must be restarted to apply the change of remote management availability.
 CMD_RemoteDisable_Args	RemoteDisable
 
 

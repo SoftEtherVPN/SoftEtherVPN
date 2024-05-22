@@ -541,12 +541,8 @@ UINT DCRegister(DDNS_CLIENT *c, bool ipv6, DDNS_REGISTER_PARAM *p, char *replace
 		}
 	}
 
-
-
 	Format(url2, sizeof(url2), "%s?v=%I64u", url, Rand64());
 	Format(url3, sizeof(url3), url2, key_hash_str[2], key_hash_str[3]);
-
-	ReplaceStr(url3, sizeof(url3), url3, "https://", "http://");
 
 	ReplaceStr(url3, sizeof(url3), url3, ".servers", ".open.servers");
 

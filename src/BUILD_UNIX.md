@@ -228,7 +228,7 @@ You can write your own VPN Server management application in your favorite langua
 
 You can use any SoftEtherVPN component (server, client, bridge) without installing it, if you wish so.
 
-In this case please do not run the `make install` command after compiling the source code, and head directly to the **bin/** directory. There you will find the generated binaries for SoftEtherVPN and those could be used without installing SoftEtherVPN.
+In this case please do not run the `make install` command after compiling the source code, and head directly to the **build/** directory. There you will find the generated binaries for SoftEtherVPN and those could be used without installing SoftEtherVPN.
 
 ************************************
 Thank You Using SoftEther VPN !

@@ -479,7 +479,7 @@ NATT_MSG	** Connected with NAT traversal - might be unstable **\r\n\r\nThis VPN 
 # Virtual HUB Admin Options
 HUB_AO_CLICK	Select an item to view the description here.
 HUB_AO_UNKNOWN	The description of the item was not found. Refer to the documents, or speculate the meaning and purpose of the item from the name of the item.
-HUB_AO_allow_eap_tls_match_user_by_cert	If you enable (set to 1) this option, the Virtual Hub will attempt to match the EAP Identity not only with usernames, but also with user certificate CNs during the PPP EAP authentication flow.
+HUB_AO_allow_hub_admin_change_option	This is a special item. If you are enable (set to 1) this option, then not only the VPN Server's global administrator but also the Virtual Hub's administrator will be granted to modify the Virtual Hub Admin Options by himself.
 HUB_AO_deny_hub_admin_change_ext_option	If you are enable (set to 1) this option, the Virtual Hub's administrator will be forbidden to modify any values on the Virtual Hub Extended Options, then only the VPN Server's global administrator can modify them.
 HUB_AO_no_delay_jitter_packet_loss	If you set this option to non-zero value, then all parameters of delay, jitter and packet-loss on the access-list entry will be ignored even if these parameters are set when the administrator adds a new access list entry. Therefore, delay, jitter and packet-loss generating function will be virtually disabled. Because of the delay generating function sometimes make a high volume of load on the CPU and RAM, a Virtual Hub which is shared by several users should have this option enabled.
 HUB_AO_max_users	If you set this option to non-zero value, the maximum number of user objects registered on the Virtual Hub will be limited to this value, then greater number of user objects than this value cannot be added.
@@ -2390,6 +2390,8 @@ STATIC17	Outras confi&gurações:
 R_NO_ROUTING	Sem ajustes na tabela de &roteamento
 STATIC18	Mantenha as configurações padrão nesta caixa de diálogo, a menos que seja solicitado por um administrador do sistema ou se você possui experiência em redes e segurança.
 STATIC19	As funções VoIP/QoS lidam com pacotes de alta prioridade, para serem transmitidos mais rapidamente.
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS	Desativar função VoIP / &QoS
 IDOK	&OK
 IDCANCEL	Cancelar
@@ -4441,7 +4443,7 @@ CMD_Debug_Msg2	The debug command has executed.\nResults: \"%S\"
 # Crash command
 CMD_Crash	Raise a error on the VPN Server / Bridge to terminate the process forcefully.
 CMD_Crash_Help	This command will raise a fatal error (memory access violation) on the VPN Server / Bridge running process in order to crash the process. As the result, VPN Server / Bridge will be terminated and restarted if it is running as a service mode. If the VPN Server is running as a user mode, the process will not automatically restarted.\nThis command is for a situation when the VPN Server / Bridge is under a non-recoverable error or the process is in an infinite loop. This command will disconnect all VPN Sessions on the VPN Server / Bridge. All unsaved settings in the memory of VPN Server / Bridge will be lost.\nBefore run this command, run the Flush command to try to save volatile data to the configuration file.\nTo execute this command, you must have VPN Server / VPN Bridge administrator privileges.
-CMD_Crash_Args	Crash [sim]
+CMD_Crash_Args	Crash [yes]
 CMD_Crash_[yes]	Input "yes" for confirmation.
 CMD_Crash_Msg	Sending the Crush command to the VPN Server. The VPN Server will be let to crash immediately, so you can never get the result value of this command. After this moment, vpncmd will be disconnected from the VPN Server.
 CMD_Crash_Confirm	Do you really want to crash the VPN Server?\nInput "yes" if it is ok: 

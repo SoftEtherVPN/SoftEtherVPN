@@ -5,10 +5,10 @@
 // This sample code shows how to call all available RPC functions.
 // You can copy and paste test code to write your own C# codes.
 //
-// Automatically generated at 2019-07-10 14:36:11 by vpnserver-jsonrpc-codegen
+// Automatically generated at 2023-05-10 14:43:37 by vpnserver-jsonrpc-codegen
 //
 // Licensed under the Apache License 2.0
-// Copyright (c) 2014-2019 SoftEther VPN Project
+// Copyright (c) 2014-2023 SoftEther VPN Project
 
 using System;
 using SoftEther.VPNServerRpc;
@@ -255,8 +255,8 @@ class VPNRPCTest
         Test_GetOpenVpnSstpConfig();
 
         Test_GetDDnsClientStatus();
-        Test_SetDDnsInternetSettng();
-        Test_GetDDnsInternetSettng();
+        Test_SetDDnsInternetSetting();
+        Test_GetDDnsInternetSetting();
 
         Test_ChangeDDnsClientHostname();
         Test_RegenerateServerCert();
@@ -3641,27 +3641,27 @@ class VPNRPCTest
     }
 
     /// <summary>
-    /// API test for 'GetDDnsInternetSettng', Get DDNS proxy configuration
+    /// API test for 'GetDDnsInternetSetting', Get DDNS proxy configuration
     /// </summary>
-    public void Test_GetDDnsInternetSettng()
+    public void Test_GetDDnsInternetSetting()
     {
-        Console.WriteLine("Begin: Test_GetDDnsInternetSettng");
+        Console.WriteLine("Begin: Test_GetDDnsInternetSetting");
 
-        VpnInternetSetting out_internet_setting = api.GetDDnsInternetSettng();
+        VpnInternetSetting out_internet_setting = api.GetDDnsInternetSetting();
 
         print_object(out_internet_setting);
 
-        Console.WriteLine("End: Test_GetDDnsInternetSettng");
+        Console.WriteLine("End: Test_GetDDnsInternetSetting");
         Console.WriteLine("-----");
         Console.WriteLine();
     }
 
     /// <summary>
-    /// API test for 'SetDDnsInternetSettng', Set DDNS proxy configuration
+    /// API test for 'SetDDnsInternetSetting', Set DDNS proxy configuration
     /// </summary>
-    public void Test_SetDDnsInternetSettng()
+    public void Test_SetDDnsInternetSetting()
     {
-        Console.WriteLine("Begin: Test_SetDDnsInternetSettng");
+        Console.WriteLine("Begin: Test_SetDDnsInternetSetting");
 
         VpnInternetSetting in_internet_setting = new VpnInternetSetting()
         {
@@ -3671,11 +3671,11 @@ class VPNRPCTest
             ProxyUsername_str = "neko",
             ProxyPassword_str = "dog",
         };
-        VpnInternetSetting out_internet_setting = api.SetDDnsInternetSettng(in_internet_setting);
+        VpnInternetSetting out_internet_setting = api.SetDDnsInternetSetting(in_internet_setting);
 
         print_object(out_internet_setting);
 
-        Console.WriteLine("End: Test_SetDDnsInternetSettng");
+        Console.WriteLine("End: Test_SetDDnsInternetSetting");
         Console.WriteLine("-----");
         Console.WriteLine();
     }

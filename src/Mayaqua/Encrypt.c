@@ -712,7 +712,8 @@ UINT RsaPublicSize(K *k)
 // Hash a pointer to a 32-bit
 UINT HashPtrToUINT(void *p)
 {
-	UCHAR hash_data[MD5_SIZE];
+	UCHAR hash_data[SHA256_SIZE];
+	UCHAR hash_src[CANARY_RAND_SIZE + sizeof(void *)];
 	UINT ret;
 	// Validate arguments
 	if (p == NULL)
@@ -720,7 +721,11 @@ UINT HashPtrToUINT(void *p)
 		return 0;
 	}
 
-	Md5(hash_data, &p, sizeof(p));
+	Zero(hash_src, sizeof(hash_src));
+	Copy(hash_src + 0, GetCanaryRand(CANARY_RAND_ID_PTR_KEY_HASH), CANARY_RAND_SIZE);
+	Copy(hash_src + CANARY_RAND_SIZE, p, sizeof(void *));
+
+	Sha2_256(hash_data, hash_src, sizeof(hash_src));
 
 	Copy(&ret, hash_data, sizeof(ret));
 

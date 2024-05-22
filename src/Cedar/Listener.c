@@ -17,6 +17,7 @@
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"
 #include "Mayaqua/Str.h"
+#include "Mayaqua/Tick64.h"
 
 static bool disable_dos = false;
 static UINT max_connections_per_ip = DEFAULT_MAX_CONNECTIONS_PER_IP;
@@ -181,6 +182,11 @@ void TCPAcceptedThread(THREAD *t, void *param)
 	ConnectionAccept(c);
 	flag1 = c->flag1;
 
+	if (c->JsonRpcAuthed)
+	{
+		RemoveDosEntry(r, s);
+	}
+
 	// Release
 	SLog(r->Cedar, "LS_CONNECTION_END_1", c->Name);
 	ReleaseListener(c->Listener);
@@ -221,6 +227,46 @@ void TCPAccepted(LISTENER *r, SOCK *s)
 
 	num_clients_from_this_ip = GetNumIpClient(&s->RemoteIP);
 
+#ifdef	USE_DOS_ATTACK_DETECTION
+	if (disable_dos == false && r->DisableDos == false && r->Protocol != LISTENER_INPROC)
+	{
+		UINT max_uec, now_uec;
+		// DOS attack check
+		if (CheckDosAttack(r, s) == false)
+		{
+			Debug("DOS Attack 1 !!\n");
+			IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
+			SLog(r->Cedar, "LS_LISTENER_DOS", r->Port, tmp, s->RemotePort);
+			return;
+		}
+		if (StrCmpi(s->UnderlayProtocol, SOCK_UNDERLAY_NATIVE_V6) == 0 ||
+			StrCmpi(s->UnderlayProtocol, SOCK_UNDERLAY_NATIVE_V4) == 0)
+		{
+			if (IsInNoSsl(r->Cedar, &s->RemoteIP))
+			{
+				Debug("DOS Attack 2 !!\n");
+				IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
+				SLog(r->Cedar, "LS_LISTENER_DOS", r->Port, tmp, s->RemotePort);
+				return;
+			}
+		}
+		if (num_clients_from_this_ip > GetMaxConnectionsPerIp())
+		{
+			Debug("DOS Attack 3 !!\n");
+			IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
+			SLog(r->Cedar, "LS_LISTENER_DOS", r->Port, tmp, s->RemotePort);
+			return;
+		}
+		max_uec = GetMaxUnestablishedConnections();
+		now_uec = GetUnestablishedConnections(cedar);
+		if (now_uec > max_uec)
+		{
+			Debug("DOS Attack 4 !!\n");
+			SLog(r->Cedar, "LS_LISTENER_MAXUEC", max_uec, now_uec);
+			return;
+		}
+	}
+#endif	// USE_DOS_ATTACK_DETECTION
 
 	IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
 
@@ -239,6 +285,169 @@ void TCPAccepted(LISTENER *r, SOCK *s)
 	ReleaseThread(t);
 }
 
+// Remove a DOS entry
+bool RemoveDosEntry(LISTENER *r, SOCK *s)
+{
+	DOS *d;
+	bool ok = false;
+	// Validate arguments
+	if (r == NULL || s == NULL)
+	{
+		return false;
+	}
+
+	LockList(r->DosList);
+	{
+		// Delete old entries from the DOS attack list
+		RefreshDosList(r);
+
+		// Search the table
+		d = SearchDosList(r, &s->RemoteIP);
+
+		if (d != NULL)
+		{
+			Delete(r->DosList, d);
+			Free(d);
+			ok = true;
+		}
+	}
+	UnlockList(r->DosList);
+
+	return ok;
+}
+
+// Check whether this is a DOS attack
+bool CheckDosAttack(LISTENER *r, SOCK *s)
+{
+	DOS *d;
+	bool ok = true;
+	// Validate arguments
+	if (r == NULL || s == NULL)
+	{
+		return false;
+	}
+
+	LockList(r->DosList);
+	{
+		// Delete old entries from the DOS attack list
+		RefreshDosList(r);
+
+		// Search the table
+		d = SearchDosList(r, &s->RemoteIP);
+
+		if (d != NULL)
+		{
+			// There is a entry already
+			// This should mean being under a DOS attack
+			d->LastConnectedTick = Tick64();
+			d->CurrentExpireSpan = MIN(d->CurrentExpireSpan * (UINT64)2, DOS_TABLE_EXPIRES_MAX);
+			d->AccessCount++;
+			if (d->AccessCount > DOS_TABLE_MAX_LIMIT_PER_IP)
+			{
+				ok = false;
+			}
+		}
+		else
+		{
+			// Create a new entry
+			d = ZeroMalloc(sizeof(DOS));
+			d->CurrentExpireSpan = (UINT64)DOS_TABLE_EXPIRES_FIRST;
+			d->FirstConnectedTick = d->LastConnectedTick = Tick64();
+			d->AccessCount = 1;
+			d->DeleteEntryTick = d->FirstConnectedTick + (UINT64)DOS_TABLE_EXPIRES_TOTAL;
+			Copy(&d->IpAddress, &s->RemoteIP, sizeof(IP));
+			Add(r->DosList, d);
+		}
+	}
+	UnlockList(r->DosList);
+
+	return ok;
+}
+
+// Delete old entries from the DOS attack list
+void RefreshDosList(LISTENER *r)
+{
+	// Validate arguments
+	if (r == NULL)
+	{
+		return;
+	}
+
+	if (r->DosListLastRefreshTime == 0 ||
+		(r->DosListLastRefreshTime + (UINT64)DOS_TABLE_REFRESH_INTERVAL) <= Tick64())
+	{
+		UINT i;
+		LIST *o;
+		r->DosListLastRefreshTime = Tick64();
+
+		o = NewListFast(NULL);
+		for (i = 0;i < LIST_NUM(r->DosList);i++)
+		{
+			DOS *d = LIST_DATA(r->DosList, i);
+			if ((d->LastConnectedTick + d->CurrentExpireSpan) <= Tick64() ||
+				(d->DeleteEntryTick <= Tick64()))
+			{
+				Add(o, d);
+			}
+		}
+
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			DOS *d = LIST_DATA(o, i);
+			Delete(r->DosList, d);
+			Free(d);
+		}
+
+		ReleaseList(o);
+	}
+}
+
+// Search the DOS attack list by the IP address
+DOS *SearchDosList(LISTENER *r, IP *ip)
+{
+	DOS *d, t;
+	// Validate arguments
+	if (r == NULL || ip == NULL)
+	{
+		return NULL;
+	}
+
+	Copy(&t.IpAddress, ip, sizeof(IP));
+
+	d = Search(r->DosList, &t);
+
+	if (d != NULL)
+	{
+		if ((d->LastConnectedTick + d->CurrentExpireSpan) <= Tick64() ||
+			(d->DeleteEntryTick <= Tick64()))
+		{
+			// Delete old entries
+			Delete(r->DosList, d);
+			Free(d);
+			return NULL;
+		}
+	}
+
+	return d;
+}
+
+// Comparison of DOS attack list entries
+int CompareDos(void *p1, void *p2)
+{
+	DOS *d1, *d2;
+	if (p1 == NULL || p2 == NULL)
+	{
+		return 0;
+	}
+	d1 = *(DOS **)p1;
+	d2 = *(DOS **)p2;
+	if (d1 == NULL || d2 == NULL)
+	{
+		return 0;
+	}
+
+	return CmpIpAddr(&d1->IpAddress, &d2->IpAddress);
+}
 
 // UDP listener main loop
 void ListenerUDPMainLoop(LISTENER *r)
@@ -653,6 +862,13 @@ void CleanupListener(LISTENER *r)
 		return;
 	}
 
+	// Release the DOS attack list
+	for (i = 0;i < LIST_NUM(r->DosList);i++)
+	{
+		DOS *d = LIST_DATA(r->DosList, i);
+		Free(d);
+	}
+	ReleaseList(r->DosList);
 
 	if (r->Sock != NULL)
 	{
@@ -802,6 +1018,7 @@ LISTENER *NewListenerEx5(CEDAR *cedar, UINT proto, UINT port, THREAD_PROC *proc,
 	r->Port = port;
 	r->Event = NewEvent();
 
+	r->DosList = NewList(CompareDos);
 
 	r->LocalOnly = local_only;
 	r->ShadowIPv6 = shadow_ipv6;

@@ -2402,6 +2402,8 @@ STATIC17 기타 설정 (&G):
 R_NO_ROUTING 라우팅 테이블의 조정 작업을 수행하지 (&R)
 STATIC18 이 설정 화면의 설정은 시스템 관리자의 지시가있을 경우, 네트워크 및 보안에 대해 상세한 지식을 가지고있는 경우를 제외하고는 변경하지 마십시오.
 STATIC19 VoIP/QoS 지원 기능을 사용하면 IP 전화 패킷 등의 우선 순위가 높은 패킷을 VPN에서 고속으로 전송할 수 있습니다.
+STATIC20				Source IP Address:
+STATIC21				Source Port Number:
 R_DISABLE_QOS VoIP/QoS 지원 기능을 비활성화 (&Q)
 IDOK & OK
 IDCANCEL 취소
@@ -6445,7 +6447,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED VPN Azure 클라우드 서버에 연결 �
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME VPN Azure 서비스에서 호스트 이름
 
 
-# VpnAzureSetStatus 명령
+# VpnAzureSetEnable 명령
 CMD_VpnAzureSetEnable VPN Azure 기능의 활성화/비활성화
 CMD_VpnAzureSetEnable_Help VPN Azure 기능을 활성화하거나 비활성화합니다. \n \nVPN Azure하여 회사의 PC에 가정이나 이동 PC에서 매우 쉽게 VPN 연결 할 수 있습니다. VPN 연결 중에 회사의 컴퓨터를 통해 사내 LAN의 다른 서버에 액세스 할 수 있습니다. \n 회사 컴퓨터 (VPN Server)는 글로벌 IP 주소는 필요하지 않습니다. 방화벽이나 NAT 뒤에라도 작동하고 네트워크 관리자의 설정은 필요하지 않습니다. VPN 클라이언트가 될 자택의 PC에서는 Windows에 표준 부속의 SSTP VPN 클라이언트를 사용할 수 있습니다. \nVPN Azure는 SoftEther VPN Server를 사용하시는 분들은 누구나 무료로 이용할 수 클라우드 VPN 서비스입니다. 소프트 이사 회사에 의해 운영되고 있습니다. 사용법은 http://www.vpnazure.net/에 게재되어 있습니다. \n \nVPN Azure 호스트 이름은 동적 DNS 서비스 호스트 이름의 도메인 부분을 "vpnazure.net"로 변경 한 것이 사용됩니다. 호스트 이름을 변경하려면 DynamicDnsSetHostname 명령을 사용하십시오. \n \n이 명령을 실행하려면 VPN Server 관리자 권한이 있어야합니다. \n이 명령은 VPN Bridge에서는 실행되지 않습니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
 CMD_VpnAzureSetEnable_Args VpnAzureSetEnable [yes|no]

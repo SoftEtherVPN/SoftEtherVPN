@@ -812,6 +812,9 @@ struct RUDP_STACK
 struct CONNECT_SERIAL_PARAM
 {
 	LIST *IpList;
+	UINT LocalPort;						// Local port number to bind
+	IP   *LocalIP;						// Local IP address to bind. NULL address allowed to use.
+	IP   LocalIP_Cache;					// Local IP address to bind
 	UINT Port;
 	UINT Timeout;
 	char Hostname[MAX_SIZE];
@@ -950,6 +953,10 @@ void ConnectThreadForRUDP(THREAD *thread, void *param);
 void ConnectThreadForOverDnsOrIcmp(THREAD *thread, void *param);
 void ConnectThreadForIPv4(THREAD *thread, void *param);
 void ConnectThreadForIPv6(THREAD *thread, void *param);
+
+void BindConnectThreadForIPv4(THREAD *thread, void *param);
+void BindConnectThreadForIPv6(THREAD *thread, void *param);
+
 SOCK *CreateTCPSock(SOCKET s, bool is_ipv6, IP *current_ip, bool no_get_hostname, char *hostname_original);
 SOCK *NewRUDPClientNatT(char *svc_name, IP *ip, UINT *error_code, UINT timeout, bool *cancel, char *hint_str, char *target_hostname);
 RUDP_STACK *NewRUDPServer(char *svc_name, RUDP_STACK_INTERRUPTS_PROC *proc_interrupts, RUDP_STACK_RPC_RECV_PROC *proc_rpc_recv, void *param, UINT port, bool no_natt_register, bool over_dns_mode, volatile UINT *natt_global_udp_port, UCHAR rand_port_id, IP *listen_ip);
@@ -1113,6 +1120,14 @@ SOCK *ConnectEx3(char *hostname, UINT port, UINT timeout, bool *cancel_flag, cha
 SOCK *ConnectEx4(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
 SOCK *ConnectEx5(char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip);
 SOCKET ConnectTimeoutIPv4(IP *ip, UINT port, UINT timeout, bool *cancel_flag);
+
+// New function named with prefix "Bind" binds outgoing connection to a specific address. New one is wrapped in original one.
+#define	BIND_LOCALIP_NULL			NULL		// NULL IP address specifies no binding
+#define	BIND_LOCALPORT_NULL			0			// NULL port number specifies no binding
+SOCK *BindConnectEx4(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, IP *ret_ip);
+SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UINT timeout, bool *cancel_flag, char *nat_t_svc_name, UINT *nat_t_error_code, bool try_start_ssl, bool no_get_hostname, SSL_VERIFY_OPTION *ssl_option, UINT *ssl_err, char *hint_str, IP *ret_ip);
+SOCKET BindConnectTimeoutIPv4(IP *localIP, UINT localport, IP *ip, UINT port, UINT timeout, bool *cancel_flag);
+
 bool SetSocketBufferSize(SOCKET s, bool send, UINT size);
 UINT SetSocketBufferSizeWithBestEffort(SOCKET s, bool send, UINT size);
 void InitUdpSocketBufferSize(SOCKET s);

@@ -1,0 +1,16 @@
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Check
+        run: |
+          cd developer_tools/stbchecker
+          dotnet run ../../src/bin/hamcore

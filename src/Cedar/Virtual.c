@@ -9340,20 +9340,75 @@ UINT ServeDhcpDiscoverEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip)
 		return 0;
 	}
 
+	UINT ret = 0;
 	DHCP_LEASE *d = SearchDhcpLeaseByIp(v, request_ip);
+
 	if (d != NULL)
 	{
-		// The requested IP address is used already
-		return 0;
+		// If an entry for the same IP address already exists,
+		// check whether it is a request from the same MAC address
+		if (Cmp(mac, d->MacAddress, 6) == 0)
+		{
+			// Examine whether the specified IP address is within the range of assignment
+			if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
+				Endian32(request_ip) > Endian32(v->DhcpIpEnd))
+			{
+				// Accept if within the range
+				ret = request_ip;
+			}
+		}
+		else {
+			// Duplicated IPV4 address found. The DHCP server replies to DHCPREQUEST with DHCP NAK.
+			char ipstr[MAX_HOST_NAME_LEN + 1] = { 0 };
+			char macstr[128] = { 0 };
+			IPToStr32(ipstr, sizeof(ipstr), request_ip);
+			BinToStr(macstr, sizeof(macstr), d->MacAddress, 6);
+			Debug("Virtual DHC Server: Duplicated IP address detected. Static IP: %s, Used by MAC:%s\n", ipstr, macstr);
+			return ret;
+		}
 	}
-
-	// For static IP, the requested IP address must NOT be within the range of the DHCP pool
-	if (Endian32(request_ip) < Endian32(v->DhcpIpStart) || Endian32(request_ip) > Endian32(v->DhcpIpEnd))
+	else
 	{
-		return request_ip;
+		// Examine whether the specified IP address is within the range of assignment
+		if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
+			Endian32(request_ip) > Endian32(v->DhcpIpEnd))
+		{
+			// Accept if within the range
+			ret = request_ip;
+		}
+		else
+		{
+			// Propose an IP in the range since it's a Discover although It is out of range
+		}
+	}
+	if (ret == 0)
+	{
+		// If there is any entry with the same MAC address
+		// that are already registered, use it with priority
+		DHCP_LEASE *d = SearchDhcpLeaseByMac(v, mac);
+
+		if (d != NULL)
+		{
+			// Examine whether the found IP address is in the allocation region
+			if (Endian32(v->DhcpIpStart) > Endian32(d->IpAddress) ||
+				Endian32(d->IpAddress) > Endian32(v->DhcpIpEnd))
+			{
+				// Use the IP address if it's found within the range
+				ret = d->IpAddress;
+			}
+		}
+	}
+	if (ret == 0)
+	{
+		// For static IP, the requested IP address must NOT be within the range of the DHCP pool
+		if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
+			Endian32(request_ip) > Endian32(v->DhcpIpEnd))
+		{
+			ret = request_ip;
+		}
 	}
 
-	return 0;
+	return ret;
 }
 
 // Take an appropriate IP addresses that can be assigned newly
@@ -9710,36 +9765,40 @@ void VirtualDhcpServer(VH *v, PKT *p)
 		}
 		else
 		{
-			// There is no IP address that can be provided
-			DHCP_OPTION_LIST ret;
-			LIST *o;
-			Zero(&ret, sizeof(ret));
-
-			ret.Opcode = DHCP_NACK;
-			ret.ServerAddress = v->HostIP;
-			StrCpy(ret.DomainName, sizeof(ret.DomainName), v->DhcpDomain);
-			ret.SubnetMask = v->DhcpMask;
-
-			// Build the DHCP option
-			o = BuildDhcpOption(&ret);
-			if (o != NULL)
+			// Reply of DHCP_REQUEST must be either DHCP_ACK or DHCP_NAK.
+			if (opt->Opcode == DHCP_REQUEST)
 			{
-				BUF *b = BuildDhcpOptionsBuf(o);
-				if (b != NULL)
-				{
-					UINT dest_ip = p->L3.IPv4Header->SrcIP;
-					if (dest_ip == 0)
-					{
-						dest_ip = 0xffffffff;
-					}
-					// Transmission
-					VirtualDhcpSend(v, tran_id, dest_ip, Endian16(p->L4.UDPHeader->SrcPort),
-					                ip, dhcp->ClientMacAddress, b, dhcp->HardwareType, dhcp->HardwareAddressSize);
+				// There is no IP address that can be provided
+				DHCP_OPTION_LIST ret;
+				LIST *o;
+				Zero(&ret, sizeof(ret));
 
-					// Release the memory
-					FreeBuf(b);
+				ret.Opcode = DHCP_NACK;
+				ret.ServerAddress = v->HostIP;
+				StrCpy(ret.DomainName, sizeof(ret.DomainName), v->DhcpDomain);
+				ret.SubnetMask = v->DhcpMask;
+
+				// Build the DHCP option
+				o = BuildDhcpOption(&ret);
+				if (o != NULL)
+				{
+					BUF *b = BuildDhcpOptionsBuf(o);
+					if (b != NULL)
+					{
+						UINT dest_ip = p->L3.IPv4Header->SrcIP;
+						if (dest_ip == 0)
+						{
+							dest_ip = 0xffffffff;
+						}
+						// Transmission
+						VirtualDhcpSend(v, tran_id, dest_ip, Endian16(p->L4.UDPHeader->SrcPort),
+							ip, dhcp->ClientMacAddress, b, dhcp->HardwareType, dhcp->HardwareAddressSize);
+
+						// Release the memory
+						FreeBuf(b);
+					}
+					FreeDhcpOptions(o);
 				}
-				FreeDhcpOptions(o);
 			}
 		}
 	}
