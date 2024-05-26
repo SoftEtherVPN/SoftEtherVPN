@@ -12314,7 +12314,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 					sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
 					sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-				)
+					)
 				{
 					UINT ssl_err_no = ERR_get_error();
 
@@ -12418,7 +12418,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 				sock->ssl->s3->send_alert[0] != sock->Ssl_Init_Async_SendAlert[0] &&
 				sock->ssl->s3->send_alert[1] != sock->Ssl_Init_Async_SendAlert[1]
 #endif
-			)
+				)
 			{
 				UINT ssl_err_no = ERR_get_error();
 
