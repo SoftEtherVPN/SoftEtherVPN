@@ -1,4 +1,0 @@
-jobs:
-  - template: .ci/azure-pipelines/linux.yml
-  - template: .ci/azure-pipelines/windows.yml
-  - template: .ci/azure-pipelines/macos.yml

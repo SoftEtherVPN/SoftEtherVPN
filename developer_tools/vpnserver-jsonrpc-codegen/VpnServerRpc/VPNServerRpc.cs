@@ -1357,22 +1357,22 @@ namespace SoftEther.VPNServerRpc
         /// <summary>
         /// Get the Proxy Settings for Connecting to the DDNS server (Async mode).
         /// </summary>
-        public async Task<VpnInternetSetting> GetDDnsInternetSettngAsync() => await CallAsync<VpnInternetSetting>("GetDDnsInternetSettng", new VpnInternetSetting());
+        public async Task<VpnInternetSetting> GetDDnsInternetSettingAsync() => await CallAsync<VpnInternetSetting>("GetDDnsInternetSetting", new VpnInternetSetting());
 
         /// <summary>
         /// Get the Proxy Settings for Connecting to the DDNS server (Async mode).
         /// </summary>
-        public VpnInternetSetting GetDDnsInternetSettng() => GetDDnsInternetSettngAsync().Result;
+        public VpnInternetSetting GetDDnsInternetSetting() => GetDDnsInternetSettingAsync().Result;
 
         /// <summary>
         /// Set the Proxy Settings for Connecting to the DDNS server (Async mode).
         /// </summary>
-        public async Task<VpnInternetSetting> SetDDnsInternetSettngAsync(VpnInternetSetting input_param) => await CallAsync<VpnInternetSetting>("SetDDnsInternetSettng", input_param);
+        public async Task<VpnInternetSetting> SetDDnsInternetSettingAsync(VpnInternetSetting input_param) => await CallAsync<VpnInternetSetting>("SetDDnsInternetSetting", input_param);
 
         /// <summary>
         /// Set the Proxy Settings for Connecting to the DDNS server (Sync mode).
         /// </summary>
-        public VpnInternetSetting SetDDnsInternetSettng(VpnInternetSetting input_param) => SetDDnsInternetSettngAsync(input_param).Result;
+        public VpnInternetSetting SetDDnsInternetSetting(VpnInternetSetting input_param) => SetDDnsInternetSettingAsync(input_param).Result;
 
         /// <summary>
         /// Set the VPN Gate Server Configuration (Async mode). This API is valid for Win32 binary distribution of the Stable Edition of SoftEther VPN Server.
