@@ -11,7 +11,7 @@ FreeBSD_task:
       SSL:
   matrix:
     freebsd_instance:
-      image_family: freebsd-13-2
+      image_family: freebsd-14-0
   prepare_script:
     - pkg install -y pkgconf cmake git libsodium $SSL
     - git submodule update --init --recursive
