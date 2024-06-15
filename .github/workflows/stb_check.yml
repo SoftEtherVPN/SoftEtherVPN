@@ -1,3 +1,4 @@
+name: STB Check
 on: [push, pull_request]
 
 permissions:
@@ -5,11 +6,15 @@ permissions:
 
 jobs:
   check:
+      name: Check
       runs-on: ubuntu-latest
       steps:
-      - uses: actions/checkout@v1
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: true
+
       - name: Check
         run: |
           cd developer_tools/stbchecker

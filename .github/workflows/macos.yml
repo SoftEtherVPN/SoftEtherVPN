@@ -1,3 +1,4 @@
+name: macOS
 on: [push, pull_request, workflow_dispatch]
 
 permissions:
@@ -11,18 +12,21 @@ jobs:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v1
+
+    - uses: actions/checkout@v4
       with:
         submodules: true
+
     - name: Install dependencies
       run: |
         brew install libsodium
+
     - name: Compile 
       run: |
         ./configure
         make -C build
+
     - name: Test 
       run: |
         otool -L build/vpnserver
         .ci/memory-leak-test.sh
-

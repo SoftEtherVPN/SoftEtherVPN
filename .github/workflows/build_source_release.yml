@@ -8,15 +8,16 @@ on:
 
 jobs:
   build:
-    name: build
+    name: Build
     runs-on: ubuntu-latest
     steps:
 
-    - uses: actions/checkout@v1
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: true
 
-    - name: archive
+    - name: Archive
       id: archive
       run: |
         VERSION=${{ github.event.release.tag_name }}
@@ -28,12 +29,8 @@ jobs:
         tar cJf $TARBALL $PKGNAME
         echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
 
-    - name: upload tarball
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload tarball
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./${{ steps.archive.outputs.tarball }}
-        asset_name: ${{ steps.archive.outputs.tarball }}
-        asset_content_type: application/gzip
+        files: ./${{ steps.archive.outputs.tarball }}
+        name: ${{ steps.archive.outputs.tarball }}

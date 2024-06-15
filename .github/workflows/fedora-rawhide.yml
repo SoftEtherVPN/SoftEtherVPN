@@ -19,15 +19,18 @@ jobs:
     container:
       image: fedora:rawhide
     steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
+
     - name: Install dependencies
       run: |
         dnf -y install git cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel gcc-c++ clang
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
     - name: Compile with ${{ matrix.cc }}
       run: |
         export CC=${{ matrix.cc }}
         ./configure
         make -C build
-
