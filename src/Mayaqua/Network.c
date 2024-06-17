@@ -12285,6 +12285,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 				Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
 				return 0;
 			}
+			ERR_clear_error();
 			ret = SSL_peek(ssl, &c, sizeof(c));
 		}
 		Unlock(sock->ssl_lock);
@@ -12316,9 +12317,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 #endif
 					)
 				{
-					UINT ssl_err_no = ERR_get_error();
+					UINT ssl_err_no;
+					while (ssl_err_no = ERR_get_error()){
+						Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
+					};
 
-					Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
 					Disconnect(sock);
 					return 0;
 				}
@@ -12350,6 +12353,7 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		ttparam = NewSocketTimeout(sock);
 #endif // UNIX_SOLARIS
 
+		ERR_clear_error();
 		ret = SSL_read(ssl, data, size);
 
 		// Stop the timeout thread
@@ -12420,9 +12424,11 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 #endif
 				)
 			{
-				UINT ssl_err_no = ERR_get_error();
+				UINT ssl_err_no;
+				while (ssl_err_no = ERR_get_error()) {
+					Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
+				};
 
-				Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
 				Disconnect(sock);
 				return 0;
 			}
@@ -12431,8 +12437,8 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 			return SOCK_LATER;
 		}
 	}
+	Debug("%s %u e=%u SecureRecv() Disconnect\n", __FILE__, __LINE__, e);
 	Disconnect(sock);
-	Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
 	return 0;
 }
 
@@ -12459,6 +12465,7 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 			return 0;
 		}
 
+		ERR_clear_error();
 		ret = SSL_write(ssl, data, size);
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
 		if (ret < 0) // OpenSSL version < 3.0.0
@@ -12502,12 +12509,22 @@ UINT SecureSend(SOCK *sock, void *data, UINT size)
 		// Confirmation of the error value
 		if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
 		{
+			if (e == SSL_ERROR_SSL)
+			{
+				UINT ssl_err_no;
+				while (ssl_err_no = ERR_get_error()) {
+					Debug("%s %u SSL_ERROR_SSL on ASYNC socket !!! ssl_err_no = %u: '%s'\n", __FILE__, __LINE__, ssl_err_no, ERR_error_string(ssl_err_no, NULL));
+				};
+
+				Disconnect(sock);
+				return 0;
+			}
+
 			sock->WriteBlocked = true;
 			return SOCK_LATER;
 		}
-		Debug("%s %u e=%u\n", __FILE__, __LINE__, e);
 	}
-	//Debug("%s %u SecureSend() Disconnect\n", __FILE__, __LINE__);
+	Debug("%s %u e=%u SecureSend() Disconnect\n", __FILE__, __LINE__, e);
 	Disconnect(sock);
 	return 0;
 }
