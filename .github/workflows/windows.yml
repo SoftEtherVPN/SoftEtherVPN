@@ -17,16 +17,29 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    
     - name: Cache vcpkg
       uses: actions/cache@v4
       with:
         path: 'build/vcpkg_installed/'
         key: vcpkg-${{ matrix.platform.VCPKG_TRIPLET }}
+    
+    - name: Set up vcpkg
+      uses: lukka/get-cmake@v3
+      with:
+        vcpkgTriplet: ${{ matrix.platform.VCPKG_TRIPLET }}
+
+    - name: Install dependencies
+      run: |
+        .\vcpkg\vcpkg.exe install openssl:x64-windows-static
+      shell: pwsh
+
     - name: Set version variables
       run: |
         $v = python version.py
         echo "VERSION=$v" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       shell: pwsh
+    
     - name: Build
       env:
         ARCHITECTURE: ${{ matrix.platform.ARCHITECTURE }}
@@ -38,16 +51,18 @@ jobs:
         mkdir build
         cd build
         call "%VCVARS_PATH%"
-        cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="%COMPILER_PATH%" -DCMAKE_CXX_COMPILER="%COMPILER_PATH%" -DBUILD_NUMBER=%BUILD_NUMBER% ..
+        cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="G:/GitHub/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="%COMPILER_PATH%" -DCMAKE_CXX_COMPILER="%COMPILER_PATH%" -DBUILD_NUMBER=%BUILD_NUMBER% ..
         cmake --build .
         mkdir installers
         vpnsetup /SFXMODE:vpnclient /SFXOUT:"installers\softether-vpnclient-%VERSION%.%BUILD_NUMBER%.%ARCHITECTURE%.exe"
         vpnsetup /SFXMODE:vpnserver_vpnbridge /SFXOUT:"installers\softether-vpnserver_vpnbridge-%VERSION%.%BUILD_NUMBER%.%ARCHITECTURE%.exe"
       shell: cmd
+    
     - name: Test
       shell: powershell
       run: |
         . .ci/appveyor-vpntest.ps1
+    
     - uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
@@ -56,6 +71,7 @@ jobs:
           build/*.exe
           build/*.pdb
           build/*.se2
+    
     - uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
