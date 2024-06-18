@@ -11905,6 +11905,10 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 		Unlock(openssl_lock);
 	}
 
+	#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+		SSL_set1_groups_list(sock->ssl, PQ_GROUP_LIST);
+	#endif
+	
 	if (sock->ServerMode)
 	{
 //		Lock(ssl_connect_lock);
@@ -11984,7 +11988,7 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 		//		Unlock(ssl_connect_lock);
 	}
 	else
-	{
+	{	
 		prev_timeout = GetTimeout(sock);
 		SetTimeout(sock, ssl_timeout);
 		// Client mode
