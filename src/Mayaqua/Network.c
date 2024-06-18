@@ -25,7 +25,6 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <openssl/provider.h>
 
 #ifdef OS_UNIX
 #include <fcntl.h>
