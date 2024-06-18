@@ -9349,62 +9349,35 @@ UINT ServeDhcpDiscoverEx(VH *v, UCHAR *mac, UINT request_ip, bool is_static_ip)
 		// check whether it is a request from the same MAC address
 		if (Cmp(mac, d->MacAddress, 6) == 0)
 		{
-			// Examine whether the specified IP address is within the range of assignment
+			// Examine whether the specified IP address is within the range of static assignment
 			if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
 				Endian32(request_ip) > Endian32(v->DhcpIpEnd))
 			{
-				// Accept if within the range
+				// Accept if within the range of static assignment
 				ret = request_ip;
 			}
 		}
 		else {
-			// Duplicated IPV4 address found. The DHCP server replies to DHCPREQUEST with DHCP NAK.
+			// Duplicated IPV4 address found. The specified IP address is not available for use
 			char ipstr[MAX_HOST_NAME_LEN + 1] = { 0 };
 			char macstr[128] = { 0 };
 			IPToStr32(ipstr, sizeof(ipstr), request_ip);
-			BinToStr(macstr, sizeof(macstr), d->MacAddress, 6);
-			Debug("Virtual DHC Server: Duplicated IP address detected. Static IP: %s, Used by MAC:%s\n", ipstr, macstr);
-			return ret;
+			MacToStr(macstr, sizeof(macstr), d->MacAddress);
+			Debug("Virtual DHC Server: Duplicated IP address detected. Static IP: %s, with the MAC: %s\n", ipstr, macstr);
 		}
 	}
 	else
 	{
-		// Examine whether the specified IP address is within the range of assignment
+		// Examine whether the specified IP address is within the range of static assignment
 		if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
 			Endian32(request_ip) > Endian32(v->DhcpIpEnd))
 		{
-			// Accept if within the range
+			// Accept if within the range of static assignment
 			ret = request_ip;
 		}
 		else
 		{
-			// Propose an IP in the range since it's a Discover although It is out of range
-		}
-	}
-	if (ret == 0)
-	{
-		// If there is any entry with the same MAC address
-		// that are already registered, use it with priority
-		DHCP_LEASE *d = SearchDhcpLeaseByMac(v, mac);
-
-		if (d != NULL)
-		{
-			// Examine whether the found IP address is in the allocation region
-			if (Endian32(v->DhcpIpStart) > Endian32(d->IpAddress) ||
-				Endian32(d->IpAddress) > Endian32(v->DhcpIpEnd))
-			{
-				// Use the IP address if it's found within the range
-				ret = d->IpAddress;
-			}
-		}
-	}
-	if (ret == 0)
-	{
-		// For static IP, the requested IP address must NOT be within the range of the DHCP pool
-		if (Endian32(v->DhcpIpStart) > Endian32(request_ip) ||
-			Endian32(request_ip) > Endian32(v->DhcpIpEnd))
-		{
-			ret = request_ip;
+			// The specified IP address is not available for use
 		}
 	}
 
@@ -9595,6 +9568,11 @@ void VirtualDhcpServer(VH *v, PKT *p)
 			{
 				ip = ServeDhcpRequestEx(v, p->MacAddressSrc, opt->RequestedIp, ip_static);
 			}
+			// If the IP address in user's note is changed, then reply to DHCP_REQUEST with DHCP_NAK
+			if (p->L3.IPv4Header->SrcIP && ip != p->L3.IPv4Header->SrcIP)
+			{
+				ip = 0;
+			}
 		}
 
 		if (ip != 0 || opt->Opcode == DHCP_INFORM)
@@ -9606,6 +9584,14 @@ void VirtualDhcpServer(VH *v, PKT *p)
 				DHCP_LEASE *d;
 				char client_mac[MAX_SIZE];
 				char client_ip[MAX_SIZE];
+
+				// If there is any entry with the same MAC address, then remove it
+				d = SearchDhcpLeaseByMac(v, p->MacAddressSrc);
+				if (d != NULL)
+				{
+					FreeDhcpLease(d);
+					Delete(v->DhcpLeaseList, d);
+				}
 
 				// Remove old records with the same IP address
 				d = SearchDhcpLeaseByIp(v, ip);
@@ -9765,7 +9751,7 @@ void VirtualDhcpServer(VH *v, PKT *p)
 		}
 		else
 		{
-			// Reply of DHCP_REQUEST must be either DHCP_ACK or DHCP_NAK.
+			// Reply of DHCP_REQUEST must be either DHCP_ACK or DHCP_NAK
 			if (opt->Opcode == DHCP_REQUEST)
 			{
 				// There is no IP address that can be provided
