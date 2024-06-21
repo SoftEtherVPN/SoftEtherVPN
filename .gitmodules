@@ -10,3 +10,6 @@
 [submodule "src/libhamcore"]
 	path = src/libhamcore
 	url = https://github.com/SoftEtherVPN/libhamcore.git
+[submodule "src/Mayaqua/3rdparty/oqs-provider"]
+	path = src/Mayaqua/3rdparty/oqs-provider
+	url = https://github.com/open-quantum-safe/oqs-provider.git

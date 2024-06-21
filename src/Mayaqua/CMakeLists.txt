@@ -93,6 +93,15 @@ if(UNIX)
       $<$<BOOL:${LIB_RT}>:${LIB_RT}>
   )
 
+  if (SKIP_OQS_PROVIDER)
+    add_definitions(-DSKIP_OQS_PROVIDER)
+  else()
+    set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
+    add_subdirectory(3rdparty/oqs-provider)
+    set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(mayaqua PRIVATE oqsprovider)
+  endif()
+
   if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7l|aarch64|s390x)$" OR NOT HAVE_SYS_AUXV OR SKIP_CPU_FEATURES)
     add_definitions(-DSKIP_CPU_FEATURES)
   else()

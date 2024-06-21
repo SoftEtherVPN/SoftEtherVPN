@@ -40,6 +40,10 @@
 #include <openssl/x509v3.h>
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
+// Static oqsprovider initialization function
+#ifndef SKIP_OQS_PROVIDER
+	extern OSSL_provider_init_fn oqs_provider_init;
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -63,6 +67,10 @@
 		#include "cpuinfo_ppc.h"
 	#endif
 #endif // _MSC_VER
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+
+#endif
 
 // OpenSSL <1.1 Shims
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -4003,7 +4011,13 @@ void InitCryptLibrary()
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 	ossl_provider_default = OSSL_PROVIDER_load(NULL, "legacy");
 	ossl_provider_legacy = OSSL_PROVIDER_load(NULL, "default");
-	ossl_provider_oqsprovider = OSSL_PROVIDER_load(NULL, "oqsprovider");
+
+	char *oqs_provider_name = "oqsprovider";
+	#ifndef SKIP_OQS_PROVIDER
+		# Registers "oqsprovider" as a provider -- necessary because oqsprovider is built in now.
+		OSSL_PROVIDER_add_builtin(NULL, oqs_provider_name, oqs_provider_init); 
+	#endif
+	ossl_provider_oqsprovider = OSSL_PROVIDER_load(NULL, oqs_provider_name);
 #endif
 
 	ssl_clientcert_index = SSL_get_ex_new_index(0, "struct SslClientCertInfo *", NULL, NULL, NULL);
