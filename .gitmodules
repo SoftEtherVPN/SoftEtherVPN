@@ -13,3 +13,6 @@
 [submodule "src/Mayaqua/3rdparty/oqs-provider"]
 	path = src/Mayaqua/3rdparty/oqs-provider
 	url = https://github.com/open-quantum-safe/oqs-provider.git
+[submodule "src/Mayaqua/3rdparty/liboqs"]
+	path = src/Mayaqua/3rdparty/liboqs
+	url = https://github.com/open-quantum-safe/liboqs.git
