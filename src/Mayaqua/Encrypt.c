@@ -4014,7 +4014,7 @@ void InitCryptLibrary()
 
 	char *oqs_provider_name = "oqsprovider";
 	#ifndef SKIP_OQS_PROVIDER
-		# Registers "oqsprovider" as a provider -- necessary because oqsprovider is built in now.
+		// Registers "oqsprovider" as a provider -- necessary because oqsprovider is built in now.
 		OSSL_PROVIDER_add_builtin(NULL, oqs_provider_name, oqs_provider_init); 
 	#endif
 	ossl_provider_oqsprovider = OSSL_PROVIDER_load(NULL, oqs_provider_name);
