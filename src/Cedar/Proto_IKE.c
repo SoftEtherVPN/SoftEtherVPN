@@ -463,39 +463,13 @@ void ProcIPsecEspPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 	seq = READ_UINT(src + sizeof(UINT));
 
 	// Search and retrieve the IPsec SA from SPI
+
+	// thank to @phillibert report, responding to bad SA might lead to amplification
+	// according to RFC4303 we should drop such packets
+
 	ipsec_sa = SearchClientToServerIPsecSaBySpi(ike, spi);
 	if (ipsec_sa == NULL)
 	{
-		// Invalid SPI
-		UINT64 init_cookie = Rand64();
-		UINT64 resp_cookie = 0;
-		IKE_CLIENT *c = NULL;
-		IKE_CLIENT t;
-
-
-		Copy(&t.ClientIP, &p->SrcIP, sizeof(IP));
-		t.ClientPort = p->SrcPort;
-		Copy(&t.ServerIP, &p->DstIP, sizeof(IP));
-		t.ServerPort = p->DestPort;
-		t.CurrentIkeSa = NULL;
-
-		if (p->DestPort == IPSEC_PORT_IPSEC_ESP_RAW)
-		{
-			t.ClientPort = t.ServerPort = IPSEC_PORT_IPSEC_ISAKMP;
-		}
-
-		c = Search(ike->ClientList, &t);
-
-		if (c != NULL && c->CurrentIkeSa != NULL)
-		{
-			init_cookie = c->CurrentIkeSa->InitiatorCookie;
-			resp_cookie = c->CurrentIkeSa->ResponderCookie;
-		}
-
-		SendInformationalExchangePacketEx(ike, (c == NULL ? &t : c), IkeNewNoticeErrorInvalidSpiPayload(spi), false,
-			init_cookie, resp_cookie);
-
-		SendDeleteIPsecSaPacket(ike, (c == NULL ? &t : c), spi);
 		return;
 	}
 
