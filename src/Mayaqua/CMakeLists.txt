@@ -80,6 +80,7 @@ if(WIN32)
   else()
     set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "Set liboqs to build only the library (no tests)")
     set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
+    set(BUILD_TESTING OFF CACHE BOOL "By setting this to OFF, no tests or examples will be compiled.")
     list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/src/Mayaqua/3rdparty/")
 
     add_subdirectory(3rdparty/liboqs)
