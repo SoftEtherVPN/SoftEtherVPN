@@ -74,12 +74,21 @@ if(WIN32)
       "ws2_32.lib"
       "WtsApi32.Lib"
     )
+  
   if (SKIP_OQS_PROVIDER)
     add_definitions(-DSKIP_OQS_PROVIDER)
   else()
-    add_subdirectory(3rdparty/liboqs)
+    set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "Set liboqs to build only the library (no tests)")
     set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
+    list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/src/Mayaqua/3rdparty/")
+
+    add_subdirectory(3rdparty/liboqs)
     add_subdirectory(3rdparty/oqs-provider)
+
+    target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)
+    get_target_property(target_include_dirs oqsprovider INCLUDE_DIRECTORIES)
+    message("Include directories for target_name: ${target_include_dirs}")
+    
     set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(mayaqua PRIVATE oqsprovider)
   endif()
@@ -101,13 +110,21 @@ if(UNIX)
       $<$<BOOL:${LIB_M}>:${LIB_M}>
       $<$<BOOL:${LIB_RT}>:${LIB_RT}>
   )
-
+  
   if (SKIP_OQS_PROVIDER)
     add_definitions(-DSKIP_OQS_PROVIDER)
   else()
-    add_subdirectory(3rdparty/liboqs)
+    set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "Set liboqs to build only the library (no tests)")
     set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
+    list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/src/Mayaqua/3rdparty/")
+
+    add_subdirectory(3rdparty/liboqs)
     add_subdirectory(3rdparty/oqs-provider)
+
+    target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)
+    get_target_property(target_include_dirs oqsprovider INCLUDE_DIRECTORIES)
+    message("Include directories for target_name: ${target_include_dirs}")
+    
     set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(mayaqua PRIVATE oqsprovider)
   endif()
