@@ -18,6 +18,10 @@ set_target_properties(mayaqua
 
 find_package(OpenSSL REQUIRED)
 
+if(OPENSSL_VERSION VERSION_LESS "3") # Disable oqsprovider when OpenSSL version < 3
+  set(SKIP_OQS_PROVIDER ON)
+endif()
+
 include(CheckSymbolExists)
 
 set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
