@@ -68,10 +68,6 @@
 	#endif
 #endif // _MSC_VER
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-
-#endif
-
 // OpenSSL <1.1 Shims
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 #	define EVP_PKEY_get0_RSA(obj) ((obj)->pkey.rsa)
