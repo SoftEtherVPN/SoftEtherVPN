@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 0 25 * *"
   push:
+  pull_request:
   workflow_dispatch:
 
 permissions:
