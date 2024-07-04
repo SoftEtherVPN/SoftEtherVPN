@@ -90,10 +90,7 @@ if(WIN32)
     add_subdirectory(3rdparty/liboqs)
     add_subdirectory(3rdparty/oqs-provider)
 
-    target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)
-    get_target_property(target_include_dirs oqsprovider INCLUDE_DIRECTORIES)
-    message("Include directories for target_name: ${target_include_dirs}")
-    
+    target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)    
     set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(mayaqua PRIVATE oqsprovider)
   endif()
@@ -128,9 +125,6 @@ if(UNIX)
     add_subdirectory(3rdparty/oqs-provider)
 
     target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)
-    get_target_property(target_include_dirs oqsprovider INCLUDE_DIRECTORIES)
-    message("Include directories for target_name: ${target_include_dirs}")
-    
     set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(mayaqua PRIVATE oqsprovider)
   endif()
