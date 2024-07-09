@@ -20,7 +20,9 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#ifndef OPENSSL_NO_ENGINE
 #include <openssl/engine.h>
+#endif
 #include <openssl/bio.h>
 #include <openssl/x509.h>
 #include <openssl/pkcs7.h>

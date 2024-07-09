@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 0 25 * *"
   push:
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -22,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        dnf -y install git cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel gcc-c++ clang
+        dnf -y install git cmake ncurses-devel openssl-devel-engine libsodium-devel readline-devel zlib-devel gcc-c++ clang
 
     - name: Checkout
       uses: actions/checkout@v4
