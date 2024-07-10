@@ -201,7 +201,9 @@ Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softethe
 
 ## For Windows
 
-[Nightly builds](https://github.com/SoftEtherVPN/SoftEtherVPN/releases)
+[Releases](https://github.com/SoftEtherVPN/SoftEtherVPN/releases)
+
+[Nightly builds](https://github.com/SoftEtherVPN/SoftEtherVPN/actions/workflows/windows.yml)
 (choose appropriate platform, then find binaries or installers as artifacts)
 
 ## From binary installers (stable channel)
