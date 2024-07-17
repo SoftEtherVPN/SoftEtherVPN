@@ -170,7 +170,6 @@ typedef struct MS
 {
 	HINSTANCE hInst;
 	HINSTANCE hKernel32;
-	bool IsNt;
 	bool IsAdmin;
 	HANDLE hCurrentProcess;
 	UINT CurrentProcessId;
