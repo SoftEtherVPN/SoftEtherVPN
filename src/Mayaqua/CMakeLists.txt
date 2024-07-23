@@ -18,6 +18,22 @@ set_target_properties(mayaqua
 
 find_package(OpenSSL REQUIRED)
 
+if(OPENSSL_VERSION VERSION_LESS "3") # Disable oqsprovider when OpenSSL version < 3
+  add_definitions(-DSKIP_OQS_PROVIDER)
+else()
+  set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "Set liboqs to build only the library (no tests)")
+  set(BUILD_TESTING OFF CACHE BOOL "By setting this to OFF, no tests or examples will be compiled.")
+  set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
+  list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/src/Mayaqua/3rdparty/")
+
+  add_subdirectory(3rdparty/liboqs)
+  add_subdirectory(3rdparty/oqs-provider)
+
+  target_include_directories(oqsprovider PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/liboqs/include)
+  set_property(TARGET oqsprovider PROPERTY POSITION_INDEPENDENT_CODE ON)
+  target_link_libraries(mayaqua PRIVATE oqsprovider)
+endif()
+
 include(CheckSymbolExists)
 
 set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
