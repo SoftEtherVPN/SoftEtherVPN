@@ -6,7 +6,9 @@
 // VPN Command Line Management Utility
 
 #include "Cedar/Cedar.h"
-
+#ifdef OS_WIN32
+#include "Cedar/CMInner.h"
+#endif
 #include "Cedar/Command.h"
 
 #include "Mayaqua/Internat.h"
@@ -38,6 +40,10 @@ int main(int argc, char *argv[])
 	InitMayaqua(false, false, argc, argv);
 #endif
 	InitCedar();
+
+#ifdef OS_WIN32
+	CmExecUiHelperMain();
+#endif
 
 	s = GetCommandLineUniStr();
 
