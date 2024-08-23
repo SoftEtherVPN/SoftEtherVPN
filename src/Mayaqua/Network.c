@@ -11860,6 +11860,12 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 #endif
 
 		sock->ssl = SSL_new(ssl_ctx);
+
+		if (sock->ssl == NULL)
+		{
+			return false;
+		}
+
 		SSL_set_fd(sock->ssl, (int)sock->socket);
 
 #ifdef	SSL_CTRL_SET_TLSEXT_HOSTNAME
@@ -16249,6 +16255,12 @@ UINT GetOSSecurityLevel()
 {
 	UINT security_level_new = 0, security_level_set_ssl_version = 0;
 	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
+
+	if (ctx == NULL)
+	{
+		return security_level_new;
+	}
+
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 	security_level_new = SSL_CTX_get_security_level(ctx);
