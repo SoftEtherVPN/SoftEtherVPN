@@ -12,25 +12,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Archive
-      id: archive
-      run: |
-        VERSION=${{ github.event.release.tag_name }}
-        PKGNAME="SoftEtherVPN-$VERSION"
-        mkdir -p /tmp/$PKGNAME
-        mv * /tmp/$PKGNAME
-        mv /tmp/$PKGNAME .
-        TARBALL=$PKGNAME.tar.xz
-        tar cJf $TARBALL $PKGNAME
-        echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
+      - name: Archive
+        id: archive
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          PKGNAME="SoftEtherVPN-$VERSION"
+          mkdir -p /tmp/$PKGNAME
+          mv * /tmp/$PKGNAME
+          mv /tmp/$PKGNAME .
+          TARBALL=$PKGNAME.tar.xz
+          tar cJf $TARBALL $PKGNAME
+          echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
 
-    - name: Upload tarball
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ./${{ steps.archive.outputs.tarball }}
-        name: ${{ steps.archive.outputs.tarball }}
+      - name: Upload tarball
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./${{ steps.archive.outputs.tarball }}
+          name: ${{ steps.archive.outputs.tarball }}

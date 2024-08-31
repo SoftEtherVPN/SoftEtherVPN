@@ -1,33 +1,37 @@
 name: macOS
-on: [push, pull_request, workflow_dispatch]
 
-permissions:
-  contents: read
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build_and_test:
     strategy:
       matrix:
-        os: [macos-14, macos-13, macos-12]
+        os:
+          - macos-14
+          - macos-13
+          - macos-12
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Install dependencies
-      run: |
-        brew install libsodium
+      - name: Install dependencies
+        run: |
+          brew install libsodium
 
-    - name: Compile 
-      run: |
-        ./configure
-        make -C build
+      - name: Compile 
+        run: |
+          ./configure
+          make -C build
 
-    - name: Test 
-      run: |
-        otool -L build/vpnserver
-        .ci/memory-leak-test.sh
+      - name: Test 
+        run: |
+          otool -L build/vpnserver
+          .ci/memory-leak-test.sh

@@ -1,9 +1,8 @@
 name: Alpine/musl
 
-on: [push, pull_request]
-
-permissions:
-  contents: read
+on:
+  push:
+  pull_request:
 
 jobs:
   musl:
@@ -14,7 +13,8 @@ jobs:
     steps:
 
       - name: Install dependencies
-        run: apk add binutils --no-cache build-base readline-dev openssl-dev ncurses-dev git cmake zlib-dev libsodium-dev gnu-libiconv 
+        run: |
+          apk add binutils --no-cache build-base readline-dev openssl-dev ncurses-dev git cmake zlib-dev libsodium-dev gnu-libiconv 
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +22,9 @@ jobs:
           submodules: true
 
       - name: Configure
-        run: ./configure
+        run: |
+          ./configure
 
       - name: make 
-        run: make -C build
+        run: |
+          make -C build

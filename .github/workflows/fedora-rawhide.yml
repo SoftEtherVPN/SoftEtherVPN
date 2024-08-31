@@ -7,31 +7,30 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build_and_test:
     strategy:
       matrix:
-        cc: [ gcc, clang ]
+        cc:
+          - gcc
+          - clang
     name: ${{ matrix.cc }}
     runs-on: ubuntu-latest
     container:
       image: fedora:rawhide
     steps:
 
-    - name: Install dependencies
-      run: |
-        dnf -y install git cmake ncurses-devel openssl-devel-engine libsodium-devel readline-devel zlib-devel gcc-c++ clang
+      - name: Install dependencies
+        run: |
+          dnf -y install git cmake ncurses-devel openssl-devel-engine libsodium-devel readline-devel zlib-devel gcc-c++ clang
 
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Compile with ${{ matrix.cc }}
-      run: |
-        export CC=${{ matrix.cc }}
-        ./configure
-        make -C build
+      - name: Compile with ${{ matrix.cc }}
+        run: |
+          export CC=${{ matrix.cc }}
+          ./configure
+          make -C build

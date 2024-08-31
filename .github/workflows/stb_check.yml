@@ -1,8 +1,8 @@
 name: STB Check
-on: [push, pull_request]
 
-permissions:
-  contents: read
+on:
+  push:
+  pull_request:
 
 jobs:
   check:
@@ -10,12 +10,12 @@ jobs:
       runs-on: ubuntu-latest
       steps:
 
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            submodules: true
 
-      - name: Check
-        run: |
-          cd developer_tools/stbchecker
-          dotnet run ../../src/bin/hamcore
+        - name: Check
+          run: |
+            cd developer_tools/stbchecker
+            dotnet run ../../src/bin/hamcore
