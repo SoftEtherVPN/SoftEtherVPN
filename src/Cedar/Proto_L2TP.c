@@ -2138,9 +2138,9 @@ void L2TPProcessInterrupts(L2TP_SERVER *l2tp)
 		UINT64 l2tpTimeout = L2TP_TUNNEL_TIMEOUT;
 
 		// If we got on ANY session a higher timeout than the default L2TP tunnel timeout, increase it
-		for (i = 0; i < LIST_NUM(t->SessionList); i++)
+		for (j = 0; j < LIST_NUM(t->SessionList); j++)
 		{
-			L2TP_SESSION* s = LIST_DATA(t->SessionList, i);
+			L2TP_SESSION* s = LIST_DATA(t->SessionList, j);
 
 			if (s->TubeRecv != NULL && s->TubeRecv->DataTimeout > l2tpTimeout)
 			{
