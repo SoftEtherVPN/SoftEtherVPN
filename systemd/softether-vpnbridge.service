@@ -4,11 +4,8 @@ After=network.target auditd.service
 ConditionPathExists=!@DIR@/softether/vpnbridge/do_not_run
 
 [Service]
-Type=forking
-EnvironmentFile=-@DIR@/softether/vpnbridge
-ExecStart=@DIR@/softether/vpnbridge/vpnbridge start
-ExecStop=@DIR@/softether/vpnbridge/vpnbridge stop
-KillMode=process
+Type=exec
+ExecStart=@DIR@/softether/vpnbridge/vpnbridge execsvc
 Restart=on-failure
 
 # Hardening

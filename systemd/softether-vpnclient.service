@@ -4,11 +4,8 @@ After=network.target auditd.service
 ConditionPathExists=!@DIR@/softether/vpnclient/do_not_run
 
 [Service]
-Type=forking
-EnvironmentFile=-@DIR@/softether/vpnclient
-ExecStart=@DIR@/softether/vpnclient/vpnclient start
-ExecStop=@DIR@/softether/vpnclient/vpnclient stop
-KillMode=process
+Type=exec
+ExecStart=@DIR@/softether/vpnclient/vpnclient execsvc
 Restart=on-failure
 
 # Hardening
