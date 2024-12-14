@@ -7,7 +7,7 @@ jobs:
   build_and_test:
     strategy:
       matrix:
-        os: [macos-14, macos-13, macos-12]
+        os: [macos-15, macos-14, macos-13]
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
