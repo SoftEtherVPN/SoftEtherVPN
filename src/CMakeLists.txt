@@ -127,6 +127,9 @@ if(UNIX)
   if(SE_PIDDIR)
     add_definitions(-DSE_PIDDIR="${SE_PIDDIR}")
   endif()
+
+  # Use system libraries instead of bundled
+  set(USE_SYSTEM_CPU_FEATURES false CACHE BOOL "Use system cpu_features")
 endif()
 
 # Cedar communication module
