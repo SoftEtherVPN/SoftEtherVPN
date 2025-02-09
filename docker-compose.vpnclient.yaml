@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  softether:
+    image: softethervpn/vpnclient:latest
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./softether_data:/var/lib/softether"
+      - "./softether_log:/var/log/softether"
+      # - "./adminip.txt:/var/lib/softether/adminip.txt:ro"
