@@ -11,20 +11,37 @@ on:
 
 jobs:
   docker:
-    strategy:
-      matrix:
-        distribution : [vpnclient, vpnserver, vpnbridge]
-
-    name: docker-${{ matrix.distribution }}
+    name: docker-aio
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'SoftEtherVPN' }}
     steps:
       -
-        name: Docker meta
-        id: meta
+        name: Docker meta vpnserver
+        id: metavpnserver
         uses: docker/metadata-action@v5
         with:
-          images: softethervpn/${{ matrix.distribution }}
+          images: softethervpn/vpnserver
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - 
+        name: Docker meta vpnclient
+        id: metavpnclient
+        uses: docker/metadata-action@v5
+        with:
+          images: softethervpn/vpnclient
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - 
+        name: Docker meta vpnbridge
+        id: metavpnbridge
+        uses: docker/metadata-action@v5
+        with:
+          images: softethervpn/vpnbridge
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
@@ -46,11 +63,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build and push vpnserver
         uses: docker/build-push-action@v6
         with:
           file: ./Dockerfile
-          target: ${{ matrix.distribution }}
+          target: vpnserver
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      -
+        name: Build and push vpnclient
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          target: vpnclient
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      -
+        name: Build and push vpnbridge
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          target: vpnbridge
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
