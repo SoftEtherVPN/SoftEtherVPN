@@ -13,6 +13,7 @@ jobs:
   docker:
     name: docker-aio
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'SoftEtherVPN' }}
     steps:
       -
         name: Docker meta vpnserver
