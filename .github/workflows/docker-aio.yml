@@ -20,7 +20,7 @@ jobs:
         id: metavpnserver
         uses: docker/metadata-action@v5
         with:
-          images: softethervpn/vpnserver
+          images: ${{ github.repository_owner }}/vpnserver
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
@@ -31,7 +31,7 @@ jobs:
         id: metavpnclient
         uses: docker/metadata-action@v5
         with:
-          images: softethervpn/vpnclient
+          images: ${{ github.repository_owner }}/vpnclient
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
@@ -42,7 +42,7 @@ jobs:
         id: metavpnbridge
         uses: docker/metadata-action@v5
         with:
-          images: softethervpn/vpnbridge
+          images: ${{ github.repository_owner }}/vpnbridge
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
@@ -74,8 +74,8 @@ jobs:
           target: vpnserver
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.metavpnserver.outputs.tags }}
+          labels: ${{ steps.metavpnserver.outputs.labels }}
       -
         name: Build and push vpnclient
         uses: docker/build-push-action@v6
@@ -84,8 +84,8 @@ jobs:
           target: vpnclient
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.metavpnclient.outputs.tags }}
+          labels: ${{ steps.metavpnclient.outputs.labels }}
       -
         name: Build and push vpnbridge
         uses: docker/build-push-action@v6
@@ -94,5 +94,5 @@ jobs:
           target: vpnbridge
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.metavpnbridge.outputs.tags }}
+          labels: ${{ steps.metavpnbridge.outputs.labels }}
