@@ -9,3 +9,4 @@
 4 ko Korean 한국어 949 ko,kr,euc_kr,cp949,euckr
 5 ru Russian Русский 1049 ru
 6 pt_br Portuguese-Brazil Português-Brasil 1046 pt_br
+7 id Indonesian Bahasa 1057 id
