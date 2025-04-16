@@ -354,7 +354,7 @@ struct DH_CTX
 struct CIPHER
 {
 	char Name[MAX_PATH];
-	bool IsNullCipher;
+	bool IsNullCipher, IsAeadCipher;
 	const struct evp_cipher_st *Cipher;
 	struct evp_cipher_ctx_st *Ctx;
 	bool Encrypt;
@@ -631,6 +631,7 @@ CIPHER *NewCipher(char *name);
 void FreeCipher(CIPHER *c);
 void SetCipherKey(CIPHER *c, void *key, bool enc);
 UINT CipherProcess(CIPHER *c, void *iv, void *dest, void *src, UINT size);
+UINT CipherProcessAead(CIPHER *c, void *iv, void *tag, UINT tag_size, void *dest, void *src, UINT src_size, void *aad, UINT aad_size);
 
 MD *NewMd(char *name);
 void FreeMd(MD *md);

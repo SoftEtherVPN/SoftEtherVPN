@@ -381,6 +381,7 @@ struct HUB
 	char RadiusRealm[MAX_SIZE];			// Radius realm (optional)
 	bool RadiusConvertAllMsChapv2AuthRequestToEap;	// Convert all MS-CHAPv2 auth request to EAP
 	bool RadiusUsePeapInsteadOfEap;			// Use PEAP instead of EAP
+	bool RadiusRequireMessageAuthenticator; // Enforce use the Message-Authenticator attribute when non-EAP auth request and response
 	volatile bool Halt;					// Halting flag
 	bool Offline;						// Offline
 	bool BeingOffline;					// Be Doing Offline

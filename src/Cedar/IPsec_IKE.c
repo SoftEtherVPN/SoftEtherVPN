@@ -597,36 +597,15 @@ void ProcIPsecEspPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 	ipsec_sa = SearchClientToServerIPsecSaBySpi(ike, spi);
 	if (ipsec_sa == NULL)
 	{
-		// Invalid SPI
-		UINT64 init_cookie = Rand64();
-		UINT64 resp_cookie = 0;
-		IKE_CLIENT *c = NULL;
-		IKE_CLIENT t;
-
-
-		Copy(&t.ClientIP, &p->SrcIP, sizeof(IP));
-		t.ClientPort = p->SrcPort;
-		Copy(&t.ServerIP, &p->DstIP, sizeof(IP));
-		t.ServerPort = p->DestPort;
-		t.CurrentIkeSa = NULL;
-
-		if (p->DestPort == IPSEC_PORT_IPSEC_ESP_RAW)
-		{
-			t.ClientPort = t.ServerPort = IPSEC_PORT_IPSEC_ISAKMP;
-		}
-
-		c = Search(ike->ClientList, &t);
-
-		if (c != NULL && c->CurrentIkeSa != NULL)
-		{
-			init_cookie = c->CurrentIkeSa->InitiatorCookie;
-			resp_cookie = c->CurrentIkeSa->ResponderCookie;
-		}
-
-		SendInformationalExchangePacketEx(ike, (c == NULL ? &t : c), IkeNewNoticeErrorInvalidSpiPayload(spi), false,
-			init_cookie, resp_cookie);
-
-		SendDeleteIPsecSaPacket(ike, (c == NULL ? &t : c), spi);
+		// Do nothing: see https://github.com/SoftEtherVPN/SoftEtherVPN/security/advisories/GHSA-j35p-p8pj-vqxq
+		// RFC4303, in 3.4.2
+		//   If no valid Security Association exists for this packet, the receiver
+		//   MUST discard the packet; this is an auditable event.  The audit log
+		//   entry for this event SHOULD include the SPI value, date/time
+		//   received, Source Address, Destination Address, Sequence Number, and
+		//   (in IPv6) the cleartext Flow ID.
+		//
+		// Thank you for phillibert, Amazon Web Services, Inc.
 		return;
 	}
 

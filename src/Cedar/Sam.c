@@ -269,7 +269,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					// Attempt to login
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
-						name, password, interval, mschap_v2_server_response_20, opt, hub->Name);
+						name, password, interval, mschap_v2_server_response_20, opt, hub->Name, hub->RadiusRequireMessageAuthenticator);
 
 					if (b)
 					{

@@ -1307,6 +1307,7 @@ CIPHER *NewCipher(char *name)
 	EVP_CIPHER_CTX_init(c->Ctx);
 #endif
 
+	c->IsAeadCipher = (EVP_CIPHER_flags(c->Cipher) & EVP_CIPH_FLAG_AEAD_CIPHER) != 0;
 	c->BlockSize = EVP_CIPHER_block_size(c->Cipher);
 	c->KeySize = EVP_CIPHER_key_length(c->Cipher);
 	c->IvSize = EVP_CIPHER_iv_length(c->Cipher);
@@ -1366,6 +1367,74 @@ UINT CipherProcess(CIPHER *c, void *iv, void *dest, void *src, UINT size)
 	if (EVP_CipherFinal(c->Ctx, ((UCHAR *)dest) + (UINT)r, &r2) == 0)
 	{
 		return 0;
+	}
+
+	return r + r2;
+}
+
+// Process encryption / decryption (AEAD)
+UINT CipherProcessAead(CIPHER *c, void *iv, void *tag, UINT tag_size, void *dest, void *src, UINT src_size, void *aad, UINT aad_size)
+{
+	int r = src_size;
+	int r2 = 0;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return 0;
+	}
+	else if (c->IsNullCipher)
+	{
+		Copy(dest, src, src_size);
+		return src_size;
+	}
+	else if (c->IsAeadCipher == false || iv == NULL || tag == NULL || tag_size == 0 || dest == NULL || src == NULL || src_size == 0)
+	{
+		return 0;
+	}
+
+	if (EVP_CipherInit_ex(c->Ctx, NULL, NULL, NULL, iv, c->Encrypt) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherInit_ex() failed with error: %s\n", ERR_error_string(ERR_get_error(),NULL));
+		return 0;
+	}
+
+	if (c->Encrypt == false)
+	{
+		if (EVP_CIPHER_CTX_ctrl(c->Ctx, EVP_CTRL_AEAD_SET_TAG, tag_size, tag) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CIPHER_CTX_ctrl() failed to set the tag!\n");
+			return 0;
+		}
+	}
+
+	if (aad != NULL && aad_size != 0)
+	{
+		if (EVP_CipherUpdate(c->Ctx, NULL, &r, aad, aad_size) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CipherUpdate() failed with error: %s\n", ERR_error_string(ERR_get_error(),NULL));
+			return 0;
+		}
+	}
+
+	if (EVP_CipherUpdate(c->Ctx, dest, &r, src, src_size) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherUpdate() failed with error: %s\n", ERR_error_string(ERR_get_error(),NULL));
+		return 0;
+	}
+
+	if (EVP_CipherFinal_ex(c->Ctx, ((UCHAR *)dest) + (UINT)r, &r2) == false)
+	{
+		Debug("CipherProcessAead(): EVP_CipherFinal_ex() failed with error: %s\n", ERR_error_string(ERR_get_error(),NULL));
+		return 0;
+	}
+
+	if (c->Encrypt)
+	{
+		if (EVP_CIPHER_CTX_ctrl(c->Ctx, EVP_CTRL_AEAD_GET_TAG, tag_size, tag) == false)
+		{
+			Debug("CipherProcessAead(): EVP_CIPHER_CTX_ctrl() failed to get the tag!\n");
+			return 0;
+		}
 	}
 
 	return r + r2;

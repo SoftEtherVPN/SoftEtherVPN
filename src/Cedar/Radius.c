@@ -1721,7 +1721,7 @@ LABEL_ERROR:
 
 // Attempts Radius authentication (with specifying retry interval and multiple server)
 bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
-				 RADIUS_LOGIN_OPTION *opt, char *hubname)
+				 RADIUS_LOGIN_OPTION *opt, char *hubname, bool RadiusRequireMessageAuthenticator)
 {
 	UCHAR random[MD5_SIZE];
 	UCHAR id;
@@ -1890,6 +1890,10 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			USHORT sz = 0;
 			UINT pos = 0;
 			BOOL *finish = ZeroMallocEx(sizeof(BOOL) * LIST_NUM(ip_list), true);
+			// Message-Authenticator
+			UCHAR zero16[16] = {0};
+			UCHAR msg_auth[16] = {0};
+			UINT msg_auth_pos = 0;
 
 			Zero(tmp, sizeof(tmp));
 
@@ -2015,9 +2019,27 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				RadiusAddValue(p, RADIUS_ATTRIBUTE_PROXY_STATE, 0, 0, opt->In_VpnProtocolState, StrLen(opt->In_VpnProtocolState));
 			}
 
-			SeekBuf(p, 0, 0);
+			if (RadiusRequireMessageAuthenticator == false)
+			{
+				SeekBuf(p, 0, 0);
 
-			WRITE_USHORT(((UCHAR *)p->Buf) + 2, (USHORT)p->Size);
+				WRITE_USHORT(((UCHAR *)p->Buf) + 2, (USHORT)p->Size);
+			}
+			else
+			{
+				// Message-Authenticator zero-filled
+				msg_auth_pos = p->Current;
+				Zero(zero16, sizeof(zero16));
+				RadiusAddValue(p, RADIUS_ATTRIBUTE_EAP_AUTHENTICATOR, 0, 0, zero16, sizeof(zero16));
+
+				// Length
+				SeekBuf(p, 0, 0);
+				WRITE_USHORT(((UCHAR *)p->Buf) + 2, (USHORT)p->Size);
+
+				// generate Message-Authenticator value
+				HMacMd5(msg_auth, secret, secret_size, p->Buf, p->Size);
+				Copy( ((UCHAR *)p->Buf) + msg_auth_pos + 2, msg_auth, 16 );
+			}
 
 			// Create a socket
 			sock = NewUDPEx(0, IsIP6(LIST_DATA(ip_list, pos)));
@@ -2108,7 +2130,22 @@ RECV_RETRY:
 						LIST *o;
 						BUF *buf = NewBufFromMemory(recv_buf, recv_size);
 
-						ret = true;
+						if (RadiusRequireMessageAuthenticator == false)
+						{
+							ret = true;
+						}
+						else
+						{
+							// Validate Response Authenticator header and Message-Authenticator
+							if ( recv_size < 20 )
+							{
+								ret = false;
+							}
+							else
+							{
+								ret = RadiusValidateAuthenticator(buf, (char *)secret, (char *)random, RadiusRequireMessageAuthenticator);
+							}
+						}
 
 						if (is_mschap && mschap_v2_server_response_20 != NULL)
 						{
@@ -2220,6 +2257,156 @@ RECV_RETRY:
 
 	return ret;
 }
+
+// Validate Response Authenticator header and Message-Authenticator
+bool RadiusValidateAuthenticator(BUF *b, char *secret, char *request_authenticator, bool RadiusRequireMessageAuthenticator)
+{
+	bool ret = false;
+
+	BUF *tmp = CloneBuf(b);
+	LIST *o;
+
+	UCHAR code;
+	UCHAR id;
+	USHORT len;
+	UCHAR auth0[16];
+	UCHAR auth1[16];
+	UINT  avp_pos = 0;
+
+	// read header from the buffer
+	if (tmp == NULL)
+	{
+		FreeBuf(tmp);
+		return false;
+	}
+	if ( tmp->Size < 20 )
+	{
+		FreeBuf(tmp);
+		return false;
+	}
+
+	ReadBuf(tmp, &code, 1);
+	ReadBuf(tmp, &id, 1);
+	len = 0;
+	ReadBuf(tmp, &len, 2);
+	len = Endian16(len);
+	ReadBuf(tmp, auth0, 16);
+
+	avp_pos = tmp->Current;
+
+	if ( tmp->Size != len )
+	{
+		FreeBuf(tmp);
+		return false;
+	}
+
+	// Validate Response Authenticator header
+	Copy( ((UCHAR *)tmp->Buf) + tmp->Current - 16 , request_authenticator, 16 );
+	SeekBufToEnd( tmp );
+	WriteBuf( tmp, secret, StrLen(secret) );
+
+	Md5( auth1, tmp->Buf, tmp->Size );
+
+	if (Cmp(auth0, auth1, 16) != 0)
+	{
+		FreeBuf(tmp);
+		return false;
+	}
+	else
+	{
+		ret = true;
+	}
+
+	// Validate Response Message-Authenticator
+	SeekBufToBegin(tmp);
+	o = RadiusParseOptions(tmp);
+
+	if (o != NULL)
+	{
+		DHCP_OPTION *msg_authenticator = GetDhcpOption(o, RADIUS_ATTRIBUTE_EAP_AUTHENTICATOR);
+
+		if (msg_authenticator != NULL)
+		{
+
+			tmp->Current = avp_pos;
+			while (true)
+			{
+				UCHAR attribute_id;
+				UCHAR size;
+				UCHAR data[256];
+
+				if (ReadBuf(tmp, &attribute_id, 1) != 1)
+				{
+					break;
+				}
+
+				if (ReadBuf(tmp, &size, 1) != 1)
+				{
+					break;
+				}
+
+				if (size <= 2)
+				{
+					break;
+				}
+
+				size -= 2;
+				if (ReadBuf(tmp, data, size) != size)
+				{
+					break;
+				}
+
+				if ( attribute_id == (UCHAR)RADIUS_ATTRIBUTE_EAP_AUTHENTICATOR )
+				{
+					UCHAR zero16[16];
+					UCHAR msg_auth0[16];
+					UCHAR msg_auth1[16];
+
+					Copy(msg_auth0, data, size);
+
+					Zero(zero16, sizeof(zero16));
+					Copy( ((UCHAR *)tmp->Buf) + tmp->Current - sizeof(zero16), zero16, sizeof(zero16) );
+
+					HMacMd5(msg_auth1, secret, StrLen(secret), tmp->Buf, tmp->Size - StrLen(secret));
+
+					if (Cmp(msg_auth0, msg_auth1, 16) == 0)
+					{
+						ret = true;
+					}
+					else
+					{
+						ret = false;
+					}
+
+					break;
+
+				}
+			}
+		}
+		else if ( RadiusRequireMessageAuthenticator )
+		{
+			// RadiusRequireMessageAuthenticator == true, Message-Authenticator attribute is missing
+			FreeBuf(tmp);
+			FreeDhcpOptions(o);
+			return false;
+		}
+
+	}
+	else if ( RadiusRequireMessageAuthenticator  )
+	{
+		// RadiusRequireMessageAuthenticator == true , avp is missing
+		FreeBuf(tmp);
+		FreeDhcpOptions(o);
+		return false;
+	}
+
+	FreeBuf(tmp);
+	FreeDhcpOptions(o);
+
+	return ret;
+
+}
+
 
 // Parse RADIUS attributes
 LIST *RadiusParseOptions(BUF *b)

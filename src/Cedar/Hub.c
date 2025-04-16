@@ -5336,7 +5336,10 @@ L_SKIP_TO_DISCARD:
 										{
 											PKT *pkt2 = ParsePacket(data, size);
 
-											DeleteIPv6DefaultRouterInRA(pkt2);
+											if (pkt2 != NULL)
+											{
+												DeleteIPv6DefaultRouterInRA(pkt2);
+											}
 
 											FreePacket(pkt2);
 										}
@@ -5680,6 +5683,11 @@ void StorePacketToHubPa(HUB_PA *dest, SESSION *src, void *data, UINT size, PKT *
 // Remove the default router specification from the IPv6 router advertisement
 bool DeleteIPv6DefaultRouterInRA(PKT *p)
 {
+	if (p == NULL)
+	{
+		return false;
+	}
+
 	if (p->TypeL3 == L3_IPV6 && p->TypeL4 == L4_ICMPV6 &&
 		(p->ICMPv6HeaderPacketInfo.Type == ICMPV6_TYPE_ROUTER_ADVERTISEMENT))
 	{

@@ -13190,7 +13190,6 @@ void InRpcEnumLink(RPC_ENUM_LINK *t, PACK *p)
 		e->ConnectedTime = PackGetInt64Ex(p, "ConnectedTime", i);
 		e->Connected = PackGetBoolEx(p, "Connected", i);
 		e->LastError = PackGetIntEx(p, "LastError", i);
-		PackGetStrEx(p, "LinkHubName", e->HubName, sizeof(e->HubName), i);
 	}
 }
 void OutRpcEnumLink(PACK *p, RPC_ENUM_LINK *t)

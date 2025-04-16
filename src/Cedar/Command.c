@@ -196,6 +196,8 @@ void CheckNetworkAcceptThread(THREAD *thread, void *param)
 
 	Disconnect(s);
 	ReleaseSock(s);
+
+	Free(c);
 }
 
 
@@ -239,15 +241,16 @@ void CheckNetworkListenThread(THREAD *thread, void *param)
 		}
 		else
 		{
-			CHECK_NETWORK_2 c;
+			CHECK_NETWORK_2 *c;
 			THREAD *t;
 
 			Zero(&c, sizeof(c));
-			c.s = new_sock;
-			c.k = pri;
-			c.x = x;
+			c = ZeroMalloc(sizeof(CHECK_NETWORK_2));
+			c->s = new_sock;
+			c->k = pri;
+			c->x = x;
 
-			t = NewThread(CheckNetworkAcceptThread, &c);
+			t = NewThread(CheckNetworkAcceptThread, c);
 			Insert(o, t);
 		}
 	}
@@ -14986,7 +14989,7 @@ bool ParseTcpState(char *src, bool *check_tcp_state, bool *established)
 
 	if (IsEmptyStr(src) == false)
 	{
-		if (StartWith("Established", src) == 0)
+		if (StartWith("Established", src))
 		{
 			if(ok != false)
 			{
@@ -14994,7 +14997,7 @@ bool ParseTcpState(char *src, bool *check_tcp_state, bool *established)
 				*established = true;
 			}
 		}
-		else if (StartWith("Unestablished", src) == 0)
+		else if (StartWith("Unestablished", src))
 		{
 			if(ok != false)
 			{

@@ -723,7 +723,7 @@ POL_EX_18				For sessions with this policy setting, this limits the traffic band
 POL_19					Deny Changing Password
 POL_EX_19				The users which use password authentication with this policy setting are not allowed to change their own password from the VPN Client Manager or similar.
 POL_20					Maximum Number of Multiple Logins
-POL_EX_20				Users with this policy setting are unable to have more than this number of concurrent logins. Bridge Mode sessions are not subjects to this policy. This security policy is only available on VPN Server 3.0 or greater, or VPN Server 2.0 with the multi-login restriction function.
+POL_EX_20				Users with this policy setting are unable to have more than this number of concurrent logins. This security policy is only available on VPN Server 3.0 or greater, or VPN Server 2.0 with the multi-login restriction function.
 POL_21					Deny VoIP / QoS Function
 POL_EX_21				Users with this security policy are unable to use VoIP / QoS functions in VPN connection sessions. This security policy is only available on VPN Server 3.0 or greater, or VPN Server 2.0 with the VoIP / QoS functions.
 

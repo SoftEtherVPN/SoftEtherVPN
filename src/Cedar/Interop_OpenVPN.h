@@ -118,6 +118,7 @@
 #define	OPENVPN_MAX_SSL_RECV_BUF_SIZE			(256 * 1024)	// SSL receive buffer maximum length
 
 #define	OPENVPN_MAX_KEY_SIZE					64		// Maximum key size
+#define OPENVPN_TAG_SIZE						16		// Tag size (for packet authentication in AEAD mode)
 
 #define	OPENVPN_TMP_BUFFER_SIZE					(65536 + 256)	// Temporary buffer size
 
@@ -142,12 +143,6 @@
 #define	OPENVPN_IPC_POSTFIX_L2					"OPENVPN_L2"
 #define	OPENVPN_IPC_POSTFIX_L3					"OPENVPN_L3"
 
-// List of supported encryption algorithms
-#define	OPENVPN_CIPHER_LIST						"[NULL-CIPHER] NULL AES-128-CBC AES-192-CBC AES-256-CBC BF-CBC CAST-CBC CAST5-CBC DES-CBC DES-EDE-CBC DES-EDE3-CBC DESX-CBC RC2-40-CBC RC2-64-CBC RC2-CBC CAMELLIA-128-CBC CAMELLIA-192-CBC CAMELLIA-256-CBC"
-
-// List of the supported hash algorithm
-#define	OPENVPN_MD_LIST							"SHA SHA1 SHA256 SHA384 SHA512 MD5 MD4 RMD160"
-
 // MTU
 #define	OPENVPN_MTU_LINK						1514	// Ethernet MTU
 #define	OPENVPN_MTU_TUN							1500	// Tun MTU
@@ -163,6 +158,7 @@
 #define	OPENVPN_P_DATA_V1						6		// Data packet
 #define	OPENVPN_P_CONTROL_HARD_RESET_CLIENT_V2	7		// Connection request from client
 #define	OPENVPN_P_CONTROL_HARD_RESET_SERVER_V2	8		// Connection response from server
+#define	OPENVPN_P_DATA_V2						9		// Data packet v2
 
 // State of OpenVPN channel
 #define	OPENVPN_CHANNEL_STATUS_INIT					0	// Initialization phase
@@ -240,9 +236,10 @@ struct OPENVPN_CHANNEL
 	CIPHER *CipherDecrypt;								// Decryption algorithm
 	MD *MdSend;											// Transmission MD algorithm
 	MD *MdRecv;											// Reception MD algorithm
+	UCHAR IvSend[64];									// Transmission IV
+	UCHAR IvRecv[64];									// Reception IV
 	UCHAR MasterSecret[48];								// Master Secret
 	UCHAR ExpansionKey[256];							// Expansion Key
-	UCHAR NextIv[64];									// Next IV
 	UINT LastDataPacketId;								// Previous Data Packet ID
 	UINT64 EstablishedTick;								// Established time
 	UCHAR KeyId;										// KEY ID

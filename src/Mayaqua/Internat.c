@@ -3036,13 +3036,20 @@ UINT UniToInt(wchar_t *str)
 void UniToStrForSingleChars(char *dst, UINT dst_size, wchar_t *src)
 {
 	UINT i;
+	UINT size;
 	// Validate arguments
 	if (dst == NULL || src == NULL)
 	{
 		return;
 	}
 
-	for (i = 0;i < UniStrLen(src) + 1;i++)
+	size = UniStrLen(src) + 1;
+	if (dst_size >= 1 && dst_size < size)
+	{
+		size = dst_size;
+	}
+
+	for (i = 0;i < size;i++)
 	{
 		wchar_t s = src[i];
 		char d;
@@ -3058,6 +3065,11 @@ void UniToStrForSingleChars(char *dst, UINT dst_size, wchar_t *src)
 		else
 		{
 			d = ' ';
+		}
+
+		if (i == (size - 1))
+		{
+			d = 0;
 		}
 
 		dst[i] = d;

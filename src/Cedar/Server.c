@@ -5060,6 +5060,7 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 
 		CfgAddBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap", h->RadiusConvertAllMsChapv2AuthRequestToEap);
 		CfgAddBool(f, "RadiusUsePeapInsteadOfEap", h->RadiusUsePeapInsteadOfEap);
+		CfgAddBool(f, "RadiusRequireMessageAuthenticator", h->RadiusRequireMessageAuthenticator);
 	}
 	Unlock(h->RadiusOptionLock);
 
@@ -5229,6 +5230,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 
 			h->RadiusConvertAllMsChapv2AuthRequestToEap = CfgGetBool(f, "RadiusConvertAllMsChapv2AuthRequestToEap");
 			h->RadiusUsePeapInsteadOfEap = CfgGetBool(f, "RadiusUsePeapInsteadOfEap");
+			h->RadiusRequireMessageAuthenticator = CfgGetBool(f, "RadiusRequireMessageAuthenticator");
 
 			if (interval == 0)
 			{
