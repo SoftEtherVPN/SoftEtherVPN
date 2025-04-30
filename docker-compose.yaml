@@ -1,8 +1,7 @@
-version: '3'
-
 services:
   softether:
     image: softethervpn/vpnserver:latest
+    hostname: softethervpnserver
     cap_add:
       - NET_ADMIN
     restart: always
