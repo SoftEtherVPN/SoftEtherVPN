@@ -1336,7 +1336,7 @@ SM_FMINFO_HUB			Virtual Hub #%u
 SM_FMINFO_HUB_TAG_1		%S (Dinamis)
 SM_FMINFO_HUB_TAG_2		%S (Statis)
 SM_FMINFO_NUM_SESSION	Jumlah Sesi
-SM_FMINFO_NUM_CONNECTION	Jumlah Koneksi TCP
+SM_FMINFO_NUN_CONNECTION	Jumlah Koneksi TCP
 SM_FMINFO_CAPTION		Status Anggota Cluster Server
 SM_FC_STATUS_CAPTION	Status Koneksi ke Pengendali Cluster
 SM_FC_IP				Alamat IP Pengendali
@@ -1890,7 +1890,7 @@ LE_RECONNECT			Pengaturan EtherIP / L2TPv3 telah diubah. Pipa internal sekarang 
 
 
 # (PPP Log)
-LP_PREFIX				Sesi PPP %S[%S:%u]: 
+LP_PREFIX				%S%SSesi PPP [%S:%u]: 
 LP_CONNECTED			Sesi PPP baru dimulai (Protokol atas: %S). Alamat IP Klien PPP: %S (Nama Host: "%S"), Nomor Port Klien PPP: %u, Alamat IP Server PPP: %S, Nomor Port Server PPP: %u, Nama Perangkat Lunak Klien: "%S", Ukuran Segmen Maksimum TCP IPv4 (MSS): %u byte
 LP_DISCONNECTED			Sesi PPP terputus.
 LP_PAP_REJECTED			Klien menolak untuk menerima protokol otentikasi "PAP" (Protokol Otentikasi Kata Sandi, protokol otentikasi kata sandi teks jelas). Aktifkan PAP di sisi klien dan coba lagi.
@@ -4588,8 +4588,8 @@ CMD_ListenerDisable_PortPrompt	Nomor port dari Listener TCP/IP yang akan dihenti
 # PortsUDPSet command
 CMD_PortsUDPSet			Mengatur Port UDP yang Harus Didengarkan oleh Server
 CMD_PortsUDPSet_Help	Perintah ini dapat digunakan untuk menentukan satu atau beberapa port UDP yang harus didengarkan oleh server. \nAnda dapat menentukan port yang sedang digunakan oleh proses lain, namun server tidak akan dapat menggunakannya sampai port tersebut menjadi bebas. \nTentukan nomor port yang berada dalam rentang 1 hingga 65535. \nAnda dapat melihat port yang saat ini telah disetel dengan perintah PortsUDPGet. \nUntuk menjalankan perintah ini, Anda harus memiliki hak akses administrator VPN Server.
-CMD_PortsUDPSet_Args	PortsUDPSet [port]
-CMD_PortsUDPSet_[port]	Beberapa port UDP dapat ditentukan dengan memisahkannya menggunakan spasi atau koma, misalnya: "443, 992, 1194, 5555". \nTentukan "0" untuk menonaktifkan pendengar UDP. \n\nPort: 
+CMD_PortsUDPSet_Args	PortsUDPSet [ports]
+CMD_PortsUDPSet_[ports]	Beberapa port UDP dapat ditentukan dengan memisahkannya menggunakan spasi atau koma, misalnya: "443, 992, 1194, 5555". \nTentukan "0" untuk menonaktifkan pendengar UDP. \n\nPort: 
 
 
 # PortsUDPGet command
@@ -4602,11 +4602,11 @@ CMD_PortsUDPGet_Ports	Port UDP
 # ProtoOptionsSet command
 CMD_ProtoOptionsSet						Mengatur nilai opsi untuk protokol yang ditentukan
 CMD_ProtoOptionsSet_Help				Perintah ini dapat digunakan untuk mengubah nilai opsi untuk protokol tertentu. \nAnda dapat mengambil opsi menggunakan perintah ProtoOptionsGet. \nUntuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
-CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protokol] [/NAME:nama_opsi] [/VALUE:string/true/false]
-CMD_ProtoOptionsSet_[protokol]			Nama protokol.
+CMD_ProtoOptionsSet_Args				ProtoOptionsSet [protocol] [/NAME:option_name] [/VALUE:string/true/false]
+CMD_ProtoOptionsSet_[protocol]			Nama protokol.
 CMD_ProtoOptionsSet_NAME				Nama opsi.
 CMD_ProtoOptionsSet_VALUE				Nilai opsi. Pastikan untuk menulis nilai yang diterima oleh protokol yang ditentukan!
-CMD_ProtoOptionsSet_Prompt_[protokol]	Protokol: 
+CMD_ProtoOptionsSet_Prompt_[protocol]	Protokol: 
 CMD_ProtoOptionsSet_Prompt_NAME			Opsi: 
 CMD_ProtoOptionsSet_Prompt_VALUE		Nilai: 
 
@@ -4614,9 +4614,9 @@ CMD_ProtoOptionsSet_Prompt_VALUE		Nilai:
 # ProtoOptionsGet command
 CMD_ProtoOptionsGet						Menampilkan opsi untuk protokol yang ditentukan
 CMD_ProtoOptionsGet_Help				Perintah ini dapat digunakan untuk mengambil opsi untuk protokol tertentu. \nInformasi detail (misalnya tipe nilai) akan ditampilkan. \nAnda dapat mengubah nilai opsi dengan perintah ProtoOptionsSet.
-CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protokol]
-CMD_ProtoOptionsGet_[protokol]			Nama protokol.
-CMD_ProtoOptionsGet_Prompt_[protokol]	Protokol: 
+CMD_ProtoOptionsGet_Args				ProtoOptionsGet [protocol]
+CMD_ProtoOptionsGet_[protocol]			Nama protokol.
+CMD_ProtoOptionsGet_Prompt_[protocol]	Protokol: 
 CMD_ProtoOptionsGet_Column_Name			Nama
 CMD_ProtoOptionsGet_Column_Type			Tipe
 CMD_ProtoOptionsGet_Column_Value		Nilai
@@ -4633,8 +4633,8 @@ CMD_ProtoOptions_Description_OpenVPN_Timeout						Waktu dalam milidetik setelah 
 # ServerPasswordSet command
 CMD_ServerPasswordSet	Setel Kata Sandi Administrator VPN Server
 CMD_ServerPasswordSet_Help	Ini mengatur kata sandi administrator VPN Server. Anda dapat menentukan kata sandi sebagai parameter. Jika kata sandi tidak ditentukan, prompt akan ditampilkan untuk memasukkan kata sandi dan konfirmasi kata sandi. Jika Anda menyertakan kata sandi sebagai parameter, kata sandi ini akan ditampilkan sesaat di layar, yang dapat menimbulkan risiko. Kami menyarankan agar sebisa mungkin, hindari menentukan parameter ini dan masukkan kata sandi menggunakan prompt kata sandi. \nUntuk mengeksekusi perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
-CMD_ServerPasswordSet_Args	ServerPasswordSet [kata_sandi]
-CMD_ServerPasswordSet_[kata_sandi]	Ini menentukan pengaturan kata sandi baru.
+CMD_ServerPasswordSet_Args	ServerPasswordSet [password]
+CMD_ServerPasswordSet_[password]	Ini menentukan pengaturan kata sandi baru.
 
 
 # ClusterSettingGet command
@@ -5232,25 +5232,25 @@ CMD_StatusGet_Args	    StatusGet
 
 
 # LogGet command
-CMD_LogGet	            Dapatkan Pengaturan Penyimpanan Log dari Hub Virtual
-CMD_LogGet_Help	        Gunakan ini untuk mendapatkan pengaturan penyimpanan log dari Hub Virtual yang sedang dikelola. Anda dapat memperoleh informasi pengaturan seperti pengaturan penyimpanan terkait log keamanan dan log paket serta informasi tentang apa yang telah disimpan.
-CMD_LogGet_Args	        LogGet
-CMD_Log_Security        Log	Simpan Log Keamanan
-CMD_Log_PacketLog	    Simpan Log Paket
-CMD_Log_SwitchType	    Siklus Pergantian File Log
-CMD_Log_0	            Log Koneksi TCP
-CMD_Log_1	            Log Paket TCP
-CMD_Log_2	            Log DHCP
-CMD_Log_3	            Log UDP
-CMD_Log_4	            Log ICMP
-CMD_Log_5	            Log IP
-CMD_Log_6	            Log ARP
-CMD_Log_7	            Log Ethernet
+CMD_LogGet				Dapatkan Pengaturan Penyimpanan Log dari Hub Virtual
+CMD_LogGet_Help			Gunakan ini untuk mendapatkan pengaturan penyimpanan log dari Hub Virtual yang sedang dikelola. Anda dapat memperoleh informasi pengaturan seperti pengaturan penyimpanan terkait log keamanan dan log paket serta informasi tentang apa yang telah disimpan.
+CMD_LogGet_Args			LogGet
+CMD_Log_SecurityLog		Simpan Log Keamanan
+CMD_Log_PacketLog		Simpan Log Paket
+CMD_Log_SwitchType		Siklus Pergantian File Log
+CMD_Log_0				Log Koneksi TCP
+CMD_Log_1				Log Paket TCP
+CMD_Log_2				Log DHCP
+CMD_Log_3				Log UDP
+CMD_Log_4				Log ICMP
+CMD_Log_5				Log IP
+CMD_Log_6				Log ARP
+CMD_Log_7				Log Ethernet
 
 
 # LogEnable command
-CMD_LogEnable		    Mengaktifkan Log Keamanan atau Log Paket
-CMD_LogEnable_Help	    Gunakan ini untuk mengaktifkan log keamanan atau log paket dari Hub Virtual yang sedang dikelola. \nUntuk mendapatkan pengaturan saat ini, Anda dapat menggunakan perintah LogGet.
+CMD_LogEnable			Mengaktifkan Log Keamanan atau Log Paket
+CMD_LogEnable_Help		Gunakan ini untuk mengaktifkan log keamanan atau log paket dari Hub Virtual yang sedang dikelola. \nUntuk mendapatkan pengaturan saat ini, Anda dapat menggunakan perintah LogGet.
 CMD_LogEnable_Args		LogEnable [security|packet]
 CMD_LogEnable_[security|packet]	Pilih jenis log untuk diaktifkan. Tentukan "keamanan" atau "paket".
 CMD_LogEnable_Prompt	Pilih Keamanan atau Paket: 
@@ -5421,7 +5421,7 @@ CMD_CascadeEncryptDisable_[name]	Tentukan nama Koneksi Cascade yang pengaturanny
 
 # CascadeCompressEnable command
 CMD_CascadeCompressEnable	Aktifkan Kompresi Data saat Berkomunikasi melalui Koneksi Cascade
-CMD_CascadeCompressEnable_Help	Ketika Koneksi Cascade yang terdaftar pada Virtual Hub yang saat ini dikelola ditentukan dan Koneksi Cascade tersebut digunakan untuk komunikasi antara Server VPN melalui koneksi VPN, gunakan ini untuk mengatur agar isi komunikasi antara Server VPN dikompresi. \nMungkin mencapai kompresi maksimal hingga 80%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik pada mesin klien maupun server. Ketika kecepatan garis sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi terkadang dapat memiliki efek sebaliknya. \nAnda tidak dapat menjalankan perintah ini untuk Virtual Hub pada Server VPN yang beroperasi sebagai cluster.
+CMD_CascadeCompressEnable_Help	Ketika Koneksi Cascade yang terdaftar pada Virtual Hub yang saat ini dikelola ditentukan dan Koneksi Cascade tersebut digunakan untuk komunikasi antara Server VPN melalui koneksi VPN, gunakan ini untuk mengatur agar isi komunikasi antara Server VPN dikompresi. \nMungkin mencapai kompresi maksimal hingga 80%%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik pada mesin klien maupun server. Ketika kecepatan garis sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi terkadang dapat memiliki efek sebaliknya. \nAnda tidak dapat menjalankan perintah ini untuk Virtual Hub pada Server VPN yang beroperasi sebagai cluster.
 CMD_CascadeCompressEnable_Args	CascadeCompressEnable [name]
 CMD_CascadeCompressEnable_[name]	Tentukan nama Koneksi Cascade yang pengaturannya ingin Anda ubah.
 
@@ -5685,8 +5685,8 @@ CMD_AccessAddEx_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan alam
 CMD_AccessAddEx_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan ketika paket melewati. Tentukan periode keterlambatan dalam milidetik. Menentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal adalah 10000 milidetik.
-CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Tentukan rasio fluktuasi jitter dalam kisaran 0% hingga 100%. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Tentukan rasio kehilangan paket dalam kisaran 0% hingga 100%. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Tentukan rasio fluktuasi jitter dalam kisaran 0% hingga 100%%. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Tentukan rasio kehilangan paket dalam kisaran 0% hingga 100%%. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx_REDIRECTURL	URL yang ditentukan akan dijawab wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa browser web di komputer VPN Client untuk menunjukkan situs web yang ditentukan ketika browser tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx_Prompt_DELAY	Keterlambatan yang Akan Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	Fluktuasi Jitter yang Akan Dihasilkan (Persen: 0 - 100): 
@@ -5747,8 +5747,8 @@ CMD_AccessAddEx6_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan ala
 CMD_AccessAddEx6_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx6_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx6_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan saat paket melewati. Tentukan periode keterlambatan dalam milidetik. Tentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal yang dapat dihasilkan adalah 10000 milidetik.
-CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter saat paket melewati. Tentukan rasio fluktuasi jitter dalam rentang 0% hingga 100%. Tentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket saat paket melewati. Tentukan rasio kehilangan paket dalam rentang 0% hingga 100%. Tentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter saat paket melewati. Tentukan rasio fluktuasi jitter dalam rentang 0% hingga 100%%. Tentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket saat paket melewati. Tentukan rasio kehilangan paket dalam rentang 0% hingga 100%%. Tentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx6_REDIRECTURL	URL yang ditentukan akan dijawab secara wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa peramban web pada komputer VPN Client untuk menampilkan situs web yang ditentukan ketika peramban web tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx6_Prompt_DELAY	Keterlambatan untuk Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	Fluktuasi Jitter untuk Dihasilkan (Persen: 0 - 100): 
@@ -6728,7 +6728,7 @@ CMD_AccountEncryptDisable_[name]	Tentukan nama Pengaturan Koneksi VPN yang penga
 
 # AccountCompressEnable command
 CMD_AccountCompressEnable	Aktifkan Kompresi Data saat Berkomunikasi melalui Pengaturan Koneksi VPN
-CMD_AccountCompressEnable_Help	Ketika Pengaturan Koneksi VPN yang terdaftar di VPN Client ditentukan dan Pengaturan Koneksi VPN tersebut digunakan untuk komunikasi antara VPN Server melalui koneksi VPN, gunakan ini untuk mengatur konten komunikasi antara VPN Server agar dikompresi. \nKompresi dapat mencapai hingga 80%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik di mesin klien maupun server. Ketika kecepatan jalur sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi kadang-kadang dapat memiliki efek sebaliknya.
+CMD_AccountCompressEnable_Help	Ketika Pengaturan Koneksi VPN yang terdaftar di VPN Client ditentukan dan Pengaturan Koneksi VPN tersebut digunakan untuk komunikasi antara VPN Server melalui koneksi VPN, gunakan ini untuk mengatur konten komunikasi antara VPN Server agar dikompresi. \nKompresi dapat mencapai hingga 80%%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik di mesin klien maupun server. Ketika kecepatan jalur sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi kadang-kadang dapat memiliki efek sebaliknya.
 CMD_AccountCompressEnable_Args	AccountCompressEnable [name]
 CMD_AccountCompressEnable_[name]	Tentukan nama Pengaturan Koneksi VPN yang pengaturannya ingin Anda ubah.
 
