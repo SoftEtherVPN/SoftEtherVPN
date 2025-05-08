@@ -1,0 +1,71 @@
+﻿<HTML>
+<HEAD>
+	<TITLE>Halaman Penyebaran Web Installer VPN Client</TITLE>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<META http-equiv="Content-Language" content="id">
+	<style type="text/css">
+	<!--
+BODY, TABLE, TR, TABLE, TD, H1, H2, H3, H4, P, LI, DIV
+{
+	font-family: "Arial", "Geneva", "Helvetica", "sans-serif", "MS PGothic", "MS UI Gothic", "Osaka";
+	font-size:small;
+	line-height:1.2em;
+}
+	-->
+	</style>
+</HEAD>
+<BODY>
+
+<h3>Contoh File HTML Halaman Penyebaran Web Installer VPN Client</h3>
+<p>File HTML ini adalah contoh.<br>
+Untuk membuat Web Installer menggunakan "SoftEther VPN Client Web Installer", silakan merujuk pada penjelasan berikut dan kode sumber HTML dari file ini.</p>
+<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse" bordercolor="#008000" id="table1">
+	<tr>
+		<td style="font-family: Consolas, Courier New, MS Gothic; font-size: 10pt">&lt;OBJECT ID=&quot;VpnWebInstaller&quot;<br>
+&nbsp;&nbsp;&nbsp; CLASSID=&quot;CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2&quot;<br>
+&nbsp;&nbsp;&nbsp; CODEBASE=&quot;vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerExeUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.exe</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;InstallerInfUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/vpninstall.inf</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;SettingUrl&quot; VALUE=&quot;<b><font color="#008000">http://example.com/any_folder/auto_setting.vpn</font></b>&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;PARAM NAME=&quot;LanguageID&quot; VALUE=&quot;<b><font color="#008000">ID</font></b>&quot;&gt;<br>
+		&lt;/OBJECT&gt;</td>
+	</tr>
+</table>
+<p>Untuk membuat halaman web yang memulai Web Installer VPN Client, masukkan kode HTML seperti di atas. Kode HTML tersebut merujuk pada path kontrol ActiveX, dan parameter yang akan diteruskan ke ActiveX.</p>
+<p>Anda harus memodifikasi string yang ditebalkan dengan font hijau di atas sesuai dengan lingkungan server web tempat Anda menyebarkan.<br>
+(Peringatan, contoh di atas tidak akan berfungsi jika tetap menggunakan kode asli, karena contoh asli menyebutkan URL contoh.)<br>
+<br>
+Untuk detail lebih lanjut, silakan merujuk pada manual online atau <b> <a target="_blank" href="http://www.softether.org/">http://www.softether.org/</a></b>.<br>
+<br>
+<b><font color="#808000">Catatan: parameter &quot;SettingUrl&quot; dan &quot;LanguageID&quot; adalah opsional.</font></b></p>
+<p>　</p>
+
+
+<!-- Kode di bawah adalah contoh untuk menyematkan kontrol ActiveX. -->
+<h3>Kode di bawah ini adalah contoh untuk menyematkan kontrol ActiveX.</h3>
+<p>Peringatan: File HTML ini adalah contoh. Parameter untuk kontrol vpnweb.cab adalah dummy.<BR> Oleh karena itu, setelah Anda mengklik tombol Mulai Koneksi VPN, Anda akan mendapatkan pesan kesalahan.</p>
+<table border="1" cellspacing="1" cellpadding="6" style="border-collapse: collapse" width="450" bordercolor="#808000" id="table2">
+	<tr>
+		<td align="center" valign="top">
+
+<OBJECT ID="VpnWebInstaller"
+	CLASSID="CLSID:64F1A16B-C3EE-484C-B551-35338A9BB6D2"
+	CODEBASE="vpnweb.cab#Version=$VER_MAJOR$,$VER_MINOR$,0,$VER_BUILD$">
+	<PARAM NAME="InstallerExeUrl" VALUE="http://example.com/any_folder/vpninstall.exe">
+	<PARAM NAME="InstallerInfUrl" VALUE="http://example.com/any_folder/vpninstall.inf">
+	<PARAM NAME="SettingUrl" VALUE="http://example.com/any_folder/auto_setting.vpn">
+	<PARAM NAME="LanguageID" VALUE="ID">
+</OBJECT>
+
+		</td>
+	</tr>
+</table>
+　<p>Jika Kontrol ActiveX Web Installer VPN Client tidak ditampilkan pada persegi panjang coklat di atas, periksa persyaratan, dan pastikan bahwa browser web Anda mengizinkan kontrol ActiveX.</p>
+
+
+<p>　</p>
+<p align="right"><i>Copyright (c) SoftEther Project di Universitas Tsukuba, Jepang. Semua Hak Dilindungi.</i></p>
+
+
+</BODY>
+</HTML>
