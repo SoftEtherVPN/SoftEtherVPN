@@ -5421,7 +5421,7 @@ CMD_CascadeEncryptDisable_[name]	Tentukan nama Koneksi Cascade yang pengaturanny
 
 # CascadeCompressEnable command
 CMD_CascadeCompressEnable	Aktifkan Kompresi Data saat Berkomunikasi melalui Koneksi Cascade
-CMD_CascadeCompressEnable_Help	Ketika Koneksi Cascade yang terdaftar pada Virtual Hub yang saat ini dikelola ditentukan dan Koneksi Cascade tersebut digunakan untuk komunikasi antara Server VPN melalui koneksi VPN, gunakan ini untuk mengatur agar isi komunikasi antara Server VPN dikompresi. \nMungkin mencapai kompresi maksimal hingga 80%%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik pada mesin klien maupun server. Ketika kecepatan garis sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi terkadang dapat memiliki efek sebaliknya. \nAnda tidak dapat menjalankan perintah ini untuk Virtual Hub pada Server VPN yang beroperasi sebagai cluster.
+CMD_CascadeCompressEnable_Help	Ketika Koneksi Cascade yang terdaftar pada Virtual Hub yang saat ini dikelola ditentukan dan Koneksi Cascade tersebut digunakan untuk komunikasi antara Server VPN melalui koneksi VPN, gunakan ini untuk mengatur agar isi komunikasi antara Server VPN dikompresi. \nMungkin mencapai kompresi maksimal hingga 80 persen. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik pada mesin klien maupun server. Ketika kecepatan garis sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi terkadang dapat memiliki efek sebaliknya. \nAnda tidak dapat menjalankan perintah ini untuk Virtual Hub pada Server VPN yang beroperasi sebagai cluster.
 CMD_CascadeCompressEnable_Args	CascadeCompressEnable [name]
 CMD_CascadeCompressEnable_[name]	Tentukan nama Koneksi Cascade yang pengaturannya ingin Anda ubah.
 
@@ -5685,8 +5685,8 @@ CMD_AccessAddEx_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan alam
 CMD_AccessAddEx_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan ketika paket melewati. Tentukan periode keterlambatan dalam milidetik. Menentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal adalah 10000 milidetik.
-CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Tentukan rasio fluktuasi jitter dalam kisaran 0% hingga 100%%. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Tentukan rasio kehilangan paket dalam kisaran 0% hingga 100%%. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Tentukan rasio fluktuasi jitter dalam kisaran 0 persen hingga 100 persen. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Tentukan rasio kehilangan paket dalam kisaran 0 persen hingga 100 persen. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx_REDIRECTURL	URL yang ditentukan akan dijawab wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa browser web di komputer VPN Client untuk menunjukkan situs web yang ditentukan ketika browser tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx_Prompt_DELAY	Keterlambatan yang Akan Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	Fluktuasi Jitter yang Akan Dihasilkan (Persen: 0 - 100): 
@@ -5747,8 +5747,8 @@ CMD_AccessAddEx6_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan ala
 CMD_AccessAddEx6_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx6_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx6_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan saat paket melewati. Tentukan periode keterlambatan dalam milidetik. Tentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal yang dapat dihasilkan adalah 10000 milidetik.
-CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter saat paket melewati. Tentukan rasio fluktuasi jitter dalam rentang 0% hingga 100%%. Tentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket saat paket melewati. Tentukan rasio kehilangan paket dalam rentang 0% hingga 100%%. Tentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter saat paket melewati. Tentukan rasio fluktuasi jitter dalam rentang 0 persen hingga 100 persen. Tentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket saat paket melewati. Tentukan rasio kehilangan paket dalam rentang 0 persen hingga 100 persen. Tentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx6_REDIRECTURL	URL yang ditentukan akan dijawab secara wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa peramban web pada komputer VPN Client untuk menampilkan situs web yang ditentukan ketika peramban web tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx6_Prompt_DELAY	Keterlambatan untuk Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	Fluktuasi Jitter untuk Dihasilkan (Persen: 0 - 100): 
@@ -6728,7 +6728,7 @@ CMD_AccountEncryptDisable_[name]	Tentukan nama Pengaturan Koneksi VPN yang penga
 
 # AccountCompressEnable command
 CMD_AccountCompressEnable	Aktifkan Kompresi Data saat Berkomunikasi melalui Pengaturan Koneksi VPN
-CMD_AccountCompressEnable_Help	Ketika Pengaturan Koneksi VPN yang terdaftar di VPN Client ditentukan dan Pengaturan Koneksi VPN tersebut digunakan untuk komunikasi antara VPN Server melalui koneksi VPN, gunakan ini untuk mengatur konten komunikasi antara VPN Server agar dikompresi. \nKompresi dapat mencapai hingga 80%%. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik di mesin klien maupun server. Ketika kecepatan jalur sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi kadang-kadang dapat memiliki efek sebaliknya.
+CMD_AccountCompressEnable_Help	Ketika Pengaturan Koneksi VPN yang terdaftar di VPN Client ditentukan dan Pengaturan Koneksi VPN tersebut digunakan untuk komunikasi antara VPN Server melalui koneksi VPN, gunakan ini untuk mengatur konten komunikasi antara VPN Server agar dikompresi. \nKompresi dapat mencapai hingga 80 persen. Namun, kompresi memberikan beban yang lebih tinggi pada CPU baik di mesin klien maupun server. Ketika kecepatan jalur sekitar 10 Mbps atau lebih, kompresi dapat menurunkan throughput, tetapi kadang-kadang dapat memiliki efek sebaliknya.
 CMD_AccountCompressEnable_Args	AccountCompressEnable [name]
 CMD_AccountCompressEnable_[name]	Tentukan nama Pengaturan Koneksi VPN yang pengaturannya ingin Anda ubah.
 
