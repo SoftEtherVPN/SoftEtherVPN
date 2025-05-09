@@ -5685,8 +5685,8 @@ CMD_AccessAddEx_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan alam
 CMD_AccessAddEx_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan ketika paket melewati. Tentukan periode keterlambatan dalam milidetik. Menentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal adalah 10000 milidetik.
-CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Rasio fluktuasi jitter dapat ditentukan dalam kisaran dari 0% hingga 100%, sesuai kebutuhan. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Rasio kehilangan paket dapat ditentukan dalam kisaran dari 0% hingga 100%, sesuai kebutuhan. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Rasio fluktuasi jitter dapat ditentukan dalam kisaran dari 0% hingga 100% sesuai kebutuhan. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Rasio kehilangan paket dapat ditentukan dalam kisaran dari 0% hingga 100% sesuai kebutuhan. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx_REDIRECTURL	URL yang ditentukan akan dijawab wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa browser web di komputer VPN Client untuk menunjukkan situs web yang ditentukan ketika browser tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx_Prompt_DELAY	Keterlambatan yang Akan Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx_Prompt_JITTER	Fluktuasi Jitter yang Akan Dihasilkan (Persen: 0 - 100): 
@@ -5747,8 +5747,8 @@ CMD_AccessAddEx6_SRCMAC		Tentukan alamat MAC sumber sebagai aturan. Tentukan ala
 CMD_AccessAddEx6_DESTMAC		Tentukan alamat MAC tujuan sebagai aturan. Gunakan metode yang sama seperti untuk parameter /SRCMAC.
 CMD_AccessAddEx6_TCPSTATE		Tentukan status koneksi TCP sebagai aturan. Gunakan Established atau Unestablished.
 CMD_AccessAddEx6_DELAY	Tentukan nilai ini untuk menghasilkan keterlambatan saat paket melewati. Tentukan periode keterlambatan dalam milidetik. Tentukan 0 berarti tidak ada keterlambatan yang dihasilkan. Keterlambatan maksimal yang dapat dihasilkan adalah 10000 milidetik.
-CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Rasio fluktuasi jitter dapat ditentukan dalam kisaran dari 0% hingga 100%, sesuai kebutuhan. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
-CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Rasio kehilangan paket dapat ditentukan dalam kisaran dari 0% hingga 100%, sesuai kebutuhan. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
+CMD_AccessAddEx6_JITTER	Tentukan nilai ini untuk menghasilkan jitter ketika paket melewati. Rasio fluktuasi jitter dapat ditentukan dalam kisaran dari 0% hingga 100% sesuai kebutuhan. Menentukan 0 berarti tidak ada jitter yang dihasilkan.
+CMD_AccessAddEx6_LOSS	Tentukan nilai ini untuk menghasilkan kehilangan paket ketika paket melewati. Rasio kehilangan paket dapat ditentukan dalam kisaran dari 0% hingga 100% sesuai kebutuhan. Menentukan 0 berarti tidak ada kehilangan paket yang dihasilkan.
 CMD_AccessAddEx6_REDIRECTURL	URL yang ditentukan akan dijawab secara wajib kepada klien sebagai respons untuk paket permintaan koneksi TCP yang cocok dengan kondisi entri daftar akses ini melalui Virtual Hub ini. Untuk menggunakan pengaturan ini, kamu dapat memaksa peramban web pada komputer VPN Client untuk menampilkan situs web yang ditentukan ketika peramban web tersebut mencoba mengakses alamat IP tertentu.
 CMD_AccessAddEx6_Prompt_DELAY	Keterlambatan untuk Dihasilkan (dalam milidetik: 0 - 10000): 
 CMD_AccessAddEx6_Prompt_JITTER	Fluktuasi Jitter untuk Dihasilkan (Persen: 0 - 100): 
