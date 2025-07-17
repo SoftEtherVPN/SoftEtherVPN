@@ -2057,43 +2057,15 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_ex
 
 	if (type_id_16 > 1500)
 	{
-		// Ordinary Ethernet frame
-		switch (type_id_16)
+		if (type_id_16 == MAC_PROTO_TAGVLAN)
 		{
-		case MAC_PROTO_ARPV4:	// ARPv4
-			if (no_l3 || no_l3_l4_except_icmpv6)
-			{
-				return true;
-			}
-
-			return ParsePacketARPv4(p, buf, size);
-
-		case MAC_PROTO_IPV4:	// IPv4
-			if (no_l3 || no_l3_l4_except_icmpv6)
-			{
-				return true;
-			}
-
-			return ParsePacketIPv4(p, buf, size);
-
-		case MAC_PROTO_IPV6:	// IPv6
-			if (no_l3)
-			{
-				return true;
-			}
-
-			return ParsePacketIPv6(p, buf, size, no_l3_l4_except_icmpv6);
-
-		default:				// Unknown
-			if (type_id_16 == p->VlanTypeID)
-			{
-				// VLAN
-				return ParsePacketTAGVLAN(p, buf, size);
-			}
-			else
-			{
-				return true;
-			}
+			// Parse VLAN frame
+			return ParsePacketTAGVLAN(p, buf, size, no_l3, no_l3_l4_except_icmpv6);
+		}
+		else
+		{
+			// Parse Ordinary Ethernet frame
+			return ParsePacketL3(p, buf, size, type_id_16, no_l3, no_l3_l4_except_icmpv6);
 		}
 	}
 	else
@@ -2128,10 +2100,44 @@ bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_ex
 	}
 }
 
+bool ParsePacketL3(PKT *p, UCHAR *buf, UINT size, USHORT proto, bool no_l3, bool no_l3_l4_except_icmpv6)
+{
+	switch (proto)
+		{
+		case MAC_PROTO_ARPV4:	// ARPv4
+			if (no_l3 || no_l3_l4_except_icmpv6)
+			{
+				return true;
+			}
+
+			return ParsePacketARPv4(p, buf, size);
+
+		case MAC_PROTO_IPV4:	// IPv4
+			if (no_l3 || no_l3_l4_except_icmpv6)
+			{
+				return true;
+			}
+
+			return ParsePacketIPv4(p, buf, size);
+
+		case MAC_PROTO_IPV6:	// IPv6
+			if (no_l3)
+			{
+				return true;
+			}
+
+			return ParsePacketIPv6(p, buf, size, no_l3_l4_except_icmpv6);
+
+		default:				// Unknown
+			return true;
+		}
+}
+
 // TAG VLAN parsing
-bool ParsePacketTAGVLAN(PKT *p, UCHAR *buf, UINT size)
+bool ParsePacketTAGVLAN(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_except_icmpv6)
 {
 	USHORT vlan_ushort;
+	USHORT proto_ushort;
 	// Validate arguments
 	if (p == NULL || buf == NULL)
 	{
@@ -2151,12 +2157,17 @@ bool ParsePacketTAGVLAN(PKT *p, UCHAR *buf, UINT size)
 	buf += sizeof(TAGVLAN_HEADER);
 	size -= sizeof(TAGVLAN_HEADER);
 
-	vlan_ushort = READ_USHORT(p->L3.TagVlanHeader->Data);
+	vlan_ushort = READ_USHORT(p->L3.TagVlanHeader->TagID);
 	vlan_ushort = vlan_ushort & 0xFFF;
 
 	p->VlanId = vlan_ushort;
 
-	return true;
+	proto_ushort = READ_USHORT(p->L3.TagVlanHeader->Protocol);
+	proto_ushort = proto_ushort & 0xFFFF;
+
+	
+	// Parse the L3 packet
+	return ParsePacketL3(p, buf, size, proto_ushort, no_l3, no_l3_l4_except_icmpv6);
 }
 
 // BPDU Parsing
