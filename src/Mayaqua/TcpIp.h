@@ -87,7 +87,8 @@ struct ARPV4_HEADER
 // Tagged VLAN header
 struct TAGVLAN_HEADER
 {
-	UCHAR Data[2];					// Data
+	UCHAR TagID[2];					// TagID
+	UCHAR Protocol[2];				// Protocol
 } GCC_PACKED;
 
 // IPv4 header
@@ -762,10 +763,11 @@ void FreePacketTCPv4(PKT *p);
 void FreePacketICMPv4(PKT *p);
 void FreePacketDHCPv4(PKT *p);
 bool ParsePacketL2Ex(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_except_icmpv6);
+bool ParsePacketL3(PKT *p, UCHAR *buf, UINT size, USHORT proto, bool no_l3, bool no_l3_l4_except_icmpv6);
 bool ParsePacketARPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketIPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParsePacketBPDU(PKT *p, UCHAR *buf, UINT size);
-bool ParsePacketTAGVLAN(PKT *p, UCHAR *buf, UINT size);
+bool ParsePacketTAGVLAN(PKT *p, UCHAR *buf, UINT size, bool no_l3, bool no_l3_l4_except_icmpv6);
 bool ParseICMPv4(PKT *p, UCHAR *buf, UINT size);
 bool ParseICMPv6(PKT *p, UCHAR *buf, UINT size);
 bool ParseTCP(PKT *p, UCHAR *buf, UINT size);
