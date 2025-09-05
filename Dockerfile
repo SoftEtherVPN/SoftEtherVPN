@@ -37,15 +37,18 @@ COPY --from=builder /usr/local/src/SoftEtherVPN/build/libcedar.so /usr/local/src
 
 FROM base AS vpnserver
 COPY --from=builder /usr/local/src/SoftEtherVPN/build/vpnserver ./
+RUN ./vpnserver --help
 EXPOSE 443/tcp 992/tcp 1194/tcp 1194/udp 5555/tcp 500/udp 4500/udp
 CMD ["/usr/local/bin/vpnserver", "execsvc"]
 
 
 FROM base AS vpnclient
 COPY --from=builder /usr/local/src/SoftEtherVPN/build/vpnclient ./
+RUN ./vpnclient --help
 CMD ["/usr/local/bin/vpnclient", "execsvc"]
 
 
 FROM base AS vpnbridge
 COPY --from=builder /usr/local/src/SoftEtherVPN/build/vpnbridge ./
+RUN ./vpnbridge --help
 CMD ["/usr/local/bin/vpnbridge", "execsvc"]
