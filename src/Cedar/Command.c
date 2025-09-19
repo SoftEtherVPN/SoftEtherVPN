@@ -11812,7 +11812,8 @@ UINT PsRadiusServerSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		t.RadiusPort = port;
 		StrCpy(t.RadiusServerName, sizeof(t.RadiusServerName), host);
 		StrCpy(t.RadiusSecret, sizeof(t.RadiusSecret), GetParamStr(o, "SECRET"));
-		t.RadiusRetryInterval = GetParamInt(o, "RETRY_INTERVAL");
+		t.RadiusRetryInterval = GetParamInt(o, "RETRY_INTERVAL"); // Make sure to add whatever's on the other side of this string
+		t.RadiusRetryTimeout = GetParamInt(o, "RETRY_TIMEOUT");
 
 		Free(host);
 
@@ -11936,6 +11937,9 @@ UINT PsRadiusServerGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 			UniToStri(tmp, t.RadiusRetryInterval);
 			CtInsert(ct, _UU("CMD_RadiusServerGet_RetryInterval"), tmp);
+
+			UniToStri(tmp, t.RadiusRetryTimeout);
+			CtInsert(ct, _UU("CMD_RadiusServerGet_RetryTimeout"), tmp);
 		}
 
 		CtFree(ct, c);

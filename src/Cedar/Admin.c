@@ -8739,7 +8739,7 @@ UINT StSetHubRadius(ADMIN *a, RPC_RADIUS *t)
 	}
 
 	//SetRadiusServer(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret);
-	SetRadiusServerEx(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret, t->RadiusRetryInterval);
+	SetRadiusServerEx(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret, t->RadiusRetryInterval, t->RadiusRetryTimeout);
 
 	ALog(a, h, "LA_SET_HUB_RADIUS");
 
@@ -8779,7 +8779,7 @@ UINT StGetHubRadius(ADMIN *a, RPC_RADIUS *t)
 	//GetRadiusServer(h, t->RadiusServerName, sizeof(t->RadiusServerName),
 	//	&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret));
 	GetRadiusServerEx(h, t->RadiusServerName, sizeof(t->RadiusServerName),
-		&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret), &t->RadiusRetryInterval);
+		&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret), &t->RadiusRetryInterval, &t->RadiusRetryTimeout);
 
 	ReleaseHub(h);
 
@@ -13031,6 +13031,7 @@ void InRpcRadius(RPC_RADIUS *t, PACK *p)
 	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
 	PackGetStr(p, "RadiusSecret", t->RadiusSecret, sizeof(t->RadiusSecret));
 	t->RadiusRetryInterval = PackGetInt(p, "RadiusRetryInterval");
+	t->RadiusRetryTimeout = PackGetInt(p, "RadiusRetryTimeout");
 }
 void OutRpcRadius(PACK *p, RPC_RADIUS *t)
 {
@@ -13045,6 +13046,7 @@ void OutRpcRadius(PACK *p, RPC_RADIUS *t)
 	PackAddStr(p, "HubName", t->HubName);
 	PackAddStr(p, "RadiusSecret", t->RadiusSecret);
 	PackAddInt(p, "RadiusRetryInterval", t->RadiusRetryInterval);
+	PackAddInt(p, "RadiusRetryTimeout", t->RadiusRetryTimeout);
 }
 
 // RPC_HUB
