@@ -100,6 +100,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 	char radius_servers[MAX_PATH] = {0};
 	UINT radius_port = 0;
 	UINT radius_retry_interval = 0;
+	UINT radius_retry_timeout = 0;
 	char radius_secret[MAX_PATH] = {0};
 	char radius_suffix_filter[MAX_PATH] = {0};
 	if (cedar == NULL || hubname == NULL || client_ip_str == NULL || username == NULL)
@@ -117,7 +118,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 	if (hub != NULL)
 	{
 		if (GetRadiusServerEx2(hub, radius_servers, sizeof(radius_servers), &radius_port, radius_secret,
-			sizeof(radius_secret), &radius_retry_interval, radius_suffix_filter, sizeof(radius_suffix_filter)))
+			sizeof(radius_secret), &radius_retry_interval, &radius_retry_timeout, radius_suffix_filter, sizeof(radius_suffix_filter)))
 		{
 			bool use_peap = hub->RadiusUsePeapInsteadOfEap;
 
@@ -6464,7 +6465,7 @@ bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secre
 // Set the Radius server information
 void SetRadiusServer(HUB *hub, char *name, UINT port, char *secret)
 {
-	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL);
+	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL, RADIUS_RETRY_TIMEOUT);
 }
 void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval, UINT timeout)
 {
