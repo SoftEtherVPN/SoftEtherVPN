@@ -5884,6 +5884,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 					continue;
 				}
 			}
+			FreeHttpHeader(h);
 		}
 		else if (StrCmpi(h->Method, "SSTP_DUPLEX_POST") == 0 && (ProtoEnabled(server->Proto, "SSTP") || s->IsReverseAcceptedSocket) && GetServerCapsBool(server, "b_support_sstp"))
 		{
