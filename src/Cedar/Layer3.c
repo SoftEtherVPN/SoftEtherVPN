@@ -457,10 +457,10 @@ void L3KnownArp(L3IF *f, UINT ip, UCHAR *mac)
 	// Delete an ARP query entry to this IP address
 	Zero(&t, sizeof(t));
 	t.IpAddress = ip;
-	w = Search(f->IpWaitList, &t);
+	w = Search(f->ArpWaitTable, &t);
 	if (w != NULL)
 	{
-		Delete(f->IpWaitList, w);
+		Delete(f->ArpWaitTable, w);
 		Free(w);
 	}
 
