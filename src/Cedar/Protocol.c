@@ -5843,7 +5843,6 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				// Target is invalid
 				HttpSendNotFound(s, h->Target);
 				Free(data);
-				FreeHttpHeader(h);
 				*error_detail_str = "POST_Target_Wrong";
 			}
 			else
@@ -5861,10 +5860,10 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 				{
 					// WaterMark is incorrect
 					HttpSendForbidden(s, h->Target, NULL);
-					FreeHttpHeader(h);
 					*error_detail_str = "POST_WaterMark_Error";
 				}
 			}
+			FreeHttpHeader(h);
 		}
 		else if (StrCmpi(h->Method, "OPTIONS") == 0)
 		{
@@ -5884,6 +5883,7 @@ bool ServerDownloadSignature(CONNECTION *c, char **error_detail_str)
 					continue;
 				}
 			}
+			FreeHttpHeader(h);
 		}
 		else if (StrCmpi(h->Method, "SSTP_DUPLEX_POST") == 0 && (ProtoEnabled(server->Proto, "SSTP") || s->IsReverseAcceptedSocket) && GetServerCapsBool(server, "b_support_sstp"))
 		{
