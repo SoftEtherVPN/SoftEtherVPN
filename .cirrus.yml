@@ -4,14 +4,14 @@ FreeBSD_task:
       SSL: openssl
       OPENSSL_ROOT_DIR: /usr/local
     env:
-      SSL: openssl32
+      SSL: openssl36
       OPENSSL_ROOT_DIR: /usr/local
     env:
       # base openssl
       SSL:
   matrix:
     freebsd_instance:
-      image_family: freebsd-14-2
+      image_family: freebsd-14-3
   prepare_script:
     - pkg install -y pkgconf cmake git libsodium cpu_features $SSL
     - git submodule update --init --recursive
