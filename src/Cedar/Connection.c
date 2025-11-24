@@ -971,6 +971,46 @@ void SendKeepAlive(CONNECTION *c, TCPSOCK *ts)
 	Free(buf);
 }
 
+// // Send a keepalive packet to all TCP sockets that need it
+// // Adapted from ConnectionSend
+// void RefreshTcpSockets(CONNECTION *c) {
+// 	Debug("refreshing\n");
+// 	if (c == NULL)
+// 	{
+// 		return;
+// 	}
+// 	if (c->Protocol != CONNECTION_TCP)
+// 	{
+// 		Debug("Protocol not TCP??\n");
+// 		return;
+// 	}
+	
+// 	TCP *tcp = c->Tcp;
+// 	TCPSOCK **tcpsocks;
+// 	UINT socklist_size;
+
+// 	UINT64 now = Tick64();
+
+// 	LockList(tcp->TcpSockList);
+// 	{
+// 		socklist_size = LIST_NUM(tcp->TcpSockList);
+// 		tcpsocks = ToArrayEx(tcp->TcpSockList, true);
+// 	}
+// 	UnlockList(tcp->TcpSockList);
+
+// 	Debug("Socklistsize: %i\n", socklist_size);
+	
+// 	for (UINT i = 0; i < socklist_size; i++) {
+// 		TCPSOCK *tcpsock = tcpsocks[i];
+
+// 		if (now >= tcpsock->NextKeepAliveTime) {
+// 			Debug("sending keepalive\n");
+// 			SendKeepAlive(c, tcpsock);
+// 			tcpsock->NextKeepAliveTime = now + (UINT64)GenNextKeepAliveSpan(c);
+// 		}
+// 	}
+// }
+
 // Transmission of block
 void ConnectionSend(CONNECTION *c, UINT64 now)
 {

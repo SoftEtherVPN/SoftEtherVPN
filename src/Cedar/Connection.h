@@ -264,6 +264,7 @@ void ConnectionAccept(CONNECTION *c);
 void StartTunnelingMode(CONNECTION *c);
 void EndTunnelingMode(CONNECTION *c);
 void DisconnectTcpSockets(CONNECTION *c);
+// void RefreshTcpSockets(CONNECTION *c);
 void ConnectionReceive(CONNECTION *c, CANCEL *c1, CANCEL *c2);
 void ConnectionSend(CONNECTION *c, UINT64 now);
 TCPSOCK *NewTcpSock(SOCK *s);

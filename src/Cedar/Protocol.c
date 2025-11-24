@@ -6149,6 +6149,7 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 		return NULL;
 	}
 
+	// Here's where the inital connection timeout is changed
 	// Time-out
 	SetTimeout(s, CONNECTING_TIMEOUT);
 

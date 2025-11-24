@@ -1770,6 +1770,7 @@ LABEL_ERROR:
 bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UINT timeout, UCHAR *mschap_v2_server_response_20,
 				 RADIUS_LOGIN_OPTION *opt, char *hubname)
 {
+	// Make sure early timeout is not due to early client socket timeout
 	UCHAR random[MD5_SIZE];
 	UCHAR id;
 	BUF *encrypted_password = NULL;
@@ -1804,6 +1805,8 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	{
 		IPToStr(client_ip_str, sizeof(client_ip_str), &c->FirstSock->RemoteIP);
 	}
+
+	Debug("Connectino from %s\n", client_ip_str);
 
 	// Parse the MS-CHAP v2 authentication data
 	Zero(&mschap, sizeof(mschap));
@@ -1842,10 +1845,12 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 
 			Copy(opt->Out_VirtualMacAddress, eap->LastRecvVirtualMacAddress, 6);
 
+			Debug("debug line 1845");
 			return true;
 		}
 		else
 		{
+			Debug("debug line 1849");
 			return false;
 		}
 	}
@@ -1877,6 +1882,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	if(LIST_NUM(ip_list) == 0)
 	{
 		ReleaseList(ip_list);
+		Debug("debug line 1880");
 		return false;
 	}
 
@@ -1902,6 +1908,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 				Free(tmp_ip);
 			}
 			ReleaseList(ip_list);
+			Debug("debug line 1905");
 			return false;
 		}
 	}
@@ -2073,6 +2080,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			// Transmission process start
 			start = Tick64();
 
+			// Limit timeout to be larger than hardcoded timeout
 			// Limit interval to be larger than the hardcoded interval
 			// Limit interval to be less than timeout
 			if (timeout < RADIUS_RETRY_TIMEOUT) {
@@ -2087,8 +2095,13 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			{
 				interval = timeout;
 			}
+
+			// hardcode ONLY FOR TESTING
+			timeout = 60000;
+			interval = 5000;
 			next_send_time = start + (UINT64)interval;
 
+			Debug("timeout: %u\n", timeout);
 			while (true)
 			{
 				UINT server_port;
@@ -2107,6 +2120,11 @@ SEND_RETRY:
 
 RECV_RETRY:
 				now = Tick64();
+ 
+				UINT magic = KEEP_ALIVE_MAGIC;
+				// This is where timeout prevention needs to happen
+				Send(c->FirstSock, &magic, sizeof(UINT), false);
+
 				if (next_send_time <= now)
 				{
 					// Switch the host to refer
@@ -2116,9 +2134,11 @@ RECV_RETRY:
 					goto SEND_RETRY;
 				}
 
+				Debug("start + timeout < now -> %u < %u\n", start + timeout, now);
 				if ((start + timeout) < now)
 				{
 					// Time-out
+					Debug("timeout break 2129");
 					break;
 				}
 
@@ -2143,6 +2163,7 @@ RECV_RETRY:
 						}
 					}
 					// Failure
+					Debug("failure break 2154");
 					break;
 				}
 				else if (recv_size == SOCK_LATER)
@@ -2273,6 +2294,7 @@ RECV_RETRY:
 	// Release the memory
 	FreeBuf(encrypted_password);
 
+	Debug("debug final ret");
 	return ret;
 }
 
