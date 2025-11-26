@@ -899,7 +899,7 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 	}
 
 	// Retransmission interval
-	resend_interval = MAX(1, (timeout / 3) - 100);
+	resend_interval = MIN(IPC_DHCP_MAX_RESEND_INTERVAL, MAX(1, (timeout / 3) - 100));
 
 	// Time-out time
 	giveup_time = Tick64() + (UINT64)timeout;
