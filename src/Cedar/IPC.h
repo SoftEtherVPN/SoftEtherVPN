@@ -19,6 +19,7 @@
 #define	IPC_DHCP_TIMEOUT				(5 * 1000)
 #define	IPC_DHCP_MIN_LEASE				5
 #define	IPC_DHCP_DEFAULT_LEASE			3600
+#define	IPC_DHCP_MAX_RESEND_INTERVAL	(3 * 1000)
 
 #define	IPC_MAX_PACKET_QUEUE_LEN		10000
 
@@ -149,6 +150,7 @@ struct IPC
 	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
 	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 	UINT Layer;
+	UINT DhcpDiscoverTimeoutMs;			// Timeut to wait for DHCP server response on DISCOVER request
 
 	// IPv6 stuff
 	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue
