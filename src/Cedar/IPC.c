@@ -795,7 +795,8 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	IPCDhcpSetConditionalUserClass(ipc, &req);
 
-	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, ipc->DhcpDiscoverTimeoutMs, discon_poll_tube);
+	UINT discoverTimeout = ipc->DhcpDiscoverTimeoutMs > 0 ? ipc->DhcpDiscoverTimeoutMs : DEFAULT_DHCP_DISCOVER_TIMEOUT;
+	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, discoverTimeout, discon_poll_tube);
 	if (d == NULL)
 	{
 		return false;
