@@ -493,12 +493,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	{
 		UINTToIP(&ipc->DefaultGateway, hub->Option->DefaultGateway);
 		UINTToIP(&ipc->SubnetMask, hub->Option->DefaultSubnet);
+		ipc->DhcpDiscoverTimeoutMs = hub->Option->DhcpDiscoverTimeoutMs;
 		GetBroadcastAddress4(&ipc->BroadcastAddress, &ipc->DefaultGateway, &ipc->SubnetMask);
 	}
 	else
 	{
 		ZeroIP4(&ipc->DefaultGateway);
 		ZeroIP4(&ipc->SubnetMask);
+		ipc->DhcpDiscoverTimeoutMs = DEFAULT_DHCP_DISCOVER_TIMEOUT;
 		ZeroIP4(&ipc->BroadcastAddress);
 	}
 
@@ -793,7 +795,7 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	IPCDhcpSetConditionalUserClass(ipc, &req);
 
-	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube);
+	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, ipc->DhcpDiscoverTimeoutMs, discon_poll_tube);
 	if (d == NULL)
 	{
 		return false;

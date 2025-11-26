@@ -149,6 +149,7 @@ struct IPC
 	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
 	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 	UINT Layer;
+	UINT DhcpDiscoverTimeoutMs;			// Timeut to wait for DHCP server response on DISCOVER request
 
 	// IPv6 stuff
 	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue

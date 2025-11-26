@@ -30,6 +30,9 @@
 // Default flooding queue length
 #define	DEFAULT_FLOODING_QUEUE_LENGTH				(32 * 1024 * 1024)
 
+// Default DHCP Discover Timeout
+#define	DEFAULT_DHCP_DISCOVER_TIMEOUT				(5 * 1000)
+
 // SoftEther link control packet
 struct SE_LINK
 {
@@ -183,6 +186,7 @@ struct HUB_OPTION
 	bool UseHubNameAsDhcpUserClassOption;	// Add HubName to DHCP request as User-Class option
 	bool UseHubNameAsRadiusNasId;		// Add HubName to Radius request as NAS-Identifier attrioption
 	bool AllowEapMatchUserByCert;		// Allow matching EAP Identity with user certificate CNs
+	UINT DhcpDiscoverTimeoutMs;			// Timeout to wait for DHCP server response on DISCOVER request
 };
 
 // MAC table entry
