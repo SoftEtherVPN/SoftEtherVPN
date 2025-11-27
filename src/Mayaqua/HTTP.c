@@ -1207,12 +1207,14 @@ PACK *HttpClientRecv(SOCK *s)
 	UINT size;
 	UCHAR *tmp;
 	HTTP_VALUE *v;
+	UINT num_noop = 0;
 	// Validate arguments
 	if (s == NULL)
 	{
 		return NULL;
 	}
 
+START:
 	h = RecvHttpHeader(s);
 	if (h == NULL)
 	{
@@ -1257,6 +1259,37 @@ PACK *HttpClientRecv(SOCK *s)
 	p = BufToPack(b);
 	FreeBuf(b);
 
+	// Determine whether it's a NOOP
+	UINT noop = PackGetInt(p, "noop");
+	if (noop == NOOP)
+	{
+		Debug("recv: noop\n");
+		FreePack(p);
+
+		p = PackError(0);
+		PackAddInt(p, "noop", NOOP_IGNORE);
+		if (HttpClientSend(s, p) == false)
+		{
+			FreePack(p);
+			return NULL;
+		}
+
+		FreePack(p);
+
+		num_noop++;
+
+		if (num_noop > MAX_NOOP_PER_SESSION)
+		{
+			return NULL;
+		}
+
+		goto START;
+	} else if (noop == NOOP_IGNORE) {
+		Debug("recv: noop ignore\n");
+		FreePack(p);
+
+		goto START;
+	}
 	return p;
 }
 
@@ -1365,13 +1398,14 @@ START:
 	FreeBuf(b);
 
 	// Determine whether it's a NOOP
-	if (PackGetInt(p, "noop") != 0)
+	UINT noop = PackGetInt(p, "noop");
+	if (noop == NOOP)
 	{
 		Debug("recv: noop\n");
 		FreePack(p);
 
 		p = PackError(0);
-		PackAddInt(p, "noop", 1);
+		PackAddInt(p, "noop", NOOP_IGNORE);
 		if (HttpServerSend(s, p) == false)
 		{
 			FreePack(p);
@@ -1386,6 +1420,11 @@ START:
 		{
 			return NULL;
 		}
+
+		goto START;
+	} else if (noop == NOOP_IGNORE) {
+		Debug("recv: noop ignore\n");
+		FreePack(p);
 
 		goto START;
 	}
