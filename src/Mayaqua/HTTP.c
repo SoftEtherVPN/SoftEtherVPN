@@ -1260,20 +1260,12 @@ START:
 	FreeBuf(b);
 
 	// Determine whether it's a NOOP
+	
+	// Client shouldn't receive a noop other than NOOP_IGNORE
+	// because it can't respond without a full new HTTP request
 	UINT noop = PackGetInt(p, "noop");
-	if (noop == NOOP)
-	{
-		Debug("recv: noop\n");
-		FreePack(p);
-
-		p = PackError(0);
-		PackAddInt(p, "noop", NOOP_IGNORE);
-		if (HttpClientSend(s, p) == false)
-		{
-			FreePack(p);
-			return NULL;
-		}
-
+	if (noop == NOOP_IGNORE) {
+		Debug("recv: noop ignore\n");
 		FreePack(p);
 
 		num_noop++;
@@ -1282,11 +1274,6 @@ START:
 		{
 			return NULL;
 		}
-
-		goto START;
-	} else if (noop == NOOP_IGNORE) {
-		Debug("recv: noop ignore\n");
-		FreePack(p);
 
 		goto START;
 	}

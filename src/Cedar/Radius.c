@@ -7,6 +7,7 @@
 
 #include "Radius.h"
 
+#include "Protocol.h"
 #include "Connection.h"
 #include "IPC.h"
 #include "Server.h"
@@ -2121,10 +2122,8 @@ SEND_RETRY:
 RECV_RETRY:
 				now = Tick64();
  
-				UINT magic = KEEP_ALIVE_MAGIC;
-				// This is where timeout prevention needs to happen
-				Send(c->FirstSock, &magic, sizeof(UINT), false);
-
+				ServerUploadNoop(c);
+				
 				if (next_send_time <= now)
 				{
 					// Switch the host to refer
