@@ -31,6 +31,25 @@ if(OQS_ENABLE)
   set(OQS_PROVIDER_BUILD_STATIC ON CACHE BOOL "Build a static library instead of a shared library") # Build oqsprovider as a static library (defaults to shared)
   list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/src/Mayaqua/3rdparty/")
 
+    # Disable all other KEM families
+  set(OQS_ENABLE_KEM_FRODOKEM OFF)
+  set(OQS_ENABLE_KEM_NTRUPRIME OFF)
+  set(OQS_ENABLE_KEM_NTRU OFF)
+  set(OQS_ENABLE_KEM_CLASSIC_MCELIECE OFF)
+  set(OQS_ENABLE_KEM_HQC OFF)
+  set(OQS_ENABLE_KEM_BIKE OFF)
+
+  # Disable all SIG families
+  set(OQS_ENABLE_SIG_ML_DSA OFF)
+  set(OQS_ENABLE_SIG_FALCON OFF)
+  set(OQS_ENABLE_SIG_DILITHIUM OFF)
+  set(OQS_ENABLE_SIG_SPHINCS OFF)
+  set(OQS_ENABLE_SIG_MAYO OFF)
+  set(OQS_ENABLE_SIG_CROSS OFF)
+  set(OQS_ENABLE_SIG_UOV OFF)
+  set(OQS_ENABLE_SIG_SNOVA OFF)
+  set(OQS_ENABLE_SIG_SLH_DSA OFF)
+
   add_subdirectory(3rdparty/liboqs)
   add_subdirectory(3rdparty/oqs-provider)
 
