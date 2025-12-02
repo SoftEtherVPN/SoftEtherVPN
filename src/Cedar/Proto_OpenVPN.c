@@ -2562,9 +2562,16 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 								Debug("OpenVPN Channel %u Failed.\n", j);
 								OvsLog(s, se, c, "LO_CHANNEL_FAILED");
 
-								// Return the AUTH_FAILED
-								str = "AUTH_FAILED";
-								WriteFifo(c->SslPipe->SslInOut->SendFifo, str, StrSize(str));
+								if ((se->IpcAsync->ErrorCode == ERR_AUTHTYPE_NOT_SUPPORTED) ||
+									(se->IpcAsync->ErrorCode == ERR_AUTH_FAILED) ||
+									(se->IpcAsync->ErrorCode == ERR_PROXY_AUTH_FAILED) ||
+									(se->IpcAsync->ErrorCode == ERR_USER_AUTHTYPE_NOT_PASSWORD) ||
+									(se->IpcAsync->ErrorCode == ERR_NOT_SUPPORTED_AUTH_ON_OPENSOURCE))
+								{
+									// Return the AUTH_FAILED
+									str = "AUTH_FAILED";
+									WriteFifo(c->SslPipe->SslInOut->SendFifo, str, StrSize(str));
+								}
 
 								s->SessionEstablishedCount++;
 
