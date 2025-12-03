@@ -11724,7 +11724,7 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	}
 	if (ssl_timeout == 0)
 	{
-		ssl_timeout = TIMEOUT_SSL_CONNECT;
+		ssl_timeout = TIMEOUT_SSL_CONNECT; // Make sure radius connection will set its own ssl timeout
 	}
 
 	if (sock->SecureMode)

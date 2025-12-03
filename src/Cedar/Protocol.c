@@ -5429,15 +5429,39 @@ void ClientUploadNoop(CONNECTION *c)
 	}
 
 	p = PackError(0);
-	PackAddInt(p, "noop", 1);
+	PackAddInt(p, "noop", NOOP);
 	(void)HttpClientSend(c->FirstSock, p);
 	FreePack(p);
 
+	// Receive response NOOP_IGNORE?
 	p = HttpClientRecv(c->FirstSock);
 	if (p != NULL)
 	{
 		FreePack(p);
 	}
+}
+
+void ServerUploadNoop(CONNECTION *c)
+{
+	PACK *p;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return;
+	}
+
+	p = PackError(0);
+	PackAddInt(p, "noop", NOOP_IGNORE);
+	(void)HttpServerSend(c->FirstSock, p);
+	FreePack(p);
+
+	// Client can't respond to an HTTP "response", so don't wait for it
+
+	// p = HttpServerRecv(c->FirstSock);
+	// if (p != NULL)
+	// {
+	// 	FreePack(p);
+	// }
 }
 
 // Add client version information to the PACK
@@ -6149,6 +6173,7 @@ SOCK *ClientConnectToServer(CONNECTION *c)
 		return NULL;
 	}
 
+	// Here's where the inital connection timeout is changed
 	// Time-out
 	SetTimeout(s, CONNECTING_TIMEOUT);
 

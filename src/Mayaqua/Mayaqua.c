@@ -381,6 +381,7 @@ bool IsNt()
 // Initialization of Mayaqua library
 void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 {
+	debug = true;
 	wchar_t tmp[MAX_PATH];
 	UCHAR hash[SHA1_SIZE];
 
