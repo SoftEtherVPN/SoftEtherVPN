@@ -14,6 +14,7 @@
   * [For Windows](#for-windows)
   * [From binary installers (stable channel)](#from-binary-installers-stable-channel)
   * [Build from Source code](#build-from-source-code)
+- [Antivirus False Positive Detection](ANTIVIRUS.md)
 - [About HTML5-based Modern Admin Console and JSON-RPC API Suite](#about-html5-based-modern-admin-console-and-json-rpc-api-suite)
   * [Built-in SoftEther VPN Server HTML5 Ajax-based Web Administration Console](#built-in-softether-vpn-server-html5-ajax-based-web-administration-console)
   * [Built-in SoftEther Server VPN JSON-RPC API Suite](#built-in-softether-server-vpn-json-rpc-api-suite)
@@ -205,6 +206,8 @@ Also SoftEther VPN [Stable Edition](https://www.freshports.org/security/softethe
 
 [Nightly builds](https://github.com/SoftEtherVPN/SoftEtherVPN/actions/workflows/windows.yml)
 (choose appropriate platform, then find binaries or installers as artifacts)
+
+**⚠️ Important for Windows Users**: Some antivirus software (including Microsoft Defender) may incorrectly flag SoftEther VPN as malicious. This is a **false positive**. See [ANTIVIRUS.md](ANTIVIRUS.md) for detailed information and solutions.
 
 ## From binary installers (stable channel)
 
