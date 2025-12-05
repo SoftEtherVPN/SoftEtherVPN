@@ -8,6 +8,11 @@
 		processorArchitecture="*"
 	/>
 	<description>SoftEther VPN - Open Source Multi-protocol VPN Software</description>
+	<!-- 
+		trustInfo: Uses 'asInvoker' level which is correct for VPN client applications.
+		VPN services are installed as Windows services with appropriate privileges.
+		Client executables request elevation via UAC only when needed for specific operations.
+	-->
 	<trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
 		<security>
 			<requestedPrivileges>

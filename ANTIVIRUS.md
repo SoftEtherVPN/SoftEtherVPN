@@ -144,6 +144,8 @@ For automated deployment, use this PowerShell script (requires Administrator pri
 
 ```powershell
 # Add Windows Defender exclusions for SoftEther VPN
+# Requires Administrator privileges
+
 $exclusionPaths = @(
     "C:\Program Files\SoftEther VPN Client",
     "C:\Program Files\SoftEther VPN Client Developer Edition",
@@ -155,14 +157,47 @@ $exclusionPaths = @(
     "C:\ProgramData\SoftEther VPN Server"
 )
 
+# Check if running as Administrator
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $isAdmin) {
+    Write-Error "This script requires Administrator privileges. Please run PowerShell as Administrator."
+    exit 1
+}
+
+# Check if Windows Defender module is available
+if (-not (Get-Module -ListAvailable -Name Defender)) {
+    Write-Error "Windows Defender PowerShell module is not available on this system."
+    exit 1
+}
+
+$successCount = 0
+$errorCount = 0
+
 foreach ($path in $exclusionPaths) {
     if (Test-Path $path) {
-        Add-MpPreference -ExclusionPath $path
-        Write-Host "Added exclusion: $path"
+        try {
+            Add-MpPreference -ExclusionPath $path -ErrorAction Stop
+            Write-Host "✓ Added exclusion: $path" -ForegroundColor Green
+            $successCount++
+        }
+        catch {
+            Write-Warning "✗ Failed to add exclusion for: $path"
+            Write-Warning "  Error: $($_.Exception.Message)"
+            $errorCount++
+        }
+    }
+    else {
+        Write-Host "- Skipped (not found): $path" -ForegroundColor Gray
     }
 }
 
-Write-Host "SoftEther VPN exclusions configured successfully."
+Write-Host "`nSummary:" -ForegroundColor Cyan
+Write-Host "  Successfully added: $successCount exclusion(s)" -ForegroundColor Green
+if ($errorCount -gt 0) {
+    Write-Host "  Failed: $errorCount exclusion(s)" -ForegroundColor Red
+}
+Write-Host "`nSoftEther VPN exclusions configured." -ForegroundColor Cyan
 ```
 
 Save as `Add-SoftEtherVPN-Exclusions.ps1` and run as Administrator.
