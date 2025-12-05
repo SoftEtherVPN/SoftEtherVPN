@@ -1,4 +1,8 @@
 contact_links:
+  - name: Antivirus False Positive Detection
+    about: If antivirus software is flagging SoftEther VPN as malicious, this is a false positive. See our documentation for solutions and how to report to antivirus vendors.
+    url: https://github.com/SoftEtherVPN/SoftEtherVPN/blob/master/ANTIVIRUS.md
+
   - name: Are you using SoftEther VPN 4.x?
     about: This repository is for SoftEther VPN 5.x Developer Edition, developed independently from SoftEther VPN 4.x. Visit vpnusers.com if you would like to report issues or ask questions about version 4.x!
     url: https://www.vpnusers.com/
