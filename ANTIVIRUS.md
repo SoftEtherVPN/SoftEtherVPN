@@ -152,7 +152,7 @@ $exclusionPaths = @(
     "C:\Program Files\SoftEther VPN Server Manager Developer Edition",
     "C:\Program Files\SoftEther VPN Server Developer Edition",
     "C:\ProgramData\SoftEther VPN Client",
-    "C:\ProgramData\SoftEether VPN Server"
+    "C:\ProgramData\SoftEther VPN Server"
 )
 
 foreach ($path in $exclusionPaths) {
