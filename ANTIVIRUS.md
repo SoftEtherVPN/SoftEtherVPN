@@ -299,6 +299,5 @@ If you have additional solutions or workarounds that have worked for you, please
 
 ---
 
-**Last Updated**: December 2025  
 **Applies to**: SoftEther VPN 5.x (Developer Edition)  
 **Related Issue**: False positive detection by Microsoft Defender as Trojan:Win32/KepavII!rfn
