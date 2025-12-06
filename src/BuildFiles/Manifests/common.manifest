@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
-	<!-- Assembly identity with major version. This is separate from the product version. -->
-	<assemblyIdentity
-		type="win32"
-		name="SoftEtherVPN.Application"
-		version="5.0.0.0"
-		processorArchitecture="*"
-	/>
-	<description>SoftEther VPN - Open Source Multi-protocol VPN Software</description>
-	<!-- 
-		trustInfo: Uses 'asInvoker' level which is correct for VPN client applications.
-		VPN services are installed as Windows services with appropriate privileges.
-		Client executables request elevation via UAC only when needed for specific operations.
-	-->
-	<trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
-		<security>
-			<requestedPrivileges>
-				<requestedExecutionLevel
-					level="asInvoker"
-					uiAccess="false"
-				/>
-			</requestedPrivileges>
-		</security>
-	</trustInfo>
 	<dependency>
 		<dependentAssembly>
 			<assemblyIdentity
