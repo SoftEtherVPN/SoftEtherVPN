@@ -7,6 +7,8 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!         
         We provide a template which is specifically made for bug reports, to be sure that the report includes enough details to be helpful.
+        
+        **⚠️ Antivirus False Positive?** If you're reporting an antivirus detection issue, please see [ANTIVIRUS.md](https://github.com/SoftEtherVPN/SoftEtherVPN/blob/master/ANTIVIRUS.md) first. Antivirus false positives should be reported to the antivirus vendor, not as bugs in SoftEther VPN.
   
   - type: checkboxes
     attributes:
