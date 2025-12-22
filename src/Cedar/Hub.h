@@ -341,6 +341,7 @@ struct HUB
 	char *RadiusServerName;				// Radius server name
 	UINT RadiusServerPort;				// Radius server port number
 	UINT RadiusRetryInterval;			// Radius retry interval
+	UINT RadiusRetryTimeout;			// Radius timeout, it will no longer retry
 	BUF *RadiusSecret;					// Radius shared key
 	char RadiusSuffixFilter[MAX_SIZE];	// Radius suffix filter
 	char RadiusRealm[MAX_SIZE];			// Radius realm (optional)
@@ -481,10 +482,10 @@ bool IsPacketMaskedByAccessList(SESSION *s, PKT *p, ACCESS *a, UINT64 dest_usern
 void GetAccessListStr(char *str, UINT size, ACCESS *a);
 void DeleteOldIpTableEntry(LIST *o);
 void SetRadiusServer(HUB *hub, char *name, UINT port, char *secret);
-void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval);
+void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval, UINT timeout);
 bool GetRadiusServer(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size);
-bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval);
-bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, char *suffix_filter, UINT suffix_filter_size);
+bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout);
+bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout, char *suffix_filter, UINT suffix_filter_size);
 int CompareCert(void *p1, void *p2);
 void GetHubLogSetting(HUB *h, HUB_LOG *setting);
 void SetHubLogSetting(HUB *h, HUB_LOG *setting);
