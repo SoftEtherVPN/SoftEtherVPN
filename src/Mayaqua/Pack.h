@@ -38,6 +38,8 @@
 
 // The number of allowable NOOP
 #define	MAX_NOOP_PER_SESSION	30
+#define NOOP 1
+#define NOOP_IGNORE 2 // A noop, but don't send a response noop
 
 // VALUE object
 struct VALUE

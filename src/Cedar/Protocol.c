@@ -5429,7 +5429,7 @@ void ClientUploadNoop(CONNECTION *c)
 	}
 
 	p = PackError(0);
-	PackAddInt(p, "noop", 1);
+	PackAddInt(p, "noop", NOOP);
 	(void)HttpClientSend(c->FirstSock, p);
 	FreePack(p);
 
@@ -5438,6 +5438,24 @@ void ClientUploadNoop(CONNECTION *c)
 	{
 		FreePack(p);
 	}
+}
+
+void ServerUploadNoop(CONNECTION *c)
+{
+	PACK *p;
+	// Validate arguments
+	if (c == NULL)
+	{
+		return;
+	}
+
+	p = PackError(0);
+	PackAddInt(p, "noop", NOOP_IGNORE);
+	(void)HttpServerSend(c->FirstSock, p);
+	FreePack(p);
+
+	// Client can't re-respond to an HTTP "response" 
+	// so we don't wait for it on the server side
 }
 
 // Add client version information to the PACK
