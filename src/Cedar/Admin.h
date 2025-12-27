@@ -259,6 +259,7 @@ struct RPC_RADIUS
 	UINT RadiusPort;					// Radius port number
 	char RadiusSecret[MAX_PASSWORD_LEN + 1];	// Secret key
 	UINT RadiusRetryInterval;			// Radius retry interval
+	UINT RadiusRetryTimeout;			// Radius retry timeout
 };
 
 // Specify the HUB
