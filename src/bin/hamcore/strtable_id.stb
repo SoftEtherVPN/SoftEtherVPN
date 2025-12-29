@@ -1722,6 +1722,7 @@ DHCP_IP_ADDRESS			IP yang Dialokasikan
 DHCP_HOSTNAME			Nama Host Klien
 NM_PASSWORD_MSG			Kata sandi administrasi telah disetel.
 NM_PUSH_ROUTE_WARNING	Teks yang ditentukan pada tabel routing statis mungkin mengandung kesalahan sintaks.
+NM_PUSH_ROUTE_VPNGW_WARN	If you are using 'vpn_gateway' keyword as the IP address of the gateway in the static routing table, you must set its value also.
 
 
 # Concerning version information
@@ -4236,8 +4237,10 @@ S2						Apakah klien VPN dapat mengenali rute statis tanpa kelas (RFC 3442) terg
 S3						Anda dapat mewujudkan split tunneling jika Anda menghapus kolom gateway default pada opsi Server DHCP Virtual. Di sisi klien, klien L2TP/IPsec dan MS-SSTP perlu dikonfigurasi untuk tidak mengatur gateway default untuk penggunaan split tunneling.
 S4						Anda juga dapat mendorong rute statis tanpa kelas (RFC 3442) menggunakan server DHCP eksternal Anda yang ada. Dalam hal ini, nonaktifkan fungsi Server DHCP Virtual pada SecureNAT, dan Anda tidak perlu mengatur rute tanpa kelas di layar ini.
 S5						Edit tabel routing statis untuk mendorong
-S6						Contoh: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nPisahkan entri yang berbeda (maksimum: 64 entri) dengan koma atau karakter spasi.\r\nSetiap entri harus ditentukan dalam format "alamat jaringan IP/masker subnet/alamat IP gateway".
+#S6						Contoh: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nPisahkan entri yang berbeda (maksimum: 64 entri) dengan koma atau karakter spasi.\r\nSetiap entri harus ditentukan dalam format "alamat jaringan IP/masker subnet/alamat IP gateway".
+S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n    OR     192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway      for OpenVPN Connect\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format,\r\n   OR  you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients.
 S7						Lihat RFC 3442 untuk memahami rute tanpa kelas.
+S_VPN_GW				IP address of "vpn_gateway" for OpenVPN Connect
 IDOK					&OK
 IDCANCEL				Batal
 
@@ -4479,6 +4482,7 @@ CMD_KEYPAIR_FAILED		Perpaduan sertifikat X.509 dan kunci pribadi telah ditentuka
 CMD_CERT_NOT_EXISTS		Sertifikat tidak terdaftar.
 CMD_NO_SETTINGS			-
 CMD_DISCONNECTED_MSG	\n--- Kesalahan ---\n\nSesi komunikasi dengan host yang Anda kelola telah terputus. Mulai sekarang, jika Anda menjalankan perintah apa pun, kesalahan akan terjadi. \n\nUntuk menyambung kembali ke host yang Anda kelola, keluar dari prompt dengan memasukkan "EXIT" dan kemudian sambungkan kembali. \n\n
+CMD_BOOL_EVAL_FAILED	The boolean value should be: YES  or NO
 
 
 # VPNCMD コマンド
@@ -6155,6 +6159,7 @@ CMD_DhcpGet_Column_DNS	Alamat Server DNS 1
 CMD_DhcpGet_Column_DNS2	Alamat Server DNS 2
 CMD_DhcpGet_Column_DOMAIN	Nama Domain
 CMD_DhcpGet_Column_PUSHROUTE	Tabel Routing Statis untuk Dikirim
+CMD_DhcpGet_Column_OVPNGATEWAY	'vpn_gateway' value for OVPN
 
 
 # DhcpEnable command
@@ -6170,9 +6175,11 @@ CMD_DhcpDisable_Args	DhcpDisable
 
 
 # DhcpSet command
-CMD_DhcpSet				Ubah Pengaturan Fungsi Server DHCP Virtual dari Fungsi SecureNAT
+#CMD_DhcpSet				Ubah Pengaturan Fungsi Server DHCP Virtual dari Fungsi SecureNAT
+CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function. Press <Enter> to keep a current value; type '' to clear it. 
 CMD_DhcpSet_Help		Gunakan perintah ini untuk mengubah pengaturan Server DHCP Virtual pada Virtual Hub yang sedang dikelola. Pengaturan Server DHCP Virtual mencakup hal-hal berikut: rentang alamat distribusi, subnet mask, batas waktu sewa, dan nilai opsi yang diberikan kepada klien. \nPerintah ini tidak dapat dijalankan untuk Virtual Hub dari VPN Server yang beroperasi dalam mode kluster.
-CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+#CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"] [/OVPNGW:ovpngwip] 
 CMD_DhcpSet_START		Tentukan titik awal dari rentang alamat yang akan didistribusikan kepada klien. (Contoh: 192.168.30.10)
 CMD_DhcpSet_END			Tentukan titik akhir dari rentang alamat yang akan didistribusikan kepada klien. (Contoh: 192.168.30.200)
 CMD_DhcpSet_MASK		Tentukan subnet mask yang akan diberikan kepada klien. (Contoh: 255.255.255.0)
@@ -6182,7 +6189,9 @@ CMD_DhcpSet_DNS			Tentukan alamat IP dari DNS Server utama yang akan diberitahuk
 CMD_DhcpSet_DNS2		Tentukan alamat IP dari DNS Server sekunder yang akan diberitahukan kepada klien. Anda bisa menentukan alamat IP Virtual Host SecureNAT untuk ini jika Fungsi NAT Virtual SecureNAT telah diaktifkan dan sedang digunakan juga. Jika Anda menetapkan 0 atau none, maka klien tidak akan diberitahukan tentang alamat DNS Server.
 CMD_DhcpSet_DOMAIN		Tentukan nama domain yang akan diberitahukan kepada klien. Jika Anda menetapkan none, maka klien tidak akan diberitahukan tentang nama domain.
 CMD_DhcpSet_LOG			Tentukan apakah akan menyimpan operasi Server DHCP Virtual dalam log keamanan Virtual Hub. Tentukan "yes" untuk menyimpannya. Nilai ini terkait dengan pengaturan log simpanan Fungsi NAT Virtual.
-CMD_DhcpSet_PUSHROUTE	Tentukan tabel routing statis yang akan dipush.\nContoh: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nPisahkan entri-entri ganda (maksimal: 64 entri) dengan koma atau spasi. Setiap entri harus ditentukan dalam format "alamat jaringan IP/subnet mask/alamat gateway IP".\nServer DHCP Virtual ini dapat mempush static routes kelasless (RFC 3442) dengan pesan balasan DHCP kepada klien VPN.\nApakah klien VPN dapat mengenali static routes kelasless (RFC 3442) bergantung pada perangkat lunak klien VPN target. SoftEther VPN Client dan OpenVPN Client mendukung static routes kelasless. Pada protokol L2TP/IPsec dan MS-SSTP, kompatibilitas bergantung pada implementasi perangkat lunak klien. Anda dapat merealisasikan split tunneling jika Anda menghapus field gateway default pada opsi Server DHCP Virtual. Di sisi klien, L2TP/IPsec dan MS-SSTP klien perlu dikonfigurasi agar tidak menetapkan gateway default untuk penggunaan split tunneling.\nAnda juga dapat mempush static routes kelasless (RFC 3442) melalui server DHCP eksternal yang ada. Dalam hal ini, nonaktifkan fungsi Server DHCP Virtual pada SecureNAT, dan Anda tidak perlu menetapkan static routes pada perintah ini.\nLihat RFC 3442 untuk memahami static routes kelasless.
+#CMD_DhcpSet_PUSHROUTE	Tentukan tabel routing statis yang akan dipush.\nContoh: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nPisahkan entri-entri ganda (maksimal: 64 entri) dengan koma atau spasi. Setiap entri harus ditentukan dalam format "alamat jaringan IP/subnet mask/alamat gateway IP".\nServer DHCP Virtual ini dapat mempush static routes kelasless (RFC 3442) dengan pesan balasan DHCP kepada klien VPN.\nApakah klien VPN dapat mengenali static routes kelasless (RFC 3442) bergantung pada perangkat lunak klien VPN target. SoftEther VPN Client dan OpenVPN Client mendukung static routes kelasless. Pada protokol L2TP/IPsec dan MS-SSTP, kompatibilitas bergantung pada implementasi perangkat lunak klien. Anda dapat merealisasikan split tunneling jika Anda menghapus field gateway default pada opsi Server DHCP Virtual. Di sisi klien, L2TP/IPsec dan MS-SSTP klien perlu dikonfigurasi agar tidak menetapkan gateway default untuk penggunaan split tunneling.\nAnda juga dapat mempush static routes kelasless (RFC 3442) melalui server DHCP eksternal yang ada. Dalam hal ini, nonaktifkan fungsi Server DHCP Virtual pada SecureNAT, dan Anda tidak perlu menetapkan static routes pada perintah ini.\nLihat RFC 3442 untuk memahami static routes kelasless.
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n  OR   "192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway"  for OpenVPN clients\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format, OR you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_OVPNGW			Specify the IP address of 'vpn_gateway' parameter to be notified to the client. If you specify 0 or none, then the client will not be notified of the vpn_gateway value. If you use the 'vpn_gateway' keyword in the classless static routing table, you must specify this value also.
 CMD_DhcpSet_Prompt_START	Poin Awal untuk Rentang Alamat yang Didistribusikan: 
 CMD_DhcpSet_Prompt_END		Poin Akhir untuk Rentang Alamat yang Didistribusikan: 
 CMD_DhcpSet_Prompt_MASK		Subnet Mask: 
@@ -6191,6 +6200,11 @@ CMD_DhcpSet_Prompt_GW		Gateway Default ('none' untuk tidak menetapkan ini):
 CMD_DhcpSet_Prompt_DNS		DNS Server 1 ('none' untuk tidak menetapkan ini): 
 CMD_DhcpSet_Prompt_DNS2		DNS Server 2 ('none' untuk tidak menetapkan ini): 
 CMD_DhcpSet_Prompt_DOMAIN	Nama Domain: 
+CMD_DhcpSet_Prompt1_GW		Default Gateway: 
+CMD_DhcpSet_Prompt1_DNS		DNS Server 1: 
+CMD_DhcpSet_Prompt1_DNS2	DNS Server 2: 
+CMD_DhcpSet_Prompt_PUSHROUTE	Static routing table to push:
+CMD_DhcpSet_Prompt_OVPNGW	'vpn_gateway' parmeter for OpenVPN: 
 
 
 # DhcpTable command

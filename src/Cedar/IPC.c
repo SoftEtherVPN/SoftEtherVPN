@@ -1748,7 +1748,20 @@ void IPCSendIPv4(IPC *ipc, void *data, UINT size)
 		}
 		else
 		{
-			Copy(&ip_dst_local, &r->Gateway, sizeof(IP));
+			BYTE* pb = IPV4(r->Gateway.address);
+
+			if (pb[0] != 0)
+			{
+				Copy(&ip_dst_local, &r->Gateway, sizeof(IP));
+			}
+			else if (pb[1] == 'v' && pb[2] == 'p' && pb[3] == 'n')
+			{
+				UINTToIP(&ip_dst_local, ipc->ClasslessRoute.Ovpn_gateway);
+			}
+			else
+			{
+				Copy(&ip_dst_local, &ipc->DefaultGateway, sizeof(IP));
+			}
 		}
 	}
 

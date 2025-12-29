@@ -10173,6 +10173,8 @@ void SetVirtualHostOption(VH *v, VH_OPTION *vo)
 
 			if (ParseClasslessRouteTableStr(&rt, vo->DhcpPushRoutes))
 			{
+				if (vo->Ovpn_gateway == (UINT)(-1)) rt.Ovpn_gateway = v->PushRoute.Ovpn_gateway;
+				else rt.Ovpn_gateway = vo->Ovpn_gateway;
 				Copy(&v->PushRoute, &rt, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
 			}
 		}
