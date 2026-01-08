@@ -2699,9 +2699,6 @@ NATIVE_STACK *NnGetNextInterface(NATIVE_NAT *t)
 			Format(ret->Ipc->ClientHostname, sizeof(ret->Ipc->ClientHostname), NN_HOSTNAME_FORMAT, tmp);
 			StrLower(ret->Ipc->ClientHostname);
 
-			// To pass the validity check of the source IP address performed by IPCSendIPv4()
-			UINTToIP(&ret->Ipc->ClientIPAddress, 0);
-
 			Debug("IPCDhcpAllocateIP for %s\n", ret->DeviceName);
 			if (IPCDhcpAllocateIP(ret->Ipc, &opt, t->HaltTube2))
 			{
