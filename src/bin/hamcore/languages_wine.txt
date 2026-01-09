@@ -3,4 +3,4 @@
 
 # 番号 識別子 英語表記 ローカル表記 Windowsロケール番号 UNIXロケール文字一覧
 1 en English English 1033 en,us,c
-
+8 tr Turkish Türkçe 1055 tr
