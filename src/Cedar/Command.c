@@ -11789,6 +11789,9 @@ UINT PsRadiusServerSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"[server_name:port]", CmdPrompt, _UU("CMD_RadiusServerSet_Prompt_Host"), CmdEvalNotEmpty, NULL},
 		{"SECRET", CmdPromptChoosePassword, _UU("CMD_RadiusServerSet_Prompt_Secret"), NULL, NULL},
 		{"RETRY_INTERVAL", CmdPrompt, _UU("CMD_RadiusServerSet_Prompt_RetryInterval"), CmdEvalMinMax, &minmax},
+		
+		// Support for setting timeout through commandline not added
+		// {"RETRY_TIMEOUT", CmdPrompt, _UU("CMD_RadiusServerSet_Prompt_RetryTimeout"), CmdEvalMinMax, &minmax},
 	};
 
 	// If virtual HUB is not selected, it's an error
@@ -11813,6 +11816,7 @@ UINT PsRadiusServerSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		StrCpy(t.RadiusServerName, sizeof(t.RadiusServerName), host);
 		StrCpy(t.RadiusSecret, sizeof(t.RadiusSecret), GetParamStr(o, "SECRET"));
 		t.RadiusRetryInterval = GetParamInt(o, "RETRY_INTERVAL");
+		// t.RadiusRetryTimeout = GetParamInt(o, "RETRY_TIMEOUT");
 
 		Free(host);
 
@@ -11936,6 +11940,9 @@ UINT PsRadiusServerGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 			UniToStri(tmp, t.RadiusRetryInterval);
 			CtInsert(ct, _UU("CMD_RadiusServerGet_RetryInterval"), tmp);
+
+			UniToStri(tmp, t.RadiusRetryTimeout);
+			CtInsert(ct, _UU("CMD_RadiusServerGet_RetryTimeout"), tmp);
 		}
 
 		CtFree(ct, c);
