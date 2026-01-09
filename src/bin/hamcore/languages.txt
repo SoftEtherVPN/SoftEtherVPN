@@ -10,3 +10,4 @@
 5 ru Russian Русский 1049 ru
 6 pt_br Portuguese-Brazil Português-Brasil 1046 pt_br
 7 id Indonesian Bahasa 1057 id
+8 tr Turkish Türkçe 1055 tr
