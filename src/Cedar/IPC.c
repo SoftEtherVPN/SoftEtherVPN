@@ -567,6 +567,9 @@ IPC *NewIPCBySock(CEDAR *cedar, SOCK *s, void *mac_address)
 	ipc->Sock = s;
 	AddRef(s->ref);
 
+	// Initialize to pass the validity check on the source IP address performed by IPCSendIPv4()
+	ZeroIP4(&ipc->ClientIPAddress);
+
 	Copy(ipc->MacAddress, mac_address, 6);
 
 	ipc->Interrupt = NewInterruptManager();

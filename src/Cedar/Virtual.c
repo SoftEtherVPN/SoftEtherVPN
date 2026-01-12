@@ -2815,6 +2815,7 @@ void NativeNatThread(THREAD *thread, void *param)
 		if (a != NULL)
 		{
 			char macstr[64];
+			IP dhcp_ip;
 			// Acquisition success
 			Debug("NnGetNextInterface Ok: %s\n", a->DeviceName);
 
@@ -2842,9 +2843,10 @@ void NativeNatThread(THREAD *thread, void *param)
 
 			Debug("NnMainLoop Start.\n");
 			MacToStr(macstr, sizeof(macstr), a->Ipc->MacAddress);
+			UINTToIP(&dhcp_ip, a->CurrentDhcpOptionList.ServerAddress);
 			NLog(t->v, "LH_KERNEL_MODE_START", a->DeviceName,
 			     &a->Ipc->ClientIPAddress, &a->Ipc->SubnetMask, &a->Ipc->DefaultGateway, &a->Ipc->BroadcastAddress,
-			     macstr, &a->CurrentDhcpOptionList.ServerAddress, &a->DnsServerIP);
+				macstr, &dhcp_ip, &a->DnsServerIP);
 			NnMainLoop(t, a);
 			Debug("NnMainLoop End.\n");
 

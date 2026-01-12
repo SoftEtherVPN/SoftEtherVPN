@@ -200,7 +200,7 @@ ERR_133					The specified Dynamic DNS hostname is already used. Please change th
 ERR_134					The specified Dynamic DNS hostname has an invalid characters. Please change the hostname.
 ERR_135					The length of the specified Dynamic DNS hostname is too long. A hostname must be equal or shorter than 31 letters.
 ERR_136					The Dynamic DNS hostname is not specified.
-ERR_137					The length of the specified Dynamic DNS hostname is too long. A hostname must be equal of longer than 3 letters.
+ERR_137					The length of the specified Dynamic DNS hostname is too short. A hostname must be equal or longer than 3 letters.
 ERR_138					The password of the specified user in the Virtual Hub must be reset before using MS-CHAP v2 authentication. Please ask the administrator of the VPN Server to reset the password by the VPN Server Manager or vpncmd which internal version is 4.0 or greater. Or you can change the password with VPN Client by yourself.
 ERR_139					The connection to the Dynamic DNS server has been disconnected.
 ERR_140					Failed to initialize the ICMP (Ping) protocol. The process of the VPN Server might be running in a normal-user privileges. In such case, run the VPN Server as a system service. (in Linux / UNIX, run it in root privileges.)
@@ -7436,3 +7436,4 @@ SW_LINK_NAME_LANGUAGE_COMMENT				Change the display language setting of %s.
 
 SW_LINK_NAME_DEBUG							Debugging Information Collecting Tool
 SW_LINK_NAME_DEBUG_COMMENT					Collects debugging information of SoftEther VPN. Use this tool only if your support staff asks you to do so.
+
