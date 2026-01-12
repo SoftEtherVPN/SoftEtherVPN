@@ -8413,7 +8413,12 @@ UINT StSetSecureNATOption(ADMIN *a, VH_OPTION *t)
 	}
 
 	StrCpy(push_routes_str_old, sizeof(push_routes_str_old), h->SecureNATOption->DhcpPushRoutes);
+	UINT ovpn_gw_old = h->SecureNATOption->Ovpn_gateway;
 	Copy(h->SecureNATOption, t, sizeof(VH_OPTION));
+	if (t->Ovpn_gateway == (UINT)(-1))
+	{
+		h->SecureNATOption->Ovpn_gateway = ovpn_gw_old;
+	}
 	if (t->ApplyDhcpPushRoutes == false)
 	{
 		StrCpy(h->SecureNATOption->DhcpPushRoutes, sizeof(h->SecureNATOption->DhcpPushRoutes), push_routes_str_old);

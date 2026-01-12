@@ -7714,7 +7714,7 @@ void PsMain(PS *ps)
 			{"DhcpGet", PsDhcpGet},
 			{"DhcpEnable", PsDhcpEnable},
 			{"DhcpDisable", PsDhcpDisable},
-			{"DhcpSet", PsDhcpSet},
+			{"DhcpSet", PsDhcpSetEx},
 			{"DhcpTable", PsDhcpTable},
 			{"AdminOptionList", PsAdminOptionList},
 			{"AdminOptionSet", PsAdminOptionSet},
@@ -20326,6 +20326,17 @@ UINT PsDhcpGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			StrToUni(tmp, sizeof(tmp), t.DhcpPushRoutes);
 			CtInsert(ct, _UU("CMD_DhcpGet_Column_PUSHROUTE"), tmp);
+
+			// 'vpn_gateway' value for OpenVPN clients
+
+			UniStrCpy(tmp, sizeof(tmp), _UU("SEC_NONE"));
+			if (t.Ovpn_gateway != 0)
+			{
+				IP ip;
+				UINTToIP(&ip, t.Ovpn_gateway);
+				IPToUniStr(tmp, sizeof(tmp), &ip);
+			}
+			CtInsert(ct, _UU("CMD_DhcpGet_Column_OVPNGATEWAY"), tmp);
 		}
 
 		CtFree(ct, c);
@@ -25096,3 +25107,432 @@ LABEL_CLEANUP:
 
 #endif	// OS_WIN32
 
+bool CmdStrToIP(IP* ip, char* str)
+{
+	// Validate arguments
+	if (ip == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old ip value
+	{
+		return StrToIP(ip, "");
+	}
+	return StrToIP(ip, str);
+}
+
+bool CmdStrToIP32(UINT* ip32, char* str)
+{
+	IP ip;
+	bool ret;
+	if (ip32 == NULL)
+	{
+		return false;
+	}
+	UINTToIP(&ip, *ip32);
+	ret = CmdStrToIP(&ip, str);
+	*ip32 = IPToUINT(&ip);
+	return ret;
+}
+
+
+bool CmdStrToUINT(UINT* v, char* str)
+{
+	// Validate arguments
+	if (v == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old value
+	{
+		*v = 0;
+		return true;
+	}
+	*v = ToInt(str);
+	return true;
+}
+
+bool CmdStrToStr(char* out, UINT size, char* str)
+{
+	// Validate arguments
+	if (out == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old value
+	{
+		StrCpy(out, size, "");
+		return true;
+	}
+	StrCpy(out, size, str);
+	return true;
+}
+
+bool CmdStrToBool(bool* b, char* str)
+{
+	wchar_t wstr[MAX_SIZE];
+	// Validate arguments
+	if (b == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old value
+	{
+		*b = false;
+		return true;
+	}
+	StrToUni(wstr, sizeof(wstr), str);
+	if (UniSearchStrEx(wstr, _UU("L_YES"), 0, false) != INFINITE )
+	{
+		*b = true;
+		return true;
+	}
+	else if (UniSearchStrEx(wstr, _UU("L_NO"), 0, false) != INFINITE )
+	{
+		*b = false;
+		return true;
+	}
+	return false;
+}
+
+// Parse the command list with current values 
+LIST* ParseCommandListEx(CONSOLE* c, char* cmd_name, wchar_t* command, PARAM param[], UINT num_param)
+{
+	UINT i;
+	wchar_t	tmp[MAX_PROMPT_STRSIZE];
+	UINT lp;
+	LIST* ret;
+
+	// Validate arguments
+	if (c == NULL || command == NULL || (num_param >= 1 && param == NULL) || cmd_name == NULL)
+	{
+		return NULL;
+	}
+	if (num_param < 1) return NULL;
+
+	wchar_t* buf_prompt[num_param];
+	Zero(buf_prompt, sizeof(buf_prompt));
+
+	// Initialization
+	for (i = 0;i < num_param;i++)
+	{
+		StrToUni(tmp, sizeof(tmp), param[i].Tmp);
+		UniFormat(tmp, sizeof(tmp), L"%s [%s]: ", param[i].PromptProcParam, tmp);
+		lp = (UniStrLen(tmp) * sizeof(wchar_t) + 8);
+		buf_prompt[i] = ZeroMalloc(lp);
+		UniStrCpy(buf_prompt[i], lp, tmp);
+		param[i].PromptProcParam = buf_prompt[i];
+		param[i].Tmp = NULL;
+	}
+	ret = ParseCommandList(c, cmd_name, command, param, num_param);
+	for (i = 0;i < num_param;i++)
+	{
+		Free(buf_prompt[i]);
+	}
+	return ret;
+}
+
+UINT PsDhcpSetEx(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	VH_OPTION t;
+	char	tmp[MAX_PROMPT_STRSIZE];
+
+	// Parameter list that can be specified
+	CMD_EVAL_MIN_MAX mm =
+	{
+		"CMD_NatSet_Eval_UDP", NAT_UDP_MIN_TIMEOUT / 1000, NAT_UDP_MAX_TIMEOUT / 1000,
+	};
+
+	char curr_START[MAX_SIZE];
+	char curr_END[MAX_SIZE];
+	char curr_MASK[MAX_SIZE];
+	char curr_EXPIRE[MAX_SIZE];
+	char curr_GW[MAX_SIZE];
+	char curr_DNS[MAX_SIZE];
+	char curr_DNS2[MAX_SIZE];
+	char curr_DOMAIN[MAX_SIZE];
+	char curr_LOG[MAX_SIZE];
+	char curr_PUSHROUTE[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];
+	char curr_OVPNGW[MAX_SIZE];
+	void* PUSHROUTE[2];
+	void* OVPNGW[2];
+
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"START", CmdPrompt, _UU("CMD_DhcpSet_Prompt_START"), CmdEvalIpEx, NULL, curr_START},
+		{"END", CmdPrompt, _UU("CMD_DhcpSet_Prompt_END"), CmdEvalIpEx, NULL, curr_END},
+		{"MASK", CmdPrompt, _UU("CMD_DhcpSet_Prompt_MASK"), CmdEvalIpEx, NULL, curr_MASK},
+		{"EXPIRE", CmdPrompt, _UU("CMD_DhcpSet_Prompt_EXPIRE"), CmdEvalMinMaxEx, &mm, curr_EXPIRE},
+		{"GW", CmdPrompt, _UU("CMD_DhcpSet_Prompt1_GW"), CmdEvalIpEx, NULL, curr_GW},
+		{"DNS", CmdPrompt, _UU("CMD_DhcpSet_Prompt1_DNS"), CmdEvalIpEx, NULL, curr_DNS},
+		{"DNS2", CmdPrompt, _UU("CMD_DhcpSet_Prompt1_DNS2"), CmdEvalIpEx, NULL, curr_DNS2},
+		{"DOMAIN", CmdPrompt, _UU("CMD_DhcpSet_Prompt_DOMAIN"), NULL, NULL, curr_DOMAIN},
+		{"LOG", CmdPrompt, _UU("CMD_NatSet_Prompt_LOG"), CmdEvalYesEx, NULL, curr_LOG},
+		{"PUSHROUTE", CmdPrompt, _UU("CMD_DhcpSet_Prompt_PUSHROUTE"), CmdEvalRouteTableEx, &PUSHROUTE, curr_PUSHROUTE},
+		{ "OVPNGW", CmdPrompt, _UU("CMD_DhcpSet_Prompt_OVPNGW"), CmdEvalOvpnGwEx, &OVPNGW, curr_OVPNGW },
+	};
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetSecureNATOption(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	IPToStr(curr_START, sizeof(curr_START), &t.DhcpLeaseIPStart);
+	IPToStr(curr_END, sizeof(curr_END), &t.DhcpLeaseIPEnd);
+	IPToStr(curr_MASK, sizeof(curr_MASK), &t.DhcpSubnetMask);
+	Format(curr_EXPIRE, sizeof(curr_EXPIRE), "%d", t.DhcpExpireTimeSpan);
+	IPToStr(curr_GW, sizeof(curr_GW), &t.DhcpGatewayAddress);
+	IPToStr(curr_DNS, sizeof(curr_DNS), &t.DhcpDnsServerAddress);
+	IPToStr(curr_DNS2, sizeof(curr_DNS2), &t.DhcpDnsServerAddress2);
+	StrCpy(curr_DOMAIN, sizeof(curr_DOMAIN), t.DhcpDomainName);
+	Format(curr_LOG, sizeof(curr_LOG), "%s", (t.SaveLog ? _SS("L_YES") : _SS("L_NO")));
+	StrCpy(curr_PUSHROUTE, sizeof(curr_PUSHROUTE), t.DhcpPushRoutes); 
+	IPToStr32(curr_OVPNGW, sizeof(curr_OVPNGW), t.Ovpn_gateway);
+	StrCpy(tmp, sizeof(tmp), curr_PUSHROUTE);
+	
+	UINT ns = sizeof(tmp);
+	PUSHROUTE[0] = tmp;
+	PUSHROUTE[1] = &ns;
+	OVPNGW[0] = tmp;
+	OVPNGW[1] = curr_OVPNGW;
+
+	o = ParseCommandListEx(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	CmdStrToIP(&t.DhcpLeaseIPStart, GetParamStr(o, "START"));
+	CmdStrToIP(&t.DhcpLeaseIPEnd, GetParamStr(o, "END"));
+	CmdStrToIP(&t.DhcpSubnetMask, GetParamStr(o, "MASK"));
+	CmdStrToUINT(&t.DhcpExpireTimeSpan, GetParamStr(o, "EXPIRE"));
+	CmdStrToIP(&t.DhcpGatewayAddress, GetParamStr(o, "GW"));
+	CmdStrToIP(&t.DhcpDnsServerAddress, GetParamStr(o, "DNS"));
+	CmdStrToIP(&t.DhcpDnsServerAddress2, GetParamStr(o, "DNS2"));
+	CmdStrToStr(t.DhcpDomainName, sizeof(t.DhcpDomainName), GetParamStr(o, "DOMAIN"));
+	CmdStrToBool(&t.SaveLog, GetParamStr(o, "LOG"));
+	CmdStrToStr(t.DhcpPushRoutes, sizeof(t.DhcpPushRoutes), GetParamStr(o, "PUSHROUTE"));
+	CmdStrToIP32(&t.Ovpn_gateway, GetParamStr(o, "OVPNGW"));
+
+	t.ApplyDhcpPushRoutes = true;
+
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+	ret = ScSetSecureNATOption(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	if (IsEmptyStr(GetParamStr(o, "PUSHROUTE")) == false)
+	{
+		if (GetCapsBool(ps->CapsList, "b_suppport_push_route") == false &&
+			GetCapsBool(ps->CapsList, "b_suppport_push_route_config"))
+		{
+			CmdPrintError(c, ERR_NOT_SUPPORTED_FUNCTION_ON_OPENSOURCE);
+		}
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Evaluate the IP address,  '' - clear current value,   Empty String  -  keep current value
+bool CmdEvalIpEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	// Validate arguments
+	if (c == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	UniTrim(str);
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+	else if (UniStrCmp(str, L"''") == 0)
+	{
+		return true;
+	}
+
+	if (UniStrToIP32(str) == 0 && UniStrCmpi(str, L"0.0.0.0") != 0)
+	{
+		wchar_t* msg = (param == NULL) ? _UU("CMD_IP_EVAL_FAILED") : (wchar_t*)param;
+		c->Write(c, msg);
+		return false;
+	}
+
+	return true;
+}
+
+
+// Evaluate the IP route table ,  '' - clear current value,   Empty String  -  keep current value
+// param[0] = (char*)curr_PUSHROUTE;
+// param[1] = (UINT*)&(size of buffer for curr_PUSHROUTE )
+bool CmdEvalRouteTableEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	void** pa = (void**)(param);
+//	wchar_t* nv;
+	char* pa0;
+	UINT* ns;
+	char buf[MAX_PROMPT_STRSIZE];
+
+	// Validate arguments
+	if (c == NULL || str == NULL || pa == NULL || pa[0] == NULL || pa[1] == NULL)
+	{
+		return false;
+	}
+
+	UniTrim(str);
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+	else if (UniStrCmp(str, L"''") == 0)
+	{
+		*pa0 = 0;
+		return true;
+	}
+	UniToStr(buf, sizeof(buf), str);
+	if (CheckClasslessRouteTableStr(buf) == false)
+	{
+		c->Write(c, _UU("NM_PUSH_ROUTE_WARNING"));
+		return false;
+	}
+	pa0 = pa[0];
+	ns = (UINT*)pa[1];
+	StrCpy(pa0, *ns, buf);
+	return true;
+}
+
+// Evaluate the IP address of OpenVPN gateway ,  '' - clear current value,   Empty String  -  keep current value
+// param[0] = (char*)new_PUSHROUTE;
+// param[1] = (char*)curr_OVPNGW;
+
+bool CmdEvalOvpnGwEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	void **pa = (void**)(param);
+	char* pa0;
+	wchar_t wtmp[MAX_SIZE];
+	wchar_t* tmp = wtmp;
+
+	if (c == NULL || str == NULL || pa == NULL || pa[0] == NULL || pa[1] == NULL)
+	{
+		return false;
+	}
+	if (!CmdEvalIpEx(c, str, NULL))
+	{
+		return false;
+	}
+	//  str =""   or str = "''"  or str = "a.b.c.d"
+
+	if (IsEmptyUniStr(str))
+	{
+		StrToUni( wtmp, sizeof(wtmp),(char*)pa[1]);
+	}
+	else if (UniStrCmp(str, L"''") != 0)
+	{
+		tmp = str;
+	}
+	else
+	{
+		UniStrCpy(wtmp, sizeof(wtmp), L"");
+	}
+
+	pa0 = (char*)(pa[0]);
+	UINT ogw = UniStrToIP32(tmp);
+	StrToUni(wtmp, sizeof(wtmp), pa0);
+	if (ogw == 0 && UniSearchStrEx(wtmp, L"/vpn_gateway", 0, false) != INFINITE)
+	{
+		UniStrCpy(wtmp, sizeof(wtmp), _UU("NM_PUSH_ROUTE_VPNGW_WARN"));
+		c->Write(c, wtmp);
+		return false;
+	}
+	return true;
+}
+
+// Evaluate the bool value ,  '' - clear current value,   Empty String  -  keep current value
+bool CmdEvalYesEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	// Validate arguments
+	char buf[MAX_SIZE];
+	if (c == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	UniTrim(str);
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+
+	if (UniSearchStrEx(str, _UU("L_YES"), 0, false) != 0 && UniSearchStrEx(str, _UU("L_NO"), 0, false) != 0)
+	{
+		wchar_t* msg = (param == NULL) ? _UU("CMD_BOOL_EVAL_FAILED") : (wchar_t*)param;
+		c->Write(c, msg);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool CmdEvalMinMaxEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	CMD_EVAL_MIN_MAX* e;
+	wchar_t* tag;
+	UINT v;
+	// Validate arguments
+	if (param == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+	return CmdEvalMinMax(c, str, param);
+}

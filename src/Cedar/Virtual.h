@@ -339,6 +339,7 @@ struct VH_OPTION
 	bool SaveLog;					// Save a log
 	bool ApplyDhcpPushRoutes;		// Apply flag for DhcpPushRoutes
 	char DhcpPushRoutes[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];	// DHCP pushing routes
+	UINT Ovpn_gateway;				// 'vpn_gateway' for OpenVPN Connect
 };
 
 // DHCP lease entry

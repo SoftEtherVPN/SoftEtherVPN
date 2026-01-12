@@ -144,6 +144,7 @@ typedef struct SM_HUB
 	RPC *Rpc;					// RPC
 	char *HubName;				// HUB name
 	char CurrentPushRouteStr[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];	// Current editing push routing table string
+	UINT CurrentOvpn_gateway;		// Current value of 'vpn_gateway'
 } SM_HUB;
 
 // Show the User list
