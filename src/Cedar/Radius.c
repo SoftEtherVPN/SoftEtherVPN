@@ -7,6 +7,7 @@
 
 #include "Radius.h"
 
+#include "Protocol.h"
 #include "Connection.h"
 #include "IPC.h"
 #include "Server.h"
@@ -1767,7 +1768,7 @@ LABEL_ERROR:
 ////////// Classical implementation
 
 // Attempts Radius authentication (with specifying retry interval and multiple server)
-bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UCHAR *mschap_v2_server_response_20,
+bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT secret_size, wchar_t *username, char *password, UINT interval, UINT timeout, UCHAR *mschap_v2_server_response_20,
 				 RADIUS_LOGIN_OPTION *opt, char *hubname)
 {
 	UCHAR random[MD5_SIZE];
@@ -2072,14 +2073,22 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 
 			// Transmission process start
 			start = Tick64();
+
+			// Limit timeout to be larger than hardcoded timeout
+			// Limit interval to be larger than the hardcoded interval and less than timeout
+			if (timeout < RADIUS_RETRY_TIMEOUT) {
+				timeout = RADIUS_RETRY_TIMEOUT;
+			}
+			
 			if(interval < RADIUS_RETRY_INTERVAL)
 			{
 				interval = RADIUS_RETRY_INTERVAL;
 			}
-			else if(interval > RADIUS_RETRY_TIMEOUT)
+			else if(interval > timeout)
 			{
-				interval = RADIUS_RETRY_TIMEOUT;
+				interval = timeout;
 			}
+
 			next_send_time = start + (UINT64)interval;
 
 			while (true)
@@ -2099,6 +2108,8 @@ SEND_RETRY:
 				next_send_time = Tick64() + (UINT64)interval;
 
 RECV_RETRY:
+				ServerUploadNoop(c);				
+				
 				now = Tick64();
 				if (next_send_time <= now)
 				{
@@ -2109,7 +2120,7 @@ RECV_RETRY:
 					goto SEND_RETRY;
 				}
 
-				if ((start + RADIUS_RETRY_TIMEOUT) < now)
+				if ((start + timeout) < now)
 				{
 					// Time-out
 					break;

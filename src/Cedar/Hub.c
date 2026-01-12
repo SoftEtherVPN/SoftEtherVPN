@@ -99,6 +99,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 	char radius_servers[MAX_PATH] = {0};
 	UINT radius_port = 0;
 	UINT radius_retry_interval = 0;
+	UINT radius_retry_timeout = 0;
 	char radius_secret[MAX_PATH] = {0};
 	char radius_suffix_filter[MAX_PATH] = {0};
 	if (cedar == NULL || hubname == NULL || client_ip_str == NULL || username == NULL)
@@ -116,7 +117,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 	if (hub != NULL)
 	{
 		if (GetRadiusServerEx2(hub, radius_servers, sizeof(radius_servers), &radius_port, radius_secret,
-			sizeof(radius_secret), &radius_retry_interval, radius_suffix_filter, sizeof(radius_suffix_filter)))
+			sizeof(radius_secret), &radius_retry_interval, &radius_retry_timeout, radius_suffix_filter, sizeof(radius_suffix_filter)))
 		{
 			bool use_peap = hub->RadiusUsePeapInsteadOfEap;
 
@@ -6415,17 +6416,18 @@ void ReleaseHub(HUB *h)
 bool GetRadiusServer(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size)
 {
 	UINT interval;
-	return GetRadiusServerEx(hub, name, size, port, secret, secret_size, &interval);
+	UINT timeout;
+	return GetRadiusServerEx(hub, name, size, port, secret, secret_size, &interval, &timeout);
 }
-bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval)
+bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout)
 {
-	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, NULL, 0);
+	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, timeout, NULL, 0);
 }
-bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, char *suffix_filter, UINT suffix_filter_size)
+bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout, char *suffix_filter, UINT suffix_filter_size)
 {
 	bool ret = false;
 	// Validate arguments
-	if (hub == NULL || name == NULL || port == NULL || secret == NULL || interval == NULL)
+	if (hub == NULL || name == NULL || port == NULL || secret == NULL || interval == NULL || timeout == NULL)
 	{
 		return false;
 	}
@@ -6439,6 +6441,7 @@ bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secre
 			StrCpy(name, size, hub->RadiusServerName);
 			*port = hub->RadiusServerPort;
 			*interval = hub->RadiusRetryInterval;
+			*timeout = hub->RadiusRetryTimeout;
 
 			tmp_size = hub->RadiusSecret->Size + 1;
 			tmp = ZeroMalloc(tmp_size);
@@ -6462,9 +6465,9 @@ bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secre
 // Set the Radius server information
 void SetRadiusServer(HUB *hub, char *name, UINT port, char *secret)
 {
-	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL);
+	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL, RADIUS_RETRY_TIMEOUT);
 }
-void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval)
+void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval, UINT timeout)
 {
 	// Validate arguments
 	if (hub == NULL)
@@ -6484,19 +6487,28 @@ void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT inter
 			hub->RadiusServerName = NULL;
 			hub->RadiusServerPort = 0;
 			hub->RadiusRetryInterval = RADIUS_RETRY_INTERVAL;
+			hub->RadiusRetryTimeout = RADIUS_RETRY_TIMEOUT;
+
 			FreeBuf(hub->RadiusSecret);
 		}
 		else
 		{
 			hub->RadiusServerName = CopyStr(name);
 			hub->RadiusServerPort = port;
+
+			if (timeout == 0) {
+				timeout = RADIUS_RETRY_TIMEOUT;
+			}
+			hub->RadiusRetryTimeout = timeout;
+
 			if (interval == 0)
 			{
-				hub->RadiusRetryInterval = RADIUS_RETRY_INTERVAL;
+				hub->RadiusRetryInterval = RADIUS_RETRY_INTERVAL; ///What happens here is that RADIUS_RETRY_TIMEOUT is not configurable, and RADIUS_RETRY_INTERVAL is set to the timeout if it's larger.
 			}
-			else if (interval > RADIUS_RETRY_TIMEOUT)
+			
+			if (interval > timeout)
 			{
-				hub->RadiusRetryInterval = RADIUS_RETRY_TIMEOUT;
+				hub->RadiusRetryInterval = timeout;
 			}
 			else
 			{
