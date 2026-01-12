@@ -493,14 +493,14 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	{
 		UINTToIP(&ipc->DefaultGateway, hub->Option->DefaultGateway);
 		UINTToIP(&ipc->SubnetMask, hub->Option->DefaultSubnet);
-		ipc->DhcpDiscoverTimeoutMs = hub->Option->DhcpDiscoverTimeoutMs;
+		ipc->DhcpDiscoverMaxTries = hub->Option->DhcpDiscoverMaxTries;
 		GetBroadcastAddress4(&ipc->BroadcastAddress, &ipc->DefaultGateway, &ipc->SubnetMask);
 	}
 	else
 	{
 		ZeroIP4(&ipc->DefaultGateway);
 		ZeroIP4(&ipc->SubnetMask);
-		ipc->DhcpDiscoverTimeoutMs = DEFAULT_DHCP_DISCOVER_TIMEOUT;
+		ipc->DhcpDiscoverMaxTries = 0;
 		ZeroIP4(&ipc->BroadcastAddress);
 	}
 
@@ -798,8 +798,7 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	IPCDhcpSetConditionalUserClass(ipc, &req);
 
-	UINT discoverTimeout = ipc->DhcpDiscoverTimeoutMs > 0 ? ipc->DhcpDiscoverTimeoutMs : DEFAULT_DHCP_DISCOVER_TIMEOUT;
-	d = IPCSendDhcpRequest(ipc, NULL, tran_id, &req, DHCP_OFFER, discoverTimeout, discon_poll_tube);
+	d = IPCSendDhcpRequestEx(ipc, NULL, tran_id, &req, DHCP_OFFER, IPC_DHCP_TIMEOUT, discon_poll_tube, ipc->DhcpDiscoverMaxTries);
 	if (d == NULL)
 	{
 		return false;
@@ -890,19 +889,35 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 // Send out a DHCP request, and wait for a corresponding response
 DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt, UINT expecting_code, UINT timeout, TUBE *discon_poll_tube)
 {
+	return IPCSendDhcpRequestEx(ipc, dest_ip, tran_id, opt, expecting_code, timeout, discon_poll_tube, 0);
+}
+
+// Send out a DHCP request, and wait for a corresponding response
+DHCPV4_DATA *IPCSendDhcpRequestEx(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt, UINT expecting_code, UINT timeout, TUBE *discon_poll_tube, UINT max_tries)
+{
 	UINT resend_interval;
 	UINT64 giveup_time;
 	UINT64 next_send_time = 0;
 	TUBE *tubes[3];
 	UINT num_tubes = 0;
+	UINT num_tries;
 	// Validate arguments
 	if (ipc == NULL || opt == NULL || (expecting_code != 0 && timeout == 0))
 	{
 		return NULL;
 	}
 
+	// The maximum number of attempts option extends the number of attempts by specifying a non-zero value
+	if (max_tries != 0)			// Use the specified value
+	{
+		num_tries = max_tries;	// The maximum number of attempts includes the initial transmission and any retransmissions
+	}
+	else {						// Use default
+		num_tries = 0;
+	}
+
 	// Retransmission interval
-	resend_interval = MIN(IPC_DHCP_MAX_RESEND_INTERVAL, MAX(1, (timeout / 3) - 100));
+	resend_interval = MAX(1, (timeout / 3) - 100);
 
 	// Time-out time
 	giveup_time = Tick64() + (UINT64)timeout;
@@ -930,6 +945,8 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 			ipc->DHCPv4Awaiter.IsAwaiting = false;
 			FreeDHCPv4Data(ipc->DHCPv4Awaiter.DhcpData);
 			ipc->DHCPv4Awaiter.DhcpData = NULL;
+			//Debug("IPCSendDhcpRequestEx: TIMEOUT/extend=%s num_tries=%ld resend_int=%5u giveup_time=%lld now=%I64u next=%I64u(%5lld)\n"
+			//	, max_tries != 0 ? "ON" : "OFF", num_tries, resend_interval, giveup_time - now, now, next_send_time, next_send_time - now);
 			return NULL;
 		}
 
@@ -960,6 +977,23 @@ DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION
 			next_send_time = now + (UINT64)resend_interval;
 
 			AddInterrupt(ipc->Interrupt, next_send_time);
+			
+			if (max_tries != 0)
+			{
+				// Time-out time
+				giveup_time = now + (resend_interval - 100) * (num_tries);
+
+				//Debug("IPCSendDhcpRequestEx: SENT TO/extend=%s num_tries=%ld resend_int=%5u giveup_time=%lld now=%I64u next=%I64u(%5lld)\n"
+				//	, max_tries != 0 ? "ON" : "OFF", num_tries, resend_interval, giveup_time - now, now, next_send_time, next_send_time - now);
+
+				// Retransmission interval
+#if 1
+				resend_interval *= 2;	// Exponential backoff for retransmission
+#else
+				;						// Fixed backoff for retransmission
+#endif
+				num_tries--;
+			}
 		}
 
 		// Happy processing
