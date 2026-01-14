@@ -4645,13 +4645,15 @@ FONT 9, "MS Shell Dlg", 400, 0, 0x80
 BEGIN
     ICON            ICO_PROTOCOL,IDC_STATIC,7,5,18,18
     LTEXT           "@S1",S1,35,9,325,24,WS_TABSTOP
-    LTEXT           "@S2",S2,35,33,325,30
-    LTEXT           "@S3",S3,35,64,325,30
-    LTEXT           "@S4",S4,35,95,325,30
-    GROUPBOX        "@S5",S5,23,124,337,96
-    EDITTEXT        E_TEXT,35,173,315,36,ES_MULTILINE | WS_VSCROLL
-    LTEXT           "@S6",IDC_STATIC,35,136,315,36
-    DEFPUSHBUTTON   "@IDOK",IDOK,222,228,64,17
+        LTEXT           "@S2", S2, 35, 23, 325, 30
+        LTEXT           "@S3", S3, 35, 54, 325, 30
+        LTEXT           "@S4", S4, 35, 85, 325, 25
+        GROUPBOX        "@S5", S5, 23, 110, 337, 115
+        LTEXT           "@S6", IDC_STATIC, 35, 120, 315, 45
+        EDITTEXT        E_TEXT, 35, 166, 315, 36, ES_MULTILINE | WS_VSCROLL
+        LTEXT           "@S_VPN_GW", IDC_STATIC, 35, 208, 164, 12
+        CONTROL         "", E_IP, "SysIPAddress32", WS_TABSTOP, 222, 206, 80, 12
+        DEFPUSHBUTTON   "@IDOK",IDOK,222,228,64,17
     PUSHBUTTON      "@IDCANCEL",IDCANCEL,296,228,64,17
     LTEXT           "@S7",IDC_STATIC,35,233,185,12
 END

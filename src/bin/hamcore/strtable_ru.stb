@@ -1722,6 +1722,7 @@ DHCP_IP_ADDRESS			Выделенный IP
 DHCP_HOSTNAME			Имя хоста клиента
 NM_PASSWORD_MSG			Пароль администратора установлен.
 NM_PUSH_ROUTE_WARNING	В указанном тексте статической таблицы маршрутизации может быть синтаксическая ошибка.
+NM_PUSH_ROUTE_VPNGW_WARN	If you are using 'vpn_gateway' keyword as the IP address of the gateway in the static routing table, you must set its value also.
 
 
 # Concerning version information
@@ -4236,8 +4237,10 @@ S2						Сможет ли VPN клиент распознавать бескла
 S3						Вы можете реализовать разделение маршрутов, если очистите поле "шлюза по умолчанию" в настройках виртуального DHCP-сервера. L2TP/IPsec и MS-SSTP на стороне клиента должны быть настроены так, чтобы они не устанавливали шлюз по умолчанию.
 S4						Вы также можете передать бесклассовые статические маршруты (RFC 3442) с помощью существующего внешнего DHCP-сервера. В этом случае отключите виртуальный DHCP-сервер в SecureNAT и не настраивайте бесклассовые маршруты на этом экране.
 S5						Редактирование статической таблицы маршрутизации
-S6						Пример: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nРазделяйте несколько записей (максимум: 64) запятыми или пробелами.\r\nКаждая запись должна быть указана в формате "IP-адрес сети/маска подсети/IP-адрес шлюза".
+#S6						Пример: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\nРазделяйте несколько записей (максимум: 64) запятыми или пробелами.\r\nКаждая запись должна быть указана в формате "IP-адрес сети/маска подсети/IP-адрес шлюза".
+S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n    OR     192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway      for OpenVPN Connect\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format,\r\n   OR  you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients.
 S7						См. RFC 3442, чтобы понять бесклассовые маршруты.
+S_VPN_GW				IP address of "vpn_gateway" for OpenVPN Connect
 IDOK					&OK
 IDCANCEL				Отмена
 
@@ -4479,6 +4482,7 @@ CMD_KEYPAIR_FAILED		The X.509 certificate and private key combination has been i
 CMD_CERT_NOT_EXISTS		The certificate is not registered.
 CMD_NO_SETTINGS			-
 CMD_DISCONNECTED_MSG	\n--- Error ---\n\nThe communication session with the host you were managing has been disconnected. From now on, if you run any commands an error will occur. \n\nTo reconnect to the host you were managing, first leave the prompt by inputting "EXIT" and then reconnect. \n\n
+CMD_BOOL_EVAL_FAILED	The boolean value should be: YES  or NO
 
 
 # VPNCMD コマンド
@@ -6155,6 +6159,7 @@ CMD_DhcpGet_Column_DNS	DNS Server Address 1
 CMD_DhcpGet_Column_DNS2	DNS Server Address 2
 CMD_DhcpGet_Column_DOMAIN	Domain Name
 CMD_DhcpGet_Column_PUSHROUTE	Static Routing Table to Push
+CMD_DhcpGet_Column_OVPNGATEWAY	'vpn_gateway' value for OVPN
 
 
 # DhcpEnable command
@@ -6170,9 +6175,11 @@ CMD_DhcpDisable_Args	DhcpDisable
 
 
 # DhcpSet command
-CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function
+#CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function
+CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function. Press <Enter> to keep a current value; type '' to clear it. 
 CMD_DhcpSet_Help		Use this to change the Virtual DHCP Server setting of the currently managed Virtual Hub. The Virtual DHCP Server settings include the following items: distribution address band, subnet mask, lease limit, and option values assigned to clients. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
-CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+#CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"] [/OVPNGW:ovpngwip] 
 CMD_DhcpSet_START		Specify the start point of the address band to be distributed to the client. (Example: 192.168.30.10)
 CMD_DhcpSet_END			Specify the end point of the address band to be distributed to the client. (Example: 192.168.30.200)
 CMD_DhcpSet_MASK		Specify the subnet mask to be specified for the client. (Example: 255.255.255.0)
@@ -6182,7 +6189,9 @@ CMD_DhcpSet_DNS			Specify the IP address of the primary DNS Server to be notifie
 CMD_DhcpSet_DNS2		Specify the IP address of the secondary DNS Server to be notified to the client. You can specify a SecureNAT Virtual Host IP address for this when the SecureNAT Function's Virtual NAT Function has been enabled and is being used also. If you specify 0 or none, then the client will not be notified of the DNS Server address.
 CMD_DhcpSet_DOMAIN		Specify the domain name to be notified to the client. If you specify none, then the client will not be notified of the domain name.
 CMD_DhcpSet_LOG			Specify whether or not to save the Virtual DHCP Server operation in the Virtual Hub security log. Specify "yes" to save it. This value is interlinked with the Virtual NAT Function log save setting.
-CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format.\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+#CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format.\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n  OR   "192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway"  for OpenVPN clients\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format, OR you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_OVPNGW			Specify the IP address of 'vpn_gateway' parameter to be notified to the client. If you specify 0 or none, then the client will not be notified of the vpn_gateway value. If you use the 'vpn_gateway' keyword in the classless static routing table, you must specify this value also.
 CMD_DhcpSet_Prompt_START	Start Point for Distributed Address Band: 
 CMD_DhcpSet_Prompt_END		End Point for Distributed Address Band: 
 CMD_DhcpSet_Prompt_MASK		Subnet Mask: 
@@ -6191,6 +6200,11 @@ CMD_DhcpSet_Prompt_GW		Default Gateway ('none' to not set this):
 CMD_DhcpSet_Prompt_DNS		DNS Server 1 ('none' to not set this): 
 CMD_DhcpSet_Prompt_DNS2		DNS Server 2 ('none' to not set this): 
 CMD_DhcpSet_Prompt_DOMAIN	Domain Name: 
+CMD_DhcpSet_Prompt1_GW		Default Gateway: 
+CMD_DhcpSet_Prompt1_DNS		DNS Server 1: 
+CMD_DhcpSet_Prompt1_DNS2	DNS Server 2: 
+CMD_DhcpSet_Prompt_PUSHROUTE	Static routing table to push:
+CMD_DhcpSet_Prompt_OVPNGW	'vpn_gateway' parmeter for OpenVPN: 
 
 
 # DhcpTable command

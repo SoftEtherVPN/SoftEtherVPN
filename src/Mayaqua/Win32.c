@@ -25,6 +25,9 @@
 #include <timeapi.h>
 #include <winioctl.h>
 
+#include "dbghelp.h"
+#include "tracking.h"
+
 static HANDLE heap_handle = NULL;
 static HANDLE hstdout = INVALID_HANDLE_VALUE;
 static HANDLE hstdin = INVALID_HANDLE_VALUE;
@@ -3420,6 +3423,24 @@ void Win32PrintToFileW(wchar_t *str)
 	Free(utf);
 }
 
+bool MyAllocConsole()
+{
+	BOOL BC = AllocConsole();
+	if (BC == FALSE)
+	{
+		DWORD er = GetLastError();
+		return false;
+	}
+	if (hstdout == INVALID_HANDLE_VALUE || hstdout == NULL)
+	{
+		hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	}
+	if (hstdin == INVALID_HANDLE_VALUE || hstdin == NULL)
+	{
+		hstdin = GetStdHandle(STD_INPUT_HANDLE);
+	}
+	return true;
+}
 
 #endif	// WIN32
 
