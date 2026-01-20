@@ -2337,7 +2337,7 @@ void SiSetDefaultHubOption(HUB_OPTION *o)
 	o->AccessListIncludeFileCacheLifetime = ACCESS_LIST_INCLUDE_FILE_CACHE_LIFETIME;
 	o->RemoveDefGwOnDhcpForLocalhost = true;
 	o->FloodingSendQueueBufferQuota = DEFAULT_FLOODING_QUEUE_LENGTH;
-	o->DhcpDiscoverTimeoutMs = DEFAULT_DHCP_DISCOVER_TIMEOUT;
+	o->DhcpDiscoverMaxTries = 0;
 }
 
 // Create a default virtual HUB
@@ -3943,11 +3943,7 @@ void SiLoadHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	o->UseHubNameAsDhcpUserClassOption = CfgGetBool(f, "UseHubNameAsDhcpUserClassOption");
 	o->UseHubNameAsRadiusNasId = CfgGetBool(f, "UseHubNameAsRadiusNasId");
 	o->AllowEapMatchUserByCert = CfgGetBool(f, "AllowEapMatchUserByCert");
-	o->DhcpDiscoverTimeoutMs = CfgGetInt(f, "DhcpDiscoverTimeoutMs");
-	if (o->DhcpDiscoverTimeoutMs == 0)
-	{
-		o->DhcpDiscoverTimeoutMs = DEFAULT_DHCP_DISCOVER_TIMEOUT;
-	}
+	o->DhcpDiscoverMaxTries = CfgGetInt(f, "DhcpDiscoverMaxTries");
 
 	// Enabled by default
 	if (CfgIsItem(f, "ManageOnlyPrivateIP"))
@@ -4054,7 +4050,7 @@ void SiWriteHubOptionCfg(FOLDER *f, HUB_OPTION *o)
 	CfgAddBool(f, "UseHubNameAsDhcpUserClassOption", o->UseHubNameAsDhcpUserClassOption);
 	CfgAddBool(f, "UseHubNameAsRadiusNasId", o->UseHubNameAsRadiusNasId);
 	CfgAddBool(f, "AllowEapMatchUserByCert", o->AllowEapMatchUserByCert);
-	CfgAddInt(f, "DhcpDiscoverTimeoutMs", o->DhcpDiscoverTimeoutMs);
+	CfgAddInt(f, "DhcpDiscoverMaxTries", o->DhcpDiscoverMaxTries);
 }
 
 // Write the user
@@ -7540,11 +7536,7 @@ void SiCalledUpdateHub(SERVER *s, PACK *p)
 	o.UseHubNameAsDhcpUserClassOption = PackGetBool(p, "UseHubNameAsDhcpUserClassOption");
 	o.UseHubNameAsRadiusNasId = PackGetBool(p, "UseHubNameAsRadiusNasId");
 	o.AllowEapMatchUserByCert = PackGetBool(p, "AllowEapMatchUserByCert");
-	o.DhcpDiscoverTimeoutMs = PackGetInt(p, "DhcpDiscoverTimeoutMs");
-	if (o.DhcpDiscoverTimeoutMs == 0)
-	{
-		o.DhcpDiscoverTimeoutMs = DEFAULT_DHCP_DISCOVER_TIMEOUT;
-	}
+	o.DhcpDiscoverMaxTries = PackGetInt(p, "DhcpDiscoverMaxTries");
 
 	save_packet_log = PackGetInt(p, "SavePacketLog");
 	packet_log_switch_type = PackGetInt(p, "PacketLogSwitchType");
@@ -9380,7 +9372,7 @@ void SiPackAddCreateHub(PACK *p, HUB *h)
 	PackAddBool(p, "UseHubNameAsDhcpUserClassOption", h->Option->UseHubNameAsDhcpUserClassOption);
 	PackAddBool(p, "UseHubNameAsRadiusNasId", h->Option->UseHubNameAsRadiusNasId);
 	PackAddBool(p, "AllowEapMatchUserByCert", h->Option->AllowEapMatchUserByCert);
-	PackAddInt(p, "DhcpDiscoverTimeoutMs", h->Option->DhcpDiscoverTimeoutMs);
+	PackAddInt(p, "DhcpDiscoverMaxTries", h->Option->DhcpDiscoverMaxTries);
 
 	SiAccessListToPack(p, h->AccessList);
 
