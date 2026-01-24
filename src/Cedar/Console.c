@@ -1938,6 +1938,7 @@ bool PasswordPrompt(char *password, UINT size)
 		c = _getch();
 #else	// OS_WIN32
 		c = getc(stdin);
+PROCESS_CH:
 #endif	// OS_WIN32
 
 		if (c >= 0x20 && c <= 0x7E)
@@ -1952,6 +1953,7 @@ bool PasswordPrompt(char *password, UINT size)
 		else if (c == 0x03)
 		{
 			// Break
+			RestoreConsole(console);
 			exit(0);
 		}
 		else if (c == 0x04 || c == 0x1a || c == 0x0D || c==0x0A)
@@ -1977,7 +1979,47 @@ bool PasswordPrompt(char *password, UINT size)
 				goto BACKSPACE;
 			}
 		}
-		else if (c == 0x08)
+#ifdef OS_UNIX	// OS_UNIX
+		else if (c == 0x1B)
+		{
+			c = getc(stdin);
+			if (c != 0x5B && c != 0x4F)
+			{
+				// ESC key
+				goto PROCESS_CH;
+			}
+
+			c = getc(stdin);
+			if (c == 0x44)
+			{
+				// Left arrow key
+				goto BACKSPACE;
+			}
+			else if (c == 0x33)
+			{
+				c = getc(stdin);
+				if (c == 0x7E)
+				{
+					// Delete key
+					goto BACKSPACE;
+				}
+			}
+
+			// Drain remaining sequence bytes (most are <= 6)
+			for (int i = 0; i < 6; i++)
+			{
+				if (c >= 0x40 && c <= 0x7E)
+				{
+					// End of sequence
+					break;
+				}
+				c = getc(stdin);
+			}
+
+			continue;
+		}
+#endif	// OS_UNIX
+		else if (c == 0x08 || c == 0x7F)
 		{
 BACKSPACE:
 			// Backspace
