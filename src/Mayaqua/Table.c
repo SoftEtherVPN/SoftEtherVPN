@@ -470,6 +470,7 @@ LIST *LoadLangList()
 	b = ReadDump(filename);
 	if (b == NULL)
 	{
+		ReleaseList(o);
 		return NULL;
 	}
 
