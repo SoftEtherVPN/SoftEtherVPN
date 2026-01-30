@@ -12,6 +12,15 @@ else()
   add_library(cedar SHARED ${SOURCES_CEDAR} ${SOURCES_CEDAR_CPP} ${HEADERS_CEDAR})
 endif()
 
+if(MSVC)
+  target_compile_options(cedar PRIVATE /EHsc)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    target_compile_options(cedar PRIVATE /EHsc)
+  else()
+    target_compile_options(cedar PRIVATE -fexceptions)
+  endif()
+endif()
 set_target_properties(cedar
   PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
@@ -22,18 +31,21 @@ set_target_properties(cedar
 target_link_libraries(cedar PUBLIC mayaqua)
 
 cmake_host_system_information(RESULT HAS_SSE2 QUERY HAS_SSE2)
-
-set(BLAKE2_SRC_PATH $<IF:$<BOOL:${HAS_SSE2}>,${TOP_DIRECTORY}/3rdparty/BLAKE2/sse,${TOP_DIRECTORY}/3rdparty/BLAKE2/ref>)
-set(BLAKE2_SRC $<IF:$<BOOL:${HAS_SSE2}>,${BLAKE2_SRC_PATH}/blake2s.c,${BLAKE2_SRC_PATH}/blake2s-ref.c>)
-
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64|arm64v8|ARM64")
+  message(STATUS "Target architecture is ARM64")
+  set(BLAKE2_SRC_PATH "${TOP_DIRECTORY}/3rdparty/BLAKE2/neon")
+  set(BLAKE2_SRC "${BLAKE2_SRC_PATH}/blake2s-neon.c")
+else()
+  set(BLAKE2_SRC_PATH $<IF:$<BOOL:${HAS_SSE2}>,${TOP_DIRECTORY}/3rdparty/BLAKE2/sse,${TOP_DIRECTORY}/3rdparty/BLAKE2/ref>)
+  set(BLAKE2_SRC $<IF:$<BOOL:${HAS_SSE2}>,${BLAKE2_SRC_PATH}/blake2s.c,${BLAKE2_SRC_PATH}/blake2s-ref.c>)
+  if(HAS_SSE2)
+    # If SSE2 is enabled, a build failure occurs with MSVC because it doesn't define "__SSE2__".
+    # The fix consists in defining "HAVE_SSE2" manually, effectively overriding the check.
+    set_property(SOURCE ${BLAKE2_SRC} PROPERTY COMPILE_DEFINITIONS "HAVE_SSE2")
+  endif()
+endif()
 target_include_directories(cedar PUBLIC ${BLAKE2_SRC_PATH})
 target_sources(cedar PRIVATE ${BLAKE2_SRC})
-
-if(HAS_SSE2)
-  # If SSE2 is enabled, a build failure occurs with MSVC because it doesn't define "__SSE2__".
-  # The fix consists in defining "HAVE_SSE2" manually, effectively overriding the check.
-  set_property(SOURCE ${BLAKE2_SRC} PROPERTY COMPILE_DEFINITIONS "HAVE_SSE2")
-endif()
 
 if(VCPKG_TARGET_TRIPLET)
   find_package(unofficial-sodium CONFIG REQUIRED)

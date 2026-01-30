@@ -4462,9 +4462,13 @@ bool IsAesNiSupported()
 
 	// Unfortunately OpenSSL doesn't provide a function to do it
 #ifdef _MSC_VER
-	int regs[4]; // EAX, EBX, ECX, EDX
-	__cpuid(regs, 1);
-	supported = (regs[2] >> 25) & 1;
+  #if defined(_M_X64) || defined(_M_IX86)
+    int regs[4]; // EAX, EBX, ECX, EDX
+    __cpuid(regs, 1);
+    supported = (regs[2] >> 25) & 1;
+  #elif defined(_M_ARM64)
+	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE);
+  #endif
 #else // _MSC_VER
 	#if defined(CPU_FEATURES_ARCH_X86)
 		const X86Features features = GetX86Info().features;
