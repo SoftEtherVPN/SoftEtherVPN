@@ -4757,7 +4757,7 @@ static void MY_SHA0_Transform(MY_SHA0_CTX* ctx) {
 	UCHAR* p = ctx->buf;
 	int t;
 	for(t = 0; t < 16; ++t) {
-		UINT tmp =  *p++ << 24;
+		UINT tmp =  (UINT)*p++ << 24;
 		tmp |= *p++ << 16;
 		tmp |= *p++ << 8;
 		tmp |= *p++;
