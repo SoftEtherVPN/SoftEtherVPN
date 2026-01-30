@@ -200,6 +200,12 @@
           "name": "CMAKE_SHARED_LINKER_FLAGS",
           "value": "/machine:ARM64",
           "type": "STRING"
+        },
+        {
+          "name": "IS_CROSS_COMPILATION",
+          "value": "arm64-on-x64",
+          "type": "STRING"
+
         }
       ]
     }
