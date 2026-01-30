@@ -50,6 +50,13 @@ ENTRIES *EnumEntries(const char *path)
 	}
 
 	tinydir_close(&dir);
+
+	if (!entries->List)
+	{
+		FreeEntries(entries);
+		return NULL;
+	}
+
 	return entries;
 }
 
