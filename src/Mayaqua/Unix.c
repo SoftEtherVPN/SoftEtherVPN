@@ -51,6 +51,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#ifndef PTHREAD_MUTEX_RECURSIVE
+#define PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
+#endif
+
 #ifdef	UNIX_MACOS
 #ifdef	NO_VLAN
 // Struct statfs for MacOS X
@@ -1836,13 +1840,6 @@ void UnixUnlockEx(LOCK *lock, bool inner)
 	}
 	mutex = (pthread_mutex_t *)lock->pData;
 
-	if ((--lock->locked_count) > 0)
-	{
-		return;
-	}
-
-	lock->thread_id = INFINITE;
-
 	pthread_mutex_unlock(mutex);
 
 	return;
@@ -1852,25 +1849,15 @@ void UnixUnlockEx(LOCK *lock, bool inner)
 bool UnixLock(LOCK *lock)
 {
 	pthread_mutex_t *mutex;
-	UINT thread_id = UnixThreadId();
 	if (lock->Ready == false)
 	{
 		// State is invalid
 		return false;
 	}
 
-	if (lock->thread_id == thread_id)
-	{
-		lock->locked_count++;
-		return true;
-	}
-
 	mutex = (pthread_mutex_t *)lock->pData;
 
 	pthread_mutex_lock(mutex);
-
-	lock->thread_id = thread_id;
-	lock->locked_count++;
 
 	return true;
 }
@@ -1879,6 +1866,7 @@ bool UnixLock(LOCK *lock)
 LOCK *UnixNewLock()
 {
 	pthread_mutex_t *mutex;
+	pthread_mutexattr_t attr;
 	// Memory allocation
 	LOCK *lock = UnixMemoryAlloc(sizeof(LOCK));
 	if (lock == NULL)
@@ -1895,13 +1883,13 @@ LOCK *UnixNewLock()
 	}
 
 	// Initialization of the mutex
-	pthread_mutex_init(mutex, NULL);
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(mutex, &attr);
+	pthread_mutexattr_destroy(&attr);
 
 	lock->pData = (void *)mutex;
 	lock->Ready = true;
-
-	lock->thread_id = INFINITE;
-	lock->locked_count = 0;
 
 	return lock;
 }
