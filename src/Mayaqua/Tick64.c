@@ -139,6 +139,7 @@ void Tick64Thread(THREAD *thread, void *param)
 	{
 		UINT tick;
 		UINT64 tick64;
+		bool halt;
 
 #ifndef	OS_WIN32
 		tick = TickRealtime();		// Get the current system clock
@@ -228,7 +229,13 @@ void Tick64Thread(THREAD *thread, void *param)
 			n = 0;
 		}
 
-		if (tk64->Halt)
+		Lock(tk64->TickLock);
+		{
+			halt = tk64->Halt;
+		}
+		Unlock(tk64->TickLock);
+
+		if (halt)
 		{
 			break;
 		}
@@ -286,7 +293,11 @@ void FreeTick64()
 	}
 
 	// Termination process
-	tk64->Halt = true;
+	Lock(tk64->TickLock);
+	{
+		tk64->Halt = true;
+	}
+	Unlock(tk64->TickLock);
 	Set(halt_tick_event);
 	WaitThread(tk64->Thread, INFINITE);
 	ReleaseThread(tk64->Thread);
