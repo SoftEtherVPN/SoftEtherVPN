@@ -825,7 +825,6 @@ struct CONNECT_SERIAL_PARAM
 	char HintStr[MAX_SIZE];
 	bool No_Get_Hostname;
 	bool *CancelFlag;
-	bool *NoDelayFlag;
 	UINT *NatT_ErrorCode;
 	char NatT_SvcName[MAX_SIZE];
 	SOCK *Sock;
@@ -835,6 +834,7 @@ struct CONNECT_SERIAL_PARAM
 	EVENT *FinishEvent;
 	UINT Delay;
 	UINT RetryDelay;
+	EVENT *NoDelayEvent;
 	bool Tcp_TryStartSsl;
 	SSL_VERIFY_OPTION *SslOption;
 	UINT *SslErr;

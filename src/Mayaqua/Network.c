@@ -14308,7 +14308,7 @@ void BindConnectThreadForIPv4(THREAD *thread, void *param)
 	// Delay before start
 	if (p->Delay >= 1)
 	{
-		WaitEx(NULL, p->Delay, p->NoDelayFlag);
+		Wait(p->NoDelayEvent, p->Delay);
 	}
 
 	Zero(&current_ip, sizeof(current_ip));
@@ -14682,7 +14682,7 @@ void BindConnectThreadForIPv6(THREAD* thread, void* param)
 	// Delay before start
 	if (p->Delay >= 1)
 	{
-		WaitEx(NULL, p->Delay, p->NoDelayFlag);
+		Wait(p->NoDelayEvent, p->Delay);
 	}
 
 	Zero(&current_ip, sizeof(current_ip));
@@ -14977,13 +14977,16 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 
 	CONNECT_SERIAL_PARAM p4, p6;
 	EVENT *finish_event;
+	EVENT *no_delay_event_v4;
+	EVENT *no_delay_event_v6;
 	THREAD *t4 = NULL;
 	THREAD *t6 = NULL;
 	bool cancel_flag2 = false;
-	bool no_delay_flag = false;
 	IP ret_ip4, ret_ip6;
 
 	finish_event = NewEvent();
+	no_delay_event_v6 = NewEvent();
+	no_delay_event_v4 = NewEvent();
 
 	Zero(&p4, sizeof(p4));
 	Zero(&p6, sizeof(p6));
@@ -15007,7 +15010,6 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		StrCpy(p6.Hostname, sizeof(p6.Hostname), hostname);
 		p6.No_Get_Hostname = no_get_hostname;
 		p6.CancelFlag = &cancel_flag2;
-		p6.NoDelayFlag = &no_delay_flag;
 		p6.FinishEvent = finish_event;
 		p6.Tcp_TryStartSsl = try_start_ssl;
 		p6.SslOption = ssl_option;
@@ -15015,6 +15017,7 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		p6.Ret_Ip = &ret_ip6;
 		p6.RetryDelay = 250;
 		p6.Delay = 0;
+		p6.NoDelayEvent = no_delay_event_v6;
 
 		p6.StateLock = NewLock();
 
@@ -15042,7 +15045,6 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		StrCpy(p4.HintStr, sizeof(p4.HintStr), hint_str);
 		p4.No_Get_Hostname = no_get_hostname;
 		p4.CancelFlag = &cancel_flag2;
-		p4.NoDelayFlag = &no_delay_flag;
 		p4.NatT_ErrorCode = nat_t_error_code;
 		StrCpy(p4.NatT_SvcName, sizeof(p4.NatT_SvcName), nat_t_svc_name);
 		p4.FinishEvent = finish_event;
@@ -15054,6 +15056,7 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		p4.Ret_Ip = &ret_ip4;
 		p4.RetryDelay = 250;
 		p4.Delay = 250;		// Delay by 250ms to prioritize IPv6 (RFC 6555 recommends 150-250ms, Chrome uses 300ms)
+		p4.NoDelayEvent = no_delay_event_v4;
 
 		p4.StateLock = NewLock();
 
@@ -15061,10 +15064,14 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		t4 = NewThread(BindConnectThreadForIPv4, &p4);	// For binding a socket
 	}
 
-	if (t6 == NULL || t4 == NULL)
+	// No need to delay if there is only one thread
+	if (t6 == NULL)
 	{
-		// No need to delay if there is only one thread
-		no_delay_flag = true;
+		Set(no_delay_event_v4);
+	}
+	if (t4 == NULL)
+	{
+		Set(no_delay_event_v6);
 	}
 
 	while (true)
@@ -15103,22 +15110,26 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 			break;
 		}
 
-		if (no_delay_flag == false && (p6_finished || p4_finished))
+		if ((t6 == NULL || t4 == NULL) && (p6_finished || p4_finished))
 		{
-			no_delay_flag = true;
+			Set(no_delay_event_v6);
+			Set(no_delay_event_v4);
 		}
 
 		Wait(finish_event, 25);
 	}
 
 	cancel_flag2 = true;
-	no_delay_flag = true;
+	Set(no_delay_event_v6);
+	Set(no_delay_event_v4);
 
 	WaitThread(t6, INFINITE);
 	WaitThread(t4, INFINITE);
 	ReleaseThread(t6);
 	ReleaseThread(t4);
 	ReleaseEvent(finish_event);
+	ReleaseEvent(no_delay_event_v6);
+	ReleaseEvent(no_delay_event_v4);
 	FreeHostIPAddressList(iplist_v6);
 	FreeHostIPAddressList(iplist_v4);
 	DeleteLock(p6.StateLock);
