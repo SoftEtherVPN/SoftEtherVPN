@@ -2128,9 +2128,13 @@ void UnixMemoryFree(void *addr)
 // SIGCHLD handler
 void UnixSigChldHandler(int sig)
 {
+	int old_errno = errno;
+
 	// Recall the zombie processes
 	while (waitpid(-1, NULL, WNOHANG) > 0);
 	signal(SIGCHLD, UnixSigChldHandler);
+
+	errno = old_errno;
 }
 
 // Disable core dump
