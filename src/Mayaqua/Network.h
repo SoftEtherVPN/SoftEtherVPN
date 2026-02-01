@@ -841,6 +841,7 @@ struct CONNECT_SERIAL_PARAM
 	bool Use_NatT;
 	bool Force_NatT;
 	IP *Ret_Ip;
+	LOCK *StateLock;				// Protects Finished, Ok, and FinishedTick.
 };
 
 // Data for the thread for concurrent connection attempts for the R-UDP and TCP
