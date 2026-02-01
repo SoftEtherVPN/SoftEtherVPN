@@ -880,11 +880,11 @@ void ThreadPoolProc(THREAD *t, void *param)
 
 		pd->Thread->Stopped = true;
 
-		thread->PoolHalting = true;
-
 		// Set the waiting event list
 		LockList(thread->PoolWaitList);
 		{
+			thread->PoolHalting = true;
+
 			num = LIST_NUM(thread->PoolWaitList);
 			ee = ToArray(thread->PoolWaitList);
 
