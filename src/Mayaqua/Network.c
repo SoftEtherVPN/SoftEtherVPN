@@ -12352,10 +12352,21 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		}
 
 #ifdef	OS_UNIX
+	// To prevent deadlock, unlock sock->ssl_lock after lock sock->lock
+	}
+	Unlock(sock->ssl_lock);
+
+	Lock(sock->lock);
+	{
 		if (sock->AsyncMode == false)
 		{
 			sock->CallingThread = pthread_self();
 		}
+	}
+	Unlock(sock->lock);
+
+	Lock(sock->ssl_lock);
+	{
 #endif	// OS_UNIX
 
 		// Run the time-out thread for SOLARIS
@@ -12371,12 +12382,22 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
 		FreeSocketTimeout(ttparam);
 #endif // UNIX_SOLARIS
 
-
 #ifdef	OS_UNIX
+	// To prevent deadlock, unlock sock->ssl_lock after lock sock->lock
+	}
+	Unlock(sock->ssl_lock);
+
+	Lock(sock->lock);
+	{
 		if (sock->AsyncMode == false)
 		{
 			sock->CallingThread = 0;
 		}
+	}
+	Unlock(sock->lock);
+
+	Lock(sock->ssl_lock);
+	{
 #endif	// OS_UNIX
 
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
@@ -12623,7 +12644,11 @@ UINT Recv(SOCK *sock, void *data, UINT size, bool secure)
 #ifdef	OS_UNIX
 	if (sock->AsyncMode == false)
 	{
-		sock->CallingThread = pthread_self();
+		Lock(sock->lock);
+		{
+			sock->CallingThread = pthread_self();
+		}
+		Unlock(sock->lock);
 	}
 #endif	// OS_UNIX
 
@@ -12642,7 +12667,11 @@ UINT Recv(SOCK *sock, void *data, UINT size, bool secure)
 #ifdef	OS_UNIX
 	if (sock->AsyncMode == false)
 	{
-		sock->CallingThread = 0;
+		Lock(sock->lock);
+		{
+			sock->CallingThread = 0;
+		}
+		Unlock(sock->lock);
 	}
 #endif	// OS_UNIX
 
@@ -12922,7 +12951,11 @@ SOCK *Accept(SOCK *sock)
 #if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	UnixIgnoreSignalForThread(SIGUSR1);
 #endif	// defined(UNIX_LINUX) || defined(UNIX_MACOS)
-	sock->CallingThread = pthread_self();
+	Lock(sock->lock);
+	{
+		sock->CallingThread = pthread_self();
+	}
+	Unlock(sock->lock);
 #endif	// OS_UNIX
 
 #ifdef	OS_WIN32
@@ -12939,7 +12972,11 @@ SOCK *Accept(SOCK *sock)
 #endif	// OS_WIN32
 
 #ifdef	OS_UNIX
-	sock->CallingThread = 0;
+	Lock(sock->lock);
+	{
+		sock->CallingThread = 0;
+	}
+	Unlock(sock->lock);
 #endif	// OS_UNIX
 
 	if (new_socket == INVALID_SOCKET)
@@ -13034,7 +13071,11 @@ SOCK *Accept6(SOCK *sock)
 #if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 	UnixIgnoreSignalForThread(SIGUSR1);
 #endif	// defined(UNIX_LINUX) || defined(UNIX_MACOS)
-	sock->CallingThread = pthread_self();
+	Lock(sock->lock);
+	{
+		sock->CallingThread = pthread_self();
+	}
+	Unlock(sock->lock);
 #endif	// OS_UNIX
 
 #ifdef	OS_WIN32
@@ -13051,7 +13092,11 @@ SOCK *Accept6(SOCK *sock)
 #endif	// OS_WIN32
 
 #ifdef	OS_UNIX
-	sock->CallingThread = 0;
+	Lock(sock->lock);
+	{
+		sock->CallingThread = 0;
+	}
+	Unlock(sock->lock);
 #endif	// OS_UNIX
 
 	if (new_socket == INVALID_SOCKET)
@@ -13344,7 +13389,13 @@ void Disconnect(SOCK *sock)
 
 #if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 		{
-			pthread_t t = sock->CallingThread;
+			pthread_t t;
+
+			Lock(sock->lock);
+			{
+				t = sock->CallingThread;
+			}
+			Unlock(sock->lock);
 
 			// Send a signal to the socket to abort accept() forcibly on Linux
 			if (t != 0)
