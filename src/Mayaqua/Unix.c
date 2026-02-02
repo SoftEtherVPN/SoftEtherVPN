@@ -51,8 +51,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#ifdef UNIX_LINUX
 #ifndef PTHREAD_MUTEX_RECURSIVE
 #define PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
+#endif
 #endif
 
 #ifdef	UNIX_MACOS
