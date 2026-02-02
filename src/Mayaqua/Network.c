@@ -12930,10 +12930,15 @@ SOCK *Accept(SOCK *sock)
 	{
 		return NULL;
 	}
-	if (sock->CancelAccept)
+	Lock(sock->lock);
 	{
-		return NULL;
+		if (sock->CancelAccept)
+		{
+			Unlock(sock->lock);
+			return NULL;
+		}
 	}
+	Unlock(sock->lock);
 	if (sock->IPv6)
 	{
 		return Accept6(sock);
@@ -12971,28 +12976,29 @@ SOCK *Accept(SOCK *sock)
 	new_socket = accept(s, (struct sockaddr *)&addr,(int *)&size);
 #endif	// OS_WIN32
 
-#ifdef	OS_UNIX
 	Lock(sock->lock);
 	{
+#ifdef	OS_UNIX
 		sock->CallingThread = 0;
-	}
-	Unlock(sock->lock);
 #endif	// OS_UNIX
-
-	if (new_socket == INVALID_SOCKET)
-	{
+		if (new_socket == INVALID_SOCKET)
+		{
+			if (sock->CancelAccept)
+			{
+				sock->AcceptCanceled = true;
+			}
+			Unlock(sock->lock);
+			return NULL;
+		}
 		if (sock->CancelAccept)
 		{
 			sock->AcceptCanceled = true;
+			Unlock(sock->lock);
+			closesocket(new_socket);
+			return NULL;
 		}
-		return NULL;
 	}
-	if (sock->CancelAccept)
-	{
-		sock->AcceptCanceled = true;
-		closesocket(new_socket);
-		return NULL;
-	}
+	Unlock(sock->lock);
 
 	ret = NewSock();
 	ret->socket = new_socket;
@@ -13050,10 +13056,15 @@ SOCK *Accept6(SOCK *sock)
 	{
 		return NULL;
 	}
-	if (sock->CancelAccept)
+	Lock(sock->lock);
 	{
-		return NULL;
+		if (sock->CancelAccept)
+		{
+			Unlock(sock->lock);
+			return NULL;
+		}
 	}
+	Unlock(sock->lock);
 	if (sock->IPv6 == false)
 	{
 		return NULL;
@@ -13091,28 +13102,30 @@ SOCK *Accept6(SOCK *sock)
 	new_socket = accept(s, (struct sockaddr *)&addr,(int *)&size);
 #endif	// OS_WIN32
 
-#ifdef	OS_UNIX
 	Lock(sock->lock);
 	{
+#ifdef	OS_UNIX
 		sock->CallingThread = 0;
-	}
-	Unlock(sock->lock);
 #endif	// OS_UNIX
 
-	if (new_socket == INVALID_SOCKET)
-	{
+		if (new_socket == INVALID_SOCKET)
+		{
+			if (sock->CancelAccept)
+			{
+				sock->AcceptCanceled = true;
+			}
+			Unlock(sock->lock);
+			return NULL;
+		}
 		if (sock->CancelAccept)
 		{
 			sock->AcceptCanceled = true;
+			Unlock(sock->lock);
+			closesocket(new_socket);
+			return NULL;
 		}
-		return NULL;
 	}
-	if (sock->CancelAccept)
-	{
-		sock->AcceptCanceled = true;
-		closesocket(new_socket);
-		return NULL;
-	}
+	Unlock(sock->lock);
 
 	ret = NewSock();
 	ret->socket = new_socket;
@@ -13383,9 +13396,15 @@ void Disconnect(SOCK *sock)
 	if (sock->Type == SOCK_TCP && sock->ListenMode)
 	{
 		bool no_tcp_check_port = false;
+		bool accept_canceled = false;
+		bool socket_ipv6 = false;
 
 		// Connect to localhost if the socket is in listening
-		sock->CancelAccept = true;
+		Lock(sock->lock);
+		{
+			sock->CancelAccept = true;
+		}
+		Unlock(sock->lock);
 
 #if	defined(UNIX_LINUX) || defined(UNIX_MACOS)
 		{
@@ -13416,11 +13435,18 @@ void Disconnect(SOCK *sock)
 		}
 #endif	// OS_WIN32
 
-		if (sock->AcceptCanceled == false)
+		Lock(sock->lock);
+		{
+			accept_canceled = sock->AcceptCanceled;
+			socket_ipv6 = sock->IPv6;
+		}
+		Unlock(sock->lock);
+
+		if (accept_canceled == false)
 		{
 			if (no_tcp_check_port == false)
 			{
-				if (sock->IPv6 == false)
+				if (socket_ipv6 == false)
 				{
 					CheckTCPPort("127.0.0.1", sock->LocalPort);
 				}
