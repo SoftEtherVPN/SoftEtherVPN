@@ -1,0 +1,80 @@
+name: Sanitizer
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  run_sanitizer:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer:
+          - "address,leak,undefined"
+          - "thread,undefined"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt-get -y install cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libsodium-dev libssl-dev make zlib1g-dev liblz4-dev libnl-genl-3-dev 
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-O1 -fsanitize=${{ matrix.sanitizer }} -fno-omit-frame-pointer" ..
+          cmake --build .
+
+      - name: Test
+        env:
+          ASAN_OPTIONS: halt_on_error=0:exitcode=0
+          TSAN_OPTIONS: halt_on_error=0:exitcode=0
+          UBSAN_OPTIONS: halt_on_error=0:exitcode=0
+          LSAN_OPTIONS: exitcode=0
+        run: |
+          .ci/vpntools-check.sh 2> sanitizer.log
+
+      - name: Make job summary
+        run: |
+          echo "### Sanitizer Report (${{ matrix.sanitizer }})" >> $GITHUB_STEP_SUMMARY
+
+          REPORTS=$(grep -E "SUMMARY:|runtime error:" sanitizer.log | sort | uniq)
+          REPORT_COUNT=$(echo "$REPORTS" | grep -c . || true)
+          echo "Found $REPORT_COUNT issues" >> $GITHUB_STEP_SUMMARY
+
+          echo "<details><summary>View Summary</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$REPORTS" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$REPORT_COUNT" -ne 0 ]; then
+            echo "HAS_ISSUES=true" >> $GITHUB_ENV
+            echo "REPORT_COUNT=$REPORT_COUNT" >> $GITHUB_ENV
+          fi
+
+      - name: Upload full sanitizer log
+        if: env.HAS_ISSUES == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-logs-${{ matrix.sanitizer }}
+          path: |
+            sanitizer.log
+          retention-days: 30
+
+      - name: Fail on sanitizer issues
+        if: env.HAS_ISSUES == 'true'
+        run: |
+          echo "Found ${{ env.REPORT_COUNT }} issues."
+          echo "Please check the Job Summary page for a quick overview."
+          echo "Full logs are available in the GitHub Artifacts."
+          exit 1
