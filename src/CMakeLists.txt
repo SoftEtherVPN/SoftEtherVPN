@@ -1,4 +1,4 @@
-if(UNIX)
+﻿if(UNIX)
   # Creates wrapper scripts and installs them in the user's binaries directory, which is usually "/usr/local/bin".
   # This is required because symlinks use the folder they are in as working directory.
   #
@@ -59,6 +59,12 @@ add_definitions(-D_REENTRANT -DREENTRANT -D_THREAD_SAFE -D_THREADSAFE -DTHREAD_S
 include_directories(.)
 
 if(WIN32)
+  if(IS_CROSS_COMPILATION MATCHES "arm64-on-x64")
+    set(CMAKE_SYSTEM_PROCESSOR "arm64")
+  else()
+    message("Setting QSPECTRE")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qspectre")
+  endif()
   add_definitions(-DWIN32 -D_WINDOWS -DOS_WIN32 -D_CRT_SECURE_NO_WARNINGS)
 
   #
@@ -68,9 +74,6 @@ if(WIN32)
   message("Setting CONTROL FLOW GUARD") 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /guard:cf")
   set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /guard:cf /DYNAMICBASE")
-
-  message("Setting QSPECTRE")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qspectre")
 
   message("Setting CETCOMPAT")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /CETCOMPAT")
@@ -164,15 +167,45 @@ add_custom_target(hamcore-archive-build
   ALL
   DEPENDS "${BUILD_DIRECTORY}/hamcore.se2"
 )
+if(IS_CROSS_COMPILATION MATCHES "arm64-on-x64")
+    file(TO_CMAKE_PATH "${TOP_DIRECTORY}" TOP_DIRECTORY_NORM)
+    set(X64_HAMCORE_BUILDER
+      "${TOP_DIRECTORY_NORM}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe"
+    )
+    if(EXISTS "${X64_HAMCORE_BUILDER}")
+      message(STATUS "file exist (from TOP_DIRECTORY)")
+    endif()
 
-add_custom_command(
-  COMMENT "Building hamcore.se2 archive file..."
-  COMMAND hamcorebuilder "hamcore.se2" "${TOP_DIRECTORY}/src/bin/hamcore"
-  DEPENDS hamcorebuilder "${TOP_DIRECTORY}/src/bin/hamcore/"
-  OUTPUT "${BUILD_DIRECTORY}/hamcore.se2"
-  WORKING_DIRECTORY "${BUILD_DIRECTORY}"
-  VERBATIM
-)
+  # support cross compile, when you compile ARM64 version on X64 Platform
+  if(EXISTS "${X64_HAMCORE_BUILDER}")
+    message("X64_HAMCORE_BUILDER found: ${X64_HAMCORE_BUILDER}")
+  elseif(EXISTS("${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe"))
+    set(X64_HAMCORE_BUILDER "${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe")
+  else()
+	message("${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe")
+    message(FATAL_ERROR "X64_HAMCORE_BUILDER not found: ${X64_HAMCORE_BUILDER}, pls build x64-native version first")
+  endif()
+  message(STATUS "X64_HAMCORE_BUILDER = ${X64_HAMCORE_BUILDER}")
+
+  add_custom_command(
+    COMMENT "Building hamcore.se2 archive file..."
+    COMMAND ${X64_HAMCORE_BUILDER} "hamcore.se2" "${TOP_DIRECTORY}/src/bin/hamcore"
+    DEPENDS ${X64_HAMCORE_BUILDER} "${TOP_DIRECTORY}/src/bin/hamcore/"
+    OUTPUT "${BUILD_DIRECTORY}/hamcore.se2"
+    WORKING_DIRECTORY "${BUILD_DIRECTORY}"
+    VERBATIM
+  )
+
+else()
+  add_custom_command(
+      COMMENT "Building hamcore.se2 archive file..."
+      COMMAND hamcorebuilder "hamcore.se2" "${TOP_DIRECTORY}/src/bin/hamcore"
+      DEPENDS hamcorebuilder "${TOP_DIRECTORY}/src/bin/hamcore/"
+      OUTPUT "${BUILD_DIRECTORY}/hamcore.se2"
+      WORKING_DIRECTORY "${BUILD_DIRECTORY}"
+      VERBATIM
+  )
+endif()
 
 if(WIN32)
   # PenCore

@@ -5,7 +5,8 @@
 // NDIS6.c
 // Windows NDIS 6.2 Routine
 
-#include <GlobalConst.h>
+//#include <GlobalConst.h>
+#include "GlobalConst.h"
 
 #define	NEO_DEVICE_DRIVER
 
