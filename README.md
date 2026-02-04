@@ -220,7 +220,7 @@ Please look at the [ContainerREADME.md](ContainerREADME.md)
 
 ## Build from Source code
 
-see [BUILD_UNIX](src/BUILD_UNIX.md) or [BUILD_WINDOWS](src/BUILD_WINDOWS.md)
+see [BUILD_UNIX](src/BUILD_UNIX.md), [BUILD_WINDOWS](src/BUILD_WINDOWS.md), or [BUILD_WINDOWS_ARM64](src/BUILD_WINDOWS_ARM64.md)
 
 There are two flavours of SoftEtherVPN source code:
 
