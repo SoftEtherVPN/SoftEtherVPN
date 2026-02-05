@@ -1190,6 +1190,9 @@ void NnIpSendForInternet(NATIVE_NAT *t, UCHAR ip_protocol, UCHAR ttl, UINT src_i
 	}
 }
 
+// Host IP address cache TTL in milliseconds (60 seconds)
+#define HOST_IP_CACHE_TTL_MS		60000
+
 // Check if destination IP is one of the host's own IP addresses
 // Uses caching to avoid frequent system calls
 // Returns true if dest_ip matches any of the host's IPs
@@ -1197,7 +1200,7 @@ bool IsDestinationHostOwnIP(VH *v, UINT dest_ip)
 {
 	bool is_host_ip = false;
 	UINT64 now;
-	bool need_refresh = false;
+	LIST *new_list = NULL;
 	// Validate arguments
 	if (v == NULL)
 	{
@@ -1211,34 +1214,21 @@ bool IsDestinationHostOwnIP(VH *v, UINT dest_ip)
 		// Check if cache needs refresh (every 60 seconds or if not initialized)
 		if (v->HostIPAddressCache == NULL || now >= v->HostIPCacheExpires)
 		{
-			need_refresh = true;
-		}
-	}
-	Unlock(v->HostIPCacheLock);
-
-	if (need_refresh)
-	{
-		// Refresh the cache
-		LIST *new_list = GetHostIPAddressList();
-		
-		Lock(v->HostIPCacheLock);
-		{
+			// Get new list while holding the lock to prevent multiple threads from refreshing
+			new_list = GetHostIPAddressList();
+			
 			// Free old cache
 			if (v->HostIPAddressCache != NULL)
 			{
 				FreeHostIPAddressList(v->HostIPAddressCache);
 			}
 			
-			// Set new cache with 60 second expiration
+			// Set new cache with TTL
 			v->HostIPAddressCache = new_list;
-			v->HostIPCacheExpires = now + 60000;  // 60 seconds
+			v->HostIPCacheExpires = now + HOST_IP_CACHE_TTL_MS;
 		}
-		Unlock(v->HostIPCacheLock);
-	}
 
-	// Check if dest_ip matches any cached host IP
-	Lock(v->HostIPCacheLock);
-	{
+		// Check if dest_ip matches any cached host IP
 		if (v->HostIPAddressCache != NULL)
 		{
 			UINT i;
