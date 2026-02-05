@@ -1209,6 +1209,36 @@ void NnIcmpEchoRecvForInternet(VH *v, UINT src_ip, UINT dest_ip, void *data, UIN
 		return;
 	}
 
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	LIST *local_ip_list = GetHostIPAddressList();
+	if (local_ip_list != NULL)
+	{
+		UINT i;
+		bool is_host_ip = false;
+		IP dest_ip_obj;
+		UINTToIP(&dest_ip_obj, dest_ip);
+		
+		for (i = 0; i < LIST_NUM(local_ip_list); i++)
+		{
+			IP *host_ip = LIST_DATA(local_ip_list, i);
+			if (IsIP4(host_ip) && CmpIpAddr(&dest_ip_obj, host_ip) == 0)
+			{
+				is_host_ip = true;
+				break;
+			}
+		}
+		
+		FreeHostIPAddressList(local_ip_list);
+		
+		if (is_host_ip)
+		{
+			// Destination is the host's own IP - drop the packet
+			return;
+		}
+	}
+
 	t = v->NativeNat;
 
 	old_icmp_header = (ICMP_HEADER *)icmp_data;
@@ -1351,6 +1381,36 @@ void NnUdpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT 
 		return;
 	}
 
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	LIST *local_ip_list = GetHostIPAddressList();
+	if (local_ip_list != NULL)
+	{
+		UINT i;
+		bool is_host_ip = false;
+		IP dest_ip_obj;
+		UINTToIP(&dest_ip_obj, dest_ip);
+		
+		for (i = 0; i < LIST_NUM(local_ip_list); i++)
+		{
+			IP *host_ip = LIST_DATA(local_ip_list, i);
+			if (IsIP4(host_ip) && CmpIpAddr(&dest_ip_obj, host_ip) == 0)
+			{
+				is_host_ip = true;
+				break;
+			}
+		}
+		
+		FreeHostIPAddressList(local_ip_list);
+		
+		if (is_host_ip)
+		{
+			// Destination is the host's own IP - drop the packet
+			return;
+		}
+	}
+
 	t = v->NativeNat;
 
 	// Search whether there is an existing session
@@ -1447,6 +1507,36 @@ void NnTcpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT 
 	if (NnIsActive(v) == false || old_tcp == NULL || data == NULL)
 	{
 		return;
+	}
+
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	LIST *local_ip_list = GetHostIPAddressList();
+	if (local_ip_list != NULL)
+	{
+		UINT i;
+		bool is_host_ip = false;
+		IP dest_ip_obj;
+		UINTToIP(&dest_ip_obj, dest_ip);
+		
+		for (i = 0; i < LIST_NUM(local_ip_list); i++)
+		{
+			IP *host_ip = LIST_DATA(local_ip_list, i);
+			if (IsIP4(host_ip) && CmpIpAddr(&dest_ip_obj, host_ip) == 0)
+			{
+				is_host_ip = true;
+				break;
+			}
+		}
+		
+		FreeHostIPAddressList(local_ip_list);
+		
+		if (is_host_ip)
+		{
+			// Destination is the host's own IP - drop the packet
+			return;
+		}
 	}
 
 	t = v->NativeNat;
