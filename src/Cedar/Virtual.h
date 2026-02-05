@@ -313,6 +313,11 @@ struct VH
 	HUB_OPTION *HubOption;			// Pointer to the Virtual HUB options
 
 	NATIVE_NAT *NativeNat;			// Native NAT
+
+	// Host IP cache for Native NAT packet filtering
+	LIST *HostIPAddressCache;		// Cached list of host IP addresses
+	UINT64 HostIPCacheExpires;		// When the cache expires (tick64)
+	LOCK *HostIPCacheLock;			// Lock for cache access
 };
 
 // Virtual host option
