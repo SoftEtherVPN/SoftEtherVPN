@@ -14642,9 +14642,13 @@ void BindConnectThreadForIPv4(THREAD *thread, void *param)
 		}
 	}
 
-	p->Ok = (p->Sock == NULL ? false : true);
-	p->FinishedTick = Tick64();
-	p->Finished = true;
+	Lock(p->StateLock);
+	{
+		p->Ok = (p->Sock == NULL ? false : true);
+		p->FinishedTick = Tick64();
+		p->Finished = true;
+	}
+	Unlock(p->StateLock);
 
 	Set(p->FinishEvent);
 }
@@ -14775,9 +14779,14 @@ void BindConnectThreadForIPv6(THREAD* thread, void* param)
 		}
 	}
 
-	p->Ok = (p->Sock == NULL ? false : true);
-	p->FinishedTick = Tick64();
-	p->Finished = true;
+	Lock(p->StateLock);
+	{
+		p->Ok = (p->Sock == NULL ? false : true);
+		p->FinishedTick = Tick64();
+		p->Finished = true;
+	}
+	Unlock(p->StateLock);
+
 
 	Set(p->FinishEvent);
 }
@@ -15006,6 +15015,9 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		p6.Ret_Ip = &ret_ip6;
 		p6.RetryDelay = 250;
 		p6.Delay = 0;
+
+		p6.StateLock = NewLock();
+
 //		t6 = NewThread(ConnectThreadForIPv6, &p6);
 		t6 = NewThread(BindConnectThreadForIPv6, &p6);	// For binding a socket
 	}
@@ -15042,6 +15054,9 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 		p4.Ret_Ip = &ret_ip4;
 		p4.RetryDelay = 250;
 		p4.Delay = 250;		// Delay by 250ms to prioritize IPv6 (RFC 6555 recommends 150-250ms, Chrome uses 300ms)
+
+		p4.StateLock = NewLock();
+
 //		t4 = NewThread(ConnectThreadForIPv4, &p4);
 		t4 = NewThread(BindConnectThreadForIPv4, &p4);	// For binding a socket
 	}
@@ -15054,23 +15069,41 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 
 	while (true)
 	{
+		bool p6_finished;
+		bool p6_ok;
+		bool p4_finished;
+		bool p4_ok;
+
 		if (*cancel_flag)
 		{
 			break;
 		}
 
-		if ((t6 == NULL || p6.Finished) && (t4 == NULL || p4.Finished))
+		Lock(p6.StateLock);
+		{
+			p6_finished = p6.Finished;
+			p6_ok = p6.Ok;
+		}
+		Unlock(p6.StateLock);
+
+		Lock(p4.StateLock);
+		{
+			p4_finished = p4.Finished;
+			p4_ok = p4.Ok;
+		}
+		Unlock(p4.StateLock);
+
+		if ((t6 == NULL || p6_finished) && (t4 == NULL || p4_finished))
 		{
 			break;
 		}
 
-		if ((p6.Finished && p6.Ok) || (p4.Finished && p4.Ok))
+		if ((p6_finished && p6_ok) || (p4_finished && p4_ok))
 		{
 			break;
 		}
 
-		// This check must be placed last to avoid race condition with cancel flag
-		if (no_delay_flag == false && (p6.Finished || p4.Finished))
+		if (no_delay_flag == false && (p6_finished || p4_finished))
 		{
 			no_delay_flag = true;
 		}
@@ -15088,6 +15121,8 @@ SOCK *BindConnectEx5(IP *localIP, UINT localport, char *hostname, UINT port, UIN
 	ReleaseEvent(finish_event);
 	FreeHostIPAddressList(iplist_v6);
 	FreeHostIPAddressList(iplist_v4);
+	DeleteLock(p6.StateLock);
+	DeleteLock(p4.StateLock);
 
 	if (*cancel_flag)
 	{
