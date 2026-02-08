@@ -72,11 +72,26 @@ int PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *CmdLine, int CmdShow)
 
 // Compiler dependent
 #ifndef	OS_WIN32
-// Gcc compiler
+// GCC or Clang compiler
 #define	GCC_PACKED		__attribute__ ((__packed__))
+// Clang compiler
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define ATTRIBUTE_NO_TSAN			__attribute__((no_sanitize("thread")))
+#endif	// __has_feature(thread_sanitizer)
+#endif	// __has_feature
+// GCC compiler
+#if defined(__SANITIZE_THREAD__) && !defined(ATTRIBUTE_NO_TSAN)
+#define ATTRIBUTE_NO_TSAN			__attribute__((no_sanitize("thread")))
+#endif	// __SANITIZE_THREAD__
+// Other or older Clang/GCC compiler
+#ifndef ATTRIBUTE_NO_TSAN
+#define ATTRIBUTE_NO_TSAN
+#endif	// ATTRIBUTE_NO_TSAN
 #else	// OS_WIN32
 // VC++ compiler
 #define	GCC_PACKED
+#define ATTRIBUTE_NO_TSAN
 #endif	// OS_WIN32
 
 // Macro that displays the current file name and line number
