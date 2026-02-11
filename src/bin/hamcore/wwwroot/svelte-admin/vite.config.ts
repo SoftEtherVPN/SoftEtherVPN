@@ -7,14 +7,19 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
-		paraglideVitePlugin({ project: './project.inlang', outdir: './src/lib/paraglide' })
+		/*paraglideVitePlugin({
+			project: './project.inlang',
+			outdir: './src/lib/paraglide',
+			strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
+			emitTsDeclarations: true
+		})*/
 	],
-	server:{
-		proxy:{
-			'/api':{
-				target:import.meta.env.RPC_SERVER_URL,
-				changeOrigin:true,
-				secure:false,
+	server: {
+		proxy: {
+			'/api': {
+				target: import.meta.env.RPC_SERVER_URL,
+				changeOrigin: true,
+				secure: false
 			}
 		}
 	}
