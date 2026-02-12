@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { Alert, AlertTitle } from '$lib/components/ui/alert';
-	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import { ButtonGroup } from '$lib/components/ui/button-group';
 	import {
 		Card,
@@ -11,16 +9,6 @@
 		CardDescription
 	} from '$lib/components/ui/card';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table';
-	import {
-		Dialog,
-		DialogContent,
-		DialogDescription,
-		DialogFooter,
-		DialogHeader,
-		DialogTitle
-	} from '$lib/components/ui/dialog';
-	import DialogClose from '$lib/components/ui/dialog/dialog-close.svelte';
-	import { Input } from '$lib/components/ui/input';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
 		Table,
@@ -33,10 +21,10 @@
 	import { rpc, VpnRpcListener, type VpnRpcListenerListItem } from '$lib/rpc';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { getCoreRowModel, type RowSelectionState, type ColumnDef } from '@tanstack/table-core';
-	import InfoIcon from '@lucide/svelte/icons/info';
 	import * as m from '$lib/paraglide/messages';
-
-	const client = useQueryClient();
+	import CreateModal from './listerner/create-modal.svelte';
+	import StopModal from './listerner/stop-modal.svelte';
+	import DeleteModal from './listerner/delete-modal.svelte';
 
 	const columns: ColumnDef<VpnRpcListenerListItem>[] = [
 		{ accessorKey: 'Ports_u32', header: m.CM_LISTENER_COLUMN_1() },
@@ -50,21 +38,14 @@
 		}
 	];
 
+	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: ['listerner'],
+		queryKey: ['listener'],
 		queryFn: async () => {
 			let r = await rpc.EnumListener();
 			return r.ListenerList;
 		},
 		initialData: []
-	}));
-
-	const createListener = createMutation(() => ({
-		mutationFn: rpc.CreateListener,
-		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['listener'] });
-		},
-		throwOnError: false
 	}));
 
 	let rowSelection = $state<RowSelectionState>({});
@@ -93,9 +74,21 @@
 	let canStop = $derived(rowSelected != null && rowSelected.Enables_bool);
 
 	let createOpen = $state(false);
-	let createValue = $state('');
-	let valueParsed = $derived(parseInt(createValue));
-	let isValidValue = $derived(!isNaN(valueParsed) && 1 <= valueParsed && valueParsed <= 65535);
+	let stopOpen = $state(false);
+	let deleteOpen = $state(false);
+
+	const startListener = createMutation(() => ({
+		mutationFn: rpc.EnableListener,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: ['listener'] });
+		}
+	}));
+
+	function start() {
+		return startListener.mutateAsync(
+			new VpnRpcListener({ Port_u32: rowSelected?.Ports_u32, Enable_bool: true })
+		);
+	}
 </script>
 
 <Card class="w-fit">
@@ -103,8 +96,8 @@
 		<CardTitle>{m.D_SM_SERVER__STATIC1()}</CardTitle>
 		<CardDescription>{m.D_SM_SERVER__STATIC2()}</CardDescription>
 	</CardHeader>
-	<CardContent class="flex">
-		<Table>
+	<CardContent class="flex max-h-48">
+		<Table class="">
 			<TableHeader>
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 					<TableRow>
@@ -113,8 +106,7 @@
 								{#if !header.isPlaceholder}
 									<FlexRender
 										content={header.column.columnDef.header}
-										context={header.getContext()}
-									/>
+										context={header.getContext()} />
 								{/if}
 							</TableHead>
 						{/each}
@@ -125,8 +117,7 @@
 				{#each table.getRowModel().rows as row (row.id)}
 					<TableRow
 						onclick={row.getToggleSelectedHandler()}
-						data-state={row.getIsSelected() && 'selected'}
-					>
+						data-state={row.getIsSelected() && 'selected'}>
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<TableCell>
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
@@ -139,54 +130,26 @@
 		<Separator class="mx-4" orientation="vertical" />
 		<div class="flex">
 			<ButtonGroup class="justify-center" orientation="vertical">
-				<Button onclick={() => (createOpen = true)} variant="outline"
-					>{m.D_SM_SERVER__B_CREATE_LISTENER()}</Button
-				>
-				<Button disabled={rowSelected == null} variant="outline"
-					>{m.D_SM_SERVER__B_DELETE_LISTENER()}</Button
-				>
-				<Button disabled={!canStart} variant="outline">{m.D_SM_SERVER__B_START()}</Button>
-				<Button disabled={!canStop} variant="outline">{m.D_SM_SERVER__B_STOP()}</Button>
+				<Button onclick={() => (createOpen = true)} variant="outline">
+					{m.D_SM_SERVER__B_CREATE_LISTENER()}
+				</Button>
+				<Button
+					disabled={rowSelected == null}
+					variant="outline"
+					onclick={() => (deleteOpen = true)}>
+					{m.D_SM_SERVER__B_DELETE_LISTENER()}
+				</Button>
+				<Button disabled={!canStart} variant="outline" onClickPromise={start}>
+					{m.D_SM_SERVER__B_START()}
+				</Button>
+				<Button disabled={!canStop} variant="outline" onclick={() => (stopOpen = true)}>
+					{m.D_SM_SERVER__B_STOP()}
+				</Button>
 			</ButtonGroup>
 		</div>
 	</CardContent>
 </Card>
 
-<Dialog bind:open={createOpen}>
-	<DialogContent>
-		<DialogHeader>
-			<DialogTitle>{m.D_SM_CREATE_LISTENER__CAPTION()}</DialogTitle>
-			<DialogDescription>
-				{m.D_SM_CREATE_LISTENER__STATIC1()}
-			</DialogDescription>
-		</DialogHeader>
-		<div>
-			<div class="flex w-full items-center justify-center gap-2">
-				{m.D_SM_CREATE_LISTENER__STATIC3()}
-				<Input min={1} max={65535} bind:value={createValue} type="number" class="w-24" />
-				{m.D_SM_CREATE_LISTENER__STATIC4()}
-			</div>
-			<Alert class="mt-6">
-				<InfoIcon />
-				<AlertDescription>
-					{m.D_SM_CREATE_LISTENER__STATIC2()}
-				</AlertDescription>
-			</Alert>
-		</div>
-		<DialogFooter>
-			<Button
-				onClickPromise={async () => {
-					try {
-						await createListener.mutateAsync(
-							new VpnRpcListener({ Port_u32: valueParsed, Enable_bool: true })
-						);
-					} catch {}
-				}}
-				disabled={!isValidValue}>{m.D_SM_CREATE_LISTENER__IDOK()}</Button
-			>
-			<DialogClose class={buttonVariants({ variant: 'outline' })}
-				>{m.D_SM_CREATE_LISTENER__IDCANCEL()}</DialogClose
-			>
-		</DialogFooter>
-	</DialogContent>
-</Dialog>
+<CreateModal bind:open={createOpen} />
+<StopModal bind:open={stopOpen} port={rowSelected?.Ports_u32 ?? 0} />
+<DeleteModal bind:open={deleteOpen} port={rowSelected?.Ports_u32 ?? 0} />

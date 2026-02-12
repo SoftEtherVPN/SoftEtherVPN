@@ -42,7 +42,7 @@
 			e: MouseEvent & {
 				currentTarget: EventTarget & HTMLButtonElement;
 			}
-		) => Promise<void>;
+		) => Promise<any>;
 	}>;
 
 	export type AnchorElementProps = ButtonPropsWithoutHTML &
@@ -108,9 +108,11 @@
 		if (onClickPromise) {
 			loading = true;
 
-			await onClickPromise(e);
-
-			loading = false;
+			try {
+				await onClickPromise(e);
+			} finally {
+				loading = false;
+			}
 		}
 	}}
 >
