@@ -1,4 +1,10 @@
-import type { BundleImport, InlangPlugin, MessageImport, VariantImport } from '@inlang/sdk';
+import type {
+	BundleImport,
+	Declaration,
+	InlangPlugin,
+	MessageImport,
+	VariantImport
+} from '@inlang/sdk';
 
 const plugin: InlangPlugin = {
 	key: 'plugin.softether.stb',
@@ -22,8 +28,25 @@ const plugin: InlangPlugin = {
 				prefix = newPrefix;
 
 				if (entry != null) {
+					//if (entry.tagList.length != 0) console.log(entry.tagList);
+
+					let declarations: Declaration[] = entry.tagList
+						.map((tag, i) => {
+							if (tag == '%u' || tag == '%s' || tag == '%S') {
+								let ext = tag == '%u' ? ': number' : '';
+								entry.str = entry.str.replace(tag, `{{input${i}${ext}}}`);
+								return {
+									name: 'input' + i,
+									type: 'input-variable'
+								} as Declaration;
+							}
+							return null;
+						})
+						.filter((d) => d != null);
+
 					bundles.push({
-						id: entry.name
+						id: entry.name,
+						declarations
 					});
 
 					messages.push({
@@ -34,7 +57,7 @@ const plugin: InlangPlugin = {
 					variants.push({
 						messageBundleId: entry.name,
 						messageLocale: file.locale,
-						pattern: [{ type: 'text', value: entry.str }]
+						pattern: buildPattern(entry.str)
 					});
 				}
 			}
@@ -44,6 +67,32 @@ const plugin: InlangPlugin = {
 	},
 	exportFiles: async () => []
 };
+
+function buildPattern(str: string): VariantImport['pattern'] {
+	const pattern: VariantImport['pattern'] = [];
+	const regex = /\{\{(\w+)(?::\s*\w+)?\}\}/g;
+	let lastIndex = 0;
+	let match: RegExpExecArray | null;
+
+	while ((match = regex.exec(str)) !== null) {
+		if (match.index > lastIndex) {
+			pattern.push({ type: 'text', value: str.slice(lastIndex, match.index) });
+		}
+
+		pattern.push({
+			type: 'expression',
+			arg: { type: 'variable-reference', name: match[1] }
+		});
+
+		lastIndex = regex.lastIndex;
+	}
+
+	if (lastIndex < str.length) {
+		pattern.push({ type: 'text', value: str.slice(lastIndex) });
+	}
+
+	return pattern;
+}
 
 export default plugin;
 

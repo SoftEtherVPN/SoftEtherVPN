@@ -18,8 +18,20 @@ var plugin = {
         let [entry, newPrefix] = parseTableLine(line, prefix);
         prefix = newPrefix;
         if (entry != null) {
+          let declarations = entry.tagList.map((tag, i) => {
+            if (tag == "%u" || tag == "%s" || tag == "%S") {
+              let ext = tag == "%u" ? ": number" : "";
+              entry.str = entry.str.replace(tag, `{{input${i}${ext}}}`);
+              return {
+                name: "input" + i,
+                type: "input-variable"
+              };
+            }
+            return null;
+          }).filter((d) => d != null);
           bundles.push({
-            id: entry.name
+            id: entry.name,
+            declarations
           });
           messages.push({
             bundleId: entry.name,
@@ -28,7 +40,7 @@ var plugin = {
           variants.push({
             messageBundleId: entry.name,
             messageLocale: file.locale,
-            pattern: [{ type: "text", value: entry.str }]
+            pattern: buildPattern(entry.str)
           });
         }
       }
@@ -37,6 +49,26 @@ var plugin = {
   },
   exportFiles: async () => []
 };
+function buildPattern(str) {
+  const pattern = [];
+  const regex = /\{\{(\w+)(?::\s*\w+)?\}\}/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIndex) {
+      pattern.push({ type: "text", value: str.slice(lastIndex, match.index) });
+    }
+    pattern.push({
+      type: "expression",
+      arg: { type: "variable-reference", name: match[1] }
+    });
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < str.length) {
+    pattern.push({ type: "text", value: str.slice(lastIndex) });
+  }
+  return pattern;
+}
 var stb_plugin_default = plugin;
 function unescapeStr(str) {
   let tmp = "";
