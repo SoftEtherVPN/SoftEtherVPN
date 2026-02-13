@@ -4,6 +4,7 @@ name: Coverity
 on:
   schedule:
   - cron: "0 0 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,7 +12,7 @@ permissions:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'SoftEtherVPN' }}
+    if: ${{ github.repository_owner == 'SoftEtherVPN' || github.event_name == 'workflow_dispatch' }}
     steps:
     - uses: actions/checkout@v2
       with:
