@@ -9,25 +9,37 @@
 #define	NDIS5_H
 
 // Win32 DDK related
-#ifndef	CPU_64
-#define	_X86_
-#else	// CPU_64
-#ifndef	NEO_IA64
-#define	_AMD64_
-#define	AMD64
-#else	// NEO_IA64
-#define	_IA64_
-#define	IA64
-#endif	// NEO_IA64
-#endif	// CPU_64
+#ifndef CPU_64
+#define _X86_
+#else // CPU_64
+#ifdef CPU_ARM64
+//#define _ARM64_
+//#define ARM64
+#elif defined(NEO_IA64)
+#define _IA64_
+#define IA64
+#else
+#define _AMD64_
+#define AMD64
+#endif
+#endif // CPU_64
 #define	NDIS_MINIPORT_DRIVER
-// NDIS 6.2
-#define	NDIS620_MINIPORT
-#define	NDIS_SUPPORT_NDIS61			1
-#define	NDIS_SUPPORT_NDIS620		1
-#define NEO_NDIS_MAJOR_VERSION		6
-#define NEO_NDIS_MINOR_VERSION		20
-#define	NDIS_WDM					1
+#ifdef CPU_ARM64
+	#define NDIS640_MINIPORT 
+	#define NDIS_MINIPORT_MINIMUM_MAJOR_VERSION 6
+	#define NDIS_MINIPORT_MINIMUM_MINOR_VERSION 40
+	#define NEO_NDIS_MAJOR_VERSION 6
+	#define NEO_NDIS_MINOR_VERSION 40
+#else
+	// NDIS 6.2
+	#define	NDIS620_MINIPORT
+	#define	NDIS_SUPPORT_NDIS61			1
+	#define	NDIS_SUPPORT_NDIS620		1
+	#define NEO_NDIS_MAJOR_VERSION		6
+	#define NEO_NDIS_MINOR_VERSION		20
+	#define	NDIS_WDM					1
+#endif
+
 
 #include <wdm.h>
 #include <ndis.h>

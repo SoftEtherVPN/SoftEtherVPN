@@ -87,6 +87,10 @@ into it. So that is what will be described below.
    - x86-on-x64
 
      Cross compile x86 executables with 64-bit compiler
+    
+    - arm64-on-x64
+
+     Cross compile arm64 executables with x64t compiler
 
    On 64-bit Windows, all four configurations can be used. 32-bit platforms can only use 32-bit compiler.
 

@@ -293,6 +293,8 @@ We hope that you can reach one of the above URLs at least!
 Your contribution to SoftEther VPN Project is much appreciated.
 Please send patches to us through GitHub.
 
+Here you find how to submit new translation: [TRANSLATION_GUIDE.md](TRANSLATION_GUIDE.md)
+
 
 # DEAR SECURITY EXPERTS
 

@@ -136,6 +136,78 @@
           "type": "STRING"
         }
       ]
+    },
+    {
+      "name": "arm64-on-x64",
+      "description": "Cross compile Windows ARM64 on x64",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": ["msvc_arm64_x64"],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "variables": [
+        {
+          "name": "BUILD_NUMBER",
+          "value": "${env.BuildNumber}",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_SYSTEM_NAME",
+          "value": "Windows",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_SYSTEM_PROCESSOR",
+          "value": "arm64",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "${env.VCINSTALLDIR}Tools/Llvm/bin/clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_C_COMPILER_TARGET",
+          "value": "arm64-windows-msvc",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER_TARGET",
+          "value": "arm64-windows-msvc",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_EXE_LINKER_FLAGS",
+          "value": "/machine:ARM64",
+          "type": "STRING"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "arm64-windows-static",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_STATIC_LINKER_FLAGS",
+          "value": "/machine:ARM64",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_SHARED_LINKER_FLAGS",
+          "value": "/machine:ARM64",
+          "type": "STRING"
+        },
+        {
+          "name": "IS_CROSS_COMPILATION",
+          "value": "arm64-on-x64",
+          "type": "STRING"
+
+        }
+      ]
     }
   ]
 }

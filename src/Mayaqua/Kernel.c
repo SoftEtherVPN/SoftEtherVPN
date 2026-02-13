@@ -63,7 +63,7 @@ static int ydays[] =
 	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
 
-static UINT current_num_thread = 0;
+static COUNTER *current_num_thread = NULL;
 static UINT cached_number_of_cpus = 0;
 
 
@@ -776,6 +776,7 @@ void InitThreading()
 {
 	thread_pool = NewSk();
 	thread_count = NewCounter();
+	current_num_thread = NewCounter();
 }
 
 // Release of thread pool
@@ -821,6 +822,9 @@ void FreeThreading()
 
 	DeleteCounter(thread_count);
 	thread_count = NULL;
+
+	DeleteCounter(current_num_thread);
+	current_num_thread = NULL;
 }
 
 // Thread pool procedure
@@ -1028,9 +1032,9 @@ THREAD *NewThreadNamed(THREAD_PROC *thread_proc, void *param, char *name)
 
 	Wait(pd->InitFinishEvent, INFINITE);
 
-	current_num_thread++;
+	Inc(current_num_thread);
 
-//	Debug("current_num_thread = %u\n", current_num_thread);
+//	Debug("current_num_thread = %u\n", Count(current_num_thread));
 
 	return ret;
 }
@@ -1055,8 +1059,8 @@ void CleanupThread(THREAD *t)
 
 	Free(t);
 
-	current_num_thread--;
-	//Debug("current_num_thread = %u\n", current_num_thread);
+	Dec(current_num_thread);
+	//Debug("current_num_thread = %u\n", Count(current_num_thread));
 }
 
 // Release thread (pool)
