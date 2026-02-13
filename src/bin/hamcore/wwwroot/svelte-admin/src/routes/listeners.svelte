@@ -25,6 +25,10 @@
 	import CreateModal from './listerner/create-modal.svelte';
 	import StopModal from './listerner/stop-modal.svelte';
 	import DeleteModal from './listerner/delete-modal.svelte';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import TrashIcon from '@lucide/svelte/icons/trash';
+	import PlayIcon from '@lucide/svelte/icons/play';
+	import OctagonMinusIcon from '@lucide/svelte/icons/octagon-minus';
 
 	const columns: ColumnDef<VpnRpcListenerListItem>[] = [
 		{ accessorKey: 'Ports_u32', header: m.CM_LISTENER_COLUMN_1() },
@@ -96,7 +100,7 @@
 		<CardTitle>{m.D_SM_SERVER__STATIC1()}</CardTitle>
 		<CardDescription>{m.D_SM_SERVER__STATIC2()}</CardDescription>
 	</CardHeader>
-	<CardContent class="flex max-h-48">
+	<CardContent class="flex h-48">
 		<Table class="">
 			<TableHeader>
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -131,18 +135,22 @@
 		<div class="flex">
 			<ButtonGroup class="justify-center" orientation="vertical">
 				<Button onclick={() => (createOpen = true)} variant="outline">
+					<PlusIcon />
 					{m.D_SM_SERVER__B_CREATE_LISTENER()}
 				</Button>
 				<Button
 					disabled={rowSelected == null}
 					variant="outline"
 					onclick={() => (deleteOpen = true)}>
+					<TrashIcon />
 					{m.D_SM_SERVER__B_DELETE_LISTENER()}
 				</Button>
 				<Button disabled={!canStart} variant="outline" onClickPromise={start}>
+					<PlayIcon />
 					{m.D_SM_SERVER__B_START()}
 				</Button>
 				<Button disabled={!canStop} variant="outline" onclick={() => (stopOpen = true)}>
+					<OctagonMinusIcon />
 					{m.D_SM_SERVER__B_STOP()}
 				</Button>
 			</ButtonGroup>

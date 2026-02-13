@@ -9,14 +9,6 @@
 		QueryClientProvider
 	} from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import { LanguageSwitcher } from '$lib/components/ui/language-switcher';
-	import {
-		getLocale,
-		setLocale,
-		type Locale,
-		locales as availableLocales,
-		isLocale
-	} from '$lib/paraglide/runtime';
 	import { m } from '$lib/paraglide/messages';
 	import {
 		Dialog,
@@ -28,6 +20,7 @@
 	} from '$lib/components/ui/dialog';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { JsonRpcException } from '$lib/rpc';
+	import Header from './header.svelte';
 
 	let { children } = $props();
 
@@ -52,25 +45,16 @@
 			}
 		})
 	});
-
-	const languages = availableLocales.map((code) => ({
-		code,
-		label: m.LANGSTR(undefined, { locale: code })
-	}));
-
-	let currentLang = $derived(getLocale());
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <ModeWatcher />
-<LanguageSwitcher
-	{languages}
-	bind:value={currentLang}
-	onChange={(code) => isLocale(code) && setLocale(code)}
-/>
 <QueryClientProvider client={queryClient}>
-	{@render children()}
+	<div class="container mx-auto">
+		<Header />
+		{@render children()}
+	</div>
 	<SvelteQueryDevtools />
 </QueryClientProvider>
 
