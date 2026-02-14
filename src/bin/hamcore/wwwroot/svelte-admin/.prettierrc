@@ -14,6 +14,5 @@
 	],
 	"tailwindStylesheet": "./src/routes/layout.css",
 	"bracketSameLine": true,
-	"svelteBracketNewLine": false,
 	"htmlWhitespaceSensitivity": "ignore"
 }
