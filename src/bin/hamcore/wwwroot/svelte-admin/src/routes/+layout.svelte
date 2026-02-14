@@ -1,6 +1,5 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { ModeWatcher } from 'mode-watcher';
 	import {
 		MutationCache,
@@ -21,6 +20,7 @@
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
+	import url from '../../../../../../PenCore/VPNSvr.ico';
 
 	let { children } = $props();
 
@@ -29,7 +29,7 @@
 
 	const queryClient = new QueryClient({
 		queryCache: new QueryCache({
-			onError: (error, query) => {
+			onError: (error) => {
 				if (error instanceof JsonRpcException) {
 					errorCode = error.Error.message;
 					errorOpen = true;
@@ -47,7 +47,7 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head><link rel="icon" href={url} /></svelte:head>
 
 <ModeWatcher />
 <QueryClientProvider client={queryClient}>
