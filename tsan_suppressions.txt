@@ -1,0 +1,12 @@
+# This file contains suppressions for Thread Sanitizer.
+# For the specification, refer to: https://github.com/google/sanitizers/wiki/threadsanitizersuppressions
+
+
+# Thread Sanitizer reports data races on Finished and NoDelayFlag in CONNECT_SERIAL_PARAM,
+# shared between BindConnectThreadForIPv4, BindConnectThreadForIPv6, and BindConnectEx5.
+# These are benign data races: the Set/Wait on FinishEvent provides synchronization
+# equivalent to a lock, but TSan cannot recognize it.
+# https://github.com/SoftEtherVPN/SoftEtherVPN/pull/2222
+race_top:BindConnectThreadForIPv4
+race_top:BindConnectThreadForIPv6
+race_top:BindConnectEx5
