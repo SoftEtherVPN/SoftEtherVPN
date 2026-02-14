@@ -21,6 +21,7 @@
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
 	import url from '../../../../../../PenCore/VPNSvr.ico';
+	import DialogConfirm from '$lib/components/DialogConfirm/DialogConfirm.svelte';
 
 	let { children } = $props();
 
@@ -70,3 +71,5 @@
 		</DialogFooter>
 	</DialogContent>
 </Dialog>
+
+<DialogConfirm />

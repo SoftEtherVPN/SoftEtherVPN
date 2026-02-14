@@ -23,12 +23,11 @@
 	import { getCoreRowModel, type RowSelectionState, type ColumnDef } from '@tanstack/table-core';
 	import * as m from '$lib/paraglide/messages';
 	import CreateModal from './listerner/create-modal.svelte';
-	import StopModal from './listerner/stop-modal.svelte';
-	import DeleteModal from './listerner/delete-modal.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import PlayIcon from '@lucide/svelte/icons/play';
 	import OctagonMinusIcon from '@lucide/svelte/icons/octagon-minus';
+	import { confirm } from '$lib/components/DialogConfirm/dialog-confirm-state.svelte';
 
 	const columns: ColumnDef<VpnRpcListenerListItem>[] = [
 		{ accessorKey: 'Ports_u32', header: m.CM_LISTENER_COLUMN_1() },
@@ -78,19 +77,50 @@
 	let canStop = $derived(rowSelected != null && rowSelected.Enables_bool);
 
 	let createOpen = $state(false);
-	let stopOpen = $state(false);
-	let deleteOpen = $state(false);
 
-	const startListener = createMutation(() => ({
+	const toggleListener = createMutation(() => ({
 		mutationFn: rpc.EnableListener,
 		onSuccess: async () => {
 			await client.invalidateQueries({ queryKey: ['listener'] });
 		}
 	}));
 
+	const deleteMutation = createMutation(() => ({
+		mutationFn: rpc.DeleteListener,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: ['listener'] });
+		}
+	}));
+
+	async function deleteListener() {
+		if (rowSelected == undefined) return;
+		await confirm(
+			{
+				message: m.CM_DELETE_LISTENER_MSG({ input0: rowSelected!.Ports_u32 })
+			},
+			() =>
+				deleteMutation.mutateAsync(
+					new VpnRpcListener({ Port_u32: rowSelected!.Ports_u32, Enable_bool: false })
+				)
+		);
+	}
+
 	function start() {
-		return startListener.mutateAsync(
+		return toggleListener.mutateAsync(
 			new VpnRpcListener({ Port_u32: rowSelected?.Ports_u32, Enable_bool: true })
+		);
+	}
+
+	async function stop() {
+		if (rowSelected == undefined) return;
+		await confirm(
+			{
+				message: m.CM_STOP_LISTENER_MSG({ input0: rowSelected!.Ports_u32 })
+			},
+			() =>
+				toggleListener.mutateAsync(
+					new VpnRpcListener({ Port_u32: rowSelected!.Ports_u32, Enable_bool: false })
+				)
 		);
 	}
 </script>
@@ -134,14 +164,11 @@
 		<Separator class="mx-4" orientation="vertical" />
 		<div class="flex">
 			<ButtonGroup class="justify-center" orientation="vertical">
-				<Button onclick={() => (createOpen = true)} variant="outline">
+				<Button onclick={() => (createOpen = true)} loading={createOpen} variant="outline">
 					<PlusIcon />
 					{m.D_SM_SERVER__B_CREATE_LISTENER()}
 				</Button>
-				<Button
-					disabled={rowSelected == null}
-					variant="outline"
-					onclick={() => (deleteOpen = true)}>
+				<Button disabled={rowSelected == null} variant="outline" onClickPromise={deleteListener}>
 					<TrashIcon />
 					{m.D_SM_SERVER__B_DELETE_LISTENER()}
 				</Button>
@@ -149,7 +176,7 @@
 					<PlayIcon />
 					{m.D_SM_SERVER__B_START()}
 				</Button>
-				<Button disabled={!canStop} variant="outline" onclick={() => (stopOpen = true)}>
+				<Button disabled={!canStop} variant="outline" onClickPromise={stop}>
 					<OctagonMinusIcon />
 					{m.D_SM_SERVER__B_STOP()}
 				</Button>
@@ -159,5 +186,3 @@
 </Card>
 
 <CreateModal bind:open={createOpen} />
-<StopModal bind:open={stopOpen} port={rowSelected?.Ports_u32 ?? 0} />
-<DeleteModal bind:open={deleteOpen} port={rowSelected?.Ports_u32 ?? 0} />

@@ -11,13 +11,14 @@
 	} from '$lib/components/ui/table';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnRpcEnumHubItem } from '$lib/rpc';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { getCoreRowModel, type ColumnDef, type RowSelectionState } from '@tanstack/table-core';
 	import { number, datetime } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { Button } from '$lib/components/ui/button';
 	import Status from './status.svelte';
 	import { translateHubOnline, translateHubType } from '$lib/utils/translation';
+	import { confirm } from '$lib/components/DialogConfirm/dialog-confirm-state.svelte';
 
 	let locale = getLocale();
 
@@ -109,6 +110,30 @@
 	let isSelected = $derived(rowSelected != null);
 
 	let statusOpen = $state(false);
+
+	const toggleMutation = createMutation(() => ({
+		mutationFn: rpc.SetHubOnline,
+		onSuccess: () => {
+			client.invalidateQueries({ queryKey: ['hub'] });
+		}
+	}));
+
+	async function setOnline() {
+		if (rowSelected == undefined) return;
+		return toggleMutation.mutateAsync({ HubName_str: rowSelected.HubName_str, Online_bool: true });
+	}
+
+	async function setOffline() {
+		if (rowSelected == undefined) return;
+		await confirm(
+			{
+				message: m.CM_OFFLINE_MSG({ input0: rowSelected.HubName_str }),
+				title: m.SM_TITLE()
+			},
+			() =>
+				toggleMutation.mutateAsync({ HubName_str: rowSelected!.HubName_str, Online_bool: false })
+		);
+	}
 </script>
 
 <Card>
@@ -148,10 +173,16 @@
 	</CardContent>
 	<CardFooter class="justify-end gap-2">
 		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__IDOK()}</Button>
-		<Button variant="outline" disabled={!isSelected || rowSelected?.Online_bool}>
+		<Button
+			variant="outline"
+			disabled={!isSelected || rowSelected?.Online_bool}
+			onClickPromise={setOnline}>
 			{m.D_SM_SERVER__B_ONLINE()}
 		</Button>
-		<Button variant="outline" disabled={!isSelected || !rowSelected?.Online_bool}>
+		<Button
+			variant="outline"
+			disabled={!isSelected || !rowSelected?.Online_bool}
+			onClickPromise={setOffline}>
 			{m.D_SM_SERVER__B_OFFLINE()}
 		</Button>
 		<Button variant="outline" disabled={!isSelected} onclick={() => (statusOpen = true)}>
@@ -159,7 +190,9 @@
 		</Button>
 		<Button variant="outline">{m.D_SM_SERVER__B_CREATE()}</Button>
 		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__B_EDIT()}</Button>
-		<Button variant="destructive" disabled={!isSelected}>{m.D_SM_SERVER__B_DELETE()}</Button>
+		<Button variant="destructive" disabled={!isSelected}>
+			{m.D_SM_SERVER__B_DELETE()}
+		</Button>
 	</CardFooter>
 </Card>
 
