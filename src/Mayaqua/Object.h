@@ -19,10 +19,6 @@ struct LOCK
 {
 	void *pData;
 	bool Ready;
-#ifdef	OS_UNIX
-	UINT thread_id;
-	UINT locked_count;
-#endif	// OS_UNIX
 #ifdef	_DEBUG
 	char *FileName;
 	UINT Line;
