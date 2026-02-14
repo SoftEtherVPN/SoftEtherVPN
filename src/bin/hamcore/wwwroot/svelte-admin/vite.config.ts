@@ -3,22 +3,27 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-await compile({
-	project: './project.inlang',
-	outdir: './src/lib/paraglide',
-	strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
-	emitTsDeclarations: true
-});
+export default defineConfig(async ({ mode }) => {
+	const isPROD = mode == 'production';
+	await compile({
+		project: './project.inlang',
+		outdir: './src/lib/paraglide',
+		strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
+		emitTsDeclarations: true,
+		outputStructure: isPROD ? 'message-modules' : 'locale-modules',
+		isServer: "import.meta.env?.SSR ?? typeof window === 'undefined'"
+	});
 
-export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	server: {
-		proxy: {
-			'/api': {
-				target: import.meta.env.RPC_SERVER_URL,
-				changeOrigin: true,
-				secure: false
+	return {
+		plugins: [tailwindcss(), sveltekit()],
+		server: {
+			proxy: {
+				'/api': {
+					target: import.meta.env['RPC_SERVER_URL'],
+					changeOrigin: true,
+					secure: false
+				}
 			}
 		}
-	}
+	};
 });

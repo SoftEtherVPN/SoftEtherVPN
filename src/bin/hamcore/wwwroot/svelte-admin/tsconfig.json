@@ -7,15 +7,23 @@
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
-		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true,
 		"moduleResolution": "bundler",
+
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noPropertyAccessFromIndexSignature": true
 	},
 
-	"exclude": [
-		"./src/lib/paraglide/**/*"
-	]
+	"exclude": ["./src/lib/paraglide/**/*"]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//
