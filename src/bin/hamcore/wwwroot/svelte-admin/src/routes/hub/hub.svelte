@@ -16,28 +16,19 @@
 	import { number, datetime } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { Button } from '$lib/components/ui/button';
+	import Status from './status.svelte';
+	import { translateHubOnline, translateHubType } from '$lib/utils/translation';
 
 	let locale = getLocale();
 
 	const columns: ColumnDef<VpnRpcEnumHubItem>[] = [
 		{ accessorKey: 'HubName_str', header: m.SM_HUB_COLUMN_1() },
 		{
-			accessorFn: (r) => {
-				return r.Online_bool ? m.SM_HUB_ONLINE() : m.SM_HUB_OFFLINE();
-			},
+			accessorFn: (r) => translateHubOnline(r.Online_bool),
 			header: m.SM_HUB_COLUMN_2()
 		},
 		{
-			accessorFn: (r) => {
-				switch (r.HubType_u32) {
-					case 1:
-						return m.SM_HUB_STATIC();
-					case 2:
-						return m.SM_HUB_DYNAMIC();
-					default:
-						return m.SM_HUB_STANDALONE();
-				}
-			},
+			accessorFn: (r) => translateHubType(r.HubType_u32),
 			header: m.SM_HUB_COLUMN_3()
 		},
 		{ accessorKey: 'NumUsers_u32', header: m.SM_HUB_COLUMN_4() },
@@ -116,6 +107,8 @@
 		query.data.find((r) => rowSelection[r.HubName_str.toString()])
 	);
 	let isSelected = $derived(rowSelected != null);
+
+	let statusOpen = $state(false);
 </script>
 
 <Card>
@@ -161,9 +154,13 @@
 		<Button variant="outline" disabled={!isSelected || !rowSelected?.Online_bool}>
 			{m.D_SM_SERVER__B_OFFLINE()}
 		</Button>
-		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__B_HUB_STATUS()}</Button>
+		<Button variant="outline" disabled={!isSelected} onclick={() => (statusOpen = true)}>
+			{m.D_SM_SERVER__B_HUB_STATUS()}
+		</Button>
 		<Button variant="outline">{m.D_SM_SERVER__B_CREATE()}</Button>
 		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__B_EDIT()}</Button>
 		<Button variant="destructive" disabled={!isSelected}>{m.D_SM_SERVER__B_DELETE()}</Button>
 	</CardFooter>
 </Card>
+
+<Status bind:open={statusOpen} hub={rowSelected?.HubName_str} />
