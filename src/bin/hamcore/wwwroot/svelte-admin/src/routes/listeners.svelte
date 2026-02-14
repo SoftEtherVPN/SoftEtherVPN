@@ -22,7 +22,7 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { getCoreRowModel, type RowSelectionState, type ColumnDef } from '@tanstack/table-core';
 	import * as m from '$lib/paraglide/messages';
-	import CreateModal from './listerner/create-modal.svelte';
+	import CreateModal from './listener/create-modal.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import PlayIcon from '@lucide/svelte/icons/play';
