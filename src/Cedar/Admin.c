@@ -10014,7 +10014,7 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t)
 
 	LockList(a->Server->ServerListenerList);
 	{
-		if (SiAddListener(a->Server, t->Port, t->Enable) == false)
+		if (SiAddListener(a->Server, &t->Address, t->Port, t->Enable) == false)
 		{
 			ret = ERR_LISTENER_ALREADY_EXISTS;
 		}
