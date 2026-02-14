@@ -1,42 +1,67 @@
-# sv
+# SoftEtherVPN — Svelte Admin UI
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Web administration interface for [SoftEtherVPN](https://www.softether.org/), built with SvelteKit.
 
-## Creating a project
+## Tech stack
 
-If you're seeing this, you've probably already done this step. Congrats!
+| Tool                                                                          | Role                           |
+| ----------------------------------------------------------------------------- | ------------------------------ |
+| [SvelteKit](https://kit.svelte.dev/)                                          | Main framework                 |
+| [Tailwind CSS v4](https://tailwindcss.com/)                                   | Styling                        |
+| [shadcn-svelte](https://shadcn-svelte.com/) + [bits-ui](https://bits-ui.com/) | UI components                  |
+| [TanStack Query](https://tanstack.com/query)                                  | Async data fetching            |
+| [Paraglide JS](https://inlang.com/m/gerre34r/library-inlang-paraglideJs)      | Internationalization (EN / FR) |
+| [Bun](https://bun.sh/)                                                        | Runtime & package manager      |
 
-```sh
-# create a new project
-npx sv create my-app
+## Architecture
+
+```
+src/
+├── lib/
+│   ├── components/ui/   # Reusable UI components
+│   └── paraglide/       # Auto-generated i18n files
+└── routes/
+    ├── hub/             # VPN Hub status and configuration
+    ├── listerner/       # Listener management (create, delete, stop)
+    ├── +page.svelte     # Main page
+    └── +layout.svelte   # Global layout
 ```
 
-To recreate this project with the same configuration:
+## Prerequisites
+
+- [Bun](https://bun.sh/) ≥ 1.0
+- A running SoftEtherVPN server (for the API)
+
+## Getting started
 
 ```sh
-# recreate this project
-bun x sv create --template minimal --types ts --add prettier tailwindcss="plugins:none" paraglide="languageTags:en, fr+demo:no" --install bun svelte-admin
+# Install dependencies
+bun install
+# or
+npm install
+
+# Start the development server
+# RPC_SERVER_URL must point to the SoftEtherVPN server
+RPC_SERVER_URL=http://localhost:5555 bun run dev
+# or
+RPC_SERVER_URL=http://localhost:5555 npm run dev
 ```
 
-## Developing
+The Vite proxy automatically forwards `/api` requests to `RPC_SERVER_URL`.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+You can also store this variable in a `.env.development.local` file to avoid setting it every time:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# .env.development.local
+RPC_SERVER_URL=http://localhost:5555
 ```
 
-## Building
+This file is gitignored by default and only loaded in development.
 
-To create a production version of your app:
+## Production build
 
 ```sh
-npm run build
+bun run build && bun run preview
+# or
+npm run build && npm run preview
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
