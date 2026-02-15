@@ -168,15 +168,15 @@
 					<PlusIcon />
 					{m.D_SM_SERVER__B_CREATE_LISTENER()}
 				</Button>
-				<Button disabled={rowSelected == null} variant="outline" onClickPromise={deleteListener}>
+				<Button disabled={rowSelected == null} variant="outline" onclick={deleteListener}>
 					<TrashIcon />
 					{m.D_SM_SERVER__B_DELETE_LISTENER()}
 				</Button>
-				<Button disabled={!canStart} variant="outline" onClickPromise={start}>
+				<Button disabled={!canStart} variant="outline" onclick={start}>
 					<PlayIcon />
 					{m.D_SM_SERVER__B_START()}
 				</Button>
-				<Button disabled={!canStop} variant="outline" onClickPromise={stop}>
+				<Button disabled={!canStop} variant="outline" onclick={stop}>
 					<OctagonMinusIcon />
 					{m.D_SM_SERVER__B_STOP()}
 				</Button>

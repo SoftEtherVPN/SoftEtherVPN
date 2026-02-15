@@ -64,7 +64,7 @@
 			</Alert>
 		</div>
 		<DialogFooter>
-			<Button onClickPromise={mutate} disabled={!isValidValue}>
+			<Button onclick={mutate} disabled={!isValidValue}>
 				{m.D_SM_CREATE_LISTENER__IDOK()}
 			</Button>
 			<DialogClose class={buttonVariants({ variant: 'outline' })}>

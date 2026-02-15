@@ -33,7 +33,7 @@
 			</DialogHeader>
 			<DialogFooter>
 				<DialogClose class={buttonVariants({ variant: 'outline' })}>{m.SEC_NO()}</DialogClose>
-				<Button onClickPromise={() => state.resolve(true)}>{m.SEC_YES()}</Button>
+				<Button onclick={() => state.resolve(true)}>{m.SEC_YES()}</Button>
 			</DialogFooter>
 		</DialogContent>
 	</Dialog>

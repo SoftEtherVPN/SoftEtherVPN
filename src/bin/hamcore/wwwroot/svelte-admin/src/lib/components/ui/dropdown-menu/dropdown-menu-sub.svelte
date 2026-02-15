@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 
-	let { children, ...restProps }: DropdownMenuPrimitive.SubProps = $props();
+	let { open = $bindable(false), ...restProps }: DropdownMenuPrimitive.SubProps = $props();
 </script>
 
-<DropdownMenuPrimitive.Sub {...restProps}>
-	{@render children?.()}
-</DropdownMenuPrimitive.Sub>
+<DropdownMenuPrimitive.Sub bind:open {...restProps} />

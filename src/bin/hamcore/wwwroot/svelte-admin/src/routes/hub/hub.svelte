@@ -172,23 +172,25 @@
 		</div>
 	</CardContent>
 	<CardFooter class="justify-end gap-2">
-		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__IDOK()}</Button>
+		<Button variant="outline" disabled={!isSelected}>
+			{m.D_SM_SERVER__IDOK()}
+		</Button>
 		<Button
 			variant="outline"
 			disabled={!isSelected || rowSelected?.Online_bool}
-			onClickPromise={setOnline}>
+			onclick={setOnline}>
 			{m.D_SM_SERVER__B_ONLINE()}
 		</Button>
 		<Button
 			variant="outline"
 			disabled={!isSelected || !rowSelected?.Online_bool}
-			onClickPromise={setOffline}>
+			onclick={setOffline}>
 			{m.D_SM_SERVER__B_OFFLINE()}
 		</Button>
 		<Button variant="outline" disabled={!isSelected} onclick={() => (statusOpen = true)}>
 			{m.D_SM_SERVER__B_HUB_STATUS()}
 		</Button>
-		<Button variant="outline">{m.D_SM_SERVER__B_CREATE()}</Button>
+		<Button variant="outline" href="#/hub/create">{m.D_SM_SERVER__B_CREATE()}</Button>
 		<Button variant="outline" disabled={!isSelected}>{m.D_SM_SERVER__B_EDIT()}</Button>
 		<Button variant="destructive" disabled={!isSelected}>
 			{m.D_SM_SERVER__B_DELETE()}
