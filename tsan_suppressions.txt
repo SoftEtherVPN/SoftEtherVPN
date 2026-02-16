@@ -2,11 +2,27 @@
 # For the specification, refer to: https://github.com/google/sanitizers/wiki/threadsanitizersuppressions
 
 
+
+## Set/Wait
+# This provides synchronization equivalent to a lock, but Thread Sanitizer cannot recognize it.
+
+# Thread Sanitizer reports data race on Halt in TK64.
+# https://github.com/SoftEtherVPN/SoftEtherVPN/pull/2221
+race_top:FreeTick64
+
 # Thread Sanitizer reports data races on Finished and NoDelayFlag in CONNECT_SERIAL_PARAM,
 # shared between BindConnectThreadForIPv4, BindConnectThreadForIPv6, and BindConnectEx5.
-# These are benign data races: the Set/Wait on FinishEvent provides synchronization
-# equivalent to a lock, but TSan cannot recognize it.
 # https://github.com/SoftEtherVPN/SoftEtherVPN/pull/2222
 race_top:BindConnectThreadForIPv4
 race_top:BindConnectThreadForIPv6
 race_top:BindConnectEx5
+
+
+## Manual PTHREAD_MUTEX_RECURSIVE
+# The Lock/Unlock mechanism on Unix is a manual, hand-coded implementation of PTHREAD_MUTEX_RECURSIVE.
+# We avoid using the PTHREAD_MUTEX_RECURSIVE directly because it exhibits critical bugs, such as deadlocks
+# on certain older systems(Linux, Solaris, or macOS). While Thread Sanitizer will report data races,
+# these warnings should be ignored as the logic has been carefully implemented to ensure thread safety.
+# https://github.com/SoftEtherVPN/SoftEtherVPN/pull/2219
+race_top:UnixLock
+race_top:UnixUnlockEx
