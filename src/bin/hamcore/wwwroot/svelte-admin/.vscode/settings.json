@@ -7,5 +7,6 @@
 		"watchFile": "useFsEventsOnParentDirectory",
 		"watchDirectory": "useFsEvents",
 		"fallbackPolling": "dynamicPriorityPolling"
-	}
+	},
+	"tailwindCSS.classFunctions": ["tv"]
 }

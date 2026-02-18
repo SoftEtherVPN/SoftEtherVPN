@@ -14,5 +14,6 @@
 	],
 	"tailwindStylesheet": "./src/routes/layout.css",
 	"bracketSameLine": true,
-	"htmlWhitespaceSensitivity": "ignore"
+	"htmlWhitespaceSensitivity": "ignore",
+	"tailwindFunctions": ["tv"]
 }
