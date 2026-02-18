@@ -6422,7 +6422,7 @@ bool GetRadiusServer(HUB *hub, char *name, UINT size, UINT *port, char *secret, 
 bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval) {
 	UINT timeout;
 
-	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, timeout);
+	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, &timeout);
 }
 bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout)
 {
