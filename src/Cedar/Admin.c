@@ -8739,7 +8739,7 @@ UINT StSetHubRadius(ADMIN *a, RPC_RADIUS *t)
 	}
 
 	//SetRadiusServer(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret);
-	SetRadiusServerEx(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret, t->RadiusRetryInterval, t->RadiusRetryTimeout);
+	SetRadiusServerEx2(h, t->RadiusServerName, t->RadiusPort, t->RadiusSecret, t->RadiusRetryInterval, t->RadiusRetryTimeout);
 
 	ALog(a, h, "LA_SET_HUB_RADIUS");
 
@@ -8778,7 +8778,7 @@ UINT StGetHubRadius(ADMIN *a, RPC_RADIUS *t)
 	Zero(t, sizeof(RPC_RADIUS));
 	//GetRadiusServer(h, t->RadiusServerName, sizeof(t->RadiusServerName),
 	//	&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret));
-	GetRadiusServerEx(h, t->RadiusServerName, sizeof(t->RadiusServerName),
+	GetRadiusServerEx2(h, t->RadiusServerName, sizeof(t->RadiusServerName),
 		&t->RadiusPort, t->RadiusSecret, sizeof(t->RadiusSecret), &t->RadiusRetryInterval, &t->RadiusRetryTimeout);
 
 	ReleaseHub(h);

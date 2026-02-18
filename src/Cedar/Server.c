@@ -5055,7 +5055,7 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 					}
 					secret_str[sizeof(secret_str) - 1] = 0;
 					//SetRadiusServer(h, name, port, secret_str);
-					SetRadiusServerEx(h, name, port, secret_str, interval, timeout);
+					SetRadiusServerEx2(h, name, port, secret_str, interval, timeout);
 					FreeBuf(secret);
 				}
 			}

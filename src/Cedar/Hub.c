@@ -116,7 +116,7 @@ EAP_CLIENT *HubNewEapClient(CEDAR *cedar, char *hubname, char *client_ip_str, ch
 
 	if (hub != NULL)
 	{
-		if (GetRadiusServerEx2(hub, radius_servers, sizeof(radius_servers), &radius_port, radius_secret,
+		if (GetRadiusServerEx3(hub, radius_servers, sizeof(radius_servers), &radius_port, radius_secret,
 			sizeof(radius_secret), &radius_retry_interval, &radius_retry_timeout, radius_suffix_filter, sizeof(radius_suffix_filter)))
 		{
 			bool use_peap = hub->RadiusUsePeapInsteadOfEap;
@@ -6416,14 +6416,19 @@ void ReleaseHub(HUB *h)
 bool GetRadiusServer(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size)
 {
 	UINT interval;
+	
+	return GetRadiusServerEx(hub, name, size, port, secret, secret_size, &interval);
+}
+bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval) {
 	UINT timeout;
-	return GetRadiusServerEx(hub, name, size, port, secret, secret_size, &interval, &timeout);
+
+	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, timeout);
 }
-bool GetRadiusServerEx(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout)
+bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout)
 {
-	return GetRadiusServerEx2(hub, name, size, port, secret, secret_size, interval, timeout, NULL, 0);
+	return GetRadiusServerEx3(hub, name, size, port, secret, secret_size, interval, timeout, NULL, 0);
 }
-bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout, char *suffix_filter, UINT suffix_filter_size)
+bool GetRadiusServerEx3(HUB *hub, char *name, UINT size, UINT *port, char *secret, UINT secret_size, UINT *interval, UINT *timeout, char *suffix_filter, UINT suffix_filter_size)
 {
 	bool ret = false;
 	// Validate arguments
@@ -6465,9 +6470,13 @@ bool GetRadiusServerEx2(HUB *hub, char *name, UINT size, UINT *port, char *secre
 // Set the Radius server information
 void SetRadiusServer(HUB *hub, char *name, UINT port, char *secret)
 {
-	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL, RADIUS_RETRY_TIMEOUT);
+	SetRadiusServerEx(hub, name, port, secret, RADIUS_RETRY_INTERVAL);
 }
-void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval, UINT timeout)
+void SetRadiusServerEx(HUB *hub, char *name, UINT port, char *secret, UINT interval)
+{
+	SetRadiusServerEx2(hub, name, port, secret, interval, RADIUS_RETRY_TIMEOUT);
+}
+void SetRadiusServerEx2(HUB *hub, char *name, UINT port, char *secret, UINT interval, UINT timeout)
 {
 	// Validate arguments
 	if (hub == NULL)
