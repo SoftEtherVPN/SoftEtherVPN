@@ -169,6 +169,7 @@ bool GetSessionKeyFromPack(PACK *p, UCHAR *session_key, UINT *session_key_32);
 void CreateNodeInfo(NODE_INFO *info, CONNECTION *c);
 UINT SecureSign(SECURE_SIGN *sign, UINT device_id, char *pin);
 void ClientUploadNoop(CONNECTION *c);
+void ServerUploadNoop(CONNECTION *c);
 bool ClientCheckServerCert(CONNECTION *c, bool *expired);
 void ClientCheckServerCertThread(THREAD *thread, void *param);
 bool ClientSecureSign(CONNECTION *c, UCHAR *sign, UCHAR *random, X **x);

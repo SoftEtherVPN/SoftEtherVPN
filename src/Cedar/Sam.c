@@ -516,6 +516,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 			char suffix_filter[MAX_SIZE];
 			wchar_t suffix_filter_w[MAX_SIZE];
 			UINT interval;
+			UINT timeout;
 			EAP_CLIENT *eap = NULL;
 			char password1[MAX_SIZE];
 			UCHAR client_challenge[16];
@@ -586,7 +587,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 			}
 
 			// Get the Radius server information
-			if (GetRadiusServerEx2(hub, radius_server_addr, sizeof(radius_server_addr), &radius_server_port, radius_secret, sizeof(radius_secret), &interval, suffix_filter, sizeof(suffix_filter)))
+			if (GetRadiusServerEx3(hub, radius_server_addr, sizeof(radius_server_addr), &radius_server_port, radius_secret, sizeof(radius_secret), &interval, &timeout, suffix_filter, sizeof(suffix_filter)))
 			{
 				Unlock(hub->lock);
 
@@ -597,7 +598,7 @@ bool SamAuthUserByPlainPassword(CONNECTION *c, HUB *hub, char *username, char *p
 					// Attempt to login
 					b = RadiusLogin(c, radius_server_addr, radius_server_port,
 						radius_secret, StrLen(radius_secret),
-						name, password, interval, mschap_v2_server_response_20, opt, hub->Name);
+						name, password, interval, timeout, mschap_v2_server_response_20, opt, hub->Name);
 
 					if (b)
 					{

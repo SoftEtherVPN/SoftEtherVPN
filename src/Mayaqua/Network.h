@@ -881,8 +881,6 @@ struct SSL_VERIFY_OPTION
 	X *SavedCert;					// Saved server certificate
 };
 
-#define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
-
 // Header for TCP Pair
 struct TCP_PAIR_HEADER
 {
