@@ -1849,6 +1849,8 @@ void UnixUnlockEx(LOCK *lock, bool inner)
 }
 
 // Lock
+// Recursive locking is implemented manually instead of using PTHREAD_MUTEX_RECURSIVE.
+// See: https://github.com/SoftEtherVPN/SoftEtherVPN/pull/2219
 bool UnixLock(LOCK *lock)
 {
 	pthread_mutex_t *mutex;
