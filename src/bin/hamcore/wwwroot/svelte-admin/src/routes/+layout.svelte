@@ -1,6 +1,5 @@
 <script lang="ts">
 	import './layout.css';
-	import { ModeWatcher } from 'mode-watcher';
 	import {
 		MutationCache,
 		QueryCache,
@@ -8,20 +7,9 @@
 		QueryClientProvider
 	} from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import { m } from '$lib/paraglide/messages';
-	import {
-		Dialog,
-		DialogClose,
-		DialogContent,
-		DialogDescription,
-		DialogFooter,
-		DialogHeader
-	} from '$lib/components/ui/dialog';
-	import { buttonVariants } from '$lib/components/ui/button';
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
 	import url from '../../../../../../PenCore/VPNSvr.ico';
-	import DialogConfirm from '$lib/components/DialogConfirm/DialogConfirm.svelte';
 
 	let { children } = $props();
 
@@ -50,7 +38,6 @@
 
 <svelte:head><link rel="icon" href={url} /></svelte:head>
 
-<ModeWatcher />
 <QueryClientProvider client={queryClient}>
 	<div class="container mx-auto">
 		<Header />
@@ -58,18 +45,3 @@
 	</div>
 	<SvelteQueryDevtools />
 </QueryClientProvider>
-
-<Dialog bind:open={errorOpen}>
-	<DialogContent>
-		<DialogHeader>
-			<DialogDescription>{errorCode}</DialogDescription>
-		</DialogHeader>
-		<DialogFooter>
-			<DialogClose class={buttonVariants({ variant: 'outline' })}>
-				{m.D_NM_OPTION__IDOK()}
-			</DialogClose>
-		</DialogFooter>
-	</DialogContent>
-</Dialog>
-
-<DialogConfirm />
