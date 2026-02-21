@@ -35,7 +35,8 @@
 		"sveltekit-superforms": "^2.29.1",
 		"tailwindcss": "^4.2.0",
 		"typescript": "^5.9.3",
-		"vite": "^7.3.1"
+		"vite": "^7.3.1",
+		"zod": "^4.3.6"
 	},
 	"dependencies": {
 		"@tanstack/svelte-query": "^6.0.18",

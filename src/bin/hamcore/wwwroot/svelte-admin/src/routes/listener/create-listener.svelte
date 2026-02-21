@@ -6,7 +6,7 @@
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
-	import { zod4 as zod, zod4Client as zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { Field, Control, FieldErrors, Label } from 'formsnap';
 	import Button from '$lib/components/button.svelte';
@@ -30,17 +30,20 @@
 
 	const sf = superForm(defaults(zod(schema)), {
 		SPA: true,
-		validators: zodClient(schema),
+		validators: zod(schema),
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
 				await createListener.mutateAsync(
 					new VpnRpcListener({ Port_u32: form.data['port'], Enable_bool: true })
 				);
 			}
+		},
+		onError(err) {
+			console.error(err.result.error);
 		}
 	});
 
-	const { form, errors, enhance, submitting, reset } = sf;
+	const { form, errors, enhance, reset } = sf;
 
 	$effect(() => {
 		if (open) {
@@ -82,7 +85,11 @@
 		</div>
 
 		<div class="modal-action">
-			<Button class="btn" type="submit" loading={$submitting} disabled={$submitting}>
+			<Button
+				class="btn"
+				type="submit"
+				loading={createListener.isPending}
+				disabled={createListener.isPending}>
 				{m.D_SM_CREATE_LISTENER__IDOK()}
 			</Button>
 			<button class="btn btn-outline" formmethod="dialog" formnovalidate>
