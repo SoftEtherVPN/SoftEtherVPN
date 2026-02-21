@@ -17,6 +17,10 @@ race_top:BindConnectThreadForIPv4
 race_top:BindConnectThreadForIPv6
 race_top:BindConnectEx5
 
+# Thread Sanitizer reports data races on PoolHalting in THREAD, shared between ThreadPoolProc and WaitThread.
+# But if WaitThread reads false, synchronization is ensured by Wait from the PoolWaitList. If it reads true,
+# WaitThread simply returns.
+race_top:ThreadPoolProc
 
 ## Manual PTHREAD_MUTEX_RECURSIVE
 # The Lock/Unlock mechanism on Unix is a manual, hand-coded implementation of PTHREAD_MUTEX_RECURSIVE.
