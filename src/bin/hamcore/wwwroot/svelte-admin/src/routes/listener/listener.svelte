@@ -5,6 +5,7 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import CreateListener from './create-listener.svelte';
 	import Button from '$lib/components/button.svelte';
+	import { confirm } from '$lib/components/confirm-dialog.svelte';
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
@@ -41,12 +42,13 @@
 		}
 	}));
 
-	async function deleteListener() {
+	function deleteListener() {
 		if (selected == undefined) return;
-		if (confirm(m.CM_DELETE_LISTENER_MSG({ input0: selected!.Ports_u32 })))
-			await deleteMutation.mutateAsync(
-				new VpnRpcListener({ Port_u32: selected.Ports_u32, Enable_bool: false })
-			);
+		return confirm({ message: m.CM_DELETE_LISTENER_MSG({ input0: selected!.Ports_u32 }) }, () =>
+			deleteMutation.mutateAsync(
+				new VpnRpcListener({ Port_u32: selected!.Ports_u32, Enable_bool: false })
+			)
+		);
 	}
 
 	function start() {
@@ -55,16 +57,17 @@
 		);
 	}
 
-	async function stop() {
+	function stop() {
 		if (selected == undefined) return;
-		if (confirm(m.CM_STOP_LISTENER_MSG({ input0: selected!.Ports_u32 })))
-			await toggleListener.mutateAsync(
+		return confirm({ message: m.CM_STOP_LISTENER_MSG({ input0: selected!.Ports_u32 }) }, () =>
+			toggleListener.mutateAsync(
 				new VpnRpcListener({ Port_u32: selected!.Ports_u32, Enable_bool: false })
-			);
+			)
+		);
 	}
 </script>
 
-<div class="card bg-base-300">
+<div class="card bg-base-100 shadow dark:bg-base-300">
 	<div class="card-body gap-3 p-4">
 		<p class="font-semibold">{m.D_SM_SERVER__STATIC1()}</p>
 		<p class="text-sm opacity-70">{m.D_SM_SERVER__STATIC2()}</p>
@@ -80,8 +83,7 @@
 					<tbody>
 						{#each query.data as l (l.Ports_u32)}
 							<tr
-								class:bg-base-100={selected?.Ports_u32 == l.Ports_u32}
-								class="hover:bg-base-100"
+								class={{ 'bg-base-300 dark:bg-base-100': selected?.Ports_u32 == l.Ports_u32 }}
 								onclick={() => select(l)}>
 								<td>TCP {l.Ports_u32}</td>
 								<td>

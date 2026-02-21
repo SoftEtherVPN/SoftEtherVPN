@@ -34,7 +34,7 @@
 	</h1>
 
 	<!-- Virtual Hub Table -->
-	<div class="card bg-base-100 shadow dark:border dark:border-base-300">
+	<div class="card bg-base-100 shadow dark:bg-base-300">
 		<div class="card-body gap-4 p-4">
 			<div class="h-56 overflow-x-auto">
 				<table class="table">
@@ -95,7 +95,7 @@
 		<Listener />
 
 		<!-- VPN Server and Network Information and Settings -->
-		<div class="card bg-base-100 shadow dark:border dark:border-base-300">
+		<div class="card bg-base-100 shadow dark:bg-base-300">
 			<div class="card-body gap-3 p-4">
 				<p class="font-semibold">{m.D_SM_SERVER__STATIC3()}</p>
 				<div class="grid grid-cols-2 gap-2">
@@ -126,7 +126,7 @@
 	</div>
 
 	<!-- Bottom settings buttons -->
-	<div class="card bg-base-100 shadow dark:border dark:border-base-300">
+	<div class="card bg-base-100 shadow dark:bg-base-300">
 		<div class="card-body p-4">
 			<div class="grid grid-cols-2 gap-2 *:btn *:btn-neutral *:not-dark:btn-soft sm:grid-cols-4">
 				<button>{m.D_SM_SERVER__B_BRIDGE()}</button>

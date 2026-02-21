@@ -9,6 +9,7 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
+	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import url from '../../../../../../PenCore/VPNSvr.ico';
 
 	let { children } = $props();
@@ -43,5 +44,6 @@
 		<Header />
 		{@render children()}
 	</div>
+	<ConfirmDialog />
 	<SvelteQueryDevtools />
 </QueryClientProvider>

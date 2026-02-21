@@ -9,6 +9,7 @@
 	import { zod4 as zod, zod4Client as zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { Field, Control, FieldErrors, Label } from 'formsnap';
+	import Button from '$lib/components/button.svelte';
 
 	interface Props {
 		open: boolean;
@@ -81,9 +82,9 @@
 		</div>
 
 		<div class="modal-action">
-			<button class="btn" type="submit" disabled={$submitting}>
+			<Button class="btn" type="submit" loading={$submitting} disabled={$submitting}>
 				{m.D_SM_CREATE_LISTENER__IDOK()}
-			</button>
+			</Button>
 			<button class="btn btn-outline" formmethod="dialog" formnovalidate>
 				{m.D_SM_CREATE_LISTENER__IDCANCEL()}
 			</button>
