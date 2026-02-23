@@ -42,7 +42,10 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={url} /></svelte:head>
+<svelte:head>
+	<title>{m.PRODUCT_NAME_VPN_SMGR()}</title>
+	<link rel="icon" href={url} />
+</svelte:head>
 
 <QueryClientProvider client={queryClient}>
 	<div class="container mx-auto">
