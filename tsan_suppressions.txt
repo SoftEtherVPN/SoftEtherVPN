@@ -22,6 +22,16 @@ race_top:BindConnectEx5
 # WaitThread simply returns.
 race_top:ThreadPoolProc
 
+
+## Accept/Disconnect cancellation
+# Thread Sanitizer reports two data races on CancelAccept and CallingThread in SOCK, shared between
+# Accept(Accept6) and Disconnect. These are used when interrupting an Accept operation from a Disconnect.
+# They are race-safe because they work correctly even if both fields have old values.
+race_top:^Accept$
+race_top:^Accept6$
+race_top:^Disconnect$
+
+
 ## Manual PTHREAD_MUTEX_RECURSIVE
 # The Lock/Unlock mechanism on Unix is a manual, hand-coded implementation of PTHREAD_MUTEX_RECURSIVE.
 # We avoid using the PTHREAD_MUTEX_RECURSIVE directly because it exhibits critical bugs, such as deadlocks
