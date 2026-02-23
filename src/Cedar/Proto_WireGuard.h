@@ -177,7 +177,7 @@ char *WgsOptionStringValue(const char *name);
 bool WgsInit(void **param, const LIST *options, CEDAR *cedar, INTERRUPT_MANAGER *im, SOCK_EVENT *se, const char *cipher, const char *hostname);
 void WgsFree(void *param);
 bool WgsIsPacketForMe(const PROTO_MODE mode, const void *data, const UINT size);
-bool WgsProcessDatagrams(void *param, LIST *in, LIST *out);
+bool WgsProcessDatagrams(void *param, QUEUE_MPSC *in, UDP_MANAGER *manager);
 
 void WgsLog(const WG_SERVER *server, const char *name, ...);
 
