@@ -65,7 +65,7 @@
 				<button>{m.D_SM_SERVER__B_BRIDGE()}</button>
 				<button>{m.D_SM_SERVER__B_L3()}</button>
 				<a href="#/ipsec">{m.D_SM_SERVER__B_IPSEC()}</a>
-				<button>{m.D_SM_SERVER__B_OPENVPN()}</button>
+				<a href="#/openvpn">{m.D_SM_SERVER__B_OPENVPN()}</a>
 				<button>{m.D_SM_SERVER__B_DDNS()}</button>
 				<button>{m.D_SM_SERVER__B_AZURE()}</button>
 			</div>
