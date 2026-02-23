@@ -1,0 +1,12 @@
+{
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"typescript.tsserver.maxTsServerMemory": 8192,
+	"typescript.tsserver.watchOptions": {
+		"watchFile": "useFsEventsOnParentDirectory",
+		"watchDirectory": "useFsEvents",
+		"fallbackPolling": "dynamicPriorityPolling"
+	},
+	"tailwindCSS.classFunctions": ["tv"]
+}
