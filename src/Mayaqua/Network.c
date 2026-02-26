@@ -6993,6 +6993,18 @@ void IPToStr6Inner(char *str, IP *ip)
 	}
 }
 
+// Format IP and subnet mask as "<ip>/<masksize>"
+void IPAndMaskToStr(char *str, UINT size, IP *ip, IP *subnet)
+{
+	int iplen;
+	UINT masksize;
+
+	IPToStr(str, size, ip);
+	iplen = StrLen(str);
+	masksize = SubnetMaskToInt(subnet);
+	Format(str + iplen, size - iplen, "/%d", masksize);
+}
+
 // Convert the string to an IP address
 bool StrToIP6(IP *ip, char *str)
 {

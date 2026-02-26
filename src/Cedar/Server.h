@@ -276,6 +276,9 @@ struct SERVER
 	IP ListenIP;						// Listen IP
 	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
 	bool DisableJsonRpcWebApi;					// Disable JSON-RPC Web API
+
+	IP JsonRpcWebApiAllowedSubnetAddr;  // If set, allow access to JSON-RPC Web API from
+	IP JsonRpcWebApiAllowedSubnetMask;  //   this subnet only
 };
 
 
