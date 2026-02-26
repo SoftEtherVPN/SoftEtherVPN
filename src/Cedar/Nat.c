@@ -737,6 +737,15 @@ void InVhOption(VH_OPTION *t, PACK *p)
 	PackGetStr(p, "RpcHubName", t->HubName, sizeof(t->HubName));
 	t->ApplyDhcpPushRoutes = PackGetBool(p, "ApplyDhcpPushRoutes");
 	PackGetStr(p, "DhcpPushRoutes", t->DhcpPushRoutes, sizeof(t->DhcpPushRoutes));
+
+	if (GetElement(p, "DhcpPushOvpnGateway", VALUE_INT) == NULL)   // vpnsmgr or vpnserver  is not aware of 'vpn_gateway' keyword
+	{
+		t->Ovpn_gateway = (UINT)(-1);
+	}
+	else
+	{
+		t->Ovpn_gateway = PackGetInt(p, "DhcpPushOvpnGateway");
+	}
 }
 void OutVhOption(PACK *p, VH_OPTION *t)
 {
@@ -766,6 +775,7 @@ void OutVhOption(PACK *p, VH_OPTION *t)
 	PackAddStr(p, "RpcHubName", t->HubName);
 	PackAddBool(p, "ApplyDhcpPushRoutes", true);
 	PackAddStr(p, "DhcpPushRoutes", t->DhcpPushRoutes);
+	PackAddInt(p, "DhcpPushOvpnGateway", t->Ovpn_gateway);
 }
 
 // RPC_ENUM_DHCP
@@ -1404,6 +1414,9 @@ void NiLoadVhOptionEx(VH_OPTION *o, FOLDER *root)
 	CfgGetStr(dhcp, "DhcpDomainName", o->DhcpDomainName, sizeof(o->DhcpDomainName));
 
 	CfgGetStr(dhcp, "DhcpPushRoutes", o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes));
+	IP ovpn_gw;
+	CfgGetIp(dhcp, "DhcpPushOvpnGateway", &ovpn_gw);
+	o->Ovpn_gateway = IPToUINT(&ovpn_gw);
 
 // Test code
 //	StrCpy(o->DhcpPushRoutes, sizeof(o->DhcpPushRoutes),
@@ -1543,6 +1556,10 @@ void NiWriteVhOptionEx(VH_OPTION *o, FOLDER *root)
 	CfgAddIp(dhcp, "DhcpDnsServerAddress2", &o->DhcpDnsServerAddress2);
 	CfgAddStr(dhcp, "DhcpDomainName", o->DhcpDomainName);
 	CfgAddStr(dhcp, "DhcpPushRoutes", o->DhcpPushRoutes);
+
+	IP ovpn_gw;
+	UINTToIP(&ovpn_gw, o->Ovpn_gateway);
+	CfgAddIp(dhcp, "DhcpPushOvpnGateway", &ovpn_gw);
 
 	CfgAddBool(root, "SaveLog", o->SaveLog);
 }

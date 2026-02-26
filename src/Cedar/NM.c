@@ -38,6 +38,8 @@ UINT NmEditPushRouteProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 	switch (msg)
 	{
 	case WM_INITDIALOG:
+		if (r->CurrentOvpn_gateway == (UINT)(-1)) IpSet(hWnd, E_IP, 0);
+		else IpSet(hWnd, E_IP, r->CurrentOvpn_gateway);
 		SetTextA(hWnd, E_TEXT, r->CurrentPushRouteStr);
 		Focus(hWnd, E_TEXT);
 
@@ -49,9 +51,16 @@ UINT NmEditPushRouteProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void
 		{
 		case IDOK:
 			str = GetTextA(hWnd, E_TEXT);
+			r->CurrentOvpn_gateway = IpGet(hWnd, E_IP);
+
 			if (str != NULL)
 			{
 				bool ok = true;
+				if (strstr(str, "/vpn_gateway") != NULL && r->CurrentOvpn_gateway == 0)
+				{
+					MsgBox(hWnd, MB_ICONWARNING | MB_OK | MB_DEFBUTTON2, _UU("NM_PUSH_ROUTE_VPNGW_WARN"));
+					ok = false;
+				}
 
 				if (CheckClasslessRouteTableStr(str) == false)
 				{
@@ -779,6 +788,7 @@ void NmEditVhOptionInit(HWND hWnd, SM_HUB *r)
 	Check(hWnd, R_SAVE_LOG, t.SaveLog);
 
 	StrCpy(r->CurrentPushRouteStr, sizeof(r->CurrentPushRouteStr), t.DhcpPushRoutes);
+	r->CurrentOvpn_gateway = t.Ovpn_gateway;
 
 	if (GetCapsBool(r->p->CapsList, "b_suppport_push_route_config") == false)
 	{
@@ -923,6 +933,7 @@ void NmEditVhOptionOnOk(HWND hWnd, SM_HUB *r)
 
 	t.ApplyDhcpPushRoutes = true;
 	StrCpy(t.DhcpPushRoutes, sizeof(t.DhcpPushRoutes), r->CurrentPushRouteStr);
+	t.Ovpn_gateway = r->CurrentOvpn_gateway;
 
 	if (CALL(hWnd, ScSetSecureNATOption(r->Rpc, &t)))
 	{
@@ -1013,6 +1024,8 @@ void NmEditVhOption(HWND hWnd, SM_HUB *r)
 	}
 
 	Zero(r->CurrentPushRouteStr, sizeof(r->CurrentPushRouteStr));
+	r->CurrentOvpn_gateway = 0;
+
 	Dialog(hWnd, D_NM_OPTION, NmEditVhOptionProc, r);
 }
 

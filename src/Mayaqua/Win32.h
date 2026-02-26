@@ -121,6 +121,8 @@ UINT Win32GetNumberOfCpuInner();
 
 void Win32SetThreadName(UINT thread_id, char *name);
 
+bool MyAllocConsole();
+
 #endif	// WIN32_H
 
 #endif	// OS_WIN32

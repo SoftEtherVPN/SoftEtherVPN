@@ -1143,6 +1143,9 @@
 #define D_DEFAULT3                      2097
 #define D_NM_PUSH                       2097
 #define D_CM_PROXY_HTTP_HEADER          2098
+
+#define S_VPN_GW						2200
+
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021
