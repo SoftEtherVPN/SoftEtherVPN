@@ -651,6 +651,15 @@ struct IKE_HEADER
 #define IKE_EXCHANGE_TYPE_INFORMATION		5	// Information exchange
 #define IKE_EXCHANGE_TYPE_QUICK				32	// Quick mode
 
+// IKEv2 version identifier (in the Version field of IKE_HEADER)
+#define IKEv2_VERSION					0x20	// 2.0
+
+// IKEv2 exchange types (RFC 7296)
+#define IKEv2_EXCHANGE_IKE_SA_INIT		34
+#define IKEv2_EXCHANGE_IKE_AUTH			35
+#define IKEv2_EXCHANGE_CREATE_CHILD_SA	36
+#define IKEv2_EXCHANGE_INFORMATIONAL	37
+
 // DHCPv4 data
 struct DHCPV4_DATA
 {
