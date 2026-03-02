@@ -3,7 +3,6 @@
 
 #include "CedarType.h"
 
-#include "Mayaqua/MayaType.h"
 #include "Mayaqua/Network.h"
 
 #define PROTO_OPTION_TOGGLE_NAME "Enabled"
@@ -31,10 +30,12 @@ typedef enum PROTO_OPTION_VALUE
 
 typedef struct PROTO
 {
+	volatile bool Halt;
+	THREAD *Thread;
 	CEDAR *Cedar;
 	LIST *Containers;
 	HASH_LIST *Sessions;
-	UDPLISTENER *UdpListener;
+	UDP_MANAGER *Manager;
 } PROTO;
 
 struct PROTO_OPTION
@@ -58,7 +59,7 @@ typedef struct PROTO_IMPL
 	void (*Free)(void *param);
 	bool (*IsPacketForMe)(const PROTO_MODE mode, const void *data, const UINT size);
 	bool (*ProcessData)(void *param, TCP_RAW_DATA *in, FIFO *out);
-	bool (*ProcessDatagrams)(void *param, LIST *in, LIST *out);
+	bool (*ProcessDatagrams)(void *param, QUEUE_MPSC *in, UDP_MANAGER *manager);
 } PROTO_IMPL;
 
 typedef struct PROTO_CONTAINER
@@ -77,12 +78,11 @@ typedef struct PROTO_SESSION
 	USHORT SrcPort;
 	IP DstIp;
 	USHORT DstPort;
-	LIST *DatagramsIn;
-	LIST *DatagramsOut;
+	QUEUE_MPSC *InQueue;
+	QUEUE_MPSC *OutQueue;
 	SOCK_EVENT *SockEvent;
 	INTERRUPT_MANAGER *InterruptManager;
 	THREAD *Thread;
-	LOCK *Lock;
 	volatile bool Halt;
 } PROTO_SESSION;
 
@@ -111,7 +111,7 @@ bool ProtoSetListenIP(PROTO *proto, const IP *ip);
 bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports);
 
 bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol);
-void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams);
+void ProtoHandleDatagrams(THREAD *thread, void *param);
 void ProtoSessionThread(THREAD *thread, void *param);
 
 #endif
