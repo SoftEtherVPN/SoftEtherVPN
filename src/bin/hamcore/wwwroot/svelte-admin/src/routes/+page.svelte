@@ -6,6 +6,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import Listener from './listener/listener.svelte';
 	import Hub from './hub/hub.svelte';
+	import ServerStatus from './server-status.svelte';
 
 	const serverName = browser ? location.host : '';
 
@@ -13,6 +14,8 @@
 		queryKey: [dashboardKey, 'ddns'],
 		queryFn: rpc.GetDDnsClientStatus
 	}));
+
+	let serverStatusOpen = $state(false);
 </script>
 
 <div class="mt-6 flex flex-col gap-4">
@@ -29,28 +32,28 @@
 
 		<!-- VPN Server and Network Information and Settings -->
 		<div class="card bg-base-100 shadow dark:bg-base-300">
-			<div class="card-body gap-3 p-4">
-				<p class="font-semibold">{m.D_SM_SERVER__STATIC3()}</p>
-				<div class="grid grid-cols-2 gap-2">
-					<button class="btn justify-start btn-sm btn-neutral not-dark:btn-soft">
+			<div class="card-body">
+				<h3 class="card-title">{m.D_SM_SERVER__STATIC3()}</h3>
+				<div class="grid grid-cols-2 gap-2 *:btn *:justify-start *:btn-neutral *:not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_SSL()}
 					</button>
-					<button class="btn justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_FARM()}
 					</button>
-					<button class="btn justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button onclick={() => (serverStatusOpen = true)}>
 						{m.D_SM_SERVER__B_STATUS()}
 					</button>
-					<button class="btn btn-disabled justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_FARM_STATUS()}
 					</button>
-					<button class="btn justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_INFO()}
 					</button>
-					<button class="btn justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_CONNECTION()}
 					</button>
-					<button class="btn col-span-2 justify-start btn-sm btn-neutral not-dark:btn-soft">
+					<button>
 						{m.D_SM_SERVER__B_CONFIG()}
 					</button>
 				</div>
@@ -60,7 +63,7 @@
 
 	<!-- Bottom settings buttons -->
 	<div class="card bg-base-100 shadow dark:bg-base-300">
-		<div class="card-body p-4">
+		<div class="card-body">
 			<div class="grid grid-cols-2 gap-2 *:btn *:btn-neutral *:not-dark:btn-soft sm:grid-cols-4">
 				<button>{m.D_SM_SERVER__B_BRIDGE()}</button>
 				<button>{m.D_SM_SERVER__B_L3()}</button>
@@ -78,3 +81,5 @@
 		<span class="font-mono font-medium opacity-100">{ddnsQuery.data?.CurrentFqdn_str}</span>
 	</p>
 </div>
+
+<ServerStatus bind:open={serverStatusOpen} />

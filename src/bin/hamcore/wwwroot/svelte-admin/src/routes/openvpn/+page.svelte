@@ -5,7 +5,7 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { Field, Control, FieldErrors, Label } from 'formsnap';
+	import { Field, Control, Label } from 'formsnap';
 	import Button from '$lib/components/button.svelte';
 
 	const client = useQueryClient();
@@ -30,7 +30,6 @@
 
 	const schema = z.object({
 		EnableOpenVPN_bool: z.boolean(),
-		OpenVPNPortList_str: z.string().min(1),
 		EnableSSTP_bool: z.boolean()
 	});
 
@@ -45,7 +44,7 @@
 				await saveMutation.mutateAsync(
 					new VpnOpenVpnSstpConfig({
 						EnableOpenVPN_bool: form.data.EnableOpenVPN_bool,
-						OpenVPNPortList_str: form.data.OpenVPNPortList_str,
+						OpenVPNPortList_str: '1194',
 						EnableSSTP_bool: form.data.EnableSSTP_bool
 					})
 				);
@@ -61,7 +60,6 @@
 			form.update(
 				($form) => {
 					$form.EnableOpenVPN_bool = data.EnableOpenVPN_bool;
-					$form.OpenVPNPortList_str = data.OpenVPNPortList_str;
 					$form.EnableSSTP_bool = data.EnableSSTP_bool;
 					return $form;
 				},
@@ -112,34 +110,6 @@
 						{/snippet}
 					</Control>
 				</Field>
-
-				<!-- UDP Ports -->
-				<Field form={sf} name="OpenVPNPortList_str">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">UDP Ports to Listen for OpenVPN:</Label>
-							<div class="flex items-center gap-2">
-								<input
-									{...props}
-									type="text"
-									class="input input-sm w-48"
-									disabled={!$form.EnableOpenVPN_bool}
-									bind:value={$form.OpenVPNPortList_str} />
-								<button
-									type="button"
-									class="btn btn-sm btn-neutral not-dark:btn-soft"
-									disabled={!$form.EnableOpenVPN_bool}
-									onclick={() => ($form.OpenVPNPortList_str = '1194')}>
-									Restore Default
-								</button>
-							</div>
-						{/snippet}
-					</Control>
-					<FieldErrors class="text-xs text-error" />
-					<span class="label text-wrap lg:max-w-2/3">
-						{m.CMD_PortsUDPSet_Help()}
-					</span>
-				</Field>
 			</fieldset>
 
 			<div class="divider"></div>
@@ -162,7 +132,7 @@
 			<!-- Section: MS-SSTP Clone Server Function -->
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_2()}</legend>
-				<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_3()}</p>
+				<span class="text-sm opacity-70">{m.D_SM_OPENVPN__S_3()}</span>
 
 				<Field form={sf} name="EnableSSTP_bool">
 					<Control>

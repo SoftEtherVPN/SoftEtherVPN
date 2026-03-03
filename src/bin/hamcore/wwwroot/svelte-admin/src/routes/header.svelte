@@ -1,9 +1,16 @@
 <script lang="ts">
-	import { getLocale, locales, setLocale, type Locale } from '$lib/paraglide/runtime';
+	import {
+		getLocale,
+		locales,
+		setLocale,
+		type Locale,
+		getTextDirection
+	} from '$lib/paraglide/runtime';
 	import { m } from '$lib/paraglide/messages';
 	import ThemeSwitcher from '$lib/components/theme-switcher.svelte';
 	import House from '@lucide/svelte/icons/house';
 	import Globe from '@lucide/svelte/icons/globe';
+	import { onMount } from 'svelte';
 
 	const languages: { code: Locale; flag: string }[] = [
 		{ code: 'en', flag: '🇬🇧' },
@@ -21,6 +28,11 @@
 	let selectedLang: (typeof languages)[number] = $derived(
 		languages.find((l) => l.code == currentLang) ?? { code: currentLang, flag: '' }
 	);
+
+	onMount(() => {
+		document.documentElement.lang = currentLang;
+		document.documentElement.dir = getTextDirection(currentLang);
+	});
 </script>
 
 <div class="navbar mt-6 rounded-xl bg-base-200 shadow-xl">

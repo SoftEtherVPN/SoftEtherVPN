@@ -15,7 +15,6 @@ export default defineConfig(async ({ mode }) => {
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
 			strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
-			emitTsDeclarations: true,
 			outputStructure: isPROD ? 'message-modules' : 'locale-modules',
 			isServer: "import.meta.env?.SSR ?? typeof window === 'undefined'"
 		});

@@ -1,102 +1,4 @@
-import type {
-	BundleImport,
-	Declaration,
-	InlangPlugin,
-	MessageImport,
-	VariantImport
-} from '@inlang/sdk';
-
-const IGNORE: string[] = ['CMD', 'D_SW', 'D_CM', 'D_EM', 'SW'];
-
-const plugin: InlangPlugin = {
-	key: 'plugin.softether.stb',
-	toBeImportedFiles: async ({ settings }) => {
-		return settings.locales.map((locale) => ({
-			locale,
-			path: `../../strtable_${locale}.stb`
-		}));
-	},
-	importFiles: async ({ files }) => {
-		const bundles: BundleImport[] = [];
-		const messages: MessageImport[] = [];
-		const variants: VariantImport[] = [];
-
-		for (const file of files) {
-			const content = new TextDecoder().decode(file.content);
-			let prefix = '';
-
-			for (let line of content.split(/\r?\n|\r|\n/g)) {
-				let [entry, newPrefix] = parseTableLine(line, prefix);
-				prefix = newPrefix;
-
-				if (entry != null) {
-					if (IGNORE.some((x) => entry.name.startsWith(x))) continue;
-
-					let declarations: Declaration[] = entry.tagList
-						.map((tag, i) => {
-							if (tag == '%u' || tag == '%s' || tag == '%S') {
-								let ext = tag == '%u' ? ': number' : '';
-								entry.str = entry.str.replace(tag, `{{input${i}${ext}}}`);
-								return {
-									name: 'input' + i,
-									type: 'input-variable'
-								} as Declaration;
-							}
-							return null;
-						})
-						.filter((d) => d != null);
-
-					bundles.push({
-						id: entry.name,
-						declarations
-					});
-
-					messages.push({
-						bundleId: entry.name,
-						locale: file.locale
-					});
-
-					variants.push({
-						messageBundleId: entry.name,
-						messageLocale: file.locale,
-						pattern: buildPattern(entry.str)
-					});
-				}
-			}
-		}
-
-		return { bundles, messages, variants };
-	},
-	exportFiles: async () => []
-};
-
-function buildPattern(str: string): VariantImport['pattern'] {
-	const pattern: VariantImport['pattern'] = [];
-	const regex = /\{\{(\w+)(?::\s*\w+)?\}\}/g;
-	let lastIndex = 0;
-	let match: RegExpExecArray | null;
-
-	while ((match = regex.exec(str)) !== null) {
-		if (match.index > lastIndex) {
-			pattern.push({ type: 'text', value: str.slice(lastIndex, match.index) });
-		}
-
-		pattern.push({
-			type: 'expression',
-			arg: { type: 'variable-reference', name: match[1] }
-		});
-
-		lastIndex = regex.lastIndex;
-	}
-
-	if (lastIndex < str.length) {
-		pattern.push({ type: 'text', value: str.slice(lastIndex) });
-	}
-
-	return pattern;
-}
-
-export default plugin;
+import { readFile, open, FileHandle, writeFile } from 'node:fs/promises';
 
 interface StbTable {
 	name: string;
@@ -271,3 +173,24 @@ function parseTagList(str: string) {
 
 	return list;
 }
+
+const IGNORE: string[] = ['CMD', 'D_SW', 'D_CM', 'D_EM', 'SW'];
+
+const content = await readFile('../../strtable_en.stb', { encoding: 'utf8' });
+const indexFile = await open('index.trad.txt', 'w+');
+
+let prefixes: string[] = [];
+let prefix = '';
+for (let line of content.split(/\r?\n|\r|\n/g)) {
+	let [entry, newPrefix] = parseTableLine(line, prefix);
+	prefix = newPrefix;
+
+	if (!prefixes.includes(prefix)) prefixes.push(prefix);
+
+	if (entry != null) {
+		if (IGNORE.some((x) => entry.name.startsWith(x))) continue;
+		await indexFile.write(`${entry.name}   ${entry.str}\n`);
+	}
+}
+await writeFile('index.json', JSON.stringify(prefixes), { flag: 'w+', encoding: 'utf8' });
+await indexFile.close();

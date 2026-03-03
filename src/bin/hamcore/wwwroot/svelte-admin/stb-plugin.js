@@ -1,4 +1,5 @@
 // stb-plugin.ts
+var IGNORE = ["CMD", "D_SW", "D_CM", "D_EM", "SW"];
 var plugin = {
   key: "plugin.softether.stb",
   toBeImportedFiles: async ({ settings }) => {
@@ -18,6 +19,8 @@ var plugin = {
         let [entry, newPrefix] = parseTableLine(line, prefix);
         prefix = newPrefix;
         if (entry != null) {
+          if (IGNORE.some((x) => entry.name.startsWith(x)))
+            continue;
           let declarations = entry.tagList.map((tag, i) => {
             if (tag == "%u" || tag == "%s" || tag == "%S") {
               let ext = tag == "%u" ? ": number" : "";
