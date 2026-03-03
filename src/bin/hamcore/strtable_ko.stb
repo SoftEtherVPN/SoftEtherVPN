@@ -1705,6 +1705,7 @@ DHCP_IP_ADDRESS 할당 IP
 DHCP_HOSTNAME 클라이언트 호스트 이름
 NM_PASSWORD_MSG 관리 암호를 설정했습니다.
 NM_PUSH_ROUTE_WARNING 지정된 정적 라우팅 테이블의 텍스트에 문법 오류가있을 수 있습니다.
+NM_PUSH_ROUTE_VPNGW_WARN	If you are using 'vpn_gateway' keyword as the IP address of the gateway in the static routing table, you must set its value also.
 
 
 # 정보 계
@@ -4219,8 +4220,10 @@ S2 VPN 클라이언트가 클래스없는 고정 경로 (RFC 3442)을 인식 할
 S3 가상 DHCP 서버 옵션에서 기본 게이트웨이를 공백으로 설정하여 분할 터널링이 가능합니다. L2TP/IPsec 및 MS-SSTP 클라이언트를 사용하는 경우에는 IPv4 설정 화면에서 기본 게이트웨이를 VPN 서버로 향하지 않도록 설정해야합니다.
 S4 로컬 브리지를 통해 외부에 DHCP 서버가있는 경우 해당 DHCP 서버에서 클래스없는 고정 경로 (RFC 3442)을 추진하도록 설정할 수도 있습니다. 이 경우 SecureNAT 가상 DHCP 서버 기능을 비활성화하십시오. 또한이 화면에서의 설정은 필요하지 않습니다.
 S5 밀어 정적 라우팅 테이블 편집
-S6 예:192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n 여러 항목 (최대 64 개)은 쉼표 또는 공백으로 구분합니다. \r \n 각 항목은 "IP 네트워크 주소/서브넷 마스크/게이트웨이 IP 주소"형식으로 작성합니다.
+#S6 예:192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n 여러 항목 (최대 64 개)은 쉼표 또는 공백으로 구분합니다. \r \n 각 항목은 "IP 네트워크 주소/서브넷 마스크/게이트웨이 IP 주소"형식으로 작성합니다.
+S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n    OR     192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway      for OpenVPN Connect\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format,\r\n   OR  you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients.
 S7 클래스없는 고정 경로 내용은 RFC 3442을 참조하십시오.
+S_VPN_GW				IP address of "vpn_gateway" for OpenVPN Connect
 IDOK & OK
 IDCANCEL 취소
 
@@ -4458,6 +4461,7 @@ CMD_KEYPAIR_FAILED 지정된 X.509 인증서 및 개인 키 조합은 유효하�
 CMD_CERT_NOT_EXISTS 인증서는 등록되어 있지 않습니다.
 CMD_NO_SETTINGS -
 CMD_DISCONNECTED_MSG \n --- 오류 --- \n \n 관리 호스트와의 통신 세션이 끊어졌습니다. 이 후 명령을 실행하면 오류가 발생합니다. \n \n 관리 호스트에 다시 연결하려면 EXIT를 입력하고 한 번 프롬프트에서 빠져 다시 연결하십시오. \n \n
+CMD_BOOL_EVAL_FAILED	The boolean value should be: YES  or NO
 
 
 # VPNCMD 명령
@@ -6137,6 +6141,7 @@ CMD_DhcpGet_Column_DNS DNS 서버 주소 1
 CMD_DhcpGet_Column_DNS2 DNS 서버 주소 2
 CMD_DhcpGet_Column_DOMAIN 도메인 이름
 CMD_DhcpGet_Column_PUSHROUTE 밀어 정적 라우팅 테이블
+CMD_DhcpGet_Column_OVPNGATEWAY	'vpn_gateway' value for OVPN
 
 
 # DhcpEnable 명령
@@ -6152,9 +6157,11 @@ CMD_DhcpDisable_Args DhcpDisable
 
 
 # DhcpSet 명령
-CMD_DhcpSet SecureNAT 기능의 가상 DHCP 서버 기능의 설정 변경
+#CMD_DhcpSet SecureNAT 기능의 가상 DHCP 서버 기능의 설정 변경
+CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function. Press <Enter> to keep a current value; type '' to clear it. 
 CMD_DhcpSet_Help 현재 관리하고있는 가상 HUB의 가상 DHCP 서버 설정을 변경합니다. 가상 DHCP 서버의 설정에는 배포 IP 주소 범위, 서브넷 마스크, 임대 기간 및 클라이언트에 할당 옵션 값이 포함됩니다. \n이 명령은 클러스터로 작동하는 VPN Server의 가상 HUB에서는 실행되지 않습니다.
-CMD_DhcpSet_Args DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+#CMD_DhcpSet_Args DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"] [/OVPNGW:ovpngwip] 
 CMD_DhcpSet_START 클라이언트에 배포 할 주소 범위의 시작점을 지정합니다. (예:192.168.30.10)
 CMD_DhcpSet_END 클라이언트에 배포 할 주소 범위의 끝점을 지정합니다. (예:192.168.30.200)
 CMD_DhcpSet_MASK 클라이언트에 지정 서브넷 마스크를 지정합니다. (예:255.255.255.0)
@@ -6164,7 +6171,9 @@ CMD_DhcpSet_DNS 클라이언트에 통지하는 DNS 서버 (주)의 IP 주소를
 CMD_DhcpSet_DNS2 클라이언트에 통지하는 DNS 서버 (보조)의 IP 주소를 지정합니다. SecureNAT 기능의 가상 NAT 기능과 함께 사용하여 사용하는 경우 SecureNAT 가상 호스트의 IP 주소를 지정할 수도 있습니다. 0 또는 none을 지정하면 DNS 서버 주소를 클라이언트에 통지하지 않습니다.
 CMD_DhcpSet_DOMAIN 클라이언트에 통지하는 도메인 이름을 지정합니다. none을 지정하면 도메인 이름을 클라이언트에게 통지하지 않습니다.
 CMD_DhcpSet_LOG 가상 DHCP 서버의 동작을 가상 HUB의 보안 로그에 저장할지 여부를 지정합니다. "yes"를 지정하면 저장합니다. 이 값은 가상 NAT 기능의 로그 저장 설정과 함께하고 있습니다.
-CMD_DhcpSet_PUSHROUTE 밀어 정적 라우팅 테이블을 지정합니다. \n 예:"192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n 여러 항목 (최대 64 개)은 쉼표 또는 공백으로 구분합니다. 각 항목은 "IP 네트워크 주소/서브넷 마스크/게이트웨이 IP 주소"형식으로 작성합니다. \nVPN 클라이언트에이 가상 DHCP 서버에서 DHCP 응답을 보낼 때, 클래스없는 고정 경로 (RFC 3442)을 함께 보낼 수 있습니다. \nVPN 클라이언트가 클래스없는 고정 경로 (RFC 3442)을 인식 할 수 있는지 여부는 VPN 클라이언트 소프트웨어에 따라 다릅니다. SoftEther VPN Client 및 OpenVPN Client는 클래스없는 고정 경로에 해당합니다. L2TP/IPsec 및 MS-SSTP에서는 이용 여부는 클라이언트 소프트웨어에 따라 달라집니다. \n 가상 DHCP 서버 옵션에서 기본 게이트웨이를 공백으로 설정하여 분할 터널링이 가능합니다. L2TP/IPsec 및 MS-SSTP 클라이언트를 사용하는 경우에는 IPv4 설정 화면에서 기본 게이트웨이를 VPN 서버로 향하지 않도록 설정해야합니다. \n 로컬 브리지를 통해 외부에 DHCP 서버가있는 경우 해당 DHCP 서버에서 클래스없는 고정 경로 (RFC 3442)을 추진하도록 설정할 수도 있습니다. 이 경우 SecureNAT 가상 DHCP 서버 기능을 비활성화하십시오. 또한이 명령의 설정은 필요하지 않습니다. \n 클래스없는 고정 경로 내용은 RFC 3442을 참조하십시오.
+#CMD_DhcpSet_PUSHROUTE 밀어 정적 라우팅 테이블을 지정합니다. \n 예:"192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n 여러 항목 (최대 64 개)은 쉼표 또는 공백으로 구분합니다. 각 항목은 "IP 네트워크 주소/서브넷 마스크/게이트웨이 IP 주소"형식으로 작성합니다. \nVPN 클라이언트에이 가상 DHCP 서버에서 DHCP 응답을 보낼 때, 클래스없는 고정 경로 (RFC 3442)을 함께 보낼 수 있습니다. \nVPN 클라이언트가 클래스없는 고정 경로 (RFC 3442)을 인식 할 수 있는지 여부는 VPN 클라이언트 소프트웨어에 따라 다릅니다. SoftEther VPN Client 및 OpenVPN Client는 클래스없는 고정 경로에 해당합니다. L2TP/IPsec 및 MS-SSTP에서는 이용 여부는 클라이언트 소프트웨어에 따라 달라집니다. \n 가상 DHCP 서버 옵션에서 기본 게이트웨이를 공백으로 설정하여 분할 터널링이 가능합니다. L2TP/IPsec 및 MS-SSTP 클라이언트를 사용하는 경우에는 IPv4 설정 화면에서 기본 게이트웨이를 VPN 서버로 향하지 않도록 설정해야합니다. \n 로컬 브리지를 통해 외부에 DHCP 서버가있는 경우 해당 DHCP 서버에서 클래스없는 고정 경로 (RFC 3442)을 추진하도록 설정할 수도 있습니다. 이 경우 SecureNAT 가상 DHCP 서버 기능을 비활성화하십시오. 또한이 명령의 설정은 필요하지 않습니다. \n 클래스없는 고정 경로 내용은 RFC 3442을 참조하십시오.
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n  OR   "192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway"  for OpenVPN clients\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format, OR you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_OVPNGW			Specify the IP address of 'vpn_gateway' parameter to be notified to the client. If you specify 0 or none, then the client will not be notified of the vpn_gateway value. If you use the 'vpn_gateway' keyword in the classless static routing table, you must specify this value also.
 CMD_DhcpSet_Prompt_START 배포 할 주소 범위의 시작점:
 CMD_DhcpSet_Prompt_END 배포 할 주소 범위의 끝:
 CMD_DhcpSet_Prompt_MASK 서브넷 마스크:
@@ -6173,6 +6182,11 @@ CMD_DhcpSet_Prompt_GW 기본 게이트웨이 (미 설정 가능):
 CMD_DhcpSet_Prompt_DNS DNS 서버 1 (미 설정 가능):
 CMD_DhcpSet_Prompt_DNS2 DNS 서버 2 (미 설정 가능):
 CMD_DhcpSet_Prompt_DOMAIN 도메인 이름:
+CMD_DhcpSet_Prompt1_GW		Default Gateway: 
+CMD_DhcpSet_Prompt1_DNS		DNS Server 1: 
+CMD_DhcpSet_Prompt1_DNS2	DNS Server 2: 
+CMD_DhcpSet_Prompt_PUSHROUTE	Static routing table to push:
+CMD_DhcpSet_Prompt_OVPNGW	'vpn_gateway' parmeter for OpenVPN: 
 
 
 # DhcpTable 명령

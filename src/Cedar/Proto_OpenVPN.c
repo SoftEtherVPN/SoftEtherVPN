@@ -2490,15 +2490,41 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 										for (i = 0; i < MAX_DHCP_CLASSLESS_ROUTE_ENTRIES; i++)
 										{
 											DHCP_CLASSLESS_ROUTE *r = &cao->ClasslessRoute.Entries[i];
-
+											BYTE* pb;
 											if (r->Exists)
 											{
-												Format(l3_options, sizeof(l3_options),
-												       ",route %r %r %r",
-												       &r->Network, &r->SubnetMask, &r->Gateway);
-
+												pb = (BYTE*)(IPV4(r->Gateway.address));
+												if (pb != NULL && *pb == 0)
+												{
+													if (pb[1] == 'v' && pb[2] == 'p' && pb[3] == 'n')
+													{
+														Format(l3_options, sizeof(l3_options),
+															",route %r %r vpn_gateway",
+															&r->Network, &r->SubnetMask);
+													}
+													else if (pb[1] == 'n' && pb[2] == 'e' && pb[3] == 't')
+													{
+														Format(l3_options, sizeof(l3_options),
+															",route %r %r net_gateway",
+															&r->Network, &r->SubnetMask);
+													}
+												}
+												else
+												{
+													Format(l3_options, sizeof(l3_options),
+														",route %r %r %r",
+														&r->Network, &r->SubnetMask, &r->Gateway);
+												}
 												StrCat(option_str, sizeof(option_str), l3_options);
 											}
+										}
+										if (cao->ClasslessRoute.Ovpn_gateway != 0 && cao->ClasslessRoute.Ovpn_gateway != (UINT)(-1))
+										{
+											IP ip;
+											UINTToIP(&ip, cao->ClasslessRoute.Ovpn_gateway);
+											Format(l3_options, sizeof(l3_options),
+												",route-gateway %r", &ip);
+											StrCat(option_str, sizeof(option_str), l3_options);
 										}
 									}
 
