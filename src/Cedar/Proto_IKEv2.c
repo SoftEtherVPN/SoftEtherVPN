@@ -356,6 +356,7 @@ void IKEv2FreeSA(IKE_SERVER *ike, IKEv2_SA *sa)
     FreeBuf(sa->GxI);
     FreeBuf(sa->GxR);
     FreeBuf(sa->IDi_Data);
+    FreeBuf(sa->IDr_Data);
     FreeBuf(sa->InitMsg);
     FreeBuf(sa->RespMsg);
     FreeBuf(sa->LastResponse);
@@ -563,14 +564,15 @@ BUF *IKEv2EncryptSK(IKE_SERVER *ike, IKEv2_SA *sa, UCHAR next_payload,
     UINT   total_payload_len; // 4 + IV + enc + ICV
     IKE_CRYPTO_PARAM cp;
 
-    // Pad to block boundary: plaintext | padding | pad_len_byte | next_payload_byte
-    plain_len = inner_size + 2; // +2 for pad-length and next-header
+    // Pad to block boundary: plaintext = inner_payloads | padding | pad_len
+    // RFC 7296 Section 3.14: the last byte of the plaintext is Pad Length.
+    plain_len = inner_size + 1; // +1 for pad-length byte
     if ((plain_len % block_size) != 0)
         plain_len = ((plain_len / block_size) + 1) * block_size;
-    pad_len = plain_len - inner_size - 2;
+    pad_len = plain_len - inner_size - 1;
     enc_len = plain_len;
 
-    // Build plaintext: inner | padding | pad_len | next_payload
+    // Build plaintext: inner | padding (incrementing bytes) | pad_len
     plain = ZeroMalloc(plain_len);
     Copy(plain, inner, inner_size);
     {
@@ -578,8 +580,7 @@ BUF *IKEv2EncryptSK(IKE_SERVER *ike, IKEv2_SA *sa, UCHAR next_payload,
         for (i = 0; i < pad_len; i++)
             plain[inner_size + i] = (UCHAR)(i + 1);
     }
-    plain[inner_size + pad_len]     = (UCHAR)pad_len;
-    plain[inner_size + pad_len + 1] = next_payload;
+    plain[inner_size + pad_len] = (UCHAR)pad_len;
 
     // Random IV
     Rand(iv, block_size);
@@ -599,7 +600,8 @@ BUF *IKEv2EncryptSK(IKE_SERVER *ike, IKEv2_SA *sa, UCHAR next_payload,
     result = NewBuf();
 
     // Generic payload header (4 bytes)
-    hdr[0] = IKEv2_PAYLOAD_NONE; // Next payload  (to be filled later by caller via header)
+    // Next Payload = type of first inner payload (RFC 7296 §3.14)
+    hdr[0] = next_payload;
     hdr[1] = 0;                    // Critical
     WRITE_USHORT(hdr + 2, (USHORT)total_payload_len);
     WriteBuf(result, hdr, 4);
@@ -640,7 +642,7 @@ static void IKEv2FillICV(IKE_SERVER *ike, IKEv2_SA *sa,
 // sk_data points to the payload data (after the 4-byte generic header).
 // Returns a BUF of the decrypted inner payloads, or NULL on failure.
 BUF *IKEv2DecryptSK(IKE_SERVER *ike, IKEv2_SA *sa, bool is_init_sending,
-                     void *sk_data, UINT sk_size, UCHAR *out_next_payload)
+                     void *sk_data, UINT sk_size)
 {
     UINT   block_size    = sa->Transform.BlockSize;
     UINT   icv_len       = IKEv2IntegIcvLen(sa->Transform.IntegAlg);
@@ -651,7 +653,6 @@ BUF *IKEv2DecryptSK(IKE_SERVER *ike, IKEv2_SA *sa, bool is_init_sending,
     UCHAR *plain;
     BUF   *result;
     UCHAR  pad_len;
-    UCHAR  nxt;
 
     // sk_data layout (from right after generic header):
     // IV (block_size) | ciphertext | ICV (icv_len)
@@ -669,25 +670,23 @@ BUF *IKEv2DecryptSK(IKE_SERVER *ike, IKEv2_SA *sa, bool is_init_sending,
     plain = Malloc(ct_len);
     IkeCryptoDecrypt(sa->EncKeyI, plain, ciphertext, ct_len, iv);
 
-    // Last two bytes of plaintext: pad_len | next_payload
-    if (ct_len < 2)
+    // RFC 7296 Section 3.14: last byte of plaintext is Pad Length.
+    // Strip Pad Length + 1 bytes from the end to get inner payloads.
+    // The first inner payload type is in the SK generic header (read by caller).
+    if (ct_len < 1)
     {
         Free(plain);
         return NULL;
     }
-    pad_len = plain[ct_len - 2];
-    nxt     = plain[ct_len - 1];
+    pad_len = plain[ct_len - 1];
 
-    if (pad_len + 2 > ct_len)
+    if ((UINT)(pad_len + 1) > ct_len)
     {
         Free(plain);
         return NULL;
     }
 
-    if (out_next_payload)
-        *out_next_payload = nxt;
-
-    result = MemToBuf(plain, ct_len - pad_len - 2);
+    result = MemToBuf(plain, ct_len - pad_len - 1);
     Free(plain);
     return result;
 }
@@ -1737,144 +1736,68 @@ void IKEv2ProcSAInit(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr)
 // ---------------------------------------------------------------------------
 
 void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
-                    IKEv2_SA *sa, void *payload_data, UINT payload_size)
+                    IKEv2_SA *sa, void *payload_data, UINT payload_size,
+                    UCHAR first_payload)
 {
-    UCHAR  nxt     = 0;
     UCHAR *pos     = (UCHAR *)payload_data;
     UCHAR *end     = pos + payload_size;
+    UCHAR  cur_type = first_payload;
+    UINT   msg_id  = Endian32(hdr->MessageId);
 
-    // Parsed payload pointers
-    UCHAR *idi_body = NULL;    UINT idi_sz = 0;
-    UCHAR  idi_type = 0;
-    UCHAR *auth_body = NULL;   UINT auth_sz = 0;
-    UCHAR  auth_method = 0;
+    // Parsed payload results
+    UCHAR *idi_body = NULL;    UINT idi_sz = 0;    UCHAR idi_type = 0;
+    UCHAR *idr_body = NULL;    UINT idr_sz = 0;    UCHAR idr_type = 0;
+    UCHAR *auth_body = NULL;   UINT auth_sz = 0;   UCHAR auth_method = 0;
     UCHAR *sa_body = NULL;     UINT sa_sz = 0;
-    UCHAR *tsi_body = NULL;    UINT tsi_sz = 0;
-    UCHAR *tsr_body = NULL;    UINT tsr_sz = 0;
-    bool   use_transport = false;
-    UINT   msg_id = Endian32(hdr->MessageId);
 
-    // The first inner payload type was returned from IKEv2DecryptSK
-    // (out_next_payload), so we receive it pre-parsed by the caller.
-    // Here payload_data already contains the inner payloads from the SK body.
-    // We need the first-payload type.  The caller stored it in nxt before calling us.
-    // Re-read from the context: we expect the caller to pass nxt; instead we use
-    // a simple scan approach: iterate payloads from the start of the decrypted data.
-
-    // Actually the caller passes raw inner payload bytes; each payload starts with
-    // next_payload (1) | crit (1) | len (2) | body.
-    // The first payload type was stored by the caller before the call.
-    // We receive first_nxt implicitly through the structure.
-    // For simplicity we scan without knowing first type; instead we look at each
-    // 4-byte header and use the "next" field of the PREVIOUS payload.
-    // Use a linked-list walk starting from the nxt passed as first_nxt_payload.
-    // Since we don't have it here, re-scan all payloads by type.
-    // The caller must pass the first-payload type through this function argument.
-    // We add it as a parameter in the next section.
-
-    // Iterate the inner payload chain
-    // The decrypted buffer contains chained payloads starting from first_inner_payload.
-    // The last two bytes of plaintext (pad_len, next_payload) are stripped already.
-    // So we just do a linear scan: each entry is: next(1)|crit(1)|len(2)|body...
-    // We use a simplified approach: look for each payload type by scanning all.
-
-    while (pos + 4 <= end)
+    // Walk the payload linked list (RFC 7296: each payload's byte[0] = type of NEXT payload)
+    while (cur_type != IKEv2_PAYLOAD_NONE && pos + 4 <= end)
     {
-        UCHAR  next_pl  = pos[0];
-        USHORT pl_total = R16(pos + 2);
-        UCHAR *body     = pos + 4;
-        UINT   body_len = (pl_total >= 4) ? (pl_total - 4) : 0;
+        UCHAR  next_type = pos[0];   // type of the NEXT payload
+        USHORT pl_total  = R16(pos + 2);
+        UCHAR *body      = pos + 4;  // body starts after 4-byte generic header
+        UINT   body_len  = (pl_total >= 4) ? (pl_total - 4) : 0;
 
         if (pl_total < 4 || pos + pl_total > end)
             break;
 
-        // We identify by matching what we expect in IKE_AUTH inner payloads
-        // Hint: The first payload type is known to be IDi (35) for an initiating IKE_AUTH.
-        // But we need to distinguish which payload is which.  We track via next-payload chain.
-        // Since each node carries the NEXT type in byte[0], we process in order:
-        // walk: current type = last_type (from previous iteration), data = body.
-        // To start, we assume the caller sets nxt to the type of the FIRST payload.
-        // Since we can't know the first type here without an extra parameter,
-        // we re-iterate using a second scan after we know the chain.
-
-        // Simple approach: detect payload by context position and expected sequence.
-        // IKE_AUTH: IDi, [CERT], AUTH, SAi2, TSi, TSr
-        // We match type values directly via the next-payload field of the CURRENT payload
-        // to determine what the current payload is. We read the current payload's type
-        // from the previous iteration's next-payload byte.
-        // Since we cannot know the FIRST payload's type without parameter,
-        // we will now just identify based on type value directly.
-        // In practice IDi=35, AUTH=39, SA=33, TSi=44, TSr=45.
-        // The "current type" needs to come from outside.
-        // The cleanest fix: parse as (type, len, body) by using pos[0] as next of prev.
-        // We track current type externally via nxt:
-
-        // BREAK OUT and use the canonical scan below:
-        break;
-    }
-
-    // Canonical scan: use a separate pass where nxt starts as first_payload_type
-    // passed from the SK decoder.  But we don't have that parameter here.
-    // Solution: save first payload type in the existing code that calls IKEv2ProcAuth.
-    // We pass it via the macro below by restarting with nxt = type of first inner payload.
-    // The caller will set nxt before calling; we read nxt from a local variable set
-    // by the caller. The caller already computed it as out_next_payload from IKEv2DecryptSK.
-    // We add it as an extra parameter at the call site.
-    // For now, use a two-pass approach: first pass collects all payload types and bodies.
-
-    // Reset and do a two-pass scan
-    {
-        // Phase 1: walk the chain to map (index -> type)
-        UCHAR  types[64];
-        UCHAR *bodies[64];
-        UINT   body_lens[64];
-        UINT   count = 0;
-        UCHAR  cur_nxt = 0;  // caller must set first payload type somehow
-
-        // Since we can't know first-payload type without passing it,
-        // use the convention that the SK payload carries the first inner type
-        // in its "next payload" field (byte 0 of the SK payload generic header).
-        // The caller does pass nxt to us: see the call site in ProcIKEv2PacketRecv.
-        // We'll use the approach of scanning by expected IKE_AUTH payload types.
-
-        pos = (UCHAR *)payload_data;
-        while (pos + 4 <= end && count < 64)
+        switch (cur_type)
         {
-            USHORT pl_total = R16(pos + 2);
-            if (pl_total < 4 || pos + pl_total > end) break;
-            bodies[count]    = pos + 4;
-            body_lens[count] = (pl_total >= 4) ? (pl_total - 4) : 0;
-            // We don't know the type without chain-walking; mark as unknown for now.
-            types[count]     = 0;
-            count++;
-            pos += pl_total;
-        }
+        case IKEv2_PAYLOAD_IDi:
+            // IDi body = ID_Type(1) | RESERVED(3) | ID_data
+            // RFC 7296 §2.15: MACedIDForI = prf(SK_pi, IDi_b) where IDi_b = full body
+            idi_type = body[0];
+            idi_body = body;
+            idi_sz   = body_len;
+            break;
 
-        // Phase 2: identify payloads by expected position in IKE_AUTH:
-        // IDi is always first, then AUTH, then SA, then TSi, TSr.
-        // This works for standard Windows/iOS/Android/Linux clients.
-        if (count >= 4)
-        {
-            idi_type  = bodies[0][0];
-            idi_body  = bodies[0] + 4;
-            idi_sz    = body_lens[0] > 4 ? body_lens[0] - 4 : 0;
+        case IKEv2_PAYLOAD_IDr:
+            // IDr requested by initiator (Apple's "Remote ID") - echo it back in response
+            idr_type = body[0];
+            idr_body = body;
+            idr_sz   = body_len;
+            break;
 
-            auth_method = bodies[1][0];
-            auth_body   = bodies[1] + 4;
-            auth_sz     = body_lens[1] > 4 ? body_lens[1] - 4 : 0;
-
-            sa_body = bodies[2];
-            sa_sz   = body_lens[2];
-
-            tsi_body = bodies[3];
-            tsi_sz   = body_lens[3];
-
-            if (count >= 5)
+        case IKEv2_PAYLOAD_AUTH:
+            // AUTH body = auth_method(1) | RESERVED(3) | auth_data
+            if (body_len >= 4)
             {
-                tsr_body = bodies[4];
-                tsr_sz   = body_lens[4];
+                auth_method = body[0];
+                auth_body   = body + 4;   // auth data starts after method + 3 reserved bytes
+                auth_sz     = body_len - 4;
             }
+            break;
+
+        case IKEv2_PAYLOAD_SA:
+            sa_body = body;
+            sa_sz   = body_len;
+            break;
+
+        // TSi, TSr, NOTIFY, CP, CERT, etc. - accepted but not needed here
         }
+
+        cur_type = next_type;
+        pos += pl_total;
     }
 
     if (idi_body == NULL || auth_body == NULL || sa_body == NULL)
@@ -1883,10 +1806,23 @@ void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
         return;
     }
 
-    // Store IDi
+    // Store IDi (full body: ID_type + reserved + id_data, for AUTH computation)
     FreeBuf(sa->IDi_Data);
     sa->IDi_Type = idi_type;
     sa->IDi_Data = MemToBuf(idi_body, idi_sz);
+
+    // Store requested IDr (to echo back in response)
+    FreeBuf(sa->IDr_Data);
+    if (idr_body != NULL)
+    {
+        sa->IDr_Type = idr_type;
+        sa->IDr_Data = MemToBuf(idr_body, idr_sz);
+    }
+    else
+    {
+        sa->IDr_Type = 0;
+        sa->IDr_Data = NULL;
+    }
 
     // Verify AUTH
     if (!IKEv2VerifyAuth(ike, sa, auth_method, auth_body, auth_sz))
@@ -1907,19 +1843,7 @@ void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
         return;
     }
 
-    // Check if TS includes transport-mode request in any notify
-    // (scan through all payloads looking for USE_TRANSPORT_MODE)
-    {
-        UCHAR *pp = (UCHAR *)payload_data;
-        while (pp + 4 <= (UCHAR *)payload_data + payload_size)
-        {
-            USHORT pl_total = R16(pp + 2);
-            if (pl_total < 4 || pp + pl_total > (UCHAR *)payload_data + payload_size) break;
-            // We just assume transport mode is acceptable for L2TP connections
-            pp += pl_total;
-        }
-        child_tf.UseTransport = true;  // L2TP/IPsec uses transport mode
-    }
+    child_tf.UseTransport = true;  // L2TP/IPsec uses transport mode
 
     // Generate our SPI for the server->client direction
     UINT spi_r = GenerateNewIPsecSaSpi(ike, spi_i);
@@ -1944,26 +1868,41 @@ void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
         UCHAR  child_sa_buf[512];
         UINT   child_sa_len;
 
-        // IDr payload
+        // IDr payload: echo back what the initiator requested, or use server IP
         {
-            UCHAR *idr_pl = ip;
-            ip[0] = IKEv2_PAYLOAD_AUTH;  // next
-            ip[1] = 0;
-            // IDr body: type=1 (IPv4) + reserved(3) + IP address
-            UINT   idr_body_len = 4 + (IsIP4(&sa->ServerIP) ? 4 : 16);
-            W16(ip + 2, (USHORT)(4 + idr_body_len));
-            ip += 4;
-            ip[0] = IsIP4(&sa->ServerIP) ? IKEv2_ID_IPV4_ADDR : IKEv2_ID_IPV6_ADDR;
-            ip[1] = ip[2] = ip[3] = 0;
-            ip += 4;
-            if (IsIP4(&sa->ServerIP))
+            UINT idr_body_len;
+
+            if (sa->IDr_Data != NULL && sa->IDr_Data->Size > 0)
             {
-                UINT ipv4 = IPToUINT(&sa->ServerIP);
-                WRITE_UINT(ip, ipv4); ip += 4;
+                // Echo back the initiator's IDr request exactly
+                idr_body_len = sa->IDr_Data->Size;
+                ip[0] = IKEv2_PAYLOAD_AUTH;
+                ip[1] = 0;
+                W16(ip + 2, (USHORT)(4 + idr_body_len));
+                ip += 4;
+                Copy(ip, sa->IDr_Data->Buf, idr_body_len);
+                ip += idr_body_len;
             }
             else
             {
-                Copy(ip, sa->ServerIP.address, 16); ip += 16;
+                // Default: server IP address as IDr
+                idr_body_len = 4 + (IsIP4(&sa->ServerIP) ? 4 : 16);
+                ip[0] = IKEv2_PAYLOAD_AUTH;
+                ip[1] = 0;
+                W16(ip + 2, (USHORT)(4 + idr_body_len));
+                ip += 4;
+                ip[0] = IsIP4(&sa->ServerIP) ? IKEv2_ID_IPV4_ADDR : IKEv2_ID_IPV6_ADDR;
+                ip[1] = ip[2] = ip[3] = 0;
+                ip += 4;
+                if (IsIP4(&sa->ServerIP))
+                {
+                    UINT ipv4 = IPToUINT(&sa->ServerIP);
+                    WRITE_UINT(ip, ipv4); ip += 4;
+                }
+                else
+                {
+                    Copy(ip, sa->ServerIP.address, 16); ip += 16;
+                }
             }
         }
 
@@ -1971,12 +1910,12 @@ void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
         {
             IKEv2ComputeOurAuth(ike, sa, auth_val, &auth_val_len);
 
-            ip[0] = IKEv2_PAYLOAD_SA;  // next
+            ip[0] = IKEv2_PAYLOAD_SA;
             ip[1] = 0;
             W16(ip + 2, (USHORT)(4 + 1 + 3 + auth_val_len));
             ip += 4;
-            ip[0] = IKEv2_AUTH_PSK;  // method
-            ip[1] = ip[2] = ip[3] = 0;  // reserved
+            ip[0] = IKEv2_AUTH_PSK;
+            ip[1] = ip[2] = ip[3] = 0;
             ip += 4;
             Copy(ip, auth_val, auth_val_len);
             ip += auth_val_len;
@@ -1997,23 +1936,21 @@ void IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
         {
             ip[0] = IKEv2_PAYLOAD_TSr;
             ip[1] = 0;
-            W16(ip + 2, (USHORT)(4 + 4 + 16));  // hdr + ts_count(1)+res(3) + 1 TS entry(16)
+            W16(ip + 2, (USHORT)(4 + 4 + 16));
             ip += 4;
             ip[0] = 1; ip[1] = 0; ip[2] = 0; ip[3] = 0;  // TS count=1
             ip += 4;
-            // TS entry: type(1)+protocol(1)+selector_len(2)+start_port(2)+end_port(2)+start(4)+end(4)
             ip[0] = IKEv2_TS_IPV4_ADDR_RANGE;
-            ip[1] = 0;   // all protocols
-            W16(ip + 2, 16);  // selector length
-            W16(ip + 4, 0);   // start port
-            W16(ip + 6, 65535); // end port
-            Zero(ip + 8,  4);   // start = 0.0.0.0
+            ip[1] = 0;
+            W16(ip + 2, 16);
+            W16(ip + 4, 0);
+            W16(ip + 6, 65535);
             ip[8] = ip[9] = ip[10] = ip[11] = 0;
-            ip[12] = ip[13] = ip[14] = ip[15] = 0xff;  // end = 255.255.255.255
+            ip[12] = ip[13] = ip[14] = ip[15] = 0xff;
             ip += 16;
         }
 
-        // TSr payload: same as TSi
+        // TSr payload: same
         {
             ip[0] = IKEv2_PAYLOAD_NONE;
             ip[1] = 0;
@@ -2225,11 +2162,10 @@ void ProcIKEv2PacketRecv(IKE_SERVER *ike, UDPPACKET *p)
                 sk_body_len = sk_pl_len - 4 - icv_len;
             }
 
-            first_inner_pl = payload_start[0];  // next payload inside SK
+            first_inner_pl = payload_start[0];  // SK header's Next Payload = type of first inner payload
 
             decrypted = IKEv2DecryptSK(ike, sa, true,
-                                        sk_body, sk_body_len,
-                                        &first_inner_pl);
+                                        sk_body, sk_body_len);
             if (decrypted == NULL)
                 return;
 
@@ -2239,7 +2175,8 @@ void ProcIKEv2PacketRecv(IKE_SERVER *ike, UDPPACKET *p)
                 if (sa->State == IKEv2_SA_STATE_HALF_OPEN)
                 {
                     IKEv2ProcAuth(ike, p, hdr, sa,
-                                  decrypted->Buf, decrypted->Size);
+                                  decrypted->Buf, decrypted->Size,
+                                  first_inner_pl);
                 }
                 break;
 

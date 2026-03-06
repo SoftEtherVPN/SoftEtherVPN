@@ -210,6 +210,10 @@ struct IKEv2_SA
     UCHAR        IDi_Type;
     BUF         *IDi_Data;
 
+    // Responder identity (from initiator's optional IDr payload, echoed back)
+    UCHAR        IDr_Type;
+    BUF         *IDr_Data;
+
     // Message ID tracking
     UINT         NextExpectedMsgId;
 
@@ -240,7 +244,7 @@ int   CmpIKEv2SA(void *p1, void *p2);
 
 void  IKEv2ProcSAInit(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr);
 void  IKEv2ProcAuth(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr, IKEv2_SA *sa,
-                    void *payload_data, UINT payload_size);
+                    void *payload_data, UINT payload_size, UCHAR first_payload);
 void  IKEv2ProcInformational(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr, IKEv2_SA *sa,
                               void *payload_data, UINT payload_size);
 
@@ -272,7 +276,7 @@ void  IKEv2SendNotifyError(IKE_SERVER *ike, UDPPACKET *p, IKE_HEADER *hdr,
 BUF  *IKEv2EncryptSK(IKE_SERVER *ike, IKEv2_SA *sa, UCHAR next_payload,
                       void *inner, UINT inner_size);
 BUF  *IKEv2DecryptSK(IKE_SERVER *ike, IKEv2_SA *sa, bool is_init_sending,
-                      void *sk_data, UINT sk_size, UCHAR *out_next_payload);
+                      void *sk_data, UINT sk_size);
 
 UINT  IKEv2PrfKeyLen(UINT prf_alg);
 UINT  IKEv2PrfOutLen(UINT prf_alg);
