@@ -60,7 +60,7 @@
 			<span>{m.D_SM_AZURE__S_1()}</span>
 			<span>{m.D_SM_AZURE__S_2()}</span>
 			<span>{m.D_SM_AZURE__S_3()}</span>
-			<div class="grid grid-cols-3 gap-4">
+			<div class="grid md:grid-cols-3 gap-4">
 				<fieldset
 					class="fieldset rounded-box border border-base-300 bg-base-200 p-4 dark:border-base-100">
 					<legend class="fieldset-legend">{m.D_SM_AZURE__B_BOLD()}</legend>
@@ -94,11 +94,11 @@
 						class="col-span-2 fieldset rounded-box border border-base-300 bg-base-200 p-4 dark:border-base-100">
 						<legend class="fieldset-legend">{m.D_SM_AZURE__S_HOSTNAME_BORDER()}</legend>
 						<span>{m.D_SM_AZURE__S_HOSTNAME_INFO()}</span>
-						<div class="flex justify-between">
+						<div class="md:flex justify-between">
 							<span class="self-center text-base">
 								{ddnsQuery.data.CurrentFqdn_str.replace('softether.net', 'vpnazure.net')}
 							</span>
-							<a href="#/ddns" class="btn btn-sm btn-outline">
+							<a href="#/ddns" class="max-md:mt-4 btn btn-sm btn-outline">
 								{m.D_SM_AZURE__B_CHANGE()}
 							</a>
 						</div>
