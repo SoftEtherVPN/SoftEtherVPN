@@ -70,7 +70,7 @@
 				<a href="#/ipsec">{m.D_SM_SERVER__B_IPSEC()}</a>
 				<a href="#/openvpn">{m.D_SM_SERVER__B_OPENVPN()}</a>
 				<button>{m.D_SM_SERVER__B_DDNS()}</button>
-				<button>{m.D_SM_SERVER__B_AZURE()}</button>
+				<a href="#/azure-settings" >{m.D_SM_SERVER__B_AZURE()}</a>
 			</div>
 		</div>
 	</div>

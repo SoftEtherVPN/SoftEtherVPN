@@ -9,6 +9,7 @@
 	import Button from '$lib/components/button.svelte';
 	import Detail from './detail.svelte';
 	import Info from '@lucide/svelte/icons/info';
+	import { browser } from '$app/environment';
 
 	const client = useQueryClient();
 
@@ -84,6 +85,12 @@
 			);
 		}
 	});
+
+	function navigateBack() {
+		if (browser) {
+			window.history.back();
+		}
+	}
 </script>
 
 <!-- Title + description -->
@@ -216,9 +223,9 @@
 
 			<!-- Footer: Cancel + Save -->
 			<div class="flex items-center justify-end gap-2 pt-2">
-				<a href="#/" class="btn btn-sm btn-neutral not-dark:btn-soft">
+				<button onclick={navigateBack} class="btn btn-sm btn-neutral not-dark:btn-soft">
 					{m.D_SM_IPSEC__IDCANCEL()}
-				</a>
+				</button>
 				<Button
 					type="submit"
 					class="btn btn-sm btn-primary"
