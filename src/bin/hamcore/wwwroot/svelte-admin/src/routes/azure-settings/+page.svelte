@@ -65,7 +65,7 @@
 					class="fieldset rounded-box border border-base-300 bg-base-200 p-4 dark:border-base-100">
 					<legend class="fieldset-legend">{m.D_SM_AZURE__B_BOLD()}</legend>
 
-					<label for="azure-enable" class="label">
+					<label for="azure-enable" class="label text-base-content">
 						<input
 							id="azure-enable"
 							bind:group={azureEnabled}
@@ -74,12 +74,12 @@
 							class="radio" />
 						{m.D_SM_AZURE__R_ENABLE()}
 					</label>
-					<span class="label ml-7.5">
+					<span class="label ml-7.5 text-base-content">
 						{query.data.IsConnected_bool
 							? m.SM_AZURE_STATUS_CONNECTED()
 							: m.SM_AZURE_STATUS_NOT_CONNECTED()}
 					</span>
-					<label for="azure-disable" class="label">
+					<label for="azure-disable" class="label text-base-content">
 						<input
 							id="azure-disable"
 							bind:group={azureEnabled}
@@ -98,7 +98,7 @@
 							<span class="self-center text-base">
 								{ddnsQuery.data.CurrentFqdn_str.replace('softether.net', 'vpnazure.net')}
 							</span>
-							<a href="#/ddns" class="btn btn-sm btn-neutral not-dark:btn-soft">
+							<a href="#/ddns" class="btn btn-sm btn-outline">
 								{m.D_SM_AZURE__B_CHANGE()}
 							</a>
 						</div>
