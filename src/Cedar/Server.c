@@ -30,6 +30,7 @@
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
+#include "Mayaqua/Network.h"
 #include "Mayaqua/Object.h"
 #include "Mayaqua/OS.h"
 #include "Mayaqua/Pack.h"
@@ -6046,6 +6047,15 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 		// Disable JSON-RPC Web API
 		s->DisableJsonRpcWebApi = CfgGetBool(f, "DisableJsonRpcWebApi");
 
+		char tmpaddr[MAX_PATH];
+		if (CfgGetStr(f, "JsonRpcWebApiAllowedSubnet", tmpaddr, sizeof(tmpaddr))) {
+			IP _subnet, _mask;
+			if (ParseIpAndMask46(tmpaddr, &_subnet, &_mask)) {
+				s->JsonRpcWebApiAllowedSubnetAddr = _subnet;
+				s->JsonRpcWebApiAllowedSubnetMask = _mask;
+			}
+		}
+
 		// Bits of Diffie-Hellman parameters
 		c->DhParamBits = CfgGetInt(f, "DhParamBits");
 		if (c->DhParamBits == 0)
@@ -6379,6 +6389,11 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		// Disable JSON-RPC Web API
 		CfgAddBool(f, "DisableJsonRpcWebApi", s->DisableJsonRpcWebApi);
+
+		char tmpaddr[MAX_PATH];
+		IPAndMaskToStr(tmpaddr, sizeof(tmpaddr),
+			&s->JsonRpcWebApiAllowedSubnetAddr, &s->JsonRpcWebApiAllowedSubnetMask);
+		CfgAddStr(f, "JsonRpcWebApiAllowedSubnet", tmpaddr);
 	}
 	Unlock(c->lock);
 }
