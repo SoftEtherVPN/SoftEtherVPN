@@ -6,7 +6,6 @@
 // Virtual HUB module
 
 #include "Hub.h"
-
 #include "Admin.h"
 #include "Bridge.h"
 #include "Connection.h"
@@ -17,7 +16,6 @@
 #include "Radius.h"
 #include "SecureNAT.h"
 #include "Server.h"
-
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/DNS.h"
 #include "Mayaqua/FileIO.h"
@@ -56,8 +54,6 @@ ADMIN_OPTION admin_options[] =
 	{"max_bitrates_download", 0},
 	{"max_bitrates_upload", 0},
 	{"deny_empty_password", 0},
-	{"deny_bridge", 0},
-	{"deny_routing", 0},
 	{"deny_qos", 0},
 	{"deny_change_user_password", 0},
 	{"no_change_users", 0},
@@ -65,7 +61,6 @@ ADMIN_OPTION admin_options[] =
 	{"no_securenat", 0},
 	{"no_securenat_enablenat", 0},
 	{"no_securenat_enabledhcp", 0},
-	{"no_cascade", 0},
 	{"no_online", 0},
 	{"no_offline", 0},
 	{"no_change_log_config", 0},
