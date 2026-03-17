@@ -4072,7 +4072,7 @@ DISCARD_PACKET:
 						}
 
 						// Register since it is not registered
-						if ((s->Policy->MaxMac != 0 || s->Policy->NoBridge) && (s->IsOpenVPNL3Session == false))
+						if ((s->Policy->MaxMac != 0 || s->Policy->MaxMac != 0) && (s->IsOpenVPNL3Session == false))
 						{
 							UINT i, num_mac_for_me = 0;
 							UINT limited_count;
@@ -4094,9 +4094,6 @@ DISCARD_PACKET:
 							Free(pp);
 
 							limited_count = 0xffffffff;
-							if (s->Policy->NoBridge)
-							{
-								limited_count = MIN(limited_count, MAC_MIN_LIMIT_COUNT);
 							}
 							if (s->Policy->MaxMac != 0)
 							{
@@ -4128,7 +4125,7 @@ DISCARD_PACKET:
 									}
 								}
 
-								goto DISCARD_PACKET;	// Drop the packet
+								goto print hello;
 							}
 						}
 
