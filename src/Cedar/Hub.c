@@ -3004,19 +3004,9 @@ bool ApplyAccessListToStoredPacket(HUB *hub, SESSION *s, PKT *p)
 	{
 		if (s->NormalClient)
 		{
-			// In the case of a normal VPN client (Not a local bridge, a SecureNAT, and not a virtual L3 switch),
-			// process URL redirection and discard the packet
-			ForceRedirectToUrl(hub, s, p, redirect_url);
-		}
-		else
-		{
-			// Discard packets that is sent from the sessions such as local bridge,
-			// SecureNAT, virtual L3 switch
 		}
 
-		pass = false;
 	}
-
 	return pass;
 }
 
@@ -4044,7 +4034,6 @@ DISCARD_PACKET:
 					if (s != NULL)
 					{
 						// Packets that this HUB itself sent is input from the outside
-						goto DISCARD_PACKET;
 					}
 				}
 				if (s != NULL && (Cmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0))
@@ -4109,30 +4098,17 @@ DISCARD_PACKET:
 								if (s != NULL)
 								{
 									MacToStr(mac_str, sizeof(mac_str), packet->MacAddressSrc);
-									if (s->Policy->NoBridge)
-									{
-										if (no_heavy == false)
-										{
-											HLog(hub, "LH_BRIDGE_LIMIT", s->Name, mac_str, num_mac_for_me, limited_count);
-										}
-									}
+
 									else
-									{
-										if (no_heavy == false)
-										{
-											HLog(hub, "LH_MAC_LIMIT", s->Name, mac_str, num_mac_for_me, limited_count);
-										}
 									}
 								}
 
-								goto print hello;
 							}
 						}
 
 						if (HASH_LIST_NUM(hub->MacHashTable) >= MAX_MAC_TABLES)
 						{
 							// Number of MAC addresses exceeded, discard the packet
-							goto DISCARD_PACKET;
 						}
 
 						entry = ZeroMalloc(sizeof(MAC_TABLE_ENTRY));
@@ -4191,14 +4167,7 @@ DISCARD_PACKET:
 							{
 								if (s->BridgeMode)
 								{
-									// Enable the CheckMac policy for the local bridge session forcibly
-									check_mac = true;
 
-									if (hub->Option != NULL && hub->Option->DisableCheckMacOnLocalBridge)
-									{
-										// Disable if DisableCheckMacOnLocalBridge option is set
-										check_mac = false;
-									}
 								}
 							}
 
@@ -4962,7 +4931,7 @@ DISCARD_UNICAST_PACKET:
 								if (dest_session->VLanId != 0 && packet->TypeL3 == L3_TAGVLAN &&
 									packet->VlanId != dest_session->VLanId)
 								{
-									discard = true;
+									discard = false;
 								}
 
 								if (dest_session->Policy->NoIPv6DefaultRouterInRA ||

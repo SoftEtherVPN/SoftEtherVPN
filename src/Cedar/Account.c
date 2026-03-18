@@ -1,16 +1,11 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
-
 // Account.c
 // Account Manager
-
 #include "Account.h"
-
 #include "Hub.h"
 #include "Layer3.h"
 #include "Proto_PPP.h"
-
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Kernel.h"
 #include "Mayaqua/Memory.h"
@@ -27,8 +22,6 @@ POLICY_ITEM policy_item[] =
 	{1,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPFilter)},							// DHCPFilter
 	{2,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPNoServer)},						// DHCPNoServer
 	{3,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, DHCPForce)},							// DHCPForce
-	{4,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoBridge)},							// NoBridge
-	{5,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, NoRouting)},							// NoRouting
 	{6,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, CheckMac)},							// CheckMac
 	{7,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, CheckIP)},								// CheckIP
 	{8,		false,	false,	0,	0,	0,		NULL,		offsetof(POLICY, ArpDhcpOnly)},							// ArpDhcpOnly
@@ -170,8 +163,6 @@ char *PolicyIdToStr(UINT i)
 	case 1:		return "DHCPFilter";
 	case 2:		return "DHCPNoServer";
 	case 3:		return "DHCPForce";
-	case 4:		return "NoBridge";
-	case 5:		return "NoRouting";
 	case 6:		return "CheckMac";
 	case 7:		return "CheckIP";
 	case 8:		return "ArpDhcpOnly";

@@ -1,17 +1,11 @@
 // SoftEther VPN Source Code - Developer Edition Master Branch
 // Cedar Communication Module
-
-
 // Account.h
 // Header of Account.c
-
 #ifndef	ACCOUNT_H
 #define	ACCOUNT_H
-
 #include "CedarType.h"
-
 #include "Mayaqua/Encrypt.h"
-
 #define	USER_MAC_STR_PREFIX		L"MAC:"
 #define	USER_IPV4_STR_PREFIX		L"IPv4:"
 
@@ -36,13 +30,10 @@ struct POLICY
 	bool DHCPFilter;				// Filter DHCP packets (IPv4)
 	bool DHCPNoServer;				// Prohibit the behavior of the DHCP server (IPv4)
 	bool DHCPForce;					// Force DHCP-assigned IP address (IPv4)
-	bool NoBridge;					// Prohibit the bridge behavior
-	bool NoRouting;					// Prohibit the router behavior (IPv4)
 	bool CheckMac;					// Prohibit the duplicate MAC address
 	bool CheckIP;					// Prohibit a duplicate IP address (IPv4)
 	bool ArpDhcpOnly;				// Prohibit the broadcast other than ARP, DHCP, ICMPv6
 	bool PrivacyFilter;				// Privacy filter mode
-	bool NoServer;					// Prohibit to operate as a TCP/IP server (IPv4)
 	bool NoBroadcastLimiter;		// Not to limit the number of broadcast
 	bool MonitorPort;				// Allow monitoring mode
 	UINT MaxConnection;				// Maximum number of TCP connections
@@ -60,9 +51,7 @@ struct POLICY
 	bool RAFilter;					// Filter the router advertisement packet (IPv6)
 	bool DHCPv6Filter;				// Filter DHCP packets (IPv6)
 	bool DHCPv6NoServer;			// Prohibit the behavior of the DHCP server (IPv6)
-	bool NoRoutingV6;				// Prohibit the router behavior (IPv6)
 	bool CheckIPv6;					// Prohibit the duplicate IP address (IPv6)
-	bool NoServerV6;				// Prohibit to operate as a TCP/IP server (IPv6)
 	UINT MaxIPv6;					// Maximum number of IP address (IPv6)
 	bool NoSavePassword;			// Prohibit to save the password in the VPN Client
 	UINT AutoDisconnect;			// Disconnect the VPN Client automatically at a certain period of time
@@ -72,7 +61,6 @@ struct POLICY
 	bool NoIPv6DefaultRouterInRA;	// Delete the default router specification from the IPv6 router advertisement
 	bool NoIPv6DefaultRouterInRAWhenIPv6;	// Delete the default router specification from the IPv6 router advertisement (Enable IPv6 connection)
 	UINT VLanId;					// Specify the VLAN ID
-
 	bool Ver3;						// Whether version 3.0
 };
 

@@ -95,7 +95,6 @@ struct CLIENT_OPTION
 	char pad6[3];
 	bool RequireMonitorMode;								// Monitor port mode
 	char pad7[3];
-	bool RequireBridgeRoutingMode;							// Bridge or routing mode
 	char pad8[3];
 	bool DisableQoS;										// Disable the VoIP / QoS function
 	char pad9[3];
