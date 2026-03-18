@@ -6,7 +6,6 @@
 // Virtual HUB module
 
 #include "Hub.h"
-
 #include "Admin.h"
 #include "Bridge.h"
 #include "Connection.h"
@@ -17,7 +16,6 @@
 #include "Radius.h"
 #include "SecureNAT.h"
 #include "Server.h"
-
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/DNS.h"
 #include "Mayaqua/FileIO.h"
@@ -56,8 +54,6 @@ ADMIN_OPTION admin_options[] =
 	{"max_bitrates_download", 0},
 	{"max_bitrates_upload", 0},
 	{"deny_empty_password", 0},
-	{"deny_bridge", 0},
-	{"deny_routing", 0},
 	{"deny_qos", 0},
 	{"deny_change_user_password", 0},
 	{"no_change_users", 0},
@@ -65,7 +61,6 @@ ADMIN_OPTION admin_options[] =
 	{"no_securenat", 0},
 	{"no_securenat_enablenat", 0},
 	{"no_securenat_enabledhcp", 0},
-	{"no_cascade", 0},
 	{"no_online", 0},
 	{"no_offline", 0},
 	{"no_change_log_config", 0},
@@ -3009,19 +3004,9 @@ bool ApplyAccessListToStoredPacket(HUB *hub, SESSION *s, PKT *p)
 	{
 		if (s->NormalClient)
 		{
-			// In the case of a normal VPN client (Not a local bridge, a SecureNAT, and not a virtual L3 switch),
-			// process URL redirection and discard the packet
-			ForceRedirectToUrl(hub, s, p, redirect_url);
-		}
-		else
-		{
-			// Discard packets that is sent from the sessions such as local bridge,
-			// SecureNAT, virtual L3 switch
 		}
 
-		pass = false;
 	}
-
 	return pass;
 }
 
@@ -4049,7 +4034,6 @@ DISCARD_PACKET:
 					if (s != NULL)
 					{
 						// Packets that this HUB itself sent is input from the outside
-						goto DISCARD_PACKET;
 					}
 				}
 				if (s != NULL && (Cmp(packet->MacAddressSrc, hub->HubMacAddr, 6) != 0))
@@ -4077,7 +4061,7 @@ DISCARD_PACKET:
 						}
 
 						// Register since it is not registered
-						if ((s->Policy->MaxMac != 0 || s->Policy->NoBridge) && (s->IsOpenVPNL3Session == false))
+						if ((s->Policy->MaxMac != 0 || s->Policy->MaxMac != 0) && (s->IsOpenVPNL3Session == false))
 						{
 							UINT i, num_mac_for_me = 0;
 							UINT limited_count;
@@ -4099,9 +4083,6 @@ DISCARD_PACKET:
 							Free(pp);
 
 							limited_count = 0xffffffff;
-							if (s->Policy->NoBridge)
-							{
-								limited_count = MIN(limited_count, MAC_MIN_LIMIT_COUNT);
 							}
 							if (s->Policy->MaxMac != 0)
 							{
@@ -4117,30 +4098,17 @@ DISCARD_PACKET:
 								if (s != NULL)
 								{
 									MacToStr(mac_str, sizeof(mac_str), packet->MacAddressSrc);
-									if (s->Policy->NoBridge)
-									{
-										if (no_heavy == false)
-										{
-											HLog(hub, "LH_BRIDGE_LIMIT", s->Name, mac_str, num_mac_for_me, limited_count);
-										}
-									}
+
 									else
-									{
-										if (no_heavy == false)
-										{
-											HLog(hub, "LH_MAC_LIMIT", s->Name, mac_str, num_mac_for_me, limited_count);
-										}
 									}
 								}
 
-								goto DISCARD_PACKET;	// Drop the packet
 							}
 						}
 
 						if (HASH_LIST_NUM(hub->MacHashTable) >= MAX_MAC_TABLES)
 						{
 							// Number of MAC addresses exceeded, discard the packet
-							goto DISCARD_PACKET;
 						}
 
 						entry = ZeroMalloc(sizeof(MAC_TABLE_ENTRY));
@@ -4199,14 +4167,7 @@ DISCARD_PACKET:
 							{
 								if (s->BridgeMode)
 								{
-									// Enable the CheckMac policy for the local bridge session forcibly
-									check_mac = true;
 
-									if (hub->Option != NULL && hub->Option->DisableCheckMacOnLocalBridge)
-									{
-										// Disable if DisableCheckMacOnLocalBridge option is set
-										check_mac = false;
-									}
 								}
 							}
 
@@ -4970,7 +4931,7 @@ DISCARD_UNICAST_PACKET:
 								if (dest_session->VLanId != 0 && packet->TypeL3 == L3_TAGVLAN &&
 									packet->VlanId != dest_session->VLanId)
 								{
-									discard = true;
+									discard = false;
 								}
 
 								if (dest_session->Policy->NoIPv6DefaultRouterInRA ||

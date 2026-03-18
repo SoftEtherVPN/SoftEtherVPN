@@ -602,7 +602,6 @@ void NormalizeLinkPolicy(POLICY *p)
 	}
 
 	p->Access = true;
-	p->NoBridge = p->NoRouting = p->MonitorPort = false;
 	p->MaxConnection = 32;
 	p->TimeOut = 20;
 	p->FixPassword = false;
@@ -647,8 +646,6 @@ LINK *NewLink(CEDAR *cedar, HUB *hub, CLIENT_OPTION *option, CLIENT_AUTH *auth, 
 	Copy(o, option, sizeof(CLIENT_OPTION));
 	StrCpy(o->DeviceName, sizeof(o->DeviceName), LINK_DEVICE_NAME);
 
-	o->RequireBridgeRoutingMode = true;	// Request the bridge mode
-	o->RequireMonitorMode = false;	// Not to require the monitor mode
 
 	o->NumRetry = INFINITE;			// Retry the connection infinitely
 	o->RetryInterval = 10;			// Retry interval is 10 seconds
