@@ -527,6 +527,7 @@ struct ICMPV6_HEADER_INFO
 #define	DHCP_ID_CLASSLESS_ROUTE		0x79
 #define	DHCP_ID_MS_CLASSLESS_ROUTE	0xF9
 #define	DHCP_ID_PRIVATE				0xFA
+#define	DHCP_ID_VENDOR_SPECIFIC		0x2B
 
 
 // DHCP client action
@@ -696,6 +697,7 @@ struct DHCP_CLASSLESS_ROUTE_TABLE
 {
 	UINT NumExistingRoutes;			// Number of existing routing table entries
 	DHCP_CLASSLESS_ROUTE Entries[MAX_DHCP_CLASSLESS_ROUTE_ENTRIES];	// Entries
+	UINT Ovpn_gateway;			// vlue of 'vpn_gateway'  
 };
 
 #define	MAX_USER_CLASS_LEN	255

@@ -1736,6 +1736,7 @@ DHCP_IP_ADDRESS				分配的 IP
 DHCP_HOSTNAME				客户端主机名
 NM_PASSWORD_MSG				管理员密码设定完成。
 NM_PUSH_ROUTE_WARNING		静态路由表中指定的文本可能有语法错误。
+NM_PUSH_ROUTE_VPNGW_WARN	If you are using 'vpn_gateway' keyword as the IP address of the gateway in the static routing table, you must set its value also.
 
 
 #关于版本信息
@@ -4248,8 +4249,10 @@ S2						VPN 客户端是否能够识别无类静态路由 (RFC 3442) 取决于�
 S3						如果你清除了虚拟 DHCP 服务器选项的默认网关字段，您就可以实现拆分隧道。在客户端一侧，为了使用拆分隧道， L2TP/IPSec 和 MS-SSTP 客户端需要配置为不创建默认网关。
 S4						您还可以通过现有的外部 DHCP 服务器推送无类静态路由 (RFC 3442)。在这种情况下，在 SecureNAT 禁用虚拟 DHCP 服务器功能，在这一屏幕上你不需要设置无类路由。
 S5						编辑该静态路由表以推送
-S6						例如: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n用逗号或空格字符来拆分多条目 (最多 64 条目)。\r\n每个条目必须以 "IP 网络地址 / 子网掩码 / 网关 IP 地址" 的格式来指定。
+#S6						例如: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n\r\n用逗号或空格字符来拆分多条目 (最多 64 条目)。\r\n每个条目必须以 "IP 网络地址 / 子网掩码 / 网关 IP 地址" 的格式来指定。
+S6						Example: 192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253\r\n    OR     192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway      for OpenVPN Connect\r\nSplit multiple entries (maximum: 64 entries) by comma or space characters.\r\nEach entry must be specified in the "IP network address/subnet mask/gateway IP address" format,\r\n   OR  you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients.
 S7						请参阅 RFC3442 以了解无类路由。
+S_VPN_GW				IP address of "vpn_gateway" for OpenVPN Connect
 IDOK					确定(&O)
 IDCANCEL				取消
 
@@ -4491,6 +4494,7 @@ CMD_KEYPAIR_FAILED			X.509 证书和私钥的组合指定不正确。证书和�
 CMD_CERT_NOT_EXISTS			证书未登记。
 CMD_NO_SETTINGS				－
 CMD_DISCONNECTED_MSG		\n---Error---\n\n与您正管理的主机通信会话被中断了。从现在开始，如果您运行任何命令将出现错误。\n\n为了重新连接到您管理的主机，首先输入 "EXIT" 的离本开提示，然后重新连接。\n\n
+CMD_BOOL_EVAL_FAILED	The boolean value should be: YES  or NO
 
 
 # VPN CMD 命令
@@ -6170,6 +6174,7 @@ CMD_DhcpGet_Column_DNS		DNS 服务器地址 1
 CMD_DhcpGet_Column_DNS2		DNS 服务器地址 2
 CMD_DhcpGet_Column_DOMAIN	域名
 CMD_DhcpGet_Column_PUSHROUTE	静态路由表推送
+CMD_DhcpGet_Column_OVPNGATEWAY	'vpn_gateway' value for OVPN
 
 
 # DhcpEnable 命令
@@ -6185,9 +6190,11 @@ CMD_DhcpDisable_Args		DhcpDisable
 
 
 # DhcpSet 命令
-CMD_DhcpSet					更改安全网络功能的虚拟 DHCP 服务器功能的设置
+#CMD_DhcpSet					更改安全网络功能的虚拟 DHCP 服务器功能的设置
+CMD_DhcpSet				Change Virtual DHCP Server Function Setting of SecureNAT Function. Press <Enter> to keep a current value; type '' to clear it. 
 CMD_DhcpSet_Help			在现在管理的虚拟 HUB 内，更改虚拟 DHCP 服务器的设置。虚拟 DHCP 服务器设置包括: 分配 IP 地址范围，子网掩码，出租期限，及分配给客户端的选项值。\n该指令在作为进群操作的 VPN Server 的虚拟服务器上不能执行。
-CMD_DhcpSet_Args			DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+#CMD_DhcpSet_Args			DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2] [/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"]
+CMD_DhcpSet_Args		DhcpSet [/START:start_ip] [/END:end_ip] [/MASK:subnetmask] [/EXPIRE:sec] [/GW:gwip] [/DNS:dns] [/DNS2:dns2][/DOMAIN:domain] [/LOG:yes|no] [/PUSHROUTE:"routing_table"] [/OVPNGW:ovpngwip] 
 CMD_DhcpSet_START			指定地址范围的开始点，以分发给客户。(例如: 192.168.30.10)
 CMD_DhcpSet_END				指定地址范围的结束点，以分发给客户。(例如: 192.168.30.200)
 CMD_DhcpSet_MASK			指定对客户指定的子网掩码。(例如: 255.255.255.0)
@@ -6197,7 +6204,9 @@ CMD_DhcpSet_DNS				指定被通知到客户端的主 DNS 服务器的 IP 地址�
 CMD_DhcpSet_DNS2			指定被通知到客户端的次要 DNS 服务器 IP 地址。当 SecureNAT 功能的虚拟 NAT 功能已经启用并正在运行时，您可以为此指定一个 SecureNAT 虚拟主机 IP 地址。如果您指定的是 0 或者 none，那么客户端就不会被 DNS 服务器地址通知。
 CMD_DhcpSet_DOMAIN			指定域名通知客户。如果指定 none，该域名不通知客户。
 CMD_DhcpSet_LOG				指定是否将虚拟 DHCP 服务器运行保存为安全日志。指定 "yes" 则保存。此值与虚拟 NAT 功能的日志保存设置是联动的。
-CMD_DhcpSet_PUSHROUTE	指定静态路由表推送。\n例如: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n用逗号或空格字符来拆分多条目 (最多 64 条目)。每个条目必须以 "IP 网络地址/子网掩码/网关 IP 地址" 的格式来指定。 \n这个虚拟 DHCP 服务器可以推送带DHCP应答消息的无类静态路由 (RFC 3442) 至 VPN 客户端。\nVPN 客户端是否能够识别无类静态路由 (RFC 3442) 取决于目标VPN客户端软件。SoftEther VPN 客户端和 OpenVPN 客户端都支持无类静态路由。在 L2TP/IPSec 和 MS-SSTP 协议上，兼容性取决于客户端软件的实施。如果你清除了虚拟 DHCP 服务器选项的默认网关字段，您就可以实现拆分隧道。在客户端一侧，为了使用拆分隧道，L2TP/IPSec 和 MS-SSTP 客户端需要配置为不创建默认网关。\n您还可以通过现有的外部 DHCP 服务器推送无类静态路由 (RFC 3442)。在这种情况下，在 SecureNAT 禁用虚拟 DHCP 服务器功能，在这一屏幕上你不需要设置无类路由。\n请参阅 RFC 3442 以了解无类路由。
+#CMD_DhcpSet_PUSHROUTE	指定静态路由表推送。\n例如: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n用逗号或空格字符来拆分多条目 (最多 64 条目)。每个条目必须以 "IP 网络地址/子网掩码/网关 IP 地址" 的格式来指定。 \n这个虚拟 DHCP 服务器可以推送带DHCP应答消息的无类静态路由 (RFC 3442) 至 VPN 客户端。\nVPN 客户端是否能够识别无类静态路由 (RFC 3442) 取决于目标VPN客户端软件。SoftEther VPN 客户端和 OpenVPN 客户端都支持无类静态路由。在 L2TP/IPSec 和 MS-SSTP 协议上，兼容性取决于客户端软件的实施。如果你清除了虚拟 DHCP 服务器选项的默认网关字段，您就可以实现拆分隧道。在客户端一侧，为了使用拆分隧道，L2TP/IPSec 和 MS-SSTP 客户端需要配置为不创建默认网关。\n您还可以通过现有的外部 DHCP 服务器推送无类静态路由 (RFC 3442)。在这种情况下，在 SecureNAT 禁用虚拟 DHCP 服务器功能，在这一屏幕上你不需要设置无类路由。\n请参阅 RFC 3442 以了解无类路由。
+CMD_DhcpSet_PUSHROUTE	Specify the static routing table to push.\nExample: "192.168.5.0/255.255.255.0/192.168.4.254, 10.0.0.0/255.0.0.0/192.168.4.253"\n  OR   "192.168.5.0/255.255.255.0/vpn_gateway, 10.0.0.0/255.0.0.0/net_gateway"  for OpenVPN clients\nSplit multiple entries (maximum: 64 entries) by comma or space characters. Each entry must be specified in the "IP network address/subnet mask/gateway IP address" format, OR you should use 'vpn_gateway' or/and 'net_gateway' keywords instead of  "gateway IP address" for OpenVPN clients\nThis Virtual DHCP Server can push the classless static routes (RFC 3442) with DHCP reply messages to VPN clients.\nWhether or not a VPN client can recognize the classless static routes (RFC 3442) depends on the target VPN client software. SoftEther VPN Client and OpenVPN Client are supporting the classless static routes. On L2TP/IPsec and MS-SSTP protocols, the compatibility depends on the implementation of the client software. You can realize the split tunneling if you clear the default gateway field on the Virtual DHCP Server options. On the client side, L2TP/IPsec and MS-SSTP clients need to be configured not to set up the default gateway for the split tunneling usage.\nYou can also push the classless static routes (RFC 3442) by your existing external DHCP server. In that case, disable the Virtual DHCP Server function on SecureNAT, and you need not to set up the classless routes on this command.\nSee the RFC 3442 to understand the classless routes.
+CMD_DhcpSet_OVPNGW			Specify the IP address of 'vpn_gateway' parameter to be notified to the client. If you specify 0 or none, then the client will not be notified of the vpn_gateway value. If you use the 'vpn_gateway' keyword in the classless static routing table, you must specify this value also.
 CMD_DhcpSet_Prompt_START	分发地址范围的开始: 
 CMD_DhcpSet_Prompt_END		分发地址范围的结束: 
 CMD_DhcpSet_Prompt_MASK		子网掩码: 
@@ -6206,6 +6215,11 @@ CMD_DhcpSet_Prompt_GW		默认网关 (可以不设定):
 CMD_DhcpSet_Prompt_DNS		DNS 服务器 1 (可以不设定): 
 CMD_DhcpSet_Prompt_DNS2		DNS 服务器 2 (可以不设定): 
 CMD_DhcpSet_Prompt_DOMAIN	域名: 
+CMD_DhcpSet_Prompt1_GW		Default Gateway: 
+CMD_DhcpSet_Prompt1_DNS		DNS Server 1: 
+CMD_DhcpSet_Prompt1_DNS2	DNS Server 2: 
+CMD_DhcpSet_Prompt_PUSHROUTE	Static routing table to push:
+CMD_DhcpSet_Prompt_OVPNGW	'vpn_gateway' parmeter for OpenVPN: 
 
 
 # DhcpTable 命令
