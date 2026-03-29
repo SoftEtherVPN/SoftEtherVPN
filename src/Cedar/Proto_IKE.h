@@ -268,6 +268,10 @@ struct IKE_SERVER
 
 	// Setting data
 	char Secret[MAX_SIZE];						// Pre-shared key
+
+	// IKEv2 state
+	LIST *IKEv2SaList;							// IKEv2 SA list
+	UINT CurrentIKEv2SaId;						// IKEv2 SA ID counter
 };
 
 
