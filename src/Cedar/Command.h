@@ -611,6 +611,18 @@ UINT PsDynamicDnsSetHostname(CONSOLE *c, char *cmd_name, wchar_t *str, void *par
 UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 
+bool CmdEvalIpEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdEvalMinMaxEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdEvalYesEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdEvalRouteTableEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdEvalOvpnGwEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdStrToIP(IP* ip, char* str);
+bool CmdStrToUINT(UINT* v, char* str);
+bool CmdStrToStr(char* out, UINT size, char* str);
+bool CmdStrToBool(bool* b, char* str);
+bool CmdStrToIP32(UINT* ip32, char* str);
+
+UINT PsDhcpSetEx(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
 
 #endif	// COMMAND_H
 

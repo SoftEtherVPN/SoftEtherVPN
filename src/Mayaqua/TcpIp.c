@@ -3470,7 +3470,13 @@ LIST *BuildDhcpOption(DHCP_OPTION_LIST *opt)
 		{
 			Add(o, NewDhcpOption(DHCP_ID_CLASSLESS_ROUTE, b->Buf, b->Size));
 			Add(o, NewDhcpOption(DHCP_ID_MS_CLASSLESS_ROUTE, b->Buf, b->Size));
-
+			if (opt->ClasslessRoute.Ovpn_gateway != 0 && opt->ClasslessRoute.Ovpn_gateway != (UINT)(-1))
+			{
+				char vsp[10];
+				strncpy(vsp, "OVPNGW", 6);
+				Copy(vsp + 6, &(opt->ClasslessRoute.Ovpn_gateway), sizeof(opt->ClasslessRoute.Ovpn_gateway));
+				Add(o, NewDhcpOption(DHCP_ID_VENDOR_SPECIFIC, vsp, sizeof(vsp)));
+			}
 			FreeBuf(b);
 		}
 	}
@@ -3624,6 +3630,16 @@ DHCP_OPTION_LIST *ParseDhcpOptionList(void *data, UINT size)
 		{
 			DhcpParseClasslessRouteData(&ret->ClasslessRoute, a->Data, a->Size);
 		}
+		// Vendor Specific - OVPN_GATEWAY 
+		a = GetDhcpOption(o, DHCP_ID_VENDOR_SPECIFIC);
+		if (a != NULL)
+		{
+			UCHAR* vsp = (UCHAR*)a->Data;
+			if (vsp[0] == 'O' && vsp[1] == 'V' && vsp[2] == 'P' && vsp[3] == 'N' && vsp[4] == 'G' && vsp[5] == 'W')
+			{
+				Copy(&ret->ClasslessRoute.Ovpn_gateway, vsp + 6, 4);
+			}
+		}
 
 		break;
 	}
@@ -3702,8 +3718,22 @@ void BuildClasslessRouteStr(char *str, UINT str_size, DHCP_CLASSLESS_ROUTE *r)
 	{
 		return;
 	}
-
-	Format(str, str_size, "%r/%r/%r", &r->Network, &r->SubnetMask, &r->Gateway);
+	BYTE* pb = (BYTE*)(IPV4(r->Gateway.address));
+	if (pb != NULL && *pb == 0)
+	{
+		if (pb[1] == 'v' && pb[2] == 'p' && pb[3] == 'n')
+		{
+			Format(str, str_size, "%r/%r/vpn_gateway", &r->Network, &r->SubnetMask);
+		}
+		else if (pb[1] == 'n' && pb[2] == 'e' && pb[3] == 't')
+		{
+			Format(str, str_size, "%r/%r/net_gateway", &r->Network, &r->SubnetMask);
+		}
+	}
+	else
+	{
+		Format(str, str_size, "%r/%r/%r", &r->Network, &r->SubnetMask, &r->Gateway);
+	}
 }
 
 // Check the classless routing table string
@@ -3806,6 +3836,15 @@ bool ParseClasslessRouteStr(DHCP_CLASSLESS_ROUTE *r, char *str)
 		if (ParseIpAndSubnetMask46(ip_and_mask, &r->Network, &r->SubnetMask))
 		{
 			r->SubnetMaskLen = SubnetMaskToInt4(&r->SubnetMask);
+
+			if (StrCmpi(gateway, "vpn_gateway") == 0)
+			{
+				Format(gateway, sizeof(gateway), "0.%d.%d.%d", 'v', 'p', 'n');
+			}
+			else if (StrCmpi(gateway, "net_gateway") == 0)
+			{
+				Format(gateway, sizeof(gateway), "0.%d.%d.%d", 'n', 'e', 't');
+			}
 
 			if (StrToIP(&r->Gateway, gateway))
 			{
