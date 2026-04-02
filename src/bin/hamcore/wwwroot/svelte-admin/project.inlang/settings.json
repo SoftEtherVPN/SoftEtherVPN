@@ -1,0 +1,9 @@
+{
+	"$schema": "https://inlang.com/schema/project-settings",
+	"modules": [
+		"./stb-plugin.js",
+		"https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@latest/dist/index.js"
+	],
+	"baseLocale": "en",
+	"locales": ["en", "id", "ja", "ko", "pt_br", "ru", "tr", "tw", "cn"]
+}
