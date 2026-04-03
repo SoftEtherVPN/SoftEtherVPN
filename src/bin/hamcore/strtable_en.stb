@@ -4839,7 +4839,7 @@ CMD_ConnectionList_Help	Use this to get a list of TCP/IP connections that are cu
 CMD_ConnectionList_Args	ConnectionList
 
 
-# ConnectionList command
+# ConnectionGet command
 CMD_ConnectionGet		Get Information of TCP Connections Connecting to the VPN Server
 CMD_ConnectionGet_Help	Use this to get detailed information of a specific TCP/IP connection that is connecting to the VPN Server. \nYou can get the following information: Connection Name, Connection Type, Source Hostname, Source IP Address, Source Port Number (TCP), Connection Start, Server Product Name, Server Version, Server Build Number, Client Product Name, Client Version, and Client Build Number. \nTo execute this command, you must have VPN Server administrator privileges.
 CMD_ConnectionGet_Args	ConnectionGet [name]
