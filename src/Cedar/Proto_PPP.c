@@ -3615,6 +3615,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 		dataBuffer = eap_packet->Tls.TlsDataWithLength.Data;
 		dataSize -= 4;
 		tlsLength = Endian32(eap_packet->Tls.TlsDataWithLength.TlsLength);
+		// Let's just clamp it to a safe size to avoid DoS (GHSA-q5g3-qhc6-pr3h)
+		tlsLength = MIN(tlsLength, PPP_MRU_MAX * 10);
 	}
 	/*Debug("=======RECV EAP-TLS PACKET DUMP=======\n");
 	for (i = 0; i < dataSize; i++)
@@ -3659,9 +3661,12 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 			sizeLeft = GetMemSize(p->Eap_TlsCtx.CachedBufferRecv);
 			sizeLeft -= (UINT)(p->Eap_TlsCtx.CachedBufferRecvPntr - p->Eap_TlsCtx.CachedBufferRecv);
 
-			Copy(p->Eap_TlsCtx.CachedBufferRecvPntr, dataBuffer, MIN(sizeLeft, dataSize));
+			if (sizeLeft > 0)
+			{
+				Copy(p->Eap_TlsCtx.CachedBufferRecvPntr, dataBuffer, MIN(sizeLeft, dataSize));
 
-			p->Eap_TlsCtx.CachedBufferRecvPntr += MIN(sizeLeft, dataSize);
+				p->Eap_TlsCtx.CachedBufferRecvPntr += MIN(sizeLeft, dataSize);
+			}
 		}
 
 		// If we got a cached buffer, we should feed the FIFOs via it
@@ -3783,14 +3788,14 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 						}
 						AcUnlock(hub);
 						ReleaseHub(hub);
+						// Making sure the stale pntr is cleared and can't be reused (GHSA-7437-282p-7465)
+						hub = NULL;
 					}
 
 					if (found == false)
 					{
 						PPP_PACKET* pack;
 						UINT identificator = p->Eap_PacketId;
-
-						ReleaseHub(hub);
 
 						PPPSetStatus(p, PPP_STATUS_AUTH_FAIL);
 
