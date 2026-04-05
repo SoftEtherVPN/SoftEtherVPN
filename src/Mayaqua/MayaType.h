@@ -8,6 +8,7 @@
 #ifndef	MAYATYPE_H
 #define	MAYATYPE_H
 
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -158,6 +159,7 @@ typedef int (COMPARE)(void *p1, void *p2);
 // 
 // Type declaration
 // 
+typedef uint16_t PORT;
 typedef int64_t time_64t;
 
 #ifdef OS_WIN32
@@ -458,6 +460,21 @@ typedef struct HTTP_MIME_TYPE HTTP_MIME_TYPE;
 // Proxy.h
 typedef struct PROXY_PARAM_IN PROXY_PARAM_IN;
 typedef struct PROXY_PARAM_OUT PROXY_PARAM_OUT;
+
+// Queue.h
+typedef struct QUEUE_MPSC QUEUE_MPSC;
+typedef struct QUEUE_MPSC_NODE QUEUE_MPSC_NODE;
+
+// Socket.h
+typedef enum SOCKET_RET SOCKET_RET;
+
+typedef struct SOCKET_BOX SOCKET_BOX;
+typedef struct SOCKET_MONITOR SOCKET_MONITOR;
+
+// UDP.h
+typedef struct UDP_PACKET UDP_PACKET;
+typedef struct UDP_MANAGER UDP_MANAGER;
+typedef struct UDP_CONVEYOR UDP_CONVEYOR;
 
 // DNS.h
 typedef struct DNS_CACHE DNS_CACHE;
