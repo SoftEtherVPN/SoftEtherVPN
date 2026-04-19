@@ -109,6 +109,8 @@ struct CLIENT_OPTION
 	char HintStr[MAX_HOST_NAME_LEN + 1];					// Hint string for NAT-T
 	IP   BindLocalIP;										// Source IP address for outgoing connection
 	UINT BindLocalPort;										// Source port number for outgoing connection
+	bool PreventDnsLeak;									// Prevent DNS leaks on Win32 VLAN sessions
+	char pad13[3];
 };
 
 // Client authentication data
