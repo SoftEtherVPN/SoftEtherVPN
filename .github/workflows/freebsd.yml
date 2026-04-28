@@ -16,7 +16,10 @@ jobs:
             openssl_root_dir: /usr/local
           - ssl: openssl36
             openssl_root_dir: /usr/local
-          - ssl: # base openssl
+          - ssl: openssl40
+            openssl_root_dir: /usr/local
+          # base openssl
+          - ssl:
             openssl_root_dir:
     name: FreeBSD with ${{ matrix.ssl || 'base openssl' }}
     env:
