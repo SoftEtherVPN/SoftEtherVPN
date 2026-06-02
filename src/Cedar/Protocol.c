@@ -28,6 +28,7 @@
 #include "WebUI.h"
 #include "WinUi.h"
 #include "Wpc.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/DNS.h"
@@ -1166,6 +1167,7 @@ bool ServerAccept(CONNECTION *c)
 	char *error_detail_2 = NULL;
 	char ctoken_hash_str[64];
 	EAP_CLIENT *release_me_eap_client = NULL;
+	char UserStfaCode[8];
 
 	// Validate arguments
 	if (c == NULL)
@@ -1825,6 +1827,8 @@ bool ServerAccept(CONNECTION *c)
 
 			if (auth_ret == false)
 			{
+				Zero(UserStfaCode, sizeof(UserStfaCode));
+				PackGetStr(p, "stfa_user_code", UserStfaCode, sizeof(UserStfaCode));
 				// Attempt other authentication methods if anonymous authentication fails
 				switch (authtype)
 				{
@@ -1860,6 +1864,10 @@ bool ServerAccept(CONNECTION *c)
 							PackGetData(p, "secure_password", secure_password);
 						}
 						auth_ret = SamAuthUserByPassword(hub, username, c->Random, secure_password, NULL, NULL, NULL);
+						if (auth_ret)
+						{
+							auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+						}
 
 						pol = SamGetUserPolicy(hub, username);
 						if (pol != NULL)
@@ -1914,6 +1922,11 @@ bool ServerAccept(CONNECTION *c)
 									plain_password, mschap_v2_server_response_20, &ms_chap_error);
 							}
 
+							if (auth_ret)
+							{
+								auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+							}
+
 							if (auth_ret && pol == NULL)
 							{
 								pol = SamGetUserPolicy(hub, username);
@@ -1934,6 +1947,10 @@ bool ServerAccept(CONNECTION *c)
 								auth_ret = SamAuthUserByPlainPassword(c, hub, username, plain_password, true, mschap_v2_server_response_20, &radius_login_opt);
 							}
 
+							if (auth_ret)
+							{
+								auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+							}
 							if (auth_ret && pol == NULL)
 							{
 								pol = SamGetUserPolicy(hub, username);
@@ -1988,6 +2005,10 @@ bool ServerAccept(CONNECTION *c)
 												auth_ret = SamAuthUserByCert(hub, username, x);
 												if (auth_ret)
 												{
+													auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+												}
+												if (auth_ret)
+												{
 													// Copy the certificate
 													c->ClientX = CloneX(x);
 												}
@@ -2024,6 +2045,10 @@ bool ServerAccept(CONNECTION *c)
 					if (c->IsInProc)
 					{
 						auth_ret = SamIsUser(hub, username);
+						if (auth_ret)
+						{
+							auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+						}
 					}
 					else
 					{
@@ -2057,6 +2082,10 @@ bool ServerAccept(CONNECTION *c)
 									Debug("Got to SamAuthUserByCert %s\n", username); // XXX
 									// Check whether the certificate is valid.
 									auth_ret = SamAuthUserByCert(hub, username, x);
+									if (auth_ret)
+									{
+										auth_ret = StfaCheck(hub, username, UserStfaCode, &node);
+									}
 									if (auth_ret)
 									{
 										// Copy the certificate
@@ -5581,6 +5610,8 @@ bool ClientUploadAuth(CONNECTION *c)
 	}
 
 	PackAddClientVersion(p, c);
+
+	PackAddStr(p, "stfa_user_code", (char*)(a->StfaUserCode));
 
 	// Protocol
 	PackAddInt(p, "protocol", c->Protocol);

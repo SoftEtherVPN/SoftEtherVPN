@@ -282,6 +282,16 @@ typedef struct SM_EDIT_AO
 	bool ExtOption;
 } SM_EDIT_AO;
 
+//Hub_stfa_config edit
+typedef struct SM_EDIT_SC
+{
+	SM_EDIT_HUB* e;
+	bool CanChange;
+	RPC_STFA_CONFIG CurrentOptions;
+	//	char Name[MAX_ADMIN_OPTION_NAME_LEN + 1];
+	//	UINT Value;
+} SM_EDIT_SC;
+
 // Editing the switch
 typedef struct SM_L3SW
 {
@@ -692,6 +702,13 @@ UINT SmHubMsgDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
 void SmHubMsgDlgInit(HWND hWnd, SM_EDIT_HUB *s);
 void SmHubMsgDlgUpdate(HWND hWnd, SM_EDIT_HUB *s);
 void SmHubMsgDlgOnOk(HWND hWnd, SM_EDIT_HUB *s);
+
+void SmHubStfaConfig(HWND hWnd, SM_EDIT_HUB* e);
+UINT SmHubStfaConfigDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void* param);
+void SmHubStfaConfigDlgInit(HWND hWnd, SM_EDIT_SC* sc);
+void SmHubStfaConfigDlgUpdate(HWND hWnd, SM_EDIT_SC* sc);
+void SmHubStfaConfigDlgOnOk(HWND hWnd, SM_EDIT_SC* sc);
+
 void SmIPsec(HWND hWnd, SM_SERVER *s);
 UINT SmIPsecDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmIPsecDlgInit(HWND hWnd, SM_SERVER *s);
