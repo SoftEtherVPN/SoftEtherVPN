@@ -2072,43 +2072,46 @@ void SiInitCipherName(SERVER *s)
 // Initialize the listener list
 void SiInitListenerList(SERVER *s)
 {
-	// Validate arguments
 	if (s == NULL)
 	{
 		return;
 	}
 
+	// Wildcard for IPv6 (::) and IPv4 (0.0.0.0)
+	IP ips[2];
+	Zero(&ips[0], sizeof(ips[0]));
+	ZeroIP4(&ips[1]);
+
 	SiLockListenerList(s);
 	{
+		for (UINT i = 0; i < 2; ++i)
 		{
-			// Register the 4 ports (443, 992, 1194, 8888) as the default port
-			SiAddListener(s, SERVER_DEF_PORTS_1, true);
-			SiAddListener(s, SERVER_DEF_PORTS_2, true);
-			SiAddListener(s, SERVER_DEF_PORTS_3, true);
-			SiAddListener(s, SERVER_DEF_PORTS_4, true);
+			const IP *ip = &ips[i];
+
+			SiAddListener(s, ip, SERVER_DEF_PORTS_1, true); // 443
+			SiAddListener(s, ip, SERVER_DEF_PORTS_2, true); // 992
+			SiAddListener(s, ip, SERVER_DEF_PORTS_3, true); // 1194
+			SiAddListener(s, ip, SERVER_DEF_PORTS_4, true); // 5555
 		}
 	}
 	SiUnlockListenerList(s);
 }
 
 // Remove the listener
-bool SiDeleteListener(SERVER *s, UINT port)
+bool SiDeleteListener(SERVER *s, const IP *address, const UINT port)
 {
-	SERVER_LISTENER *e;
-	// Validate arguments
-	if (s == NULL || port == 0)
+	if (s == NULL || address == NULL || port == 0)
 	{
 		return false;
 	}
 
-	e = SiGetListener(s, port);
+	SERVER_LISTENER *e = SiGetListener(s, address, port);
 	if (e == NULL)
 	{
 		return false;
 	}
 
-	// Stop if still alive
-	SiDisableListener(s, port);
+	SiDisableListener(s, address, port);
 
 	if (e->Listener != NULL)
 	{
@@ -2124,44 +2127,37 @@ bool SiDeleteListener(SERVER *s, UINT port)
 // Compare the SERVER_LISTENER
 int CompareServerListener(void *p1, void *p2)
 {
-	SERVER_LISTENER *s1, *s2;
 	if (p1 == NULL || p2 == NULL)
 	{
 		return 0;
 	}
-	s1 = *(SERVER_LISTENER **)p1;
-	s2 = *(SERVER_LISTENER **)p2;
+
+	SERVER_LISTENER *s1 = *(SERVER_LISTENER **)p1;
+	SERVER_LISTENER *s2 = *(SERVER_LISTENER **)p2;
+
 	if (s1 == NULL || s2 == NULL)
 	{
 		return 0;
 	}
 
-	if (s1->Port > s2->Port)
+	const int ret = COMPARE_RET(s1->Port, s2->Port);
+	if (ret != 0)
 	{
-		return 1;
+		return ret;
 	}
-	else if (s1->Port < s2->Port)
-	{
-		return -1;
-	}
-	else
-	{
-		return 0;
-	}
+
+	return CmpIpAddr(&s1->Address, &s2->Address);
 }
 
 // Stop the listener
-bool SiDisableListener(SERVER *s, UINT port)
+bool SiDisableListener(SERVER *s, const IP *address, const UINT port)
 {
-	SERVER_LISTENER *e;
-	// Validate arguments
-	if (s == NULL || port == 0)
+	if (s == NULL || address == NULL || port == 0)
 	{
 		return false;
 	}
 
-	// Get the listener
-	e = SiGetListener(s, port);
+	SERVER_LISTENER *e = SiGetListener(s, address, port);
 	if (e == NULL)
 	{
 		return false;
@@ -2169,34 +2165,27 @@ bool SiDisableListener(SERVER *s, UINT port)
 
 	if (e->Enabled == false || e->Listener == NULL)
 	{
-		// Already stopped
 		return true;
 	}
 
-	// Stop the listener
 	StopListener(e->Listener);
-
-	// Release the listener
 	ReleaseListener(e->Listener);
-	e->Listener = NULL;
 
+	e->Listener = NULL;
 	e->Enabled = false;
 
 	return true;
 }
 
 // Start the listener
-bool SiEnableListener(SERVER *s, UINT port)
+bool SiEnableListener(SERVER *s, const IP *address, const UINT port)
 {
-	SERVER_LISTENER *e;
-	// Validate arguments
-	if (s == NULL || port == 0)
+	if (s == NULL || address == NULL || port == 0)
 	{
 		return false;
 	}
 
-	// Get the listener
-	e = SiGetListener(s, port);
+	SERVER_LISTENER *e = SiGetListener(s, address, port);
 	if (e == NULL)
 	{
 		return false;
@@ -2204,19 +2193,14 @@ bool SiEnableListener(SERVER *s, UINT port)
 
 	if (e->Enabled)
 	{
-		// It has already started
 		return true;
 	}
 
-	// Create a listener
 	e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
 	if (e->Listener == NULL)
 	{
-		// Failure
 		return false;
 	}
-
-	e->Listener->DisableDos = e->DisableDos;
 
 	e->Enabled = true;
 
@@ -2224,67 +2208,44 @@ bool SiEnableListener(SERVER *s, UINT port)
 }
 
 // Get the listener
-SERVER_LISTENER *SiGetListener(SERVER *s, UINT port)
+SERVER_LISTENER *SiGetListener(SERVER *s, const IP *address, const UINT port)
 {
-	UINT i;
-	// Validate arguments
-	if (s == NULL || port == 0)
+	if (s == NULL || address == NULL || port == 0)
 	{
 		return NULL;
 	}
 
-	for (i = 0;i < LIST_NUM(s->ServerListenerList);i++)
-	{
-		SERVER_LISTENER *e = LIST_DATA(s->ServerListenerList, i);
-		if (e->Port == port)
-		{
-			return e;
-		}
-	}
+	SERVER_LISTENER e;
+	CopyIP(&e.Address, address);
+	e.Port = port;
 
-	return NULL;
+	return Search(s->ServerListenerList, &e);
 }
 
 // Add a listener
-bool SiAddListener(SERVER *s, UINT port, bool enabled)
+bool SiAddListener(SERVER *s, const IP *address, const UINT port, const bool enabled)
 {
-	return SiAddListenerEx(s, port, enabled, false);
-}
-bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
-{
-	SERVER_LISTENER *e;
-	UINT i;
-	// Validate arguments
 	if (s == NULL || port == 0)
 	{
 		return false;
 	}
 
-	// Check whether the listener exists already
-	for (i = 0;i < LIST_NUM(s->ServerListenerList);i++)
+	SERVER_LISTENER *e = SiGetListener(s, address, port);
+	if (e != NULL)
 	{
-		e = LIST_DATA(s->ServerListenerList, i);
-		if (e->Port == port)
-		{
-			// Already exist
-			return false;
-		}
+		// Already exists
+		return true;
 	}
 
-	// Register by initializing a new listener
+	// Register new listener and start it if enabled
 	e = ZeroMalloc(sizeof(SERVER_LISTENER));
-	e->Enabled = enabled;
+	CopyIP(&e->Address, address);
 	e->Port = port;
-	e->DisableDos = disable_dos;
 
-	if (e->Enabled)
+	if (enabled)
 	{
-		// Create a listener
+		e->Enabled = true;
 		e->Listener = NewListener(s->Cedar, LISTENER_TCP, e->Port);
-		if (e->Listener != NULL)
-		{
-			e->Listener->DisableDos = e->DisableDos;
-		}
 	}
 
 	Insert(s->ServerListenerList, e);
@@ -2898,32 +2859,33 @@ void SiWriteListenerCfg(FOLDER *f, SERVER_LISTENER *r)
 	}
 
 	CfgAddBool(f, "Enabled", r->Enabled);
+	CfgAddIp(f, "IPAddress", &r->Address);
 	CfgAddInt(f, "Port", r->Port);
-	CfgAddBool(f, "DisableDos", r->DisableDos);
 }
 
 // Read the listener configuration
 void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 {
-	bool enable;
-	UINT port;
-	bool disable_dos;
-	// Validate arguments
 	if (s == NULL || f == NULL)
 	{
 		return;
 	}
 
-	enable = CfgGetBool(f, "Enabled");
-	port = CfgGetInt(f, "Port");
-	disable_dos = CfgGetBool(f, "DisableDos");
+	IP ip;
+	if (CfgGetIp(f, "IPAddress", &ip) == false)
+	{
+		return;
+	}
 
+	const UINT port = CfgGetInt(f, "Port");
 	if (port == 0)
 	{
 		return;
 	}
 
-	SiAddListenerEx(s, port, enable, disable_dos);
+	const bool enable = CfgGetBool(f, "Enabled");
+
+	SiAddListener(s, &ip, port, enable);
 }
 
 // Read the listener list
@@ -6887,7 +6849,7 @@ void SiStopAllListener(SERVER *s)
 		for (i = 0;i < LIST_NUM(o);i++)
 		{
 			SERVER_LISTENER *e = LIST_DATA(o, i);
-			SiDeleteListener(s, e->Port);
+			SiDeleteListener(s, &e->Address, e->Port);
 		}
 
 		ReleaseList(o);
