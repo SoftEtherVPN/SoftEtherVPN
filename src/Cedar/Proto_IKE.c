@@ -2253,8 +2253,8 @@ void ProcIkeQuickModePacketRecv(IKE_SERVER *ike, UDPPACKET *p, IKE_PACKET *heade
 														// Update the information of IPsec SA
 														if (shared_key != NULL)
 														{
-															ipsec_sa_sc->SharedKey = NewBuf(shared_key, shared_key_size);
-															ipsec_sa_cs->SharedKey = NewBuf(shared_key, shared_key_size);
+															ipsec_sa_sc->SharedKey = NewBufFromMemory(shared_key, shared_key_size);
+															ipsec_sa_cs->SharedKey = NewBufFromMemory(shared_key, shared_key_size);
 														}
 
 														ipsec_sa_sc->Spi = setting.SpiServerToClient;
