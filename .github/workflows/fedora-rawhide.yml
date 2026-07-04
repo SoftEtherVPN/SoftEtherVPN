@@ -25,7 +25,7 @@ jobs:
         submodules: true
     - name: Install dependencies
       run: |
-        dnf -y install git cmake ncurses-devel openssl-devel-engine libsodium-devel readline-devel zlib-devel gcc-c++ clang google-cpu_features-devel
+        dnf -y install git cmake ncurses-devel openssl3-devel-engine libsodium-devel readline-devel zlib-devel gcc-c++ clang google-cpu_features-devel
     - name: Compile with ${{ matrix.cc }}
       run: |
         export CC=${{ matrix.cc }}
