@@ -7,6 +7,9 @@
 	import { z } from 'zod';
 	import { Field, Control, Label } from 'formsnap';
 	import Button from '$lib/components/button.svelte';
+	import PageHeader from '$lib/components/page-header.svelte';
+	import RouteIcon from '@lucide/svelte/icons/route';
+	import DownloadIcon from '@lucide/svelte/icons/download';
 
 	const client = useQueryClient();
 
@@ -82,99 +85,112 @@
 	}
 </script>
 
-<!-- Title -->
-<div class="my-4 ml-4">
-	<h1 class="text-2xl font-bold">{m.D_SM_OPENVPN__S_TITLE()}</h1>
-</div>
+<div class="mx-auto mt-4 max-w-3xl">
+	<PageHeader title={m.D_SM_OPENVPN__S_TITLE()}>
+		{#snippet icon()}
+			<RouteIcon size={22} />
+		{/snippet}
+	</PageHeader>
 
-<!-- Main settings card -->
-<div class="card bg-base-100 shadow dark:bg-base-300">
-	<div class="card-body">
-		<form use:enhance>
-			<!-- Section: OpenVPN Clone Server Function -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_13()}</legend>
-				<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_1()}</p>
-
-				<Field form={sf} name="EnableOpenVPN_bool">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								<input
-									{...props}
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:checked={$form.EnableOpenVPN_bool} />
-								{m.D_SM_OPENVPN__R_OPENVPN()}
-							</Label>
-						{/snippet}
-					</Control>
-				</Field>
-			</fieldset>
-
-			<div class="divider"></div>
-
-			<!-- Section: Sample File Generating Tool -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_TOOL()}</legend>
-				<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_TOOL2()}</p>
-
-				<Button
-					type="button"
-					class="btn mt-1 w-fit btn-sm btn-neutral not-dark:btn-soft"
-					onclick={generateConfig}>
-					{m.D_SM_OPENVPN__B_CONFIG()}
-				</Button>
-			</fieldset>
-
-			<div class="divider"></div>
-
-			<!-- Section: MS-SSTP Clone Server Function -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_2()}</legend>
-				<span class="text-sm opacity-70">{m.D_SM_OPENVPN__S_3()}</span>
-
-				<Field form={sf} name="EnableSSTP_bool">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								<input
-									{...props}
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:checked={$form.EnableSSTP_bool} />
-								{m.D_SM_OPENVPN__R_SSTP()}
-							</Label>
-						{/snippet}
-					</Control>
-				</Field>
-
-				{#if $form.EnableSSTP_bool}
-					<p class="label ml-7">{m.D_SM_OPENVPN__S_SSTP()}</p>
-				{/if}
-			</fieldset>
-
-			<div class="divider"></div>
-
-			<!-- Footer note + buttons -->
-			<div class="flex flex-col gap-3">
-				<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_4()}</p>
-				<div class="flex flex-wrap items-center justify-end gap-2">
-					<a href="#/ipsec" class="btn mr-auto btn-sm btn-neutral not-dark:btn-soft">
-						{m.D_SM_OPENVPN__B_IPSEC()}
-					</a>
-					<a href="#/" class="btn btn-sm btn-neutral not-dark:btn-soft">
-						{m.D_SM_OPENVPN__IDCANCEL()}
-					</a>
-					<Button
-						type="submit"
-						class="btn btn-sm btn-primary"
-						loading={$submitting || saveMutation.isPending}
-						disabled={$submitting || saveMutation.isPending}>
-						{m.D_SM_OPENVPN__IDOK()}
-					</Button>
+	<!-- Main settings card -->
+	<div class="card bg-base-100 shadow dark:bg-base-300">
+		<div class="card-body">
+			{#if openvpnQuery.isLoading}
+				<div class="flex flex-col gap-4 py-2">
+					<div class="h-6 w-56 skeleton"></div>
+					<div class="h-4 w-full max-w-md skeleton"></div>
+					<div class="h-9 w-full skeleton"></div>
+					<div class="h-9 w-2/3 skeleton"></div>
 				</div>
-			</div>
-		</form>
+			{:else}
+				<form use:enhance>
+					<!-- Section: OpenVPN Clone Server Function -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_13()}</legend>
+						<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_1()}</p>
+
+						<Field form={sf} name="EnableOpenVPN_bool">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										<input
+											{...props}
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={$form.EnableOpenVPN_bool} />
+										{m.D_SM_OPENVPN__R_OPENVPN()}
+									</Label>
+								{/snippet}
+							</Control>
+						</Field>
+					</fieldset>
+
+					<div class="divider"></div>
+
+					<!-- Section: Sample File Generating Tool -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_TOOL()}</legend>
+						<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_TOOL2()}</p>
+
+						<Button
+							type="button"
+							class="btn mt-1 w-fit gap-2 btn-neutral btn-sm not-dark:btn-soft"
+							onclick={generateConfig}>
+							<DownloadIcon size={16} />
+							{m.D_SM_OPENVPN__B_CONFIG()}
+						</Button>
+					</fieldset>
+
+					<div class="divider"></div>
+
+					<!-- Section: MS-SSTP Clone Server Function -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_OPENVPN__S_2()}</legend>
+						<span class="text-sm opacity-70">{m.D_SM_OPENVPN__S_3()}</span>
+
+						<Field form={sf} name="EnableSSTP_bool">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										<input
+											{...props}
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={$form.EnableSSTP_bool} />
+										{m.D_SM_OPENVPN__R_SSTP()}
+									</Label>
+								{/snippet}
+							</Control>
+						</Field>
+
+						{#if $form.EnableSSTP_bool}
+							<p class="label ms-10 whitespace-normal">{m.D_SM_OPENVPN__S_SSTP()}</p>
+						{/if}
+					</fieldset>
+
+					<div class="divider"></div>
+
+					<!-- Footer note + buttons -->
+					<div class="flex flex-col gap-3">
+						<p class="text-sm opacity-70">{m.D_SM_OPENVPN__S_4()}</p>
+						<div class="flex flex-wrap items-center justify-end gap-2">
+							<a href="#/ipsec" class="btn me-auto btn-neutral btn-sm not-dark:btn-soft">
+								{m.D_SM_OPENVPN__B_IPSEC()}
+							</a>
+							<a href="#/" class="btn btn-neutral btn-sm not-dark:btn-soft">
+								{m.D_SM_OPENVPN__IDCANCEL()}
+							</a>
+							<Button
+								type="submit"
+								class="btn btn-primary btn-sm"
+								loading={$submitting || saveMutation.isPending}
+								disabled={$submitting || saveMutation.isPending}>
+								{m.D_SM_OPENVPN__IDOK()}
+							</Button>
+						</div>
+					</div>
+				</form>
+			{/if}
+		</div>
 	</div>
 </div>

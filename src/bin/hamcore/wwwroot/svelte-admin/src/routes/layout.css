@@ -1,10 +1,92 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 @plugin 'daisyui' {
-	themes:
-		corporate --default,
-		night --prefersdark;
+	themes: false;
 };
+
+/* ── Signal · light theme (kept under the name "corporate") ──────────────────
+   A cool, technical console palette for VPN operations: a trustworthy blue
+   anchor, a cyan/teal secondary for telemetry, on near-white cool surfaces. */
+@plugin 'daisyui/theme' {
+	name: 'corporate';
+	default: true;
+	prefersdark: false;
+	color-scheme: 'light';
+
+	--color-base-100: oklch(99% 0.003 250);
+	--color-base-200: oklch(96.5% 0.006 250);
+	--color-base-300: oklch(92% 0.011 250);
+	--color-base-content: oklch(25% 0.03 255);
+
+	--color-primary: oklch(54% 0.17 253);
+	--color-primary-content: oklch(98% 0.01 253);
+	--color-secondary: oklch(60% 0.12 210);
+	--color-secondary-content: oklch(98% 0.01 210);
+	--color-accent: oklch(62% 0.14 178);
+	--color-accent-content: oklch(98% 0.01 178);
+	--color-neutral: oklch(30% 0.03 255);
+	--color-neutral-content: oklch(96% 0.006 255);
+
+	--color-info: oklch(68% 0.14 236);
+	--color-info-content: oklch(20% 0.05 236);
+	--color-success: oklch(70% 0.16 156);
+	--color-success-content: oklch(21% 0.05 156);
+	--color-warning: oklch(80% 0.15 80);
+	--color-warning-content: oklch(28% 0.06 80);
+	--color-error: oklch(60% 0.2 25);
+	--color-error-content: oklch(98% 0.01 25);
+
+	--radius-selector: 0.5rem;
+	--radius-field: 0.375rem;
+	--radius-box: 0.75rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 1;
+	--noise: 0;
+}
+
+/* ── Signal · dark theme (kept under the name "night") ───────────────────────
+   Deep slate-navy surfaces so panels read as recessed instrument bays, with
+   brighter blue/cyan accents for legibility on dark. */
+@plugin 'daisyui/theme' {
+	name: 'night';
+	default: false;
+	prefersdark: true;
+	color-scheme: 'dark';
+
+	--color-base-100: oklch(24% 0.021 256);
+	--color-base-200: oklch(20% 0.02 256);
+	--color-base-300: oklch(16% 0.019 256);
+	--color-base-content: oklch(92% 0.012 250);
+
+	--color-primary: oklch(66% 0.16 253);
+	--color-primary-content: oklch(16% 0.03 253);
+	--color-secondary: oklch(70% 0.11 207);
+	--color-secondary-content: oklch(16% 0.03 207);
+	--color-accent: oklch(72% 0.13 178);
+	--color-accent-content: oklch(16% 0.03 178);
+	--color-neutral: oklch(30% 0.021 256);
+	--color-neutral-content: oklch(92% 0.012 256);
+
+	--color-info: oklch(72% 0.14 236);
+	--color-info-content: oklch(16% 0.04 236);
+	--color-success: oklch(74% 0.16 156);
+	--color-success-content: oklch(16% 0.04 156);
+	--color-warning: oklch(80% 0.15 80);
+	--color-warning-content: oklch(20% 0.05 80);
+	--color-error: oklch(66% 0.19 25);
+	--color-error-content: oklch(16% 0.03 25);
+
+	--radius-selector: 0.5rem;
+	--radius-field: 0.375rem;
+	--radius-box: 0.75rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 1;
+	--noise: 0;
+}
 
 @custom-variant dark (&:where([data-theme=night], [data-theme=night] *));
 
@@ -23,7 +105,7 @@
 	font-size: var(--text-sm);
 	line-height: var(--leading-relaxed);
 	opacity: 0.65;
-	margin-left: 1.75rem;
+	margin-inline-start: 1.75rem;
 }
 
 /* Bordered fieldset card (rounded box with bg) */

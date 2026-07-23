@@ -66,7 +66,7 @@
 </script>
 
 <div class="mx-auto max-w-md">
-	<div class="my-4 ml-4">
+	<div class="my-4 ms-4">
 		<h1 class="text-2xl font-bold">{m.CM_EDIT_HUB_1()}</h1>
 	</div>
 
@@ -78,7 +78,7 @@
 					<input
 						{...props}
 						type="text"
-						class="input input-sm w-full max-w-xs"
+						class="input w-full max-w-xs input-sm"
 						bind:value={$form.name} />
 				{/snippet}
 			</Control>
@@ -95,7 +95,7 @@
 						<input
 							{...props}
 							type="password"
-							class="input input-sm w-full max-w-xs"
+							class="input w-full max-w-xs input-sm"
 							bind:value={$form.password} />
 					{/snippet}
 				</Control>
@@ -108,7 +108,7 @@
 						<input
 							{...props}
 							type="password"
-							class="input input-sm w-full max-w-xs"
+							class="input w-full max-w-xs input-sm"
 							bind:value={$form.confirm} />
 					{/snippet}
 				</Control>
@@ -210,12 +210,12 @@
 			</Field>
 		</fieldset>
 		<div class="mt-2 flex justify-end gap-2">
-			<a href="#/" class="btn btn-sm btn-neutral not-dark:btn-soft">
+			<a href="#/" class="btn btn-neutral btn-sm not-dark:btn-soft">
 				{m.D_SM_EDIT_HUB__IDCANCEL()}
 			</a>
 			<Button
 				type="submit"
-				class="btn btn-sm btn-primary"
+				class="btn btn-primary btn-sm"
 				loading={$submitting || createHubMutation.isPending}
 				disabled={$submitting || createHubMutation.isPending}>
 				{m.D_SM_EDIT_HUB__IDOK()}

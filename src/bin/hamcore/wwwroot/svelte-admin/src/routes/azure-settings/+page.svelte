@@ -3,6 +3,8 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import imageUrl from '../../../../../../../PenCore/Azure.bmp';
 	import { rpc, VpnDDnsClientStatus, VpnRpcAzureStatus } from '$lib/rpc';
+	import PageHeader from '$lib/components/page-header.svelte';
+	import CloudIcon from '@lucide/svelte/icons/cloud';
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
@@ -34,22 +36,42 @@
 	}
 </script>
 
-<div class="mx-auto max-w-173.75">
-	<div class="my-4 ml-4">
-		<h1 class="text-2xl font-bold">{m.D_SM_AZURE__CAPTION()}</h1>
-	</div>
+<div class="mx-auto mt-4 max-w-173.75">
+	<PageHeader title={m.D_SM_AZURE__CAPTION()}>
+		{#snippet icon()}
+			<CloudIcon size={22} />
+		{/snippet}
+		{#snippet actions()}
+			{#if query.data.IsEnabled_bool}
+				<span
+					class={[
+						'badge gap-1.5 badge-soft',
+						query.data.IsConnected_bool ? 'badge-success' : 'badge-warning'
+					]}>
+					<span
+						class={['status', query.data.IsConnected_bool ? 'status-success' : 'status-warning']}>
+					</span>
+					{query.data.IsConnected_bool
+						? m.SM_AZURE_STATUS_CONNECTED()
+						: m.SM_AZURE_STATUS_NOT_CONNECTED()}
+				</span>
+			{/if}
+		{/snippet}
+	</PageHeader>
 
 	<!-- Main settings card -->
 	<div class="card bg-base-100 shadow dark:bg-base-300">
-		<figure>
+		<figure class="border-b border-base-300 dark:border-base-100">
 			<img src={imageUrl} alt="Graph explaining azure vpn" />
 		</figure>
 		<div class="card-body">
 			<h2 class="card-title">{m.D_SM_AZURE__S_TITLE()}</h2>
-			<span>{m.D_SM_AZURE__S_1()}</span>
-			<span>{m.D_SM_AZURE__S_2()}</span>
-			<span>{m.D_SM_AZURE__S_3()}</span>
-			<div class="grid md:grid-cols-3 gap-4">
+			<div class="flex flex-col gap-1 text-sm leading-relaxed opacity-70">
+				<span>{m.D_SM_AZURE__S_1()}</span>
+				<span>{m.D_SM_AZURE__S_2()}</span>
+				<span>{m.D_SM_AZURE__S_3()}</span>
+			</div>
+			<div class="mt-2 grid gap-4 md:grid-cols-3">
 				<fieldset
 					class="fieldset rounded-box border border-base-300 bg-base-200 p-4 dark:border-base-100">
 					<legend class="fieldset-legend">{m.D_SM_AZURE__B_BOLD()}</legend>
@@ -64,7 +86,15 @@
 							onchange={() => setEnabled('TRUE')} />
 						{m.D_SM_AZURE__R_ENABLE()}
 					</label>
-					<span class="label ml-7.5 text-base-content">
+					<span class="label ms-7.5 flex items-center gap-1.5 text-base-content">
+						<span
+							class={[
+								'status',
+								query.data.IsEnabled_bool && query.data.IsConnected_bool
+									? 'status-success'
+									: 'status-warning'
+							]}>
+						</span>
 						{query.data.IsConnected_bool
 							? m.SM_AZURE_STATUS_CONNECTED()
 							: m.SM_AZURE_STATUS_NOT_CONNECTED()}
@@ -85,11 +115,11 @@
 						class="col-span-2 fieldset rounded-box border border-base-300 bg-base-200 p-4 dark:border-base-100">
 						<legend class="fieldset-legend">{m.D_SM_AZURE__S_HOSTNAME_BORDER()}</legend>
 						<span>{m.D_SM_AZURE__S_HOSTNAME_INFO()}</span>
-						<div class="md:flex justify-between">
+						<div class="justify-between md:flex">
 							<span class="self-center text-base">
 								{ddnsQuery.data.CurrentFqdn_str.replace('softether.net', 'vpnazure.net')}
 							</span>
-							<a href="#/ddns" class="max-md:mt-4 btn btn-sm btn-outline">
+							<a href="#/ddns" class="btn btn-outline btn-sm max-md:mt-4">
 								{m.D_SM_AZURE__B_CHANGE()}
 							</a>
 						</div>
@@ -98,12 +128,12 @@
 			</div>
 			<div class="card-actions justify-end">
 				<a
-					class="btn btn-sm btn-neutral not-dark:btn-soft"
+					class="btn btn-neutral btn-sm not-dark:btn-soft"
 					href="https://selinks.org/?vpnazure"
 					target="_blank">
 					{m.D_SM_AZURE__B_WEB()}
 				</a>
-				<a href="#/" class="btn btn-sm btn-primary">{m.D_SM_AZURE__IDCANCEL()}</a>
+				<a href="#/" class="btn btn-primary btn-sm">{m.D_SM_AZURE__IDCANCEL()}</a>
 			</div>
 		</div>
 	</div>

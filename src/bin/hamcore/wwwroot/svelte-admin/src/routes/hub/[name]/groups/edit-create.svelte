@@ -48,7 +48,7 @@
 	<form use:enhance class="mt-4">
 		<div class="flex">
 			<UsersRound size="40" />
-			<div class="ml-2 grid grow grid-cols-[auto_1fr] gap-2">
+			<div class="ms-2 grid grow grid-cols-[auto_1fr] gap-2">
 				<Field form={sf} name="groupName">
 					<Control>
 						{#snippet children({ props })}
@@ -112,12 +112,14 @@
 						{/snippet}
 					</Control>
 				</Field>
-				<button type="button" disabled={!$form.policyEnable} class="btn btn-sm btn-neutral">{m.D_SM_EDIT_GROUP__B_POLICY()}</button>
+				<button type="button" disabled={!$form.policyEnable} class="btn btn-neutral btn-sm">
+					{m.D_SM_EDIT_GROUP__B_POLICY()}
+				</button>
 			</div>
 		</div>
 		<div class="modal-action">
-			<Button type="submit" class="btn btn-sm btn-primary">{m.D_SM_EDIT_GROUP__IDOK()}</Button>
-			<Button formmethod="dialog" formnovalidate class="btn btn-sm btn-secondary">
+			<Button type="submit" class="btn btn-primary btn-sm">{m.D_SM_EDIT_GROUP__IDOK()}</Button>
+			<Button formmethod="dialog" formnovalidate class="btn btn-secondary btn-sm">
 				{m.D_SM_EDIT_ACCESS__IDCANCEL()}
 			</Button>
 		</div>

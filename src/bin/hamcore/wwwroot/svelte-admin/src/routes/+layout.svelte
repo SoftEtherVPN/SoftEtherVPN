@@ -16,8 +16,17 @@
 	import Button from '$lib/components/button.svelte';
 	import { errorMessages } from '$lib/err';
 	import InfoIcon from '@lucide/svelte/icons/info';
+	import { getLocale, getTextDirection } from '$lib/paraglide/runtime';
 
 	let { children } = $props();
+
+	// Keep the document language and writing direction (LTR/RTL) in sync with the
+	// active locale for the whole app.
+	$effect(() => {
+		const locale = getLocale();
+		document.documentElement.lang = locale;
+		document.documentElement.dir = getTextDirection(locale);
+	});
 
 	let errorCode = $state(0);
 	let errorOpen = $state(false);
@@ -71,7 +80,7 @@
 	</div>
 	<div class="modal-action mt-4">
 		<form method="dialog">
-			<Button class="btn btn-sm btn-error">
+			<Button class="btn btn-error btn-sm">
 				{m.D_NM_OPTION__IDOK()}
 			</Button>
 		</form>

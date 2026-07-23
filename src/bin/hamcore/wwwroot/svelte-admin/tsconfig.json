@@ -23,7 +23,10 @@
 		"noPropertyAccessFromIndexSignature": true
 	},
 
-	//"exclude": ["./src/lib/paraglide/**/*"]
+	"exclude": [
+		"./src/lib/paraglide/**/*",
+		"../../../../../developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/vpnrpc.ts"
+	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//

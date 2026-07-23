@@ -9,6 +9,8 @@
 	import Button from '$lib/components/button.svelte';
 	import Detail from './detail.svelte';
 	import Info from '@lucide/svelte/icons/info';
+	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
+	import PageHeader from '$lib/components/page-header.svelte';
 	import { browser } from '$app/environment';
 
 	const client = useQueryClient();
@@ -92,149 +94,161 @@
 	}
 </script>
 
-<!-- Title + description -->
-<div class="my-4 ml-4">
-	<h1 class="text-2xl font-bold">{m.D_SM_IPSEC__S_TITLE()}</h1>
-	<p class="mt-1 text-sm opacity-70">{m.D_SM_IPSEC__S_3()}</p>
-</div>
+<div class="mx-auto mt-4 max-w-3xl">
+	<PageHeader title={m.D_SM_IPSEC__S_TITLE()} description={m.D_SM_IPSEC__S_3()}>
+		{#snippet icon()}
+			<ShieldCheckIcon size={22} />
+		{/snippet}
+	</PageHeader>
 
-<!-- Main settings card -->
-<div class="card bg-base-100 shadow dark:bg-base-300">
-	<div class="card-body">
-		<form use:enhance>
-			<!-- Section: L2TP -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S01()}</legend>
-				<p class="text-sm opacity-70">{m.D_SM_IPSEC__S02()}</p>
-
-				<Field form={sf} name="L2TP_IPsec_bool">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								<input
-									{...props}
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:checked={$form.L2TP_IPsec_bool} />
-								{m.D_SM_IPSEC__R_L2TP_OVER_IPSEC()}
-							</Label>
-							<p class="label ml-7">{m.D_SM_IPSEC__S03()}</p>
-						{/snippet}
-					</Control>
-				</Field>
-
-				<Field form={sf} name="L2TP_Raw_bool">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								<input
-									{...props}
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:checked={$form.L2TP_Raw_bool} />
-								{m.D_SM_IPSEC__R_L2TP_RAW()}
-							</Label>
-							<p class="label ml-7">{m.D_SM_IPSEC__S04()}</p>
-						{/snippet}
-					</Control>
-				</Field>
-
-				<!-- Info note: Username@HubName format -->
-				<div class="alert w-max alert-soft alert-info">
-					<Info />
-					{m.D_SM_IPSEC__S_2()}
+	<!-- Main settings card -->
+	<div class="card bg-base-100 shadow dark:bg-base-300">
+		<div class="card-body">
+			{#if ipsecQuery.isLoading}
+				<div class="flex flex-col gap-4 py-2">
+					<div class="h-6 w-48 skeleton"></div>
+					<div class="h-4 w-full max-w-md skeleton"></div>
+					<div class="h-9 w-full skeleton"></div>
+					<div class="h-9 w-full skeleton"></div>
+					<div class="h-9 w-2/3 skeleton"></div>
 				</div>
+			{:else}
+				<form use:enhance>
+					<!-- Section: L2TP -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S01()}</legend>
+						<p class="text-sm opacity-70">{m.D_SM_IPSEC__S02()}</p>
 
-				<Field form={sf} name="L2TP_DefaultHub_str">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								{m.D_SM_IPSEC__S_1()}
-							</Label>
-							<select
-								{...props}
-								class="select w-full max-w-xs select-sm"
-								bind:value={$form.L2TP_DefaultHub_str}>
-								{#each hubQuery.data as hub (hub.HubName_str)}
-									<option value={hub.HubName_str}>{hub.HubName_str}</option>
-								{/each}
-							</select>
-						{/snippet}
-					</Control>
-				</Field>
-			</fieldset>
+						<Field form={sf} name="L2TP_IPsec_bool">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										<input
+											{...props}
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={$form.L2TP_IPsec_bool} />
+										{m.D_SM_IPSEC__R_L2TP_OVER_IPSEC()}
+									</Label>
+									<p class="label ms-10 whitespace-normal">{m.D_SM_IPSEC__S03()}</p>
+								{/snippet}
+							</Control>
+						</Field>
 
-			<div class="divider"></div>
+						<Field form={sf} name="L2TP_Raw_bool">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										<input
+											{...props}
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={$form.L2TP_Raw_bool} />
+										{m.D_SM_IPSEC__R_L2TP_RAW()}
+									</Label>
+									<p class="label ms-10 whitespace-normal">{m.D_SM_IPSEC__S04()}</p>
+								{/snippet}
+							</Control>
+						</Field>
 
-			<!-- Section: EtherIP -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S05()}</legend>
-				<p class="text-sm opacity-70">{m.D_SM_IPSEC__S06()}</p>
+						<!-- Info note: Username@HubName format -->
+						<div class="alert alert-soft alert-info">
+							<Info class="shrink-0" />
+							<span>{m.D_SM_IPSEC__S_2()}</span>
+						</div>
 
-				<Field form={sf} name="EtherIP_IPsec_bool">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">
-								<input
-									{...props}
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:checked={$form.EtherIP_IPsec_bool} />
-								{m.D_SM_IPSEC__R_ETHERIP()}
-							</Label>
-						{/snippet}
-					</Control>
-				</Field>
+						<Field form={sf} name="L2TP_DefaultHub_str">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										{m.D_SM_IPSEC__S_1()}
+									</Label>
+									<select
+										{...props}
+										class="select w-full max-w-xs select-sm"
+										bind:value={$form.L2TP_DefaultHub_str}>
+										{#each hubQuery.data as hub (hub.HubName_str)}
+											<option value={hub.HubName_str}>{hub.HubName_str}</option>
+										{/each}
+									</select>
+								{/snippet}
+							</Control>
+						</Field>
+					</fieldset>
 
-				<button
-					type="button"
-					class="btn w-fit btn-sm btn-neutral not-dark:btn-soft"
-					disabled={!$form.EtherIP_IPsec_bool}
-					onclick={() => {
-						const el = document.getElementById('etherip-detail-card');
-						el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-					}}>
-					{m.D_SM_IPSEC__B_DETAIL()}
-				</button>
-			</fieldset>
+					<div class="divider"></div>
 
-			<div class="divider my-1"></div>
+					<!-- Section: EtherIP -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S05()}</legend>
+						<p class="text-sm opacity-70">{m.D_SM_IPSEC__S06()}</p>
 
-			<!-- Section: IPsec Common Settings -->
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S07()}</legend>
+						<Field form={sf} name="EtherIP_IPsec_bool">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">
+										<input
+											{...props}
+											type="checkbox"
+											class="toggle toggle-sm"
+											bind:checked={$form.EtherIP_IPsec_bool} />
+										{m.D_SM_IPSEC__R_ETHERIP()}
+									</Label>
+								{/snippet}
+							</Control>
+						</Field>
 
-				<Field form={sf} name="IPsec_Secret_str">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label">{m.D_SM_IPSEC__S_PSK()}</Label>
-							<input
-								{...props}
-								type="text"
-								class="input input-sm w-full max-w-xs"
-								bind:value={$form.IPsec_Secret_str} />
-						{/snippet}
-					</Control>
-					<FieldErrors class="text-xs text-error" />
-					<p class="label">{m.D_SM_IPSEC__S_PSK2()}</p>
-				</Field>
-			</fieldset>
+						<button
+							type="button"
+							class="btn w-fit btn-neutral btn-sm not-dark:btn-soft"
+							disabled={!$form.EtherIP_IPsec_bool}
+							onclick={() => {
+								const el = document.getElementById('etherip-detail-card');
+								el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+							}}>
+							{m.D_SM_IPSEC__B_DETAIL()}
+						</button>
+					</fieldset>
 
-			<!-- Footer: Cancel + Save -->
-			<div class="flex items-center justify-end gap-2 pt-2">
-				<button onclick={navigateBack} class="btn btn-sm btn-neutral not-dark:btn-soft">
-					{m.D_SM_IPSEC__IDCANCEL()}
-				</button>
-				<Button
-					type="submit"
-					class="btn btn-sm btn-primary"
-					loading={$submitting || saveMutation.isPending}
-					disabled={$submitting || saveMutation.isPending}>
-					{m.D_SM_IPSEC__IDOK()}
-				</Button>
-			</div>
-		</form>
+					<div class="divider my-1"></div>
+
+					<!-- Section: IPsec Common Settings -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S07()}</legend>
+
+						<Field form={sf} name="IPsec_Secret_str">
+							<Control>
+								{#snippet children({ props })}
+									<Label class="label">{m.D_SM_IPSEC__S_PSK()}</Label>
+									<input
+										{...props}
+										type="text"
+										class="input w-full max-w-xs input-sm"
+										bind:value={$form.IPsec_Secret_str} />
+								{/snippet}
+							</Control>
+							<FieldErrors class="text-xs text-error" />
+							<p class="label whitespace-normal">{m.D_SM_IPSEC__S_PSK2()}</p>
+						</Field>
+					</fieldset>
+
+					<!-- Footer: Cancel + Save -->
+					<div class="flex items-center justify-end gap-2 pt-2">
+						<button onclick={navigateBack} class="btn btn-neutral btn-sm not-dark:btn-soft">
+							{m.D_SM_IPSEC__IDCANCEL()}
+						</button>
+						<Button
+							type="submit"
+							class="btn btn-primary btn-sm"
+							loading={$submitting || saveMutation.isPending}
+							disabled={$submitting || saveMutation.isPending}>
+							{m.D_SM_IPSEC__IDOK()}
+						</Button>
+					</div>
+				</form>
+			{/if}
+		</div>
 	</div>
-</div>
 
-<Detail hubs={hubQuery.data} show={$form.EtherIP_IPsec_bool} />
+	<Detail hubs={hubQuery.data} show={$form.EtherIP_IPsec_bool} />
+</div>
