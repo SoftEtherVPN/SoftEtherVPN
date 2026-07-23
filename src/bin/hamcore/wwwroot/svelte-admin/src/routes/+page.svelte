@@ -7,6 +7,7 @@
 	import Listener from './listener/listener.svelte';
 	import Hub from './hub/hub.svelte';
 	import ServerStatus from './server-status.svelte';
+	import TcpConnections from './tcp-connections.svelte';
 
 	const serverName = browser ? location.host : '';
 
@@ -16,6 +17,7 @@
 	}));
 
 	let serverStatusOpen = $state(false);
+	let tcpConnectionOpen = $state(false);
 </script>
 
 <div class="mt-6 flex flex-col gap-4">
@@ -50,7 +52,7 @@
 					<button>
 						{m.D_SM_SERVER__B_INFO()}
 					</button>
-					<button>
+					<button onclick={() => (tcpConnectionOpen = true)}>
 						{m.D_SM_SERVER__B_CONNECTION()}
 					</button>
 					<button>
@@ -70,7 +72,7 @@
 				<a href="#/ipsec">{m.D_SM_SERVER__B_IPSEC()}</a>
 				<a href="#/openvpn">{m.D_SM_SERVER__B_OPENVPN()}</a>
 				<button>{m.D_SM_SERVER__B_DDNS()}</button>
-				<a href="#/azure-settings" >{m.D_SM_SERVER__B_AZURE()}</a>
+				<a href="#/azure-settings">{m.D_SM_SERVER__B_AZURE()}</a>
 			</div>
 		</div>
 	</div>
@@ -83,3 +85,4 @@
 </div>
 
 <ServerStatus bind:open={serverStatusOpen} />
+<TcpConnections bind:open={tcpConnectionOpen} />
