@@ -1,18 +1,71 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { dashboardKey } from '$lib/queryKeys';
-	import { rpc } from '$lib/rpc';
+	import { rpc, VpnRpcEnumHubItem, VpnRpcSetHubOnline } from '$lib/rpc';
 	import { translateHubOnline, translateHubType } from '$lib/translation';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { datetime, number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
+	import { confirm } from '$lib/components/confirm-dialog.svelte';
+	import Button from '$lib/components/button.svelte';
+	import { resolve } from '$app/paths';
 
 	const locale = getLocale();
+	const client = useQueryClient();
 	const query = createQuery(() => ({
 		queryKey: [dashboardKey, 'hub'],
 		queryFn: async () => (await rpc.EnumHub()).HubList,
 		initialData: []
 	}));
+
+	let selectedKey = $state<string | undefined>(undefined);
+	let selected = $derived(
+		selectedKey ? query.data.find((r) => r.HubName_str == selectedKey) : undefined
+	);
+
+	function select(row: VpnRpcEnumHubItem) {
+		if (selected?.HubName_str == row.HubName_str) selectedKey = undefined;
+		else selectedKey = row.HubName_str;
+	}
+
+	let canStart = $derived(selected != null && !selected.Online_bool);
+	let canStop = $derived(selected != null && selected.Online_bool);
+
+	const toggleHub = createMutation(() => ({
+		mutationFn: rpc.SetHubOnline,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: [dashboardKey, 'hub'] });
+		}
+	}));
+
+	const deleteHubMutation = createMutation(() => ({
+		mutationFn: rpc.DeleteHub,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: [dashboardKey, 'hub'] });
+		}
+	}));
+
+	function start() {
+		return toggleHub.mutateAsync(
+			new VpnRpcSetHubOnline({ HubName_str: selected?.HubName_str, Online_bool: true })
+		);
+	}
+
+	function stop() {
+		if (selected == undefined) return;
+		return confirm({ message: m.CM_OFFLINE_MSG({ input0: selected.HubName_str }) }, () =>
+			toggleHub.mutateAsync(
+				new VpnRpcSetHubOnline({ HubName_str: selected!.HubName_str, Online_bool: false })
+			)
+		);
+	}
+
+	function deleteHub() {
+		if (selected == undefined) return;
+		return confirm({ message: m.CM_DELETE_HUB_MSG({ input0: selected.HubName_str }) }, () =>
+			deleteHubMutation.mutateAsync({ HubName_str: selected.HubName_str })
+		);
+	}
 </script>
 
 <!-- Virtual Hub Table -->
@@ -49,13 +102,12 @@
 							hub['Ex.Recv.UnicastCount_u64'] +
 							hub['Ex.Send.BroadcastCount_u64'] +
 							hub['Ex.Send.UnicastCount_u64']}
-						<tr>
+						<tr
+							class={{ 'bg-base-300 dark:bg-base-100': selected?.HubName_str == hub.HubName_str }}
+							onclick={() => select(hub)}>
 							<td class="font-medium">{hub.HubName_str}</td>
 							<td>
-								<span
-									class="badge badge-sm"
-									class:badge-success={hub.Online_bool}
-									class:badge-error={!hub.Online_bool}>
+								<span class={['badge badge-sm', hub.Online_bool ? 'badge-success' : 'badge-error']}>
 									{translateHubOnline(hub.Online_bool)}
 								</span>
 							</td>
@@ -88,17 +140,30 @@
 
 		<!-- Hub action buttons -->
 		<div class="flex flex-wrap gap-2">
-			<button class="btn btn-sm btn-primary">{m.D_SM_SERVER__IDOK()}</button>
-			<button class="btn btn-sm btn-success">{m.D_SM_SERVER__B_ONLINE()}</button>
-			<button class="btn btn-sm btn-warning">{m.D_SM_SERVER__B_OFFLINE()}</button>
-			<button class="btn btn-sm btn-neutral not-dark:btn-soft">
+			<a
+				class="btn btn-sm btn-primary"
+				class:btn-disabled={selected == undefined}
+				href={selected && resolve('/hub/[name]', { name: selected.HubName_str })}>
+				{m.D_SM_SERVER__IDOK()}
+			</a>
+			<Button class="btn btn-sm btn-success" onclick={start} disabled={!canStart}>
+				{m.D_SM_SERVER__B_ONLINE()}
+			</Button>
+			<Button class="btn btn-sm btn-warning" onclick={stop} disabled={!canStop}>
+				{m.D_SM_SERVER__B_OFFLINE()}
+			</Button>
+			<button class="btn btn-sm btn-neutral not-dark:btn-soft" disabled={selected == undefined}>
 				{m.D_SM_SERVER__B_HUB_STATUS()}
 			</button>
-			<button class="btn btn-sm btn-neutral not-dark:btn-soft">
+			<a href="#/hub/create" class="btn btn-sm btn-neutral not-dark:btn-soft">
 				{m.D_SM_SERVER__B_CREATE()}
+			</a>
+			<button class="btn btn-sm btn-neutral not-dark:btn-soft" disabled={selected == undefined}>
+				{m.D_SM_SERVER__B_EDIT()}
 			</button>
-			<button class="btn btn-sm btn-neutral not-dark:btn-soft">{m.D_SM_SERVER__B_EDIT()}</button>
-			<button class="btn btn-sm btn-error">{m.D_SM_SERVER__B_DELETE()}</button>
+			<Button class="btn btn-sm btn-error" onclick={deleteHub} disabled={selected == undefined}>
+				{m.D_SM_SERVER__B_DELETE()}
+			</Button>
 		</div>
 	</div>
 </div>
