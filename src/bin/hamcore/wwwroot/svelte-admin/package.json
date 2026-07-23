@@ -34,7 +34,7 @@
 		"svelte-check": "^4.7.3",
 		"sveltekit-superforms": "^2.30.2",
 		"tailwindcss": "^4.3.3",
-		"typescript": "^7.0.2",
+		"typescript": "6.0.3",
 		"vite": "^8.1.5",
 		"zod": "^4.4.3"
 	},
