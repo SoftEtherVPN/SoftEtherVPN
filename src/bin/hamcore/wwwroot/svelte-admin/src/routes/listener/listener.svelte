@@ -114,20 +114,20 @@
 				</Button>
 				<Button
 					disabled={selected == undefined}
-					class="btn w-20 btn-sm btn-neutral not-dark:btn-soft"
+					class="btn w-20 btn-sm btn-error not-dark:btn-soft"
 					onclick={deleteListener}>
 					{m.D_SM_SERVER__B_DELETE_LISTENER()}
 				</Button>
 				<Button
 					disabled={!canStart}
 					onclick={start}
-					class="btn w-20 btn-sm btn-neutral not-dark:btn-soft">
+					class="btn w-20 btn-sm btn-success not-dark:btn-soft">
 					{m.D_SM_SERVER__B_START()}
 				</Button>
 				<Button
 					disabled={!canStop}
 					onclick={stop}
-					class="btn w-20 btn-sm btn-neutral not-dark:btn-soft">
+					class="btn w-20 btn-sm btn-warning not-dark:btn-soft">
 					{m.D_SM_SERVER__B_STOP()}
 				</Button>
 			</div>

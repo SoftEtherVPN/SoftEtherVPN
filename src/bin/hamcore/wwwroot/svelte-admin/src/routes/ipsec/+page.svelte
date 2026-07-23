@@ -69,7 +69,6 @@
 
 	// Sync query data → form when loaded
 	$effect(() => {
-		$inspect.trace();
 		const data = ipsecQuery.data;
 		if (data) {
 			form.update(

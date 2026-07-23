@@ -26,23 +26,12 @@
 
 	type Value = 'TRUE' | 'FALSE';
 
-	let azureEnabled = $state<Value>('FALSE');
+	let azureEnabled = $derived<Value>(query.data.IsEnabled_bool ? 'TRUE' : 'FALSE');
 
-	$effect(() => {
-		azureEnabled = query.data.IsEnabled_bool ? 'TRUE' : 'FALSE';
-	});
-
-	let init = false;
-	$effect(() => {
-		azureEnabled;
-		if (!init) {
-			init = true;
-			return;
-		}
-		var value = azureEnabled == 'TRUE' ? true : false;
-		init = false;
-		mutation.mutate({ IsEnabled_bool: value, IsConnected_bool: value });
-	});
+	function setEnabled(value: Value) {
+		const enabled = value === 'TRUE';
+		mutation.mutate({ IsEnabled_bool: enabled, IsConnected_bool: enabled });
+	}
 </script>
 
 <div class="mx-auto max-w-173.75">
@@ -71,7 +60,8 @@
 							bind:group={azureEnabled}
 							type="radio"
 							value="TRUE"
-							class="radio" />
+							class="radio"
+							onchange={() => setEnabled('TRUE')} />
 						{m.D_SM_AZURE__R_ENABLE()}
 					</label>
 					<span class="label ml-7.5 text-base-content">
@@ -85,7 +75,8 @@
 							bind:group={azureEnabled}
 							type="radio"
 							value="FALSE"
-							class="radio" />
+							class="radio"
+							onchange={() => setEnabled('FALSE')} />
 						{m.D_SM_AZURE__R_DISABLE()}
 					</label>
 				</fieldset>
