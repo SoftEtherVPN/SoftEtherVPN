@@ -19,7 +19,7 @@
 			</span>
 		{/if}
 		<div class="flex flex-col gap-1">
-			<h1 class="text-2xl leading-tight font-bold">{title}</h1>
+			<h1 class="text-xl leading-tight font-bold sm:text-2xl">{title}</h1>
 			{#if description}
 				<p class="max-w-prose text-sm opacity-70">{description}</p>
 			{/if}

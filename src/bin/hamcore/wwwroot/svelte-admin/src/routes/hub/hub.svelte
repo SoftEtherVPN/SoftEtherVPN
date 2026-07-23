@@ -80,6 +80,47 @@
 	}
 </script>
 
+<!-- Per-row actions menu, shared between the desktop table and the mobile cards -->
+{#snippet actionsMenu(hub: VpnRpcEnumHubItem, id: string)}
+	<button
+		class="btn btn-square btn-ghost btn-xs"
+		aria-label={hub.HubName_str}
+		popovertarget={id}
+		style={`anchor-name:--${id}`}
+		onclick={(e) => e.stopPropagation()}>
+		<EllipsisIcon size={16} />
+	</button>
+	<ul
+		class="menu dropdown dropdown-end z-10 w-44 rounded-box bg-base-100 p-2 shadow-lg dark:bg-base-200"
+		popover
+		{id}
+		style={`position-anchor:--${id}`}>
+		<li>
+			<a href={resolve('/hub/[name]', { name: hub.HubName_str })}>
+				{m.D_SM_SERVER__IDOK()}
+			</a>
+		</li>
+		{#if !hub.Online_bool}
+			<li>
+				<button onclick={(e) => runAndClose(e, () => start(hub))}>
+					{m.D_SM_SERVER__B_ONLINE()}
+				</button>
+			</li>
+		{:else}
+			<li>
+				<button onclick={(e) => runAndClose(e, () => stop(hub))}>
+					{m.D_SM_SERVER__B_OFFLINE()}
+				</button>
+			</li>
+		{/if}
+		<li>
+			<button class="text-error" onclick={(e) => runAndClose(e, () => deleteHub(hub))}>
+				{m.D_SM_SERVER__B_DELETE()}
+			</button>
+		</li>
+	</ul>
+{/snippet}
+
 <!-- Virtual Hub Table -->
 <div class="card bg-base-100 shadow dark:bg-base-300">
 	<div class="card-body gap-4 p-4">
@@ -92,7 +133,8 @@
 				</a>
 			</div>
 		{:else}
-			<div class="h-56 overflow-x-auto">
+			<!-- Desktop: full table -->
+			<div class="hidden h-56 overflow-x-auto sm:block">
 				<table class="table w-max">
 					<thead>
 						<tr>
@@ -167,51 +209,120 @@
 									<td>{number(locale, transferBytes)}</td>
 									<td>{number(locale, transferPackets)}</td>
 									<td class="text-end">
-										<button
-											class="btn btn-square btn-ghost btn-xs"
-											aria-label={hub.HubName_str}
-											popovertarget={`hub-actions-${i}`}
-											style={`anchor-name:--hub-actions-${i}`}
-											onclick={(e) => e.stopPropagation()}>
-											<EllipsisIcon size={16} />
-										</button>
-										<ul
-											class="menu dropdown dropdown-end z-10 w-44 rounded-box bg-base-100 p-2 shadow-lg dark:bg-base-200"
-											popover
-											id={`hub-actions-${i}`}
-											style={`position-anchor:--hub-actions-${i}`}>
-											<li>
-												<a href={resolve('/hub/[name]', { name: hub.HubName_str })}>
-													{m.D_SM_SERVER__IDOK()}
-												</a>
-											</li>
-											{#if !hub.Online_bool}
-												<li>
-													<button onclick={(e) => runAndClose(e, () => start(hub))}>
-														{m.D_SM_SERVER__B_ONLINE()}
-													</button>
-												</li>
-											{:else}
-												<li>
-													<button onclick={(e) => runAndClose(e, () => stop(hub))}>
-														{m.D_SM_SERVER__B_OFFLINE()}
-													</button>
-												</li>
-											{/if}
-											<li>
-												<button
-													class="text-error"
-													onclick={(e) => runAndClose(e, () => deleteHub(hub))}>
-													{m.D_SM_SERVER__B_DELETE()}
-												</button>
-											</li>
-										</ul>
+										{@render actionsMenu(hub, `hub-actions-${i}`)}
 									</td>
 								</tr>
 							{/each}
 						{/if}
 					</tbody>
 				</table>
+			</div>
+
+			<!-- Mobile: stacked cards -->
+			<div class="flex flex-col gap-2 sm:hidden">
+				{#if showSkeleton}
+					{#each Array.from({ length: 3 }) as _, i (i)}
+						<div class="h-28 w-full skeleton"></div>
+					{/each}
+				{:else}
+					{#each query.data as hub, i (hub.HubName_str)}
+						{@const transferBytes =
+							hub['Ex.Recv.BroadcastBytes_u64'] +
+							hub['Ex.Recv.UnicastBytes_u64'] +
+							hub['Ex.Send.BroadcastBytes_u64'] +
+							hub['Ex.Send.UnicastBytes_u64']}
+						{@const transferPackets =
+							hub['Ex.Recv.BroadcastCount_u64'] +
+							hub['Ex.Recv.UnicastCount_u64'] +
+							hub['Ex.Send.BroadcastCount_u64'] +
+							hub['Ex.Send.UnicastCount_u64']}
+						<div
+							role="button"
+							tabindex="0"
+							class={[
+								'rounded-box border p-3',
+								selected?.HubName_str == hub.HubName_str
+									? 'border-primary bg-base-200 dark:bg-base-100'
+									: 'border-base-300 dark:border-base-100'
+							]}
+							onclick={() => select(hub)}
+							onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && select(hub)}>
+							<div class="flex items-center justify-between gap-2">
+								<div class="flex items-center gap-2">
+									<span class="font-medium">{hub.HubName_str}</span>
+									<span
+										class={['badge badge-sm', hub.Online_bool ? 'badge-success' : 'badge-error']}>
+										{translateHubOnline(hub.Online_bool)}
+									</span>
+								</div>
+								{@render actionsMenu(hub, `hub-actions-m-${i}`)}
+							</div>
+							<div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_3()}</span>
+									<br />
+									{translateHubType(hub.HubType_u32)}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_4()}</span>
+									<br />
+									{hub.NumUsers_u32}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_5()}</span>
+									<br />
+									{hub.NumGroups_u32}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_6()}</span>
+									<br />
+									{hub.NumSessions_u32}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_7()}</span>
+									<br />
+									{hub.NumMacTables_u32}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_8()}</span>
+									<br />
+									{hub.NumIpTables_u32}
+								</div>
+								<div>
+									<span class="opacity-60">{m.SM_HUB_COLUMN_9()}</span>
+									<br />
+									{hub.NumLogin_u32}
+								</div>
+								<div class="tabular-nums">
+									<span class="opacity-60">{m.SM_SESS_COLUMN_6()}</span>
+									<br />
+									{number(locale, transferBytes)}
+								</div>
+								<div class="col-span-2 tabular-nums">
+									<span class="opacity-60">{m.SM_SESS_COLUMN_7()}</span>
+									<br />
+									{number(locale, transferPackets)}
+								</div>
+								<div class="col-span-2">
+									<span class="opacity-60">{m.SM_HUB_COLUMN_10()}</span>
+									<br />
+									{datetime(locale, hub.LastLoginTime_dt, {
+										dateStyle: 'medium',
+										timeStyle: 'medium'
+									})}
+								</div>
+								<div class="col-span-2">
+									<span class="opacity-60">{m.SM_HUB_COLUMN_11()}</span>
+									<br />
+									{datetime(locale, hub.LastCommTime_dt, {
+										dateStyle: 'medium',
+										timeStyle: 'medium'
+									})}
+								</div>
+							</div>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		{/if}
 

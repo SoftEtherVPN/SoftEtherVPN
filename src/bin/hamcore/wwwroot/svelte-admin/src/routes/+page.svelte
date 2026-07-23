@@ -73,14 +73,14 @@
 						<ServerIcon size={22} />
 					</span>
 					<div class="flex flex-col gap-1">
-						<h1 class="text-2xl leading-tight font-bold">
+						<h1 class="text-xl leading-tight font-bold sm:text-2xl">
 							{m.D_SM_SERVER__CAPTION({ input0: serverName })}
 						</h1>
-						<p class="flex items-center gap-1.5 text-sm opacity-70">
+						<p class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm opacity-70">
 							<GlobeIcon size={14} class="shrink-0" />
 							<span>{m.D_SM_SERVER__S_DDNS()}</span>
 							<span
-								class="tooltip font-mono font-medium opacity-100"
+								class="tooltip font-mono font-medium break-all opacity-100"
 								data-tip={ddnsQuery.data?.CurrentFqdn_str ?? ''}>
 								{ddnsQuery.data?.CurrentFqdn_str ?? '—'}
 							</span>
@@ -91,12 +91,12 @@
 				<!-- Live server status pill -->
 				<div class="flex items-center gap-2 rounded-box bg-base-100 px-3 py-2 dark:bg-base-300">
 					<span class="inline-grid *:[grid-area:1/1]">
-						<span class="status status-success animate-ping"></span>
+						<span class="status animate-ping status-success"></span>
 						<span class="status status-success"></span>
 					</span>
 					<div class="flex flex-col items-start gap-0.5 leading-tight">
 						<span class="text-xs opacity-60">{m.SM_SERVER_STATUS()}</span>
-						<span class="badge badge-sm badge-success badge-soft">
+						<span class="badge badge-soft badge-sm badge-success">
 							{translateHubType(statusQuery.data.ServerType_u32)}
 						</span>
 					</div>
@@ -104,7 +104,7 @@
 			</div>
 
 			<!-- Live metric band -->
-			<div class="stats stats-vertical w-full bg-base-100 sm:stats-horizontal dark:bg-base-300">
+			<div class="stats w-full stats-vertical bg-base-100 sm:stats-horizontal dark:bg-base-300">
 				{#each metrics as metric (metric.label)}
 					<div class="stat gap-1 px-4 py-3">
 						<div class="stat-figure text-primary opacity-80">
@@ -127,7 +127,7 @@
 		<!-- VPN Server and Network Information and Settings -->
 		<div class="card bg-base-100 shadow dark:bg-base-300">
 			<div class="card-body gap-4">
-				<h3 class="flex items-center gap-2 card-title">
+				<h3 class="card-title flex items-center gap-2">
 					<SettingsIcon size={18} class="opacity-70" />
 					{m.D_SM_SERVER__STATIC3()}
 				</h3>
