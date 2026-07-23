@@ -2,8 +2,8 @@
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"rewriteRelativeImportExtensions": true,
-		"allowJs": true,
-		"checkJs": true,
+		"allowJs": false,
+		"checkJs": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
@@ -23,7 +23,7 @@
 		"noPropertyAccessFromIndexSignature": true
 	},
 
-	"exclude": ["./src/lib/paraglide/**/*"]
+	//"exclude": ["./src/lib/paraglide/**/*"]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//

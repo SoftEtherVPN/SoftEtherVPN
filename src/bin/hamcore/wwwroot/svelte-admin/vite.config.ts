@@ -16,7 +16,8 @@ export default defineConfig(async ({ mode }) => {
 			outdir: './src/lib/paraglide',
 			strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
 			outputStructure: isPROD ? 'message-modules' : 'locale-modules',
-			isServer: "import.meta.env?.SSR ?? typeof window === 'undefined'"
+			isServer: "import.meta.env?.SSR ?? typeof window === 'undefined'",
+			emitTsDeclarations: true
 		});
 	}
 
@@ -27,7 +28,8 @@ export default defineConfig(async ({ mode }) => {
 				'/api': {
 					target: env['RPC_SERVER_URL'],
 					changeOrigin: true,
-					secure: false
+					secure: false,
+					preserveHeaderKeyCase: true
 				}
 			}
 		}
