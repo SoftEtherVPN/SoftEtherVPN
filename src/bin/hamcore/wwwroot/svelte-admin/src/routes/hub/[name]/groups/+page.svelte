@@ -8,7 +8,7 @@
 	let { params }: PageProps = $props();
 
 	const query = createQuery(() => ({
-		queryKey: ['hub', params.name, 'users'],
+		queryKey: ['hub', params.name, 'groups'],
 		queryFn: ({ queryKey }) => rpc.EnumGroup(new VpnRpcEnumGroup({ HubName_str: queryKey[1] })),
 		initialData: new VpnRpcEnumGroup()
 	}));
@@ -27,6 +27,11 @@
 
 	function refresh() {
 		query.refetch();
+	}
+
+	function create() {
+		selectedKey = undefined;
+		createOpen = true;
 	}
 </script>
 
@@ -62,14 +67,16 @@
 	</div>
 
 	<div class="flex justify-end gap-2">
-		<button class="btn btn-sm btn-primary" onclick={() => (createOpen = true)}>
+		<button class="btn btn-primary btn-sm" onclick={create}>
 			{m.D_SM_GROUP__B_CREATE()}
 		</button>
-		<button disabled={!selected} class="btn btn-sm btn-accent">{m.D_SM_GROUP__IDOK()}</button>
-		<button disabled={!selected} class="btn btn-sm btn-error">{m.D_SM_USER__B_DELETE()}</button>
+		<button disabled={!selected} class="btn btn-accent btn-sm" onclick={() => (createOpen = true)}>
+			{m.D_SM_GROUP__IDOK()}
+		</button>
+		<button disabled={!selected} class="btn btn-error btn-sm">{m.D_SM_USER__B_DELETE()}</button>
 		<button class="btn btn-sm" onclick={refresh}>{m.D_SM_GROUP__B_REFRESH()}</button>
-		<button disabled={!selected} class="btn btn-sm btn-neutral">{m.D_SM_GROUP__B_USER()}</button>
+		<button disabled={!selected} class="btn btn-neutral btn-sm">{m.D_SM_GROUP__B_USER()}</button>
 	</div>
 </div>
 
-<EditCreate bind:open={createOpen} />
+<EditCreate bind:open={createOpen} hub={params.name} name={selected?.Name_str} />

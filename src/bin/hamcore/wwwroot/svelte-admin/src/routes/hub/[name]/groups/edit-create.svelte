@@ -5,22 +5,25 @@
 	import { rpc, VpnRpcSetGroup } from '$lib/rpc';
 	import UsersRound from '@lucide/svelte/icons/users-round';
 	import Cog from '@lucide/svelte/icons/cog';
-	import { createMutation } from '@tanstack/svelte-query';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { Control, Field, Label } from 'formsnap';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
+
 	interface Props {
 		open: boolean;
+		hub: string;
+		name?: string;
 	}
 
-	let { open = $bindable() }: Props = $props();
+	let { open = $bindable(), name, hub }: Props = $props();
 
 	const schema = z.object({
 		groupName: z.string(),
 		fullName: z.string().optional(),
 		note: z.string().optional(),
-		policyEnable: z.boolean(),
+		policyEnable: z.boolean().optional(),
 		policies: z.record(z.string(), z.union([z.number(), z.boolean()])).default({})
 	});
 	type FormData = z.infer<typeof schema>;
@@ -34,17 +37,39 @@
 
 	const { form, enhance, constraints, reset } = sf;
 
-	const newMutation = createMutation(() => ({
-		mutationFn: (data: VpnRpcSetGroup) => rpc.CreateGroup(data)
+	const query = createQuery(() => ({
+		queryKey: ['hub', hub, 'groups', name],
+		queryFn: ({ queryKey }) =>
+			rpc.GetGroup(new VpnRpcSetGroup({ HubName_str: queryKey[1]!, Name_str: queryKey[3]! })),
+
+		enabled: !!name && open
 	}));
 
 	$effect(() => {
-		if (open) reset();
+		if (open) {
+			let formData: FormData = zod4(schema).defaults;
+			if (query.isSuccess && query.data) {
+				formData = {
+					groupName: query.data.Name_str,
+					fullName: query.data.Realname_utf,
+					note: query.data.Note_utf,
+					policyEnable: query.data.UsePolicy_bool,
+					policies: {}
+				};
+			}
+			reset({ data: formData, newState: formData });
+		}
 	});
+
+	const newMutation = createMutation(() => ({
+		mutationFn: (data: VpnRpcSetGroup) => (!!name ? rpc.SetGroup(data) : rpc.CreateGroup(data))
+	}));
 </script>
 
 <Modal bind:open aria-labelledby="create-group-title">
-	<h3 id="create-group-title" class="font-semibold">{m.SM_EDIT_GROUP_CAPTION_1()}</h3>
+	<h3 id="create-group-title" class="font-semibold">
+		{!!name ? m.SM_EDIT_GROUP_CAPTION_2({ input0: name }) : m.SM_EDIT_GROUP_CAPTION_1()}
+	</h3>
 	<form use:enhance class="mt-4">
 		<div class="flex">
 			<UsersRound size="40" />
