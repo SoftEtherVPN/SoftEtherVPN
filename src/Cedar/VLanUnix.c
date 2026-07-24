@@ -24,10 +24,12 @@
 #endif
 
 #include <errno.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <net/if_arp.h>
 #include <net/if.h>
+#include <sys/types.h>
 #include <sys/ioctl.h>
+#include <string.h>
 
 #if defined(UNIX_OPENBSD) || defined(UNIX_SOLARIS)
 #include <netinet/if_ether.h>
@@ -141,7 +143,8 @@ UINT VLanPaGetNextPacket(SESSION *s, void **data)
 // Write a packet to the virtual LAN card
 bool VLanPutPacket(VLAN *v, void *buf, UINT size)
 {
-	UINT ret;
+	ssize_t ret;
+	int err;
 	// Validate arguments
 	if (v == NULL)
 	{
@@ -164,7 +167,29 @@ bool VLanPutPacket(VLAN *v, void *buf, UINT size)
 		return true;
 	}
 
-	ret = write(v->fd, buf, size);
+	for (;;)
+	{
+		ret = write(v->fd, buf, size);
+		if (ret >= 0)
+		{
+			break;
+		}
+
+		err = errno;
+		if (err == EINTR)
+		{
+			continue;
+		}
+
+		if (err == EAGAIN || err == EWOULDBLOCK)
+		{
+			Free(buf);
+			return true;
+		}
+
+		Debug("VLanPutPacket: write() failed: errno=%d (%s)\n", err, strerror(err));
+		return false;
+	}
 
 	if (ret >= 1)
 	{
@@ -172,7 +197,7 @@ bool VLanPutPacket(VLAN *v, void *buf, UINT size)
 		return true;
 	}
 
-	if (errno == EAGAIN || ret == 0)
+	if (ret == 0)
 	{
 		Free(buf);
 		return true;
@@ -185,7 +210,8 @@ bool VLanPutPacket(VLAN *v, void *buf, UINT size)
 bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size)
 {
 	UCHAR tmp[TAP_READ_BUF_SIZE];
-	int ret;
+	ssize_t ret;
+	int err;
 	// Validate arguments
 	if (v == NULL || buf == NULL || size == 0)
 	{
@@ -197,17 +223,40 @@ bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size)
 	}
 
 	// Read
-	ret = read(v->fd, tmp, sizeof(tmp));
+	for (;;)
+	{
+		ret = read(v->fd, tmp, sizeof(tmp));
+		if (ret >= 0)
+		{
+			break;
+		}
 
-	if (ret == 0 ||
-		(ret == -1 && errno == EAGAIN))
+		err = errno;
+		if (err == EINTR)
+		{
+			continue;
+		}
+
+		if (err == EAGAIN || err == EWOULDBLOCK)
+		{
+			// No packet
+			*buf = NULL;
+			*size = 0;
+			return true;
+		}
+
+		Debug("VLanGetNextPacket: read() failed: errno=%d (%s)\n", err, strerror(err));
+		return false;
+	}
+
+	if (ret == 0)
 	{
 		// No packet
 		*buf = NULL;
 		*size = 0;
 		return true;
 	}
-	else if (ret == -1 || ret > TAP_READ_BUF_SIZE)
+	else if (ret > TAP_READ_BUF_SIZE)
 	{
 		// Error
 		return false;
