@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { rpc, Util_Base64_Decode, VpnRpcEnumLogFile, VpnRpcEnumLogFileItem, VpnRpcReadLogFile } from '$lib/rpc';
+	import {
+		rpc,
+		Util_Base64_Decode,
+		VpnRpcEnumLogFile,
+		VpnRpcEnumLogFileItem,
+		VpnRpcReadLogFile
+	} from '$lib/rpc';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { PageProps } from '../$types';
 	import { filesize } from 'filesize';
@@ -20,7 +26,7 @@
 			const result = await rpc.ReadLogFile({
 				ServerName_str: file.ServerName_str,
 				FilePath_str: file.FilePath_str,
-				Offset_u32: offset,
+				Offset_u32: offset
 			} as VpnRpcReadLogFile);
 			debugger;
 
@@ -42,7 +48,7 @@
 </script>
 
 <div>
-	<h2 class="m-4 text-xl font-bold">{m.D_SM_LOG_FILE__CAPTION()}</h2>
+	<h2 class="ms-4 py-4 text-xl font-bold">{m.D_SM_LOG_FILE__CAPTION()}</h2>
 	<div class="max-h-[75vh] overflow-y-auto">
 		<table class="table-pin-rows table table-xs">
 			<thead>

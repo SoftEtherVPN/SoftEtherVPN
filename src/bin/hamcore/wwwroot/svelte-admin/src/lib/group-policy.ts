@@ -133,14 +133,55 @@ export function clampPolicy(item: PolicyItem, value: number): number {
 // keyed by the policy's position in the SoftEther policy list.
 const messages = m as unknown as Record<string, (() => string) | undefined>;
 
+const policyMessages = [
+	[m.POL_0, m.POL_EX_0],
+	[m.POL_1, m.POL_EX_1],
+	[m.POL_2, m.POL_EX_2],
+	[m.POL_3, m.POL_EX_3],
+	[m.POL_4, m.POL_EX_4],
+	[m.POL_5, m.POL_EX_5],
+	[m.POL_6, m.POL_EX_6],
+	[m.POL_7, m.POL_EX_7],
+	[m.POL_8, m.POL_EX_8],
+	[m.POL_9, m.POL_EX_9],
+	[m.POL_10, m.POL_EX_10],
+	[m.POL_11, m.POL_EX_11],
+	[m.POL_12, m.POL_EX_12],
+	[m.POL_13, m.POL_EX_13],
+	[m.POL_14, m.POL_EX_14],
+	[m.POL_15, m.POL_EX_15],
+	[m.POL_16, m.POL_EX_16],
+	[m.POL_17, m.POL_EX_17],
+	[m.POL_18, m.POL_EX_18],
+	[m.POL_19, m.POL_EX_19],
+	[m.POL_20, m.POL_EX_20],
+	[m.POL_21, m.POL_EX_21],
+	[m.POL_22, m.POL_EX_22],
+	[m.POL_23, m.POL_EX_23],
+	[m.POL_24, m.POL_EX_24],
+	[m.POL_25, m.POL_EX_25],
+	[m.POL_26, m.POL_EX_26],
+	[m.POL_27, m.POL_EX_27],
+	[m.POL_28, m.POL_EX_28],
+	[m.POL_29, m.POL_EX_29],
+	[m.POL_30, m.POL_EX_30],
+	[m.POL_31, m.POL_EX_31],
+	[m.POL_32, m.POL_EX_32],
+	[m.POL_33, m.POL_EX_33],
+	[m.POL_34, m.POL_EX_34],
+	[m.POL_35, m.POL_EX_35],
+	[m.POL_36, m.POL_EX_36],
+	[m.POL_37, m.POL_EX_37]
+];
+
 /** Localized policy name, e.g. "Allow Access". */
 export function policyLabel(index: number): string {
-	return messages[`POL_${index}`]?.() ?? '';
+	return policyMessages[index]![0]!() ?? '';
 }
 
 /** Localized policy description. */
 export function policyDescription(index: number): string {
-	return messages[`POL_EX_${index}`]?.() ?? '';
+	return policyMessages[index]![1]!() ?? '';
 }
 
 /** Localized unit suffix for a numeric policy input. */
