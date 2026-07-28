@@ -39,8 +39,7 @@
 		</div>
 
 		<!-- Key metrics at a glance -->
-		<div
-			class="stats mb-3 w-full stats-vertical border border-base-300 sm:stats-horizontal dark:border-base-100">
+		<div class="stats mb-3 w-full stats-vertical border border-base-300 sm:stats-horizontal">
 			<div class="stat gap-1 px-4 py-3">
 				<div class="stat-title text-xs">{m.SM_ST_NUM_HUB_TOTAL()}</div>
 				<div class="stat-value text-2xl tabular-nums">

@@ -94,13 +94,13 @@
 		<div class="flex justify-end gap-2">
 			<button
 				type="button"
-				class="btn btn-sm btn-neutral not-dark:btn-soft"
+				class="btn btn-neutral btn-sm not-dark:btn-soft"
 				onclick={() => (addModalOpen = true)}>
 				{m.D_SM_ETHERIP__B_ADD()}
 			</button>
 			<Button
 				type="button"
-				class="btn btn-outline btn-sm btn-error"
+				class="btn btn-outline btn-error btn-sm"
 				disabled={!selectedId}
 				loading={deleteMutation.isPending}
 				onclick={deleteEntry}>

@@ -2,5 +2,5 @@
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
-	"tailwindCSS.classFunctions": ["tv"],
+	"tailwindCSS.classFunctions": ["tv"]
 }

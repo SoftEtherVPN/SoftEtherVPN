@@ -64,7 +64,7 @@
 
 <div class="mt-6 flex flex-col gap-4">
 	<!-- Command header: server identity, live status and DDNS endpoint -->
-	<div class="card border border-base-300 bg-base-200 dark:border-base-100">
+	<div class="card border border-base-300 bg-base-100">
 		<div class="card-body gap-4 p-4 sm:p-6">
 			<div class="flex flex-wrap items-start justify-between gap-4">
 				<div class="flex items-start gap-3">
@@ -89,7 +89,7 @@
 				</div>
 
 				<!-- Live server status pill -->
-				<div class="flex items-center gap-2 rounded-box bg-base-100 px-3 py-2 dark:bg-base-300">
+				<div class="flex items-center gap-2 rounded-box bg-base-300 px-3 py-2">
 					<span class="inline-grid *:[grid-area:1/1]">
 						<span class="status animate-ping status-success"></span>
 						<span class="status status-success"></span>
@@ -104,7 +104,7 @@
 			</div>
 
 			<!-- Live metric band -->
-			<div class="stats w-full stats-vertical bg-base-100 sm:stats-horizontal dark:bg-base-300">
+			<div class="stats w-full stats-vertical bg-base-300 sm:stats-horizontal">
 				{#each metrics as metric (metric.label)}
 					<div class="stat gap-1 px-4 py-3">
 						<div class="stat-figure text-primary opacity-80">
@@ -125,7 +125,7 @@
 		<Listener />
 
 		<!-- VPN Server and Network Information and Settings -->
-		<div class="card bg-base-100 shadow dark:bg-base-300">
+		<div class="card border border-base-300 bg-base-100">
 			<div class="card-body gap-4">
 				<h3 class="card-title flex items-center gap-2">
 					<SettingsIcon size={18} class="opacity-70" />
@@ -159,7 +159,7 @@
 	</div>
 
 	<!-- Bottom settings buttons -->
-	<div class="card bg-base-100 shadow dark:bg-base-300">
+	<div class="card border border-base-300 bg-base-100">
 		<div class="card-body gap-4">
 			<div class="grid grid-cols-2 gap-2 *:btn *:btn-neutral *:not-dark:btn-soft sm:grid-cols-4">
 				<button>{m.D_SM_SERVER__B_BRIDGE()}</button>

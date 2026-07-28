@@ -12,6 +12,7 @@
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 
 	const client = useQueryClient();
 
@@ -44,6 +45,7 @@
 		mutationFn: (data: VpnIPsecServices) => rpc.SetIPsecServices(data),
 		onSuccess: async () => {
 			await client.invalidateQueries({ queryKey: ['ipsec'] });
+			await goto('#/');
 		}
 	}));
 

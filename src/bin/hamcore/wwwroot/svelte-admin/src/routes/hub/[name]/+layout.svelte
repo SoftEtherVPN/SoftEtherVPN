@@ -145,12 +145,12 @@
 {#if hub.isLoading}
 	<div class="mt-6 h-[70vh] w-full skeleton"></div>
 {:else}
-	<div class="drawer mt-6 lg:drawer-open">
+	<div class="drawer mt-6 items-stretch lg:drawer-open">
 		<input id="hub-drawer" type="checkbox" class="drawer-toggle" bind:checked={drawerOpen} />
 
-		<div class="drawer-content min-w-0 lg:ps-4">
+		<div class="drawer-content lg:ps-4">
 			<!-- Mobile: open-sidebar bar -->
-			<div class="mb-3 flex items-center gap-2 lg:hidden">
+			<div class="ms-2 mb-3 flex items-center gap-2 lg:hidden">
 				<label
 					for="hub-drawer"
 					aria-label={m.D_SM_HUB__S_TITLE({ input0: params.name })}
@@ -162,16 +162,16 @@
 				</span>
 			</div>
 
-			<div class="min-h-[60vh] rounded-box bg-base-300">
+			<div class="h-full border border-base-300 bg-base-100">
 				{@render children()}
 			</div>
 		</div>
 
-		<div class="drawer-side">
-			<label for="hub-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-			<div class="rounded-box bg-base-300 max-lg:min-h-full">
+		<div class="drawer-side h-auto">
+			<label for="hub-drawer" aria-label="close sidebar" class="drawer-overlay h-screen"></label>
+			<div class="border border-base-300 bg-base-100 lg:h-full">
 				<!-- Hub identity -->
-				<div class="flex items-center gap-3 border-b border-base-100 p-4">
+				<div class="flex items-center gap-3 border-b border-base-content/10 p-4">
 					<span
 						class="grid size-9 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
 						<ServerIcon size={18} />

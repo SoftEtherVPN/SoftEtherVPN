@@ -23,7 +23,7 @@
 	);
 </script>
 
-<div class="navbar mt-6 rounded-xl bg-base-200 shadow-xl">
+<div class="navbar mt-6 rounded-xl border border-base-300 bg-base-100">
 	<!-- Left: Home button -->
 	<div class="navbar-start">
 		<a href="#/" class="btn gap-2 btn-ghost text-xl font-bold">

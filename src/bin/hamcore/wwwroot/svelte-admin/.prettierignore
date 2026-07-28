@@ -9,6 +9,4 @@ bun.lockb
 /static/
 
 #Shadcn Components
-/src/lib/components/ui
-jsrepo.config.ts
-stb-plugin.js
+/messages

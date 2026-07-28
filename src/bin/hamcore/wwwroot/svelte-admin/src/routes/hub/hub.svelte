@@ -122,7 +122,7 @@
 {/snippet}
 
 <!-- Virtual Hub Table -->
-<div class="card bg-base-100 shadow dark:bg-base-300">
+<div class="card border border-base-300 bg-base-100">
 	<div class="card-body gap-4 p-4">
 		{#if showEmpty}
 			<!-- Empty state: no hubs yet, offer to create one -->
@@ -176,9 +176,8 @@
 									hub['Ex.Send.BroadcastCount_u64'] +
 									hub['Ex.Send.UnicastCount_u64']}
 								<tr
-									class={{
-										'bg-base-300 dark:bg-base-100': selected?.HubName_str == hub.HubName_str
-									}}
+									class="hover:bg-base-300"
+									class:bg-base-200={selected?.HubName_str == hub.HubName_str}
 									onclick={() => select(hub)}>
 									<td class="font-medium">{hub.HubName_str}</td>
 									<td>
@@ -242,8 +241,8 @@
 							class={[
 								'rounded-box border p-3',
 								selected?.HubName_str == hub.HubName_str
-									? 'border-primary bg-base-200 dark:bg-base-100'
-									: 'border-base-300 dark:border-base-100'
+									? 'border-primary bg-base-200'
+									: 'border-base-300'
 							]}
 							onclick={() => select(hub)}
 							onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && select(hub)}>

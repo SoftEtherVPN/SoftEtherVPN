@@ -80,6 +80,6 @@
 	</div>
 	<div class="modal-action mt-4">
 		<button class="btn btn-outline btn-sm" onclick={() => close(false)}>{m.SEC_NO()}</button>
-		<Button class="btn btn-sm btn-error" onclick={() => close(true)}>{m.SEC_YES()}</Button>
+		<Button class="btn btn-error btn-sm" onclick={() => close(true)}>{m.SEC_YES()}</Button>
 	</div>
 </Modal>

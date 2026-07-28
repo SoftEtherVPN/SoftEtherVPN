@@ -67,7 +67,7 @@
 	}
 </script>
 
-<div class="card bg-base-100 shadow dark:bg-base-300">
+<div class="card border border-base-300 bg-base-100">
 	<div class="card-body gap-3 p-4">
 		<p class="font-semibold">{m.D_SM_SERVER__STATIC1()}</p>
 		<p class="text-sm opacity-70">{m.D_SM_SERVER__STATIC2()}</p>
@@ -108,13 +108,13 @@
 			</div>
 			<div class="flex flex-col gap-2">
 				<Button
-					class="btn w-20 btn-sm btn-neutral not-dark:btn-soft"
+					class="btn w-20 btn-neutral btn-sm not-dark:btn-soft"
 					onclick={() => (createOpen = true)}>
 					{m.D_SM_SERVER__B_CREATE_LISTENER()}
 				</Button>
 				<Button
 					disabled={selected == undefined}
-					class="btn w-20 btn-sm btn-error not-dark:btn-soft"
+					class="btn w-20 btn-error btn-sm not-dark:btn-soft"
 					onclick={deleteListener}>
 					{m.D_SM_SERVER__B_DELETE_LISTENER()}
 				</Button>

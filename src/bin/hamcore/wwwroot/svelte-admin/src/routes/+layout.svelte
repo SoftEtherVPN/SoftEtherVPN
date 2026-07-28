@@ -57,7 +57,7 @@
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
-	<div class="container mx-auto">
+	<div class="container mx-auto pb-8">
 		<Header />
 		{@render children()}
 	</div>

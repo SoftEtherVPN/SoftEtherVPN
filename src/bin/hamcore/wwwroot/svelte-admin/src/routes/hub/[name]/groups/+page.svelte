@@ -5,6 +5,7 @@
 	import { rpc, VpnRpcEnumGroup, VpnRpcEnumGroupItem } from '$lib/rpc';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import MemberList from './member-list.svelte';
 
 	let { params }: PageProps = $props();
 
@@ -18,6 +19,7 @@
 	let selected = $derived(
 		selectedKey ? query.data.GroupList.find((r) => r.Name_str == selectedKey) : undefined
 	);
+	let memberListOpen = $state(false);
 
 	function groupHref(group: string) {
 		return resolve('/hub/[name]/groups/[group]', { name: params.name, group });
@@ -54,7 +56,8 @@
 			<tbody>
 				{#each query.data.GroupList as group (group.Name_str)}
 					<tr
-						class={{ 'bg-base-300 dark:bg-base-100': selected?.Name_str == group.Name_str }}
+						class="hover:bg-base-300"
+						class:bg-base-200={selected?.Name_str == group.Name_str}
 						onclick={() => select(group)}
 						ondblclick={() => goto(groupHref(group.Name_str))}>
 						<td>{group.Name_str}</td>
@@ -81,6 +84,13 @@
 		</a>
 		<button disabled={!selected} class="btn btn-error btn-sm">{m.D_SM_USER__B_DELETE()}</button>
 		<button class="btn btn-sm" onclick={refresh}>{m.D_SM_GROUP__B_REFRESH()}</button>
-		<button disabled={!selected} class="btn btn-neutral btn-sm">{m.D_SM_GROUP__B_USER()}</button>
+		<button
+			disabled={!selected}
+			class="btn btn-neutral btn-sm"
+			onclick={() => (memberListOpen = true)}>
+			{m.D_SM_GROUP__B_USER()}
+		</button>
 	</div>
 </div>
+
+<MemberList hub={params.name} name={selected?.Name_str} bind:open={memberListOpen} />
