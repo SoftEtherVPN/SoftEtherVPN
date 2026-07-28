@@ -63,7 +63,7 @@
 					tooltip: m.D_SM_HUB__S_GROUP()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/access-lists',
 					icon: ShieldCheckIcon,
 					content: m.D_SM_HUB__B_ACCESS(),
 					tooltip: m.D_SM_HUB__S_ACCESS()
@@ -74,19 +74,19 @@
 			title: m.D_SM_HUB__STATIC2(),
 			items: [
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/properties',
 					icon: SettingsIcon,
 					content: m.D_SM_HUB__B_PROPERTY(),
 					tooltip: m.D_SM_HUB__S_PROPERTY()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/radius',
 					icon: KeyRoundIcon,
 					content: m.D_SM_HUB__B_RADIUS(),
 					tooltip: m.D_SM_HUB__S_RADIUS()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/cascade-connections',
 					icon: LinkIcon,
 					content: m.D_SM_HUB__B_LINK(),
 					tooltip: m.D_SM_HUB__S_LINK()
@@ -109,19 +109,19 @@
 					tooltip: m.D_SM_HUB__S_LOG()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/trusted-ca',
 					icon: FileBadgeIcon,
 					content: m.D_SM_HUB__B_CA(),
 					tooltip: m.D_SM_HUB__S_CA()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/revoked-ca',
 					icon: FileXIcon,
 					content: m.D_SM_HUB__B_CRL(),
 					tooltip: m.D_SM_HUB__S_CA()
 				},
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/secure-nat',
 					icon: NetworkIcon,
 					content: m.D_SM_HUB__B_SNAT(),
 					tooltip: m.D_SM_HUB__S_SNAT()
@@ -132,7 +132,7 @@
 			title: m.D_SM_HUB__STATIC5(),
 			items: [
 				{
-					route: '/hub/[name]/users',
+					route: '/hub/[name]/sessions',
 					icon: ActivityIcon,
 					content: m.D_SM_HUB__B_SESSION(),
 					tooltip: m.D_SM_HUB__B_SESSION()
