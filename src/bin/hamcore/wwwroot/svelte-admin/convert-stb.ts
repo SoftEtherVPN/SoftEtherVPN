@@ -1,102 +1,10 @@
-import type {
-	BundleImport,
-	Declaration,
-	InlangPlugin,
-	MessageImport,
-	VariantImport
-} from '@inlang/sdk';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 
 const IGNORE: string[] = ['CMD', 'D_SW', 'D_CM', 'D_EM', 'SW'];
-
-const plugin: InlangPlugin = {
-	key: 'plugin.softether.stb',
-	toBeImportedFiles: async ({ settings }) => {
-		return settings.locales.map((locale) => ({
-			locale,
-			path: `../../strtable_${locale}.stb`
-		}));
-	},
-	importFiles: async ({ files }) => {
-		const bundles: BundleImport[] = [];
-		const messages: MessageImport[] = [];
-		const variants: VariantImport[] = [];
-
-		for (const file of files) {
-			const content = new TextDecoder().decode(file.content);
-			let prefix = '';
-
-			for (let line of content.split(/\r?\n|\r|\n/g)) {
-				let [entry, newPrefix] = parseTableLine(line, prefix);
-				prefix = newPrefix;
-
-				if (entry != null) {
-					if (IGNORE.some((x) => entry.name.startsWith(x))) continue;
-
-					let declarations: Declaration[] = entry.tagList
-						.map((tag, i) => {
-							if (tag == '%u' || tag == '%s' || tag == '%S') {
-								let ext = tag == '%u' ? ': number' : '';
-								entry.str = entry.str.replace(tag, `{{input${i}${ext}}}`);
-								return {
-									name: 'input' + i,
-									type: 'input-variable'
-								} as Declaration;
-							}
-							return null;
-						})
-						.filter((d) => d != null);
-
-					bundles.push({
-						id: entry.name,
-						declarations
-					});
-
-					messages.push({
-						bundleId: entry.name,
-						locale: file.locale
-					});
-
-					variants.push({
-						messageBundleId: entry.name,
-						messageLocale: file.locale,
-						pattern: buildPattern(entry.str)
-					});
-				}
-			}
-		}
-
-		return { bundles, messages, variants };
-	},
-	exportFiles: async () => []
-};
-
-function buildPattern(str: string): VariantImport['pattern'] {
-	const pattern: VariantImport['pattern'] = [];
-	const regex = /\{\{(\w+)(?::\s*\w+)?\}\}/g;
-	let lastIndex = 0;
-	let match: RegExpExecArray | null;
-
-	while ((match = regex.exec(str)) !== null) {
-		if (match.index > lastIndex) {
-			pattern.push({ type: 'text', value: str.slice(lastIndex, match.index) });
-		}
-
-		pattern.push({
-			type: 'expression',
-			arg: { type: 'variable-reference', name: match[1] }
-		});
-
-		lastIndex = regex.lastIndex;
-	}
-
-	if (lastIndex < str.length) {
-		pattern.push({ type: 'text', value: str.slice(lastIndex) });
-	}
-
-	return pattern;
-}
-
-export default plugin;
+const VERSION = '0.2';
 
 interface StbTable {
 	name: string;
@@ -270,4 +178,51 @@ function parseTagList(str: string) {
 	}
 
 	return list;
+}
+
+export async function convertStb() {
+	let files = await readdir('../../');
+	let regex = /strtable_(.+)\.stb/;
+
+	for (let file of files) {
+		if (!file.startsWith('strtable_')) continue;
+		let locale = file.match(regex)![1];
+
+		let content = await readFile(join('../../', file), { encoding: 'utf-8' });
+		let hash = createHash('sha256').update(content).digest('hex');
+		let prefix = '';
+		let message: Record<string, string> = {
+			$schema: 'https://inlang.com/schema/inlang-message-format',
+			$hash: hash,
+			$version: VERSION
+		};
+
+		let destPath = `./messages/${locale}.json`;
+		if (existsSync(destPath)) {
+			let destContent = await readFile(destPath, { encoding: 'utf-8' });
+			let destJson = JSON.parse(destContent) as Record<string, string>;
+			if (destJson['$hash'] == hash && destJson['$version'] == VERSION) continue;
+		}
+
+		for (let line of content.split(/\r?\n|\r|\n/g)) {
+			let [entry, newPrefix] = parseTableLine(line, prefix);
+			prefix = newPrefix;
+
+			if (entry == null) continue;
+			if (IGNORE.some((x) => entry.name.startsWith(x))) continue;
+			let i = 0;
+			for (let tag of entry.tagList) {
+				if (tag == '%u' || tag == '%s' || tag == '%S') {
+					entry.str = entry.str.replace(tag, `{input${i}}`);
+				}
+				i++;
+			}
+			message[entry.name] = entry.str;
+		}
+
+		await writeFile(destPath, JSON.stringify(message, null, 2));
+		console.log('Converted ' + locale);
+	}
+
+	console.log('Finish converting stb table');
 }
