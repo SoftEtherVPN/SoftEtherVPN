@@ -83,7 +83,8 @@
 					<tbody>
 						{#each query.data as l (l.Ports_u32)}
 							<tr
-								class={{ 'bg-base-300 dark:bg-base-100': selected?.Ports_u32 == l.Ports_u32 }}
+								class="hover:bg-base-300"
+								class:bg-base-200={selected?.Ports_u32 == l.Ports_u32}
 								onclick={() => select(l)}>
 								<td>TCP {l.Ports_u32}</td>
 								<td>
