@@ -7,62 +7,75 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import type { VpnRpcEnumUserItem } from '$lib/rpc';
 	import { translateAuthType } from '$lib/translation';
-	import type { HTMLTableAttributes } from 'svelte/elements';
+	import DataTable, { type DataTableColumn } from './data-table.svelte';
 
-	interface Props extends HTMLTableAttributes {
+	interface Props {
 		hub: string;
 		users: VpnRpcEnumUserItem[];
-		selectedId?: string;
+		/** Name of the selected user, or `undefined`. Bindable. */
+		selectedId?: string | number;
+		loading?: boolean;
+		rowsPerPage?: number;
+		searchable?: boolean;
+		class?: string;
+		tableClass?: string;
 	}
 
-	let { hub, users, selectedId = $bindable(), ...rest }: Props = $props();
+	let {
+		hub,
+		users,
+		selectedId = $bindable(),
+		loading = false,
+		rowsPerPage = 15,
+		searchable = true,
+		class: className,
+		tableClass = 'table-pin-rows'
+	}: Props = $props();
 
-	function select(row: VpnRpcEnumUserItem) {
-		if (selectedId == row.Name_str) selectedId = undefined;
-		else selectedId = row.Name_str;
-	}
+	const locale = getLocale();
+
+	const columns: DataTableColumn<VpnRpcEnumUserItem>[] = $derived([
+		{ header: m.SM_USER_COLUMN_1(), value: 'Name_str', primary: true },
+		{ header: m.SM_USER_COLUMN_2(), value: 'Realname_utf' },
+		{
+			header: m.SM_USER_COLUMN_3(),
+			value: (user) => user.GroupName_str || '-',
+			sortBy: 'GroupName_str'
+		},
+		{ header: m.SM_USER_COLUMN_4(), value: 'Note_utf', cardSpan: 2 },
+		{
+			header: m.SM_USER_COLUMN_5(),
+			value: (user) => translateAuthType(user.AuthType_u32),
+			sortBy: 'AuthType_u32'
+		},
+		{ header: m.SM_USER_COLUMN_6(), value: 'NumLogin_u32' },
+		{
+			header: m.SM_USER_COLUMN_7(),
+			value: (user) =>
+				isDefaultDate(user.LastLoginTime_dt)
+					? '(None)'
+					: datetime(locale, user.LastLoginTime_dt, {
+							dateStyle: 'medium',
+							timeStyle: 'medium'
+						}),
+			sortBy: 'LastLoginTime_dt',
+			cardSpan: 2
+		}
+	]);
 
 	async function navigate(row: VpnRpcEnumUserItem) {
 		await goto(resolve('/hub/[name]/users/[user]', { name: hub, user: row.Name_str }));
 	}
-
-	const locale = getLocale();
 </script>
 
-<table {...rest} class={['table table-pin-rows', rest.class]}>
-	<thead>
-		<tr>
-			<th>{m.SM_USER_COLUMN_1()}</th>
-			<th>{m.SM_USER_COLUMN_2()}</th>
-			<th>{m.SM_USER_COLUMN_3()}</th>
-			<th>{m.SM_USER_COLUMN_4()}</th>
-			<th>{m.SM_USER_COLUMN_5()}</th>
-			<th>{m.SM_USER_COLUMN_6()}</th>
-			<th>{m.SM_USER_COLUMN_7()}</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each users as user (user.Name_str)}
-			<tr
-				class="hover:bg-base-300"
-				class:bg-base-200={selectedId == user.Name_str}
-				onclick={() => select(user)}
-				ondblclick={() => navigate(user)}>
-				<td>{user.Name_str}</td>
-				<td>{user.Realname_utf}</td>
-				<td>{user.GroupName_str || '-'}</td>
-				<td>{user.Note_utf}</td>
-				<td>{translateAuthType(user.AuthType_u32)}</td>
-				<td>{user.NumLogin_u32}</td>
-				<td>
-					{isDefaultDate(user.LastLoginTime_dt)
-						? '(None)'
-						: datetime(locale, user.LastLoginTime_dt, {
-								dateStyle: 'medium',
-								timeStyle: 'medium'
-							})}
-				</td>
-			</tr>
-		{/each}
-	</tbody>
-</table>
+<DataTable
+	rows={users}
+	{columns}
+	rowKey={(user) => user.Name_str}
+	bind:selectedKey={selectedId}
+	{loading}
+	{rowsPerPage}
+	{searchable}
+	{tableClass}
+	class={className}
+	onrowdblclick={navigate} />

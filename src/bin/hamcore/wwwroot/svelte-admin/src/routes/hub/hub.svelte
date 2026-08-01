@@ -8,11 +8,14 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { confirm } from '$lib/components/confirm-dialog.svelte';
 	import Button from '$lib/components/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis-vertical';
 
 	const locale = getLocale();
+	const timestamp = { dateStyle: 'medium', timeStyle: 'medium' } as const;
 	const client = useQueryClient();
 	const query = createQuery(() => ({
 		queryKey: hubKeys.list(),
@@ -20,18 +23,8 @@
 		initialData: []
 	}));
 
-	let showSkeleton = $derived(query.isFetching && query.data.length === 0);
-	let showEmpty = $derived(!query.isFetching && query.data.length === 0);
-
-	let selectedKey = $state<string | undefined>(undefined);
-	let selected = $derived(
-		selectedKey ? query.data.find((r) => r.HubName_str == selectedKey) : undefined
-	);
-
-	function select(row: VpnRpcEnumHubItem) {
-		if (selected?.HubName_str == row.HubName_str) selectedKey = undefined;
-		else selectedKey = row.HubName_str;
-	}
+	let selectedKey = $state<string | number | undefined>(undefined);
+	let selected = $derived(query.data.find((r) => r.HubName_str === selectedKey));
 
 	let canStart = $derived(selected != null && !selected.Online_bool);
 	let canStop = $derived(selected != null && selected.Online_bool);
@@ -49,6 +42,28 @@
 			await client.invalidateQueries({ queryKey: hubKeys.all });
 		}
 	}));
+
+	function totalTransferBytes(hub: VpnRpcEnumHubItem) {
+		return (
+			hub['Ex.Recv.BroadcastBytes_u64'] +
+			hub['Ex.Recv.UnicastBytes_u64'] +
+			hub['Ex.Send.BroadcastBytes_u64'] +
+			hub['Ex.Send.UnicastBytes_u64']
+		);
+	}
+
+	function totalTransferPackets(hub: VpnRpcEnumHubItem) {
+		return (
+			hub['Ex.Recv.BroadcastCount_u64'] +
+			hub['Ex.Recv.UnicastCount_u64'] +
+			hub['Ex.Send.BroadcastCount_u64'] +
+			hub['Ex.Send.UnicastCount_u64']
+		);
+	}
+
+	function hubHref(hub: VpnRpcEnumHubItem) {
+		return resolve('/hub/[name]', { name: hub.HubName_str });
+	}
 
 	function start(hub: VpnRpcEnumHubItem | undefined = selected) {
 		if (hub == undefined) return;
@@ -72,285 +87,149 @@
 			deleteHubMutation.mutateAsync({ HubName_str: hub.HubName_str })
 		);
 	}
+
+	const columns: DataTableColumn<VpnRpcEnumHubItem>[] = $derived([
+		{ header: m.SM_HUB_COLUMN_1(), value: 'HubName_str', primary: true, class: 'font-medium' },
+		{ header: m.SM_HUB_COLUMN_2(), cell: onlineCell, sortBy: 'Online_bool' },
+		{
+			header: m.SM_HUB_COLUMN_3(),
+			value: (hub) => translateHubType(hub.HubType_u32),
+			sortBy: 'HubType_u32'
+		},
+		{ header: m.SM_HUB_COLUMN_4(), value: 'NumUsers_u32' },
+		{ header: m.SM_HUB_COLUMN_5(), value: 'NumGroups_u32' },
+		{ header: m.SM_HUB_COLUMN_6(), value: 'NumSessions_u32' },
+		{ header: m.SM_HUB_COLUMN_7(), value: 'NumMacTables_u32' },
+		{ header: m.SM_HUB_COLUMN_8(), value: 'NumIpTables_u32' },
+		{ header: m.SM_HUB_COLUMN_9(), value: 'NumLogin_u32' },
+		{
+			header: m.SM_HUB_COLUMN_10(),
+			value: (hub) => datetime(locale, hub.LastLoginTime_dt, timestamp),
+			sortBy: 'LastLoginTime_dt',
+			cardSpan: 2
+		},
+		{
+			header: m.SM_HUB_COLUMN_11(),
+			value: (hub) => datetime(locale, hub.LastCommTime_dt, timestamp),
+			sortBy: 'LastCommTime_dt',
+			cardSpan: 2
+		},
+		{
+			header: m.SM_SESS_COLUMN_6(),
+			value: (hub) => number(locale, totalTransferBytes(hub)),
+			sortBy: totalTransferBytes,
+			class: 'tabular-nums'
+		},
+		{
+			header: m.SM_SESS_COLUMN_7(),
+			value: (hub) => number(locale, totalTransferPackets(hub)),
+			sortBy: totalTransferPackets,
+			class: 'tabular-nums',
+			cardSpan: 2
+		}
+	]);
 </script>
 
-<!-- Per-row actions menu, shared between the desktop table and the mobile cards -->
-{#snippet actionsMenu(hub: VpnRpcEnumHubItem, id: string)}
-	<button
-		class="btn btn-square btn-ghost btn-xs"
-		aria-label={hub.HubName_str}
-		popovertarget={id}
-		style={`anchor-name:--${id}`}
-		onclick={(e) => e.stopPropagation()}>
-		<EllipsisIcon size={16} />
-	</button>
-	<ul
-		class="menu dropdown dropdown-end z-10 w-44 rounded-box bg-base-100 p-2 shadow-lg dark:bg-base-200"
-		popover
-		{id}
-		style={`position-anchor:--${id}`}>
-		<li>
-			<a href={resolve('/hub/[name]', { name: hub.HubName_str })}>
-				{m.D_SM_SERVER__IDOK()}
-			</a>
-		</li>
-		{#if !hub.Online_bool}
-			<li>
-				<button popovertarget={id} popovertargetaction="hide" onclick={() => start(hub)}>
-					{m.D_SM_SERVER__B_ONLINE()}
-				</button>
-			</li>
-		{:else}
-			<li>
-				<button popovertarget={id} popovertargetaction="hide" onclick={() => stop(hub)}>
-					{m.D_SM_SERVER__B_OFFLINE()}
-				</button>
-			</li>
-		{/if}
-		<li>
-			<button class="text-error" onclick={() => deleteHub(hub)}>
-				{m.D_SM_SERVER__B_DELETE()}
-			</button>
-		</li>
-	</ul>
+{#snippet onlineCell(hub: VpnRpcEnumHubItem)}
+	<span class={['badge badge-sm', hub.Online_bool ? 'badge-success' : 'badge-error']}>
+		{translateHubOnline(hub.Online_bool)}
+	</span>
 {/snippet}
 
-<!-- Virtual Hub Table -->
 <div class="card border border-base-300 bg-base-100">
 	<div class="card-body gap-4 p-4">
-		{#if showEmpty}
-			<!-- Empty state: no hubs yet, offer to create one -->
-			<div class="flex h-56 flex-col items-center justify-center gap-4 text-center">
-				<LayersIcon size={40} class="opacity-30" />
-				<a href="#/hub/create" class="btn btn-primary btn-sm">
-					{m.D_SM_SERVER__B_CREATE()}
-				</a>
-			</div>
-		{:else}
-			<!-- Desktop: full table -->
-			<div class="hidden h-56 overflow-x-auto sm:block">
-				<table class="table w-max">
-					<thead>
-						<tr>
-							<th>{m.SM_HUB_COLUMN_1()}</th>
-							<th>{m.SM_HUB_COLUMN_2()}</th>
-							<th>{m.SM_HUB_COLUMN_3()}</th>
-							<th>{m.SM_HUB_COLUMN_4()}</th>
-							<th>{m.SM_HUB_COLUMN_5()}</th>
-							<th>{m.SM_HUB_COLUMN_6()}</th>
-							<th>{m.SM_HUB_COLUMN_7()}</th>
-							<th>{m.SM_HUB_COLUMN_8()}</th>
-							<th>{m.SM_HUB_COLUMN_9()}</th>
-							<th>{m.SM_HUB_COLUMN_10()}</th>
-							<th>{m.SM_HUB_COLUMN_11()}</th>
-							<th>{m.SM_SESS_COLUMN_6()}</th>
-							<th>{m.SM_SESS_COLUMN_7()}</th>
-							<th class="w-10"></th>
-						</tr>
-					</thead>
-					<tbody>
-						{#if showSkeleton}
-							{#each Array.from({ length: 4 }) as _, i (i)}
-								<tr>
-									<td colspan="14">
-										<div class="h-5 w-full skeleton"></div>
-									</td>
-								</tr>
-							{/each}
-						{:else}
-							{#each query.data as hub, i (hub.HubName_str)}
-								{@const transferBytes =
-									hub['Ex.Recv.BroadcastBytes_u64'] +
-									hub['Ex.Recv.UnicastBytes_u64'] +
-									hub['Ex.Send.BroadcastBytes_u64'] +
-									hub['Ex.Send.UnicastBytes_u64']}
-								{@const transferPackets =
-									hub['Ex.Recv.BroadcastCount_u64'] +
-									hub['Ex.Recv.UnicastCount_u64'] +
-									hub['Ex.Send.BroadcastCount_u64'] +
-									hub['Ex.Send.UnicastCount_u64']}
-								<tr
-									class="hover:bg-base-300"
-									class:bg-base-200={selected?.HubName_str == hub.HubName_str}
-									onclick={() => select(hub)}>
-									<td class="font-medium">{hub.HubName_str}</td>
-									<td>
-										<span
-											class={['badge badge-sm', hub.Online_bool ? 'badge-success' : 'badge-error']}>
-											{translateHubOnline(hub.Online_bool)}
-										</span>
-									</td>
-									<td>{translateHubType(hub.HubType_u32)}</td>
-									<td>{hub.NumUsers_u32}</td>
-									<td>{hub.NumGroups_u32}</td>
-									<td>{hub.NumSessions_u32}</td>
-									<td>{hub.NumMacTables_u32}</td>
-									<td>{hub.NumIpTables_u32}</td>
-									<td>{hub.NumLogin_u32}</td>
-									<td>
-										{datetime(locale, hub.LastLoginTime_dt, {
-											dateStyle: 'medium',
-											timeStyle: 'medium'
-										})}
-									</td>
-									<td>
-										{datetime(locale, hub.LastCommTime_dt, {
-											dateStyle: 'medium',
-											timeStyle: 'medium'
-										})}
-									</td>
-									<td>{number(locale, transferBytes)}</td>
-									<td>{number(locale, transferPackets)}</td>
-									<td class="text-end">
-										{@render actionsMenu(hub, `hub-actions-${i}`)}
-									</td>
-								</tr>
-							{/each}
-						{/if}
-					</tbody>
-				</table>
-			</div>
+		<DataTable
+			rows={query.data}
+			{columns}
+			rowKey={(hub) => hub.HubName_str}
+			bind:selectedKey
+			loading={query.isFetching && query.data.length === 0}
+			rowsPerPage={10}
+			searchable
+			tableClass="w-max"
+			onrowdblclick={(hub) => goto(hubHref(hub))}>
+			<!-- `id` is provided by DataTable and is unique per row and per layout. -->
+			{#snippet rowActions(hub, id)}
+				<button
+					class="btn btn-square btn-ghost btn-xs"
+					aria-label={hub.HubName_str}
+					popovertarget={id}
+					style={`anchor-name:--${id}`}
+					onclick={(e) => e.stopPropagation()}>
+					<EllipsisIcon size={16} />
+				</button>
+				<ul
+					class="menu dropdown dropdown-end z-10 w-44 rounded-box bg-base-100 p-2 shadow-lg dark:bg-base-200"
+					popover
+					{id}
+					style={`position-anchor:--${id}`}>
+					<li>
+						<a href={hubHref(hub)}>{m.D_SM_SERVER__IDOK()}</a>
+					</li>
+					{#if !hub.Online_bool}
+						<li>
+							<button popovertarget={id} popovertargetaction="hide" onclick={() => start(hub)}>
+								{m.D_SM_SERVER__B_ONLINE()}
+							</button>
+						</li>
+					{:else}
+						<li>
+							<button popovertarget={id} popovertargetaction="hide" onclick={() => stop(hub)}>
+								{m.D_SM_SERVER__B_OFFLINE()}
+							</button>
+						</li>
+					{/if}
+					<li>
+						<button class="text-error" onclick={() => deleteHub(hub)}>
+							{m.D_SM_SERVER__B_DELETE()}
+						</button>
+					</li>
+				</ul>
+			{/snippet}
 
-			<!-- Mobile: stacked cards -->
-			<div class="flex flex-col gap-2 sm:hidden">
-				{#if showSkeleton}
-					{#each Array.from({ length: 3 }) as _, i (i)}
-						<div class="h-28 w-full skeleton"></div>
-					{/each}
-				{:else}
-					{#each query.data as hub, i (hub.HubName_str)}
-						{@const transferBytes =
-							hub['Ex.Recv.BroadcastBytes_u64'] +
-							hub['Ex.Recv.UnicastBytes_u64'] +
-							hub['Ex.Send.BroadcastBytes_u64'] +
-							hub['Ex.Send.UnicastBytes_u64']}
-						{@const transferPackets =
-							hub['Ex.Recv.BroadcastCount_u64'] +
-							hub['Ex.Recv.UnicastCount_u64'] +
-							hub['Ex.Send.BroadcastCount_u64'] +
-							hub['Ex.Send.UnicastCount_u64']}
-						<div
-							role="button"
-							tabindex="0"
-							class={[
-								'rounded-box border p-3',
-								selected?.HubName_str == hub.HubName_str
-									? 'border-primary bg-base-200'
-									: 'border-base-300'
-							]}
-							onclick={() => select(hub)}
-							onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && select(hub)}>
-							<div class="flex items-center justify-between gap-2">
-								<div class="flex items-center gap-2">
-									<span class="font-medium">{hub.HubName_str}</span>
-									<span
-										class={['badge badge-sm', hub.Online_bool ? 'badge-success' : 'badge-error']}>
-										{translateHubOnline(hub.Online_bool)}
-									</span>
-								</div>
-								{@render actionsMenu(hub, `hub-actions-m-${i}`)}
-							</div>
-							<div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_3()}</span>
-									<br />
-									{translateHubType(hub.HubType_u32)}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_4()}</span>
-									<br />
-									{hub.NumUsers_u32}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_5()}</span>
-									<br />
-									{hub.NumGroups_u32}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_6()}</span>
-									<br />
-									{hub.NumSessions_u32}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_7()}</span>
-									<br />
-									{hub.NumMacTables_u32}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_8()}</span>
-									<br />
-									{hub.NumIpTables_u32}
-								</div>
-								<div>
-									<span class="opacity-60">{m.SM_HUB_COLUMN_9()}</span>
-									<br />
-									{hub.NumLogin_u32}
-								</div>
-								<div class="tabular-nums">
-									<span class="opacity-60">{m.SM_SESS_COLUMN_6()}</span>
-									<br />
-									{number(locale, transferBytes)}
-								</div>
-								<div class="col-span-2 tabular-nums">
-									<span class="opacity-60">{m.SM_SESS_COLUMN_7()}</span>
-									<br />
-									{number(locale, transferPackets)}
-								</div>
-								<div class="col-span-2">
-									<span class="opacity-60">{m.SM_HUB_COLUMN_10()}</span>
-									<br />
-									{datetime(locale, hub.LastLoginTime_dt, {
-										dateStyle: 'medium',
-										timeStyle: 'medium'
-									})}
-								</div>
-								<div class="col-span-2">
-									<span class="opacity-60">{m.SM_HUB_COLUMN_11()}</span>
-									<br />
-									{datetime(locale, hub.LastCommTime_dt, {
-										dateStyle: 'medium',
-										timeStyle: 'medium'
-									})}
-								</div>
-							</div>
-						</div>
-					{/each}
-				{/if}
-			</div>
-		{/if}
+			{#snippet empty()}
+				<div class="flex h-56 flex-col items-center justify-center gap-4 text-center">
+					<LayersIcon size={40} class="opacity-30" />
+					<a href="#/hub/create" class="btn btn-primary btn-sm">
+						{m.D_SM_SERVER__B_CREATE()}
+					</a>
+				</div>
+			{/snippet}
 
-		<!-- Hub action buttons -->
-		<div class="flex flex-wrap items-center gap-2">
-			<a
-				class="btn btn-primary btn-sm"
-				class:btn-disabled={selected == undefined}
-				href={selected && resolve('/hub/[name]', { name: selected.HubName_str })}>
-				{m.D_SM_SERVER__IDOK()}
-			</a>
-			<Button class="btn btn-sm btn-success" onclick={() => start()} disabled={!canStart}>
-				{m.D_SM_SERVER__B_ONLINE()}
-			</Button>
-			<Button class="btn btn-sm btn-warning" onclick={() => stop()} disabled={!canStop}>
-				{m.D_SM_SERVER__B_OFFLINE()}
-			</Button>
-			<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
-				{m.D_SM_SERVER__B_HUB_STATUS()}
-			</button>
-			<a href="#/hub/create" class="btn btn-neutral btn-sm not-dark:btn-soft">
-				{m.D_SM_SERVER__B_CREATE()}
-			</a>
-			<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
-				{m.D_SM_SERVER__B_EDIT()}
-			</button>
-			<Button
-				class="btn btn-error btn-sm"
-				onclick={() => deleteHub()}
-				disabled={selected == undefined}>
-				{m.D_SM_SERVER__B_DELETE()}
-			</Button>
-			{#if query.isFetching}
-				<span class="loading loading-xs loading-spinner opacity-60"></span>
-			{/if}
-		</div>
+			{#snippet actions()}
+				<div class="flex flex-wrap items-center gap-2">
+					<a
+						class="btn btn-primary btn-sm"
+						class:btn-disabled={selected == undefined}
+						href={selected && hubHref(selected)}>
+						{m.D_SM_SERVER__IDOK()}
+					</a>
+					<Button class="btn btn-sm btn-success" onclick={() => start()} disabled={!canStart}>
+						{m.D_SM_SERVER__B_ONLINE()}
+					</Button>
+					<Button class="btn btn-sm btn-warning" onclick={() => stop()} disabled={!canStop}>
+						{m.D_SM_SERVER__B_OFFLINE()}
+					</Button>
+					<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
+						{m.D_SM_SERVER__B_HUB_STATUS()}
+					</button>
+					<a href="#/hub/create" class="btn btn-neutral btn-sm not-dark:btn-soft">
+						{m.D_SM_SERVER__B_CREATE()}
+					</a>
+					<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
+						{m.D_SM_SERVER__B_EDIT()}
+					</button>
+					<Button
+						class="btn btn-error btn-sm"
+						onclick={() => deleteHub()}
+						disabled={selected == undefined}>
+						{m.D_SM_SERVER__B_DELETE()}
+					</Button>
+					{#if query.isFetching}
+						<span class="loading loading-xs loading-spinner opacity-60"></span>
+					{/if}
+				</div>
+			{/snippet}
+		</DataTable>
 	</div>
 </div>

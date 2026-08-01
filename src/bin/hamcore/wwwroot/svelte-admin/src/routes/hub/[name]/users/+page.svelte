@@ -26,10 +26,8 @@
 		}
 	}));
 
-	let selectedId = $state<string | undefined>(undefined);
-	let selected = $derived(
-		selectedId ? query.data.UserList.find((r) => r.Name_str == selectedId) : undefined
-	);
+	let selectedId = $state<string | number | undefined>(undefined);
+	let selected = $derived(query.data.UserList.find((r) => r.Name_str === selectedId));
 
 	let viewInfoOpen = $state(false);
 
@@ -59,10 +57,15 @@
 	</div>
 
 	<div class="max-h-[75vh] overflow-y-auto">
-		<UserTable class="rounded-box" hub={params.name} users={query.data.UserList} bind:selectedId />
+		<UserTable
+			hub={params.name}
+			users={query.data.UserList}
+			bind:selectedId
+			loading={query.isFetching && query.data.UserList.length === 0}
+			class="rounded-box" />
 	</div>
 
-	<div class="mt-4 flex justify-end gap-2">
+	<div class="mt-4 flex justify-end gap-2 flex-wrap">
 		<a
 			class="btn btn-primary btn-sm"
 			href={resolve('/hub/[name]/users/create', { name: params.name })}>
@@ -85,5 +88,5 @@
 </div>
 
 {#if selectedId}
-	<UserInfo hub={params.name} name={selectedId} bind:open={viewInfoOpen} />
+	<UserInfo hub={params.name} name={String(selectedId)} bind:open={viewInfoOpen} />
 {/if}

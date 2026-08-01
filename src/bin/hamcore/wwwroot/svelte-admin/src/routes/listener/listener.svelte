@@ -5,6 +5,7 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import CreateListener from './create-listener.svelte';
 	import Button from '$lib/components/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
 	import { confirm } from '$lib/components/confirm-dialog.svelte';
 
 	const client = useQueryClient();
@@ -14,15 +15,18 @@
 		initialData: []
 	}));
 
-	let selectedKey = $state<number | undefined>(undefined);
-	let selected = $derived(
-		selectedKey ? query.data.find((r) => r.Ports_u32 == selectedKey) : undefined
-	);
+	let selectedKey = $state<string | number | undefined>(undefined);
+	let selected = $derived(query.data.find((r) => r.Ports_u32 === selectedKey));
 
-	function select(row: VpnRpcListenerListItem) {
-		if (selected?.Ports_u32 == row.Ports_u32) selectedKey = undefined;
-		else selectedKey = row.Ports_u32;
-	}
+	const columns: DataTableColumn<VpnRpcListenerListItem>[] = $derived([
+		{
+			header: m.CM_LISTENER_COLUMN_1(),
+			value: (l) => `TCP ${l.Ports_u32}`,
+			sortBy: 'Ports_u32',
+			primary: true
+		},
+		{ header: m.CM_LISTENER_COLUMN_2(), cell: statusCell, sortBy: 'Enables_bool' }
+	]);
 
 	let createOpen = $state(false);
 	let canStart = $derived(selected != null && !selected.Enables_bool);
@@ -67,45 +71,30 @@
 	}
 </script>
 
+{#snippet statusCell(l: VpnRpcListenerListItem)}
+	{#if l.Enables_bool}
+		<span class="text-xs font-medium text-success">{m.CM_LISTENER_ONLINE()}</span>
+	{:else if l.Errors_bool}
+		<span class="text-xs font-medium text-error">{m.CM_LISTENER_ERROR()}</span>
+	{:else}
+		<span class="text-xs font-medium text-warning">{m.CM_LISTENER_OFFLINE()}</span>
+	{/if}
+{/snippet}
+
 <div class="card border border-base-300 bg-base-100">
 	<div class="card-body gap-3 p-4">
 		<p class="font-semibold">{m.D_SM_SERVER__STATIC1()}</p>
 		<p class="text-sm opacity-70">{m.D_SM_SERVER__STATIC2()}</p>
 		<div class="flex gap-3">
-			<div class="flex-1 overflow-x-auto">
-				<table class="table table-xs">
-					<thead>
-						<tr>
-							<th>{m.CM_LISTENER_COLUMN_1()}</th>
-							<th>{m.CM_LISTENER_COLUMN_2()}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each query.data as l (l.Ports_u32)}
-							<tr
-								class="hover:bg-base-300"
-								class:bg-base-200={selected?.Ports_u32 == l.Ports_u32}
-								onclick={() => select(l)}>
-								<td>TCP {l.Ports_u32}</td>
-								<td>
-									{#if l.Enables_bool}
-										<span class="text-xs font-medium text-success">
-											{m.CM_LISTENER_ONLINE()}
-										</span>
-									{:else if l.Errors_bool}
-										<span class="text-xs font-medium text-error">
-											{m.CM_LISTENER_ERROR()}
-										</span>
-									{:else}
-										<span class="text-xs font-medium text-warning">
-											{m.CM_LISTENER_OFFLINE()}
-										</span>
-									{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
+			<div class="flex-1">
+				<DataTable
+					rows={query.data}
+					{columns}
+					rowKey={(l) => l.Ports_u32}
+					bind:selectedKey
+					loading={query.isFetching && query.data.length === 0}
+					tableClass="table-xs"
+					skeletonRows={3} />
 			</div>
 			<div class="flex flex-col gap-2">
 				<Button

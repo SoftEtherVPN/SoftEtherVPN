@@ -34,7 +34,7 @@
 		}
 	}));
 
-	let selectedId = $state<string | undefined>(undefined);
+	let selectedId = $state<string | number | undefined>(undefined);
 	let selected = $derived(query.data.find((u) => u.Name_str == selectedId));
 	let viewInfoOpen = $state(false);
 
@@ -62,11 +62,16 @@
 	<p class="text-sm">{m.SM_GROUP_MEMBER_STR({ input0: name ?? '' })}</p>
 	<div class="overflow-x-auto">
 		{#if query.isSuccess}
-			<UserTable {hub} class="table-zebra table-sm" users={query.data} bind:selectedId />
+			<UserTable
+				{hub}
+				users={query.data}
+				bind:selectedId
+				searchable={false}
+				tableClass="table-zebra table-sm" />
 		{/if}
 	</div>
 
-	<div class="modal-action">
+	<div class="modal-action flex-wrap">
 		<a class="btn btn-primary btn-sm" href={resolve('/hub/[name]/users/create', { name: hub })}>
 			{m.D_SM_USER__B_CREATE()}
 		</a>
@@ -87,5 +92,5 @@
 </Modal>
 
 {#if selectedId}
-	<UserInfo {hub} name={selectedId} bind:open={viewInfoOpen} />
+	<UserInfo {hub} name={String(selectedId)} bind:open={viewInfoOpen} />
 {/if}

@@ -6,6 +6,7 @@
 	import { ipsecKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import AddDetail from './add-detail.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
 
 	interface Props {
 		show: boolean;
@@ -23,12 +24,14 @@
 
 	// ── EtherIP detail table selection ────────────────────────────────────────
 
-	let selectedId = $state<string | undefined>(undefined);
+	let selectedId = $state<string | number | undefined>(undefined);
 	let addModalOpen = $state(false);
 
-	function selectEntry(id: string) {
-		selectedId = selectedId === id ? undefined : id;
-	}
+	const columns: DataTableColumn<VpnEtherIpId>[] = $derived([
+		{ header: m.SM_ETHERIP_COLUMN_0(), value: 'Id_str', primary: true, class: 'font-mono' },
+		{ header: m.SM_ETHERIP_COLUMN_1(), value: 'HubName_str' },
+		{ header: m.SM_ETHERIP_COLUMN_2(), value: 'UserName_str' }
+	]);
 
 	// ── Delete EtherIP entry ──────────────────────────────────────────────────
 
@@ -61,35 +64,14 @@
 
 		<p class="text-sm font-medium">{m.D_SM_ETHERIP__S_BOLD()}</p>
 		<!-- Table -->
-		<div class="overflow-x-auto">
-			<table class="table table-sm">
-				<thead>
-					<tr>
-						<th>{m.SM_ETHERIP_COLUMN_0()}</th>
-						<th>{m.SM_ETHERIP_COLUMN_1()}</th>
-						<th>{m.SM_ETHERIP_COLUMN_2()}</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each etherIpQuery.data as entry (entry.Id_str)}
-						<tr
-							class={selectedId === entry.Id_str
-								? 'cursor-pointer bg-primary/10 hover:bg-base-200'
-								: 'cursor-pointer hover:bg-base-200'}
-							onclick={() => selectEntry(entry.Id_str)}>
-							<td class="font-mono">{entry.Id_str}</td>
-							<td>{entry.HubName_str}</td>
-							<td>{entry.UserName_str}</td>
-						</tr>
-					{/each}
-					{#if etherIpQuery.data.length === 0}
-						<tr>
-							<td colspan="3" class="py-4 text-center opacity-50">—</td>
-						</tr>
-					{/if}
-				</tbody>
-			</table>
-		</div>
+		<DataTable
+			rows={etherIpQuery.data}
+			{columns}
+			rowKey={(entry) => entry.Id_str}
+			bind:selectedKey={selectedId}
+			loading={etherIpQuery.isFetching && etherIpQuery.data.length === 0}
+			tableClass="table-sm"
+			skeletonRows={3} />
 
 		<!-- Delete button -->
 		<div class="flex justify-end gap-2">

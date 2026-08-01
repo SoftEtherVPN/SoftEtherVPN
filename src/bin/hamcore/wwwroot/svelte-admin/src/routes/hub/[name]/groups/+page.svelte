@@ -8,6 +8,7 @@
 	import { goto } from '$app/navigation';
 	import MemberList from './member-list.svelte';
 	import Button from '$lib/components/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
 	import { confirm } from '$lib/components/confirm-dialog.svelte';
 
 	let { params }: PageProps = $props();
@@ -26,22 +27,22 @@
 		}
 	}));
 
-	let selectedKey = $state<string | undefined>(undefined);
-	let selected = $derived(
-		selectedKey ? query.data.GroupList.find((r) => r.Name_str == selectedKey) : undefined
-	);
+	let selectedKey = $state<string | number | undefined>(undefined);
+	let selected = $derived(query.data.GroupList.find((r) => r.Name_str === selectedKey));
 	let memberListOpen = $state(false);
+
+	const columns: DataTableColumn<VpnRpcEnumGroupItem>[] = $derived([
+		{ header: m.SM_GROUPLIST_NAME(), value: 'Name_str', primary: true },
+		{ header: m.SM_GROUPLIST_REALNAME(), value: 'Realname_utf' },
+		{ header: m.SM_GROUPLIST_NOTE(), value: 'Note_utf', cardSpan: 2 },
+		{ header: m.SM_GROUPLIST_NUMUSERS(), value: 'NumUsers_u32' }
+	]);
 
 	function groupHref(group: string) {
 		return resolve('/hub/[name]/groups/[group]', { name: params.name, group });
 	}
 
 	let editHref = $derived(selected ? groupHref(selected.Name_str) : undefined);
-
-	function select(row: VpnRpcEnumGroupItem) {
-		if (selected?.Name_str == row.Name_str) selectedKey = undefined;
-		else selectedKey = row.Name_str;
-	}
 
 	function deleteGroup() {
 		if (selected == undefined) return;
@@ -63,30 +64,16 @@
 	</div>
 
 	<div class="max-h-[75vh] overflow-auto">
-		<table class="table table-pin-rows">
-			<thead>
-				<tr>
-					<th>{m.SM_GROUPLIST_NAME()}</th>
-					<th>{m.SM_GROUPLIST_REALNAME()}</th>
-					<th>{m.SM_GROUPLIST_NOTE()}</th>
-					<th>{m.SM_GROUPLIST_NUMUSERS()}</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each query.data.GroupList as group (group.Name_str)}
-					<tr
-						class="hover:bg-base-300"
-						class:bg-base-200={selected?.Name_str == group.Name_str}
-						onclick={() => select(group)}
-						ondblclick={() => goto(groupHref(group.Name_str))}>
-						<td>{group.Name_str}</td>
-						<td>{group.Realname_utf}</td>
-						<td>{group.Note_utf}</td>
-						<td>{group.NumUsers_u32}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+		<DataTable
+			rows={query.data.GroupList}
+			{columns}
+			rowKey={(group) => group.Name_str}
+			bind:selectedKey
+			loading={query.isFetching && query.data.GroupList.length === 0}
+			rowsPerPage={15}
+			searchable
+			tableClass="table-pin-rows"
+			onrowdblclick={(group) => goto(groupHref(group.Name_str))} />
 	</div>
 
 	<div class="flex justify-end gap-2">
