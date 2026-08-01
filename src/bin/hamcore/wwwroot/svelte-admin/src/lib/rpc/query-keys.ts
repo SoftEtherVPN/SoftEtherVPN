@@ -60,7 +60,9 @@ export const hubKeys = {
 	/** `GetGroup` */
 	group: (name: string, group: string) => [...hubDetail(name), 'groups', group] as const,
 	/** `EnumLogFile` */
-	logFiles: (name: string) => [...hubDetail(name), 'log-files'] as const
+	logFiles: (name: string) => [...hubDetail(name), 'log-files'] as const,
+	/** `GetHubStatus` */
+	status: (name: string) => [...hubDetail(name), 'status'] as const
 };
 
 const ipsec = ['ipsec'] as const;

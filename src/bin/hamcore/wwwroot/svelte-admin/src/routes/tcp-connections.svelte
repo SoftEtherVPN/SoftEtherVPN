@@ -72,6 +72,7 @@
 		queryFn: () => rpc.GetConnectionInfo(new VpnRpcConnectionInfo({ Name_str: selectedDetail! })),
 		initialData: new VpnRpcConnectionInfo(),
 		enabled: selectedDetail != undefined,
+		refetchInterval: 1000,
 		retry: false,
 		retryOnMount: false
 	}));

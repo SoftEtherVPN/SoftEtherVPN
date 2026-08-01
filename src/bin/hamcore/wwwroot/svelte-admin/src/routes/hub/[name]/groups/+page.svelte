@@ -64,7 +64,7 @@
 		<span class="text-sm font-light">{m.D_SM_GROUP__S_TITLE({ input0: params.name })}</span>
 	</div>
 
-	<div class="max-h-[75vh] overflow-auto">
+	<div class="max-h-[75vh]">
 		<DataTable
 			rows={query.data.GroupList}
 			{columns}

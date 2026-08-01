@@ -13,6 +13,7 @@
 	import { goto } from '$app/navigation';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis-vertical';
+	import HubStatus from './hub-status.svelte';
 
 	const locale = getLocale();
 	const timestamp = { dateStyle: 'medium', timeStyle: 'medium' } as const;
@@ -25,6 +26,7 @@
 
 	let selectedKey = $state<string | number | undefined>(undefined);
 	let selected = $derived(query.data.find((r) => r.HubName_str === selectedKey));
+	let statusOpen = $state(false);
 
 	let canStart = $derived(selected != null && !selected.Online_bool);
 	let canStop = $derived(selected != null && selected.Online_bool);
@@ -63,6 +65,10 @@
 
 	function hubHref(hub: VpnRpcEnumHubItem) {
 		return resolve('/hub/[name]', { name: hub.HubName_str });
+	}
+
+	function hubEditHref(hub: VpnRpcEnumHubItem) {
+		return resolve('/hub/[name]/properties', { name: hub.HubName_str });
 	}
 
 	function start(hub: VpnRpcEnumHubItem | undefined = selected) {
@@ -210,15 +216,21 @@
 					<Button class="btn btn-sm btn-warning" onclick={() => stop()} disabled={!canStop}>
 						{m.D_SM_SERVER__B_OFFLINE()}
 					</Button>
-					<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
+					<button
+						class="btn btn-neutral btn-sm not-dark:btn-soft"
+						onclick={() => (statusOpen = true)}
+						disabled={selected == undefined}>
 						{m.D_SM_SERVER__B_HUB_STATUS()}
 					</button>
 					<a href="#/hub/create" class="btn btn-neutral btn-sm not-dark:btn-soft">
 						{m.D_SM_SERVER__B_CREATE()}
 					</a>
-					<button class="btn btn-neutral btn-sm not-dark:btn-soft" disabled={selected == undefined}>
+					<a
+						class="btn btn-neutral btn-sm not-dark:btn-soft"
+						class:btn-disabled={selected == undefined}
+						href={selected && hubEditHref(selected)}>
 						{m.D_SM_SERVER__B_EDIT()}
-					</button>
+					</a>
 					<Button
 						class="btn btn-error btn-sm"
 						onclick={() => deleteHub()}
@@ -233,3 +245,7 @@
 		</DataTable>
 	</div>
 </div>
+
+{#if selected}
+	<HubStatus hub={selected.HubName_str} bind:open={statusOpen} />
+{/if}
