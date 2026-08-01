@@ -125,7 +125,7 @@
 						<Field form={sf} name="L2TP_IPsec_bool">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="label">
+									<Label class="label whitespace-normal">
 										<input
 											{...props}
 											type="checkbox"
@@ -141,7 +141,7 @@
 						<Field form={sf} name="L2TP_Raw_bool">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="label">
+									<Label class="label whitespace-normal">
 										<input
 											{...props}
 											type="checkbox"
@@ -163,7 +163,7 @@
 						<Field form={sf} name="L2TP_DefaultHub_str">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="label">
+									<Label class="label whitespace-normal">
 										{m.D_SM_IPSEC__S_1()}
 									</Label>
 									<select
@@ -189,7 +189,7 @@
 						<Field form={sf} name="EtherIP_IPsec_bool">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="label">
+									<Label class="label whitespace-normal">
 										<input
 											{...props}
 											type="checkbox"
@@ -222,7 +222,7 @@
 						<Field form={sf} name="IPsec_Secret_str">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="label">{m.D_SM_IPSEC__S_PSK()}</Label>
+									<Label class="label whitespace-normal">{m.D_SM_IPSEC__S_PSK()}</Label>
 									<input
 										{...props}
 										type="text"
