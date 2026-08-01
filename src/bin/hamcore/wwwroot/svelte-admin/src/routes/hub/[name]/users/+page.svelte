@@ -1,16 +1,28 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
-	import { rpc, VpnRpcEnumUser } from '$lib/rpc';
+	import { rpc, VpnRpcDeleteUser, VpnRpcEnumUser } from '$lib/rpc';
 	import UserTable from '$lib/components/user-table.svelte';
+	import { resolve } from '$app/paths';
+	import { confirm } from '$lib/components/confirm-dialog.svelte';
+	import Button from '$lib/components/button.svelte';
+	import UserInfo from '$lib/components/user-info.svelte';
 
 	let { params }: PageProps = $props();
 
+	const client = useQueryClient();
 	const query = createQuery(() => ({
 		queryKey: ['hub', params.name, 'users'],
 		queryFn: ({ queryKey }) => rpc.EnumUser(new VpnRpcEnumUser({ HubName_str: queryKey[1] })),
 		initialData: new VpnRpcEnumUser()
+	}));
+
+	const deleteMutation = createMutation(() => ({
+		mutationFn: rpc.DeleteUser,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: ['hub', params.name, 'users'] });
+		}
 	}));
 
 	let selectedId = $state<string | undefined>(undefined);
@@ -18,8 +30,24 @@
 		selectedId ? query.data.UserList.find((r) => r.Name_str == selectedId) : undefined
 	);
 
-	function refresh() {
-		query.refetch();
+	let viewInfoOpen = $state(false);
+
+	function userHref(user: string) {
+		return resolve('/hub/[name]/users/[user]', { name: params.name, user });
+	}
+
+	let editHref = $derived(selected ? userHref(selected.Name_str) : undefined);
+
+	function deleteUser() {
+		if (selected == undefined) return;
+
+		var payload = new VpnRpcDeleteUser({
+			HubName_str: params.name,
+			Name_str: selected.Name_str
+		});
+		return confirm({ message: m.SM_USER_DELETE_MSG({ input0: selected.Name_str }) }, () =>
+			deleteMutation.mutateAsync(payload)
+		);
 	}
 </script>
 
@@ -30,14 +58,31 @@
 	</div>
 
 	<div class="max-h-[75vh] overflow-y-auto">
-		<UserTable class="rounded-box" users={query.data.UserList} bind:selectedId />
+		<UserTable class="rounded-box" hub={params.name} users={query.data.UserList} bind:selectedId />
 	</div>
 
 	<div class="mt-4 flex justify-end gap-2">
-		<button class="btn btn-primary btn-sm">{m.D_SM_USER__B_CREATE()}</button>
-		<button disabled={!selected} class="btn btn-accent btn-sm">{m.D_SM_USER__IDOK()}</button>
-		<button disabled={!selected} class="btn btn-neutral btn-sm">{m.D_SM_USER__B_STATUS()}</button>
-		<button disabled={!selected} class="btn btn-error btn-sm">{m.D_SM_USER__B_DELETE()}</button>
-		<button class="btn btn-sm" onclick={refresh}>{m.D_SM_USER__B_REFRESH()}</button>
+		<a
+			class="btn btn-primary btn-sm"
+			href={resolve('/hub/[name]/users/create', { name: params.name })}>
+			{m.D_SM_USER__B_CREATE()}
+		</a>
+		<a class="btn btn-accent btn-sm" class:btn-disabled={!selected} href={editHref}>
+			{m.D_SM_USER__IDOK()}
+		</a>
+		<button
+			class="btn btn-neutral btn-sm"
+			disabled={!selected}
+			onclick={() => (viewInfoOpen = true)}>
+			{m.D_SM_USER__B_STATUS()}
+		</button>
+		<Button class="btn btn-error btn-sm" disabled={!selected} onclick={deleteUser}>
+			{m.D_SM_USER__B_DELETE()}
+		</Button>
+		<button class="btn btn-sm" onclick={() => query.refetch()}>{m.D_SM_USER__B_REFRESH()}</button>
 	</div>
 </div>
+
+{#if selectedId}
+	<UserInfo hub={params.name} name={selectedId} bind:open={viewInfoOpen} />
+{/if}

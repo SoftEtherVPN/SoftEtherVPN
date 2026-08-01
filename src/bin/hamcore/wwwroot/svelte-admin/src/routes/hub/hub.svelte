@@ -72,12 +72,6 @@
 			deleteHubMutation.mutateAsync({ HubName_str: hub.HubName_str })
 		);
 	}
-
-	// Run a row action, then dismiss its popover menu.
-	function runAndClose(event: MouseEvent, action: () => void) {
-		action();
-		(event.currentTarget as HTMLElement).closest<HTMLElement>('[popover]')?.hidePopover();
-	}
 </script>
 
 <!-- Per-row actions menu, shared between the desktop table and the mobile cards -->
@@ -102,19 +96,19 @@
 		</li>
 		{#if !hub.Online_bool}
 			<li>
-				<button onclick={(e) => runAndClose(e, () => start(hub))}>
+				<button popovertarget={id} popovertargetaction="hide" onclick={() => start(hub)}>
 					{m.D_SM_SERVER__B_ONLINE()}
 				</button>
 			</li>
 		{:else}
 			<li>
-				<button onclick={(e) => runAndClose(e, () => stop(hub))}>
+				<button popovertarget={id} popovertargetaction="hide" onclick={() => stop(hub)}>
 					{m.D_SM_SERVER__B_OFFLINE()}
 				</button>
 			</li>
 		{/if}
 		<li>
-			<button class="text-error" onclick={(e) => runAndClose(e, () => deleteHub(hub))}>
+			<button class="text-error" onclick={() => deleteHub(hub)}>
 				{m.D_SM_SERVER__B_DELETE()}
 			</button>
 		</li>

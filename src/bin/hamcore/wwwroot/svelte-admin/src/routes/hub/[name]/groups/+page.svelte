@@ -1,18 +1,28 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
-	import { rpc, VpnRpcEnumGroup, VpnRpcEnumGroupItem } from '$lib/rpc';
+	import { rpc, VpnRpcDeleteUser, VpnRpcEnumGroup, VpnRpcEnumGroupItem } from '$lib/rpc';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import MemberList from './member-list.svelte';
+	import Button from '$lib/components/button.svelte';
+	import { confirm } from '$lib/components/confirm-dialog.svelte';
 
 	let { params }: PageProps = $props();
 
+	const client = useQueryClient();
 	const query = createQuery(() => ({
 		queryKey: ['hub', params.name, 'groups'],
 		queryFn: ({ queryKey }) => rpc.EnumGroup(new VpnRpcEnumGroup({ HubName_str: queryKey[1] })),
 		initialData: new VpnRpcEnumGroup()
+	}));
+
+	const deleteMutation = createMutation(() => ({
+		mutationFn: rpc.DeleteGroup,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: ['hub', params.name, 'groups'] });
+		}
 	}));
 
 	let selectedKey = $state<string | undefined>(undefined);
@@ -32,8 +42,16 @@
 		else selectedKey = row.Name_str;
 	}
 
-	function refresh() {
-		query.refetch();
+	function deleteGroup() {
+		if (selected == undefined) return;
+
+		var payload = new VpnRpcDeleteUser({
+			HubName_str: params.name,
+			Name_str: selected.Name_str
+		});
+		return confirm({ message: m.SM_GROUP_DELETE_MSG({ input0: selected.Name_str }) }, () =>
+			deleteMutation.mutateAsync(payload)
+		);
 	}
 </script>
 
@@ -44,7 +62,7 @@
 	</div>
 
 	<div class="max-h-[75vh] overflow-auto">
-		<table class="table-pin-rows table">
+		<table class="table table-pin-rows">
 			<thead>
 				<tr>
 					<th>{m.SM_GROUPLIST_NAME()}</th>
@@ -82,8 +100,10 @@
 			class="btn btn-neutral btn-sm not-dark:btn-soft">
 			{m.D_SM_GROUP__IDOK()}
 		</a>
-		<button disabled={!selected} class="btn btn-error btn-sm">{m.D_SM_USER__B_DELETE()}</button>
-		<button class="btn btn-sm" onclick={refresh}>{m.D_SM_GROUP__B_REFRESH()}</button>
+		<Button disabled={!selected} onclick={deleteGroup} class="btn btn-error btn-sm">
+			{m.D_SM_USER__B_DELETE()}
+		</Button>
+		<button class="btn btn-sm" onclick={() => query.refetch()}>{m.D_SM_GROUP__B_REFRESH()}</button>
 		<button
 			disabled={!selected}
 			class="btn btn-neutral btn-sm"

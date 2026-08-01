@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { isDefaultDate } from '$lib/helpers';
 	import { m } from '$lib/paraglide/messages';
 	import { datetime } from '$lib/paraglide/registry';
@@ -8,15 +10,20 @@
 	import type { HTMLTableAttributes } from 'svelte/elements';
 
 	interface Props extends HTMLTableAttributes {
+		hub: string;
 		users: VpnRpcEnumUserItem[];
 		selectedId?: string;
 	}
 
-	let { users, selectedId = $bindable(), ...rest }: Props = $props();
+	let { hub, users, selectedId = $bindable(), ...rest }: Props = $props();
 
 	function select(row: VpnRpcEnumUserItem) {
 		if (selectedId == row.Name_str) selectedId = undefined;
 		else selectedId = row.Name_str;
+	}
+
+	async function navigate(row: VpnRpcEnumUserItem) {
+		await goto(resolve('/hub/[name]/users/[user]', { name: hub, user: row.Name_str }));
 	}
 
 	const locale = getLocale();
@@ -39,7 +46,8 @@
 			<tr
 				class="hover:bg-base-300"
 				class:bg-base-200={selectedId == user.Name_str}
-				onclick={() => select(user)}>
+				onclick={() => select(user)}
+				ondblclick={() => navigate(user)}>
 				<td>{user.Name_str}</td>
 				<td>{user.Realname_utf}</td>
 				<td>{user.GroupName_str || '-'}</td>

@@ -9,6 +9,7 @@
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
 
 		// Best practices
 		"strict": true,

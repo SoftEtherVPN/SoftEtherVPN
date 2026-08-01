@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, loadEnv } from 'vite';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
-import { convertStb } from './convert-stb';
+import { convertStb } from './convert-stb.ts';
 
 export default defineConfig(async ({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
