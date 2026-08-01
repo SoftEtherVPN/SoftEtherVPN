@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getLocale, locales, setLocale, type Locale } from '$lib/paraglide/runtime';
 	import { m } from '$lib/paraglide/messages';
-	import ThemeSwitcher from '$lib/components/theme-switcher.svelte';
+	import ThemeSwitcher from '$lib/components/ui/theme-switcher.svelte';
 	import House from '@lucide/svelte/icons/house';
 	import Globe from '@lucide/svelte/icons/globe';
 

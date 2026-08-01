@@ -1,12 +1,12 @@
 <script lang="ts">
 	import InfoIcon from '@lucide/svelte/icons/info';
-	import Modal from './modal.svelte';
+	import Modal from './ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { datetime, number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc, VpnRpcSetUser } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 
 	interface Props {
 		hub: string;

@@ -9,12 +9,12 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
-	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
+	import ConfirmDialog from '$lib/components/ui/confirm-dialog.svelte';
 	import url from '$pencore/VPNSvr.ico';
-	import Modal from '$lib/components/modal.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import Button from '$lib/components/button.svelte';
-	import { errorMessages } from '$lib/err';
+	import Button from '$lib/components/ui/button.svelte';
+	import { errorMessages } from '$lib/rpc/errors';
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import { getLocale, getTextDirection } from '$lib/paraglide/runtime';
 

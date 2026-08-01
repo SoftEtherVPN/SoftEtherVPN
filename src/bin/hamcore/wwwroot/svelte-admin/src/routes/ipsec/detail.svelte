@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Button from '$lib/components/button.svelte';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnEtherIpId, VpnRpcEnumHubItem } from '$lib/rpc';
-	import { ipsecKeys } from '$lib/queryKeys';
+	import { ipsecKeys } from '$lib/rpc/query-keys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import AddDetail from './add-detail.svelte';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
 
 	interface Props {
 		show: boolean;

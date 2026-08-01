@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Modal from '$lib/components/modal.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { datetime } from '$lib/paraglide/registry';
-	import { serverKeys } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/rpc/query-keys';
 	import {
 		rpc,
 		VpnRpcConnectionInfo,
@@ -11,12 +11,12 @@
 		type VpnRpcEnumConnectionItem
 	} from '$lib/rpc';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { translateConnectionType } from '$lib/translation';
+	import { translateConnectionType } from '$lib/rpc/labels';
 	import X from '@lucide/svelte/icons/x';
 	import Info from '@lucide/svelte/icons/info';
 	import NetworkIcon from '@lucide/svelte/icons/network';
-	import Button from '$lib/components/button.svelte';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
 
 	const locale = getLocale();
 	const client = useQueryClient();

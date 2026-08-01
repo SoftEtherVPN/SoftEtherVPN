@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Button from '$lib/components/button.svelte';
-	import Modal from '$lib/components/modal.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnEtherIpId, VpnRpcEnumHubItem } from '$lib/rpc';
-	import { ipsecKeys } from '$lib/queryKeys';
+	import { ipsecKeys } from '$lib/rpc/query-keys';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { Control, Field, FieldErrors, Label } from 'formsnap';
 	import { defaults, superForm } from 'sveltekit-superforms';

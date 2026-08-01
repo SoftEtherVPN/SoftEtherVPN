@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Modal from '$lib/components/modal.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { serverKeys } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/rpc/query-keys';
 	import { rpc, VpnRpcListener } from '$lib/rpc';
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
@@ -9,7 +9,7 @@
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { Field, Control, FieldErrors, Label } from 'formsnap';
-	import Button from '$lib/components/button.svelte';
+	import Button from '$lib/components/ui/button.svelte';
 
 	interface Props {
 		open: boolean;

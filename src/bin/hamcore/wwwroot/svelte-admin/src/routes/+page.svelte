@@ -3,9 +3,9 @@
 	import { m } from '$lib/paraglide/messages';
 	import { number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { serverKeys } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/rpc/query-keys';
 	import { rpc, VpnRpcServerStatus } from '$lib/rpc';
-	import { translateHubType } from '$lib/translation';
+	import { translateHubType } from '$lib/rpc/labels';
 	import { createQuery } from '@tanstack/svelte-query';
 	import Listener from './listener/listener.svelte';
 	import Hub from './hub/hub.svelte';

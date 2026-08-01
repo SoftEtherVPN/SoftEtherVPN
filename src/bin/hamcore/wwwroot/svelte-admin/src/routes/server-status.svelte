@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Modal from '$lib/components/modal.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { datetime, number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { serverKeys } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/rpc/query-keys';
 	import { rpc, VpnRpcServerStatus } from '$lib/rpc';
-	import { translateHubType } from '$lib/translation';
+	import { translateHubType } from '$lib/rpc/labels';
 	import { createQuery } from '@tanstack/svelte-query';
 	import ServerIcon from '@lucide/svelte/icons/server';
 

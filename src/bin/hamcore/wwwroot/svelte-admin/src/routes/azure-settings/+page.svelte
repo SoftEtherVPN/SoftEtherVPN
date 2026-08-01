@@ -3,8 +3,8 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import imageUrl from '$pencore/Azure.bmp';
 	import { rpc, VpnDDnsClientStatus, VpnRpcAzureStatus } from '$lib/rpc';
-	import { serverKeys } from '$lib/queryKeys';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import { serverKeys } from '$lib/rpc/query-keys';
+	import PageHeader from '$lib/components/ui/page-header.svelte';
 	import CloudIcon from '@lucide/svelte/icons/cloud';
 
 	const client = useQueryClient();

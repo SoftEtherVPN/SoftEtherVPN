@@ -3,11 +3,11 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
 	import { rpc, VpnRpcDeleteUser, VpnRpcEnumUser } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import UserTable from '$lib/components/user-table.svelte';
 	import { resolve } from '$app/paths';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
-	import Button from '$lib/components/button.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import Button from '$lib/components/ui/button.svelte';
 	import UserInfo from '$lib/components/user-info.svelte';
 
 	let { params }: PageProps = $props();
@@ -65,7 +65,7 @@
 			class="rounded-box" />
 	</div>
 
-	<div class="mt-4 flex justify-end gap-2 flex-wrap">
+	<div class="mt-4 flex flex-wrap justify-end gap-2">
 		<a
 			class="btn btn-primary btn-sm"
 			href={resolve('/hub/[name]/users/create', { name: params.name })}>

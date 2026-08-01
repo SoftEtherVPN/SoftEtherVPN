@@ -7,7 +7,7 @@
 		policyDescription,
 		policyUnitLabel,
 		type PolicyFormData
-	} from '$lib/group-policy';
+	} from '$lib/rpc/policies';
 	import ShieldIcon from '@lucide/svelte/icons/shield-check';
 
 	// The superForm data store. It must expose the PolicyFormData fields; extra

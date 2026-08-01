@@ -3,7 +3,7 @@
 	import { number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { rpc, VpnRpcSetGroup } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
@@ -11,8 +11,8 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import type { Writable } from 'svelte/store';
-	import Button from '$lib/components/button.svelte';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import PageHeader from '$lib/components/ui/page-header.svelte';
 	import PolicyEditor from '$lib/components/policy-editor.svelte';
 	import {
 		POLICIES,
@@ -24,7 +24,7 @@
 		defaultNumEnabled,
 		clampPolicy,
 		type PolicyFormData
-	} from '$lib/group-policy';
+	} from '$lib/rpc/policies';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import ActivityIcon from '@lucide/svelte/icons/activity';
 

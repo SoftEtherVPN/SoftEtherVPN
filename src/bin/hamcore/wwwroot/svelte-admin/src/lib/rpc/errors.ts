@@ -1,4 +1,4 @@
-import { m } from './paraglide/messages';
+import { m } from '$lib/paraglide/messages';
 
 export function errorMessages(code: number) {
 	switch (code) {

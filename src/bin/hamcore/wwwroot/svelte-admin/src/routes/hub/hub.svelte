@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import { rpc, VpnRpcEnumHubItem, VpnRpcSetHubOnline } from '$lib/rpc';
-	import { translateHubOnline, translateHubType } from '$lib/translation';
+	import { translateHubOnline, translateHubType } from '$lib/rpc/labels';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { datetime, number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
-	import Button from '$lib/components/button.svelte';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import LayersIcon from '@lucide/svelte/icons/layers';

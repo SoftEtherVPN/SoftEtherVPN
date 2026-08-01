@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { isDefaultDate } from '$lib/helpers';
+	import { isDefaultDate } from '$lib/rpc/dates';
 	import { m } from '$lib/paraglide/messages';
 	import { datetime } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import type { VpnRpcEnumUserItem } from '$lib/rpc';
-	import { translateAuthType } from '$lib/translation';
-	import DataTable, { type DataTableColumn } from './data-table.svelte';
+	import { translateAuthType } from '$lib/rpc/labels';
+	import DataTable, { type DataTableColumn } from './ui/data-table.svelte';
 
 	interface Props {
 		hub: string;

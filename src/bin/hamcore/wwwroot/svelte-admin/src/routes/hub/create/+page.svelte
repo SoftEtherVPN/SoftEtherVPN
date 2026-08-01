@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Button from '$lib/components/button.svelte';
+	import Button from '$lib/components/ui/button.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { hubKeys, serverKeys } from '$lib/queryKeys';
+	import { hubKeys, serverKeys } from '$lib/rpc/query-keys';
 	import {
 		rpc,
 		VpnRpcCreateHub,

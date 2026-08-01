@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnOpenVpnSstpConfig, Util_Base64_Decode } from '$lib/rpc';
-	import { openVpnKeys } from '$lib/queryKeys';
+	import { openVpnKeys } from '$lib/rpc/query-keys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { Field, Control, Label } from 'formsnap';
-	import Button from '$lib/components/button.svelte';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import PageHeader from '$lib/components/ui/page-header.svelte';
 	import RouteIcon from '@lucide/svelte/icons/route';
 	import DownloadIcon from '@lucide/svelte/icons/download';
 	import { goto } from '$app/navigation';

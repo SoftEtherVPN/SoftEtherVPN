@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import Button from '$lib/components/button.svelte';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
-	import Modal from '$lib/components/modal.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import Modal from '$lib/components/ui/modal.svelte';
 	import UserInfo from '$lib/components/user-info.svelte';
 	import UserTable from '$lib/components/user-table.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnRpcDeleteUser, VpnRpcEnumUser } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	interface Props {

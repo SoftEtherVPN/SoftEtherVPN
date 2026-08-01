@@ -1,5 +1,5 @@
 import { m } from '$lib/paraglide/messages';
-import { VpnRpcUserAuthType } from './rpc';
+import { VpnRpcUserAuthType } from '$lib/rpc';
 
 export function translateHubType(type: number) {
 	switch (type) {

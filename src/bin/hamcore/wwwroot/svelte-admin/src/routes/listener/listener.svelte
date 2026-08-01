@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { serverKeys } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/rpc/query-keys';
 	import { rpc, VpnRpcListener, VpnRpcListenerListItem } from '$lib/rpc';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import CreateListener from './create-listener.svelte';
-	import Button from '$lib/components/button.svelte';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({

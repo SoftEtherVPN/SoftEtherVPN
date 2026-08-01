@@ -2,7 +2,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { LayoutProps } from './$types';
 	import { rpc, VpnRpcCreateHub } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import { m } from '$lib/paraglide/messages';
 	import type { LocalizedString } from '$lib/paraglide/runtime';
 	import type { LayoutRouteId } from './$types';

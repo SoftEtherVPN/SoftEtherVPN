@@ -3,13 +3,13 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
 	import { rpc, VpnRpcDeleteUser, VpnRpcEnumGroup, VpnRpcEnumGroupItem } from '$lib/rpc';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import MemberList from './member-list.svelte';
-	import Button from '$lib/components/button.svelte';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
-	import { confirm } from '$lib/components/confirm-dialog.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
+	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
 
 	let { params }: PageProps = $props();
 

@@ -8,10 +8,10 @@
 		VpnRpcReadLogFile
 	} from '$lib/rpc';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { hubKeys } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/rpc/query-keys';
 	import type { PageProps } from '../$types';
 	import { filesize } from 'filesize';
-	import DataTable, { type DataTableColumn } from '$lib/components/data-table.svelte';
+	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
 
 	let { params }: PageProps = $props();
 
