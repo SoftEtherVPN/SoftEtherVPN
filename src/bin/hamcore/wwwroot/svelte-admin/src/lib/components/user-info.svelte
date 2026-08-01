@@ -6,6 +6,7 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc, VpnRpcSetUser } from '$lib/rpc';
+	import { hubKeys } from '$lib/queryKeys';
 
 	interface Props {
 		hub: string;
@@ -17,9 +18,8 @@
 	const locale = getLocale();
 
 	const query = createQuery(() => ({
-		queryKey: ['hub', hub, 'users', name],
-		queryFn: ({ queryKey }) =>
-			rpc.GetUser(new VpnRpcSetUser({ HubName_str: queryKey[1], Name_str: queryKey[3] })),
+		queryKey: hubKeys.user(hub, name),
+		queryFn: () => rpc.GetUser(new VpnRpcSetUser({ HubName_str: hub, Name_str: name })),
 		initialData: new VpnRpcSetUser(),
 		enabled: open,
 		refetchInterval: 5000

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '$lib/components/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcListener } from '$lib/rpc';
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
@@ -21,7 +21,7 @@
 	const createListener = createMutation(() => ({
 		mutationFn: rpc.CreateListener,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'listener'] });
+			await client.invalidateQueries({ queryKey: serverKeys.listeners() });
 			open = false;
 		}
 	}));

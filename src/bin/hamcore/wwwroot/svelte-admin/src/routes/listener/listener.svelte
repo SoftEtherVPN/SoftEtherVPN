@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcListener, VpnRpcListenerListItem } from '$lib/rpc';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import CreateListener from './create-listener.svelte';
@@ -9,7 +9,7 @@
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: [dashboardKey, 'listener'],
+		queryKey: serverKeys.listeners(),
 		queryFn: async () => (await rpc.EnumListener()).ListenerList,
 		initialData: []
 	}));
@@ -31,14 +31,14 @@
 	const toggleListener = createMutation(() => ({
 		mutationFn: rpc.EnableListener,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'listener'] });
+			await client.invalidateQueries({ queryKey: serverKeys.listeners() });
 		}
 	}));
 
 	const deleteMutation = createMutation(() => ({
 		mutationFn: rpc.DeleteListener,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'listener'] });
+			await client.invalidateQueries({ queryKey: serverKeys.listeners() });
 		}
 	}));
 

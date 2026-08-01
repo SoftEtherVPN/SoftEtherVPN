@@ -2,6 +2,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { LayoutProps } from './$types';
 	import { rpc, VpnRpcCreateHub } from '$lib/rpc';
+	import { hubKeys } from '$lib/queryKeys';
 	import { m } from '$lib/paraglide/messages';
 	import type { LocalizedString } from '$lib/paraglide/runtime';
 	import type { LayoutRouteId } from './$types';
@@ -26,20 +27,33 @@
 	let { params, children }: LayoutProps = $props();
 
 	const hub = createQuery(() => ({
-		queryKey: ['hub', params.name],
-		queryFn({ queryKey }) {
-			return rpc.GetHub(new VpnRpcCreateHub({ HubName_str: queryKey[1] }));
-		}
+		queryKey: hubKeys.detail(params.name),
+		queryFn: () => rpc.GetHub(new VpnRpcCreateHub({ HubName_str: params.name }))
 	}));
 
 	let drawerOpen = $state(false);
 	const activeRoute = $derived(page.route.id);
 	const closeDrawer = () => (drawerOpen = false);
 
+	/**
+	 * Direct children of `Base` within a route union: exactly one segment
+	 * deeper, and with no parameters of their own so they stay resolvable from
+	 * `params` alone. Adding `/hub/[name]/foo` makes it selectable in the menu;
+	 * adding `/hub/[name]/foo/bar` or `/hub/[name]/[foo]` does not.
+	 */
+	type ChildRoute<
+		Base extends string,
+		Route extends string
+	> = Route extends `${Base}/${infer Segment}`
+		? Segment extends `${string}/${string}` | `${string}[${string}`
+			? never
+			: Route
+		: never;
+
 	type MenuItem = {
 		title: LocalizedString;
 		items: {
-			route: Exclude<LayoutRouteId, '/hub/[name]/groups/[group]'>;
+			route: ChildRoute<'/hub/[name]', LayoutRouteId>;
 			content: LocalizedString;
 			tooltip: LocalizedString;
 			icon: LucideIcon;
@@ -154,7 +168,7 @@
 				<label
 					for="hub-drawer"
 					aria-label={m.D_SM_HUB__S_TITLE({ input0: params.name })}
-					class="drawer-button btn btn-square btn-neutral btn-sm not-dark:btn-soft">
+					class="btn btn-square drawer-button btn-neutral btn-sm not-dark:btn-soft">
 					<MenuIcon size={18} />
 				</label>
 				<span class="min-w-0 truncate font-semibold">

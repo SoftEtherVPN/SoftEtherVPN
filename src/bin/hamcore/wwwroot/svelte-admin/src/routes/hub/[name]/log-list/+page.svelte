@@ -8,13 +8,14 @@
 		VpnRpcReadLogFile
 	} from '$lib/rpc';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { hubKeys } from '$lib/queryKeys';
 	import type { PageProps } from '../$types';
 	import { filesize } from 'filesize';
 
 	let { params }: PageProps = $props();
 
 	const query = createQuery(() => ({
-		queryKey: ['hub', params.name, 'log-list'],
+		queryKey: hubKeys.logFiles(params.name),
 		queryFn: rpc.EnumLogFile,
 		initialData: new VpnRpcEnumLogFile()
 	}));
@@ -28,8 +29,7 @@
 				FilePath_str: file.FilePath_str,
 				Offset_u32: offset
 			} as VpnRpcReadLogFile);
-			debugger;
-
+			
 			if (result.Buffer_bin == undefined) break;
 
 			let decoded = Util_Base64_Decode(result.Buffer_bin);
@@ -50,7 +50,7 @@
 <div>
 	<h2 class="ms-4 py-4 text-xl font-bold">{m.D_SM_LOG_FILE__CAPTION()}</h2>
 	<div class="max-h-[75vh] overflow-y-auto">
-		<table class="table-pin-rows table table-xs">
+		<table class="table table-pin-rows table-xs">
 			<thead>
 				<tr>
 					<th>{m.SM_LOG_FILE_COLUMN_1()}</th>

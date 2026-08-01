@@ -1,20 +1,21 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import imageUrl from '../../../../../../../PenCore/Azure.bmp';
+	import imageUrl from '$pencore/Azure.bmp';
 	import { rpc, VpnDDnsClientStatus, VpnRpcAzureStatus } from '$lib/rpc';
+	import { serverKeys } from '$lib/queryKeys';
 	import PageHeader from '$lib/components/page-header.svelte';
 	import CloudIcon from '@lucide/svelte/icons/cloud';
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: ['azure'],
+		queryKey: serverKeys.azure(),
 		queryFn: rpc.GetAzureStatus,
 		initialData: new VpnRpcAzureStatus()
 	}));
 
 	const ddnsQuery = createQuery(() => ({
-		queryKey: ['ddns'],
+		queryKey: serverKeys.ddns(),
 		queryFn: rpc.GetDDnsClientStatus,
 		initialData: new VpnDDnsClientStatus()
 	}));
@@ -22,7 +23,7 @@
 	const mutation = createMutation(() => ({
 		mutationFn: rpc.SetAzureStatus,
 		async onSuccess(r) {
-			client.setQueryData(['azure'], r);
+			client.setQueryData(serverKeys.azure(), r);
 		}
 	}));
 

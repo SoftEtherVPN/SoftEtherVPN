@@ -12,7 +12,15 @@ const config = {
 		paths: {
 			relative: false
 		},
-		router: { type: 'hash' }
+		router: { type: 'hash' },
+		// The two hard dependencies on the rest of the SoftEther tree. Keeping them
+		// behind aliases means relocating this project is a change to these two
+		// lines instead of a rewrite of every `../../../..` in the source.
+		alias: {
+			$vpnrpc:
+				'../../../../../developer_tools/vpnserver-jsonrpc-clients/vpnserver-jsonrpc-client-typescript/vpnrpc',
+			$pencore: '../../../../PenCore'
+		}
 	},
 	compilerOptions: {
 		runes: true

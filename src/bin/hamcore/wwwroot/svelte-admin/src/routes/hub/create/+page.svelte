@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/button.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { hubKeys, serverKeys } from '$lib/queryKeys';
 	import {
 		rpc,
 		VpnRpcCreateHub,
@@ -10,21 +10,25 @@
 		VpnRpcServerInfo,
 		VpnRpcServerType
 	} from '$lib/rpc';
-	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { Control, Field, FieldErrors, Label } from 'formsnap';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 
 	const serverInfo = createQuery(() => ({
-		queryKey: [dashboardKey, 'info'],
+		queryKey: serverKeys.info(),
 		queryFn: rpc.GetServerInfo,
 		initialData: new VpnRpcServerInfo()
 	}));
 
 	let isStatic = $derived(serverInfo.data.ServerType_u32 == VpnRpcServerType.Standalone);
+	const client = useQueryClient();
 	const createHubMutation = createMutation(() => ({
-		mutationFn: rpc.CreateHub
+		mutationFn: rpc.CreateHub,
+		onSuccess: async () => {
+			await client.invalidateQueries({ queryKey: hubKeys.all });
+		}
 	}));
 
 	const schema = z

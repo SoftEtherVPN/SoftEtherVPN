@@ -108,16 +108,6 @@ function parseTableLine(line: string, prefix: string): [StbTable | null, string]
 	];
 }
 
-function compareTagList(list1: string[], list2: string[]) {
-	if (list1.length != list2.length) return false;
-
-	for (let i = 0; i < list1.length; i++) {
-		if (list1[i] != list2[i]) return false;
-	}
-
-	return true;
-}
-
 function parseTagList(str: string) {
 	let list: string[] = [];
 	let mode = 0;
@@ -128,7 +118,7 @@ function parseTagList(str: string) {
 	let len = str.length;
 
 	for (let i = 0; i < len; i++) {
-		let c = str[i];
+		let c = str[i]!;
 
 		if (mode == 0) {
 			switch (c) {

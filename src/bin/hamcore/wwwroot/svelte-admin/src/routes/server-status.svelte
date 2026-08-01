@@ -3,7 +3,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { datetime, number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcServerStatus } from '$lib/rpc';
 	import { translateHubType } from '$lib/translation';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -18,7 +18,7 @@
 	let { open = $bindable() }: Props = $props();
 
 	let query = createQuery(() => ({
-		queryKey: [dashboardKey, 'status'],
+		queryKey: serverKeys.status(),
 		queryFn: rpc.GetServerStatus,
 		initialData: new VpnRpcServerStatus(),
 		enabled: open,
@@ -67,7 +67,7 @@
 		</div>
 
 		<div class="overflow-x-auto">
-			<table class="table-pin-rows table table-zebra table-sm">
+			<table class="table table-pin-rows table-zebra table-sm">
 				<thead>
 					<tr>
 						<th>{m.SM_STATUS_COLUMN_1()}</th>

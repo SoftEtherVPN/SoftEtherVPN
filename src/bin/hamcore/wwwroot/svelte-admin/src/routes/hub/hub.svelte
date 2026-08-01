@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { hubKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcEnumHubItem, VpnRpcSetHubOnline } from '$lib/rpc';
 	import { translateHubOnline, translateHubType } from '$lib/translation';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
@@ -15,7 +15,7 @@
 	const locale = getLocale();
 	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: [dashboardKey, 'hub'],
+		queryKey: hubKeys.list(),
 		queryFn: async () => (await rpc.EnumHub()).HubList,
 		initialData: []
 	}));
@@ -39,14 +39,14 @@
 	const toggleHub = createMutation(() => ({
 		mutationFn: rpc.SetHubOnline,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'hub'] });
+			await client.invalidateQueries({ queryKey: hubKeys.all });
 		}
 	}));
 
 	const deleteHubMutation = createMutation(() => ({
 		mutationFn: rpc.DeleteHub,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'hub'] });
+			await client.invalidateQueries({ queryKey: hubKeys.all });
 		}
 	}));
 

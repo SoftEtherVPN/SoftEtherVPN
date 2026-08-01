@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnIPsecServices } from '$lib/rpc';
+	import { hubKeys, ipsecKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
@@ -19,12 +20,12 @@
 	// ── Queries ──────────────────────────────────────────────────────────────
 
 	const ipsecQuery = createQuery(() => ({
-		queryKey: ['ipsec'],
+		queryKey: ipsecKeys.services(),
 		queryFn: rpc.GetIPsecServices
 	}));
 
 	const hubQuery = createQuery(() => ({
-		queryKey: ['ipsec', 'hubs'],
+		queryKey: hubKeys.list(),
 		queryFn: async () => (await rpc.EnumHub()).HubList,
 		initialData: []
 	}));
@@ -44,7 +45,7 @@
 	const saveMutation = createMutation(() => ({
 		mutationFn: (data: VpnIPsecServices) => rpc.SetIPsecServices(data),
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['ipsec'] });
+			await client.invalidateQueries({ queryKey: ipsecKeys.services() });
 			await goto('#/');
 		}
 	}));

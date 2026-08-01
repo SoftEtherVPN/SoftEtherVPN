@@ -131,8 +131,6 @@ export function clampPolicy(item: PolicyItem, value: number): number {
 // ── Localized labels ────────────────────────────────────────────────────────
 // Policy names/descriptions live in the POL_<n> / POL_EX_<n> message tables,
 // keyed by the policy's position in the SoftEther policy list.
-const messages = m as unknown as Record<string, (() => string) | undefined>;
-
 const policyMessages = [
 	[m.POL_0, m.POL_EX_0],
 	[m.POL_1, m.POL_EX_1],

@@ -3,7 +3,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcServerStatus } from '$lib/rpc';
 	import { translateHubType } from '$lib/translation';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -23,13 +23,13 @@
 	const serverName = browser ? location.host : '';
 
 	const ddnsQuery = createQuery(() => ({
-		queryKey: [dashboardKey, 'ddns'],
+		queryKey: serverKeys.ddns(),
 		queryFn: rpc.GetDDnsClientStatus
 	}));
 
 	// Fleet-wide status. Shares its cache with the Server Status dialog.
 	const statusQuery = createQuery(() => ({
-		queryKey: [dashboardKey, 'status'],
+		queryKey: serverKeys.status(),
 		queryFn: rpc.GetServerStatus,
 		initialData: new VpnRpcServerStatus(),
 		refetchInterval: 5000

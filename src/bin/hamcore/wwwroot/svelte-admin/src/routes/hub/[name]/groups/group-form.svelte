@@ -3,6 +3,7 @@
 	import { number } from '$lib/paraglide/registry';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { rpc, VpnRpcSetGroup } from '$lib/rpc';
+	import { hubKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
@@ -39,7 +40,7 @@
 	const isEdit = $derived(!!name);
 
 	const query = createQuery(() => ({
-		queryKey: ['hub', hub, 'groups', name],
+		queryKey: hubKeys.group(hub, name ?? ''),
 		queryFn: () => rpc.GetGroup(new VpnRpcSetGroup({ HubName_str: hub, Name_str: name })),
 		enabled: !!name
 	}));
@@ -126,7 +127,7 @@
 			return name ? rpc.SetGroup(payload) : rpc.CreateGroup(payload);
 		},
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['hub', hub, 'groups'] });
+			await client.invalidateQueries({ queryKey: hubKeys.groups(hub) });
 			await goto(resolve('/hub/[name]/groups', { name: hub }));
 		}
 	}));

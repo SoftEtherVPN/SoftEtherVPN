@@ -29,7 +29,7 @@
 	const locale = getLocale();
 </script>
 
-<table {...rest} class={['table-pin-rows table', rest.class]}>
+<table {...rest} class={['table table-pin-rows', rest.class]}>
 	<thead>
 		<tr>
 			<th>{m.SM_USER_COLUMN_1()}</th>

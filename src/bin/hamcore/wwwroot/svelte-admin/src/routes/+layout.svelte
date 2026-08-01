@@ -10,7 +10,7 @@
 	import { JsonRpcException } from '$lib/rpc';
 	import Header from './header.svelte';
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
-	import url from '../../../../../../PenCore/VPNSvr.ico';
+	import url from '$pencore/VPNSvr.ico';
 	import Modal from '$lib/components/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import Button from '$lib/components/button.svelte';

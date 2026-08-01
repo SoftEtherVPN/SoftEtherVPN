@@ -3,7 +3,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { datetime } from '$lib/paraglide/registry';
-	import { dashboardKey } from '$lib/queryKeys';
+	import { serverKeys } from '$lib/queryKeys';
 	import { rpc, VpnRpcConnectionInfo, VpnRpcEnumConnection } from '$lib/rpc';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { translateConnectionType } from '$lib/translation';
@@ -21,7 +21,7 @@
 
 	let { open = $bindable() }: Props = $props();
 	const query = createQuery(() => ({
-		queryKey: [dashboardKey, 'tcp-connections'],
+		queryKey: serverKeys.connections.list(),
 		queryFn: rpc.EnumConnection,
 		initialData: new VpnRpcEnumConnection(),
 		enabled: open,
@@ -31,16 +31,15 @@
 	const disconnect = createMutation(() => ({
 		mutationFn: rpc.DisconnectConnection,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: [dashboardKey, 'tcp-connections'] });
+			await client.invalidateQueries({ queryKey: serverKeys.connections.all });
 		}
 	}));
 
 	let selectedDetail = $state<string | undefined>(undefined);
 
 	const infoDetail = createQuery(() => ({
-		queryKey: [dashboardKey, 'tcp-connections', selectedDetail],
-		queryFn: ({ queryKey }) =>
-			rpc.GetConnectionInfo(new VpnRpcConnectionInfo({ Name_str: queryKey[2]! })),
+		queryKey: serverKeys.connections.detail(selectedDetail ?? ''),
+		queryFn: () => rpc.GetConnectionInfo(new VpnRpcConnectionInfo({ Name_str: selectedDetail! })),
 		initialData: new VpnRpcConnectionInfo(),
 		enabled: selectedDetail != undefined,
 		retry: false,
@@ -69,7 +68,7 @@
 			</div>
 		{:else}
 			<div class="overflow-x-auto">
-				<table class="table-pin-rows table table-zebra table-sm">
+				<table class="table table-pin-rows table-zebra table-sm">
 					<thead>
 						<tr>
 							<th>{m.SM_CONN_COLUMN_1()}</th>
@@ -123,7 +122,7 @@
 				{m.SM_CONNINFO_CAPTION({ input0: infoDetail.data.Name_str })}
 			</h3>
 			<div class="overflow-x-auto">
-				<table class="table-pin-rows table mt-2 table-zebra table-sm">
+				<table class="table table-pin-rows mt-2 table-zebra table-sm">
 					<thead>
 						<tr>
 							<th>{m.SM_STATUS_COLUMN_1()}</th>

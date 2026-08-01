@@ -3,6 +3,7 @@
 	import Modal from '$lib/components/modal.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnEtherIpId, VpnRpcEnumHubItem } from '$lib/rpc';
+	import { ipsecKeys } from '$lib/queryKeys';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { Control, Field, FieldErrors, Label } from 'formsnap';
 	import { defaults, superForm } from 'sveltekit-superforms';
@@ -29,7 +30,7 @@
 		mutationFn: (data: VpnEtherIpId) => rpc.AddEtherIpId(data),
 		onSuccess: async () => {
 			open = false;
-			await client.invalidateQueries({ queryKey: ['ipsec', 'detail'] });
+			await client.invalidateQueries({ queryKey: ipsecKeys.etherIpIds() });
 		}
 	}));
 

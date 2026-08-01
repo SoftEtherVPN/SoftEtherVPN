@@ -3,6 +3,7 @@
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
 	import { rpc, VpnRpcDeleteUser, VpnRpcEnumGroup, VpnRpcEnumGroupItem } from '$lib/rpc';
+	import { hubKeys } from '$lib/queryKeys';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import MemberList from './member-list.svelte';
@@ -13,15 +14,15 @@
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: ['hub', params.name, 'groups'],
-		queryFn: ({ queryKey }) => rpc.EnumGroup(new VpnRpcEnumGroup({ HubName_str: queryKey[1] })),
+		queryKey: hubKeys.groups(params.name),
+		queryFn: () => rpc.EnumGroup(new VpnRpcEnumGroup({ HubName_str: params.name })),
 		initialData: new VpnRpcEnumGroup()
 	}));
 
 	const deleteMutation = createMutation(() => ({
 		mutationFn: rpc.DeleteGroup,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['hub', params.name, 'groups'] });
+			await client.invalidateQueries({ queryKey: hubKeys.groups(params.name) });
 		}
 	}));
 

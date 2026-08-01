@@ -3,6 +3,7 @@
 	import { confirm } from '$lib/components/confirm-dialog.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnEtherIpId, VpnRpcEnumHubItem } from '$lib/rpc';
+	import { ipsecKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import AddDetail from './add-detail.svelte';
 
@@ -15,7 +16,7 @@
 	const client = useQueryClient();
 
 	const etherIpQuery = createQuery(() => ({
-		queryKey: ['ipsec', 'detail'],
+		queryKey: ipsecKeys.etherIpIds(),
 		queryFn: async () => (await rpc.EnumEtherIpId()).Settings,
 		initialData: [] as VpnEtherIpId[]
 	}));
@@ -35,7 +36,7 @@
 		mutationFn: (data: VpnEtherIpId) => rpc.DeleteEtherIpId(data),
 		onSuccess: async () => {
 			selectedId = undefined;
-			await client.invalidateQueries({ queryKey: ['ipsec', 'detail'] });
+			await client.invalidateQueries({ queryKey: ipsecKeys.etherIpIds() });
 		}
 	}));
 

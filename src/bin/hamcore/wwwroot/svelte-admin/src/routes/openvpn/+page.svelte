@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnOpenVpnSstpConfig, Util_Base64_Decode } from '$lib/rpc';
+	import { openVpnKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
@@ -17,7 +18,7 @@
 	// ── Query ─────────────────────────────────────────────────────────────────
 
 	const openvpnQuery = createQuery(() => ({
-		queryKey: ['openvpn'],
+		queryKey: openVpnKeys.config(),
 		queryFn: rpc.GetOpenVpnSstpConfig
 	}));
 
@@ -26,7 +27,7 @@
 	const saveMutation = createMutation(() => ({
 		mutationFn: (data: VpnOpenVpnSstpConfig) => rpc.SetOpenVpnSstpConfig(data),
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['openvpn'] });
+			await client.invalidateQueries({ queryKey: openVpnKeys.all });
 			await goto('#/');
 		}
 	}));

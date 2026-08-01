@@ -7,6 +7,7 @@
 	import UserTable from '$lib/components/user-table.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { rpc, VpnRpcDeleteUser, VpnRpcEnumUser } from '$lib/rpc';
+	import { hubKeys } from '$lib/queryKeys';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	interface Props {
@@ -19,8 +20,8 @@
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
-		queryKey: ['hub', hub, 'users'],
-		queryFn: ({ queryKey }) => rpc.EnumUser(new VpnRpcEnumUser({ HubName_str: queryKey[1] })),
+		queryKey: hubKeys.users(hub),
+		queryFn: () => rpc.EnumUser(new VpnRpcEnumUser({ HubName_str: hub })),
 		select: (d) => d.UserList.filter((u) => u.GroupName_str == name),
 		initialData: new VpnRpcEnumUser(),
 		enabled: !!name && open
@@ -29,7 +30,7 @@
 	const deleteMutation = createMutation(() => ({
 		mutationFn: rpc.DeleteUser,
 		onSuccess: async () => {
-			await client.invalidateQueries({ queryKey: ['hub', hub, 'users'] });
+			await client.invalidateQueries({ queryKey: hubKeys.users(hub) });
 		}
 	}));
 
