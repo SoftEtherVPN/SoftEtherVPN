@@ -9,6 +9,7 @@
 	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import UserInfo from '$lib/components/user-info.svelte';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	let { params }: PageProps = $props();
 
@@ -62,7 +63,18 @@
 			users={query.data.UserList}
 			bind:selectedId
 			loading={query.isFetching && query.data.UserList.length === 0}
-			class="rounded-box" />
+			class="rounded-box">
+			{#snippet empty()}
+				<div class="flex h-56 flex-col items-center justify-center gap-4 text-center">
+					<UsersIcon size={40} class="opacity-30" />
+					<a
+						class="btn btn-primary btn-sm"
+						href={resolve('/hub/[name]/users/create', { name: params.name })}>
+						{m.D_SM_USER__B_CREATE()}
+					</a>
+				</div>
+			{/snippet}
+		</UserTable>
 	</div>
 
 	<div class="mt-4 flex flex-wrap justify-end gap-2">

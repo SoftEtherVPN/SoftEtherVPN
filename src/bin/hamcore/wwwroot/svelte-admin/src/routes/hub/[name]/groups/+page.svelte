@@ -10,6 +10,7 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
 	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 
 	let { params }: PageProps = $props();
 
@@ -73,7 +74,18 @@
 			rowsPerPage={15}
 			searchable
 			tableClass="table-pin-rows"
-			onrowdblclick={(group) => goto(groupHref(group.Name_str))} />
+			onrowdblclick={(group) => goto(groupHref(group.Name_str))}>
+			{#snippet empty()}
+				<div class="flex h-56 flex-col items-center justify-center gap-4 text-center">
+					<UsersRoundIcon size={40} class="opacity-30" />
+					<a
+						href={resolve('/hub/[name]/groups/create', { name: params.name })}
+						class="btn btn-primary btn-sm">
+						{m.D_SM_GROUP__B_CREATE()}
+					</a>
+				</div>
+			{/snippet}
+		</DataTable>
 	</div>
 
 	<div class="flex justify-end gap-2">

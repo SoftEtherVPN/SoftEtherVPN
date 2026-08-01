@@ -8,6 +8,7 @@
 	import type { VpnRpcEnumUserItem } from '$lib/rpc';
 	import { translateAuthType } from '$lib/rpc/labels';
 	import DataTable, { type DataTableColumn } from './ui/data-table.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		hub: string;
@@ -19,6 +20,8 @@
 		searchable?: boolean;
 		class?: string;
 		tableClass?: string;
+		/** Shown instead of the table when the hub has no user at all. */
+		empty?: Snippet;
 	}
 
 	let {
@@ -29,7 +32,8 @@
 		rowsPerPage = 15,
 		searchable = true,
 		class: className,
-		tableClass = 'table-pin-rows'
+		tableClass = 'table-pin-rows',
+		empty
 	}: Props = $props();
 
 	const locale = getLocale();
@@ -77,5 +81,6 @@
 	{rowsPerPage}
 	{searchable}
 	{tableClass}
+	{empty}
 	class={className}
 	onrowdblclick={navigate} />
