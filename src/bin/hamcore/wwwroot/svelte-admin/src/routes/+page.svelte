@@ -18,6 +18,7 @@
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import PlugZapIcon from '@lucide/svelte/icons/plug-zap';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
+	import AboutServer from './about-server.svelte';
 
 	const locale = getLocale();
 	const serverName = browser ? location.host : '';
@@ -37,6 +38,7 @@
 
 	let serverStatusOpen = $state(false);
 	let tcpConnectionOpen = $state(false);
+	let serverAboutOpen = $state(false);
 
 	let metrics = $derived([
 		{
@@ -144,7 +146,7 @@
 					<button>
 						{m.D_SM_SERVER__B_FARM_STATUS()}
 					</button>
-					<button>
+					<button onclick={() => (serverAboutOpen = true)}>
 						{m.D_SM_SERVER__B_INFO()}
 					</button>
 					<button onclick={() => (tcpConnectionOpen = true)}>
@@ -175,3 +177,4 @@
 
 <ServerStatus bind:open={serverStatusOpen} />
 <TcpConnections bind:open={tcpConnectionOpen} />
+<AboutServer bind:open={serverAboutOpen} />

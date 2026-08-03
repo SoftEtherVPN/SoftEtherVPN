@@ -9,7 +9,7 @@
 	import { Field, Control, FieldErrors, Label, Fieldset } from 'formsnap';
 	import Modal from '$lib/components/ui/modal.svelte';
 	import Button from '$lib/components/ui/button.svelte';
-	import { ProxyMode } from '$lib/enums';
+	import { ProxyMode } from '$lib/rpc/enums';
 
 	interface Props {
 		open: boolean;
