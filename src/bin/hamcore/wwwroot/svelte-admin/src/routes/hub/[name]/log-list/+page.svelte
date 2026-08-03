@@ -59,7 +59,7 @@
 	}
 </script>
 
-<div class="p-4" >
+<div class="p-4">
 	<h2 class="mb-4 text-xl font-bold">{m.D_SM_LOG_FILE__CAPTION()}</h2>
 	<div class="max-h-[75vh] overflow-y-auto">
 		<DataTable

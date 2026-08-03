@@ -23,8 +23,17 @@ export const serverKeys = {
 	info: () => [...server, 'info'] as const,
 	/** `GetServerStatus` */
 	status: () => [...server, 'status'] as const,
+	/** `GetCaps` */
+	caps: () => [...server, 'caps'] as const,
 	/** `GetDDnsClientStatus` */
 	ddns: () => [...server, 'ddns'] as const,
+	// The DDNS private key and the DDNS proxy settings are siblings of `ddns`,
+	// not children: they come from `GetConfig` and `GetDDnsInternetSetting`, and
+	// nothing about them changes when the hostname or the resolved IPs change.
+	/** `GetConfig`, narrowed to the DDNS client key. */
+	ddnsKey: () => [...server, 'ddns-key'] as const,
+	/** `GetDDnsInternetSetting` */
+	ddnsProxy: () => [...server, 'ddns-proxy'] as const,
 	/** `GetAzureStatus` */
 	azure: () => [...server, 'azure'] as const,
 	/** `EnumListener` */
