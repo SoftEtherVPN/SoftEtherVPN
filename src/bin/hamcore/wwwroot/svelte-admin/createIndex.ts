@@ -1,4 +1,4 @@
-import { readFile, open, FileHandle, writeFile } from 'node:fs/promises';
+import { readFile, open, writeFile } from 'node:fs/promises';
 
 interface StbTable {
 	name: string;
@@ -44,14 +44,15 @@ function unescapeStr(str: string) {
 
 function parseTableLine(line: string, prefix: string): [StbTable | null, string] {
 	line = line.trimStart();
-	let len = line.length;
+	const len = line.length;
 
 	if (len == 0) return [null, prefix];
 	if (line[0] == '#' || (line[0] == '/' && line[1] == '/')) return [null, prefix];
 
 	let b = false;
 	let len_name = 0;
-	for (var i = 0; i < line.length; i++) {
+	let i: number;
+	for (i = 0; i < line.length; i++) {
 		if (line[i] == ' ' || line[i] == '\t') {
 			b = true;
 			break;
@@ -61,7 +62,7 @@ function parseTableLine(line: string, prefix: string): [StbTable | null, string]
 
 	if (b == false) return [null, prefix];
 
-	let name = line.substring(0, len_name);
+	const name = line.substring(0, len_name);
 
 	let string_start = len_name;
 	for (i = len_name; i < len; i++) {
@@ -102,27 +103,17 @@ function parseTableLine(line: string, prefix: string): [StbTable | null, string]
 	];
 }
 
-function compareTagList(list1: string[], list2: string[]) {
-	if (list1.length != list2.length) return false;
-
-	for (let i = 0; i < list1.length; i++) {
-		if (list1[i] != list2[i]) return false;
-	}
-
-	return true;
-}
-
 function parseTagList(str: string) {
-	let list: string[] = [];
+	const list: string[] = [];
 	let mode = 0;
 	let tmp = '';
 
 	str += '_';
 
-	let len = str.length;
+	const len = str.length;
 
 	for (let i = 0; i < len; i++) {
-		let c = str[i];
+		const c = str[i];
 
 		if (mode == 0) {
 			switch (c) {
@@ -179,10 +170,10 @@ const IGNORE: string[] = ['CMD', 'D_SW', 'D_CM', 'D_EM', 'SW'];
 const content = await readFile('../../strtable_en.stb', { encoding: 'utf8' });
 const indexFile = await open('index.trad.txt', 'w+');
 
-let prefixes: string[] = [];
+const prefixes: string[] = [];
 let prefix = '';
-for (let line of content.split(/\r?\n|\r|\n/g)) {
-	let [entry, newPrefix] = parseTableLine(line, prefix);
+for (const line of content.split(/\r?\n|\r|\n/g)) {
+	const [entry, newPrefix] = parseTableLine(line, prefix);
 	prefix = newPrefix;
 
 	if (!prefixes.includes(prefix)) prefixes.push(prefix);

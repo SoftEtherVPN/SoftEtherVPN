@@ -62,7 +62,7 @@
 			</div>
 			<ul
 				class="menu dropdown-content z-10 w-52 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
-				{#each locales as code}
+				{#each locales as code (code)}
 					{@const lang = languages.find((l) => l.code == code) ?? { code, flag: '' }}
 					<li>
 						<button

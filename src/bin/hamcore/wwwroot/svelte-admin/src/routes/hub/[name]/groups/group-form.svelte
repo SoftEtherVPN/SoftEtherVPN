@@ -172,7 +172,7 @@
 	{:else}
 		<form use:enhance class="flex flex-col gap-4">
 			<!-- Identity -->
-			<div class="card bg-base-100 shadow dark:bg-base-300">
+			<div class="card bg-base-300 shadow">
 				<div class="card-body">
 					<fieldset class="fieldset">
 						<label class="label" for="group-name">{m.D_SM_EDIT_GROUP__IDC_STATIC1()}</label>
@@ -206,7 +206,7 @@
 
 			<!-- Statistics (edit only) -->
 			{#if isEdit}
-				<div class="card bg-base-100 shadow dark:bg-base-300">
+				<div class="card bg-base-300 shadow">
 					<div class="card-body gap-3">
 						<h3 class="flex items-center gap-2 text-lg font-semibold">
 							<ActivityIcon size={18} class="opacity-70" />
@@ -214,7 +214,7 @@
 						</h3>
 						<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
 							{#each stats as s (s.label)}
-								<div class="rounded-box border border-base-300 p-3 dark:border-base-100">
+								<div class="rounded-box border border-base-100 p-3">
 									<p class="text-xs opacity-60">{s.label}</p>
 									<p class="text-lg font-semibold tabular-nums">{number(locale, s.value)}</p>
 								</div>

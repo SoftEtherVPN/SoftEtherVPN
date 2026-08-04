@@ -48,7 +48,8 @@ export const serverKeys = {
 };
 
 const hub = ['hub'] as const;
-const hubDetail = (name: string) => [...hub, 'detail', name] as const;
+const hubDetail = (name: string) => [...hub, name] as const;
+const userDetail = (hub: string, user: string) => [...hubDetail(hub), 'users', user] as const;
 
 /**
  * Virtual Hubs. `list` and `detail` share the same `hub` root so that creating
@@ -59,11 +60,13 @@ export const hubKeys = {
 	/** `EnumHub` */
 	list: () => [...hub, 'list'] as const,
 	/** `GetHub` */
-	detail: hubDetail,
+	properties: (name: string) => [...hubDetail(name), 'properties'] as const,
 	/** `EnumUser` */
 	users: (name: string) => [...hubDetail(name), 'users'] as const,
-	/** `GetUser` */
-	user: (name: string, user: string) => [...hubDetail(name), 'users', user] as const,
+	user: {
+		/** `GetUser` */
+		user: userDetail
+	},
 	/** `EnumGroup` */
 	groups: (name: string) => [...hubDetail(name), 'groups'] as const,
 	/** `GetGroup` */
@@ -71,7 +74,8 @@ export const hubKeys = {
 	/** `EnumLogFile` */
 	logFiles: (name: string) => [...hubDetail(name), 'log-files'] as const,
 	/** `GetHubStatus` */
-	status: (name: string) => [...hubDetail(name), 'status'] as const
+	status: (name: string) => [...hubDetail(name), 'status'] as const,
+	message: (name: string) => [...hubDetail(name), 'message'] as const
 };
 
 const ipsec = ['ipsec'] as const;

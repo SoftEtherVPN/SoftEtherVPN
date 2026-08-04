@@ -16,6 +16,7 @@
 	let disabled = $derived(disable || loading);
 
 	const onclickHandler: HTMLButtonAttributes['onclick'] = async (e) => {
+		if (loading) return;
 		try {
 			loading = true;
 			let r = onclick?.(e);

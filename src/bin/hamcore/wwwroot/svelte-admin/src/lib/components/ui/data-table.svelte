@@ -36,6 +36,7 @@
 		| (DataTableColumnBase<T> & { cell: Snippet<[T]>; value?: never });
 </script>
 
+<!--eslint-disable-next-line @typescript-eslint/no-explicit-any-->
 <script lang="ts" generics="T extends Record<string, any>">
 	import { untrack } from 'svelte';
 	import { TableHandler } from '@vincjo/datatables';
@@ -211,7 +212,7 @@
 				</thead>
 				<tbody>
 					{#if loading}
-						{#each Array.from({ length: skeletonRows }) as _, i (i)}
+						{#each { length: skeletonRows }}
 							<tr>
 								<td colspan={columnCount}>
 									<div class="h-5 w-full skeleton"></div>
@@ -241,7 +242,7 @@
 		<!-- Narrow screens: the same columns, stacked as cards. -->
 		<div class="flex flex-col gap-2 sm:hidden">
 			{#if loading}
-				{#each Array.from({ length: skeletonRows }) as _, i (i)}
+				{#each { length: skeletonRows }}
 					<div class="h-28 w-full skeleton"></div>
 				{/each}
 			{:else}

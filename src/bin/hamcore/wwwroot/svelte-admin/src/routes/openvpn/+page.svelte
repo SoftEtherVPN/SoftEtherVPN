@@ -12,6 +12,7 @@
 	import RouteIcon from '@lucide/svelte/icons/route';
 	import DownloadIcon from '@lucide/svelte/icons/download';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	const client = useQueryClient();
 
@@ -28,7 +29,7 @@
 		mutationFn: (data: VpnOpenVpnSstpConfig) => rpc.SetOpenVpnSstpConfig(data),
 		onSuccess: async () => {
 			await client.invalidateQueries({ queryKey: openVpnKeys.all });
-			await goto('#/');
+			await goto(resolve('/'));
 		}
 	}));
 

@@ -15,7 +15,7 @@
 	let { form }: { form: Writable<PolicyFormData> } = $props();
 </script>
 
-<div class="card bg-base-100 shadow dark:bg-base-300">
+<div class="card bg-base-300 shadow">
 	<div class="card-body gap-4">
 		<div class="flex flex-wrap items-center justify-between gap-3">
 			<h3 class="flex items-center gap-2 text-lg font-semibold">
@@ -30,7 +30,7 @@
 
 		{#if $form.usePolicy}
 			<div
-				class="max-h-112 divide-y divide-base-300 overflow-y-auto rounded-box border border-base-300 dark:divide-base-100 dark:border-base-100">
+				class="max-h-112 divide-y divide-base-100 overflow-y-auto rounded-box border border-base-100">
 				{#each POLICIES as p (p.key)}
 					<div class="flex items-center justify-between gap-4 p-3">
 						<div class="flex min-w-0 items-start gap-3">

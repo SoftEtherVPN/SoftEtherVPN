@@ -14,6 +14,7 @@
 	import PageHeader from '$lib/components/ui/page-header.svelte';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	const client = useQueryClient();
 
@@ -46,7 +47,7 @@
 		mutationFn: (data: VpnIPsecServices) => rpc.SetIPsecServices(data),
 		onSuccess: async () => {
 			await client.invalidateQueries({ queryKey: ipsecKeys.services() });
-			await goto('#/');
+			await goto(resolve('/'));
 		}
 	}));
 

@@ -50,14 +50,15 @@ function unescapeStr(str: string) {
 
 function parseTableLine(line: string, prefix: string): [StbTable | null, string] {
 	line = line.trimStart();
-	let len = line.length;
+	const len = line.length;
 
 	if (len == 0) return [null, prefix];
 	if (line[0] == '#' || (line[0] == '/' && line[1] == '/')) return [null, prefix];
 
 	let b = false;
 	let len_name = 0;
-	for (var i = 0; i < line.length; i++) {
+	let i: number;
+	for (i = 0; i < line.length; i++) {
 		if (line[i] == ' ' || line[i] == '\t') {
 			b = true;
 			break;
@@ -67,7 +68,7 @@ function parseTableLine(line: string, prefix: string): [StbTable | null, string]
 
 	if (b == false) return [null, prefix];
 
-	let name = line.substring(0, len_name);
+	const name = line.substring(0, len_name);
 
 	let string_start = len_name;
 	for (i = len_name; i < len; i++) {
@@ -109,16 +110,16 @@ function parseTableLine(line: string, prefix: string): [StbTable | null, string]
 }
 
 function parseTagList(str: string) {
-	let list: string[] = [];
+	const list: string[] = [];
 	let mode = 0;
 	let tmp = '';
 
 	str += '_';
 
-	let len = str.length;
+	const len = str.length;
 
 	for (let i = 0; i < len; i++) {
-		let c = str[i]!;
+		const c = str[i]!;
 
 		if (mode == 0) {
 			switch (c) {
@@ -171,37 +172,37 @@ function parseTagList(str: string) {
 }
 
 export async function convertStb() {
-	let files = await readdir('../../');
-	let regex = /strtable_(.+)\.stb/;
+	const files = await readdir('../../');
+	const regex = /strtable_(.+)\.stb/;
 
-	for (let file of files) {
+	for (const file of files) {
 		if (!file.startsWith('strtable_')) continue;
-		let locale = file.match(regex)![1];
+		const locale = file.match(regex)![1];
 
-		let content = await readFile(join('../../', file), { encoding: 'utf-8' });
-		let hash = createHash('sha256').update(content).digest('hex');
+		const content = await readFile(join('../../', file), { encoding: 'utf-8' });
+		const hash = createHash('sha256').update(content).digest('hex');
 		let prefix = '';
-		let message: Record<string, string> = {
+		const message: Record<string, string> = {
 			$schema: 'https://inlang.com/schema/inlang-message-format',
 			$hash: hash,
 			$version: VERSION
 		};
 
-		let destPath = `./messages/${locale}.json`;
+		const destPath = `./messages/${locale}.json`;
 		if (existsSync(destPath)) {
-			let destContent = await readFile(destPath, { encoding: 'utf-8' });
-			let destJson = JSON.parse(destContent) as Record<string, string>;
+			const destContent = await readFile(destPath, { encoding: 'utf-8' });
+			const destJson = JSON.parse(destContent) as Record<string, string>;
 			if (destJson['$hash'] == hash && destJson['$version'] == VERSION) continue;
 		}
 
-		for (let line of content.split(/\r?\n|\r|\n/g)) {
-			let [entry, newPrefix] = parseTableLine(line, prefix);
+		for (const line of content.split(/\r?\n|\r|\n/g)) {
+			const [entry, newPrefix] = parseTableLine(line, prefix);
 			prefix = newPrefix;
 
 			if (entry == null) continue;
 			if (IGNORE.some((x) => entry.name.startsWith(x))) continue;
 			let i = 0;
-			for (let tag of entry.tagList) {
+			for (const tag of entry.tagList) {
 				if (tag == '%u' || tag == '%s' || tag == '%S') {
 					entry.str = entry.str.replace(tag, `{input${i}}`);
 				}
