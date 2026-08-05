@@ -73,8 +73,11 @@ export const hubKeys = {
 	group: (name: string, group: string) => [...hubDetail(name), 'groups', group] as const,
 	/** `EnumLogFile` */
 	logFiles: (name: string) => [...hubDetail(name), 'log-files'] as const,
+	/** `GetHubLog` */
+	logSetting: (name: string) => [...hubDetail(name), 'log-setting'] as const,
 	/** `GetHubStatus` */
 	status: (name: string) => [...hubDetail(name), 'status'] as const,
+	/** `GetHubMsg` */
 	message: (name: string) => [...hubDetail(name), 'message'] as const
 };
 

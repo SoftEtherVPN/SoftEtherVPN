@@ -243,3 +243,26 @@ export function TranslateCap(cap: string): string | undefined {
 			return m.CT_b_suppport_push_route_config();
 	}
 }
+
+export function translatePacketLog(type: number) {
+	switch (type) {
+		case 0:
+			return m.D_SM_LOG__S_PACKET_0();
+		case 1:
+			return m.D_SM_LOG__S_PACKET_1();
+		case 2:
+			return m.D_SM_LOG__S_PACKET_2();
+		case 3:
+			return m.D_SM_LOG__S_PACKET_3();
+		case 4:
+			return m.D_SM_LOG__S_PACKET_4();
+		case 5:
+			return m.D_SM_LOG__S_PACKET_5();
+		case 6:
+			return m.D_SM_LOG__S_PACKET_6();
+		case 7:
+			return m.D_SM_LOG__S_PACKET_7();
+		default:
+			return m.COMMON_UNKNOWN();
+	}
+}
