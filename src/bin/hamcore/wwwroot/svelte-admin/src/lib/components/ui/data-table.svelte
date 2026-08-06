@@ -163,7 +163,7 @@
 	{/if}
 {/snippet}
 
-<div class={['flex flex-col gap-3', className]}>
+<div class={['flex min-w-0 flex-col gap-3', className]}>
 	{#if searchable && search}
 		<label class="input w-full max-w-xs input-sm">
 			<SearchIcon size={16} class="opacity-60" />
@@ -179,7 +179,7 @@
 		{@render empty()}
 	{:else}
 		<!-- Wide screens: a real table. -->
-		<div class="hidden overflow-x-auto sm:block">
+		<div class="hidden min-w-0 overflow-x-auto sm:block">
 			<table class={['table', tableClass]}>
 				<thead>
 					<tr>

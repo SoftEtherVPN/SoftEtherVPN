@@ -27,8 +27,12 @@
 	});
 </script>
 
-<label class="btn swap btn-circle swap-rotate btn-ghost btn-sm">
-	<input defaultChecked={systemDarkMode} bind:checked={settedIsDarkMode} type="checkbox" />
+<label class="btn swap btn-circle swap-rotate btn-ghost btn-sm" aria-label="Toggle dark mode">
+	<input
+		defaultChecked={systemDarkMode}
+		bind:checked={settedIsDarkMode}
+		type="checkbox"
+		aria-label="Toggle dark mode" />
 	<Moon class="swap-on" size={20} />
 	<Sun class="swap-off" size={20} />
 </label>

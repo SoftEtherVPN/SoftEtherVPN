@@ -151,7 +151,7 @@
 <div class="drawer mt-6 items-stretch lg:drawer-open">
 	<input id="hub-drawer" type="checkbox" class="drawer-toggle" bind:checked={drawerOpen} />
 
-	<div class="drawer-content lg:ps-4">
+	<div class="drawer-content min-w-0 lg:ps-4">
 		<!-- Mobile: open-sidebar bar -->
 		<div class="ms-2 mb-3 flex items-center gap-2 lg:hidden">
 			<label

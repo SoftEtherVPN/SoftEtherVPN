@@ -57,7 +57,7 @@
 		<span class="text-sm font-light">{m.D_SM_USER__S_TITLE({ input0: params.name })}</span>
 	</div>
 
-	<div class="max-h-[75vh]">
+	<div class="max-h-[75vh] min-w-0">
 		<UserTable
 			hub={params.name}
 			users={query.data.UserList}
