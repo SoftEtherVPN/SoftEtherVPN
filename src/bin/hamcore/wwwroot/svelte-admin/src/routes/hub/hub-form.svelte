@@ -19,10 +19,12 @@
 	import ServerIcon from '@lucide/svelte/icons/server';
 	import { resolve } from '$app/paths';
 	import SetMessage from './[name]/set-message.svelte';
+	import HubAdminOption from './[name]/hub-admin-option.svelte';
 
 	let { name }: { name?: string } = $props();
 	let isEdit = $derived(name != undefined);
 	let setMessageOpen = $state(false);
+	let adminOpen = $state(false);
 
 	const query = createQuery(() => ({
 		queryKey: hubKeys.properties(name ?? ''),
@@ -280,7 +282,10 @@
 								{m.D_SM_EDIT_HUB__S_AO_3()}
 							</p>
 							<div class="flex justify-end">
-								<button type="button" class="btn btn-neutral btn-sm">
+								<button
+									type="button"
+									class="btn btn-neutral btn-sm"
+									onclick={() => (adminOpen = true)}>
 									{m.D_SM_EDIT_HUB__B_ADMINOPTION()}
 								</button>
 							</div>
@@ -331,4 +336,5 @@
 
 {#if isEdit}
 	<SetMessage hub={name!} bind:open={setMessageOpen} />
+	<HubAdminOption hub={name!} bind:open={adminOpen} />
 {/if}

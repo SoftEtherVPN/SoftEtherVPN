@@ -78,7 +78,9 @@ export const hubKeys = {
 	/** `GetHubStatus` */
 	status: (name: string) => [...hubDetail(name), 'status'] as const,
 	/** `GetHubMsg` */
-	message: (name: string) => [...hubDetail(name), 'message'] as const
+	message: (name: string) => [...hubDetail(name), 'message'] as const,
+	/** `GetHubAdminOptions` */
+	admin: (name: string) => [...hubDetail(name), 'admin'] as const
 };
 
 const ipsec = ['ipsec'] as const;
