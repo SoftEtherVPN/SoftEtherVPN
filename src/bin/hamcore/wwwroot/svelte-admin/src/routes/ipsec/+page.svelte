@@ -6,12 +6,13 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { Field, Control, FieldErrors, Label } from 'formsnap';
+	import { Field, Control, Label } from 'formsnap';
 	import Button from '$lib/components/ui/button.svelte';
 	import Detail from './detail.svelte';
 	import Info from '@lucide/svelte/icons/info';
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import PageHeader from '$lib/components/ui/page-header.svelte';
+	import TextField from '$lib/components/ui/text-field.svelte';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -220,20 +221,13 @@
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend text-xl">{m.D_SM_IPSEC__S07()}</legend>
 
-						<Field form={sf} name="IPsec_Secret_str">
-							<Control>
-								{#snippet children({ props })}
-									<Label class="label whitespace-normal">{m.D_SM_IPSEC__S_PSK()}</Label>
-									<input
-										{...props}
-										type="text"
-										class="input w-full max-w-xs input-sm"
-										bind:value={$form.IPsec_Secret_str} />
-								{/snippet}
-							</Control>
-							<FieldErrors class="text-xs text-error" />
-							<p class="label whitespace-normal">{m.D_SM_IPSEC__S_PSK2()}</p>
-						</Field>
+						<TextField
+							form={sf}
+							name="IPsec_Secret_str"
+							label={m.D_SM_IPSEC__S_PSK()}
+							type="text"
+							description={m.D_SM_IPSEC__S_PSK2()}
+							bind:value={$form.IPsec_Secret_str} />
 					</fieldset>
 
 					<!-- Footer: Cancel + Save -->

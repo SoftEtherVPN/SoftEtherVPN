@@ -6,9 +6,10 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4 as zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { Field, Control, FieldErrors, Label, Fieldset } from 'formsnap';
+	import { Control, Fieldset, Label } from 'formsnap';
 	import Modal from '$lib/components/ui/modal.svelte';
 	import Button from '$lib/components/ui/button.svelte';
+	import TextField from '$lib/components/ui/text-field.svelte';
 	import { ProxyMode } from '$lib/rpc/enums';
 
 	interface Props {
@@ -72,7 +73,7 @@
 			}
 		}
 	});
-	const { form, errors, enhance, submitting } = sf;
+	const { form, enhance, submitting } = sf;
 
 	// Sync query data → form
 	$effect(() => {
@@ -131,60 +132,46 @@
 				     `convert-stb.ts` ignores as VPN Client strings. -->
 				<legend class="fieldset-legend">{m.D_SM_PROXY__B_PROXY_CONFIG()}</legend>
 
-				<Field form={sf} name="host">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label whitespace-normal">{m.D_SM_EDIT_SETTING__STATIC5()}</Label>
-							<input
-								{...props}
-								type="text"
-								class="input w-full"
-								class:input-error={$errors.host}
-								bind:value={$form.host} />
-						{/snippet}
-					</Control>
-					<FieldErrors class="label whitespace-normal text-error" />
-				</Field>
+				<TextField
+					form={sf}
+					name="host"
+					label={m.D_SM_EDIT_SETTING__STATIC5()}
+					type="text"
+					class="input w-full"
+					labelClass="label whitespace-normal"
+					errorClass="label whitespace-normal text-error"
+					bind:value={$form.host} />
 
-				<Field form={sf} name="port">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label whitespace-normal">{m.D_SM_EDIT_SETTING__STATIC6()}</Label>
-							<input
-								{...props}
-								type="number"
-								min="1"
-								max="65535"
-								class="input w-full"
-								class:input-error={$errors.port}
-								bind:value={$form.port} />
-						{/snippet}
-					</Control>
-					<FieldErrors class="label whitespace-normal text-error" />
-				</Field>
+				<TextField
+					form={sf}
+					name="port"
+					label={m.D_SM_EDIT_SETTING__STATIC6()}
+					type="number"
+					min={1}
+					max={65535}
+					class="input w-full"
+					labelClass="label whitespace-normal"
+					errorClass="label whitespace-normal text-error"
+					bind:value={$form.port} />
 
-				<Field form={sf} name="username">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label whitespace-normal">{m.D_SM_EDIT_USER__IDC_STATIC1()}</Label>
-							<input {...props} type="text" class="input w-full" bind:value={$form.username} />
-						{/snippet}
-					</Control>
-				</Field>
+				<TextField
+					form={sf}
+					name="username"
+					label={m.D_SM_EDIT_USER__IDC_STATIC1()}
+					type="text"
+					class="input w-full"
+					labelClass="label whitespace-normal"
+					bind:value={$form.username} />
 
-				<Field form={sf} name="password">
-					<Control>
-						{#snippet children({ props })}
-							<Label class="label whitespace-normal">{m.D_SM_EDIT_SETTING__S_PASSWORD()}</Label>
-							<input
-								{...props}
-								type="password"
-								autocomplete="off"
-								class="input w-full"
-								bind:value={$form.password} />
-						{/snippet}
-					</Control>
-				</Field>
+				<TextField
+					form={sf}
+					name="password"
+					label={m.D_SM_EDIT_SETTING__S_PASSWORD()}
+					type="password"
+					autocomplete="off"
+					class="input w-full"
+					labelClass="label whitespace-normal"
+					bind:value={$form.password} />
 			</fieldset>
 		{/if}
 

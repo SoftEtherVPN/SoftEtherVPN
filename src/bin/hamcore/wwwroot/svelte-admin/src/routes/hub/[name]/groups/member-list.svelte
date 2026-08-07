@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import Button from '$lib/components/ui/button.svelte';
-	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import { confirmMutation } from '$lib/components/ui/confirm-dialog.svelte';
 	import Modal from '$lib/components/ui/modal.svelte';
 	import UserInfo from '$lib/components/user-info.svelte';
 	import UserTable from '$lib/components/user-table.svelte';
@@ -47,12 +47,10 @@
 	function deleteUser() {
 		if (selected == undefined) return;
 
-		var payload = new VpnRpcDeleteUser({
-			HubName_str: hub,
-			Name_str: selected.Name_str
-		});
-		return confirm({ message: m.SM_USER_DELETE_MSG({ input0: selected.Name_str }) }, () =>
-			deleteMutation.mutateAsync(payload)
+		return confirmMutation(
+			deleteMutation,
+			m.SM_USER_DELETE_MSG({ input0: selected.Name_str }),
+			new VpnRpcDeleteUser({ HubName_str: hub, Name_str: selected.Name_str })
 		);
 	}
 </script>

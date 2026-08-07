@@ -34,6 +34,18 @@
 		open = true;
 		return dialogState.resolver.promise;
 	}
+
+	/**
+	 * Confirms then runs a mutation against a single payload — the "select a
+	 * row, confirm, mutate" shape repeated across list pages.
+	 */
+	export function confirmMutation<T>(
+		mutation: { mutateAsync: (payload: T) => Promise<unknown> },
+		message: string,
+		payload: T
+	): Promise<boolean> {
+		return confirm({ message }, () => mutation.mutateAsync(payload));
+	}
 </script>
 
 <script lang="ts">

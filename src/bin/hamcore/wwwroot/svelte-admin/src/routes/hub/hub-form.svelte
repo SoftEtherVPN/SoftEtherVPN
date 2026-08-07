@@ -16,6 +16,7 @@
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
 	import PageHeader from '$lib/components/ui/page-header.svelte';
+	import TextField from '$lib/components/ui/text-field.svelte';
 	import ServerIcon from '@lucide/svelte/icons/server';
 	import { resolve } from '$app/paths';
 	import SetMessage from './[name]/set-message.svelte';
@@ -105,7 +106,7 @@
 </script>
 
 <div class="p-4">
-	<PageHeader title={m.CM_EDIT_HUB_1()}>
+	<PageHeader title={isEdit ? m.CM_EDIT_HUB_2({ input0: name! }) : m.CM_EDIT_HUB_1()}>
 		{#snippet icon()}
 			<ServerIcon size={22} />
 		{/snippet}
@@ -115,52 +116,31 @@
 		<div class="h-64 w-full skeleton"></div>
 	{:else}
 		<form use:enhance>
-			<Field form={sf} name="name">
-				<Control>
-					{#snippet children({ props })}
-						<Label class="label">{m.D_SM_EDIT_HUB__STATIC1()}</Label>
-						<input
-							{...props}
-							disabled={isEdit}
-							type="text"
-							class="input w-full max-w-xs input-sm"
-							bind:value={$form.name} />
-					{/snippet}
-				</Control>
-				<FieldErrors class="text-xs text-error" />
-			</Field>
+			<TextField
+				form={sf}
+				name="name"
+				label={m.D_SM_EDIT_HUB__STATIC1()}
+				disabled={isEdit}
+				type="text"
+				bind:value={$form.name} />
 			<div class="lg:grid lg:grid-cols-2 lg:gap-4">
 				<div>
 					<fieldset class="fieldset rounded-box border border-base-300 bg-base-200 p-4">
 						<legend class="fieldset-legend">{m.D_SM_EDIT_HUB__STATIC2()}</legend>
 						<p class="fieldset-label">{m.D_SM_EDIT_HUB__S_BOLD()}</p>
 
-						<Field form={sf} name="password">
-							<Control>
-								{#snippet children({ props })}
-									<Label class="label">{m.D_SM_EDIT_HUB__STATIC3()}</Label>
-									<input
-										{...props}
-										type="password"
-										class="input w-full max-w-xs input-sm"
-										bind:value={$form.password} />
-								{/snippet}
-							</Control>
-							<FieldErrors class="text-xs text-error" />
-						</Field>
-						<Field form={sf} name="confirm">
-							<Control>
-								{#snippet children({ props })}
-									<Label class="label">{m.D_SM_EDIT_HUB__STATIC4()}</Label>
-									<input
-										{...props}
-										type="password"
-										class="input w-full max-w-xs input-sm"
-										bind:value={$form.confirm} />
-								{/snippet}
-							</Control>
-							<FieldErrors class="text-xs text-error" />
-						</Field>
+						<TextField
+							form={sf}
+							name="password"
+							label={m.D_SM_EDIT_HUB__STATIC3()}
+							type="password"
+							bind:value={$form.password} />
+						<TextField
+							form={sf}
+							name="confirm"
+							label={m.D_SM_EDIT_HUB__STATIC4()}
+							type="password"
+							bind:value={$form.confirm} />
 						<Field form={sf} name="noEnum">
 							<Control>
 								{#snippet children({ props })}
@@ -216,9 +196,9 @@
 						<Field form={sf} name="maxSession">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="input w-fit">
+									<Label class="lg:input w-fit">
 										<span class="label">{m.D_SM_EDIT_HUB__S_MAX_SESSION_1()}</span>
-										<input {...props} class="w-10" type="number" bind:value={$form.maxSession} />
+										<input {...props} class="not-lg:input not-lg:my-1 lg:w-10" type="number" bind:value={$form.maxSession} />
 										<span class="label">{m.D_SM_EDIT_HUB__S_MAX_SESSION_2()}</span>
 									</Label>
 								{/snippet}

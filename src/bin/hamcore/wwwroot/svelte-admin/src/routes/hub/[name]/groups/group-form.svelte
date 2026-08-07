@@ -13,6 +13,7 @@
 	import type { Writable } from 'svelte/store';
 	import Button from '$lib/components/ui/button.svelte';
 	import PageHeader from '$lib/components/ui/page-header.svelte';
+	import TextField from '$lib/components/ui/text-field.svelte';
 	import PolicyEditor from '$lib/components/policy-editor.svelte';
 	import {
 		POLICIES,
@@ -65,7 +66,7 @@
 			if (form.valid) await saveMutation.mutateAsync(form.data);
 		}
 	});
-	const { form, enhance, errors, submitting, reset } = sf;
+	const { form, enhance, submitting, reset } = sf;
 
 	// Populate the form from the loaded group when editing. When the group has no
 	// active policy, seed the editor with the SoftEther default policy so enabling
@@ -175,21 +176,20 @@
 			<div class="card bg-base-300 shadow">
 				<div class="card-body">
 					<fieldset class="fieldset">
-						<label class="label" for="group-name">{m.D_SM_EDIT_GROUP__IDC_STATIC1()}</label>
-						<input
-							id="group-name"
+						<TextField
+							form={sf}
+							name="groupName"
+							label={m.D_SM_EDIT_GROUP__IDC_STATIC1()}
 							type="text"
 							class="input w-full max-w-sm input-sm"
-							bind:value={$form.groupName}
 							readonly={isEdit}
-							required />
-						{#if $errors.groupName}
-							<p class="text-xs text-error">{$errors.groupName}</p>
-						{/if}
+							required
+							bind:value={$form.groupName} />
 
-						<label class="label" for="group-fullname">{m.D_SM_EDIT_GROUP__IDC_STATIC3()}</label>
-						<input
-							id="group-fullname"
+						<TextField
+							form={sf}
+							name="fullName"
+							label={m.D_SM_EDIT_GROUP__IDC_STATIC3()}
 							type="text"
 							class="input w-full max-w-sm input-sm"
 							bind:value={$form.fullName} />

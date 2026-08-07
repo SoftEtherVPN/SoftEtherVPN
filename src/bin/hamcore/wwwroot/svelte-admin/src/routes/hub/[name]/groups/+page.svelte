@@ -9,7 +9,7 @@
 	import MemberList from './member-list.svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
-	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import { confirmMutation } from '$lib/components/ui/confirm-dialog.svelte';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 
 	let { params }: PageProps = $props();
@@ -48,12 +48,10 @@
 	function deleteGroup() {
 		if (selected == undefined) return;
 
-		var payload = new VpnRpcDeleteUser({
-			HubName_str: params.name,
-			Name_str: selected.Name_str
-		});
-		return confirm({ message: m.SM_GROUP_DELETE_MSG({ input0: selected.Name_str }) }, () =>
-			deleteMutation.mutateAsync(payload)
+		return confirmMutation(
+			deleteMutation,
+			m.SM_GROUP_DELETE_MSG({ input0: selected.Name_str }),
+			new VpnRpcDeleteUser({ HubName_str: params.name, Name_str: selected.Name_str })
 		);
 	}
 </script>

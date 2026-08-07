@@ -6,7 +6,7 @@
 	import CreateListener from './create-listener.svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import DataTable, { type DataTableColumn } from '$lib/components/ui/data-table.svelte';
-	import { confirm } from '$lib/components/ui/confirm-dialog.svelte';
+	import { confirmMutation } from '$lib/components/ui/confirm-dialog.svelte';
 
 	const client = useQueryClient();
 	const query = createQuery(() => ({
@@ -48,10 +48,10 @@
 
 	function deleteListener() {
 		if (selected == undefined) return;
-		return confirm({ message: m.CM_DELETE_LISTENER_MSG({ input0: selected!.Ports_u32 }) }, () =>
-			deleteMutation.mutateAsync(
-				new VpnRpcListener({ Port_u32: selected!.Ports_u32, Enable_bool: false })
-			)
+		return confirmMutation(
+			deleteMutation,
+			m.CM_DELETE_LISTENER_MSG({ input0: selected.Ports_u32 }),
+			new VpnRpcListener({ Port_u32: selected.Ports_u32, Enable_bool: false })
 		);
 	}
 
@@ -63,10 +63,10 @@
 
 	function stop() {
 		if (selected == undefined) return;
-		return confirm({ message: m.CM_STOP_LISTENER_MSG({ input0: selected!.Ports_u32 }) }, () =>
-			toggleListener.mutateAsync(
-				new VpnRpcListener({ Port_u32: selected!.Ports_u32, Enable_bool: false })
-			)
+		return confirmMutation(
+			toggleListener,
+			m.CM_STOP_LISTENER_MSG({ input0: selected.Ports_u32 }),
+			new VpnRpcListener({ Port_u32: selected.Ports_u32, Enable_bool: false })
 		);
 	}
 </script>

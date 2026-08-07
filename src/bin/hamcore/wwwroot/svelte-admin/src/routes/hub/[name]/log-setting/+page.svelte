@@ -58,11 +58,11 @@
 		if (!query.isSuccess || !query.data) return;
 		reset({
 			data: {
-				saveSecurityLog: query.data.SaveSecurityLog_bool,
-				securityLogCycle: query.data.SecurityLogSwitchType_u32,
-				savePacketLog: query.data.SavePacketLog_bool,
-				packetLogCycle: query.data.PacketLogSwitchType_u32,
-				packetLogs: query.data.PacketLogConfig_u32.slice(0, 8)
+			saveSecurityLog: query.data.SaveSecurityLog_bool,
+			securityLogCycle: query.data.SecurityLogSwitchType_u32,
+			savePacketLog: query.data.SavePacketLog_bool,
+			packetLogCycle: query.data.PacketLogSwitchType_u32,
+			packetLogs: query.data.PacketLogConfig_u32.slice(0, 8)
 			}
 		});
 	});
@@ -107,10 +107,7 @@
 							{#snippet children({ props })}
 								<Label class="label">
 									{m.D_SM_LOG__S_PACKET()}
-									<select
-										{...props}
-										class="select min-w-3xs select-sm"
-										bind:value={$form.securityLogCycle}>
+									<select {...props} class="select select-sm" bind:value={$form.securityLogCycle}>
 										{@render cycleOption()}
 									</select>
 								</Label>
@@ -142,10 +139,7 @@
 							{#snippet children({ props })}
 								<Label class="label">
 									{m.D_SM_LOG__S_PACKET()}
-									<select
-										{...props}
-										class="select min-w-3xs select-sm"
-										bind:value={$form.packetLogCycle}>
+									<select {...props} class="select select-sm" bind:value={$form.packetLogCycle}>
 										{@render cycleOption()}
 									</select>
 								</Label>
@@ -163,7 +157,7 @@
 								<ElementField form={sf} name="packetLogs[{i}]">
 									<Control>
 										{#snippet children({ props })}
-											<Label class="label">
+											<Label class="label not-sm:hidden">
 												<input
 													{...props}
 													type="radio"
@@ -177,7 +171,7 @@
 									</Control>
 									<Control>
 										{#snippet children({ props })}
-											<Label class="label">
+											<Label class="label not-sm:hidden">
 												<input
 													{...props}
 													type="radio"
@@ -191,7 +185,7 @@
 									</Control>
 									<Control>
 										{#snippet children({ props })}
-											<Label class="label">
+											<Label class="label not-sm:hidden">
 												<input
 													{...props}
 													type="radio"
@@ -203,13 +197,28 @@
 											</Label>
 										{/snippet}
 									</Control>
+									<Control>
+										{#snippet children({ props })}
+											<select {...props} class="sm:hidden select w-40 select-sm">
+												<option value={VpnRpcPacketLogSetting.None}>
+													{m.D_SM_LOG__B_PACKET_0_0()}
+												</option>
+												<option value={VpnRpcPacketLogSetting.Header}>
+													{m.D_SM_LOG__B_PACKET_0_1()}
+												</option>
+												<option value={VpnRpcPacketLogSetting.All}>
+													{m.D_SM_LOG__B_PACKET_0_2()}
+												</option>
+											</select>
+										{/snippet}
+									</Control>
 								</ElementField>
 							</div>
 						{/each}
 					</Fieldset>
 				</div>
 			</fieldset>
-			<div class="mt-4 alert alert-soft alert-warning">
+			<div class="my-4 alert alert-soft alert-warning">
 				<TriangleAlertIcon size={18} />
 				<p>{m.D_SM_LOG__STATIC3()}</p>
 			</div>

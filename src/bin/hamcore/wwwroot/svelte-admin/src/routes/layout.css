@@ -25,6 +25,15 @@
 
 /* ── Form utilities ──────────────────────────────────────────────────────── */
 
+/* DaisyUI's `.label` dims text to 60% opacity via color-mix (see
+   node_modules/daisyui/components/label.css) — that's ~4.8:1 against our
+   base-200/300 fieldset backgrounds, i.e. barely AA and visibly faint for
+   real content like checkbox/radio copy and field captions. currentcolor
+   keeps this theme-agnostic, so no `dark:` variant is needed. */
+.label {
+	color: color-mix(in oklab, currentcolor 85%, transparent);
+}
+
 /* Description text under a section title or fieldset legend */
 @utility form-desc {
 	font-size: var(--text-sm);

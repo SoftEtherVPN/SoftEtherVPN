@@ -18,7 +18,7 @@
 	const locale = getLocale();
 
 	const query = createQuery(() => ({
-		queryKey: hubKeys.user(hub, name),
+		queryKey: hubKeys.user.user(hub, name),
 		queryFn: () => rpc.GetUser(new VpnRpcSetUser({ HubName_str: hub, Name_str: name })),
 		initialData: new VpnRpcSetUser(),
 		enabled: open,

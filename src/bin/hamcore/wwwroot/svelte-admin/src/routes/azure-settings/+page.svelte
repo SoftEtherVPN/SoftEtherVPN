@@ -29,6 +29,7 @@
 
 	type Value = 'TRUE' | 'FALSE';
 
+	//@ts-expect-error False postive
 	let azureEnabled = $derived<Value>(query.data.IsEnabled_bool ? 'TRUE' : 'FALSE');
 
 	function setEnabled(value: Value) {
