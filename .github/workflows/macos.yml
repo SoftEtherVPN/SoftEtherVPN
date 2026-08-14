@@ -6,6 +6,7 @@ permissions:
 jobs:
   build_and_test:
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-26, macos-15, macos-14]
     name: ${{ matrix.os }}

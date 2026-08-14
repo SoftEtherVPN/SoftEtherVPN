@@ -6,6 +6,7 @@ permissions:
 jobs:
   build_and_test:
     strategy:
+      fail-fast: false
       matrix:
         platform: [
           { ARCHITECTURE: x86, VCPKG_TRIPLET: "x86-windows-static", RUNNER: "windows-latest", CMAKE_EXTRA_FLAGS: ""},
