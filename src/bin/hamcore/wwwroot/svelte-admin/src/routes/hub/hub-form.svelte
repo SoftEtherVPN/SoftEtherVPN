@@ -21,11 +21,13 @@
 	import { resolve } from '$app/paths';
 	import SetMessage from './[name]/set-message.svelte';
 	import HubAdminOption from './[name]/hub-admin-option.svelte';
+	import HubExOption from './[name]/hub-ex-option.svelte';
 
 	let { name }: { name?: string } = $props();
 	let isEdit = $derived(name != undefined);
 	let setMessageOpen = $state(false);
 	let adminOpen = $state(false);
+	let exOptionOpen = $state(false);
 
 	const query = createQuery(() => ({
 		queryKey: hubKeys.properties(name ?? ''),
@@ -196,9 +198,13 @@
 						<Field form={sf} name="maxSession">
 							<Control>
 								{#snippet children({ props })}
-									<Label class="lg:input w-fit">
+									<Label class="w-fit lg:input">
 										<span class="label">{m.D_SM_EDIT_HUB__S_MAX_SESSION_1()}</span>
-										<input {...props} class="not-lg:input not-lg:my-1 lg:w-10" type="number" bind:value={$form.maxSession} />
+										<input
+											{...props}
+											class="not-lg:input not-lg:my-1 lg:w-10"
+											type="number"
+											bind:value={$form.maxSession} />
 										<span class="label">{m.D_SM_EDIT_HUB__S_MAX_SESSION_2()}</span>
 									</Label>
 								{/snippet}
@@ -209,7 +215,10 @@
 							<hr class="my-2" />
 							<p>{m.D_SM_EDIT_HUB__STATIC10()}</p>
 							<div class="flex justify-end">
-								<button type="button" class="btn btn-neutral btn-sm">
+								<button
+									type="button"
+									class="btn btn-neutral btn-sm"
+									onclick={() => (exOptionOpen = true)}>
 									{m.D_SM_EDIT_HUB__B_EXTOPTION()}
 								</button>
 							</div>
@@ -317,4 +326,5 @@
 {#if isEdit}
 	<SetMessage hub={name!} bind:open={setMessageOpen} />
 	<HubAdminOption hub={name!} bind:open={adminOpen} />
+	<HubExOption hub={name!} bind:open={exOptionOpen} />
 {/if}
