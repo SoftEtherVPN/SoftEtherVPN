@@ -8,22 +8,23 @@ permissions:
 jobs:
   libressl:
     runs-on: ubuntu-latest
-    container:
-      image: alpine:latest
-
     steps:
-      - name: Install dependencies
-        run: apk add binutils --no-cache build-base git readline-dev libressl-dev ncurses-dev git cmake zlib-dev libsodium-dev gnu-libiconv
-
       - uses: actions/checkout@v6
         with:
           submodules: true
 
-      - name: Configure
-        run: ./configure
+      - name: Install dependencies
+        run: sudo apt update && sudo apt-get -y install wget pkg-config cmake gcc g++ ninja-build libncurses5-dev libreadline-dev libsodium-dev make zlib1g-dev liblz4-dev libnl-genl-3-dev
 
-      - name: Make
-        run: make -j $(nproc)  -C build
+      - name: Install LibreSSL
+        run: sudo LIBRESSL_VERSION="4.3.2" OPENSSL_INSTALL_DIR="/usr/local" .ci/build-libressl.sh
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Ninja" -DOPENSSL_ROOT_DIR="/usr/local"  -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+          cmake --build .
 
       - name: Test
         run: |
