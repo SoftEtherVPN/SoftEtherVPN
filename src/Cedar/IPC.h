@@ -19,7 +19,9 @@
 #define	IPC_DHCP_TIMEOUT				(5 * 1000)
 #define	IPC_DHCP_MIN_LEASE				5
 #define	IPC_DHCP_DEFAULT_LEASE			3600
-#define	IPC_DHCP_MAX_RESEND_INTERVAL	(3 * 1000)
+#define	IPC_DHCP_EBO_MIN_INTERVAL		(4 * 1000)	// For exponential backoff 
+#define	IPC_DHCP_EBO_MAX_INTERVAL		(64 * 1000)	// For exponential backoff 
+#define	IPC_DHCP_EBO_MULTIPLIER			2			// For exponential backoff 
 
 #define	IPC_MAX_PACKET_QUEUE_LEN		10000
 
@@ -150,7 +152,7 @@ struct IPC
 	SHARED_BUFFER *IpcSessionSharedBuffer;	// A shared buffer between IPC and Session
 	IPC_SESSION_SHARED_BUFFER_DATA *IpcSessionShared;	// Shared data between IPC and Session
 	UINT Layer;
-	UINT DhcpDiscoverTimeoutMs;			// Timeut to wait for DHCP server response on DISCOVER request
+	UINT DhcpDiscoverMaxTries;			// Enable maximum number of times for DHCP DISCOVER request
 
 	// IPv6 stuff
 	QUEUE *IPv6ReceivedQueue;			// IPv6 reception queue
@@ -213,6 +215,7 @@ void IPCAssociateOnArpTable(IPC *ipc, IP *ip, UCHAR *mac_address);
 
 
 DHCPV4_DATA *IPCSendDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt, UINT expecting_code, UINT timeout, TUBE *discon_poll_tube);
+DHCPV4_DATA *IPCSendDhcpRequestEx(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt, UINT expecting_code, UINT timeout, TUBE *discon_poll_tube, UINT max_tries);
 BUF *IPCBuildDhcpRequest(IPC *ipc, IP *dest_ip, UINT tran_id, DHCP_OPTION_LIST *opt);
 BUF *IPCBuildDhcpRequestOptions(IPC *ipc, DHCP_OPTION_LIST *opt);
 bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube);
