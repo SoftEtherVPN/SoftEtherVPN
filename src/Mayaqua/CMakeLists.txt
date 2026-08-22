@@ -18,7 +18,7 @@ set_target_properties(mayaqua
 
 find_package(OpenSSL REQUIRED)
 
-if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3")
+if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0" AND OPENSSL_VERSION VERSION_LESS "4.0.0")
   set(OQS_ENABLE ON CACHE BOOL "By setting this to OFF, Open Quantum Safe algorithms will not be built in")
 else()
   # Disable oqsprovider when OpenSSL version < 3
