@@ -195,7 +195,7 @@ void Win32InitNewThread()
 bool Win32SetFolderCompressW(wchar_t *path, bool compressed)
 {
 	HANDLE h;
-	UINT retsize = 0;
+	DWORD retsize = 0;
 	USHORT flag;
 	wchar_t tmp[MAX_PATH];
 	// Validate arguments
@@ -239,7 +239,7 @@ bool Win32SetFolderCompressW(wchar_t *path, bool compressed)
 bool Win32SetFolderCompress(char *path, bool compressed)
 {
 	HANDLE h;
-	UINT retsize = 0;
+	DWORD retsize = 0;
 	USHORT flag;
 	char tmp[MAX_PATH];
 	// Validate arguments
