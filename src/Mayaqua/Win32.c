@@ -3033,13 +3033,13 @@ void Win32GetSystemTime(SYSTEMTIME *system_time)
 // Increment of 32bit integer
 void Win32Inc32(UINT *value)
 {
-	InterlockedIncrement(value);
+	InterlockedIncrement((volatile LONG *)value);
 }
 
 // Decrement of 32bit integer
 void Win32Dec32(UINT *value)
 {
-	InterlockedDecrement(value);
+	InterlockedDecrement((volatile LONG *)value);
 }
 
 // Sleep the thread
