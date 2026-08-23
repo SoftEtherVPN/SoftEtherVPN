@@ -2822,7 +2822,7 @@ bool Win32InitThread(THREAD *t)
 {
 	WIN32THREAD *w;
 	HANDLE hThread;
-	DWORD thread_id;
+	UINT thread_id;
 	WIN32THREADSTARTUPINFO *info;
 	// Validate arguments
 	if (t == NULL)
