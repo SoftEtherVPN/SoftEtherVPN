@@ -964,7 +964,7 @@ void *CreateWizardPageInstance(WIZARD *w, WIZARD_PAGE *p)
 
 	t.lParam = (LPARAM)p->DialogParam;
 
-	return CreatePropertySheetPageW(&t);
+	return CreatePropertySheetPageW((LPCPROPSHEETPAGEW)&t);
 }
 
 // Create a new wizard
@@ -2368,7 +2368,7 @@ void AdjustWindowAndControlSize(HWND hWnd, bool *need_resize, double *factor_x, 
 	*need_resize = true;
 
 	// Get the font of the current window
-	hDlgFont = (HFONT)SendMsg(hWnd, 0, WM_GETFONT, 0, 0);
+	hDlgFont = (HFONT)SendMessageW(hWnd, WM_GETFONT, 0, 0);
 
 	// Get the width and height of the font of the current window
 	CalcFontSize(hDlgFont, &dlgfont_x, &dlgfont_y);
@@ -2677,7 +2677,7 @@ HBITMAP ResizeBitmap(HBITMAP hSrc, UINT src_x, UINT src_y, UINT dst_x, UINT dst_
 				// Copy once the transfer source
 				Zero(&bi, sizeof(bi));
 				Copy(&bi.bmiHeader, &h, sizeof(BITMAPINFOHEADER));
-				srcHbitMap = CreateDIBSection(hMemDC, &bi, DIB_RGB_COLORS, &srcData, NULL, 0);
+				srcHbitMap = CreateDIBSection(hMemDC, &bi, DIB_RGB_COLORS, (void **)&srcData, NULL, 0);
 
 				hOld = SelectObject(hMemDC, srcHbitMap);
 
@@ -2695,7 +2695,7 @@ HBITMAP ResizeBitmap(HBITMAP hSrc, UINT src_x, UINT src_y, UINT dst_x, UINT dst_
 					Zero(&bi, sizeof(bi));
 					Copy(&bi.bmiHeader, &h, sizeof(BITMAPINFOHEADER));
 
-					ret = CreateDIBSection(hMemDC, &bi, DIB_RGB_COLORS, &data, NULL, 0);
+					ret = CreateDIBSection(hMemDC, &bi, DIB_RGB_COLORS, (void **)&data, NULL, 0);
 
 					if(srcData != NULL && data != NULL)
 					{

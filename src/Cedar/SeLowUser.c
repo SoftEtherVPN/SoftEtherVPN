@@ -632,7 +632,7 @@ SU_ADAPTER *SuOpenAdapter(SU *u, char *adapter_id)
 	void *h;
 	SU_ADAPTER *a;
 	SL_IOCTL_EVENT_NAME t;
-	UINT read_size;
+	DWORD read_size;
 	// Validate arguments
 	if (u == NULL || adapter_id == NULL)
 	{
@@ -690,7 +690,7 @@ SU_ADAPTER *SuOpenAdapter(SU *u, char *adapter_id)
 TOKEN_LIST *SuEnumAdapters(SU *u)
 {
 	UINT i;
-	UINT ret_size;
+	DWORD ret_size;
 	TOKEN_LIST *ret;
 	// Validate arguments
 	if (u == NULL)
@@ -730,7 +730,7 @@ TOKEN_LIST *SuEnumAdapters(SU *u)
 LIST *SuGetAdapterList(SU *u)
 {
 	LIST *ret;
-	UINT read_size;
+	DWORD read_size;
 	UINT i;
 	// Validate arguments
 	if (u == NULL)
@@ -893,7 +893,7 @@ SU *SuInitEx(UINT wait_for_bind_complete_tick)
 {
 	void *h;
 	SU *u;
-	UINT read_size;
+	DWORD read_size;
 	bool flag = false;
 	UINT64 giveup_tick = 0;
 	static bool flag2 = false; // flag2 must be global

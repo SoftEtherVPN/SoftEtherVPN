@@ -9265,12 +9265,12 @@ bool Win32GetDnsSuffix(char *domain, UINT size)
 
 	info_size = 0;
 	info = ZeroMalloc(sizeof(IP_ADAPTER_ADDRESSES_XP));
-	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) == ERROR_BUFFER_OVERFLOW)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, (PIP_ADAPTER_ADDRESSES)info, &info_size) == ERROR_BUFFER_OVERFLOW)
 	{
 		Free(info);
 		info = ZeroMalloc(info_size);
 	}
-	if (GetAdaptersAddresses(AF_INET, 0, NULL, info, &info_size) != NO_ERROR)
+	if (GetAdaptersAddresses(AF_INET, 0, NULL, (PIP_ADAPTER_ADDRESSES)info, &info_size) != NO_ERROR)
 	{
 		Free(info);
 		return false;

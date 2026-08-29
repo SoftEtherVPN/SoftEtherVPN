@@ -195,7 +195,7 @@ void Win32InitNewThread()
 bool Win32SetFolderCompressW(wchar_t *path, bool compressed)
 {
 	HANDLE h;
-	UINT retsize = 0;
+	DWORD retsize = 0;
 	USHORT flag;
 	wchar_t tmp[MAX_PATH];
 	// Validate arguments
@@ -239,7 +239,7 @@ bool Win32SetFolderCompressW(wchar_t *path, bool compressed)
 bool Win32SetFolderCompress(char *path, bool compressed)
 {
 	HANDLE h;
-	UINT retsize = 0;
+	DWORD retsize = 0;
 	USHORT flag;
 	char tmp[MAX_PATH];
 	// Validate arguments
@@ -2822,7 +2822,7 @@ bool Win32InitThread(THREAD *t)
 {
 	WIN32THREAD *w;
 	HANDLE hThread;
-	DWORD thread_id;
+	UINT thread_id;
 	WIN32THREADSTARTUPINFO *info;
 	// Validate arguments
 	if (t == NULL)
@@ -3033,13 +3033,13 @@ void Win32GetSystemTime(SYSTEMTIME *system_time)
 // Increment of 32bit integer
 void Win32Inc32(UINT *value)
 {
-	InterlockedIncrement(value);
+	InterlockedIncrement((volatile LONG *)value);
 }
 
 // Decrement of 32bit integer
 void Win32Dec32(UINT *value)
 {
-	InterlockedDecrement(value);
+	InterlockedDecrement((volatile LONG *)value);
 }
 
 // Sleep the thread
@@ -3341,7 +3341,7 @@ char *Win32InputFromFileLineA()
 	while (true)
 	{
 		char c;
-		UINT read_size = 0;
+		DWORD read_size = 0;
 
 		if (ReadFile(hstdin, &c, 1, &read_size, NULL) == false)
 		{

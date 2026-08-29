@@ -1406,7 +1406,7 @@ LIST *GetEthAdapterListInternal()
 {
 	LIST *o;
 	LIST *ret;
-	UINT size;
+	ULONG size;
 	char *buf;
 	UINT i, j;
 	char *qos_tag = "(Microsoft's Packet Scheduler)";	// Allow to combine "FriendlyName" consisting of a NULL character and QOS tag.
