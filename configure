@@ -48,6 +48,9 @@ fi
 if [ ! -z ${CPACK_GENERATOR+x} ]; then
 	echo "CPACK_GENERATOR is set, CPack will generate ${CPACK_GENERATOR} packages."
 	CMAKE_FLAGS="-DCPACK_GENERATOR=${CPACK_GENERATOR} ${CMAKE_FLAGS}"
+elif [ "$(uname -s)" = "Darwin" ]; then
+	echo "Darwin detected, CPack will generate TGZ archives."
+	CMAKE_FLAGS="-DCPACK_GENERATOR='TGZ' ${CMAKE_FLAGS}"
 elif [ -x "$(command -v rpm)" ]; then
 	echo "'rpm' executable found, CPack will generate RPM packages."
 	CMAKE_FLAGS="-DCPACK_GENERATOR='RPM' ${CMAKE_FLAGS}"
