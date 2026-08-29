@@ -3341,7 +3341,7 @@ char *Win32InputFromFileLineA()
 	while (true)
 	{
 		char c;
-		UINT read_size = 0;
+		DWORD read_size = 0;
 
 		if (ReadFile(hstdin, &c, 1, &read_size, NULL) == false)
 		{
