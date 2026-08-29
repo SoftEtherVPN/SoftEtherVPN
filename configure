@@ -32,8 +32,16 @@ fi
 if [ -z ${OPENSSL_ROOT_DIR} ]; then
 	unameOut="$(uname -s)"
 	if [ "$unameOut" = "Darwin" ]; then
-		echo "Environment variable OPENSSL_ROOT_DIR not set, using default Homebrew path: /usr/local/opt/openssl/"
-		export OPENSSL_ROOT_DIR="/usr/local/opt/openssl/"
+		# Homebrew's prefix differs by architecture: /opt/homebrew on Apple
+		# Silicon, /usr/local on Intel. Ask brew rather than hardcoding one.
+		if command -v brew > /dev/null 2>&1; then
+			OPENSSL_ROOT_DIR="$(brew --prefix openssl@3 2>/dev/null || brew --prefix openssl 2>/dev/null)"
+		fi
+		if [ -z "${OPENSSL_ROOT_DIR}" ]; then
+			OPENSSL_ROOT_DIR="/usr/local/opt/openssl/"
+		fi
+		echo "Environment variable OPENSSL_ROOT_DIR not set, using ${OPENSSL_ROOT_DIR}"
+		export OPENSSL_ROOT_DIR
 	fi
 fi
 
