@@ -127,7 +127,7 @@ void IPsecWin7UpdateHostIPAddressList(IPSEC_WIN7 *w)
 	LIST *o;
 	UINT i;
 	BUF *buf;
-	UINT retsize;
+	DWORD retsize;
 	// Validate arguments
 	if (w == NULL)
 	{
