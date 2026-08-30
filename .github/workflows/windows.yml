@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [
-          { ARCHITECTURE: x86, VCPKG_TRIPLET: "x86-windows-static", RUNNER: "windows-latest", CMAKE_EXTRA_FLAGS: ""},
+          { ARCHITECTURE: x86, VCPKG_TRIPLET: "x86-windows-static", RUNNER: "windows-2022", CMAKE_EXTRA_FLAGS: ""},
           { ARCHITECTURE: x64, VCPKG_TRIPLET: "x64-windows-static", RUNNER: "windows-latest", CMAKE_EXTRA_FLAGS: ""},
           { ARCHITECTURE: arm64, VCPKG_TRIPLET: "arm64-windows-static", RUNNER: "windows-11-arm", CMAKE_EXTRA_FLAGS: "-DOQS_PERMIT_UNSUPPORTED_ARCHITECTURE=ON"}
         ]
