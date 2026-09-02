@@ -9563,7 +9563,7 @@ void VirtualDhcpServer(VH *v, PKT *p)
 			// Determine the IP address
 			if (ip_static && opt->RequestedIp != ip_static)
 			{
-				// Don't allow opt->RequestedIp other than the IP written in user's note
+				// Don't allow opt->RequestedIp other than the static IP assigned to the user, if any
 				ip = 0;
 			}
 			else

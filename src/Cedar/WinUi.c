@@ -6294,6 +6294,8 @@ void PasswordDlgOnOk(HWND hWnd, UI_PASSWORD_DLG *p)
 
 	GetTxtA(hWnd, E_USERNAME, p->Username, sizeof(p->Username));
 	GetTxtA(hWnd, E_PASSWORD, p->Password, sizeof(p->Password));
+	GetTxtA(hWnd, E_STFA_USER_CODE, p->StfaCode, sizeof(p->StfaCode));
+
 	p->Type = CbGetSelect(hWnd, C_TYPE);
 
 	if (p->ShowNoSavePassword)
@@ -6375,6 +6377,8 @@ UINT PasswordDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			Disable(hWnd, C_TYPE);
 			SetTextA(hWnd, E_USERNAME, "Administrator");
 			Disable(hWnd, E_USERNAME);
+			Hide(hWnd, S_STFA_USER_CODE);
+			Hide(hWnd, E_STFA_USER_CODE);
 		}
 
 		if (IsEmpty(hWnd, E_USERNAME))
@@ -6485,6 +6489,7 @@ UINT PasswordDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 			{
 			case E_USERNAME:
 			case E_PASSWORD:
+			case E_STFA_USER_CODE:
 				PasswordDlgProcChange(hWnd, p);
 				break;
 			}
