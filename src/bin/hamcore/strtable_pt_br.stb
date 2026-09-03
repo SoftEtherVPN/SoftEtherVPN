@@ -4558,7 +4558,7 @@ CMD_SyslogGet_COLUMN_2	syslog Server Host Name
 CMD_SyslogGet_COLUMN_3	syslog Server Port Number
 
 
-# ConnectionList command
+# ConnectionGet command
 CMD_ConnectionList	Get List of TCP Connections Connecting to the VPN Server
 CMD_ConnectionList_Help	Use this to get a list of TCP/IP connections that are currently connecting to the VPN Server. It does not display the TCP connections that have been established as VPN sessions. To get the list of TCP/IP connections that have been established as VPN sessions, you can use the SessionList command. \nYou can get the following: Connection Name, Connection Source, Connection Start and Type.\nTo execute this command, you must have VPN Server administrator privileges.
 CMD_ConnectionList_Args	ConnectionList
@@ -4851,7 +4851,7 @@ CMD_HubList_Args	ListaHub
 # Hub command
 CMD_Hub	Select Virtual Hub to Manage
 CMD_Hub_Help	Use this to select the Virtual Hub to be the target of administration. For an administration utility with the status of being connected to a VPN Server, before executing a command to set or manage a Virtual Hub, you must use the Hub command to select the Virtual Hub to manage. \nWhen in the status of being connected to a VPN Server in Virtual Hub Admin Mode, you can select a single Virtual Hub to be the target of administration but you cannot select other Virtual Hubs. When having the status of being connected to the VPN Server in Server Admin Mode, you can make all Virtual Hubs the target of administration. \nTo get a list of Virtual Hubs that currently exist on the VPN Server, use the HubList command. \nFor the VPN Bridge, you can only select the Virtual Hub that has the name "BRIDGE".
-CMD_Hub_Args	Hub [nome]
+CMD_Hub_Args	Hub [name]
 CMD_Hub_[name]	Specify the name of the Virtual Hub to manage. If this parameter is left unspecified, the Select Virtual Hub to Manage will be cancelled.
 CMD_Hub_Unselected	The Virtual Hub selection has been unselected.
 CMD_Hub_Selected	The Virtual Hub "%S" has been selected.
@@ -5619,7 +5619,7 @@ CMD_UserRadiusSet_ALIAS	When this parameter is set, it is possible to make the u
 CMD_UserRadiusSet_Prompt_ALIAS	Alias Name for Authentication (Optional): 
 
 
-# UserNTLMSet ã‚³ãƒžãƒ³ãƒ‰
+# UserNTLMSet command
 CMD_UserNTLMSet	Set NT Domain Authentication for User Auth Type
 CMD_UserNTLMSet_Help	Use this to set NT Domain Authentication as the auth type for a user that is registered on the security account database of the currently managed Virtual Hub. When a user connects to a Virtual Hub using a user name that is set for NT Domain authentication, the user name and the user input password is sent to the Windows NT / 2000 / Server 2003 / Server 2008 / Server 2008 R2 / Server 2012 Domain Controller or Active Directory Server where the server checks the user name and password, then if the verification is successful, that user is allowed VPN connection. \nTo use NT Domain authentication, the VPN Server must be operating on a Windows NT 4.0, Windows 2000, Windows XP, Windows Vista, Windows Server 2008, Windows Server 2008 R2 or Windows Server 2012 operating system that is connected to that domain. For details please contact the VPN Server's administrator. \nTo get the list of currently registered users, use the UserList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
 CMD_UserNTLMSet_Args	UserNTLMSet [name] [/ALIAS:alias_name]
@@ -6193,7 +6193,7 @@ CMD_VpnAzureGetStatus_PRINT_CONNECTED	Connection to VPN Azure Cloud Server is Es
 CMD_VpnAzureGetStatus_PRINT_HOSTNAME	Hostname of this VPN Server on VPN Azure Service
 
 
-# VpnAzureSetStatus command
+# VpnAzureSetEnable command
 CMD_VpnAzureSetEnable	Enable / Disable VPN Azure Function
 CMD_VpnAzureSetEnable_Help	Enable or disable the VPN Azure function.\n\nVPN Azure makes it easier to establish a VPN Session from your home PC to your office PC. While a VPN connection is established, you can access to any other servers on the private network of your company.\nYou don't need a global IP address on the office PC (VPN Server). It can work behind firewalls or NATs. No network administrator's configuration required. You can use the built-in SSTP-VPN Client of Windows in your home PC.\nVPN Azure is a cloud VPN service operated by SoftEther VPN Project. VPN Azure is free of charge and available to anyone. Visit http://www.vpnazure.net/ to see details and how-to-use instructions.\n\nThe VPN Azure hostname is same to the hostname of the Dynamic DNS setting, but altering the domain suffix to "vpnazure.net". To change the hostname use the DynamicDnsSetHostname command.\n\nTo execute this command, you must have VPN Server administrator privileges. \nThis command cannot be run on VPN Bridge.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
 CMD_VpnAzureSetEnable_Args	VpnAzureSetEnable [yes|no]
@@ -6702,7 +6702,7 @@ CMD_AccountOpensslCertSet_PROMPT_KEYNAME Specify the openssl engine specific key
 CMD_AccountOpensslCertSet_PROMPT_ENGINENAME Specify the openssl engine name: 
 
 
-# AccountRetrySet ã‚³ãƒžãƒ³ãƒ‰
+# AccountRetrySet command
 CMD_AccountRetrySet	Set Interval between Connection Retries for Connection Failures or Disconnections of VPN Connection Setting
 CMD_AccountRetrySet_Help	When a VPN Connection Setting registered on the VPN Client is specified and that VPN Connection Setting attempts to connect to a VPN Server, use this to specify the interval to wait between connection attempts and the limit of how many times to retry connecting when communication with the VPN Server has been disconnected or when the connection process failed. \nIf the user authentication type is Smart Card Authentication, no connection retry will be performed regardless of the Number of Connection Attempts setting.
 CMD_AccountRetrySet_Args	AccountRetrySet [name] [/NUM:num_retry] [/INTERVAL:retry_interval]
