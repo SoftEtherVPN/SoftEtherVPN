@@ -5,7 +5,7 @@
 //
 // Licensed under the Apache License 2.0
 // Copyright (c) 2014-2023 SoftEther VPN Project
-
+//@ts-nocheck
 
 // Trivial utility codes
 let is_node_js = (typeof navigator === "undefined") || navigator.userAgent.indexOf("Node.js") !== -1 || navigator.userAgent.indexOf("jsdom") !== -1;
