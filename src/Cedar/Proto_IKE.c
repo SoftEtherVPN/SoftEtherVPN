@@ -11,6 +11,7 @@
 #include "Connection.h"
 #include "Logging.h"
 #include "Proto_EtherIP.h"
+#include "Proto_IKEv2.h"
 #include "Proto_IPsec.h"
 #include "Proto_L2TP.h"
 #include "Server.h"
@@ -35,40 +36,57 @@ void ProcIKEPacketRecv(IKE_SERVER *ike, UDPPACKET *p)
 
 	if (p->Type == IKE_UDP_TYPE_ISAKMP)
 	{
-		// ISAKMP (IKE) packet
-		IKE_PACKET *header;
+		IKE_HEADER *raw_hdr;
 
-		header = ParseIKEPacketHeader(p);
-		if (header == NULL)
+		// Check packet is large enough for the IKE header
+		if (p->Size < sizeof(IKE_HEADER))
 		{
 			return;
 		}
 
-		//Debug("InitiatorCookie: %I64u, ResponderCookie: %I64u\n", header->InitiatorCookie, header->ResponderCookie);
+		raw_hdr = (IKE_HEADER *)p->Data;
 
-		switch (header->ExchangeType)
+		// Dispatch IKEv2 packets by version field
+		if (raw_hdr->Version == IKEv2_VERSION)
 		{
-		case IKE_EXCHANGE_TYPE_MAIN:	// Main mode
-			ProcIkeMainModePacketRecv(ike, p, header);
-			break;
-
-		case IKE_EXCHANGE_TYPE_AGGRESSIVE:	// Aggressive mode
-			if (ike->Cedar->Server->DisableIPsecAggressiveMode == false)
-			{
-				ProcIkeAggressiveModePacketRecv(ike, p, header);
-			}
-			break;
-
-		case IKE_EXCHANGE_TYPE_QUICK:	// Quick mode
-			ProcIkeQuickModePacketRecv(ike, p, header);
-			break;
-
-		case IKE_EXCHANGE_TYPE_INFORMATION:	// Information exchange
-			ProcIkeInformationalExchangePacketRecv(ike, p, header);
-			break;
+			ProcIKEv2PacketRecv(ike, p);
+			return;
 		}
 
-		IkeFree(header);
+		// IKEv1 / ISAKMP packet
+		{
+			IKE_PACKET *header;
+
+			header = ParseIKEPacketHeader(p);
+			if (header == NULL)
+			{
+				return;
+			}
+
+			switch (header->ExchangeType)
+			{
+			case IKE_EXCHANGE_TYPE_MAIN:	// Main mode
+				ProcIkeMainModePacketRecv(ike, p, header);
+				break;
+
+			case IKE_EXCHANGE_TYPE_AGGRESSIVE:	// Aggressive mode
+				if (ike->Cedar->Server->DisableIPsecAggressiveMode == false)
+				{
+					ProcIkeAggressiveModePacketRecv(ike, p, header);
+				}
+				break;
+
+			case IKE_EXCHANGE_TYPE_QUICK:	// Quick mode
+				ProcIkeQuickModePacketRecv(ike, p, header);
+				break;
+
+			case IKE_EXCHANGE_TYPE_INFORMATION:	// Information exchange
+				ProcIkeInformationalExchangePacketRecv(ike, p, header);
+				break;
+			}
+
+			IkeFree(header);
+		}
 	}
 	else if (p->Type == IKE_UDP_TYPE_ESP)
 	{
@@ -5645,6 +5663,9 @@ void ProcessIKEInterrupts(IKE_SERVER *ike)
 	}
 	while (ike->StateHasChanged);
 
+	// IKEv2 interrupt processing
+	ProcessIKEv2Interrupts(ike);
+
 	// Maintenance of the thread list
 	MaintainThreadList(ike->ThreadList);
 	/*Debug("ike->ThreadList: %u\n", LIST_NUM(ike->ThreadList));
@@ -5823,6 +5844,17 @@ void FreeIKEServer(IKE_SERVER *ike)
 
 	ReleaseList(ike->ClientList);
 
+	// Free IKEv2 SAs
+	{
+		UINT j;
+		for (j = 0; j < LIST_NUM(ike->IKEv2SaList); j++)
+		{
+			IKEv2_SA *sa2 = LIST_DATA(ike->IKEv2SaList, j);
+			IKEv2FreeSA(ike, sa2);
+		}
+	}
+	ReleaseList(ike->IKEv2SaList);
+
 	ReleaseSockEvent(ike->SockEvent);
 
 	IPsecLog(ike, NULL, NULL, NULL, "LI_STOP");
@@ -5868,6 +5900,8 @@ IKE_SERVER *NewIKEServer(CEDAR *cedar, IPSEC_SERVER *ipsec)
 	ike->Engine = NewIkeEngine();
 
 	ike->ThreadList = NewThreadList();
+
+	ike->IKEv2SaList = NewList(CmpIKEv2SA);
 
 	IPsecLog(ike, NULL, NULL, NULL, "LI_START");
 
