@@ -100,6 +100,7 @@ struct RPC_SERVER_STATUS
 // Listener
 struct RPC_LISTENER
 {
+	IP Address;							// IP address
 	UINT Port;							// Port number
 	bool Enable;						// Active state
 };
