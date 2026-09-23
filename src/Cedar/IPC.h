@@ -16,9 +16,11 @@
 // Constants
 #define	IPC_ARP_LIFETIME				(3 * 60 * 1000)
 #define	IPC_ARP_GIVEUPTIME				(1 * 1000)
+// The time to wait for responses to DHCP requests
 #define	IPC_DHCP_TIMEOUT				(5 * 1000)
 #define	IPC_DHCP_MIN_LEASE				5
 #define	IPC_DHCP_DEFAULT_LEASE			3600
+// The maximum time to wait before sending the next DHCP request after a failed attempt
 #define	IPC_DHCP_MAX_RESEND_INTERVAL	(3 * 1000)
 
 #define	IPC_MAX_PACKET_QUEUE_LEN		10000
