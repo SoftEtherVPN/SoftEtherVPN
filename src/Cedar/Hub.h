@@ -32,6 +32,11 @@
 
 // Default DHCP Discover Timeout
 #define	DEFAULT_DHCP_DISCOVER_TIMEOUT				(5 * 1000)
+// The time to retry sending the STFA code if there is no response from the user [minutes]
+#define STFA_REPLY_WAIT_X					3
+
+// Number of Virtual HUB STFA params
+#define	MAX_HUB_STFA_PARAMS			11		 
 
 // SoftEther link control packet
 struct SE_LINK
@@ -300,6 +305,13 @@ struct ADMIN_OPTION
 	wchar_t Descrption[MAX_SIZE];				// Descrption
 };
 
+// Stfa options
+struct STFA_PARAM
+{
+	char Name[MAX_ADMIN_OPTION_NAME_LEN + 1];	// Name
+	char Value[MAX_SERVER_STR_LEN + 1];		// Data
+};
+
 // Certificate Revocation List entry
 struct CRL
 {
@@ -407,6 +419,12 @@ struct HUB
 	UINT64 LastFlushTick;				// Last tick to flush the MAC address table
 	bool StopAllLinkFlag;				// Stop all link flag
 	bool ForceDisableComm;				// Disable the communication function
+	LIST* StfaConfigList;				// Stfa email server/SMS gateway configuration
+	LIST* StfaCodeList;					// List of STFA codes generated for users
+	THREAD* StfaRecvReplyThread;		// Thread that checks user replies for STFA
+	EVENT* StfaRecvEvent;				// STFA receiving thread  event
+	bool StfaRecvStarted;				// Whether the STFA receiving thread is used
+	volatile bool HaltStfaRecv;			// Stop the STFA receiving thread
 };
 
 

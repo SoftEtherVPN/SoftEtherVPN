@@ -23,6 +23,7 @@
 #include "Sam.h"
 #include "SecureNAT.h"
 #include "WinUi.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/DNS.h"
@@ -4076,6 +4077,8 @@ void SiWriteUserCfg(FOLDER *f, USER *u)
 	{
 		CfgAddUniStr(f, "RealName", u->RealName);
 		CfgAddUniStr(f, "Note", u->Note);
+		CfgAddInt(f, "StaticIPv4", u->StaticIPv4);
+		CfgAddStr(f, "StfaMailPhone", u->StfaMailPhone);
 		if (u->Group != NULL)
 		{
 			CfgAddStr(f, "GroupName", u->GroupName);
@@ -4153,6 +4156,8 @@ void SiLoadUserCfg(HUB *h, FOLDER *f)
 	wchar_t realname[MAX_SIZE];
 	wchar_t note[MAX_SIZE];
 	char groupname[MAX_SIZE];
+	char stfamailphone[MAX_SIZE];
+	UINT ipv4addr;
 	FOLDER *pf;
 	UINT64 created_time;
 	UINT64 updated_time;
@@ -4181,6 +4186,8 @@ void SiLoadUserCfg(HUB *h, FOLDER *f)
 	CfgGetUniStr(f, "RealName", realname, sizeof(realname));
 	CfgGetUniStr(f, "Note", note, sizeof(note));
 	CfgGetStr(f, "GroupName", groupname, sizeof(groupname));
+	ipv4addr = CfgGetInt(f, "StaticIPv4");
+	CfgGetStr(f, "StfaMailPhone", stfamailphone, sizeof(stfamailphone));
 
 	created_time = CfgGetInt64(f, "CreatedTime");
 	updated_time = CfgGetInt64(f, "UpdatedTime");
@@ -4267,7 +4274,7 @@ void SiLoadUserCfg(HUB *h, FOLDER *f)
 			g = NULL;
 		}
 
-		u = NewUser(username, realname, note, authtype, authdata);
+		u = NewUserEx(username, realname, note, authtype, authdata, stfamailphone, ipv4addr);
 		if (u != NULL)
 		{
 			if (g != NULL)
@@ -4914,6 +4921,9 @@ void SiWriteHubCfg(FOLDER *f, HUB *h)
 	// Administration options
 	SiWriteHubAdminOptions(CfgCreateFolder(f, "AdminOption"), h);
 
+	// STFA configuration
+	SiWriteHubStfaConfig(CfgCreateFolder(f, "StfaConfig"), h);
+
 	// Type of HUB
 	CfgAddInt(f, "Type", h->Type);
 
@@ -5162,6 +5172,9 @@ void SiLoadHubCfg(SERVER *s, FOLDER *f, char *name)
 
 		// Administration options
 		SiLoadHubAdminOptions(h, CfgGetFolder(f, "AdminOption"));
+
+		// STFA configuration
+		SiLoadHubStfaConfig(h, CfgGetFolder(f, "StfaConfig"));
 
 		// Database
 		if (h->Cedar->Bridge == false)
@@ -10834,6 +10847,10 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	LISTENER *azure;
 	LISTENER *rudp;
 
+//	UINT interval = 1000 * 2;
+//	EVENT* e = NewEvent();
+//	Wait(e, interval);
+//	ReleaseEvent(e);
 	DnsThreadNumMaxSet(DNS_THREAD_DEFAULT_NUM_MAX);
 
 	s = ZeroMalloc(sizeof(SERVER));
@@ -10981,5 +10998,117 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	SiUpdateCurrentRegion(s->Cedar, "", true);
 
 	return s;
+}
+
+//////////////////////////////////////
+// Read the STFA configuration for the virtual HUB
+void SiLoadHubStfaConfig(HUB* h, FOLDER* f)
+{
+	TOKEN_LIST* t;
+	BUF* b;
+	// Validate arguments
+	if (h == NULL || f == NULL)
+	{
+		return;
+	}
+
+	t = CfgEnumItemToTokenList(f);
+	if (t != NULL)
+	{
+		UINT i;
+		b = NewBuf();
+		LockList(h->StfaConfigList);
+		{
+			DeleteAllHubStfaConfig(h, false);
+
+			for (i = 0;i < t->NumTokens;i++)
+			{
+				char* name = t->Token[i];
+				char* dec;
+				STFA_PARAM* a;
+
+				Trim(name);
+				if (strlen(name) == 0) continue;
+				a = ZeroMalloc(sizeof(STFA_PARAM));
+				StrCpy(a->Name, sizeof(a->Name), name);
+				if (StrCmpi(a->Name, "MailServerPassword") == 0)
+				{
+					int size = CfgGetByte(f, "MailServerPassword", a->Value, sizeof(a->Value));
+					WriteBuf(b, a->Value, size);
+					SeekBuf(b, 0, 0);
+					dec = DecryptPassword2(b);
+					StrCpy(a->Value, sizeof(a->Value), dec);
+					Free(dec);
+				}
+				else if (StrCmpi(a->Name, "SmsServerPassword") == 0)
+				{
+					int size = CfgGetByte(f, "SmsServerPassword", a->Value, sizeof(a->Value));
+					WriteBuf(b, a->Value, size);
+					SeekBuf(b, 0, 0);
+					dec = DecryptPassword2(b);
+					StrCpy(a->Value, sizeof(a->Value), dec);
+					Free(dec);
+				}
+				else
+				{
+					CfgGetStr(f, name, a->Value, sizeof(a->Value));
+				}
+
+				Insert(h->StfaConfigList, a);
+			}
+		}
+
+		FreeBuf(b);
+		UnlockList(h->StfaConfigList);
+		FreeToken(t);
+
+		StfaAddEmptyConfigParams(h->StfaConfigList);
+	}
+}
+
+// Write the STFA configuration for the virtual HUB
+void SiWriteHubStfaConfig(FOLDER* f, HUB* h)
+{
+	BUF* b;
+	// Validate arguments
+	if (f == NULL || h == NULL)
+	{
+		return;
+	}
+
+	LockList(h->StfaConfigList);
+	{
+		StfaAddEmptyConfigParams(h->StfaConfigList);
+
+		UINT i;
+		for (i = 0;i < LIST_NUM(h->StfaConfigList);i++)
+		{
+			STFA_PARAM* a = LIST_DATA(h->StfaConfigList, i);
+			if (StrCmpi(a->Name, "MailServerPassword") == 0)
+			{
+				b = EncryptPassword2(a->Value);
+				if (b != NULL && b->Buf != NULL)
+				{
+					CfgAddByte(f, "MailServerPassword", b->Buf, b->Size);
+					FreeBuf(b);
+				}
+			}
+			else if (StrCmpi(a->Name, "SmsServerPassword") == 0)
+			{							// "SmsServerPassword" :
+				b = EncryptPassword2(a->Value);
+				if (b != NULL && b->Buf != NULL)
+				{
+					CfgAddByte(f, "SmsServerPassword", b->Buf, b->Size);
+					FreeBuf(b);
+				}
+			}
+			else
+			{
+				CfgAddStr(f, a->Name, a->Value);
+			}
+		}
+	}
+
+	UnlockList(h->StfaConfigList);
 }
 

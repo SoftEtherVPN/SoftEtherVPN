@@ -20,6 +20,7 @@
 #include "Radius.h"
 #include "Remote.h"
 #include "Server.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/FileIO.h"
@@ -13621,6 +13622,9 @@ void SmEditUserDlgOk(HWND hWnd, SM_EDIT_USER *s)
 	StrCpy(t.GroupName, sizeof(t.GroupName), u->GroupName);
 	UniStrCpy(t.Realname, sizeof(t.Realname), u->Realname);
 	UniStrCpy(t.Note, sizeof(t.Note), u->Note);
+	t.StaticIPv4 = u->StaticIPv4;
+	StrCpy(t.StfaMailPhone, sizeof(t.StfaMailPhone), u->StfaMailPhone);
+
 	t.ExpireTime = u->ExpireTime;
 	t.AuthType = u->AuthType;
 	t.AuthData = CopyAuthData(u->AuthData, t.AuthType);
@@ -13694,6 +13698,11 @@ void SmEditUserDlgInit(HWND hWnd, SM_EDIT_USER *s)
 	SetTextA(hWnd, E_USERNAME, u->Name);
 	SetText(hWnd, E_REALNAME, u->Realname);
 	SetText(hWnd, E_NOTE, u->Note);
+	if (u->StaticIPv4 != (UINT)(-1))
+	{
+		IpSet(hWnd, E_IP, u->StaticIPv4);
+	}
+	SetTextA(hWnd, E_USER_MAIL, u->StfaMailPhone);
 
 
 	// Expiration date
@@ -13876,7 +13885,14 @@ void SmEditUserDlgUpdate(HWND hWnd, SM_EDIT_USER *s)
 
 	// Note
 	GetTxt(hWnd, E_NOTE, u->Note, sizeof(u->Note));
-	UniTrim(u->Realname);
+	UniTrim(u->Note);
+
+	// Static IP address
+	u->StaticIPv4 = IpGet(hWnd, E_IP);
+
+	// Email /Phone for STFA
+	GetTxtA(hWnd, E_USER_MAIL, u->StfaMailPhone, sizeof(u->StfaMailPhone));
+	Trim(u->StfaMailPhone);
 
 	// Group
 	GetTxtA(hWnd, E_GROUP, u->GroupName, sizeof(u->GroupName));
@@ -14153,6 +14169,8 @@ UINT SmEditUserDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *
 		case E_USERNAME:
 		case E_REALNAME:
 		case E_NOTE:
+		case E_IP:
+		case E_USER_MAIL:
 		case R_EXPIRES:
 		case E_EXPIRES_DATE:
 		case E_EXPIRES_TIME:
@@ -14418,12 +14436,14 @@ void SmUserListInit(HWND hWnd, SM_USER *s)
 	LvInsertColumn(hWnd, L_USER, 1, _UU("SM_USER_COLUMN_2"), 100);
 	LvInsertColumn(hWnd, L_USER, 2, _UU("SM_USER_COLUMN_3"), 100);
 	LvInsertColumn(hWnd, L_USER, 3, _UU("SM_USER_COLUMN_4"), 130);
-	LvInsertColumn(hWnd, L_USER, 4, _UU("SM_USER_COLUMN_5"), 100);
-	LvInsertColumn(hWnd, L_USER, 5, _UU("SM_USER_COLUMN_6"), 90);
-	LvInsertColumn(hWnd, L_USER, 6, _UU("SM_USER_COLUMN_7"), 120);
-	LvInsertColumn(hWnd, L_USER, 7, _UU("SM_LICENSE_COLUMN_5"), 120);
-	LvInsertColumn(hWnd, L_USER, 8, _UU("SM_SESS_COLUMN_6"), 100);
-	LvInsertColumn(hWnd, L_USER, 9, _UU("SM_SESS_COLUMN_7"), 100);
+	LvInsertColumn(hWnd, L_USER, 4, _UU("SM_USER_COLUMN_IP"), 100);
+	LvInsertColumn(hWnd, L_USER, 5, _UU("SM_USER_COLUMN_MS"), 120);
+	LvInsertColumn(hWnd, L_USER, 6, _UU("SM_USER_COLUMN_5"), 100);
+	LvInsertColumn(hWnd, L_USER, 7, _UU("SM_USER_COLUMN_6"), 90);
+	LvInsertColumn(hWnd, L_USER, 8, _UU("SM_USER_COLUMN_7"), 120);
+	LvInsertColumn(hWnd, L_USER, 9, _UU("SM_LICENSE_COLUMN_5"), 120);
+	LvInsertColumn(hWnd, L_USER, 10, _UU("SM_SESS_COLUMN_6"), 100);
+	LvInsertColumn(hWnd, L_USER, 11, _UU("SM_SESS_COLUMN_7"), 100);
 
 	FormatText(hWnd, S_TITLE, s->Hub->HubName);
 
@@ -14493,6 +14513,8 @@ void SmUserListRefresh(HWND hWnd, SM_USER *s)
 		wchar_t time[MAX_SIZE];
 		wchar_t exp[MAX_SIZE];
 		wchar_t num1[64], num2[64];
+		wchar_t ipv4[MAX_SIZE];
+		wchar_t stfa[MAX_SIZE];
 
 		if (s->GroupName != NULL)
 		{
@@ -14548,9 +14570,18 @@ void SmUserListRefresh(HWND hWnd, SM_USER *s)
 				e->Traffic.Recv.BroadcastCount + e->Traffic.Recv.UnicastCount +
 				e->Traffic.Send.BroadcastBytes + e->Traffic.Send.UnicastCount);
 		}
+		if (e->StaticIPv4 == (UINT)(-1) || e->StaticIPv4 == 0)
+		{
+			StrToUni(ipv4, sizeof(ipv4), "");
+		}
+		else
+		{
+			IPToUniStr32(ipv4, sizeof(ipv4), e->StaticIPv4);
+		}
+		StrToUni(stfa, sizeof(stfa), e->StfaMailPhone);
 
-		LvInsertAdd(b, e->DenyAccess ? ICO_USER_DENY : ICO_USER, NULL, 10,
-			name, e->Realname, group, e->Note, SmGetAuthTypeStr(e->AuthType),
+		LvInsertAdd(b, e->DenyAccess ? ICO_USER_DENY : ICO_USER, NULL, 12,
+			name, e->Realname, group, e->Note, ipv4, stfa, SmGetAuthTypeStr(e->AuthType),
 			num, time, exp, num1, num2);
 	}
 
@@ -17555,6 +17586,9 @@ void SmEditHubInit(HWND hWnd, SM_EDIT_HUB *s)
 		Hide(hWnd, S_MSG_4);
 		Hide(hWnd, S_MSG_2);
 		Hide(hWnd, B_MSG);
+		Hide(hWnd, S_STFA_2);
+		Hide(hWnd, S_STFA_4);
+		Hide(hWnd, B_STFAOPTION);
 	}
 	else
 	{
@@ -17633,6 +17667,10 @@ void SmEditHubInit(HWND hWnd, SM_EDIT_HUB *s)
 
 	SetEnable(hWnd, S_STATIC, support_extoption);
 	SetEnable(hWnd, B_EXTOPTION, support_extoption);
+
+	SetShow(hWnd, S_STFA_2, support_extoption);
+	SetShow(hWnd, S_STFA_4, support_extoption);
+	SetShow(hWnd, B_STFAOPTION, support_extoption);
 
 	SetEnable(hWnd, R_NO_ENUM, GetCapsBool(s->p->CapsList, "b_support_hide_hub"));
 
@@ -17716,6 +17754,10 @@ UINT SmEditHubProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *para
 
 		case B_MSG:
 			SmHubMsg(hWnd, s);
+			break;
+
+		case B_STFAOPTION:
+			SmHubStfaConfig(hWnd, s);
 			break;
 		}
 		break;
@@ -20840,6 +20882,7 @@ void SmParseCommandLine()
 				Free(password);
 				Free(host);
 			}
+			FreeParamValueList(o);
 		}
 	}
 
@@ -20847,6 +20890,491 @@ void SmParseCommandLine()
 
 	c->Free(c);
 }
+
+////////////////////////////////////////////////
+///  -STFA->
+// Stfa Settings
+void SmHubStfaConfig(HWND hWnd, SM_EDIT_HUB* e)
+{
+	SM_EDIT_SC sc;
+	// Validate arguments
+	if (hWnd == NULL || e == NULL)
+	{
+		return;
+	}
+
+	Zero(&sc, sizeof(sc));
+	sc.e = e;
+
+	StrCpy(sc.CurrentOptions.HubName, sizeof(sc.CurrentOptions.HubName), e->HubName);
+
+	// Get the current STFA configuration of the server
+	if (CALL(hWnd, ScGetHubStfaConfig(e->p->Rpc, &sc.CurrentOptions)) == false)
+	{
+		return;
+	}
+
+	Dialog(hWnd, D_SM_STFA, SmHubStfaConfigDlg, &sc);
+
+	FreeRpcStfaConfig(&sc.CurrentOptions);
+
+}
+
+// Stfa dialog procedure
+UINT SmHubStfaConfigDlg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void* param)
+{
+	SM_EDIT_SC* sc = (SM_EDIT_SC*)param;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		SmHubStfaConfigDlgInit(hWnd, sc);
+		break;
+
+	case WM_COMMAND:
+		switch (wParam)
+		{
+		case IDOK:
+			SmHubStfaConfigDlgOnOk(hWnd, sc);
+			break;
+
+		case IDCANCEL:
+			Close(hWnd);
+			break;
+		}
+		break;
+
+	case WM_CLOSE:
+		EndDialog(hWnd, 0);
+		break;
+	}
+
+	return 0;
+}
+
+// Stfa dialog initialization
+void SmHubStfaConfigDlgInit(HWND hWnd, SM_EDIT_SC* sc)
+{
+	RPC_STFA_CONFIG* t;
+	// Validate arguments
+	if (hWnd == NULL || sc == NULL)
+	{
+		return;
+	}
+	sc->CanChange = false;
+	if (sc->e->p->ServerAdminMode)
+	{
+		sc->CanChange = true;
+	}
+	else
+	{
+
+		SM_EDIT_AO ao;
+		Zero(&ao, sizeof(ao));
+		ao.e = sc->e;
+
+		StrCpy(ao.CurrentOptions.HubName, sizeof(ao.CurrentOptions.HubName), sc->e->HubName);
+		// Get the current AdminOptions on the server
+		if (CALL(hWnd, ScGetHubAdminOptions(ao.e->p->Rpc, &ao.CurrentOptions)) != false)
+		{
+			ADMIN_OPTION* a;
+			for (int i = 0;i < ao.CurrentOptions.NumItem;i++)
+			{
+				a = &ao.CurrentOptions.Items[i];
+				if (StrCmpi(a->Name, "deny_hub_admin_change_ext_option") == 0)
+				{
+					if (a->Value == 0)
+					{
+						sc->CanChange = true;		// if you can change ext_option, you can change STFA also
+					}
+					break;
+				}
+			}
+		}
+		FreeRpcAdminOption(&ao.CurrentOptions);
+	}
+
+	FormatText(hWnd, S_STFA_0, sc->e->HubName);
+
+	SetFont(hWnd, E_STFA_MSRV, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MSRV, MAX_SERVER_STR_LEN);
+
+	SetFont(hWnd, E_STFA_MUSR, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MUSR, MAX_SERVER_STR_LEN);
+	SetFont(hWnd, E_STFA_MPAS, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MPAS, MAX_SERVER_STR_LEN);
+
+	SetFont(hWnd, E_STFA_MFRM, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MFRM, MAX_SERVER_STR_LEN);
+	SetFont(hWnd, E_STFA_MSND, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MSND, MAX_SERVER_STR_LEN);
+	SetFont(hWnd, E_STFA_MRCV, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_MRCV, MAX_SERVER_STR_LEN);
+
+	SetFont(hWnd, E_STFA_SSRV, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_SSRV, MAX_SERVER_STR_LEN);
+
+	SetFont(hWnd, E_STFA_SUSR, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_SUSR, MAX_SERVER_STR_LEN);
+	SetFont(hWnd, E_STFA_SPAS, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_SPAS, MAX_SERVER_STR_LEN);
+
+	SetFont(hWnd, E_STFA_SSND, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_SSND, MAX_SERVER_STR_LEN);
+	SetFont(hWnd, E_STFA_SRSUB, GetMeiryoFont());
+	LimitText(hWnd, E_STFA_SRSUB, MAX_SERVER_STR_LEN);
+
+	t = &(sc->CurrentOptions);
+
+	SetTextA(hWnd, E_STFA_MSRV, StfaGetHubConfigData(t, "MailServer"));
+	SetTextA(hWnd, E_STFA_MUSR, StfaGetHubConfigData(t, "MailServerUser"));
+	SetTextA(hWnd, E_STFA_MPAS, StfaGetHubConfigData(t, "MailServerPassword"));
+	SetTextA(hWnd, E_STFA_MFRM, StfaGetHubConfigData(t, "MailFrom"));
+	SetTextA(hWnd, E_STFA_MSND, StfaGetHubConfigData(t, "MailServerSendingProtocol"));
+	SetTextA(hWnd, E_STFA_MRCV, StfaGetHubConfigData(t, "MailServerReceivingProtocol"));
+
+	SetTextA(hWnd, E_STFA_SSRV, StfaGetHubConfigData(t, "SmsServer"));
+	SetTextA(hWnd, E_STFA_SUSR, StfaGetHubConfigData(t, "SmsServerUser"));
+	SetTextA(hWnd, E_STFA_SPAS, StfaGetHubConfigData(t, "SmsServerPassword"));
+	SetTextA(hWnd, E_STFA_SSND, StfaGetHubConfigData(t, "SmsServerSendingProtocol"));
+	SetTextA(hWnd, E_STFA_SRSUB, StfaGetHubConfigData(t, "SmsServerForwardReplySubject"));
+
+	SmHubStfaConfigDlgUpdate(hWnd, sc);
+}
+
+// [OK] button
+void SmHubStfaConfigDlgOnOk(HWND hWnd, SM_EDIT_SC* sc)
+{
+	RPC_STFA_CONFIG t;
+	int num, i;
+	// Validate arguments
+	if (hWnd == NULL || sc == NULL)
+	{
+		return;
+	}
+
+	num = MAX_HUB_STFA_PARAMS;
+	Zero(&t, sizeof(t));
+
+	StrCpy(t.HubName, sizeof(t.HubName), sc->e->HubName);
+	t.NumItem = num;
+	t.Items = ZeroMalloc(sizeof(STFA_PARAM) * num);
+
+	char* s_value, * ch;
+	UINT size_v = sizeof(t.Items->Value);
+	s_value = (char*)Malloc(size_v);
+	char s_frmt[MAX_SIZE];
+	char s_var[MAX_SIZE];
+	char bufm[MAX_SIZE];
+	char bufs[MAX_SIZE];
+	UINT idc;
+	UINT tab[MAX_HUB_STFA_PARAMS];
+
+	Zero(tab, sizeof(tab));
+	bool bOK = false;
+	idc = 0;
+
+	{
+		tab[idc] = S_STFA_MSRV;
+		GetTxtA(hWnd, E_STFA_MSRV, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "MailServer", s_value);
+			SetTextA(hWnd, E_STFA_MSRV, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_MUSR;
+		GetTxtA(hWnd, E_STFA_MUSR, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "MailServerUser", s_value);
+			SetTextA(hWnd, E_STFA_MUSR, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_MPAS;
+		GetTxtA(hWnd, E_STFA_MPAS, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "MailServerPassword", s_value);
+			SetTextA(hWnd, E_STFA_MPAS, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_MFRM;
+		GetTxtA(hWnd, E_STFA_MFRM, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			if (((ch = strstr(s_value, "@")) != NULL) && (strlen(ch) > 3))
+			{
+				StfaSetHubConfigData(&t, "MailFrom", s_value);
+				SetTextA(hWnd, E_STFA_MFRM, s_value);
+				tab[idc] = 0;
+			}
+		}
+
+		tab[++idc] = S_STFA_MSND;
+		GetTxtA(hWnd, E_STFA_MSND, s_value, size_v);
+		Trim(s_value);
+		ch = NULL;
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StrUpper(s_value);
+			if ((ch = strstr(s_value, "SMTP:")) != NULL)
+			{
+				i = atoi(ch + 5);
+				if (i > 0) sprintf(s_value, "SMTP:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "SMTP:");
+			}
+			else
+			{
+				if ((ch = strstr(s_value, "SMTPS:")) != NULL)
+				{
+					i = atoi(ch + 6);
+					if (i > 0) sprintf(s_value, "SMTPS:%d", i);
+					else StrCpy(s_value, sizeof(t.Items->Value), "SMTPS:");
+				}
+			}
+			if (ch != NULL)
+			{
+				SetTextA(hWnd, E_STFA_MSND, s_value);
+				StfaSetHubConfigData(&t, "MailServerSendingProtocol", s_value);
+				tab[idc] = 0;
+			}
+		}
+
+		tab[++idc] = S_STFA_MRCV;
+		GetTxtA(hWnd, E_STFA_MRCV, s_value, size_v);
+		Trim(s_value);
+		ch = NULL;
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StrUpper(s_value);
+			if ((ch = strstr(s_value, "POP3:")) != NULL)
+			{
+				i = atoi(ch + 5);
+				if (i > 0) sprintf(s_value, "POP3:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "POP3:");
+			}
+			else if ((ch = strstr(s_value, "POP3S:")) != NULL)
+			{
+				i = atoi(ch + 6);
+				if (i > 0) sprintf(s_value, "POP3S:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "POP3S:");
+			}
+			else if ((ch = strstr(s_value, "IMAP:")) != NULL)
+			{
+				i = atoi(ch + 5);
+				if (i > 0) sprintf(s_value, "IMAP:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "IMAP:");
+			}
+			else if ((ch = strstr(s_value, "IMAPS:")) != NULL)
+			{
+				i = atoi(ch + 6);
+				if (i > 0) sprintf(s_value, "IMAPS:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "IMAPS:");
+			}
+
+			if (ch != NULL)
+			{
+				SetTextA(hWnd, E_STFA_MRCV, s_value);
+				StfaSetHubConfigData(&t, "MailServerReceivingProtocol", s_value);
+				tab[idc] = 0;
+			}
+		}
+		// SMS
+		tab[++idc] = S_STFA_SSRV;
+		GetTxtA(hWnd, E_STFA_SSRV, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "SmsServer", s_value);
+			SetTextA(hWnd, E_STFA_SSRV, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_SUSR;
+		GetTxtA(hWnd, E_STFA_SUSR, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "SmsServerUser", s_value);
+			SetTextA(hWnd, E_STFA_SUSR, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_SPAS;
+		GetTxtA(hWnd, E_STFA_SPAS, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StfaSetHubConfigData(&t, "SmsServerPassword", s_value);
+			SetTextA(hWnd, E_STFA_SPAS, s_value);
+			tab[idc] = 0;
+		}
+
+		tab[++idc] = S_STFA_SSND;
+		GetTxtA(hWnd, E_STFA_SSND, s_value, size_v);
+		Trim(s_value);
+		ch = NULL;
+		if (strlen(s_value) > 0)
+		{
+			ReplaceStr(s_value, size_v, s_value, " ", "");
+			StrUpper(s_value);
+			if ((ch = strstr(s_value, "SMTP:")) != NULL)
+			{
+				i = atoi(ch + 5);
+				if (i > 0) sprintf(s_value, "SMTP:%d", i);
+				else StrCpy(s_value, sizeof(t.Items->Value), "SMTP:");
+			}
+			else
+			{
+				if ((ch = strstr(s_value, "SMTPS:")) != NULL)
+				{
+					i = atoi(ch + 6);
+					if (i > 0) sprintf(s_value, "SMTPS:%d", i);
+					else StrCpy(s_value, sizeof(t.Items->Value), "SMTPS:");
+				}
+			}
+			if (ch != NULL)
+			{
+				SetTextA(hWnd, E_STFA_SSND, s_value);
+				StfaSetHubConfigData(&t, "SmsServerSendingProtocol", s_value);
+				tab[idc] = 0;
+			}
+		}
+		tab[++idc] = S_STFA_SRSUB;
+		GetTxtA(hWnd, E_STFA_SRSUB, s_value, size_v);
+		Trim(s_value);
+		if (strlen(s_value) > 0)
+		{
+			StfaSetHubConfigData(&t, "SmsServerForwardReplySubject", s_value);
+			SetTextA(hWnd, E_STFA_SRSUB, s_value);
+			tab[idc] = 0;
+		}
+	}
+
+	bOK = true;
+	int nm = 0;
+	bufm[0] = '\0';
+	for (i = 0; i < MAX_HUB_STFA_PARAMS; i++)
+	{
+		switch (tab[i])
+		{
+		case S_STFA_MSRV:
+		case S_STFA_MUSR:
+		case S_STFA_MPAS:
+		case S_STFA_MFRM:
+		case S_STFA_MSND:
+		case S_STFA_MRCV:
+			GetTxtA(hWnd, tab[i], s_var, sizeof(s_var));
+			StrCat(bufm, MAX_SIZE, s_var);
+			StrCat(bufm, MAX_SIZE, ",");
+			nm++;
+		}
+	}
+
+	int ns = 0;
+	bufs[0] = '\0';
+	for (i = 0; i < MAX_HUB_STFA_PARAMS; i++)
+	{
+		switch (tab[i])
+		{
+		case S_STFA_SSRV:
+		case S_STFA_SUSR:
+		case S_STFA_SPAS:
+		case S_STFA_SSND:
+		case S_STFA_SRSUB:
+			GetTxtA(hWnd, tab[i], s_var, sizeof(s_var));
+			StrCat(bufs, MAX_SIZE, s_var);
+			StrCat(bufs, MAX_SIZE, ",");
+			ns++;
+		}
+	}
+
+	wchar_t* uni = NULL;
+	if (ns != 5)     // ns==0 SMS OK; 1,2,3,4 - SMS NOT OK;  5 SMS not used
+	{
+		for (i = 0; i < MAX_HUB_STFA_PARAMS; i++)
+		{
+			switch (tab[i])
+			{
+			case S_STFA_MSRV:
+			case S_STFA_MUSR:
+			case S_STFA_MPAS:
+			case S_STFA_MRCV:
+				GetTxtA(hWnd, tab[i], s_var, sizeof(s_var));
+				StrCat(bufs, MAX_SIZE, s_var);
+				StrCat(bufs, MAX_SIZE, ",");
+				ns++;
+			}
+		}
+		if (ns != 0)	  // ns ==0  SMS OK
+		{
+			if ((i = strlen(bufs)) > 0) bufs[i - 1] = '\0';
+			StrCpy(s_frmt, sizeof(s_frmt), _SS("SC_STFA_SM_PARAM_ERROR"));
+			Format(s_value, size_v, s_frmt, bufs);
+			uni = CopyStrToUni(s_value);
+			MsgBox(hWnd, MB_ICONINFORMATION, uni);
+			Free(uni);
+			bOK = false;
+		}
+	}
+	else if (nm != 0)		// nm == 0 mail OK
+	{
+		if ((i = strlen(bufm)) > 0) bufm[i - 1] = '\0';
+		StrCpy(s_frmt, sizeof(s_frmt), _SS("SC_STFA_M_PARAM_ERROR"));
+		Format(s_value, size_v, s_frmt, bufm);
+		uni = CopyStrToUni(s_value);
+		MsgBox(hWnd, MB_ICONINFORMATION, uni);
+		Free(uni);
+		bOK = false;
+	}
+
+	if (bOK && CALL(hWnd, ScSetHubStfaConfig(sc->e->p->Rpc, &t)))
+	{
+		MsgBox(hWnd, MB_ICONINFORMATION, _UU("SC_STFA_PARAM_SET_OK"));
+		//		EndDialog(hWnd, true);
+	}
+	Free(s_value);
+	FreeRpcStfaConfig(&t);
+
+	if (bOK) EndDialog(hWnd, bOK);
+}
+
+// Stfa dialog update
+void SmHubStfaConfigDlgUpdate(HWND hWnd, SM_EDIT_SC* sc)
+{
+	bool b = true;
+	// Validate arguments
+	if (hWnd == NULL || sc == NULL)
+	{
+		return;
+	}
+
+	SetEnable(hWnd, IDOK, sc->CanChange);
+}
+/// <-STFA-
+
 
 // Release
 void FreeSM()

@@ -453,6 +453,8 @@ void SiWriteHubLinks(FOLDER *f, HUB *h);
 void SiLoadHubLinks(HUB *h, FOLDER *f);
 void SiWriteHubAdminOptions(FOLDER *f, HUB *h);
 void SiLoadHubAdminOptions(HUB *h, FOLDER *f);
+void SiWriteHubStfaConfig(FOLDER* f, HUB* h);
+void SiLoadHubStfaConfig(HUB* h, FOLDER* f);
 void SiWriteHubLinkCfg(FOLDER *f, LINK *k);
 void SiLoadHubLinkCfg(FOLDER *f, HUB *h);
 void SiWriteHubAccessLists(FOLDER *f, HUB *h);

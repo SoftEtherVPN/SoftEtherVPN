@@ -20242,3 +20242,116 @@ void SetDhParam(DH_CTX *dh)
 
 	dh_param = dh;
 }
+
+char* RecvLineEx(SOCK* s, char* chBuff, UINT* buff_size)
+{
+	BUF* b;
+	char c;
+	char* str;
+	// Validate arguments
+	if (s == NULL)
+	{
+		if (chBuff) Free(chBuff);
+		*buff_size = 0;
+		return NULL;
+	}
+
+	b = NewBuf();
+	while (true)
+	{
+		UCHAR* buf;
+		if (RecvAll(s, &c, sizeof(c), s->SecureMode) == false)
+		{
+			FreeBuf(b);
+			if (chBuff) Free(chBuff);
+			*buff_size = 0;
+			return NULL;
+		}
+		WriteBuf(b, &c, sizeof(c));
+		buf = (UCHAR*)b->Buf;
+		if (b->Size >= 1)
+		{
+			if (buf[b->Size - 1] == '\n')
+			{
+				b->Size--;
+				if (b->Size >= 1)
+				{
+					if (buf[b->Size - 1] == '\r')
+					{
+						b->Size--;
+					}
+				}
+				str = chBuff;
+				if (str == NULL)
+				{
+					*buff_size = b->Size + 1;
+					str = Malloc(*buff_size);
+				}
+				else if ((b->Size + 1) > (*buff_size))
+				{
+					*buff_size = b->Size + 1;
+					str = ReAlloc(str, *buff_size);
+				}
+
+				Copy(str, b->Buf, b->Size);
+				str[b->Size] = 0;
+				FreeBuf(b);
+
+				return str;
+			}
+		}
+	}
+}
+
+bool IsEmptyRecvBuff(SOCK* s, bool bSecure)
+{
+	bool bRet = false;
+	int ret, e = SSL_ERROR_NONE;
+	char ch;
+
+	if (bSecure)
+	{
+		Lock(s->ssl_lock);
+		{
+			if (s->Connected == false)
+			{
+				Unlock(s->ssl_lock);
+				Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+				return true;
+			}
+			ERR_clear_error();
+			ret = SSL_peek(s->ssl, &ch, sizeof(ch));
+			if (ret <= 0)
+			{
+				// An error has occurred
+				e = SSL_get_error(s->ssl, ret);
+				ERR_clear_error();
+				bRet = true;
+			}
+		}
+		Unlock(s->ssl_lock);
+	}
+	else
+	{
+#ifdef OS_WIN32
+		FD_SET fds;
+		TIMEVAL timeout;
+		fds.fd_count = 1;
+		memcpy(fds.fd_array, &(s->socket), sizeof(s->socket));
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		if ((ret = select(1, &fds, NULL, NULL, &timeout)) == 0) bRet = true;
+#else
+		fd_set fdr;
+		struct timeval timeout;
+
+		FD_ZERO(&fdr);
+		FD_SET(s->socket, &fdr);
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		if ((ret = select(s->socket + 1, &fdr, NULL, NULL, &timeout)) == 0) bRet = true;
+#endif
+	}
+
+	return bRet;
+}

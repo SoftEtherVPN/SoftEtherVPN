@@ -7687,6 +7687,8 @@ void PsMain(PS *ps)
 			{"UserPolicyRemove", PsUserPolicyRemove},
 			{"UserPolicySet", PsUserPolicySet},
 			{"UserExpiresSet", PsUserExpiresSet},
+			{ "UserIPv4Set", PsUserIPv4Set },
+			{ "UserStfaSet", PsUserStfaSet },
 			{"GroupList", PsGroupList},
 			{"GroupCreate", PsGroupCreate},
 			{"GroupSet", PsGroupSet},
@@ -7751,7 +7753,11 @@ void PsMain(PS *ps)
 			{"DynamicDnsSetHostname", PsDynamicDnsSetHostname},
 			{"VpnAzureGetStatus", PsVpnAzureGetStatus},
 			{"VpnAzureSetEnable", PsVpnAzureSetEnable},
-		};
+			{ "StfaConfigList", PsStfaConfigList },
+			{ "StfaConfigGet", PsStfaConfigGet },
+			{ "StfaConfigSet", PsStfaConfigSet },
+			{ "StfaConfigPassSet", PsStfaConfigPassSet },
+};
 
 		// Generate a prompt
 		if (ps->HubName == NULL)
@@ -16922,6 +16928,8 @@ UINT PsUserList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_2"), false);
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_3"), false);
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_4"), false);
+		CtInsertColumn(ct, _UU("SM_USER_COLUMN_IP"), false);
+		CtInsertColumn(ct, _UU("SM_USER_COLUMN_MS"), false);
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_5"), false);
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_6"), false);
 		CtInsertColumn(ct, _UU("SM_USER_COLUMN_7"), false);
@@ -16938,6 +16946,8 @@ UINT PsUserList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			wchar_t time[MAX_SIZE];
 			wchar_t exp[MAX_SIZE];
 			wchar_t num1[64], num2[64];
+			wchar_t stfams[MAX_SIZE];
+			wchar_t ipaddr[MAX_SIZE];
 
 			StrToUni(name, sizeof(name), e->Name);
 
@@ -16986,8 +16996,25 @@ UINT PsUserList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 					e->Traffic.Send.BroadcastBytes + e->Traffic.Send.UnicastCount);
 			}
 
+			if (StrLen(e->StfaMailPhone) != 0)
+			{
+				StrToUni(stfams, sizeof(stfams), e->StfaMailPhone);
+			}
+			else
+			{
+				StrToUni(stfams, sizeof(stfams), _SS("SM_NO_GROUP"));
+			}
+			if (e->StaticIPv4 != 0  && e->StaticIPv4 != (UINT)(-1) )
+			{
+				IPToUniStr32(ipaddr, sizeof(ipaddr), e->StaticIPv4);
+			}
+			else
+			{
+				StrToUni(ipaddr, sizeof(ipaddr), "");
+			}
+
 			CtInsert(ct,
-				name, e->Realname, group, e->Note, GetAuthTypeStr(e->AuthType),
+				name, e->Realname, group, e->Note, ipaddr, stfams, GetAuthTypeStr(e->AuthType),
 				num, time, exp, num1, num2);
 		}
 
@@ -17252,6 +17279,21 @@ UINT PsUserGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 		// Description
 		CtInsert(ct, _UU("CMD_UserGet_Column_Note"), t.Note);
+
+		// Static IPv4 address
+		if (t.StaticIPv4 != 0 && t.StaticIPv4 != (UINT)(-1))
+		{
+			IPToUniStr32(tmp, sizeof(tmp), t.StaticIPv4);
+		}
+		else
+		{
+			UniStrCpy(tmp, sizeof(tmp), L"");
+		}
+		CtInsert(ct, _UU("CMD_UserGet_Column_IPv4"), tmp);
+
+		// Email / phone number of the user
+		StrToUni(tmp, sizeof(tmp), t.StfaMailPhone);
+		CtInsert(ct, _UU("CMD_UserGet_Column_Stfa"), tmp);
 
 		// Group name
 		if (IsEmptyStr(t.GroupName) == false)
@@ -25105,3 +25147,932 @@ LABEL_CLEANUP:
 
 #endif	// OS_WIN32
 
+
+// Set the static IPv4 address assigned to the user
+UINT PsUserIPv4Set(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_SET_USER t;
+	char curr_IPV4[MAX_SIZE];
+	char cname[MAX_SIZE];
+	wchar_t* wname, *wstr;
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+	// get user name
+	wname = ParseCommand(str, L"");
+	wstr = str;
+	Zero(&t, sizeof(t));
+	if (IsEmptyUniStr(wname))
+	{
+		wstr = L"?";
+	}
+	else if( UniStrCmpi(wname, L"?") == 0 )
+	{
+		wstr = wname;
+		Free(wname);
+	}
+	else
+	{
+		// Get the user object
+		UniToStr(cname, sizeof(cname), wname);
+		Free(wname);
+
+		Zero(&t, sizeof(t));
+
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		StrCpy(t.Name, sizeof(t.Name), cname);
+
+		ret = ScGetUser(ps->Rpc, &t);
+		if (ret != ERR_NO_ERROR)
+		{
+			// An error has occured
+			CmdPrintError(c, ret);
+			return ret;
+		}
+	}
+
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"[name]", CmdPrompt, _UU("CMD_UserCreate_Prompt_NAME"), CmdEvalNotEmpty, NULL},
+		{"IPV4", CmdPrompt, _UU("CMD_UserIPv4Set_Prompt_IPV4"), CmdEvalIpEx, NULL, curr_IPV4},
+	};
+	
+	if (t.StaticIPv4 == (UINT)(-1))
+	{
+		c->Write(c, _UU("CMD_UserIPv4Set_NotImplemented"));
+		FreeRpcSetUser(&t);
+		return 0;
+
+	}
+	else if (t.StaticIPv4 == 0 )
+	{
+		StrCpy(curr_IPV4, sizeof(curr_IPV4), "");
+	}
+	else
+	{
+		IPToStr32(curr_IPV4, sizeof(curr_IPV4), t.StaticIPv4);
+	}
+
+	o = ParseCommandListEx(c, cmd_name, wstr, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		FreeRpcSetUser(&t);
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// Update the information
+	CmdStrToIP32(&t.StaticIPv4, GetParamStr(o, "IPV4"));
+
+	// Write the user object
+	ret = ScSetUser(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+	}
+	FreeRpcSetUser(&t);
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+UINT PsUserStfaSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_SET_USER t;
+	char curr_STFA[MAX_SIZE];
+	char cname[MAX_SIZE];
+	wchar_t* wname, *wstr;
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+	// get user name
+	wname = ParseCommand(str, L"");
+	wstr = str;
+	Zero(&t, sizeof(t));
+	if (IsEmptyUniStr(wname))
+	{
+		wstr = L"?";
+	}
+	else if (UniStrCmpi(wname, L"?") == 0)
+	{
+		wstr = L"?";
+		Free(wname);
+	}
+	else
+	{
+		// Get the user object
+		UniToStr(cname, sizeof(cname), wname);
+		Free(wname);
+
+		Zero(&t, sizeof(t));
+
+		StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+		StrCpy(t.Name, sizeof(t.Name), cname);
+
+		ret = ScGetUser(ps->Rpc, &t);
+		if (ret != ERR_NO_ERROR)
+		{
+			// An error has occured
+			CmdPrintError(c, ret);
+			return ret;
+		}
+	}
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"[name]", CmdPrompt, _UU("CMD_UserCreate_Prompt_NAME"), CmdEvalNotEmpty, NULL},
+		{"STFA", CmdPrompt, _UU("CMD_UserStfaSet_Prompt_STFA"), CmdEvalStfaEx, NULL, curr_STFA},
+	};
+
+	if (t.StfaMailPhone[0] == (char)(-1) )
+	{
+		c->Write(c, _UU("CMD_UserStfaSet_NotImplemented"));
+		FreeRpcSetUser(&t);
+		return 0;
+	}
+
+	StrCpy(curr_STFA, sizeof(curr_STFA), t.StfaMailPhone);
+
+	o = ParseCommandListEx(c, cmd_name, wstr, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		FreeRpcSetUser(&t); 
+		return ERR_INVALID_PARAMETER;
+	}
+
+	// Update the information
+	CmdStrToStfa(t.StfaMailPhone, sizeof(t.StfaMailPhone), GetParamStr(o, "STFA"));
+
+	// Write the user object
+	ret = ScSetUser(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+	}
+	FreeRpcSetUser(&t);
+	FreeParamValueList(o);
+
+	return ret;
+}
+
+// Get the list of Virtual HUB STFA parameters
+UINT PsStfaConfigList(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_STFA_CONFIG t;
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetHubStfaConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		CT* ct = CtNewStandardEx();
+		UINT i;
+
+		for (i = 0;i < t.NumItem;i++)
+		{
+			STFA_PARAM* e = &t.Items[i];
+			wchar_t tmp1[MAX_SIZE];
+			wchar_t tmp2[MAX_SIZE];
+
+			StrToUni(tmp1, sizeof(tmp1), e->Name);
+			if (SearchStrEx(e->Name, "Password", 0, false) != INFINITE)
+			{
+				StrToUni(tmp2, sizeof(tmp1), "*****");
+			}
+			else StrToUni(tmp2, sizeof(tmp1), e->Value);
+
+			CtInsert(ct, tmp1, tmp2, NULL); //, GetHubStfaConfigHelpString(e->Name));
+
+		}
+
+		CtFreeEx(ct, c, true);
+	}
+
+	FreeRpcStfaConfig(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Get the values of Virtual HUB STFA parameters
+UINT PsStfaConfigGet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_STFA_CONFIG t;
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetHubStfaConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		wchar_t tmp[MAX_SIZE];
+		CT* ct = CtNewStandard();
+		UINT i;
+
+		for (i = 0;i < t.NumItem;i++)
+		{
+			STFA_PARAM* e = &t.Items[i];
+			wchar_t tmp1[MAX_SIZE];
+			wchar_t tmp2[MAX_SIZE];
+
+			StrToUni(tmp1, sizeof(tmp1), e->Name);
+			if (SearchStrEx(e->Name, "Password", 0, false) != INFINITE)
+			{
+				StrToUni(tmp2, sizeof(tmp1), "*****");
+			}
+			else StrToUni(tmp2, sizeof(tmp1), e->Value);
+
+			CtInsert(ct, tmp1, tmp2); //, GetHubStfaConfigHelpString(e->Name));
+
+		}
+
+		CtFree(ct, c);
+	}
+
+	FreeRpcStfaConfig(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+/*
+// Set the value of Virtual HUB STFA parameters
+UINT PsStfaConfigSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_STFA_CONFIG t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"[name]", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_name"), CmdEvalNotEmpty, NULL},
+		{"VALUE", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_VALUE"), CmdEvalNotEmpty, NULL},
+	};
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetHubStfaConfig(ps->Rpc, &t);
+
+	bool inv_val = false;
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		UINT i;
+		bool b = false;
+
+		for (i = 0;i < t.NumItem;i++)
+		{
+			if (StrCmpi(t.Items[i].Name, GetParamStr(o, "[name]")) == 0)
+			{
+				StrCpy(t.Items[i].Value, MAX_SERVER_STR_LEN, GetParamStr(o, "VALUE"));
+				if (StrCmpi(t.Items[i].Name, "MailServerPassword") == 0 || StrCmpi(t.Items[i].Name, "SmsServerPassword") == 0)
+				{
+					continue;
+				}
+				if (StrCmpi(t.Items[i].Name, "MailServerSendingProtocol") == 0 || StrCmpi(t.Items[i].Name, "SmsServerSendingProtocol") == 0)
+				{
+					if (SearchStrEx(GetParamStr(o, "VALUE"), "SMTP:", 0, false) == INFINITE && SearchStrEx(GetParamStr(o, "VALUE"), "SMTPS:", 0, false) == INFINITE)
+					{
+						inv_val = true;
+						continue;
+					}
+				}
+				if (StrCmpi(t.Items[i].Name, "MailServerReceivingProtocol") == 0 || StrCmpi(t.Items[i].Name, "SmsServerReceivingProtocol") == 0)
+				{
+					if (SearchStrEx(GetParamStr(o, "VALUE"), "POP3:", 0, false) == INFINITE && SearchStrEx(GetParamStr(o, "VALUE"), "POP3S:", 0, false) == INFINITE
+						&& SearchStrEx(GetParamStr(o, "VALUE"), "IMAP:", 0, false) == INFINITE && SearchStrEx(GetParamStr(o, "VALUE"), "IMAPS:", 0, false) == INFINITE)
+					{
+						inv_val = true;
+						continue;
+					}
+				}
+				if (StrCmpi(t.Items[i].Name, "MailFrom") == 0)
+				{
+					if (SearchStr(GetParamStr(o, "VALUE"), "@", 0) == INFINITE)
+					{
+						inv_val = true;
+						continue;
+					}
+				}
+				b = true;
+			}
+		}
+
+		if (b == false)
+		{
+			// An error has occured
+			if (inv_val)
+				ret = ERR_INVALID_VALUE;
+			else
+				ret = ERR_OBJECT_NOT_FOUND;
+			CmdPrintError(c, ret);
+			FreeParamValueList(o);
+			FreeRpcStfaConfig(&t);
+			return ret;
+		}
+		else
+		{
+			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+			ret = ScSetHubStfaConfig(ps->Rpc, &t);
+
+			if (ret != ERR_NO_ERROR)
+			{
+				// An error has occured
+				CmdPrintError(c, ret);
+				FreeParamValueList(o);
+				return ret;
+			}
+		}
+	}
+
+	FreeRpcStfaConfig(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+*/
+// Set the value of Virtual HUB STFA parameters
+UINT PsStfaConfigSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_STFA_CONFIG t;
+	char	tmp[MAX_PROMPT_STRSIZE];
+
+// Parameter list that can be specified
+
+	char curr_MSERVER[MAX_SIZE];
+	char curr_MUSER[MAX_SIZE];
+//	char curr_MPAS[MAX_SIZE];
+	char curr_MFROM[MAX_SIZE];
+	char curr_MOUTPROT[MAX_SIZE];
+	char curr_MINPROT[MAX_SIZE];
+	char curr_SSERVER[MAX_SIZE];
+	char curr_SUSER[MAX_SIZE];
+//	char curr_SPAS[MAX_SIZE];
+	char curr_SOUTPROT[MAX_SIZE];
+	char curr_SCONFSUB[MAX_SIZE];
+//	void* PUSHROUTE[2];
+//	void* OVPNGW[2];
+
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"MSERVER", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MSERVER"), NULL, NULL, curr_MSERVER},
+		{"MUSER", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MUSER"), NULL, NULL, curr_MUSER},
+//		{"MPAS", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MPAS"), NULL, NULL, curr_MPAS},
+		{"MFROM", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MFROM"), NULL, NULL, curr_MFROM},
+		{"MOUTPROT", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MOUTPROT"), NULL, NULL, curr_MOUTPROT},
+		{"MINPROT", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_MINPROT"), NULL, NULL, curr_MINPROT},
+		{"SSERVER", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_SSERVER"), NULL, NULL, curr_SSERVER},
+		{"SUSER", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_SUSER"), NULL, NULL, curr_SUSER},
+//		{"SPAS", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_SPAS"), NULL, NULL, curr_SPAS},
+		{"SOUTPROT", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_SOUTPROT"), NULL, NULL, curr_SOUTPROT},
+		{"SCONFSUB", CmdPrompt, _UU("CMD_StfaConfigSet_Prompt_SCONFSUB"), NULL, NULL, curr_SCONFSUB },
+	};
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetHubStfaConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	UINT i;
+	for (i = 0;i < t.NumItem;i++)
+	{
+		if (StrCmpi(t.Items[i].Name, "MailServer") == 0)
+		{
+			StrCpy(curr_MSERVER, sizeof(curr_MSERVER), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerUser") == 0)
+		{
+			StrCpy(curr_MUSER, sizeof(curr_MUSER), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerPassword") == 0)
+		{
+//			StrCpy(curr_MPAS, sizeof(curr_MPAS), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailFrom") == 0)
+		{
+			StrCpy(curr_MFROM, sizeof(curr_MFROM), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerSendingProtocol") == 0)
+		{
+			StrCpy(curr_MOUTPROT, sizeof(curr_MOUTPROT), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerReceivingProtocol") == 0)
+		{
+			StrCpy(curr_MINPROT, sizeof(curr_MINPROT), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServer") == 0)
+		{
+			StrCpy(curr_SSERVER, sizeof(curr_SSERVER), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerUser") == 0)
+		{
+			StrCpy(curr_SUSER, sizeof(curr_SUSER), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerPassword") == 0)
+		{
+//			StrCpy(curr_SPAS, sizeof(curr_SPAS), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerSendingProtocol") == 0)
+		{
+			StrCpy(curr_SOUTPROT, sizeof(curr_SOUTPROT), t.Items[i].Value);
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerForwardReplySubject") == 0)
+		{
+			StrCpy(curr_SCONFSUB, sizeof(curr_SCONFSUB), t.Items[i].Value);
+		}
+	}
+
+	o = ParseCommandListEx(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		FreeRpcStfaConfig(&t);
+		return ERR_INVALID_PARAMETER;
+	}
+
+	for (i = 0;i < t.NumItem;i++)
+	{
+		if (StrCmpi(t.Items[i].Name, "MailServer") == 0)
+		{
+			CmdStrToStr( t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MSERVER"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerUser") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MUSER"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerPassword") == 0)
+		{
+			//CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MPAS"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailFrom") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MFROM"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerSendingProtocol") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MOUTPROT"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "MailServerReceivingProtocol") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "MINPROT"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServer") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "SSERVER"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerUser") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "SUSER"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerPassword") == 0)
+		{
+			//	CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "SPAS"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerSendingProtocol") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "SOUTPROT"));
+		}
+		else if (StrCmpi(t.Items[i].Name, "SmsServerForwardReplySubject") == 0)
+		{
+			CmdStrToStr(t.Items[i].Value, sizeof(t.Items[i].Value), GetParamStr(o, "SCONFSUB"));
+		}
+	}
+
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+	ret = ScSetHubStfaConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeRpcStfaConfig(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+
+// Set the value of Virtual HUB STFA passwords for mail/sms servers
+UINT PsStfaConfigPassSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param)
+{
+	LIST* o;
+	PS* ps = (PS*)param;
+	UINT ret = 0;
+	RPC_STFA_CONFIG t;
+	// Parameter list that can be specified
+	PARAM args[] =
+	{
+		// "name", prompt_proc, prompt_param, eval_proc, eval_param
+		{"[name]", CmdPrompt, _UU("CMD_StfaConfigPassSet_Prompt_name"), CmdEvalNotEmpty, NULL},
+		{"VALUE", CmdPromptChoosePassword, _UU("CMD_StfaConfigPassSet_Prompt_VALUE"), CmdEvalNotEmpty, NULL},
+	};
+
+	// If virtual HUB is not selected, it's an error
+	if (ps->HubName == NULL)
+	{
+		c->Write(c, _UU("CMD_Hub_Not_Selected"));
+		return ERR_INVALID_PARAMETER;
+	}
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+
+	// RPC call
+	ret = ScGetHubStfaConfig(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		// An error has occured
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+	else
+	{
+		UINT i;
+		bool b = false;
+
+		for (i = 0;i < t.NumItem;i++)
+		{
+			if (StrCmpi(t.Items[i].Name, GetParamStr(o, "[name]")) == 0)
+			{
+				StrCpy(t.Items[i].Value, MAX_SERVER_STR_LEN, GetParamStr(o, "VALUE"));
+				if (StrCmpi(t.Items[i].Name, "MailServerPassword") == 0 || StrCmpi(t.Items[i].Name, "SmsServerPassword") == 0)
+				{
+					b = true;
+				}
+			}
+		}
+
+		if (b == false)
+		{
+			// An error has occured
+			ret = ERR_OBJECT_NOT_FOUND;
+			CmdPrintError(c, ret);
+			FreeParamValueList(o);
+			FreeRpcStfaConfig(&t);
+			return ret;
+		}
+		else
+		{
+			StrCpy(t.HubName, sizeof(t.HubName), ps->HubName);
+			ret = ScSetHubStfaConfig(ps->Rpc, &t);
+
+			if (ret != ERR_NO_ERROR)
+			{
+				// An error has occured
+				CmdPrintError(c, ret);
+				FreeParamValueList(o);
+				return ret;
+			}
+		}
+	}
+
+	FreeRpcStfaConfig(&t);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Parse the command list with current values 
+LIST* ParseCommandListEx(CONSOLE* c, char* cmd_name, wchar_t* command, PARAM param[], UINT num_param)
+{
+	UINT i;
+	wchar_t	tmp[MAX_PROMPT_STRSIZE];
+	UINT lp;
+	LIST* ret;
+
+	// Validate arguments
+	if (c == NULL || command == NULL || (num_param >= 1 && param == NULL) || cmd_name == NULL)
+	{
+		return NULL;
+	}
+	if (num_param < 1) return NULL;
+
+	wchar_t* buf_prompt[num_param];
+	Zero(buf_prompt, sizeof(buf_prompt));
+
+	// Initialization
+	for (i = 0;i < num_param;i++)
+	{
+		Zero(tmp, sizeof(tmp));
+		StrToUni(tmp, sizeof(tmp), param[i].Tmp);
+		UniFormat(tmp, sizeof(tmp), L"%s [%s]: ", param[i].PromptProcParam, tmp);
+		lp = (UniStrLen(tmp) * sizeof(wchar_t) + 8);
+		buf_prompt[i] = ZeroMalloc(lp);
+		UniStrCpy(buf_prompt[i], lp, tmp);
+		param[i].PromptProcParam = buf_prompt[i];
+		param[i].Tmp = NULL;
+	}
+	ret = ParseCommandList(c, cmd_name, command, param, num_param);
+	for (i = 0;i < num_param;i++)
+	{
+		Free(buf_prompt[i]);
+	}
+	return ret;
+}
+
+bool CmdStrToIP(IP* ip, char* str)
+{
+	// Validate arguments
+	if (ip == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old ip value
+	{
+		return StrToIP(ip, "");
+	}
+	return StrToIP(ip, str);
+}
+
+bool CmdStrToIP32(UINT* ip32, char* str)
+{
+	IP ip;
+	bool ret;
+	if (ip32 == NULL)
+	{
+		return false;
+	}
+	UINTToIP(&ip, *ip32);
+	ret = CmdStrToIP(&ip, str);
+	*ip32 = IPToUINT(&ip);
+	return ret;
+}
+
+bool CmdStrToStr(char* out, UINT size, char* str)
+{
+	// Validate arguments
+	if (out == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old value
+	{
+		StrCpy(out, size, "");
+		return true;
+	}
+	StrCpy(out, size, str);
+	return true;
+}
+
+// Evaluate the IP address,  '' - clear current value,   Empty String  -  keep current value
+bool CmdEvalIpEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	// Validate arguments
+	if (c == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	UniTrim(str);
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+	else if (UniStrCmp(str, L"''") == 0)
+	{
+		return true;
+	}
+
+	if (UniStrToIP32(str) == 0 && UniStrCmpi(str, L"0.0.0.0") != 0)
+	{
+		wchar_t* msg = (param == NULL) ? _UU("CMD_IP_EVAL_FAILED") : (wchar_t*)param;
+		c->Write(c, msg);
+		return false;
+	}
+
+	return true;
+}
+
+// Evaluate the email address and phone number,  '' - clear current value,   Empty String  -  keep current value
+bool CmdEvalStfaEx(CONSOLE* c, wchar_t* str, void* param)
+{
+	TOKEN_LIST* tokens;
+	int i;
+	char* ch;
+	char cstr[MAX_SIZE];
+	bool mret = false, sret = false;
+	// Validate arguments
+	if (c == NULL || str == NULL)
+	{
+		return false;
+	}
+
+	UniTrim(str);
+	if (UniIsEmptyStr(str))
+	{
+		return true;
+	}
+	else if (UniStrCmp(str, L"''") == 0)
+	{
+		return true;
+	}
+
+	UniToStr(cstr, sizeof(cstr), str);
+	tokens = ParseToken( cstr, " ,;");
+	if (tokens != NULL)
+	{
+		for (i = 0; i < tokens->NumTokens; i++)
+		{
+			ch = tokens->Token[i];
+			if (strstr(ch, "@") != NULL)
+			{
+				mret = true;
+			}
+			else if (strstr(ch, "+") != NULL)
+			{
+				sret = true;
+			}
+		}
+		FreeToken(tokens);
+	}
+	return(mret || sret);
+}
+
+bool CmdStrToStfa(char* stfa, UINT size, char* str)
+{
+	// Validate arguments
+	if (stfa == NULL || str == NULL)
+	{
+		return false;
+	}
+	if (IsEmptyStr(str))  // keep old value
+	{
+		return false;
+	}
+	else if (SearchStr(str, "''", 0) == 0)  //  clear old ip value
+	{
+		StrCpy(stfa, size, "");
+		return true;
+	}
+	TOKEN_LIST* tokens;
+	int i;
+	char* ch;
+	bool mret = false, sret = false;
+
+	tokens = ParseToken(str, " ,;");
+	if (tokens != NULL)
+	{
+		StrCpy(stfa, size, "");
+		for (i = 0; i < tokens->NumTokens; i++)
+		{
+			ch = tokens->Token[i];
+			if (strstr(ch, "@") != NULL)
+			{
+				if (!mret)
+				{
+					StrCat(stfa, size, ch);
+					StrCat(stfa, size, " ");
+					mret = true;
+				}
+			}
+			else if (strstr(ch, "+") != NULL)
+			{
+				if( !sret)
+				{
+					StrCat( stfa, size, ch);
+					StrCat(stfa, size, " ");
+					sret = true;
+				}
+			}
+		}
+		FreeToken(tokens);
+	}
+	return (mret || sret);
+}

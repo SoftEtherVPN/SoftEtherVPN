@@ -17,6 +17,7 @@
 #include "Radius.h"
 #include "SecureNAT.h"
 #include "Server.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/DNS.h"
@@ -6627,6 +6628,10 @@ void CleanupHub(HUB *h)
 	{
 		StopHubWatchDog(h);
 	}
+	if (h->StfaRecvStarted)
+	{
+		StfaStopRecvThread(h);
+	}
 
 	FreeAccessList(h);
 
@@ -6675,6 +6680,18 @@ void CleanupHub(HUB *h)
 		Free(LIST_DATA(h->AdminOptionList, i));
 	}
 	ReleaseList(h->AdminOptionList);
+
+	for (i = 0;i < LIST_NUM(h->StfaCodeList);i++)
+	{
+		Free(LIST_DATA(h->StfaCodeList, i));
+	}
+	ReleaseList(h->StfaCodeList);
+
+	for (i = 0;i < LIST_NUM(h->StfaConfigList);i++)
+	{
+		Free(LIST_DATA(h->StfaConfigList, i));
+	}
+	ReleaseList(h->StfaConfigList);
 
 	if (h->Msg != NULL)
 	{
@@ -6982,6 +6999,9 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 
 	h->HubDb = NewHubDb();
 
+	h->StfaConfigList = NewList(NULL);
+	h->StfaCodeList = NewList(NULL);
+
 	h->SessionList = NewList(NULL);
 	h->SessionCounter = NewCounter();
 	h->NumSessions = NewCounter();
@@ -7075,6 +7095,8 @@ HUB *NewHub(CEDAR *cedar, char *HubName, HUB_OPTION *option)
 		StartHubWatchDog(h);
 		h->WatchDogStarted = true;
 	}
+	StfaStartRecvThread(h);
+	h->StfaRecvStarted = true;
 
 	SLog(h->Cedar, "LS_HUB_START", h->Name);
 
