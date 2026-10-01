@@ -735,7 +735,7 @@ UINT HashPtrToUINT(void *p)
 
 	Zero(hash_src, sizeof(hash_src));
 	Copy(hash_src + 0, GetCanaryRand(CANARY_RAND_ID_PTR_KEY_HASH), CANARY_RAND_SIZE);
-	Copy(hash_src + CANARY_RAND_SIZE, p, sizeof(void *));
+	Copy(hash_src + CANARY_RAND_SIZE, &p, sizeof(void *));
 
 	Sha2_256(hash_data, hash_src, sizeof(hash_src));
 
