@@ -1291,6 +1291,7 @@ void IPToStr6(char *str, UINT size, IP *ip);
 void IP6AddrToStr(char *str, UINT size, IPV6_ADDR *addr);
 void IPToStr6Array(char *str, UINT size, UCHAR *bytes);
 void IPToStr6Inner(char *str, IP *ip);
+void IPAndMaskToStr(char *str, UINT size, IP *ip, IP *subnet);
 void IntToSubnetMask6(IP *ip, UINT i);
 void IPAnd6(IP *dst, IP *a, IP *b);
 void GetAllRouterMulticastAddress6(IP *ip);
