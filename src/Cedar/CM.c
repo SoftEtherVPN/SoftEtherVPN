@@ -6150,6 +6150,7 @@ void CmImportAccountMainEx(HWND hWnd, wchar_t *filename, bool overwrite)
 					t->ClientOption->RequireMonitorMode = old_option->RequireMonitorMode;
 					t->ClientOption->RequireBridgeRoutingMode = old_option->RequireBridgeRoutingMode;
 					t->ClientOption->DisableQoS = old_option->DisableQoS;
+					t->ClientOption->PreventDnsLeak = old_option->PreventDnsLeak;
 					t->ClientOption->BindLocalIP = old_option->BindLocalIP;// Source IP address for outgoing connection
 					t->ClientOption->BindLocalPort = old_option->BindLocalPort;// Source port number for outgoing connection
 
