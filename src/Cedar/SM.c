@@ -19497,9 +19497,13 @@ void SmEditSettingDlgUpdate(HWND hWnd, SM_EDIT_SETTING *p)
 	{
 		s->ClientOption.ProxyType = PROXY_HTTP;
 	}
-	else
+	else if (IsChecked(hWnd, R_SOCKS))
 	{
 		s->ClientOption.ProxyType = PROXY_SOCKS;
+	}
+	else
+	{
+		s->ClientOption.ProxyType = PROXY_SOCKS5;
 	}
 
 	SetEnable(hWnd, B_PROXY_CONFIG, s->ClientOption.ProxyType != PROXY_DIRECT);
