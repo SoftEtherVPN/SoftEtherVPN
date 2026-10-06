@@ -2577,7 +2577,7 @@ STATIC10					代理类型(&T):
 R_DIRECT_TCP				直接 TCP/IP 连接 (无代理) (&D)
 R_HTTPS						通过 HTTP 代理服务器连接(&T)
 R_SOCKS						通过 SOCKS4 代理服务器连接(&O)
-R_SOCKS5					通过 SOCKS4 代理服务器连接(&O)
+R_SOCKS5					通过 SOCKS5 代理服务器连接(&O)
 B_PROXY_CONFIG				代理服务器设置(&R)
 STATIC11					选择管理模式并输入密码(&M)
 STATIC12					您可以使用服务端管理模式或虚拟 HUB 管理模式连接到 VPN Server。\r\n\r\n服务器管理模式允许您管理整个 VPN Server 和所有虚拟 HUB 。\r\n\r\n虚拟 HUB 管理模式允许您只能管理您拥有权限的一个虚拟 HUB 。
