@@ -29,6 +29,7 @@
 #include "Session.h"
 #include "Virtual.h"
 #include "Wpc.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Cfg.h"
 #include "Mayaqua/FileIO.h"
@@ -1638,6 +1639,8 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC("SetAzureStatus", RPC_AZURE_STATUS, StSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 	DECLARE_RPC("GetDDnsInternetSetting", INTERNET_SETTING, StGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 	DECLARE_RPC("SetDDnsInternetSetting", INTERNET_SETTING, StSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+	DECLARE_RPC_EX("SetHubStfaConfig", RPC_STFA_CONFIG, StSetHubStfaConfig, InRpcStfaConfig, OutRpcStfaConfig, FreeRpcStfaConfig)
+	DECLARE_RPC_EX("GetHubStfaConfig", RPC_STFA_CONFIG, StGetHubStfaConfig, InRpcStfaConfig, OutRpcStfaConfig, FreeRpcStfaConfig)
 	// RPC function declaration: till here
 
 
@@ -1825,6 +1828,8 @@ DECLARE_SC("GetAzureStatus", RPC_AZURE_STATUS, ScGetAzureStatus, InRpcAzureStatu
 DECLARE_SC("SetAzureStatus", RPC_AZURE_STATUS, ScSetAzureStatus, InRpcAzureStatus, OutRpcAzureStatus)
 DECLARE_SC("GetDDnsInternetSetting", INTERNET_SETTING, ScGetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
 DECLARE_SC("SetDDnsInternetSetting", INTERNET_SETTING, ScSetDDnsInternetSetting, InRpcInternetSetting, OutRpcInternetSetting)
+DECLARE_SC_EX("SetHubStfaConfig", RPC_STFA_CONFIG, ScSetHubStfaConfig, InRpcStfaConfig, OutRpcStfaConfig, FreeRpcStfaConfig)
+DECLARE_SC_EX("GetHubStfaConfig", RPC_STFA_CONFIG, ScGetHubStfaConfig, InRpcStfaConfig, OutRpcStfaConfig, FreeRpcStfaConfig)
 // RPC call function declaration: till here
 
 // Setting VPN Gate Server Configuration
@@ -5952,6 +5957,8 @@ UINT StEnumUser(ADMIN *a, RPC_ENUM_USER *t)
 				StrCpy(e->GroupName, sizeof(e->GroupName), u->GroupName);
 				UniStrCpy(e->Realname, sizeof(e->Realname), u->RealName);
 				UniStrCpy(e->Note, sizeof(e->Note), u->Note);
+				e->StaticIPv4 = u->StaticIPv4;
+				StrCpy(e->StfaMailPhone, sizeof(e->StfaMailPhone), u->StfaMailPhone);
 				e->AuthType = u->AuthType;
 				e->LastLoginTime = u->LastLoginTime;
 				e->NumLogin = u->NumLogin;
@@ -6091,6 +6098,8 @@ UINT StGetUser(ADMIN *a, RPC_SET_USER *t)
 				StrCpy(t->GroupName, sizeof(t->GroupName), u->GroupName);
 				UniStrCpy(t->Realname, sizeof(t->Realname), u->RealName);
 				UniStrCpy(t->Note, sizeof(t->Note), u->Note);
+				t->StaticIPv4 = u->StaticIPv4;
+				StrCpy(t->StfaMailPhone, sizeof(t->StfaMailPhone), u->StfaMailPhone);
 				t->CreatedTime = u->CreatedTime;
 				t->UpdatedTime = u->UpdatedTime;
 				t->ExpireTime = u->ExpireTime;
@@ -6223,6 +6232,12 @@ UINT StSetUser(ADMIN *a, RPC_SET_USER *t)
 					Free(u->Note);
 					u->RealName = UniCopyStr(t->Realname);
 					u->Note = UniCopyStr(t->Note);
+					if (t->StaticIPv4 != (UINT)(-1) )
+					{
+						u->StaticIPv4 = t->StaticIPv4;
+						Free(u->StfaMailPhone);
+						u->StfaMailPhone = CopyStr(t->StfaMailPhone);
+					}
 					SetUserAuthData(u, t->AuthType, CopyAuthData(t->AuthData, t->AuthType));
 					u->ExpireTime = t->ExpireTime;
 					u->UpdatedTime = SystemTime64();
@@ -6325,7 +6340,7 @@ UINT StCreateUser(ADMIN *a, RPC_SET_USER *t)
 		return ERR_NOT_ENOUGH_RIGHT;
 	}
 
-	u = NewUser(t->Name, t->Realname, t->Note, t->AuthType, CopyAuthData(t->AuthData, t->AuthType));
+	u = NewUserEx(t->Name, t->Realname, t->Note, t->AuthType, CopyAuthData(t->AuthData, t->AuthType), t->StfaMailPhone, t->StaticIPv4);
 	if (u == NULL)
 	{
 		ReleaseHub(h);
@@ -14182,6 +14197,19 @@ void InRpcSetUser(RPC_SET_USER *t, PACK *p)
 	PackGetStr(p, "GroupName", t->GroupName, sizeof(t->GroupName));
 	PackGetUniStr(p, "Realname", t->Realname, sizeof(t->Realname));
 	PackGetUniStr(p, "Note", t->Note, sizeof(t->Note));
+	if (GetElement(p, "StaticIPv4", VALUE_INT) == NULL)		// VPNSMGR or VPNSERVER is not aware of "StaticIPv4" and "StfaMailPhone"
+	{
+		t->StaticIPv4 = (UINT)(-1);
+		if (sizeof(t->StfaMailPhone) > 0)
+		{
+			t->StfaMailPhone[0] = 0xff;
+		}
+	}
+	else
+	{
+		t->StaticIPv4 = PackGetInt(p, "StaticIPv4");
+		PackGetStr(p, "StfaMailPhone", t->StfaMailPhone, sizeof(t->StfaMailPhone));
+	}
 	t->CreatedTime = PackGetInt64(p, "CreatedTime");
 	t->UpdatedTime = PackGetInt64(p, "UpdatedTime");
 	t->ExpireTime = PackGetInt64(p, "ExpireTime");
@@ -14209,6 +14237,8 @@ void OutRpcSetUser(PACK *p, RPC_SET_USER *t)
 	PackAddStr(p, "GroupName", t->GroupName);
 	PackAddUniStr(p, "Realname", t->Realname);
 	PackAddUniStr(p, "Note", t->Note);
+	PackAddInt(p, "StaticIPv4", t->StaticIPv4);
+	PackAddStr(p, "StfaMailPhone", t->StfaMailPhone);
 	PackAddTime64(p, "CreatedTime", t->CreatedTime);
 	PackAddTime64(p, "UpdatedTime", t->UpdatedTime);
 	PackAddTime64(p, "ExpireTime", t->ExpireTime);
@@ -14260,6 +14290,16 @@ void InRpcEnumUser(RPC_ENUM_USER *t, PACK *p)
 		PackGetStrEx(p, "GroupName", e->GroupName, sizeof(e->GroupName), i);
 		PackGetUniStrEx(p, "Realname", e->Realname, sizeof(e->Realname), i);
 		PackGetUniStrEx(p, "Note", e->Note, sizeof(e->Note), i);
+		if (GetElement(p, "StaticIPv4", VALUE_INT) == NULL)
+		{
+			// old VPNServer is not aware of "StaticIPv4" and "StfaMailPhone"
+			e->StaticIPv4 = (UINT)(-1);
+		}
+		else
+		{
+			e->StaticIPv4 = PackGetIntEx(p, "StaticIPv4", i);
+			PackGetStrEx(p, "StfaMailPhone", e->StfaMailPhone, sizeof(e->StfaMailPhone), i);
+		}
 		e->AuthType = PackGetIntEx(p, "AuthType", i);
 		e->LastLoginTime = PackGetInt64Ex(p, "LastLoginTime", i);
 		e->NumLogin = PackGetIntEx(p, "NumLogin", i);
@@ -14291,6 +14331,8 @@ void OutRpcEnumUser(PACK *p, RPC_ENUM_USER *t)
 		PackAddStrEx(p, "GroupName", e->GroupName, i, t->NumUser);
 		PackAddUniStrEx(p, "Realname", e->Realname, i, t->NumUser);
 		PackAddUniStrEx(p, "Note", e->Note, i, t->NumUser);
+		PackAddIntEx(p, "StaticIPv4", e->StaticIPv4, i, t->NumUser);
+		PackAddStrEx(p, "StfaMailPhone", e->StfaMailPhone, i, t->NumUser);
 		PackAddIntEx(p, "AuthType", e->AuthType, i, t->NumUser);
 		PackAddTime64Ex(p, "LastLoginTime", e->LastLoginTime, i, t->NumUser);
 		PackAddIntEx(p, "NumLogin", e->NumLogin, i, t->NumUser);
@@ -15685,4 +15727,190 @@ bool SiIsEmptyPassword(void *hash_password)
 
 	return false;
 }
+
+//	 -STFA-
+void InRpcStfaConfig(RPC_STFA_CONFIG* t, PACK* p)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(RPC_STFA_CONFIG));
+	t->NumItem = PackGetIndexCount(p, "Name");
+	t->Items = ZeroMalloc(sizeof(STFA_PARAM) * t->NumItem);
+
+	PackGetStr(p, "HubName", t->HubName, sizeof(t->HubName));
+
+	for (i = 0;i < t->NumItem;i++)
+	{
+		STFA_PARAM* o = &t->Items[i];
+
+		PackGetStrEx(p, "Name", o->Name, sizeof(o->Name), i);
+		PackGetStrEx(p, "Value", o->Value, sizeof(o->Value), i);
+	}
+}
+
+void OutRpcStfaConfig(PACK* p, RPC_STFA_CONFIG* t)
+{
+	UINT i;
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	PackAddInt(p, "NumItem", t->NumItem);
+
+	PackAddStr(p, "HubName", t->HubName);
+
+	PackSetCurrentJsonGroupName(p, "StfaConfigList");
+	for (i = 0;i < t->NumItem;i++)
+	{
+		STFA_PARAM* o = &t->Items[i];
+
+		PackAddStrEx(p, "Name", o->Name, i, t->NumItem);
+		PackAddStrEx(p, "Value", o->Value, i, t->NumItem);
+		//		PackAddUniStrEx(p, "Descrption", o->Descrption, i, t->NumItem);
+	}
+	PackSetCurrentJsonGroupName(p, NULL);
+}
+
+void FreeRpcStfaConfig(RPC_STFA_CONFIG* t)
+{
+	// Validate arguments
+	if (t == NULL)
+	{
+		return;
+	}
+
+	Free(t->Items);
+}
+
+// -STFA-> Set mail server config
+UINT StSetHubStfaConfig(ADMIN* a, RPC_STFA_CONFIG* t)
+{
+	UINT i;
+	SERVER* s = a->Server;
+	CEDAR* c = s->Cedar;
+	HUB* h;
+
+	bool not_server_admin = false;
+
+	if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	CHECK_RIGHT;
+
+	if (a->ServerAdmin == false)
+	{
+		not_server_admin = true;
+	}
+
+	LockHubList(c);
+	{
+		h = GetHub(c, t->HubName);
+	}
+	UnlockHubList(c);
+
+	if (h == NULL)
+	{
+		return ERR_HUB_NOT_FOUND;
+	}
+
+	if (GetHubAdminOption(h, "deny_hub_admin_change_ext_option") && not_server_admin)
+	{
+		// Insufficient permission
+		ReleaseHub(h);
+		return ERR_NOT_ENOUGH_RIGHT;
+	}
+
+	// Update setting
+	LockList(h->StfaConfigList);
+	{
+		DeleteAllHubStfaConfig(h, false);
+
+		for (i = 0;i < t->NumItem;i++)
+		{
+			STFA_PARAM* e = &t->Items[i];
+			STFA_PARAM* a = ZeroMalloc(sizeof(STFA_PARAM));
+
+			StrCpy(a->Name, sizeof(a->Name), e->Name);
+			StrCpy(a->Value, sizeof(a->Value), e->Value);
+
+			Insert(h->StfaConfigList, a);
+		}
+	}
+	UnlockList(h->StfaConfigList);
+
+	ALog(a, NULL, "LA_SET_HUB_STFA_CONFIG", h->Name);
+
+	h->CurrentVersion++;
+	SiHubUpdateProc(h);
+
+	ReleaseHub(h);
+
+	IncrementServerConfigRevision(s);
+
+	return ERR_NO_ERROR;
+}
+
+// -STFA- Get mail server config
+UINT StGetHubStfaConfig(ADMIN* a, RPC_STFA_CONFIG* t)
+{
+	UINT i;
+	SERVER* s = a->Server;
+	CEDAR* c = s->Cedar;
+	HUB* h;
+
+	CHECK_RIGHT;
+	NO_SUPPORT_FOR_BRIDGE;
+	if (s->ServerType == SERVER_TYPE_FARM_MEMBER)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	LockHubList(c);
+	{
+		h = GetHub(c, t->HubName);
+	}
+	UnlockHubList(c);
+
+	if (h == NULL)
+	{
+		return ERR_HUB_NOT_FOUND;
+	}
+
+	FreeRpcStfaConfig(t);
+	Zero(t, sizeof(RPC_STFA_CONFIG));
+
+	StrCpy(t->HubName, sizeof(t->HubName), h->Name);
+
+	// Get options
+	LockList(h->StfaConfigList);
+	{
+		t->NumItem = LIST_NUM(h->StfaConfigList);
+		t->Items = ZeroMalloc(sizeof(STFA_PARAM) * t->NumItem);
+
+		for (i = 0;i < t->NumItem;i++)
+		{
+			STFA_PARAM* a = LIST_DATA(h->StfaConfigList, i);
+			STFA_PARAM* e = &t->Items[i];
+
+			StrCpy(e->Name, sizeof(e->Name), a->Name);
+			StrCpy(e->Value, sizeof(e->Value), a->Value);
+		}
+	}
+	UnlockList(h->StfaConfigList);
+
+	ReleaseHub(h);
+
+	return ERR_NO_ERROR;
+}
+// <-STFA- 
+
 

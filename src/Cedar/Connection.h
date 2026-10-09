@@ -126,6 +126,7 @@ struct CLIENT_AUTH
 	char OpensslEngineName[MAX_SECURE_DEVICE_FILE_LEN + 1];	// Secure device secret key name
 	CHECK_CERT_PROC *CheckCertProc;					// Server certificate confirmation procedure
 	SECURE_SIGN_PROC *SecureSignProc;				// Security signing procedure
+	char StfaUserCode[8];							// Stfa code entered by the user
 };
 
 // TCP socket data structure

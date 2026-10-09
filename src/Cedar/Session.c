@@ -19,6 +19,7 @@
 #include "Server.h"
 #include "UdpAccel.h"
 #include "VLanUnix.h"
+#include "Stfa.h"
 
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Kernel.h"
@@ -214,6 +215,10 @@ void SessionMain(SESSION *s)
 
 	lock_receive_blocks_queue = s->LinkModeServer;
 
+	if (is_server_session)
+	{
+		StfaClearCodeList(s->Hub, s->Username);
+	}
 	now = Tick64();
 
 	while (true)
@@ -332,8 +337,11 @@ void SessionMain(SESSION *s)
 					UINT ip;
 					if( (ip = PrepareDHCPRequestForStaticIPv4( s, b )) != 0 )
 					{
-						// Remember the static IP address to remove it from the leased IP address list later
-						static_ip = ip;
+						if (ip != (UINT)(-1))
+						{
+							// Remember the static IP address to remove it from the leased IP address list later
+							static_ip = ip;
+						}
 					}
 
 					if (b->Buf[0] & 0x01)
@@ -1688,6 +1696,7 @@ void ClientThread(THREAD *t, void *param)
 
 				StrCpy(p.Password, sizeof(p.Password), empty ? "" : HIDDEN_PASSWORD);
 				StrCpy(p.ServerName, sizeof(p.ServerName), s->ClientOption->Hostname);
+				StrCpy(p.StfaCode, sizeof(p.StfaCode), (char*)(s->ClientAuth->StfaUserCode));
 			}
 
 			p.RetryIntervalSec = s->RetryInterval / 1000;
@@ -1737,6 +1746,7 @@ void ClientThread(THREAD *t, void *param)
 					}
 				}
 
+				StrCpy((char*)(s->ClientAuth->StfaUserCode), sizeof(s->ClientAuth->StfaUserCode), p.StfaCode);
 				no_save_password = p.NoSavePassword;
 
 				if (s->Account != NULL && s->Cedar->Client != NULL)
@@ -2478,7 +2488,7 @@ UINT PrepareDHCPRequestForStaticIPv4(SESSION *s, BLOCK *b)
 				user = AcGetUser( s->Hub, s->Username );
 				if (user != NULL)
 				{
-					dhcp->ServerIP = GetUserIPv4AddressFromUserNote32(user->Note);
+					dhcp->ServerIP = GetUserIPv4AddressFromUserConfig(user);
 					ReleaseUser(user);
 					if (s->Hub->SecureNAT != NULL && s->Hub->SecureNAT->Nat != NULL)
 					{
