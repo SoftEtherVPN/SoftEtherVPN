@@ -242,6 +242,10 @@ unsigned int DnsBlocker::applyFilters(void *engine)
 {
 	wchar_t appPath[MAX_PATH];
 	FWP_BYTE_BLOB *appBlob = NULL;
+	// MSVC-compatible compilers accept a `goto` that jumps past an
+	// initialization, but g++ and clang++ reject it; hence this stays
+	// above the first `goto posEndFunc`.
+	IP_ADAPTER_INFO *adapters = NULL;
 
 	::GetExeNameW(appPath, sizeof(appPath));
 
@@ -330,7 +334,7 @@ unsigned int DnsBlocker::applyFilters(void *engine)
 	filter.weight.uint8 = 0xE; // ensures higher priority...
 
 	// iterate through all adapters
-	IP_ADAPTER_INFO *adapters = d->getAdapters();
+	adapters = d->getAdapters();
 	for (IP_ADAPTER_INFO *a = adapters; a != 0; a = a->Next)
 	{
 		// Allows only our adapters by checking start of adapter-description
