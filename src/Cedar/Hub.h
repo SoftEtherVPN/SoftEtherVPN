@@ -360,7 +360,7 @@ struct HUB
 	COUNTER *NumSessionsBridge;			// The current number of sessions (bridge)
 	HUB_OPTION *Option;					// HUB options
 	HASH_LIST *MacHashTable;			// MAC address hash table
-	LIST *IpTable;						// IP address table
+	LIST *IpTable;						// IP address table (protected by MacHashTable lock)
 	LIST *MonitorList;					// Monitor port session list
 	LIST *LinkList;						// Linked list
 	UCHAR HubSignature[16];				// HUB signature
