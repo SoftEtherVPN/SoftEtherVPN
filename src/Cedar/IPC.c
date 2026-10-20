@@ -485,6 +485,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 		Copy(ipc->MsChapV2_ServerResponse, mschap_v2_server_response_20, sizeof(mschap_v2_server_response_20));
 	}
 
+	ipc->RadiusRequestedIp = PackGetIp32(p, "IpcFramedIpAddress");
 	PackGetStr(p, "IpcHubName", ipc->HubName, sizeof(ipc->HubName));
 	Debug("IPC Hub Name: %s\n", ipc->HubName);
 
@@ -793,7 +794,7 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 
 	// Send a DHCP Discover
 	Zero(&req, sizeof(req));
-	req.RequestedIp = 0;
+	req.RequestedIp = ipc->RadiusRequestedIp;
 	req.Opcode = DHCP_DISCOVER;
 	StrCpy(req.Hostname, sizeof(req.Hostname), ipc->ClientHostname);
 	IPCDhcpSetConditionalUserClass(ipc, &req);
@@ -807,6 +808,10 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 
 	// Analyze the DHCP Offer
 	ok = true;
+	if (ipc->RadiusRequestedIp != 0 && d->ParsedOptionList->ClientAddress != ipc->RadiusRequestedIp)
+	{
+		ok = false;
+	}
 	if (IsValidUnicastIPAddressUINT4(d->ParsedOptionList->ClientAddress) == false)
 	{
 		ok = false;
@@ -851,6 +856,10 @@ bool IPCDhcpAllocateIP(IPC *ipc, DHCP_OPTION_LIST *opt, TUBE *discon_poll_tube)
 
 	// Analyze the DHCP Ack
 	ok = true;
+	if (ipc->RadiusRequestedIp != 0 && d2->ParsedOptionList->ClientAddress != ipc->RadiusRequestedIp)
+	{
+		ok = false;
+	}
 	if (IsValidUnicastIPAddressUINT4(d2->ParsedOptionList->ClientAddress) == false)
 	{
 		ok = false;
