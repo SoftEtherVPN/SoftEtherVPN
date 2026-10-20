@@ -7768,7 +7768,7 @@ void SiCalledDeleteIpTable(SERVER *s, PACK *p)
 		return;
 	}
 
-	LockList(h->IpTable);
+	LockHashList(h->MacHashTable);
 	{
 		if (IsInList(h->IpTable, (void *)key))
 		{
@@ -7777,7 +7777,7 @@ void SiCalledDeleteIpTable(SERVER *s, PACK *p)
 			Free(e);
 		}
 	}
-	UnlockList(h->IpTable);
+	UnlockHashList(h->MacHashTable);
 
 	ReleaseHub(h);
 }
@@ -8559,14 +8559,9 @@ void SiCallEnumHub(SERVER *s, FARM_MEMBER *f)
 							LockHashList(h->MacHashTable);
 							{
 								hh->NumMacTables = HASH_LIST_NUM(h->MacHashTable);
-							}
-							UnlockHashList(h->MacHashTable);
-
-							LockList(h->IpTable);
-							{
 								hh->NumIpTables = LIST_NUM(h->IpTable);
 							}
-							UnlockList(h->IpTable);
+							UnlockHashList(h->MacHashTable);
 						}
 					}
 				}
