@@ -10857,7 +10857,8 @@ UINT SendToEx(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size, 
 			Debug("SendTo Error; %u\n", e);
 		}
 #else	// OS_WIN32
-		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR || errno == EINVAL)
+		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR ||
+		    errno == ENETUNREACH || errno == EHOSTUNREACH || errno == EADDRNOTAVAIL || errno == EINVAL)
 		{
 			sock->IgnoreSendErr = true;
 		}
@@ -10951,7 +10952,8 @@ UINT SendTo6Ex(SOCK *sock, IP *dest_addr, UINT dest_port, void *data, UINT size,
 			return SOCK_LATER;
 		}
 #else	// OS_WIN32
-		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR)
+		if (errno == ECONNREFUSED || errno == ECONNRESET || errno == EMSGSIZE || errno == ENOBUFS || errno == ENOMEM || errno == EINTR ||
+		    errno == ENETUNREACH || errno == EHOSTUNREACH || errno == EADDRNOTAVAIL || errno == EINVAL)
 		{
 			sock->IgnoreSendErr = true;
 		}
