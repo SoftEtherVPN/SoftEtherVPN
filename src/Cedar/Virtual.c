@@ -1190,6 +1190,67 @@ void NnIpSendForInternet(NATIVE_NAT *t, UCHAR ip_protocol, UCHAR ttl, UINT src_i
 	}
 }
 
+// Host IP address cache TTL in milliseconds (60 seconds)
+#define HOST_IP_CACHE_TTL_MS		60000
+
+// Check if destination IP is one of the host's own IP addresses
+// Uses caching to avoid frequent system calls
+// Returns true if dest_ip matches any of the host's IPs
+bool IsDestinationHostOwnIP(VH *v, UINT dest_ip)
+{
+	bool is_host_ip = false;
+	UINT64 now;
+	LIST *new_list = NULL;
+	// Validate arguments
+	if (v == NULL)
+	{
+		return false;
+	}
+
+	now = Tick64();
+
+	Lock(v->HostIPCacheLock);
+	{
+		// Check if cache needs refresh (every 60 seconds or if not initialized)
+		if (v->HostIPAddressCache == NULL || now >= v->HostIPCacheExpires)
+		{
+			// Get new list while holding the lock to prevent multiple threads from refreshing
+			new_list = GetHostIPAddressList();
+			
+			// Free old cache
+			if (v->HostIPAddressCache != NULL)
+			{
+				FreeHostIPAddressList(v->HostIPAddressCache);
+			}
+			
+			// Set new cache with TTL
+			v->HostIPAddressCache = new_list;
+			v->HostIPCacheExpires = now + HOST_IP_CACHE_TTL_MS;
+		}
+
+		// Check if dest_ip matches any cached host IP
+		if (v->HostIPAddressCache != NULL)
+		{
+			UINT i;
+			IP dest_ip_obj;
+			UINTToIP(&dest_ip_obj, dest_ip);
+			
+			for (i = 0; i < LIST_NUM(v->HostIPAddressCache); i++)
+			{
+				IP *host_ip = LIST_DATA(v->HostIPAddressCache, i);
+				if (IsIP4(host_ip) && CmpIpAddr(&dest_ip_obj, host_ip) == 0)
+				{
+					is_host_ip = true;
+					break;
+				}
+			}
+		}
+	}
+	Unlock(v->HostIPCacheLock);
+
+	return is_host_ip;
+}
+
 // Communication of ICMP towards the Internet
 void NnIcmpEchoRecvForInternet(VH *v, UINT src_ip, UINT dest_ip, void *data, UINT size, UCHAR ttl, void *icmp_data, UINT icmp_size, UCHAR *ip_header, UINT ip_header_size, UINT max_l3_size)
 {
@@ -1206,6 +1267,15 @@ void NnIcmpEchoRecvForInternet(VH *v, UINT src_ip, UINT dest_ip, void *data, UIN
 	// Validate arguments
 	if (NnIsActive(v) == false || icmp_data == NULL)
 	{
+		return;
+	}
+
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	if (IsDestinationHostOwnIP(v, dest_ip))
+	{
+		// Destination is the host's own IP - drop the packet
 		return;
 	}
 
@@ -1351,6 +1421,15 @@ void NnUdpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT 
 		return;
 	}
 
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	if (IsDestinationHostOwnIP(v, dest_ip))
+	{
+		// Destination is the host's own IP - drop the packet
+		return;
+	}
+
 	t = v->NativeNat;
 
 	// Search whether there is an existing session
@@ -1446,6 +1525,15 @@ void NnTcpRecvForInternet(VH *v, UINT src_ip, UINT src_port, UINT dest_ip, UINT 
 	// Validate arguments
 	if (NnIsActive(v) == false || old_tcp == NULL || data == NULL)
 	{
+		return;
+	}
+
+	// Check if destination is the host's own IP address
+	// When Native NAT tries to send packets to the host's own IP, the OS routing
+	// may fail or behave unexpectedly. Drop such packets to avoid issues.
+	if (IsDestinationHostOwnIP(v, dest_ip))
+	{
+		// Destination is the host's own IP - drop the packet
 		return;
 	}
 
@@ -10193,6 +10281,13 @@ void Virtual_Free(VH *v)
 
 	LockVirtual(v);
 	{
+		// Free host IP cache
+		if (v->HostIPAddressCache != NULL)
+		{
+			FreeHostIPAddressList(v->HostIPAddressCache);
+			v->HostIPAddressCache = NULL;
+		}
+
 		// Release the IP combining list
 		FreeIpCombineList(v);
 
@@ -10226,6 +10321,9 @@ void Virtual_Free(VH *v)
 		v->Active = false;
 	}
 	UnlockVirtual(v);
+
+	// Release the host IP cache lock
+	DeleteLock(v->HostIPCacheLock);
 
 	// Release the logger
 	FreeLog(v->Logger);
@@ -10356,6 +10454,11 @@ VH *NewVirtualHostEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *auth, VH_
 	v->Counter = NewCounter();
 
 	v->nat = nat;
+
+	// Initialize host IP cache for Native NAT
+	v->HostIPAddressCache = NULL;
+	v->HostIPCacheExpires = 0;
+	v->HostIPCacheLock = NewLock();
 
 	// Examine whether ICMP Raw Socket can be created
 	s = NewUDP4(MAKE_SPECIAL_PORT(IP_PROTO_ICMPV4), NULL);
