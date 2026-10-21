@@ -221,18 +221,23 @@ UINT PPParseV2Header(const UCHAR *prefix, const UCHAR *block, UINT block_len, PP
 	{
 	case 0x01:	// AF_INET
 	{
-		UINT src_ip, dst_ip;
-
 		if (len < 12)
 		{
 			return PP_RET_ERROR;
 		}
 
-		src_ip = READ_UINT(block);
-		dst_ip = READ_UINT(block + 4);
-
-		UINTToIP(&header->SrcIp, src_ip);
-		UINTToIP(&header->DstIp, dst_ip);
+		// The address block is in network byte order (big endian).
+		// Copy the 4 bytes directly to avoid any host-endian conversion.
+		ZeroIP4(&header->SrcIp);
+		ZeroIP4(&header->DstIp);
+		IPV4(header->SrcIp.address)[0] = ((UCHAR *)block)[0];
+		IPV4(header->SrcIp.address)[1] = ((UCHAR *)block)[1];
+		IPV4(header->SrcIp.address)[2] = ((UCHAR *)block)[2];
+		IPV4(header->SrcIp.address)[3] = ((UCHAR *)block)[3];
+		IPV4(header->DstIp.address)[0] = ((UCHAR *)(block + 4))[0];
+		IPV4(header->DstIp.address)[1] = ((UCHAR *)(block + 4))[1];
+		IPV4(header->DstIp.address)[2] = ((UCHAR *)(block + 4))[2];
+		IPV4(header->DstIp.address)[3] = ((UCHAR *)(block + 4))[3];
 
 		header->SrcPort = READ_USHORT(block + 8);
 		header->DstPort = READ_USHORT(block + 10);
@@ -407,9 +412,15 @@ UINT PPProcessSocket(SOCK *s, bool *header_found, PP_HEADER *header_out)
 
 			ret = PPParseV1Header((char *)line, total, header_out);
 
-			if (ret == PP_RET_PARSED && header_found != NULL)
+			if (ret == PP_RET_PARSED)
 			{
-				*header_found = true;
+				// Mark the socket as being connected via the PROXY protocol version 1
+				s->ProxyProtocolVersion = 1;
+
+				if (header_found != NULL)
+				{
+					*header_found = true;
+				}
 			}
 		}
 	}
@@ -469,9 +480,15 @@ UINT PPProcessSocket(SOCK *s, bool *header_found, PP_HEADER *header_out)
 
 			Free(block);
 
-			if (ret == PP_RET_PARSED && header_found != NULL)
+			if (ret == PP_RET_PARSED)
 			{
-				*header_found = true;
+				// Mark the socket as being connected via the PROXY protocol version 2
+				s->ProxyProtocolVersion = 2;
+
+				if (header_found != NULL)
+				{
+					*header_found = true;
+				}
 			}
 		}
 	}

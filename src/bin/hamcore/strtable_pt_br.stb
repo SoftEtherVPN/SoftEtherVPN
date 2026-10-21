@@ -1448,6 +1448,7 @@ SM_SESS_COLUMN_5	TCP Connections
 SM_SESS_COLUMN_6	Bytes transferidos
 SM_SESS_COLUMN_7	Pacote transferidos
 SM_SESS_COLUMN_8	ID VLAN
+SM_SESS_COLUMN_9	Protocolo PROXY
 SM_SESS_NORMAL	Sessão local
 SM_SESS_LOCAL	Sessão local
 SM_SESS_LOCAL_2	Em '%S'
@@ -1467,6 +1468,10 @@ SM_SESS_STATUS_USERNAME	User Name (Authentication)
 SM_SESS_STATUS_REALUSER	User Name (Database)
 SM_SESS_STATUS_GROUPNAME	Nome do grupo
 SM_CLIENT_IP	Endereço IP do cliente
+SM_SESS_STATUS_PP	Conexão por Protocolo PROXY
+SM_SESS_PP_NONE	Não
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME	Nome do Host do Cliente
 SM_NODE_CLIENT_NAME	Client Product Name (Reported)
 SM_NODE_CLIENT_VER	Client Version (Reported)

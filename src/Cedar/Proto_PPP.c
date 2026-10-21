@@ -570,7 +570,7 @@ void PPPThread(THREAD *thread, void *param)
 // Entry point
 
 // Create a new PPP session
-THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
+THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, UINT proxy_protocol_version, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss)
 {
 	PPP_SESSION *p;
 	THREAD *t;
@@ -616,6 +616,7 @@ THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_
 
 	Copy(&p->ClientIP, client_ip, sizeof(IP));
 	p->ClientPort = client_port;
+	p->ProxyProtocolVersion = proxy_protocol_version;
 
 	Copy(&p->ServerIP, server_ip, sizeof(IP));
 	p->ServerPort = server_port;
@@ -1561,9 +1562,9 @@ bool PPPProcessEapResponseForRadius(PPP_SESSION *p, PPP_EAP *eap_packet, UINT ea
 		{
 			Debug("PPP Radius creating IPC\n");
 			ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, p->Eap_Identity.HubName, p->Eap_Identity.UserName, "", NULL,
-							&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-							p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL,
-							true, IPC_LAYER_3);
+						&error_code, &p->ClientIP, p->ClientPort, p->ProxyProtocolVersion, &p->ServerIP, p->ServerPort,
+						p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL,
+						true, IPC_LAYER_3);
 
 			if (ipc != NULL)
 			{
@@ -1850,10 +1851,10 @@ bool PPPProcessPAPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 								// Attempt to connect with IPC
 								UINT error_code;
 
-								ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,
-								             &error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
-								             p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL,
-								             false, IPC_LAYER_3);
+							ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,
+							             &error_code, &p->ClientIP, p->ClientPort, p->ProxyProtocolVersion, &p->ServerIP, p->ServerPort,
+							             p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, NULL,
+							             false, IPC_LAYER_3);
 
 								if (ipc != NULL)
 								{
@@ -3180,7 +3181,7 @@ bool PPPParseMSCHAP2ResponsePacketEx(PPP_SESSION *p, PPP_LCP *lcp, bool use_eap)
 			{
 				Debug("MSCHAPv2 creating IPC\n");
 				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, hub, id, password, NULL,
-				             &error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
+				             &error_code, &p->ClientIP, p->ClientPort, p->ProxyProtocolVersion, &p->ServerIP, p->ServerPort,
 				             p->ClientHostname, p->CryptName, false, p->AdjustMss, p->EapClient, NULL,
 				             false, IPC_LAYER_3);
 
@@ -3816,7 +3817,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 				}
 
 				ipc = NewIPC(p->Cedar, p->ClientSoftwareName, p->Postfix, p->Eap_Identity.HubName, p->Eap_Identity.UserName, "", NULL,
-					&error_code, &p->ClientIP, p->ClientPort, &p->ServerIP, p->ServerPort,
+					&error_code, &p->ClientIP, p->ClientPort, p->ProxyProtocolVersion, &p->ServerIP, p->ServerPort,
 					p->ClientHostname, p->CryptName, false, p->AdjustMss, NULL, p->Eap_TlsCtx.ClientCert.X,
 					false, IPC_LAYER_3);
 

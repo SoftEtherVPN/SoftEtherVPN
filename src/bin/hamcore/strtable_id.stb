@@ -1452,6 +1452,7 @@ SM_SESS_COLUMN_5		Koneksi TCP
 SM_SESS_COLUMN_6		Byte yang Ditransfer
 SM_SESS_COLUMN_7		Paket yang Ditransfer
 SM_SESS_COLUMN_8		ID VLAN
+SM_SESS_COLUMN_9	Protokol PROXY
 SM_SESS_NORMAL			Sesi Lokal
 SM_SESS_LOCAL			Sesi Lokal
 SM_SESS_LOCAL_2			Pada '%S'
@@ -1471,6 +1472,10 @@ SM_SESS_STATUS_USERNAME	Nama Pengguna (Otentikasi)
 SM_SESS_STATUS_REALUSER	Nama Pengguna (Database)
 SM_SESS_STATUS_GROUPNAME	Nama Grup
 SM_CLIENT_IP			Alamat IP Klien
+SM_SESS_STATUS_PP	Koneksi Protokol PROXY
+SM_SESS_PP_NONE	Tidak
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME		Nama Host Klien
 SM_NODE_CLIENT_NAME		Nama Produk Klien (Dilaporkan)
 SM_NODE_CLIENT_VER		Version Klien (Dilaporkan)

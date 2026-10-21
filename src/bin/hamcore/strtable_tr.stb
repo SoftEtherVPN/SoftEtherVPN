@@ -1452,6 +1452,7 @@ SM_SESS_COLUMN_5		TCP Bağlantıları
 SM_SESS_COLUMN_6		Transfer Baytları
 SM_SESS_COLUMN_7		Transfer Paketleri
 SM_SESS_COLUMN_8		VLAN KIMLIĞI
+SM_SESS_COLUMN_9	PROXY Protokolü
 SM_SESS_NORMAL			Yerel Oturum
 SM_SESS_LOCAL			Yerel Oturum
 SM_SESS_LOCAL_2			'%S' üzerinde
@@ -1471,6 +1472,10 @@ SM_SESS_STATUS_USERNAME	Kullanıcı Adı (Kimlik Doğrulama)
 SM_SESS_STATUS_REALUSER	Kullanıcı Adı (Veritabanı)
 SM_SESS_STATUS_GROUPNAME	Grup Adı
 SM_CLIENT_IP			İstemci IP Adresi
+SM_SESS_STATUS_PP	PROXY Protokolü Bağlantısı
+SM_SESS_PP_NONE	Hayır
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME		İstemci Ana Bilgisayar Adı
 SM_NODE_CLIENT_NAME		Müşteri Ürün Adı (Raporlanan)
 SM_NODE_CLIENT_VER		İstemci Sürümü (Bildirilen)

@@ -9292,6 +9292,7 @@ void SmSessionDlgInit(HWND hWnd, SM_HUB *s)
 	LvInsertColumn(hWnd, L_LIST, 5, _UU("SM_SESS_COLUMN_5"), 68);
 	LvInsertColumn(hWnd, L_LIST, 6, _UU("SM_SESS_COLUMN_6"), 100);
 	LvInsertColumn(hWnd, L_LIST, 7, _UU("SM_SESS_COLUMN_7"), 100);
+	LvInsertColumn(hWnd, L_LIST, 8, _UU("SM_SESS_COLUMN_9"), 80);
 	LvSetStyle(hWnd, L_LIST, LVS_EX_GRIDLINES);
 
 	if (s->p->ServerType == SERVER_TYPE_FARM_CONTROLLER && GetCapsBool(s->p->CapsList, "b_support_cluster_admin") == false)
@@ -9380,6 +9381,7 @@ void SmSessionDlgRefresh(HWND hWnd, SM_HUB *s)
 		wchar_t tmp6[MAX_SIZE];
 		wchar_t tmp7[MAX_SIZE];
 		wchar_t tmp8[MAX_SIZE];
+		wchar_t tmp9[MAX_SIZE];
 		bool free_tmp2 = false;
 		UINT icon;
 
@@ -9485,6 +9487,21 @@ void SmSessionDlgRefresh(HWND hWnd, SM_HUB *s)
 		UniToStr3(tmp6, sizeof(tmp6), e->PacketSize);
 		UniToStr3(tmp7, sizeof(tmp7), e->PacketNum);
 
+		{
+			switch (e->ProxyProtocolVersion)
+			{
+			case 1:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_V1"));
+				break;
+			case 2:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_V2"));
+				break;
+			default:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_NONE"));
+				break;
+			}
+		}
+
 		if (icon == ICO_VPN)
 		{
 			if (e->Client_BridgeMode)
@@ -9502,7 +9519,7 @@ void SmSessionDlgRefresh(HWND hWnd, SM_HUB *s)
 			icon = ICO_TRAY0;
 		}
 
-		LvInsertAdd(b, icon, (void *)(e->RemoteSession), 8, tmp1, tmp8, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7);
+		LvInsertAdd(b, icon, (void *)(e->RemoteSession), 9, tmp1, tmp8, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp9);
 
 		if (free_tmp2)
 		{
@@ -9627,6 +9644,25 @@ bool SmRefreshSessionStatus(HWND hWnd, SM_SERVER *s, void *param)
 	{
 		StrToUni(tmp, sizeof(tmp), t.ClientHostName);
 		LvInsertAdd(b, 0, NULL, 2, _UU("SM_CLIENT_HOSTNAME"), tmp);
+	}
+
+	{
+		wchar_t *pp_str;
+
+		switch (t.ProxyProtocolVersion)
+		{
+		case 1:
+			pp_str = _UU("SM_SESS_PP_V1");
+			break;
+		case 2:
+			pp_str = _UU("SM_SESS_PP_V2");
+			break;
+		default:
+			pp_str = _UU("SM_SESS_PP_NONE");
+			break;
+		}
+
+		LvInsertAdd(b, 0, NULL, 2, _UU("SM_SESS_STATUS_PP"), pp_str);
 	}
 
 	StrToUni(tmp, sizeof(tmp), t.Username);

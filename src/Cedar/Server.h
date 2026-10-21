@@ -311,6 +311,7 @@ struct RPC_SESSION_STATUS
 	UCHAR ClientIp6[16];							// Client IPv6 address
 	IP ClientIpAddress;								// Client IP address (IPv4/IPv6)
 	char ClientHostName[MAX_HOST_NAME_LEN + 1];		// Client host name
+	UINT ProxyProtocolVersion;						// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	NODE_INFO NodeInfo;								// Node information
 };
 

@@ -610,11 +610,12 @@ struct RPC_ENUM_SESSION_ITEM
 	bool Client_MonitorMode;						// Client is monitoring mode
 	UINT VLanId;									// VLAN ID
 	UCHAR UniqueId[16];								// Unique ID
-	bool IsDormantEnabled;							// Is the dormant state enabled
-	bool IsDormant;									// Is in the dormant state
+	bool IsDormantEnabled;								// Is the dormant state enabled
+	bool IsDormant;										// Is in the dormant state
 	UINT64 LastCommDormant;							// Last comm interval in the dormant state
-	UINT64 CreatedTime;								// Creation date and time
-	UINT64 LastCommTime;							// Last communication date and time
+	UINT ProxyProtocolVersion;							// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
+	UINT64 CreatedTime;									// Creation date and time
+	UINT64 LastCommTime;									// Last communication date and time
 };
 
 // Disconnect the session

@@ -18853,6 +18853,7 @@ UINT PsSessionList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsertColumn(ct, _UU("SM_SESS_COLUMN_5"), true);
 		CtInsertColumn(ct, _UU("SM_SESS_COLUMN_6"), true);
 		CtInsertColumn(ct, _UU("SM_SESS_COLUMN_7"), true);
+		CtInsertColumn(ct, _UU("SM_SESS_COLUMN_9"), false);
 
 		for (i = 0;i < t.NumSession;i++)
 		{
@@ -18865,6 +18866,7 @@ UINT PsSessionList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			wchar_t tmp6[MAX_SIZE];
 			wchar_t tmp7[MAX_SIZE];
 			wchar_t tmp8[MAX_SIZE];
+			wchar_t tmp9[MAX_SIZE];
 			bool free_tmp2 = false;
 
 			StrToUni(tmp1, sizeof(tmp1), e->Name);
@@ -18957,7 +18959,21 @@ UINT PsSessionList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 				UniToStru(tmp8, e->VLanId);
 			}
 
-			CtInsert(ct, tmp1, tmp8, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7);
+			// PROXY protocol status column
+			switch (e->ProxyProtocolVersion)
+			{
+			case 1:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_V1"));
+				break;
+			case 2:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_V2"));
+				break;
+			default:
+				UniStrCpy(tmp9, sizeof(tmp9), _UU("SM_SESS_PP_NONE"));
+				break;
+			}
+
+			CtInsert(ct, tmp1, tmp8, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp9);
 
 			if (free_tmp2)
 			{
@@ -19097,6 +19113,25 @@ UINT PsSessionGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{
 			StrToUni(tmp, sizeof(tmp), t.ClientHostName);
 			CtInsert(ct, _UU("SM_CLIENT_HOSTNAME"), tmp);
+		}
+
+		{
+			wchar_t *pp_str;
+
+			switch (t.ProxyProtocolVersion)
+			{
+			case 1:
+				pp_str = _UU("SM_SESS_PP_V1");
+				break;
+			case 2:
+				pp_str = _UU("SM_SESS_PP_V2");
+				break;
+			default:
+				pp_str = _UU("SM_SESS_PP_NONE");
+				break;
+			}
+
+			CtInsert(ct, _UU("SM_SESS_STATUS_PP"), pp_str);
 		}
 
 		StrToUni(tmp, sizeof(tmp), t.Username);

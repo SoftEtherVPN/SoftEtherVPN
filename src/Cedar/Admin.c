@@ -5411,6 +5411,8 @@ UINT StGetSessionStatus(ADMIN *a, RPC_SESSION_STATUS *t)
 				CopyIP(&t->ClientIpAddress, &s->Connection->ClientIp);
 
 				StrCpy(t->ClientHostName, sizeof(t->ClientHostName), s->Connection->ClientHostname);
+
+				t->ProxyProtocolVersion = s->ProxyProtocolVersion;
 			}
 		}
 		Unlock(s->lock);
@@ -11982,12 +11984,13 @@ void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 			RPC_ENUM_SESSION_ITEM *e = &t->Sessions[i];
 			Lock(s->lock);
 			{
-				StrCpy(e->Name, sizeof(e->Name), s->Name);
-				StrCpy(e->Username, sizeof(e->Username), s->Username);
-				e->Ip = IPToUINT(&s->Connection->ClientIp);
-				CopyIP(&e->ClientIP, &s->Connection->ClientIp);
-				StrCpy(e->Hostname, sizeof(e->Hostname), s->Connection->ClientHostname);
-				e->MaxNumTcp = s->MaxConnection;
+			StrCpy(e->Name, sizeof(e->Name), s->Name);
+			StrCpy(e->Username, sizeof(e->Username), s->Username);
+			e->Ip = IPToUINT(&s->Connection->ClientIp);
+			CopyIP(&e->ClientIP, &s->Connection->ClientIp);
+			StrCpy(e->Hostname, sizeof(e->Hostname), s->Connection->ClientHostname);
+			e->ProxyProtocolVersion = s->ProxyProtocolVersion;
+			e->MaxNumTcp = s->MaxConnection;
 				e->CreatedTime = Tick64ToTime64(s->CreatedTime);
 				e->LastCommTime = Tick64ToTime64(s->LastCommTime);
 				e->LinkMode = s->LinkModeServer;
@@ -14588,6 +14591,7 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 		e->Client_MonitorMode = PackGetBoolEx(p, "Client_MonitorMode", i);
 		PackGetStrEx(p, "RemoteHostname", e->RemoteHostname, sizeof(e->RemoteHostname), i);
 		e->VLanId = PackGetIntEx(p, "VLanId", i);
+		e->ProxyProtocolVersion = PackGetIntEx(p, "ProxyProtocolVersion", i);
 		PackGetDataEx2(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i);
 		e->IsDormantEnabled = PackGetBoolEx(p, "IsDormantEnabled", i);
 		e->IsDormant = PackGetBoolEx(p, "IsDormant", i);
@@ -14629,6 +14633,7 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 		PackAddBoolEx(p, "Client_BridgeMode", e->Client_BridgeMode, i, t->NumSession);
 		PackAddBoolEx(p, "Client_MonitorMode", e->Client_MonitorMode, i, t->NumSession);
 		PackAddIntEx(p, "VLanId", e->VLanId, i, t->NumSession);
+		PackAddIntEx(p, "ProxyProtocolVersion", e->ProxyProtocolVersion, i, t->NumSession);
 		PackAddDataEx(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i, t->NumSession);
 		PackAddBoolEx(p, "IsDormantEnabled", e->IsDormantEnabled, i, t->NumSession);
 		PackAddBoolEx(p, "IsDormant", e->IsDormant, i, t->NumSession);
@@ -14829,6 +14834,7 @@ void InRpcSessionStatus(RPC_SESSION_STATUS *t, PACK *p)
 	PackGetData2(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackGetStr(p, "SessionStatus_ClientHostName", t->ClientHostName, sizeof(t->ClientHostName));
 	PackGetIp(p, "Client_Ip_Address", &t->ClientIpAddress);
+	t->ProxyProtocolVersion = PackGetInt(p, "ProxyProtocolVersion");
 
 	InRpcClientGetConnectionStatus(&t->Status, p);
 	InRpcNodeInfo(&t->NodeInfo, p);
@@ -14850,6 +14856,7 @@ void OutRpcSessionStatus(PACK *p, RPC_SESSION_STATUS *t)
 	PackAddData(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackAddStr(p, "SessionStatus_ClientHostName", t->ClientHostName);
 	PackAddIp(p, "Client_Ip_Address", &t->ClientIpAddress);
+	PackAddInt(p, "ProxyProtocolVersion", t->ProxyProtocolVersion);
 
 	OutRpcClientGetConnectionStatus(p, &t->Status);
 	OutRpcNodeInfo(p, &t->NodeInfo);
