@@ -18899,11 +18899,11 @@ UINT PsSessionList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			}
 			else if (e->SecureNATMode)
 			{
-				/*if (free_tmp2)
+				if (free_tmp2)
 				{
 					Free(tmp2);
 					free_tmp2 = false;
-				}*/
+				}
 				tmp2 = _UU("SM_SESS_SNAT");
 			}
 
