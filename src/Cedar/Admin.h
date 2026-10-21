@@ -13,6 +13,7 @@
 #include "Client.h"
 #include "Hub.h"
 #include "Logging.h"
+#include "Server.h"
 
 #include "Mayaqua/Kernel.h"
 
@@ -102,6 +103,7 @@ struct RPC_LISTENER
 {
 	UINT Port;							// Port number
 	bool Enable;						// Active state
+	bool ProxyProtocol;					// Whether to accept the PROXY protocol header
 };
 
 // List of listeners *
@@ -111,6 +113,7 @@ struct RPC_LISTENER_LIST
 	UINT *Ports;						// Port List
 	bool *Enables;						// Effective state
 	bool *Errors;						// An error occurred
+	bool *ProxyProtocols;				// PROXY protocol state
 };
 
 // List of ports
@@ -992,6 +995,9 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t);
 UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t);
 UINT StDeleteListener(ADMIN *a, RPC_LISTENER *t);
 UINT StEnableListener(ADMIN *a, RPC_LISTENER *t);
+UINT StSetListener(ADMIN *a, RPC_LISTENER *t);
+UINT StGetProxyProtocolSetting(ADMIN *a, PROXY_PROTOCOL_SETTING *t);
+UINT StSetProxyProtocolSetting(ADMIN *a, PROXY_PROTOCOL_SETTING *t);
 UINT StSetPortsUDP(ADMIN *a, RPC_PORTS *t);
 UINT StGetPortsUDP(ADMIN *a, RPC_PORTS *t);
 UINT StGetProtoOptions(ADMIN *a, RPC_PROTO_OPTIONS *t);
@@ -1143,6 +1149,9 @@ UINT ScCreateListener(RPC *r, RPC_LISTENER *t);
 UINT ScEnumListener(RPC *r, RPC_LISTENER_LIST *t);
 UINT ScDeleteListener(RPC *r, RPC_LISTENER *t);
 UINT ScEnableListener(RPC *r, RPC_LISTENER *t);
+UINT ScSetListener(RPC *r, RPC_LISTENER *t);
+UINT ScGetProxyProtocolSetting(RPC *r, PROXY_PROTOCOL_SETTING *t);
+UINT ScSetProxyProtocolSetting(RPC *r, PROXY_PROTOCOL_SETTING *t);
 UINT ScSetPortsUDP(RPC *r, RPC_PORTS *t);
 UINT ScGetPortsUDP(RPC *r, RPC_PORTS *t);
 UINT ScSetProtoOptions(RPC *r, RPC_PROTO_OPTIONS *t);
@@ -1296,6 +1305,8 @@ void FreeRpcServerInfo(RPC_SERVER_INFO *t);
 void InRpcServerStatus(RPC_SERVER_STATUS *t, PACK *p);
 void OutRpcServerStatus(PACK *p, RPC_SERVER_STATUS *t);
 void InRpcListener(RPC_LISTENER *t, PACK *p);
+void InRpcProxyProtocolSetting(PROXY_PROTOCOL_SETTING *t, PACK *p);
+void OutRpcProxyProtocolSetting(PACK *p, PROXY_PROTOCOL_SETTING *t);
 void OutRpcListener(PACK *p, RPC_LISTENER *t);
 void InRpcListenerList(RPC_LISTENER_LIST *t, PACK *p);
 void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t);

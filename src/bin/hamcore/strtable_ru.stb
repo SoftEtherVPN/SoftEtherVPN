@@ -1232,6 +1232,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		Используется
 CM_LISTENER_OFFLINE		Закрыт
 CM_LISTENER_ERROR		Ошибка
+CM_LISTENER_COLUMN_3	PROXY протокол
+CM_LISTENER_PROXY_ONLINE	Включен
+CM_LISTENER_PROXY_OFFLINE	Выключен
 CM_DELETE_LISTENER_MSG	Это действие приведет к удалению порта (TCP-порт %u). С этого момента подключение к данному порту будет невозможно. \r\nВы действительно хотите сделать это?
 CM_STOP_LISTENER_MSG	Это действие закроет порт (TCP-порт %u). До тех пор, пока порт не будет открыт, невозможно будет подключиться к нему. \r\n\r\nВы действительно хотите сделать это?
 CM_CLOSE_BUTTON			Закрыть
@@ -1768,6 +1771,10 @@ LS_LISTENER_DOS			Обнаружена DoS-атака на TCP порт (%u). IP
 LS_LISTENER_MAXUEC		TCP порт временно приостанавливает прием новых входящих подключений из-за превышения количества ожидающих %u TCP соединений. (Текущее значение = %u)
 LS_LISTENER_STOP_1		TCP порт (%u) останавливается
 LS_LISTENER_STOP_2		TCP порт (%u) остановлен.
+LS_PP_APPLIED	В TCP-прослушивателе (порт %u) разобран заголовок протокола PROXY. IP-адрес клиента перезаписан на %S (номер порта %u).
+LS_PP_BAD_HEADER	В TCP-прослушивателе (порт %u) получен недопустимый заголовок протокола PROXY. IP-адрес источника: %S. Это соединение будет разорвано.
+LS_PP_UNTRUSTED_PEER	В TCP-прослушивателе (порт %u) получен заголовок протокола PROXY из недоверенного IP-адреса источника %S. Это соединение будет разорвано.
+LS_PP_LOCAL	В TCP-прослушивателе (порт %u) получен заголовок PROXY LOCAL или UNKNOWN. Исходный адрес сокета сохранен.
 LS_HUB_START			Virtual Hub "%S" запущен.
 LS_HUB_STOP				Virtual Hub "%S" остановлен.
 LS_HUB_MAC				MAC-адрес Virtual Hub "%S" - "%S".
@@ -2016,6 +2023,8 @@ LA_TAG_2				Режиме администратора [%S] (Virtual Hub "%S"):
 LA_CREATE_LISTENER		Создан новый TCP порт (номер порта %u).
 LA_DELETE_LISTENER		TCP порт удален (номер порта %u).
 LA_ENABLE_LISTENER		TCP порт открыт (номер порта %u).
+LA_SET_LISTENER_PROXY_PROTOCOL	Состояние приема протокола PROXY TCP-прослушивателя (номер порта %u) установлено в %u.
+LA_SET_PROXY_PROTOCOL_SETTING	Настройка доверенных сетей протокола PROXY обновлена. Новое значение: "%S"
 LA_DISABLE_LISTENER		TCP порт закрыт (номер порта %u).
 LA_SET_PORTS_UDP		Установлены UDP-порты: %S.
 LA_SET_PROTO_OPTIONS	Параметры %S установлены.
@@ -2665,6 +2674,15 @@ IDOK					&OK
 IDCANCEL				Отмена
 STATIC4					(TCP/IP порт)
 
+R_PROXY_PROTOCOL	Принимать заголовок протокола PROXY (v1 / v2, автоопределение)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	Настройки прослушивателя
+STATIC1	Вы можете изменить настройки этого TCP/IP-прослушивателя.
+S_PORT	TCP/IP-прослушиватель: TCP %u
+R_PROXY_PROTOCOL	Принимать заголовок протокола PROXY (v1 / v2, автоопределение)
+STATIC2	Изменение вступает в силу немедленно. Существующие соединения не затрагиваются.
 
 PREFIX					D_SM_SSL
 CAPTION					Настройки шифрования и сети
@@ -2705,6 +2723,9 @@ S_INFO5					Даже если есть межсетевой экран или м
 B_SPECIALLISTENER		VPN через ICMP / DNS
 B_UPDATE_CONFIG			&Настройка уведомлений...
 
+S_PP_TITLE	PROXY протокол
+S_PP_INFO	Укажите сети (в формате CIDR, через запятую), которым разрешено отправлять заголовок протокола PROXY. Оставьте пустым для доверия всем источникам.
+S_PP_NETWORKS	Доверенные сети(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					Сохранить сертификат и приватный ключ
@@ -4575,6 +4596,26 @@ CMD_ListenerEnable_Help	This starts the operation of stopped TCP Listeners regis
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	Using an integer, specify the port number of the TCP/IP listener you want to start.
 CMD_ListenerEnable_PortPrompt	Port number of TCP/IP Listener to start: 
+CMD_ListenerCreate_Prompt_PROXY	Принимать ли заголовок протокола PROXY (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	Включить протокол PROXY на TCP-прослушивателе
+CMD_ListenerProxyEnable_Help	Включает прием заголовков протокола PROXY (версии 1 или 2) на указанном TCP-прослушивателе.\nЕсли соединение с этим прослушивателем передается через балансировщик нагрузки или обратный прокси с поддержкой протокола PROXY, реальный IP-адрес клиента восстанавливается.\nПрямые соединения от клиентов без заголовка протокола PROXY также принимаются.\nДля выполнения этой команды требуются права администратора VPN-сервера.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	Укажите целым числом номер порта TCP/IP-прослушивателя, на котором следует включить протокол PROXY.
+CMD_ListenerProxyDisable	Выключить протокол PROXY на TCP-прослушивателе
+CMD_ListenerProxyDisable_Help	Отключает прием заголовков протокола PROXY на указанном TCP-прослушивателе.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	Укажите целым числом номер порта TCP/IP-прослушивателя, на котором следует выключить протокол PROXY.
+CMD_ProxyTrustedNetworksGet	Получить доверенные сети протокола PROXY
+CMD_ProxyTrustedNetworksGet_Help	Отображает список доверенных сетей-источников протокола PROXY.\nЗаголовки протокола PROXY разбираются и применяются только для TCP-соединений, чей IP-адрес источника входит в одну из этих сетей. Если список пуст, доверяются всем заголовкам протокола PROXY.\nДля выполнения этой команды требуются права администратора VPN-сервера.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	Установить доверенные сети протокола PROXY
+CMD_ProxyTrustedNetworksSet_Help	Устанавливает список доверенных сетей-источников протокола PROXY.\nУкажите сети в формате CIDR через запятую (например "192.168.0.0/24, 10.0.0.0/8"). Пустая строка ("") означает доверие ко всем источникам.\nДля выполнения этой команды требуются права администратора VPN-сервера.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	Укажите доверенные сети в формате CIDR через запятую. Пустая строка означает доверие ко всем источникам.
+CMD_ProxyTrustedNetworks_Column_1	Параметр
+CMD_ProxyTrustedNetworks_Column_2	Значение
+CMD_ProxyTrustedNetworks_Token	Доверенные сети
+CMD_ProxyTrustedNetworks_Empty	(пусто: доверять всем источникам)
 
 
 # ListenerDisable command

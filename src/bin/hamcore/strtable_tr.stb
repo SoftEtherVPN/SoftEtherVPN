@@ -1232,6 +1232,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		Dinleme
 CM_LISTENER_OFFLINE		Durduruldu
 CM_LISTENER_ERROR		Hata
+CM_LISTENER_COLUMN_3	PROXY Protokolü
+CM_LISTENER_PROXY_ONLINE	Etkin
+CM_LISTENER_PROXY_OFFLINE	Devre dışı
 CM_DELETE_LISTENER_MSG	Bu işlem Dinleyiciyi (TCP portu %u) silecektir. Şu andan itibaren bu porta bağlanmak mümkün olmayacaktır. \r\nBunu gerçekten yapmak istiyor musunuz?
 CM_STOP_LISTENER_MSG	Bu işlem Dinleyiciyi durduracaktır (TCP portu %u). Listener yeniden başlatılana kadar bu porta bağlanmak mümkün olmayacaktır. \r\n\r\nBunu gerçekten yapmak istiyor musunuz?
 CM_CLOSE_BUTTON			Kapat
@@ -1768,6 +1771,10 @@ LS_LISTENER_DOS			TCP Dinleyicisine (bağlantı noktası %u) yönelik bir DoS sa
 LS_LISTENER_MAXUEC		TCP dinleyicisi, bekleyen TCP bağlantılarının sayısı %u'yu aştığı için yeni içe doğru bağlantıları kabul etmeyi geçici olarak askıya alıyor. (Geçerli değer = %u)
 LS_LISTENER_STOP_1		TCP Dinleyici (bağlantı noktası %u) durduruluyor.
 LS_LISTENER_STOP_2		TCP Dinleyicisi (%u bağlantı noktası) durdu.
+LS_PP_APPLIED	TCP Dinleyicisinde (bağlantı noktası %u) bir PROXY protokol başlığı ayrıştırıldı. İstemci IP adresi %S (bağlantı noktası numarası %u) olarak yeniden yazıldı.
+LS_PP_BAD_HEADER	TCP Dinleyicisinde (bağlantı noktası %u) geçersiz bir PROXY protokol başlığı alındı. Kaynak IP adresi %S. Bu bağlantı kesilecek.
+LS_PP_UNTRUSTED_PEER	TCP Dinleyicisinde (bağlantı noktası %u) güvenilmeyen %S kaynak IP adresinden bir PROXY protokol başlığı alındı. Bu bağlantı kesilecek.
+LS_PP_LOCAL	TCP Dinleyicisinde (bağlantı noktası %u) bir PROXY protokol LOCAL veya UNKNOWN başlığı alındı. Orijinal soket adresi korunuyor.
 LS_HUB_START			Sanal Merkez "%S" başlatıldı.
 LS_HUB_STOP				Sanal Merkez "%S" durduruldu.
 LS_HUB_MAC				Sanal Hub "%S "nin MAC adresi "%S "dir.
@@ -2016,6 +2023,8 @@ LA_TAG_2				Yönetim modu [%S] (Sanal Merkez "%S"):
 LA_CREATE_LISTENER		Yeni bir TCP dinleyicisi (bağlantı noktası numarası %u) oluşturuldu.
 LA_DELETE_LISTENER		TCP dinleyicisi (bağlantı noktası numarası %u) silindi.
 LA_ENABLE_LISTENER		TCP dinleyicisi (bağlantı noktası numarası %u) etkinleştirildi.
+LA_SET_LISTENER_PROXY_PROTOCOL	TCP dinleyicisinin (bağlantı noktası numarası %u) PROXY protokolü kabul durumu %u olarak ayarlandı.
+LA_SET_PROXY_PROTOCOL_SETTING	PROXY protokolü güvenilir ağlar ayarı güncellendi. Yeni değer: "%S"
 LA_DISABLE_LISTENER		TCP dinleyicisi (bağlantı noktası numarası %u) devre dışı bırakıldı.
 LA_SET_PORTS_UDP		UDP bağlantı noktaları ayarlandı: %S.
 LA_SET_PROTO_OPTIONS	%S seçenekleri ayarlandı.
@@ -2665,6 +2674,15 @@ IDOK					&TAMAM
 IDCANCEL				İptal
 STATIC4					(TCP/IP Bağlantı Noktası)
 
+R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	Dinleyici Ayarları
+STATIC1	Bu TCP/IP dinleyicisinin ayarlarını değiştirebilirsiniz.
+S_PORT	TCP/IP Dinleyici: TCP %u
+R_PROXY_PROTOCOL	PROXY protokol başlığını kabul et (v1 / v2 otomatik algılama)
+STATIC2	Değişiklik hemen etkili olur. Mevcut bağlantılar etkilenmez.
 
 PREFIX					D_SM_SSL
 CAPTION					Şifreleme ve Ağ Ayarları
@@ -2705,6 +2723,9 @@ S_INFO5					TCP/IP iletişimini engelleyen bir güvenlik duvarı veya yönlendir
 B_SPECIALLISTENER		ICMP üzerinden VPN / DNS Ayarları
 B_UPDATE_CONFIG			&Bildirim Ayarını Güncelle...
 
+S_PP_TITLE	PROXY Protokolü
+S_PP_INFO	PROXY protokol başlığı göndermesine güvenilen ağları (CIDR biçiminde, virgülle ayrılmış) belirtin. Tüm kaynaklara güvenmek için boş bırakın.
+S_PP_NETWORKS	Güvenilir ağlar(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					Sertifika ve Özel Anahtarı Kaydetme
@@ -4575,6 +4596,26 @@ CMD_ListenerEnable_Help	Bu, geçerli sunucuda kayıtlı durdurulmuş TCP Dinleyi
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	Bir tamsayı kullanarak, başlatmak istediğiniz TCP/IP dinleyicisinin bağlantı noktası numarasını belirtin.
 CMD_ListenerEnable_PortPrompt	Başlatılacak TCP/IP Dinleyicisinin bağlantı noktası numarası:
+CMD_ListenerCreate_Prompt_PROXY	PROXY protokol başlığı (v1 / v2) kabul edilsin mi: (yes / no)
+CMD_ListenerProxyEnable	TCP Dinleyicisinde PROXY Protokolünü Etkinleştir
+CMD_ListenerProxyEnable_Help	Bu komut, belirtilen TCP Dinleyicisinde PROXY protokol başlığının (sürüm 1 veya 2) kabul edilmesini etkinleştirir.\nBu dinleyiciye yapılan bağlantı PROXY protokolünü destekleyen bir yük dengeleyici veya ters proxy üzerinden iletilirse, istemcinin gerçek IP adresi geri yüklenir.\nPROXY protokol başlığı göndermeyen istemcilerden gelen doğrudan bağlantılar da kabul edilir.\nBu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	PROXY protokolünün etkinleştirileceği TCP/IP dinleyicisinin bağlantı noktası numarasını tamsayı olarak belirtin.
+CMD_ListenerProxyDisable	TCP Dinleyicisinde PROXY Protokolünü Devre Dışı Bırak
+CMD_ListenerProxyDisable_Help	Bu komut, belirtilen TCP Dinleyicisinde PROXY protokol başlığının kabul edilmesini devre dışı bırakır.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	PROXY protokolünün devre dışı bırakılacağı TCP/IP dinleyicisinin bağlantı noktası numarasını tamsayı olarak belirtin.
+CMD_ProxyTrustedNetworksGet	PROXY Protokolü Güvenilir Ağlarını Al
+CMD_ProxyTrustedNetworksGet_Help	Bu komut, PROXY protokolünün güvenilir kaynak ağlarının listesini görüntüler.\nYalnızca kaynak IP adresi bu ağlardan birinin içinde olduğu TCP bağlantılarının PROXY protokol başlıkları ayrıştırılır ve uygulanır. Liste boş olduğunda tüm PROXY protokol başlıklarına güvenilir.\nBu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	PROXY Protokolü Güvenilir Ağlarını Ayarla
+CMD_ProxyTrustedNetworksSet_Help	Bu komut, PROXY protokolünün güvenilir kaynak ağlarının listesini ayarlar.\nCIDR biçiminde ağları virgülle ayırarak belirtin (örn. "192.168.0.0/24, 10.0.0.0/8"). Tüm kaynaklara güvenmek için boş bir dize ("") belirtin.\nBu komutu yürütmek için VPN Sunucusu yönetici ayrıcalıklarına sahip olmanız gerekir.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	Güvenilir ağları CIDR biçiminde virgülle ayırarak belirtin. Tüm kaynaklara güvenmek için boş bir dize belirtin.
+CMD_ProxyTrustedNetworks_Column_1	Ayar Öğesi
+CMD_ProxyTrustedNetworks_Column_2	Değer
+CMD_ProxyTrustedNetworks_Token	Güvenilir ağlar
+CMD_ProxyTrustedNetworks_Empty	(boş: tüm kaynaklara güven)
 
 
 # ListenerDisable command

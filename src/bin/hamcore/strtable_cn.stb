@@ -1239,6 +1239,9 @@ CM_LISTENER_TCP_PORT		TCP %u
 CM_LISTENER_ONLINE			监听中
 CM_LISTENER_OFFLINE			停止中
 CM_LISTENER_ERROR			错误
+CM_LISTENER_COLUMN_3	PROXY 协议
+CM_LISTENER_PROXY_ONLINE	启用
+CM_LISTENER_PROXY_OFFLINE	禁用
 CM_DELETE_LISTENER_MSG		监听器 (TCP 端口 %u) 将删除。从现在起，将无法连接到该端口。\r\n你确定要这样做吗?
 CM_STOP_LISTENER_MSG		监听器 (TCP 端口 %u) 将停止。监听器将无法连接到该端口直到重新启动静听器。\r\n\r\n你确定吗?
 CM_CLOSE_BUTTON				关闭
@@ -1782,6 +1785,10 @@ LS_LISTENER_DOS				已检测到 TCP 监听器上有 DoS 攻击(端口号 %u)。�
 LS_LISTENER_MAXUEC			TCP 监听器是临时暂停接受新的、向内的连接，因为未决的 TCP 连接的数量超过了 %u 个。(当前值=%u)
 LS_LISTENER_STOP_1			正在停止 TCP 监听器(端口 %u)
 LS_LISTENER_STOP_2			已停止 TCP 监听器(端口 %u)
+LS_PP_APPLIED	在 TCP 监听器 (端口 %u) 上解析了 PROXY 协议头。客户端 IP 地址被改写为 %S (端口号 %u)。
+LS_PP_BAD_HEADER	在 TCP 监听器 (端口 %u) 上收到了无效的 PROXY 协议头。来源 IP 地址为 %S。此连接将被断开。
+LS_PP_UNTRUSTED_PEER	在 TCP 监听器 (端口 %u) 上收到了来自不可信来源 IP 地址 %S 的 PROXY 协议头。此连接将被断开。
+LS_PP_LOCAL	在 TCP 监听器 (端口 %u) 上收到了 PROXY 协议 LOCAL 或 UNKNOWN 头。将保留原始套接字地址。
 LS_HUB_START				虚拟 HUB "%S" 已启动。
 LS_HUB_STOP					虚拟 HUB "%S" 已关闭。
 LS_HUB_MAC					虚拟 HUB "%S" 的 MAC 地址是 "%S"。
@@ -2030,6 +2037,8 @@ LA_TAG_2					管理模式 "%S" (虚拟 HUB "%S"):
 LA_CREATE_LISTENER			已建立新 TCP 监听器 (端口号 %u)。
 LA_DELETE_LISTENER			已删除 TCP 监听器 (端口号 %u)。
 LA_ENABLE_LISTENER			已启用 TCP 监听器 (端口号 %u)。
+LA_SET_LISTENER_PROXY_PROTOCOL	TCP 监听器 (端口号 %u) 的 PROXY 协议接受状态已被设置为 %u。
+LA_SET_PROXY_PROTOCOL_SETTING	PROXY 协议可信网段设置已更新。新值: "%S"
 LA_DISABLE_LISTENER			已禁用 TCP 监听器 (端口号 %u)。
 LA_SET_PORTS_UDP			UDP ports have been set: %S.
 LA_SET_PROTO_OPTIONS		%S options have been set.
@@ -2682,6 +2691,15 @@ IDOK						确定(&O)
 IDCANCEL					取消
 STATIC4						(TCP/IP 端口)
 
+R_PROXY_PROTOCOL	接受 PROXY 协议头 (v1 / v2 自动识别)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	监听器设置
+STATIC1	您可以更改此 TCP/IP 监听器的设置。
+S_PORT	TCP/IP 监听器: TCP %u
+R_PROXY_PROTOCOL	接受 PROXY 协议头 (v1 / v2 自动识别)
+STATIC2	更改立即生效。不会影响现有连接。
 
 PREFIX						D_SM_SSL
 CAPTION						加密和网络设置
@@ -2721,6 +2739,9 @@ S_OVER_FUNCS				VPN over ICMP / DNS 服务器功能
 S_INFO5						您可以建立一个仅用 ICMP 或 DNS 数据包的 VPN ，即使有防火墙或路由器阻止 TCP/IP 通讯。
 B_SPECIALLISTENER			VPN over ICMP / DNS 设置
 B_UPDATE_CONFIG				更新通知设置...(&U)
+S_PP_TITLE	PROXY 协议
+S_PP_INFO	指定允许发送 PROXY 协议头的可信网段 (CIDR 格式，逗号分隔)。留空表示信任所有来源。
+S_PP_NETWORKS	可信网段(&T):
 
 PREFIX						D_SM_SAVE_KEY_PAIR
 CAPTION						保存证书和密钥
@@ -4589,6 +4610,26 @@ CMD_ListenerEnable_Help			这将启动在当前服务器上注册的停止 TCP �
 CMD_ListenerEnable_Args			ListenerEnable [port]
 CMD_ListenerEnable_[port]		使用一个整数，指定要启动的 TCP/IP 监听器端口号。
 CMD_ListenerEnable_PortPrompt	启动 TCP/IP 监听器端口号: 
+CMD_ListenerCreate_Prompt_PROXY	是否接受 PROXY 协议头 (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	启用 TCP 监听器的 PROXY 协议
+CMD_ListenerProxyEnable_Help	此命令在指定的 TCP 监听器上启用 PROXY 协议头 (版本 1 或 2) 的接受。\n当连接经过支持 PROXY 协议的负载均衡器或反向代理转发时，可恢复客户端的真实 IP 地址。\n不携带 PROXY 协议头的直接连接也会被正常接受。\n要执行此命令，必须拥有 VPN 服务器管理员权限。
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	用整数指定要启用 PROXY 协议的 TCP/IP 监听器端口号。
+CMD_ListenerProxyDisable	禁用 TCP 监听器的 PROXY 协议
+CMD_ListenerProxyDisable_Help	此命令在指定的 TCP 监听器上禁用 PROXY 协议头的接受。
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	用整数指定要禁用 PROXY 协议的 TCP/IP 监听器端口号。
+CMD_ProxyTrustedNetworksGet	获取 PROXY 协议的可信网段
+CMD_ProxyTrustedNetworksGet_Help	此命令显示 PROXY 协议的可信来源网段列表。\n只有 TCP 连接的来源 IP 地址位于这些网段内时，其 PROXY 协议头才会被解析并应用。列表为空时信任所有来源。\n要执行此命令，必须拥有 VPN 服务器管理员权限。
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	设置 PROXY 协议的可信网段
+CMD_ProxyTrustedNetworksSet_Help	此命令设置 PROXY 协议的可信来源网段列表。\n以 CIDR 格式指定逗号分隔的网段列表 (例如 "192.168.0.0/24, 10.0.0.0/8")。指定空字符串 ("") 表示信任所有来源。\n要执行此命令，必须拥有 VPN 服务器管理员权限。
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	以 CIDR 格式指定逗号分隔的可信网段列表。指定空字符串表示信任所有来源。
+CMD_ProxyTrustedNetworks_Column_1	设置项目
+CMD_ProxyTrustedNetworks_Column_2	值
+CMD_ProxyTrustedNetworks_Token	可信网段
+CMD_ProxyTrustedNetworks_Empty	(空: 信任所有来源)
 
 
 # ListenerDisable 命令

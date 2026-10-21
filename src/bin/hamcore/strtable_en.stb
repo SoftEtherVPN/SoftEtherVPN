@@ -1232,6 +1232,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		Listening
 CM_LISTENER_OFFLINE		Stopped
 CM_LISTENER_ERROR		Error
+CM_LISTENER_COLUMN_3	PROXY Protocol
+CM_LISTENER_PROXY_ONLINE	Enabled
+CM_LISTENER_PROXY_OFFLINE	Disabled
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
 CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
 CM_CLOSE_BUTTON			Close
@@ -1768,6 +1771,10 @@ LS_LISTENER_DOS			A DoS attack on the TCP Listener (port %u) has been detected. 
 LS_LISTENER_MAXUEC		The TCP listener is temporary suspending to accept new inward connections because of the number of pending TCP connections exceeded %u. (Current value = %u)
 LS_LISTENER_STOP_1		TCP Listener (port %u) is stopping.
 LS_LISTENER_STOP_2		TCP Listener (port %u) has stopped.
+LS_PP_APPLIED	A PROXY protocol header was parsed on the TCP Listener (port %u). The client IP address was rewritten to %S (port number %u).
+LS_PP_BAD_HEADER	An invalid PROXY protocol header was received on the TCP Listener (port %u). The source IP address is %S. This connection will be disconnected.
+LS_PP_UNTRUSTED_PEER	A PROXY protocol header was received on the TCP Listener (port %u) from an untrusted source IP address %S. This connection will be disconnected.
+LS_PP_LOCAL	A PROXY protocol LOCAL or UNKNOWN header was received on the TCP Listener (port %u). The original socket address is kept.
 LS_HUB_START			Virtual Hub "%S" has been started.
 LS_HUB_STOP				Virtual Hub "%S" has been stopped.
 LS_HUB_MAC				The MAC address of Virtual Hub "%S" is "%S".
@@ -2016,6 +2023,8 @@ LA_TAG_2				Administration mode [%S] (Virtual Hub "%S"):
 LA_CREATE_LISTENER		A new TCP listener (port number %u) has been created.
 LA_DELETE_LISTENER		TCP listener (port number %u) has been deleted.
 LA_ENABLE_LISTENER		TCP listener (port number %u) has been enabled.
+LA_SET_LISTENER_PROXY_PROTOCOL	The PROXY protocol acceptance state of the TCP listener (port number %u) has been set to %u.
+LA_SET_PROXY_PROTOCOL_SETTING	The PROXY protocol trusted networks setting has been updated. New value: "%S"
 LA_DISABLE_LISTENER		TCP listener (port number %u) has been disabled.
 LA_SET_PORTS_UDP		UDP ports have been set: %S.
 LA_SET_PROTO_OPTIONS	%S options have been set.
@@ -2665,6 +2674,15 @@ IDOK					&OK
 IDCANCEL				Cancel
 STATIC4					(TCP/IP Port)
 
+R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	Listener Settings
+STATIC1	You can change the settings of this TCP/IP listener.
+S_PORT	TCP/IP Listener: TCP %u
+R_PROXY_PROTOCOL	Accept the PROXY protocol header (v1 / v2 automatic detection)
+STATIC2	The change takes effect immediately. Existing connections are not affected.
 
 PREFIX					D_SM_SSL
 CAPTION					Encryption and Network Settings
@@ -2705,6 +2723,9 @@ S_INFO5					You can establish a VPN only with ICMP or DNS packets even if there 
 B_SPECIALLISTENER		VPN over ICMP / DNS Settings
 B_UPDATE_CONFIG			&Update Notify Setting...
 
+S_PP_TITLE	PROXY Protocol
+S_PP_INFO	Specify the networks (in the CIDR format, comma-separated) which are trusted to send the PROXY protocol header. Leave empty to trust all sources.
+S_PP_NETWORKS	Trusted networks(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					Save Certificate and Private Key
@@ -4575,6 +4596,26 @@ CMD_ListenerEnable_Help	This starts the operation of stopped TCP Listeners regis
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	Using an integer, specify the port number of the TCP/IP listener you want to start.
 CMD_ListenerEnable_PortPrompt	Port number of TCP/IP Listener to start: 
+CMD_ListenerCreate_Prompt_PROXY	Accept the PROXY protocol header (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	Enable the PROXY Protocol on a TCP Listener
+CMD_ListenerProxyEnable_Help	This enables the acceptance of the PROXY protocol header (version 1 or 2) on the specified TCP Listener. \nWhen a connection to this listener is forwarded by a load balancer or a reverse proxy which supports the PROXY protocol, the client real IP address is restored. \nDirect connections from clients which do not send the PROXY protocol header are also accepted. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	Using an integer, specify the port number of the TCP/IP listener on which to enable the PROXY protocol.
+CMD_ListenerProxyDisable	Disable the PROXY Protocol on a TCP Listener
+CMD_ListenerProxyDisable_Help	This disables the acceptance of the PROXY protocol header on the specified TCP Listener.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	Using an integer, specify the port number of the TCP/IP listener on which to disable the PROXY protocol.
+CMD_ProxyTrustedNetworksGet	Get the Trusted Networks of the PROXY Protocol
+CMD_ProxyTrustedNetworksGet_Help	This displays the list of trusted source networks of the PROXY protocol. \nOnly TCP connections whose source IP address is within one of these networks have their PROXY protocol headers parsed and applied. When the list is empty, all PROXY protocol headers are trusted. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	Set the Trusted Networks of the PROXY Protocol
+CMD_ProxyTrustedNetworksSet_Help	This sets the list of trusted source networks of the PROXY protocol. \nSpecify a comma-separated list of networks in the CIDR format (e.g. "192.168.0.0/24, 10.0.0.0/8"). Specify an empty string ("") to trust all sources. \nTo execute this command, you must have VPN Server administrator privileges.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	Specify a comma-separated list of trusted networks in the CIDR format. Specify an empty string to trust all sources.
+CMD_ProxyTrustedNetworks_Column_1	Setting Item
+CMD_ProxyTrustedNetworks_Column_2	Value
+CMD_ProxyTrustedNetworks_Token	Trusted networks
+CMD_ProxyTrustedNetworks_Empty	(empty: trust all sources)
 
 
 # ListenerDisable command

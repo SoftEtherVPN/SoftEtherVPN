@@ -1234,6 +1234,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		動作中
 CM_LISTENER_OFFLINE		停止中
 CM_LISTENER_ERROR		エラー発生
+CM_LISTENER_COLUMN_3	PROXY プロトコル
+CM_LISTENER_PROXY_ONLINE	有効
+CM_LISTENER_PROXY_OFFLINE	無効
 CM_DELETE_LISTENER_MSG	リスナー (TCP ポート %u) を削除します。今後、このポートには接続できなくなります。\r\nよろしいですか?
 CM_STOP_LISTENER_MSG	リスナー (TCP ポート %u) を停止します。リスナーを再開するまで、このポートには接続できなくなります。\r\n\r\nよろしいですか?
 CM_CLOSE_BUTTON			閉じる
@@ -1770,6 +1773,10 @@ LS_LISTENER_DOS			TCP リスナー (ポート %u) に対する DoS アタック�
 LS_LISTENER_MAXUEC		TCP リスナーが処理している未処理のコネクション数が %u に達した (現在数 = %u) ため、一時的に受付接続数を制限しています。
 LS_LISTENER_STOP_1		TCP リスナー (ポート %u) を停止しています。
 LS_LISTENER_STOP_2		TCP リスナー (ポート %u) の停止が完了しました。
+LS_PP_APPLIED	TCP リスナー (ポート %u) で PROXY プロトコルヘッダーが解析されました。クライアント IP アドレスが %S (ポート番号 %u) に書き換えられました。
+LS_PP_BAD_HEADER	TCP リスナー (ポート %u) で無効な PROXY プロトコルヘッダーが受信されました。発信元 IP アドレスは %S です。この接続は切断されます。
+LS_PP_UNTRUSTED_PEER	TCP リスナー (ポート %u) で信頼されていない発信元 IP アドレス %S から PROXY プロトコルヘッダーが受信されました。この接続は切断されます。
+LS_PP_LOCAL	TCP リスナー (ポート %u) で PROXY プロトコル LOCAL または UNKNOWN ヘッダーが受信されました。元のソケットアドレスが保持されます。
 LS_HUB_START			仮想 HUB "%S" を開始しました。
 LS_HUB_STOP				仮想 HUB "%S" を停止しました。
 LS_HUB_MAC				仮想 HUB "%S" の MAC アドレスは "%S" です。
@@ -2018,6 +2025,8 @@ LA_TAG_2				管理モード [%S] (仮想 HUB "%S"):
 LA_CREATE_LISTENER		新しい TCP リスナー (ポート番号 %u) を作成しました。
 LA_DELETE_LISTENER		TCP リスナー (ポート番号 %u) を削除しました。
 LA_ENABLE_LISTENER		TCP リスナー (ポート番号 %u) を有効化しました。
+LA_SET_LISTENER_PROXY_PROTOCOL	TCP リスナー (ポート番号 %u) の PROXY プロトコル受け入れ状態が %u に設定されました。
+LA_SET_PROXY_PROTOCOL_SETTING	PROXY プロトコルの信頼ネットワーク設定が更新されました。新しい値: "%S"
 LA_DISABLE_LISTENER		TCP リスナー (ポート番号 %u) を無効化しました。
 LA_SET_PORTS_UDP		UDP ポートの一覧が設定されました: %S.
 LA_SET_PROTO_OPTIONS	オプション %S が設定されました。
@@ -2668,6 +2677,15 @@ IDOK					&OK
 IDCANCEL				キャンセル
 STATIC4					(TCP/IP ポート)
 
+R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	リスナー設定
+STATIC1	この TCP/IP リスナーの設定を変更できます。
+S_PORT	TCP/IP リスナー: TCP %u
+R_PROXY_PROTOCOL	PROXY プロトコルヘッダー (v1 / v2 自動判別) を受け入れる
+STATIC2	変更は直ちに有効になります。既存の接続には影響しません。
 
 PREFIX					D_SM_SSL
 CAPTION					暗号化と通信関係の設定
@@ -2708,6 +2726,9 @@ S_INFO5					ファイアウォールやルータで TCP/IP の通信が遮断さ
 B_SPECIALLISTENER		VPN over ICMP / DNS 設定
 B_UPDATE_CONFIG			更新通知設定(&U)...
 
+S_PP_TITLE	PROXY プロトコル
+S_PP_INFO	PROXY プロトコルヘッダーの送信を信頼するネットワークを CIDR 形式 (カンマ区切り) で指定します。空の場合はすべての発信元を信頼します。
+S_PP_NETWORKS	信頼ネットワーク(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					証明書と秘密鍵の保存
@@ -4576,6 +4597,26 @@ CMD_ListenerEnable_Help	現在サーバーに登録されている TCP リスナ
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	開始する TCP/IP リスナーのポート番号を、整数で指定します。
 CMD_ListenerEnable_PortPrompt	開始する TCP/IP リスナーのポート番号: 
+CMD_ListenerCreate_Prompt_PROXY	PROXY プロトコルヘッダー (v1 / v2) を受け入れるかどうか: (yes / no)
+CMD_ListenerProxyEnable	TCP リスナーの PROXY プロトコルの有効化
+CMD_ListenerProxyEnable_Help	指定した TCP リスナーで PROXY プロトコルヘッダー (バージョン 1 または 2) の受け入れを有効にします。\nこのリスナーへの接続が PROXY プロトコル対応のロードバランサーやリバースプロキシ経由で転送される場合、クライアントの実際の IP アドレスが復元されます。\nPROXY プロトコルヘッダーを送信しないクライアントからの直接接続も受け入れられます。\nこのコマンドを実行するには、VPN サーバー管理者権限が必要です。
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	PROXY プロトコルを有効にする TCP/IP リスナーのポート番号を整数で指定します。
+CMD_ListenerProxyDisable	TCP リスナーの PROXY プロトコルの無効化
+CMD_ListenerProxyDisable_Help	指定した TCP リスナーで PROXY プロトコルヘッダーの受け入れを無効にします。
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	PROXY プロトコルを無効にする TCP/IP リスナーのポート番号を整数で指定します。
+CMD_ProxyTrustedNetworksGet	PROXY プロトコルの信頼ネットワークの取得
+CMD_ProxyTrustedNetworksGet_Help	PROXY プロトコルの信頼発信元ネットワークの一覧を表示します。\nTCP 接続の発信元 IP アドレスがこれらのネットワーク内にある場合のみ、PROXY プロトコルヘッダーが解析されて適用されます。一覧が空の場合は、すべての PROXY プロトコルヘッダーが信頼されます。\nこのコマンドを実行するには、VPN サーバー管理者権限が必要です。
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	PROXY プロトコルの信頼ネットワークの設定
+CMD_ProxyTrustedNetworksSet_Help	PROXY プロトコルの信頼発信元ネットワークの一覧を設定します。\nCIDR 形式のネットワークをカンマ区切りで指定します (例: "192.168.0.0/24, 10.0.0.0/8")。空の文字列 ("") を指定するとすべての発信元を信頼します。\nこのコマンドを実行するには、VPN サーバー管理者権限が必要です。
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	CIDR 形式の信頼ネットワークをカンマ区切りで指定します。空の文字列を指定するとすべての発信元を信頼します。
+CMD_ProxyTrustedNetworks_Column_1	設定項目
+CMD_ProxyTrustedNetworks_Column_2	値
+CMD_ProxyTrustedNetworks_Token	信頼ネットワーク
+CMD_ProxyTrustedNetworks_Empty	(空: すべての発信元を信頼)
 
 
 # ListenerDisable コマンド

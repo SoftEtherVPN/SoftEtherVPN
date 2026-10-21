@@ -7548,6 +7548,10 @@ void PsMain(PS *ps)
 			{"ListenerList", PsListenerList},
 			{"ListenerEnable", PsListenerEnable},
 			{"ListenerDisable", PsListenerDisable},
+			{"ListenerProxyEnable", PsListenerProxyEnable},
+			{"ListenerProxyDisable", PsListenerProxyDisable},
+			{"ProxyTrustedNetworksGet", PsProxyTrustedNetworksGet},
+			{"ProxyTrustedNetworksSet", PsProxyTrustedNetworksSet},
 			{"PortsUDPGet", PsPortsUDPGet},
 			{"PortsUDPSet", PsPortsUDPSet},
 			{"ProtoOptionsGet", PsProtoOptionsGet},
@@ -23793,10 +23797,12 @@ UINT PsListenerList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 
 	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_1"), false);
 	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_2"), false);
+	CtInsertColumn(ct, _UU("CM_LISTENER_COLUMN_3"), false);
 
 	for (i = 0;i < t.NumPort;i++)
 	{
 		wchar_t *status = _UU("CM_LISTENER_OFFLINE");
+		wchar_t *proxy_status = _UU("CM_LISTENER_PROXY_OFFLINE");
 		wchar_t tmp[128];
 
 		if (t.Errors[i])
@@ -23808,9 +23814,14 @@ UINT PsListenerList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 			status = _UU("CM_LISTENER_ONLINE");
 		}
 
+		if (t.ProxyProtocols[i])
+		{
+			proxy_status = _UU("CM_LISTENER_PROXY_ONLINE");
+		}
+
 		UniFormat(tmp, sizeof(tmp), _UU("CM_LISTENER_TCP_PORT"), t.Ports[i]);
 
-		CtInsert(ct, tmp, status);
+		CtInsert(ct, tmp, status, proxy_status);
 	}
 
 	CtFree(ct, c);
@@ -24230,6 +24241,7 @@ UINT PsListenerCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	PARAM args[] =
 	{
 		{"[port]", CmdPromptPort, _UU("CMD_ListenerCreate_PortPrompt"), CmdEvalPort, NULL},
+		{"PROXY", CmdPrompt, _UU("CMD_ListenerCreate_Prompt_PROXY"), NULL, NULL},
 	};
 
 	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
@@ -24241,8 +24253,170 @@ UINT PsListenerCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	Zero(&t, sizeof(t));
 	t.Enable = true;
 	t.Port = ToInt(GetParamStr(o, "[port]"));
+	t.ProxyProtocol = GetParamYes(o, "PROXY");
 
 	ret = ScCreateListener(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Enable the PROXY protocol on a listener
+UINT PsListenerProxyEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_LISTENER t;
+	PARAM args[] =
+	{
+		{"[port]", CmdPromptPort, _UU("CMD_ListenerEnable_PortPrompt"), CmdEvalPort, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.ProxyProtocol = true;
+	t.Port = ToInt(GetParamStr(o, "[port]"));
+
+	ret = ScSetListener(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Disable the PROXY protocol on a listener
+UINT PsListenerProxyDisable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	RPC_LISTENER t;
+	PARAM args[] =
+	{
+		{"[port]", CmdPromptPort, _UU("CMD_ListenerEnable_PortPrompt"), CmdEvalPort, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+	t.ProxyProtocol = false;
+	t.Port = ToInt(GetParamStr(o, "[port]"));
+
+	ret = ScSetListener(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Get the PROXY protocol trusted networks
+UINT PsProxyTrustedNetworksGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	PROXY_PROTOCOL_SETTING t;
+	CT *ct;
+
+	o = ParseCommandList(c, cmd_name, str, NULL, 0);
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	ret = ScGetProxyProtocolSetting(ps->Rpc, &t);
+
+	if (ret != ERR_NO_ERROR)
+	{
+		CmdPrintError(c, ret);
+		FreeParamValueList(o);
+		return ret;
+	}
+
+	ct = CtNew();
+
+	CtInsertColumn(ct, _UU("CMD_ProxyTrustedNetworks_Column_1"), false);
+	CtInsertColumn(ct, _UU("CMD_ProxyTrustedNetworks_Column_2"), false);
+
+	{
+		wchar_t tmp[MAX_SIZE];
+
+		if (IsEmptyStr(t.TrustedNetworks))
+		{
+			UniStrCpy(tmp, sizeof(tmp), _UU("CMD_ProxyTrustedNetworks_Empty"));
+		}
+		else
+		{
+			StrToUni(tmp, sizeof(tmp), t.TrustedNetworks);
+		}
+
+		CtInsert(ct, _UU("CMD_ProxyTrustedNetworks_Token"), tmp);
+	}
+
+	CtFree(ct, c);
+
+	FreeParamValueList(o);
+
+	return 0;
+}
+
+// Set the PROXY protocol trusted networks
+UINT PsProxyTrustedNetworksSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+{
+	LIST *o;
+	PS *ps = (PS *)param;
+	UINT ret;
+	PROXY_PROTOCOL_SETTING t;
+	PARAM args[] =
+	{
+		{"[networks]", CmdPrompt, _UU("CMD_ProxyTrustedNetworksSet_[networks]"), NULL, NULL},
+	};
+
+	o = ParseCommandList(c, cmd_name, str, args, sizeof(args) / sizeof(args[0]));
+	if (o == NULL)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	Zero(&t, sizeof(t));
+
+	StrCpy(t.TrustedNetworks, sizeof(t.TrustedNetworks), GetParamStr(o, "[networks]"));
+
+	ret = ScSetProxyProtocolSetting(ps->Rpc, &t);
 
 	if (ret != ERR_NO_ERROR)
 	{

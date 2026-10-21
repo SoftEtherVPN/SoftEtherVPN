@@ -16857,6 +16857,22 @@ void SmSslDlgOnOk(HWND hWnd, SM_SSL *s)
 		}
 	}
 
+	if (GetCapsBool(s->p->CapsList, "b_support_proxy_protocol"))
+	{
+		if (s->p->ServerAdminMode)
+		{
+			PROXY_PROTOCOL_SETTING set;
+
+			Zero(&set, sizeof(set));
+			GetTxtA(hWnd, E_PP_NETWORKS, set.TrustedNetworks, sizeof(set.TrustedNetworks));
+
+			if (CALL(hWnd, ScSetProxyProtocolSetting(s->p->Rpc, &set)) == false)
+			{
+				return;
+			}
+		}
+	}
+
 	EndDialog(hWnd, true);
 }
 
@@ -17017,6 +17033,28 @@ void SmSslDlgInit(HWND hWnd, SM_SSL *s)
 		Disable(hWnd, E_SYSLOG_PORT);
 		Disable(hWnd, S_01);
 		Disable(hWnd, S_02);
+	}
+
+	if (GetCapsBool(s->p->CapsList, "b_support_proxy_protocol"))
+	{
+		PROXY_PROTOCOL_SETTING set;
+
+		SetEnable(hWnd, E_PP_NETWORKS, s->p->ServerAdminMode);
+		SetEnable(hWnd, S_PP_NETWORKS, s->p->ServerAdminMode);
+
+		Zero(&set, sizeof(set));
+
+		if (CALL(hWnd, ScGetProxyProtocolSetting(s->p->Rpc, &set)))
+		{
+			SetTextA(hWnd, E_PP_NETWORKS, set.TrustedNetworks);
+		}
+	}
+	else
+	{
+		Hide(hWnd, S_PP_TITLE);
+		Hide(hWnd, S_PP_INFO);
+		Hide(hWnd, S_PP_NETWORKS);
+		Hide(hWnd, E_PP_NETWORKS);
 	}
 
 	SmSslDlgUpdate(hWnd, s);
@@ -17338,6 +17376,10 @@ UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 	case WM_INITDIALOG:
 		Focus(hWnd, E_PORT);
 		Disable(hWnd, IDOK);
+		if (GetCapsBool(p->CapsList, "b_support_proxy_protocol") == false)
+		{
+			Hide(hWnd, R_PROXY_PROTOCOL);
+		}
 		break;
 
 	case WM_COMMAND:
@@ -17358,16 +17400,20 @@ UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 
 		switch (wParam)
 		{
-		case IDOK:
-			port = GetInt(hWnd, E_PORT);
-			Zero(&t, sizeof(t));
-			t.Enable = true;
-			t.Port = port;
-			if (CALL(hWnd, ScCreateListener(p->Rpc, &t)))
-			{
-				EndDialog(hWnd, true);
-			}
-			break;
+	case IDOK:
+		port = GetInt(hWnd, E_PORT);
+		Zero(&t, sizeof(t));
+		t.Enable = true;
+		t.Port = port;
+		if (IsShow(hWnd, R_PROXY_PROTOCOL))
+		{
+			t.ProxyProtocol = IsChecked(hWnd, R_PROXY_PROTOCOL);
+		}
+		if (CALL(hWnd, ScCreateListener(p->Rpc, &t)))
+		{
+			EndDialog(hWnd, true);
+		}
+		break;
 		case IDCANCEL:
 			Close(hWnd);
 		}
@@ -17391,6 +17437,77 @@ bool SmCreateListenerDlg(HWND hWnd, SM_SERVER *p)
 	}
 
 	return Dialog(hWnd, D_SM_CREATE_LISTENER, SmCreateListenerDlgProc, p);
+}
+
+// Listener edit dialog procedure
+UINT SmEditListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param)
+{
+	SM_EDIT_LISTENER *s = (SM_EDIT_LISTENER *)param;
+	// Validate arguments
+	if (hWnd == NULL)
+	{
+		return 0;
+	}
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+	{
+		wchar_t tmp[MAX_SIZE];
+
+		UniFormat(tmp, sizeof(tmp), _UU("D_SM_EDIT_LISTENER@S_PORT"), s->Port);
+		SetText(hWnd, S_PORT, tmp);
+
+		Check(hWnd, R_PROXY_PROTOCOL, s->ProxyProtocol);
+		break;
+	}
+
+	case WM_COMMAND:
+		switch (wParam)
+		{
+		case IDOK:
+		{
+			RPC_LISTENER t;
+
+			Zero(&t, sizeof(t));
+			t.Port = s->Port;
+			t.ProxyProtocol = IsChecked(hWnd, R_PROXY_PROTOCOL);
+
+			if (CALL(hWnd, ScSetListener(s->p->Rpc, &t)))
+			{
+				EndDialog(hWnd, true);
+			}
+			break;
+		}
+		case IDCANCEL:
+			Close(hWnd);
+		}
+		break;
+
+	case WM_CLOSE:
+		EndDialog(hWnd, false);
+		break;
+	}
+
+	return 0;
+}
+
+// Listener edit dialog
+bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol)
+{
+	SM_EDIT_LISTENER s;
+	// Validate arguments
+	if (hWnd == NULL || p == NULL)
+	{
+		return false;
+	}
+
+	Zero(&s, sizeof(s));
+	s.p = p;
+	s.Port = port;
+	s.ProxyProtocol = proxy_protocol;
+
+	return Dialog(hWnd, D_SM_EDIT_LISTENER, SmEditListenerDlgProc, &s);
 }
 
 // HUB edit OK button
@@ -18116,6 +18233,7 @@ void SmServerDlgUpdate(HWND hWnd, SM_SERVER *p)
 
 	SetEnable(hWnd, B_CREATE_LISTENER, p->ServerAdminMode);
 	SetEnable(hWnd, B_DELETE_LISTENER, p->ServerAdminMode && listener_selected && two_or_more_listener);
+	SetEnable(hWnd, B_EDIT_LISTENER, p->ServerAdminMode && listener_selected && GetCapsBool(p->CapsList, "b_support_proxy_protocol"));
 	SetEnable(hWnd, B_START, p->ServerAdminMode && listener_selected_disabled);
 	SetEnable(hWnd, B_STOP, p->ServerAdminMode && listener_selected_enabled);
 	SetEnable(hWnd, B_FARM, GetCapsBool(p->CapsList, "b_support_cluster") && p->ServerAdminMode && GetCapsBool(p->CapsList, "b_support_vgs_in_client") == false);
@@ -18151,7 +18269,11 @@ void SmServerDlgInit(HWND hWnd, SM_SERVER *p)
 	LvInit(hWnd, L_LISTENER);
 	LvSetStyle(hWnd, L_LISTENER, LVS_EX_GRIDLINES);
 	LvInsertColumn(hWnd, L_LISTENER, 0, _UU("CM_LISTENER_COLUMN_1"), 90);
-	LvInsertColumn(hWnd, L_LISTENER, 1, _UU("CM_LISTENER_COLUMN_2"), 80);
+	LvInsertColumn(hWnd, L_LISTENER, 1, _UU("CM_LISTENER_COLUMN_2"), 70);
+	if (GetCapsBool(p->CapsList, "b_support_proxy_protocol"))
+	{
+		LvInsertColumn(hWnd, L_LISTENER, 2, _UU("CM_LISTENER_COLUMN_3"), 85);
+	}
 
 	SmServerDlgRefresh(hWnd, p);
 
@@ -18356,7 +18478,8 @@ void SmServerDlgRefresh(HWND hWnd, SM_SERVER *p)
 				icon = ICO_PROTOCOL_OFFLINE;
 			}
 
-			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2, tmp, status);
+			LvInsertAdd(b, icon, (void *)t2.Ports[i], 2 + (GetCapsBool(p->CapsList, "b_support_proxy_protocol") ? 1 : 0),
+				tmp, status, t2.ProxyProtocols[i] ? _UU("CM_LISTENER_PROXY_ONLINE") : _UU("CM_LISTENER_PROXY_OFFLINE"));
 		}
 		LvInsertEnd(b, hWnd, L_LISTENER);
 		FreeRpcListenerList(&t2);
@@ -18620,6 +18743,31 @@ UINT SmServerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *pa
 					{
 						SmServerDlgRefresh(hWnd, p);
 					}
+				}
+			}
+			break;
+
+		case B_EDIT_LISTENER:
+			// Edit the listener settings
+			i = LvGetSelected(hWnd, L_LISTENER);
+			if (i != INFINITE)
+			{
+				UINT port = (UINT)LvGetParam(hWnd, L_LISTENER, i);
+				bool proxy_protocol = false;
+
+				if (GetCapsBool(p->CapsList, "b_support_proxy_protocol"))
+				{
+					wchar_t *s = LvGetSelectedStr(hWnd, L_LISTENER, 2);
+					if (s != NULL)
+					{
+						proxy_protocol = (UniStrCmpi(s, _UU("CM_LISTENER_PROXY_ONLINE")) == 0);
+						Free(s);
+					}
+				}
+
+				if (SmEditListenerDlg(hWnd, p, port, proxy_protocol))
+				{
+					SmServerDlgRefresh(hWnd, p);
 				}
 			}
 			break;

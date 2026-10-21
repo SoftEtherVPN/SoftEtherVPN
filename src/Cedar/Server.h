@@ -136,7 +136,14 @@ struct SERVER_LISTENER
 	bool Enabled;						// Active flag
 	LISTENER *Listener;					// Listener object
 	bool DisableDos;					// Disable the DoS detection
+	bool ProxyProtocol;					// Accept the PROXY protocol header (v1/v2)
 };
+
+// PROXY protocol global setting
+typedef struct PROXY_PROTOCOL_SETTING
+{
+	char TrustedNetworks[MAX_SIZE];		// Comma-separated list of trusted source networks (CIDR). Empty = trust all.
+} PROXY_PROTOCOL_SETTING;
 
 // Syslog configuration
 struct SYSLOG_SETTING
@@ -276,6 +283,9 @@ struct SERVER
 	IP ListenIP;						// Listen IP
 	bool StrictSyslogDatetimeFormat;	// Make syslog datetime format strict RFC3164
 	bool DisableJsonRpcWebApi;					// Disable JSON-RPC Web API
+
+	LOCK *ProxyTrustedNetworksLock;		// Lock of the PROXY protocol trusted networks list
+	LIST *ProxyTrustedNetworks;		// The list of trusted PROXY protocol source networks (PP_NETWORK)
 };
 
 
@@ -402,6 +412,10 @@ void SiLockListenerList(SERVER *s);
 void SiUnlockListenerList(SERVER *s);
 bool SiAddListener(SERVER *s, UINT port, bool enabled);
 bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos);
+bool SiAddListenerEx2(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol);
+bool SiSetListenerProxyProtocol(SERVER *s, UINT port, bool proxy_protocol);
+void SiSetProxyTrustedNetworksStr(SERVER *s, char *str);
+void SiGetProxyTrustedNetworksStr(SERVER *s, char *str, UINT size);
 bool SiEnableListener(SERVER *s, UINT port);
 bool SiDisableListener(SERVER *s, UINT port);
 bool SiDeleteListener(SERVER *s, UINT port);

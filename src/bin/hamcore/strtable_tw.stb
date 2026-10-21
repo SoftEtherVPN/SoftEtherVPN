@@ -1242,6 +1242,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		監聽中
 CM_LISTENER_OFFLINE		停止中
 CM_LISTENER_ERROR		錯誤
+CM_LISTENER_COLUMN_3	PROXY 通訊協定
+CM_LISTENER_PROXY_ONLINE	啟用
+CM_LISTENER_PROXY_OFFLINE	停用
 CM_DELETE_LISTENER_MSG	監聽器 (TCP 埠 %u) 將刪除。從現在起，將無法連接到該埠。\r\n你確定要這樣做嗎?
 CM_STOP_LISTENER_MSG	監聽器 (TCP 埠 %u) 將停止。監聽器將無法連接到該埠直到重新啟動靜聽器。\r\n\r\n你確定嗎?
 CM_CLOSE_BUTTON			關閉
@@ -1785,6 +1788,10 @@ LS_LISTENER_DOS			已檢測到 TCP 監聽器上有 DoS 攻擊(埠號 %u)。連�
 LS_LISTENER_MAXUEC		TCP 監聽器是臨時暫停接受新的、向內的連接，因為未決的 TCP 連接的數量超過了 %u 個。(當前值=%u)
 LS_LISTENER_STOP_1		正在停止 TCP 監聽器(埠 %u)
 LS_LISTENER_STOP_2		已停止 TCP 監聽器(埠 %u)
+LS_PP_APPLIED	在 TCP 接聽程式 (連接埠 %u) 上解析了 PROXY 通訊協定標頭。用戶端 IP 位址被改寫為 %S (連接埠號碼 %u)。
+LS_PP_BAD_HEADER	在 TCP 接聽程式 (連接埠 %u) 上收到了無效的 PROXY 通訊協定標頭。來源 IP 位址為 %S。此連線將被中斷。
+LS_PP_UNTRUSTED_PEER	在 TCP 接聽程式 (連接埠 %u) 上收到了來自不可信任來源 IP 位址 %S 的 PROXY 通訊協定標頭。此連線將被中斷。
+LS_PP_LOCAL	在 TCP 接聽程式 (連接埠 %u) 上收到了 PROXY 通訊協定 LOCAL 或 UNKNOWN 標頭。將保留原始通訊端位址。
 LS_HUB_START			虛擬 HUB "%S" 已啟動。
 LS_HUB_STOP				虛擬 HUB "%S" 已關閉。
 LS_HUB_MAC				虛擬 HUB "%S" 的 MAC 位址是 "%S"。
@@ -2033,6 +2040,8 @@ LA_TAG_2				管理模式 "%S" (虛擬 HUB "%S"):
 LA_CREATE_LISTENER		已建立新 TCP 監聽器 (埠號 %u)。
 LA_DELETE_LISTENER		已刪除 TCP 監聽器 (埠號 %u)。
 LA_ENABLE_LISTENER		已啟用 TCP 監聽器 (埠號 %u)。
+LA_SET_LISTENER_PROXY_PROTOCOL	TCP 接聽程式 (連接埠號碼 %u) 的 PROXY 通訊協定接受狀態已被設定為 %u。
+LA_SET_PROXY_PROTOCOL_SETTING	PROXY 通訊協定信任網段設定已更新。新值: "%S"
 LA_DISABLE_LISTENER		已禁用 TCP 監聽器 (埠號 %u)。
 LA_SET_PORTS_UDP		UDP ports have been set: %S.
 LA_SET_PROTO_OPTIONS	%S options have been set.
@@ -2684,6 +2693,15 @@ IDOK					確定(&O)
 IDCANCEL				取消
 STATIC4					(TCP/IP 埠)
 
+R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	接聽程式設定
+STATIC1	您可以變更此 TCP/IP 接聽程式的設定。
+S_PORT	TCP/IP 接聽程式: TCP %u
+R_PROXY_PROTOCOL	接受 PROXY 通訊協定標頭 (v1 / v2 自動識別)
+STATIC2	變更立即生效。不會影響現有連線。
 
 PREFIX					D_SM_SSL
 CAPTION					加密和網路設置
@@ -2723,6 +2741,9 @@ S_OVER_FUNCS			VPN over ICMP / DNS 伺服器功能
 S_INFO5					您可以建立一個僅用 ICMP 或 DNS 封包的 VPN ，即使有防火牆或路由器阻止 TCP/IP 通訊。
 B_SPECIALLISTENER		VPN over ICMP / DNS 設置
 B_UPDATE_CONFIG			更新通知設置...(&U)
+S_PP_TITLE	PROXY 通訊協定
+S_PP_INFO	指定允許傳送 PROXY 通訊協定標頭的信任網段 (CIDR 格式，逗號分隔)。留空表示信任所有來源。
+S_PP_NETWORKS	信任網段(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					保存證書和金鑰
@@ -4590,6 +4611,26 @@ CMD_ListenerEnable_Help	這將啟動在當前伺服器上註冊的停止 TCP 監
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	使用一個整數，指定要啟動的 TCP/IP 監聽器埠號。
 CMD_ListenerEnable_PortPrompt	啟動 TCP/IP 監聽器埠號: 
+CMD_ListenerCreate_Prompt_PROXY	是否接受 PROXY 通訊協定標頭 (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	啟用 TCP 接聽程式的 PROXY 通訊協定
+CMD_ListenerProxyEnable_Help	此命令在指定的 TCP 接聽程式上啟用 PROXY 通訊協定標頭 (版本 1 或 2) 的接受。\n當連線經過支援 PROXY 通訊協定的負載平衡器或反向代理伺服器轉送時，可還原用戶端的真實 IP 位址。\n不攜帶 PROXY 通訊協定標頭的直接連線也會被正常接受。\n要執行此命令，必須擁有 VPN 伺服器管理員權限。
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	以整數指定要啟用 PROXY 通訊協定的 TCP/IP 接聽程式連接埠號碼。
+CMD_ListenerProxyDisable	停用 TCP 接聽程式的 PROXY 通訊協定
+CMD_ListenerProxyDisable_Help	此命令在指定的 TCP 接聽程式上停用 PROXY 通訊協定標頭的接受。
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	以整數指定要停用 PROXY 通訊協定的 TCP/IP 接聽程式連接埠號碼。
+CMD_ProxyTrustedNetworksGet	取得 PROXY 通訊協定的信任網段
+CMD_ProxyTrustedNetworksGet_Help	此命令顯示 PROXY 通訊協定的信任來源網段清單。\n只有 TCP 連線的來源 IP 位址位於這些網段內時，其 PROXY 通訊協定標頭才會被解析並套用。清單為空時信任所有來源。\n要執行此命令，必須擁有 VPN 伺服器管理員權限。
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	設定 PROXY 通訊協定的信任網段
+CMD_ProxyTrustedNetworksSet_Help	此命令設定 PROXY 通訊協定的信任來源網段清單。\n以 CIDR 格式指定逗號分隔的網段清單 (例如 "192.168.0.0/24, 10.0.0.0/8")。指定空字串 ("") 表示信任所有來源。\n要執行此命令，必須擁有 VPN 伺服器管理員權限。
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	以 CIDR 格式指定逗號分隔的信任網段清單。指定空字串表示信任所有來源。
+CMD_ProxyTrustedNetworks_Column_1	設定項目
+CMD_ProxyTrustedNetworks_Column_2	值
+CMD_ProxyTrustedNetworks_Token	信任網段
+CMD_ProxyTrustedNetworks_Empty	(空: 信任所有來源)
 
 
 # ListenerDisable 命令
