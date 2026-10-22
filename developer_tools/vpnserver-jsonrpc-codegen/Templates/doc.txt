@@ -25,6 +25,7 @@ https://<vpn_server_hostname>:<port>/api/
 
   - Older versions of SoftEther VPN before June 2019 don't support JSON-RPC APIs.
   - If you want to completely disable the JSON-RPC on your VPN Server, set the `DisableJsonRpcWebApi` variable to `true` on the `vpn_server.config`.
+  - You may also restrict access to JSON-RPC API to a specific subnet, e.g. your internal network, by setting the `JsonRpcWebApiAllowedSubnet` variable to, for example, `192.168.0.0/16`.
 
 
 ### JSON-RPC specification
