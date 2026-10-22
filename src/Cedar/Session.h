@@ -248,6 +248,7 @@ struct UI_PASSWORD_DLG
 	bool ShowNoSavePassword;		// Whether to display a check box that does not save the password
 	bool NoSavePassword;			// Mode that not to save the password
 	SOCK *Sock;						// Socket
+	char StfaCode[MAX_HOST_NAME_LEN + 1];	// Stfa code
 };
 
 // Message dialog

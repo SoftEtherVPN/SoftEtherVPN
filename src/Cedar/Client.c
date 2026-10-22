@@ -701,6 +701,7 @@ bool CncPasswordDlg(SESSION *session, UI_PASSWORD_DLG *dlg)
 	PackAddBool(p, "AdminMode", dlg->AdminMode);
 	PackAddBool(p, "ShowNoSavePassword", dlg->ShowNoSavePassword);
 	PackAddBool(p, "NoSavePassword", dlg->NoSavePassword);
+	PackAddStr(p, "StfaUserCode", dlg->StfaCode);
 
 	SendPack(s, p);
 	FreePack(p);
@@ -721,6 +722,7 @@ bool CncPasswordDlg(SESSION *session, UI_PASSWORD_DLG *dlg)
 		dlg->Type = PackGetInt(p, "Type");
 		PackGetStr(p, "Username", dlg->Username, sizeof(dlg->Username));
 		PackGetStr(p, "Password", dlg->Password, sizeof(dlg->Password));
+		PackGetStr(p, "StfaUserCode", dlg->StfaCode, sizeof(dlg->StfaCode));
 
 		FreePack(p);
 	}
@@ -1242,6 +1244,7 @@ void Win32CnPasswordDlgThreadProc(THREAD *thread, void *param)
 		PackAddInt(p, "Type", dlg->Type);
 		PackAddBool(p, "ProxyServer", dlg->ProxyServer);
 		PackAddBool(p, "NoSavePassword", dlg->NoSavePassword);
+		PackAddStr(p, "StfaUserCode", dlg->StfaCode);
 
 		SendPack(dlg->Sock, p);
 		FreePack(p);
