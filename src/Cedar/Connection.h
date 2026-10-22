@@ -230,6 +230,7 @@ struct CONNECTION
 	UINT64 ConnectedTick;			// Time it is connected
 	IP ClientIp;					// Client IP address
 	char ClientHostname[MAX_HOST_NAME_LEN + 1];	// Client host name
+	UINT ProxyProtocolVersion;		// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	UINT Type;						// Type
 	void *hWndForUI;				// Parent window
 	bool IsInProc;					// In-process

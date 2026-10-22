@@ -52,6 +52,7 @@ struct LISTENER
 	bool ShadowIPv6;				// Flag indicating that the shadow IPv6 listener
 	LISTENER *ShadowListener;		// Reference to managing shadow IPv6 listener
 	bool DisableDos;				// Disable the DoS attack detection
+	volatile bool ProxyProtocol;	// Accept the PROXY protocol header (v1/v2) on this listener
 	volatile UINT *NatTGlobalUdpPort;	// NAT-T global UDP port number
 	UCHAR RandPortId;				// NAT-T UDP random port ID
 	bool EnableConditionalAccept;	// The flag of whether to enable the Conditional Accept

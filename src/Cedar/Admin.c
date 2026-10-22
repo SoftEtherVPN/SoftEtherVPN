@@ -1497,6 +1497,9 @@ PACK *AdminDispatch(RPC *rpc, char *name, PACK *p)
 	DECLARE_RPC_EX("EnumListener", RPC_LISTENER_LIST, StEnumListener, InRpcListenerList, OutRpcListenerList, FreeRpcListenerList)
 	DECLARE_RPC("DeleteListener", RPC_LISTENER, StDeleteListener, InRpcListener, OutRpcListener)
 	DECLARE_RPC("EnableListener", RPC_LISTENER, StEnableListener, InRpcListener, OutRpcListener)
+	DECLARE_RPC("SetListener", RPC_LISTENER, StSetListener, InRpcListener, OutRpcListener)
+	DECLARE_RPC("GetProxyProtocolSetting", PROXY_PROTOCOL_SETTING, StGetProxyProtocolSetting, InRpcProxyProtocolSetting, OutRpcProxyProtocolSetting)
+	DECLARE_RPC("SetProxyProtocolSetting", PROXY_PROTOCOL_SETTING, StSetProxyProtocolSetting, InRpcProxyProtocolSetting, OutRpcProxyProtocolSetting)
 	DECLARE_RPC_EX("SetPortsUDP", RPC_PORTS, StSetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 	DECLARE_RPC_EX("GetPortsUDP", RPC_PORTS, StGetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 	DECLARE_RPC_EX("SetProtoOptions", RPC_PROTO_OPTIONS, StSetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
@@ -1684,6 +1687,9 @@ DECLARE_SC("CreateListener", RPC_LISTENER, ScCreateListener, InRpcListener, OutR
 DECLARE_SC_EX("EnumListener", RPC_LISTENER_LIST, ScEnumListener, InRpcListenerList, OutRpcListenerList, FreeRpcListenerList)
 DECLARE_SC("DeleteListener", RPC_LISTENER, ScDeleteListener, InRpcListener, OutRpcListener)
 DECLARE_SC("EnableListener", RPC_LISTENER, ScEnableListener, InRpcListener, OutRpcListener)
+DECLARE_SC("SetListener", RPC_LISTENER, ScSetListener, InRpcListener, OutRpcListener)
+DECLARE_SC("GetProxyProtocolSetting", PROXY_PROTOCOL_SETTING, ScGetProxyProtocolSetting, InRpcProxyProtocolSetting, OutRpcProxyProtocolSetting)
+DECLARE_SC("SetProxyProtocolSetting", PROXY_PROTOCOL_SETTING, ScSetProxyProtocolSetting, InRpcProxyProtocolSetting, OutRpcProxyProtocolSetting)
 DECLARE_SC_EX("SetPortsUDP", RPC_PORTS, ScSetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 DECLARE_SC_EX("GetPortsUDP", RPC_PORTS, ScGetPortsUDP, InRpcPorts, OutRpcPorts, FreeRpcPorts)
 DECLARE_SC_EX("SetProtoOptions", RPC_PROTO_OPTIONS, ScSetProtoOptions, InRpcProtoOptions, OutRpcProtoOptions, FreeRpcProtoOptions)
@@ -5405,6 +5411,8 @@ UINT StGetSessionStatus(ADMIN *a, RPC_SESSION_STATUS *t)
 				CopyIP(&t->ClientIpAddress, &s->Connection->ClientIp);
 
 				StrCpy(t->ClientHostName, sizeof(t->ClientHostName), s->Connection->ClientHostname);
+
+				t->ProxyProtocolVersion = s->ProxyProtocolVersion;
 			}
 		}
 		Unlock(s->lock);
@@ -9973,6 +9981,7 @@ UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t)
 		t->Ports = ZeroMalloc(sizeof(UINT) * t->NumPort);
 		t->Enables = ZeroMalloc(sizeof(bool) * t->NumPort);
 		t->Errors = ZeroMalloc(sizeof(bool) * t->NumPort);
+		t->ProxyProtocols = ZeroMalloc(sizeof(bool) * t->NumPort);
 
 		for (i = 0;i < t->NumPort;i++)
 		{
@@ -9980,6 +9989,7 @@ UINT StEnumListener(ADMIN *a, RPC_LISTENER_LIST *t)
 
 			t->Ports[i] = o->Port;
 			t->Enables[i] = o->Enabled;
+			t->ProxyProtocols[i] = o->ProxyProtocol;
 			if (t->Enables[i])
 			{
 				if (o->Listener->Status == LISTENER_STATUS_TRYING)
@@ -10009,7 +10019,7 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t)
 
 	LockList(a->Server->ServerListenerList);
 	{
-		if (SiAddListener(a->Server, t->Port, t->Enable) == false)
+		if (SiAddListenerEx2(a->Server, t->Port, t->Enable, false, t->ProxyProtocol) == false)
 		{
 			ret = ERR_LISTENER_ALREADY_EXISTS;
 		}
@@ -10025,6 +10035,76 @@ UINT StCreateListener(ADMIN *a, RPC_LISTENER *t)
 	SleepThread(250);
 
 	return ret;
+}
+
+// Set the PROXY protocol state of a listener
+UINT StSetListener(ADMIN *a, RPC_LISTENER *t)
+{
+	UINT ret = ERR_NO_ERROR;
+
+	SERVER_ADMIN_ONLY;
+
+	if (t->Port == 0 || t->Port > 65535)
+	{
+		return ERR_INVALID_PARAMETER;
+	}
+
+	LockList(a->Server->ServerListenerList);
+	{
+		if (SiSetListenerProxyProtocol(a->Server, t->Port, t->ProxyProtocol) == false)
+		{
+			ret = ERR_LISTENER_NOT_FOUND;
+		}
+		else
+		{
+			ALog(a, NULL, "LA_SET_LISTENER_PROXY_PROTOCOL", t->Port, t->ProxyProtocol);
+
+			IncrementServerConfigRevision(a->Server);
+		}
+	}
+	UnlockList(a->Server->ServerListenerList);
+
+	return ret;
+}
+
+// Get the PROXY protocol global setting
+UINT StGetProxyProtocolSetting(ADMIN *a, PROXY_PROTOCOL_SETTING *t)
+{
+	SERVER *s = a->Server;
+
+	SERVER_ADMIN_ONLY;
+
+	if (GetServerCapsBool(s, "b_support_proxy_protocol") == false)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	Zero(t, sizeof(PROXY_PROTOCOL_SETTING));
+
+	SiGetProxyTrustedNetworksStr(s, t->TrustedNetworks, sizeof(t->TrustedNetworks));
+
+	return ERR_NO_ERROR;
+}
+
+// Set the PROXY protocol global setting
+UINT StSetProxyProtocolSetting(ADMIN *a, PROXY_PROTOCOL_SETTING *t)
+{
+	SERVER *s = a->Server;
+
+	SERVER_ADMIN_ONLY;
+
+	if (GetServerCapsBool(s, "b_support_proxy_protocol") == false)
+	{
+		return ERR_NOT_SUPPORTED;
+	}
+
+	SiSetProxyTrustedNetworksStr(s, t->TrustedNetworks);
+
+	ALog(a, NULL, "LA_SET_PROXY_PROTOCOL_SETTING", t->TrustedNetworks);
+
+	IncrementServerConfigRevision(s);
+
+	return ERR_NO_ERROR;
 }
 
 // Set UDP ports the server should listen on
@@ -11904,12 +11984,13 @@ void SiEnumLocalSession(SERVER *s, char *hubname, RPC_ENUM_SESSION *t)
 			RPC_ENUM_SESSION_ITEM *e = &t->Sessions[i];
 			Lock(s->lock);
 			{
-				StrCpy(e->Name, sizeof(e->Name), s->Name);
-				StrCpy(e->Username, sizeof(e->Username), s->Username);
-				e->Ip = IPToUINT(&s->Connection->ClientIp);
-				CopyIP(&e->ClientIP, &s->Connection->ClientIp);
-				StrCpy(e->Hostname, sizeof(e->Hostname), s->Connection->ClientHostname);
-				e->MaxNumTcp = s->MaxConnection;
+			StrCpy(e->Name, sizeof(e->Name), s->Name);
+			StrCpy(e->Username, sizeof(e->Username), s->Username);
+			e->Ip = IPToUINT(&s->Connection->ClientIp);
+			CopyIP(&e->ClientIP, &s->Connection->ClientIp);
+			StrCpy(e->Hostname, sizeof(e->Hostname), s->Connection->ClientHostname);
+			e->ProxyProtocolVersion = s->ProxyProtocolVersion;
+			e->MaxNumTcp = s->MaxConnection;
 				e->CreatedTime = Tick64ToTime64(s->CreatedTime);
 				e->LastCommTime = Tick64ToTime64(s->LastCommTime);
 				e->LinkMode = s->LinkModeServer;
@@ -12400,6 +12481,7 @@ void InRpcListener(RPC_LISTENER *t, PACK *p)
 	Zero(t, sizeof(RPC_LISTENER));
 	t->Port = PackGetInt(p, "Port");
 	t->Enable = PackGetBool(p, "Enable");
+	t->ProxyProtocol = PackGetBool(p, "ProxyProtocol");
 }
 void OutRpcListener(PACK *p, RPC_LISTENER *t)
 {
@@ -12411,6 +12493,7 @@ void OutRpcListener(PACK *p, RPC_LISTENER *t)
 
 	PackAddInt(p, "Port", t->Port);
 	PackAddBool(p, "Enable", t->Enable);
+	PackAddBool(p, "ProxyProtocol", t->ProxyProtocol);
 }
 
 // RPC_LISTENER_LIST
@@ -12428,11 +12511,13 @@ void InRpcListenerList(RPC_LISTENER_LIST *t, PACK *p)
 	t->Ports = ZeroMalloc(sizeof(UINT) * t->NumPort);
 	t->Enables = ZeroMalloc(sizeof(UINT) * t->NumPort);
 	t->Errors = ZeroMalloc(sizeof(UINT) * t->NumPort);
+	t->ProxyProtocols = ZeroMalloc(sizeof(bool) * t->NumPort);
 	for (i = 0;i < t->NumPort;i++)
 	{
 		t->Ports[i] = PackGetIntEx(p, "Ports", i);
 		t->Enables[i] = PackGetBoolEx(p, "Enables", i);
 		t->Errors[i] = PackGetBoolEx(p, "Errors", i);
+		t->ProxyProtocols[i] = PackGetBoolEx(p, "ProxyProtocols", i);
 	}
 }
 void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t)
@@ -12450,6 +12535,7 @@ void OutRpcListenerList(PACK *p, RPC_LISTENER_LIST *t)
 		PackAddIntEx(p, "Ports", t->Ports[i], i, t->NumPort);
 		PackAddBoolEx(p, "Enables", t->Enables[i], i, t->NumPort);
 		PackAddBoolEx(p, "Errors", t->Errors[i], i, t->NumPort);
+		PackAddBoolEx(p, "ProxyProtocols", t->ProxyProtocols[i], i, t->NumPort);
 	}
 	PackSetCurrentJsonGroupName(p, NULL);
 }
@@ -12464,6 +12550,31 @@ void FreeRpcListenerList(RPC_LISTENER_LIST *t)
 	Free(t->Ports);
 	Free(t->Enables);
 	Free(t->Errors);
+	Free(t->ProxyProtocols);
+}
+
+// PROXY_PROTOCOL_SETTING
+void InRpcProxyProtocolSetting(PROXY_PROTOCOL_SETTING *t, PACK *p)
+{
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	Zero(t, sizeof(PROXY_PROTOCOL_SETTING));
+
+	PackGetStr(p, "TrustedNetworks", t->TrustedNetworks, sizeof(t->TrustedNetworks));
+}
+void OutRpcProxyProtocolSetting(PACK *p, PROXY_PROTOCOL_SETTING *t)
+{
+	// Validate arguments
+	if (t == NULL || p == NULL)
+	{
+		return;
+	}
+
+	PackAddStr(p, "TrustedNetworks", t->TrustedNetworks);
 }
 
 // RPC_PORTS
@@ -14480,6 +14591,7 @@ void InRpcEnumSession(RPC_ENUM_SESSION *t, PACK *p)
 		e->Client_MonitorMode = PackGetBoolEx(p, "Client_MonitorMode", i);
 		PackGetStrEx(p, "RemoteHostname", e->RemoteHostname, sizeof(e->RemoteHostname), i);
 		e->VLanId = PackGetIntEx(p, "VLanId", i);
+		e->ProxyProtocolVersion = PackGetIntEx(p, "ProxyProtocolVersion", i);
 		PackGetDataEx2(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i);
 		e->IsDormantEnabled = PackGetBoolEx(p, "IsDormantEnabled", i);
 		e->IsDormant = PackGetBoolEx(p, "IsDormant", i);
@@ -14521,6 +14633,7 @@ void OutRpcEnumSession(PACK *p, RPC_ENUM_SESSION *t)
 		PackAddBoolEx(p, "Client_BridgeMode", e->Client_BridgeMode, i, t->NumSession);
 		PackAddBoolEx(p, "Client_MonitorMode", e->Client_MonitorMode, i, t->NumSession);
 		PackAddIntEx(p, "VLanId", e->VLanId, i, t->NumSession);
+		PackAddIntEx(p, "ProxyProtocolVersion", e->ProxyProtocolVersion, i, t->NumSession);
 		PackAddDataEx(p, "UniqueId", e->UniqueId, sizeof(e->UniqueId), i, t->NumSession);
 		PackAddBoolEx(p, "IsDormantEnabled", e->IsDormantEnabled, i, t->NumSession);
 		PackAddBoolEx(p, "IsDormant", e->IsDormant, i, t->NumSession);
@@ -14721,6 +14834,7 @@ void InRpcSessionStatus(RPC_SESSION_STATUS *t, PACK *p)
 	PackGetData2(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackGetStr(p, "SessionStatus_ClientHostName", t->ClientHostName, sizeof(t->ClientHostName));
 	PackGetIp(p, "Client_Ip_Address", &t->ClientIpAddress);
+	t->ProxyProtocolVersion = PackGetInt(p, "ProxyProtocolVersion");
 
 	InRpcClientGetConnectionStatus(&t->Status, p);
 	InRpcNodeInfo(&t->NodeInfo, p);
@@ -14742,6 +14856,7 @@ void OutRpcSessionStatus(PACK *p, RPC_SESSION_STATUS *t)
 	PackAddData(p, "SessionStatus_ClientIp6", t->ClientIp6, sizeof(t->ClientIp6));
 	PackAddStr(p, "SessionStatus_ClientHostName", t->ClientHostName);
 	PackAddIp(p, "Client_Ip_Address", &t->ClientIpAddress);
+	PackAddInt(p, "ProxyProtocolVersion", t->ProxyProtocolVersion);
 
 	OutRpcClientGetConnectionStatus(p, &t->Status);
 	OutRpcNodeInfo(p, &t->NodeInfo);

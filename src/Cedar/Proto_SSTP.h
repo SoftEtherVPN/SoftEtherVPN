@@ -98,6 +98,7 @@ struct SSTP_SERVER
 	UINT64 Now;
 	IP ClientIp, ServerIp;
 	UINT ClientPort, ServerPort;
+	UINT ProxyProtocolVersion;				// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	char ClientHostName[MAX_HOST_NAME_LEN + 1];
 	char ClientCipherName[MAX_SIZE];
 	SOCK_EVENT *SockEvent;
