@@ -392,7 +392,7 @@ bool IPsecWin7InitApi()
 	api = malloc(sizeof(IPSEC_WIN7_FUNCTIONS));
 	Zero(api, sizeof(IPSEC_WIN7_FUNCTIONS));
 
-	api->FwpmEngineOpen0 = 
+	api->FwpmEngineOpen0 =
 		(DWORD (__stdcall *)(const wchar_t *,UINT32,SEC_WINNT_AUTH_IDENTITY_W *,const FWPM_SESSION0 *,HANDLE *))
 		GetProcAddress(hDll, "FwpmEngineOpen0");
 
@@ -407,6 +407,14 @@ bool IPsecWin7InitApi()
 	api->FwpmFilterAdd0 =
 		(DWORD (__stdcall *)(HANDLE,const FWPM_FILTER0 *,PSECURITY_DESCRIPTOR,UINT64 *))
 		GetProcAddress(hDll, "FwpmFilterAdd0");
+
+	api->FwpmSubLayerAdd0 =
+		(DWORD (__stdcall *)(HANDLE,const FWPM_SUBLAYER0 *,PSECURITY_DESCRIPTOR))
+		GetProcAddress(hDll, "FwpmSubLayerAdd0");
+
+	api->FwpmGetAppIdFromFileName0 =
+		(DWORD (__stdcall *)(const wchar_t *,FWP_BYTE_BLOB **))
+		GetProcAddress(hDll, "FwpmGetAppIdFromFileName0");
 
 	api->IPsecSaContextCreate0 =
 		(DWORD (__stdcall *)(HANDLE,const IPSEC_TRAFFIC0 *,UINT64 *,UINT64 *))
@@ -428,6 +436,8 @@ bool IPsecWin7InitApi()
 		(DWORD (__stdcall *)(HANDLE,const FWPM_CALLOUT0 *,PSECURITY_DESCRIPTOR,UINT32 *))
 		GetProcAddress(hDll, "FwpmCalloutAdd0");
 
+	// DnsBlocker checks `FwpmSubLayerAdd0` and `FwpmGetAppIdFromFileName0`
+	// separately, since the core IPsec helper itself doesn't use them.
 	if (api->FwpmEngineOpen0 == NULL ||
 		api->FwpmEngineClose0 == NULL ||
 		api->FwpmFreeMemory0 == NULL ||
@@ -444,6 +454,16 @@ bool IPsecWin7InitApi()
 	}
 
 	return true;
+}
+
+IPSEC_WIN7_FUNCTIONS *IPsecWin7GetApi()
+{
+	if (IPsecWin7InitApi() == false)
+	{
+		return NULL;
+	}
+
+	return api;
 }
 
 #endif	// WIN32
