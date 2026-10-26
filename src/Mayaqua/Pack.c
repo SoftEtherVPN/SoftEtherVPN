@@ -537,8 +537,6 @@ VALUE *NewUniStrValue(wchar_t *str)
 	v->UniStr = Malloc(v->Size);
 	UniStrCpy(v->UniStr, v->Size, str);
 
-	UniTrim(v->UniStr);
-
 	return v;
 }
 
@@ -559,8 +557,6 @@ VALUE *NewStrValue(char *str)
 	v->Size = StrLen(str) + 1;
 	v->Str = Malloc(v->Size);
 	StrCpy(v->Str, v->Size, str);
-
-	Trim(v->Str);
 
 	return v;
 }

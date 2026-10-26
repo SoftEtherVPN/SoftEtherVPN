@@ -819,6 +819,23 @@ void UdpAccelSetTick(UDP_ACCEL *a, UINT64 tick64)
 	a->Now = tick64;
 }
 
+// Link-local peers must use the interface bound by the UDP socket, not the
+// scope reported by the TCP connection (which may refer to another interface).
+static void UdpAccelSetPeerScope(UDP_ACCEL *a)
+{
+	if ((GetIPAddrType6(&a->MyIp) & IPV6_ADDR_LOCAL_UNICAST) && a->MyIp.ipv6_scope_id != 0)
+	{
+		if (GetIPAddrType6(&a->YourIp) & IPV6_ADDR_LOCAL_UNICAST)
+		{
+			a->YourIp.ipv6_scope_id = a->MyIp.ipv6_scope_id;
+		}
+		if (GetIPAddrType6(&a->YourIpReported) & IPV6_ADDR_LOCAL_UNICAST)
+		{
+			a->YourIpReported.ipv6_scope_id = a->MyIp.ipv6_scope_id;
+		}
+	}
+}
+
 // Initialize the server-side
 bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_ip, USHORT port)
 {
@@ -851,6 +868,7 @@ bool UdpAccelInitServer(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_
 
 	Copy(&a->YourIp, detected_ip, sizeof(a->YourIp));
 	Copy(&a->YourIpReported, reported_ip, sizeof(a->YourIpReported));
+	UdpAccelSetPeerScope(a);
 
 	a->YourPort = a->YourPortReported = port;
 
@@ -893,6 +911,7 @@ bool UdpAccelInitClient(UDP_ACCEL *a, UCHAR *key, IP *detected_ip, IP *reported_
 
 	Copy(&a->YourIp, detected_ip, sizeof(a->YourIp));
 	Copy(&a->YourIpReported, reported_ip, sizeof(a->YourIpReported));
+	UdpAccelSetPeerScope(a);
 
 	a->YourPort = a->YourPortReported = port;
 
