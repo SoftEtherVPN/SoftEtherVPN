@@ -183,8 +183,9 @@ struct SOCK
 	bool EnableConditionalAccept;	// Conditional Accept is Enabled
 	IP RemoteIP;				// IP address of the remote host
 	IP LocalIP;					// IP address of the local host
-	char *RemoteHostname;		// Remote host name
-	UINT RemotePort;			// Port number of the remote side
+	char *RemoteHostname;			// Remote host name
+	UINT RemotePort;				// Port number of the remote side
+	UINT ProxyProtocolVersion;	// PROXY protocol version used by the remote peer (0 = none, 1 = v1, 2 = v2)
 	UINT LocalPort;				// Port number of the local side
 	UINT64 SendSize;			// Total size of the sent data
 	UINT64 RecvSize;			// Total size of received data
@@ -457,6 +458,7 @@ struct TCP_RAW_DATA
 	IP DstIP;							// Destination IP address
 	UINT SrcPort;						// Source port
 	UINT DstPort;						// Destination port
+	UINT ProxyProtocolVersion;			// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	FIFO *Data;							// Data body
 };
 
@@ -484,6 +486,7 @@ struct UDPPACKET
 	UINT Size;							// Data size
 	void *Data;							// Data body
 	UINT Type;							// Type
+	UINT ProxyProtocolVersion;			// PROXY protocol version carried from the TCP connection (0 = none)
 };
 
 // UDP listener packet receipt notification procedure

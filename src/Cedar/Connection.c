@@ -3470,6 +3470,7 @@ CONNECTION *NewServerConnection(CEDAR *cedar, SOCK *s, THREAD *t)
 		AddRef(c->FirstSock->ref);
 		Copy(&c->ClientIp, &s->RemoteIP, sizeof(IP));
 		StrCpy(c->ClientHostname, sizeof(c->ClientHostname), s->RemoteHostname);
+		c->ProxyProtocolVersion = s->ProxyProtocolVersion;
 	}
 	c->Tcp = ZeroMalloc(sizeof(TCP));
 	c->Tcp->TcpSockList = NewList(NULL);

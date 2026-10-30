@@ -1231,6 +1231,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE	Ouvindo
 CM_LISTENER_OFFLINE	Parado
 CM_LISTENER_ERROR	Erro
+CM_LISTENER_COLUMN_3	Protocolo PROXY
+CM_LISTENER_PROXY_ONLINE	Ativado
+CM_LISTENER_PROXY_OFFLINE	Desativado
 CM_DELETE_LISTENER_MSG	This will delete the Listener (TCP port %u). From now on, it will not be possible to connect to this port. \r\nDo you really want to do this?
 CM_STOP_LISTENER_MSG	This will stop the Listener (TCP port %u). Until Listener is restarted it will not be possible to connect to this port. \r\n\r\nDo you really want to do this?
 CM_CLOSE_BUTTON	Fechar
@@ -1445,6 +1448,7 @@ SM_SESS_COLUMN_5	TCP Connections
 SM_SESS_COLUMN_6	Bytes transferidos
 SM_SESS_COLUMN_7	Pacote transferidos
 SM_SESS_COLUMN_8	ID VLAN
+SM_SESS_COLUMN_9	Protocolo PROXY
 SM_SESS_NORMAL	Sessão local
 SM_SESS_LOCAL	Sessão local
 SM_SESS_LOCAL_2	Em '%S'
@@ -1464,6 +1468,10 @@ SM_SESS_STATUS_USERNAME	User Name (Authentication)
 SM_SESS_STATUS_REALUSER	User Name (Database)
 SM_SESS_STATUS_GROUPNAME	Nome do grupo
 SM_CLIENT_IP	Endereço IP do cliente
+SM_SESS_STATUS_PP	Conexão por Protocolo PROXY
+SM_SESS_PP_NONE	Não
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME	Nome do Host do Cliente
 SM_NODE_CLIENT_NAME	Client Product Name (Reported)
 SM_NODE_CLIENT_VER	Client Version (Reported)
@@ -1767,6 +1775,10 @@ LS_LISTENER_DOS	A DoS attack on the TCP Listener (port %u) has been detected. Th
 LS_LISTENER_MAXUEC	The TCP listener is temporary suspending to accept new inward connections because of the number of pending TCP connections exceeded %u. (Current value = %u)
 LS_LISTENER_STOP_1	TCP Listener (port %u) is stopping.
 LS_LISTENER_STOP_2	TCP Listener (port %u) has stopped.
+LS_PP_APPLIED	Um cabeçalho do protocolo PROXY foi analisado no Ouvinte TCP (porta %u). O endereço IP do cliente foi reescrito para %S (número da porta %u).
+LS_PP_BAD_HEADER	Um cabeçalho do protocolo PROXY inválido foi recebido no Ouvinte TCP (porta %u). O endereço IP de origem é %S. Esta conexão será desconectada.
+LS_PP_UNTRUSTED_PEER	Um cabeçalho do protocolo PROXY foi recebido no Ouvinte TCP (porta %u) de um endereço IP de origem não confiável %S. Esta conexão será desconectada.
+LS_PP_LOCAL	Um cabeçalho LOCAL ou UNKNOWN do protocolo PROXY foi recebido no Ouvinte TCP (porta %u). O endereço de soquete original é mantido.
 LS_HUB_START	Virtual Hub "%S" has been started.
 LS_HUB_STOP	Virtual Hub "%S" has been stopped.
 LS_HUB_MAC	The MAC address of Virtual Hub "%S" is "%S".
@@ -2015,6 +2027,8 @@ LA_TAG_2	Administration mode [%S] (Virtual Hub "%S"):
 LA_CREATE_LISTENER	A new TCP listener (port number %u) has been created.
 LA_DELETE_LISTENER	TCP listener (port number %u) has been deleted.
 LA_ENABLE_LISTENER	TCP listener (port number %u) has been enabled.
+LA_SET_LISTENER_PROXY_PROTOCOL	O estado de aceitação do protocolo PROXY do ouvinte TCP (número da porta %u) foi definido para %u.
+LA_SET_PROXY_PROTOCOL_SETTING	A configuração de redes confiáveis do protocolo PROXY foi atualizada. Novo valor: "%S"
 LA_DISABLE_LISTENER	TCP listener (port number %u) has been disabled.
 LA_SET_PORTS_UDP	UDP ports have been set: %S.
 LA_SET_PROTO_OPTIONS	%S options have been set.
@@ -2605,6 +2619,15 @@ STATIC3	&Número da porta:
 IDOK	&OK
 IDCANCEL	Cancelar
 STATIC4	(Porta TCP/IP)
+R_PROXY_PROTOCOL	Aceitar o cabeçalho do protocolo PROXY (detecção automática v1 / v2)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	Configurações do Ouvinte
+STATIC1	Você pode alterar as configurações deste ouvinte TCP/IP.
+S_PORT	Ouvinte TCP/IP: TCP %u
+R_PROXY_PROTOCOL	Aceitar o cabeçalho do protocolo PROXY (detecção automática v1 / v2)
+STATIC2	A alteração entra em vigor imediatamente. As conexões existentes não são afetadas.
 PREFIX	D_SM_SSL
 CAPTION	Encryption and Network Settings
 STATIC1	You can view or change settings related to encryption, communication and security for this VPN Server.
@@ -2643,6 +2666,9 @@ S_OVER_FUNCS	VPN over ICMP / DNS Server Function
 S_INFO5	You can establish a VPN only with ICMP or DNS packets even if there is a firewall or routers which blocks TCP/IP communications.
 B_SPECIALLISTENER	VPN over ICMP / DNS Settings
 B_UPDATE_CONFIG	&Update Notify Setting...
+S_PP_TITLE	Protocolo PROXY
+S_PP_INFO	Especifique as redes (no formato CIDR, separadas por vírgulas) que são confiáveis para enviar o cabeçalho do protocolo PROXY. Deixe vazio para confiar em todas as origens.
+S_PP_NETWORKS	Redes confiáveis(&T):
 PREFIX	D_SM_SAVE_KEY_PAIR
 CAPTION	Save Certificate and Private Key
 STATIC1	Select the method to save the certificate and private key.
@@ -4295,6 +4321,26 @@ CMD_ListenerEnable_Help	This starts the operation of stopped TCP Listeners regis
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	Using an integer, specify the port number of the TCP/IP listener you want to start.
 CMD_ListenerEnable_PortPrompt	Port number of TCP/IP Listener to start: 
+CMD_ListenerCreate_Prompt_PROXY	Aceitar o cabeçalho do protocolo PROXY (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	Ativar o Protocolo PROXY em um Ouvinte TCP
+CMD_ListenerProxyEnable_Help	Isto ativa a aceitação do cabeçalho do protocolo PROXY (versão 1 ou 2) no Ouvinte TCP especificado.\nQuando uma conexão a este ouvinte é encaminhada por um balanceador de carga ou um proxy reverso que suporta o protocolo PROXY, o endereço IP real do cliente é restaurado.\nConexões diretas de clientes que não enviam o cabeçalho do protocolo PROXY também são aceitas.\nPara executar este comando, você deve ter privilégios de administrador do Servidor VPN.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	Especifique com um número inteiro o número da porta do ouvinte TCP/IP no qual ativar o protocolo PROXY.
+CMD_ListenerProxyDisable	Desativar o Protocolo PROXY em um Ouvinte TCP
+CMD_ListenerProxyDisable_Help	Isto desativa a aceitação do cabeçalho do protocolo PROXY no Ouvinte TCP especificado.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	Especifique com um número inteiro o número da porta do ouvinte TCP/IP no qual desativar o protocolo PROXY.
+CMD_ProxyTrustedNetworksGet	Obter as Redes Confiáveis do Protocolo PROXY
+CMD_ProxyTrustedNetworksGet_Help	Isto exibe a lista de redes de origem confiáveis do protocolo PROXY.\nApenas conexões TCP cujo endereço IP de origem está dentro de uma dessas redes têm seus cabeçalhos do protocolo PROXY analisados e aplicados. Quando a lista está vazia, todos os cabeçalhos do protocolo PROXY são confiáveis.\nPara executar este comando, você deve ter privilégios de administrador do Servidor VPN.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	Definir as Redes Confiáveis do Protocolo PROXY
+CMD_ProxyTrustedNetworksSet_Help	Isto define a lista de redes de origem confiáveis do protocolo PROXY.\nEspecifique uma lista de redes separadas por vírgulas no formato CIDR (ex.: "192.168.0.0/24, 10.0.0.0/8"). Especifique uma string vazia ("") para confiar em todas as origens.\nPara executar este comando, você deve ter privilégios de administrador do Servidor VPN.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	Especifique uma lista de redes confiáveis separadas por vírgulas no formato CIDR. Especifique uma string vazia para confiar em todas as origens.
+CMD_ProxyTrustedNetworks_Column_1	Item de Configuração
+CMD_ProxyTrustedNetworks_Column_2	Valor
+CMD_ProxyTrustedNetworks_Token	Redes confiáveis
+CMD_ProxyTrustedNetworks_Empty	(vazio: confiar em todas as origens)
 
 
 # ListenerDisable command

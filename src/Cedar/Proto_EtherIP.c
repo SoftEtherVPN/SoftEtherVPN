@@ -72,7 +72,7 @@ void EtherIPIpcConnectThread(THREAD *t, void *p)
 			(s->L2TPv3 ? ETHERIP_L2TPV3_POSTFIX : ETHERIP_POSTFIX),
 			id.HubName, id.UserName, id.Password, NULL,
 			&error_code,
-			&s->ClientIP, s->ClientPort,
+			&s->ClientIP, s->ClientPort, 0,
 			&s->ServerIP, s->ServerPort,
 			tmp,
 			s->CryptName, true, mss, NULL, NULL, false, IPC_LAYER_2);

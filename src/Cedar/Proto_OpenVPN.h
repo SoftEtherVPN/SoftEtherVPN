@@ -165,11 +165,12 @@ struct OPENVPN_SESSION
 	OPENVPN_SERVER *Server;
 	UINT64 ServerSessionId;								// The session ID of the server-side
 	UINT64 ClientSessionId;								// Session ID of the client side
-	UINT Protocol;										// Protocol
-	IP ClientIp;										// Client IP address
-	UINT ClientPort;									// Client port number
-	IP ServerIp;										// Server IP address
-	UINT ServerPort;									// Server port number
+	UINT Protocol;								// Protocol
+	IP ClientIp;								// Client IP address
+	UINT ClientPort;							// Client port number
+	UINT ProxyProtocolVersion;					// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
+	IP ServerIp;								// Server IP address
+	UINT ServerPort;							// Server port number
 	OPENVPN_CHANNEL *Channels[OPENVPN_NUM_CHANNELS];	// Channels (up to 8)
 	UINT LastCreatedChannelIndex;						// Channel number that is created in the last
 	UINT Mode;											// Mode (L3 or L2)
@@ -227,8 +228,8 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol);
 void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol);
 int OvsCompareSessionList(void *p1, void *p2);
 OPENVPN_SESSION *OvsSearchSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
-OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
-OPENVPN_SESSION *OvsFindOrCreateSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol);
+OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol, UINT proxy_protocol_version);
+OPENVPN_SESSION *OvsFindOrCreateSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol, UINT proxy_protocol_version);
 void OvsFreeSession(OPENVPN_SESSION *se);
 UINT OvsGetNumSessionByClientIp(OPENVPN_SERVER *s, IP *ip);
 

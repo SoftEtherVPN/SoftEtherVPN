@@ -169,6 +169,7 @@ bool OvsProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
 
 		// Insert packet into the list
 		packet = NewUdpPacket(&in->SrcIP, in->SrcPort, &in->DstIP, in->DstPort, Clone(buf + sizeof(USHORT), payload_size), payload_size);
+		packet->ProxyProtocolVersion = in->ProxyProtocolVersion;
 		Add(server->RecvPacketList, packet);
 	}
 
@@ -587,7 +588,7 @@ void OvsProceccRecvPacket(OPENVPN_SERVER *s, UDPPACKET *p, UINT protocol)
 	}
 
 	// Search for the session
-	se = OvsFindOrCreateSession(s, &p->DstIP, p->DestPort, &p->SrcIP, p->SrcPort, protocol);
+	se = OvsFindOrCreateSession(s, &p->DstIP, p->DestPort, &p->SrcIP, p->SrcPort, protocol, p->ProxyProtocolVersion);
 	if (se == NULL)
 	{
 		return;
@@ -1078,6 +1079,7 @@ void OvsBeginIPCAsyncConnectionIfEmpty(OPENVPN_SERVER *s, OPENVPN_SESSION *se, O
 
 		Copy(&p.ClientIp, &se->ClientIp, sizeof(IP));
 		p.ClientPort = se->ClientPort;
+		p.ProxyProtocolVersion = se->ProxyProtocolVersion;
 
 		Copy(&p.ServerIp, &se->ServerIp, sizeof(IP));
 		p.ServerPort = se->ServerPort;
@@ -2066,7 +2068,7 @@ void OvsFreePacket(OPENVPN_PACKET *p)
 }
 
 // If the session does not exist, create a session
-OPENVPN_SESSION *OvsFindOrCreateSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol)
+OPENVPN_SESSION *OvsFindOrCreateSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol, UINT proxy_protocol_version)
 {
 	OPENVPN_SESSION *se;
 	// Validate arguments
@@ -2078,7 +2080,7 @@ OPENVPN_SESSION *OvsFindOrCreateSession(OPENVPN_SERVER *s, IP *server_ip, UINT s
 	se = OvsSearchSession(s, server_ip, server_port, client_ip, client_port, protocol);
 	if (se == NULL)
 	{
-		se = OvsNewSession(s, server_ip, server_port, client_ip, client_port, protocol);
+		se = OvsNewSession(s, server_ip, server_port, client_ip, client_port, protocol, proxy_protocol_version);
 
 		if (se != NULL)
 		{
@@ -2114,7 +2116,7 @@ UINT OvsGetNumSessionByClientIp(OPENVPN_SERVER *s, IP *ip)
 }
 
 // Create a new session
-OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol)
+OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_port, IP *client_ip, UINT client_port, UINT protocol, UINT proxy_protocol_version)
 {
 	OPENVPN_SESSION *se;
 	char server_ip_str[MAX_SIZE];
@@ -2144,6 +2146,7 @@ OPENVPN_SESSION *OvsNewSession(OPENVPN_SERVER *s, IP *server_ip, UINT server_por
 
 	Copy(&se->ClientIp, client_ip, sizeof(IP));
 	se->ClientPort = client_port;
+	se->ProxyProtocolVersion = proxy_protocol_version;
 
 	Copy(&se->ServerIp, server_ip, sizeof(IP));
 	se->ServerPort = server_port;
