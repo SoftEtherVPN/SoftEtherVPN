@@ -229,7 +229,7 @@ struct PPP_EAP_TLS_CONTEXT
 	UCHAR *CachedBufferRecv;
 	UCHAR *CachedBufferRecvPntr;
 	UCHAR *CachedBufferSend;
-	UCHAR *CachedBufferSendPntr;
+	UINT CachedBufferSendOffset;
 	bool DisableTls13;
 	int Tls13SessionTicketsCount;
 };
