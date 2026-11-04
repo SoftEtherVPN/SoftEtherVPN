@@ -162,7 +162,7 @@ void PPPThread(THREAD *thread, void *param)
 				{
 					PPP_REQUEST_RESEND *t = LIST_DATA(p->SentReqPacketList, i);
 
-					if (t->Id == p->CurrentPacket->Lcp->Id)
+					if (t->Id == p->CurrentPacket->Lcp->Id && t->Packet->Protocol == p->CurrentPacket->Protocol)
 					{
 						request = t->Packet;
 						Delete(p->SentReqPacketList, t);
@@ -3539,10 +3539,18 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 			// We got an ACK to transmit the next fragmented message
 			dataSize = p->Mru1 - 8 - 1 - 1; // Calculating the maximum payload size (without TlsLength)
 			sizeLeft = GetMemSize(p->Eap_TlsCtx.CachedBufferSend);
-			sizeLeft -= (UINT)(p->Eap_TlsCtx.CachedBufferSendPntr - p->Eap_TlsCtx.CachedBufferSend);
+
+			if (p->Eap_TlsCtx.CachedBufferSendOffset >= sizeLeft)
+			{
+				PPPSetStatus(p, PPP_STATUS_FAIL);
+				WHERE;
+				return false;
+			}
+			
+			sizeLeft -= p->Eap_TlsCtx.CachedBufferSendOffset;
 
 			flags = PPP_EAP_TLS_FLAG_FRAGMENTED; // M flag
-			if (dataSize > sizeLeft)
+			if (dataSize >= sizeLeft)
 			{
 				dataSize = sizeLeft;
 				flags = PPP_EAP_TLS_FLAG_NONE; // Clearing the M flag because it is the last packet
@@ -3550,8 +3558,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 			p->Eap_PacketId = p->NextId++;
 			lcp = BuildEAPTlsRequest(p->Eap_PacketId, dataSize, flags);
 			eap = lcp->Data;
-			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.CachedBufferSendPntr, dataSize);
-			p->Eap_TlsCtx.CachedBufferSendPntr += (UINT64)dataSize;
+			Copy(eap->Tls.TlsDataWithoutLength, p->Eap_TlsCtx.CachedBufferSend + p->Eap_TlsCtx.CachedBufferSendOffset, dataSize);
+			p->Eap_TlsCtx.CachedBufferSendOffset += dataSize;
 
 			if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 			{
@@ -3566,7 +3574,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 				// As it is the latest message, we need to cleanup
 				Free(p->Eap_TlsCtx.CachedBufferSend);
 				p->Eap_TlsCtx.CachedBufferSend = NULL;
-				p->Eap_TlsCtx.CachedBufferSendPntr = NULL;
+				p->Eap_TlsCtx.CachedBufferSendOffset = 0;
 			}
 		}
 		else if (p->AuthOk == true && p->Ipc != NULL && p->PPPStatus == PPP_STATUS_AUTHENTICATING)
@@ -3730,8 +3738,21 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 					p->AuthOk = false;
 				}
 
+				if (p->Eap_TlsCtx.CachedBufferSend != NULL)
+				{
+					Free(p->Eap_TlsCtx.CachedBufferSend);
+					p->Eap_TlsCtx.CachedBufferSend = NULL;
+				}
+				p->Eap_TlsCtx.CachedBufferSendOffset = 0;
+
 				FreeSslPipe(p->Eap_TlsCtx.SslPipe);
 				DhFree(p->Eap_TlsCtx.Dh);
+				
+				if (p->Eap_TlsCtx.ClientCert.X != NULL)
+				{
+					FreeX(p->Eap_TlsCtx.ClientCert.X);
+				}
+
 				p->Eap_TlsCtx.SslPipe = NULL;
 				p->Eap_TlsCtx.Dh = NULL;
 				if (p->Eap_TlsCtx.Tls13SessionTicketsCount == 0)
@@ -3758,7 +3779,11 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 
 			// If on the server we have enough data to authenticate, let's do this before we continue with the handshake
 			// Check if we received the client certificate and the handshake is finished
-			if (p->Eap_TlsCtx.ClientCert.X != NULL && p->Ipc == NULL)
+			if (syncOk && 
+				!p->Eap_TlsCtx.SslPipe->IsDisconnected &&
+				SSL_is_init_finished(p->Eap_TlsCtx.SslPipe->ssl) &&
+				p->Eap_TlsCtx.ClientCert.X != NULL &&
+				p->Ipc == NULL)
 			{
 				IPC* ipc;
 				UINT error_code;
@@ -3834,8 +3859,6 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 					p->UserConnectionTimeout = (UINT64)p->Ipc->Policy->AutoDisconnect * 1000;
 					p->UserConnectionTick = Tick64();
 
-					p->AuthOk = true;
-
 					if (p->Eap_TlsCtx.SslPipe->SslVersion == TLS1_3_VERSION)
 					{
 						// Before starting IPC and sending an EAP-Success in case of TLS 1.3 we need to send a 0x00 data packet as per RFC 9190
@@ -3848,6 +3871,8 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 							return false;
 						}
 					}
+
+					p->AuthOk = true;
 				}
 				else
 				{
@@ -3876,14 +3901,22 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 			if (p->Eap_TlsCtx.SslPipe->IsDisconnected == false)
 			{
 				dataSize = FifoSize(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo);
+
+				if (p->Eap_TlsCtx.CachedBufferSend != NULL && dataSize != 0)
+				{
+					// Cannot start another TLS flight until the previous
+					// fragmented flight has finished.
+					PPPSetStatus(p, PPP_STATUS_FAIL);
+					return false;
+				}
+
 				// Do we need to send a fragmented packet?
 				if (dataSize > p->Mru1 - 8 - 1 - 1)
 				{
-					if (p->Eap_TlsCtx.CachedBufferSend == NULL)
-					{
-						p->Eap_TlsCtx.CachedBufferSend = ZeroMalloc(dataSize);
-						p->Eap_TlsCtx.CachedBufferSendPntr = p->Eap_TlsCtx.CachedBufferSend;
-					}
+					
+					p->Eap_TlsCtx.CachedBufferSend = ZeroMalloc(dataSize);
+					p->Eap_TlsCtx.CachedBufferSendOffset = 0;
+
 					ReadFifo(p->Eap_TlsCtx.SslPipe->RawOut->RecvFifo, p->Eap_TlsCtx.CachedBufferSend, dataSize);
 
 					// Now send data from the cached buffer with set fragmentation flag and also total TLS Size
@@ -3896,7 +3929,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 					eap = lcp->Data;
 					eap->Tls.TlsDataWithLength.TlsLength = Endian32(tlsLength);
 					Copy(eap->Tls.TlsDataWithLength.Data, p->Eap_TlsCtx.CachedBufferSend, dataSize);
-					p->Eap_TlsCtx.CachedBufferSendPntr += dataSize;
+					p->Eap_TlsCtx.CachedBufferSendOffset += dataSize;
 					if (PPPSendAndRetransmitRequest(p, PPP_PROTOCOL_EAP, lcp) == false)
 					{
 						PPPSetStatus(p, PPP_STATUS_FAIL);
