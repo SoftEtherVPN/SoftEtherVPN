@@ -5,6 +5,7 @@ This document describes how to build SoftEtherVPN for UNIX based Operating syste
   * [Install Requirements on Debian/Ubuntu](#install-requirements-on-debianubuntu)
   * [Install Requirements on macOS](#install-requirements-on-macos)
 - [Build from source code and install](#build-from-source-code-and-install)
+- [Build DEB or RPM packages](#build-deb-or-rpm-packages)
 - [Additional Build Options](#additional-build-options)
 - [How to Run SoftEther](#how-to-run-softether)
   * [Start/Stop SoftEther VPN Server](#startstop-softether-vpn-server)
@@ -63,6 +64,26 @@ make -C build install
 This will compile and install SoftEther VPN Server, Bridge and Client binaries under your executable path.
 
 If any error occurs, please check the above requirements.
+
+# Build DEB or RPM packages
+
+CPack can generate one package per component: `softether-common` (shared libraries), `softether-vpnserver`, `softether-vpnclient`, `softether-vpnbridge` and `softether-vpncmd`. The programs depend on `softether-common` of the same version.
+
+Packages are meant to be installed under `/usr`, so configure the build with that prefix:
+
+```bash
+CMAKE_INSTALL_PREFIX=/usr ./configure
+make -C build
+make -C build package
+```
+
+`./configure` generates RPM packages when the `rpm` executable is available and DEB packages otherwise; set the `CPACK_GENERATOR` environment variable (`DEB` or `RPM`) to choose explicitly. The packages are written to the `build` directory.
+
+The systemd unit files are installed into the directory reported by `pkg-config --variable=systemdsystemunitdir systemd`, falling back to `/usr/lib/systemd/system` or `/lib/systemd/system`, whichever exists on the build host. To override it, pass `-DCMAKE_INSTALL_SYSTEMD_UNITDIR=<dir>` via `CMAKE_FLAGS`. The packages reload systemd when they are installed or removed, restart a running service on upgrade, and stop and disable the service on removal; the services are not enabled automatically:
+
+```bash
+sudo systemctl enable --now softether-vpnserver
+```
 
 # Build on musl-based linux
 
