@@ -90,9 +90,10 @@ target_include_directories(mayaqua PUBLIC ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(mayaqua
   PRIVATE
     libhamcore
-    OpenSSL::SSL
     OpenSSL::Crypto
     ZLIB::ZLIB
+  PUBLIC
+    OpenSSL::SSL
 )
 
 if(WIN32)
