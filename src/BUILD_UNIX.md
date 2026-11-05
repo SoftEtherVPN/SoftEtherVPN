@@ -121,7 +121,7 @@ To specify directories, perform `./configure` like below.
 CMAKE_FLAGS="-DSE_PIDDIR=/run/softether -DSE_LOGDIR=/var/log/softether -DSE_DBDIR=/var/lib/softether" ./configure
 ```
 
-Please note that these directories are not created automatically after installation. Make sure to create these directories before starting SoftEther VPN Server, Bridge or Client.
+When the programs are started through the installed systemd units, the units allow writing into these directories. Directories under `/var/lib`, `/var/log` and `/run` are created by systemd (`StateDirectory=`, `LogsDirectory=`, `RuntimeDirectory=`). Other directories are not created automatically: make sure to create them before starting SoftEther VPN Server, Bridge or Client.
 
 ## Build without [cpu_features](https://github.com/google/cpu_features)
 
