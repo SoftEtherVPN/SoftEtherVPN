@@ -1,0 +1,8 @@
+#!/bin/sh
+# DEB postrm / RPM %postun for softether-@COMPONENT@
+
+if [ -d /run/systemd/system ]; then
+	systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
+exit 0
