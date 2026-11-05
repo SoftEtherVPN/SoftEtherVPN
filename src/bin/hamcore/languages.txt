@@ -11,3 +11,4 @@
 6 pt_br Portuguese-Brazil Português-Brasil 1046 pt_br
 7 id Indonesian Bahasa 1057 id
 8 tr Turkish Türkçe 1055 tr
+9 it Italian Italiano 1040 it,it_it,italian
