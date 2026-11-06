@@ -242,7 +242,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 
 	ipc = NewIPC(cedar, param->ClientName, param->Postfix, param->HubName,
 	             param->UserName, param->Password, param->WgKey, error_code,
-	             &param->ClientIp, param->ClientPort, &param->ServerIp, param->ServerPort,
+	             &param->ClientIp, param->ClientPort, param->ProxyProtocolVersion, &param->ServerIp, param->ServerPort,
 	             param->ClientHostname, param->CryptName,
 	             param->BridgeMode, param->Mss, NULL, param->ClientCertificate, param->RadiusOK,
 				 param->Layer);
@@ -252,7 +252,7 @@ IPC *NewIPCByParam(CEDAR *cedar, IPC_PARAM *param, UINT *error_code)
 
 // Start a new IPC connection
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password, char *wg_key,
-            UINT *error_code, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port,
+            UINT *error_code, IP *client_ip, UINT client_port, UINT proxy_protocol_version, IP *server_ip, UINT server_port,
             char *client_hostname, char *crypt_name,
             bool bridge_mode, UINT mss, EAP_CLIENT *eap_client, X *client_certificate, bool external_auth,
             UINT layer)
@@ -379,6 +379,7 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 	PackAddStr(p, "hello", client_name);
 	PackAddInt(p, "client_ver", cedar->Version);
 	PackAddInt(p, "client_build", cedar->Build);
+	PackAddInt(p, "client_proxy_protocol_version", proxy_protocol_version);
 	PackAddInt(p, "max_connection", 1);
 	PackAddInt(p, "use_encrypt", 0);
 	PackAddInt(p, "use_compress", 0);

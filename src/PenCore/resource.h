@@ -1143,6 +1143,15 @@
 #define D_DEFAULT3                      2097
 #define D_NM_PUSH                       2097
 #define D_CM_PROXY_HTTP_HEADER          2098
+#define D_SM_EDIT_LISTENER              2099
+
+// PROXY protocol related controls
+#define R_PROXY_PROTOCOL                1523
+#define B_EDIT_LISTENER                 1524
+#define S_PP_NETWORKS                   1525
+#define E_PP_NETWORKS                   1526
+#define S_PP_INFO                       1527
+#define S_PP_TITLE                      1528
 #define ID_Menu40011                    40011
 #define CMD_CONNECT                     40020
 #define CMD_STATUS                      40021
@@ -1215,7 +1224,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         40111
-#define _APS_NEXT_CONTROL_VALUE         1522
+#define _APS_NEXT_CONTROL_VALUE         1529
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

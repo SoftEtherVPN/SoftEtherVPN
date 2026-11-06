@@ -89,6 +89,7 @@ struct SESSION
 	THREAD *Thread;					// Management thread
 	CONNECTION *Connection;			// Connection
 	char ClientIP[64];				// Client IP
+	UINT ProxyProtocolVersion;		// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	CLIENT_OPTION *ClientOption;	// Client connection options
 	CLIENT_AUTH *ClientAuth;		// Client authentication data
 	SSL_VERIFY_OPTION *SslOption;	// SSL verification option
