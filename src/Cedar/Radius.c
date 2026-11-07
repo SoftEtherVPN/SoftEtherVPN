@@ -1221,6 +1221,12 @@ RADIUS_PACKET *EapSendPacketAndRecvResponse(EAP_CLIENT *e, RADIUS_PACKET *r, boo
 
 									if (send_ack_packet == false)
 									{
+										// Only trust address assignments in an authenticated Access-Accept.
+										if (rp->Code == RADIUS_CODE_ACCESS_ACCEPT)
+										{
+											RADIUS_AVP *ip_avp = GetRadiusAvp(rp, RADIUS_ATTRIBUTE_FRAMED_IP_ADDRESS);
+											e->LastRecvFramedIpAddress = ip_avp == NULL ? 0 : RadiusGetFramedIpAddress(ip_avp->Data, ip_avp->DataSize);
+										}
 										ret = rp;
 									}
 								}
@@ -1799,6 +1805,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 	}
 
 	opt->Out_VLanId = 0;
+	opt->Out_FramedIpAddress = 0;
 
 	Zero(client_ip_str, sizeof(client_ip_str));
 	if (c != NULL && c->FirstSock != NULL)
@@ -1842,6 +1849,7 @@ bool RadiusLogin(CONNECTION *c, char *server, UINT port, UCHAR *secret, UINT sec
 			}
 
 			Copy(opt->Out_VirtualMacAddress, eap->LastRecvVirtualMacAddress, 6);
+			opt->Out_FramedIpAddress = eap->LastRecvFramedIpAddress;
 
 			return true;
 		}
@@ -2208,6 +2216,12 @@ RECV_RETRY:
 						if (o != NULL)
 						{
 							DHCP_OPTION *framed_interface_id_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_FRAMED_INTERFACE_ID);
+							DHCP_OPTION *ip_option = GetDhcpOption(o, RADIUS_ATTRIBUTE_FRAMED_IP_ADDRESS);
+
+							if (ret && ip_option != NULL)
+							{
+								opt->Out_FramedIpAddress = RadiusGetFramedIpAddress(ip_option->Data, ip_option->Size);
+							}
 
 							if (framed_interface_id_option != NULL)
 							{
@@ -2278,6 +2292,25 @@ RECV_RETRY:
 	FreeBuf(encrypted_password);
 
 	return ret;
+}
+
+// Return a concrete IPv4 assignment in the network-byte-order representation
+// used by IPToUINT. RFC 2865 section 5.8 reserves the last two values for
+// client-selected and NAS-selected addresses, not literal assignments.
+UINT RadiusGetFramedIpAddress(void *data, UINT size)
+{
+	UINT ip;
+	UCHAR *bytes = data;
+	if (data == NULL || size != 4)
+	{
+		return 0;
+	}
+	if (bytes[0] == 255 && bytes[1] == 255 && bytes[2] == 255 && bytes[3] >= 254)
+	{
+		return 0;
+	}
+	Copy(&ip, data, sizeof(ip));
+	return IsValidUnicastIPAddressUINT4(ip) ? ip : 0;
 }
 
 // Parse RADIUS attributes
