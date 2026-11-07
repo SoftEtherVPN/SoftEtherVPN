@@ -60,6 +60,7 @@ struct VLAN
 	void *GetBuffer;			// Sent packet capturing buffer
 	UINT CurrentPacketCount;	// Packet number to be read next
 	void *PutBuffer;			// Buffer for writing received packet
+	void *DnsBlocker;			// DNS leak blocker state
 	ROUTE_TRACKING *RouteState;	// Routing tracking state machine
 };
 

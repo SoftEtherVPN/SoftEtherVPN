@@ -12,6 +12,7 @@
 #include "Admin.h"
 #include "Connection.h"
 #include "UdpAccel.h"
+#include "dns-blocker.h"
 
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
@@ -952,11 +953,17 @@ void VLanPaFree(SESSION *s)
 {
 	VLAN *v;
 	ROUTE_TRACKING *t;
+	void *dns_blocker;
 	// Validate arguments
 	if ((s == NULL) || ((v = s->PacketAdapter->Param) == NULL))
 	{
 		return;
 	}
+
+	dns_blocker = v->DnsBlocker;
+	v->DnsBlocker = NULL;
+
+	StopDnsBlocker(dns_blocker);
 
 	// Release the IP address if you are using DHCP
 	if (IsNt())
@@ -988,11 +995,13 @@ void VLanPaFree(SESSION *s)
 	// End the virtual LAN card
 	FreeVLan(v);
 
-	// End the routing table tracking 
+	// End the routing table tracking
 	if (s->ClientModeAndUseVLan)
 	{
 		RouteTrackingStop(s, t);
 	}
+
+	FreeDnsBlocker(dns_blocker);
 	s->PacketAdapter->Param = NULL;
 }
 
@@ -1077,6 +1086,13 @@ bool VLanPaInit(SESSION *s)
 	}
 
 	s->PacketAdapter->Param = v;
+
+	if (s->ClientOption != NULL && s->ClientOption->PreventDnsLeak)
+	{
+		v->DnsBlocker = NewDnsBlocker();
+		PrepareDnsBlocker(v->DnsBlocker);
+		StartDnsBlocker(v->DnsBlocker);
+	}
 
 	// Routing table tracking start
 	if (s->ClientModeAndUseVLan)
