@@ -485,6 +485,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		exit(0);
 	}
 
+
 	// RSA Check
 	if (RsaCheckEx() == false)
 	{
@@ -492,6 +493,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		Alert("OpenSSL Library Init Failed. (too old?)\nPlease install the latest version of OpenSSL.\n\n", "RsaCheck()");
 		exit(0);
 	}
+
 
 	// Initialization of HamCore file system
 	InitHamcore();
@@ -507,6 +509,10 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 
 	// Check whether the executable file name of themselves is found
 	// (If not found, quit because this is started in strange path)
+#ifndef	__ANDROID__
+	// On Android there is no meaningful "executable file" for a GUI process;
+	// this check would always fail and _exit(0) in the middle of
+	// InitMayaqua().
 	GetExeNameW(tmp, sizeof(tmp));
 	if (IsFileExistsW(tmp) == false)
 	{
@@ -520,6 +526,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 		AlertW(tmp2, NULL);
 		_exit(0);
 	}
+#endif	// __ANDROID__
 
 	CheckUnixTempDir();
 
@@ -531,6 +538,7 @@ void InitMayaqua(bool memcheck, bool debug, int argc, char **argv)
 
 	// Reading Private IP file
 	LoadPrivateIPFile();
+
 }
 
 // Release of Mayaqua library
@@ -619,14 +627,20 @@ void CheckUnixTempDir()
 	if (OS_IS_UNIX(GetOsInfo()->OsType))
 	{
 		char tmp[128], tmp2[64];
+		char tdir[MAX_SIZE];
 		UINT64 now = SystemTime64();
 		IO *o;
 
-		MakeDir("/tmp");
+		if (GetEnv("TMPDIR", tdir, sizeof(tdir)) == false || IsEmptyStr(tdir))
+		{
+			StrCpy(tdir, sizeof(tdir), "/tmp");
+		}
+
+		MakeDir(tdir);
 
 		Format(tmp2, sizeof(tmp2), "%I64u", now);
 
-		Format(tmp, sizeof(tmp), "/tmp/.%s", tmp2);
+		Format(tmp, sizeof(tmp), "%s/.%s", tdir, tmp2);
 
 		o = FileCreate(tmp);
 		if (o == NULL)
@@ -634,7 +648,7 @@ void CheckUnixTempDir()
 			o = FileOpen(tmp, false);
 			if (o == NULL)
 			{
-				Print("Unable to use /tmp.\n\n");
+				Print("Unable to use %s.\n\n", tdir);
 				exit(0);
 			}
 		}

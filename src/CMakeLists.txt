@@ -94,6 +94,10 @@ if(UNIX)
     endif()
   endif()
 
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    add_definitions(-DUNIX_LINUX -DUNIX_ANDROID)
+  endif()
+
   if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
     add_definitions(-DUNIX_BSD -DBRIDGE_BPF)
     include_directories(SYSTEM /usr/local/include)

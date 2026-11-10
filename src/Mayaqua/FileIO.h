@@ -223,6 +223,7 @@ void GetDbDirW(wchar_t *name, UINT size);
 void GetPidDir(char *name, UINT size);
 void GetPidDirW(wchar_t *name, UINT size);
 int CompareHamcore(void *p1, void *p2);
+void SetHamcorePath(char *path);
 void InitHamcore();
 void FreeHamcore();
 BUF *ReadHamcore(char *name);
