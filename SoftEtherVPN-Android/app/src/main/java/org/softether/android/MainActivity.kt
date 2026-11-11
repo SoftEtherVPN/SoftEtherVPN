@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,6 +106,20 @@ private fun loadInstalledApps(context: Context): List<Triple<String, String, Boo
     }
 }
 
+private fun acquiredAddrSuffix(h: Long): String {
+    val parts = ArrayList<String>()
+
+    runCatching { SeNative.nativeGetIPv4Info(h) }.getOrNull()?.let {
+        if (it.isNotEmpty() && it[0].isNotEmpty()) parts.add("IPv4 ${it[0]}")
+    }
+
+    runCatching { SeNative.nativeGetIPv6Config(h) }.getOrNull()?.let {
+        if (it.isNotEmpty() && it[0].isNotEmpty()) parts.add("IPv6 ${it[0]}")
+    }
+
+    return parts.joinToString(", ")
+}
+
 private fun startVpn(context: Context, cfgText: String) {
     val i = Intent(context, VpnEngine::class.java)
     i.action = VpnEngine.ACTION_CONNECT
@@ -121,6 +137,7 @@ private fun App() {
     var portStr by remember { mutableStateOf("") }
     var rawMode by remember { mutableStateOf(false) }
     var raw by remember { mutableStateOf("") }
+    var showConfig by rememberSaveable { mutableStateOf(false) }
 
     var entries by remember { mutableStateOf(listOf<ProfileEntry>()) }
     var curId by remember { mutableStateOf("") }
@@ -165,7 +182,12 @@ private fun App() {
             val rem = if (dl > 0L) ((dl - android.os.SystemClock.elapsedRealtime() + 999) / 1000) else -1L
             busy = h != 0L || neg.isNotEmpty() || rem > 0L
             statusText = when {
-                h != 0L -> SeNative.nativeGetStatusText(h)
+                h != 0L -> {
+                    val phase = SeNative.nativeGetStatusText(h)
+                    val acquired =
+                        if (phase.startsWith("Connected")) "" else acquiredAddrSuffix(h)
+                    if (acquired.isEmpty()) phase else "$phase  $acquired"
+                }
                 neg.isNotEmpty() -> neg
                 SeNative.lastError.isNotEmpty() ->
                     if (rem > 0L) SeNative.lastError + " (next attempt in ${rem}s)"
@@ -365,6 +387,8 @@ private fun App() {
     }
 
     MaterialTheme {
+        BackHandler(enabled = showConfig) { showConfig = false }
+
         Scaffold(
             topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
         ) { padding ->
@@ -375,6 +399,7 @@ private fun App() {
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                if (!showConfig) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = entries.find { it.id == curId }
@@ -519,7 +544,72 @@ private fun App() {
                     ) { Text("Disconnect") }
                 }
 
-                Text("Advanced configuration (raw)", modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = cfg.host,
+                    onValueChange = { cfg = cfg.copy(host = it) },
+                    label = { Text("Server address") },
+                    singleLine = true,
+                    readOnly = rawMode,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = portStr,
+                    onValueChange = {
+                        val digits = it.filter(Char::isDigit)
+                        portStr = digits
+                        cfg = cfg.copy(port = digits.toIntOrNull() ?: 0)
+                    },
+                    label = { Text("Port") },
+                    singleLine = true,
+                    readOnly = rawMode,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cfg.hub,
+                    onValueChange = { cfg = cfg.copy(hub = it) },
+                    label = { Text("Virtual Hub") },
+                    singleLine = true,
+                    readOnly = rawMode,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cfg.user,
+                    onValueChange = { cfg = cfg.copy(user = it) },
+                    label = { Text("Username") },
+                    singleLine = true,
+                    readOnly = rawMode,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cfg.pass ?: "",
+                    onValueChange = { cfg = cfg.copy(pass = it) },
+                    label = { Text(if (cfg.pass == null) "Password (stored hashed)" else "Password") },
+                    singleLine = true,
+                    readOnly = rawMode,
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                if (rawMode) {
+                    Text(
+                        "Raw configuration mode is active — edit it on the configuration screen.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                OutlinedButton(onClick = { showConfig = true }) { Text("Configuration…") }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { showConfig = false }) { Text("Back") }
+                        Text(
+                            "Configuration",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+
+                    Text("Advanced configuration (raw)", modifier = Modifier.padding(top = 8.dp))
                 Switch(
                     checked = rawMode,
                     onCheckedChange = {
@@ -551,47 +641,6 @@ private fun App() {
                         },
                     ) { Text("Load default CFG account") }
                 } else {
-                    OutlinedTextField(
-                        value = cfg.host,
-                        onValueChange = { cfg = cfg.copy(host = it) },
-                        label = { Text("Server address") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    OutlinedTextField(
-                        value = portStr,
-                        onValueChange = {
-                            val digits = it.filter(Char::isDigit)
-                            portStr = digits
-                            cfg = cfg.copy(port = digits.toIntOrNull() ?: 0)
-                        },
-                        label = { Text("Port") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    OutlinedTextField(
-                        value = cfg.hub,
-                        onValueChange = { cfg = cfg.copy(hub = it) },
-                        label = { Text("Virtual Hub") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    OutlinedTextField(
-                        value = cfg.user,
-                        onValueChange = { cfg = cfg.copy(user = it) },
-                        label = { Text("Username") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    OutlinedTextField(
-                        value = cfg.pass ?: "",
-                        onValueChange = { cfg = cfg.copy(pass = it) },
-                        label = { Text(if (cfg.pass == null) "Password (stored hashed)" else "Password") },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Encrypt", modifier = Modifier.weight(1f))
                         Switch(
@@ -827,6 +876,7 @@ private fun App() {
                             }
                         }) { Text("Exempt") }
                     }
+                }
                 }
 
                 if (showAppPicker) {

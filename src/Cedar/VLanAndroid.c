@@ -8,10 +8,12 @@
 // SoftEther hub's Ethernet segment is converted to IPv4 by the built-in
 // ARP / DHCP / IPv6 ND machinery of IPC.c.
 
+#ifdef UNIX_ANDROID
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
+#endif // UNIX_ANDROID
 
 #include "VLanAndroid.h"
 

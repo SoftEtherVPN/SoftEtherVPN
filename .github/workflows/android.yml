@@ -49,12 +49,16 @@ jobs:
 
     - name: Generate hamcore.se2 asset (never committed, always generated)
       run: |
-        sudo apt-get -y install libssl-dev libsodium-dev libncurses-dev libreadline-dev zlib1g-dev pkg-config
+        sudo apt-get -qq update
+        # autotools set: libsodium's autoreconf-based port (vcpkg-make); libtoolize lives in libtool-bin on Ubuntu
+        sudo apt-get -y install libssl-dev libsodium-dev libncurses-dev libreadline-dev zlib1g-dev pkg-config autoconf autoconf-archive automake libtool libtool-bin
         cmake -S . -B build-host -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DOQS_ENABLE=OFF
         cmake --build build-host --target hamcorebuilder
         mkdir -p SoftEtherVPN-Android/app/src/main/assets
+        # assets sits FIVE levels below the repo root: SoftEtherVPN-Android/app/src/main/assets
+        test -x build-host/src/hamcorebuilder/hamcorebuilder
         (cd SoftEtherVPN-Android/app/src/main/assets && \
-         ../../../../build-host/src/hamcorebuilder/hamcorebuilder hamcore.se2 ../../../../src/bin/hamcore)
+         ../../../../../build-host/src/hamcorebuilder/hamcorebuilder hamcore.se2 ../../../../../src/bin/hamcore)
 
     - name: Assemble release APK (${{ matrix.abi }})
       working-directory: SoftEtherVPN-Android
