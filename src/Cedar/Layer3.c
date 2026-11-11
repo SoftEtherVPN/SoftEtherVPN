@@ -430,6 +430,14 @@ void L3InsertArpTable(L3IF *f, UINT ip, UCHAR *mac)
 		Copy(a->MacAddress, mac, 6);
 		Insert(f->ArpTable, a);
 	}
+	else
+	{
+		// Override it, such as receiving a gratuitous ARP
+		if (Cmp(a->MacAddress, mac, 6) != 0)
+		{
+			Copy(a->MacAddress, mac, 6);
+		}
+	}
 
 	// Extend the expiration date
 	a->Expire = Tick64() + ARP_ENTRY_EXPIRES;
