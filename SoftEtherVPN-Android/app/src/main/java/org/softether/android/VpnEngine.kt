@@ -123,8 +123,7 @@ class VpnEngine : VpnService() {
         super.onDestroy()
     }
 
-    private fun loadSavedCfg(): String =
-        getSharedPreferences("profile", Context.MODE_PRIVATE).getString("cfg", "") ?: ""
+    private fun loadSavedCfg(): String = ProfileStore.loadCurrent(this)
 
     private fun hasNetwork(): Boolean {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
