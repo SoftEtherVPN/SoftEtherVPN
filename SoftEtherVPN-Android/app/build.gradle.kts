@@ -26,6 +26,7 @@ android {
             abiFilters += when (vcpkgTriplet) {
                 "arm64-android" -> listOf("arm64-v8a")
                 "x64-android" -> listOf("x86_64")
+                "arm-neon-android" -> listOf("armeabi-v7a")
                 else -> listOf("arm64-v8a", "x86_64")
             }
         }
@@ -34,14 +35,27 @@ android {
             cmake {
                 arguments += listOf(
                     "-DANDROID_STL=none",
-                    "-DSE_SRC_DIR=${rootDir.parentFile?.invariantSeparatorsPath}/src",
                 )
-                vcpkgRoot?.let {
-                    // Skip the vcpkg toolchain (its Android chain breaks on
-                    // backslash NDK paths); point at the installed tree instead.
+                if (vcpkgRoot != null) {
+                    // vcpkg manifest mode: the repo root (parent of the Gradle
+                    // root) holds vcpkg.json; the toolchain rebuilds every port
+                    // against the selected Android ABI (bionic).
+                    val vcpkgRootNorm = vcpkgRoot.replace('\\', '/')
+                    // vcpkg's Android chain needs the NDK; feed it the toolchain
+                    // directly with slash separators (AGP's own backslash -D
+                    // values break the chainloaded NDK toolchain on Windows).
+                    val ndkHome = System.getenv("ANDROID_NDK_HOME")
+                        ?: throw GradleException(
+                            "ANDROID_NDK_HOME must point to the NDK when vcpkg.root is set " +
+                            "(vcpkg builds its Android ports through it).")
+                    val ndkNorm = ndkHome.replace('\\', '/')
                     arguments += listOf(
-                        "-DSE_VCPKG_INSTALL=${rootDir.parentFile?.invariantSeparatorsPath}/vcpkg_installed/$vcpkgTriplet",
+                        "-DCMAKE_TOOLCHAIN_FILE=$vcpkgRootNorm/scripts/buildsystems/vcpkg.cmake",
                         "-DVCPKG_TARGET_TRIPLET=$vcpkgTriplet",
+                        "-DVCPKG_MANIFEST_DIR=${rootDir.parentFile?.invariantSeparatorsPath}",
+                        "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ndkNorm/build/cmake/android.toolchain.cmake",
+                        "-DANDROID_NDK=$ndkNorm",
+                        "-DCMAKE_ANDROID_NDK=$ndkNorm",
                     )
                 }
             }
@@ -51,11 +65,14 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
     externalNativeBuild {
         cmake {
+            // The Android entry point: it pulls the repo root in via
+            // add_subdirectory and owns all Android-specific build logic.
             path = file("src/main/cpp/CMakeLists.txt")
             version = "4.1.2"
         }

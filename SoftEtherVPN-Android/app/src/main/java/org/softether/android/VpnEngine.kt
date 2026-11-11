@@ -47,9 +47,8 @@ class VpnEngine : VpnService() {
     private var cfgRetryIntervalMs = 10000L
     private var lastParsedCfg = ""
 
-    // Protocol enable flags (profile AndroidOptions.UseIPv4/UseIPv6; legacy
-    // ClientOption.VpnUseIPv4/VpnUseIPv6 fallback). The VPN interface is only
-    // established when every enabled protocol is configured.
+    // Protocol enable flags (profile AndroidOptions.UseIPv4/UseIPv6). The VPN
+    // interface is only established when every enabled protocol is configured.
     private var cfgUseIpv4 = true
     private var cfgUseIpv6 = false
     private var cfgRoutesAuto4 = true
@@ -169,8 +168,6 @@ class VpnEngine : VpnService() {
         var interval = 10000L
         var v4a: Boolean? = null
         var v6a: Boolean? = null
-        var v4l: Boolean? = null
-        var v6l: Boolean? = null
         var routes: String? = null
         var r4: String? = null
         var r6: String? = null
@@ -191,10 +188,6 @@ class VpnEngine : VpnService() {
                             v4a = t[i + 2].toBooleanStrictOrNull()
                         "AccountDatabase/Account0/AndroidOptions/UseIPv6" ->
                             v6a = t[i + 2].toBooleanStrictOrNull()
-                        "AccountDatabase/Account0/ClientOption/VpnUseIPv4" ->
-                            v4l = t[i + 2].toBooleanStrictOrNull()
-                        "AccountDatabase/Account0/ClientOption/VpnUseIPv6" ->
-                            v6l = t[i + 2].toBooleanStrictOrNull()
                         "AccountDatabase/Account0/AndroidOptions/RoutesMode" ->
                             routes = t[i + 2]
                         "AccountDatabase/Account0/AndroidOptions/RoutesMode4" ->
@@ -221,8 +214,8 @@ class VpnEngine : VpnService() {
         val routesLegacy = routes ?: legacy("routes")
         cfgRetries = tries.coerceIn(0, 100)
         cfgRetryIntervalMs = interval.coerceIn(1000L, 600000L)
-        cfgUseIpv4 = v4a ?: v4l ?: true
-        cfgUseIpv6 = v6a ?: v6l ?: false
+        cfgUseIpv4 = v4a ?: true
+        cfgUseIpv6 = v6a ?: false
         cfgRoutesAuto4 = (r4 ?: legacy("routes4") ?: routesLegacy ?: "auto") != "manual"
         cfgRoutesAuto6 = (r6 ?: legacy("routes6") ?: routesLegacy ?: "auto") != "manual"
         cfgManualRoutes4 = man4 ?: legacy("routes4_manual") ?: ""

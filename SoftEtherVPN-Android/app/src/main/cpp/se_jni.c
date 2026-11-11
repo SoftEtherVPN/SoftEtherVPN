@@ -509,35 +509,20 @@ typedef struct
 	IP v6ip, s6_mask, s6_gw, s6_dns;	// static IPv6 parameters
 } SE_NETCFG;
 
-// AndroidOptions/ClientOption string getter with NULL-folder tolerance
-static bool SeCfgGetOpt(FOLDER *ao, FOLDER *fo, char *ao_name, char *fo_name, char *dst, UINT size)
+// AndroidOptions string getter with NULL-folder tolerance
+static bool SeCfgGetOpt(FOLDER *ao, char *name, char *dst, UINT size)
 {
-	if (ao != NULL && CfgGetStr(ao, ao_name, dst, size))
-	{
-		return true;
-	}
-
-	if (fo != NULL && fo_name != NULL && CfgGetStr(fo, fo_name, dst, size))
-	{
-		return true;
-	}
-
-	return false;
+	return ao != NULL && CfgGetStr(ao, name, dst, size);
 }
 
 // Boolean option with a default for "key not present" (CFG bool items are
 // typed natively; CfgGetStr does not read them, so CfgIsItem/CfgGetBool
-// must be used; falls back to the legacy key inside ClientOption)
-static bool SeCfgGetBoolDef(FOLDER *ao, FOLDER *fo, char *ao_name, char *fo_name, bool def_value)
+// must be used)
+static bool SeCfgGetBoolDef(FOLDER *ao, char *name, bool def_value)
 {
-	if (ao != NULL && CfgIsItem(ao, ao_name))
+	if (ao != NULL && CfgIsItem(ao, name))
 	{
-		return CfgGetBool(ao, ao_name);
-	}
-
-	if (fo != NULL && fo_name != NULL && CfgIsItem(fo, fo_name))
-	{
-		return CfgGetBool(fo, fo_name);
+		return CfgGetBool(ao, name);
 	}
 
 	return def_value;
@@ -588,48 +573,47 @@ static bool SeCfgLoadConnectParam(const char *text, CLIENT_OPTION **opt_out, CLI
 
 	// IPv4 mode / enable flags (vpncmd VPN_IP / VPN_IP6 semantics; defaults:
 	// IPv4 enabled, IPv6 disabled)
-	if (SeCfgGetOpt(ao, fo, "IPv4Mode", "VpnIPv4", tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "IPv4Mode", tmp, sizeof(tmp)))
 	{
 		n->dhcp = (StrCmp(tmp, "static") != 0);
 	}
 
-	n->use_v4 = SeCfgGetBoolDef(ao, fo, "UseIPv4", "VpnUseIPv4", true);
-	n->use_v6 = SeCfgGetBoolDef(ao, fo, "UseIPv6", "VpnUseIPv6", false);
+	n->use_v4 = SeCfgGetBoolDef(ao, "UseIPv4", true);
+	n->use_v6 = SeCfgGetBoolDef(ao, "UseIPv6", false);
 
-	if (SeCfgGetOpt(ao, fo, "IPv6Mode", NULL, tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "IPv6Mode", tmp, sizeof(tmp)))
 	{
 		n->v6_static = (StrCmp(tmp, "static") == 0);
 	}
 
-	// Static IPv4 (AndroidOptions first, legacy ClientOption keys as fallback
-	// for profiles saved before the separation)
-	if (SeCfgGetOpt(ao, fo, "StaticIp", "VpnStaticIp", tmp, sizeof(tmp)))
+	// Static IPv4
+	if (SeCfgGetOpt(ao, "StaticIp", tmp, sizeof(tmp)))
 	{
 		StrToIP(&n->ip, tmp);
 	}
-	if (SeCfgGetOpt(ao, fo, "StaticMask", "VpnStaticMask", tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticMask", tmp, sizeof(tmp)))
 	{
 		StrToIP(&n->mask, tmp);
 	}
-	if (SeCfgGetOpt(ao, fo, "StaticGw", "VpnStaticGw", tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticGw", tmp, sizeof(tmp)))
 	{
 		StrToIP(&n->gw, tmp);
 	}
-	if (SeCfgGetOpt(ao, fo, "Dns1", "VpnDns1", tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "Dns1", tmp, sizeof(tmp)))
 	{
 		StrToIP(&n->dns1, tmp);
 	}
-	if (SeCfgGetOpt(ao, fo, "Dns2", "VpnDns2", tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "Dns2", tmp, sizeof(tmp)))
 	{
 		StrToIP(&n->dns2, tmp);
 	}
 
 	// Static IPv6 (manual mode)
-	if (SeCfgGetOpt(ao, NULL, "StaticIPv6", NULL, tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticIPv6", tmp, sizeof(tmp)))
 	{
 		StrToIP6(&n->v6ip, tmp);
 	}
-	if (SeCfgGetOpt(ao, NULL, "StaticMask6", NULL, tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticMask6", tmp, sizeof(tmp)))
 	{
 		UINT plen = ToInt(tmp);
 
@@ -640,11 +624,11 @@ static bool SeCfgLoadConnectParam(const char *text, CLIENT_OPTION **opt_out, CLI
 
 		IntToSubnetMask6(&n->s6_mask, plen);
 	}
-	if (SeCfgGetOpt(ao, NULL, "StaticGw6", NULL, tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticGw6", tmp, sizeof(tmp)))
 	{
 		StrToIP6(&n->s6_gw, tmp);
 	}
-	if (SeCfgGetOpt(ao, NULL, "StaticDns6", NULL, tmp, sizeof(tmp)))
+	if (SeCfgGetOpt(ao, "StaticDns6", tmp, sizeof(tmp)))
 	{
 		StrToIP6(&n->s6_dns, tmp);
 	}
@@ -1040,7 +1024,11 @@ Java_org_softether_android_SeNative_nativeInit(JNIEnv *env, jobject thiz)
 		setenv("TMPDIR", g_tmp_dir, 1);
 	}
 
+#ifdef SE_DEBUG_LOG
 	InitMayaqua(false, true, 1, argv);
+#else	// SE_DEBUG_LOG
+	InitMayaqua(false, false, 1, argv);
+#endif	// SE_DEBUG_LOG
 	SELOG("init: mayaqua done");
 
 	InitCedar();

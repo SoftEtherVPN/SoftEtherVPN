@@ -171,13 +171,6 @@ data class SeConfig(
         set(ao + "IgnoreRoutes6", "string", ignoreRoutes6)
         remove(ao + "RoutesMode")
 
-        // one-time migration: strip the Android keys that used to be stored
-        // inside the native ClientOption folder
-        for (k in listOf("VpnIPv4", "VpnUseIPv4", "VpnUseIPv6",
-            "VpnStaticIp", "VpnStaticMask", "VpnStaticGw", "VpnDns1", "VpnDns2")) {
-            remove(co + k)
-        }
-
         return try {
             SeNative.nativeCfgCompose(nt.toTypedArray())
         } catch (e: Exception) {
@@ -293,19 +286,15 @@ data class SeConfig(
                 else -> ""
             }
 
-            // AndroidOptions first, legacy ClientOption keys as fallback for
-            // profiles saved before the folder separation
-            c.dhcp = (get(ao + "IPv4Mode") ?: get(co + "VpnIPv4")) != "static"
-            c.useIpv4 = get(ao + "UseIPv4", "bool")?.toBooleanStrictOrNull()
-                ?: get(co + "VpnUseIPv4", "bool")?.toBooleanStrictOrNull() ?: true
-            c.useIpv6 = get(ao + "UseIPv6", "bool")?.toBooleanStrictOrNull()
-                ?: get(co + "VpnUseIPv6", "bool")?.toBooleanStrictOrNull() ?: false
+            c.dhcp = get(ao + "IPv4Mode") != "static"
+            c.useIpv4 = get(ao + "UseIPv4", "bool")?.toBooleanStrictOrNull() ?: true
+            c.useIpv6 = get(ao + "UseIPv6", "bool")?.toBooleanStrictOrNull() ?: false
             c.ra6 = (get(ao + "IPv6Mode") ?: "ra") != "static"
-            c.staticIp = get(ao + "StaticIp") ?: get(co + "VpnStaticIp") ?: ""
-            c.staticMask = (get(ao + "StaticMask") ?: get(co + "VpnStaticMask"))?.takeIf { it.isNotEmpty() } ?: "255.255.255.0"
-            c.staticGw = get(ao + "StaticGw") ?: get(co + "VpnStaticGw") ?: ""
-            c.dns1 = get(ao + "Dns1") ?: get(co + "VpnDns1") ?: ""
-            c.dns2 = get(ao + "Dns2") ?: get(co + "VpnDns2") ?: ""
+            c.staticIp = get(ao + "StaticIp") ?: ""
+            c.staticMask = get(ao + "StaticMask")?.takeIf { it.isNotEmpty() } ?: "255.255.255.0"
+            c.staticGw = get(ao + "StaticGw") ?: ""
+            c.dns1 = get(ao + "Dns1") ?: ""
+            c.dns2 = get(ao + "Dns2") ?: ""
             c.staticIpv6 = get(ao + "StaticIPv6") ?: ""
             c.staticMask6 = get(ao + "StaticMask6")?.takeIf { it.isNotEmpty() } ?: "64"
             c.staticGw6 = get(ao + "StaticGw6") ?: ""
