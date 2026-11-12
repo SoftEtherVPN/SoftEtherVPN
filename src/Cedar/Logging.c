@@ -79,7 +79,7 @@ void SendSysLog(SLOG *g, wchar_t *str)
 		{
 			IP ip;
 
-			if (GetIP(&ip, g->HostName))
+			if (GetIP4(&ip, g->HostName))
 			{
 				g->NextPollIp = Tick64() + SYSLOG_POLL_IP_INTERVAL;
 				Copy(&g->DestIp, &ip, sizeof(IP));
@@ -134,7 +134,7 @@ void SetSysLog(SLOG *g, char *hostname, UINT port)
 	}
 
 	Zero(&ip, sizeof(IP));
-	GetIP(&ip, hostname);
+	GetIP4(&ip, hostname);
 
 	Lock(g->lock);
 	{
@@ -153,7 +153,8 @@ SLOG *NewSysLog(char *hostname, UINT port, IP *ip)
 	SLOG *g = ZeroMalloc(sizeof(SLOG));
 
 	g->lock = NewLock();
-	g->Udp = NewUDPEx2(0, false, ip);
+	// The socket is IPv4 only, so it can be bound to the listen address only if that is an IPv4 address
+	g->Udp = NewUDP4(0, IsIP4(ip) ? ip : NULL);
 
 	SetSysLog(g, hostname, port);
 
