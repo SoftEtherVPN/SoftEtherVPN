@@ -19,6 +19,8 @@
 #define	OPENVPN_NUM_CHANNELS					8		// Maximum number of channels during a session
 #define	OPENVPN_CONTROL_PACKET_RESEND_INTERVAL	500		// Control packet retransmission interval
 #define	OPENVPN_CONTROL_PACKET_MAX_DATASIZE		1200	// Maximum data size that can be stored in one control packet
+#define	OPENVPN_PUSH_REPLY_MAX_SIZE				1024	// Maximum size of one PUSH_REPLY message (PUSH_BUNDLE_SIZE in OpenVPN)
+#define	OPENVPN_PUSH_REPLY_STR_SIZE				4096	// Maximum size of the whole PUSH_REPLY string
 
 #define	OPENVPN_MAX_SSL_RECV_BUF_SIZE			(256 * 1024)	// SSL receive buffer maximum length
 
@@ -178,7 +180,7 @@ struct OPENVPN_SESSION
 	UINT TunMtu;										// tun-mtu
 	IPC_ASYNC *IpcAsync;								// Asynchronous IPC connection
 	IPC *Ipc;											// Connected IPC connection
-	char PushReplyStr[MAX_SIZE];						// PUSH_REPLY string
+	char PushReplyStr[OPENVPN_PUSH_REPLY_STR_SIZE];		// PUSH_REPLY string
 	UINT64 NextPingSendTick;							// Next time to send a Ping
 	bool Established;									// VPN communication established flag
 	UINT64 CreatedTick;									// Creation date and time
@@ -253,6 +255,7 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 void OvsSendControlPacket(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size);
 void OvsSendControlPacketEx(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size, bool no_resend);
 void OvsSendControlPacketWithAutoSplit(OPENVPN_CHANNEL *c, UCHAR opcode, UCHAR *data, UINT data_size);
+void OvsSendPushReply(OPENVPN_CHANNEL *c, char *str);
 void OvsFreeControlPacket(OPENVPN_CONTROL_PACKET *p);
 void OvsDeleteFromSendingControlPacketList(OPENVPN_CHANNEL *c, UINT num_acks, UINT *acks);
 UINT OvsParseKeyMethod2(OPENVPN_KEY_METHOD_2 *ret, UCHAR *data, UINT size, bool client_mode);
