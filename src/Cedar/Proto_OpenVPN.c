@@ -59,7 +59,7 @@ const PROTO_OPTION *OvsOptions()
 		{ .Name = "Obfuscation", .Type = PROTO_OPTION_BOOL, .Bool = false },
 		{ .Name = "ObfuscationMask", .Type = PROTO_OPTION_STRING, .String = "" },
 		{ .Name = "PingSendInterval", .Type = PROTO_OPTION_UINT32, .UInt32 = 3000 },
-		{ .Name = "PushDummyIPv4AddressOnL2Mode", .Type = PROTO_OPTION_BOOL, .Bool = true },
+		{ .Name = "PushDummyIPv4AddressOnL2Mode", .Type = PROTO_OPTION_BOOL, .Bool = false },
 		{ .Name = "Timeout", .Type = PROTO_OPTION_UINT32, .UInt32 = 30000 },
 		{ .Name = NULL, .Type = PROTO_OPTION_UNKNOWN }
 	};
