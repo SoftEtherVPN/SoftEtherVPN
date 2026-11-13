@@ -1731,7 +1731,25 @@ wchar_t *ParseCommandEx(wchar_t *str, wchar_t *name, TOKEN_LIST **param_list)
 		}
 		if (UniStrCmpi(name, L"CMD") == 0)
 		{
-			ret = CopyUniStr(&str[i + 5]);
+			if (i >= 1 && tmp[i - 1] == L'\"')
+			{
+				// "/CMD:command ..." was given as a single quoted argument:
+				// the command is the rest of that argument with its quoting removed
+				UNI_TOKEN_LIST *q = UniParseCmdLine(&tmp[i - 1]);
+
+				if (q->NumTokens >= 1 && UniStrLen(q->Token[0]) >= 5)
+				{
+					ret = CopyUniStr(&q->Token[0][5]);
+				}
+
+				UniFreeToken(q);
+			}
+
+			if (ret == NULL)
+			{
+				ret = CopyUniStr(&str[i + 5]);
+			}
+
 			UniTrim(ret);
 		}
 		else
