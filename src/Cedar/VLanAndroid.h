@@ -35,6 +35,9 @@ struct VLAN_ANDROID
 	TUBE *TubeToIpc;			// hub -> device (written by PaPutPacket, popped by IPC)
 	TUBE *TubeFromIpc;			// device -> hub (pushed by IPCSendL2, popped by PaGetNextPacket)
 
+	TUBE *DhcpHaltTube;			// polled by IPCDhcpAllocateIP; TubeDisconnect on it aborts the wait
+	TUBE *DhcpHaltPeer;			// the other end of the halt-notify pair, disconnected together
+
 	int TunFd;					// TUN fd supplied by VpnService (-1: not yet)
 	THREAD *Thread;
 	volatile bool Halt;
@@ -64,6 +67,8 @@ struct VLAN_ANDROID
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;
 
 	SESSION *Session;
+	void *Account;				// optional Cedar ACCOUNT for server-cert verification;
+								// owned by the JNI bridge, freed after ReleaseSession
 };
 
 PACKET_ADAPTER *VLanAndroidGetPacketAdapter(VLAN_ANDROID *v);
@@ -75,6 +80,7 @@ void VLanAndroidSetIPv4Enabled(VLAN_ANDROID *v, bool enabled);
 void VLanAndroidSetIPv6Enabled(VLAN_ANDROID *v, bool enabled);
 void VLanAndroidSetStaticIPv6(VLAN_ANDROID *v, IP *addr, IP *mask, IP *gw, IP *dns);
 bool VLanAndroidStart(VLAN_ANDROID *v);
+void VLanAndroidAbortDhcp(VLAN_ANDROID *v);
 bool VLanAndroidIsConfigReady(VLAN_ANDROID *v);
 bool VLanAndroidIsError(VLAN_ANDROID *v);
 char *VLanAndroidGetErrorText(VLAN_ANDROID *v);

@@ -1,7 +1,11 @@
 package org.softether.android
 
 import android.content.Context
+import android.util.Log
 import java.io.File
+import java.security.KeyStore
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 data class SeConfig(
     var host: String = "",
@@ -30,6 +34,7 @@ data class SeConfig(
     var routesAuto6: Boolean = true,
     var manualRoutes6: String = "",
     var ignoreRoutes6: String = "",
+    var checkServerCert: Boolean = false,
     var proxyHost: String = "",
     var proxyPort: Int = 0,
     var triples: Array<String>? = null,
@@ -40,50 +45,11 @@ data class SeConfig(
     private val ca get() = "$acc/ClientAuth/"
     private val ao get() = "$acc/AndroidOptions/"
 
+    // The CFG text ("declare root") is the only configuration format: compose it
+    // from the parsed profile triples, or from scratch when the config was never
+    // parsed from CFG.
     fun toCfg(): String {
-        val t = triples
-
-        if (t == null) {
-            return buildString {
-                appendLine("# SoftEther VPN Android connection profile")
-                appendLine("host=$host")
-                appendLine("port=$port")
-                appendLine("hub=$hub")
-                appendLine("user=$user")
-                if (pass != null) appendLine("pass=$pass")
-                appendLine("encrypt=${if (encrypt) "true" else "false"}")
-                appendLine("compress=${if (compress) "true" else "false"}")
-                appendLine("ipv4=${if (dhcp) "dhcp" else "static"}")
-                appendLine("ipv4_on=${if (useIpv4) "true" else "false"}")
-                appendLine("ipv6=${if (useIpv6) "true" else "false"}")
-                appendLine("ipv6_mode=${if (ra6) "ra" else "static"}")
-                appendLine("routes4=${if (routesAuto4) "auto" else "manual"}")
-                appendLine("routes6=${if (routesAuto6) "auto" else "manual"}")
-                if (manualRoutes4.isNotEmpty()) appendLine("routes4_manual=$manualRoutes4")
-                if (ignoreRoutes4.isNotEmpty()) appendLine("routes4_ignore=$ignoreRoutes4")
-                if (manualRoutes6.isNotEmpty()) appendLine("routes6_manual=$manualRoutes6")
-                if (ignoreRoutes6.isNotEmpty()) appendLine("routes6_ignore=$ignoreRoutes6")
-                if (!dhcp && staticIp.isNotEmpty()) {
-                    appendLine("static_ip=$staticIp")
-                    appendLine("static_mask=$staticMask")
-                    if (staticGw.isNotEmpty()) appendLine("static_gw=$staticGw")
-                }
-                if (dns1.isNotEmpty()) appendLine("dns1=$dns1")
-                if (dns2.isNotEmpty()) appendLine("dns2=$dns2")
-                if (staticIpv6.isNotEmpty()) {
-                    appendLine("static_ip6=$staticIpv6")
-                    appendLine("static_mask6=$staticMask6")
-                    if (staticGw6.isNotEmpty()) appendLine("static_gw6=$staticGw6")
-                }
-                if (dns6.isNotEmpty()) appendLine("dns6=$dns6")
-                if (proxyHost.isNotEmpty()) {
-                    appendLine("proxy_host=$proxyHost")
-                    appendLine("proxy_port=$proxyPort")
-                }
-            }
-        }
-
-        val nt = t.toMutableList()
+        val nt = (triples ?: emptyArray<String>()).toMutableList()
 
         fun get(path: String, type: String? = null): String? {
             for (i in nt.indices step 3) {
@@ -116,10 +82,15 @@ data class SeConfig(
         set(ca + "Username", "string", user)
         set(co + "UseEncrypt", "bool", encrypt.toString())
         set(co + "UseCompress", "bool", compress.toString())
+        // desktop default when a profile omits it (the UI has no toggle yet)
+        if (get(co + "HalfConnection") == null) set(co + "HalfConnection", "bool", "true")
 
         val at = get(ca + "AuthType", "uint")?.toIntOrNull() ?: 0
         val p = pass
         when {
+            // certificate authentication: the profile carries ClientCert/ClientKey,
+            // a password is not part of it — never rewrite the auth form
+            at == 3 -> {}
             p == null -> {}
             p.isEmpty() -> {
                 set(ca + "AuthType", "uint", "0")
@@ -171,6 +142,9 @@ data class SeConfig(
         set(ao + "IgnoreRoutes6", "string", ignoreRoutes6)
         remove(ao + "RoutesMode")
 
+        // Native account-root key (server certificate verification)
+        set("$acc/CheckServerCert", "bool", checkServerCert.toString())
+
         return try {
             SeNative.nativeCfgCompose(nt.toTypedArray())
         } catch (e: Exception) {
@@ -180,76 +154,26 @@ data class SeConfig(
     }
 
     companion object {
+        // Any profile text is SoftEther account CFG; anything that does not
+        // parse as such is invalid input (defaults, with the error surfaced).
         fun fromCfg(text: String): SeConfig {
-            if (text.contains("declare")) {
-                try {
-                    val t = SeNative.nativeCfgParse(text)
-                    if (t != null && t.size % 3 == 0 && t.isNotEmpty()) {
-                        return fromTriples(t)
-                    }
-                } catch (e: Exception) {
-                    SeNative.lastError = "CFG parse failed: ${e.message}"
-                }
+            if (text.isBlank()) {
                 return SeConfig()
             }
 
-            val c = SeConfig()
-            fun field(line: String, key: String): Boolean {
-                val eq = line.indexOf('=')
-                if (eq < 0 || line.substring(0, eq).trim() != key) return false
-                val v = line.substring(eq + 1).trim()
-                when (key) {
-                    "host" -> c.host = v
-                    "port" -> c.port = v.toIntOrNull() ?: c.port
-                    "hub" -> c.hub = v
-                    "user" -> c.user = v
-                    "pass" -> c.pass = v
-                    "encrypt" -> c.encrypt = v != "false"
-                    "compress" -> c.compress = v == "true"
-                    "ipv4" -> c.dhcp = v != "static"
-                    "ipv4_on" -> c.useIpv4 = v != "false"
-                    "ipv6" -> c.useIpv6 = v == "true"
-                    "ipv6_mode" -> c.ra6 = v != "static"
-                    "routes" -> {
-                        c.routesAuto4 = v != "manual"
-                        c.routesAuto6 = v != "manual"
-                    }
-                    "routes4" -> c.routesAuto4 = v != "manual"
-                    "routes6" -> c.routesAuto6 = v != "manual"
-                    "routes4_manual" -> c.manualRoutes4 = v
-                    "routes4_ignore" -> c.ignoreRoutes4 = v
-                    "routes6_manual" -> c.manualRoutes6 = v
-                    "routes6_ignore" -> c.ignoreRoutes6 = v
-                    "static_ip" -> c.staticIp = v
-                    "static_mask" -> c.staticMask = v
-                    "static_gw" -> c.staticGw = v
-                    "dns1" -> c.dns1 = v
-                    "dns2" -> c.dns2 = v
-                    "static_ip6" -> c.staticIpv6 = v
-                    "static_mask6" -> c.staticMask6 = v
-                    "static_gw6" -> c.staticGw6 = v
-                    "dns6" -> c.dns6 = v
-                    "proxy_host" -> c.proxyHost = v
-                    "proxy_port" -> c.proxyPort = v.toIntOrNull() ?: c.proxyPort
-                }
-                return true
+            val t = try {
+                SeNative.nativeCfgParse(text)
+            } catch (e: Exception) {
+                SeNative.lastError = "CFG parse failed: ${e.message}"
+                null
             }
-            for (raw in text.split("\r", "\n")) {
-                val line = raw.trim()
-                if (line.isEmpty() || line.startsWith("#")) continue
-                field(line, "host"); field(line, "port"); field(line, "hub")
-                field(line, "user"); field(line, "pass"); field(line, "encrypt")
-                field(line, "compress"); field(line, "ipv4"); field(line, "static_ip")
-                field(line, "static_mask"); field(line, "static_gw"); field(line, "dns1")
-                field(line, "dns2"); field(line, "proxy_host"); field(line, "proxy_port")
-                field(line, "ipv4_on"); field(line, "ipv6"); field(line, "ipv6_mode")
-                field(line, "static_ip6"); field(line, "static_mask6")
-                field(line, "static_gw6"); field(line, "dns6"); field(line, "routes")
-                field(line, "routes4"); field(line, "routes6")
-                field(line, "routes4_manual"); field(line, "routes4_ignore")
-                field(line, "routes6_manual"); field(line, "routes6_ignore")
+
+            return if (t != null && t.size % 3 == 0 && t.isNotEmpty()) {
+                fromTriples(t)
+            } else {
+                SeNative.lastError = "Not a SoftEther account CFG."
+                SeConfig()
             }
-            return c
         }
 
         private fun fromTriples(t: Array<String>): SeConfig {
@@ -265,6 +189,7 @@ data class SeConfig(
             val co = "AccountDatabase/Account0/ClientOption/"
             val ca = "AccountDatabase/Account0/ClientAuth/"
             val ao = "AccountDatabase/Account0/AndroidOptions/"
+            val acc = "AccountDatabase/Account0/"
 
             c.host = get(co + "Hostname")?.substringBefore('/') ?: ""
             c.port = get(co + "Port", "uint")?.toIntOrNull() ?: 5555
@@ -306,6 +231,7 @@ data class SeConfig(
             c.ignoreRoutes4 = get(ao + "IgnoreRoutes4") ?: ""
             c.manualRoutes6 = get(ao + "ManualRoutes6") ?: ""
             c.ignoreRoutes6 = get(ao + "IgnoreRoutes6") ?: ""
+            c.checkServerCert = get(acc + "CheckServerCert", "bool")?.toBooleanStrictOrNull() ?: false
 
             val pt = get(co + "ProxyType", "uint")?.toIntOrNull() ?: 0
             c.proxyHost = if (pt != 0) get(co + "ProxyName") ?: "" else ""
@@ -344,10 +270,33 @@ object SeNative {
         System.loadLibrary("softether")
     }
 
+    // SoftEther core version ("5.02.<build>"); nativeGetCoreVersion needs the
+    // Mayaqua runtime up, so it is fetched in initOnce ("" until then)
+    @Volatile
+    var coreVersion: String = ""
+
     fun initOnce() = synchronized(this) {
         if (!initialized) {
             nativeInit()
+            seedCaAnchors()
+            coreVersion = runCatching { nativeGetCoreVersion() }.getOrDefault("")
             initialized = true
+        }
+    }
+
+    // Root of trust for server-certificate verification: the Android system
+    // store including user-imported CA certificates, handed to Cedar as DER
+    // anchors (the OpenSSL default paths are empty under Bionic).
+    private fun seedCaAnchors() {
+        runCatching {
+            val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            tmf.init(null as KeyStore?)
+            val anchors = tmf.trustManagers
+                .filterIsInstance<X509TrustManager>()
+                .firstOrNull()?.acceptedIssuers ?: emptyArray()
+            var n = 0
+            for (a in anchors) n += nativeAddCaCert(a.encoded)
+            Log.i("SETH", "CA anchors seeded: $n of ${anchors.size}")
         }
     }
 
@@ -376,6 +325,8 @@ object SeNative {
     external fun nativeSetPaths(hamcorePath: String?, tmpDir: String?)
     external fun nativeInit()
     external fun nativeRelease()
+    external fun nativeGetCoreVersion(): String
+    external fun nativeAddCaCert(der: ByteArray): Int
     external fun nativeConnect(cfg: String): Long
     external fun nativeGetStatus(handle: Long): Int
     external fun nativeGetStatusText(handle: Long): String

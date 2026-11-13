@@ -27,9 +27,9 @@ project("SoftEther VPN"
 
 set(CMAKE_C_STANDARD 99)
 
-# Subproject-safe paths: the Android entry (SoftEtherVPN-Android/app/src/main/
-# cpp/CMakeLists.txt) adds this root via add_subdirectory; for a plain
-# top-level build CURRENT equals SOURCE/BINARY dir exactly as before.
+# Subproject-safe paths: the Android entry (SoftEtherVPN-Android/CMakeLists.txt)
+# adds this root via add_subdirectory; for a plain top-level build CURRENT
+# equals SOURCE/BINARY dir exactly as before.
 set(TOP_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set(BUILD_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 

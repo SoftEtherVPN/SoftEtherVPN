@@ -27,13 +27,6 @@
 #include "Cedar/Client.h"
 #include "Cedar/VLanAndroid.h"
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#define SELOG(...)	__android_log_print(ANDROID_LOG_INFO, "SETH", __VA_ARGS__)
-#else	// __ANDROID__
-#define SELOG(...)
-#endif	// __ANDROID__
-
 #define DEF_PORT				5555
 #define DEF_RETRY				3
 #define DEF_RETRY_INTERVAL		(10 * 1000)
@@ -55,99 +48,6 @@ static VLAN_ANDROID *g_v = NULL;
 // Paths supplied from the Java layer before nativeInit()
 static char g_hamcore_path[MAX_SIZE] = "";
 static char g_tmp_dir[MAX_SIZE] = "";
-
-// Parse one "key=value" configuration line set (newline separated)
-static void ParseCfg(char *cfg, CLIENT_OPTION *o, CLIENT_AUTH *a,
-					bool *dhcp, IP *ip, IP *mask, IP *gw, IP *dns1, IP *dns2)
-{
-	char *line, *save;
-
-	for (line = strtok_r(cfg, "\r\n", &save); line != NULL; line = strtok_r(NULL, "\r\n", &save))
-	{
-		char *eq, *k, *v;
-
-		if (line[0] == '#' || line[0] == 0)
-		{
-			continue;
-		}
-
-		eq = strchr(line, '=');
-		if (eq == NULL)
-		{
-			continue;
-		}
-
-		*eq = 0;
-		k = line;
-		v = eq + 1;
-
-		if (strcmp(k, "host") == 0)
-		{
-			StrCpy(o->Hostname, sizeof(o->Hostname), v);
-		}
-		else if (strcmp(k, "port") == 0)
-		{
-			o->Port = ToInt(v);
-		}
-		else if (strcmp(k, "udp_port") == 0)
-		{
-			o->PortUDP = ToInt(v);
-		}
-		else if (strcmp(k, "hub") == 0)
-		{
-			StrCpy(o->HubName, sizeof(o->HubName), v);
-		}
-		else if (strcmp(k, "user") == 0)
-		{
-			StrCpy(a->Username, sizeof(a->Username), v);
-		}
-		else if (strcmp(k, "pass") == 0)
-		{
-			StrCpy(a->PlainPassword, sizeof(a->PlainPassword), v);
-		}
-		else if (strcmp(k, "encrypt") == 0)
-		{
-			o->UseEncrypt = (strcmp(v, "false") != 0);
-		}
-		else if (strcmp(k, "compress") == 0)
-		{
-			o->UseCompress = (strcmp(v, "true") == 0);
-		}
-		else if (strcmp(k, "proxy_host") == 0)
-		{
-			StrCpy(o->ProxyName, sizeof(o->ProxyName), v);
-			o->ProxyType = PROXY_SOCKS5;
-		}
-		else if (strcmp(k, "proxy_port") == 0)
-		{
-			o->ProxyPort = ToInt(v);
-		}
-		else if (strcmp(k, "ipv4") == 0)
-		{
-			*dhcp = (strcmp(v, "static") != 0);
-		}
-		else if (strcmp(k, "static_ip") == 0)
-		{
-			StrToIP(ip, v);
-		}
-		else if (strcmp(k, "static_mask") == 0)
-		{
-			StrToIP(mask, v);
-		}
-		else if (strcmp(k, "static_gw") == 0)
-		{
-			StrToIP(gw, v);
-		}
-		else if (strcmp(k, "dns1") == 0)
-		{
-			StrToIP(dns1, v);
-		}
-		else if (strcmp(k, "dns2") == 0)
-		{
-			StrToIP(dns2, v);
-		}
-	}
-}
 
 // ---------------------------------------------------------------------------
 // New-format CFG text bridge ("declare root { ... }", see Mayaqua/Cfg.c).
@@ -528,15 +428,18 @@ static bool SeCfgGetBoolDef(FOLDER *ao, char *name, bool def_value)
 	return def_value;
 }
 
-// Load the connect parameters out of a CFG text profile (first account)
-static bool SeCfgLoadConnectParam(const char *text, CLIENT_OPTION **opt_out, CLIENT_AUTH **auth_out,
-	SE_NETCFG *n)
+// Load the first account of a CFG text profile ("declare root" account
+// database) with the core's own reader, so that a desktop-written or hand-edited
+// profile keeps everything it carries: every ClientOption key, every
+// ClientAuth form (hashed password, plain password, client certificate, secure
+// token), the account-root flags, the pinned ServerCert and the shortcut key —
+// nothing is filtered out by the Android bridge.
+static bool SeCfgLoadAccount(const char *text, ACCOUNT **acc_out, SE_NETCFG *n)
 {
-	FOLDER *root, *db, *acc, *fo, *fa, *ao;
+	FOLDER *root, *db, *acc, *ao;
 	char tmp[MAX_SIZE];
 
-	*opt_out = NULL;
-	*auth_out = NULL;
+	*acc_out = NULL;
 
 	Zero(n, sizeof(SE_NETCFG));
 	n->dhcp = true;
@@ -552,24 +455,22 @@ static bool SeCfgLoadConnectParam(const char *text, CLIENT_OPTION **opt_out, CLI
 	db = CfgGetFolder(root, "AccountDatabase");
 	acc = (db != NULL && LIST_NUM(db->Folders) > 0) ? (FOLDER *)LIST_DATA(db->Folders, 0) : NULL;
 
+	// CiLoadClientAccount requires "declare ClientOption" and "declare
+	// ClientAuth" inside the account folder, and returns NULL without them
 	if (acc == NULL)
 	{
 		CfgDeleteFolder(root);
 		return false;
 	}
 
-	fo = CfgGetFolder(acc, "ClientOption");
-	fa = CfgGetFolder(acc, "ClientAuth");
-	ao = CfgGetFolder(acc, "AndroidOptions");
-
-	if (fo == NULL || fa == NULL)
+	*acc_out = CiLoadClientAccount(acc);
+	if (*acc_out == NULL)
 	{
 		CfgDeleteFolder(root);
 		return false;
 	}
 
-	*opt_out = CiLoadClientOption(fo);
-	*auth_out = CiLoadClientAuth(fa);
+	ao = CfgGetFolder(acc, "AndroidOptions");
 
 	// IPv4 mode / enable flags (vpncmd VPN_IP / VPN_IP6 semantics; defaults:
 	// IPv4 enabled, IPv6 disabled)
@@ -1013,7 +914,7 @@ Java_org_softether_android_SeNative_nativeInit(JNIEnv *env, jobject thiz)
 		return;
 	}
 
-	SELOG("init: begin");
+	Debug("init: begin");
 
 	if (g_hamcore_path[0] != 0)
 	{
@@ -1029,13 +930,13 @@ Java_org_softether_android_SeNative_nativeInit(JNIEnv *env, jobject thiz)
 #else	// SE_DEBUG_LOG
 	InitMayaqua(false, false, 1, argv);
 #endif	// SE_DEBUG_LOG
-	SELOG("init: mayaqua done");
+	Debug("init: mayaqua done");
 
 	InitCedar();
-	SELOG("init: cedar done");
+	Debug("init: cedar done");
 
 	cedar = NewCedar(NULL, NULL);
-	SELOG("init: newcedar done");
+	Debug("init: newcedar done");
 }
 
 JNIEXPORT void JNICALL
@@ -1053,6 +954,51 @@ Java_org_softether_android_SeNative_nativeRelease(JNIEnv *env, jobject thiz)
 	FreeMayaqua();
 }
 
+// Add one DER-encoded X.509 certificate to Cedar's trusted CA list; the anchors
+// come from the Android system trust store (incl. user-imported CAs) harvested
+// by the Java layer. Returns 1 on success.
+JNIEXPORT jint JNICALL
+Java_org_softether_android_SeNative_nativeAddCaCert(JNIEnv *env, jobject thiz, jbyteArray der)
+{
+	jsize len;
+	jbyte *p;
+	BUF *b;
+	X *x;
+
+	if (cedar == NULL || der == NULL)
+	{
+		return 0;
+	}
+
+	len = (*env)->GetArrayLength(env, der);
+	if (len <= 0 || len > 65536)
+	{
+		return 0;
+	}
+
+	p = (*env)->GetByteArrayElements(env, der, NULL);
+	b = MemToBuf(p, len);
+	(*env)->ReleaseByteArrayElements(env, der, p, JNI_ABORT);
+
+	if (b == NULL)
+	{
+		return 0;
+	}
+
+	x = BufToX(b, false);
+	FreeBuf(b);
+
+	if (x == NULL)
+	{
+		return 0;
+	}
+
+	AddCa(cedar, x);
+	FreeX(x);
+
+	return 1;
+}
+
 JNIEXPORT jlong JNICALL
 Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jstring cfg_j)
 {
@@ -1066,6 +1012,7 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	bool v6_static = false;
 	IP sip, smask, sgw, sdns1, sdns2;
 	IP v6ip, s6_mask, s6_gw, s6_dns;
+	ACCOUNT *acc = NULL;
 
 	if (cedar == NULL || cfg_j == NULL)
 	{
@@ -1093,15 +1040,6 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	Zero(&option, sizeof(option));
 	Zero(&auth, sizeof(auth));
 
-	StrCpy(option.HubName, sizeof(option.HubName), "SERVERVPN");
-	option.Port = DEF_PORT;
-	option.MaxConnection = 1;
-	option.UseEncrypt = true;
-	option.HalfConnection = true;
-	option.NumRetry = DEF_RETRY;
-	option.RetryInterval = DEF_RETRY_INTERVAL;
-	StrCpy(option.DeviceName, sizeof(option.DeviceName), "SoftEtherVPN Android");
-
 	Zero(&sip, sizeof(IP));
 	Zero(&smask, sizeof(IP));
 	Zero(&sgw, sizeof(IP));
@@ -1113,60 +1051,58 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	Zero(&s6_dns, sizeof(IP));
 
 	{
-		CLIENT_OPTION *co = NULL;
-		CLIENT_AUTH *ca = NULL;
 		SE_NETCFG n;
 
-		if (InStr(cfg, "declare") &&
-			SeCfgLoadConnectParam(cfg, &co, &ca, &n))
+		// The profile text is always a SoftEther account CFG ("declare root"),
+		// loaded by the core's own account reader: the connection options and
+		// the credentials (password, plain password or client certificate) come
+		// from the profile itself, never from a bridge-side re-interpretation.
+		if (!SeCfgLoadAccount(cfg, &acc, &n))
 		{
-			option = *co;
-			auth = *ca;
+			Debug("connect: CFG account text required");
 
-			Free(co);
-			Free(ca);
+			Free(cfg);
 
-			dhcp = n.dhcp;
-			use_v4 = n.use_v4;
-			use_v6 = n.use_v6;
-			v6_static = n.v6_static;
-			sip = n.ip;
-			smask = n.mask;
-			sgw = n.gw;
-			sdns1 = n.dns1;
-			sdns2 = n.dns2;
-			v6ip = n.v6ip;
-			s6_mask = n.s6_mask;
-			s6_gw = n.s6_gw;
-			s6_dns = n.s6_dns;
-
-			if (option.Port == 0)
-			{
-				option.Port = DEF_PORT;
-			}
-			if (option.MaxConnection == 0)
-			{
-				option.MaxConnection = 1;
-			}
-			if (option.NumRetry == 0)
-			{
-				option.NumRetry = DEF_RETRY;
-				option.RetryInterval = DEF_RETRY_INTERVAL;
-			}
+			return 0;
 		}
-		else
-		{
-			ParseCfg(cfg, &option, &auth, &dhcp, &sip, &smask, &sgw, &sdns1, &sdns2);
 
-			if (auth.PlainPassword[0] != 0)
-			{
-				auth.AuthType = CLIENT_AUTHTYPE_PASSWORD;
-				HashPassword(auth.HashedPassword, auth.Username, auth.PlainPassword);
-			}
-			else
-			{
-				auth.AuthType = CLIENT_AUTHTYPE_ANONYMOUS;
-			}
+		option = *acc->ClientOption;
+		auth = *acc->ClientAuth;
+
+		dhcp = n.dhcp;
+		use_v4 = n.use_v4;
+		use_v6 = n.use_v6;
+		v6_static = n.v6_static;
+		sip = n.ip;
+		smask = n.mask;
+		sgw = n.gw;
+		sdns1 = n.dns1;
+		sdns2 = n.dns2;
+		v6ip = n.v6ip;
+		s6_mask = n.s6_mask;
+		s6_gw = n.s6_gw;
+		s6_dns = n.s6_dns;
+
+		// Android-side essentials: this bridge owns the virtual NIC name, and a
+		// profile is not required to carry these values.
+		StrCpy(option.DeviceName, sizeof(option.DeviceName), "SoftEtherVPN Android");
+
+		if (IsEmptyStr(option.HubName))
+		{
+			StrCpy(option.HubName, sizeof(option.HubName), "SERVERVPN");
+		}
+		if (option.Port == 0)
+		{
+			option.Port = DEF_PORT;
+		}
+		if (option.MaxConnection == 0)
+		{
+			option.MaxConnection = 1;
+		}
+		if (option.NumRetry == 0)
+		{
+			option.NumRetry = DEF_RETRY;
+			option.RetryInterval = DEF_RETRY_INTERVAL;
 		}
 	}
 
@@ -1178,25 +1114,31 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	// one connect/login attempt per session.
 	option.NumRetry = 0;
 
-	SELOG("connect: %s:%u hub=%s user=%s enc=%s cmp=%s dhcp=%s v4=%s v6=%s mode6=%s", option.Hostname, option.Port,
-		option.HubName, auth.Username, option.UseEncrypt ? "true" : "false",
+	Debug("connect: %s:%u hub=%s user=%s authtype=%u enc=%s cmp=%s dhcp=%s v4=%s v6=%s mode6=%s cert=%s pinned=%s",
+		option.Hostname, option.Port,
+		option.HubName, auth.Username, auth.AuthType, option.UseEncrypt ? "true" : "false",
 		option.UseCompress ? "true" : "false", dhcp ? "true" : "false",
 		use_v4 ? "true" : "false", use_v6 ? "true" : "false",
-		use_v6 ? (v6_static ? "static" : "ra") : "-");
+		use_v6 ? (v6_static ? "static" : "ra") : "-",
+		acc->CheckServerCert ? "true" : "false", acc->ServerCert != NULL ? "true" : "false");
 
 	if (option.Hostname[0] == 0)
 	{
+		CiFreeAccount(acc);
+
 		return 0;
 	}
 
 	v = VLanAndroidNew(cedar);
 	if (v == NULL)
 	{
-		SELOG("connect: vlan new failed");
+		Debug("connect: vlan new failed");
+
+		CiFreeAccount(acc);
 
 		return 0;
 	}
-	SELOG("connect: vlan ok");
+	Debug("connect: vlan ok");
 
 	if (!dhcp)
 	{
@@ -1215,42 +1157,52 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 			IsZeroIP(&s6_dns) ? NULL : &s6_dns);
 	}
 
-	s = NewClientSessionEx(cedar, &option, &auth, VLanAndroidGetPacketAdapter(v), NULL);
+	// The account is the client's own state, not a cert-checking special case:
+	// the C core enables TLS peer verification from Account->CheckServerCert and
+	// pins Account->ServerCert (the desktop TOFU anchor) through it (Session.c
+	// NewSessionX), and it owns the client certificate/key that the session
+	// clones while connecting.
+	v->Account = acc;
 
-	// The session clones client certificate/key during connection setup;
-	// release our references (only ever set by a CFG-text profile).
-	if (auth.ClientX != NULL)
-	{
-		FreeX(auth.ClientX);
-	}
-	if (auth.ClientK != NULL)
-	{
-		FreeK(auth.ClientK);
-	}
+	s = NewClientSessionEx(cedar, &option, &auth, VLanAndroidGetPacketAdapter(v), acc);
 
 	if (s == NULL)
 	{
-		SELOG("connect: session failed");
+		Debug("connect: session failed");
+
+		CiFreeAccount(acc);
+		v->Account = NULL;
 
 		VLanAndroidFree(v);
 
 		return 0;
 	}
-	SELOG("connect: session ok");
+	Debug("connect: session ok s=%p ref=%p", (void *)s, (void *)s->ref);
 
 	v->Session = s;
 
+	// The account-ownership reference of the desktop connection protocol:
+	// NewSessionX only stores the account pointer, and ClientThread releases
+	// the account-owned session reference when the session halts. Taking it
+	// here keeps the reference balance so that the disconnect-side
+	// ReleaseSession is the last one (double-free otherwise).
+	AddRef(s->ref);
+
 	if (!VLanAndroidStart(v))
 	{
-		SELOG("connect: vlan start failed");
+		Debug("connect: vlan start failed");
 
 		StopSession(s);
 		ReleaseSession(s);
+
+		CiFreeAccount(acc);
+		v->Account = NULL;
+
 		VLanAndroidFree(v);
 
 		return 0;
 	}
-	SELOG("connect: started");
+	Debug("connect: started");
 
 	pthread_mutex_lock(&g_lock);
 	g_v = v;
@@ -1300,6 +1252,17 @@ Java_org_softether_android_SeNative_nativeGetStatus(JNIEnv *env, jobject thiz, j
 	pthread_mutex_unlock(&g_lock);
 
 	return ret;
+}
+
+JNIEXPORT jstring JNICALL
+Java_org_softether_android_SeNative_nativeGetCoreVersion(JNIEnv *env, jobject thiz)
+{
+	char ver[MAX_SIZE];
+
+	// SoftEther core version ("major.minor.build") for the app title bar
+	GetCedarVersion(ver, sizeof(ver));
+
+	return (*env)->NewStringUTF(env, ver);
 }
 
 JNIEXPORT jstring JNICALL
@@ -1502,7 +1465,7 @@ Java_org_softether_android_SeNative_nativeGetIPv6Config(JNIEnv *env, jobject thi
 JNIEXPORT void JNICALL
 Java_org_softether_android_SeNative_nativeSetTunFd(JNIEnv *env, jobject thiz, jlong handle, jint fd)
 {
-	SELOG("set tun fd: %d", fd);
+	Debug("set tun fd: %d", fd);
 
 	VLanAndroidSetTunFd((VLAN_ANDROID *)handle, fd);
 }
@@ -1539,7 +1502,7 @@ Java_org_softether_android_SeNative_nativeSetPaths(JNIEnv *env, jobject thiz, js
 	StrCpy(g_hamcore_path, sizeof(g_hamcore_path), hc_path);
 	StrCpy(g_tmp_dir, sizeof(g_tmp_dir), tmp_path);
 
-	SELOG("paths: hamcore=%s tmp=%s", g_hamcore_path, g_tmp_dir);
+	Debug("paths: hamcore=%s tmp=%s", g_hamcore_path, g_tmp_dir);
 }
 
 // Convert a wide (UTF-16 code unit) string to UTF-8, with surrogate pairing
@@ -1727,16 +1690,35 @@ Java_org_softether_android_SeNative_nativeDisconnect(JNIEnv *env, jobject thiz, 
 	}
 	g_v = NULL;
 
-	SELOG("disconnect");
+	// Teardown step logs (Debug() is core-gated: logcat only in SE_DEBUG_LOG debug builds)
+	Debug("disconnect: enter v=%p s=%p acc=%p", (void *)v, (void *)v->Session, (void *)v->Account);
+
+	// Wake a pending DHCP wait in the pump thread before touching the session
+	VLanAndroidAbortDhcp(v);
 
 	if (v->Session != NULL)
 	{
+		Debug("disconnect: StopSession");
 		StopSession(v->Session);
+		Debug("disconnect: ReleaseSession");
 		ReleaseSession(v->Session);
+		Debug("disconnect: session released");
 		v->Session = NULL;
 	}
 
+	// Safe after ReleaseSession joined the session thread (the session reads
+	// its Account copy members until termination)
+	if (v->Account != NULL)
+	{
+		Debug("disconnect: CiFreeAccount %p", (void *)v->Account);
+		CiFreeAccount((ACCOUNT *)v->Account);
+		v->Account = NULL;
+	}
+
+	Debug("disconnect: VLanAndroidFree");
 	VLanAndroidFree(v);
+
+	Debug("disconnect: done");
 
 	pthread_mutex_unlock(&g_lock);
 }

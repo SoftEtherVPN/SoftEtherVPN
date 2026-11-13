@@ -1,13 +1,28 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Machine-local build inputs, in order of precedence: -P properties, then
+// local.properties (a successful CMake configure records sdk.dir, vcpkg.root,
+// vcpkg.triplet and ndk.home there), then the environment.  Reading them here
+// is what makes an Android Studio sync work without any extra setup.
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
 val vcpkgRoot = (findProperty("vcpkg.root") as String?)
+    ?: localProps.getProperty("vcpkg.root")
     ?: System.getenv("VCPKG_ROOT")
 val vcpkgTriplet = (findProperty("vcpkg.triplet") as String?)
+    ?: localProps.getProperty("vcpkg.triplet")
     ?: System.getenv("VCPKG_TARGET_TRIPLET")
     ?: "arm64-android"
+val ndkHomeDir = System.getenv("ANDROID_NDK_HOME")
+    ?: localProps.getProperty("ndk.home")
 
 android {
     namespace = "org.softether.android"
@@ -18,7 +33,7 @@ android {
         applicationId = "org.softether.android"
         minSdk = 29
         targetSdk = 35
-        versionCode = 10
+        versionCode = 18
         versionName = "1.0-android-preview"
 
         ndk {
@@ -44,10 +59,10 @@ android {
                     // vcpkg's Android chain needs the NDK; feed it the toolchain
                     // directly with slash separators (AGP's own backslash -D
                     // values break the chainloaded NDK toolchain on Windows).
-                    val ndkHome = System.getenv("ANDROID_NDK_HOME")
+                    val ndkHome = ndkHomeDir
                         ?: throw GradleException(
-                            "ANDROID_NDK_HOME must point to the NDK when vcpkg.root is set " +
-                            "(vcpkg builds its Android ports through it).")
+                            "The NDK path is unknown: set ANDROID_NDK_HOME or put ndk.home " +
+                            "in local.properties (vcpkg builds its Android ports through it).")
                     val ndkNorm = ndkHome.replace('\\', '/')
                     arguments += listOf(
                         "-DCMAKE_TOOLCHAIN_FILE=$vcpkgRootNorm/scripts/buildsystems/vcpkg.cmake",
@@ -71,9 +86,11 @@ android {
 
     externalNativeBuild {
         cmake {
-            // The Android entry point: it pulls the repo root in via
-            // add_subdirectory and owns all Android-specific build logic.
-            path = file("src/main/cpp/CMakeLists.txt")
+            // The Android entry point: the Gradle root project folder's
+            // CMakeLists (AGP resolves this path against the app module, so
+            // ".." lands in SoftEtherVPN-Android).  It pulls the repo root in
+            // via add_subdirectory and owns all Android-specific build logic.
+            path = file("../CMakeLists.txt")
             version = "4.1.2"
         }
     }

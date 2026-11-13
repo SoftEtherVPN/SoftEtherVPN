@@ -310,7 +310,7 @@ static void VLanAndroidThread(THREAD *thread, void *param)
 		{
 			opt = ZeroMalloc(sizeof(DHCP_OPTION_LIST));
 
-			ret = IPCDhcpAllocateIP(v->Ipc, opt, NULL);
+			ret = IPCDhcpAllocateIP(v->Ipc, opt, v->DhcpHaltTube);
 
 			if (ret)
 			{
@@ -355,9 +355,14 @@ static void VLanAndroidThread(THREAD *thread, void *param)
 			{
 				VLanStopIpv6Gate(v);
 
-				VLanSetError(v, "No DHCP server responded on this hub. The hub's virtual "
-					"LAN has no DHCP server: enable one, or switch to Static IPv4 in the "
-					"connection settings.");
+				// "false" is also returned when the user aborted the wait via the halt tube
+				if (IsTubeConnected(v->DhcpHaltTube))
+				{
+					VLanSetError(v, "No DHCP server responded on this hub. The hub's virtual "
+						"LAN has no DHCP server: enable one, or switch to Static IPv4 in the "
+						"connection settings.");
+				}
+
 				return;
 			}
 
@@ -663,7 +668,23 @@ VLAN_ANDROID *VLanAndroidNew(CEDAR *cedar)
 	v->Ipc = NewIPCBySock(cedar, v->Sock, v->MacAddress);
 	StrCpy(v->Ipc->ClientHostname, sizeof(v->Ipc->ClientHostname), "android");
 
+	// Halt-notify pair polled by IPCDhcpAllocateIP (TubeDisconnect wakes a pending wait)
+	NewTubePair(&v->DhcpHaltTube, &v->DhcpHaltPeer, 0);
+
 	return v;
+}
+
+// Abort a pending DHCP wait in the pump thread (user-initiated disconnect
+// during the IPv4 configuration phase; TubeDisconnect wakes it immediately)
+void VLanAndroidAbortDhcp(VLAN_ANDROID *v)
+{
+	if (v == NULL)
+	{
+		return;
+	}
+
+	TubeDisconnect(v->DhcpHaltTube);
+	TubeDisconnect(v->DhcpHaltPeer);
 }
 
 // Release the adapter object
@@ -675,6 +696,10 @@ void VLanAndroidFree(VLAN_ANDROID *v)
 	}
 
 	v->Halt = true;
+
+	// Wake the pump thread even if it is still inside IPCDhcpAllocateIP
+	TubeDisconnect(v->DhcpHaltTube);
+	TubeDisconnect(v->DhcpHaltPeer);
 
 	VLanStopIpv6Gate(v);
 
@@ -698,6 +723,9 @@ void VLanAndroidFree(VLAN_ANDROID *v)
 	// Release our own references of the tube pair
 	ReleaseTube(v->TubeToIpc);
 	ReleaseTube(v->TubeFromIpc);
+
+	ReleaseTube(v->DhcpHaltTube);
+	ReleaseTube(v->DhcpHaltPeer);
 
 	Free(v->ErrorMsg);
 

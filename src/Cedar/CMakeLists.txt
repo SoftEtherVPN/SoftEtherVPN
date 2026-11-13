@@ -55,7 +55,9 @@ target_sources(cedar PRIVATE ${BLAKE2_SRC})
 if(TARGET unofficial-sodium::sodium)
   # Provided as an imported target by the root project (Android/vcpkg-tree builds)
   target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
-elseif(VCPKG_TARGET_TRIPLET)
+elseif(VCPKG_TARGET_TRIPLET OR ANDROID)
+  # The Android cross build has no pkg-config; its dependencies are the vcpkg
+  # CONFIG packages like on every other vcpkg build.
   find_package(unofficial-sodium CONFIG REQUIRED)
   target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
 else()

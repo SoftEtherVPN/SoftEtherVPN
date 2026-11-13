@@ -29,10 +29,11 @@ and autoconf/CMake builds are unaffected).
 
 - `SoftEtherVPN-Android/` — Gradle project (Android Studio).
   - `app/src/main/cpp/se_jni.c` — JNI shim (init/release/connect/status/IPv4 info/SetTunFd/disconnect).
-  - `app/src/main/cpp/CMakeLists.txt` — the Android build entry point: adds the
-    repo root as a subproject (core libs), takes dependencies from vcpkg, builds
-    the JNI shim into `libsoftether.so`, and rewrites `local.properties`
-    (`sdk.dir`) so the folder is ready for Gradle / Android Studio.
+  - `CMakeLists.txt` (the Gradle module root) — the Android build entry point:
+    adds the repo root as a subproject (core libs), takes dependencies from
+    vcpkg, builds the JNI shim (`app/src/main/cpp/se_jni.c`) into
+    `libsoftether.so`, and rewrites `local.properties` (`sdk.dir`) so the folder
+    is ready for Gradle / Android Studio.
   - `app/src/main/java/org/softether/android/` — `MainActivity.kt` (Compose),
     `VpnEngine.kt` (VpnService), `SeNative.kt` (JNI + config model).
 
@@ -51,21 +52,22 @@ and autoconf/CMake builds are unaffected).
    toolchain, so every port is rebuilt against *bionic* — host `apt`/multiarch
    packages cannot be used (they link against glibc).
 3. Tell Gradle where vcpkg lives — property `-Pvcpkg.root=<vcpkg>` (or env
-   `VCPKG_ROOT`; required, configure fails at `find_package(OpenSSL)` without
-   it) and `-Pvcpkg.triplet=<triplet>` (or env `VCPKG_TARGET_TRIPLET`, default
+   `VCPKG_ROOT`; required, the configure fails immediately with a message saying
+   so) and `-Pvcpkg.triplet=<triplet>` (or env `VCPKG_TARGET_TRIPLET`, default
    `arm64-android`). Gradle then feeds the vcpkg toolchain file, the manifest
    directory (the repo root) and the chainloaded NDK toolchain (slash paths, so
-   Windows backslashes don't leak into CMake caches) to the cpp entry point.
+   Windows backslashes don't leak into CMake caches) to the entry point.
 
 ## Building
 
-The Android entry point is `SoftEtherVPN-Android/app/src/main/cpp/`: building
-`all` there yields exactly the Android-relevant targets (libhamcore,
-hamcorebuilder, mayaqua, cedar, `libsoftether.so`) — the main SoftEther project
-is never configured for Android on its own (the desktop executables are not
-even added). Every successful configure rewrites
-`SoftEtherVPN-Android/local.properties` (`sdk.dir`), so the Gradle folder is
-left ready for Android Studio or plain `./gradlew` runs.
+The Android entry point is `SoftEtherVPN-Android/CMakeLists.txt` (the Gradle
+module root): building `all` there yields exactly the Android-relevant targets
+(libhamcore, hamcorebuilder, mayaqua, cedar, `libsoftether.so`) — the main
+SoftEther project is never configured for Android on its own (the desktop
+executables are not even added). Every successful configure rewrites
+`SoftEtherVPN-Android/local.properties` (`sdk.dir`, written as `I\:/dev/...` —
+Properties-escaped), so the Gradle folder is left ready for Android Studio or
+plain `./gradlew` runs.
 
 - Android Studio: open `SoftEtherVPN-Android/`, set `vcpkg.root`/`vcpkg.triplet`
   (e.g. in `gradle.properties`) plus `ANDROID_NDK_HOME`, sync, Run.
@@ -81,8 +83,8 @@ left ready for Android Studio or plain `./gradlew` runs.
   `x64-android`→`x86_64`, `arm-neon-android`→`armeabi-v7a` (`abiFilters`
   follows the triplet).
 - Gradle is the verified path; the same configure can be run standalone against
-  the cpp folder (see the header comment of
-  `app/src/main/cpp/CMakeLists.txt` for a ready-made command line).
+  `SoftEtherVPN-Android/` (see the header comment of its `CMakeLists.txt` for a
+  ready-made command line).
 
 ## Building on Linux / WSL2
 

@@ -149,11 +149,15 @@ private fun App() {
     // (null = plain rename); Cancel in the dialog discards it uncreated
     var pendingSrc by remember { mutableStateOf<String?>(null) }
 
+    // SoftEther core version, readable only after prepareAndInit
+    var coreVer by remember { mutableStateOf(SeNative.coreVersion) }
+
     LaunchedEffect(Unit) {
         curId = ProfileStore.currentId(context)
         entries = ProfileStore.all(context)
         val saved = ProfileStore.loadCurrent(context)
         SeNative.prepareAndInit(context)
+        coreVer = SeNative.coreVersion
         cfg = SeConfig.fromCfg(saved)
         portStr = cfg.port.toString()
         raw = cfg.toCfg()
@@ -386,11 +390,26 @@ private fun App() {
         }
     }
 
+    val androidVerLabel = remember(context) {
+        val vi = context.packageManager.getPackageInfo(context.packageName, 0)
+        "Android vc${vi.longVersionCode}"
+    }
+
     MaterialTheme {
         BackHandler(enabled = showConfig) { showConfig = false }
 
         Scaffold(
-            topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(stringResource(R.string.app_name))
+                            Text("ver ${coreVer.ifEmpty { "…" }} · $androidVerLabel",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                    },
+                )
+            },
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -653,6 +672,13 @@ private fun App() {
                         Switch(
                             checked = cfg.compress,
                             onCheckedChange = { cfg = cfg.copy(compress = it) },
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Verify server cert", modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = cfg.checkServerCert,
+                            onCheckedChange = { cfg = cfg.copy(checkServerCert = it) },
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
