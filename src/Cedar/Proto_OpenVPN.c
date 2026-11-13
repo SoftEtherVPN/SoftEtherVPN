@@ -964,12 +964,67 @@ void OvsProcessRecvControlPacket(OPENVPN_SERVER *s, OPENVPN_SESSION *se, OPENVPN
 
 				if (StartWith(tmp, "PUSH_REQUEST"))
 				{
-					WriteFifo(send_fifo, se->PushReplyStr, StrLen(se->PushReplyStr));
+					OvsSendPushReply(c, se->PushReplyStr);
 				}
 			}
 		}
 		break;
 	}
+}
+
+// Send the PUSH_REPLY string to the client.
+// The client reads each control message into a fixed-size buffer, so a long string is sent
+// as multiple messages, each ending with "push-continuation", like the OpenVPN server does.
+void OvsSendPushReply(OPENVPN_CHANNEL *c, char *str)
+{
+	TOKEN_LIST *t;
+	UINT i;
+	bool multi = false;
+	char msg[OPENVPN_PUSH_REPLY_MAX_SIZE];
+	char *more = ",push-continuation 2";
+	// Validate arguments
+	if (c == NULL || c->SslPipe == NULL || IsEmptyStr(str))
+	{
+		return;
+	}
+
+	t = ParseToken(str, ",");
+	if (t == NULL)
+	{
+		return;
+	}
+
+	// The first token is "PUSH_REPLY" itself
+	StrCpy(msg, sizeof(msg), "PUSH_REPLY");
+
+	for (i = 1; i < t->NumTokens; i++)
+	{
+		char *option = t->Token[i];
+
+		if (StrLen(msg) + 1 + StrLen(option) + StrLen(more) >= sizeof(msg))
+		{
+			StrCat(msg, sizeof(msg), more);
+
+			// Each message must be written as a separate TLS record
+			WriteFifo(c->SslPipe->SslInOut->SendFifo, msg, StrSize(msg));
+			SyncSslPipe(c->SslPipe);
+
+			StrCpy(msg, sizeof(msg), "PUSH_REPLY");
+			multi = true;
+		}
+
+		StrCat(msg, sizeof(msg), ",");
+		StrCat(msg, sizeof(msg), option);
+	}
+
+	if (multi)
+	{
+		StrCat(msg, sizeof(msg), ",push-continuation 1");
+	}
+
+	WriteFifo(c->SslPipe->SslInOut->SendFifo, msg, StrSize(msg));
+
+	FreeToken(t);
 }
 
 // Calculate the proper MSS
@@ -2344,7 +2399,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 						{
 							if (se->IpcAsync->Ipc != NULL)
 							{
-								char option_str[4096];
+								char option_str[OPENVPN_PUSH_REPLY_STR_SIZE];
 								char l3_options[MAX_SIZE];
 
 								// Successful in VPN connection
@@ -2528,7 +2583,7 @@ void OvsRecvPacket(OPENVPN_SERVER *s, LIST *recv_packet_list, UINT protocol)
 								// Note that pushing unknown options from server does not trigger fatal errors.
 								StrCat(option_str, sizeof(option_str), ",block-outside-dns");
 
-								WriteFifo(c->SslPipe->SslInOut->SendFifo, option_str, StrSize(option_str));
+								OvsSendPushReply(c, option_str);
 
 								Debug("Push Str: %s\n", option_str);
 								OvsLog(s, se, c, "LO_PUSH_REPLY", option_str);
