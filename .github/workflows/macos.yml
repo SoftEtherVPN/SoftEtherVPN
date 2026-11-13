@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-26, macos-15, macos-14]
+        os: [macos-26, macos-15]
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
