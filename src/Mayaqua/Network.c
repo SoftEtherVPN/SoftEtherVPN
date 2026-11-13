@@ -14362,7 +14362,12 @@ void BindConnectThreadForIPv4(THREAD *thread, void *param)
 		else if (force_use_natt)
 		{
 			// The connection by forcing the use of NAT-T (not to connection with normal TCP)
-			SOCK *nat_t_sock = NewRUDPClientNatT(p->NatT_SvcName, ip, p->NatT_ErrorCode, p->Timeout, p->CancelFlag,	p->HintStr, p->Hostname);
+			char target_hostname[MAX_SIZE];
+			SOCK *nat_t_sock;
+
+			IPToStr(target_hostname, sizeof(target_hostname), ip);
+
+			nat_t_sock = NewRUDPClientNatT(p->NatT_SvcName, ip, p->NatT_ErrorCode, p->Timeout, p->CancelFlag, p->HintStr, target_hostname);
 
 			if (nat_t_sock != NULL)
 			{
@@ -14415,7 +14420,7 @@ void BindConnectThreadForIPv4(THREAD *thread, void *param)
 			p2.FinishEvent = finish_event;
 
 			StrCpy(p2.HintStr, sizeof(p2.HintStr), p->HintStr);
-			StrCpy(p2.TargetHostname, sizeof(p2.TargetHostname), p->Hostname);
+			IPToStr(p2.TargetHostname, sizeof(p2.TargetHostname), ip);
 			StrCpy(p2.SvcName, sizeof(p2.SvcName), p->NatT_SvcName);
 			p2.Delay = 30;		// Delay by 30ms
 

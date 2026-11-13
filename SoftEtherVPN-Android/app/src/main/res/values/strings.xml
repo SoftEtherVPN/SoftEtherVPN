@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SoftEther VPN</string>
+    <string name="tile_label">SoftEther VPN</string>
+    <string name="widget_connected">Connected</string>
+    <string name="widget_connecting">Connecting…</string>
+    <string name="widget_disconnected">Disconnected</string>
+    <string name="widget_pick_profile">Open VPN with profile</string>
+</resources>

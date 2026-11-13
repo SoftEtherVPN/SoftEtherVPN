@@ -94,6 +94,10 @@ if(UNIX)
     endif()
   endif()
 
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    add_definitions(-DUNIX_LINUX -DUNIX_ANDROID)
+  endif()
+
   if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
     add_definitions(-DUNIX_BSD -DBRIDGE_BPF)
     include_directories(SYSTEM /usr/local/include)
@@ -141,20 +145,24 @@ add_subdirectory(Cedar)
 # Mayaqua kernel
 add_subdirectory(Mayaqua)
 
-# vpnserver
-add_subdirectory(vpnserver)
+# Desktop executables — not built for Android (the Android build only needs
+# the libraries, hamcorebuilder and the JNI target added by the app folder).
+if(NOT ANDROID)
+  # vpnserver
+  add_subdirectory(vpnserver)
 
-# vpnclient
-add_subdirectory(vpnclient)
+  # vpnclient
+  add_subdirectory(vpnclient)
 
-# vpnbridge
-add_subdirectory(vpnbridge)
+  # vpnbridge
+  add_subdirectory(vpnbridge)
 
-# vpncmd
-add_subdirectory(vpncmd)
+  # vpncmd
+  add_subdirectory(vpncmd)
 
-# vpntest
-add_subdirectory(vpntest)
+  # vpntest
+  add_subdirectory(vpntest)
+endif()
 
 # libhamcore
 add_subdirectory(libhamcore)
@@ -162,7 +170,10 @@ add_subdirectory(libhamcore)
 # hamcorebuilder utility
 add_subdirectory(hamcorebuilder)
 
-# hamcore.se2 archive file
+# hamcore.se2 archive file (the builder binary must run on the build host;
+# for Android the archive is produced from a host build — see the app's assets
+# pipeline. hamcore.se2 itself is never committed: always generated.)
+if(NOT ANDROID)
 add_custom_target(hamcore-archive-build
   ALL
   DEPENDS "${BUILD_DIRECTORY}/hamcore.se2"
@@ -205,6 +216,7 @@ else()
       WORKING_DIRECTORY "${BUILD_DIRECTORY}"
       VERBATIM
   )
+endif()
 endif()
 
 if(WIN32)

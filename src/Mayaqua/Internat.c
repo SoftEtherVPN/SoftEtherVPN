@@ -683,11 +683,11 @@ void InitInternational()
 	d = IconvWideToStrInternal();
 	if (d == (void *)-1)
 	{
-#if defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL)
+#if defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) || defined (UNIX_ANDROID)
 		StrCpy(charset, sizeof(charset), "utf-8");
-#else // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
+#else // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) || defined (UNIX_ANDROID) 
 		StrCpy(charset, sizeof(charset), "EUCJP");
-#endif // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) 
+#endif // defined (UNIX_MACOS) || defined (UNIX_LINUX_MUSL) || defined (UNIX_ANDROID) 
 		d = IconvWideToStrInternal();
 		if (d == (void *)-1)
 		{
@@ -719,9 +719,105 @@ void FreeInternational()
 
 #ifdef	OS_UNIX
 
+// Convert a UTF-8 string to wchar_t (UTF-32). Android's bionic iconv()
+// returns E2BIG for UTF-8 to UTF-16 conversions, so skip iconv entirely.
+#ifdef	__ANDROID__
+UINT AndroidUtf8ToWide(wchar_t *dst, UINT size, char *src)
+{
+	UINT i = 0, o = 0;
+	// Validate arguments
+	if (src == NULL)
+	{
+		return 0;
+	}
+	while (src[i] != 0 && (dst == NULL || o + 1 < size))
+	{
+		UCHAR b;
+		wchar_t c;
+		UINT cp, extra, j;
+
+		b = (UCHAR)src[i];
+
+		if (b < 0x80)
+		{
+			if (dst != NULL)
+			{
+				dst[o] = b;
+			}
+			o++;
+			i++;
+			continue;
+		}
+
+		if ((b & 0xE0) == 0xC0)
+		{
+			cp = b & 0x1F;
+			extra = 1;
+		}
+		else if ((b & 0xF0) == 0xE0)
+		{
+			cp = b & 0x0F;
+			extra = 2;
+		}
+		else if ((b & 0xF8) == 0xF0)
+		{
+			cp = b & 0x07;
+			extra = 3;
+		}
+		else
+		{
+			if (dst != NULL)
+			{
+				dst[o] = 0xFFFD;
+			}
+			o++;
+			i++;
+			continue;
+		}
+
+		for (j = 1;j <= extra;j++)
+		{
+			UCHAR cc;
+			cc = (UCHAR)src[i + j];
+			if ((cc & 0xC0) != 0x80)
+			{
+				break;
+			}
+			cp = (cp << 6) | (cc & 0x3F);
+		}
+
+		if (j <= extra)
+		{
+			if (dst != NULL)
+			{
+				dst[o] = 0xFFFD;
+			}
+			o++;
+			i++;
+			continue;
+		}
+
+		if (dst != NULL)
+		{
+			dst[o] = (wchar_t)cp;
+		}
+		o++;
+		i += extra + 1;
+	}
+	if (dst != NULL)
+	{
+		dst[o] = 0;
+	}
+	return o;
+}
+#endif	// __ANDROID__
+
 // Calculate the size when the string converted to Unicode
 UINT UnixCalcStrToUni(char *str)
 {
+#ifdef	__ANDROID__
+	return (AndroidUtf8ToWide(NULL, 0, str) + 1) * sizeof(wchar_t);
+#else	// __ANDROID__
 	wchar_t *tmp;
 	UINT len, tmp_size;
 	UINT ret;
@@ -739,6 +835,7 @@ UINT UnixCalcStrToUni(char *str)
 	Free(tmp);
 
 	return (ret + 1) * sizeof(wchar_t);
+#endif	// __ANDROID__
 }
 
 // Convert the strings to Unicode
@@ -756,6 +853,10 @@ UINT UnixStrToUni(wchar_t *s, UINT size, char *str)
 	{
 		return 0;
 	}
+
+#ifdef	__ANDROID__
+	return AndroidUtf8ToWide(s, size, str);
+#endif	// __ANDROID__
 
 	d = IconvStrToWide();
 	if (d == (void *)-1)

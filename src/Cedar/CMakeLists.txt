@@ -35,6 +35,11 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64|arm64v8|ARM64")
   message(STATUS "Target architecture is ARM64")
   set(BLAKE2_SRC_PATH "${TOP_DIRECTORY}/3rdparty/BLAKE2/neon")
   set(BLAKE2_SRC "${BLAKE2_SRC_PATH}/blake2s-neon.c")
+elseif(ANDROID AND CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+  # 32-bit ARM target: HAS_SSE2 reports about the build host, not the target — use ref
+  message(STATUS "Target architecture is 32-bit ARM (BLAKE2 reference implementation)")
+  set(BLAKE2_SRC_PATH "${TOP_DIRECTORY}/3rdparty/BLAKE2/ref")
+  set(BLAKE2_SRC "${BLAKE2_SRC_PATH}/blake2s-ref.c")
 else()
   set(BLAKE2_SRC_PATH $<IF:$<BOOL:${HAS_SSE2}>,${TOP_DIRECTORY}/3rdparty/BLAKE2/sse,${TOP_DIRECTORY}/3rdparty/BLAKE2/ref>)
   set(BLAKE2_SRC $<IF:$<BOOL:${HAS_SSE2}>,${BLAKE2_SRC_PATH}/blake2s.c,${BLAKE2_SRC_PATH}/blake2s-ref.c>)
@@ -47,7 +52,12 @@ endif()
 target_include_directories(cedar PUBLIC ${BLAKE2_SRC_PATH})
 target_sources(cedar PRIVATE ${BLAKE2_SRC})
 
-if(VCPKG_TARGET_TRIPLET)
+if(TARGET unofficial-sodium::sodium)
+  # Provided as an imported target by the root project (Android/vcpkg-tree builds)
+  target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
+elseif(VCPKG_TARGET_TRIPLET OR ANDROID)
+  # The Android cross build has no pkg-config; its dependencies are the vcpkg
+  # CONFIG packages like on every other vcpkg build.
   find_package(unofficial-sodium CONFIG REQUIRED)
   target_link_libraries(cedar PUBLIC unofficial-sodium::sodium)
 else()
@@ -74,10 +84,14 @@ if(WIN32)
 endif()
 
 if(UNIX)
-  find_package(Curses REQUIRED)
-  find_library(LIB_READLINE readline)
+  if(NOT ANDROID)
+    # Android has no curses/readline in the NDK sysroot; Console.c loads
+    # readline dynamically at runtime when available.
+    find_package(Curses REQUIRED)
+    find_library(LIB_READLINE readline)
 
-  target_link_libraries(cedar PRIVATE ${CURSES_LIBRARIES} ${LIB_READLINE})
+    target_link_libraries(cedar PRIVATE ${CURSES_LIBRARIES} ${LIB_READLINE})
+  endif()
 
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     target_link_libraries(cedar PRIVATE mayaqua pcap)

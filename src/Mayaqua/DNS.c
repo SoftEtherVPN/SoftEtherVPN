@@ -490,6 +490,10 @@ void DnsResolver(THREAD *t, void *param)
 	struct addrinfo hints;
 	Zero(&hints, sizeof(hints));
 
+#ifdef	__ANDROID__
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_flags = AI_ADDRCONFIG;
+#else	// __ANDROID__
 	if (HasIPv6Address())
 	{
 		hints.ai_family = AF_INET6;
@@ -499,6 +503,7 @@ void DnsResolver(THREAD *t, void *param)
 	{
 		hints.ai_family = AF_INET;
 	}
+#endif	// __ANDROID__
 
 	struct addrinfo *results;
 	const int ret = getaddrinfo(resolver->Hostname, NULL, &hints, &results);
@@ -509,7 +514,7 @@ void DnsResolver(THREAD *t, void *param)
 		for (struct addrinfo *result = results; result != NULL; result = result->ai_next)
 		{
 			IP ip;
-			if (hints.ai_family == AF_INET6)
+			if (result->ai_family == AF_INET6)
 			{
 				const struct sockaddr_in6 *in = (struct sockaddr_in6 *)result->ai_addr;
 				InAddrToIP6(&ip, &in->sin6_addr);

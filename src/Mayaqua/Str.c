@@ -19,6 +19,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#define MLOG(...)	__android_log_print(ANDROID_LOG_INFO, "SETH", __VA_ARGS__)
+#else	// __ANDROID__
+#define MLOG(...)
+#endif	// __ANDROID__
+
 // Locking for call the token handling function
 LOCK *token_lock = NULL;
 static char *default_spliter = " ,\t\r\n";
@@ -2659,7 +2666,9 @@ void PrintStr(char *str)
 		return;
 	}
 
-#ifdef	OS_UNIX
+#ifdef	__ANDROID__
+	MLOG("%s", str);
+#elif	defined(OS_UNIX)
 	fputs(str, stdout);
 #else	// OS_UNIX
 	unistr = CopyStrToUni(str);

@@ -16,7 +16,9 @@ set_target_properties(mayaqua
   RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIRECTORY}"
 )
 
-find_package(OpenSSL REQUIRED)
+if(NOT OPENSSL_FOUND OR NOT TARGET OpenSSL::SSL)
+  find_package(OpenSSL REQUIRED)
+endif()
 
 if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0" AND OPENSSL_VERSION VERSION_LESS "4.0.0")
   set(OQS_ENABLE ON CACHE BOOL "By setting this to OFF, Open Quantum Safe algorithms will not be built in")
@@ -121,6 +123,11 @@ endif()
 
 if(UNIX)
   find_package(Threads REQUIRED)
+
+  if(ANDROID)
+    # __android_log_print (Mayaqua's PrintStr path)
+    target_link_libraries(mayaqua PRIVATE log)
+  endif()
 
   # In some cases libiconv is not included in libc
   find_library(LIB_ICONV iconv)

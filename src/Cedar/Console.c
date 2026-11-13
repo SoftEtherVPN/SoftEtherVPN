@@ -28,8 +28,24 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
+#ifdef UNIX_ANDROID
+static char *AndroidReadline(const char *prompt)
+{
+	char buf[MAX_SIZE];
+
+	if (fgets(buf, sizeof(buf), stdin) == NULL)
+	{
+		return (NULL);
+	}
+
+	return (CopyStr(buf));
+}
+#define readline			AndroidReadline
+#define add_history(s)
+#else	// UNIX_ANDROID
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif	// UNIX_ANDROID
 #endif
 
 // Display the help for the command
