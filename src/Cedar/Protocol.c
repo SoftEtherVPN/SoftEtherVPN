@@ -6324,7 +6324,14 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 		{
 			// Mode to connect with R-UDP directly without using NAT-T server when using UDP
 			IP ip;
-			if (StrToIP(&ip, hostname))
+			bool resolved = StrToIP(&ip, hostname);
+
+			if (resolved == false)
+			{
+				resolved = GetIPEx(&ip, hostname, 0, cancel_flag);
+			}
+
+			if (resolved)
 			{
 				sock = NewRUDPClientDirect(VPN_RUDP_SVC_NAME, &ip, o->PortUDP, &nat_t_err,
 					TIMEOUT_TCP_PORT_CHECK, (bool *)cancel_flag, NULL, NULL, 0, false);
@@ -6333,6 +6340,9 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect)
 				{
 					StrCpy(sock->UnderlayProtocol, sizeof(sock->UnderlayProtocol), SOCK_UNDERLAY_NAT_T);
 				}
+
+				CopyIP(&resolved_ip, &ip);
+				save_resolved_ip = true;
 			}
 		}
 

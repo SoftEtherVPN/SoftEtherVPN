@@ -248,7 +248,6 @@ class VpnEngine : VpnService() {
         cfgIgnoreRoutes6 = ign6 ?: legacy("routes6_ignore") ?: ""
         cfgAppMode = appM?.takeIf { it == "allow" || it == "block" } ?: "off"
         cfgAppPkgs = (appL ?: "").split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
-        Log.i("SETH", "worker: cfg retry tries=$cfgRetries interval=${cfgRetryIntervalMs}ms v4=$cfgUseIpv4 v6=$cfgUseIpv6 routes4=${if (cfgRoutesAuto4) "auto" else "manual"} routes6=${if (cfgRoutesAuto6) "auto" else "manual"}")
     }
 
     private fun workerMain() {
@@ -360,7 +359,6 @@ class VpnEngine : VpnService() {
         SeNative.negotiating = "Creating session..."
         notifyStatus("Creating session...")
         val h = SeNative.nativeConnect(cfg)
-        Log.i("SETH", "worker: connect handle=$h")
         if (h == 0L) {
             return fail(0L, "Connection failed (check address, port and hub).")
         }
@@ -377,7 +375,6 @@ class VpnEngine : VpnService() {
             }
             when (SeNative.nativeGetStatus(h)) {
                 SeNative.STATUS_CONFIG_OK -> {
-                    Log.i("SETH", "worker: config ok")
                     break
                 }
                 SeNative.STATUS_CONFIG_ERROR, SeNative.STATUS_DISCONNECTED -> {
@@ -407,14 +404,12 @@ class VpnEngine : VpnService() {
         }
 
         val info = SeNative.nativeGetIPv4Info(h)
-        Log.i("SETH", "worker: ipv4=${info?.joinToString("/")}")
         if (cfgUseIpv4 && (info == null || info[0].isEmpty())) {
             SeNative.nativeDisconnect(h)
             return fail(h, "No IPv4 configuration received.")
         }
 
         val v6 = if (cfgUseIpv6) SeNative.nativeGetIPv6Config(h) else null
-        Log.i("SETH", "worker: ipv6=${v6?.joinToString("/")}")
         if (cfgUseIpv6 && (v6 == null || v6[0].isEmpty())) {
             SeNative.nativeDisconnect(h)
             return fail(h, "No IPv6 configuration received.")
@@ -424,7 +419,6 @@ class VpnEngine : VpnService() {
         notifyStatus("Setting up VPN interface...")
         val appMode = cfgAppMode
         val appList = cfgAppPkgs
-        Log.i("SETH", "worker: appMode=$appMode apps=${appList.size}")
         val ignore4 = parseNetList(cfgIgnoreRoutes4, false)
         val manual4 = parseNetList(cfgManualRoutes4, false)
         val ignore6 = parseNetList(cfgIgnoreRoutes6, true)

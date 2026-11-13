@@ -650,7 +650,6 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 
 		return 0;
 	}
-	Debug("connect: vlan ok");
 
 	if (!dhcp)
 	{
@@ -689,8 +688,6 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 
 		return 0;
 	}
-	Debug("connect: session ok s=%p ref=%p", (void *)s, (void *)s->ref);
-
 	v->Session = s;
 
 	// The account-ownership reference of the desktop connection protocol:
@@ -714,8 +711,6 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 
 		return 0;
 	}
-	Debug("connect: started");
-
 	pthread_mutex_lock(&g_lock);
 	g_v = v;
 	pthread_mutex_unlock(&g_lock);
@@ -1202,19 +1197,13 @@ Java_org_softether_android_SeNative_nativeDisconnect(JNIEnv *env, jobject thiz, 
 	}
 	g_v = NULL;
 
-	// Teardown step logs (Debug() is core-gated: logcat only in SE_DEBUG_LOG debug builds)
-	Debug("disconnect: enter v=%p s=%p acc=%p", (void *)v, (void *)v->Session, (void *)v->Account);
-
 	// Wake a pending DHCP wait in the pump thread before touching the session
 	VLanAndroidAbortDhcp(v);
 
 	if (v->Session != NULL)
 	{
-		Debug("disconnect: StopSession");
 		StopSession(v->Session);
-		Debug("disconnect: ReleaseSession");
 		ReleaseSession(v->Session);
-		Debug("disconnect: session released");
 		v->Session = NULL;
 	}
 
@@ -1222,15 +1211,11 @@ Java_org_softether_android_SeNative_nativeDisconnect(JNIEnv *env, jobject thiz, 
 	// its Account copy members until termination)
 	if (v->Account != NULL)
 	{
-		Debug("disconnect: CiFreeAccount %p", (void *)v->Account);
 		CiFreeAccount((ACCOUNT *)v->Account);
 		v->Account = NULL;
 	}
 
-	Debug("disconnect: VLanAndroidFree");
 	VLanAndroidFree(v);
-
-	Debug("disconnect: done");
 
 	pthread_mutex_unlock(&g_lock);
 }
