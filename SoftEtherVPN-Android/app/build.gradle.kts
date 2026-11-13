@@ -39,7 +39,7 @@ android {
         applicationId = "org.softether.android"
         minSdk = 29
         targetSdk = 35
-        versionCode = 42
+        versionCode = 44
         versionName = "1.0-android-preview"
 
         ndk {
