@@ -79,19 +79,27 @@ private fun formatConnInfo(info: Array<String>?): String {
     return sb.toString().trimEnd()
 }
 
-private fun acquiredAddrSuffix(h: Long): String {
-    val parts = ArrayList<String>()
+// Split-family awareness in the phase wording: when one family is configured
+// while the other is still applying, name the pending one. The acquired
+// addresses belong on the assigned-IP line (see the poller), not in the status text.
+private fun statusLine(phase: String, ip4: String, ip6: String): String {
+    if (phase.startsWith("Connected")) return phase
 
-    runCatching { SeNative.nativeGetIPv4Info(h) }.getOrNull()?.let {
-        if (it.isNotEmpty() && it[0].isNotEmpty()) parts.add("IPv4 ${it[0]}")
+    val joint = phase.startsWith("Applying IPv4/IPv6 configuration")
+    return when {
+        joint && ip4.isNotEmpty() && ip6.isEmpty() ->
+            "Applying IPv6 configuration (waiting for router advertisement)..."
+        joint && ip6.isNotEmpty() && ip4.isEmpty() ->
+            "Applying IPv4 configuration..."
+        else -> phase
     }
-
-    runCatching { SeNative.nativeGetIPv6Config(h) }.getOrNull()?.let {
-        if (it.isNotEmpty() && it[0].isNotEmpty()) parts.add("IPv6 ${it[0]}")
-    }
-
-    return parts.joinToString(", ")
 }
+
+private fun acquiredIp4(h: Long): String =
+    runCatching { SeNative.nativeGetIPv4Info(h) }.getOrNull()?.getOrNull(0).orEmpty()
+
+private fun acquiredIp6(h: Long): String =
+    runCatching { SeNative.nativeGetIPv6Config(h) }.getOrNull()?.getOrNull(0).orEmpty()
 
 private fun startVpn(context: Context, cfgText: String) {
     val i = Intent(context, VpnEngine::class.java)
@@ -158,13 +166,10 @@ private fun App() {
             val dl = SeNative.retryDeadlineMs
             val rem = if (dl > 0L) ((dl - android.os.SystemClock.elapsedRealtime() + 999) / 1000) else -1L
             busy = h != 0L || neg.isNotEmpty() || rem > 0L
+            val ip4 = if (h != 0L) acquiredIp4(h) else ""
+            val ip6 = if (h != 0L) acquiredIp6(h) else ""
             statusText = when {
-                h != 0L -> {
-                    val phase = SeNative.nativeGetStatusText(h)
-                    val acquired =
-                        if (phase.startsWith("Connected")) "" else acquiredAddrSuffix(h)
-                    if (acquired.isEmpty()) phase else "$phase  $acquired"
-                }
+                h != 0L -> statusLine(SeNative.nativeGetStatusText(h), ip4, ip6)
                 neg.isNotEmpty() -> neg
                 SeNative.lastError.isNotEmpty() ->
                     if (rem > 0L) SeNative.lastError + " (next attempt in ${rem}s)"
@@ -173,8 +178,18 @@ private fun App() {
             }
             connInfo = if (h != 0L) {
                 val tls = formatConnInfo(SeNative.nativeGetConnInfo(h))
-                val ip = SeNative.negotiatedIp
-                (if (ip.isNotEmpty()) "IP: $ip\n" else "") + tls
+                // labeled per-family addresses in every state; negotiatedIp only as fallback
+                val labeled = listOfNotNull(
+                    if (ip4.isNotEmpty()) "IPv4 $ip4" else null,
+                    if (ip6.isNotEmpty()) "IPv6 $ip6" else null,
+                ).joinToString(", ")
+                val assigned = SeNative.negotiatedIp
+                val ipLine = when {
+                    labeled.isNotEmpty() -> "IP: $labeled"
+                    assigned.isNotEmpty() -> "IP: $assigned"
+                    else -> ""
+                }
+                (if (ipLine.isEmpty()) "" else "$ipLine\n") + tls
             } else ""
             delay(500)
         }

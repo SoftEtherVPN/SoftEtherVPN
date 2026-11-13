@@ -860,10 +860,13 @@ char *VLanAndroidGetErrorText(VLAN_ANDROID *v)
 	return v->ErrorMsg;
 }
 
-// Get the acquired IPv4 configuration
+// Get the acquired IPv4 configuration. Answers as soon as the address is
+// known (static parameters at bring-up start, DHCP lease the moment it is
+// in hand), not only after the unified ConfigOk gate — so the UI can show
+// the lease while the IPv6 router advertisement is still pending.
 bool VLanAndroidGetIPv4Config(VLAN_ANDROID *v, IP *ip, IP *mask, IP *gw, IP *dns1, IP *dns2)
 {
-	if (v == NULL || v->ConfigOk == false)
+	if (v == NULL || v->Ipv4Enabled == false || IsZeroIP(&v->ConfigIp))
 	{
 		return false;
 	}

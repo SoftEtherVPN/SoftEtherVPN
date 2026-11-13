@@ -5,10 +5,13 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// Machine-local build inputs, in order of precedence: -P properties, then
-// local.properties (a successful CMake configure records sdk.dir, vcpkg.root,
-// vcpkg.triplet and ndk.home there), then the environment.  Reading them here
-// is what makes an Android Studio sync work without any extra setup.
+// Machine-local build inputs, one precedence chain for all of them: explicit
+// -P flags override, then local.properties (a successful CMake configure records
+// sdk.dir, vcpkg.root, vcpkg.triplet and ndk.home there), then the usual
+// environment variables — a build with the standard env vars set needs no flags.
+// The Android SDK itself is located by AGP (local.properties sdk.dir, then
+// ANDROID_HOME / ANDROID_SDK_ROOT), so it needs no glue here.
+// Default triplet (no flag, no property, no env): arm64-android / arm64-v8a.
 val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
@@ -17,12 +20,15 @@ val localProps = Properties().apply {
 val vcpkgRoot = (findProperty("vcpkg.root") as String?)
     ?: localProps.getProperty("vcpkg.root")
     ?: System.getenv("VCPKG_ROOT")
+    ?: System.getenv("VCPKG_INSTALLATION_ROOT")
 val vcpkgTriplet = (findProperty("vcpkg.triplet") as String?)
     ?: localProps.getProperty("vcpkg.triplet")
     ?: System.getenv("VCPKG_TARGET_TRIPLET")
     ?: "arm64-android"
-val ndkHomeDir = System.getenv("ANDROID_NDK_HOME")
+val ndkHomeDir = (findProperty("ndk.home") as String?)
     ?: localProps.getProperty("ndk.home")
+    ?: System.getenv("ANDROID_NDK_HOME")
+    ?: System.getenv("ANDROID_NDK_ROOT")
 
 android {
     namespace = "org.softether.android"
@@ -33,7 +39,7 @@ android {
         applicationId = "org.softether.android"
         minSdk = 29
         targetSdk = 35
-        versionCode = 19
+        versionCode = 23
         versionName = "1.0-android-preview"
 
         ndk {
@@ -61,8 +67,9 @@ android {
                     // values break the chainloaded NDK toolchain on Windows).
                     val ndkHome = ndkHomeDir
                         ?: throw GradleException(
-                            "The NDK path is unknown: set ANDROID_NDK_HOME or put ndk.home " +
-                            "in local.properties (vcpkg builds its Android ports through it).")
+                            "The NDK path is unknown: pass -Pndk.home=..., set ANDROID_NDK_HOME, " +
+                            "or put ndk.home in local.properties " +
+                            "(vcpkg builds its Android ports through it).")
                     val ndkNorm = ndkHome.replace('\\', '/')
                     arguments += listOf(
                         "-DCMAKE_TOOLCHAIN_FILE=$vcpkgRootNorm/scripts/buildsystems/vcpkg.cmake",
