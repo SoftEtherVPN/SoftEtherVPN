@@ -81,7 +81,9 @@ endif()
 add_subdirectory("${SE_REPO_ROOT}" "${CMAKE_CURRENT_BINARY_DIR}/softether-core")
 
 # JNI shim — the single shared library the APK loads.
-add_library(softether SHARED "${CMAKE_CURRENT_SOURCE_DIR}/app/src/main/cpp/se_jni.c")
+add_library(softether SHARED
+  "${CMAKE_CURRENT_SOURCE_DIR}/app/src/main/cpp/se_jni.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/app/src/main/cpp/se_cfg.c")
 target_include_directories(softether PRIVATE
   "${SE_REPO_ROOT}/src"
   "${SE_REPO_ROOT}/src/Cedar"

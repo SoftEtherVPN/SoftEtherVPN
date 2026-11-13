@@ -10,8 +10,9 @@ import androidx.core.content.ContextCompat
 
 // Quick Settings tile: no per-profile binding (a tile cannot carry one), so it
 // acts on the currently default-selected profile only — tap toggles that
-// profile; ACTIVE means established, and the shield icon blinks (full-color ↔
-// dimmed) while a connect is in flight. A press while connecting aborts it.
+// profile; a lit tile means an attempt is in flight or established, the icon
+// disambiguates: full-color steady = connected, full-color ↔ dimmed blink =
+// connecting. A press while connecting aborts it.
 //
 // ColorOS SystemUI ignores requestListeningState pushes, so the tile polls its
 // own state every 500 ms while the shade is open (updateTile only on change).
@@ -43,7 +44,9 @@ class SeTileService : TileService() {
                 if (blinkOn) R.drawable.ic_state_connecting else R.drawable.ic_state_connecting_dim
             else -> R.drawable.ic_state_disconnected
         }
-        val state = if (st == VpnState.CONNECTED) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+        // lit (ACTIVE) while connecting too, so SystemUI's optimistic flip after
+        // a tap matches our truth; the blinking icon is the in-flight signal
+        val state = if (st == VpnState.DISCONNECTED) Tile.STATE_INACTIVE else Tile.STATE_ACTIVE
         val key = "$label|$state|$iconRes"
         if (key != lastKey) {
             lastKey = key

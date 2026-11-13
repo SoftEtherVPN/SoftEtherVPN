@@ -1,16 +1,11 @@
 package org.softether.android
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.InetAddresses
 import android.net.VpnService
-import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
@@ -24,8 +19,6 @@ class VpnEngine : VpnService() {
         const val ACTION_STATE_CHANGED = "org.softether.android.action.STATE_CHANGED"
         const val EXTRA_CFG = "cfg"
         const val EXTRA_PROFILE = "profile"
-        private const val CHANNEL_ID = "vpn"
-        private const val NOTIFICATION_ID = 2
         private const val RECONNECT_BASE_MS = 5000L
         private const val RECONNECT_MAX_MS = 30000L
         private const val CONNECT_TIMEOUT_MS = 90000L
@@ -33,7 +26,6 @@ class VpnEngine : VpnService() {
     }
 
     private var lastNotified = ""
-    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     @Volatile
     private var stopRequested = false
@@ -156,38 +148,10 @@ class VpnEngine : VpnService() {
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-    private fun buildNotification(text: String): Notification {
-        val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        val content = PendingIntent.getActivity(
-            this, 0,
-            Intent(this, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-            flags,
-        )
-        val stop = PendingIntent.getService(
-            this, 1,
-            Intent(this, VpnEngine::class.java).setAction(ACTION_STOP),
-            flags,
-        )
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(text)
-            .setSmallIcon(android.R.drawable.stat_notify_sync)
-            .setOngoing(true)
-            .setContentIntent(content)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", stop)
-            .build()
-    }
-
     private fun startForegroundNotification() {
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nm.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "VPN", NotificationManager.IMPORTANCE_LOW)
-            )
-        }
+        VpnNotifier.ensureChannel(this)
         lastNotified = ""
-        startForeground(NOTIFICATION_ID, buildNotification("Connecting…"))
+        startForeground(VpnNotifier.NOTIFICATION_ID, VpnNotifier.build(this, "Connecting…"))
     }
 
     // Single funnel for the notification text: phase changes come through here,
@@ -195,25 +159,11 @@ class VpnEngine : VpnService() {
     private fun notifyStatus(text: String) {
         if (text == lastNotified) return
         lastNotified = text
-        runCatching {
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                .notify(NOTIFICATION_ID, buildNotification(text))
-        }
+        VpnNotifier.notifyText(this, text)
         sendStateUpdate()
     }
 
-    private fun sendStateUpdate() {
-        runCatching { sendBroadcast(Intent(ACTION_STATE_CHANGED).setPackage(packageName)) }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mainHandler.post {
-                runCatching {
-                    android.service.quicksettings.TileService.requestListeningState(
-                        this, android.content.ComponentName(this, SeTileService::class.java),
-                    )
-                }
-            }
-        }
-    }
+    private fun sendStateUpdate() = VpnNotifier.broadcastState(this)
 
     private fun sleepWithWake(ms: Long, myGen: Int): Boolean {
         var remaining = ms
@@ -416,6 +366,7 @@ class VpnEngine : VpnService() {
         }
 
         SeNative.handle = h
+        SeNative.negotiatedIp = "" // a dialing session has no assigned address yet
         SeNative.negotiating = ""
         var pollDeadline = SystemClock.elapsedRealtime() + CONNECT_TIMEOUT_MS
         var lastPhase = ""
@@ -626,106 +577,6 @@ class VpnEngine : VpnService() {
             Log.i("SETH", "worker: hamcore extracted ${hamcore.length()} bytes")
         }
         return Pair(hamcore.absolutePath, cacheDir.absolutePath)
-    }
-
-    private fun prefixFromMask(mask: String): Int {
-        var bits = 0
-        mask.split(".").forEach { bits += Integer.bitCount((it.toIntOrNull() ?: 0) and 0xFF) }
-        return bits.coerceIn(0, 32)
-    }
-}
-
-private class Net46(val addr: java.math.BigInteger, val plen: Int, val bits: Int)
-
-private val netV4Default = Net46(java.math.BigInteger.ZERO, 0, 32)
-private val netV6Default = Net46(java.math.BigInteger.ZERO, 0, 128)
-
-// comma-separated "addr/prefix" list (bare addr = host route), family-checked
-private fun parseNetList(s: String, v6: Boolean): List<Net46> {
-    val bits = if (v6) 128 else 32
-    val out = ArrayList<Net46>()
-    for (raw in s.split(',', ';', ' ', '\n', '\r', '\t')) {
-        val e = raw.trim()
-        if (e.isEmpty()) continue
-        val sl = e.indexOf('/')
-        val addrStr = if (sl >= 0) e.substring(0, sl) else e
-        val plen = if (sl >= 0) e.substring(sl + 1).toIntOrNull() else if (v6) 128 else 32
-        if (plen == null || plen < 0 || plen > bits) continue
-        val a = try {
-            InetAddresses.parseNumericAddress(addrStr)
-        } catch (e2: Exception) {
-            Log.w("SETH", "route entry skip '$e'")
-            null
-        } ?: continue
-        if ((v6 && a !is java.net.Inet6Address) || (!v6 && a !is java.net.Inet4Address)) {
-            Log.w("SETH", "route entry family mismatch '$e'")
-            continue
-        }
-        var bi = java.math.BigInteger.ZERO
-        for (b in a.address) {
-            bi = bi.shiftLeft(8).or(java.math.BigInteger.valueOf((b.toInt() and 0xFF).toLong()))
-        }
-        out.add(Net46(bi, plen, bits))
-    }
-    return out
-}
-
-private fun netContains(outer: Net46, inner: Net46): Boolean =
-    outer.bits == inner.bits && outer.plen <= inner.plen &&
-        outer.addr.shiftRight(outer.bits - outer.plen) == inner.addr.shiftRight(outer.bits - outer.plen)
-
-private fun netOverlaps(a: Net46, b: Net46): Boolean {
-    if (a.bits != b.bits) return false
-    val m = minOf(a.plen, b.plen)
-    return a.addr.shiftRight(a.bits - m) == b.addr.shiftRight(b.bits - m)
-}
-
-// prefix space covered by 'prefix' minus every prefix in 'ignores',
-// expressed as a minimal-ish list of subnet prefixes (binary split)
-private fun netSubtract(prefix: Net46, ignores: List<Net46>, cap: Int): List<Net46> {
-    var cur = listOf(prefix)
-    for (ig in ignores) {
-        while (true) {
-            val idx = cur.indexOfFirst { netOverlaps(it, ig) }
-            if (idx < 0) break
-            val p = cur[idx]
-            val rest = ArrayList(cur)
-            rest.removeAt(idx)
-            if (ig.plen <= p.plen) {
-                cur = rest // ignore fully covers p
-                continue
-            }
-            val childPlen = p.plen + 1
-            if (childPlen > p.bits) {
-                cur = rest
-                continue
-            }
-            rest.add(Net46(p.addr, childPlen, p.bits))
-            rest.add(
-                Net46(
-                    p.addr.add(java.math.BigInteger.ONE.shiftLeft(p.bits - childPlen)),
-                    childPlen, p.bits,
-                ),
-            )
-            cur = rest
-            if (cur.size > cap) break
-        }
-    }
-    return cur
-}
-
-private fun bigToIp(bi: java.math.BigInteger, bits: Int): String? {
-    return try {
-        val len = bits / 8
-        val src = bi.toByteArray()
-        val bytes = ByteArray(len)
-        for (i in 0 until len) {
-            val si = src.size - len + i
-            if (si >= 0) bytes[i] = src[si]
-        }
-        java.net.InetAddress.getByAddress(bytes).hostAddress
-    } catch (e: Exception) {
-        null
     }
 }
 

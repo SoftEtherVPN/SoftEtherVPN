@@ -18,11 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -45,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 
@@ -55,52 +52,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private fun formatConnInfo(info: Array<String>?): String {
-    if (info == null || info.size < 8) return ""
-
-    val sb = StringBuilder()
-
-    if (info[1].isNotEmpty() || info[2].isNotEmpty()) {
-        sb.appendLine("TLS ${info[1]} · ${info[2]} (encrypt ${info[0]})")
-    }
-
-    if (info[3].isNotEmpty()) {
-        sb.appendLine("Server cert: ${info[3]}")
-
-        if (info[4].isNotEmpty()) {
-            sb.appendLine("Issuer: ${info[4]}")
-        }
-
-        sb.appendLine("Expires: ${info[5]}")
-        sb.appendLine("SHA-1: ${info[6]}")
-        sb.append("Verification: ${info[7]}")
-    }
-
-    return sb.toString().trimEnd()
-}
-
-// Split-family awareness in the phase wording: when one family is configured
-// while the other is still applying, name the pending one. The acquired
-// addresses belong on the assigned-IP line (see the poller), not in the status text.
-private fun statusLine(phase: String, ip4: String, ip6: String): String {
-    if (phase.startsWith("Connected")) return phase
-
-    val joint = phase.startsWith("Applying IPv4/IPv6 configuration")
-    return when {
-        joint && ip4.isNotEmpty() && ip6.isEmpty() ->
-            "Applying IPv6 configuration (waiting for router advertisement)..."
-        joint && ip6.isNotEmpty() && ip4.isEmpty() ->
-            "Applying IPv4 configuration..."
-        else -> phase
-    }
-}
-
-private fun acquiredIp4(h: Long): String =
-    runCatching { SeNative.nativeGetIPv4Info(h) }.getOrNull()?.getOrNull(0).orEmpty()
-
-private fun acquiredIp6(h: Long): String =
-    runCatching { SeNative.nativeGetIPv6Config(h) }.getOrNull()?.getOrNull(0).orEmpty()
-
 private fun startVpn(context: Context, cfgText: String, profileId: String) {
     val i = Intent(context, VpnEngine::class.java)
     i.action = VpnEngine.ACTION_CONNECT
@@ -109,310 +60,21 @@ private fun startVpn(context: Context, cfgText: String, profileId: String) {
     ContextCompat.startForegroundService(context, i)
 }
 
+// Durable state and flows live in AppViewModel; this composable keeps only the
+// transient dialog/navigation visibility, the activity launchers and the UI tree.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun App() {
     val context = LocalContext.current
-    val prefs = remember { context.getSharedPreferences("profile", Context.MODE_PRIVATE) }
+    val vm: AppViewModel = viewModel()
 
-    var cfg by remember { mutableStateOf(SeConfig()) }
-    var portStr by remember { mutableStateOf("") }
-    var rawMode by remember { mutableStateOf(false) }
-    var raw by remember { mutableStateOf("") }
     var showConfig by rememberSaveable { mutableStateOf(false) }
-
-    var entries by remember { mutableStateOf(listOf<ProfileEntry>()) }
-    var curId by remember { mutableStateOf("") }
     var profilesMenu by remember { mutableStateOf(false) }
-    var nameText by remember { mutableStateOf("") }
-    var nameDlg by remember { mutableStateOf<Triple<String, String, String>?>(null) }
-
-    // cfg text of a not-yet-created profile while its name dialog is open
-    // (null = plain rename); Cancel in the dialog discards it uncreated
-    var pendingSrc by remember { mutableStateOf<String?>(null) }
-
-    // SoftEther core version, readable only after prepareAndInit
-    var coreVer by remember { mutableStateOf(SeNative.coreVersion) }
-
-    // Per-app routing is a profile property (AndroidOptions.AppMode/AppList);
-    // these states mirror the current profile's SeConfig.
-    var appMode by remember { mutableStateOf("off") }
-    var appSet by remember { mutableStateOf(setOf<String>()) }
     var showAppPicker by remember { mutableStateOf(false) }
-
-    fun syncAppRoute(c: SeConfig) {
-        appMode = c.appMode
-        appSet = c.appList.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
-    }
-
-    fun persistApps(mode: String, set: Set<String>) {
-        val list = set.joinToString(",")
-        appMode = mode
-        appSet = set
-        if (rawMode) {
-            val parsed = runCatching { SeConfig.fromCfg(raw) }.getOrNull()
-            if (parsed != null) {
-                parsed.appMode = mode
-                parsed.appList = list
-                raw = parsed.toCfg()
-            }
-        } else {
-            cfg = cfg.copy(appMode = mode, appList = list)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        curId = ProfileStore.currentId(context)
-        entries = ProfileStore.all(context)
-        val saved = ProfileStore.loadCurrent(context)
-        SeNative.prepareAndInit(context)
-        coreVer = SeNative.coreVersion
-        cfg = SeConfig.fromCfg(saved)
-        // one-time migration: pre-vc30 builds kept app routing in app-level
-        // prefs; adopt it unless the profile carries its own value
-        val legacyMode = prefs.getString("appMode", "off") ?: "off"
-        if (legacyMode != "off" && cfg.appMode == "off") {
-            cfg = cfg.copy(appMode = legacyMode, appList = prefs.getString("appList", "") ?: "")
-            ProfileStore.putCfg(context, curId, cfg.toCfg())
-        }
-        prefs.edit().remove("appMode").remove("appList").apply()
-        portStr = cfg.port.toString()
-        raw = cfg.toCfg()
-        syncAppRoute(cfg)
-    }
-
-    var statusText by remember { mutableStateOf("Idle") }
-    var connInfo by remember { mutableStateOf("") }
-    var busy by remember { mutableStateOf(false) }
-    var sessionAlive by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            val h = SeNative.handle
-            val neg = SeNative.negotiating
-            val dl = SeNative.retryDeadlineMs
-            val rem = if (dl > 0L) ((dl - android.os.SystemClock.elapsedRealtime() + 999) / 1000) else -1L
-            val act = SeNative.activeProfileId
-            val otherActive = act.isNotEmpty() && act != curId
-            sessionAlive = h != 0L || neg.isNotEmpty() || rem > 0L
-            busy = sessionAlive && !otherActive
-            val ip4 = if (h != 0L) acquiredIp4(h) else ""
-            val ip6 = if (h != 0L) acquiredIp6(h) else ""
-            statusText = when {
-                otherActive -> {
-                    val e = entries.find { it.id == act }
-                        ?: ProfileStore.all(context).find { it.id == act }
-                    val label = e?.let { ProfileStore.displayName(it) } ?: act
-                    "Idle, connected profile \"$label\""
-                }
-                h != 0L -> statusLine(SeNative.nativeGetStatusText(h), ip4, ip6)
-                neg.isNotEmpty() -> neg
-                SeNative.lastError.isNotEmpty() ->
-                    if (rem > 0L) SeNative.lastError + " (next attempt in ${rem}s)"
-                    else SeNative.lastError
-                else -> "Idle"
-            }
-            connInfo = if (h != 0L && !otherActive) {
-                val tls = formatConnInfo(SeNative.nativeGetConnInfo(h))
-                // labeled per-family addresses in every state; negotiatedIp only as fallback
-                val labeled = listOfNotNull(
-                    if (ip4.isNotEmpty()) "IPv4 $ip4" else null,
-                    if (ip6.isNotEmpty()) "IPv6 $ip6" else null,
-                ).joinToString(", ")
-                val assigned = SeNative.negotiatedIp
-                val ipLine = when {
-                    labeled.isNotEmpty() -> "IP: $labeled"
-                    assigned.isNotEmpty() -> "IP: $assigned"
-                    else -> ""
-                }
-                (if (ipLine.isEmpty()) "" else "$ipLine\n") + tls
-            } else ""
-            delay(500)
-        }
-    }
-
-    fun effectiveCfg(): String = if (rawMode) raw else cfg.toCfg()
-
-    fun savePrefs() {
-        if (curId.isNotEmpty()) ProfileStore.putCfg(context, curId, effectiveCfg())
-    }
-
-    fun refreshAutoName() {
-        val e = entries.find { it.id == curId } ?: return
-        if (e.custom) return
-        val auto = ProfileStore.defaultName(cfg.user, cfg.host)
-        if (auto != e.name) {
-            val updated = entries.map { if (it.id == curId) it.copy(name = auto) else it }
-            ProfileStore.save(context, updated, curId)
-            entries = updated
-        }
-    }
-
-    fun derivedAutoName(id: String): String {
-        val c = runCatching { SeConfig.fromCfg(ProfileStore.cfgText(context, id)) }.getOrNull()
-        return ProfileStore.defaultName(c?.user, c?.host)
-    }
-
-    fun loadProfileIntoUi(id: String) {
-        val loaded =
-            runCatching { SeConfig.fromCfg(ProfileStore.cfgText(context, id)) }.getOrDefault(SeConfig())
-        cfg = loaded
-        portStr = loaded.port.toString()
-        raw = loaded.toCfg()
-        rawMode = false
-        syncAppRoute(loaded)
-    }
-
-    fun applyProfileName(newName: String, id: String) {
-        val clean = newName.replace('\t', ' ').replace('\n', ' ').trim()
-        val updated = ProfileStore.all(context).map {
-            if (it.id == id)
-                it.copy(name = clean.ifEmpty { derivedAutoName(id) }, custom = clean.isNotEmpty())
-            else
-                it
-        }
-        ProfileStore.save(context, updated, curId)
-        entries = updated
-    }
-
-    fun openNameDlg(mode: String, id: String) {
-        val e = ProfileStore.all(context).find { it.id == id }
-        nameText = if (e?.custom == true) e.name else ""
-        pendingSrc = null
-        nameDlg = Triple(mode, derivedAutoName(id), id)
-    }
-
-    // defers profile creation until the name dialog is confirmed;
-    // "new" passes an empty cfg text (fresh default config),
-    // "duplicate" passes the current profile's stored cfg
-    fun beginCreate(mode: String, srcText: String) {
-        nameText = ""
-        pendingSrc = srcText
-        val c = runCatching { SeConfig.fromCfg(srcText) }.getOrNull()
-        nameDlg = Triple(mode, ProfileStore.defaultName(c?.user, c?.host), "")
-    }
-
-    fun confirmCreate(newName: String) {
-        val src = pendingSrc ?: return
-        val id = ProfileStore.newId(context)
-        ProfileStore.putCfg(context, id, src)
-        val c = runCatching { SeConfig.fromCfg(src) }.getOrNull()
-        val clean = newName.replace('\t', ' ').replace('\n', ' ').trim()
-        val updated = ProfileStore.all(context) +
-            ProfileEntry(id, clean.ifEmpty { ProfileStore.defaultName(c?.user, c?.host) }, clean.isNotEmpty())
-        ProfileStore.save(context, updated, id)
-        entries = updated
-        curId = id
-        loadProfileIntoUi(id)
-        pendingSrc = null
-    }
-
-    fun switchProfile(id: String) {
-        if (id == curId) return
-        curId = id
-        ProfileStore.save(context, entries, id)
-        loadProfileIntoUi(id)
-    }
-
-    fun createProfile(mode: String, srcText: String) {
-        val id = ProfileStore.newId(context)
-        ProfileStore.putCfg(context, id, srcText)
-        val updated = ProfileStore.all(context) + ProfileEntry(id, derivedAutoName(id), false)
-        ProfileStore.save(context, updated, id)
-        entries = updated
-        curId = id
-        loadProfileIntoUi(id)
-        openNameDlg(mode, id)
-    }
-
-    fun deleteCurrent() {
-        if (curId.isEmpty()) return
-        ProfileStore.removeCfg(context, curId)
-        val rest = ProfileStore.all(context).filter { it.id != curId }
-        if (rest.isEmpty()) {
-            val e = ProfileEntry("p1", "Default", false)
-            ProfileStore.save(context, listOf(e), "p1")
-            entries = listOf(e)
-            curId = "p1"
-        } else {
-            val act = SeNative.activeProfileId
-            val (ren, newCur) = ProfileStore.reindex(context, rest, rest.first().id)
-            // the connected *other* profile may be renumbered by the survivor
-            // shift; keep the session tracking it under its new id
-            if (act.isNotEmpty() && act != curId) {
-                val k = rest.indexOfFirst { it.id == act }
-                if (k >= 0) SeNative.activeProfileId = ren[k].id
-            }
-            entries = ren
-            curId = newCur
-        }
-        loadProfileIntoUi(curId)
-    }
-
-    // swap the current profile with its neighbour; indexes renumber 1..N
-    fun moveCurrent(delta: Int) {
-        val sorted = ProfileStore.all(context)
-        val i = sorted.indexOfFirst { it.id == curId }
-        val j = i + delta
-        if (i < 0 || j < 0 || j >= sorted.size) return
-        val swapped = sorted.toMutableList()
-        val tmp = swapped[i]
-        swapped[i] = swapped[j]
-        swapped[j] = tmp
-        val act = SeNative.activeProfileId
-        val (ren, newCur) = ProfileStore.reindex(context, swapped, curId)
-        // a connected profile that participated in the swap keeps its session
-        // under the new id
-        if (act.isNotEmpty()) {
-            val k = swapped.indexOfFirst { it.id == act }
-            if (k >= 0) SeNative.activeProfileId = ren[k].id
-        }
-        entries = ren
-        curId = newCur
-    }
 
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            val text = try {
-                context.contentResolver.openInputStream(uri)?.use {
-                    it.readBytes().toString(Charsets.UTF_8)
-                }?.removePrefix("\uFEFF")
-            } catch (e: Exception) {
-                null
-            }
-            val ok = text != null && try {
-                !text.contains("declare") || SeNative.nativeCfgParse(text) != null
-            } catch (e: Exception) {
-                false
-            }
-            if (ok && text != null) {
-                // defer creation to the same name dialog used by New/Duplicate
-                nameText = ""
-                pendingSrc = text
-                val c = runCatching { SeConfig.fromCfg(text) }.getOrNull()
-                // vc29 exports carried routing in "#AndroidApp…" comment
-                // markers; upgrade such files into native AndroidOptions keys
-                if (c != null && c.appMode == "off") {
-                    val am = Regex("^#AndroidAppMode=(allow|block)$", RegexOption.MULTILINE)
-                        .find(text)?.groupValues?.get(1)
-                    if (am != null) {
-                        val al = Regex("^#AndroidAppList=(.*)$", RegexOption.MULTILINE)
-                            .find(text)?.groupValues?.get(1)?.trim().orEmpty()
-                        c.appMode = am
-                        c.appList = al
-                        pendingSrc = c.toCfg()
-                    }
-                }
-                nameDlg = Triple("import", ProfileStore.defaultName(c?.user, c?.host), "")
-            } else {
-                SeNative.lastError = "Import failed: not a valid VPN account file"
-            }
-        }
-    }
-
-    var exportName by remember { mutableStateOf("profile.vpn") }
+    ) { uri -> vm.onImportResult(uri) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream")
@@ -420,7 +82,7 @@ private fun App() {
         if (uri != null) {
             try {
                 context.contentResolver.openOutputStream(uri)?.use {
-                    it.write(effectiveCfg().toByteArray(Charsets.UTF_8))
+                    it.write(vm.effectiveCfg().toByteArray(Charsets.UTF_8))
                 }
             } catch (e: Exception) {
                 SeNative.lastError = "Export failed: ${e.message}"
@@ -428,17 +90,18 @@ private fun App() {
         }
     }
 
-    LaunchedEffect(rawMode, cfg, raw) {
+    // debounced form autosave
+    LaunchedEffect(vm.rawMode, vm.cfg, vm.raw) {
         delay(300)
-        savePrefs()
-        refreshAutoName()
+        vm.savePrefs()
+        vm.refreshAutoName()
     }
 
     val vpnPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            startVpn(context, effectiveCfg(), curId)
+            startVpn(context, vm.effectiveCfg(), vm.curId)
         }
     }
 
@@ -456,7 +119,7 @@ private fun App() {
                     title = {
                         Column {
                             Text(stringResource(R.string.app_name))
-                            Text("ver ${coreVer.ifEmpty { "…" }} · $androidVerLabel",
+                            Text("ver ${vm.coreVer.ifEmpty { "…" }} · $androidVerLabel",
                                 style = MaterialTheme.typography.bodySmall)
                         }
                     },
@@ -473,111 +136,64 @@ private fun App() {
                 if (!showConfig) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = entries.find { it.id == curId }
+                            text = vm.entries.find { it.id == vm.curId }
                                 ?.let { ProfileStore.displayName(it) } ?: "1: Default",
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.weight(1f),
                         )
                         Box {
                             TextButton(onClick = {
-                                entries = ProfileStore.all(context)
+                                vm.refreshEntries()
                                 profilesMenu = true
                             }) { Text("Profiles") }
-                            DropdownMenu(
+                            ProfileMenu(
+                                entries = vm.entries,
+                                curId = vm.curId,
+                                busy = vm.busy,
                                 expanded = profilesMenu,
-                                onDismissRequest = { profilesMenu = false },
-                            ) {
-                                entries.forEach { e ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text((if (e.id == curId) "◉ " else "○  ") + ProfileStore.displayName(e))
-                                        },
-                                        onClick = {
-                                            profilesMenu = false
-                                            savePrefs()
-                                            switchProfile(e.id)
-                                        },
+                                onDismiss = { profilesMenu = false },
+                                onSwitch = { id ->
+                                    vm.savePrefs()
+                                    vm.switchProfile(id)
+                                },
+                                onNew = {
+                                    vm.savePrefs()
+                                    vm.beginCreate("new", "")
+                                },
+                                onDuplicate = {
+                                    vm.savePrefs()
+                                    vm.beginCreate("dup", ProfileStore.cfgText(context, vm.curId))
+                                },
+                                onImport = {
+                                    vm.savePrefs()
+                                    importLauncher.launch(
+                                        arrayOf("application/octet-stream", "text/plain"),
                                     )
-                                }
-                                Divider()
-                                DropdownMenuItem(
-                                    text = { Text("New profile") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        beginCreate("new", "")
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Duplicate current") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        beginCreate("dup", ProfileStore.cfgText(context, curId))
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Import account file") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        importLauncher.launch(
-                                            arrayOf("application/octet-stream", "text/plain"),
-                                        )
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Export current") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        exportName = (entries.find { it.id == curId }?.name ?: "profile")
-                                            .replace(Regex("""[\\/:*?"<>|]"""), "_") + ".vpn"
-                                        exportLauncher.launch(exportName)
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Rename current") },
-                                    enabled = !busy,
-                                    onClick = {
-                                        profilesMenu = false
-                                        openNameDlg("rename", curId)
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Move up") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        moveCurrent(-1)
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Move down") },
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        moveCurrent(1)
-                                    },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Delete current") },
-                                    enabled = !busy,
-                                    onClick = {
-                                        profilesMenu = false
-                                        savePrefs()
-                                        deleteCurrent()
-                                    },
-                                )
-                            }
+                                },
+                                onExport = {
+                                    vm.savePrefs()
+                                    val fn = (vm.entries.find { it.id == vm.curId }?.name ?: "profile")
+                                        .replace(Regex("""[\\/:*?"<>|]"""), "_") + ".vpn"
+                                    exportLauncher.launch(fn)
+                                },
+                                onRename = { vm.openNameDlg("rename", vm.curId) },
+                                onMove = { dir ->
+                                    vm.savePrefs()
+                                    vm.moveCurrent(dir)
+                                },
+                                onDelete = {
+                                    vm.savePrefs()
+                                    vm.deleteCurrent()
+                                },
+                            )
                         }
                     }
 
-                    Text("Status: $statusText")
+                    Text("Status: ${vm.statusText}")
 
-                    if (connInfo.isNotEmpty()) {
+                    if (vm.connInfo.isNotEmpty()) {
                         Text(
-                            text = connInfo,
+                            text = vm.connInfo,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp),
                         )
@@ -588,19 +204,19 @@ private fun App() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Button(
-                            enabled = !busy,
+                            enabled = !vm.busy,
                             onClick = {
-                                savePrefs()
+                                vm.savePrefs()
                                 val prep = VpnService.prepare(context)
                                 if (prep != null) {
                                     vpnPermission.launch(prep)
                                 } else {
-                                    startVpn(context, effectiveCfg(), curId)
+                                    startVpn(context, vm.effectiveCfg(), vm.curId)
                                 }
                             },
                         ) { Text("Connect") }
                         OutlinedButton(
-                            enabled = sessionAlive,
+                            enabled = vm.sessionAlive,
                             onClick = {
                                 val i = Intent(context, VpnEngine::class.java)
                                 i.action = VpnEngine.ACTION_STOP
@@ -610,53 +226,53 @@ private fun App() {
                     }
 
                     OutlinedTextField(
-                        value = cfg.host,
-                        onValueChange = { cfg = cfg.copy(host = it) },
+                        value = vm.cfg.host,
+                        onValueChange = { vm.cfg = vm.cfg.copy(host = it) },
                         label = { Text("Server address") },
                         singleLine = true,
-                        readOnly = rawMode,
+                        readOnly = vm.rawMode,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
-                        value = portStr,
+                        value = vm.portStr,
                         onValueChange = {
                             val digits = it.filter(Char::isDigit)
-                            portStr = digits
-                            cfg = cfg.copy(port = digits.toIntOrNull() ?: 0)
+                            vm.portStr = digits
+                            vm.cfg = vm.cfg.copy(port = digits.toIntOrNull() ?: 0)
                         },
                         label = { Text("Port") },
                         singleLine = true,
-                        readOnly = rawMode,
+                        readOnly = vm.rawMode,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
-                        value = cfg.hub,
-                        onValueChange = { cfg = cfg.copy(hub = it) },
+                        value = vm.cfg.hub,
+                        onValueChange = { vm.cfg = vm.cfg.copy(hub = it) },
                         label = { Text("Virtual Hub") },
                         singleLine = true,
-                        readOnly = rawMode,
+                        readOnly = vm.rawMode,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
-                        value = cfg.user,
-                        onValueChange = { cfg = cfg.copy(user = it) },
+                        value = vm.cfg.user,
+                        onValueChange = { vm.cfg = vm.cfg.copy(user = it) },
                         label = { Text("Username") },
                         singleLine = true,
-                        readOnly = rawMode,
+                        readOnly = vm.rawMode,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
-                        value = cfg.pass ?: "",
-                        onValueChange = { cfg = cfg.copy(pass = it) },
-                        label = { Text(if (cfg.pass == null) "Password (stored hashed)" else "Password") },
+                        value = vm.cfg.pass ?: "",
+                        onValueChange = { vm.cfg = vm.cfg.copy(pass = it) },
+                        label = { Text(if (vm.cfg.pass == null) "Password (stored hashed)" else "Password") },
                         singleLine = true,
-                        readOnly = rawMode,
+                        readOnly = vm.rawMode,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                     )
 
-                    if (rawMode) {
+                    if (vm.rawMode) {
                         Text(
                             "Raw configuration mode is active — edit it on the configuration screen.",
                             style = MaterialTheme.typography.bodySmall,
@@ -666,25 +282,15 @@ private fun App() {
                     OutlinedButton(onClick = { showConfig = true }) { Text("Configuration…") }
                 } else {
                     SettingsScreen(
-                        cfg = cfg,
-                        onCfg = { cfg = it },
-                        raw = raw,
-                        onRaw = { raw = it },
-                        rawMode = rawMode,
-                        onRawMode = { on ->
-                            rawMode = on
-                            if (on) raw = cfg.toCfg() else {
-                                cfg = SeConfig.fromCfg(raw)
-                                portStr = cfg.port.toString()
-                                syncAppRoute(cfg)
-                            }
-                        },
-                        appMode = appMode,
-                        appSet = appSet,
-                        onAppMode = { m ->
-                            appMode = m
-                            persistApps(m, appSet)
-                        },
+                        cfg = vm.cfg,
+                        onCfg = { vm.cfg = it },
+                        raw = vm.raw,
+                        onRaw = { vm.raw = it },
+                        rawMode = vm.rawMode,
+                        onRawMode = { vm.onRawMode(it) },
+                        appMode = vm.appMode,
+                        appSet = vm.appSet,
+                        onAppMode = { vm.onAppMode(it) },
                         onShowAppPicker = { showAppPicker = it },
                         onBack = { showConfig = false },
                     )
@@ -692,50 +298,28 @@ private fun App() {
 
                 if (showAppPicker) {
                     AppPickerDialog(
-                        prefs = prefs,
-                        appMode = appMode,
-                        appSet = appSet,
-                        onAppSet = { set ->
-                            appSet = set
-                            persistApps(appMode, set)
-                        },
+                        prefs = vm.prefs,
+                        appMode = vm.appMode,
+                        appSet = vm.appSet,
+                        onAppSet = { vm.onAppSet(it) },
                         onDismiss = { showAppPicker = false },
                     )
                 }
 
-                nameDlg?.let { dlg ->
-                    AlertDialog(
-                        onDismissRequest = {
-                            nameDlg = null
-                            pendingSrc = null
+                vm.nameDlg?.let { dlg ->
+                    NameDialog(
+                        mode = dlg.first,
+                        autoName = dlg.second,
+                        nameText = vm.nameText,
+                        onNameText = { vm.nameText = it },
+                        onOk = { n ->
+                            if (vm.pendingSrc != null) vm.confirmCreate(n)
+                            else vm.applyProfileName(n, dlg.third)
+                            vm.nameDlg = null
                         },
-                        title = {
-                            Text(if (dlg.first == "rename") "Rename profile" else "Profile name")
-                        },
-                        text = {
-                            OutlinedTextField(
-                                value = nameText,
-                                onValueChange = { nameText = it },
-                                label = { Text(dlg.second) },
-                                supportingText = { Text("leave empty to use the auto name") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                if (pendingSrc != null) confirmCreate(nameText)
-                                else applyProfileName(nameText, dlg.third)
-                                nameDlg = null
-                            }) { Text("OK") }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    nameDlg = null
-                                    pendingSrc = null
-                                },
-                            ) { Text("Cancel") }
+                        onDismiss = {
+                            vm.nameDlg = null
+                            vm.pendingSrc = null
                         },
                     )
                 }
