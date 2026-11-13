@@ -3,6 +3,7 @@ package org.softether.android
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -20,7 +21,9 @@ class VpnEngine : VpnService() {
     companion object {
         const val ACTION_CONNECT = "org.softether.android.action.CONNECT"
         const val ACTION_STOP = "org.softether.android.action.STOP"
+        const val ACTION_STATE_CHANGED = "org.softether.android.action.STATE_CHANGED"
         const val EXTRA_CFG = "cfg"
+        const val EXTRA_PROFILE = "profile"
         private const val CHANNEL_ID = "vpn"
         private const val NOTIFICATION_ID = 2
         private const val RECONNECT_BASE_MS = 5000L
@@ -28,6 +31,9 @@ class VpnEngine : VpnService() {
         private const val CONNECT_TIMEOUT_MS = 90000L
         private const val ACTION_REVOKE = "android.net.VpnService.ACTION_REVOKE"
     }
+
+    private var lastNotified = ""
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     @Volatile
     private var stopRequested = false
@@ -57,6 +63,9 @@ class VpnEngine : VpnService() {
     private var cfgIgnoreRoutes4 = ""
     private var cfgManualRoutes6 = ""
     private var cfgIgnoreRoutes6 = ""
+    // Per-app routing (profile AndroidOptions.AppMode/AppList)
+    private var cfgAppMode = "off"
+    private var cfgAppPkgs = setOf<String>()
 
     private var wakeLock: android.os.PowerManager.WakeLock? = null
 
@@ -68,6 +77,8 @@ class VpnEngine : VpnService() {
             ACTION_CONNECT -> {
                 startForegroundNotification()
                 pendingCfg = intent.getStringExtra(EXTRA_CFG) ?: loadSavedCfg()
+                SeNative.activeProfileId = intent.getStringExtra(EXTRA_PROFILE)
+                    ?.takeIf { it.isNotEmpty() } ?: ProfileStore.currentId(this)
                 val w = worker
                 if (w != null && w.isAlive) {
                     generation++
@@ -78,17 +89,26 @@ class VpnEngine : VpnService() {
                     SeNative.lastError = ""
                     worker = Thread { workerMain() }.also { it.start() }
                 }
+                notifyStatus("Connecting…")
             }
             ACTION_STOP -> {
                 stopRequested = true
                 generation++
+                SeNative.activeProfileId = ""
                 SeNative.disconnectOnce(SeNative.handle)
+                sendStateUpdate()
+                val w = worker
+                if (SeNative.handle == 0L && (w == null || !w.isAlive)) {
+                    stopSelf()
+                }
             }
             ACTION_REVOKE -> {
                 stopRequested = true
                 generation++
+                SeNative.activeProfileId = ""
                 SeNative.lastError = "VPN permission was revoked."
                 SeNative.disconnectOnce(SeNative.handle)
+                sendStateUpdate()
                 stopSelf()
             }
             null -> {
@@ -96,6 +116,7 @@ class VpnEngine : VpnService() {
                 if (SeNative.handle == 0L && (w == null || !w.isAlive)) {
                     startForegroundNotification()
                     pendingCfg = loadSavedCfg()
+                    SeNative.activeProfileId = ProfileStore.currentId(this)
                     if (pendingCfg.isNotEmpty()) {
                         stopRequested = false
                         worker = Thread { workerMain() }.also { it.start() }
@@ -110,15 +131,19 @@ class VpnEngine : VpnService() {
         Log.i("SETH", "service: onRevoke")
         stopRequested = true
         generation++
+        SeNative.activeProfileId = ""
         SeNative.lastError = "VPN permission was revoked."
         SeNative.disconnectOnce(SeNative.handle)
+        sendStateUpdate()
         stopSelf()
         super.onRevoke()
     }
 
     override fun onDestroy() {
         stopRequested = true
+        SeNative.activeProfileId = ""
         SeNative.disconnectOnce(SeNative.handle)
+        sendStateUpdate()
         super.onDestroy()
     }
 
@@ -131,6 +156,29 @@ class VpnEngine : VpnService() {
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
+    private fun buildNotification(text: String): Notification {
+        val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val content = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            flags,
+        )
+        val stop = PendingIntent.getService(
+            this, 1,
+            Intent(this, VpnEngine::class.java).setAction(ACTION_STOP),
+            flags,
+        )
+        return Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(text)
+            .setSmallIcon(android.R.drawable.stat_notify_sync)
+            .setOngoing(true)
+            .setContentIntent(content)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", stop)
+            .build()
+    }
+
     private fun startForegroundNotification() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -138,13 +186,33 @@ class VpnEngine : VpnService() {
                 NotificationChannel(CHANNEL_ID, "VPN", NotificationManager.IMPORTANCE_LOW)
             )
         }
-        val n = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText("VPN service running")
-            .setSmallIcon(android.R.drawable.stat_notify_sync)
-            .setOngoing(true)
-            .build()
-        startForeground(NOTIFICATION_ID, n)
+        lastNotified = ""
+        startForeground(NOTIFICATION_ID, buildNotification("Connecting…"))
+    }
+
+    // Single funnel for the notification text: phase changes come through here,
+    // no addresses; each accepted change also pushes the widget/QS-tile refresh.
+    private fun notifyStatus(text: String) {
+        if (text == lastNotified) return
+        lastNotified = text
+        runCatching {
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .notify(NOTIFICATION_ID, buildNotification(text))
+        }
+        sendStateUpdate()
+    }
+
+    private fun sendStateUpdate() {
+        runCatching { sendBroadcast(Intent(ACTION_STATE_CHANGED).setPackage(packageName)) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mainHandler.post {
+                runCatching {
+                    android.service.quicksettings.TileService.requestListeningState(
+                        this, android.content.ComponentName(this, SeTileService::class.java),
+                    )
+                }
+            }
+        }
     }
 
     private fun sleepWithWake(ms: Long, myGen: Int): Boolean {
@@ -175,6 +243,8 @@ class VpnEngine : VpnService() {
         var ign4: String? = null
         var man6: String? = null
         var ign6: String? = null
+        var appM: String? = null
+        var appL: String? = null
         try {
             val t = SeNative.nativeCfgParse(cfg)
             if (t != null) {
@@ -202,6 +272,10 @@ class VpnEngine : VpnService() {
                             man6 = t[i + 2]
                         "AccountDatabase/Account0/AndroidOptions/IgnoreRoutes6" ->
                             ign6 = t[i + 2]
+                        "AccountDatabase/Account0/AndroidOptions/AppMode" ->
+                            appM = t[i + 2]
+                        "AccountDatabase/Account0/AndroidOptions/AppList" ->
+                            appL = t[i + 2]
                     }
                 }
             }
@@ -222,6 +296,8 @@ class VpnEngine : VpnService() {
         cfgIgnoreRoutes4 = ign4 ?: legacy("routes4_ignore") ?: ""
         cfgManualRoutes6 = man6 ?: legacy("routes6_manual") ?: ""
         cfgIgnoreRoutes6 = ign6 ?: legacy("routes6_ignore") ?: ""
+        cfgAppMode = appM?.takeIf { it == "allow" || it == "block" } ?: "off"
+        cfgAppPkgs = (appL ?: "").split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
         Log.i("SETH", "worker: cfg retry tries=$cfgRetries interval=${cfgRetryIntervalMs}ms v4=$cfgUseIpv4 v6=$cfgUseIpv6 routes4=${if (cfgRoutesAuto4) "auto" else "manual"} routes6=${if (cfgRoutesAuto6) "auto" else "manual"}")
     }
 
@@ -247,6 +323,8 @@ class VpnEngine : VpnService() {
             SeNative.negotiating = ""
             SeNative.negotiatedIp = ""
             SeNative.retryDeadlineMs = 0L
+            SeNative.activeProfileId = ""
+            sendStateUpdate()
         }
     }
 
@@ -263,6 +341,7 @@ class VpnEngine : VpnService() {
     private fun retryWait(msg: String, delayMs: Long, myGen: Int): Boolean {
         SeNative.lastError = msg
         SeNative.retryDeadlineMs = SystemClock.elapsedRealtime() + delayMs
+        notifyStatus(msg)
         return sleepWithWake(delayMs, myGen)
     }
 
@@ -282,7 +361,11 @@ class VpnEngine : VpnService() {
             }
             SeNative.retryDeadlineMs = 0L
             when (val r = establishSession(cfg, myGen)) {
-                is Outcome.Stopped -> break
+                // A generation bump without an explicit stop is the "connect
+                // while a worker is already running" restart (profile switch
+                // from the app, tile or widget): re-enter with the new config
+                // instead of ending the thread.
+                is Outcome.Stopped -> if (stopRequested) break else continue
                 is Outcome.Down -> {
                     if (stopRequested || generation != myGen) continue
                     if (!retryWait(r.message, reconnectDelay, myGen)) continue
@@ -310,6 +393,7 @@ class VpnEngine : VpnService() {
         }
         fatal?.let {
             SeNative.lastError = it
+            notifyStatus(it)
             val h = SeNative.handle
             if (h != 0L) SeNative.nativeDisconnect(h)
             SeNative.handle = 0L
@@ -324,6 +408,7 @@ class VpnEngine : VpnService() {
         parseRetryParams(cfg)
 
         SeNative.negotiating = "Creating session..."
+        notifyStatus("Creating session...")
         val h = SeNative.nativeConnect(cfg)
         Log.i("SETH", "worker: connect handle=$h")
         if (h == 0L) {
@@ -356,6 +441,7 @@ class VpnEngine : VpnService() {
             if (phase != lastPhase) {
                 lastPhase = phase
                 pollDeadline = SystemClock.elapsedRealtime() + CONNECT_TIMEOUT_MS
+                notifyStatus(phase)
             }
             if (SystemClock.elapsedRealtime() > pollDeadline) {
                 SeNative.nativeDisconnect(h)
@@ -384,11 +470,9 @@ class VpnEngine : VpnService() {
         }
 
         SeNative.negotiating = "Setting up VPN interface..."
-        val appMode = getSharedPreferences("profile", Context.MODE_PRIVATE)
-            .getString("appMode", "off") ?: "off"
-        val appList = (getSharedPreferences("profile", Context.MODE_PRIVATE)
-            .getString("appList", "") ?: "")
-            .split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+        notifyStatus("Setting up VPN interface...")
+        val appMode = cfgAppMode
+        val appList = cfgAppPkgs
         Log.i("SETH", "worker: appMode=$appMode apps=${appList.size}")
         val ignore4 = parseNetList(cfgIgnoreRoutes4, false)
         val manual4 = parseNetList(cfgManualRoutes4, false)
@@ -509,6 +593,7 @@ class VpnEngine : VpnService() {
         SeNative.nativeSetTunFd(h, tun.fd)
         SeNative.handle = h
         SeNative.negotiating = ""
+        notifyStatus("Connected")
         Log.i("SETH", "worker: vpn established")
 
         while (SeNative.nativeGetStatus(h) != SeNative.STATUS_DISCONNECTED) {

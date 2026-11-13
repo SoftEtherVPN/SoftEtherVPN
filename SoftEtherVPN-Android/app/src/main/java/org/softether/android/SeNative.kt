@@ -38,6 +38,8 @@ data class SeConfig(
     var proxyHost: String = "",
     var proxyPort: Int = 0,
     var triples: Array<String>? = null,
+    var appMode: String = "off",
+    var appList: String = "",
 ) {
     // SoftEther new-format ("declare root") account path prefix
     private val acc get() = "AccountDatabase/Account0"
@@ -141,6 +143,13 @@ data class SeConfig(
         set(ao + "ManualRoutes6", "string", manualRoutes6)
         set(ao + "IgnoreRoutes6", "string", ignoreRoutes6)
         remove(ao + "RoutesMode")
+        if (appMode != "off") {
+            set(ao + "AppMode", "string", appMode)
+            set(ao + "AppList", "string", appList)
+        } else {
+            remove(ao + "AppMode")
+            remove(ao + "AppList")
+        }
 
         // Native account-root key (server certificate verification)
         set("$acc/CheckServerCert", "bool", checkServerCert.toString())
@@ -231,6 +240,8 @@ data class SeConfig(
             c.ignoreRoutes4 = get(ao + "IgnoreRoutes4") ?: ""
             c.manualRoutes6 = get(ao + "ManualRoutes6") ?: ""
             c.ignoreRoutes6 = get(ao + "IgnoreRoutes6") ?: ""
+            c.appMode = get(ao + "AppMode")?.takeIf { it == "allow" || it == "block" } ?: "off"
+            c.appList = get(ao + "AppList") ?: ""
             c.checkServerCert = get(acc + "CheckServerCert", "bool")?.toBooleanStrictOrNull() ?: false
 
             val pt = get(co + "ProxyType", "uint")?.toIntOrNull() ?: 0
@@ -263,6 +274,11 @@ object SeNative {
     // elapsedRealtime() at the moment the next connection attempt may start (0 = none)
     @Volatile
     var retryDeadlineMs: Long = 0L
+
+    // Id of the profile the engine is connected (or connecting) as ("" = none);
+    // set/cleared by VpnEngine. Widget and QS tile derive their state from this.
+    @Volatile
+    var activeProfileId: String = ""
 
     private var initialized = false
 
@@ -343,4 +359,22 @@ object SeNative {
     external fun nativeHashPassword(user: String, pass: String): String
     external fun nativeEncryptPassword(pass: String): String
     external fun nativeDecryptPassword(b64: String): String
+}
+
+// Tri-state connection view for a given profile (widgets / QS tile) — derived
+// purely from the engine fields above, so no Mayaqua call ever happens in a
+// widget receiver process.
+object VpnState {
+    const val DISCONNECTED = 0
+    const val CONNECTING = 1
+    const val CONNECTED = 2
+
+    fun connectedNow(): Boolean =
+        SeNative.handle != 0L && SeNative.negotiatedIp.isNotEmpty()
+
+    fun of(profileId: String): Int = when {
+        profileId.isEmpty() || SeNative.activeProfileId != profileId -> DISCONNECTED
+        connectedNow() -> CONNECTED
+        else -> CONNECTING
+    }
 }

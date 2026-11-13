@@ -101,10 +101,11 @@ private fun acquiredIp4(h: Long): String =
 private fun acquiredIp6(h: Long): String =
     runCatching { SeNative.nativeGetIPv6Config(h) }.getOrNull()?.getOrNull(0).orEmpty()
 
-private fun startVpn(context: Context, cfgText: String) {
+private fun startVpn(context: Context, cfgText: String, profileId: String) {
     val i = Intent(context, VpnEngine::class.java)
     i.action = VpnEngine.ACTION_CONNECT
     i.putExtra(VpnEngine.EXTRA_CFG, cfgText)
+    i.putExtra(VpnEngine.EXTRA_PROFILE, profileId)
     ContextCompat.startForegroundService(context, i)
 }
 
@@ -133,6 +134,33 @@ private fun App() {
     // SoftEther core version, readable only after prepareAndInit
     var coreVer by remember { mutableStateOf(SeNative.coreVersion) }
 
+    // Per-app routing is a profile property (AndroidOptions.AppMode/AppList);
+    // these states mirror the current profile's SeConfig.
+    var appMode by remember { mutableStateOf("off") }
+    var appSet by remember { mutableStateOf(setOf<String>()) }
+    var showAppPicker by remember { mutableStateOf(false) }
+
+    fun syncAppRoute(c: SeConfig) {
+        appMode = c.appMode
+        appSet = c.appList.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+    }
+
+    fun persistApps(mode: String, set: Set<String>) {
+        val list = set.joinToString(",")
+        appMode = mode
+        appSet = set
+        if (rawMode) {
+            val parsed = runCatching { SeConfig.fromCfg(raw) }.getOrNull()
+            if (parsed != null) {
+                parsed.appMode = mode
+                parsed.appList = list
+                raw = parsed.toCfg()
+            }
+        } else {
+            cfg = cfg.copy(appMode = mode, appList = list)
+        }
+    }
+
     LaunchedEffect(Unit) {
         curId = ProfileStore.currentId(context)
         entries = ProfileStore.all(context)
@@ -140,24 +168,23 @@ private fun App() {
         SeNative.prepareAndInit(context)
         coreVer = SeNative.coreVersion
         cfg = SeConfig.fromCfg(saved)
+        // one-time migration: pre-vc30 builds kept app routing in app-level
+        // prefs; adopt it unless the profile carries its own value
+        val legacyMode = prefs.getString("appMode", "off") ?: "off"
+        if (legacyMode != "off" && cfg.appMode == "off") {
+            cfg = cfg.copy(appMode = legacyMode, appList = prefs.getString("appList", "") ?: "")
+            ProfileStore.putCfg(context, curId, cfg.toCfg())
+        }
+        prefs.edit().remove("appMode").remove("appList").apply()
         portStr = cfg.port.toString()
         raw = cfg.toCfg()
+        syncAppRoute(cfg)
     }
 
     var statusText by remember { mutableStateOf("Idle") }
     var connInfo by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
-
-    var appMode by remember { mutableStateOf(prefs.getString("appMode", "off") ?: "off") }
-    var appSet by remember {
-        mutableStateOf((prefs.getString("appList", "") ?: "").split(',').map { it.trim() }
-            .filter { it.isNotEmpty() }.toSet())
-    }
-    var showAppPicker by remember { mutableStateOf(false) }
-
-    fun persistApps(mode: String, set: Set<String>) {
-        prefs.edit().putString("appMode", mode).putString("appList", set.joinToString(",")).apply()
-    }
+    var sessionAlive by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -165,10 +192,19 @@ private fun App() {
             val neg = SeNative.negotiating
             val dl = SeNative.retryDeadlineMs
             val rem = if (dl > 0L) ((dl - android.os.SystemClock.elapsedRealtime() + 999) / 1000) else -1L
-            busy = h != 0L || neg.isNotEmpty() || rem > 0L
+            val act = SeNative.activeProfileId
+            val otherActive = act.isNotEmpty() && act != curId
+            sessionAlive = h != 0L || neg.isNotEmpty() || rem > 0L
+            busy = sessionAlive && !otherActive
             val ip4 = if (h != 0L) acquiredIp4(h) else ""
             val ip6 = if (h != 0L) acquiredIp6(h) else ""
             statusText = when {
+                otherActive -> {
+                    val e = entries.find { it.id == act }
+                        ?: ProfileStore.all(context).find { it.id == act }
+                    val label = e?.let { ProfileStore.displayName(it) } ?: act
+                    "Idle, connected profile \"$label\""
+                }
                 h != 0L -> statusLine(SeNative.nativeGetStatusText(h), ip4, ip6)
                 neg.isNotEmpty() -> neg
                 SeNative.lastError.isNotEmpty() ->
@@ -176,7 +212,7 @@ private fun App() {
                     else SeNative.lastError
                 else -> "Idle"
             }
-            connInfo = if (h != 0L) {
+            connInfo = if (h != 0L && !otherActive) {
                 val tls = formatConnInfo(SeNative.nativeGetConnInfo(h))
                 // labeled per-family addresses in every state; negotiatedIp only as fallback
                 val labeled = listOfNotNull(
@@ -224,6 +260,7 @@ private fun App() {
         portStr = loaded.port.toString()
         raw = loaded.toCfg()
         rawMode = false
+        syncAppRoute(loaded)
     }
 
     fun applyProfileName(newName: String, id: String) {
@@ -298,7 +335,14 @@ private fun App() {
             entries = listOf(e)
             curId = "p1"
         } else {
+            val act = SeNative.activeProfileId
             val (ren, newCur) = ProfileStore.reindex(context, rest, rest.first().id)
+            // the connected *other* profile may be renumbered by the survivor
+            // shift; keep the session tracking it under its new id
+            if (act.isNotEmpty() && act != curId) {
+                val k = rest.indexOfFirst { it.id == act }
+                if (k >= 0) SeNative.activeProfileId = ren[k].id
+            }
             entries = ren
             curId = newCur
         }
@@ -315,7 +359,14 @@ private fun App() {
         val tmp = swapped[i]
         swapped[i] = swapped[j]
         swapped[j] = tmp
+        val act = SeNative.activeProfileId
         val (ren, newCur) = ProfileStore.reindex(context, swapped, curId)
+        // a connected profile that participated in the swap keeps its session
+        // under the new id
+        if (act.isNotEmpty()) {
+            val k = swapped.indexOfFirst { it.id == act }
+            if (k >= 0) SeNative.activeProfileId = ren[k].id
+        }
         entries = ren
         curId = newCur
     }
@@ -341,6 +392,19 @@ private fun App() {
                 nameText = ""
                 pendingSrc = text
                 val c = runCatching { SeConfig.fromCfg(text) }.getOrNull()
+                // vc29 exports carried routing in "#AndroidApp…" comment
+                // markers; upgrade such files into native AndroidOptions keys
+                if (c != null && c.appMode == "off") {
+                    val am = Regex("^#AndroidAppMode=(allow|block)$", RegexOption.MULTILINE)
+                        .find(text)?.groupValues?.get(1)
+                    if (am != null) {
+                        val al = Regex("^#AndroidAppList=(.*)$", RegexOption.MULTILINE)
+                            .find(text)?.groupValues?.get(1)?.trim().orEmpty()
+                        c.appMode = am
+                        c.appList = al
+                        pendingSrc = c.toCfg()
+                    }
+                }
                 nameDlg = Triple("import", ProfileStore.defaultName(c?.user, c?.host), "")
             } else {
                 SeNative.lastError = "Import failed: not a valid VPN account file"
@@ -374,7 +438,7 @@ private fun App() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            startVpn(context, effectiveCfg())
+            startVpn(context, effectiveCfg(), curId)
         }
     }
 
@@ -438,7 +502,6 @@ private fun App() {
                                 Divider()
                                 DropdownMenuItem(
                                     text = { Text("New profile") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -447,7 +510,6 @@ private fun App() {
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Duplicate current") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -456,7 +518,6 @@ private fun App() {
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Import account file") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -467,7 +528,6 @@ private fun App() {
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Export current") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -486,7 +546,6 @@ private fun App() {
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Move up") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -495,7 +554,6 @@ private fun App() {
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Move down") },
-                                    enabled = !busy,
                                     onClick = {
                                         profilesMenu = false
                                         savePrefs()
@@ -537,12 +595,12 @@ private fun App() {
                                 if (prep != null) {
                                     vpnPermission.launch(prep)
                                 } else {
-                                    startVpn(context, effectiveCfg())
+                                    startVpn(context, effectiveCfg(), curId)
                                 }
                             },
                         ) { Text("Connect") }
                         OutlinedButton(
-                            enabled = busy,
+                            enabled = sessionAlive,
                             onClick = {
                                 val i = Intent(context, VpnEngine::class.java)
                                 i.action = VpnEngine.ACTION_STOP
@@ -618,6 +676,7 @@ private fun App() {
                             if (on) raw = cfg.toCfg() else {
                                 cfg = SeConfig.fromCfg(raw)
                                 portStr = cfg.port.toString()
+                                syncAppRoute(cfg)
                             }
                         },
                         appMode = appMode,
