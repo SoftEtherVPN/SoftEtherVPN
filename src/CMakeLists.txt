@@ -75,8 +75,11 @@ if(WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /guard:cf")
   set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /guard:cf /DYNAMICBASE")
 
-  message("Setting CETCOMPAT")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /CETCOMPAT")
+  # CET shadow stacks are only available on x86/x64; the ARM64 linker rejects /CETCOMPAT.
+  if(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$")
+    message("Setting CETCOMPAT")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /CETCOMPAT")
+  endif()
 
 endif()
 
@@ -168,22 +171,16 @@ add_custom_target(hamcore-archive-build
   DEPENDS "${BUILD_DIRECTORY}/hamcore.se2"
 )
 if(IS_CROSS_COMPILATION MATCHES "arm64-on-x64")
-    file(TO_CMAKE_PATH "${TOP_DIRECTORY}" TOP_DIRECTORY_NORM)
-    set(X64_HAMCORE_BUILDER
-      "${TOP_DIRECTORY_NORM}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe"
-    )
-    if(EXISTS "${X64_HAMCORE_BUILDER}")
-      message(STATUS "file exist (from TOP_DIRECTORY)")
-    endif()
+  # The ARM64 hamcorebuilder cannot run on the x64 build host, so use a host-built copy.
+  file(TO_CMAKE_PATH "${TOP_DIRECTORY}" TOP_DIRECTORY_NORM)
+  set(X64_HAMCORE_BUILDER
+	"${TOP_DIRECTORY_NORM}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe"
+	CACHE FILEPATH "Path to an x64 hamcorebuilder.exe used when cross-compiling for ARM64"
+  )
+  file(TO_CMAKE_PATH "${X64_HAMCORE_BUILDER}" X64_HAMCORE_BUILDER)
 
-  # support cross compile, when you compile ARM64 version on X64 Platform
-  if(EXISTS "${X64_HAMCORE_BUILDER}")
-    message("X64_HAMCORE_BUILDER found: ${X64_HAMCORE_BUILDER}")
-  elseif(EXISTS("${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe"))
-    set(X64_HAMCORE_BUILDER "${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe")
-  else()
-	message("${TOP_DIRECTORY}/out/build/x64-native/src/hamcorebuilder/hamcorebuilder.exe")
-    message(FATAL_ERROR "X64_HAMCORE_BUILDER not found: ${X64_HAMCORE_BUILDER}, pls build x64-native version first")
+  if(NOT EXISTS "${X64_HAMCORE_BUILDER}")
+	message(FATAL_ERROR "X64_HAMCORE_BUILDER not found: ${X64_HAMCORE_BUILDER}. Build the x64-native hamcorebuilder target first or set X64_HAMCORE_BUILDER to an existing x64 hamcorebuilder.exe.")
   endif()
   message(STATUS "X64_HAMCORE_BUILDER = ${X64_HAMCORE_BUILDER}")
 
