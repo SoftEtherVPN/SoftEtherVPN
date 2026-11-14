@@ -1232,6 +1232,9 @@ CM_LISTENER_TCP_PORT	TCP %u
 CM_LISTENER_ONLINE		Mendengarkan
 CM_LISTENER_OFFLINE		Berhenti
 CM_LISTENER_ERROR		Gagal
+CM_LISTENER_COLUMN_3	Protokol PROXY
+CM_LISTENER_PROXY_ONLINE	Diaktifkan
+CM_LISTENER_PROXY_OFFLINE	Dinonaktifkan
 CM_DELETE_LISTENER_MSG	Ini akan menghapus Listener (port TCP %u). Mulai sekarang, Anda tidak akan dapat terhubung ke port ini. \r\nApakah Anda yakin ingin melakukan ini?
 CM_STOP_LISTENER_MSG	Ini akan menghentikan Listener (port TCP %u). Sampai Listener dimulai ulang, Anda tidak akan dapat terhubung ke port ini. \r\n\r\nApakah Anda yakin ingin melakukan ini?
 CM_CLOSE_BUTTON			Tutup
@@ -1449,6 +1452,7 @@ SM_SESS_COLUMN_5		Koneksi TCP
 SM_SESS_COLUMN_6		Byte yang Ditransfer
 SM_SESS_COLUMN_7		Paket yang Ditransfer
 SM_SESS_COLUMN_8		ID VLAN
+SM_SESS_COLUMN_9	Protokol PROXY
 SM_SESS_NORMAL			Sesi Lokal
 SM_SESS_LOCAL			Sesi Lokal
 SM_SESS_LOCAL_2			Pada '%S'
@@ -1468,6 +1472,10 @@ SM_SESS_STATUS_USERNAME	Nama Pengguna (Otentikasi)
 SM_SESS_STATUS_REALUSER	Nama Pengguna (Database)
 SM_SESS_STATUS_GROUPNAME	Nama Grup
 SM_CLIENT_IP			Alamat IP Klien
+SM_SESS_STATUS_PP	Koneksi Protokol PROXY
+SM_SESS_PP_NONE	Tidak
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME		Nama Host Klien
 SM_NODE_CLIENT_NAME		Nama Produk Klien (Dilaporkan)
 SM_NODE_CLIENT_VER		Version Klien (Dilaporkan)
@@ -1768,6 +1776,10 @@ LS_LISTENER_DOS			Sebuah serangan DoS pada Pendengar TCP (port %u) telah terdete
 LS_LISTENER_MAXUEC		Pendengar TCP sementara menghentikan penerimaan koneksi masuk baru karena jumlah koneksi TCP yang tertunda melebihi %u. (Nilai saat ini = %u)
 LS_LISTENER_STOP_1		Pendengar TCP (port %u) sedang dihentikan.
 LS_LISTENER_STOP_2		Pendengar TCP (port %u) telah dihentikan.
+LS_PP_APPLIED	Header protokol PROXY telah diurai pada TCP Listener (port %u). Alamat IP klien ditulis ulang menjadi %S (nomor port %u).
+LS_PP_BAD_HEADER	Header protokol PROXY yang tidak valid diterima pada TCP Listener (port %u). Alamat IP sumber adalah %S. Koneksi ini akan diputus.
+LS_PP_UNTRUSTED_PEER	Header protokol PROXY diterima pada TCP Listener (port %u) dari alamat IP sumber yang tidak dipercaya %S. Koneksi ini akan diputus.
+LS_PP_LOCAL	Header PROXY LOCAL atau UNKNOWN diterima pada TCP Listener (port %u). Alamat soket asli dipertahankan.
 LS_HUB_START			Virtual Hub "%S" telah dimulai.
 LS_HUB_STOP				Virtual Hub "%S" telah dihentikan.
 LS_HUB_MAC				Alamat MAC dari Virtual Hub "%S" adalah "%S".
@@ -2016,6 +2028,8 @@ LA_TAG_2				Mode administrasi [%S] (Virtual Hub "%S"):
 LA_CREATE_LISTENER		Pendengar TCP baru (nomor port %u) telah dibuat.
 LA_DELETE_LISTENER		Pendengar TCP (nomor port %u) telah dihapus.
 LA_ENABLE_LISTENER		Pendengar TCP (nomor port %u) telah diaktifkan.
+LA_SET_LISTENER_PROXY_PROTOCOL	Status penerimaan protokol PROXY TCP listener (nomor port %u) telah diatur ke %u.
+LA_SET_PROXY_PROTOCOL_SETTING	Pengaturan jaringan tepercaya protokol PROXY telah diperbarui. Nilai baru: "%S"
 LA_DISABLE_LISTENER		Pendengar TCP (nomor port %u) telah dinonaktifkan.
 LA_SET_PORTS_UDP		Port UDP telah diatur: %S.
 LA_SET_PROTO_OPTIONS	Opsi %S telah diatur.
@@ -2665,6 +2679,15 @@ IDOK					&OK
 IDCANCEL				Batal
 STATIC4					(Port TCP/IP)
 
+R_PROXY_PROTOCOL	Terima header protokol PROXY (deteksi otomatis v1 / v2)
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	Pengaturan Listener
+STATIC1	Anda dapat mengubah pengaturan listener TCP/IP ini.
+S_PORT	Listener TCP/IP: TCP %u
+R_PROXY_PROTOCOL	Terima header protokol PROXY (deteksi otomatis v1 / v2)
+STATIC2	Perubahan berlaku segera. Koneksi yang ada tidak terpengaruh.
 
 PREFIX					D_SM_SSL
 CAPTION					Pengaturan Enkripsi dan Jaringan
@@ -2705,6 +2728,9 @@ S_INFO5					Anda dapat membangun VPN hanya dengan paket ICMP atau DNS meskipun a
 B_SPECIALLISTENER		Pengaturan VPN atas ICMP / DNS
 B_UPDATE_CONFIG			Pengaturan Pemberitahuan Pembar&uan...
 
+S_PP_TITLE	Protokol PROXY
+S_PP_INFO	Tentukan jaringan (dalam format CIDR, dipisahkan koma) yang dipercaya untuk mengirim header protokol PROXY. Biarkan kosong untuk memercayai semua sumber.
+S_PP_NETWORKS	Jaringan tepercaya(&T):
 
 PREFIX					D_SM_SAVE_KEY_PAIR
 CAPTION					Simpan Sertifikat dan Kunci Pribadi
@@ -4575,6 +4601,26 @@ CMD_ListenerEnable_Help	Ini memulai operasi Listener TCP yang telah dihentikan y
 CMD_ListenerEnable_Args	ListenerEnable [port]
 CMD_ListenerEnable_[port]	Menggunakan angka, tentukan nomor port dari listener TCP/IP yang ingin Anda mulai.
 CMD_ListenerEnable_PortPrompt	Nomor port dari Listener TCP/IP yang akan dimulai: 
+CMD_ListenerCreate_Prompt_PROXY	Terima header protokol PROXY (v1 / v2): (yes / no)
+CMD_ListenerProxyEnable	Aktifkan Protokol PROXY pada TCP Listener
+CMD_ListenerProxyEnable_Help	Ini mengaktifkan penerimaan header protokol PROXY (versi 1 atau 2) pada TCP Listener yang ditentukan.\nSaat koneksi ke listener ini diteruskan oleh load balancer atau reverse proxy yang mendukung protokol PROXY, alamat IP asli klien dipulihkan.\nKoneksi langsung dari klien yang tidak mengirim header protokol PROXY juga diterima.\nUntuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	Tentukan dengan bilangan bulat nomor port listener TCP/IP yang akan diaktifkan protokol PROXY-nya.
+CMD_ListenerProxyDisable	Nonaktifkan Protokol PROXY pada TCP Listener
+CMD_ListenerProxyDisable_Help	Ini menonaktifkan penerimaan header protokol PROXY pada TCP Listener yang ditentukan.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	Tentukan dengan bilangan bulat nomor port listener TCP/IP yang akan dinonaktifkan protokol PROXY-nya.
+CMD_ProxyTrustedNetworksGet	Dapatkan Jaringan Tepercaya Protokol PROXY
+CMD_ProxyTrustedNetworksGet_Help	Ini menampilkan daftar jaringan sumber tepercaya dari protokol PROXY.\nHeader protokol PROXY hanya diurai dan diterapkan untuk koneksi TCP yang alamat IP sumbernya berada dalam salah satu jaringan ini. Jika daftar kosong, semua header protokol PROXY dipercaya.\nUntuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	Atur Jaringan Tepercaya Protokol PROXY
+CMD_ProxyTrustedNetworksSet_Help	Ini mengatur daftar jaringan sumber tepercaya dari protokol PROXY.\nTentukan daftar jaringan dalam format CIDR yang dipisahkan koma (mis. "192.168.0.0/24, 10.0.0.0/8"). Tentukan string kosong ("") untuk memercayai semua sumber.\nUntuk menjalankan perintah ini, Anda harus memiliki hak istimewa administrator VPN Server.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	Tentukan daftar jaringan tepercaya dalam format CIDR yang dipisahkan koma. Tentukan string kosong untuk memercayai semua sumber.
+CMD_ProxyTrustedNetworks_Column_1	Item Pengaturan
+CMD_ProxyTrustedNetworks_Column_2	Nilai
+CMD_ProxyTrustedNetworks_Token	Jaringan tepercaya
+CMD_ProxyTrustedNetworks_Empty	(kosong: percayai semua sumber)
 
 
 # ListenerDisable command

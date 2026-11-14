@@ -33,6 +33,7 @@
 #include "Mayaqua/Object.h"
 #include "Mayaqua/OS.h"
 #include "Mayaqua/Pack.h"
+#include "Mayaqua/ProxyProtocol.h"
 #include "Mayaqua/Str.h"
 #include "Mayaqua/Table.h"
 #include "Mayaqua/TcpIp.h"
@@ -1333,6 +1334,9 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 		// (Only works in stand-alone mode currently)
 		AddCapsBool(t, "b_support_openvpn", (s->ServerType == SERVER_TYPE_STANDALONE));
 
+		// PROXY protocol
+		AddCapsBool(t, "b_support_proxy_protocol", true);
+
 		// DDNS
 		AddCapsBool(t, "b_support_ddns", (s->DDnsClient != NULL));
 
@@ -1382,6 +1386,9 @@ void GetServerCapsMain(SERVER *s, CAPSLIST *t)
 
 		// OpenVPN
 		AddCapsBool(t, "b_support_openvpn", false);
+
+		// PROXY protocol
+		AddCapsBool(t, "b_support_proxy_protocol", false);
 
 		// DDNS
 		AddCapsBool(t, "b_support_ddns", false);
@@ -2217,10 +2224,85 @@ bool SiEnableListener(SERVER *s, UINT port)
 	}
 
 	e->Listener->DisableDos = e->DisableDos;
+	e->Listener->ProxyProtocol = e->ProxyProtocol;
 
 	e->Enabled = true;
 
 	return true;
+}
+
+// Set the PROXY protocol acceptance state of a listener (takes effect immediately)
+bool SiSetListenerProxyProtocol(SERVER *s, UINT port, bool proxy_protocol)
+{
+	SERVER_LISTENER *e;
+	// Validate arguments
+	if (s == NULL || port == 0)
+	{
+		return false;
+	}
+
+	// Get the listener
+	e = SiGetListener(s, port);
+	if (e == NULL)
+	{
+		return false;
+	}
+
+	e->ProxyProtocol = proxy_protocol;
+
+	if (e->Listener != NULL)
+	{
+		e->Listener->ProxyProtocol = proxy_protocol;
+	}
+
+	return true;
+}
+
+// Set the trusted networks of the PROXY protocol (takes effect immediately)
+void SiSetProxyTrustedNetworksStr(SERVER *s, char *str)
+{
+	LIST *networks;
+	LIST *old;
+	// Validate arguments
+	if (s == NULL)
+	{
+		return;
+	}
+
+	networks = PPNewNetworkList();
+
+	if (IsEmptyStr(str) == false)
+	{
+		PPParseNetworkListStr(networks, str);
+	}
+
+	Lock(s->ProxyTrustedNetworksLock);
+	{
+		old = s->ProxyTrustedNetworks;
+		s->ProxyTrustedNetworks = networks;
+	}
+	Unlock(s->ProxyTrustedNetworksLock);
+
+	if (old != NULL)
+	{
+		PPFreeNetworkList(old);
+	}
+}
+
+// Get the trusted networks of the PROXY protocol as a string
+void SiGetProxyTrustedNetworksStr(SERVER *s, char *str, UINT size)
+{
+	// Validate arguments
+	if (s == NULL || str == NULL)
+	{
+		return;
+	}
+
+	Lock(s->ProxyTrustedNetworksLock);
+	{
+		PPBuildNetworkListStr(str, size, s->ProxyTrustedNetworks);
+	}
+	Unlock(s->ProxyTrustedNetworksLock);
 }
 
 // Get the listener
@@ -2252,6 +2334,10 @@ bool SiAddListener(SERVER *s, UINT port, bool enabled)
 }
 bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
 {
+	return SiAddListenerEx2(s, port, enabled, disable_dos, false);
+}
+bool SiAddListenerEx2(SERVER *s, UINT port, bool enabled, bool disable_dos, bool proxy_protocol)
+{
 	SERVER_LISTENER *e;
 	UINT i;
 	// Validate arguments
@@ -2276,6 +2362,7 @@ bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
 	e->Enabled = enabled;
 	e->Port = port;
 	e->DisableDos = disable_dos;
+	e->ProxyProtocol = proxy_protocol;
 
 	if (e->Enabled)
 	{
@@ -2284,6 +2371,7 @@ bool SiAddListenerEx(SERVER *s, UINT port, bool enabled, bool disable_dos)
 		if (e->Listener != NULL)
 		{
 			e->Listener->DisableDos = e->DisableDos;
+			e->Listener->ProxyProtocol = e->ProxyProtocol;
 		}
 	}
 
@@ -2900,6 +2988,7 @@ void SiWriteListenerCfg(FOLDER *f, SERVER_LISTENER *r)
 	CfgAddBool(f, "Enabled", r->Enabled);
 	CfgAddInt(f, "Port", r->Port);
 	CfgAddBool(f, "DisableDos", r->DisableDos);
+	CfgAddBool(f, "ProxyProtocol", r->ProxyProtocol);
 }
 
 // Read the listener configuration
@@ -2908,6 +2997,7 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 	bool enable;
 	UINT port;
 	bool disable_dos;
+	bool proxy_protocol;
 	// Validate arguments
 	if (s == NULL || f == NULL)
 	{
@@ -2917,13 +3007,14 @@ void SiLoadListenerCfg(SERVER *s, FOLDER *f)
 	enable = CfgGetBool(f, "Enabled");
 	port = CfgGetInt(f, "Port");
 	disable_dos = CfgGetBool(f, "DisableDos");
+	proxy_protocol = CfgGetBool(f, "ProxyProtocol");
 
 	if (port == 0)
 	{
 		return;
 	}
 
-	SiAddListenerEx(s, port, enable, disable_dos);
+	SiAddListenerEx2(s, port, enable, disable_dos, proxy_protocol);
 }
 
 // Read the listener list
@@ -5670,6 +5761,14 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 	s->DontBackupConfig = CfgGetBool(f, "DontBackupConfig");
 
+	// PROXY protocol trusted networks
+	{
+		char tmp[MAX_SIZE];
+		Zero(tmp, sizeof(tmp));
+		CfgGetStr(f, "ProxyTrustedNetworks", tmp, sizeof(tmp));
+		SiSetProxyTrustedNetworksStr(s, tmp);
+	}
+
 	CfgGetIp(f, "ListenIP", &s->ListenIP);
 	ProtoSetListenIP(s->Proto, &s->ListenIP);
 
@@ -6219,6 +6318,14 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		// DoS
 		CfgAddBool(f, "DisableDosProtection", s->DisableDosProtection);
+
+		// PROXY protocol trusted networks
+		{
+			char tmp[MAX_SIZE];
+			Zero(tmp, sizeof(tmp));
+			SiGetProxyTrustedNetworksStr(s, tmp, sizeof(tmp));
+			CfgAddStr(f, "ProxyTrustedNetworks", tmp);
+		}
 
 		// MaxConnectionsPerIP
 		CfgAddInt(f, "MaxConnectionsPerIP", GetMaxConnectionsPerIp());
@@ -7036,6 +7143,13 @@ void SiCleanupServer(SERVER *s)
 	ReleaseCedar(s->Cedar);
 	DeleteLock(s->lock);
 	DeleteLock(s->SaveCfgLock);
+
+	if (s->ProxyTrustedNetworks != NULL)
+	{
+		PPFreeNetworkList(s->ProxyTrustedNetworks);
+		s->ProxyTrustedNetworks = NULL;
+	}
+	DeleteLock(s->ProxyTrustedNetworksLock);
 
 	StopKeep(s->Keep);
 
@@ -10872,6 +10986,8 @@ SERVER *SiNewServerEx(bool bridge, bool in_client_inner_server, bool relay_serve
 	s->PortsUDP = NewIntList(true);
 	s->StartTime = SystemTime64();
 	s->TasksFromFarmControllerLock = NewLock();
+	s->ProxyTrustedNetworksLock = NewLock();
+	s->ProxyTrustedNetworks = PPNewNetworkList();
 
 	if (bridge)
 	{

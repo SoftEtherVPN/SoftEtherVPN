@@ -1304,6 +1304,18 @@ bool ServerAccept(CONNECTION *c)
 	c->ClientVer = PackGetInt(p, "client_ver");
 	c->ClientBuild = PackGetInt(p, "client_build");
 
+	// Get the PROXY protocol version reported by an in-process (IPC) client
+	// such as OpenVPN over TCP or SSTP, which received the PROXY protocol header
+	// on the actual TCP socket before the connection was relayed in-process.
+	{
+		UINT pp_ver = PackGetInt(p, "client_proxy_protocol_version");
+
+		if (pp_ver > c->ProxyProtocolVersion)
+		{
+			c->ProxyProtocolVersion = pp_ver;
+		}
+	}
+
 	if (SearchStrEx(c->ClientStr, "server", 0, false) != INFINITE ||
 		SearchStrEx(c->ClientStr, "bridge", 0, false) != INFINITE)
 	{
@@ -2865,11 +2877,13 @@ bool ServerAccept(CONNECTION *c)
 			s = NewServerSessionEx(c->Cedar, c, hub, username, policy, c->IsInProc,
 				(c->IsInProc && IsZero(assigned_ipc_mac_address, 6) == false) ? assigned_ipc_mac_address : NULL);
 
-			s->EnableUdpRecovery = enable_udp_recovery;
-			s->LocalHostSession = local_host_session;
-			s->NormalClient = true;
+		s->EnableUdpRecovery = enable_udp_recovery;
+		s->LocalHostSession = local_host_session;
+		s->NormalClient = true;
 
-			IPToStr(s->ClientIP, sizeof(s->ClientIP), &c->ClientIp);
+		s->ProxyProtocolVersion = c->ProxyProtocolVersion;
+
+		IPToStr(s->ClientIP, sizeof(s->ClientIP), &c->ClientIp);
 
 			if (c->FirstSock->IsRUDPSocket)
 			{

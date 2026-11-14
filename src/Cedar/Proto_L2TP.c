@@ -2036,7 +2036,7 @@ void StartL2TPThread(L2TP_SERVER *l2tp, L2TP_TUNNEL *t, L2TP_SESSION *s)
 		}
 
 		// Create a PPP thread
-		s->Thread = NewPPPSession(l2tp->Cedar, &t->ClientIp, t->ClientPort, &t->ServerIp, t->ServerPort,
+		s->Thread = NewPPPSession(l2tp->Cedar, &t->ClientIp, t->ClientPort, 0, &t->ServerIp, t->ServerPort,
 			s->TubeSend, s->TubeRecv, L2TP_IPC_POSTFIX, tmp, t->HostName, l2tp->CryptName,
 			CalcL2TPMss(l2tp, t, s));
 	}

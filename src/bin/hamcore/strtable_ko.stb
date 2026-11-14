@@ -1216,6 +1216,9 @@ CM_LISTENER_TCP_PORT TCP %u
 CM_LISTENER_ONLINE 작동 중
 CM_LISTENER_OFFLINE 정지
 CM_LISTENER_ERROR 오류 발생
+CM_LISTENER_COLUMN_3	PROXY 프로토콜
+CM_LISTENER_PROXY_ONLINE	사용
+CM_LISTENER_PROXY_OFFLINE	사용 안 함
 CM_DELETE_LISTENER_MSG 수신기 (TCP 포트 %u)를 제거합니다. 앞으로이 포트에 연결할 수 없습니다. \r\n 하시겠습니까?
 CM_STOP_LISTENER_MSG 수신기 (TCP 포트 %u)를 중지합니다. 청취자를 다시 시작할 때까지이 포트에 연결할 수 없습니다. \r\n\r\n 하시겠습니까?
 CM_CLOSE_BUTTON 닫기
@@ -1433,6 +1436,7 @@ SM_SESS_COLUMN_5 TCP 연결
 SM_SESS_COLUMN_6 전송 바이트 수
 SM_SESS_COLUMN_7 전송 패킷 수
 SM_SESS_COLUMN_8 VLAN ID
+SM_SESS_COLUMN_9	PROXY 프로토콜
 SM_SESS_NORMAL 로컬 세션
 SM_SESS_LOCAL 로컬 세션
 SM_SESS_LOCAL_2 %S 상
@@ -1452,6 +1456,10 @@ SM_SESS_STATUS_USERNAME 사용자 이름 (인증)
 SM_SESS_STATUS_REALUSER 사용자 이름 (데이터베이스)
 SM_SESS_STATUS_GROUPNAME 그룹 이름
 SM_CLIENT_IP 클라이언트 IP 주소
+SM_SESS_STATUS_PP	PROXY 프로토콜 연결
+SM_SESS_PP_NONE	아니요
+SM_SESS_PP_V1	v1
+SM_SESS_PP_V2	v2
 SM_CLIENT_HOSTNAME 클라이언트 호스트 이름
 SM_NODE_CLIENT_NAME 클라이언트 제품 이름 (신고)
 SM_NODE_CLIENT_VER 클라이언트 버전 (신고)
@@ -1751,6 +1759,10 @@ LS_LISTENER_DOS TCP 리스너 (포트 %u)에 대한 DoS 공격을 감지했습�
 LS_LISTENER_MAXUEC TCP 리스너가 처리하고있는 처리되지 않은 연결 수가 %u에 달했다 (현재 개수=%u) 때문에 일시적으로 접수 연결 수를 제한하고 있습니다.
 LS_LISTENER_STOP_1 TCP 리스너 (포트 %u)를 중지합니다.
 LS_LISTENER_STOP_2 TCP 리스너 (포트 %u)의 정지가 완료되었습니다.
+LS_PP_APPLIED	TCP 리스너 (포트 %u)에서 PROXY 프로토콜 헤더가 구문 분석되었습니다. 클라이언트 IP 주소가 %S (포트 번호 %u)(으)로 다시 작성되었습니다.
+LS_PP_BAD_HEADER	TCP 리스너 (포트 %u)에서 잘못된 PROXY 프로토콜 헤더를 수신했습니다. 발신지 IP 주소는 %S 입니다. 이 연결은 끊깁니다.
+LS_PP_UNTRUSTED_PEER	TCP 리스너 (포트 %u)에서 신뢰할 수 없는 발신지 IP 주소 %S 에서 PROXY 프로토콜 헤더를 수신했습니다. 이 연결은 끊깁니다.
+LS_PP_LOCAL	TCP 리스너 (포트 %u)에서 PROXY 프로토콜 LOCAL 또는 UNKNOWN 헤더를 수신했습니다. 원래 소켓 주소가 유지됩니다.
 LS_HUB_START 가상 HUB "%S"를 시작했습니다.
 LS_HUB_STOP 가상 HUB "%S"를 중지했습니다.
 LS_HUB_MAC 가상 HUB "%S"의 MAC 주소는 "%S"입니다.
@@ -1996,6 +2008,8 @@ LA_TAG_2 관리 모드 [%S] (가상 HUB "%S"):
 LA_CREATE_LISTENER 새로운 TCP 리스너 (포트 번호 %u)를 만들었습니다.
 LA_DELETE_LISTENER TCP 리스너 (포트 번호 %u)을 삭제했습니다.
 LA_ENABLE_LISTENER TCP 리스너 (포트 번호 %u)를 활성화했습니다.
+LA_SET_LISTENER_PROXY_PROTOCOL	TCP 리스너 (포트 번호 %u)의 PROXY 프로토콜 수락 상태가 %u (으)로 설정되었습니다.
+LA_SET_PROXY_PROTOCOL_SETTING	PROXY 프로토콜 신뢰 네트워크 설정이 업데이트되었습니다. 새 값: "%S"
 LA_DISABLE_LISTENER TCP 리스너 (포트 번호 %u)를 비활성화했습니다.
 LA_SET_PORTS_UDP UDP ports have been set: %S.
 LA_SET_PROTO_OPTIONS %S options have been set.
@@ -2646,6 +2660,15 @@ IDOK & OK
 IDCANCEL 취소
 STATIC4 (TCP/IP 포트)
 
+R_PROXY_PROTOCOL	PROXY 프로토콜 헤더 (v1 / v2 자동 감지) 수락
+
+
+PREFIX				D_SM_EDIT_LISTENER
+CAPTION	리스너 설정
+STATIC1	이 TCP/IP 리스너의 설정을 변경할 수 있습니다.
+S_PORT	TCP/IP 리스너: TCP %u
+R_PROXY_PROTOCOL	PROXY 프로토콜 헤더 (v1 / v2 자동 감지) 수락
+STATIC2	변경 사항은 즉시 적용됩니다. 기존 연결에는 영향을 주지 않습니다.
 
 PREFIX D_SM_SSL
 CAPTION 암호화 및 통신 관계 설정
@@ -2686,6 +2709,9 @@ S_INFO5 방화벽이나 라우터에서 TCP/IP 통신이 중단되는 경우에�
 B_SPECIALLISTENER VPN over ICMP/DNS 설정
 B_UPDATE_CONFIG 업데이트 알림 설정 (&U)...
 
+S_PP_TITLE	PROXY 프로토콜
+S_PP_INFO	PROXY 프로토콜 헤더 전송을 신뢰할 네트워크를 CIDR 형식 (쉼표 구분)으로 지정합니다. 비워 두면 모든 발신지를 신뢰합니다.
+S_PP_NETWORKS	신뢰 네트워크(&T):
 
 PREFIX D_SM_SAVE_KEY_PAIR
 CAPTION 인증서 및 개인 키 저장
@@ -4554,6 +4580,26 @@ CMD_ListenerEnable_Help 현재 서버에 등록되어있는 TCP 리스너가 정
 CMD_ListenerEnable_Args ListenerEnable [port]
 CMD_ListenerEnable_[port] 시작하는 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
 CMD_ListenerEnable_PortPrompt 시작하는 TCP/IP 리스너 포트 번호:
+CMD_ListenerCreate_Prompt_PROXY	PROXY 프로토콜 헤더 (v1 / v2) 수락 여부: (yes / no)
+CMD_ListenerProxyEnable	TCP 리스너의 PROXY 프로토콜 사용
+CMD_ListenerProxyEnable_Help	지정한 TCP 리스너에서 PROXY 프로토콜 헤더 (버전 1 또는 2) 수락을 사용하도록 설정합니다.\n이 리스너에 대한 연결이 PROXY 프로토콜을 지원하는 로드 밸런서나 리버스 프록시를 통해 전달되면 클라이언트의 실제 IP 주소가 복원됩니다.\nPROXY 프로토콜 헤더를 보내지 않는 클라이언트의 직접 연결도 수락됩니다.\n이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
+CMD_ListenerProxyEnable_Args	ListenerProxyEnable [port]
+CMD_ListenerProxyEnable_[port]	PROXY 프로토콜을 사용하도록 설정할 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
+CMD_ListenerProxyDisable	TCP 리스너의 PROXY 프로토콜 사용 안 함
+CMD_ListenerProxyDisable_Help	지정한 TCP 리스너에서 PROXY 프로토콜 헤더 수락을 사용하지 않도록 설정합니다.
+CMD_ListenerProxyDisable_Args	ListenerProxyDisable [port]
+CMD_ListenerProxyDisable_[port]	PROXY 프로토콜을 사용하지 않도록 설정할 TCP/IP 리스너의 포트 번호를 정수로 지정합니다.
+CMD_ProxyTrustedNetworksGet	PROXY 프로토콜 신뢰 네트워크 가져오기
+CMD_ProxyTrustedNetworksGet_Help	PROXY 프로토콜의 신뢰 가능한 발신지 네트워크 목록을 표시합니다.\nTCP 연결의 발신지 IP 주소가 이 네트워크 안에 있는 경우에만 PROXY 프로토콜 헤더가 구문 분석되어 적용됩니다. 목록이 비어 있으면 모든 PROXY 프로토콜 헤더를 신뢰합니다.\n이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
+CMD_ProxyTrustedNetworksGet_Args	ProxyTrustedNetworksGet
+CMD_ProxyTrustedNetworksSet	PROXY 프로토콜 신뢰 네트워크 설정
+CMD_ProxyTrustedNetworksSet_Help	PROXY 프로토콜의 신뢰 가능한 발신지 네트워크 목록을 설정합니다.\nCIDR 형식의 네트워크를 쉼표로 구분하여 지정합니다 (예: "192.168.0.0/24, 10.0.0.0/8"). 빈 문자열 ("")을 지정하면 모든 발신지를 신뢰합니다.\n이 명령을 실행하려면 VPN 서버 관리자 권한이 필요합니다.
+CMD_ProxyTrustedNetworksSet_Args	ProxyTrustedNetworksSet [networks]
+CMD_ProxyTrustedNetworksSet_[networks]	CIDR 형식의 신뢰 네트워크를 쉼표로 구분하여 지정합니다. 빈 문자열을 지정하면 모든 발신지를 신뢰합니다.
+CMD_ProxyTrustedNetworks_Column_1	설정 항목
+CMD_ProxyTrustedNetworks_Column_2	값
+CMD_ProxyTrustedNetworks_Token	신뢰 네트워크
+CMD_ProxyTrustedNetworks_Empty	(비어 있음: 모든 발신지 신뢰)
 
 
 # ListenerDisable 명령
