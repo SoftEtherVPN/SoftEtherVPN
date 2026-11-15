@@ -38,6 +38,18 @@ private fun tripleRemove(t: MutableList<String>, path: String) {
     }
 }
 
+// The inner MAC of the virtual NIC belongs to the profile: the hub's DHCP lease and
+// the MAC-derived IPv6 link-local address stay put only while it does.
+private fun normalizeMac(s: String?): String {
+    val hex = (s ?: "").uppercase().filter { it.isDigit() || it in 'A'..'F' }
+    return if (hex.length == 12) hex.chunked(2).joinToString(":") else ""
+}
+
+// SoftEther's own generated-MAC shape (Cedar/Virtual.c GenMacAddress): 5E plus five
+// bytes, which is already unicast + locally administered.
+fun newInnerMac(): String =
+    "5E:" + (0 until 5).joinToString(":") { "%02X".format(kotlin.random.Random.nextInt(256)) }
+
 data class SeConfig(
     var host: String = "",
     var port: Int = 5555,
@@ -71,6 +83,8 @@ data class SeConfig(
     var triples: Array<String>? = null,
     var appMode: String = "off",
     var appList: String = "",
+    var macAddress: String = "",
+    var randomMacPerConnect: Boolean = false,
 ) {
     // SoftEther new-format ("declare root") account path prefix
     private val acc get() = "AccountDatabase/Account0"
@@ -152,6 +166,12 @@ data class SeConfig(
         set(ao + "ManualRoutes6", "string", manualRoutes6)
         set(ao + "IgnoreRoutes6", "string", ignoreRoutes6)
         remove(ao + "RoutesMode")
+        if (macAddress.isNotEmpty()) {
+            set(ao + "MacAddress", "string", macAddress)
+        } else {
+            remove(ao + "MacAddress")
+        }
+        set(ao + "RandomMacPerConnect", "bool", randomMacPerConnect.toString())
         if (appMode != "off") {
             set(ao + "AppMode", "string", appMode)
             set(ao + "AppList", "string", appList)
@@ -247,6 +267,9 @@ data class SeConfig(
             c.ignoreRoutes6 = get(ao + "IgnoreRoutes6") ?: ""
             c.appMode = get(ao + "AppMode")?.takeIf { it == "allow" || it == "block" } ?: "off"
             c.appList = get(ao + "AppList") ?: ""
+            c.macAddress = normalizeMac(get(ao + "MacAddress"))
+            c.randomMacPerConnect =
+                get(ao + "RandomMacPerConnect", "bool")?.toBooleanStrictOrNull() ?: false
             c.checkServerCert = get(acc + "CheckServerCert", "bool")?.toBooleanStrictOrNull() ?: false
 
             val pt = get(co + "ProxyType", "uint")?.toIntOrNull() ?: 0

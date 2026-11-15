@@ -6568,7 +6568,13 @@ void GenerateEui64Address6(UCHAR *dst, UCHAR *mac)
 	}
 
 	Copy(dst, mac, 3);
-	Copy(dst + 5, mac, 3);
+	// The last three bytes are the second half of the MAC address, not its first
+	// half again: with them repeated, the EUI-64 (and so an IPv6 interface identifier
+	// built from it) would not match the MAC it was derived from. The core's own
+	// router on a device hub segment has the correct form (device: an RA's router
+	// link-local fe80::5c50:88ff:fed7:4d0f for MAC 5E-50-88-D7-4D-0F), so this only
+	// ever affected addresses generated here.
+	Copy(dst + 5, mac + 3, 3);
 
 	dst[3] = 0xff;
 	dst[4] = 0xfe;

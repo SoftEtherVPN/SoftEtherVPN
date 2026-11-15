@@ -631,6 +631,9 @@ void CheckUnixTempDir()
 		UINT64 now = SystemTime64();
 		IO *o;
 
+		// GetEnv leaves tdir untouched when TMPDIR is unset; keep it initialised.
+		tdir[0] = 0;
+
 		if (GetEnv("TMPDIR", tdir, sizeof(tdir)) == false || IsEmptyStr(tdir))
 		{
 			StrCpy(tdir, sizeof(tdir), "/tmp");

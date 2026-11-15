@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.SystemClock
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +20,12 @@ import kotlinx.coroutines.launch
 class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     private val ctx: Context get() = getApplication()
+
+    // The IPv6 address the status line shows, as of the last logged poll. The status
+    // reads it live from the session (acquiredIp6), which on this hub can lose the
+    // address when the hub's Router Advertisement answer arrives piecemeal; logging the
+    // transitions is what makes that visible from the user's side (vc59).
+    private var loggedIp6 = ""
 
     val prefs = app.getSharedPreferences("profile", Context.MODE_PRIVATE)
 
@@ -56,6 +63,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         load()
     }
 
+    // A profile owns exactly one inner MAC: mint it on first load (new profile, import,
+    // or the first run after this update) and it never changes again, so the hub's DHCP
+    // lease and the MAC-derived IPv6 link-local address stop moving per reconnect.
+    private fun ensureInnerMac(c: SeConfig, id: String): SeConfig {
+        if (c.macAddress.isNotEmpty() || c.randomMacPerConnect) return c
+
+        val updated = c.copy(macAddress = newInnerMac())
+        ProfileStore.putCfg(ctx, id, updated.toCfg())
+
+        return updated
+    }
+
     private fun load() {
         curId = ProfileStore.currentId(ctx)
         entries = ProfileStore.all(ctx)
@@ -63,6 +82,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         SeNative.prepareAndInit(ctx)
         coreVer = SeNative.coreVersion
         cfg = SeConfig.fromCfg(saved)
+        cfg = ensureInnerMac(cfg, curId)
         // one-time migration: pre-vc30 builds kept app routing in app-level
         // prefs; adopt it unless the profile carries its own value
         val legacyMode = prefs.getString("appMode", "off") ?: "off"
@@ -94,6 +114,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         busy = sessionAlive && !otherActive
         val ip4 = if (h != 0L) acquiredIp4(h) else ""
         val ip6 = if (h != 0L) acquiredIp6(h) else ""
+
+        if (ip6 != loggedIp6) {
+            Log.i("SETH", "status: IPv6 " + loggedIp6.ifEmpty { "(none)" } + " -> " +
+                ip6.ifEmpty { "(none)" } + " (IPv4 " + ip4.ifEmpty { "(none)" } + ")")
+            loggedIp6 = ip6
+        }
+
         statusText = when {
             otherActive -> {
                 val e = entries.find { it.id == act }
@@ -194,8 +221,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadProfileIntoUi(id: String) {
-        val loaded =
-            runCatching { SeConfig.fromCfg(ProfileStore.cfgText(ctx, id)) }.getOrDefault(SeConfig())
+        val loaded = ensureInnerMac(
+            runCatching {
+                SeConfig.fromCfg(ProfileStore.cfgText(ctx, id))
+            }.getOrDefault(SeConfig()),
+            id,
+        )
         cfg = loaded
         portStr = loaded.port.toString()
         raw = loaded.toCfg()

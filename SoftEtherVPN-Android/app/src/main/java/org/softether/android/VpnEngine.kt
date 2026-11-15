@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.InetAddresses
 import android.net.VpnService
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Log
 import java.io.File
@@ -22,6 +23,13 @@ class VpnEngine : VpnService() {
         private const val RECONNECT_BASE_MS = 5000L
         private const val RECONNECT_MAX_MS = 30000L
         private const val CONNECT_TIMEOUT_MS = 90000L
+        // A session that dies sooner than this is a flap: the dial worked but the tunnel
+        // did not survive, so the reconnect backoff must keep escalating instead of
+        // restarting from the base and redial-storming the server.
+        private const val FLAP_SESSION_MS = 10000L
+        // Consecutive quick drops of a session that reused the interface before the
+        // interface itself is blamed and rebuilt (see reusedQuickDrops).
+        private const val QUICK_DROP_LIMIT = 2
         private const val ACTION_REVOKE = "android.net.VpnService.ACTION_REVOKE"
     }
 
@@ -59,6 +67,27 @@ class VpnEngine : VpnService() {
     private var cfgAppMode = "off"
     private var cfgAppPkgs = setOf<String>()
 
+    // The VPN interface outlives a session. The VpnService object itself always
+    // survives; keeping the tun descriptor across a re-dial is what stops a reconnect
+    // from being an Android network change: other apps keep their sockets, the DNS
+    // resolver stays bound, the address does not move. The worker thread owns the
+    // descriptor and closes it when it exits, never in the per-session teardown.
+    private var keptTun: ParcelFileDescriptor? = null
+    private var keptFingerprint = ""
+
+    // Consecutive sessions that reused the interface and died inside the flap window.
+    // The framework can take our interface away with the underlying network, and a
+    // black-holing interface then redials forever, so stop reusing it after this many
+    // quick drops and let the next dial build a fresh one.
+    private var reusedQuickDrops = 0
+
+    // Last complete hub configuration (its DHCPv4 answer / RA-derived IPv6). The hub
+    // keys the lease on the inner MAC, which the profile owns now, so when a new
+    // session's DHCP or RA answer fails to arrive, the previous grant is still the
+    // hub's own answer for this profile and can be reused instead of failing.
+    private var lastInfo4: Array<String>? = null
+    private var lastV6: Array<String>? = null
+
     private var wakeLock: android.os.PowerManager.WakeLock? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -87,6 +116,10 @@ class VpnEngine : VpnService() {
                 stopRequested = true
                 generation++
                 SeNative.activeProfileId = ""
+                // A complete stop ends the connection, so the hub's answers of this
+                // session are forgotten: the next dial re-acquires them (the hub's
+                // configuration can have changed in between).
+                SeNative.nativeResetAddressCache()
                 SeNative.disconnectOnce(SeNative.handle)
                 sendStateUpdate()
                 val w = worker
@@ -98,6 +131,7 @@ class VpnEngine : VpnService() {
                 stopRequested = true
                 generation++
                 SeNative.activeProfileId = ""
+                SeNative.nativeResetAddressCache()
                 SeNative.lastError = "VPN permission was revoked."
                 SeNative.disconnectOnce(SeNative.handle)
                 sendStateUpdate()
@@ -124,6 +158,7 @@ class VpnEngine : VpnService() {
         stopRequested = true
         generation++
         SeNative.activeProfileId = ""
+        SeNative.nativeResetAddressCache()
         SeNative.lastError = "VPN permission was revoked."
         SeNative.disconnectOnce(SeNative.handle)
         sendStateUpdate()
@@ -134,7 +169,11 @@ class VpnEngine : VpnService() {
     override fun onDestroy() {
         stopRequested = true
         SeNative.activeProfileId = ""
+        SeNative.nativeResetAddressCache()
         SeNative.disconnectOnce(SeNative.handle)
+        // The service is going away, so the interface goes with it (idempotent: the
+        // worker's own exit path may already have closed it).
+        closeKeptTun("service destroyed")
         sendStateUpdate()
         super.onDestroy()
     }
@@ -269,6 +308,13 @@ class VpnEngine : VpnService() {
                 // ignore
             }
             wakeLock = null
+            // Single exit point of the worker thread: drop the session (only an
+            // unexpected exception can leave one attached) and then the interface, so
+            // the descriptor is never closed under a live native reader.
+            val h = SeNative.handle
+            if (h != 0L) SeNative.nativeDisconnect(h)
+            SeNative.handle = 0L
+            closeKeptTun("worker exit")
             SeNative.negotiating = ""
             SeNative.negotiatedIp = ""
             SeNative.retryDeadlineMs = 0L
@@ -317,9 +363,14 @@ class VpnEngine : VpnService() {
                 is Outcome.Stopped -> if (stopRequested) break else continue
                 is Outcome.Down -> {
                     if (stopRequested || generation != myGen) continue
+                    // Reaching "Connected" restarts the dial-failure budget, and a session
+                    // that stayed up longer than the flap window restarts the reconnect
+                    // backoff too; only a fast flap (live, dead within seconds, repeat)
+                    // keeps the delay escalated towards the cap.
+                    attempt = 0
+                    if (r.livedMs >= FLAP_SESSION_MS) reconnectDelay = RECONNECT_BASE_MS
                     if (!retryWait(r.message, reconnectDelay, myGen)) continue
                     reconnectDelay = minOf(reconnectDelay * 2, RECONNECT_MAX_MS)
-                    attempt = 0
                 }
                 is Outcome.Failed -> {
                     if (!hasNetwork()) {
@@ -350,7 +401,48 @@ class VpnEngine : VpnService() {
         stopSelf()
     }
 
+    // Release the kept interface; idempotent, so the worker exit, the service teardown
+    // and a failed rebuild can all call it without racing each other.
+    private fun closeKeptTun(reason: String) {
+        val t = keptTun
+        keptTun = null
+        keptFingerprint = ""
+        if (t == null) return
+        try {
+            t.close()
+        } catch (e: Exception) {
+            // ignore
+        }
+        Log.i("SETH", "interface: closed ($reason)")
+    }
+
+    // Fingerprint of everything the Builder is fed; the MTU and the session name are
+    // constants here so only the changing values need listing. Equal inputs produce an
+    // equal interface, so an unchanged fingerprint means the existing tun can stay
+    // exactly as it is. The two config arrays are joined in full, which also covers the
+    // routes: the hub's classless static routes (DHCP option 121) arrive as info[5] and
+    // the manual/bypass prefixes are separate inputs. The app filter is inside because
+    // changing it has to force a rebuild, and it is order-normalised because a Set's
+    // iteration order is not defined.
+    private fun ifaceFingerprint(info: Array<String>?, v6: Array<String>?): String =
+        listOf(
+            "mtu1500",
+            cfgUseIpv4, cfgUseIpv6,
+            info?.joinToString("|") ?: "",
+            v6?.joinToString("|") ?: "",
+            cfgRoutesAuto4, cfgRoutesAuto6,
+            cfgIgnoreRoutes4, cfgManualRoutes4,
+            cfgIgnoreRoutes6, cfgManualRoutes6,
+            cfgAppMode,
+            cfgAppPkgs.toSortedSet().joinToString(","),
+        ).joinToString(";")
+
     private fun establishSession(cfg: String, myGen: Int): Outcome {
+        // The framework can take the interface away together with the underlying
+        // network, and an interface that routes nowhere black-holes every packet: when
+        // there is no network at all right now, do not trust the kept one.
+        if (!hasNetwork()) closeKeptTun("no network")
+
         val (hamcorePath, tmpDir) = prepareAssets()
         SeNative.nativeSetPaths(hamcorePath, tmpDir)
         SeNative.initOnce()
@@ -358,7 +450,23 @@ class VpnEngine : VpnService() {
 
         SeNative.negotiating = "Creating session..."
         notifyStatus("Creating session...")
-        val h = SeNative.nativeConnect(cfg)
+
+        // Whether this dial is going to be handed the interface of the previous
+        // session is decided below, from what the hub answers - but the answer is
+        // already known when the previous session's answer still applies: the hub's
+        // IPv4 lease and IPv6 answer belong to the profile's inner MAC, and the
+        // interface inputs are unchanged. So evaluate that condition here from the
+        // cached inputs, and let the dial configure its inner NIC from those answers
+        // instead of running the hub's DHCP exchange and waiting for its Router
+        // Advertisement again (the "Applying IPv4 configuration..." phase of a
+        // reconnect is exactly that exchange). One decision, evaluated once: if the
+        // seeds are used, the dial hands back these same values and the check below
+        // reuses the interface.
+        val cachedFp = ifaceFingerprint(lastInfo4, if (cfgUseIpv6) lastV6 else null)
+        val reuseIface = keptTun != null && cfgUseIpv4 && lastInfo4 != null &&
+            reusedQuickDrops < QUICK_DROP_LIMIT && cachedFp == keptFingerprint
+
+        val h = SeNative.nativeConnect(cfg, reuseIface)
         if (h == 0L) {
             return fail(0L, "Connection failed (check address, port and hub).")
         }
@@ -403,16 +511,51 @@ class VpnEngine : VpnService() {
             return fail(h, "Both IPv4 and IPv6 are disabled in the profile.")
         }
 
-        val info = SeNative.nativeGetIPv4Info(h)
+        val freshInfo = SeNative.nativeGetIPv4Info(h)
+        val freshV6 = if (cfgUseIpv6) SeNative.nativeGetIPv6Config(h) else null
+
+        // Cache only complete answers from the hub itself.
+        if (freshInfo != null && freshInfo[0].isNotEmpty()) lastInfo4 = freshInfo
+        if (freshV6 != null && freshV6[0].isNotEmpty()) lastV6 = freshV6
+
+        var info = freshInfo
         if (cfgUseIpv4 && (info == null || info[0].isEmpty())) {
-            SeNative.nativeDisconnect(h)
-            return fail(h, "No IPv4 configuration received.")
+            // The hub's DHCP answer did not arrive in this session. The lease belongs
+            // to the profile's inner MAC, so the address the hub handed out before is
+            // still its answer for this profile: reuse it instead of failing the dial.
+            val c = lastInfo4
+            if (c != null) {
+                Log.i("SETH", "interface: no DHCP answer this session, reusing ${c[0]}")
+                info = c
+            } else {
+                SeNative.nativeDisconnect(h)
+                return fail(h, "No IPv4 configuration received.")
+            }
         }
 
-        val v6 = if (cfgUseIpv6) SeNative.nativeGetIPv6Config(h) else null
-        if (cfgUseIpv6 && (v6 == null || v6[0].isEmpty())) {
-            SeNative.nativeDisconnect(h)
-            return fail(h, "No IPv6 configuration received.")
+        var v6 = freshV6
+        if (cfgUseIpv6 && v6 == null) {
+            // Same for the RA-derived address (it is built from the MAC, so with the
+            // profile's stable MAC it is the same address the last RA produced).
+            val c = lastV6
+            if (c != null) {
+                Log.i("SETH", "interface: no RA answer this session, reusing ${c[0]}")
+                v6 = c
+            } else {
+                SeNative.nativeDisconnect(h)
+                return fail(h, "No IPv6 configuration received.")
+            }
+        } else if (cfgUseIpv6 && v6 != null && v6[0].isEmpty()) {
+            // The hub answered for IPv6 - there is a prefix and a router - but its Router
+            // Advertisement authorised no address: RFC 4861 section 4.6.2 lets a prefix
+            // route without granting autonomous address configuration, and this client has
+            // no DHCPv6 client to ask for one. Not a failure, and not a case for the
+            // cached address either (that would contradict the hub's current answer): the
+            // interface keeps its link-local, and the kernel installs the prefix and
+            // default routes itself from the Router Advertisement it receives (device:
+            // "proto kernel" prefix route and "proto ra" default route in table tun0).
+            Log.i("SETH", "interface: the hub's Router Advertisement authorised no " +
+                "autonomous IPv6 prefix, IPv6 stays link-local")
         }
 
         SeNative.negotiating = "Setting up VPN interface..."
@@ -424,7 +567,16 @@ class VpnEngine : VpnService() {
         val ignore6 = parseNetList(cfgIgnoreRoutes6, true)
         val manual6 = parseNetList(cfgManualRoutes6, true)
         val routeAdded = HashSet<String>()
-        val tun = try {
+
+        // Reconnect decision: keep the interface the previous session used unless the
+        // hub configuration, the routes or the app filter actually changed. A new
+        // establish() is what Android treats as a network change, so skipping it is the
+        // whole point; the descriptor goes straight to the new session below.
+        val fp = ifaceFingerprint(info, v6)
+        val reused = keptTun != null && fp == keptFingerprint &&
+            reusedQuickDrops < QUICK_DROP_LIMIT
+        val oldTun = keptTun
+        val tun: ParcelFileDescriptor? = if (reused) keptTun else try {
             Builder().apply {
                 setSession("SoftEtherVPN Android")
                 setBlocking(true)
@@ -522,9 +674,31 @@ class VpnEngine : VpnService() {
         }
 
         if (tun == null) {
+            // A rebuild was attempted and failed. Android tears our previous tunnel
+            // down as soon as it accepts a new one, so the kept interface is gone
+            // either way: forget it and let the next dial build a fresh one.
+            closeKeptTun("rebuild failed")
             SeNative.nativeDisconnect(h)
             return fail(h, "Could not create the VPN interface.")
         }
+
+        if (!reused && oldTun != null && oldTun !== tun) {
+            // establish() has already closed the previous tunnel; this only releases
+            // the descriptor (ParcelFileDescriptor.close is idempotent).
+            try {
+                oldTun.close()
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+        if (!reused) {
+            keptTun = tun
+            keptFingerprint = fp
+            reusedQuickDrops = 0
+        }
+        val addrDesc = info?.getOrNull(0)?.takeIf { it.isNotEmpty() }
+            ?: v6?.getOrNull(0)?.takeIf { it.isNotEmpty() } ?: "no address"
+        Log.i("SETH", "interface: ${if (reused) "reused" else "rebuilt"} ($addrDesc)")
 
         var ipDesc = ""
         if (cfgUseIpv4 && info != null && info[0].isNotEmpty()) {
@@ -540,6 +714,7 @@ class VpnEngine : VpnService() {
         SeNative.negotiating = ""
         notifyStatus("Connected")
         Log.i("SETH", "worker: vpn established")
+        val connectedAt = SystemClock.elapsedRealtime()
 
         while (SeNative.nativeGetStatus(h) != SeNative.STATUS_DISCONNECTED) {
             if (stopRequested || generation != myGen) break
@@ -549,16 +724,40 @@ class VpnEngine : VpnService() {
         val downText = SeNative.nativeGetStatusText(h)
         SeNative.handle = 0L
         SeNative.negotiating = ""
-        try {
-            tun.close()
-        } catch (e: Exception) {
-            // ignore
-        }
+        val livedMs = SystemClock.elapsedRealtime() - connectedAt
+        // The interface and its descriptor survive this session: the worker closes them
+        // when it exits, and a re-dial gets the same tun, addresses, routes and DNS back
+        // when the hub configuration is unchanged. The native session is disconnected
+        // here and its reader thread stops with it, so the descriptor has exactly one
+        // reader at a time; the next session's VLanAndroidSetTunFd() drops whatever the
+        // apps queued while the tunnel had no reader.
         SeNative.nativeDisconnect(h)
-        return if (stopRequested || generation != myGen) {
+        // A session that reused the interface and died inside the flap window is the
+        // signal that the interface itself went stale under us - the framework took it
+        // away with the underlying network, or it is administratively down and the
+        // session connected into a black hole. Give up reusing after that many quick
+        // drops so the next dial builds a fresh interface. Only an unsolicited drop
+        // counts: reconnecting by hand ends a session on purpose and quickly, and says
+        // nothing about the interface.
+        val stopped = stopRequested || generation != myGen
+        if (reused && !stopped) {
+            if (livedMs < FLAP_SESSION_MS) {
+                reusedQuickDrops++
+                if (reusedQuickDrops >= QUICK_DROP_LIMIT) {
+                    closeKeptTun("reused interface not holding")
+                }
+            } else {
+                reusedQuickDrops = 0
+            }
+        }
+        return if (stopped) {
             Outcome.Stopped
         } else {
-            Outcome.Down(if (downText.isEmpty()) "link down" else downText)
+            // livedMs lets the worker tell a live-then-dropped session from a fast flap
+            Outcome.Down(
+                if (downText.isEmpty()) "link down" else downText,
+                livedMs,
+            )
         }
     }
 
@@ -577,5 +776,5 @@ class VpnEngine : VpnService() {
 private sealed class Outcome {
     object Stopped : Outcome()
     data class Failed(val message: String) : Outcome()
-    data class Down(val message: String) : Outcome()
+    data class Down(val message: String, val livedMs: Long) : Outcome()
 }

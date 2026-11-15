@@ -2370,6 +2370,10 @@ void IPCIPv6AddRouterPrefixes(IPC *ipc, ICMPV6_OPTION_LIST *recvPrefix, UCHAR *m
 				{
 					Zero(newRA->RouterLinkLayerAddress, 6);
 				}
+				// Keep the flag byte of the option this entry was built from: whether the
+				// prefix may be used to form an address is the router's decision, not ours
+				// (see PrefixFlags in IPC.h).
+				newRA->PrefixFlags = recvPrefix->Prefix[i]->Flags;
 				Add(ipc->IPv6RouterAdvs, newRA);
 			}
 		}
