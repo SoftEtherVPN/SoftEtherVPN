@@ -11,3 +11,8 @@ captures/
 # Generated asset: hamcore.se2 is NEVER committed, ALWAYS generated
 # (host hamcorebuilder run over src/bin/hamcore; see PLAN.md build/CI agreements)
 app/src/main/assets/hamcore.se2
+
+# Release signing key: a machine-local blob (and a repository secret in CI), never
+# committed; see app/build.gradle.kts and .github/workflows/android.yml
+*.jks
+*.keystore

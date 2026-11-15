@@ -21,6 +21,9 @@ typedef struct
 	bool v6_static;		// IPv6 mode (false = router RA/SLAAC, true = manual)
 	IP ip, mask, gw, dns1, dns2;			// static IPv4 parameters
 	IP v6ip, s6_mask, s6_gw, s6_dns;	// static IPv6 parameters
+	UCHAR mac[6];		// AndroidOptions.MacAddress (inner MAC of the virtual NIC)
+	bool mac_valid;		// MacAddress present and parsed
+	bool random_mac;	// AndroidOptions.RandomMacPerConnect (ignore mac[6])
 } SE_NETCFG;
 
 FOLDER *SeCfgTextToRoot(const char *text);

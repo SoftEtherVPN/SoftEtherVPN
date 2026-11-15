@@ -47,6 +47,53 @@ static CEDAR *cedar = NULL;
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 static VLAN_ANDROID *g_v = NULL;
 
+// The hub's IPv4 answer of the last session, for the next dial to configure its
+// inner NIC from instead of asking the hub again (vc49). The bridge owns this
+// because the answer belongs to the profile's inner MAC, which Kotlin already
+// owns; what Kotlin caches (lastInfo4) is what it feeds the VPN Builder, which is
+// a different question. Refreshed by nativeGetIPv4Info once a session is fully
+// configured, and consumed by nativeConnect when Kotlin intends to hand the
+// previous session's interface to the new one. Guarded by g_lock, because the
+// status UI polls the same getter from another thread.
+typedef struct
+{
+	IP ip, mask, gw, dns1, dns2, dhcp_server;
+	DHCP_CLASSLESS_ROUTE_TABLE routes;
+	UCHAR mac[6];
+	UINT lease_sec;
+	bool valid;
+} SE_IPV4_LEASE;
+
+static SE_IPV4_LEASE g_lease;
+
+// The hub's IPv6 answer of the last session, for the next dial to seed its IPv6
+// from instead of waiting for this session's Router Advertisement (vc50): the
+// prefix its Router Advertisement routed, and the router's address and MAC that
+// off-prefix frames are encapsulated to. The client address is not cached because
+// it derives from the prefix together with the inner MAC below, so it is identical
+// by construction. Owned by the bridge for the same reason as the lease above, and
+// with the same rules: keyed on the profile's inner MAC, refreshed only while a
+// session is fully configured, and consumed by nativeConnect. Guarded by g_lock.
+typedef struct
+{
+	IP prefix, mask, router, dns;
+	UCHAR mac[6];			// the inner MAC this answer was learned with
+	UCHAR router_mac[6];	// the hub's router MAC (zeros if it was not known)
+	UCHAR prefix_flags;		// the flag byte of the prefix option that came with this
+							// prefix, as the hub's Router Advertisement carried it
+							// (ICMPV6_OPTION_PREFIX_FLAG_* in TcpIp.h). It travels with
+							// the prefix because whether that prefix may be used to form
+							// an address is the router's decision and is expressed only
+							// in this byte, and a cache that lost it would grant an
+							// address on the next dial that the hub does not grant.
+	bool valid;
+} SE_IPV6_ANSWER;
+
+static SE_IPV6_ANSWER g_v6answer;
+
+// See SeDropAddressCaches (defined with the getters that refresh it).
+static void SeDropAddressCaches(const char *reason);
+
 // Paths supplied from the Java layer before nativeInit()
 static char g_hamcore_path[MAX_SIZE] = "";
 static char g_tmp_dir[MAX_SIZE] = "";
@@ -511,8 +558,16 @@ Java_org_softether_android_SeNative_nativeAddCaCert(JNIEnv *env, jobject thiz, j
 	return 1;
 }
 
+// reuse_iface: Kotlin passes true when it intends to hand the interface of the
+// previous session to this one (same profile, same interface inputs). The hub's last
+// IPv4 lease and IPv6 answer then configure the new inner NIC directly, because both
+// are keyed on the profile's inner MAC and the interface is unchanged - which is
+// exactly the condition the Kotlin side evaluated, so seeding and interface reuse
+// stay a single decision instead of two heuristics. Which family is actually seeded
+// is decided here, from what the profile asks for and what the caches hold.
 JNIEXPORT jlong JNICALL
-Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jstring cfg_j)
+Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jstring cfg_j,
+	jboolean reuse_iface)
 {
 	char *cfg;
 	CLIENT_OPTION option;
@@ -522,6 +577,9 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	bool dhcp = true;
 	bool use_v4 = true, use_v6 = false;
 	bool v6_static = false;
+	UCHAR mac[6];
+	bool mac_valid = false;
+	bool random_mac = false;
 	IP sip, smask, sgw, sdns1, sdns2;
 	IP v6ip, s6_mask, s6_gw, s6_dns;
 	ACCOUNT *acc = NULL;
@@ -595,6 +653,10 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 		s6_gw = n.s6_gw;
 		s6_dns = n.s6_dns;
 
+		Copy(mac, n.mac, 6);
+		mac_valid = n.mac_valid;
+		random_mac = n.random_mac;
+
 		// Android-side essentials: this bridge owns the virtual NIC name, and a
 		// profile is not required to carry these values.
 		StrCpy(option.DeviceName, sizeof(option.DeviceName), "SoftEtherVPN Android");
@@ -641,7 +703,9 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 		return 0;
 	}
 
-	v = VLanAndroidNew(cedar);
+	// The inner MAC has to be resolved before the adapter exists, because
+	// VLanAndroidNew hands it straight to NewIPCBySock.
+	v = VLanAndroidNew(cedar, (mac_valid && !random_mac) ? mac : NULL);
 	if (v == NULL)
 	{
 		Debug("connect: vlan new failed");
@@ -649,6 +713,13 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 		CiFreeAccount(acc);
 
 		return 0;
+	}
+
+	{
+		char macstr[32];
+
+		MacToStr(macstr, sizeof(macstr), v->MacAddress);
+		Debug("connect: mac=%s%s", macstr, random_mac ? " (random per connect)" : "");
 	}
 
 	if (!dhcp)
@@ -667,6 +738,50 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 			IsZeroIP(&s6_gw) ? NULL : &s6_gw,
 			IsZeroIP(&s6_dns) ? NULL : &s6_dns);
 	}
+
+	// Reconnect shortcut, before the pump thread exists (VLanAndroidStart): seed the
+	// adapter with the hub's answers of the last session. The MAC check is the guard
+	// against "Randomize MAC per connect", which hands out a new inner MAC each dial
+	// and the hub's DHCP keys its lease on that MAC.
+	pthread_mutex_lock(&g_lock);
+
+	// A dial that is not handed the interface of the previous session is a fresh
+	// connection, so nothing of the previous one may be reused - whatever Kotlin
+	// does or forgets to call, and including a late status poll of the dying session
+	// that would otherwise refill what the stop dropped (SeDropAddressCaches).
+	if (!reuse_iface)
+	{
+		SeDropAddressCaches("dial not reusing the interface");
+	}
+
+	if (reuse_iface && dhcp && use_v4 && g_lease.valid &&
+		Cmp(v->MacAddress, g_lease.mac, 6) == 0)
+	{
+		VLanAndroidSetCachedIPv4(v, &g_lease.ip, &g_lease.mask,
+			IsZeroIP(&g_lease.gw) ? NULL : &g_lease.gw,
+			IsZeroIP(&g_lease.dns1) ? NULL : &g_lease.dns1,
+			IsZeroIP(&g_lease.dns2) ? NULL : &g_lease.dns2,
+			&g_lease.routes,
+			IsZeroIP(&g_lease.dhcp_server) ? NULL : &g_lease.dhcp_server,
+			g_lease.lease_sec, v->MacAddress);
+	}
+
+	// IPv6 needs no DHCP-like exchange to be seeded: the client address will be
+	// derived from this prefix and this MAC, so what travels between sessions is the
+	// hub's prefix and its router's identity. Static IPv6 mode configures the kernel
+	// itself and has nothing to seed.
+	if (reuse_iface && use_v6 && !v6_static && g_v6answer.valid &&
+		Cmp(v->MacAddress, g_v6answer.mac, 6) == 0)
+	{
+		VLanAndroidSetCachedIPv6(v, &g_v6answer.prefix, &g_v6answer.mask,
+			IsZeroIP(&g_v6answer.router) ? NULL : &g_v6answer.router,
+			IsMacInvalid(g_v6answer.router_mac) ? NULL : g_v6answer.router_mac,
+			IsZeroIP(&g_v6answer.dns) ? NULL : &g_v6answer.dns,
+			g_v6answer.prefix_flags,
+			v->MacAddress);
+	}
+
+	pthread_mutex_unlock(&g_lock);
 
 	// The account is the client's own state, not a cert-checking special case:
 	// the C core enables TLS peer verification from Account->CheckServerCert and
@@ -718,6 +833,122 @@ Java_org_softether_android_SeNative_nativeConnect(JNIEnv *env, jobject thiz, jst
 	return (jlong)v;
 }
 
+// Drop the bridge's cached hub answers (the IPv4 lease and the IPv6 answer) so that
+// the next dial re-acquires everything from the hub. Two callers, both on purpose:
+// Kotlin on a complete stop (a manual disconnect: the session is over, and a stale
+// answer must not survive into an unrelated next connection - a device run restored
+// the *previous* hub prefix after the user had changed it and fully disconnected),
+// and nativeConnect itself for a dial that is not handed the previous interface, so
+// that the rule cannot be raced by a late status poll of the dying session. The
+// reconnect path does not drop: that is what the cache exists for. Caller holds g_lock.
+static void SeDropAddressCaches(const char *reason)
+{
+	if (g_lease.valid || g_v6answer.valid)
+	{
+		IP ip;
+
+		Zero(&ip, sizeof(ip));
+
+		ip = g_lease.ip;
+
+		if (!IsZeroIP(&ip))
+		{
+			char ip_str[MAX_SIZE];
+
+			ip_str[0] = 0;
+			IPToStr(ip_str, sizeof(ip_str), &ip);
+
+			Debug("se_jni: dropping the cached hub answers (%s): IPv4 lease %s\n", reason, ip_str);
+		}
+		else
+		{
+			Debug("se_jni: dropping the cached hub answers (%s)\n", reason);
+		}
+	}
+
+	Zero(&g_lease, sizeof(SE_IPV4_LEASE));
+	Zero(&g_v6answer, sizeof(SE_IPV6_ANSWER));
+}
+
+JNIEXPORT void JNICALL
+Java_org_softether_android_SeNative_nativeResetAddressCache(JNIEnv *env, jobject thiz)
+{
+	pthread_mutex_lock(&g_lock);
+
+	SeDropAddressCaches("stopped by the app");
+
+	pthread_mutex_unlock(&g_lock);
+}
+
+static bool SeIPv6AnswerDowngradable(UCHAR new_flags);
+
+// Refresh the bridge's copy of the hub's IPv6 answer for this session - the prefix
+// its Router Advertisement routed and the router's address and MAC - so that the
+// next dial can seed its IPv6 from it without waiting for anything. Called from the
+// status poll, because on this hub the answer can arrive a minute after the session
+// was established (a device run: Router Solicitation 17, 67 s), long after the one
+// poll the worker does at establish time. Only while the session is fully
+// configured, so a dial in progress cannot store a half answer (the same rule as
+// the IPv4 lease). The caller holds g_lock.
+static void SeRefreshIPv6Answer(VLAN_ANDROID *v)
+{
+	IP addr, prefix, mask, router, dns;
+	UCHAR router_mac[6];
+	UCHAR prefix_flags;
+
+	Zero(router_mac, sizeof(router_mac));
+	prefix_flags = 0;
+
+	if (!VLanAndroidIsConfigReady(v) ||
+		!VLanAndroidGetIPv6Config(v, &addr, &prefix, &mask, &router, router_mac, &dns,
+			&prefix_flags))
+	{
+		return;
+	}
+
+	// A partial answer must not replace a complete cached one (vc59): the hub's Router
+	// Advertisement arrives over more than one frame, so a refresh read before this
+	// session has received the address-granting prefix yields a route prefix and no
+	// address, and caching that as the whole answer left the next dial with no address to
+	// seed from (device: the cached prefix became 2001:470:2099:1:: with flags 0x80 where
+	// the previous session had 2001:470:2099:3:: with 0xC0). The rule is the IPv4 lease's
+	// - only a complete answer of the hub is trusted (VLanAndroidIsConfigReady) - applied
+	// to what complete means for IPv6: a prefix the hub lets an address be formed from.
+	// The router identity is refreshed either way, being the hub's own and not tied to
+	// whichever prefix grants the address.
+	if (SeIPv6AnswerDowngradable(prefix_flags))
+	{
+		CopyIP(&g_v6answer.router, &router);
+		Copy(g_v6answer.router_mac, router_mac, 6);
+		CopyIP(&g_v6answer.dns, &dns);
+		Copy(g_v6answer.mac, v->MacAddress, 6);
+
+		return;
+	}
+
+	Zero(&g_v6answer, sizeof(SE_IPV6_ANSWER));
+
+	g_v6answer.prefix = prefix;
+	g_v6answer.mask = mask;
+	g_v6answer.router = router;
+	g_v6answer.dns = dns;
+	g_v6answer.prefix_flags = prefix_flags;
+	Copy(g_v6answer.router_mac, router_mac, 6);
+	Copy(g_v6answer.mac, v->MacAddress, 6);
+
+	g_v6answer.valid = true;
+}
+
+// Whether the cached answer of the last session may be replaced by this session's, judged
+// on the address it can grant (vc59). See its single caller, which holds g_lock and reads
+// the new answer's flag byte into new_flags first.
+static bool SeIPv6AnswerDowngradable(UCHAR new_flags)
+{
+	return g_v6answer.valid &&
+		(new_flags & ICMPV6_OPTION_PREFIX_FLAG_AUTO) == 0 &&
+		(g_v6answer.prefix_flags & ICMPV6_OPTION_PREFIX_FLAG_AUTO) != 0;
+}
+
 JNIEXPORT jint JNICALL
 Java_org_softether_android_SeNative_nativeGetStatus(JNIEnv *env, jobject thiz, jlong handle)
 {
@@ -754,6 +985,11 @@ Java_org_softether_android_SeNative_nativeGetStatus(JNIEnv *env, jobject thiz, j
 	else
 	{
 		ret = STATUS_CONNECTING;
+	}
+
+	if (ret == STATUS_CONFIG_OK)
+	{
+		SeRefreshIPv6Answer(v);
 	}
 
 	pthread_mutex_unlock(&g_lock);
@@ -798,9 +1034,10 @@ JNIEXPORT jobjectArray JNICALL
 Java_org_softether_android_SeNative_nativeGetIPv4Info(JNIEnv *env, jobject thiz, jlong handle)
 {
 	VLAN_ANDROID *v = (VLAN_ANDROID *)handle;
-	IP ip, mask, gw, dns1, dns2;
+	IP ip, mask, gw, dns1, dns2, server;
 	DHCP_CLASSLESS_ROUTE_TABLE routes;
 	char routes_str[MAX_DHCP_CLASSLESS_ROUTE_TABLE_STR_SIZE];
+	UINT lease_sec = 0;
 	jobjectArray ret;
 	IP *src[5];
 	int i;
@@ -812,7 +1049,8 @@ Java_org_softether_android_SeNative_nativeGetIPv4Info(JNIEnv *env, jobject thiz,
 
 	pthread_mutex_lock(&g_lock);
 
-	if (v != g_v || !VLanAndroidGetIPv4Config(v, &ip, &mask, &gw, &dns1, &dns2))
+	if (v != g_v || !VLanAndroidGetIPv4Config(v, &ip, &mask, &gw, &dns1, &dns2,
+		&lease_sec, &server))
 	{
 		pthread_mutex_unlock(&g_lock);
 
@@ -820,6 +1058,26 @@ Java_org_softether_android_SeNative_nativeGetIPv4Info(JNIEnv *env, jobject thiz,
 	}
 
 	routes = v->ClasslessRoute;
+
+	// Refresh the lease that the next dial may reuse - and only once this session is
+	// fully configured, so that a status poll during a dial cannot store a half
+	// answer (no lease time, no DHCP server) and thereby switch the lease-keep off.
+	if (VLanAndroidIsConfigReady(v))
+	{
+		Zero(&g_lease, sizeof(SE_IPV4_LEASE));
+
+		g_lease.ip = ip;
+		g_lease.mask = mask;
+		g_lease.gw = gw;
+		g_lease.dns1 = dns1;
+		g_lease.dns2 = dns2;
+		g_lease.dhcp_server = server;
+		g_lease.routes = routes;
+		g_lease.lease_sec = lease_sec;
+		Copy(g_lease.mac, v->MacAddress, 6);
+
+		g_lease.valid = true;
+	}
 
 	pthread_mutex_unlock(&g_lock);
 
@@ -911,11 +1169,20 @@ Java_org_softether_android_SeNative_nativeGetIPv6Config(JNIEnv *env, jobject thi
 
 	pthread_mutex_lock(&g_lock);
 
-	if (v != g_v || !VLanAndroidGetIPv6Config(v, &addr, &prefix, &mask, &router, &dns))
+	if (v != g_v || !VLanAndroidGetIPv6Config(v, &addr, &prefix, &mask, &router,
+		NULL, &dns, NULL))
 	{
 		pthread_mutex_unlock(&g_lock);
 
 		return NULL;
+	}
+
+	// Keep the answer that the next dial may seed its IPv6 from up to date, with the
+	// same rule as the IPv4 lease above: only a fully configured session's answer is
+	// trusted. The status poll refreshes it too, from the same helper.
+	if (VLanAndroidIsConfigReady(v))
+	{
+		SeRefreshIPv6Answer(v);
 	}
 
 	pthread_mutex_unlock(&g_lock);

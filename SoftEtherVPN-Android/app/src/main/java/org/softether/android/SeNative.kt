@@ -97,7 +97,18 @@ object SeNative {
     external fun nativeRelease()
     external fun nativeGetCoreVersion(): String
     external fun nativeAddCaCert(der: ByteArray): Int
-    external fun nativeConnect(cfg: String): Long
+    // reuseIface: true when this dial is going to be handed the interface of the
+    // previous session. The native side then configures its inner NIC from the hub's
+    // answers of that session (IPv4 lease, IPv6 prefix and router identity) instead
+    // of asking the hub again, because those answers belong to the profile's inner
+    // MAC, which this dial has too.
+    external fun nativeConnect(cfg: String, reuseIface: Boolean): Long
+
+    // Forget the hub's answers the bridge cached for a reconnect (IPv4 lease, IPv6
+    // prefix and router identity), so the next dial re-acquires everything. Called on
+    // a complete stop: answers of a finished connection must not describe the next
+    // one, and the hub's configuration can have changed in between.
+    external fun nativeResetAddressCache()
     external fun nativeGetStatus(handle: Long): Int
     external fun nativeGetStatusText(handle: Long): String
     external fun nativeGetIPv4Info(handle: Long): Array<String>?

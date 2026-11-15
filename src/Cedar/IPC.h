@@ -178,6 +178,15 @@ struct IPC_IPV6_ROUTER_ADVERTISEMENT
 	IP RouterAddress;
 	UCHAR RouterMacAddress[6];
 	UCHAR RouterLinkLayerAddress[6];
+	// The flag byte of the Prefix Information option this entry was built from, as
+	// it arrived in the Router Advertisement (RFC 4861 section 4.6.2: bit 0x80 is
+	// on-link, bit 0x40 autonomous; ICMPV6_OPTION_PREFIX_FLAG_ONLINK and
+	// ICMPV6_OPTION_PREFIX_FLAG_AUTO in TcpIp.h). A prefix without the autonomous
+	// bit is not used to form an address (section 4.6.2: "the prefix is not used for
+	// autonomous address configuration"), while it is still valid for on-link
+	// determination (section 5.5.6), so this is recorded here and judged by whoever
+	// derives an address.
+	UCHAR PrefixFlags;
 };
 
 IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char *username, char *password, char *wg_key,

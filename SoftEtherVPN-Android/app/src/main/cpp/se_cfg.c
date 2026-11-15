@@ -428,6 +428,15 @@ bool SeCfgLoadAccount(const char *text, ACCOUNT **acc_out, SE_NETCFG *n)
 	n->use_v4 = SeCfgGetBoolDef(ao, "UseIPv4", true);
 	n->use_v6 = SeCfgGetBoolDef(ao, "UseIPv6", false);
 
+	// The inner MAC belongs to the profile, not to the connect: a stable value keeps
+	// the hub's DHCP lease and the MAC-derived IPv6 link-local address across
+	// reconnects (the desktop client persists one per account the same way).
+	if (SeCfgGetOpt(ao, "MacAddress", tmp, sizeof(tmp)))
+	{
+		n->mac_valid = StrToMac(n->mac, tmp);
+	}
+	n->random_mac = SeCfgGetBoolDef(ao, "RandomMacPerConnect", false);
+
 	if (SeCfgGetOpt(ao, "IPv6Mode", tmp, sizeof(tmp)))
 	{
 		n->v6_static = (StrCmp(tmp, "static") == 0);

@@ -8,6 +8,8 @@ import android.os.PowerManager
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -71,6 +73,7 @@ private fun loadInstalledApps(context: Context): List<Triple<String, String, Boo
 }
 
 // Full-screen configuration page; every piece of state is hoisted to App()
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     cfg: SeConfig,
@@ -211,27 +214,45 @@ fun SettingsScreen(
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Per-app routing", modifier = Modifier.weight(1f))
-            for ((key, lab) in APP_MODES) {
-                TextButton(onClick = { onAppMode(key) }) {
-                    Text(
-                        lab,
-                        color = if (appMode == key) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+        // The inner MAC is a profile property: while it stays put the hub keeps handing
+        // out the same DHCP lease and IPv6 link-local address across reconnects.
+        SwitchRow("Randomize MAC per connect", cfg.randomMacPerConnect) {
+            onCfg(cfg.copy(randomMacPerConnect = it))
+        }
+        Text(
+            if (cfg.randomMacPerConnect) "Inner MAC: random on every connect"
+            else "Inner MAC: " + cfg.macAddress.ifEmpty { "not set" },
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        // The options always sit under the label: a weighted label inside a Row collapses
+        // to one grapheme per line once a large system font makes the buttons too wide.
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text("Per-app routing")
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                for ((key, lab) in APP_MODES) {
+                    TextButton(onClick = { onAppMode(key) }) {
+                        Text(
+                            lab,
+                            color = if (appMode == key) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
         if (appMode != APP_MODE_OFF) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 OutlinedButton(onClick = { onShowAppPicker(true) }) {
                     Text("Chosen apps (${appSet.size})")
                 }
                 Text(
                     "applies on next connect",
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.align(Alignment.CenterVertically),
                 )
             }
         }
@@ -259,6 +280,7 @@ private fun LabeledField(label: String, value: String, onValueChange: (String) -
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RoutePickerRow(
     label: String,
@@ -266,15 +288,17 @@ private fun RoutePickerRow(
     auto: Boolean,
     onAuto: (Boolean) -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(label, modifier = Modifier.weight(1f))
-        for ((on, lab) in listOf(true to autoLabel, false to "Manual")) {
-            TextButton(onClick = { onAuto(on) }) {
-                Text(
-                    lab,
-                    color = if (auto == on) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(label)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            for ((on, lab) in listOf(true to autoLabel, false to "Manual")) {
+                TextButton(onClick = { onAuto(on) }) {
+                    Text(
+                        lab,
+                        color = if (auto == on) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
