@@ -1,17 +1,5 @@
 name: android release
 
-
-# This workflow does not create a release and does not compile anything: the release is
-# created by windows_release.yml on a tag push, and actions/upload-release-asset cannot
-# create a release either - it needs the release's upload URL, so a missing release means
-# a failed step, not a new release. Here we only carry the APKs that the android workflow
-# already built for the same tag out of that run's artifacts and onto the release page.
-#
-# Artifacts and release assets are different things: an artifact belongs to a run, expires
-# after the retention window, and needs a signed-in user to download, while a release asset
-# is what a user installs from the release page. Only the release-variant APKs are attached
-# (the debug ones stay run artifacts), and because upload-artifact zips, each artifact is
-# unzipped here so the release carries an installable .apk and not a .zip.
 on:
   release:
     types:
@@ -26,13 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
-      # Not present in a shell `run:` step by itself: actions that need the token get it
-      # through their own `env:` (as the upload steps below do), so a shell step that
-      # expands $GITHUB_TOKEN under `set -euo pipefail` does not see an empty value but an
-      # "unbound variable" error - which kills the API call and, because the calls sit
-      # behind `read ... || true`, leaves the wait loop spinning to its end and the job
-      # ending as a quiet "nothing to attach" rather than a failure. Same mapping as
-      # build_source_release.yml:33-34 and windows_release.yml use.
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       API: https://api.github.com
       REPO: ${{ github.repository }}
