@@ -30,6 +30,27 @@ val ndkHomeDir = (findProperty("ndk.home") as String?)
     ?: System.getenv("ANDROID_NDK_HOME")
     ?: System.getenv("ANDROID_NDK_ROOT")
 
+// Release signing inputs, same precedence chain as the other machine-local build
+// inputs. A GitHub Actions secret that is not configured arrives as an empty
+// string rather than as "absent", so blank counts as absent here; the keystore
+// itself is a binary blob, so the workflow decodes it from base64 and hands this
+// script a path (see .github/workflows/android.yml), which keeps a developer's
+// own keystore on the same code path.
+fun signingInput(flag: String, env: String): String? =
+    ((project.findProperty(flag) as String?)
+        ?: localProps.getProperty(flag)
+        ?: System.getenv(env))?.takeUnless { it.isBlank() }
+
+val releaseKeystore = signingInput("signing.storeFile", "SE_ANDROID_KEYSTORE")
+val releaseStorePassword = signingInput("signing.storePassword", "SE_ANDROID_KEYSTORE_PASSWORD")
+val releaseKeyAlias = signingInput("signing.keyAlias", "SE_ANDROID_KEY_ALIAS")
+val releaseKeyPassword = signingInput("signing.keyPassword", "SE_ANDROID_KEY_PASSWORD")
+
+// They arrive together or not at all: three of the four cannot describe a key, and
+// a partially configured key is a mistake to be told about, not a state to build in.
+val releaseSigningConfigured =
+    listOf(releaseKeystore, releaseStorePassword, releaseKeyAlias, releaseKeyPassword).all { it != null }
+
 android {
     namespace = "org.softether.android"
     compileSdk = 36
@@ -84,10 +105,47 @@ android {
         }
     }
 
+    signingConfigs {
+        // Sign the release build with a release key when one is configured; otherwise
+        // fall back to the debug key exactly as before. The fallback is what a fork
+        // pull request gets, because Actions exposes no repository secrets to it and
+        // every input resolves to blank. Both build types use whichever one this
+        // block produces (see below), so a run's two APKs always share a certificate.
+        if (releaseSigningConfigured) {
+            val store = rootProject.file(releaseKeystore!!)
+            if (!store.exists()) {
+                throw GradleException(
+                    "The release signing key is configured but its file does not exist: $store " +
+                    "(from signing.storeFile or SE_ANDROID_KEYSTORE). Clear the signing inputs " +
+                    "to fall back to the debug key.")
+            }
+            create("release") {
+                storeFile = store
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+            logger.lifecycle("app: both variants signed with the configured release key ($releaseKeystore)")
+        } else {
+            logger.lifecycle("app: both variants signed with the debug key (no release signing inputs)")
+        }
+    }
+
+    // One signing identity for both variants when a release key is configured, so
+    // the debug and release APKs of an ABI install over each other as a plain
+    // update (CI publishes both, and they share the applicationId). Without the
+    // inputs both fall back to the debug key and still match each other. Note that
+    // debuggable comes from the build type, not from the key, so run-as and a
+    // debugger keep working on a release-key-signed debug build.
+    val appSigningConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+
     buildTypes {
+        debug {
+            signingConfig = appSigningConfig
+        }
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = appSigningConfig
         }
     }
 

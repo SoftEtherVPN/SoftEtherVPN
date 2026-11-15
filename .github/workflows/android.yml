@@ -60,17 +60,72 @@ jobs:
         (cd SoftEtherVPN-Android/app/src/main/assets && \
          ../../../../../build-host/src/hamcorebuilder/hamcorebuilder hamcore.se2 ../../../../../src/bin/hamcore)
 
-    - name: Assemble release APK (${{ matrix.abi }})
+    # Release signing is optional and its absence is the normal case for a fork's
+    # pull request (Actions exposes no repository secrets there, so every input
+    # resolves to blank): without these secrets app/build.gradle.kts signs the
+    # release APK with the debug key, exactly as before this step existed.
+    - name: Decode the release signing key (when the repository has one)
+      env:
+        ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+      run: |
+        # Line breaks are stripped before decoding: base64 carrying CRLF newlines
+        # decodes to a silently truncated file under GNU base64 -d (measured: a
+        # 4096-byte input came back as 57 bytes, no error), and a secret pasted from
+        # a Windows editor carries CRLF. LF-wrapped and single-line values are
+        # unaffected either way.
+        if [ -n "${ANDROID_KEYSTORE_B64:-}" ]; then
+          umask 077
+          echo "$ANDROID_KEYSTORE_B64" | tr -d '\r\n' | base64 -d > "$RUNNER_TEMP/se-release.keystore"
+          echo "SE_ANDROID_KEYSTORE=$RUNNER_TEMP/se-release.keystore" >> "$GITHUB_ENV"
+          echo "release signing key decoded: $(wc -c < "$RUNNER_TEMP/se-release.keystore") bytes"
+        else
+          echo "no release signing secret: the release APK is signed with the debug key"
+        fi
+
+    - name: Assemble release and debug APKs (${{ matrix.abi }})
       working-directory: SoftEtherVPN-Android
+      env:
+        SE_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        SE_ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        SE_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       run: |
         export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/${{ env.ANDROID_NDK_VERSION }}"
         chmod +x gradlew
-        ./gradlew assembleRelease --no-daemon --console=plain \
+        # Both variants per ABI. The release APK is the quiet one a user installs
+        # (the core's Debug() output is gated off, and it is the one vc60's release
+        # key signs); the debug APK is the only build where that output exists and
+        # the only one that is debuggable, so run-as and a debugger work with it.
+        ./gradlew assembleRelease assembleDebug --no-daemon --console=plain \
           -Pvcpkg.root="$VCPKG_INSTALLATION_ROOT" \
           -Pvcpkg.triplet=${{ matrix.triplet }}
 
-    - name: Upload APK (${{ matrix.abi }})
+    # "Is the signing key stable across runs?" has to be answerable from the log,
+    # not by comparing artifacts by hand. Both APKs are reported: the release one
+    # answers that question, and the debug one shows the Android debug key, which
+    # is what its build type always uses.
+    - name: Show the certificates that signed the APKs
+      working-directory: SoftEtherVPN-Android
+      run: |
+        bt="$(ls "$ANDROID_HOME/build-tools" 2>/dev/null | sort -V | sed -n '$p')"
+        apksigner="$ANDROID_HOME/build-tools/$bt/apksigner"
+        if [ -x "$apksigner" ]; then
+          for variant in release debug; do
+            echo "--- $variant"
+            "$apksigner" verify --print-certs \
+              "app/build/outputs/apk/$variant/app-$variant.apk" | sed -n '1,6p'
+          done
+        else
+          echo "apksigner not found; certificates not printed"
+        fi
+
+    - name: Upload release APK (${{ matrix.abi }})
       uses: actions/upload-artifact@v4
       with:
         name: softether-android-release-${{ matrix.abi }}
         path: SoftEtherVPN-Android/app/build/outputs/apk/release/app-release.apk
+
+    - name: Upload debug APK (${{ matrix.abi }})
+      uses: actions/upload-artifact@v4
+      with:
+        name: softether-android-debug-${{ matrix.abi }}
+        path: SoftEtherVPN-Android/app/build/outputs/apk/debug/app-debug.apk
