@@ -1,0 +1,161 @@
+name: android release
+
+on:
+  release:
+    types:
+      - created
+
+permissions:
+  contents: write    # to add assets to the release
+  actions: read      # to read the android workflow's runs and their artifacts
+
+jobs:
+  attach-apks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      API: https://api.github.com
+      REPO: ${{ github.repository }}
+      # A release's identity is its tag, and a tag push's run reports that tag as its
+      # head_branch (verified against this repository's own 5.2.5189 release run), so the
+      # tag is what locates the android run that built the same commit.
+      TAG: ${{ github.event.release.tag_name }}
+      RELEASE_ID: ${{ github.event.release.id }}
+      # Fallback only, for a tag that predates the android workflow: the release event's
+      # sha for a tag release is the commit the tag points at.
+      SHA: ${{ github.sha }}
+      # Kept identical to the ABI list in android.yml's matrix, and to the artifact names
+      # that workflow uploads ("softether-android-release-<abi>").
+      ABIS: arm64-v8a armeabi-v7a x86_64
+      PREFIX: softether-vpnclient-android
+      APK_DIR: android-apks
+    steps:
+      # The tag push that creates the release is the same push that starts the android
+      # build, and the release event lands within a minute or two while that build needs
+      # minutes per ABI job - so this waits for the run rather than assuming its artifacts
+      # are already there.
+      - name: Wait for the android build of this release
+        id: find
+        shell: bash
+        run: |
+          set -euo pipefail
+          api() { curl -fsS -H "Authorization: Bearer $GITHUB_TOKEN" \
+                         -H "Accept: application/vnd.github+json" "$@"; }
+          # Runs are matched on the run's own head_branch / head_sha fields, filtered here
+          # rather than by query parameter: the runs endpoint's filter is named "branch",
+          # and a parameter it does not know is silently ignored, which would otherwise
+          # attach whatever the newest completed run happened to hold. Newest first, and
+          # the 50-run window is wider than the artifact retention this feeds.
+          find_run() {   # key value -> "<id> <conclusion>" of the newest completed match
+            api -G "$API/repos/$REPO/actions/workflows/android.yml/runs" \
+              --data-urlencode per_page=50 |
+              jq -r --arg key "$1" --arg val "$2" '
+                [ .workflow_runs[]
+                  | select((if $key == "head_branch" then .head_branch else .head_sha end) == $val)
+                  | select(.status == "completed") ]
+                | .[0] | "\(.id // "") \(.conclusion // "")"'
+          }
+          run_id='' concl='' key=''
+          for i in $(seq 1 25); do
+            for attempt in "head_branch=$TAG" "head_sha=$SHA"; do
+              read -r id c < <(find_run "${attempt%%=*}" "${attempt#*=}") || true
+              # A run that exists but has not finished is worth waiting for; one that
+              # finished without success still may hold the artifacts of the ABI jobs
+              # that passed (android.yml sets fail-fast: false).
+              if [ -n "${id:-}" ]; then run_id="$id"; concl="$c"; key="$attempt"; break; fi
+            done
+            [ -n "$run_id" ] && break
+            echo "no completed android run for tag $TAG yet (try $i)"
+            [ "$i" -lt 25 ] && sleep 60
+          done
+          if [ -z "$run_id" ]; then
+            # No android run at all: this repository ships releases that predate the
+            # Android client, and those have nothing to attach. Say so and pass.
+            echo "release $TAG has no android build to attach (tag predates it, or the"
+            echo "android workflow does not run for this ref): nothing to attach"
+            exit 0
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          [ "$concl" = success ] || echo "::warning::android run $run_id concluded '$concl'; attaching only the APKs its artifacts hold"
+          echo "found android run $run_id (conclusion: ${concl:-none}), matched on $key"
+      - name: Drop Android assets left by an earlier pass at this release
+        shell: bash
+        run: |
+          set -euo pipefail
+          # upload-release-asset has no clobber and fails on a duplicate asset name, so a
+          # hand re-run of this job after a red one would otherwise be red forever.
+          api() { curl -fsS -H "Authorization: Bearer $GITHUB_TOKEN" \
+                         -H "Accept: application/vnd.github+json" "$@"; }
+          for id in $(api "$API/repos/$REPO/releases/$RELEASE_ID/assets" |
+                        jq -r --arg p "$PREFIX" \
+                          '.[] | select(.name | startswith($p)) | .id'); do
+            echo "deleting existing release asset id $id"
+            api -X DELETE "$API/repos/$REPO/releases/assets/$id" || true
+          done
+        if: ${{ steps.find.outputs.run_id != '' }}
+      - name: Download the release-variant APKs from that run
+        shell: bash
+        run: |
+          set -euo pipefail
+          api() { curl -fsS -H "Authorization: Bearer $GITHUB_TOKEN" \
+                         -H "Accept: application/vnd.github+json" "$@"; }
+          arts="$(api "$API/repos/$REPO/actions/runs/${{ steps.find.outputs.run_id }}/artifacts")"
+          mkdir -p "$APK_DIR"
+          for abi in $ABIS; do
+            name="softether-android-release-$abi"
+            url="$(printf '%s' "$arts" | jq -r --arg n "$name" \
+              '[.artifacts[] | select(.name==$n)][0].archive_download_url // ""')"
+            if [ -z "$url" ]; then
+              # The build ran this ABI but published nothing: that is a real gap, not a
+              # release-page nicety, so fail loudly instead of shipping a short list.
+              echo "::error::artifact $name is missing from run ${{ steps.find.outputs.run_id }}"
+              exit 1
+            fi
+            # The archive URL answers 401 without a token and redirects to a signed blob
+            # URL, hence -L. Each artifact holds exactly one file, the APK itself.
+            curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -o "$APK_DIR/$abi.zip" "$url"
+            unzip -qo "$APK_DIR/$abi.zip" -d "$APK_DIR/$abi"
+            src="$(find "$APK_DIR/$abi" -name '*.apk' -type f | sed -n '$p')"
+            test -n "$src"
+            # An APK is a zip, so this check is free and it is the whole point of unzipping:
+            # the release page must offer an installable package, not an artifact archive.
+            if ! unzip -l "$src" | grep -q 'AndroidManifest.xml'; then
+              echo "::error::$name did not unpack to an APK"
+              exit 1
+            fi
+            out="$APK_DIR/$PREFIX-$TAG-$abi.apk"
+            mv "$src" "$out"
+            echo "staged $(basename "$out") ($(wc -c < "$out") bytes)"
+          done
+        if: ${{ steps.find.outputs.run_id != '' }}
+      - name: Upload softether-vpnclient-android arm64-v8a
+        if: ${{ steps.find.outputs.run_id != '' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ github.workspace }}/android-apks/softether-vpnclient-android-${{ github.event.release.tag_name }}-arm64-v8a.apk
+          asset_name: softether-vpnclient-android-${{ github.event.release.tag_name }}-arm64-v8a.apk
+          asset_content_type: application/vnd.android.package-archive
+      - name: Upload softether-vpnclient-android armeabi-v7a
+        if: ${{ steps.find.outputs.run_id != '' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ github.workspace }}/android-apks/softether-vpnclient-android-${{ github.event.release.tag_name }}-armeabi-v7a.apk
+          asset_name: softether-vpnclient-android-${{ github.event.release.tag_name }}-armeabi-v7a.apk
+          asset_content_type: application/vnd.android.package-archive
+      - name: Upload softether-vpnclient-android x86_64
+        if: ${{ steps.find.outputs.run_id != '' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ github.workspace }}/android-apks/softether-vpnclient-android-${{ github.event.release.tag_name }}-x86_64.apk
+          asset_name: softether-vpnclient-android-${{ github.event.release.tag_name }}-x86_64.apk
+          asset_content_type: application/vnd.android.package-archive
