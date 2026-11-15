@@ -26,6 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
+      # Not present in a shell `run:` step by itself: actions that need the token get it
+      # through their own `env:` (as the upload steps below do), so a shell step that
+      # expands $GITHUB_TOKEN under `set -euo pipefail` does not see an empty value but an
+      # "unbound variable" error - which kills the API call and, because the calls sit
+      # behind `read ... || true`, leaves the wait loop spinning to its end and the job
+      # ending as a quiet "nothing to attach" rather than a failure. Same mapping as
+      # build_source_release.yml:33-34 and windows_release.yml use.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       API: https://api.github.com
       REPO: ${{ github.repository }}
       # A release's identity is its tag, and a tag push's run reports that tag as its
