@@ -24,6 +24,7 @@
 #define	RADIUS_ATTRIBUTE_NAS_PORT					5
 #define	RADIUS_ATTRIBUTE_SERVICE_TYPE				6
 #define	RADIUS_ATTRIBUTE_FRAMED_PROTOCOL			7
+#define	RADIUS_ATTRIBUTE_FRAMED_IP_ADDRESS			8
 #define	RADIUS_ATTRIBUTE_FRAMED_MTU					12
 #define	RADIUS_ATTRIBUTE_STATE						24
 #define	RADIUS_ATTRIBUTE_VENDOR_SPECIFIC			26
@@ -234,6 +235,7 @@ struct EAP_CLIENT
 	UCHAR RecvLastCode;
 
 	UINT LastRecvVLanId;
+	UINT LastRecvFramedIpAddress;
 	UCHAR LastRecvVirtualMacAddress[6];
 
 	char In_VpnProtocolState[64];
@@ -276,6 +278,7 @@ struct RADIUS_LOGIN_OPTION
 	bool In_CheckVLanId;
 	bool In_DenyNoVlanId;
 	UINT Out_VLanId;
+	UINT Out_FramedIpAddress;
 	bool Out_IsRadiusLogin;
 	char NasId[RADIUS_MAX_NAS_ID_LEN + 1];	// NAS-Identifier
 	char Out_VirtualMacAddress[6];
@@ -291,6 +294,7 @@ BUF *RadiusCreateUserPassword(void *data, UINT size);
 BUF *RadiusCreateNasId(char *name);
 void RadiusAddValue(BUF *b, UCHAR t, UINT v, UCHAR vt, void *data, UINT size);
 LIST *RadiusParseOptions(BUF *b);
+UINT RadiusGetFramedIpAddress(void *data, UINT size);
 
 #endif	// RADIUS_H
 
