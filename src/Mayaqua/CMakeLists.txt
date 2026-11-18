@@ -20,7 +20,7 @@ if(NOT OPENSSL_FOUND OR NOT TARGET OpenSSL::SSL)
   find_package(OpenSSL REQUIRED)
 endif()
 
-if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0" AND OPENSSL_VERSION VERSION_LESS "4.0.0")
+if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0")
   if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.5.0")
     # OpenSSL >= 3.5 natively provides NIST standard post-quantum algorithms such as
     # ML-KEM, X25519MLKEM768, so oqs-provider is not needed by default.
