@@ -60,7 +60,11 @@ struct DYN_VALUE
 #define	DEFAULT_CIPHER_LIST			"ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:ECDHE+AES256:DHE+AES256:RSA+AES"
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#define PQ_GROUP_LIST				"X25519MLKEM768:p521_kyber1024:x25519_kyber768:P-521:X25519:P-256"
+// Classical groups that are always available, regardless of post-quantum availability
+#define TLS_GROUP_LIST_CLASSIC		"X25519:P-256:P-384:P-521"
+// Post-quantum hybrid groups first, followed by classical fallbacks,
+// available with OpenSSL >= 3.5 or with oqs-provider loaded.
+#define TLS_GROUP_LIST_WITH_PQ		"X25519MLKEM768:SecP256r1MLKEM768:SecP384r1MLKEM1024:" TLS_GROUP_LIST_CLASSIC
 #endif
 
 // SSL logging function

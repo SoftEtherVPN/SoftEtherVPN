@@ -20,11 +20,22 @@ if(NOT OPENSSL_FOUND OR NOT TARGET OpenSSL::SSL)
   find_package(OpenSSL REQUIRED)
 endif()
 
-if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0" AND OPENSSL_VERSION VERSION_LESS "4.0.0")
-  set(OQS_ENABLE ON CACHE BOOL "By setting this to OFF, Open Quantum Safe algorithms will not be built in")
+if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.0.0")
+  if(OPENSSL_VERSION VERSION_GREATER_EQUAL "3.5.0")
+    # OpenSSL >= 3.5 natively provides NIST standard post-quantum algorithms such as
+    # ML-KEM, X25519MLKEM768, so oqs-provider is not needed by default.
+    set(_OQS_ENABLE_DEFAULT OFF)
+  else()
+    set(_OQS_ENABLE_DEFAULT ON)
+  endif()
+  set(OQS_ENABLE ${_OQS_ENABLE_DEFAULT} CACHE BOOL "By setting this to OFF, liboqs and oqs-provider will not be built in (defaults to OFF with OpenSSL >= 3.5)")
+  if(NOT OQS_ENABLE AND OPENSSL_VERSION VERSION_GREATER_EQUAL "3.5.0")
+    message(STATUS "OpenSSL ${OPENSSL_VERSION} provides post-quantum algorithms natively, not using oqs-provider")
+  endif()
 else()
-  # Disable oqsprovider when OpenSSL version < 3
+  # oqs-provider requires OpenSSL 3.0 or later
   set(OQS_ENABLE OFF)
+  message(WARNING "OpenSSL ${OPENSSL_VERSION} supports neither oqs-provider nor post-quantum algorithms, only traditional algorithms are available")
 endif()
 
 if(OQS_ENABLE)

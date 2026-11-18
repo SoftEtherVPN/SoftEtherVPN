@@ -11920,9 +11920,16 @@ bool StartSSLEx3(SOCK *sock, X *x, K *priv, LIST *chain, UINT ssl_timeout, char 
 	}
 
 	#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-		SSL_set1_groups_list(sock->ssl, PQ_GROUP_LIST);
+		// Set the classical list first, then try the list with post-quantum groups,
+		// so that the classical list stays in effect when post-quantum groups are
+		// not available
+		SSL_set1_groups_list(sock->ssl, TLS_GROUP_LIST_CLASSIC);
+		if (SSL_set1_groups_list(sock->ssl, TLS_GROUP_LIST_WITH_PQ) == 0)
+		{
+			Debug("Post-quantum TLS groups are not available, using classical groups only.\n");
+		}
 	#endif
-	
+
 	if (sock->ServerMode)
 	{
 //		Lock(ssl_connect_lock);
