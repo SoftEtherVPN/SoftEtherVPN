@@ -107,6 +107,8 @@ struct USER
 	UINT NumLogin;					// Total number of logins
 	POLICY *Policy;					// Policy
 	TRAFFIC *Traffic;				// Traffic data
+	char* StfaMailPhone;			// User's email address and phone number
+	UINT StaticIPv4;				// Static IP v.4 address assigned to the user	
 };
 
 // Password authentication data
@@ -171,6 +173,7 @@ USERGROUP *NewGroup(char *name, wchar_t *realname, wchar_t *note);
 void ReleaseGroup(USERGROUP *g);
 void CleanupGroup(USERGROUP *g);
 USER *NewUser(char *name, wchar_t *realname, wchar_t *note, UINT authtype, void *authdata);
+USER* NewUserEx(char* name, wchar_t* realname, wchar_t* note, UINT authtype, void* authdata, char* stfamailphone, UINT ipv4addr);
 void ReleaseUser(USER *u);
 void CleanupUser(USER *u);
 void FreeAuthData(UINT authtype, void *authdata);
@@ -213,5 +216,6 @@ void GetPolicyValueRangeStr(wchar_t *str, UINT size, UINT id);
 void FormatPolicyValue(wchar_t *str, UINT size, UINT id, UINT value);
 bool GetUserMacAddressFromUserNote(UCHAR *mac, wchar_t *note);
 UINT GetUserIPv4AddressFromUserNote32(wchar_t *note);
+UINT GetUserIPv4AddressFromUserConfig(USER* user);
 
 #endif	// ACCOUNT_H

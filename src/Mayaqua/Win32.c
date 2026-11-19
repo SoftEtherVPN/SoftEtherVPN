@@ -2566,6 +2566,9 @@ void *Win32FileCreate(char *name)
 #define	SIZE_OF_CALLSTACK_SYM	10000
 #define	CALLSTACK_DEPTH			12
 
+#include "dbghelp.h"
+#include "tracking.h"
+
 // Get the call stack
 CALLSTACK_DATA *Win32GetCallStack()
 {
@@ -3418,6 +3421,25 @@ void Win32PrintToFileW(wchar_t *str)
 	WriteFile(hstdout, utf, StrLen(utf), &size, NULL);
 
 	Free(utf);
+}
+
+bool MyAllocConsole()
+{
+	BOOL BC = AllocConsole();
+	if (BC == FALSE)
+	{
+		DWORD er = GetLastError();
+		return false;
+	}
+	if (hstdout == INVALID_HANDLE_VALUE || hstdout == NULL)
+	{
+		hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	}
+	if (hstdin == INVALID_HANDLE_VALUE || hstdin == NULL)
+	{
+		hstdin = GetStdHandle(STD_INPUT_HANDLE);
+	}
+	return true;
 }
 
 

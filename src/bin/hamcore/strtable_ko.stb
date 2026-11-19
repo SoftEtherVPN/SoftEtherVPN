@@ -1222,6 +1222,17 @@ CM_CLOSE_BUTTON 닫기
 CM_CERT_SET_MSG 새 서버 인증서를 설정했습니다. \r\n\r\n 또한 OpenVPN 클라이언트를 사용하는 경우는 OpenVPN 설정 파일에 포함 된 인증서를 갱신 할 필요가있을 수 있으므로주의하시기 바랍니다.
 CM_SHORTCUT_DISCONNECT 지정된 연결에 이미 연결되어 있습니다. \r\n\r\n 절단 하시겠습니까?
 
+SC_STFA_M_PARAM_ERROR	Correct the following parameter(s) for the Mail Server:\r\n"%s". \r\n\r\nThe data has not been saved.
+SC_STFA_SM_PARAM_ERROR	Correct the following parameter(s) for the SMS/Mail Server:\r\n"%s". \r\n\r\nThe data has not been saved.
+SC_STFA_PARAM_SET_OK	STFA parameters for the Virtual Hub have been set.
+#
+# Translating the text from SC_STFA_MAIL_BODY_2 and assigning it to the symbol SC_STFA_MAIL_BODY_1 will provide both localized and English text in emails for international users.
+# If you do not need this functionality, you can use the English version provided below, or use only the localized version by translating the text assigned to SC_STFA_MAIL_BODY_2.
+SC_STFA_MAIL_BODY_1		\r\n
+SC_STFA_MAIL_BODY_2		\r\nYour code: %s\r\n\r\nIf you are connecting from device: %s and from IP address: %s, enter this code into the login form or reply to this message to confirm your identity\r\n\t~~~ IMPORTANT ~~~\r\nEnsure you add two exclamation marks at the end of the subject line!!
+# Localized and English SMS messages for international users - as above
+SC_STFA_SMS_BODY_1		\r\n
+SC_STFA_SMS_BODY_2		Your code: %s\r\nIf you are connecting from device: %s and from IP address: %s, enter this code into the login form or send it as a reply to this SMS to confirm your identity.
 
 
 SM_SERVER_STATUS 서버 상태
@@ -1347,6 +1358,8 @@ SM_USER_COLUMN_4 설명
 SM_USER_COLUMN_5 인증 방법
 SM_USER_COLUMN_6 로그인 횟수
 SM_USER_COLUMN_7 마지막 로그인 날짜
+SM_USER_COLUMN_IP		Static IPv4 address
+SM_USER_COLUMN_MS		User's mail/phone number
 SM_AUTHTYPE_0 익명 인증
 SM_AUTHTYPE_1 암호 인증
 SM_AUTHTYPE_2 고유 인증서 인증
@@ -2221,6 +2234,7 @@ STATIC1 사용자 정보 입력 (&R):
 STATIC2 계정 유형 (&T):
 STATIC3 사용자 이름 (&N):
 STATIC4 비밀번호 (&P):
+S_STFA_USER_CODE		&Code :
 R_NO_SAVE_PASSWORD 암호를 저장하지 않는 (&D)
 S_COUNTDOWN 입력이되지 않을 경우, 나머지 %u 초 후에 자동으로 다시 연결합니다...
 IDOK & OK
@@ -2635,6 +2649,9 @@ B_EXTOPTION 가상 HUB 확장 옵션 편집 (&X)
 S_MSG_1 연결시 메시지 표시
 S_MSG_2 이 가상 HUB에 VPN Client가 접속했을 때 사용자의 화면에 메시지를 볼 수 있습니다.
 B_MSG 메시지 설정 (&G)
+S_STFA_1				Simple Two-Factor Authentication
+S_STFA_2				Configure SMTP(S)/POP3(S)/IMAP(S) access to the mail server or SMS gateway to send emails with security codes and read user responses.
+B_STFA					Set Simple&TFA mail server / SMS gateway
 
 
 PREFIX D_SM_CREATE_LISTENER
@@ -2809,6 +2826,8 @@ PREFIX D_SM_EDIT_USER
 IDC_STATIC1 사용자 이름 (&U):
 IDC_STATIC3 본명 (&R):
 IDC_STATIC4 설명 (&N):
+STATIC_IP				Static &IP address:
+S_USER_MAIL				Mail address/phone\r\nnumber (for S&TFA):
 IDC_STATIC5 그룹 이름 \r\n (선택 사항):
 B_GROUP 그룹의 참조 (&J)...
 R_EXPIRES 이 계정의 유효 기간을 설정 (&S)
@@ -3364,6 +3383,28 @@ STATIC1 메시지 표시 기능
 S_INFO 연결하는 사용자가 사용하는 VPN Client 버전이 3.0 이상이어야합니다. \r\n\r\n 메시지에 "http://"로 시작하는 URL을 한 줄 설명하는 메시지를 표시하는 대신에 그 URL을 기본 Web 브라우저를 실행하고 볼 수 있습니다.
 IDOK & OK
 IDCANCEL 취소
+
+
+PREFIX					D_SM_STFA
+CAPTION					Set the STFA Mail Server and/or SMS Gateway parameters
+S_STFA_0				You can set a login/password data and protocol information to connect to the mail server/SMS gateway for Virtual HUB %S
+STATIC_M				STFA Mail Server parameters
+S_STFA_MSRV				Mail Server address:
+S_STFA_MUSR				Account:
+S_STFA_MPAS				Password:
+S_STFA_MFRM				Mail from:
+S_STFA_MSND				Sending protocol:
+S_STFA_MRCV				Receving protocol:
+STATIC_S				STFA SMS Gateway parameters
+S_STFA_SSRV				Gateway address:
+S_STFA_SUSR				Account:
+S_STFA_SPAS				Password:
+S_STFA_SSND				Sending protocol:
+S_STFA_SRSUB			Subject of confirmation
+STATIC1					About the STFA Mail Server and SMS Gateway parameters
+S_INFO					Outbound Protocol:\r\nYou can specify SMTP:port or SMTPS:port. If the default port is used (25 or 465), the port number can be omitted.\r\n\r\nInbound Protocols:\r\n-   POP3:port or POP3S:port – If the default port is used (110 or 995), the port number can be omitted.\r\n -   IMAP:port or IMAPS:port – If the default port is used (143 or 993), the port number can be omitted.\r\n\r\nSMS Gateway Configuration:\r\nIf you are using an SMS Gateway, you must also configure the following Mail Server parameters: address, account, password, and inbound protocol.\r\nThis configuration is required to verify user responses to SMS authentication codes, unless users authenticate via a VPN client that supports direct code entry.
+IDOK					&OK
+IDCANCEL				Cancel
 
 
 PREFIX D_NICINFO
@@ -5813,6 +5854,8 @@ CMD_UserGet_[name] 정보를 얻으려면 사용자 이름을 지정합니다.
 CMD_UserGet_Column_Name 사용자 이름
 CMD_UserGet_Column_RealName 본명
 CMD_UserGet_Column_Note 설명
+CMD_UserGet_Column_IPv4		IPv4 Address
+CMD_UserGet_Column_Stfa		Mail / Phone number
 CMD_UserGet_Column_Group 그룹 이름
 CMD_UserGet_Column_Expires 유효 기간
 CMD_UserGet_Column_AuthType 인증 방법
@@ -5873,6 +5916,25 @@ CMD_UserRadiusSet_Args UserRadiusSet [name] [/ALIAS:alias_name]
 CMD_UserRadiusSet_[name] 설정을 변경하려면 사용자 이름을 지정합니다.
 CMD_UserRadiusSet_ALIAS 이 매개 변수가 설정되어있는 경우 RADIUS 서버에 전송되는 사용자 이름을 가상 HUB에서 사용자 이름과 다른 사용자 이름 일 수 있습니다. 설정하지 않으면,/ALIAS:none을 지정하십시오 (가상 HUB의 사용자 이름이 사용됩니다). 사용자 이름이 "*"의 경우/ALIAS 매개 변수는 무시됩니다. "*"사용자에 대한 설명은 UserCreate/HELP를 입력하면 표시됩니다.
 CMD_UserRadiusSet_Prompt_ALIAS 인증 별칭 이름 (옵션):
+
+
+# UserIPv4Set command
+CMD_UserIPv4Set			Set a static IPv4 address for the user
+CMD_UserIPv4Set_Help	Use this to set the static IPv4 address a user registered in the security account database of the currently managed Virtual Hub. \nTo obtain a list of currently registered users, use the UserList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
+CMD_UserIPv4Set_Args	UserIPv4Set name [/IPV4:address]
+CMD_UserIPv4Set_[name]	Enter the user name whose setting you want to change.
+CMD_UserIPv4Set_IPV4	Specify the user's static IPv4 address. The address must be in the format: A.B.C.D . \nBy specifying /IPV4:none, you can remove the IP address from the user configuration.
+CMD_UserIPv4Set_Prompt_IPV4 	Static IPv4 address reserved for the user: 
+CMD_UserIPv4Set_NotImplemented  This server does not accept command: 'UserIPv4Set'.\n 
+
+# UserStfaSet command
+CMD_UserStfaSet			Set a email address or/and phone number for the user
+CMD_UserStfaSet_Help	Use this to set the email address and/or phone number of a user registered in the security account database of the currently managed Virtual Hub. \nTo obtain the list of currently registered users, use the UserList command. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a member server on a cluster.
+CMD_UserStfaSet_Args	UserIPv4Set name [/STFA:mail;[phone]]
+CMD_UserStfaSet_[name]	Enter the user name whose settings you want to change.
+CMD_UserStfaSet_STFA	Specify the user's email address or/and phone number. The email address should be in the format: user@domain. The phone number must start with a plus sign and the country code. \nThey are used for (Simple)Two-Factor-Authentication. The following characters can be used as separators between the email address and the phone number: space, coma, semicolon. \nBy specifying /STFA:none, yuo can remove the email address/phone number from the user's configuration, and STFA will not be applied for this user. 
+CMD_UserStfaSet_Prompt_STFA 	User's email address/phone number: 
+CMD_UserStfaSet_NotImplemented  This server does not accept command: 'UserStfaSet'.\n 
 
 
 # UserNTLMSet 명령
@@ -7007,6 +7069,53 @@ CMD_RemoteDisable_Help VPN Client 서비스에 localhost가 아닌 원격 컴퓨
 CMD_RemoteDisable_Args RemoteDisable
 
 
+# StfaConfigList command
+CMD_StfaConfigList		Get List of the Virtual Hub's STFA parameters
+CMD_StfaConfigList_Help	Use this to get a list of STFA parameters of the Virtual Hub that are set in the currently managed Virtual Hub. \nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_StfaConfigList_Args	StfaConfigList
+
+
+# StfaConfigPassSet command
+CMD_StfaConfigPassSet		Set the Password Values for mail/sms servers stored in the Virtual Hub's STFA configuration.
+CMD_StfaConfigPassSet_Help	Use this command to update the passwords for the mail and SMS servers configured on the currently managed Virtual Hub.\nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_StfaConfigPassSet_Args	StfaConfigSet [name] [/VALUE:value]
+CMD_StfaConfigPassSet_[name]	Enter the name of the STFA password parameter you want to update. You can retrieve a list of valid names using the StfaConfigList command.
+CMD_StfaConfigPassSet_VALUE	Specify a value for the currently selected password.
+CMD_StfaConfigPassSet_Prompt_name	Name of STFA Password parameter to Change: 
+CMD_StfaConfigPassSet_Prompt_VALUE	Setting Value: 
+
+
+# StfaConfigGet command
+CMD_StfaConfigGet			Get the Simple-Two-Factor-Authentication settings 
+CMD_StfaConfigGet_Help		Use this command to retrieve the STFA parameter values for the currently managed Virtual Hub.\nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster.
+CMD_StfaConfigGet_Args		StfaConfigGet
+
+
+# StfaConfigSet command
+CMD_StfaConfigSet		Set the STFA parameter values for the Virtual Hub, with the exception of the passwords. You can use the StfaConfigPassSet command to set the passwords.
+CMD_StfaConfigSet_Help	Use this command to change the STFA parameter values for the currently managed Virtual Hub. \nYou can change all parameters except passwords. To change passwords you can use the StfaConfigPassSet command.\nThis command cannot be run on VPN Bridge. \nYou cannot execute this command for Virtual Hubs of VPN Servers operating as a cluster member.
+CMD_StfaConfigSet_Args	StfaConfigSet [/MSERVER:mail_server_address] [/MUSER:mail_server_account] [MFROM:email_From] [/MOUTPROT:outgoing_mail_protocol] [/MINPROT:incoming_mail_protocol] [/SSERVER:sms_gateway_address] [/SUSER:sms_gateway_account] [/SOUTPROT:protocol_for_sending_sms] [/SCONFSUB:subject_of_confirmation]
+CMD_StfaConfigSet_MSERVER			Specify the address of the mail server responsible for sending verification codes and receiving VPN user confirmations. 
+CMD_StfaConfigSet_MUSER				Specify the email account used to send verification codes.
+CMD_StfaConfigSet_MFROM				Specify the 'from' address for the verification code emails.
+CMD_StfaConfigSet_MOUTPROT			Outgoing Mail Protocol. Enter "SMTP:port" or "SMTPS:port". If the port number is omitted, default values (25 or 465) will be used.
+CMD_StfaConfigSet_MINPROT			Incoming Mail Protocol. Enter "POP3:port" or "  - POP3S:port" - if the port number is omitted, default values ( 110 or 995 ) will be used,\r\n   -   "IMAP:port" or "IMAPS:port" - if the port number is omitted, default values ( 143 or 993 ) will be used.
+CMD_StfaConfigSet_SSERVER			Specify the address of SMS Gateway responsible for sending verification codes to VPN users.
+CMD_StfaConfigSet_SUSER				Specify the SMS Gateway account used to send verification codes.
+CMD_StfaConfigSet_SOUTPROT			Protocol for sending emails with verification codes to SMS Gateway. Enter "SMTP:port" or "SMTPS:port". If the port number is omitted, default values (25 or 465) will be used.
+CMD_StfaConfigSet_SCONFSUB			The subject line of the email sent form the SMS gateway to the mail server. This server handles sending verification codes and receiving VPN user confirmations.\r\n   It must exactly match the email subject configured in the 'SMS to Email' plugin on the SMS gateway.
+
+CMD_StfaConfigSet_Prompt_MSERVER		Mail Server Address:
+CMD_StfaConfigSet_Prompt_MUSER			Mail Server Account:
+CMD_StfaConfigSet_Prompt_MPASSW			Mail Server Account Password:
+CMD_StfaConfigSet_Prompt_MFROM			Email From:
+CMD_StfaConfigSet_Prompt_MOUTPROT		Outgoing Mail Protocol:
+CMD_StfaConfigSet_Prompt_MINPROT		Incoming Mail Protocol:
+CMD_StfaConfigSet_Prompt_SSERVER		SMS Gateway address:
+CMD_StfaConfigSet_Prompt_SUSER			SMS Gateway Account:
+CMD_StfaConfigSet_Prompt_SPASSW			SMS Gateway Account Password:
+CMD_StfaConfigSet_Prompt_SOUTPROT		Protocol for sending emails to the SMS Gateway:
+CMD_StfaConfigSet_Prompt_SCONFSUB		Subject of email with confirmation:
 
 
 

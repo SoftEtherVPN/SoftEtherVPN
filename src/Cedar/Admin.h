@@ -522,6 +522,8 @@ struct RPC_SET_USER
 	UINT NumLogin;									// Number of logins
 	TRAFFIC Traffic;								// Traffic data
 	POLICY *Policy;									// Policy
+	char StfaMailPhone[MAX_USERNAME_LEN + 1];		// Email / Phone parameters for STFA
+	UINT StaticIPv4;								// Static IP v.4 address assigned to the user	
 };
 
 // Enumeration item of user
@@ -539,6 +541,8 @@ struct RPC_ENUM_USER_ITEM
 	TRAFFIC Traffic;								// Traffic
 	bool IsExpiresFilled;							// Flag of whether expiration date variable is set
 	UINT64 Expires;									// Expiration date
+	char StfaMailPhone[MAX_USERNAME_LEN + 1];		// Mail / Phone for STFA
+	UINT StaticIPv4;								// Static IP v.4 address assigned to the user	
 };
 
 // Enumeration of user
@@ -844,6 +848,14 @@ struct RPC_READ_LOG_FILE
 	BUF *Buffer;							// Buffer
 };
 
+// Stfa config list
+struct RPC_STFA_CONFIG
+{
+	char HubName[MAX_HUBNAME_LEN + 1];		// Virtual HUB name
+	UINT NumItem;							// Count
+	STFA_PARAM* Items;						// Data
+};
+
 // Download information
 struct DOWNLOAD_PROGRESS
 {
@@ -1135,6 +1147,8 @@ UINT StGetDDnsInternetSetting(ADMIN *a, INTERNET_SETTING *t);
 UINT StSetDDnsInternetSetting(ADMIN *a, INTERNET_SETTING *t);
 UINT StSetVgsConfig(ADMIN *a, VGS_CONFIG *t);
 UINT StGetVgsConfig(ADMIN *a, VGS_CONFIG *t);
+UINT StGetHubStfaConfig(ADMIN* a, RPC_STFA_CONFIG* t);
+UINT StSetHubStfaConfig(ADMIN* a, RPC_STFA_CONFIG* t);
 
 UINT ScTest(RPC *r, RPC_TEST *t);
 UINT ScGetServerInfo(RPC *r, RPC_SERVER_INFO *t);
@@ -1286,6 +1300,8 @@ UINT ScGetDDnsInternetSetting(RPC *r, INTERNET_SETTING *t);
 UINT ScSetDDnsInternetSetting(RPC *r, INTERNET_SETTING *t);
 UINT ScSetVgsConfig(RPC *r, VGS_CONFIG *t);
 UINT ScGetVgsConfig(RPC *r, VGS_CONFIG *t);
+UINT ScGetHubStfaConfig(RPC* r, RPC_STFA_CONFIG* t);
+UINT ScSetHubStfaConfig(RPC* r, RPC_STFA_CONFIG* t);
 
 void InRpcTest(RPC_TEST *t, PACK *p);
 void OutRpcTest(PACK *p, RPC_TEST *t);
@@ -1515,6 +1531,9 @@ void InRpcAzureStatus(RPC_AZURE_STATUS *t, PACK *p);
 void OutRpcAzureStatus(PACK *p, RPC_AZURE_STATUS *t);
 void InRpcInternetSetting(INTERNET_SETTING *t, PACK *p);
 void OutRpcInternetSetting(PACK *p, INTERNET_SETTING *t);
+void InRpcStfaConfig(RPC_STFA_CONFIG* t, PACK* p);
+void OutRpcStfaConfig(PACK* p, RPC_STFA_CONFIG* t);
+void FreeRpcStfaConfig(RPC_STFA_CONFIG* t);
 
 #endif	// ADMIN_H
 

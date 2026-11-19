@@ -141,6 +141,7 @@ void ConsoleWriteOutFile(CONSOLE *c, wchar_t *str, bool add_last_crlf);
 wchar_t *ConsoleReadNextFromInFile(CONSOLE *c);
 UINT ConsoleLocalGetWidth(CONSOLE *c);
 
+LIST* ParseCommandListEx(CONSOLE* c, char* cmd_name, wchar_t* command, PARAM param[], UINT num_param);
 
 #endif	// CONSOLE_H
 

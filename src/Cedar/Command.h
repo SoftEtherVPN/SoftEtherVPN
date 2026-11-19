@@ -549,6 +549,8 @@ UINT PsUserNTLMSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsUserPolicyRemove(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsUserPolicySet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsUserExpiresSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsUserIPv4Set(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
+UINT PsUserStfaSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
 UINT PsGroupList(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsGroupCreate(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsGroupSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
@@ -610,6 +612,16 @@ UINT PsDynamicDnsGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param
 UINT PsDynamicDnsSetHostname(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureSetEnable(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
 UINT PsVpnAzureGetStatus(CONSOLE *c, char *cmd_name, wchar_t *str, void *param);
+UINT PsStfaConfigList(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
+UINT PsStfaConfigGet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
+UINT PsStfaConfigSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
+UINT PsStfaConfigPassSet(CONSOLE* c, char* cmd_name, wchar_t* str, void* param);
+bool CmdEvalIpEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdEvalStfaEx(CONSOLE* c, wchar_t* str, void* param);
+bool CmdStrToIP(IP* ip, char* str);
+bool CmdStrToIP32(UINT* ip32, char* str);
+bool CmdStrToStfa(char* stfa, UINT size, char* str);
+bool CmdStrToStr(char* out, UINT size, char* str);
 
 
 #endif	// COMMAND_H

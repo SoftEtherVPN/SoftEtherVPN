@@ -1086,6 +1086,9 @@ void PrintDebugInformation()
 	MEMORY_STATUS memory_status;
 	GetMemoryStatus(&memory_status);
 
+#ifdef OS_WIN32
+	bool bc = MyAllocConsole();
+#endif
 	// Header
 	Print("====== " CEDAR_PRODUCT_STR " VPN System Debug Information ======\n");
 
@@ -1104,6 +1107,13 @@ void PrintDebugInformation()
 		// Show a debug menu because memory leaks suspected
 		MemoryDebugMenu();
 	}
+
+#ifdef OS_WIN32
+	if (bc)
+	{
+		FreeConsole();
+	}
+#endif
 }
 
 

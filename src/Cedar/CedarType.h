@@ -127,6 +127,10 @@ typedef struct ADMIN_OPTION ADMIN_OPTION;
 typedef struct CRL CRL;
 typedef struct AC AC;
 typedef struct USERLIST USERLIST;
+typedef struct STFA_PARAM STFA_PARAM;
+typedef struct STFA_CODE STFA_CODE;
+typedef struct STFA_SEND_CODE STFA_SEND_CODE;
+typedef struct HUB_STFA HUB_STFA;
 
 
 // ==============================================================
@@ -380,6 +384,7 @@ typedef struct RPC_WINVER RPC_WINVER;
 typedef struct RPC_ENUM_ETHERIP_ID RPC_ENUM_ETHERIP_ID;
 typedef struct RPC_SPECIAL_LISTENER RPC_SPECIAL_LISTENER;
 typedef struct RPC_AZURE_STATUS RPC_AZURE_STATUS;
+typedef struct RPC_STFA_CONFIG RPC_STFA_CONFIG;
 
 
 // ==============================================================
