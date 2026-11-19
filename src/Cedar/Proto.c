@@ -11,8 +11,10 @@
 #include "Mayaqua/Kernel.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"
+#include "Mayaqua/Queue.h"
 #include "Mayaqua/Str.h"
 #include "Mayaqua/Table.h"
+#include "Mayaqua/UDP.h"
 
 void ProtoLog(const PROTO *proto, const PROTO_SESSION *session, const char *name, ...)
 {
@@ -193,6 +195,7 @@ PROTO *ProtoNew(CEDAR *cedar)
 	}
 
 	proto = Malloc(sizeof(PROTO));
+	proto->Halt = false;
 	proto->Cedar = cedar;
 	proto->Containers = NewList(ProtoContainerCompare);
 	proto->Sessions = NewHashList(ProtoSessionHash, ProtoSessionCompare, 0, true);
@@ -206,7 +209,16 @@ PROTO *ProtoNew(CEDAR *cedar)
 	// SSTP
 	Add(proto->Containers, ProtoContainerNew(SstpGetProtoImpl()));
 
-	proto->UdpListener = NewUdpListener(ProtoHandleDatagrams, proto, &cedar->Server->ListenIP);
+	proto->Manager = UdpManagerNew();
+
+	IP ip;
+	Zero(&ip, sizeof(ip));
+	UdpManagerAdd(proto->Manager, &ip, 5555);
+
+	ZeroIP4(&ip);
+	UdpManagerAdd(proto->Manager, &ip, 5555);
+
+	proto->Thread = NewThread(ProtoHandleDatagrams, proto);
 
 	return proto;
 }
@@ -220,7 +232,9 @@ void ProtoDelete(PROTO *proto)
 		return;
 	}
 
-	StopUdpListener(proto->UdpListener);
+	proto->Halt = true;
+	UdpManagerWakeUp(proto->Manager);
+	WaitThread(proto->Thread, INFINITE);
 
 	for (i = 0; i < HASH_LIST_NUM(proto->Sessions); ++i)
 	{
@@ -234,7 +248,7 @@ void ProtoDelete(PROTO *proto)
 	}
 	ReleaseList(proto->Containers);
 
-	FreeUdpListener(proto->UdpListener);
+	UdpManagerFree(proto->Manager);
 	ReleaseCedar(proto->Cedar);
 	Free(proto);
 }
@@ -398,10 +412,9 @@ PROTO_SESSION *ProtoSessionNew(const PROTO *proto, const PROTO_CONTAINER *contai
 	CopyIP(&session->DstIp, dst_ip);
 	session->DstPort = dst_port;
 
-	session->DatagramsIn = NewListFast(NULL);
-	session->DatagramsOut = NewListFast(NULL);
+	session->InQueue = QueueMpscNew();
+	session->OutQueue = QueueMpscNew();
 
-	session->Lock = NewLock();
 	session->Thread = NewThread(ProtoSessionThread, session);
 
 	ProtoLog(proto, session, "LP_SESSION_CREATED");
@@ -427,10 +440,8 @@ void ProtoSessionDelete(PROTO_SESSION *session)
 	ReleaseSockEvent(session->SockEvent);
 	FreeInterruptManager(session->InterruptManager);
 
-	ReleaseList(session->DatagramsIn);
-	ReleaseList(session->DatagramsOut);
-
-	DeleteLock(session->Lock);
+	QueueMpscFree(session->InQueue);
+	QueueMpscFree(session->OutQueue);
 
 	ProtoLog(session->Proto, session, "LP_SESSION_DELETED");
 
@@ -444,29 +455,14 @@ bool ProtoSetListenIP(PROTO *proto, const IP *ip)
 		return false;
 	}
 
-	Copy(&proto->UdpListener->ListenIP, ip, sizeof(proto->UdpListener->ListenIP));
-
 	return true;
 }
 
 bool ProtoSetUdpPorts(PROTO *proto, const LIST *ports)
 {
-	UINT i = 0;
-
 	if (proto == NULL || ports == NULL)
 	{
 		return false;
-	}
-
-	DeleteAllPortFromUdpListener(proto->UdpListener);
-
-	for (i = 0; i < LIST_NUM(ports); ++i)
-	{
-		UINT port = *((UINT *)LIST_DATA(ports, i));
-		if (port >= 1 && port <= 65535)
-		{
-			AddPortToUdpListener(proto->UdpListener, port);
-		}
 	}
 
 	return true;
@@ -645,74 +641,61 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	return true;
 }
 
-void ProtoHandleDatagrams(UDPLISTENER *listener, LIST *datagrams)
+void ProtoHandleDatagrams(THREAD *thread, void *param)
 {
-	UINT i;
-	PROTO *proto;
-	HASH_LIST *sessions;
-
-	if (listener == NULL || datagrams == NULL)
+	if (thread == NULL || param == NULL)
 	{
 		return;
 	}
 
-	proto = listener->Param;
-	sessions = proto->Sessions;
+	PROTO *proto = param;
+	HASH_LIST *sessions = proto->Sessions;
 
-	for (i = 0; i < LIST_NUM(datagrams); ++i)
+	while (proto->Halt == false)
 	{
-		UDPPACKET *datagram = LIST_DATA(datagrams, i);
-		PROTO_SESSION *session, tmp;
-
-		CopyIP(&tmp.SrcIp, &datagram->SrcIP);
-		tmp.SrcPort = datagram->SrcPort;
-		CopyIP(&tmp.DstIp, &datagram->DstIP);
-		tmp.DstPort = datagram->DestPort;
-
-		session = SearchHash(sessions, &tmp);
-		if (session == NULL)
+		UDP_PACKET *packet;
+		while ((packet = UdpManagerRecv(proto->Manager)) != NULL)
 		{
-			const PROTO_CONTAINER *container = ProtoDetect(proto, PROTO_MODE_UDP, datagram->Data, datagram->Size);
-			if (container == NULL)
-			{
-				continue;
-			}
+			PROTO_SESSION *session, tmp;
 
-			session = ProtoSessionNew(proto, container, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
+			Copy(&tmp.SrcIp, &packet->RemoteIP, sizeof(tmp.SrcIp));
+			tmp.SrcPort = packet->RemotePort;
+			Copy(&tmp.DstIp, &packet->LocalIP, sizeof(tmp.DstIp));
+			tmp.DstPort = packet->LocalPort;
+
+			session = SearchHash(sessions, &tmp);
 			if (session == NULL)
 			{
-				continue;
+				const PROTO_CONTAINER *container = ProtoDetect(proto, PROTO_MODE_UDP, packet->Data, packet->Size);
+				if (container == NULL)
+				{
+					continue;
+				}
+
+				session = ProtoSessionNew(proto, container, &tmp.SrcIp, tmp.SrcPort, &tmp.DstIp, tmp.DstPort);
+				if (session == NULL)
+				{
+					continue;
+				}
+
+				AddHash(proto->Sessions, session);
 			}
 
-			AddHash(proto->Sessions, session);
-		}
-
-		Lock(session->Lock);
-		{
-			if (session->Halt == false)
-			{
-				void *data = Clone(datagram->Data, datagram->Size);
-				UDPPACKET *packet = NewUdpPacket(&datagram->SrcIP, datagram->SrcPort, &datagram->DstIP, datagram->DestPort, data, datagram->Size);
-				Add(session->DatagramsIn, packet);
-			}
-		}
-		Unlock(session->Lock);
-	}
-
-	for (i = 0; i < LIST_NUM(sessions->AllList); ++i)
-	{
-		PROTO_SESSION *session = LIST_DATA(sessions->AllList, i);
-		if (session->Halt)
-		{
-			DeleteHash(sessions, session);
-			ProtoSessionDelete(session);
-			continue;
-		}
-
-		if (LIST_NUM(session->DatagramsIn) > 0)
-		{
+			QueueMpscPushValue(session->InQueue, packet);
 			SetSockEvent(session->SockEvent);
 		}
+
+		for (UINT i = 0; i < LIST_NUM(sessions->AllList); ++i)
+		{
+			PROTO_SESSION *session = LIST_DATA(sessions->AllList, i);
+			if (session->Halt)
+			{
+				DeleteHash(sessions, session);
+				ProtoSessionDelete(session);
+			}
+		}
+
+		Wait(proto->Manager->InEvent, INFINITE);
 	}
 }
 
@@ -727,39 +710,11 @@ void ProtoSessionThread(THREAD *thread, void *param)
 
 	while (session->Halt == false)
 	{
-		UINT interval;
-		void *param = session->Param;
-		const PROTO_IMPL *impl = session->Impl;
-		LIST *received = session->DatagramsIn;
-		LIST *to_send = session->DatagramsOut;
-
-		Lock(session->Lock);
+		if (session->Impl->ProcessDatagrams(session->Param, session->InQueue, session->Proto->Manager) == false)
 		{
-			UINT i;
-
-			session->Halt = impl->ProcessDatagrams(param, received, to_send) == false;
-
-			UdpListenerSendPackets(session->Proto->UdpListener, to_send);
-
-			for (i = 0; i < LIST_NUM(received); ++i)
-			{
-				FreeUdpPacket(LIST_DATA(received, i));
-			}
-
-			DeleteAll(received);
-			DeleteAll(to_send);
-		}
-		Unlock(session->Lock);
-
-		if (session->Halt)
-		{
-			Debug("ProtoSessionThread(): breaking main loop\n");
 			break;
 		}
 
-		// Wait until the next event occurs
-		interval = GetNextIntervalForInterrupt(session->InterruptManager);
-		interval = MIN(interval, UDPLISTENER_WAIT_INTERVAL);
-		WaitSockEvent(session->SockEvent, interval);
+		WaitSockEvent(session->SockEvent, GetNextIntervalForInterrupt(session->InterruptManager));
 	}
 }
