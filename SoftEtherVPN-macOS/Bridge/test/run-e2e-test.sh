@@ -36,6 +36,13 @@ cp "$DESKTOP"/libcedar.* "$DESKTOP"/libmayaqua.* "$WORK/" 2>/dev/null || true
 export LD_LIBRARY_PATH="$WORK:${LD_LIBRARY_PATH:-}"
 export DYLD_LIBRARY_PATH="$WORK:${DYLD_LIBRARY_PATH:-}"
 
+# A server left over from another run would answer on the port and make the
+# results meaningless
+if "$WORK/vpncmd" "localhost:$PORT" /SERVER /CMD About >/dev/null 2>&1; then
+	echo "something is already listening on port $PORT"
+	exit 1
+fi
+
 "$WORK/vpnserver" start >/dev/null
 
 cmd()
@@ -98,9 +105,10 @@ ccmd AccountPasswordSet "Office VPN" /PASSWORD:pw1 /TYPE:standard
 ccmd AccountExport "Office VPN" "/SAVEPATH:$WORK/office.vpn"
 "$WORK/client/vpnclient" stop >/dev/null 2>&1 || true
 
-export LD_LIBRARY_PATH="$BRIDGE/softether-core:$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH="$BRIDGE/softether-core:$DYLD_LIBRARY_PATH"
-export SE_TEST_VPN_FILE="$WORK/office.vpn"
-export SE_TEST_HUB2=TEST2
+# The bridge's own core libraries are for the test program only: the desktop
+# tools above (and the cleanup's "vpnserver stop") keep using theirs
+LD_LIBRARY_PATH="$BRIDGE/softether-core:$LD_LIBRARY_PATH" \
+DYLD_LIBRARY_PATH="$BRIDGE/softether-core:$DYLD_LIBRARY_PATH" \
+SE_TEST_VPN_FILE="$WORK/office.vpn" SE_TEST_HUB2=TEST2 \
 SE_TEST_EXPECT_DOMAIN=corp.example SE_TEST_EXPECT_ROUTES=1 \
 	"$BRIDGE/se_bridge_test" "$BRIDGE/softether-core/hamcore.se2" 127.0.0.1 "$PORT" TEST u1 pw1
