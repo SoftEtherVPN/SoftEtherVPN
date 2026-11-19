@@ -3,6 +3,7 @@
 import SwiftUI
 
 @main
+@MainActor
 struct SoftEtherVPNApp: App {
     @StateObject private var store = ProfileStore()
     @StateObject private var vpn = VPNController()
@@ -35,6 +36,7 @@ struct SoftEtherVPNApp: App {
 }
 
 // The panel under the menu bar icon: one switch per connection
+@MainActor
 struct MenuContent: View {
     @EnvironmentObject private var store: ProfileStore
     @EnvironmentObject private var vpn: VPNController
@@ -85,6 +87,7 @@ struct MenuContent: View {
     }
 }
 
+@MainActor
 struct ConnectionRow: View {
     @EnvironmentObject private var vpn: VPNController
     let profile: VPNProfile
@@ -163,6 +166,7 @@ struct ConnectionDetails: View {
 }
 
 // First connection to a server: show its certificate fingerprint once
+@MainActor
 struct TrustPrompt: View {
     @EnvironmentObject private var store: ProfileStore
     @EnvironmentObject private var vpn: VPNController

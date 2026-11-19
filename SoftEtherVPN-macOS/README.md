@@ -97,8 +97,8 @@ cd SoftEtherVPN-macOS/App && xcodegen generate && open SoftEtherVPN.xcodeproj
 ```
 
 Then set your development team in `project.yml` (or in Xcode) and build the
-`SoftEtherVPN` scheme. The app must be in `/Applications` for macOS to accept
-the system extension.
+`SoftEtherVPN` scheme. The app must be in `/Applications`: macOS refuses to
+install a system extension from an app that runs from anywhere else.
 
 Unless you are the SoftEther project, change the `org.softether.vpnclient.macos`
 bundle identifiers and the product name. The Apache licence does not grant use

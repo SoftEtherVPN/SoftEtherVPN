@@ -31,9 +31,13 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 
 xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
-	-archivePath "$ARCHIVE" archive
+	-archivePath "$ARCHIVE" -allowProvisioningUpdates archive
 
-cat > "$OUT/ExportOptions.plist" <<'PLIST'
+TEAM=$(xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
+	-showBuildSettings | sed -n 's/^ *DEVELOPMENT_TEAM = //p' | head -1)
+[ -n "$TEAM" ] || { echo "Set DEVELOPMENT_TEAM in App/project.yml"; exit 1; }
+
+cat > "$OUT/ExportOptions.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -42,12 +46,14 @@ cat > "$OUT/ExportOptions.plist" <<'PLIST'
 	<string>developer-id</string>
 	<key>signingStyle</key>
 	<string>automatic</string>
+	<key>teamID</key>
+	<string>$TEAM</string>
 </dict>
 </plist>
 PLIST
 
 xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportPath "$OUT/export" \
-	-exportOptionsPlist "$OUT/ExportOptions.plist"
+	-exportOptionsPlist "$OUT/ExportOptions.plist" -allowProvisioningUpdates
 
 # Everything inside must carry the hardened runtime and a secure timestamp
 codesign --verify --deep --strict --verbose=2 "$APP"

@@ -3,6 +3,7 @@
 // starts / stops / observes the tunnel.
 
 import Foundation
+import Combine
 import NetworkExtension
 import SystemExtensions
 import CryptoKit
@@ -40,6 +41,8 @@ final class VPNController: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        // Also needed after an app update, to replace the installed extension
+        activateExtension()
         Task { await self.loadManager() }
     }
 
@@ -55,6 +58,11 @@ final class VPNController: NSObject, ObservableObject {
     // MARK: - Configuration
 
     private func loadManager() async {
+        if let old = statusObserver {
+            NotificationCenter.default.removeObserver(old)
+            statusObserver = nil
+        }
+
         let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
         let m = managers.first ?? NETunnelProviderManager()
         manager = m

@@ -34,6 +34,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private static let connectTimeout: TimeInterval = 60
     private static let reconnectDelays: [TimeInterval] = [1, 2, 5, 10, 20, 30]
 
+    // Errors a retry cannot fix
+    private static let fatalCodes: Set<Int> = [
+        Int(SE_ERR_AUTH_FAILED), Int(SE_ERR_HUB_NOT_FOUND), Int(SE_ERR_CERT_NOT_TRUSTED),
+        Int(SE_ERR_HOSTNAME_MISMATCH), Int(SE_ERR_SERVER_CERT_EXPIRES),
+    ]
+
     // MARK: - NEPacketTunnelProvider
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
@@ -65,7 +71,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     self.teardownSession()
                 }
                 completionHandler(error)
-                if error == nil {
+                if error == nil && !self.stopping {
                     self.startMonitor()
                 }
             }
@@ -324,8 +330,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
 
+                guard self.startPacketPump() else {
+                    completion(TunnelError.message("The packet channel of the VPN session is not available."))
+                    return
+                }
+
                 self.lastStatus = status
-                self.startPacketPump()
                 completion(nil)
             }
         }
@@ -333,14 +343,21 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: - Packets
 
-    private func startPacketPump() {
-        guard let s = session else { return }
+    private func startPacketPump() -> Bool {
+        guard let s = session else { return false }
 
         let fd = se_packet_fd(s)
-        guard fd >= 0 else { return }
+        guard fd >= 0 else { return false }
 
-        // Non-blocking on our end: a full queue drops the packet instead of
-        // stalling the system's packet flow (what a real interface does)
+        // The read source gets a descriptor of its own, closed from its cancel
+        // handler as libdispatch requires. The bridge closes its descriptor
+        // inside se_disconnect, which may run before the cancellation is done.
+        let readFD = dup(fd)
+        guard readFD >= 0 else { return false }
+
+        // Non-blocking on our end (the flag is shared by both descriptors): a
+        // full queue drops the packet instead of stalling the system's packet
+        // flow, which is what a real interface does
         _ = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK)
 
         // Only one readPackets request may be outstanding: after a reconnect the
@@ -353,7 +370,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         fdLock.unlock()
 
         // VPN -> system
-        let source = DispatchSource.makeReadSource(fileDescriptor: fd, queue: queue)
+        let source = DispatchSource.makeReadSource(fileDescriptor: readFD, queue: queue)
         var buffer = [UInt8](repeating: 0, count: 65536)
 
         source.setEventHandler { [weak self] in
@@ -363,7 +380,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             var protocols: [NSNumber] = []
 
             while packets.count < 128 {
-                let n = read(fd, &buffer, buffer.count)
+                let n = read(readFD, &buffer, buffer.count)
                 if n <= 0 { break }
 
                 let family = (buffer[0] >> 4) == 6 ? AF_INET6 : AF_INET
@@ -375,6 +392,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 self.packetFlow.writePackets(packets, withProtocols: protocols)
             }
         }
+        source.setCancelHandler { close(readFD) }
         source.resume()
         readSource = source
 
@@ -382,6 +400,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         if startLoop {
             readOutboundPackets()
         }
+
+        return true
     }
 
     private func readOutboundPackets() {
@@ -442,10 +462,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
         // Errors a retry cannot fix end the tunnel; anything else is treated as
         // a network interruption
-        let fatal = [Int(SE_ERR_AUTH_FAILED), Int(SE_ERR_HUB_NOT_FOUND), Int(SE_ERR_CERT_NOT_TRUSTED),
-                     Int(SE_ERR_HOSTNAME_MISMATCH), Int(SE_ERR_SERVER_CERT_EXPIRES)]
-
-        if fatal.contains(code) {
+        if Self.fatalCodes.contains(code) {
             stopping = true
             monitor?.cancel()
             monitor = nil
@@ -480,7 +497,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 self.teardownSession()
 
                 if case TunnelError.session(let code, _)? = error as? TunnelError,
-                   code == Int(SE_ERR_AUTH_FAILED) || code == Int(SE_ERR_CERT_NOT_TRUSTED) {
+                   Self.fatalCodes.contains(code) {
                     self.stopping = true
                     self.monitor?.cancel()
                     self.monitor = nil

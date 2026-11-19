@@ -55,6 +55,15 @@ for lib in "$DIR"/*.dylib; do
 		exit 1
 	fi
 
+	# A run path into the build machine would let dyld pick up a library from
+	# there instead of the bundled copy
+	for rp in $(otool -l "$lib" | awk '/LC_RPATH/ {f=1} f && /^ *path / {print $2; f=0}'); do
+		case "$rp" in
+		@*) ;;
+		*) install_name_tool -delete_rpath "$rp" "$lib" ;;
+		esac
+	done
+
 	if [ "$IDENTITY" = "-" ]; then
 		codesign --force --sign - "$lib"
 	else

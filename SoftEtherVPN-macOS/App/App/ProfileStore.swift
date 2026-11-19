@@ -1,6 +1,7 @@
 // SoftEther VPN for macOS - profiles on disk, passwords in the login keychain.
 
 import Foundation
+import Combine
 import Security
 
 final class ProfileStore: ObservableObject {
@@ -13,7 +14,10 @@ final class ProfileStore: ObservableObject {
     init() {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SoftEtherVPN", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        // Client private keys live in this folder: owner-only from the start
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true,
+                                                 attributes: [.posixPermissions: 0o700])
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: dir.path)
         fileURL = dir.appendingPathComponent("profiles.json")
 
         if let data = try? Data(contentsOf: fileURL),
@@ -24,7 +28,6 @@ final class ProfileStore: ObservableObject {
 
     private func save() {
         guard let data = try? JSONEncoder().encode(profiles) else { return }
-        // Client private keys live in this file: owner-only
         try? data.write(to: fileURL, options: [.atomic])
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
     }

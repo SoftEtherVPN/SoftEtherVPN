@@ -88,8 +88,8 @@ targets:
       path: App/App.entitlements
       properties:
         com.apple.developer.system-extension.install: true
-        # Developer ID distribution needs the "-systemextension" value; a
-        # development-signed build uses plain "packet-tunnel-provider"
+        # System extensions use the "-systemextension" value. It must match
+        # what the provisioning profile of this bundle identifier grants.
         com.apple.developer.networking.networkextension:
           - packet-tunnel-provider-systemextension
         com.apple.security.application-groups:

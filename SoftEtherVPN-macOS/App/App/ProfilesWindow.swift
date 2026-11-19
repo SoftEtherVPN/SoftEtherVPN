@@ -2,6 +2,7 @@
 
 import SwiftUI
 
+@MainActor
 struct ProfilesWindow: View {
     @EnvironmentObject private var store: ProfileStore
     @EnvironmentObject private var vpn: VPNController
@@ -45,9 +46,16 @@ struct ProfilesWindow: View {
                 }
             }
         } detail: {
-            if let index = store.profiles.firstIndex(where: { $0.id == selection }) {
-                ProfileEditor(profile: $store.profiles[index])
-                    .id(store.profiles[index].id)
+            if let id = selection, store.profiles.contains(where: { $0.id == id }) {
+                // Looked up by id on every access: an index-based binding can be
+                // read once more after its profile was removed
+                ProfileEditor(profile: Binding(
+                    get: { store.profiles.first { $0.id == id } ?? VPNProfile() },
+                    set: { edited in
+                        if store.profiles.contains(where: { $0.id == edited.id }) { store.update(edited) }
+                    }
+                ))
+                .id(id)
             } else {
                 Text("Add a connection to get started.")
                     .foregroundStyle(.secondary)
@@ -55,7 +63,6 @@ struct ProfilesWindow: View {
         }
         .onAppear {
             if selection == nil { selection = store.profiles.first?.id }
-            vpn.activateExtension()
         }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.data]) { result in
             guard case .success(let url) = result else { return }
@@ -89,6 +96,7 @@ struct ProfilesWindow: View {
     }
 }
 
+@MainActor
 struct ProfileEditor: View {
     @Binding var profile: VPNProfile
     @State private var password = ""

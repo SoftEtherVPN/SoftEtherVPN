@@ -29,7 +29,7 @@ jobs:
         submodules: true
     - name: Install dependencies
       run: |
-        brew install libsodium xcodegen
+        brew install cmake pkg-config openssl@3 libsodium xcodegen
     - name: Build the core and the bridge
       run: |
         SoftEtherVPN-macOS/scripts/build-core.sh
