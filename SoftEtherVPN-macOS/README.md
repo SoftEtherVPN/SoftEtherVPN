@@ -35,15 +35,15 @@ non-IP Ethernet protocols are not available on this client.
 
 | Setting | Effect |
 |---|---|
-| What the VPN server says (default) | Like the Windows client. If the hub's DHCP server pushes routes (option 121), only the VPN's subnet and those routes are used and its default gateway is ignored (RFC 3442); a pushed default route means everything. With no pushed routes, a default gateway means everything; without one, only the VPN's subnet. |
+| What the VPN server says (default) | Like the Windows client. IPv4: if the hub's DHCP server pushes routes (option 121), only the VPN's subnet and those routes are used and its default gateway is ignored (RFC 3442); a pushed default route means everything. With no pushed routes, a default gateway means everything; without one, only the VPN's subnet. IPv6, decided separately: everything if the hub advertises a router, else only the advertised prefix. |
 | All traffic | Default route through the VPN. |
 | Only these networks | The VPN's own subnet, the listed networks, and (optionally) the routes the hub's DHCP server pushes. A pushed default route is ignored. |
 | All traffic except these networks | Default route through the VPN, listed networks bypass it. |
-| DNS: Automatic | All names via the VPN when everything is routed. On a split tunnel: only the hub's DHCP domain and the listed domains. |
+| DNS: Automatic | All names via the VPN when everything is routed. On a split tunnel: only the hub's DHCP domain and the listed domains. If neither exists, all names go to the VPN's DNS server so that internal names still resolve, and the app says so. |
 | DNS: all names | The VPN's DNS servers resolve everything. |
 | DNS: only these domains | Split DNS on the listed domains plus the hub's DHCP domain. |
 | DNS: don't change | The system resolver is left alone. |
-| Block IPv6 when the VPN has none | In the two "all traffic" modes, IPv6 is captured and dropped so it cannot leave outside the VPN. On by default. |
+| Block IPv6 when the VPN has none | Whenever everything is routed through the VPN (also when the server decided so), IPv6 is captured and dropped so it cannot leave outside the VPN. On by default. |
 
 The decision logic is `Bridge/se_plan.c`. It is plain C with no dependency on
 the core, and the Swift provider only maps its result onto
@@ -71,8 +71,8 @@ Two things cannot be shared, and the app warns about both:
   tunnels overlap, macOS uses one of them.
 - Only one connected profile can resolve all names.
 
-While a full-tunnel profile is connected, the other profiles reach their own
-VPN servers through it.
+How a profile's own connection to its VPN server is routed while another
+profile carries all traffic has not been tested.
 
 ## Layout
 
@@ -92,16 +92,24 @@ VPN servers through it.
 
 ## Changes to the SoftEther core
 
-Three files, all behind macros that only this folder's `CMakeLists.txt`
-defines. The desktop and Android builds compile exactly as before.
+Three files. The behaviour changes sit behind macros that only this folder's
+`CMakeLists.txt` defines, so the desktop builds compile to the same code as
+before.
 
 - `src/Cedar/VLanAndroid.{c,h}`: also compiled when `SE_VLAN_L3_TUN` is
-  defined. Adds `VLanAndroidGetDomainName` and `VLanAndroidGetClasslessRoutes`,
-  and reports the machine's host name to DHCP on non-Android hosts.
-- `src/Cedar/Session.c`: with `SE_CLIENT_CERT_PROMPT`, an unverified server
-  certificate is handed to the client's check procedure instead of failing
-  inside the TLS handshake (the behaviour the Windows client already has), so
-  the app can show the fingerprint and offer to trust it.
+  defined. Adds `VLanAndroidGetDomainName` and `VLanAndroidGetClasslessRoutes`
+  and the field they read, and reports the machine's host name to DHCP on
+  non-Android hosts. The Android build gets the new field and the two
+  functions as well; nothing else changes for it.
+- `src/Cedar/Session.c`:
+  - `SE_CLIENT_CERT_PROMPT`: an unverified server certificate is handed to the
+    client's check procedure instead of failing inside the TLS handshake (what
+    the Windows client already does), so the app can show the fingerprint and
+    offer to trust it. The check still runs before any credentials are sent.
+  - `SE_CLIENT_SESSION_EXTRA_REF`: `NewClientSessionEx` takes a second session
+    reference for its caller before the client thread starts. Taking it
+    afterwards, as the Android bridge does, races with a session that fails
+    at once.
 
 ## Building
 
@@ -132,7 +140,7 @@ of the SoftEther name.
 On Linux or macOS, with a normal desktop build of the repo in `build/`:
 
 ```bash
-cmake -S SoftEtherVPN-macOS -B build-bridge && cmake --build build-bridge -j
+cmake -S SoftEtherVPN-macOS -B build-bridge -DCMAKE_BUILD_TYPE=Release && cmake --build build-bridge -j
 ```
 
 ```bash
@@ -152,9 +160,9 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
 
 - The desktop targets still build with the core changes, and `libcedar` from
   the desktop build contains none of the L3 adapter code.
-- `se_plan_test`: 111 checks covering network parsing, the server-decided
+- `se_plan_test`: 147 checks covering network parsing, the server-decided
   mode, full tunnel, both split tunnel directions, split DNS, IPv6 leak
-  protection and the fallbacks. Clean
+  protection, over-long and over-full lists, and domain validation. Clean
   under AddressSanitizer and UBSan.
 - `run-e2e-test.sh`, against a real local vpnserver:
   - an unknown server certificate is refused and reported, and a pinned one
@@ -162,12 +170,16 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
   - a wrong password is reported as an authentication failure;
   - the DHCP address, DNS server, domain name and pushed route arrive;
   - an ICMP echo written as a raw IPv4 packet is answered by the hub's gateway;
-  - a `.vpn` file exported by the desktop vpnclient is imported, and the
-    session logs in with the password hash it carries;
+  - the handle of an ended session stays invalid after later sessions start;
   - two sessions to two hubs run side by side with separate addresses, DNS
     domains and packet descriptors, without crosstalk; ending one leaves the
     other carrying traffic, and a refused certificate is reported for its own
-    session only.
+    session only;
+  - a `.vpn` file exported by the desktop vpnclient is imported, and the
+    session logs in with the password hash it carries.
+- That test is clean under AddressSanitizer, UBSan and LeakSanitizer. Under
+  ThreadSanitizer it reports only unsynchronised reads of status flags, the
+  pattern the core uses throughout.
 - The same test passes as an unprivileged user with the program folder
   read-only, which is the situation inside a signed bundle.
 
@@ -177,12 +189,17 @@ Not verified:
   `UNIX_MACOS` build with these changes, although upstream CI builds the
   unmodified core on arm64 macOS.
 - The Swift sources, `project.yml`, `bundle-deps.sh` and `package.sh` have
-  never been run. The Swift code was reviewed by reading only.
+  never been run. The Swift code was reviewed twice by reading only.
 - Behaviour inside the extension's App Sandbox, and what macOS does with the
   generated settings (in particular split DNS and on-demand connection).
+- That a tunnel provider's own connection to its server bypasses the tunnel
+  routes, which the full-tunnel modes rely on. This is how NetworkExtension
+  packet tunnels are understood to work; it has not been observed here.
 - Several tunnels of one app connected together. Other projects report that
   macOS supports this (for example WireGuard/wireguard-apple pull request 63,
   tested on macOS 26), but it has not been tried with this app.
+- That Windows ignores the DHCP default gateway when routes are pushed. The
+  server-decided mode follows RFC 3442 and SoftEther's documentation on this.
 - IPv6 through the bridge (the test server's SecureNAT has no IPv6).
 
 `.github/workflows/macos_client.yml` runs the build, the tests above and an
@@ -209,7 +226,21 @@ static libraries built for the deployment target instead.
 
 - Layer 3 only: no bridging, no non-IP protocols.
 - Smart card sign-in is not supported.
-- "Connect automatically" stores the password with the VPN configuration,
-  because the system starts the tunnel without the app.
+- Where secrets are kept:
+  - the password is in the login keychain;
+  - a saved password hash from an imported `.vpn` file, a client private key
+    and a proxy password are in the owner-only profiles file;
+  - a profile that connects automatically also has all of these in its saved
+    VPN configuration, which the system keeps outside the keychain, because
+    the system starts that tunnel without the app. Profiles connected by hand
+    are saved without them.
+- With IPv6 blocked, IPv6 packets are dropped silently, so an application
+  waits for its own timeout before it falls back to IPv4.
+- A VPN configuration whose profile no longer exists in the app (for example
+  after the profiles file was lost) is not removed automatically. Remove it in
+  System Settings > VPN.
 - A reconnect asks the hub's DHCP server again. The Android client's lease
-  reuse (`VLanAndroidSetCachedIPv4`) would make reconnects faster.
+  reuse (`VLanAndroidSetCachedIPv4`) would make reconnects faster, but it does
+  not carry the DHCP domain name, which split DNS needs.
+- The hub's DHCP domain is the only DNS domain a SoftEther server can
+  announce. Further split-DNS domains have to be entered in the profile.

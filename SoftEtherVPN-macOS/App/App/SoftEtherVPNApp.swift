@@ -57,7 +57,7 @@ struct MenuContent: View {
                 ConnectionRow(profile: profile)
             }
 
-            if let pending = vpn.pendingTrust {
+            ForEach(vpn.pendingTrusts) { pending in
                 TrustPrompt(pending: pending)
             }
 
@@ -184,7 +184,7 @@ struct TrustPrompt: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Is this the right server?").font(.headline)
+            Text("\(pending.profile.name): is this the right server?").font(.headline)
             Text("\(pending.profile.host) identified itself with a certificate that has this SHA-256 fingerprint. Compare it with the one your administrator gave you.")
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)
@@ -193,7 +193,7 @@ struct TrustPrompt: View {
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button("Cancel") { vpn.pendingTrust = nil }
+                Button("Cancel") { vpn.dismiss(pending) }
                 Spacer()
                 Button("Trust and Connect") { vpn.trustAndConnect(pending, store: store) }
                     .keyboardShortcut(.defaultAction)

@@ -38,13 +38,17 @@ get_filename_component(SE_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../" ABSOLUTE)
 set(OQS_ENABLE OFF CACHE BOOL "Open Quantum Safe provider" FORCE)
 
 # Core opt-ins of this client. Directory-scope, so the core subproject below
-# and the bridge both see them; no other build defines either macro.
+# and the bridge both see them; no other build defines any of these macros.
 #   SE_VLAN_L3_TUN         compile the L3 TUN packet adapter (VLanAndroid.c)
 #   SE_CLIENT_CERT_PROMPT  hand an unverified server certificate to the
 #                          client's CHECK_CERT_PROC instead of failing inside
 #                          the TLS handshake (Session.c), so the UI can show
 #                          it and offer to trust it
-add_definitions(-DSE_VLAN_L3_TUN -DSE_CLIENT_CERT_PROMPT)
+#   SE_CLIENT_SESSION_EXTRA_REF  NewClientSessionEx takes a second session
+#                          reference for its caller before the client thread
+#                          starts (Session.c); the bridge releases it in
+#                          se_disconnect
+add_definitions(-DSE_VLAN_L3_TUN -DSE_CLIENT_CERT_PROMPT -DSE_CLIENT_SESSION_EXTRA_REF)
 
 # Platform defines: the core's src/CMakeLists.txt contributes its own set at
 # its directory scope; the bridge compiled here needs the same macros so its

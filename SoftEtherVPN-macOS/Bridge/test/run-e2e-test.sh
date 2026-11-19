@@ -20,7 +20,8 @@ set -eu
 
 DESKTOP=$(cd "$1" && pwd)
 BRIDGE=$(cd "$2" && pwd)
-PORT=${SE_TEST_PORT:-5555}
+# One of the listeners a new vpnserver opens by itself (the others need root)
+PORT=5555
 WORK=$(mktemp -d)
 
 cleanup()
@@ -33,8 +34,8 @@ trap cleanup EXIT
 
 cp "$DESKTOP/vpnserver" "$DESKTOP/vpncmd" "$DESKTOP/hamcore.se2" "$WORK/"
 cp "$DESKTOP"/libcedar.* "$DESKTOP"/libmayaqua.* "$WORK/" 2>/dev/null || true
-export LD_LIBRARY_PATH="$WORK:${LD_LIBRARY_PATH:-}"
-export DYLD_LIBRARY_PATH="$WORK:${DYLD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$WORK${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export DYLD_LIBRARY_PATH="$WORK${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
 
 # A server left over from another run would answer on the port and make the
 # results meaningless
@@ -81,6 +82,11 @@ cmd /HUB:TEST2 /PASSWORD:hubpw /CMD DhcpSet /START:192.168.40.10 /END:192.168.40
 cmd /HUB:TEST2 /PASSWORD:hubpw /CMD SecureNatEnable
 
 # A .vpn file as the desktop client exports it (saved password included)
+if "$WORK/vpncmd" localhost /CLIENT /CMD VersionGet >/dev/null 2>&1; then
+	echo "a SoftEther VPN Client service is already running on this machine"
+	exit 1
+fi
+
 mkdir "$WORK/client"
 cp "$DESKTOP/vpnclient" "$DESKTOP/hamcore.se2" "$WORK/client/"
 "$WORK/client/vpnclient" start >/dev/null

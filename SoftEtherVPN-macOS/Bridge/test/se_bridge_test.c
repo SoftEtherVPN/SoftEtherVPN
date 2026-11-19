@@ -50,7 +50,7 @@ static unsigned short Checksum(const unsigned char *p, int len)
 }
 
 // Wait until the session leaves the connecting state
-static int WaitStatus(se_session *s, int timeout_sec)
+static int WaitStatus(se_session s, int timeout_sec)
 {
 	int i, st = SE_STATUS_CONNECTING;
 	char last[512] = "", text[512];
@@ -77,7 +77,7 @@ static int WaitStatus(se_session *s, int timeout_sec)
 	return st;
 }
 
-static int Ping(se_session *s, const char *src, const char *dst)
+static int Ping(se_session s, const char *src, const char *dst)
 {
 	unsigned char pkt[28 + 32];
 	unsigned char buf[2048];
@@ -154,7 +154,7 @@ static int Ping(se_session *s, const char *src, const char *dst)
 int main(int argc, char *argv[])
 {
 	se_profile p;
-	se_session *s;
+	se_session s, stale = 0;
 	char err[256], text[512], ver[64], addr[SE_ADDR_LEN];
 	unsigned char cert[8192], fp[32];
 	size_t cert_len;
@@ -188,14 +188,14 @@ int main(int argc, char *argv[])
 		se_profile bad = p;
 
 		bad.hub = "";
-		CHECK(se_connect(&bad, err, sizeof(err)) == NULL && err[0] != 0, "empty hub rejected: %s", err);
+		CHECK(se_connect(&bad, err, sizeof(err)) == 0 && err[0] != 0, "empty hub rejected: %s", err);
 	}
 
 	// 1. Unknown server certificate is refused
 	printf("[1] verification on, nothing trusted\n");
 	p.verify_server_cert = 1;
 	s = se_connect(&p, err, sizeof(err));
-	CHECK(s != NULL, "session started %s", err);
+	CHECK(s != 0, "session started %s", err);
 	st = WaitStatus(s, 30);
 	CHECK(st == SE_STATUS_DISCONNECTED, "refused (status %d)", st);
 	CHECK(se_get_error(s) == SE_ERR_CERT_NOT_TRUSTED, "error is CERT_NOT_TRUSTED (got %d)", se_get_error(s));
@@ -209,6 +209,7 @@ int main(int argc, char *argv[])
 	printf("\n");
 	se_disconnect(s);
 	CHECK(se_get_status(s) == SE_STATUS_DISCONNECTED && se_packet_fd(s) == -1, "stale handle is rejected safely");
+	stale = s;
 
 	// Wrong password with the certificate pinned
 	printf("[2] pinned certificate, wrong password\n");
@@ -216,7 +217,7 @@ int main(int argc, char *argv[])
 	p.pinned_server_cert_len = cert_len;
 	p.password = "definitely-wrong";
 	s = se_connect(&p, err, sizeof(err));
-	CHECK(s != NULL, "session started %s", err);
+	CHECK(s != 0, "session started %s", err);
 	st = WaitStatus(s, 30);
 	CHECK(st == SE_STATUS_DISCONNECTED && se_get_error(s) == SE_ERR_AUTH_FAILED,
 		"authentication failure reported (status %d, error %d)", st, se_get_error(s));
@@ -226,9 +227,16 @@ int main(int argc, char *argv[])
 	// 2..4. Pinned certificate connects, DHCP answer, ping
 	printf("[3] pinned certificate, correct password\n");
 	s = se_connect(&p, err, sizeof(err));
-	CHECK(s != NULL, "session started %s", err);
+	CHECK(s != 0, "session started %s", err);
 	st = WaitStatus(s, 60);
 	CHECK(st == SE_STATUS_CONNECTED, "connected (status %d)", st);
+
+	// A handle is never reused: the one of the first, long ended session must
+	// not have come to mean this one
+	CHECK(s != stale && se_get_status(stale) == SE_STATUS_DISCONNECTED && se_packet_fd(stale) == -1,
+		"the handle of an ended session stays invalid");
+	se_disconnect(stale);
+	CHECK(se_get_status(s) == SE_STATUS_CONNECTED, "disconnecting it again does not touch the live session");
 
 	if (st == SE_STATUS_CONNECTED)
 	{
@@ -271,7 +279,7 @@ int main(int argc, char *argv[])
 	// packet descriptor and configuration, and ending one leaves the other alone.
 	if (getenv("SE_TEST_HUB2") != NULL)
 	{
-		se_session *s1, *s2;
+		se_session s1, s2;
 		se_profile p2 = p;
 		se_ipv4_config a, b;
 		unsigned char mac1[6] = { 0x02, 0x11, 0x22, 0x33, 0x44, 0x01 };
@@ -284,9 +292,9 @@ int main(int argc, char *argv[])
 		p2.hub = getenv("SE_TEST_HUB2");
 
 		s1 = se_connect(&p, err, sizeof(err));
-		CHECK(s1 != NULL, "first session started %s", err);
+		CHECK(s1 != 0, "first session started %s", err);
 		s2 = se_connect(&p2, err, sizeof(err));
-		CHECK(s2 != NULL && s2 != s1, "second session started alongside %s", err);
+		CHECK(s2 != 0 && s2 != s1, "second session started alongside %s", err);
 
 		CHECK(WaitStatus(s1, 60) == SE_STATUS_CONNECTED, "first connected");
 		CHECK(WaitStatus(s2, 60) == SE_STATUS_CONNECTED, "second connected");
@@ -313,13 +321,13 @@ int main(int argc, char *argv[])
 		// A refused certificate is reported per session
 		{
 			se_profile p3 = p;
-			se_session *s3;
+			se_session s3;
 			unsigned char c3[8192];
 
 			p3.pinned_server_cert = NULL;
 			p3.pinned_server_cert_len = 0;
 			s3 = se_connect(&p3, err, sizeof(err));
-			CHECK(s3 != NULL && WaitStatus(s3, 30) == SE_STATUS_DISCONNECTED, "third session refused for its certificate");
+			CHECK(s3 != 0 && WaitStatus(s3, 30) == SE_STATUS_DISCONNECTED, "third session refused for its certificate");
 			CHECK(se_get_offered_server_cert(s3, c3, sizeof(c3), NULL) == cert_len &&
 				se_get_offered_server_cert(s2, c3, sizeof(c3), NULL) == 0,
 				"the offered certificate belongs to the refused session only");
@@ -367,7 +375,7 @@ int main(int argc, char *argv[])
 		p.password_hash = imp.password_hash;
 
 		s = se_connect(&p, err, sizeof(err));
-		CHECK(s != NULL, "session started %s", err);
+		CHECK(s != 0, "session started %s", err);
 		st = WaitStatus(s, 60);
 		CHECK(st == SE_STATUS_CONNECTED, "connected with the imported credentials (status %d)", st);
 		se_disconnect(s);

@@ -17,7 +17,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private var profile = VPNProfile()
     private var password: String?
-    private var session: OpaquePointer?
+    private var session: se_session?        // handle of the C bridge; never 0
     private var readSource: DispatchSourceRead?
     private var monitor: DispatchSourceTimer?
     private var stopping = false
@@ -51,18 +51,28 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 let json = proto.providerConfiguration?[TunnelKey.profile] as? Data,
                 let profile = try? JSONDecoder().decode(VPNProfile.self, from: json)
             else {
-                completionHandler(TunnelError.message("The connection settings could not be read."))
+                completionHandler(TunnelError.message("The connection settings could not be read.").nsError)
                 return
             }
 
-            self.profile = profile
+            var merged = profile
+
+            // Keys and saved hashes are stripped from the stored configuration
+            // unless the profile connects by itself; the app hands them over
+            // with the start request instead
+            if let data = options?[TunnelKey.secrets] as? Data,
+               let secrets = try? JSONDecoder().decode(ProfileSecrets.self, from: data) {
+                secrets.apply(to: &merged)
+            }
+
+            self.profile = merged
             // From the app when the user connects; from the saved configuration
             // when the system starts the tunnel on demand
             self.password = (options?[TunnelKey.password] as? String)
                 ?? (proto.providerConfiguration?[TunnelKey.password] as? String)
 
             guard Bridge.start() else {
-                completionHandler(TunnelError.message("The VPN core could not be started."))
+                completionHandler(TunnelError.message("The VPN core could not be started.").nsError)
                 return
             }
 
@@ -70,7 +80,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 if error != nil {
                     self.teardownSession()
                 }
-                completionHandler(error)
+                completionHandler(portable(error))
                 if error == nil && !self.stopping {
                     self.startMonitor()
                 }
@@ -95,6 +105,27 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
+    override func sleep(completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    // The connection to the server does not survive sleep, and the core would
+    // only notice after its keep-alive timeout: reconnect right away instead
+    // of leaving the routes pointing into a dead tunnel
+    override func wake() {
+        queue.async {
+            // Only an established tunnel (the monitor runs): a start that is
+            // still in progress has its own completion to honor
+            guard self.session != nil, self.monitor != nil, !self.stopping, !self.reconnecting else { return }
+
+            self.reconnecting = true
+            self.reasserting = true
+            self.teardownSession()
+            self.lastStatus.text = "Reconnecting..."
+            self.reconnect(attempt: 0)
+        }
+    }
+
     // MARK: - Session
 
     // Dial, wait for the hub's IP configuration and apply the network
@@ -109,10 +140,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             se_connect(&p, &err, err.count)
         }
 
-        guard let s = started else {
+        // 0 is "no session"
+        guard started != 0 else {
             completion(TunnelError.message(String(cString: err)))
             return
         }
+
+        let s = started
 
         session = s
         waitForConfiguration(deadline: Date().addingTimeInterval(Self.connectTimeout), completion: completion)
@@ -266,8 +300,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             settings.ipv6Settings = ipv6
         }
 
+        // Without IPv6 on the VPN nothing of it may reach the hub, blackhole or
+        // not (the interface can still emit link-local chatter)
         fdLock.lock()
-        dropIPv6 = blackholeIPv6
+        dropIPv6 = !hasV6
         fdLock.unlock()
 
         var dnsServers: [String] = []
@@ -414,7 +450,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let fd = self.outboundFD
             if fd >= 0 {
                 for packet in packets {
-                    if self.dropIPv6, let first = packet.first, first >> 4 == 6 {
+                    // An empty datagram would read as "closed" on the other end
+                    guard let first = packet.first else { continue }
+                    if self.dropIPv6, first >> 4 == 6 {
                         continue
                     }
                     packet.withUnsafeBytes { raw in
@@ -468,7 +506,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             monitor?.cancel()
             monitor = nil
             teardownSession()
-            cancelTunnelWithError(TunnelError.session(code: code, text: text))
+            cancelTunnelWithError(TunnelError.session(code: code, text: text).nsError)
             return
         }
 
@@ -502,7 +540,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     self.stopping = true
                     self.monitor?.cancel()
                     self.monitor = nil
-                    self.cancelTunnelWithError(error)
+                    self.cancelTunnelWithError(portable(error))
                     return
                 }
 
@@ -523,4 +561,23 @@ enum TunnelError: LocalizedError {
         case .session(_, let text): return text
         }
     }
+
+    // The system carries an error from the extension to the app as a plain
+    // NSError; a Swift error's description does not survive that, so the text
+    // goes into the user info explicitly. The code is SoftEther's error code
+    // for a session error, -1 otherwise.
+    var nsError: NSError {
+        let code: Int
+        switch self {
+        case .message: code = -1
+        case .session(let c, _): code = c
+        }
+
+        return NSError(domain: "org.softether.vpnclient.macos.tunnel", code: code,
+                       userInfo: [NSLocalizedDescriptionKey: errorDescription ?? "VPN error"])
+    }
+}
+
+private func portable(_ error: Error?) -> Error? {
+    (error as? TunnelError)?.nsError ?? error
 }

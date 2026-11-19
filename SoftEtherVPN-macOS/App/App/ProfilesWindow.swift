@@ -1,6 +1,7 @@
 // SoftEther VPN for macOS - connection list and editor.
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 struct ProfilesWindow: View {
@@ -65,10 +66,13 @@ struct ProfilesWindow: View {
         .onAppear {
             if selection == nil { selection = store.profiles.first?.id }
         }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.data]) { result in
+        .fileImporter(isPresented: $importing, allowedContentTypes: [UTType.data]) { result in
             guard case .success(let url) = result else { return }
             importFile(url)
         }
+        // Saved VPN configurations of profiles that connect by themselves
+        // have to follow the edits
+        .onChange(of: store.profiles) { vpn.profilesChanged($0) }
         .alert("The file could not be imported", isPresented: Binding(
             get: { importError != nil }, set: { if !$0 { importError = nil } }
         )) {
@@ -99,6 +103,8 @@ struct ProfilesWindow: View {
 
 @MainActor
 struct ProfileEditor: View {
+    @EnvironmentObject private var store: ProfileStore
+    @EnvironmentObject private var vpn: VPNController
     @Binding var profile: VPNProfile
     @State private var password = ""
     @State private var showAdvanced = false
@@ -124,7 +130,11 @@ struct ProfileEditor: View {
                 if profile.auth.needsPassword {
                     SecureField("Password", text: $password,
                                 prompt: profile.passwordHash != nil ? Text("Saved in the imported file") : nil)
-                        .onChange(of: password) { Keychain.setPassword($0, for: profile.id) }
+                        .onChange(of: password) {
+                            Keychain.setPassword($0, for: profile.id)
+                            // The password is not part of the profile, so say it changed
+                            vpn.profilesChanged(store.profiles)
+                        }
                 }
 
                 if profile.auth == .certificate {
@@ -171,9 +181,16 @@ struct ProfileEditor: View {
                 Text(dnsHelp)
             }
 
-            Section("Security") {
+            Section {
                 Picker("Server identity", selection: $profile.serverTrust) {
                     ForEach(ServerTrust.allCases) { Text($0.title).tag($0) }
+                }
+
+                if profile.serverTrust == .none {
+                    Label("Without verification anyone on the network path can pose as the VPN server, read your traffic and capture your password.",
+                          systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if profile.serverTrust == .pinned && profile.pinnedServerCertificate != nil {
@@ -183,6 +200,8 @@ struct ProfileEditor: View {
                         Button("Forget") { profile.pinnedServerCertificate = nil }
                     }
                 }
+            } header: {
+                Text("Security")
             }
 
             Section {
@@ -253,7 +272,7 @@ struct FileField: View {
             Text(data == nil ? "None" : "Loaded").foregroundStyle(.secondary)
             Button("Choose…") { importing = true }
         }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.data]) { result in
+        .fileImporter(isPresented: $importing, allowedContentTypes: [UTType.data]) { result in
             if case .success(let url) = result {
                 let scoped = url.startAccessingSecurityScopedResource()
                 defer { if scoped { url.stopAccessingSecurityScopedResource() } }

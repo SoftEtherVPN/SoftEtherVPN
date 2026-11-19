@@ -7,11 +7,18 @@
 
 #include "se_plan.h"
 
+// Append one remark, whole or not at all: a message cut in half is worse than
+// a missing one
 static void PlanWarn(se_plan *p, const char *fmt, const char *arg)
 {
+	char msg[512];
 	size_t len = strlen(p->warnings);
+	size_t msg_len;
 
-	if (len + 2 >= sizeof(p->warnings))
+	snprintf(msg, sizeof(msg), fmt, arg);
+	msg_len = strlen(msg);
+
+	if (len + msg_len + 2 > sizeof(p->warnings))
 	{
 		return;
 	}
@@ -19,10 +26,9 @@ static void PlanWarn(se_plan *p, const char *fmt, const char *arg)
 	if (len != 0)
 	{
 		p->warnings[len++] = '\n';
-		p->warnings[len] = 0;
 	}
 
-	snprintf(p->warnings + len, sizeof(p->warnings) - len, fmt, arg);
+	memcpy(p->warnings + len, msg, msg_len + 1);
 }
 
 static void SetErr(char *err, size_t err_size, const char *text)
@@ -213,7 +219,8 @@ static int NetEqual(const se_net *a, const se_net *b)
 		strcmp(a->address, b->address) == 0;
 }
 
-static void AddNet(se_net *list, int *num, const se_net *n)
+// Returns 0 when the list is full
+static int AddNet(se_net *list, int *num, const se_net *n)
 {
 	int i;
 
@@ -221,26 +228,33 @@ static void AddNet(se_net *list, int *num, const se_net *n)
 	{
 		if (NetEqual(&list[i], n))
 		{
-			return;
+			return 1;
 		}
 	}
 
-	if (*num < SE_PLAN_MAX_NETS)
+	if (*num >= SE_PLAN_MAX_NETS)
 	{
-		list[(*num)++] = *n;
+		return 0;
 	}
+
+	list[(*num)++] = *n;
+
+	return 1;
 }
 
 static int IsSep(char c)
 {
-	return c == ',' || c == ';' || isspace((unsigned char)c);
+	return c == ',' || c == ';' || c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 
-// Next entry of a free-text list; returns 0 at the end
+// Next entry of a free-text list. Returns 0 at the end, 1 for an entry, and 2
+// for an entry that did not fit dst (dst then holds its beginning, for the
+// warning only: a cut-off entry must never be parsed as if it were complete).
 static int NextToken(const char **pos, char *dst, size_t dst_size)
 {
 	const char *p = *pos;
 	size_t n = 0;
+	int truncated = 0;
 
 	if (p == NULL)
 	{
@@ -265,6 +279,10 @@ static int NextToken(const char **pos, char *dst, size_t dst_size)
 		{
 			dst[n++] = *p;
 		}
+		else
+		{
+			truncated = 1;
+		}
 
 		p++;
 	}
@@ -272,13 +290,28 @@ static int NextToken(const char **pos, char *dst, size_t dst_size)
 	dst[n] = 0;
 	*pos = p;
 
+	if (truncated)
+	{
+		// Leave something short enough to quote
+		if (dst_size > 44)
+		{
+			memcpy(dst + 40, "...", 4);
+		}
+
+		return 2;
+	}
+
 	return 1;
 }
 
-// "Corp.Example." -> "corp.example"; rejects anything that is not a host name
+// "Corp.Example." -> "corp.example". Rejects anything that is not a DNS name a
+// resolver rule can sensibly be made for. ASCII rules on purpose (the C
+// locale must not change what is accepted); internationalized names are given
+// in their xn-- form.
 static int NormalizeDomain(const char *src, char *dst, size_t dst_size)
 {
-	size_t len, i;
+	size_t len, i, label_len = 0;
+	int has_alpha = 0;
 
 	while (*src == '.' || *src == '*')
 	{
@@ -293,29 +326,71 @@ static int NormalizeDomain(const char *src, char *dst, size_t dst_size)
 		len--;
 	}
 
-	if (len == 0 || len >= dst_size)
+	if (len == 0 || len >= dst_size || len > 253)
 	{
 		return 0;
 	}
 
 	for (i = 0; i < len; i++)
 	{
-		unsigned char c = (unsigned char)src[i];
+		char c = src[i];
 
-		if (!(isalnum(c) || c == '-' || c == '.' || c == '_'))
+		if (c >= 'A' && c <= 'Z')
+		{
+			c = (char)(c - 'A' + 'a');
+		}
+
+		if (c == '.')
+		{
+			// No empty label, none ending in a hyphen
+			if (label_len == 0 || dst[i - 1] == '-')
+			{
+				return 0;
+			}
+
+			label_len = 0;
+		}
+		else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_')
+		{
+			// No label starting with a hyphen, none longer than DNS allows
+			if ((label_len == 0 && c == '-') || ++label_len > 63)
+			{
+				return 0;
+			}
+
+			if ((c >= 'a' && c <= 'z') || c == '_')
+			{
+				has_alpha = 1;
+			}
+		}
+		else
 		{
 			return 0;
 		}
 
-		dst[i] = (char)tolower(c);
+		dst[i] = c;
 	}
 
 	dst[len] = 0;
 
-	return strstr(dst, "..") == NULL;
+	if (dst[len - 1] == '-')
+	{
+		return 0;
+	}
+
+	// All digits and dots is an address, not a name. "local" belongs to
+	// Bonjour (multicast DNS): routing it to a VPN resolver would break the
+	// discovery of printers and other devices on the local network.
+	if (!has_alpha || strcmp(dst, "local") == 0)
+	{
+		return 0;
+	}
+
+	return 1;
 }
 
-static void AddDomain(char list[][SE_DOMAIN_LEN], int *num, const char *domain)
+// Returns 0 when the list is full
+static int AddDomain(char list[][SE_DOMAIN_LEN], int *num, const char *domain)
 {
 	int i;
 
@@ -323,19 +398,25 @@ static void AddDomain(char list[][SE_DOMAIN_LEN], int *num, const char *domain)
 	{
 		if (strcmp(list[i], domain) == 0)
 		{
-			return;
+			return 1;
 		}
 	}
 
-	if (*num < SE_PLAN_MAX_DOMAINS)
+	if (*num >= SE_PLAN_MAX_DOMAINS)
 	{
-		snprintf(list[(*num)++], SE_DOMAIN_LEN, "%s", domain);
+		return 0;
 	}
+
+	snprintf(list[(*num)++], SE_DOMAIN_LEN, "%s", domain);
+
+	return 1;
 }
 
-static void AddDnsServer(se_plan *p, const char *addr)
+// family_ok: is_ipv6 -> whether the VPN carries that family
+static void AddDnsServer(se_plan *p, const char *addr, int has_v4, int has_v6)
 {
 	unsigned char bytes[16];
+	int is_v6;
 	int i;
 
 	if (addr == NULL || addr[0] == 0)
@@ -343,9 +424,27 @@ static void AddDnsServer(se_plan *p, const char *addr)
 		return;
 	}
 
-	if (inet_pton(AF_INET, addr, bytes) != 1 && inet_pton(AF_INET6, addr, bytes) != 1)
+	if (inet_pton(AF_INET, addr, bytes) == 1)
+	{
+		is_v6 = 0;
+	}
+	else if (inet_pton(AF_INET6, addr, bytes) == 1)
+	{
+		is_v6 = 1;
+	}
+	else
 	{
 		PlanWarn(p, "Ignored DNS server \"%s\": not an IP address.", addr);
+
+		return;
+	}
+
+	// A resolver of a family the VPN does not carry cannot be reached through
+	// it: the queries would leave outside the VPN, or nowhere at all
+	if ((is_v6 && !has_v6) || (!is_v6 && !has_v4))
+	{
+		PlanWarn(p, is_v6 ? "Ignored DNS server %s: this VPN carries no IPv6."
+			: "Ignored DNS server %s: this VPN carries no IPv4.", addr);
 
 		return;
 	}
@@ -358,10 +457,14 @@ static void AddDnsServer(se_plan *p, const char *addr)
 		}
 	}
 
-	if (p->num_dns_servers < SE_PLAN_MAX_DNS)
+	if (p->num_dns_servers >= SE_PLAN_MAX_DNS)
 	{
-		snprintf(p->dns_servers[p->num_dns_servers++], SE_ADDR_LEN, "%s", addr);
+		PlanWarn(p, "Ignored DNS server %s: too many DNS servers.", addr);
+
+		return;
 	}
+
+	snprintf(p->dns_servers[p->num_dns_servers++], SE_ADDR_LEN, "%s", addr);
 }
 
 static int Covered(const se_net *list, int num, const se_net *n)
@@ -379,17 +482,42 @@ static int Covered(const se_net *list, int num, const se_net *n)
 	return 0;
 }
 
+// Covered by an entry that is strictly wider than n itself
+static int CoveredByWider(const se_net *list, int num, const se_net *n)
+{
+	int i;
+
+	for (i = 0; i < num; i++)
+	{
+		if (list[i].prefix_len < n->prefix_len && NetContains(&list[i], n))
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static void AddIncluded(se_plan *p, const se_net *n, int *overflow)
+{
+	if (!AddNet(p->included, &p->num_included, n))
+	{
+		*overflow = 1;
+	}
+}
+
 int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv6_config *v6,
 	se_plan *p, char *err, size_t err_size)
 {
 	char tok[SE_DOMAIN_LEN];
+	char cidr[SE_ADDR_LEN * 2 + 2];
 	const char *pos;
-	se_net n;
-	int has_v4, has_v6;
+	se_net n, vpn4, vpn6;
+	int has_v4, has_v6, has_vpn4 = 0, has_vpn6 = 0;
+	int full4, full6;
 	int dns_mode;
-	int mode, use_pushed;
-	const char *networks;
-	int i;
+	int overflow = 0, list_overflow = 0, domain_overflow = 0;
+	int r, i;
 
 	SetErr(err, err_size, "");
 
@@ -412,31 +540,53 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 		return 0;
 	}
 
-	mode = policy->tunnel_mode;
-	use_pushed = policy->use_pushed_routes;
-	networks = policy->networks;
-
-	if (mode == SE_TUNNEL_SERVER)
+	// The VPN's own subnets
+	if (has_v4)
 	{
-		// The server decides, the way a DHCP client on Windows ends up routed:
+		snprintf(cidr, sizeof(cidr), "%s/%s", v4->address, v4->mask[0] != 0 ? v4->mask : "32");
+		has_vpn4 = se_parse_net(cidr, &vpn4);
+	}
+
+	if (has_v6 && v6->prefix[0] != 0 && v6->prefix_len > 0)
+	{
+		snprintf(cidr, sizeof(cidr), "%s/%d", v6->prefix, v6->prefix_len);
+		has_vpn6 = se_parse_net(cidr, &vpn6);
+	}
+
+	// ---- Full or split, per address family ----
+
+	switch (policy->tunnel_mode)
+	{
+	case SE_TUNNEL_FULL:
+	case SE_TUNNEL_EXCLUDE:
+		full4 = full6 = 1;
+		break;
+
+	case SE_TUNNEL_INCLUDE:
+		full4 = full6 = 0;
+		break;
+
+	case SE_TUNNEL_SERVER:
+		// The server decides, the way a Windows client ends up routed.
+		// IPv4, from the DHCP answer:
 		//  - classless static routes pushed (option 121): exactly those, and
 		//    the router option is ignored (RFC 3442) - a split tunnel, unless
 		//    one of them is the default route;
 		//  - none pushed, a default gateway handed out: everything;
 		//  - neither: only the VPN's own subnet.
-		// Without IPv4 the router of the IPv6 advertisement stands for the gateway.
-		int pushed = 0, pushed_default = 0;
-		int full;
+		// IPv6, independently, from the router advertisement: everything when
+		// the hub has a router, else only the advertised prefix.
+		full4 = 0;
 
 		if (has_v4)
 		{
+			int pushed = 0, pushed_default = 0;
+
 			for (i = 0; i < v4->num_routes && i < SE_MAX_ROUTES; i++)
 			{
-				char cidr[SE_ADDR_LEN * 2];
-
 				snprintf(cidr, sizeof(cidr), "%s/%d", v4->routes[i].network, v4->routes[i].prefix_len);
 
-				if (se_parse_net(cidr, &n))
+				if (se_parse_net(cidr, &n) && !n.is_ipv6)
 				{
 					pushed++;
 
@@ -447,102 +597,95 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 				}
 			}
 
-			full = (pushed > 0) ? pushed_default : (v4->gateway[0] != 0);
-		}
-		else
-		{
-			full = (v6->router[0] != 0);
+			full4 = (pushed > 0) ? pushed_default : (v4->gateway[0] != 0);
 		}
 
-		mode = full ? SE_TUNNEL_FULL : SE_TUNNEL_INCLUDE;
-		use_pushed = 1;
-		networks = NULL;
-	}
+		full6 = (has_v6 && v6->router[0] != 0) ? 1 : 0;
+		break;
 
-	if (mode != SE_TUNNEL_FULL && mode != SE_TUNNEL_INCLUDE && mode != SE_TUNNEL_EXCLUDE)
-	{
+	default:
 		SetErr(err, err_size, "Unknown tunnel mode.");
 
 		return 0;
 	}
 
-	p->full_tunnel = (mode != SE_TUNNEL_INCLUDE) ? 1 : 0;
+	// What "everything goes through the VPN" means for DNS and the UI: the
+	// outcome for IPv4, or for IPv6 on a VPN that carries nothing else
+	p->full_tunnel = has_v4 ? full4 : full6;
 
 	// ---- Routes ----
 
-	if (mode == SE_TUNNEL_INCLUDE)
+	if (has_v4)
 	{
-		// The VPN's own subnet is always reachable
-		if (has_v4)
+		if (full4)
 		{
-			char cidr[SE_ADDR_LEN * 2 + 2];
-
-			snprintf(cidr, sizeof(cidr), "%s/%s", v4->address, v4->mask[0] != 0 ? v4->mask : "32");
-
-			if (se_parse_net(cidr, &n))
+			if (se_parse_net("0.0.0.0/0", &n))
 			{
-				AddNet(p->included, &p->num_included, &n);
+				AddIncluded(p, &n, &overflow);
 			}
 		}
-
-		if (has_v6 && v6->prefix[0] != 0 && v6->prefix_len > 0)
+		else
 		{
-			char cidr[SE_ADDR_LEN * 2];
-
-			snprintf(cidr, sizeof(cidr), "%s/%d", v6->prefix, v6->prefix_len);
-
-			if (se_parse_net(cidr, &n))
+			// The VPN's own subnet is always reachable
+			if (has_vpn4)
 			{
-				AddNet(p->included, &p->num_included, &n);
+				AddIncluded(p, &vpn4, &overflow);
 			}
-		}
 
-		if (use_pushed && has_v4)
-		{
-			for (i = 0; i < v4->num_routes && i < SE_MAX_ROUTES; i++)
+			if (policy->tunnel_mode == SE_TUNNEL_SERVER || policy->use_pushed_routes)
 			{
-				char cidr[SE_ADDR_LEN * 2];
-
-				snprintf(cidr, sizeof(cidr), "%s/%d", v4->routes[i].network, v4->routes[i].prefix_len);
-
-				// A pushed default route would turn the split tunnel into a full
-				// one behind the user's back; the mode is the user's choice
-				if (se_parse_net(cidr, &n) && n.prefix_len != 0)
+				for (i = 0; i < v4->num_routes && i < SE_MAX_ROUTES; i++)
 				{
-					AddNet(p->included, &p->num_included, &n);
+					snprintf(cidr, sizeof(cidr), "%s/%d", v4->routes[i].network, v4->routes[i].prefix_len);
+
+					// A pushed default route would turn a split tunnel the user
+					// chose into a full one behind their back
+					if (se_parse_net(cidr, &n) && !n.is_ipv6 && n.prefix_len != 0)
+					{
+						AddIncluded(p, &n, &overflow);
+					}
 				}
 			}
 		}
 	}
-	else
-	{
-		// FULL / EXCLUDE: default route for every family the VPN carries
-		if (has_v4 && se_parse_net("0.0.0.0/0", &n))
-		{
-			AddNet(p->included, &p->num_included, &n);
-		}
 
-		if (has_v6 && se_parse_net("::/0", &n))
+	if (has_v6)
+	{
+		if (full6)
 		{
-			AddNet(p->included, &p->num_included, &n);
+			if (se_parse_net("::/0", &n))
+			{
+				AddIncluded(p, &n, &overflow);
+			}
 		}
-		else if (!has_v6 && policy->block_ipv6 && se_parse_net("::/0", &n))
+		else if (has_vpn6)
 		{
-			// Nothing to carry IPv6, but it must not go around the VPN either
-			AddNet(p->included, &p->num_included, &n);
-			p->blackhole_ipv6 = 1;
+			AddIncluded(p, &vpn6, &overflow);
 		}
 	}
-
-	if (mode != SE_TUNNEL_FULL)
+	else if (has_v4 && full4 && policy->block_ipv6 && se_parse_net("::/0", &n))
 	{
-		se_net *list = (mode == SE_TUNNEL_INCLUDE) ? p->included : p->excluded;
-		int *num = (mode == SE_TUNNEL_INCLUDE) ? &p->num_included : &p->num_excluded;
+		// Nothing to carry IPv6, but it must not go around the VPN either
+		AddIncluded(p, &n, &overflow);
+		p->blackhole_ipv6 = 1;
+	}
 
-		pos = networks;
+	// The user's networks: routed (INCLUDE) or bypassed (EXCLUDE)
+	if (policy->tunnel_mode == SE_TUNNEL_INCLUDE || policy->tunnel_mode == SE_TUNNEL_EXCLUDE)
+	{
+		int include = (policy->tunnel_mode == SE_TUNNEL_INCLUDE);
 
-		while (NextToken(&pos, tok, sizeof(tok)))
+		pos = policy->networks;
+
+		while ((r = NextToken(&pos, tok, sizeof(tok))) != 0)
 		{
+			if (r == 2)
+			{
+				PlanWarn(p, "Ignored network \"%s\": the entry is too long.", tok);
+
+				continue;
+			}
+
 			if (!se_parse_net(tok, &n))
 			{
 				PlanWarn(p, "Ignored network \"%s\": not a valid address or prefix.", tok);
@@ -559,13 +702,50 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 
 			if ((n.is_ipv6 && !has_v6) || (!n.is_ipv6 && !has_v4))
 			{
-				// The VPN does not carry that family, so there is nothing to
-				// include, and nothing of it is routed that could be excluded
+				// The VPN does not carry that family: nothing of it can be
+				// routed through, and nothing of it is routed that could bypass
+				if (include)
+				{
+					PlanWarn(p, n.is_ipv6 ? "Ignored network \"%s\": this VPN carries no IPv6."
+						: "Ignored network \"%s\": this VPN carries no IPv4.", tok);
+				}
+				else if (n.is_ipv6 && p->blackhole_ipv6)
+				{
+					PlanWarn(p, "Network \"%s\" cannot bypass the VPN while IPv6 is blocked.", tok);
+				}
+
 				continue;
 			}
 
-			AddNet(list, num, &n);
+			if (!AddNet(include ? p->included : p->excluded,
+				include ? &p->num_included : &p->num_excluded, &n))
+			{
+				list_overflow = 1;
+			}
 		}
+
+		// A wide exclusion (say 192.168.0.0/16, to keep the home network
+		// reachable) must not take the VPN's own subnet with it. The more
+		// specific route wins, so including the subnet again restores it.
+		// Excluding exactly the VPN's subnet, or part of it, stays the
+		// user's decision.
+		if (!include)
+		{
+			if (has_vpn4 && full4 && CoveredByWider(p->excluded, p->num_excluded, &vpn4))
+			{
+				AddIncluded(p, &vpn4, &overflow);
+			}
+
+			if (has_vpn6 && full6 && CoveredByWider(p->excluded, p->num_excluded, &vpn6))
+			{
+				AddIncluded(p, &vpn6, &overflow);
+			}
+		}
+	}
+
+	if (list_overflow)
+	{
+		PlanWarn(p, "The list of networks is too long; the entries after the first %s were ignored.", "128");
 	}
 
 	// ---- DNS ----
@@ -581,57 +761,76 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 	if (dns_mode != SE_DNS_OFF)
 	{
 		char hub_domain[SE_DOMAIN_LEN];
-		int have_hub_domain;
 
 		// Servers: the user's override, else what the hub handed out
 		pos = policy->dns_servers;
 
-		while (NextToken(&pos, tok, sizeof(tok)))
+		while ((r = NextToken(&pos, tok, sizeof(tok))) != 0)
 		{
-			AddDnsServer(p, tok);
+			if (r == 2)
+			{
+				PlanWarn(p, "Ignored DNS server \"%s\": the entry is too long.", tok);
+
+				continue;
+			}
+
+			AddDnsServer(p, tok, has_v4, has_v6);
 		}
 
 		if (p->num_dns_servers == 0)
 		{
 			if (has_v4)
 			{
-				AddDnsServer(p, v4->dns1);
-				AddDnsServer(p, v4->dns2);
+				AddDnsServer(p, v4->dns1, has_v4, has_v6);
+				AddDnsServer(p, v4->dns2, has_v4, has_v6);
 			}
 
 			if (has_v6)
 			{
-				AddDnsServer(p, v6->dns);
+				AddDnsServer(p, v6->dns, has_v4, has_v6);
 			}
 		}
 
-		have_hub_domain = has_v4 && NormalizeDomain(v4->domain, hub_domain, sizeof(hub_domain));
-
-		if (have_hub_domain)
+		if (has_v4 && v4->domain[0] != 0)
 		{
-			AddDomain(p->search_domains, &p->num_search_domains, hub_domain);
-			AddDomain(p->match_domains, &p->num_match_domains, hub_domain);
+			if (NormalizeDomain(v4->domain, hub_domain, sizeof(hub_domain)))
+			{
+				AddDomain(p->search_domains, &p->num_search_domains, hub_domain);
+				AddDomain(p->match_domains, &p->num_match_domains, hub_domain);
+			}
+			else
+			{
+				PlanWarn(p, "Ignored the DNS domain \"%s\" announced by the VPN: not usable as a domain.", v4->domain);
+			}
 		}
 
 		pos = policy->dns_domains;
 
-		while (NextToken(&pos, tok, sizeof(tok)))
+		while ((r = NextToken(&pos, tok, sizeof(tok))) != 0)
 		{
 			char d[SE_DOMAIN_LEN];
 
-			if (!NormalizeDomain(tok, d, sizeof(d)))
+			if (r == 2 || !NormalizeDomain(tok, d, sizeof(d)))
 			{
 				PlanWarn(p, "Ignored DNS domain \"%s\": not a valid domain name.", tok);
 
 				continue;
 			}
 
-			AddDomain(p->match_domains, &p->num_match_domains, d);
+			if (!AddDomain(p->match_domains, &p->num_match_domains, d))
+			{
+				domain_overflow = 1;
+			}
+		}
+
+		if (domain_overflow)
+		{
+			PlanWarn(p, "The list of DNS domains is too long; the entries after the first %s were ignored.", "32");
 		}
 
 		if (dns_mode == SE_DNS_AUTO)
 		{
-			dns_mode = (mode == SE_TUNNEL_INCLUDE) ? SE_DNS_SPLIT : SE_DNS_ALL;
+			dns_mode = p->full_tunnel ? SE_DNS_ALL : SE_DNS_SPLIT;
 
 			if (dns_mode == SE_DNS_SPLIT && p->num_match_domains == 0)
 			{
@@ -653,18 +852,12 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 			// Nothing to point the resolver at
 			if (dns_mode == SE_DNS_SPLIT || policy->dns_mode == SE_DNS_ALL)
 			{
-				PlanWarn(p, "The VPN did not provide a DNS server; the system DNS settings are unchanged.%s", "");
+				PlanWarn(p, "This VPN has no usable DNS server; the system DNS settings are unchanged.%s", "");
 			}
-
-			p->num_match_domains = 0;
-			p->num_search_domains = 0;
 		}
 		else if (dns_mode == SE_DNS_SPLIT && p->num_match_domains == 0)
 		{
 			PlanWarn(p, "Split DNS is selected but no domain is listed; the system DNS settings are unchanged.%s", "");
-
-			p->num_dns_servers = 0;
-			p->num_search_domains = 0;
 		}
 		else
 		{
@@ -677,7 +870,9 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 			}
 		}
 
-		// The resolvers must be reachable through the tunnel
+		// The resolvers must be reachable through the tunnel: a host route for
+		// each one that no included network covers, or that a bypassed
+		// network would take away (the more specific route wins)
 		if (p->dns_enabled)
 		{
 			for (i = 0; i < p->num_dns_servers; i++)
@@ -687,22 +882,21 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 					continue;
 				}
 
-				if ((n.is_ipv6 && !has_v6) || (!n.is_ipv6 && !has_v4))
+				if (!Covered(p->included, p->num_included, &n) ||
+					Covered(p->excluded, p->num_excluded, &n))
 				{
-					continue;
-				}
-
-				if (!Covered(p->included, p->num_included, &n))
-				{
-					AddNet(p->included, &p->num_included, &n);
-				}
-
-				if (Covered(p->excluded, p->num_excluded, &n))
-				{
-					PlanWarn(p, "DNS server %s is inside a network that bypasses the VPN.", p->dns_servers[i]);
+					if (!AddNet(p->included, &p->num_included, &n))
+					{
+						PlanWarn(p, "DNS server %s may be unreachable: the list of networks is full.", p->dns_servers[i]);
+					}
 				}
 			}
 		}
+	}
+
+	if (overflow)
+	{
+		PlanWarn(p, "Too many networks: some routes of this VPN were left out.%s", "");
 	}
 
 	if (p->dns_enabled == 0)

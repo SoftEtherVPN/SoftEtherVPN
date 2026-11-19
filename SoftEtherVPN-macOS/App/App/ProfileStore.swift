@@ -20,9 +20,19 @@ final class ProfileStore: ObservableObject {
         try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: dir.path)
         fileURL = dir.appendingPathComponent("profiles.json")
 
-        if let data = try? Data(contentsOf: fileURL),
-           let loaded = try? JSONDecoder().decode([VPNProfile].self, from: data) {
-            profiles = loaded
+        if let data = try? Data(contentsOf: fileURL) {
+            if let loaded = try? JSONDecoder().decode([VPNProfile].self, from: data) {
+                profiles = loaded
+                // Persist what decoding filled in (a profile from an older
+                // version gets its adapter address here, once)
+                save()
+            } else {
+                // Unreadable: the next edit would overwrite it, private keys
+                // included. Keep it aside.
+                let backup = dir.appendingPathComponent("profiles.unreadable.json")
+                try? FileManager.default.removeItem(at: backup)
+                try? FileManager.default.moveItem(at: fileURL, to: backup)
+            }
         }
     }
 

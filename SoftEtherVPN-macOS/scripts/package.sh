@@ -30,12 +30,12 @@ xcodegen generate
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
-xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
-	-archivePath "$ARCHIVE" -allowProvisioningUpdates archive
-
 TEAM=$(xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
 	-showBuildSettings | sed -n 's/^ *DEVELOPMENT_TEAM = //p' | head -1)
 [ -n "$TEAM" ] || { echo "Set DEVELOPMENT_TEAM in App/project.yml"; exit 1; }
+
+xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
+	-archivePath "$ARCHIVE" -allowProvisioningUpdates archive
 
 cat > "$OUT/ExportOptions.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

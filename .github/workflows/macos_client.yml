@@ -2,17 +2,18 @@
 # Apple Silicon, run the bridge tests against a local vpnserver, and compile
 # the Swift app and tunnel extension without signing.
 on:
+  # The client links the whole core, so any core change can break it
   push:
     paths:
       - 'SoftEtherVPN-macOS/**'
-      - 'src/Cedar/VLanAndroid.*'
-      - 'src/Cedar/Session.c'
+      - 'src/**'
+      - 'CMakeLists.txt'
       - '.github/workflows/macos_client.yml'
   pull_request:
     paths:
       - 'SoftEtherVPN-macOS/**'
-      - 'src/Cedar/VLanAndroid.*'
-      - 'src/Cedar/Session.c'
+      - 'src/**'
+      - 'CMakeLists.txt'
       - '.github/workflows/macos_client.yml'
   workflow_dispatch:
 
@@ -54,4 +55,11 @@ jobs:
           if otool -L "$lib" | tail -n +2 | grep -E '/opt/homebrew|/usr/local'; then
             echo "$lib refers to a library outside the bundle"; exit 1
           fi
+          if otool -l "$lib" | grep -A2 LC_RPATH | grep -E 'path /'; then
+            echo "$lib has a run path into the build machine"; exit 1
+          fi
+          # Every @rpath reference must be satisfied by a file next to it
+          for dep in $(otool -L "$lib" | tail -n +2 | awk '{print $1}' | grep '^@rpath/'); do
+            [ -f "$(dirname "$lib")/${dep#@rpath/}" ] || { echo "$lib needs $dep, which is not bundled"; exit 1; }
+          done
         done

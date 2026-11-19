@@ -19,7 +19,9 @@
 extern "C" {
 #endif
 
-typedef struct se_session se_session;
+// Handle of a session. 0 is "no session"; a handle is never reused, so one that
+// was disconnected stays invalid for good and every call rejects it safely.
+typedef uint64_t se_session;
 
 // Concurrent sessions per process (one per connected profile)
 #define SE_MAX_SESSIONS		8
@@ -208,41 +210,41 @@ void se_core_version(char *dst, size_t dst_size);
 // Add one trusted CA certificate (DER or PEM), e.g. from the system keychain
 int se_add_trusted_ca(const uint8_t *cert, size_t len);
 
-// Start a session. Returns NULL (and a message in err) if the profile is not
+// Start a session. Returns 0 (and a message in err) if the profile is not
 // usable or SE_MAX_SESSIONS are already running; otherwise the session is
 // connecting in the background and se_get_status reports its progress.
-se_session *se_connect(const se_profile *profile, char *err, size_t err_size);
+se_session se_connect(const se_profile *profile, char *err, size_t err_size);
 
 // Stop the session and release it. The packet descriptor is closed here, so
 // stop reading from it first. Idempotent for a stale handle.
-void se_disconnect(se_session *s);
+void se_disconnect(se_session s);
 
 // Datagram descriptor that carries the session's IP packets: one read() or
 // write() is exactly one raw IPv4 / IPv6 packet, without any header. Owned by
-// the bridge. Returns -1 for a stale handle.
-int se_packet_fd(se_session *s);
+// the bridge. Returns -1 for an invalid handle.
+int se_packet_fd(se_session s);
 
-int se_get_status(se_session *s);
+int se_get_status(se_session s);
 // SoftEther error code of the session (0 = none); meaningful once disconnected
-int se_get_error(se_session *s);
+int se_get_error(se_session s);
 // Human-readable state / error for the UI
-void se_get_status_text(se_session *s, char *dst, size_t dst_size);
+void se_get_status_text(se_session s, char *dst, size_t dst_size);
 
 // Each returns 1 and fills *out when that configuration is available
-int se_get_ipv4_config(se_session *s, se_ipv4_config *out);
-int se_get_ipv6_config(se_session *s, se_ipv6_config *out);
+int se_get_ipv4_config(se_session s, se_ipv4_config *out);
+int se_get_ipv6_config(se_session s, se_ipv6_config *out);
 
 // Address the session is actually connected to (after DNS resolution), for
 // the tunnel's "remote address". Returns 1 when known.
-int se_get_server_address(se_session *s, char *dst, size_t dst_size);
+int se_get_server_address(se_session s, char *dst, size_t dst_size);
 
-int se_get_traffic(se_session *s, se_traffic *out);
+int se_get_traffic(se_session s, se_traffic *out);
 
 // The certificate the server offered when this session's connection attempt
 // was refused for an untrusted / mismatching / expired certificate. Returns the
 // DER length (0 if none) and copies up to buf_size bytes; sha256 receives the
 // 32-byte fingerprint when not NULL. Read it before se_disconnect.
-size_t se_get_offered_server_cert(se_session *s, uint8_t *buf, size_t buf_size, uint8_t *sha256);
+size_t se_get_offered_server_cert(se_session s, uint8_t *buf, size_t buf_size, uint8_t *sha256);
 
 #ifdef __cplusplus
 }

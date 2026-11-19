@@ -1,4 +1,6 @@
 build-macos/
+build-bridge/
+App/build/
 App/*.xcodeproj/
 App/App/Info.plist
 App/App/App.entitlements

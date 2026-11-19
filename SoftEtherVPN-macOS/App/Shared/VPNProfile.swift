@@ -104,8 +104,11 @@ struct VPNProfile: Codable, Identifiable, Equatable {
 
     var auth = AuthMethod.password
     var username = ""
-    // The password is never stored here: it lives in the login keychain and is
-    // handed to the provider when the tunnel is started.
+    // The password is not part of the profile: it lives in the login keychain
+    // and is handed to the provider when the tunnel is started. The other
+    // secrets below (password hash, private key, proxy password) are part of
+    // it, and of the owner-only profiles file; see ProfileSecrets for how they
+    // reach the provider.
     // Set for a connection imported from a .vpn file with a saved password: the
     // SoftEther password hash (20 bytes), used when no password is in the keychain
     var passwordHash: Data?
@@ -206,12 +209,42 @@ struct VPNProfile: Codable, Identifiable, Equatable {
     }
 }
 
+// The secrets of a profile. The system stores a VPN configuration outside the
+// keychain, so the app saves the profile there without them (unless the
+// profile has to connect by itself) and passes them with each start request.
+struct ProfileSecrets: Codable {
+    var passwordHash: Data?
+    var clientPrivateKey: Data?
+    var proxyPassword = ""
+
+    init(of p: VPNProfile) {
+        passwordHash = p.passwordHash
+        clientPrivateKey = p.clientPrivateKey
+        proxyPassword = p.proxyPassword
+    }
+
+    func apply(to p: inout VPNProfile) {
+        p.passwordHash = passwordHash
+        p.clientPrivateKey = clientPrivateKey
+        p.proxyPassword = proxyPassword
+    }
+
+    static func strip(_ p: VPNProfile) -> VPNProfile {
+        var stripped = p
+        stripped.passwordHash = nil
+        stripped.clientPrivateKey = nil
+        stripped.proxyPassword = ""
+        return stripped
+    }
+}
+
 // Keys of the dictionaries exchanged between the app and the provider
 enum TunnelKey {
     static let profile = "profile"          // providerConfiguration: JSON of VPNProfile
     static let password = "password"        // startVPNTunnel options; also in the
                                             // providerConfiguration of a profile
                                             // that connects automatically
+    static let secrets = "secrets"          // startVPNTunnel options: JSON of ProfileSecrets
     static let statusRequest = "status"     // sendProviderMessage payload
 }
 

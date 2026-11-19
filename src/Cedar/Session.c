@@ -2062,6 +2062,18 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		s->ClientOption->NumRetry = 0;
 	}
 
+#ifdef	SE_CLIENT_SESSION_EXTRA_REF
+	// A host application that keeps the session object past the end of the
+	// session (to read its error) needs a reference of its own. The client
+	// thread releases the creator's reference when the session of an account
+	// ends, which can be before this function returns, so the extra one has
+	// to be taken here, while that thread does not exist yet.
+	if (account != NULL)
+	{
+		AddRef(s->ref);
+	}
+#endif
+
 	// Create a client thread
 	t = NewThread(ClientThread, (void *)s);
 	WaitThreadInit(t);

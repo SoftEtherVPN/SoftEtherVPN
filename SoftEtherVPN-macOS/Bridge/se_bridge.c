@@ -47,20 +47,28 @@
 #define SE_PACKET_SOCK_BUF		(1024 * 1024)
 #define SE_MAX_CERT_SIZE		65536
 
-struct se_session
+// One running session. The handle the caller holds is Id, never this
+// address: memory is reused, a number that only counts up is not, so a handle
+// of an ended session can never come to mean a later one.
+typedef struct SE_REC
 {
+	se_session Id;
 	VLAN_ANDROID *V;
 	void *Account;			// key of this session's slot in g_certs
 	int FdCore;				// adapter's end of the packet socket pair
 	int FdApp;				// provider's end
-};
+} SE_REC;
 
 static CEDAR *g_cedar = NULL;
 
 // Serializes every access that dereferences or frees the live session, so a
 // status poll can never race the teardown
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
-static se_session *g_sessions[SE_MAX_SESSIONS];
+static SE_REC *g_sessions[SE_MAX_SESSIONS];
+static se_session g_next_id = 1;
+static UINT g_teardowns = 0;			// se_disconnect calls past their unlink
+static pthread_cond_t g_teardown_cond = PTHREAD_COND_INITIALIZER;
+static bool g_shutting_down = false;
 
 // The certificate each session's server offered when its connection attempt
 // was refused, keyed by the session's ACCOUNT. Written by the core's
@@ -265,26 +273,25 @@ static void SeErrToText(UINT err, char *dst, UINT dst_size)
 	Free(u8);
 }
 
-// Caller holds g_lock
-static bool SeIsLive(se_session *s)
+// The live session of a handle, or NULL. Caller holds g_lock.
+static SE_REC *SeFind(se_session id)
 {
 	UINT i;
 
-	if (s == NULL)
+	if (id == 0)
 	{
-		return false;
+		return NULL;
 	}
 
-	// Looked up, never dereferenced first: a stale handle may be freed memory
 	for (i = 0; i < SE_MAX_SESSIONS; i++)
 	{
-		if (g_sessions[i] == s)
+		if (g_sessions[i] != NULL && g_sessions[i]->Id == id)
 		{
-			return s->V != NULL;
+			return g_sessions[i];
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 // Full path of the running executable. The core refuses to start unless
@@ -317,13 +324,6 @@ int se_init(const char *hamcore_path, const char *temp_dir)
 	static char argv0[MAX_PATH * 4];
 	char *argv[] = { argv0 };
 
-	SeGetExePath(argv0, sizeof(argv0));
-
-	if (argv0[0] == 0)
-	{
-		return 0;
-	}
-
 	pthread_mutex_lock(&g_lock);
 
 	if (g_cedar != NULL)
@@ -331,6 +331,17 @@ int se_init(const char *hamcore_path, const char *temp_dir)
 		pthread_mutex_unlock(&g_lock);
 
 		return 1;
+	}
+
+	// The core keeps pointing at argv, hence static; written under the lock
+	// because several tunnels can start at once in one process
+	SeGetExePath(argv0, sizeof(argv0));
+
+	if (argv0[0] == 0 || g_shutting_down)
+	{
+		pthread_mutex_unlock(&g_lock);
+
+		return 0;
 	}
 
 	if (hamcore_path != NULL && hamcore_path[0] != 0)
@@ -357,21 +368,33 @@ void se_shutdown(void)
 {
 	UINT i;
 
+	// No new session from here on
+	pthread_mutex_lock(&g_lock);
+	g_shutting_down = true;
+	pthread_mutex_unlock(&g_lock);
+
 	for (i = 0; i < SE_MAX_SESSIONS; i++)
 	{
-		se_session *s;
+		se_session id;
 
 		pthread_mutex_lock(&g_lock);
-		s = g_sessions[i];
+		id = (g_sessions[i] != NULL) ? g_sessions[i]->Id : 0;
 		pthread_mutex_unlock(&g_lock);
 
-		if (s != NULL)
+		if (id != 0)
 		{
-			se_disconnect(s);
+			se_disconnect(id);
 		}
 	}
 
 	pthread_mutex_lock(&g_lock);
+
+	// A session another thread is tearing down right now is no longer in the
+	// table, but still uses the core
+	while (g_teardowns != 0)
+	{
+		pthread_cond_wait(&g_teardown_cond, &g_lock);
+	}
 
 	if (g_cedar != NULL)
 	{
@@ -382,6 +405,8 @@ void se_shutdown(void)
 		FreeMayaqua();
 	}
 
+	g_shutting_down = false;
+
 	pthread_mutex_unlock(&g_lock);
 }
 
@@ -391,10 +416,14 @@ void se_core_version(char *dst, size_t dst_size)
 
 	ver[0] = 0;
 
+	pthread_mutex_lock(&g_lock);
+
 	if (g_cedar != NULL)
 	{
 		GetCedarVersion(ver, sizeof(ver));
 	}
+
+	pthread_mutex_unlock(&g_lock);
 
 	SeCopyStr(dst, dst_size, ver);
 }
@@ -609,9 +638,10 @@ static void SeSetSockBuf(int fd)
 	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
 }
 
-se_session *se_connect(const se_profile *p, char *err, size_t err_size)
+se_session se_connect(const se_profile *p, char *err, size_t err_size)
 {
-	se_session *ss;
+	SE_REC *ss;
+	se_session id;
 	ACCOUNT *acc;
 	CLIENT_OPTION option;
 	CLIENT_AUTH auth;
@@ -627,18 +657,18 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 	{
 		SeSetErr(err, err_size, "No profile.");
 
-		return NULL;
+		return 0;
 	}
 
 	pthread_mutex_lock(&g_lock);
 
-	if (g_cedar == NULL)
+	if (g_cedar == NULL || g_shutting_down)
 	{
 		pthread_mutex_unlock(&g_lock);
 
 		SeSetErr(err, err_size, "The VPN core is not initialized.");
 
-		return NULL;
+		return 0;
 	}
 
 	for (slot = 0; slot < SE_MAX_SESSIONS; slot++)
@@ -655,7 +685,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Too many VPN sessions are running.");
 
-		return NULL;
+		return 0;
 	}
 
 	use_v4 = p->use_ipv4 ? true : false;
@@ -667,7 +697,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Both IPv4 and IPv6 are disabled.");
 
-		return NULL;
+		return 0;
 	}
 
 	acc = SeNewAccount(p, err, err_size);
@@ -675,7 +705,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 	{
 		pthread_mutex_unlock(&g_lock);
 
-		return NULL;
+		return 0;
 	}
 
 	// Where the certificate-check procedure leaves the server's certificate
@@ -688,7 +718,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Too many VPN sessions are running.");
 
-		return NULL;
+		return 0;
 	}
 
 	if (socketpair(AF_UNIX, SOCK_DGRAM, 0, fds) != 0)
@@ -700,7 +730,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Could not create the packet channel.");
 
-		return NULL;
+		return 0;
 	}
 
 	SeSetSockBuf(fds[0]);
@@ -722,7 +752,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Could not create the virtual network adapter.");
 
-		return NULL;
+		return 0;
 	}
 
 	VLanAndroidSetIPv4Enabled(v, use_v4);
@@ -750,15 +780,22 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Could not start the VPN session.");
 
-		return NULL;
+		return 0;
 	}
 
 	v->Session = s;
 
-	// The account-ownership reference of the desktop connection protocol: the
-	// client thread releases one session reference when the session halts, so
-	// take it here to keep se_disconnect's ReleaseSession the last one
-	AddRef(s->ref);
+	// The session has its own copies now
+	Zero(&option, sizeof(option));
+	Zero(&auth, sizeof(auth));
+
+	// NewClientSessionEx took a second reference for us (it is built with
+	// SE_CLIENT_SESSION_EXTRA_REF): the client thread releases the first one
+	// when the session ends, and ours keeps the object readable until
+	// se_disconnect.
+#ifndef SE_CLIENT_SESSION_EXTRA_REF
+#error "the core must be built with SE_CLIENT_SESSION_EXTRA_REF"
+#endif
 
 	if (VLanAndroidStart(v) == false)
 	{
@@ -776,10 +813,11 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		SeSetErr(err, err_size, "Could not start the virtual network adapter.");
 
-		return NULL;
+		return 0;
 	}
 
-	ss = ZeroMalloc(sizeof(se_session));
+	ss = ZeroMalloc(sizeof(SE_REC));
+	ss->Id = id = g_next_id++;
 	ss->V = v;
 	ss->Account = acc;
 	ss->FdCore = fds[0];
@@ -789,18 +827,44 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 	pthread_mutex_unlock(&g_lock);
 
-	return ss;
+	return id;
 }
 
-void se_disconnect(se_session *ss)
+// Passwords and keys do not outlive the account in freed memory
+static void SeWipeAccount(ACCOUNT *a)
 {
+	if (a->ClientOption != NULL)
+	{
+		Zero(a->ClientOption->ProxyPassword, sizeof(a->ClientOption->ProxyPassword));
+	}
+
+	if (a->ClientAuth != NULL)
+	{
+		Zero(a->ClientAuth->HashedPassword, sizeof(a->ClientAuth->HashedPassword));
+		Zero(a->ClientAuth->PlainPassword, sizeof(a->ClientAuth->PlainPassword));
+	}
+}
+
+static void SeTeardownDone(void)
+{
+	pthread_mutex_lock(&g_lock);
+	g_teardowns--;
+	pthread_cond_broadcast(&g_teardown_cond);
+	pthread_mutex_unlock(&g_lock);
+}
+
+void se_disconnect(se_session id)
+{
+	SE_REC *ss;
 	VLAN_ANDROID *v;
+	SESSION *s;
+	ACCOUNT *acc;
 	UINT i;
 
 	pthread_mutex_lock(&g_lock);
 
 	// Idempotent: only the first call for a live session tears it down
-	if (SeIsLive(ss) == false)
+	if ((ss = SeFind(id)) == NULL)
 	{
 		pthread_mutex_unlock(&g_lock);
 
@@ -815,48 +879,63 @@ void se_disconnect(se_session *ss)
 		}
 	}
 
+	// se_shutdown waits for teardowns in flight before it frees the core
+	g_teardowns++;
+
 	pthread_mutex_unlock(&g_lock);
 
 	// From here the handle is stale for every other caller, so the teardown
 	// (which waits for the session's threads) does not block the status calls
 	// of the other sessions
 	v = ss->V;
+	s = v->Session;
+	acc = (ACCOUNT *)v->Account;
 
 	// Wake a pending DHCP wait in the pump thread before touching the session
 	VLanAndroidAbortDhcp(v);
 
-	if (v->Session != NULL)
+	// 1. End the session; this waits for the session thread, and with it for
+	//    the certificate-check thread that looks the account up.
+	if (s != NULL)
 	{
-		StopSession(v->Session);
-		ReleaseSession(v->Session);
-		v->Session = NULL;
+		StopSession(s);
 	}
 
-	// Safe after ReleaseSession joined the session thread (and with it the
-	// certificate-check thread that looks the account up)
-	SeCertSlotRemove(ss->Account);
-
-	if (v->Account != NULL)
-	{
-		CiFreeAccount((ACCOUNT *)v->Account);
-		v->Account = NULL;
-	}
-
+	// 2. Stop the adapter's own threads. They read the SESSION object until
+	//    they are joined, so it has to stay allocated (and v->Session set)
+	//    until this returns.
 	VLanAndroidFree(v);
+
+	// 3. Only now let go of the session and of what it pointed to.
+	if (s != NULL)
+	{
+		ReleaseSession(s);
+	}
+
+	SeCertSlotRemove(acc);
+
+	if (acc != NULL)
+	{
+		SeWipeAccount(acc);
+		CiFreeAccount(acc);
+	}
 
 	close(ss->FdCore);
 	close(ss->FdApp);
 
 	Free(ss);
+
+	SeTeardownDone();
 }
 
-int se_packet_fd(se_session *ss)
+int se_packet_fd(se_session id)
 {
+	SE_REC *ss;
 	int fd = -1;
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss))
+	if ((ss = SeFind(id)) != NULL)
 	{
 		fd = ss->FdApp;
 	}
@@ -866,7 +945,7 @@ int se_packet_fd(se_session *ss)
 	return fd;
 }
 
-// Caller holds g_lock and has checked SeIsLive
+// Caller holds g_lock
 static int SeStatus(VLAN_ANDROID *v)
 {
 	SESSION *s = v->Session;
@@ -876,14 +955,17 @@ static int SeStatus(VLAN_ANDROID *v)
 		return SE_STATUS_DISCONNECTED;
 	}
 
-	if (v->ErrorOccured)
-	{
-		return SE_STATUS_CONFIG_ERROR;
-	}
-
+	// A session that has ended is disconnected, whatever the adapter made of
+	// it: the adapter flags an error of its own when the session drops while
+	// it is still waiting for DHCP, and that must not hide the session's error
 	if (s->ForceStopFlag || s->Halt || s->ClientStatus == CLIENT_STATUS_IDLE)
 	{
 		return SE_STATUS_DISCONNECTED;
+	}
+
+	if (v->ErrorOccured)
+	{
+		return SE_STATUS_CONFIG_ERROR;
 	}
 
 	if (v->ConfigOk)
@@ -894,13 +976,14 @@ static int SeStatus(VLAN_ANDROID *v)
 	return SE_STATUS_CONNECTING;
 }
 
-int se_get_status(se_session *ss)
+int se_get_status(se_session id)
 {
+	SE_REC *ss;
 	int ret = SE_STATUS_DISCONNECTED;
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss))
+	if ((ss = SeFind(id)) != NULL)
 	{
 		ret = SeStatus(ss->V);
 	}
@@ -910,13 +993,14 @@ int se_get_status(se_session *ss)
 	return ret;
 }
 
-int se_get_error(se_session *ss)
+int se_get_error(se_session id)
 {
+	SE_REC *ss;
 	int ret = 0;
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && ss->V->Session != NULL)
+	if ((ss = SeFind(id)) != NULL && ss->V->Session != NULL)
 	{
 		ret = (int)ss->V->Session->Err;
 	}
@@ -926,8 +1010,9 @@ int se_get_error(se_session *ss)
 	return ret;
 }
 
-void se_get_status_text(se_session *ss, char *dst, size_t dst_size)
+void se_get_status_text(se_session id, char *dst, size_t dst_size)
 {
+	SE_REC *ss;
 	char buf[MAX_SIZE];
 	char tmp[MAX_SIZE];
 	VLAN_ANDROID *v;
@@ -942,7 +1027,7 @@ void se_get_status_text(se_session *ss, char *dst, size_t dst_size)
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && ss->V->Session != NULL)
+	if ((ss = SeFind(id)) != NULL && ss->V->Session != NULL)
 	{
 		v = ss->V;
 		s = v->Session;
@@ -959,6 +1044,10 @@ void se_get_status_text(se_session *ss, char *dst, size_t dst_size)
 			{
 				SeErrToText(s->Err, tmp, sizeof(tmp));
 				Format(buf, sizeof(buf), "%s (%u)", tmp, s->Err);
+			}
+			else if (v->ErrorOccured && v->ErrorMsg != NULL)
+			{
+				StrCpy(buf, sizeof(buf), v->ErrorMsg);
 			}
 			break;
 
@@ -1013,8 +1102,9 @@ static void SeIPv6ToStr(char *dst, UINT dst_size, IP *ip)
 	}
 }
 
-int se_get_ipv4_config(se_session *ss, se_ipv4_config *out)
+int se_get_ipv4_config(se_session id, se_ipv4_config *out)
 {
+	SE_REC *ss;
 	IP ip, mask, gw, dns1, dns2;
 	DHCP_CLASSLESS_ROUTE_TABLE routes;
 	UINT i;
@@ -1030,7 +1120,10 @@ int se_get_ipv4_config(se_session *ss, se_ipv4_config *out)
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && VLanAndroidGetIPv4Config(ss->V, &ip, &mask, &gw, &dns1, &dns2, NULL, NULL))
+	// Only a complete configuration: the adapter's thread writes the fields one
+	// by one and sets ConfigOk after the last
+	if ((ss = SeFind(id)) != NULL && VLanAndroidIsConfigReady(ss->V) &&
+		VLanAndroidGetIPv4Config(ss->V, &ip, &mask, &gw, &dns1, &dns2, NULL, NULL))
 	{
 		SeIPv4ToStr(out->address, sizeof(out->address), &ip);
 		SeIPv4ToStr(out->mask, sizeof(out->mask), &mask);
@@ -1069,8 +1162,9 @@ int se_get_ipv4_config(se_session *ss, se_ipv4_config *out)
 	return ret;
 }
 
-int se_get_ipv6_config(se_session *ss, se_ipv6_config *out)
+int se_get_ipv6_config(se_session id, se_ipv6_config *out)
 {
+	SE_REC *ss;
 	IP addr, prefix, mask, router, dns;
 	int ret = 0;
 
@@ -1083,7 +1177,8 @@ int se_get_ipv6_config(se_session *ss, se_ipv6_config *out)
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && VLanAndroidGetIPv6Config(ss->V, &addr, &prefix, &mask, &router, NULL, &dns, NULL))
+	if ((ss = SeFind(id)) != NULL && VLanAndroidIsConfigReady(ss->V) &&
+		VLanAndroidGetIPv6Config(ss->V, &addr, &prefix, &mask, &router, NULL, &dns, NULL))
 	{
 		SeIPv6ToStr(out->address, sizeof(out->address), &addr);
 		SeIPv6ToStr(out->router, sizeof(out->router), &router);
@@ -1103,8 +1198,9 @@ int se_get_ipv6_config(se_session *ss, se_ipv6_config *out)
 	return ret;
 }
 
-int se_get_server_address(se_session *ss, char *dst, size_t dst_size)
+int se_get_server_address(se_session id, char *dst, size_t dst_size)
 {
+	SE_REC *ss;
 	char str[MAX_SIZE];
 	int ret = 0;
 
@@ -1112,7 +1208,7 @@ int se_get_server_address(se_session *ss, char *dst, size_t dst_size)
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && ss->V->Session != NULL)
+	if ((ss = SeFind(id)) != NULL && ss->V->Session != NULL)
 	{
 		SESSION *s = ss->V->Session;
 
@@ -1136,8 +1232,9 @@ int se_get_server_address(se_session *ss, char *dst, size_t dst_size)
 	return ret;
 }
 
-int se_get_traffic(se_session *ss, se_traffic *out)
+int se_get_traffic(se_session id, se_traffic *out)
 {
+	SE_REC *ss;
 	int ret = 0;
 
 	if (out == NULL)
@@ -1149,7 +1246,7 @@ int se_get_traffic(se_session *ss, se_traffic *out)
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss) && ss->V->Session != NULL)
+	if ((ss = SeFind(id)) != NULL && ss->V->Session != NULL)
 	{
 		SESSION *s = ss->V->Session;
 
@@ -1166,15 +1263,16 @@ int se_get_traffic(se_session *ss, se_traffic *out)
 	return ret;
 }
 
-size_t se_get_offered_server_cert(se_session *ss, uint8_t *buf, size_t buf_size, uint8_t *sha256)
+size_t se_get_offered_server_cert(se_session id, uint8_t *buf, size_t buf_size, uint8_t *sha256)
 {
+	SE_REC *ss;
 	void *account = NULL;
 	size_t ret = 0;
 	UINT i;
 
 	pthread_mutex_lock(&g_lock);
 
-	if (SeIsLive(ss))
+	if ((ss = SeFind(id)) != NULL)
 	{
 		account = ss->Account;
 	}
@@ -1213,8 +1311,9 @@ size_t se_get_offered_server_cert(se_session *ss, uint8_t *buf, size_t buf_size,
 	return ret;
 }
 
-// DER bytes of a certificate / private key into a fixed buffer; 0 if absent or too large
-static size_t SeXToBlob(X *x, uint8_t *dst, size_t dst_size)
+// DER bytes of a certificate / private key into a fixed buffer; 0 if absent.
+// *too_large is set when it exists but does not fit.
+static size_t SeXToBlob(X *x, uint8_t *dst, size_t dst_size, bool *too_large)
 {
 	BUF *b;
 	size_t ret = 0;
@@ -1232,6 +1331,10 @@ static size_t SeXToBlob(X *x, uint8_t *dst, size_t dst_size)
 			memcpy(dst, b->Buf, b->Size);
 			ret = b->Size;
 		}
+		else
+		{
+			*too_large = true;
+		}
 
 		FreeBuf(b);
 	}
@@ -1239,7 +1342,7 @@ static size_t SeXToBlob(X *x, uint8_t *dst, size_t dst_size)
 	return ret;
 }
 
-static size_t SeKToBlob(K *k, uint8_t *dst, size_t dst_size)
+static size_t SeKToBlob(K *k, uint8_t *dst, size_t dst_size, bool *too_large)
 {
 	BUF *b;
 	size_t ret = 0;
@@ -1257,6 +1360,10 @@ static size_t SeKToBlob(K *k, uint8_t *dst, size_t dst_size)
 			memcpy(dst, b->Buf, b->Size);
 			ret = b->Size;
 		}
+		else
+		{
+			*too_large = true;
+		}
 
 		Zero(b->Buf, b->Size);
 		FreeBuf(b);
@@ -1273,6 +1380,7 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 	CLIENT_AUTH *au;
 	BUF *b;
 	UCHAR zero_hash[SHA1_SIZE];
+	bool too_large = false;
 
 	SeSetErr(err, err_size, "");
 
@@ -1290,8 +1398,13 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 		return 0;
 	}
 
-	if (g_cedar == NULL)
+	// The parser needs the core; hold it in place while it runs
+	pthread_mutex_lock(&g_lock);
+
+	if (g_cedar == NULL || g_shutting_down)
 	{
+		pthread_mutex_unlock(&g_lock);
+
 		SeSetErr(err, err_size, "The VPN core is not initialized.");
 
 		return 0;
@@ -1299,7 +1412,10 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 
 	b = MemToBuf((void *)data, (UINT)len);
 	t = CiCfgToAccount(b);
+	Zero(b->Buf, b->Size);
 	FreeBuf(b);
+
+	pthread_mutex_unlock(&g_lock);
 
 	if (t == NULL || t->ClientOption == NULL || t->ClientAuth == NULL)
 	{
@@ -1317,7 +1433,8 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 	o = t->ClientOption;
 	au = t->ClientAuth;
 
-	UniToUtf8((BYTE *)out->name, sizeof(out->name), o->AccountName);
+	// UniToUtf8 does not terminate a result that fills the buffer
+	UniToUtf8((BYTE *)out->name, sizeof(out->name) - 1, o->AccountName);
 	StrCpy(out->host, sizeof(out->host), o->Hostname);
 	out->port = (int)o->Port;
 	StrCpy(out->hub, sizeof(out->hub), o->HubName);
@@ -1349,8 +1466,8 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 
 	case CLIENT_AUTHTYPE_CERT:
 		out->auth_type = SE_AUTH_CERT;
-		out->client_cert_len = SeXToBlob(au->ClientX, out->client_cert, sizeof(out->client_cert));
-		out->client_key_len = SeKToBlob(au->ClientK, out->client_key, sizeof(out->client_key));
+		out->client_cert_len = SeXToBlob(au->ClientX, out->client_cert, sizeof(out->client_cert), &too_large);
+		out->client_key_len = SeKToBlob(au->ClientK, out->client_key, sizeof(out->client_key), &too_large);
 		break;
 
 	default:
@@ -1360,7 +1477,7 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 
 	out->verify_server_cert = t->CheckServerCert ? 1 : 0;
 	out->use_default_trust = t->AddDefaultCA ? 1 : 0;
-	out->server_cert_len = SeXToBlob(t->ServerCert, out->server_cert, sizeof(out->server_cert));
+	out->server_cert_len = SeXToBlob(t->ServerCert, out->server_cert, sizeof(out->server_cert), &too_large);
 
 	out->max_connections = (int)o->MaxConnection;
 	out->use_compress = o->UseCompress ? 1 : 0;
@@ -1387,8 +1504,24 @@ int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out
 	StrCpy(out->proxy_username, sizeof(out->proxy_username), o->ProxyUsername);
 	StrCpy(out->proxy_password, sizeof(out->proxy_password), o->ProxyPassword);
 
+	// The parsed account holds the same secrets
+	Zero(au->HashedPassword, sizeof(au->HashedPassword));
+	Zero(au->PlainPassword, sizeof(au->PlainPassword));
+	Zero(o->ProxyPassword, sizeof(o->ProxyPassword));
+
 	CiFreeClientCreateAccount(t);
 	Free(t);
+
+	if (too_large)
+	{
+		// Dropping a certificate silently would turn a pinned server into an
+		// unpinned one, or a usable profile into one that fails at connect
+		memset(out, 0, sizeof(se_imported_profile));
+
+		SeSetErr(err, err_size, "A certificate or key in this file is too large for this app.");
+
+		return 0;
+	}
 
 	return 1;
 }

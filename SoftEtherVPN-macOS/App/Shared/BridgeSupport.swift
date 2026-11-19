@@ -97,13 +97,13 @@ enum Bridge {
         return se_init(hamcore, NSTemporaryDirectory()) == 1
     }
 
-    static func statusText(_ session: OpaquePointer?) -> String {
+    static func statusText(_ session: se_session) -> String {
         var buf = [CChar](repeating: 0, count: 512)
         se_get_status_text(session, &buf, buf.count)
         return String(cString: buf)
     }
 
-    static func serverAddress(_ session: OpaquePointer?) -> String? {
+    static func serverAddress(_ session: se_session) -> String? {
         var buf = [CChar](repeating: 0, count: Int(SE_ADDR_LEN))
         return se_get_server_address(session, &buf, buf.count) == 1 ? String(cString: buf) : nil
     }
@@ -184,7 +184,7 @@ enum Bridge {
 
     // Certificate the server offered when this session was refused, with its
     // SHA-256. Read it before se_disconnect.
-    static func offeredServerCertificate(of session: OpaquePointer?) -> (der: Data, sha256: Data)? {
+    static func offeredServerCertificate(of session: se_session) -> (der: Data, sha256: Data)? {
         var der = [UInt8](repeating: 0, count: 16384)
         var hash = [UInt8](repeating: 0, count: 32)
         let len = se_get_offered_server_cert(session, &der, der.count, &hash)

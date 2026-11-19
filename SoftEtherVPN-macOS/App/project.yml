@@ -22,7 +22,7 @@ options:
 settings:
   base:
     DEVELOPMENT_TEAM: ""
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "5.0"                 # language mode, not compiler version
     ARCHS: arm64
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic

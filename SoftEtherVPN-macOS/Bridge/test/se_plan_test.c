@@ -251,10 +251,28 @@ static void TestExclude(void)
 	pol.tunnel_mode = SE_TUNNEL_EXCLUDE;
 	pol.block_ipv6 = 0;
 
-	// Bypassing the resolver's own network is reported
+	// Bypassing exactly the VPN's subnet is the user's decision, but the
+	// resolver in it stays reachable through a host route
 	pol.networks = "192.168.30.0/24";
 	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
-	CHECK(strstr(p.warnings, "bypasses the VPN") != NULL);
+	CHECK(HasNet(p.excluded, p.num_excluded, "192.168.30.0", 24) &&
+		!HasNet(p.included, p.num_included, "192.168.30.0", 24) &&
+		HasNet(p.included, p.num_included, "192.168.30.1", 32));
+
+	// A wide bypass (keep the home network reachable) does not take the VPN's
+	// own subnet with it: the subnet is routed again, more specifically
+	pol.networks = "192.168.0.0/16 fd00::/8";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(HasNet(p.excluded, p.num_excluded, "192.168.0.0", 16) &&
+		HasNet(p.included, p.num_included, "192.168.30.0", 24) &&
+		HasNet(p.included, p.num_included, "0.0.0.0", 0));
+	CHECK(p.warnings[0] == 0);	// the IPv6 entry is moot, not an error
+
+	// ... but with IPv6 blocked, an IPv6 bypass cannot be honored, and says so
+	pol.block_ipv6 = 1;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.blackhole_ipv6 && strstr(p.warnings, "cannot bypass the VPN while IPv6 is blocked") != NULL);
+	pol.block_ipv6 = 0;
 }
 
 static void TestSplitDns(void)
@@ -303,7 +321,7 @@ static void TestSplitDns(void)
 	// No resolver from the hub and none configured
 	pol.dns_domains = "corp.example";
 	CHECK(se_make_plan(&pol, &v4_nodns, NULL, &p, err, sizeof(err)) == 1);
-	CHECK(!p.dns_enabled && strstr(p.warnings, "did not provide a DNS server") != NULL);
+	CHECK(!p.dns_enabled && strstr(p.warnings, "no usable DNS server") != NULL);
 
 	// ... but a configured one is used
 	pol.dns_servers = "10.0.0.53; 10.0.0.54, not-an-ip";
@@ -355,9 +373,20 @@ static void TestServerDecides(void)
 		HasNet(p.included, p.num_included, "10.20.0.0", 16) &&
 		HasNet(p.included, p.num_included, "10.30.5.0", 24));
 	CHECK(!HasNet(p.included, p.num_included, "172.31.0.0", 16));
-	CHECK(HasNet(p.included, p.num_included, "2001:db8:1::", 64) && !HasNet(p.included, p.num_included, "::", 0));
+	// IPv6 is decided on its own, from the router advertisement: the hub has a
+	// router, so IPv6 goes through the VPN even though IPv4 is split
+	CHECK(HasNet(p.included, p.num_included, "::", 0) && !HasNet(p.included, p.num_included, "2001:db8:1::", 64));
 	CHECK(p.dns_enabled && !p.dns_match_all && HasStr(p.match_domains, p.num_match_domains, "corp.example"));
 	CHECK(!p.blackhole_ipv6);
+
+	// ... and without a router, only the advertised prefix
+	{
+		se_ipv6_config v6_norouter = v6;
+
+		v6_norouter.router[0] = 0;
+		CHECK(se_make_plan(&pol, &v4, &v6_norouter, &p, err, sizeof(err)) == 1);
+		CHECK(HasNet(p.included, p.num_included, "2001:db8:1::", 64) && !HasNet(p.included, p.num_included, "::", 0));
+	}
 
 	// Gateway AND pushed routes: the routes win and the gateway is ignored (RFC 3442)
 	strcpy(v4.gateway, "192.168.30.1");
@@ -385,6 +414,116 @@ static void TestServerDecides(void)
 	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 0);
 }
 
+static void TestRobustness(void)
+{
+	se_policy pol;
+	se_ipv4_config v4 = Hub4("corp.example", 0);
+	se_ipv6_config v6 = Hub6();
+	static se_plan p;
+	static char big[8192];
+	char err[256];
+	int i, n;
+
+	printf("robustness\n");
+
+	memset(&pol, 0, sizeof(pol));
+
+	// A DNS server of a family the VPN does not carry is not used: with IPv6
+	// blocked it would be unreachable, without it queries would bypass the VPN
+	pol.tunnel_mode = SE_TUNNEL_FULL;
+	pol.block_ipv6 = 1;
+	pol.dns_servers = "2001:db8::53";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(strstr(p.warnings, "carries no IPv6") != NULL);
+	// ... and with nothing usable left of the override, the hub's own server serves
+	CHECK(p.dns_enabled && p.num_dns_servers == 1 && strcmp(p.dns_servers[0], "192.168.30.1") == 0);
+	pol.dns_servers = "2001:db8::53 10.0.0.53";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.dns_enabled && p.num_dns_servers == 1 && strcmp(p.dns_servers[0], "10.0.0.53") == 0);
+	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1 && p.num_dns_servers == 2);
+	pol.dns_servers = "10.0.0.53";
+	CHECK(se_make_plan(&pol, NULL, &v6, &p, err, sizeof(err)) == 1);
+	CHECK(strstr(p.warnings, "carries no IPv4") != NULL &&
+		p.dns_enabled && p.num_dns_servers == 1 && strcmp(p.dns_servers[0], "2001:db8:1::53") == 0);
+	pol.dns_servers = "10.0.0.1 10.0.0.2 10.0.0.3 10.0.0.4 10.0.0.5";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.num_dns_servers == SE_PLAN_MAX_DNS && strstr(p.warnings, "too many DNS servers") != NULL);
+	pol.dns_servers = NULL;
+	pol.block_ipv6 = 0;
+
+	// An entry too long to hold is rejected, never parsed from its beginning
+	n = snprintf(big, sizeof(big), "10.0.0.0/");
+	memset(big + n, '0', 300);
+	strcpy(big + n + 300, "8JUNK 10.9.0.0/16");
+	pol.tunnel_mode = SE_TUNNEL_INCLUDE;
+	pol.networks = big;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(!HasNet(p.included, p.num_included, "10.0.0.0", 8) && HasNet(p.included, p.num_included, "10.9.0.0", 16));
+	CHECK(strstr(p.warnings, "too long") != NULL);
+
+	// More networks than fit: said, not silent; the resolver's route survives
+	// because it lies in the VPN's subnet, which is added first
+	n = 0;
+	for (i = 0; i < 200; i++)
+	{
+		n += snprintf(big + n, sizeof(big) - (size_t)n, "10.%d.0.0/16 ", i);
+	}
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.num_included == SE_PLAN_MAX_NETS && strstr(p.warnings, "list of networks is too long") != NULL);
+	CHECK(HasNet(p.included, p.num_included, "192.168.30.0", 24));
+	// ... and a resolver that needs a host route that no longer fits is reported
+	pol.dns_servers = "172.20.0.53";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(strstr(p.warnings, "DNS server 172.20.0.53 may be unreachable") != NULL);
+	pol.dns_servers = NULL;
+
+	// Many warnings: each one whole, the buffer never overrun
+	n = 0;
+	for (i = 0; i < 300; i++)
+	{
+		n += snprintf(big + n, sizeof(big) - (size_t)n, "bad-entry-%d ", i);
+	}
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(strlen(p.warnings) < sizeof(p.warnings) && p.warnings[strlen(p.warnings) - 1] == '.');
+	pol.networks = NULL;
+
+	// Domains: what cannot be a resolver rule is refused
+	pol.tunnel_mode = SE_TUNNEL_FULL;
+	pol.dns_mode = SE_DNS_SPLIT;
+	v4.domain[0] = 0;
+	pol.dns_domains = "local 10.0.0.1 -bad.example bad-.example a..b ok.local xn--bcher-kva.de _msdcs.ad.example lan";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.num_match_domains == 4);
+	CHECK(HasStr(p.match_domains, p.num_match_domains, "ok.local") &&
+		HasStr(p.match_domains, p.num_match_domains, "xn--bcher-kva.de") &&
+		HasStr(p.match_domains, p.num_match_domains, "_msdcs.ad.example") &&
+		HasStr(p.match_domains, p.num_match_domains, "lan"));
+	CHECK(strstr(p.warnings, "\"local\"") != NULL && strstr(p.warnings, "\"10.0.0.1\"") != NULL);
+
+	// A label longer than DNS allows
+	memset(big, 'a', 64);
+	strcpy(big + 64, ".example");
+	pol.dns_domains = big;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && p.num_match_domains == 0 && !p.dns_enabled);
+
+	// The hub cannot claim Bonjour's domain either
+	strcpy(v4.domain, "local");
+	pol.dns_domains = "corp.example";
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.num_match_domains == 1 && p.num_search_domains == 0 && strstr(p.warnings, "announced by the VPN") != NULL);
+
+	// More domains than fit
+	n = 0;
+	for (i = 0; i < 40; i++)
+	{
+		n += snprintf(big + n, sizeof(big) - (size_t)n, "d%d.example ", i);
+	}
+	pol.dns_domains = big;
+	v4.domain[0] = 0;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.num_match_domains == SE_PLAN_MAX_DOMAINS && strstr(p.warnings, "list of DNS domains is too long") != NULL);
+}
+
 int main(void)
 {
 	TestParse();
@@ -393,6 +532,7 @@ int main(void)
 	TestExclude();
 	TestSplitDns();
 	TestServerDecides();
+	TestRobustness();
 
 	printf("%s (%d checks, %d failure%s)\n", g_failed == 0 ? "PASSED" : "FAILED",
 		g_checks, g_failed, g_failed == 1 ? "" : "s");
