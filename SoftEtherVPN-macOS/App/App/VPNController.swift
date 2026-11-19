@@ -314,12 +314,21 @@ final class VPNController: NSObject, ObservableObject {
         let active = profiles.filter { state(for: $0.id) != .disconnected }
         guard active.count > 1 else { return nil }
 
-        if active.filter({ $0.tunnelMode != .includeOnly }).count > 1 {
-            return "More than one connection is set to carry all traffic. macOS sends it through only one of them. Set the others to \"Only these networks\"."
+        // With "What the VPN server says" the outcome is known once connected
+        func carriesAll(_ p: VPNProfile) -> Bool {
+            switch p.tunnelMode {
+            case .serverDecides: return status(for: p.id).fullTunnel
+            case .includeOnly: return false
+            case .full, .excludeListed: return true
+            }
+        }
+
+        if active.filter(carriesAll).count > 1 {
+            return "More than one connection carries all traffic. macOS sends it through only one of them. Set the others to \"Only these networks\", or have their servers announce specific networks."
         }
 
         let allNames = active.filter {
-            $0.dnsMode == .allNames || ($0.dnsMode == .automatic && $0.tunnelMode != .includeOnly)
+            $0.dnsMode == .allNames || ($0.dnsMode == .automatic && carriesAll($0))
         }
         if allNames.count > 1 {
             return "More than one connection wants to look up all names. Only one can; give the others their own DNS domains."

@@ -22,13 +22,17 @@ enum
 	SE_TUNNEL_FULL = 0,		// everything
 	SE_TUNNEL_INCLUDE = 1,	// only the VPN's own subnet and the listed networks
 	SE_TUNNEL_EXCLUDE = 2,	// everything except the listed networks
+	SE_TUNNEL_SERVER = 3,	// what the VPN server's DHCP answer says, like the
+							// Windows client: its pushed routes (option 121) if
+							// there are any, else everything if it hands out a
+							// default gateway, else only the VPN's own subnet
 };
 
 // Which names the VPN's DNS servers resolve
 enum
 {
-	SE_DNS_AUTO = 0,		// all names when everything is routed (FULL / EXCLUDE);
-							// only the VPN's domains when INCLUDE
+	SE_DNS_AUTO = 0,		// all names when everything is routed; only the
+							// VPN's domains when the tunnel is split
 	SE_DNS_ALL = 1,			// all names
 	SE_DNS_SPLIT = 2,		// only the listed domains (and the hub's DHCP domain)
 	SE_DNS_OFF = 3,			// leave the system resolver alone
@@ -70,6 +74,10 @@ typedef struct
 
 typedef struct
 {
+	// 1: everything is routed through the VPN (possibly minus excluded[]);
+	// 0: a split tunnel. This is where SE_TUNNEL_SERVER's outcome shows.
+	int full_tunnel;
+
 	// Routes. A default route is the entry with prefix_len 0.
 	int num_included;
 	se_net included[SE_PLAN_MAX_NETS];

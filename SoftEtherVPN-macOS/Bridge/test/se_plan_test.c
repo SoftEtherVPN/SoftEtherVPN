@@ -311,6 +311,80 @@ static void TestSplitDns(void)
 	CHECK(p.dns_enabled && p.num_dns_servers == 2 && strstr(p.warnings, "not-an-ip") != NULL);
 }
 
+static void TestServerDecides(void)
+{
+	se_policy pol;
+	se_ipv4_config v4;
+	se_ipv6_config v6 = Hub6();
+	se_plan p;
+	char err[256];
+
+	printf("server decides (Windows client behavior)\n");
+
+	memset(&pol, 0, sizeof(pol));
+	pol.tunnel_mode = SE_TUNNEL_SERVER;
+	pol.networks = "172.31.0.0/16";	// the user's list plays no part in this mode
+	pol.use_pushed_routes = 0;		// nor does this switch
+	pol.block_ipv6 = 1;
+
+	// Default gateway, nothing pushed: full tunnel, all names
+	v4 = Hub4("corp.example", 0);
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.full_tunnel == 1 && HasNet(p.included, p.num_included, "0.0.0.0", 0));
+	CHECK(!HasNet(p.included, p.num_included, "172.31.0.0", 16) && p.num_excluded == 0);
+	CHECK(p.dns_enabled && p.dns_match_all);
+	CHECK(p.blackhole_ipv6 == 1);	// leak protection follows the outcome
+
+	// ... with IPv6 on the hub, that is routed too
+	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1);
+	CHECK(HasNet(p.included, p.num_included, "::", 0) && !p.blackhole_ipv6);
+
+	// No gateway, routes pushed: SoftEther's documented split tunnel setup
+	v4 = Hub4("corp.example", 0);
+	v4.gateway[0] = 0;
+	v4.num_routes = 2;
+	strcpy(v4.routes[0].network, "10.20.0.0");
+	v4.routes[0].prefix_len = 16;
+	strcpy(v4.routes[0].gateway, "192.168.30.1");
+	strcpy(v4.routes[1].network, "10.30.5.0");
+	v4.routes[1].prefix_len = 24;
+	strcpy(v4.routes[1].gateway, "192.168.30.1");
+	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1);
+	CHECK(p.full_tunnel == 0 && !HasNet(p.included, p.num_included, "0.0.0.0", 0));
+	CHECK(HasNet(p.included, p.num_included, "192.168.30.0", 24) &&
+		HasNet(p.included, p.num_included, "10.20.0.0", 16) &&
+		HasNet(p.included, p.num_included, "10.30.5.0", 24));
+	CHECK(!HasNet(p.included, p.num_included, "172.31.0.0", 16));
+	CHECK(HasNet(p.included, p.num_included, "2001:db8:1::", 64) && !HasNet(p.included, p.num_included, "::", 0));
+	CHECK(p.dns_enabled && !p.dns_match_all && HasStr(p.match_domains, p.num_match_domains, "corp.example"));
+	CHECK(!p.blackhole_ipv6);
+
+	// Gateway AND pushed routes: the routes win and the gateway is ignored (RFC 3442)
+	strcpy(v4.gateway, "192.168.30.1");
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.full_tunnel == 0 && !HasNet(p.included, p.num_included, "0.0.0.0", 0) && p.num_included == 3);
+
+	// A pushed default route makes it a full tunnel
+	v4 = Hub4("corp.example", 1);	// pushes 10.20.0.0/16 and 0.0.0.0/0
+	v4.gateway[0] = 0;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.full_tunnel == 1 && HasNet(p.included, p.num_included, "0.0.0.0", 0) && p.dns_match_all);
+
+	// Neither gateway nor routes: only the VPN's own subnet
+	v4 = Hub4("", 0);
+	v4.gateway[0] = 0;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.full_tunnel == 0 && p.num_included == 1 && HasNet(p.included, p.num_included, "192.168.30.0", 24));
+
+	// The user's own modes still report their outcome
+	pol.tunnel_mode = SE_TUNNEL_EXCLUDE;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && p.full_tunnel == 1);
+	pol.tunnel_mode = SE_TUNNEL_INCLUDE;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && p.full_tunnel == 0);
+	pol.tunnel_mode = 99;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 0);
+}
+
 int main(void)
 {
 	TestParse();
@@ -318,6 +392,7 @@ int main(void)
 	TestInclude();
 	TestExclude();
 	TestSplitDns();
+	TestServerDecides();
 
 	printf("%s (%d checks, %d failure%s)\n", g_failed == 0 ? "PASSED" : "FAILED",
 		g_checks, g_failed, g_failed == 1 ? "" : "s");

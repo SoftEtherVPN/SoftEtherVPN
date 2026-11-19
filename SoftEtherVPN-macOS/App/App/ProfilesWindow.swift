@@ -138,7 +138,7 @@ struct ProfileEditor: View {
                     ForEach(TunnelMode.allCases) { Text($0.title).tag($0) }
                 }
 
-                if profile.tunnelMode != .full {
+                if profile.tunnelMode == .includeOnly || profile.tunnelMode == .excludeListed {
                     TextField(profile.tunnelMode == .includeOnly ? "Networks to reach" : "Networks to bypass",
                               text: $profile.networks,
                               prompt: Text("10.0.0.0/8, 192.168.50.0/24"),
@@ -215,6 +215,8 @@ struct ProfileEditor: View {
 
     private var trafficHelp: String {
         switch profile.tunnelMode {
+        case .serverDecides:
+            return "The VPN server decides, as with the Windows client. If it announces specific networks, only those go through the VPN. Otherwise, if it provides a default gateway, everything does."
         case .full:
             return "Everything this Mac sends goes through the VPN while it is connected."
         case .includeOnly:
@@ -227,7 +229,7 @@ struct ProfileEditor: View {
     private var dnsHelp: String {
         switch profile.dnsMode {
         case .automatic:
-            return "All names are looked up through the VPN when all traffic goes through it. With \"Only these networks\", only the VPN's own domain and the domains listed here are."
+            return "All names are looked up through the VPN when all traffic goes through it. When only some networks do, only the VPN's own domain and the domains listed here are."
         case .allNames:
             return "Every name is looked up by the VPN's DNS servers."
         case .splitDomains:

@@ -25,6 +25,7 @@ enum AuthMethod: Int, Codable, CaseIterable, Identifiable {
 }
 
 enum TunnelMode: Int, Codable, CaseIterable, Identifiable {
+    case serverDecides = 3      // SE_TUNNEL_SERVER
     case full = 0               // SE_TUNNEL_FULL
     case includeOnly = 1        // SE_TUNNEL_INCLUDE
     case excludeListed = 2      // SE_TUNNEL_EXCLUDE
@@ -33,6 +34,7 @@ enum TunnelMode: Int, Codable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .serverDecides: return "What the VPN server says"
         case .full: return "All traffic"
         case .includeOnly: return "Only these networks"
         case .excludeListed: return "All traffic except these networks"
@@ -113,7 +115,9 @@ struct VPNProfile: Codable, Identifiable, Equatable {
     var serverTrust = ServerTrust.pinned
     var pinnedServerCertificate: Data?  // DER
 
-    var tunnelMode = TunnelMode.full
+    // Default: like the Windows client, the server's DHCP answer decides
+    // between a full and a split tunnel
+    var tunnelMode = TunnelMode.serverDecides
     var networks = ""                   // free text, see se_plan.h
     var usePushedRoutes = true
 
@@ -215,6 +219,7 @@ enum TunnelKey {
 struct TunnelStatus: Codable, Equatable {
     var text = ""
     var connected = false
+    var fullTunnel = false              // everything is routed through this VPN
     var address = ""
     var address6 = ""
     var server = ""

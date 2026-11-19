@@ -313,6 +313,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         var status = TunnelStatus()
         status.text = "Connected."
         status.connected = true
+        status.fullTunnel = plan.pointee.full_tunnel != 0
         status.address = hasV4 ? cString(v4.address) : ""
         status.address6 = hasV6 ? cString(v6.address) : ""
         status.server = server

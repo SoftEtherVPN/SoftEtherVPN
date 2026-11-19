@@ -387,6 +387,8 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 	se_net n;
 	int has_v4, has_v6;
 	int dns_mode;
+	int mode, use_pushed;
+	const char *networks;
 	int i;
 
 	SetErr(err, err_size, "");
@@ -410,17 +412,65 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 		return 0;
 	}
 
-	if (policy->tunnel_mode != SE_TUNNEL_FULL && policy->tunnel_mode != SE_TUNNEL_INCLUDE &&
-		policy->tunnel_mode != SE_TUNNEL_EXCLUDE)
+	mode = policy->tunnel_mode;
+	use_pushed = policy->use_pushed_routes;
+	networks = policy->networks;
+
+	if (mode == SE_TUNNEL_SERVER)
+	{
+		// The server decides, the way a DHCP client on Windows ends up routed:
+		//  - classless static routes pushed (option 121): exactly those, and
+		//    the router option is ignored (RFC 3442) - a split tunnel, unless
+		//    one of them is the default route;
+		//  - none pushed, a default gateway handed out: everything;
+		//  - neither: only the VPN's own subnet.
+		// Without IPv4 the router of the IPv6 advertisement stands for the gateway.
+		int pushed = 0, pushed_default = 0;
+		int full;
+
+		if (has_v4)
+		{
+			for (i = 0; i < v4->num_routes && i < SE_MAX_ROUTES; i++)
+			{
+				char cidr[SE_ADDR_LEN * 2];
+
+				snprintf(cidr, sizeof(cidr), "%s/%d", v4->routes[i].network, v4->routes[i].prefix_len);
+
+				if (se_parse_net(cidr, &n))
+				{
+					pushed++;
+
+					if (n.prefix_len == 0)
+					{
+						pushed_default = 1;
+					}
+				}
+			}
+
+			full = (pushed > 0) ? pushed_default : (v4->gateway[0] != 0);
+		}
+		else
+		{
+			full = (v6->router[0] != 0);
+		}
+
+		mode = full ? SE_TUNNEL_FULL : SE_TUNNEL_INCLUDE;
+		use_pushed = 1;
+		networks = NULL;
+	}
+
+	if (mode != SE_TUNNEL_FULL && mode != SE_TUNNEL_INCLUDE && mode != SE_TUNNEL_EXCLUDE)
 	{
 		SetErr(err, err_size, "Unknown tunnel mode.");
 
 		return 0;
 	}
 
+	p->full_tunnel = (mode != SE_TUNNEL_INCLUDE) ? 1 : 0;
+
 	// ---- Routes ----
 
-	if (policy->tunnel_mode == SE_TUNNEL_INCLUDE)
+	if (mode == SE_TUNNEL_INCLUDE)
 	{
 		// The VPN's own subnet is always reachable
 		if (has_v4)
@@ -447,7 +497,7 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 			}
 		}
 
-		if (policy->use_pushed_routes && has_v4)
+		if (use_pushed && has_v4)
 		{
 			for (i = 0; i < v4->num_routes && i < SE_MAX_ROUTES; i++)
 			{
@@ -484,12 +534,12 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 		}
 	}
 
-	if (policy->tunnel_mode != SE_TUNNEL_FULL)
+	if (mode != SE_TUNNEL_FULL)
 	{
-		se_net *list = (policy->tunnel_mode == SE_TUNNEL_INCLUDE) ? p->included : p->excluded;
-		int *num = (policy->tunnel_mode == SE_TUNNEL_INCLUDE) ? &p->num_included : &p->num_excluded;
+		se_net *list = (mode == SE_TUNNEL_INCLUDE) ? p->included : p->excluded;
+		int *num = (mode == SE_TUNNEL_INCLUDE) ? &p->num_included : &p->num_excluded;
 
-		pos = policy->networks;
+		pos = networks;
 
 		while (NextToken(&pos, tok, sizeof(tok)))
 		{
@@ -581,7 +631,7 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 
 		if (dns_mode == SE_DNS_AUTO)
 		{
-			dns_mode = (policy->tunnel_mode == SE_TUNNEL_INCLUDE) ? SE_DNS_SPLIT : SE_DNS_ALL;
+			dns_mode = (mode == SE_TUNNEL_INCLUDE) ? SE_DNS_SPLIT : SE_DNS_ALL;
 
 			if (dns_mode == SE_DNS_SPLIT && p->num_match_domains == 0)
 			{

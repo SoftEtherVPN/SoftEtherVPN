@@ -35,10 +35,11 @@ non-IP Ethernet protocols are not available on this client.
 
 | Setting | Effect |
 |---|---|
+| What the VPN server says (default) | Like the Windows client. If the hub's DHCP server pushes routes (option 121), only the VPN's subnet and those routes are used and its default gateway is ignored (RFC 3442); a pushed default route means everything. With no pushed routes, a default gateway means everything; without one, only the VPN's subnet. |
 | All traffic | Default route through the VPN. |
 | Only these networks | The VPN's own subnet, the listed networks, and (optionally) the routes the hub's DHCP server pushes. A pushed default route is ignored. |
 | All traffic except these networks | Default route through the VPN, listed networks bypass it. |
-| DNS: Automatic | All names via the VPN when everything is routed. With "Only these networks": only the hub's DHCP domain and the listed domains. |
+| DNS: Automatic | All names via the VPN when everything is routed. On a split tunnel: only the hub's DHCP domain and the listed domains. |
 | DNS: all names | The VPN's DNS servers resolve everything. |
 | DNS: only these domains | Split DNS on the listed domains plus the hub's DHCP domain. |
 | DNS: don't change | The system resolver is left alone. |
@@ -47,6 +48,10 @@ non-IP Ethernet protocols are not available on this client.
 The decision logic is `Bridge/se_plan.c`. It is plain C with no dependency on
 the core, and the Swift provider only maps its result onto
 `NEPacketTunnelNetworkSettings`.
+
+To split-tunnel from the server, clear the default gateway of the Virtual DHCP
+Server and set its pushed routes (`DhcpSet /GW:none /PUSHROUTE:...`); to send
+everything through the VPN, set a default gateway and push no routes.
 
 A SoftEther server can push one DHCP domain name and a list of routes, but not
 a list of split-DNS domains. Additional domains have to be set in the profile.
@@ -147,8 +152,9 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
 
 - The desktop targets still build with the core changes, and `libcedar` from
   the desktop build contains none of the L3 adapter code.
-- `se_plan_test`: 88 checks covering network parsing, full tunnel, both split
-  tunnel directions, split DNS, IPv6 leak protection and the fallbacks. Clean
+- `se_plan_test`: 111 checks covering network parsing, the server-decided
+  mode, full tunnel, both split tunnel directions, split DNS, IPv6 leak
+  protection and the fallbacks. Clean
   under AddressSanitizer and UBSan.
 - `run-e2e-test.sh`, against a real local vpnserver:
   - an unknown server certificate is refused and reported, and a pinned one
