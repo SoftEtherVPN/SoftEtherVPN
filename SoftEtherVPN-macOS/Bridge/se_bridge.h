@@ -5,8 +5,9 @@
 // types and macros (UINT, bool, Lock, Free, Zero, ...) that collide with Apple
 // SDK headers, so the core stays behind this boundary.
 //
-// Threading: every function may be called from any thread. One session exists
-// at a time; a handle that is no longer the live session is rejected safely.
+// Threading: every function may be called from any thread. Up to
+// SE_MAX_SESSIONS sessions run side by side, each with its own handle and
+// packet descriptor; a handle that was disconnected is rejected safely.
 
 #ifndef SE_BRIDGE_H
 #define SE_BRIDGE_H
@@ -19,6 +20,9 @@ extern "C" {
 #endif
 
 typedef struct se_session se_session;
+
+// Concurrent sessions per process (one per connected profile)
+#define SE_MAX_SESSIONS		8
 
 // Authentication methods
 enum
@@ -205,8 +209,8 @@ void se_core_version(char *dst, size_t dst_size);
 int se_add_trusted_ca(const uint8_t *cert, size_t len);
 
 // Start a session. Returns NULL (and a message in err) if the profile is not
-// usable; otherwise the session is connecting in the background and
-// se_get_status reports its progress.
+// usable or SE_MAX_SESSIONS are already running; otherwise the session is
+// connecting in the background and se_get_status reports its progress.
 se_session *se_connect(const se_profile *profile, char *err, size_t err_size);
 
 // Stop the session and release it. The packet descriptor is closed here, so
@@ -234,11 +238,11 @@ int se_get_server_address(se_session *s, char *dst, size_t dst_size);
 
 int se_get_traffic(se_session *s, se_traffic *out);
 
-// The certificate the server offered when the last connection attempt was
-// refused for an untrusted / mismatching / expired certificate. Returns the
+// The certificate the server offered when this session's connection attempt
+// was refused for an untrusted / mismatching / expired certificate. Returns the
 // DER length (0 if none) and copies up to buf_size bytes; sha256 receives the
-// 32-byte fingerprint when not NULL. Valid until the next se_connect.
-size_t se_get_offered_server_cert(uint8_t *buf, size_t buf_size, uint8_t *sha256);
+// 32-byte fingerprint when not NULL. Read it before se_disconnect.
+size_t se_get_offered_server_cert(se_session *s, uint8_t *buf, size_t buf_size, uint8_t *sha256);
 
 #ifdef __cplusplus
 }

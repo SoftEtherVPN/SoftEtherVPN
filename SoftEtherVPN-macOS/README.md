@@ -51,6 +51,24 @@ the core, and the Swift provider only maps its result onto
 A SoftEther server can push one DHCP domain name and a list of routes, but not
 a list of split-DNS domains. Additional domains have to be set in the profile.
 
+## Several connections at once
+
+Every profile has its own VPN configuration and its own tunnel interface, so
+any number of them (up to `SE_MAX_SESSIONS`, 8) can be connected together. All
+tunnels run in the one system extension process, each as its own provider
+instance with its own SoftEther session.
+
+macOS keeps the routes and DNS domains of each tunnel apart, so the natural
+setup is one split-tunnel profile per network, each with its own DNS domains.
+Two things cannot be shared, and the app warns about both:
+
+- Only one connected profile can carry "all traffic". Where routes of two
+  tunnels overlap, macOS uses one of them.
+- Only one connected profile can resolve all names.
+
+While a full-tunnel profile is connected, the other profiles reach their own
+VPN servers through it.
+
 ## Layout
 
 | Path | Contents |
@@ -139,7 +157,11 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
   - the DHCP address, DNS server, domain name and pushed route arrive;
   - an ICMP echo written as a raw IPv4 packet is answered by the hub's gateway;
   - a `.vpn` file exported by the desktop vpnclient is imported, and the
-    session logs in with the password hash it carries.
+    session logs in with the password hash it carries;
+  - two sessions to two hubs run side by side with separate addresses, DNS
+    domains and packet descriptors, without crosstalk; ending one leaves the
+    other carrying traffic, and a refused certificate is reported for its own
+    session only.
 - The same test passes as an unprivileged user with the program folder
   read-only, which is the situation inside a signed bundle.
 
@@ -152,6 +174,9 @@ Not verified:
   never been run. The Swift code was reviewed by reading only.
 - Behaviour inside the extension's App Sandbox, and what macOS does with the
   generated settings (in particular split DNS and on-demand connection).
+- Several tunnels of one app connected together. Other projects report that
+  macOS supports this (for example WireGuard/wireguard-apple pull request 63,
+  tested on macOS 26), but it has not been tried with this app.
 - IPv6 through the bridge (the test server's SecureNAT has no IPv6).
 
 `.github/workflows/macos_client.yml` runs the build, the tests above and an
@@ -177,7 +202,6 @@ static libraries built for the deployment target instead.
 ## Known limits
 
 - Layer 3 only: no bridging, no non-IP protocols.
-- One connection at a time.
 - Smart card sign-in is not supported.
 - "Connect automatically" stores the password with the VPN configuration,
   because the system starts the tunnel without the app.

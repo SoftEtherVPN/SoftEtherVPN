@@ -36,6 +36,7 @@ struct ProfilesWindow: View {
 
                     Button {
                         if let p = store.profiles.first(where: { $0.id == selection }) {
+                            vpn.remove(profileID: p.id)
                             store.delete(p)
                             selection = store.profiles.first?.id
                         }

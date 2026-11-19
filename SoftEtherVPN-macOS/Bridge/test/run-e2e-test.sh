@@ -10,9 +10,10 @@
 #   <bridge build dir>   a build of SoftEtherVPN-macOS/ (this folder's
 #                        CMakeLists.txt): provides se_bridge_test
 #
-# The server gets one hub with SecureNAT (virtual DHCP + NAT), one user, a
-# DHCP domain name and one pushed classless route, so the test covers
-# everything the macOS split tunnel / split DNS settings are built from.
+# The server gets a hub with SecureNAT (virtual DHCP + NAT), one user, a DHCP
+# domain name and one pushed classless route, so the test covers everything
+# the macOS split tunnel / split DNS settings are built from; and a second hub
+# with another address range and domain for several connections at once.
 # A desktop vpnclient is used only to export a .vpn connection file, which the
 # bridge then imports. No root and no network interface is needed.
 set -eu
@@ -61,6 +62,17 @@ cmd /HUB:TEST /PASSWORD:hubpw /CMD DhcpSet /START:192.168.30.10 /END:192.168.30.
 	/DOMAIN:corp.example /LOG:yes /PUSHROUTE:10.20.0.0/255.255.0.0/192.168.30.1
 cmd /HUB:TEST /PASSWORD:hubpw /CMD SecureNatEnable
 
+# A second hub with another address range and domain, for the test of several
+# connections at once
+cmd /CMD HubCreate TEST2 /PASSWORD:hubpw
+cmd /HUB:TEST2 /PASSWORD:hubpw /CMD UserCreate u1 /GROUP:none /REALNAME:none /NOTE:none
+cmd /HUB:TEST2 /PASSWORD:hubpw /CMD UserPasswordSet u1 /PASSWORD:pw1
+cmd /HUB:TEST2 /PASSWORD:hubpw /CMD SecureNatHostSet /MAC:none /IP:192.168.40.1 /MASK:255.255.255.0
+cmd /HUB:TEST2 /PASSWORD:hubpw /CMD DhcpSet /START:192.168.40.10 /END:192.168.40.200 \
+	/MASK:255.255.255.0 /EXPIRE:7200 /GW:192.168.40.1 /DNS:192.168.40.1 /DNS2:none \
+	/DOMAIN:lab.example /LOG:yes /PUSHROUTE:none
+cmd /HUB:TEST2 /PASSWORD:hubpw /CMD SecureNatEnable
+
 # A .vpn file as the desktop client exports it (saved password included)
 mkdir "$WORK/client"
 cp "$DESKTOP/vpnclient" "$DESKTOP/hamcore.se2" "$WORK/client/"
@@ -89,5 +101,6 @@ ccmd AccountExport "Office VPN" "/SAVEPATH:$WORK/office.vpn"
 export LD_LIBRARY_PATH="$BRIDGE/softether-core:$LD_LIBRARY_PATH"
 export DYLD_LIBRARY_PATH="$BRIDGE/softether-core:$DYLD_LIBRARY_PATH"
 export SE_TEST_VPN_FILE="$WORK/office.vpn"
+export SE_TEST_HUB2=TEST2
 SE_TEST_EXPECT_DOMAIN=corp.example SE_TEST_EXPECT_ROUTES=1 \
 	"$BRIDGE/se_bridge_test" "$BRIDGE/softether-core/hamcore.se2" 127.0.0.1 "$PORT" TEST u1 pw1

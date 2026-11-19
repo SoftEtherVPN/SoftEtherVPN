@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 	st = WaitStatus(s, 30);
 	CHECK(st == SE_STATUS_DISCONNECTED, "refused (status %d)", st);
 	CHECK(se_get_error(s) == SE_ERR_CERT_NOT_TRUSTED, "error is CERT_NOT_TRUSTED (got %d)", se_get_error(s));
-	cert_len = se_get_offered_server_cert(cert, sizeof(cert), fp);
+	cert_len = se_get_offered_server_cert(s, cert, sizeof(cert), fp);
 	CHECK(cert_len > 0 && cert_len <= sizeof(cert), "offered certificate reported (%u bytes)", (unsigned)cert_len);
 	printf("        sha256 ");
 	for (i = 0; i < 32; i++)
@@ -227,7 +227,6 @@ int main(int argc, char *argv[])
 	printf("[3] pinned certificate, correct password\n");
 	s = se_connect(&p, err, sizeof(err));
 	CHECK(s != NULL, "session started %s", err);
-	CHECK(se_connect(&p, err, sizeof(err)) == NULL, "second concurrent session rejected: %s", err);
 	st = WaitStatus(s, 60);
 	CHECK(st == SE_STATUS_CONNECTED, "connected (status %d)", st);
 
@@ -266,6 +265,72 @@ int main(int argc, char *argv[])
 	se_disconnect(s);
 	se_get_status_text(s, text, sizeof(text));
 	CHECK(strcmp(text, "Disconnected.") == 0, "disconnected cleanly");
+
+	// Several connections at once: a second hub with its own address range and
+	// DNS domain, connected while the first is up. Each session has its own
+	// packet descriptor and configuration, and ending one leaves the other alone.
+	if (getenv("SE_TEST_HUB2") != NULL)
+	{
+		se_session *s1, *s2;
+		se_profile p2 = p;
+		se_ipv4_config a, b;
+		unsigned char mac1[6] = { 0x02, 0x11, 0x22, 0x33, 0x44, 0x01 };
+		unsigned char mac2[6] = { 0x02, 0x11, 0x22, 0x33, 0x44, 0x02 };
+
+		printf("[multi] two connections at the same time\n");
+
+		p.mac_address = mac1;
+		p2.mac_address = mac2;
+		p2.hub = getenv("SE_TEST_HUB2");
+
+		s1 = se_connect(&p, err, sizeof(err));
+		CHECK(s1 != NULL, "first session started %s", err);
+		s2 = se_connect(&p2, err, sizeof(err));
+		CHECK(s2 != NULL && s2 != s1, "second session started alongside %s", err);
+
+		CHECK(WaitStatus(s1, 60) == SE_STATUS_CONNECTED, "first connected");
+		CHECK(WaitStatus(s2, 60) == SE_STATUS_CONNECTED, "second connected");
+
+		memset(&a, 0, sizeof(a));
+		memset(&b, 0, sizeof(b));
+		CHECK(se_get_ipv4_config(s1, &a) == 1 && se_get_ipv4_config(s2, &b) == 1, "both have a configuration");
+		printf("        first  %s domain '%s'\n        second %s domain '%s'\n", a.address, a.domain, b.address, b.domain);
+		CHECK(strcmp(a.gateway, b.gateway) != 0 && strcmp(a.domain, b.domain) != 0,
+			"each session reports its own hub's network and domain");
+		CHECK(se_packet_fd(s1) >= 0 && se_packet_fd(s2) >= 0 && se_packet_fd(s1) != se_packet_fd(s2),
+			"separate packet descriptors");
+
+		CHECK(Ping(s1, a.address, a.gateway) == 1, "first hub's gateway %s answers on the first descriptor", a.gateway);
+		CHECK(Ping(s2, b.address, b.gateway) == 1, "second hub's gateway %s answers on the second descriptor", b.gateway);
+		// No crosstalk: the first hub's gateway is not reachable through the second session
+		CHECK(Ping(s2, b.address, a.gateway) == 0, "the second session does not reach the first hub");
+
+		se_disconnect(s1);
+		CHECK(se_get_status(s1) == SE_STATUS_DISCONNECTED && se_get_status(s2) == SE_STATUS_CONNECTED,
+			"ending the first leaves the second connected");
+		CHECK(Ping(s2, b.address, b.gateway) == 1, "the second still carries traffic");
+
+		// A refused certificate is reported per session
+		{
+			se_profile p3 = p;
+			se_session *s3;
+			unsigned char c3[8192];
+
+			p3.pinned_server_cert = NULL;
+			p3.pinned_server_cert_len = 0;
+			s3 = se_connect(&p3, err, sizeof(err));
+			CHECK(s3 != NULL && WaitStatus(s3, 30) == SE_STATUS_DISCONNECTED, "third session refused for its certificate");
+			CHECK(se_get_offered_server_cert(s3, c3, sizeof(c3), NULL) == cert_len &&
+				se_get_offered_server_cert(s2, c3, sizeof(c3), NULL) == 0,
+				"the offered certificate belongs to the refused session only");
+			se_disconnect(s3);
+		}
+
+		CHECK(se_get_status(s2) == SE_STATUS_CONNECTED, "the second is unaffected");
+		se_disconnect(s2);
+
+		p.mac_address = NULL;
+	}
 
 	// 5. A .vpn file exported by the desktop client: import it, and log in
 	//    with the password hash it carries

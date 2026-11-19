@@ -20,9 +20,11 @@ final class VPNController: NSObject, ObservableObject {
         case disconnecting
     }
 
-    @Published private(set) var state = State.disconnected
-    @Published private(set) var activeProfileID: UUID?
-    @Published private(set) var status = TunnelStatus()
+    // Every profile has its own VPN configuration and tunnel, so several can
+    // be connected at the same time. Keyed by profile id.
+    @Published private(set) var states: [UUID: State] = [:]
+    @Published private(set) var statuses: [UUID: TunnelStatus] = [:]
+    @Published var errors: [UUID: String] = [:]
     @Published var lastError: String?
     @Published var extensionNeedsApproval = false
     // Set when a server certificate has to be confirmed by the user
@@ -35,15 +37,23 @@ final class VPNController: NSObject, ObservableObject {
         let fingerprint: String
     }
 
-    private var manager: NETunnelProviderManager?
-    private var statusObserver: NSObjectProtocol?
+    private var managers: [UUID: NETunnelProviderManager] = [:]
+    private var observers: [UUID: NSObjectProtocol] = [:]
     private var pollTimer: Timer?
 
     override init() {
         super.init()
         // Also needed after an app update, to replace the installed extension
         activateExtension()
-        Task { await self.loadManager() }
+        Task { await self.loadManagers() }
+    }
+
+    func state(for id: UUID) -> State { states[id] ?? .disconnected }
+    func status(for id: UUID) -> TunnelStatus { statuses[id] ?? TunnelStatus() }
+
+    var isAnyConnected: Bool { states.values.contains(.connected) }
+    var isAnyBusy: Bool {
+        states.values.contains { $0 == .connecting || $0 == .reconnecting || $0 == .disconnecting }
     }
 
     // MARK: - System extension
@@ -55,31 +65,45 @@ final class VPNController: NSObject, ObservableObject {
         OSSystemExtensionManager.shared.submitRequest(request)
     }
 
-    // MARK: - Configuration
+    // MARK: - Configurations
 
-    private func loadManager() async {
-        if let old = statusObserver {
+    private static func profileID(of m: NETunnelProviderManager) -> UUID? {
+        guard
+            let json = (m.protocolConfiguration as? NETunnelProviderProtocol)?
+                .providerConfiguration?[TunnelKey.profile] as? Data,
+            let p = try? JSONDecoder().decode(VPNProfile.self, from: json)
+        else { return nil }
+        return p.id
+    }
+
+    fileprivate func loadManagers() async {
+        observers.values.forEach { NotificationCenter.default.removeObserver($0) }
+        observers = [:]
+        managers = [:]
+
+        for m in (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? [] {
+            if let id = Self.profileID(of: m), managers[id] == nil {
+                managers[id] = m
+                observe(m, id: id)
+            } else {
+                // Not one of ours any more (unreadable or duplicate)
+                try? await m.removeFromPreferences()
+            }
+        }
+    }
+
+    private func observe(_ m: NETunnelProviderManager, id: UUID) {
+        if let old = observers[id] {
             NotificationCenter.default.removeObserver(old)
-            statusObserver = nil
         }
 
-        let managers = (try? await NETunnelProviderManager.loadAllFromPreferences()) ?? []
-        let m = managers.first ?? NETunnelProviderManager()
-        manager = m
-
-        if let json = (m.protocolConfiguration as? NETunnelProviderProtocol)?
-            .providerConfiguration?[TunnelKey.profile] as? Data,
-           let p = try? JSONDecoder().decode(VPNProfile.self, from: json) {
-            activeProfileID = p.id
-        }
-
-        statusObserver = NotificationCenter.default.addObserver(
+        observers[id] = NotificationCenter.default.addObserver(
             forName: .NEVPNStatusDidChange, object: m.connection, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.connectionStatusChanged() }
+            Task { @MainActor in self?.connectionStatusChanged(id) }
         }
 
-        connectionStatusChanged()
+        connectionStatusChanged(id)
     }
 
     private func configure(_ m: NETunnelProviderManager, for profile: VPNProfile) async throws {
@@ -109,31 +133,50 @@ final class VPNController: NSObject, ObservableObject {
         try await m.loadFromPreferences()
     }
 
+    // The profile was deleted: stop its tunnel and remove its configuration
+    func remove(profileID id: UUID) {
+        if let observer = observers.removeValue(forKey: id) {
+            NotificationCenter.default.removeObserver(observer)
+        }
+
+        states[id] = nil
+        statuses[id] = nil
+        errors[id] = nil
+
+        guard let m = managers.removeValue(forKey: id) else { return }
+
+        m.connection.stopVPNTunnel()
+        m.removeFromPreferences { _ in }
+    }
+
     // MARK: - Connect / disconnect
 
     func connect(_ profile: VPNProfile) {
         guard profile.isComplete else {
-            lastError = "Enter the server address, the Virtual Hub name and the user name first."
+            errors[profile.id] = "Enter the server address, the Virtual Hub name and the user name first."
             return
         }
 
+        errors[profile.id] = nil
         lastError = nil
 
         Task {
             // Trust on first use: fetch the server's certificate and ask once
             if profile.serverTrust == .pinned && profile.pinnedServerCertificate == nil {
-                state = .connecting
-                activeProfileID = profile.id
-                status.text = "Checking the server's identity..."
+                states[profile.id] = .connecting
+                statuses[profile.id] = TunnelStatus(text: "Checking the server's identity…")
 
-                switch await ServerProbe.fetchCertificate(of: profile) {
+                let result = await ServerProbe.fetchCertificate(of: profile)
+
+                states[profile.id] = .disconnected
+                statuses[profile.id] = nil
+
+                switch result {
                 case .success(let der):
-                    state = .disconnected
                     pendingTrust = PendingTrust(profile: profile, certificate: der,
                                                 fingerprint: ServerProbe.fingerprint(of: der))
                 case .failure(let error):
-                    state = .disconnected
-                    lastError = error.localizedDescription
+                    errors[profile.id] = error.localizedDescription
                 }
                 return
             }
@@ -153,7 +196,7 @@ final class VPNController: NSObject, ObservableObject {
     }
 
     private func start(_ profile: VPNProfile) async {
-        guard let m = manager else { return }
+        let m = managers[profile.id] ?? NETunnelProviderManager()
 
         do {
             if m.connection.status != .disconnected && m.connection.status != .invalid {
@@ -162,7 +205,9 @@ final class VPNController: NSObject, ObservableObject {
             }
 
             try await configure(m, for: profile)
-            activeProfileID = profile.id
+
+            managers[profile.id] = m
+            observe(m, id: profile.id)
 
             var options: [String: NSObject] = [:]
             if profile.auth.needsPassword, let pw = Keychain.password(for: profile.id) {
@@ -171,13 +216,13 @@ final class VPNController: NSObject, ObservableObject {
 
             try m.connection.startVPNTunnel(options: options)
         } catch {
-            state = .disconnected
-            lastError = Self.describe(error)
+            states[profile.id] = .disconnected
+            errors[profile.id] = Self.describe(error)
         }
     }
 
-    func disconnect() {
-        guard let m = manager else { return }
+    func disconnect(_ id: UUID) {
+        guard let m = managers[id] else { return }
 
         // With on-demand on, the system would reconnect at once: a manual
         // disconnect switches it off until the user connects again
@@ -189,39 +234,46 @@ final class VPNController: NSObject, ObservableObject {
         }
     }
 
+    func disconnectAll() {
+        managers.keys.forEach { disconnect($0) }
+    }
+
     // MARK: - Status
 
-    private func connectionStatusChanged() {
-        guard let connection = manager?.connection else { return }
+    private func connectionStatusChanged(_ id: UUID) {
+        guard let connection = managers[id]?.connection else { return }
 
-        let old = state
+        let old = state(for: id)
+        let new: State
 
         switch connection.status {
-        case .connecting: state = .connecting
-        case .connected: state = .connected
-        case .reasserting: state = .reconnecting
-        case .disconnecting: state = .disconnecting
-        default: state = .disconnected
+        case .connecting: new = .connecting
+        case .connected: new = .connected
+        case .reasserting: new = .reconnecting
+        case .disconnecting: new = .disconnecting
+        default: new = .disconnected
         }
 
-        if state == .connected || state == .reconnecting {
-            startPolling()
-        } else {
-            stopPolling()
-        }
+        states[id] = new
 
-        if state == .disconnected {
-            status = TunnelStatus()
+        if new == .disconnected {
+            statuses[id] = nil
 
             // Why did it end? (startTunnel failures and cancelTunnelWithError)
             if old != .disconnected && old != .disconnecting {
                 if #available(macOS 13.0, *) {
                     connection.fetchLastDisconnectError { error in
                         guard let error = error else { return }
-                        Task { @MainActor in self.lastError = Self.describe(error) }
+                        Task { @MainActor in self.errors[id] = Self.describe(error) }
                     }
                 }
             }
+        }
+
+        if states.values.contains(where: { $0 == .connected || $0 == .reconnecting }) {
+            startPolling()
+        } else {
+            stopPolling()
         }
     }
 
@@ -240,14 +292,40 @@ final class VPNController: NSObject, ObservableObject {
     }
 
     private func pollStatus() {
-        guard let session = manager?.connection as? NETunnelProviderSession else { return }
+        for (id, m) in managers {
+            let state = self.state(for: id)
+            guard state == .connected || state == .reconnecting,
+                  let session = m.connection as? NETunnelProviderSession else { continue }
 
-        try? session.sendProviderMessage(Data(TunnelKey.statusRequest.utf8)) { [weak self] reply in
-            guard let reply = reply, let s = try? JSONDecoder().decode(TunnelStatus.self, from: reply) else {
-                return
+            try? session.sendProviderMessage(Data(TunnelKey.statusRequest.utf8)) { [weak self] reply in
+                guard let reply = reply, let s = try? JSONDecoder().decode(TunnelStatus.self, from: reply) else {
+                    return
+                }
+                Task { @MainActor in
+                    if self?.state(for: id) != .disconnected { self?.statuses[id] = s }
+                }
             }
-            Task { @MainActor in self?.status = s }
         }
+    }
+
+    // Connections that would fight over the same traffic or names. macOS gives
+    // overlapping routes to one tunnel only, so this is worth telling the user.
+    func overlapWarning(among profiles: [VPNProfile]) -> String? {
+        let active = profiles.filter { state(for: $0.id) != .disconnected }
+        guard active.count > 1 else { return nil }
+
+        if active.filter({ $0.tunnelMode != .includeOnly }).count > 1 {
+            return "More than one connection is set to carry all traffic. macOS sends it through only one of them. Set the others to \"Only these networks\"."
+        }
+
+        let allNames = active.filter {
+            $0.dnsMode == .allNames || ($0.dnsMode == .automatic && $0.tunnelMode != .includeOnly)
+        }
+        if allNames.count > 1 {
+            return "More than one connection wants to look up all names. Only one can; give the others their own DNS domains."
+        }
+
+        return nil
     }
 
     private static func describe(_ error: Error) -> String {
@@ -276,7 +354,7 @@ extension VPNController: OSSystemExtensionRequestDelegate {
                              didFinishWithResult result: OSSystemExtensionRequest.Result) {
         Task { @MainActor in
             self.extensionNeedsApproval = false
-            await self.loadManager()
+            await self.loadManagers()
         }
     }
 
@@ -333,7 +411,7 @@ enum ServerProbe {
             usleep(100_000)
         }
 
-        if let offered = Bridge.offeredServerCertificate() {
+        if let offered = Bridge.offeredServerCertificate(of: session) {
             return .success(offered.der)
         }
 

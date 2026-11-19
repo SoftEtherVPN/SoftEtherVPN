@@ -182,11 +182,12 @@ enum Bridge {
         return (p, saved.isEmpty ? nil : saved)
     }
 
-    // Certificate the server offered on the last refused attempt, with its SHA-256
-    static func offeredServerCertificate() -> (der: Data, sha256: Data)? {
+    // Certificate the server offered when this session was refused, with its
+    // SHA-256. Read it before se_disconnect.
+    static func offeredServerCertificate(of session: OpaquePointer?) -> (der: Data, sha256: Data)? {
         var der = [UInt8](repeating: 0, count: 16384)
         var hash = [UInt8](repeating: 0, count: 32)
-        let len = se_get_offered_server_cert(&der, der.count, &hash)
+        let len = se_get_offered_server_cert(session, &der, der.count, &hash)
         guard len > 0, len <= der.count else { return nil }
         return (Data(der[0..<len]), Data(hash))
     }

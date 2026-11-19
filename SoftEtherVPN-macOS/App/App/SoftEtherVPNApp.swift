@@ -27,11 +27,8 @@ struct SoftEtherVPNApp: App {
     }
 
     private var menuIcon: String {
-        switch vpn.state {
-        case .connected: return "lock.shield.fill"
-        case .connecting, .reconnecting, .disconnecting: return "arrow.triangle.2.circlepath"
-        case .disconnected: return "lock.shield"
-        }
+        if vpn.isAnyBusy { return "arrow.triangle.2.circlepath" }
+        return vpn.isAnyConnected ? "lock.shield.fill" : "lock.shield"
     }
 }
 
@@ -64,6 +61,12 @@ struct MenuContent: View {
                 TrustPrompt(pending: pending)
             }
 
+            if let warning = vpn.overlapWarning(among: store.profiles) {
+                Label(warning, systemImage: "exclamationmark.triangle")
+                    .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             if let error = vpn.lastError {
                 Text(error)
                     .font(.callout)
@@ -92,14 +95,16 @@ struct ConnectionRow: View {
     @EnvironmentObject private var vpn: VPNController
     let profile: VPNProfile
 
-    private var isActive: Bool { vpn.activeProfileID == profile.id && vpn.state != .disconnected }
+    private var state: VPNController.State { vpn.state(for: profile.id) }
+    private var status: TunnelStatus { vpn.status(for: profile.id) }
+    private var isActive: Bool { state != .disconnected }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Toggle(isOn: Binding(
                 get: { isActive },
                 set: { on in
-                    if on { vpn.connect(profile) } else { vpn.disconnect() }
+                    if on { vpn.connect(profile) } else { vpn.disconnect(profile.id) }
                 }
             )) {
                 VStack(alignment: .leading) {
@@ -109,20 +114,25 @@ struct ConnectionRow: View {
             }
             .toggleStyle(.switch)
 
-            if isActive && vpn.state == .connected {
-                ConnectionDetails(status: vpn.status)
+            if state == .connected {
+                ConnectionDetails(status: status)
+            }
+
+            if let error = vpn.errors[profile.id] {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
 
     private var subtitle: String {
-        guard isActive else { return profile.host }
-
-        switch vpn.state {
-        case .connecting: return vpn.status.text.isEmpty ? "Connecting…" : vpn.status.text
+        switch state {
+        case .connecting: return status.text.isEmpty ? "Connecting…" : status.text
         case .reconnecting: return "Reconnecting…"
         case .disconnecting: return "Disconnecting…"
-        case .connected: return "Connected · \(vpn.status.address)"
+        case .connected: return "Connected · \(status.address)"
         case .disconnected: return profile.host
         }
     }

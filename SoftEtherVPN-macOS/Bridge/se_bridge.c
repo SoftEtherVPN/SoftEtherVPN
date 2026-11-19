@@ -50,6 +50,7 @@
 struct se_session
 {
 	VLAN_ANDROID *V;
+	void *Account;			// key of this session's slot in g_certs
 	int FdCore;				// adapter's end of the packet socket pair
 	int FdApp;				// provider's end
 };
@@ -59,13 +60,20 @@ static CEDAR *g_cedar = NULL;
 // Serializes every access that dereferences or frees the live session, so a
 // status poll can never race the teardown
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
-static se_session *g_session = NULL;
+static se_session *g_sessions[SE_MAX_SESSIONS];
 
-// The certificate the server offered on the last refused attempt. Written by
-// the core's certificate-check thread, which can run before se_connect returns.
+// The certificate each session's server offered when its connection attempt
+// was refused, keyed by the session's ACCOUNT. Written by the core's
+// certificate-check thread, which can run before se_connect returns and while
+// se_disconnect waits for the session to end - hence a lock of its own, never
+// held together with a wait for the core.
 static pthread_mutex_t g_cert_lock = PTHREAD_MUTEX_INITIALIZER;
-static UCHAR *g_offered_cert = NULL;
-static UINT g_offered_cert_size = 0;
+static struct
+{
+	void *Account;
+	UCHAR *Cert;
+	UINT Size;
+} g_certs[SE_MAX_SESSIONS];
 
 static void SeCopyStr(char *dst, size_t dst_size, const char *src)
 {
@@ -122,16 +130,57 @@ static K *SeLoadPrivateK(const uint8_t *data, size_t len)
 	return k;
 }
 
-static void SeClearOfferedCert(void)
+// Reserve the certificate slot of a new session's account
+static bool SeCertSlotAdd(void *account)
 {
+	UINT i;
+	bool ret = false;
+
 	pthread_mutex_lock(&g_cert_lock);
 
-	if (g_offered_cert != NULL)
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
 	{
-		Free(g_offered_cert);
-		g_offered_cert = NULL;
+		if (g_certs[i].Account == NULL)
+		{
+			g_certs[i].Account = account;
+			g_certs[i].Cert = NULL;
+			g_certs[i].Size = 0;
+
+			ret = true;
+			break;
+		}
 	}
-	g_offered_cert_size = 0;
+
+	pthread_mutex_unlock(&g_cert_lock);
+
+	return ret;
+}
+
+static void SeCertSlotRemove(void *account)
+{
+	UINT i;
+
+	if (account == NULL)
+	{
+		return;
+	}
+
+	pthread_mutex_lock(&g_cert_lock);
+
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
+	{
+		if (g_certs[i].Account == account)
+		{
+			if (g_certs[i].Cert != NULL)
+			{
+				Free(g_certs[i].Cert);
+			}
+
+			g_certs[i].Account = NULL;
+			g_certs[i].Cert = NULL;
+			g_certs[i].Size = 0;
+		}
+	}
 
 	pthread_mutex_unlock(&g_cert_lock);
 }
@@ -143,13 +192,14 @@ static void SeClearOfferedCert(void)
 static bool SeCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expired)
 {
 	BUF *b;
+	UINT i;
 
 	if (expired != NULL)
 	{
 		*expired = false;
 	}
 
-	if (server_x == NULL)
+	if (s == NULL || s->Account == NULL || server_x == NULL)
 	{
 		return false;
 	}
@@ -159,12 +209,20 @@ static bool SeCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expire
 	{
 		pthread_mutex_lock(&g_cert_lock);
 
-		if (g_offered_cert != NULL)
+		for (i = 0; i < SE_MAX_SESSIONS; i++)
 		{
-			Free(g_offered_cert);
+			if (g_certs[i].Account == (void *)s->Account)
+			{
+				if (g_certs[i].Cert != NULL)
+				{
+					Free(g_certs[i].Cert);
+				}
+
+				g_certs[i].Cert = Clone(b->Buf, b->Size);
+				g_certs[i].Size = b->Size;
+				break;
+			}
 		}
-		g_offered_cert = Clone(b->Buf, b->Size);
-		g_offered_cert_size = b->Size;
 
 		pthread_mutex_unlock(&g_cert_lock);
 
@@ -210,7 +268,23 @@ static void SeErrToText(UINT err, char *dst, UINT dst_size)
 // Caller holds g_lock
 static bool SeIsLive(se_session *s)
 {
-	return s != NULL && s == g_session && s->V != NULL;
+	UINT i;
+
+	if (s == NULL)
+	{
+		return false;
+	}
+
+	// Looked up, never dereferenced first: a stale handle may be freed memory
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
+	{
+		if (g_sessions[i] == s)
+		{
+			return s->V != NULL;
+		}
+	}
+
+	return false;
 }
 
 // Full path of the running executable. The core refuses to start unless
@@ -281,18 +355,21 @@ int se_init(const char *hamcore_path, const char *temp_dir)
 
 void se_shutdown(void)
 {
-	se_session *s;
+	UINT i;
 
-	pthread_mutex_lock(&g_lock);
-	s = g_session;
-	pthread_mutex_unlock(&g_lock);
-
-	if (s != NULL)
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
 	{
-		se_disconnect(s);
-	}
+		se_session *s;
 
-	SeClearOfferedCert();
+		pthread_mutex_lock(&g_lock);
+		s = g_sessions[i];
+		pthread_mutex_unlock(&g_lock);
+
+		if (s != NULL)
+		{
+			se_disconnect(s);
+		}
+	}
 
 	pthread_mutex_lock(&g_lock);
 
@@ -542,6 +619,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 	SESSION *s;
 	int fds[2];
 	bool use_v4, use_v6;
+	UINT slot;
 
 	SeSetErr(err, err_size, "");
 
@@ -563,11 +641,19 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 		return NULL;
 	}
 
-	if (g_session != NULL)
+	for (slot = 0; slot < SE_MAX_SESSIONS; slot++)
+	{
+		if (g_sessions[slot] == NULL)
+		{
+			break;
+		}
+	}
+
+	if (slot >= SE_MAX_SESSIONS)
 	{
 		pthread_mutex_unlock(&g_lock);
 
-		SeSetErr(err, err_size, "A session is already running.");
+		SeSetErr(err, err_size, "Too many VPN sessions are running.");
 
 		return NULL;
 	}
@@ -592,12 +678,24 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 		return NULL;
 	}
 
-	SeClearOfferedCert();
+	// Where the certificate-check procedure leaves the server's certificate
+	// if this attempt is refused for it
+	if (SeCertSlotAdd(acc) == false)
+	{
+		pthread_mutex_unlock(&g_lock);
+
+		CiFreeAccount(acc);
+
+		SeSetErr(err, err_size, "Too many VPN sessions are running.");
+
+		return NULL;
+	}
 
 	if (socketpair(AF_UNIX, SOCK_DGRAM, 0, fds) != 0)
 	{
 		pthread_mutex_unlock(&g_lock);
 
+		SeCertSlotRemove(acc);
 		CiFreeAccount(acc);
 
 		SeSetErr(err, err_size, "Could not create the packet channel.");
@@ -619,6 +717,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 		close(fds[0]);
 		close(fds[1]);
+		SeCertSlotRemove(acc);
 		CiFreeAccount(acc);
 
 		SeSetErr(err, err_size, "Could not create the virtual network adapter.");
@@ -646,6 +745,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 		VLanAndroidFree(v);
 		close(fds[0]);
 		close(fds[1]);
+		SeCertSlotRemove(acc);
 		CiFreeAccount(acc);
 
 		SeSetErr(err, err_size, "Could not start the VPN session.");
@@ -671,6 +771,7 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 		VLanAndroidFree(v);
 		close(fds[0]);
 		close(fds[1]);
+		SeCertSlotRemove(acc);
 		CiFreeAccount(acc);
 
 		SeSetErr(err, err_size, "Could not start the virtual network adapter.");
@@ -680,10 +781,11 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 
 	ss = ZeroMalloc(sizeof(se_session));
 	ss->V = v;
+	ss->Account = acc;
 	ss->FdCore = fds[0];
 	ss->FdApp = fds[1];
 
-	g_session = ss;
+	g_sessions[slot] = ss;
 
 	pthread_mutex_unlock(&g_lock);
 
@@ -693,10 +795,11 @@ se_session *se_connect(const se_profile *p, char *err, size_t err_size)
 void se_disconnect(se_session *ss)
 {
 	VLAN_ANDROID *v;
+	UINT i;
 
 	pthread_mutex_lock(&g_lock);
 
-	// Idempotent: only the first call for the live session tears it down
+	// Idempotent: only the first call for a live session tears it down
 	if (SeIsLive(ss) == false)
 	{
 		pthread_mutex_unlock(&g_lock);
@@ -704,7 +807,19 @@ void se_disconnect(se_session *ss)
 		return;
 	}
 
-	g_session = NULL;
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
+	{
+		if (g_sessions[i] == ss)
+		{
+			g_sessions[i] = NULL;
+		}
+	}
+
+	pthread_mutex_unlock(&g_lock);
+
+	// From here the handle is stale for every other caller, so the teardown
+	// (which waits for the session's threads) does not block the status calls
+	// of the other sessions
 	v = ss->V;
 
 	// Wake a pending DHCP wait in the pump thread before touching the session
@@ -717,7 +832,10 @@ void se_disconnect(se_session *ss)
 		v->Session = NULL;
 	}
 
-	// Safe after ReleaseSession joined the session thread
+	// Safe after ReleaseSession joined the session thread (and with it the
+	// certificate-check thread that looks the account up)
+	SeCertSlotRemove(ss->Account);
+
 	if (v->Account != NULL)
 	{
 		CiFreeAccount((ACCOUNT *)v->Account);
@@ -730,8 +848,6 @@ void se_disconnect(se_session *ss)
 	close(ss->FdApp);
 
 	Free(ss);
-
-	pthread_mutex_unlock(&g_lock);
 }
 
 int se_packet_fd(se_session *ss)
@@ -1050,24 +1166,45 @@ int se_get_traffic(se_session *ss, se_traffic *out)
 	return ret;
 }
 
-size_t se_get_offered_server_cert(uint8_t *buf, size_t buf_size, uint8_t *sha256)
+size_t se_get_offered_server_cert(se_session *ss, uint8_t *buf, size_t buf_size, uint8_t *sha256)
 {
-	size_t ret;
+	void *account = NULL;
+	size_t ret = 0;
+	UINT i;
+
+	pthread_mutex_lock(&g_lock);
+
+	if (SeIsLive(ss))
+	{
+		account = ss->Account;
+	}
+
+	pthread_mutex_unlock(&g_lock);
+
+	if (account == NULL)
+	{
+		return 0;
+	}
 
 	pthread_mutex_lock(&g_cert_lock);
 
-	ret = g_offered_cert_size;
-
-	if (ret != 0)
+	for (i = 0; i < SE_MAX_SESSIONS; i++)
 	{
-		if (buf != NULL && buf_size != 0)
+		if (g_certs[i].Account == account && g_certs[i].Cert != NULL)
 		{
-			memcpy(buf, g_offered_cert, (ret < buf_size) ? ret : buf_size);
-		}
+			ret = g_certs[i].Size;
 
-		if (sha256 != NULL)
-		{
-			Sha2_256(sha256, g_offered_cert, g_offered_cert_size);
+			if (buf != NULL && buf_size != 0)
+			{
+				memcpy(buf, g_certs[i].Cert, (ret < buf_size) ? ret : buf_size);
+			}
+
+			if (sha256 != NULL)
+			{
+				Sha2_256(sha256, g_certs[i].Cert, g_certs[i].Size);
+			}
+
+			break;
 		}
 	}
 
