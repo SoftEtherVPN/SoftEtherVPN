@@ -453,7 +453,14 @@ static ACCOUNT *SeNewAccount(const se_profile *p, char *err, size_t err_size)
 
 	case SE_AUTH_PASSWORD:
 		au->AuthType = CLIENT_AUTHTYPE_PASSWORD;
-		HashPassword(au->HashedPassword, au->Username, (char *)(p->password != NULL ? p->password : ""));
+		if (p->password_hash != NULL)
+		{
+			Copy(au->HashedPassword, (void *)p->password_hash, SHA1_SIZE);
+		}
+		else
+		{
+			HashPassword(au->HashedPassword, au->Username, (char *)(p->password != NULL ? p->password : ""));
+		}
 		break;
 
 	case SE_AUTH_PLAIN_PASSWORD:
@@ -1067,4 +1074,184 @@ size_t se_get_offered_server_cert(uint8_t *buf, size_t buf_size, uint8_t *sha256
 	pthread_mutex_unlock(&g_cert_lock);
 
 	return ret;
+}
+
+// DER bytes of a certificate / private key into a fixed buffer; 0 if absent or too large
+static size_t SeXToBlob(X *x, uint8_t *dst, size_t dst_size)
+{
+	BUF *b;
+	size_t ret = 0;
+
+	if (x == NULL)
+	{
+		return 0;
+	}
+
+	b = XToBuf(x, false);
+	if (b != NULL)
+	{
+		if (b->Size <= dst_size)
+		{
+			memcpy(dst, b->Buf, b->Size);
+			ret = b->Size;
+		}
+
+		FreeBuf(b);
+	}
+
+	return ret;
+}
+
+static size_t SeKToBlob(K *k, uint8_t *dst, size_t dst_size)
+{
+	BUF *b;
+	size_t ret = 0;
+
+	if (k == NULL)
+	{
+		return 0;
+	}
+
+	b = KToBuf(k, false, NULL);
+	if (b != NULL)
+	{
+		if (b->Size <= dst_size)
+		{
+			memcpy(dst, b->Buf, b->Size);
+			ret = b->Size;
+		}
+
+		Zero(b->Buf, b->Size);
+		FreeBuf(b);
+	}
+
+	return ret;
+}
+
+int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out,
+	char *err, size_t err_size)
+{
+	RPC_CLIENT_CREATE_ACCOUNT *t;
+	CLIENT_OPTION *o;
+	CLIENT_AUTH *au;
+	BUF *b;
+	UCHAR zero_hash[SHA1_SIZE];
+
+	SeSetErr(err, err_size, "");
+
+	if (out == NULL)
+	{
+		return 0;
+	}
+
+	memset(out, 0, sizeof(se_imported_profile));
+
+	if (data == NULL || len == 0 || len > 1024 * 1024)
+	{
+		SeSetErr(err, err_size, "The file is empty or too large.");
+
+		return 0;
+	}
+
+	if (g_cedar == NULL)
+	{
+		SeSetErr(err, err_size, "The VPN core is not initialized.");
+
+		return 0;
+	}
+
+	b = MemToBuf((void *)data, (UINT)len);
+	t = CiCfgToAccount(b);
+	FreeBuf(b);
+
+	if (t == NULL || t->ClientOption == NULL || t->ClientAuth == NULL)
+	{
+		if (t != NULL)
+		{
+			CiFreeClientCreateAccount(t);
+			Free(t);
+		}
+
+		SeSetErr(err, err_size, "This is not a SoftEther VPN connection setting file.");
+
+		return 0;
+	}
+
+	o = t->ClientOption;
+	au = t->ClientAuth;
+
+	UniToUtf8((BYTE *)out->name, sizeof(out->name), o->AccountName);
+	StrCpy(out->host, sizeof(out->host), o->Hostname);
+	out->port = (int)o->Port;
+	StrCpy(out->hub, sizeof(out->hub), o->HubName);
+
+	StrCpy(out->username, sizeof(out->username), au->Username);
+
+	switch (au->AuthType)
+	{
+	case CLIENT_AUTHTYPE_ANONYMOUS:
+		out->auth_type = SE_AUTH_ANONYMOUS;
+		break;
+
+	case CLIENT_AUTHTYPE_PASSWORD:
+		out->auth_type = SE_AUTH_PASSWORD;
+
+		// An all-zero hash is an account exported without a saved password
+		Zero(zero_hash, sizeof(zero_hash));
+		if (Cmp(au->HashedPassword, zero_hash, SHA1_SIZE) != 0)
+		{
+			Copy(out->password_hash, au->HashedPassword, SHA1_SIZE);
+			out->has_password_hash = 1;
+		}
+		break;
+
+	case CLIENT_AUTHTYPE_PLAIN_PASSWORD:
+		out->auth_type = SE_AUTH_PLAIN_PASSWORD;
+		StrCpy(out->plain_password, sizeof(out->plain_password), au->PlainPassword);
+		break;
+
+	case CLIENT_AUTHTYPE_CERT:
+		out->auth_type = SE_AUTH_CERT;
+		out->client_cert_len = SeXToBlob(au->ClientX, out->client_cert, sizeof(out->client_cert));
+		out->client_key_len = SeKToBlob(au->ClientK, out->client_key, sizeof(out->client_key));
+		break;
+
+	default:
+		out->auth_type = -1;
+		break;
+	}
+
+	out->verify_server_cert = t->CheckServerCert ? 1 : 0;
+	out->use_default_trust = t->AddDefaultCA ? 1 : 0;
+	out->server_cert_len = SeXToBlob(t->ServerCert, out->server_cert, sizeof(out->server_cert));
+
+	out->max_connections = (int)o->MaxConnection;
+	out->use_compress = o->UseCompress ? 1 : 0;
+	out->disable_udp_acceleration = o->NoUdpAcceleration ? 1 : 0;
+
+	switch (o->ProxyType)
+	{
+	case PROXY_HTTP:
+		out->proxy_type = SE_PROXY_HTTP;
+		break;
+	case PROXY_SOCKS:
+		out->proxy_type = SE_PROXY_SOCKS4;
+		break;
+	case PROXY_SOCKS5:
+		out->proxy_type = SE_PROXY_SOCKS5;
+		break;
+	default:
+		out->proxy_type = SE_PROXY_DIRECT;
+		break;
+	}
+
+	StrCpy(out->proxy_host, sizeof(out->proxy_host), o->ProxyName);
+	out->proxy_port = (int)o->ProxyPort;
+	StrCpy(out->proxy_username, sizeof(out->proxy_username), o->ProxyUsername);
+	StrCpy(out->proxy_password, sizeof(out->proxy_password), o->ProxyPassword);
+
+	CiFreeClientCreateAccount(t);
+	Free(t);
+
+	return 1;
 }

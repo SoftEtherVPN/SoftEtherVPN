@@ -20,7 +20,7 @@
 #   cmake --build build-macos
 #
 # The bridge is portable POSIX, so the same entry point also configures on
-# Linux; that is how Bridge/test/run-linux-test.sh exercises it.
+# Linux; that is how Bridge/test/run-e2e-test.sh exercises it.
 #
 cmake_minimum_required(VERSION 3.15)
 

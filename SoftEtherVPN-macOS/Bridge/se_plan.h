@@ -43,12 +43,20 @@ typedef struct
 	const char *networks;			// INCLUDE: routed networks; EXCLUDE: bypassed networks
 	int use_pushed_routes;			// INCLUDE: also route what the hub's DHCP pushed (option 121)
 
+	int block_ipv6;					// FULL / EXCLUDE on a VPN without IPv6: capture
+									// IPv6 too and drop it, so it cannot leave
+									// outside the VPN (see se_plan.blackhole_ipv6)
+
 	int dns_mode;					// SE_DNS_*
 	const char *dns_servers;		// override of the hub's DNS servers
 	const char *dns_domains;		// domains resolved through the VPN (SE_DNS_SPLIT / AUTO)
 } se_policy;
 
 #define SE_PLAN_MAX_NETS		128
+
+// Unique-local address the tunnel is given only to attract IPv6 for discarding
+#define SE_BLACKHOLE_IPV6		"fd53:6f66:7445:7468::1"
+#define SE_BLACKHOLE_IPV6_PREFIX	64
 #define SE_PLAN_MAX_DNS			4
 #define SE_PLAN_MAX_DOMAINS		32
 
@@ -67,6 +75,12 @@ typedef struct
 	se_net included[SE_PLAN_MAX_NETS];
 	int num_excluded;
 	se_net excluded[SE_PLAN_MAX_NETS];
+
+	// 1: the VPN carries no IPv6 but everything is to be routed through it.
+	// The tunnel then takes an IPv6 address of its own (SE_BLACKHOLE_IPV6) with
+	// a default route (already in included[]), and the provider discards every
+	// IPv6 packet instead of forwarding it.
+	int blackhole_ipv6;
 
 	// DNS. dns_enabled 0: do not touch the system resolver.
 	int dns_enabled;

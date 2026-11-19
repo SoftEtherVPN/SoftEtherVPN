@@ -29,6 +29,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private let fdLock = NSLock()
     private var outboundFD: Int32 = -1
     private var outboundLoopRunning = false     // guarded by fdLock
+    private var dropIPv6 = false                // guarded by fdLock
 
     private static let connectTimeout: TimeInterval = 60
     private static let reconnectDelays: [TimeInterval] = [1, 2, 5, 10, 20, 30]
@@ -49,7 +50,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
 
             self.profile = profile
-            self.password = options?[TunnelKey.password] as? String
+            // From the app when the user connects; from the saved configuration
+            // when the system starts the tunnel on demand
+            self.password = (options?[TunnelKey.password] as? String)
+                ?? (proto.providerConfiguration?[TunnelKey.password] as? String)
 
             guard Bridge.start() else {
                 completionHandler(TunnelError.message("The VPN core could not be started."))
@@ -174,6 +178,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     policy.tunnel_mode = Int32(profile.tunnelMode.rawValue)
                     policy.networks = networks
                     policy.use_pushed_routes = profile.usePushedRoutes ? 1 : 0
+                    policy.block_ipv6 = profile.blockIPv6Leaks ? 1 : 0
                     policy.dns_mode = Int32(profile.dnsMode.rawValue)
                     policy.dns_servers = dnsServers
                     policy.dns_domains = dnsDomains
@@ -210,7 +215,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 let address = String(cString: se_net_address(net))
                 let prefix = Int(net.pointee.prefix_len)
 
-                names.append(prefix == 0 ? "Everything (\(net.pointee.is_ipv6 != 0 ? "IPv6" : "IPv4"))" : "\(address)/\(prefix)")
+                let family = net.pointee.is_ipv6 != 0 ? "IPv6" : "IPv4"
+                names.append(prefix == 0 ? "Everything (\(family))" : "\(address)/\(prefix)")
 
                 if net.pointee.is_ipv6 != 0 {
                     r6.append(prefix == 0 ? NEIPv6Route.default()
@@ -241,6 +247,22 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             ipv6.excludedRoutes = excluded6
             settings.ipv6Settings = ipv6
         }
+
+        // The VPN has no IPv6 but everything is to go through it: give the
+        // tunnel an address that attracts IPv6, and discard it in the pump
+        let blackholeIPv6 = plan.pointee.blackhole_ipv6 != 0 && !hasV6
+
+        if blackholeIPv6 {
+            let ipv6 = NEIPv6Settings(addresses: [SE_BLACKHOLE_IPV6],
+                                      networkPrefixLengths: [NSNumber(value: SE_BLACKHOLE_IPV6_PREFIX)])
+            ipv6.includedRoutes = included6
+            ipv6.excludedRoutes = excluded6
+            settings.ipv6Settings = ipv6
+        }
+
+        fdLock.lock()
+        dropIPv6 = blackholeIPv6
+        fdLock.unlock()
 
         var dnsServers: [String] = []
         var matchDomains: [String] = []
@@ -292,7 +314,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         status.dnsDomains = matchAll ? [] : matchDomains
         status.routedNetworks = routed
         status.bypassedNetworks = bypassed
-        status.warnings = warnings
+        status.warnings = warnings + (blackholeIPv6
+            ? ["This VPN has no IPv6, so IPv6 traffic is blocked while connected."] : [])
 
         setTunnelNetworkSettings(settings) { error in
             self.queue.async {
@@ -370,6 +393,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let fd = self.outboundFD
             if fd >= 0 {
                 for packet in packets {
+                    if self.dropIPv6, let first = packet.first, first >> 4 == 6 {
+                        continue
+                    }
                     packet.withUnsafeBytes { raw in
                         _ = write(fd, raw.baseAddress, raw.count)
                     }

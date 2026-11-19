@@ -70,6 +70,9 @@ typedef struct
 	int auth_type;					// SE_AUTH_*
 	const char *username;			// NULL for anonymous
 	const char *password;			// SE_AUTH_PASSWORD / SE_AUTH_PLAIN_PASSWORD
+	const uint8_t *password_hash;	// SE_AUTH_PASSWORD only: the 20-byte SoftEther password
+									// hash, used instead of password when not NULL (this
+									// is what an imported .vpn file carries)
 	const uint8_t *client_cert;		// SE_AUTH_CERT: X.509, DER or PEM
 	size_t client_cert_len;
 	const uint8_t *client_key;		// SE_AUTH_CERT: private key, DER or PEM (unencrypted)
@@ -142,6 +145,52 @@ typedef struct
 	uint64_t bytes_sent;
 	uint64_t bytes_received;
 } se_traffic;
+
+#define SE_NAME_LEN			256
+#define SE_SECRET_LEN		256
+#define SE_PASSWORD_HASH_LEN	20
+#define SE_BLOB_LEN			8192
+
+// A connection setting read from a .vpn file exported by the SoftEther VPN
+// Client (Windows "Export VPN Connection Setting", or vpncmd AccountExport)
+typedef struct
+{
+	char name[SE_NAME_LEN];
+	char host[SE_NAME_LEN];
+	int port;
+	char hub[SE_NAME_LEN];
+
+	int auth_type;					// SE_AUTH_*; -1 for a method this client lacks
+									// (smart card / OpenSSL engine)
+	char username[SE_NAME_LEN];
+	int has_password_hash;			// SE_AUTH_PASSWORD with a saved password
+	uint8_t password_hash[SE_PASSWORD_HASH_LEN];
+	char plain_password[SE_SECRET_LEN];	// SE_AUTH_PLAIN_PASSWORD with a saved password
+	size_t client_cert_len;			// SE_AUTH_CERT: DER
+	uint8_t client_cert[SE_BLOB_LEN];
+	size_t client_key_len;			// SE_AUTH_CERT: DER
+	uint8_t client_key[SE_BLOB_LEN];
+
+	int verify_server_cert;
+	int use_default_trust;
+	size_t server_cert_len;			// pinned server certificate, DER
+	uint8_t server_cert[SE_BLOB_LEN];
+
+	int max_connections;
+	int use_compress;
+	int disable_udp_acceleration;
+
+	int proxy_type;					// SE_PROXY_*
+	char proxy_host[SE_NAME_LEN];
+	int proxy_port;
+	char proxy_username[SE_NAME_LEN];
+	char proxy_password[SE_SECRET_LEN];
+} se_imported_profile;
+
+// Parse the contents of a .vpn file. Needs se_init. Returns 1 on success, 0
+// with a message otherwise. The result holds secrets: wipe it after use.
+int se_import_vpn_file(const uint8_t *data, size_t len, se_imported_profile *out,
+	char *err, size_t err_size);
 
 // Start the core. hamcore_path is the full path of hamcore.se2 (inside the
 // bundle); temp_dir is a writable directory or NULL. Returns 1 on success.

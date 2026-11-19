@@ -476,6 +476,12 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 		{
 			AddNet(p->included, &p->num_included, &n);
 		}
+		else if (!has_v6 && policy->block_ipv6 && se_parse_net("::/0", &n))
+		{
+			// Nothing to carry IPv6, but it must not go around the VPN either
+			AddNet(p->included, &p->num_included, &n);
+			p->blackhole_ipv6 = 1;
+		}
 	}
 
 	if (policy->tunnel_mode != SE_TUNNEL_FULL)

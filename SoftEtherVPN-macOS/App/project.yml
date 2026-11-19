@@ -39,6 +39,8 @@ settings:
       - -lmayaqua
     LD_RUNPATH_SEARCH_PATHS:
       - "@executable_path/../Frameworks"
+    # scripts/bundle-deps.sh writes into the built bundle
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
 
 # The core dylibs and hamcore.se2 go into both bundles: the extension runs the
 # VPN session, the app runs the short certificate probe (ServerProbe).
@@ -59,6 +61,11 @@ targets:
         buildPhase:
           copyFiles:
             destination: frameworks
+    postBuildScripts:
+      # Copies OpenSSL / libsodium next to the core dylibs and re-signs them
+      - name: Bundle core dependencies
+        script: '"$SRCROOT/../scripts/bundle-deps.sh" "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"'
+        basedOnDependencyAnalysis: false
     dependencies:
       - target: SoftEtherVPNTunnel
         embed: true
@@ -104,6 +111,11 @@ targets:
         buildPhase:
           copyFiles:
             destination: frameworks
+    postBuildScripts:
+      # Copies OpenSSL / libsodium next to the core dylibs and re-signs them
+      - name: Bundle core dependencies
+        script: '"$SRCROOT/../scripts/bundle-deps.sh" "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"'
+        basedOnDependencyAnalysis: false
     dependencies:
       - sdk: NetworkExtension.framework
     settings:

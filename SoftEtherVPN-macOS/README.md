@@ -3,9 +3,9 @@
 A native menu-bar VPN client for macOS that speaks the SoftEther protocol,
 with full tunnel, split tunnel (in both directions) and split DNS.
 
-**Status: work in progress.** The C side is built and tested on Linux. The
-Swift app and tunnel extension have not been compiled yet (see
-[What is verified](#what-is-verified)).
+**Status: not yet built on a Mac.** The C side is built and tested on Linux.
+The Swift app and tunnel extension are complete in source but have not been
+through a compiler (see [What is verified](#what-is-verified)).
 
 ## How it works
 
@@ -42,6 +42,7 @@ non-IP Ethernet protocols are not available on this client.
 | DNS: all names | The VPN's DNS servers resolve everything. |
 | DNS: only these domains | Split DNS on the listed domains plus the hub's DHCP domain. |
 | DNS: don't change | The system resolver is left alone. |
+| Block IPv6 when the VPN has none | In the two "all traffic" modes, IPv6 is captured and dropped so it cannot leave outside the VPN. On by default. |
 
 The decision logic is `Bridge/se_plan.c`. It is plain C with no dependency on
 the core, and the Swift provider only maps its result onto
@@ -55,14 +56,16 @@ a list of split-DNS domains. Additional domains have to be set in the profile.
 | Path | Contents |
 |---|---|
 | `CMakeLists.txt` | Build entry: core + bridge + tests. Configures on macOS and Linux. |
-| `Bridge/se_bridge.{h,c}` | Session API: connect, status, IP configuration, packet descriptor, server certificate. |
+| `Bridge/se_bridge.{h,c}` | Session API: connect, status, IP configuration, packet descriptor, server certificate, `.vpn` import. |
 | `Bridge/se_plan.{h,c}` | Routes and DNS plan from the profile and the hub's answer. |
-| `Bridge/test/` | `se_plan_test` (unit), `se_bridge_test` + `run-linux-test.sh` (end to end against a local vpnserver). |
+| `Bridge/test/` | `se_plan_test` (unit), `se_bridge_test` + `run-e2e-test.sh` (end to end against a local vpnserver). |
 | `App/Shared/` | Profile model and Swift helpers over the bridge. |
 | `App/Tunnel/` | Packet tunnel provider (system extension). |
 | `App/App/` | Menu bar app: connections, editor, keychain, extension install. |
 | `App/project.yml` | XcodeGen project definition. |
 | `scripts/build-core.sh` | Builds the core and bridge for arm64 macOS. |
+| `scripts/bundle-deps.sh` | Build phase: copies OpenSSL and libsodium into the bundles. |
+| `scripts/package.sh` | Signed, notarized disk image. |
 
 ## Changes to the SoftEther core
 
@@ -114,7 +117,7 @@ build-bridge/se_plan_test
 ```
 
 ```bash
-SoftEtherVPN-macOS/Bridge/test/run-linux-test.sh build build-bridge
+SoftEtherVPN-macOS/Bridge/test/run-e2e-test.sh build build-bridge
 ```
 
 The second script starts a throwaway vpnserver with one hub (SecureNAT, a DHCP
@@ -126,40 +129,57 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
 
 - The desktop targets still build with the core changes, and `libcedar` from
   the desktop build contains none of the L3 adapter code.
-- `se_plan_test`: 81 checks covering network parsing, full tunnel, both split
-  tunnel directions, split DNS and the fallbacks. Clean under
-  AddressSanitizer and UBSan.
-- `run-linux-test.sh`: an unknown server certificate is refused and reported,
-  a wrong password is reported as an authentication failure, a pinned
-  certificate connects, the DHCP address, DNS server, domain name and pushed
-  route arrive, and an ICMP echo written as a raw IPv4 packet is answered by
-  the hub's gateway.
+- `se_plan_test`: 88 checks covering network parsing, full tunnel, both split
+  tunnel directions, split DNS, IPv6 leak protection and the fallbacks. Clean
+  under AddressSanitizer and UBSan.
+- `run-e2e-test.sh`, against a real local vpnserver:
+  - an unknown server certificate is refused and reported, and a pinned one
+    connects;
+  - a wrong password is reported as an authentication failure;
+  - the DHCP address, DNS server, domain name and pushed route arrive;
+  - an ICMP echo written as a raw IPv4 packet is answered by the hub's gateway;
+  - a `.vpn` file exported by the desktop vpnclient is imported, and the
+    session logs in with the password hash it carries.
+- The same test passes as an unprivileged user with the program folder
+  read-only, which is the situation inside a signed bundle.
 
 Not verified:
 
 - Nothing has been compiled or run on macOS. That includes the core's
   `UNIX_MACOS` build with these changes, although upstream CI builds the
   unmodified core on arm64 macOS.
-- The Swift sources and `project.yml` have never been through a compiler.
-- Behaviour of the core inside the extension's sandbox. Known point to check:
-  at start-up the core writes `lang.config` next to the executable
-  (`Mayaqua/Table.c`), which is read-only inside a signed bundle.
-- NetworkExtension behaviour of the generated settings (in particular split
-  DNS with `matchDomains`) on a real system.
-- IPv6 through the bridge.
+- The Swift sources, `project.yml`, `bundle-deps.sh` and `package.sh` have
+  never been run. The Swift code was reviewed by reading only.
+- Behaviour inside the extension's App Sandbox, and what macOS does with the
+  generated settings (in particular split DNS and on-demand connection).
+- IPv6 through the bridge (the test server's SecureNAT has no IPv6).
 
-## Open items
+`.github/workflows/macos_client.yml` runs the build, the tests above and an
+unsigned Xcode build on an Apple Silicon runner. It has not run yet; the first
+run will show what needs fixing.
 
-1. First build on a Mac; fix whatever the Swift compiler and Xcode report.
-2. Bundle or statically link OpenSSL and libsodium. `libcedar` and
-   `libmayaqua` currently link against Homebrew's dylibs by absolute path.
-3. Developer ID signing, hardened runtime, notarization, installer.
-4. Password for automatic reconnects after a reboot or on demand. Today the
-   app passes it when the user connects, so only user-initiated connections
-   can authenticate with a password.
-5. Full tunnel on a hub without IPv6 leaves IPv6 traffic outside the VPN.
-   Needs a block-IPv6 option.
-6. Import of `.vpn` connection files exported by the Windows client.
-7. Proxy settings in the editor (the bridge already supports them).
-8. Seamless reconnect: reuse of the DHCP lease across reconnects, as the
-   Android client does.
+## Distribution
+
+`scripts/package.sh <notarytool profile>` archives, exports with Developer ID
+signing, notarizes, staples and produces a disk image. It needs a paid Apple
+Developer account with:
+
+- a Developer ID Application certificate;
+- the Network Extension and System Extension capabilities on both bundle
+  identifiers, with Developer ID provisioning profiles;
+- `DEVELOPMENT_TEAM` set in `App/project.yml`.
+
+`scripts/bundle-deps.sh` runs as a build phase and copies Homebrew's OpenSSL
+and libsodium into each bundle. Homebrew builds those for the macOS version of
+the build machine, so build on the oldest macOS you want to support, or link
+static libraries built for the deployment target instead.
+
+## Known limits
+
+- Layer 3 only: no bridging, no non-IP protocols.
+- One connection at a time.
+- Smart card sign-in is not supported.
+- "Connect automatically" stores the password with the VPN configuration,
+  because the system starts the tunnel without the app.
+- A reconnect asks the hub's DHCP server again. The Android client's lease
+  reuse (`VLanAndroidSetCachedIPv4`) would make reconnects faster.

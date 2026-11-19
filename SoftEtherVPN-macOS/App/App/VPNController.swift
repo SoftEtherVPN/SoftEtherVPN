@@ -78,11 +78,23 @@ final class VPNController: NSObject, ObservableObject {
         let proto = NETunnelProviderProtocol()
         proto.providerBundleIdentifier = Self.extensionBundleID
         proto.serverAddress = profile.host
-        proto.providerConfiguration = [TunnelKey.profile: try JSONEncoder().encode(profile)]
+
+        var configuration: [String: Any] = [TunnelKey.profile: try JSONEncoder().encode(profile)]
+
+        // A connection that connects by itself is started by the system
+        // without this app, so its password has to travel with the configuration
+        if profile.connectAutomatically, profile.auth.needsPassword,
+           let pw = Keychain.password(for: profile.id) {
+            configuration[TunnelKey.password] = pw
+        }
+
+        proto.providerConfiguration = configuration
 
         m.protocolConfiguration = proto
         m.localizedDescription = profile.name
         m.isEnabled = true
+        m.onDemandRules = profile.connectAutomatically ? [NEOnDemandRuleConnect()] : []
+        m.isOnDemandEnabled = profile.connectAutomatically
 
         try await m.saveToPreferences()
         // The saved configuration has to be reloaded before it can be started
@@ -157,7 +169,16 @@ final class VPNController: NSObject, ObservableObject {
     }
 
     func disconnect() {
-        manager?.connection.stopVPNTunnel()
+        guard let m = manager else { return }
+
+        // With on-demand on, the system would reconnect at once: a manual
+        // disconnect switches it off until the user connects again
+        if m.isOnDemandEnabled {
+            m.isOnDemandEnabled = false
+            m.saveToPreferences { _ in m.connection.stopVPNTunnel() }
+        } else {
+            m.connection.stopVPNTunnel()
+        }
     }
 
     // MARK: - Status

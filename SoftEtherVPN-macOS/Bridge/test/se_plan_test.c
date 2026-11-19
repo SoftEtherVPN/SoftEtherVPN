@@ -136,6 +136,15 @@ static void TestFull(void)
 		HasNet(p.included, p.num_included, "::", 0));
 	CHECK(p.num_dns_servers == 2);
 
+	// IPv6 leak protection only matters when the hub has no IPv6
+	pol.block_ipv6 = 1;
+	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1 && !p.blackhole_ipv6 && p.num_included == 2);
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && p.blackhole_ipv6);
+	CHECK(p.num_included == 2 && HasNet(p.included, p.num_included, "::", 0));
+	CHECK(p.num_dns_servers == 1);	// no IPv6 resolver appears
+	pol.block_ipv6 = 0;
+	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1);
+
 	// Indexed accessors (the Swift side's view)
 	CHECK(strcmp(se_net_address(se_plan_included(&p, 1)), "::") == 0 && se_plan_included(&p, 2) == NULL);
 	CHECK(strcmp(se_net_mask(se_plan_included(&p, 0)), "0.0.0.0") == 0 && se_plan_excluded(&p, 0) == NULL);
@@ -231,6 +240,16 @@ static void TestExclude(void)
 
 	CHECK(se_make_plan(&pol, &v4, &v6, &p, err, sizeof(err)) == 1);
 	CHECK(p.num_included == 2 && p.num_excluded == 3 && HasNet(p.excluded, p.num_excluded, "2620:149::", 32));
+
+	// Leak protection in EXCLUDE mode; never in INCLUDE mode
+	pol.block_ipv6 = 1;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && p.blackhole_ipv6 &&
+		HasNet(p.included, p.num_included, "::", 0) && p.num_excluded == 2);
+	pol.tunnel_mode = SE_TUNNEL_INCLUDE;
+	CHECK(se_make_plan(&pol, &v4, NULL, &p, err, sizeof(err)) == 1 && !p.blackhole_ipv6 &&
+		!HasNet(p.included, p.num_included, "::", 0));
+	pol.tunnel_mode = SE_TUNNEL_EXCLUDE;
+	pol.block_ipv6 = 0;
 
 	// Bypassing the resolver's own network is reported
 	pol.networks = "192.168.30.0/24";

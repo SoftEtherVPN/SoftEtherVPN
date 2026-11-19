@@ -58,6 +58,24 @@ enum DNSMode: Int, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum ProxyKind: Int, Codable, CaseIterable, Identifiable {
+    case none = 0               // SE_PROXY_DIRECT
+    case http = 1               // SE_PROXY_HTTP
+    case socks4 = 2             // SE_PROXY_SOCKS4
+    case socks5 = 3             // SE_PROXY_SOCKS5
+
+    var id: Int { rawValue }
+
+    var title: String {
+        switch self {
+        case .none: return "None"
+        case .http: return "HTTP"
+        case .socks4: return "SOCKS 4"
+        case .socks5: return "SOCKS 5"
+        }
+    }
+}
+
 enum ServerTrust: Int, Codable, CaseIterable, Identifiable {
     case pinned = 0             // trust on first use: the certificate the user accepted
     case certificateAuthority = 1   // public CA chain + host name
@@ -86,6 +104,9 @@ struct VPNProfile: Codable, Identifiable, Equatable {
     var username = ""
     // The password is never stored here: it lives in the login keychain and is
     // handed to the provider when the tunnel is started.
+    // Set for a connection imported from a .vpn file with a saved password: the
+    // SoftEther password hash (20 bytes), used when no password is in the keychain
+    var passwordHash: Data?
     var clientCertificate: Data?        // DER or PEM
     var clientPrivateKey: Data?         // DER or PEM, unencrypted
 
@@ -101,6 +122,20 @@ struct VPNProfile: Codable, Identifiable, Equatable {
     var dnsServers = ""
 
     var useIPv6 = false
+    // "All traffic" modes on a VPN without IPv6: capture and drop IPv6 so that
+    // it cannot leave outside the VPN
+    var blockIPv6Leaks = true
+
+    // Connect whenever the Mac has a network (on-demand rule). The system starts
+    // the tunnel without the app then, so the password is stored with the VPN
+    // configuration instead of only in the login keychain.
+    var connectAutomatically = false
+
+    var proxy = ProxyKind.none
+    var proxyHost = ""
+    var proxyPort = 8080
+    var proxyUsername = ""
+    var proxyPassword = ""
 
     // Inner MAC of the virtual adapter: stable per profile so the hub's DHCP
     // server keeps handing out the same address.
@@ -118,14 +153,61 @@ struct VPNProfile: Codable, Identifiable, Equatable {
     var isComplete: Bool {
         !host.trimmingCharacters(in: .whitespaces).isEmpty &&
             !hub.trimmingCharacters(in: .whitespaces).isEmpty &&
-            (auth == .anonymous || !username.isEmpty)
+            (auth == .anonymous || !username.isEmpty) &&
+            (proxy == .none || !proxyHost.trimmingCharacters(in: .whitespaces).isEmpty)
+    }
+
+    // Profiles saved by an earlier version lack the newer keys: decode what is
+    // there and keep the defaults for the rest
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+
+        func get<T: Decodable>(_ key: CodingKeys, _ fallback: T) -> T {
+            (try? c.decodeIfPresent(T.self, forKey: key)) ?? fallback
+        }
+
+        let d = VPNProfile()
+
+        id = get(.id, d.id)
+        name = get(.name, d.name)
+        host = get(.host, d.host)
+        port = get(.port, d.port)
+        hub = get(.hub, d.hub)
+        auth = get(.auth, d.auth)
+        username = get(.username, d.username)
+        passwordHash = get(.passwordHash, d.passwordHash)
+        clientCertificate = get(.clientCertificate, d.clientCertificate)
+        clientPrivateKey = get(.clientPrivateKey, d.clientPrivateKey)
+        serverTrust = get(.serverTrust, d.serverTrust)
+        pinnedServerCertificate = get(.pinnedServerCertificate, d.pinnedServerCertificate)
+        tunnelMode = get(.tunnelMode, d.tunnelMode)
+        networks = get(.networks, d.networks)
+        usePushedRoutes = get(.usePushedRoutes, d.usePushedRoutes)
+        dnsMode = get(.dnsMode, d.dnsMode)
+        dnsDomains = get(.dnsDomains, d.dnsDomains)
+        dnsServers = get(.dnsServers, d.dnsServers)
+        useIPv6 = get(.useIPv6, d.useIPv6)
+        blockIPv6Leaks = get(.blockIPv6Leaks, d.blockIPv6Leaks)
+        connectAutomatically = get(.connectAutomatically, d.connectAutomatically)
+        proxy = get(.proxy, d.proxy)
+        proxyHost = get(.proxyHost, d.proxyHost)
+        proxyPort = get(.proxyPort, d.proxyPort)
+        proxyUsername = get(.proxyUsername, d.proxyUsername)
+        proxyPassword = get(.proxyPassword, d.proxyPassword)
+        macAddress = get(.macAddress, d.macAddress)
+        useCompression = get(.useCompression, d.useCompression)
+        disableUDPAcceleration = get(.disableUDPAcceleration, d.disableUDPAcceleration)
     }
 }
 
 // Keys of the dictionaries exchanged between the app and the provider
 enum TunnelKey {
     static let profile = "profile"          // providerConfiguration: JSON of VPNProfile
-    static let password = "password"        // startVPNTunnel options
+    static let password = "password"        // startVPNTunnel options; also in the
+                                            // providerConfiguration of a profile
+                                            // that connects automatically
     static let statusRequest = "status"     // sendProviderMessage payload
 }
 

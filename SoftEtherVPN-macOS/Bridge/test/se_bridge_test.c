@@ -267,6 +267,47 @@ int main(int argc, char *argv[])
 	se_get_status_text(s, text, sizeof(text));
 	CHECK(strcmp(text, "Disconnected.") == 0, "disconnected cleanly");
 
+	// 5. A .vpn file exported by the desktop client: import it, and log in
+	//    with the password hash it carries
+	if (getenv("SE_TEST_VPN_FILE") != NULL)
+	{
+		static se_imported_profile imp;
+		static unsigned char file[65536];
+		FILE *f = fopen(getenv("SE_TEST_VPN_FILE"), "rb");
+		size_t n = (f != NULL) ? fread(file, 1, sizeof(file), f) : 0;
+
+		if (f != NULL)
+		{
+			fclose(f);
+		}
+
+		printf("[4] imported .vpn file\n");
+		CHECK(n > 0, ".vpn file read (%u bytes)", (unsigned)n);
+		CHECK(se_import_vpn_file(file, n, &imp, err, sizeof(err)) == 1, "parsed %s", err);
+		printf("        name '%s' host %s port %d hub %s user %s auth %d\n",
+			imp.name, imp.host, imp.port, imp.hub, imp.username, imp.auth_type);
+		CHECK(strcmp(imp.name, "Office VPN") == 0 && strcmp(imp.host, argv[2]) == 0 &&
+			imp.port == atoi(argv[3]) && strcmp(imp.hub, argv[4]) == 0 &&
+			strcmp(imp.username, argv[5]) == 0, "name, server, port, hub and user match");
+		CHECK(imp.auth_type == SE_AUTH_PASSWORD && imp.has_password_hash == 1, "saved password hash present");
+		CHECK(se_import_vpn_file((const uint8_t *)"not a vpn file", 14, &imp, err, sizeof(err)) == 0 && err[0] != 0,
+			"garbage rejected: %s", err);
+
+		CHECK(se_import_vpn_file(file, n, &imp, err, sizeof(err)) == 1, "parsed again");
+		p.host = imp.host;
+		p.port = (uint16_t)imp.port;
+		p.hub = imp.hub;
+		p.username = imp.username;
+		p.password = NULL;
+		p.password_hash = imp.password_hash;
+
+		s = se_connect(&p, err, sizeof(err));
+		CHECK(s != NULL, "session started %s", err);
+		st = WaitStatus(s, 60);
+		CHECK(st == SE_STATUS_CONNECTED, "connected with the imported credentials (status %d)", st);
+		se_disconnect(s);
+	}
+
 	se_shutdown();
 
 	printf("%s (%d failure%s)\n", g_failed == 0 ? "PASSED" : "FAILED", g_failed, g_failed == 1 ? "" : "s");

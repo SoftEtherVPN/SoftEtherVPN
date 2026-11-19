@@ -6,6 +6,8 @@ struct ProfilesWindow: View {
     @EnvironmentObject private var store: ProfileStore
     @EnvironmentObject private var vpn: VPNController
     @State private var selection: UUID?
+    @State private var importing = false
+    @State private var importError: String?
 
     var body: some View {
         NavigationSplitView {
@@ -23,6 +25,13 @@ struct ProfilesWindow: View {
                     } label: {
                         Label("Add", systemImage: "plus")
                     }
+
+                    Button {
+                        importing = true
+                    } label: {
+                        Label("Import .vpn File", systemImage: "square.and.arrow.down")
+                    }
+                    .help("Import a connection exported by the SoftEther VPN Client for Windows")
 
                     Button {
                         if let p = store.profiles.first(where: { $0.id == selection }) {
@@ -47,6 +56,35 @@ struct ProfilesWindow: View {
         .onAppear {
             if selection == nil { selection = store.profiles.first?.id }
             vpn.activateExtension()
+        }
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.data]) { result in
+            guard case .success(let url) = result else { return }
+            importFile(url)
+        }
+        .alert("The file could not be imported", isPresented: Binding(
+            get: { importError != nil }, set: { if !$0 { importError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(importError ?? "")
+        }
+    }
+
+    private func importFile(_ url: URL) {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+
+        do {
+            let imported = try Bridge.importVPNFile(try Data(contentsOf: url))
+
+            if let password = imported.password {
+                Keychain.setPassword(password, for: imported.profile.id)
+            }
+
+            store.update(imported.profile)
+            selection = imported.profile.id
+        } catch {
+            importError = error.localizedDescription
         }
     }
 }
@@ -75,7 +113,8 @@ struct ProfileEditor: View {
                 }
 
                 if profile.auth.needsPassword {
-                    SecureField("Password", text: $password)
+                    SecureField("Password", text: $password,
+                                prompt: profile.passwordHash != nil ? Text("Saved in the imported file") : nil)
                         .onChange(of: password) { Keychain.setPassword($0, for: profile.id) }
                 }
 
@@ -137,9 +176,26 @@ struct ProfileEditor: View {
                 }
             }
 
+            Section {
+                Toggle("Connect automatically", isOn: $profile.connectAutomatically)
+            } footer: {
+                Text("Connects whenever this Mac is online, also after a restart. The password is then stored with the VPN configuration so the system can sign in without this app.")
+            }
+
             DisclosureGroup("Advanced", isExpanded: $showAdvanced) {
                 TextField("DNS servers (leave empty to use the VPN's)", text: $profile.dnsServers)
                 Toggle("Use IPv6 inside the VPN", isOn: $profile.useIPv6)
+                Toggle("Block IPv6 when the VPN has none", isOn: $profile.blockIPv6Leaks)
+
+                Picker("Proxy", selection: $profile.proxy) {
+                    ForEach(ProxyKind.allCases) { Text($0.title).tag($0) }
+                }
+                if profile.proxy != .none {
+                    TextField("Proxy server", text: $profile.proxyHost)
+                    TextField("Proxy port", value: $profile.proxyPort, format: .number.grouping(.never))
+                    TextField("Proxy user name", text: $profile.proxyUsername)
+                    SecureField("Proxy password", text: $profile.proxyPassword)
+                }
                 Toggle("Compress traffic", isOn: $profile.useCompression)
                 Toggle("Disable UDP acceleration", isOn: $profile.disableUDPAcceleration)
             }
