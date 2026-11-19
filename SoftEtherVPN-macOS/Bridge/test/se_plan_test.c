@@ -213,9 +213,53 @@ static void TestInclude(void)
 	CHECK(HasNet(p.included, p.num_included, "10.99.0.53", 32));
 	pol.dns_servers = NULL;
 
-	// No domain known anywhere: fall back to "all names", and say so
+	// Split tunnel and no DNS domain known anywhere (none from the server, none
+	// in the profile): lookups stay with the host's own DNS, and the VPN's
+	// server gets no route of its own
+	pol.networks = "10.1.0.0/16";
 	CHECK(se_make_plan(&pol, &v4_nodomain, NULL, &p, err, sizeof(err)) == 1);
-	CHECK(p.dns_enabled && p.dns_match_all && strstr(p.warnings, "No DNS domain") != NULL);
+	CHECK(!p.dns_enabled && p.num_dns_servers == 0 && p.num_match_domains == 0 && !p.dns_match_all);
+	CHECK(strstr(p.warnings, "this Mac's own DNS") != NULL);
+	CHECK(p.num_included == 2 && !HasNet(p.included, p.num_included, "192.168.30.1", 32));
+
+	// ... silently when the server set no DNS server either
+	{
+		se_ipv4_config bare = v4_nodomain;
+
+		bare.dns1[0] = 0;
+		CHECK(se_make_plan(&pol, &bare, NULL, &p, err, sizeof(err)) == 1);
+		CHECK(!p.dns_enabled && p.warnings[0] == 0);
+	}
+
+	// A domain in the profile is enough to use the VPN's DNS for it
+	pol.dns_domains = "intra.example";
+	CHECK(se_make_plan(&pol, &v4_nodomain, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.dns_enabled && !p.dns_match_all && p.num_match_domains == 1 && p.num_dns_servers == 1);
+	pol.dns_domains = NULL;
+
+	// ... and asking for all names explicitly still works on a split tunnel
+	pol.dns_mode = SE_DNS_ALL;
+	CHECK(se_make_plan(&pol, &v4_nodomain, NULL, &p, err, sizeof(err)) == 1);
+	CHECK(p.dns_enabled && p.dns_match_all && p.num_dns_servers == 1);
+	pol.dns_mode = SE_DNS_AUTO;
+
+	// The same when the server decided on the split
+	pol.tunnel_mode = SE_TUNNEL_SERVER;
+	{
+		se_ipv4_config pushed = v4_nodomain;
+
+		pushed.gateway[0] = 0;
+		pushed.num_routes = 1;
+		strcpy(pushed.routes[0].network, "10.20.0.0");
+		pushed.routes[0].prefix_len = 16;
+		CHECK(se_make_plan(&pol, &pushed, NULL, &p, err, sizeof(err)) == 1);
+		CHECK(p.full_tunnel == 0 && !p.dns_enabled && strstr(p.warnings, "this Mac's own DNS") != NULL);
+
+		// ... while a full tunnel decided by the server uses the VPN's DNS for everything
+		CHECK(se_make_plan(&pol, &v4_nodomain, NULL, &p, err, sizeof(err)) == 1);
+		CHECK(p.full_tunnel == 1 && p.dns_enabled && p.dns_match_all);
+	}
+	pol.tunnel_mode = SE_TUNNEL_INCLUDE;
 }
 
 static void TestExclude(void)

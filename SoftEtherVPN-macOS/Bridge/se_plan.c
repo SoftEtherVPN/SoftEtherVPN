@@ -517,6 +517,7 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 	int full4, full6;
 	int dns_mode;
 	int overflow = 0, list_overflow = 0, domain_overflow = 0;
+	int auto_host_dns = 0;
 	int r, i;
 
 	SetErr(err, err_size, "");
@@ -834,20 +835,26 @@ int se_make_plan(const se_policy *policy, const se_ipv4_config *v4, const se_ipv
 
 			if (dns_mode == SE_DNS_SPLIT && p->num_match_domains == 0)
 			{
-				// Split tunnel but nothing says which names are internal: the
-				// VPN's resolver answers everything, so that internal names
-				// work (the behavior of the desktop SoftEther client)
-				dns_mode = SE_DNS_ALL;
+				// Split tunnel, and neither the server nor the profile says
+				// which names are internal: name lookups stay with this
+				// machine's own DNS. Sending every lookup to the VPN's server
+				// would hand it all the names of traffic that does not even
+				// go through the VPN.
+				auto_host_dns = 1;
 
 				if (p->num_dns_servers != 0)
 				{
-					PlanWarn(p, "No DNS domain is known for this VPN, so all names are "
-						"resolved by the VPN's DNS server. Add the internal domains to resolve only those there.%s", "");
+					PlanWarn(p, "This VPN announces no DNS domain, so names are looked up by this "
+						"Mac's own DNS, not the VPN's. Add the VPN's domains to the profile to look those up through the VPN.%s", "");
 				}
 			}
 		}
 
-		if (p->num_dns_servers == 0)
+		if (auto_host_dns)
+		{
+			// System resolver untouched
+		}
+		else if (p->num_dns_servers == 0)
 		{
 			// Nothing to point the resolver at
 			if (dns_mode == SE_DNS_SPLIT || policy->dns_mode == SE_DNS_ALL)

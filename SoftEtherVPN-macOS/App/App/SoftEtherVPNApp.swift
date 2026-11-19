@@ -5,8 +5,22 @@ import SwiftUI
 @main
 @MainActor
 struct SoftEtherVPNApp: App {
-    @StateObject private var store = ProfileStore()
-    @StateObject private var vpn = VPNController()
+    @StateObject private var store: ProfileStore
+    @StateObject private var vpn: VPNController
+
+    init() {
+        let store = ProfileStore()
+
+        // The controller cleans up VPN configurations whose profile is gone,
+        // so it has to know which profiles exist
+        let vpn = VPNController(knownProfileIDs: { [weak store] in
+            guard let store = store, store.loadedCleanly else { return nil }
+            return Set(store.profiles.map(\.id))
+        })
+
+        _store = StateObject(wrappedValue: store)
+        _vpn = StateObject(wrappedValue: vpn)
+    }
 
     var body: some Scene {
         MenuBarExtra {

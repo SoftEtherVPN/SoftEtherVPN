@@ -248,7 +248,7 @@ struct ProfileEditor: View {
     private var dnsHelp: String {
         switch profile.dnsMode {
         case .automatic:
-            return "All names are looked up through the VPN when all traffic goes through it. When only some networks do, only the VPN's own domain and the domains listed here are."
+            return "All names are looked up through the VPN when all traffic goes through it. When only some networks do, only the VPN's own domain and the domains listed here are. If there is no such domain, this Mac's own DNS is used."
         case .allNames:
             return "Every name is looked up by the VPN's DNS servers."
         case .splitDomains:

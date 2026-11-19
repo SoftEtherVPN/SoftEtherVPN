@@ -39,7 +39,7 @@ non-IP Ethernet protocols are not available on this client.
 | All traffic | Default route through the VPN. |
 | Only these networks | The VPN's own subnet, the listed networks, and (optionally) the routes the hub's DHCP server pushes. A pushed default route is ignored. |
 | All traffic except these networks | Default route through the VPN, listed networks bypass it. |
-| DNS: Automatic | All names via the VPN when everything is routed. On a split tunnel: only the hub's DHCP domain and the listed domains. If neither exists, all names go to the VPN's DNS server so that internal names still resolve, and the app says so. |
+| DNS: Automatic | All names via the VPN when everything is routed. On a split tunnel: only the hub's DHCP domain and the listed domains. If neither exists, the Mac's own DNS stays in charge and the VPN's DNS server is not used; the app says so. |
 | DNS: all names | The VPN's DNS servers resolve everything. |
 | DNS: only these domains | Split DNS on the listed domains plus the hub's DHCP domain. |
 | DNS: don't change | The system resolver is left alone. |
@@ -160,7 +160,7 @@ Verified on Linux x86-64 (gcc, OpenSSL 3.0):
 
 - The desktop targets still build with the core changes, and `libcedar` from
   the desktop build contains none of the L3 adapter code.
-- `se_plan_test`: 147 checks covering network parsing, the server-decided
+- `se_plan_test`: 159 checks covering network parsing, the server-decided
   mode, full tunnel, both split tunnel directions, split DNS, IPv6 leak
   protection, over-long and over-full lists, and domain validation. Clean
   under AddressSanitizer and UBSan.
@@ -236,9 +236,10 @@ static libraries built for the deployment target instead.
     are saved without them.
 - With IPv6 blocked, IPv6 packets are dropped silently, so an application
   waits for its own timeout before it falls back to IPv4.
-- A VPN configuration whose profile no longer exists in the app (for example
-  after the profiles file was lost) is not removed automatically. Remove it in
-  System Settings > VPN.
+- A VPN configuration whose profile no longer exists in the app is stopped
+  and removed automatically, at launch and whenever the list of profiles
+  changes. The one exception: if the profiles file exists but cannot be read,
+  nothing is removed, because the list of profiles is then unknown.
 - A reconnect asks the hub's DHCP server again. The Android client's lease
   reuse (`VLanAndroidSetCachedIPv4`) would make reconnects faster, but it does
   not carry the DHCP domain name, which split DNS needs.

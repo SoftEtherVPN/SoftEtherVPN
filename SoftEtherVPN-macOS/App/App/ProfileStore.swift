@@ -11,6 +11,11 @@ final class ProfileStore: ObservableObject {
 
     private let fileURL: URL
 
+    // False when a profiles file exists but could not be read. The saved VPN
+    // configurations are then left alone: with the list of profiles unknown,
+    // none of them can be called orphaned.
+    private(set) var loadedCleanly = true
+
     init() {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SoftEtherVPN", isDirectory: true)
@@ -29,6 +34,8 @@ final class ProfileStore: ObservableObject {
             } else {
                 // Unreadable: the next edit would overwrite it, private keys
                 // included. Keep it aside.
+                loadedCleanly = false
+
                 let backup = dir.appendingPathComponent("profiles.unreadable.json")
                 try? FileManager.default.removeItem(at: backup)
                 try? FileManager.default.moveItem(at: fileURL, to: backup)

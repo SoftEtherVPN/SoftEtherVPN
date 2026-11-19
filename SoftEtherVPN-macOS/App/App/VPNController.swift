@@ -50,7 +50,13 @@ final class VPNController: NSObject, ObservableObject {
     private var removed: Set<UUID> = []
     private var syncTask: Task<Void, Never>?
 
-    override init() {
+    // The ids of the profiles that exist, or nil when that is not known (the
+    // profiles file could not be read). Used to clean up VPN configurations
+    // whose profile is gone.
+    private let knownProfileIDs: () -> Set<UUID>?
+
+    init(knownProfileIDs: @escaping () -> Set<UUID>?) {
+        self.knownProfileIDs = knownProfileIDs
         super.init()
         // Also needed after an app update, to replace the installed extension
         activateExtension()
@@ -84,18 +90,34 @@ final class VPNController: NSObject, ObservableObject {
         return try? JSONDecoder().decode(VPNProfile.self, from: json)
     }
 
-    // Read the saved VPN configurations. Nothing is ever deleted here: a
-    // configuration this version cannot read may belong to another one.
-    // The result is swapped in after the only suspension point, so two
-    // overlapping calls cannot see each other's half-built state.
+    // Read the saved VPN configurations and remove the orphaned ones: a
+    // configuration whose profile no longer exists has no switch in the app,
+    // yet would still show in System Settings and, with "connect
+    // automatically", keep connecting.
+    //
+    // Everything after the read runs without suspending, so two overlapping
+    // calls cannot see each other's half-built state. Two objects for the
+    // same configuration from two such calls are not duplicates: only what
+    // one read returns twice is.
     fileprivate func loadManagers() async {
         guard let loaded = try? await NETunnelProviderManager.loadAllFromPreferences() else { return }
 
+        // nil: the profiles are not known right now, so nothing is an orphan
+        let known = knownProfileIDs()
+
         var found: [UUID: NETunnelProviderManager] = [:]
         for m in loaded {
-            if let id = Self.storedProfile(of: m)?.id, found[id] == nil {
+            let id = Self.storedProfile(of: m)?.id
+
+            if let id = id, found[id] == nil,
+               known == nil || known!.contains(id) || starting.contains(id) {
                 // A start in flight already holds the object for its profile
                 found[id] = managers[id] ?? m
+            } else if known != nil {
+                // No profile for it (deleted, or the configuration is not
+                // readable as one of this app's), or a second configuration
+                // for a profile that already has one
+                Self.discard(m)
             }
         }
 
@@ -110,6 +132,34 @@ final class VPNController: NSObject, ObservableObject {
 
         for (id, m) in found {
             observe(m, id: id)
+        }
+    }
+
+    // Stop and delete a VPN configuration that belongs to no profile
+    private static func discard(_ m: NETunnelProviderManager) {
+        m.isOnDemandEnabled = false
+        m.connection.stopVPNTunnel()
+        m.removeFromPreferences { _ in }
+    }
+
+    // The list of profiles changed: drop the configurations of profiles that
+    // are gone. (Deleting a profile in the app goes through remove(profileID:)
+    // already; this catches every other way a profile can disappear.)
+    func removeOrphans() {
+        guard let known = knownProfileIDs() else { return }
+
+        for (id, m) in managers where !known.contains(id) && !starting.contains(id) {
+            if let observer = observers.removeValue(forKey: id) {
+                NotificationCenter.default.removeObserver(observer)
+            }
+
+            managers[id] = nil
+            states[id] = nil
+            statuses[id] = nil
+            errors[id] = nil
+            userStopped.remove(id)
+
+            Self.discard(m)
         }
     }
 
@@ -171,6 +221,8 @@ final class VPNController: NSObject, ObservableObject {
     // (and lose its password again when "connect automatically" is switched
     // off). Coalesced: the editor reports every keystroke.
     func profilesChanged(_ profiles: [VPNProfile]) {
+        removeOrphans()
+
         syncTask?.cancel()
         syncTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 800_000_000)
@@ -220,8 +272,7 @@ final class VPNController: NSObject, ObservableObject {
 
         guard let m = managers.removeValue(forKey: id) else { return }
 
-        m.connection.stopVPNTunnel()
-        m.removeFromPreferences { _ in }
+        Self.discard(m)
     }
 
     // MARK: - Connect / disconnect
@@ -322,7 +373,7 @@ final class VPNController: NSObject, ObservableObject {
             if removed.contains(id) {
                 managers[id] = nil
                 states[id] = nil
-                m.removeFromPreferences { _ in }
+                Self.discard(m)
                 return
             }
 

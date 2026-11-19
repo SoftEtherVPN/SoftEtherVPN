@@ -33,9 +33,10 @@ enum
 enum
 {
 	SE_DNS_AUTO = 0,		// all names when everything is routed; only the
-							// VPN's domains when the tunnel is split - or all
-							// names there too, with a warning, when no domain
-							// is known at all
+							// VPN's domains when the tunnel is split. A split
+							// tunnel with no domain known (none announced by
+							// the server, none in the profile) leaves the
+							// system resolver alone.
 	SE_DNS_ALL = 1,			// all names
 	SE_DNS_SPLIT = 2,		// only the listed domains (and the hub's DHCP domain)
 	SE_DNS_OFF = 3,			// leave the system resolver alone
