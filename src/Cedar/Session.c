@@ -2015,7 +2015,12 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 			// Enable SSL peer verification
 			s->SslOption = ZeroMalloc(sizeof(SSL_VERIFY_OPTION));
 			s->SslOption->VerifyPeer = true;
-#ifdef	OS_WIN32
+			// Let the handshake complete on a verification failure so that the
+			// CHECK_CERT_PROC can decide with the server certificate in hand:
+			// the Windows client shows a dialog there, and a host application
+			// that opts in with SE_CLIENT_CERT_PROMPT (the macOS client) hands
+			// the certificate to its own UI. Every other build fails in StartSSL.
+#if	defined(OS_WIN32) || defined(SE_CLIENT_CERT_PROMPT)
 			s->SslOption->PromptOnVerifyFail = true;
 #endif
 			s->SslOption->AddDefaultCA = account->AddDefaultCA;

@@ -1,0 +1,482 @@
+// SoftEther VPN for macOS - packet tunnel provider.
+//
+// Runs the SoftEther session in-process through the C bridge and exchanges raw
+// IP packets with it over the bridge's datagram descriptor. Which networks and
+// DNS names use the tunnel is decided by se_make_plan (Bridge/se_plan.c, unit
+// tested); this file only maps that plan onto NEPacketTunnelNetworkSettings.
+
+import Foundation
+import NetworkExtension
+import os.log
+
+final class PacketTunnelProvider: NEPacketTunnelProvider {
+    private let log = OSLog(subsystem: "org.softether.vpnclient.macos", category: "tunnel")
+
+    // Everything below is touched only on this queue
+    private let queue = DispatchQueue(label: "org.softether.vpnclient.macos.tunnel")
+
+    private var profile = VPNProfile()
+    private var password: String?
+    private var session: OpaquePointer?
+    private var readSource: DispatchSourceRead?
+    private var monitor: DispatchSourceTimer?
+    private var stopping = false
+    private var reconnecting = false
+    private var lastStatus = TunnelStatus()
+
+    // The descriptor outbound packets are written to; read from the
+    // packetFlow callback thread, hence its own lock
+    private let fdLock = NSLock()
+    private var outboundFD: Int32 = -1
+    private var outboundLoopRunning = false     // guarded by fdLock
+
+    private static let connectTimeout: TimeInterval = 60
+    private static let reconnectDelays: [TimeInterval] = [1, 2, 5, 10, 20, 30]
+
+    // MARK: - NEPacketTunnelProvider
+
+    override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
+        queue.async {
+            self.stopping = false
+
+            guard
+                let proto = self.protocolConfiguration as? NETunnelProviderProtocol,
+                let json = proto.providerConfiguration?[TunnelKey.profile] as? Data,
+                let profile = try? JSONDecoder().decode(VPNProfile.self, from: json)
+            else {
+                completionHandler(TunnelError.message("The connection settings could not be read."))
+                return
+            }
+
+            self.profile = profile
+            self.password = options?[TunnelKey.password] as? String
+
+            guard Bridge.start() else {
+                completionHandler(TunnelError.message("The VPN core could not be started."))
+                return
+            }
+
+            self.connect { error in
+                if error != nil {
+                    self.teardownSession()
+                }
+                completionHandler(error)
+                if error == nil {
+                    self.startMonitor()
+                }
+            }
+        }
+    }
+
+    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+        queue.async {
+            self.stopping = true
+            self.monitor?.cancel()
+            self.monitor = nil
+            self.teardownSession()
+            completionHandler()
+        }
+    }
+
+    override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
+        queue.async {
+            self.refreshTraffic()
+            completionHandler?(try? JSONEncoder().encode(self.lastStatus))
+        }
+    }
+
+    // MARK: - Session
+
+    // Dial, wait for the hub's IP configuration and apply the network
+    // settings. The completion runs on the queue.
+    private func connect(completion: @escaping (Error?) -> Void) {
+        let bridgeProfile = BridgeProfile(profile, password: password)
+        var err = [CChar](repeating: 0, count: 256)
+        var p = bridgeProfile.value
+
+        // The se_profile points into bridgeProfile's buffers
+        let started = withExtendedLifetime(bridgeProfile) {
+            se_connect(&p, &err, err.count)
+        }
+
+        guard let s = started else {
+            completion(TunnelError.message(String(cString: err)))
+            return
+        }
+
+        session = s
+        waitForConfiguration(deadline: Date().addingTimeInterval(Self.connectTimeout), completion: completion)
+    }
+
+    private func waitForConfiguration(deadline: Date, completion: @escaping (Error?) -> Void) {
+        guard let s = session, !stopping else {
+            completion(TunnelError.message("Cancelled."))
+            return
+        }
+
+        let status = se_get_status(s)
+        lastStatus.text = Bridge.statusText(s)
+
+        if status == Int32(SE_STATUS_CONNECTED) {
+            applySettings(completion: completion)
+        } else if status == Int32(SE_STATUS_CONNECTING) && Date() < deadline {
+            queue.asyncAfter(deadline: .now() + 0.1) {
+                self.waitForConfiguration(deadline: deadline, completion: completion)
+            }
+        } else if status == Int32(SE_STATUS_CONNECTING) {
+            completion(TunnelError.message("The VPN server did not answer in time."))
+        } else {
+            completion(TunnelError.session(code: Int(se_get_error(s)), text: Bridge.statusText(s)))
+        }
+    }
+
+    private func teardownSession() {
+        readSource?.cancel()
+        readSource = nil
+
+        fdLock.lock()
+        outboundFD = -1
+        fdLock.unlock()
+
+        if let s = session {
+            session = nil
+            se_disconnect(s)    // closes the packet descriptor
+        }
+
+        lastStatus = TunnelStatus(text: lastStatus.text)
+    }
+
+    // MARK: - Network settings
+
+    private func applySettings(completion: @escaping (Error?) -> Void) {
+        guard let s = session else {
+            completion(TunnelError.message("Cancelled."))
+            return
+        }
+
+        var v4 = se_ipv4_config()
+        var v6 = se_ipv6_config()
+        let hasV4 = se_get_ipv4_config(s, &v4) == 1
+        let hasV6 = se_get_ipv6_config(s, &v6) == 1 && !cString(v6.address).isEmpty
+
+        // se_plan is large; keep it on the heap and hand the C accessors a pointer
+        let plan = UnsafeMutablePointer<se_plan>.allocate(capacity: 1)
+        plan.initialize(to: se_plan())
+        defer { plan.deallocate() }
+
+        var err = [CChar](repeating: 0, count: 256)
+        let profile = self.profile
+
+        let made: Int32 = profile.networks.withCString { networks -> Int32 in
+            profile.dnsServers.withCString { dnsServers -> Int32 in
+                profile.dnsDomains.withCString { dnsDomains -> Int32 in
+                    var policy = se_policy()
+                    policy.tunnel_mode = Int32(profile.tunnelMode.rawValue)
+                    policy.networks = networks
+                    policy.use_pushed_routes = profile.usePushedRoutes ? 1 : 0
+                    policy.dns_mode = Int32(profile.dnsMode.rawValue)
+                    policy.dns_servers = dnsServers
+                    policy.dns_domains = dnsDomains
+
+                    return withUnsafePointer(to: v4) { v4p -> Int32 in
+                        withUnsafePointer(to: v6) { v6p -> Int32 in
+                            se_make_plan(&policy, hasV4 ? v4p : nil, hasV6 ? v6p : nil, plan, &err, err.count)
+                        }
+                    }
+                }
+            }
+        }
+
+        guard made == 1 else {
+            completion(TunnelError.message(String(cString: err)))
+            return
+        }
+
+        let server = Bridge.serverAddress(s) ?? profile.host
+        let settings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: server)
+        settings.mtu = 1500
+
+        var routed: [String] = []
+        var bypassed: [String] = []
+        var included4: [NEIPv4Route] = []
+        var excluded4: [NEIPv4Route] = []
+        var included6: [NEIPv6Route] = []
+        var excluded6: [NEIPv6Route] = []
+
+        func collect(_ get: (Int32) -> UnsafePointer<se_net>?, _ count: Int32,
+                     into r4: inout [NEIPv4Route], _ r6: inout [NEIPv6Route], names: inout [String]) {
+            for i in 0..<count {
+                guard let net = get(i) else { continue }
+                let address = String(cString: se_net_address(net))
+                let prefix = Int(net.pointee.prefix_len)
+
+                names.append(prefix == 0 ? "Everything (\(net.pointee.is_ipv6 != 0 ? "IPv6" : "IPv4"))" : "\(address)/\(prefix)")
+
+                if net.pointee.is_ipv6 != 0 {
+                    r6.append(prefix == 0 ? NEIPv6Route.default()
+                        : NEIPv6Route(destinationAddress: address, networkPrefixLength: NSNumber(value: prefix)))
+                } else {
+                    r4.append(prefix == 0 ? NEIPv4Route.default()
+                        : NEIPv4Route(destinationAddress: address, subnetMask: String(cString: se_net_mask(net))))
+                }
+            }
+        }
+
+        collect({ se_plan_included(plan, $0) }, plan.pointee.num_included,
+                into: &included4, &included6, names: &routed)
+        collect({ se_plan_excluded(plan, $0) }, plan.pointee.num_excluded,
+                into: &excluded4, &excluded6, names: &bypassed)
+
+        if hasV4 {
+            let ipv4 = NEIPv4Settings(addresses: [cString(v4.address)], subnetMasks: [cString(v4.mask)])
+            ipv4.includedRoutes = included4
+            ipv4.excludedRoutes = excluded4
+            settings.ipv4Settings = ipv4
+        }
+
+        if hasV6 {
+            let prefix = v6.prefix_len > 0 ? Int(v6.prefix_len) : 64
+            let ipv6 = NEIPv6Settings(addresses: [cString(v6.address)], networkPrefixLengths: [NSNumber(value: prefix)])
+            ipv6.includedRoutes = included6
+            ipv6.excludedRoutes = excluded6
+            settings.ipv6Settings = ipv6
+        }
+
+        var dnsServers: [String] = []
+        var matchDomains: [String] = []
+        var searchDomains: [String] = []
+
+        for i in 0..<plan.pointee.num_dns_servers {
+            if let p = se_plan_dns_server(plan, i) { dnsServers.append(String(cString: p)) }
+        }
+        for i in 0..<plan.pointee.num_match_domains {
+            if let p = se_plan_match_domain(plan, i) { matchDomains.append(String(cString: p)) }
+        }
+        for i in 0..<plan.pointee.num_search_domains {
+            if let p = se_plan_search_domain(plan, i) { searchDomains.append(String(cString: p)) }
+        }
+
+        let matchAll = plan.pointee.dns_match_all != 0
+
+        if plan.pointee.dns_enabled != 0 && !dnsServers.isEmpty {
+            let dns = NEDNSSettings(servers: dnsServers)
+
+            if matchAll {
+                // An empty match domain makes these servers the resolver for
+                // every name, also when the tunnel is not the default route
+                dns.matchDomains = [""]
+            } else {
+                // Split DNS: only names under these domains are sent to the
+                // VPN's servers; they are not turned into search suffixes
+                dns.matchDomains = matchDomains
+                dns.matchDomainsNoSearch = true
+            }
+
+            if !searchDomains.isEmpty {
+                dns.searchDomains = searchDomains
+            }
+
+            settings.dnsSettings = dns
+        }
+
+        let warnings = String(cString: se_plan_warnings(plan)).split(separator: "\n").map(String.init)
+        warnings.forEach { os_log("plan: %{public}@", log: self.log, type: .info, $0) }
+
+        var status = TunnelStatus()
+        status.text = "Connected."
+        status.connected = true
+        status.address = hasV4 ? cString(v4.address) : ""
+        status.address6 = hasV6 ? cString(v6.address) : ""
+        status.server = server
+        status.dnsServers = settings.dnsSettings != nil ? dnsServers : []
+        status.dnsDomains = matchAll ? [] : matchDomains
+        status.routedNetworks = routed
+        status.bypassedNetworks = bypassed
+        status.warnings = warnings
+
+        setTunnelNetworkSettings(settings) { error in
+            self.queue.async {
+                if let error = error {
+                    completion(error)
+                    return
+                }
+
+                self.lastStatus = status
+                self.startPacketPump()
+                completion(nil)
+            }
+        }
+    }
+
+    // MARK: - Packets
+
+    private func startPacketPump() {
+        guard let s = session else { return }
+
+        let fd = se_packet_fd(s)
+        guard fd >= 0 else { return }
+
+        // Non-blocking on our end: a full queue drops the packet instead of
+        // stalling the system's packet flow (what a real interface does)
+        _ = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK)
+
+        // Only one readPackets request may be outstanding: after a reconnect the
+        // request of the previous session is still pending and simply continues
+        // with the new descriptor
+        fdLock.lock()
+        outboundFD = fd
+        let startLoop = !outboundLoopRunning
+        outboundLoopRunning = true
+        fdLock.unlock()
+
+        // VPN -> system
+        let source = DispatchSource.makeReadSource(fileDescriptor: fd, queue: queue)
+        var buffer = [UInt8](repeating: 0, count: 65536)
+
+        source.setEventHandler { [weak self] in
+            guard let self = self else { return }
+
+            var packets: [Data] = []
+            var protocols: [NSNumber] = []
+
+            while packets.count < 128 {
+                let n = read(fd, &buffer, buffer.count)
+                if n <= 0 { break }
+
+                let family = (buffer[0] >> 4) == 6 ? AF_INET6 : AF_INET
+                packets.append(Data(buffer[0..<n]))
+                protocols.append(NSNumber(value: family))
+            }
+
+            if !packets.isEmpty {
+                self.packetFlow.writePackets(packets, withProtocols: protocols)
+            }
+        }
+        source.resume()
+        readSource = source
+
+        // System -> VPN
+        if startLoop {
+            readOutboundPackets()
+        }
+    }
+
+    private func readOutboundPackets() {
+        packetFlow.readPackets { [weak self] packets, _ in
+            guard let self = self else { return }
+
+            // The lock also keeps teardown from closing the descriptor mid-write
+            self.fdLock.lock()
+            let fd = self.outboundFD
+            if fd >= 0 {
+                for packet in packets {
+                    packet.withUnsafeBytes { raw in
+                        _ = write(fd, raw.baseAddress, raw.count)
+                    }
+                }
+            } else {
+                // No session: drop, and stop until the next one starts the loop
+                self.outboundLoopRunning = false
+            }
+            self.fdLock.unlock()
+
+            if fd >= 0 {
+                self.readOutboundPackets()
+            }
+        }
+    }
+
+    // MARK: - Monitoring and reconnection
+
+    private func startMonitor() {
+        let timer = DispatchSource.makeTimerSource(queue: queue)
+        timer.schedule(deadline: .now() + 1, repeating: 1)
+        timer.setEventHandler { [weak self] in self?.checkSession() }
+        timer.resume()
+        monitor = timer
+    }
+
+    private func refreshTraffic() {
+        guard let s = session else { return }
+
+        var traffic = se_traffic()
+        if se_get_traffic(s, &traffic) == 1 {
+            lastStatus.bytesSent = traffic.bytes_sent
+            lastStatus.bytesReceived = traffic.bytes_received
+        }
+    }
+
+    private func checkSession() {
+        guard let s = session, !stopping, !reconnecting else { return }
+        guard se_get_status(s) != Int32(SE_STATUS_CONNECTED) else { return }
+
+        let code = Int(se_get_error(s))
+        let text = Bridge.statusText(s)
+        os_log("session lost: %{public}@", log: log, type: .error, text)
+
+        // Errors a retry cannot fix end the tunnel; anything else is treated as
+        // a network interruption
+        let fatal = [Int(SE_ERR_AUTH_FAILED), Int(SE_ERR_HUB_NOT_FOUND), Int(SE_ERR_CERT_NOT_TRUSTED),
+                     Int(SE_ERR_HOSTNAME_MISMATCH), Int(SE_ERR_SERVER_CERT_EXPIRES)]
+
+        if fatal.contains(code) {
+            stopping = true
+            monitor?.cancel()
+            monitor = nil
+            teardownSession()
+            cancelTunnelWithError(TunnelError.session(code: code, text: text))
+            return
+        }
+
+        reconnecting = true
+        reasserting = true
+        teardownSession()
+        lastStatus.text = "Reconnecting..."
+        reconnect(attempt: 0)
+    }
+
+    private func reconnect(attempt: Int) {
+        guard !stopping else { return }
+
+        let delays = Self.reconnectDelays
+        let delay = delays[min(attempt, delays.count - 1)]
+
+        queue.asyncAfter(deadline: .now() + delay) {
+            guard !self.stopping else { return }
+
+            self.connect { error in
+                if error == nil {
+                    self.reconnecting = false
+                    self.reasserting = false
+                    return
+                }
+
+                self.teardownSession()
+
+                if case TunnelError.session(let code, _)? = error as? TunnelError,
+                   code == Int(SE_ERR_AUTH_FAILED) || code == Int(SE_ERR_CERT_NOT_TRUSTED) {
+                    self.stopping = true
+                    self.monitor?.cancel()
+                    self.monitor = nil
+                    self.cancelTunnelWithError(error)
+                    return
+                }
+
+                self.lastStatus.text = "Reconnecting..."
+                self.reconnect(attempt: attempt + 1)
+            }
+        }
+    }
+}
+
+enum TunnelError: LocalizedError {
+    case message(String)
+    case session(code: Int, text: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .message(let text): return text
+        case .session(_, let text): return text
+        }
+    }
+}

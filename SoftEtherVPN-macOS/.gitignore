@@ -1,0 +1,6 @@
+build-macos/
+App/*.xcodeproj/
+App/App/Info.plist
+App/App/App.entitlements
+App/Tunnel/Info.plist
+App/Tunnel/Tunnel.entitlements
