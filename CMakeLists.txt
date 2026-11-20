@@ -54,15 +54,39 @@ if(UNIX)
   include(GNUInstallDirs)
 
   #
-  # use rpath for locating installed libraries
+  # use rpath for locating installed libraries, unless they are installed into a
+  # directory the dynamic linker searches anyway (e.g. /usr/lib64 when building packages):
+  # such a "standard" RPATH is redundant and makes rpmbuild's check-rpaths fail on Fedora.
   #
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+  list(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" LIBDIR_IS_SYSTEM_DIR)
+  if(LIBDIR_IS_SYSTEM_DIR EQUAL -1)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+  endif()
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
   include(CheckIncludeFile)
   Check_Include_File(sys/auxv.h HAVE_SYS_AUXV)
-  if(EXISTS "/lib/systemd/system")
-    set(CMAKE_INSTALL_SYSTEMD_UNITDIR "/lib/systemd/system" CACHE STRING "Where to install systemd unit files")
+
+  # Where to install systemd unit files. Ask systemd's pkg-config file first, so that
+  # merged-/usr distributions (Debian >= 12, Ubuntu, Fedora, RHEL/EL >= 7, ...) get
+  # /usr/lib/systemd/system, then fall back to the directories that exist on the build host.
+  if(NOT DEFINED CMAKE_INSTALL_SYSTEMD_UNITDIR)
+    find_package(PkgConfig QUIET)
+    if(PKG_CONFIG_FOUND)
+      pkg_get_variable(SYSTEMD_SYSTEM_UNIT_DIR systemd systemdsystemunitdir)
+    endif()
+
+    if(SYSTEMD_SYSTEM_UNIT_DIR)
+      set(DEFAULT_SYSTEMD_UNITDIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+    elseif(EXISTS "/usr/lib/systemd/system")
+      set(DEFAULT_SYSTEMD_UNITDIR "/usr/lib/systemd/system")
+    elseif(EXISTS "/lib/systemd/system")
+      set(DEFAULT_SYSTEMD_UNITDIR "/lib/systemd/system")
+    endif()
+
+    if(DEFINED DEFAULT_SYSTEMD_UNITDIR)
+      set(CMAKE_INSTALL_SYSTEMD_UNITDIR "${DEFAULT_SYSTEMD_UNITDIR}" CACHE STRING "Where to install systemd unit files")
+    endif()
   endif()
 endif()
 
@@ -115,6 +139,42 @@ if(UNIX)
         COMMAND tr \n \;
         OUTPUT_VARIABLE CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
         ERROR_QUIET)
+  endif()
+
+  # The systemd unit directory and its parents belong to systemd, not to us
+  if(NOT "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" STREQUAL "")
+    get_filename_component(SYSTEMD_UNITDIR_PARENT "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" DIRECTORY)
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" "${SYSTEMD_UNITDIR_PARENT}")
+  endif()
+
+  # The programs are linked against libcedar and libmayaqua, which are shipped in the "common" package.
+  # Shared library dependency detection cannot find them while packaging, so declare them explicitly.
+  set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+
+  foreach(COMPONENT vpnserver vpnclient vpnbridge vpncmd)
+    string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
+
+    set(CPACK_COMPONENT_${COMPONENT_UPPER}_DEPENDS common)
+    set(CPACK_RPM_${COMPONENT_UPPER}_PACKAGE_REQUIRES "${CPACK_PACKAGE_NAME}-common = ${CPACK_PACKAGE_VERSION}")
+  endforeach()
+
+  # Reload systemd and stop/restart the services when the packages are installed, upgraded or removed
+  if(NOT "${CMAKE_INSTALL_SYSTEMD_UNITDIR}" STREQUAL "")
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION ON)
+
+    foreach(COMPONENT vpnserver vpnclient vpnbridge)
+      string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
+      set(SCRIPT_DIR "${BUILD_DIRECTORY}/packaging/${COMPONENT}")
+
+      foreach(SCRIPT postinst prerm postrm)
+        configure_file("${TOP_DIRECTORY}/packaging/${SCRIPT}.in" "${SCRIPT_DIR}/${SCRIPT}" @ONLY)
+      endforeach()
+
+      set(CPACK_DEBIAN_${COMPONENT_UPPER}_PACKAGE_CONTROL_EXTRA "${SCRIPT_DIR}/postinst;${SCRIPT_DIR}/prerm;${SCRIPT_DIR}/postrm")
+      set(CPACK_RPM_${COMPONENT_UPPER}_POST_INSTALL_SCRIPT_FILE "${SCRIPT_DIR}/postinst")
+      set(CPACK_RPM_${COMPONENT_UPPER}_PRE_UNINSTALL_SCRIPT_FILE "${SCRIPT_DIR}/prerm")
+      set(CPACK_RPM_${COMPONENT_UPPER}_POST_UNINSTALL_SCRIPT_FILE "${SCRIPT_DIR}/postrm")
+    endforeach()
   endif()
 
   include(CPack)
