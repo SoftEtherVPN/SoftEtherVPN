@@ -2015,7 +2015,12 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 			// Enable SSL peer verification
 			s->SslOption = ZeroMalloc(sizeof(SSL_VERIFY_OPTION));
 			s->SslOption->VerifyPeer = true;
-#ifdef	OS_WIN32
+			// Let the handshake complete on a verification failure so that the
+			// CHECK_CERT_PROC can decide with the server certificate in hand:
+			// the Windows client shows a dialog there, and a host application
+			// that opts in with SE_CLIENT_CERT_PROMPT (the macOS client) hands
+			// the certificate to its own UI. Every other build fails in StartSSL.
+#if	defined(OS_WIN32) || defined(SE_CLIENT_CERT_PROMPT)
 			s->SslOption->PromptOnVerifyFail = true;
 #endif
 			s->SslOption->AddDefaultCA = account->AddDefaultCA;
@@ -2056,6 +2061,18 @@ SESSION *NewClientSessionEx(CEDAR *cedar, CLIENT_OPTION *option, CLIENT_AUTH *au
 		// Do not retry in the case of a smart card authentication
 		s->ClientOption->NumRetry = 0;
 	}
+
+#ifdef	SE_CLIENT_SESSION_EXTRA_REF
+	// A host application that keeps the session object past the end of the
+	// session (to read its error) needs a reference of its own. The client
+	// thread releases the creator's reference when the session of an account
+	// ends, which can be before this function returns, so the extra one has
+	// to be taken here, while that thread does not exist yet.
+	if (account != NULL)
+	{
+		AddRef(s->ref);
+	}
+#endif
 
 	// Create a client thread
 	t = NewThread(ClientThread, (void *)s);
