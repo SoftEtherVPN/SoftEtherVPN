@@ -4356,6 +4356,7 @@ void InRpcClientOption(CLIENT_OPTION *c, PACK *p)
 	c->RequireBridgeRoutingMode = PackGetBool(p, "RequireBridgeRoutingMode");
 	c->FromAdminPack = PackGetBool(p, "FromAdminPack");
 	c->NoUdpAcceleration = PackGetBool(p, "NoUdpAcceleration");
+	c->PreventDnsLeak = PackGetBool(p, "PreventDnsLeak");
 	PackGetData2(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 }
 void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
@@ -4407,6 +4408,7 @@ void OutRpcClientOption(PACK *p, CLIENT_OPTION *c)
 	PackAddBool(p, "DisableQoS", c->DisableQoS);
 	PackAddBool(p, "FromAdminPack", c->FromAdminPack);
 	PackAddBool(p, "NoUdpAcceleration", c->NoUdpAcceleration);
+	PackAddBool(p, "PreventDnsLeak", c->PreventDnsLeak);
 	PackAddData(p, "HostUniqueKey", c->HostUniqueKey, SHA1_SIZE);
 	PackAddIp(p, "BindLocalIP", &c->BindLocalIP);// Source IP address for outgoing connection
 	PackAddInt(p, "BindLocalPort", c->BindLocalPort);// Source port number for outgoing connection
@@ -9346,6 +9348,7 @@ CLIENT_OPTION *CiLoadClientOption(FOLDER *f)
 	o->DisableQoS = CfgGetBool(f, "DisableQoS");
 	o->FromAdminPack = CfgGetBool(f, "FromAdminPack");
 	o->NoUdpAcceleration = CfgGetBool(f, "NoUdpAcceleration");
+	o->PreventDnsLeak = CfgGetBool(f, "PreventDnsLeak");
 	CfgGetIp(f, "BindLocalIP", &o->BindLocalIP);// Source IP address for outgoing connection
 	o->BindLocalPort = CfgGetInt(f, "BindLocalPort");// Source port number for outgoing connection
 
@@ -9903,6 +9906,7 @@ void CiWriteClientOption(FOLDER *f, CLIENT_OPTION *o)
 	CfgAddBool(f, "RequireBridgeRoutingMode", o->RequireBridgeRoutingMode);
 	CfgAddBool(f, "DisableQoS", o->DisableQoS);
 	CfgAddBool(f, "NoUdpAcceleration", o->NoUdpAcceleration);
+	CfgAddBool(f, "PreventDnsLeak", o->PreventDnsLeak);
 	CfgAddIp(f, "BindLocalIP", &o->BindLocalIP);// Source IP address for outgoing connection
 	CfgAddInt(f, "BindLocalPort", o->BindLocalPort);// Source port number for outgoing connection
 
