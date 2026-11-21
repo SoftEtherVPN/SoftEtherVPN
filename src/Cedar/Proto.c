@@ -553,6 +553,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	JoinSockToSockEvent(sock, se);
 
 	recv_raw_data = NewTcpRawData(&sock->RemoteIP, sock->RemotePort, &sock->LocalIP, sock->LocalPort);
+	recv_raw_data->ProxyProtocolVersion = sock->ProxyProtocolVersion;
 	send_fifo = NewFifoFast();
 
 	buf = Malloc(PROTO_TCP_BUFFER_SIZE);

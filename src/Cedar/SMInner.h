@@ -122,6 +122,14 @@ typedef struct SM_SSL
 	bool SetCertAndKey;			// Set the key
 } SM_SSL;
 
+// Listener edit
+typedef struct SM_EDIT_LISTENER
+{
+	SM_SERVER *p;				// P
+	UINT Port;					// Port number
+	bool ProxyProtocol;			// PROXY protocol state
+} SM_EDIT_LISTENER;
+
 // Save the certificate
 typedef struct SM_SAVE_KEY_PAIR
 {
@@ -431,6 +439,8 @@ void SmEditHubUpdate(HWND hWnd, SM_EDIT_HUB *s);
 void SmEditHubOnOk(HWND hWnd, SM_EDIT_HUB *s);
 bool SmCreateListenerDlg(HWND hWnd, SM_SERVER *p);
 UINT SmCreateListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
+bool SmEditListenerDlg(HWND hWnd, SM_SERVER *p, UINT port, bool proxy_protocol);
+UINT SmEditListenerDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmSslDlg(HWND hWnd, SM_SERVER *p);
 UINT SmSslDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param);
 void SmSslDlgInit(HWND hWnd, SM_SSL *s);

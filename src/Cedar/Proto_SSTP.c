@@ -106,6 +106,7 @@ bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
 
 		Copy(&server->ClientIp, &in->SrcIP, sizeof(server->ClientIp));
 		server->ClientPort = in->SrcPort;
+		server->ProxyProtocolVersion = in->ProxyProtocolVersion;
 		Copy(&server->ServerIp, &in->DstIP, sizeof(server->ServerIp));
 		server->ServerPort = in->DstPort;
 
@@ -286,7 +287,7 @@ void SstpProcessDataPacket(SSTP_SERVER *s, SSTP_PACKET *p)
 	if (s->PPPThread == NULL)
 	{
 		// Create a thread to initialize the new PPP module
-		s->PPPThread = NewPPPSession(s->Cedar, &s->ClientIp, s->ClientPort, &s->ServerIp, s->ServerPort,
+		s->PPPThread = NewPPPSession(s->Cedar, &s->ClientIp, s->ClientPort, s->ProxyProtocolVersion, &s->ServerIp, s->ServerPort,
 			s->TubeSend, s->TubeRecv, SSTP_IPC_POSTFIX, SSTP_IPC_CLIENT_NAME,
 			s->ClientHostName, s->ClientCipherName, 0);
 	}
