@@ -4893,20 +4893,28 @@ UINT SwWarning(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, WIZARD *wizard
 
 		Format(warning_filename, sizeof(warning_filename), "|warning_%s.txt", t.Name);
 		b = ReadDump(warning_filename);
+		if (b == NULL)
+		{
+			// Not every language has its own warning text: fall back to English
+			b = ReadDump("|warning_en.txt");
+		}
 
-		SeekBuf(b, b->Size, 0);
-		c = 0;
-		WriteBuf(b, &c, 1);
+		if (b != NULL)
+		{
+			SeekBuf(b, b->Size, 0);
+			c = 0;
+			WriteBuf(b, &c, 1);
 
-		str = CopyUtfToUni(b->Buf);
+			str = CopyUtfToUni(b->Buf);
 
-		UniIsEmptyStr(str);
+			UniIsEmptyStr(str);
 
-		SetText(hWnd, E_TEXT, str);
+			SetText(hWnd, E_TEXT, str);
 
-		FreeBuf(b);
+			FreeBuf(b);
 
-		Free(str);
+			Free(str);
+		}
 
 		UnselectEdit(hWnd, E_TEXT);
 

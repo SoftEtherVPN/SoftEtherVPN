@@ -3035,6 +3035,18 @@ UINT AboutDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, void *param
 		case B_IMPORTANT:
 			GetCurrentLang(&t);
 			Format(tmp, sizeof(tmp), "|warning_%s.txt", t.Name);
+			if (true)
+			{
+				BUF *b = ReadDump(tmp);
+
+				if (b == NULL)
+				{
+					// Not every language has its own warning text: fall back to English
+					StrCpy(tmp, sizeof(tmp), "|warning_en.txt");
+				}
+
+				FreeBuf(b);
+			}
 			ShowTextFile(hWnd, tmp, _UU("SW_WARNING_TITLE"), ICO_LOG);
 			break;
 		case B_LEGAL:
