@@ -35,6 +35,7 @@
 
 #define	FIFO_INIT_MEM_SIZE		4096
 #define	FIFO_REALLOC_MEM_SIZE	(65536 * 10)	// Exquisite value
+#define	FIFO_MAX_MEM_SIZE		(1024 * 1024 * 1024)	// Maximum size of the FIFO memory
 
 #define	INIT_NUM_RESERVED		32
 
@@ -2378,6 +2379,12 @@ void WriteFifo(FIFO *f, void *p, UINT size)
 		return;
 	}
 
+	// Check the maximum capacity before changing the size or capacity
+	if ((UINT64) f->pos + f->size + size > FIFO_MAX_MEM_SIZE)
+	{
+		AbortExitEx("WriteFifo(): too large FIFO size");
+	}
+
 	i = f->size;
 	f->size += size;
 	need_size = f->pos + f->size;
@@ -2386,7 +2393,7 @@ void WriteFifo(FIFO *f, void *p, UINT size)
 	// Memory expansion
 	while (need_size > f->memsize)
 	{
-		f->memsize = MAX(f->memsize, FIFO_INIT_MEM_SIZE) * 3;
+		f->memsize = MIN(FIFO_MAX_MEM_SIZE, MAX(f->memsize, FIFO_INIT_MEM_SIZE) * 3);
 		realloc_flag = true;
 	}
 

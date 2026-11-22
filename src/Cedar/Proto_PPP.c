@@ -1285,7 +1285,7 @@ bool PPPProcessEAPResponsePacket(PPP_SESSION *p, PPP_PACKET *pp, PPP_PACKET *req
 		case PPP_EAP_TYPE_IDENTITY:
 			p->Eap_MatchUserByCert = false;
 			// Parse username
-			Copy(eapidentitypkt, eap_packet->Data, MIN(MAX_SIZE, eap_datasize));
+			Copy(eapidentitypkt, eap_packet->Data, MIN(sizeof(eapidentitypkt) - 1, eap_datasize));
 			
 			Zero(&p->Eap_Identity, sizeof(p->Eap_Identity));
 			PPPParseUsername(p->Cedar, eapidentitypkt, &p->Eap_Identity);
@@ -3751,6 +3751,7 @@ bool PPPProcessEAPTlsResponse(PPP_SESSION *p, PPP_EAP *eap_packet, UINT eapSize)
 				if (p->Eap_TlsCtx.ClientCert.X != NULL)
 				{
 					FreeX(p->Eap_TlsCtx.ClientCert.X);
+					p->Eap_TlsCtx.ClientCert.X = NULL;
 				}
 
 				p->Eap_TlsCtx.SslPipe = NULL;

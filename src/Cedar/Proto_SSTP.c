@@ -148,15 +148,16 @@ bool SstpProcessData(void *param, TCP_RAW_DATA *in, FIFO *out)
 			}
 		}
 
-		if (read_size == 0)
+		if (ok == false)
 		{
+			// Reject an invalid header instead of retaining its stream.
+			disconnected = true;
 			break;
 		}
 
-		if (ok == false)
+		if (read_size == 0)
 		{
-			// Bad packet received, trigger disconnection.
-			disconnected = true;
+			// A valid header may still need the rest of its frame.
 			break;
 		}
 	}

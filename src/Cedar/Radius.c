@@ -913,7 +913,8 @@ PPP_LCP *EapClientSendEapRequest(EAP_CLIENT *e, PPP_EAP *eap_request, UINT reque
 	EAP_MESSAGE *eap1 = NULL;
 	UCHAR *pos;
 	UINT remaining;
-	if (e == NULL || eap_request == NULL)
+	if (e == NULL || eap_request == NULL ||
+		request_datasize > sizeof(((EAP_MESSAGE *)0)->Data))
 	{
 		return NULL;
 	}

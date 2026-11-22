@@ -482,6 +482,7 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	FIFO *send_fifo;
 	INTERRUPT_MANAGER *im;
 	SOCK_EVENT *se;
+	bool first_batch = true;
 
 	if (proto == NULL || sock == NULL)
 	{
@@ -564,9 +565,17 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 	{
 		UINT next_interval;
 		bool stop = false;
+		bool receive_limit_reached = false;
 
 		while (true)
 		{
+			// Give the parser a turn before another bounded receive batch.
+			if (FifoSize(recv_raw_data->Data) >= PROTO_TCP_BUFFER_SIZE)
+			{
+				receive_limit_reached = true;
+				break;
+			}
+
 			const UINT ret = Recv(sock, buf, PROTO_TCP_BUFFER_SIZE, sock->SecureMode);
 
 			if (ret == SOCK_LATER)
@@ -587,10 +596,15 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 			}
 		}
 
-		if (impl->ProcessData(impl_data, recv_raw_data, send_fifo) == false)
+		if (impl->ProcessData(impl_data, recv_raw_data, send_fifo) == false ||
+			(!first_batch && FifoSize(recv_raw_data->Data) >= PROTO_TCP_BUFFER_SIZE))
 		{
 			stop = true;
 		}
+
+		// SSTP may use its first callback only to emit the HTTP response.
+		// A full FIFO gets another parser call without another socket read.
+		first_batch = false;
 
 		// Send data to the TCP socket
 		while (FifoSize(send_fifo) >= 1)
@@ -620,6 +634,12 @@ bool ProtoHandleConnection(PROTO *proto, SOCK *sock, const char *protocol)
 			// Error or disconnection occurs
 			Debug("ProtoHandleConnection(): breaking main loop\n");
 			break;
+		}
+
+		// SSL may still hold plaintext even without a new socket event.
+		if (receive_limit_reached)
+		{
+			continue;
 		}
 
 		// Wait until the next event occurs
