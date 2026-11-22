@@ -294,6 +294,21 @@ IPC *NewIPC(CEDAR *cedar, char *client_name, char *postfix, char *hubname, char 
 
 	err = *error_code = ERR_INTERNAL_ERROR;
 
+	// A password must not introduce an EAP object not supplied by the caller.
+	// Compare the decoded address without dereferencing it.
+	if (StartWith(password, IPC_PASSWORD_MSCHAPV2_TAG))
+	{
+		IPC_MSCHAP_V2_AUTHINFO mschap;
+
+		if (ParseAndExtractMsChapV2InfoFromPassword(&mschap, password) == false ||
+			mschap.MsChapV2_EapClient != eap_client)
+		{
+			*error_code = ERR_AUTH_FAILED;
+
+			return NULL;
+		}
+	}
+
 	a = GetInProcListeningSock(cedar);
 	if (a == NULL)
 	{
