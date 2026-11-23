@@ -7,7 +7,10 @@
 #ifndef	VLAN_ANDROID_H
 #define	VLAN_ANDROID_H
 
-#ifdef UNIX_ANDROID
+// Compiled for Android, and for any other host that feeds the client session from
+// an L3 packet source and defines SE_VLAN_L3_TUN (the macOS NetworkExtension
+// packet tunnel: see SoftEtherVPN-macOS/). No other build defines either macro.
+#if defined(UNIX_ANDROID) || defined(SE_VLAN_L3_TUN)
 
 #include "Cedar.h"
 #include "Session.h"
@@ -90,6 +93,7 @@ struct VLAN_ANDROID
 	UCHAR MacAddress[6];
 	IP ConfigIp, ConfigMask, ConfigGw, ConfigDns1, ConfigDns2;
 	DHCP_CLASSLESS_ROUTE_TABLE ClasslessRoute;
+	char ConfigDomainName[MAX_HOST_NAME_LEN + 1];	// DHCP domain name of the lease
 
 	// The hub's IPv4 answer of the previous session, seeded for this one so that a
 	// reconnect can configure the NIC without running a fresh DISCOVER/REQUEST
@@ -200,8 +204,10 @@ bool VLanAndroidGetIPv4Config(VLAN_ANDROID *v, IP *ip, IP *mask, IP *gw, IP *dns
 // succeeds in that case, because the router identity it reports is real.
 bool VLanAndroidGetIPv6Config(VLAN_ANDROID *v, IP *addr, IP *prefix, IP *mask, IP *router,
 	UCHAR *router_mac, IP *dns, UCHAR *prefix_flags);
+bool VLanAndroidGetDomainName(VLAN_ANDROID *v, char *dst, UINT dst_size);
+bool VLanAndroidGetClasslessRoutes(VLAN_ANDROID *v, DHCP_CLASSLESS_ROUTE_TABLE *routes);
 const UCHAR *VLanAndroidGetMacAddress(VLAN_ANDROID *v);
 
-#endif	// UNIX_ANDROID
+#endif	// UNIX_ANDROID || SE_VLAN_L3_TUN
 
 #endif	// VLAN_ANDROID_H

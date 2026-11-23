@@ -1,0 +1,148 @@
+# XcodeGen project definition (https://github.com/yonaskolb/XcodeGen):
+#
+#   brew install xcodegen
+#   ../scripts/build-core.sh          # builds ../build-macos (core + bridge)
+#   xcodegen generate                 # writes SoftEtherVPN.xcodeproj
+#
+# NOT YET BUILT ON A MAC: this file and the Swift sources were written on
+# Linux, where only the C side (Bridge/) could be compiled and tested. Expect
+# to fix small things on the first Xcode build. See ../README.md.
+#
+# Before building, set DEVELOPMENT_TEAM and, unless you are the SoftEther
+# project, change the bundle identifiers (also in VPNController.swift and
+# PacketTunnelProvider.swift).
+
+name: SoftEtherVPN
+
+options:
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+    SWIFT_VERSION: "5.0"                 # language mode, not compiler version
+    ARCHS: arm64
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    # C bridge: header, static library, and the two core dylibs
+    SE_CORE_BUILD: $(SRCROOT)/../build-macos
+    SWIFT_OBJC_BRIDGING_HEADER: $(SRCROOT)/../Bridge/SoftEtherBridge.h
+    HEADER_SEARCH_PATHS: $(SRCROOT)/../Bridge
+    LIBRARY_SEARCH_PATHS:
+      - $(SE_CORE_BUILD)
+      - $(SE_CORE_BUILD)/softether-core
+    OTHER_LDFLAGS:
+      - -lsebridge
+      - -lcedar
+      - -lmayaqua
+    LD_RUNPATH_SEARCH_PATHS:
+      - "@executable_path/../Frameworks"
+    # scripts/bundle-deps.sh writes into the built bundle
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+# The core dylibs and hamcore.se2 go into both bundles: the extension runs the
+# VPN session, the app runs the short certificate probe (ServerProbe).
+targets:
+  SoftEtherVPN:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Shared
+      - path: ../build-macos/softether-core/hamcore.se2
+        buildPhase: resources
+      - path: ../build-macos/softether-core/libcedar.dylib
+        buildPhase:
+          copyFiles:
+            destination: frameworks
+      - path: ../build-macos/softether-core/libmayaqua.dylib
+        buildPhase:
+          copyFiles:
+            destination: frameworks
+    postBuildScripts:
+      # Copies OpenSSL / libsodium next to the core dylibs and re-signs them
+      - name: Bundle core dependencies
+        script: '"$SRCROOT/../scripts/bundle-deps.sh" "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"'
+        basedOnDependencyAnalysis: false
+    dependencies:
+      - target: SoftEtherVPNTunnel
+        embed: true
+      - sdk: NetworkExtension.framework
+      - sdk: SystemExtensions.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.softether.vpnclient.macos
+        PRODUCT_NAME: SoftEther VPN
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: SoftEther VPN
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true               # menu bar app, no Dock icon
+        LSMinimumSystemVersion: "13.0"
+        LSApplicationCategoryType: public.app-category.utilities
+    entitlements:
+      path: App/App.entitlements
+      properties:
+        com.apple.developer.system-extension.install: true
+        # System extensions use the "-systemextension" value. It must match
+        # what the provisioning profile of this bundle identifier grants.
+        com.apple.developer.networking.networkextension:
+          - packet-tunnel-provider-systemextension
+        com.apple.security.application-groups:
+          - $(TeamIdentifierPrefix)org.softether.vpnclient.macos
+
+  SoftEtherVPNTunnel:
+    type: system-extension
+    platform: macOS
+    sources:
+      - path: Tunnel
+      - path: Shared
+      - path: ../build-macos/softether-core/hamcore.se2
+        buildPhase: resources
+      - path: ../build-macos/softether-core/libcedar.dylib
+        buildPhase:
+          copyFiles:
+            destination: frameworks
+      - path: ../build-macos/softether-core/libmayaqua.dylib
+        buildPhase:
+          copyFiles:
+            destination: frameworks
+    postBuildScripts:
+      # Copies OpenSSL / libsodium next to the core dylibs and re-signs them
+      - name: Bundle core dependencies
+        script: '"$SRCROOT/../scripts/bundle-deps.sh" "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"'
+        basedOnDependencyAnalysis: false
+    dependencies:
+      - sdk: NetworkExtension.framework
+    settings:
+      base:
+        # Must be prefixed with the app's bundle identifier
+        PRODUCT_BUNDLE_IDENTIFIER: org.softether.vpnclient.macos.tunnel
+        PRODUCT_NAME: org.softether.vpnclient.macos.tunnel
+    info:
+      path: Tunnel/Info.plist
+      properties:
+        CFBundleDisplayName: SoftEther VPN Tunnel
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "13.0"
+        NSSystemExtensionUsageDescription: Carries this Mac's network traffic through your SoftEther VPN connection.
+        NetworkExtension:
+          # Must start with one of the application groups below
+          NEMachServiceName: $(TeamIdentifierPrefix)org.softether.vpnclient.macos.tunnel
+          NEProviderClasses:
+            com.apple.networkextension.packet-tunnel: $(PRODUCT_MODULE_NAME).PacketTunnelProvider
+    entitlements:
+      path: Tunnel/Tunnel.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.network.server: true     # UDP acceleration / NAT traversal
+        com.apple.developer.networking.networkextension:
+          - packet-tunnel-provider-systemextension
+        com.apple.security.application-groups:
+          - $(TeamIdentifierPrefix)org.softether.vpnclient.macos

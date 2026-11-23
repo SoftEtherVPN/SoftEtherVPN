@@ -8,12 +8,12 @@
 // SoftEther hub's Ethernet segment is converted to IPv4 by the built-in
 // ARP / DHCP / IPv6 ND machinery of IPC.c.
 
-#ifdef UNIX_ANDROID
+#if defined(UNIX_ANDROID) || defined(SE_VLAN_L3_TUN)
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
-#endif // UNIX_ANDROID
+#endif // UNIX_ANDROID || SE_VLAN_L3_TUN
 
 #include "VLanAndroid.h"
 
@@ -26,7 +26,7 @@
 #include "Mayaqua/Encrypt.h"
 #include "Mayaqua/Tick64.h"
 
-#ifdef UNIX_ANDROID
+#if defined(UNIX_ANDROID) || defined(SE_VLAN_L3_TUN)
 
 
 // Prototypes
@@ -692,6 +692,10 @@ static void VLanAndroidThread(THREAD *thread, void *param)
 
 				v->ClasslessRoute = opt->ClasslessRoute;
 
+				// The domain name of the lease (DHCP option 15); empty when the hub
+				// stated none or the lease was taken from the cache
+				StrCpy(v->ConfigDomainName, sizeof(v->ConfigDomainName), opt->DomainName);
+
 				// The hub's lease entry for this MAC is created by the REQUEST of a real
 				// exchange, and must be refreshed by us when the exchange was skipped;
 				// remember what the hub granted so that the pump can do that in time.
@@ -1076,7 +1080,17 @@ VLAN_ANDROID *VLanAndroidNew(CEDAR *cedar, const UCHAR *mac_address)
 	v->Sock = NewInProcSocket(v->TubeFromIpc, v->TubeToIpc);
 
 	v->Ipc = NewIPCBySock(cedar, v->Sock, v->MacAddress);
+#ifdef UNIX_ANDROID
 	StrCpy(v->Ipc->ClientHostname, sizeof(v->Ipc->ClientHostname), "android");
+#else	// UNIX_ANDROID
+	// Other L3 TUN hosts (SE_VLAN_L3_TUN, e.g. the macOS packet tunnel): report the
+	// machine's own host name to the hub's DHCP server, as a desktop client would
+	GetMachineHostName(v->Ipc->ClientHostname, sizeof(v->Ipc->ClientHostname));
+	if (IsEmptyStr(v->Ipc->ClientHostname))
+	{
+		StrCpy(v->Ipc->ClientHostname, sizeof(v->Ipc->ClientHostname), "softether-client");
+	}
+#endif	// UNIX_ANDROID
 
 	// Halt-notify pair polled by IPCDhcpAllocateIP (TubeDisconnect wakes a pending wait)
 	NewTubePair(&v->DhcpHaltTube, &v->DhcpHaltPeer, 0);
@@ -1440,6 +1454,41 @@ bool VLanAndroidGetIPv4Config(VLAN_ANDROID *v, IP *ip, IP *mask, IP *gw, IP *dns
 	return true;
 }
 
+// Domain name the hub's DHCP server stated for the lease (option 15); dst is left
+// empty and false is returned when there is none
+bool VLanAndroidGetDomainName(VLAN_ANDROID *v, char *dst, UINT dst_size)
+{
+	if (dst == NULL || dst_size == 0)
+	{
+		return false;
+	}
+
+	dst[0] = 0;
+
+	if (v == NULL || v->Ipv4Enabled == false || IsZeroIP(&v->ConfigIp))
+	{
+		return false;
+	}
+
+	StrCpy(dst, dst_size, v->ConfigDomainName);
+
+	return dst[0] != 0;
+}
+
+// Classless static routes the hub's DHCP server pushed with the lease (option
+// 121); false when there are none
+bool VLanAndroidGetClasslessRoutes(VLAN_ANDROID *v, DHCP_CLASSLESS_ROUTE_TABLE *routes)
+{
+	if (v == NULL || routes == NULL || v->Ipv4Enabled == false || IsZeroIP(&v->ConfigIp))
+	{
+		return false;
+	}
+
+	Copy(routes, &v->ClasslessRoute, sizeof(DHCP_CLASSLESS_ROUTE_TABLE));
+
+	return routes->NumExistingRoutes > 0;
+}
+
 // Compute the SLAAC (EUI-64) interface address from the first RA prefix
 static void VLanIPv6SLAAC(VLAN_ANDROID *v, IP *prefix, IP *addr)
 {
@@ -1656,4 +1705,4 @@ const UCHAR *VLanAndroidGetMacAddress(VLAN_ANDROID *v)
 	return v->MacAddress;
 }
 
-#endif	// UNIX_ANDROID
+#endif	// UNIX_ANDROID || SE_VLAN_L3_TUN

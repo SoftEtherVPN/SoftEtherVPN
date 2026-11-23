@@ -1,0 +1,65 @@
+# macOS GUI client (SoftEtherVPN-macOS/): build the core and the C bridge on
+# Apple Silicon, run the bridge tests against a local vpnserver, and compile
+# the Swift app and tunnel extension without signing.
+on:
+  # The client links the whole core, so any core change can break it
+  push:
+    paths:
+      - 'SoftEtherVPN-macOS/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/macos_client.yml'
+  pull_request:
+    paths:
+      - 'SoftEtherVPN-macOS/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/macos_client.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    name: macos-client
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: |
+        brew install cmake pkg-config openssl@3 libsodium xcodegen
+    - name: Build the core and the bridge
+      run: |
+        SoftEtherVPN-macOS/scripts/build-core.sh
+    - name: Build the desktop tools (test server)
+      run: |
+        ./configure
+        make -C build
+    - name: Test the bridge end to end
+      run: |
+        SoftEtherVPN-macOS/Bridge/test/run-e2e-test.sh build SoftEtherVPN-macOS/build-macos
+    - name: Compile the app and the tunnel extension (unsigned)
+      run: |
+        cd SoftEtherVPN-macOS/App
+        xcodegen generate
+        xcodebuild -project SoftEtherVPN.xcodeproj -scheme SoftEtherVPN -configuration Release \
+          -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" build
+    - name: Check the bundle is self-contained
+      run: |
+        cd "SoftEtherVPN-macOS/App/build/Build/Products/Release/SoftEther VPN.app/Contents"
+        ls Frameworks Library/SystemExtensions/*/Contents/Frameworks
+        for lib in Frameworks/*.dylib Library/SystemExtensions/*/Contents/Frameworks/*.dylib; do
+          if otool -L "$lib" | tail -n +2 | grep -E '/opt/homebrew|/usr/local'; then
+            echo "$lib refers to a library outside the bundle"; exit 1
+          fi
+          if otool -l "$lib" | grep -A2 LC_RPATH | grep -E 'path /'; then
+            echo "$lib has a run path into the build machine"; exit 1
+          fi
+          # Every @rpath reference must be satisfied by a file next to it
+          for dep in $(otool -L "$lib" | tail -n +2 | awk '{print $1}' | grep '^@rpath/'); do
+            [ -f "$(dirname "$lib")/${dep#@rpath/}" ] || { echo "$lib needs $dep, which is not bundled"; exit 1; }
+          done
+        done
