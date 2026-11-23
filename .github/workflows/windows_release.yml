@@ -46,6 +46,24 @@ jobs:
         with:
           path: 'build/vcpkg_installed/'
           key: vcpkg-release-${{ matrix.platform.VCPKG_TRIPLET }}
+      - name: Set build number in CMakeSettings.json
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $tag = $Env:TAG
+          if (-not $tag -and $Env:GITHUB_REF) {
+            $tag = $Env:GITHUB_REF -replace '^refs/tags/', ''
+          }
+          $buildNumber = (($tag -split '\.')[-1] -split '-')[0] -replace '^\D+', ''
+          if ($buildNumber -match '^\d+$') {
+            $content = Get-Content CMakeSettings.json -Raw
+            $content = $content -replace '("BuildNumber"\s*:\s*)"\d+"', "`${1}`"$buildNumber`""
+            Set-Content CMakeSettings.json -Value $content -Encoding utf8BOM -NoNewline
+            Write-Host "Updated CMakeSettings.json build number to $buildNumber from tag $tag"
+          } else {
+            Write-Warning "Could not extract numeric build number from tag '$tag'"
+          }
+        shell: pwsh
       - name: Set version variables
         run: |
           $b=(Get-Content CMakeSettings.json | Out-String | ConvertFrom-Json).environments.BuildNumber		
