@@ -1070,6 +1070,7 @@ void CleanupUser(USER *u)
 	Free(u->Name);
 	Free(u->RealName);
 	Free(u->Note);
+	Free(u->StfaMailPhone);
 	Free(u->GroupName);
 	if (u->Group != NULL)
 	{
@@ -1145,6 +1146,11 @@ void FreeAuthData(UINT authtype, void *authdata)
 // Create new user object
 USER *NewUser(char *name, wchar_t *realname, wchar_t *note, UINT authtype, void *authdata)
 {
+	return NewUserEx(name, realname, note, authtype, authdata, NULL, 0);
+}
+
+USER* NewUserEx(char* name, wchar_t* realname, wchar_t* note, UINT authtype, void* authdata, char* stfamailphone, UINT ipv4addr)
+{
 	USER *u;
 	// Validate arguments
 	if (name == NULL || realname == NULL || note == NULL)
@@ -1162,6 +1168,8 @@ USER *NewUser(char *name, wchar_t *realname, wchar_t *note, UINT authtype, void 
 	u->Name = CopyStr(name);
 	u->RealName = CopyUniStr(realname);
 	u->Note = CopyUniStr(note);
+	u->StaticIPv4 = ipv4addr;
+	u->StfaMailPhone = CopyStr(stfamailphone);
 	u->GroupName = NULL;
 	u->Group = NULL;
 	u->AuthType = authtype;
@@ -1357,6 +1365,16 @@ bool GetUserMacAddressFromUserNote(UCHAR *mac, wchar_t *note)
 	}
 
 	return ret;
+}
+
+UINT GetUserIPv4AddressFromUserConfig(USER* user)
+{
+	if (user == NULL) return 0;
+	if (user->StaticIPv4 != 0 && user->StaticIPv4 != (UINT)(-1) )
+	{
+		return user->StaticIPv4;
+	}
+	return GetUserIPv4AddressFromUserNote32(user->Note);
 }
 
 // Get the static IPv4 address from the user's note string

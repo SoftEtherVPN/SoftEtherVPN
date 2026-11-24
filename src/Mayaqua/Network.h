@@ -885,6 +885,8 @@ struct SSL_VERIFY_OPTION
 	X *SavedCert;					// Saved server certificate
 };
 
+#define	SSL_DEFAULT_CONNECT_TIMEOUT		(15 * 1000)		// SSL default timeout
+
 // Header for TCP Pair
 struct TCP_PAIR_HEADER
 {
@@ -1490,6 +1492,8 @@ UINT64 GetDynValue(char *name);
 UINT64 GetDynValueOrDefault(char *name, UINT64 default_value, UINT64 min_value, UINT64 max_value);
 UINT64 GetDynValueOrDefaultSafe(char *name, UINT64 default_value);
 
+char* RecvLineEx(SOCK* s, char* chBuff, UINT* buff_size);
+bool IsEmptyRecvBuff(SOCK* s, bool bSecure);
 
 #endif	// NETWORK_H
 
