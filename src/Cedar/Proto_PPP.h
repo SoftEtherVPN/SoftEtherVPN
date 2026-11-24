@@ -256,6 +256,7 @@ struct PPP_SESSION
 	CEDAR *Cedar;						// Cedar
 	IP ClientIP;						// Client IP address
 	UINT ClientPort;					// Client port
+	UINT ProxyProtocolVersion;				// PROXY protocol version used by the client (0 = none, 1 = v1, 2 = v2)
 	IP ServerIP;						// Server IP address
 	UINT ServerPort;					// Server port
 	TUBE *TubeSend;						// Sending tube
@@ -328,7 +329,7 @@ struct PPP_SESSION
 void PPPThread(THREAD *thread, void *param);
 
 // Entry point
-THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
+THREAD *NewPPPSession(CEDAR *cedar, IP *client_ip, UINT client_port, UINT proxy_protocol_version, IP *server_ip, UINT server_port, TUBE *send_tube, TUBE *recv_tube, char *postfix, char *client_software_name, char *client_hostname, char *crypt_name, UINT adjust_mss);
 
 // PPP processing functions
 bool PPPRejectUnsupportedPacket(PPP_SESSION *p, PPP_PACKET *pp);

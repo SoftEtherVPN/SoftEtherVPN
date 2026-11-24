@@ -16,6 +16,7 @@
 #include "Mayaqua/Mayaqua.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Object.h"
+#include "Mayaqua/ProxyProtocol.h"
 #include "Mayaqua/Str.h"
 #include "Mayaqua/Tick64.h"
 
@@ -137,6 +138,80 @@ void UDPReceivedPacket(CEDAR *cedar, SOCK *s, IP *ip, UINT port, void *data, UIN
 	ReleaseSession(session);
 }
 
+// Handle the PROXY protocol header if the listener is configured to accept it.
+// Returns true if the connection should continue, false if it must be disconnected.
+bool TCPAcceptedHandleProxyProtocol(LISTENER *r, SOCK *s)
+{
+	PP_HEADER header;
+	bool header_found = false;
+	UINT ret;
+	IP src_ip;
+	char tmp[128];
+	// Validate arguments
+	if (r == NULL || s == NULL)
+	{
+		return true;
+	}
+
+	if (r->ProxyProtocol == false)
+	{
+		// The PROXY protocol is not enabled on this listener
+		return true;
+	}
+
+	// Save the original peer address for logging
+	CopyIP(&src_ip, &s->RemoteIP);
+
+	ret = PPProcessSocket(s, &header_found, &header);
+
+	if (ret == PP_RET_ERROR)
+	{
+		// A malformed PROXY protocol header: disconnect
+		IPToStr(tmp, sizeof(tmp), &src_ip);
+		SLog(r->Cedar, "LS_PP_BAD_HEADER", r->Port, tmp);
+		return false;
+	}
+
+	if (header_found == false)
+	{
+		// A plain direct connection: proceed as usual
+		return true;
+	}
+
+	// Check whether the immediate peer is a trusted PROXY protocol source
+	if (r->Cedar->Server != NULL && PPIsNetworkListEmpty(r->Cedar->Server->ProxyTrustedNetworks) == false)
+	{
+		if (PPCheckNetworkListContains(r->Cedar->Server->ProxyTrustedNetworks, &src_ip) == false)
+		{
+			// The peer is not in the trusted networks list: reject the connection
+			IPToStr(tmp, sizeof(tmp), &src_ip);
+			SLog(r->Cedar, "LS_PP_UNTRUSTED_PEER", r->Port, tmp);
+			return false;
+		}
+	}
+
+	// Apply the parsed header to the socket
+	if (header.Local == false)
+	{
+		if (PPApplyHeaderToSocket(s, &header) == false)
+		{
+			IPToStr(tmp, sizeof(tmp), &src_ip);
+			SLog(r->Cedar, "LS_PP_BAD_HEADER", r->Port, tmp);
+			return false;
+		}
+
+		IPToStr(tmp, sizeof(tmp), &s->RemoteIP);
+		SLog(r->Cedar, "LS_PP_APPLIED", r->Port, tmp, s->RemotePort);
+	}
+	else
+	{
+		// LOCAL or UNKNOWN: the socket address is kept as-is
+		SLog(r->Cedar, "LS_PP_LOCAL", r->Port);
+	}
+
+	return true;
+}
+
 // Thread that processes the accepted TCP connection
 void TCPAcceptedThread(THREAD *t, void *param)
 {
@@ -158,6 +233,19 @@ void TCPAcceptedThread(THREAD *t, void *param)
 	s = data->s;
 	AddRef(r->ref);
 	AddRef(s->ref);
+
+	// Handle the PROXY protocol header before any other processing
+	if (s->IsReverseAcceptedSocket == false && s->Type == SOCK_TCP)
+	{
+		if (TCPAcceptedHandleProxyProtocol(r, s) == false)
+		{
+			// The connection must be disconnected
+			Disconnect(s);
+			ReleaseSock(s);
+			ReleaseListener(r);
+			return;
+		}
+	}
 
 	// Create a connection
 	c = NewServerConnection(r->Cedar, s, t);
