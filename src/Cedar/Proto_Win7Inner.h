@@ -37,6 +37,17 @@ typedef struct IPSEC_WIN7_FUNCTIONS
 		OUT OPTIONAL UINT64* id
 		);
 
+	DWORD (WINAPI *FwpmSubLayerAdd0)(
+		IN HANDLE engineHandle,
+		IN const FWPM_SUBLAYER0 *subLayer,
+		IN OPTIONAL PSECURITY_DESCRIPTOR sd
+		);
+
+	DWORD (WINAPI *FwpmGetAppIdFromFileName0)(
+		IN const wchar_t *fileName,
+		OUT FWP_BYTE_BLOB **appId
+		);
+
 	DWORD (WINAPI *IPsecSaContextCreate0)(
 		IN HANDLE engineHandle,
 		IN const IPSEC_TRAFFIC0* outboundTraffic,

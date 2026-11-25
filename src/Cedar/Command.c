@@ -4549,6 +4549,10 @@ UINT PcAccountGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_DISABLEUDP"),
 			t.ClientOption->NoUdpAcceleration ? _UU("CMD_MSG_ENABLE") : _UU("CMD_MSG_DISABLE"));	
 
+		// Prevent DNS leaks outside the VPN (takes effect on Windows only).
+		CtInsert(ct, _UU("CMD_ACCOUNT_COLUMN_PREVENT_DNS_LEAK"),
+			t.ClientOption->PreventDnsLeak ? _UU("CMD_MSG_ENABLE") : _UU("CMD_MSG_DISABLE"));
+
 		CtFree(ct, c);
 	}
 
@@ -6122,6 +6126,9 @@ UINT PcAccountDetailSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		{"NOTRACK", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_NOTRACK"), NULL, NULL},
 		{"NOQOS", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_NOQOS"), NULL, NULL},
 		{"DISABLEUDP", CmdPrompt, _UU("CMD_AccountDetailSet_Prompt_DISABLEUDP"), NULL, NULL},
+		// No prompt, hence optional: when omitted, the account keeps its
+		// current PreventDnsLeak value.
+		{"PREVENT-DNS-LEAK", NULL, NULL, NULL, NULL},
 	};
 
 	// Get the parameter list
@@ -6141,6 +6148,7 @@ UINT PcAccountDetailSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 	if (ret == ERR_NO_ERROR)
 	{
 		RPC_CLIENT_CREATE_ACCOUNT z;
+		char *prevent_dns_leak_value = GetParamStr(o, "PREVENT-DNS-LEAK");
 		// Data change
 		t.ClientOption->MaxConnection = GetParamInt(o, "MAXTCP");
 		t.ClientOption->AdditionalConnectionInterval = GetParamInt(o, "INTERVAL");
@@ -6151,6 +6159,14 @@ UINT PcAccountDetailSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
 		t.ClientOption->NoRoutingTracking = GetParamYes(o, "NOTRACK");
 		t.ClientOption->DisableQoS = GetParamYes(o, "NOQOS");
 		t.ClientOption->NoUdpAcceleration = GetParamYes(o, "DISABLEUDP");
+
+		// The switch changes the value only when given; a bare switch has
+		// an empty value, which means "yes".
+		if (prevent_dns_leak_value != NULL)
+		{
+			t.ClientOption->PreventDnsLeak = IsEmptyStr(prevent_dns_leak_value)
+				|| GetParamYes(o, "PREVENT-DNS-LEAK");
+		}
 
 		SetRpcClientCreateAccountFromGetAccount(&z, &t);
 
