@@ -135,6 +135,7 @@ struct IPC
 	SOCK *Sock;
 	INTERRUPT_MANAGER *Interrupt;		// Interrupt manager
 	IP ClientIPAddress;					// IP address of the client
+	UINT RadiusRequestedIp;				// RADIUS IPv4 assignment to request from DHCP
 	IP SubnetMask;						// Subnet mask of the client
 	IP DefaultGateway;					// Default gateway address
 	IP BroadcastAddress;				// Broadcast address

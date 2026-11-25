@@ -1104,6 +1104,7 @@ bool ServerAccept(CONNECTION *c)
 	POLICY *policy;
 	UINT assigned_vlan_id = 0;
 	UCHAR assigned_ipc_mac_address[6];
+	UINT assigned_ipc_ip_address = 0;
 	HUB *hub;
 	SESSION *s = NULL;
 	UINT64 user_expires = 0;
@@ -1835,6 +1836,10 @@ bool ServerAccept(CONNECTION *c)
 				case AUTHTYPE_EXTERNAL:
 					// External authentication already completed
 					auth_ret = true;
+					if (c->IsInProc && release_me_eap_client != NULL)
+					{
+						assigned_ipc_ip_address = release_me_eap_client->LastRecvFramedIpAddress;
+					}
 					break;
 
 				case AUTHTYPE_TICKET:
@@ -2164,6 +2169,7 @@ bool ServerAccept(CONNECTION *c)
 			if (radius_login_opt.Out_IsRadiusLogin)
 			{
 				Copy(assigned_ipc_mac_address, radius_login_opt.Out_VirtualMacAddress, 6);
+				assigned_ipc_ip_address = radius_login_opt.Out_FramedIpAddress;
 			}
 
 			if (StrCmpi(username, ADMINISTRATOR_USERNAME) != 0)
@@ -3100,6 +3106,10 @@ bool ServerAccept(CONNECTION *c)
 
 		// Send a Welcome packet to the client
 		p = PackWelcome(s);
+		if (c->IsInProc)
+		{
+			PackAddIp32(p, "IpcFramedIpAddress", assigned_ipc_ip_address);
+		}
 
 		PackAddBool(p, "suppress_client_update_notification", suppress_client_update_notification);
 

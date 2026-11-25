@@ -1969,8 +1969,9 @@ bool PPPProcessIPCPRequestPacket(PPP_SESSION *p, PPP_PACKET *pp)
 	// Process if not configured yet by server
 	if ((IsZero(&p->ClientAddressOption, sizeof(DHCP_OPTION_LIST)) || isEmptyIpAddress) && ok)
 	{
-		// Decide if we received a static IP from client and it is allowed
-		if (IsZeroIP(&o.IpAddress) == false)
+		// A RADIUS assignment takes precedence over the client's requested address.
+		// Obtain its lease and network options through DHCP.
+		if (IsZeroIP(&o.IpAddress) == false && p->Ipc->RadiusRequestedIp == 0)
 		{
 			if (p->Ipc->Policy->DHCPForce == false)
 			{
