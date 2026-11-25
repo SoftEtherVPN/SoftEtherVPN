@@ -31,7 +31,12 @@
       CONTENT "# placeholder\n"
     )
 
-    install(CODE "set(DIR \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}\")\nconfigure_file(${TOP_DIRECTORY}/systemd/softether-${component}.service ${BUILD_DIRECTORY}/softether-${component}.service)"
+    # Substitute the build-time settings now, keeping @DIR@ for the install step
+    set(DIR "@DIR@")
+    configure_file(${TOP_DIRECTORY}/systemd/softether-${component}.service ${BUILD_DIRECTORY}/systemd/softether-${component}.service.in @ONLY)
+    unset(DIR)
+
+    install(CODE "set(DIR \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}\")\nconfigure_file(${BUILD_DIRECTORY}/systemd/softether-${component}.service.in ${BUILD_DIRECTORY}/softether-${component}.service @ONLY)"
       COMPONENT ${component}
     )
 
@@ -134,6 +139,24 @@ if(UNIX)
   if(SE_PIDDIR)
     add_definitions(-DSE_PIDDIR="${SE_PIDDIR}")
   endif()
+
+  # The systemd units only allow writing into the program's own directory.
+  # Let them write into the custom directories too; systemd creates them when
+  # they are under /var/lib, /var/log or /run.
+  set(SE_UNIT_DIRECTORIES "")
+  foreach(SE_DIR IN ITEMS "${SE_DBDIR}" "${SE_LOGDIR}" "${SE_PIDDIR}")
+    string(REGEX REPLACE "/+$" "" SE_DIR "${SE_DIR}")
+    if(SE_DIR MATCHES "^/var/lib/(.+)$")
+      string(APPEND SE_UNIT_DIRECTORIES "StateDirectory=${CMAKE_MATCH_1}\nStateDirectoryMode=0700\n")
+    elseif(SE_DIR MATCHES "^/var/log/(.+)$")
+      string(APPEND SE_UNIT_DIRECTORIES "LogsDirectory=${CMAKE_MATCH_1}\nLogsDirectoryMode=0700\n")
+    elseif(SE_DIR MATCHES "^(/var)?/run/(.+)$")
+      string(APPEND SE_UNIT_DIRECTORIES "RuntimeDirectory=${CMAKE_MATCH_2}\nRuntimeDirectoryMode=0700\nRuntimeDirectoryPreserve=yes\n")
+    elseif(SE_DIR)
+      string(APPEND SE_UNIT_DIRECTORIES "ReadWriteDirectories=-${SE_DIR}\n")
+    endif()
+  endforeach()
+  string(STRIP "${SE_UNIT_DIRECTORIES}" SE_UNIT_DIRECTORIES)
 
   # Use system libraries instead of bundled
   set(USE_SYSTEM_CPU_FEATURES false CACHE BOOL "Use system cpu_features")

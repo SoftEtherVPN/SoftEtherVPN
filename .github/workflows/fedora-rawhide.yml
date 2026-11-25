@@ -26,10 +26,16 @@ jobs:
         submodules: true
     - name: Install dependencies
       run: |
-        dnf -y install git cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel gcc-c++ clang google-cpu_features-devel
+        dnf -y install git cmake ncurses-devel openssl-devel libsodium-devel readline-devel zlib-devel gcc-c++ clang google-cpu_features-devel rpm-build systemd
     - name: Compile with ${{ matrix.cc }}
       run: |
         export CC=${{ matrix.cc }}
-        CMAKE_FLAGS="-DUSE_SYSTEM_CPU_FEATURES=1" CFLAGS="-I/usr/include/cpu_features" ./configure
+        CMAKE_INSTALL_PREFIX=/usr CMAKE_FLAGS="-DUSE_SYSTEM_CPU_FEATURES=1" CFLAGS="-I/usr/include/cpu_features" ./configure
         make -C build
-
+    - name: Build and install RPM packages
+      run: |
+        cd build
+        cpack -G RPM
+        dnf -y install ./softether-*.rpm
+        rpm -V softether-common softether-vpnbridge softether-vpnclient softether-vpncmd softether-vpnserver
+        test -f /usr/lib/systemd/system/softether-vpnserver.service

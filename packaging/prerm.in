@@ -1,0 +1,15 @@
+#!/bin/sh
+# DEB prerm / RPM %preun for softether-@COMPONENT@
+#
+# DEB: $1 = "remove" when the package is being removed, "upgrade" on upgrade
+# RPM: $1 = number of package instances after the transaction (0 = removal)
+
+if [ "$1" = "remove" ] || [ "$1" = "0" ]; then
+	if [ -d /run/systemd/system ]; then
+		systemctl stop softether-@COMPONENT@.service >/dev/null 2>&1 || :
+	fi
+
+	systemctl disable softether-@COMPONENT@.service >/dev/null 2>&1 || :
+fi
+
+exit 0

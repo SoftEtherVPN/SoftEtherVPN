@@ -1,0 +1,16 @@
+#!/bin/sh
+# DEB postinst / RPM %post for softether-@COMPONENT@
+#
+# DEB: $1 = "configure", $2 = previously configured version (empty on first install)
+# RPM: $1 = number of package instances after the transaction (1 = install, >= 2 = upgrade)
+
+if [ -d /run/systemd/system ]; then
+	systemctl daemon-reload >/dev/null 2>&1 || :
+
+	# Restart the service on upgrade, but only if it is running
+	if { [ "$1" = "configure" ] && [ -n "$2" ]; } || { [ "$1" -ge 2 ] 2>/dev/null; }; then
+		systemctl try-restart softether-@COMPONENT@.service >/dev/null 2>&1 || :
+	fi
+fi
+
+exit 0
