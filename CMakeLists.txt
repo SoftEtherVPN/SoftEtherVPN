@@ -25,7 +25,7 @@ project("SoftEther VPN"
   LANGUAGES C
 )
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 
 # Subproject-safe paths: the Android entry (SoftEtherVPN-Android/CMakeLists.txt)
 # adds this root via add_subdirectory; for a plain top-level build CURRENT

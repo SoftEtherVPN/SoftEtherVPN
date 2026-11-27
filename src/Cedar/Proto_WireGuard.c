@@ -6,9 +6,11 @@
 
 #include "Mayaqua/Internat.h"
 #include "Mayaqua/Memory.h"
+#include "Mayaqua/Queue.h"
 #include "Mayaqua/Str.h"
 #include "Mayaqua/Table.h"
 #include "Mayaqua/Tick64.h"
+#include "Mayaqua/UDP.h"
 
 #include <blake2.h>
 
@@ -157,14 +159,15 @@ bool WgsIsPacketForMe(const PROTO_MODE mode, const void *data, const UINT size)
 	return WgsDetectMessageType(data, size);
 }
 
-bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
+bool WgsProcessDatagrams(void *param, QUEUE_MPSC *in, UDP_MANAGER *manager)
 {
-	UINT i;
 	WG_SERVER *server = param;
 	WG_SESSION *session;
 	WG_KEYPAIRS *keypairs;
+	UDP_PACKET *packet;
+	bool data_sent = false;
 
-	if (server == NULL || in == NULL || out == NULL)
+	if (server == NULL || in == NULL || manager == NULL)
 	{
 		return false;
 	}
@@ -201,9 +204,8 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 		}
 	}
 
-	for (i = 0; i < LIST_NUM(in); ++i)
+	while ((packet = QueueMpscPopValue(in)) != NULL)
 	{
-		const UDPPACKET *packet = LIST_DATA(in, i);
 		const UINT size = packet->Size;
 		void *data = packet->Data;
 
@@ -213,7 +215,7 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 		case WG_MSG_HANDSHAKE_INIT:
 		{
 			WG_KEYPAIR *keypair;
-			UDPPACKET *udp_reply;
+			UDP_PACKET *udp_reply;
 			WG_HANDSHAKE_REPLY *reply;
 			BYTE ephemeral_remote[WG_KEY_SIZE];
 
@@ -245,13 +247,13 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 				return false;
 			}
 
-			Copy(&session->IPLocal, &packet->DstIP, sizeof(session->IPLocal));
-			Copy(&session->IPRemote, &packet->SrcIP, sizeof(session->IPRemote));
-			session->PortLocal = packet->DestPort;
-			session->PortRemote = packet->SrcPort;
+			Copy(&session->IPLocal, &packet->LocalIP, sizeof(session->IPLocal));
+			Copy(&session->IPRemote, &packet->RemoteIP, sizeof(session->IPRemote));
+			session->PortLocal = packet->LocalPort;
+			session->PortRemote = packet->RemotePort;
 
-			udp_reply = NewUdpPacket(&session->IPLocal, session->PortLocal, &session->IPRemote, session->PortRemote, reply, sizeof(WG_HANDSHAKE_REPLY));
-			Add(out, udp_reply);
+			udp_reply = UdpPacketNew(reply, sizeof(WG_HANDSHAKE_REPLY), &session->IPLocal, &session->IPRemote, session->PortLocal, session->PortRemote);
+			UdpManagerSend(manager, udp_reply);
 
 			AddInterrupt(server->InterruptManager, keypair->CreationTime + WG_REJECT_AFTER_TIME);
 			break;
@@ -277,6 +279,8 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 			Debug("WgsProcessDatagrams(): unrecognized packet type %u\n", message_type);
 			return false;
 		}
+
+		UdpPacketFree(packet);
 	}
 
 	if (session->IPC == NULL)
@@ -294,7 +298,7 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 
 	while (true)
 	{
-		UDPPACKET *udp;
+		UDP_PACKET *packet;
 		UINT final_size = 0;
 		WG_TRANSPORT_DATA *data;
 		BLOCK *block = IPCRecvIPv4(session->IPC);
@@ -312,11 +316,12 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 			continue;
 		}
 
-		udp = NewUdpPacket(&session->IPLocal, session->PortLocal, &session->IPRemote, session->PortRemote, data, final_size);
-		Add(out, udp);
+		packet = UdpPacketNew(data, final_size, &session->IPLocal, &session->IPRemote, session->PortLocal, session->PortRemote);
+		UdpManagerSend(manager, packet);
+		data_sent = true;
 	}
 
-	if (LIST_NUM(out) > 0)
+	if (data_sent)
 	{
 		session->LastDataSent = server->Now;
 	}
@@ -326,8 +331,8 @@ bool WgsProcessDatagrams(void *param, LIST *in, LIST *out)
 		{
 			UINT final_size = 0;
 			WG_TRANSPORT_DATA *data = WgsCreateTransportData(server, NULL, 0, &final_size);
-			UDPPACKET *udp = NewUdpPacket(&session->IPLocal, session->PortLocal, &session->IPRemote, session->PortRemote, data, final_size);
-			Add(out, udp);
+			UDP_PACKET *packet = UdpPacketNew(data, final_size, &session->IPLocal, &session->IPRemote, session->PortLocal, session->PortRemote);
+			UdpManagerSend(manager, packet);
 
 			Debug("WgsProcessDatagrams(): sending keepalive packet\n");
 
