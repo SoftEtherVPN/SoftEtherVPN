@@ -24,6 +24,7 @@
 #include "Mayaqua/Encrypt.h"
 #include "Mayaqua/FileIO.h"
 #include "Mayaqua/HTTP.h"
+#include "Mayaqua/Internat.h"
 #include "Mayaqua/Mayaqua.h"
 #include "Mayaqua/Memory.h"
 #include "Mayaqua/Microsoft.h"
@@ -34,6 +35,7 @@
 #include "Mayaqua/Win32.h"
 
 #include <sodium.h>
+#include <string.h>
 
 static UINT init_cedar_counter = 0;
 static REF *cedar_log_ref = NULL;
@@ -281,6 +283,83 @@ TINY_LOG *NewTinyLog()
 	return t;
 }
 
+typedef struct
+{
+	IP Address;
+	IP Mask;
+} TLS_FAILURE_QUARANTINE_NETWORK;
+
+static bool ParseTlsFailureQuarantineNetwork(char *entry, TLS_FAILURE_QUARANTINE_NETWORK *network)
+{
+	char *prefix = strchr(entry, '/');
+	if (prefix != NULL)
+	{
+		*prefix++ = '\0';
+		if (IsEmptyStr(prefix) || StrLen(prefix) > 3 || IsNum(prefix) == false)
+		{
+			return false;
+		}
+	}
+
+	if (strchr(entry, '%') != NULL || StrToIP(&network->Address, entry) == false)
+	{
+		return false;
+	}
+
+	bool ipv4 = IsIP4(&network->Address);
+	if (ipv4)
+	{
+		// StrToIP also accepts noncanonical IPv4 inputs. Require a literal address here.
+		char address[sizeof("255.255.255.255")];
+		IPToStr(address, sizeof(address), &network->Address);
+		if (StrCmp(entry, address) != 0)
+		{
+			return false;
+		}
+	}
+
+	UINT width = ipv4 ? 32 : 128;
+	UINT bits = prefix == NULL ? width : ToInt(prefix);
+	if (bits == 0 || bits > width)
+	{
+		return false;
+	}
+	if (ipv4)
+	{
+		IntToSubnetMask4(&network->Mask, bits);
+	}
+	else
+	{
+		IntToSubnetMask6(&network->Mask, bits);
+	}
+	return true;
+}
+
+// Load once, before listener threads can read the list.
+void LoadTlsFailureQuarantineAllowList(CEDAR *c, FOLDER *f)
+{
+	ITEM *item = CfgFindItem(f, "TlsFailureQuarantineAllowList");
+	if (item == NULL || item->Type != ITEM_TYPE_STRING)
+	{
+		return;
+	}
+
+	c->TlsFailureQuarantineAllowList = CopyUniToStr(item->Buf);
+	TOKEN_LIST *tokens = ParseToken(c->TlsFailureQuarantineAllowList, ", \t\r\n");
+	c->TlsFailureQuarantineNetworks = NewListFast(NULL);
+	for (UINT i = 0; i < tokens->NumTokens; i++)
+	{
+		TLS_FAILURE_QUARANTINE_NETWORK network;
+		if (ParseTlsFailureQuarantineNetwork(tokens->Token[i], &network))
+		{
+			TLS_FAILURE_QUARANTINE_NETWORK *stored = Malloc(sizeof(network));
+			*stored = network;
+			Add(c->TlsFailureQuarantineNetworks, stored);
+		}
+	}
+	FreeToken(tokens);
+}
+
 // Compare entries of No-SSL connection list
 int CompareNoSslList(void *p1, void *p2)
 {
@@ -359,6 +438,15 @@ bool AddNoSsl(CEDAR *c, IP *ip)
 	if (c == NULL || ip == NULL)
 	{
 		return true;
+	}
+
+	for (UINT i = 0; i < LIST_NUM(c->TlsFailureQuarantineNetworks); i++)
+	{
+		TLS_FAILURE_QUARANTINE_NETWORK *network = LIST_DATA(c->TlsFailureQuarantineNetworks, i);
+		if (IsInSameNetwork(ip, &network->Address, &network->Mask))
+		{
+			return true;
+		}
 	}
 
 	LockList(c->NonSslList);
@@ -478,6 +566,12 @@ void FreeNoSslList(CEDAR *c)
 
 	ReleaseList(c->NonSslList);
 	c->NonSslList = NULL;
+	for (i = 0; i < LIST_NUM(c->TlsFailureQuarantineNetworks); i++)
+	{
+		Free(LIST_DATA(c->TlsFailureQuarantineNetworks, i));
+	}
+	ReleaseList(c->TlsFailureQuarantineNetworks);
+	Free(c->TlsFailureQuarantineAllowList);
 }
 
 // Start Cedar log

@@ -5787,6 +5787,7 @@ void SiLoadServerCfg(SERVER *s, FOLDER *f)
 
 		// DoS
 		s->DisableDosProtection = CfgGetBool(f, "DisableDosProtection");
+		LoadTlsFailureQuarantineAllowList(s->Cedar, f);
 
 		// Num Connections Per IP
 		SetMaxConnectionsPerIp(CfgGetInt(f, "MaxConnectionsPerIP"));
@@ -6219,6 +6220,10 @@ void SiWriteServerCfg(FOLDER *f, SERVER *s)
 
 		// DoS
 		CfgAddBool(f, "DisableDosProtection", s->DisableDosProtection);
+		if (s->Cedar->TlsFailureQuarantineAllowList != NULL)
+		{
+			CfgAddStr(f, "TlsFailureQuarantineAllowList", s->Cedar->TlsFailureQuarantineAllowList);
+		}
 
 		// MaxConnectionsPerIP
 		CfgAddInt(f, "MaxConnectionsPerIP", GetMaxConnectionsPerIp());
