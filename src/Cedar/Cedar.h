@@ -971,6 +971,8 @@ struct CEDAR
 	COUNTER *AssignedBridgeLicense;	// Number of assigned bridge licenses
 	UINT64 LicenseViolationTick;	// License violation occurs
 	LIST *NonSslList;				// Non-SSL connection list
+	LIST *TlsFailureQuarantineNetworks;	// Trusted networks loaded before listeners start
+	char *TlsFailureQuarantineAllowList;	// Configured list for saving the server configuration
 	struct WEBUI *WebUI;			// Data for WebUI service
 	UINT Beta;						// Beta number
 	LOCK *CedarSuperLock;			// Cedar super lock!
@@ -1043,6 +1045,7 @@ void StopCedarLog();
 int CompareNoSslList(void *p1, void *p2);
 void InitNoSslList(CEDAR *c);
 void FreeNoSslList(CEDAR *c);
+void LoadTlsFailureQuarantineAllowList(CEDAR *c, FOLDER *f);
 bool AddNoSsl(CEDAR *c, IP *ip);
 void DecrementNoSsl(CEDAR *c, IP *ip, UINT num_dec);
 void DeleteOldNoSsl(CEDAR *c);

@@ -227,6 +227,16 @@ There are two flavours of SoftEtherVPN source code:
 1. Unstable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN
 2. Stable. Found under https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
 
+## VPN Server TLS-failure quarantine
+
+The VPN Server can temporarily reject new connections from a source after repeated TLS handshake failures. To exempt trusted source addresses from this quarantine, stop the server and add this setting inside `ServerConfiguration` in `vpn_server.config` before starting the service again.
+
+```text
+string TlsFailureQuarantineAllowList 203.0.113.10,2001:db8:1234::/48
+```
+
+Supply comma-separated IPv4 or IPv6 literals or CIDRs. CIDR prefixes range from 1 to 32 for IPv4 and 1 to 128 for IPv6. Invalid entries are ignored. The list defaults to empty. Use individual addresses or narrow networks that you control. TLS, VPN authentication, and the listener's other DoS checks and connection limits still apply to these sources.
+
 
 # About HTML5-based Modern Admin Console and JSON-RPC API Suite
 
