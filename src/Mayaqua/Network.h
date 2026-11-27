@@ -126,6 +126,13 @@ struct IPV6_ADDR
 #define	IPV6_ADDR_ZERO							128	// All zeros
 #define	IPV6_ADDR_LOOPBACK						256	// Loop-back
 
+// IP + port
+struct IP_PORT
+{
+	IP Ip;
+	USHORT port;
+};
+
 // Client list
 struct IP_CLIENT
 {
@@ -499,7 +506,6 @@ struct UDPLISTENER
 	bool Halt;							// Halting flag
 	SOCK_EVENT *Event;					// Event
 	THREAD *Thread;						// Thread
-	LIST *PortList;						// Port list
 	LIST *SockList;						// Socket list
 	UINT64 LastCheckTick;				// Time which the socket list was checked last
 	UDPLISTENER_RECV_PROC *RecvProc;	// Receive procedure
@@ -511,7 +517,6 @@ struct UDPLISTENER
 	bool IsEspRawPortOpened;			// Whether the raw port opens
 	bool PollMyIpAndPort;				// Examine whether the global IP and the port number of its own
 	QUERYIPTHREAD *GetNatTIpThread;		// NAT-T IP address acquisition thread
-	IP ListenIP;						// Listen IP
 };
 
 #define	QUERYIPTHREAD_INTERVAL_LAST_OK	(3 * 60 * 60 * 1000)
@@ -1378,8 +1383,7 @@ void AddHostIPAddressToList(LIST *o, IP *ip);
 int CmpIpAddressList(void *p1, void *p2);
 UINT64 GetHostIPAddressListHash();
 
-UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip);
-UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type);
+UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param);
 void UdpListenerThread(THREAD *thread, void *param);
 void StopUdpListener(UDPLISTENER *u);
 void FreeUdpListener(UDPLISTENER *u);

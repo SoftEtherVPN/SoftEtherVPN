@@ -18938,12 +18938,7 @@ void UdpListenerSendPackets(UDPLISTENER *u, LIST *packet_list)
 }
 
 // Creating a UDP listener
-UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip)
-{
-	return NewUdpListenerEx(recv_proc, param, listen_ip, INFINITE);
-}
-
-UDPLISTENER *NewUdpListenerEx(UDPLISTENER_RECV_PROC *recv_proc, void *param, IP *listen_ip, UINT packet_type)
+UDPLISTENER *NewUdpListener(UDPLISTENER_RECV_PROC *recv_proc, void *param)
 {
 	UDPLISTENER *u;
 	// Validate arguments

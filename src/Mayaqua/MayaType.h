@@ -349,6 +349,7 @@ typedef struct LANGLIST LANGLIST;
 
 // Network.h
 typedef struct IP IP;
+typedef struct IP_PORT IP_PORT;
 typedef struct SOCK_EVENT SOCK_EVENT;
 typedef struct SOCK SOCK;
 typedef struct SOCKSET SOCKSET;
